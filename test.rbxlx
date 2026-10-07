@@ -1,0 +1,1572 @@
+<roblox version="4">
+  <Item class="ReplicatedStorage" referent="0">
+    <Properties>
+      <string name="Name">ReplicatedStorage</string>
+    </Properties>
+    <Item class="Folder" referent="1">
+      <Properties>
+        <string name="Name">FashionGame</string>
+      </Properties>
+      <Item class="Folder" referent="2">
+        <Properties>
+          <string name="Name">Remotes</string>
+        </Properties>
+        <Item class="RemoteFunction" referent="3">
+          <Properties>
+            <string name="Name">CatalogSearch</string>
+          </Properties>
+        </Item>
+        <Item class="RemoteFunction" referent="4">
+          <Properties>
+            <string name="Name">TryOnItem</string>
+          </Properties>
+        </Item>
+      </Item>
+      <Item class="Folder" referent="5">
+        <Properties>
+          <string name="Name">Shared</string>
+        </Properties>
+        <Item class="ModuleScript" referent="6">
+          <Properties>
+            <string name="Name">CatalogConfig</string>
+            <string name="Source"><![CDATA[--!strict
+
+local CatalogConfig = {}
+
+-- Roblox CatalogSearchParams.Limit 허용값:
+-- 10, 28, 30, 60, 120
+CatalogConfig.SearchLimit = 28
+
+CatalogConfig.DefaultKeyword = ""
+
+CatalogConfig.AllowedAssetTypes = {
+	Enum.AvatarAssetType.Hat,
+	Enum.AvatarAssetType.HairAccessory,
+	Enum.AvatarAssetType.FaceAccessory,
+	Enum.AvatarAssetType.NeckAccessory,
+	Enum.AvatarAssetType.ShoulderAccessory,
+	Enum.AvatarAssetType.FrontAccessory,
+	Enum.AvatarAssetType.BackAccessory,
+	Enum.AvatarAssetType.WaistAccessory,
+
+	Enum.AvatarAssetType.Shirt,
+	Enum.AvatarAssetType.Pants,
+	Enum.AvatarAssetType.TShirt,
+}
+
+return CatalogConfig
+]]></string>
+          </Properties>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="ServerScriptService" referent="7">
+    <Properties>
+      <string name="Name">ServerScriptService</string>
+    </Properties>
+    <Item class="Folder" referent="8">
+      <Properties>
+        <string name="Name">FashionGame</string>
+      </Properties>
+      <Item class="Script" referent="9">
+        <Properties>
+          <string name="Name">ServerMain</string>
+          <token name="RunContext">0</token>
+          <string name="Source"><![CDATA[--!strict
+
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
+local Remotes = FashionGame:WaitForChild("Remotes")
+
+local CatalogSearch = Remotes:WaitForChild("CatalogSearch")
+local TryOnItem = Remotes:WaitForChild("TryOnItem")
+
+local AvatarService = require(
+	script.Parent.Services.AvatarService
+)
+
+CatalogSearch.OnServerInvoke = function(
+	player: Player,
+	keyword: string
+)
+	return false, "Catalog search runs on the client."
+end
+
+TryOnItem.OnServerInvoke = function(
+	player: Player,
+	action: string,
+	assetId: number
+)
+	if action == "Wear" then
+		print("[FashionGame][Server] Wear received", player.Name, assetId)
+
+		local result, message = AvatarService.TryOnItem(
+			player,
+			assetId
+		)
+
+		print("[FashionGame][Server] Wear finished", result, message)
+
+		return result, message
+	end
+
+	if action == "Remove" then
+		return AvatarService.RemoveItem(
+			player,
+			assetId
+		)
+	end
+
+	if action == "GetCurrent" then
+		return true, AvatarService.GetCurrentItems(player)
+	end
+
+	return false, "Invalid avatar action."
+end
+
+print("[FashionGame] Server initialized.")
+]]></string>
+        </Properties>
+      </Item>
+      <Item class="Folder" referent="10">
+        <Properties>
+          <string name="Name">Services</string>
+        </Properties>
+        <Item class="ModuleScript" referent="11">
+          <Properties>
+            <string name="Name">AvatarService</string>
+            <string name="Source">--!strict
+
+local MarketplaceService = game:GetService("MarketplaceService")
+local AvatarEditorService = game:GetService("AvatarEditorService")
+
+local AvatarService = {}
+
+local MAX_ACCESSORIES = 20
+
+--------------------------------------------------
+-- RIGID ACCESSORY TYPES
+--------------------------------------------------
+
+local RIGID_ACCESSORY_TYPES = {
+	Hat = true,
+	Hair = true,
+	Face = true,
+	Neck = true,
+	Shoulder = true,
+	Front = true,
+	Back = true,
+	Waist = true,
+}
+
+--------------------------------------------------
+-- LAYERED ACCESSORY TYPES
+--------------------------------------------------
+
+local LAYERED_ACCESSORY_TYPES = {
+	TShirt = true,
+	Shirt = true,
+	Pants = true,
+	Jacket = true,
+	Sweater = true,
+	Shorts = true,
+	LeftShoe = true,
+	RightShoe = true,
+	DressSkirt = true,
+}
+
+--------------------------------------------------
+-- ASSET TYPE → ACCESSORY TYPE
+--------------------------------------------------
+
+local ASSET_TYPE_TO_ACCESSORY_TYPE = {
+	-- Classic
+	[8] = "Hat",
+
+	-- Rigid accessories
+	[41] = "Hair",
+	[42] = "Face",
+	[43] = "Neck",
+	[44] = "Shoulder",
+	[45] = "Front",
+	[46] = "Back",
+	[47] = "Waist",
+
+	-- Layered clothing
+	[64] = "TShirt",
+	[65] = "Shirt",
+	[66] = "Pants",
+	[67] = "Jacket",
+	[68] = "Sweater",
+	[69] = "Shorts",
+	[70] = "LeftShoe",
+	[71] = "RightShoe",
+	[72] = "DressSkirt",
+}
+
+--------------------------------------------------
+-- CLASSIC CLOTHING
+--------------------------------------------------
+
+local CLASSIC_ASSET_TYPES = {
+	[2] = "TShirt",
+	[11] = "Shirt",
+	[12] = "Pants",
+}
+
+--------------------------------------------------
+-- HUMANOID
+--------------------------------------------------
+
+local function getHumanoid(player: Player): Humanoid?
+	local character = player.Character
+
+	if not character then
+		return nil
+	end
+
+	return character:FindFirstChildOfClass("Humanoid")
+end
+
+--------------------------------------------------
+-- ASSET INFO
+--------------------------------------------------
+
+local function getAssetInfo(assetId: number)
+	local success, result = pcall(function()
+		return MarketplaceService:GetProductInfoAsync(
+			assetId,
+			Enum.InfoType.Asset
+		)
+	end)
+
+	if not success then
+		warn(
+			"[AvatarService] GetProductInfo failed:",
+			result
+		)
+
+		return nil
+	end
+
+	return result
+end
+
+--------------------------------------------------
+-- REMOVE SAME ACCESSORY TYPE
+--------------------------------------------------
+
+local function removeAccessoryType(
+	description: HumanoidDescription,
+	accessoryType: Enum.AccessoryType
+)
+	local accessories = description:GetAccessories(true)
+
+	local filtered = {}
+
+	for _, accessory in ipairs(accessories) do
+		if accessory.AccessoryType ~= accessoryType then
+			table.insert(filtered, accessory)
+		end
+	end
+
+	description:SetAccessories(
+		filtered,
+		true
+	)
+end
+
+--------------------------------------------------
+-- APPLY DESCRIPTION
+--------------------------------------------------
+
+local function applyDescription(
+	humanoid: Humanoid,
+	description: HumanoidDescription
+): (boolean, string)
+	--------------------------------------------------
+	-- Conform
+	--------------------------------------------------
+
+	local conformSuccess, conformedDescription = pcall(function()
+		return AvatarEditorService:ConformToAvatarRulesAsync(
+			description
+		)
+	end)
+
+	if conformSuccess and conformedDescription then
+		description = conformedDescription
+	end
+
+	--------------------------------------------------
+	-- Apply
+	--------------------------------------------------
+
+	local success, err = pcall(function()
+		humanoid:ApplyDescriptionResetAsync(
+			description,
+			Enum.AssetTypeVerification.Default
+		)
+	end)
+
+	if not success then
+		warn(
+			"[AvatarService] ApplyDescription failed:",
+			err
+		)
+
+		return false, "Failed to apply item."
+	end
+
+	return true, "Item equipped."
+end
+
+--------------------------------------------------
+-- GET CURRENT ITEMS
+--------------------------------------------------
+
+function AvatarService.GetCurrentItems(
+	player: Player
+)
+	local humanoid = getHumanoid(player)
+
+	if not humanoid then
+		return {}
+	end
+
+	local description = humanoid:GetAppliedDescription()
+
+	local result = {}
+
+	--------------------------------------------------
+	-- Classic clothing
+	--------------------------------------------------
+
+	if description.GraphicTShirt ~= 0 then
+		table.insert(result, {
+			AssetId = description.GraphicTShirt,
+			Category = "TShirt",
+		})
+	end
+
+	if description.Shirt ~= 0 then
+		table.insert(result, {
+			AssetId = description.Shirt,
+			Category = "Shirt",
+		})
+	end
+
+	if description.Pants ~= 0 then
+		table.insert(result, {
+			AssetId = description.Pants,
+			Category = "Pants",
+		})
+	end
+
+	--------------------------------------------------
+	-- Accessories
+	--------------------------------------------------
+
+	for _, accessory in ipairs(
+		description:GetAccessories(true)
+		) do
+		table.insert(result, {
+			AssetId = accessory.AssetId,
+			Category = accessory.AccessoryType.Name,
+			IsLayered = accessory.IsLayered,
+		})
+	end
+
+	return result
+end
+
+--------------------------------------------------
+-- WEAR ITEM
+--------------------------------------------------
+
+function AvatarService.TryOnItem(
+	player: Player,
+	assetId: number
+): (boolean, string)
+	--------------------------------------------------
+	-- Validate ID
+	--------------------------------------------------
+
+	if typeof(assetId) ~= "number" then
+		return false, "Invalid asset ID."
+	end
+
+	if assetId &lt;= 0 or assetId % 1 ~= 0 then
+		return false, "Invalid asset ID."
+	end
+
+	--------------------------------------------------
+	-- Character
+	--------------------------------------------------
+
+	local humanoid = getHumanoid(player)
+
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+
+	--------------------------------------------------
+	-- Asset information
+	--------------------------------------------------
+
+	local info = getAssetInfo(assetId)
+
+	if not info then
+		return false, "Unable to load item information."
+	end
+
+	local assetTypeId = info.AssetTypeId
+
+	if typeof(assetTypeId) ~= "number" then
+		return false, "Invalid asset type."
+	end
+
+	--------------------------------------------------
+	-- Classic clothing
+	--------------------------------------------------
+
+	local classicType = CLASSIC_ASSET_TYPES[assetTypeId]
+
+	if classicType then
+		local description = humanoid:GetAppliedDescription()
+
+		if assetTypeId == 2 then
+			description.GraphicTShirt = assetId
+
+		elseif assetTypeId == 11 then
+			description.Shirt = assetId
+
+		elseif assetTypeId == 12 then
+			description.Pants = assetId
+		end
+
+		return applyDescription(
+			humanoid,
+			description
+		)
+	end
+
+	--------------------------------------------------
+	-- Accessory type
+	--------------------------------------------------
+
+	local accessoryTypeName =
+		ASSET_TYPE_TO_ACCESSORY_TYPE[assetTypeId]
+
+	if not accessoryTypeName then
+		return false, "This item type is not supported yet."
+	end
+
+	--------------------------------------------------
+	-- Determine rigid / layered
+	--------------------------------------------------
+
+	local isRigid =
+		RIGID_ACCESSORY_TYPES[accessoryTypeName] == true
+
+	local isLayered =
+		LAYERED_ACCESSORY_TYPES[accessoryTypeName] == true
+
+	if not isRigid and not isLayered then
+		return false, "Unsupported accessory type."
+	end
+
+	--------------------------------------------------
+	-- Enum.AccessoryType
+	--------------------------------------------------
+
+	local accessoryType =
+		Enum.AccessoryType[accessoryTypeName]
+
+	if not accessoryType then
+		return false, "Invalid accessory type."
+	end
+
+	--------------------------------------------------
+	-- Current description
+	--------------------------------------------------
+
+	local description =
+		humanoid:GetAppliedDescription()
+
+
+
+	--------------------------------------------------
+	-- Existing accessories
+	--------------------------------------------------
+
+	local accessories =
+		description:GetAccessories(true)
+
+	--------------------------------------------------
+	-- Already wearing this exact item?
+	--------------------------------------------------
+
+	for _, accessory in ipairs(accessories) do
+		if accessory.AssetId == assetId then
+			return true, "Item already equipped."
+		end
+	end
+
+	if #accessories &gt;= MAX_ACCESSORIES then
+		return false, "Too many accessories."
+	end
+
+	--------------------------------------------------
+	-- ADD NEW ACCESSORY
+	--
+	-- VERY IMPORTANT:
+	--
+	-- RIGID:
+	--     AssetId
+	--     AccessoryType
+	--
+	-- LAYERED:
+	--     AssetId
+	--     AccessoryType
+	--     IsLayered = true
+	--     Order
+	--------------------------------------------------
+
+	if isRigid then
+
+		table.insert(
+			accessories,
+			{
+				AssetId = assetId,
+				AccessoryType = accessoryType,
+			}
+		)
+
+	elseif isLayered then
+
+		table.insert(
+			accessories,
+			{
+				AssetId = assetId,
+				AccessoryType = accessoryType,
+				IsLayered = true,
+				Order = 1,
+			}
+		)
+
+	end
+
+	--------------------------------------------------
+	-- Apply accessory list
+	--------------------------------------------------
+
+	description:SetAccessories(
+		accessories,
+		true
+	)
+
+	--------------------------------------------------
+	-- Apply to character
+	--------------------------------------------------
+
+	return applyDescription(
+		humanoid,
+		description
+	)
+end
+
+--------------------------------------------------
+-- REMOVE ITEM
+--------------------------------------------------
+
+function AvatarService.RemoveItem(
+	player: Player,
+	assetId: number
+): (boolean, string)
+
+	if typeof(assetId) ~= "number" then
+		return false, "Invalid asset ID."
+	end
+
+	local humanoid = getHumanoid(player)
+
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+
+	local description =
+		humanoid:GetAppliedDescription()
+
+	--------------------------------------------------
+	-- Classic T-Shirt
+	--------------------------------------------------
+
+	if description.GraphicTShirt == assetId then
+
+		description.GraphicTShirt = 0
+
+		return applyDescription(
+			humanoid,
+			description
+		)
+	end
+
+	--------------------------------------------------
+	-- Shirt
+	--------------------------------------------------
+
+	if description.Shirt == assetId then
+
+		description.Shirt = 0
+
+		return applyDescription(
+			humanoid,
+			description
+		)
+	end
+
+	--------------------------------------------------
+	-- Pants
+	--------------------------------------------------
+
+	if description.Pants == assetId then
+
+		description.Pants = 0
+
+		return applyDescription(
+			humanoid,
+			description
+		)
+	end
+
+	--------------------------------------------------
+	-- Accessories
+	--------------------------------------------------
+
+	local accessories =
+		description:GetAccessories(true)
+
+	local filtered = {}
+
+	local removed = false
+
+	for _, accessory in ipairs(accessories) do
+
+		if accessory.AssetId == assetId then
+			removed = true
+		else
+			table.insert(
+				filtered,
+				accessory
+			)
+		end
+
+	end
+
+	if not removed then
+		return false, "Item is not currently worn."
+	end
+
+	description:SetAccessories(
+		filtered,
+		true
+	)
+
+	return applyDescription(
+		humanoid,
+		description
+	)
+end
+
+return AvatarService</string>
+          </Properties>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
+  <Item class="StarterPlayer" referent="12">
+    <Properties>
+      <string name="Name">StarterPlayer</string>
+    </Properties>
+    <Item class="StarterPlayerScripts" referent="13">
+      <Properties>
+        <string name="Name">StarterPlayerScripts</string>
+      </Properties>
+      <Item class="Folder" referent="14">
+        <Properties>
+          <string name="Name">FashionGame</string>
+        </Properties>
+        <Item class="LocalScript" referent="15">
+          <Properties>
+            <string name="Name">CatalogController</string>
+            <string name="Source"><![CDATA[--!strict
+
+local Players = game:GetService("Players")
+local AvatarEditorService = game:GetService("AvatarEditorService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local player = Players.LocalPlayer
+
+local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
+local Remotes = FashionGame:WaitForChild("Remotes")
+
+local TryOnItem = Remotes:WaitForChild("TryOnItem")
+
+local Config = require(
+	FashionGame:WaitForChild("Shared"):WaitForChild("CatalogConfig")
+)
+
+local playerGui = player:WaitForChild("PlayerGui")
+
+--------------------------------------------------
+-- STATE
+--------------------------------------------------
+
+local currentCategory = "All"
+local currentKeyword = ""
+
+local currentWornItems: {[number]: boolean} = {}
+
+local searchBusy = false
+local actionBusy = false
+
+--------------------------------------------------
+-- CATEGORY CONFIG
+--------------------------------------------------
+
+local CATEGORIES = {
+	{
+		Name = "All",
+		AssetTypes = nil,
+	},
+
+	{
+		Name = "Hair",
+		AssetTypes = {
+			Enum.AvatarAssetType.HairAccessory,
+		},
+	},
+
+	{
+		Name = "Face",
+		AssetTypes = {
+			Enum.AvatarAssetType.FaceAccessory,
+		},
+	},
+
+	{
+		Name = "Accessories",
+		AssetTypes = {
+			Enum.AvatarAssetType.Hat,
+			Enum.AvatarAssetType.NeckAccessory,
+			Enum.AvatarAssetType.ShoulderAccessory,
+			Enum.AvatarAssetType.FrontAccessory,
+			Enum.AvatarAssetType.BackAccessory,
+			Enum.AvatarAssetType.WaistAccessory,
+		},
+	},
+
+	{
+		Name = "Clothing",
+		AssetTypes = {
+			Enum.AvatarAssetType.TShirt,
+			Enum.AvatarAssetType.Shirt,
+			Enum.AvatarAssetType.Pants,
+		},
+	},
+}
+
+--------------------------------------------------
+-- UTILITY
+--------------------------------------------------
+
+local function create(
+	className: string,
+	properties: {[string]: any}?
+)
+	local object = Instance.new(className)
+
+	if properties then
+		for property, value in pairs(properties) do
+			object[property] = value
+		end
+	end
+
+	return object
+end
+
+local function clearContainer(container: Instance)
+	for _, child in ipairs(container:GetChildren()) do
+		child:Destroy()
+	end
+end
+
+local function formatPrice(price: any): string
+	if typeof(price) ~= "number" then
+		return "Off Sale"
+	end
+
+	if price <= 0 then
+		return "Free"
+	end
+
+	return tostring(price) .. " R$"
+end
+
+--------------------------------------------------
+-- SCREEN GUI
+--------------------------------------------------
+
+local screenGui = create("ScreenGui", {
+	Name = "FashionCatalogGui",
+	ResetOnSpawn = false,
+	IgnoreGuiInset = true,
+	DisplayOrder = 20,
+})
+
+screenGui.Parent = playerGui
+
+--------------------------------------------------
+-- OPEN BUTTON
+--------------------------------------------------
+
+local openButton = create("TextButton", {
+	Name = "CatalogButton",
+
+	Size = UDim2.fromOffset(130, 44),
+	Position = UDim2.new(0, 24, 1, -68),
+
+	BackgroundColor3 = Color3.fromRGB(35, 35, 42),
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+
+	Text = "CATALOG",
+	TextSize = 16,
+	Font = Enum.Font.GothamBold,
+
+	AutoButtonColor = true,
+})
+
+openButton.Parent = screenGui
+
+local openCorner = create("UICorner", {
+	CornerRadius = UDim.new(0, 10),
+})
+
+openCorner.Parent = openButton
+
+--------------------------------------------------
+-- MAIN FRAME
+--------------------------------------------------
+
+local mainFrame = create("Frame", {
+	Name = "MainFrame",
+
+	Size = UDim2.new(0, 760, 0, 620),
+	Position = UDim2.new(0.5, -380, 0.5, -310),
+
+	BackgroundColor3 = Color3.fromRGB(24, 24, 30),
+
+	Visible = false,
+})
+
+mainFrame.Parent = screenGui
+
+local mainCorner = create("UICorner", {
+	CornerRadius = UDim.new(0, 14),
+})
+
+mainCorner.Parent = mainFrame
+
+--------------------------------------------------
+-- TITLE
+--------------------------------------------------
+
+local titleLabel = create("TextLabel", {
+	Name = "Title",
+
+	Size = UDim2.new(1, -120, 0, 48),
+	Position = UDim2.fromOffset(20, 10),
+
+	BackgroundTransparency = 1,
+
+	Text = "CATALOG",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+
+	TextSize = 22,
+	Font = Enum.Font.GothamBold,
+
+	TextXAlignment = Enum.TextXAlignment.Left,
+})
+
+titleLabel.Parent = mainFrame
+
+--------------------------------------------------
+-- CLOSE
+--------------------------------------------------
+
+local closeButton = create("TextButton", {
+	Name = "CloseButton",
+
+	Size = UDim2.fromOffset(40, 40),
+	Position = UDim2.new(1, -52, 0, 12),
+
+	BackgroundColor3 = Color3.fromRGB(55, 55, 65),
+
+	Text = "×",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+
+	TextSize = 26,
+	Font = Enum.Font.GothamBold,
+})
+
+closeButton.Parent = mainFrame
+
+local closeCorner = create("UICorner", {
+	CornerRadius = UDim.new(0, 8),
+})
+
+closeCorner.Parent = closeButton
+
+--------------------------------------------------
+-- SEARCH BOX
+--------------------------------------------------
+
+local searchBox = create("TextBox", {
+	Name = "SearchBox",
+
+	Size = UDim2.new(1, -180, 0, 40),
+	Position = UDim2.fromOffset(20, 66),
+
+	BackgroundColor3 = Color3.fromRGB(40, 40, 48),
+
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	PlaceholderColor3 = Color3.fromRGB(150, 150, 160),
+
+	PlaceholderText = "Search Roblox catalog...",
+	Text = "",
+
+	TextSize = 15,
+	Font = Enum.Font.Gotham,
+
+	ClearTextOnFocus = false,
+})
+
+searchBox.Parent = mainFrame
+
+local searchCorner = create("UICorner", {
+	CornerRadius = UDim.new(0, 8),
+})
+
+searchCorner.Parent = searchBox
+
+--------------------------------------------------
+-- SEARCH BUTTON
+--------------------------------------------------
+
+local searchButton = create("TextButton", {
+	Name = "SearchButton",
+
+	Size = UDim2.fromOffset(120, 40),
+	Position = UDim2.new(1, -140, 0, 66),
+
+	BackgroundColor3 = Color3.fromRGB(70, 70, 85),
+
+	Text = "SEARCH",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+
+	TextSize = 14,
+	Font = Enum.Font.GothamBold,
+})
+
+searchButton.Parent = mainFrame
+
+local searchButtonCorner = create("UICorner", {
+	CornerRadius = UDim.new(0, 8),
+})
+
+searchButtonCorner.Parent = searchButton
+
+--------------------------------------------------
+-- CATEGORY BAR
+--------------------------------------------------
+
+local categoryBar = create("ScrollingFrame", {
+	Name = "CategoryBar",
+
+	Size = UDim2.new(1, -40, 0, 42),
+	Position = UDim2.fromOffset(20, 116),
+
+	BackgroundTransparency = 1,
+
+	CanvasSize = UDim2.new(0, 0, 0, 0),
+
+	AutomaticCanvasSize = Enum.AutomaticSize.X,
+
+	ScrollingDirection = Enum.ScrollingDirection.X,
+
+	ScrollBarThickness = 0,
+})
+
+categoryBar.Parent = mainFrame
+
+local categoryLayout = create("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal,
+
+	Padding = UDim.new(0, 8),
+
+	VerticalAlignment = Enum.VerticalAlignment.Center,
+})
+
+categoryLayout.Parent = categoryBar
+
+--------------------------------------------------
+-- STATUS
+--------------------------------------------------
+
+local statusLabel = create("TextLabel", {
+	Name = "Status",
+
+	Size = UDim2.new(1, -40, 0, 30),
+	Position = UDim2.fromOffset(20, 158),
+
+	BackgroundTransparency = 1,
+
+	Text = "Ready",
+
+	TextColor3 = Color3.fromRGB(170, 170, 180),
+
+	TextSize = 13,
+	Font = Enum.Font.Gotham,
+
+	TextXAlignment = Enum.TextXAlignment.Left,
+})
+
+statusLabel.Parent = mainFrame
+
+--------------------------------------------------
+-- RESULTS
+--------------------------------------------------
+
+local resultsFrame = create("ScrollingFrame", {
+	Name = "Results",
+
+	Size = UDim2.new(1, -40, 1, -205),
+	Position = UDim2.fromOffset(20, 190),
+
+	BackgroundTransparency = 1,
+
+	BorderSizePixel = 0,
+
+	CanvasSize = UDim2.new(0, 0, 0, 0),
+
+	AutomaticCanvasSize = Enum.AutomaticSize.Y,
+
+	ScrollingDirection = Enum.ScrollingDirection.Y,
+
+	ScrollBarThickness = 6,
+})
+
+resultsFrame.Parent = mainFrame
+
+local grid = create("UIGridLayout", {
+	CellSize = UDim2.fromOffset(165, 230),
+
+	CellPadding = UDim2.fromOffset(10, 10),
+
+	SortOrder = Enum.SortOrder.LayoutOrder,
+})
+
+grid.Parent = resultsFrame
+
+--------------------------------------------------
+-- CATEGORY BUTTONS
+--------------------------------------------------
+
+local categoryButtons: {[string]: TextButton} = {}
+
+local function updateCategoryVisuals()
+	for name, button in pairs(categoryButtons) do
+		if name == currentCategory then
+			button.BackgroundColor3 = Color3.fromRGB(105, 85, 160)
+		else
+			button.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+		end
+	end
+end
+
+--------------------------------------------------
+-- CURRENT WORN ITEMS
+--------------------------------------------------
+
+local function refreshWornItems()
+	local success, serverSuccess, result = pcall(function()
+		return TryOnItem:InvokeServer(
+			"GetCurrent",
+			0
+		)
+	end)
+
+	if not success then
+		warn("[FashionGame] GetCurrent failed:", serverSuccess)
+		return
+	end
+
+	if serverSuccess ~= true then
+		warn("[FashionGame] GetCurrent rejected:", result)
+		return
+	end
+
+	if typeof(result) ~= "table" then
+		warn("[FashionGame] GetCurrent returned invalid data.")
+		return
+	end
+
+	currentWornItems = {}
+
+	for _, item in ipairs(result) do
+		if typeof(item) == "table" then
+			local assetId = item.AssetId
+
+			if typeof(assetId) == "number" then
+				currentWornItems[assetId] = true
+			end
+		end
+	end
+end
+
+--------------------------------------------------
+-- CATEGORY LOOKUP
+--------------------------------------------------
+
+local function getCategoryAssetTypes()
+	for _, category in ipairs(CATEGORIES) do
+		if category.Name == currentCategory then
+			return category.AssetTypes
+		end
+	end
+
+	return nil
+end
+
+--------------------------------------------------
+-- CARD
+--------------------------------------------------
+
+local function createItemCard(item: any, layoutOrder: number)
+	local assetId = item.Id
+
+	if typeof(assetId) ~= "number" then
+		return
+	end
+
+	local card = create("Frame", {
+		Name = "Item_" .. tostring(assetId),
+
+		BackgroundColor3 = Color3.fromRGB(36, 36, 44),
+
+		LayoutOrder = layoutOrder,
+	})
+
+	card.Parent = resultsFrame
+
+	local cardCorner = create("UICorner", {
+		CornerRadius = UDim.new(0, 10),
+	})
+
+	cardCorner.Parent = card
+
+	--------------------------------------------------
+	-- THUMBNAIL
+	--------------------------------------------------
+
+	local thumbnail = create("ImageLabel", {
+		Name = "Thumbnail",
+
+		Size = UDim2.new(1, -12, 0, 145),
+		Position = UDim2.fromOffset(6, 6),
+
+		BackgroundColor3 = Color3.fromRGB(28, 28, 34),
+
+		BorderSizePixel = 0,
+
+		Image = "rbxthumb://type=Asset&id="
+			.. tostring(assetId)
+			.. "&w=420&h=420",
+
+		ScaleType = Enum.ScaleType.Fit,
+	})
+
+	thumbnail.Parent = card
+
+	local thumbnailCorner = create("UICorner", {
+		CornerRadius = UDim.new(0, 8),
+	})
+
+	thumbnailCorner.Parent = thumbnail
+
+	--------------------------------------------------
+	-- NAME
+	--------------------------------------------------
+
+	local nameLabel = create("TextLabel", {
+		Name = "Name",
+
+		Size = UDim2.new(1, -16, 0, 32),
+		Position = UDim2.fromOffset(8, 155),
+
+		BackgroundTransparency = 1,
+
+		Text = tostring(item.Name or "Unknown Item"),
+
+		TextColor3 = Color3.fromRGB(245, 245, 245),
+
+		TextSize = 13,
+		Font = Enum.Font.GothamMedium,
+
+		TextWrapped = true,
+
+		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = Enum.TextYAlignment.Center,
+	})
+
+	nameLabel.Parent = card
+
+	--------------------------------------------------
+	-- PRICE
+	--------------------------------------------------
+
+	local priceLabel = create("TextLabel", {
+		Name = "Price",
+
+		Size = UDim2.new(1, -16, 0, 22),
+		Position = UDim2.fromOffset(8, 185),
+
+		BackgroundTransparency = 1,
+
+		Text = formatPrice(item.Price),
+
+		TextColor3 = Color3.fromRGB(170, 170, 180),
+
+		TextSize = 12,
+		Font = Enum.Font.Gotham,
+
+		TextXAlignment = Enum.TextXAlignment.Left,
+	})
+
+	priceLabel.Parent = card
+
+	--------------------------------------------------
+	-- ACTION BUTTON
+	--------------------------------------------------
+
+	local actionButton = create("TextButton", {
+		Name = "ActionButton",
+
+		Size = UDim2.new(1, -16, 0, 28),
+		Position = UDim2.new(0, 8, 1, -36),
+
+		BackgroundColor3 = Color3.fromRGB(70, 70, 85),
+
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+
+		TextSize = 12,
+		Font = Enum.Font.GothamBold,
+
+		AutoButtonColor = true,
+	})
+
+	actionButton.Parent = card
+
+	local actionCorner = create("UICorner", {
+		CornerRadius = UDim.new(0, 7),
+	})
+
+	actionCorner.Parent = actionButton
+
+	local function updateButton()
+		if currentWornItems[assetId] then
+			actionButton.Text = "WORN"
+			actionButton.BackgroundColor3 = Color3.fromRGB(105, 85, 160)
+		else
+			actionButton.Text = "WEAR"
+			actionButton.BackgroundColor3 = Color3.fromRGB(70, 70, 85)
+		end
+	end
+
+	updateButton()
+
+	--------------------------------------------------
+	-- BUTTON ACTION
+	--------------------------------------------------
+
+	actionButton.MouseButton1Click:Connect(function()
+		print("[FashionGame] Wear clicked", assetId)
+		if actionBusy then
+			return
+		end
+
+		actionBusy = true
+
+		if currentWornItems[assetId] then
+			statusLabel.Text = "Removing..."
+
+			local success, result, message = pcall(function()
+				return TryOnItem:InvokeServer(
+					"Remove",
+					assetId
+				)
+			end)
+			
+			print(
+				"[FashionGame] Wear response:",
+				success,
+				result,
+				message
+			)
+			
+			if success and result == true then
+				currentWornItems[assetId] = nil
+
+				actionButton.Text = "WEAR"
+				actionButton.BackgroundColor3 =
+					Color3.fromRGB(70, 70, 85)
+
+				statusLabel.Text = "Item removed."
+			else
+				warn(
+					"[CatalogController] Remove failed:",
+					result,
+					message
+				)
+
+				statusLabel.Text =
+					typeof(message) == "string"
+					and message
+					or "Failed to remove item."
+			end
+		else
+			statusLabel.Text = "Wearing..."
+
+			local success, result, message = pcall(function()
+				return TryOnItem:InvokeServer(
+					"Wear",
+					assetId
+				)
+			end)
+
+			print(
+				"[FashionGame] Wear response:",
+				success,
+				result,
+				message
+			)
+
+			if success and result == true then
+				print("[FashionGame] Wear success - refreshing UI")
+
+				statusLabel.Text = "Item equipped."
+
+				task.wait(0.2)
+
+				refreshWornItems()
+
+				updateButton()
+			else
+				warn(
+					"[CatalogController] Wear failed:",
+					result,
+					message
+				)
+
+				statusLabel.Text =
+					typeof(message) == "string"
+					and message
+					or "Failed to equip item."
+			end
+		end
+
+		actionBusy = false
+	end)
+end
+
+--------------------------------------------------
+-- SEARCH
+--------------------------------------------------
+
+local function searchCatalog()
+	if searchBusy then
+		return
+	end
+
+	searchBusy = true
+
+	for _, child in ipairs(resultsFrame:GetChildren()) do
+		if not child:IsA("UIGridLayout") then
+			child:Destroy()
+		end
+	end
+
+	currentKeyword = searchBox.Text
+
+	statusLabel.Text = "Searching..."
+
+	local params = CatalogSearchParams.new()
+
+	params.SearchKeyword = currentKeyword
+
+	params.Limit = Config.SearchLimit
+
+	local assetTypes = getCategoryAssetTypes()
+
+	if assetTypes then
+		params.AssetTypes = assetTypes
+	else
+		params.AssetTypes = Config.AllowedAssetTypes
+	end
+
+	local success, pages = pcall(function()
+		return AvatarEditorService:SearchCatalogAsync(params)
+	end)
+
+	if not success then
+		warn(
+			"[CatalogController] Search failed:",
+			pages
+		)
+
+		statusLabel.Text =
+			"Search failed. Check Output."
+
+		searchBusy = false
+
+		return
+	end
+
+	local currentPage
+
+	local pageSuccess, pageResult = pcall(function()
+		return pages:GetCurrentPage()
+	end)
+
+	if not pageSuccess then
+		warn(
+			"[CatalogController] Failed to read catalog page:",
+			pageResult
+		)
+
+		statusLabel.Text =
+			"Failed to load results."
+
+		searchBusy = false
+
+		return
+	end
+
+	currentPage = pageResult
+
+	local resultCount = 0
+
+	for index, item in ipairs(currentPage) do
+		createItemCard(
+			item,
+			index
+		)
+
+		resultCount += 1
+	end
+
+	statusLabel.Text =
+		tostring(resultCount)
+		.. " items found."
+
+	searchBusy = false
+end
+
+--------------------------------------------------
+-- CATEGORY CREATION
+--------------------------------------------------
+
+for _, category in ipairs(CATEGORIES) do
+	local button = create("TextButton", {
+		Name = category.Name .. "Button",
+
+		Size = UDim2.fromOffset(100, 34),
+
+		BackgroundColor3 = Color3.fromRGB(50, 50, 60),
+
+		Text = category.Name,
+
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+
+		TextSize = 12,
+		Font = Enum.Font.GothamBold,
+	})
+
+	button.Parent = categoryBar
+
+	local corner = create("UICorner", {
+		CornerRadius = UDim.new(0, 8),
+	})
+
+	corner.Parent = button
+
+	categoryButtons[category.Name] = button
+
+	button.MouseButton1Click:Connect(function()
+		if currentCategory == category.Name then
+			return
+		end
+
+		currentCategory = category.Name
+
+		updateCategoryVisuals()
+
+		searchCatalog()
+	end)
+end
+
+updateCategoryVisuals()
+
+--------------------------------------------------
+-- OPEN / CLOSE
+--------------------------------------------------
+
+openButton.MouseButton1Click:Connect(function()
+	mainFrame.Visible = true
+
+	refreshWornItems()
+	searchCatalog()
+end)
+
+closeButton.MouseButton1Click:Connect(function()
+	mainFrame.Visible = false
+end)
+--------------------------------------------------
+-- SEARCH EVENTS
+--------------------------------------------------
+
+searchButton.MouseButton1Click:Connect(function()
+	searchCatalog()
+end)
+
+searchBox.FocusLost:Connect(function(enterPressed)
+	if enterPressed then
+		searchCatalog()
+	end
+end)
+
+--------------------------------------------------
+-- INITIALIZE
+--------------------------------------------------
+
+print("[FashionGame] CatalogController initialized.")
+]]></string>
+          </Properties>
+        </Item>
+      </Item>
+    </Item>
+  </Item>
+</roblox>
