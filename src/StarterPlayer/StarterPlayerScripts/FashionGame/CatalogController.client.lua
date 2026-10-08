@@ -30,6 +30,18 @@ local currentWornItems: {[number]: boolean} = {}
 local searchBusy = false
 local searchQueued = false
 local actionBusy = false
+local currentPages: any = nil
+local currentPageNumber = 1
+local currentSortIndex = 1
+
+local SORT_OPTIONS = {
+	{ Name = "Relevance", Value = Enum.CatalogSortType.Relevance },
+	{ Name = "Popular", Value = Enum.CatalogSortType.Bestselling },
+	{ Name = "Favorites", Value = Enum.CatalogSortType.MostFavorited },
+	{ Name = "Newest", Value = Enum.CatalogSortType.RecentlyCreated },
+	{ Name = "Price Low", Value = Enum.CatalogSortType.PriceLowToHigh },
+	{ Name = "Price High", Value = Enum.CatalogSortType.PriceHighToLow },
+}
 
 --------------------------------------------------
 -- CATEGORY CONFIG
@@ -262,6 +274,65 @@ local searchButtonCorner = create("UICorner", {
 searchButtonCorner.Parent = searchButton
 
 --------------------------------------------------
+-- SORT / PAGINATION
+--------------------------------------------------
+
+local sortButton = create("TextButton", {
+	Name = "SortButton",
+	Size = UDim2.fromOffset(120, 34),
+	Position = UDim2.new(1, -140, 0, 116),
+	BackgroundColor3 = Color3.fromRGB(50, 50, 60),
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 11,
+	Font = Enum.Font.GothamBold,
+	Text = "Sort: Relevance",
+})
+sortButton.Parent = mainFrame
+
+local sortCorner = create("UICorner", { CornerRadius = UDim.new(0, 8) })
+sortCorner.Parent = sortButton
+
+local previousPageButton = create("TextButton", {
+	Name = "PreviousPageButton",
+	Size = UDim2.fromOffset(80, 30),
+	Position = UDim2.new(0, 20, 1, -38),
+	BackgroundColor3 = Color3.fromRGB(50, 50, 60),
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 11,
+	Font = Enum.Font.GothamBold,
+	Text = "PREV",
+})
+previousPageButton.Parent = mainFrame
+local prevCorner = create("UICorner", { CornerRadius = UDim.new(0, 7) })
+prevCorner.Parent = previousPageButton
+
+local nextPageButton = create("TextButton", {
+	Name = "NextPageButton",
+	Size = UDim2.fromOffset(80, 30),
+	Position = UDim2.new(1, -100, 1, -38),
+	BackgroundColor3 = Color3.fromRGB(50, 50, 60),
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 11,
+	Font = Enum.Font.GothamBold,
+	Text = "NEXT",
+})
+nextPageButton.Parent = mainFrame
+local nextCorner = create("UICorner", { CornerRadius = UDim.new(0, 7) })
+nextCorner.Parent = nextPageButton
+
+local pageLabel = create("TextLabel", {
+	Name = "PageLabel",
+	Size = UDim2.fromOffset(120, 30),
+	Position = UDim2.new(0.5, -60, 1, -38),
+	BackgroundTransparency = 1,
+	TextColor3 = Color3.fromRGB(170, 170, 180),
+	TextSize = 11,
+	Font = Enum.Font.Gotham,
+	Text = "Page 1",
+})
+pageLabel.Parent = mainFrame
+
+--------------------------------------------------
 -- CATEGORY BAR
 --------------------------------------------------
 
@@ -325,7 +396,7 @@ statusLabel.Parent = mainFrame
 local resultsFrame = create("ScrollingFrame", {
 	Name = "Results",
 
-	Size = UDim2.new(1, -40, 1, -241),
+	Size = UDim2.new(1, -40, 1, -281),
 	Position = UDim2.fromOffset(20, 226),
 
 	BackgroundTransparency = 1,
@@ -823,6 +894,9 @@ searchCatalog = function()
 	end
 
 	currentKeyword = searchBox.Text
+	currentPageNumber = 1
+	currentPages = nil
+	pageLabel.Text = "Page 1"
 
 	statusLabel.Text = "Searching..."
 
@@ -835,6 +909,7 @@ searchCatalog = function()
 	-- Body parts, shoes, and many animation assets are not individually on sale.
 	-- Include off-sale items so those AvatarAssetTypes can actually be searched.
 	params.IncludeOffSale = true
+	params.SortType = SORT_OPTIONS[currentSortIndex].Value
 
 	local assetTypes = getCategoryAssetTypes()
 
@@ -861,6 +936,8 @@ searchCatalog = function()
 
 		return
 	end
+
+	currentPages = pages
 
 	local currentPage
 
@@ -897,7 +974,13 @@ searchCatalog = function()
 
 	statusLabel.Text =
 		tostring(resultCount)
-		.. " items found."
+		.. " items found. Page "
+		.. tostring(currentPageNumber)
+	pageLabel.Text = "Page " .. tostring(currentPageNumber)
+	previousPageButton.Active = currentPageNumber > 1
+	previousPageButton.AutoButtonColor = currentPageNumber > 1
+	nextPageButton.Active = currentPages ~= nil and not currentPages.IsFinished
+	nextPageButton.AutoButtonColor = nextPageButton.Active
 
 	finishSearch()
 end
@@ -954,6 +1037,80 @@ end
 
 updateCategoryVisuals()
 setAnimationCategoryBarVisible(false)
+previousPageButton.Active = false
+previousPageButton.AutoButtonColor = false
+
+--------------------------------------------------
+-- SORT / PAGINATION EVENTS
+--------------------------------------------------
+
+sortButton.MouseButton1Click:Connect(function()
+	if searchBusy then
+		return
+	end
+
+	currentSortIndex += 1
+	if currentSortIndex > #SORT_OPTIONS then
+		currentSortIndex = 1
+	end
+
+	sortButton.Text = "Sort: " .. SORT_OPTIONS[currentSortIndex].Name
+	searchCatalog()
+end)
+
+previousPageButton.MouseButton1Click:Connect(function()
+	if searchBusy or currentPageNumber <= 1 then
+		return
+	end
+
+	-- Pages only advances forward; re-run the same search to return
+	-- to page 1 when PREV is requested.
+	currentPageNumber = 1
+	searchCatalog()
+end)
+
+nextPageButton.MouseButton1Click:Connect(function()
+	if searchBusy or not currentPages or currentPages.IsFinished then
+		return
+	end
+
+	searchBusy = true
+	statusLabel.Text = "Loading next page..."
+
+	local success, err = pcall(function()
+		currentPages:AdvanceToNextPageAsync()
+	end)
+
+	if not success then
+		warn("[CatalogController] Next page failed:", err)
+		statusLabel.Text = "Failed to load next page."
+		finishSearch()
+		return
+	end
+
+	currentPageNumber += 1
+
+	for _, child in ipairs(resultsFrame:GetChildren()) do
+		if not child:IsA("UIGridLayout") then
+			child:Destroy()
+		end
+	end
+
+	local page = currentPages:GetCurrentPage()
+	local count = 0
+	for index, item in ipairs(page) do
+		createItemCard(item, index)
+		count += 1
+	end
+
+	statusLabel.Text = tostring(count) .. " items found. Page " .. tostring(currentPageNumber)
+	pageLabel.Text = "Page " .. tostring(currentPageNumber)
+	previousPageButton.Active = true
+	previousPageButton.AutoButtonColor = true
+	nextPageButton.Active = not currentPages.IsFinished
+	nextPageButton.AutoButtonColor = nextPageButton.Active
+	finishSearch()
+end)
 
 --------------------------------------------------
 -- OPEN / CLOSE
