@@ -147,15 +147,14 @@ CatalogConfig.CategoryGroups = {
 	{
 		Name = "애니메이션",
 		Categories = {
-			{Name = "기본 애니메이션", AssetTypes = {
-				Enum.AvatarAssetType.ClimbAnimation,
-				Enum.AvatarAssetType.FallAnimation,
-				Enum.AvatarAssetType.IdleAnimation,
-				Enum.AvatarAssetType.JumpAnimation,
-				Enum.AvatarAssetType.RunAnimation,
-				Enum.AvatarAssetType.SwimAnimation,
-				Enum.AvatarAssetType.WalkAnimation,
-			}},
+			{Name = "애니메이션 팩", AssetTypes = {}, BundleTypes = {Enum.BundleType.Animations}},
+			{Name = "대기", AssetTypes = {Enum.AvatarAssetType.IdleAnimation}},
+			{Name = "걷기", AssetTypes = {Enum.AvatarAssetType.WalkAnimation}},
+			{Name = "달리기", AssetTypes = {Enum.AvatarAssetType.RunAnimation}},
+			{Name = "점프", AssetTypes = {Enum.AvatarAssetType.JumpAnimation}},
+			{Name = "낙하", AssetTypes = {Enum.AvatarAssetType.FallAnimation}},
+			{Name = "오르기", AssetTypes = {Enum.AvatarAssetType.ClimbAnimation}},
+			{Name = "수영", AssetTypes = {Enum.AvatarAssetType.SwimAnimation}},
 			{Name = "이모트", AssetTypes = {Enum.AvatarAssetType.EmoteAnimation}},
 			{Name = "표정 / 무드", AssetTypes = {Enum.AvatarAssetType.MoodAnimation}},
 		},
