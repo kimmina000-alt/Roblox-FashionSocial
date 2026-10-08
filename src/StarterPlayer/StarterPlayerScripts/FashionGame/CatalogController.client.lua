@@ -817,6 +817,10 @@ local function searchCatalog()
 
 	params.Limit = Config.SearchLimit
 
+	-- Body parts, shoes, and many animation assets are not individually on sale.
+	-- Include off-sale items so those AvatarAssetTypes can actually be searched.
+	params.IncludeOffSale = true
+
 	local assetTypes = getCategoryAssetTypes()
 
 	if assetTypes then
