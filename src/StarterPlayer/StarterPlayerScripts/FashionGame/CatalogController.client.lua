@@ -64,6 +64,16 @@ local TRY_ON_SUPPORTED_ASSET_TYPES: {[string]: boolean} = {
 	LeftShoeAccessory = true,
 	RightShoeAccessory = true,
 	DressSkirtAccessory = true,
+	EyebrowAccessory = true,
+	EyelashAccessory = true,
+	ClimbAnimation = true,
+	FallAnimation = true,
+	IdleAnimation = true,
+	JumpAnimation = true,
+	RunAnimation = true,
+	SwimAnimation = true,
+	WalkAnimation = true,
+	MoodAnimation = true,
 }
 
 --------------------------------------------------
