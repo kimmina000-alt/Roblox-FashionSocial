@@ -21,6 +21,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 --------------------------------------------------
 
 local currentCategory = "All"
+local currentCategoryAssetTypes = Config.AllowedAssetTypes
 local currentKeyword = ""
 
 local currentSort = Enum.CatalogSortType.Relevance
@@ -529,13 +530,7 @@ nextCorner.Parent = nextButton
 --------------------------------------------------
 
 local function getCategoryAssetTypes()
-	for _, category in ipairs(Config.Categories) do
-		if category.Name == currentCategory then
-			return category.AssetTypes
-		end
-	end
-
-	return Config.AllowedAssetTypes
+	return currentCategoryAssetTypes
 end
 
 --------------------------------------------------
@@ -880,48 +875,133 @@ local function searchCatalog()
 	searchBusy = false
 end
 
---------------------------------------------------
 -- ★ CATEGORY MENU
 --------------------------------------------------
 
 local categoryButtons: {[string]: TextButton} = {}
+local expandedGroups: {[string]: boolean} = {}
 
-for index, category in ipairs(Config.Categories) do
-	local button = create("TextButton", {
-		Name = category.Name .. "Button",
-		Size = UDim2.new(1, 0, 0, 30),
-		BackgroundColor3 = Color3.fromRGB(50, 50, 60),
-		Text = category.Name,
-		TextColor3 = Color3.fromRGB(255, 255, 255),
-		TextSize = 11,
+local function selectCategory(name: string, assetTypes)
+	if not assetTypes or #assetTypes == 0 then
+		statusLabel.Text = "이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다."
+		return
+	end
+
+	currentCategory = name
+	currentCategoryAssetTypes = assetTypes
+	categoryButton.Text = name .. " ▼"
+	categoryMenu.Visible = false
+	searchCatalog()
+end
+
+local allButton = create("TextButton", {
+	Name = "AllButton",
+	Size = UDim2.new(1, 0, 0, 34),
+	BackgroundColor3 = Color3.fromRGB(65, 65, 78),
+	Text = "전체",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 12,
+	Font = Enum.Font.GothamBold,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	LayoutOrder = 0,
+	ZIndex = 51,
+})
+allButton.Parent = categoryMenu
+
+local allPadding = create("UIPadding", {
+	PaddingLeft = UDim.new(0, 12),
+})
+allPadding.Parent = allButton
+
+local allCorner = create("UICorner", {
+	CornerRadius = UDim.new(0, 6),
+})
+allCorner.Parent = allButton
+
+allButton.MouseButton1Click:Connect(function()
+	selectCategory("전체", Config.AllowedAssetTypes)
+end)
+
+for groupIndex, group in ipairs(Config.CategoryGroups) do
+	local groupButton = create("TextButton", {
+		Name = "Group_" .. tostring(groupIndex),
+		Size = UDim2.new(1, 0, 0, 34),
+		BackgroundColor3 = Color3.fromRGB(43, 43, 52),
+		Text = "＋ " .. group.Name,
+		TextColor3 = Color3.fromRGB(235, 235, 240),
+		TextSize = 12,
 		Font = Enum.Font.GothamBold,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		LayoutOrder = index,
+		LayoutOrder = groupIndex * 100,
 		ZIndex = 51,
 	})
-	button.Parent = categoryMenu
+	groupButton.Parent = categoryMenu
 
-	local padding = create("UIPadding", {
-		PaddingLeft = UDim.new(0, 10),
+	local groupPadding = create("UIPadding", {
+		PaddingLeft = UDim.new(0, 12),
 	})
-	padding.Parent = button
+	groupPadding.Parent = groupButton
 
-	local corner = create("UICorner", {
+	local groupCorner = create("UICorner", {
 		CornerRadius = UDim.new(0, 6),
 	})
-	corner.Parent = button
+	groupCorner.Parent = groupButton
 
-	categoryButtons[category.Name] = button
+	local subButtons = {}
 
-	button.MouseButton1Click:Connect(function()
-		currentCategory = category.Name
-		categoryButton.Text = category.Name .. " ▼"
-		categoryMenu.Visible = false
-		searchCatalog()
+	for subIndex, category in ipairs(group.Categories) do
+		local subButton = create("TextButton", {
+			Name = "Category_" .. tostring(groupIndex) .. "_" .. tostring(subIndex),
+			Size = UDim2.new(1, 0, 0, 30),
+			BackgroundColor3 = Color3.fromRGB(50, 50, 60),
+			Text = "   " .. category.Name,
+			TextColor3 = Color3.fromRGB(215, 215, 225),
+			TextSize = 11,
+			Font = Enum.Font.Gotham,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			LayoutOrder = groupIndex * 100 + subIndex,
+			Visible = false,
+			ZIndex = 51,
+			AutoButtonColor = #category.AssetTypes > 0,
+		})
+		subButton.Parent = categoryMenu
+
+		local subPadding = create("UIPadding", {
+			PaddingLeft = UDim.new(0, 6),
+		})
+		subPadding.Parent = subButton
+
+		local subCorner = create("UICorner", {
+			CornerRadius = UDim.new(0, 6),
+		})
+		subCorner.Parent = subButton
+
+		if #category.AssetTypes == 0 then
+			subButton.Text = "   " .. category.Name .. "  (준비 중)"
+			subButton.TextColor3 = Color3.fromRGB(120, 120, 130)
+		end
+
+		subButton.MouseButton1Click:Connect(function()
+			selectCategory(category.Name, category.AssetTypes)
+		end)
+
+		table.insert(subButtons, subButton)
+	end
+
+	groupButton.MouseButton1Click:Connect(function()
+		expandedGroups[group.Name] = not expandedGroups[group.Name]
+		local expanded = expandedGroups[group.Name]
+
+		groupButton.Text = (expanded and "− " or "＋ ") .. group.Name
+
+		for _, subButton in ipairs(subButtons) do
+			subButton.Visible = expanded
+		end
 	end)
 end
 
 --------------------------------------------------
+
 -- ★ SORT MENU
 --------------------------------------------------
 
