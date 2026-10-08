@@ -34,6 +34,7 @@ local ANIMATION_PROPERTIES = {
 	JumpAnimation = "JumpAnimation",
 	RunAnimation = "RunAnimation",
 	SwimAnimation = "SwimAnimation",
+	WalkAnimation = "WalkAnimation",
 	MoodAnimation = "MoodAnimation",
 }
 
@@ -275,6 +276,7 @@ function AvatarService.GetCurrentItems(player: Player)
 	addProperty(description.JumpAnimation, "Animations", "JumpAnimation")
 	addProperty(description.RunAnimation, "Animations", "RunAnimation")
 	addProperty(description.SwimAnimation, "Animations", "SwimAnimation")
+	addProperty(description.WalkAnimation, "Animations", "WalkAnimation")
 	addProperty(description.MoodAnimation, "Animations", "MoodAnimation")
 
 	for _, accessory in ipairs(description:GetAccessories(true)) do
@@ -432,6 +434,7 @@ function AvatarService.RemoveItem(
 		"JumpAnimation",
 		"RunAnimation",
 		"SwimAnimation",
+		"WalkAnimation",
 		"MoodAnimation",
 	}
 
