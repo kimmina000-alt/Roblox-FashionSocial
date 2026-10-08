@@ -194,6 +194,97 @@ local function setAnimation(
 	return true, "Item equipped."
 end
 
+
+
+--------------------------------------------------
+-- DIRECT ANIMATE SCRIPT UPDATE
+--------------------------------------------------
+
+local function updateAnimateScript(
+	character: Model,
+	assetType: Enum.AvatarAssetType,
+	assetId: number
+)
+	local animate = character:FindFirstChild("Animate")
+
+	if not animate then
+		warn("[AvatarService] Animate script not found.")
+		return
+	end
+
+	local animationTargets = {
+		[Enum.AvatarAssetType.WalkAnimation] = {
+			"walk",
+			"WalkAnim",
+		},
+		[Enum.AvatarAssetType.RunAnimation] = {
+			"run",
+			"RunAnim",
+		},
+		[Enum.AvatarAssetType.JumpAnimation] = {
+			"jump",
+			"JumpAnim",
+		},
+		[Enum.AvatarAssetType.FallAnimation] = {
+			"fall",
+			"FallAnim",
+		},
+		[Enum.AvatarAssetType.ClimbAnimation] = {
+			"climb",
+			"ClimbAnim",
+		},
+		[Enum.AvatarAssetType.SwimAnimation] = {
+			"swim",
+			"Swim",
+		},
+	}
+
+	local target = animationTargets[assetType]
+
+	if not target then
+		-- Idle and Mood are handled by HumanoidDescription.
+		return
+	end
+
+	local stateFolder = animate:FindFirstChild(target[1])
+
+	if not stateFolder then
+		warn("[AvatarService] Animate state not found:", target[1])
+		return
+	end
+
+	local animation = stateFolder:FindFirstChild(target[2])
+
+	if not animation or not animation:IsA("Animation") then
+		warn(
+			"[AvatarService] Animation object not found:",
+			target[1],
+			target[2]
+		)
+		return
+	end
+
+	animation.AnimationId = "rbxassetid://" .. tostring(assetId)
+
+	-- The Animate LocalScript caches AnimationTracks.
+	-- Stop the currently playing tracks so the next state update
+	-- loads the newly assigned AnimationId.
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+
+	if animator then
+		for _, track in ipairs(animator:GetPlayingAnimationTracks()) do
+			track:Stop(0)
+		end
+	end
+
+	print(
+		"[AvatarService] Animate script updated:",
+		assetType.Name,
+		assetId
+	)
+end
+
 local function addEmote(
 	description: HumanoidDescription,
 	assetId: number,
@@ -321,6 +412,12 @@ function AvatarService.TryOnItem(
 		return false, "Character is not ready."
 	end
 
+	local character = player.Character
+
+	if not character then
+		return false, "Character is not ready."
+	end
+
 	local info = getAssetInfo(assetId)
 	if not info then
 		return false, "Unable to load item information."
@@ -395,7 +492,27 @@ function AvatarService.TryOnItem(
 		return false, "Unsupported wear mode."
 	end
 
-	return applyDescription(humanoid, description)
+	local success, message = applyDescription(humanoid, description)
+
+	if not success then
+		return false, message
+	end
+
+	if definition.WearMode == "Animation" then
+		updateAnimateScript(
+			character,
+			assetType,
+			assetId
+		)
+	end
+
+	print(
+		"[AvatarService] Equipped:",
+		assetId,
+		assetType.Name
+	)
+
+	return true, "Item equipped."
 end
 
 --------------------------------------------------
