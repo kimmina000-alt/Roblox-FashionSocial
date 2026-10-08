@@ -290,6 +290,21 @@ function AvatarService.GetCurrentItems(
 	end
 
 	--------------------------------------------------
+	-- Animations
+	--------------------------------------------------
+
+	for assetTypeId, propertyName in pairs(ANIMATION_ASSET_TYPES) do
+		local animationId = description[propertyName]
+		if typeof(animationId) == "number" and animationId ~= 0 then
+			table.insert(result, {
+				AssetId = animationId,
+				Category = propertyName,
+				AssetTypeId = assetTypeId,
+			})
+		end
+	end
+
+	--------------------------------------------------
 	-- Accessories
 	--------------------------------------------------
 
@@ -534,6 +549,17 @@ function AvatarService.RemoveItem(
 
 	local description =
 		humanoid:GetAppliedDescription()
+
+	--------------------------------------------------
+	-- Animations
+	--------------------------------------------------
+
+	for _, propertyName in pairs(ANIMATION_ASSET_TYPES) do
+		if description[propertyName] == assetId then
+			description[propertyName] = 0
+			return applyDescription(humanoid, description)
+		end
+	end
 
 	--------------------------------------------------
 	-- Classic T-Shirt
