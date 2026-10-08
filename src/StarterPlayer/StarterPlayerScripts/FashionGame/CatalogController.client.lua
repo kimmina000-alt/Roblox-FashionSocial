@@ -28,6 +28,7 @@ local currentKeyword = ""
 local currentWornItems: {[number]: boolean} = {}
 
 local searchBusy = false
+local searchQueued = false
 local actionBusy = false
 
 --------------------------------------------------
@@ -794,8 +795,22 @@ end
 -- SEARCH
 --------------------------------------------------
 
-local function searchCatalog()
+local searchCatalog: () -> ()
+
+local function finishSearch()
+	searchBusy = false
+
+	if searchQueued then
+		searchQueued = false
+		task.defer(function()
+			searchCatalog()
+		end)
+	end
+end
+
+searchCatalog = function()
 	if searchBusy then
+		searchQueued = true
 		return
 	end
 
@@ -842,7 +857,7 @@ local function searchCatalog()
 		statusLabel.Text =
 			"Search failed. Check Output."
 
-		searchBusy = false
+		finishSearch()
 
 		return
 	end
@@ -862,7 +877,7 @@ local function searchCatalog()
 		statusLabel.Text =
 			"Failed to load results."
 
-		searchBusy = false
+		finishSearch()
 
 		return
 	end
@@ -884,7 +899,7 @@ local function searchCatalog()
 		tostring(resultCount)
 		.. " items found."
 
-	searchBusy = false
+	finishSearch()
 end
 
 --------------------------------------------------
