@@ -147,7 +147,7 @@ CatalogConfig.CategoryGroups = {
 	{
 		Name = "애니메이션",
 		Categories = {
-			{Name = "애니메이션 팩", AssetTypes = {}, BundleTypes = {Enum.BundleType.Animations}},
+			{Name = "애니메이션 팩", AssetTypes = {}, IncludeOffSale = true, BundleTypes = {Enum.BundleType.Animations}},
 			{Name = "대기", AssetTypes = {Enum.AvatarAssetType.IdleAnimation}},
 			{Name = "걷기", AssetTypes = {Enum.AvatarAssetType.WalkAnimation}},
 			{Name = "달리기", AssetTypes = {Enum.AvatarAssetType.RunAnimation}},
