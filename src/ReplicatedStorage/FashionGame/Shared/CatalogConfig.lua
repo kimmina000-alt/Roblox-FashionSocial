@@ -6,8 +6,6 @@ local CatalogConfig = {}
 -- SEARCH
 --------------------------------------------------
 
--- Roblox CatalogSearchParams.Limit accepts:
--- 10 / 28 / 30 / 60 / 120
 CatalogConfig.SearchLimit = 30
 CatalogConfig.DefaultKeyword = ""
 
@@ -16,7 +14,6 @@ CatalogConfig.DefaultKeyword = ""
 --------------------------------------------------
 
 CatalogConfig.AllowedAssetTypes = {
-	-- Classic / body
 	Enum.AvatarAssetType.TShirt,
 	Enum.AvatarAssetType.Hat,
 	Enum.AvatarAssetType.Shirt,
@@ -30,7 +27,6 @@ CatalogConfig.AllowedAssetTypes = {
 	Enum.AvatarAssetType.LeftLeg,
 	Enum.AvatarAssetType.RightLeg,
 
-	-- Rigid accessories
 	Enum.AvatarAssetType.HairAccessory,
 	Enum.AvatarAssetType.FaceAccessory,
 	Enum.AvatarAssetType.NeckAccessory,
@@ -39,7 +35,6 @@ CatalogConfig.AllowedAssetTypes = {
 	Enum.AvatarAssetType.BackAccessory,
 	Enum.AvatarAssetType.WaistAccessory,
 
-	-- Animations
 	Enum.AvatarAssetType.ClimbAnimation,
 	Enum.AvatarAssetType.FallAnimation,
 	Enum.AvatarAssetType.IdleAnimation,
@@ -50,7 +45,6 @@ CatalogConfig.AllowedAssetTypes = {
 	Enum.AvatarAssetType.EmoteAnimation,
 	Enum.AvatarAssetType.MoodAnimation,
 
-	-- Layered clothing
 	Enum.AvatarAssetType.TShirtAccessory,
 	Enum.AvatarAssetType.ShirtAccessory,
 	Enum.AvatarAssetType.PantsAccessory,
@@ -61,99 +55,119 @@ CatalogConfig.AllowedAssetTypes = {
 	Enum.AvatarAssetType.RightShoeAccessory,
 	Enum.AvatarAssetType.DressSkirtAccessory,
 
-	-- Layered face
 	Enum.AvatarAssetType.EyebrowAccessory,
 	Enum.AvatarAssetType.EyelashAccessory,
 
-	-- Makeup
 	Enum.AvatarAssetType.FaceMakeup,
 	Enum.AvatarAssetType.LipMakeup,
 	Enum.AvatarAssetType.EyeMakeup,
 
-	-- Dynamic avatar
 	Enum.AvatarAssetType.DynamicHead,
-
-	-- Avatar profile background
 	Enum.AvatarAssetType.AvatarBackground,
 }
 
 --------------------------------------------------
--- CATEGORY DEFINITIONS
+-- CATEGORY GROUPS
+--
+-- Roblox's AvatarAssetType is the actual API filter.
+-- The names below are the player-facing catalog organization.
 --------------------------------------------------
 
-CatalogConfig.Categories = {
+CatalogConfig.CategoryGroups = {
 	{
-		Name = "All",
-		AssetTypes = CatalogConfig.AllowedAssetTypes,
-	},
-
-	-- Accessories
-	{Name = "Hair", AssetTypes = {Enum.AvatarAssetType.HairAccessory}},
-	{Name = "Hats", AssetTypes = {Enum.AvatarAssetType.Hat}},
-	{Name = "Face Accessories", AssetTypes = {Enum.AvatarAssetType.FaceAccessory}},
-	{Name = "Neck", AssetTypes = {Enum.AvatarAssetType.NeckAccessory}},
-	{Name = "Shoulder", AssetTypes = {Enum.AvatarAssetType.ShoulderAccessory}},
-	{Name = "Front", AssetTypes = {Enum.AvatarAssetType.FrontAccessory}},
-	{Name = "Back", AssetTypes = {Enum.AvatarAssetType.BackAccessory}},
-	{Name = "Waist", AssetTypes = {Enum.AvatarAssetType.WaistAccessory}},
-
-	-- Classic clothing
-	{Name = "Classic T-Shirt", AssetTypes = {Enum.AvatarAssetType.TShirt}},
-	{Name = "Classic Shirt", AssetTypes = {Enum.AvatarAssetType.Shirt}},
-	{Name = "Classic Pants", AssetTypes = {Enum.AvatarAssetType.Pants}},
-
-	-- Layered clothing
-	{Name = "Layered T-Shirt", AssetTypes = {Enum.AvatarAssetType.TShirtAccessory}},
-	{Name = "Layered Shirt", AssetTypes = {Enum.AvatarAssetType.ShirtAccessory}},
-	{Name = "Layered Pants", AssetTypes = {Enum.AvatarAssetType.PantsAccessory}},
-	{Name = "Jacket", AssetTypes = {Enum.AvatarAssetType.JacketAccessory}},
-	{Name = "Sweater", AssetTypes = {Enum.AvatarAssetType.SweaterAccessory}},
-	{Name = "Shorts", AssetTypes = {Enum.AvatarAssetType.ShortsAccessory}},
-	{
-		Name = "Shoes",
-		AssetTypes = {
-			Enum.AvatarAssetType.LeftShoeAccessory,
-			Enum.AvatarAssetType.RightShoeAccessory,
+		Name = "신체",
+		Categories = {
+			{Name = "전신", AssetTypes = {
+				Enum.AvatarAssetType.Torso,
+				Enum.AvatarAssetType.RightArm,
+				Enum.AvatarAssetType.LeftArm,
+				Enum.AvatarAssetType.LeftLeg,
+				Enum.AvatarAssetType.RightLeg,
+			}},
+			{Name = "헤어", AssetTypes = {
+				Enum.AvatarAssetType.HairAccessory,
+			}},
+			{Name = "머리", AssetTypes = {
+				Enum.AvatarAssetType.Head,
+				Enum.AvatarAssetType.DynamicHead,
+			}},
+			{Name = "얼굴", AssetTypes = {
+				Enum.AvatarAssetType.Face,
+			}},
 		},
 	},
-	{Name = "Dress / Skirt", AssetTypes = {Enum.AvatarAssetType.DressSkirtAccessory}},
 
-	-- Head / face
-	{Name = "Head", AssetTypes = {Enum.AvatarAssetType.Head}},
-	{Name = "Dynamic Head", AssetTypes = {Enum.AvatarAssetType.DynamicHead}},
-	{Name = "Face", AssetTypes = {Enum.AvatarAssetType.Face}},
-	{Name = "Eyebrow", AssetTypes = {Enum.AvatarAssetType.EyebrowAccessory}},
-	{Name = "Eyelash", AssetTypes = {Enum.AvatarAssetType.EyelashAccessory}},
-	{Name = "Face Makeup", AssetTypes = {Enum.AvatarAssetType.FaceMakeup}},
-	{Name = "Lip Makeup", AssetTypes = {Enum.AvatarAssetType.LipMakeup}},
-	{Name = "Eye Makeup", AssetTypes = {Enum.AvatarAssetType.EyeMakeup}},
-
-	-- Animation
 	{
-		Name = "Animations",
-		AssetTypes = {
-			Enum.AvatarAssetType.ClimbAnimation,
-			Enum.AvatarAssetType.FallAnimation,
-			Enum.AvatarAssetType.IdleAnimation,
-			Enum.AvatarAssetType.JumpAnimation,
-			Enum.AvatarAssetType.RunAnimation,
-			Enum.AvatarAssetType.SwimAnimation,
-			Enum.AvatarAssetType.WalkAnimation,
+		Name = "복장",
+		Categories = {
+			{Name = "셔츠", AssetTypes = {Enum.AvatarAssetType.ShirtAccessory}},
+			{Name = "티셔츠", AssetTypes = {Enum.AvatarAssetType.TShirtAccessory}},
+			{Name = "스웨터", AssetTypes = {Enum.AvatarAssetType.SweaterAccessory}},
+			{Name = "재킷", AssetTypes = {Enum.AvatarAssetType.JacketAccessory}},
+			{Name = "바지", AssetTypes = {Enum.AvatarAssetType.PantsAccessory}},
+			{Name = "원피스 및 치마", AssetTypes = {Enum.AvatarAssetType.DressSkirtAccessory}},
+			-- Roblox AvatarAssetType에는 별도의 BodysuitAccessory가 없으므로
+			-- 실제 API 필터는 제공되지 않는다.
+			{Name = "바디수트", AssetTypes = {}},
+			{Name = "반바지", AssetTypes = {Enum.AvatarAssetType.ShortsAccessory}},
+			{Name = "신발", AssetTypes = {
+				Enum.AvatarAssetType.LeftShoeAccessory,
+				Enum.AvatarAssetType.RightShoeAccessory,
+			}},
+			{Name = "클래식 셔츠", AssetTypes = {Enum.AvatarAssetType.Shirt}},
+			{Name = "클래식 티셔츠", AssetTypes = {Enum.AvatarAssetType.TShirt}},
+			{Name = "클래식 바지", AssetTypes = {Enum.AvatarAssetType.Pants}},
 		},
 	},
-	{Name = "Emotes", AssetTypes = {Enum.AvatarAssetType.EmoteAnimation}},
-	{Name = "Mood", AssetTypes = {Enum.AvatarAssetType.MoodAnimation}},
 
-	-- Other avatar assets
-	{Name = "Body Parts", AssetTypes = {
-		Enum.AvatarAssetType.Torso,
-		Enum.AvatarAssetType.RightArm,
-		Enum.AvatarAssetType.LeftArm,
-		Enum.AvatarAssetType.LeftLeg,
-		Enum.AvatarAssetType.RightLeg,
-	}},
-	{Name = "Gear", AssetTypes = {Enum.AvatarAssetType.Gear}},
-	{Name = "Avatar Background", AssetTypes = {Enum.AvatarAssetType.AvatarBackground}},
+	{
+		Name = "액세서리",
+		Categories = {
+			{Name = "모자", AssetTypes = {Enum.AvatarAssetType.Hat}},
+			{Name = "얼굴 액세서리", AssetTypes = {Enum.AvatarAssetType.FaceAccessory}},
+			{Name = "목", AssetTypes = {Enum.AvatarAssetType.NeckAccessory}},
+			{Name = "어깨", AssetTypes = {Enum.AvatarAssetType.ShoulderAccessory}},
+			{Name = "앞", AssetTypes = {Enum.AvatarAssetType.FrontAccessory}},
+			{Name = "뒤", AssetTypes = {Enum.AvatarAssetType.BackAccessory}},
+			{Name = "허리", AssetTypes = {Enum.AvatarAssetType.WaistAccessory}},
+		},
+	},
+
+	{
+		Name = "얼굴 꾸미기",
+		Categories = {
+			{Name = "눈썹", AssetTypes = {Enum.AvatarAssetType.EyebrowAccessory}},
+			{Name = "속눈썹", AssetTypes = {Enum.AvatarAssetType.EyelashAccessory}},
+			{Name = "얼굴 메이크업", AssetTypes = {Enum.AvatarAssetType.FaceMakeup}},
+			{Name = "입술 메이크업", AssetTypes = {Enum.AvatarAssetType.LipMakeup}},
+			{Name = "눈 메이크업", AssetTypes = {Enum.AvatarAssetType.EyeMakeup}},
+		},
+	},
+
+	{
+		Name = "애니메이션",
+		Categories = {
+			{Name = "기본 애니메이션", AssetTypes = {
+				Enum.AvatarAssetType.ClimbAnimation,
+				Enum.AvatarAssetType.FallAnimation,
+				Enum.AvatarAssetType.IdleAnimation,
+				Enum.AvatarAssetType.JumpAnimation,
+				Enum.AvatarAssetType.RunAnimation,
+				Enum.AvatarAssetType.SwimAnimation,
+				Enum.AvatarAssetType.WalkAnimation,
+			}},
+			{Name = "이모트", AssetTypes = {Enum.AvatarAssetType.EmoteAnimation}},
+			{Name = "표정 / 무드", AssetTypes = {Enum.AvatarAssetType.MoodAnimation}},
+		},
+	},
+
+	{
+		Name = "기타",
+		Categories = {
+			{Name = "기어", AssetTypes = {Enum.AvatarAssetType.Gear}},
+			{Name = "아바타 배경", AssetTypes = {Enum.AvatarAssetType.AvatarBackground}},
+		},
+	},
 }
 
 --------------------------------------------------
