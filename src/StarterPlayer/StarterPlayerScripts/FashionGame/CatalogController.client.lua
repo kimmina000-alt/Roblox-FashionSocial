@@ -23,6 +23,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local currentCategory = "All"
 local currentCategoryAssetTypes = Config.AllowedAssetTypes
 local currentCategoryBundleTypes = nil
+local currentCategoryIncludeOffSale = Config.IncludeOffSale
 local currentKeyword = ""
 
 local currentSort = Enum.CatalogSortType.Relevance
@@ -857,11 +858,13 @@ local function searchCatalog()
 
 	local assetTypes = getCategoryAssetTypes()
 
-	if assetTypes then
+	if assetTypes and #assetTypes > 0 then
 		params.AssetTypes = assetTypes
 	end
 
-	if currentCategoryBundleTypes then
+	params.IncludeOffSale = currentCategoryIncludeOffSale
+
+	if currentCategoryBundleTypes and #currentCategoryBundleTypes > 0 then
 		params.BundleTypes = currentCategoryBundleTypes
 	end
 
@@ -909,6 +912,14 @@ local function selectCategory(name: string, assetTypes, bundleTypes)
 	currentCategory = name
 	currentCategoryAssetTypes = assetTypes
 	currentCategoryBundleTypes = bundleTypes
+	currentCategoryIncludeOffSale = false
+	for _, group in ipairs(Config.CategoryGroups) do
+		for _, category in ipairs(group.Categories) do
+			if category.Name == name and category.IncludeOffSale == true then
+				currentCategoryIncludeOffSale = true
+			end
+		end
+	end
 	categoryButton.Text = name .. " ▼"
 	categoryMenu.Visible = false
 	searchCatalog()
