@@ -33,46 +33,20 @@ local actionBusy = false
 -- CATEGORY CONFIG
 --------------------------------------------------
 
-local CATEGORIES = {
-	{
-		Name = "All",
-		AssetTypes = nil,
-	},
+local CATEGORIES = Config.Categories
 
-	{
-		Name = "Hair",
-		AssetTypes = {
-			Enum.AvatarAssetType.HairAccessory,
-		},
-	},
-
-	{
-		Name = "Face",
-		AssetTypes = {
-			Enum.AvatarAssetType.FaceAccessory,
-		},
-	},
-
-	{
-		Name = "Accessories",
-		AssetTypes = {
-			Enum.AvatarAssetType.Hat,
-			Enum.AvatarAssetType.NeckAccessory,
-			Enum.AvatarAssetType.ShoulderAccessory,
-			Enum.AvatarAssetType.FrontAccessory,
-			Enum.AvatarAssetType.BackAccessory,
-			Enum.AvatarAssetType.WaistAccessory,
-		},
-	},
-
-	{
-		Name = "Clothing",
-		AssetTypes = {
-			Enum.AvatarAssetType.TShirt,
-			Enum.AvatarAssetType.Shirt,
-			Enum.AvatarAssetType.Pants,
-		},
-	},
+local CATEGORY_LABELS = {
+	All = "All",
+	Body = "Body",
+	Hair = "Hair",
+	Face = "Face",
+	Makeup = "Makeup",
+	EyesBrows = "Eyes & Brows",
+	Clothing = "Clothing",
+	Shoes = "Shoes",
+	Accessories = "Accessories",
+	Animations = "Animations",
+	Other = "Other",
 }
 
 --------------------------------------------------
@@ -438,9 +412,25 @@ end
 --------------------------------------------------
 
 local function getCategoryAssetTypes()
-	for _, category in ipairs(CATEGORIES) do
-		if category.Name == currentCategory then
-			return category.AssetTypes
+	return Config.GetCategoryAssetTypes(currentCategory)
+end
+
+local function getItemDefinition(item: any)
+	local assetTypeId = item.AssetTypeId
+
+	if typeof(assetTypeId) ~= "number" then
+		return nil
+	end
+
+	for _, assetType in ipairs(Enum.AssetType:GetEnumItems()) do
+		if assetType.Value == assetTypeId then
+			local avatarAssetType = Enum.AvatarAssetType[assetType.Name]
+
+			if avatarAssetType then
+				return Config.GetDefinition(avatarAssetType)
+			end
+
+			break
 		end
 	end
 
@@ -558,6 +548,9 @@ local function createItemCard(item: any, layoutOrder: number)
 	-- ACTION BUTTON
 	--------------------------------------------------
 
+	local definition = getItemDefinition(item)
+	local canWear = definition ~= nil and definition.WearMode ~= "Unsupported"
+
 	local actionButton = create("TextButton", {
 		Name = "ActionButton",
 
@@ -571,7 +564,8 @@ local function createItemCard(item: any, layoutOrder: number)
 		TextSize = 12,
 		Font = Enum.Font.GothamBold,
 
-		AutoButtonColor = true,
+		AutoButtonColor = canWear,
+		Active = canWear,
 	})
 
 	actionButton.Parent = card
@@ -583,6 +577,12 @@ local function createItemCard(item: any, layoutOrder: number)
 	actionCorner.Parent = actionButton
 
 	local function updateButton()
+		if not canWear then
+			actionButton.Text = "VIEW ONLY"
+			actionButton.BackgroundColor3 = Color3.fromRGB(55, 55, 62)
+			return
+		end
+
 		if currentWornItems[assetId] then
 			actionButton.Text = "WORN"
 			actionButton.BackgroundColor3 = Color3.fromRGB(105, 85, 160)
@@ -599,6 +599,10 @@ local function createItemCard(item: any, layoutOrder: number)
 	--------------------------------------------------
 
 	actionButton.MouseButton1Click:Connect(function()
+		if not canWear then
+			return
+		end
+
 		print("[FashionGame] Wear clicked", assetId)
 		if actionBusy then
 			return
@@ -793,7 +797,7 @@ for _, category in ipairs(CATEGORIES) do
 
 		BackgroundColor3 = Color3.fromRGB(50, 50, 60),
 
-		Text = category.Name,
+		Text = CATEGORY_LABELS[category.Name] or category.Name,
 
 		TextColor3 = Color3.fromRGB(255, 255, 255),
 
