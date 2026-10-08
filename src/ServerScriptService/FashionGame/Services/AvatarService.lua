@@ -1,7 +1,6 @@
 --!strict
 
 local MarketplaceService = game:GetService("MarketplaceService")
-local AssetService = game:GetService("AssetService")
 local AvatarEditorService = game:GetService("AvatarEditorService")
 
 local AvatarService = {}
@@ -83,21 +82,21 @@ local CLASSIC_ASSET_TYPES = {
 }
 
 local ANIMATION_ASSET_TYPES = {
-	[48] = "ClimbAnimation",
-	[50] = "FallAnimation",
-	[51] = "IdleAnimation",
-	[52] = "JumpAnimation",
-	[53] = "RunAnimation",
-	[54] = "SwimAnimation",
-	[55] = "WalkAnimation",
-	[78] = "MoodAnimation",
+	[Enum.AvatarAssetType.ClimbAnimation.Value] = "ClimbAnimation",
+	[Enum.AvatarAssetType.FallAnimation.Value] = "FallAnimation",
+	[Enum.AvatarAssetType.IdleAnimation.Value] = "IdleAnimation",
+	[Enum.AvatarAssetType.JumpAnimation.Value] = "JumpAnimation",
+	[Enum.AvatarAssetType.RunAnimation.Value] = "RunAnimation",
+	[Enum.AvatarAssetType.SwimAnimation.Value] = "SwimAnimation",
+	[Enum.AvatarAssetType.WalkAnimation.Value] = "WalkAnimation",
+	[Enum.AvatarAssetType.MoodAnimation.Value] = "MoodAnimation",
 }
 
-local EMOTE_ASSET_TYPE = 61
+local EMOTE_ASSET_TYPE = Enum.AvatarAssetType.EmoteAnimation.Value
 local MAKEUP_ASSET_TYPES = {
-	[88] = Enum.MakeupType.Face,
-	[89] = Enum.MakeupType.Lips,
-	[90] = Enum.MakeupType.Eyes,
+	[Enum.AvatarAssetType.FaceMakeup.Value] = Enum.MakeupType.Face,
+	[Enum.AvatarAssetType.LipMakeup.Value] = Enum.MakeupType.Lip,
+	[Enum.AvatarAssetType.EyeMakeup.Value] = Enum.MakeupType.Eye,
 }
 
 local function getMakeupDescriptions(description: HumanoidDescription)
@@ -350,7 +349,7 @@ function AvatarService.GetCurrentItems(
 		description:SetEmotes(emotes)
 		local equipped = description:GetEquippedEmotes()
 		if #equipped < 8 then
-			table.insert(equipped, {Slot = #equipped + 1, Name = infoName})
+			table.insert(equipped, infoName)
 			description:SetEquippedEmotes(equipped)
 		end
 		return applyDescription(humanoid, description)
