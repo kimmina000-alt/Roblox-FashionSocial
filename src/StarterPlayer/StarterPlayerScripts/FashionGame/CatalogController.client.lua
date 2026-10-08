@@ -22,6 +22,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 
 local currentCategory = "All"
 local currentCategoryAssetTypes = Config.AllowedAssetTypes
+local currentCategoryBundleTypes = nil
 local currentKeyword = ""
 
 local currentSort = Enum.CatalogSortType.Relevance
@@ -74,6 +75,10 @@ local TRY_ON_SUPPORTED_ASSET_TYPES: {[string]: boolean} = {
 	SwimAnimation = true,
 	WalkAnimation = true,
 	MoodAnimation = true,
+	EmoteAnimation = true,
+	FaceMakeup = true,
+	LipMakeup = true,
+	EyeMakeup = true,
 }
 
 --------------------------------------------------
@@ -856,6 +861,10 @@ local function searchCatalog()
 		params.AssetTypes = assetTypes
 	end
 
+	if currentCategoryBundleTypes then
+		params.BundleTypes = currentCategoryBundleTypes
+	end
+
 	--------------------------------------------------
 	-- SEARCH
 	--------------------------------------------------
@@ -891,14 +900,15 @@ end
 local categoryButtons: {[string]: TextButton} = {}
 local expandedGroups: {[string]: boolean} = {}
 
-local function selectCategory(name: string, assetTypes)
-	if not assetTypes or #assetTypes == 0 then
+local function selectCategory(name: string, assetTypes, bundleTypes)
+	if (not assetTypes or #assetTypes == 0) and (not bundleTypes or #bundleTypes == 0) then
 		statusLabel.Text = "이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다."
 		return
 	end
 
 	currentCategory = name
 	currentCategoryAssetTypes = assetTypes
+	currentCategoryBundleTypes = bundleTypes
 	categoryButton.Text = name .. " ▼"
 	categoryMenu.Visible = false
 	searchCatalog()
@@ -929,7 +939,7 @@ local allCorner = create("UICorner", {
 allCorner.Parent = allButton
 
 allButton.MouseButton1Click:Connect(function()
-	selectCategory("전체", Config.AllowedAssetTypes)
+	selectCategory("전체", Config.AllowedAssetTypes, nil)
 end)
 
 for groupIndex, group in ipairs(Config.CategoryGroups) do
@@ -972,7 +982,7 @@ for groupIndex, group in ipairs(Config.CategoryGroups) do
 			LayoutOrder = groupIndex * 100 + subIndex,
 			Visible = false,
 			ZIndex = 51,
-			AutoButtonColor = #category.AssetTypes > 0,
+			AutoButtonColor = (#category.AssetTypes > 0) or (category.BundleTypes and #category.BundleTypes > 0),
 		})
 		subButton.Parent = categoryMenu
 
@@ -986,7 +996,10 @@ for groupIndex, group in ipairs(Config.CategoryGroups) do
 		})
 		subCorner.Parent = subButton
 
-		if #category.AssetTypes == 0 then
+		local hasAssetTypes = #category.AssetTypes > 0
+		local hasBundleTypes = category.BundleTypes and #category.BundleTypes > 0
+
+		if not hasAssetTypes and not hasBundleTypes then
 			subButton.Text = "   " .. category.Name .. "  (준비 중)"
 			subButton.TextColor3 = Color3.fromRGB(120, 120, 130)
 		end
