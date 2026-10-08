@@ -27,6 +27,8 @@ local RIGID_ACCESSORY_TYPES = {
 --------------------------------------------------
 
 local LAYERED_ACCESSORY_TYPES = {
+	Eyebrow = true,
+	Eyelash = true,
 	TShirt = true,
 	Shirt = true,
 	Pants = true,
@@ -54,6 +56,8 @@ local ASSET_TYPE_TO_ACCESSORY_TYPE = {
 	[45] = "Front",
 	[46] = "Back",
 	[47] = "Waist",
+	[76] = "Eyebrow",
+	[77] = "Eyelash",
 
 	-- Layered clothing
 	[64] = "TShirt",
@@ -75,6 +79,17 @@ local CLASSIC_ASSET_TYPES = {
 	[2] = "TShirt",
 	[11] = "Shirt",
 	[12] = "Pants",
+}
+
+local ANIMATION_ASSET_TYPES = {
+	[48] = "ClimbAnimation",
+	[50] = "FallAnimation",
+	[51] = "IdleAnimation",
+	[52] = "JumpAnimation",
+	[53] = "RunAnimation",
+	[54] = "SwimAnimation",
+	[55] = "WalkAnimation",
+	[78] = "MoodAnimation",
 }
 
 --------------------------------------------------
@@ -335,6 +350,17 @@ function AvatarService.TryOnItem(
 
 	if typeof(assetTypeId) ~= "number" then
 		return false, "Invalid asset type."
+	end
+
+	--------------------------------------------------
+	-- Animations
+	--------------------------------------------------
+
+	local animationProperty = ANIMATION_ASSET_TYPES[assetTypeId]
+	if animationProperty then
+		local description = humanoid:GetAppliedDescription()
+		description[animationProperty] = assetId
+		return applyDescription(humanoid, description)
 	end
 
 	--------------------------------------------------
