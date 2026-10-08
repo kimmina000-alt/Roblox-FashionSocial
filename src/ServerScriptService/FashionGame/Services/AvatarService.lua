@@ -129,15 +129,15 @@ end
 
 local function getAssetInfo(assetId: number)
 	local success, result = pcall(function()
-		return MarketplaceService:GetProductInfoAsync(
+		return AvatarEditorService:GetItemDetailsAsync(
 			assetId,
-			Enum.InfoType.Asset
+			Enum.AvatarItemType.Asset
 		)
 	end)
 
 	if not success then
 		warn(
-			"[AvatarService] GetProductInfo failed:",
+			"[AvatarService] GetItemDetails failed:",
 			result
 		)
 
@@ -310,7 +310,7 @@ function AvatarService.GetCurrentItems(
 	-- Makeup
 	--------------------------------------------------
 
-	local makeupType = MAKEUP_ASSET_TYPES[assetTypeId]
+	local makeupType = assetTypeId and MAKEUP_ASSET_TYPES[assetTypeId]
 	if makeupType then
 		local description = humanoid:GetAppliedDescription()
 		local makeupList = getMakeupDescriptions(description)
@@ -485,11 +485,14 @@ function AvatarService.TryOnItem(
 		return false, "Unable to load item information."
 	end
 
-	local assetTypeId = info.AssetTypeId
+	local assetTypeName = info.AssetType
 
-	if typeof(assetTypeId) ~= "number" then
+	if typeof(assetTypeName) ~= "string" then
 		return false, "Invalid asset type."
 	end
+
+	local avatarAssetType = Enum.AvatarAssetType[assetTypeName]
+	local assetTypeId = avatarAssetType and avatarAssetType.Value or nil
 
 	--------------------------------------------------
 	-- Animations
