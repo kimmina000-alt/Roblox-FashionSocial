@@ -495,18 +495,6 @@ grid.Parent = resultsFrame
 -- ★ PAGINATION
 --------------------------------------------------
 
-local previousButton = create("TextButton", {
-	Name = "PreviousButton",
-	Size = UDim2.fromOffset(120, 32),
-	Position = UDim2.new(0, 20, 1, -45),
-	BackgroundColor3 = Color3.fromRGB(55, 55, 65),
-	Text = "← PREVIOUS",
-	TextColor3 = Color3.fromRGB(255, 255, 255),
-	TextSize = 12,
-	Font = Enum.Font.GothamBold,
-})
-previousButton.Parent = mainFrame
-
 local pageLabel = create("TextLabel", {
 	Name = "PageLabel",
 	Size = UDim2.fromOffset(120, 32),
@@ -531,19 +519,17 @@ local nextButton = create("TextButton", {
 })
 nextButton.Parent = mainFrame
 
-for _, button in ipairs({previousButton, nextButton}) do
-	local corner = create("UICorner", {
-		CornerRadius = UDim.new(0, 8),
-	})
-	corner.Parent = button
-end
+local nextCorner = create("UICorner", {
+	CornerRadius = UDim.new(0, 8),
+})
+nextCorner.Parent = nextButton
 
 --------------------------------------------------
 -- CATEGORY LOOKUP
 --------------------------------------------------
 
 local function getCategoryAssetTypes()
-	for _, category in ipairs(CATEGORIES) do
+	for _, category in ipairs(Config.Categories) do
 		if category.Name == currentCategory then
 			return category.AssetTypes
 		end
@@ -792,9 +778,6 @@ local function renderCurrentPage()
 		.. "  •  "
 		.. tostring(resultCount)
 
-	previousButton.Active = currentPageNumber > 1
-	previousButton.AutoButtonColor = currentPageNumber > 1
-
 	local finished = catalogPages.IsFinished
 
 	nextButton.Active = not finished
@@ -847,7 +830,10 @@ local function searchCatalog()
 	local params = CatalogSearchParams.new()
 
 	--------------------------------------------------
-	-- ★ OFFICIAL SEARCH PARAMETERS
+	-- ★ [VERIFIED] OFFICIAL SEARCH PARAMETERS
+	-- SearchKeyword / Limit / SortType / SortAggregation / MinPrice /
+	-- IncludeOffSale / CategoryFilter / SalesTypeFilter / CreatorType /
+	-- MaxPrice / AssetTypes are all current CatalogSearchParams properties.
 	--------------------------------------------------
 
 	params.SearchKeyword = currentKeyword
@@ -1027,12 +1013,6 @@ nextButton.MouseButton1Click:Connect(function()
 	statusLabel.Text = "Page " .. tostring(currentPageNumber)
 
 	searchBusy = false
-end)
-
-previousButton.MouseButton1Click:Connect(function()
-	-- Roblox Pages currently exposes forward iteration only.
-	-- We intentionally do not fake a previous-page request.
-	statusLabel.Text = "Previous page is not available from Roblox Pages."
 end)
 
 --------------------------------------------------
