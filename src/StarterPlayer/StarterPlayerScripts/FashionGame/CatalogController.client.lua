@@ -22,6 +22,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 --------------------------------------------------
 
 local currentCategory = "All"
+local currentAnimationCategory = "Idle"
 local currentKeyword = ""
 
 local currentWornItems: {[number]: boolean} = {}
@@ -300,7 +301,7 @@ local statusLabel = create("TextLabel", {
 	Name = "Status",
 
 	Size = UDim2.new(1, -40, 0, 30),
-	Position = UDim2.fromOffset(20, 158),
+	Position = UDim2.fromOffset(20, 194),
 
 	BackgroundTransparency = 1,
 
@@ -323,8 +324,8 @@ statusLabel.Parent = mainFrame
 local resultsFrame = create("ScrollingFrame", {
 	Name = "Results",
 
-	Size = UDim2.new(1, -40, 1, -205),
-	Position = UDim2.fromOffset(20, 190),
+	Size = UDim2.new(1, -40, 1, -241),
+	Position = UDim2.fromOffset(20, 226),
 
 	BackgroundTransparency = 1,
 
@@ -356,6 +357,8 @@ grid.Parent = resultsFrame
 --------------------------------------------------
 
 local categoryButtons: {[string]: TextButton} = {}
+local animationCategoryBar: ScrollingFrame? = nil
+local animationCategoryButtons: {[string]: TextButton} = {}
 
 local function updateCategoryVisuals()
 	for name, button in pairs(categoryButtons) do
@@ -364,6 +367,101 @@ local function updateCategoryVisuals()
 		else
 			button.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
 		end
+	end
+end
+
+
+--------------------------------------------------
+-- ANIMATION SUBCATEGORY BAR
+--------------------------------------------------
+
+local function updateAnimationCategoryVisuals()
+	for name, button in pairs(animationCategoryButtons) do
+		if name == currentAnimationCategory then
+			button.BackgroundColor3 = Color3.fromRGB(105, 85, 160)
+		else
+			button.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
+		end
+	end
+end
+
+local function createAnimationCategoryBar()
+	if animationCategoryBar then
+		return
+	end
+
+	local bar = create("ScrollingFrame", {
+		Name = "AnimationCategoryBar",
+
+		Size = UDim2.new(1, -40, 0, 34),
+		Position = UDim2.fromOffset(20, 154),
+
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+
+		CanvasSize = UDim2.new(0, 0, 0, 0),
+		AutomaticCanvasSize = Enum.AutomaticSize.X,
+
+		ScrollingDirection = Enum.ScrollingDirection.X,
+		ScrollBarThickness = 0,
+	})
+
+	bar.Parent = mainFrame
+
+	local layout = create("UIListLayout", {
+		FillDirection = Enum.FillDirection.Horizontal,
+		Padding = UDim.new(0, 6),
+		VerticalAlignment = Enum.VerticalAlignment.Center,
+	})
+
+	layout.Parent = bar
+
+	for _, category in ipairs(Config.AnimationCategories) do
+		local button = create("TextButton", {
+			Name = category.Name .. "AnimationButton",
+			Size = UDim2.fromOffset(72, 30),
+
+			BackgroundColor3 = Color3.fromRGB(50, 50, 60),
+
+			Text = category.DisplayName,
+			TextColor3 = Color3.fromRGB(255, 255, 255),
+
+			TextSize = 11,
+			Font = Enum.Font.GothamBold,
+		})
+
+		button.Parent = bar
+
+		local corner = create("UICorner", {
+			CornerRadius = UDim.new(0, 7),
+		})
+
+		corner.Parent = button
+
+		animationCategoryButtons[category.Name] = button
+
+		button.MouseButton1Click:Connect(function()
+			if currentAnimationCategory == category.Name then
+				return
+			end
+
+			currentAnimationCategory = category.Name
+			updateAnimationCategoryVisuals()
+			searchCatalog()
+		end)
+	end
+
+	animationCategoryBar = bar
+	updateAnimationCategoryVisuals()
+end
+
+local function setAnimationCategoryBarVisible(visible: boolean)
+	if not animationCategoryBar then
+		createAnimationCategoryBar()
+	end
+
+	if animationCategoryBar then
+		animationCategoryBar.Visible = visible
 	end
 end
 
@@ -412,29 +510,29 @@ end
 --------------------------------------------------
 
 local function getCategoryAssetTypes()
+	if currentCategory == "Animations" then
+		local animationCategory = Config.GetAnimationCategory(
+			currentAnimationCategory
+		)
+
+		if animationCategory then
+			return animationCategory.AssetTypes
+		end
+	end
+
 	return Config.GetCategoryAssetTypes(currentCategory)
 end
 
 local function getItemDefinition(item: any)
-	local assetTypeId = item.AssetTypeId
+	-- SearchCatalogAsync returns AssetType as an AvatarAssetType name
+	-- (for example "HairAccessory", "WalkAnimation").
+	local assetTypeName = item.AssetType
 
-	if typeof(assetTypeId) ~= "number" then
+	if typeof(assetTypeName) ~= "string" then
 		return nil
 	end
 
-	for _, assetType in ipairs(Enum.AssetType:GetEnumItems()) do
-		if assetType.Value == assetTypeId then
-			local avatarAssetType = Enum.AvatarAssetType[assetType.Name]
-
-			if avatarAssetType then
-				return Config.GetDefinition(avatarAssetType)
-			end
-
-			break
-		end
-	end
-
-	return nil
+	return Config.GetDefinitionByName(assetTypeName)
 end
 
 --------------------------------------------------
@@ -822,6 +920,13 @@ for _, category in ipairs(CATEGORIES) do
 
 		currentCategory = category.Name
 
+		if currentCategory == "Animations" then
+			currentAnimationCategory = "Idle"
+			setAnimationCategoryBarVisible(true)
+		else
+			setAnimationCategoryBarVisible(false)
+		end
+
 		updateCategoryVisuals()
 
 		searchCatalog()
@@ -829,6 +934,7 @@ for _, category in ipairs(CATEGORIES) do
 end
 
 updateCategoryVisuals()
+setAnimationCategoryBarVisible(false)
 
 --------------------------------------------------
 -- OPEN / CLOSE
