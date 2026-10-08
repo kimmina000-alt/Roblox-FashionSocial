@@ -789,11 +789,6 @@ local function renderCurrentPage()
 		nextButton.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
 	end
 
-	if currentPageNumber <= 1 then
-		previousButton.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-	else
-		previousButton.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
-	end
 end
 
 --------------------------------------------------
