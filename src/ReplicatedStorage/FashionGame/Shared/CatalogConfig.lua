@@ -224,6 +224,77 @@ CatalogConfig.Categories = {
 	},
 }
 
+
+-- =========================================================
+-- ANIMATION SUBCATEGORIES
+-- =========================================================
+
+CatalogConfig.AnimationCategories = {
+	{
+		Name = "Idle",
+		DisplayName = "Idle",
+		AssetTypes = {
+			Enum.AvatarAssetType.IdleAnimation,
+		},
+	},
+	{
+		Name = "Walk",
+		DisplayName = "Walk",
+		AssetTypes = {
+			Enum.AvatarAssetType.WalkAnimation,
+		},
+	},
+	{
+		Name = "Run",
+		DisplayName = "Run",
+		AssetTypes = {
+			Enum.AvatarAssetType.RunAnimation,
+		},
+	},
+	{
+		Name = "Jump",
+		DisplayName = "Jump",
+		AssetTypes = {
+			Enum.AvatarAssetType.JumpAnimation,
+		},
+	},
+	{
+		Name = "Fall",
+		DisplayName = "Fall",
+		AssetTypes = {
+			Enum.AvatarAssetType.FallAnimation,
+		},
+	},
+	{
+		Name = "Climb",
+		DisplayName = "Climb",
+		AssetTypes = {
+			Enum.AvatarAssetType.ClimbAnimation,
+		},
+	},
+	{
+		Name = "Swim",
+		DisplayName = "Swim",
+		AssetTypes = {
+			Enum.AvatarAssetType.SwimAnimation,
+		},
+	},
+	{
+		Name = "Mood",
+		DisplayName = "Mood",
+		AssetTypes = {
+			Enum.AvatarAssetType.MoodAnimation,
+		},
+	},
+	{
+		Name = "Emote",
+		DisplayName = "Emote",
+		AssetTypes = {
+			Enum.AvatarAssetType.EmoteAnimation,
+		},
+	},
+}
+
 -- Search across all AvatarAssetTypes represented by this editor.
 CatalogConfig.AllowedAssetTypes = {
 	Enum.AvatarAssetType.Head,
@@ -279,6 +350,16 @@ CatalogConfig.AllowedAssetTypes = {
 	Enum.AvatarAssetType.Gear,
 	Enum.AvatarAssetType.AvatarBackground,
 }
+
+function CatalogConfig.GetAnimationCategory(name: string)
+	for _, category in ipairs(CatalogConfig.AnimationCategories) do
+		if category.Name == name then
+			return category
+		end
+	end
+
+	return nil
+end
 
 function CatalogConfig.GetDefinition(
 	assetType: Enum.AvatarAssetType
