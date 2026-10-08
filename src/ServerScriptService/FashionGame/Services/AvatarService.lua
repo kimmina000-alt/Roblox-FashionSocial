@@ -1,6 +1,7 @@
 --!strict
 
 local MarketplaceService = game:GetService("MarketplaceService")
+local AssetService = game:GetService("AssetService")
 local AvatarEditorService = game:GetService("AvatarEditorService")
 
 local AvatarService = {}
@@ -91,6 +92,23 @@ local ANIMATION_ASSET_TYPES = {
 	[55] = "WalkAnimation",
 	[78] = "MoodAnimation",
 }
+
+local EMOTE_ASSET_TYPE = 61
+local MAKEUP_ASSET_TYPES = {
+	[88] = Enum.MakeupType.Face,
+	[89] = Enum.MakeupType.Lips,
+	[90] = Enum.MakeupType.Eyes,
+}
+
+local function getMakeupDescriptions(description: HumanoidDescription)
+	local result = {}
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("MakeupDescription") then
+			table.insert(result, child)
+		end
+	end
+	return result
+end
 
 --------------------------------------------------
 -- HUMANOID
@@ -290,6 +308,87 @@ function AvatarService.GetCurrentItems(
 	end
 
 	--------------------------------------------------
+	-- Makeup
+	--------------------------------------------------
+
+	local makeupType = MAKEUP_ASSET_TYPES[assetTypeId]
+	if makeupType then
+		local description = humanoid:GetAppliedDescription()
+		local makeupList = getMakeupDescriptions(description)
+		if #makeupList >= 6 then
+			return false, "Maximum 6 makeup items equipped."
+		end
+		for _, makeup in ipairs(makeupList) do
+			if makeup.AssetId == assetId then
+				return true, "Item already equipped."
+			end
+		end
+		local makeupDescription = Instance.new("MakeupDescription")
+		makeupDescription.AssetId = assetId
+		makeupDescription.MakeupType = makeupType
+		makeupDescription.Order = #makeupList + 1
+		makeupDescription.Parent = description
+		return applyDescription(humanoid, description)
+	end
+
+	--------------------------------------------------
+	-- Emote
+	--------------------------------------------------
+
+	if assetTypeId == EMOTE_ASSET_TYPE then
+		local description = humanoid:GetAppliedDescription()
+		local infoName = typeof(info.Name) == "string" and info.Name or ("Emote_" .. tostring(assetId))
+		local emotes = description:GetEmotes()
+		for _, ids in pairs(emotes) do
+			for _, id in ipairs(ids) do
+				if id == assetId then
+					return true, "Emote already equipped."
+				end
+			end
+		end
+		emotes[infoName] = {assetId}
+		description:SetEmotes(emotes)
+		local equipped = description:GetEquippedEmotes()
+		if #equipped < 8 then
+			table.insert(equipped, {Slot = #equipped + 1, Name = infoName})
+			description:SetEquippedEmotes(equipped)
+		end
+		return applyDescription(humanoid, description)
+	end
+
+	--------------------------------------------------
+	-- Makeup
+	--------------------------------------------------
+
+	for _, makeup in ipairs(getMakeupDescriptions(description)) do
+		if makeup.AssetId == assetId then
+			makeup:Destroy()
+			return applyDescription(humanoid, description)
+		end
+	end
+
+	--------------------------------------------------
+	-- Emote
+	--------------------------------------------------
+
+	local emotes = description:GetEmotes()
+	for name, ids in pairs(emotes) do
+		for _, id in ipairs(ids) do
+			if id == assetId then
+				description:RemoveEmote(name)
+				local equipped = {}
+				for _, entry in ipairs(description:GetEquippedEmotes()) do
+					if entry.Name ~= name then
+						table.insert(equipped, entry)
+					end
+				end
+				description:SetEquippedEmotes(equipped)
+				return applyDescription(humanoid, description)
+			end
+		end
+	end
+
+	--------------------------------------------------
 	-- Animations
 	--------------------------------------------------
 
@@ -300,6 +399,32 @@ function AvatarService.GetCurrentItems(
 				AssetId = animationId,
 				Category = propertyName,
 				AssetTypeId = assetTypeId,
+			})
+		end
+	end
+
+	--------------------------------------------------
+	-- Makeup
+	--------------------------------------------------
+
+	for _, makeup in ipairs(getMakeupDescriptions(description)) do
+		table.insert(result, {
+			AssetId = makeup.AssetId,
+			Category = makeup.MakeupType.Name .. "Makeup",
+			IsMakeup = true,
+		})
+	end
+
+	--------------------------------------------------
+	-- Emotes
+	--------------------------------------------------
+
+	for _, ids in pairs(description:GetEmotes()) do
+		for _, id in ipairs(ids) do
+			table.insert(result, {
+				AssetId = id,
+				Category = "Emote",
+				IsEmote = true,
 			})
 		end
 	end
