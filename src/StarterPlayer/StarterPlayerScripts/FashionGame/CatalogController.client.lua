@@ -688,6 +688,7 @@ nextCorner.Parent = nextButton
 --------------------------------------------------
 
 local expandedPanel = false
+local cardContentScale = 1
 
 local function updateCatalogLayout()
 	local camera = workspace.CurrentCamera
@@ -702,122 +703,149 @@ local function updateCatalogLayout()
 
 	if isNarrow then
 		if expandedPanel then
-			-- Expanded mobile view retains the previous full-screen browsing size.
-			panelWidth = viewport.X
-			panelHeight = viewport.Y
+			panelWidth, panelHeight = viewport.X, viewport.Y
 			mainFrame.Position = UDim2.fromOffset(0, 0)
 			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
 			mainCorner.CornerRadius = UDim.new(0, 0)
 		else
-			-- Compact mobile window uses about one quarter of the screen area
-			-- (half width × half height), anchored to the bottom-right corner.
-			panelWidth = math.max(190, math.floor(viewport.X * 0.5))
-			panelHeight = math.max(260, math.floor(viewport.Y * 0.5))
-			panelWidth = math.min(panelWidth, viewport.X - 12)
-			panelHeight = math.min(panelHeight, viewport.Y - 12)
+			panelWidth = math.min(math.max(190, math.floor(viewport.X * 0.5)), viewport.X - 12)
+			panelHeight = math.min(math.max(260, math.floor(viewport.Y * 0.5)), viewport.Y - 12)
 			mainFrame.Position = UDim2.new(1, -panelWidth - 6, 1, -panelHeight - 6)
 			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
 			mainCorner.CornerRadius = UDim.new(0, 14)
 		end
-		expandButton.Visible = true
 	else
 		local maxWidth = math.min(760, viewport.X - 32)
-		local previousDefaultWidth = math.clamp(
-			math.floor(viewport.X * 0.34),
-			math.min(420, maxWidth),
-			maxWidth
-		)
+		local oldDefaultWidth = math.clamp(math.floor(viewport.X * 0.34), math.min(420, maxWidth), maxWidth)
 		if expandedPanel then
-			panelWidth = math.clamp(
-				math.floor(viewport.X * 0.72),
-				math.min(420, maxWidth),
-				maxWidth
-			)
+			panelWidth, panelHeight = viewport.X, viewport.Y
+			mainFrame.Position = UDim2.fromOffset(0, 0)
+			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
+			mainCorner.CornerRadius = UDim.new(0, 0)
 		else
-			-- Reduce the previous compact desktop width to two thirds.
-			panelWidth = math.clamp(
-				math.floor(previousDefaultWidth * (2 / 3)),
-				math.min(280, maxWidth),
-				maxWidth
-			)
+			panelWidth = math.clamp(math.floor(oldDefaultWidth * (2 / 3)), math.min(280, maxWidth), maxWidth)
+			panelHeight = math.clamp(math.floor(viewport.Y * (2 / 3)), math.min(280, viewport.Y - 16), viewport.Y - 16)
+			mainFrame.Position = UDim2.new(1, -panelWidth - 16, 0.5, -math.floor(panelHeight / 2))
+			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
+			mainCorner.CornerRadius = UDim.new(0, 14)
 		end
-		panelHeight = math.clamp(
-			math.floor(viewport.Y * (2 / 3)),
-			math.min(280, viewport.Y - 16),
-			viewport.Y - 16
-		)
-		mainFrame.Position = UDim2.new(1, -panelWidth - 16, 0.5, -math.floor(panelHeight / 2))
-		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
-		mainCorner.CornerRadius = UDim.new(0, 14)
-		expandButton.Visible = true
 	end
 
+	expandButton.Visible = true
+	local compact = not expandedPanel
+	local compactMobile = isNarrow and compact
 	local innerWidth = math.max(1, panelWidth - 24)
-	local compactMobile = isNarrow and not expandedPanel
 
-	-- Header and search row.
-	titleLabel.Position = UDim2.fromOffset(12, 8)
-	titleLabel.Size = UDim2.new(1, -132, 0, 44)
-	closeButton.Position = UDim2.new(1, -48, 0, 12)
-	expandButton.Position = UDim2.new(1, -92, 0, 12)
+	titleLabel.Position = UDim2.fromOffset(12, 5)
+	titleLabel.Size = UDim2.new(1, -120, 0, 34)
+	titleLabel.TextSize = if compact then 16 else 22
+	closeButton.Position = UDim2.new(1, -42, 0, 6)
+	closeButton.Size = UDim2.fromOffset(32, 32)
+	expandButton.Position = UDim2.new(1, -80, 0, 6)
+	expandButton.Size = UDim2.fromOffset(32, 32)
 	expandButton.Text = if expandedPanel then "↙" else "↗"
 
-	searchBox.Position = UDim2.fromOffset(12, 58)
-	searchBox.Size = UDim2.new(1, -112, 0, 40)
-	searchButton.Position = UDim2.new(1, -92, 0, 58)
-	searchButton.Size = UDim2.fromOffset(80, 40)
+	if compact then
+		-- One compact toolbar row lets the result cards use more vertical space.
+		searchBox.Position = UDim2.fromOffset(8, 44)
+		searchBox.Size = UDim2.new(0.46, -8, 0, 32)
+		searchBox.TextSize = 12
+		searchBox.PlaceholderText = "Search..."
+		searchButton.Visible = false
+		categoryButton.Position = UDim2.new(0.46, 4, 0, 44)
+		categoryButton.Size = UDim2.new(0.27, -4, 0, 32)
+		categoryButton.TextSize = 10
+		sortButton.Position = UDim2.new(0.73, 0, 0, 44)
+		sortButton.Size = UDim2.new(0.27, -8, 0, 32)
+		sortButton.TextSize = 10
+		minPriceBox.Visible = false
+		maxPriceBox.Visible = false
+		offSaleButton.Visible = false
+		filterLabel.Visible = false
+		backToPacksButton.Position = UDim2.fromOffset(8, 82)
+		backToPacksButton.Size = UDim2.fromOffset(math.min(130, innerWidth * 0.42), 24)
+		backToPacksButton.TextSize = 9
+		statusLabel.Position = UDim2.new(0, math.min(144, innerWidth * 0.45), 0, 82)
+		statusLabel.Size = UDim2.new(1, -math.min(152, innerWidth * 0.45 + 8), 0, 24)
+		statusLabel.TextSize = 10
+		resultsFrame.Position = UDim2.fromOffset(8, 112)
+		resultsFrame.Size = UDim2.new(1, -16, 1, -154)
+	else
+		searchBox.Position = UDim2.fromOffset(12, 48)
+		searchBox.Size = UDim2.new(0.48, -12, 0, 36)
+		searchBox.TextSize = 14
+		searchBox.PlaceholderText = "Search Roblox catalog..."
+		searchButton.Visible = true
+		searchButton.Position = UDim2.new(0.48, 4, 0, 48)
+		searchButton.Size = UDim2.new(0.12, -4, 0, 36)
+		searchButton.TextSize = 11
+		categoryButton.Position = UDim2.new(0.60, 4, 0, 48)
+		categoryButton.Size = UDim2.new(0.20, -4, 0, 36)
+		categoryButton.TextSize = 11
+		sortButton.Position = UDim2.new(0.80, 0, 0, 48)
+		sortButton.Size = UDim2.new(0.20, -12, 0, 36)
+		sortButton.TextSize = 11
+		filterLabel.Visible = false
 
-	-- Category and sort share a row. Advanced filters remain compact below.
-	filterLabel.Visible = false
-	local halfWidth = math.max(60, math.floor((innerWidth - 8) / 2))
-	categoryButton.Position = UDim2.fromOffset(12, 106)
-	categoryButton.Size = UDim2.new(0, halfWidth, 0, 34)
-	categoryMenu.Position = UDim2.fromOffset(12, 142)
-	categoryMenu.Size = UDim2.new(0, halfWidth, 0, math.max(100, math.min(360, panelHeight - 170)))
-
-	local sortX = 20 + halfWidth
-	sortButton.Position = UDim2.fromOffset(sortX, 106)
-	sortButton.Size = UDim2.new(0, halfWidth, 0, 34)
-	sortMenu.Position = UDim2.fromOffset(sortX, 142)
-	sortMenu.Size = UDim2.new(0, halfWidth, 0, math.max(100, math.min(220, panelHeight - 170)))
-
-	local priceWidth = math.clamp(math.floor(innerWidth * 0.22), 60, 90)
-	minPriceBox.Position = UDim2.fromOffset(12, 148)
-	minPriceBox.Size = UDim2.fromOffset(priceWidth, 34)
-	maxPriceBox.Position = UDim2.fromOffset(18 + priceWidth, 148)
-	maxPriceBox.Size = UDim2.fromOffset(priceWidth, 34)
-	offSaleButton.Position = UDim2.fromOffset(24 + priceWidth * 2, 148)
-	offSaleButton.Size = UDim2.fromOffset(math.max(70, innerWidth - priceWidth * 2 - 12), 34)
-
-	-- Keep advanced filters out of the tiny mobile popover; they remain available
-	-- as soon as the player expands the catalog.
-	minPriceBox.Visible = not compactMobile
-	maxPriceBox.Visible = not compactMobile
-	offSaleButton.Visible = not compactMobile
-
-	backToPacksButton.Position = UDim2.fromOffset(12, 190)
-	backToPacksButton.Size = UDim2.fromOffset(math.min(145, innerWidth * 0.38), 28)
-	statusLabel.Position = UDim2.fromOffset(math.min(165, innerWidth * 0.42), 190)
-	statusLabel.Size = UDim2.new(1, -math.min(177, innerWidth * 0.42 + 12), 0, 30)
-
-	resultsFrame.Position = UDim2.fromOffset(12, 224)
-	resultsFrame.Size = UDim2.new(1, -24, 1, -276)
-
-	-- Smaller cards: 132×192 px (20% smaller than the original 165×240).
-	-- Derive the number of columns from the available width so cards stay compact.
-	local resultsWidth = math.max(1, panelWidth - 24)
-	local cellWidth = 132
-	local columns = math.max(1, math.floor((resultsWidth + 10) / (cellWidth + 10)))
-	if columns == 1 then
-		cellWidth = math.max(100, resultsWidth)
+		local priceY = 92
+		local priceWidth = math.clamp(math.floor(innerWidth * 0.22), 60, 100)
+		minPriceBox.Position = UDim2.fromOffset(12, priceY)
+		minPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
+		maxPriceBox.Position = UDim2.fromOffset(18 + priceWidth, priceY)
+		maxPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
+		offSaleButton.Position = UDim2.fromOffset(24 + priceWidth * 2, priceY)
+		offSaleButton.Size = UDim2.new(1, -(36 + priceWidth * 2), 0, 30)
+		minPriceBox.Visible = true
+		maxPriceBox.Visible = true
+		offSaleButton.Visible = true
+		backToPacksButton.Position = UDim2.fromOffset(12, 130)
+		backToPacksButton.Size = UDim2.fromOffset(math.min(145, innerWidth * 0.3), 26)
+		backToPacksButton.TextSize = 10
+		statusLabel.Position = UDim2.new(0, math.min(165, innerWidth * 0.34), 0, 130)
+		statusLabel.Size = UDim2.new(1, -math.min(177, innerWidth * 0.34 + 12), 0, 26)
+		statusLabel.TextSize = 12
+		resultsFrame.Position = UDim2.fromOffset(12, 164)
+		resultsFrame.Size = UDim2.new(1, -24, 1, -214)
 	end
-	grid.CellSize = UDim2.fromOffset(cellWidth, 192)
-	grid.CellPadding = UDim2.fromOffset(8, 8)
 
-	pageLabel.Size = UDim2.fromOffset(100, 32)
-	pageLabel.Position = UDim2.new(0.5, -50, 1, -42)
-	nextButton.Size = UDim2.fromOffset(100, 32)
-	nextButton.Position = UDim2.new(1, -112, 1, -42)
+	categoryMenu.Position = UDim2.new(categoryButton.Position.X.Scale, categoryButton.Position.X.Offset, 0, categoryButton.Position.Y.Offset + categoryButton.Size.Y.Offset + 4)
+	categoryMenu.Size = UDim2.new(categoryButton.Size.X.Scale, categoryButton.Size.X.Offset, 0, math.max(100, math.min(360, panelHeight - 150)))
+	sortMenu.Position = UDim2.new(sortButton.Position.X.Scale, sortButton.Position.X.Offset, 0, sortButton.Position.Y.Offset + sortButton.Size.Y.Offset + 4)
+	sortMenu.Size = UDim2.new(sortButton.Size.X.Scale, sortButton.Size.X.Offset, 0, math.max(100, math.min(220, panelHeight - 150)))
+
+	if compactMobile then
+		grid.CellSize = UDim2.fromOffset(88, 128)
+		cardContentScale = 0.67
+	elseif compact then
+		grid.CellSize = UDim2.fromOffset(110, 160)
+		cardContentScale = 0.83
+	else
+		grid.CellSize = UDim2.fromOffset(132, 192)
+		cardContentScale = 1
+	end
+	grid.CellPadding = UDim2.fromOffset(6, 6)
+
+	if expandedPanel and isNarrow then
+		resultsFrame.Position = UDim2.fromOffset(8, 310)
+		resultsFrame.Size = UDim2.new(1, -16, 1, -352)
+	elseif expandedPanel then
+		resultsFrame.Position = UDim2.fromOffset(288, 164)
+		resultsFrame.Size = UDim2.new(1, -300, 1, -214)
+	end
+
+	pageLabel.Size = UDim2.fromOffset(88, 28)
+	pageLabel.Position = UDim2.new(0.5, -44, 1, -36)
+	nextButton.Size = UDim2.fromOffset(88, 28)
+	nextButton.Position = UDim2.new(1, -98, 1, -36)
+
+	previewFrame.Visible = expandedPanel and mainFrame.Visible
+	if isNarrow then
+		previewFrame.Size = UDim2.new(0.42, 0, 0, math.min(210, math.floor(viewport.Y * 0.27)))
+		previewFrame.Position = UDim2.new(0, 8, 0, 82)
+	else
+		previewFrame.Size = UDim2.fromOffset(260, 330)
+		previewFrame.Position = UDim2.fromOffset(16, 164)
+	end
 end
 
 local function bindViewport(camera: Camera?)
