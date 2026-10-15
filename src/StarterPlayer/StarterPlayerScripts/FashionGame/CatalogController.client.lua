@@ -711,40 +711,35 @@ local function updateCatalogLayout()
 	local isNarrow = viewport.X < 900
 	local panelWidth: number
 	local panelHeight: number
+	local expandedMobilePreviewHeight = math.min(160, math.floor(viewport.Y * 0.24))
 
-	if isNarrow then
-		if expandedPanel then
-			panelWidth, panelHeight = viewport.X, viewport.Y
-			mainFrame.Position = UDim2.fromOffset(0, 0)
-			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
-			mainCorner.CornerRadius = UDim.new(0, 0)
-		else
-			panelWidth = math.min(math.max(190, math.floor(viewport.X * 0.5)), viewport.X - 12)
-			panelHeight = math.min(math.max(260, math.floor(viewport.Y * 0.5)), viewport.Y - 12)
-			mainFrame.Position = UDim2.new(1, -panelWidth - 6, 1, -panelHeight - 6)
-			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
-			mainCorner.CornerRadius = UDim.new(0, 14)
-		end
+	-- Expanded mode is a full-screen workspace on both PC and mobile.
+	-- The avatar preview is kept visible beside/before the catalog results.
+	if expandedPanel then
+		panelWidth, panelHeight = viewport.X, viewport.Y
+		mainFrame.Position = UDim2.fromOffset(0, 0)
+		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
+		mainCorner.CornerRadius = UDim.new(0, 0)
+	elseif isNarrow then
+		panelWidth = math.min(math.max(190, math.floor(viewport.X * 0.5)), viewport.X - 12)
+		panelHeight = math.min(math.max(260, math.floor(viewport.Y * 0.5)), viewport.Y - 12)
+		mainFrame.Position = UDim2.new(1, -panelWidth - 6, 1, -panelHeight - 6)
+		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
+		mainCorner.CornerRadius = UDim.new(0, 14)
 	else
 		local maxWidth = math.min(760, viewport.X - 32)
 		local oldDefaultWidth = math.clamp(math.floor(viewport.X * 0.34), math.min(420, maxWidth), maxWidth)
-		if expandedPanel then
-			panelWidth, panelHeight = viewport.X, viewport.Y
-			mainFrame.Position = UDim2.fromOffset(0, 0)
-			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
-			mainCorner.CornerRadius = UDim.new(0, 0)
-		else
-			panelWidth = math.clamp(math.floor(oldDefaultWidth * (2 / 3)), math.min(280, maxWidth), maxWidth)
-			panelHeight = math.clamp(math.floor(viewport.Y * (2 / 3)), math.min(280, viewport.Y - 16), viewport.Y - 16)
-			mainFrame.Position = UDim2.new(1, -panelWidth - 16, 0.5, -math.floor(panelHeight / 2))
-			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
-			mainCorner.CornerRadius = UDim.new(0, 14)
-		end
+		panelWidth = math.clamp(math.floor(oldDefaultWidth * (2 / 3)), math.min(280, maxWidth), maxWidth)
+		panelHeight = math.clamp(math.floor(viewport.Y * (2 / 3)), math.min(280, viewport.Y - 16), viewport.Y - 16)
+		mainFrame.Position = UDim2.new(1, -panelWidth - 16, 0.5, -math.floor(panelHeight / 2))
+		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
+		mainCorner.CornerRadius = UDim.new(0, 14)
 	end
 
 	expandButton.Visible = true
 	local compact = not expandedPanel
 	local compactMobile = isNarrow and compact
+	local expandedMobile = isNarrow and expandedPanel
 	local innerWidth = math.max(1, panelWidth - 24)
 
 	titleLabel.Position = UDim2.fromOffset(12, 5)
@@ -757,7 +752,8 @@ local function updateCatalogLayout()
 	expandButton.Text = if expandedPanel then "↙" else "↗"
 
 	if compact then
-		-- One compact toolbar row lets the result cards use more vertical space.
+		-- Put search, category and sort in one toolbar row.
+		-- Hide secondary status/filter rows so cards are visible immediately.
 		searchBox.Position = UDim2.fromOffset(8, 44)
 		searchBox.Size = UDim2.new(0.46, -8, 0, 32)
 		searchBox.TextSize = 12
@@ -769,54 +765,104 @@ local function updateCatalogLayout()
 		sortButton.Position = UDim2.new(0.73, 0, 0, 44)
 		sortButton.Size = UDim2.new(0.27, -8, 0, 32)
 		sortButton.TextSize = 10
+
 		minPriceBox.Visible = false
 		maxPriceBox.Visible = false
 		offSaleButton.Visible = false
 		filterLabel.Visible = false
-		backToPacksButton.Position = UDim2.fromOffset(8, 82)
-		backToPacksButton.Size = UDim2.fromOffset(math.min(130, innerWidth * 0.42), 24)
+		backToPacksButton.Visible = bundleContentsOpen
+		backToPacksButton.Position = UDim2.fromOffset(8, 80)
+		backToPacksButton.Size = UDim2.fromOffset(math.min(130, innerWidth * 0.42), 22)
 		backToPacksButton.TextSize = 9
-		statusLabel.Position = UDim2.new(0, math.min(144, innerWidth * 0.45), 0, 82)
-		statusLabel.Size = UDim2.new(1, -math.min(152, innerWidth * 0.45 + 8), 0, 24)
-		statusLabel.TextSize = 10
-		resultsFrame.Position = UDim2.fromOffset(8, 112)
-		resultsFrame.Size = UDim2.new(1, -16, 1, -154)
+		statusLabel.Visible = false
+		resultsFrame.Position = UDim2.fromOffset(8, 82)
+		resultsFrame.Size = UDim2.new(1, -16, 1, -122)
 	else
-		searchBox.Position = UDim2.fromOffset(12, 48)
-		searchBox.Size = UDim2.new(0.48, -12, 0, 36)
-		searchBox.TextSize = 14
-		searchBox.PlaceholderText = "Search Roblox catalog..."
-		searchButton.Visible = true
-		searchButton.Position = UDim2.new(0.48, 4, 0, 48)
-		searchButton.Size = UDim2.new(0.12, -4, 0, 36)
-		searchButton.TextSize = 11
-		categoryButton.Position = UDim2.new(0.60, 4, 0, 48)
-		categoryButton.Size = UDim2.new(0.20, -4, 0, 36)
-		categoryButton.TextSize = 11
-		sortButton.Position = UDim2.new(0.80, 0, 0, 48)
-		sortButton.Size = UDim2.new(0.20, -12, 0, 36)
-		sortButton.TextSize = 11
-		filterLabel.Visible = false
+		backToPacksButton.Visible = bundleContentsOpen
+		statusLabel.Visible = true
 
-		local priceY = 92
-		local priceWidth = math.clamp(math.floor(innerWidth * 0.22), 60, 100)
-		minPriceBox.Position = UDim2.fromOffset(12, priceY)
-		minPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
-		maxPriceBox.Position = UDim2.fromOffset(18 + priceWidth, priceY)
-		maxPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
-		offSaleButton.Position = UDim2.fromOffset(24 + priceWidth * 2, priceY)
-		offSaleButton.Size = UDim2.new(1, -(36 + priceWidth * 2), 0, 30)
-		minPriceBox.Visible = true
-		maxPriceBox.Visible = true
-		offSaleButton.Visible = true
-		backToPacksButton.Position = UDim2.fromOffset(12, 130)
-		backToPacksButton.Size = UDim2.fromOffset(math.min(145, innerWidth * 0.3), 26)
-		backToPacksButton.TextSize = 10
-		statusLabel.Position = UDim2.new(0, math.min(165, innerWidth * 0.34), 0, 130)
-		statusLabel.Size = UDim2.new(1, -math.min(177, innerWidth * 0.34 + 12), 0, 26)
-		statusLabel.TextSize = 12
-		resultsFrame.Position = UDim2.fromOffset(12, 164)
-		resultsFrame.Size = UDim2.new(1, -24, 1, -214)
+		if expandedMobile then
+			-- On expanded mobile, keep all controls above the avatar preview.
+			searchBox.Position = UDim2.fromOffset(8, 44)
+			searchBox.Size = UDim2.new(0.60, -8, 0, 34)
+			searchBox.TextSize = 12
+			searchBox.PlaceholderText = "Search Roblox catalog..."
+			searchButton.Visible = true
+			searchButton.Position = UDim2.new(0.60, 0, 0, 44)
+			searchButton.Size = UDim2.new(0.16, -4, 0, 34)
+			searchButton.TextSize = 10
+
+			categoryButton.Position = UDim2.new(0, 8, 0, 84)
+			categoryButton.Size = UDim2.new(0.48, -8, 0, 32)
+			categoryButton.TextSize = 11
+			sortButton.Position = UDim2.new(0.52, 0, 0, 84)
+			sortButton.Size = UDim2.new(0.48, -8, 0, 32)
+			sortButton.TextSize = 11
+			filterLabel.Visible = false
+
+			local priceY = 122
+			local priceWidth = math.clamp(math.floor(innerWidth * 0.22), 56, 92)
+			minPriceBox.Position = UDim2.fromOffset(8, priceY)
+			minPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
+			maxPriceBox.Position = UDim2.fromOffset(14 + priceWidth, priceY)
+			maxPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
+			offSaleButton.Position = UDim2.fromOffset(20 + priceWidth * 2, priceY)
+			offSaleButton.Size = UDim2.new(1, -(32 + priceWidth * 2), 0, 30)
+			minPriceBox.Visible = true
+			maxPriceBox.Visible = true
+			offSaleButton.Visible = true
+
+			backToPacksButton.Position = UDim2.fromOffset(8, 160)
+			backToPacksButton.Size = UDim2.fromOffset(math.min(130, innerWidth * 0.35), 24)
+			backToPacksButton.TextSize = 9
+			statusLabel.Position = UDim2.new(0, math.min(144, innerWidth * 0.40), 0, 160)
+			statusLabel.Size = UDim2.new(1, -math.min(152, innerWidth * 0.40 + 8), 0, 24)
+			statusLabel.TextSize = 10
+
+			previewFrame.Size = UDim2.new(0.46, 0, 0, expandedMobilePreviewHeight)
+			previewFrame.Position = UDim2.fromOffset(8, 192)
+			local resultsY = 200 + expandedMobilePreviewHeight
+			resultsFrame.Position = UDim2.fromOffset(8, resultsY)
+			resultsFrame.Size = UDim2.new(1, -16, 1, -(resultsY + 42))
+		else
+			searchBox.Position = UDim2.fromOffset(12, 48)
+			searchBox.Size = UDim2.new(0.48, -12, 0, 36)
+			searchBox.TextSize = 14
+			searchBox.PlaceholderText = "Search Roblox catalog..."
+			searchButton.Visible = true
+			searchButton.Position = UDim2.new(0.48, 4, 0, 48)
+			searchButton.Size = UDim2.new(0.12, -4, 0, 36)
+			searchButton.TextSize = 11
+			categoryButton.Position = UDim2.new(0.60, 4, 0, 48)
+			categoryButton.Size = UDim2.new(0.20, -4, 0, 36)
+			categoryButton.TextSize = 11
+			sortButton.Position = UDim2.new(0.80, 0, 0, 48)
+			sortButton.Size = UDim2.new(0.20, -12, 0, 36)
+			sortButton.TextSize = 11
+			filterLabel.Visible = false
+
+			local priceY = 92
+			local priceWidth = math.clamp(math.floor(innerWidth * 0.22), 60, 100)
+			minPriceBox.Position = UDim2.fromOffset(12, priceY)
+			minPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
+			maxPriceBox.Position = UDim2.fromOffset(18 + priceWidth, priceY)
+			maxPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
+			offSaleButton.Position = UDim2.fromOffset(24 + priceWidth * 2, priceY)
+			offSaleButton.Size = UDim2.new(1, -(36 + priceWidth * 2), 0, 30)
+			minPriceBox.Visible = true
+			maxPriceBox.Visible = true
+			offSaleButton.Visible = true
+			backToPacksButton.Position = UDim2.fromOffset(12, 130)
+			backToPacksButton.Size = UDim2.fromOffset(math.min(145, innerWidth * 0.3), 26)
+			backToPacksButton.TextSize = 10
+			statusLabel.Position = UDim2.new(0, math.min(165, innerWidth * 0.34), 0, 130)
+			statusLabel.Size = UDim2.new(1, -math.min(177, innerWidth * 0.34 + 12), 0, 26)
+			statusLabel.TextSize = 12
+			resultsFrame.Position = UDim2.fromOffset(if expandedPanel then 288 else 12, 164)
+			resultsFrame.Size = UDim2.new(1, if expandedPanel then -300 else -24, 1, -214)
+			previewFrame.Size = UDim2.fromOffset(260, math.min(360, math.max(280, math.floor(viewport.Y * 0.55))))
+			previewFrame.Position = UDim2.fromOffset(16, 164)
+		end
 	end
 
 	categoryMenu.Position = UDim2.new(categoryButton.Position.X.Scale, categoryButton.Position.X.Offset, 0, categoryButton.Position.Y.Offset + categoryButton.Size.Y.Offset + 4)
@@ -824,12 +870,16 @@ local function updateCatalogLayout()
 	sortMenu.Position = UDim2.new(sortButton.Position.X.Scale, sortButton.Position.X.Offset, 0, sortButton.Position.Y.Offset + sortButton.Size.Y.Offset + 4)
 	sortMenu.Size = UDim2.new(sortButton.Size.X.Scale, sortButton.Size.X.Offset, 0, math.max(100, math.min(220, panelHeight - 150)))
 
+	-- Use separate grid sizes for compact mobile, compact PC and expanded browsing.
 	if compactMobile then
-		grid.CellSize = UDim2.fromOffset(96, 144)
-		cardContentScale = 0.75
+		grid.CellSize = UDim2.fromOffset(76, 114)
+		cardContentScale = 0.68
 	elseif compact then
-		grid.CellSize = UDim2.fromOffset(120, 174)
-		cardContentScale = 0.90
+		grid.CellSize = UDim2.fromOffset(100, 146)
+		cardContentScale = 0.82
+	elseif expandedMobile then
+		grid.CellSize = UDim2.fromOffset(112, 164)
+		cardContentScale = 0.86
 	else
 		grid.CellSize = UDim2.fromOffset(132, 192)
 		cardContentScale = 1
@@ -839,26 +889,10 @@ local function updateCatalogLayout()
 		contentScale.Scale = cardContentScale
 	end
 
-	if expandedPanel and isNarrow then
-		resultsFrame.Position = UDim2.fromOffset(8, 310)
-		resultsFrame.Size = UDim2.new(1, -16, 1, -352)
-	elseif expandedPanel then
-		resultsFrame.Position = UDim2.fromOffset(288, 164)
-		resultsFrame.Size = UDim2.new(1, -300, 1, -214)
-	end
-
-	pageLabel.Size = UDim2.fromOffset(88, 28)
-	pageLabel.Position = UDim2.new(0.5, -44, 1, -36)
-	nextButton.Size = UDim2.fromOffset(88, 28)
-	nextButton.Position = UDim2.new(1, -98, 1, -36)
-
-	previewFrame.Visible = expandedPanel and mainFrame.Visible and not previewManuallyClosed
-	if isNarrow then
-		previewFrame.Size = UDim2.new(0.42, 0, 0, math.min(210, math.floor(viewport.Y * 0.27)))
-		previewFrame.Position = UDim2.new(0, 8, 0, 82)
-	else
-		previewFrame.Size = UDim2.fromOffset(260, 330)
-		previewFrame.Position = UDim2.fromOffset(16, 164)
+	if expandedMobile then
+		previewFrame.Visible = expandedPanel and mainFrame.Visible and not previewManuallyClosed
+	elseif not isNarrow then
+		previewFrame.Visible = expandedPanel and mainFrame.Visible and not previewManuallyClosed
 	end
 end
 
