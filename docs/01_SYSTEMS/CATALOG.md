@@ -15,7 +15,7 @@
 ### Desktop / wide viewport
 - Left: current avatar preview, compact category shortcuts, current-outfit entry point.
 - Right: search and browse controls above a scrollable item grid.
-- Item card: thumbnail, item name, price/sale status, current wear state, primary action.
+- Item card: compact thumbnail, item name, price/sale status, current wear state, primary action. Keep cards about 20% smaller than the original 165×240 px layout; do not reduce them to one-fifth of their dimensions because that would make names and tap targets unusable.
 - Close control remains easy to find. Closing the catalog returns the player to the same world and does not reset CurrentOutfit.
 
 ### Small viewport
@@ -66,10 +66,10 @@ Players may inspect another player's visible outfit and try the same catalog ite
 The main loop is **find an item quickly → try it on → immediately inspect the result**. The avatar/world preview, category access, and keyword search are primary controls; advanced filters must not push them out of view or make them harder to use.
 
 ### Responsive panel layout
-- **Desktop:** place the catalog on the right, targeting roughly one-third of the viewport width by default. Keep the avatar and world visible beside it.
+- **Desktop:** place the compact catalog on the right, at about two-thirds of the previous compact width, and about two-thirds of the viewport height. Keep the avatar and world visible beside it.
 - Allow resizing by dragging a corner/edge when reliable. If resizing proves unreliable, use a clear expand/collapse control instead.
 - Clamp the panel to the viewport so it cannot be dragged completely off-screen; preserve usable minimum dimensions.
-- **Mobile/narrow screens:** do not preserve the desktop one-third width. Use a wide panel or full-screen mode with reachable controls and sufficiently large tap targets.
+- **Mobile/narrow screens:** the collapsed catalog is a bottom-right floating window occupying roughly one-quarter of the screen area (about half the viewport width and half its height). Expanding it opens the previous full-screen browsing view. Advanced price/off-sale filters are hidden only in the compact floating state and remain available when expanded.
 - Keep the search and sort controls above the item grid. The item grid must retain enough room for readable thumbnails and card actions.
 
 ### Category navigation
@@ -99,3 +99,12 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 - On narrow screens, controls and item cards remain usable rather than shrinking to desktop proportions.
 - The player can tell whether an item is worn and see the confirmed avatar result after wear/remove.
 - Existing search, category selection, sort, price bounds, off-sale behavior, pagination, wear, and remove flows continue to work after the layout changes.
+
+
+## Current Worn Items Panel — Planned
+
+- Add a dedicated panel/window that lists the items currently worn by the local player's avatar, not just a WORN label on catalog search cards.
+- Each row/card should show the thumbnail, item name/type, and a clear remove action where supported.
+- Refresh the list from the authoritative server CurrentOutfit after opening the panel and after successful wear/remove actions.
+- Keep the worn-item list distinct from catalog search results so users can inspect and manage their current outfit even when an item is not in the current search page.
+- Do not mark an item removed or worn until the server confirms the operation; unsupported types should have a clear non-actionable state.
