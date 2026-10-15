@@ -913,6 +913,10 @@ local function refreshWornItems()
 	for _, updateButton in pairs(wornButtonUpdaters) do
 		updateButton()
 	end
+
+	if previewFrame.Visible then
+		refreshAvatarPreview()
+	end
 end
 
 --------------------------------------------------
@@ -938,9 +942,20 @@ local function createItemCard(item: any, layoutOrder: number)
 	card.Parent = resultsFrame
 
 	local cardCorner = create("UICorner", {
-		CornerRadius = UDim.new(0, 10),
+		CornerRadius = UDim.new(0, 8),
 	})
 	cardCorner.Parent = card
+
+	local cardContent = create("Frame", {
+		Name = "CardContent",
+		Size = UDim2.new(1, 0, 1, 0),
+		BackgroundTransparency = 1,
+	})
+	cardContent.Parent = card
+	local cardContentScale = create("UIScale", {
+		Scale = cardContentScale,
+	})
+	cardContentScale.Parent = cardContent
 
 	local thumbnail = create("ImageLabel", {
 		Name = "Thumbnail",
@@ -955,7 +970,7 @@ local function createItemCard(item: any, layoutOrder: number)
 			.. "&w=420&h=420",
 		ScaleType = Enum.ScaleType.Fit,
 	})
-	thumbnail.Parent = card
+	thumbnail.Parent = cardContent
 
 	local thumbnailCorner = create("UICorner", {
 		CornerRadius = UDim.new(0, 6),
@@ -975,7 +990,7 @@ local function createItemCard(item: any, layoutOrder: number)
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Center,
 	})
-	nameLabel.Parent = card
+	nameLabel.Parent = cardContent
 
 	local typeLabel = create("TextLabel", {
 		Name = "AssetType",
@@ -988,7 +1003,7 @@ local function createItemCard(item: any, layoutOrder: number)
 		Font = Enum.Font.Gotham,
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
-	typeLabel.Parent = card
+	typeLabel.Parent = cardContent
 
 	local priceLabel = create("TextLabel", {
 		Name = "Price",
@@ -1001,7 +1016,7 @@ local function createItemCard(item: any, layoutOrder: number)
 		Font = Enum.Font.Gotham,
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
-	priceLabel.Parent = card
+	priceLabel.Parent = cardContent
 
 	local actionButton = create("TextButton", {
 		Name = "ActionButton",
@@ -1013,7 +1028,7 @@ local function createItemCard(item: any, layoutOrder: number)
 		Font = Enum.Font.GothamBold,
 		AutoButtonColor = canTryOn,
 	})
-	actionButton.Parent = card
+	actionButton.Parent = cardContent
 
 	local actionCorner = create("UICorner", {
 		CornerRadius = UDim.new(0, 7),
@@ -1075,6 +1090,9 @@ local function createItemCard(item: any, layoutOrder: number)
 			if success and result == true then
 				currentWornItems[assetId] = nil
 				updateButton()
+				task.wait(0.15)
+				refreshWornItems()
+				refreshAvatarPreview()
 				statusLabel.Text = "Item removed."
 			else
 				warn("[CatalogController] Remove failed:", result, message)
@@ -1093,6 +1111,7 @@ local function createItemCard(item: any, layoutOrder: number)
 			if success and result == true then
 				task.wait(0.2)
 				refreshWornItems()
+				refreshAvatarPreview()
 				updateButton()
 				statusLabel.Text = "Item equipped."
 			else
@@ -1628,11 +1647,17 @@ openButton.MouseButton1Click:Connect(function()
 	mainFrame.Visible = true
 
 	refreshWornItems()
+	updateCatalogLayout()
+	if expandedPanel then
+		previewFrame.Visible = true
+		refreshAvatarPreview()
+	end
 	searchCatalog()
 end)
 
 closeButton.MouseButton1Click:Connect(function()
 	mainFrame.Visible = false
+	previewFrame.Visible = false
 	categoryMenu.Visible = false
 	sortMenu.Visible = false
 end)
