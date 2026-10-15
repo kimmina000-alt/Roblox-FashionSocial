@@ -11,3 +11,5 @@ Search / Browse / Detail / Temporary Try-on / Equip / Unequip / Current Outfit /
 
 ## Ownership
 Try-on은 구매가 아니다. 실제 구매는 Roblox purchase flow.
+
+[추가] 카테고리별 지원 타입, 검색 상태, 착용·해제 실패 처리, 미지원 타입 표시
