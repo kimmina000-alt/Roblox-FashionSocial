@@ -34,6 +34,9 @@ local currentIncludeOffSale = Config.IncludeOffSale
 
 local currentWornItems: {[number]: boolean} = {}
 
+-- Live card button refreshers keyed by asset ID.
+local wornButtonUpdaters: {[number]: () -> ()} = {}
+
 local searchBusy = false
 local actionBusy = false
 local bundleContentsOpen = false
@@ -602,6 +605,11 @@ local function refreshWornItems()
 			end
 		end
 	end
+
+
+	for _, updateButton in pairs(wornButtonUpdaters) do
+		updateButton()
+	end
 end
 
 --------------------------------------------------
@@ -734,6 +742,7 @@ local function createItemCard(item: any, layoutOrder: number)
 	end
 
 	updateButton()
+	wornButtonUpdaters[assetId] = updateButton
 
 	actionButton.MouseButton1Click:Connect(function()
 		if actionBusy then
@@ -821,6 +830,7 @@ showBundleContents = function(bundleId: number, bundleName: string)
 	bundleContentsOpen = true
 	backToPacksButton.Visible = true
 	statusLabel.Text = "Loading contents: " .. bundleName
+	wornButtonUpdaters = {}
 	clearContainer(resultsFrame)
 
 	local success, details = pcall(function()
@@ -912,6 +922,7 @@ renderCurrentPage = function()
 		return
 	end
 
+	wornButtonUpdaters = {}
 	clearContainer(resultsFrame)
 
 	local success, currentPage = pcall(function()
