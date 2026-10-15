@@ -590,39 +590,71 @@ local function updateCatalogLayout()
 	end
 
 	local viewport = camera.ViewportSize
-	local isNarrow = viewport.X < 720
+	local isNarrow = viewport.X < 900
 	local panelWidth: number
+	local panelHeight: number
 
 	if isNarrow then
-		-- On narrow/mobile screens the catalog uses the available screen,
-		-- rather than preserving the desktop one-third width.
-		panelWidth = viewport.X
-		mainFrame.Position = UDim2.fromOffset(0, 0)
-		mainFrame.Size = UDim2.fromOffset(viewport.X, viewport.Y)
-		mainCorner.CornerRadius = UDim.new(0, 0)
-		expandButton.Visible = false
+		if expandedPanel then
+			-- Expanded mobile view retains the previous full-screen browsing size.
+			panelWidth = viewport.X
+			panelHeight = viewport.Y
+			mainFrame.Position = UDim2.fromOffset(0, 0)
+			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
+			mainCorner.CornerRadius = UDim.new(0, 0)
+		else
+			-- Compact mobile window uses about one quarter of the screen area
+			-- (half width × half height), anchored to the bottom-right corner.
+			panelWidth = math.max(190, math.floor(viewport.X * 0.5))
+			panelHeight = math.max(260, math.floor(viewport.Y * 0.5))
+			panelWidth = math.min(panelWidth, viewport.X - 12)
+			panelHeight = math.min(panelHeight, viewport.Y - 12)
+			mainFrame.Position = UDim2.new(1, -panelWidth - 6, 1, -panelHeight - 6)
+			mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
+			mainCorner.CornerRadius = UDim.new(0, 14)
+		end
+		expandButton.Visible = true
 	else
 		local maxWidth = math.min(760, viewport.X - 32)
-		local targetRatio = if expandedPanel then 0.72 else 0.34
-		panelWidth = math.clamp(
-			math.floor(viewport.X * targetRatio),
+		local previousDefaultWidth = math.clamp(
+			math.floor(viewport.X * 0.34),
 			math.min(420, maxWidth),
 			maxWidth
 		)
-		mainFrame.Position = UDim2.new(1, -panelWidth - 16, 0, 8)
-		mainFrame.Size = UDim2.new(0, panelWidth, 1, -16)
+		if expandedPanel then
+			panelWidth = math.clamp(
+				math.floor(viewport.X * 0.72),
+				math.min(420, maxWidth),
+				maxWidth
+			)
+		else
+			-- Reduce the previous compact desktop width to two thirds.
+			panelWidth = math.clamp(
+				math.floor(previousDefaultWidth * (2 / 3)),
+				math.min(280, maxWidth),
+				maxWidth
+			)
+		end
+		panelHeight = math.clamp(
+			math.floor(viewport.Y * (2 / 3)),
+			math.min(280, viewport.Y - 16),
+			viewport.Y - 16
+		)
+		mainFrame.Position = UDim2.new(1, -panelWidth - 16, 0.5, -math.floor(panelHeight / 2))
+		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
 		mainCorner.CornerRadius = UDim.new(0, 14)
 		expandButton.Visible = true
 	end
 
-	local panelHeight = isNarrow and viewport.Y or math.max(320, viewport.Y - 16)
 	local innerWidth = math.max(1, panelWidth - 24)
+	local compactMobile = isNarrow and not expandedPanel
 
 	-- Header and search row.
 	titleLabel.Position = UDim2.fromOffset(12, 8)
 	titleLabel.Size = UDim2.new(1, -132, 0, 44)
 	closeButton.Position = UDim2.new(1, -48, 0, 12)
 	expandButton.Position = UDim2.new(1, -92, 0, 12)
+	expandButton.Text = if expandedPanel then "↙" else "↗"
 
 	searchBox.Position = UDim2.fromOffset(12, 58)
 	searchBox.Size = UDim2.new(1, -112, 0, 40)
@@ -631,26 +663,31 @@ local function updateCatalogLayout()
 
 	-- Category and sort share a row. Advanced filters remain compact below.
 	filterLabel.Visible = false
-	local halfWidth = math.floor((innerWidth - 8) / 2)
+	local halfWidth = math.max(60, math.floor((innerWidth - 8) / 2))
 	categoryButton.Position = UDim2.fromOffset(12, 106)
 	categoryButton.Size = UDim2.new(0, halfWidth, 0, 34)
 	categoryMenu.Position = UDim2.fromOffset(12, 142)
-	categoryMenu.Size = UDim2.new(0, halfWidth, 0, math.min(360, panelHeight - 170))
+	categoryMenu.Size = UDim2.new(0, halfWidth, 0, math.max(100, math.min(360, panelHeight - 170)))
 
 	local sortX = 20 + halfWidth
 	sortButton.Position = UDim2.fromOffset(sortX, 106)
 	sortButton.Size = UDim2.new(0, halfWidth, 0, 34)
 	sortMenu.Position = UDim2.fromOffset(sortX, 142)
-	sortMenu.Size = UDim2.new(0, halfWidth, 0, math.min(220, panelHeight - 170))
+	sortMenu.Size = UDim2.new(0, halfWidth, 0, math.max(100, math.min(220, panelHeight - 170)))
 
 	local priceWidth = math.clamp(math.floor(innerWidth * 0.22), 60, 90)
-	local offSaleWidth = math.max(90, innerWidth - priceWidth * 2 - 12)
 	minPriceBox.Position = UDim2.fromOffset(12, 148)
 	minPriceBox.Size = UDim2.fromOffset(priceWidth, 34)
 	maxPriceBox.Position = UDim2.fromOffset(18 + priceWidth, 148)
 	maxPriceBox.Size = UDim2.fromOffset(priceWidth, 34)
 	offSaleButton.Position = UDim2.fromOffset(24 + priceWidth * 2, 148)
-	offSaleButton.Size = UDim2.fromOffset(offSaleWidth, 34)
+	offSaleButton.Size = UDim2.fromOffset(math.max(70, innerWidth - priceWidth * 2 - 12), 34)
+
+	-- Keep advanced filters out of the tiny mobile popover; they remain available
+	-- as soon as the player expands the catalog.
+	minPriceBox.Visible = not compactMobile
+	maxPriceBox.Visible = not compactMobile
+	offSaleButton.Visible = not compactMobile
 
 	backToPacksButton.Position = UDim2.fromOffset(12, 190)
 	backToPacksButton.Size = UDim2.fromOffset(math.min(145, innerWidth * 0.38), 28)
@@ -660,11 +697,16 @@ local function updateCatalogLayout()
 	resultsFrame.Position = UDim2.fromOffset(12, 224)
 	resultsFrame.Size = UDim2.new(1, -24, 1, -276)
 
+	-- Smaller cards: 132×192 px (20% smaller than the original 165×240).
+	-- Derive the number of columns from the available width so cards stay compact.
 	local resultsWidth = math.max(1, panelWidth - 24)
-	local columns = if resultsWidth >= 300 then 2 else 1
-	local cellWidth = math.floor((resultsWidth - 10 * (columns - 1)) / columns)
-	grid.CellSize = UDim2.fromOffset(cellWidth, 240)
-	grid.CellPadding = UDim2.fromOffset(10, 10)
+	local cellWidth = 132
+	local columns = math.max(1, math.floor((resultsWidth + 10) / (cellWidth + 10)))
+	if columns == 1 then
+		cellWidth = math.max(100, resultsWidth)
+	end
+	grid.CellSize = UDim2.fromOffset(cellWidth, 192)
+	grid.CellPadding = UDim2.fromOffset(8, 8)
 
 	pageLabel.Size = UDim2.fromOffset(100, 32)
 	pageLabel.Position = UDim2.new(0.5, -50, 1, -42)
@@ -686,7 +728,6 @@ end)
 
 expandButton.MouseButton1Click:Connect(function()
 	expandedPanel = not expandedPanel
-	expandButton.Text = if expandedPanel then "↙" else "↗"
 	updateCatalogLayout()
 end)
 
@@ -769,8 +810,8 @@ local function createItemCard(item: any, layoutOrder: number)
 
 	local thumbnail = create("ImageLabel", {
 		Name = "Thumbnail",
-		Size = UDim2.new(1, -12, 0, 140),
-		Position = UDim2.fromOffset(6, 6),
+		Size = UDim2.new(1, -10, 0, 92),
+		Position = UDim2.fromOffset(5, 5),
 		BackgroundColor3 = Color3.fromRGB(28, 28, 34),
 		BorderSizePixel = 0,
 		Image = "rbxthumb://type="
@@ -783,18 +824,18 @@ local function createItemCard(item: any, layoutOrder: number)
 	thumbnail.Parent = card
 
 	local thumbnailCorner = create("UICorner", {
-		CornerRadius = UDim.new(0, 8),
+		CornerRadius = UDim.new(0, 6),
 	})
 	thumbnailCorner.Parent = thumbnail
 
 	local nameLabel = create("TextLabel", {
 		Name = "Name",
-		Size = UDim2.new(1, -16, 0, 30),
-		Position = UDim2.fromOffset(8, 150),
+		Size = UDim2.new(1, -12, 0, 26),
+		Position = UDim2.fromOffset(6, 100),
 		BackgroundTransparency = 1,
 		Text = tostring(item.Name or "Unknown Item"),
 		TextColor3 = Color3.fromRGB(245, 245, 245),
-		TextSize = 13,
+		TextSize = 10,
 		Font = Enum.Font.GothamMedium,
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
@@ -804,12 +845,12 @@ local function createItemCard(item: any, layoutOrder: number)
 
 	local typeLabel = create("TextLabel", {
 		Name = "AssetType",
-		Size = UDim2.new(1, -16, 0, 18),
-		Position = UDim2.fromOffset(8, 180),
+		Size = UDim2.new(1, -12, 0, 14),
+		Position = UDim2.fromOffset(6, 126),
 		BackgroundTransparency = 1,
 		Text = assetTypeName,
 		TextColor3 = Color3.fromRGB(145, 145, 160),
-		TextSize = 10,
+		TextSize = 9,
 		Font = Enum.Font.Gotham,
 		TextXAlignment = Enum.TextXAlignment.Left,
 	})
@@ -817,8 +858,8 @@ local function createItemCard(item: any, layoutOrder: number)
 
 	local priceLabel = create("TextLabel", {
 		Name = "Price",
-		Size = UDim2.new(1, -16, 0, 20),
-		Position = UDim2.fromOffset(8, 198),
+		Size = UDim2.new(1, -12, 0, 16),
+		Position = UDim2.fromOffset(6, 142),
 		BackgroundTransparency = 1,
 		Text = formatPrice(item.Price),
 		TextColor3 = Color3.fromRGB(190, 190, 200),
@@ -830,8 +871,8 @@ local function createItemCard(item: any, layoutOrder: number)
 
 	local actionButton = create("TextButton", {
 		Name = "ActionButton",
-		Size = UDim2.new(1, -16, 0, 28),
-		Position = UDim2.new(0, 8, 1, -36),
+		Size = UDim2.new(1, -12, 0, 24),
+		Position = UDim2.new(0, 6, 1, -30),
 		BackgroundColor3 = Color3.fromRGB(70, 70, 85),
 		TextColor3 = Color3.fromRGB(255, 255, 255),
 		TextSize = 11,
