@@ -21,3 +21,5 @@
 - Monetization polish
 - Optimization
 - QA / soft launch
+
+[추가] 위 두 문제의 원인 확인 및 수정, 착용·해제 회귀 테스트
