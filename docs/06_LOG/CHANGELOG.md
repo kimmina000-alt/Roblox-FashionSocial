@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-15 — Catalog UX / Avatar editing plan
+- Added responsive catalog-panel, category-discovery, and search/filter hierarchy requirements to `docs/01_SYSTEMS/CATALOG.md`.
+- Added planned avatar-editing controls and official API limitations to `docs/01_SYSTEMS/AVATAR.md`.
+- Added a sequenced implementation and regression-test roadmap to `docs/06_LOG/TODO.md`.
+- Marked limited-item filtering, sort-period behavior, makeup transforms, and R6/R15 conversion as verification/design gates rather than confirmed features.
+
+
 ## 2026-10-15
 - Reviewed the first supplied reference video for catalog/avatar UX.
 - Expanded Catalog System requirements for side-by-side avatar preview, visual item browsing, responsive layout, and explicit wear/remove state transitions.
