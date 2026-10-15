@@ -19,3 +19,6 @@ D-006 — Roblox 공식 API를 우선 사용한다.
 D-007 — Building System과 Furniture Asset을 분리한다.
 
 D-008 — AI를 월드/에셋 제작에 적극 활용하되 최종 품질과 gameplay는 직접 검수한다.
+
+
+[추가] 타입별 착용 지원 정책을 확정한 뒤 그 결정과 이유 기록
