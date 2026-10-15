@@ -113,7 +113,15 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 
 ### Compact toolbar and avatar preview
 - In compact mode, keep keyword search, category selection, and sort on a single horizontal row. Enter in the search field submits the search; the separate Search button is hidden only in compact mode.
-- Compact card sizes are device-aware: mobile 96×144, desktop 120×174, expanded 132×192. Keep card content scaled with the card rather than clipped.
+- Compact card sizes are device-aware: compact mobile 76×114, compact desktop 100×146, expanded mobile 112×164, expanded PC 132×192. Keep card content scaled with the card rather than clipped.
 - Expanded mode opens a dedicated `ViewportFrame` preview of the player's current character/outfit. Refresh it after successful wear/remove, on reopening, and after character respawn.
-- On PC, reserve a left-side preview column and keep catalog results to the right. On mobile, place the preview above the results grid.
+- On PC, reserve a left-side preview column and keep catalog results to the right. On mobile, place the preview below the search/filter controls and above the results grid so it does not cover the controls.
 - Studio validation must confirm the preview accurately reflects the server-applied outfit and that card names, prices, and actions remain readable at each size.
+
+
+### Compact card visibility follow-up — 2026-10-15
+- Keep the compact toolbar on one row: keyword search, category (ALL), and sort.
+- Place results directly below that row and hide status/secondary filter rows in compact mode to avoid pushing cards below the fold.
+- Use distinct card dimensions for compact mobile and compact PC; compact PC cards should also be smaller than expanded cards.
+- When expanded, both PC and mobile use full-screen catalog layout and show a separate current-avatar preview. On mobile, stack the preview between controls and the results grid; on PC, reserve the left preview column.
+- Verify the preview clone and card visibility in Studio; these latest changes are not yet confirmed in Studio.
