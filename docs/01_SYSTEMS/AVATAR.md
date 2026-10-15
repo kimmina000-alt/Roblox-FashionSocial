@@ -35,3 +35,35 @@ Check the current Roblox Creator Hub API before depending on an enum, property, 
 - Animation categories: individual animation searches currently return zero items in Studio. Verify API results, off-sale inclusion, and category filters independently.
 - Animation packs: ensure the selected category's BundleTypes reach CatalogSearchParams.
 - FoundationProvider warning: a Roblox CorePackages/UIBlox warning has been observed. Do not attribute it to game UI code without reproducing a visible failure and isolating its source.
+
+
+## Avatar Editing UX — Planned
+
+### Design principles
+- Keep editing controls explicit and item-specific; do not enable controls for item types whose support has not been verified.
+- After each confirmed change, update the visible avatar preview immediately. Provide a reset/default action for numeric adjustments where appropriate.
+- Preserve unrelated worn items and existing catalog wear/remove behavior.
+
+### Accessory adjustment
+- For currently worn items, provide an edit entry point that opens cards for the worn items.
+- Selecting a supported item opens X/Y/Z position, X/Y/Z rotation, and scale controls, with reset-to-default.
+- Roblox `AccessoryDescription.Position`, `Rotation`, and `Scale` are documented for rigid accessories. Do not enable these controls indiscriminately for layered accessories or unsupported types; validate the actual application path and preview behavior in Studio.
+
+### Body proportions and rig
+- Provide sliders for supported `HumanoidDescription` values such as width, height, depth, head scale, body type, and proportion, with sensible bounds and reset behavior.
+- R6/R15 is not a simple property toggle: the rig type reflects the current character rig and cannot be converted by changing `Humanoid.RigType` alone. Design a separate character recreation/conversion flow and define compatibility/fallback behavior before exposing the switch.
+- Head-specific adjustments beyond the documented scale are optional and should not be promised until supported properties and the intended UX are verified.
+
+### Clothing and makeup layer order
+- For supported layered clothing/accessories, show worn-item cards with order numbers and allow drag-to-reorder. Confirm the resulting `AccessoryDescription.Order` values and avatar rendering after applying the updated description.
+- For makeup, provide a separate layer-order editor using the supported `MakeupDescription.Order` path, once adding/removing makeup is verified.
+- Do **not** assume makeup supports X/Y/Z position, rotation, or scale: those properties are not listed on `MakeupDescription`. Keep transform controls out of scope unless an official, applicable API path is verified.
+
+### Skin color
+- Offer a palette using colors that can be applied through supported `HumanoidDescription` body-part color properties / `BodyColors`.
+- Include per-body-part colors and consider an optional “apply to whole body” action. Confirm that the change persists through the game's current avatar application flow.
+
+### API and regression validation
+- Verify each feature against current Roblox Creator Hub documentation and in Studio before marking it complete.
+- Test unsupported item types, reset behavior, repeated changes, avatar preview synchronization, and preservation of unrelated outfit items.
+- Re-test existing catalog search, wear/remove, and pagination after adding the editing tabs.
