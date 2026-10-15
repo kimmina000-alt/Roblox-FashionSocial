@@ -711,10 +711,9 @@ local function updateCatalogLayout()
 	local isNarrow = viewport.X < 900
 	local panelWidth: number
 	local panelHeight: number
-	local expandedMobilePreviewHeight = math.min(160, math.floor(viewport.Y * 0.24))
+	local expandedMobilePreviewHeight = math.min(150, math.floor(viewport.Y * 0.23))
 
-	-- Expanded mode is a full-screen workspace on both PC and mobile.
-	-- The avatar preview is kept visible beside/before the catalog results.
+	-- Expanded mode is full-screen on both PC and mobile.
 	if expandedPanel then
 		panelWidth, panelHeight = viewport.X, viewport.Y
 		mainFrame.Position = UDim2.fromOffset(0, 0)
@@ -752,8 +751,8 @@ local function updateCatalogLayout()
 	expandButton.Text = if expandedPanel then "↙" else "↗"
 
 	if compact then
-		-- Put search, category and sort in one toolbar row.
-		-- Hide secondary status/filter rows so cards are visible immediately.
+		-- Keep search, category (ALL), and sort on one toolbar row.
+		-- Hide status/secondary filters to give result cards usable height.
 		searchBox.Position = UDim2.fromOffset(8, 44)
 		searchBox.Size = UDim2.new(0.46, -8, 0, 32)
 		searchBox.TextSize = 12
@@ -775,6 +774,9 @@ local function updateCatalogLayout()
 		backToPacksButton.Size = UDim2.fromOffset(math.min(130, innerWidth * 0.42), 22)
 		backToPacksButton.TextSize = 9
 		statusLabel.Visible = false
+
+		-- Results start directly below the toolbar. This prevents the compact
+		-- panel from clipping the first row of cards behind status controls.
 		resultsFrame.Position = UDim2.fromOffset(8, 82)
 		resultsFrame.Size = UDim2.new(1, -16, 1, -122)
 	else
@@ -782,7 +784,7 @@ local function updateCatalogLayout()
 		statusLabel.Visible = true
 
 		if expandedMobile then
-			-- On expanded mobile, keep all controls above the avatar preview.
+			-- Expanded mobile: controls first, avatar preview next, cards below.
 			searchBox.Position = UDim2.fromOffset(8, 44)
 			searchBox.Size = UDim2.new(0.60, -8, 0, 34)
 			searchBox.TextSize = 12
@@ -858,6 +860,7 @@ local function updateCatalogLayout()
 			statusLabel.Position = UDim2.new(0, math.min(165, innerWidth * 0.34), 0, 130)
 			statusLabel.Size = UDim2.new(1, -math.min(177, innerWidth * 0.34 + 12), 0, 26)
 			statusLabel.TextSize = 12
+
 			resultsFrame.Position = UDim2.fromOffset(if expandedPanel then 288 else 12, 164)
 			resultsFrame.Size = UDim2.new(1, if expandedPanel then -300 else -24, 1, -214)
 			previewFrame.Size = UDim2.fromOffset(260, math.min(360, math.max(280, math.floor(viewport.Y * 0.55))))
@@ -870,7 +873,7 @@ local function updateCatalogLayout()
 	sortMenu.Position = UDim2.new(sortButton.Position.X.Scale, sortButton.Position.X.Offset, 0, sortButton.Position.Y.Offset + sortButton.Size.Y.Offset + 4)
 	sortMenu.Size = UDim2.new(sortButton.Size.X.Scale, sortButton.Size.X.Offset, 0, math.max(100, math.min(220, panelHeight - 150)))
 
-	-- Use separate grid sizes for compact mobile, compact PC and expanded browsing.
+	-- Card dimensions are intentionally different for compact PC/mobile and expanded views.
 	if compactMobile then
 		grid.CellSize = UDim2.fromOffset(76, 114)
 		cardContentScale = 0.68
@@ -889,13 +892,8 @@ local function updateCatalogLayout()
 		contentScale.Scale = cardContentScale
 	end
 
-	if expandedMobile then
-		previewFrame.Visible = expandedPanel and mainFrame.Visible and not previewManuallyClosed
-	elseif not isNarrow then
-		previewFrame.Visible = expandedPanel and mainFrame.Visible and not previewManuallyClosed
-	end
+	previewFrame.Visible = expandedPanel and mainFrame.Visible and not previewManuallyClosed
 end
-
 local function bindViewport(camera: Camera?)
 	if camera then
 		camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateCatalogLayout)
