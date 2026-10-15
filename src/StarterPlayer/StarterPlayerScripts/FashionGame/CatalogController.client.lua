@@ -711,7 +711,7 @@ local function updateCatalogLayout()
 	local isNarrow = viewport.X < 900
 	local panelWidth: number
 	local panelHeight: number
-	local expandedMobilePreviewHeight = math.min(150, math.floor(viewport.Y * 0.23))
+	local expandedMobilePreviewHeight = math.min(190, math.floor(viewport.Y * 0.27))
 
 	-- Expanded mode is full-screen on both PC and mobile.
 	if expandedPanel then
