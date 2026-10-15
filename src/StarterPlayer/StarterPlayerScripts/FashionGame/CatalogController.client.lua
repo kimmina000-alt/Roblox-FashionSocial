@@ -2,6 +2,7 @@
 
 local Players = game:GetService("Players")
 local AvatarEditorService = game:GetService("AvatarEditorService")
+local AssetService = game:GetService("AssetService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
@@ -35,6 +36,8 @@ local currentWornItems: {[number]: boolean} = {}
 
 local searchBusy = false
 local actionBusy = false
+local bundleContentsOpen = false
+local showBundleContents
 
 local catalogPages: Pages? = nil
 local currentPageNumber = 1
@@ -471,10 +474,24 @@ offSaleCorner.Parent = offSaleButton
 -- STATUS
 --------------------------------------------------
 
+local backToPacksButton = create("TextButton", {
+	Name = "BackToPacksButton",
+	Size = UDim2.fromOffset(145, 28),
+	Position = UDim2.fromOffset(20, 160),
+	BackgroundColor3 = Color3.fromRGB(55, 55, 65),
+	Text = "← BACK TO PACKS",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 11,
+	Font = Enum.Font.GothamBold,
+	Visible = false,
+})
+backToPacksButton.Parent = mainFrame
+create("UICorner", { CornerRadius = UDim.new(0, 7) }).Parent = backToPacksButton
+
 local statusLabel = create("TextLabel", {
 	Name = "Status",
-	Size = UDim2.new(1, -40, 0, 30),
-	Position = UDim2.fromOffset(20, 160),
+	Size = UDim2.new(1, -190, 0, 30),
+	Position = UDim2.fromOffset(175, 160),
 	BackgroundTransparency = 1,
 	Text = "Ready",
 	TextColor3 = Color3.fromRGB(170, 170, 180),
@@ -692,8 +709,15 @@ local function createItemCard(item: any, layoutOrder: number)
 	actionCorner.Parent = actionButton
 
 	local function updateButton()
+		if isBundle then
+			actionButton.Text = "CONTENTS"
+			actionButton.BackgroundColor3 = Color3.fromRGB(70, 70, 85)
+			actionButton.AutoButtonColor = true
+			return
+		end
+
 		if not canTryOn then
-			actionButton.Text = if isBundle then "BUNDLE" else "VIEW ONLY"
+			actionButton.Text = "VIEW ONLY"
 			actionButton.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
 			actionButton.AutoButtonColor = false
 			return
@@ -711,7 +735,18 @@ local function createItemCard(item: any, layoutOrder: number)
 	updateButton()
 
 	actionButton.MouseButton1Click:Connect(function()
-		if not canTryOn or actionBusy then
+		if actionBusy then
+			return
+		end
+
+		if isBundle then
+			if showBundleContents then
+				showBundleContents(assetId, tostring(item.Name or "Animation Pack"))
+			end
+			return
+		end
+
+		if not canTryOn then
 			return
 		end
 
@@ -761,10 +796,117 @@ local function createItemCard(item: any, layoutOrder: number)
 end
 
 --------------------------------------------------
+-- ANIMATION BUNDLE CONTENTS
+--------------------------------------------------
+
+local ANIMATION_ASSET_TYPE_NAMES: {[string]: boolean} = {
+	ClimbAnimation = true,
+	FallAnimation = true,
+	IdleAnimation = true,
+	JumpAnimation = true,
+	RunAnimation = true,
+	SwimAnimation = true,
+	WalkAnimation = true,
+	MoodAnimation = true,
+	EmoteAnimation = true,
+}
+
+showBundleContents = function(bundleId: number, bundleName: string)
+	if searchBusy or actionBusy then
+		return
+	end
+
+	searchBusy = true
+	bundleContentsOpen = true
+	backToPacksButton.Visible = true
+	statusLabel.Text = "Loading contents: " .. bundleName
+	clearContainer(resultsFrame)
+
+	local success, details = pcall(function()
+		return AssetService:GetBundleDetailsAsync(bundleId)
+	end)
+
+	if not success or typeof(details) ~= "table" then
+		warn("[CatalogController] GetBundleDetailsAsync failed:", details)
+		statusLabel.Text = "Could not load bundle contents. Check Output."
+		searchBusy = false
+		return
+	end
+
+	local animationItems = {}
+	local sourceItems = details.Items
+	if typeof(sourceItems) == "table" then
+		for _, bundledItem in ipairs(sourceItems) do
+			if typeof(bundledItem) == "table"
+				and bundledItem.Type == "Asset"
+				and typeof(bundledItem.Id) == "number" then
+
+				local itemTypeName = bundledItem.AssetType
+				if typeof(itemTypeName) ~= "string" or not ANIMATION_ASSET_TYPE_NAMES[itemTypeName] then
+					-- Bundle details may omit or generalize the asset type.
+					-- Ask AvatarEditorService for the canonical catalog asset type.
+					local detailOk, itemDetails = pcall(function()
+						return AvatarEditorService:GetItemDetailsAsync(
+							bundledItem.Id,
+							Enum.AvatarItemType.Asset
+						)
+					end)
+					if detailOk and typeof(itemDetails) == "table" then
+						itemTypeName = itemDetails.AssetType
+						if typeof(itemTypeName) == "string" then
+							bundledItem = {
+								Id = bundledItem.Id,
+								Name = itemDetails.Name or bundledItem.Name,
+								AssetType = itemTypeName,
+								Price = itemDetails.Price,
+								ItemType = "Asset",
+							}
+						end
+					end
+				end
+
+				if typeof(itemTypeName) == "string" and ANIMATION_ASSET_TYPE_NAMES[itemTypeName] then
+					bundledItem.ItemType = "Asset"
+					table.insert(animationItems, bundledItem)
+				end
+			end
+		end
+	end
+
+	if #animationItems == 0 then
+		statusLabel.Text = "No individual animation assets were found in this bundle."
+	else
+		statusLabel.Text = tostring(#animationItems) .. " animation assets in " .. bundleName
+		for index, animationItem in ipairs(animationItems) do
+			createItemCard(animationItem, index)
+		end
+	end
+
+	pageLabel.Text = "Bundle contents • " .. tostring(#animationItems)
+	nextButton.Active = false
+	nextButton.AutoButtonColor = false
+	nextButton.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
+	searchBusy = false
+end
+
+backToPacksButton.MouseButton1Click:Connect(function()
+	if searchBusy then
+		return
+	end
+	bundleContentsOpen = false
+	backToPacksButton.Visible = false
+	renderCurrentPage()
+	statusLabel.Text = "Returned to animation packs."
+end)
+
+--------------------------------------------------
 -- ★ RENDER CURRENT PAGE
 --------------------------------------------------
 
 local function renderCurrentPage()
+	bundleContentsOpen = false
+	backToPacksButton.Visible = false
+
 	if not catalogPages then
 		return
 	end
@@ -820,6 +962,8 @@ local function searchCatalog()
 	sortMenu.Visible = false
 
 	currentKeyword = searchBox.Text
+	bundleContentsOpen = false
+	backToPacksButton.Visible = false
 
 	local minPrice = tonumber(minPriceBox.Text)
 	local maxPrice = tonumber(maxPriceBox.Text)
