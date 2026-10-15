@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-15 — Catalog panel layout implementation
+- Added a desktop right-docked catalog panel with a default width near one-third of the viewport and an expand/collapse-width control.
+- Added responsive layout recalculation for search, filters, results, and pagination; narrow viewports use a full-screen catalog panel.
+- Studio verification and regression tests remain pending.
+
+
 ## 2026-10-15 — Catalog UX / Avatar editing plan
 - Added responsive catalog-panel, category-discovery, and search/filter hierarchy requirements to `docs/01_SYSTEMS/CATALOG.md`.
 - Added planned avatar-editing controls and official API limitations to `docs/01_SYSTEMS/AVATAR.md`.
