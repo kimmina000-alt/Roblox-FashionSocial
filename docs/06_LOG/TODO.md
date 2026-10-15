@@ -6,12 +6,13 @@
 Follow this order so layout and core try-on behavior stay reliable before advanced editing is added. Keep existing functionality working throughout; check an item only after implementation and Studio validation.
 
 ### 1. Catalog panel layout and responsive behavior
-Implementation status: first coding pass committed; Studio validation is still pending. Keep the acceptance items below unchecked until tested in Studio.
-- [ ] Put the catalog panel on the right side of the screen, targeting about one-third of the desktop viewport by default.
-- [ ] Keep the avatar/world visible while the catalog is open.
-- [ ] Add corner/edge drag-resizing with viewport bounds and usable minimum dimensions; if drag-resizing is unreliable, use a clear expand/collapse toggle instead.
-- [ ] Add narrow/mobile behavior that expands the panel wide or to full screen; do not shrink controls to desktop one-third proportions.
-- [ ] Keep search, category access, and item cards readable at supported viewport sizes.
+Previous layout validation: user confirmed the six PC/mobile and regression checks passed for the first responsive pass. The new sizing revision below still needs Studio validation.
+- [x] Put the catalog panel on the right side of the screen and keep the avatar/world visible.
+- [x] Add an expand/collapse toggle and viewport-responsive layout recalculation.
+- [x] Verify search, category, sort, price/off-sale filters, pagination, wear, and remove in the prior layout.
+- [ ] Reduce the compact desktop panel to two-thirds of its previous width and two-thirds of viewport height.
+- [ ] Make the compact mobile panel a bottom-right floating window occupying about one-quarter of screen area; expansion should restore the previous full-screen view.
+- [ ] Keep controls, search results, and compact item cards usable in both new sizes.
 
 ### 2. Category discovery
 - [ ] Pin quick shortcuts for common categories (initial candidates: Clothing, Hair, Face, Accessories).
@@ -29,7 +30,8 @@ Implementation status: first coding pass committed; Studio validation is still p
 - [ ] Preserve readable item thumbnails, names, prices/sale status, wear state, and wear/remove actions; verify loading, empty, error, and pagination states.
 
 ### 4. Avatar editing tabs
-- [ ] Add a worn-item list with edit entry points for supported rigid accessories; implement X/Y/Z position, X/Y/Z rotation, scale, and reset only where the official API/application path supports them.
+- [ ] Add a dedicated current-worn-items panel/window showing items worn by the local avatar, with thumbnail/name/type and remove actions where supported.
+- [ ] Add edit entry points for supported rigid accessories; implement X/Y/Z position, X/Y/Z rotation, scale, and reset only where the official API/application path supports them.
 - [ ] Add body-proportion sliders for supported HumanoidDescription values (width, height, depth, head scale, body type, proportion) with reset behavior.
 - [ ] Design R6/R15 switching as a separate rig recreation/conversion and compatibility flow; do not implement as a simple RigType property toggle.
 - [ ] Add clothing/layered-accessory order editing with worn-item cards, visible order numbers, drag reorder, and preview verification.
@@ -37,7 +39,12 @@ Implementation status: first coding pass committed; Studio validation is still p
 - [ ] Do not promise makeup position/rotation/scale unless an applicable official API path is confirmed.
 - [ ] Add a supported skin-color palette, per-body-part options, and optionally an apply-to-whole-body action.
 
-### 5. API verification and regression tests
+### 5. Current worn-items panel
+- [ ] Add a separate panel/window listing the authoritative current worn items independently of the current catalog search page.
+- [ ] Refresh it after opening and after confirmed wear/remove actions; show thumbnails, names/types, and supported remove actions.
+- [ ] Ensure unsupported items and server failures are represented clearly without optimistic state changes.
+
+### 6. API verification and regression tests
 - [ ] Verify every new control against current Roblox Creator Hub documentation and test in Studio before marking it complete.
 - [ ] Test accessory types that support and do not support transforms, layer reorder, makeup add/remove/order, body scaling, rig compatibility, and skin-color application.
 - [ ] Re-test existing keyword search, category selection, sort/price/off-sale filters, pagination, wear, remove, and avatar/card state synchronization.
