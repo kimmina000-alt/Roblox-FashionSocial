@@ -6,13 +6,16 @@
 Follow this order so layout and core try-on behavior stay reliable before advanced editing is added. Keep existing functionality working throughout; check an item only after implementation and Studio validation.
 
 ### 1. Catalog panel layout and responsive behavior
-Previous layout validation: user confirmed the six PC/mobile and regression checks passed for the first responsive pass. The new sizing revision below still needs Studio validation.
+Previous layout validation: user confirmed all six PC/mobile and regression checks passed after the previous sizing revision. The toolbar/card/preview revision below still needs Studio validation.
 - [x] Put the catalog panel on the right side of the screen and keep the avatar/world visible.
 - [x] Add an expand/collapse toggle and viewport-responsive layout recalculation.
 - [x] Verify search, category, sort, price/off-sale filters, pagination, wear, and remove in the prior layout.
-- [ ] Reduce the compact desktop panel to two-thirds of its previous width and two-thirds of viewport height.
-- [ ] Make the compact mobile panel a bottom-right floating window occupying about one-quarter of screen area; expansion should restore the previous full-screen view.
-- [ ] Keep controls, search results, and compact item cards usable in both new sizes.
+- [x] Reduce the compact desktop panel to two-thirds of its previous width and two-thirds of viewport height.
+- [x] Make the compact mobile panel a bottom-right floating window occupying about one-quarter of screen area; expansion should restore the full-screen view.
+- [x] Validate controls, search results, and compact item cards in both sizes (user confirmed all six checks).
+- [ ] Put search, category, and sort on one toolbar row in compact mode and confirm result cards are visible below it.
+- [ ] Use separate compact mobile (88×128), compact PC (110×160), and expanded (132×192) card sizes; verify card content scales without clipping.
+- [ ] In expanded mode, show a current-avatar ViewportFrame preview; reserve space for it on PC and above results on mobile.
 
 ### 2. Category discovery
 - [ ] Pin quick shortcuts for common categories (initial candidates: Clothing, Hair, Face, Accessories).
@@ -62,7 +65,7 @@ Previous layout validation: user confirmed the six PC/mobile and regression chec
 - [ ] Triage the UIBlox FoundationProvider warning only if it correlates with a visible game UI issue.
 
 ## Medium — Catalog UX
-- [ ] Plan a left-side current-avatar preview alongside the item grid.
+- [ ] Validate the current-avatar ViewportFrame preview alongside the item grid in expanded mode.
 - [ ] Reduce category friction: keep common categories immediately accessible and move long-tail categories into a clear expandable menu.
 - [ ] Add responsive layout behavior for narrow/mobile screens.
 - [ ] Preserve item name, price/sale status, and wear state on every card.
