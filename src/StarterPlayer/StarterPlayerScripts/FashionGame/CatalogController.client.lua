@@ -825,11 +825,11 @@ local function updateCatalogLayout()
 	sortMenu.Size = UDim2.new(sortButton.Size.X.Scale, sortButton.Size.X.Offset, 0, math.max(100, math.min(220, panelHeight - 150)))
 
 	if compactMobile then
-		grid.CellSize = UDim2.fromOffset(88, 128)
-		cardContentScale = 0.67
+		grid.CellSize = UDim2.fromOffset(96, 144)
+		cardContentScale = 0.75
 	elseif compact then
-		grid.CellSize = UDim2.fromOffset(110, 160)
-		cardContentScale = 0.83
+		grid.CellSize = UDim2.fromOffset(120, 174)
+		cardContentScale = 0.90
 	else
 		grid.CellSize = UDim2.fromOffset(132, 192)
 		cardContentScale = 1
