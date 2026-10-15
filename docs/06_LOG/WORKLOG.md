@@ -82,7 +82,7 @@
 ### Code changes committed for next review
 - Compact catalog places search, category, and sort controls in a single toolbar row; the separate Search button is hidden only in compact mode, and Enter submits the query.
 - Results begin much higher in compact mode so item cards are visible instead of being pushed below the fold.
-- Card dimensions now vary by viewport/state: compact mobile 88×128, compact desktop 110×160, expanded 132×192. Card contents are scaled separately.
+- Card dimensions now vary by viewport/state: compact mobile 96×144, compact desktop 120×174, expanded 132×192. Card contents are scaled separately.
 - Expanding the catalog now uses full-screen layout on PC and mobile. A dedicated current-avatar preview window uses a ViewportFrame clone of the player's current character, refreshes after wear/remove and character respawn, and can be closed independently.
 - In expanded PC mode, the item grid is shifted right to reserve a left preview column. In expanded mobile mode, the preview sits above the item grid.
 
