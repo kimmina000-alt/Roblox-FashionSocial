@@ -185,8 +185,9 @@ openCorner.Parent = openButton
 
 local mainFrame = create("Frame", {
 	Name = "MainFrame",
-	Size = UDim2.new(0, 900, 0, 680),
-	Position = UDim2.new(0.5, -450, 0.5, -340),
+	-- Recomputed from the current viewport by updateCatalogLayout().
+	Size = UDim2.new(0, 520, 0, 680),
+	Position = UDim2.new(1, -536, 0, 8),
 	BackgroundColor3 = Color3.fromRGB(24, 24, 30),
 	Visible = false,
 })
@@ -235,6 +236,20 @@ local closeCorner = create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
 })
 closeCorner.Parent = closeButton
+
+local expandButton = create("TextButton", {
+	Name = "ExpandButton",
+	Size = UDim2.fromOffset(36, 36),
+	Position = UDim2.new(1, -96, 0, 14),
+	BackgroundColor3 = Color3.fromRGB(55, 55, 65),
+	Text = "↗",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 20,
+	Font = Enum.Font.GothamBold,
+	AutoButtonColor = true,
+})
+expandButton.Parent = mainFrame
+create("UICorner", { CornerRadius = UDim.new(0, 8) }).Parent = expandButton
 
 --------------------------------------------------
 -- SEARCH BOX
@@ -561,6 +576,119 @@ local nextCorner = create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
 })
 nextCorner.Parent = nextButton
+
+--------------------------------------------------
+-- RESPONSIVE CATALOG LAYOUT
+--------------------------------------------------
+
+local expandedPanel = false
+
+local function updateCatalogLayout()
+	local camera = workspace.CurrentCamera
+	if not camera then
+		return
+	end
+
+	local viewport = camera.ViewportSize
+	local isNarrow = viewport.X < 720
+	local panelWidth: number
+
+	if isNarrow then
+		-- On narrow/mobile screens the catalog uses the available screen,
+		-- rather than preserving the desktop one-third width.
+		panelWidth = viewport.X
+		mainFrame.Position = UDim2.fromOffset(0, 0)
+		mainFrame.Size = UDim2.fromOffset(viewport.X, viewport.Y)
+		mainCorner.CornerRadius = UDim.new(0, 0)
+		expandButton.Visible = false
+	else
+		local maxWidth = math.min(760, viewport.X - 32)
+		local targetRatio = if expandedPanel then 0.72 else 0.34
+		panelWidth = math.clamp(
+			math.floor(viewport.X * targetRatio),
+			math.min(420, maxWidth),
+			maxWidth
+		)
+		mainFrame.Position = UDim2.new(1, -panelWidth - 16, 0, 8)
+		mainFrame.Size = UDim2.new(0, panelWidth, 1, -16)
+		mainCorner.CornerRadius = UDim.new(0, 14)
+		expandButton.Visible = true
+	end
+
+	local panelHeight = isNarrow and viewport.Y or math.max(320, viewport.Y - 16)
+	local innerWidth = math.max(1, panelWidth - 24)
+
+	-- Header and search row.
+	titleLabel.Position = UDim2.fromOffset(12, 8)
+	titleLabel.Size = UDim2.new(1, -132, 0, 44)
+	closeButton.Position = UDim2.new(1, -48, 0, 12)
+	expandButton.Position = UDim2.new(1, -92, 0, 12)
+
+	searchBox.Position = UDim2.fromOffset(12, 58)
+	searchBox.Size = UDim2.new(1, -112, 0, 40)
+	searchButton.Position = UDim2.new(1, -92, 0, 58)
+	searchButton.Size = UDim2.fromOffset(80, 40)
+
+	-- Category and sort share a row. Advanced filters remain compact below.
+	filterLabel.Visible = false
+	local halfWidth = math.floor((innerWidth - 8) / 2)
+	categoryButton.Position = UDim2.fromOffset(12, 106)
+	categoryButton.Size = UDim2.new(0, halfWidth, 0, 34)
+	categoryMenu.Position = UDim2.fromOffset(12, 142)
+	categoryMenu.Size = UDim2.new(0, halfWidth, 0, math.min(360, panelHeight - 170))
+
+	local sortX = 20 + halfWidth
+	sortButton.Position = UDim2.fromOffset(sortX, 106)
+	sortButton.Size = UDim2.new(0, halfWidth, 0, 34)
+	sortMenu.Position = UDim2.fromOffset(sortX, 142)
+	sortMenu.Size = UDim2.new(0, halfWidth, 0, math.min(220, panelHeight - 170))
+
+	local priceWidth = math.clamp(math.floor(innerWidth * 0.22), 60, 90)
+	local offSaleWidth = math.max(90, innerWidth - priceWidth * 2 - 12)
+	minPriceBox.Position = UDim2.fromOffset(12, 148)
+	minPriceBox.Size = UDim2.fromOffset(priceWidth, 34)
+	maxPriceBox.Position = UDim2.fromOffset(18 + priceWidth, 148)
+	maxPriceBox.Size = UDim2.fromOffset(priceWidth, 34)
+	offSaleButton.Position = UDim2.fromOffset(24 + priceWidth * 2, 148)
+	offSaleButton.Size = UDim2.fromOffset(offSaleWidth, 34)
+
+	backToPacksButton.Position = UDim2.fromOffset(12, 190)
+	backToPacksButton.Size = UDim2.fromOffset(math.min(145, innerWidth * 0.38), 28)
+	statusLabel.Position = UDim2.fromOffset(math.min(165, innerWidth * 0.42), 190)
+	statusLabel.Size = UDim2.new(1, -math.min(177, innerWidth * 0.42 + 12), 0, 30)
+
+	resultsFrame.Position = UDim2.fromOffset(12, 224)
+	resultsFrame.Size = UDim2.new(1, -24, 1, -276)
+
+	local resultsWidth = math.max(1, panelWidth - 24)
+	local columns = if resultsWidth >= 300 then 2 else 1
+	local cellWidth = math.floor((resultsWidth - 10 * (columns - 1)) / columns)
+	grid.CellSize = UDim2.fromOffset(cellWidth, 240)
+	grid.CellPadding = UDim2.fromOffset(10, 10)
+
+	pageLabel.Size = UDim2.fromOffset(100, 32)
+	pageLabel.Position = UDim2.new(0.5, -50, 1, -42)
+	nextButton.Size = UDim2.fromOffset(100, 32)
+	nextButton.Position = UDim2.new(1, -112, 1, -42)
+end
+
+local function bindViewport(camera: Camera?)
+	if camera then
+		camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateCatalogLayout)
+	end
+	updateCatalogLayout()
+end
+
+bindViewport(workspace.CurrentCamera)
+workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
+	bindViewport(workspace.CurrentCamera)
+end)
+
+expandButton.MouseButton1Click:Connect(function()
+	expandedPanel = not expandedPanel
+	expandButton.Text = if expandedPanel then "↙" else "↗"
+	updateCatalogLayout()
+end)
 
 --------------------------------------------------
 -- CATEGORY LOOKUP
