@@ -113,7 +113,7 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 
 ### Compact toolbar and avatar preview
 - In compact mode, keep keyword search, category selection, and sort on a single horizontal row. Enter in the search field submits the search; the separate Search button is hidden only in compact mode.
-- Compact card sizes are device-aware: mobile 88×128, desktop 110×160, expanded 132×192. Keep card content scaled with the card rather than clipped.
+- Compact card sizes are device-aware: mobile 96×144, desktop 120×174, expanded 132×192. Keep card content scaled with the card rather than clipped.
 - Expanded mode opens a dedicated `ViewportFrame` preview of the player's current character/outfit. Refresh it after successful wear/remove, on reopening, and after character respawn.
 - On PC, reserve a left-side preview column and keep catalog results to the right. On mobile, place the preview above the results grid.
 - Studio validation must confirm the preview accurately reflects the server-applied outfit and that card names, prices, and actions remain readable at each size.
