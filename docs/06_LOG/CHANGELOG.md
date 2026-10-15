@@ -1,5 +1,11 @@
 # Changelog
 
+## 2026-10-15 — Compact card visibility and expanded preview follow-up
+- Moved compact results directly below the one-row search/category/sort toolbar and hid secondary status/filter rows in compact mode to keep cards visible.
+- Made item-card sizes responsive by state/device: compact mobile 76×114, compact PC 100×146, expanded mobile 112×164, expanded PC 132×192.
+- Kept expanded catalog full-screen on PC and mobile. Mobile avatar preview now sits below controls and above results; PC preview reserves the left column.
+- Studio validation for this revision remains pending.
+
 ## 2026-10-15 — Compact toolbar and current-avatar preview
 - Combined search, category, and sort into one row in compact catalog mode to recover vertical space for item cards.
 - Moved the results grid upward in compact mode and added platform/state-specific card sizes: mobile compact 96×144, desktop compact 120×174, expanded 132×192.
