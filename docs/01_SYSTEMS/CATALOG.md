@@ -58,3 +58,44 @@ Try-on changes the game's session CurrentOutfit; it does not grant Roblox accoun
 
 ## Social
 Players may inspect another player's visible outfit and try the same catalog items, subject to supported item types and server validation.
+
+
+## Catalog Panel and Discovery UX — Planned
+
+### Primary user goal
+The main loop is **find an item quickly → try it on → immediately inspect the result**. The avatar/world preview, category access, and keyword search are primary controls; advanced filters must not push them out of view or make them harder to use.
+
+### Responsive panel layout
+- **Desktop:** place the catalog on the right, targeting roughly one-third of the viewport width by default. Keep the avatar and world visible beside it.
+- Allow resizing by dragging a corner/edge when reliable. If resizing proves unreliable, use a clear expand/collapse control instead.
+- Clamp the panel to the viewport so it cannot be dragged completely off-screen; preserve usable minimum dimensions.
+- **Mobile/narrow screens:** do not preserve the desktop one-third width. Use a wide panel or full-screen mode with reachable controls and sufficiently large tap targets.
+- Keep the search and sort controls above the item grid. The item grid must retain enough room for readable thumbnails and card actions.
+
+### Category navigation
+- Pin high-frequency shortcuts near the top (initial candidates: Clothing, Hair, Face, Accessories).
+- Keep less frequently used categories in clearly named grouped menus rather than requiring players to repeatedly expand multiple groups to reach common categories.
+- On narrow screens, show shortcuts as horizontally scrollable chips/icons and put the long-tail category list in a separate menu.
+- Keep the avatar preview and category/search entry points more prominent than advanced filtering.
+
+### Search and filters
+- Keep the default browse area compact:
+  - Keyword search.
+  - Category shortcuts.
+  - Sort, defaulting to `Relevance`.
+- Available sort choices to verify against the current catalog API: `Relevance`, `MostFavorited`, `Bestselling`, `RecentlyCreated` (UI label may be “Recently Published”), `PriceLowToHigh`, and `PriceHighToLow`.
+- Put secondary filters in a collapsed “More filters” area:
+  - Creator: all creators / creator name.
+  - Price: any price / minimum and maximum price.
+  - Include unavailable/off-sale items: explicit on/off toggle.
+  - Sales type: all / limited, **only if the returned metadata and API behavior can reliably distinguish the requested limited-item definition**. Do not present a nonfunctional filter.
+- Preserve selected sort/filter values while searching and paginating. The visible off-sale toggle must match the effective search parameters.
+- Verify whether Most Favorited and Bestselling expose a configurable aggregation period before adding any period selector; do not imply a time range if the API does not support one.
+- Show loading, empty-result, and error states distinctly. Keep item thumbnail, name, price/sale status, wear state, and the primary wear/remove action legible on each card.
+
+### Acceptance criteria
+- Players can search or open a common category without first opening advanced filters.
+- On desktop, the catalog defaults to approximately one-third width and the avatar/world remain visible.
+- On narrow screens, controls and item cards remain usable rather than shrinking to desktop proportions.
+- The player can tell whether an item is worn and see the confirmed avatar result after wear/remove.
+- Existing search, category selection, sort, price bounds, off-sale behavior, pagination, wear, and remove flows continue to work after the layout changes.
