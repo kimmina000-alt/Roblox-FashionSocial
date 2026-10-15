@@ -38,6 +38,7 @@ local searchBusy = false
 local actionBusy = false
 local bundleContentsOpen = false
 local showBundleContents
+local renderCurrentPage: () -> ()
 
 local catalogPages: Pages? = nil
 local currentPageNumber = 1
@@ -903,7 +904,7 @@ end)
 -- ★ RENDER CURRENT PAGE
 --------------------------------------------------
 
-local function renderCurrentPage()
+renderCurrentPage = function()
 	bundleContentsOpen = false
 	backToPacksButton.Visible = false
 
