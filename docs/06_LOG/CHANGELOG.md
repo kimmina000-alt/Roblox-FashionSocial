@@ -2,7 +2,7 @@
 
 ## 2026-10-15 — Compact toolbar and current-avatar preview
 - Combined search, category, and sort into one row in compact catalog mode to recover vertical space for item cards.
-- Moved the results grid upward in compact mode and added platform/state-specific card sizes: mobile compact 88×128, desktop compact 110×160, expanded 132×192.
+- Moved the results grid upward in compact mode and added platform/state-specific card sizes: mobile compact 96×144, desktop compact 120×174, expanded 132×192.
 - Unified expanded catalog behavior across PC/mobile with a full-screen layout and a dedicated current-avatar ViewportFrame preview window.
 - Reserved a left preview column on expanded PC and a top preview area on expanded mobile; preview refreshes after confirmed wear/remove and character respawn.
 - The prior sizing revision was confirmed working by the user; this new revision still requires Studio validation.
