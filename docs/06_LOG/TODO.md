@@ -66,6 +66,8 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 
 ## Medium — Catalog UX
 - [ ] Validate the current-avatar ViewportFrame preview alongside the item grid in expanded mode.
+- [ ] Verify compact PC/mobile windows show item cards immediately below the shared search/category/sort toolbar.
+- [ ] Confirm expanded PC/mobile uses full-screen catalog and keeps the current avatar preview visible without covering controls or cards.
 - [ ] Reduce category friction: keep common categories immediately accessible and move long-tail categories into a clear expandable menu.
 - [ ] Add responsive layout behavior for narrow/mobile screens.
 - [ ] Preserve item name, price/sale status, and wear state on every card.
