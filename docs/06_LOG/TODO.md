@@ -6,6 +6,7 @@
 Follow this order so layout and core try-on behavior stay reliable before advanced editing is added. Keep existing functionality working throughout; check an item only after implementation and Studio validation.
 
 ### 1. Catalog panel layout and responsive behavior
+Implementation status: first coding pass committed; Studio validation is still pending. Keep the acceptance items below unchecked until tested in Studio.
 - [ ] Put the catalog panel on the right side of the screen, targeting about one-third of the desktop viewport by default.
 - [ ] Keep the avatar/world visible while the catalog is open.
 - [ ] Add corner/edge drag-resizing with viewport bounds and usable minimum dimensions; if drag-resizing is unreliable, use a clear expand/collapse toggle instead.
