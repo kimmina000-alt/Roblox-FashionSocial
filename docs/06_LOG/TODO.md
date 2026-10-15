@@ -14,7 +14,7 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 - [x] Make the compact mobile panel a bottom-right floating window occupying about one-quarter of screen area; expansion should restore the full-screen view.
 - [x] Validate controls, search results, and compact item cards in both sizes (user confirmed all six checks).
 - [ ] Put search, category, and sort on one toolbar row in compact mode and confirm result cards are visible below it.
-- [ ] Use separate compact mobile (88×128), compact PC (110×160), and expanded (132×192) card sizes; verify card content scales without clipping.
+- [ ] Use separate compact mobile (96×144), compact PC (120×174), and expanded (132×192) card sizes; verify card content scales without clipping.
 - [ ] In expanded mode, show a current-avatar ViewportFrame preview; reserve space for it on PC and above results on mobile.
 
 ### 2. Category discovery
