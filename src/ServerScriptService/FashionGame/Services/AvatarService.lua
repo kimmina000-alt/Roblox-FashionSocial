@@ -310,80 +310,25 @@ function AvatarService.GetCurrentItems(
 	-- Makeup
 	--------------------------------------------------
 
-	local makeupType = assetTypeId and MAKEUP_ASSET_TYPES[assetTypeId]
-	if makeupType then
-		local description = humanoid:GetAppliedDescription()
-		local makeupList = getMakeupDescriptions(description)
-		if #makeupList >= 6 then
-			return false, "Maximum 6 makeup items equipped."
-		end
-		for _, makeup in ipairs(makeupList) do
-			if makeup.AssetId == assetId then
-				return true, "Item already equipped."
-			end
-		end
-		local makeupDescription = Instance.new("MakeupDescription")
-		makeupDescription.AssetId = assetId
-		makeupDescription.MakeupType = makeupType
-		makeupDescription.Order = #makeupList + 1
-		makeupDescription.Parent = description
-		return applyDescription(humanoid, description)
-	end
-
-	--------------------------------------------------
-	-- Emote
-	--------------------------------------------------
-
-	if assetTypeId == EMOTE_ASSET_TYPE then
-		local description = humanoid:GetAppliedDescription()
-		local infoName = typeof(info.Name) == "string" and info.Name or ("Emote_" .. tostring(assetId))
-		local emotes = description:GetEmotes()
-		for _, ids in pairs(emotes) do
-			for _, id in ipairs(ids) do
-				if id == assetId then
-					return true, "Emote already equipped."
-				end
-			end
-		end
-		emotes[infoName] = {assetId}
-		description:SetEmotes(emotes)
-		local equipped = description:GetEquippedEmotes()
-		if #equipped < 8 then
-			table.insert(equipped, infoName)
-			description:SetEquippedEmotes(equipped)
-		end
-		return applyDescription(humanoid, description)
-	end
-
-	--------------------------------------------------
-	-- Makeup
-	--------------------------------------------------
-
 	for _, makeup in ipairs(getMakeupDescriptions(description)) do
-		if makeup.AssetId == assetId then
-			makeup:Destroy()
-			return applyDescription(humanoid, description)
-		end
+		table.insert(result, {
+			AssetId = makeup.AssetId,
+			Category = makeup.MakeupType.Name .. "Makeup",
+			IsMakeup = true,
+		})
 	end
 
 	--------------------------------------------------
-	-- Emote
+	-- Emotes
 	--------------------------------------------------
 
-	local emotes = description:GetEmotes()
-	for name, ids in pairs(emotes) do
+	for _, ids in pairs(description:GetEmotes()) do
 		for _, id in ipairs(ids) do
-			if id == assetId then
-				description:RemoveEmote(name)
-				local equipped = {}
-				for _, entry in ipairs(description:GetEquippedEmotes()) do
-					if entry.Name ~= name then
-						table.insert(equipped, entry)
-					end
-				end
-				description:SetEquippedEmotes(equipped)
-				return applyDescription(humanoid, description)
-			end
+			table.insert(result, {
+				AssetId = id,
+				Category = "Emote",
+				IsEmote = true,
+			})
 		end
 	end
 
@@ -493,6 +438,55 @@ function AvatarService.TryOnItem(
 
 	local avatarAssetType = Enum.AvatarAssetType[assetTypeName]
 	local assetTypeId = avatarAssetType and avatarAssetType.Value or nil
+
+	--------------------------------------------------
+	-- Makeup
+	--------------------------------------------------
+
+	local makeupType = MAKEUP_ASSET_TYPES[assetTypeId]
+	if makeupType then
+		local description = humanoid:GetAppliedDescription()
+		local makeupList = getMakeupDescriptions(description)
+		for _, makeup in ipairs(makeupList) do
+			if makeup.AssetId == assetId then
+				return true, "Item already equipped."
+			end
+		end
+		if #makeupList >= 6 then
+			return false, "Maximum 6 makeup items equipped."
+		end
+		local makeupDescription = Instance.new("MakeupDescription")
+		makeupDescription.AssetId = assetId
+		makeupDescription.MakeupType = makeupType
+		makeupDescription.Order = #makeupList + 1
+		makeupDescription.Parent = description
+		return applyDescription(humanoid, description)
+	end
+
+	--------------------------------------------------
+	-- Emote
+	--------------------------------------------------
+
+	if assetTypeId == EMOTE_ASSET_TYPE then
+		local description = humanoid:GetAppliedDescription()
+		local emoteName = typeof(info.Name) == "string" and info.Name or ("Emote_" .. tostring(assetId))
+		local emotes = description:GetEmotes()
+		for _, ids in pairs(emotes) do
+			for _, id in ipairs(ids) do
+				if id == assetId then
+					return true, "Emote already equipped."
+				end
+			end
+		end
+		emotes[emoteName] = {assetId}
+		description:SetEmotes(emotes)
+		local equipped = description:GetEquippedEmotes()
+		if #equipped < 8 then
+			table.insert(equipped, emoteName)
+			description:SetEquippedEmotes(equipped)
+		end
+		return applyDescription(humanoid, description)
+	end
 
 	--------------------------------------------------
 	-- Animations
@@ -676,6 +670,38 @@ function AvatarService.RemoveItem(
 
 	local description =
 		humanoid:GetAppliedDescription()
+
+	--------------------------------------------------
+	-- Makeup
+	--------------------------------------------------
+
+	for _, makeup in ipairs(getMakeupDescriptions(description)) do
+		if makeup.AssetId == assetId then
+			makeup:Destroy()
+			return applyDescription(humanoid, description)
+		end
+	end
+
+	--------------------------------------------------
+	-- Emotes
+	--------------------------------------------------
+
+	local emotes = description:GetEmotes()
+	for name, ids in pairs(emotes) do
+		for _, id in ipairs(ids) do
+			if id == assetId then
+				description:RemoveEmote(name)
+				local equipped = {}
+				for _, entry in ipairs(description:GetEquippedEmotes()) do
+					if entry.Name ~= name then
+						table.insert(equipped, entry)
+					end
+				end
+				description:SetEquippedEmotes(equipped)
+				return applyDescription(humanoid, description)
+			end
+		end
+	end
 
 	--------------------------------------------------
 	-- Animations
