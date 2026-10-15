@@ -93,3 +93,24 @@
 - [ ] Expand on PC/mobile and confirm the avatar preview shows the current outfit while item cards remain visible.
 - [ ] Re-test wear/remove and verify the preview refreshes after each confirmed change.
 - This new revision has been committed to the feature branch but has not yet been Studio-tested.
+
+
+## 2026-10-15 — Compact card visibility and expanded avatar preview follow-up
+
+### User feedback
+- The prior revision's six functional/layout checks were reported as working.
+- In the current compact catalog, the item-card area was not visible.
+- Search, category (ALL), and sort should share one toolbar row so results can begin immediately below it.
+- Compact item cards should be smaller; card dimensions are separate for compact mobile and compact PC.
+- Expanded mobile must show the avatar's current outfit in a separate preview window. Expanded PC should use the same full-screen catalog + current-avatar preview pattern.
+
+### Code changes committed for review
+- Compact results now begin at y=82 with the result viewport extending to the pagination area; compact status and secondary filters are hidden to free vertical space. Bundle back navigation remains available when bundle contents are open.
+- Compact mobile cards are 76×114; compact PC cards are 100×146; expanded mobile cards are 112×164; expanded PC cards are 132×192. This confirms card sizing is device/state-specific, not one shared size.
+- Expanded mode remains full-screen on both PC and mobile. Mobile controls are placed above the preview; the preview is positioned below the controls and the results grid starts below the preview. PC reserves a left-side preview column.
+- The preview remains a ViewportFrame clone of the current character and refreshes after confirmed wear/remove and character respawn.
+
+### Validation status
+- [ ] Studio-test compact PC/mobile to verify cards are visible and usable.
+- [ ] Studio-test expanded PC/mobile to verify the current-avatar preview is visible and does not cover controls or item cards.
+- [ ] Re-test search, category, sort, price/off-sale filters, pagination, wear and remove after these layout changes.
