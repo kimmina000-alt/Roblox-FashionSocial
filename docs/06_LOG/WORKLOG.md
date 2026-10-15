@@ -50,3 +50,24 @@
 - [ ] Test a narrow/mobile emulator viewport and confirm no controls are clipped or overlapping.
 - [ ] Regression-test search, category menu, sort menu, price/off-sale filters, pagination, wear, and remove.
 - Note: code was committed through the GitHub file API; Roblox Studio runtime testing has not been performed here.
+
+
+## 2026-10-15 — Catalog sizing revision and current-worn-items plan
+
+### User validation of previous pass
+- [x] Desktop catalog appeared on the right while the avatar/world remained visible.
+- [x] Expand/collapse worked.
+- [x] Resizing the Studio window updated the layout.
+- [x] Mobile emulator showed search, filters, and item cards without clipping.
+- [x] Search, category, sort, price filter, and pagination still worked.
+- [x] Wear and remove still worked.
+
+### Implemented in code
+- Compact desktop panel width reduced to about two-thirds of its prior default width; panel height is about two-thirds of viewport height and remains right-docked.
+- Compact mobile view now floats at the bottom-right at about half viewport width × half viewport height (approximately one-quarter of screen area); expanding restores the full-screen mobile browsing view.
+- Price/off-sale controls are hidden only in compact mobile mode and return when expanded.
+- Item card grid and card contents reduced by about 20% to retain readable names and usable tap targets. A literal one-fifth-size card would make controls too small to use, so the change uses a 20% reduction instead.
+- Added a dedicated current-worn-items panel/window to the planning documents.
+
+### Validation status
+- [ ] Run the six existing checks again after this sizing revision; previous success does not establish that this new layout has passed Studio validation.
