@@ -597,8 +597,9 @@ local function createItemCard(item: any, layoutOrder: number)
 		return
 	end
 
-	local assetTypeName = getAssetTypeName(item)
-	local canTryOn = TRY_ON_SUPPORTED_ASSET_TYPES[assetTypeName] == true
+	local isBundle = item.ItemType == "Bundle"
+	local assetTypeName = if isBundle then (item.BundleType or "Bundle") else getAssetTypeName(item)
+	local canTryOn = not isBundle and TRY_ON_SUPPORTED_ASSET_TYPES[assetTypeName] == true
 
 	local card = create("Frame", {
 		Name = "Item_" .. tostring(assetId),
@@ -618,7 +619,9 @@ local function createItemCard(item: any, layoutOrder: number)
 		Position = UDim2.fromOffset(6, 6),
 		BackgroundColor3 = Color3.fromRGB(28, 28, 34),
 		BorderSizePixel = 0,
-		Image = "rbxthumb://type=Asset&id="
+		Image = "rbxthumb://type="
+			.. (isBundle and "Bundle" or "Asset")
+			.. "&id="
 			.. tostring(assetId)
 			.. "&w=420&h=420",
 		ScaleType = Enum.ScaleType.Fit,
@@ -690,7 +693,7 @@ local function createItemCard(item: any, layoutOrder: number)
 
 	local function updateButton()
 		if not canTryOn then
-			actionButton.Text = "VIEW ONLY"
+			actionButton.Text = if isBundle then "BUNDLE" else "VIEW ONLY"
 			actionButton.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
 			actionButton.AutoButtonColor = false
 			return
@@ -857,16 +860,33 @@ local function searchCatalog()
 	end
 
 	local assetTypes = getCategoryAssetTypes()
+	local bundleTypes = currentCategoryBundleTypes
 
-	if assetTypes and #assetTypes > 0 then
-		params.AssetTypes = assetTypes
+	-- Set both filters explicitly. Bundle-only searches must not inherit a
+	-- default asset filter, and an empty AssetTypes list is valid for bundles.
+	params.AssetTypes = assetTypes or {}
+
+	local validBundleTypes = {}
+	if bundleTypes then
+		for _, bundleType in ipairs(bundleTypes) do
+			if typeof(bundleType) == "EnumItem"
+				and bundleType.EnumType == Enum.BundleType then
+				table.insert(validBundleTypes, bundleType)
+			else
+				warn("[CatalogController] Ignoring invalid BundleType:", bundleType)
+			end
+		end
 	end
-
+	params.BundleTypes = validBundleTypes
 	params.IncludeOffSale = currentCategoryIncludeOffSale
 
-	if currentCategoryBundleTypes and #currentCategoryBundleTypes > 0 then
-		params.BundleTypes = currentCategoryBundleTypes
-	end
+	print(
+		"[CatalogController] Search filters:",
+		"category=", currentCategory,
+		"assetTypes=", #params.AssetTypes,
+		"bundleTypes=", #params.BundleTypes,
+		"keyword=", currentKeyword
+	)
 
 	--------------------------------------------------
 	-- SEARCH
@@ -883,16 +903,74 @@ local function searchCatalog()
 		return
 	end
 
+	local currentPage = pages:GetCurrentPage()
+	local usedAnimationBundleFallback = false
+
+	-- Roblox's catalog search has a documented-in-practice gap for several
+	-- individual animation AssetTypes. When one returns no results, retry the
+	-- same keyword as an Animation bundle search instead of silently showing 0.
+	local isIndividualAnimationSearch = false
+	if assetTypes and #assetTypes == 1 then
+		local typeName = assetTypes[1].Name
+		isIndividualAnimationSearch = ({
+			ClimbAnimation = true,
+			FallAnimation = true,
+			IdleAnimation = true,
+			JumpAnimation = true,
+			RunAnimation = true,
+			SwimAnimation = true,
+			WalkAnimation = true,
+			MoodAnimation = true,
+			EmoteAnimation = true,
+		})[typeName] == true
+	end
+
+	if #currentPage == 0 and isIndividualAnimationSearch then
+		local fallbackParams = CatalogSearchParams.new()
+		fallbackParams.SearchKeyword = currentKeyword
+		fallbackParams.Limit = Config.SearchLimit
+		fallbackParams.SortType = currentSort
+		fallbackParams.SortAggregation = Config.SortAggregation
+		fallbackParams.MinPrice = currentMinPrice
+		fallbackParams.IncludeOffSale = currentCategoryIncludeOffSale
+		fallbackParams.CategoryFilter = Config.CategoryFilter
+		fallbackParams.SalesTypeFilter = Config.SalesTypeFilter
+		fallbackParams.CreatorType = Config.CreatorType
+		fallbackParams.AssetTypes = {}
+		fallbackParams.BundleTypes = {Enum.BundleType.Animations}
+		if currentMaxPrice > 0 then
+			fallbackParams.MaxPrice = currentMaxPrice
+		end
+
+		local fallbackSuccess, fallbackPages = pcall(function()
+			return AvatarEditorService:SearchCatalogAsync(fallbackParams)
+		end)
+
+		if fallbackSuccess then
+			local fallbackPage = fallbackPages:GetCurrentPage()
+			if #fallbackPage > 0 then
+				pages = fallbackPages
+				currentPage = fallbackPage
+				usedAnimationBundleFallback = true
+				warn(
+					"[CatalogController] Individual animation search returned 0 results; showing Animation Pack bundle fallback."
+				)
+			end
+		else
+			warn("[CatalogController] Animation bundle fallback failed:", fallbackPages)
+		end
+	end
+
 	catalogPages = pages
 	currentPageNumber = 1
-
 	renderCurrentPage()
 
-	local currentPage = pages:GetCurrentPage()
-
-	statusLabel.Text =
-		tostring(#currentPage)
-		.. " items loaded."
+	if usedAnimationBundleFallback then
+		statusLabel.Text = tostring(#currentPage)
+			.. " animation packs loaded (individual animation search unavailable)."
+	else
+		statusLabel.Text = tostring(#currentPage) .. " items loaded."
+	end
 
 	searchBusy = false
 end
