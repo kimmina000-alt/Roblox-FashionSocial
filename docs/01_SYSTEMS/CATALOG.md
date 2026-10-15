@@ -66,10 +66,11 @@ Players may inspect another player's visible outfit and try the same catalog ite
 The main loop is **find an item quickly → try it on → immediately inspect the result**. The avatar/world preview, category access, and keyword search are primary controls; advanced filters must not push them out of view or make them harder to use.
 
 ### Responsive panel layout
-- **Desktop:** place the compact catalog on the right, at about two-thirds of the previous compact width, and about two-thirds of the viewport height. Keep the avatar and world visible beside it.
+- **Desktop compact mode:** keep the catalog right-docked at the reduced width/height. Search, category, and sort share one toolbar row; item cards use a compact desktop-specific size.
+- **Expanded mode:** use the full viewport on both PC and mobile. Reserve a dedicated left-side avatar preview area on PC and a top preview area on mobile, with the item grid remaining visible beside/below it.
 - Allow resizing by dragging a corner/edge when reliable. If resizing proves unreliable, use a clear expand/collapse control instead.
 - Clamp the panel to the viewport so it cannot be dragged completely off-screen; preserve usable minimum dimensions.
-- **Mobile/narrow screens:** the collapsed catalog is a bottom-right floating window occupying roughly one-quarter of the screen area (about half the viewport width and half its height). Expanding it opens the previous full-screen browsing view. Advanced price/off-sale filters are hidden only in the compact floating state and remain available when expanded.
+- **Mobile/narrow screens:** the collapsed catalog is a bottom-right floating window occupying roughly one-quarter of the screen area (about half the viewport width and half its height). Its search/category/sort controls share one row, and the item grid starts directly below the compact status row. Expanding opens the full-screen view with a dedicated current-avatar preview window. Advanced price/off-sale filters are hidden only in compact mode and return when expanded.
 - Keep the search and sort controls above the item grid. The item grid must retain enough room for readable thumbnails and card actions.
 
 ### Category navigation
@@ -108,3 +109,11 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 - Refresh the list from the authoritative server CurrentOutfit after opening the panel and after successful wear/remove actions.
 - Keep the worn-item list distinct from catalog search results so users can inspect and manage their current outfit even when an item is not in the current search page.
 - Do not mark an item removed or worn until the server confirms the operation; unsupported types should have a clear non-actionable state.
+
+
+### Compact toolbar and avatar preview
+- In compact mode, keep keyword search, category selection, and sort on a single horizontal row. Enter in the search field submits the search; the separate Search button is hidden only in compact mode.
+- Compact card sizes are device-aware: mobile 88×128, desktop 110×160, expanded 132×192. Keep card content scaled with the card rather than clipped.
+- Expanded mode opens a dedicated `ViewportFrame` preview of the player's current character/outfit. Refresh it after successful wear/remove, on reopening, and after character respawn.
+- On PC, reserve a left-side preview column and keep catalog results to the right. On mobile, place the preview above the results grid.
+- Studio validation must confirm the preview accurately reflects the server-applied outfit and that card names, prices, and actions remain readable at each size.
