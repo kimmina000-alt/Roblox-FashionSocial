@@ -71,3 +71,25 @@
 
 ### Validation status
 - [ ] Run the six existing checks again after this sizing revision; previous success does not establish that this new layout has passed Studio validation.
+
+
+## 2026-10-15 — User validation and compact toolbar / avatar preview revision
+
+### Confirmed by user
+- [x] The previous catalog sizing revision works without issues.
+- [x] PC right-side placement, expand/collapse, viewport resizing, mobile controls, search/category/sort/price filters/pagination, and wear/remove all worked in the prior revision.
+
+### Code changes committed for next review
+- Compact catalog places search, category, and sort controls in a single toolbar row; the separate Search button is hidden only in compact mode, and Enter submits the query.
+- Results begin much higher in compact mode so item cards are visible instead of being pushed below the fold.
+- Card dimensions now vary by viewport/state: compact mobile 88×128, compact desktop 110×160, expanded 132×192. Card contents are scaled separately.
+- Expanding the catalog now uses full-screen layout on PC and mobile. A dedicated current-avatar preview window uses a ViewportFrame clone of the player's current character, refreshes after wear/remove and character respawn, and can be closed independently.
+- In expanded PC mode, the item grid is shifted right to reserve a left preview column. In expanded mobile mode, the preview sits above the item grid.
+
+### Validation status for this revision
+- [ ] Re-open catalog and confirm cards appear in compact PC/mobile windows.
+- [ ] Confirm search, category, and sort fit in the compact toolbar and Enter searches correctly.
+- [ ] Confirm item card content is legible at mobile/PC compact sizes.
+- [ ] Expand on PC/mobile and confirm the avatar preview shows the current outfit while item cards remain visible.
+- [ ] Re-test wear/remove and verify the preview refreshes after each confirmed change.
+- This new revision has been committed to the feature branch but has not yet been Studio-tested.
