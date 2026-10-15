@@ -34,3 +34,19 @@
 - `docs/06_LOG/ISSUES.md`
 - `docs/06_LOG/TODO.md`
 - `docs/01_SYSTEMS/CATALOG.md`
+
+## 2026-10-15 — Catalog panel layout, first coding pass
+
+### Implemented in code
+- Updated `CatalogController.client.lua` so the catalog panel docks to the right at roughly 34% viewport width on desktop, with a maximum width to avoid covering the whole world.
+- Added an expand/collapse-width button for desktop (default narrow panel; expanded panel around 72% width).
+- Added viewport-responsive layout updates for search, category/sort controls, price/off-sale controls, results grid, status, and pagination.
+- On narrow screens (viewport width below 720 px), the catalog uses the full available screen instead of retaining desktop proportions.
+- Kept existing catalog search, category selection, filters, wear/remove handlers, and pagination logic unchanged.
+
+### Validation status
+- [ ] Open in Roblox Studio and confirm desktop right-side width and that the avatar/world remain visible.
+- [ ] Test expand/collapse and resize the Studio/game viewport while the catalog is open.
+- [ ] Test a narrow/mobile emulator viewport and confirm no controls are clipped or overlapping.
+- [ ] Regression-test search, category menu, sort menu, price/off-sale filters, pagination, wear, and remove.
+- Note: code was committed through the GitHub file API; Roblox Studio runtime testing has not been performed here.
