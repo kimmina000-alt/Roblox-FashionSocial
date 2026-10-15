@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-15 — Catalog sizing revision
+- Reduced compact desktop catalog width to about two-thirds of the previous default and set its height to about two-thirds of the viewport.
+- Changed compact mobile catalog to a bottom-right floating window at about one-quarter screen area; expansion returns to the full-screen view.
+- Reduced item-card dimensions and internal layout by about 20% to preserve readable labels and usable actions.
+- Added the current-worn-items panel/window to the planned catalog/avatar UX.
+- The previous responsive layout passed the user's six checks; this sizing revision still requires Studio regression testing.
+
 ## 2026-10-15 — Catalog panel layout implementation
 - Added a desktop right-docked catalog panel with a default width near one-third of the viewport and an expand/collapse-width control.
 - Added responsive layout recalculation for search, filters, results, and pagination; narrow viewports use a full-screen catalog panel.
