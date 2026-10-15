@@ -180,6 +180,112 @@ local openCorner = create("UICorner", {
 openCorner.Parent = openButton
 
 --------------------------------------------------
+-- CURRENT AVATAR PREVIEW WINDOW
+--------------------------------------------------
+
+local previewGui = create("ScreenGui", {
+	Name = "FashionAvatarPreviewGui",
+	ResetOnSpawn = false,
+	IgnoreGuiInset = true,
+	DisplayOrder = 21,
+})
+previewGui.Parent = playerGui
+
+local previewFrame = create("Frame", {
+	Name = "AvatarPreviewWindow",
+	Size = UDim2.fromOffset(250, 300),
+	Position = UDim2.fromOffset(16, 164),
+	BackgroundColor3 = Color3.fromRGB(24, 24, 30),
+	Visible = false,
+})
+previewFrame.Parent = previewGui
+create("UICorner", { CornerRadius = UDim.new(0, 12) }).Parent = previewFrame
+
+local previewTitle = create("TextLabel", {
+	Name = "PreviewTitle",
+	Size = UDim2.new(1, -44, 0, 32),
+	Position = UDim2.fromOffset(10, 4),
+	BackgroundTransparency = 1,
+	Text = "CURRENT OUTFIT",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 13,
+	Font = Enum.Font.GothamBold,
+	TextXAlignment = Enum.TextXAlignment.Left,
+})
+previewTitle.Parent = previewFrame
+
+local previewCloseButton = create("TextButton", {
+	Name = "PreviewCloseButton",
+	Size = UDim2.fromOffset(28, 28),
+	Position = UDim2.new(1, -34, 0, 5),
+	BackgroundColor3 = Color3.fromRGB(55, 55, 65),
+	Text = "×",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 20,
+	Font = Enum.Font.GothamBold,
+})
+previewCloseButton.Parent = previewFrame
+create("UICorner", { CornerRadius = UDim.new(0, 7) }).Parent = previewCloseButton
+
+local avatarViewport = create("ViewportFrame", {
+	Name = "AvatarViewport",
+	Size = UDim2.new(1, -12, 1, -46),
+	Position = UDim2.fromOffset(6, 38),
+	BackgroundColor3 = Color3.fromRGB(35, 35, 43),
+	BorderSizePixel = 0,
+	Ambient = Color3.fromRGB(200, 200, 200),
+	LightColor = Color3.fromRGB(255, 255, 255),
+	LightDirection = Vector3.new(-1, -1, -1),
+})
+avatarViewport.Parent = previewFrame
+create("UICorner", { CornerRadius = UDim.new(0, 8) }).Parent = avatarViewport
+
+local avatarPreviewWorld = Instance.new("WorldModel")
+avatarPreviewWorld.Parent = avatarViewport
+
+local avatarPreviewCamera = Instance.new("Camera")
+avatarPreviewCamera.FieldOfView = 35
+avatarPreviewCamera.Parent = avatarViewport
+avatarViewport.CurrentCamera = avatarPreviewCamera
+
+local function refreshAvatarPreview()
+	for _, child in ipairs(avatarPreviewWorld:GetChildren()) do
+		child:Destroy()
+	end
+
+	local character = player.Character
+	if not character then
+		return
+	end
+
+	local wasArchivable = character.Archivable
+	character.Archivable = true
+	local clone = character:Clone()
+	character.Archivable = wasArchivable
+
+	for _, descendant in ipairs(clone:GetDescendants()) do
+		if descendant:IsA("Script") or descendant:IsA("LocalScript") then
+			descendant:Destroy()
+		end
+	end
+
+	clone.Name = "AvatarPreviewCharacter"
+	clone.Parent = avatarPreviewWorld
+	clone:PivotTo(CFrame.new(0, 0, 0))
+	local _, bounds = clone:GetBoundingBox()
+	local targetY = bounds.Y * 0.5
+	local distance = math.max(4.5, bounds.Y * 1.45)
+	avatarPreviewCamera.CFrame = CFrame.lookAt(
+		Vector3.new(0, targetY, distance),
+		Vector3.new(0, targetY, 0)
+	)
+end
+
+previewCloseButton.MouseButton1Click:Connect(function()
+	previewFrame.Visible = false
+end)
+
+--------------------------------------------------
 -- MAIN FRAME
 --------------------------------------------------
 
