@@ -191,6 +191,8 @@ local previewGui = create("ScreenGui", {
 })
 previewGui.Parent = playerGui
 
+local previewManuallyClosed = false
+
 local previewFrame = create("Frame", {
 	Name = "AvatarPreviewWindow",
 	Size = UDim2.fromOffset(250, 300),
@@ -282,6 +284,7 @@ local function refreshAvatarPreview()
 end
 
 previewCloseButton.MouseButton1Click:Connect(function()
+	previewManuallyClosed = true
 	previewFrame.Visible = false
 end)
 
@@ -849,7 +852,7 @@ local function updateCatalogLayout()
 	nextButton.Size = UDim2.fromOffset(88, 28)
 	nextButton.Position = UDim2.new(1, -98, 1, -36)
 
-	previewFrame.Visible = expandedPanel and mainFrame.Visible
+	previewFrame.Visible = expandedPanel and mainFrame.Visible and not previewManuallyClosed
 	if isNarrow then
 		previewFrame.Size = UDim2.new(0.42, 0, 0, math.min(210, math.floor(viewport.Y * 0.27)))
 		previewFrame.Position = UDim2.new(0, 8, 0, 82)
@@ -873,6 +876,9 @@ end)
 
 expandButton.MouseButton1Click:Connect(function()
 	expandedPanel = not expandedPanel
+	if expandedPanel then
+		previewManuallyClosed = false
+	end
 	updateCatalogLayout()
 	if expandedPanel then
 		refreshAvatarPreview()
@@ -1665,6 +1671,7 @@ openButton.MouseButton1Click:Connect(function()
 	refreshWornItems()
 	updateCatalogLayout()
 	if expandedPanel then
+		previewManuallyClosed = false
 		previewFrame.Visible = true
 		refreshAvatarPreview()
 	end
