@@ -696,6 +696,7 @@ nextCorner.Parent = nextButton
 
 local expandedPanel = false
 local cardContentScale = 1
+local cardContentUIScales: {UIScale} = {}
 
 local function updateCatalogLayout()
 	local camera = workspace.CurrentCamera
@@ -831,6 +832,9 @@ local function updateCatalogLayout()
 		cardContentScale = 1
 	end
 	grid.CellPadding = UDim2.fromOffset(6, 6)
+	for _, contentScale in ipairs(cardContentUIScales) do
+		contentScale.Scale = cardContentScale
+	end
 
 	if expandedPanel and isNarrow then
 		resultsFrame.Position = UDim2.fromOffset(8, 310)
@@ -870,6 +874,9 @@ end)
 expandButton.MouseButton1Click:Connect(function()
 	expandedPanel = not expandedPanel
 	updateCatalogLayout()
+	if expandedPanel then
+		refreshAvatarPreview()
+	end
 end)
 
 --------------------------------------------------
@@ -963,6 +970,7 @@ local function createItemCard(item: any, layoutOrder: number)
 		Scale = cardContentScale,
 	})
 	cardContentUIScale.Parent = cardContent
+	table.insert(cardContentUIScales, cardContentUIScale)
 
 	local thumbnail = create("ImageLabel", {
 		Name = "Thumbnail",
@@ -1160,6 +1168,7 @@ showBundleContents = function(bundleId: number, bundleName: string)
 	backToPacksButton.Visible = true
 	statusLabel.Text = "Loading contents: " .. bundleName
 	wornButtonUpdaters = {}
+	table.clear(cardContentUIScales)
 	clearContainer(resultsFrame)
 
 	local success, details = pcall(function()
