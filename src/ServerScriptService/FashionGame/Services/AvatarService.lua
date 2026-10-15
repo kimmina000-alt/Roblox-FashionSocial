@@ -348,32 +348,6 @@ function AvatarService.GetCurrentItems(
 	end
 
 	--------------------------------------------------
-	-- Makeup
-	--------------------------------------------------
-
-	for _, makeup in ipairs(getMakeupDescriptions(description)) do
-		table.insert(result, {
-			AssetId = makeup.AssetId,
-			Category = makeup.MakeupType.Name .. "Makeup",
-			IsMakeup = true,
-		})
-	end
-
-	--------------------------------------------------
-	-- Emotes
-	--------------------------------------------------
-
-	for _, ids in pairs(description:GetEmotes()) do
-		for _, id in ipairs(ids) do
-			table.insert(result, {
-				AssetId = id,
-				Category = "Emote",
-				IsEmote = true,
-			})
-		end
-	end
-
-	--------------------------------------------------
 	-- Accessories
 	--------------------------------------------------
 

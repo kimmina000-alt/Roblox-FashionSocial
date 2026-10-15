@@ -862,7 +862,7 @@ local function searchCatalog()
 		params.AssetTypes = assetTypes
 	end
 
-	params.IncludeOffSale = currentIncludeOffSale or currentCategoryIncludeOffSale
+	params.IncludeOffSale = currentCategoryIncludeOffSale
 
 	if currentCategoryBundleTypes and #currentCategoryBundleTypes > 0 then
 		params.BundleTypes = currentCategoryBundleTypes
@@ -1016,7 +1016,7 @@ for groupIndex, group in ipairs(Config.CategoryGroups) do
 		end
 
 		subButton.MouseButton1Click:Connect(function()
-			selectCategory(category.Name, category.AssetTypes, category.BundleTypes)
+			selectCategory(category.Name, category.AssetTypes)
 		end)
 
 		table.insert(subButtons, subButton)
