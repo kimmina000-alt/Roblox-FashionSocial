@@ -285,6 +285,13 @@ previewCloseButton.MouseButton1Click:Connect(function()
 	previewFrame.Visible = false
 end)
 
+player.CharacterAdded:Connect(function()
+	task.wait(0.5)
+	if previewFrame.Visible then
+		refreshAvatarPreview()
+	end
+end)
+
 --------------------------------------------------
 -- MAIN FRAME
 --------------------------------------------------
@@ -952,10 +959,10 @@ local function createItemCard(item: any, layoutOrder: number)
 		BackgroundTransparency = 1,
 	})
 	cardContent.Parent = card
-	local cardContentScale = create("UIScale", {
+	local cardContentUIScale = create("UIScale", {
 		Scale = cardContentScale,
 	})
-	cardContentScale.Parent = cardContent
+	cardContentUIScale.Parent = cardContent
 
 	local thumbnail = create("ImageLabel", {
 		Name = "Thumbnail",
