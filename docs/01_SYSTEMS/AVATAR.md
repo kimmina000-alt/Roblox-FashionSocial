@@ -4,7 +4,7 @@
 Roblox Avatar APIs are the platform foundation. The in-game avatar shown to the player must reflect the server-confirmed CurrentOutfit. Roblox-owned inventory and temporary in-game outfit state remain separate.
 
 ## Catalog Preview
-- Keep a visible avatar preview beside the catalog on wide layouts.
+- Keep a visible avatar preview beside the catalog on wide layouts; when the catalog expands to full-screen, show a dedicated current-avatar preview window so the player can inspect the applied outfit.
 - Preview the current session avatar, not a mock avatar unrelated to the character in the world.
 - After a confirmed equip/remove, refresh the preview and the corresponding item state.
 - Closing the catalog must not reset the avatar or move the player out of the current world.
@@ -67,3 +67,11 @@ Check the current Roblox Creator Hub API before depending on an enum, property, 
 - Verify each feature against current Roblox Creator Hub documentation and in Studio before marking it complete.
 - Test unsupported item types, reset behavior, repeated changes, avatar preview synchronization, and preservation of unrelated outfit items.
 - Re-test existing catalog search, wear/remove, and pagination after adding the editing tabs.
+
+
+## Current Avatar Preview Window
+- Use a `ViewportFrame` preview cloned from the player's current character, not a separately generated default avatar.
+- Show it when the catalog is expanded, with a close control for players who want more room for browsing.
+- Refresh after server-confirmed wear/remove, after opening the catalog, and after character respawn.
+- Treat the live character/server-confirmed CurrentOutfit as the source of truth; the preview is a visual mirror only and must not mutate outfit state.
+- Verify in Studio that accessories, layered clothing, body proportions, and current outfit changes render correctly in the preview. If a clone/render path is unsupported, keep the live avatar/world visible rather than silently showing stale preview content.
