@@ -1094,7 +1094,7 @@ for groupIndex, group in ipairs(Config.CategoryGroups) do
 		end
 
 		subButton.MouseButton1Click:Connect(function()
-			selectCategory(category.Name, category.AssetTypes)
+			selectCategory(category.Name, category.AssetTypes, category.BundleTypes)
 		end)
 
 		table.insert(subButtons, subButton)
