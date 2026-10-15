@@ -1,5 +1,49 @@
 # TODO
 
+
+## Ordered Roadmap — Catalog UX and Avatar Editing
+
+Follow this order so layout and core try-on behavior stay reliable before advanced editing is added. Keep existing functionality working throughout; check an item only after implementation and Studio validation.
+
+### 1. Catalog panel layout and responsive behavior
+- [ ] Put the catalog panel on the right side of the screen, targeting about one-third of the desktop viewport by default.
+- [ ] Keep the avatar/world visible while the catalog is open.
+- [ ] Add corner/edge drag-resizing with viewport bounds and usable minimum dimensions; if drag-resizing is unreliable, use a clear expand/collapse toggle instead.
+- [ ] Add narrow/mobile behavior that expands the panel wide or to full screen; do not shrink controls to desktop one-third proportions.
+- [ ] Keep search, category access, and item cards readable at supported viewport sizes.
+
+### 2. Category discovery
+- [ ] Pin quick shortcuts for common categories (initial candidates: Clothing, Hair, Face, Accessories).
+- [ ] Move long-tail categories into clear grouped menus; avoid forcing repeated group expansion for common categories.
+- [ ] Use horizontally scrollable chips/icons for quick categories on narrow screens.
+- [ ] Verify each category maps to a supported asset/bundle type and clearly handles unsupported or empty categories.
+
+### 3. Search and filter hierarchy
+- [ ] Keep keyword search, category shortcuts, and sort visible in the primary browse area; advanced filters must not crowd these out.
+- [ ] Default sorting to Relevance; verify Most Favorited, Bestselling, Recently Published/RecentlyCreated, price low-to-high, and price high-to-low.
+- [ ] Put creator name, price range, and unavailable/off-sale toggle in a collapsed advanced-filter area.
+- [ ] Verify the official API/result metadata can reliably support the intended All/Limited sales-type filter before exposing it.
+- [ ] Check whether Most Favorited/Bestselling support a configurable aggregation period; do not add a period control unless supported.
+- [ ] Ensure displayed filter values match effective CatalogSearchParams, including IncludeOffSale precedence.
+- [ ] Preserve readable item thumbnails, names, prices/sale status, wear state, and wear/remove actions; verify loading, empty, error, and pagination states.
+
+### 4. Avatar editing tabs
+- [ ] Add a worn-item list with edit entry points for supported rigid accessories; implement X/Y/Z position, X/Y/Z rotation, scale, and reset only where the official API/application path supports them.
+- [ ] Add body-proportion sliders for supported HumanoidDescription values (width, height, depth, head scale, body type, proportion) with reset behavior.
+- [ ] Design R6/R15 switching as a separate rig recreation/conversion and compatibility flow; do not implement as a simple RigType property toggle.
+- [ ] Add clothing/layered-accessory order editing with worn-item cards, visible order numbers, drag reorder, and preview verification.
+- [ ] Add makeup layer-order editing through MakeupDescription.Order after makeup wear/remove is reliable.
+- [ ] Do not promise makeup position/rotation/scale unless an applicable official API path is confirmed.
+- [ ] Add a supported skin-color palette, per-body-part options, and optionally an apply-to-whole-body action.
+
+### 5. API verification and regression tests
+- [ ] Verify every new control against current Roblox Creator Hub documentation and test in Studio before marking it complete.
+- [ ] Test accessory types that support and do not support transforms, layer reorder, makeup add/remove/order, body scaling, rig compatibility, and skin-color application.
+- [ ] Re-test existing keyword search, category selection, sort/price/off-sale filters, pagination, wear, remove, and avatar/card state synchronization.
+- [ ] Confirm that failed or unsupported operations do not falsely update worn state and do not remove unrelated items.
+- [ ] Compare both reference videos and record the final UX decisions after both videos have been received and reviewed.
+
+
 ## High — Catalog / Avatar Reliability
 - [ ] Fix makeup dispatch and remove handling; verify Face, Lip, and Eye Makeup in Studio.
 - [ ] Diagnose zero results in individual animation subcategories using logged effective CatalogSearchParams and actual API responses.
