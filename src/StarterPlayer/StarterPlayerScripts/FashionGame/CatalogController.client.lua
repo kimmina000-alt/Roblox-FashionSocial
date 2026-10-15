@@ -926,9 +926,28 @@ renderCurrentPage = function()
 
 	local resultCount = 0
 
-	for index, item in ipairs(currentPage) do
-		createItemCard(item, index)
-		resultCount += 1
+	-- Animation subcategories must show only their matching individual asset
+	-- type. Keep bundle results untouched for the Animation Pack category.
+	local expectedAnimationTypeName: string? = nil
+	if currentCategoryAssetTypes and #currentCategoryAssetTypes == 1 then
+		local selectedAssetType = currentCategoryAssetTypes[1]
+		if typeof(selectedAssetType) == "EnumItem"
+			and selectedAssetType.EnumType == Enum.AvatarAssetType
+			and string.find(selectedAssetType.Name, "Animation", 1, true) then
+			expectedAnimationTypeName = selectedAssetType.Name
+		end
+	end
+
+	for _, item in ipairs(currentPage) do
+		local itemTypeName = getAssetTypeName(item)
+		if expectedAnimationTypeName == nil or itemTypeName == expectedAnimationTypeName then
+			createItemCard(item, resultCount + 1)
+			resultCount += 1
+		end
+	end
+
+	if expectedAnimationTypeName ~= nil and resultCount == 0 then
+		statusLabel.Text = "No individual " .. expectedAnimationTypeName .. " assets found on this page."
 	end
 
 	pageLabel.Text = "Page " .. tostring(currentPageNumber)
