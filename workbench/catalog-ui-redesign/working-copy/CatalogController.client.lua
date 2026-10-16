@@ -37,6 +37,8 @@ local wornOrder: {number} = {}
 local viewedOrder: {any} = {}
 local activeTopLevelGroup: string? = nil
 local filterPanelOpen = false
+local expandedGroups: {[string]: boolean} = {}
+local createItemCard: ((any, number) -> ())? = nil
 
 
 -- Live card button refreshers keyed by asset ID.
@@ -871,7 +873,7 @@ for index, group in ipairs(Config.CategoryGroups) do
 			end
 		end
 		categoryMenu.Visible = true
-		categoryMenu.Position = UDim2.new(0, math.floor(panelWidth * 0.25) + 10, 0, 142)
+		categoryMenu.Position = UDim2.new(0, math.floor(mainFrame.AbsoluteSize.X * 0.25) + 10, 0, 142)
 		updateMainCategorySelection()
 	end)
 end
@@ -902,7 +904,7 @@ discoveryButtons["착용 중"].MouseButton1Click:Connect(function()
 				return AvatarEditorService:GetItemDetailsAsync(assetId, Enum.AvatarItemType.Asset)
 			end)
 			if ok and typeof(details) == "table" then
-				createItemCard({Id=assetId, Name=details.Name, AssetType=details.AssetType, Price=details.Price}, n + 1)
+				if createItemCard then createItemCard({Id=assetId, Name=details.Name, AssetType=details.AssetType, Price=details.Price}, n + 1) end
 				n += 1
 			end
 		end
@@ -1192,6 +1194,92 @@ local function updateCatalogLayout()
 		contentScale.Scale = cardContentScale
 	end
 
+	if expandedPanel then
+		-- Consistent expanded layout across desktop, tablet and phone:
+		-- fixed 25% avatar column, independent 75% catalog column.
+		local leftWidth = math.floor(panelWidth * 0.25)
+		previewFrame.Position = UDim2.fromOffset(0, 0)
+		previewFrame.Size = UDim2.fromOffset(leftWidth, panelHeight)
+		previewFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+		previewFrame.BackgroundTransparency = 0.6
+		previewTitle.Position = UDim2.fromOffset(48, 8)
+		previewTitle.Size = UDim2.new(1, -56, 0, 30)
+		avatarEditorButton.Position = UDim2.fromOffset(8, 8)
+		avatarEditorButton.Size = UDim2.fromOffset(32, 32)
+		wardrobeButton.Position = UDim2.fromOffset(8, 46)
+		wardrobeButton.Size = UDim2.fromOffset(32, 32)
+		avatarViewport.Position = UDim2.fromOffset(8, 46)
+		avatarViewport.Size = UDim2.new(1, -16, 0.58, -48)
+		currentOutfitFrame.Position = UDim2.new(0, 8, 0.64, 0)
+		currentOutfitFrame.Size = UDim2.new(1, -16, 0.32, -8)
+
+		local rightX = leftWidth
+		local rightWidth = panelWidth - leftWidth
+		titleLabel.Position = UDim2.fromOffset(rightX + 12, 4)
+		titleLabel.Size = UDim2.new(0, math.min(150, rightWidth * 0.22), 0, 30)
+		titleLabel.TextSize = 18
+		searchBox.Position = UDim2.fromOffset(rightX + 12, 40)
+		searchBox.Size = UDim2.new(1, -104, 0, 32)
+		searchBox.TextSize = if isPhone then 11 else 14
+		searchBox.PlaceholderText = "Search Roblox catalog..."
+		searchButton.Visible = true
+		searchButton.Position = UDim2.new(1, -84, 0, 40)
+		searchButton.Size = UDim2.fromOffset(72, 32)
+		searchButton.TextSize = 10
+		fixedFilterButton.Visible = true
+		fixedFilterButton.Position = UDim2.new(1, -84, 0, 76)
+		discoveryBar.Visible = true
+		discoveryBar.Position = UDim2.fromOffset(rightX + 12, 76)
+		discoveryBar.Size = UDim2.new(1, -104, 0, 32)
+		mainCategoryStrip.Visible = true
+		categoryLeftButton.Visible = true
+		categoryRightButton.Visible = true
+		categoryLeftButton.Position = UDim2.fromOffset(rightX + 8, 112)
+		mainCategoryStrip.Position = UDim2.fromOffset(rightX + 34, 112)
+		mainCategoryStrip.Size = UDim2.new(1, -68, 0, 32)
+		categoryRightButton.Position = UDim2.new(1, -30, 0, 112)
+		categoryMenu.Position = UDim2.fromOffset(rightX + 34, 148)
+		categoryMenu.Size = UDim2.new(0, math.max(150, rightWidth * 0.48), 0, math.min(330, panelHeight - 180))
+		sortButton.Visible = true
+		sortButton.Position = UDim2.fromOffset(rightX + 12, 148)
+		sortButton.Size = UDim2.fromOffset(1, 30)
+		sortButton.Visible = false
+		filterLabel.Visible = false
+		minPriceBox.Visible = filterPanelOpen
+		maxPriceBox.Visible = filterPanelOpen
+		offSaleButton.Visible = filterPanelOpen
+		if filterPanelOpen then
+			minPriceBox.Position = UDim2.fromOffset(rightX + 12, 188)
+			maxPriceBox.Position = UDim2.fromOffset(rightX + 110, 188)
+			offSaleButton.Position = UDim2.fromOffset(rightX + 208, 188)
+			minPriceBox.Size = UDim2.fromOffset(90, 28)
+			maxPriceBox.Size = UDim2.fromOffset(90, 28)
+			offSaleButton.Size = UDim2.fromOffset(100, 28)
+			filterPanel.Position = UDim2.fromOffset(panelWidth - 312, 110)
+			filterPanel.Visible = true
+		else
+			filterPanel.Visible = false
+		end
+		backToPacksButton.Position = UDim2.fromOffset(rightX + 12, 148)
+		backToPacksButton.Size = UDim2.fromOffset(132, 24)
+		statusLabel.Position = UDim2.fromOffset(rightX + 152, 148)
+		statusLabel.Size = UDim2.new(1, -rightWidth * 0.38, 0, 24)
+		statusLabel.TextSize = 10
+		resultsFrame.Position = UDim2.fromOffset(rightX + 12, 180)
+		resultsFrame.Size = UDim2.new(1, -rightX - 24, 1, -192)
+		categoryButton.Visible = false
+		categoryMenu.Visible = categoryMenu.Visible and activeTopLevelGroup ~= nil
+	else
+		discoveryBar.Visible = false
+		mainCategoryStrip.Visible = false
+		categoryLeftButton.Visible = false
+		categoryRightButton.Visible = false
+		fixedFilterButton.Visible = false
+		filterPanel.Visible = false
+		currentOutfitFrame.Visible = false
+		categoryButton.Visible = true
+	end
+
 	previewFrame.Visible = expandedPanel and mainFrame.Visible
 end
 local function bindViewport(camera: Camera?)
@@ -1275,7 +1363,7 @@ end
 -- CARD
 --------------------------------------------------
 
-local function createItemCard(item: any, layoutOrder: number)
+createItemCard = function(item: any, layoutOrder: number)
 	local assetId = item.Id
 
 	if typeof(assetId) ~= "number" then
@@ -1768,8 +1856,6 @@ end
 --------------------------------------------------
 
 local categoryButtons: {[string]: TextButton} = {}
-local expandedGroups: {[string]: boolean} = {}
-
 local function selectCategory(name: string, assetTypes, bundleTypes)
 	if (not assetTypes or #assetTypes == 0) and (not bundleTypes or #bundleTypes == 0) then
 		statusLabel.Text = "이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다."
