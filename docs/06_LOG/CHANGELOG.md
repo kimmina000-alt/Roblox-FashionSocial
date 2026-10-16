@@ -57,3 +57,11 @@
 - Enlarged item-name labels to 20px, single-line ellipsis.
 - Hid NEXT/page controls and added scroll-triggered next-page loading.
 - Toolbar navigation, Filter panel, Current Outfit strip, drag rotation, hover tooltip, and Studio validation remain outstanding.
+
+
+## 2026-10-16 — PDF catalog UI pass (isolated branch)
+- Added expanded fixed 25/75 avatar/catalog layout and horizontal Current Outfit strip.
+- Added scrollable Recent/Popular/Favorites/Currently Worn toolbar and category strip with arrow/mouse/touch scrolling.
+- Added collapsible filter panel and disabled unverified Limited sales filter.
+- Moved launcher to top-left, added translucent black surfaces, category scroll reset and desktop item-name tooltip.
+- Kept changes in `catalog-ui-redesign`; no Studio runtime tests performed.
