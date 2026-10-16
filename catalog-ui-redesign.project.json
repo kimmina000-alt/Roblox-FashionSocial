@@ -14,13 +14,7 @@
       "$className": "StarterPlayer",
       "StarterPlayerScripts": {
         "$className": "StarterPlayerScripts",
-        "$path": "src/StarterPlayer/StarterPlayerScripts",
-        "FashionGame": {
-          "$className": "Folder",
-          "CatalogController.client.lua": {
-            "$path": "workbench/catalog-ui-redesign/working-copy/CatalogController.client.lua"
-          }
-        }
+        "$path": "src/StarterPlayer/StarterPlayerScripts"
       }
     }
   }
