@@ -114,3 +114,25 @@
 - [ ] Studio-test compact PC/mobile to verify cards are visible and usable.
 - [ ] Studio-test expanded PC/mobile to verify the current-avatar preview is visible and does not cover controls or item cards.
 - [ ] Re-test search, category, sort, price/off-sale filters, pagination, wear and remove after these layout changes.
+
+
+## 2026-10-16 — Expanded catalog layout foundation
+
+### User-approved layout
+- Full-screen expanded catalog with a fixed left avatar preview column at roughly 25% width and right catalog at roughly 75%.
+- Avatar Editor and Wardrobe icon entry points at the top-left of preview; Current Outfit below preview as a horizontally scrollable row, newest worn first.
+- Right side: navigation strip (Recent, Popular, Recommended, Favorites, Currently Worn), fixed Search and Filter controls, second quick-category row, then independently scrolling results.
+- Hide Min/Max/Off Sale in the default toolbar and place them in Filter.
+- Single-line item names at twice the previous label size, truncated with ellipsis; desktop hover tooltip should reveal full names.
+- Replace NEXT button with incremental loading after the initial 30 results.
+
+### Code committed
+- Expanded preview is reserved to the left 25% and results are offset into the right 75% area.
+- Added transparent icon-only Avatar Editor and Wardrobe entry points (currently explanatory placeholder actions; feature panels are not implemented yet).
+- Adjusted preview camera to face the avatar from the front.
+- Enlarged card item-name labels to 20px and disabled wrapping with end truncation.
+- Hid page label/NEXT controls and connected results scrolling to next-page requests.
+
+### Known incomplete work / validation
+- Current Outfit horizontal strip/order, preview drag rotation, toolbar navigation strip, quick category row, Filter panel, and hover tooltip still need implementation.
+- Infinite-scroll append/reset behavior requires Studio validation; this revision has not been run in Roblox Studio.
