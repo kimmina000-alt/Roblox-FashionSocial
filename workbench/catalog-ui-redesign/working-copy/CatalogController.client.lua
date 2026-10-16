@@ -39,7 +39,7 @@ local activeTopLevelGroup: string? = nil
 local filterPanelOpen = false
 local expandedGroups: {[string]: boolean} = {}
 local subButtonsByGroup: {[string]: {TextButton}} = {}
-local createItemCard: ((any, number) -> ())? = nil
+local createItemCard: (any, number) -> ()
 
 
 -- Live card button refreshers keyed by asset ID.
@@ -696,7 +696,7 @@ local backToPacksButton = create("TextButton", {
 backToPacksButton.Parent = mainFrame
 create("UICorner", { CornerRadius = UDim.new(0, 7) }).Parent = backToPacksButton
 
-local statusLabel = create("TextLabel", {
+statusLabel = create("TextLabel", {
 	Name = "Status",
 	Size = UDim2.new(1, -190, 0, 30),
 	Position = UDim2.fromOffset(175, 160),
@@ -814,7 +814,7 @@ categoryRightButton.Parent = mainFrame
 
 local filterPanel = create("Frame", {
 	Name = "ExpandedFilterPanel",
-	Size = UDim2.fromOffset(300, 154),
+	Size = UDim2.fromOffset(300, 166),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 	BackgroundTransparency = 0.6,
 	BorderSizePixel = 0,
@@ -824,6 +824,7 @@ local filterPanel = create("Frame", {
 filterPanel.Parent = mainFrame
 create("UICorner", {CornerRadius = UDim.new(0, 8)}).Parent = filterPanel
 
+local statusLabel: TextLabel
 local creatorLabel = create("TextLabel", {
 	Size = UDim2.new(1, -16, 0, 22), Position = UDim2.fromOffset(8, 4),
 	BackgroundTransparency = 1, Text = "Creator: All creators",
@@ -840,27 +841,27 @@ local creatorNameBox = create("TextBox", {
 })
 creatorNameBox.Parent = filterPanel
 local priceFilterLabel = create("TextLabel", {
-	Size = UDim2.new(1, -16, 0, 20), Position = UDim2.fromOffset(8, 56),
+	Size = UDim2.new(1, -16, 0, 20), Position = UDim2.fromOffset(8, 54),
 	BackgroundTransparency = 1, Text = "Price range (R$)",
 	TextColor3 = Color3.new(1,1,1), TextSize = 11, Font = Enum.Font.Gotham,
 	TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 71,
 })
 priceFilterLabel.Parent = filterPanel
 local unavailableFilterButton = create("TextButton", {
-	Size = UDim2.fromOffset(112, 26), Position = UDim2.fromOffset(8, 78),
+	Size = UDim2.fromOffset(112, 26), Position = UDim2.fromOffset(8, 102),
 	BackgroundColor3 = Color3.fromRGB(50,50,60), Text = "Unavailable: Off",
 	TextColor3 = Color3.new(1,1,1), TextSize = 10, Font = Enum.Font.GothamBold, ZIndex = 71,
 })
 unavailableFilterButton.Parent = filterPanel
 local salesTypeButton = create("TextButton", {
-	Size = UDim2.fromOffset(132, 26), Position = UDim2.fromOffset(124, 78),
+	Size = UDim2.fromOffset(132, 26), Position = UDim2.fromOffset(124, 102),
 	BackgroundColor3 = Color3.fromRGB(50,50,60), Text = "Sales type: All",
 	TextColor3 = Color3.fromRGB(170,170,175), TextSize = 10, Font = Enum.Font.GothamBold,
 	AutoButtonColor = false, ZIndex = 71,
 })
 salesTypeButton.Parent = filterPanel
 local applyFilterButton = create("TextButton", {
-	Size = UDim2.new(1, -16, 0, 28), Position = UDim2.fromOffset(8, 112),
+	Size = UDim2.new(1, -16, 0, 28), Position = UDim2.fromOffset(8, 134),
 	BackgroundColor3 = Color3.fromRGB(75,75,90), Text = "Apply filters",
 	TextColor3 = Color3.new(1,1,1), TextSize = 11, Font = Enum.Font.GothamBold, ZIndex = 71,
 })
@@ -943,7 +944,7 @@ discoveryButtons["착용 중"].MouseButton1Click:Connect(function()
 				return AvatarEditorService:GetItemDetailsAsync(assetId, Enum.AvatarItemType.Asset)
 			end)
 			if ok and typeof(details) == "table" then
-				if createItemCard then createItemCard({Id=assetId, Name=details.Name, AssetType=details.AssetType, Price=details.Price}, n + 1) end
+				createItemCard({Id=assetId, Name=details.Name, AssetType=details.AssetType, Price=details.Price}, n + 1)
 				n += 1
 			end
 		end
@@ -1857,6 +1858,7 @@ local function searchCatalog()
 	end
 
 	searchBusy = true
+	resultsFrame.CanvasPosition = Vector2.zero
 
 	categoryMenu.Visible = false
 	sortMenu.Visible = false
