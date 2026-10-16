@@ -89,3 +89,19 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 - [ ] Monetization polish.
 - [ ] Optimization.
 - [ ] QA / soft launch.
+
+
+## Catalog redesign follow-up (2026-10-16)
+- [x] Expanded catalog uses a fixed left preview column (~25%) and catalog results area (~75%).
+- [x] Add Avatar Editor and Wardrobe icon entry points to preview panel.
+- [x] Change preview camera to front-facing angle.
+- [x] Enlarge item-name text and restrict to one line with ellipsis.
+- [x] Hide NEXT/page UI and trigger next-page loading from results scrolling.
+- [ ] Add fixed Current Outfit horizontal scroller, newest worn first, individual remove.
+- [ ] Add drag-to-rotate avatar preview.
+- [ ] Add fixed search and Filter controls with horizontally scrollable Recent/Popular/Recommended/Favorites/Currently Worn strip.
+- [ ] Add quick category row (All, Hair, Face, Tops, Bottoms, Accessories, Animations).
+- [ ] Move Min/Max/Off Sale into Filter panel.
+- [ ] Add mouse-following tooltip showing full item name on desktop.
+- [ ] Implement actual Wardrobe save/load and Avatar Editor transform panel.
+- [ ] Test incremental loading, duplicate request protection, and reset behavior after filters/search changes in Studio.
