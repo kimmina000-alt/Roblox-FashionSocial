@@ -197,7 +197,8 @@ local previewFrame = create("Frame", {
 	Name = "AvatarPreviewWindow",
 	Size = UDim2.fromOffset(250, 300),
 	Position = UDim2.fromOffset(16, 164),
-	BackgroundColor3 = Color3.fromRGB(24, 24, 30),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	BackgroundTransparency = 0.6,
 	Visible = false,
 })
 previewFrame.Parent = previewGui
@@ -733,6 +734,7 @@ local function updateCatalogLayout()
 	end
 
 	local viewport = camera.ViewportSize
+	local isPhone = viewport.X < 600
 	local isNarrow = viewport.X < 900
 	local panelWidth: number
 	local panelHeight: number
@@ -753,7 +755,10 @@ local function updateCatalogLayout()
 		avatarViewport.Position = UDim2.fromOffset(8, 48)
 		avatarViewport.Size = UDim2.new(1, -16, 0.62, -56)
 	elseif isNarrow then
-		panelWidth = math.min(math.max(190, math.floor(viewport.X * 0.5)), viewport.X - 12)
+		-- Phone: substantially narrower than the old half-screen panel. Tablets
+		-- keep the previously accepted half-width compact panel.
+		local compactWidth = if isPhone then math.max(150, math.floor(viewport.X * 0.25)) else math.floor(viewport.X * 0.5)
+		panelWidth = math.min(compactWidth, viewport.X - 12)
 		panelHeight = math.min(math.max(260, math.floor(viewport.Y * 0.5)), viewport.Y - 12)
 		mainFrame.Position = UDim2.new(1, -panelWidth - 6, 1, -panelHeight - 6)
 		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
@@ -771,6 +776,7 @@ local function updateCatalogLayout()
 	expandButton.Visible = true
 	local compact = not expandedPanel
 	local compactMobile = isNarrow and compact
+	local compactPhone = isPhone and compact
 	local expandedMobile = isNarrow and expandedPanel
 	local innerWidth = math.max(1, panelWidth - 24)
 
@@ -909,7 +915,9 @@ local function updateCatalogLayout()
 	sortMenu.Size = UDim2.new(sortButton.Size.X.Scale, sortButton.Size.X.Offset, 0, math.max(100, math.min(220, panelHeight - 150)))
 
 	-- Card dimensions are intentionally different for compact PC/mobile and expanded views.
-	if compactMobile then
+	if compactPhone then
+		grid.CellSize = UDim2.fromOffset(76, 114)
+	elseif compactMobile then
 		grid.CellSize = UDim2.fromOffset(76, 114)
 		cardContentScale = 0.68
 	elseif compact then
@@ -1488,6 +1496,9 @@ local function searchCatalog()
 	end
 
 	local currentPage = pages:GetCurrentPage()
+
+	-- Every new search/category/filter starts at the top of the results list.
+	resultsFrame.CanvasPosition = Vector2.zero
 
 	-- Keep each category truthful: an individual animation category must not
 	-- silently display Animation Pack bundles as if they were individual assets.
