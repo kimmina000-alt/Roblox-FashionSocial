@@ -105,3 +105,21 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 - [ ] Add mouse-following tooltip showing full item name on desktop.
 - [ ] Implement actual Wardrobe save/load and Avatar Editor transform panel.
 - [ ] Test incremental loading, duplicate request protection, and reset behavior after filters/search changes in Studio.
+
+
+## PDF Catalog UI redesign — 2026-10-16 (isolated branch)
+- [x] Preserve baseline code separately under `workbench/catalog-ui-redesign/baseline/`; work only in the copy.
+- [x] Move catalog launcher to top-left and use translucent black background.
+- [x] Add expanded layout with fixed avatar preview (25%) and independent catalog results area (75%).
+- [x] Add Recent / Popular / Favorites / Currently Worn toolbar buttons; Recent/Popular/Favorites are explicit placeholders with print messages.
+- [x] Add horizontal top-level category strip, selected-state styling, arrows, touch scrolling and mouse drag.
+- [x] Keep existing detailed category/subcategory API mappings.
+- [x] Add collapsible filter panel UI for creator, price, unavailable items and sales type; Limited remains disabled pending verification.
+- [x] Add horizontal Current Outfit strip and individual remove actions; new wears are placed first in session order.
+- [x] Add Avatar Editor / Wardrobe placeholder messages.
+- [x] Add desktop item-name hover tooltip.
+- [x] Reset results scroll to top when a new search/category is selected.
+- [ ] Run Roblox Studio tests on PC, tablet and phone; verify compact width, expanded 25/75 layout, scroll loading, filter panel and worn-item removal.
+- [ ] Verify CreatorName support in Roblox client API.
+- [ ] Replace Recent/Favorites/Popular placeholders with real data-backed behavior in a later feature pass.
+- [ ] Implement actual Wardrobe save/load and Avatar Editor transform tools separately.
