@@ -48,3 +48,12 @@
 - Ownership vs Current Outfit separation documented.
 - Housing / Building direction documented.
 - AI-assisted art production direction documented.
+
+
+## 2026-10-16 — Expanded catalog layout foundation
+- Expanded layout now reserves 25% width for the fixed avatar preview and 75% for the catalog results area.
+- Added Avatar Editor and Wardrobe icon entry points; their feature panels remain placeholders.
+- Changed preview camera to face the avatar.
+- Enlarged item-name labels to 20px, single-line ellipsis.
+- Hid NEXT/page controls and added scroll-triggered next-page loading.
+- Toolbar navigation, Filter panel, Current Outfit strip, drag rotation, hover tooltip, and Studio validation remain outstanding.
