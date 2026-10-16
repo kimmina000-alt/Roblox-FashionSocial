@@ -40,6 +40,7 @@ local filterPanelOpen = false
 local expandedGroups: {[string]: boolean} = {}
 local subButtonsByGroup: {[string]: {TextButton}} = {}
 local createItemCard: (any, number) -> ()
+local statusLabel: TextLabel
 
 
 -- Live card button refreshers keyed by asset ID.
@@ -824,7 +825,6 @@ local filterPanel = create("Frame", {
 filterPanel.Parent = mainFrame
 create("UICorner", {CornerRadius = UDim.new(0, 8)}).Parent = filterPanel
 
-local statusLabel: TextLabel
 local creatorLabel = create("TextLabel", {
 	Size = UDim2.new(1, -16, 0, 22), Position = UDim2.fromOffset(8, 4),
 	BackgroundTransparency = 1, Text = "Creator: All creators",
@@ -907,10 +907,7 @@ for index, group in ipairs(Config.CategoryGroups) do
 				local configGroup = groupIndex and Config.CategoryGroups[groupIndex]
 				local isSelected = configGroup and configGroup.Name == group.Name
 				child.Text = (isSelected and "− " or "＋ ") .. (configGroup and configGroup.Name or "")
-				for _, sub in ipairs(child:GetChildren()) do
-					if sub:IsA("TextButton") then sub.Visible = isSelected end
-				end
-			end
+							end
 		end
 		categoryMenu.Visible = true
 		categoryMenu.Position = UDim2.new(0, math.floor(mainFrame.AbsoluteSize.X * 0.25) + 10, 0, 142)
@@ -1541,11 +1538,6 @@ createItemCard = function(item: any, layoutOrder: number)
 		TextYAlignment = Enum.TextYAlignment.Center,
 	})
 	nameLabel.Parent = cardContent
-	nameLabel.MouseEnter:Connect(function()
-		if game:GetService("UserInputService").MouseEnabled then
-			nameLabel.Tooltip = tostring(item.Name or "Unknown Item")
-		end
-	end)
 
 	local typeLabel = create("TextLabel", {
 		Name = "AssetType",
