@@ -39,3 +39,25 @@ Still to implement in the working copy:
 - Print-only placeholder handlers for Avatar Editor and Wardrobe if not already wired in the copied script.
 - Home-screen catalog button placement: locate the actual launcher script before changing it.
 - Studio test of scroll reset and phone/tablet compact sizes.
+
+
+## Progress — PDF layout implementation (2026-10-16)
+
+Implemented in the working copy:
+- Home-screen catalog launcher moved to the top-left with a translucent black surface.
+- Expanded catalog uses a fixed 25% avatar-preview column and 75% independent results column on desktop, tablet, and phone.
+- Search and Filter stay fixed; Recent / Popular / Favorites / Currently Worn are in a horizontal discovery strip.
+- Top-level category buttons follow existing `CatalogConfig.CategoryGroups`, with selected-state styling, arrows, touch scrolling, and mouse-drag scrolling. Existing detailed subcategory API mappings are preserved.
+- Filter panel includes Creator name, Min/Max price, Unavailable items toggle, and a disabled Limited sales-type control. CreatorName is set defensively with `pcall` because runtime support needs verification.
+- Current Outfit is a horizontal strip below the avatar preview with individual remove buttons and session-level newest-first ordering for items worn during this session.
+- Avatar Editor and Wardrobe buttons show placeholder status messages; actual transform editing and outfit persistence are not implemented.
+- Desktop item-name hover tooltip and search/category scroll-to-top reset are implemented.
+- Phone compact width is 25% of viewport width (minimum 150px); tablet compact width remains 50%.
+
+Still to validate or implement:
+- Run Roblox Studio tests on PC, tablet, and phone. No runtime Studio test has been performed for this branch.
+- Verify CreatorName support in the actual client API; unsupported assignment logs a warning.
+- Recent, Favorites, and Popular are print-only placeholders; Popular must not be presented as an actual popularity ranking yet.
+- Confirm Current Outfit reflects previously worn items and ordering after respawn/server refresh.
+- Sales type Limited remains disabled until API support is verified.
+- Verify the top-left launcher position against the in-game PDF reference.
