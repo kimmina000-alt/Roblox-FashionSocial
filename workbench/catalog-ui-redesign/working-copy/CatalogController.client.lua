@@ -33,6 +33,11 @@ local currentMaxPrice = 0
 local currentIncludeOffSale = Config.IncludeOffSale
 
 local currentWornItems: {[number]: boolean} = {}
+local wornOrder: {number} = {}
+local viewedOrder: {any} = {}
+local activeTopLevelGroup: string? = nil
+local filterPanelOpen = false
+
 
 -- Live card button refreshers keyed by asset ID.
 local wornButtonUpdaters: {[number]: () -> ()} = {}
@@ -173,6 +178,9 @@ local openButton = create("TextButton", {
 })
 
 openButton.Parent = screenGui
+openButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+openButton.BackgroundTransparency = 0.6
+
 
 local openCorner = create("UICorner", {
 	CornerRadius = UDim.new(0, 10),
@@ -665,6 +673,7 @@ statusLabel.Parent = mainFrame
 --------------------------------------------------
 
 local resultsFrame = create("ScrollingFrame", {
+
 	Name = "Results",
 	Size = UDim2.new(1, -40, 1, -250),
 	Position = UDim2.fromOffset(20, 195),
@@ -677,6 +686,250 @@ local resultsFrame = create("ScrollingFrame", {
 	ScrollBarThickness = 6,
 })
 resultsFrame.Parent = mainFrame
+
+-- Expanded-layout navigation overlays. Search and Filter stay fixed while the
+-- discovery shortcuts can be horizontally scrolled independently.
+local discoveryBar = create("ScrollingFrame", {
+	Name = "DiscoveryBar",
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 3,
+	ScrollingDirection = Enum.ScrollingDirection.X,
+	CanvasSize = UDim2.new(0, 0, 0, 0),
+	AutomaticCanvasSize = Enum.AutomaticSize.X,
+	Visible = false,
+})
+discoveryBar.Parent = mainFrame
+create("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal,
+	Padding = UDim.new(0, 5),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+}).Parent = discoveryBar
+
+local discoveryButtons = {}
+for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중"}) do
+	local b = create("TextButton", {
+		Name = "Discovery_" .. tostring(index),
+		Size = UDim2.fromOffset(86, 30),
+		BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+		BackgroundTransparency = 0.6,
+		Text = label,
+		TextColor3 = Color3.fromRGB(235, 235, 240),
+		TextSize = 12,
+		Font = Enum.Font.GothamBold,
+		LayoutOrder = index,
+	})
+	b.Parent = discoveryBar
+	create("UICorner", {CornerRadius = UDim.new(0, 7)}).Parent = b
+	discoveryButtons[label] = b
+end
+
+local fixedFilterButton = create("TextButton", {
+	Name = "FixedFilterButton",
+	Size = UDim2.fromOffset(70, 30),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	BackgroundTransparency = 0.6,
+	Text = "필터 ☰",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 12,
+	Font = Enum.Font.GothamBold,
+	Visible = false,
+})
+fixedFilterButton.Parent = mainFrame
+create("UICorner", {CornerRadius = UDim.new(0, 7)}).Parent = fixedFilterButton
+
+local mainCategoryStrip = create("ScrollingFrame", {
+	Name = "MainCategoryStrip",
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 2,
+	ScrollingDirection = Enum.ScrollingDirection.X,
+	CanvasSize = UDim2.new(0, 0, 0, 0),
+	AutomaticCanvasSize = Enum.AutomaticSize.X,
+	Visible = false,
+})
+mainCategoryStrip.Parent = mainFrame
+local mainCategoryLayout = create("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal,
+	Padding = UDim.new(0, 5),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+})
+mainCategoryLayout.Parent = mainCategoryStrip
+
+local categoryLeftButton = create("TextButton", {
+	Name = "CategoryLeftArrow", Size = UDim2.fromOffset(22, 30),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.6,
+	Text = "‹", TextColor3 = Color3.new(1,1,1), TextSize = 22, Font = Enum.Font.GothamBold,
+	Visible = false,
+})
+categoryLeftButton.Parent = mainFrame
+local categoryRightButton = create("TextButton", {
+	Name = "CategoryRightArrow", Size = UDim2.fromOffset(22, 30),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.6,
+	Text = "›", TextColor3 = Color3.new(1,1,1), TextSize = 22, Font = Enum.Font.GothamBold,
+	Visible = false,
+})
+categoryRightButton.Parent = mainFrame
+
+local filterPanel = create("Frame", {
+	Name = "ExpandedFilterPanel",
+	Size = UDim2.fromOffset(300, 154),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	BackgroundTransparency = 0.6,
+	BorderSizePixel = 0,
+	Visible = false,
+	ZIndex = 70,
+})
+filterPanel.Parent = mainFrame
+create("UICorner", {CornerRadius = UDim.new(0, 8)}).Parent = filterPanel
+
+local creatorLabel = create("TextLabel", {
+	Size = UDim2.new(1, -16, 0, 22), Position = UDim2.fromOffset(8, 4),
+	BackgroundTransparency = 1, Text = "Creator: All creators",
+	TextColor3 = Color3.new(1,1,1), TextSize = 11, Font = Enum.Font.Gotham,
+	TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 71,
+})
+creatorLabel.Parent = filterPanel
+local creatorNameBox = create("TextBox", {
+	Size = UDim2.new(1, -16, 0, 26), Position = UDim2.fromOffset(8, 26),
+	BackgroundColor3 = Color3.fromRGB(45,45,52), BackgroundTransparency = 0.25,
+	Text = "", PlaceholderText = "Creator name (not yet API-wired)",
+	TextColor3 = Color3.new(1,1,1), PlaceholderColor3 = Color3.fromRGB(180,180,185),
+	TextSize = 11, ClearTextOnFocus = false, ZIndex = 71,
+})
+creatorNameBox.Parent = filterPanel
+local priceFilterLabel = create("TextLabel", {
+	Size = UDim2.new(1, -16, 0, 20), Position = UDim2.fromOffset(8, 56),
+	BackgroundTransparency = 1, Text = "Price range (R$)",
+	TextColor3 = Color3.new(1,1,1), TextSize = 11, Font = Enum.Font.Gotham,
+	TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 71,
+})
+priceFilterLabel.Parent = filterPanel
+local unavailableFilterButton = create("TextButton", {
+	Size = UDim2.fromOffset(112, 26), Position = UDim2.fromOffset(8, 78),
+	BackgroundColor3 = Color3.fromRGB(50,50,60), Text = "Unavailable: Off",
+	TextColor3 = Color3.new(1,1,1), TextSize = 10, Font = Enum.Font.GothamBold, ZIndex = 71,
+})
+unavailableFilterButton.Parent = filterPanel
+local salesTypeButton = create("TextButton", {
+	Size = UDim2.fromOffset(132, 26), Position = UDim2.fromOffset(124, 78),
+	BackgroundColor3 = Color3.fromRGB(50,50,60), Text = "Sales type: All",
+	TextColor3 = Color3.fromRGB(170,170,175), TextSize = 10, Font = Enum.Font.GothamBold,
+	AutoButtonColor = false, ZIndex = 71,
+})
+salesTypeButton.Parent = filterPanel
+local applyFilterButton = create("TextButton", {
+	Size = UDim2.new(1, -16, 0, 28), Position = UDim2.fromOffset(8, 112),
+	BackgroundColor3 = Color3.fromRGB(75,75,90), Text = "Apply filters",
+	TextColor3 = Color3.new(1,1,1), TextSize = 11, Font = Enum.Font.GothamBold, ZIndex = 71,
+})
+applyFilterButton.Parent = filterPanel
+create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = applyFilterButton
+
+local function updateMainCategorySelection()
+	for _, child in ipairs(mainCategoryStrip:GetChildren()) do
+		if child:IsA("TextButton") then
+			local selected = child.Name == "MainCategory_" .. tostring(activeTopLevelGroup or "")
+			child.BackgroundTransparency = selected and 0 or 0.6
+			child.BackgroundColor3 = selected and Color3.fromRGB(78, 78, 94) or Color3.fromRGB(0, 0, 0)
+			child.TextColor3 = selected and Color3.fromRGB(255,255,255) or Color3.fromRGB(190,190,200)
+		end
+	end
+end
+
+local groupButtonByName = {}
+for index, group in ipairs(Config.CategoryGroups) do
+	local b = create("TextButton", {
+		Name = "MainCategory_" .. group.Name,
+		Size = UDim2.fromOffset(94, 30),
+		BackgroundColor3 = Color3.fromRGB(0,0,0),
+		BackgroundTransparency = 0.6,
+		Text = group.Name,
+		TextColor3 = Color3.fromRGB(190,190,200),
+		TextSize = 11,
+		Font = Enum.Font.GothamBold,
+		LayoutOrder = index,
+	})
+	b.Parent = mainCategoryStrip
+	create("UICorner", {CornerRadius = UDim.new(0, 7)}).Parent = b
+	groupButtonByName[group.Name] = b
+	b.MouseButton1Click:Connect(function()
+		activeTopLevelGroup = group.Name
+		for _, candidate in ipairs(Config.CategoryGroups) do
+			expandedGroups[candidate.Name] = candidate.Name == group.Name
+		end
+		-- Preserve the existing subcategory buttons and their API mappings.
+		for _, child in ipairs(categoryMenu:GetChildren()) do
+			if child:IsA("TextButton") and string.sub(child.Name, 1, 6) == "Group_" then
+				local groupIndex = tonumber(string.match(child.Name, "%d+"))
+				local configGroup = groupIndex and Config.CategoryGroups[groupIndex]
+				local isSelected = configGroup and configGroup.Name == group.Name
+				child.Text = (isSelected and "− " or "＋ ") .. (configGroup and configGroup.Name or "")
+				for _, sub in ipairs(child:GetChildren()) do
+					if sub:IsA("TextButton") then sub.Visible = isSelected end
+				end
+			end
+		end
+		categoryMenu.Visible = true
+		categoryMenu.Position = UDim2.new(0, math.floor(panelWidth * 0.25) + 10, 0, 142)
+		updateMainCategorySelection()
+	end)
+end
+
+categoryLeftButton.MouseButton1Click:Connect(function()
+	mainCategoryStrip.CanvasPosition = Vector2.new(math.max(0, mainCategoryStrip.CanvasPosition.X - 120), 0)
+end)
+categoryRightButton.MouseButton1Click:Connect(function()
+	mainCategoryStrip.CanvasPosition = Vector2.new(math.min(mainCategoryStrip.AbsoluteCanvasSize.X, mainCategoryStrip.CanvasPosition.X + 120), 0)
+end)
+
+discoveryButtons["최근"].MouseButton1Click:Connect(function()
+	print("[CatalogUI] Recent viewed items selected. Recent history view is a placeholder.")
+end)
+discoveryButtons["인기"].MouseButton1Click:Connect(function()
+	print("[CatalogUI] Popular selected. API-backed sort will be enabled only for supported item types.")
+end)
+discoveryButtons["즐겨찾기"].MouseButton1Click:Connect(function()
+	print("[CatalogUI] Favorites selected. Favorites list is a placeholder.")
+end)
+discoveryButtons["착용 중"].MouseButton1Click:Connect(function()
+	print("[CatalogUI] Currently worn selected.")
+	clearContainer(resultsFrame)
+	local n = 0
+	for _, assetId in ipairs(wornOrder) do
+		if currentWornItems[assetId] then
+			local ok, details = pcall(function()
+				return AvatarEditorService:GetItemDetailsAsync(assetId, Enum.AvatarItemType.Asset)
+			end)
+			if ok and typeof(details) == "table" then
+				createItemCard({Id=assetId, Name=details.Name, AssetType=details.AssetType, Price=details.Price}, n + 1)
+				n += 1
+			end
+		end
+	end
+	statusLabel.Text = tostring(n) .. " currently worn items."
+end)
+
+fixedFilterButton.MouseButton1Click:Connect(function()
+	filterPanelOpen = not filterPanelOpen
+	filterPanel.Visible = filterPanelOpen
+end)
+unavailableFilterButton.MouseButton1Click:Connect(function()
+	currentIncludeOffSale = not currentIncludeOffSale
+	unavailableFilterButton.Text = "Unavailable: " .. (currentIncludeOffSale and "On" or "Off")
+end)
+applyFilterButton.MouseButton1Click:Connect(function()
+	minPriceBox.Text = minPriceBox.Text or ""
+	maxPriceBox.Text = maxPriceBox.Text or ""
+	offSaleButton.Text = currentIncludeOffSale and "☑ Off Sale" or "□ Off Sale"
+	filterPanel.Visible = false
+	filterPanelOpen = false
+	searchCatalog()
+end)
+salesTypeButton.MouseButton1Click:Connect(function()
+	print("[CatalogUI] Limited sales filter disabled until API support is verified.")
+end)
+
 
 local grid = create("UIGridLayout", {
 	CellSize = UDim2.fromOffset(165, 240),
