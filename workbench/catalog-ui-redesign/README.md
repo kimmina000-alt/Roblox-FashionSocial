@@ -23,3 +23,19 @@ This directory is deliberately outside `src/` so Rojo does not sync duplicate Lo
 12. All black UI surfaces should use about 60% transparency where appropriate.
 13. Desktop and mobile should share the same layout concept while adapting to screen width.
 14. PDF pages 1-7 inspected visually. See user-provided instructions for detailed page annotations.
+
+## Progress — isolated copy
+Implemented in `working-copy/CatalogController.client.lua`:
+- Category/search/filter queries reset the results scroller to the top before rendering new results.
+- Phone compact width uses 25% of viewport width (minimum 150px); tablet compact width remains 50%.
+- Main catalog and results surfaces use a black background at 60% transparency.
+- Existing category definitions, catalog API search, sorting, try-on, and incremental loading code were copied intact as the starting point.
+
+Still to implement in the working copy:
+- PDF toolbar layout (Recent / Popular / Favorites / Currently Worn with fixed search and filter controls).
+- Main category horizontal strip with arrows/drag and selected-state styling, while preserving existing group/subcategory mappings.
+- Collapsible filter UI for Creator, Price, Unavailable items, Sales type. Limited must remain disabled unless supported by the current API/config is verified.
+- Fixed left avatar preview and separate results area on both phone and tablet; horizontal Current Outfit row ordered newest-first and item removal.
+- Print-only placeholder handlers for Avatar Editor and Wardrobe if not already wired in the copied script.
+- Home-screen catalog button placement: locate the actual launcher script before changing it.
+- Studio test of scroll reset and phone/tablet compact sizes.
