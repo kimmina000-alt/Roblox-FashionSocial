@@ -125,3 +125,26 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 - Use distinct card dimensions for compact mobile and compact PC; compact PC cards should also be smaller than expanded cards.
 - When expanded, both PC and mobile use full-screen catalog layout and show a separate current-avatar preview. On mobile, stack the preview between controls and the results grid; on PC, reserve the left preview column.
 - Verify the preview clone and card visibility in Studio; these latest changes are not yet confirmed in Studio.
+
+
+## Expanded catalog layout — 2026-10-16
+
+### Confirmed layout
+- Expanded catalog is full-screen. The avatar preview is a fixed left column occupying approximately 25% of the width; the catalog occupies the remaining 75%.
+- Avatar preview controls have reserved icon-only entry points in the preview panel: Avatar Editor (transform editing) and Wardrobe (save/load outfits).
+- Current Outfit should remain below the avatar preview as a single horizontal, horizontally scrollable row, ordered newest worn item first. Each item should support individual removal.
+- Catalog results should scroll independently; scrolling results must not move the preview.
+- Item names use a larger single-line label with end ellipsis. Desktop hover should reveal the full name in a tooltip.
+- Phone compact mode should be narrower than tablet compact mode; tablet sizing remains unchanged.
+
+### Catalog toolbar requirements
+- Row 1: horizontally scrollable navigation strip for Recent, Popular, Recommended, Favorites, and Currently Worn. Search and Filter remain fixed and must not scroll away with that strip.
+- Row 2: quick category buttons All, Hair, Face, Tops, Bottoms, Accessories, Animations.
+- Min / Max / Off Sale should move into a Filter panel rather than occupy the default toolbar.
+- Recent means recently viewed items, not search history. Popular must use an actual supported Roblox API sort; unsupported types must not be labeled Popular. Recommended is deferred until a real recommendation rule exists.
+- Infinite scroll: request the first 30 items, then append subsequent pages as the result scroller nears its bottom. Prevent duplicate concurrent requests and reset results on search/filter/category/sort changes.
+
+### Implementation status for this revision
+- Implemented: full-screen 25/75 preview/catalog sizing; icon-only Avatar Editor and Wardrobe entry points; front-facing preview camera; single-line enlarged item names; hidden NEXT/page controls and scroll-triggered page fetching; expanded results area reserved to the right of the preview.
+- Still needs implementation/validation: fixed Current Outfit horizontal item strip and newest-first ordering; drag-to-rotate preview; actual Avatar Editor and Wardrobe panels; Recent/Popular/Recommended/Favorites/Currently Worn navigation strip; quick category row; Filter panel with Min/Max/Off Sale; mouse-following full-name tooltip; verify the scroll loader appends results correctly across all categories and resets on changed filters.
+- This commit has not been run in Roblox Studio. Do not treat the remaining items as completed.
