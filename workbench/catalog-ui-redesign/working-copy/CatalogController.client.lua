@@ -730,6 +730,27 @@ local resultsFrame = create("ScrollingFrame", {
 })
 resultsFrame.Parent = mainFrame
 
+local itemNameTooltip = create("TextLabel", {
+	Name = "ItemNameTooltip",
+	AutomaticSize = Enum.AutomaticSize.XY,
+	Size = UDim2.fromOffset(20, 24),
+	Position = UDim2.fromOffset(0, 0),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	BackgroundTransparency = 0.2,
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 12,
+	Font = Enum.Font.Gotham,
+	TextWrapped = false,
+	Visible = false,
+	ZIndex = 200,
+})
+itemNameTooltip.Parent = screenGui
+create("UIPadding", {
+	PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8),
+	PaddingTop = UDim.new(0, 4), PaddingBottom = UDim.new(0, 4),
+}).Parent = itemNameTooltip
+create("UICorner", {CornerRadius = UDim.new(0, 5)}).Parent = itemNameTooltip
+
 -- Expanded-layout navigation overlays. Search and Filter stay fixed while the
 -- discovery shortcuts can be horizontally scrolled independently.
 local discoveryBar = create("ScrollingFrame", {
@@ -1568,6 +1589,21 @@ createItemCard = function(item: any, layoutOrder: number)
 		TextYAlignment = Enum.TextYAlignment.Center,
 	})
 	nameLabel.Parent = cardContent
+	nameLabel.MouseEnter:Connect(function(x, y)
+		if game:GetService("UserInputService").MouseEnabled then
+			itemNameTooltip.Text = tostring(item.Name or "Unknown Item")
+			itemNameTooltip.Position = UDim2.fromOffset(x + 12, y + 12)
+			itemNameTooltip.Visible = true
+		end
+	end)
+	nameLabel.MouseMoved:Connect(function(x, y)
+		if itemNameTooltip.Visible then
+			itemNameTooltip.Position = UDim2.fromOffset(x + 12, y + 12)
+		end
+	end)
+	nameLabel.MouseLeave:Connect(function()
+		itemNameTooltip.Visible = false
+	end)
 
 	local typeLabel = create("TextLabel", {
 		Name = "AssetType",
@@ -1997,6 +2033,14 @@ local function selectCategory(name: string, assetTypes, bundleTypes)
 	end
 
 	currentCategory = name
+	activeTopLevelGroup = nil
+	for _, group in ipairs(Config.CategoryGroups) do
+		for _, category in ipairs(group.Categories) do
+			if category.Name == name then activeTopLevelGroup = group.Name end
+		end
+	end
+	if name == "전체" or name == "All" then activeTopLevelGroup = nil end
+	updateMainCategorySelection()
 	currentCategoryAssetTypes = assetTypes
 	currentCategoryBundleTypes = bundleTypes
 	currentCategoryIncludeOffSale = false
