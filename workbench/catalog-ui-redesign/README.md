@@ -61,3 +61,23 @@ Still to validate or implement:
 - Confirm Current Outfit reflects previously worn items and ordering after respawn/server refresh.
 - Sales type Limited remains disabled until API support is verified.
 - Verify the top-left launcher position against the in-game PDF reference.
+
+
+## Separate Rojo test mapping
+
+A separate project config was added at repository root: `catalog-ui-redesign.project.json`.
+
+- The original `default.project.json` is unchanged.
+- ReplicatedStorage and ServerScriptService continue to map to the existing `src/` folders.
+- StarterPlayerScripts continues to map to the existing source tree, with the project file explicitly pointing `FashionGame/CatalogController.client.lua` to the workbench copy.
+- The baseline file remains untouched at `workbench/catalog-ui-redesign/baseline/CatalogController.client.lua`.
+
+### Run locally
+
+From the repository root, try:
+
+```powershell
+rojo serve catalog-ui-redesign.project.json
+```
+
+Then connect Roblox Studio's Rojo plugin to the running server. Before relying on the test, verify the Rojo output/sourcemap and Studio Explorer contain exactly one `CatalogController` under `StarterPlayerScripts/FashionGame`, and that its source matches the workbench copy. This mapping has been committed but has **not** been executed/validated by Rojo or Roblox Studio in this session. If Rojo reports a duplicate-path or project-tree conflict, stop and do not sync; use an isolated test copy of the full StarterPlayerScripts tree instead.
