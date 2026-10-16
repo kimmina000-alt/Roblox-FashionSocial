@@ -171,8 +171,8 @@ screenGui.Parent = playerGui
 
 local openButton = create("TextButton", {
 	Name = "CatalogButton",
-	Size = UDim2.fromOffset(130, 44),
-	Position = UDim2.new(0, 24, 1, -68),
+	Size = UDim2.fromOffset(108, 36),
+	Position = UDim2.fromOffset(12, 12),
 	BackgroundColor3 = Color3.fromRGB(35, 35, 42),
 	TextColor3 = Color3.fromRGB(255, 255, 255),
 	Text = "CATALOG",
@@ -378,7 +378,8 @@ local mainFrame = create("Frame", {
 	-- Recomputed from the current viewport by updateCatalogLayout().
 	Size = UDim2.new(0, 520, 0, 680),
 	Position = UDim2.new(1, -536, 0, 8),
-	BackgroundColor3 = Color3.fromRGB(24, 24, 30),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	BackgroundTransparency = 0.6,
 	Visible = false,
 })
 
@@ -907,7 +908,12 @@ for index, group in ipairs(Config.CategoryGroups) do
 				local configGroup = groupIndex and Config.CategoryGroups[groupIndex]
 				local isSelected = configGroup and configGroup.Name == group.Name
 				child.Text = (isSelected and "− " or "＋ ") .. (configGroup and configGroup.Name or "")
-							end
+			end
+		end
+		for groupName, buttons in pairs(subButtonsByGroup) do
+			for _, subButton in ipairs(buttons) do
+				subButton.Visible = groupName == group.Name
+			end
 		end
 		categoryMenu.Visible = true
 		categoryMenu.Position = UDim2.new(0, math.floor(mainFrame.AbsoluteSize.X * 0.25) + 10, 0, 142)
@@ -920,6 +926,30 @@ categoryLeftButton.MouseButton1Click:Connect(function()
 end)
 categoryRightButton.MouseButton1Click:Connect(function()
 	mainCategoryStrip.CanvasPosition = Vector2.new(math.min(mainCategoryStrip.AbsoluteCanvasSize.X, mainCategoryStrip.CanvasPosition.X + 120), 0)
+end)
+
+-- Mouse drag scrolling for desktop; touch scrolling remains native on mobile.
+local categoryDragStartX: number? = nil
+local categoryDragCanvasX = 0
+mainCategoryStrip.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		categoryDragStartX = input.Position.X
+		categoryDragCanvasX = mainCategoryStrip.CanvasPosition.X
+	end
+end)
+mainCategoryStrip.InputChanged:Connect(function(input)
+	if categoryDragStartX and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = categoryDragStartX - input.Position.X
+		mainCategoryStrip.CanvasPosition = Vector2.new(
+			math.clamp(categoryDragCanvasX + delta, 0, math.max(0, mainCategoryStrip.AbsoluteCanvasSize.X - mainCategoryStrip.AbsoluteWindowSize.X)),
+			0
+		)
+	end
+end)
+mainCategoryStrip.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		categoryDragStartX = nil
+	end
 end)
 
 discoveryButtons["최근"].MouseButton1Click:Connect(function()
@@ -1290,9 +1320,9 @@ local function updateCatalogLayout()
 			minPriceBox.Parent = filterPanel
 			maxPriceBox.Parent = filterPanel
 			offSaleButton.Parent = filterPanel
-			minPriceBox.Position = UDim2.fromOffset(8, 56)
-			maxPriceBox.Position = UDim2.fromOffset(106, 56)
-			offSaleButton.Position = UDim2.fromOffset(204, 56)
+			minPriceBox.Position = UDim2.fromOffset(8, 76)
+			maxPriceBox.Position = UDim2.fromOffset(106, 76)
+			offSaleButton.Position = UDim2.fromOffset(204, 76)
 			minPriceBox.Size = UDim2.fromOffset(90, 28)
 			maxPriceBox.Size = UDim2.fromOffset(90, 28)
 			offSaleButton.Size = UDim2.fromOffset(100, 28)
