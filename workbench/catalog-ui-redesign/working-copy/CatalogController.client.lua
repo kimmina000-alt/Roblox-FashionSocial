@@ -1589,10 +1589,11 @@ createItemCard = function(item: any, layoutOrder: number)
 		TextYAlignment = Enum.TextYAlignment.Center,
 	})
 	nameLabel.Parent = cardContent
-	nameLabel.MouseEnter:Connect(function(x, y)
+	nameLabel.MouseEnter:Connect(function()
 		if game:GetService("UserInputService").MouseEnabled then
+			local mousePosition = game:GetService("UserInputService"):GetMouseLocation()
 			itemNameTooltip.Text = tostring(item.Name or "Unknown Item")
-			itemNameTooltip.Position = UDim2.fromOffset(x + 12, y + 12)
+			itemNameTooltip.Position = UDim2.fromOffset(mousePosition.X + 12, mousePosition.Y + 12)
 			itemNameTooltip.Visible = true
 		end
 	end)
