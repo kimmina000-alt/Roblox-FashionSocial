@@ -136,3 +136,13 @@
 ### Known incomplete work / validation
 - Current Outfit horizontal strip/order, preview drag rotation, toolbar navigation strip, quick category row, Filter panel, and hover tooltip still need implementation.
 - Infinite-scroll append/reset behavior requires Studio validation; this revision has not been run in Roblox Studio.
+
+
+## 2026-10-16 — PDF-driven catalog UI pass (isolated branch)
+- Kept the baseline catalog controller unchanged and made UI changes only in `workbench/catalog-ui-redesign/working-copy/CatalogController.client.lua`.
+- Added top-left catalog launcher placement, translucent black backgrounds, fixed 25/75 expanded preview/results layout, fixed search/filter controls, horizontally scrolling discovery buttons and top-level categories with arrows/drag.
+- Retained existing Config.CategoryGroups and category selection logic; selecting a new category/search resets results to the top.
+- Added filter panel for creator name, price range and unavailable items; Limited sales type is visibly disabled pending API verification.
+- Added Current Outfit horizontal item strip with individual remove actions and session-level newest-first ordering for newly worn items.
+- Added placeholder actions for Avatar Editor and Wardrobe, plus desktop full-name hover tooltip.
+- Not tested in Roblox Studio. Static review only. Recent/Favorites/Popular remain placeholders, Wardrobe persistence and transform editing are not implemented, and CreatorName support must be confirmed in the running client.
