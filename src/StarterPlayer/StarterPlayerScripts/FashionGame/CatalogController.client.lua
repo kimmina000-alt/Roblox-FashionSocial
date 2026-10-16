@@ -216,18 +216,36 @@ local previewTitle = create("TextLabel", {
 })
 previewTitle.Parent = previewFrame
 
-local previewCloseButton = create("TextButton", {
-	Name = "PreviewCloseButton",
-	Size = UDim2.fromOffset(28, 28),
-	Position = UDim2.new(1, -34, 0, 5),
+-- The preview is a persistent panel; only the catalog's main close button closes the UI.
+local avatarEditorButton = create("TextButton", {
+	Name = "AvatarEditorButton",
+	Size = UDim2.fromOffset(34, 34),
+	Position = UDim2.fromOffset(8, 8),
+	BackgroundTransparency = 1,
 	BackgroundColor3 = Color3.fromRGB(55, 55, 65),
-	Text = "×",
-	TextColor3 = Color3.fromRGB(255, 255, 255),
-	TextSize = 20,
+	Text = "⚙",
+	TextColor3 = Color3.fromRGB(245, 245, 250),
+	TextSize = 21,
 	Font = Enum.Font.GothamBold,
+	AutoButtonColor = true,
+	ZIndex = 5,
 })
-previewCloseButton.Parent = previewFrame
-create("UICorner", { CornerRadius = UDim.new(0, 7) }).Parent = previewCloseButton
+avatarEditorButton.Parent = previewFrame
+
+local wardrobeButton = create("TextButton", {
+	Name = "WardrobeButton",
+	Size = UDim2.fromOffset(34, 34),
+	Position = UDim2.fromOffset(8, 48),
+	BackgroundTransparency = 1,
+	BackgroundColor3 = Color3.fromRGB(55, 55, 65),
+	Text = "▣",
+	TextColor3 = Color3.fromRGB(245, 245, 250),
+	TextSize = 21,
+	Font = Enum.Font.GothamBold,
+	AutoButtonColor = true,
+	ZIndex = 5,
+})
+wardrobeButton.Parent = previewFrame
 
 local avatarViewport = create("ViewportFrame", {
 	Name = "AvatarViewport",
@@ -277,15 +295,20 @@ local function refreshAvatarPreview()
 	local _, bounds = clone:GetBoundingBox()
 	local targetY = bounds.Y * 0.5
 	local distance = math.max(4.5, bounds.Y * 1.45)
+	-- Roblox characters normally face local -Z; place the camera in front.
 	avatarPreviewCamera.CFrame = CFrame.lookAt(
-		Vector3.new(0, targetY, distance),
+		Vector3.new(0, targetY, -distance),
 		Vector3.new(0, targetY, 0)
 	)
 end
 
-previewCloseButton.MouseButton1Click:Connect(function()
-	previewManuallyClosed = true
-	previewFrame.Visible = false
+-- These entry points are intentionally placed now; their feature panels are planned.
+avatarEditorButton.MouseButton1Click:Connect(function()
+	statusLabel.Text = "Avatar Editor: per-item transform controls are planned."
+end)
+
+wardrobeButton.MouseButton1Click:Connect(function()
+	statusLabel.Text = "Wardrobe: outfit save/load is planned."
 end)
 
 player.CharacterAdded:Connect(function()
@@ -681,12 +704,14 @@ local nextButton = create("TextButton", {
 	Size = UDim2.fromOffset(120, 32),
 	Position = UDim2.new(1, -140, 1, -45),
 	BackgroundColor3 = Color3.fromRGB(55, 55, 65),
-	Text = "NEXT →",
+	Text = "Loading more...",
 	TextColor3 = Color3.fromRGB(255, 255, 255),
 	TextSize = 12,
 	Font = Enum.Font.GothamBold,
 })
 nextButton.Parent = mainFrame
+nextButton.Visible = false
+pageLabel.Visible = false
 
 local nextCorner = create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
@@ -713,12 +738,20 @@ local function updateCatalogLayout()
 	local panelHeight: number
 	local expandedMobilePreviewHeight = math.min(190, math.floor(viewport.Y * 0.27))
 
-	-- Expanded mode is full-screen on both PC and mobile.
+	-- Expanded mode is full-screen on both PC and mobile. The preview stays
+	-- in a fixed 1/4-width column; the catalog uses the remaining 3/4.
 	if expandedPanel then
 		panelWidth, panelHeight = viewport.X, viewport.Y
 		mainFrame.Position = UDim2.fromOffset(0, 0)
 		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
 		mainCorner.CornerRadius = UDim.new(0, 0)
+		previewFrame.Position = UDim2.fromOffset(0, 0)
+		previewFrame.Size = UDim2.new(0.25, 0, 1, 0)
+		previewFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+		previewTitle.Position = UDim2.fromOffset(50, 8)
+		previewTitle.Size = UDim2.new(1, -58, 0, 32)
+		avatarViewport.Position = UDim2.fromOffset(8, 48)
+		avatarViewport.Size = UDim2.new(1, -16, 0.62, -56)
 	elseif isNarrow then
 		panelWidth = math.min(math.max(190, math.floor(viewport.X * 0.5)), viewport.X - 12)
 		panelHeight = math.min(math.max(260, math.floor(viewport.Y * 0.5)), viewport.Y - 12)
@@ -861,10 +894,12 @@ local function updateCatalogLayout()
 			statusLabel.Size = UDim2.new(1, -math.min(177, innerWidth * 0.34 + 12), 0, 26)
 			statusLabel.TextSize = 12
 
-			resultsFrame.Position = UDim2.fromOffset(if expandedPanel then 288 else 12, 164)
-			resultsFrame.Size = UDim2.new(1, if expandedPanel then -300 else -24, 1, -214)
-			previewFrame.Size = UDim2.fromOffset(260, math.min(360, math.max(280, math.floor(viewport.Y * 0.55))))
-			previewFrame.Position = UDim2.fromOffset(16, 164)
+			resultsFrame.Position = UDim2.fromOffset(if expandedPanel then math.floor(panelWidth * 0.25) + 12 else 12, 164)
+			resultsFrame.Size = UDim2.new(1, if expandedPanel then -math.floor(panelWidth * 0.25) - 24 else -24, 1, -214)
+			if not expandedPanel then
+				previewFrame.Size = UDim2.fromOffset(260, math.min(360, math.max(280, math.floor(viewport.Y * 0.55))))
+				previewFrame.Position = UDim2.fromOffset(16, 164)
+			end
 		end
 	end
 
@@ -888,11 +923,14 @@ local function updateCatalogLayout()
 		cardContentScale = 1
 	end
 	grid.CellPadding = UDim2.fromOffset(6, 6)
+	if expandedPanel then
+		grid.CellSize = UDim2.fromOffset(132, 192)
+	end
 	for _, contentScale in ipairs(cardContentUIScales) do
 		contentScale.Scale = cardContentScale
 	end
 
-	previewFrame.Visible = expandedPanel and mainFrame.Visible and not previewManuallyClosed
+	previewFrame.Visible = expandedPanel and mainFrame.Visible
 end
 local function bindViewport(camera: Camera?)
 	if camera then
@@ -1037,13 +1075,19 @@ local function createItemCard(item: any, layoutOrder: number)
 		BackgroundTransparency = 1,
 		Text = tostring(item.Name or "Unknown Item"),
 		TextColor3 = Color3.fromRGB(245, 245, 245),
-		TextSize = 10,
+		TextSize = 20,
 		Font = Enum.Font.GothamMedium,
-		TextWrapped = true,
+		TextWrapped = false,
+		TextTruncate = Enum.TextTruncate.AtEnd,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextYAlignment = Enum.TextYAlignment.Center,
 	})
 	nameLabel.Parent = cardContent
+	nameLabel.MouseEnter:Connect(function()
+		if game:GetService("UserInputService").MouseEnabled then
+			nameLabel.Tooltip = tostring(item.Name or "Unknown Item")
+		end
+	end)
 
 	local typeLabel = create("TextLabel", {
 		Name = "AssetType",
@@ -1337,20 +1381,9 @@ renderCurrentPage = function()
 		statusLabel.Text = "No individual " .. expectedAnimationTypeName .. " assets found on this page."
 	end
 
-	pageLabel.Text = "Page " .. tostring(currentPageNumber)
-		.. "  •  "
-		.. tostring(resultCount)
-
-	local finished = catalogPages.IsFinished
-
-	nextButton.Active = not finished
-	nextButton.AutoButtonColor = not finished
-
-	if finished then
-		nextButton.BackgroundColor3 = Color3.fromRGB(45, 45, 52)
-	else
-		nextButton.BackgroundColor3 = Color3.fromRGB(55, 55, 65)
-	end
+	pageLabel.Text = tostring(resultCount) .. " items loaded"
+	nextButton.Active = not catalogPages.IsFinished
+	nextButton.AutoButtonColor = not catalogPages.IsFinished
 
 end
 
@@ -1667,30 +1700,43 @@ end)
 -- ★ PAGINATION BUTTONS
 --------------------------------------------------
 
-nextButton.MouseButton1Click:Connect(function()
+local function loadNextCatalogPage()
 	if searchBusy or not catalogPages or catalogPages.IsFinished then
 		return
 	end
-
 	searchBusy = true
-	statusLabel.Text = "Loading next page..."
-
+	statusLabel.Text = "Loading more items..."
 	local success, err = pcall(function()
 		catalogPages:AdvanceToNextPageAsync()
 	end)
-
 	if not success then
 		warn("[CatalogController] Next page failed:", err)
-		statusLabel.Text = "Failed to load next page."
+		statusLabel.Text = "Could not load more items."
 		searchBusy = false
 		return
 	end
-
 	currentPageNumber += 1
-	renderCurrentPage()
-	statusLabel.Text = "Page " .. tostring(currentPageNumber)
-
+	local ok, page = pcall(function()
+		return catalogPages:GetCurrentPage()
+	end)
+	if ok and typeof(page) == "table" then
+		local count = #resultsFrame:GetChildren()
+		for _, item in ipairs(page) do
+			if not resultsFrame:FindFirstChild("Item_" .. tostring(item.Id)) then
+				createItemCard(item, count + 1)
+				count += 1
+			end
+		end
+	end
+	statusLabel.Text = tostring(#resultsFrame:GetChildren()) .. " items loaded."
 	searchBusy = false
+end
+
+resultsFrame:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+	local remaining = resultsFrame.AbsoluteCanvasSize.Y - resultsFrame.CanvasPosition.Y - resultsFrame.AbsoluteWindowSize.Y
+	if remaining < 220 then
+		loadNextCatalogPage()
+	end
 end)
 
 --------------------------------------------------
@@ -1703,8 +1749,7 @@ openButton.MouseButton1Click:Connect(function()
 	refreshWornItems()
 	updateCatalogLayout()
 	if expandedPanel then
-		previewManuallyClosed = false
-		previewFrame.Visible = true
+			previewFrame.Visible = true
 		refreshAvatarPreview()
 	end
 	searchCatalog()
