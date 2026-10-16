@@ -1338,6 +1338,9 @@ local function updateCatalogLayout()
 		maxPriceBox.Visible = filterPanelOpen
 		offSaleButton.Visible = filterPanelOpen
 		if filterPanelOpen then
+			minPriceBox.ZIndex = 72
+			maxPriceBox.ZIndex = 72
+			offSaleButton.ZIndex = 72
 			minPriceBox.Parent = filterPanel
 			maxPriceBox.Parent = filterPanel
 			offSaleButton.Parent = filterPanel
@@ -1959,6 +1962,14 @@ local function searchCatalog()
 	params.CategoryFilter = Config.CategoryFilter
 	params.SalesTypeFilter = Config.SalesTypeFilter
 	params.CreatorType = Config.CreatorType
+	if creatorNameBox.Text ~= "" then
+		local creatorOk, creatorErr = pcall(function()
+			params.CreatorName = creatorNameBox.Text
+		end)
+		if not creatorOk then
+			warn("[CatalogController] Creator name filtering is not supported by this client API:", creatorErr)
+		end
+	end
 
 	if currentMaxPrice > 0 then
 		params.MaxPrice = currentMaxPrice
