@@ -38,6 +38,7 @@ local viewedOrder: {any} = {}
 local activeTopLevelGroup: string? = nil
 local filterPanelOpen = false
 local expandedGroups: {[string]: boolean} = {}
+local subButtonsByGroup: {[string]: {TextButton}} = {}
 local createItemCard: ((any, number) -> ())? = nil
 
 
@@ -270,6 +271,44 @@ local avatarViewport = create("ViewportFrame", {
 })
 avatarViewport.Parent = previewFrame
 create("UICorner", { CornerRadius = UDim.new(0, 8) }).Parent = avatarViewport
+
+local currentOutfitFrame = create("Frame", {
+	Name = "CurrentOutfitFrame",
+	BackgroundTransparency = 1,
+	Visible = false,
+})
+currentOutfitFrame.Parent = previewFrame
+local currentOutfitTitle = create("TextLabel", {
+	Name = "CurrentOutfitTitle",
+	Size = UDim2.new(1, 0, 0, 24),
+	Position = UDim2.fromOffset(0, 0),
+	BackgroundTransparency = 1,
+	Text = "CURRENT OUTFIT",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 12,
+	Font = Enum.Font.GothamBold,
+	TextXAlignment = Enum.TextXAlignment.Left,
+})
+currentOutfitTitle.Parent = currentOutfitFrame
+local currentOutfitList = create("ScrollingFrame", {
+	Name = "CurrentOutfitItems",
+	Size = UDim2.new(1, 0, 1, -26),
+	Position = UDim2.fromOffset(0, 26),
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 3,
+	ScrollingDirection = Enum.ScrollingDirection.X,
+	CanvasSize = UDim2.new(0, 0, 0, 0),
+	AutomaticCanvasSize = Enum.AutomaticSize.X,
+})
+currentOutfitList.Parent = currentOutfitFrame
+local currentOutfitLayout = create("UIListLayout", {
+	FillDirection = Enum.FillDirection.Horizontal,
+	Padding = UDim.new(0, 5),
+	SortOrder = Enum.SortOrder.LayoutOrder,
+})
+currentOutfitLayout.Parent = currentOutfitList
+
 
 local avatarPreviewWorld = Instance.new("WorldModel")
 avatarPreviewWorld.Parent = avatarViewport
@@ -1200,6 +1239,7 @@ local function updateCatalogLayout()
 		local leftWidth = math.floor(panelWidth * 0.25)
 		previewFrame.Position = UDim2.fromOffset(0, 0)
 		previewFrame.Size = UDim2.fromOffset(leftWidth, panelHeight)
+		currentOutfitFrame.Visible = true
 		previewFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 		previewFrame.BackgroundTransparency = 0.6
 		previewTitle.Position = UDim2.fromOffset(48, 8)
@@ -1249,9 +1289,12 @@ local function updateCatalogLayout()
 		maxPriceBox.Visible = filterPanelOpen
 		offSaleButton.Visible = filterPanelOpen
 		if filterPanelOpen then
-			minPriceBox.Position = UDim2.fromOffset(rightX + 12, 188)
-			maxPriceBox.Position = UDim2.fromOffset(rightX + 110, 188)
-			offSaleButton.Position = UDim2.fromOffset(rightX + 208, 188)
+			minPriceBox.Parent = filterPanel
+			maxPriceBox.Parent = filterPanel
+			offSaleButton.Parent = filterPanel
+			minPriceBox.Position = UDim2.fromOffset(8, 56)
+			maxPriceBox.Position = UDim2.fromOffset(106, 56)
+			offSaleButton.Position = UDim2.fromOffset(204, 56)
 			minPriceBox.Size = UDim2.fromOffset(90, 28)
 			maxPriceBox.Size = UDim2.fromOffset(90, 28)
 			offSaleButton.Size = UDim2.fromOffset(100, 28)
@@ -1259,6 +1302,9 @@ local function updateCatalogLayout()
 			filterPanel.Visible = true
 		else
 			filterPanel.Visible = false
+			minPriceBox.Parent = mainFrame
+			maxPriceBox.Parent = mainFrame
+			offSaleButton.Parent = mainFrame
 		end
 		backToPacksButton.Position = UDim2.fromOffset(rightX + 12, 148)
 		backToPacksButton.Size = UDim2.fromOffset(132, 24)
@@ -1317,6 +1363,61 @@ end
 -- CURRENT WORN ITEMS
 --------------------------------------------------
 
+local function renderCurrentOutfit()
+	clearContainer(currentOutfitList)
+	for index, assetId in ipairs(wornOrder) do
+		if currentWornItems[assetId] then
+			local itemCard = create("Frame", {
+				Name = "Worn_" .. tostring(assetId),
+				Size = UDim2.fromOffset(58, 76),
+				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+				BackgroundTransparency = 0.6,
+				LayoutOrder = index,
+			})
+			itemCard.Parent = currentOutfitList
+			create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = itemCard
+			local image = create("ImageLabel", {
+				Size = UDim2.new(1, -6, 1, -22),
+				Position = UDim2.fromOffset(3, 3),
+				BackgroundTransparency = 1,
+				Image = "rbxthumb://type=Asset&id=" .. tostring(assetId) .. "&w=150&h=150",
+				ScaleType = Enum.ScaleType.Fit,
+			})
+			image.Parent = itemCard
+			local removeButton = create("TextButton", {
+				Size = UDim2.new(1, -4, 0, 18),
+				Position = UDim2.new(0, 2, 1, -19),
+				BackgroundColor3 = Color3.fromRGB(80, 48, 58),
+				Text = "× 해제",
+				TextColor3 = Color3.new(1,1,1),
+				TextSize = 9,
+				Font = Enum.Font.GothamBold,
+			})
+			removeButton.Parent = itemCard
+			create("UICorner", {CornerRadius = UDim.new(0, 4)}).Parent = removeButton
+			removeButton.MouseButton1Click:Connect(function()
+				if actionBusy then return end
+				actionBusy = true
+				local ok, success, message = pcall(function()
+					return TryOnItem:InvokeServer("Remove", assetId)
+				end)
+				if ok and success == true then
+					currentWornItems[assetId] = nil
+					for i = #wornOrder, 1, -1 do
+						if wornOrder[i] == assetId then table.remove(wornOrder, i) end
+					end
+					renderCurrentOutfit()
+					refreshWornItems()
+					refreshAvatarPreview()
+				else
+					warn("[CatalogUI] Outfit remove failed:", success, message)
+				end
+				actionBusy = false
+			end)
+		end
+	end
+end
+
 local function refreshWornItems()
 	local success, serverSuccess, result = pcall(function()
 		return TryOnItem:InvokeServer("GetCurrent", 0)
@@ -1345,6 +1446,11 @@ local function refreshWornItems()
 
 			if typeof(assetId) == "number" then
 				currentWornItems[assetId] = true
+				local found = false
+				for _, orderedId in ipairs(wornOrder) do
+					if orderedId == assetId then found = true break end
+				end
+				if not found then table.insert(wornOrder, assetId) end
 			end
 		end
 	end
@@ -1353,6 +1459,7 @@ local function refreshWornItems()
 	for _, updateButton in pairs(wornButtonUpdaters) do
 		updateButton()
 	end
+	renderCurrentOutfit()
 
 	if previewFrame.Visible then
 		refreshAvatarPreview()
@@ -1536,6 +1643,7 @@ createItemCard = function(item: any, layoutOrder: number)
 
 			if success and result == true then
 				currentWornItems[assetId] = nil
+				for i = #wornOrder, 1, -1 do if wornOrder[i] == assetId then table.remove(wornOrder, i) end end
 				updateButton()
 				task.wait(0.15)
 				refreshWornItems()
@@ -1556,6 +1664,8 @@ createItemCard = function(item: any, layoutOrder: number)
 			end)
 
 			if success and result == true then
+				for i = #wornOrder, 1, -1 do if wornOrder[i] == assetId then table.remove(wornOrder, i) end end
+				table.insert(wornOrder, 1, assetId)
 				task.wait(0.2)
 				refreshWornItems()
 				refreshAvatarPreview()
@@ -1932,6 +2042,7 @@ for groupIndex, group in ipairs(Config.CategoryGroups) do
 	groupCorner.Parent = groupButton
 
 	local subButtons = {}
+	subButtonsByGroup[group.Name] = subButtons
 
 	for subIndex, category in ipairs(group.Categories) do
 		local subButton = create("TextButton", {
