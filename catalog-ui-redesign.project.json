@@ -1,0 +1,27 @@
+{
+  "name": "Roblox-FashionSocial-Catalog-UI-Test",
+  "tree": {
+    "$className": "DataModel",
+    "ReplicatedStorage": {
+      "$className": "ReplicatedStorage",
+      "$path": "src/ReplicatedStorage"
+    },
+    "ServerScriptService": {
+      "$className": "ServerScriptService",
+      "$path": "src/ServerScriptService"
+    },
+    "StarterPlayer": {
+      "$className": "StarterPlayer",
+      "StarterPlayerScripts": {
+        "$className": "StarterPlayerScripts",
+        "$path": "src/StarterPlayer/StarterPlayerScripts",
+        "FashionGame": {
+          "$className": "Folder",
+          "CatalogController.client.lua": {
+            "$path": "workbench/catalog-ui-redesign/working-copy/CatalogController.client.lua"
+          }
+        }
+      }
+    }
+  }
+}
