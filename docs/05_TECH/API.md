@@ -30,6 +30,7 @@ Housing/Building/Runway: custom systems
 | Body / scale / color / animations / classic clothing | [HumanoidDescription](https://create.roblox.com/docs/reference/engine/classes/HumanoidDescription) | HumanoidDescription에 표현되는 값은 versioned appearance snapshot에 저장할 수 있음. 각 property의 지원/rig 제약은 개별 검증. | 미검증 |
 | Bundle | [AvatarEditorService](https://create.roblox.com/docs/reference/engine/classes/AvatarEditorService) 및 CatalogSearchParams | Bundle은 검색 결과 유형으로 구분해야 함. Bundle ID를 AssetId로 넘겨 개별 착용/해제할 수 있다고 간주하지 않는다. 필요한 경우 bundle 구성 요소를 조사하고 실제 적용 가능한 Asset 항목으로 변환. | 현재 프로젝트의 Bundle wear/remove 완전 지원은 확인되지 않음 |
 | Makeup | [HumanoidDescription](https://create.roblox.com/docs/reference/engine/classes/HumanoidDescription)과 프로젝트의 MakeupDescription 경로 | 프로젝트 AvatarService는 MakeupDescription을 별도 처리함. 일반 AccessoryDescription transform 규칙을 makeup에 그대로 적용하지 말고 MakeupDescription 속성/적용 결과를 별도 검증. | 현재 소스에 일부 makeup handler 있음; 모든 makeup 유형의 적용/제거/저장 복원은 미검증 |
+| Outfit preview model | [Players:CreateHumanoidModelFromDescriptionAsync](https://create.roblox.com/docs/reference/engine/classes/Players) | 가능: 저장한 appearance snapshot을 HumanoidDescription으로 복원할 수 있다면 지정 rig의 Model을 생성해 ViewportFrame에서 렌더링하는 설계가 가능하다. 이는 screenshot 파일을 저장하는 것과 다르며 makeup/custom data 등 생성 API가 표현하지 못하는 값은 별도 검증이 필요하다. | 미검증: model generation, camera framing, layered clothing, makeup, mobile performance를 Studio에서 확인해야 함 |
 | Persistent user data | [DataStoreService](https://create.roblox.com/docs/reference/engine/classes/DataStoreService), [Data store limits](https://create.roblox.com/docs/cloud-services/data-stores/error-codes-and-limits) | Favorites와 Saved Outfits는 서버 DataStore에 사용자별로 저장. Recent는 세션 한정이라 영구 저장하지 않음. UpdateAsync 기반 단일 사용자 record로 버전과 동시 업데이트를 관리. | 해당 feature 저장/불러오기 구현 및 Studio 재접속 테스트는 미완료 |
 | Respawn / character lifecycle | [Player](https://create.roblox.com/docs/reference/engine/classes/Player), [Humanoid](https://create.roblox.com/docs/reference/engine/classes/Humanoid) | CharacterAdded/CharacterAppearanceLoaded 및 새 Humanoid의 applied description을 이용해 캐릭터가 준비된 뒤 snapshot을 다시 구성. 현재 제품 정책은 respawn 시 기본 Roblox avatar로 시작하며 임시 착장을 자동 복구하지 않음. | 미검증 |
 
@@ -52,3 +53,13 @@ Official sources:
 - https://create.roblox.com/docs/reference/engine/classes/DataStoreService
 - https://create.roblox.com/docs/cloud-services/data-stores/error-codes-and-limits
 - https://create.roblox.com/docs/reference/engine/classes/Player
+
+
+### DataStore payload limit and write behavior
+
+Creator Hub states that a DataStore key's serialized value cannot exceed 4,194,304 bytes (4 MiB). Roblox recommends checking serialized size with HttpService:JSONEncode() and using fewer keys per player when data fits the per-key limit. This is a hard platform maximum, not the application's recommended payload target. The project should set a substantially smaller internal safety limit after measuring representative Outfit snapshots. A failed UpdateAsync write does not always prove the backend write did not occur; when the result is ambiguous, verify with a follow-up read before claiming that the save definitely failed or retrying blindly.
+
+Sources:
+- https://create.roblox.com/docs/cloud-services/data-stores/error-codes-and-limits
+- https://create.roblox.com/docs/cloud-services/data-stores/best-practices
+- https://create.roblox.com/docs/reference/engine/classes/Players
