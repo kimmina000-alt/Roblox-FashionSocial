@@ -39,6 +39,8 @@ local activeTopLevelGroup: string? = nil
 local filterPanelOpen = false
 local expandedGroups: {[string]: boolean} = {}
 local subButtonsByGroup: {[string]: {TextButton}} = {}
+local renderSubcategoryStrip: (string?) -> ()
+local selectCategory
 local createItemCard: (any, number) -> ()
 local statusLabel: TextLabel
 
@@ -172,7 +174,7 @@ screenGui.Parent = playerGui
 local openButton = create("TextButton", {
 	Name = "CatalogButton",
 	Size = UDim2.fromOffset(108, 36),
-	Position = UDim2.fromOffset(12, 12),
+	Position = UDim2.fromOffset(12, 58),
 	BackgroundColor3 = Color3.fromRGB(35, 35, 42),
 	TextColor3 = Color3.fromRGB(255, 255, 255),
 	Text = "CATALOG",
@@ -813,6 +815,11 @@ local mainCategoryStrip = create("ScrollingFrame", {
 	Visible = false,
 })
 mainCategoryStrip.Parent = mainFrame
+local subcategoryStrip = create("ScrollingFrame", {Name="SubcategoryStrip",BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=2,ScrollingDirection=Enum.ScrollingDirection.X,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.X,Visible=false})
+subcategoryStrip.Parent=mainFrame
+create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder}).Parent=subcategoryStrip
+local subcategoryLeftButton=create("TextButton",{Name="SubcategoryLeftArrow",Size=UDim2.fromOffset(22,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.6,Text="‹",TextColor3=Color3.new(1,1,1),TextSize=20,Font=Enum.Font.GothamBold,Visible=false}); subcategoryLeftButton.Parent=mainFrame
+local subcategoryRightButton=create("TextButton",{Name="SubcategoryRightArrow",Size=UDim2.fromOffset(22,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.6,Text="›",TextColor3=Color3.new(1,1,1),TextSize=20,Font=Enum.Font.GothamBold,Visible=false}); subcategoryRightButton.Parent=mainFrame
 local mainCategoryLayout = create("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	Padding = UDim.new(0, 5),
@@ -902,6 +909,8 @@ local function updateMainCategorySelection()
 end
 
 local groupButtonByName = {}
+local allMainCategoryButton=create("TextButton",{Name="MainCategory_All",Size=UDim2.fromOffset(74,30),BackgroundColor3=Color3.fromRGB(78,78,94),BackgroundTransparency=0,Text="전체",TextColor3=Color3.new(1,1,1),TextSize=11,Font=Enum.Font.GothamBold,LayoutOrder=0}); allMainCategoryButton.Parent=mainCategoryStrip; create("UICorner",{CornerRadius=UDim.new(0,7)}).Parent=allMainCategoryButton
+allMainCategoryButton.MouseButton1Click:Connect(function() activeTopLevelGroup=nil; updateMainCategorySelection(); categoryMenu.Visible=false; renderSubcategoryStrip(nil); selectCategory("전체",Config.AllowedAssetTypes,nil) end)
 for index, group in ipairs(Config.CategoryGroups) do
 	local b = create("TextButton", {
 		Name = "MainCategory_" .. group.Name,
@@ -936,8 +945,8 @@ for index, group in ipairs(Config.CategoryGroups) do
 				subButton.Visible = groupName == group.Name
 			end
 		end
-		categoryMenu.Visible = true
-		categoryMenu.Position = UDim2.new(0, math.floor(mainFrame.AbsoluteSize.X * 0.25) + 10, 0, 142)
+		categoryMenu.Visible = false
+		renderSubcategoryStrip(group.Name)
 		updateMainCategorySelection()
 	end)
 end
@@ -1101,7 +1110,7 @@ local function updateCatalogLayout()
 	elseif isNarrow then
 		-- Phone: substantially narrower than the old half-screen panel. Tablets
 		-- keep the previously accepted half-width compact panel.
-		local compactWidth = if isPhone then math.max(150, math.floor(viewport.X * 0.25)) else math.floor(viewport.X * 0.5)
+		local compactWidth = if isPhone then math.max(100, math.floor(viewport.X * 0.25)) else math.floor(viewport.X * 0.5)
 		panelWidth = math.min(compactWidth, viewport.X - 12)
 		panelHeight = math.min(math.max(260, math.floor(viewport.Y * 0.5)), viewport.Y - 12)
 		mainFrame.Position = UDim2.new(1, -panelWidth - 6, 1, -panelHeight - 6)
@@ -1293,14 +1302,14 @@ local function updateCatalogLayout()
 		previewFrame.BackgroundTransparency = 0.6
 		previewTitle.Position = UDim2.fromOffset(48, 8)
 		previewTitle.Size = UDim2.new(1, -56, 0, 30)
-		avatarEditorButton.Position = UDim2.fromOffset(8, 8)
+		avatarEditorButton.Position = UDim2.fromOffset(8, 52)
 		avatarEditorButton.Size = UDim2.fromOffset(32, 32)
-		wardrobeButton.Position = UDim2.fromOffset(8, 46)
+		wardrobeButton.Position = UDim2.fromOffset(46, 52)
 		wardrobeButton.Size = UDim2.fromOffset(32, 32)
-		avatarViewport.Position = UDim2.fromOffset(8, 84)
-		avatarViewport.Size = UDim2.new(1, -16, 0.50, -84)
-		currentOutfitFrame.Position = UDim2.new(0, 8, 0.64, 0)
-		currentOutfitFrame.Size = UDim2.new(1, -16, 0.32, -8)
+		avatarViewport.Position = UDim2.fromOffset(8, 92)
+		avatarViewport.Size = UDim2.new(1, -16, 0.48, -92)
+		currentOutfitFrame.Position = UDim2.new(0, 8, 1, -112)
+		currentOutfitFrame.Size = UDim2.new(1, -16, 0, 104)
 
 		local rightX = leftWidth
 		local rightWidth = panelWidth - leftWidth
@@ -1350,7 +1359,7 @@ local function updateCatalogLayout()
 			minPriceBox.Size = UDim2.fromOffset(90, 28)
 			maxPriceBox.Size = UDim2.fromOffset(90, 28)
 			offSaleButton.Size = UDim2.fromOffset(100, 28)
-			filterPanel.Position = UDim2.fromOffset(panelWidth - 312, 110)
+			filterPanel.Position = UDim2.fromOffset(math.clamp(fixedFilterButton.Position.X.Offset - 220, rightX + 8, panelWidth - 308), fixedFilterButton.Position.Y.Offset + fixedFilterButton.Size.Y.Offset + 4)
 			filterPanel.Visible = true
 		else
 			filterPanel.Visible = false
@@ -1363,8 +1372,8 @@ local function updateCatalogLayout()
 		statusLabel.Position = UDim2.fromOffset(rightX + 152, 148)
 		statusLabel.Size = UDim2.new(1, -rightWidth * 0.38, 0, 24)
 		statusLabel.TextSize = 10
-		resultsFrame.Position = UDim2.fromOffset(rightX + 12, 180)
-		resultsFrame.Size = UDim2.new(1, -rightX - 24, 1, -192)
+		resultsFrame.Position = UDim2.fromOffset(rightX + 12, 216)
+		resultsFrame.Size = UDim2.new(1, -rightX - 24, 1, -228)
 		categoryButton.Visible = false
 		categoryMenu.Visible = categoryMenu.Visible and activeTopLevelGroup ~= nil
 	else
@@ -2041,7 +2050,7 @@ end
 --------------------------------------------------
 
 local categoryButtons: {[string]: TextButton} = {}
-local function selectCategory(name: string, assetTypes, bundleTypes)
+selectCategory = function(name: string, assetTypes, bundleTypes)
 	if (not assetTypes or #assetTypes == 0) and (not bundleTypes or #bundleTypes == 0) then
 		statusLabel.Text = "이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다."
 		return
@@ -2180,6 +2189,16 @@ for groupIndex, group in ipairs(Config.CategoryGroups) do
 		end
 	end)
 end
+
+renderSubcategoryStrip=function(groupName: string?)
+ clearContainer(subcategoryStrip); local entries={}
+ if groupName==nil then for _,e in ipairs({{label="전체",name="전체"},{label="헤어",name="헤어"},{label="얼굴",name="얼굴"},{label="상의",name="셔츠"},{label="하의",name="바지"},{label="액세서리",name="모자"},{label="애니메이션",name="애니메이션 팩"}}) do table.insert(entries,e) end
+ else for _,g in ipairs(Config.CategoryGroups) do if g.Name==groupName then for _,cat in ipairs(g.Categories) do table.insert(entries,{label=cat.Name,name=cat.Name,data=cat}) end end end end
+ for i,e in ipairs(entries) do local b=create("TextButton",{Name="Subcategory_"..i,Size=UDim2.fromOffset(92,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.6,Text=e.label,TextColor3=Color3.fromRGB(220,220,230),TextSize=10,Font=Enum.Font.Gotham,LayoutOrder=i}); b.Parent=subcategoryStrip; create("UICorner",{CornerRadius=UDim.new(0,6)}).Parent=b
+ b.MouseButton1Click:Connect(function() if e.name=="전체" then selectCategory("전체",Config.AllowedAssetTypes,nil) elseif e.data then selectCategory(e.data.Name,e.data.AssetTypes,e.data.BundleTypes) else for _,g in ipairs(Config.CategoryGroups) do for _,cat in ipairs(g.Categories) do if cat.Name==e.name then selectCategory(cat.Name,cat.AssetTypes,cat.BundleTypes); return end end end end end)
+ end; subcategoryStrip.CanvasPosition=Vector2.zero
+end
+renderSubcategoryStrip(nil)
 
 --------------------------------------------------
 
