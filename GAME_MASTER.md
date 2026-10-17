@@ -35,8 +35,8 @@ Central Plaza / Cafe / Park / Playground / Beach / City-Street / Night Area / Ho
 게임 내 임시 착용은 Roblox 계정 소유권을 만들지 않는다. 실제 구매는 Roblox purchase flow를 별도로 거친다.
 
 ## Outfit States
-- CurrentOutfit: 현재 세션
-- SavedOutfits: 게임에서 저장한 코디
+- CurrentOutfit: 현재 캐릭터에 실제 적용된 외형 snapshot (서버 확인 결과 기준)
+- SavedOutfits: 게임 내에서만 저장/불러오는 코디 (Roblox 계정 Outfit 저장이 아님)
 - RunwayOutfit: 경기용 임시 코디
 - RobloxOwnedItems: 플랫폼 소유권
 
@@ -64,3 +64,12 @@ WAITING → THEME → DRESSING → RUNWAY → VOTING → RESULT → REWARD → W
 13. Optimization
 14. Art polish
 15. QA/Soft launch
+
+
+## Avatar State and Persistence Contract
+
+- Catalog, Wearing, Current Outfit, Avatar Editor Apply, and Saved Outfit restore share the server-confirmed Current Avatar state. See docs/05_TECH/AVATAR_STATE_AND_PERSISTENCE.md.
+- Recent is session-only successful wear history. Favorites and SavedOutfits persist per user through server-side DataStore after implementation.
+- SavedOutfits are game-only; no Roblox platform Outfit save or ownership change is implied.
+- Player respawn returns to the default Roblox avatar; temporary catalog wear is not automatically restored. Saved Outfits remain available in Wardrobe.
+- Current data model and implementation status: docs/05_TECH/DATA.md and docs/01_SYSTEMS/CATALOG_IMPLEMENTATION_STATUS.md.
