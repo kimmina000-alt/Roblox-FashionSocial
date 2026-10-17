@@ -2187,4 +2187,3 @@ end)
 --------------------------------------------------
 
 print("[FashionGame] CatalogController initialized.")
-
