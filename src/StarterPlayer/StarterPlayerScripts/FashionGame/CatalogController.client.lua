@@ -291,7 +291,6 @@ local currentOutfitTitle = create("TextLabel", {
 	Font = Enum.Font.GothamBold,
 	TextXAlignment = Enum.TextXAlignment.Left,
 })
-currentOutfitTitle.Text = "착용 중인 아이템"
 currentOutfitTitle.Parent = currentOutfitFrame
 local currentOutfitList = create("ScrollingFrame", {
 	Name = "CurrentOutfitItems",
@@ -913,7 +912,7 @@ for index, group in ipairs(Config.CategoryGroups) do
 	groupButtonByName[group.Name] = b
 	b.MouseButton1Click:Connect(function()
 		activeTopLevelGroup = group.Name
-			renderSubcategoryStrip(group.Name)
+		renderSubcategoryStrip(group.Name)
 		updateMainCategorySelection()
 		local groupAssetTypes = {}
 		local groupBundleTypes = {}
@@ -1158,7 +1157,8 @@ updateCatalogLayout = function()
 		button.TextSize = if expandedPanel then 11 else 8
 	end
 	-- Row two: major categories plus search, filter and sort.
-	local categoryWidth = if expandedPanel then math.max(44, math.floor(innerWidth * 0.39)) else innerWidth
+	local categoryRatio = if narrow then 0.28 else 0.39
+	local categoryWidth = if expandedPanel then math.max(44, math.floor(innerWidth * categoryRatio)) else innerWidth
 	categoryLeftButton.Visible = true
 	categoryRightButton.Visible = true
 	categoryLeftButton.Size = UDim2.fromOffset(arrowW, rowH)
