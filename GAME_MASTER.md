@@ -13,7 +13,14 @@
 - Housing: 초기에는 Main Social 내부 Housing District
 
 ## Main Social Areas
-Central Plaza / Cafe / Park / Beach / City-Street / Night Area / Housing District / Club / Photo Spots / Runway Portal
+Central Plaza / Cafe / Park / Playground / Beach / City-Street / Night Area / Housing District / Club / Photo Spots / Runway Portal
+
+## Playground
+- Main Social World 안에 가볍게 놀고 친구와 상호작용할 수 있는 Playground 구역을 추가한다.
+- 우선 Park와 연결된 구역으로 blockout을 검토한다. 정확한 배치는 Studio에서 동선 확인 후 확정한다.
+- 첫 단계는 자유 탐험, 기본 놀이 오브젝트, 휴식/관람 공간, 사진 촬영과 모바일 접근성에 집중한다.
+- 보상, 퀘스트, 순위표, 별도 Place 이동은 기본 범위에 포함하지 않는다.
+- 상세 요구사항과 테스트 기준은 `docs/01_SYSTEMS/PLAYGROUND.md`를 기준으로 한다.
 
 ## Core Rules
 1. Roblox 공식 API/서비스 우선.
@@ -45,7 +52,7 @@ WAITING → THEME → DRESSING → RUNWAY → VOTING → RESULT → REWARD → W
 1. 공식 API 검증
 2. Avatar/Catalog
 3. Current Outfit
-4. Main Social blockout
+4. Main Social blockout (Playground 구역 포함)
 5. Social
 6. Housing
 7. Main↔Runway
