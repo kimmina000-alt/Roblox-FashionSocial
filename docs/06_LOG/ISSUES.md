@@ -1,5 +1,7 @@
 # Issues
 
+이 문서는 재현 가능한 문제, 기대/실제 결과, 원인 조사 및 해결 결과를 기록한다. 계획/우선순위는 TODO.md, 요구사항/수락 기준은 기능 상세 명세, 실제 조사와 테스트 증거는 WORKLOG.md, 커밋 변경 내역은 CHANGELOG.md에 둔다.
+
 ## Template
 
 ### ISSUE-001 — Title
