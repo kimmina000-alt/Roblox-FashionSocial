@@ -223,7 +223,7 @@ local previewTitle = create("TextLabel", {
 	Size = UDim2.new(1, -44, 0, 32),
 	Position = UDim2.fromOffset(10, 4),
 	BackgroundTransparency = 1,
-	Text = "CURRENT OUTFIT",
+	Text = "착용 중인 아이템",
 	TextColor3 = Color3.fromRGB(255, 255, 255),
 	TextSize = 13,
 	Font = Enum.Font.GothamBold,
@@ -347,7 +347,7 @@ local function refreshAvatarPreview()
 	clone:PivotTo(CFrame.new(0, 0, 0))
 	local _, bounds = clone:GetBoundingBox()
 	local targetY = bounds.Y * 0.5
-	local distance = math.max(4.5, bounds.Y * 1.45)
+	local distance = math.max(4.5, bounds.Y * 1.9)
 	-- Roblox characters normally face local -Z; place the camera in front.
 	avatarPreviewCamera.CFrame = CFrame.lookAt(
 		Vector3.new(0, targetY, -distance),
@@ -357,10 +357,12 @@ end
 
 -- These entry points are intentionally placed now; their feature panels are planned.
 avatarEditorButton.MouseButton1Click:Connect(function()
+	print("Avatar Editor 버튼 클릭")
 	statusLabel.Text = "Avatar Editor: per-item transform controls are planned."
 end)
 
 wardrobeButton.MouseButton1Click:Connect(function()
+	print("Wardrobe 버튼 클릭")
 	statusLabel.Text = "Wardrobe: outfit save/load is planned."
 end)
 
@@ -846,7 +848,7 @@ local filterPanel = create("Frame", {
 	Name = "ExpandedFilterPanel",
 	Size = UDim2.fromOffset(300, 166),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-	BackgroundTransparency = 0.6,
+	BackgroundTransparency = 0,
 	BorderSizePixel = 0,
 	Visible = false,
 	ZIndex = 70,
@@ -1307,41 +1309,46 @@ local function updateCatalogLayout()
 		wardrobeButton.Position = UDim2.fromOffset(46, 52)
 		wardrobeButton.Size = UDim2.fromOffset(32, 32)
 		avatarViewport.Position = UDim2.fromOffset(8, 92)
-		avatarViewport.Size = UDim2.new(1, -16, 0.48, -92)
+		avatarViewport.Size = UDim2.new(1, -16, 1, -236)
 		currentOutfitFrame.Position = UDim2.new(0, 8, 1, -112)
 		currentOutfitFrame.Size = UDim2.new(1, -16, 0, 104)
 
 		local rightX = leftWidth
 		local rightWidth = panelWidth - leftWidth
 		titleLabel.Position = UDim2.fromOffset(rightX + 12, 4)
-		titleLabel.Size = UDim2.new(0, math.min(150, rightWidth * 0.22), 0, 30)
+		titleLabel.Size = UDim2.new(0, math.min(120, rightWidth * 0.18), 0, 30)
 		titleLabel.TextSize = 18
+		discoveryBar.Visible = true
+		discoveryBar.Position = UDim2.new(1, -330, 0, 4)
+		discoveryBar.Size = UDim2.fromOffset(330, 30)
 		searchBox.Position = UDim2.fromOffset(rightX + 12, 40)
-		searchBox.Size = UDim2.new(1, -104, 0, 32)
+		searchBox.Size = UDim2.new(1, -300, 0, 32)
 		searchBox.TextSize = if isPhone then 11 else 14
 		searchBox.PlaceholderText = "Search Roblox catalog..."
 		searchButton.Visible = true
-		searchButton.Position = UDim2.new(1, -84, 0, 40)
-		searchButton.Size = UDim2.fromOffset(72, 32)
+		searchButton.Position = UDim2.new(1, -278, 0, 40)
+		searchButton.Size = UDim2.fromOffset(66, 32)
 		searchButton.TextSize = 10
 		fixedFilterButton.Visible = true
-		fixedFilterButton.Position = UDim2.new(1, -84, 0, 76)
-		discoveryBar.Visible = true
-		discoveryBar.Position = UDim2.fromOffset(rightX + 12, 76)
-		discoveryBar.Size = UDim2.new(1, -104, 0, 32)
-		mainCategoryStrip.Visible = true
-		categoryLeftButton.Visible = true
-		categoryRightButton.Visible = true
-		categoryLeftButton.Position = UDim2.fromOffset(rightX + 8, 112)
-		mainCategoryStrip.Position = UDim2.fromOffset(rightX + 34, 112)
-		mainCategoryStrip.Size = UDim2.new(1, -68, 0, 32)
-		categoryRightButton.Position = UDim2.new(1, -30, 0, 112)
-		categoryMenu.Position = UDim2.fromOffset(rightX + 34, 148)
-		categoryMenu.Size = UDim2.new(0, math.max(150, rightWidth * 0.48), 0, math.min(330, panelHeight - 180))
+		fixedFilterButton.Position = UDim2.new(1, -204, 0, 40)
+		fixedFilterButton.Size = UDim2.fromOffset(64, 32)
 		sortButton.Visible = true
-		sortButton.Position = UDim2.fromOffset(rightX + 12, 148)
-		sortButton.Size = UDim2.fromOffset(1, 30)
-		sortButton.Visible = false
+		sortButton.Position = UDim2.new(1, -136, 0, 40)
+		sortButton.Size = UDim2.fromOffset(124, 32)
+		mainCategoryStrip.Visible = true
+		categoryLeftButton.Visible = false
+		categoryRightButton.Visible = false
+		mainCategoryStrip.Position = UDim2.fromOffset(rightX + 12, 76)
+		mainCategoryStrip.Size = UDim2.new(1, -24, 0, 32)
+		categoryMenu.Position = UDim2.fromOffset(rightX + 12, 112)
+		categoryMenu.Size = UDim2.new(0, math.max(150, rightWidth * 0.48), 0, math.min(330, panelHeight - 180))
+		subcategoryStrip.Visible = true
+		subcategoryLeftButton.Visible = true
+		subcategoryRightButton.Visible = true
+		subcategoryLeftButton.Position = UDim2.fromOffset(rightX + 8, 76)
+		subcategoryStrip.Position = UDim2.fromOffset(rightX + 34, 76)
+		subcategoryStrip.Size = UDim2.new(1, -68, 0, 32)
+		subcategoryRightButton.Position = UDim2.new(1, -30, 0, 76)
 		filterLabel.Visible = false
 		minPriceBox.Visible = filterPanelOpen
 		maxPriceBox.Visible = filterPanelOpen
@@ -1359,7 +1366,7 @@ local function updateCatalogLayout()
 			minPriceBox.Size = UDim2.fromOffset(90, 28)
 			maxPriceBox.Size = UDim2.fromOffset(90, 28)
 			offSaleButton.Size = UDim2.fromOffset(100, 28)
-			filterPanel.Position = UDim2.fromOffset(math.clamp(fixedFilterButton.Position.X.Offset - 220, rightX + 8, panelWidth - 308), fixedFilterButton.Position.Y.Offset + fixedFilterButton.Size.Y.Offset + 4)
+			filterPanel.Position = UDim2.fromOffset(math.clamp(fixedFilterButton.Position.X.Offset, rightX + 8, panelWidth - 308), fixedFilterButton.Position.Y.Offset + fixedFilterButton.Size.Y.Offset + 4)
 			filterPanel.Visible = true
 		else
 			filterPanel.Visible = false
@@ -1367,13 +1374,13 @@ local function updateCatalogLayout()
 			maxPriceBox.Parent = mainFrame
 			offSaleButton.Parent = mainFrame
 		end
-		backToPacksButton.Position = UDim2.fromOffset(rightX + 12, 148)
+		backToPacksButton.Position = UDim2.fromOffset(rightX + 12, 116)
 		backToPacksButton.Size = UDim2.fromOffset(132, 24)
-		statusLabel.Position = UDim2.fromOffset(rightX + 152, 148)
+		statusLabel.Position = UDim2.fromOffset(rightX + 152, 116)
 		statusLabel.Size = UDim2.new(1, -rightWidth * 0.38, 0, 24)
 		statusLabel.TextSize = 10
-		resultsFrame.Position = UDim2.fromOffset(rightX + 12, 216)
-		resultsFrame.Size = UDim2.new(1, -rightX - 24, 1, -228)
+		resultsFrame.Position = UDim2.fromOffset(rightX + 12, 150)
+		resultsFrame.Size = UDim2.new(1, -rightX - 24, 1, -162)
 		categoryButton.Visible = false
 		categoryMenu.Visible = categoryMenu.Visible and activeTopLevelGroup ~= nil
 	else
