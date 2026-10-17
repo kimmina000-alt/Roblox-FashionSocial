@@ -75,3 +75,12 @@ Check the current Roblox Creator Hub API before depending on an enum, property, 
 - Refresh after server-confirmed wear/remove, after opening the catalog, and after character respawn.
 - Treat the live character/server-confirmed CurrentOutfit as the source of truth; the preview is a visual mirror only and must not mutate outfit state.
 - Verify in Studio that accessories, layered clothing, body proportions, and current outfit changes render correctly in the preview. If a clone/render path is unsupported, keep the live avatar/world visible rather than silently showing stale preview content.
+
+
+## Plan Ownership and Dependency — 2026-10-17
+
+- This file is the **canonical Avatar system and Avatar Editor requirements document**. The detailed Avatar Editor sections here are not replaced by the shorter Outfit/Wardrobe plan.
+- Outfit save/load must persist only the appearance properties that the Avatar system can actually collect and reapply. Before implementation, reconcile the Avatar Editor's editable values with the data model described in `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md`.
+- Keep the following states distinct: temporary edit values, server-confirmed current avatar, saved Outfit data, and Roblox-owned inventory.
+- API limitations and unverified Studio behavior must be recorded here or in `docs/05_TECH/API.md`; do not mark a feature complete based on UI controls alone.
+- `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` is the detailed Outfit/Wardrobe implementation plan and only a cross-reference for Avatar Editor; this file owns the full Avatar Editor requirements.
