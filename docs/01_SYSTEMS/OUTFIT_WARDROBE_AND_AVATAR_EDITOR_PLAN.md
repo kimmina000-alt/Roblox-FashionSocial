@@ -1,10 +1,10 @@
-# Outfit / Wardrobe / Avatar Editor — 앞으로 진행할 기능 명세
+# Outfit / Wardrobe — 앞으로 진행할 기능 명세
 
 기준일: 2026-10-17  
 대상 브랜치: `catalog-ui-redesign`  
 상태: **계획/요구사항 문서 — 구현 완료를 의미하지 않음**
 
-이 문서는 사용자가 붙여넣은 중단된 작업 메모를 앞으로 진행할 기능으로 분류해 정리한다. 현재 실제 소스에서 확인되는 placeholder와 향후 기능을 구분한다.
+이 문서는 사용자가 붙여넣은 중단된 작업 메모 중 **Outfit 저장/복원과 Wardrobe** 요구사항을 실행 가능한 세부 기준으로 정리한다. Avatar Editor의 상세 기능 명세는 기존 `docs/01_SYSTEMS/AVATAR.md`의 `Avatar Editing UX — Planned` 및 관련 섹션을 기준 문서로 삼는다. 이 파일의 4장 Avatar Editor는 교차 참조용 요약이며, AVATAR.md를 대체하거나 그 상세 요구사항을 축약해 없애는 문서가 아니다. 카탈로그 탐색과 Recent/Popular/Wearing/Favorites는 `docs/01_SYSTEMS/CATALOG.md` 및 `CATALOG_IMPLEMENTATION_STATUS.md`를 기준으로 한다.
 
 ## 1. 작업 원칙
 - 먼저 현재 `src/`의 실제 착용·해제·현재 착용 목록·HumanoidDescription 적용 구조를 조사한다.
