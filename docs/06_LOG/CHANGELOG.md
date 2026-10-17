@@ -1,5 +1,13 @@
 # Changelog
 
+## 2026-10-17 — Repository status research and future-work separation
+- Added `docs/01_SYSTEMS/CATALOG_IMPLEMENTATION_STATUS.md` to distinguish the actual `src/` implementation from the isolated PDF UI workbench, record confirmed/user-tested versus unverified behavior, and consolidate catalog UI, state-sync, Recent/Popular/Wearing/Favorites, filter, and regression requirements.
+- Added `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` to classify the pasted unfinished prompt as future work and detail Outfit save/load, saved thumbnails, persistence, partial restore failures, accessory transforms, body proportions, R6/R15, layering, makeup limits, skin colors, and validation.
+- Important distinction: the live game source contains Avatar Editor and Wardrobe placeholder handlers; the PDF workbench copy is isolated outside `src/` and is not automatically synchronized into the game.
+- No game source, `default.project.json`, baseline backup, or `main` branch was modified. Studio runtime testing was not performed as part of this documentation pass.
+
+# Changelog
+
 ## 2026-10-15 — Compact card visibility and expanded preview follow-up
 - Moved compact results directly below the one-row search/category/sort toolbar and hid secondary status/filter rows in compact mode to keep cards visible.
 - Made item-card sizes responsive by state/device: compact mobile 76×114, compact PC 100×146, expanded mobile 112×164, expanded PC 132×192.
