@@ -25,7 +25,7 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 - [x] Make the compact mobile panel a bottom-right floating window occupying about one-quarter of screen area; expansion should restore the full-screen view.
 - [x] Validate controls, search results, and compact item cards in both sizes (user confirmed all six checks).
 - [ ] Put search, category, and sort on one toolbar row in compact mode and confirm result cards are visible below it.
-- [ ] Use separate compact mobile (96×144), compact PC (120×174), and expanded (132×192) card sizes; verify card content scales without clipping.
+- [ ] Keep card sizing aligned with current source: compact phone 76×114, other compact 100×146, expanded responsive width 88–148 with height = width × 1.45; verify card content scales without clipping in Studio.
 - [ ] In expanded mode, show a current-avatar ViewportFrame preview; reserve space for it on PC and above results on mobile.
 
 ### 2. Category discovery
@@ -110,7 +110,7 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 - [x] Hide NEXT/page UI and trigger next-page loading from results scrolling.
 - [ ] Add fixed Current Outfit horizontal scroller, newest worn first, individual remove.
 - [ ] Add drag-to-rotate avatar preview.
-- [ ] Add fixed search and Filter controls with horizontally scrollable Recent/Popular/Recommended/Favorites/Currently Worn strip.
+- [ ] Add fixed search and Filter controls with navigation Recent / Popular / Wearing / Favorites / Wardrobe; Wardrobe is a separate saved-Outfit entry and Recommended is removed.
 - [ ] Add quick category row (All, Hair, Face, Tops, Bottoms, Accessories, Animations).
 - [ ] Move Min/Max/Off Sale into Filter panel.
 - [ ] Add mouse-following tooltip showing full item name on desktop.
