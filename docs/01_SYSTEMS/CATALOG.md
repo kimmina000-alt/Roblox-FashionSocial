@@ -157,3 +157,16 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 - Navigation wording must be consistent: `Recommended` is deferred until a real recommendation rule exists. Do not show it as a working mode merely because an earlier expanded-toolbar sketch listed it. The planned primary modes are Recent, Popular, Favorites, and Currently Worn/Wearing, plus a separate Wardrobe entry for saved looks.
 - “Current Outfit” as the horizontal strip of currently worn items and “Wearing” as a card-grid browse mode are related but distinct UI presentations. Both must read from the same authoritative current-worn state.
 - Latest responsive-layout notes are requirements, not proof of the current implementation. Studio verification is required for the current revision.
+
+
+## Quick Navigation Modes — Detailed Specification
+
+The implementation contract for Recent, Popular, Wearing, and Favorites is owned by [`CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN.md`](CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN.md). Use that file for each mode's data source, record lifecycle, API sorting constraints, click/double-click behavior, search/filter interactions, persistence, error handling, cross-feature invariants, and acceptance tests.
+
+The four modes reuse the catalog item-card area but do not share the same data source:
+- Recent = explicitly viewed items, not search history.
+- Popular = actual Roblox-supported catalog sort only; never relabel another sort as popularity.
+- Wearing = current server-confirmed avatar wear state.
+- Favorites = user-specific in-game favorites, distinct from Roblox account favorites.
+
+Outfit/Wardrobe and Avatar Editor must keep these modes synchronized with the same authoritative avatar state. Implementation status is tracked separately in `CATALOG_IMPLEMENTATION_STATUS.md`; this system document and the detailed spec do not imply that placeholders are already functional.
