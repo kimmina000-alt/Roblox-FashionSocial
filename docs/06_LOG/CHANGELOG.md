@@ -1,5 +1,12 @@
 # Changelog
 
+## 2026-10-17 — Detailed Catalog Quick Navigation specification
+- Added `docs/01_SYSTEMS/CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN.md` with mode-specific behavior, data sources, search/filter interactions, persistence requirements, API-sort verification gates, double-click favorite behavior, cross-feature invariants, and acceptance tests for Recent/Popular/Wearing/Favorites.
+- Linked the detailed specification from `docs/01_SYSTEMS/CATALOG.md` and added an ordered follow-up section to `docs/06_LOG/TODO.md`.
+- The current source has state variables and UI structures that are not proof of complete behavior. This change is documentation only; no game source was changed and no Roblox Studio test was performed.
+
+# Changelog
+
 ## 2026-10-17 — Preserve detailed Avatar Editor specification
 - Added `docs/01_SYSTEMS/AVATAR_EDITOR_IMPLEMENTATION_PLAN.md`, preserving the detailed Avatar Editor portion of the attached long text as an 800+ line feature implementation spec and acceptance checklist, separate from the Catalog Quick Navigation spec that follows it in the attachment.
 - Updated `docs/01_SYSTEMS/AVATAR.md` to link to the detailed spec and define it as the system overview/integration contract rather than pretending the shorter file alone contains every implementation detail.
