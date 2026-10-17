@@ -138,7 +138,7 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 - Phone compact mode should be narrower than tablet compact mode; tablet sizing remains unchanged.
 
 ### Catalog toolbar requirements
-- Row 1: horizontally scrollable navigation strip for Recent, Popular, Recommended, Favorites, and Currently Worn. Search and Filter remain fixed and must not scroll away with that strip.
+- Row 1: horizontally scrollable navigation strip for Recent, Popular, Wearing, and Favorites. Search and Filter remain fixed and must not scroll away with that strip.
 - Row 2: quick category buttons All, Hair, Face, Tops, Bottoms, Accessories, Animations.
 - Min / Max / Off Sale should move into a Filter panel rather than occupy the default toolbar.
 - Recent means recently viewed items, not search history. Popular must use an actual supported Roblox API sort; unsupported types must not be labeled Popular. Recommended is deferred until a real recommendation rule exists.
@@ -154,7 +154,7 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 
 - The core Catalog loop remains search/category → inspect → wear/remove → confirm the real avatar state. Saved Outfit/Wardrobe is a secondary feature and must not destabilize this loop; see `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` for its detailed requirements.
 - The Avatar Editor requirements are owned by `docs/01_SYSTEMS/AVATAR.md`; Catalog only defines the integration points (current avatar preview, Current Outfit/Wearing state, and synchronization after confirmed changes).
-- Navigation wording must be consistent: `Recommended` is deferred until a real recommendation rule exists. Do not show it as a working mode merely because an earlier expanded-toolbar sketch listed it. The planned primary modes are Recent, Popular, Favorites, and Currently Worn/Wearing, plus a separate Wardrobe entry for saved looks.
+- Navigation wording must be consistent: `Recommended` is deferred until a real recommendation rule exists. Do not show it as a working mode merely because an earlier expanded-toolbar sketch listed it. The current navigation modes are Recent / Popular / Wearing / Favorites / Wardrobe. Wardrobe is the separate saved-Outfit entry; Recommended is not part of the current UI.
 - “Current Outfit” as the horizontal strip of currently worn items and “Wearing” as a card-grid browse mode are related but distinct UI presentations. Both must read from the same authoritative current-worn state.
 - Latest responsive-layout notes are requirements, not proof of the current implementation. Studio verification is required for the current revision.
 
@@ -170,3 +170,19 @@ The four modes reuse the catalog item-card area but do not share the same data s
 - Favorites = user-specific in-game favorites, distinct from Roblox account favorites.
 
 Outfit/Wardrobe and Avatar Editor must keep these modes synchronized with the same authoritative avatar state. Implementation status is tracked separately in `CATALOG_IMPLEMENTATION_STATUS.md`; this system document and the detailed spec do not imply that placeholders are already functional.
+
+
+## Current navigation contract — 2026-10-18
+
+- 탐색 모드는 **Recent / Popular / Wearing / Favorites / Wardrobe**다. Recommended는 현재 범위에서 제거한다.
+- Recent/Popular/Wearing/Favorites는 동일한 catalog card area를 재사용한다. Wardrobe는 저장한 Outfit을 관리하는 별도 화면/진입점이다.
+- **Current Outfit**은 현재 실제 착용 항목을 가로로 보여 주는 별도 strip이다. Wearing grid와 같은 서버 확인 snapshot을 사용하며 자체 착용 상태를 만들지 않는다.
+- 실제 착용/해제 버튼은 카드의 Wear/Worn 버튼에서만 수행한다. 카드 이미지의 더블클릭은 Favorites 추가/해제 전용이며, 착용/해제 요청을 실행하지 않는다.
+- Recent는 현재 세션에서 실제 착용에 성공한 항목만 기록한다. 세션 종료 시 초기화한다.
+- Popular는 Roblox 공식 API의 MostFavorited만 사용하고 PastMonth aggregation을 우선 지정한다. 지원/결과가 유효하지 않으면 명시적으로 AllTime으로 fallback한다. Bestselling/RecentlyCreated는 현재 Popular 모드에 노출하지 않는다.
+- Favorites와 Wardrobe는 사용자별 영구 저장 대상이며, 실제 DataStore 연결/재접속 보존은 별도 구현 및 Studio 검증 전까지 미완료다.
+- 검색/카테고리/정렬/가격/creator/off-sale 필터는 검색 결과 모드에서만 적용한다. Wearing은 현재 실제 착용 snapshot만, Favorites는 즐겨찾기 record만 필터링하고 전체 catalog 검색 결과로 fallback하지 않는다.
+- 레이아웃 수치는 최신 소스 기준이다. Compact cards: phone 76×114, other compact 100×146. Expanded cards: cellWidth = clamp(floor((rightWidth - 36) / 6), 88, 148); height = floor(cellWidth * 1.45). Expanded size is responsive, not a fixed 132×192 value.
+- 이 수치는 코드 정적 확인 결과이며 Studio에서 실제 가독성/배치 검증을 완료했다는 뜻은 아니다.
+
+Single source and persistence contract: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_AND_PERSISTENCE.md). API support evidence: [API.md](../05_TECH/API.md). Player data schema: [DATA.md](../05_TECH/DATA.md).
