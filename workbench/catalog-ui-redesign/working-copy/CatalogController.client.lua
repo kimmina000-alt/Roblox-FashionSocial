@@ -1368,14 +1368,17 @@ local function updateCatalogLayout()
 		categoryButton.Visible = false
 		categoryMenu.Visible = categoryMenu.Visible and activeTopLevelGroup ~= nil
 	else
-		discoveryBar.Visible = false
-		mainCategoryStrip.Visible = false
-		categoryLeftButton.Visible = false
-		categoryRightButton.Visible = false
-		fixedFilterButton.Visible = false
+		discoveryBar.Visible = compact
+		mainCategoryStrip.Visible = compact
+		categoryLeftButton.Visible = compact
+		categoryRightButton.Visible = compact
+		subcategoryStrip.Visible = compact
+		subcategoryLeftButton.Visible = compact
+		subcategoryRightButton.Visible = compact
+		fixedFilterButton.Visible = compact
 		filterPanel.Visible = false
 		currentOutfitFrame.Visible = false
-		categoryButton.Visible = true
+		categoryButton.Visible = not compact
 	end
 
 	previewFrame.Visible = expandedPanel and mainFrame.Visible
