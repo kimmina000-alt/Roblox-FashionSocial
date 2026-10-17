@@ -151,3 +151,12 @@
 - `docs/06_LOG/WORKLOG.md` — 날짜별 진행 내역
 - `docs/06_LOG/CHANGELOG.md` — 커밋/변경 요약
 - `workbench/catalog-ui-redesign/README.md` — PDF 작업본과 기준 백업에 대한 설명
+
+
+## 10. Detailed feature specification links
+
+- Recent / Popular / Wearing / Favorites: `docs/01_SYSTEMS/CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN.md`
+- Outfit / Wardrobe save and restore: `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md`
+- Avatar Editor detailed requirements: `docs/01_SYSTEMS/AVATAR_EDITOR_IMPLEMENTATION_PLAN.md`
+
+These documents describe planned behavior, not proof of implementation. Verify the actual `src/` code and mark Studio tests separately.
