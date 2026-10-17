@@ -1,5 +1,9 @@
 # Changelog
 
+## 2026-10-17 — Preserve detailed Avatar Editor specification
+- Added `docs/01_SYSTEMS/AVATAR_EDITOR_IMPLEMENTATION_PLAN.md`, preserving the detailed Avatar Editor portion of the attached long text as an 800+ line feature implementation spec and acceptance checklist, separate from the Catalog Quick Navigation spec that follows it in the attachment.
+- Updated `docs/01_SYSTEMS/AVATAR.md` to link to the detailed spec and define it as the system overview/integration contract rather than pretending the shorter file alone contains every implementation detail.
+
 ## 2026-10-17 — Playground proposal and plan ownership reconciliation
 - Added `docs/01_SYSTEMS/PLAYGROUND.md` for the proposed Main Social Playground, with blockout-first scope, open decisions, PC/mobile/collision/performance checks, and no unapproved rewards or minigame scope.
 - Updated `GAME_MASTER.md` to include Playground in Main Social Areas and added the high-level direction.
