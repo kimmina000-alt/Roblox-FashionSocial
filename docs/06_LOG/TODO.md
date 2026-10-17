@@ -148,3 +148,29 @@ Detailed implementation requirements and acceptance criteria: `docs/01_SYSTEMS/C
 - [ ] Protect results from stale asynchronous responses when mode/search/filter changes.
 - [ ] Decide and verify persistence, record limits, save/load errors, and empty states.
 - [ ] Run the detailed mode-by-mode acceptance checklist in Roblox Studio; mark only actually tested items complete.
+
+
+## P0 — Shared avatar state and persistence contract (2026-10-18)
+
+Authoritative design: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_AND_PERSISTENCE.md). Player data: [DATA.md](../05_TECH/DATA.md). Official API research: [API.md](../05_TECH/API.md).
+
+- [ ] Define and implement one server-confirmed Current Avatar snapshot consumed by Catalog, Wearing, Current Outfit, Avatar Editor, and Outfit restore.
+- [ ] Refactor item identity to typed itemType + itemId and preserve assetType/bundleType, accessory/layering metadata, and distinct appearance attributes. Do not claim Bundle wear/remove support without a working typed adapter.
+- [ ] Add a per-player action gate shared by wear/remove/Avatar Editor Apply/Outfit restore. First request wins; while busy, disable related controls, show progress, and reject subsequent requests rather than queueing them.
+- [ ] Implement snapshot reconstruction from Humanoid:GetAppliedDescription() after apply, on catalog open, and after character respawn; reconcile client cache from the server result.
+- [ ] Implement Recent as session-only successful wear history; Favorites and SavedOutfits as per-user DataStore data. Verify rejoin persistence in Studio.
+- [ ] Implement versioned user data envelope, UpdateAsync, schema migration, validation, payload-size checks, rate limits, and non-destructive failure handling.
+- [ ] Implement Wardrobe save/load/delete, initial maximum 20 outfits per user (configurable), and preview rendering from saved appearance data.
+- [ ] Implement Outfit restore replacement, result verification, partial-success messaging for independently recoverable items, and baseline recovery for whole-apply failure.
+- [ ] Implement Avatar Editor draft/Apply/Cancel; only applied values enter Current Avatar and Saved Outfit. Reset selected item only; discard draft on respawn/Outfit restore.
+- [ ] Keep respawn policy: default Roblox avatar after respawn; no automatic re-application of temporary wear. Saved Outfit remains available in Wardrobe.
+- [ ] Investigate game-wide R6/R15 policy before exposing any rig switching UI.
+- [ ] Studio-test all supported item types, failure paths, PC/mobile, keyboard/touch, duplicate requests, respawn, and rejoin persistence. API documentation or static code review does not count as Studio verification.
+
+## Documentation completion rules
+
+- ISSUES.md: reproducible bug, steps, expected/actual, investigation, resolution.
+- TODO.md: future work and priority only.
+- Feature specs: requirements and acceptance criteria.
+- WORKLOG.md: investigation and actual test evidence; clearly mark API-reviewed, source-reviewed, and Studio-tested.
+- CHANGELOG.md: committed documentation/code changes.
