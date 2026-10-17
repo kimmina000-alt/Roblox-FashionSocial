@@ -303,3 +303,41 @@ Favorites는 사용자가 이 게임 안에서 직접 관리하는 사용자별 
 10. Studio에서 검증하지 못한 항목과 검증 절차
 
 코드가 작성되었다는 이유만으로 완료 처리하지 않는다.
+
+
+## Decisions locked — 2026-10-18
+
+### Navigation and data source
+- Visible modes: Recent / Popular / Wearing / Favorites / Wardrobe. Recommended is removed. Wardrobe is a separate saved-Outfit screen, not a fifth catalog query mode.
+- Current Outfit is a horizontal list of current worn items, derived from the same server-confirmed snapshot as Wearing.
+- Recent is session-only and records only a successfully worn item. Search input, result exposure, opening details, and saved Outfit restore do not add Recent entries.
+- Popular uses CatalogSortType.MostFavorited only. Set CatalogSortAggregation.PastMonth if accepted by the current API runtime; if the request fails or results are invalid, log the error and retry explicitly with AllTime. Do not offer Bestselling or RecentlyCreated as Popular modes.
+- Search/category/price/creator/off-sale filters apply only to global catalog search. Wearing filters the actual worn snapshot; Favorites filters the user's own Favorites records. Neither may fall back to all catalog results.
+- Wear/remove are separate explicit card buttons. Double-click/double-tap on the item image only toggles in-game Favorites and must never issue wear/remove.
+
+### Double-click timing and mobile interaction
+- Double-click threshold: 0.5 seconds between the first and second image activation. A second activation after 0.5 seconds is a separate single activation.
+- To avoid single-click side effects firing before the double-click is known, the first image activation is held for up to 0.5 seconds before its single-click action is committed. If a second activation arrives inside the window, cancel the pending single action and toggle Favorite once. Image single-click must not itself wear/remove.
+- A small star icon can still be used as a state indicator rather than a clickable control, placed over a low-information corner with a translucent background. It must not be the sole interaction target; the image's double-click/double-tap is the action. The Wear/Worn button remains a separate, sufficiently large touch target.
+- Test double-click/double-tap, two clicks separated by >0.5 seconds, touch latency, accessibility, and item-card selection. If a future single-click image action is introduced, it must use the same delayed arbitration and must never duplicate a Favorite action.
+
+### Shared state and operations
+- Contract: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_AND_PERSISTENCE.md). Data persistence: [DATA.md](../05_TECH/DATA.md). API evidence: [API.md](../05_TECH/API.md).
+- Current Avatar is server-confirmed from the applied HumanoidDescription. Client currentWornItems/wornOrder are display caches only.
+- While a wear/remove/Apply/restore action is running, show progress if possible and disable related buttons. The first request wins; subsequent requests are not queued and should be rejected with a message.
+- Wearing is partial implementation until all supported item types and state synchronization are verified. Item identity is itemType + itemId, with type-specific metadata; do not assume Bundle ID is directly wearable.
+- Avatar Editor changes are draft values. Apply commits; Cancel/close discards. If draft changes exist when closing, prompt Apply/Cancel. Reset affects only the selected item. Respawn or Outfit restore discards unapplied draft values.
+- SavedOutfit is game-only. Store a versioned restorable appearance snapshot, not just item IDs. The Outfit preview is rendered from saved data; do not assume a captured screenshot can be persisted.
+- Saved Outfit cap starts at 20 per user and must be configurable. Favorites and Outfits persist across sessions; Recent does not. Actual DataStore integration and rejoin persistence are not yet verified.
+
+### Search/filter support matrix
+| Mode | Search text | Catalog API category/type/sort/price filters | Data source |
+|---|---|---|---|
+| Global catalog | Yes | Yes, only when supported by CatalogSearchParams and current runtime | Roblox catalog API |
+| Recent | No global-catalog fallback | No; optionally filter only the session Recent records if product UI later defines it | Session list of successfully worn typed item refs |
+| Popular | Query is API-driven, not local fallback | API-supported category/type filters; MostFavorited + PastMonth preferred | Roblox catalog API |
+| Wearing | No global catalog search | No global-catalog filters | Server-confirmed applied avatar snapshot |
+| Favorites | No global catalog search | No global-catalog filters | Persistent user Favorites |
+| Wardrobe | Outfit name/list operations only | Not catalog filters | Persistent SavedOutfits |
+
+API support and Studio behavior must remain separately labeled. The acceptance checklist in this file is not complete until Studio results are recorded in WORKLOG.md.
