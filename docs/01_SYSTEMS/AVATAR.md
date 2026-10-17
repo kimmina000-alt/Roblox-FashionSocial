@@ -79,8 +79,8 @@ Check the current Roblox Creator Hub API before depending on an enum, property, 
 
 ## Plan Ownership and Dependency — 2026-10-17
 
-- This file is the **canonical Avatar system and Avatar Editor requirements document**. The detailed Avatar Editor sections here are not replaced by the shorter Outfit/Wardrobe plan.
+- This file is the **Avatar system overview and integration contract**. The full detailed Avatar Editor implementation requirements and acceptance checklist are preserved in `docs/01_SYSTEMS/AVATAR_EDITOR_IMPLEMENTATION_PLAN.md`; do not treat this shorter system overview as a substitute for that detailed spec.
 - Outfit save/load must persist only the appearance properties that the Avatar system can actually collect and reapply. Before implementation, reconcile the Avatar Editor's editable values with the data model described in `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md`.
 - Keep the following states distinct: temporary edit values, server-confirmed current avatar, saved Outfit data, and Roblox-owned inventory.
 - API limitations and unverified Studio behavior must be recorded here or in `docs/05_TECH/API.md`; do not mark a feature complete based on UI controls alone.
-- `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` is the detailed Outfit/Wardrobe implementation plan and only a cross-reference for Avatar Editor; this file owns the full Avatar Editor requirements.
+- `docs/01_SYSTEMS/AVATAR_EDITOR_IMPLEMENTATION_PLAN.md` owns the detailed Avatar Editor requirements; `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` owns detailed Outfit/Wardrobe requirements and is only a cross-reference for Avatar Editor.
