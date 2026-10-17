@@ -111,49 +111,29 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 - Do not mark an item removed or worn until the server confirms the operation; unsupported types should have a clear non-actionable state.
 
 
-### Compact toolbar and avatar preview
-- In compact mode, keep keyword search, category selection, and sort on a single horizontal row. Enter in the search field submits the search; the separate Search button is hidden only in compact mode.
-- Compact card sizes are device-aware: compact mobile 76×114, compact desktop 100×146, expanded mobile 112×164, expanded PC 132×192. Keep card content scaled with the card rather than clipped.
-- Expanded mode opens a dedicated `ViewportFrame` preview of the player's current character/outfit. Refresh it after successful wear/remove, on reopening, and after character respawn.
-- On PC, reserve a left-side preview column and keep catalog results to the right. On mobile, place the preview below the search/filter controls and above the results grid so it does not cover the controls.
-- Studio validation must confirm the preview accurately reflects the server-applied outfit and that card names, prices, and actions remain readable at each size.
+## Current responsive layout and navigation — source-aligned 2026-10-18
 
+- Compact toolbar keeps keyword search, category selection, and sort on one row where the viewport allows it. Enter submits the search.
+- Card sizes must match the current source file, not historical design drafts: compact phone 76×114; other compact viewports 100×146. Expanded cards are responsive: width = clamp(floor((rightWidth - 36) / 6), 88, 148), height = floor(width × 1.45).
+- Expanded layout is full-screen. The left preview column is approximately 25% of the width; catalog results use the remaining right area. On mobile the preview and results must not overlap controls.
+- Current Outfit is a horizontal strip of the actual currently worn items, derived from the same server-confirmed snapshot as Wearing. Each supported item can be removed through its explicit remove action.
+- Avatar Editor and Wardrobe entry points exist in the UI, but their buttons/entry points do not prove the full editor or persistence features are implemented.
+- Studio verification is required for card visibility, responsive preview, keyboard/touch interaction, and results scrolling.
 
-### Compact card visibility follow-up — 2026-10-15
-- Keep the compact toolbar on one row: keyword search, category (ALL), and sort.
-- Place results directly below that row and hide status/secondary filter rows in compact mode to avoid pushing cards below the fold.
-- Use distinct card dimensions for compact mobile and compact PC; compact PC cards should also be smaller than expanded cards.
-- When expanded, both PC and mobile use full-screen catalog layout and show a separate current-avatar preview. On mobile, stack the preview between controls and the results grid; on PC, reserve the left preview column.
-- Verify the preview clone and card visibility in Studio; these latest changes are not yet confirmed in Studio.
+## Current catalog toolbar requirements
 
-
-## Expanded catalog layout — 2026-10-16
-
-### Confirmed layout
-- Expanded catalog is full-screen. The avatar preview is a fixed left column occupying approximately 25% of the width; the catalog occupies the remaining 75%.
-- Avatar preview controls have reserved icon-only entry points in the preview panel: Avatar Editor (transform editing) and Wardrobe (save/load outfits).
-- Current Outfit should remain below the avatar preview as a single horizontal, horizontally scrollable row, ordered newest worn item first. Each item should support individual removal.
-- Catalog results should scroll independently; scrolling results must not move the preview.
-- Item names use a larger single-line label with end ellipsis. Desktop hover should reveal the full name in a tooltip.
-- Phone compact mode should be narrower than tablet compact mode; tablet sizing remains unchanged.
-
-### Catalog toolbar requirements
-- Row 1: horizontally scrollable navigation strip for Recent, Popular, Wearing, and Favorites. Search and Filter remain fixed and must not scroll away with that strip.
-- Row 2: quick category buttons All, Hair, Face, Tops, Bottoms, Accessories, Animations.
-- Min / Max / Off Sale should move into a Filter panel rather than occupy the default toolbar.
-- Recent means recently viewed items, not search history. Popular must use an actual supported Roblox API sort; unsupported types must not be labeled Popular. Recommended is deferred until a real recommendation rule exists.
-- Infinite scroll: request the first 30 items, then append subsequent pages as the result scroller nears its bottom. Prevent duplicate concurrent requests and reset results on search/filter/category/sort changes.
-
-### Implementation status for this revision
-- Implemented: full-screen 25/75 preview/catalog sizing; icon-only Avatar Editor and Wardrobe entry points; front-facing preview camera; single-line enlarged item names; hidden NEXT/page controls and scroll-triggered page fetching; expanded results area reserved to the right of the preview.
-- Still needs implementation/validation: fixed Current Outfit horizontal item strip and newest-first ordering; drag-to-rotate preview; actual Avatar Editor and Wardrobe panels; Recent/Popular/Recommended/Favorites/Currently Worn navigation strip; quick category row; Filter panel with Min/Max/Off Sale; mouse-following full-name tooltip; verify the scroll loader appends results correctly across all categories and resets on changed filters.
-- This commit has not been run in Roblox Studio. Do not treat the remaining items as completed.
-
+- Navigation: Recent / Popular / Wearing / Favorites / Wardrobe. Recommended is removed. Wardrobe opens the saved Outfit list and is not a catalog search mode.
+- Search/filter/category/sort controls apply to global catalog searches only, and only where official CatalogSearchParams/current runtime support the field.
+- Recent contains successful wear actions in the current session only. It is not a search history and clears when the player leaves.
+- Popular uses MostFavorited with PastMonth aggregation where supported; fallback to AllTime must be explicit. Do not expose Bestselling or RecentlyCreated as Popular.
+- Wearing uses only the actual server-confirmed applied avatar snapshot. Favorites uses only the player's in-game saved favorites. Neither may silently fall back to full catalog results.
+- Item image double-click/double-tap toggles Favorites only. Wear/Worn buttons exclusively issue wear/remove actions. The threshold is 0.5 seconds; delay any single-click behavior until the threshold expires so a double-click does not also fire a single-click side effect.
+- Current UI source values and the authoritative avatar contract are described in the current navigation section below. Historical card dimensions and earlier toolbar sketches belong in WORKLOG/CHANGELOG, not as current requirements.
 
 ## Plan Reconciliation — 2026-10-17
 
 - The core Catalog loop remains search/category → inspect → wear/remove → confirm the real avatar state. Saved Outfit/Wardrobe is a secondary feature and must not destabilize this loop; see `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` for its detailed requirements.
-- The Avatar Editor requirements are owned by `docs/01_SYSTEMS/AVATAR.md`; Catalog only defines the integration points (current avatar preview, Current Outfit/Wearing state, and synchronization after confirmed changes).
+- The Avatar system overview is `docs/01_SYSTEMS/AVATAR.md`; detailed Avatar Editor requirements are owned by `docs/01_SYSTEMS/AVATAR_EDITOR_IMPLEMENTATION_PLAN.md`. Catalog defines only integration points.
 - Navigation wording must be consistent: `Recommended` is deferred until a real recommendation rule exists. Do not show it as a working mode merely because an earlier expanded-toolbar sketch listed it. The current navigation modes are Recent / Popular / Wearing / Favorites / Wardrobe. Wardrobe is the separate saved-Outfit entry; Recommended is not part of the current UI.
 - “Current Outfit” as the horizontal strip of currently worn items and “Wearing” as a card-grid browse mode are related but distinct UI presentations. Both must read from the same authoritative current-worn state.
 - Latest responsive-layout notes are requirements, not proof of the current implementation. Studio verification is required for the current revision.
