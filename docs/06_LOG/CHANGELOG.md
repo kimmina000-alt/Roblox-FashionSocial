@@ -1,5 +1,15 @@
 # Changelog
 
+## 2026-10-17 — Playground proposal and plan ownership reconciliation
+- Added `docs/01_SYSTEMS/PLAYGROUND.md` for the proposed Main Social Playground, with blockout-first scope, open decisions, PC/mobile/collision/performance checks, and no unapproved rewards or minigame scope.
+- Updated `GAME_MASTER.md` to include Playground in Main Social Areas and added the high-level direction.
+- Updated `docs/06_LOG/TODO.md` with the Playground blockout tasks.
+- Reviewed `docs/01_SYSTEMS/CATALOG.md` and `docs/01_SYSTEMS/AVATAR.md`: their core directions are compatible, but the project needed explicit document ownership and consistent navigation naming. Catalog keeps saved outfits secondary until the core catalog loop is stable; Avatar.md remains the canonical detailed Avatar Editor spec.
+- Updated `CATALOG.md` to clarify that `Recommended` is deferred, `Current Outfit` strip differs from the Wearing grid mode, and Outfit/Wardrobe integration must not destabilize core catalog behavior.
+- Updated `AVATAR.md` to state that it owns detailed Avatar Editor requirements and to define dependencies with Outfit persistence.
+- Updated `OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` to make it primarily the detailed Outfit/Wardrobe plan and prevent it from being treated as a replacement for AVATAR.md.
+- No game source or baseline backup changed; no Studio runtime test was performed.
+
 ## 2026-10-17 — Repository status research and future-work separation
 - Added `docs/01_SYSTEMS/CATALOG_IMPLEMENTATION_STATUS.md` to distinguish the actual `src/` implementation from the isolated PDF UI workbench, record confirmed/user-tested versus unverified behavior, and consolidate catalog UI, state-sync, Recent/Popular/Wearing/Favorites, filter, and regression requirements.
 - Added `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` to classify the pasted unfinished prompt as future work and detail Outfit save/load, saved thumbnails, persistence, partial restore failures, accessory transforms, body proportions, R6/R15, layering, makeup limits, skin colors, and validation.
