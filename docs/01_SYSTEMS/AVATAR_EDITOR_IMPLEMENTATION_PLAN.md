@@ -840,3 +840,16 @@ Studio에서 실행하지 않은 항목은 반드시 미검증으로 표시한�
 - 실제 Roblox Studio에서 실행하지 않은 테스트를 통과했다고 보고하지 않는다.
 최종 보고서에는 변경 파일, 커밋 해시, 공식 API 출처, 기능별 구현 결과, 제약 사항, 테스트 결과, 미검증 항목을 포함해.
 
+
+
+## Decision lock — draft / Apply / Cancel, 2026-10-18
+
+- Sliders and controls update an editor draft and may update a temporary editor preview, but do not commit changes to the live player character until Apply succeeds. This follows the explicit rule that Cancel/closing without Apply returns to the last confirmed state.
+- Show Apply and Cancel only when the draft differs from the baseline. If there are no changed values, do not show a redundant Apply button.
+- If the user attempts to close the editor or switch away while changed values exist, prompt for Apply or discard/Cancel. Choosing Apply waits for the server-confirmed result; choosing discard closes and restores the draft from the confirmed baseline.
+- Reset changes only the currently selected item/property group, not the entire category.
+- Outfit restore or respawn discards any un-applied draft. A draft is never implicitly included in an Outfit save.
+- After Apply, server-side application must be verified by reading the new Humanoid:GetAppliedDescription() and constructing a fresh Current Avatar snapshot. Only then update Wearing, Current Outfit, catalog card states, and the editor baseline.
+- Current product policy: player respawns into their default Roblox avatar; temporary in-game wear is not automatically re-applied. Saved Outfits remain stored and can be explicitly restored from Wardrobe.
+- R6/R15 is a game-wide character policy, not a personal Avatar Editor toggle. Do not expose a rig switch until all Places, Avatar Settings, spawn flow, animations, camera, layered/rigid accessories, and current appearance restoration are investigated and approved.
+- Detailed integration contract: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_AND_PERSISTENCE.md). Official API findings: [API.md](../05_TECH/API.md).
