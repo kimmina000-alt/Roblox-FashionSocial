@@ -160,3 +160,27 @@
 - Avatar Editor detailed requirements: `docs/01_SYSTEMS/AVATAR_EDITOR_IMPLEMENTATION_PLAN.md`
 
 These documents describe planned behavior, not proof of implementation. Verify the actual `src/` code and mark Studio tests separately.
+
+
+## 11. Authoritative avatar state and implementation boundaries — 2026-10-18
+
+- **Wearing은 부분 구현**이다. 현재 소스에 현재 착용 항목을 읽는 경로는 있지만, 모든 item type에 대한 조회/착용/해제 범위와 server-confirmed 상태 동기화가 완성됐다고 볼 수 없다.
+- Catalog wear/remove, Wearing, Current Outfit, Avatar Editor Apply, Outfit restore는 모두 동일한 서버 확인 Current Avatar snapshot을 사용해야 한다. 클라이언트의 currentWornItems / wornOrder 등은 캐시일 뿐이며 실제 적용 상태의 원본이 아니다.
+- Roblox 공식 Humanoid:GetAppliedDescription()은 현재 Humanoid에 적용된 HumanoidDescription 복사본을 반환한다. 서버는 이 결과를 읽어 snapshot을 재구성하고, 불일치 시 이를 기준으로 클라이언트 캐시를 복구한다. 게임 전용 메타데이터나 API가 표현하지 않는 유형을 이 description만으로 복구할 수 있다고 가정하지 않는다.
+- 아이템 identity는 itemType + itemId를 사용한다. Asset/Bundle, assetType/bundleType, layered/accessory metadata, classic clothing, animation, emote, makeup, body appearance를 한 숫자 ID나 하나의 generic accessory type으로 뭉개지 않는다.
+- Current Outfit은 현재 착용 아이템의 가로 목록이며 Wearing grid와 같은 snapshot에서 파생된다.
+- 탐색 모드는 Recent / Popular / Wearing / Favorites / Wardrobe다. Recommended는 제거했다. Wardrobe는 저장 Outfit 관리이며 Recent/Popular/Wearing/Favorites와 같은 catalog result mode로 취급하지 않는다.
+- Recent는 실제 착용 성공 항목만, 세션 한정이다. Favorites/Outfit 영구 저장은 구현 확인 전까지 미완료로 유지한다.
+- Popular는 MostFavorited + PastMonth를 우선 사용한다. API enum 지원은 공식 문서에서 확인했지만 실제 카테고리별 검색 결과/Studio 동작은 미검증이다.
+- Avatar Editor는 draft → Apply/Cancel 계약을 따른다. 변경이 있을 때만 Apply/Cancel을 표시하고, 닫기/Outfit restore/respawn 시 미적용 draft를 자동 적용하지 않는다.
+- 외형 변경 요청은 per-player action gate를 공유한다. 첫 요청만 실행하고 후속 요청은 대기열에 넣지 않고 거절/비활성화한다. 로딩 중 버튼 비활성화, 가능하면 “입는 중…” 표시.
+- 리스폰 시 임시 착장을 자동 재적용하지 않고 Roblox 기본 아바타로 시작한다. Saved Outfit은 데이터에 남아 Wardrobe에서 다시 입을 수 있다.
+- R6/R15는 개인 편집기 토글이 아니다. 게임 전체 avatar policy 변경으로 다루며 모든 Place/카메라/애니메이션/의상 호환성 조사 전에는 구현하지 않는다.
+- 자세한 계약: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_AND_PERSISTENCE.md). API 근거 표: [API.md](../05_TECH/API.md). 데이터 저장 설계: [DATA.md](../05_TECH/DATA.md).
+
+### Implementation evidence labels
+
+- **API 문서 확인**: 공식 API 문서에 해당 기능/속성이 있음.
+- **소스 확인**: 현재 branch의 코드를 정적으로 읽음.
+- **Studio 검증**: 해당 시나리오를 Roblox Studio에서 직접 실행해 결과 확인.
+- 이 기준일에 새로 한 작업은 문서와 소스 정적 조사뿐이다. 이 턴에서 Roblox Studio 실행 테스트는 하지 않았다.
