@@ -1,6 +1,17 @@
 # TODO
 
 
+## Ordered Roadmap — Catalog UX, Avatar Editing, and Main Social World
+
+### 0. Main Social World — Playground (new proposal)
+- [ ] Inspect current world folders, Spawn, Park and Central Plaza placement.
+- [ ] Decide whether Playground is a Park sub-area or an adjacent zone.
+- [ ] Build a blockout with clear paths, open social space, rest/viewing spots, and photo-friendly sightlines.
+- [ ] Start with a small set of basic play objects; do not add rewards, quests, leaderboards, or a separate Place without a separate decision.
+- [ ] Validate collisions, camera visibility, PC/mobile movement, simultaneous players, and performance in Studio.
+- [ ] Re-test catalog and Avatar Editor access while in the Playground.
+- [ ] Detailed plan: `docs/01_SYSTEMS/PLAYGROUND.md`.
+
 ## Ordered Roadmap — Catalog UX and Avatar Editing
 
 Follow this order so layout and core try-on behavior stay reliable before advanced editing is added. Keep existing functionality working throughout; check an item only after implementation and Studio validation.
