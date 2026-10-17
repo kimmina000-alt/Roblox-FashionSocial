@@ -24,10 +24,11 @@
 ## 3. Wardrobe와 Outfit 저장 — 요구사항
 
 ### 3.1 역할 분리
-- 상단 탐색 영역에 저장된 Outfit 목록을 여는 별도 Wardrobe/옷장 진입점을 둔다.
-- Avatar preview의 Wardrobe 버튼은 현재 아바타를 새 Outfit으로 저장하는 진입점으로 사용할 수 있다.
-- 버튼 하나가 목록 보기와 즉시 저장을 혼동하게 하지 않는다.
-- 저장 UI는 이름 입력란, Save, Cancel을 제공한다. 저장 버튼을 누르기 전에는 저장하지 않는다.
+- 기존 상단 탐색 버튼(Recent / Popular / Favorites / Wearing)과 같은 탐색 영역에 별도 **[Wardrobe/옷장]** 버튼을 둔다.
+- [Wardrobe/옷장]을 누르면 저장된 Outfit 목록을 연다. 이 버튼은 즉시 저장 UI를 열지 않는다.
+- 저장된 Outfit 목록 안에 별도의 **[Save Current Outfit / 현재 코디 저장]** 액션을 제공한다. 이 액션을 누르면 이름 입력 UI를 연다.
+- 이름 입력 UI에는 이름 입력란, Save, Cancel을 제공한다. 사용자가 Save를 확정하기 전에는 저장하지 않는다.
+- 카탈로그를 닫았다 다시 열면 기본 탐색 화면으로 돌아온다. 저장 목록은 유지되며 사용자가 Wardrobe를 다시 선택해 열 수 있다.
 
 ### 3.2 이름 및 중복 클릭
 - 이름은 비어 있거나 공백뿐이면 거부한다.
@@ -153,3 +154,8 @@
 - [ ] 기존 검색/필터/착용/해제 회귀 테스트
 
 Studio에서 직접 검증하지 않은 항목은 미검증으로 남긴다.
+
+
+## 7. Catalog Quick Navigation dependency
+
+The Recent/Popular/Wearing/Favorites behavior is specified in `docs/01_SYSTEMS/CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN.md`. Wardrobe is a separate saved-Outfit mode/entry point; it must not be conflated with the Wearing grid or the Current Outfit strip. Outfit restore updates Wearing from the actual applied result, but does not automatically add items to Recent or Favorites.
