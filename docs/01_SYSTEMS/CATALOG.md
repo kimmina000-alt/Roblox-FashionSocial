@@ -134,7 +134,7 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 
 - The core Catalog loop remains search/category → inspect → wear/remove → confirm the real avatar state. Saved Outfit/Wardrobe is a secondary feature and must not destabilize this loop; see `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` for its detailed requirements.
 - The Avatar system overview is `docs/01_SYSTEMS/AVATAR.md`; detailed Avatar Editor requirements are owned by `docs/01_SYSTEMS/AVATAR_EDITOR_IMPLEMENTATION_PLAN.md`. Catalog defines only integration points.
-- Navigation wording must be consistent: `Recommended` is deferred until a real recommendation rule exists. Do not show it as a working mode merely because an earlier expanded-toolbar sketch listed it. The current navigation modes are Recent / Popular / Wearing / Favorites / Wardrobe. Wardrobe is the separate saved-Outfit entry; Recommended is not part of the current UI.
+- Historical toolbar sketches mentioned Recommended, but it is not a current mode. The current navigation is Recent / Popular / Wearing / Favorites / Wardrobe; Wardrobe is the separate saved-Outfit entry.
 - “Current Outfit” as the horizontal strip of currently worn items and “Wearing” as a card-grid browse mode are related but distinct UI presentations. Both must read from the same authoritative current-worn state.
 - Latest responsive-layout notes are requirements, not proof of the current implementation. Studio verification is required for the current revision.
 
