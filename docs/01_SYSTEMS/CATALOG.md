@@ -148,3 +148,12 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 - Implemented: full-screen 25/75 preview/catalog sizing; icon-only Avatar Editor and Wardrobe entry points; front-facing preview camera; single-line enlarged item names; hidden NEXT/page controls and scroll-triggered page fetching; expanded results area reserved to the right of the preview.
 - Still needs implementation/validation: fixed Current Outfit horizontal item strip and newest-first ordering; drag-to-rotate preview; actual Avatar Editor and Wardrobe panels; Recent/Popular/Recommended/Favorites/Currently Worn navigation strip; quick category row; Filter panel with Min/Max/Off Sale; mouse-following full-name tooltip; verify the scroll loader appends results correctly across all categories and resets on changed filters.
 - This commit has not been run in Roblox Studio. Do not treat the remaining items as completed.
+
+
+## Plan Reconciliation — 2026-10-17
+
+- The core Catalog loop remains search/category → inspect → wear/remove → confirm the real avatar state. Saved Outfit/Wardrobe is a secondary feature and must not destabilize this loop; see `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md` for its detailed requirements.
+- The Avatar Editor requirements are owned by `docs/01_SYSTEMS/AVATAR.md`; Catalog only defines the integration points (current avatar preview, Current Outfit/Wearing state, and synchronization after confirmed changes).
+- Navigation wording must be consistent: `Recommended` is deferred until a real recommendation rule exists. Do not show it as a working mode merely because an earlier expanded-toolbar sketch listed it. The planned primary modes are Recent, Popular, Favorites, and Currently Worn/Wearing, plus a separate Wardrobe entry for saved looks.
+- “Current Outfit” as the horizontal strip of currently worn items and “Wearing” as a card-grid browse mode are related but distinct UI presentations. Both must read from the same authoritative current-worn state.
+- Latest responsive-layout notes are requirements, not proof of the current implementation. Studio verification is required for the current revision.
