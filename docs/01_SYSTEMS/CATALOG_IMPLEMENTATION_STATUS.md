@@ -184,3 +184,13 @@ These documents describe planned behavior, not proof of implementation. Verify t
 - **소스 확인**: 현재 branch의 코드를 정적으로 읽음.
 - **Studio 검증**: 해당 시나리오를 Roblox Studio에서 직접 실행해 결과 확인.
 - 이 기준일에 새로 한 작업은 문서와 소스 정적 조사뿐이다. 이 턴에서 Roblox Studio 실행 테스트는 하지 않았다.
+
+
+### Source-level item-type limitations confirmed in AvatarService
+
+Static source review of src/ServerScriptService/FashionGame/Services/AvatarService.lua confirms:
+- TryOnItem currently accepts only a numeric assetId and calls GetItemDetailsAsync(assetId, Enum.AvatarItemType.Asset). RemoveItem likewise accepts only a numeric assetId.
+- GetCurrentItems returns entries centered on AssetId/Category and some IsLayered/AssetTypeId fields; it does not yet provide the complete typed itemType + itemId contract.
+- The service contains separate branches for classic clothing, makeup, emotes, animations, and mapped accessories, but unsupported asset types return an error. A catalog Bundle result is not currently handled as a Bundle identity or generic wearable.
+- Therefore Bundle display/search support must not be treated as Bundle wear/remove support. Implement a typed dispatcher only after each type's official application path is established. Keep unsupported types disabled/non-actionable and report them clearly.
+- These are static code findings, not Studio verification.
