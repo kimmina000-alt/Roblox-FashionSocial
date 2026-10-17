@@ -960,6 +960,15 @@ categoryRightButton.MouseButton1Click:Connect(function()
 	mainCategoryStrip.CanvasPosition = Vector2.new(math.min(mainCategoryStrip.AbsoluteCanvasSize.X, mainCategoryStrip.CanvasPosition.X + 120), 0)
 end)
 
+subcategoryLeftButton.MouseButton1Click:Connect(function()
+	print("중분류 카테고리의 왼쪽 화살표 클릭")
+	subcategoryStrip.CanvasPosition = Vector2.new(math.max(0, subcategoryStrip.CanvasPosition.X - 120), 0)
+end)
+subcategoryRightButton.MouseButton1Click:Connect(function()
+	print("중분류 카테고리의 오른쪽 화살표 클릭")
+	subcategoryStrip.CanvasPosition = Vector2.new(math.min(subcategoryStrip.AbsoluteCanvasSize.X, subcategoryStrip.CanvasPosition.X + 120), 0)
+end)
+
 -- Mouse drag scrolling for desktop; touch scrolling remains native on mobile.
 local categoryDragStartX: number? = nil
 local categoryDragCanvasX = 0
