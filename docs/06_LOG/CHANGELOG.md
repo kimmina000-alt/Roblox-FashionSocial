@@ -94,3 +94,16 @@
 - Added collapsible filter panel and disabled unverified Limited sales filter.
 - Moved launcher to top-left, added translucent black surfaces, category scroll reset and desktop item-name tooltip.
 - Kept changes in `catalog-ui-redesign`; no Studio runtime tests performed.
+
+
+## 2026-10-18 — Avatar state contract, persistence, and navigation decisions
+
+- Added docs/05_TECH/AVATAR_STATE_AND_PERSISTENCE.md as the shared server-confirmed avatar state contract.
+- Added docs/05_TECH/DATA.md for user-scoped Favorites/SavedOutfits persistence, versioned schema, migration, validation, limits, and failure behavior.
+- Expanded docs/05_TECH/API.md with official Roblox API evidence and separated API support, source implementation, and Studio verification.
+- Updated Catalog modes to Recent / Popular / Wearing / Favorites / Wardrobe, removed Recommended from current UI requirements, and aligned card sizes to current source values.
+- Clarified Wearing is partially implemented and must synchronize from the actual applied HumanoidDescription; current client lists remain caches.
+- Defined Recent as session-only successful wear history; Favorites and SavedOutfits must persist. Saved Outfit is game-only, has an initial configurable cap of 20, supports delete, and renders preview from saved appearance data.
+- Defined first-request-wins action locking, Avatar Editor draft/Apply/Cancel behavior, discard-on-respawn/restore, and game-wide R6/R15 policy review.
+- Clarified workbench isolation: default.project.json is unchanged and the working copy can be mapped using catalog-ui-redesign.project.json, but that mapping was not run in Studio during this work.
+- Documentation and source/API research only; no game code changes and no Roblox Studio tests were performed.
