@@ -21,7 +21,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 -- STATE
 --------------------------------------------------
 
-local currentCategory = "All"
+local currentCategory = "전체"
 local currentCategoryAssetTypes = Config.AllowedAssetTypes
 local currentCategoryBundleTypes = nil
 local currentCategoryIncludeOffSale = Config.IncludeOffSale
@@ -37,12 +37,11 @@ local wornOrder: {number} = {}
 local viewedOrder: {any} = {}
 local activeTopLevelGroup: string? = nil
 local filterPanelOpen = false
-local expandedGroups: {[string]: boolean} = {}
-local subButtonsByGroup: {[string]: {TextButton}} = {}
 local renderSubcategoryStrip: (string?) -> ()
 local selectCategory
 local createItemCard: (any, number) -> ()
 local statusLabel: TextLabel
+local updateCatalogLayout: () -> ()
 
 
 -- Live card button refreshers keyed by asset ID.
@@ -173,23 +172,23 @@ screenGui.Parent = playerGui
 
 local openButton = create("TextButton", {
 	Name = "CatalogButton",
-	Size = UDim2.fromOffset(108, 36),
-	Position = UDim2.fromOffset(12, 58),
+	Size = UDim2.fromOffset(42, 42),
+	Position = UDim2.fromOffset(174, 12),
 	BackgroundColor3 = Color3.fromRGB(35, 35, 42),
 	TextColor3 = Color3.fromRGB(255, 255, 255),
-	Text = "CATALOG",
-	TextSize = 16,
+	Text = "C",
+	TextSize = 18,
 	Font = Enum.Font.GothamBold,
 	AutoButtonColor = true,
 })
 
 openButton.Parent = screenGui
 openButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-openButton.BackgroundTransparency = 0.6
+openButton.BackgroundTransparency = 0
 
 
 local openCorner = create("UICorner", {
-	CornerRadius = UDim.new(0, 10),
+	CornerRadius = UDim.new(1, 0),
 })
 openCorner.Parent = openButton
 
@@ -223,7 +222,7 @@ local previewTitle = create("TextLabel", {
 	Size = UDim2.new(1, -44, 0, 32),
 	Position = UDim2.fromOffset(10, 4),
 	BackgroundTransparency = 1,
-	Text = "착용 중인 아이템",
+	Text = "",
 	TextColor3 = Color3.fromRGB(255, 255, 255),
 	TextSize = 13,
 	Font = Enum.Font.GothamBold,
@@ -286,12 +285,13 @@ local currentOutfitTitle = create("TextLabel", {
 	Size = UDim2.new(1, 0, 0, 24),
 	Position = UDim2.fromOffset(0, 0),
 	BackgroundTransparency = 1,
-	Text = "CURRENT OUTFIT",
+	Text = "착용 중인 아이템",
 	TextColor3 = Color3.fromRGB(255, 255, 255),
 	TextSize = 12,
 	Font = Enum.Font.GothamBold,
 	TextXAlignment = Enum.TextXAlignment.Left,
 })
+currentOutfitTitle.Text = "착용 중인 아이템"
 currentOutfitTitle.Parent = currentOutfitFrame
 local currentOutfitList = create("ScrollingFrame", {
 	Name = "CurrentOutfitItems",
@@ -345,15 +345,25 @@ local function refreshAvatarPreview()
 	clone.Name = "AvatarPreviewCharacter"
 	clone.Parent = avatarPreviewWorld
 	clone:PivotTo(CFrame.new(0, 0, 0))
-	local _, bounds = clone:GetBoundingBox()
-	local targetY = bounds.Y * 0.5
-	local distance = math.max(4.5, bounds.Y * 1.9)
+	local boundsCFrame, bounds = clone:GetBoundingBox()
+	local target = boundsCFrame.Position
+	local viewportSize = avatarViewport.AbsoluteSize
+	local aspect = if viewportSize.Y > 0 then viewportSize.X / viewportSize.Y else 1
+	local halfFov = math.rad(avatarPreviewCamera.FieldOfView * 0.5)
+	local verticalDistance = (bounds.Y * 0.5) / math.tan(halfFov)
+	local horizontalDistance = (bounds.X * 0.5) / (math.tan(halfFov) * math.max(aspect, 0.1))
+	local distance = math.max(verticalDistance, horizontalDistance, bounds.Z * 0.5 + 0.5) * 1.12
 	-- Roblox characters normally face local -Z; place the camera in front.
 	avatarPreviewCamera.CFrame = CFrame.lookAt(
-		Vector3.new(0, targetY, -distance),
-		Vector3.new(0, targetY, 0)
+		Vector3.new(target.X, target.Y, target.Z - distance),
+		target
 	)
 end
+
+-- Reframe the preview after responsive layout changes alter its viewport shape.
+avatarViewport:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+	if previewFrame.Visible then task.defer(refreshAvatarPreview) end
+end)
 
 -- These entry points are intentionally placed now; their feature panels are planned.
 avatarEditorButton.MouseButton1Click:Connect(function()
@@ -512,61 +522,6 @@ filterLabel.Parent = mainFrame
 -- ★ CATEGORY SELECTOR
 --------------------------------------------------
 
-local categoryButton = create("TextButton", {
-	Name = "CategoryButton",
-	Size = UDim2.fromOffset(220, 34),
-	Position = UDim2.fromOffset(80, 116),
-	BackgroundColor3 = Color3.fromRGB(50, 50, 60),
-	Text = "All ▼",
-	TextColor3 = Color3.fromRGB(255, 255, 255),
-	TextSize = 12,
-	Font = Enum.Font.GothamBold,
-	TextXAlignment = Enum.TextXAlignment.Left,
-})
-categoryButton.Parent = mainFrame
-
-local categoryButtonPadding = create("UIPadding", {
-	PaddingLeft = UDim.new(0, 12),
-})
-categoryButtonPadding.Parent = categoryButton
-
-local categoryCorner = create("UICorner", {
-	CornerRadius = UDim.new(0, 8),
-})
-categoryCorner.Parent = categoryButton
-
-local categoryMenu = create("ScrollingFrame", {
-	Name = "CategoryMenu",
-	Size = UDim2.fromOffset(220, 360),
-	Position = UDim2.fromOffset(80, 152),
-	BackgroundColor3 = Color3.fromRGB(34, 34, 42),
-	BorderSizePixel = 0,
-	Visible = false,
-	CanvasSize = UDim2.new(0, 0, 0, 0),
-	AutomaticCanvasSize = Enum.AutomaticSize.Y,
-	ScrollBarThickness = 5,
-	ZIndex = 50,
-})
-categoryMenu.Parent = mainFrame
-
-local categoryMenuCorner = create("UICorner", {
-	CornerRadius = UDim.new(0, 8),
-})
-categoryMenuCorner.Parent = categoryMenu
-
-local categoryMenuLayout = create("UIListLayout", {
-	Padding = UDim.new(0, 4),
-	SortOrder = Enum.SortOrder.LayoutOrder,
-})
-categoryMenuLayout.Parent = categoryMenu
-
-local categoryMenuPadding = create("UIPadding", {
-	PaddingTop = UDim.new(0, 6),
-	PaddingBottom = UDim.new(0, 6),
-	PaddingLeft = UDim.new(0, 6),
-	PaddingRight = UDim.new(0, 6),
-})
-categoryMenuPadding.Parent = categoryMenu
 
 --------------------------------------------------
 -- ★ SORT SELECTOR
@@ -792,6 +747,29 @@ for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중"}) d
 	discoveryButtons[label] = b
 end
 
+local discoveryDragStartX: number? = nil
+local discoveryDragCanvasX = 0
+discoveryBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		discoveryDragStartX = input.Position.X
+		discoveryDragCanvasX = discoveryBar.CanvasPosition.X
+	end
+end)
+discoveryBar.InputChanged:Connect(function(input)
+	if discoveryDragStartX and input.UserInputType == Enum.UserInputType.MouseMovement then
+		local delta = discoveryDragStartX - input.Position.X
+		discoveryBar.CanvasPosition = Vector2.new(
+			math.clamp(discoveryDragCanvasX + delta, 0, math.max(0, discoveryBar.AbsoluteCanvasSize.X - discoveryBar.AbsoluteWindowSize.X)),
+			0
+		)
+	end
+end)
+discoveryBar.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then
+		discoveryDragStartX = nil
+	end
+end)
+
 local fixedFilterButton = create("TextButton", {
 	Name = "FixedFilterButton",
 	Size = UDim2.fromOffset(70, 30),
@@ -866,7 +844,7 @@ creatorLabel.Parent = filterPanel
 local creatorNameBox = create("TextBox", {
 	Size = UDim2.new(1, -16, 0, 26), Position = UDim2.fromOffset(8, 26),
 	BackgroundColor3 = Color3.fromRGB(45,45,52), BackgroundTransparency = 0.25,
-	Text = "", PlaceholderText = "Creator name (not yet API-wired)",
+	Text = "", PlaceholderText = "Creator name",
 	TextColor3 = Color3.new(1,1,1), PlaceholderColor3 = Color3.fromRGB(180,180,185),
 	TextSize = 11, ClearTextOnFocus = false, ZIndex = 71,
 })
@@ -902,7 +880,7 @@ create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = applyFilterButton
 local function updateMainCategorySelection()
 	for _, child in ipairs(mainCategoryStrip:GetChildren()) do
 		if child:IsA("TextButton") then
-			local selected = child.Name == "MainCategory_" .. tostring(activeTopLevelGroup or "")
+			local selected = child.Name == (activeTopLevelGroup and ("MainCategory_" .. activeTopLevelGroup) or "MainCategory_All")
 			child.BackgroundTransparency = selected and 0 or 0.6
 			child.BackgroundColor3 = selected and Color3.fromRGB(78, 78, 94) or Color3.fromRGB(0, 0, 0)
 			child.TextColor3 = selected and Color3.fromRGB(255,255,255) or Color3.fromRGB(190,190,200)
@@ -912,7 +890,12 @@ end
 
 local groupButtonByName = {}
 local allMainCategoryButton=create("TextButton",{Name="MainCategory_All",Size=UDim2.fromOffset(74,30),BackgroundColor3=Color3.fromRGB(78,78,94),BackgroundTransparency=0,Text="전체",TextColor3=Color3.new(1,1,1),TextSize=11,Font=Enum.Font.GothamBold,LayoutOrder=0}); allMainCategoryButton.Parent=mainCategoryStrip; create("UICorner",{CornerRadius=UDim.new(0,7)}).Parent=allMainCategoryButton
-allMainCategoryButton.MouseButton1Click:Connect(function() activeTopLevelGroup=nil; updateMainCategorySelection(); categoryMenu.Visible=false; renderSubcategoryStrip(nil); selectCategory("전체",Config.AllowedAssetTypes,nil) end)
+allMainCategoryButton.MouseButton1Click:Connect(function()
+	activeTopLevelGroup = nil
+	updateMainCategorySelection()
+	renderSubcategoryStrip(nil)
+	selectCategory("전체", Config.AllowedAssetTypes, nil)
+end)
 for index, group in ipairs(Config.CategoryGroups) do
 	local b = create("TextButton", {
 		Name = "MainCategory_" .. group.Name,
@@ -930,33 +913,32 @@ for index, group in ipairs(Config.CategoryGroups) do
 	groupButtonByName[group.Name] = b
 	b.MouseButton1Click:Connect(function()
 		activeTopLevelGroup = group.Name
-		for _, candidate in ipairs(Config.CategoryGroups) do
-			expandedGroups[candidate.Name] = candidate.Name == group.Name
-		end
-		-- Preserve the existing subcategory buttons and their API mappings.
-		for _, child in ipairs(categoryMenu:GetChildren()) do
-			if child:IsA("TextButton") and string.sub(child.Name, 1, 6) == "Group_" then
-				local groupIndex = tonumber(string.match(child.Name, "%d+"))
-				local configGroup = groupIndex and Config.CategoryGroups[groupIndex]
-				local isSelected = configGroup and configGroup.Name == group.Name
-				child.Text = (isSelected and "− " or "＋ ") .. (configGroup and configGroup.Name or "")
-			end
-		end
-		for groupName, buttons in pairs(subButtonsByGroup) do
-			for _, subButton in ipairs(buttons) do
-				subButton.Visible = groupName == group.Name
-			end
-		end
-		categoryMenu.Visible = false
-		renderSubcategoryStrip(group.Name)
+			renderSubcategoryStrip(group.Name)
 		updateMainCategorySelection()
+		local groupAssetTypes = {}
+		local groupBundleTypes = {}
+		local seenAssetTypes = {}
+		local seenBundleTypes = {}
+		for _, category in ipairs(group.Categories) do
+			for _, assetType in ipairs(category.AssetTypes) do
+				local key = tostring(assetType)
+				if not seenAssetTypes[key] then seenAssetTypes[key] = true; table.insert(groupAssetTypes, assetType) end
+			end
+			for _, bundleType in ipairs(category.BundleTypes or {}) do
+				local key = tostring(bundleType)
+				if not seenBundleTypes[key] then seenBundleTypes[key] = true; table.insert(groupBundleTypes, bundleType) end
+			end
+		end
+		selectCategory(group.Name, groupAssetTypes, groupBundleTypes)
 	end)
 end
 
 categoryLeftButton.MouseButton1Click:Connect(function()
+	print("대분류 카테고리의 왼쪽 화살표 클릭")
 	mainCategoryStrip.CanvasPosition = Vector2.new(math.max(0, mainCategoryStrip.CanvasPosition.X - 120), 0)
 end)
 categoryRightButton.MouseButton1Click:Connect(function()
+	print("대분류 카테고리의 오른쪽 화살표 클릭")
 	mainCategoryStrip.CanvasPosition = Vector2.new(math.min(mainCategoryStrip.AbsoluteCanvasSize.X, mainCategoryStrip.CanvasPosition.X + 120), 0)
 end)
 
@@ -972,6 +954,8 @@ end)
 -- Mouse drag scrolling for desktop; touch scrolling remains native on mobile.
 local categoryDragStartX: number? = nil
 local categoryDragCanvasX = 0
+local subcategoryDragStartX: number? = nil
+local subcategoryDragCanvasX = 0
 mainCategoryStrip.InputBegan:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 then
 		categoryDragStartX = input.Position.X
@@ -988,9 +972,22 @@ mainCategoryStrip.InputChanged:Connect(function(input)
 	end
 end)
 mainCategoryStrip.InputEnded:Connect(function(input)
-	if input.UserInputType == Enum.UserInputType.MouseButton1 then
-		categoryDragStartX = nil
+	if input.UserInputType == Enum.UserInputType.MouseButton1 then categoryDragStartX = nil end
+end)
+subcategoryStrip.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		subcategoryDragStartX = input.Position.X
+		subcategoryDragCanvasX = subcategoryStrip.CanvasPosition.X
 	end
+end)
+subcategoryStrip.InputChanged:Connect(function(input)
+	if subcategoryDragStartX and (input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch) then
+		local delta = subcategoryDragStartX - input.Position.X
+		subcategoryStrip.CanvasPosition = Vector2.new(math.clamp(subcategoryDragCanvasX + delta, 0, math.max(0, subcategoryStrip.AbsoluteCanvasSize.X - subcategoryStrip.AbsoluteWindowSize.X)), 0)
+	end
+end)
+subcategoryStrip.InputEnded:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then subcategoryDragStartX = nil end
 end)
 
 discoveryButtons["최근"].MouseButton1Click:Connect(function()
@@ -1022,7 +1019,7 @@ end)
 
 fixedFilterButton.MouseButton1Click:Connect(function()
 	filterPanelOpen = not filterPanelOpen
-	filterPanel.Visible = filterPanelOpen
+	updateCatalogLayout()
 end)
 unavailableFilterButton.MouseButton1Click:Connect(function()
 	currentIncludeOffSale = not currentIncludeOffSale
@@ -1032,8 +1029,8 @@ applyFilterButton.MouseButton1Click:Connect(function()
 	minPriceBox.Text = minPriceBox.Text or ""
 	maxPriceBox.Text = maxPriceBox.Text or ""
 	offSaleButton.Text = currentIncludeOffSale and "☑ Off Sale" or "□ Off Sale"
-	filterPanel.Visible = false
 	filterPanelOpen = false
+	updateCatalogLayout()
 	searchCatalog()
 end)
 salesTypeButton.MouseButton1Click:Connect(function()
@@ -1091,323 +1088,196 @@ local expandedPanel = false
 local cardContentScale = 1
 local cardContentUIScales: {UIScale} = {}
 
-local function updateCatalogLayout()
+updateCatalogLayout = function()
 	local camera = workspace.CurrentCamera
-	if not camera then
-		return
-	end
-
+	if not camera then return end
 	local viewport = camera.ViewportSize
 	local isPhone = viewport.X < 600
-	local isNarrow = viewport.X < 900
+	local narrow = viewport.X < 900
 	local panelWidth: number
 	local panelHeight: number
-	local expandedMobilePreviewHeight = math.min(190, math.floor(viewport.Y * 0.27))
-
-	-- Expanded mode is full-screen on both PC and mobile. The preview stays
-	-- in a fixed 1/4-width column; the catalog uses the remaining 3/4.
 	if expandedPanel then
 		panelWidth, panelHeight = viewport.X, viewport.Y
 		mainFrame.Position = UDim2.fromOffset(0, 0)
 		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
 		mainCorner.CornerRadius = UDim.new(0, 0)
-		previewFrame.Position = UDim2.fromOffset(0, 0)
-		previewFrame.Size = UDim2.new(0.25, 0, 1, 0)
-		previewFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-		previewTitle.Position = UDim2.fromOffset(50, 8)
-		previewTitle.Size = UDim2.new(1, -58, 0, 32)
-		avatarViewport.Position = UDim2.fromOffset(8, 48)
-		avatarViewport.Size = UDim2.new(1, -16, 0.62, -56)
-	elseif isNarrow then
-		-- Phone: substantially narrower than the old half-screen panel. Tablets
-		-- keep the previously accepted half-width compact panel.
-		local compactWidth = if isPhone then math.max(100, math.floor(viewport.X * 0.25)) else math.floor(viewport.X * 0.5)
+	else
+		local compactWidth = if isPhone then math.max(100, math.floor(viewport.X * 0.25)) elseif narrow then math.floor(viewport.X * 0.5) else math.min(760, math.max(280, math.floor(viewport.X * 0.42)))
 		panelWidth = math.min(compactWidth, viewport.X - 12)
-		panelHeight = math.min(math.max(260, math.floor(viewport.Y * 0.5)), viewport.Y - 12)
+		panelHeight = math.min(math.max(260, math.floor(viewport.Y * 0.58)), viewport.Y - 12)
 		mainFrame.Position = UDim2.new(1, -panelWidth - 6, 1, -panelHeight - 6)
 		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
 		mainCorner.CornerRadius = UDim.new(0, 14)
-	else
-		local maxWidth = math.min(760, viewport.X - 32)
-		local oldDefaultWidth = math.clamp(math.floor(viewport.X * 0.34), math.min(420, maxWidth), maxWidth)
-		panelWidth = math.clamp(math.floor(oldDefaultWidth * (2 / 3)), math.min(280, maxWidth), maxWidth)
-		panelHeight = math.clamp(math.floor(viewport.Y * (2 / 3)), math.min(280, viewport.Y - 16), viewport.Y - 16)
-		mainFrame.Position = UDim2.new(1, -panelWidth - 16, 0.5, -math.floor(panelHeight / 2))
-		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
-		mainCorner.CornerRadius = UDim.new(0, 14)
 	end
-
-	expandButton.Visible = true
 	local compact = not expandedPanel
-	local compactMobile = isNarrow and compact
-	local compactPhone = isPhone and compact
-	local expandedMobile = isNarrow and expandedPanel
-	local innerWidth = math.max(1, panelWidth - 24)
-
-	titleLabel.Position = UDim2.fromOffset(12, 5)
-	titleLabel.Size = UDim2.new(1, -120, 0, 34)
-	titleLabel.TextSize = if compact then 16 else 22
-	closeButton.Position = UDim2.new(1, -42, 0, 6)
-	closeButton.Size = UDim2.fromOffset(32, 32)
-	expandButton.Position = UDim2.new(1, -80, 0, 6)
-	expandButton.Size = UDim2.fromOffset(32, 32)
-	expandButton.Text = if expandedPanel then "↙" else "↗"
-
-	if compact then
-		-- Keep search, category (ALL), and sort on one toolbar row.
-		-- Hide status/secondary filters to give result cards usable height.
-		searchBox.Position = UDim2.fromOffset(8, 44)
-		searchBox.Size = UDim2.new(0.46, -8, 0, 32)
-		searchBox.TextSize = 12
-		searchBox.PlaceholderText = "Search..."
-		searchButton.Visible = false
-		categoryButton.Position = UDim2.new(0.46, 4, 0, 44)
-		categoryButton.Size = UDim2.new(0.27, -4, 0, 32)
-		categoryButton.TextSize = 10
-		sortButton.Position = UDim2.new(0.73, 0, 0, 44)
-		sortButton.Size = UDim2.new(0.27, -8, 0, 32)
-		sortButton.TextSize = 10
-
-		minPriceBox.Visible = false
-		maxPriceBox.Visible = false
-		offSaleButton.Visible = false
-		filterLabel.Visible = false
-		backToPacksButton.Visible = bundleContentsOpen
-		backToPacksButton.Position = UDim2.fromOffset(8, 80)
-		backToPacksButton.Size = UDim2.fromOffset(math.min(130, innerWidth * 0.42), 22)
-		backToPacksButton.TextSize = 9
-		statusLabel.Visible = false
-
-		-- Results start directly below the toolbar. This prevents the compact
-		-- panel from clipping the first row of cards behind status controls.
-		resultsFrame.Position = UDim2.fromOffset(8, 82)
-		resultsFrame.Size = UDim2.new(1, -16, 1, -122)
+	local leftWidth = if expandedPanel then math.floor(panelWidth * 0.25) else 0
+	local rightWidth = panelWidth - leftWidth
+	local safeTop = if expandedPanel then 44 else 0
+	local x = if expandedPanel then leftWidth + 12 else 8
+	local headerY = safeTop
+	local rowY = headerY + (if compact then 70 else 38)
+	local rowH = if expandedPanel then 32 else 28
+	local arrowW = if expandedPanel then 20 else 18
+	local innerWidth = math.max(1, rightWidth - (if expandedPanel then 24 else 16))
+	if expandedPanel then
+		previewFrame.Position = UDim2.fromOffset(0, safeTop)
+		previewFrame.Size = UDim2.new(0.25, 0, 1, -safeTop)
+		previewFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+		previewFrame.BackgroundTransparency = 0.15
+		previewTitle.Visible = false
+		avatarEditorButton.Position = UDim2.fromOffset(8, 8)
+		wardrobeButton.Position = UDim2.fromOffset(46, 8)
+		avatarEditorButton.Size = UDim2.fromOffset(32, 32)
+		wardrobeButton.Size = UDim2.fromOffset(32, 32)
+		avatarViewport.Position = UDim2.fromOffset(8, 48)
+		avatarViewport.Size = UDim2.new(1, -16, 1, -176)
+		currentOutfitFrame.Visible = true
+		currentOutfitFrame.Position = UDim2.new(0, 8, 1, -116)
+		currentOutfitFrame.Size = UDim2.new(1, -16, 0, 108)
 	else
-		backToPacksButton.Visible = bundleContentsOpen
-		statusLabel.Visible = true
-
-		if expandedMobile then
-			-- Expanded mobile: controls first, avatar preview next, cards below.
-			searchBox.Position = UDim2.fromOffset(8, 44)
-			searchBox.Size = UDim2.new(0.60, -8, 0, 34)
-			searchBox.TextSize = 12
-			searchBox.PlaceholderText = "Search Roblox catalog..."
-			searchButton.Visible = true
-			searchButton.Position = UDim2.new(0.60, 0, 0, 44)
-			searchButton.Size = UDim2.new(0.16, -4, 0, 34)
-			searchButton.TextSize = 10
-
-			categoryButton.Position = UDim2.new(0, 8, 0, 84)
-			categoryButton.Size = UDim2.new(0.48, -8, 0, 32)
-			categoryButton.TextSize = 11
-			sortButton.Position = UDim2.new(0.52, 0, 0, 84)
-			sortButton.Size = UDim2.new(0.48, -8, 0, 32)
-			sortButton.TextSize = 11
-			filterLabel.Visible = false
-
-			local priceY = 122
-			local priceWidth = math.clamp(math.floor(innerWidth * 0.22), 56, 92)
-			minPriceBox.Position = UDim2.fromOffset(8, priceY)
-			minPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
-			maxPriceBox.Position = UDim2.fromOffset(14 + priceWidth, priceY)
-			maxPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
-			offSaleButton.Position = UDim2.fromOffset(20 + priceWidth * 2, priceY)
-			offSaleButton.Size = UDim2.new(1, -(32 + priceWidth * 2), 0, 30)
-			minPriceBox.Visible = true
-			maxPriceBox.Visible = true
-			offSaleButton.Visible = true
-
-			backToPacksButton.Position = UDim2.fromOffset(8, 160)
-			backToPacksButton.Size = UDim2.fromOffset(math.min(130, innerWidth * 0.35), 24)
-			backToPacksButton.TextSize = 9
-			statusLabel.Position = UDim2.new(0, math.min(144, innerWidth * 0.40), 0, 160)
-			statusLabel.Size = UDim2.new(1, -math.min(152, innerWidth * 0.40 + 8), 0, 24)
-			statusLabel.TextSize = 10
-
-			previewFrame.Size = UDim2.new(0.46, 0, 0, expandedMobilePreviewHeight)
-			previewFrame.Position = UDim2.fromOffset(8, 192)
-			local resultsY = 200 + expandedMobilePreviewHeight
-			resultsFrame.Position = UDim2.fromOffset(8, resultsY)
-			resultsFrame.Size = UDim2.new(1, -16, 1, -(resultsY + 42))
-		else
-			searchBox.Position = UDim2.fromOffset(12, 48)
-			searchBox.Size = UDim2.new(0.48, -12, 0, 36)
-			searchBox.TextSize = 14
-			searchBox.PlaceholderText = "Search Roblox catalog..."
-			searchButton.Visible = true
-			searchButton.Position = UDim2.new(0.48, 4, 0, 48)
-			searchButton.Size = UDim2.new(0.12, -4, 0, 36)
-			searchButton.TextSize = 11
-			categoryButton.Position = UDim2.new(0.60, 4, 0, 48)
-			categoryButton.Size = UDim2.new(0.20, -4, 0, 36)
-			categoryButton.TextSize = 11
-			sortButton.Position = UDim2.new(0.80, 0, 0, 48)
-			sortButton.Size = UDim2.new(0.20, -12, 0, 36)
-			sortButton.TextSize = 11
-			filterLabel.Visible = false
-
-			local priceY = 92
-			local priceWidth = math.clamp(math.floor(innerWidth * 0.22), 60, 100)
-			minPriceBox.Position = UDim2.fromOffset(12, priceY)
-			minPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
-			maxPriceBox.Position = UDim2.fromOffset(18 + priceWidth, priceY)
-			maxPriceBox.Size = UDim2.fromOffset(priceWidth, 30)
-			offSaleButton.Position = UDim2.fromOffset(24 + priceWidth * 2, priceY)
-			offSaleButton.Size = UDim2.new(1, -(36 + priceWidth * 2), 0, 30)
-			minPriceBox.Visible = true
-			maxPriceBox.Visible = true
-			offSaleButton.Visible = true
-			backToPacksButton.Position = UDim2.fromOffset(12, 130)
-			backToPacksButton.Size = UDim2.fromOffset(math.min(145, innerWidth * 0.3), 26)
-			backToPacksButton.TextSize = 10
-			statusLabel.Position = UDim2.new(0, math.min(165, innerWidth * 0.34), 0, 130)
-			statusLabel.Size = UDim2.new(1, -math.min(177, innerWidth * 0.34 + 12), 0, 26)
-			statusLabel.TextSize = 12
-
-			resultsFrame.Position = UDim2.fromOffset(if expandedPanel then math.floor(panelWidth * 0.25) + 12 else 12, 164)
-			resultsFrame.Size = UDim2.new(1, if expandedPanel then -math.floor(panelWidth * 0.25) - 24 else -24, 1, -214)
-			if not expandedPanel then
-				previewFrame.Size = UDim2.fromOffset(260, math.min(360, math.max(280, math.floor(viewport.Y * 0.55))))
-				previewFrame.Position = UDim2.fromOffset(16, 164)
-			end
+		previewTitle.Visible = false
+		currentOutfitFrame.Visible = false
+	end
+	-- The discovery row is anchored before the two window controls. Both controls
+	-- use a 6px gap, and the last discovery button uses that same anchor spacing.
+	titleLabel.Position = UDim2.fromOffset(x, headerY + 2)
+	titleLabel.Size = UDim2.new(0, math.min(132, math.max(72, rightWidth * 0.22)), 0, 30)
+	titleLabel.TextSize = if expandedPanel then 18 else 15
+	closeButton.Position = UDim2.new(1, -42, 0, headerY + 1)
+	closeButton.Size = UDim2.fromOffset(32, 32)
+	expandButton.Position = UDim2.new(1, -80, 0, headerY + 1)
+	expandButton.Size = UDim2.fromOffset(32, 32)
+	expandButton.Visible = true
+	expandButton.Text = if expandedPanel then "↙" else "⛶"
+	local discoveryWidth = if compact then math.max(1, panelWidth - 16) else math.max(1, math.min(330, rightWidth - titleLabel.Size.X.Offset - 102))
+	discoveryBar.Visible = true
+	discoveryBar.Position = if compact then UDim2.fromOffset(8, headerY + 36) else UDim2.new(1, -86 - discoveryWidth, 0, headerY + 1)
+	discoveryBar.Size = UDim2.fromOffset(discoveryWidth, 32)
+	for _, button in pairs(discoveryButtons) do
+		button.Size = UDim2.fromOffset(math.max(26, math.floor((discoveryWidth - 15) / 4)), 28)
+		button.TextSize = if expandedPanel then 11 else 8
+	end
+	-- Row two: major categories plus search, filter and sort.
+	local categoryWidth = if expandedPanel then math.max(44, math.floor(innerWidth * 0.39)) else innerWidth
+	categoryLeftButton.Visible = true
+	categoryRightButton.Visible = true
+	categoryLeftButton.Size = UDim2.fromOffset(arrowW, rowH)
+	categoryRightButton.Size = UDim2.fromOffset(arrowW, rowH)
+	categoryLeftButton.Position = UDim2.fromOffset(x, rowY)
+	mainCategoryStrip.Visible = true
+	mainCategoryStrip.Position = UDim2.fromOffset(x + arrowW, rowY)
+	mainCategoryStrip.Size = UDim2.fromOffset(math.max(1, categoryWidth - arrowW * 2), rowH)
+	categoryRightButton.Position = UDim2.fromOffset(x + categoryWidth - arrowW, rowY)
+	local searchX = if compact then x else x + categoryWidth + 8
+	local searchY = if compact then rowY + rowH * 2 + 8 else rowY
+	local searchArea = math.max(1, panelWidth - searchX - 8)
+	local smallCompact = compact and panelWidth < 280
+	local searchButtonWidth = if smallCompact then 22 else math.clamp(math.floor(searchArea * 0.15), 34, 66)
+	local filterWidth = if smallCompact then 24 else math.clamp(math.floor(searchArea * 0.13), 34, 62)
+	local sortWidth = if smallCompact then 32 else math.clamp(math.floor(searchArea * 0.28), 52, 132)
+	local searchWidth = if smallCompact then searchArea else math.max(28, searchArea - searchButtonWidth - filterWidth - sortWidth - 12)
+	local actionsY = if smallCompact then searchY + rowH + 4 else searchY
+	searchBox.Position = UDim2.fromOffset(searchX, searchY)
+	searchBox.Size = UDim2.fromOffset(searchWidth, rowH)
+	searchBox.TextSize = if expandedPanel then 12 else 9
+	searchBox.PlaceholderText = "Search Roblox catalog..."
+	searchButton.Visible = true
+	searchButton.Text = if smallCompact then "⌕" else "SEARCH"
+	searchButton.Position = UDim2.fromOffset(if smallCompact then searchX else searchX + searchWidth + 3, actionsY)
+	searchButton.Size = UDim2.fromOffset(searchButtonWidth, rowH)
+	searchButton.TextSize = if smallCompact then 10 else (if expandedPanel then 9 else 8)
+	fixedFilterButton.Visible = true
+	fixedFilterButton.Text = if smallCompact then "필터" else "필터 ☰"
+	fixedFilterButton.Position = UDim2.fromOffset(if smallCompact then searchX + searchButtonWidth + 3 else searchX + searchWidth + searchButtonWidth + 6, actionsY)
+	fixedFilterButton.Size = UDim2.fromOffset(filterWidth, rowH)
+	fixedFilterButton.TextSize = if smallCompact then 7 else (if expandedPanel then 10 else 8)
+	sortButton.Visible = true
+	local sortLabel = "Relevance"
+	for _, option in ipairs(Config.SortOptions) do
+		if option.Value == currentSort then
+			sortLabel = option.Name
+			break
 		end
 	end
-
-	categoryMenu.Position = UDim2.new(categoryButton.Position.X.Scale, categoryButton.Position.X.Offset, 0, categoryButton.Position.Y.Offset + categoryButton.Size.Y.Offset + 4)
-	categoryMenu.Size = UDim2.new(categoryButton.Size.X.Scale, categoryButton.Size.X.Offset, 0, math.max(100, math.min(360, panelHeight - 150)))
-	sortMenu.Position = UDim2.new(sortButton.Position.X.Scale, sortButton.Position.X.Offset, 0, sortButton.Position.Y.Offset + sortButton.Size.Y.Offset + 4)
-	sortMenu.Size = UDim2.new(sortButton.Size.X.Scale, sortButton.Size.X.Offset, 0, math.max(100, math.min(220, panelHeight - 150)))
-
-	-- Card dimensions are intentionally different for compact PC/mobile and expanded views.
-	if compactPhone then
-		grid.CellSize = UDim2.fromOffset(76, 114)
-	elseif compactMobile then
-		grid.CellSize = UDim2.fromOffset(76, 114)
-		cardContentScale = 0.68
-	elseif compact then
-		grid.CellSize = UDim2.fromOffset(100, 146)
-		cardContentScale = 0.82
-	elseif expandedMobile then
-		grid.CellSize = UDim2.fromOffset(112, 164)
-		cardContentScale = 0.86
+	sortButton.Text = if smallCompact then "정렬" else "Sort: " .. sortLabel .. " ▼"
+	sortButton.Position = UDim2.fromOffset(if smallCompact then searchX + searchButtonWidth + filterWidth + 6 else searchX + searchWidth + searchButtonWidth + filterWidth + 9, actionsY)
+	sortButton.Size = UDim2.fromOffset(sortWidth, rowH)
+	sortButton.TextSize = if smallCompact then 7 else (if expandedPanel then 9 else 8)
+	sortMenu.Position = UDim2.fromOffset(sortButton.Position.X.Offset, actionsY + rowH + 4)
+	sortMenu.Size = UDim2.fromOffset(sortWidth, math.min(220, math.max(120, panelHeight - rowY - 80)))
+	-- Row three: its own independent subcategory scroll area.
+	local subY = rowY + rowH + 4
+	subcategoryLeftButton.Visible = true
+	subcategoryRightButton.Visible = true
+	subcategoryLeftButton.Size = UDim2.fromOffset(arrowW, rowH)
+	subcategoryRightButton.Size = UDim2.fromOffset(arrowW, rowH)
+	subcategoryLeftButton.Position = UDim2.fromOffset(x, subY)
+	subcategoryStrip.Visible = true
+	subcategoryStrip.Position = UDim2.fromOffset(x + arrowW, subY)
+	subcategoryStrip.Size = UDim2.new(1, -(leftWidth + (if expandedPanel then 24 else 16) + arrowW * 2), 0, rowH)
+	subcategoryRightButton.Position = UDim2.new(1, -(if expandedPanel then 32 else 26), 0, subY)
+	filterLabel.Visible = false
+	minPriceBox.Visible = filterPanelOpen
+	maxPriceBox.Visible = filterPanelOpen
+	offSaleButton.Visible = filterPanelOpen
+	if filterPanelOpen then
+		minPriceBox.Parent = filterPanel
+		maxPriceBox.Parent = filterPanel
+		offSaleButton.Parent = filterPanel
+		minPriceBox.Position = UDim2.fromOffset(8, 76)
+		maxPriceBox.Position = UDim2.fromOffset(106, 76)
+		offSaleButton.Position = UDim2.fromOffset(204, 76)
+		minPriceBox.Size = UDim2.fromOffset(90, 28)
+		maxPriceBox.Size = UDim2.fromOffset(90, 28)
+		offSaleButton.Size = UDim2.fromOffset(88, 28)
+		local popupWidth = math.min(300, math.max(1, viewport.X - 16))
+		local popupHeight = math.min(166, math.max(1, viewport.Y - 16))
+		filterPanel.Size = UDim2.fromOffset(popupWidth, popupHeight)
+		local frameOrigin = mainFrame.AbsolutePosition
+		local buttonGlobalX = frameOrigin.X + fixedFilterButton.Position.X.Offset
+		local popupGlobalX = math.clamp(buttonGlobalX, 8, math.max(8, viewport.X - popupWidth - 8))
+		local buttonGlobalY = frameOrigin.Y + actionsY
+		local popupGlobalY = buttonGlobalY + rowH + 4
+		if popupGlobalY + popupHeight > viewport.Y - 8 then
+			popupGlobalY = math.max(8, buttonGlobalY - popupHeight - 4)
+		end
+		filterPanel.Position = UDim2.fromOffset(popupGlobalX - frameOrigin.X, popupGlobalY - frameOrigin.Y)
+		filterPanel.ZIndex = 70
+		creatorLabel.ZIndex = 71
+		creatorNameBox.ZIndex = 71
+		priceFilterLabel.ZIndex = 71
+		applyFilterButton.ZIndex = 71
+		fixedFilterButton.ZIndex = 69
+		minPriceBox.ZIndex = 71
+		maxPriceBox.ZIndex = 71
+		offSaleButton.ZIndex = 71
+		filterPanel.Visible = true
 	else
-		grid.CellSize = UDim2.fromOffset(132, 192)
+		filterPanel.Visible = false
+		minPriceBox.Parent = mainFrame
+		maxPriceBox.Parent = mainFrame
+		offSaleButton.Parent = mainFrame
+	end
+	backToPacksButton.Visible = bundleContentsOpen
+	backToPacksButton.Position = UDim2.fromOffset(x, subY + rowH + 4)
+	statusLabel.Visible = false
+	local resultsY = math.max(subY + rowH + 8, if compact then (if smallCompact then actionsY + rowH + 8 else searchY + rowH + 8) else 0)
+	resultsFrame.Position = UDim2.fromOffset(x, resultsY)
+	resultsFrame.Size = UDim2.new(1, -(leftWidth + (if expandedPanel then 24 else 16)), 1, -(resultsY + 6))
+	if expandedPanel then
+		local cellWidth = math.clamp(math.floor((rightWidth - 36) / 6), 88, 148)
+		grid.CellSize = UDim2.fromOffset(cellWidth, math.floor(cellWidth * 1.45))
 		cardContentScale = 1
+	else
+		grid.CellSize = if isPhone then UDim2.fromOffset(76, 114) else UDim2.fromOffset(100, 146)
+		cardContentScale = if isPhone then 0.68 else 0.82
 	end
 	grid.CellPadding = UDim2.fromOffset(6, 6)
-	if expandedPanel then
-		grid.CellSize = UDim2.fromOffset(132, 192)
-	end
-	for _, contentScale in ipairs(cardContentUIScales) do
-		contentScale.Scale = cardContentScale
-	end
-
-	if expandedPanel then
-		-- Consistent expanded layout across desktop, tablet and phone:
-		-- fixed 25% avatar column, independent 75% catalog column.
-		local leftWidth = math.floor(panelWidth * 0.25)
-		previewFrame.Position = UDim2.fromOffset(0, 0)
-		previewFrame.Size = UDim2.fromOffset(leftWidth, panelHeight)
-		currentOutfitFrame.Visible = true
-		previewFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-		previewFrame.BackgroundTransparency = 0.6
-		previewTitle.Position = UDim2.fromOffset(48, 8)
-		previewTitle.Size = UDim2.new(1, -56, 0, 30)
-		avatarEditorButton.Position = UDim2.fromOffset(8, 52)
-		avatarEditorButton.Size = UDim2.fromOffset(32, 32)
-		wardrobeButton.Position = UDim2.fromOffset(46, 52)
-		wardrobeButton.Size = UDim2.fromOffset(32, 32)
-		avatarViewport.Position = UDim2.fromOffset(8, 92)
-		avatarViewport.Size = UDim2.new(1, -16, 1, -236)
-		currentOutfitFrame.Position = UDim2.new(0, 8, 1, -112)
-		currentOutfitFrame.Size = UDim2.new(1, -16, 0, 104)
-
-		local rightX = leftWidth
-		local rightWidth = panelWidth - leftWidth
-		titleLabel.Position = UDim2.fromOffset(rightX + 12, 4)
-		titleLabel.Size = UDim2.new(0, math.min(120, rightWidth * 0.18), 0, 30)
-		titleLabel.TextSize = 18
-		discoveryBar.Visible = true
-		discoveryBar.Position = UDim2.new(1, -330, 0, 4)
-		discoveryBar.Size = UDim2.fromOffset(330, 30)
-		searchBox.Position = UDim2.fromOffset(rightX + 12, 40)
-		searchBox.Size = UDim2.new(1, -300, 0, 32)
-		searchBox.TextSize = if isPhone then 11 else 14
-		searchBox.PlaceholderText = "Search Roblox catalog..."
-		searchButton.Visible = true
-		searchButton.Position = UDim2.new(1, -278, 0, 40)
-		searchButton.Size = UDim2.fromOffset(66, 32)
-		searchButton.TextSize = 10
-		fixedFilterButton.Visible = true
-		fixedFilterButton.Position = UDim2.new(1, -204, 0, 40)
-		fixedFilterButton.Size = UDim2.fromOffset(64, 32)
-		sortButton.Visible = true
-		sortButton.Position = UDim2.new(1, -136, 0, 40)
-		sortButton.Size = UDim2.fromOffset(124, 32)
-		mainCategoryStrip.Visible = true
-		categoryLeftButton.Visible = false
-		categoryRightButton.Visible = false
-		mainCategoryStrip.Position = UDim2.fromOffset(rightX + 12, 76)
-		mainCategoryStrip.Size = UDim2.new(1, -24, 0, 32)
-		categoryMenu.Position = UDim2.fromOffset(rightX + 12, 112)
-		categoryMenu.Size = UDim2.new(0, math.max(150, rightWidth * 0.48), 0, math.min(330, panelHeight - 180))
-		subcategoryStrip.Visible = true
-		subcategoryLeftButton.Visible = true
-		subcategoryRightButton.Visible = true
-		subcategoryLeftButton.Position = UDim2.fromOffset(rightX + 8, 76)
-		subcategoryStrip.Position = UDim2.fromOffset(rightX + 34, 76)
-		subcategoryStrip.Size = UDim2.new(1, -68, 0, 32)
-		subcategoryRightButton.Position = UDim2.new(1, -30, 0, 76)
-		filterLabel.Visible = false
-		minPriceBox.Visible = filterPanelOpen
-		maxPriceBox.Visible = filterPanelOpen
-		offSaleButton.Visible = filterPanelOpen
-		if filterPanelOpen then
-			minPriceBox.ZIndex = 72
-			maxPriceBox.ZIndex = 72
-			offSaleButton.ZIndex = 72
-			minPriceBox.Parent = filterPanel
-			maxPriceBox.Parent = filterPanel
-			offSaleButton.Parent = filterPanel
-			minPriceBox.Position = UDim2.fromOffset(8, 76)
-			maxPriceBox.Position = UDim2.fromOffset(106, 76)
-			offSaleButton.Position = UDim2.fromOffset(204, 76)
-			minPriceBox.Size = UDim2.fromOffset(90, 28)
-			maxPriceBox.Size = UDim2.fromOffset(90, 28)
-			offSaleButton.Size = UDim2.fromOffset(100, 28)
-			filterPanel.Position = UDim2.fromOffset(math.clamp(fixedFilterButton.Position.X.Offset, rightX + 8, panelWidth - 308), fixedFilterButton.Position.Y.Offset + fixedFilterButton.Size.Y.Offset + 4)
-			filterPanel.Visible = true
-		else
-			filterPanel.Visible = false
-			minPriceBox.Parent = mainFrame
-			maxPriceBox.Parent = mainFrame
-			offSaleButton.Parent = mainFrame
-		end
-		backToPacksButton.Position = UDim2.fromOffset(rightX + 12, 116)
-		backToPacksButton.Size = UDim2.fromOffset(132, 24)
-		statusLabel.Position = UDim2.fromOffset(rightX + 152, 116)
-		statusLabel.Size = UDim2.new(1, -rightWidth * 0.38, 0, 24)
-		statusLabel.TextSize = 10
-		resultsFrame.Position = UDim2.fromOffset(rightX + 12, 150)
-		resultsFrame.Size = UDim2.new(1, -rightX - 24, 1, -162)
-		categoryButton.Visible = false
-		categoryMenu.Visible = categoryMenu.Visible and activeTopLevelGroup ~= nil
-	else
-		discoveryBar.Visible = compact
-		mainCategoryStrip.Visible = compact
-		categoryLeftButton.Visible = compact
-		categoryRightButton.Visible = compact
-		subcategoryStrip.Visible = compact
-		subcategoryLeftButton.Visible = compact
-		subcategoryRightButton.Visible = compact
-		fixedFilterButton.Visible = compact
-		filterPanel.Visible = false
-		currentOutfitFrame.Visible = false
-		categoryButton.Visible = not compact
-	end
-
+	for _, contentScale in ipairs(cardContentUIScales) do contentScale.Scale = cardContentScale end
+	currentOutfitTitle.Text = "착용 중인 아이템"
 	previewFrame.Visible = expandedPanel and mainFrame.Visible
 end
+
 local function bindViewport(camera: Camera?)
 	if camera then
 		camera:GetPropertyChangedSignal("ViewportSize"):Connect(updateCatalogLayout)
@@ -1932,7 +1802,7 @@ renderCurrentPage = function()
 		statusLabel.Text = "No individual " .. expectedAnimationTypeName .. " assets found on this page."
 	end
 
-	pageLabel.Text = tostring(resultCount) .. " items loaded"
+	pageLabel.Text = ""
 	nextButton.Active = not catalogPages.IsFinished
 	nextButton.AutoButtonColor = not catalogPages.IsFinished
 
@@ -1950,7 +1820,6 @@ local function searchCatalog()
 	searchBusy = true
 	resultsFrame.CanvasPosition = Vector2.zero
 
-	categoryMenu.Visible = false
 	sortMenu.Visible = false
 
 	currentKeyword = searchBox.Text
@@ -2057,15 +1926,14 @@ local function searchCatalog()
 	catalogPages = pages
 	currentPageNumber = 1
 	renderCurrentPage()
-	statusLabel.Text = tostring(#currentPage) .. " items loaded."
+	statusLabel.Text = ""
 
 	searchBusy = false
 end
 
--- ★ CATEGORY MENU
+-- CATEGORY SELECTION
 --------------------------------------------------
 
-local categoryButtons: {[string]: TextButton} = {}
 selectCategory = function(name: string, assetTypes, bundleTypes)
 	if (not assetTypes or #assetTypes == 0) and (not bundleTypes or #bundleTypes == 0) then
 		statusLabel.Text = "이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다."
@@ -2076,146 +1944,99 @@ selectCategory = function(name: string, assetTypes, bundleTypes)
 	activeTopLevelGroup = nil
 	for _, group in ipairs(Config.CategoryGroups) do
 		for _, category in ipairs(group.Categories) do
-			if category.Name == name then activeTopLevelGroup = group.Name end
+			if category.Name == name or group.Name == name then activeTopLevelGroup = group.Name end
 		end
 	end
 	if name == "전체" or name == "All" then activeTopLevelGroup = nil end
 	updateMainCategorySelection()
+	if name == "전체" or name == "All" then renderSubcategoryStrip(nil) else renderSubcategoryStrip(activeTopLevelGroup) end
 	currentCategoryAssetTypes = assetTypes
 	currentCategoryBundleTypes = bundleTypes
 	currentCategoryIncludeOffSale = false
 	for _, group in ipairs(Config.CategoryGroups) do
 		for _, category in ipairs(group.Categories) do
-			if category.Name == name and category.IncludeOffSale == true then
+			if (category.Name == name or group.Name == name) and category.IncludeOffSale == true then
 				currentCategoryIncludeOffSale = true
 			end
 		end
 	end
-	categoryButton.Text = name .. " ▼"
-	categoryMenu.Visible = false
 	searchCatalog()
 end
 
-local allButton = create("TextButton", {
-	Name = "AllButton",
-	Size = UDim2.new(1, 0, 0, 34),
-	BackgroundColor3 = Color3.fromRGB(65, 65, 78),
-	Text = "전체",
-	TextColor3 = Color3.fromRGB(255, 255, 255),
-	TextSize = 12,
-	Font = Enum.Font.GothamBold,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	LayoutOrder = 0,
-	ZIndex = 51,
-})
-allButton.Parent = categoryMenu
-
-local allPadding = create("UIPadding", {
-	PaddingLeft = UDim.new(0, 12),
-})
-allPadding.Parent = allButton
-
-local allCorner = create("UICorner", {
-	CornerRadius = UDim.new(0, 6),
-})
-allCorner.Parent = allButton
-
-allButton.MouseButton1Click:Connect(function()
-	selectCategory("전체", Config.AllowedAssetTypes, nil)
-end)
-
-for groupIndex, group in ipairs(Config.CategoryGroups) do
-	local groupButton = create("TextButton", {
-		Name = "Group_" .. tostring(groupIndex),
-		Size = UDim2.new(1, 0, 0, 34),
-		BackgroundColor3 = Color3.fromRGB(43, 43, 52),
-		Text = "＋ " .. group.Name,
-		TextColor3 = Color3.fromRGB(235, 235, 240),
-		TextSize = 12,
-		Font = Enum.Font.GothamBold,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		LayoutOrder = groupIndex * 100,
-		ZIndex = 51,
-	})
-	groupButton.Parent = categoryMenu
-
-	local groupPadding = create("UIPadding", {
-		PaddingLeft = UDim.new(0, 12),
-	})
-	groupPadding.Parent = groupButton
-
-	local groupCorner = create("UICorner", {
-		CornerRadius = UDim.new(0, 6),
-	})
-	groupCorner.Parent = groupButton
-
-	local subButtons = {}
-	subButtonsByGroup[group.Name] = subButtons
-
-	for subIndex, category in ipairs(group.Categories) do
-		local subButton = create("TextButton", {
-			Name = "Category_" .. tostring(groupIndex) .. "_" .. tostring(subIndex),
-			Size = UDim2.new(1, 0, 0, 30),
-			BackgroundColor3 = Color3.fromRGB(50, 50, 60),
-			Text = "   " .. category.Name,
-			TextColor3 = Color3.fromRGB(215, 215, 225),
-			TextSize = 11,
-			Font = Enum.Font.Gotham,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			LayoutOrder = groupIndex * 100 + subIndex,
-			Visible = false,
-			ZIndex = 51,
-			AutoButtonColor = (#category.AssetTypes > 0) or (category.BundleTypes and #category.BundleTypes > 0),
-		})
-		subButton.Parent = categoryMenu
-
-		local subPadding = create("UIPadding", {
-			PaddingLeft = UDim.new(0, 6),
-		})
-		subPadding.Parent = subButton
-
-		local subCorner = create("UICorner", {
-			CornerRadius = UDim.new(0, 6),
-		})
-		subCorner.Parent = subButton
-
-		local hasAssetTypes = #category.AssetTypes > 0
-		local hasBundleTypes = category.BundleTypes and #category.BundleTypes > 0
-
-		if not hasAssetTypes and not hasBundleTypes then
-			subButton.Text = "   " .. category.Name .. "  (준비 중)"
-			subButton.TextColor3 = Color3.fromRGB(120, 120, 130)
-		end
-
-		subButton.MouseButton1Click:Connect(function()
-			selectCategory(category.Name, category.AssetTypes, category.BundleTypes)
-		end)
-
-		table.insert(subButtons, subButton)
+renderSubcategoryStrip = function(groupName: string?)
+	clearContainer(subcategoryStrip)
+	local entries = {}
+	local function appendCategory(entry, category)
+		for _, assetType in ipairs(category.AssetTypes) do table.insert(entry.assetTypes, assetType) end
+		for _, bundleType in ipairs(category.BundleTypes or {}) do table.insert(entry.bundleTypes, bundleType) end
 	end
-
-	groupButton.MouseButton1Click:Connect(function()
-		expandedGroups[group.Name] = not expandedGroups[group.Name]
-		local expanded = expandedGroups[group.Name]
-
-		groupButton.Text = (expanded and "− " or "＋ ") .. group.Name
-
-		for _, subButton in ipairs(subButtons) do
-			subButton.Visible = expanded
+	local function appendGroup(entry, wantedGroup, wantedNames)
+		for _, group in ipairs(Config.CategoryGroups) do
+			if group.Name == wantedGroup then
+				for _, category in ipairs(group.Categories) do
+					if not wantedNames then
+						appendCategory(entry, category)
+					else
+						for _, wantedName in ipairs(wantedNames) do
+							if category.Name == wantedName then appendCategory(entry, category) end
+						end
+					end
+				end
+			end
 		end
-	end)
-end
-
-renderSubcategoryStrip=function(groupName: string?)
- clearContainer(subcategoryStrip); local entries={}
- if groupName==nil then for _,e in ipairs({{label="전체",name="전체"},{label="헤어",name="헤어"},{label="얼굴",name="얼굴"},{label="상의",name="셔츠"},{label="하의",name="바지"},{label="액세서리",name="모자"},{label="애니메이션",name="애니메이션 팩"}}) do table.insert(entries,e) end
- else for _,g in ipairs(Config.CategoryGroups) do if g.Name==groupName then for _,cat in ipairs(g.Categories) do table.insert(entries,{label=cat.Name,name=cat.Name,data=cat}) end end end end
- for i,e in ipairs(entries) do local b=create("TextButton",{Name="Subcategory_"..i,Size=UDim2.fromOffset(92,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.6,Text=e.label,TextColor3=Color3.fromRGB(220,220,230),TextSize=10,Font=Enum.Font.Gotham,LayoutOrder=i}); b.Parent=subcategoryStrip; create("UICorner",{CornerRadius=UDim.new(0,6)}).Parent=b
- b.MouseButton1Click:Connect(function() if e.name=="전체" then selectCategory("전체",Config.AllowedAssetTypes,nil) elseif e.data then selectCategory(e.data.Name,e.data.AssetTypes,e.data.BundleTypes) else for _,g in ipairs(Config.CategoryGroups) do for _,cat in ipairs(g.Categories) do if cat.Name==e.name then selectCategory(cat.Name,cat.AssetTypes,cat.BundleTypes); return end end end end end)
- end; subcategoryStrip.CanvasPosition=Vector2.zero
+	end
+	if groupName == nil then
+		local definitions = {
+			{label = "전체", all = true},
+			{label = "헤어", groups = {{"신체", {"헤어"}}}},
+			{label = "얼굴", groups = {{"신체", {"머리", "얼굴"}}}},
+			{label = "상의", groups = {{"복장", {"셔츠", "티셔츠", "스웨터", "재킷", "클래식 셔츠", "클래식 티셔츠"}}}},
+			{label = "하의", groups = {{"복장", {"바지", "원피스 및 치마", "반바지", "신발", "클래식 바지"}}}},
+			{label = "액세서리", groups = {{"액세서리", nil}}},
+			{label = "애니메이션", groups = {{"애니메이션", nil}}},
+		}
+		for _, definition in ipairs(definitions) do
+			local entry = {label = definition.label, name = definition.label, assetTypes = {}, bundleTypes = {}}
+			if definition.all then
+				entry.assetTypes = Config.AllowedAssetTypes
+			else
+				for _, groupDef in ipairs(definition.groups) do appendGroup(entry, groupDef[1], groupDef[2]) end
+			end
+			table.insert(entries, entry)
+		end
+	else
+		for _, group in ipairs(Config.CategoryGroups) do
+			if group.Name == groupName then
+				local entry = {label = "전체", name = group.Name, assetTypes = {}, bundleTypes = {}}
+				appendGroup(entry, group.Name, nil)
+				table.insert(entries, entry)
+				for _, category in ipairs(group.Categories) do table.insert(entries, {label = category.Name, name = category.Name, data = category}) end
+			end
+		end
+	end
+	for index, entry in ipairs(entries) do
+		local selected = entry.name == currentCategory
+		local button = create("TextButton", {
+			Name = "Subcategory_" .. tostring(index), Size = UDim2.fromOffset(92, 28),
+			BackgroundColor3 = selected and Color3.fromRGB(78, 78, 94) or Color3.fromRGB(0, 0, 0),
+			BackgroundTransparency = selected and 0 or 0.6,
+			TextColor3 = if entry.data and #entry.data.AssetTypes == 0 and not entry.data.BundleTypes then Color3.fromRGB(125,125,135) else (selected and Color3.fromRGB(255,255,255) or Color3.fromRGB(190,190,200)),
+			Text = if entry.data and #entry.data.AssetTypes == 0 and not entry.data.BundleTypes then entry.label .. " (준비 중)" else entry.label,
+			TextSize = 10, Font = selected and Enum.Font.GothamBold or Enum.Font.Gotham, LayoutOrder = index,
+			AutoButtonColor = not (entry.data and #entry.data.AssetTypes == 0 and not entry.data.BundleTypes),
+		})
+		button.Parent = subcategoryStrip
+		create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = button
+		button.MouseButton1Click:Connect(function()
+			print("중분류 카테고리 버튼 클릭:", entry.label)
+			if entry.data then selectCategory(entry.data.Name, entry.data.AssetTypes, entry.data.BundleTypes)
+			elseif #entry.assetTypes > 0 or #entry.bundleTypes > 0 then selectCategory(entry.name, entry.assetTypes, entry.bundleTypes)
+			else statusLabel.Text = "이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다." end
+		end)
+	end
+	subcategoryStrip.CanvasPosition = Vector2.zero
 end
 renderSubcategoryStrip(nil)
-
 --------------------------------------------------
 
 -- ★ SORT MENU
@@ -2252,13 +2073,7 @@ end
 -- ★ FILTER BUTTONS
 --------------------------------------------------
 
-categoryButton.MouseButton1Click:Connect(function()
-	sortMenu.Visible = false
-	categoryMenu.Visible = not categoryMenu.Visible
-end)
-
 sortButton.MouseButton1Click:Connect(function()
-	categoryMenu.Visible = false
 	sortMenu.Visible = not sortMenu.Visible
 end)
 
@@ -2308,7 +2123,7 @@ local function loadNextCatalogPage()
 			end
 		end
 	end
-	statusLabel.Text = tostring(#resultsFrame:GetChildren()) .. " items loaded."
+	statusLabel.Text = ""
 	searchBusy = false
 end
 
@@ -2338,7 +2153,6 @@ end)
 closeButton.MouseButton1Click:Connect(function()
 	mainFrame.Visible = false
 	previewFrame.Visible = false
-	categoryMenu.Visible = false
 	sortMenu.Visible = false
 end)
 
@@ -2373,3 +2187,4 @@ end)
 --------------------------------------------------
 
 print("[FashionGame] CatalogController initialized.")
+
