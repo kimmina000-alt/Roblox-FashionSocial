@@ -134,3 +134,17 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 - [ ] Verify CreatorName support in Roblox client API.
 - [ ] Replace Recent/Favorites/Popular placeholders with real data-backed behavior in a later feature pass.
 - [ ] Implement actual Wardrobe save/load and Avatar Editor transform tools separately.
+
+
+## 7. Catalog Quick Navigation — Recent / Popular / Wearing / Favorites
+
+Detailed implementation requirements and acceptance criteria: `docs/01_SYSTEMS/CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN.md`.
+
+- [ ] Inspect actual card click behavior and define the explicit Recent-view event without recording search-result exposure.
+- [ ] Verify current Creator Hub CatalogSortType/CatalogSearchParams support and actual per-category Popular sort behavior.
+- [ ] Connect Wearing mode to authoritative current avatar state, including confirmed wear/remove, Outfit restore, Avatar Editor changes, and catalog reopen.
+- [ ] Implement user-specific Favorites storage, double-click toggle, yellow star state, and single-click conflict prevention.
+- [ ] Preserve search/category filters within each mode's own dataset.
+- [ ] Protect results from stale asynchronous responses when mode/search/filter changes.
+- [ ] Decide and verify persistence, record limits, save/load errors, and empty states.
+- [ ] Run the detailed mode-by-mode acceptance checklist in Roblox Studio; mark only actually tested items complete.
