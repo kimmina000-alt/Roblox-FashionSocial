@@ -37,3 +37,16 @@ Runway is a future candidate; Housing is deferred and furthest priority.
 
 D-013 — Public photo gallery posting, likes, and public style-copy feed are out of current scope.  
 Photo-taking and in-world inspection/manual catalog try-on are separate features.
+
+
+D-013 — Plan Main Social as connected themed areas with local interactions.  
+Reason: players should do something meaningful with their customized avatar in each area, not only use backdrops for photos. Status: concept plan; exact layout and implementation order remain subject to blockout and prototype testing.
+
+D-014 — Dream Aquarium and Beach are proposed as connected spaces.  
+Reason: underwater exploration should lead naturally to the surface and beach. A limited underwater duration/breath meter is a prototype candidate, not yet a final mechanic; test clear guidance, generous recovery and PC/mobile navigation.
+
+D-015 — Fashion Week Backstage can be useful before Runway exists.  
+Reason: use the dressing-room/green-room environment as a social exploration area first, then consider adding a portal when Runway is reprioritized. Camper, tent and building set design remain undecided until surrounding environment design.
+
+D-016 — Whole-world art direction is undecided.  
+Reason: Korean-inspired street/market details, American vintage, global pop-stage and fantasy elements should be compared via moodboards and blockout rather than assuming one theme has proven higher demand. No reliable comparative demand statistic has been established for this specific game concept.
