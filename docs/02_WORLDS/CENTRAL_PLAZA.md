@@ -1,12 +1,13 @@
 # Central Plaza
 
-게임의 중심 랜드마크. 플레이어가 모이고 만나는 공간.
+Purpose: Main Social's primary landmark for spawning, orientation and meeting other players.
 
-향후 정의:
-- Main Landmark
-- Spawn
-- Sightline
-- Seating
-- Photo Spot
-- Connections
-- Lighting
+## Current MVP
+- Clear spawn/orientation point.
+- Readable paths to Club, Photo Spots and Park/Playground.
+- Seating/meeting points and photo-friendly sightlines.
+- Good avatar visibility and clear lighting.
+- PC/mobile navigation and camera/collision checks.
+
+## Deferred Connections
+Housing District and Runway Portal are not current MVP dependencies. Do not expand the plaza to accommodate deferred systems before the core social spaces are validated.
