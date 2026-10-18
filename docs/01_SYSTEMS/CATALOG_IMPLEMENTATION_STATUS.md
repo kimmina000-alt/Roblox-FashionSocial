@@ -194,3 +194,25 @@ Static source review of src/ServerScriptService/FashionGame/Services/AvatarServi
 - The service contains separate branches for classic clothing, makeup, emotes, animations, and mapped accessories, but unsupported asset types return an error. A catalog Bundle result is not currently handled as a Bundle identity or generic wearable.
 - Therefore Bundle display/search support must not be treated as Bundle wear/remove support. Implement a typed dispatcher only after each type's official application path is established. Keep unsupported types disabled/non-actionable and report them clearly.
 - These are static code findings, not Studio verification.
+
+
+## 12. Saved Outfit MVP — aligned policy (2026-10-18)
+
+This is a requirements checklist, not a claim that persistence has been implemented.
+
+- [ ] Save only the server-confirmed applied appearance as a versioned SupportedAppearanceSnapshot.
+- [ ] Use a unique outfitId even when names repeat; validate trimmed/non-empty names and name length.
+- [ ] Enforce the product limit of **50 SavedOutfits per user**. This is a game policy, not a Roblox platform recommendation.
+- [ ] Never silently overwrite an existing Outfit at the limit.
+- [ ] Rejoin and load the saved records from server-side persistence.
+- [ ] Restore the selected Outfit by replacing the current appearance, not by blindly appending saved entries.
+- [ ] Skip only unsupported, deleted, unavailable or rejected entries; apply remaining valid appearance and identify skipped items where possible.
+- [ ] Preserve the original SavedOutfit unchanged after partial restore.
+- [ ] Rebuild Current Outfit, Wearing, card state and preview from the actual server-confirmed applied result.
+- [ ] Distinguish empty Wardrobe from load/migration failure; never overwrite data with an empty default after a read error.
+- [ ] Classify transient service/network errors, throttling, invalid/unserializable payload, payload-too-large and ambiguous write results.
+- [ ] Use bounded retries/backoff only for retryable failures; verify ambiguous writes with a cache-bypassing follow-up read before reporting a final result.
+- [ ] Validate serialized payload byte size. Roblox's 4 MiB per-key maximum is a hard platform limit, not an application target; set a smaller internal limit after measuring representative snapshots.
+- [ ] Verify save/load/rejoin/partial-restore/failure paths in Studio before marking these items complete.
+
+Authoritative contracts: `docs/01_SYSTEMS/OUTFIT.md`, `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md`, `docs/05_TECH/DATA.md`, and `docs/05_TECH/AVATAR_STATE_AND_PERSISTENCE.md`.
