@@ -14,6 +14,17 @@
 ## Positioning
 UGC Catalog Fashion + Social Play + Photo Spaces. 카탈로그는 핵심 도구이고, Club·Photo Spots·Playground는 꾸민 아바타로 놀 이유를 제공한다.
 
+## Main Social World Concept — proposed
+
+The world is planned as several connected social areas with distinct interactions, not just photo backdrops:
+- Club / Idol Concert City: dance, group performance candidates, music and audience experience. Detailed plan: `docs/01_SYSTEMS/CLUB.md`.
+- Beach: Sunset Beach Resort and Dream Aquarium, potentially connected by underwater swimming and a surface-to-beach route.
+- Cafe / City View: Glasshouse Cafe and Neon Rooftop City.
+- Fantasy Playground: start with one interaction such as a swing; carousel, Viking-ship ride and roller coaster are later candidates.
+- Fashion Week Backstage: possible standalone social space first, with a future portal to Runway.
+
+These are concepts and proposed interactions, not implemented features. Whole-map layout/blockout should precede detailed art production; areas should be built incrementally.
+
 ## Out of Scope for Current MVP
 - 별도 의상 제작
 - 게임 내 공개 사진 갤러리 게시, 좋아요, 스타일 복제 피드
