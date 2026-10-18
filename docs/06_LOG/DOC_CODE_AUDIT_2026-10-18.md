@@ -75,3 +75,6 @@
 - This was a static GitHub source/document inspection. No Roblox Studio session, published multi-client test, live DataStore test, or runtime API test was performed.
 - A feature may work in a Studio revision the user tested previously; that history does not prove the currently inspected source and workbench are identical.
 - No source code was changed by this audit document itself. The actionable documentation updates are tracked in `WORKLOG.md`, `TODO.md`, `ISSUES.md`, and `ROADMAP.md`.
+
+## Follow-up reconciliation — 2026-10-18
+A cross-document consistency check found two stale details in the quick-navigation spec: an older Recent definition based on viewing/opening items, and a 20-item Saved Outfit cap. These have been aligned with the current product decisions: Recent records only server-confirmed successful wear actions in the current session and is not persisted; SavedOutfits starts at 50 per user. This is a documentation reconciliation, not implementation evidence.

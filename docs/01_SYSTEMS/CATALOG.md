@@ -144,7 +144,7 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 The implementation contract for Recent, Popular, Wearing, and Favorites is owned by [`CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN.md`](CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN.md). Use that file for each mode's data source, record lifecycle, API sorting constraints, click/double-click behavior, search/filter interactions, persistence, error handling, cross-feature invariants, and acceptance tests.
 
 The four modes reuse the catalog item-card area but do not share the same data source:
-- Recent = explicitly viewed items, not search history.
+- Recent = items successfully worn in the current session, not search or view history.
 - Popular = actual Roblox-supported catalog sort only; never relabel another sort as popularity.
 - Wearing = current server-confirmed avatar wear state.
 - Favorites = user-specific in-game favorites, distinct from Roblox account favorites.

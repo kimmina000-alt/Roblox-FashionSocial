@@ -77,46 +77,35 @@ Asset과 Bundle은 같은 숫자 ID라는 이유만으로 동일 아이템으로
 
 API/저장소 오류를 정상적인 빈 목록으로 위장하지 않는다. 썸네일 실패는 해당 아이템 자체가 없다는 뜻으로 처리하지 않는다.
 
-## 4. Recent — 최근 열람 아이템
+## 4. Recent — 이번 세션에서 착용한 아이템
 
 ### 4.1 기록 조건
 
-Recent는 검색 기록과 별개다. 다음 행위만으로는 기록하지 않는다: 검색어 입력, API 결과 수신, 결과 페이지 표시, 페이지 스크롤, Recent 목록 진입, Outfit 복원.
-
-기록 이벤트는 기존 카드 상호작용을 조사한 뒤 결정한다. 사용자가 아이템을 명시적으로 열거나 상세/미리보기 대상으로 선택한 시점을 기준으로 삼는다. 현재 카드 클릭이 착용 동작과 결합되어 있다면 기존 동작을 확인해 별도의 명시적 열람 이벤트를 식별하고, 단순 노출을 열람으로 간주하지 않는다.
+Recent는 검색 기록이나 최근 열람 기록이 아니다. **서버가 착용 성공을 확인한 아이템만** 기록한다. 검색어 입력, API 결과 수신, 결과 페이지 표시, 페이지 스크롤, 아이템 상세 열기, Recent 목록 진입, 착용 실패, Outfit 복원만으로는 기록하지 않는다.
 
 ### 4.2 레코드 및 정렬
 
-각 레코드에는 최소한 다음 정보를 둔다.
+- 아이템 식별은 `itemType + itemId`를 포함한 typed identity를 사용한다.
+- 착용 요청이 서버에서 성공 확인된 후에만 Recent를 갱신한다.
+- 같은 아이템을 다시 착용하면 중복 카드를 계속 쌓지 않고 최신 착용 시각으로 갱신한다.
+- 가장 최근에 성공적으로 착용한 아이템이 먼저 표시된다.
+- 최근 목록은 현재 세션에서만 유지한다. 플레이어가 나가면 초기화하며 DataStore에 저장하지 않는다.
 
-- 아이템 ID
-- Asset/Bundle 구분 및 아이템 유형
-- 마지막 열람 시각
-- 카드 메타데이터 조회에 필요한 식별 정보
-- 필요하다면 스키마 버전
+### 4.3 오류 및 보존
 
-이름과 썸네일 URL을 고유 식별자로 사용하지 않는다. 같은 아이템을 다시 열면 기존 레코드의 시각을 갱신하고 중복 카드를 만들지 않는다. 최신 열람 순으로 표시한다.
-
-### 4.3 보존 및 제한
-
-- 사용자별 기록이어야 하며, 최대 기록 수를 하나의 설정값으로 관리한다.
-- 초과 시 가장 오래된 기록부터 제거한다.
-- 권장 방향은 재접속 후에도 유지되는 사용자별 저장이다. 현재 영구 저장 구조를 조사한 뒤 저장 방식을 확정한다.
-- 클라이언트 메모리 또는 현재 세션만 사용하는 경우 영구 저장이라고 보고하지 않는다.
-- 오래된 아이템이 더 이상 조회되지 않는 경우 목록 전체를 실패시키지 말고 레코드 제외/표시 정책을 일관되게 적용한다.
+- 서버 착용 실패는 Recent를 갱신하지 않는다.
+- Outfit 복원은 Recent를 자동으로 채우거나 변경하지 않는다.
+- 현재 아바타에서 이미 착용 중인 항목이더라도 이번 세션에서 성공한 착용 이벤트가 없으면 Recent에 자동으로 넣지 않는다.
+- Recent는 게임 내 개인 저장 Favorites와 별도 기능이다.
 
 ### 4.4 수락 기준
 
-- [ ] 검색어 입력이나 검색 결과 노출만으로 기록되지 않는다.
-- [ ] 사용자가 실제로 열어 본 아이템이 기록된다.
-- [ ] 동일 아이템 재열람은 중복 대신 시각을 갱신한다.
-- [ ] Asset/Bundle 구분을 포함한 식별이 된다.
-- [ ] 최근 열람 순으로 표시된다.
-- [ ] 기록 개수 제한이 동작한다.
-- [ ] Recent 버튼이 실제로 카드 목록을 바꾼다.
-- [ ] 빈 상태와 조회 실패가 구분된다.
-- [ ] 저장 범위/재접속 보존 여부가 검증되고 정확히 보고된다.
-
+- [ ] 검색어 입력, 결과 노출, 상세 열기만으로 기록되지 않는다.
+- [ ] 서버가 착용 성공을 확인한 아이템만 기록된다.
+- [ ] 같은 아이템 재착용은 중복 대신 최근 시각을 갱신한다.
+- [ ] Asset/Bundle 구분을 포함한 typed identity를 사용한다.
+- [ ] 최근 착용 성공 순으로 표시된다.
+- [ ] 세션 종료 시 초기화되고 영구 저장되지 않는다.
 ## 5. Popular — Roblox 공식 인기 정렬
 
 ### 5.1 정책
@@ -239,7 +228,7 @@ Favorites는 사용자가 이 게임 안에서 직접 관리하는 사용자별 
 
 ## 8. 모드 간 불변 조건
 
-- Recent에 기록된다고 착용 중인 것은 아니다. 착용 중이라고 자동으로 Recent에 기록하지 않는다.
+- Recent는 현재 세션에서 서버가 성공 확인한 착용 이벤트만 기록한다. 검색/열람이나 Outfit 복원은 Recent를 변경하지 않는다.
 - Outfit 복원은 Recent 열람 기록이나 Favorites를 자동으로 변경하지 않는다.
 - Outfit 복원 후 Wearing은 실제 복원 결과를 반영하고, 즐겨찾기 별표는 기존 Favorites 저장 상태를 따른다.
 - Avatar Editor에서 실제 착용 상태가 바뀌면 Wearing을 갱신한다. 위치/크기/레이어 조정만으로 Favorites/Recent를 변경하지 않는다.
@@ -328,7 +317,7 @@ Favorites는 사용자가 이 게임 안에서 직접 관리하는 사용자별 
 - Wearing is partial implementation until all supported item types and state synchronization are verified. Item identity is itemType + itemId, with type-specific metadata; do not assume Bundle ID is directly wearable.
 - Avatar Editor changes are draft values. Apply commits; Cancel/close discards. If draft changes exist when closing, prompt Apply/Cancel. Reset affects only the selected item. Respawn or Outfit restore discards unapplied draft values.
 - SavedOutfit is game-only. Store a versioned restorable appearance snapshot, not just item IDs. The Outfit preview is rendered from saved data; do not assume a captured screenshot can be persisted.
-- Saved Outfit cap starts at 20 per user and must be configurable. Favorites and Outfits persist across sessions; Recent does not. Actual DataStore integration and rejoin persistence are not yet verified.
+- Saved Outfit cap starts at 50 per user and must be configurable. Favorites and Outfits persist across sessions; Recent does not. Actual DataStore integration and rejoin persistence are not yet verified.
 
 ### Search/filter support matrix
 | Mode | Search text | Catalog API category/type/sort/price filters | Data source |
