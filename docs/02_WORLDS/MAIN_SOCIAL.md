@@ -1,16 +1,24 @@
 # Main Social World
 
-권장 서버: 약 24–30명.
+Recommended server size: approximately 24–30 players; validate against actual performance and social density.
 
-Areas:
-Central Plaza / Cafe / Park / Beach / City / Night Area / Housing District / Club / Photo Spots / Runway Portal
+## Purpose
+A compact fashion-social world where players show their catalog-styled avatars, meet naturally, dance, interact with objects and take photos. Real-world city replication is not the goal.
 
-현실 도시 복제가 목표가 아니다. 캐릭터가 잘 보이고, 자연스럽게 만나며, 사진을 찍고 다음 장소로 이동하는 작은 Fashion Social City를 목표로 한다.
+## Current Priority Areas
+1. **Central Plaza:** spawn, orientation and meeting landmark.
+2. **Club:** dance and social interaction.
+3. **Photo Spots:** distinct photo compositions and poses.
+4. **Park / Playground:** small place-specific interactions.
+5. **Cafe / Beach / City-Street / Night Area:** candidate environment extensions, prioritized after core areas are validated.
 
-설계 시:
-- 멈추는 지점
-- 만나는 지점
-- 사진 지점
-- 이동 동선
-- 시각적 랜드마크
-를 우선한다.
+## Deferred Areas
+- **Housing District:** deferred, furthest priority. Do not block the current MVP on plots, house editing, furniture, saving or visits.
+- **Runway Portal:** keep only as a future expansion landmark/candidate; no Runway Place dependency in the current MVP.
+
+## Layout Principles
+- Make avatars easy to see.
+- Prioritize natural meeting points, photo spots and readable travel paths.
+- Keep Catalog and Current Outfit available across the world.
+- Use a small number of well-executed spaces before expanding the map.
+- Test sightlines, camera behavior, collision, PC/mobile navigation and multi-player use.
