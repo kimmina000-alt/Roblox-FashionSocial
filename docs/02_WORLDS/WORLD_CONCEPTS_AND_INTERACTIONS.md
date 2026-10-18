@@ -9,6 +9,8 @@ Main Social은 단일 건물이나 일반적인 도시 복제가 아니라, 플�
 
 각 공간은 배경 장식에 그치지 않고 해당 장소에 어울리는 행동을 제공한다. 초기에는 전체 맵의 구역 관계와 이동 동선을 먼저 블록아웃하고, 소수의 공간에서 상호작용을 검증한 뒤 확장한다.
 
+전체 공간 프로그램, 인접 관계, 동선/매스 다이어그램, 회색 블록아웃 및 Creator Store 에셋 검토 절차는 [`docs/04_ART/WORLD_BUILD_WORKFLOW.md`](../04_ART/WORLD_BUILD_WORKFLOW.md)를 따른다. 해당 문서의 배치 내용은 사용자 승인과 Studio 검증 전까지 제안으로 취급한다.
+
 ## 2. 월드 영역
 
 ### A. Club — Idol Concert City
