@@ -132,10 +132,12 @@ The Recent/Popular/Wearing/Favorites behavior is specified in `docs/01_SYSTEMS/C
 ## 8. Locked Outfit decisions — 2026-10-18
 
 - Saved Outfit은 이 게임 안에서만 쓰이며 Roblox 계정 Outfit 저장 API나 플랫폼 소유권을 변경하지 않는다.
-- 사용자당 초기 최대 저장 개수는 20개이며 설정값으로 둔다. Outfit delete 기능을 제공한다. 이름은 trim 후 공백 불가, 길이 제한을 검증하고 같은 이름은 허용한다. 각 Outfit은 고유 ID를 가진다.
+- 사용자당 초기 최대 저장 개수는 **50개**이며 설정값으로 둔다. 이는 게임의 제품 정책이지 Roblox 플랫폼 권장 개수가 아니다. Outfit delete 기능을 제공한다. 이름은 trim 후 공백 불가, 길이 제한을 검증하고 같은 이름은 허용한다. 각 Outfit은 고유 ID를 가진다.
 - Outfit은 versioned SupportedAppearanceSnapshot을 저장한다. 단순 Asset ID 배열이 아니라 지원되는 HumanoidDescription 값, typed item refs, layered order, body/colors/animations/emotes/makeup 등 복원 가능한 속성을 분리한다.
 - 미리보기는 저장된 appearance data에서 별도 모델을 렌더링한다. 저장 당시 bitmap/screenshot 자체를 영구 보존한다고 가정하지 않는다.
-- Restore는 현재 외형을 저장된 모습으로 교체한다. 시작 전 baseline을 확보하고, 적용 후 실제 description을 다시 읽어 결과를 검증한다.
+- Restore는 현재 외형을 저장된 모습으로 교체한다. 시작 전 baseline을 확보하고, 적용 후 실제 description을 다시 읽어 결과를 검증한다. 삭제·미지원·착용 불가 항목은 해당 항목만 제외하고 나머지 유효한 외형을 적용한다. 부분 복원은 원본 SavedOutfit을 변경하거나 삭제하지 않는다.
 - 독립된 item 적용이 가능한 경우 유효 항목은 적용하고 실패 항목을 안내한다. description 전체 적용 실패로 결과가 불명확하면 baseline 복구를 시도하고 결과를 재조회한다. 복구까지 실패하면 오류 메시지를 띄우고 실제 상태를 다시 조회한다.
 - Restore 중 wear/remove/Avatar Editor Apply 요청은 대기열에 넣지 않는다. 첫 요청만 실행하며 후속 요청은 차단/거절하고 완료 후 다시 허용한다.
+- 일시적 저장 오류/요청 제한은 제한된 횟수로 backoff 재시도한다. 잘못된 데이터나 payload-too-large는 동일 요청을 무한 재시도하지 않는다. 쓰기 결과가 불명확하면 캐시를 우회한 후속 읽기로 확인한다.
+- Load/migration failure는 빈 Wardrobe와 구분하고, 실패를 이유로 기존 데이터를 빈 기본값으로 덮어쓰지 않는다.
 - 실제 DataStore 저장, 재접속 보존, thumbnail rendering, partial restore behavior는 아직 Studio 검증이 필요하다.
