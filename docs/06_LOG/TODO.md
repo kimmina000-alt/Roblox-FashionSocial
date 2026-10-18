@@ -120,17 +120,17 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 - [ ] Add readable empty/loading/error states and verify pagination.
 - [ ] Consider outfit-code/save-load tools only after the core catalog loop is stable.
 
-## Medium — Core Game
-- [ ] HumanoidDescription transfer verification.
-- [ ] Main→Runway teleport verification.
+## Deferred — Future Game Systems (not active MVP tasks)
+- [ ] HumanoidDescription transfer verification. **DEFERRED for Runway; do not block Catalog/SavedOutfits MVP.**
+- [ ] Main→Runway teleport verification. **DEFERRED until Runway is explicitly reprioritized.**
 - [ ] Central Plaza blockout.
-- [ ] Player outfit copy.
-- [ ] Housing MVP and building placement engine.
-- [ ] Runway core.
+- [ ] Player outfit inspection and manual catalog try-on only; public style-copy feed is out of scope.
+- [ ] Housing MVP and building placement engine. **DEFERRED — do not start before core Catalog, SavedOutfits, Club and Photo Spots are validated.**
+- [ ] Runway core. **DEFERRED — future candidate, not a current MVP dependency.**
 
 ## Later
 - [ ] Club polish.
-- [ ] Advanced housing.
+- [ ] Advanced housing. **DEFERRED — furthest priority.**
 - [ ] Advanced photo.
 - [ ] Monetization polish.
 - [ ] Optimization.
@@ -195,7 +195,7 @@ Authoritative design: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_
 - [ ] Implement snapshot reconstruction from Humanoid:GetAppliedDescription() after apply, on catalog open, and after character respawn; reconcile client cache from the server result.
 - [ ] Implement Recent as session-only successful wear history; Favorites and SavedOutfits as per-user DataStore data. Verify rejoin persistence in Studio.
 - [ ] Implement versioned user data envelope, UpdateAsync, schema migration, validation, payload-size checks, rate limits, and non-destructive failure handling.
-- [ ] Implement Wardrobe save/load/delete, initial maximum 20 outfits per user (configurable), and preview rendering from saved appearance data.
+- [ ] Implement Wardrobe save/load/delete, initial maximum 50 outfits per user (configurable), and preview rendering from saved appearance data.
 - [ ] Implement Outfit restore replacement, result verification, partial-success messaging for independently recoverable items, and baseline recovery for whole-apply failure.
 - [ ] Implement Avatar Editor draft/Apply/Cancel; only applied values enter Current Avatar and Saved Outfit. Reset selected item only; discard draft on respawn/Outfit restore.
 - [ ] Keep respawn policy: default Roblox avatar after respawn; no automatic re-application of temporary wear. Saved Outfit remains available in Wardrobe.
