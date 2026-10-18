@@ -27,3 +27,10 @@ Detailed area interaction proposals live in `docs/02_WORLDS/WORLD_CONCEPTS_AND_I
 - Keep Catalog and Current Outfit available across the world.
 - Use a small number of well-executed spaces before expanding the map.
 - Test sightlines, camera behavior, collision, PC/mobile navigation and multi-player use.
+
+
+## Source-of-truth links
+- Whole-game system dependencies and development order: [`DEVELOPMENT_ORDER.md`](../00_PROJECT/DEVELOPMENT_ORDER.md).
+- Cross-space concept index: [`WORLD_CONCEPTS_AND_INTERACTIONS.md`](WORLD_CONCEPTS_AND_INTERACTIONS.md).
+- Local spatial requirements and per-space build order: `CENTRAL_PLAZA.md`, `CITY_STREET.md`, `CLUB_AREA.md`, `BEACH.md`, `CAFE.md`, `PARK.md`, `PHOTO_SPOTS.md`, `FASHION_WEEK_BACKSTAGE.md`.
+- Unresolved art direction: [`WORLD_DESIGN_EXPLORATION.md`](../04_ART/WORLD_DESIGN_EXPLORATION.md).

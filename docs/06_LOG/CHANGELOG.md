@@ -123,3 +123,12 @@
 - Defined first-request-wins action locking, Avatar Editor draft/Apply/Cancel behavior, discard-on-respawn/restore, and game-wide R6/R15 policy review.
 - Clarified workbench isolation: default.project.json is unchanged and the working copy can be mapped using catalog-ui-redesign.project.json, but that mapping was not run in Studio during this work.
 - Documentation and source/API research only; no game code changes and no Roblox Studio tests were performed.
+
+
+## 2026-10-18 — Whole-game order, per-space plans and source audit
+- Added `docs/00_PROJECT/DEVELOPMENT_ORDER.md` to distinguish whole-game dependency order from local per-space construction order and from low-cost whole-map blockout.
+- Added `docs/06_LOG/DOC_CODE_AUDIT_2026-10-18.md` with static source/document findings, open implementation gaps, priority fixes and verification limits.
+- Added `docs/04_ART/WORLD_DESIGN_EXPLORATION.md`; Korean-inspired details are optional/unresolved and are not a locked global theme.
+- Expanded per-space plans for Beach/Dream Aquarium, Cafe/City View, Park/Playground, City Street, Club spatial layout and Fashion Week Backstage.
+- Linked the new authority documents from GAME_MASTER, ROADMAP, TODO and world planning docs.
+- Documentation-only update. No Roblox game source changes, Studio runtime tests, published multi-client tests or DataStore tests were performed.

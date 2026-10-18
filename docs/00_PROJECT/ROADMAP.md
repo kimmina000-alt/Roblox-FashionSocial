@@ -83,3 +83,10 @@ Proposed areas:
 - Fashion Week Backstage — possible standalone space first; Runway portal remains deferred.
 
 World-layout planning is early because it affects adjacency and traversal, but do not build every area in parallel. Build and test a small number of interactions before expanding. The Korean-inspired vs American-vintage/global-fantasy art direction remains undecided until moodboards and blockout are compared.
+
+
+## Execution Order and Space Planning
+The whole-game dependency order is maintained in [`DEVELOPMENT_ORDER.md`](DEVELOPMENT_ORDER.md). Use that document to distinguish low-cost whole-map blockout from full space implementation: the blockout may happen early, while detailed art and gameplay are built incrementally after the Catalog/SavedOutfits gates. Each space's detailed design and local construction order lives in its own file under [`../02_WORLDS/`](../02_WORLDS/). The cross-space concept index remains [`../02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md`](../02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md).
+
+## Current Source Audit
+See [`../06_LOG/DOC_CODE_AUDIT_2026-10-18.md`](../06_LOG/DOC_CODE_AUDIT_2026-10-18.md) for the source-level gap list. The most important implementation gates are server-side operation gating, typed Asset/Bundle identity, applied-state verification, `IncludeOffSale` precedence, and real SavedOutfits/Favorites persistence. None should be marked complete until tested.

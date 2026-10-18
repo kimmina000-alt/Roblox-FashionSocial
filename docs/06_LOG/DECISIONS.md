@@ -50,3 +50,10 @@ Reason: use the dressing-room/green-room environment as a social exploration are
 
 D-016 — Whole-world art direction is undecided.  
 Reason: Korean-inspired street/market details, American vintage, global pop-stage and fantasy elements should be compared via moodboards and blockout rather than assuming one theme has proven higher demand. No reliable comparative demand statistic has been established for this specific game concept.
+
+
+D-017 — Separate whole-game development order from per-space construction order.
+Reason: The game-wide sequence determines system dependencies and milestone priority; each space's document determines its local blockout, interaction, validation and art-polish sequence. Whole-map grayboxing can begin early without implementing every space in parallel.
+
+D-018 — Korean-inspired visual details remain optional and undecided.
+Reason: The user wants some Korean elements to be considered for selected spaces or as background details, but does not want a global Korean theme decided yet. Compare moodboards and graybox fit before promoting a motif to a space-level decision.

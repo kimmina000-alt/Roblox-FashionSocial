@@ -223,3 +223,31 @@ Authoritative design: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_
 - [ ] Start Playground with one swing interaction; evaluate carousel/Viking-ship ride later and roller coaster only after complexity review.
 - [ ] Keep Fashion Week Backstage as a possible standalone social space; decide camper vs tent vs permanent building only after surrounding area design.
 - [ ] Keep Runway portal/round system deferred; keep Housing furthest priority.
+
+
+## Source Audit Follow-up — 2026-10-18
+Use [`DOC_CODE_AUDIT_2026-10-18.md`](DOC_CODE_AUDIT_2026-10-18.md) as the audit finding index and [`../00_PROJECT/DEVELOPMENT_ORDER.md`](../00_PROJECT/DEVELOPMENT_ORDER.md) for dependency order.
+
+### P0 — Catalog correctness
+- [ ] Fix the effective `IncludeOffSale` value: the active search function currently assigns the user toggle and later overwrites it with the category value.
+- [ ] Add a server-side per-player action gate for wear/remove and future Apply/restore operations; a client-only busy flag is not an authority boundary.
+- [ ] Add typed item identity to wear/remove/current-state requests, or explicitly disable unsupported Bundle wear until a verified path exists.
+- [ ] Verify the requested item/property against the post-apply HumanoidDescription before reporting success; return a confirmed snapshot or refresh signal.
+- [ ] Rebuild Current Outfit/Wearing/card state from one confirmed typed snapshot and test exact-item removal.
+
+### P1 — Persistence and discovery modes
+- [ ] Implement DataStore-backed SavedOutfits and Favorites; current Wardrobe and Recent/Popular/Favorites controls are placeholders in active source.
+- [ ] Implement schema versioning, migration, payload checks, bounded retry and ambiguous-write verification before enabling save success UI.
+- [ ] Define whether Recent remains session-only successful wear history; keep that definition consistent in `SAVE_DATA.md`, `DATA.md` and the quick-navigation plan.
+- [ ] Verify the active `src/` UI and isolated `workbench/` UI independently in Studio; do not infer parity.
+
+### P2 — World MVP
+- [ ] Make a low-cost Main Social graybox and validate traversal before detailed decoration.
+- [ ] Build and test Club dance start/stop and multiplayer visibility.
+- [ ] Build one representative Photo Spot with camera/pose exit behavior.
+- [ ] Add only one core interaction at a time to selected additional spaces.
+
+### Documentation maintenance
+- [ ] Keep the per-space document as the home for local layout, actions, build order and acceptance criteria.
+- [ ] Keep whole-game dependency order in `../00_PROJECT/DEVELOPMENT_ORDER.md` and milestone scope in `../00_PROJECT/ROADMAP.md`.
+- [ ] Keep Korean-inspired motifs and other art-style choices undecided in `../04_ART/WORLD_DESIGN_EXPLORATION.md` until compared in moodboards/blockout.

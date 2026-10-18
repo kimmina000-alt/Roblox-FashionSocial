@@ -169,3 +169,30 @@
 ### Validation status
 - Evidence level: official API docs reviewed and project source statically reviewed.
 - No Roblox Studio session was run in this work. DataStore persistence, Popular query aggregation, every item-type wear/remove, partial restore, avatar preview rendering, and PC/mobile interaction remain unverified.
+
+
+## 2026-10-18 — Static repository/documentation audit
+
+### Scope inspected
+- Read the repository tree for `catalog-ui-redesign`, the project/roadmap/vision/core-loop/design-principles docs, Club and other system plans, world concept and art-direction docs, API/state/persistence docs, logs, active catalog source, server entry point, avatar service, catalog config, and workbench README.
+- Distinguished active `src/` code from `workbench/catalog-ui-redesign/working-copy/` and its baseline.
+- Added `docs/06_LOG/DOC_CODE_AUDIT_2026-10-18.md` and `docs/00_PROJECT/DEVELOPMENT_ORDER.md` as central references for findings and dependency order.
+- Expanded per-space planning documents for Beach, Cafe/City View, Park/Playground, City Street, Club spatial layout and Fashion Week Backstage; added a separate unresolved art exploration note.
+
+### Source findings (static inspection only)
+- Active catalog has search/filter/pagination, item cards, client wear/remove requests and a ViewportFrame preview structure.
+- Server exposes Wear, Remove and GetCurrent routes; CatalogSearch RemoteFunction states that search runs on the client.
+- Avatar service has classic clothing, accessory, animation, emote and makeup branches, and reads GetAppliedDescription after applying. Full requested-change verification was not found.
+- Recent/Popular/Favorites and Wardrobe/Avatar Editor are placeholders in active source; Wearing is partial.
+- Active request/state structures use numeric asset IDs and do not preserve typed Asset/Bundle identity end-to-end.
+- `IncludeOffSale` is assigned from the user toggle and then overwritten with a category value in the inspected search function.
+- No per-player server-side action gate or DataStore-backed SavedOutfits/Favorites implementation was found in the inspected active paths.
+- The inspected source tree did not contain dedicated gameplay implementation modules for the documented world interactions.
+
+### Validation limits
+- This was a static GitHub inspection. No Roblox Studio runtime, published multi-client, live DataStore or mobile-emulator tests were run during this audit.
+- Historical user confirmation for an earlier UI revision does not verify the current source or isolated workbench copy.
+- No game source code was changed as part of this audit. Documentation changes only.
+
+### Next action
+Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctness and typed server-authoritative state before persistence or world expansion.

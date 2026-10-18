@@ -48,3 +48,11 @@ Roblox 카탈로그 아이템으로 나만의 아바타를 부담 없이 꾸미�
 - On restore, skip only unsupported/unavailable items and apply the remaining valid appearance. Preserve the original saved record.
 - Distinguish transient errors, request throttling, invalid data, payload-too-large, and ambiguous write results. Use bounded retries only where appropriate.
 - Distinguish implementation present, user-confirmed behavior, and Studio-verified behavior.
+
+
+## Documentation Authority and Whole-Game Order
+- Whole-game dependencies and phase order: [`docs/00_PROJECT/DEVELOPMENT_ORDER.md`](docs/00_PROJECT/DEVELOPMENT_ORDER.md).
+- Product-level milestone acceptance criteria: [`docs/00_PROJECT/ROADMAP.md`](docs/00_PROJECT/ROADMAP.md).
+- Individual space layout, player actions, construction order and acceptance criteria: canonical files in `docs/02_WORLDS/`; the Club experience/system contract remains in `docs/01_SYSTEMS/CLUB.md`.
+- Whole-world Korean-inspired accents, American-vintage details and global/fantasy themes are **unresolved options**, not a locked global style. See [`docs/04_ART/WORLD_DESIGN_EXPLORATION.md`](docs/04_ART/WORLD_DESIGN_EXPLORATION.md).
+- Static source/document findings are recorded in [`docs/06_LOG/DOC_CODE_AUDIT_2026-10-18.md`](docs/06_LOG/DOC_CODE_AUDIT_2026-10-18.md). This audit does not imply Studio verification.

@@ -12,3 +12,9 @@
 - `06_LOG/` — 결정/변경/이슈
 
 원칙: `SYSTEMS`는 무엇을 하는가, `WORLDS`는 어디에서 경험하는가를 정의한다.
+
+Recommended entry points for planning and implementation:
+- `docs/00_PROJECT/DEVELOPMENT_ORDER.md` — whole-game dependency order; explicitly separates early graybox from full space production.
+- `docs/06_LOG/DOC_CODE_AUDIT_2026-10-18.md` — source/document audit and current implementation gaps (static inspection only).
+- `docs/04_ART/WORLD_DESIGN_EXPLORATION.md` — unresolved visual motifs, including optional Korean-inspired details.
+- `docs/02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md` — index of spaces and their canonical per-space documents.

@@ -112,15 +112,22 @@ Main Social은 단일 건물이나 일반적인 도시 복제가 아니라, 플�
 
 권장 다음 단계는 한 가지 미감으로 즉시 확정하는 것이 아니라, 서로 다른 2~3개 무드보드를 만들어 아바타 가시성, 구역 간 연결성, 독창성, 에셋 제작 부담, 국제 이용자에게 전달되는 의미를 비교하는 것이다. 한국적 요소는 단순 장식이 아니라 시장, 음식 부스, 간판, 골목 등 공간 경험과 연결될 때 더 설득력 있다.
 
-## 5. 구현 순서 제안
+## 5. Build-order authority
 
-1. 전체 월드 블록아웃과 주요 구역 동선
-2. Catalog/SavedOutfits 핵심 루프 완성
-3. Club 핵심 춤 경험 검증
-4. 대표 공간 몇 곳에서 상호작용을 하나씩 검증
-5. Beach / Cafe / Playground 중 선택한 공간을 확장
-6. Fashion Week Backstage를 소셜 공간으로 검토
-7. Runway 포털과 경기 시스템은 별도 재평가
-8. Housing은 가장 후순위로 유지
+The whole-game dependency order is maintained in [`../00_PROJECT/DEVELOPMENT_ORDER.md`](../00_PROJECT/DEVELOPMENT_ORDER.md). This includes the distinction between low-cost whole-map grayboxing and detailed feature/space implementation. Do not treat the local space list below as permission to build every space in parallel.
 
-이 순서는 콘셉트/블록아웃과 실제 기능 구현을 구분한다. 전체 월드의 큰 구조는 일찍 계획하지만, 모든 구역을 동시에 완성하지 않는다.
+## 6. Canonical per-space documents
+This document is the **cross-space concept index**, not the only detailed specification. Use the following files as the canonical home for local layout, player actions, construction order and acceptance criteria:
+- Central Plaza: `CENTRAL_PLAZA.md`
+- City Street / connecting streets: `CITY_STREET.md`
+- Club spatial layout: `CLUB_AREA.md`; dance-system behavior: `../01_SYSTEMS/CLUB.md`
+- Beach + Dream Aquarium: `BEACH.md`
+- Cafe + City View: `CAFE.md`
+- Park / Fantasy Playground: `PARK.md`; interaction system: `../01_SYSTEMS/PLAYGROUND.md`
+- Photo locations: `PHOTO_SPOTS.md`; photo system: `../01_SYSTEMS/PHOTO.md`
+- Fashion Week Backstage: `FASHION_WEEK_BACKSTAGE.md`; Runway remains deferred in `../01_SYSTEMS/RUNWAY.md`.
+- Runway Portal: `RUNWAY_PORTAL.md`; future candidate only.
+- Housing District: `HOUSING_DISTRICT.md`; deferred.
+- Night Area: `NIGHT_AREA.md`; treat as a mood/lighting concept that may be expressed by Neon Rooftop or other night spaces, not an additional separate zone until the graybox proves it needs one.
+
+Unresolved global art choices, including optional Korean-inspired accents, belong in [`../04_ART/WORLD_DESIGN_EXPLORATION.md`](../04_ART/WORLD_DESIGN_EXPLORATION.md) until a choice is tested in moodboards/blockout.
