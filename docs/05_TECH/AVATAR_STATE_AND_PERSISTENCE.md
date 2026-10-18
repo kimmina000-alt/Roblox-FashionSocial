@@ -93,8 +93,17 @@ Roblox 공식 API의 Humanoid:GetAppliedDescription()은 해당 Humanoid에 현�
 | Current Avatar / Wearing | Current character/session; reconstructed from applied description | Server runtime state + current Humanoid description | Not a second independent persistent item list |
 | Recent | Current session only | Client/server session memory; cleared on leave | Only items the player actually wore, not search history |
 | Favorites | Across sessions | Server DataStore per user | Typed item identity; toggle is idempotent and validated |
-| Saved Outfits | Across sessions | Server DataStore per user | Up to 20 outfits initially; versioned restorable snapshots |
+| Saved Outfits | Across sessions | Server DataStore per user | Up to 50 outfits per user; versioned restorable snapshots |
 | Avatar Editor draft | Until Apply/Cancel/close/respawn | Client draft, server validates Apply | Never auto-saved; only applied state can be saved into Outfit |
+
+### Saved Outfit limit and partial restore decision — 2026-10-18
+
+- SavedOutfits has an initial product limit of **50 records per user**. This is an application policy, not a Roblox platform recommendation.
+- Outfit names may repeat; each record must have a unique outfitId.
+- If one or more saved entries are unsupported, deleted, unavailable or rejected, skip only those entries and apply the remaining valid appearance. Identify skipped items where possible.
+- A partial restore must not delete, mutate or silently replace the original SavedOutfit. Only explicit user edit/delete actions may change that saved record.
+- Save failure handling depends on cause: bounded retry/backoff for transient failures and throttling; validation/correction for invalid data; immediate size feedback for payload-too-large; follow-up cache-bypassing read when the write result is ambiguous.
+- Empty Wardrobe and load/migration failure are distinct states. Never replace existing data with an empty default after a read or migration error.
 
 ## 9. API and test evidence
 
