@@ -114,3 +114,16 @@ GAME_MASTER.md가 정의한 Main Social World는 자유 탐험, 소셜, 사진, 
 ## Priority Alignment — 2026-10-18
 
 Playground is a small interaction extension of Main Social, after the Catalog/SavedOutfits, Club and Photo Spots core work. Start with blockout and a few interactions only. Do not introduce a separate Place, reward loop, quests, leaderboards or broad minigame systems without a separate decision. Housing remains deferred and Runway remains a future candidate.
+
+
+## 8. Larger amusement-park interaction candidates (later; not committed MVP scope)
+
+The user has proposed a small amusement-park area with:
+- Swing with a matching seated/ride animation as the simplest first interaction.
+- Carousel.
+- Viking-ship style swinging ride.
+- Roller coaster.
+
+These are proposals, not implemented features. Validate one interaction end-to-end before committing to multiple rides. Carousel and Viking-ship rides require seated state, motion and camera testing; a roller coaster adds path traversal, boarding/exiting, camera, collision and mobile-control complexity and should be evaluated later.
+
+See `docs/02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md` for world-level placement and common interaction requirements.
