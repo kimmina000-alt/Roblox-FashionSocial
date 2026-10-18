@@ -1,5 +1,40 @@
 # TODO
 
+## Product Priority — 2026-10-18
+
+Use this order for new work. Do not let deferred systems become prerequisites for the core experience.
+
+1. **Catalog end-to-end**
+   - Search supported catalog items.
+   - Wear through server validation and confirm other players see the applied appearance.
+   - Remove one exact item without disturbing unrelated items.
+   - Refresh Current Outfit/Wearing and catalog card states from the confirmed applied appearance.
+2. **SavedOutfits**
+   - Save a versioned server-confirmed appearance snapshot.
+   - Wardrobe list, unique outfitId, duplicate names allowed, maximum **50 per user**.
+   - Reconnect and restore.
+   - Skip only unavailable/unsupported entries, apply the remaining appearance, identify skipped items where possible, and preserve the original saved record.
+   - Test transient retries, throttling, invalid payload, payload-too-large, ambiguous write result, empty vs load failure, and migration.
+3. **Club**
+   - Varied dance styles, start/stop behavior, multiplayer visibility, PC/mobile validation.
+4. **Photo Spots**
+   - Build a small number of distinct spaces with defined composition, lighting, poses and camera behavior.
+   - Photo-taking only; public gallery posting, likes and style-copy feed are out of scope.
+5. **Playground interactions**
+   - Blockout and a few small interactions such as a moving swing with a seated animation.
+6. **Runway**
+   - Deferred future candidate. Not a prerequisite for Catalog, SavedOutfits, Club or Photo Spots. If implemented, RunwayOutfit is temporary and the post-round save confirmation requires explicit confirmation.
+7. **Housing**
+   - Deferred and furthest priority. Do not implement house editing, furniture placement, persistence or visits until the core experience has been validated and Housing is explicitly reprioritized.
+
+## Documentation and Validation Rules
+- Distinguish planned, source-present, user-confirmed and Studio-verified states.
+- Never mark acceptance criteria complete based only on code presence.
+- Official API capability, project integration and Studio behavior are separate verification steps.
+- Preserve existing saved data on read/migration failure. Never report a write as successful before its result is confirmed.
+
+# TODO
+
 
 ## Ordered Roadmap — Catalog UX, Avatar Editing, and Main Social World
 
@@ -174,3 +209,8 @@ Authoritative design: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_
 - Feature specs: requirements and acceptance criteria.
 - WORKLOG.md: investigation and actual test evidence; clearly mark API-reviewed, source-reviewed, and Studio-tested.
 - CHANGELOG.md: committed documentation/code changes.
+
+
+## Housing / Runway Status
+- Housing TODOs remain deferred; do not treat existing house/furniture checklists as active sprint tasks.
+- Runway TODOs remain future planning only until core Catalog, SavedOutfits, Club and Photo Spots have been evaluated.
