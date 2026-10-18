@@ -33,13 +33,10 @@ Use this order for new work. Do not let deferred systems become prerequisites fo
 - Official API capability, project integration and Studio behavior are separate verification steps.
 - Preserve existing saved data on read/migration failure. Never report a write as successful before its result is confirmed.
 
-# TODO
-
-
 ## Ordered Roadmap — Catalog UX, Avatar Editing, and Main Social World
 
-### 0. Main Social World — Playground (new proposal)
-- [ ] Inspect current world folders, Spawn, Park and Central Plaza placement.
+### Playground — later-stage interaction area
+- [ ] After Photo Spots scope is validated, inspect current world folders, Spawn, Park and Central Plaza placement.
 - [ ] Decide whether Playground is a Park sub-area or an adjacent zone.
 - [ ] Build a blockout with clear paths, open social space, rest/viewing spots, and photo-friendly sightlines.
 - [ ] Start with a small set of basic play objects; do not add rewards, quests, leaderboards, or a separate Place without a separate decision.
@@ -123,16 +120,15 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 ## Deferred — Future Game Systems (not active MVP tasks)
 - [ ] HumanoidDescription transfer verification. **DEFERRED for Runway; do not block Catalog/SavedOutfits MVP.**
 - [ ] Main→Runway teleport verification. **DEFERRED until Runway is explicitly reprioritized.**
-- [ ] Central Plaza blockout.
-- [ ] Player outfit inspection and manual catalog try-on only; public style-copy feed is out of scope.
 - [ ] Housing MVP and building placement engine. **DEFERRED — do not start before core Catalog, SavedOutfits, Club and Photo Spots are validated.**
 - [ ] Runway core. **DEFERRED — future candidate, not a current MVP dependency.**
 
-## Later
-- [ ] Club polish.
+## Later — after the core loop
+- [ ] Central Plaza blockout and navigation to the current priority spaces.
+- [ ] Club polish after core dance behavior works.
+- [ ] Advanced photo controls after basic Photo Spots are validated.
 - [ ] Advanced housing. **DEFERRED — furthest priority.**
-- [ ] Advanced photo.
-- [ ] Monetization polish.
+- [ ] Monetization polish without adding a purchase barrier to core try-on.
 - [ ] Optimization.
 - [ ] QA / soft launch.
 
