@@ -61,9 +61,9 @@ SupportedAppearanceSnapshot은 item list만이 아니라 지원되는 HumanoidDe
 
 ## 5. Limits and byte size
 
-- 초기 Saved Outfit 개수: 사용자당 최대 20개. 상수/설정으로 두어 나중에 바꿀 수 있게 한다.
+- 초기 Saved Outfit 개수: 사용자당 최대 **50개**. 상수/설정으로 두어 나중에 바꿀 수 있게 한다. 상수/설정으로 두어 나중에 바꿀 수 있게 한다.
 - Favorite 최대 개수: 별도 수치 확정 전까지 저장/요청 크기를 방어적으로 제한하고, 한계에 도달하면 추가 실패 메시지를 표시한다. 무제한으로 간주하지 않는다.
-- “데이터 크기”는 저장 record를 직렬화했을 때의 byte 수다. Outfit 20개라는 개수 한도와는 별개다. Thumbnail bitmap을 저장하지 않고 필요한 appearance data만 저장해 payload를 줄인다.
+- “데이터 크기”는 저장 record를 직렬화했을 때의 byte 수다. Saved Outfit 50개라는 개수 한도와는 별개다. Thumbnail bitmap을 저장하지 않고 필요한 appearance data만 저장해 payload를 줄인다.
 - DataStore의 공식 per-key serialized value 최대치는 4,194,304 bytes(4 MiB)다. 이를 앱 목표치로 사용하지 않는다. HttpService:JSONEncode() 결과의 byte 크기를 확인하고 실제 snapshot sample을 측정해 더 작은 앱 내부 상한을 설정한다. 초과하면 저장을 거부하고 명확한 오류를 표시한다. UpdateAsync가 실패했다고 응답해도 저장 여부가 불확실할 수 있으므로, 모호한 오류는 후속 읽기로 확인하기 전까지 저장 실패/성공을 단정하지 않는다.
 
 ## 6. Stale/deleted/unwearable items
@@ -89,3 +89,13 @@ SupportedAppearanceSnapshot은 item list만이 아니라 지원되는 HumanoidDe
 
 ## Official platform size reference
 DataStore per-key value maximum: 4,194,304 bytes (4 MiB). This is a hard upper limit, not a target. Use JSONEncode-based byte measurement and a smaller application limit. Source: https://create.roblox.com/docs/cloud-services/data-stores/error-codes-and-limits
+
+
+## 9. Saved Outfit Limit and Restore Policy — 2026-10-18
+
+- Product limit: **maximum 50 SavedOutfits per user**. This is a game design decision, not a Roblox platform recommendation.
+- Each record has a unique outfitId even when names are duplicated. At the limit, never silently overwrite an existing Outfit; ask the player to delete one before saving another.
+- On restore, skip only the individual entries that are unsupported, deleted/unavailable, or rejected by the platform. Apply the remaining valid appearance and report partial success. Preserve the original SavedOutfit unchanged; a partial restore is not permission to rewrite or delete the record.
+- Save failures must be classified. Transient service/network errors and throttling may use bounded backoff retries; invalid/unserializable data and payload-too-large errors require correction, not blind retries. For an ambiguous write result, verify with a follow-up read that bypasses cache before declaring success/failure.
+- Load/migration failure must not be displayed as an empty Wardrobe and must never overwrite existing data with an empty default.
+- DataStore's 4,194,304-byte (4 MiB) per-key serialized-value maximum is a hard platform limit, not an app target. Measure JSON-encoded byte size and set a smaller internal safety limit after representative snapshots are measured.
