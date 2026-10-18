@@ -18,3 +18,4 @@ Recommended entry points for planning and implementation:
 - `docs/06_LOG/DOC_CODE_AUDIT_2026-10-18.md` — source/document audit and current implementation gaps (static inspection only).
 - `docs/04_ART/WORLD_DESIGN_EXPLORATION.md` — unresolved visual motifs, including optional Korean-inspired details.
 - `docs/02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md` — index of spaces and their canonical per-space documents.
+- `docs/04_ART/WORLD_BUILD_WORKFLOW.md` — spatial-program, adjacency, circulation, massing, graybox, Creator Store asset candidates, and safe asset review workflow.
