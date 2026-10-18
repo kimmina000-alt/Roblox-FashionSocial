@@ -1,3 +1,11 @@
+## 2026-10-18 — Align product scope, persistence and Saved Outfit limit
+- Set the game direction to a Roblox catalog-based fashion social playground; no clothing creation feature.
+- Ordered the current work as Catalog end-to-end → SavedOutfits → Club → Photo Spots → small Playground interactions. Runway is a future candidate; Housing is deferred and furthest priority.
+- Set SavedOutfits to a maximum of 50 per user, with unique outfit IDs even when names repeat.
+- Specified per-item partial restore while preserving the original saved record, plus cause-specific save/load failure handling, size validation and ambiguity verification.
+- Removed public in-game photo-gallery posting, likes and style-copy feed from current scope; kept in-world photo-taking and manual catalog try-on.
+- Documentation-only changes. No game source was changed and no Roblox Studio test was performed.
+
 # Changelog
 
 ## 2026-10-17 — Detailed Catalog Quick Navigation specification
