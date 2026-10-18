@@ -111,3 +111,11 @@ Description: Data schema and world plans are detailed, but the inspected active 
 Expected: Planning status and implemented status remain separate.
 Actual: These features remain plans/candidates based on this source inspection.
 Decision / Fix: Follow `../00_PROJECT/DEVELOPMENT_ORDER.md`; implement one core loop/interaction at a time and update the audit/worklog only with new evidence.
+
+### ISSUE-AUDIT-007 — Popular mode has no mode-specific aggregation yet
+Status: Open
+Area: Catalog / API / UX
+Description: `CatalogConfig.SortAggregation` currently defaults to `AllTime`. The documented Popular behavior prefers `MostFavorited + PastMonth` with explicit fallback to `AllTime`, but the active and workbench Popular handlers are placeholders.
+Expected: Popular mode explicitly applies its documented aggregation, handles runtime rejection/invalid results with a visible/logged fallback, and never labels other sorts as Popular.
+Actual: Global config is AllTime; Popular mode-specific behavior is not implemented.
+Decision / Fix: Implement a Popular-mode-specific sort/aggregation branch and verify the supported combinations in Studio. Keep ordinary catalog sort aggregation behavior separate.

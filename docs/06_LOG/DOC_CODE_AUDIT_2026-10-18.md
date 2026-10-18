@@ -28,6 +28,7 @@
 - Wardrobe button displays a status message; save/load is not implemented in the inspected source.
 - Recent, Popular and Favorites buttons log that those views are placeholders. Their complete data/filter/persistence behavior is not implemented in the active source.
 - The client keys `currentWornItems` and `wornOrder` by numeric asset ID only. It does not preserve a complete typed Asset/Bundle identity in these UI structures.
+- The isolated `workbench/catalog-ui-redesign/working-copy/CatalogController.client.lua` is longer than the baseline and includes the newer discovery bar/category strip/filter UI, but its Recent/Popular/Favorites handlers are still placeholders and its Wearing view resolves details as `Enum.AvatarItemType.Asset`. It is not evidence that these controls are integrated into or verified in the active `src/` script.
 - `TryOnItem` RemoteFunction passes an action plus numeric `assetId`; the server resolves it with `GetItemDetailsAsync(assetId, Enum.AvatarItemType.Asset)`. There is no typed Bundle request path in this interface.
 - Remove also accepts only numeric ID, so the request contract does not encode type-specific identity.
 - The client contains no observed DataStore-backed Favorites or SavedOutfits implementation. The existing 50-outfit limit, versioned records, migration and partial restore are design requirements, not implemented behavior in these inspected files.
@@ -51,6 +52,7 @@
 
 ### P0 — Required before calling the catalog loop complete
 - [ ] Resolve `IncludeOffSale` precedence and add regression checks.
+- [ ] When implementing Popular, override global `AllTime` with `PastMonth` only for that mode and explicitly retry with `AllTime` if the runtime rejects it.
 - [ ] Add server-side action gating/serialization for wear/remove and any future restore/apply operation.
 - [ ] Change the request contract to validate item type and identity; define explicit Bundle handling or visibly disable Bundle wear.
 - [ ] Verify the requested change against the actual post-apply description and return a confirmed snapshot.
@@ -78,3 +80,6 @@
 
 ## Follow-up reconciliation — 2026-10-18
 A cross-document consistency check found two stale details in the quick-navigation spec: an older Recent definition based on viewing/opening items, and a 20-item Saved Outfit cap. These have been aligned with the current product decisions: Recent records only server-confirmed successful wear actions in the current session and is not persisted; SavedOutfits starts at 50 per user. This is a documentation reconciliation, not implementation evidence.
+
+## Additional source detail — catalog UI workbench
+The workbench working copy was inspected at its discovery-mode handlers and catalog search/config sections. It contains newer layout controls but Recent/Popular/Favorites still log placeholder messages; Wearing reconstructs a view from numeric asset IDs and requests item details as Asset. `CatalogConfig.SortAggregation` is currently `AllTime`; the Popular-specific PastMonth/fallback policy remains planned. No Studio test was run.

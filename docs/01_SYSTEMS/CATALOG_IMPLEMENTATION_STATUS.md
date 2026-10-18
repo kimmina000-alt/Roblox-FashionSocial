@@ -216,3 +216,6 @@ This is a requirements checklist, not a claim that persistence has been implemen
 - [ ] Verify save/load/rejoin/partial-restore/failure paths in Studio before marking these items complete.
 
 Authoritative contracts: `docs/01_SYSTEMS/OUTFIT.md`, `docs/01_SYSTEMS/OUTFIT_WARDROBE_AND_AVATAR_EDITOR_PLAN.md`, `docs/05_TECH/DATA.md`, and `docs/05_TECH/AVATAR_STATE_AND_PERSISTENCE.md`.
+
+## Popular aggregation note — 2026-10-18
+The current `CatalogConfig.SortAggregation` is `Enum.CatalogSortAggregation.AllTime` and is applied through the generic search path. The Popular button remains a placeholder in the inspected source, so the required Popular-only `MostFavorited + PastMonth` behavior and explicit AllTime fallback are **not implemented**. Do not treat the global AllTime config as proof that Popular works.
