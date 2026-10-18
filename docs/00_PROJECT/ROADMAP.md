@@ -69,3 +69,17 @@ Housing, house structure customization, furniture placement, persistence, permis
 
 ## Completion Policy
 Do not mark a phase complete because code exists. Record implementation, user-confirmed behavior, and Studio-verified acceptance tests separately.
+
+
+## World Concept Planning — 2026-10-18
+
+Before detailed world art production, create a whole-map blockout with readable routes and area roles. The world concept is documented in `docs/02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md`.
+
+Proposed areas:
+- Club / Idol Concert City — detailed design in `docs/01_SYSTEMS/CLUB.md`.
+- Beach — Sunset Beach Resort plus Dream Aquarium concept; underwater swimming/breath-duration mechanic is unverified and requires prototype testing.
+- Cafe / City View — Glasshouse Cafe and Neon Rooftop City.
+- Fantasy Playground — begin with one simple interaction; carousel, Viking-ship ride and roller coaster are later candidates.
+- Fashion Week Backstage — possible standalone space first; Runway portal remains deferred.
+
+World-layout planning is early because it affects adjacency and traversal, but do not build every area in parallel. Build and test a small number of interactions before expanding. The Korean-inspired vs American-vintage/global-fantasy art direction remains undecided until moodboards and blockout are compared.
