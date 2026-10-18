@@ -49,15 +49,21 @@ Roadmap order reflects the current product priority. Runway and Housing are not 
 - Camera/pose controls do not block ordinary play or hide the avatar.
 - Photo-taking works without a public in-game gallery.
 
-## Phase 4 — Playground Interactions
-- Blockout a Playground area connected to Park or Central Plaza.
-- Add a small number of place-specific interactions, such as a moving swing with a seated animation.
-- Validate multi-player synchronization, collisions, exit behavior, mobile controls and performance.
+## Phase 4 — Additional World Spaces (one at a time)
+The canonical proposed sequence is maintained in `DEVELOPMENT_ORDER.md` Stage 6. Do not interpret the phase list here as a requirement to build every space in parallel.
+
+1. **Beach + Dream Aquarium:** validate beach rest and the dome → underwater space → surface → beach traversal loop.
+2. **Cafe / City View:** validate sitting, viewpoint and window-side photo composition. Whether Glasshouse Cafe and Neon Rooftop City share a structure remains undecided until blockout.
+3. **Fantasy Playground:** begin with one interaction, such as a swing with seated animation. Carousel, Viking-ship ride and roller coaster remain later candidates.
+4. **Central Street / decorative landmarks:** add route legibility and exploration landmarks as needed.
+5. **Fashion Week Backstage:** consider as a standalone social/exploration space. Runway portal and round system remain deferred.
+
+Select the next space based on blockout findings, player experience, and implementation cost; build and test one vertical slice at a time.
 
 **Acceptance criteria**
-- Interactions have clear start/stop behavior and do not trap players.
-- Other nearby players can see the interaction.
-- Catalog and photo flows remain usable.
+- The chosen space has a clear purpose and a meaningful interaction, not just decorative geometry.
+- Player routes, camera, collisions, multi-player behavior, mobile controls and performance are tested.
+- Existing Catalog, SavedOutfits, Club and photo flows remain usable.
 
 ## Future Candidate — Runway (Deferred)
 Re-evaluate only after the core Catalog, Saved Outfits, Club and Photo Spots experience is validated. Before implementation, define player count, theme, dressing, runway, voting, rewards, teleport, failure recovery and appearance restoration.
