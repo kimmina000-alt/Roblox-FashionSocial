@@ -40,7 +40,7 @@ Roblox의 공식 CatalogSortAggregation enum에는 PastMonth 값이 있다. 따�
 
 ### DataStore record size clarification
 
-“크기 제한”은 저장 가능한 Outfit 개수와 별개로, 한 번에 DataStore에 쓰는 직렬화된 값의 byte 크기 및 요청 처리량을 뜻한다. 초기 제품 한도는 사용자당 Saved Outfit 20개이며, record에는 썸네일 이미지 파일 자체가 아니라 렌더링에 필요한 appearance data만 저장한다. API/서비스의 플랫폼 한도에 가까워질 때까지 저장하지 말고, 앱 차원에서 훨씬 작은 안전 상한을 두고 serialize 결과의 byte 크기를 검사한다. 실제 상한값은 schema가 확정되고 측정 가능한 샘플 데이터가 생긴 뒤 결정한다. 저장 실패 시 기존 저장 데이터를 덮어쓰지 않고 오류 메시지를 표시한다.
+“크기 제한”은 저장 가능한 Outfit 개수와 별개로, 한 번에 DataStore에 쓰는 직렬화된 값의 byte 크기 및 요청 처리량을 뜻한다. 초기 제품 한도는 사용자당 Saved Outfit 50개이며, record에는 썸네일 이미지 파일 자체가 아니라 렌더링에 필요한 appearance data만 저장한다. API/서비스의 플랫폼 한도에 가까워질 때까지 저장하지 말고, 앱 차원에서 훨씬 작은 안전 상한을 두고 serialize 결과의 byte 크기를 검사한다. 실제 상한값은 schema가 확정되고 측정 가능한 샘플 데이터가 생긴 뒤 결정한다. 저장 실패 시 기존 저장 데이터를 덮어쓰지 않고 오류 메시지를 표시한다.
 
 Official sources:
 - https://create.roblox.com/docs/reference/engine/enums/CatalogSortType
@@ -63,3 +63,8 @@ Sources:
 - https://create.roblox.com/docs/cloud-services/data-stores/error-codes-and-limits
 - https://create.roblox.com/docs/cloud-services/data-stores/best-practices
 - https://create.roblox.com/docs/reference/engine/classes/Players
+
+
+### Saved Outfit policy — 2026-10-18
+
+The current product decision is **50 SavedOutfits per user**; this is not a Roblox platform recommendation. The per-key 4 MiB serialized-value limit is a platform maximum and must not be treated as the target payload size. Store only a versioned, server-validated snapshot of supported applied appearance properties, not thumbnail image bytes or Roblox Instances. Validate serialized byte size and set a smaller application-level safety limit after representative snapshots are measured. On restore, skip only unsupported/unavailable entries and apply the remaining valid appearance; preserve the original saved record. Use bounded retries for transient errors/throttling, correct invalid payloads instead of retrying indefinitely, and verify ambiguous writes with a cache-bypassing follow-up read before claiming success or failure.
