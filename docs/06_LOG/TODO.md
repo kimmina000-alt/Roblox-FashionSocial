@@ -210,3 +210,16 @@ Authoritative design: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_
 ## Housing / Runway Status
 - Housing TODOs remain deferred; do not treat existing house/furniture checklists as active sprint tasks.
 - Runway TODOs remain future planning only until core Catalog, SavedOutfits, Club and Photo Spots have been evaluated.
+
+
+## Whole-World Concept & Interaction Planning — 2026-10-18
+
+- [ ] Review `docs/02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md` as the current concept reference.
+- [ ] Block out the whole Main Social map: area adjacency, traversal, scale, landmarks and sightlines before detailed art.
+- [ ] Create 2–3 moodboards comparing Korean-inspired, American-vintage and global-fantasy/pop-stage directions; do not assume comparative demand without evidence.
+- [ ] Prototype Club's core solo dance flow from `docs/01_SYSTEMS/CLUB.md`.
+- [ ] Choose one initial area interaction to implement and validate before expanding.
+- [ ] Prototype Beach/Dream Aquarium transition: underwater swimming, visible time/breath guidance, route to surface, beach recovery and mobile controls.
+- [ ] Start Playground with one swing interaction; evaluate carousel/Viking-ship ride later and roller coaster only after complexity review.
+- [ ] Keep Fashion Week Backstage as a possible standalone social space; decide camper vs tent vs permanent building only after surrounding area design.
+- [ ] Keep Runway portal/round system deferred; keep Housing furthest priority.
