@@ -13,17 +13,15 @@ Main Social World에 플레이어가 코디를 구경하거나 사진만 찍는 
 
 GAME_MASTER.md가 정의한 Main Social World는 자유 탐험, 소셜, 사진, 놀이를 제공한다. 놀이터는 이 목표에 부합한다.
 
-기존 Main Social Areas:
+현재 우선 구역:
 - Central Plaza
-- Cafe
-- Park
-- Beach
-- City-Street
-- Night Area
-- Housing District
 - Club
 - Photo Spots
-- Runway Portal
+- Park / Playground
+
+후순위 후보: Cafe, Beach, City-Street, Night Area.
+보류: Housing District.
+미래 확장 후보: Runway Portal.
 
 놀이터는 Park와 연결된 별도 구역 또는 Park 안의 하위 구역으로 두는 것을 우선 검토한다. 아직 맵 배치가 확정되지 않았으므로 이 선택은 **제안**이다. 기존 장소 목록과 충돌하지 않게 GAME_MASTER에는 Playground를 추가하고, 상세한 배치 결정은 월드 blockout 단계에서 확정한다.
 
@@ -52,6 +50,8 @@ GAME_MASTER.md가 정의한 Main Social World는 자유 탐험, 소셜, 사진, 
 - [ ] 기본 Spawn/주요 경로에서 놀이터까지 접근 가능한지 확인
 
 ## 5. 놀이 요소 후보 — 아직 미확정
+
+목표는 별도 미니게임을 만드는 것이 아니라 공간에 맞는 짧은 행동으로 아바타를 가지고 노는 재미를 더하는 것이다. 예: 그네에 타면 그네가 움직이고 캐릭터가 앉아서 타는 애니메이션을 한다. 이 예시는 설계 방향이며, 모든 오브젝트를 1차에 구현한다는 뜻은 아니다.
 
 아래는 후보 목록이며, 이번 문서만으로 모두 구현하기로 결정한 것은 아니다.
 
@@ -109,3 +109,8 @@ GAME_MASTER.md가 정의한 Main Social World는 자유 탐험, 소셜, 사진, 
 - 상호작용 애니메이션을 먼저 구현할까, 기본 이동·충돌 blockout을 먼저 검증할까?
 
 위 질문은 공간 배치와 1차 범위를 결정하기 위한 항목이다. 별도 지시가 없다면 **Park와 연결된 blockout + 소수의 기본 상호작용**을 기본 제안으로 삼고, 보상/미니게임 시스템은 추가하지 않는다.
+
+
+## Priority Alignment — 2026-10-18
+
+Playground is a small interaction extension of Main Social, after the Catalog/SavedOutfits, Club and Photo Spots core work. Start with blockout and a few interactions only. Do not introduce a separate Place, reward loop, quests, leaderboards or broad minigame systems without a separate decision. Housing remains deferred and Runway remains a future candidate.
