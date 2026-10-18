@@ -1,3 +1,11 @@
+## 2026-10-18 — Club specification and connected world concepts
+- Added `docs/01_SYSTEMS/CLUB.md` with the Club purpose, Idol Concert City layout, dance selection and lifecycle, group-dance candidate, music rights considerations, MVP boundaries and acceptance criteria.
+- Added `docs/02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md` for connected world areas and proposed interactions: Club, Beach/ Dream Aquarium, Cafe/Neon Rooftop, Fantasy Playground, and future Fashion Week Backstage.
+- Added the underwater-to-surface-to-beach flow as a concept requiring prototype validation; no swimming/breath mechanic is claimed implemented.
+- Kept the backstage exterior (camper, tent, or building) and Korean-inspired vs American-vintage/global-fantasy art direction undecided pending surrounding world design and moodboards.
+- Updated vision, roadmap, world planning, playground, art direction, decisions and TODO references.
+- Documentation only; no game source changes or Studio tests.
+
 ## 2026-10-18 — Align product scope, persistence and Saved Outfit limit
 - Set the game direction to a Roblox catalog-based fashion social playground; no clothing creation feature.
 - Ordered the current work as Catalog end-to-end → SavedOutfits → Club → Photo Spots → small Playground interactions. Runway is a future candidate; Housing is deferred and furthest priority.
