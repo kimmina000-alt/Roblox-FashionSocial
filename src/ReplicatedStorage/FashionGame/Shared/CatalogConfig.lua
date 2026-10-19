@@ -83,17 +83,17 @@ CatalogConfig.CategoryGroups = {
 				Enum.AvatarAssetType.LeftArm,
 				Enum.AvatarAssetType.LeftLeg,
 				Enum.AvatarAssetType.RightLeg,
-			}},
+			}, BundleTypes = {Enum.BundleType.BodyParts}, IncludeOffSale = true},
 			{Name = "헤어", AssetTypes = {
 				Enum.AvatarAssetType.HairAccessory,
 			}},
 			{Name = "머리", AssetTypes = {
 				Enum.AvatarAssetType.Head,
 				Enum.AvatarAssetType.DynamicHead,
-			}},
+			}, BundleTypes = {Enum.BundleType.DynamicHead}, IncludeOffSale = true},
 			{Name = "얼굴", AssetTypes = {
 				Enum.AvatarAssetType.Face,
-			}},
+			}, IncludeOffSale = true},
 		},
 	},
 
@@ -113,7 +113,7 @@ CatalogConfig.CategoryGroups = {
 			{Name = "신발", AssetTypes = {
 				Enum.AvatarAssetType.LeftShoeAccessory,
 				Enum.AvatarAssetType.RightShoeAccessory,
-			}},
+			}, BundleTypes = {Enum.BundleType.Shoes}, IncludeOffSale = true},
 			{Name = "클래식 셔츠", AssetTypes = {Enum.AvatarAssetType.Shirt}},
 			{Name = "클래식 티셔츠", AssetTypes = {Enum.AvatarAssetType.TShirt}},
 			{Name = "클래식 바지", AssetTypes = {Enum.AvatarAssetType.Pants}},
@@ -183,6 +183,16 @@ CatalogConfig.SortOptions = {
 }
 
 CatalogConfig.SortAggregation = Enum.CatalogSortAggregation.AllTime
+CatalogConfig.PopularSorts = {
+	{Name = "Most Favorited", Value = Enum.CatalogSortType.MostFavorited},
+	{Name = "Bestselling", Value = Enum.CatalogSortType.Bestselling},
+}
+CatalogConfig.SortAggregationOptions = {
+	{Name = "All Time", Value = Enum.CatalogSortAggregation.AllTime},
+	{Name = "Past Month", Value = Enum.CatalogSortAggregation.PastMonth},
+	{Name = "Past Week", Value = Enum.CatalogSortAggregation.PastWeek},
+	{Name = "Past Day", Value = Enum.CatalogSortAggregation.PastDay},
+}
 
 --------------------------------------------------
 -- DEFAULT SEARCH FILTERS

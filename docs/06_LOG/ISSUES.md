@@ -121,7 +121,7 @@ Actual: Global config is AllTime; Popular mode-specific behavior is not implemen
 Decision / Fix: Implement a Popular-mode-specific sort/aggregation branch and verify the supported combinations in Studio. Keep ordinary catalog sort aggregation behavior separate.
 
 ### ISSUE-CATALOG-006 — CatalogController:1392 nil call (forward reference)
-Status: Open (cause confirmed)
+Status: Fixed on `fix/catalog-1392` (Studio-tested 2026-10-19, awaiting user approval to merge)
 Area: Tech / Catalog
 Description: Wear/remove flow errors at CatalogController line ~1392 (Studio copy) calling `refreshWornItems`.
 Expected: Worn list refreshes after wear/remove.

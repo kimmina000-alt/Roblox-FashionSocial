@@ -52,6 +52,10 @@ local actionBusy = false
 local bundleContentsOpen = false
 local showBundleContents
 local renderCurrentPage: () -> ()
+-- Forward declarations: these are called from handlers defined above their bodies
+-- (ISSUE-CATALOG-006). Assigned later with `name = function() ... end`.
+local refreshWornItems: () -> ()
+local searchCatalog: () -> ()
 
 local catalogPages: Pages? = nil
 local currentPageNumber = 1
@@ -184,7 +188,7 @@ local openButton = create("TextButton", {
 
 openButton.Parent = screenGui
 openButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-openButton.BackgroundTransparency = 0
+openButton.BackgroundTransparency = 0.2
 
 
 local openCorner = create("UICorner", {
@@ -215,6 +219,7 @@ local previewFrame = create("Frame", {
 	Visible = false,
 })
 previewFrame.Parent = previewGui
+previewFrame.BackgroundTransparency = 1
 create("UICorner", { CornerRadius = UDim.new(0, 12) }).Parent = previewFrame
 
 local previewTitle = create("TextLabel", {
@@ -397,11 +402,15 @@ local mainFrame = create("Frame", {
 })
 
 mainFrame.Parent = screenGui
+mainFrame.BackgroundTransparency = 0.2
 
 local mainCorner = create("UICorner", {
 	CornerRadius = UDim.new(0, 14),
 })
 mainCorner.Parent = mainFrame
+
+previewFrame.Parent = mainFrame
+previewGui.Enabled = false
 
 --------------------------------------------------
 -- TITLE
@@ -729,7 +738,7 @@ create("UIListLayout", {
 }).Parent = discoveryBar
 
 local discoveryButtons = {}
-for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중"}) do
+for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중", "옷장"}) do
 	local b = create("TextButton", {
 		Name = "Discovery_" .. tostring(index),
 		Size = UDim2.fromOffset(86, 30),
@@ -787,18 +796,20 @@ local mainCategoryStrip = create("ScrollingFrame", {
 	Name = "MainCategoryStrip",
 	BackgroundTransparency = 1,
 	BorderSizePixel = 0,
-	ScrollBarThickness = 2,
+	ScrollBarThickness = 0,
 	ScrollingDirection = Enum.ScrollingDirection.X,
 	CanvasSize = UDim2.new(0, 0, 0, 0),
 	AutomaticCanvasSize = Enum.AutomaticSize.X,
 	Visible = false,
 })
 mainCategoryStrip.Parent = mainFrame
-local subcategoryStrip = create("ScrollingFrame", {Name="SubcategoryStrip",BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=2,ScrollingDirection=Enum.ScrollingDirection.X,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.X,Visible=false})
+local subcategoryStrip = create("ScrollingFrame", {Name="SubcategoryStrip",BackgroundColor3=Color3.fromRGB(36,36,44),BackgroundTransparency=0,BorderSizePixel=0,ScrollBarThickness=0,ScrollingDirection=Enum.ScrollingDirection.X,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.X,Visible=false})
 subcategoryStrip.Parent=mainFrame
 create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder}).Parent=subcategoryStrip
-local subcategoryLeftButton=create("TextButton",{Name="SubcategoryLeftArrow",Size=UDim2.fromOffset(22,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.6,Text="‹",TextColor3=Color3.new(1,1,1),TextSize=20,Font=Enum.Font.GothamBold,Visible=false}); subcategoryLeftButton.Parent=mainFrame
-local subcategoryRightButton=create("TextButton",{Name="SubcategoryRightArrow",Size=UDim2.fromOffset(22,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.6,Text="›",TextColor3=Color3.new(1,1,1),TextSize=20,Font=Enum.Font.GothamBold,Visible=false}); subcategoryRightButton.Parent=mainFrame
+local subcategoryLeftButton=create("TextButton",{Name="SubcategoryLeftArrow",Size=UDim2.fromOffset(28,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.35,Text="<",TextColor3=Color3.new(1,1,1),TextSize=16,Font=Enum.Font.GothamBold,Visible=false}); subcategoryLeftButton.Parent=mainFrame
+create("UICorner",{CornerRadius=UDim.new(1,0)}).Parent=subcategoryLeftButton
+local subcategoryRightButton=create("TextButton",{Name="SubcategoryRightArrow",Size=UDim2.fromOffset(28,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.35,Text=">",TextColor3=Color3.new(1,1,1),TextSize=16,Font=Enum.Font.GothamBold,Visible=false}); subcategoryRightButton.Parent=mainFrame
+create("UICorner",{CornerRadius=UDim.new(1,0)}).Parent=subcategoryRightButton
 local mainCategoryLayout = create("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	Padding = UDim.new(0, 5),
@@ -807,19 +818,21 @@ local mainCategoryLayout = create("UIListLayout", {
 mainCategoryLayout.Parent = mainCategoryStrip
 
 local categoryLeftButton = create("TextButton", {
-	Name = "CategoryLeftArrow", Size = UDim2.fromOffset(22, 30),
-	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.6,
-	Text = "‹", TextColor3 = Color3.new(1,1,1), TextSize = 22, Font = Enum.Font.GothamBold,
+	Name = "CategoryLeftArrow", Size = UDim2.fromOffset(30, 30),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.35,
+	Text = "<", TextColor3 = Color3.new(1,1,1), TextSize = 16, Font = Enum.Font.GothamBold,
 	Visible = false,
 })
 categoryLeftButton.Parent = mainFrame
+create("UICorner", {CornerRadius = UDim.new(1, 0)}).Parent = categoryLeftButton
 local categoryRightButton = create("TextButton", {
-	Name = "CategoryRightArrow", Size = UDim2.fromOffset(22, 30),
-	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.6,
-	Text = "›", TextColor3 = Color3.new(1,1,1), TextSize = 22, Font = Enum.Font.GothamBold,
+	Name = "CategoryRightArrow", Size = UDim2.fromOffset(30, 30),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.35,
+	Text = ">", TextColor3 = Color3.new(1,1,1), TextSize = 16, Font = Enum.Font.GothamBold,
 	Visible = false,
 })
 categoryRightButton.Parent = mainFrame
+create("UICorner", {CornerRadius = UDim.new(1, 0)}).Parent = categoryRightButton
 
 local filterPanel = create("Frame", {
 	Name = "ExpandedFilterPanel",
@@ -994,6 +1007,9 @@ discoveryButtons["최근"].MouseButton1Click:Connect(function()
 end)
 discoveryButtons["인기"].MouseButton1Click:Connect(function()
 	print("[CatalogUI] Popular selected. API-backed sort will be enabled only for supported item types.")
+end)
+discoveryButtons["옷장"].MouseButton1Click:Connect(function()
+	print("[CatalogUI] Wardrobe selected. Wardrobe is planned after the Avatar Editor (Stage 2).")
 end)
 discoveryButtons["즐겨찾기"].MouseButton1Click:Connect(function()
 	print("[CatalogUI] Favorites selected. Favorites list is a placeholder.")
@@ -1348,19 +1364,24 @@ local function renderCurrentOutfit()
 			removeButton.MouseButton1Click:Connect(function()
 				if actionBusy then return end
 				actionBusy = true
-				local ok, success, message = pcall(function()
-					return TryOnItem:InvokeServer("Remove", assetId)
-				end)
-				if ok and success == true then
-					currentWornItems[assetId] = nil
-					for i = #wornOrder, 1, -1 do
-						if wornOrder[i] == assetId then table.remove(wornOrder, i) end
+				local handled, handlerError = pcall(function()
+					local ok, success, message = pcall(function()
+						return TryOnItem:InvokeServer("Remove", assetId)
+					end)
+					if ok and success == true then
+						currentWornItems[assetId] = nil
+						for i = #wornOrder, 1, -1 do
+							if wornOrder[i] == assetId then table.remove(wornOrder, i) end
+						end
+						renderCurrentOutfit()
+						refreshWornItems()
+						refreshAvatarPreview()
+					else
+						warn("[CatalogUI] Outfit remove failed:", success, message)
 					end
-					renderCurrentOutfit()
-					refreshWornItems()
-					refreshAvatarPreview()
-				else
-					warn("[CatalogUI] Outfit remove failed:", success, message)
+				end)
+				if not handled then
+					warn("[CatalogUI] Outfit remove handler error:", handlerError)
 				end
 				actionBusy = false
 			end)
@@ -1368,7 +1389,7 @@ local function renderCurrentOutfit()
 	end
 end
 
-local function refreshWornItems()
+refreshWornItems = function()
 	local success, serverSuccess, result = pcall(function()
 		return TryOnItem:InvokeServer("GetCurrent", 0)
 	end)
@@ -1595,50 +1616,56 @@ createItemCard = function(item: any, layoutOrder: number)
 
 		actionBusy = true
 
-		if currentWornItems[assetId] then
-			statusLabel.Text = "Removing..."
+		local handled, handlerError = pcall(function()
+			if currentWornItems[assetId] then
+				statusLabel.Text = "Removing..."
 
-			local success, result, message = pcall(function()
-				return TryOnItem:InvokeServer("Remove", assetId)
-			end)
+				local success, result, message = pcall(function()
+					return TryOnItem:InvokeServer("Remove", assetId)
+				end)
 
-			if success and result == true then
-				currentWornItems[assetId] = nil
-				for i = #wornOrder, 1, -1 do if wornOrder[i] == assetId then table.remove(wornOrder, i) end end
-				updateButton()
-				task.wait(0.15)
-				refreshWornItems()
-				refreshAvatarPreview()
-				statusLabel.Text = "Item removed."
+				if success and result == true then
+					currentWornItems[assetId] = nil
+					for i = #wornOrder, 1, -1 do if wornOrder[i] == assetId then table.remove(wornOrder, i) end end
+					updateButton()
+					task.wait(0.15)
+					refreshWornItems()
+					refreshAvatarPreview()
+					statusLabel.Text = "Item removed."
+				else
+					warn("[CatalogController] Remove failed:", result, message)
+					statusLabel.Text =
+						typeof(message) == "string"
+						and message
+						or "Failed to remove item."
+				end
 			else
-				warn("[CatalogController] Remove failed:", result, message)
-				statusLabel.Text =
-					typeof(message) == "string"
-					and message
-					or "Failed to remove item."
-			end
-		else
-			statusLabel.Text = "Wearing..."
+				statusLabel.Text = "Wearing..."
 
-			local success, result, message = pcall(function()
-				return TryOnItem:InvokeServer("Wear", assetId)
-			end)
+				local success, result, message = pcall(function()
+					return TryOnItem:InvokeServer("Wear", assetId)
+				end)
 
-			if success and result == true then
-				for i = #wornOrder, 1, -1 do if wornOrder[i] == assetId then table.remove(wornOrder, i) end end
-				table.insert(wornOrder, 1, assetId)
-				task.wait(0.2)
-				refreshWornItems()
-				refreshAvatarPreview()
-				updateButton()
-				statusLabel.Text = "Item equipped."
-			else
-				warn("[CatalogController] Wear failed:", result, message)
-				statusLabel.Text =
-					typeof(message) == "string"
-					and message
-					or "Failed to equip item."
+				if success and result == true then
+					for i = #wornOrder, 1, -1 do if wornOrder[i] == assetId then table.remove(wornOrder, i) end end
+					table.insert(wornOrder, 1, assetId)
+					task.wait(0.2)
+					refreshWornItems()
+					refreshAvatarPreview()
+					updateButton()
+					statusLabel.Text = "Item equipped."
+				else
+					warn("[CatalogController] Wear failed:", result, message)
+					statusLabel.Text =
+						typeof(message) == "string"
+						and message
+						or "Failed to equip item."
+				end
 			end
+		end)
+		if not handled then
+			warn("[CatalogController] Wear/remove handler error:", handlerError)
+			statusLabel.Text = "Something went wrong. Try again."
 		end
 
 		actionBusy = false
@@ -1812,7 +1839,7 @@ end
 -- ★ SEARCH
 --------------------------------------------------
 
-local function searchCatalog()
+searchCatalog = function()
 	if searchBusy then
 		return
 	end
