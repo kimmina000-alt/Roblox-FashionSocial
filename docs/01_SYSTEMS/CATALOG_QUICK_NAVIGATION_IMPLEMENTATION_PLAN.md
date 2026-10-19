@@ -10,7 +10,7 @@
 
 상단의 Recent / Popular / Wearing / Favorites 버튼이 단순히 선택 상태만 바꾸는 장식이 아니라, 기존 카탈로그 카드 영역에 각 모드의 올바른 데이터 목록을 표시하도록 한다. 네 모드는 동일한 카드 UI를 재사용하되 데이터 출처, 정렬, 갱신 이벤트, 오류 상태가 서로 다르다.
 
-- **Recent**: 사용자가 실제로 열어 본 아이템 기록. 검색어/검색 기록이 아니다.
+- **Recent**: 이번 세션에서 한 번이라도 착용에 성공한 아이템 기록. 입고 바로 벗은 아이템도 포함한다. 검색 기록이나 열어 본 기록이 아니다.
 - **Popular**: Roblox 카탈로그가 실제 지원하는 인기 관련 정렬 결과.
 - **Wearing**: 현재 아바타에 실제 적용되어 착용 중인 아이템.
 - **Favorites**: Roblox 계정의 공식 즐겨찾기와 별개인, 이 게임의 사용자별 개인 즐겨찾기.
@@ -70,7 +70,7 @@ Asset과 Bundle은 같은 숫자 ID라는 이유만으로 동일 아이템으로
 
 각 모드는 빈 목록, 로딩, 요청 오류, 메타데이터/썸네일 누락을 구분한다.
 
-- Recent: 최근 열람 아이템이 없음
+- Recent: 이번 세션에 착용한 아이템이 없음
 - Popular: 조건에 맞는 결과 없음 또는 해당 유형에서 인기 정렬 미지원
 - Wearing: 현재 착용 중인 아이템이 없음
 - Favorites: 즐겨찾기 아이템이 없음
@@ -88,6 +88,7 @@ Recent는 검색 기록이나 최근 열람 기록이 아니다. **서버가 착
 - 아이템 식별은 `itemType + itemId`를 포함한 typed identity를 사용한다.
 - 착용 요청이 서버에서 성공 확인된 후에만 Recent를 갱신한다.
 - 같은 아이템을 다시 착용하면 중복 카드를 계속 쌓지 않고 최신 착용 시각으로 갱신한다.
+- 아이템을 해제(입고 바로 벗기 포함)해도 Recent에서 제거하지 않는다. 한 번이라도 착용에 성공했다면 Recent에 남는다.
 - 가장 최근에 성공적으로 착용한 아이템이 먼저 표시된다.
 - 최근 목록은 현재 세션에서만 유지한다. 플레이어가 나가면 초기화하며 DataStore에 저장하지 않는다.
 
@@ -229,7 +230,7 @@ Favorites는 사용자가 이 게임 안에서 직접 관리하는 사용자별 
 ## 8. 모드 간 불변 조건
 
 - Recent는 현재 세션에서 서버가 성공 확인한 착용 이벤트만 기록한다. 검색/열람이나 Outfit 복원은 Recent를 변경하지 않는다.
-- Outfit 복원은 Recent 열람 기록이나 Favorites를 자동으로 변경하지 않는다.
+- Outfit 복원은 Recent나 Favorites를 자동으로 변경하지 않는다.
 - Outfit 복원 후 Wearing은 실제 복원 결과를 반영하고, 즐겨찾기 별표는 기존 Favorites 저장 상태를 따른다.
 - Avatar Editor에서 실제 착용 상태가 바뀌면 Wearing을 갱신한다. 위치/크기/레이어 조정만으로 Favorites/Recent를 변경하지 않는다.
 - Popular의 Roblox MostFavorited는 게임 내 개인 Favorites와 별개다. 개인 즐겨찾기를 바꿔도 Roblox 인기 순위가 바뀌었다고 표시하지 않는다.
@@ -257,7 +258,8 @@ Favorites는 사용자가 이 게임 안에서 직접 관리하는 사용자별 
 
 ### Recent
 - [ ] 검색어/결과 노출만으로 기록되지 않는다.
-- [ ] 열람 기록 중복 제거, 최근 순 정렬, 개수 제한, 빈 상태 및 오류가 작동한다.
+- [ ] 착용 성공 시에만 기록되고, 입고 바로 벗어도 남는다.
+- [ ] 재착용 시 중복 없이 최신 순으로 올라오며, 개수 제한, 빈 상태 및 오류가 작동한다.
 
 ### Popular
 - [ ] 공식 지원 정렬을 사용하고 실제 요청과 UI 라벨이 일치한다.
@@ -299,7 +301,7 @@ Favorites는 사용자가 이 게임 안에서 직접 관리하는 사용자별 
 ### Navigation and data source
 - Visible modes: Recent / Popular / Wearing / Favorites / Wardrobe. Recommended is removed. Wardrobe is a separate saved-Outfit screen, not a fifth catalog query mode.
 - Current Outfit is a horizontal list of current worn items, derived from the same server-confirmed snapshot as Wearing.
-- Recent is session-only and records only a successfully worn item. Search input, result exposure, opening details, and saved Outfit restore do not add Recent entries.
+- Recent is session-only and records every item successfully worn at least once in the session, including items removed immediately afterwards. Search input, result exposure, opening details, and saved Outfit restore do not add Recent entries.
 - Popular uses CatalogSortType.MostFavorited only. Set CatalogSortAggregation.PastMonth if accepted by the current API runtime; if the request fails or results are invalid, log the error and retry explicitly with AllTime. Do not offer Bestselling or RecentlyCreated as Popular modes.
 - Search/category/price/creator/off-sale filters apply only to global catalog search. Wearing filters the actual worn snapshot; Favorites filters the user's own Favorites records. Neither may fall back to all catalog results.
 - Wear/remove are separate explicit card buttons. Double-click/double-tap on the item image only toggles in-game Favorites and must never issue wear/remove.

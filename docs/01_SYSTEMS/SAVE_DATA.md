@@ -10,7 +10,7 @@ Status: design requirements; implementation and rejoin persistence are not yet c
 
 ## Session Data
 - CurrentOutfit / Current Avatar: derived from the server-confirmed applied appearance.
-- Recent: successful wear actions in the current session only.
+- Recent: every item successfully worn at least once in the current session, kept even if removed immediately.
 - CurrentPlace.
 - ActiveRunway and temporary RunwayOutfit: future Runway feature only.
 

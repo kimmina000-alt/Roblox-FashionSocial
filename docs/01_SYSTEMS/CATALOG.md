@@ -124,7 +124,7 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 
 - Navigation: Recent / Popular / Wearing / Favorites / Wardrobe. Recommended is removed. Wardrobe opens the saved Outfit list and is not a catalog search mode.
 - Search/filter/category/sort controls apply to global catalog searches only, and only where official CatalogSearchParams/current runtime support the field.
-- Recent contains successful wear actions in the current session only. It is not a search history and clears when the player leaves.
+- Recent contains every item successfully worn at least once in the current session, including items removed immediately afterwards. It is not a search history and clears when the player leaves.
 - Popular uses MostFavorited with PastMonth aggregation where supported; fallback to AllTime must be explicit. Do not expose Bestselling or RecentlyCreated as Popular.
 - Wearing uses only the actual server-confirmed applied avatar snapshot. Favorites uses only the player's in-game saved favorites. Neither may silently fall back to full catalog results.
 - Item image double-click/double-tap toggles Favorites only. Wear/Worn buttons exclusively issue wear/remove actions. The threshold is 0.5 seconds; delay any single-click behavior until the threshold expires so a double-click does not also fire a single-click side effect.
@@ -158,7 +158,7 @@ Outfit/Wardrobe and Avatar Editor must keep these modes synchronized with the sa
 - Recent/Popular/Wearing/Favorites는 동일한 catalog card area를 재사용한다. Wardrobe는 저장한 Outfit을 관리하는 별도 화면/진입점이다.
 - **Current Outfit**은 현재 실제 착용 항목을 가로로 보여 주는 별도 strip이다. Wearing grid와 같은 서버 확인 snapshot을 사용하며 자체 착용 상태를 만들지 않는다.
 - 실제 착용/해제 버튼은 카드의 Wear/Worn 버튼에서만 수행한다. 카드 이미지의 더블클릭은 Favorites 추가/해제 전용이며, 착용/해제 요청을 실행하지 않는다.
-- Recent는 현재 세션에서 실제 착용에 성공한 항목만 기록한다. 세션 종료 시 초기화한다.
+- Recent는 현재 세션에서 한 번이라도 착용에 성공한 항목을 기록한다. 입고 바로 벗어도 남는다. 세션 종료 시 초기화한다.
 - Popular는 Roblox 공식 API의 MostFavorited만 사용하고 PastMonth aggregation을 우선 지정한다. 지원/결과가 유효하지 않으면 명시적으로 AllTime으로 fallback한다. Bestselling/RecentlyCreated는 현재 Popular 모드에 노출하지 않는다.
 - Favorites와 Wardrobe는 사용자별 영구 저장 대상이며, 실제 DataStore 연결/재접속 보존은 별도 구현 및 Studio 검증 전까지 미완료다.
 - 검색/카테고리/정렬/가격/creator/off-sale 필터는 검색 결과 모드에서만 적용한다. Wearing은 현재 실제 착용 snapshot만, Favorites는 즐겨찾기 record만 필터링하고 전체 catalog 검색 결과로 fallback하지 않는다.

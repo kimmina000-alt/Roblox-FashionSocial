@@ -1,6 +1,6 @@
 # TODO
 
-## Product Priority — 2026-10-18
+## Product Priority — 2026-10-19 (Avatar Editor added before SavedOutfits)
 
 Use this order for new work. Do not let deferred systems become prerequisites for the core experience.
 
@@ -9,22 +9,26 @@ Use this order for new work. Do not let deferred systems become prerequisites fo
    - Wear through server validation and confirm other players see the applied appearance.
    - Remove one exact item without disturbing unrelated items.
    - Refresh Current Outfit/Wearing and catalog card states from the confirmed applied appearance.
-2. **SavedOutfits**
+2. **Avatar Editor (accessory adjustment)**
+   - Technical spike first (adjustment preservation, client preview, platform rules).
+   - Entry points, edit mode in the expanded catalog, draft → Apply / Discard.
+3. **SavedOutfits / Wardrobe**
+   - Snapshot includes applied accessory adjustments.
    - Save a versioned server-confirmed appearance snapshot.
    - Wardrobe list, unique outfitId, duplicate names allowed, maximum **50 per user**.
    - Reconnect and restore.
    - Skip only unavailable/unsupported entries, apply the remaining appearance, identify skipped items where possible, and preserve the original saved record.
    - Test transient retries, throttling, invalid payload, payload-too-large, ambiguous write result, empty vs load failure, and migration.
-3. **Club**
+4. **Club**
    - Varied dance styles, start/stop behavior, multiplayer visibility, PC/mobile validation.
-4. **Photo Spots**
+5. **Photo Spots**
    - Build a small number of distinct spaces with defined composition, lighting, poses and camera behavior.
    - Photo-taking only; public gallery posting, likes and style-copy feed are out of scope.
-5. **Playground interactions**
+6. **Playground interactions**
    - Blockout and a few small interactions such as a moving swing with a seated animation.
-6. **Runway**
+7. **Runway**
    - Deferred future candidate. Not a prerequisite for Catalog, SavedOutfits, Club or Photo Spots. If implemented, RunwayOutfit is temporary and the post-round save confirmation requires explicit confirmation.
-7. **Housing**
+8. **Housing**
    - Deferred and furthest priority. Do not implement house editing, furniture placement, persistence or visits until the core experience has been validated and Housing is explicitly reprioritized.
 
 ## Documentation and Validation Rules
@@ -171,7 +175,7 @@ Previous layout validation: user confirmed all six PC/mobile and regression chec
 
 Detailed implementation requirements and acceptance criteria: `docs/01_SYSTEMS/CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN.md`.
 
-- [ ] Inspect actual card click behavior and define the explicit Recent-view event without recording search-result exposure.
+- [ ] Record Recent only from server-confirmed successful wear results (kept after removal); never from search-result exposure or card viewing.
 - [ ] Verify current Creator Hub CatalogSortType/CatalogSearchParams support and actual per-category Popular sort behavior.
 - [ ] Connect Wearing mode to authoritative current avatar state, including confirmed wear/remove, Outfit restore, Avatar Editor changes, and catalog reopen.
 - [ ] Implement user-specific Favorites storage, double-click toggle, yellow star state, and single-click conflict prevention.

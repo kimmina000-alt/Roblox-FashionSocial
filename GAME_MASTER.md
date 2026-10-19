@@ -29,12 +29,14 @@ Roblox 카탈로그 아이템으로 나만의 아바타를 부담 없이 꾸미�
 
 ## Development Priority
 1. **Catalog end-to-end:** search → wear → other players see appearance → remove → Current Outfit refresh.
-2. **Saved Outfits:** save → Wardrobe → reconnect → load/restore, with robust failure handling.
-3. **Club:** varied dance styles and social interaction.
-4. **Photo Spots:** distinct photo spaces, poses, composition and lighting.
-5. **Playground interactions:** small place-specific actions such as a moving swing and matching seated animation.
-6. **Runway:** revisit after the core loop is validated; not a current MVP dependency.
-7. **Housing:** deferred; furthest priority.
+2. **Avatar Editor:** adjust worn accessories (position / rotation / scale) inside the catalog, free for everyone; apply before saving.
+3. **Saved Outfits / Wardrobe:** save the applied look (including adjustments) → Wardrobe → reconnect → load/restore, with robust failure handling.
+4. **Club:** varied dance styles and social interaction.
+5. **Photo Spots:** distinct photo spaces, poses, composition and lighting.
+6. **Playground interactions:** small place-specific actions such as a moving swing and matching seated animation.
+7. **VIP / monetization:** after the free core loop and basic photo/pose flow; never gates Catalog, Avatar Editor or Wardrobe.
+8. **Runway:** revisit after the core loop is validated; not a current MVP dependency.
+9. **Housing:** deferred; furthest priority.
 
 ## Outfit States
 - CurrentOutfit: server-confirmed appearance currently applied to the active character/session.

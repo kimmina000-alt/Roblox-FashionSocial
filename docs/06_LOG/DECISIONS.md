@@ -32,7 +32,7 @@ Reason: preserve the rest of the selected appearance and the original SavedOutfi
 D-011 — RunwayOutfit is temporary.  
 Reason: after a future Runway round, ask explicitly whether to save the look; save only on affirmative confirmation.
 
-D-012 — Current core priority is Catalog → SavedOutfits → Club → Photo Spots → Playground interactions.  
+D-012 — Current core priority is Catalog → Avatar Editor → SavedOutfits/Wardrobe → Club → Photo Spots → Playground interactions (revised 2026-10-19).  
 Runway is a future candidate; Housing is deferred and furthest priority.
 
 D-013 — Public photo gallery posting, likes, and public style-copy feed are out of current scope.  
@@ -57,3 +57,16 @@ Reason: The game-wide sequence determines system dependencies and milestone prio
 
 D-018 — Korean-inspired visual details remain optional and undecided.
 Reason: The user wants some Korean elements to be considered for selected spaces or as background details, but does not want a global Korean theme decided yet. Compare moodboards and graybox fit before promoting a motif to a space-level decision.
+
+
+D-019 — SavedOutfits limit is 50 per user everywhere (2026-10-19).
+Reason: user decision; earlier log entries that said 20 were errors and are corrected.
+
+D-020 — Recent = every item successfully worn at least once in the session (2026-10-19).
+Reason: user decision. An item worn and removed immediately stays in Recent. Viewing, search exposure, failed wear and Outfit restore do not add entries.
+
+D-021 — Avatar Editor precedes SavedOutfits/Wardrobe and is free (2026-10-19).
+Reason: players adjust accessories first and then save the adjusted look. VIP never gates editing or saving.
+
+D-022 — Entry points (2026-10-19).
+Compact catalog: ⚙ (Avatar Editor) and Wardrobe buttons follow 최근/인기/즐겨찾기/착용 중 in the discovery strip. ⚙ opens the expanded catalog in edit mode and reuses the existing avatar preview. Wardrobe shows a "save outfit" card plus saved outfits in the existing result-card layout.

@@ -79,7 +79,7 @@
 - No source code was changed by this audit document itself. The actionable documentation updates are tracked in `WORKLOG.md`, `TODO.md`, `ISSUES.md`, and `ROADMAP.md`.
 
 ## Follow-up reconciliation — 2026-10-18
-A cross-document consistency check found two stale details in the quick-navigation spec: an older Recent definition based on viewing/opening items, and a 20-item Saved Outfit cap. These have been aligned with the current product decisions: Recent records only server-confirmed successful wear actions in the current session and is not persisted; SavedOutfits starts at 50 per user. This is a documentation reconciliation, not implementation evidence.
+A cross-document consistency check found two stale details in the quick-navigation spec: an older Recent definition based on viewing/opening items, and a 20-item Saved Outfit cap. These have been aligned with the current product decisions: Recent records every item successfully worn at least once in the current session (kept after removal) and is not persisted; SavedOutfits starts at 50 per user. This is a documentation reconciliation, not implementation evidence.
 
 ## Additional source detail — catalog UI workbench
 The workbench working copy was inspected at its discovery-mode handlers and catalog search/config sections. It contains newer layout controls but Recent/Popular/Favorites still log placeholder messages; Wearing reconstructs a view from numeric asset IDs and requests item details as Asset. `CatalogConfig.SortAggregation` is currently `AllTime`; the Popular-specific PastMonth/fallback policy remains planned. No Studio test was run.

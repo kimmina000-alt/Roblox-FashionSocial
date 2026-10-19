@@ -15,8 +15,17 @@ Roadmap order reflects the current product priority. Runway and Housing are not 
 - Card state, Current Outfit strip, Wearing list, avatar preview, and actual character remain synchronized after confirmed operations.
 - Failed requests never appear as successful wear/remove.
 
+## Phase 0.5 — Avatar Editor (accessory adjustment)
+- Entry: ⚙ on the expanded preview and in the compact discovery strip; opens the expanded catalog in edit mode.
+- Worn-items list by category, accessory position / rotation / scale with per-axis reset, draft → Apply / Discard.
+- Supported types and limits come from the platform avatar rules; unsupported items are disabled with a reason.
+
+**Acceptance criteria**
+- Applied adjustments are visible to other players and survive later wear/remove actions.
+- Discard or leaving without Apply never changes the live character.
+
 ## Phase 1 — Saved Outfits and Persistence
-- Save the server-confirmed supported appearance snapshot.
+- Save the server-confirmed supported appearance snapshot, including applied accessory adjustments.
 - Wardrobe list, unique Outfit IDs, duplicate names allowed, maximum 50 SavedOutfits per user.
 - Reconnect and restore saved Outfit.
 - Skip only unavailable/unsupported entries and apply the remaining valid appearance.

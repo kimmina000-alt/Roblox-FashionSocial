@@ -91,7 +91,7 @@ Roblox 공식 API의 Humanoid:GetAppliedDescription()은 해당 Humanoid에 현�
 | Data | Lifetime | Store | Policy |
 |---|---|---|---|
 | Current Avatar / Wearing | Current character/session; reconstructed from applied description | Server runtime state + current Humanoid description | Not a second independent persistent item list |
-| Recent | Current session only | Client/server session memory; cleared on leave | Only items the player actually wore, not search history |
+| Recent | Current session only | Client/server session memory; cleared on leave | Every item successfully worn at least once this session (kept after removal), not search history |
 | Favorites | Across sessions | Server DataStore per user | Typed item identity; toggle is idempotent and validated |
 | Saved Outfits | Across sessions | Server DataStore per user | Up to 50 outfits per user; versioned restorable snapshots |
 | Avatar Editor draft | Until Apply/Cancel/close/respawn | Client draft, server validates Apply | Never auto-saved; only applied state can be saved into Outfit |

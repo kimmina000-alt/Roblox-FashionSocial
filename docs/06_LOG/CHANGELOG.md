@@ -1,3 +1,10 @@
+## 2026-10-19 — User decisions: Recent, 50 outfits, Avatar Editor order
+- Recent = every item successfully worn at least once in the session, kept after removal (quick-navigation, Catalog, status, data docs).
+- SavedOutfits limit is 50 everywhere; earlier 20 entries in WORKLOG/CHANGELOG marked as corrected.
+- Added Stage 1.5 Avatar Editor before Wardrobe/SavedOutfits in DEVELOPMENT_ORDER, GAME_MASTER, ROADMAP, TODO; decisions D-019–D-022.
+- Recorded verified Rojo mapping (`src/` only) in the workbench README.
+- Documentation only; no game source changes or Studio tests.
+
 ## 2026-10-18 — Club specification and connected world concepts
 - Added `docs/01_SYSTEMS/CLUB.md` with the Club purpose, Idol Concert City layout, dance selection and lifecycle, group-dance candidate, music rights considerations, MVP boundaries and acceptance criteria.
 - Added `docs/02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md` for connected world areas and proposed interactions: Club, Beach/ Dream Aquarium, Cafe/Neon Rooftop, Fantasy Playground, and future Fashion Week Backstage.
@@ -119,7 +126,7 @@
 - Expanded docs/05_TECH/API.md with official Roblox API evidence and separated API support, source implementation, and Studio verification.
 - Updated Catalog modes to Recent / Popular / Wearing / Favorites / Wardrobe, removed Recommended from current UI requirements, and aligned card sizes to current source values.
 - Clarified Wearing is partially implemented and must synchronize from the actual applied HumanoidDescription; current client lists remain caches.
-- Defined Recent as session-only successful wear history; Favorites and SavedOutfits must persist. Saved Outfit is game-only, has an initial configurable cap of 20, supports delete, and renders preview from saved appearance data.
+- Defined Recent as session-only successful wear history; Favorites and SavedOutfits must persist. Saved Outfit is game-only, has an initial configurable cap of 50 (정정 2026-10-19: 초기 20개 표기는 오기), supports delete, and renders preview from saved appearance data.
 - Defined first-request-wins action locking, Avatar Editor draft/Apply/Cancel behavior, discard-on-respawn/restore, and game-wide R6/R15 policy review.
 - Clarified workbench isolation: default.project.json is unchanged and the working copy can be mapped using catalog-ui-redesign.project.json, but that mapping was not run in Studio during this work.
 - Documentation and source/API research only; no game code changes and no Roblox Studio tests were performed.

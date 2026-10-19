@@ -170,7 +170,7 @@ These documents describe planned behavior, not proof of implementation. Verify t
 - 아이템 identity는 itemType + itemId를 사용한다. Asset/Bundle, assetType/bundleType, layered/accessory metadata, classic clothing, animation, emote, makeup, body appearance를 한 숫자 ID나 하나의 generic accessory type으로 뭉개지 않는다.
 - Current Outfit은 현재 착용 아이템의 가로 목록이며 Wearing grid와 같은 snapshot에서 파생된다.
 - 탐색 모드는 Recent / Popular / Wearing / Favorites / Wardrobe다. Recommended는 제거했다. Wardrobe는 저장 Outfit 관리이며 Recent/Popular/Wearing/Favorites와 같은 catalog result mode로 취급하지 않는다.
-- Recent는 실제 착용 성공 항목만, 세션 한정이다. Favorites/Outfit 영구 저장은 구현 확인 전까지 미완료로 유지한다.
+- Recent는 한 번이라도 착용에 성공한 항목(입고 바로 벗은 항목 포함), 세션 한정이다. Favorites/Outfit 영구 저장은 구현 확인 전까지 미완료로 유지한다.
 - Popular는 MostFavorited + PastMonth를 우선 사용한다. API enum 지원은 공식 문서에서 확인했지만 실제 카테고리별 검색 결과/Studio 동작은 미검증이다.
 - Avatar Editor는 draft → Apply/Cancel 계약을 따른다. 변경이 있을 때만 Apply/Cancel을 표시하고, 닫기/Outfit restore/respawn 시 미적용 draft를 자동 적용하지 않는다.
 - 외형 변경 요청은 per-player action gate를 공유한다. 첫 요청만 실행하고 후속 요청은 대기열에 넣지 않고 거절/비활성화한다. 로딩 중 버튼 비활성화, 가능하면 “입는 중…” 표시.

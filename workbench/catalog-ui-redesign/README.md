@@ -86,3 +86,8 @@ Then connect Roblox Studio's Rojo plugin to the running server. Before relying o
 ## Isolation clarification — 2026-10-18
 
 “격리”는 working copy가 기본 Rojo 설정인 default.project.json에 자동 반영되지 않는다는 뜻이다. 이 작업본은 실제 Studio 테스트에 연결할 수 있으며, 저장소 루트의 catalog-ui-redesign.project.json을 사용해 `rojo serve catalog-ui-redesign.project.json`을 실행한 뒤 Studio Rojo plugin으로 연결한다. 이 설정은 CatalogController를 workbench working copy로 명시적으로 매핑하고, baseline은 변경하지 않는다. 별도 설정으로 연결 가능하다는 점은 실제 Rojo/Studio 실행 검증 완료를 뜻하지 않는다. 첫 sync 전에 Rojo sourcemap과 Studio Explorer에서 CatalogController가 정확히 하나인지 확인한다.
+
+
+## Rojo mapping verified — 2026-10-19
+
+`rojo sourcemap catalog-ui-redesign.project.json` (Rojo 7.4.4) maps only `src/`: CatalogController → `src/StarterPlayer/StarterPlayerScripts/FashionGame/CatalogController.client.lua`. The statement above that this project file points CatalogController to the workbench copy is **not true** for the committed project file. The workbench folder is reference-only; the active game code is `src/`.

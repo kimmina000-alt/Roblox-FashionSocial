@@ -30,7 +30,7 @@ Status: design only; implementation and rejoin persistence are not confirmed.
 ## Session State
 - CurrentOutfit: derived from server-confirmed applied avatar appearance.
 - CurrentPlace.
-- Recent: successful wear actions during the current session only.
+- Recent: every item successfully worn at least once during the current session, kept even if removed immediately.
 - RunwayOutfit / ActiveRunway: future Runway-only session state, not part of current MVP.
 
 ## Restore Rules

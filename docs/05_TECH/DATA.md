@@ -6,7 +6,7 @@
 
 ## 1. Storage ownership
 
-- Recent: 세션 한정. 검색어/검색 결과 노출 기록이 아니라 실제 착용을 성공한 아이템만 기록한다. 플레이어가 나가면 폐기한다. DataStore에 쓰지 않는다.
+- Recent: 세션 한정. 검색어/검색 결과 노출 기록이 아니라 한 번이라도 착용에 성공한 아이템을 기록한다(입고 바로 벗어도 유지). 플레이어가 나가면 폐기한다. DataStore에 쓰지 않는다.
 - Favorites: 사용자별 영구 데이터. 현재 Roblox 계정의 Favorite 기능과는 무관한 게임 내부 즐겨찾기다.
 - SavedOutfits: 사용자별 영구 데이터. 게임 내부에서만 불러와 착용하는 코디이며 Roblox 플랫폼 Outfit을 생성/저장하지 않는다.
 - Current Avatar: 별도 영구 아이템 목록을 중복 저장하지 않는다. 현재 캐릭터의 적용된 description에서 snapshot을 재구성한다.
