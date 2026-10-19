@@ -2,6 +2,7 @@
 
 local MarketplaceService = game:GetService("MarketplaceService")
 local AvatarEditorService = game:GetService("AvatarEditorService")
+local AssetService = game:GetService("AssetService")
 
 local AvatarService = {}
 
@@ -38,6 +39,32 @@ local LAYERED_ACCESSORY_TYPES = {
 	LeftShoe = true,
 	RightShoe = true,
 	DressSkirt = true,
+}
+
+--------------------------------------------------
+-- DEFAULT LAYER ORDER (WrapLayer.Order: higher = drawn on top)
+-- Used when a layered item is first worn. The player can reorder
+-- afterwards from the worn-items strip (SetLayerOrder).
+--------------------------------------------------
+
+local DEFAULT_LAYER_ORDER = {
+	Eyebrow = 1,
+	Eyelash = 1,
+	LeftShoe = 2,
+	RightShoe = 2,
+	Pants = 4,
+	Shorts = 5,
+	TShirt = 6,
+	Shirt = 7,
+	DressSkirt = 8,
+	Sweater = 9,
+	Jacket = 10,
+}
+
+-- Only one shoe per side can be worn; a new shoe replaces the old one.
+local SINGLE_SLOT_LAYERED = {
+	LeftShoe = true,
+	RightShoe = true,
 }
 
 --------------------------------------------------
@@ -358,6 +385,7 @@ function AvatarService.GetCurrentItems(
 			AssetId = accessory.AssetId,
 			Category = accessory.AccessoryType.Name,
 			IsLayered = accessory.IsLayered,
+			Order = if accessory.IsLayered then accessory.Order else nil,
 		})
 	end
 
@@ -592,13 +620,21 @@ function AvatarService.TryOnItem(
 
 	elseif isLayered then
 
+		if SINGLE_SLOT_LAYERED[accessoryTypeName] then
+			for i = #accessories, 1, -1 do
+				if accessories[i].AccessoryType == accessoryType then
+					table.remove(accessories, i)
+				end
+			end
+		end
+
 		table.insert(
 			accessories,
 			{
 				AssetId = assetId,
 				AccessoryType = accessoryType,
 				IsLayered = true,
-				Order = 1,
+				Order = DEFAULT_LAYER_ORDER[accessoryTypeName] or 1,
 			}
 		)
 
@@ -767,6 +803,160 @@ function AvatarService.RemoveItem(
 		humanoid,
 		description
 	)
+end
+
+--------------------------------------------------
+-- WEAR SHOE BUNDLE (left + right in one apply)
+--------------------------------------------------
+
+local SHOE_ASSET_TYPES = {
+	LeftShoeAccessory = Enum.AccessoryType.LeftShoe,
+	RightShoeAccessory = Enum.AccessoryType.RightShoe,
+}
+
+function AvatarService.GetShoeBundleAssets(bundleId: number): {{AssetId: number, AccessoryType: Enum.AccessoryType}}?
+	if typeof(bundleId) ~= "number" or bundleId <= 0 or bundleId % 1 ~= 0 then
+		return nil
+	end
+	local ok, details = pcall(function()
+		return AssetService:GetBundleDetailsAsync(bundleId)
+	end)
+	if not ok or typeof(details) ~= "table" or details.BundleType ~= "Shoes" or typeof(details.Items) ~= "table" then
+		return nil
+	end
+	local shoes = {}
+	for _, item in ipairs(details.Items) do
+		if typeof(item) == "table" and item.Type == "Asset" and typeof(item.Id) == "number" then
+			local accessoryType = SHOE_ASSET_TYPES[item.AssetType]
+			if not accessoryType then
+				local info = getAssetInfo(item.Id)
+				accessoryType = info and SHOE_ASSET_TYPES[info.AssetType]
+			end
+			if accessoryType then
+				table.insert(shoes, { AssetId = item.Id, AccessoryType = accessoryType })
+			end
+		end
+	end
+	if #shoes == 0 then
+		return nil
+	end
+	return shoes
+end
+
+function AvatarService.WearShoeBundle(player: Player, bundleId: number): (boolean, string)
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local shoes = AvatarService.GetShoeBundleAssets(bundleId)
+	if not shoes then
+		return false, "This bundle has no wearable shoes."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local accessories = description:GetAccessories(true)
+	local replaceTypes = {}
+	for _, shoe in ipairs(shoes) do
+		replaceTypes[shoe.AccessoryType] = true
+	end
+	for i = #accessories, 1, -1 do
+		if replaceTypes[accessories[i].AccessoryType] then
+			table.remove(accessories, i)
+		end
+	end
+	for _, shoe in ipairs(shoes) do
+		table.insert(accessories, {
+			AssetId = shoe.AssetId,
+			AccessoryType = shoe.AccessoryType,
+			IsLayered = true,
+			Order = DEFAULT_LAYER_ORDER[shoe.AccessoryType.Name] or 1,
+		})
+	end
+	description:SetAccessories(accessories, true)
+	local ok, message = applyDescription(humanoid, description)
+	if not ok then
+		return false, message
+	end
+	return true, "Shoes equipped."
+end
+
+--------------------------------------------------
+-- REMOVE SEVERAL ACCESSORIES IN ONE APPLY (e.g. both shoes)
+--------------------------------------------------
+
+function AvatarService.RemoveItems(player: Player, assetIds: any): (boolean, string)
+	if typeof(assetIds) ~= "table" or #assetIds == 0 or #assetIds > 10 then
+		return false, "Invalid item list."
+	end
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local wanted = {}
+	for _, id in ipairs(assetIds) do
+		if typeof(id) == "number" then
+			wanted[id] = true
+		end
+	end
+	local description = humanoid:GetAppliedDescription()
+	local accessories = description:GetAccessories(true)
+	local filtered = {}
+	local removed = 0
+	for _, accessory in ipairs(accessories) do
+		if wanted[accessory.AssetId] then
+			removed += 1
+		else
+			table.insert(filtered, accessory)
+		end
+	end
+	if removed == 0 then
+		return false, "Items are not currently worn."
+	end
+	description:SetAccessories(filtered, true)
+	return applyDescription(humanoid, description)
+end
+
+--------------------------------------------------
+-- LAYER ORDER
+-- orderedIds: layered asset IDs, OUTERMOST FIRST (matches the worn strip,
+-- where the left-most card is drawn on top). Converted to WrapLayer.Order
+-- where a higher value is drawn on top.
+--------------------------------------------------
+
+function AvatarService.SetLayerOrder(player: Player, orderedIds: any): (boolean, string)
+	if typeof(orderedIds) ~= "table" or #orderedIds == 0 or #orderedIds > MAX_ACCESSORIES then
+		return false, "Invalid layer order."
+	end
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local accessories = description:GetAccessories(true)
+	local layeredById = {}
+	local layeredCount = 0
+	for _, accessory in ipairs(accessories) do
+		if accessory.IsLayered then
+			layeredById[accessory.AssetId] = accessory
+			layeredCount += 1
+		end
+	end
+	local seen = {}
+	local count = 0
+	for _, id in ipairs(orderedIds) do
+		if typeof(id) ~= "number" or not layeredById[id] or seen[id] then
+			return false, "Layer list does not match worn items."
+		end
+		seen[id] = true
+		count += 1
+	end
+	if count ~= layeredCount then
+		return false, "Layer list does not match worn items."
+	end
+	for index, id in ipairs(orderedIds) do
+		layeredById[id].Order = count - index + 1
+	end
+	description:SetAccessories(accessories, true)
+	return applyDescription(humanoid, description)
 end
 
 return AvatarService

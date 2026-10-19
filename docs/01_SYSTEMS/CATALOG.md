@@ -70,7 +70,7 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 - **Expanded mode:** use the full viewport on both PC and mobile. Reserve a dedicated left-side avatar preview area on PC and a top preview area on mobile, with the item grid remaining visible beside/below it.
 - Allow resizing by dragging a corner/edge when reliable. If resizing proves unreliable, use a clear expand/collapse control instead.
 - Clamp the panel to the viewport so it cannot be dragged completely off-screen; preserve usable minimum dimensions.
-- **Mobile/narrow screens:** the collapsed catalog is a bottom-right floating window occupying roughly one-quarter of the screen area (about half the viewport width and half its height). Its search/category/sort controls share one row, and the item grid starts directly below the compact status row. Expanding opens the full-screen view with a dedicated current-avatar preview window. Advanced price/off-sale filters are hidden only in compact mode and return when expanded.
+- **Mobile/narrow screens:** (updated 2026-10-19, user decision) on smartphones the collapsed catalog is a right-docked window **one-quarter of the screen width**, full height below the Roblox top bar, so the avatar in the centre of the screen is never covered. Tablets keep the wider compact window. Its search/category/sort controls share one row, and the item grid starts directly below the compact status row. Expanding opens the full-screen view with a dedicated current-avatar preview window. Advanced price/off-sale filters are hidden only in compact mode and return when expanded.
 - Keep the search and sort controls above the item grid. The item grid must retain enough room for readable thumbnails and card actions.
 
 ### Category navigation
@@ -166,3 +166,22 @@ Outfit/Wardrobe and Avatar Editor must keep these modes synchronized with the sa
 - 이 수치는 코드 정적 확인 결과이며 Studio에서 실제 가독성/배치 검증을 완료했다는 뜻은 아니다.
 
 Single source and persistence contract: [AVATAR_STATE_AND_PERSISTENCE.md](../05_TECH/AVATAR_STATE_AND_PERSISTENCE.md). API support evidence: [API.md](../05_TECH/API.md). Player data schema: [DATA.md](../05_TECH/DATA.md).
+
+
+## Catalog UI pass — 2026-10-19 (implemented, Studio-tested in phone emulator)
+
+Source: `image/카탈로그 UI 20261017 14.jpg` (all notes in the image) + user message 2026-10-19.
+
+- **Catalog button (C):** anchored to the right end of the Roblox top bar (`GuiService.TopbarInset`), so voice chat / menu buttons on the left never cover it. Pressing it again closes the catalog.
+- **Expanded window:** starts below the Roblox top bar; equal gap on all four sides. Two separate rounded boxes: avatar preview (left, 25%) and catalog (right), both 80% opaque, with the same gap between them.
+- **Arrows:** category and subcategory arrows are true circles.
+- **Category chips:** top-level and subcategory buttons size to their text.
+- **Filter popup:** Creator name → Price range `Min ~ Max` + Off Sale → Unavailable / Sales type → **Sort** (moved from the toolbar, same options and behaviour) → Apply filters. Uniform 8px padding / 6px gaps. Popup opens under 필터 with right edges aligned; the sort list opens below the sort field or above it when there is no room.
+- **Off Sale / Unavailable:** both show the same IncludeOffSale state; a category default can force off-sale on but never turns the user's choice off.
+- **Minimized strip:** 최근 / 인기 / 즐겨찾기 / 착용 중 / ⚙ / 옷장 (D-022). In expanded mode ⚙ and 옷장 are the icons at the top of the preview box, so the header strip shows only the four discovery buttons.
+- **Avatar preview:** drag inside the preview to orbit (yaw + limited pitch); mouse wheel zooms. The angle is kept when the preview refreshes after wearing an item.
+- **Shoes:** see D-025. Shoes bundles show WEAR/WORN; wearing puts on left + right together; the worn strip lists each shoe; each can be removed separately.
+- **Layer order:** see D-026 and `AVATAR_EDITOR_IMPLEMENTATION_PLAN.md` §7.
+- Subcategory scroll position is kept after selecting a subcategory.
+
+Not yet verified (needs the user on a real mouse / touch device): layer drag gesture, preview orbit/zoom gesture, iPad layout.

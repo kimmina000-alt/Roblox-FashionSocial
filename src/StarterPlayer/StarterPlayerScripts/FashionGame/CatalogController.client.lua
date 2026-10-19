@@ -4,6 +4,8 @@ local Players = game:GetService("Players")
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local AssetService = game:GetService("AssetService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 
@@ -56,9 +58,15 @@ local renderCurrentPage: () -> ()
 -- (ISSUE-CATALOG-006). Assigned later with `name = function() ... end`.
 local refreshWornItems: () -> ()
 local searchCatalog: () -> ()
+local renderCurrentOutfit: () -> ()
+local beginLayerDrag: (number, Frame, InputObject) -> ()
 
 local catalogPages: Pages? = nil
 local currentPageNumber = 1
+
+local expandedPanel = false
+local cardContentScale = 1
+local cardContentUIScales: {UIScale} = {}
 
 --------------------------------------------------
 -- ★ TYPES CURRENTLY SUPPORTED BY OUR TRY-ON SERVICE
@@ -166,6 +174,7 @@ local screenGui = create("ScreenGui", {
 	ResetOnSpawn = false,
 	IgnoreGuiInset = true,
 	DisplayOrder = 20,
+	ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 })
 
 screenGui.Parent = playerGui
@@ -176,25 +185,45 @@ screenGui.Parent = playerGui
 
 local openButton = create("TextButton", {
 	Name = "CatalogButton",
-	Size = UDim2.fromOffset(42, 42),
-	Position = UDim2.fromOffset(174, 12),
-	BackgroundColor3 = Color3.fromRGB(35, 35, 42),
+	AnchorPoint = Vector2.new(1, 0.5),
+	Size = UDim2.fromOffset(44, 44),
+	Position = UDim2.new(1, -16, 0, 34),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	BackgroundTransparency = 0.2,
 	TextColor3 = Color3.fromRGB(255, 255, 255),
 	Text = "C",
 	TextSize = 18,
 	Font = Enum.Font.GothamBold,
 	AutoButtonColor = true,
 })
-
 openButton.Parent = screenGui
-openButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-openButton.BackgroundTransparency = 0.2
-
 
 local openCorner = create("UICorner", {
 	CornerRadius = UDim.new(1, 0),
 })
 openCorner.Parent = openButton
+
+-- Anchor the catalog button to the RIGHT end of the Roblox top bar area.
+-- Left-side top bar items (menu, chat, voice chat mic) grow to the right and
+-- previously covered a left-anchored button.
+local function positionOpenButton()
+	local inset = GuiService.TopbarInset
+	local centerY = 34
+	local rightX = -16
+	local size = 44
+	if inset.Height > 0 then
+		centerY = inset.Min.Y + inset.Height / 2
+		size = math.clamp(inset.Height - 12, 32, 44)
+		local camera = workspace.CurrentCamera
+		if camera and inset.Width > 0 then
+			rightX = -(camera.ViewportSize.X - inset.Max.X) - 8
+		end
+	end
+	openButton.Size = UDim2.fromOffset(size, size)
+	openButton.Position = UDim2.new(1, rightX, 0, centerY)
+end
+positionOpenButton()
+GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(positionOpenButton)
 
 --------------------------------------------------
 -- CURRENT AVATAR PREVIEW WINDOW
@@ -325,6 +354,22 @@ avatarPreviewCamera.FieldOfView = 35
 avatarPreviewCamera.Parent = avatarViewport
 avatarViewport.CurrentCamera = avatarPreviewCamera
 
+-- Preview orbit state survives refreshes so wearing an item keeps the angle.
+local PREVIEW_MIN_ZOOM = 0.45
+local PREVIEW_MAX_ZOOM = 1.6
+local previewYaw = 0
+local previewPitch = 0
+local previewZoom = 1
+local previewTarget = Vector3.zero
+local previewBaseDistance = 8
+
+local function updatePreviewCamera()
+	-- Characters face local -Z; yaw 0 looks at the front of the avatar.
+	local rotation = CFrame.Angles(0, previewYaw, 0) * CFrame.Angles(previewPitch, 0, 0)
+	local offset = rotation:VectorToWorldSpace(Vector3.new(0, 0, -previewBaseDistance * previewZoom))
+	avatarPreviewCamera.CFrame = CFrame.lookAt(previewTarget + offset, previewTarget)
+end
+
 local function refreshAvatarPreview()
 	for _, child in ipairs(avatarPreviewWorld:GetChildren()) do
 		child:Destroy()
@@ -350,19 +395,50 @@ local function refreshAvatarPreview()
 	clone.Parent = avatarPreviewWorld
 	clone:PivotTo(CFrame.new(0, 0, 0))
 	local boundsCFrame, bounds = clone:GetBoundingBox()
-	local target = boundsCFrame.Position
 	local viewportSize = avatarViewport.AbsoluteSize
 	local aspect = if viewportSize.Y > 0 then viewportSize.X / viewportSize.Y else 1
 	local halfFov = math.rad(avatarPreviewCamera.FieldOfView * 0.5)
 	local verticalDistance = (bounds.Y * 0.5) / math.tan(halfFov)
 	local horizontalDistance = (bounds.X * 0.5) / (math.tan(halfFov) * math.max(aspect, 0.1))
-	local distance = math.max(verticalDistance, horizontalDistance, bounds.Z * 0.5 + 0.5) * 1.12
-	-- Roblox characters normally face local -Z; place the camera in front.
-	avatarPreviewCamera.CFrame = CFrame.lookAt(
-		Vector3.new(target.X, target.Y, target.Z - distance),
-		target
-	)
+	previewTarget = boundsCFrame.Position
+	previewBaseDistance = math.max(verticalDistance, horizontalDistance, bounds.Z * 0.5 + 0.5) * 1.12
+	updatePreviewCamera()
 end
+
+-- Drag inside the avatar preview to orbit the avatar; mouse wheel zooms.
+-- Input is only captured when it starts inside the preview viewport.
+local previewDragInput: InputObject? = nil
+local previewDragLast: Vector3? = nil
+avatarViewport.Active = true
+avatarViewport.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		previewDragInput = input
+		previewDragLast = input.Position
+	end
+end)
+avatarViewport.InputChanged:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseWheel then
+		previewZoom = math.clamp(previewZoom * (if input.Position.Z > 0 then 0.9 else 1.1), PREVIEW_MIN_ZOOM, PREVIEW_MAX_ZOOM)
+		updatePreviewCamera()
+	end
+end)
+UserInputService.InputChanged:Connect(function(input)
+	if not previewDragInput or not previewDragLast then return end
+	local isMouseMove = input.UserInputType == Enum.UserInputType.MouseMovement
+		and previewDragInput.UserInputType == Enum.UserInputType.MouseButton1
+	if not isMouseMove and input ~= previewDragInput then return end
+	local delta = input.Position - previewDragLast
+	previewDragLast = input.Position
+	previewYaw -= delta.X * 0.012
+	previewPitch = math.clamp(previewPitch - delta.Y * 0.008, -0.6, 0.6)
+	updatePreviewCamera()
+end)
+UserInputService.InputEnded:Connect(function(input)
+	if previewDragInput and (input == previewDragInput or input.UserInputType == Enum.UserInputType.MouseButton1) then
+		previewDragInput = nil
+		previewDragLast = nil
+	end
+end)
 
 -- Reframe the preview after responsive layout changes alter its viewport shape.
 avatarViewport:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
@@ -402,7 +478,19 @@ local mainFrame = create("Frame", {
 })
 
 mainFrame.Parent = screenGui
-mainFrame.BackgroundTransparency = 0.2
+mainFrame.BackgroundTransparency = 1
+
+-- Rounded catalog box (80% opaque). In expanded mode it sits beside the
+-- avatar preview box with the same gap as the outer screen margin.
+local catalogPanel = create("Frame", {
+	Name = "CatalogPanel",
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	BackgroundTransparency = 0.2,
+	BorderSizePixel = 0,
+	ZIndex = 0,
+})
+catalogPanel.Parent = mainFrame
+create("UICorner", { CornerRadius = UDim.new(0, 12) }).Parent = catalogPanel
 
 local mainCorner = create("UICorner", {
 	CornerRadius = UDim.new(0, 14),
@@ -581,10 +669,10 @@ local sortMenuLayout = create("UIListLayout", {
 sortMenuLayout.Parent = sortMenu
 
 local sortMenuPadding = create("UIPadding", {
-	PaddingTop = UDim.new(0, 6),
-	PaddingBottom = UDim.new(0, 6),
-	PaddingLeft = UDim.new(0, 6),
-	PaddingRight = UDim.new(0, 6),
+	PaddingTop = UDim.new(0, 4),
+	PaddingBottom = UDim.new(0, 4),
+	PaddingLeft = UDim.new(0, 4),
+	PaddingRight = UDim.new(0, 4),
 })
 sortMenuPadding.Parent = sortMenu
 
@@ -738,7 +826,10 @@ create("UIListLayout", {
 }).Parent = discoveryBar
 
 local discoveryButtons = {}
-for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중", "옷장"}) do
+-- Minimized strip order (D-022): 최근 / 인기 / 즐겨찾기 / 착용 중 / ⚙ / 옷장.
+-- In expanded mode ⚙ and 옷장 live at the top of the avatar preview box instead.
+local COMPACT_ONLY_DISCOVERY = {["⚙"] = true, ["옷장"] = true}
+for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
 	local b = create("TextButton", {
 		Name = "Discovery_" .. tostring(index),
 		Size = UDim2.fromOffset(86, 30),
@@ -803,13 +894,29 @@ local mainCategoryStrip = create("ScrollingFrame", {
 	Visible = false,
 })
 mainCategoryStrip.Parent = mainFrame
-local subcategoryStrip = create("ScrollingFrame", {Name="SubcategoryStrip",BackgroundColor3=Color3.fromRGB(36,36,44),BackgroundTransparency=0,BorderSizePixel=0,ScrollBarThickness=0,ScrollingDirection=Enum.ScrollingDirection.X,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.X,Visible=false})
+local subcategoryStrip = create("ScrollingFrame", {Name="SubcategoryStrip",BackgroundColor3=Color3.fromRGB(36,36,44),BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=0,ScrollingDirection=Enum.ScrollingDirection.X,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.X,Visible=false})
 subcategoryStrip.Parent=mainFrame
 create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder}).Parent=subcategoryStrip
-local subcategoryLeftButton=create("TextButton",{Name="SubcategoryLeftArrow",Size=UDim2.fromOffset(28,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.35,Text="<",TextColor3=Color3.new(1,1,1),TextSize=16,Font=Enum.Font.GothamBold,Visible=false}); subcategoryLeftButton.Parent=mainFrame
-create("UICorner",{CornerRadius=UDim.new(1,0)}).Parent=subcategoryLeftButton
-local subcategoryRightButton=create("TextButton",{Name="SubcategoryRightArrow",Size=UDim2.fromOffset(28,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.35,Text=">",TextColor3=Color3.new(1,1,1),TextSize=16,Font=Enum.Font.GothamBold,Visible=false}); subcategoryRightButton.Parent=mainFrame
-create("UICorner",{CornerRadius=UDim.new(1,0)}).Parent=subcategoryRightButton
+local function createArrowButton(name: string, text: string): TextButton
+	local button = create("TextButton", {
+		Name = name,
+		Size = UDim2.fromOffset(28, 28),
+		BackgroundColor3 = Color3.fromRGB(46, 60, 70),
+		BackgroundTransparency = 0,
+		Text = text,
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 20,
+		Font = Enum.Font.GothamBold,
+		AutoButtonColor = true,
+		Visible = false,
+		ZIndex = 3,
+	})
+	button.Parent = mainFrame
+	create("UICorner", { CornerRadius = UDim.new(0.5, 0) }).Parent = button
+	return button
+end
+local subcategoryLeftButton = createArrowButton("SubcategoryLeftArrow", "‹")
+local subcategoryRightButton = createArrowButton("SubcategoryRightArrow", "›")
 local mainCategoryLayout = create("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	Padding = UDim.new(0, 5),
@@ -817,22 +924,8 @@ local mainCategoryLayout = create("UIListLayout", {
 })
 mainCategoryLayout.Parent = mainCategoryStrip
 
-local categoryLeftButton = create("TextButton", {
-	Name = "CategoryLeftArrow", Size = UDim2.fromOffset(30, 30),
-	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.35,
-	Text = "<", TextColor3 = Color3.new(1,1,1), TextSize = 16, Font = Enum.Font.GothamBold,
-	Visible = false,
-})
-categoryLeftButton.Parent = mainFrame
-create("UICorner", {CornerRadius = UDim.new(1, 0)}).Parent = categoryLeftButton
-local categoryRightButton = create("TextButton", {
-	Name = "CategoryRightArrow", Size = UDim2.fromOffset(30, 30),
-	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.35,
-	Text = ">", TextColor3 = Color3.new(1,1,1), TextSize = 16, Font = Enum.Font.GothamBold,
-	Visible = false,
-})
-categoryRightButton.Parent = mainFrame
-create("UICorner", {CornerRadius = UDim.new(1, 0)}).Parent = categoryRightButton
+local categoryLeftButton = createArrowButton("CategoryLeftArrow", "‹")
+local categoryRightButton = createArrowButton("CategoryRightArrow", "›")
 
 local filterPanel = create("Frame", {
 	Name = "ExpandedFilterPanel",
@@ -846,48 +939,106 @@ local filterPanel = create("Frame", {
 filterPanel.Parent = mainFrame
 create("UICorner", {CornerRadius = UDim.new(0, 8)}).Parent = filterPanel
 
-local creatorLabel = create("TextLabel", {
-	Size = UDim2.new(1, -16, 0, 22), Position = UDim2.fromOffset(8, 4),
+local FILTER_PAD = 8
+local FILTER_GAP = 6
+local FILTER_ROW = 26
+local function filterText(className: string, props: {[string]: any})
+	props.ZIndex = 71
+	props.Font = props.Font or Enum.Font.GothamBold
+	local object = create(className, props)
+	object.Parent = filterPanel
+	if className ~= "TextLabel" then
+		create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = object
+	end
+	return object
+end
+local creatorLabel = filterText("TextLabel", {
 	BackgroundTransparency = 1, Text = "Creator: All creators",
-	TextColor3 = Color3.new(1,1,1), TextSize = 11, Font = Enum.Font.Gotham,
-	TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 71,
+	TextColor3 = Color3.fromRGB(220, 220, 228), TextSize = 10, Font = Enum.Font.Gotham,
+	TextXAlignment = Enum.TextXAlignment.Left,
 })
-creatorLabel.Parent = filterPanel
-local creatorNameBox = create("TextBox", {
-	Size = UDim2.new(1, -16, 0, 26), Position = UDim2.fromOffset(8, 26),
-	BackgroundColor3 = Color3.fromRGB(45,45,52), BackgroundTransparency = 0.25,
-	Text = "", PlaceholderText = "Creator name",
-	TextColor3 = Color3.new(1,1,1), PlaceholderColor3 = Color3.fromRGB(180,180,185),
-	TextSize = 11, ClearTextOnFocus = false, ZIndex = 71,
+local creatorNameBox = filterText("TextBox", {
+	BackgroundColor3 = Color3.fromRGB(45, 45, 54), Text = "", PlaceholderText = "Creator name",
+	TextColor3 = Color3.new(1, 1, 1), PlaceholderColor3 = Color3.fromRGB(165, 165, 172),
+	TextSize = 12, Font = Enum.Font.Gotham, ClearTextOnFocus = false,
 })
-creatorNameBox.Parent = filterPanel
-local priceFilterLabel = create("TextLabel", {
-	Size = UDim2.new(1, -16, 0, 20), Position = UDim2.fromOffset(8, 54),
+local priceFilterLabel = filterText("TextLabel", {
 	BackgroundTransparency = 1, Text = "Price range (R$)",
-	TextColor3 = Color3.new(1,1,1), TextSize = 11, Font = Enum.Font.Gotham,
-	TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 71,
+	TextColor3 = Color3.fromRGB(220, 220, 228), TextSize = 10, Font = Enum.Font.Gotham,
+	TextXAlignment = Enum.TextXAlignment.Left,
 })
-priceFilterLabel.Parent = filterPanel
-local unavailableFilterButton = create("TextButton", {
-	Size = UDim2.fromOffset(112, 26), Position = UDim2.fromOffset(8, 102),
-	BackgroundColor3 = Color3.fromRGB(50,50,60), Text = "Unavailable: Off",
-	TextColor3 = Color3.new(1,1,1), TextSize = 10, Font = Enum.Font.GothamBold, ZIndex = 71,
+local priceTildeLabel = filterText("TextLabel", {
+	BackgroundTransparency = 1, Text = "~", TextColor3 = Color3.new(1, 1, 1), TextSize = 16,
 })
-unavailableFilterButton.Parent = filterPanel
-local salesTypeButton = create("TextButton", {
-	Size = UDim2.fromOffset(132, 26), Position = UDim2.fromOffset(124, 102),
-	BackgroundColor3 = Color3.fromRGB(50,50,60), Text = "Sales type: All",
-	TextColor3 = Color3.fromRGB(170,170,175), TextSize = 10, Font = Enum.Font.GothamBold,
-	AutoButtonColor = false, ZIndex = 71,
+local unavailableFilterButton = filterText("TextButton", {
+	BackgroundColor3 = Color3.fromRGB(50, 50, 60), Text = "Unavailable: Off",
+	TextColor3 = Color3.new(1, 1, 1), TextSize = 10,
 })
-salesTypeButton.Parent = filterPanel
-local applyFilterButton = create("TextButton", {
-	Size = UDim2.new(1, -16, 0, 28), Position = UDim2.fromOffset(8, 134),
-	BackgroundColor3 = Color3.fromRGB(75,75,90), Text = "Apply filters",
-	TextColor3 = Color3.new(1,1,1), TextSize = 11, Font = Enum.Font.GothamBold, ZIndex = 71,
+local salesTypeButton = filterText("TextButton", {
+	BackgroundColor3 = Color3.fromRGB(50, 50, 60), Text = "Sales type: All",
+	TextColor3 = Color3.fromRGB(170, 170, 175), TextSize = 10, AutoButtonColor = false,
 })
-applyFilterButton.Parent = filterPanel
-create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = applyFilterButton
+local applyFilterButton = filterText("TextButton", {
+	BackgroundColor3 = Color3.fromRGB(75, 75, 90), Text = "Apply filters",
+	TextColor3 = Color3.new(1, 1, 1), TextSize = 11,
+})
+
+-- Sort moved into the filter popup as-is (same options and behaviour).
+sortButton.Parent = filterPanel
+sortButton.ZIndex = 71
+sortMenu.Parent = filterPanel
+sortMenu.ZIndex = 80
+for _, box in ipairs({minPriceBox, maxPriceBox, offSaleButton}) do
+	box.Parent = filterPanel
+	box.ZIndex = 71
+end
+minPriceBox.BackgroundColor3 = Color3.fromRGB(45, 45, 54)
+maxPriceBox.BackgroundColor3 = Color3.fromRGB(45, 45, 54)
+offSaleButton.TextSize = 10
+minPriceBox.TextSize = 11
+maxPriceBox.TextSize = 11
+
+local FILTER_SORT_Y = 0
+local function layoutFilterPanel(popupWidth: number): number
+	local inner = popupWidth - FILTER_PAD * 2
+	local y = FILTER_PAD
+	creatorLabel.Position = UDim2.fromOffset(FILTER_PAD, y)
+	creatorLabel.Size = UDim2.fromOffset(inner, 14)
+	y += 14 + 2
+	creatorNameBox.Position = UDim2.fromOffset(FILTER_PAD, y)
+	creatorNameBox.Size = UDim2.fromOffset(inner, FILTER_ROW)
+	y += FILTER_ROW + FILTER_GAP
+	priceFilterLabel.Position = UDim2.fromOffset(FILTER_PAD, y)
+	priceFilterLabel.Size = UDim2.fromOffset(inner, 14)
+	y += 14 + 2
+	local offSaleWidth = math.floor(inner * 0.3)
+	local tildeWidth = 14
+	local boxWidth = math.floor((inner - offSaleWidth - tildeWidth - FILTER_GAP * 3) / 2)
+	minPriceBox.Position = UDim2.fromOffset(FILTER_PAD, y)
+	minPriceBox.Size = UDim2.fromOffset(boxWidth, FILTER_ROW)
+	priceTildeLabel.Position = UDim2.fromOffset(FILTER_PAD + boxWidth + FILTER_GAP, y)
+	priceTildeLabel.Size = UDim2.fromOffset(tildeWidth, FILTER_ROW)
+	maxPriceBox.Position = UDim2.fromOffset(FILTER_PAD + boxWidth + tildeWidth + FILTER_GAP * 2, y)
+	maxPriceBox.Size = UDim2.fromOffset(boxWidth, FILTER_ROW)
+	offSaleButton.Position = UDim2.fromOffset(popupWidth - FILTER_PAD - offSaleWidth, y)
+	offSaleButton.Size = UDim2.fromOffset(offSaleWidth, FILTER_ROW)
+	y += FILTER_ROW + FILTER_GAP
+	local halfWidth = math.floor((inner - FILTER_GAP) / 2)
+	unavailableFilterButton.Position = UDim2.fromOffset(FILTER_PAD, y)
+	unavailableFilterButton.Size = UDim2.fromOffset(halfWidth, FILTER_ROW)
+	salesTypeButton.Position = UDim2.fromOffset(popupWidth - FILTER_PAD - halfWidth, y)
+	salesTypeButton.Size = UDim2.fromOffset(halfWidth, FILTER_ROW)
+	y += FILTER_ROW + FILTER_GAP
+	FILTER_SORT_Y = y
+	sortButton.Position = UDim2.fromOffset(FILTER_PAD, y)
+	sortButton.Size = UDim2.fromOffset(inner, FILTER_ROW)
+	sortButton.TextSize = 10
+	y += FILTER_ROW + FILTER_GAP
+	applyFilterButton.Position = UDim2.fromOffset(FILTER_PAD, y)
+	applyFilterButton.Size = UDim2.fromOffset(inner, FILTER_ROW + 2)
+	y += FILTER_ROW + 2 + FILTER_PAD
+	return y
+end
 
 local function updateMainCategorySelection()
 	for _, child in ipairs(mainCategoryStrip:GetChildren()) do
@@ -901,7 +1052,17 @@ local function updateMainCategorySelection()
 end
 
 local groupButtonByName = {}
-local allMainCategoryButton=create("TextButton",{Name="MainCategory_All",Size=UDim2.fromOffset(74,30),BackgroundColor3=Color3.fromRGB(78,78,94),BackgroundTransparency=0,Text="전체",TextColor3=Color3.new(1,1,1),TextSize=11,Font=Enum.Font.GothamBold,LayoutOrder=0}); allMainCategoryButton.Parent=mainCategoryStrip; create("UICorner",{CornerRadius=UDim.new(0,7)}).Parent=allMainCategoryButton
+-- Category chips size to their text: short labels give short buttons.
+local CHIP_PADDING = 12
+local function makeChipAutoWidth(button: TextButton, height: number)
+	button.AutomaticSize = Enum.AutomaticSize.X
+	button.Size = UDim2.fromOffset(0, height)
+	create("UIPadding", {
+		PaddingLeft = UDim.new(0, CHIP_PADDING),
+		PaddingRight = UDim.new(0, CHIP_PADDING),
+	}).Parent = button
+end
+local allMainCategoryButton=create("TextButton",{Name="MainCategory_All",BackgroundColor3=Color3.fromRGB(78,78,94),BackgroundTransparency=0,Text="전체",TextColor3=Color3.new(1,1,1),TextSize=11,Font=Enum.Font.GothamBold,LayoutOrder=0}); makeChipAutoWidth(allMainCategoryButton, 28); allMainCategoryButton.Parent=mainCategoryStrip; create("UICorner",{CornerRadius=UDim.new(0,7)}).Parent=allMainCategoryButton
 allMainCategoryButton.MouseButton1Click:Connect(function()
 	activeTopLevelGroup = nil
 	updateMainCategorySelection()
@@ -911,7 +1072,6 @@ end)
 for index, group in ipairs(Config.CategoryGroups) do
 	local b = create("TextButton", {
 		Name = "MainCategory_" .. group.Name,
-		Size = UDim2.fromOffset(94, 30),
 		BackgroundColor3 = Color3.fromRGB(0,0,0),
 		BackgroundTransparency = 0.6,
 		Text = group.Name,
@@ -920,6 +1080,7 @@ for index, group in ipairs(Config.CategoryGroups) do
 		Font = Enum.Font.GothamBold,
 		LayoutOrder = index,
 	})
+	makeChipAutoWidth(b, 28)
 	b.Parent = mainCategoryStrip
 	create("UICorner", {CornerRadius = UDim.new(0, 7)}).Parent = b
 	groupButtonByName[group.Name] = b
@@ -1008,6 +1169,14 @@ end)
 discoveryButtons["인기"].MouseButton1Click:Connect(function()
 	print("[CatalogUI] Popular selected. API-backed sort will be enabled only for supported item types.")
 end)
+discoveryButtons["⚙"].MouseButton1Click:Connect(function()
+	if not expandedPanel then
+		expandedPanel = true
+		updateCatalogLayout()
+		refreshAvatarPreview()
+	end
+	print("[CatalogUI] Avatar Editor entry: opened maximized catalog. Editor controls are Stage 1.5.")
+end)
 discoveryButtons["옷장"].MouseButton1Click:Connect(function()
 	print("[CatalogUI] Wardrobe selected. Wardrobe is planned after the Avatar Editor (Stage 2).")
 end)
@@ -1036,14 +1205,20 @@ fixedFilterButton.MouseButton1Click:Connect(function()
 	filterPanelOpen = not filterPanelOpen
 	updateCatalogLayout()
 end)
+local function syncOffSaleLabels()
+	unavailableFilterButton.Text = "Unavailable: " .. (currentIncludeOffSale and "On" or "Off")
+	offSaleButton.Text = currentIncludeOffSale and "☑ Off Sale" or "□ Off Sale"
+	local onColor = Color3.fromRGB(105, 85, 160)
+	local offColor = Color3.fromRGB(50, 50, 60)
+	offSaleButton.BackgroundColor3 = currentIncludeOffSale and onColor or offColor
+	unavailableFilterButton.BackgroundColor3 = currentIncludeOffSale and onColor or offColor
+end
 unavailableFilterButton.MouseButton1Click:Connect(function()
 	currentIncludeOffSale = not currentIncludeOffSale
-	unavailableFilterButton.Text = "Unavailable: " .. (currentIncludeOffSale and "On" or "Off")
+	syncOffSaleLabels()
 end)
 applyFilterButton.MouseButton1Click:Connect(function()
-	minPriceBox.Text = minPriceBox.Text or ""
-	maxPriceBox.Text = maxPriceBox.Text or ""
-	offSaleButton.Text = currentIncludeOffSale and "☑ Off Sale" or "□ Off Sale"
+	syncOffSaleLabels()
 	filterPanelOpen = false
 	updateCatalogLayout()
 	searchCatalog()
@@ -1099,46 +1274,55 @@ nextCorner.Parent = nextButton
 -- RESPONSIVE CATALOG LAYOUT
 --------------------------------------------------
 
-local expandedPanel = false
-local cardContentScale = 1
-local cardContentUIScales: {UIScale} = {}
 
 updateCatalogLayout = function()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
-	local isPhone = viewport.X < 600
+	local insetTop = GuiService:GetGuiInset().Y
+	-- Phones: narrow, or touch devices with a short landscape height. Tablets keep
+	-- the wider compact window.
+	local isPhone = viewport.X < 600 or (UserInputService.TouchEnabled and viewport.Y < 500)
 	local narrow = viewport.X < 900
+	local margin = if isPhone then 6 else 10
+	local topY = insetTop + margin
 	local panelWidth: number
 	local panelHeight: number
 	if expandedPanel then
-		panelWidth, panelHeight = viewport.X, viewport.Y
-		mainFrame.Position = UDim2.fromOffset(0, 0)
-		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
-		mainCorner.CornerRadius = UDim.new(0, 0)
+		-- Equal gap on all four sides, starting below the Roblox top bar.
+		panelWidth = math.max(200, viewport.X - margin * 2)
+		panelHeight = math.max(160, viewport.Y - topY - margin)
+		mainFrame.Position = UDim2.fromOffset(margin, topY)
 	else
-		local compactWidth = if isPhone then math.max(100, math.floor(viewport.X * 0.25)) elseif narrow then math.floor(viewport.X * 0.5) else math.min(760, math.max(280, math.floor(viewport.X * 0.42)))
-		panelWidth = math.min(compactWidth, viewport.X - 12)
-		panelHeight = math.min(math.max(260, math.floor(viewport.Y * 0.58)), viewport.Y - 12)
-		mainFrame.Position = UDim2.new(1, -panelWidth - 6, 1, -panelHeight - 6)
-		mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
-		mainCorner.CornerRadius = UDim.new(0, 14)
+		local compactWidth = if isPhone then math.max(140, math.floor(viewport.X * 0.25))
+			elseif narrow then math.floor(viewport.X * 0.5)
+			else math.min(760, math.max(280, math.floor(viewport.X * 0.42)))
+		panelWidth = math.min(compactWidth, viewport.X - margin * 2)
+		local maxHeight = math.max(160, viewport.Y - topY - margin)
+		panelHeight = if isPhone then maxHeight else math.min(math.max(260, math.floor(viewport.Y * 0.58)), maxHeight)
+		mainFrame.Position = UDim2.fromOffset(viewport.X - panelWidth - margin, viewport.Y - panelHeight - margin)
 	end
+	mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
 	local compact = not expandedPanel
+	local phoneCompact = compact and isPhone
 	local leftWidth = if expandedPanel then math.floor(panelWidth * 0.25) else 0
-	local rightWidth = panelWidth - leftWidth
-	local safeTop = if expandedPanel then 44 else 0
-	local x = if expandedPanel then leftWidth + 12 else 8
-	local headerY = safeTop
-	local rowY = headerY + (if compact then 70 else 38)
+	local catalogX = if expandedPanel then leftWidth + margin else 0
+	local rightWidth = panelWidth - catalogX
+	catalogPanel.Position = UDim2.fromOffset(catalogX, 0)
+	catalogPanel.Size = UDim2.fromOffset(rightWidth, panelHeight)
+	local pad = if phoneCompact then 6 elseif expandedPanel then 10 else 8
+	local x = catalogX + pad
+	local contentRight = panelWidth - pad
+	local innerWidth = math.max(1, contentRight - x)
+	local headerY = pad
 	local rowH = if expandedPanel then 32 else 28
-	local arrowW = if expandedPanel then 20 else 18
-	local innerWidth = math.max(1, rightWidth - (if expandedPanel then 24 else 16))
+	local controlSize = if phoneCompact then 28 else 32
+
 	if expandedPanel then
-		previewFrame.Position = UDim2.fromOffset(0, safeTop)
-		previewFrame.Size = UDim2.new(0.25, 0, 1, -safeTop)
+		previewFrame.Position = UDim2.fromOffset(0, 0)
+		previewFrame.Size = UDim2.fromOffset(leftWidth, panelHeight)
 		previewFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-		previewFrame.BackgroundTransparency = 0.15
+		previewFrame.BackgroundTransparency = 0.2
 		previewTitle.Visible = false
 		avatarEditorButton.Position = UDim2.fromOffset(8, 8)
 		wardrobeButton.Position = UDim2.fromOffset(46, 8)
@@ -1153,60 +1337,90 @@ updateCatalogLayout = function()
 		previewTitle.Visible = false
 		currentOutfitFrame.Visible = false
 	end
-	-- The discovery row is anchored before the two window controls. Both controls
-	-- use a 6px gap, and the last discovery button uses that same anchor spacing.
-	titleLabel.Position = UDim2.fromOffset(x, headerY + 2)
-	titleLabel.Size = UDim2.new(0, math.min(132, math.max(72, rightWidth * 0.22)), 0, 30)
-	titleLabel.TextSize = if expandedPanel then 18 else 15
-	closeButton.Position = UDim2.new(1, -42, 0, headerY + 1)
-	closeButton.Size = UDim2.fromOffset(32, 32)
-	expandButton.Position = UDim2.new(1, -80, 0, headerY + 1)
-	expandButton.Size = UDim2.fromOffset(32, 32)
+
+	-- Header: title, discovery shortcuts, expand and close.
+	closeButton.Size = UDim2.fromOffset(controlSize, controlSize)
+	closeButton.Position = UDim2.fromOffset(contentRight - controlSize, headerY)
+	closeButton.TextSize = if phoneCompact then 20 else 26
+	expandButton.Size = UDim2.fromOffset(controlSize, controlSize)
+	expandButton.Position = UDim2.fromOffset(contentRight - controlSize * 2 - 6, headerY)
 	expandButton.Visible = true
-	expandButton.Text = if expandedPanel then "↙" else "⛶"
-	local discoveryWidth = if compact then math.max(1, panelWidth - 16) else math.max(1, math.min(330, rightWidth - titleLabel.Size.X.Offset - 102))
-	discoveryBar.Visible = true
-	discoveryBar.Position = if compact then UDim2.fromOffset(8, headerY + 36) else UDim2.new(1, -86 - discoveryWidth, 0, headerY + 1)
-	discoveryBar.Size = UDim2.fromOffset(discoveryWidth, 32)
-	for _, button in pairs(discoveryButtons) do
-		button.Size = UDim2.fromOffset(math.max(26, math.floor((discoveryWidth - 15) / 4)), 28)
-		button.TextSize = if expandedPanel then 11 else 8
+	expandButton.Text = if expandedPanel then "↙" else "↗"
+	expandButton.TextSize = if phoneCompact then 16 else 20
+	local controlsLeft = contentRight - controlSize * 2 - 6
+	titleLabel.Visible = not phoneCompact
+	titleLabel.Position = UDim2.fromOffset(x, headerY + 1)
+	titleLabel.Size = UDim2.fromOffset(math.min(132, math.max(72, math.floor(rightWidth * 0.22))), 30)
+	titleLabel.TextSize = if expandedPanel then 18 else 15
+	local discoveryX: number
+	local discoveryY: number
+	local discoveryWidth: number
+	if phoneCompact then
+		discoveryX, discoveryY = x, headerY
+		discoveryWidth = math.max(1, controlsLeft - 6 - x)
+	elseif compact then
+		discoveryX, discoveryY = x, headerY + 36
+		discoveryWidth = innerWidth
+	else
+		discoveryWidth = math.max(1, math.min(360, controlsLeft - 8 - (x + titleLabel.Size.X.Offset)))
+		discoveryX, discoveryY = controlsLeft - 6 - discoveryWidth, headerY
 	end
-	-- Row two: major categories plus search, filter and sort.
-	local categoryRatio = if narrow then 0.28 else 0.39
-	local categoryWidth = if expandedPanel then math.max(44, math.floor(innerWidth * categoryRatio)) else innerWidth
-	categoryLeftButton.Visible = true
-	categoryRightButton.Visible = true
-	categoryLeftButton.Size = UDim2.fromOffset(arrowW, rowH)
-	categoryRightButton.Size = UDim2.fromOffset(arrowW, rowH)
-	categoryLeftButton.Position = UDim2.fromOffset(x, rowY)
-	mainCategoryStrip.Visible = true
-	mainCategoryStrip.Position = UDim2.fromOffset(x + arrowW, rowY)
-	mainCategoryStrip.Size = UDim2.fromOffset(math.max(1, categoryWidth - arrowW * 2), rowH)
-	categoryRightButton.Position = UDim2.fromOffset(x + categoryWidth - arrowW, rowY)
+	discoveryBar.Visible = true
+	discoveryBar.Position = UDim2.fromOffset(discoveryX, discoveryY)
+	discoveryBar.Size = UDim2.fromOffset(discoveryWidth, controlSize)
+	local visibleDiscovery = 0
+	for label, button in pairs(discoveryButtons) do
+		button.Visible = compact or not COMPACT_ONLY_DISCOVERY[label]
+		if button.Visible then visibleDiscovery += 1 end
+	end
+	local perRow = if expandedPanel then visibleDiscovery else 4
+	local discoveryButtonWidth = math.max(44, math.floor((discoveryWidth - 5 * (perRow - 1)) / perRow))
+	for label, button in pairs(discoveryButtons) do
+		local iconOnly = label == "⚙"
+		button.Size = UDim2.fromOffset(if iconOnly then math.min(discoveryButtonWidth, 36) else discoveryButtonWidth, controlSize - 4)
+		button.TextSize = if iconOnly then 16 elseif expandedPanel then 11 elseif phoneCompact then 9 else 10
+	end
+
+	-- Category row (and, in expanded mode, search + filter on the same row).
+	local rowY = if phoneCompact then headerY + controlSize + 4 elseif compact then headerY + 70 else headerY + 40
+	local categoryWidth = if expandedPanel then math.max(80, math.floor(innerWidth * (if narrow then 0.32 else 0.42))) else innerWidth
+	local function placeArrowRow(left: TextButton, strip: ScrollingFrame, right: TextButton, rowX: number, y: number, width: number)
+		left.Visible = true
+		right.Visible = true
+		left.Size = UDim2.fromOffset(rowH, rowH)
+		right.Size = UDim2.fromOffset(rowH, rowH)
+		left.TextSize = if rowH >= 32 then 22 else 20
+		right.TextSize = left.TextSize
+		left.Position = UDim2.fromOffset(rowX, y)
+		right.Position = UDim2.fromOffset(rowX + width - rowH, y)
+		strip.Visible = true
+		strip.Position = UDim2.fromOffset(rowX + rowH + 4, y + 2)
+		strip.Size = UDim2.fromOffset(math.max(1, width - rowH * 2 - 8), rowH - 4)
+	end
+	placeArrowRow(categoryLeftButton, mainCategoryStrip, categoryRightButton, x, rowY, categoryWidth)
+	local subY = rowY + rowH + 4
+	placeArrowRow(subcategoryLeftButton, subcategoryStrip, subcategoryRightButton, x, subY, innerWidth)
+
 	local searchX = if compact then x else x + categoryWidth + 8
-	local searchY = if compact then rowY + rowH * 2 + 8 else rowY
-	local searchArea = math.max(1, panelWidth - searchX - 8)
-	local smallCompact = compact and panelWidth < 280
-	local searchButtonWidth = if smallCompact then 22 else math.clamp(math.floor(searchArea * 0.15), 34, 66)
-	local filterWidth = if smallCompact then 24 else math.clamp(math.floor(searchArea * 0.13), 34, 62)
-	local sortWidth = if smallCompact then 32 else math.clamp(math.floor(searchArea * 0.28), 52, 132)
-	local searchWidth = if smallCompact then searchArea else math.max(28, searchArea - searchButtonWidth - filterWidth - sortWidth - 12)
-	local actionsY = if smallCompact then searchY + rowH + 4 else searchY
+	local searchY = if compact then subY + rowH + 4 else rowY
+	local searchArea = math.max(1, contentRight - searchX)
+	local searchButtonWidth = if phoneCompact then 28 else math.clamp(math.floor(searchArea * 0.17), 40, 76)
+	local filterWidth = if phoneCompact then 32 else math.clamp(math.floor(searchArea * 0.14), 40, 66)
+	local searchWidth = math.max(28, searchArea - searchButtonWidth - filterWidth - 8)
 	searchBox.Position = UDim2.fromOffset(searchX, searchY)
 	searchBox.Size = UDim2.fromOffset(searchWidth, rowH)
-	searchBox.TextSize = if expandedPanel then 12 else 9
-	searchBox.PlaceholderText = "Search Roblox catalog..."
+	searchBox.TextSize = if expandedPanel then 12 elseif phoneCompact then 9 else 10
+	searchBox.PlaceholderText = if phoneCompact then "Search..." else "Search Roblox catalog..."
 	searchButton.Visible = true
-	searchButton.Text = if smallCompact then "⌕" else "SEARCH"
-	searchButton.Position = UDim2.fromOffset(if smallCompact then searchX else searchX + searchWidth + 3, actionsY)
+	searchButton.Text = if phoneCompact then "🔍" else "SEARCH"
+	searchButton.Position = UDim2.fromOffset(searchX + searchWidth + 4, searchY)
 	searchButton.Size = UDim2.fromOffset(searchButtonWidth, rowH)
-	searchButton.TextSize = if smallCompact then 10 else (if expandedPanel then 9 else 8)
+	searchButton.TextSize = if phoneCompact then 14 elseif expandedPanel then 10 else 9
 	fixedFilterButton.Visible = true
-	fixedFilterButton.Text = if smallCompact then "필터" else "필터 ☰"
-	fixedFilterButton.Position = UDim2.fromOffset(if smallCompact then searchX + searchButtonWidth + 3 else searchX + searchWidth + searchButtonWidth + 6, actionsY)
+	fixedFilterButton.Text = "필터"
+	fixedFilterButton.Position = UDim2.fromOffset(contentRight - filterWidth, searchY)
 	fixedFilterButton.Size = UDim2.fromOffset(filterWidth, rowH)
-	fixedFilterButton.TextSize = if smallCompact then 7 else (if expandedPanel then 10 else 8)
+	fixedFilterButton.TextSize = if phoneCompact then 9 elseif expandedPanel then 11 else 10
 	sortButton.Visible = true
 	local sortLabel = "Relevance"
 	for _, option in ipairs(Config.SortOptions) do
@@ -1215,73 +1429,51 @@ updateCatalogLayout = function()
 			break
 		end
 	end
-	sortButton.Text = if smallCompact then "정렬" else "Sort: " .. sortLabel .. " ▼"
-	sortButton.Position = UDim2.fromOffset(if smallCompact then searchX + searchButtonWidth + filterWidth + 6 else searchX + searchWidth + searchButtonWidth + filterWidth + 9, actionsY)
-	sortButton.Size = UDim2.fromOffset(sortWidth, rowH)
-	sortButton.TextSize = if smallCompact then 7 else (if expandedPanel then 9 else 8)
-	sortMenu.Position = UDim2.fromOffset(sortButton.Position.X.Offset, actionsY + rowH + 4)
-	sortMenu.Size = UDim2.fromOffset(sortWidth, math.min(220, math.max(120, panelHeight - rowY - 80)))
-	-- Row three: its own independent subcategory scroll area.
-	local subY = rowY + rowH + 4
-	subcategoryLeftButton.Visible = true
-	subcategoryRightButton.Visible = true
-	subcategoryLeftButton.Size = UDim2.fromOffset(arrowW, rowH)
-	subcategoryRightButton.Size = UDim2.fromOffset(arrowW, rowH)
-	subcategoryLeftButton.Position = UDim2.fromOffset(x, subY)
-	subcategoryStrip.Visible = true
-	subcategoryStrip.Position = UDim2.fromOffset(x + arrowW, subY)
-	subcategoryStrip.Size = UDim2.new(1, -(leftWidth + (if expandedPanel then 24 else 16) + arrowW * 2), 0, rowH)
-	subcategoryRightButton.Position = UDim2.new(1, -(if expandedPanel then 32 else 26), 0, subY)
+	sortButton.Text = "Sort: " .. sortLabel .. " ▼"
 	filterLabel.Visible = false
-	minPriceBox.Visible = filterPanelOpen
-	maxPriceBox.Visible = filterPanelOpen
-	offSaleButton.Visible = filterPanelOpen
+
+	-- Filter popup: opens under the filter button, right edges aligned, clamped on screen.
 	if filterPanelOpen then
-		minPriceBox.Parent = filterPanel
-		maxPriceBox.Parent = filterPanel
-		offSaleButton.Parent = filterPanel
-		minPriceBox.Position = UDim2.fromOffset(8, 76)
-		maxPriceBox.Position = UDim2.fromOffset(106, 76)
-		offSaleButton.Position = UDim2.fromOffset(204, 76)
-		minPriceBox.Size = UDim2.fromOffset(90, 28)
-		maxPriceBox.Size = UDim2.fromOffset(90, 28)
-		offSaleButton.Size = UDim2.fromOffset(88, 28)
-		local popupWidth = math.min(300, math.max(1, viewport.X - 16))
-		local popupHeight = math.min(166, math.max(1, viewport.Y - 16))
+		local popupWidth = math.min(300, math.max(180, viewport.X - margin * 2))
+		local popupHeight = layoutFilterPanel(popupWidth)
 		filterPanel.Size = UDim2.fromOffset(popupWidth, popupHeight)
-		local frameOrigin = mainFrame.AbsolutePosition
-		local buttonGlobalX = frameOrigin.X + fixedFilterButton.Position.X.Offset
-		local popupGlobalX = math.clamp(buttonGlobalX, 8, math.max(8, viewport.X - popupWidth - 8))
-		local buttonGlobalY = frameOrigin.Y + actionsY
-		local popupGlobalY = buttonGlobalY + rowH + 4
-		if popupGlobalY + popupHeight > viewport.Y - 8 then
-			popupGlobalY = math.max(8, buttonGlobalY - popupHeight - 4)
+		local frameOrigin = mainFrame.Position
+		local frameX = frameOrigin.X.Offset
+		local frameY = frameOrigin.Y.Offset
+		local buttonRight = frameX + contentRight
+		local popupX = math.clamp(buttonRight - popupWidth, margin, math.max(margin, viewport.X - popupWidth - margin))
+		local popupY = frameY + searchY + rowH + 4
+		popupY = math.clamp(popupY, topY, math.max(topY, viewport.Y - popupHeight - margin))
+		filterPanel.Position = UDim2.fromOffset(popupX - frameX, popupY - frameY)
+		-- Sort dropdown opens below the sort field, or above it when there is no room.
+		local optionCount = #Config.SortOptions
+		local menuHeight = optionCount * (FILTER_ROW + 4) + 8
+		sortMenu.Size = UDim2.fromOffset(popupWidth - FILTER_PAD * 2, menuHeight)
+		local belowY = FILTER_SORT_Y + FILTER_ROW + 2
+		if popupY + belowY + menuHeight > viewport.Y - margin then
+			sortMenu.Position = UDim2.fromOffset(FILTER_PAD, math.max(FILTER_SORT_Y - menuHeight - 2, -(popupY - margin)))
+		else
+			sortMenu.Position = UDim2.fromOffset(FILTER_PAD, belowY)
 		end
-		filterPanel.Position = UDim2.fromOffset(popupGlobalX - frameOrigin.X, popupGlobalY - frameOrigin.Y)
-		filterPanel.ZIndex = 70
-		creatorLabel.ZIndex = 71
-		creatorNameBox.ZIndex = 71
-		priceFilterLabel.ZIndex = 71
-		applyFilterButton.ZIndex = 71
-		fixedFilterButton.ZIndex = 69
-		minPriceBox.ZIndex = 71
-		maxPriceBox.ZIndex = 71
-		offSaleButton.ZIndex = 71
 		filterPanel.Visible = true
 	else
 		filterPanel.Visible = false
-		minPriceBox.Parent = mainFrame
-		maxPriceBox.Parent = mainFrame
-		offSaleButton.Parent = mainFrame
+		sortMenu.Visible = false
 	end
+
+	-- Results.
+	local resultsY = (if compact then searchY else subY) + rowH + 6
 	backToPacksButton.Visible = bundleContentsOpen
-	backToPacksButton.Position = UDim2.fromOffset(x, subY + rowH + 4)
+	backToPacksButton.Position = UDim2.fromOffset(x, resultsY)
+	if bundleContentsOpen then
+		resultsY += 28 + 4
+	end
 	statusLabel.Visible = false
-	local resultsY = math.max(subY + rowH + 8, if compact then (if smallCompact then actionsY + rowH + 8 else searchY + rowH + 8) else 0)
 	resultsFrame.Position = UDim2.fromOffset(x, resultsY)
-	resultsFrame.Size = UDim2.new(1, -(leftWidth + (if expandedPanel then 24 else 16)), 1, -(resultsY + 6))
+	resultsFrame.Size = UDim2.fromOffset(innerWidth, math.max(1, panelHeight - resultsY - pad))
+	resultsFrame.BackgroundTransparency = 1
 	if expandedPanel then
-		local cellWidth = math.clamp(math.floor((rightWidth - 36) / 6), 88, 148)
+		local cellWidth = math.clamp(math.floor((innerWidth - 36) / 6), 88, 148)
 		grid.CellSize = UDim2.fromOffset(cellWidth, math.floor(cellWidth * 1.45))
 		cardContentScale = 1
 	else
@@ -1289,9 +1481,16 @@ updateCatalogLayout = function()
 		cardContentScale = if isPhone then 0.68 else 0.82
 	end
 	grid.CellPadding = UDim2.fromOffset(6, 6)
-	for _, contentScale in ipairs(cardContentUIScales) do contentScale.Scale = cardContentScale end
+	for _, contentScale in ipairs(cardContentUIScales) do
+		contentScale.Scale = cardContentScale
+		local content = contentScale.Parent
+		if content and content:IsA("Frame") then
+			content.Size = UDim2.fromScale(1 / cardContentScale, 1 / cardContentScale)
+		end
+	end
 	currentOutfitTitle.Text = "착용 중인 아이템"
 	previewFrame.Visible = expandedPanel and mainFrame.Visible
+	positionOpenButton()
 end
 
 local function bindViewport(camera: Camera?)
@@ -1329,65 +1528,306 @@ end
 -- CURRENT WORN ITEMS
 --------------------------------------------------
 
-local function renderCurrentOutfit()
-	clearContainer(currentOutfitList)
-	for index, assetId in ipairs(wornOrder) do
+-- Layer info from the server snapshot: layered clothing has a WrapLayer Order
+-- (higher = drawn on top). The strip shows layered items first, OUTERMOST on the
+-- left (KOYA-style), then every other worn item.
+local wornLayerInfo: {[number]: {IsLayered: boolean, Order: number?, Category: string?}} = {}
+local layerDrag: any = nil
+
+local function getStripOrder(): ({number}, {number})
+	local layered = {}
+	local others = {}
+	local wornIndex = {}
+	for index, assetId in ipairs(wornOrder) do wornIndex[assetId] = index end
+	for _, assetId in ipairs(wornOrder) do
 		if currentWornItems[assetId] then
-			local itemCard = create("Frame", {
-				Name = "Worn_" .. tostring(assetId),
-				Size = UDim2.fromOffset(58, 76),
-				BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-				BackgroundTransparency = 0.6,
-				LayoutOrder = index,
-			})
-			itemCard.Parent = currentOutfitList
-			create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = itemCard
-			local image = create("ImageLabel", {
-				Size = UDim2.new(1, -6, 1, -22),
-				Position = UDim2.fromOffset(3, 3),
-				BackgroundTransparency = 1,
-				Image = "rbxthumb://type=Asset&id=" .. tostring(assetId) .. "&w=150&h=150",
-				ScaleType = Enum.ScaleType.Fit,
-			})
-			image.Parent = itemCard
-			local removeButton = create("TextButton", {
-				Size = UDim2.new(1, -4, 0, 18),
-				Position = UDim2.new(0, 2, 1, -19),
-				BackgroundColor3 = Color3.fromRGB(80, 48, 58),
-				Text = "× 해제",
-				TextColor3 = Color3.new(1,1,1),
-				TextSize = 9,
-				Font = Enum.Font.GothamBold,
-			})
-			removeButton.Parent = itemCard
-			create("UICorner", {CornerRadius = UDim.new(0, 4)}).Parent = removeButton
-			removeButton.MouseButton1Click:Connect(function()
-				if actionBusy then return end
-				actionBusy = true
-				local handled, handlerError = pcall(function()
-					local ok, success, message = pcall(function()
-						return TryOnItem:InvokeServer("Remove", assetId)
-					end)
-					if ok and success == true then
-						currentWornItems[assetId] = nil
-						for i = #wornOrder, 1, -1 do
-							if wornOrder[i] == assetId then table.remove(wornOrder, i) end
-						end
-						renderCurrentOutfit()
-						refreshWornItems()
-						refreshAvatarPreview()
-					else
-						warn("[CatalogUI] Outfit remove failed:", success, message)
-					end
-				end)
-				if not handled then
-					warn("[CatalogUI] Outfit remove handler error:", handlerError)
-				end
-				actionBusy = false
-			end)
+			local info = wornLayerInfo[assetId]
+			if info and info.IsLayered then
+				table.insert(layered, assetId)
+			else
+				table.insert(others, assetId)
+			end
 		end
 	end
+	table.sort(layered, function(a, b)
+		local orderA = wornLayerInfo[a].Order or 0
+		local orderB = wornLayerInfo[b].Order or 0
+		if orderA ~= orderB then return orderA > orderB end
+		return (wornIndex[a] or 0) < (wornIndex[b] or 0)
+	end)
+	return layered, others
 end
+
+local function applyLayerOrder(orderedIds: {number})
+	if actionBusy then
+		renderCurrentOutfit()
+		return
+	end
+	actionBusy = true
+	local handled, handlerError = pcall(function()
+		local ok, success, message = pcall(function()
+			return TryOnItem:InvokeServer("SetLayerOrder", orderedIds)
+		end)
+		if ok and success == true then
+			statusLabel.Text = "Layer order updated."
+		else
+			warn("[CatalogUI] Layer order failed:", success, message)
+			statusLabel.Text = if typeof(message) == "string" then message else "Could not change layer order."
+		end
+		refreshWornItems()
+		refreshAvatarPreview()
+	end)
+	if not handled then
+		warn("[CatalogUI] Layer order handler error:", handlerError)
+		renderCurrentOutfit()
+	end
+	actionBusy = false
+end
+
+local function removeWornItem(assetId: number)
+	if actionBusy then return end
+	actionBusy = true
+	local handled, handlerError = pcall(function()
+		local ok, success, message = pcall(function()
+			return TryOnItem:InvokeServer("Remove", assetId)
+		end)
+		if ok and success == true then
+			currentWornItems[assetId] = nil
+			for i = #wornOrder, 1, -1 do
+				if wornOrder[i] == assetId then table.remove(wornOrder, i) end
+			end
+			renderCurrentOutfit()
+			refreshWornItems()
+			refreshAvatarPreview()
+		else
+			warn("[CatalogUI] Outfit remove failed:", success, message)
+		end
+	end)
+	if not handled then
+		warn("[CatalogUI] Outfit remove handler error:", handlerError)
+	end
+	actionBusy = false
+end
+
+renderCurrentOutfit = function()
+	if layerDrag then return end
+	clearContainer(currentOutfitList)
+	local layered, others = getStripOrder()
+	local function addCard(assetId: number, layoutOrder: number, layerNumber: number?)
+		local itemCard = create("Frame", {
+			Name = "Worn_" .. tostring(assetId),
+			Size = UDim2.fromOffset(58, 76),
+			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+			BackgroundTransparency = 0.6,
+			LayoutOrder = layoutOrder,
+		})
+		itemCard.Parent = currentOutfitList
+		create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = itemCard
+		local image = create("ImageButton", {
+			Name = "Thumb",
+			Size = UDim2.new(1, -6, 1, -22),
+			Position = UDim2.fromOffset(3, 3),
+			BackgroundTransparency = 1,
+			AutoButtonColor = false,
+			Image = "rbxthumb://type=Asset&id=" .. tostring(assetId) .. "&w=150&h=150",
+			ScaleType = Enum.ScaleType.Fit,
+		})
+		image.Parent = itemCard
+		if layerNumber then
+			local badge = create("TextLabel", {
+				Name = "LayerNumber",
+				Size = UDim2.fromOffset(16, 14),
+				Position = UDim2.fromOffset(2, 2),
+				BackgroundColor3 = Color3.fromRGB(105, 85, 160),
+				Text = tostring(layerNumber),
+				TextColor3 = Color3.new(1, 1, 1),
+				TextSize = 9,
+				Font = Enum.Font.GothamBold,
+				ZIndex = 3,
+			})
+			badge.Parent = itemCard
+			create("UICorner", {CornerRadius = UDim.new(0, 4)}).Parent = badge
+			image.InputBegan:Connect(function(input)
+				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+					beginLayerDrag(assetId, itemCard, input)
+				end
+			end)
+		end
+		local removeButton = create("TextButton", {
+			Size = UDim2.new(1, -4, 0, 18),
+			Position = UDim2.new(0, 2, 1, -19),
+			BackgroundColor3 = Color3.fromRGB(80, 48, 58),
+			Text = "× 해제",
+			TextColor3 = Color3.new(1,1,1),
+			TextSize = 9,
+			Font = Enum.Font.GothamBold,
+		})
+		removeButton.Parent = itemCard
+		create("UICorner", {CornerRadius = UDim.new(0, 4)}).Parent = removeButton
+		removeButton.MouseButton1Click:Connect(function()
+			removeWornItem(assetId)
+		end)
+	end
+	for index, assetId in ipairs(layered) do
+		addCard(assetId, index, index)
+	end
+	for index, assetId in ipairs(others) do
+		addCard(assetId, #layered + index, nil)
+	end
+end
+
+--------------------------------------------------
+-- LAYER DRAG (worn strip, expanded mode)
+-- Mouse: drag starts after moving 6px. Touch: hold 0.3s, then drag
+-- (a quick swipe still scrolls the strip). A translucent copy follows the
+-- pointer and the other layered cards shift to show the drop position.
+--------------------------------------------------
+
+local DRAG_MOVE_THRESHOLD = 6
+local TOUCH_HOLD_SECONDS = 0.3
+
+local function layeredCardsInOrder(): {Frame}
+	local cards = {}
+	for _, child in ipairs(currentOutfitList:GetChildren()) do
+		if child:IsA("Frame") and child:FindFirstChild("LayerNumber") then
+			table.insert(cards, child)
+		end
+	end
+	table.sort(cards, function(a, b) return a.LayoutOrder < b.LayoutOrder end)
+	return cards
+end
+
+local function startLayerDrag()
+	local drag = layerDrag
+	if not drag or drag.active then return end
+	drag.active = true
+	currentOutfitList.ScrollingEnabled = false
+	local card: Frame = drag.card
+	local ghost = create("ImageLabel", {
+		Name = "LayerDragGhost",
+		Size = UDim2.fromOffset(card.AbsoluteSize.X, card.AbsoluteSize.Y),
+		BackgroundColor3 = Color3.fromRGB(60, 60, 72),
+		BackgroundTransparency = 0.35,
+		ImageTransparency = 0.25,
+		Image = "rbxthumb://type=Asset&id=" .. tostring(drag.assetId) .. "&w=150&h=150",
+		ScaleType = Enum.ScaleType.Fit,
+		ZIndex = 300,
+	})
+	create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = ghost
+	ghost.Parent = screenGui
+	drag.ghost = ghost
+	card.BackgroundTransparency = 0.85
+	local thumb = card:FindFirstChild("Thumb")
+	if thumb then (thumb :: ImageButton).ImageTransparency = 0.7 end
+end
+
+local function moveLayerDrag(position: Vector3)
+	local drag = layerDrag
+	if not drag or not drag.active then return end
+	local ghost: ImageLabel = drag.ghost
+	local origin = screenGui.AbsolutePosition
+	ghost.Position = UDim2.fromOffset(
+		position.X - origin.X - ghost.AbsoluteSize.X / 2,
+		position.Y - origin.Y - ghost.AbsoluteSize.Y / 2
+	)
+	-- Drop slot = number of other layered cards whose centre is left of the pointer.
+	local cards = layeredCardsInOrder()
+	local others = {}
+	for _, c in ipairs(cards) do
+		if c ~= drag.card then table.insert(others, c) end
+	end
+	local slot = 1
+	for _, c in ipairs(others) do
+		if position.X > c.AbsolutePosition.X + c.AbsoluteSize.X / 2 then
+			slot += 1
+		end
+	end
+	local orderIndex = 1
+	for index, c in ipairs(others) do
+		if index == slot then orderIndex += 1 end
+		c.LayoutOrder = orderIndex
+		orderIndex += 1
+	end
+	drag.card.LayoutOrder = slot
+	drag.slot = slot
+end
+
+local function endLayerDrag(commit: boolean)
+	local drag = layerDrag
+	layerDrag = nil
+	currentOutfitList.ScrollingEnabled = true
+	if not drag then return end
+	if drag.ghost then drag.ghost:Destroy() end
+	if not drag.active or not commit then
+		renderCurrentOutfit()
+		return
+	end
+	local ordered = {}
+	for _, c in ipairs(layeredCardsInOrder()) do
+		local id = tonumber(string.match(c.Name, "^Worn_(%d+)$"))
+		if id then table.insert(ordered, id) end
+	end
+	local previous = getStripOrder()
+	local changed = #previous ~= #ordered
+	for index, id in ipairs(ordered) do
+		if previous[index] ~= id then changed = true end
+	end
+	if not changed then
+		renderCurrentOutfit()
+		return
+	end
+	applyLayerOrder(ordered)
+end
+
+beginLayerDrag = function(assetId: number, card: Frame, input: InputObject)
+	if layerDrag or actionBusy or not expandedPanel then return end
+	layerDrag = {
+		assetId = assetId,
+		card = card,
+		input = input,
+		start = input.Position,
+		active = false,
+		isTouch = input.UserInputType == Enum.UserInputType.Touch,
+	}
+	if layerDrag.isTouch then
+		local thisDrag = layerDrag
+		task.delay(TOUCH_HOLD_SECONDS, function()
+			if layerDrag == thisDrag and not thisDrag.active then
+				startLayerDrag()
+				moveLayerDrag(thisDrag.input.Position)
+			end
+		end)
+	end
+end
+
+UserInputService.InputChanged:Connect(function(input)
+	local drag = layerDrag
+	if not drag then return end
+	local relevant = (drag.isTouch and input == drag.input)
+		or (not drag.isTouch and input.UserInputType == Enum.UserInputType.MouseMovement)
+	if not relevant then return end
+	local moved = (input.Position - drag.start).Magnitude
+	if not drag.active then
+		if drag.isTouch then
+			if moved > 10 then
+				-- A quick swipe is a scroll, not a drag.
+				layerDrag = nil
+			end
+			return
+		end
+		if moved < DRAG_MOVE_THRESHOLD then return end
+		startLayerDrag()
+	end
+	moveLayerDrag(input.Position)
+end)
+
+UserInputService.InputEnded:Connect(function(input)
+	local drag = layerDrag
+	if not drag then return end
+	if input == drag.input or (not drag.isTouch and input.UserInputType == Enum.UserInputType.MouseButton1) then
+		endLayerDrag(true)
+	end
+end)
 
 refreshWornItems = function()
 	local success, serverSuccess, result = pcall(function()
@@ -1410,6 +1850,7 @@ refreshWornItems = function()
 	end
 
 	currentWornItems = {}
+	wornLayerInfo = {}
 
 	for _, item in ipairs(result) do
 		if typeof(item) == "table" then
@@ -1417,6 +1858,11 @@ refreshWornItems = function()
 
 			if typeof(assetId) == "number" then
 				currentWornItems[assetId] = true
+				wornLayerInfo[assetId] = {
+					IsLayered = item.IsLayered == true,
+					Order = if typeof(item.Order) == "number" then item.Order else nil,
+					Category = item.Category,
+				}
 				local found = false
 				for _, orderedId in ipairs(wornOrder) do
 					if orderedId == assetId then found = true break end
@@ -1441,6 +1887,46 @@ end
 -- CARD
 --------------------------------------------------
 
+-- Shoes are sold on Roblox only as "Shoes" bundles (left + right shoe assets;
+-- the individual shoe assets are off-sale). Wear/remove them as a pair from the
+-- card; the worn strip still lists each shoe separately.
+local SHOE_ASSET_TYPE_NAMES = { LeftShoeAccessory = true, RightShoeAccessory = true }
+local shoeBundleAssets: {[number]: {number}} = {}
+local shoeBundleLoading: {[number]: boolean} = {}
+
+local function loadShoeBundleAssets(bundleId: number, onLoaded: () -> ())
+	if shoeBundleAssets[bundleId] or shoeBundleLoading[bundleId] then return end
+	shoeBundleLoading[bundleId] = true
+	task.spawn(function()
+		local ok, details = pcall(function()
+			return AssetService:GetBundleDetailsAsync(bundleId)
+		end)
+		local ids = {}
+		if ok and typeof(details) == "table" and typeof(details.Items) == "table" then
+			for _, bundled in ipairs(details.Items) do
+				if typeof(bundled) == "table" and bundled.Type == "Asset" and typeof(bundled.Id) == "number"
+					and SHOE_ASSET_TYPE_NAMES[tostring(bundled.AssetType)] then
+					table.insert(ids, bundled.Id)
+				end
+			end
+		else
+			warn("[CatalogController] Shoe bundle details failed:", details)
+		end
+		shoeBundleAssets[bundleId] = ids
+		shoeBundleLoading[bundleId] = nil
+		onLoaded()
+	end)
+end
+
+local function isShoeBundleWorn(bundleId: number): boolean
+	local ids = shoeBundleAssets[bundleId]
+	if not ids or #ids == 0 then return false end
+	for _, id in ipairs(ids) do
+		if not currentWornItems[id] then return false end
+	end
+	return true
+end
+
 createItemCard = function(item: any, layoutOrder: number)
 	local assetId = item.Id
 
@@ -1449,7 +1935,8 @@ createItemCard = function(item: any, layoutOrder: number)
 	end
 
 	local isBundle = item.ItemType == "Bundle"
-	local assetTypeName = if isBundle then (item.BundleType or "Bundle") else getAssetTypeName(item)
+	local isShoeBundle = isBundle and tostring(item.BundleType) == "Shoes"
+	local assetTypeName = if isBundle then tostring(item.BundleType or "Bundle") else getAssetTypeName(item)
 	local canTryOn = not isBundle and TRY_ON_SUPPORTED_ASSET_TYPES[assetTypeName] == true
 
 	local card = create("Frame", {
@@ -1466,7 +1953,8 @@ createItemCard = function(item: any, layoutOrder: number)
 
 	local cardContent = create("Frame", {
 		Name = "CardContent",
-		Size = UDim2.new(1, 0, 1, 0),
+		-- Virtual frame: after UIScale it exactly fills the card.
+		Size = UDim2.fromScale(1 / cardContentScale, 1 / cardContentScale),
 		BackgroundTransparency = 1,
 	})
 	cardContent.Parent = card
@@ -1478,7 +1966,7 @@ createItemCard = function(item: any, layoutOrder: number)
 
 	local thumbnail = create("ImageLabel", {
 		Name = "Thumbnail",
-		Size = UDim2.new(1, -10, 0, 92),
+		Size = UDim2.new(1, -10, 1, -100),
 		Position = UDim2.fromOffset(5, 5),
 		BackgroundColor3 = Color3.fromRGB(28, 28, 34),
 		BorderSizePixel = 0,
@@ -1498,8 +1986,8 @@ createItemCard = function(item: any, layoutOrder: number)
 
 	local nameLabel = create("TextLabel", {
 		Name = "Name",
-		Size = UDim2.new(1, -12, 0, 26),
-		Position = UDim2.fromOffset(6, 100),
+		Size = UDim2.new(1, -12, 0, 22),
+		Position = UDim2.new(0, 6, 1, -92),
 		BackgroundTransparency = 1,
 		Text = tostring(item.Name or "Unknown Item"),
 		TextColor3 = Color3.fromRGB(245, 245, 245),
@@ -1531,7 +2019,7 @@ createItemCard = function(item: any, layoutOrder: number)
 	local typeLabel = create("TextLabel", {
 		Name = "AssetType",
 		Size = UDim2.new(1, -12, 0, 14),
-		Position = UDim2.fromOffset(6, 126),
+		Position = UDim2.new(0, 6, 1, -68),
 		BackgroundTransparency = 1,
 		Text = assetTypeName,
 		TextColor3 = Color3.fromRGB(145, 145, 160),
@@ -1544,7 +2032,7 @@ createItemCard = function(item: any, layoutOrder: number)
 	local priceLabel = create("TextLabel", {
 		Name = "Price",
 		Size = UDim2.new(1, -12, 0, 16),
-		Position = UDim2.fromOffset(6, 142),
+		Position = UDim2.new(0, 6, 1, -52),
 		BackgroundTransparency = 1,
 		Text = formatPrice(item.Price),
 		TextColor3 = Color3.fromRGB(190, 190, 200),
@@ -1572,6 +2060,17 @@ createItemCard = function(item: any, layoutOrder: number)
 	actionCorner.Parent = actionButton
 
 	local function updateButton()
+		if isShoeBundle then
+			if isShoeBundleWorn(assetId) then
+				actionButton.Text = "WORN"
+				actionButton.BackgroundColor3 = Color3.fromRGB(105, 85, 160)
+			else
+				actionButton.Text = "WEAR"
+				actionButton.BackgroundColor3 = Color3.fromRGB(70, 70, 85)
+			end
+			actionButton.AutoButtonColor = true
+			return
+		end
 		if isBundle then
 			actionButton.Text = "CONTENTS"
 			actionButton.BackgroundColor3 = Color3.fromRGB(70, 70, 85)
@@ -1597,9 +2096,49 @@ createItemCard = function(item: any, layoutOrder: number)
 
 	updateButton()
 	wornButtonUpdaters[assetId] = updateButton
+	if isShoeBundle then
+		loadShoeBundleAssets(assetId, function()
+			if actionButton.Parent then updateButton() end
+		end)
+	end
 
 	actionButton.MouseButton1Click:Connect(function()
 		if actionBusy then
+			return
+		end
+
+		if isShoeBundle then
+			actionBusy = true
+			local handled, handlerError = pcall(function()
+				local wasWorn = isShoeBundleWorn(assetId)
+				statusLabel.Text = if wasWorn then "Removing shoes..." else "Wearing shoes..."
+				local success, result, message = pcall(function()
+					if wasWorn then
+						return TryOnItem:InvokeServer("RemoveMany", shoeBundleAssets[assetId])
+					end
+					return TryOnItem:InvokeServer("WearShoeBundle", assetId)
+				end)
+				if success and result == true then
+					if not wasWorn then
+						for _, id in ipairs(shoeBundleAssets[assetId] or {}) do
+							for i = #wornOrder, 1, -1 do if wornOrder[i] == id then table.remove(wornOrder, i) end end
+							table.insert(wornOrder, 1, id)
+						end
+					end
+					task.wait(0.2)
+					refreshWornItems()
+					refreshAvatarPreview()
+					updateButton()
+					statusLabel.Text = if wasWorn then "Shoes removed." else "Shoes equipped."
+				else
+					warn("[CatalogController] Shoe bundle action failed:", result, message)
+					statusLabel.Text = if typeof(message) == "string" then message else "Failed to change shoes."
+				end
+			end)
+			if not handled then
+				warn("[CatalogController] Shoe bundle handler error:", handlerError)
+			end
+			actionBusy = false
 			return
 		end
 
@@ -1918,7 +2457,9 @@ searchCatalog = function()
 		end
 	end
 	params.BundleTypes = validBundleTypes
-	params.IncludeOffSale = currentCategoryIncludeOffSale
+	-- Category defaults (e.g. body parts) may force off-sale items on, but never
+	-- turn the user's own Off Sale choice off (ISSUE-CATALOG-003).
+	params.IncludeOffSale = currentIncludeOffSale or currentCategoryIncludeOffSale
 
 	print(
 		"[CatalogController] Search filters:",
@@ -1990,7 +2531,10 @@ selectCategory = function(name: string, assetTypes, bundleTypes)
 	searchCatalog()
 end
 
+local lastSubcategoryGroup: string? = "__none__"
 renderSubcategoryStrip = function(groupName: string?)
+	local keepScrollX = if groupName == lastSubcategoryGroup then subcategoryStrip.CanvasPosition.X else 0
+	lastSubcategoryGroup = groupName
 	clearContainer(subcategoryStrip)
 	local entries = {}
 	local function appendCategory(entry, category)
@@ -2044,7 +2588,7 @@ renderSubcategoryStrip = function(groupName: string?)
 	for index, entry in ipairs(entries) do
 		local selected = entry.name == currentCategory
 		local button = create("TextButton", {
-			Name = "Subcategory_" .. tostring(index), Size = UDim2.fromOffset(92, 28),
+			Name = "Subcategory_" .. tostring(index),
 			BackgroundColor3 = selected and Color3.fromRGB(78, 78, 94) or Color3.fromRGB(0, 0, 0),
 			BackgroundTransparency = selected and 0 or 0.6,
 			TextColor3 = if entry.data and #entry.data.AssetTypes == 0 and not entry.data.BundleTypes then Color3.fromRGB(125,125,135) else (selected and Color3.fromRGB(255,255,255) or Color3.fromRGB(190,190,200)),
@@ -2052,6 +2596,7 @@ renderSubcategoryStrip = function(groupName: string?)
 			TextSize = 10, Font = selected and Enum.Font.GothamBold or Enum.Font.Gotham, LayoutOrder = index,
 			AutoButtonColor = not (entry.data and #entry.data.AssetTypes == 0 and not entry.data.BundleTypes),
 		})
+		makeChipAutoWidth(button, 26)
 		button.Parent = subcategoryStrip
 		create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = button
 		button.MouseButton1Click:Connect(function()
@@ -2061,7 +2606,7 @@ renderSubcategoryStrip = function(groupName: string?)
 			else statusLabel.Text = "이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다." end
 		end)
 	end
-	subcategoryStrip.CanvasPosition = Vector2.zero
+	subcategoryStrip.CanvasPosition = Vector2.new(keepScrollX, 0)
 end
 renderSubcategoryStrip(nil)
 --------------------------------------------------
@@ -2072,14 +2617,14 @@ renderSubcategoryStrip(nil)
 for index, option in ipairs(Config.SortOptions) do
 	local button = create("TextButton", {
 		Name = "Sort_" .. tostring(index),
-		Size = UDim2.new(1, 0, 0, 30),
-		BackgroundColor3 = Color3.fromRGB(50, 50, 60),
+		Size = UDim2.new(1, 0, 0, FILTER_ROW),
+		BackgroundColor3 = Color3.fromRGB(45, 45, 54),
 		Text = option.Name,
 		TextColor3 = Color3.fromRGB(255, 255, 255),
 		TextSize = 11,
 		Font = Enum.Font.GothamBold,
 		LayoutOrder = index,
-		ZIndex = 51,
+		ZIndex = 81,
 	})
 	button.Parent = sortMenu
 
@@ -2106,16 +2651,7 @@ end)
 
 offSaleButton.MouseButton1Click:Connect(function()
 	currentIncludeOffSale = not currentIncludeOffSale
-
-	if currentIncludeOffSale then
-		offSaleButton.Text = "☑ Off Sale"
-		offSaleButton.BackgroundColor3 = Color3.fromRGB(105, 85, 160)
-	else
-		offSaleButton.Text = "□ Off Sale"
-		offSaleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 60)
-	end
-
-	searchCatalog()
+	syncOffSaleLabels()
 end)
 
 --------------------------------------------------
@@ -2165,7 +2701,19 @@ end)
 -- OPEN / CLOSE
 --------------------------------------------------
 
+local function closeCatalog()
+	mainFrame.Visible = false
+	previewFrame.Visible = false
+	sortMenu.Visible = false
+	filterPanelOpen = false
+	filterPanel.Visible = false
+end
+
 openButton.MouseButton1Click:Connect(function()
+	if mainFrame.Visible then
+		closeCatalog()
+		return
+	end
 	mainFrame.Visible = true
 
 	refreshWornItems()
@@ -2178,9 +2726,7 @@ openButton.MouseButton1Click:Connect(function()
 end)
 
 closeButton.MouseButton1Click:Connect(function()
-	mainFrame.Visible = false
-	previewFrame.Visible = false
-	sortMenu.Visible = false
+	closeCatalog()
 end)
 
 --------------------------------------------------

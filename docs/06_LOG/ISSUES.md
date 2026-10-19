@@ -46,7 +46,7 @@ Investigation notes:
 Decision / Fix: Test asset filters and bundle filters separately; log the effective CatalogSearchParams and distinguish a legitimate empty result from an API/filter issue.
 
 ### ISSUE-CATALOG-003 — Off-sale toggle can be overwritten
-Status: Open
+Status: Fixed on `feat/catalog-ui-1019` (IncludeOffSale = user choice OR category default)
 Area: Tech / Catalog
 Description: Search sets IncludeOffSale from the user toggle and then overwrites it with the category default.
 Expected: The explicit user choice should be preserved unless the UI clearly communicates a category-specific override.
@@ -73,7 +73,7 @@ Actual: Asset-only request contract in the inspected active source.
 Decision / Fix: Add a typed request/result contract or disable Bundle wear until a verified application route is implemented. Update Current Outfit, Wearing, Favorites and restore identity consistently.
 
 ### ISSUE-AUDIT-002 — Server does not gate concurrent avatar mutations
-Status: Open
+Status: Fixed on `feat/catalog-ui-1019` (per-player runExclusive in ServerMain)
 Area: Tech / Avatar / Network
 Description: Client uses a local busy flag, but the inspected server entry point has no per-player operation lock shared by wear/remove/current future Apply/restore operations.
 Expected: One authoritative per-player mutation at a time; reject or disable later requests while one is in progress.
@@ -97,7 +97,7 @@ Actual: Full behavior is not implemented in inspected active source.
 Decision / Fix: Implement after the core typed-state/persistence gates, or disable/defer controls explicitly.
 
 ### ISSUE-AUDIT-005 — IncludeOffSale UI state is overwritten
-Status: Open
+Status: Fixed on `feat/catalog-ui-1019` (see ISSUE-CATALOG-003)
 Area: Tech / Catalog / Search
 Description: `searchCatalog()` sets `params.IncludeOffSale` from `currentIncludeOffSale` and later overwrites it with `currentCategoryIncludeOffSale`.
 Expected: Effective API params match the visible filter state under one documented precedence rule.
@@ -127,3 +127,9 @@ Description: Wear/remove flow errors at CatalogController line ~1392 (Studio cop
 Expected: Worn list refreshes after wear/remove.
 Actual: `attempt to call a nil value` — `refreshWornItems` (and `searchCatalog`) are local functions defined after the functions that call them, so the call resolves to a nil global. `actionBusy` can stay locked after the error.
 Decision / Fix: Forward-declare both locals at the top, assign later; ensure actionBusy is released on every path (pcall/finally). Regression test wear/remove/discovery in Studio. See `STUDIO_ONLY_CODE_AUDIT_2026-10-19.md`.
+
+### ISSUE-CATALOG-007 — Shoes category showed CONTENTS instead of WEAR
+Status: Fixed on `feat/catalog-ui-1019` (Studio-tested)
+Area: Catalog / Avatar
+Cause: Roblox sells shoes only as `Shoes` bundles; the individual Left/RightShoeAccessory assets are off-sale (search with on-sale assets only returns 0). All Shoes results were bundles, and every bundle card showed CONTENTS.
+Fix: Shoes bundle cards show WEAR/WORN. Server `WearShoeBundle` reads the bundle on the server, adds both shoe assets in one apply (replacing shoes on the same side). Card WORN → `RemoveMany` removes both. The worn strip keeps separate left/right cards with separate remove.

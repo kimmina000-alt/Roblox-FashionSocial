@@ -1,3 +1,9 @@
+## 2026-10-19 — Catalog UI pass (feat/catalog-ui-1019)
+- Catalog layout/filter/sort/arrow/chip changes per the 2026-10-17 reference image; C button right-anchored; phone compact 1/4 width.
+- Shoes bundles wearable as a pair; worn strip layer-order drag; preview orbit/zoom.
+- Server: WearShoeBundle, RemoveMany, SetLayerOrder, default layer order, per-player action gate.
+- Docs: CATALOG.md, AVATAR_EDITOR plan §7-2a (KOYA layer video), DECISIONS D-025–D-027, ISSUES 003/AUDIT-002/AUDIT-005 fixed, ISSUE-CATALOG-007.
+
 ## 2026-10-19 — Studio code backup audit
 - Added `docs/06_LOG/STUDIO_ONLY_CODE_AUDIT_2026-10-19.md` and ISSUE-CATALOG-006.
 - Backup branch `backup/studio-2026-10-19` holds the verified Studio-only code (reference only).

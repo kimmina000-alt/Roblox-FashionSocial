@@ -19,36 +19,70 @@ CatalogSearch.OnServerInvoke = function(
 	return false, "Catalog search runs on the client."
 end
 
+-- One avatar mutation at a time per player (ISSUE-AUDIT-002).
+local busyPlayers: {[Player]: boolean} = {}
+
+local function runExclusive(player: Player, fn: () -> (boolean, any)): (boolean, any)
+	if busyPlayers[player] then
+		return false, "Please wait for the previous change to finish."
+	end
+	busyPlayers[player] = true
+	local ok, result, message = pcall(fn)
+	busyPlayers[player] = nil
+	if not ok then
+		warn("[FashionGame][Server] Avatar action error:", result)
+		return false, "Avatar change failed."
+	end
+	return result, message
+end
+
 TryOnItem.OnServerInvoke = function(
 	player: Player,
 	action: string,
-	assetId: number
+	payload: any
 )
-	if action == "Wear" then
-		print("[FashionGame][Server] Wear received", player.Name, assetId)
-
-		local result, message = AvatarService.TryOnItem(
-			player,
-			assetId
-		)
-
-		print("[FashionGame][Server] Wear finished", result, message)
-
-		return result, message
-	end
-
-	if action == "Remove" then
-		return AvatarService.RemoveItem(
-			player,
-			assetId
-		)
-	end
-
 	if action == "GetCurrent" then
 		return true, AvatarService.GetCurrentItems(player)
 	end
 
+	if action == "Wear" then
+		print("[FashionGame][Server] Wear received", player.Name, payload)
+		local result, message = runExclusive(player, function()
+			return AvatarService.TryOnItem(player, payload)
+		end)
+		print("[FashionGame][Server] Wear finished", result, message)
+		return result, message
+	end
+
+	if action == "WearShoeBundle" then
+		return runExclusive(player, function()
+			return AvatarService.WearShoeBundle(player, payload)
+		end)
+	end
+
+	if action == "Remove" then
+		return runExclusive(player, function()
+			return AvatarService.RemoveItem(player, payload)
+		end)
+	end
+
+	if action == "RemoveMany" then
+		return runExclusive(player, function()
+			return AvatarService.RemoveItems(player, payload)
+		end)
+	end
+
+	if action == "SetLayerOrder" then
+		return runExclusive(player, function()
+			return AvatarService.SetLayerOrder(player, payload)
+		end)
+	end
+
 	return false, "Invalid avatar action."
 end
+
+game:GetService("Players").PlayerRemoving:Connect(function(player)
+	busyPlayers[player] = nil
+end)
 
 print("[FashionGame] Server initialized.")
