@@ -893,7 +893,20 @@ function AvatarEditor:_renderAccessories()
 	end
 	group("위치", "Position", 0.01, function(v) return string.format("%+.2f", v) end)
 	group("회전", "Rotation", 1, function(v) return string.format("%+d°", math.floor(v + 0.5)) end)
-	group("크기", "Scale", 0.01, function(v) return string.format("%.2fx", v) end)
+	-- Size is one uniform slider (2026-10-19 feedback). Its range is where all
+	-- three official axis ranges overlap, so the server never has to clamp it.
+	sectionLabel(content, "크기", order)
+	order += 1
+	local scaleMin = math.max(bounds.Scale.Min.X, bounds.Scale.Min.Y, bounds.Scale.Min.Z)
+	local scaleMax = math.min(bounds.Scale.Max.X, bounds.Scale.Max.Y, bounds.Scale.Max.Z)
+	if scaleMax < scaleMin then scaleMax = scaleMin end
+	local scaleSlider = createSlider(content, "크기", scaleMin, scaleMax, 0.01, function(v) return string.format("%.2fx", v) end, function(value)
+		self.draft.transforms[selected.AssetId].Scale = Vector3.new(value, value, value)
+		self:_changed()
+	end)
+	scaleSlider.frame.LayoutOrder = order
+	order += 1
+	scaleSlider.set(math.clamp((values.Scale :: Vector3).X, scaleMin, scaleMax))
 	noteLabel(content, "범위는 Roblox 공식 아바타 규칙(GetAvatarRules)을 따릅니다. 초기화는 선택한 장신구에만 적용됩니다.", order)
 end
 

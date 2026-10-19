@@ -1,3 +1,12 @@
+## 2026-10-19 — Fixes, Wardrobe (Stage 2), animation preview (feat/catalog-fixes-1019b)
+- Preview: vertical drag inverted (drag down shows the top of the head); viewport extends to the top of the box with ⚙/▣ stacked inside it; both outer boxes rounder (corner 12 → 15).
+- Avatar Editor: accessory adjustments preview live while sliders move (clone uses ApplyDescriptionResetAsync); size is one uniform slider.
+- 착용 중 grid layer drag now commits (render race fixed; the dropped order is merged into the full layered list).
+- WEAR on an animation/emote plays it once on the preview avatar (server `GetAnimationPreview`).
+- Text in category chips, discovery buttons, SEARCH and 필터 is 1.5x (shrinks only if it would not fit).
+- Phone expanded grid uses the phone compact card size. Reopening the catalog resets to 전체/전체 with default search/filters.
+- Wardrobe: new `OutfitSnapshot` (shared), `WardrobeView` (client); PlayerDataService outfits (cap 50, immediate confirmed writes); server `SaveOutfit`, `GetOutfits`, `DeleteOutfit`, `RestoreOutfit` (partial restore reports skipped items).
+
 ## 2026-10-19 — Discovery modes, favourites, Avatar Editor (feat/catalog-editor-1019)
 - New modules: ReorderDrag, AvatarEditor (client), PlayerDataService (server); new RemoteFunction PlayerData.
 - Catalog: Recent/Popular/Favorites/Wearing modes, favourite ★ double-tap, worn order, empty states, 2/5 phone width, smaller arrows.

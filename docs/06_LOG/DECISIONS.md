@@ -97,3 +97,18 @@ In-game Favorites are stored per user in DataStore `FashionGamePlayerData` (key 
 
 D-031 — Avatar Editor scope follows official rules (2026-10-19).
 Accessory adjust only for rule types (hat, face, neck, shoulder, front, back); body scales Height/Width/Head/Proportion/BodyType (no Depth); skin colours from BasicBodyColorsPalette; makeup order only. Limits are read from GetAvatarRules at runtime and enforced on the server.
+
+D-032 — Wardrobe snapshot format (2026-10-19).
+SavedOutfit = `{id (GUID), name (1–30 chars, trimmed, duplicates allowed), createdAt, snapshot}`. The snapshot is versioned (`v = 1`) and typed by section: `assets` (classic clothing, face, body parts, animations), `scales`, `colors` (hex), `accessories` (id, type, layered, order, puffiness, position/rotation/scale), `makeup` (id, type, order), `emotes` + `equipped`. It is built on the server from the applied description, so only Applied Avatar Editor values are saved. Outfit cards render a preview from the snapshot (not a screenshot).
+
+D-033 — Wardrobe writes are confirmed before success (2026-10-19).
+Save/delete write the DataStore immediately (UpdateAsync, 3 attempts; after an error, a fresh read checks whether the change landed). A failed write rolls the session change back and shows an error. When the DataStore is unavailable (Studio without API access, load failure) the Wardrobe works for the session and says so; it never overwrites stored data with an empty list.
+
+D-034 — Restore replaces the whole look (2026-10-19).
+Restore applies the saved description with ApplyDescriptionResetAsync inside the same per-player gate as wear/remove/editor Apply. Items that are not present afterwards are reported as skipped; the saved outfit is never changed. If the apply errors, the pre-restore look is re-applied.
+
+D-035 — Catalog always reopens on the first screen (2026-10-19).
+User decision: closing and reopening shows 전체/전체 in normal catalog mode with an empty keyword and default sort/filters. The expanded/compact choice is kept.
+
+D-036 — Animation preview plays once (2026-10-19).
+User decision: wearing an animation or emote plays it once on the preview avatar, never looped. Catalog asset IDs are packages, so the server loads the package (InsertService) and returns the first clip, only for an animation the player is wearing. Mood animations are facial clips and do not play on the preview.

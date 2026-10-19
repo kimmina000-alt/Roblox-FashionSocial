@@ -87,6 +87,22 @@ TryOnItem.OnServerInvoke = function(
 		end)
 	end
 
+	-- Wardrobe restore replaces the whole appearance; it shares the same
+	-- per-player gate as wear/remove/editor Apply (first request wins).
+	if action == "RestoreOutfit" then
+		local snapshot = PlayerDataService.GetOutfitSnapshot(player, payload)
+		if not snapshot then
+			return false, "Saved outfit not found."
+		end
+		return runExclusive(player, function()
+			return AvatarService.RestoreSnapshot(player, snapshot)
+		end)
+	end
+
+	if action == "GetAnimationPreview" then
+		return AvatarService.GetAnimationPreview(player, payload)
+	end
+
 	if action == "SetLayerOrder" then
 		return runExclusive(player, function()
 			return AvatarService.SetLayerOrder(player, payload)
@@ -97,6 +113,16 @@ TryOnItem.OnServerInvoke = function(
 end
 
 PlayerData.OnServerInvoke = function(player: Player, action: string, payload: any)
+	if action == "SaveOutfit" then
+		-- Read the confirmed applied look inside the avatar gate, then store it.
+		local ok, snapshot = runExclusive(player, function()
+			return AvatarService.CaptureSnapshot(player)
+		end)
+		if not ok then
+			return false, snapshot
+		end
+		return PlayerDataService.SaveOutfit(player, if typeof(payload) == "table" then payload.name else nil, snapshot)
+	end
 	return PlayerDataService.Handle(player, action, payload)
 end
 

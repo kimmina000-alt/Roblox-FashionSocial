@@ -1,6 +1,6 @@
 # Save Data
 
-Status: design requirements; implementation and rejoin persistence are not yet confirmed.
+Status: Favorites and SavedOutfits are implemented (PlayerDataService, D-030, D-032–D-034); rejoin persistence is not yet confirmed in Studio.
 
 ## Persistent Data
 - SavedOutfits: game-only versioned appearance snapshots; maximum **50 per user**.

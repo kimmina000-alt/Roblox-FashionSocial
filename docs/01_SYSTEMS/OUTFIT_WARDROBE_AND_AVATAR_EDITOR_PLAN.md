@@ -141,3 +141,12 @@ The Recent/Popular/Wearing/Favorites behavior is specified in `docs/01_SYSTEMS/C
 - 일시적 저장 오류/요청 제한은 제한된 횟수로 backoff 재시도한다. 잘못된 데이터나 payload-too-large는 동일 요청을 무한 재시도하지 않는다. 쓰기 결과가 불명확하면 캐시를 우회한 후속 읽기로 확인한다.
 - Load/migration failure는 빈 Wardrobe와 구분하고, 실패를 이유로 기존 데이터를 빈 기본값으로 덮어쓰지 않는다.
 - 실제 DataStore 저장, 재접속 보존, thumbnail rendering, partial restore behavior는 아직 Studio 검증이 필요하다.
+
+## 9. Implementation status — 2026-10-19 (`feat/catalog-fixes-1019b`)
+
+- Code: `ReplicatedStorage/FashionGame/Shared/OutfitSnapshot.lua` (snapshot codec), `StarterPlayerScripts/FashionGame/WardrobeView.lua` (UI), `PlayerDataService` (outfits, cap 50), `AvatarService.CaptureSnapshot/RestoreSnapshot`, `ServerMain` actions `SaveOutfit` (PlayerData, inside the avatar gate) and `RestoreOutfit` (TryOnItem).
+- Entry points: ▣ in the expanded preview, 옷장 in the compact discovery strip (D-022).
+- Snapshot format, write policy and restore policy: DECISIONS D-032–D-034.
+- Studio-verified: exact round-trip with accessory transforms, partial restore, name rules, save/restore/delete through the remotes and the UI.
+- Not yet verified: outfit card previews visually (ISSUE-WARDROBE-001), persistence across rejoin (needs Studio API access on a published place).
+- Not included: renaming outfits.

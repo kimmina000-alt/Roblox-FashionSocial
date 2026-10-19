@@ -65,7 +65,7 @@ Decision / Fix: Check whether any in-game UI is visibly broken and capture a min
 ## Audit findings — 2026-10-18
 
 ### ISSUE-AUDIT-001 — Wear/remove request does not preserve typed identity
-Status: Open
+Status: Partly fixed (2026-10-19). Favorites, Recent and SavedOutfits store `itemType + id`; bundles are never sent to the asset wear action (shoe bundles use `WearShoeBundle`, other bundles open CONTENTS). Still open: Wear/Remove requests carry a bare asset id, and the worn cache is keyed by asset id.
 Area: Tech / Catalog / Avatar
 Description: The active client request passes an action plus numeric assetId. Server detail lookup explicitly requests `Enum.AvatarItemType.Asset`; the UI's current worn state is keyed by numeric ID. Bundle and cross-type identity are not represented end-to-end.
 Expected: Request and state preserve the item type and type-specific metadata; unsupported types are clearly disabled/rejected.
@@ -89,7 +89,7 @@ Actual: Post-apply read/logging is present; requested-change comparison was not 
 Decision / Fix: Implement type-specific post-apply verification and return a confirmed snapshot/result.
 
 ### ISSUE-AUDIT-004 — Active UI has placeholder discovery and Wardrobe controls
-Status: Partly fixed on `feat/catalog-editor-1019` (Recent/Popular/Favorites/Wearing and Avatar Editor work; Wardrobe is Stage 2)
+Status: Fixed on `feat/catalog-fixes-1019b` (Wardrobe implemented; the other controls were fixed on `feat/catalog-editor-1019`)
 Area: UI / Catalog / Persistence
 Description: Recent, Popular and Favorites handlers log placeholder messages; Wardrobe and Avatar Editor display planned-status text. Wearing has a partial list path.
 Expected: Each enabled control performs its documented behavior, or is visibly marked disabled/not yet available.
@@ -138,3 +138,18 @@ Fix: Shoes bundle cards show WEAR/WORN. Server `WearShoeBundle` reads the bundle
 Status: Fixed on `feat/catalog-editor-1019` (Studio-tested)
 Cause: the 착용 중 view drew worn cards into the results list, but scrolling then triggered catalog pagination and appended normal search results.
 Fix: browse modes; local lists (Recent/Favorites/Wearing) never page the catalog. Studio: 19 worn → 19 cards, still 19 after scrolling to the end.
+
+### ISSUE-CATALOG-009 — 착용 중 card grid: layer drag moved the ghost but did not reorder
+Status: Fixed on `feat/catalog-fixes-1019b` (Studio-tested with a touch drag: grid and server order both changed)
+Cause: two overlapping `renderLocalMode` calls (mode switch + worn refresh) could both append cards, so the grid could hold duplicate cards and the drop sent a duplicated id list, which the server rejects.
+Fix: a render generation token (stale renders stop and the grid is cleared again before cards are added). The drop order is merged into the full layered list, so a filtered grid still sends a complete, duplicate-free list.
+
+### ISSUE-EDITOR-001 — Accessory adjustments only showed after Apply
+Status: Fixed on `feat/catalog-fixes-1019b` (Studio-tested on a clone)
+Cause: `ApplyDescriptionAsync` skips accessories whose asset id did not change, so transform-only drafts did nothing on the preview clone.
+Fix: the preview clone uses `ApplyDescriptionResetAsync`.
+
+### ISSUE-WARDROBE-001 — Outfit card previews not visually confirmed
+Status: Needs user check
+Description: in this Studio session ViewportFrame screenshots were stale (the main preview kept its old image after its model was moved), so the outfit card preview could not be checked visually. The preview model is built and framed (20 parts, camera in front). Please confirm the cards show the outfit.
+

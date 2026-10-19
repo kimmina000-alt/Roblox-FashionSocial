@@ -80,6 +80,7 @@ local favoriteSet: {[string]: boolean} = {}
 local favoritesNote: string? = nil
 local itemDetailsCache: {[string]: any} = {}
 local avatarEditor: any = nil
+local wardrobeView: any = nil
 local openAvatarEditor: () -> ()
 local renderLocalMode: () -> ()
 local showToast: (string) -> ()
@@ -272,7 +273,7 @@ local previewFrame = create("Frame", {
 })
 previewFrame.Parent = previewGui
 previewFrame.BackgroundTransparency = 1
-create("UICorner", { CornerRadius = UDim.new(0, 12) }).Parent = previewFrame
+create("UICorner", { CornerRadius = UDim.new(0, 15) }).Parent = previewFrame
 
 local previewTitle = create("TextLabel", {
 	Name = "PreviewTitle",
@@ -302,6 +303,8 @@ local avatarEditorButton = create("TextButton", {
 	ZIndex = 5,
 })
 avatarEditorButton.Parent = previewFrame
+avatarEditorButton.BackgroundTransparency = 0.45
+create("UICorner", { CornerRadius = UDim.new(0, 8) }).Parent = avatarEditorButton
 
 local wardrobeButton = create("TextButton", {
 	Name = "WardrobeButton",
@@ -317,6 +320,8 @@ local wardrobeButton = create("TextButton", {
 	ZIndex = 5,
 })
 wardrobeButton.Parent = previewFrame
+wardrobeButton.BackgroundTransparency = 0.45
+create("UICorner", { CornerRadius = UDim.new(0, 8) }).Parent = wardrobeButton
 
 local avatarViewport = create("ViewportFrame", {
 	Name = "AvatarViewport",
@@ -425,7 +430,10 @@ local function refreshAvatarPreview()
 		local cloneHumanoid = clone:FindFirstChildOfClass("Humanoid")
 		if cloneHumanoid then
 			local ok, err = pcall(function()
-				cloneHumanoid:ApplyDescriptionAsync(override:Clone())
+				-- ApplyDescriptionAsync skips accessories whose AssetId did not change,
+				-- so editor-only changes (Position/Rotation/Scale) never showed until
+				-- Apply. The Reset variant rebuilds them from the draft (verified in Studio).
+				cloneHumanoid:ApplyDescriptionResetAsync(override:Clone())
 			end)
 			if not ok then warn("[CatalogUI] Preview draft apply failed:", err) end
 		end
@@ -471,7 +479,7 @@ UserInputService.InputChanged:Connect(function(input)
 	local delta = input.Position - previewDragLast
 	previewDragLast = input.Position
 	previewYaw -= delta.X * 0.012
-	previewPitch = math.clamp(previewPitch - delta.Y * 0.008, -0.6, 0.6)
+	previewPitch = math.clamp(previewPitch + delta.Y * 0.008, -0.6, 0.6)
 	updatePreviewCamera()
 end)
 UserInputService.InputEnded:Connect(function(input)
@@ -491,10 +499,6 @@ avatarEditorButton.MouseButton1Click:Connect(function()
 	openAvatarEditor()
 end)
 
-wardrobeButton.MouseButton1Click:Connect(function()
-	print("Wardrobe 버튼 클릭")
-	statusLabel.Text = "Wardrobe: outfit save/load is planned."
-end)
 
 player.CharacterAdded:Connect(function()
 	task.wait(0.5)
@@ -530,7 +534,7 @@ local catalogPanel = create("Frame", {
 	ZIndex = 0,
 })
 catalogPanel.Parent = mainFrame
-create("UICorner", { CornerRadius = UDim.new(0, 12) }).Parent = catalogPanel
+create("UICorner", { CornerRadius = UDim.new(0, 15) }).Parent = catalogPanel
 
 local mainCorner = create("UICorner", {
 	CornerRadius = UDim.new(0, 14),
@@ -1092,6 +1096,19 @@ local function updateMainCategorySelection()
 end
 
 local groupButtonByName = {}
+-- Largest size <= desired whose single-line text fits maxWidth (min 8).
+local function fitTextSize(text: string, font: Enum.Font, desired: number, maxWidth: number): number
+	local size = desired
+	while size > 8 do
+		local ok, bounds = pcall(function()
+			return game:GetService("TextService"):GetTextSize(text, size, font, Vector2.new(1000, 100))
+		end)
+		if not ok or bounds.X <= maxWidth then break end
+		size -= 1
+	end
+	return size
+end
+
 -- Category chips size to their text: short labels give short buttons.
 local CHIP_PADDING = 12
 local function makeChipAutoWidth(button: TextButton, height: number)
@@ -1102,7 +1119,7 @@ local function makeChipAutoWidth(button: TextButton, height: number)
 		PaddingRight = UDim.new(0, CHIP_PADDING),
 	}).Parent = button
 end
-local allMainCategoryButton=create("TextButton",{Name="MainCategory_All",BackgroundColor3=Color3.fromRGB(78,78,94),BackgroundTransparency=0,Text="전체",TextColor3=Color3.new(1,1,1),TextSize=11,Font=Enum.Font.GothamBold,LayoutOrder=0}); makeChipAutoWidth(allMainCategoryButton, 28); allMainCategoryButton.Parent=mainCategoryStrip; create("UICorner",{CornerRadius=UDim.new(0,7)}).Parent=allMainCategoryButton
+local allMainCategoryButton=create("TextButton",{Name="MainCategory_All",BackgroundColor3=Color3.fromRGB(78,78,94),BackgroundTransparency=0,Text="전체",TextColor3=Color3.new(1,1,1),TextSize=16,Font=Enum.Font.GothamBold,LayoutOrder=0}); makeChipAutoWidth(allMainCategoryButton, 28); allMainCategoryButton.Parent=mainCategoryStrip; create("UICorner",{CornerRadius=UDim.new(0,7)}).Parent=allMainCategoryButton
 allMainCategoryButton.MouseButton1Click:Connect(function()
 	activeTopLevelGroup = nil
 	updateMainCategorySelection()
@@ -1116,7 +1133,7 @@ for index, group in ipairs(Config.CategoryGroups) do
 		BackgroundTransparency = 0.6,
 		Text = group.Name,
 		TextColor3 = Color3.fromRGB(190,190,200),
-		TextSize = 11,
+		TextSize = 16,
 		Font = Enum.Font.GothamBold,
 		LayoutOrder = index,
 	})
@@ -1203,7 +1220,7 @@ subcategoryStrip.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then subcategoryDragStartX = nil end
 end)
 
-local MODE_BY_LABEL = { ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing" }
+local MODE_BY_LABEL = { ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing", ["옷장"] = "Wardrobe" }
 local function updateDiscoveryHighlight()
 	for label, button in pairs(discoveryButtons) do
 		local active = MODE_BY_LABEL[label] ~= nil and MODE_BY_LABEL[label] == browseMode
@@ -1227,9 +1244,6 @@ for label, mode in pairs(MODE_BY_LABEL) do
 end
 discoveryButtons["⚙"].MouseButton1Click:Connect(function()
 	openAvatarEditor()
-end)
-discoveryButtons["옷장"].MouseButton1Click:Connect(function()
-	print("[CatalogUI] Wardrobe selected. Wardrobe is planned after the Avatar Editor (Stage 2).")
 end)
 fixedFilterButton.MouseButton1Click:Connect(function()
 	filterPanelOpen = not filterPanelOpen
@@ -1354,12 +1368,14 @@ updateCatalogLayout = function()
 		previewFrame.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
 		previewFrame.BackgroundTransparency = 0.2
 		previewTitle.Visible = false
-		avatarEditorButton.Position = UDim2.fromOffset(8, 8)
-		wardrobeButton.Position = UDim2.fromOffset(46, 8)
+		-- The viewport fills the box down to the worn strip; ⚙ (edit) and ▣ (save)
+		-- sit inside its top-left corner, stacked vertically (2026-10-19 feedback).
+		avatarViewport.Position = UDim2.fromOffset(8, 8)
+		avatarViewport.Size = UDim2.new(1, -16, 1, -132)
+		avatarEditorButton.Position = UDim2.fromOffset(14, 14)
+		wardrobeButton.Position = UDim2.fromOffset(14, 52)
 		avatarEditorButton.Size = UDim2.fromOffset(32, 32)
 		wardrobeButton.Size = UDim2.fromOffset(32, 32)
-		avatarViewport.Position = UDim2.fromOffset(8, 48)
-		avatarViewport.Size = UDim2.new(1, -16, 1, -176)
 		currentOutfitFrame.Visible = true
 		currentOutfitFrame.Position = UDim2.new(0, 8, 1, -116)
 		currentOutfitFrame.Size = UDim2.new(1, -16, 0, 108)
@@ -1407,8 +1423,11 @@ updateCatalogLayout = function()
 	local discoveryButtonWidth = math.max(44, math.floor((discoveryWidth - 5 * (perRow - 1)) / perRow))
 	for label, button in pairs(discoveryButtons) do
 		local iconOnly = label == "⚙"
-		button.Size = UDim2.fromOffset(if iconOnly then math.min(discoveryButtonWidth, 36) else discoveryButtonWidth, controlSize - 4)
-		button.TextSize = if iconOnly then 16 elseif expandedPanel then 11 elseif phoneCompact then 9 else 10
+		local buttonWidth = if iconOnly then math.min(discoveryButtonWidth, 36) else discoveryButtonWidth
+		button.Size = UDim2.fromOffset(buttonWidth, controlSize - 4)
+		-- Text is 1.5x the earlier size, shrunk only when a label would not fit.
+		button.TextSize = if iconOnly then 18
+			else fitTextSize(button.Text, button.Font, if expandedPanel then 16 elseif phoneCompact then 13 else 15, buttonWidth - 6)
 	end
 
 	-- Category row (and, in expanded mode, search + filter on the same row).
@@ -1448,12 +1467,13 @@ updateCatalogLayout = function()
 	searchButton.Text = if phoneCompact then "🔍" else "SEARCH"
 	searchButton.Position = UDim2.fromOffset(searchX + searchWidth + 4, searchY)
 	searchButton.Size = UDim2.fromOffset(searchButtonWidth, rowH)
-	searchButton.TextSize = if phoneCompact then 14 elseif expandedPanel then 10 else 9
+	searchButton.TextSize = if phoneCompact then 18
+		else fitTextSize(searchButton.Text, searchButton.Font, if expandedPanel then 15 else 13, searchButtonWidth - 4)
 	fixedFilterButton.Visible = true
 	fixedFilterButton.Text = "필터"
 	fixedFilterButton.Position = UDim2.fromOffset(contentRight - filterWidth, searchY)
 	fixedFilterButton.Size = UDim2.fromOffset(filterWidth, rowH)
-	fixedFilterButton.TextSize = if phoneCompact then 9 elseif expandedPanel then 11 else 10
+	fixedFilterButton.TextSize = fitTextSize("필터", fixedFilterButton.Font, if phoneCompact then 13 elseif expandedPanel then 16 else 15, filterWidth - 4)
 	sortButton.Visible = true
 	local sortLabel = "Relevance"
 	for _, option in ipairs(Config.SortOptions) do
@@ -1505,7 +1525,7 @@ updateCatalogLayout = function()
 	resultsFrame.Position = UDim2.fromOffset(x, resultsY)
 	resultsFrame.Size = UDim2.fromOffset(innerWidth, math.max(1, panelHeight - resultsY - pad))
 	resultsFrame.BackgroundTransparency = 1
-	if expandedPanel then
+	if expandedPanel and not isPhone then
 		local cellWidth = math.clamp(math.floor((innerWidth - 36) / 6), 88, 148)
 		grid.CellSize = UDim2.fromOffset(cellWidth, math.floor(cellWidth * 1.45))
 		cardContentScale = 1
@@ -1723,7 +1743,30 @@ local wearingDrag = ReorderDrag.new({
 	getId = function(card) return card:GetAttribute("LayerId") end,
 	getImage = function(card) return "rbxthumb://type=Asset&id=" .. tostring(card:GetAttribute("LayerId")) .. "&w=150&h=150" end,
 	canStart = layerDragCanStart,
-	onCommit = applyLayerOrder,
+	onCommit = function(visibleIds: {number})
+		-- The grid may show only part of the layered items (search/category filters).
+		-- Keep hidden items where they were and place the dragged subset in the
+		-- remaining slots, so the server always receives the full, duplicate-free list.
+		local _, layered = getWornOrder()
+		local ordered, seen = {}, {}
+		for _, id in ipairs(visibleIds) do
+			if not seen[id] then seen[id] = true table.insert(ordered, id) end
+		end
+		local result, nextVisible = {}, 1
+		for _, id in ipairs(layered) do
+			if seen[id] then
+				table.insert(result, ordered[nextVisible])
+				nextVisible += 1
+			else
+				table.insert(result, id)
+			end
+		end
+		for i = nextVisible, #ordered do
+			local id = ordered[i]
+			if not table.find(result, id) then table.insert(result, id) end
+		end
+		applyLayerOrder(result)
+	end,
 	onCancel = function() renderLocalMode() end,
 })
 
@@ -2377,6 +2420,40 @@ createItemCard = function(item: any, layoutOrder: number)
 					refreshAvatarPreview()
 					updateButton()
 					statusLabel.Text = "Item equipped."
+					-- Animations/emotes: play the new clip once on the preview avatar (no loop).
+					if ANIMATION_CATEGORIES[assetTypeName] or assetTypeName == "EmoteAnimation" then
+						task.spawn(function()
+							local okCall, okServer, animationId = pcall(function()
+								return TryOnItem:InvokeServer("GetAnimationPreview", assetId)
+							end)
+							if not (okCall and okServer == true and typeof(animationId) == "string") then
+								warn("[CatalogUI] Animation preview unavailable:", okServer, animationId)
+								return
+							end
+							-- Preload first: an uncached clip loaded on the viewport clone
+							-- otherwise never finishes loading (seen in Studio for emotes).
+							local animation = Instance.new("Animation")
+							animation.AnimationId = animationId
+							pcall(function()
+								game:GetService("ContentProvider"):PreloadAsync({ animation })
+							end)
+							local previewCharacter = avatarPreviewWorld:FindFirstChild("AvatarPreviewCharacter")
+							local previewHumanoid = previewCharacter and previewCharacter:FindFirstChildOfClass("Humanoid")
+							if not previewHumanoid then return end
+							local animator = previewHumanoid:FindFirstChildOfClass("Animator")
+							if not animator then
+								animator = Instance.new("Animator")
+								animator.Parent = previewHumanoid
+							end
+							local okLoad, track = pcall(function()
+								return (animator :: Animator):LoadAnimation(animation)
+							end)
+							if okLoad and track then
+								track.Looped = false
+								track:Play()
+							end
+						end)
+					end
 				else
 					warn("[CatalogController] Wear failed:", result, message)
 					statusLabel.Text =
@@ -2543,6 +2620,10 @@ local EMPTY_MESSAGES = {
 renderLocalMode = function()
 	if browseMode == "Catalog" or browseMode == "Popular" then return end
 	local mode = browseMode
+	-- Overlapping renders (mode switch + worn refresh) must not both append cards;
+	-- duplicated cards made the 착용 중 drag send a duplicated, rejected layer list.
+	local generation = (resultsFrame:GetAttribute("LocalRenderGeneration") or 0) + 1
+	resultsFrame:SetAttribute("LocalRenderGeneration", generation)
 	catalogPages = nil
 	bundleContentsOpen = false
 	backToPacksButton.Visible = false
@@ -2550,6 +2631,12 @@ renderLocalMode = function()
 	table.clear(cardContentUIScales)
 	clearContainer(resultsFrame)
 	resultsFrame.CanvasPosition = Vector2.zero
+
+	if mode == "Wardrobe" then
+		setResultsMessage(nil)
+		if wardrobeView then wardrobeView:render() end
+		return
+	end
 
 	local entries = {}
 	if mode == "Recent" then
@@ -2566,7 +2653,9 @@ renderLocalMode = function()
 		end
 	end
 	local details = fetchItemDetails(entries)
-	if browseMode ~= mode then return end
+	if browseMode ~= mode or generation ~= resultsFrame:GetAttribute("LocalRenderGeneration") then return end
+	clearContainer(resultsFrame)
+	table.clear(cardContentUIScales)
 
 	local count = 0
 	local layerNumber = 0
@@ -2898,7 +2987,7 @@ renderSubcategoryStrip = function(groupName: string?)
 			BackgroundTransparency = selected and 0 or 0.6,
 			TextColor3 = if entry.data and #entry.data.AssetTypes == 0 and not entry.data.BundleTypes then Color3.fromRGB(125,125,135) else (selected and Color3.fromRGB(255,255,255) or Color3.fromRGB(190,190,200)),
 			Text = if entry.data and #entry.data.AssetTypes == 0 and not entry.data.BundleTypes then entry.label .. " (준비 중)" else entry.label,
-			TextSize = 10, Font = selected and Enum.Font.GothamBold or Enum.Font.Gotham, LayoutOrder = index,
+			TextSize = 15, Font = selected and Enum.Font.GothamBold or Enum.Font.Gotham, LayoutOrder = index,
 			AutoButtonColor = not (entry.data and #entry.data.AssetTypes == 0 and not entry.data.BundleTypes),
 		})
 		makeChipAutoWidth(button, 26)
@@ -3032,6 +3121,32 @@ openButton.MouseButton1Click:Connect(function()
 		return
 	end
 	mainFrame.Visible = true
+	-- Every open starts from the first screen: 전체/전체, normal catalog, no keyword,
+	-- default sort and filters, scrolled to the top (2026-10-19 feedback).
+	browseMode = "Catalog"
+	updateDiscoveryHighlight()
+	bundleContentsOpen = false
+	searchBox.Text = ""
+	currentKeyword = ""
+	currentSort = Enum.CatalogSortType.Relevance
+	minPriceBox.Text = ""
+	maxPriceBox.Text = ""
+	currentMinPrice = 0
+	currentMaxPrice = 0
+	currentIncludeOffSale = Config.IncludeOffSale
+	syncOffSaleLabels()
+	filterPanelOpen = false
+	sortMenu.Visible = false
+	currentCategory = "전체"
+	currentCategoryAssetTypes = Config.AllowedAssetTypes
+	currentCategoryBundleTypes = nil
+	currentCategoryIncludeOffSale = false
+	activeTopLevelGroup = nil
+	updateMainCategorySelection()
+	renderSubcategoryStrip(nil)
+	mainCategoryStrip.CanvasPosition = Vector2.zero
+	subcategoryStrip.CanvasPosition = Vector2.zero
+	resultsFrame.CanvasPosition = Vector2.zero
 
 	refreshWornItems()
 	updateCatalogLayout()
@@ -3096,6 +3211,46 @@ avatarEditor = AvatarEditor.new({
 		updateCatalogLayout()
 	end,
 })
+
+wardrobeView = require(script.Parent:WaitForChild("WardrobeView")).new({
+	container = resultsFrame,
+	screenGui = screenGui,
+	PlayerData = PlayerData,
+	TryOnItem = TryOnItem,
+	getCardScale = function() return cardContentScale end,
+	registerScale = function(uiScale) table.insert(cardContentUIScales, uiScale) end,
+	showToast = function(text) showToast(text) end,
+	setMessage = function(text) setResultsMessage(text) end,
+	isActive = function() return browseMode == "Wardrobe" and mainFrame.Visible end,
+	canChangeAvatar = function()
+		if actionBusy then
+			showToast("다른 아바타 변경이 진행 중입니다.")
+			return false
+		end
+		return not editorBlocksAvatarChanges()
+	end,
+	setBusy = function(busy) actionBusy = busy end,
+	editorDirty = function() return avatarEditor ~= nil and avatarEditor:isDirty() end,
+	onRestored = function()
+		refreshWornItems()
+		refreshAvatarPreview()
+	end,
+})
+
+-- ▣ always opens the Wardrobe (it does not toggle back like the discovery strip).
+wardrobeButton.MouseButton1Click:Connect(function()
+	if avatarEditor and avatarEditor:isOpen() then
+		avatarEditor:requestClose(function()
+			browseMode = "Wardrobe"
+			updateDiscoveryHighlight()
+			searchCatalog()
+		end)
+		return
+	end
+	browseMode = "Wardrobe"
+	updateDiscoveryHighlight()
+	searchCatalog()
+end)
 
 -- ⚙ (preview box or minimized strip) opens the maximized catalog in edit mode (D-022).
 openAvatarEditor = function()
