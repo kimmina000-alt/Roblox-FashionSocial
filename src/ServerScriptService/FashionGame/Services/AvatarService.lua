@@ -1,9 +1,24 @@
 --!strict
 
-local MarketplaceService = game:GetService("MarketplaceService")
+local Players = game:GetService("Players")
 local AvatarEditorService = game:GetService("AvatarEditorService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
+local AppearanceCodec = require(FashionGame:WaitForChild("Shared"):WaitForChild("AppearanceCodec"))
 
 local AvatarService = {}
+
+local RIGID_TRANSFORM_TYPES = {
+	Hat = true,
+	Hair = true,
+	Face = true,
+	Neck = true,
+	Shoulder = true,
+	Front = true,
+	Back = true,
+	Waist = true,
+}
 
 local MAX_ACCESSORIES = 20
 
@@ -351,13 +366,33 @@ function AvatarService.GetCurrentItems(
 	-- Accessories
 	--------------------------------------------------
 
+	local transformById: {[number]: any} = {}
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("AccessoryDescription") then
+			transformById[child.AssetId] = {
+				Position = { child.Position.X, child.Position.Y, child.Position.Z },
+				Rotation = { child.Rotation.X, child.Rotation.Y, child.Rotation.Z },
+				Scale = { child.Scale.X, child.Scale.Y, child.Scale.Z },
+				Order = child.Order,
+				IsLayered = child.IsLayered,
+				SupportsTransform = child.IsLayered ~= true and RIGID_TRANSFORM_TYPES[child.AccessoryType.Name] == true,
+			}
+		end
+	end
+
 	for _, accessory in ipairs(
 		description:GetAccessories(true)
 		) do
+		local extra = transformById[accessory.AssetId]
 		table.insert(result, {
 			AssetId = accessory.AssetId,
 			Category = accessory.AccessoryType.Name,
 			IsLayered = accessory.IsLayered,
+			Order = if extra then extra.Order else accessory.Order,
+			Position = if extra then extra.Position else nil,
+			Rotation = if extra then extra.Rotation else nil,
+			Scale = if extra then extra.Scale else nil,
+			SupportsTransform = if extra then extra.SupportsTransform else (accessory.IsLayered ~= true and RIGID_TRANSFORM_TYPES[accessory.AccessoryType.Name] == true),
 		})
 	end
 
@@ -767,6 +802,294 @@ function AvatarService.RemoveItem(
 		humanoid,
 		description
 	)
+end
+
+function AvatarService.SerializeAppearance(player: Player): (boolean, any)
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local payload = AppearanceCodec.Serialize(description)
+	payload.rigType = humanoid.RigType.Name
+	return true, payload
+end
+
+function AvatarService.ApplyAppearance(player: Player, data: any): (boolean, any)
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	if typeof(data) ~= "table" then
+		return false, "Invalid outfit data."
+	end
+
+	local description = AppearanceCodec.Deserialize(data)
+	local ok, message = applyDescription(humanoid, description)
+	local applied = humanoid:GetAppliedDescription()
+	local expected = AppearanceCodec.CollectWornIds(data)
+	local appliedSet: {[number]: boolean} = {}
+	for _, item in ipairs(AvatarService.GetCurrentItems(player)) do
+		if typeof(item.AssetId) == "number" then
+			appliedSet[item.AssetId] = true
+		end
+	end
+	local failed = {}
+	for _, assetId in ipairs(expected) do
+		if not appliedSet[assetId] then
+			table.insert(failed, assetId)
+		end
+	end
+	if not ok then
+		return false, {
+			message = message,
+			failed = failed,
+			items = AvatarService.GetCurrentItems(player),
+		}
+	end
+	return true, {
+		message = if #failed > 0 then "Outfit restored with missing items." else "Outfit restored.",
+		failed = failed,
+		items = AvatarService.GetCurrentItems(player),
+		appearance = AppearanceCodec.Serialize(applied),
+	}
+end
+
+local function findAccessoryDescription(description: HumanoidDescription, assetId: number): AccessoryDescription?
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("AccessoryDescription") and child.AssetId == assetId then
+			return child
+		end
+	end
+	return nil
+end
+
+function AvatarService.SetAccessoryTransform(player: Player, assetId: number, fields: any): (boolean, string)
+	if typeof(assetId) ~= "number" or typeof(fields) ~= "table" then
+		return false, "Invalid transform request."
+	end
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local accessory = findAccessoryDescription(description, assetId)
+	if not accessory then
+		return false, "Item is not currently worn."
+	end
+	if accessory.IsLayered or not RIGID_TRANSFORM_TYPES[accessory.AccessoryType.Name] then
+		return false, "Position, rotation, and scale only apply to rigid accessories."
+	end
+	if typeof(fields.Position) == "table" then
+		accessory.Position = Vector3.new(fields.Position[1] or 0, fields.Position[2] or 0, fields.Position[3] or 0)
+	end
+	if typeof(fields.Rotation) == "table" then
+		accessory.Rotation = Vector3.new(fields.Rotation[1] or 0, fields.Rotation[2] or 0, fields.Rotation[3] or 0)
+	end
+	if typeof(fields.Scale) == "table" then
+		local sx = math.max(0.05, fields.Scale[1] or 1)
+		local sy = math.max(0.05, fields.Scale[2] or 1)
+		local sz = math.max(0.05, fields.Scale[3] or 1)
+		accessory.Scale = Vector3.new(sx, sy, sz)
+	end
+	return applyDescription(humanoid, description)
+end
+
+function AvatarService.ResetAccessoryTransform(player: Player, assetId: number): (boolean, string)
+	return AvatarService.SetAccessoryTransform(player, assetId, {
+		Position = { 0, 0, 0 },
+		Rotation = { 0, 0, 0 },
+		Scale = { 1, 1, 1 },
+	})
+end
+
+function AvatarService.SetBodyScales(player: Player, scales: any): (boolean, string)
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	if humanoid.RigType ~= Enum.HumanoidRigType.R15 then
+		return false, "Body scales apply to R15 avatars."
+	end
+	if typeof(scales) ~= "table" then
+		return false, "Invalid scale values."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local ranges = {
+		WidthScale = { 0.75, 1.25 },
+		HeightScale = { 0.75, 1.25 },
+		DepthScale = { 0.75, 1.25 },
+		HeadScale = { 0.75, 1.5 },
+		BodyTypeScale = { 0, 1 },
+		ProportionScale = { 0, 1 },
+	}
+	for name, range in pairs(ranges) do
+		if typeof(scales[name]) == "number" then
+			description[name] = math.clamp(scales[name], range[1], range[2])
+		end
+	end
+	return applyDescription(humanoid, description)
+end
+
+function AvatarService.SetBodyColors(player: Player, colors: any): (boolean, string)
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	if typeof(colors) ~= "table" then
+		return false, "Invalid color values."
+	end
+	local description = humanoid:GetAppliedDescription()
+	for _, name in ipairs(AppearanceCodec.ColorProps) do
+		local value = colors[name]
+		if typeof(value) == "table" then
+			description[name] = Color3.new(
+				math.clamp(value[1] or 1, 0, 1),
+				math.clamp(value[2] or 1, 0, 1),
+				math.clamp(value[3] or 1, 0, 1)
+			)
+		end
+	end
+	return applyDescription(humanoid, description)
+end
+
+function AvatarService.SetLayerOrder(player: Player, orderedIds: any): (boolean, string)
+	if typeof(orderedIds) ~= "table" then
+		return false, "Invalid layer order."
+	end
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local indexById: {[number]: number} = {}
+	for index, assetId in ipairs(orderedIds) do
+		if typeof(assetId) == "number" then
+			indexById[assetId] = index
+		end
+	end
+	local changed = false
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("AccessoryDescription") and child.IsLayered and indexById[child.AssetId] then
+			child.Order = indexById[child.AssetId]
+			changed = true
+		end
+	end
+	if not changed then
+		local accessories = description:GetAccessories(true)
+		for _, accessory in ipairs(accessories) do
+			if accessory.IsLayered and indexById[accessory.AssetId] then
+				accessory.Order = indexById[accessory.AssetId]
+				changed = true
+			end
+		end
+		if changed then
+			description:SetAccessories(accessories, true)
+		end
+	end
+	if not changed then
+		return false, "No layered clothing items were found to reorder."
+	end
+	return applyDescription(humanoid, description)
+end
+
+function AvatarService.SetMakeupOrder(player: Player, orderedIds: any): (boolean, string)
+	if typeof(orderedIds) ~= "table" then
+		return false, "Invalid makeup order."
+	end
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local indexById: {[number]: number} = {}
+	for index, assetId in ipairs(orderedIds) do
+		if typeof(assetId) == "number" then
+			indexById[assetId] = index
+		end
+	end
+	local changed = false
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("MakeupDescription") and indexById[child.AssetId] then
+			child.Order = indexById[child.AssetId]
+			changed = true
+		end
+	end
+	if not changed then
+		return false, "No makeup items were found to reorder."
+	end
+	return applyDescription(humanoid, description)
+end
+
+function AvatarService.SwitchRig(player: Player, rigName: string): (boolean, string)
+	if rigName ~= "R6" and rigName ~= "R15" then
+		return false, "Choose R6 or R15."
+	end
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	if humanoid.RigType.Name == rigName then
+		return true, "Already using " .. rigName .. "."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local currentCFrame = player.Character and player.Character:GetPivot() or CFrame.new()
+	local ok, modelOrErr = pcall(function()
+		return Players:CreateHumanoidModelFromDescriptionAsync(
+			description,
+			Enum.HumanoidRigType[rigName],
+			Enum.AssetTypeVerification.Default
+		)
+	end)
+	if not ok or typeof(modelOrErr) ~= "Instance" then
+		return false, "Could not rebuild the avatar as " .. rigName .. "."
+	end
+	local model = modelOrErr :: Model
+	model.Name = player.Name
+	model:PivotTo(currentCFrame)
+	player.Character = model
+	model.Parent = workspace
+	return true, "Switched to " .. rigName .. "."
+end
+
+function AvatarService.HandleEdit(player: Player, action: string, payload: any)
+	if action == "GetAppearance" then
+		return AvatarService.SerializeAppearance(player)
+	end
+	if action == "ApplyAppearance" then
+		return AvatarService.ApplyAppearance(player, payload)
+	end
+	if action == "SetTransform" then
+		if typeof(payload) ~= "table" then
+			return false, "Invalid transform payload."
+		end
+		return AvatarService.SetAccessoryTransform(player, payload.assetId, payload)
+	end
+	if action == "ResetTransform" then
+		if typeof(payload) ~= "table" then
+			return false, "Invalid reset payload."
+		end
+		return AvatarService.ResetAccessoryTransform(player, payload.assetId)
+	end
+	if action == "SetScales" then
+		return AvatarService.SetBodyScales(player, payload)
+	end
+	if action == "SetColors" then
+		return AvatarService.SetBodyColors(player, payload)
+	end
+	if action == "SetLayerOrder" then
+		return AvatarService.SetLayerOrder(player, payload)
+	end
+	if action == "SetMakeupOrder" then
+		return AvatarService.SetMakeupOrder(player, payload)
+	end
+	if action == "SwitchRig" then
+		if typeof(payload) ~= "table" then
+			return false, "Invalid rig payload."
+		end
+		return AvatarService.SwitchRig(player, payload.rigType)
+	end
+	return false, "Invalid avatar edit action."
 end
 
 return AvatarService

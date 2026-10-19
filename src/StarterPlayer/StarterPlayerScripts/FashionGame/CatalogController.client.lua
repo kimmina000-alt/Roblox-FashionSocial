@@ -4,12 +4,16 @@ local Players = game:GetService("Players")
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local AssetService = game:GetService("AssetService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GuiService = game:GetService("GuiService")
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Remotes = FashionGame:WaitForChild("Remotes")
 local TryOnItem = Remotes:WaitForChild("TryOnItem")
+local FashionData = Remotes:WaitForChild("FashionData")
+local AppearanceCodec = require(FashionGame:WaitForChild("Shared"):WaitForChild("AppearanceCodec"))
 
 local Config = require(
 	FashionGame:WaitForChild("Shared"):WaitForChild("CatalogConfig")
@@ -52,6 +56,25 @@ local actionBusy = false
 local bundleContentsOpen = false
 local showBundleContents
 local renderCurrentPage: () -> ()
+local browseMode = "Catalog"
+local searchGeneration = 0
+local currentSortAggregation = Config.SortAggregation
+local favoriteSet: {[string]: boolean} = {}
+local playerDataCache: any = { outfits = {}, favorites = {}, recents = {} }
+local DOUBLE_CLICK_WINDOW = 0.28
+local lastCardClickAt = 0
+local lastCardClickKey = ""
+local previewYaw = 0
+local previewPitch = 0
+local previewDistanceScale = 1
+local previewDragInput: InputObject? = nil
+local catalogOpen = false
+local setBrowseMode
+local refreshPlayerData
+local showToast
+local renderBrowseMode
+local openItemDetails
+local TEXT_SCALE = 1.5
 
 local catalogPages: Pages? = nil
 local currentPageNumber = 1
@@ -184,7 +207,7 @@ local openButton = create("TextButton", {
 
 openButton.Parent = screenGui
 openButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-openButton.BackgroundTransparency = 0
+openButton.BackgroundTransparency = 0.2
 
 
 local openCorner = create("UICorner", {
@@ -215,6 +238,7 @@ local previewFrame = create("Frame", {
 	Visible = false,
 })
 previewFrame.Parent = previewGui
+previewFrame.BackgroundTransparency = 1
 create("UICorner", { CornerRadius = UDim.new(0, 12) }).Parent = previewFrame
 
 local previewTitle = create("TextLabel", {
@@ -397,11 +421,15 @@ local mainFrame = create("Frame", {
 })
 
 mainFrame.Parent = screenGui
+mainFrame.BackgroundTransparency = 0.2
 
 local mainCorner = create("UICorner", {
 	CornerRadius = UDim.new(0, 14),
 })
 mainCorner.Parent = mainFrame
+
+previewFrame.Parent = mainFrame
+previewGui.Enabled = false
 
 --------------------------------------------------
 -- TITLE
@@ -729,7 +757,7 @@ create("UIListLayout", {
 }).Parent = discoveryBar
 
 local discoveryButtons = {}
-for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중"}) do
+for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중", "옷장"}) do
 	local b = create("TextButton", {
 		Name = "Discovery_" .. tostring(index),
 		Size = UDim2.fromOffset(86, 30),
@@ -787,18 +815,20 @@ local mainCategoryStrip = create("ScrollingFrame", {
 	Name = "MainCategoryStrip",
 	BackgroundTransparency = 1,
 	BorderSizePixel = 0,
-	ScrollBarThickness = 2,
+	ScrollBarThickness = 0,
 	ScrollingDirection = Enum.ScrollingDirection.X,
 	CanvasSize = UDim2.new(0, 0, 0, 0),
 	AutomaticCanvasSize = Enum.AutomaticSize.X,
 	Visible = false,
 })
 mainCategoryStrip.Parent = mainFrame
-local subcategoryStrip = create("ScrollingFrame", {Name="SubcategoryStrip",BackgroundTransparency=1,BorderSizePixel=0,ScrollBarThickness=2,ScrollingDirection=Enum.ScrollingDirection.X,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.X,Visible=false})
+local subcategoryStrip = create("ScrollingFrame", {Name="SubcategoryStrip",BackgroundColor3=Color3.fromRGB(36,36,44),BackgroundTransparency=0,BorderSizePixel=0,ScrollBarThickness=0,ScrollingDirection=Enum.ScrollingDirection.X,CanvasSize=UDim2.new(0,0,0,0),AutomaticCanvasSize=Enum.AutomaticSize.X,Visible=false})
 subcategoryStrip.Parent=mainFrame
 create("UIListLayout",{FillDirection=Enum.FillDirection.Horizontal,Padding=UDim.new(0,5),SortOrder=Enum.SortOrder.LayoutOrder}).Parent=subcategoryStrip
-local subcategoryLeftButton=create("TextButton",{Name="SubcategoryLeftArrow",Size=UDim2.fromOffset(22,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.6,Text="‹",TextColor3=Color3.new(1,1,1),TextSize=20,Font=Enum.Font.GothamBold,Visible=false}); subcategoryLeftButton.Parent=mainFrame
-local subcategoryRightButton=create("TextButton",{Name="SubcategoryRightArrow",Size=UDim2.fromOffset(22,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.6,Text="›",TextColor3=Color3.new(1,1,1),TextSize=20,Font=Enum.Font.GothamBold,Visible=false}); subcategoryRightButton.Parent=mainFrame
+local subcategoryLeftButton=create("TextButton",{Name="SubcategoryLeftArrow",Size=UDim2.fromOffset(28,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.35,Text="<",TextColor3=Color3.new(1,1,1),TextSize=16,Font=Enum.Font.GothamBold,Visible=false}); subcategoryLeftButton.Parent=mainFrame
+create("UICorner",{CornerRadius=UDim.new(1,0)}).Parent=subcategoryLeftButton
+local subcategoryRightButton=create("TextButton",{Name="SubcategoryRightArrow",Size=UDim2.fromOffset(28,28),BackgroundColor3=Color3.fromRGB(0,0,0),BackgroundTransparency=0.35,Text=">",TextColor3=Color3.new(1,1,1),TextSize=16,Font=Enum.Font.GothamBold,Visible=false}); subcategoryRightButton.Parent=mainFrame
+create("UICorner",{CornerRadius=UDim.new(1,0)}).Parent=subcategoryRightButton
 local mainCategoryLayout = create("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	Padding = UDim.new(0, 5),
@@ -807,19 +837,21 @@ local mainCategoryLayout = create("UIListLayout", {
 mainCategoryLayout.Parent = mainCategoryStrip
 
 local categoryLeftButton = create("TextButton", {
-	Name = "CategoryLeftArrow", Size = UDim2.fromOffset(22, 30),
-	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.6,
-	Text = "‹", TextColor3 = Color3.new(1,1,1), TextSize = 22, Font = Enum.Font.GothamBold,
+	Name = "CategoryLeftArrow", Size = UDim2.fromOffset(30, 30),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.35,
+	Text = "<", TextColor3 = Color3.new(1,1,1), TextSize = 16, Font = Enum.Font.GothamBold,
 	Visible = false,
 })
 categoryLeftButton.Parent = mainFrame
+create("UICorner", {CornerRadius = UDim.new(1, 0)}).Parent = categoryLeftButton
 local categoryRightButton = create("TextButton", {
-	Name = "CategoryRightArrow", Size = UDim2.fromOffset(22, 30),
-	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.6,
-	Text = "›", TextColor3 = Color3.new(1,1,1), TextSize = 22, Font = Enum.Font.GothamBold,
+	Name = "CategoryRightArrow", Size = UDim2.fromOffset(30, 30),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.35,
+	Text = ">", TextColor3 = Color3.new(1,1,1), TextSize = 16, Font = Enum.Font.GothamBold,
 	Visible = false,
 })
 categoryRightButton.Parent = mainFrame
+create("UICorner", {CornerRadius = UDim.new(1, 0)}).Parent = categoryRightButton
 
 local filterPanel = create("Frame", {
 	Name = "ExpandedFilterPanel",
