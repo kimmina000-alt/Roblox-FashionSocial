@@ -70,3 +70,9 @@ Reason: players adjust accessories first and then save the adjusted look. VIP ne
 
 D-022 — Entry points (2026-10-19).
 Compact catalog: ⚙ (Avatar Editor) and Wardrobe buttons follow 최근/인기/즐겨찾기/착용 중 in the discovery strip. ⚙ opens the expanded catalog in edit mode and reuses the existing avatar preview. Wardrobe shows a "save outfit" card plus saved outfits in the existing result-card layout.
+
+D-023 — Recent is not persisted (2026-10-19).
+Reason: user decision. Recent resets when the player leaves; it is never written to DataStore.
+
+D-024 — Avatar Editor preview fallback (2026-10-19).
+Preferred: client-only preview humanoid in the expanded catalog preview. If Studio testing shows that is not possible, use a server-built preview model visible only to that player. If that also fails, the KOYA approach is allowed: apply the draft to the live character while editing, and restore the confirmed baseline on Discard/close.
