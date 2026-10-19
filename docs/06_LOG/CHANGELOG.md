@@ -1,3 +1,7 @@
+## 2026-10-19 — Studio code backup audit
+- Added `docs/06_LOG/STUDIO_ONLY_CODE_AUDIT_2026-10-19.md` and ISSUE-CATALOG-006.
+- Backup branch `backup/studio-2026-10-19` holds the verified Studio-only code (reference only).
+
 ## 2026-10-19 — User decisions: Recent, 50 outfits, Avatar Editor order
 - Recent = every item successfully worn at least once in the session, kept after removal (quick-navigation, Catalog, status, data docs).
 - SavedOutfits limit is 50 everywhere; earlier 20 entries in WORKLOG/CHANGELOG marked as corrected.

@@ -196,3 +196,12 @@
 
 ### Next action
 Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctness and typed server-authoritative state before persistence or world expansion.
+
+
+## 2026-10-19 — Studio-only code backup and workflow change
+- Connected Roblox Studio MCP; read the scripts actually running in Studio.
+- Found ChatGPT-era changes that were never pushed (FashionData remote, PlayerDataService, AppearanceCodec, AvatarService edit API, UI tweaks). Restored all six files, verified byte length + djb2 hash against Studio, pushed to `backup/studio-2026-10-19`.
+- Confirmed the 1392 error cause in the real Studio code: forward reference to `refreshWornItems` (ISSUE-CATALOG-006).
+- Listed conflicts with decisions (10 vs 50 outfits, persisted recents, SwitchRig, transform bounds, SetAsync) in `STUDIO_ONLY_CODE_AUDIT_2026-10-19.md`.
+- New workflow: Claude edits → Rojo sync → Claude tests via Studio MCP → user approves → push.
+- No game code changed on `catalog-ui-redesign`.
