@@ -12,6 +12,9 @@ local player = Players.LocalPlayer
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Remotes = FashionGame:WaitForChild("Remotes")
 local TryOnItem = Remotes:WaitForChild("TryOnItem")
+local PlayerData = Remotes:WaitForChild("PlayerData")
+local ReorderDrag = require(script.Parent:WaitForChild("ReorderDrag"))
+local AvatarEditor = require(script.Parent:WaitForChild("AvatarEditor"))
 
 local Config = require(
 	FashionGame:WaitForChild("Shared"):WaitForChild("CatalogConfig")
@@ -59,10 +62,30 @@ local renderCurrentPage: () -> ()
 local refreshWornItems: () -> ()
 local searchCatalog: () -> ()
 local renderCurrentOutfit: () -> ()
-local beginLayerDrag: (number, Frame, InputObject) -> ()
+local recordRecent: (any, string) -> ()
+local toggleFavorite: (number, string, any) -> ()
 
 local catalogPages: Pages? = nil
 local currentPageNumber = 1
+
+-- Browse modes (CATALOG_QUICK_NAVIGATION_IMPLEMENTATION_PLAN): "Catalog" search, "Popular"
+-- (official MostFavorited sort), or a local list: "Recent" (session only, D-020/D-023),
+-- "Favorites" (in-game, persisted), "Wearing" (actual worn snapshot). Local lists never
+-- page in global catalog results.
+local browseMode = "Catalog"
+local recentItems: {any} = {}
+local MAX_RECENT = 100
+local favoriteItems: {any} = {}
+local favoriteSet: {[string]: boolean} = {}
+local favoritesNote: string? = nil
+local itemDetailsCache: {[string]: any} = {}
+local avatarEditor: any = nil
+local openAvatarEditor: () -> ()
+local renderLocalMode: () -> ()
+local showToast: (string) -> ()
+local previewOverride: HumanoidDescription? = nil
+local resultsMessage: TextLabel
+local previewGeneration = 0
 
 local expandedPanel = false
 local cardContentScale = 1
@@ -371,6 +394,8 @@ local function updatePreviewCamera()
 end
 
 local function refreshAvatarPreview()
+	previewGeneration += 1
+	local generation = previewGeneration
 	for _, child in ipairs(avatarPreviewWorld:GetChildren()) do
 		child:Destroy()
 	end
@@ -394,6 +419,22 @@ local function refreshAvatarPreview()
 	clone.Name = "AvatarPreviewCharacter"
 	clone.Parent = avatarPreviewWorld
 	clone:PivotTo(CFrame.new(0, 0, 0))
+	-- Avatar Editor draft: applied to this client-only clone, never to the live character.
+	local override = previewOverride
+	if override then
+		local cloneHumanoid = clone:FindFirstChildOfClass("Humanoid")
+		if cloneHumanoid then
+			local ok, err = pcall(function()
+				cloneHumanoid:ApplyDescriptionAsync(override:Clone())
+			end)
+			if not ok then warn("[CatalogUI] Preview draft apply failed:", err) end
+		end
+		if generation ~= previewGeneration then
+			clone:Destroy()
+			return
+		end
+		clone:PivotTo(CFrame.new(0, 0, 0))
+	end
 	local boundsCFrame, bounds = clone:GetBoundingBox()
 	local viewportSize = avatarViewport.AbsoluteSize
 	local aspect = if viewportSize.Y > 0 then viewportSize.X / viewportSize.Y else 1
@@ -447,8 +488,7 @@ end)
 
 -- These entry points are intentionally placed now; their feature panels are planned.
 avatarEditorButton.MouseButton1Click:Connect(function()
-	print("Avatar Editor 버튼 클릭")
-	statusLabel.Text = "Avatar Editor: per-item transform controls are planned."
+	openAvatarEditor()
 end)
 
 wardrobeButton.MouseButton1Click:Connect(function()
@@ -1163,44 +1203,34 @@ subcategoryStrip.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then subcategoryDragStartX = nil end
 end)
 
-discoveryButtons["최근"].MouseButton1Click:Connect(function()
-	print("[CatalogUI] Recent viewed items selected. Recent history view is a placeholder.")
-end)
-discoveryButtons["인기"].MouseButton1Click:Connect(function()
-	print("[CatalogUI] Popular selected. API-backed sort will be enabled only for supported item types.")
-end)
-discoveryButtons["⚙"].MouseButton1Click:Connect(function()
-	if not expandedPanel then
-		expandedPanel = true
-		updateCatalogLayout()
-		refreshAvatarPreview()
+local MODE_BY_LABEL = { ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing" }
+local function updateDiscoveryHighlight()
+	for label, button in pairs(discoveryButtons) do
+		local active = MODE_BY_LABEL[label] ~= nil and MODE_BY_LABEL[label] == browseMode
+		button.BackgroundColor3 = if active then Color3.fromRGB(78, 78, 94) else Color3.fromRGB(0, 0, 0)
+		button.BackgroundTransparency = if active then 0 else 0.6
 	end
-	print("[CatalogUI] Avatar Editor entry: opened maximized catalog. Editor controls are Stage 1.5.")
+end
+-- Pressing the active mode again returns to the normal catalog.
+local function setBrowseMode(mode: string)
+	if mode == browseMode then
+		mode = "Catalog"
+	end
+	browseMode = mode
+	updateDiscoveryHighlight()
+	searchCatalog()
+end
+for label, mode in pairs(MODE_BY_LABEL) do
+	discoveryButtons[label].MouseButton1Click:Connect(function()
+		setBrowseMode(mode)
+	end)
+end
+discoveryButtons["⚙"].MouseButton1Click:Connect(function()
+	openAvatarEditor()
 end)
 discoveryButtons["옷장"].MouseButton1Click:Connect(function()
 	print("[CatalogUI] Wardrobe selected. Wardrobe is planned after the Avatar Editor (Stage 2).")
 end)
-discoveryButtons["즐겨찾기"].MouseButton1Click:Connect(function()
-	print("[CatalogUI] Favorites selected. Favorites list is a placeholder.")
-end)
-discoveryButtons["착용 중"].MouseButton1Click:Connect(function()
-	print("[CatalogUI] Currently worn selected.")
-	clearContainer(resultsFrame)
-	local n = 0
-	for _, assetId in ipairs(wornOrder) do
-		if currentWornItems[assetId] then
-			local ok, details = pcall(function()
-				return AvatarEditorService:GetItemDetailsAsync(assetId, Enum.AvatarItemType.Asset)
-			end)
-			if ok and typeof(details) == "table" then
-				createItemCard({Id=assetId, Name=details.Name, AssetType=details.AssetType, Price=details.Price}, n + 1)
-				n += 1
-			end
-		end
-	end
-	statusLabel.Text = tostring(n) .. " currently worn items."
-end)
-
 fixedFilterButton.MouseButton1Click:Connect(function()
 	filterPanelOpen = not filterPanelOpen
 	updateCatalogLayout()
@@ -1294,7 +1324,7 @@ updateCatalogLayout = function()
 		panelHeight = math.max(160, viewport.Y - topY - margin)
 		mainFrame.Position = UDim2.fromOffset(margin, topY)
 	else
-		local compactWidth = if isPhone then math.max(140, math.floor(viewport.X * 0.25))
+		local compactWidth = if isPhone then math.max(160, math.floor(viewport.X * 0.4))
 			elseif narrow then math.floor(viewport.X * 0.5)
 			else math.min(760, math.max(280, math.floor(viewport.X * 0.42)))
 		panelWidth = math.min(compactWidth, viewport.X - margin * 2)
@@ -1385,17 +1415,20 @@ updateCatalogLayout = function()
 	local rowY = if phoneCompact then headerY + controlSize + 4 elseif compact then headerY + 70 else headerY + 40
 	local categoryWidth = if expandedPanel then math.max(80, math.floor(innerWidth * (if narrow then 0.32 else 0.42))) else innerWidth
 	local function placeArrowRow(left: TextButton, strip: ScrollingFrame, right: TextButton, rowX: number, y: number, width: number)
+		-- Arrow circles are half the row height (user request 2026-10-19).
+		local diameter = math.floor(rowH / 2)
+		local offsetY = math.floor((rowH - diameter) / 2)
 		left.Visible = true
 		right.Visible = true
-		left.Size = UDim2.fromOffset(rowH, rowH)
-		right.Size = UDim2.fromOffset(rowH, rowH)
-		left.TextSize = if rowH >= 32 then 22 else 20
-		right.TextSize = left.TextSize
-		left.Position = UDim2.fromOffset(rowX, y)
-		right.Position = UDim2.fromOffset(rowX + width - rowH, y)
+		left.Size = UDim2.fromOffset(diameter, diameter)
+		right.Size = UDim2.fromOffset(diameter, diameter)
+		left.TextSize = diameter
+		right.TextSize = diameter
+		left.Position = UDim2.fromOffset(rowX, y + offsetY)
+		right.Position = UDim2.fromOffset(rowX + width - diameter, y + offsetY)
 		strip.Visible = true
-		strip.Position = UDim2.fromOffset(rowX + rowH + 4, y + 2)
-		strip.Size = UDim2.fromOffset(math.max(1, width - rowH * 2 - 8), rowH - 4)
+		strip.Position = UDim2.fromOffset(rowX + diameter + 4, y + 2)
+		strip.Size = UDim2.fromOffset(math.max(1, width - diameter * 2 - 8), rowH - 4)
 	end
 	placeArrowRow(categoryLeftButton, mainCategoryStrip, categoryRightButton, x, rowY, categoryWidth)
 	local subY = rowY + rowH + 4
@@ -1490,6 +1523,33 @@ updateCatalogLayout = function()
 	end
 	currentOutfitTitle.Text = "착용 중인 아이템"
 	previewFrame.Visible = expandedPanel and mainFrame.Visible
+	if resultsMessage then
+		resultsMessage.Position = resultsFrame.Position + UDim2.fromOffset(12, 24)
+		resultsMessage.Size = UDim2.fromOffset(math.max(1, innerWidth - 24), 60)
+	end
+
+	-- Avatar Editor mode: the right box shows the editor instead of catalog controls.
+	local editorOpen = avatarEditor ~= nil and avatarEditor:isOpen()
+	if editorOpen and not expandedPanel then
+		expandedPanel = true
+		updateCatalogLayout()
+		return
+	end
+	titleLabel.Text = if editorOpen then "AVATAR EDITOR" else "CATALOG"
+	if editorOpen then
+		for _, gui in ipairs({
+			discoveryBar, categoryLeftButton, mainCategoryStrip, categoryRightButton,
+			subcategoryLeftButton, subcategoryStrip, subcategoryRightButton,
+			searchBox, searchButton, fixedFilterButton, resultsFrame, backToPacksButton,
+			filterPanel,
+		}) do
+			gui.Visible = false
+		end
+		if resultsMessage then resultsMessage.Visible = false end
+		avatarEditor:layout(x, rowY, innerWidth, math.max(120, panelHeight - rowY - pad))
+	else
+		resultsFrame.Visible = true
+	end
 	positionOpenButton()
 end
 
@@ -1506,6 +1566,13 @@ workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
 end)
 
 expandButton.MouseButton1Click:Connect(function()
+	if expandedPanel and avatarEditor and avatarEditor:isOpen() then
+		avatarEditor:requestClose(function()
+			expandedPanel = false
+			updateCatalogLayout()
+		end)
+		return
+	end
 	expandedPanel = not expandedPanel
 	if expandedPanel then
 		previewManuallyClosed = false
@@ -1528,39 +1595,62 @@ end
 -- CURRENT WORN ITEMS
 --------------------------------------------------
 
--- Layer info from the server snapshot: layered clothing has a WrapLayer Order
--- (higher = drawn on top). The strip shows layered items first, OUTERMOST on the
--- left (KOYA-style), then every other worn item.
+-- Worn snapshot order, shared by the expanded worn strip and the 착용 중 card list:
+--   1. layered clothing, OUTERMOST first (KOYA-style; WrapLayer.Order, higher = on top)
+--   2. other worn items (rigid accessories, classic clothing, makeup, ...)
+--   3. animation poses (idle/walk/run/...) — innermost
+--   4. emotes — always last
 local wornLayerInfo: {[number]: {IsLayered: boolean, Order: number?, Category: string?}} = {}
-local layerDrag: any = nil
+local ANIMATION_CATEGORIES = {
+	ClimbAnimation = true, FallAnimation = true, IdleAnimation = true, JumpAnimation = true,
+	RunAnimation = true, SwimAnimation = true, WalkAnimation = true, MoodAnimation = true,
+}
 
-local function getStripOrder(): ({number}, {number})
-	local layered = {}
-	local others = {}
+local function wornGroup(assetId: number): number
+	local info = wornLayerInfo[assetId]
+	if not info then return 2 end
+	if info.IsLayered then return 1 end
+	if info.Category == "Emote" then return 4 end
+	if info.Category and ANIMATION_CATEGORIES[info.Category] then return 3 end
+	return 2
+end
+
+local function getWornOrder(): ({number}, {number})
 	local wornIndex = {}
 	for index, assetId in ipairs(wornOrder) do wornIndex[assetId] = index end
+	local all = {}
 	for _, assetId in ipairs(wornOrder) do
-		if currentWornItems[assetId] then
-			local info = wornLayerInfo[assetId]
-			if info and info.IsLayered then
-				table.insert(layered, assetId)
-			else
-				table.insert(others, assetId)
-			end
-		end
+		if currentWornItems[assetId] then table.insert(all, assetId) end
 	end
-	table.sort(layered, function(a, b)
-		local orderA = wornLayerInfo[a].Order or 0
-		local orderB = wornLayerInfo[b].Order or 0
-		if orderA ~= orderB then return orderA > orderB end
+	table.sort(all, function(a, b)
+		local groupA, groupB = wornGroup(a), wornGroup(b)
+		if groupA ~= groupB then return groupA < groupB end
+		if groupA == 1 then
+			local orderA = wornLayerInfo[a].Order or 0
+			local orderB = wornLayerInfo[b].Order or 0
+			if orderA ~= orderB then return orderA > orderB end
+		end
 		return (wornIndex[a] or 0) < (wornIndex[b] or 0)
 	end)
-	return layered, others
+	local layered = {}
+	for _, assetId in ipairs(all) do
+		if wornGroup(assetId) == 1 then table.insert(layered, assetId) end
+	end
+	return all, layered
+end
+
+local function editorBlocksAvatarChanges(): boolean
+	if avatarEditor and avatarEditor:isDirty() then
+		showToast("아바타 편집 중인 변경 사항을 먼저 적용하거나 취소하세요.")
+		return true
+	end
+	return false
 end
 
 local function applyLayerOrder(orderedIds: {number})
-	if actionBusy then
+	if actionBusy or editorBlocksAvatarChanges() then
 		renderCurrentOutfit()
+		if browseMode == "Wearing" then renderLocalMode() end
 		return
 	end
 	actionBusy = true
@@ -1568,12 +1658,11 @@ local function applyLayerOrder(orderedIds: {number})
 		local ok, success, message = pcall(function()
 			return TryOnItem:InvokeServer("SetLayerOrder", orderedIds)
 		end)
-		if ok and success == true then
-			statusLabel.Text = "Layer order updated."
-		else
+		if not (ok and success == true) then
 			warn("[CatalogUI] Layer order failed:", success, message)
-			statusLabel.Text = if typeof(message) == "string" then message else "Could not change layer order."
+			showToast(if typeof(message) == "string" then message else "레이어 순서를 바꾸지 못했습니다.")
 		end
+		-- Both views re-render from the same server snapshot, so they stay in sync.
 		refreshWornItems()
 		refreshAvatarPreview()
 	end)
@@ -1585,7 +1674,7 @@ local function applyLayerOrder(orderedIds: {number})
 end
 
 local function removeWornItem(assetId: number)
-	if actionBusy then return end
+	if actionBusy or editorBlocksAvatarChanges() then return end
 	actionBusy = true
 	local handled, handlerError = pcall(function()
 		local ok, success, message = pcall(function()
@@ -1596,7 +1685,6 @@ local function removeWornItem(assetId: number)
 			for i = #wornOrder, 1, -1 do
 				if wornOrder[i] == assetId then table.remove(wornOrder, i) end
 			end
-			renderCurrentOutfit()
 			refreshWornItems()
 			refreshAvatarPreview()
 		else
@@ -1609,17 +1697,64 @@ local function removeWornItem(assetId: number)
 	actionBusy = false
 end
 
+local function layerDragCanStart(): boolean
+	return not actionBusy and not (avatarEditor and avatarEditor:isDirty())
+end
+
+-- Worn strip (left box, expanded mode): drag layered cards to reorder.
+local stripDrag = ReorderDrag.new({
+	container = currentOutfitList,
+	screenGui = screenGui,
+	scrollingFrame = currentOutfitList,
+	isDraggable = function(card) return card:GetAttribute("LayerId") ~= nil end,
+	getId = function(card) return card:GetAttribute("LayerId") end,
+	getImage = function(card) return "rbxthumb://type=Asset&id=" .. tostring(card:GetAttribute("LayerId")) .. "&w=150&h=150" end,
+	canStart = layerDragCanStart,
+	onCommit = applyLayerOrder,
+	onCancel = function() renderCurrentOutfit() end,
+})
+
+-- 착용 중 card list (right box): same reorder, same server call.
+local wearingDrag = ReorderDrag.new({
+	container = resultsFrame,
+	screenGui = screenGui,
+	scrollingFrame = resultsFrame,
+	isDraggable = function(card) return card:GetAttribute("LayerId") ~= nil end,
+	getId = function(card) return card:GetAttribute("LayerId") end,
+	getImage = function(card) return "rbxthumb://type=Asset&id=" .. tostring(card:GetAttribute("LayerId")) .. "&w=150&h=150" end,
+	canStart = layerDragCanStart,
+	onCommit = applyLayerOrder,
+	onCancel = function() renderLocalMode() end,
+})
+
+local function addLayerBadge(parent: GuiObject, number: number)
+	local badge = create("TextLabel", {
+		Name = "LayerNumber",
+		Size = UDim2.fromOffset(16, 14),
+		Position = UDim2.fromOffset(2, 2),
+		BackgroundColor3 = Color3.fromRGB(105, 85, 160),
+		Text = tostring(number),
+		TextColor3 = Color3.new(1, 1, 1),
+		TextSize = 9,
+		Font = Enum.Font.GothamBold,
+		ZIndex = 5,
+	})
+	badge.Parent = parent
+	create("UICorner", {CornerRadius = UDim.new(0, 4)}).Parent = badge
+end
+
 renderCurrentOutfit = function()
-	if layerDrag then return end
+	if stripDrag:isDragging() then return end
 	clearContainer(currentOutfitList)
-	local layered, others = getStripOrder()
-	local function addCard(assetId: number, layoutOrder: number, layerNumber: number?)
+	local ordered = getWornOrder()
+	local layerNumber = 0
+	for index, assetId in ipairs(ordered) do
 		local itemCard = create("Frame", {
 			Name = "Worn_" .. tostring(assetId),
 			Size = UDim2.fromOffset(58, 76),
 			BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 			BackgroundTransparency = 0.6,
-			LayoutOrder = layoutOrder,
+			LayoutOrder = index,
 		})
 		itemCard.Parent = currentOutfitList
 		create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = itemCard
@@ -1633,25 +1768,11 @@ renderCurrentOutfit = function()
 			ScaleType = Enum.ScaleType.Fit,
 		})
 		image.Parent = itemCard
-		if layerNumber then
-			local badge = create("TextLabel", {
-				Name = "LayerNumber",
-				Size = UDim2.fromOffset(16, 14),
-				Position = UDim2.fromOffset(2, 2),
-				BackgroundColor3 = Color3.fromRGB(105, 85, 160),
-				Text = tostring(layerNumber),
-				TextColor3 = Color3.new(1, 1, 1),
-				TextSize = 9,
-				Font = Enum.Font.GothamBold,
-				ZIndex = 3,
-			})
-			badge.Parent = itemCard
-			create("UICorner", {CornerRadius = UDim.new(0, 4)}).Parent = badge
-			image.InputBegan:Connect(function(input)
-				if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-					beginLayerDrag(assetId, itemCard, input)
-				end
-			end)
+		if wornGroup(assetId) == 1 then
+			layerNumber += 1
+			itemCard:SetAttribute("LayerId", assetId)
+			addLayerBadge(itemCard, layerNumber)
+			stripDrag:attach(itemCard, image)
 		end
 		local removeButton = create("TextButton", {
 			Size = UDim2.new(1, -4, 0, 18),
@@ -1668,166 +1789,7 @@ renderCurrentOutfit = function()
 			removeWornItem(assetId)
 		end)
 	end
-	for index, assetId in ipairs(layered) do
-		addCard(assetId, index, index)
-	end
-	for index, assetId in ipairs(others) do
-		addCard(assetId, #layered + index, nil)
-	end
 end
-
---------------------------------------------------
--- LAYER DRAG (worn strip, expanded mode)
--- Mouse: drag starts after moving 6px. Touch: hold 0.3s, then drag
--- (a quick swipe still scrolls the strip). A translucent copy follows the
--- pointer and the other layered cards shift to show the drop position.
---------------------------------------------------
-
-local DRAG_MOVE_THRESHOLD = 6
-local TOUCH_HOLD_SECONDS = 0.3
-
-local function layeredCardsInOrder(): {Frame}
-	local cards = {}
-	for _, child in ipairs(currentOutfitList:GetChildren()) do
-		if child:IsA("Frame") and child:FindFirstChild("LayerNumber") then
-			table.insert(cards, child)
-		end
-	end
-	table.sort(cards, function(a, b) return a.LayoutOrder < b.LayoutOrder end)
-	return cards
-end
-
-local function startLayerDrag()
-	local drag = layerDrag
-	if not drag or drag.active then return end
-	drag.active = true
-	currentOutfitList.ScrollingEnabled = false
-	local card: Frame = drag.card
-	local ghost = create("ImageLabel", {
-		Name = "LayerDragGhost",
-		Size = UDim2.fromOffset(card.AbsoluteSize.X, card.AbsoluteSize.Y),
-		BackgroundColor3 = Color3.fromRGB(60, 60, 72),
-		BackgroundTransparency = 0.35,
-		ImageTransparency = 0.25,
-		Image = "rbxthumb://type=Asset&id=" .. tostring(drag.assetId) .. "&w=150&h=150",
-		ScaleType = Enum.ScaleType.Fit,
-		ZIndex = 300,
-	})
-	create("UICorner", {CornerRadius = UDim.new(0, 6)}).Parent = ghost
-	ghost.Parent = screenGui
-	drag.ghost = ghost
-	card.BackgroundTransparency = 0.85
-	local thumb = card:FindFirstChild("Thumb")
-	if thumb then (thumb :: ImageButton).ImageTransparency = 0.7 end
-end
-
-local function moveLayerDrag(position: Vector3)
-	local drag = layerDrag
-	if not drag or not drag.active then return end
-	local ghost: ImageLabel = drag.ghost
-	local origin = screenGui.AbsolutePosition
-	ghost.Position = UDim2.fromOffset(
-		position.X - origin.X - ghost.AbsoluteSize.X / 2,
-		position.Y - origin.Y - ghost.AbsoluteSize.Y / 2
-	)
-	-- Drop slot = number of other layered cards whose centre is left of the pointer.
-	local cards = layeredCardsInOrder()
-	local others = {}
-	for _, c in ipairs(cards) do
-		if c ~= drag.card then table.insert(others, c) end
-	end
-	local slot = 1
-	for _, c in ipairs(others) do
-		if position.X > c.AbsolutePosition.X + c.AbsoluteSize.X / 2 then
-			slot += 1
-		end
-	end
-	local orderIndex = 1
-	for index, c in ipairs(others) do
-		if index == slot then orderIndex += 1 end
-		c.LayoutOrder = orderIndex
-		orderIndex += 1
-	end
-	drag.card.LayoutOrder = slot
-	drag.slot = slot
-end
-
-local function endLayerDrag(commit: boolean)
-	local drag = layerDrag
-	layerDrag = nil
-	currentOutfitList.ScrollingEnabled = true
-	if not drag then return end
-	if drag.ghost then drag.ghost:Destroy() end
-	if not drag.active or not commit then
-		renderCurrentOutfit()
-		return
-	end
-	local ordered = {}
-	for _, c in ipairs(layeredCardsInOrder()) do
-		local id = tonumber(string.match(c.Name, "^Worn_(%d+)$"))
-		if id then table.insert(ordered, id) end
-	end
-	local previous = getStripOrder()
-	local changed = #previous ~= #ordered
-	for index, id in ipairs(ordered) do
-		if previous[index] ~= id then changed = true end
-	end
-	if not changed then
-		renderCurrentOutfit()
-		return
-	end
-	applyLayerOrder(ordered)
-end
-
-beginLayerDrag = function(assetId: number, card: Frame, input: InputObject)
-	if layerDrag or actionBusy or not expandedPanel then return end
-	layerDrag = {
-		assetId = assetId,
-		card = card,
-		input = input,
-		start = input.Position,
-		active = false,
-		isTouch = input.UserInputType == Enum.UserInputType.Touch,
-	}
-	if layerDrag.isTouch then
-		local thisDrag = layerDrag
-		task.delay(TOUCH_HOLD_SECONDS, function()
-			if layerDrag == thisDrag and not thisDrag.active then
-				startLayerDrag()
-				moveLayerDrag(thisDrag.input.Position)
-			end
-		end)
-	end
-end
-
-UserInputService.InputChanged:Connect(function(input)
-	local drag = layerDrag
-	if not drag then return end
-	local relevant = (drag.isTouch and input == drag.input)
-		or (not drag.isTouch and input.UserInputType == Enum.UserInputType.MouseMovement)
-	if not relevant then return end
-	local moved = (input.Position - drag.start).Magnitude
-	if not drag.active then
-		if drag.isTouch then
-			if moved > 10 then
-				-- A quick swipe is a scroll, not a drag.
-				layerDrag = nil
-			end
-			return
-		end
-		if moved < DRAG_MOVE_THRESHOLD then return end
-		startLayerDrag()
-	end
-	moveLayerDrag(input.Position)
-end)
-
-UserInputService.InputEnded:Connect(function(input)
-	local drag = layerDrag
-	if not drag then return end
-	if input == drag.input or (not drag.isTouch and input.UserInputType == Enum.UserInputType.MouseButton1) then
-		endLayerDrag(true)
-	end
-end)
 
 refreshWornItems = function()
 	local success, serverSuccess, result = pcall(function()
@@ -1877,6 +1839,12 @@ refreshWornItems = function()
 		updateButton()
 	end
 	renderCurrentOutfit()
+	if browseMode == "Wearing" and not wearingDrag:isDragging() then
+		renderLocalMode()
+	end
+	if avatarEditor and avatarEditor:isOpen() and not avatarEditor:isDirty() and not avatarEditor.busy then
+		task.spawn(function() avatarEditor:reloadState() end)
+	end
 
 	if previewFrame.Visible then
 		refreshAvatarPreview()
@@ -1886,6 +1854,176 @@ end
 --------------------------------------------------
 -- CARD
 --------------------------------------------------
+
+--------------------------------------------------
+-- TOAST / EMPTY STATE
+--------------------------------------------------
+
+local toastLabel = create("TextLabel", {
+	Name = "Toast",
+	AnchorPoint = Vector2.new(0.5, 1),
+	AutomaticSize = Enum.AutomaticSize.Y,
+	Size = UDim2.fromOffset(240, 0),
+	BackgroundColor3 = Color3.fromRGB(20, 20, 26),
+	BackgroundTransparency = 0.1,
+	TextColor3 = Color3.fromRGB(240, 240, 245),
+	TextSize = 11,
+	Font = Enum.Font.GothamBold,
+	TextWrapped = true,
+	Visible = false,
+	ZIndex = 250,
+})
+create("UIPadding", {
+	PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12),
+	PaddingTop = UDim.new(0, 6), PaddingBottom = UDim.new(0, 6),
+}).Parent = toastLabel
+create("UICorner", {CornerRadius = UDim.new(0, 8)}).Parent = toastLabel
+toastLabel.Parent = screenGui
+local toastToken = 0
+showToast = function(text: string)
+	toastToken += 1
+	local token = toastToken
+	local frame = mainFrame
+	toastLabel.Size = UDim2.fromOffset(math.max(140, math.min(320, frame.AbsoluteSize.X - 16)), 0)
+	toastLabel.Position = UDim2.fromOffset(
+		frame.AbsolutePosition.X - screenGui.AbsolutePosition.X + frame.AbsoluteSize.X / 2,
+		frame.AbsolutePosition.Y - screenGui.AbsolutePosition.Y + frame.AbsoluteSize.Y - 12
+	)
+	toastLabel.Text = text
+	toastLabel.Visible = true
+	task.delay(2.6, function()
+		if token == toastToken then toastLabel.Visible = false end
+	end)
+end
+
+-- Distinct empty / unsupported / error states over the results area.
+resultsMessage = create("TextLabel", {
+	Name = "ResultsMessage",
+	BackgroundTransparency = 1,
+	TextColor3 = Color3.fromRGB(175, 175, 185),
+	TextSize = 12,
+	Font = Enum.Font.Gotham,
+	TextWrapped = true,
+	Visible = false,
+	ZIndex = 4,
+})
+resultsMessage.Parent = mainFrame
+local function setResultsMessage(text: string?)
+	resultsMessage.Position = resultsFrame.Position + UDim2.fromOffset(12, 24)
+	resultsMessage.Size = UDim2.new(0, math.max(1, resultsFrame.AbsoluteSize.X - 24), 0, 60)
+	resultsMessage.Text = text or ""
+	resultsMessage.Visible = text ~= nil and text ~= "" and resultsFrame.Visible
+end
+
+--------------------------------------------------
+-- RECENT (session only) / FAVORITES (persisted) / ITEM DETAILS
+--------------------------------------------------
+
+local function itemKey(itemType: string, id: number): string
+	return itemType .. ":" .. tostring(id)
+end
+
+-- Recent = every item successfully worn at least once this session, kept after
+-- removal, newest first, reset on rejoin (D-020 / D-023).
+recordRecent = function(item: any, itemType: string)
+	local id = item.Id
+	if typeof(id) ~= "number" then return end
+	for index = #recentItems, 1, -1 do
+		if recentItems[index].Id == id and recentItems[index].ItemType == itemType then
+			table.remove(recentItems, index)
+		end
+	end
+	local entry = table.clone(item)
+	entry.ItemType = itemType
+	table.insert(recentItems, 1, entry)
+	while #recentItems > MAX_RECENT do table.remove(recentItems) end
+	itemDetailsCache[itemKey(itemType, id)] = entry
+end
+
+local function refreshFavoriteStars()
+	for _, star in ipairs(resultsFrame:GetDescendants()) do
+		if star.Name == "FavoriteStar" and star:IsA("TextLabel") then
+			star.Visible = favoriteSet[star:GetAttribute("FavoriteKey")] == true
+		end
+	end
+end
+
+local function setFavorites(result: any)
+	favoriteItems = {}
+	favoriteSet = {}
+	for _, entry in ipairs(result.favorites or {}) do
+		table.insert(favoriteItems, entry)
+		favoriteSet[itemKey(entry.itemType, entry.id)] = true
+	end
+	favoritesNote = result.note
+end
+
+local function loadFavorites()
+	local ok, success, result = pcall(function()
+		return PlayerData:InvokeServer("GetFavorites", nil)
+	end)
+	if ok and success == true and typeof(result) == "table" then
+		setFavorites(result)
+		refreshFavoriteStars()
+	else
+		warn("[CatalogUI] Could not load favorites:", success, result)
+	end
+end
+
+toggleFavorite = function(id: number, itemType: string, item: any)
+	local ok, success, result = pcall(function()
+		return PlayerData:InvokeServer("ToggleFavorite", { id = id, itemType = itemType })
+	end)
+	if not (ok and success == true and typeof(result) == "table") then
+		showToast(if typeof(result) == "string" then result else "즐겨찾기를 바꾸지 못했습니다.")
+		return
+	end
+	setFavorites(result)
+	if item then itemDetailsCache[itemKey(itemType, id)] = item end
+	refreshFavoriteStars()
+	local message = if result.favorited then "즐겨찾기에 추가했습니다." else "즐겨찾기에서 해제했습니다."
+	if favoritesNote then message ..= "\n" .. favoritesNote end
+	showToast(message)
+	if browseMode == "Favorites" then renderLocalMode() end
+end
+
+-- Batch details through AvatarEditorService:GetBatchItemDetails (cached).
+local function fetchItemDetails(entries: {{id: number, itemType: string}}): {[string]: any}
+	local result = {}
+	local missing = { Asset = {}, Bundle = {} }
+	for _, entry in ipairs(entries) do
+		local key = itemKey(entry.itemType, entry.id)
+		if itemDetailsCache[key] then
+			result[key] = itemDetailsCache[key]
+		elseif missing[entry.itemType] then
+			table.insert(missing[entry.itemType], entry.id)
+		end
+	end
+	for itemType, ids in pairs(missing) do
+		local index = 1
+		while index <= #ids do
+			local chunk = {}
+			for i = index, math.min(index + 99, #ids) do table.insert(chunk, ids[i]) end
+			index += 100
+			local ok, details = pcall(function()
+				return AvatarEditorService:GetBatchItemDetails(chunk, Enum.AvatarItemType[itemType])
+			end)
+			if ok and typeof(details) == "table" then
+				for _, detail in ipairs(details) do
+					if typeof(detail) == "table" and typeof(detail.Id) == "number" then
+						detail.ItemType = itemType
+						local key = itemKey(itemType, detail.Id)
+						itemDetailsCache[key] = detail
+						result[key] = detail
+					end
+				end
+			else
+				warn("[CatalogUI] GetBatchItemDetails failed:", details)
+			end
+		end
+	end
+	return result
+end
 
 -- Shoes are sold on Roblox only as "Shoes" bundles (left + right shoe assets;
 -- the individual shoe assets are off-sale). Wear/remove them as a pair from the
@@ -1978,6 +2116,47 @@ createItemCard = function(item: any, layoutOrder: number)
 		ScaleType = Enum.ScaleType.Fit,
 	})
 	thumbnail.Parent = cardContent
+
+	-- In-game Favorites: double-click / double-tap the image (0.5s). The image has no
+	-- single-click action, so nothing has to wait for the double-click window.
+	local favoriteType = if isBundle then "Bundle" else "Asset"
+	local favoriteKey = favoriteType .. ":" .. tostring(assetId)
+	local star = create("TextLabel", {
+		Name = "FavoriteStar",
+		Size = UDim2.fromOffset(24, 24),
+		Position = UDim2.fromOffset(6, 6),
+		BackgroundTransparency = 1,
+		Text = "★",
+		TextColor3 = Color3.fromRGB(255, 212, 64),
+		TextStrokeTransparency = 0.4,
+		TextSize = 22,
+		Font = Enum.Font.GothamBold,
+		Visible = favoriteSet[favoriteKey] == true,
+		ZIndex = 4,
+	})
+	star:SetAttribute("FavoriteKey", favoriteKey)
+	star.Parent = cardContent
+	local imageHitArea = create("TextButton", {
+		Name = "ImageHitArea",
+		Size = thumbnail.Size,
+		Position = thumbnail.Position,
+		BackgroundTransparency = 1,
+		Text = "",
+		AutoButtonColor = false,
+		ZIndex = 3,
+	})
+	imageHitArea.Parent = cardContent
+	local lastImageTap = 0
+	imageHitArea.MouseButton1Click:Connect(function()
+		local now = os.clock()
+		if now - lastImageTap <= 0.5 then
+			lastImageTap = 0
+			toggleFavorite(assetId, favoriteType, item)
+		else
+			lastImageTap = now
+		end
+	end)
+	card:SetAttribute("ImageHitAreaName", "ImageHitArea")
 
 	local thumbnailCorner = create("UICorner", {
 		CornerRadius = UDim.new(0, 6),
@@ -2106,6 +2285,9 @@ createItemCard = function(item: any, layoutOrder: number)
 		if actionBusy then
 			return
 		end
+		if editorBlocksAvatarChanges() then
+			return
+		end
 
 		if isShoeBundle then
 			actionBusy = true
@@ -2120,6 +2302,7 @@ createItemCard = function(item: any, layoutOrder: number)
 				end)
 				if success and result == true then
 					if not wasWorn then
+						recordRecent(item, "Bundle")
 						for _, id in ipairs(shoeBundleAssets[assetId] or {}) do
 							for i = #wornOrder, 1, -1 do if wornOrder[i] == id then table.remove(wornOrder, i) end end
 							table.insert(wornOrder, 1, id)
@@ -2186,6 +2369,7 @@ createItemCard = function(item: any, layoutOrder: number)
 				end)
 
 				if success and result == true then
+					recordRecent(item, "Asset")
 					for i = #wornOrder, 1, -1 do if wornOrder[i] == assetId then table.remove(wornOrder, i) end end
 					table.insert(wornOrder, 1, assetId)
 					task.wait(0.2)
@@ -2209,6 +2393,7 @@ createItemCard = function(item: any, layoutOrder: number)
 
 		actionBusy = false
 	end)
+	return card
 end
 
 --------------------------------------------------
@@ -2318,6 +2503,100 @@ backToPacksButton.MouseButton1Click:Connect(function()
 end)
 
 --------------------------------------------------
+-- LOCAL LISTS: Recent / Favorites / Wearing
+-- Search keyword and category filter apply inside the list only.
+--------------------------------------------------
+
+local function categoryTypeNames(): ({[string]: boolean}?, {[string]: boolean}?)
+	if currentCategory == "전체" or currentCategory == "All" then return nil, nil end
+	local assets, bundles = {}, {}
+	for _, assetType in ipairs(currentCategoryAssetTypes or {}) do
+		if typeof(assetType) == "EnumItem" then assets[assetType.Name] = true end
+	end
+	for _, bundleType in ipairs(currentCategoryBundleTypes or {}) do
+		if typeof(bundleType) == "EnumItem" then bundles[bundleType.Name] = true end
+	end
+	return assets, bundles
+end
+
+local function passesLocalFilters(detail: any): boolean
+	local keyword = string.lower(searchBox.Text or "")
+	if keyword ~= "" and not string.find(string.lower(tostring(detail.Name or "")), keyword, 1, true) then
+		return false
+	end
+	local assets, bundles = categoryTypeNames()
+	if assets and bundles then
+		if detail.ItemType == "Bundle" then
+			return bundles[tostring(detail.BundleType)] == true
+		end
+		return assets[tostring(detail.AssetType)] == true
+	end
+	return true
+end
+
+local EMPTY_MESSAGES = {
+	Recent = "이번 접속에서 입어 본 아이템이 없습니다. 최근 목록은 다시 접속하면 비워집니다.",
+	Favorites = "즐겨찾기한 아이템이 없습니다. 아이템 이미지를 두 번 눌러 추가하세요.",
+	Wearing = "착용 중인 아이템이 없습니다.",
+}
+
+renderLocalMode = function()
+	if browseMode == "Catalog" or browseMode == "Popular" then return end
+	local mode = browseMode
+	catalogPages = nil
+	bundleContentsOpen = false
+	backToPacksButton.Visible = false
+	wornButtonUpdaters = {}
+	table.clear(cardContentUIScales)
+	clearContainer(resultsFrame)
+	resultsFrame.CanvasPosition = Vector2.zero
+
+	local entries = {}
+	if mode == "Recent" then
+		for _, item in ipairs(recentItems) do
+			table.insert(entries, { id = item.Id, itemType = item.ItemType })
+		end
+	elseif mode == "Favorites" then
+		for _, favorite in ipairs(favoriteItems) do
+			table.insert(entries, { id = favorite.id, itemType = favorite.itemType })
+		end
+	else
+		for _, assetId in ipairs((getWornOrder())) do
+			table.insert(entries, { id = assetId, itemType = "Asset" })
+		end
+	end
+	local details = fetchItemDetails(entries)
+	if browseMode ~= mode then return end
+
+	local count = 0
+	local layerNumber = 0
+	for _, entry in ipairs(entries) do
+		local detail = details[itemKey(entry.itemType, entry.id)]
+		if detail and passesLocalFilters(detail) then
+			count += 1
+			local card = createItemCard(detail, count)
+			if card and mode == "Wearing" and wornGroup(entry.id) == 1 then
+				layerNumber += 1
+				card:SetAttribute("LayerId", entry.id)
+				addLayerBadge(card, layerNumber)
+				local badge = card:FindFirstChild("LayerNumber")
+				if badge then (badge :: TextLabel).Position = UDim2.new(1, -20, 0, 4) end
+				local handle = card:FindFirstChild("ImageHitArea", true)
+				if handle then wearingDrag:attach(card, handle :: GuiObject) end
+			end
+		end
+	end
+	for _, contentScale in ipairs(cardContentUIScales) do
+		contentScale.Scale = cardContentScale
+	end
+	if count == 0 then
+		setResultsMessage(if #entries == 0 then EMPTY_MESSAGES[mode] else "검색어·카테고리에 맞는 아이템이 이 목록에 없습니다.")
+	else
+		setResultsMessage(nil)
+	end
+end
+
+--------------------------------------------------
 -- ★ RENDER CURRENT PAGE
 --------------------------------------------------
 
@@ -2382,6 +2661,12 @@ searchCatalog = function()
 	if searchBusy then
 		return
 	end
+	if browseMode ~= "Catalog" and browseMode ~= "Popular" then
+		sortMenu.Visible = false
+		renderLocalMode()
+		return
+	end
+	setResultsMessage(nil)
 
 	searchBusy = true
 	resultsFrame.CanvasPosition = Vector2.zero
@@ -2418,8 +2703,10 @@ searchCatalog = function()
 
 	params.SearchKeyword = currentKeyword
 	params.Limit = Config.SearchLimit
-	params.SortType = currentSort
-	params.SortAggregation = Config.SortAggregation
+	-- Popular: Roblox MostFavorited over the past month (fallback: all time, stated).
+	local isPopular = browseMode == "Popular"
+	params.SortType = if isPopular then Enum.CatalogSortType.MostFavorited else currentSort
+	params.SortAggregation = if isPopular then Enum.CatalogSortAggregation.PastMonth else Config.SortAggregation
 	params.MinPrice = currentMinPrice
 	params.IncludeOffSale = currentIncludeOffSale
 	params.CategoryFilter = Config.CategoryFilter
@@ -2476,10 +2763,20 @@ searchCatalog = function()
 	local success, pages = pcall(function()
 		return AvatarEditorService:SearchCatalogAsync(params)
 	end)
+	if not success and isPopular then
+		warn("[CatalogController] Popular PastMonth failed, retrying AllTime:", pages)
+		params.SortAggregation = Enum.CatalogSortAggregation.AllTime
+		success, pages = pcall(function()
+			return AvatarEditorService:SearchCatalogAsync(params)
+		end)
+		if success then showToast("인기: 지난 한 달 집계를 쓸 수 없어 전체 기간 기준으로 표시합니다.") end
+	end
 
 	if not success then
 		warn("[CatalogController] Search failed:", pages)
 		statusLabel.Text = "Search failed. Check Output."
+		clearContainer(resultsFrame)
+		setResultsMessage("검색에 실패했습니다 (Roblox API 오류). 잠시 후 다시 시도하세요.")
 		searchBusy = false
 		return
 	end
@@ -2495,6 +2792,13 @@ searchCatalog = function()
 	currentPageNumber = 1
 	renderCurrentPage()
 	statusLabel.Text = ""
+	local shown = 0
+	for _, child in ipairs(resultsFrame:GetChildren()) do
+		if child:IsA("Frame") then shown += 1 end
+	end
+	if shown == 0 then
+		setResultsMessage(if currentKeyword ~= "" then "\"" .. currentKeyword .. "\" 검색 결과가 없습니다." else "이 카테고리에 표시할 아이템이 없습니다.")
+	end
 
 	searchBusy = false
 end
@@ -2505,6 +2809,7 @@ end
 selectCategory = function(name: string, assetTypes, bundleTypes)
 	if (not assetTypes or #assetTypes == 0) and (not bundleTypes or #bundleTypes == 0) then
 		statusLabel.Text = "이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다."
+		showToast("이 카테고리는 Roblox 카탈로그 API로 검색할 수 없어 준비 중입니다.")
 		return
 	end
 
@@ -2603,7 +2908,7 @@ renderSubcategoryStrip = function(groupName: string?)
 			print("중분류 카테고리 버튼 클릭:", entry.label)
 			if entry.data then selectCategory(entry.data.Name, entry.data.AssetTypes, entry.data.BundleTypes)
 			elseif #entry.assetTypes > 0 or #entry.bundleTypes > 0 then selectCategory(entry.name, entry.assetTypes, entry.bundleTypes)
-			else statusLabel.Text = "이 카테고리는 현재 Roblox API에서 직접 검색할 수 없습니다." end
+			else showToast("이 카테고리는 Roblox 카탈로그 API로 검색할 수 없어 준비 중입니다.") end
 		end)
 	end
 	subcategoryStrip.CanvasPosition = Vector2.new(keepScrollX, 0)
@@ -2659,6 +2964,9 @@ end)
 --------------------------------------------------
 
 local function loadNextCatalogPage()
+	if browseMode ~= "Catalog" and browseMode ~= "Popular" then
+		return
+	end
 	if searchBusy or not catalogPages or catalogPages.IsFinished then
 		return
 	end
@@ -2701,12 +3009,21 @@ end)
 -- OPEN / CLOSE
 --------------------------------------------------
 
-local function closeCatalog()
+local function closeCatalogNow()
 	mainFrame.Visible = false
 	previewFrame.Visible = false
 	sortMenu.Visible = false
 	filterPanelOpen = false
 	filterPanel.Visible = false
+	toastLabel.Visible = false
+end
+
+local function closeCatalog()
+	if avatarEditor and avatarEditor:isOpen() then
+		avatarEditor:requestClose(closeCatalogNow)
+		return
+	end
+	closeCatalogNow()
 end
 
 openButton.MouseButton1Click:Connect(function()
@@ -2754,6 +3071,46 @@ maxPriceBox.FocusLost:Connect(function(enterPressed)
 		searchCatalog()
 	end
 end)
+
+--------------------------------------------------
+-- AVATAR EDITOR
+--------------------------------------------------
+
+local function setPreviewDescription(description: HumanoidDescription?)
+	previewOverride = description
+	if previewFrame.Visible then
+		refreshAvatarPreview()
+	end
+end
+
+avatarEditor = AvatarEditor.new({
+	mainFrame = mainFrame,
+	screenGui = screenGui,
+	TryOnItem = TryOnItem,
+	setPreviewDescription = setPreviewDescription,
+	refreshWornItems = function()
+		refreshWornItems()
+	end,
+	onOpenChanged = function(_open: boolean)
+		filterPanelOpen = false
+		updateCatalogLayout()
+	end,
+})
+
+-- ⚙ (preview box or minimized strip) opens the maximized catalog in edit mode (D-022).
+openAvatarEditor = function()
+	if not mainFrame.Visible then return end
+	if not expandedPanel then
+		expandedPanel = true
+		previewManuallyClosed = false
+	end
+	updateCatalogLayout()
+	avatarEditor:open()
+	updateCatalogLayout()
+	refreshAvatarPreview()
+end
+
+task.spawn(loadFavorites)
 
 --------------------------------------------------
 -- INITIALIZE

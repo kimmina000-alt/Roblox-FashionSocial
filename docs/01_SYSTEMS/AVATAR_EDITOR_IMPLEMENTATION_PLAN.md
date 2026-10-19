@@ -79,6 +79,21 @@ Avatar Editor는 Roblox 애플리케이션의 아바타 편집 경험을 참고�
 
 조사 결과에 사용한 공식 문서 URL과 확인된 제약 사항을 함께 기록한다.
 
+### 조사 결과 (2026-10-19, Roblox Studio에서 직접 확인)
+
+| 기능 | 공식 API 및 적용 방식 | 적용 가능한 대상 | 제약 사항 | 구현 |
+|---|---|---|---|---|
+| 장신구 위치·회전·크기 | `AccessoryDescription.Position/Rotation/Scale` (회전 단위: 도). 범위: `AvatarEditorService:GetAvatarRules()` › `AccessoryRefinementTypes`, `AccessoryRefinementLower/UpperBounds` | 규칙상 6종만: 모자(8)·얼굴(42)·목(43)·어깨(44)·앞(45)·뒤(46) | 헤어(41)·허리(47)·레이어드 의상은 규칙에 없음 → "조정 불가" 표시. 범위: 위치 ±0.25, 회전 ±30°, 크기 0.8~1.2 (2026-10-19 값) | 구현. 서버가 규칙 범위로 clamp |
+| 체형 | `HumanoidDescription` `HeightScale/WidthScale/HeadScale/ProportionScale/BodyTypeScale`. 범위: `GetAvatarRules().Scales` | R15 | `DepthScale`은 공식 규칙에 없어 제외. 범위: 키 0.9~1.05, 너비 0.7~1, 머리 0.95~1, 비율 0~1, 체형 0~1 | 구현 (R6이면 비활성 안내) |
+| R6/R15 | — | — | 게임 전체 정책(결정 잠금) | 노출하지 않음 |
+| 복장 레이어링 | `AccessoryDescription.Order` = `WrapLayer.Order` (높을수록 위) | 레이어드 의상 | — | 착용 목록·착용 중 카드에서 드래그 (D-026, D-029) |
+| 메이크업 레이어링 | `MakeupDescription.Order` (낮은 값 먼저, 높은 값이 위. 같으면 AssetId 순) | Face/Lip/Eye 메이크업 | `MakeupDescription`에 위치·회전·크기 속성 없음 → 분류 3 "현재 메이크업 시스템에서 지원되지 않음" | 순서만 구현 |
+| 피부색 | `HumanoidDescription` 부위별 `HeadColor/TorsoColor/LeftArmColor/RightArmColor/LeftLegColor/RightLegColor`. 팔레트: `GetAvatarRules().BasicBodyColorsPalette`(30색) | 6부위 | 서버는 `BasicBodyColorsPalette`/`BodyColorsPalette`에 있는 색만 허용 | 구현 (전체/부위별) |
+| 편집 미리보기 | 클라이언트에서 만든 복제 캐릭터에 `Humanoid:ApplyDescriptionAsync` (클라이언트 전용) | 미리보기 복제본 | 실제 캐릭터는 Apply 성공 후에만 변경 | D-024 1순위 방식 확정 |
+| 다른 아이템 착용 시 조정값 유지 | `GetAccessories(true)` 테이블에 Position/Rotation/Scale 포함 → `SetAccessories`로 그대로 보존 | — | — | 기존 착용·해제 경로 유지 |
+
+출처: AccessoryDescription, HumanoidDescription, MakeupDescription, WrapLayer, AvatarEditorService 공식 레퍼런스 (create.roblox.com/docs/reference/engine/...).
+
 **중요:** 사용자가 원하는 기능을 구현하기 위해 API의 의미를 임의로 확대 해석하지 않는다. 기능을 그대로 구현할 수 없는 경우 구현을 진행하기 전에 원인과 가능한 대안을 보고한다.
 
 ---

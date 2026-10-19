@@ -16,7 +16,7 @@ Decision / Fix:
 ---
 
 ### ISSUE-AVATAR-001 — Makeup item rejected by wear service
-Status: Open
+Status: Closed 2026-10-19 (Studio: Face and Lip makeup wear succeed, appear in GetCurrent)
 Area: Tech / Avatar / Catalog
 Description: Face makeup was selected in the catalog, but the server rejected the wear request.
 Steps:
@@ -31,7 +31,7 @@ Investigation notes:
 Decision / Fix: Keep makeup Wear enabled only when the server path is verified. Add a type-specific handler and a matching remove path, then test each makeup type in Studio.
 
 ### ISSUE-CATALOG-002 — Animation subcategories return zero results
-Status: Open
+Status: Cause confirmed 2026-10-19 — individual Idle/Walk/Run/Mood animations are off-sale (sold in packs). With IncludeOffSale the API returns them; config already sets it and the off-sale fix keeps it. UI re-test pending
 Area: Tech / Catalog
 Description: Selecting individual animation subcategories in Studio returns 0 items loaded.
 Steps:
@@ -81,7 +81,7 @@ Actual: Local client guard only was found in the inspected path.
 Decision / Fix: Add server-side action gate and test rapid duplicate/mixed requests and failure cleanup.
 
 ### ISSUE-AUDIT-003 — Applied appearance is read but not fully checked against requested change
-Status: Open
+Status: Fixed on `feat/catalog-editor-1019` (Wear confirms the asset in the applied description; ApplyEdit returns the read-back state)
 Area: Tech / Avatar
 Description: The service applies a HumanoidDescription and reads GetAppliedDescription(), but the inspected path logs accessory details and returns success without checking that the requested item/property is present in the resulting applied state.
 Expected: Success means the intended change was verified in the actual applied description.
@@ -89,7 +89,7 @@ Actual: Post-apply read/logging is present; requested-change comparison was not 
 Decision / Fix: Implement type-specific post-apply verification and return a confirmed snapshot/result.
 
 ### ISSUE-AUDIT-004 — Active UI has placeholder discovery and Wardrobe controls
-Status: Open
+Status: Partly fixed on `feat/catalog-editor-1019` (Recent/Popular/Favorites/Wearing and Avatar Editor work; Wardrobe is Stage 2)
 Area: UI / Catalog / Persistence
 Description: Recent, Popular and Favorites handlers log placeholder messages; Wardrobe and Avatar Editor display planned-status text. Wearing has a partial list path.
 Expected: Each enabled control performs its documented behavior, or is visibly marked disabled/not yet available.
@@ -133,3 +133,8 @@ Status: Fixed on `feat/catalog-ui-1019` (Studio-tested)
 Area: Catalog / Avatar
 Cause: Roblox sells shoes only as `Shoes` bundles; the individual Left/RightShoeAccessory assets are off-sale (search with on-sale assets only returns 0). All Shoes results were bundles, and every bundle card showed CONTENTS.
 Fix: Shoes bundle cards show WEAR/WORN. Server `WearShoeBundle` reads the bundle on the server, adds both shoe assets in one apply (replacing shoes on the same side). Card WORN → `RemoveMany` removes both. The worn strip keeps separate left/right cards with separate remove.
+
+### ISSUE-CATALOG-008 — 착용 중 view showed items that were not worn
+Status: Fixed on `feat/catalog-editor-1019` (Studio-tested)
+Cause: the 착용 중 view drew worn cards into the results list, but scrolling then triggered catalog pagination and appended normal search results.
+Fix: browse modes; local lists (Recent/Favorites/Wearing) never page the catalog. Studio: 19 worn → 19 cards, still 19 after scrolling to the end.

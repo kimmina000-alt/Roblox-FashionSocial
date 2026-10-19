@@ -396,7 +396,7 @@ end
 -- WEAR ITEM
 --------------------------------------------------
 
-function AvatarService.TryOnItem(
+local function tryOnItemInner(
 	player: Player,
 	assetId: number
 ): (boolean, string)
@@ -657,6 +657,21 @@ function AvatarService.TryOnItem(
 		humanoid,
 		description
 	)
+end
+
+-- Public wear: apply, then confirm the requested item is really on the avatar
+-- (ISSUE-AUDIT-003). A silent engine rejection is reported as a failure.
+function AvatarService.TryOnItem(player: Player, assetId: number): (boolean, string)
+	local ok, message = tryOnItemInner(player, assetId)
+	if not ok then
+		return ok, message
+	end
+	for _, item in ipairs(AvatarService.GetCurrentItems(player)) do
+		if item.AssetId == assetId then
+			return true, message
+		end
+	end
+	return false, "Roblox did not apply this item to the avatar."
 end
 
 --------------------------------------------------
@@ -957,6 +972,291 @@ function AvatarService.SetLayerOrder(player: Player, orderedIds: any): (boolean,
 	end
 	description:SetAccessories(accessories, true)
 	return applyDescription(humanoid, description)
+end
+
+--------------------------------------------------
+-- AVATAR EDITOR (Stage 1.5)
+-- Official limits come from AvatarEditorService:GetAvatarRules():
+--   AccessoryRefinementTypes / Lower/UpperBounds  (rigid accessory Position/Rotation/Scale)
+--   Scales                                       (BodyType, Head, Height, Proportion, Width)
+--   BasicBodyColorsPalette / BodyColorsPalette   (skin colours)
+-- The client edits a draft and previews it on a local clone; nothing changes on
+-- the live character until ApplyEdit succeeds and is read back.
+--------------------------------------------------
+
+local cachedRules: any = nil
+local function getAvatarRules(): any
+	if cachedRules then return cachedRules end
+	local ok, rules = pcall(function()
+		return AvatarEditorService:GetAvatarRules()
+	end)
+	if ok and typeof(rules) == "table" then
+		cachedRules = rules
+		return rules
+	end
+	warn("[AvatarService] GetAvatarRules failed:", rules)
+	return nil
+end
+
+-- AccessoryType → asset type name used as the key of the refinement bounds.
+local REFINE_BOUNDS_KEY = {
+	Hat = "Hat",
+	Face = "FaceAccessory",
+	Neck = "NeckAccessory",
+	Shoulder = "ShoulderAccessory",
+	Front = "FrontAccessory",
+	Back = "BackAccessory",
+	Hair = "HairAccessory",
+	Waist = "WaistAccessory",
+}
+
+-- Editor scale name → HumanoidDescription property. Depth is not in the official
+-- rules, so it is not editable.
+local SCALE_PROPERTIES = {
+	Height = "HeightScale",
+	Width = "WidthScale",
+	Head = "HeadScale",
+	Proportion = "ProportionScale",
+	BodyType = "BodyTypeScale",
+}
+
+local BODY_COLOR_PROPERTIES = {
+	Head = "HeadColor",
+	Torso = "TorsoColor",
+	LeftArm = "LeftArmColor",
+	RightArm = "RightArmColor",
+	LeftLeg = "LeftLegColor",
+	RightLeg = "RightLegColor",
+}
+
+local function refinementInfo(rules: any, accessoryType: Enum.AccessoryType)
+	if not rules then return nil end
+	local key = REFINE_BOUNDS_KEY[accessoryType.Name]
+	if not key then return nil end
+	local avatarAssetType = Enum.AvatarAssetType[key]
+	local allowed = false
+	for _, typeId in ipairs(rules.AccessoryRefinementTypes or {}) do
+		if avatarAssetType and typeId == avatarAssetType.Value then
+			allowed = true
+		end
+	end
+	if not allowed then return nil end
+	local lower = rules.AccessoryRefinementLowerBounds and rules.AccessoryRefinementLowerBounds[key]
+	local upper = rules.AccessoryRefinementUpperBounds and rules.AccessoryRefinementUpperBounds[key]
+	if typeof(lower) ~= "table" or typeof(upper) ~= "table" then return nil end
+	local function range(group: string, prefix: string)
+		local lo = lower[group] or {}
+		local hi = upper[group] or {}
+		return {
+			Min = Vector3.new(lo["X" .. prefix] or 0, lo["Y" .. prefix] or 0, lo["Z" .. prefix] or 0),
+			Max = Vector3.new(hi["X" .. prefix] or 0, hi["Y" .. prefix] or 0, hi["Z" .. prefix] or 0),
+		}
+	end
+	return {
+		Position = range("Position", "Position"),
+		Rotation = range("Rotation", "Rotation"),
+		Scale = range("Scale", "Scale"),
+	}
+end
+
+local function clampVector(value: any, bounds: any): Vector3?
+	if typeof(value) ~= "Vector3" or not bounds then return nil end
+	return Vector3.new(
+		math.clamp(value.X, bounds.Min.X, bounds.Max.X),
+		math.clamp(value.Y, bounds.Min.Y, bounds.Max.Y),
+		math.clamp(value.Z, bounds.Min.Z, bounds.Max.Z)
+	)
+end
+
+local function paletteHexSet(rules: any): {[string]: boolean}
+	local set = {}
+	if not rules then return set end
+	for _, list in ipairs({ rules.BasicBodyColorsPalette or {}, rules.BodyColorsPalette or {} }) do
+		for _, entry in ipairs(list) do
+			if typeof(entry) == "table" and typeof(entry.HexColor) == "string" then
+				set[string.upper(entry.HexColor)] = true
+			end
+		end
+	end
+	return set
+end
+
+local function colorToHex(color: Color3): string
+	return "#" .. string.upper(color:ToHex())
+end
+
+function AvatarService.GetEditState(player: Player)
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local rules = getAvatarRules()
+	local description = humanoid:GetAppliedDescription()
+
+	local accessories = {}
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("AccessoryDescription") then
+			local info = if child.IsLayered then nil else refinementInfo(rules, child.AccessoryType)
+			table.insert(accessories, {
+				AssetId = child.AssetId,
+				AccessoryType = child.AccessoryType.Name,
+				IsLayered = child.IsLayered,
+				Position = child.Position,
+				Rotation = child.Rotation,
+				Scale = child.Scale,
+				Refinable = info ~= nil,
+				Bounds = info,
+				Reason = if child.IsLayered then "layered"
+					elseif info == nil then "notInRules"
+					else nil,
+			})
+		end
+	end
+
+	local scales = {}
+	local scaleRules = rules and rules.Scales or {}
+	for name, property in pairs(SCALE_PROPERTIES) do
+		local rule = scaleRules[name]
+		scales[name] = {
+			Value = description[property],
+			Min = if rule then rule.Min else nil,
+			Max = if rule then rule.Max else nil,
+			Increment = if rule then rule.Increment else nil,
+		}
+	end
+
+	local colors = {}
+	for part, property in pairs(BODY_COLOR_PROPERTIES) do
+		colors[part] = description[property]
+	end
+
+	local makeup = {}
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("MakeupDescription") then
+			table.insert(makeup, { AssetId = child.AssetId, MakeupType = child.MakeupType.Name, Order = child.Order })
+		end
+	end
+
+	local palette = {}
+	if rules then
+		for _, entry in ipairs(rules.BasicBodyColorsPalette or {}) do
+			if typeof(entry) == "table" and typeof(entry.HexColor) == "string" then
+				table.insert(palette, { Name = entry.Name, Color = Color3.fromHex(entry.HexColor) })
+			end
+		end
+	end
+
+	return true, {
+		RigType = humanoid.RigType.Name,
+		RulesLoaded = rules ~= nil,
+		Accessories = accessories,
+		Scales = scales,
+		Colors = colors,
+		Makeup = makeup,
+		Palette = palette,
+	}
+end
+
+-- draft = {
+--   transforms = { ["<assetId>"] = { Position = Vector3, Rotation = Vector3, Scale = Vector3 } },
+--   scales     = { Height = number, ... },
+--   colors     = { Head = Color3, ... },
+--   makeupOrder = { assetId, ... }   -- top-most first
+-- }
+function AvatarService.ApplyEdit(player: Player, draft: any)
+	if typeof(draft) ~= "table" then
+		return false, "Invalid edit."
+	end
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local rules = getAvatarRules()
+	if not rules then
+		return false, "Avatar rules are unavailable. Try again."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local skipped = {}
+
+	if typeof(draft.transforms) == "table" then
+		for key, values in pairs(draft.transforms) do
+			local assetId = tonumber(key)
+			local target: AccessoryDescription? = nil
+			for _, child in ipairs(description:GetChildren()) do
+				if child:IsA("AccessoryDescription") and child.AssetId == assetId then
+					target = child
+				end
+			end
+			local info = target and not target.IsLayered and refinementInfo(rules, target.AccessoryType)
+			if target and info and typeof(values) == "table" then
+				target.Position = clampVector(values.Position, info.Position) or target.Position
+				target.Rotation = clampVector(values.Rotation, info.Rotation) or target.Rotation
+				target.Scale = clampVector(values.Scale, info.Scale) or target.Scale
+			else
+				table.insert(skipped, tostring(key))
+			end
+		end
+	end
+
+	if typeof(draft.scales) == "table" then
+		if humanoid.RigType ~= Enum.HumanoidRigType.R15 then
+			return false, "Body scales apply to R15 avatars only."
+		end
+		for name, value in pairs(draft.scales) do
+			local property = SCALE_PROPERTIES[name]
+			local rule = rules.Scales and rules.Scales[name]
+			if property and rule and typeof(value) == "number" then
+				description[property] = math.clamp(value, rule.Min, rule.Max)
+			end
+		end
+	end
+
+	if typeof(draft.colors) == "table" then
+		local allowed = paletteHexSet(rules)
+		for part, color in pairs(draft.colors) do
+			local property = BODY_COLOR_PROPERTIES[part]
+			if property and typeof(color) == "Color3" then
+				if not allowed[colorToHex(color)] then
+					return false, "That skin colour is not in the Roblox palette."
+				end
+				description[property] = color
+			end
+		end
+	end
+
+	if typeof(draft.makeupOrder) == "table" then
+		local byId = {}
+		local count = 0
+		for _, child in ipairs(description:GetChildren()) do
+			if child:IsA("MakeupDescription") then
+				byId[child.AssetId] = child
+				count += 1
+			end
+		end
+		if #draft.makeupOrder ~= count then
+			return false, "Makeup list does not match worn makeup."
+		end
+		for index, id in ipairs(draft.makeupOrder) do
+			local child = byId[id]
+			if not child then
+				return false, "Makeup list does not match worn makeup."
+			end
+			child.Order = count - index + 1
+		end
+	end
+
+	local ok, message = applyDescription(humanoid, description)
+	if not ok then
+		return false, message
+	end
+
+	-- Read back what Roblox actually applied and return it as the new baseline.
+	local stateOk, state = AvatarService.GetEditState(player)
+	if not stateOk then
+		return false, state
+	end
+	state.Skipped = skipped
+	return true, state
 end
 
 return AvatarService

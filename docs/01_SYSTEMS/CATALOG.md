@@ -70,7 +70,7 @@ The main loop is **find an item quickly → try it on → immediately inspect th
 - **Expanded mode:** use the full viewport on both PC and mobile. Reserve a dedicated left-side avatar preview area on PC and a top preview area on mobile, with the item grid remaining visible beside/below it.
 - Allow resizing by dragging a corner/edge when reliable. If resizing proves unreliable, use a clear expand/collapse control instead.
 - Clamp the panel to the viewport so it cannot be dragged completely off-screen; preserve usable minimum dimensions.
-- **Mobile/narrow screens:** (updated 2026-10-19, user decision) on smartphones the collapsed catalog is a right-docked window **one-quarter of the screen width**, full height below the Roblox top bar, so the avatar in the centre of the screen is never covered. Tablets keep the wider compact window. Its search/category/sort controls share one row, and the item grid starts directly below the compact status row. Expanding opens the full-screen view with a dedicated current-avatar preview window. Advanced price/off-sale filters are hidden only in compact mode and return when expanded.
+- **Mobile/narrow screens:** (updated 2026-10-19, user decision) on smartphones the collapsed catalog is a right-docked window **two-fifths of the screen width** (D-028), full height below the Roblox top bar, so the avatar in the centre of the screen is never covered. Tablets keep the wider compact window. Its search/category/sort controls share one row, and the item grid starts directly below the compact status row. Expanding opens the full-screen view with a dedicated current-avatar preview window. Advanced price/off-sale filters are hidden only in compact mode and return when expanded.
 - Keep the search and sort controls above the item grid. The item grid must retain enough room for readable thumbnails and card actions.
 
 ### Category navigation
@@ -185,3 +185,15 @@ Source: `image/카탈로그 UI 20261017 14.jpg` (all notes in the image) + user 
 - Subcategory scroll position is kept after selecting a subcategory.
 
 Not yet verified (needs the user on a real mouse / touch device): layer drag gesture, preview orbit/zoom gesture, iPad layout.
+
+
+## Discovery modes and favourites — implemented 2026-10-19 (Studio-tested)
+
+- **최근 (Recent):** every item successfully worn this session (assets and Shoes bundles), newest first, kept after removal, cleared on rejoin. Never saved.
+- **인기 (Popular):** official `CatalogSortType.MostFavorited` with `CatalogSortAggregation.PastMonth` inside the current category/keyword; falls back to AllTime with a visible notice if PastMonth fails.
+- **즐겨찾기 (Favorites):** double-click / double-tap the item image (0.5 s) toggles; yellow ★ at the card's top-left; list shows only favourites; un-favourite works inside the list; separate from Roblox account favourites; stored per D-030.
+- **착용 중 (Wearing):** only the actual worn snapshot, ordered per D-029; layered cards show a layer number and can be dragged.
+- Pressing the active mode again returns to the normal catalog. Keyword and category filter inside Recent/Favorites/Wearing instead of searching the whole catalog.
+- Empty/failed/unsupported states are shown as text over the results (not silent).
+- Item details for local lists use `AvatarEditorService:GetBatchItemDetails` (cached).
+- Category/subcategory arrows are circles half the row height.

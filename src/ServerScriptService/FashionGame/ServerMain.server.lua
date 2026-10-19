@@ -7,10 +7,15 @@ local Remotes = FashionGame:WaitForChild("Remotes")
 
 local CatalogSearch = Remotes:WaitForChild("CatalogSearch")
 local TryOnItem = Remotes:WaitForChild("TryOnItem")
+local PlayerData = Remotes:WaitForChild("PlayerData")
 
 local AvatarService = require(
 	script.Parent.Services.AvatarService
 )
+local PlayerDataService = require(
+	script.Parent.Services.PlayerDataService
+)
+PlayerDataService.Start()
 
 CatalogSearch.OnServerInvoke = function(
 	player: Player,
@@ -72,6 +77,16 @@ TryOnItem.OnServerInvoke = function(
 		end)
 	end
 
+	if action == "GetEditState" then
+		return AvatarService.GetEditState(player)
+	end
+
+	if action == "ApplyEdit" then
+		return runExclusive(player, function()
+			return AvatarService.ApplyEdit(player, payload)
+		end)
+	end
+
 	if action == "SetLayerOrder" then
 		return runExclusive(player, function()
 			return AvatarService.SetLayerOrder(player, payload)
@@ -79,6 +94,10 @@ TryOnItem.OnServerInvoke = function(
 	end
 
 	return false, "Invalid avatar action."
+end
+
+PlayerData.OnServerInvoke = function(player: Player, action: string, payload: any)
+	return PlayerDataService.Handle(player, action, payload)
 end
 
 game:GetService("Players").PlayerRemoving:Connect(function(player)

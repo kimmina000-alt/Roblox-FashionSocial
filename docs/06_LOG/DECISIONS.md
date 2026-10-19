@@ -85,3 +85,15 @@ Reason: user decision, KOYA "의상 레이어" reference. Layered clothing is li
 
 D-027 — Catalog button on the right of the top bar; phone compact = 1/4 width (2026-10-19).
 Reason: user decision. Voice chat adds a top-bar button that covered the old left-anchored C button. On phones the minimized catalog covered half the screen and hid the avatar.
+
+D-028 — Phone minimized catalog = 2/5 of screen width (2026-10-19, supersedes the 1/4 width in D-027).
+Reason: user decision after testing; 1/4 was too small.
+
+D-029 — Worn order everywhere (2026-10-19).
+Worn strip and the 착용 중 card list share one order: layered clothing (outermost first, draggable) → other worn items → animation poses (innermost) → emotes (last). A layer drag in either view calls SetLayerOrder and both re-render from the same server snapshot.
+
+D-030 — Favorites storage (2026-10-19).
+In-game Favorites are stored per user in DataStore `FashionGamePlayerData` (key `u_<userId>`, field `favorites`, typed `{id, itemType Asset|Bundle, addedAt}`), cap 200 (configurable). Writes use UpdateAsync on autosave (60s), leave and server close. If the DataStore cannot load (e.g. Studio API access off) favorites work for the session only and the player is told.
+
+D-031 — Avatar Editor scope follows official rules (2026-10-19).
+Accessory adjust only for rule types (hat, face, neck, shoulder, front, back); body scales Height/Width/Head/Proportion/BodyType (no Depth); skin colours from BasicBodyColorsPalette; makeup order only. Limits are read from GetAvatarRules at runtime and enforced on the server.

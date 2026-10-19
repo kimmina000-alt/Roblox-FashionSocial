@@ -1,3 +1,10 @@
+## 2026-10-19 — Discovery modes, favourites, Avatar Editor (feat/catalog-editor-1019)
+- New modules: ReorderDrag, AvatarEditor (client), PlayerDataService (server); new RemoteFunction PlayerData.
+- Catalog: Recent/Popular/Favorites/Wearing modes, favourite ★ double-tap, worn order, empty states, 2/5 phone width, smaller arrows.
+- Avatar Editor: accessory position/rotation/scale, body scales, skin palette, makeup order — official rules, draft preview, Apply/Cancel.
+- Server: GetEditState / ApplyEdit, Wear verification.
+- Docs: editor API findings table, D-028–D-031, issues updated.
+
 ## 2026-10-19 — Catalog UI pass (feat/catalog-ui-1019)
 - Catalog layout/filter/sort/arrow/chip changes per the 2026-10-17 reference image; C button right-anchored; phone compact 1/4 width.
 - Shoes bundles wearable as a pair; worn strip layer-order drag; preview orbit/zoom.
