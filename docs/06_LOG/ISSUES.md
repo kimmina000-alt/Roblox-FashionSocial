@@ -119,3 +119,11 @@ Description: `CatalogConfig.SortAggregation` currently defaults to `AllTime`. Th
 Expected: Popular mode explicitly applies its documented aggregation, handles runtime rejection/invalid results with a visible/logged fallback, and never labels other sorts as Popular.
 Actual: Global config is AllTime; Popular mode-specific behavior is not implemented.
 Decision / Fix: Implement a Popular-mode-specific sort/aggregation branch and verify the supported combinations in Studio. Keep ordinary catalog sort aggregation behavior separate.
+
+### ISSUE-CATALOG-006 — CatalogController:1392 nil call (forward reference)
+Status: Open (cause confirmed)
+Area: Tech / Catalog
+Description: Wear/remove flow errors at CatalogController line ~1392 (Studio copy) calling `refreshWornItems`.
+Expected: Worn list refreshes after wear/remove.
+Actual: `attempt to call a nil value` — `refreshWornItems` (and `searchCatalog`) are local functions defined after the functions that call them, so the call resolves to a nil global. `actionBusy` can stay locked after the error.
+Decision / Fix: Forward-declare both locals at the top, assign later; ensure actionBusy is released on every path (pcall/finally). Regression test wear/remove/discovery in Studio. See `STUDIO_ONLY_CODE_AUDIT_2026-10-19.md`.
