@@ -17,6 +17,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-10-21 (2): props fix (ISSUE-PHOTO-003), 📸 photo/video capture button (D-067), Fashion Week Backstage in the graybox (D-066), PERFORMANCE.md. Cafe part-time job is a proposal waiting for the user (D-068, CAFE.md).
 - Open items: phone layout of the new boxes, real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001).
 - Next: test + fix the batch → 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9).
+- Start of next session: check that `feat/photobooth-club2` is pushed (push from this machine fails without credentials; the user pushes via GitHub Desktop) and that the Studio place was saved with the backstage. Ask the user to check the props and the 📸 button, and whether to build the cafe job (D-068).
 
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
