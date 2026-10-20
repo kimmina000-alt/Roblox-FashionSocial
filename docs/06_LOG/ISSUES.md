@@ -230,3 +230,6 @@ On 2026-10-20 captures drew the GUI with a white 3D view. On 2026-10-21 captures
 
 ### Note — Seats also sit you on touch (2026-10-21)
 Roblox Seats seat a character that touches them; walking into a table stool sits you even without the 앉기 prompt. Not changed for now; can be switched to prompt-only seating later if players find it annoying.
+
+### ISSUE-PHOTO-003 — 인생네컷 props invisible on the avatar (fixed 2026-10-21)
+User report with screenshot: 왕관/선글라스/하트 안경 buttons were on but nothing showed. Cause: each prop's pieces were joined with WeldConstraints created before the accessory was in the world, so the pieces stayed where they were built (~94 studs from the head); only the invisible handle followed the head. The 2026-10-21 test only checked that the accessory existed and the saved-photo render, not the live avatar — that check was wrong. Fix: classic Welds with a fixed C0 offset; hat props are also lifted above big hair (PhotoProps.liftFor, used for the live avatar and the saved photo). Verified in Studio: all pieces on the head, crown visible above fluffy hair, sunglasses on the face. Also: other menus (e.g. the catalog editor) are hidden while the shooting screen is up.

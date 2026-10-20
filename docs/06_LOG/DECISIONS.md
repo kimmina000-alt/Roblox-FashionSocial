@@ -207,3 +207,12 @@ Album: 10 free slots (+10 per paid product). People stay inside the booth (invis
 
 D-065 — Club rev3: two floors, VIP-only 2nd floor around the edges (2026-10-20, user floor plan).
 Hall floor -24, VIP floor -2, ceiling 36, rooftop deck 37. Centre open to the ceiling. DJ zone east with turntable console (click → DJ music window), LED wall, ceiling lasers (DJ 조명 on/off). Tables under the north VIP, bar under the south-east VIP, lounge south-west. Four round LED pillars at the atrium corners show club players, turning 360°. Neon edge on every stair step. Music: hall 1, corridor 0.45, stairs 0.12, outside silent. A DJ whose queued turn starts is asked OK / NO (NO passes the turn, no refund) instead of being moved.
+
+D-066 — Fashion Week Backstage between the club and the 인생네컷 shop (2026-10-21).
+Measured walk: spawn 13.1 s, photo shop 3.7 s, club door 7.9 s (the old west plot was 18.1 s from spawn). Open green room with mirrors, sofas, racks, FASHION WEEK photo wall; a "RUNWAY (준비 중)" arch leads to a future runway plot north of it. See FASHION_WEEK_BACKSTAGE.md §7.
+
+D-067 — 📸 capture button: Roblox screenshot and 30 s video (2026-10-21, user request).
+Top bar 📸 → 사진 / 동영상, using CaptureService (TakeScreenshotCaptureAsync, StartVideoCaptureAsync) and Roblox's own save prompt (Captures gallery). The 인생네컷 album button becomes 🖼.
+
+D-068 — Cafe part-time job (2026-10-21, proposed, waiting for the user).
+Short drink-making mini-game for players at the cafe counter; 6 coins per order, 15 a day at full pay; no authority over other players. See CAFE.md.

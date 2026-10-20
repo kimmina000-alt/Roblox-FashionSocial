@@ -380,3 +380,19 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 
 ### Open
 - Phone layout of the new boxes, real 캡처 저장 on a device, 5-minute dance bonus, album slot purchase, real-friend allowed case.
+
+## 2026-10-21 (2) — Props fix, 📸 capture button, Fashion Week Backstage, performance note
+
+### Done
+- **Props were invisible** (user screenshot): pieces were left ~94 studs away by WeldConstraints → classic Welds + lift above hair (ISSUE-PHOTO-003). Verified: crown on top of the hair, sunglasses on the face.
+- Shooting screen hides other menus (catalog etc.) and restores them after.
+- 📸 capture button (CameraController): 사진 / 동영상(30초) via CaptureService + Roblox save prompt; album button → 🖼. Menu placement fixed (was covering the top bar).
+- **Fashion Week Backstage** placed between the club and 인생네컷 by measured walks (D-066), built in Studio (87 parts, no overlaps), path to the loop, future runway plot.
+- PERFORMANCE.md: map is 921 parts; the heavy parts are avatars and the phone pick screen; rules for the park rides.
+- Cafe part-time job written up as a proposal (CAFE.md, D-068), not built.
+
+### Checks
+- [x] Props on the live avatar (3 props, 0 pieces away from the head), hidden menus during shooting.
+- [x] 📸 menu opens under the top bar; 사진 runs without errors (Studio shows no Roblox save prompt — check on a device).
+- [x] Backstage: walk 13.1 s from spawn, sign visible from spawn.
+- [ ] 🎥 video on a real device; prop buttons highlight after server-side changes (only refresh on tap).

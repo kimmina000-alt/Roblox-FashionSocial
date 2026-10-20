@@ -380,10 +380,65 @@ for _,b in ipairs({{-80,F,-270,80,TOP,-150},{-80,RT,-270,80,RT+24,-150}}) do
 z.Parent=root
 end
 do
--- BACKSTAGE future plot (west of the club). The rooftop is on the club now.
+-- FASHION WEEK BACKSTAGE (2026-10-21, FASHION_WEEK_BACKSTAGE.md §7): between
+-- the club and the 인생네컷 shop, on the north-east of the loop. Measured walk
+-- (PathfindingService): spawn 13.1 s, 인생네컷 3.7 s, club door 7.9 s (the
+-- old plot west of the club was 18.1 s from spawn and 24.6 s from the shop).
+-- Big open green room (no small closed rooms, D-043): open front toward the
+-- loop, styling mirrors (west wall), waiting sofas (east wall), clothes
+-- racks, FASHION WEEK photo wall (north). A neon "RUNWAY" arch in the north
+-- wall leads to the future runway plot (catwalk outline only, blocked by a
+-- see-through "준비 중" barrier; Runway is not approved yet).
 local z=zone("03_Rooftop_Backstage")
-P(z,"Backstage_FuturePlot",Vector3.new(80,0.3,60),CFrame.new(-125,0.2,-210),C.future,{t=0.3})
-label(z,"Backstage (후속 부지)",Vector3.new(-125,8,-210))
+local x0,x1,z0,z1=93,157,-183,-137 -- room footprint (front = z1, faces the loop)
+local cx=(x0+x1)/2 local cz=(z0+z1)/2
+local wallC=Color3.fromRGB(38,30,48) local neon=Color3.fromRGB(255,80,200) local gold=Color3.fromRGB(212,175,55)
+P(z,"BackstageFloor",Vector3.new(x1-x0,0.4,z1-z0),CFrame.new(cx,0.2,cz),Color3.fromRGB(60,48,72))
+box(z,"Wall_W",x0-1,0,z0,x0,14,z1,wallC) box(z,"Wall_E",x1,0,z0,x1+1,14,z1,wallC)
+box(z,"Wall_N_L",x0-1,0,z0-1,cx-7,14,z0,wallC) box(z,"Wall_N_R",cx+7,0,z0-1,x1+1,14,z0,wallC)
+box(z,"Wall_N_Top",cx-7,10,z0-1,cx+7,14,z0,wallC)
+P(z,"Roof(반투명)",Vector3.new(x1-x0+2,0.6,z1-z0+1),CFrame.new(cx,14.3,cz-0.5),wallC,{t=0.6})
+-- entrance landmark: neon frame + sign over the open front, carpet to the path
+box(z,"EntrancePillar_L",x0-1,0,z1-1,x0+1,16,z1+1,gold) box(z,"EntrancePillar_R",x1-1,0,z1-1,x1+1,16,z1+1,gold)
+P(z,"Sign_FASHION_WEEK",Vector3.new(40,4,1),CFrame.new(cx,17,z1),neon,{mat=Enum.Material.Neon})
+P(z,"EntranceCarpet",Vector3.new(12,0.45,10),CFrame.new(cx,0.25,z1+5),C.red)
+-- styling mirrors along the west wall (frames + shiny panels)
+for i=0,3 do local mz=z0+7+i*10
+ P(z,"MirrorFrame",Vector3.new(0.4,10,7),CFrame.new(x0+0.3,6,mz),neon,{mat=Enum.Material.Neon})
+ P(z,"Mirror",Vector3.new(0.3,9,6),CFrame.new(x0+0.6,6,mz),Color3.fromRGB(200,215,230),{mat=Enum.Material.Glass})
+ P(z,"VanityTable",Vector3.new(2.5,3,6),CFrame.new(x0+2,1.5,mz),Color3.fromRGB(240,240,245))
+end
+label(z,"스타일링 거울",Vector3.new(x0+3,12,cz))
+-- waiting sofas (green room) along the east wall, facing the mirrors
+for i=0,5 do local pos=Vector3.new(x1-2.5,1,z0+6+i*6.5)
+ P(z,"SofaBack",Vector3.new(1,3.5,5),CFrame.new(x1-0.8,1.75,pos.Z),Color3.fromRGB(150,60,110))
+ local seat=Instance.new("Seat") seat.Name="GreenRoomSeat" seat.Anchored=true seat.Size=Vector3.new(3,1,5)
+ seat.CFrame=CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)) seat.Color=Color3.fromRGB(230,120,170) seat.TopSurface=Enum.SurfaceType.Smooth seat.Parent=z CS:AddTag(seat,"PromptSeat")
+end
+label(z,"대기실 (그린룸)",Vector3.new(x1-3,10,cz))
+-- clothes racks in the middle (social corner)
+for i=0,2 do local rx=cx-12+i*12
+ P(z,"RackBar",Vector3.new(8,0.3,0.3),CFrame.new(rx,6,cz-4),Color3.fromRGB(200,200,210))
+ for _,dx in ipairs({-4,4}) do P(z,"RackLeg",Vector3.new(0.3,6,0.3),CFrame.new(rx+dx,3,cz-4),Color3.fromRGB(200,200,210)) end
+ for k=0,4 do P(z,"Garment",Vector3.new(0.2,3.5,1.6),CFrame.new(rx-3+k*1.5,4.2,cz-4),Color3.fromHSV((i*5+k)/15,0.5,0.95)) end
+end
+-- photo wall with the FASHION WEEK backdrop (north wall, inside)
+P(z,"FashionWeekBackdrop",Vector3.new(26,9,0.4),CFrame.new(cx-18,5.5,z0+0.3),Color3.fromRGB(245,240,250))
+P(z,"BackdropNeon",Vector3.new(26,0.4,0.5),CFrame.new(cx-18,10.2,z0+0.4),neon,{mat=Enum.Material.Neon})
+photo(z,Vector3.new(cx-18,0.4,z0+6),"패션위크 포토월")
+-- runway arch (future): neon frame in the north wall, see-through barrier
+P(z,"RunwayArch_L",Vector3.new(1,10,1),CFrame.new(cx-7,5,z0-0.5),neon,{mat=Enum.Material.Neon})
+P(z,"RunwayArch_R",Vector3.new(1,10,1),CFrame.new(cx+7,5,z0-0.5),neon,{mat=Enum.Material.Neon})
+P(z,"RunwayArch_Top",Vector3.new(15,1,1),CFrame.new(cx,10,z0-0.5),neon,{mat=Enum.Material.Neon})
+P(z,"RunwayBarrier(준비 중)",Vector3.new(13,10,0.5),CFrame.new(cx,5,z0-0.5),Color3.fromRGB(255,150,210),{t=0.75})
+label(z,"RUNWAY → (준비 중)",Vector3.new(cx,12.5,z0+1))
+-- future runway plot north of the room: catwalk outline + audience area
+P(z,"Runway_FuturePlot",Vector3.new(44,0.3,84),CFrame.new(cx,0.2,z0-43),C.future,{t=0.5})
+P(z,"Runway_CatwalkOutline",Vector3.new(10,0.35,76),CFrame.new(cx,0.25,z0-43),Color3.fromRGB(255,255,255),{t=0.6})
+label(z,"런웨이 (후속 부지)",Vector3.new(cx,8,z0-43))
+label(z,"Fashion Week Backstage",Vector3.new(cx,24,cz),true)
+-- path from the loop (centre line at x=125 is z≈-75.6) to the front door
+P(z,"BackstagePath",Vector3.new(14,0.45,math.abs(z1+76)),CFrame.new(cx,0.22,(z1-76)/2),C.road)
 z.Parent=root
 end
 do -- 04_Beach_Aquarium (snapshot)

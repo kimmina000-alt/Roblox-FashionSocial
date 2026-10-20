@@ -149,8 +149,9 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 			rig:PivotTo(CFrame.new(entry.x or 0, entry.y or -2.9, entry.z or 0) * CFrame.Angles(0, entry.r or 0, 0))
 			local humanoid = rig:FindFirstChildOfClass("Humanoid")
 			if humanoid then
+				local lift = PhotoProps.liftFor(rig)
 				for _, key in ipairs(entry.p or {}) do
-					local accessory = PhotoProps.build(key)
+					local accessory = PhotoProps.build(key, lift)
 					if accessory then pcall(function() humanoid:AddAccessory(accessory) end) end
 				end
 				local animator = humanoid:FindFirstChildOfClass("Animator")

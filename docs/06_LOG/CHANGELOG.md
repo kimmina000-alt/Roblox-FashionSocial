@@ -1,3 +1,10 @@
+## 2026-10-21 (2) — Props fix, 📸 capture, Fashion Week Backstage
+- PhotoProps: Welds instead of WeldConstraints (props were invisible), `liftFor` lifts hat props above hair; PhotoBoothService/PhotoRender pass the lift.
+- PhotoBoothController: other ScreenGuis hidden while shooting; album button 🖼.
+- New CameraController (📸 → 사진 / 동영상 30초, CaptureService).
+- Graybox 03_Rooftop_Backstage: Fashion Week Backstage (green room, mirrors, sofas, racks, photo wall, runway arch + future runway plot, path).
+- Docs: PERFORMANCE.md (new), FASHION_WEEK_BACKSTAGE §7, layout §12, PHOTO.md capture section, CAFE.md part-time job proposal, D-066–D-068, ISSUE-PHOTO-003.
+
 ## 2026-10-21 — Play-test fixes on feat/photobooth-club2
 - Coin icon 💰 instead of 🪙 (not in the Roblox font).
 - PhotoBoothController: pick/frame screen closes when its session is gone (not while saving).

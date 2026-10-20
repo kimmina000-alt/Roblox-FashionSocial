@@ -518,7 +518,7 @@ local function toggleProp(player: Player, key: any): (boolean, string?)
 	if #PhotoProps.worn(character) >= PhotoConfig.MaxProps then
 		return false, string.format("소품은 %d개까지 쓸 수 있어요.", PhotoConfig.MaxProps)
 	end
-	local accessory = PhotoProps.build(key)
+	local accessory = PhotoProps.build(key, PhotoProps.liftFor(character))
 	if not accessory then return false, nil end
 	humanoid:AddAccessory(accessory)
 	return true, nil

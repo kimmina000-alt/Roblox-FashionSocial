@@ -74,8 +74,30 @@ local function makePart(spec: PartSpec): BasePart
 	return part
 end
 
--- A new Accessory for the prop key, or nil for an unknown key.
-function PhotoProps.build(key: string): Accessory?
+-- How far above the head top the hair reaches (studs, 0..2). Hat props are
+-- lifted by most of it so big hair does not swallow them (user report
+-- 2026-10-21). Server (live avatar) and PhotoRender (saved photo) both use it.
+function PhotoProps.liftFor(character: Model): number
+	local head = character:FindFirstChild("Head")
+	if not head or not head:IsA("BasePart") then return 0 end
+	local headTop = head.Size.Y / 2
+	local top = headTop
+	for _, accessory in ipairs(character:GetChildren()) do
+		if accessory:IsA("Accessory") and not accessory:GetAttribute("PhotoProp") then
+			local handle = accessory:FindFirstChild("Handle")
+			local onHead = handle and (handle:FindFirstChild("HatAttachment") or handle:FindFirstChild("HairAttachment"))
+			if handle and handle:IsA("BasePart") and onHead then
+				local up = (handle.Position - head.Position):Dot(head.CFrame.UpVector)
+				top = math.max(top, up + handle.Size.Y / 2)
+			end
+		end
+	end
+	return math.clamp((top - headTop) * 0.8, 0, 2)
+end
+
+-- A new Accessory for the prop key, or nil for an unknown key. `lift` (studs)
+-- raises hat props above the hair (PhotoProps.liftFor).
+function PhotoProps.build(key: string, lift: number?): Accessory?
 	local spec = SPECS[key]
 	if not spec then return nil end
 	local accessory = Instance.new("Accessory")
@@ -94,16 +116,25 @@ function PhotoProps.build(key: string): Accessory?
 	local attachment = Instance.new("Attachment")
 	attachment.Name = spec.attach
 	-- The handle sits at handleOffset from the character's attachment.
-	attachment.CFrame = spec.handleOffset:Inverse()
+	local offset = spec.handleOffset
+	if spec.attach == "HatAttachment" and lift and lift > 0 then
+		offset = CFrame.new(0, lift, 0) * offset
+	end
+	attachment.CFrame = offset:Inverse()
 	attachment.Parent = handle
 	for index, partSpec in ipairs(spec.parts) do
 		local part = makePart(partSpec)
 		part.Name = "Piece" .. index
 		part.CFrame = partSpec.offset
 		part.Parent = handle
-		local weld = Instance.new("WeldConstraint")
+		-- A Weld (fixed C0 offset), not a WeldConstraint: a WeldConstraint made
+		-- before the accessory is in the world kept the pieces where they were
+		-- built, ~100 studs from the head, so props looked invisible
+		-- (user report 2026-10-21).
+		local weld = Instance.new("Weld")
 		weld.Part0 = handle
 		weld.Part1 = part
+		weld.C0 = partSpec.offset
 		weld.Parent = part
 	end
 	return accessory

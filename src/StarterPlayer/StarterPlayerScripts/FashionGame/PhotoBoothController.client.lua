@@ -447,6 +447,25 @@ local shoot = create("Frame", {
 	BackgroundTransparency = 1,
 	Visible = false,
 }, gui)
+-- While the shooting screen is up, other menus (catalog, dance panel, …)
+-- are hidden so they do not cover the camera window; they come back after.
+local hiddenGuis: {ScreenGui} = {}
+shoot:GetPropertyChangedSignal("Visible"):Connect(function()
+	if shoot.Visible then
+		for _, other in ipairs(playerGui:GetChildren()) do
+			if other:IsA("ScreenGui") and other ~= gui and other.Enabled and other.Name ~= "PhotoRenderHolder" then
+				other.Enabled = false
+				table.insert(hiddenGuis, other)
+			end
+		end
+	else
+		for _, other in ipairs(hiddenGuis) do
+			if other.Parent then other.Enabled = true end
+		end
+		table.clear(hiddenGuis)
+	end
+end)
+
 local masks: {Frame} = {}
 for i = 1, 4 do
 	masks[i] = create("Frame", { Name = "Mask" .. i, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BorderSizePixel = 0, Active = true }, shoot)
@@ -1058,7 +1077,8 @@ local albumButton = create("TextButton", {
 	Size = UDim2.fromOffset(44, 44),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 	BackgroundTransparency = 0.2,
-	Text = "📷",
+	-- 🖼 album; 📸 is the Roblox capture button (CameraController).
+	Text = "🖼",
 	TextSize = 22,
 	Font = Enum.Font.GothamBold,
 	TextColor3 = COLORS.text,
