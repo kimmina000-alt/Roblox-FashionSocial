@@ -15,7 +15,7 @@ A compact fashion-social world where players show their catalog-styled avatars, 
 7. **Fantasy Playground:** start with a swing or one simple interaction; larger rides later.
 8. **Fashion Week Backstage:** future candidate space that may later connect to Runway.
 
-Detailed area interaction proposals live in `docs/02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md`. Korean-inspired, American-vintage and global fantasy visual directions remain undecided pending moodboards.
+Detailed area interaction proposals live in `docs/02_WORLDS/WORLD_CONCEPTS_AND_INTERACTIONS.md`. Art direction (D-046): general modern city, with one Hanok Village district. Layout: option C (D-044), graybox built 2026-10-20 — see `MAIN_SOCIAL_LAYOUT_PROPOSAL.md` §9.
 
 ## Deferred Areas
 - **Housing District:** deferred, furthest priority. Do not block the current MVP on plots, house editing, furniture, saving or visits.

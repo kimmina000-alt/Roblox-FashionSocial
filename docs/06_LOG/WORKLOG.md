@@ -281,3 +281,15 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 ### Waiting for user
 - Approve layout option C (D-044) and the club no-alcohol/no-private-space proposal (D-043).
 
+## 2026-10-20 (afternoon) — Persistence test, Main Social graybox, art direction
+
+### Done
+- DataStore persistence tested with Studio API access on (user turned it on): outfit save → stop → play → outfit present and restorable; favourites were lost on close → fixed (ISSUE-DATA-001) → favourite present after rejoin. Test data removed.
+- Graybox of layout C built in Studio (235 parts, 7 zones incl. Hanok Village) from `tools/graybox/build_main_social_graybox.lua`; walk times and sightlines measured (layout doc §9).
+- Art direction recorded (D-046) with a moodboard of references.
+
+### Checks
+- [x] All destinations reachable by pathfinding; spawn → club 14.2 s, cafe 15.8 s, park 16.5 s, rooftop 16.6 s, hanok 17.3 s, beach 18.2 s.
+- [x] Landmarks visible from spawn (club ahead; dome/wheel need a turn).
+- [ ] Visual walk-through (screen capture is white this session — ISSUE-STUDIO-001).
+
