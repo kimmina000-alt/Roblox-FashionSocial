@@ -19,7 +19,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
-- `docs/06_LOG/DECISIONS.md`: D-001 to D-056.
+- `docs/06_LOG/DECISIONS.md`: D-001 to D-065.
 - `docs/06_LOG/ISSUES.md`, `WORKLOG.md`, `CHANGELOG.md`.
 - `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`.
 - `docs/02_WORLDS/MAIN_SOCIAL_LAYOUT_PROPOSAL.md`, `CLUB_AREA.md`.
