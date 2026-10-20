@@ -23,18 +23,27 @@ local DrinkService = require(script.Parent.Services.DrinkService)
 local ClubService = require(
 	script.Parent.Services.ClubService
 )
+local ClubScreenService = require(script.Parent.Services.ClubScreenService)
+local PhotoBoothService = require(script.Parent.Services.PhotoBoothService)
 MonetizationService.Start()
 DjService.Start()
 ClubAccessService.Start()
 DrinkService.Start()
 ClubService.Start()
+ClubScreenService.Start()
+PhotoBoothService.Start(PlayerDataService)
 
--- DJ time (Developer Product "DJ"): add time, tell the buyer.
+-- DJ time (Developer Product "DJ"): add time, tell the buyer, and move a
+-- (new or extending) DJ straight to the booth. Queued buyers are moved when
+-- their turn starts (ClubAccessService).
 local ClubNotify = Remotes:WaitForChild("ClubNotify") :: RemoteEvent
 MonetizationService.RegisterProduct("DJ", function(player)
 	local ok, message = DjService.AddTime(player)
 	if ok and message then
 		ClubNotify:FireClient(player, "Toast", message)
+	end
+	if ok then
+		task.defer(ClubAccessService.SendToDJBooth, player)
 	end
 	return ok, message
 end)

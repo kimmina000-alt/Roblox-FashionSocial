@@ -6,9 +6,20 @@
 --   DanceKey   (string)  ClubConfig dance key
 --   DanceStart (number)  workspace:GetServerTimeNow() when the dance began
 --   DanceSpeed (number)  tempo multiplier
+--   DanceJoined (number) userId this player follows (같이 추기), kept while
+--                        the leader rests, so the follower picks up the
+--                        leader's next dance
 -- The dancing player's own client plays the animation on its character
--- (Animator replication shows it to everyone). Joining another dancer copies
--- their key, start time and speed, so both play the same frame.
+-- (Animator replication shows it to everyone).
+--
+-- 같이 추기 is a live link: whenever the leader starts, changes, re-tempos or
+-- stops a dance, every follower copies the leader's key, start time and speed
+-- (and their own followers after them), so all play the same frame. The link
+-- ends when the follower picks their own dance or touches the tempo (→ own
+-- dance), presses 멈추기 / 해제 (→ stops and waits), sits, leaves the club, or
+-- the leader leaves the game.
+-- Moving and jumping do NOT stop a dance (user, 2026-10-20). Dancing works
+-- inside the club and on photo booth stages (ClubConfig.canDance).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -20,7 +31,9 @@ local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("Club
 local ClubService = {}
 
 local MIN_INTERVAL = 0.15
+local MAX_CHAIN = 16
 local lastRequest: {[Player]: number} = {}
+local outsideSince: {[Player]: number} = {}
 
 local function characterOf(player: Player): Model?
 	local character = player.Character
@@ -30,17 +43,70 @@ local function characterOf(player: Player): Model?
 	return character
 end
 
-local function clearDance(character: Model)
-	character:SetAttribute("DanceKey", nil)
-	character:SetAttribute("DanceStart", nil)
-	character:SetAttribute("DanceSpeed", nil)
+-- Where dancing is allowed: the club and photo booth stages (poses for photos).
+local function inClub(character: Model): boolean
+	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	return root ~= nil and ClubConfig.canDance(root.Position)
+end
+
+local function notify(player: Player, message: string)
+	local remote = FashionGame:WaitForChild("Remotes"):FindFirstChild("ClubNotify") :: RemoteEvent?
+	if remote then remote:FireClient(player, "Toast", message) end
+end
+
+local function setDance(character: Model, key: string?, start: number?, speed: number?)
+	character:SetAttribute("DanceKey", key)
+	character:SetAttribute("DanceStart", start)
+	character:SetAttribute("DanceSpeed", speed)
+end
+
+-- Copies the leader's dance to everyone following them, down the chain.
+local function syncFollowers(leader: Player, depth: number?)
+	local level = depth or 0
+	if level > MAX_CHAIN then return end
+	local leaderCharacter = characterOf(leader)
+	for _, other in ipairs(Players:GetPlayers()) do
+		local character = other ~= leader and other.Character
+		if character and character:GetAttribute("DanceJoined") == leader.UserId then
+			if leaderCharacter then
+				setDance(character,
+					leaderCharacter:GetAttribute("DanceKey"),
+					leaderCharacter:GetAttribute("DanceStart"),
+					leaderCharacter:GetAttribute("DanceSpeed"))
+			else
+				setDance(character, nil, nil, nil)
+			end
+			syncFollowers(other, level + 1)
+		end
+	end
+end
+
+-- Ends the player's dance and link; their followers stop too (but stay linked).
+local function stopDance(player: Player)
+	local character = player.Character
+	if not character then return end
+	setDance(character, nil, nil, nil)
 	character:SetAttribute("DanceJoined", nil)
+	syncFollowers(player)
+end
+
+-- True when following `target` would make a loop back to `player`.
+local function wouldLoop(player: Player, target: Player): boolean
+	local current: Player? = target
+	for _ = 1, MAX_CHAIN do
+		if not current then return false end
+		if current == player then return true end
+		local character = current.Character
+		local leaderId = character and character:GetAttribute("DanceJoined")
+		current = if typeof(leaderId) == "number" then Players:GetPlayerByUserId(leaderId) else nil
+	end
+	return true
 end
 
 local function onDance(player: Player, action: any, a: any, b: any)
-	-- Stop is never throttled, so a dance always ends when the player moves.
+	-- Stop/Leave are never throttled, so a dance always ends when asked.
 	local now = os.clock()
-	if action ~= "Stop" then
+	if action ~= "Stop" and action ~= "Leave" then
 		if lastRequest[player] and now - lastRequest[player] < MIN_INTERVAL then return end
 		lastRequest[player] = now
 	end
@@ -50,10 +116,13 @@ local function onDance(player: Player, action: any, a: any, b: any)
 	if action == "Start" then
 		local dance = ClubConfig.findDance(a)
 		if not dance then return end
-		character:SetAttribute("DanceKey", dance.key)
-		character:SetAttribute("DanceStart", workspace:GetServerTimeNow())
-		character:SetAttribute("DanceSpeed", ClubConfig.clampTempo(b))
+		if not inClub(character) then
+			notify(player, "춤은 클럽 안에서 출 수 있어요.")
+			return
+		end
+		setDance(character, dance.key, workspace:GetServerTimeNow(), ClubConfig.clampTempo(b))
 		character:SetAttribute("DanceJoined", nil)
+		syncFollowers(player)
 	elseif action == "Speed" then
 		if character:GetAttribute("DanceKey") == nil then return end
 		-- Keep the current frame: rebase the start so (now - start) * speed is unchanged.
@@ -64,24 +133,53 @@ local function onDance(player: Player, action: any, a: any, b: any)
 		local elapsed = (serverNow - start) * oldSpeed
 		character:SetAttribute("DanceStart", serverNow - elapsed / newSpeed)
 		character:SetAttribute("DanceSpeed", newSpeed)
+		-- Touching the tempo makes it the player's own dance (user, 2026-10-20).
+		character:SetAttribute("DanceJoined", nil)
+		syncFollowers(player)
 	elseif action == "Stop" then
-		clearDance(character)
+		stopDance(player)
+	elseif action == "Leave" then
+		-- 같이 추기 해제: the player stops and waits (user, 2026-10-20, D-062).
+		stopDance(player)
 	elseif action == "Join" then
 		if typeof(a) ~= "number" then return end
 		local target = Players:GetPlayerByUserId(a)
 		if not target or target == player then return end
 		local targetCharacter = characterOf(target)
 		if not targetCharacter then return end
-		local key = targetCharacter:GetAttribute("DanceKey")
-		if not ClubConfig.findDance(key) then return end
-		local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-		local targetRoot = targetCharacter:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if not root or not targetRoot then return end
-		if (root.Position - targetRoot.Position).Magnitude > ClubConfig.JoinRadius + 10 then return end
-		character:SetAttribute("DanceKey", key)
-		character:SetAttribute("DanceStart", targetCharacter:GetAttribute("DanceStart"))
-		character:SetAttribute("DanceSpeed", targetCharacter:GetAttribute("DanceSpeed"))
+		if not inClub(character) or not inClub(targetCharacter) then
+			notify(player, "같이 추기는 클럽 안에서만 할 수 있어요.")
+			return
+		end
+		if wouldLoop(player, target) then
+			notify(player, target.DisplayName .. "님이 이미 나를 따라 추고 있어요.")
+			return
+		end
 		character:SetAttribute("DanceJoined", target.UserId)
+		setDance(character,
+			targetCharacter:GetAttribute("DanceKey"),
+			targetCharacter:GetAttribute("DanceStart"),
+			targetCharacter:GetAttribute("DanceSpeed"))
+		syncFollowers(player)
+	end
+end
+
+-- Dances and links end shortly after a player leaves the club.
+local function sweepOutside()
+	local now = os.clock()
+	for _, player in ipairs(Players:GetPlayers()) do
+		local character = player.Character
+		local active = character ~= nil
+			and (character:GetAttribute("DanceKey") ~= nil or character:GetAttribute("DanceJoined") ~= nil)
+		if active and character and not inClub(character) then
+			outsideSince[player] = outsideSince[player] or now
+			if now - outsideSince[player] >= ClubConfig.OutsideGrace then
+				outsideSince[player] = nil
+				stopDance(player)
+			end
+		else
+			outsideSince[player] = nil
+		end
 	end
 end
 
@@ -223,7 +321,7 @@ local function addSeatPrompt(seat: Instance)
 		local character = characterOf(player)
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		if humanoid and not seat.Occupant then
-			if character then clearDance(character) end
+			stopDance(player)
 			seat:Sit(humanoid)
 		end
 	end)
@@ -236,8 +334,30 @@ function ClubService.Start()
 	local remotes = FashionGame:WaitForChild("Remotes")
 	local danceRemote = remotes:WaitForChild("Dance") :: RemoteEvent
 	danceRemote.OnServerEvent:Connect(onDance)
+	local function onPlayer(player: Player)
+		-- A new character has no dance: followers rest until the leader dances again.
+		player.CharacterAdded:Connect(function()
+			task.defer(syncFollowers, player)
+		end)
+	end
+	Players.PlayerAdded:Connect(onPlayer)
+	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
 	Players.PlayerRemoving:Connect(function(player)
 		lastRequest[player] = nil
+		outsideSince[player] = nil
+		-- Followers keep their current move as their own dance.
+		for _, other in ipairs(Players:GetPlayers()) do
+			local character = other.Character
+			if character and character:GetAttribute("DanceJoined") == player.UserId then
+				character:SetAttribute("DanceJoined", nil)
+			end
+		end
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(0.5)
+			sweepOutside()
+		end
 	end)
 	for _, seat in ipairs(CollectionService:GetTagged("PromptSeat")) do
 		addSeatPrompt(seat)

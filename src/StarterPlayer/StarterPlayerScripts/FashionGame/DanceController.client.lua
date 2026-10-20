@@ -1,12 +1,22 @@
 --!strict
--- Club MVP client (Stage 4): dance panel, dance playback, 같이 추기, club music.
+-- Club client: dance panel, dance playback, 같이 추기 (sync), club music.
 --
 -- The server owns the dance state (character attributes DanceKey / DanceStart /
--- DanceSpeed, see ClubService). This script only plays what those attributes
--- say on the local character; Animator replication shows it to everyone.
--- Moving, jumping or sitting stops the dance. Music is one shared playlist
--- clock (FashionGame attributes ClubTrack / ClubTrackStart), played locally
--- with volume by distance to parts tagged "ClubZone".
+-- DanceSpeed / DanceJoined, see ClubService). This script only plays what
+-- those attributes say on the local character; Animator replication shows it
+-- to everyone. Moving and jumping keep the dance going (user, 2026-10-20);
+-- 멈추기, sitting, or leaving the club ends it.
+--
+-- 같이 추기 (MIDNIGHT PLAZA reference, 2026-10-20): tap/click another player in
+-- the club → their card → [같이 추기]. While synced you follow their dance AND
+-- tempo, including every change they make; the top pill shows who you follow
+-- and has [해제] (→ stop and wait). Picking your own dance or touching the
+-- tempo turns it into your own dance. The DJ also sees [DJ 존 초대] on cards.
+-- The panel's "같이 추기" tab lists nearby players for the same thing.
+--
+-- The 💃 button only shows inside the club (ClubConfig.isInClub). Music is one
+-- shared playlist clock (FashionGame attributes ClubTrack / ClubTrackStart),
+-- played locally with volume by distance to parts tagged "ClubZone".
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -21,6 +31,16 @@ local playerGui = player:WaitForChild("PlayerGui")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local danceRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Dance") :: RemoteEvent
+local musicRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Music") :: RemoteFunction
+local HttpService = game:GetService("HttpService")
+
+-- DJ zone guests (ClubDJGuests attribute, JSON list of userIds).
+local function isGuest(userId: number): boolean
+	local raw = FashionGame:GetAttribute("ClubDJGuests")
+	if typeof(raw) ~= "string" then return false end
+	local ok, list = pcall(function() return HttpService:JSONDecode(raw) end)
+	return ok and typeof(list) == "table" and table.find(list, userId) ~= nil
+end
 
 local COLORS = {
 	panel = Color3.fromRGB(18, 18, 24),
@@ -31,6 +51,8 @@ local COLORS = {
 	accent = Color3.fromRGB(255, 80, 200),
 	join = Color3.fromRGB(80, 200, 255),
 }
+
+local JOIN_TAB = "같이 추기"
 
 local function create(className: string, props: {[string]: any}, parent: Instance?): any
 	local instance = Instance.new(className)
@@ -43,6 +65,22 @@ end
 
 local function corner(parent: Instance, radius: number)
 	create("UICorner", { CornerRadius = UDim.new(0, radius) }, parent)
+end
+
+local function label(props: {[string]: any}, parent: Instance): TextLabel
+	props.BackgroundTransparency = props.BackgroundTransparency or 1
+	props.TextColor3 = props.TextColor3 or COLORS.text
+	props.Font = props.Font or Enum.Font.GothamBold
+	return create("TextLabel", props, parent)
+end
+
+local function button(props: {[string]: any}, parent: Instance, radius: number?): TextButton
+	props.BackgroundColor3 = props.BackgroundColor3 or COLORS.card
+	props.TextColor3 = props.TextColor3 or COLORS.text
+	props.Font = props.Font or Enum.Font.GothamBold
+	local instance = create("TextButton", props, parent)
+	corner(instance, radius or 8)
+	return instance
 end
 
 --------------------------------------------------
@@ -66,120 +104,87 @@ local danceButton = create("TextButton", {
 	TextSize = 22,
 	Font = Enum.Font.GothamBold,
 	TextColor3 = COLORS.text,
+	Visible = false,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, danceButton)
 
 -- Sits just left of the catalog "C" button at the right end of the top bar.
-local function positionDanceButton()
-	local inset = GuiService.TopbarInset
-	local centerY, rightX, size = 34, -16, 44
-	if inset.Height > 0 then
-		centerY = inset.Min.Y + inset.Height / 2
-		size = math.clamp(inset.Height - 12, 32, 44)
-		local camera = workspace.CurrentCamera
-		if camera and inset.Width > 0 then
-			rightX = -(camera.ViewportSize.X - inset.Max.X) - 8
-		end
-	end
-	danceButton.Size = UDim2.fromOffset(size, size)
-	danceButton.Position = UDim2.new(1, rightX - size - 8, 0, centerY)
-end
-positionDanceButton()
-GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(positionDanceButton)
+require(script.Parent:WaitForChild("TopBar")).add(danceButton, 1)
 
 local panel = create("Frame", {
 	Name = "DancePanel",
 	BackgroundColor3 = COLORS.panel,
 	BackgroundTransparency = 0.12,
+	Active = true,
 	Visible = false,
 }, gui)
 corner(panel, 15)
 create("UIPadding", {
-	PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10),
-	PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10),
+	PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8),
+	PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8),
 }, panel)
 
-local header = create("TextLabel", {
+-- Row 1: title · now dancing · 멈추기 · X (one row so phones keep room for the list)
+label({
 	Name = "Header",
-	Size = UDim2.new(1, -40, 0, 26),
-	BackgroundTransparency = 1,
+	Size = UDim2.fromOffset(34, 28),
 	Text = "춤",
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = COLORS.text,
-	TextSize = 22,
-	Font = Enum.Font.GothamBold,
+	TextSize = 20,
 }, panel)
-local closeButton = create("TextButton", {
+local nowLabel = label({
+	Name = "NowLabel",
+	Position = UDim2.fromOffset(34, 0),
+	Size = UDim2.new(1, -34 - 76 - 34, 0, 28),
+	Text = "춤을 고르세요",
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextColor3 = COLORS.sub,
+	TextSize = 14,
+	TextTruncate = Enum.TextTruncate.AtEnd,
+	Font = Enum.Font.GothamMedium,
+}, panel)
+local stopButton = button({
+	Name = "StopButton",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.new(1, -34, 0, 0),
+	Size = UDim2.fromOffset(72, 28),
+	Text = "■ 멈추기",
+	TextSize = 14,
+}, panel)
+local closeButton = button({
 	Name = "CloseButton",
 	AnchorPoint = Vector2.new(1, 0),
 	Position = UDim2.new(1, 0, 0, 0),
 	Size = UDim2.fromOffset(28, 28),
-	BackgroundColor3 = COLORS.card,
 	-- "✕" renders as an empty box in the Roblox font; plain X is safe.
 	Text = "X",
-	TextColor3 = COLORS.text,
 	TextSize = 15,
-	Font = Enum.Font.GothamBold,
-}, panel)
-corner(closeButton, 14)
+}, panel, 14)
 
--- Now dancing + stop
-local nowLabel = create("TextLabel", {
-	Name = "NowLabel",
-	Position = UDim2.fromOffset(0, 32),
-	Size = UDim2.new(1, -78, 0, 28),
-	BackgroundTransparency = 1,
-	Text = "춤을 고르세요",
-	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = COLORS.sub,
-	TextSize = 16,
-	TextTruncate = Enum.TextTruncate.AtEnd,
-	Font = Enum.Font.GothamMedium,
-}, panel)
-local stopButton = create("TextButton", {
-	Name = "StopButton",
-	AnchorPoint = Vector2.new(1, 0),
-	Position = UDim2.new(1, 0, 0, 32),
-	Size = UDim2.fromOffset(84, 28),
-	BackgroundColor3 = COLORS.card,
-	Text = "■ 멈추기",
-	TextColor3 = COLORS.text,
-	TextSize = 15,
-	Font = Enum.Font.GothamBold,
-}, panel)
-corner(stopButton, 8)
-
--- Tempo
+-- Row 2: tempo
 local tempoRow = create("Frame", {
 	Name = "TempoRow",
-	Position = UDim2.fromOffset(0, 66),
-	Size = UDim2.new(1, 0, 0, 30),
+	Position = UDim2.fromOffset(0, 34),
+	Size = UDim2.new(1, 0, 0, 28),
 	BackgroundTransparency = 1,
 }, panel)
-create("TextLabel", {
-	Size = UDim2.fromOffset(40, 30),
-	BackgroundTransparency = 1,
+label({
+	Size = UDim2.fromOffset(40, 28),
 	Text = "템포",
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = COLORS.text,
-	TextSize = 16,
-	Font = Enum.Font.GothamBold,
+	TextSize = 15,
 }, tempoRow)
-local minusButton = create("TextButton", {
+local minusButton = button({
 	Name = "TempoMinus",
-	Position = UDim2.fromOffset(40, 2),
+	Position = UDim2.fromOffset(40, 1),
 	Size = UDim2.fromOffset(26, 26),
-	BackgroundColor3 = COLORS.card,
 	Text = "−",
-	TextColor3 = COLORS.text,
 	TextSize = 18,
-	Font = Enum.Font.GothamBold,
-}, tempoRow)
-corner(minusButton, 13)
+}, tempoRow, 13)
 local bar = create("Frame", {
 	Name = "TempoBar",
 	Position = UDim2.new(0, 74, 0.5, -3),
-	Size = UDim2.new(1, -74 - 34 - 52, 0, 6),
+	Size = UDim2.new(1, -74 - 34 - 50, 0, 6),
 	BackgroundColor3 = COLORS.card,
 }, tempoRow)
 corner(bar, 3)
@@ -191,125 +196,253 @@ corner(fill, 3)
 local knob = create("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5),
 	Position = UDim2.fromScale(0.33, 0.5),
-	Size = UDim2.fromOffset(18, 18),
+	Size = UDim2.fromOffset(20, 20),
 	BackgroundColor3 = COLORS.text,
 }, bar)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, knob)
-local plusButton = create("TextButton", {
+local plusButton = button({
 	Name = "TempoPlus",
 	AnchorPoint = Vector2.new(1, 0),
-	Position = UDim2.new(1, -52, 0, 2),
+	Position = UDim2.new(1, -50, 0, 1),
 	Size = UDim2.fromOffset(26, 26),
-	BackgroundColor3 = COLORS.card,
 	Text = "+",
-	TextColor3 = COLORS.text,
 	TextSize = 18,
-	Font = Enum.Font.GothamBold,
-}, tempoRow)
-corner(plusButton, 13)
-local tempoLabel = create("TextLabel", {
+}, tempoRow, 13)
+local tempoLabel = label({
 	AnchorPoint = Vector2.new(1, 0),
 	Position = UDim2.new(1, 0, 0, 0),
-	Size = UDim2.fromOffset(46, 30),
-	BackgroundTransparency = 1,
+	Size = UDim2.fromOffset(44, 28),
 	Text = "1.0x",
 	TextXAlignment = Enum.TextXAlignment.Right,
-	TextColor3 = COLORS.text,
-	TextSize = 16,
-	Font = Enum.Font.GothamBold,
+	TextSize = 15,
 }, tempoRow)
 
--- Category tabs
+-- Row 3: tabs (댄스 / 포즈·응원 / 같이 추기)
 local tabRow = create("Frame", {
 	Name = "Tabs",
-	Position = UDim2.fromOffset(0, 102),
+	Position = UDim2.fromOffset(0, 68),
 	Size = UDim2.new(1, 0, 0, 28),
 	BackgroundTransparency = 1,
 }, panel)
 create("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
-	Padding = UDim.new(0, 6),
+	Padding = UDim.new(0, 5),
+	SortOrder = Enum.SortOrder.LayoutOrder,
 }, tabRow)
 
--- Dance grid
+-- Content area: the dance grid, or the 같이 추기 list (same place).
+local CONTENT_TOP = 102
 local grid = create("ScrollingFrame", {
 	Name = "DanceGrid",
-	Position = UDim2.fromOffset(0, 136),
-	Size = UDim2.new(1, 0, 1, -136 - 150),
+	Position = UDim2.fromOffset(0, CONTENT_TOP),
+	Size = UDim2.new(1, 0, 1, -CONTENT_TOP),
 	BackgroundTransparency = 1,
 	BorderSizePixel = 0,
 	ScrollBarThickness = 4,
+	ScrollingDirection = Enum.ScrollingDirection.Y,
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	CanvasSize = UDim2.new(),
 }, panel)
-create("UIGridLayout", {
-	CellSize = UDim2.new(0.5, -4, 0, 38),
+local gridLayout = create("UIGridLayout", {
+	CellSize = UDim2.new(0.5, -4, 0, 36),
 	CellPadding = UDim2.fromOffset(6, 6),
 	SortOrder = Enum.SortOrder.LayoutOrder,
 }, grid)
 
--- 같이 추기
-local joinHeader = create("TextLabel", {
-	AnchorPoint = Vector2.new(0, 1),
-	Position = UDim2.new(0, 0, 1, -118),
-	Size = UDim2.new(1, 0, 0, 24),
-	BackgroundTransparency = 1,
-	Text = "같이 추기 · 근처에서 춤추는 사람",
-	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = COLORS.join,
-	TextSize = 16,
-	Font = Enum.Font.GothamBold,
-}, panel)
 local joinList = create("ScrollingFrame", {
 	Name = "JoinList",
-	AnchorPoint = Vector2.new(0, 1),
-	Position = UDim2.new(0, 0, 1, 0),
-	Size = UDim2.new(1, 0, 0, 114),
+	Position = UDim2.fromOffset(0, CONTENT_TOP),
+	Size = UDim2.new(1, 0, 1, -CONTENT_TOP),
 	BackgroundTransparency = 1,
 	BorderSizePixel = 0,
 	ScrollBarThickness = 4,
+	ScrollingDirection = Enum.ScrollingDirection.Y,
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	CanvasSize = UDim2.new(),
+	Visible = false,
 }, panel)
 create("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, joinList)
-local joinEmpty = create("TextLabel", {
+local joinHint = label({
+	Name = "Hint",
+	LayoutOrder = 0,
+	Size = UDim2.new(1, -6, 0, 34),
+	Text = "근처 사람을 눌러 같이 추기 · 화면에서 사람을 직접 눌러도 돼요",
+	TextColor3 = COLORS.join,
+	TextSize = 13,
+	TextWrapped = true,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	Font = Enum.Font.GothamMedium,
+}, joinList)
+local joinEmpty = label({
+	Name = "Empty",
+	LayoutOrder = 9999,
 	Size = UDim2.new(1, 0, 0, 30),
-	BackgroundTransparency = 1,
-	Text = "근처에서 춤추는 사람이 없어요",
+	Text = "근처에 다른 사람이 없어요",
 	TextColor3 = COLORS.sub,
-	TextSize = 15,
+	TextSize = 14,
 	Font = Enum.Font.GothamMedium,
 }, joinList)
 
 -- Now playing banner (shown near the club)
-local banner = create("TextLabel", {
+local banner = label({
 	Name = "NowPlaying",
 	AnchorPoint = Vector2.new(0.5, 0),
 	Position = UDim2.new(0.5, 0, 0, 8),
-	Size = UDim2.fromOffset(360, 32),
+	Size = UDim2.fromOffset(340, 30),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 	BackgroundTransparency = 0.35,
 	Text = "",
-	TextColor3 = COLORS.text,
-	TextSize = 14,
-	Font = Enum.Font.GothamBold,
+	TextSize = 13,
+	TextTruncate = Enum.TextTruncate.AtEnd,
 	Visible = false,
 }, gui)
 corner(banner, 15)
 create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }, banner)
 
+-- 같이 추기 status pill (under the banner while synced)
+local syncPill = create("Frame", {
+	Name = "SyncPill",
+	AnchorPoint = Vector2.new(0.5, 0),
+	Size = UDim2.fromOffset(330, 34),
+	BackgroundColor3 = Color3.fromRGB(10, 40, 60),
+	BackgroundTransparency = 0.1,
+	Active = true,
+	Visible = false,
+}, gui)
+corner(syncPill, 17)
+create("UIStroke", { Color = COLORS.join, Thickness = 1.5 }, syncPill)
+local syncText = label({
+	Position = UDim2.fromOffset(12, 0),
+	Size = UDim2.new(1, -84, 1, 0),
+	Text = "",
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextTruncate = Enum.TextTruncate.AtEnd,
+	TextSize = 13,
+}, syncPill)
+local syncLeave = button({
+	Name = "LeaveSync",
+	AnchorPoint = Vector2.new(1, 0.5),
+	Position = UDim2.new(1, -4, 0.5, 0),
+	Size = UDim2.fromOffset(64, 26),
+	BackgroundColor3 = COLORS.join,
+	Text = "해제",
+	TextSize = 14,
+}, syncPill, 13)
+
+-- Player card (tap/click a player in the club)
+local playerCard = create("Frame", {
+	Name = "PlayerCard",
+	AnchorPoint = Vector2.new(0.5, 0),
+	Size = UDim2.fromOffset(290, 124),
+	BackgroundColor3 = COLORS.panel,
+	BackgroundTransparency = 0.06,
+	Active = true,
+	Visible = false,
+	ZIndex = 5,
+}, gui)
+corner(playerCard, 14)
+create("UIStroke", { Color = COLORS.join, Thickness = 1.5 }, playerCard)
+local cardPhoto = create("ImageLabel", {
+	Name = "Photo",
+	Position = UDim2.fromOffset(10, 10),
+	Size = UDim2.fromOffset(60, 60),
+	BackgroundColor3 = COLORS.card,
+	Image = "",
+	ZIndex = 6,
+}, playerCard)
+corner(cardPhoto, 30)
+local cardName = label({
+	Position = UDim2.fromOffset(80, 10),
+	Size = UDim2.new(1, -120, 0, 22),
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextTruncate = Enum.TextTruncate.AtEnd,
+	TextSize = 17,
+	ZIndex = 6,
+}, playerCard)
+local cardUser = label({
+	Position = UDim2.fromOffset(80, 32),
+	Size = UDim2.new(1, -90, 0, 18),
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextTruncate = Enum.TextTruncate.AtEnd,
+	TextColor3 = COLORS.sub,
+	TextSize = 13,
+	Font = Enum.Font.GothamMedium,
+	ZIndex = 6,
+}, playerCard)
+local cardDance = label({
+	Position = UDim2.fromOffset(80, 50),
+	Size = UDim2.new(1, -90, 0, 18),
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextTruncate = Enum.TextTruncate.AtEnd,
+	TextColor3 = COLORS.join,
+	TextSize = 13,
+	ZIndex = 6,
+}, playerCard)
+local cardClose = button({
+	Name = "CloseButton",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.new(1, -8, 0, 8),
+	Size = UDim2.fromOffset(28, 28),
+	Text = "X",
+	TextSize = 14,
+	ZIndex = 6,
+}, playerCard, 14)
+local cardJoin = button({
+	Name = "JoinButton",
+	Position = UDim2.fromOffset(10, 78),
+	Size = UDim2.new(1, -20, 0, 36),
+	BackgroundColor3 = COLORS.join,
+	Text = "💃 같이 추기",
+	TextSize = 16,
+	ZIndex = 6,
+}, playerCard, 10)
+-- Only the current DJ sees this: DJ zone guests (D-061).
+local cardInvite = button({
+	Name = "InviteButton",
+	Position = UDim2.fromOffset(10, 120),
+	Size = UDim2.new(1, -20, 0, 34),
+	BackgroundColor3 = Color3.fromRGB(0, 140, 120),
+	Text = "🎧 DJ 존 초대",
+	TextSize = 15,
+	ZIndex = 6,
+	Visible = false,
+}, playerCard, 10)
+
+local function topY(): number
+	return math.max(GuiService.TopbarInset.Max.Y, 36) + 6
+end
+
 local function layoutPanel()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
-	local top = math.max(GuiService.TopbarInset.Max.Y, 36) + 8
-	local width = math.clamp(math.floor(viewport.X * 0.3), 250, 330)
-	-- Leave the bottom-left free for the touch thumbstick.
-	local bottomFree = if UserInputService.TouchEnabled then 150 else 24
-	local height = math.clamp(viewport.Y - top - bottomFree, 300, 560)
-	panel.Position = UDim2.fromOffset(12, top)
+	local top = topY()
+	local width = math.clamp(math.floor(viewport.X * 0.36), 240, 330)
+	-- Tall screens: leave the bottom-left free for the touch thumbstick.
+	-- Phones in landscape (~340 px tall) need the full height for the list;
+	-- the panel is closed with X to walk.
+	local bottomFree = if UserInputService.TouchEnabled and viewport.Y >= 520 then 150 else 10
+	local height = math.clamp(viewport.Y - top - bottomFree, 200, 560)
+	panel.Position = UDim2.fromOffset(10, top)
 	panel.Size = UDim2.fromOffset(width, height)
-	banner.Position = UDim2.new(0.5, 0, 0, top - 4)
+	-- Short screens: slightly smaller dance buttons so more fit.
+	gridLayout.CellSize = UDim2.new(0.5, -4, 0, if viewport.Y < 450 then 32 else 36)
+	-- Banner, sync pill and player card sit between the open panel and the
+	-- top-right buttons (🎵 💃 C); centred on screen when there is room.
+	local leftEdge = if panel.Visible then 10 + width + 10 else 10
+	local rightEdge = viewport.X - 180
+	local function place(item: GuiObject, wanted: number, y: number)
+		local w = math.max(math.min(wanted, rightEdge - leftEdge), 160)
+		local centerX = viewport.X / 2
+		if centerX - w / 2 < leftEdge or centerX + w / 2 > rightEdge then
+			centerX = (leftEdge + rightEdge) / 2
+		end
+		item.Position = UDim2.fromOffset(centerX, y)
+		item.Size = UDim2.fromOffset(w, item.Size.Y.Offset)
+	end
+	place(banner, 340, top - 2)
+	place(syncPill, 330, top + 32)
+	place(playerCard, 290, top + 70)
 end
 layoutPanel()
 if workspace.CurrentCamera then
@@ -321,11 +454,12 @@ end
 --------------------------------------------------
 
 local tempo = 1.0
-local selectedCategory = ClubConfig.Categories[1]
+local selectedTab = ClubConfig.Categories[1]
 local danceButtons: {[string]: TextButton} = {}
 local animations: {[string]: Animation} = {}
 local current: { key: string?, track: AnimationTrack?, start: number?, speed: number? } = {}
 local stopSent = false
+local dragging = false
 
 local function animationFor(key: string): Animation?
 	local dance = ClubConfig.findDance(key)
@@ -347,6 +481,21 @@ local function myCharacter(): (Model?, Humanoid?, Animator?)
 	return character, humanoid, animator
 end
 
+local function rootOf(character: Model?): BasePart?
+	return character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+end
+
+local function inClub(character: Model?): boolean
+	local root = rootOf(character)
+	return root ~= nil and ClubConfig.isInClub(root.Position)
+end
+
+local function joinedPlayer(): Player?
+	local character = player.Character
+	local joined = character and character:GetAttribute("DanceJoined")
+	return if typeof(joined) == "number" then Players:GetPlayerByUserId(joined) else nil
+end
+
 local function stopTrack()
 	if current.track then
 		current.track:Stop(0.2)
@@ -363,24 +512,48 @@ local function requestStop()
 	danceRemote:FireServer("Stop")
 end
 
+local function setTempo(value: number, send: boolean)
+	tempo = ClubConfig.clampTempo(value)
+	local alpha = (tempo - ClubConfig.TempoMin) / (ClubConfig.TempoMax - ClubConfig.TempoMin)
+	fill.Size = UDim2.fromScale(alpha, 1)
+	knob.Position = UDim2.fromScale(alpha, 0.5)
+	tempoLabel.Text = string.format("%.1fx", tempo)
+	if send and current.key then
+		danceRemote:FireServer("Speed", tempo)
+	end
+end
+setTempo(1, false)
+
+local function refreshSync()
+	local leader = joinedPlayer()
+	syncPill.Visible = leader ~= nil
+	if leader then
+		local dance = current.key and ClubConfig.findDance(current.key)
+		syncText.Text = if dance
+			then string.format("🔗 %s님과 같이 추기 · %s %.1fx", leader.DisplayName, dance.name, tempo)
+			else string.format("🔗 %s님과 같이 추기 · 상대가 쉬는 중", leader.DisplayName)
+	end
+end
+
 local function refreshButtons()
-	for key, button in pairs(danceButtons) do
-		local active = current.key == key
-		button.BackgroundColor3 = if active then COLORS.cardActive else COLORS.card
+	for key, danceBtn in pairs(danceButtons) do
+		danceBtn.BackgroundColor3 = if current.key == key then COLORS.cardActive else COLORS.card
 	end
 	local dance = current.key and ClubConfig.findDance(current.key)
+	local leader = joinedPlayer()
 	if dance then
-		local character = player.Character
-		local joined = character and character:GetAttribute("DanceJoined")
-		local joinedPlayer = typeof(joined) == "number" and Players:GetPlayerByUserId(joined)
-		nowLabel.Text = if joinedPlayer
-			then "♪ " .. dance.name .. " · " .. joinedPlayer.DisplayName .. "님과 함께"
-			else "♪ " .. dance.name .. " 추는 중"
+		nowLabel.Text = if leader
+			then "♪ " .. dance.name .. " · " .. leader.DisplayName .. "님과"
+			else "♪ " .. dance.name
 		nowLabel.TextColor3 = COLORS.text
+	elseif leader then
+		nowLabel.Text = leader.DisplayName .. "님 기다리는 중"
+		nowLabel.TextColor3 = COLORS.join
 	else
 		nowLabel.Text = "춤을 고르세요"
 		nowLabel.TextColor3 = COLORS.sub
 	end
+	refreshSync()
 end
 
 -- Plays whatever the character attributes say, at the shared frame.
@@ -417,9 +590,9 @@ local function applyDance()
 		track:Play(0.2)
 		if not dance.looped then
 			track.Stopped:Connect(function()
-				if current.track == track then
-					requestStop()
-				end
+				if current.track ~= track then return end
+				-- A synced one-shot ends with the leader's Stop; keep the link.
+				if joinedPlayer() then stopTrack() refreshButtons() else requestStop() end
 			end)
 		end
 	end
@@ -427,6 +600,8 @@ local function applyDance()
 	current.start = start
 	current.speed = speed
 	track:AdjustSpeed(speed)
+	-- The slider shows the tempo actually danced (a leader's while synced).
+	if not dragging then setTempo(speed, false) end
 	-- Align to the shared clock (needed for 같이 추기 and tempo changes).
 	task.spawn(function()
 		local waited = 0
@@ -461,7 +636,7 @@ local function watchCharacter(character: Model)
 	local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid?
 	if humanoid then
 		table.insert(characterConnections, humanoid.Seated:Connect(function(active)
-			if active and current.track then requestStop() end
+			if active and (current.track or joinedPlayer()) then requestStop() end
 		end))
 		table.insert(characterConnections, humanoid.Died:Connect(stopTrack))
 	end
@@ -470,46 +645,28 @@ end
 if player.Character then task.spawn(watchCharacter, player.Character) end
 player.CharacterAdded:Connect(watchCharacter)
 
--- Moving or jumping ends the dance (like real emotes).
-local movingFor = 0
-RunService.Heartbeat:Connect(function(dt)
-	if not current.track then
-		movingFor = 0
-		return
-	end
-	local _, humanoid = myCharacter()
-	if not humanoid then return end
-	local moving = humanoid.MoveDirection.Magnitude > 0.1 or humanoid.Jump
-	movingFor = if moving then movingFor + dt else 0
-	if movingFor > 0.12 then
-		movingFor = 0
-		requestStop()
-	end
-end)
-
 --------------------------------------------------
 -- Panel content
 --------------------------------------------------
 
-local function setTempo(value: number, send: boolean)
-	tempo = ClubConfig.clampTempo(value)
-	local alpha = (tempo - ClubConfig.TempoMin) / (ClubConfig.TempoMax - ClubConfig.TempoMin)
-	fill.Size = UDim2.fromScale(alpha, 1)
-	knob.Position = UDim2.fromScale(alpha, 0.5)
-	tempoLabel.Text = string.format("%.1fx", tempo)
-	if send and current.key then
-		danceRemote:FireServer("Speed", tempo)
-	end
-end
-setTempo(1, false)
-
 local function startDance(key: string)
-	if current.key == key then
+	-- Tapping the dance you are doing on your own stops it; while synced it
+	-- becomes your own dance instead.
+	if current.key == key and not joinedPlayer() then
 		requestStop()
 		return
 	end
 	stopSent = false
 	danceRemote:FireServer("Start", key, tempo)
+end
+
+local function joinPlayer(target: Player)
+	stopSent = false
+	danceRemote:FireServer("Join", target.UserId)
+end
+
+local function leaveSync()
+	danceRemote:FireServer("Leave")
 end
 
 local function renderGrid()
@@ -518,54 +675,109 @@ local function renderGrid()
 	end
 	table.clear(danceButtons)
 	for index, dance in ipairs(ClubConfig.Dances) do
-		if dance.category == selectedCategory then
-			local button = create("TextButton", {
+		if dance.category == selectedTab then
+			local danceBtn = button({
 				Name = dance.key,
 				LayoutOrder = index,
-				BackgroundColor3 = COLORS.card,
 				Text = dance.name,
-				TextColor3 = COLORS.text,
-				TextSize = 17,
+				TextSize = 15,
 				TextWrapped = true,
-				Font = Enum.Font.GothamBold,
 			}, grid)
-			corner(button, 8)
-			button.MouseButton1Click:Connect(function()
+			danceBtn.MouseButton1Click:Connect(function()
 				startDance(dance.key)
 			end)
-			danceButtons[dance.key] = button
+			danceButtons[dance.key] = danceBtn
 		end
 	end
 	refreshButtons()
 end
 
-local tabButtons: {[string]: TextButton} = {}
-for index, category in ipairs(ClubConfig.Categories) do
-	local tab = create("TextButton", {
-		Name = "Tab_" .. category,
-		LayoutOrder = index,
-		Size = UDim2.fromOffset(104, 28),
-		BackgroundColor3 = COLORS.card,
-		Text = category,
-		TextColor3 = COLORS.text,
-		TextSize = 16,
-		Font = Enum.Font.GothamBold,
-	}, tabRow)
-	corner(tab, 14)
-	tabButtons[category] = tab
-	tab.MouseButton1Click:Connect(function()
-		selectedCategory = category
-		for name, button in pairs(tabButtons) do
-			button.BackgroundColor3 = if name == category then COLORS.accent else COLORS.card
+-- 같이 추기 list: everyone nearby in the club (dancing or not).
+local function renderJoinList()
+	for _, child in ipairs(joinList:GetChildren()) do
+		if child:IsA("Frame") then child:Destroy() end
+	end
+	local myRoot = rootOf(player.Character)
+	local leader = joinedPlayer()
+	local rows = {}
+	if myRoot then
+		for _, other in ipairs(Players:GetPlayers()) do
+			local root = rootOf(other.Character)
+			if other ~= player and root and ClubConfig.isInClub(root.Position) then
+				local distance = (root.Position - myRoot.Position).Magnitude
+				if distance <= ClubConfig.JoinRadius then
+					table.insert(rows, { player = other, distance = distance })
+				end
+			end
 		end
-		renderGrid()
-	end)
+	end
+	table.sort(rows, function(a, b) return a.distance < b.distance end)
+	for index, entry in ipairs(rows) do
+		local other = entry.player :: Player
+		local dance = ClubConfig.findDance(other.Character and other.Character:GetAttribute("DanceKey"))
+		local row = create("Frame", {
+			Name = "Join_" .. other.Name,
+			LayoutOrder = index,
+			Size = UDim2.new(1, -6, 0, 36),
+			BackgroundColor3 = COLORS.card,
+		}, joinList)
+		corner(row, 8)
+		label({
+			Position = UDim2.fromOffset(8, 0),
+			Size = UDim2.new(1, -96, 1, 0),
+			Text = other.DisplayName .. " · " .. (if dance then dance.name else "쉬는 중"),
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			TextSize = 14,
+			Font = Enum.Font.GothamMedium,
+		}, row)
+		local together = leader == other
+		local rowButton = button({
+			Name = "JoinButton",
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, -4, 0.5, 0),
+			Size = UDim2.fromOffset(84, 28),
+			BackgroundColor3 = if together then COLORS.accent else COLORS.join,
+			Text = if together then "해제" else "같이 추기",
+			TextSize = 14,
+		}, row, 14)
+		rowButton.MouseButton1Click:Connect(function()
+			if together then leaveSync() else joinPlayer(other) end
+		end)
+	end
+	joinEmpty.Visible = #rows == 0
 end
-tabButtons[selectedCategory].BackgroundColor3 = COLORS.accent
-renderGrid()
+
+local tabButtons: {[string]: TextButton} = {}
+local function selectTab(name: string)
+	selectedTab = name
+	for tabName, tab in pairs(tabButtons) do
+		tab.BackgroundColor3 = if tabName == name
+			then (if name == JOIN_TAB then COLORS.join else COLORS.accent)
+			else COLORS.card
+	end
+	local joinTab = name == JOIN_TAB
+	grid.Visible = not joinTab
+	joinList.Visible = joinTab
+	if joinTab then renderJoinList() else renderGrid() end
+end
+
+local tabNames = table.clone(ClubConfig.Categories)
+table.insert(tabNames, JOIN_TAB)
+for index, name in ipairs(tabNames) do
+	local tab = button({
+		Name = "Tab_" .. name,
+		LayoutOrder = index,
+		Size = UDim2.new(1 / #tabNames, -4, 1, 0),
+		Text = name,
+		TextSize = 14,
+	}, tabRow, 14)
+	tabButtons[name] = tab
+	tab.MouseButton1Click:Connect(function() selectTab(name) end)
+end
+selectTab(selectedTab)
 
 -- Tempo slider: drag on the bar or knob; −/+ for touch precision.
-local dragging = false
 local function tempoFromX(x: number)
 	local alpha = math.clamp((x - bar.AbsolutePosition.X) / math.max(bar.AbsoluteSize.X, 1), 0, 1)
 	setTempo(ClubConfig.TempoMin + alpha * (ClubConfig.TempoMax - ClubConfig.TempoMin), false)
@@ -593,79 +805,17 @@ minusButton.MouseButton1Click:Connect(function() setTempo(tempo - ClubConfig.Tem
 plusButton.MouseButton1Click:Connect(function() setTempo(tempo + ClubConfig.TempoStep, true) end)
 
 stopButton.MouseButton1Click:Connect(function()
-	if current.key then requestStop() end
+	if current.key or joinedPlayer() then requestStop() end
 end)
-
--- 같이 추기 list
-local function renderJoinList()
-	for _, child in ipairs(joinList:GetChildren()) do
-		if child:IsA("Frame") then child:Destroy() end
-	end
-	local _, myHumanoid = myCharacter()
-	local myRoot = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	if not myRoot or not myHumanoid then
-		joinEmpty.Visible = true
-		return
-	end
-	local myJoined = player.Character and player.Character:GetAttribute("DanceJoined")
-	local count = 0
-	for _, other in ipairs(Players:GetPlayers()) do
-		local character = other.Character
-		local key = character and character:GetAttribute("DanceKey")
-		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-		local dance = ClubConfig.findDance(key)
-		if other ~= player and dance and root and (root.Position - myRoot.Position).Magnitude <= ClubConfig.JoinRadius then
-			count += 1
-			local row = create("Frame", {
-				Name = "Join_" .. other.Name,
-				LayoutOrder = count,
-				Size = UDim2.new(1, -6, 0, 34),
-				BackgroundColor3 = COLORS.card,
-			}, joinList)
-			corner(row, 8)
-			create("TextLabel", {
-				Position = UDim2.fromOffset(8, 0),
-				Size = UDim2.new(1, -96, 1, 0),
-				BackgroundTransparency = 1,
-				Text = other.DisplayName .. " · " .. dance.name,
-				TextXAlignment = Enum.TextXAlignment.Left,
-				TextTruncate = Enum.TextTruncate.AtEnd,
-				TextColor3 = COLORS.text,
-				TextSize = 15,
-				Font = Enum.Font.GothamMedium,
-			}, row)
-			local together = myJoined == other.UserId and current.key == dance.key
-			local button = create("TextButton", {
-				Name = "JoinButton",
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -4, 0.5, 0),
-				Size = UDim2.fromOffset(84, 26),
-				BackgroundColor3 = if together then COLORS.card else COLORS.join,
-				Text = if together then "함께 추는 중" else "같이 추기",
-				TextColor3 = COLORS.text,
-				TextSize = 14,
-				Font = Enum.Font.GothamBold,
-				AutoButtonColor = not together,
-			}, row)
-			corner(button, 13)
-			if not together then
-				button.MouseButton1Click:Connect(function()
-					stopSent = false
-					danceRemote:FireServer("Join", other.UserId)
-				end)
-			end
-		end
-	end
-	joinEmpty.Visible = count == 0
-end
+syncLeave.MouseButton1Click:Connect(leaveSync)
 
 local preloaded = false
 local function setPanelOpen(open: boolean)
 	panel.Visible = open
 	danceButton.BackgroundColor3 = if open then COLORS.accent else Color3.fromRGB(0, 0, 0)
+	layoutPanel()
 	if open then
-		layoutPanel()
-		renderJoinList()
+		if selectedTab == JOIN_TAB then renderJoinList() end
 		if not preloaded then
 			preloaded = true
 			local list = {}
@@ -682,10 +832,180 @@ end
 danceButton.MouseButton1Click:Connect(function() setPanelOpen(not panel.Visible) end)
 closeButton.MouseButton1Click:Connect(function() setPanelOpen(false) end)
 
+--------------------------------------------------
+-- Player card: tap/click another player in the club
+--------------------------------------------------
+
+local cardTarget: Player? = nil
+local cardHighlight = create("Highlight", {
+	Name = "DanceTargetHighlight",
+	FillTransparency = 1,
+	OutlineColor = COLORS.join,
+	OutlineTransparency = 0,
+	DepthMode = Enum.HighlightDepthMode.Occluded,
+})
+
+local function closeCard()
+	cardTarget = nil
+	playerCard.Visible = false
+	cardHighlight.Parent = nil
+end
+
+local function refreshCard()
+	local target = cardTarget
+	if not target then return end
+	local character = target.Character
+	if not target.Parent or not character or not inClub(character) or not inClub(player.Character) then
+		closeCard()
+		return
+	end
+	local dance = ClubConfig.findDance(character:GetAttribute("DanceKey"))
+	local speed = character:GetAttribute("DanceSpeed")
+	cardDance.Text = if dance
+		then string.format("♪ %s · %.1fx", dance.name, if typeof(speed) == "number" then speed else 1)
+		else "지금은 춤을 쉬는 중"
+	local together = joinedPlayer() == target
+	cardJoin.Text = if together then "같이 추기 해제" else "💃 같이 추기"
+	cardJoin.BackgroundColor3 = if together then COLORS.accent else COLORS.join
+	local amDJ = FashionGame:GetAttribute("ClubDJ") == player.UserId
+	cardInvite.Visible = amDJ
+	playerCard.Size = UDim2.fromOffset(playerCard.Size.X.Offset, if amDJ then 164 else 124)
+	if amDJ then
+		local invited = isGuest(target.UserId)
+		cardInvite.Text = if invited then "DJ 존 초대 취소" else "🎧 DJ 존 초대"
+		cardInvite.BackgroundColor3 = if invited then COLORS.card else Color3.fromRGB(0, 140, 120)
+	end
+	-- Local-only outline on the chosen player.
+	if cardHighlight.Parent ~= character then cardHighlight.Parent = character end
+end
+
+local function openCard(target: Player)
+	cardTarget = target
+	cardName.Text = target.DisplayName
+	cardUser.Text = "@" .. target.Name
+	cardPhoto.Image = ""
+	layoutPanel()
+	playerCard.Visible = true
+	refreshCard()
+	task.spawn(function()
+		local ok, image = pcall(function()
+			return Players:GetUserThumbnailAsync(target.UserId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size100x100)
+		end)
+		if ok and cardTarget == target then cardPhoto.Image = image end
+	end)
+end
+
+cardClose.MouseButton1Click:Connect(closeCard)
+cardInvite.MouseButton1Click:Connect(function()
+	local target = cardTarget
+	if not target then return end
+	local action = if isGuest(target.UserId) then "Uninvite" else "Invite"
+	task.spawn(function()
+		pcall(function() musicRemote:InvokeServer(action, target.UserId) end)
+		refreshCard()
+	end)
+end)
+cardJoin.MouseButton1Click:Connect(function()
+	local target = cardTarget
+	if not target then return end
+	if joinedPlayer() == target then
+		leaveSync()
+	else
+		joinPlayer(target)
+	end
+	closeCard()
+end)
+
+-- Finds the other player under a screen point: exact raycast first, then the
+-- nearest body on screen (thin avatars are hard to tap on phones).
+local function playerAt(screen: Vector2): Player?
+	local camera = workspace.CurrentCamera
+	if not camera then return nil end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { player.Character :: Instance }
+	local ray = camera:ScreenPointToRay(screen.X, screen.Y)
+	local result = workspace:Raycast(ray.Origin, ray.Direction * 300, params)
+	if result then
+		local node: Instance? = result.Instance
+		while node and node ~= workspace do
+			local owner = Players:GetPlayerFromCharacter(node)
+			if owner then return if owner ~= player then owner else nil end
+			node = node.Parent
+		end
+	end
+	local best, bestDistance = nil, 36
+	for _, other in ipairs(Players:GetPlayers()) do
+		local character = other.Character
+		local root = rootOf(character)
+		local head = character and character:FindFirstChild("Head") :: BasePart?
+		if other ~= player and root and head then
+			local a, onA = camera:WorldToScreenPoint(root.Position - Vector3.new(0, 2, 0))
+			local b, onB = camera:WorldToScreenPoint(head.Position)
+			if (onA or onB) and a.Z < 200 then
+				-- Distance from the tap to the body's screen segment.
+				local pa, pb = Vector2.new(a.X, a.Y), Vector2.new(b.X, b.Y)
+				local ab = pb - pa
+				local t = if ab.Magnitude > 0 then math.clamp((screen - pa):Dot(ab) / ab:Dot(ab), 0, 1) else 0
+				local distance = (screen - (pa + ab * t)).Magnitude
+				if distance < bestDistance then
+					best, bestDistance = other, distance
+				end
+			end
+		end
+	end
+	return best
+end
+
+-- A tap/click = press and release without dragging the camera.
+local presses: {[InputObject]: { position: Vector2, time: number }} = {}
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		presses[input] = { position = Vector2.new(input.Position.X, input.Position.Y), time = os.clock() }
+	end
+end)
+UserInputService.InputEnded:Connect(function(input, processed)
+	local press = presses[input]
+	presses[input] = nil
+	if not press or processed then return end
+	local position = Vector2.new(input.Position.X, input.Position.Y)
+	if (position - press.position).Magnitude > 12 or os.clock() - press.time > 0.45 then return end
+	if not inClub(player.Character) then return end
+	local target = playerAt(position)
+	if target and inClub(target.Character) then
+		openCard(target)
+	elseif playerCard.Visible then
+		closeCard()
+	end
+end)
+
+--------------------------------------------------
+-- Club presence: 💃 only inside the club
+--------------------------------------------------
+
+local wasInClub = false
+task.spawn(function()
+	while true do
+		task.wait(0.25)
+		local here = inClub(player.Character)
+		if here ~= wasInClub then
+			wasInClub = here
+			danceButton.Visible = here
+			if not here then
+				setPanelOpen(false)
+				closeCard()
+			end
+		end
+		if playerCard.Visible then refreshCard() end
+	end
+end)
+
 task.spawn(function()
 	while true do
 		task.wait(1)
-		if panel.Visible then renderJoinList() end
+		if panel.Visible and selectedTab == JOIN_TAB then renderJoinList() end
+		if syncPill.Visible then refreshSync() end
 	end
 end)
 
@@ -723,21 +1043,29 @@ FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function() task.spawn
 FashionGame:GetAttributeChangedSignal("ClubTrackStart"):Connect(function() task.spawn(syncMusic) end)
 task.spawn(syncMusic)
 
-local function distanceToZone(position: Vector3): number
-	local best = math.huge
+-- 0..1 music level at a position: inside a zone that zone's volume (the
+-- quieter rooftop wins over the hall below it); outside, the loudest fade.
+local function musicLevel(position: Vector3): number
+	local inside: number? = nil
+	local outside = 0
 	for _, zone in ipairs(CollectionService:GetTagged("ClubZone")) do
 		if zone:IsA("BasePart") then
+			local zoneVolume = ClubConfig.ZoneVolumes[zone:GetAttribute("Zone") or "Hall"] or 1
 			local p = zone.CFrame:PointToObjectSpace(position)
 			local half = zone.Size / 2
-			local outside = Vector3.new(
+			local distance = Vector3.new(
 				math.max(math.abs(p.X) - half.X, 0),
 				math.max(math.abs(p.Y) - half.Y, 0),
 				math.max(math.abs(p.Z) - half.Z, 0)
-			)
-			best = math.min(best, outside.Magnitude)
+			).Magnitude
+			if distance == 0 then
+				inside = math.min(inside or math.huge, zoneVolume)
+			else
+				outside = math.max(outside, zoneVolume * math.clamp(1 - distance / ClubConfig.FadeDistance, 0, 1))
+			end
 		end
 	end
-	return best
+	return inside or outside
 end
 
 -- Beat lights: parts tagged "ClubBeat" brighten with the music loudness.
@@ -748,10 +1076,9 @@ RunService.RenderStepped:Connect(function(dt)
 	local camera = workspace.CurrentCamera
 	if accumulator >= 0.2 and camera then
 		accumulator = 0
-		local focus = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		local focus = rootOf(player.Character)
 		local position = if focus then focus.Position else camera.CFrame.Position
-		local distance = distanceToZone(position)
-		local level = math.clamp(1 - distance / ClubConfig.FadeDistance, 0, 1)
+		local level = musicLevel(position)
 		music.Volume = ClubConfig.MusicVolume * level
 		banner.Visible = level > 0 and banner.Text ~= ""
 	end

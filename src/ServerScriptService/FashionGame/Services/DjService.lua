@@ -6,10 +6,18 @@
 -- extends their time; anyone else is put in the queue and starts when the slot
 -- frees up (time is never lost: it starts when the turn begins).
 --
+-- The current DJ may extend only while nobody is waiting (user, 2026-10-20);
+-- a DJ who still buys while others wait goes to the back of the queue, so a
+-- purchase is never lost.
+--
+-- DJ zone guests: besides the DJ, only players the DJ invites may enter the
+-- DJ zone (user, 2026-10-20). Invites end when the DJ changes.
+--
 -- Public state (ReplicatedStorage.FashionGame attributes):
 --   ClubDJ       userId of the DJ, 0 when nobody
 --   ClubDJUntil  server time the current DJ's time ends
 --   ClubDJQueue  number of people waiting
+--   ClubDJGuests JSON list of invited userIds
 --
 -- DJ abilities live in ClubService (music) today. Future DJ features (lights,
 -- effects, announcements, crowd votes) hook in through DjService.IsDJ and the
@@ -28,8 +36,12 @@ type Slot = { userId: number, seconds: number }
 local current: Slot? = nil
 local currentUntil = 0
 local queue: {Slot} = {}
+local guests: {[number]: boolean} = {}
 local changed = Instance.new("BindableEvent")
 DjService.Changed = changed.Event
+
+local HttpService = game:GetService("HttpService")
+local MAX_GUESTS = 6
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -39,12 +51,16 @@ local function publish()
 	FashionGame:SetAttribute("ClubDJ", if current then current.userId else 0)
 	FashionGame:SetAttribute("ClubDJUntil", if current then currentUntil else 0)
 	FashionGame:SetAttribute("ClubDJQueue", #queue)
+	local list = {}
+	for userId in pairs(guests) do table.insert(list, userId) end
+	FashionGame:SetAttribute("ClubDJGuests", HttpService:JSONEncode(list))
 	changed:Fire()
 end
 
 local function startNext()
 	current = nil
 	currentUntil = 0
+	table.clear(guests)
 	while #queue > 0 do
 		local slot = table.remove(queue, 1) :: Slot
 		if Players:GetPlayerByUserId(slot.userId) then
@@ -64,13 +80,29 @@ function DjService.CurrentDJ(): number
 	return if current then current.userId else 0
 end
 
+function DjService.IsGuest(player: Player): boolean
+	return current ~= nil and guests[player.UserId] == true
+end
+
+-- The current DJ can buy more time only while nobody is waiting.
+function DjService.CanExtend(player: Player): boolean
+	return current ~= nil and current.userId == player.UserId and #queue == 0
+end
+
 -- Adds DJ time for the player. Returns (true, message for the buyer).
 function DjService.AddTime(player: Player): (boolean, string?)
 	local seconds = MonetizationConfig.DJMinutes * 60
 	if current and current.userId == player.UserId then
-		currentUntil += seconds
+		if #queue == 0 then
+			currentUntil += seconds
+			publish()
+			return true, string.format("DJ 시간이 %d분 연장되었습니다.", MonetizationConfig.DJMinutes)
+		end
+		-- Others are waiting (the client hides 연장 then; this covers a race):
+		-- the bought time becomes a new turn at the back of the queue.
+		table.insert(queue, { userId = player.UserId, seconds = seconds })
 		publish()
-		return true, string.format("DJ 시간이 %d분 연장되었습니다.", MonetizationConfig.DJMinutes)
+		return true, string.format("기다리는 DJ가 있어 연장 대신 대기 %d번째로 넣었어요.", #queue)
 	end
 	for _, slot in ipairs(queue) do
 		if slot.userId == player.UserId then
@@ -79,11 +111,15 @@ function DjService.AddTime(player: Player): (boolean, string?)
 			return true, "대기 중인 DJ 시간이 늘어났습니다."
 		end
 	end
+	if current and now() >= currentUntil then
+		-- The slot just expired (the 1 s sweep has not run yet).
+		startNext()
+	end
 	if not current then
 		current = { userId = player.UserId, seconds = seconds }
 		currentUntil = now() + seconds
 		publish()
-		return true, string.format("지금부터 %d분 동안 DJ입니다! DJ 부스로 가세요.", MonetizationConfig.DJMinutes)
+		return true, string.format("지금부터 %d분 동안 DJ입니다! 🎵 버튼으로 곡을 고르세요.", MonetizationConfig.DJMinutes)
 	end
 	table.insert(queue, { userId = player.UserId, seconds = seconds })
 	publish()
@@ -94,9 +130,49 @@ end
 -- ClubService routes Music remote calls whose action is not a music action to this table.
 DjService.Actions = {} :: {[string]: (Player, any) -> (boolean, any)}
 
+local function notify(player: Player, message: string)
+	local remotes = FashionGame:FindFirstChild("Remotes")
+	local remote = remotes and remotes:FindFirstChild("ClubNotify")
+	if remote and remote:IsA("RemoteEvent") then remote:FireClient(player, "Toast", message) end
+end
+
+-- "Invite" / "Uninvite" (payload = userId): DJ zone guests. Only the DJ gets
+-- here (ClubService checks IsDJ before calling an action).
+DjService.Actions.Invite = function(dj: Player, userId: any): (boolean, any)
+	local target = typeof(userId) == "number" and Players:GetPlayerByUserId(userId)
+	if not target or target == dj then return false, "초대할 수 없는 사람이에요." end
+	if guests[target.UserId] then
+		notify(dj, target.DisplayName .. "님은 이미 초대했어요.")
+		return true, nil
+	end
+	local count = 0
+	for _ in pairs(guests) do count += 1 end
+	if count >= MAX_GUESTS then return false, string.format("DJ 존 초대는 %d명까지예요.", MAX_GUESTS) end
+	guests[target.UserId] = true
+	publish()
+	notify(target, dj.DisplayName .. " DJ님이 DJ 존에 초대했어요! 무대로 올라오세요.")
+	notify(dj, target.DisplayName .. "님을 DJ 존에 초대했어요.")
+	return true, nil
+end
+
+DjService.Actions.Uninvite = function(dj: Player, userId: any): (boolean, any)
+	if typeof(userId) ~= "number" or not guests[userId] then return true, nil end
+	guests[userId] = nil
+	publish()
+	local target = Players:GetPlayerByUserId(userId)
+	if target then
+		notify(target, "DJ 존 초대가 취소되었어요.")
+		notify(dj, target.DisplayName .. "님 초대를 취소했어요.")
+	end
+	return true, nil
+end
+
 function DjService.Start()
 	publish()
 	Players.PlayerRemoving:Connect(function(player)
+		if guests[player.UserId] then
+			guests[player.UserId] = nil
+		end
 		for index = #queue, 1, -1 do
 			if queue[index].userId == player.UserId then
 				table.remove(queue, index)

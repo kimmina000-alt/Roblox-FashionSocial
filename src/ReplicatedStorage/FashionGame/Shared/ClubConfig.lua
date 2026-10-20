@@ -68,7 +68,8 @@ ClubConfig.TempoMin = 0.5
 ClubConfig.TempoMax = 2.0
 ClubConfig.TempoStep = 0.1
 
--- How far away another dancer can be to show up under 같이 추기.
+-- How far away another player can be to show up under 같이 추기 (the panel
+-- list). Clicking a player works anywhere inside the club.
 ClubConfig.JoinRadius = 90
 
 -- Shared club music. One track plays for everyone; the channel name is shown.
@@ -90,6 +91,10 @@ ClubConfig.Playlist = {
 -- the club zone (parts tagged "ClubZone").
 ClubConfig.MusicVolume = 0.55
 ClubConfig.FadeDistance = 45
+-- Volume per club zone (ClubZone part attribute "Zone"). Inside a zone that
+-- zone's level is used; outside, the loudest fade wins. The rooftop is
+-- quieter, like music coming up from below (user, 2026-10-20).
+ClubConfig.ZoneVolumes = { Hall = 1, Rooftop = 0.3 }
 
 --------------------------------------------------
 -- Drinks (non-alcoholic only, D-043). Test list from the user (2026-10-20):
@@ -148,5 +153,34 @@ function ClubConfig.clampTempo(speed: any): number
 	local stepped = math.floor(speed / ClubConfig.TempoStep + 0.5) * ClubConfig.TempoStep
 	return math.clamp(stepped, ClubConfig.TempoMin, ClubConfig.TempoMax)
 end
+
+local function insideTagged(tag: string, position: Vector3): boolean
+	for _, box in ipairs(game:GetService("CollectionService"):GetTagged(tag)) do
+		if box:IsA("BasePart") then
+			local p = box.CFrame:PointToObjectSpace(position)
+			local half = box.Size / 2
+			if math.abs(p.X) <= half.X and math.abs(p.Y) <= half.Y and math.abs(p.Z) <= half.Z then
+				return true
+			end
+		end
+	end
+	return false
+end
+
+-- Inside the club (hall or rooftop): boxes tagged "ClubInterior" by the
+-- graybox script. The 💃 button and tapping players only work in here.
+function ClubConfig.isInClub(position: Vector3): boolean
+	return insideTagged("ClubInterior", position)
+end
+
+-- Dancing is allowed in the club and on photo booth stages ("PhotoStage"
+-- boxes), where the 인생네컷 pose panel uses the same dances.
+function ClubConfig.canDance(position: Vector3): boolean
+	return insideTagged("ClubInterior", position) or insideTagged("PhotoStage", position)
+end
+
+-- How long a player must stay outside before their dance stops (doorways,
+-- the rooftop elevator ride).
+ClubConfig.OutsideGrace = 1.5
 
 return ClubConfig

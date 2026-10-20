@@ -1,5 +1,6 @@
 --!strict
--- Per-player persistent data: in-game Favorites and SavedOutfits (Wardrobe).
+-- Per-player persistent data: in-game Favorites, SavedOutfits (Wardrobe) and
+-- 인생네컷 Photos (album, max 30).
 -- D-019/D-020/D-023: Favorites and SavedOutfits persist (SavedOutfits capped at
 -- 50 per user); Recent is session-only and never stored here.
 --
@@ -42,9 +43,13 @@ end
 
 type Favorite = { id: number, itemType: string, addedAt: number }
 type Outfit = { id: string, name: string, createdAt: number, snapshot: any }
+-- 인생네컷 photos (PHOTO_BOOTH.md §4): built by PhotoBoothService; stored as
+-- the data to redraw the shots, never as images.
+PlayerDataService.MaxPhotos = 30
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
+	photos: {any},
 	writing: boolean,
 	persistent: boolean,
 	dirty: boolean,
@@ -98,6 +103,21 @@ local function sanitizeOutfits(list: any): {Outfit}
 	return result
 end
 
+local function sanitizePhotos(list: any): {any}
+	local result = {}
+	local seen = {}
+	if typeof(list) ~= "table" then return result end
+	for _, entry in ipairs(list) do
+		if typeof(entry) == "table" and typeof(entry.id) == "string" and not seen[entry.id]
+			and typeof(entry.shots) == "table" and typeof(entry.people) == "table"
+			and #result < PlayerDataService.MaxPhotos then
+			seen[entry.id] = true
+			table.insert(result, entry)
+		end
+	end
+	return result
+end
+
 local function load(player: Player): Session
 	local userId = player.UserId
 	local existing = sessions[userId]
@@ -106,7 +126,7 @@ local function load(player: Player): Session
 	if sessions[userId] then return sessions[userId] end
 	loading[userId] = true
 
-	local session: Session = { favorites = {}, outfits = {}, writing = false, persistent = false, dirty = false, note = nil }
+	local session: Session = { favorites = {}, outfits = {}, photos = {}, writing = false, persistent = false, dirty = false, note = nil }
 	if store then
 		local lastError: any = nil
 		for attempt = 1, LOAD_ATTEMPTS do
@@ -117,6 +137,7 @@ local function load(player: Player): Session
 				if typeof(data) == "table" then
 					session.favorites = sanitizeFavorites(data.favorites)
 					session.outfits = sanitizeOutfits(data.outfits)
+					session.photos = sanitizePhotos(data.photos)
 				end
 				session.persistent = true
 				lastError = nil
@@ -149,12 +170,14 @@ local function save(player: Player): boolean
 	end
 	local favorites = table.clone(session.favorites)
 	local outfits = table.clone(session.outfits)
+	local photos = table.clone(session.photos)
 	local ok, err = pcall(function()
 		(store :: DataStore):UpdateAsync(keyFor(player.UserId), function(old)
 			local data = if typeof(old) == "table" then old else {}
 			data.version = SCHEMA_VERSION
 			data.favorites = favorites
 			data.outfits = outfits
+			data.photos = photos
 			return data
 		end)
 	end)
@@ -227,7 +250,8 @@ local function writeNow(player: Player, session: Session, landed: (any) -> boole
 	end
 	local favorites = table.clone(session.favorites)
 	local outfits = table.clone(session.outfits)
-	local encodedOk, encoded = pcall(HttpService.JSONEncode, HttpService, { favorites = favorites, outfits = outfits })
+	local photos = table.clone(session.photos)
+	local encodedOk, encoded = pcall(HttpService.JSONEncode, HttpService, { favorites = favorites, outfits = outfits, photos = photos })
 	if not encodedOk then
 		return false, "저장할 수 없는 데이터입니다."
 	end
@@ -242,6 +266,7 @@ local function writeNow(player: Player, session: Session, landed: (any) -> boole
 				data.version = SCHEMA_VERSION
 				data.favorites = favorites
 				data.outfits = outfits
+				data.photos = photos
 				return data
 			end)
 		end)
@@ -421,6 +446,81 @@ function PlayerDataService.GetOutfitSnapshot(player: Player, id: any): any
 		if entry.id == id then return entry.snapshot end
 	end
 	return nil
+end
+
+--------------------------------------------------
+-- 인생네컷 PHOTOS (album)
+--------------------------------------------------
+
+local function publicPhotos(session: Session)
+	return {
+		photos = session.photos,
+		persistent = session.persistent,
+		note = session.note,
+		max = PlayerDataService.MaxPhotos,
+	}
+end
+
+function PlayerDataService.GetPhotos(player: Player)
+	return true, publicPhotos(load(player))
+end
+
+-- Adds a photo (newest first) and writes it now, like outfits.
+function PlayerDataService.SavePhoto(player: Player, photo: any): (boolean, any)
+	if typeof(photo) ~= "table" or typeof(photo.id) ~= "string" then
+		return false, "사진 데이터가 올바르지 않아요."
+	end
+	local session = load(player)
+	if session.writing then
+		return false, "이전 저장이 아직 진행 중이에요. 잠시 후 다시 시도하세요."
+	end
+	if #session.photos >= PlayerDataService.MaxPhotos then
+		return false, string.format("사진첩이 가득 찼어요 (%d장). 사진첩에서 지운 뒤 다시 저장하세요.", PlayerDataService.MaxPhotos)
+	end
+	session.writing = true
+	table.insert(session.photos, 1, photo)
+	session.dirty = true
+	local ok, message = writeNow(player, session, function(data)
+		if typeof(data) ~= "table" or typeof(data.photos) ~= "table" then return false end
+		for _, entry in ipairs(data.photos) do
+			if typeof(entry) == "table" and entry.id == photo.id then return true end
+		end
+		return false
+	end)
+	if not ok then
+		local index = table.find(session.photos, photo)
+		if index then table.remove(session.photos, index) end
+	end
+	session.writing = false
+	if not ok then return false, message end
+	return true, publicPhotos(session)
+end
+
+function PlayerDataService.DeletePhoto(player: Player, id: any): (boolean, any)
+	if typeof(id) ~= "string" then return false, "잘못된 요청입니다." end
+	local session = load(player)
+	if session.writing then
+		return false, "이전 저장이 아직 진행 중이에요."
+	end
+	local index: number? = nil
+	for i, entry in ipairs(session.photos) do
+		if entry.id == id then index = i end
+	end
+	if not index then return false, "이미 지운 사진이에요." end
+	session.writing = true
+	local removed = table.remove(session.photos, index)
+	session.dirty = true
+	local ok, message = writeNow(player, session, function(data)
+		if typeof(data) ~= "table" or typeof(data.photos) ~= "table" then return false end
+		for _, entry in ipairs(data.photos) do
+			if typeof(entry) == "table" and entry.id == id then return false end
+		end
+		return true
+	end)
+	if not ok then table.insert(session.photos, index :: number, removed) end
+	session.writing = false
+	if not ok then return false, message end
+	return true, publicPhotos(session)
 end
 
 function PlayerDataService.Handle(player: Player, action: string, payload: any)

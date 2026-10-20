@@ -33,7 +33,8 @@ local function hasAccess(player: Player, gate: string): boolean
 	if gate == "VIP" then
 		return MonetizationService.HasPass(player, "VIP")
 	elseif gate == "DJ" then
-		return DjService.IsDJ(player)
+		-- The DJ and the players the DJ invited (D-061).
+		return DjService.IsDJ(player) or DjService.IsGuest(player)
 	end
 	return false
 end
@@ -86,6 +87,13 @@ local function promptPurchase(player: Player, gate: string)
 	lastPrompt[player] = t
 	local notify = Remotes:FindFirstChild("ClubNotify") :: RemoteEvent?
 	if notify then
+		-- While someone is DJing the zone is for the DJ and their guests: the
+		-- client explains that and offers a queue purchase instead of opening
+		-- the purchase window straight away.
+		if gate == "DJ" and DjService.CurrentDJ() ~= 0 then
+			notify:FireClient(player, "GateQueue", gate)
+			return
+		end
 		notify:FireClient(player, "Gate", gate)
 	end
 end
@@ -127,6 +135,26 @@ local function sweep()
 	end
 end
 
+-- Moves the DJ behind the booth (part tagged "DJSpot", facing the floor) right
+-- after buying DJ time or when their queued turn starts (user, 2026-10-20).
+-- Skipped when they are already in the DJ zone.
+function ClubAccessService.SendToDJBooth(player: Player)
+	if not DjService.IsDJ(player) then return end
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local spot = CollectionService:GetTagged("DJSpot")[1]
+	if not character or not root or not spot or not spot:IsA("BasePart") then return end
+	for _, region in ipairs(CollectionService:GetTagged("ClubRegion")) do
+		if region:IsA("BasePart") and region:GetAttribute("Gate") == "DJ" and insideBox(region, root.Position) then
+			return
+		end
+	end
+	applyGroup(player)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid and humanoid.SeatPart then humanoid.Sit = false end
+	character:PivotTo(spot.CFrame + Vector3.new(0, 3, 0))
+end
+
 function ClubAccessService.Start()
 	setupGroups()
 	for _, part in ipairs(CollectionService:GetTagged("ClubGate")) do watchGate(part) end
@@ -149,8 +177,15 @@ function ClubAccessService.Start()
 	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
 	Players.PlayerRemoving:Connect(function(player) lastPrompt[player] = nil end)
 
+	local lastDJ = 0
 	DjService.Changed:Connect(function()
 		for _, player in ipairs(Players:GetPlayers()) do applyGroup(player) end
+		local dj = DjService.CurrentDJ()
+		if dj ~= 0 and dj ~= lastDJ then
+			local djPlayer = Players:GetPlayerByUserId(dj)
+			if djPlayer then task.defer(ClubAccessService.SendToDJBooth, djPlayer) end
+		end
+		lastDJ = dj
 	end)
 	task.spawn(function()
 		while true do

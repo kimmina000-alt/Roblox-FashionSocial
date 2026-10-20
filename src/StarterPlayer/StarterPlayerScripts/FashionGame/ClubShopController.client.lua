@@ -229,6 +229,20 @@ ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 			toast(djStatusLine())
 			buyProduct("DJ")
 		end
+	elseif kind == "GateQueue" then
+		-- Someone is DJing: only the DJ's invited guests go up (D-061).
+		local dj = FashionGame:GetAttribute("ClubDJ")
+		local djPlayer = typeof(dj) == "number" and Players:GetPlayerByUserId(dj)
+		local product = MonetizationConfig.Products.DJ
+		showModal("DJ 존",
+			string.format("지금은 DJ %s님과 DJ가 초대한 사람만 올라갈 수 있어요.\n다음 DJ가 되려면 대기열에 들어가세요 (대기 %d명).",
+				if djPlayer then djPlayer.DisplayName else "", FashionGame:GetAttribute("ClubDJQueue") or 0),
+			{
+				{ name = "Close", text = "닫기", onClick = function() end },
+				{ name = "Queue", text = string.format("DJ 대기 · R$%d", product.price), color = COLORS.robux, onClick = function()
+					buyProduct("DJ")
+				end },
+			})
 	end
 end)
 

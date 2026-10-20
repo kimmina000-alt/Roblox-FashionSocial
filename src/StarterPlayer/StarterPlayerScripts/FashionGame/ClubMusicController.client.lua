@@ -1,9 +1,10 @@
 --!strict
--- Club music panel (client): 🎵 button next to 💃.
---   * No DJ: anyone can request one song at a time (queue, server-checked).
---   * DJ: 지금 틀기 / 다음 곡 / 건너뛰기, remaining time, and the DJ console
---     placeholders for future abilities (DJ_SYSTEM.md).
---   * "DJ 되기" opens the Roblox purchase window (DJ time, D-052).
+-- Club music panel (client): 🎵 button next to 💃, shown ONLY to the current
+-- DJ (user, 2026-10-20). Others buy DJ time at the DJ zone gate.
+--   * DJ: 지금 틀기 / 다음 곡 / 건너뛰기, remaining time, 시간 연장, and the DJ
+--     console placeholders for future abilities (DJ_SYSTEM.md).
+--   * The no-DJ request list below is kept for when requests get their own
+--     entry point again (server still accepts "Request").
 -- State comes from ReplicatedStorage.FashionGame attributes set by the server
 -- (ClubTrack, ClubTrackBy, ClubRequests, ClubDJ, ClubDJUntil, ClubDJQueue).
 
@@ -63,26 +64,12 @@ local musicButton = create("TextButton", {
 	TextSize = 22,
 	Font = Enum.Font.GothamBold,
 	TextColor3 = COLORS.text,
+	Visible = false,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, musicButton)
 
 -- Left of the 💃 button (which sits left of the catalog C button).
-local function positionButton()
-	local inset = GuiService.TopbarInset
-	local centerY, rightX, size = 34, -16, 44
-	if inset.Height > 0 then
-		centerY = inset.Min.Y + inset.Height / 2
-		size = math.clamp(inset.Height - 12, 32, 44)
-		local camera = workspace.CurrentCamera
-		if camera and inset.Width > 0 then
-			rightX = -(camera.ViewportSize.X - inset.Max.X) - 8
-		end
-	end
-	musicButton.Size = UDim2.fromOffset(size, size)
-	musicButton.Position = UDim2.new(1, rightX - 2 * (size + 8), 0, centerY)
-end
-positionButton()
-GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(positionButton)
+require(script.Parent:WaitForChild("TopBar")).add(musicButton, 2)
 
 local panel = create("Frame", {
 	Name = "MusicPanel",
@@ -178,7 +165,7 @@ local function djToolButton(name: string, text: string, enabled: boolean): TextB
 	local button = create("TextButton", {
 		Name = name,
 		LayoutOrder = djToolCount,
-		Size = UDim2.fromOffset(78, 30),
+		Size = UDim2.new(1 / 3, -4, 1, 0),
 		BackgroundColor3 = if enabled then COLORS.dj else COLORS.card,
 		Text = text,
 		TextColor3 = if enabled then COLORS.text else COLORS.sub,
@@ -190,9 +177,10 @@ local function djToolButton(name: string, text: string, enabled: boolean): TextB
 	return button
 end
 local skipButton = djToolButton("Skip", "⏭ 건너뛰기", true)
+-- DJ zone guests (D-061): switches the list below between songs and people.
+local guestsButton = djToolButton("Guests", "👥 초대", true)
 -- Future DJ console (DJ_SYSTEM.md §4): shown so the DJ sees what is coming.
 djToolButton("Lights", "조명 (준비 중)", false)
-djToolButton("Effects", "효과 (준비 중)", false)
 
 local listTitle = create("TextLabel", {
 	Name = "ListTitle",
@@ -260,8 +248,9 @@ local function layout()
 	if not camera then return end
 	local viewport = camera.ViewportSize
 	local top = math.max(GuiService.TopbarInset.Max.Y, 36) + 8
-	local width = math.clamp(math.floor(viewport.X * 0.3), 270, 340)
-	local height = math.clamp(viewport.Y - top - 24, 300, 560)
+	local width = math.clamp(math.floor(viewport.X * 0.36), 260, 340)
+	-- Phones in landscape are ~340 px tall: fit the screen instead of a fixed minimum.
+	local height = math.min(viewport.Y - top - 10, 560)
 	panel.Position = UDim2.new(1, -width - 12, 0, top)
 	panel.Size = UDim2.fromOffset(width, height)
 end
@@ -305,7 +294,86 @@ local function call(action: string, payload: any)
 	return ok and result
 end
 
+local showGuests = false
+
+local function guestIds(): {number}
+	local raw = FashionGame:GetAttribute("ClubDJGuests")
+	if typeof(raw) ~= "string" then return {} end
+	local ok, decoded = pcall(function() return HttpService:JSONDecode(raw) end)
+	return if ok and typeof(decoded) == "table" then decoded else {}
+end
+
+-- DJ zone guest list: everyone in the club, invited first.
+local function renderGuests()
+	for _, child in ipairs(trackList:GetChildren()) do
+		if child:IsA("Frame") then child:Destroy() end
+	end
+	local invited = guestIds()
+	local rows = {}
+	for _, other in ipairs(Players:GetPlayers()) do
+		local root = other.Character and other.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if other ~= player and root and ClubConfig.isInClub(root.Position) then
+			table.insert(rows, { player = other, invited = table.find(invited, other.UserId) ~= nil })
+		end
+	end
+	table.sort(rows, function(a, b)
+		if a.invited ~= b.invited then return a.invited end
+		return a.player.DisplayName < b.player.DisplayName
+	end)
+	for index, entry in ipairs(rows) do
+		local other = entry.player :: Player
+		local row = create("Frame", {
+			Name = "Guest_" .. other.Name,
+			LayoutOrder = index,
+			Size = UDim2.new(1, -6, 0, 40),
+			BackgroundColor3 = COLORS.card,
+		}, trackList)
+		corner(row, 8)
+		create("TextLabel", {
+			Position = UDim2.fromOffset(8, 0),
+			Size = UDim2.new(1, -86, 1, 0),
+			BackgroundTransparency = 1,
+			Text = (if entry.invited then "🎧 " else "") .. other.DisplayName,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			TextTruncate = Enum.TextTruncate.AtEnd,
+			TextColor3 = COLORS.text,
+			TextSize = 14,
+			Font = Enum.Font.GothamMedium,
+		}, row)
+		local button = create("TextButton", {
+			Name = "Invite",
+			AnchorPoint = Vector2.new(1, 0.5),
+			Position = UDim2.new(1, -4, 0.5, 0),
+			Size = UDim2.fromOffset(72, 28),
+			BackgroundColor3 = if entry.invited then COLORS.card else COLORS.dj,
+			Text = if entry.invited then "취소" else "초대",
+			TextColor3 = COLORS.text,
+			TextSize = 13,
+			Font = Enum.Font.GothamBold,
+		}, row)
+		corner(button, 14)
+		button.MouseButton1Click:Connect(function()
+			call(if entry.invited then "Uninvite" else "Invite", other.UserId)
+		end)
+	end
+	if #rows == 0 then
+		local empty = create("Frame", { Name = "Empty", Size = UDim2.new(1, -6, 0, 40), BackgroundTransparency = 1 }, trackList)
+		create("TextLabel", {
+			Size = UDim2.fromScale(1, 1),
+			BackgroundTransparency = 1,
+			Text = "클럽 안에 초대할 사람이 없어요",
+			TextColor3 = COLORS.sub,
+			TextSize = 14,
+			Font = Enum.Font.GothamMedium,
+		}, empty)
+	end
+end
+
 local function renderTracks()
+	if showGuests and isDJ() then
+		renderGuests()
+		return
+	end
 	for _, child in ipairs(trackList:GetChildren()) do
 		if child:IsA("Frame") then child:Destroy() end
 	end
@@ -368,12 +436,16 @@ local function refresh()
 	if dj then
 		local left = math.max(0, untilTime - workspace:GetServerTimeNow())
 		djLabel.Text = string.format("🎧 내가 DJ! 남은 시간 %d:%02d", math.floor(left / 60), math.floor(left % 60))
-		djButton.Text = "시간 연장"
+		-- Extending is only possible while nobody waits (D-061).
+		djButton.Text = if waiting > 0 then string.format("대기 %d명 · 연장 불가", waiting) else "시간 연장"
+		djButton.BackgroundColor3 = if waiting > 0 then COLORS.card else COLORS.robux
 	elseif djId ~= 0 then
 		local left = math.max(0, untilTime - workspace:GetServerTimeNow())
 		djLabel.Text = string.format("🎧 DJ %s · %d분 남음 · 대기 %d명", nameOf(djId), math.ceil(left / 60), waiting)
 		djButton.Text = "DJ 대기 구매"
+		djButton.BackgroundColor3 = COLORS.robux
 	else
+		djButton.BackgroundColor3 = COLORS.robux
 		djLabel.Text = "DJ 없음 · 누구나 한 곡씩 신청"
 		djButton.Text = string.format("DJ %d분 · R$%d", MonetizationConfig.DJMinutes, MonetizationConfig.Products.DJ.price)
 	end
@@ -381,7 +453,9 @@ local function refresh()
 	listTitle.Position = UDim2.fromOffset(0, if dj then 140 else 104)
 	trackList.Position = UDim2.fromOffset(0, if dj then 164 else 128)
 	trackList.Size = UDim2.new(1, 0, 1, (if dj then -164 else -128) - 74)
-	listTitle.Text = if dj then "곡 고르기 (지금 / 다음)" elseif djId ~= 0 then "DJ가 곡을 고르는 중" else "곡 신청 (한 번에 한 곡)"
+	listTitle.Text = if dj and showGuests then "DJ 존 초대 (초대한 사람만 올라올 수 있어요)"
+		elseif dj then "곡 고르기 (지금 / 다음)" elseif djId ~= 0 then "DJ가 곡을 고르는 중" else "곡 신청 (한 번에 한 곡)"
+	guestsButton.Text = if showGuests then "🎵 곡 목록" else "👥 초대"
 	local lines = {}
 	for position, entry in ipairs(requests()) do
 		local queued = ClubConfig.Playlist[entry.i]
@@ -392,29 +466,50 @@ local function refresh()
 	queueLabel.Text = if #lines > 0 then "다음 곡\n" .. table.concat(lines, "\n") else "다음 곡: 자동 재생"
 end
 
+local function setPanelOpen(open: boolean)
+	panel.Visible = open
+	musicButton.BackgroundColor3 = if open then COLORS.accent else Color3.fromRGB(0, 0, 0)
+	if open then
+		layout()
+		refresh()
+		renderTracks()
+	end
+end
+
+-- Only the DJ sees the 🎵 button; the panel closes when DJ time ends.
+local function updateVisibility()
+	local dj = isDJ()
+	musicButton.Visible = dj
+	if not dj and panel.Visible then setPanelOpen(false) end
+end
+
 local function refreshAll()
+	updateVisibility()
 	refresh()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
 musicButton.MouseButton1Click:Connect(function()
-	panel.Visible = not panel.Visible
-	musicButton.BackgroundColor3 = if panel.Visible then COLORS.accent else Color3.fromRGB(0, 0, 0)
-	if panel.Visible then
-		layout()
-		refreshAll()
-	end
+	setPanelOpen(not panel.Visible)
 end)
 closeButton.MouseButton1Click:Connect(function()
-	panel.Visible = false
-	musicButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+	setPanelOpen(false)
 end)
 skipButton.MouseButton1Click:Connect(function() call("Skip", nil) end)
+guestsButton.MouseButton1Click:Connect(function()
+	showGuests = not showGuests
+	refresh()
+	renderTracks()
+end)
 djButton.MouseButton1Click:Connect(function()
+	if isDJ() and (FashionGame:GetAttribute("ClubDJQueue") or 0) > 0 then
+		toast("기다리는 DJ가 있어서 연장할 수 없어요.")
+		return
+	end
 	local product = MonetizationConfig.Products.DJ
 	if product.id ~= 0 then
 		MarketplaceService:PromptProductPurchase(player, product.id)
@@ -430,7 +525,12 @@ end)
 task.spawn(function()
 	while true do
 		task.wait(1)
-		if panel.Visible then refresh() end
+		updateVisibility()
+		if panel.Visible then
+			refresh()
+			if showGuests then renderTracks() end
+		end
 	end
 end)
+updateVisibility()
 refresh()

@@ -11,7 +11,8 @@
 --      the "병 놓기" prompt → client asks 모든 사람 / 친구만 / 나만 →
 --      ClubShop "Place".
 --   4. The placed bottle has "컵에 따르기" (allowed players get a cup tool)
---      and "치우기" (owner only). It disappears when empty, after
+--      and "치우기" (owner only: a bottle with cups left goes back to the
+--      owner's inventory with that count). It disappears when empty, after
 --      ClubConfig.BottleLifetime, or when the owner leaves.
 --   5. Using the cup plays the drink motion and a gulp sound, then the cup
 --      is gone.
@@ -66,7 +67,8 @@ end
 -- Bottles (carried)
 --------------------------------------------------
 
-local function giveBottle(player: Player, drinkKey: string): (boolean, string?)
+-- `servings` = cups left (a bottle taken back from a table keeps its count).
+local function giveBottle(player: Player, drinkKey: string, servings: number?): (boolean, string?)
 	local drink = ClubConfig.findDrink(drinkKey)
 	if not drink then return false, "없는 음료입니다." end
 	if countTools(player, "Bottle") >= ClubConfig.MaxBottlesCarried then
@@ -74,12 +76,16 @@ local function giveBottle(player: Player, drinkKey: string): (boolean, string?)
 	end
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then return false, "잠시 후 다시 시도하세요." end
+	local cups = math.clamp(servings or ClubConfig.BottleServings, 1, ClubConfig.BottleServings)
 	local tool = Instance.new("Tool")
-	tool.Name = "병 · " .. drink.name
-	tool.ToolTip = "테이블의 '병 놓기'로 올려놓으세요"
+	tool.Name = if cups < ClubConfig.BottleServings
+		then string.format("병 · %s (%d잔)", drink.name, cups)
+		else "병 · " .. drink.name
+	tool.ToolTip = string.format("%d잔 남음 · 테이블의 '병 놓기'로 올려놓으세요", cups)
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool:SetAttribute("Bottle", drink.key)
+	tool:SetAttribute("Servings", cups)
 	local handle = makeHandle(Vector3.new(0.7, 1.8, 0.7), drink.color)
 	handle.Parent = tool
 	tool.Grip = CFrame.new(0, -0.3, 0)
@@ -251,6 +257,8 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	if not slot then return false, "테이블이 가득 찼어요." end
 	local drink = ClubConfig.findDrink(bottleTool:GetAttribute("Bottle"))
 	if not drink then return false, nil end
+	local servings = bottleTool:GetAttribute("Servings")
+	servings = if typeof(servings) == "number" then math.clamp(servings, 1, ClubConfig.BottleServings) else ClubConfig.BottleServings
 	bottleTool:Destroy()
 	slot:SetAttribute("Occupied", true)
 
@@ -268,7 +276,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	bottle:SetAttribute("Visibility", visibility)
 	bottle:SetAttribute("DrinkKey", drink.key)
 	bottle:SetAttribute("DrinkName", drink.name)
-	bottle:SetAttribute("Servings", ClubConfig.BottleServings)
+	bottle:SetAttribute("Servings", servings)
 	local ref = Instance.new("ObjectValue")
 	ref.Name = "SlotRef"
 	ref.Value = slot
@@ -328,9 +336,19 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	clear.RequiresLineOfSight = false
 	clear.Parent = bottle
 	clear.Triggered:Connect(function(who)
-		if who.UserId == bottle:GetAttribute("Owner") and bottle.Parent then
-			removeBottle(bottle)
+		if who.UserId ~= bottle:GetAttribute("Owner") or not bottle.Parent then return end
+		-- Cups still left: the bottle goes back to the owner with that count
+		-- (user, 2026-10-20). If their hands are full it stays on the table.
+		local left = bottle:GetAttribute("Servings") or 0
+		if left > 0 then
+			local ok, message = giveBottle(who, drink.key, left)
+			if not ok then
+				toast(who, message or "병을 받을 수 없어요.")
+				return
+			end
+			toast(who, string.format("%s 병을 다시 챙겼어요 (%d잔 남음).", drink.name, left))
 		end
+		removeBottle(bottle)
 	end)
 
 	bottle.Parent = tablePart
