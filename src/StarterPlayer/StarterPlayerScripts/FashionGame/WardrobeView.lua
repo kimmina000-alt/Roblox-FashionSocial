@@ -94,7 +94,7 @@ function WardrobeView:_buildPrompt()
 		ZIndex = 401,
 	}, overlay)
 	corner(box, 12)
-	make("TextLabel", {
+	local title = make("TextLabel", {
 		Size = UDim2.new(1, -24, 0, 24),
 		Position = UDim2.fromOffset(12, 10),
 		BackgroundTransparency = 1,
@@ -162,6 +162,8 @@ function WardrobeView:_buildPrompt()
 	self.prompt = overlay
 	self.promptInput = input
 	self.promptSave = save
+	self.promptTitle = title
+	self.renaming = nil :: any
 end
 
 function WardrobeView:_openPrompt()
@@ -173,8 +175,21 @@ function WardrobeView:_openPrompt()
 	if self.ctx.editorDirty() then
 		self.ctx.showToast("아바타 편집에서 적용하지 않은 변경은 저장되지 않습니다.")
 	end
+	self.renaming = nil
+	self.promptTitle.Text = "현재 코디 저장"
 	self.promptInput.Text = ""
 	self.promptSave.Text = "저장"
+	self.prompt.Visible = true
+	self.promptInput:CaptureFocus()
+end
+
+-- Same prompt, prefilled, for renaming a saved outfit (look and date unchanged).
+function WardrobeView:_openRename(outfit: any)
+	if self.saving then return end
+	self.renaming = outfit
+	self.promptTitle.Text = "코디 이름 변경"
+	self.promptInput.Text = tostring(outfit.name)
+	self.promptSave.Text = "변경"
 	self.prompt.Visible = true
 	self.promptInput:CaptureFocus()
 end
@@ -187,18 +202,24 @@ function WardrobeView:_confirmSave()
 		self.ctx.showToast("이름을 입력하세요.")
 		return
 	end
+	local renaming = self.renaming
 	self.saving = true
-	self.promptSave.Text = "저장 중..."
+	self.promptSave.Text = if renaming then "변경 중..." else "저장 중..."
 	local ok, success, result = pcall(function()
+		if renaming then
+			return self.ctx.PlayerData:InvokeServer("RenameOutfit", { id = renaming.id, name = name })
+		end
 		return self.ctx.PlayerData:InvokeServer("SaveOutfit", { name = name })
 	end)
 	self.saving = false
-	self.promptSave.Text = "저장"
+	self.promptSave.Text = if renaming then "변경" else "저장"
 	if ok and success == true and typeof(result) == "table" then
 		self.prompt.Visible = false
+		self.renaming = nil
 		self:_setData(result)
-		self.ctx.showToast(if result.persistent then "코디를 저장했습니다."
-			else "코디를 저장했습니다.\n" .. tostring(result.note or "이번 접속 동안만 유지됩니다."))
+		local done = if renaming then "이름을 바꿨습니다." else "코디를 저장했습니다."
+		self.ctx.showToast(if result.persistent then done
+			else done .. "\n" .. tostring(result.note or "이번 접속 동안만 유지됩니다."))
 		if self.ctx.isActive() then self:render() end
 	else
 		self.ctx.showToast(if typeof(result) == "string" then result else "저장하지 못했습니다. 다시 시도하세요.")
@@ -385,6 +406,23 @@ function WardrobeView:_outfitCard(outfit: any, index: number)
 	corner(wear, 7)
 	wear.MouseButton1Click:Connect(function()
 		self:_restore(outfit, wear)
+	end)
+
+	local rename = make("TextButton", {
+		Name = "Rename",
+		Size = UDim2.fromOffset(26, 26),
+		Position = UDim2.fromOffset(10, 8),
+		BackgroundColor3 = Color3.fromRGB(20, 20, 26),
+		BackgroundTransparency = 0.25,
+		Text = "✏️",
+		TextColor3 = COLORS.text,
+		TextSize = 14,
+		Font = Enum.Font.GothamBold,
+		ZIndex = 4,
+	}, content)
+	corner(rename, 13)
+	rename.MouseButton1Click:Connect(function()
+		self:_openRename(outfit)
 	end)
 
 	-- Delete: first tap arms (shows 삭제?), second tap within 3s deletes.

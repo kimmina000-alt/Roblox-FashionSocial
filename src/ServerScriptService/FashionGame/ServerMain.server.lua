@@ -41,6 +41,19 @@ local function runExclusive(player: Player, fn: () -> (boolean, any)): (boolean,
 	return result, message
 end
 
+-- Typed item identity (ISSUE-AUDIT-001): Wear/Remove take {id, itemType}.
+-- A bare number is still accepted and means an Asset.
+local function typedItem(payload: any): (number?, string?)
+	if typeof(payload) == "number" then
+		return payload, "Asset"
+	end
+	if typeof(payload) == "table" and typeof(payload.id) == "number"
+		and (payload.itemType == "Asset" or payload.itemType == "Bundle") then
+		return payload.id, payload.itemType
+	end
+	return nil, nil
+end
+
 TryOnItem.OnServerInvoke = function(
 	player: Player,
 	action: string,
@@ -51,23 +64,31 @@ TryOnItem.OnServerInvoke = function(
 	end
 
 	if action == "Wear" then
-		print("[FashionGame][Server] Wear received", player.Name, payload)
-		local result, message = runExclusive(player, function()
-			return AvatarService.TryOnItem(player, payload)
+		local id, itemType = typedItem(payload)
+		if not id then
+			return false, "Invalid item."
+		end
+		return runExclusive(player, function()
+			if itemType == "Bundle" then
+				return AvatarService.WearBundle(player, id)
+			end
+			return AvatarService.TryOnItem(player, id)
 		end)
-		print("[FashionGame][Server] Wear finished", result, message)
-		return result, message
 	end
 
-	if action == "WearShoeBundle" then
+	if action == "WearBundle" or action == "WearShoeBundle" then
 		return runExclusive(player, function()
-			return AvatarService.WearShoeBundle(player, payload)
+			return AvatarService.WearBundle(player, payload)
 		end)
 	end
 
 	if action == "Remove" then
+		local id, itemType = typedItem(payload)
+		if not id or itemType ~= "Asset" then
+			return false, "Invalid item."
+		end
 		return runExclusive(player, function()
-			return AvatarService.RemoveItem(player, payload)
+			return AvatarService.RemoveItem(player, id)
 		end)
 	end
 
@@ -92,7 +113,7 @@ TryOnItem.OnServerInvoke = function(
 	if action == "RestoreOutfit" then
 		local snapshot = PlayerDataService.GetOutfitSnapshot(player, payload)
 		if not snapshot then
-			return false, "Saved outfit not found."
+			return false, "저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다."
 		end
 		return runExclusive(player, function()
 			return AvatarService.RestoreSnapshot(player, snapshot)
@@ -124,6 +145,17 @@ PlayerData.OnServerInvoke = function(player: Player, action: string, payload: an
 		return PlayerDataService.SaveOutfit(player, if typeof(payload) == "table" then payload.name else nil, snapshot)
 	end
 	return PlayerDataService.Handle(player, action, payload)
+end
+
+-- Remember each character's own body so a worn body part can be removed.
+local function watchAppearance(player: Player)
+	player.CharacterAppearanceLoaded:Connect(function()
+		AvatarService.RememberSpawnLook(player)
+	end)
+end
+game:GetService("Players").PlayerAdded:Connect(watchAppearance)
+for _, existing in ipairs(game:GetService("Players"):GetPlayers()) do
+	watchAppearance(existing)
 end
 
 game:GetService("Players").PlayerRemoving:Connect(function(player)

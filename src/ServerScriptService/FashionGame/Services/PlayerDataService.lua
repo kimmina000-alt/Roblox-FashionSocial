@@ -355,6 +355,65 @@ function PlayerDataService.DeleteOutfit(player: Player, id: any)
 	return true, publicOutfits(session)
 end
 
+local function validName(name: any): (string?, string?)
+	if typeof(name) ~= "string" then
+		return nil, "이름을 입력하세요."
+	end
+	local trimmed = (string.gsub(name, "%c", ""))
+	trimmed = (string.gsub(trimmed, "^%s+", ""))
+	trimmed = (string.gsub(trimmed, "%s+$", ""))
+	if trimmed == "" then
+		return nil, "이름을 입력하세요."
+	end
+	local length = utf8.len(trimmed)
+	if not length or length > PlayerDataService.MaxOutfitNameLength then
+		return nil, "이름은 " .. PlayerDataService.MaxOutfitNameLength .. "자 이하로 입력하세요."
+	end
+	return trimmed, nil
+end
+
+-- Rename keeps the outfit id, snapshot and date; only the name changes.
+function PlayerDataService.RenameOutfit(player: Player, id: any, name: any)
+	if typeof(id) ~= "string" then
+		return false, "Invalid outfit."
+	end
+	local trimmed, problem = validName(name)
+	if not trimmed then
+		return false, problem
+	end
+	local session = load(player)
+	if session.writing then
+		return false, "이전 저장이 아직 진행 중입니다."
+	end
+	local target: Outfit? = nil
+	for _, entry in ipairs(session.outfits) do
+		if entry.id == id then target = entry end
+	end
+	if not target then
+		return false, "이미 삭제된 코디입니다."
+	end
+	local outfit = target :: Outfit
+	local previous = outfit.name
+	session.writing = true
+	outfit.name = trimmed :: string
+	session.dirty = true
+	local ok, message = writeNow(player, session, function(data)
+		if typeof(data) ~= "table" or typeof(data.outfits) ~= "table" then return false end
+		for _, entry in ipairs(data.outfits) do
+			if typeof(entry) == "table" and entry.id == id then return entry.name == trimmed end
+		end
+		return false
+	end)
+	if not ok then
+		outfit.name = previous
+	end
+	session.writing = false
+	if not ok then
+		return false, message
+	end
+	return true, publicOutfits(session)
+end
+
 -- Snapshot of one saved outfit (the server-side restore reads it from here).
 function PlayerDataService.GetOutfitSnapshot(player: Player, id: any): any
 	if typeof(id) ~= "string" then return nil end
@@ -376,6 +435,12 @@ function PlayerDataService.Handle(player: Player, action: string, payload: any)
 	end
 	if action == "GetOutfits" then
 		return PlayerDataService.GetOutfits(player)
+	end
+	if action == "RenameOutfit" then
+		if typeof(payload) ~= "table" then
+			return false, "Invalid request."
+		end
+		return PlayerDataService.RenameOutfit(player, payload.id, payload.name)
 	end
 	if action == "DeleteOutfit" then
 		return PlayerDataService.DeleteOutfit(player, if typeof(payload) == "table" then payload.id else nil)

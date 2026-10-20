@@ -39,7 +39,6 @@ local currentIncludeOffSale = Config.IncludeOffSale
 
 local currentWornItems: {[number]: boolean} = {}
 local wornOrder: {number} = {}
-local viewedOrder: {any} = {}
 local activeTopLevelGroup: string? = nil
 local filterPanelOpen = false
 local renderSubcategoryStrip: (string?) -> ()
@@ -64,6 +63,8 @@ local searchCatalog: () -> ()
 local renderCurrentOutfit: () -> ()
 local recordRecent: (any, string) -> ()
 local toggleFavorite: (number, string, any) -> ()
+
+local friendlyError = require(script.Parent:WaitForChild("FriendlyErrors"))
 
 local catalogPages: Pages? = nil
 local currentPageNumber = 1
@@ -133,6 +134,15 @@ local TRY_ON_SUPPORTED_ASSET_TYPES: {[string]: boolean} = {
 	FaceMakeup = true,
 	LipMakeup = true,
 	EyeMakeup = true,
+	-- Body parts / head / classic face (usually reached through a bundle's contents)
+	Torso = true,
+	LeftArm = true,
+	RightArm = true,
+	LeftLeg = true,
+	RightLeg = true,
+	Head = true,
+	DynamicHead = true,
+	Face = true,
 }
 
 --------------------------------------------------
@@ -222,10 +232,9 @@ local openButton = create("TextButton", {
 })
 openButton.Parent = screenGui
 
-local openCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(1, 0),
-})
-openCorner.Parent = openButton
+}).Parent = openButton
 
 -- Anchor the catalog button to the RIGHT end of the Roblox top bar area.
 -- Left-side top bar items (menu, chat, voice chat mic) grow to the right and
@@ -366,12 +375,11 @@ local currentOutfitList = create("ScrollingFrame", {
 	AutomaticCanvasSize = Enum.AutomaticSize.X,
 })
 currentOutfitList.Parent = currentOutfitFrame
-local currentOutfitLayout = create("UIListLayout", {
+create("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	Padding = UDim.new(0, 5),
 	SortOrder = Enum.SortOrder.LayoutOrder,
-})
-currentOutfitLayout.Parent = currentOutfitList
+}).Parent = currentOutfitList
 
 
 local avatarPreviewWorld = Instance.new("WorldModel")
@@ -502,8 +510,16 @@ avatarEditorButton.MouseButton1Click:Connect(function()
 end)
 
 
-player.CharacterAdded:Connect(function()
-	task.wait(0.5)
+-- Respawn gives a fresh character (default look): rebuild the worn list, the
+-- 착용 중 grid and the preview from the server (QA 2026-10-20: the strip kept
+-- the pre-respawn items).
+player.CharacterAdded:Connect(function(character)
+	if not player:HasAppearanceLoaded() then
+		player.CharacterAppearanceLoaded:Wait()
+	end
+	task.wait(0.3)
+	if player.Character ~= character then return end
+	refreshWornItems()
 	if previewFrame.Visible then
 		refreshAvatarPreview()
 	end
@@ -538,10 +554,9 @@ local catalogPanel = create("Frame", {
 catalogPanel.Parent = mainFrame
 create("UICorner", { CornerRadius = UDim.new(0, 15) }).Parent = catalogPanel
 
-local mainCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 14),
-})
-mainCorner.Parent = mainFrame
+}).Parent = mainFrame
 
 previewFrame.Parent = mainFrame
 previewGui.Enabled = false
@@ -579,10 +594,9 @@ local closeButton = create("TextButton", {
 })
 closeButton.Parent = mainFrame
 
-local closeCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
-})
-closeCorner.Parent = closeButton
+}).Parent = closeButton
 
 local expandButton = create("TextButton", {
 	Name = "ExpandButton",
@@ -617,10 +631,9 @@ local searchBox = create("TextBox", {
 })
 searchBox.Parent = mainFrame
 
-local searchCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
-})
-searchCorner.Parent = searchBox
+}).Parent = searchBox
 
 --------------------------------------------------
 -- SEARCH BUTTON
@@ -638,10 +651,9 @@ local searchButton = create("TextButton", {
 })
 searchButton.Parent = mainFrame
 
-local searchButtonCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
-})
-searchButtonCorner.Parent = searchButton
+}).Parent = searchButton
 
 --------------------------------------------------
 -- ★ FILTER BAR
@@ -682,15 +694,13 @@ local sortButton = create("TextButton", {
 })
 sortButton.Parent = mainFrame
 
-local sortButtonPadding = create("UIPadding", {
+create("UIPadding", {
 	PaddingLeft = UDim.new(0, 12),
-})
-sortButtonPadding.Parent = sortButton
+}).Parent = sortButton
 
-local sortCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
-})
-sortCorner.Parent = sortButton
+}).Parent = sortButton
 
 local sortMenu = create("Frame", {
 	Name = "SortMenu",
@@ -703,24 +713,21 @@ local sortMenu = create("Frame", {
 })
 sortMenu.Parent = mainFrame
 
-local sortMenuCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
-})
-sortMenuCorner.Parent = sortMenu
+}).Parent = sortMenu
 
-local sortMenuLayout = create("UIListLayout", {
+create("UIListLayout", {
 	Padding = UDim.new(0, 4),
 	SortOrder = Enum.SortOrder.LayoutOrder,
-})
-sortMenuLayout.Parent = sortMenu
+}).Parent = sortMenu
 
-local sortMenuPadding = create("UIPadding", {
+create("UIPadding", {
 	PaddingTop = UDim.new(0, 4),
 	PaddingBottom = UDim.new(0, 4),
 	PaddingLeft = UDim.new(0, 4),
 	PaddingRight = UDim.new(0, 4),
-})
-sortMenuPadding.Parent = sortMenu
+}).Parent = sortMenu
 
 --------------------------------------------------
 -- ★ PRICE FILTER
@@ -740,10 +747,9 @@ local minPriceBox = create("TextBox", {
 })
 minPriceBox.Parent = mainFrame
 
-local minPriceCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
-})
-minPriceCorner.Parent = minPriceBox
+}).Parent = minPriceBox
 
 local maxPriceBox = create("TextBox", {
 	Name = "MaxPrice",
@@ -759,10 +765,9 @@ local maxPriceBox = create("TextBox", {
 })
 maxPriceBox.Parent = mainFrame
 
-local maxPriceCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
-})
-maxPriceCorner.Parent = maxPriceBox
+}).Parent = maxPriceBox
 
 local offSaleButton = create("TextButton", {
 	Name = "OffSaleButton",
@@ -776,10 +781,9 @@ local offSaleButton = create("TextButton", {
 })
 offSaleButton.Parent = mainFrame
 
-local offSaleCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
-})
-offSaleCorner.Parent = offSaleButton
+}).Parent = offSaleButton
 
 --------------------------------------------------
 -- STATUS
@@ -963,12 +967,11 @@ local function createArrowButton(name: string, text: string): TextButton
 end
 local subcategoryLeftButton = createArrowButton("SubcategoryLeftArrow", "‹")
 local subcategoryRightButton = createArrowButton("SubcategoryRightArrow", "›")
-local mainCategoryLayout = create("UIListLayout", {
+create("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	Padding = UDim.new(0, 5),
 	SortOrder = Enum.SortOrder.LayoutOrder,
-})
-mainCategoryLayout.Parent = mainCategoryStrip
+}).Parent = mainCategoryStrip
 
 local categoryLeftButton = createArrowButton("CategoryLeftArrow", "‹")
 local categoryRightButton = createArrowButton("CategoryRightArrow", "›")
@@ -1332,10 +1335,9 @@ nextButton.Parent = mainFrame
 nextButton.Visible = false
 pageLabel.Visible = false
 
-local nextCorner = create("UICorner", {
+create("UICorner", {
 	CornerRadius = UDim.new(0, 8),
-})
-nextCorner.Parent = nextButton
+}).Parent = nextButton
 
 --------------------------------------------------
 -- RESPONSIVE CATALOG LAYOUT
@@ -1721,7 +1723,7 @@ local function removeWornItem(assetId: number)
 	actionBusy = true
 	local handled, handlerError = pcall(function()
 		local ok, success, message = pcall(function()
-			return TryOnItem:InvokeServer("Remove", assetId)
+			return TryOnItem:InvokeServer("Remove", { id = assetId, itemType = "Asset" })
 		end)
 		if ok and success == true then
 			currentWornItems[assetId] = nil
@@ -1732,6 +1734,7 @@ local function removeWornItem(assetId: number)
 			refreshAvatarPreview()
 		else
 			warn("[CatalogUI] Outfit remove failed:", success, message)
+			showToast(friendlyError(message, "아이템을 벗지 못했습니다."))
 		end
 	end)
 	if not handled then
@@ -2094,36 +2097,56 @@ end
 -- Shoes are sold on Roblox only as "Shoes" bundles (left + right shoe assets;
 -- the individual shoe assets are off-sale). Wear/remove them as a pair from the
 -- card; the worn strip still lists each shoe separately.
-local SHOE_ASSET_TYPE_NAMES = { LeftShoeAccessory = true, RightShoeAccessory = true }
+-- Bundles worn as one set from the card (WEAR/WORN instead of CONTENTS):
+-- Shoes (left + right), BodyParts (full body) and DynamicHead (head). Roblox
+-- search does not return the individual parts. "Core" types decide WORN.
+local WearableBundles = {}
+WearableBundles.core = {
+	Shoes = { LeftShoeAccessory = true, RightShoeAccessory = true },
+	BodyParts = { Torso = true, LeftArm = true, RightArm = true, LeftLeg = true, RightLeg = true },
+	DynamicHead = { Head = true, DynamicHead = true },
+} :: {[string]: {[string]: boolean}}
+WearableBundles.wearTypes = {
+	LeftShoeAccessory = true, RightShoeAccessory = true,
+	Torso = true, LeftArm = true, RightArm = true, LeftLeg = true, RightLeg = true,
+	Head = true, DynamicHead = true, MoodAnimation = true,
+	EyebrowAccessory = true, EyelashAccessory = true, HairAccessory = true, FaceAccessory = true,
+	FaceMakeup = true, LipMakeup = true, EyeMakeup = true,
+} :: {[string]: boolean}
+WearableBundles.coreAssets = {} :: {[number]: {number}}
 local shoeBundleAssets: {[number]: {number}} = {}
 local shoeBundleLoading: {[number]: boolean} = {}
 
-local function loadShoeBundleAssets(bundleId: number, onLoaded: () -> ())
+local function loadShoeBundleAssets(bundleId: number, bundleType: string, onLoaded: () -> ())
 	if shoeBundleAssets[bundleId] or shoeBundleLoading[bundleId] then return end
+	local core = WearableBundles.core[bundleType] or {}
 	shoeBundleLoading[bundleId] = true
 	task.spawn(function()
 		local ok, details = pcall(function()
 			return AssetService:GetBundleDetailsAsync(bundleId)
 		end)
-		local ids = {}
+		local ids, coreIds = {}, {}
 		if ok and typeof(details) == "table" and typeof(details.Items) == "table" then
 			for _, bundled in ipairs(details.Items) do
+				local typeName = if typeof(bundled) == "table" then tostring(bundled.AssetType) else ""
 				if typeof(bundled) == "table" and bundled.Type == "Asset" and typeof(bundled.Id) == "number"
-					and SHOE_ASSET_TYPE_NAMES[tostring(bundled.AssetType)] then
+					and WearableBundles.wearTypes[typeName] then
 					table.insert(ids, bundled.Id)
+					if core[typeName] then table.insert(coreIds, bundled.Id) end
 				end
 			end
 		else
-			warn("[CatalogController] Shoe bundle details failed:", details)
+			warn("[CatalogController] Bundle details failed:", details)
 		end
 		shoeBundleAssets[bundleId] = ids
+		WearableBundles.coreAssets[bundleId] = if #coreIds > 0 then coreIds else ids
 		shoeBundleLoading[bundleId] = nil
 		onLoaded()
 	end)
 end
 
 local function isShoeBundleWorn(bundleId: number): boolean
-	local ids = shoeBundleAssets[bundleId]
+	local ids = WearableBundles.coreAssets[bundleId]
 	if not ids or #ids == 0 then return false end
 	for _, id in ipairs(ids) do
 		if not currentWornItems[id] then return false end
@@ -2139,7 +2162,7 @@ createItemCard = function(item: any, layoutOrder: number)
 	end
 
 	local isBundle = item.ItemType == "Bundle"
-	local isShoeBundle = isBundle and tostring(item.BundleType) == "Shoes"
+	local isShoeBundle = isBundle and WearableBundles.core[tostring(item.BundleType)] ~= nil
 	local assetTypeName = if isBundle then tostring(item.BundleType or "Bundle") else getAssetTypeName(item)
 	local canTryOn = not isBundle and TRY_ON_SUPPORTED_ASSET_TYPES[assetTypeName] == true
 
@@ -2342,7 +2365,7 @@ createItemCard = function(item: any, layoutOrder: number)
 	updateButton()
 	wornButtonUpdaters[assetId] = updateButton
 	if isShoeBundle then
-		loadShoeBundleAssets(assetId, function()
+		loadShoeBundleAssets(assetId, tostring(item.BundleType), function()
 			if actionButton.Parent then updateButton() end
 		end)
 	end
@@ -2359,12 +2382,12 @@ createItemCard = function(item: any, layoutOrder: number)
 			actionBusy = true
 			local handled, handlerError = pcall(function()
 				local wasWorn = isShoeBundleWorn(assetId)
-				statusLabel.Text = if wasWorn then "Removing shoes..." else "Wearing shoes..."
+				statusLabel.Text = if wasWorn then "Removing..." else "Wearing..."
 				local success, result, message = pcall(function()
 					if wasWorn then
 						return TryOnItem:InvokeServer("RemoveMany", shoeBundleAssets[assetId])
 					end
-					return TryOnItem:InvokeServer("WearShoeBundle", assetId)
+					return TryOnItem:InvokeServer("Wear", { id = assetId, itemType = "Bundle" })
 				end)
 				if success and result == true then
 					if not wasWorn then
@@ -2381,7 +2404,8 @@ createItemCard = function(item: any, layoutOrder: number)
 					statusLabel.Text = if wasWorn then "Shoes removed." else "Shoes equipped."
 				else
 					warn("[CatalogController] Shoe bundle action failed:", result, message)
-					statusLabel.Text = if typeof(message) == "string" then message else "Failed to change shoes."
+					statusLabel.Text = if typeof(message) == "string" then message else "Failed to change bundle."
+					showToast(friendlyError(message, if wasWorn then "번들을 벗지 못했습니다." else "번들을 착용하지 못했습니다."))
 				end
 			end)
 			if not handled then
@@ -2409,7 +2433,7 @@ createItemCard = function(item: any, layoutOrder: number)
 				statusLabel.Text = "Removing..."
 
 				local success, result, message = pcall(function()
-					return TryOnItem:InvokeServer("Remove", assetId)
+					return TryOnItem:InvokeServer("Remove", { id = assetId, itemType = "Asset" })
 				end)
 
 				if success and result == true then
@@ -2422,6 +2446,7 @@ createItemCard = function(item: any, layoutOrder: number)
 					statusLabel.Text = "Item removed."
 				else
 					warn("[CatalogController] Remove failed:", result, message)
+					showToast(friendlyError(message, "아이템을 벗지 못했습니다."))
 					statusLabel.Text =
 						typeof(message) == "string"
 						and message
@@ -2431,7 +2456,7 @@ createItemCard = function(item: any, layoutOrder: number)
 				statusLabel.Text = "Wearing..."
 
 				local success, result, message = pcall(function()
-					return TryOnItem:InvokeServer("Wear", assetId)
+					return TryOnItem:InvokeServer("Wear", { id = assetId, itemType = "Asset" })
 				end)
 
 				if success and result == true then
@@ -2479,6 +2504,7 @@ createItemCard = function(item: any, layoutOrder: number)
 					end
 				else
 					warn("[CatalogController] Wear failed:", result, message)
+					showToast(friendlyError(message, "아이템을 착용하지 못했습니다."))
 					statusLabel.Text =
 						typeof(message) == "string"
 						and message
@@ -2489,6 +2515,7 @@ createItemCard = function(item: any, layoutOrder: number)
 		if not handled then
 			warn("[CatalogController] Wear/remove handler error:", handlerError)
 			statusLabel.Text = "Something went wrong. Try again."
+			showToast("문제가 생겼습니다. 다시 시도하세요.")
 		end
 
 		actionBusy = false
@@ -2770,9 +2797,10 @@ end
 --------------------------------------------------
 
 searchCatalog = function()
-	if searchBusy then
-		return
-	end
+	-- Newest request wins: a click while a search or page load is running is no
+	-- longer dropped; the older request's results are discarded instead.
+	local generation = (resultsFrame:GetAttribute("SearchGeneration") or 0) + 1
+	resultsFrame:SetAttribute("SearchGeneration", generation)
 	if browseMode ~= "Catalog" and browseMode ~= "Popular" then
 		sortMenu.Visible = false
 		renderLocalMode()
@@ -2875,12 +2903,14 @@ searchCatalog = function()
 	local success, pages = pcall(function()
 		return AvatarEditorService:SearchCatalogAsync(params)
 	end)
+	if generation ~= resultsFrame:GetAttribute("SearchGeneration") then return end
 	if not success and isPopular then
 		warn("[CatalogController] Popular PastMonth failed, retrying AllTime:", pages)
 		params.SortAggregation = Enum.CatalogSortAggregation.AllTime
 		success, pages = pcall(function()
 			return AvatarEditorService:SearchCatalogAsync(params)
 		end)
+		if generation ~= resultsFrame:GetAttribute("SearchGeneration") then return end
 		if success then showToast("인기: 지난 한 달 집계를 쓸 수 없어 전체 기간 기준으로 표시합니다.") end
 	end
 
@@ -2925,6 +2955,12 @@ selectCategory = function(name: string, assetTypes, bundleTypes)
 		return
 	end
 
+	-- Categories filter Recent/Favorites/Wearing, but mean nothing for saved
+	-- outfits: a category press in the Wardrobe goes back to the catalog.
+	if browseMode == "Wardrobe" then
+		browseMode = "Catalog"
+		updateDiscoveryHighlight()
+	end
 	currentCategory = name
 	activeTopLevelGroup = nil
 	for _, group in ipairs(Config.CategoryGroups) do
@@ -3083,13 +3119,21 @@ local function loadNextCatalogPage()
 		return
 	end
 	searchBusy = true
+	local generation = resultsFrame:GetAttribute("SearchGeneration")
+	local pages = catalogPages
 	statusLabel.Text = "Loading more items..."
 	local success, err = pcall(function()
-		catalogPages:AdvanceToNextPageAsync()
+		pages:AdvanceToNextPageAsync()
 	end)
+	if generation ~= resultsFrame:GetAttribute("SearchGeneration") or pages ~= catalogPages then
+		-- A new search started meanwhile; drop this page.
+		searchBusy = false
+		return
+	end
 	if not success then
 		warn("[CatalogController] Next page failed:", err)
 		statusLabel.Text = "Could not load more items."
+		showToast("아이템을 더 불러오지 못했습니다. 잠시 후 다시 스크롤하세요.")
 		searchBusy = false
 		return
 	end
@@ -3190,6 +3234,10 @@ end)
 --------------------------------------------------
 
 searchButton.MouseButton1Click:Connect(function()
+	if browseMode == "Wardrobe" then
+		browseMode = "Catalog"
+		updateDiscoveryHighlight()
+	end
 	searchCatalog()
 end)
 

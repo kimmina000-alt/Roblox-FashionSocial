@@ -132,10 +132,22 @@ function OutfitSnapshot.encode(description: HumanoidDescription): {[string]: any
 	return snapshot
 end
 
+-- Brings an older stored snapshot up to the current VERSION. Returns nil for
+-- unknown versions (the record is kept untouched in the DataStore; it just
+-- cannot be restored by this server build). Add a step here for each new
+-- version: v1 -> v2 -> ... Never rewrite stored data during a read.
+function OutfitSnapshot.migrate(snapshot: any): any
+	if typeof(snapshot) ~= "table" then return nil end
+	local version = snapshot.v
+	if version == OutfitSnapshot.VERSION then return snapshot end
+	return nil
+end
+
 -- Plain table -> new HumanoidDescription. Invalid fields are dropped (never
 -- guessed), so a damaged record restores whatever is still valid.
-function OutfitSnapshot.decode(snapshot: any): HumanoidDescription?
-	if typeof(snapshot) ~= "table" or snapshot.v ~= OutfitSnapshot.VERSION then
+function OutfitSnapshot.decode(stored: any): HumanoidDescription?
+	local snapshot = OutfitSnapshot.migrate(stored)
+	if not snapshot then
 		return nil
 	end
 	local description = Instance.new("HumanoidDescription")
@@ -242,9 +254,10 @@ end
 
 -- Every individually restorable item in a snapshot, as typed refs.
 -- Used to report which items did not survive a restore.
-function OutfitSnapshot.itemRefs(snapshot: any): {{kind: string, id: number, slot: string?}}
+function OutfitSnapshot.itemRefs(stored: any): {{kind: string, id: number, slot: string?}}
 	local refs = {}
-	if typeof(snapshot) ~= "table" then return refs end
+	local snapshot = OutfitSnapshot.migrate(stored)
+	if not snapshot then return refs end
 	if typeof(snapshot.assets) == "table" then
 		for _, property in ipairs(ASSET_PROPERTIES) do
 			local value = snapshot.assets[property]
