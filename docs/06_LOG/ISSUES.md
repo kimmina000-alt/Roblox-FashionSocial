@@ -178,3 +178,11 @@ Status: Fixed (leaves Wardrobe and shows the category).
 - Wardrobe dates use the server clock (Studio shows local machine time).
 - DataStore persistence across rejoin still needs a published place with Studio API access.
 
+### ISSUE-DATA-001 — Favourites changed after the last outfit write could be lost on server close
+Status: Fixed 2026-10-20 (Studio-tested with API access: favourite added → stop → play → favourite present; outfit saved, restored after rejoin)
+Cause: `BindToClose` returned while a `PlayerRemoving` save was still yielding, so the server closed before the write. Outfit changes were safe (written immediately); favourites are written on autosave/leave.
+Fix: count in-flight leave saves; `BindToClose` saves remaining players in parallel and waits (≤25 s) until all saves finish.
+
+### ISSUE-STUDIO-001 — Screen capture returns a white 3D view (open)
+In this session every Studio screenshot (edit and play) showed a white 3D view with the UI drawn correctly. Graybox checks were done with pathfinding and raycasts instead. Needs a look on the user's machine (window minimised/covered, or graphics driver).
+

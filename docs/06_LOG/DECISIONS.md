@@ -146,3 +146,9 @@ A separate area that VIP Pass owners can enter is allowed. Conditions (Roblox co
 5. Non-VIP players get an equally good free view of the stage elsewhere; free Catalog/Wardrobe/Club features are unaffected.
 Product price and benefits stay in MONETIZATION.md.
 
+D-046 — Art direction: general modern city + one Hanok Village (2026-10-20, user decision).
+The world looks like a general modern city (not a specific country). One district is a Hanok Village, placed south-east on the quiet side of the loop with its gate facing the street. Moodboard references and rules are in WORLD_STYLE.md. Housing's reserved plot moves east beyond the park.
+
+D-047 — Graybox lives in a build script (2026-10-20).
+Workspace geometry is not synced by Rojo, so the graybox is rebuilt from `tools/graybox/build_main_social_graybox.lua`. Layout changes are made in that script first, then run in Studio.
+

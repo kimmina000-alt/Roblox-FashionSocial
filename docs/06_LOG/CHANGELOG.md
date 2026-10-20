@@ -1,3 +1,8 @@
+## 2026-10-20 — Main Social graybox, persistence fix (feat/graybox-main-social-1020)
+- PlayerDataService: server close waits for in-flight leave saves (favourites no longer lost; ISSUE-DATA-001).
+- New `tools/graybox/build_main_social_graybox.lua`: layout C graybox incl. Hanok Village; measured top-down plan `docs/04_ART/diagrams/main_social_graybox_topdown.png`.
+- Art direction decided: general modern city + Hanok Village (D-046); graybox build script rule (D-047).
+
 ## 2026-10-20 — QA pass: catalog + wardrobe (feat/qa-catalog-wardrobe-1020)
 - Body and head categories now work: 전신 shows BodyParts bundles and 머리 shows DynamicHead bundles, each worn/removed as one set from the card (server `WearBundle`; removing restores the spawn body part). 얼굴 is shown as 준비 중 (Roblox search returns no classic faces).
 - Wear/remove/bundle failures and load-more failures now show a Korean toast (`FriendlyErrors` module); server restore/snapshot messages in Korean.

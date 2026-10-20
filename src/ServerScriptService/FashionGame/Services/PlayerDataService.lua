@@ -455,9 +455,15 @@ function PlayerDataService.Start()
 	for _, player in ipairs(Players:GetPlayers()) do
 		task.spawn(load, player)
 	end
+	-- Leave-saves still running when the server closes must finish first
+	-- (QA 2026-10-20: a favourite changed after the last outfit write was lost
+	-- on shutdown, because BindToClose returned while the leave-save yielded).
+	local pendingSaves = 0
 	Players.PlayerRemoving:Connect(function(player)
+		pendingSaves += 1
 		save(player)
 		sessions[player.UserId] = nil
+		pendingSaves -= 1
 	end)
 	task.spawn(function()
 		while true do
@@ -469,7 +475,16 @@ function PlayerDataService.Start()
 	end)
 	game:BindToClose(function()
 		for _, player in ipairs(Players:GetPlayers()) do
-			save(player)
+			pendingSaves += 1
+			task.spawn(function()
+				save(player)
+				pendingSaves -= 1
+			end)
+		end
+		local waited = 0
+		while pendingSaves > 0 and waited < 25 do
+			task.wait(0.2)
+			waited += 0.2
 		end
 	end)
 end
