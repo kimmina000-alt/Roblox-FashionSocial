@@ -118,3 +118,22 @@ User decision (KOYA reference): while an adjustable accessory is selected, the p
 
 D-038 — ⚙ toggles the Avatar Editor; filter popup closes on outside press (2026-10-20).
 User decision. Closing the editor with un-applied changes still asks Apply / Discard / keep editing.
+
+D-039 — Body and head are worn as bundles (2026-10-20).
+Roblox catalog search does not return wearable individual body parts, heads or classic faces (QA: Face search returns 0 even with off-sale). 전신 lists BodyParts bundles and 머리 lists DynamicHead bundles; the card's WEAR applies every supported part of the bundle in one apply (body parts, animations, accessories, makeup). WORN is decided by the bundle's core parts. Removing reverts each part to the one the character spawned with. 얼굴 shows "준비 중".
+
+D-040 — Wear/Remove use typed identity (2026-10-20).
+Clients send `{id, itemType = "Asset" | "Bundle"}`. Bare numbers are still accepted as Asset. Remove accepts Assets only (bundles are removed by their asset ids).
+
+D-041 — Newest catalog request wins (2026-10-20).
+A category/search click while a search or page is loading is no longer ignored; the older request's results are discarded (generation token).
+
+D-042 — Outfit rename (2026-10-20).
+Each outfit card has ✏️; rename keeps id, snapshot and date. Same name rules as save (1–30 chars, trimmed, duplicates allowed). The write is confirmed before success; a failed write rolls back.
+
+D-043 — Club drinks are non-alcoholic; no private spaces (2026-10-20, proposed — needs user confirmation).
+Roblox content maturity: depicting alcohol makes an experience Restricted (age-verified 18+); romantic themes are 18+; social hangouts with private spaces (bedrooms, bathroom stalls, small tents) are age-verified 18+. Proposal: the club bar is a juice/mocktail counter, lounges/VIP/backstage are open (visible) areas. See `docs/03_CONTENT/REFERENCE_MASS_CLUB_ANALYSIS.md`.
+
+D-044 — World layout proposal C (2026-10-20, proposed — needs user approval).
+Hub (Central Plaza) + City Street loop + two anchors (Club north, Beach west), quiet Cafe south-west, Park east, Neon Rooftop stacked on the Club. Not final until the user approves and a graybox is tested. See `docs/02_WORLDS/MAIN_SOCIAL_LAYOUT_PROPOSAL.md`.
+

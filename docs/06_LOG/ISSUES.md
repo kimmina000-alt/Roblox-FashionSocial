@@ -153,3 +153,28 @@ Fix: the preview clone uses `ApplyDescriptionResetAsync`.
 Status: Resolved 2026-10-20 (PC play: the saved outfit card shows the avatar preview)
 Description: in this Studio session ViewportFrame screenshots were stale (the main preview kept its old image after its model was moved), so the outfit card preview could not be checked visually. The preview model is built and framed (20 parts, camera in front). Please confirm the cards show the outfit.
 
+## QA pass — 2026-10-20 (feat/qa-catalog-wardrobe-1020)
+Played as a player in Studio (PC, real mouse) across all 37 categories plus Wardrobe; 31 categories wore/removed correctly before fixes.
+
+### ISSUE-QA-001 — 전신/머리/얼굴 categories empty or unwearable
+Status: Fixed (Studio-tested: body bundle wear → WORN, preview updated; remove restores spawn body; head bundle wear/remove)
+Cause: Roblox search returns only stray off-sale limbs and no classic faces; the wear service had no body-part path. Fix: D-039.
+
+### ISSUE-QA-002 — Wear failures and load-more failures were invisible
+Status: Fixed. Errors went to a hidden status label; now a Korean toast.
+
+### ISSUE-QA-003 — Category click dropped while a search was running
+Status: Fixed (rapid clicks land on the last category). D-041.
+
+### ISSUE-QA-004 — Worn strip kept pre-respawn items
+Status: Fixed (after respawn 24 → 19 items, matching the server).
+
+### ISSUE-QA-005 — Category click inside Wardrobe did nothing visible
+Status: Fixed (leaves Wardrobe and shows the category).
+
+### ISSUE-QA-006 — Known minor (open)
+- Removing a head bundle can reset a mood animation the player already had.
+- 50 outfit cards each build a ViewportFrame preview (heavy on low-end phones; consider lazy previews).
+- Wardrobe dates use the server clock (Studio shows local machine time).
+- DataStore persistence across rejoin still needs a published place with Studio API access.
+
