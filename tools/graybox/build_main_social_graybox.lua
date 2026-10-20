@@ -167,8 +167,8 @@ do
 -- PARK + PLAYGROUND (center 360,0, dia 210)
 local z=zone("06_Park_Playground")
 cyl(z,"ParkGrass",210,0.4,Vector3.new(360,0.2,0),C.grass,{mat=Enum.Material.Grass})
--- ferris wheel placeholder (landmark)
-local wheel=P(z,"FerrisWheel(후속·랜드마크)",Vector3.new(4,56,56),CFrame.new(400,32,-50)*CFrame.Angles(0,math.rad(90),0),Color3.fromRGB(255,200,90),{shape=Enum.PartType.Cylinder,t=0.4})
+-- ferris wheel placeholder (landmark): face turned toward the spawn (user, 2026-10-20)
+local wheel=P(z,"FerrisWheel(후속·랜드마크)",Vector3.new(4,56,56),CFrame.lookAt(Vector3.new(400,32,-50),Vector3.new(0,32,40))*CFrame.Angles(0,math.rad(90),0),Color3.fromRGB(255,200,90),{shape=Enum.PartType.Cylinder,t=0.4})
 P(z,"WheelSupport",Vector3.new(3,32,3),CFrame.new(400,16,-50),Color3.fromRGB(120,120,130))
 P(z,"SwingZone(MVP)",Vector3.new(40,0.5,30),CFrame.new(320,0.5,40),Color3.fromRGB(255,170,170))
 for i=0,2 do P(z,"SwingFrame",Vector3.new(2,10,12),CFrame.new(306+i*14,5,40),Color3.fromRGB(110,80,60)) end
