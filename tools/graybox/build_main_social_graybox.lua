@@ -87,6 +87,13 @@ P(z,"VIP_GlassRail",Vector3.new(1,4,65),CFrame.new(-53,16.5,-277.5),Color3.fromR
 for i=0,6 do local h=2+2*i P(z,"VIP_Stair",Vector3.new(3,h,10),CFrame.new(-30-i*3,h/2,-237),Color3.fromRGB(180,150,60)) end
 P(z,"VIP_Gate(서버 확인 예정)",Vector3.new(1,8,10),CFrame.new(-51.5,18,-237),Color3.fromRGB(212,175,55),{t=0.7,nocol=true})
 label(z,"VIP 발코니 (게임패스, 개방형)",Vector3.new(-66,22,-270))
+-- Club MVP hooks (Stage 4): music zone, beat lights, lounge seats with a 앉기 prompt.
+local CS=game:GetService("CollectionService")
+local zoneBox=P(z,"ClubZone",Vector3.new(160,45,150),CFrame.new(0,22.5,-245),C.club,{t=1,nocol=true}) zoneBox.CanQuery=false zoneBox.CanTouch=false CS:AddTag(zoneBox,"ClubZone")
+for _,n in ipairs({"DanceFloor","LED_Wall"}) do CS:AddTag(z[n],"ClubBeat") end
+for _,c in ipairs(z:GetChildren()) do if c.Name=="EdgePodium" then CS:AddTag(c,"ClubBeat") end end
+for i=0,3 do for j=0,1 do local pos=Vector3.new(66.5,3.6,-249.5-i*16+j*9)
+ local seat=Instance.new("Seat") seat.Name="LoungeSeat" seat.Anchored=true seat.Size=Vector3.new(3,1,3) seat.CFrame=CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)) seat.Color=Color3.fromRGB(230,120,170) seat.TopSurface=Enum.SurfaceType.Smooth seat.Parent=z CS:AddTag(seat,"PromptSeat") end end
 label(z,"CLUB · Idol Concert City",Vector3.new(0,62,-201),true)
 label(z,"좁은 입구 복도 (압축)",Vector3.new(0,9,-212))
 label(z,"Dance Floor",Vector3.new(0,6,-268))

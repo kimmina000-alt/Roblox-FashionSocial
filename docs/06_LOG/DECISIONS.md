@@ -152,3 +152,12 @@ The world looks like a general modern city (not a specific country). One distric
 D-047 — Graybox lives in a build script (2026-10-20).
 Workspace geometry is not synced by Rojo, so the graybox is rebuilt from `tools/graybox/build_main_social_graybox.lua`. Layout changes are made in that script first, then run in Studio.
 
+D-048 — Club dances are Roblox-made emotes (2026-10-20).
+The MVP dance list uses only emotes created by Roblox (playable in any experience). Branded emotes (artists, films, TV) are excluded. 31 clips in two tabs: 댄스 / 포즈·응원.
+
+D-049 — Dance state is server-owned, played by the dancer's client (2026-10-20).
+The server sets character attributes DanceKey / DanceStart (server time) / DanceSpeed; the dancer's client plays the clip at the shared frame, and Animator replication shows it to others. 같이 추기 copies another dancer's key, start and speed, so both dance in sync. Tempo 0.5x–2.0x. Moving, jumping or sitting stops the dance.
+
+D-050 — Club music is one shared playlist heard only in the club (2026-10-20).
+Free Creator Store tracks from licensed distributors; one server-wide clock so everyone hears the same part; volume fades to zero within 45 studs outside the club zone; NOW PLAYING shows channel and title. No player-uploaded or broadcast music.
+

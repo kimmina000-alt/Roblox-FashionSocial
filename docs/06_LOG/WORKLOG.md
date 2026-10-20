@@ -293,3 +293,15 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 - [x] Landmarks visible from spawn (club ahead; dome/wheel need a turn).
 - [ ] Visual walk-through (screen capture is white this session — ISSUE-STUDIO-001).
 
+## 2026-10-20 (afternoon 2) — Club MVP (Stage 4) first pass
+
+### Studio checks (PC play, real mouse/keyboard)
+- [x] 💃 opens the panel; tab switch; dance card starts the dance; tempo + ×3 → 1.3x; X closes.
+- [x] All 31 dance clips load; the server sees the Action track (others will see it).
+- [x] Tempo clamp (9 → 2.0); unknown dance ignored; 8 rapid starts → last one wins; Stop.
+- [x] W key while dancing stops the dance; one-shot dance ends by itself.
+- [x] 앉기 prompt (E) seats the player and ends the dance; Space stands up.
+- [x] Music: dance floor and red carpet 0.55, plaza/spawn/cafe 0; NOW PLAYING banner only near the club.
+- [x] Wear/remove a hat while dancing keeps the dance; respawn resets the panel and dancing works again.
+- [ ] 같이 추기 with 2 players (ISSUE-CLUB-001); mobile layout; beat lights visually (screen capture shows UI only).
+

@@ -16,6 +16,10 @@ local PlayerDataService = require(
 	script.Parent.Services.PlayerDataService
 )
 PlayerDataService.Start()
+local ClubService = require(
+	script.Parent.Services.ClubService
+)
+ClubService.Start()
 
 CatalogSearch.OnServerInvoke = function(
 	player: Player,

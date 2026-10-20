@@ -1,3 +1,8 @@
+## 2026-10-20 — Club MVP, Stage 4 first pass (feat/club-mvp-stage4)
+- New ClubConfig (31 Roblox emotes, tempo range, 11-track playlist), ClubService (dance state, Join, shared music clock, seat prompts), DanceController (💃 panel, tabs, tempo slider, stop, 같이 추기 list, music by zone, beat lights), RemoteEvent Dance.
+- Graybox: club zone/beat/seat tags and 8 lounge seats; Ferris wheel faces the spawn.
+- Docs: CLUB.md §13, D-048–D-050, ISSUE-CLUB-001/002.
+
 ## 2026-10-20 — Main Social graybox, persistence fix (feat/graybox-main-social-1020)
 - PlayerDataService: server close waits for in-flight leave saves (favourites no longer lost; ISSUE-DATA-001).
 - New `tools/graybox/build_main_social_graybox.lua`: layout C graybox incl. Hanok Village; measured top-down plan `docs/04_ART/diagrams/main_social_graybox_topdown.png`.

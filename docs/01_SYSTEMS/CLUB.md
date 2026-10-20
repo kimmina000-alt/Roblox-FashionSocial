@@ -1,7 +1,7 @@
 # Club — Detailed Design Specification
 
 기준일: 2026-10-18  
-상태: **기획 초안 / 구현 완료를 의미하지 않음**  
+상태: **Stage 4 MVP 1차 구현 (2026-10-20, `feat/club-mvp-stage4`) — §13 참고. 그룹 군무·DJ는 미구현**  
 위치: Main Social World 내부  
 관련 문서: `docs/00_PROJECT/VISION.md`, `docs/00_PROJECT/ROADMAP.md`, `docs/01_SYSTEMS/SOCIAL.md`, `docs/02_WORLDS/MAIN_SOCIAL.md`, `docs/04_ART/ART_DIRECTION.md`
 
@@ -234,3 +234,24 @@ DJ Booth는 공간의 시각적 랜드마크로 둘 수 있다. 초기 버전은
 - DJ Booth가 단순한 배경인지, 추후 상호작용 기능인지
 
 이 문서는 기획 기준이며, 위 기능이 현재 구현되었다는 뜻은 아니다.
+
+## 13. 구현 현황 (2026-10-20, Stage 4 MVP 1차)
+
+코드: `Shared/ClubConfig.lua`(춤·음악 목록), `Services/ClubService.lua`(서버), `DanceController.client.lua`(UI·재생·음악), RemoteEvent `Remotes/Dance`. 공간 태그는 `tools/graybox/build_main_social_graybox.lua`가 붙인다(`ClubZone`, `ClubBeat`, `PromptSeat`).
+
+| 기능 | 내용 | Studio 확인 |
+|---|---|---|
+| 춤 패널 | 상단 바 C 버튼 왼쪽의 💃 버튼 → 왼쪽 패널. 탭 "댄스"(21) / "포즈·응원"(10), 현재 춤 표시, 멈추기 | ✔ 실제 마우스 |
+| 춤 31종 | Roblox 공식 이모트(제작자 Roblox)만 사용. 브랜드·아티스트 이모트 제외 | ✔ 31/31 로드 |
+| 재생 | 서버가 캐릭터 속성(DanceKey/Start/Speed)을 정하고 본인 클라이언트가 재생 → 다른 사람에게 복제 | ✔ 서버에서 트랙 보임 |
+| 템포 | 0.5x~2.0x, 0.1 단위, 슬라이더 + −/+ (MASS 참고) | ✔ 1.3x, 범위 밖 값은 2.0x로 제한 |
+| 멈춤 | 이동·점프·앉기·멈추기 버튼, 한 번만 추는 동작은 끝나면 자동 종료 | ✔ W 키 이동 시 멈춤 |
+| 같이 추기 | 근처(90 stud)에서 춤추는 사람 목록 → [같이 추기] = 같은 춤·같은 박자·같은 템포 | ⚠ 2인 테스트 필요 |
+| 앉기 | 라운지 좌석 8개에 "앉기" 안내(E) — MASS의 "의자 어케 앉아" 해결 | ✔ |
+| 음악 | 서버 공용 재생목록 11곡(EDM/POP/HIP-HOP, Creator Store 무료 라이선스 음원), 클럽 안에서만 들림(밖으로 45 stud 동안 작아짐), 상단 "NOW PLAYING · 장르 · 곡명" | ✔ 클럽 안 0.55 / 광장 0 |
+| 조명 | 댄스플로어·LED 월·단상이 음악 크기에 맞춰 밝아짐 | 코드만 (화면 캡처 불가) |
+| 카탈로그와 동시 사용 | 춤추는 중 옷 입기/벗기 → 춤 유지 | ✔ |
+| 리스폰 | 리스폰 후 패널 초기화, 다시 춤 가능 | ✔ |
+
+남은 Stage 4 항목: 2인 이상 같이 추기·동시 접속 테스트(Studio "서버 + 플레이어 2명" 실행 필요), 모바일 화면 확인, VIP 발코니 출입 확인(VIP 작업 때), 그룹 군무(Phase E).
+

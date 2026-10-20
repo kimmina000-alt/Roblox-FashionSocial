@@ -186,3 +186,12 @@ Fix: count in-flight leave saves; `BindToClose` saves remaining players in paral
 ### ISSUE-STUDIO-001 — Screen capture returns a white 3D view (open)
 In this session every Studio screenshot (edit and play) showed a white 3D view with the UI drawn correctly. Graybox checks were done with pathfinding and raycasts instead. Needs a look on the user's machine (window minimised/covered, or graphics driver).
 
+### ISSUE-CLUB-001 — 같이 추기 not yet tested with two players (open)
+Needs Studio Test → Clients and Servers with 2 players (the MCP play button starts one player). Server-side checks (target must be dancing, within 100 studs, not yourself) are in place.
+
+### ISSUE-CLUB-002 — "✕" glyph rendered as an empty box (fixed)
+Same font issue as the editor's ↺. The dance panel close button uses "X".
+
+### Repo note — 2026-10-20 accidental commit
+An interrupted earlier run left the Club work uncommitted; a later `git add -A` committed it to `catalog-ui-redesign` as 417b717 under the Ferris-wheel message. Reverted by 01c300f; the work was rebuilt on `feat/club-mvp-stage4`.
+
