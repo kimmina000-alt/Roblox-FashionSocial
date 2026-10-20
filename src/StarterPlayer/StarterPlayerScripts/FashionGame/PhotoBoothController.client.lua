@@ -842,7 +842,7 @@ local function refreshSaveButton()
 	local info = PhotoConfig.findFrame(state.frame)
 	if info and not ownsFrame(info) then
 		pickDone.Text = if info.price == "coins"
-			then string.format("🪙 %d 구매 후 저장", info.coins or 0)
+			then string.format("💰 %d 구매 후 저장", info.coins or 0)
 			else string.format("프레임 팩 R$%d", MonetizationConfig.GamePasses.FramePack.price)
 		pickDone.BackgroundColor3 = if info.price == "coins" then Color3.fromRGB(230, 170, 40) else Color3.fromRGB(0, 176, 111)
 	else
@@ -1037,7 +1037,9 @@ pickDone.MouseButton1Click:Connect(function()
 			end
 		end
 		pickDone.Text = "저장 중..."
+		pickDone:SetAttribute("Saving", true)
 		local ok, saved = invoke("Save", { picks = state.picks, frame = state.frame })
+		pickDone:SetAttribute("Saving", nil)
 		pickDone.Text = "저장"
 		if ok then
 			showResult(saved)
@@ -1299,8 +1301,11 @@ local function update()
 			pickTimer.Text = string.format("남은 시간 %d초", left)
 		end
 	else
-		-- No session (or it just ended).
-		if state.stage == "waiting" or state.stage == "shooting" then
+		-- No session (or it just ended). A pick/frame screen whose session is
+		-- gone (time ran out, or "Ended" was missed) closes too, unless a save
+		-- is on its way.
+		if state.stage == "waiting" or state.stage == "shooting"
+			or ((state.stage == "picking" or state.stage == "frame") and not pickDone:GetAttribute("Saving")) then
 			closeAllFlow()
 		end
 	end

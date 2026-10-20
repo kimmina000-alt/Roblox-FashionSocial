@@ -11,7 +11,7 @@
 local EconomyConfig = {}
 
 EconomyConfig.CurrencyName = "코인"
-EconomyConfig.Icon = "🪙"
+EconomyConfig.Icon = "💰" -- 🪙 is not in the Roblox font (shows a box)
 EconomyConfig.MaxBalance = 99999
 
 -- Passive: every PassiveSeconds while active (moved or danced within

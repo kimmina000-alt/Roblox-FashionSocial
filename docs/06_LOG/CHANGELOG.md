@@ -1,3 +1,23 @@
+## 2026-10-21 — Play-test fixes on feat/photobooth-club2
+- Coin icon 💰 instead of 🪙 (not in the Roblox font).
+- PhotoBoothController: pick/frame screen closes when its session is gone (not while saving).
+- EconomyService.StudioGrant + ClubShop "StudioGrantCoins" (Studio only) for testing coin purchases.
+- Docs restored from fb478f3 (CLUB §15–16, DJ §2.1–2.2, PHOTO_BOOTH §10, layout §11, D-057–D-063); ISSUE-PHOTO-002/CLUB-005/CLUB-001 updated with test results.
+## 2026-10-20 — 인생네컷 photo booth P1 + group; DJ guests, extension rule, LED pillars, bottle return, quieter rooftop (feat/club-dj-guests-photobooth)
+- New: PhotoConfig, PhotoProps (shared), PhotoBoothService (server sessions, 8-shot clock, shot data, save), PhotoBoothController (setup → waiting → shoot screen with pose/prop panels → pick 4 → frame → result; 📷 album), PhotoRender (redraws shots in ViewportFrames), TopBar (💃 🎵 📷 slots), ClubScreenService (LED pillars); remotes PhotoBooth, PhotoBoothEvent.
+- PlayerDataService: photo album (max 30) saved with favourites/outfits.
+- DjService: extension only with an empty queue, DJ zone guests (Invite/Uninvite actions, ClubDJGuests); ClubAccessService: guests pass the DJ gate, "GateQueue" notice while someone DJs; ClubMusicController: 👥 초대 list, extension blocked while people wait; DanceController: DJ invite on player cards, per-zone music volume.
+- ClubService: 해제 stops the dance; dancing also allowed on photo booth stages (ClubConfig.canDance). DrinkService: 치우기 returns a bottle with the cups left.
+- Graybox: LED pillars beside the DJ zone, Hall/Rooftop music zones, photo booth models (Stand/CameraPoint/Backdrop).
+- Docs: CLUB.md §15.1/§16, DJ_SYSTEM §2.2, PHOTO_BOOTH §10, D-061–D-063, ISSUE-PHOTO-001.
+
+## 2026-10-20 — Club: live 같이 추기, tap a player, mobile dance panel, club-only 💃, DJ-only 🎵, DJ to booth; map rev3 (feat/club-sync-mobile-1020)
+- ClubService: 같이 추기 follow link (dance/tempo/stop propagate to followers, chains, loop refusal), tempo change → own dance, `Leave`, club-only Start/Join, dances end 1.5 s after leaving the club; moving no longer stops a dance.
+- DanceController rewritten: one-row header, tabs 댄스 / 포즈·응원 / 같이 추기, phone-height layout, 💃 only in the club, tap/click a player → card (photo, name, dance, tempo) → 같이 추기, sync pill with 해제, slider shows the danced tempo.
+- ClubMusicController: 🎵 only for the current DJ; panel fits phone height. ClubAccessService.SendToDJBooth + ServerMain: DJ purchase/turn moves the DJ to the booth. ClubConfig.isInClub / OutsideGrace.
+- Graybox rev3: LAYOUT table (plaza 60, loop 180/105/160, zone shifts), Neon Rooftop on the club roof with elevator, ClubInterior and DJSpot tags, loop→door paths computed.
+- Docs: CLUB.md §15, DJ_SYSTEM §2.1, MAIN_SOCIAL_LAYOUT_PROPOSAL §11, D-057–D-060, ISSUE-CLUB-005, ISSUE-STUDIO-002.
+
 ## 2026-10-20 — Club: VIP/DJ gates, DJ time, song requests, drinks; underground club; photo booth plan (feat/club-vip-dj-drinks)
 - New: MonetizationConfig, MonetizationService (passes, receipts once, Studio test purchases), DjService (DJ slot/queue), ClubAccessService (collision-group gates + region sweep), DrinkService (bartender, bottles, tables, cups), ClubShopController (purchase prompts, drink menu, placement dialog), ClubMusicController (🎵 panel, requests, DJ console); remotes ClubShop, Music, ClubNotify.
 - ClubService: song requests and DJ control; ClubConfig: drinks, bottle rules, gulp sound.

@@ -12,9 +12,9 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - Merged in `catalog-ui-redesign`: catalog, avatar editor, wardrobe, QA pass, graybox layout C.
 - Not merged (stacked, waiting for the user's play test):
   - `feat/club-mvp-stage4` → `feat/club-vip-dj-drinks` → `feat/photobooth-club2` (latest; includes everything).
-- `feat/photobooth-club2` has the 2026-10-20 night batch (WORKLOG): photo booth fixes, coins (ECONOMY.md), club rev3 (D-065), DJ OK/NO window, lasers, LED pillars, 🏠 button. Nothing of it is play-tested (ISSUE-PHOTO-002).
-- Studio may not have this batch saved: sync with Rojo, then run `tools/graybox/build_main_social_graybox.lua` in Edit mode.
-- Open items: ISSUE-PHOTO-002 test list, two-player tests (ISSUE-CLUB-001), mobile layout, product IDs (ISSUE-SHOP-001).
+- `feat/photobooth-club2` has the 2026-10-20 night batch (WORKLOG): photo booth fixes, coins (ECONOMY.md), club rev3 (D-065), DJ OK/NO window, lasers, LED pillars, 🏠 button. Play-tested 2026-10-21 with server + 2 players (ISSUE-PHOTO-002, CLUB-001): passes, small fixes made. Docs lost by the branch split were restored from `fb478f3`.
+- The saved Studio place (`로블록스-패션소셜.rbxl`) has this code and the two-floor club. Rojo plugin is not connected: check script lengths against the files before testing.
+- Open items: phone layout of the new boxes, real 캡처 저장 on a device, product IDs (ISSUE-SHOP-001).
 - Next: test + fix the batch → 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9).
 
 ## Key docs

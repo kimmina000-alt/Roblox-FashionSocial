@@ -103,7 +103,7 @@ coins.BackgroundTransparency = 0.2
 coins.TextColor3 = Color3.fromRGB(255, 220, 110)
 coins.TextSize = 16
 coins.Font = Enum.Font.GothamBold
-coins.Text = "🪙 0"
+coins.Text = "💰 0"
 coins:SetAttribute("Width", 92)
 coins.Parent = gui
 corner(coins, UDim.new(1, 0))
@@ -113,7 +113,7 @@ local shown = -1
 local function refreshCoins()
 	local value = player:GetAttribute("Coins")
 	local amount = if typeof(value) == "number" then value else 0
-	coins.Text = "🪙 " .. tostring(amount)
+	coins.Text = "💰 " .. tostring(amount)
 	if shown >= 0 and amount > shown then
 		coins.TextColor3 = Color3.fromRGB(140, 255, 160)
 		TweenService:Create(coins, TweenInfo.new(0.8), { TextColor3 = Color3.fromRGB(255, 220, 110) }):Play()

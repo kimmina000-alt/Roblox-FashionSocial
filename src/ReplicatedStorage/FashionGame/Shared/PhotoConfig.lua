@@ -57,7 +57,7 @@ PhotoConfig.Frames = {
 } :: {Frame}
 
 function PhotoConfig.priceText(frame: Frame): string
-	if frame.price == "coins" then return "🪙 " .. tostring(frame.coins) end
+	if frame.price == "coins" then return "💰 " .. tostring(frame.coins) end
 	if frame.price == "pass" then return "프레임 팩" end
 	return "무료"
 end

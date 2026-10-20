@@ -427,7 +427,7 @@ local function buildMenu()
 				Position = UDim2.new(1, -100, 0.5, 0),
 				Size = UDim2.fromOffset(84, 30),
 				BackgroundColor3 = Color3.fromRGB(230, 170, 40),
-				Text = "🪙 " .. tostring(drink.coins),
+				Text = "💰 " .. tostring(drink.coins),
 				TextColor3 = COLORS.text,
 				TextSize = 15,
 				Font = Enum.Font.GothamBold,
@@ -440,7 +440,7 @@ local function buildMenu()
 					string.format("%d 코인을 써서 %s 한 병을 살까요?\n(지금 %d 코인)", drink.coins, drink.name, player:GetAttribute("Coins") or 0),
 					{
 						{ name = "Cancel", text = "취소", onClick = function() end },
-						{ name = "Buy", text = "🪙 " .. tostring(drink.coins), color = Color3.fromRGB(230, 170, 40), onClick = function()
+						{ name = "Buy", text = "💰 " .. tostring(drink.coins), color = Color3.fromRGB(230, 170, 40), onClick = function()
 							local ok, message = ClubShop:InvokeServer("OrderCoins", drink.key)
 							toast(tostring(message or (if ok then "" else "살 수 없어요.")))
 						end },

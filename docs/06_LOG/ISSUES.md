@@ -186,8 +186,11 @@ Fix: count in-flight leave saves; `BindToClose` saves remaining players in paral
 ### ISSUE-STUDIO-001 — Screen capture returns a white 3D view (open)
 In this session every Studio screenshot (edit and play) showed a white 3D view with the UI drawn correctly. Graybox checks were done with pathfinding and raycasts instead. Needs a look on the user's machine (window minimised/covered, or graphics driver).
 
-### ISSUE-CLUB-001 — 같이 추기 not yet tested with two players (open)
-Needs Studio Test → Clients and Servers with 2 players (the MCP play button starts one player). Server-side checks (target must be dancing, within 100 studs, not yourself) are in place.
+### ISSUE-CLUB-001 — 같이 추기 with two players (mostly verified)
+2026-10-20 night, Studio server + 2 players driven through MCP: join, follow on dance and tempo change (frame error 0.02 s), others see the dance, tap a player → card, tempo touch → own dance, loop refused, leader stop → follower rests and resumes — all pass (CLUB.md §15.1). Still open with 2+ players: DJ guests/invite, DJ queue → extension blocked, photo booth group shooting, tap accuracy on a real phone.
+
+
+2026-10-21 (server + 2 players): DJ queue → OK/NO window (NO passes the turn, no refund), extension blocked while someone waits, DJ guest invite → guest enters the DJ zone, 친구만 bottle and 친구와 booth refuse non-friends, group photo 모두와 (both save their own copy), 같이 추기 again — all pass. Real Roblox friends were not available to test the allowed case.
 
 ### ISSUE-CLUB-002 — "✕" glyph rendered as an empty box (fixed)
 Same font issue as the editor's ↺. The dance panel close button uses "X".
@@ -207,8 +210,23 @@ VIP pass, DJ 30분 and 환타 have ID 0. Create them on the Creator Dashboard an
 ### Note — ProximityPrompts only show when on screen
 During tests the bartender prompt did not appear while the camera faced away; this is normal Roblox behaviour (prompts must be in view), not a bug.
 
-### ISSUE-PHOTO-002 — 2026-10-20 batch not play-tested yet (open)
-Synced to Studio and the server started without errors, but Studio was closed before testing (and maybe before saving the place). Untested: booth barrier and exits, "이미 촬영 중" fix, ⏸ pause, frame box size, coin/pass frames, album → inventory, photo wall paste (SurfaceGui left/right direction not verified), 🏠 button, DJ OK/NO window, DJ console click, lights toggle, lasers, LED pillar rotation, new club geometry, audio zones, coin earning.
+### ISSUE-PHOTO-002 — 2026-10-20 batch play test (mostly verified 2026-10-21)
+Tested in Studio with server + 2 players and a single player (WORKLOG 2026-10-21). Pass: booth barrier (walking out stops at the open front), 나가기 → outside, save → outside, WHITE → PINK in a row, ⏸/▶, poses and props stop after the last shot, pick/frame/album boxes (centred, 저장 inside the box), coin frame refused/bought/"이미 가지고 있음", Frame Pack frame, album → inventory item, photo wall post (Back face; tap, preview and SurfaceGui agree on left/right), 🏠, coin earning (daily 20, passive, photo 15, group 10, wall 5), club audio zones, VIP gate, DJ OK window / NO passes the turn, DJ console click → music window, lights on/off, lasers, LED pillars (after the CLUB-005 fix), seats (table, VIP sofa, bar stool), coin drink.
+Fixed during the test: coin icon 🪙 showed as a box (the Roblox font lacks it) → 💰; a pick/frame screen could stay open after its session ended → it now closes when the booth no longer lists you (unless a save is running).
+Not covered: phone layout of the new boxes, real "캡처 저장" on a device, 5-minute dance bonus, album +10 slot purchase.
 
-### ISSUE-CLUB-005 — LED pillars blank with StreamingEnabled (fixed in repo, not yet in Studio)
-The client set up pillars before their panels streamed in (0 screens). ClubLightsController now rebuilds when parts arrive; the graybox sets LEDPillar / DJ_Console to ModelStreamingMode Atomic.
+### ISSUE-CLUB-005 — LED pillars blank with StreamingEnabled (fixed, verified 2026-10-21)
+The client set up pillars before their panels streamed in (0 screens). ClubLightsController rebuilds when parts arrive; LEDPillar / DJ_Console use ModelStreamingMode Atomic. Studio check: 4 pillars × 16 screens with the portrait.
+
+### ISSUE-CLUB-006 — Dance list invisible on phones (fixed 2026-10-20)
+On a 705×338 viewport the panel had a 300 px minimum height and a fixed 150 px 같이 추기 area, leaving 14 px for the dance grid. Header row merged, 같이 추기 moved to a tab, the panel fits the screen height on short screens. Checked on Galaxy A06 (simulator) and a 1366×768 laptop view.
+
+### ISSUE-STUDIO-002 — Rojo plugin not connected; MCP clicks ignored in the device simulator (open, note)
+2026-10-20 night: `rojo serve` was running but the Studio plugin was not connected, so file changes did not reach Studio. The changed scripts were written into Studio through MCP with the exact file contents (lengths match the files). Connect the Rojo plugin before the next session. Separately, MCP mouse input does not reach GUI buttons while the Device Simulator (phone) is active; it works in a desktop view.
+
+### ISSUE-PHOTO-001 — Studio capture showed no 3D inside ViewportFrames (resolved 2026-10-21)
+On 2026-10-20 captures drew the GUI with a white 3D view. On 2026-10-21 captures showed the 3D world and the photo cells normally (both avatars, props, booth colour), so it was that Studio session.
+
+
+### Note — Seats also sit you on touch (2026-10-21)
+Roblox Seats seat a character that touches them; walking into a table stool sits you even without the 앉기 prompt. Not changed for now; can be switched to prompt-only seating later if players find it annoying.

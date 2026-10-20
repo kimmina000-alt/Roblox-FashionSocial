@@ -94,6 +94,14 @@ function EconomyService.Spend(player: Player, amount: number): boolean
 	return true
 end
 
+-- Studio play tests only (never on live servers): give test coins.
+function EconomyService.StudioGrant(player: Player, amount: any): (boolean, string?)
+	if not game:GetService("RunService"):IsStudio() then return false, "Studio 테스트 전용이에요." end
+	if typeof(amount) ~= "number" or amount <= 0 or amount > 10000 then return false, "잘못된 금액이에요." end
+	add(player, math.floor(amount))
+	return true, nil
+end
+
 -- Frames ------------------------------------------------------------------
 
 function EconomyService.OwnsFrame(player: Player, key: string): boolean

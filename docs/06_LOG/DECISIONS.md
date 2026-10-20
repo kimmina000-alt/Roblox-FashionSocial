@@ -179,7 +179,28 @@ All Game Pass / Developer Product IDs live in MonetizationConfig. Receipts are g
 D-056 — 인생네컷 photo booth becomes the Stage 5 photo feature (2026-10-20, proposed).
 See PHOTO_BOOTH.md. MVP free; paid frames/stickers/poses later.
 
-D-057 – D-063 — Made in the other (Cowork) session on 2026-10-20; their docs were never written. Reconstructed from code comments: D-061 DJ zone is for the DJ and invited guests only, extension only while nobody waits; D-062 같이 추기 해제 stops and waits; D-063 인생네컷 flow is server-owned (PhotoBoothService). The rest are not known.
+(Restored 2026-10-21 from fb478f3; D-064/D-065 change parts of D-061–D-063.)
+
+D-057 — Dancing keeps going while moving; dancing is club-only (2026-10-20, user decision; replaces the "moving stops the dance" part of D-049).
+Walking and jumping no longer stop a dance. A dance ends with 멈추기, picking the same dance again, sitting, respawn, or leaving the club (1.5 s grace). The 💃 button shows only inside the club (hall + rooftop, parts tagged ClubInterior); the server rejects Start/Join outside.
+
+D-058 — 같이 추기 is a live follow link (2026-10-20, user decision; MIDNIGHT PLAZA reference).
+The follower copies the leader's dance and tempo on every change (also chains A→B→C; loops are refused). Touching the tempo, picking a dance, 해제 or 멈추기 ends the link (own dance). Players can tap/click another player in the club to open their card and 같이 추기; the panel's third tab lists nearby players.
+
+D-059 — Map distances pulled in; Neon Rooftop is the club roof (2026-10-20, user decision).
+Layout rev3: all distances in the LAYOUT table of the graybox script (re-tunable later). Spawn → club door 14.2 s → 11.1 s. The rooftop is the club building's roof (elevator pad by the red carpet), part of the club.
+
+D-060 — 🎵 panel only for the DJ; DJ purchase moves the buyer to the booth (2026-10-20, user decision).
+Non-DJs buy DJ time at the DJ zone gate. A new DJ (purchase or queued turn) is moved behind the booth at once. No-DJ song requests keep their server code but have no screen entry for now.
+
+D-061 — DJ extension only with an empty queue; DJ zone for the DJ's guests (2026-10-20, user decision).
+The current DJ can extend only while nobody waits (a racing purchase becomes a new queued turn, never lost). Besides the DJ, only players the DJ invites (🎵 panel 👥 초대 or the player card, max 6) can enter the DJ zone; invites end when the DJ changes.
+
+D-062 — 같이 추기 해제 stops and waits; bottles keep their cups; LED pillars; quieter rooftop (2026-10-20, user decision).
+해제 ends the link and stops the dance. Clearing your bottle with cups left returns a bottle tool with that count. Two round LED pillars beside the DJ zone show club-goers' avatar portraits in turn. Club music on the rooftop plays at 30 %.
+
+D-063 — 인생네컷 photo booth P1 + group (2026-10-20, implements D-056 / PHOTO_BOOTH.md).
+Server-owned sessions (booth, people, 8-shot clock, shot data); photos are stored as redraw data (outfit snapshot, stand-relative position, dance frame, props) in the player's album (max 30), redrawn client-side in ViewportFrames. MVP is free: 2 layouts, 3 join modes, 31 poses, 6 code-built props, 10 frames. Photo wall, stickers and paid packs come later.
 
 D-064 — 인생네컷 rules + coin economy (2026-10-20, user decision; numbers proposed).
 Album: 10 free slots (+10 per paid product). People stay inside the booth (invisible barrier) from start/join until they save or press 나가기; saving moves them out; poses stop after the last shot; ⏸ freezes the pose. Photos can be taken out as an inventory item and stuck on the photo wall (the print is used up; photos may overlap). Frames: 블랙/화이트 free, colours/pastels bought with coins, glossy/glitter Robux (Frame Pack). Coins: passive while active + activity bonuses, see ECONOMY.md.

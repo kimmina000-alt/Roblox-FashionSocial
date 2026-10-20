@@ -65,6 +65,9 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 	if action == "StudioTestBuy" then
 		if typeof(payload) ~= "table" then return false, "잘못된 요청입니다." end
 		return MonetizationService.StudioTestBuy(player, payload.kind, payload.key)
+	elseif action == "StudioGrantCoins" then
+		-- Studio play tests only (EconomyService refuses on live servers).
+		return EconomyService.StudioGrant(player, payload)
 	end
 	if typeof(action) ~= "string" then return false, "잘못된 요청입니다." end
 	-- DJ 차례 window: OK → go to the booth, NO → pass the turn (no refund).
