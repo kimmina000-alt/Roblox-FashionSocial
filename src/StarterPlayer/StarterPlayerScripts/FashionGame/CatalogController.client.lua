@@ -452,6 +452,8 @@ local function refreshAvatarPreview()
 	previewTarget = boundsCFrame.Position
 	previewBaseDistance = math.max(verticalDistance, horizontalDistance, bounds.Z * 0.5 + 0.5) * 1.12
 	updatePreviewCamera()
+	-- Avatar Editor draws the X/Y/Z guide around the selected accessory.
+	if avatarEditor then avatarEditor:onPreviewBuilt(clone) end
 end
 
 -- Drag inside the avatar preview to orbit the avatar; mouse wheel zooms.
@@ -1249,6 +1251,27 @@ fixedFilterButton.MouseButton1Click:Connect(function()
 	filterPanelOpen = not filterPanelOpen
 	updateCatalogLayout()
 end)
+-- A press anywhere outside the filter popup (and its sort list) closes it
+-- (2026-10-20 feedback). The 필터 button keeps toggling it.
+do
+	local function inside(gui: GuiObject, position: Vector3): boolean
+		local origin, size = gui.AbsolutePosition, gui.AbsoluteSize
+		return gui.Visible and position.X >= origin.X and position.X <= origin.X + size.X
+			and position.Y >= origin.Y and position.Y <= origin.Y + size.Y
+	end
+	UserInputService.InputBegan:Connect(function(input)
+		if not filterPanelOpen then return end
+		if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then
+			return
+		end
+		local position = input.Position
+		if inside(filterPanel, position) or inside(sortMenu, position) or inside(fixedFilterButton, position) then
+			return
+		end
+		filterPanelOpen = false
+		updateCatalogLayout()
+	end)
+end
 local function syncOffSaleLabels()
 	unavailableFilterButton.Text = "Unavailable: " .. (currentIncludeOffSale and "On" or "Off")
 	offSaleButton.Text = currentIncludeOffSale and "☑ Off Sale" or "□ Off Sale"
@@ -3121,8 +3144,9 @@ openButton.MouseButton1Click:Connect(function()
 		return
 	end
 	mainFrame.Visible = true
-	-- Every open starts from the first screen: 전체/전체, normal catalog, no keyword,
-	-- default sort and filters, scrolled to the top (2026-10-19 feedback).
+	-- Every open starts from the first screen: minimized, 전체/전체, normal catalog,
+	-- no keyword, default sort and filters, scrolled to the top (2026-10-19/20 feedback).
+	expandedPanel = false
 	browseMode = "Catalog"
 	updateDiscoveryHighlight()
 	bundleContentsOpen = false
@@ -3210,6 +3234,7 @@ avatarEditor = AvatarEditor.new({
 		filterPanelOpen = false
 		updateCatalogLayout()
 	end,
+	previewViewport = avatarViewport,
 })
 
 wardrobeView = require(script.Parent:WaitForChild("WardrobeView")).new({
@@ -3255,6 +3280,15 @@ end)
 -- ⚙ (preview box or minimized strip) opens the maximized catalog in edit mode (D-022).
 openAvatarEditor = function()
 	if not mainFrame.Visible then return end
+	-- ⚙ toggles: pressing it again closes the editor (asking first if there are
+	-- un-applied changes) and the catalog view comes back (2026-10-20 feedback).
+	if avatarEditor:isOpen() then
+		avatarEditor:requestClose(function()
+			updateCatalogLayout()
+			refreshAvatarPreview()
+		end)
+		return
+	end
 	if not expandedPanel then
 		expandedPanel = true
 		previewManuallyClosed = false

@@ -15,6 +15,7 @@
 
 local Players = game:GetService("Players")
 local UserInputService = game:GetService("UserInputService")
+local RunService = game:GetService("RunService")
 
 local ReorderDrag = require(script.Parent:WaitForChild("ReorderDrag"))
 
@@ -35,6 +36,15 @@ local COLORS = {
 	apply = Color3.fromRGB(105, 85, 160),
 	danger = Color3.fromRGB(80, 48, 58),
 }
+
+-- One colour per axis, shared by the slider labels and the guide drawn on the
+-- preview (2026-10-20 feedback, KOYA reference).
+local AXIS_COLORS = {
+	X = Color3.fromRGB(240, 85, 85),
+	Y = Color3.fromRGB(95, 210, 110),
+	Z = Color3.fromRGB(80, 150, 255),
+}
+local AXIS_ORDER = { "X", "Y", "Z" }
 
 local SCALE_ROWS = {
 	{ key = "Height", label = "키", default = 1 },
@@ -114,7 +124,7 @@ type Slider = {
 }
 
 local function createSlider(parent: Instance, label: string, minValue: number, maxValue: number, step: number,
-	format: (number) -> string, onChange: (number) -> (), onReset: (() -> ())?): Slider
+	format: (number) -> string, onChange: (number) -> (), onReset: (() -> ())?, accent: Color3?): Slider
 
 	local row = make("Frame", {
 		Size = UDim2.new(1, 0, 0, 30),
@@ -124,11 +134,12 @@ local function createSlider(parent: Instance, label: string, minValue: number, m
 		Size = UDim2.fromOffset(46, 30),
 		BackgroundTransparency = 1,
 		Text = label,
-		TextColor3 = COLORS.text,
-		TextSize = 11,
+		TextColor3 = accent or COLORS.text,
+		TextSize = if accent then 13 else 11,
 		Font = Enum.Font.GothamBold,
 		TextXAlignment = Enum.TextXAlignment.Left,
 	}, row)
+	local fillColor = accent or COLORS.fill
 	local resetWidth = if onReset then 26 else 0
 	local valueLabel = make("TextLabel", {
 		Size = UDim2.fromOffset(52, 30),
@@ -149,7 +160,7 @@ local function createSlider(parent: Instance, label: string, minValue: number, m
 	corner(track, 3)
 	local fill = make("Frame", {
 		Size = UDim2.fromScale(0, 1),
-		BackgroundColor3 = COLORS.fill,
+		BackgroundColor3 = fillColor,
 		BorderSizePixel = 0,
 	}, track)
 	corner(fill, 3)
@@ -166,7 +177,8 @@ local function createSlider(parent: Instance, label: string, minValue: number, m
 			Size = UDim2.fromOffset(22, 22),
 			Position = UDim2.new(1, -22, 0, 4),
 			BackgroundColor3 = COLORS.row,
-			Text = "↺",
+			-- Gotham has no ↺ glyph (rendered as a box); 🔄 renders everywhere.
+			Text = "🔄",
 			TextColor3 = COLORS.text,
 			TextSize = 13,
 			Font = Enum.Font.GothamBold,
@@ -209,7 +221,7 @@ local function createSlider(parent: Instance, label: string, minValue: number, m
 		end,
 		setEnabled = function(state: boolean)
 			enabled = state
-			fill.BackgroundColor3 = if state then COLORS.fill else COLORS.track
+			fill.BackgroundColor3 = if state then fillColor else COLORS.track
 			knob.BackgroundTransparency = if state then 0 else 0.6
 		end,
 	}
@@ -226,6 +238,7 @@ export type Context = {
 	setPreviewDescription: (HumanoidDescription?) -> (),
 	refreshWornItems: () -> (),
 	onOpenChanged: (boolean) -> (),
+	previewViewport: ViewportFrame?,
 }
 
 function AvatarEditor.new(ctx: Context)
@@ -561,11 +574,10 @@ function AvatarEditor:_changed()
 	local token = self.previewToken
 	task.delay(0.12, function()
 		if token ~= self.previewToken or not self.isOpenFlag then return end
-		if self:isDirty() then
-			self.ctx.setPreviewDescription(self:_buildPreviewDescription())
-		else
-			self.ctx.setPreviewDescription(nil)
-		end
+		-- While the editor is open the preview clone always applies the draft itself
+		-- (even when it equals the live look): only then can the axis guide find the
+		-- accessory part via AccessoryDescription:GetAppliedInstance().
+		self.ctx.setPreviewDescription(self:_buildPreviewDescription())
 	end)
 end
 
@@ -595,7 +607,6 @@ function AvatarEditor:reloadState(): boolean
 	end
 	self.baseline = state
 	self.draft = copyState(state)
-	self.ctx.setPreviewDescription(nil)
 	if self.selectedAccessory and not self.draft.transforms[self.selectedAccessory] then
 		self.selectedAccessory = nil
 	end
@@ -603,6 +614,7 @@ function AvatarEditor:reloadState(): boolean
 		self:_setStatus("Roblox 아바타 규칙을 불러오지 못해 일부 편집이 비활성화됩니다.")
 	end
 	self:_render()
+	self:_changed()
 	return true
 end
 
@@ -629,6 +641,8 @@ function AvatarEditor:_close()
 	self.root.Visible = false
 	self.overlay.Visible = false
 	self.makeupDrag:cancel()
+	self:_clearGizmo()
+	self.previewToken += 1
 	self.ctx.setPreviewDescription(nil)
 	self.ctx.onOpenChanged(false)
 end
@@ -651,9 +665,9 @@ end
 function AvatarEditor:cancel()
 	if not self.baseline then return end
 	self.draft = copyState(self.baseline)
-	self.ctx.setPreviewDescription(nil)
 	self:_setStatus("변경 사항을 취소했습니다.")
 	self:_render()
+	self:_changed()
 end
 
 function AvatarEditor:apply(): boolean
@@ -673,7 +687,6 @@ function AvatarEditor:apply(): boolean
 	end
 	self.baseline = result
 	self.draft = copyState(result)
-	self.ctx.setPreviewDescription(nil)
 	local skipped = result.Skipped
 	if typeof(skipped) == "table" and #skipped > 0 then
 		self:_setStatus("적용됨 · 더 이상 착용 중이 아닌 아이템 " .. tostring(#skipped) .. "개는 건너뜀")
@@ -682,6 +695,7 @@ function AvatarEditor:apply(): boolean
 	end
 	self.ctx.refreshWornItems()
 	self:_render()
+	self:_changed()
 	return true
 end
 
@@ -797,6 +811,7 @@ function AvatarEditor:_render()
 		self:_renderMakeup()
 	end
 	self:_updateFooter()
+	self:_updateGizmo()
 end
 
 function AvatarEditor:_renderAccessories()
@@ -875,17 +890,24 @@ function AvatarEditor:_renderAccessories()
 	local function group(title: string, field: string, step: number, format: (number) -> string)
 		sectionLabel(content, title, order)
 		order += 1
-		for _, axis in ipairs({ "X", "Y", "Z" }) do
+		for _, axis in ipairs(AXIS_ORDER) do
 			local minValue = (bounds[field].Min :: any)[axis]
 			local maxValue = (bounds[field].Max :: any)[axis]
-			local slider = createSlider(content, axis, minValue, maxValue, step, format, function(value)
+			local function setAxis(value: number)
 				local current: Vector3 = self.draft.transforms[selected.AssetId][field]
 				local x = if axis == "X" then value else current.X
 				local y = if axis == "Y" then value else current.Y
 				local z = if axis == "Z" then value else current.Z
 				self.draft.transforms[selected.AssetId][field] = Vector3.new(x, y, z)
 				self:_changed()
-			end)
+			end
+			local slider
+			slider = createSlider(content, axis, minValue, maxValue, step, format, setAxis, function()
+				-- 🔄 resets only this axis to the Roblox default (0).
+				local defaultValue = math.clamp(0, minValue, maxValue)
+				slider.set(defaultValue)
+				setAxis(defaultValue)
+			end, AXIS_COLORS[axis])
 			slider.frame.LayoutOrder = order
 			order += 1
 			slider.set((values[field] :: any)[axis])
@@ -900,14 +922,20 @@ function AvatarEditor:_renderAccessories()
 	local scaleMin = math.max(bounds.Scale.Min.X, bounds.Scale.Min.Y, bounds.Scale.Min.Z)
 	local scaleMax = math.min(bounds.Scale.Max.X, bounds.Scale.Max.Y, bounds.Scale.Max.Z)
 	if scaleMax < scaleMin then scaleMax = scaleMin end
-	local scaleSlider = createSlider(content, "크기", scaleMin, scaleMax, 0.01, function(v) return string.format("%.2fx", v) end, function(value)
+	local function setScale(value: number)
 		self.draft.transforms[selected.AssetId].Scale = Vector3.new(value, value, value)
 		self:_changed()
+	end
+	local scaleSlider
+	scaleSlider = createSlider(content, "크기", scaleMin, scaleMax, 0.01, function(v) return string.format("%.2fx", v) end, setScale, function()
+		local defaultValue = math.clamp(1, scaleMin, scaleMax)
+		scaleSlider.set(defaultValue)
+		setScale(defaultValue)
 	end)
 	scaleSlider.frame.LayoutOrder = order
 	order += 1
 	scaleSlider.set(math.clamp((values.Scale :: Vector3).X, scaleMin, scaleMax))
-	noteLabel(content, "범위는 Roblox 공식 아바타 규칙(GetAvatarRules)을 따릅니다. 초기화는 선택한 장신구에만 적용됩니다.", order)
+	noteLabel(content, "미리보기의 색깔 원과 x·y·z 표시가 각 축입니다(x 빨강 · y 초록 · z 파랑). 🔄는 그 축만, 아래 초기화는 선택한 장신구 전체를 기본값으로 되돌립니다. 범위는 Roblox 공식 아바타 규칙(GetAvatarRules)을 따릅니다.", order)
 end
 
 function AvatarEditor:_renderBody()
@@ -939,7 +967,7 @@ function AvatarEditor:_renderBody()
 			order += 1
 		end
 	end
-	noteLabel(content, "범위는 Roblox 공식 아바타 규칙(GetAvatarRules · Scales)을 따릅니다. 깊이는 공식 규칙에 없어 제공하지 않습니다. ↺는 그 항목만, 아래 초기화는 체형 전체를 Roblox 기본값으로 되돌립니다.", order)
+	noteLabel(content, "범위는 Roblox 공식 아바타 규칙(GetAvatarRules · Scales)을 따릅니다. 깊이는 공식 규칙에 없어 제공하지 않습니다. 🔄는 그 항목만, 아래 초기화는 체형 전체를 Roblox 기본값으로 되돌립니다.", order)
 end
 
 function AvatarEditor:_renderSkin()
@@ -1081,6 +1109,156 @@ function AvatarEditor:_renderMakeup()
 		self.makeupDrag:attach(card, thumb)
 	end
 	noteLabel(content, "카드를 끌어서 순서를 바꾸세요. 메이크업의 위치·회전·크기는 Roblox MakeupDescription에 없는 속성이라 제공하지 않습니다.", 3)
+end
+
+--------------------------------------------------
+-- AXIS GUIDE ON THE PREVIEW
+-- Coloured rings (rotation around each axis), a short line per axis and small
+-- x/y/z labels around the selected accessory. Axes follow the body attachment
+-- the accessory is attached to, the same frame Position/Rotation are edited in.
+-- Rebuilt whenever the preview clone is rebuilt (each draft change).
+--------------------------------------------------
+
+function AvatarEditor:onPreviewBuilt(clone: Model)
+	self.previewClone = clone
+	self:_updateGizmo()
+end
+
+function AvatarEditor:_clearGizmo()
+	if self.gizmoConnection then
+		self.gizmoConnection:Disconnect()
+		self.gizmoConnection = nil
+	end
+	if self.gizmoModel then
+		self.gizmoModel:Destroy()
+		self.gizmoModel = nil
+	end
+	if self.gizmoLabels then
+		for _, entry in ipairs(self.gizmoLabels) do
+			entry.label:Destroy()
+		end
+		self.gizmoLabels = nil
+	end
+end
+
+local function findAccessoryHandle(clone: Model, assetId: number): BasePart?
+	local humanoid = clone:FindFirstChildOfClass("Humanoid")
+	local description = humanoid and humanoid:FindFirstChildOfClass("HumanoidDescription")
+	if not description then return nil end
+	for _, child in ipairs(description:GetChildren()) do
+		if child:IsA("AccessoryDescription") and child.AssetId == assetId then
+			local ok, accessory = pcall(function()
+				return child:GetAppliedInstance()
+			end)
+			if ok and accessory then
+				local handle = accessory:FindFirstChild("Handle")
+				if handle and handle:IsA("BasePart") then return handle end
+			end
+		end
+	end
+	return nil
+end
+
+function AvatarEditor:_updateGizmo()
+	self:_clearGizmo()
+	local viewport = self.ctx.previewViewport
+	local clone = self.previewClone
+	if not viewport or not self.isOpenFlag or self.tab ~= "accessory" or not self.selectedAccessory then return end
+	if not clone or not clone.Parent or not self.baseline then return end
+	local entry = nil
+	for _, accessory in ipairs(self.baseline.Accessories) do
+		if accessory.AssetId == self.selectedAccessory then entry = accessory end
+	end
+	if not entry or not entry.Refinable then return end
+	local handle = findAccessoryHandle(clone, self.selectedAccessory :: number)
+	if not handle then return end
+
+	local frame = handle.CFrame
+	local handleAttachment = handle:FindFirstChildOfClass("Attachment")
+	if handleAttachment then
+		for _, descendant in ipairs(clone:GetDescendants()) do
+			if descendant:IsA("Attachment") and descendant.Name == handleAttachment.Name
+				and not descendant:IsDescendantOf(handle) then
+				frame = descendant.WorldCFrame
+				break
+			end
+		end
+	end
+	local rotation = frame.Rotation
+	local center = handle.Position
+	local radius = math.clamp(handle.Size.Magnitude * 0.55, 0.35, 1.4)
+	local thickness = math.max(0.02, radius * 0.035)
+	local axes = { X = rotation.XVector, Y = rotation.YVector, Z = rotation.ZVector }
+
+	local model = Instance.new("Model")
+	model.Name = "EditorAxisGuide"
+	local function segment(a: Vector3, b: Vector3, color: Color3)
+		local part = Instance.new("Part")
+		part.Anchored = true
+		part.CanCollide = false
+		part.CanQuery = false
+		part.CastShadow = false
+		part.Material = Enum.Material.SmoothPlastic
+		part.Color = color
+		part.Size = Vector3.new(thickness, thickness, (b - a).Magnitude + thickness)
+		part.CFrame = CFrame.lookAt((a + b) / 2, b)
+		part.Parent = model
+	end
+
+	local labels = {}
+	for _, name in ipairs(AXIS_ORDER) do
+		local axis = axes[name]
+		local color = AXIS_COLORS[name]
+		local u = if name == "X" then rotation.YVector else rotation.XVector
+		local v = axis:Cross(u).Unit
+		local segments = 40
+		local previous = center + u * radius
+		for i = 1, segments do
+			local t = i / segments * math.pi * 2
+			local point = center + (u * math.cos(t) + v * math.sin(t)) * radius
+			segment(previous, point, color)
+			previous = point
+		end
+		segment(center, center + axis * radius * 1.25, color)
+		local label = make("TextLabel", {
+			Name = "AxisLabel_" .. name,
+			Size = UDim2.fromOffset(16, 16),
+			AnchorPoint = Vector2.new(0.5, 0.5),
+			BackgroundTransparency = 1,
+			Text = string.lower(name),
+			TextColor3 = color,
+			TextStrokeTransparency = 0.3,
+			TextSize = 14,
+			Font = Enum.Font.GothamBold,
+			ZIndex = 6,
+		}, viewport)
+		table.insert(labels, { label = label, point = center + axis * radius * 1.45 })
+	end
+	model.Parent = clone.Parent
+	self.gizmoModel = model
+	self.gizmoLabels = labels
+
+	-- Project the label points with the preview camera every frame (it orbits/zooms).
+	local function place()
+		local camera = viewport.CurrentCamera
+		local size = viewport.AbsoluteSize
+		if not camera or size.X < 1 or size.Y < 1 then return end
+		local tanY = math.tan(math.rad(camera.FieldOfView / 2))
+		local aspect = size.X / size.Y
+		for _, item in ipairs(labels) do
+			local relative = camera.CFrame:PointToObjectSpace(item.point)
+			if relative.Z >= -0.05 then
+				item.label.Visible = false
+			else
+				local sx = (relative.X / -relative.Z) / (tanY * aspect)
+				local sy = (relative.Y / -relative.Z) / tanY
+				item.label.Visible = true
+				item.label.Position = UDim2.fromOffset((sx + 1) / 2 * size.X, (1 - sy) / 2 * size.Y)
+			end
+		end
+	end
+	place()
+	self.gizmoConnection = RunService.RenderStepped:Connect(place)
 end
 
 return AvatarEditor

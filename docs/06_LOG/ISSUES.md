@@ -150,6 +150,6 @@ Cause: `ApplyDescriptionAsync` skips accessories whose asset id did not change, 
 Fix: the preview clone uses `ApplyDescriptionResetAsync`.
 
 ### ISSUE-WARDROBE-001 — Outfit card previews not visually confirmed
-Status: Needs user check
+Status: Resolved 2026-10-20 (PC play: the saved outfit card shows the avatar preview)
 Description: in this Studio session ViewportFrame screenshots were stale (the main preview kept its old image after its model was moved), so the outfit card preview could not be checked visually. The preview model is built and framed (20 parts, camera in front). Please confirm the cards show the outfit.
 

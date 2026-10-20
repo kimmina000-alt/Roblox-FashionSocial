@@ -1,3 +1,9 @@
+## 2026-10-20 — Editor axis guide, per-axis reset, catalog toggles (feat/catalog-fixes-1019b)
+- Filter popup closes on a press outside it (and its sort list); 필터 still toggles.
+- Avatar Editor: coloured x/y/z rings, axis lines and labels around the selected accessory on the preview (x red, y green, z blue, matching the slider labels/fills); 🔄 per-axis reset for position/rotation and for size; reset glyph fixed (↺ rendered as a box).
+- ⚙ toggles the editor (asks first when there are un-applied changes).
+- The catalog always reopens minimized.
+
 ## 2026-10-19 — Fixes, Wardrobe (Stage 2), animation preview (feat/catalog-fixes-1019b)
 - Preview: vertical drag inverted (drag down shows the top of the head); viewport extends to the top of the box with ⚙/▣ stacked inside it; both outer boxes rounder (corner 12 → 15).
 - Avatar Editor: accessory adjustments preview live while sliders move (clone uses ApplyDescriptionResetAsync); size is one uniform slider.

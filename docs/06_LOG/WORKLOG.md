@@ -249,3 +249,18 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 - [ ] Outfit card previews visually (ISSUE-WARDROBE-001).
 - [ ] Mouse-only checks on PC: preview vertical drag direction, live editor preview, size slider.
 - [ ] DataStore persistence across rejoin: needs a published place with Studio API access on.
+
+## 2026-10-20 — Editor axis guide, per-axis reset, catalog toggles
+
+### Done
+- Filter popup closes on an outside press; ⚙ toggles the editor; catalog reopens minimized.
+- Avatar Editor axis guide on the preview (D-037), axis-coloured sliders, per-axis 🔄 reset.
+
+### Studio checks (PC play, real mouse)
+- [x] Filter: inside press keeps it open, outside press closes it.
+- [x] Editor: selecting the sunglasses draws three rings, axis lines and x/y/z labels on the preview; Position Y +0.11 moves the preview glasses by +0.11 and the guide follows.
+- [x] Per-axis reset: X=+0.11, Y reset → X stays +0.11, Y 0.
+- [x] ⚙ with changes → confirm dialog → 버리기 → catalog view, guide removed.
+- [x] Close while maximized → reopen → minimized (647×393).
+- [x] Outfit card preview renders (ISSUE-WARDROBE-001 resolved).
+- [x] Preview vertical drag: dragging down raises the camera above the head.
