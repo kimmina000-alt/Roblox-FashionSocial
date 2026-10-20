@@ -3,6 +3,9 @@
 local MarketplaceService = game:GetService("MarketplaceService")
 local AvatarEditorService = game:GetService("AvatarEditorService")
 local AssetService = game:GetService("AssetService")
+local InsertService = game:GetService("InsertService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local OutfitSnapshot = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("OutfitSnapshot"))
 
 local AvatarService = {}
 
@@ -1257,6 +1260,119 @@ function AvatarService.ApplyEdit(player: Player, draft: any)
 	end
 	state.Skipped = skipped
 	return true, state
+end
+
+--------------------------------------------------
+-- WARDROBE SNAPSHOT / RESTORE (Stage 2)
+-- Save reads the server-confirmed applied description (never a client list).
+-- Restore replaces the whole appearance with the saved one, then reads the
+-- result back: items that did not survive (deleted, off-sale-moderated, invalid)
+-- are reported as skipped while everything else stays applied. If the apply
+-- itself errors, the pre-restore baseline is re-applied.
+--------------------------------------------------
+
+function AvatarService.CaptureSnapshot(player: Player): (boolean, any)
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	return true, OutfitSnapshot.encode(humanoid:GetAppliedDescription())
+end
+
+function AvatarService.RestoreSnapshot(player: Player, snapshot: any): (boolean, any)
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local description = OutfitSnapshot.decode(snapshot)
+	if not description then
+		return false, "Saved outfit data is not readable."
+	end
+	local baseline = humanoid:GetAppliedDescription()
+	local ok, err = pcall(function()
+		humanoid:ApplyDescriptionResetAsync(description, Enum.AssetTypeVerification.Default)
+	end)
+	if not ok then
+		warn("[AvatarService] Outfit restore failed, restoring baseline:", err)
+		local recovered = pcall(function()
+			humanoid:ApplyDescriptionResetAsync(baseline, Enum.AssetTypeVerification.Default)
+		end)
+		return false, if recovered
+			then "Could not restore this outfit. Your previous look was kept."
+			else "Restore failed. Your avatar will be reloaded."
+	end
+	local present = OutfitSnapshot.presentAssetIds(humanoid:GetAppliedDescription())
+	local skipped = {}
+	for _, ref in ipairs(OutfitSnapshot.itemRefs(snapshot)) do
+		if not present[ref.id] then
+			table.insert(skipped, ref.id)
+		end
+	end
+	return true, { skipped = skipped }
+end
+
+--------------------------------------------------
+-- ANIMATION PREVIEW
+-- The catalog preview plays a worn animation/emote once on its client clone.
+-- Catalog asset IDs are packages (a Model with Animation objects), not playable
+-- AnimationIds, so the server loads the package and returns the first Animation's
+-- AnimationId. Only assets the player is currently wearing can be looked up.
+--------------------------------------------------
+
+local ANIMATION_PROPERTIES = {
+	"IdleAnimation", "WalkAnimation", "RunAnimation", "JumpAnimation",
+	"FallAnimation", "ClimbAnimation", "SwimAnimation", "MoodAnimation",
+}
+-- assetId -> playable AnimationId (packages never change, so cache for the server lifetime).
+local animationPreviewCache: {[number]: string} = {}
+
+function AvatarService.GetAnimationPreview(player: Player, assetId: any): (boolean, any)
+	if typeof(assetId) ~= "number" or assetId <= 0 or assetId % 1 ~= 0 then
+		return false, "Invalid item."
+	end
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local worn = false
+	for _, property in ipairs(ANIMATION_PROPERTIES) do
+		if (description :: any)[property] == assetId then worn = true end
+	end
+	if not worn then
+		for _, ids in pairs(description:GetEmotes()) do
+			if table.find(ids, assetId) then worn = true end
+		end
+	end
+	if not worn then
+		return false, "Animation is not worn."
+	end
+	local cached = animationPreviewCache[assetId]
+	if cached then
+		return true, cached
+	end
+	local ok, model = pcall(function()
+		return InsertService:LoadAsset(assetId)
+	end)
+	if not ok or not model then
+		return false, "Animation could not be loaded."
+	end
+	local chosen: Animation? = nil
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("Animation") and descendant.AnimationId ~= "" then
+			-- Prefer the main clip ("Animation1") over pose/variation clips.
+			if not chosen or descendant.Name == "Animation1" then
+				chosen = descendant
+			end
+		end
+	end
+	local animationId = if chosen then chosen.AnimationId else nil
+	model:Destroy()
+	if not animationId then
+		return false, "Animation has no playable clip."
+	end
+	animationPreviewCache[assetId] = animationId
+	return true, animationId
 end
 
 return AvatarService
