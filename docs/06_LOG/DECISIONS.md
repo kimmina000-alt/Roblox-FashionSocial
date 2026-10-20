@@ -131,9 +131,18 @@ A category/search click while a search or page is loading is no longer ignored; 
 D-042 — Outfit rename (2026-10-20).
 Each outfit card has ✏️; rename keeps id, snapshot and date. Same name rules as save (1–30 chars, trimmed, duplicates allowed). The write is confirmed before success; a failed write rolls back.
 
-D-043 — Club drinks are non-alcoholic; no private spaces (2026-10-20, proposed — needs user confirmation).
+D-043 — Club drinks are non-alcoholic; no private spaces (2026-10-20, confirmed by user 12:37).
 Roblox content maturity: depicting alcohol makes an experience Restricted (age-verified 18+); romantic themes are 18+; social hangouts with private spaces (bedrooms, bathroom stalls, small tents) are age-verified 18+. Proposal: the club bar is a juice/mocktail counter, lounges/VIP/backstage are open (visible) areas. See `docs/03_CONTENT/REFERENCE_MASS_CLUB_ANALYSIS.md`.
 
-D-044 — World layout proposal C (2026-10-20, proposed — needs user approval).
+D-044 — World layout option C (2026-10-20, approved by user 12:37; graybox test still required).
 Hub (Central Plaza) + City Street loop + two anchors (Club north, Beach west), quiet Cafe south-west, Park east, Neon Rooftop stacked on the Club. Not final until the user approves and a graybox is tested. See `docs/02_WORLDS/MAIN_SOCIAL_LAYOUT_PROPOSAL.md`.
+
+D-045 — Paid VIP area is allowed, with conditions (2026-10-20, user asked; conditions proposed).
+A separate area that VIP Pass owners can enter is allowed. Conditions (Roblox content maturity: a private space is an enclosed space designed for personal/secluded activity — sleeping, changing clothes, bathing — for one or very few people):
+1. Large and open, not a small room: a raised VIP balcony/deck in the Club that overlooks the dance floor and stage, visible from below (glass rail, open sides). Status is seen by others (MASS lesson).
+2. No beds, bathrooms, changing rooms or small booths for one or two people inside it.
+3. Access is checked on the server (GamePass ownership via MarketplaceService); non-owners are blocked by a server-side gate, never by a client-only check. A purchase in the session opens it without rejoining.
+4. VIP gives a place and a view, not gameplay power over others (no kicking or blocking non-VIP players).
+5. Non-VIP players get an equally good free view of the stage elsewhere; free Catalog/Wardrobe/Club features are unaffected.
+Product price and benefits stay in MONETIZATION.md.
 
