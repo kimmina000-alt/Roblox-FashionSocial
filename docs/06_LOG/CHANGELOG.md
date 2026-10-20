@@ -1,3 +1,14 @@
+## 2026-10-20 — QA pass: catalog + wardrobe (feat/qa-catalog-wardrobe-1020)
+- Body and head categories now work: 전신 shows BodyParts bundles and 머리 shows DynamicHead bundles, each worn/removed as one set from the card (server `WearBundle`; removing restores the spawn body part). 얼굴 is shown as 준비 중 (Roblox search returns no classic faces).
+- Wear/remove/bundle failures and load-more failures now show a Korean toast (`FriendlyErrors` module); server restore/snapshot messages in Korean.
+- Typed item identity on Wear/Remove (`{id, itemType}`, ISSUE-AUDIT-001).
+- Rapid category/search clicks: the newest request wins (no dropped clicks, stale pages discarded).
+- Respawn rebuilds the worn strip, 착용 중 grid and preview from the server.
+- Category chips and SEARCH leave the Wardrobe view.
+- Wardrobe: rename (✏️ on each card), snapshot `migrate()` hook for future versions.
+- Server per-apply debug logging is off by default.
+- Docs: `03_CONTENT/REFERENCE_MASS_CLUB_ANALYSIS.md` (club reference video analysis), `02_WORLDS/MAIN_SOCIAL_LAYOUT_PROPOSAL.md` + `04_ART/diagrams/` (mass/zoning layout proposal, 3 options), D-039–D-044, ISSUE-QA-001–006.
+
 ## 2026-10-20 — Editor axis guide, per-axis reset, catalog toggles (feat/catalog-fixes-1019b)
 - Filter popup closes on a press outside it (and its sort list); 필터 still toggles.
 - Avatar Editor: coloured x/y/z rings, axis lines and labels around the selected accessory on the preview (x red, y green, z blue, matching the slider labels/fills); 🔄 per-axis reset for position/rotation and for size; reset glyph fixed (↺ rendered as a box).

@@ -77,23 +77,19 @@ CatalogConfig.CategoryGroups = {
 	{
 		Name = "신체",
 		Categories = {
-			{Name = "전신", AssetTypes = {
-				Enum.AvatarAssetType.Torso,
-				Enum.AvatarAssetType.RightArm,
-				Enum.AvatarAssetType.LeftArm,
-				Enum.AvatarAssetType.LeftLeg,
-				Enum.AvatarAssetType.RightLeg,
-			}, BundleTypes = {Enum.BundleType.BodyParts}, IncludeOffSale = true},
+			-- QA 2026-10-20: Roblox search returns individual body parts only as
+			-- stray off-sale limbs; full bodies are sold as BodyParts bundles,
+			-- which are now worn as one set from the card.
+			{Name = "전신", AssetTypes = {}, BundleTypes = {Enum.BundleType.BodyParts}},
 			{Name = "헤어", AssetTypes = {
 				Enum.AvatarAssetType.HairAccessory,
 			}},
-			{Name = "머리", AssetTypes = {
-				Enum.AvatarAssetType.Head,
-				Enum.AvatarAssetType.DynamicHead,
-			}, BundleTypes = {Enum.BundleType.DynamicHead}, IncludeOffSale = true},
-			{Name = "얼굴", AssetTypes = {
-				Enum.AvatarAssetType.Face,
-			}, IncludeOffSale = true},
+			-- Heads (with their faces) are DynamicHead bundles, worn as one set.
+			{Name = "머리", AssetTypes = {}, BundleTypes = {Enum.BundleType.DynamicHead}},
+			-- Classic faces are not returned by Roblox catalog search at all (0
+			-- results even with off-sale on, QA 2026-10-20), so this shows as
+			-- "준비 중". Faces come with the heads in 머리.
+			{Name = "얼굴", AssetTypes = {}},
 		},
 	},
 

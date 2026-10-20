@@ -264,3 +264,20 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 - [x] Close while maximized → reopen → minimized (647×393).
 - [x] Outfit card preview renders (ISSUE-WARDROBE-001 resolved).
 - [x] Preview vertical drag: dragging down raises the camera above the head.
+
+## 2026-10-20 — QA pass (catalog → wardrobe), reference video analysis, layout proposal
+
+### Done
+- Played the catalog and Wardrobe as a player and fixed what broke (ISSUE-QA-001–006, D-039–D-042).
+- Analysed the user's club reference video (MASS, 9:14) — every chat line read: `docs/03_CONTENT/REFERENCE_MASS_CLUB_ANALYSIS.md`.
+- Studied mass/zoning/circulation diagram methods and wrote the Main Social layout proposal with 3 options and a recommendation: `docs/02_WORLDS/MAIN_SOCIAL_LAYOUT_PROPOSAL.md`, diagrams in `docs/04_ART/diagrams/`.
+
+### Studio checks (PC play, real mouse + remotes)
+- [x] 31/37 categories wear/remove before fixes; body/head now wear as bundles; 얼굴 shows 준비 중.
+- [x] Typed bad payloads rejected; 51st outfit rejected; v2 snapshot rejected; 50 outfits ≈ 63 KB.
+- [x] Rename via UI; rapid category clicks; respawn worn-list sync; toasts on failure.
+- [ ] DataStore persistence across rejoin (needs Studio API access on a published place).
+
+### Waiting for user
+- Approve layout option C (D-044) and the club no-alcohol/no-private-space proposal (D-043).
+

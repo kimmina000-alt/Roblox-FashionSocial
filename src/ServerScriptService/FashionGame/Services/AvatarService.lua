@@ -11,6 +11,13 @@ local AvatarService = {}
 
 local MAX_ACCESSORIES = 20
 
+-- Per-apply diagnostics. Off in normal play: every wear printed ~15 lines,
+-- which floods the server log with many players (QA 2026-10-20).
+local DEBUG_LOG = false
+local function debugLog(...)
+	if DEBUG_LOG then print(...) end
+end
+
 --------------------------------------------------
 -- RIGID ACCESSORY TYPES
 --------------------------------------------------
@@ -122,6 +129,26 @@ local ANIMATION_ASSET_TYPES = {
 	[Enum.AvatarAssetType.MoodAnimation.Value] = "MoodAnimation",
 }
 
+--------------------------------------------------
+-- BODY PARTS / HEAD / CLASSIC FACE
+-- Roblox search only returns these inside bundles (BodyParts, DynamicHead);
+-- the parts themselves are applied through HumanoidDescription properties.
+-- "Removing" a part puts back the part the character spawned with.
+--------------------------------------------------
+
+local BODY_PART_PROPERTIES = {
+	[Enum.AvatarAssetType.Torso.Value] = "Torso",
+	[Enum.AvatarAssetType.LeftArm.Value] = "LeftArm",
+	[Enum.AvatarAssetType.RightArm.Value] = "RightArm",
+	[Enum.AvatarAssetType.LeftLeg.Value] = "LeftLeg",
+	[Enum.AvatarAssetType.RightLeg.Value] = "RightLeg",
+	[Enum.AvatarAssetType.Head.Value] = "Head",
+	[Enum.AvatarAssetType.DynamicHead.Value] = "Head",
+	[Enum.AvatarAssetType.Face.Value] = "Face",
+}
+local BODY_PROPERTY_LIST = { "Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg", "Face" }
+local spawnLook: {[Humanoid]: {[string]: number}} = setmetatable({}, { __mode = "k" }) :: any
+
 local EMOTE_ASSET_TYPE = Enum.AvatarAssetType.EmoteAnimation.Value
 local MAKEUP_ASSET_TYPES = {
 	[Enum.AvatarAssetType.FaceMakeup.Value] = Enum.MakeupType.Face,
@@ -143,6 +170,21 @@ end
 -- HUMANOID
 --------------------------------------------------
 
+-- Remembers the body parts a character spawned with (once its appearance has
+-- loaded), so removing a worn body part can restore the player's own part.
+local function rememberSpawnLook(player: Player, humanoid: Humanoid)
+	if spawnLook[humanoid] or not player:HasAppearanceLoaded() then return end
+	local ok, description = pcall(function()
+		return humanoid:GetAppliedDescription()
+	end)
+	if not ok then return end
+	local look = {}
+	for _, property in ipairs(BODY_PROPERTY_LIST) do
+		look[property] = (description :: any)[property]
+	end
+	spawnLook[humanoid] = look
+end
+
 local function getHumanoid(player: Player): Humanoid?
 	local character = player.Character
 
@@ -150,7 +192,28 @@ local function getHumanoid(player: Player): Humanoid?
 		return nil
 	end
 
-	return character:FindFirstChildOfClass("Humanoid")
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid then
+		rememberSpawnLook(player, humanoid)
+	end
+	return humanoid
+end
+
+function AvatarService.RememberSpawnLook(player: Player)
+	getHumanoid(player)
+end
+
+-- Reverts a worn body part to the spawn part. Returns true when the description changed.
+local function revertBodyPart(humanoid: Humanoid, description: HumanoidDescription, assetId: number): boolean
+	local look = spawnLook[humanoid] or {}
+	for _, property in ipairs(BODY_PROPERTY_LIST) do
+		local current = (description :: any)[property]
+		if current == assetId and current ~= 0 and look[property] ~= assetId then
+			(description :: any)[property] = look[property] or 0
+			return true
+		end
+	end
+	return false
 end
 
 --------------------------------------------------
@@ -210,14 +273,14 @@ local function applyDescription(
 	description: HumanoidDescription
 ): (boolean, string)
 
-	print("========== APPLY DESCRIPTION ==========")
+	debugLog("========== APPLY DESCRIPTION ==========")
 
 	local before = description:GetAccessories(true)
 
-	print("[AvatarService] BEFORE count:", #before)
+	debugLog("[AvatarService] BEFORE count:", #before)
 
 	for _, accessory in ipairs(before) do
-		print(
+		debugLog(
 			"[AvatarService] BEFORE:",
 			accessory.AssetId,
 			accessory.AccessoryType.Name,
@@ -233,13 +296,13 @@ local function applyDescription(
 
 	local afterConform = description:GetAccessories(true)
 
-	print(
+	debugLog(
 		"[AvatarService] AFTER CONFORM count:",
 		#afterConform
 	)
 
 	for _, accessory in ipairs(afterConform) do
-		print(
+		debugLog(
 			"[AvatarService] AFTER CONFORM:",
 			accessory.AssetId,
 			accessory.AccessoryType.Name,
@@ -275,13 +338,13 @@ local function applyDescription(
 	local applied = humanoid:GetAppliedDescription()
 	local appliedAccessories = applied:GetAccessories(true)
 
-	print(
+	debugLog(
 		"[AvatarService] AFTER APPLY count:",
 		#appliedAccessories
 	)
 
 	for _, accessory in ipairs(appliedAccessories) do
-		print(
+		debugLog(
 			"[AvatarService] AFTER APPLY:",
 			accessory.AssetId,
 			accessory.AccessoryType.Name,
@@ -290,7 +353,7 @@ local function applyDescription(
 		)
 	end
 
-	print("========================================")
+	debugLog("========================================")
 
 	return true, "Item equipped."
 end
@@ -358,6 +421,22 @@ function AvatarService.GetCurrentItems(
 				AssetId = id,
 				Category = "Emote",
 				IsEmote = true,
+			})
+		end
+	end
+
+	--------------------------------------------------
+	-- Body parts (only those that differ from the spawn body)
+	--------------------------------------------------
+
+	local look = spawnLook[humanoid] or {}
+	for _, property in ipairs(BODY_PROPERTY_LIST) do
+		local value = (description :: any)[property]
+		if typeof(value) == "number" and value ~= 0 and value ~= look[property] then
+			table.insert(result, {
+				AssetId = value,
+				Category = property,
+				IsBodyPart = true,
 			})
 		end
 	end
@@ -501,6 +580,17 @@ local function tryOnItemInner(
 	if animationProperty then
 		local description = humanoid:GetAppliedDescription()
 		description[animationProperty] = assetId
+		return applyDescription(humanoid, description)
+	end
+
+	--------------------------------------------------
+	-- Body parts / head / classic face
+	--------------------------------------------------
+
+	local bodyProperty = BODY_PART_PROPERTIES[assetTypeId]
+	if bodyProperty then
+		local description: any = humanoid:GetAppliedDescription()
+		description[bodyProperty] = assetId
 		return applyDescription(humanoid, description)
 	end
 
@@ -732,6 +822,14 @@ function AvatarService.RemoveItem(
 	end
 
 	--------------------------------------------------
+	-- Body parts → back to the spawn part
+	--------------------------------------------------
+
+	if revertBodyPart(humanoid, description, assetId) then
+		return applyDescription(humanoid, description)
+	end
+
+	--------------------------------------------------
 	-- Animations
 	--------------------------------------------------
 
@@ -861,6 +959,7 @@ function AvatarService.GetShoeBundleAssets(bundleId: number): {{AssetId: number,
 	return shoes
 end
 
+-- Older clients call WearShoeBundle; it is the same as WearBundle for Shoes.
 function AvatarService.WearShoeBundle(player: Player, bundleId: number): (boolean, string)
 	local humanoid = getHumanoid(player)
 	if not humanoid then
@@ -902,7 +1001,7 @@ end
 --------------------------------------------------
 
 function AvatarService.RemoveItems(player: Player, assetIds: any): (boolean, string)
-	if typeof(assetIds) ~= "table" or #assetIds == 0 or #assetIds > 10 then
+	if typeof(assetIds) ~= "table" or #assetIds == 0 or #assetIds > 20 then
 		return false, "Invalid item list."
 	end
 	local humanoid = getHumanoid(player)
@@ -916,9 +1015,10 @@ function AvatarService.RemoveItems(player: Player, assetIds: any): (boolean, str
 		end
 	end
 	local description = humanoid:GetAppliedDescription()
+	local removed = 0
+	-- Accessories (rigid + layered)
 	local accessories = description:GetAccessories(true)
 	local filtered = {}
-	local removed = 0
 	for _, accessory in ipairs(accessories) do
 		if wanted[accessory.AssetId] then
 			removed += 1
@@ -926,11 +1026,134 @@ function AvatarService.RemoveItems(player: Player, assetIds: any): (boolean, str
 			table.insert(filtered, accessory)
 		end
 	end
+	description:SetAccessories(filtered, true)
+	-- Body parts, animations, makeup (bundles such as BodyParts / DynamicHead)
+	for id in pairs(wanted) do
+		if revertBodyPart(humanoid, description, id) then
+			removed += 1
+		end
+		for _, propertyName in pairs(ANIMATION_ASSET_TYPES) do
+			if (description :: any)[propertyName] == id then
+				(description :: any)[propertyName] = 0
+				removed += 1
+			end
+		end
+	end
+	for _, makeup in ipairs(getMakeupDescriptions(description)) do
+		if wanted[makeup.AssetId] then
+			makeup:Destroy()
+			removed += 1
+		end
+	end
 	if removed == 0 then
 		return false, "Items are not currently worn."
 	end
-	description:SetAccessories(filtered, true)
 	return applyDescription(humanoid, description)
+end
+
+--------------------------------------------------
+-- WEAR A WHOLE BUNDLE (Shoes, BodyParts, DynamicHead) IN ONE APPLY
+--------------------------------------------------
+
+AvatarService.WearableBundleTypes = { Shoes = true, BodyParts = true, DynamicHead = true }
+
+-- Supported assets inside a wearable bundle: {AssetId, AssetType (name)}.
+function AvatarService.GetBundleWearItems(bundleId: number): ({{AssetId: number, AssetType: string}}?, string?)
+	if typeof(bundleId) ~= "number" or bundleId <= 0 or bundleId % 1 ~= 0 then
+		return nil, nil
+	end
+	local ok, details = pcall(function()
+		return AssetService:GetBundleDetailsAsync(bundleId)
+	end)
+	if not ok or typeof(details) ~= "table" or typeof(details.Items) ~= "table" then
+		return nil, nil
+	end
+	local bundleType = tostring(details.BundleType)
+	if not AvatarService.WearableBundleTypes[bundleType] then
+		return nil, bundleType
+	end
+	local items = {}
+	for _, item in ipairs(details.Items) do
+		if typeof(item) == "table" and item.Type == "Asset" and typeof(item.Id) == "number" then
+			local typeName = if typeof(item.AssetType) == "string" then item.AssetType else nil
+			if not typeName then
+				local info = getAssetInfo(item.Id)
+				typeName = info and info.AssetType
+			end
+			if typeof(typeName) == "string" then
+				table.insert(items, { AssetId = item.Id, AssetType = typeName })
+			end
+		end
+	end
+	return items, bundleType
+end
+
+function AvatarService.WearBundle(player: Player, bundleId: number): (boolean, any)
+	local humanoid = getHumanoid(player)
+	if not humanoid then
+		return false, "Character is not ready."
+	end
+	local items, bundleType = AvatarService.GetBundleWearItems(bundleId)
+	if not items then
+		return false, "This bundle cannot be worn here."
+	end
+	local description = humanoid:GetAppliedDescription()
+	local accessories = description:GetAccessories(true)
+	local applied = {}
+	local function addAccessory(assetId: number, accessoryTypeName: string)
+		local accessoryType = (Enum.AccessoryType :: any)[accessoryTypeName]
+		if not accessoryType then return end
+		local layered = LAYERED_ACCESSORY_TYPES[accessoryTypeName] == true
+		-- One per slot for shoes / eyebrows / eyelashes and for rigid face/hair from a head bundle.
+		for i = #accessories, 1, -1 do
+			if accessories[i].AccessoryType == accessoryType
+				and (SINGLE_SLOT_LAYERED[accessoryTypeName] or accessoryTypeName == "Eyebrow" or accessoryTypeName == "Eyelash") then
+				table.remove(accessories, i)
+			end
+		end
+		table.insert(accessories, {
+			AssetId = assetId,
+			AccessoryType = accessoryType,
+			IsLayered = layered,
+			Order = if layered then (DEFAULT_LAYER_ORDER[accessoryTypeName] or 1) else nil,
+		})
+		table.insert(applied, assetId)
+	end
+	for _, item in ipairs(items) do
+		local enumItem = (Enum.AvatarAssetType :: any)[item.AssetType]
+		local typeId = enumItem and enumItem.Value
+		if typeId then
+			local bodyProperty = BODY_PART_PROPERTIES[typeId]
+			local animationProperty = ANIMATION_ASSET_TYPES[typeId]
+			local accessoryTypeName = ASSET_TYPE_TO_ACCESSORY_TYPE[typeId]
+			local makeupType = MAKEUP_ASSET_TYPES[typeId]
+			if bodyProperty then
+				(description :: any)[bodyProperty] = item.AssetId
+				table.insert(applied, item.AssetId)
+			elseif animationProperty then
+				(description :: any)[animationProperty] = item.AssetId
+				table.insert(applied, item.AssetId)
+			elseif accessoryTypeName then
+				addAccessory(item.AssetId, accessoryTypeName)
+			elseif makeupType then
+				local makeup = Instance.new("MakeupDescription")
+				makeup.AssetId = item.AssetId
+				makeup.MakeupType = makeupType
+				makeup.Order = #getMakeupDescriptions(description) + 1
+				makeup.Parent = description
+				table.insert(applied, item.AssetId)
+			end
+		end
+	end
+	if #applied == 0 then
+		return false, "This bundle has nothing that can be worn here."
+	end
+	description:SetAccessories(accessories, true)
+	local ok, message = applyDescription(humanoid, description)
+	if not ok then
+		return false, message
+	end
+	return true, { applied = applied, bundleType = bundleType }
 end
 
 --------------------------------------------------
@@ -1286,7 +1509,7 @@ function AvatarService.RestoreSnapshot(player: Player, snapshot: any): (boolean,
 	end
 	local description = OutfitSnapshot.decode(snapshot)
 	if not description then
-		return false, "Saved outfit data is not readable."
+		return false, "저장된 코디 데이터를 읽을 수 없습니다."
 	end
 	local baseline = humanoid:GetAppliedDescription()
 	local ok, err = pcall(function()
@@ -1298,8 +1521,8 @@ function AvatarService.RestoreSnapshot(player: Player, snapshot: any): (boolean,
 			humanoid:ApplyDescriptionResetAsync(baseline, Enum.AssetTypeVerification.Default)
 		end)
 		return false, if recovered
-			then "Could not restore this outfit. Your previous look was kept."
-			else "Restore failed. Your avatar will be reloaded."
+			then "코디를 복원하지 못했습니다. 이전 모습은 그대로입니다."
+			else "복원 중 오류가 발생했습니다. 현재 아바타를 다시 불러와 확인해 주세요."
 	end
 	local present = OutfitSnapshot.presentAssetIds(humanoid:GetAppliedDescription())
 	local skipped = {}

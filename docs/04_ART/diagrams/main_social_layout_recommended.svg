@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 800" font-family="Noto Sans CJK KR, sans-serif">
+  <rect width="1000" height="800" fill="#f4f1ea"/>
+  <text x="24" y="36" font-size="22" font-weight="700" fill="#222">Main Social 공간 배치 권장안 (C안: 허브 + 순환 루프 + 양 끝 앵커)</text>
+  <text x="24" y="60" font-size="13" fill="#555">북쪽 위 · 1칸 ≈ 1 stud 비례 아님(관계도) · 서쪽 = 석양 방향 · 걷기 16 stud/s 기준 시간 표기</text>
+  <!-- sea -->
+  <path d="M0 90 H170 Q205 300 175 470 Q150 640 200 800 H0 Z" fill="#9fd3e8"/>
+  <text x="30" y="560" font-size="14" fill="#2b6b86" font-weight="700">바다 (석양 ←)</text>
+  <!-- noise gradient band -->
+  <rect x="210" y="80" width="770" height="230" fill="#f2c7c7" opacity="0.35"/>
+  <text x="960" y="100" font-size="12" text-anchor="end" fill="#a33">시끄러움 · 밤 · 활동</text>
+  <rect x="210" y="580" width="770" height="210" fill="#c9e6c4" opacity="0.4"/>
+  <text x="960" y="780" font-size="12" text-anchor="end" fill="#3a7a35">조용함 · 낮 · 휴식</text>
+  <!-- loop path -->
+  <path d="M520 410 L520 250 M520 250 Q700 230 790 330 Q850 430 790 560 Q650 690 420 650 Q270 620 250 480 Q245 330 380 270 Q450 245 520 250" fill="none" stroke="#c9a24a" stroke-width="22" stroke-linecap="round" opacity="0.55"/>
+  <path d="M520 410 L780 440 M520 410 L420 640 M520 410 L255 420" stroke="#c9a24a" stroke-width="12" opacity="0.45"/>
+  <text x="800" y="300" font-size="12" fill="#8a6b20">City Street 루프 (폭 30~40)</text>
+  <!-- beach -->
+  <path d="M175 110 Q215 300 190 470 Q170 640 215 790 L265 790 Q225 640 245 470 Q265 300 230 110 Z" fill="#f3dfa6"/>
+  <text x="150" y="430" font-size="15" font-weight="700" fill="#7a5a10" transform="rotate(-84 200 430)">Sunset Beach</text>
+  <!-- dome -->
+  <circle cx="105" cy="250" r="55" fill="#bfe7f5" stroke="#2b8bb0" stroke-width="3"/>
+  <text x="105" y="246" font-size="13" text-anchor="middle" font-weight="700" fill="#1d5e78">Dream</text>
+  <text x="105" y="263" font-size="13" text-anchor="middle" font-weight="700" fill="#1d5e78">Aquarium 돔</text>
+  <path d="M160 255 L210 280" stroke="#2b8bb0" stroke-width="5" stroke-dasharray="6 4"/>
+  <!-- club -->
+  <rect x="400" y="110" width="250" height="135" rx="8" fill="#3b2e5a"/>
+  <text x="525" y="140" font-size="17" text-anchor="middle" font-weight="700" fill="#fff">CLUB · Idol Concert City</text>
+  <text x="525" y="162" font-size="11" text-anchor="middle" fill="#e6dcff">무대(북) ▸ 플로어 ▸ 가장자리 단상·라운지</text>
+  <rect x="470" y="172" width="110" height="45" fill="#6b54a8"/>
+  <text x="525" y="199" font-size="12" text-anchor="middle" fill="#fff">Dance Floor</text>
+  <rect x="490" y="117" width="70" height="0" />
+  <rect x="490" y="228" width="70" height="18" fill="#d33"/>
+  <text x="525" y="268" font-size="11" text-anchor="middle" fill="#b22">레드카펫·로프·포토월 (입구=남쪽, 광장 정면)</text>
+  <!-- rooftop -->
+  <rect x="655" y="110" width="110" height="80" rx="6" fill="#1f2a44" stroke="#ff4fd8" stroke-width="3"/>
+  <text x="710" y="140" font-size="13" text-anchor="middle" font-weight="700" fill="#ff9ff0">Neon Rooftop</text>
+  <text x="710" y="158" font-size="11" text-anchor="middle" fill="#cfd8ff">클럽 동쪽 옥상 H≈50</text>
+  <text x="710" y="174" font-size="11" text-anchor="middle" fill="#cfd8ff">엘리베이터/계단</text>
+  <!-- backstage future -->
+  <rect x="290" y="110" width="105" height="80" rx="6" fill="none" stroke="#777" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="342" y="143" font-size="12" text-anchor="middle" fill="#555">Backstage</text>
+  <text x="342" y="160" font-size="11" text-anchor="middle" fill="#777">(후속·무대 뒤)</text>
+  <!-- plaza -->
+  <circle cx="520" cy="410" r="78" fill="#fffaf0" stroke="#c9a24a" stroke-width="4"/>
+  <circle cx="520" cy="410" r="16" fill="#9fd3e8"/>
+  <text x="520" y="372" font-size="16" text-anchor="middle" font-weight="700" fill="#333">Central Plaza</text>
+  <text x="520" y="448" font-size="11" text-anchor="middle" fill="#555">스폰 · 분수 · 오늘의 코디 전광판</text>
+  <text x="520" y="463" font-size="11" text-anchor="middle" fill="#555">가장자리 벤치(사람 구경)</text>
+  <!-- park -->
+  <ellipse cx="830" cy="440" rx="115" ry="105" fill="#a9d89b"/>
+  <text x="830" y="420" font-size="15" text-anchor="middle" font-weight="700" fill="#245a1d">Park +</text>
+  <text x="830" y="440" font-size="15" text-anchor="middle" font-weight="700" fill="#245a1d">Fantasy Playground</text>
+  <text x="830" y="462" font-size="11" text-anchor="middle" fill="#2f5a28">그네 → 회전목마(후속)</text>
+  <text x="830" y="478" font-size="11" text-anchor="middle" fill="#2f5a28">대관람차 = 동쪽 랜드마크</text>
+  <!-- cafe -->
+  <rect x="330" y="630" width="170" height="95" rx="18" fill="#e7f5e1" stroke="#6aa85f" stroke-width="3"/>
+  <text x="415" y="665" font-size="15" text-anchor="middle" font-weight="700" fill="#2f5a28">Glasshouse Cafe</text>
+  <text x="415" y="685" font-size="11" text-anchor="middle" fill="#3d6b35">창가 = 바다 방향(서)</text>
+  <text x="415" y="701" font-size="11" text-anchor="middle" fill="#3d6b35">테라스 → 해변 계단</text>
+  <!-- housing deferred -->
+  <rect x="860" y="640" width="120" height="70" rx="6" fill="none" stroke="#999" stroke-width="2" stroke-dasharray="7 5"/>
+  <text x="920" y="672" font-size="12" text-anchor="middle" fill="#777">Housing</text>
+  <text x="920" y="689" font-size="11" text-anchor="middle" fill="#999">(보류·확장 부지)</text>
+  <!-- photo spots -->
+  <g fill="#ff9f1c" stroke="#fff" stroke-width="1.5" font-size="18">
+    <text x="575" y="240">★</text><text x="560" y="395">★</text><text x="200" y="300">★</text>
+    <text x="95" y="320">★</text><text x="315" y="672">★</text><text x="760" y="125">★</text><text x="760" y="520">★</text>
+  </g>
+  <!-- times -->
+  <g font-size="11" fill="#6b5212" font-weight="700">
+    <text x="528" y="320">≈10초</text><text x="650" y="420">≈16초</text><text x="425" y="560">≈15초</text><text x="330" y="405">≈17초</text>
+  </g>
+  <!-- legend -->
+  <g font-size="12" fill="#333">
+    <rect x="24" y="700" width="14" height="14" fill="#c9a24a" opacity="0.55"/><text x="44" y="712">주 동선(루프·방사)</text>
+    <text x="24" y="736" fill="#ff9f1c" font-size="16">★</text><text x="44" y="734">포토 스팟(분산)</text>
+    <rect x="24" y="748" width="14" height="14" fill="none" stroke="#777" stroke-dasharray="4 3"/><text x="44" y="760">후속/보류 부지</text>
+  </g>
+</svg>
