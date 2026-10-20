@@ -90,11 +90,13 @@ ClubConfig.Playlist = {
 -- Music volume inside the club; it fades out over FadeDistance studs outside
 -- the club zone (parts tagged "ClubZone").
 ClubConfig.MusicVolume = 0.55
-ClubConfig.FadeDistance = 45
+-- Short fade: outside the club building it is silent (user, 2026-10-20:
+-- music starts in the narrow corridor, quiet on the stairs, full in the hall).
+ClubConfig.FadeDistance = 6
 -- Volume per club zone (ClubZone part attribute "Zone"). Inside a zone that
--- zone's level is used; outside, the loudest fade wins. The rooftop is
--- quieter, like music coming up from below (user, 2026-10-20).
-ClubConfig.ZoneVolumes = { Hall = 1, Rooftop = 0.3 }
+-- zone's level is used (the quietest when zones overlap); outside, the loudest
+-- fade wins. The rooftop is quieter, like music coming up from below.
+ClubConfig.ZoneVolumes = { Hall = 1, Corridor = 0.45, Stairs = 0.12, Rooftop = 0.3 }
 
 --------------------------------------------------
 -- Drinks (non-alcoholic only, D-043). Test list from the user (2026-10-20):
@@ -108,13 +110,15 @@ export type Drink = {
 	name: string,
 	color: Color3,
 	product: string?,
+	coins: number?,
 }
 
 ClubConfig.Drinks = {
 	{ key = "water", name = "물", color = Color3.fromRGB(190, 230, 255) },
 	{ key = "cider", name = "사이다", color = Color3.fromRGB(200, 255, 200) },
 	{ key = "cola", name = "콜라", color = Color3.fromRGB(70, 35, 20) },
-	{ key = "fanta", name = "환타", color = Color3.fromRGB(255, 140, 0), product = "Drink_Fanta" },
+	-- Paid drink: Robux, or coins at a deliberately high price (ECONOMY.md §4).
+	{ key = "fanta", name = "환타", color = Color3.fromRGB(255, 140, 0), product = "Drink_Fanta", coins = 300 },
 } :: {Drink}
 
 -- Bottles: carried as a tool, placed on a table, poured into cups.

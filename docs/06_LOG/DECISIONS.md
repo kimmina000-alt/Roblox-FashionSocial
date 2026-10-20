@@ -178,3 +178,11 @@ All Game Pass / Developer Product IDs live in MonetizationConfig. Receipts are g
 
 D-056 — 인생네컷 photo booth becomes the Stage 5 photo feature (2026-10-20, proposed).
 See PHOTO_BOOTH.md. MVP free; paid frames/stickers/poses later.
+
+D-057 – D-063 — Made in the other (Cowork) session on 2026-10-20; their docs were never written. Reconstructed from code comments: D-061 DJ zone is for the DJ and invited guests only, extension only while nobody waits; D-062 같이 추기 해제 stops and waits; D-063 인생네컷 flow is server-owned (PhotoBoothService). The rest are not known.
+
+D-064 — 인생네컷 rules + coin economy (2026-10-20, user decision; numbers proposed).
+Album: 10 free slots (+10 per paid product). People stay inside the booth (invisible barrier) from start/join until they save or press 나가기; saving moves them out; poses stop after the last shot; ⏸ freezes the pose. Photos can be taken out as an inventory item and stuck on the photo wall (the print is used up; photos may overlap). Frames: 블랙/화이트 free, colours/pastels bought with coins, glossy/glitter Robux (Frame Pack). Coins: passive while active + activity bonuses, see ECONOMY.md.
+
+D-065 — Club rev3: two floors, VIP-only 2nd floor around the edges (2026-10-20, user floor plan).
+Hall floor -24, VIP floor -2, ceiling 36, rooftop deck 37. Centre open to the ceiling. DJ zone east with turntable console (click → DJ music window), LED wall, ceiling lasers (DJ 조명 on/off). Tables under the north VIP, bar under the south-east VIP, lounge south-west. Four round LED pillars at the atrium corners show club players, turning 360°. Neon edge on every stair step. Music: hall 1, corridor 0.45, stairs 0.12, outside silent. A DJ whose queued turn starts is asked OK / NO (NO passes the turn, no refund) instead of being moved.

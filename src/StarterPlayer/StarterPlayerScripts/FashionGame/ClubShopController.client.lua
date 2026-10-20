@@ -229,6 +229,31 @@ ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 			toast(djStatusLine())
 			buyProduct("DJ")
 		end
+	elseif kind == "DJTurn" then
+		-- Never move people without asking (user, 2026-10-20).
+		local queued = typeof(value) == "table" and value.queued == true
+		if queued then
+			showModal("🎧 DJ 차례가 됐어요!",
+				"DJ 부스로 이동할까요?\nNO를 누르면 다음 순서로 넘어가며, 구매한 DJ 시간은 환불되지 않아요.",
+				{
+					{ name = "No", text = "NO", color = COLORS.card, onClick = function()
+						local ok, message = ClubShop:InvokeServer("DJPass", nil)
+						toast(tostring(message or (if ok then "" else "넘기지 못했어요.")))
+					end },
+					{ name = "Ok", text = "OK · 이동", color = COLORS.robux, onClick = function()
+						ClubShop:InvokeServer("DJGo", nil)
+					end },
+				})
+		else
+			showModal("🎧 지금부터 DJ예요!",
+				"DJ 부스로 이동할까요?\n직접 걸어가도 돼요. DJ 시간은 지금부터 흘러요.",
+				{
+					{ name = "No", text = "직접 갈게요", color = COLORS.card, onClick = function() end },
+					{ name = "Ok", text = "OK · 이동", color = COLORS.robux, onClick = function()
+						ClubShop:InvokeServer("DJGo", nil)
+					end },
+				})
+		end
 	elseif kind == "GateQueue" then
 		-- Someone is DJing: only the DJ's invited guests go up (D-061).
 		local dj = FashionGame:GetAttribute("ClubDJ")
@@ -394,6 +419,34 @@ local function buildMenu()
 		}, row)
 		corner(price, 15)
 		row.MouseButton1Click:Connect(function() order(drink) end)
+		if drink.coins then
+			-- Same drink for coins (deliberately expensive, ECONOMY.md §4).
+			local coinButton = create("TextButton", {
+				Name = "Coins",
+				AnchorPoint = Vector2.new(1, 0.5),
+				Position = UDim2.new(1, -100, 0.5, 0),
+				Size = UDim2.fromOffset(84, 30),
+				BackgroundColor3 = Color3.fromRGB(230, 170, 40),
+				Text = "🪙 " .. tostring(drink.coins),
+				TextColor3 = COLORS.text,
+				TextSize = 15,
+				Font = Enum.Font.GothamBold,
+				ZIndex = 14,
+			}, row)
+			corner(coinButton, 15)
+			coinButton.MouseButton1Click:Connect(function()
+				menu.Visible = false
+				showModal(drink.name .. " · 코인으로 사기",
+					string.format("%d 코인을 써서 %s 한 병을 살까요?\n(지금 %d 코인)", drink.coins, drink.name, player:GetAttribute("Coins") or 0),
+					{
+						{ name = "Cancel", text = "취소", onClick = function() end },
+						{ name = "Buy", text = "🪙 " .. tostring(drink.coins), color = Color3.fromRGB(230, 170, 40), onClick = function()
+							local ok, message = ClubShop:InvokeServer("OrderCoins", drink.key)
+							toast(tostring(message or (if ok then "" else "살 수 없어요.")))
+						end },
+					})
+			end)
+		end
 	end
 end
 buildMenu()

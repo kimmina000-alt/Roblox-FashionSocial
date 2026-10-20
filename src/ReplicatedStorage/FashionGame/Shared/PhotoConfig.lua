@@ -3,7 +3,10 @@
 -- Shared by PhotoBoothService (server) and PhotoBoothController (client).
 
 export type Layout = { key: string, name: string, cols: number, rows: number }
-export type Frame = { key: string, name: string, color: Color3, text: Color3, tab: string }
+-- price: "free" | "coins" (EconomyConfig coin price, unlocked forever) |
+-- "pass" (Game Pass MonetizationConfig.GamePasses.FramePack).
+-- style: "solid" | "gloss" (shine gradient) | "glitter" (sparkles).
+export type Frame = { key: string, name: string, color: Color3, text: Color3, tab: string, price: string, coins: number?, style: string }
 
 local PhotoConfig = {}
 
@@ -27,24 +30,37 @@ PhotoConfig.FirstShotSeconds = 8   -- a little longer to pick the first pose
 PhotoConfig.WaitSeconds = 10       -- waiting for friends (친구와 / 모두와)
 PhotoConfig.SoloWaitSeconds = 3
 PhotoConfig.PickSeconds = 120      -- time to pick 4 + a frame
-PhotoConfig.MaxPhotos = 30         -- album size per player (PHOTO_BOOTH.md §8)
+PhotoConfig.MaxPhotos = 10         -- free album slots (user, 2026-10-20: 10장까지 무료)
+PhotoConfig.HardMaxPhotos = 60     -- stored maximum incl. bought slots (D-064)
+PhotoConfig.SlotsPerPurchase = 10  -- MonetizationConfig.Products.AlbumSlots
+PhotoConfig.MaxWallPhotos = 30     -- photo wall: newest stay, oldest fall off
 PhotoConfig.OpenDistance = 24      -- how close to the booth to start / join
-PhotoConfig.LeaveDistance = 30     -- walking further away during the shoot = leaving
+PhotoConfig.LeaveDistance = 30     -- (unused since D-064: people stay inside the booth)
 
--- Frames (MVP: all free). The tab groups them like the reference.
+-- Frames (user, 2026-10-20): 블랙/화이트 free; other colours and pastels are
+-- bought with coins earned in game (EconomyConfig); glossy / glitter frames
+-- come with the paid Frame Pack (Robux). Bought frames stay unlocked.
 PhotoConfig.FrameTabs = { "색상", "파스텔", "특별한" }
 PhotoConfig.Frames = {
-	{ key = "black", name = "블랙", color = Color3.fromRGB(20, 20, 24), text = Color3.new(1, 1, 1), tab = "색상" },
-	{ key = "white", name = "화이트", color = Color3.fromRGB(250, 250, 250), text = Color3.fromRGB(30, 30, 30), tab = "색상" },
-	{ key = "gray", name = "그레이", color = Color3.fromRGB(150, 150, 158), text = Color3.new(1, 1, 1), tab = "색상" },
-	{ key = "pink", name = "핑크", color = Color3.fromRGB(255, 160, 200), text = Color3.new(1, 1, 1), tab = "파스텔" },
-	{ key = "sky", name = "하늘", color = Color3.fromRGB(150, 205, 255), text = Color3.new(1, 1, 1), tab = "파스텔" },
-	{ key = "mint", name = "민트", color = Color3.fromRGB(150, 230, 200), text = Color3.fromRGB(30, 60, 50), tab = "파스텔" },
-	{ key = "lemon", name = "레몬", color = Color3.fromRGB(255, 235, 140), text = Color3.fromRGB(80, 60, 20), tab = "파스텔" },
-	{ key = "lilac", name = "라일락", color = Color3.fromRGB(200, 170, 255), text = Color3.new(1, 1, 1), tab = "파스텔" },
-	{ key = "neon", name = "네온 클럽", color = Color3.fromRGB(40, 10, 60), text = Color3.fromRGB(255, 80, 200), tab = "특별한" },
-	{ key = "gold", name = "골드", color = Color3.fromRGB(212, 175, 55), text = Color3.fromRGB(40, 30, 10), tab = "특별한" },
+	{ key = "black", name = "블랙", color = Color3.fromRGB(20, 20, 24), text = Color3.new(1, 1, 1), tab = "색상", price = "free", style = "solid" },
+	{ key = "white", name = "화이트", color = Color3.fromRGB(250, 250, 250), text = Color3.fromRGB(30, 30, 30), tab = "색상", price = "free", style = "solid" },
+	{ key = "gray", name = "그레이", color = Color3.fromRGB(150, 150, 158), text = Color3.new(1, 1, 1), tab = "색상", price = "coins", coins = 120, style = "solid" },
+	{ key = "pink", name = "핑크", color = Color3.fromRGB(255, 160, 200), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
+	{ key = "sky", name = "하늘", color = Color3.fromRGB(150, 205, 255), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
+	{ key = "mint", name = "민트", color = Color3.fromRGB(150, 230, 200), text = Color3.fromRGB(30, 60, 50), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
+	{ key = "lemon", name = "레몬", color = Color3.fromRGB(255, 235, 140), text = Color3.fromRGB(80, 60, 20), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
+	{ key = "lilac", name = "라일락", color = Color3.fromRGB(200, 170, 255), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
+	{ key = "neon", name = "글로시 네온", color = Color3.fromRGB(40, 10, 60), text = Color3.fromRGB(255, 80, 200), tab = "특별한", price = "pass", style = "gloss" },
+	{ key = "gloss_pink", name = "글로시 핑크", color = Color3.fromRGB(255, 110, 175), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "gloss" },
+	{ key = "gold", name = "반짝이 골드", color = Color3.fromRGB(212, 175, 55), text = Color3.fromRGB(40, 30, 10), tab = "특별한", price = "pass", style = "glitter" },
+	{ key = "glitter_silver", name = "반짝이 실버", color = Color3.fromRGB(196, 200, 212), text = Color3.fromRGB(40, 40, 50), tab = "특별한", price = "pass", style = "glitter" },
 } :: {Frame}
+
+function PhotoConfig.priceText(frame: Frame): string
+	if frame.price == "coins" then return "🪙 " .. tostring(frame.coins) end
+	if frame.price == "pass" then return "프레임 팩" end
+	return "무료"
+end
 
 -- Poses: the club dances/poses (ClubConfig.Dances), poses first.
 PhotoConfig.PoseCategoryOrder = { "포즈·응원", "댄스" }

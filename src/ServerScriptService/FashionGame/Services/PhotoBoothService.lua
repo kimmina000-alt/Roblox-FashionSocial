@@ -12,6 +12,9 @@
 --      (혼자만 / 친구와 / 모두와) → Open. Waiting 3 s (solo) / 10 s; others
 --      near the booth get "같이 찍기" (Join), up to 4 people. The host may
 --      start early.
+--      Starting or joining puts the person inside the booth; until they save
+--      (or press 나가기) they cannot walk out, and nobody else can walk in
+--      (D-064, user 2026-10-20: "안 보이는 결계").
 --   2. Shooting: everyone is placed on the stand facing the camera; 8 photos,
 --      one every 10 s (first one 8 s). People can move, pick poses (the club
 --      dances, allowed on PhotoStage) and props. Each photo stores, per
@@ -19,8 +22,13 @@
 --      Outfits are captured once when shooting starts (OutfitSnapshot).
 --   3. Picking: every participant gets the 8 shots ("Shots" event), picks 4
 --      and a frame → Save → their own copy goes to their album
---      (PlayerDataService.SavePhoto, max 30). The session ends when everyone
---      saved or left, or after PhotoConfig.PickSeconds.
+--      (PlayerDataService.SavePhoto, 10 free slots) and they are moved out of
+--      the booth. The session ends when everyone saved or left, or after
+--      PhotoConfig.PickSeconds. Poses stop when the shooting ends.
+--   4. Album extras: "TakeOut" gives the photo as a Tool (inventory item);
+--      "WallPost" sticks it on a photo wall (tag "PhotoWall") and removes it
+--      from the album (it is used up, like a real print). Wall photos may
+--      overlap; the newest PhotoConfig.MaxWallPhotos stay (this server only).
 --
 -- Public booth attributes (clients follow them):
 --   Phase "idle"|"waiting"|"shooting"|"picking", Host, Layout, Mode,
@@ -36,6 +44,8 @@ local Shared = FashionGame:WaitForChild("Shared")
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
 local PhotoProps = require(Shared:WaitForChild("PhotoProps"))
 local OutfitSnapshot = require(Shared:WaitForChild("OutfitSnapshot"))
+local EconomyService = require(script.Parent.EconomyService)
+local ClubService = require(script.Parent.ClubService)
 
 local PhotoBoothService = {}
 
@@ -59,6 +69,7 @@ local byPlayer: {[Player]: Session} = {}
 local playerData: any = nil
 local event: RemoteEvent? = nil
 local lastCall: {[Player]: number} = {}
+local lastPush: {[Player]: number} = {}
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -88,6 +99,72 @@ local function near(player: Player, booth: Model, distance: number): boolean
 	return root ~= nil and stand ~= nil and (root.Position - stand.Position).Magnitude <= distance
 end
 
+--------------------------------------------------
+-- Booth space (the invisible barrier)
+--------------------------------------------------
+
+-- Box of the booth's inside: the studio floor footprint, 12 studs high.
+local function insideBox(booth: Model): (CFrame?, Vector3?)
+	local floor = part(booth, "StudioFloor") or part(booth, "Stand")
+	if not floor then return nil, nil end
+	local size = Vector3.new(floor.Size.X, 12, floor.Size.Z)
+	return floor.CFrame * CFrame.new(0, 6 - floor.Size.Y / 2, 0), size
+end
+
+local function isInside(booth: Model, position: Vector3): boolean
+	local cf, size = insideBox(booth)
+	if not cf or not size then return false end
+	local p = cf:PointToObjectSpace(position)
+	return math.abs(p.X) <= size.X / 2 + 0.5 and math.abs(p.Z) <= size.Z / 2 + 0.5 and math.abs(p.Y) <= size.Y / 2 + 2
+end
+
+-- Where person `index` of `count` stands (facing the camera).
+local function spotFor(stand: BasePart, index: number, count: number): CFrame
+	local offset = (index - (count + 1) / 2) * 2.8
+	return stand.CFrame * CFrame.new(offset, -stand.Size.Y / 2 + 3.1, 0)
+end
+
+-- Just outside the open side, behind the camera, facing the booth.
+local function exitFor(booth: Model): CFrame?
+	local stand = part(booth, "Stand")
+	local camera = part(booth, "CameraPoint")
+	if not stand or not camera then return nil end
+	local away = camera.Position - stand.Position
+	away = Vector3.new(away.X, 0, away.Z)
+	if away.Magnitude < 0.1 then return nil end
+	away = away.Unit
+	local base = Vector3.new(camera.Position.X, stand.Position.Y - stand.Size.Y / 2 + 3.1, camera.Position.Z) + away * 4
+	return CFrame.lookAt(base, base - away)
+end
+
+local function sitUp(character: Model)
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid and humanoid.SeatPart then humanoid.Sit = false end
+end
+
+local function moveInside(session: Session, player: Player)
+	local stand = part(session.booth, "Stand")
+	local character = player.Character
+	if not stand or not character then return end
+	local index = table.find(session.people, player) or 1
+	sitUp(character)
+	character:PivotTo(spotFor(stand, index, #session.people))
+end
+
+local function moveOutside(booth: Model, player: Player)
+	local character = player.Character
+	local root = rootOf(player)
+	local exit = exitFor(booth)
+	if character and root and exit and isInside(booth, root.Position) then
+		sitUp(character)
+		character:PivotTo(exit)
+	end
+end
+
+local function active(session: Session, player: Player): boolean
+	return table.find(session.people, player) ~= nil and not session.saved[player] and byPlayer[player] == session
+end
+
 local function publish(session: Session?, booth: Model)
 	if not session then
 		booth:SetAttribute("Phase", "idle")
@@ -97,8 +174,12 @@ local function publish(session: Session?, booth: Model)
 		booth:SetAttribute("NextShotAt", 0)
 		booth:SetAttribute("WaitUntil", 0)
 	else
+		-- Only people still in the booth flow (saved people are released, so
+		-- their client does not follow this booth any more).
 		local ids = {}
-		for _, person in ipairs(session.people) do table.insert(ids, person.UserId) end
+		for _, person in ipairs(session.people) do
+			if active(session, person) then table.insert(ids, person.UserId) end
+		end
 		booth:SetAttribute("Phase", session.phase)
 		booth:SetAttribute("Host", session.host.UserId)
 		booth:SetAttribute("Layout", session.layout)
@@ -123,16 +204,25 @@ local function clearProps(player: Player)
 	for _, child in ipairs(character:GetChildren()) do
 		if child:IsA("Accessory") and child:GetAttribute("PhotoProp") then child:Destroy() end
 	end
-	character:SetAttribute("PhotoBooth", nil)
+end
+
+-- The person is done with the booth: out of the barrier, props off.
+local function release(session: Session, player: Player)
+	if byPlayer[player] == session then byPlayer[player] = nil end
+	clearProps(player)
+	local character = player.Character
+	if character then character:SetAttribute("PhotoBooth", nil) end
+	moveOutside(session.booth, player)
 end
 
 local function endSession(session: Session, reason: string?)
 	if sessions[session.booth] ~= session then return end
 	sessions[session.booth] = nil
 	for _, person in ipairs(session.people) do
-		if byPlayer[person] == session then byPlayer[person] = nil end
-		clearProps(person)
-		if event and person.Parent then event:FireClient(person, "Ended", reason) end
+		if byPlayer[person] == session then
+			release(session, person)
+			if event and person.Parent then event:FireClient(person, "Ended", reason) end
+		end
 	end
 	publish(nil, session.booth)
 end
@@ -150,10 +240,32 @@ local function removePerson(session: Session, player: Player, reason: string?)
 	else
 		table.remove(session.people, index)
 	end
-	byPlayer[player] = nil
-	clearProps(player)
+	release(session, player)
 	if event and player.Parent then event:FireClient(player, "Ended", reason) end
 	publish(session, session.booth)
+end
+
+-- Every 0.25 s: people in a booth flow stay inside; others cannot walk in.
+local function guardBooths()
+	for booth, session in pairs(sessions) do
+		for _, person in ipairs(session.people) do
+			local root = rootOf(person)
+			if root and active(session, person) and not isInside(booth, root.Position) then
+				moveInside(session, person)
+			end
+		end
+		for _, other in ipairs(Players:GetPlayers()) do
+			local root = rootOf(other)
+			if root and not active(session, other) and isInside(booth, root.Position) then
+				moveOutside(booth, other)
+				local t = os.clock()
+				if not lastPush[other] or t - lastPush[other] > 4 then
+					lastPush[other] = t
+					toast(other, "지금 촬영 중인 부스예요. 잠시 기다려 주세요.")
+				end
+			end
+		end
+	end
 end
 
 --------------------------------------------------
@@ -179,9 +291,11 @@ local function captureShot(session: Session, stand: BasePart, at: number): any
 			local key = character:GetAttribute("DanceKey")
 			local start = character:GetAttribute("DanceStart")
 			local speed = character:GetAttribute("DanceSpeed")
+			local paused = character:GetAttribute("DancePause")
 			if typeof(key) == "string" and typeof(start) == "number" and typeof(speed) == "number" then
 				entry.k = key
-				entry.t = math.floor(math.max(0, at - start) * speed * 1000 + 0.5) / 1000
+				local t = if typeof(paused) == "number" then paused else math.max(0, at - start) * speed
+				entry.t = math.floor(t * 1000 + 0.5) / 1000
 			end
 			table.insert(people, entry)
 		end
@@ -200,16 +314,9 @@ local function boothInfo(booth: Model, stand: BasePart): any
 	}
 end
 
-local function placeOnStand(session: Session, stand: BasePart)
-	local count = #session.people
-	for index, person in ipairs(session.people) do
-		local character = person.Character
-		if character then
-			local offset = (index - (count + 1) / 2) * 2.8
-			local floorY = -stand.Size.Y / 2 + 3.1
-			character:PivotTo(stand.CFrame * CFrame.new(offset, floorY, 0))
-			character:SetAttribute("PhotoBooth", session.booth:GetAttribute("BoothKey"))
-		end
+local function placeOnStand(session: Session)
+	for _, person in ipairs(session.people) do
+		moveInside(session, person)
 	end
 end
 
@@ -241,7 +348,7 @@ local function runSession(session: Session)
 		end
 		session.names[person.UserId] = person.DisplayName
 	end
-	placeOnStand(session, stand)
+	placeOnStand(session)
 	publish(session, booth)
 	for index = 1, PhotoConfig.ShotCount do
 		local at = now() + (if index == 1 then PhotoConfig.FirstShotSeconds else PhotoConfig.ShotSeconds)
@@ -249,11 +356,10 @@ local function runSession(session: Session)
 		booth:SetAttribute("NextShotAt", at)
 		while sessions[booth] == session and now() < at do
 			task.wait(0.1)
-			-- Walking away from the booth during the shoot = leaving.
 			for i = #session.people, 1, -1 do
 				local person = session.people[i]
-				if not person.Parent or not near(person, booth, PhotoConfig.LeaveDistance) then
-					removePerson(session, person, "부스에서 멀어져 촬영에서 나왔어요.")
+				if not person.Parent then
+					removePerson(session, person, nil)
 				end
 			end
 			if #session.people == 0 then
@@ -267,13 +373,17 @@ local function runSession(session: Session)
 		end
 	end
 
-	-- Picking: every participant gets the shots.
+	-- Picking: every participant gets the shots. Poses and props stop
+	-- (user, 2026-10-20: after the last photo everyone is back to idle).
 	session.phase = "picking"
 	booth:SetAttribute("ShotIndex", 0)
 	booth:SetAttribute("NextShotAt", 0)
 	booth:SetAttribute("WaitUntil", now() + PhotoConfig.PickSeconds)
 	publish(session, booth)
-	for _, person in ipairs(session.people) do clearProps(person) end
+	for _, person in ipairs(session.people) do
+		clearProps(person)
+		pcall(ClubService.StopDance, person)
+	end
 	local peopleInfo = {}
 	for userId, name in pairs(session.names) do
 		table.insert(peopleInfo, { u = userId, n = name, o = session.outfits[userId] })
@@ -311,16 +421,41 @@ local function boothFrom(value: any): Model?
 	return nil
 end
 
+local function albumFull(player: Player): string?
+	local count, max = playerData.PhotoCapacity(player)
+	if count >= max then
+		return string.format("사진첩이 가득 찼어요 (%d/%d). 사진첩에서 지우거나 포토월에 붙인 뒤 찍어 주세요.", count, max)
+	end
+	return nil
+end
+
+local function enter(session: Session, player: Player)
+	byPlayer[player] = session
+	local character = player.Character
+	if character then character:SetAttribute("PhotoBooth", session.booth:GetAttribute("BoothKey")) end
+	moveInside(session, player)
+end
+
 local function open(player: Player, payload: any): (boolean, string?)
 	if typeof(payload) ~= "table" then return false, "잘못된 요청입니다." end
 	local booth = boothFrom(payload.booth)
 	if not booth then return false, "부스를 찾을 수 없어요." end
-	if byPlayer[player] then return false, "이미 촬영 중이에요." end
+	local previous = byPlayer[player]
+	if previous then
+		-- A finished session (picking, already saved) never blocks a new one.
+		if previous.phase == "picking" and previous.saved[player] then
+			byPlayer[player] = nil
+		else
+			return false, "이미 촬영 중이에요."
+		end
+	end
 	if sessions[booth] then return false, "다른 사람이 쓰고 있는 부스예요. 잠시 기다려 주세요." end
 	if not PhotoConfig.findLayout(payload.layout) or not PhotoConfig.isMode(payload.mode) then
 		return false, "사진 유형을 골라 주세요."
 	end
 	if not near(player, booth, PhotoConfig.OpenDistance) then return false, "부스 가까이에서 시작하세요." end
+	local full = albumFull(player)
+	if full then return false, full end
 	local session: Session = {
 		id = HttpService:GenerateGUID(false),
 		booth = booth,
@@ -336,7 +471,7 @@ local function open(player: Player, payload: any): (boolean, string?)
 		startNow = false,
 	}
 	sessions[booth] = session
-	byPlayer[player] = session
+	enter(session, player)
 	publish(session, booth)
 	task.spawn(runSession, session)
 	return true, nil
@@ -358,8 +493,10 @@ local function join(player: Player, payload: any): (boolean, string?)
 	end
 	if #session.people >= PhotoConfig.MaxPeople then return false, "자리가 다 찼어요 (최대 4명)." end
 	if not near(player, booth, PhotoConfig.OpenDistance) then return false, "부스 가까이 가 주세요." end
+	local full = albumFull(player)
+	if full then return false, full end
 	table.insert(session.people, player)
-	byPlayer[player] = session
+	enter(session, player)
 	publish(session, booth)
 	toast(session.host, player.DisplayName .. "님이 함께 찍어요!")
 	return true, nil
@@ -396,6 +533,9 @@ local function save(player: Player, payload: any): (boolean, any)
 	if typeof(payload) ~= "table" or typeof(payload.picks) ~= "table" then return false, "사진을 골라 주세요." end
 	local frame = PhotoConfig.findFrame(payload.frame)
 	if not frame then return false, "프레임을 골라 주세요." end
+	if not EconomyService.OwnsFrame(player, frame.key) then
+		return false, "아직 가지고 있지 않은 프레임이에요."
+	end
 	local picks = {}
 	local seen = {}
 	for _, index in ipairs(payload.picks) do
@@ -435,12 +575,151 @@ local function save(player: Player, payload: any): (boolean, any)
 	local ok, result = playerData.SavePhoto(player, photo)
 	if not ok then return false, result end
 	session.saved[player] = true
+	-- Saved → out of the booth (user, 2026-10-20).
+	release(session, player)
+	publish(session, session.booth)
+	EconomyService.Award(player, "PhotoSaved")
+	if #people > 1 then EconomyService.Award(player, "PhotoGroup") end
 	return true, { photo = photo, count = #result.photos, max = result.max, persistent = result.persistent, note = result.note }
+end
+
+--------------------------------------------------
+-- Photo items (Tool) and the photo wall
+--------------------------------------------------
+
+local function photoTools(player: Player): {Tool}
+	local list = {}
+	for _, container in ipairs({ player:FindFirstChildOfClass("Backpack"), player.Character }) do
+		if container then
+			for _, child in ipairs(container:GetChildren()) do
+				if child:IsA("Tool") and typeof(child:GetAttribute("PhotoId")) == "string" then table.insert(list, child) end
+			end
+		end
+	end
+	return list
+end
+
+local function buildPhotoTool(photo: any): Tool
+	local frame = PhotoConfig.findFrame(photo.frame) or PhotoConfig.Frames[2]
+	local layout = PhotoConfig.findLayout(photo.layout) or PhotoConfig.Layouts[1]
+	local tool = Instance.new("Tool")
+	tool.Name = "인생네컷"
+	tool.ToolTip = "인생네컷 " .. os.date("%m.%d", photo.createdAt or os.time())
+	tool.CanBeDropped = false
+	tool:SetAttribute("PhotoId", photo.id)
+	tool.Grip = CFrame.new(0, -0.9, 0) * CFrame.Angles(0, math.rad(180), 0)
+	local w, h = if layout.cols == 1 then 0.9 else 1.6, if layout.cols == 1 then 2.7 else 1.4
+	local handle = Instance.new("Part")
+	handle.Name = "Handle"
+	handle.Size = Vector3.new(w, h, 0.06)
+	handle.Color = frame.color
+	handle.Material = if frame.style == "gloss" then Enum.Material.Glass elseif frame.style == "glitter" then Enum.Material.Foil else Enum.Material.SmoothPlastic
+	handle.CanCollide = false
+	handle.Massless = true
+	handle.Parent = tool
+	local cellW = (w - 0.12 * (layout.cols + 1)) / layout.cols
+	local cellH = (h - 0.25 - 0.12 * (layout.rows + 1)) / layout.rows
+	for row = 0, layout.rows - 1 do
+		for col = 0, layout.cols - 1 do
+			local cell = Instance.new("Part")
+			cell.Name = "Cell"
+			cell.Size = Vector3.new(cellW, cellH, 0.02)
+			cell.Color = Color3.fromRGB(235, 225, 230)
+			cell.CanCollide = false
+			cell.Massless = true
+			local x = -w / 2 + 0.12 + cellW / 2 + col * (cellW + 0.12)
+			local y = h / 2 - 0.12 - cellH / 2 - row * (cellH + 0.12)
+			cell.CFrame = handle.CFrame * CFrame.new(x, y, -0.04)
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0 = handle
+			weld.Part1 = cell
+			weld.Parent = cell
+			cell.Parent = tool
+		end
+	end
+	return tool
+end
+
+local function takeOut(player: Player, id: any): (boolean, string?)
+	local photo = playerData.FindPhoto(player, id)
+	if not photo then return false, "사진을 찾을 수 없어요." end
+	local tools = photoTools(player)
+	for _, tool in ipairs(tools) do
+		if tool:GetAttribute("PhotoId") == id then return true, "이미 가방에 있는 사진이에요." end
+	end
+	if #tools >= 3 then
+		-- Keep at most 3 photos in the backpack: the oldest goes back.
+		tools[1]:Destroy()
+	end
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if not backpack then return false, "가방을 찾을 수 없어요." end
+	buildPhotoTool(photo).Parent = backpack
+	return true, "사진을 가방에 넣었어요! 아래 아이템 칸에서 꺼내 들 수 있어요."
+end
+
+type WallEntry = { id: string, wall: string, u: number, v: number, by: string, at: number, photo: any }
+local wallEntries: {WallEntry} = {}
+
+local function wallFrom(value: any): BasePart?
+	if typeof(value) == "Instance" and value:IsA("BasePart") and CollectionService:HasTag(value, "PhotoWall") then
+		return value
+	end
+	return nil
+end
+
+local function wallKey(wall: BasePart): string
+	return tostring(wall:GetAttribute("WallKey") or wall:GetFullName())
+end
+
+local function wallPost(player: Player, payload: any): (boolean, string?)
+	if typeof(payload) ~= "table" then return false, "잘못된 요청입니다." end
+	local wall = wallFrom(payload.wall)
+	if not wall then return false, "포토월을 찾을 수 없어요." end
+	local root = rootOf(player)
+	if not root or (root.Position - wall.Position).Magnitude > math.max(wall.Size.X, wall.Size.Y) / 2 + 18 then
+		return false, "포토월 가까이에서 붙여 주세요."
+	end
+	local u, v = payload.u, payload.v
+	if typeof(u) ~= "number" or typeof(v) ~= "number" or u ~= u or v ~= v then return false, "붙일 자리를 골라 주세요." end
+	local photo = playerData.FindPhoto(player, payload.id)
+	if not photo then return false, "사진을 찾을 수 없어요." end
+	-- The print is used up: it leaves the album and the backpack.
+	local ok, message = playerData.DeletePhoto(player, photo.id)
+	if not ok then return false, message end
+	for _, tool in ipairs(photoTools(player)) do
+		if tool:GetAttribute("PhotoId") == photo.id then tool:Destroy() end
+	end
+	local entry: WallEntry = {
+		id = photo.id,
+		wall = wallKey(wall),
+		u = math.clamp(u, 0, 1),
+		v = math.clamp(v, 0, 1),
+		by = player.DisplayName,
+		at = now(),
+		photo = photo,
+	}
+	table.insert(wallEntries, entry)
+	while #wallEntries > PhotoConfig.MaxWallPhotos do table.remove(wallEntries, 1) end
+	if event then event:FireAllClients("WallAdd", entry) end
+	EconomyService.Award(player, "WallPost")
+	return true, "포토월에 붙였어요!"
+end
+
+local function setupWall(wall: Instance)
+	if not wall:IsA("BasePart") or wall:FindFirstChild("WallPrompt") then return end
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "WallPrompt"
+	prompt.ActionText = "사진 붙이기"
+	prompt.ObjectText = "포토월"
+	prompt.MaxActivationDistance = 16
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = wall
+	-- The client opens the album picker and the placement mode.
 end
 
 local function handle(player: Player, action: any, payload: any): (boolean, any)
 	local t = os.clock()
-	if action ~= "Leave" and lastCall[player] and t - lastCall[player] < 0.2 then
+	if action ~= "Leave" and action ~= "GetWall" and lastCall[player] and t - lastCall[player] < 0.2 then
 		return false, "잠시 후 다시 시도하세요."
 	end
 	lastCall[player] = t
@@ -466,7 +745,21 @@ local function handle(player: Player, action: any, payload: any): (boolean, any)
 	elseif action == "GetAlbum" then
 		return playerData.GetPhotos(player)
 	elseif action == "DeletePhoto" then
-		return playerData.DeletePhoto(player, payload)
+		local ok, result = playerData.DeletePhoto(player, payload)
+		if ok then
+			for _, tool in ipairs(photoTools(player)) do
+				if tool:GetAttribute("PhotoId") == payload then tool:Destroy() end
+			end
+		end
+		return ok, result
+	elseif action == "TakeOut" then
+		return takeOut(player, payload)
+	elseif action == "WallPost" then
+		return wallPost(player, payload)
+	elseif action == "GetWall" then
+		return true, wallEntries
+	elseif action == "BuyFrame" then
+		return EconomyService.BuyFrame(player, payload)
 	end
 	return false, "잘못된 요청입니다."
 end
@@ -512,10 +805,20 @@ function PhotoBoothService.Start(dataService: any)
 	end
 	for _, booth in ipairs(CollectionService:GetTagged("PhotoBooth")) do setupBooth(booth) end
 	CollectionService:GetInstanceAddedSignal("PhotoBooth"):Connect(setupBooth)
+	for _, wall in ipairs(CollectionService:GetTagged("PhotoWall")) do setupWall(wall) end
+	CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(setupWall)
 	Players.PlayerRemoving:Connect(function(player)
 		local session = byPlayer[player]
 		if session then removePerson(session, player, nil) end
 		lastCall[player] = nil
+		lastPush[player] = nil
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(0.25)
+			local ok, err = pcall(guardBooths)
+			if not ok then warn("[PhotoBoothService] guard", err) end
+		end
 	end)
 end
 

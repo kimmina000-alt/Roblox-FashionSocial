@@ -25,6 +25,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local MonetizationService = require(script.Parent.MonetizationService)
+local EconomyService = require(script.Parent.EconomyService)
 
 local DrinkService = {}
 
@@ -422,6 +423,17 @@ function DrinkService.Handle(player: Player, action: string, payload: any): (boo
 			return false, "유료 음료는 구매 창에서 구매하세요."
 		end
 		return giveBottle(player, drink.key)
+	elseif action == "OrderCoins" then
+		-- Paid drink bought with coins instead of Robux (ECONOMY.md §4).
+		local drink = ClubConfig.findDrink(payload)
+		if not drink or not drink.coins then return false, "코인으로 살 수 없는 음료예요." end
+		if EconomyService.Balance(player) < drink.coins then
+			return false, string.format("코인이 부족해요 (%d 필요, 지금 %d).", drink.coins, EconomyService.Balance(player))
+		end
+		local ok, message = giveBottle(player, drink.key)
+		if not ok then return false, message end
+		EconomyService.Spend(player, drink.coins)
+		return true, message
 	elseif action == "Place" then
 		return placeBottle(player, payload)
 	end

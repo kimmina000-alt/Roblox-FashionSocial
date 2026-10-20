@@ -206,3 +206,9 @@ VIP pass, DJ 30분 and 환타 have ID 0. Create them on the Creator Dashboard an
 
 ### Note — ProximityPrompts only show when on screen
 During tests the bartender prompt did not appear while the camera faced away; this is normal Roblox behaviour (prompts must be in view), not a bug.
+
+### ISSUE-PHOTO-002 — 2026-10-20 batch not play-tested yet (open)
+Synced to Studio and the server started without errors, but Studio was closed before testing (and maybe before saving the place). Untested: booth barrier and exits, "이미 촬영 중" fix, ⏸ pause, frame box size, coin/pass frames, album → inventory, photo wall paste (SurfaceGui left/right direction not verified), 🏠 button, DJ OK/NO window, DJ console click, lights toggle, lasers, LED pillar rotation, new club geometry, audio zones, coin earning.
+
+### ISSUE-CLUB-005 — LED pillars blank with StreamingEnabled (fixed in repo, not yet in Studio)
+The client set up pillars before their panels streamed in (0 screens). ClubLightsController now rebuilds when parts arrive; the graybox sets LEDPillar / DJ_Console to ModelStreamingMode Atomic.

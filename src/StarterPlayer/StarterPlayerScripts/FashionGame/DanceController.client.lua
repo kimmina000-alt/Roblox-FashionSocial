@@ -599,7 +599,9 @@ local function applyDance()
 	local track = current.track :: AnimationTrack
 	current.start = start
 	current.speed = speed
-	track:AdjustSpeed(speed)
+	-- DancePause: frozen at that clip time (인생네컷 ⏸).
+	local paused = character:GetAttribute("DancePause")
+	track:AdjustSpeed(if typeof(paused) == "number" then 0 else speed)
 	-- The slider shows the tempo actually danced (a leader's while synced).
 	if not dragging then setTempo(speed, false) end
 	-- Align to the shared clock (needed for 같이 추기 and tempo changes).
@@ -610,7 +612,7 @@ local function applyDance()
 			waited += 0.05
 		end
 		if current.track ~= track or track.Length == 0 then return end
-		local elapsed = math.max(0, workspace:GetServerTimeNow() - start) * speed
+		local elapsed = if typeof(paused) == "number" then paused else math.max(0, workspace:GetServerTimeNow() - start) * speed
 		if dance.looped then
 			track.TimePosition = elapsed % track.Length
 		elseif elapsed < track.Length then
@@ -627,7 +629,7 @@ local function watchCharacter(character: Model)
 	current.track = nil
 	current.key = nil
 	stopSent = false
-	for _, name in ipairs({ "DanceKey", "DanceStart", "DanceSpeed", "DanceJoined" }) do
+	for _, name in ipairs({ "DanceKey", "DanceStart", "DanceSpeed", "DanceJoined", "DancePause" }) do
 		table.insert(characterConnections, character:GetAttributeChangedSignal(name):Connect(function()
 			-- Attributes arrive one by one; apply once after the batch.
 			task.defer(applyDance)
@@ -1084,6 +1086,8 @@ RunService.RenderStepped:Connect(function(dt)
 	end
 	if music.Volume > 0 then
 		local pulse = math.clamp(music.PlaybackLoudness / 500, 0, 1)
+		-- The DJ can switch the lights off (attribute ClubLights = false).
+		local lightsOff = FashionGame:GetAttribute("ClubLights") == false
 		for _, part in ipairs(CollectionService:GetTagged("ClubBeat")) do
 			if part:IsA("BasePart") then
 				local base = beatBase[part]
@@ -1091,7 +1095,7 @@ RunService.RenderStepped:Connect(function(dt)
 					base = part.Color
 					beatBase[part] = base
 				end
-				part.Color = base:Lerp(Color3.new(1, 1, 1), pulse * 0.45)
+				part.Color = if lightsOff then base:Lerp(Color3.new(0, 0, 0), 0.7) else base:Lerp(Color3.new(1, 1, 1), pulse * 0.45)
 			end
 		end
 	end

@@ -14,6 +14,8 @@ local MonetizationConfig = {}
 MonetizationConfig.GamePasses = {
 	-- Club VIP balcony access (D-045). Permanent.
 	VIP = { id = 0, name = "VIP 패스", price = 299 },
+	-- 인생네컷 glossy + glitter frames (D-064). Permanent.
+	FramePack = { id = 0, name = "프레임 팩 (글로시·반짝이)", price = 99 },
 }
 
 MonetizationConfig.Products = {
@@ -21,6 +23,8 @@ MonetizationConfig.Products = {
 	DJ = { id = 0, name = "DJ 30분", price = 75 },
 	-- Paid drinks (DrinkService). key must match ClubConfig.Drinks[].product.
 	Drink_Fanta = { id = 0, name = "환타", price = 6 },
+	-- 인생네컷 album +10 slots (first 10 are free, D-064).
+	AlbumSlots = { id = 0, name = "사진첩 +10장", price = 25 },
 }
 
 -- Minutes of DJ time per DJ purchase.

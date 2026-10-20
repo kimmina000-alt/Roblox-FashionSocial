@@ -14,6 +14,7 @@ local HttpService = game:GetService("HttpService")
 local GuiService = game:GetService("GuiService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local RunService = game:GetService("RunService")
+local CollectionService = game:GetService("CollectionService")
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -179,8 +180,8 @@ end
 local skipButton = djToolButton("Skip", "⏭ 건너뛰기", true)
 -- DJ zone guests (D-061): switches the list below between songs and people.
 local guestsButton = djToolButton("Guests", "👥 초대", true)
--- Future DJ console (DJ_SYSTEM.md §4): shown so the DJ sees what is coming.
-djToolButton("Lights", "조명 (준비 중)", false)
+-- Club lights / lasers on-off (DjService.Actions.Lights, attribute ClubLights).
+local lightsButton = djToolButton("Lights", "💡 조명 ON", true)
 
 local listTitle = create("TextLabel", {
 	Name = "ListTitle",
@@ -456,6 +457,9 @@ local function refresh()
 	listTitle.Text = if dj and showGuests then "DJ 존 초대 (초대한 사람만 올라올 수 있어요)"
 		elseif dj then "곡 고르기 (지금 / 다음)" elseif djId ~= 0 then "DJ가 곡을 고르는 중" else "곡 신청 (한 번에 한 곡)"
 	guestsButton.Text = if showGuests then "🎵 곡 목록" else "👥 초대"
+	local lightsOn = FashionGame:GetAttribute("ClubLights") ~= false
+	lightsButton.Text = if lightsOn then "💡 조명 ON" else "🌑 조명 OFF"
+	lightsButton.BackgroundColor3 = if lightsOn then COLORS.dj else COLORS.card
 	local lines = {}
 	for position, entry in ipairs(requests()) do
 		local queued = ClubConfig.Playlist[entry.i]
@@ -489,7 +493,7 @@ local function refreshAll()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
@@ -500,6 +504,26 @@ closeButton.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
 end)
 skipButton.MouseButton1Click:Connect(function() call("Skip", nil) end)
+lightsButton.MouseButton1Click:Connect(function()
+	call("Lights", FashionGame:GetAttribute("ClubLights") == false)
+end)
+
+-- The DJ table (parts tagged "DJConsole", each with a ClickDetector) opens
+-- this window for the DJ (user, 2026-10-20); others get a short note.
+local function watchConsole(console: Instance)
+	local detector = console:FindFirstChildWhichIsA("ClickDetector", true)
+	if not detector then return end
+	(detector :: ClickDetector).MouseClick:Connect(function(clicker)
+		if clicker ~= player then return end
+		if isDJ() then
+			setPanelOpen(true)
+		else
+			toast("DJ 테이블은 DJ만 쓸 수 있어요. 🎵 DJ 시간을 사면 곡과 조명을 고를 수 있어요.")
+		end
+	end)
+end
+for _, console in ipairs(CollectionService:GetTagged("DJConsole")) do watchConsole(console) end
+CollectionService:GetInstanceAddedSignal("DJConsole"):Connect(watchConsole)
 guestsButton.MouseButton1Click:Connect(function()
 	showGuests = not showGuests
 	refresh()

@@ -210,6 +210,55 @@ function PhotoRender.stripAspect(layoutKey: string): number
 	return w / h
 end
 
+-- Frame styles (PhotoConfig frame.style): "gloss" adds a shine gradient and a
+-- diagonal highlight, "glitter" scatters sparkles over the border. Drawn
+-- under the cells (ZIndex 0 relative), so photos stay clean.
+local SPARKLES = {
+	{0.06, 0.03}, {0.5, 0.012}, {0.92, 0.05}, {0.03, 0.3}, {0.97, 0.36}, {0.04, 0.62},
+	{0.96, 0.7}, {0.08, 0.95}, {0.35, 0.985}, {0.7, 0.975}, {0.95, 0.93}, {0.22, 0.02},
+	{0.78, 0.015}, {0.02, 0.48}, {0.98, 0.18}, {0.6, 0.995},
+}
+local function applyStyle(strip: Frame, info: any)
+	local old = strip:FindFirstChild("Deco")
+	if old then old:Destroy() end
+	local gradient = strip:FindFirstChild("Gloss")
+	if gradient then gradient:Destroy() end
+	if not info or info.style == "solid" or info.style == nil then return end
+	local deco = Instance.new("Folder")
+	deco.Name = "Deco"
+	deco.Parent = strip
+	if info.style == "gloss" then
+		local shine = Instance.new("UIGradient")
+		shine.Name = "Gloss"
+		shine.Rotation = 35
+		shine.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
+			ColorSequenceKeypoint.new(0.18, Color3.new(1, 1, 1):Lerp(info.color, 0.55)),
+			ColorSequenceKeypoint.new(0.5, info.color),
+			ColorSequenceKeypoint.new(0.82, Color3.new(1, 1, 1):Lerp(info.color, 0.6)),
+			ColorSequenceKeypoint.new(1, info.color),
+		})
+		shine.Parent = strip
+	elseif info.style == "glitter" then
+		for index, at in ipairs(SPARKLES) do
+			local star = Instance.new("TextLabel")
+			star.Name = "Sparkle"
+			star.BackgroundTransparency = 1
+			star.AnchorPoint = Vector2.new(0.5, 0.5)
+			star.Position = UDim2.fromScale(at[1], at[2])
+			star.Size = UDim2.fromScale(0.09, 0.09)
+			star.SizeConstraint = Enum.SizeConstraint.RelativeXX
+			star.Text = if index % 3 == 0 then "✧" else "✦"
+			star.TextScaled = true
+			star.TextColor3 = Color3.new(1, 1, 1)
+			star.TextTransparency = (index % 4) * 0.12
+			star.Font = Enum.Font.GothamBlack
+			star.ZIndex = strip.ZIndex + 2
+			star.Parent = deco
+		end
+	end
+end
+
 -- Builds an empty strip (frame colour, cells, footer) inside `parent`,
 -- sized by the parent's height. Cells are filled with fillStrip.
 function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: string, footer: string?): Strip
@@ -255,11 +304,13 @@ function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: st
 	sizeLimit.MaxTextSize = 22
 	sizeLimit.Parent = label
 	strip.Parent = parent
+	applyStyle(strip, frameInfo)
 	local function setColor(key: string)
 		local info = PhotoConfig.findFrame(key)
 		if info then
 			strip.BackgroundColor3 = info.color
 			label.TextColor3 = info.text
+			applyStyle(strip, info)
 		end
 	end
 	return { frame = strip, cells = cells, setColor = setColor }

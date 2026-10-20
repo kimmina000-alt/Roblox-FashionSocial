@@ -135,9 +135,9 @@ local function sweep()
 	end
 end
 
--- Moves the DJ behind the booth (part tagged "DJSpot", facing the floor) right
--- after buying DJ time or when their queued turn starts (user, 2026-10-20).
--- Skipped when they are already in the DJ zone.
+-- Moves the DJ behind the booth (part tagged "DJSpot", facing the floor).
+-- Only after the DJ said OK in the "DJ 차례" window (user, 2026-10-20: never
+-- move people without asking). Skipped when they are already in the DJ zone.
 function ClubAccessService.SendToDJBooth(player: Player)
 	if not DjService.IsDJ(player) then return end
 	local character = player.Character
@@ -153,6 +153,23 @@ function ClubAccessService.SendToDJBooth(player: Player)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if humanoid and humanoid.SeatPart then humanoid.Sit = false end
 	character:PivotTo(spot.CFrame + Vector3.new(0, 3, 0))
+end
+
+-- Asks the DJ whether to go to the booth now. queued = their turn came from
+-- the queue (the window then also offers passing the turn, no refund).
+function ClubAccessService.OfferDJBooth(player: Player, queued: boolean)
+	if not DjService.IsDJ(player) then return end
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if root then
+		for _, region in ipairs(CollectionService:GetTagged("ClubRegion")) do
+			if region:IsA("BasePart") and region:GetAttribute("Gate") == "DJ" and insideBox(region, root.Position) then
+				return
+			end
+		end
+	end
+	local notify = Remotes:FindFirstChild("ClubNotify") :: RemoteEvent?
+	if notify then notify:FireClient(player, "DJTurn", { queued = queued }) end
 end
 
 function ClubAccessService.Start()
@@ -177,13 +194,14 @@ function ClubAccessService.Start()
 	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
 	Players.PlayerRemoving:Connect(function(player) lastPrompt[player] = nil end)
 
+	-- A queued turn starting: ask the new DJ (OK = go, NO = pass, no refund).
 	local lastDJ = 0
 	DjService.Changed:Connect(function()
 		for _, player in ipairs(Players:GetPlayers()) do applyGroup(player) end
 		local dj = DjService.CurrentDJ()
-		if dj ~= 0 and dj ~= lastDJ then
+		if dj ~= 0 and dj ~= lastDJ and DjService.StartedFromQueue() then
 			local djPlayer = Players:GetPlayerByUserId(dj)
-			if djPlayer then task.defer(ClubAccessService.SendToDJBooth, djPlayer) end
+			if djPlayer then task.defer(ClubAccessService.OfferDJBooth, djPlayer, true) end
 		end
 		lastDJ = dj
 	end)

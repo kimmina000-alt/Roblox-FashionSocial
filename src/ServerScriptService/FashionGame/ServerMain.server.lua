@@ -24,8 +24,10 @@ local ClubService = require(
 	script.Parent.Services.ClubService
 )
 local ClubScreenService = require(script.Parent.Services.ClubScreenService)
+local EconomyService = require(script.Parent.Services.EconomyService)
 local PhotoBoothService = require(script.Parent.Services.PhotoBoothService)
 MonetizationService.Start()
+EconomyService.Start(PlayerDataService)
 DjService.Start()
 ClubAccessService.Start()
 DrinkService.Start()
@@ -33,19 +35,28 @@ ClubService.Start()
 ClubScreenService.Start()
 PhotoBoothService.Start(PlayerDataService)
 
--- DJ time (Developer Product "DJ"): add time, tell the buyer, and move a
--- (new or extending) DJ straight to the booth. Queued buyers are moved when
--- their turn starts (ClubAccessService).
+-- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
+-- becomes DJ right away is asked whether to go to the booth; queued buyers
+-- are asked when their turn starts (ClubAccessService). Nobody is moved
+-- without saying OK (user, 2026-10-20).
 local ClubNotify = Remotes:WaitForChild("ClubNotify") :: RemoteEvent
 MonetizationService.RegisterProduct("DJ", function(player)
-	local ok, message = DjService.AddTime(player)
+	local ok, message, kind = DjService.AddTime(player)
 	if ok and message then
 		ClubNotify:FireClient(player, "Toast", message)
 	end
-	if ok then
-		task.defer(ClubAccessService.SendToDJBooth, player)
+	if ok and kind == "start" then
+		task.defer(ClubAccessService.OfferDJBooth, player, false)
 	end
 	return ok, message
+end)
+
+-- 인생네컷 album +10 slots.
+local PhotoConfig = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("PhotoConfig"))
+MonetizationService.RegisterProduct("AlbumSlots", function(player)
+	EconomyService.AddAlbumSlots(player, PhotoConfig.SlotsPerPurchase)
+	ClubNotify:FireClient(player, "Toast", string.format("사진첩이 %d장 늘어났어요!", PhotoConfig.SlotsPerPurchase))
+	return true, nil
 end)
 
 -- Club shop: drink orders, bottle placement, Studio test purchases.
@@ -56,6 +67,16 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 		return MonetizationService.StudioTestBuy(player, payload.kind, payload.key)
 	end
 	if typeof(action) ~= "string" then return false, "잘못된 요청입니다." end
+	-- DJ 차례 window: OK → go to the booth, NO → pass the turn (no refund).
+	if action == "DJGo" then
+		ClubAccessService.SendToDJBooth(player)
+		return true, nil
+	elseif action == "DJPass" then
+		if DjService.Pass(player) then
+			return true, "DJ 차례를 다음 사람에게 넘겼어요."
+		end
+		return false, "지금 DJ 차례가 아니에요."
+	end
 	return DrinkService.Handle(player, action, payload)
 end
 

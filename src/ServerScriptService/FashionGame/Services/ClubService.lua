@@ -54,10 +54,13 @@ local function notify(player: Player, message: string)
 	if remote then remote:FireClient(player, "Toast", message) end
 end
 
-local function setDance(character: Model, key: string?, start: number?, speed: number?)
+-- DancePause (number, optional): clip time the dance is frozen at (인생네컷
+-- ⏸ button, user 2026-10-20). nil = playing.
+local function setDance(character: Model, key: string?, start: number?, speed: number?, pause: number?)
 	character:SetAttribute("DanceKey", key)
 	character:SetAttribute("DanceStart", start)
 	character:SetAttribute("DanceSpeed", speed)
+	character:SetAttribute("DancePause", if key then pause else nil)
 end
 
 -- Copies the leader's dance to everyone following them, down the chain.
@@ -72,7 +75,8 @@ local function syncFollowers(leader: Player, depth: number?)
 				setDance(character,
 					leaderCharacter:GetAttribute("DanceKey"),
 					leaderCharacter:GetAttribute("DanceStart"),
-					leaderCharacter:GetAttribute("DanceSpeed"))
+					leaderCharacter:GetAttribute("DanceSpeed"),
+				leaderCharacter:GetAttribute("DancePause"))
 			else
 				setDance(character, nil, nil, nil)
 			end
@@ -130,11 +134,28 @@ local function onDance(player: Player, action: any, a: any, b: any)
 		local start = character:GetAttribute("DanceStart") or workspace:GetServerTimeNow()
 		local newSpeed = ClubConfig.clampTempo(a)
 		local serverNow = workspace:GetServerTimeNow()
-		local elapsed = (serverNow - start) * oldSpeed
+		local paused = character:GetAttribute("DancePause")
+		local elapsed = if typeof(paused) == "number" then paused else (serverNow - start) * oldSpeed
 		character:SetAttribute("DanceStart", serverNow - elapsed / newSpeed)
 		character:SetAttribute("DanceSpeed", newSpeed)
 		-- Touching the tempo makes it the player's own dance (user, 2026-10-20).
 		character:SetAttribute("DanceJoined", nil)
+		syncFollowers(player)
+	elseif action == "Pause" or action == "Resume" then
+		-- Freeze / continue the current clip (photo poses). Resume rebases
+		-- DanceStart so the clip continues from the frozen frame.
+		local key = character:GetAttribute("DanceKey")
+		local start = character:GetAttribute("DanceStart")
+		local speed = character:GetAttribute("DanceSpeed")
+		if typeof(key) ~= "string" or typeof(start) ~= "number" or typeof(speed) ~= "number" then return end
+		local serverNow = workspace:GetServerTimeNow()
+		local paused = character:GetAttribute("DancePause")
+		if action == "Pause" and typeof(paused) ~= "number" then
+			character:SetAttribute("DancePause", math.max(0, serverNow - start) * speed)
+		elseif action == "Resume" and typeof(paused) == "number" then
+			character:SetAttribute("DanceStart", serverNow - paused / math.max(speed, 0.01))
+			character:SetAttribute("DancePause", nil)
+		end
 		syncFollowers(player)
 	elseif action == "Stop" then
 		stopDance(player)
@@ -159,7 +180,8 @@ local function onDance(player: Player, action: any, a: any, b: any)
 		setDance(character,
 			targetCharacter:GetAttribute("DanceKey"),
 			targetCharacter:GetAttribute("DanceStart"),
-			targetCharacter:GetAttribute("DanceSpeed"))
+			targetCharacter:GetAttribute("DanceSpeed"),
+			targetCharacter:GetAttribute("DancePause"))
 		syncFollowers(player)
 	end
 end
@@ -329,6 +351,9 @@ local function addSeatPrompt(seat: Instance)
 		prompt.Enabled = seat.Occupant == nil
 	end)
 end
+
+-- Used by PhotoBoothService: the pose stops when the shoot ends.
+ClubService.StopDance = stopDance
 
 function ClubService.Start()
 	local remotes = FashionGame:WaitForChild("Remotes")

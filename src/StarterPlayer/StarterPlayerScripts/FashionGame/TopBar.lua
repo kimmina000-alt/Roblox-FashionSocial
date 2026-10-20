@@ -1,7 +1,8 @@
 --!strict
 -- Round buttons in the top bar, left of the catalog "C" button. Each script
 -- adds its button with an order (1 = right next to C); hidden buttons leave
--- no gap. Order: 💃 1, 🎵 2, 📷 3.
+-- no gap. Order: 🏠 0 (spawn), 💃 1, 🎵 2, 📷 3, 🪙 coins 10.
+-- A button with attribute Width (number, px at full size) is that wide.
 
 local GuiService = game:GetService("GuiService")
 
@@ -21,12 +22,14 @@ local function layout()
 		end
 	end
 	table.sort(entries, function(a, b) return a.order < b.order end)
-	local slot = 0
+	local x = rightX - size - 8
 	for _, entry in ipairs(entries) do
 		if entry.button.Visible then
-			slot += 1
-			entry.button.Size = UDim2.fromOffset(size, size)
-			entry.button.Position = UDim2.new(1, rightX - slot * (size + 8), 0, centerY)
+			local wide = entry.button:GetAttribute("Width")
+			local width = if typeof(wide) == "number" then math.floor(wide * size / 44) else size
+			entry.button.Size = UDim2.fromOffset(width, size)
+			entry.button.Position = UDim2.new(1, x, 0, centerY)
+			x -= width + 8
 		end
 	end
 end

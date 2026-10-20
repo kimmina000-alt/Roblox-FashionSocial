@@ -16,6 +16,8 @@
 local DataStoreService = game:GetService("DataStoreService")
 local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local PhotoConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("PhotoConfig"))
 
 local PlayerDataService = {}
 
@@ -45,11 +47,15 @@ type Favorite = { id: number, itemType: string, addedAt: number }
 type Outfit = { id: string, name: string, createdAt: number, snapshot: any }
 -- 인생네컷 photos (PHOTO_BOOTH.md §4): built by PhotoBoothService; stored as
 -- the data to redraw the shots, never as images.
-PlayerDataService.MaxPhotos = 30
+-- Album: PhotoConfig.MaxPhotos free slots + bought slots (wallet.slots).
+PlayerDataService.MaxPhotos = PhotoConfig.MaxPhotos
+-- Wallet (D-064): coins, unlocked frames, bought album slots, daily counters.
+export type Wallet = { coins: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} } }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
 	photos: {any},
+	wallet: Wallet,
 	writing: boolean,
 	persistent: boolean,
 	dirty: boolean,
@@ -110,12 +116,41 @@ local function sanitizePhotos(list: any): {any}
 	for _, entry in ipairs(list) do
 		if typeof(entry) == "table" and typeof(entry.id) == "string" and not seen[entry.id]
 			and typeof(entry.shots) == "table" and typeof(entry.people) == "table"
-			and #result < PlayerDataService.MaxPhotos then
+			and #result < PhotoConfig.HardMaxPhotos then
 			seen[entry.id] = true
 			table.insert(result, entry)
 		end
 	end
 	return result
+end
+
+local function sanitizeWallet(raw: any): Wallet
+	local wallet: Wallet = { coins = 0, frames = {}, slots = 0, daily = { day = "", counts = {} } }
+	if typeof(raw) ~= "table" then return wallet end
+	if typeof(raw.coins) == "number" and raw.coins == raw.coins then
+		wallet.coins = math.clamp(math.floor(raw.coins), 0, 99999)
+	end
+	if typeof(raw.slots) == "number" then
+		wallet.slots = math.clamp(math.floor(raw.slots), 0, PhotoConfig.HardMaxPhotos - PhotoConfig.MaxPhotos)
+	end
+	if typeof(raw.frames) == "table" then
+		for _, key in ipairs(raw.frames) do
+			if typeof(key) == "string" and PhotoConfig.findFrame(key) and not table.find(wallet.frames, key) then
+				table.insert(wallet.frames, key)
+			end
+		end
+	end
+	if typeof(raw.daily) == "table" and typeof(raw.daily.day) == "string" and typeof(raw.daily.counts) == "table" then
+		wallet.daily.day = raw.daily.day
+		for key, value in pairs(raw.daily.counts) do
+			if typeof(key) == "string" and typeof(value) == "number" then wallet.daily.counts[key] = value end
+		end
+	end
+	return wallet
+end
+
+local function capacity(session: Session): number
+	return math.min(PhotoConfig.HardMaxPhotos, PhotoConfig.MaxPhotos + session.wallet.slots)
 end
 
 local function load(player: Player): Session
@@ -126,7 +161,7 @@ local function load(player: Player): Session
 	if sessions[userId] then return sessions[userId] end
 	loading[userId] = true
 
-	local session: Session = { favorites = {}, outfits = {}, photos = {}, writing = false, persistent = false, dirty = false, note = nil }
+	local session: Session = { favorites = {}, outfits = {}, photos = {}, wallet = sanitizeWallet(nil), writing = false, persistent = false, dirty = false, note = nil }
 	if store then
 		local lastError: any = nil
 		for attempt = 1, LOAD_ATTEMPTS do
@@ -138,6 +173,7 @@ local function load(player: Player): Session
 					session.favorites = sanitizeFavorites(data.favorites)
 					session.outfits = sanitizeOutfits(data.outfits)
 					session.photos = sanitizePhotos(data.photos)
+					session.wallet = sanitizeWallet(data.wallet)
 				end
 				session.persistent = true
 				lastError = nil
@@ -171,6 +207,7 @@ local function save(player: Player): boolean
 	local favorites = table.clone(session.favorites)
 	local outfits = table.clone(session.outfits)
 	local photos = table.clone(session.photos)
+	local wallet = table.clone(session.wallet)
 	local ok, err = pcall(function()
 		(store :: DataStore):UpdateAsync(keyFor(player.UserId), function(old)
 			local data = if typeof(old) == "table" then old else {}
@@ -178,6 +215,7 @@ local function save(player: Player): boolean
 			data.favorites = favorites
 			data.outfits = outfits
 			data.photos = photos
+			data.wallet = wallet
 			return data
 		end)
 	end)
@@ -251,7 +289,8 @@ local function writeNow(player: Player, session: Session, landed: (any) -> boole
 	local favorites = table.clone(session.favorites)
 	local outfits = table.clone(session.outfits)
 	local photos = table.clone(session.photos)
-	local encodedOk, encoded = pcall(HttpService.JSONEncode, HttpService, { favorites = favorites, outfits = outfits, photos = photos })
+	local wallet = table.clone(session.wallet)
+	local encodedOk, encoded = pcall(HttpService.JSONEncode, HttpService, { favorites = favorites, outfits = outfits, photos = photos, wallet = wallet })
 	if not encodedOk then
 		return false, "저장할 수 없는 데이터입니다."
 	end
@@ -267,6 +306,7 @@ local function writeNow(player: Player, session: Session, landed: (any) -> boole
 				data.favorites = favorites
 				data.outfits = outfits
 				data.photos = photos
+				data.wallet = wallet
 				return data
 			end)
 		end)
@@ -457,8 +497,31 @@ local function publicPhotos(session: Session)
 		photos = session.photos,
 		persistent = session.persistent,
 		note = session.note,
-		max = PlayerDataService.MaxPhotos,
+		max = capacity(session),
 	}
+end
+
+function PlayerDataService.PhotoCapacity(player: Player): (number, number)
+	local session = load(player)
+	return #session.photos, capacity(session)
+end
+
+function PlayerDataService.FindPhoto(player: Player, id: any): any
+	local session = load(player)
+	for _, entry in ipairs(session.photos) do
+		if entry.id == id then return entry end
+	end
+	return nil
+end
+
+-- The player's wallet (mutable). Call MarkDirty after changing it.
+function PlayerDataService.Wallet(player: Player): Wallet
+	return load(player).wallet
+end
+
+function PlayerDataService.MarkDirty(player: Player)
+	local session = sessions[player.UserId]
+	if session then session.dirty = true end
 end
 
 function PlayerDataService.GetPhotos(player: Player)
@@ -474,8 +537,8 @@ function PlayerDataService.SavePhoto(player: Player, photo: any): (boolean, any)
 	if session.writing then
 		return false, "이전 저장이 아직 진행 중이에요. 잠시 후 다시 시도하세요."
 	end
-	if #session.photos >= PlayerDataService.MaxPhotos then
-		return false, string.format("사진첩이 가득 찼어요 (%d장). 사진첩에서 지운 뒤 다시 저장하세요.", PlayerDataService.MaxPhotos)
+	if #session.photos >= capacity(session) then
+		return false, string.format("사진첩이 가득 찼어요 (%d장). 사진첩에서 지우거나 포토월에 붙인 뒤 다시 저장하세요.", capacity(session))
 	end
 	session.writing = true
 	table.insert(session.photos, 1, photo)

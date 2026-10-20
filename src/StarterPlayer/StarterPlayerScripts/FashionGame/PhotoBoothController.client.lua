@@ -31,6 +31,9 @@ local Remotes = FashionGame:WaitForChild("Remotes")
 local boothRemote = Remotes:WaitForChild("PhotoBooth") :: RemoteFunction
 local boothEvent = Remotes:WaitForChild("PhotoBoothEvent") :: RemoteEvent
 local danceRemote = Remotes:WaitForChild("Dance") :: RemoteEvent
+local clubShopRemote = Remotes:WaitForChild("ClubShop") :: RemoteFunction
+local MarketplaceService = game:GetService("MarketplaceService")
+local MonetizationConfig = require(Shared:WaitForChild("MonetizationConfig"))
 local PhotoRender = require(script.Parent:WaitForChild("PhotoRender"))
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
 
@@ -93,7 +96,7 @@ end
 local toastLabel = text({
 	Name = "Toast",
 	AnchorPoint = Vector2.new(0.5, 1),
-	Position = UDim2.new(0.5, 0, 1, -24),
+	Position = UDim2.new(0.5, 0, 1, -100),
 	Size = UDim2.fromOffset(440, 40),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 	BackgroundTransparency = 0.25,
@@ -138,6 +141,47 @@ local state = {
 	frame = "white",
 	cameraSaved = false,
 }
+
+-- Centred box for pick / frame / result / album (user, 2026-10-20: not full
+-- screen; about the size of the minimized catalog, clear of the hotbar).
+-- kind "album" = catalog compact size, "flow" = a little larger for 8 shots.
+local function boxRect(kind: string): (number, number, number, number)
+	local vp = viewport()
+	local top = math.max(GuiService.TopbarInset.Max.Y, 36) + 6
+	local bottomRoom = 84 -- hotbar / inventory
+	local w, h
+	if kind == "album" then
+		w = math.min(760, math.max(280, math.floor(vp.X * 0.42)))
+		h = math.min(math.max(260, math.floor(vp.Y * 0.58)), vp.Y - top - bottomRoom)
+	else
+		w = math.min(820, math.max(300, math.floor(vp.X * 0.52)))
+		h = math.min(math.max(280, math.floor(vp.Y * 0.64)), vp.Y - top - bottomRoom)
+	end
+	w = math.min(w, vp.X - 16)
+	local x = math.floor((vp.X - w) / 2)
+	local y = math.floor(top + math.max(0, (vp.Y - top - bottomRoom - h) / 2))
+	return w, h, x, y
+end
+
+local function boxify(frame: Frame)
+	frame.BackgroundColor3 = Color3.fromRGB(24, 20, 32)
+	frame.BackgroundTransparency = 0.03
+	frame.ClipsDescendants = true
+	local c = Instance.new("UICorner")
+	c.CornerRadius = UDim.new(0, 16)
+	c.Parent = frame
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(255, 110, 170)
+	stroke.Thickness = 2
+	stroke.Parent = frame
+end
+
+local function placeBox(frame: Frame, kind: string): (number, number)
+	local w, h, x, y = boxRect(kind)
+	frame.Position = UDim2.fromOffset(x, y)
+	frame.Size = UDim2.fromOffset(w, h)
+	return w, h
+end
 
 -- Overlay frame used by setup / pick / frame / result / album.
 local function overlay(name: string): Frame
@@ -498,9 +542,10 @@ end
 local posePanel, poseList = sidePanel("Poses", "포즈")
 local propPanel, propList = sidePanel("Props", "소품")
 
-do -- pose buttons: 기본 (stop) + club poses and dances
+local pauseButton: TextButton
+do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 	local order = 0
-	local function add(label: string, onClick: () -> ())
+	local function add(label: string, onClick: () -> ()): TextButton
 		order += 1
 		local b = button({
 			LayoutOrder = order,
@@ -510,7 +555,19 @@ do -- pose buttons: 기본 (stop) + club poses and dances
 			ZIndex = 5,
 		}, poseList, 8)
 		b.MouseButton1Click:Connect(onClick)
+		return b
 	end
+	-- ⏸ stops the pose animation at this frame so the photo catches it
+	-- (user, 2026-10-20); ▶ continues.
+	pauseButton = add("⏸ 멈춤", function()
+		local character = player.Character
+		if not character or character:GetAttribute("DanceKey") == nil then
+			toast("먼저 포즈를 고른 뒤 원하는 순간에 ⏸를 누르세요.")
+			return
+		end
+		danceRemote:FireServer(if typeof(character:GetAttribute("DancePause")) == "number" then "Resume" else "Pause")
+	end)
+	pauseButton.BackgroundColor3 = COLORS.pink
 	add("■ 기본", function() danceRemote:FireServer("Stop") end)
 	for _, category in ipairs(PhotoConfig.PoseCategoryOrder) do
 		for _, dance in ipairs(ClubConfig.Dances) do
@@ -625,24 +682,25 @@ local pickDone = button({
 -- frame step reuses the same overlay with a swatch area instead of the grid
 local frameArea = create("Frame", { Name = "Frames", BackgroundTransparency = 1, Visible = false, ZIndex = 11 }, pick)
 local result = overlay("Result")
+boxify(pick)
+boxify(result)
 
 local pickCells: {ViewportFrame} = {}
 local pickBadges: {TextLabel} = {}
 local previewStrip: any = nil
 
 local function layoutPick()
-	local vp = viewport()
-	local top = topY()
-	pickTitle.Position = UDim2.fromOffset(0, top)
-	pickTimer.Position = UDim2.fromOffset(0, top + 28)
-	local areaTop = top + 52
-	local areaH = vp.Y - areaTop - 56
-	local previewW = math.floor(math.min(vp.X * 0.32, areaH * PhotoRender.stripAspect(state.shots and state.shots.layout or "1x4") * 1.02))
-	pickGrid.Position = UDim2.fromOffset(16, areaTop)
-	pickGrid.Size = UDim2.fromOffset(vp.X - previewW - 48, areaH)
+	local bw, bh = placeBox(pick, "flow")
+	pickTitle.Position = UDim2.fromOffset(0, 8)
+	pickTimer.Position = UDim2.fromOffset(0, 36)
+	local areaTop = 58
+	local areaH = bh - areaTop - 56
+	local previewW = math.floor(math.min(bw * 0.3, areaH * PhotoRender.stripAspect(state.shots and state.shots.layout or "1x4") * 1.02))
+	pickGrid.Position = UDim2.fromOffset(12, areaTop)
+	pickGrid.Size = UDim2.fromOffset(bw - previewW - 36, areaH)
 	frameArea.Position = pickGrid.Position
 	frameArea.Size = pickGrid.Size
-	pickPreview.Position = UDim2.fromOffset(vp.X - previewW - 16, areaTop)
+	pickPreview.Position = UDim2.fromOffset(bw - previewW - 12, areaTop)
 	pickPreview.Size = UDim2.fromOffset(previewW, areaH)
 	pickDone.Position = UDim2.new(0.5, 0, 1, -10)
 	-- 4 × 2 grid of 4:3 cells
@@ -768,6 +826,31 @@ local swatches = create("ScrollingFrame", {
 create("UIGridLayout", { CellSize = UDim2.fromOffset(84, 70), CellPadding = UDim2.fromOffset(8, 8), SortOrder = Enum.SortOrder.LayoutOrder }, swatches)
 local frameTab = PhotoConfig.FrameTabs[1]
 local tabButtons: {[string]: TextButton} = {}
+
+-- Frame ownership (EconomyService mirrors it as player attributes).
+local function ownsFrame(info: any): boolean
+	if info.price == "free" then return true end
+	if info.price == "pass" then return player:GetAttribute("Pass_FramePack") == true end
+	local raw = player:GetAttribute("OwnedFrames")
+	local ok, list = pcall(function() return HttpService:JSONDecode(raw) end)
+	return ok and typeof(list) == "table" and table.find(list, info.key) ~= nil
+end
+
+-- The 저장 button says what saving with the chosen frame needs.
+local function refreshSaveButton()
+	if state.stage ~= "frame" then return end
+	local info = PhotoConfig.findFrame(state.frame)
+	if info and not ownsFrame(info) then
+		pickDone.Text = if info.price == "coins"
+			then string.format("🪙 %d 구매 후 저장", info.coins or 0)
+			else string.format("프레임 팩 R$%d", MonetizationConfig.GamePasses.FramePack.price)
+		pickDone.BackgroundColor3 = if info.price == "coins" then Color3.fromRGB(230, 170, 40) else Color3.fromRGB(0, 176, 111)
+	else
+		pickDone.Text = "저장"
+		pickDone.BackgroundColor3 = COLORS.yellow
+	end
+end
+
 local function renderSwatches()
 	for _, child in ipairs(swatches:GetChildren()) do
 		if child:IsA("TextButton") then child:Destroy() end
@@ -777,7 +860,8 @@ local function renderSwatches()
 			local swatch = button({
 				LayoutOrder = index,
 				BackgroundColor3 = info.color,
-				Text = info.name .. "\n무료",
+				Text = (if ownsFrame(info) then "" else "🔒 ") .. info.name .. "\n"
+					.. (if ownsFrame(info) and info.price ~= "free" then "✓ 보유" else PhotoConfig.priceText(info)),
 				TextColor3 = info.text,
 				TextSize = 13,
 				ZIndex = 13,
@@ -792,6 +876,7 @@ local function renderSwatches()
 				state.frame = info.key
 				if previewStrip then previewStrip.setColor(info.key) end
 				renderSwatches()
+				refreshSaveButton()
 			end)
 		end
 	end
@@ -819,9 +904,16 @@ local function openFrameStep()
 	pickGrid.Visible = false
 	frameArea.Visible = true
 	pickTitle.Text = "프레임을 선택하세요!"
-	pickDone.Text = "저장"
-	pickDone.BackgroundColor3 = COLORS.yellow
 	renderSwatches()
+	refreshSaveButton()
+end
+for _, name in ipairs({ "Coins", "OwnedFrames", "Pass_FramePack" }) do
+	player:GetAttributeChangedSignal(name):Connect(function()
+		if state.stage == "frame" then
+			renderSwatches()
+			refreshSaveButton()
+		end
+	end)
 end
 
 -- Result: big photo + 캡처 저장 / 사진첩 / 닫기
@@ -891,13 +983,12 @@ end)
 resultButton("닫기", COLORS.card, 3, closeAllFlow)
 
 local function layoutResult()
-	local vp = viewport()
-	local top = topY()
-	resultTitle.Position = UDim2.fromOffset(0, top)
-	local buttonsW = math.min(180, vp.X * 0.3)
-	resultHolder.Position = UDim2.fromOffset(16, top + 34)
-	resultHolder.Size = UDim2.fromOffset(vp.X - buttonsW - 48, vp.Y - top - 50)
-	resultButtons.Position = UDim2.fromOffset(vp.X - buttonsW - 16, top + 60)
+	local bw, bh = placeBox(result, "flow")
+	resultTitle.Position = UDim2.fromOffset(0, 8)
+	local buttonsW = math.floor(math.min(170, bw * 0.32))
+	resultHolder.Position = UDim2.fromOffset(12, 42)
+	resultHolder.Size = UDim2.fromOffset(bw - buttonsW - 36, bh - 54)
+	resultButtons.Position = UDim2.fromOffset(bw - buttonsW - 12, 60)
 	resultButtons.Size = UDim2.fromOffset(buttonsW, 140)
 end
 
@@ -925,6 +1016,26 @@ pickDone.MouseButton1Click:Connect(function()
 		end
 		openFrameStep()
 	elseif state.stage == "frame" then
+		local info = PhotoConfig.findFrame(state.frame)
+		if info and not ownsFrame(info) then
+			if info.price == "coins" then
+				-- Buy with coins, then save in one go.
+				local bought, message = invoke("BuyFrame", info.key)
+				toast(message)
+				if not bought then return end
+			else
+				local pass = MonetizationConfig.GamePasses.FramePack
+				if pass.id ~= 0 then
+					MarketplaceService:PromptGamePassPurchase(player, pass.id)
+				elseif RunService:IsStudio() then
+					local ok, message = clubShopRemote:InvokeServer("StudioTestBuy", { kind = "pass", key = "FramePack" })
+					toast(if ok then "[Studio 테스트] 프레임 팩을 받았어요." else message)
+				else
+					toast("준비 중인 상품입니다.")
+				end
+				return
+			end
+		end
 		pickDone.Text = "저장 중..."
 		local ok, saved = invoke("Save", { picks = state.picks, frame = state.frame })
 		pickDone.Text = "저장"
@@ -954,6 +1065,7 @@ create("UICorner", { CornerRadius = UDim.new(1, 0) }, albumButton)
 TopBar.add(albumButton, 3)
 
 local album = overlay("Album")
+boxify(album)
 local albumTitle = text({
 	Size = UDim2.new(1, -120, 0, 30),
 	Text = "사진첩",
@@ -990,6 +1102,7 @@ local albumEmpty = text({
 -- Viewer for one photo
 local viewer = overlay("Viewer")
 viewer.ZIndex = 20
+boxify(viewer)
 local viewerHolder = create("Frame", { BackgroundTransparency = 1, ZIndex = 21 }, viewer)
 local viewerButtons = create("Frame", { BackgroundTransparency = 1, ZIndex = 21 }, viewer)
 create("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, viewerButtons)
@@ -1009,20 +1122,20 @@ local viewerDelete = viewerButton("삭제", COLORS.danger, 2)
 local viewerClose = viewerButton("닫기", COLORS.card, 3)
 
 local function layoutAlbum()
-	local vp = viewport()
-	local top = topY()
-	albumTitle.Position = UDim2.fromOffset(16, top)
-	albumClose.Position = UDim2.new(1, -16, 0, top)
-	albumList.Position = UDim2.fromOffset(16, top + 40)
-	albumList.Size = UDim2.fromOffset(vp.X - 32, vp.Y - top - 50)
-	albumEmpty.Position = UDim2.fromOffset(0, top + 60)
-	local cellH = math.clamp(vp.Y * 0.42, 140, 300)
-	albumGrid.CellSize = UDim2.fromOffset(cellH * 0.55, cellH)
-	local buttonsW = math.min(170, vp.X * 0.28)
-	viewerHolder.Position = UDim2.fromOffset(16, top)
-	viewerHolder.Size = UDim2.fromOffset(vp.X - buttonsW - 48, vp.Y - top - 16)
-	viewerButtons.Position = UDim2.fromOffset(vp.X - buttonsW - 16, top + 40)
-	viewerButtons.Size = UDim2.fromOffset(buttonsW, 140)
+	local bw, bh = placeBox(album, "album")
+	placeBox(viewer, "album")
+	albumTitle.Position = UDim2.fromOffset(14, 8)
+	albumClose.Position = UDim2.new(1, -10, 0, 8)
+	albumList.Position = UDim2.fromOffset(12, 46)
+	albumList.Size = UDim2.fromOffset(bw - 24, bh - 56)
+	albumEmpty.Position = UDim2.fromOffset(0, 70)
+	local cellH = math.clamp(math.floor((bh - 66) / 1.6), 110, 240)
+	albumGrid.CellSize = UDim2.fromOffset(math.floor(cellH * 0.55), cellH)
+	local buttonsW = math.floor(math.min(160, bw * 0.34))
+	viewerHolder.Position = UDim2.fromOffset(12, 12)
+	viewerHolder.Size = UDim2.fromOffset(bw - buttonsW - 36, bh - 24)
+	viewerButtons.Position = UDim2.fromOffset(bw - buttonsW - 12, 40)
+	viewerButtons.Size = UDim2.fromOffset(buttonsW, 190)
 end
 
 local albumGeneration = 0
@@ -1059,6 +1172,11 @@ local function renderAlbum()
 			PhotoRender.drawPhoto(viewerHolder, photo)
 			viewerDelete.Text = "삭제"
 			viewer.Visible = true
+			-- Tapping a photo also puts it in the inventory (user, 2026-10-20).
+			task.spawn(function()
+				local _, message = invoke("TakeOut", photo.id)
+				toast(message)
+			end)
 		end)
 	end
 end
@@ -1144,7 +1262,8 @@ local function update()
 		if album.Visible then closeAlbum() end
 		state.stage = "waiting"
 		local vp = viewport()
-		waitBar.Position = UDim2.fromOffset(vp.X / 2, topY() + 36)
+		-- At the bottom, above the hotbar (user: 나가기 at the bottom).
+		waitBar.Position = UDim2.fromOffset(vp.X / 2, vp.Y - 84 - 96)
 		waitBar.Size = UDim2.fromOffset(math.min(380, vp.X - 30), 84)
 		local left = math.max(0, math.ceil((booth :: Model):GetAttribute("WaitUntil") - workspace:GetServerTimeNow()))
 		local host = (booth :: Model):GetAttribute("Host") == player.UserId
@@ -1165,6 +1284,9 @@ local function update()
 		local index = (booth :: Model):GetAttribute("ShotIndex") or 0
 		local left = math.max(0, (booth :: Model):GetAttribute("NextShotAt") - workspace:GetServerTimeNow())
 		infoBar.Text = string.format("📸 촬영 %d / %d   ⏱ %d초", index, PhotoConfig.ShotCount, math.ceil(left))
+		local character = player.Character
+		local paused = character and typeof(character:GetAttribute("DancePause")) == "number"
+		pauseButton.Text = if paused then "▶ 계속" else "⏸ 멈춤"
 		countdown.Text = if left > 0 and left <= 3 then tostring(math.ceil(left)) else ""
 	elseif phase == "picking" then
 		waitBar.Visible = false
@@ -1217,6 +1339,9 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt)
 	local booth = prompt.Parent and prompt.Parent.Parent
 	if not booth or not booth:IsA("Model") or not CollectionService:HasTag(booth, "PhotoBooth") then return end
 	if prompt.Name == "PhotoPrompt" then
+		-- A finished result never blocks shooting again (user, 2026-10-20).
+		if state.stage == "result" then closeAllFlow() end
+		if album.Visible then closeAlbum() end
 		openSetup(booth)
 	elseif prompt.Name == "JoinPrompt" then
 		local ok, message = invoke("Join", { booth = booth })
