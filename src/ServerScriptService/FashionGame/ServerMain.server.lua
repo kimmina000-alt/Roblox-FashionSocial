@@ -16,10 +16,39 @@ local PlayerDataService = require(
 	script.Parent.Services.PlayerDataService
 )
 PlayerDataService.Start()
+local MonetizationService = require(script.Parent.Services.MonetizationService)
+local DjService = require(script.Parent.Services.DjService)
+local ClubAccessService = require(script.Parent.Services.ClubAccessService)
+local DrinkService = require(script.Parent.Services.DrinkService)
 local ClubService = require(
 	script.Parent.Services.ClubService
 )
+MonetizationService.Start()
+DjService.Start()
+ClubAccessService.Start()
+DrinkService.Start()
 ClubService.Start()
+
+-- DJ time (Developer Product "DJ"): add time, tell the buyer.
+local ClubNotify = Remotes:WaitForChild("ClubNotify") :: RemoteEvent
+MonetizationService.RegisterProduct("DJ", function(player)
+	local ok, message = DjService.AddTime(player)
+	if ok and message then
+		ClubNotify:FireClient(player, "Toast", message)
+	end
+	return ok, message
+end)
+
+-- Club shop: drink orders, bottle placement, Studio test purchases.
+local ClubShop = Remotes:WaitForChild("ClubShop") :: RemoteFunction
+ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
+	if action == "StudioTestBuy" then
+		if typeof(payload) ~= "table" then return false, "잘못된 요청입니다." end
+		return MonetizationService.StudioTestBuy(player, payload.kind, payload.key)
+	end
+	if typeof(action) ~= "string" then return false, "잘못된 요청입니다." end
+	return DrinkService.Handle(player, action, payload)
+end
 
 CatalogSearch.OnServerInvoke = function(
 	player: Player,

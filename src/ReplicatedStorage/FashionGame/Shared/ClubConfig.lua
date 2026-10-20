@@ -91,6 +91,50 @@ ClubConfig.Playlist = {
 ClubConfig.MusicVolume = 0.55
 ClubConfig.FadeDistance = 45
 
+--------------------------------------------------
+-- Drinks (non-alcoholic only, D-043). Test list from the user (2026-10-20):
+-- free drinks first, paid drinks below. `product` = MonetizationConfig key.
+-- NOTE: 사이다/콜라/환타 are placeholder names for testing; before release
+-- replace brand names (환타) with generic ones (e.g. 오렌지 소다).
+--------------------------------------------------
+
+export type Drink = {
+	key: string,
+	name: string,
+	color: Color3,
+	product: string?,
+}
+
+ClubConfig.Drinks = {
+	{ key = "water", name = "물", color = Color3.fromRGB(190, 230, 255) },
+	{ key = "cider", name = "사이다", color = Color3.fromRGB(200, 255, 200) },
+	{ key = "cola", name = "콜라", color = Color3.fromRGB(70, 35, 20) },
+	{ key = "fanta", name = "환타", color = Color3.fromRGB(255, 140, 0), product = "Drink_Fanta" },
+} :: {Drink}
+
+-- Bottles: carried as a tool, placed on a table, poured into cups.
+ClubConfig.MaxBottlesCarried = 3
+ClubConfig.BottleServings = 6        -- cups per bottle
+ClubConfig.BottleLifetime = 600      -- seconds on a table before it is cleared
+ClubConfig.MaxCupsCarried = 2
+ClubConfig.DrinkSeconds = 2.6
+ClubConfig.GulpSoundId = 9114172296   -- "Drinking Cu Gulping 9 (SFX)", Pro Sound Effects (Roblox licensed)
+
+-- Who may pour from a placed bottle.
+ClubConfig.Visibility = {
+	{ key = "all", name = "모든 사람" },
+	{ key = "friends", name = "친구만" },
+	{ key = "me", name = "나만" },
+}
+
+function ClubConfig.findDrink(key: any): Drink?
+	if typeof(key) ~= "string" then return nil end
+	for _, drink in ipairs(ClubConfig.Drinks) do
+		if drink.key == key then return drink end
+	end
+	return nil
+end
+
 function ClubConfig.findDance(key: any): Dance?
 	if typeof(key) ~= "string" then return nil end
 	for _, dance in ipairs(ClubConfig.Dances) do

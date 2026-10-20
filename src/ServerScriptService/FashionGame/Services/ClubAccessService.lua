@@ -1,0 +1,163 @@
+--!strict
+-- Paid club areas: VIP balcony (Game Pass "VIP") and DJ booth (DJ time).
+--
+-- Map parts (built by tools/graybox/build_main_social_graybox.lua):
+--   tag "ClubGate"   + attribute Gate = "VIP" | "DJ": invisible barrier at
+--                    the entrance. Touching it without access asks the
+--                    player's client to show the purchase window.
+--   tag "ClubRegion" + attribute Gate: box covering the area. A character
+--                    inside without access is moved back out (safety net if a
+--                    barrier is skipped, e.g. by a jump or lag).
+--
+-- Access works with collision groups: each character part is put in
+-- "Char_<VIP><DJ>" and the barriers in "Gate_VIP"/"Gate_DJ"; the group pairs
+-- that have access do not collide. Everything is decided on the server.
+
+local Players = game:GetService("Players")
+local PhysicsService = game:GetService("PhysicsService")
+local CollectionService = game:GetService("CollectionService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
+local Remotes = FashionGame:WaitForChild("Remotes")
+
+local MonetizationService = require(script.Parent.MonetizationService)
+local DjService = require(script.Parent.DjService)
+
+local ClubAccessService = {}
+
+local GROUPS = { "Char_None", "Char_VIP", "Char_DJ", "Char_VIPDJ" }
+local lastPrompt: {[Player]: number} = {}
+
+local function hasAccess(player: Player, gate: string): boolean
+	if gate == "VIP" then
+		return MonetizationService.HasPass(player, "VIP")
+	elseif gate == "DJ" then
+		return DjService.IsDJ(player)
+	end
+	return false
+end
+ClubAccessService.HasAccess = hasAccess
+
+local function groupFor(player: Player): string
+	local vip = hasAccess(player, "VIP")
+	local dj = hasAccess(player, "DJ")
+	if vip and dj then return "Char_VIPDJ" end
+	if vip then return "Char_VIP" end
+	if dj then return "Char_DJ" end
+	return "Char_None"
+end
+
+local function applyGroup(player: Player)
+	local character = player.Character
+	if not character then return end
+	local group = groupFor(player)
+	for _, part in ipairs(character:GetDescendants()) do
+		if part:IsA("BasePart") then
+			part.CollisionGroup = group
+		end
+	end
+end
+ClubAccessService.Refresh = applyGroup
+
+local function setupGroups()
+	for _, name in ipairs({ "Gate_VIP", "Gate_DJ", table.unpack(GROUPS) }) do
+		pcall(function() PhysicsService:RegisterCollisionGroup(name) end)
+	end
+	for _, group in ipairs(GROUPS) do
+		PhysicsService:CollisionGroupSetCollidable("Gate_VIP", group, not (group == "Char_VIP" or group == "Char_VIPDJ"))
+		PhysicsService:CollisionGroupSetCollidable("Gate_DJ", group, not (group == "Char_DJ" or group == "Char_VIPDJ"))
+		for _, other in ipairs(GROUPS) do
+			PhysicsService:CollisionGroupSetCollidable(group, other, true)
+		end
+		PhysicsService:CollisionGroupSetCollidable("Default", group, true)
+	end
+end
+
+local function insideBox(box: BasePart, position: Vector3): boolean
+	local p = box.CFrame:PointToObjectSpace(position)
+	local half = box.Size / 2
+	return math.abs(p.X) <= half.X and math.abs(p.Y) <= half.Y and math.abs(p.Z) <= half.Z
+end
+
+local function promptPurchase(player: Player, gate: string)
+	local t = os.clock()
+	if lastPrompt[player] and t - lastPrompt[player] < 4 then return end
+	lastPrompt[player] = t
+	local notify = Remotes:FindFirstChild("ClubNotify") :: RemoteEvent?
+	if notify then
+		notify:FireClient(player, "Gate", gate)
+	end
+end
+
+local function watchGate(part: Instance)
+	if not part:IsA("BasePart") then return end
+	local gate = part:GetAttribute("Gate")
+	if gate ~= "VIP" and gate ~= "DJ" then return end
+	part.CollisionGroup = "Gate_" .. gate
+	part.Touched:Connect(function(hit)
+		local character = hit.Parent
+		local player = character and Players:GetPlayerFromCharacter(character)
+		if not player then return end
+		if not hasAccess(player, gate) then
+			promptPurchase(player, gate)
+		end
+	end)
+end
+
+-- Moves anyone without access out of paid areas.
+local function sweep()
+	local regions = CollectionService:GetTagged("ClubRegion")
+	for _, player in ipairs(Players:GetPlayers()) do
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if root then
+			for _, region in ipairs(regions) do
+				local gate = region:GetAttribute("Gate")
+				if region:IsA("BasePart") and typeof(gate) == "string" and insideBox(region, root.Position)
+					and not hasAccess(player, gate) then
+					local exit = region:GetAttribute("Exit")
+					if typeof(exit) == "Vector3" and character then
+						character:PivotTo(CFrame.new(exit))
+					end
+					promptPurchase(player, gate)
+				end
+			end
+		end
+	end
+end
+
+function ClubAccessService.Start()
+	setupGroups()
+	for _, part in ipairs(CollectionService:GetTagged("ClubGate")) do watchGate(part) end
+	CollectionService:GetInstanceAddedSignal("ClubGate"):Connect(watchGate)
+
+	local function onCharacter(player: Player, character: Model)
+		applyGroup(player)
+		character.DescendantAdded:Connect(function(part)
+			if part:IsA("BasePart") then
+				part.CollisionGroup = groupFor(player)
+			end
+		end)
+	end
+	local function onPlayer(player: Player)
+		if player.Character then onCharacter(player, player.Character) end
+		player.CharacterAdded:Connect(function(character) onCharacter(player, character) end)
+		player:GetAttributeChangedSignal("Pass_VIP"):Connect(function() applyGroup(player) end)
+	end
+	Players.PlayerAdded:Connect(onPlayer)
+	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
+	Players.PlayerRemoving:Connect(function(player) lastPrompt[player] = nil end)
+
+	DjService.Changed:Connect(function()
+		for _, player in ipairs(Players:GetPlayers()) do applyGroup(player) end
+	end)
+	task.spawn(function()
+		while true do
+			task.wait(0.5)
+			sweep()
+		end
+	end)
+end
+
+return ClubAccessService

@@ -177,3 +177,18 @@ VIP/수익화 기능은 코드가 존재한다는 이유만으로 완료 처리�
 - 출입 확인은 서버에서 한다. 게임 내 구매 즉시 입장 가능해야 한다.
 - 다른 플레이어를 막거나 내보내는 권한은 주지 않는다. 비VIP에게도 무대를 잘 볼 수 있는 무료 관람 위치를 둔다.
 
+## 11. 구현된 구매 구조 (2026-10-20)
+
+`Shared/MonetizationConfig.lua`에 상품을 모았다. **ID 0 = 아직 Creator Dashboard에 만들지 않음.**
+
+| 키 | 종류 | 용도 | 제안 가격 | 상태 |
+|---|---|---|---|---|
+| VIP | Game Pass(영구) | 클럽 VIP 발코니 출입(+ 기존 VIP 혜택) | 299 R$(가정, 미정) | ID 미등록 |
+| DJ | Developer Product(소모) | DJ 30분 (DJ_SYSTEM.md §3) | 75 R$ | ID 미등록 |
+| Drink_Fanta | Developer Product(소모) | 환타 1병 | 6 R$ | ID 미등록 |
+
+- 결제창은 Roblox 공식 창(`PromptGamePassPurchase` / `PromptProductPurchase`).
+- 소모성 상품은 `ProcessReceipt`에서 처리하고, 같은 영수증(PurchaseId)을 두 번 지급하지 않도록 DataStore `FashionGamePurchases`에 기록한다.
+- ID가 0일 때 Studio에서는 "[Studio 테스트]" 창으로 결제 없이 흐름만 확인한다. 실제 서버에서는 지급하지 않는다.
+- **사용자 할 일:** Creator Dashboard → 이 게임 → Monetization에서 Game Pass 1개, Developer Product 2개를 만들고 ID를 알려 주면 넣는다.
+- 출시 전: 상품 이름에 상표(환타)를 쓰지 않는다 → "오렌지 소다" 등으로 변경.

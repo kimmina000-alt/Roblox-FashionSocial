@@ -255,3 +255,8 @@ Roblox의 `Lighting`(시간·하늘)은 **서버 전체에 하나**다. "석양 
 - 게임 월드 동선(통과 공간·허브·루프): https://worlddesignernotebook.substack.com/p/just-passing-through
 - Roblox Content Maturity(사적 공간 규정): https://create.roblox.com/docs/production/promotion/content-maturity
 - Kevin Lynch, *The Image of the City* (1960); Jan Gehl, *Life Between Buildings* (1971); Ray Oldenburg, *The Great Good Place* (1989)
+
+## 10. 2026-10-20 추가 변경
+- **클럽 지하화·90° 회전**(CLUB_AREA.md §6): 지상은 입구 건물만, 홀은 -24. 스폰 → 댄스플로어 26.7초(계단·복도 포함), 클럽 문까지 14.8초.
+- **인생네컷 포토 부스 가게**(08_PhotoBooth): 동쪽 루프 위 클럽과 공원 사이, 문이 거리를 향함. 기존 배경 건물 1동 자리.
+- 관람차는 스폰을 향해 정면이 보이게 돌렸다.

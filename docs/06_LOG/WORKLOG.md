@@ -305,3 +305,13 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 - [x] Wear/remove a hat while dancing keeps the dance; respawn resets the panel and dancing works again.
 - [ ] 같이 추기 with 2 players (ISSUE-CLUB-001); mobile layout; beat lights visually (screen capture shows UI only).
 
+## 2026-10-20 (evening) — VIP/DJ/drinks, underground club, 인생네컷 plan
+
+### Studio checks (PC play, real keyboard/mouse unless noted)
+- [x] Spawn → club door 14.8 s, → dance floor 26.7 s (pathfinding); walking up the entrance stairs and the VIP stairs.
+- [x] VIP: blocked at the gate + purchase window; teleport onto the balcony is moved back out; test purchase → passes the gate.
+- [x] DJ: entering the booth without time → moved out + window; test purchase → DJ 30:00, booth access; 지금/다음/건너뛰기; bad index rejected.
+- [x] Bartender menu (free first, paid below), cola order, 3-bottle limit, paid drink only via purchase, 환타 test purchase → bottle.
+- [x] Place with 친구만 → label; pour (E) → cup; click → cup to mouth + gulp sound → cup gone.
+- [ ] Two players: 같이 추기, friends-only pouring, DJ queue, requests while a DJ plays.
+- [ ] Real purchase windows (needs product IDs).

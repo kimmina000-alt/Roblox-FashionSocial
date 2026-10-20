@@ -1,3 +1,9 @@
+## 2026-10-20 — Club: VIP/DJ gates, DJ time, song requests, drinks; underground club; photo booth plan (feat/club-vip-dj-drinks)
+- New: MonetizationConfig, MonetizationService (passes, receipts once, Studio test purchases), DjService (DJ slot/queue), ClubAccessService (collision-group gates + region sweep), DrinkService (bartender, bottles, tables, cups), ClubShopController (purchase prompts, drink menu, placement dialog), ClubMusicController (🎵 panel, requests, DJ console); remotes ClubShop, Music, ClubNotify.
+- ClubService: song requests and DJ control; ClubConfig: drinks, bottle rules, gulp sound.
+- Graybox: ground with a hole and the underground, rotated club (stairs + ramps, corridor, DJ zone, VIP balcony + long table, round tables on podiums, lounge, juice bar); 인생네컷 shop block.
+- Docs: DJ_SYSTEM.md, PHOTO_BOOTH.md, CLUB.md §14, CLUB_AREA §6, MONETIZATION §11, DEVELOPMENT_ORDER Stage 5, D-051–D-056, ISSUE-CLUB-003/004, ISSUE-SHOP-001.
+
 ## 2026-10-20 — Club MVP, Stage 4 first pass (feat/club-mvp-stage4)
 - New ClubConfig (31 Roblox emotes, tempo range, 11-track playlist), ClubService (dance state, Join, shared music clock, seat prompts), DanceController (💃 panel, tabs, tempo slider, stop, 같이 추기 list, music by zone, beat lights), RemoteEvent Dance.
 - Graybox: club zone/beat/seat tags and 8 lounge seats; Ferris wheel faces the spawn.

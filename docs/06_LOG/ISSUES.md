@@ -195,3 +195,14 @@ Same font issue as the editor's ↺. The dance panel close button uses "X".
 ### Repo note — 2026-10-20 accidental commit
 An interrupted earlier run left the Club work uncommitted; a later `git add -A` committed it to `catalog-ui-redesign` as 417b717 under the Ferris-wheel message. Reverted by 01c300f; the work was rebuilt on `feat/club-mvp-stage4`.
 
+### ISSUE-CLUB-003 — Shoulder joint C0 is read-only on current avatars (worked around)
+Setting `RightShoulder.C0` errors ("Property is read only") with the new avatar joint system, so a scripted arm raise is impossible. The drink motion moves the cup (Tool.Grip) to the mouth instead. A real drink animation needs an uploaded animation asset.
+
+### ISSUE-CLUB-004 — Steps of 1.5–2 studs are not climbable (fixed)
+VIP stairs (2-stud steps) could not be climbed. Both staircases now have invisible wedge ramps; the steps are visual only. Verified walking up both.
+
+### ISSUE-SHOP-001 — Product IDs not created (open, user action)
+VIP pass, DJ 30분 and 환타 have ID 0. Create them on the Creator Dashboard and send the IDs.
+
+### Note — ProximityPrompts only show when on screen
+During tests the bartender prompt did not appear while the camera faced away; this is normal Roblox behaviour (prompts must be in view), not a bug.

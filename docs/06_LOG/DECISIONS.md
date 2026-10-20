@@ -161,3 +161,20 @@ The server sets character attributes DanceKey / DanceStart (server time) / Dance
 D-050 — Club music is one shared playlist heard only in the club (2026-10-20).
 Free Creator Store tracks from licensed distributors; one server-wide clock so everyone hears the same part; volume fades to zero within 45 studs outside the club zone; NOW PLAYING shows channel and title. No player-uploaded or broadcast music.
 
+D-051 — Club is underground and rotated (2026-10-20, user decision).
+Ground-level entrance facing the plaza → foyer → stairs down on the left (24 studs) → corridor → door → hall facing the DJ zone. VIP balcony north, lounge and juice bar south. Stairs have invisible ramps.
+
+D-052 — DJ time is a consumable purchase, 30 minutes, one DJ per server (2026-10-20, length and price proposed).
+Proposal: 30 min for 75 R$ (test 49–99). Current DJ buying again extends; others queue. Only the curated playlist can be played. Future DJ abilities register in DjService.Actions. See DJ_SYSTEM.md.
+
+D-053 — Song requests when there is no DJ (2026-10-20).
+Anyone may queue one song at a time (max 10 in the queue); requests play before the automatic playlist. When a DJ starts, open requests are cleared and only the DJ chooses.
+
+D-054 — Drinks: bartender, bottles on tables, cups (2026-10-20, user decision).
+Bartender menu: free 물/사이다/콜라, paid 환타 (6 R$ test product). A bottle is placed on a table with 모든 사람/친구만/나만; allowed players pour a cup; using the cup shows the drink motion with a gulp sound and removes the cup. Limits: 3 bottles carried, 2 cups, 6 cups per bottle, bottles cleared after 10 min or when the owner leaves. Brand names are test-only.
+
+D-055 — Purchases go through MonetizationService (2026-10-20).
+All Game Pass / Developer Product IDs live in MonetizationConfig. Receipts are granted once (PurchaseId recorded). ID 0 = not created yet: Studio shows a labelled test purchase, live servers grant nothing.
+
+D-056 — 인생네컷 photo booth becomes the Stage 5 photo feature (2026-10-20, proposed).
+See PHOTO_BOOTH.md. MVP free; paid frames/stickers/poses later.

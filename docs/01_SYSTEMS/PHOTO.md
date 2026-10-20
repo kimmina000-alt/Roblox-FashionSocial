@@ -29,3 +29,6 @@ Candidate locations: Flower Garden, Sunset Beach, Cafe Window, Rooftop, Fountain
 - House Garden as a dependency while Housing is deferred
 - Runway Entrance as a dependency while Runway is deferred
 - Advanced filters, extensive weather/time controls until the core photo flow is validated
+
+## Photo Booth (2026-10-20)
+The first photo feature is the 인생네컷 photo booth — see `PHOTO_BOOTH.md` (reference video analysis, MVP scope, data design, build order).
