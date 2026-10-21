@@ -19,7 +19,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-10-22: photo booth fixes (front camera, props in saved cuts, photo wall), club rev4 from the user's 1F/2F plans (D-069), live LED pillars (D-070), PARK rides (D-071), planning docs: 3 cafes (D-072), 알바 on hold (D-068), OHU name (D-073), economy v2 doc (D-074, code still v1), PROP_SHOP.md, street buildings.
 - 2026-10-22 (2): park E/V keys, club rebuilt in place (ISSUE-CLUB-008), pillars 30 s, XP name tags (D-078), beach with terrain sea/swim/tubes/parasols/palms/ice cream truck (D-075), shared cafe system + ocean-view cafe (D-076), hanok village (D-077).
 - 2026-10-22 (3): booth host-only picking + copies step (D-079), live front-facing pillars + negative test ids (D-080), rides every frame / V fix / 🏠 leaves rides (D-081).
-- Open items: two-player test of booth watching and pillars with different outfits (ISSUE-CLUB-001/009), two-player ride test, phone layout of the new boxes and ride buttons, real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip.
+- 2-player + mobile tests done 2026-10-22 (booth watching/copies, pillars swap, ISSUE-MOBILE-001 fixes verified).
+- Open items: on a real phone tap catalog C / album / 📸 once, two-player ride test, real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip.
 - Next: test + fix the batch → 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9).
 - Start of next session: push works from this machine now (Git Credential Manager has the login). Check the Studio place was saved (graybox zones live in Workspace only). Ask whether to apply economy v2 coins in code.
 
