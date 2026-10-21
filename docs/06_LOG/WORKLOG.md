@@ -437,3 +437,8 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 - [x] Pillar shows my face (front) live while dancing.
 - [x] Ferris wheel: board, V → LockFirstPerson, V → Classic; 🏠 → spawn, seat cleared.
 - [ ] 2 players: watching the host pick live; pillars alternating between the two players (needs a new 2-player session).
+
+### 2-player test (2026-10-22, server + Player1/Player2, different outfits)
+- [x] Pillars: both clients show both players live from the front (north: Player2 pink outfit, south: Player1 overalls).
+- [ ] 30 s swap: the random order could repeat the same assignment; ClubScreenService now rotates through a shuffled order (two players always swap). Needs a restarted 2-player session to confirm.
+- [x] Booth: Player1 (host) picks, Player2 watches live (numbers, preview, frame colour), title fixed in the frame step; both get the copies window; Player1 saved 1 (free), Player2 saved 2 (−20 coins).

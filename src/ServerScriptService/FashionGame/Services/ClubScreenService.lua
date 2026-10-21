@@ -20,9 +20,13 @@ local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitFor
 
 local ClubScreenService = {}
 
--- 30 s per player, random order (user, 2026-10-22)
+-- 30 s per player (user, 2026-10-22). The people in the club are put in a
+-- random order; every 30 s each pillar moves on to the next person in that
+-- order, so two players always swap and everyone gets a turn. The order is
+-- shuffled again when someone enters or leaves.
 local SECONDS_PER_PLAYER = 30
 local order: {number} = {}
+local offset = 0
 
 local function show(model: Instance, target: Player?)
 	model:SetAttribute("ShowUserId", if target then target.UserId else 0)
@@ -40,48 +44,45 @@ local function clubPlayers(): {Player}
 	return list
 end
 
--- Next player in a shuffled round, skipping anyone no longer in the club.
-local function nextPlayer(inClub: {Player}, avoid: {[number]: boolean}): Player?
-	for _ = 1, 2 do
-		while #order > 0 do
-			local userId = table.remove(order, 1) :: number
-			for _, player in ipairs(inClub) do
-				if player.UserId == userId and not avoid[userId] then return player end
-			end
-		end
-		-- New round: shuffle everyone currently in the club.
-		for _, player in ipairs(inClub) do table.insert(order, player.UserId) end
-		for i = #order, 2, -1 do
-			local j = math.random(1, i)
-			order[i], order[j] = order[j], order[i]
+-- Re-shuffles when the set of people changed. Returns true if it did.
+local function refreshOrder(inClub: {Player}): boolean
+	local same = #inClub == #order
+	if same then
+		for _, player in ipairs(inClub) do
+			if not table.find(order, player.UserId) then same = false break end
 		end
 	end
-	return nil
+	if same then return false end
+	table.clear(order)
+	for _, player in ipairs(inClub) do table.insert(order, player.UserId) end
+	for i = #order, 2, -1 do
+		local j = math.random(1, i)
+		order[i], order[j] = order[j], order[i]
+	end
+	offset = 0
+	return true
 end
 
 function ClubScreenService.Start()
 	task.spawn(function()
-		local since = -math.huge
+		local since = os.clock()
 		while true do
 			local inClub = clubPlayers()
-			-- Change every SECONDS_PER_PLAYER, or at once when a shown player left
-			-- the club or the pillars are idle while someone is inside.
-			local stale = false
-			for _, model in ipairs(CollectionService:GetTagged("LEDPillar")) do
-				local shown = model:GetAttribute("ShowUserId")
-				local present = false
-				for _, player in ipairs(inClub) do
-					if player.UserId == shown then present = true end
-				end
-				if (shown ~= 0 and shown ~= nil and not present) or ((shown == 0 or shown == nil) and #inClub > 0) then stale = true end
-			end
-			if stale or os.clock() - since >= SECONDS_PER_PLAYER then
+			local changed = refreshOrder(inClub)
+			local due = os.clock() - since >= SECONDS_PER_PLAYER
+			if changed or due then
 				since = os.clock()
-				local used: {[number]: boolean} = {}
-				for _, model in ipairs(CollectionService:GetTagged("LEDPillar")) do
-					-- Pillars show different people when possible.
-					local target = nextPlayer(inClub, used) or inClub[1]
-					if target then used[target.UserId] = true end
+				if due and not changed then offset += 1 end
+				local pillars = CollectionService:GetTagged("LEDPillar")
+				table.sort(pillars, function(a, b)
+					return (a :: Model):GetPivot().Position.Z < (b :: Model):GetPivot().Position.Z
+				end)
+				for k, model in ipairs(pillars) do
+					local target: Player? = nil
+					if #order > 0 then
+						local userId = order[((k - 1 + offset) % #order) + 1]
+						target = Players:GetPlayerByUserId(userId)
+					end
 					show(model, target)
 				end
 			end
@@ -89,5 +90,4 @@ function ClubScreenService.Start()
 		end
 	end)
 end
-
 return ClubScreenService

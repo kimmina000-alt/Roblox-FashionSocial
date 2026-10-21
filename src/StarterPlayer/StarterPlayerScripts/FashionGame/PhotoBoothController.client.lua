@@ -758,7 +758,10 @@ local function refreshPickBadges()
 		local stroke = pickCells[index]:FindFirstChildOfClass("UIStroke")
 		if stroke then stroke.Transparency = if order then 0 else 1 end
 	end
-	if state.isPicker then
+	if state.stage == "frame" then
+		-- the frame step has its own title (openFrameStep)
+		pickTitle.Text = if state.isPicker then "프레임을 선택하세요!" else state.pickerName .. "님이 프레임을 고르는 중…"
+	elseif state.isPicker then
 		pickTitle.Text = string.format("사진을 골라주세요! (%d/%d)", #state.picks, PhotoConfig.PickCount)
 	else
 		pickTitle.Text = string.format("%s님이 사진을 고르는 중… (%d/%d)", state.pickerName, #state.picks, PhotoConfig.PickCount)
