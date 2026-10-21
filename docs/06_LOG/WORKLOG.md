@@ -445,3 +445,4 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 
 ### Mobile 2-player test (2026-10-22)
 See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session still has the old client code; restart to see the fixes.
+- [x] Real phone (user): catalog C, 🖼 album, 📸 menu OK.

@@ -277,3 +277,5 @@ Checked OK on mobile: wait bar, shooting screen, host picking + watching, copies
 Not checked by tap (Studio cannot inject taps at the right place in phone emulation): catalog C button, album, 📸 menu — please tap them once on a real phone.
 
 Re-test after restart (2026-10-22, phone emulation 735×413 / 801×413): menu fits, booth boxes larger, copies panel clean, name tags hidden while shooting, dance panel right of the thumbstick (thumbstick visible), ride button low with no [E]. Pillars swapped after 30 s with two players (ISSUE-CLUB-001 done).
+
+Real phone check by the user (2026-10-22): catalog C, 🖼 album and 📸 menu all work. ISSUE-MOBILE-001 closed.

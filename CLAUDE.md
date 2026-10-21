@@ -20,7 +20,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-10-22 (2): park E/V keys, club rebuilt in place (ISSUE-CLUB-008), pillars 30 s, XP name tags (D-078), beach with terrain sea/swim/tubes/parasols/palms/ice cream truck (D-075), shared cafe system + ocean-view cafe (D-076), hanok village (D-077).
 - 2026-10-22 (3): booth host-only picking + copies step (D-079), live front-facing pillars + negative test ids (D-080), rides every frame / V fix / 🏠 leaves rides (D-081).
 - 2-player + mobile tests done 2026-10-22 (booth watching/copies, pillars swap, ISSUE-MOBILE-001 fixes verified).
-- Open items: on a real phone tap catalog C / album / 📸 once, two-player ride test, real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip.
+- Real phone check by the user: catalog C, album, 📸 OK.
+- Open items: two-player ride test, real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip.
 - Next: test + fix the batch → 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9).
 - Start of next session: push works from this machine now (Git Credential Manager has the login). Check the Studio place was saved (graybox zones live in Workspace only). Ask whether to apply economy v2 coins in code.
 
