@@ -130,9 +130,15 @@ local function exitFor(ride: Ride): CFrame?
 	return nil
 end
 
-local function leave(player: Player): (boolean, any)
+-- `home` = the 🏠 button: always allowed, even high up on the ferris wheel
+-- (user, 2026-10-22); the HUD then moves the player to the spawn.
+local function leave(player: Player, home: boolean?): (boolean, any)
 	local ride = riding[player]
 	if not ride then return true, nil end
+	if home then
+		clear(player)
+		return true, nil
+	end
 	if ride.kind == "ParkWheel" then
 		local index = tonumber(string.match(ride.slot.Name, "^Cabin(%d+)$"))
 		if index and ParkConfig.cabinFromBottom(ride.model, index, now()) > ParkConfig.WheelBoardAngle * 1.6 then
@@ -151,7 +157,7 @@ function ParkRideService.Start()
 		if action == "Board" and typeof(a) == "Instance" then
 			return board(player, a, if typeof(b) == "Instance" then b else nil)
 		elseif action == "Leave" then
-			return leave(player)
+			return leave(player, a == "home")
 		elseif action == "Level" and typeof(a) == "number" then
 			local ride = riding[player]
 			if not ride or ride.kind ~= "ParkSwing" then return false, nil end

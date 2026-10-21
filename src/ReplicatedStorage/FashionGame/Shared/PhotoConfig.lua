@@ -29,7 +29,12 @@ PhotoConfig.ShotSeconds = 10       -- countdown per photo
 PhotoConfig.FirstShotSeconds = 8   -- a little longer to pick the first pose
 PhotoConfig.WaitSeconds = 10       -- waiting for friends (친구와 / 모두와)
 PhotoConfig.SoloWaitSeconds = 3
-PhotoConfig.PickSeconds = 120      -- time to pick 4 + a frame
+PhotoConfig.PickSeconds = 120      -- time for the host to pick 4 + a frame
+-- Copies (user, 2026-10-22): after the host chose the frame, each person picks
+-- how many prints to keep: 1 free, more cost coins each.
+PhotoConfig.CopySeconds = 30
+PhotoConfig.MaxCopies = 5
+PhotoConfig.ExtraCopyCoins = 20
 PhotoConfig.MaxPhotos = 10         -- free album slots (user, 2026-10-20: 10장까지 무료)
 PhotoConfig.HardMaxPhotos = 60     -- stored maximum incl. bought slots (D-064)
 PhotoConfig.SlotsPerPurchase = 10  -- MonetizationConfig.Products.AlbumSlots

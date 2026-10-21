@@ -20,18 +20,21 @@
 --      dances, allowed on PhotoStage) and props. Each photo stores, per
 --      person: position/yaw on the stand, dance key + clip time, props.
 --      Outfits are captured once when shooting starts (OutfitSnapshot).
---   3. Picking: every participant gets the 8 shots ("Shots" event), picks 4
---      and a frame → Save → their own copy goes to their album
---      (PlayerDataService.SavePhoto, 10 free slots) and they are moved out of
---      the booth. The session ends when everyone saved or left, or after
---      PhotoConfig.PickSeconds. Poses stop when the shooting ends.
---   4. Album extras: "TakeOut" gives the photo as a Tool (inventory item);
+--   3. Picking (user, 2026-10-22): everyone gets the 8 shots ("Shots"), but
+--      only the picker (the host) picks 4 and a frame; every change is sent
+--      to the others live ("PickState") so they watch. "Confirm" → copies.
+--   4. Copies: each person chooses how many prints to keep ("Copies"; 1
+--      free, PhotoConfig.ExtraCopyCoins each after) → "SaveCopies" → album
+--      (PlayerDataService.SavePhoto) and out of the booth. Time up → 1 free
+--      print each ("AutoSaved"). Poses stop when the shooting ends.
+--   5. Album extras: "TakeOut" gives the photo as a Tool (inventory item);
 --      "WallPost" sticks it on a photo wall (tag "PhotoWall") and removes it
 --      from the album (it is used up, like a real print). Wall photos may
 --      overlap; the newest PhotoConfig.MaxWallPhotos stay (this server only).
 --
 -- Public booth attributes (clients follow them):
---   Phase "idle"|"waiting"|"shooting"|"picking", Host, Layout, Mode,
+--   Phase "idle"|"waiting"|"shooting"|"picking"|"copies", Host, Picker,
+--   Layout, Mode,
 --   People (JSON userIds), WaitUntil, ShotIndex, NextShotAt.
 
 local Players = game:GetService("Players")
@@ -62,6 +65,12 @@ type Session = {
 	shots: {any},
 	saved: {[Player]: boolean},
 	startNow: boolean,
+	-- Picking (user, 2026-10-22): only the picker (the host; the next person
+	-- if the host leaves) chooses the shots and the frame; the others watch
+	-- live. Then everyone chooses how many copies to keep.
+	picker: Player?,
+	pickState: { picks: {number}, frame: string, stage: string },
+	final: { picks: {number}, frame: string }?,
 }
 
 local sessions: {[Model]: Session} = {}
@@ -182,6 +191,7 @@ local function publish(session: Session?, booth: Model)
 		end
 		booth:SetAttribute("Phase", session.phase)
 		booth:SetAttribute("Host", session.host.UserId)
+		booth:SetAttribute("Picker", if session.picker then session.picker.UserId else 0)
 		booth:SetAttribute("Layout", session.layout)
 		booth:SetAttribute("Mode", session.mode)
 		booth:SetAttribute("People", HttpService:JSONEncode(ids))
@@ -234,9 +244,19 @@ local function removePerson(session: Session, player: Player, reason: string?)
 		endSession(session, "호스트가 나가서 촬영이 취소되었어요.")
 		return
 	end
-	if session.phase == "picking" then
+	if session.phase == "picking" or session.phase == "copies" then
 		-- Keep them in the list (their shots are already captured); just done.
 		session.saved[player] = true
+		if session.picker == player and session.phase == "picking" then
+			-- The next person still here takes over picking.
+			session.picker = nil
+			for _, person in ipairs(session.people) do
+				if person ~= player and active(session, person) then session.picker = person break end
+			end
+			for _, person in ipairs(session.people) do
+				if active(session, person) and event then event:FireClient(person, "PickState", session.pickState) end
+			end
+		end
 	else
 		table.remove(session.people, index)
 	end
@@ -320,6 +340,94 @@ local function placeOnStand(session: Session)
 	end
 end
 
+-- The picker's current choice made complete: missing picks are filled with
+-- the first unused shots, a frame the picker does not own falls back to white.
+local function completeChoice(session: Session): { picks: {number}, frame: string }
+	local picks = table.clone(session.pickState.picks)
+	for index = 1, #session.shots do
+		if #picks >= PhotoConfig.PickCount then break end
+		if not table.find(picks, index) then table.insert(picks, index) end
+	end
+	local frame = session.pickState.frame
+	if not PhotoConfig.findFrame(frame) or (session.picker and not EconomyService.OwnsFrame(session.picker, frame)) then
+		frame = "white"
+	end
+	return { picks = picks, frame = frame }
+end
+
+-- One photo (data) from the final choice. Only people who appear in the
+-- picked shots are stored.
+local function makePhoto(session: Session, choice: { picks: {number}, frame: string }): any?
+	local stand = part(session.booth, "Stand")
+	if not stand then return nil end
+	local shots = {}
+	local who: {[number]: boolean} = {}
+	for _, index in ipairs(choice.picks) do
+		local shot = session.shots[index]
+		if shot then
+			table.insert(shots, shot)
+			for _, entry in ipairs(shot.people) do who[entry.u] = true end
+		end
+	end
+	local people = {}
+	for userId in pairs(who) do
+		table.insert(people, { u = userId, n = session.names[userId] or "?", o = session.outfits[userId] })
+	end
+	return {
+		id = HttpService:GenerateGUID(false),
+		v = 1,
+		createdAt = os.time(),
+		layout = session.layout,
+		frame = choice.frame,
+		booth = boothInfo(session.booth, stand),
+		people = people,
+		shots = shots,
+	}
+end
+
+-- How many copies this person may still keep (album space, MaxCopies).
+local function copyLimit(player: Player): number
+	local count, max = playerData.PhotoCapacity(player)
+	return math.clamp(max - count, 0, PhotoConfig.MaxCopies)
+end
+
+-- Saves `copies` prints of the final photo for one person (1 free, the rest
+-- PhotoConfig.ExtraCopyCoins each), then releases them from the booth.
+local function saveCopies(session: Session, player: Player, copies: number): (boolean, any)
+	local choice = session.final
+	if not choice or session.phase ~= "copies" or session.saved[player] or not active(session, player) then
+		return false, "저장할 사진이 없어요."
+	end
+	if typeof(copies) ~= "number" or copies % 1 ~= 0 or copies < 1 then return false, "장수를 골라 주세요." end
+	local limit = copyLimit(player)
+	if limit < 1 then return false, "사진첩이 가득 찼어요." end
+	copies = math.min(copies, limit)
+	local cost = (copies - 1) * PhotoConfig.ExtraCopyCoins
+	if cost > 0 and not EconomyService.Spend(player, cost) then
+		return false, string.format("코인이 부족해요 (%d 필요).", cost)
+	end
+	local last: any = nil
+	local firstPhoto: any = nil
+	for _ = 1, copies do
+		local photo = makePhoto(session, choice)
+		if not photo then break end
+		local ok, result = playerData.SavePhoto(player, photo)
+		if not ok then
+			if not last then return false, result end
+			break
+		end
+		last = result
+		firstPhoto = firstPhoto or photo
+	end
+	session.saved[player] = true
+	-- Saved → out of the booth (user, 2026-10-20).
+	release(session, player)
+	publish(session, session.booth)
+	EconomyService.Award(player, "PhotoSaved")
+	if firstPhoto and #firstPhoto.people > 1 then EconomyService.Award(player, "PhotoGroup") end
+	return true, { photo = firstPhoto, copies = copies, count = #last.photos, max = last.max, persistent = last.persistent, note = last.note }
+end
+
 local function runSession(session: Session)
 	local booth = session.booth
 	local stand = part(booth, "Stand")
@@ -373,9 +481,16 @@ local function runSession(session: Session)
 		end
 	end
 
-	-- Picking: every participant gets the shots. Poses and props stop
-	-- (user, 2026-10-20: after the last photo everyone is back to idle).
+	-- Picking: every participant gets the shots; only the picker chooses,
+	-- the others watch (PickState). Poses and props stop (user, 2026-10-20:
+	-- after the last photo everyone is back to idle).
 	session.phase = "picking"
+	session.picker = if active(session, session.host) then session.host else nil
+	if not session.picker then
+		for _, person in ipairs(session.people) do
+			if active(session, person) then session.picker = person break end
+		end
+	end
 	booth:SetAttribute("ShotIndex", 0)
 	booth:SetAttribute("NextShotAt", 0)
 	booth:SetAttribute("WaitUntil", now() + PhotoConfig.PickSeconds)
@@ -398,14 +513,48 @@ local function runSession(session: Session)
 	for _, person in ipairs(session.people) do
 		if event then event:FireClient(person, "Shots", payload) end
 	end
-	local deadline = now() + PhotoConfig.PickSeconds
-	while sessions[booth] == session and now() < deadline do
-		local allDone = true
+	local function anyoneLeft(): boolean
 		for _, person in ipairs(session.people) do
-			if person.Parent and not session.saved[person] then allDone = false end
+			if person.Parent and active(session, person) then return true end
 		end
-		if allDone then break end
-		task.wait(0.5)
+		return false
+	end
+	local deadline = now() + PhotoConfig.PickSeconds
+	while sessions[booth] == session and now() < deadline and not session.final do
+		if not anyoneLeft() then break end
+		task.wait(0.25)
+	end
+	if sessions[booth] ~= session then return end
+	if not anyoneLeft() then endSession(session, nil) return end
+
+	-- Copies: everyone chooses how many prints to keep (1 free).
+	session.final = session.final or completeChoice(session)
+	session.phase = "copies"
+	booth:SetAttribute("WaitUntil", now() + PhotoConfig.CopySeconds)
+	publish(session, booth)
+	for _, person in ipairs(session.people) do
+		if active(session, person) and event then
+			event:FireClient(person, "Copies", {
+				picks = (session.final :: any).picks,
+				frame = (session.final :: any).frame,
+				free = 1,
+				price = PhotoConfig.ExtraCopyCoins,
+				max = copyLimit(person),
+			})
+		end
+	end
+	local copyDeadline = now() + PhotoConfig.CopySeconds
+	while sessions[booth] == session and now() < copyDeadline do
+		if not anyoneLeft() then break end
+		task.wait(0.25)
+	end
+	if sessions[booth] ~= session then return end
+	-- Time is up: whoever did not choose keeps one free print.
+	for _, person in ipairs(session.people) do
+		if person.Parent and active(session, person) then
+			local ok, result = saveCopies(session, person, 1)
+			if ok and event then event:FireClient(person, "AutoSaved", result) end
+		end
 	end
 	endSession(session, nil)
 end
@@ -443,7 +592,7 @@ local function open(player: Player, payload: any): (boolean, string?)
 	local previous = byPlayer[player]
 	if previous then
 		-- A finished session (picking, already saved) never blocks a new one.
-		if previous.phase == "picking" and previous.saved[player] then
+		if (previous.phase == "picking" or previous.phase == "copies") and previous.saved[player] then
 			byPlayer[player] = nil
 		else
 			return false, "이미 촬영 중이에요."
@@ -469,6 +618,9 @@ local function open(player: Player, payload: any): (boolean, string?)
 		shots = {},
 		saved = {},
 		startNow = false,
+		picker = nil,
+		pickState = { picks = {}, frame = "white", stage = "picking" },
+		final = nil,
 	}
 	sessions[booth] = session
 	enter(session, player)
@@ -524,65 +676,54 @@ local function toggleProp(player: Player, key: any): (boolean, string?)
 	return true, nil
 end
 
--- picks: PickCount distinct shot numbers (order = order in the photo).
-local function save(player: Player, payload: any): (boolean, any)
-	local session = byPlayer[player]
-	if not session or session.phase ~= "picking" or session.saved[player] then
-		return false, "저장할 촬영이 없어요."
-	end
-	if typeof(payload) ~= "table" or typeof(payload.picks) ~= "table" then return false, "사진을 골라 주세요." end
-	local frame = PhotoConfig.findFrame(payload.frame)
-	if not frame then return false, "프레임을 골라 주세요." end
-	if not EconomyService.OwnsFrame(player, frame.key) then
-		return false, "아직 가지고 있지 않은 프레임이에요."
-	end
+-- The picker's choice so far: picks (≤ PickCount distinct shot numbers, in
+-- photo order), frame key, stage ("picking" | "frame"). Shown live to the
+-- others (user, 2026-10-22).
+local function readChoice(session: Session, payload: any): ({ picks: {number}, frame: string, stage: string }?, string?)
+	if typeof(payload) ~= "table" or typeof(payload.picks) ~= "table" then return nil, "사진을 골라 주세요." end
 	local picks = {}
 	local seen = {}
 	for _, index in ipairs(payload.picks) do
 		if typeof(index) ~= "number" or index % 1 ~= 0 or not session.shots[index] or seen[index] then
-			return false, "사진 선택이 올바르지 않아요."
+			return nil, "사진 선택이 올바르지 않아요."
 		end
 		seen[index] = true
 		table.insert(picks, index)
 	end
-	if #picks ~= PhotoConfig.PickCount then
-		return false, string.format("사진을 %d장 골라 주세요.", PhotoConfig.PickCount)
-	end
-	local stand = part(session.booth, "Stand")
-	if not stand then return false, "부스를 찾을 수 없어요." end
-	-- Only the people who appear in the picked shots are stored.
-	local shots = {}
-	local who: {[number]: boolean} = {}
-	for _, index in ipairs(picks) do
-		local shot = session.shots[index]
-		table.insert(shots, shot)
-		for _, entry in ipairs(shot.people) do who[entry.u] = true end
-	end
-	local people = {}
-	for userId in pairs(who) do
-		table.insert(people, { u = userId, n = session.names[userId] or "?", o = session.outfits[userId] })
-	end
-	local photo = {
-		id = HttpService:GenerateGUID(false),
-		v = 1,
-		createdAt = os.time(),
-		layout = session.layout,
-		frame = frame.key,
-		booth = boothInfo(session.booth, stand),
-		people = people,
-		shots = shots,
-	}
-	local ok, result = playerData.SavePhoto(player, photo)
-	if not ok then return false, result end
-	session.saved[player] = true
-	-- Saved → out of the booth (user, 2026-10-20).
-	release(session, player)
-	publish(session, session.booth)
-	EconomyService.Award(player, "PhotoSaved")
-	if #people > 1 then EconomyService.Award(player, "PhotoGroup") end
-	return true, { photo = photo, count = #result.photos, max = result.max, persistent = result.persistent, note = result.note }
+	if #picks > PhotoConfig.PickCount then return nil, "사진 선택이 올바르지 않아요." end
+	local frame = if PhotoConfig.findFrame(payload.frame) then payload.frame else "white"
+	local stage = if payload.stage == "frame" then "frame" else "picking"
+	return { picks = picks, frame = frame, stage = stage }, nil
 end
 
+local function pickUpdate(player: Player, payload: any): (boolean, any)
+	local session = byPlayer[player]
+	if not session or session.phase ~= "picking" or session.picker ~= player then return false, nil end
+	local choice, message = readChoice(session, payload)
+	if not choice then return false, message end
+	session.pickState = choice
+	for _, person in ipairs(session.people) do
+		if person ~= player and active(session, person) and event then event:FireClient(person, "PickState", choice) end
+	end
+	return true, nil
+end
+
+-- The picker is done: 4 shots + a frame they own → everyone chooses copies.
+local function confirm(player: Player, payload: any): (boolean, any)
+	local session = byPlayer[player]
+	if not session or session.phase ~= "picking" or session.picker ~= player then
+		return false, "사진은 처음 찍기를 시작한 사람이 골라요."
+	end
+	local choice, message = readChoice(session, payload)
+	if not choice then return false, message end
+	if #choice.picks ~= PhotoConfig.PickCount then
+		return false, string.format("사진을 %d장 골라 주세요.", PhotoConfig.PickCount)
+	end
+	if not EconomyService.OwnsFrame(player, choice.frame) then return false, "아직 가지고 있지 않은 프레임이에요." end
+	session.pickState = choice
+	session.final = { picks = choice.picks, frame = choice.frame }
+	return true, nil
+end
 --------------------------------------------------
 -- Photo items (Tool) and the photo wall
 --------------------------------------------------
@@ -719,7 +860,9 @@ end
 
 local function handle(player: Player, action: any, payload: any): (boolean, any)
 	local t = os.clock()
-	if action ~= "Leave" and action ~= "GetWall" and lastCall[player] and t - lastCall[player] < 0.2 then
+	-- PickUpdate carries the whole choice each time, so it is not throttled
+	-- (a dropped one would leave the watchers out of date).
+	if action ~= "Leave" and action ~= "GetWall" and action ~= "PickUpdate" and lastCall[player] and t - lastCall[player] < 0.2 then
 		return false, "잠시 후 다시 시도하세요."
 	end
 	lastCall[player] = t
@@ -740,8 +883,14 @@ local function handle(player: Player, action: any, payload: any): (boolean, any)
 		return true, nil
 	elseif action == "Prop" then
 		return toggleProp(player, payload)
-	elseif action == "Save" then
-		return save(player, payload)
+	elseif action == "PickUpdate" then
+		return pickUpdate(player, payload)
+	elseif action == "Confirm" then
+		return confirm(player, payload)
+	elseif action == "SaveCopies" then
+		local session = byPlayer[player]
+		if not session then return false, "저장할 사진이 없어요." end
+		return saveCopies(session, player, payload)
 	elseif action == "GetAlbum" then
 		return playerData.GetPhotos(player)
 	elseif action == "DeletePhoto" then

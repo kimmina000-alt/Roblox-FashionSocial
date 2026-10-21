@@ -227,6 +227,7 @@ end
 --------------------------------------------------
 
 local mySlot: Slot? = nil
+local boardedAt = 0
 local slideCFrame: CFrame? = nil
 
 local function liftFor(root: BasePart): number
@@ -371,7 +372,12 @@ local function setFirstPerson(on: boolean)
 	-- (user report: stuck in first person with the mouse locked).
 	viewButton.Modal = on
 	if not on then
-		player.CameraMinZoomDistance = 0.5
+		-- Classic alone keeps the camera zoomed in at the head (user report:
+		-- V switched to first person but not back): push it out, then free it.
+		player.CameraMinZoomDistance = 12
+		task.delay(0.1, function()
+			if not firstPerson then player.CameraMinZoomDistance = 0.5 end
+		end)
 	end
 end
 
@@ -442,7 +448,7 @@ local function pressMain()
 		local ok, result = remote:InvokeServer("Board", offer.ride, offer.slot)
 		if ok and typeof(result) == "table" then
 			for _, entry in ipairs(slots) do
-				if entry.slot == result.slot and entry.key == result.key then mySlot = entry end
+				if entry.slot == result.slot and entry.key == result.key then mySlot = entry boardedAt = os.clock() end
 			end
 			setJump(false)
 		elseif typeof(result) == "string" then
@@ -631,16 +637,16 @@ player.CharacterAdded:Connect(function()
 end)
 
 local uiTimer = 0
-local animTimer = 0
 RunService.RenderStepped:Connect(function(dt)
 	local t = now()
-	animTimer += dt
-	-- rides move at 30 updates a second; riders every frame
-	if animTimer >= 1 / 30 then
-		animate(t, animTimer)
-		animTimer = 0
-	end
+	-- Rides and riders move every frame from the same clock (at 30 updates a
+	-- second the ride and the rider drifted apart and looked jerky, user
+	-- report 2026-10-22).
+	animate(t, dt)
 	placeRiders(t)
+	-- The server cleared my seat (🏠 home button, reset): stop riding.
+	local entry = mySlot
+	if entry and os.clock() - boardedAt > 1.5 and entry.slot:GetAttribute(entry.key) ~= player.UserId then stopRiding(nil) end
 	if slideCFrame then placeOwn(slideCFrame) end
 	checkSlides()
 	uiTimer += dt

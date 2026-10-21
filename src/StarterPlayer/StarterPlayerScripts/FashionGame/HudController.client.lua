@@ -88,6 +88,13 @@ home.MouseButton1Click:Connect(function()
 	local target = spawnCFrame()
 	if not target then return end
 	if humanoid.SeatPart then humanoid.Sit = false task.wait(0.1) end
+	-- Off any park ride / tube first (allowed anywhere, even on the wheel).
+	local parkRide = game:GetService("ReplicatedStorage").FashionGame.Remotes:FindFirstChild("ParkRide")
+	if parkRide and parkRide:IsA("RemoteFunction") then
+		pcall(function() parkRide:InvokeServer("Leave", "home") end)
+		task.wait(0.15)
+		humanoid.Sit = false
+	end
 	character:PivotTo(target)
 	toast("처음 장소로 돌아왔어요.")
 end)

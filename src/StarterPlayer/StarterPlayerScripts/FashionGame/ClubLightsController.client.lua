@@ -119,9 +119,11 @@ end
 -- real time"). Each panel holds a ViewportFrame with a copy of the shown
 -- player's character; every update the copy's parts are moved to the real
 -- character's pose (relative to its root), so dances and walking show live.
--- The panels are slices of one wide picture that wraps half the pillar (the
--- avatar is shown twice around, so it is visible from any side) and the
--- avatar turns slowly for a 360° view. Back-facing panels are not updated.
+-- The copy always faces the camera, like a live camera filming the dancer
+-- from the front (user, 2026-10-22: the turning avatar showed its back). The
+-- panels are slices of one wide picture that wraps half the pillar (shown
+-- twice around) and the picture travels around the pillar (360°), as in the
+-- first version. Back-facing panels are not updated.
 -- When the character is not loaded here (streaming), the avatar thumbnail is
 -- shown instead.
 
@@ -130,7 +132,7 @@ local Players = game:GetService("Players")
 local IMAGE_SIZE = 420
 -- The middle half of the square avatar thumbnail keeps the body proportions.
 local CROP_X0, CROP_W = 105, 210
-local TURN_SPEED = 0.45 -- radians per second
+local SCROLL_SPEED = 0.6 -- panels per second (the picture travels around)
 local VIEW_FOV = 30
 
 type Panel = {
@@ -141,6 +143,7 @@ type Panel = {
 	camera: Camera,
 	clone: Model?,
 	parts: {BasePart},
+	slice: number,
 }
 type Pillar = {
 	model: Model,
@@ -291,7 +294,7 @@ local function newPanel(part: BasePart, slice: number, repeatPanels: number): Pa
 	camera.FieldOfView = VIEW_FOV
 	camera.Parent = viewport
 	viewport.CurrentCamera = camera
-	return { part = part, frame = frame, image = image, viewport = viewport, camera = camera, clone = nil, parts = {} }
+	return { part = part, frame = frame, image = image, viewport = viewport, camera = camera, clone = nil, parts = {}, slice = slice }
 end
 
 -- (Re)builds the screens from the panels streamed in so far (StreamingEnabled:
@@ -364,7 +367,7 @@ for _, model in ipairs(CollectionService:GetTagged("LEDPillar")) do addPillar(mo
 CollectionService:GetInstanceAddedSignal("LEDPillar"):Connect(addPillar)
 
 local function setThumbnail(pillar: Pillar, id: number, on: boolean)
-	local image = if id > 0 then string.format("rbxthumb://type=Avatar&id=%d&w=%d&h=%d", id, IMAGE_SIZE, IMAGE_SIZE) else ""
+	local image = if id ~= 0 then string.format("rbxthumb://type=Avatar&id=%d&w=%d&h=%d", id, IMAGE_SIZE, IMAGE_SIZE) else ""
 	for _, panel in ipairs(pillar.panels) do
 		panel.image.Image = image
 		panel.image.Visible = on
@@ -378,7 +381,9 @@ local function updatePillars(t: number)
 		if pillar.model.Parent and inRange(pillar.center) then
 			local userId = pillar.model:GetAttribute("ShowUserId")
 			local id = if typeof(userId) == "number" then userId else 0
-			local shownPlayer = if id > 0 then Players:GetPlayerByUserId(id) else nil
+			-- (Studio test players have negative ids, so "not 0", never "> 0":
+			-- the pillars stayed empty in the 2-player test.)
+			local shownPlayer = if id ~= 0 then Players:GetPlayerByUserId(id) else nil
 			local character = shownPlayer and shownPlayer.Character
 			if id ~= pillar.showing or (character and character ~= pillar.source) or (not character and pillar.source) then
 				pillar.showing = id
@@ -387,13 +392,13 @@ local function updatePillars(t: number)
 				setThumbnail(pillar, id, id > 0 and not live)
 				if pillar.nameLabel then
 					local name = pillar.model:GetAttribute("ShowName")
-					pillar.nameLabel.Text = if id > 0 and typeof(name) == "string" then "✨ " .. name else "CLUB · FASHION SOCIAL"
+					pillar.nameLabel.Text = if id ~= 0 and typeof(name) == "string" then "✨ " .. name else "CLUB · FASHION SOCIAL"
 				end
 			end
 			local root = pillar.source and pillar.source:FindFirstChild("HumanoidRootPart")
 			if root and root:IsA("BasePart") then
-				-- Pose relative to the real root, turning slowly.
-				local base = CFrame.Angles(0, t * TURN_SPEED, 0) * root.CFrame:Inverse()
+				-- Pose relative to the real root: the copy faces the camera.
+				local base = root.CFrame:Inverse()
 				local poses = table.create(#pillar.sourceParts)
 				for i, part in ipairs(pillar.sourceParts) do poses[i] = base * part.CFrame end
 				for _, panel in ipairs(pillar.panels) do
@@ -406,8 +411,14 @@ local function updatePillars(t: number)
 				end
 			end
 			local count = #pillar.panels
+			local repeatPanels = math.max(1, math.floor(count / 2))
+			local shift = (t * SCROLL_SPEED) % repeatPanels
 			for k, panel in ipairs(pillar.panels) do
-				if id > 0 then
+				-- the picture travels around the pillar
+				local slot = UDim2.new(-((panel.slice + shift) % repeatPanels), 0, 0, 0)
+				panel.viewport.Position = slot
+				panel.image.Position = slot
+				if id ~= 0 then
 					panel.frame.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
 				else
 					local hue = ((k - 1) / math.max(count, 1) + t * 0.08) % 1

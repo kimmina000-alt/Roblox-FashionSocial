@@ -134,13 +134,18 @@ end
 type Shots = { session: string, layout: string, booth: any, people: {any}, shots: {any} }
 
 local state = {
-	stage = "none", -- none | setup | waiting | shooting | picking | frame | result
+	stage = "none", -- none | setup | waiting | shooting | picking | frame | copies | result
 	booth = nil :: Model?,
 	shots = nil :: Shots?,
 	picks = {} :: {number},
 	frame = "white",
 	cameraSaved = false,
+	-- Only the picker (the host) chooses shots and frame; the others watch
+	-- (user, 2026-10-22). Updated from the booth's "Picker" attribute.
+	isPicker = false,
+	pickerName = "",
 }
+local PhotoCopiesPanel = require(script.Parent:WaitForChild("PhotoCopiesPanel"))
 
 -- Centred box for pick / frame / result / album (user, 2026-10-20: not full
 -- screen; about the size of the minimized catalog, clear of the hotbar).
@@ -753,8 +758,20 @@ local function refreshPickBadges()
 		local stroke = pickCells[index]:FindFirstChildOfClass("UIStroke")
 		if stroke then stroke.Transparency = if order then 0 else 1 end
 	end
-	pickTitle.Text = string.format("사진을 골라주세요! (%d/%d)", #state.picks, PhotoConfig.PickCount)
+	if state.isPicker then
+		pickTitle.Text = string.format("사진을 골라주세요! (%d/%d)", #state.picks, PhotoConfig.PickCount)
+	else
+		pickTitle.Text = string.format("%s님이 사진을 고르는 중… (%d/%d)", state.pickerName, #state.picks, PhotoConfig.PickCount)
+	end
+	pickDone.Visible = state.isPicker
 	pickDone.BackgroundColor3 = if #state.picks == PhotoConfig.PickCount then COLORS.yellow else COLORS.card
+end
+
+-- The picker's every change goes to the others (they watch live).
+local function sendPick()
+	if not state.isPicker then return end
+	local stage = if state.stage == "frame" then "frame" else "picking"
+	task.spawn(invoke, "PickUpdate", { picks = state.picks, frame = state.frame, stage = stage })
 end
 
 local function newPreview()
@@ -764,7 +781,19 @@ local function newPreview()
 	previewStrip = PhotoRender.newStrip(pickPreview, shots.layout, state.frame, "FASHION SOCIAL · " .. os.date("%Y.%m.%d"))
 end
 
+-- Who picks (booth attribute "Picker"). Returns true when my role changed.
+local function refreshPickerRole(): boolean
+	local booth = state.booth
+	local id = booth and booth:GetAttribute("Picker")
+	local was = state.isPicker
+	state.isPicker = id == player.UserId
+	local picker = if typeof(id) == "number" then Players:GetPlayerByUserId(id) else nil
+	state.pickerName = if picker then picker.DisplayName else "호스트"
+	return was ~= state.isPicker
+end
+
 local function openPick(shots: Shots)
+	refreshPickerRole()
 	state.shots = shots
 	state.picks = {}
 	state.frame = "white"
@@ -803,6 +832,10 @@ local function openPick(shots: Shots)
 		}, cell)
 		hit.MouseButton1Click:Connect(function()
 			if state.stage ~= "picking" then return end
+			if not state.isPicker then
+				toast(state.pickerName .. "님이 고르고 있어요. 함께 구경해요!")
+				return
+			end
 			local at = table.find(state.picks, index)
 			if at then
 				table.remove(state.picks, at)
@@ -814,6 +847,7 @@ local function openPick(shots: Shots)
 			end
 			refreshPickBadges()
 			refreshPreview()
+			sendPick()
 		end)
 		table.insert(pickCells, cell)
 		table.insert(pickBadges, badge)
@@ -865,7 +899,7 @@ local function refreshSaveButton()
 			else string.format("프레임 팩 R$%d", MonetizationConfig.GamePasses.FramePack.price)
 		pickDone.BackgroundColor3 = if info.price == "coins" then Color3.fromRGB(230, 170, 40) else Color3.fromRGB(0, 176, 111)
 	else
-		pickDone.Text = "저장"
+		pickDone.Text = "선택 완료"
 		pickDone.BackgroundColor3 = COLORS.yellow
 	end
 end
@@ -892,10 +926,12 @@ local function renderSwatches()
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
 			}, swatch)
 			swatch.MouseButton1Click:Connect(function()
+				if not state.isPicker then return end
 				state.frame = info.key
 				if previewStrip then previewStrip.setColor(info.key) end
 				renderSwatches()
 				refreshSaveButton()
+				sendPick()
 			end)
 		end
 	end
@@ -922,7 +958,8 @@ local function openFrameStep()
 	state.stage = "frame"
 	pickGrid.Visible = false
 	frameArea.Visible = true
-	pickTitle.Text = "프레임을 선택하세요!"
+	pickTitle.Text = if state.isPicker then "프레임을 선택하세요!" else state.pickerName .. "님이 프레임을 고르는 중…"
+	pickDone.Visible = state.isPicker
 	renderSwatches()
 	refreshSaveButton()
 end
@@ -1034,6 +1071,7 @@ pickDone.MouseButton1Click:Connect(function()
 			return
 		end
 		openFrameStep()
+		sendPick()
 	elseif state.stage == "frame" then
 		local info = PhotoConfig.findFrame(state.frame)
 		if info and not ownsFrame(info) then
@@ -1055,18 +1093,50 @@ pickDone.MouseButton1Click:Connect(function()
 				return
 			end
 		end
-		pickDone.Text = "저장 중..."
+		-- Done picking: everyone moves on to "몇 장 저장할까요?" ("Copies").
+		pickDone.Text = "잠시만요..."
 		pickDone:SetAttribute("Saving", true)
-		local ok, saved = invoke("Save", { picks = state.picks, frame = state.frame })
+		local ok, message = invoke("Confirm", { picks = state.picks, frame = state.frame, stage = "frame" })
 		pickDone:SetAttribute("Saving", nil)
-		pickDone.Text = "저장"
+		if not ok then
+			pickDone.Text = "선택 완료"
+			toast(message)
+		end
+	end
+end)
+
+-- "몇 장 저장할까요?" for everyone (the final shots and frame from the picker).
+local function openCopies(info: any)
+	state.stage = "copies"
+	if typeof(info.picks) == "table" then state.picks = info.picks end
+	if typeof(info.frame) == "string" then
+		state.frame = info.frame
+		if previewStrip then previewStrip.setColor(info.frame) end
+	end
+	refreshPreview()
+	pickGrid.Visible = false
+	frameArea.Visible = true
+	pickDone.Visible = false
+	pickTitle.Text = "사진 완성!"
+	for _, child in ipairs(frameArea:GetChildren()) do
+		if child:IsA("GuiObject") and child.Name ~= "CopiesPanel" then child.Visible = false end
+	end
+	PhotoCopiesPanel.open(frameArea, { free = info.free or 1, price = info.price or 0, max = info.max or 1 }, 13, function(count)
+		pickDone:SetAttribute("Saving", true)
+		local ok, saved = invoke("SaveCopies", count)
+		pickDone:SetAttribute("Saving", nil)
 		if ok then
+			local panel = frameArea:FindFirstChild("CopiesPanel")
+			if panel then panel:Destroy() end
+			for _, child in ipairs(frameArea:GetChildren()) do
+				if child:IsA("GuiObject") then child.Visible = true end
+			end
 			showResult(saved)
 		else
 			toast(saved)
 		end
-	end
-end)
+	end)
+end
 
 --------------------------------------------------
 -- Album (📷)
@@ -1319,20 +1389,31 @@ local function update()
 		if state.stage == "picking" or state.stage == "frame" then
 			local left = math.max(0, math.ceil((booth :: Model):GetAttribute("WaitUntil") - workspace:GetServerTimeNow()))
 			pickTimer.Text = string.format("남은 시간 %d초", left)
+			-- The host left: the next person takes over picking.
+			if refreshPickerRole() then
+				refreshPickBadges()
+				if state.stage == "frame" then openFrameStep() end
+			end
+		end
+	elseif phase == "copies" then
+		waitBar.Visible = false
+		if state.stage == "copies" then
+			local left = math.max(0, math.ceil((booth :: Model):GetAttribute("WaitUntil") - workspace:GetServerTimeNow()))
+			pickTimer.Text = string.format("남은 시간 %d초 · 시간이 지나면 1장(무료)만 저장돼요", left)
 		end
 	else
 		-- No session (or it just ended). A pick/frame screen whose session is
 		-- gone (time ran out, or "Ended" was missed) closes too, unless a save
 		-- is on its way.
 		if state.stage == "waiting" or state.stage == "shooting"
-			or ((state.stage == "picking" or state.stage == "frame") and not pickDone:GetAttribute("Saving")) then
+			or ((state.stage == "picking" or state.stage == "frame" or state.stage == "copies") and not pickDone:GetAttribute("Saving")) then
 			closeAllFlow()
 		end
 	end
 end
 
 RunService.Heartbeat:Connect(function()
-	if state.stage == "waiting" or state.stage == "shooting" or state.stage == "picking" or state.stage == "frame" or myBooth() then
+	if state.stage == "waiting" or state.stage == "shooting" or state.stage == "picking" or state.stage == "frame" or state.stage == "copies" or myBooth() then
 		update()
 	end
 end)
@@ -1351,6 +1432,29 @@ boothEvent.OnClientEvent:Connect(function(kind: any, value: any)
 		flashShot()
 	elseif kind == "Shots" and typeof(value) == "table" then
 		openPick(value)
+	elseif kind == "PickState" and typeof(value) == "table" and state.shots then
+		-- Watching the picker live.
+		refreshPickerRole()
+		if state.isPicker then return end
+		state.picks = if typeof(value.picks) == "table" then value.picks else {}
+		if typeof(value.frame) == "string" then
+			state.frame = value.frame
+			if previewStrip then previewStrip.setColor(value.frame) end
+		end
+		if value.stage == "frame" and state.stage == "picking" then
+			openFrameStep()
+		elseif value.stage ~= "frame" and state.stage == "frame" then
+			state.stage = "picking"
+			pickGrid.Visible = true
+			frameArea.Visible = false
+		end
+		if state.stage == "frame" then renderSwatches() end
+		refreshPickBadges()
+		refreshPreview()
+	elseif kind == "Copies" and typeof(value) == "table" then
+		openCopies(value)
+	elseif kind == "AutoSaved" then
+		if state.stage ~= "result" then showResult(value) end
 	elseif kind == "Ended" then
 		-- A saved result stays on screen; anything else closes.
 		if state.stage ~= "result" and state.stage ~= "none" then
