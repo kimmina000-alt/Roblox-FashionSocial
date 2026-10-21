@@ -1,3 +1,8 @@
+## 2026-10-22 (3) — Booth host picking + copies, live front pillars, ride fixes
+- PhotoBoothService: picker, PickUpdate/Confirm/SaveCopies, "copies" phase, auto-save 1 copy; PhotoConfig CopySeconds/MaxCopies/ExtraCopyCoins.
+- PhotoBoothController: watch mode, copies step; new PhotoCopiesPanel module.
+- ClubLightsController: front-facing copy, scrolling panels, id ~= 0. ParkRidesController: per-frame motion, V zoom fix, stop when the server clears the seat. ParkRideService: Leave "home". HudController: 🏠 leaves rides first.
+
 ## 2026-10-22 (2) — Beach, cafes, hanok village, XP, fixes
 - New: NameTagService (XP tag), SnackConfig/SnackService/SnackController + remotes Snack/SnackNotify, ParkConfig.floatCFrame + FloatTube rides.
 - Changed: EconomyService (+1 XP per minute), PlayerDataService (wallet.xp), ClubScreenService (30 s, immediate switch), ParkRidesController (E / V keys, tubes, floating decorations), ParkRideService (tubes).

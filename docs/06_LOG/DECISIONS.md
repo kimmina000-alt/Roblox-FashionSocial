@@ -244,3 +244,9 @@ D-076 — Shared snack/cafe system (SnackConfig/Service/Controller): counter pro
 D-077 — Hanok village graybox from the user's references: flower walls, gate with cherry trees, stone alley, lotus pond with pavilion and arched bridge, fusion OHU 한옥카페 with persimmon courtyard, window-frame spot, stone-stair alley to a hill lookout (2026-10-22). HANOK_VILLAGE.md.
 
 D-078 — XP: +1 per minute online, shown with the nickname above the head (2026-10-22). ECONOMY.md §6.
+
+D-079 — 인생네컷: the host alone picks the 4 shots and the frame, others watch live; then everyone chooses copies (1 free, 💰20 each after, max 5) (2026-10-22). PHOTO_BOOTH.md §12.
+
+D-080 — LED pillars show the live avatar from the front (camera-like), the picture scrolling around the pillar; Studio's negative test ids count as players (2026-10-22). CLUB.md §19.
+
+D-081 — The 🏠 button may take a rider off the ferris wheel (or any ride) at any height (2026-10-22).

@@ -424,3 +424,16 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 ### Checks (Studio, 1 player)
 - [x] XP tag (0 → 3 after 3 min), VIP wall → stair → 2F walk (with pass), swimming state in the sea, tube ride with E, ice cream purchase (22 → 7 coins) and eating, cafe order → sit on a window stool → drink, hanok village and cafe screenshots.
 - [ ] Two-player pillar test with different outfits (needs a new 2-player session).
+
+## 2026-10-22 (3) — Photo booth host picking + copies, live front pillars, ride fixes
+
+### Done
+- Photo booth: host-only picking with live watching, copies step (D-079).
+- Pillars: front-facing live copy, scrolling around, negative-id fix (D-080, ISSUE-CLUB-009).
+- Rides every frame, V back to 3rd person, 🏠 leaves rides (D-081, ISSUE-PARK-004).
+
+### Checks (Studio, 1 player)
+- [x] Solo booth: pick 4 → frame → "몇 장 저장할까요?" → 2 copies saved (album 2, −20 coins, +15 award).
+- [x] Pillar shows my face (front) live while dancing.
+- [x] Ferris wheel: board, V → LockFirstPerson, V → Classic; 🏠 → spawn, seat cleared.
+- [ ] 2 players: watching the host pick live; pillars alternating between the two players (needs a new 2-player session).

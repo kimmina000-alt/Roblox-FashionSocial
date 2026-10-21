@@ -254,3 +254,12 @@ LockFirstPerson locks the mouse, so the 3인칭 button could not be clicked. Fix
 
 ### ISSUE-CLUB-001 (update 2026-10-22) — Two-player pillar test still to do
 Pillar rotation is now 30 s, random order, immediate switch when the shown player leaves. The two-player check (different outfits, both appear in turn) waits for a new 2-player test session: the running one used old code and could not be stopped from MCP.
+
+### ISSUE-CLUB-009 — Pillars empty in the 2-player test (fixed 2026-10-22)
+Studio test players have negative user ids; ClubLightsController treated only ids > 0 as players. Fixed (id ~= 0). Pillar now faces the camera and scrolls. Two-player visual check still to do in a new 2-player session.
+
+### ISSUE-PARK-004 — Rides jerky, V did not return to 3rd person (fixed 2026-10-22)
+Rides moved at 30 Hz while riders moved every frame → both every frame. Camera stayed zoomed in after Classic → push min zoom out briefly. Verified V on/off values in Studio.
+
+### ISSUE-STUDIO-003 — Studio 3D view white after an MCP reconnect (open)
+After a long execute_luau timed out and MCP reconnected, the play view rendered white (GUI only). Code unaffected; restart the play test.
