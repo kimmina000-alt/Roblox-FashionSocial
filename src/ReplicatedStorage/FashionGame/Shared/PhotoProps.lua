@@ -140,6 +140,37 @@ function PhotoProps.build(key: string, lift: number?): Accessory?
 	return accessory
 end
 
+-- Puts a prop on a rig that is not in Workspace (PhotoRender's WorldModel).
+-- Humanoid:AddAccessory only welds inside Workspace, so in a saved photo the
+-- prop stayed at the stand origin, in the middle of the picture (user report
+-- 2026-10-22). Here the weld is made by hand from the matching attachments.
+function PhotoProps.wear(rig: Model, accessory: Accessory)
+	local handle = accessory:FindFirstChild("Handle") :: BasePart?
+	if not handle then return end
+	local handleAttachment = handle:FindFirstChildOfClass("Attachment")
+	local bodyAttachment: Attachment? = nil
+	if handleAttachment then
+		for _, descendant in ipairs(rig:GetDescendants()) do
+			if descendant:IsA("Attachment") and descendant.Name == handleAttachment.Name
+				and descendant.Parent and descendant.Parent:IsA("BasePart") and descendant.Parent.Parent == rig then
+				bodyAttachment = descendant
+				break
+			end
+		end
+	end
+	accessory.Parent = rig
+	if not handleAttachment or not bodyAttachment then return end
+	local bodyPart = bodyAttachment.Parent :: BasePart
+	handle.CFrame = bodyAttachment.WorldCFrame * handleAttachment.CFrame:Inverse()
+	local weld = Instance.new("Weld")
+	weld.Name = "AccessoryWeld"
+	weld.Part0 = handle
+	weld.Part1 = bodyPart
+	weld.C0 = handleAttachment.CFrame
+	weld.C1 = bodyAttachment.CFrame
+	weld.Parent = handle
+end
+
 -- Prop keys currently worn by a character.
 function PhotoProps.worn(character: Model): {string}
 	local keys = {}

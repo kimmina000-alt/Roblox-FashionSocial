@@ -1,49 +1,38 @@
-# Economy — in-game coins 🪙 (D-064, proposal 2026-10-21)
+# Economy — 코인 💰 (v2 1차 테스트안, 사용자 결정 2026-10-22, D-074)
 
-Numbers live in `src/ReplicatedStorage/FashionGame/Shared/EconomyConfig.lua`
-(earning) and in `PhotoConfig.Frames[].coins` / `ClubConfig.Drinks[].coins`
-(prices). Code: `EconomyService` (server), wallet in `PlayerDataService`
-(`data.wallet = { coins, frames, slots, daily }`), HUD pill in `HudController`.
+> v1(D-064, 2026-10-21: 활동형 적립 + 하루 상한)은 아래 v2로 바뀐다. **코드는 아직 v1** (`EconomyConfig.lua`, `EconomyService`) — v2 적용은 다음 작업.
 
-## 1. Model (user, 2026-10-20)
-"Time spent earns a little; activities earn more." One soft currency: 코인.
+## 1. 1차 테스트안
+| 항목 | 1차 테스트안 |
+|---|---|
+| 체류 적립 | **접속 1분당 1코인** |
+| 활동 여부 | **무관** (움직이지 않아도 적립) |
+| 첫 접속 보너스 | **제거** |
+| 사진·춤·포토월 코인 보상 | **일단 비활성화** |
+| 일일 적립 상한 | **우선 추가하지 않음** |
+| 무료 아바타·무료 음료 | 유지 |
+| 프리미엄 소비처 | 소수만 유지 |
 
-| Source | Amount | Daily cap |
+## 2. 누적 XP와 소비용 잔액을 분리 (B안)
+- **닉네임 위 숫자 = 누적 XP:** 플레이 시간에 따라 계속 늘어나기만 한다 (쓰지 않음). 플레이 시간이 쌓였다는 걸 보여 주고 다른 사람과 비교할 수 있다.
+- **코인 잔액 = 소비용:** 일부 장식 아이템이나 음료를 고를 때 쓰는 부수적인 재화. 아이템을 사면 이 잔액에서만 줄고 XP는 그대로다.
+- 둘 다 1분당 1씩 오른다 (같은 시계, 다른 칸). 데이터: `wallet.coins`(잔액) + 새 `wallet.xp`(누적).
+
+## 3. 테스트용 가격표
+| 아이템 유형 | 테스트 가격 | 모으는 시간 |
 |---|---|---|
-| Passive, while active (moved or danced in the last 3 min) | 2 / min | 120 min at 2, then 1 / min |
-| 오늘 첫 접속 | 20 | 1 |
-| 인생네컷 저장 | 15 | 5 (then 3) |
-| 친구와 함께 찍기 (2+ people in the photo) | +10 | 5 |
-| 클럽에서 5분 춤 | 5 | 12 |
-| 포토월에 사진 붙이기 | 5 | 3 |
+| 기본 유료 색상 프레임 (그레이 등) | 30~60 | 30~60분 |
+| 파스텔 프레임 | 60~120 | 1~2시간 |
+| 프리미엄 음료 (환타 등) | 120~180 | 2~3시간 |
 
-AFK players earn nothing (no movement or dance for 3 min).
+글로시/반짝이 프레임, 앨범 +10칸은 지금처럼 Robux 전용 (MONETIZATION.md).
 
-## 2. Typical day
-| Player | Play | Coins/day |
-|---|---|---|
-| Light | 15 min, 1 photo | 30 + 20 + 15 ≈ **65** |
-| Normal | 40 min, 2 photos (1 group), 10 min dancing | 80 + 20 + 30 + 10 + 10 ≈ **150** |
-| Heavy | 2 h, 5 photos, 30 min dancing, 3 wall posts | 240 + 20 + 75 + 30 + 30 + 15 ≈ **410** |
+## 4. 적용할 때 바꿀 코드 (다음 작업)
+- `EconomyConfig`: 분당 1, 활동 조건 끔, 첫 접속·사진·춤·포토월 보상 0, 상한 없음.
+- `EconomyService`: 1분 타이머가 활동 여부와 상관없이 +1 (coins, xp).
+- 닉네임 위 XP 표시 (이름표 BillboardGui).
+- 가격: `PhotoConfig.Frames[].coins`, `ClubConfig.Drinks[].coins`를 위 표 범위로.
 
-Hard ceiling per day ≈ 240 + 120 × 1 (4 h) + bonuses ≈ 600.
-
-## 3. Prices (sinks)
-| Item | Price | Normal player needs |
-|---|---|---|
-| 블랙 / 화이트 frame | free | — |
-| 그레이 frame | 120 | < 1 day |
-| Pastel frame (핑크·하늘·민트·레몬·라일락) | 200 each | ~1.3 days each, all 5 ≈ 1 week |
-| 글로시 / 반짝이 frames | Robux only: Frame Pack Game Pass 99 R$ | — |
-| 환타 (paid drink) | 6 R$ **or** 300 coins | 2 days |
-| Album +10 slots (first 10 free) | Robux only: 25 R$ product | — |
-
-## 4. Why these numbers
-- **First unlock on day 1** (gray 120) keeps new players interested; pastels are a 1-week goal.
-- **Drinks are deliberately expensive in coins** (300 = 2 days) so the 6 R$ option stays attractive (user request). A bottle is a consumable (6 cups), so the coin price works as a sink and stops inflation.
-- **Premium looks (gloss/glitter) are Robux-only**, so coins never replace paid items.
-- Balance cap 99,999. Add new sinks (stickers, props, poses, wall highlights) before raising income.
-
-## 5. Open
-- Tune after real play data (average session length, coins at day 7).
-- Product/Pass IDs are still 0 (ISSUE-SHOP-001): FramePack, AlbumSlots, VIP, DJ, Drink_Fanta.
+## 5. 열린 문제
+- 방치(AFK) 적립을 허용하므로, 카페 알바(CAFE.md §9) 같은 활동 보상과의 균형을 다시 본다 — 알바 보류 이유.
+- 실제 플레이 데이터(평균 세션, 7일차 잔액)로 가격 재조정.

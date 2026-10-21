@@ -216,3 +216,23 @@ Top bar 📸 → 사진 / 동영상, using CaptureService (TakeScreenshotCapture
 
 D-068 — Cafe part-time job (2026-10-21, proposed, waiting for the user).
 Short drink-making mini-game for players at the cafe counter; 6 coins per order, 15 a day at full pay; no authority over other players. See CAFE.md.
+
+D-068 (update 2026-10-22) — Cafe part-time job: planned only, on hold (user). Reward draft: serve 4, clear table 2, 60 a day; replaces the 2026-10-21 proposal. Waits for the economy v2 balance. CAFE.md §9.
+
+D-069 — Club rev4 layout from the user's 1F/2F plans (2026-10-22).
+Hall level = 1F. Hall door in the middle of the corridor; the corridor ends at a red see-through VIP wall (neon VIP sign, same gate/purchase logic) with the VIP stair behind it; 2F is only the VIP U; centre, DJ zone and pillars open to the ceiling; south-west lounge → table zone; DJ deck turned to face the DJ; white chevron neon stairs. CLUB.md §17.
+
+D-070 — LED pillars: two, floor to ceiling, twice as thick, live avatar (2026-10-22).
+Panels show a live copy of the shown player (pose copied every frame). SurfaceGuis holding ViewportFrames live in PlayerGui (Adornee), because under a Workspace part they are not drawn.
+
+D-071 — PARK rides on the shared clock (2026-10-22).
+Ferris wheel (2 per gondola, board/leave near the bottom, 1st-person button), carousel (ride any horse), swings (+/− speed 0..5, max 35°), spring riders, slide (auto slide, "야호!"). Rides move on every client from GetServerTimeNow; the server only keeps seats. Open gondolas (no closed rooms). PARK.md §8.
+
+D-072 — Three cafes with shared systems (2026-10-22).
+Glasshouse (first, full test), Hanok fusion cafe, Sunset Beach kiosk. Shared order/seat/photo/job/building modules; differences are look, menu, mood. CAFE.md §8.
+
+D-073 — Game name 오후 · OHU (2026-10-22).
+OHU PHOTO / OHU CLUB / OHU CAFE; OHU as the shop name on signs. VISION.md.
+
+D-074 — Economy v2 first test (2026-10-22).
+1 coin per minute online regardless of activity, no first-login bonus, photo/dance/wall rewards off, no daily cap; XP (never spent, shown above the name) separate from the coin balance; test prices 30–60 / 60–120 / 120–180. Code still v1. ECONOMY.md.

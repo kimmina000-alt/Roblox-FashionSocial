@@ -23,7 +23,9 @@ local PhotoProps = require(Shared:WaitForChild("PhotoProps"))
 
 local PhotoRender = {}
 
-local FOV = 50
+-- 40 with the level booth camera (2026-10-22): people fill more of the cut;
+-- four people side by side (2.8 studs apart) still fit.
+local FOV = 40
 PhotoRender.FieldOfView = FOV
 
 -- Hidden place where dressed templates are built (ApplyDescription needs the
@@ -152,7 +154,7 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 				local lift = PhotoProps.liftFor(rig)
 				for _, key in ipairs(entry.p or {}) do
 					local accessory = PhotoProps.build(key, lift)
-					if accessory then pcall(function() humanoid:AddAccessory(accessory) end) end
+					if accessory then PhotoProps.wear(rig, accessory) end
 				end
 				local animator = humanoid:FindFirstChildOfClass("Animator")
 				local animation = typeof(entry.k) == "string" and animationFor(entry.k)

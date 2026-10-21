@@ -1,3 +1,10 @@
+## 2026-10-22 — Club rev4, live LED pillars, PARK rides, photo booth fixes
+- Graybox 02_Club rev4 (VIP wall in the corridor, VIP stair, mid-corridor hall door, 2F VIP U, table zone, DJ deck 180°, chevron stairs, 2 tall LED pillars); 06_Park_Playground rides; booth CameraPoint level. `cyl()` no longer mutates the shared option table.
+- ClubLightsController: live avatar on the pillar panels (ViewportFrame copies, SurfaceGuis in PlayerGui).
+- PhotoProps.wear (manual accessory weld), PhotoRender uses it, FOV 40; PhotoWallController SurfaceGui in PlayerGui, no rotation.
+- New ParkConfig, ParkRideService, ParkRidesController, remotes ParkRide (RemoteFunction) and ParkNotify (RemoteEvent); ServerMain starts ParkRideService.
+- Docs: see WORKLOG 2026-10-22.
+
 ## 2026-10-21 (2) — Props fix, 📸 capture, Fashion Week Backstage
 - PhotoProps: Welds instead of WeldConstraints (props were invisible), `liftFor` lifts hat props above hair; PhotoBoothService/PhotoRender pass the lift.
 - PhotoBoothController: other ScreenGuis hidden while shooting; album button 🖼.

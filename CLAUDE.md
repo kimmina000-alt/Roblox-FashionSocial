@@ -7,21 +7,23 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - Rojo project: `catalog-ui-redesign.project.json` (maps `src/` only). Run `rojo serve catalog-ui-redesign.project.json` and connect the Rojo plugin in Studio, so code syncs automatically (no pasting code into Studio).
 - Workspace geometry is not in Rojo. The map is rebuilt from `tools/graybox/build_main_social_graybox.lua` (run in the Studio command bar / MCP in Edit mode). Change the script first, then run it.
 - Studio MCP: `execute_luau` from the command bar `require`s a separate copy of ModuleScripts. Test through remotes from the Client datamodel instead.
+- Sync without Rojo (2026-10-22): serve the scratchpad with a small PowerShell HttpListener on localhost:8765, then in Edit mode switch `HttpService.HttpEnabled` on, `GetAsync` the file, `ScriptEditorService:UpdateSourceAsync` (or `loadstring` a graybox zone), and switch it back off. Much cheaper than pasting code into tool calls.
 
-## Where things stand (2026-10-21)
+## Where things stand (2026-10-22)
 - Merged in `catalog-ui-redesign`: catalog, avatar editor, wardrobe, QA pass, graybox layout C.
 - Not merged (stacked, waiting for the user's play test):
   - `feat/club-mvp-stage4` → `feat/club-vip-dj-drinks` → `feat/photobooth-club2` (latest; includes everything).
 - `feat/photobooth-club2` has the 2026-10-20 night batch (WORKLOG): photo booth fixes, coins (ECONOMY.md), club rev3 (D-065), DJ OK/NO window, lasers, LED pillars, 🏠 button. Play-tested 2026-10-21 with server + 2 players (ISSUE-PHOTO-002, CLUB-001): passes, small fixes made. Docs lost by the branch split were restored from `fb478f3`.
 - The saved Studio place (`로블록스-패션소셜.rbxl`) has this code and the two-floor club. Rojo plugin is not connected: check script lengths against the files before testing.
 - 2026-10-21 (2): props fix (ISSUE-PHOTO-003), 📸 photo/video capture button (D-067), Fashion Week Backstage in the graybox (D-066), PERFORMANCE.md. Cafe part-time job is a proposal waiting for the user (D-068, CAFE.md).
-- Open items: phone layout of the new boxes, real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001).
+- 2026-10-22: photo booth fixes (front camera, props in saved cuts, photo wall), club rev4 from the user's 1F/2F plans (D-069), live LED pillars (D-070), PARK rides (D-071), planning docs: 3 cafes (D-072), 알바 on hold (D-068), OHU name (D-073), economy v2 doc (D-074, code still v1), PROP_SHOP.md, street buildings.
+- Open items: two-player ride/pillar test, phone layout of the new boxes and ride buttons, real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip.
 - Next: test + fix the batch → 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9).
-- Start of next session: check that `feat/photobooth-club2` is pushed (push from this machine fails without credentials; the user pushes via GitHub Desktop) and that the Studio place was saved with the backstage. Ask the user to check the props and the 📸 button, and whether to build the cafe job (D-068).
+- Start of next session: check that `feat/photobooth-club2` is pushed (push from this machine fails without credentials; the user pushes via GitHub Desktop) and that the Studio place was saved (club rev4 + park rides are in Workspace only). Ask whether to apply economy v2 in code.
 
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
-- `docs/06_LOG/DECISIONS.md`: D-001 to D-068.
+- `docs/06_LOG/DECISIONS.md`: D-001 to D-074.
 - `docs/06_LOG/ISSUES.md`, `WORKLOG.md`, `CHANGELOG.md`.
 - `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`.
 - `docs/02_WORLDS/MAIN_SOCIAL_LAYOUT_PROPOSAL.md`, `CLUB_AREA.md`.
@@ -32,3 +34,6 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - Avatar shoulder `Motor6D.C0` is read-only on current avatars. Animate with tools or animations instead.
 - Humanoids do not climb 1.5–2 stud steps reliably. Use invisible wedge ramps.
 - ProximityPrompts only show when they are on screen.
+- A ViewportFrame inside a SurfaceGui parented to a Workspace part is not drawn: parent the SurfaceGui to PlayerGui and set Adornee. ViewportFrames also do not support Rotation.
+- Humanoid:AddAccessory only welds in Workspace; for rigs in a WorldModel weld by hand (PhotoProps.wear).
+- Keep angles small before CFrame.Angles (single precision): use (t / period) % 1 with the server clock.

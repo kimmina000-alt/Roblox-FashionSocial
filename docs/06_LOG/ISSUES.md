@@ -233,3 +233,15 @@ Roblox Seats seat a character that touches them; walking into a table stool sits
 
 ### ISSUE-PHOTO-003 — 인생네컷 props invisible on the avatar (fixed 2026-10-21)
 User report with screenshot: 왕관/선글라스/하트 안경 buttons were on but nothing showed. Cause: each prop's pieces were joined with WeldConstraints created before the accessory was in the world, so the pieces stayed where they were built (~94 studs from the head); only the invisible handle followed the head. The 2026-10-21 test only checked that the accessory existed and the saved-photo render, not the live avatar — that check was wrong. Fix: classic Welds with a fixed C0 offset; hat props are also lifted above big hair (PhotoProps.liftFor, used for the live avatar and the saved photo). Verified in Studio: all pieces on the head, crown visible above fluffy hair, sunglasses on the face. Also: other menus (e.g. the catalog editor) are hidden while the shooting screen is up.
+
+### ISSUE-PHOTO-004 — Saved cut: props in the middle of the picture (fixed 2026-10-22)
+User report: props are worn while shooting, but in the finished cuts they sit fixed in the centre. Cause: PhotoRender put props on with Humanoid:AddAccessory, which only welds inside Workspace; the rig is in a WorldModel, so the prop stayed at the stand origin. Fix: `PhotoProps.wear` welds the handle to the matching body attachment by hand. Verified in Studio (crown on the hair, sunglasses on the face).
+
+### ISSUE-PHOTO-005 — Photo wall shows empty strips (fixed 2026-10-22)
+Cause: the wall's SurfaceGui (with the photo ViewportFrames) was parented to the wall part; ViewportFrames there are not drawn. Also the photos were rotated, which ViewportFrames do not support. Fix: SurfaceGui in PlayerGui with Adornee = wall, no rotation. Verified: all four cuts visible. Same cause made the live LED pillar avatars invisible at first (fixed the same way).
+
+### ISSUE-PARK-001 — Ferris wheel cabins frozen (fixed 2026-10-22)
+Angles built from the server clock (~1.8e9 s) were huge; CFrame.Angles is single precision, so every cabin landed on the same spot. Fix: keep angles in 0..2π (ParkConfig).
+
+### ISSUE-PARK-002 — Open: two-player ride test, phone buttons, "야호" voice clip
+Single-player Studio test passed for all five rides (board, ride, leave, swing +/−, slide + 야호). Still to check: two people in one gondola / seeing other riders, button positions on a phone, choosing a licensed voice clip.

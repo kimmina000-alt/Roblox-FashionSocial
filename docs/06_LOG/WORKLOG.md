@@ -396,3 +396,19 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 - [x] 📸 menu opens under the top bar; 사진 runs without errors (Studio shows no Roblox save prompt — check on a device).
 - [x] Backstage: walk 13.1 s from spawn, sign visible from spawn.
 - [ ] 🎥 video on a real device; prop buttons highlight after server-side changes (only refresh on tap).
+
+## 2026-10-22 — Photo booth fixes, club rev4, live LED pillars, PARK rides, planning docs
+
+### Done
+- Photo booth: straight front camera (level, FOV 40); props in saved cuts welded to the body (ISSUE-PHOTO-004); photo wall draws the cuts (ISSUE-PHOTO-005).
+- Club rev4 from the user's 1F/2F plans (D-069): VIP wall in the corridor (red glass + neon VIP, purchase/pass-through as before), VIP stair behind it, hall door in the middle of the corridor, 2F VIP U only, table zone south-west, DJ deck turned 180°, chevron neon stairs.
+- LED pillars: two, floor to ceiling, 2× thick, live avatar copying the player's current pose (D-070).
+- PARK: ferris wheel, carousel, 4 swings, 3 spring riders, slide (D-071) — graybox + ParkConfig/ParkRideService/ParkRidesController.
+- Docs: CAFE §8–9 (3 cafes, 알바 on hold), DEVELOPMENT_ORDER, PROP_SHOP.md (new), CITY_STREET §7, VISION (OHU), ECONOMY v2 (doc only), PARK §8, CLUB §17, PHOTO_BOOTH §11, PERFORMANCE §5, D-068 update, D-069–D-074.
+- Studio sync without Rojo: a local HTTP server in the scratchpad + `HttpService:GetAsync` + `ScriptEditorService:UpdateSourceAsync` (HttpEnabled switched on only during the call).
+
+### Checks (Studio, 1 player)
+- [x] VIP wall + stair + corridor door (screenshot), pillars live avatar dancing (screenshot).
+- [x] Saved cut with crown + sunglasses in place; wall shows 4 cuts.
+- [x] Ferris wheel board at the bottom, ride up, leave refused away from the bottom; carousel board/leave; swing +/− (4/5); spring rider; slide → 야호.
+- [ ] Two players; phone layout; economy v2 code; VIP pass purchase through the new wall on a real server.

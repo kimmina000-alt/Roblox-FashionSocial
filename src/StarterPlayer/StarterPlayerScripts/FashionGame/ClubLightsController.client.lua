@@ -7,8 +7,8 @@
 --     (attribute ClubLights; nil/true = on). Attribute "AimY" on the emitter
 --     = height of the floor the beams land on.
 --   * Round LED pillars (tag "LEDPillar"): the player chosen by
---     ClubScreenService (ShowUserId / ShowName) is drawn on all panels and
---     turns slowly around the pillar (360°). Idle: a rainbow turning around.
+--     ClubScreenService (ShowUserId / ShowName) is drawn live (current dance /
+--     movement) on the panels and turns slowly (360°). Idle: a rainbow.
 --
 -- Everything here is local: beams and screens cost nothing on the server.
 
@@ -115,29 +115,183 @@ end
 --------------------------------------------------
 -- LED pillars
 --------------------------------------------------
+-- Live avatar (user, 2026-10-22: "show the player's current animation, in
+-- real time"). Each panel holds a ViewportFrame with a copy of the shown
+-- player's character; every update the copy's parts are moved to the real
+-- character's pose (relative to its root), so dances and walking show live.
+-- The panels are slices of one wide picture that wraps half the pillar (the
+-- avatar is shown twice around, so it is visible from any side) and the
+-- avatar turns slowly for a 360° view. Back-facing panels are not updated.
+-- When the character is not loaded here (streaming), the avatar thumbnail is
+-- shown instead.
+
+local Players = game:GetService("Players")
 
 local IMAGE_SIZE = 420
 -- The middle half of the square avatar thumbnail keeps the body proportions.
 local CROP_X0, CROP_W = 105, 210
-local TURN_SPEED = 0.6 -- panels per second
+local TURN_SPEED = 0.45 -- radians per second
+local VIEW_FOV = 30
 
+type Panel = {
+	part: BasePart,
+	frame: Frame,
+	image: ImageLabel,
+	viewport: ViewportFrame,
+	camera: Camera,
+	clone: Model?,
+	parts: {BasePart},
+}
 type Pillar = {
 	model: Model,
-	panels: {{ frame: Frame, a: ImageLabel, b: ImageLabel }},
+	panels: {Panel},
 	nameLabel: TextLabel?,
 	center: Vector3,
 	showing: number,
+	source: Model?,
+	sourceParts: {BasePart},
 }
 local pillars: {Pillar} = {}
 
-local function portraitLabel(parent: Instance): ImageLabel
+-- "Accessory/Handle"-style path of a part inside its model.
+local function pathOf(part: Instance, model: Instance): string
+	local names = {}
+	local node: Instance? = part
+	while node and node ~= model do
+		table.insert(names, 1, node.Name)
+		node = node.Parent
+	end
+	return table.concat(names, "/")
+end
+
+local function partsByPath(model: Model): {[string]: BasePart}
+	local map = {}
+	for _, descendant in ipairs(model:GetDescendants()) do
+		if descendant:IsA("BasePart") then map[pathOf(descendant, model)] = descendant end
+	end
+	return map
+end
+
+local function clearClones(pillar: Pillar)
+	for _, panel in ipairs(pillar.panels) do
+		if panel.clone then panel.clone:Destroy() end
+		panel.clone = nil
+		panel.parts = {}
+	end
+	pillar.source = nil
+	pillar.sourceParts = {}
+end
+
+-- Copies `character` into every panel. Returns false when it cannot.
+local function buildClones(pillar: Pillar, character: Model): boolean
+	clearClones(pillar)
+	local root = character:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then return false end
+	local wasArchivable = character.Archivable
+	character.Archivable = true
+	local ok, template = pcall(function() return character:Clone() end)
+	character.Archivable = wasArchivable
+	if not ok or not template then return false end
+	for _, descendant in ipairs(template:GetDescendants()) do
+		if descendant:IsA("BaseScript") or descendant:IsA("Sound") or descendant:IsA("ForceField")
+			or descendant:IsA("BillboardGui") or descendant:IsA("ProximityPrompt") or descendant:IsA("Beam") then
+			descendant:Destroy()
+		elseif descendant:IsA("BasePart") then
+			descendant.Anchored = true
+		end
+	end
+	local humanoid = template:FindFirstChildOfClass("Humanoid")
+	if humanoid then humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end
+	-- Pair the real character's parts with the copy's, by path.
+	local templateParts = partsByPath(template)
+	local sourceParts, paths = {}, {}
+	for _, descendant in ipairs(character:GetDescendants()) do
+		if descendant:IsA("BasePart") then
+			local path = pathOf(descendant, character)
+			if templateParts[path] then
+				table.insert(sourceParts, descendant)
+				table.insert(paths, path)
+			end
+		end
+	end
+	-- Camera: fit the standing avatar into the full height of the picture.
+	local size = template:GetExtentsSize()
+	local height = math.max(size.Y, 4)
+	local centerY = template:GetBoundingBox().Position.Y - root.Position.Y
+	local distance = (height * 0.6) / math.tan(math.rad(VIEW_FOV / 2))
+	local cameraCFrame = CFrame.lookAt(Vector3.new(0, centerY, -distance), Vector3.new(0, centerY, 0))
+	for index, panel in ipairs(pillar.panels) do
+		local copy = if index == 1 then template else template:Clone()
+		local map = if index == 1 then templateParts else partsByPath(copy)
+		local list = {}
+		for i, path in ipairs(paths) do list[i] = map[path] end
+		copy.Parent = panel.viewport
+		panel.clone = copy
+		panel.parts = list
+		panel.camera.CFrame = cameraCFrame
+	end
+	pillar.source = character
+	pillar.sourceParts = sourceParts
+	return true
+end
+
+-- Screens live in PlayerGui (Adornee = panel): a ViewportFrame in a
+-- SurfaceGui parented to a Workspace part was not drawn (Studio test
+-- 2026-10-22).
+local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+local screens: {[BasePart]: SurfaceGui} = {}
+
+local function newPanel(part: BasePart, slice: number, repeatPanels: number): Panel
+	local old = screens[part]
+	if old then old:Destroy() end
+	local surface = Instance.new("SurfaceGui")
+	surface.Name = "LEDScreen"
+	surface.ResetOnSpawn = false
+	surface.Face = Enum.NormalId.Front
+	surface.LightInfluence = 0
+	surface.Brightness = 1.3
+	surface.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	surface.PixelsPerStud = 12
+	surface.Adornee = part
+	surface.Parent = playerGui
+	screens[part] = surface
+	-- Gone (rebuilt map, or streamed out): drop the screen with it.
+	part.AncestryChanged:Connect(function()
+		if part:IsDescendantOf(workspace) then return end
+		if screens[part] == surface then screens[part] = nil end
+		surface:Destroy()
+	end)
+	local frame = Instance.new("Frame")
+	frame.Size = UDim2.fromScale(1, 1)
+	frame.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
+	frame.BorderSizePixel = 0
+	frame.ClipsDescendants = true
+	frame.Parent = surface
+	-- This panel shows slice `slice` of a picture `repeatPanels` panels wide.
+	local slot = UDim2.new(-(slice % repeatPanels), 0, 0, 0)
+	local wide = UDim2.new(repeatPanels, 0, 1, 0)
 	local image = Instance.new("ImageLabel")
 	image.BackgroundTransparency = 1
-	image.ScaleType = Enum.ScaleType.Stretch
+	image.ScaleType = Enum.ScaleType.Fit
 	image.ImageRectOffset = Vector2.new(CROP_X0, 0)
 	image.ImageRectSize = Vector2.new(CROP_W, IMAGE_SIZE)
-	image.Parent = parent
-	return image
+	image.Position = slot
+	image.Size = wide
+	image.Visible = false
+	image.Parent = frame
+	local viewport = Instance.new("ViewportFrame")
+	viewport.BackgroundTransparency = 1
+	viewport.Ambient = Color3.fromRGB(200, 190, 220)
+	viewport.LightColor = Color3.fromRGB(255, 255, 255)
+	viewport.LightDirection = Vector3.new(0.3, -0.6, 1)
+	viewport.Position = slot
+	viewport.Size = wide
+	viewport.Parent = frame
+	local camera = Instance.new("Camera")
+	camera.FieldOfView = VIEW_FOV
+	camera.Parent = viewport
+	viewport.CurrentCamera = camera
+	return { part = part, frame = frame, image = image, viewport = viewport, camera = camera, clone = nil, parts = {} }
 end
 
 -- (Re)builds the screens from the panels streamed in so far (StreamingEnabled:
@@ -151,31 +305,16 @@ local function buildPillar(model: Model): Pillar
 		end
 	end
 	table.sort(list, function(x, y) return x.slice < y.slice end)
-	local pillar: Pillar = { model = model, panels = {}, nameLabel = nil, center = Vector3.zero, showing = -1 }
+	local repeatPanels = math.max(1, math.floor(#list / 2))
+	local pillar: Pillar = {
+		model = model, panels = {}, nameLabel = nil, center = Vector3.zero, showing = -1,
+		source = nil, sourceParts = {},
+	}
 	for _, item in ipairs(list) do
-		local old = item.part:FindFirstChild("LEDScreen")
-		if old then old:Destroy() end
+		table.insert(pillar.panels, newPanel(item.part, item.slice, repeatPanels))
 	end
 	local core = model:FindFirstChild("Core")
 	pillar.center = if core and core:IsA("BasePart") then core.Position elseif list[1] then list[1].part.Position else model:GetPivot().Position
-	for _, item in ipairs(list) do
-		local surface = Instance.new("SurfaceGui")
-		surface.Name = "LEDScreen"
-		surface.Face = Enum.NormalId.Front
-		surface.LightInfluence = 0
-		surface.Brightness = 2.5
-		surface.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		surface.PixelsPerStud = 16
-		surface.Adornee = item.part
-		surface.Parent = item.part
-		local frame = Instance.new("Frame")
-		frame.Size = UDim2.fromScale(1, 1)
-		frame.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
-		frame.BorderSizePixel = 0
-		frame.ClipsDescendants = true
-		frame.Parent = surface
-		table.insert(pillar.panels, { frame = frame, a = portraitLabel(frame), b = portraitLabel(frame) })
-	end
 	local anchor = model:FindFirstChild("NameAnchor")
 	if anchor and anchor:IsA("BasePart") then
 		local oldBillboard = anchor:FindFirstChild("PillarName")
@@ -183,7 +322,7 @@ local function buildPillar(model: Model): Pillar
 		local billboard = Instance.new("BillboardGui")
 		billboard.Name = "PillarName"
 		billboard.Size = UDim2.fromOffset(220, 36)
-		billboard.MaxDistance = 180
+		billboard.MaxDistance = 220
 		billboard.LightInfluence = 0
 		billboard.Parent = anchor
 		local label = Instance.new("TextLabel")
@@ -213,8 +352,10 @@ local function addPillar(model: Instance)
 		pending = true
 		task.delay(0.5, function()
 			pending = false
-			local at = table.find(pillars, pillars[index])
-			if at and pillars[at].model == model then pillars[at] = buildPillar(model) end
+			if pillars[index] and pillars[index].model == model then
+				clearClones(pillars[index])
+				pillars[index] = buildPillar(model)
+			end
 		end)
 	end)
 end
@@ -222,44 +363,55 @@ end
 for _, model in ipairs(CollectionService:GetTagged("LEDPillar")) do addPillar(model) end
 CollectionService:GetInstanceAddedSignal("LEDPillar"):Connect(addPillar)
 
+local function setThumbnail(pillar: Pillar, id: number, on: boolean)
+	local image = if id > 0 then string.format("rbxthumb://type=Avatar&id=%d&w=%d&h=%d", id, IMAGE_SIZE, IMAGE_SIZE) else ""
+	for _, panel in ipairs(pillar.panels) do
+		panel.image.Image = image
+		panel.image.Visible = on
+	end
+end
+
 local function updatePillars(t: number)
+	local camera = workspace.CurrentCamera
+	local cameraPosition = if camera then camera.CFrame.Position else Vector3.zero
 	for _, pillar in ipairs(pillars) do
 		if pillar.model.Parent and inRange(pillar.center) then
 			local userId = pillar.model:GetAttribute("ShowUserId")
 			local id = if typeof(userId) == "number" then userId else 0
-			if id ~= pillar.showing then
+			local shownPlayer = if id > 0 then Players:GetPlayerByUserId(id) else nil
+			local character = shownPlayer and shownPlayer.Character
+			if id ~= pillar.showing or (character and character ~= pillar.source) or (not character and pillar.source) then
 				pillar.showing = id
-				local image = if id > 0
-					then string.format("rbxthumb://type=Avatar&id=%d&w=%d&h=%d", id, IMAGE_SIZE, IMAGE_SIZE)
-					else ""
-				for _, panel in ipairs(pillar.panels) do
-					panel.a.Image = image
-					panel.b.Image = image
-					panel.a.Visible = id > 0
-					panel.b.Visible = id > 0
-				end
+				local live = character ~= nil and buildClones(pillar, character)
+				if not live then clearClones(pillar) end
+				setThumbnail(pillar, id, id > 0 and not live)
 				if pillar.nameLabel then
 					local name = pillar.model:GetAttribute("ShowName")
 					pillar.nameLabel.Text = if id > 0 and typeof(name) == "string" then "✨ " .. name else "CLUB · FASHION SOCIAL"
 				end
 			end
-			local count = #pillar.panels
-			if count > 0 then
-				-- The portrait repeats twice around the pillar (visible from any side).
-				local repeatPanels = math.max(1, math.floor(count / 2))
-				local shift = (t * TURN_SPEED) % repeatPanels
-				for k, panel in ipairs(pillar.panels) do
-					if id > 0 then
-						local position = ((k - 1 + shift) % repeatPanels)
-						panel.a.Size = UDim2.new(repeatPanels, 0, 1, 0)
-						panel.b.Size = UDim2.new(repeatPanels, 0, 1, 0)
-						panel.a.Position = UDim2.new(-position, 0, 0, 0)
-						panel.b.Position = UDim2.new(repeatPanels - position, 0, 0, 0)
-						panel.frame.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
-					else
-						local hue = ((k - 1) / count + t * 0.08) % 1
-						panel.frame.BackgroundColor3 = Color3.fromHSV(hue, 0.75, 0.95)
+			local root = pillar.source and pillar.source:FindFirstChild("HumanoidRootPart")
+			if root and root:IsA("BasePart") then
+				-- Pose relative to the real root, turning slowly.
+				local base = CFrame.Angles(0, t * TURN_SPEED, 0) * root.CFrame:Inverse()
+				local poses = table.create(#pillar.sourceParts)
+				for i, part in ipairs(pillar.sourceParts) do poses[i] = base * part.CFrame end
+				for _, panel in ipairs(pillar.panels) do
+					local facing = (cameraPosition - panel.part.Position):Dot(panel.part.CFrame.LookVector) > 0
+					if facing then
+						for i, copy in ipairs(panel.parts) do
+							if copy then copy.CFrame = poses[i] end
+						end
 					end
+				end
+			end
+			local count = #pillar.panels
+			for k, panel in ipairs(pillar.panels) do
+				if id > 0 then
+					panel.frame.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
+				else
+					local hue = ((k - 1) / math.max(count, 1) + t * 0.08) % 1
+					panel.frame.BackgroundColor3 = Color3.fromHSV(hue, 0.75, 0.95)
 				end
 			end
 		end

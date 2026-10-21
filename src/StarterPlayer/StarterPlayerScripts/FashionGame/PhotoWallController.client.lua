@@ -134,15 +134,19 @@ local function surfaceFor(wall: BasePart): Frame
 	local existing = surfaces[wall]
 	if existing then return existing end
 	local face = faceOf(wall)
+	-- In PlayerGui with Adornee = wall: the photos are ViewportFrames, and a
+	-- ViewportFrame in a SurfaceGui parented to a Workspace part is not drawn
+	-- (the wall showed empty strips, user report 2026-10-22).
 	local surface = make("SurfaceGui", {
 		Name = "PhotoWallSurface",
 		Face = face,
+		ResetOnSpawn = false,
 		SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud,
 		PixelsPerStud = 36,
 		LightInfluence = 0.3,
 		ZIndexBehavior = Enum.ZIndexBehavior.Sibling,
 		Adornee = wall,
-	}, wall)
+	}, playerGui)
 	local holder = make("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1 }, surface)
 	surfaces[wall] = holder
 	return holder
@@ -166,7 +170,8 @@ local function drawEntry(entry: Entry, order: number)
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(entry.u, entry.v),
 		Size = UDim2.fromScale(size.X / wall.Size.X, size.Y / wall.Size.Y),
-		Rotation = ((#entry.id % 7) - 3) * 1.5, -- a little crooked, like real prints
+		-- No Rotation: ViewportFrames under a rotated frame are not drawn, so the
+		-- photos showed as an empty strip (user report 2026-10-22).
 		BackgroundTransparency = 1,
 		ZIndex = order,
 	}, holder)

@@ -34,6 +34,7 @@ DrinkService.Start()
 ClubService.Start()
 ClubScreenService.Start()
 PhotoBoothService.Start(PlayerDataService)
+require(script.Parent.Services.ParkRideService).Start()
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers
