@@ -7,7 +7,9 @@
 --     riders stay exactly on the cabin / horse / swing everyone sees.
 --   * Buttons at the bottom: 🎡 관람차 타기 (when a cabin is at the bottom),
 --     목마 타기, 그네 타기, 흔들 그네 타기, 내리기, 👁 1인칭 (wheel), − / +
---     (swing speed 0..5).
+--     (swing speed 0..5). Keys (user, 2026-10-22): E = the main button
+--     (타기 / 내리기), V = 1인칭 ↔ 3인칭. In first person the view button is
+--     Modal, so the mouse is free to click it.
 --   * Slide: walking onto the top of the slide slides you down; at the
 --     bottom everyone sees a "야호!" bubble.
 
@@ -16,6 +18,7 @@ local RunService = game:GetService("RunService")
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local UserInputService = game:GetService("UserInputService")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Remotes = FashionGame:WaitForChild("Remotes")
@@ -129,6 +132,20 @@ local function addSpring(model: Model)
 	})
 end
 
+-- Floating tubes (rideable) and decorations on the sea (beach).
+local floaters: {Model} = {}
+local function addTube(model: Model)
+	table.insert(floaters, model)
+	table.insert(slots, {
+		kind = "FloatTube", ride = model, slot = model, key = "Rider",
+		-- sitting low in the middle of the ring
+		seat = function(t: number): CFrame?
+			local cf = ParkConfig.floatCFrame(model, t)
+			return cf and cf * CFrame.new(0, -0.6, 0)
+		end,
+	})
+end
+
 local function register(tag: string, add: (Model) -> ())
 	local function try(instance: Instance)
 		if not instance:IsA("Model") then return end
@@ -145,6 +162,8 @@ register("ParkCarousel", addCarousel)
 register("ParkSwing", addSwing)
 register("ParkSpring", addSpring)
 register("ParkSlide", function(model) table.insert(slides, model) end)
+register("FloatTube", addTube)
+register("FloatDeco", function(model) table.insert(floaters, model) end)
 
 --------------------------------------------------
 -- Ride motion
@@ -187,6 +206,10 @@ local function animate(t: number, dt: number)
 			swing.phase = (swing.phase + dt * 2 * math.pi / ParkConfig.SwingPeriod) % (2 * math.pi)
 			swing.seat:PivotTo(pivot * CFrame.Angles(swing.amp * math.sin(swing.phase), 0, 0))
 		end
+	end
+	for _, model in ipairs(floaters) do
+		local cf = ParkConfig.floatCFrame(model, t)
+		if cf and model.Parent and cameraNear(cf.Position) then model:PivotTo(cf) end
 	end
 	for _, spring in ipairs(springs) do
 		if spring.rocker and cameraNear(spring.base.Position) then
@@ -304,8 +327,8 @@ local levelLabel = button("Level", 2, 110)
 levelLabel.AutoButtonColor = false
 levelLabel.BackgroundColor3 = Color3.fromRGB(40, 36, 52)
 local plusButton = button("Plus", 3, 46)
-local mainButton = button("Main", 4, 210)
-local viewButton = button("View", 5, 120)
+local mainButton = button("Main", 4, 240)
+local viewButton = button("View", 5, 140)
 viewButton.BackgroundColor3 = Color3.fromRGB(60, 120, 220)
 minusButton.Text = "−"
 minusButton.TextSize = 26
@@ -344,6 +367,9 @@ local firstPerson = false
 local function setFirstPerson(on: boolean)
 	firstPerson = on
 	player.CameraMode = if on then Enum.CameraMode.LockFirstPerson else Enum.CameraMode.Classic
+	-- Modal frees the mouse in first person, so 🎥 3인칭 can be clicked
+	-- (user report: stuck in first person with the mouse locked).
+	viewButton.Modal = on
 	if not on then
 		player.CameraMinZoomDistance = 0.5
 	end
@@ -396,7 +422,8 @@ local function currentOffer(t: number): Offer?
 	for _, entry in ipairs(slots) do
 		if entry.kind == "ParkCarousel" then consider(entry, "🎠 목마 타기", 5)
 		elseif entry.kind == "ParkSwing" then consider(entry, "그네 타기", 4.5)
-		elseif entry.kind == "ParkSpring" then consider(entry, "흔들 그네 타기", 4.5) end
+		elseif entry.kind == "ParkSpring" then consider(entry, "흔들 그네 타기", 4.5)
+		elseif entry.kind == "FloatTube" then consider(entry, "튜브 타기", 6) end
 	end
 	return best
 end
@@ -404,7 +431,7 @@ end
 local busy = false
 local offer: Offer? = nil
 
-mainButton.MouseButton1Click:Connect(function()
+local function pressMain()
 	if busy then return end
 	busy = true
 	if mySlot then
@@ -423,10 +450,20 @@ mainButton.MouseButton1Click:Connect(function()
 		end
 	end
 	busy = false
-end)
+end
+mainButton.MouseButton1Click:Connect(pressMain)
 
 viewButton.MouseButton1Click:Connect(function()
 	setFirstPerson(not firstPerson)
+end)
+
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.KeyCode == Enum.KeyCode.E then
+		if bar.Visible and mainButton.Visible then task.spawn(pressMain) end
+	elseif input.KeyCode == Enum.KeyCode.V then
+		if mySlot and mySlot.kind == "ParkWheel" then setFirstPerson(not firstPerson) end
+	end
 end)
 
 local function changeLevel(delta: number)
@@ -443,7 +480,7 @@ local function refreshUi(t: number)
 	if entry then
 		bar.Visible = true
 		mainButton.Visible = true
-		mainButton.Text = "내리기"
+		mainButton.Text = "[E] 내리기"
 		mainButton.BackgroundColor3 = Color3.fromRGB(255, 110, 170)
 		if entry.kind == "ParkWheel" then
 			local index = tonumber(string.match(entry.slot.Name, "^Cabin(%d+)$")) or 1
@@ -453,12 +490,12 @@ local function refreshUi(t: number)
 				local a = ParkConfig.cabinAngle(entry.ride, index, t) % (2 * math.pi)
 				local toBottom = (2 * math.pi - ParkConfig.WheelBoardAngle) - a
 				if toBottom < 0 then toBottom += 2 * math.pi end
-				mainButton.Text = string.format("내리기 (아래까지 %d초)", math.ceil(toBottom / speed))
+				mainButton.Text = string.format("[E] 내리기 (아래까지 %d초)", math.ceil(toBottom / speed))
 				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130)
 			end
 		end
 		viewButton.Visible = entry.kind == "ParkWheel"
-		viewButton.Text = if firstPerson then "🎥 3인칭" else "👁 1인칭"
+		viewButton.Text = if firstPerson then "🎥 3인칭 (V)" else "👁 1인칭 (V)"
 		local isSwing = entry.kind == "ParkSwing"
 		minusButton.Visible = isSwing
 		plusButton.Visible = isSwing
@@ -477,7 +514,7 @@ local function refreshUi(t: number)
 	if current then
 		bar.Visible = true
 		mainButton.Visible = true
-		mainButton.Text = current.text
+		mainButton.Text = if current.ready then "[E] " .. current.text else current.text
 		mainButton.BackgroundColor3 = if current.ready then Color3.fromRGB(255, 110, 170) else Color3.fromRGB(120, 110, 130)
 	else
 		bar.Visible = false

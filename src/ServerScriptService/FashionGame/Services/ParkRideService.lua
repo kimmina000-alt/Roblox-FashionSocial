@@ -36,7 +36,7 @@ local function rootOf(player: Player): BasePart?
 end
 
 local function kindOf(model: Instance): string?
-	for _, tag in ipairs({ "ParkWheel", "ParkCarousel", "ParkSwing", "ParkSpring" }) do
+	for _, tag in ipairs({ "ParkWheel", "ParkCarousel", "ParkSwing", "ParkSpring", "FloatTube" }) do
 		if CollectionService:HasTag(model, tag) then return tag end
 	end
 	return nil
@@ -88,6 +88,9 @@ local function board(player: Player, model: Instance, slot: Instance?): (boolean
 		local index = tonumber(string.match(slot.Name, "^Horse(%d+)$"))
 		local cf = index and ParkConfig.horseCFrame(model, index, t)
 		position = cf and cf.Position
+	elseif kind == "FloatTube" then
+		local cf = ParkConfig.floatCFrame(model, t)
+		position = cf and cf.Position
 	elseif slot:IsA("Model") then
 		position = slot:GetPivot().Position
 	end
@@ -114,6 +117,10 @@ local function exitFor(ride: Ride): CFrame?
 			local spot = center.Position + out.Unit * (radius + 7) + Vector3.new(0, 3, 0)
 			return CFrame.lookAt(spot, spot + out)
 		end
+	elseif ride.kind == "FloatTube" then
+		-- next to the tube, in the water (the player swims)
+		local cf = ParkConfig.floatCFrame(ride.model, t)
+		return cf and CFrame.new(cf.Position + Vector3.new(3, 0, 0))
 	elseif ride.slot:IsA("Model") then
 		-- in front of the swing / spring rider, on the ground, facing it
 		local pivot = (ride.slot :: Model):GetPivot()

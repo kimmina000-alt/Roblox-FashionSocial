@@ -34,6 +34,7 @@ local function wall(par,name,a,b,h,th,color,opt) local mid=(a+b)/2 local len=(b-
 -- axis-aligned box from two corners
 local function box(par,name,x0,y0,z0,x1,y1,z1,color,opt)
  return P(par,name,Vector3.new(math.abs(x1-x0),math.abs(y1-y0),math.abs(z1-z0)),CFrame.new((x0+x1)/2,(y0+y1)/2,(z0+z1)/2),color,opt) end
+local function beam(par,name,a,b,th,col,opt) local mid=(a+b)/2 return P(par,name,Vector3.new(th,th,(b-a).Magnitude),CFrame.lookAt(mid,b),col,opt) end
 local function photo(par,pos,txt) local m=cyl(par,"PhotoSpot",8,0.6,pos+Vector3.new(0,0.3,0),Color3.fromRGB(255,159,28)) label(par,"★ "..(txt or "PHOTO"),pos+Vector3.new(0,7,0)) return m end
 -- snapshot helpers
 local function S(par,cls,name,sz,cf,col,mat,t,flags,shape,tags,attrs)
@@ -56,12 +57,22 @@ local SS=game:GetService("ServerStorage")
 local template=SS:FindFirstChild("BaseplateTemplate")
 local bp=workspace:FindFirstChild("Baseplate")
 if bp then if not template then bp.Name="BaseplateTemplate" bp.Parent=SS template=bp else bp:Destroy() end end
-local function tile(name,x0,x1,z0,z1)
+local function tile(name,x0,x1,z0,z1,top)
+ top=top or 0
  local t=template and template:Clone() or Instance.new("Part")
- t.Name=name t.Anchored=true t.Size=Vector3.new(x1-x0,16,z1-z0) t.CFrame=CFrame.new((x0+x1)/2,-8,(z0+z1)/2) t.Parent=z
+ t.Name=name t.Anchored=true t.Size=Vector3.new(x1-x0,16,z1-z0) t.CFrame=CFrame.new((x0+x1)/2,top-8,(z0+z1)/2) t.Parent=z
+ return t
 end
-tile("Ground_N",-1024,1024,-1024,-270) tile("Ground_S",-1024,1024,-150,1024)
-tile("Ground_W",-1024,-80,-270,-150) tile("Ground_E",80,1024,-270,-150)
+-- Land ends at x -268 (the beach); west of it the sea floor is 16 lower and
+-- filled with Terrain water so players really swim (user, 2026-10-22).
+local SEA_X=-268 local SEA_FLOOR=-16
+tile("Ground_N",SEA_X,1024,-1024,-270) tile("Ground_S",SEA_X,1024,-150,1024)
+tile("Ground_W",SEA_X,-80,-270,-150) tile("Ground_E",80,1024,-270,-150)
+local sf=tile("SeaFloor",-1024,SEA_X,-1024,1024,SEA_FLOOR) sf.Material=Enum.Material.Sand sf.Color=Color3.fromRGB(225,205,150)
+local T=workspace.Terrain
+T:FillBlock(CFrame.new((-1024+SEA_X)/2,SEA_FLOOR/2,0),Vector3.new(SEA_X+1024,-SEA_FLOOR,2048),Enum.Material.Water)
+T:FillBall(Vector3.new(-368,0,-150),44,Enum.Material.Air) -- keep the aquarium dome dry
+T.WaterColor=Color3.fromRGB(40,170,200) T.WaterTransparency=0.6 T.WaterWaveSize=0.12 T.WaterWaveSpeed=8 T.WaterReflectance=0.6
 z.Parent=root
 end
 do
@@ -502,11 +513,204 @@ label(z,"Fashion Week Backstage",Vector3.new(cx,24,cz),true)
 P(z,"BackstagePath",Vector3.new(14,0.45,math.abs(z1+76)),CFrame.new(cx,0.22,(z1-76)/2),C.road)
 z.Parent=root
 end
-do -- 04_Beach_Aquarium (snapshot)
+do -- 04_Beach_Aquarium: Sunset Beach (2026-10-22, user references: striped
+-- parasols, deck chairs, mats, ice boxes, palm trees, pink ice cream truck,
+-- floating tubes and rubber ducks, ocean-view cafe). The sea is Terrain water
+-- (00_Ground) so players swim; the sand slopes down into it.
 local z=zone("04_Beach_Aquarium")
  S(z,"Part","Beach",{70,0.6,600},{-233,0.3,-50,1,0,0,0,1,0,0,0,1},{240,220,160},"Sand",0,0,nil,{},{})
- S(z,"Part","Sea(임시·지형 물로 교체)",{600,1,1000},{-568,0.4,-50,1,0,0,0,1,0,0,0,1},{110,180,215},"SmoothPlastic",0.35,1,nil,{},{})
- for i=0,5 do S(z,"Part","Lounger",{4,1.5,8},{-248,0.9,-250+i*14,1,0,0,0,1,0,0,0,1},{255,255,255},"SmoothPlastic",0,0,nil,{},{}) end
+ do local c=Vector3.new(-289,-7.7,-50) P(z,"ShoreSlope",Vector3.new(600,16.6,42),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),Color3.fromRGB(235,212,155),{class="WedgePart",mat=Enum.Material.Sand}) end
+ math.randomseed(20261022)
+ local stripeSets={{Color3.fromRGB(30,150,160),Color3.new(1,1,1)},{Color3.fromRGB(255,200,40),Color3.new(1,1,1)},{Color3.fromRGB(255,120,60),Color3.new(1,1,1)},{Color3.fromRGB(255,150,190),Color3.new(1,1,1)}}
+ local wood=Color3.fromRGB(190,150,100)
+ local SAND=0.6
+ -- seat helper: an invisible-or-visible Seat tagged PromptSeat ("앉기")
+ local function seat(par,name,cf,size,col,t)
+  local s=Instance.new("Seat") s.Name=name s.Anchored=true s.Size=size s.CFrame=cf s.Color=col or wood s.Transparency=t or 0
+  s.TopSurface=Enum.SurfaceType.Smooth s.Parent=par CS:AddTag(s,"PromptSeat") return s end
+ -- PARASOL (open or closed) at ground point g
+ local function parasol(par,g,open,cols)
+  cyl(par,"ParasolPole",0.3,9.5,g+Vector3.new(0,4.75,0),Color3.fromRGB(240,240,240))
+  if open then
+   for k=0,7 do local a=k/8*2*math.pi -- 8 coloured slices (wedges) tilted down
+    local cf=CFrame.new(g+Vector3.new(0,9.1,0))*CFrame.Angles(0,a,0)*CFrame.new(0,-0.55,-2.6)*CFrame.Angles(math.rad(-14),0,0)
+    P(par,"Canopy",Vector3.new(4.1,0.2,5.4),cf,cols[k%2+1],{nocol=true}) end
+   cyl(par,"CanopyTop",1.2,0.5,g+Vector3.new(0,9.4,0),cols[2],{nocol=true})
+  else
+   cyl(par,"ParasolFolded",1.1,4.5,g+Vector3.new(0,7,0),cols[1],{nocol=true})
+   cyl(par,"ParasolTie",1.2,0.25,g+Vector3.new(0,6.4,0),cols[2],{nocol=true})
+  end
+ end
+ local function mat(par,g,yaw,cols)
+  local base=CFrame.new(g+Vector3.new(0,0.06,0))*CFrame.Angles(0,yaw,0)
+  P(par,"Mat",Vector3.new(4.6,0.12,7),base,cols[1],{nocol=true})
+  for _,sx in ipairs({-1.2,1.2}) do P(par,"MatStripe",Vector3.new(0.8,0.13,7),base*CFrame.new(sx,0.005,0),cols[2],{nocol=true}) end
+  -- sit on the mat (legs forward, facing the sea = -X)
+  for _,sz in ipairs({-1.6,1.6}) do seat(par,"MatSeat",base*CFrame.new(0.6,0.1,sz)*CFrame.Angles(0,math.rad(90),0),Vector3.new(2,0.2,2),cols[1],1) end
+ end
+ local function chair(par,g,cols)
+  local base=CFrame.lookAt(g,g+Vector3.new(-1,0,0)) -- faces the sea
+  for _,sx in ipairs({-1.1,1.1}) do
+   P(par,"ChairLeg",Vector3.new(0.2,1.6,0.2),base*CFrame.new(sx,0.8,-1),wood)
+   P(par,"ChairLeg",Vector3.new(0.2,2.8,0.2),base*CFrame.new(sx,1.4,1.1),wood) end
+  seat(par,"BeachChair",base*CFrame.new(0,1.1,0),Vector3.new(2.4,0.25,2.2),cols[1])
+  P(par,"ChairBack",Vector3.new(2.4,2.6,0.2),base*CFrame.new(0,2.3,1.3)*CFrame.Angles(math.rad(25),0,0),cols[1])
+  P(par,"ChairStripe",Vector3.new(0.6,2.62,0.22),base*CFrame.new(0,2.3,1.3)*CFrame.Angles(math.rad(25),0,0),cols[2])
+ end
+ local function icebox(par,g)
+  P(par,"IceBox",Vector3.new(2.6,1.6,1.8),CFrame.new(g+Vector3.new(0,0.8,0)),Color3.fromRGB(255,110,40))
+  P(par,"IceBoxLid",Vector3.new(2.7,0.35,1.9),CFrame.new(g+Vector3.new(0,1.75,0)),Color3.new(1,1,1))
+ end
+ -- parasol groups: varied (closed / mat+box / mat / 2 chairs / chair+mat / 2 chairs+box)
+ local kinds={"closed","matbox","mat","chairs2","chairmat","chairs2box"}
+ local spots={}
+ for zc=-330,236,26 do if not (zc>12 and zc<74) and not (zc>-36 and zc<-2) then table.insert(spots,zc) end end
+ for i,zc in ipairs(spots) do
+  local x=-250+((i%3)-1)*9+math.random(-2,2) local g=Vector3.new(x,SAND,zc+math.random(-3,3))
+  local kind=kinds[(i-1)%#kinds+1] local cols=stripeSets[(i-1)%#stripeSets+1]
+  local grp=M(z,"BeachSpot_"..kind,{},{})
+  parasol(grp,g,kind~="closed",cols)
+  if kind=="matbox" then mat(grp,g+Vector3.new(-1,0,3),0,cols) icebox(grp,g+Vector3.new(1.5,0,-3))
+  elseif kind=="mat" then mat(grp,g+Vector3.new(-1,0,2.5),0,cols)
+  elseif kind=="chairs2" then chair(grp,g+Vector3.new(-2,0,-2),cols) chair(grp,g+Vector3.new(-2,0,2.4),cols)
+  elseif kind=="chairmat" then chair(grp,g+Vector3.new(-2,0,-3),cols) mat(grp,g+Vector3.new(-1.5,0,3.5),0,cols)
+  elseif kind=="chairs2box" then chair(grp,g+Vector3.new(-2,0,-2.6),cols) chair(grp,g+Vector3.new(-2,0,2.6),cols) icebox(grp,g+Vector3.new(0.5,0,0)) end
+ end
+ -- PALM TREES: curved trunk, drooping fronds, coconuts
+ local function palm(g,h,lean)
+  local m=M(z,"PalmTree",{},{})
+  local p=g local dir=Vector3.new(math.cos(lean),0,math.sin(lean))
+  for k=1,6 do local q=g+Vector3.new(0,h*k/6,0)+dir*(1.2*(k/6)^2*h/6) beam(m,"PalmTrunk",p,q,1.1-k*0.08,Color3.fromRGB(150,115,80)) p=q end
+  for k=0,7 do local a=k/8*2*math.pi+lean
+   local tip=p+Vector3.new(math.cos(a)*6,-2.2,math.sin(a)*6) local mid=p+Vector3.new(math.cos(a)*3,0.6,math.sin(a)*3)
+   beam(m,"PalmFrond",p,mid,0.3,Color3.fromRGB(70,160,70),{nocol=true}).Size=Vector3.new(1.6,0.2,(mid-p).Magnitude)
+   beam(m,"PalmFrond",mid,tip,0.3,Color3.fromRGB(60,145,60),{nocol=true}).Size=Vector3.new(1.4,0.2,(tip-mid).Magnitude) end
+  for k=0,2 do local a=k*2.1 P(m,"Coconut",Vector3.new(0.8,0.8,0.8),CFrame.new(p+Vector3.new(math.cos(a)*0.6,-0.7,math.sin(a)*0.6)),Color3.fromRGB(110,75,40),{shape=Enum.PartType.Ball}) end
+ end
+ for i,pz in ipairs({-320,-262,-200,-140,-84,-44,86,128,172,214}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
+ palm(Vector3.new(-262,SAND,20),15,math.rad(200)) palm(Vector3.new(-262,SAND,70),17,math.rad(160))
+
+ -- ICE CREAM TRUCK (pink, striped awning, giant cone) at the beach entrance
+ do local tc=Vector3.new(-214,SAND,-19) local pink=Color3.fromRGB(255,170,200)
+  local tr=M(z,"IceCreamTruck",{},{})
+  local base=CFrame.lookAt(tc,tc+Vector3.new(0,0,1)) -- long side faces east (-X side is the beach)
+  P(tr,"TruckBody",Vector3.new(7,6.5,13),base*CFrame.new(0,4.25,0),pink)
+  P(tr,"TruckCab",Vector3.new(7,4.5,4),base*CFrame.new(0,3.25,8.5),pink)
+  P(tr,"Windshield",Vector3.new(6.4,2,0.2),base*CFrame.new(0,4.2,10.55),Color3.fromRGB(170,220,255),{t=0.3})
+  P(tr,"TruckStripe",Vector3.new(7.05,0.6,13.05),base*CFrame.new(0,2.2,0),Color3.new(1,1,1))
+  for _,w in ipairs({{-3.6,-4},{3.6,-4},{-3.6,7.5},{3.6,7.5}}) do P(tr,"Wheel",Vector3.new(0.8,2.2,2.2),base*CFrame.new(w[1],1.1,w[2])*CFrame.Angles(0,0,math.rad(90)),Color3.fromRGB(40,40,45),{shape=Enum.PartType.Cylinder}) end
+  -- serving window on the east side (+X of the truck = local -X after lookAt? use world)
+  P(tr,"ServingWindow",Vector3.new(0.2,2.6,7),CFrame.new(tc+Vector3.new(3.55,4.6,0)),Color3.fromRGB(60,40,50))
+  local counter=P(tr,"Counter",Vector3.new(1.4,0.3,7.4),CFrame.new(tc+Vector3.new(4.2,3.3,0)),Color3.new(1,1,1))
+  counter:SetAttribute("Shop","IceCream") CS:AddTag(counter,"SnackShop")
+  for k=0,5 do local col=({Color3.fromRGB(255,160,190),Color3.fromRGB(255,245,215),Color3.fromRGB(160,235,210),Color3.fromRGB(120,75,50)})[k%4+1]
+   P(tr,"DisplayCone",Vector3.new(0.4,0.8,0.4),CFrame.new(tc+Vector3.new(4.2,3.85,-2.5+k)),Color3.fromRGB(215,160,90),{nocol=true})
+   P(tr,"DisplayScoop",Vector3.new(0.6,0.6,0.6),CFrame.new(tc+Vector3.new(4.2,4.45,-2.5+k)),col,{shape=Enum.PartType.Ball,nocol=true}) end
+  for k=0,7 do P(tr,"Awning",Vector3.new(2.6,0.15,0.95),CFrame.new(tc+Vector3.new(4.6,7.2,-3.3+k*0.95))*CFrame.Angles(0,0,math.rad(-20)),if k%2==0 then Color3.fromRGB(255,120,150) else Color3.new(1,1,1),{nocol=true}) end
+  -- giant cone on the roof (landmark)
+  P(tr,"RoofCone",Vector3.new(1.6,3.2,1.6),CFrame.new(tc+Vector3.new(0,9.1,-2))*CFrame.Angles(math.rad(180),0,0),Color3.fromRGB(215,160,90),{class="WedgePart",nocol=true})
+  P(tr,"RoofScoop",Vector3.new(2.6,2.6,2.6),CFrame.new(tc+Vector3.new(0,11.2,-2)),Color3.fromRGB(255,160,190),{shape=Enum.PartType.Ball,nocol=true})
+  P(tr,"RoofScoop2",Vector3.new(2.2,2.2,2.2),CFrame.new(tc+Vector3.new(0,12.8,-2)),Color3.fromRGB(160,235,210),{shape=Enum.PartType.Ball,nocol=true})
+  local board=P(tr,"MenuBoard",Vector3.new(0.2,2.4,3.4),CFrame.new(tc+Vector3.new(3.62,4.6,5)),Color3.fromRGB(255,250,240))
+  local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Parent=board
+  local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.FredokaOne l.TextColor3=Color3.fromRGB(230,90,140) l.Text="ICE CREAM\n딸기·바닐라\n민트초코·초코\n💰 15" l.Parent=g
+  label(tr,"🍦 아이스크림 트럭",tc+Vector3.new(0,16,0))
+ end
+
+ -- FLOATING TUBES (rideable, E) and RUBBER DUCKS on the water near the shore
+ local function ring(par,center,radius,thick,cols,n)
+  for k=0,n-1 do local a0=k/n*2*math.pi local a1=(k+1)/n*2*math.pi
+   local p0=center+Vector3.new(math.cos(a0)*radius,0,math.sin(a0)*radius) local p1=center+Vector3.new(math.cos(a1)*radius,0,math.sin(a1)*radius)
+   local mid=(p0+p1)/2 P(par,"TubeSeg",Vector3.new(thick,thick,(p1-p0).Magnitude+0.25),CFrame.lookAt(mid,p1),cols[k%2+1],{ghost=true,shape=nil}) end
+ end
+ local tubeCols={{Color3.fromRGB(255,120,170),Color3.new(1,1,1)},{Color3.fromRGB(255,200,60),Color3.fromRGB(80,200,255)},{Color3.fromRGB(120,220,160),Color3.new(1,1,1)},{Color3.fromRGB(255,150,90),Color3.fromRGB(255,240,120)}}
+ for i,b in ipairs({Vector3.new(-292,0,-70),Vector3.new(-296,0,-6),Vector3.new(-290,0,96),Vector3.new(-300,0,150)}) do
+  local m=M(z,"Tube"..i,{"FloatTube"},{Base=b,Drift=4+i,Period=70+i*9,Phase=i*1.3})
+  ring(m,b,1.7,1,tubeCols[i],10) m.WorldPivot=CFrame.new(b)
+ end
+ for i,b in ipairs({Vector3.new(-285,0,-40),Vector3.new(-298,0,40),Vector3.new(-288,0,64),Vector3.new(-305,0,-110),Vector3.new(-283,0,130),Vector3.new(-310,0,10)}) do
+  local m=M(z,"RubberDuck"..i,{"FloatDeco"},{Base=b,Drift=3+i%3,Period=55+i*7,Phase=i*0.9})
+  local s=1+(i%2)*0.6
+  P(m,"DuckBody",Vector3.new(2*s,1.5*s,2.6*s),CFrame.new(b+Vector3.new(0,0.4*s,0)),Color3.fromRGB(255,220,40),{shape=Enum.PartType.Ball,ghost=true})
+  P(m,"DuckHead",Vector3.new(1.3*s,1.3*s,1.3*s),CFrame.new(b+Vector3.new(0,1.4*s,-0.8*s)),Color3.fromRGB(255,220,40),{shape=Enum.PartType.Ball,ghost=true})
+  P(m,"DuckBeak",Vector3.new(0.7*s,0.3*s,0.6*s),CFrame.new(b+Vector3.new(0,1.3*s,-1.5*s)),Color3.fromRGB(255,140,40),{ghost=true})
+  m.WorldPivot=CFrame.new(b)
+ end
+ label(z,"튜브 타기 (가까이 가서 E)",Vector3.new(-292,6,-70))
+
+ -- OCEAN-VIEW CAFE (OHU CAFE · Sunset): raised floor, full-height glass on
+ -- the sea side (west), counter + order (SnackShop "BeachCafe"), window bar
+ -- facing the sea, tables, sofa booth, plants, lamps, outdoor terrace.
+ do local x0,x1,z0,z1=-244,-206,28,62 local FY=2.6 local H=12
+  local cm=M(z,"BeachCafe",{},{})
+  local floorC=Color3.fromRGB(205,170,125) local wallC=Color3.fromRGB(250,246,238) local glass=Color3.fromRGB(190,225,240)
+  box(cm,"CafeDeck",x0,0,z0,x1,FY,z1,floorC)
+  for k=1,3 do box(cm,"CafeStep",x1+(k-1)*1.4,0,40,x1+k*1.4,FY-(k-1)*FY/3,50,floorC,{nocol=true}) end
+  do local c=Vector3.new(x1+2.1,FY/2,45) P(cm,"CafeStepRamp",Vector3.new(10,FY,4.2),CFrame.lookAt(c,c+Vector3.new(1,0,0)),floorC,{class="WedgePart",t=1}) end
+  -- walls: east wall with the door, north/south half glass, west = full glass
+  box(cm,"Wall_E_N",x1-0.6,FY,z0,x1,FY+H,40,wallC) box(cm,"Wall_E_S",x1-0.6,FY,50,x1,FY+H,z1,wallC) box(cm,"Wall_E_Top",x1-0.6,FY+8,40,x1,FY+H,50,wallC)
+  for _,wz in ipairs({{z0,z0+0.6},{z1-0.6,z1}}) do
+   box(cm,"Wall_Side_Low",x0,FY,wz[1],x1,FY+3,wz[2],wallC)
+   box(cm,"Wall_Side_Glass",x0,FY+3,wz[1],x1-10,FY+H,wz[2],glass,{t=0.6,mat=Enum.Material.Glass})
+   box(cm,"Wall_Side_Solid",x1-10,FY+3,wz[1],x1,FY+H,wz[2],wallC) end
+  box(cm,"Glass_W",x0,FY,z0,x0+0.4,FY+H,z1,glass,{t=0.75,mat=Enum.Material.Glass})
+  for k=0,4 do local mz=z0+k*(z1-z0)/4 box(cm,"Mullion",x0-0.1,FY,mz-0.25,x0+0.5,FY+H,mz+0.25,Color3.fromRGB(60,60,65)) end
+  box(cm,"Roof",x0-3,FY+H,z0-2,x1+1,FY+H+0.8,z1+2,Color3.fromRGB(245,240,230))
+  box(cm,"RoofTrim",x0-3,FY+H-0.6,z0-2,x0-2.6,FY+H,z1+2,Color3.fromRGB(190,150,100))
+  -- counter along the east wall with the order point
+  box(cm,"Counter",x1-7,FY,32,x1-5,FY+3.6,46,Color3.fromRGB(190,150,100))
+  local top=box(cm,"CounterTop",x1-7.3,FY+3.6,31.7,x1-4.7,FY+3.9,46.3,Color3.fromRGB(250,250,250))
+  top:SetAttribute("Shop","BeachCafe") CS:AddTag(top,"SnackShop")
+  box(cm,"EspressoMachine",x1-6.6,FY+3.9,33,x1-5.2,FY+5.4,35.4,Color3.fromRGB(180,180,190))
+  box(cm,"Register",x1-6.6,FY+3.9,43,x1-5.6,FY+4.8,44.4,Color3.fromRGB(40,40,45))
+  local case=box(cm,"PastryCase",x1-7.2,FY+3.9,37,x1-5,FY+5.6,41,glass,{t=0.5,mat=Enum.Material.Glass})
+  for k=0,5 do P(cm,"Pastry",Vector3.new(0.7,0.5,0.7),CFrame.new(x1-6.1,FY+4.3+(k%2)*0.7,37.6+math.floor(k/2)*1.3),({Color3.fromRGB(240,190,120),Color3.fromRGB(255,170,200),Color3.fromRGB(150,100,70)})[k%3+1],{shape=Enum.PartType.Ball}) end
+  box(cm,"BackShelf",x1-1.4,FY+5,31,x1-0.6,FY+5.3,47,Color3.fromRGB(190,150,100))
+  for k=0,7 do cyl(cm,"CupStack",0.6,0.9,Vector3.new(x1-1,FY+5.75,32+k*2),Color3.new(1,1,1)) end
+  local menu=box(cm,"MenuBoard",x1-0.7,FY+6.5,34,x1-0.6,FY+10,44,Color3.fromRGB(40,45,50))
+  do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0 g.Parent=menu
+   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1)
+   l.Text="OHU CAFE MENU\n아이스 아메리카노 · 카페라떼\n블루 레몬에이드 · 망고 스무디" l.Parent=g end
+  label(cm,"☕ 주문 (E)",Vector3.new(x1-6,FY+8,39))
+  -- window bar facing the sea with stools
+  box(cm,"WindowBar",x0+0.6,FY+3.2,z0+3,x0+2.4,FY+3.5,z1-3,Color3.fromRGB(190,150,100))
+  for k=0,6 do local sz=z0+5+k*4 local pos=Vector3.new(x0+4.2,FY+2.3,sz)
+   seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),Color3.fromRGB(240,235,225))
+   cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(x0+4.2,FY+1.05,sz),Color3.fromRGB(60,60,65)) end
+  -- round tables with 2 chairs each
+  for _,tp in ipairs({{-226,36},{-226,48},{-218,56}}) do
+   cyl(cm,"TableLeg",0.4,3,Vector3.new(tp[1],FY+1.5,tp[2]),Color3.fromRGB(60,60,65))
+   local tt=cyl(cm,"CafeTable",3.6,0.3,Vector3.new(tp[1],FY+3.1,tp[2]),Color3.fromRGB(250,250,250)) CS:AddTag(tt,"CafeTable")
+   for _,dx in ipairs({-2.6,2.6}) do local pos=Vector3.new(tp[1]+dx,FY+1.6,tp[2])
+    seat(cm,"CafeChair",CFrame.lookAt(pos,Vector3.new(tp[1],FY+1.6,tp[2])),Vector3.new(1.8,0.3,1.8),Color3.fromRGB(230,200,160))
+    P(cm,"ChairBack",Vector3.new(0.2,1.8,1.8),CFrame.new(tp[1]+dx*1.38,FY+2.6,tp[2]),Color3.fromRGB(230,200,160)) end end
+  -- sofa booth along the north side
+  box(cm,"SofaBack",-236,FY,z1-1.6,-226,FY+3.4,z1-0.6,Color3.fromRGB(120,170,190))
+  for k=0,2 do local pos=Vector3.new(-234+k*3.4,FY+1.1,z1-3) seat(cm,"Sofa",CFrame.lookAt(pos,pos+Vector3.new(0,0,-1)),Vector3.new(3.2,0.8,2.4),Color3.fromRGB(140,190,210)) end
+  cyl(cm,"SofaTable",4,0.3,Vector3.new(-231,FY+2.4,z1-7),Color3.fromRGB(250,250,250))
+  cyl(cm,"SofaTableLeg",0.4,2.3,Vector3.new(-231,FY+1.15,z1-7),Color3.fromRGB(60,60,65))
+  -- plants, pendant lamps, rug, photo spot
+  for _,pp in ipairs({{x0+2,z0+1.5},{x0+2,z1-1.5},{x1-9,z0+1.5}}) do
+   cyl(cm,"PlantPot",1.6,1.6,Vector3.new(pp[1],FY+0.8,pp[2]),Color3.fromRGB(200,120,80))
+   P(cm,"PlantLeaves",Vector3.new(2.6,2.6,2.6),CFrame.new(pp[1],FY+2.8,pp[2]),Color3.fromRGB(70,150,80),{shape=Enum.PartType.Ball}) end
+  for _,lp in ipairs({{-226,36},{-226,48},{-218,56},{-236,45}}) do
+   beam(cm,"LampCord",Vector3.new(lp[1],FY+H,lp[2]),Vector3.new(lp[1],FY+7.6,lp[2]),0.08,Color3.fromRGB(40,40,40),{ghost=true})
+   local bulb=P(cm,"PendantLamp",Vector3.new(1.1,1.1,1.1),CFrame.new(lp[1],FY+7.2,lp[2]),Color3.fromRGB(255,225,170),{mat=Enum.Material.Neon,shape=Enum.PartType.Ball,ghost=true})
+   local light=Instance.new("PointLight") light.Color=Color3.fromRGB(255,215,160) light.Range=12 light.Brightness=0.8 light.Parent=bulb end
+  P(cm,"Rug",Vector3.new(10,0.06,12),CFrame.new(-227,FY+0.03,45),Color3.fromRGB(240,225,200),{nocol=true})
+  photo(cm,Vector3.new(x0+5,FY,z0+3),"오션뷰 창가")
+  -- terrace on the sea side
+  box(cm,"Terrace",x0-14,0,z0,x0,FY-0.4,z1,floorC)
+  do local c=Vector3.new(x0-7,(FY-0.4)/2,z0-3) P(cm,"TerraceRamp",Vector3.new(14,FY-0.4,6),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),floorC,{class="WedgePart"}) end
+  for _,tp in ipairs({{-252,36},{-252,54}}) do
+   cyl(cm,"TerraceTable",3.4,0.3,Vector3.new(tp[1],FY+2.4,tp[2]),Color3.new(1,1,1)) cyl(cm,"TerraceTableLeg",0.4,2.6,Vector3.new(tp[1],FY+1,tp[2]),Color3.fromRGB(60,60,65))
+   parasol(cm,Vector3.new(tp[1],FY-0.4,tp[2]),true,stripeSets[1])
+   for _,dz in ipairs({-2.6,2.6}) do local pos=Vector3.new(tp[1],FY+1,tp[2]+dz) seat(cm,"TerraceChair",CFrame.lookAt(pos,Vector3.new(-300,FY+1,tp[2]+dz)),Vector3.new(1.8,0.3,1.8),Color3.fromRGB(255,255,255)) end end
+  local sign=box(cm,"CafeSign",x1+0.05,FY+H-3.6,36,x1+0.4,FY+H-0.8,54,Color3.fromRGB(40,45,50))
+  do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Brightness=2 g.Parent=sign
+   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Michroma l.TextColor3=Color3.fromRGB(255,225,170) l.Text="OHU CAFE · SUNSET" l.Parent=g end
+  label(cm,"OHU CAFE · Sunset (오션뷰)",Vector3.new(-225,FY+H+6,45),true)
+ end
  S(z,"Part","SunsetPier",{80,1,12},{-308,1,80,1,0,0,0,1,0,0,0,1},{160,120,80},"SmoothPlastic",0,0,nil,{},{})
  S(z,"Part","PhotoSpot",{0.6,8,8},{-343,1.8,80,0,-1,0,1,0,0,0,0,1},{255,159,28},"SmoothPlastic",0,0,"Cylinder",{},{})
  label(z,"★ 석양 피어",Vector3.new(-343,8.5,80),false)
@@ -669,29 +873,255 @@ local z=zone("06_Park_Playground")
  label(z,"미끄럼틀",Vector3.new(284,13,60))
  z.Parent=root
 end
-do -- 07_Hanok_Village (snapshot)
+do -- 07_Hanok_Village (2026-10-22, user references: giwa roofs over red
+-- brick and granite flower walls, white wall + yellow flowering tree + bench,
+-- persimmon tree courtyard cafe, lotus pond with pavilion and bridge,
+-- courtyard garden with stepping stones, fusion hanok with glass doors,
+-- window frame view, Bukchon stone-stair alley, cherry blossom gate).
+-- Player flow (docs/02_WORLDS/HANOK_VILLAGE.md): north gate → main alley
+-- (houses both sides, lanterns) → lotus pond (bridge to the south garden,
+-- walkway to the pavilion) → south cherry garden + window frame photo spot;
+-- east: OHU 한옥카페 with the persimmon courtyard; west: stone-stair alley up
+-- to the hill terrace and lookout pavilion.
 local z=zone("07_Hanok_Village")
+ local G=0.5 -- ground top
  S(z,"Part","HanokGround",{180,0.5,130},{175,0.25,230,1,0,0,0,1,0,0,0,1},{205,190,160},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","Wall_N_L",{2,5,78},{124,2.5,165,0,0,-1,0,1,0,1,0,0},{170,160,150},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","Wall_N_R",{2,5,78},{226,2.5,165,0,0,-1,0,1,0,1,0,0},{170,160,150},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","Wall_E",{2,5,130},{265,2.5,230,-1,0,0,0,1,0,0,0,-1},{170,160,150},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","Wall_S",{2,5,180},{175,2.5,295,0,0,-1,0,1,0,1,0,0},{170,160,150},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","Wall_W",{2,5,130},{85,2.5,230,-1,0,0,0,1,0,0,0,-1},{170,160,150},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","Gate_PillarL",{2,18,2},{165,9,165,1,0,0,0,1,0,0,0,1},{200,40,40},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","Gate_PillarR",{2,18,2},{185,9,165,1,0,0,0,1,0,0,0,1},{200,40,40},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","Gate_Roof",{30,3,8},{175,19.5,165,1,0,0,0,1,0,0,0,1},{60,60,66},"SmoothPlastic",0,0,nil,{},{})
- for _,h in ipairs({{120,205},{230,205},{115,265},{235,265}}) do
-  S(z,"Part","Hanok(진입불가)",{36,10,18},{h[1],5,h[2],1,0,0,0,1,0,0,0,1},{150,110,80},"SmoothPlastic",0,0,nil,{},{})
-  S(z,"Part","HanokRoof",{42,4,24},{h[1],12,h[2],1,0,0,0,1,0,0,0,1},{60,60,66},"SmoothPlastic",0,0,nil,{},{}) end
- S(z,"Part","Pond",{34,0.6,26},{175,0.4,240,1,0,0,0,1,0,0,0,1},{110,180,215},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","Pavilion_Floor",{16,2,16},{175,2,240,1,0,0,0,1,0,0,0,1},{160,120,80},"SmoothPlastic",0,0,nil,{},{})
- for _,o in ipairs({{168,233},{182,233},{168,247},{182,247}}) do S(z,"Part","Pavilion_Pillar",{1.2,10,1.2},{o[1],8,o[2],1,0,0,0,1,0,0,0,1},{200,40,40},"SmoothPlastic",0,0,nil,{},{}) end
- S(z,"Part","Pavilion_Roof",{22,3,22},{175,14.5,240,1,0,0,0,1,0,0,0,1},{60,60,66},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","PhotoSpot",{0.6,8,8},{175,0.3,180,0,-1,0,1,0,0,0,0,1},{255,159,28},"SmoothPlastic",0,0,"Cylinder",{},{})
- label(z,"★ 한옥 대문",Vector3.new(175,7,180),false)
- S(z,"Part","PhotoSpot",{0.6,8,8},{195,0.3,240,0,-1,0,1,0,0,0,0,1},{255,159,28},"SmoothPlastic",0,0,"Cylinder",{},{})
- label(z,"★ 연못 정자",Vector3.new(195,7,240),false)
- label(z,"한옥 마을",Vector3.new(175,28,165),true)
+ local roofC=Color3.fromRGB(55,58,64) local woodC=Color3.fromRGB(125,82,52) local plaster=Color3.fromRGB(245,240,228)
+ local paper=Color3.fromRGB(240,228,200) local stoneC=Color3.fromRGB(175,170,160) local brick=Color3.fromRGB(165,75,55)
+ local function seat(par,name,cf,size,col,t)
+  local s=Instance.new("Seat") s.Name=name s.Anchored=true s.Size=size s.CFrame=cf s.Color=col or woodC s.Transparency=t or 0
+  s.TopSurface=Enum.SurfaceType.Smooth s.Parent=par CS:AddTag(s,"PromptSeat") return s end
+ -- GIWA ROOF: cf at the eave line centre, ridge along local X, W x D footprint
+ local function giwaRoof(par,cf,W,D,gable)
+  local o=2.2 local th=math.rad(30) local half=D/2+o local rise=half*math.tan(th)
+  for _,s in ipairs({1,-1}) do
+   P(par,"GiwaRoof",Vector3.new(W+2*o,0.7,half/math.cos(th)+0.3),cf*CFrame.new(0,rise/2,s*half/2)*CFrame.Angles(s*th,0,0),roofC,{mat=Enum.Material.Slate})
+   -- upturned corners (처마 곡선)
+   for _,e in ipairs({1,-1}) do
+    P(par,"EaveTip",Vector3.new(2.4,0.5,2.4),cf*CFrame.new(e*(W/2+o-0.6),0.25,s*(half-0.6))*CFrame.Angles(0,math.rad(45),0)*CFrame.Angles(math.rad(-12),0,0),roofC,{mat=Enum.Material.Slate,nocol=true})
+   end
+   if gable then for _,e in ipairs({1,-1}) do
+    local pos=cf*CFrame.new(e*(W/2+0.1),rise/2-0.2,s*(D/4))
+    P(par,"Gable",Vector3.new(0.4,rise-0.4,D/2),CFrame.lookAt(pos.Position,pos.Position+(cf.Rotation*Vector3.new(0,0,s)))*CFrame.new(0,0,0),plaster,{class="WedgePart"}) end end
+  end
+  P(par,"Ridge",Vector3.new(W+2*o+0.6,1,1.1),cf*CFrame.new(0,rise+0.3,0),Color3.fromRGB(45,47,52),{mat=Enum.Material.Slate})
+  for _,e in ipairs({1,-1}) do P(par,"RidgeEnd",Vector3.new(0.8,1.8,1.3),cf*CFrame.new(e*(W/2+o+0.3),rise+0.9,0)*CFrame.Angles(0,0,e*math.rad(-12)),Color3.fromRGB(45,47,52),{nocol=true}) end
+  return rise
+ end
+ -- HANOK HOUSE: base cf on the ground, LookVector = front. Stone base,
+ -- wooden columns, white walls, paper lattice doors on the front, wooden
+ -- veranda (maru) to sit on, giwa roof. opts.glass = fusion glass front.
+ local function house(name,cf,W,D,opts)
+  opts=opts or {}
+  local m=M(z,name,{},{})
+  local B=1.2 local Hw=opts.h or 7
+  P(m,"StoneBase",Vector3.new(W+2.4,B,D+2.4),cf*CFrame.new(0,B/2,0),stoneC,{mat=Enum.Material.Slate})
+  -- columns
+  local nx=math.max(2,math.floor(W/6))
+  for i=0,nx do local x=-W/2+i*W/nx for _,zz in ipairs({-D/2,D/2}) do P(m,"Column",Vector3.new(0.7,Hw,0.7),cf*CFrame.new(x,B+Hw/2,zz),woodC) end end
+  -- back + side walls (white plaster with a wood beam band)
+  P(m,"WallBack",Vector3.new(W,Hw,0.4),cf*CFrame.new(0,B+Hw/2,D/2),plaster)
+  for _,sx in ipairs({-W/2,W/2}) do P(m,"WallSide",Vector3.new(0.4,Hw,D),cf*CFrame.new(sx,B+Hw/2,0),plaster) end
+  P(m,"Beam",Vector3.new(W+0.8,0.6,D+0.8),cf*CFrame.new(0,B+Hw-0.3,0),woodC,{nocol=true})
+  -- front: lattice doors (창호) or glass
+  for i=0,nx-1 do local x=-W/2+(i+0.5)*W/nx local bw=W/nx-0.9
+   if opts.glass then
+    P(m,"GlassDoor",Vector3.new(bw,Hw-0.8,0.2),cf*CFrame.new(x,B+(Hw-0.8)/2,-D/2+0.4),Color3.fromRGB(200,230,240),{t=0.7,mat=Enum.Material.Glass})
+    P(m,"GlassFrame",Vector3.new(0.15,Hw-0.8,0.25),cf*CFrame.new(x,B+(Hw-0.8)/2,-D/2+0.4),woodC,{nocol=true})
+   else
+    P(m,"PaperDoor",Vector3.new(bw,Hw-1.6,0.3),cf*CFrame.new(x,B+0.8+(Hw-1.6)/2,-D/2+0.3),paper)
+    for _,yy in ipairs({0.3,0.55,0.8}) do P(m,"Lattice",Vector3.new(bw,0.12,0.35),cf*CFrame.new(x,B+0.8+(Hw-1.6)*yy,-D/2+0.3),woodC,{nocol=true}) end
+    P(m,"Lattice",Vector3.new(0.12,Hw-1.6,0.35),cf*CFrame.new(x,B+0.8+(Hw-1.6)/2,-D/2+0.3),woodC,{nocol=true})
+    P(m,"WainBottom",Vector3.new(bw,0.8,0.3),cf*CFrame.new(x,B+0.4,-D/2+0.3),woodC)
+   end
+  end
+  -- veranda (툇마루) along the front, sit on its edge
+  if opts.maru ~= false then
+   P(m,"Maru",Vector3.new(W,0.4,2.2),cf*CFrame.new(0,B+0.2,-D/2-1.1),Color3.fromRGB(170,125,85))
+   for i=-1,1 do seat(m,"MaruSeat",cf*CFrame.new(i*W/3.2,B+0.5,-D/2-1.5)*CFrame.Angles(0,0,0),Vector3.new(2,0.2,1.6),woodC,1) end
+  end
+  giwaRoof(m,cf*CFrame.new(0,B+Hw,0),W,D,true)
+  return m
+ end
+ -- 꽃담 flower wall: granite blocks, red brick band, little giwa coping
+ local function flowerWall(a,b)
+  local mid=(a+b)/2 local len=(b-a).Magnitude local base=CFrame.lookAt(mid,b)
+  P(z,"WallGranite",Vector3.new(1.4,2.6,len),base*CFrame.new(0,G+1.3,0),Color3.fromRGB(205,200,188),{mat=Enum.Material.Slate})
+  P(z,"WallBrick",Vector3.new(1.4,1.4,len),base*CFrame.new(0,G+3.3,0),brick,{mat=Enum.Material.Brick})
+  P(z,"WallCoping",Vector3.new(2.6,0.5,len+0.6),base*CFrame.new(0,G+4.25,0),roofC,{mat=Enum.Material.Slate})
+  P(z,"WallCopingRidge",Vector3.new(0.7,0.5,len+0.6),base*CFrame.new(0,G+4.7,0),Color3.fromRGB(45,47,52))
+ end
+ local function trunk(par,a,b,th) return beam(par,"Trunk",a,b,th,Color3.fromRGB(85,60,45)) end
+ local function cherry(p,s)
+  local m=M(z,"CherryTree",{},{}) s=s or 1
+  local top=p+Vector3.new(0.6,6*s,0.3) trunk(m,p,top,1.1*s)
+  trunk(m,top,top+Vector3.new(2.5,2.4,1)*s,0.6*s) trunk(m,top,top+Vector3.new(-2.2,2.6,-1.2)*s,0.6*s)
+  for k=0,5 do local a=k*1.05 P(m,"Blossom",Vector3.new(5,4,5)*s,CFrame.new(top+Vector3.new(math.cos(a)*2.6,2.6+(k%2)*1.2,math.sin(a)*2.6)*s),Color3.fromRGB(255,192,212),{shape=Enum.PartType.Ball,nocol=true}) end
+  P(m,"Petals",Vector3.new(0.1,9*s,9*s),CFrame.new(p+Vector3.new(0,0.06,0))*CFrame.Angles(0,0,math.rad(90)),Color3.fromRGB(255,215,228),{shape=Enum.PartType.Cylinder,ghost=true})
+ end
+ local function persimmon(p)
+  local m=M(z,"PersimmonTree",{},{})
+  local top=p+Vector3.new(0,6.5,0) trunk(m,p,top,1.2) trunk(m,top,top+Vector3.new(3,2,0),0.6) trunk(m,top,top+Vector3.new(-2.5,2.4,1.5),0.6)
+  for k=0,4 do local a=k*1.26 P(m,"Leaves",Vector3.new(5,3.6,5),CFrame.new(top+Vector3.new(math.cos(a)*2.6,2.4+(k%2),math.sin(a)*2.6)),Color3.fromRGB(150,140,60),{shape=Enum.PartType.Ball,nocol=true}) end
+  for k=0,13 do local a=k*0.9 P(m,"Persimmon",Vector3.new(0.6,0.6,0.6),CFrame.new(top+Vector3.new(math.cos(a)*(3.6+(k%3)*0.5),1.2+(k%4)*0.9,math.sin(a)*(3.6+(k%3)*0.5))),Color3.fromRGB(245,130,30),{shape=Enum.PartType.Ball,ghost=true}) end
+ end
+ local function yellowTree(p)
+  local m=M(z,"YellowFlowerTree",{},{})
+  local top=p+Vector3.new(0,5.5,0) trunk(m,p,top,0.9)
+  for k=0,5 do local a=k*1.05 P(m,"YellowFlowers",Vector3.new(4.2,3.4,4.2),CFrame.new(top+Vector3.new(math.cos(a)*2.4,1.8+(k%2)*1.2,math.sin(a)*2.4)),Color3.fromRGB(255,212,40),{shape=Enum.PartType.Ball,nocol=true}) end
+ end
+ local function pine(p)
+  local m=M(z,"PineTree",{},{})
+  local a=p+Vector3.new(1,4,0) local b=a+Vector3.new(-1.5,4,1) trunk(m,p,a,1.1) trunk(m,a,b,0.9)
+  for k,v in ipairs({{a+Vector3.new(1,0.5,0),6},{b+Vector3.new(0,0,0),7},{b+Vector3.new(1.5,2,-1),5}}) do P(m,"PineLeaves",Vector3.new(v[2],1.6,v[2]*0.8),CFrame.new(v[1]),Color3.fromRGB(50,100,60),{shape=Enum.PartType.Ball,nocol=true}) end
+ end
+ local function lantern(p,light)
+  P(z,"LanternPost",Vector3.new(0.4,4,0.4),CFrame.new(p+Vector3.new(0,2,0)),woodC)
+  local l=P(z,"Lantern",Vector3.new(1,1.3,1),CFrame.new(p+Vector3.new(0,4.4,0)),Color3.fromRGB(255,220,160),{mat=Enum.Material.Neon})
+  P(z,"LanternCap",Vector3.new(1.5,0.3,1.5),CFrame.new(p+Vector3.new(0,5.2,0)),roofC)
+  if light then local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,200,140) pl.Range=14 pl.Brightness=0.9 pl.Parent=l end
+ end
+
+ -- perimeter flower walls with the north gate opening (x 168..182)
+ flowerWall(Vector3.new(86,0,166),Vector3.new(167,0,166)) flowerWall(Vector3.new(183,0,166),Vector3.new(264,0,166))
+ flowerWall(Vector3.new(264,0,166),Vector3.new(264,0,294)) flowerWall(Vector3.new(86,0,294),Vector3.new(264,0,294))
+ flowerWall(Vector3.new(86,0,166),Vector3.new(86,0,294))
+ -- GATE (솟을대문): pillars, open doors, roof, cherry trees on both sides
+ do local gc=CFrame.lookAt(Vector3.new(175,G,166),Vector3.new(175,G,160))
+  for _,sx in ipairs({-6.5,6.5}) do P(z,"GatePillar",Vector3.new(1.2,10,1.2),gc*CFrame.new(sx,5,0),woodC) end
+  P(z,"GateBeam",Vector3.new(14.4,0.8,1.2),gc*CFrame.new(0,9.6,0),woodC)
+  for _,sx in ipairs({-1,1}) do P(z,"GateDoor",Vector3.new(0.4,8.4,6),gc*CFrame.new(sx*6.2,4.4,2.9),Color3.fromRGB(140,90,55),{nocol=true}) end
+  giwaRoof(z,gc*CFrame.new(0,10,0),14,3,false)
+  label(z,"한옥 마을 · 대문",Vector3.new(175,18,166),true)
+ end
+ cherry(Vector3.new(160,G,160),1.1) cherry(Vector3.new(190,G,160),1.1) cherry(Vector3.new(158,G,172),0.9) cherry(Vector3.new(192,G,172),0.9)
+ photo(z,Vector3.new(175,G,176),"한옥 대문")
+ -- MAIN ALLEY: stone paving with lanterns, houses on both sides
+ box(z,"AlleyStone",168,0.5,167,182,0.62,230,Color3.fromRGB(170,165,155),{mat=Enum.Material.Cobblestone})
+ for i,lz in ipairs({180,198,216}) do lantern(Vector3.new(166,G,lz),i~=2) lantern(Vector3.new(184,G,lz),i==2) end
+ house("Hanok_A",CFrame.lookAt(Vector3.new(150,G,186),Vector3.new(170,G,186)),16,10)
+ house("Hanok_B",CFrame.lookAt(Vector3.new(150,G,212),Vector3.new(170,G,212)),18,10)
+ house("Hanok_C",CFrame.lookAt(Vector3.new(202,G,190),Vector3.new(182,G,190)),18,11)
+ -- white wall + yellow flowering tree + wooden bench (photo spot, west)
+ do local wc=CFrame.lookAt(Vector3.new(112,G,181),Vector3.new(112,G,190))
+  P(z,"WhiteWall",Vector3.new(16,8,1),wc*CFrame.new(0,4,0),plaster)
+  P(z,"WallWindow",Vector3.new(3,3,1.2),wc*CFrame.new(-2,5,0),woodC)
+  P(z,"WallWindowGlass",Vector3.new(2.4,2.4,1.3),wc*CFrame.new(-2,5,0),Color3.fromRGB(80,90,100))
+  giwaRoof(z,wc*CFrame.new(0,8,0),16,1,false)
+  yellowTree(Vector3.new(106,G,185)) yellowTree(Vector3.new(118,G,185))
+  P(z,"BenchSeatBoard",Vector3.new(6,0.4,1.6),wc*CFrame.new(1,1.8,3),Color3.fromRGB(170,125,85))
+  for _,sx in ipairs({-1.4,3.4}) do P(z,"BenchLeg",Vector3.new(0.4,1.6,1.4),wc*CFrame.new(sx,0.8,3),woodC) end
+  for _,sx in ipairs({-0.5,2.5}) do seat(z,"BenchSeat",wc*CFrame.new(sx,2.05,3)*CFrame.Angles(0,math.pi,0),Vector3.new(2,0.2,1.4),woodC,1) end
+  for _,pp in ipairs({Vector3.new(104,G,186),Vector3.new(120,G,186)}) do cyl(z,"FlowerPot",1.4,1.2,pp+Vector3.new(0,0.6,0),Color3.fromRGB(190,120,70)) P(z,"PotFlowers",Vector3.new(1.6,1.2,1.6),CFrame.new(pp+Vector3.new(0,1.6,0)),Color3.fromRGB(255,212,40),{shape=Enum.PartType.Ball}) end
+  photo(z,Vector3.new(112,G,195),"노란 꽃나무 담장")
+ end
+
+ -- LOTUS POND with a pavilion (walkway from the north) and an arched bridge
+ do local px0,px1,pz0,pz1=147,187,234,262
+  box(z,"PondRim",px0-1,0.5,pz0-1,px1+1,1.3,pz1+1,Color3.fromRGB(150,145,135),{mat=Enum.Material.Slate})
+  box(z,"PondWater",px0,0.5,pz0,px1,1.35,pz1,Color3.fromRGB(70,135,125),{mat=Enum.Material.Glass,t=0.15})
+  math.randomseed(77)
+  for k=1,26 do local x=px0+2+math.random()*(px1-px0-4) local zz=pz0+2+math.random()*(pz1-pz0-4)
+   if not (x>153 and x<167 and zz>240 and zz<256) and not (x>167 and x<177) then
+    P(z,"LilyPad",Vector3.new(0.1,1.6+math.random()*1.4,1.6+math.random()*1.4),CFrame.new(x,1.4,zz)*CFrame.Angles(0,0,math.rad(90)),Color3.fromRGB(80,150,70),{shape=Enum.PartType.Cylinder,ghost=true})
+    if k%3==0 then P(z,"Lotus",Vector3.new(0.9,0.7,0.9),CFrame.new(x+0.3,1.85,zz),Color3.fromRGB(255,150,190),{shape=Enum.PartType.Ball,ghost=true}) end end end
+  -- pavilion (정자) on the water: raised floor, red-brown columns, pyramid roof
+  local pc=Vector3.new(160,0,248) local F=3
+  box(z,"PavilionFloor",pc.X-6,F-0.6,pc.Z-6,pc.X+6,F,pc.Z+6,Color3.fromRGB(170,125,85))
+  for _,c in ipairs({{-5,-5},{5,-5},{-5,5},{5,5}}) do
+   P(z,"PavilionStone",Vector3.new(1.4,F-0.6,1.4),CFrame.new(pc+Vector3.new(c[1],(F-0.6)/2,c[2])),stoneC)
+   P(z,"PavilionColumn",Vector3.new(0.8,7,0.8),CFrame.new(pc+Vector3.new(c[1],F+3.5,c[2])),Color3.fromRGB(140,60,45)) end
+  for _,r in ipairs({{-6,-6,6,-5.7},{-6,5.7,6,6},{-6,-6,-5.7,6}}) do box(z,"PavilionRail",pc.X+r[1],F,pc.Z+r[2],pc.X+r[3],F+1.4,pc.Z+r[4],Color3.fromRGB(140,60,45)) end
+  -- pyramid roof from 4 corner wedges
+  for k=0,3 do local cf=CFrame.new(pc+Vector3.new(0,F+7,0))*CFrame.Angles(0,k*math.pi/2,0)*CFrame.new(4,1.6,4)
+   P(z,"PavilionRoof",Vector3.new(8,3.2,8),cf*CFrame.Angles(0,math.pi,0),roofC,{class="CornerWedgePart",mat=Enum.Material.Slate}) end
+  P(z,"PavilionFinial",Vector3.new(0.8,1.4,0.8),CFrame.new(pc+Vector3.new(0,F+10.6,0)),Color3.fromRGB(45,47,52))
+  for _,s in ipairs({{-3,-3},{3,-3},{-3,3},{3,3}}) do seat(z,"PavilionSeat",CFrame.new(pc+Vector3.new(s[1],F+0.1,s[2]))*CFrame.Angles(0,math.atan2(s[1],s[2]),0),Vector3.new(2,0.2,2),Color3.fromRGB(170,125,85),1) end
+  -- walkway from the north shore to the pavilion
+  box(z,"PavilionWalk",pc.X-1.6,F-0.6,pz0-1,pc.X+1.6,F,pc.Z-6,Color3.fromRGB(170,125,85))
+  do local c=Vector3.new(pc.X,F/2,pz0-4) P(z,"PavilionWalkRamp",Vector3.new(3.2,F,6),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),Color3.fromRGB(170,125,85),{class="WedgePart"}) end
+  label(z,"연못 정자",pc+Vector3.new(0,16,0))
+  -- arched wooden bridge across the pond (north-south) at x 172
+  local N=10 local span=pz1-pz0+6 local zA=pz0-3
+  for k=0,N-1 do local s0=k/N local s1=(k+1)/N
+   local a=Vector3.new(172,1.3+3*math.sin(math.pi*s0),zA+span*s0) local b=Vector3.new(172,1.3+3*math.sin(math.pi*s1),zA+span*s1)
+   beam(z,"BridgePlank",a,b,0.5,Color3.fromRGB(160,110,70)).Size=Vector3.new(4,0.5,(b-a).Magnitude+0.1)
+   for _,sx in ipairs({-2,2}) do beam(z,"BridgeRail",a+Vector3.new(sx,1.5,0),b+Vector3.new(sx,1.5,0),0.3,Color3.fromRGB(140,60,45),{nocol=true}) end end
+  photo(z,Vector3.new(152,G,229),"연못 정자")
+ end
+
+ -- OHU 한옥카페 (fusion hanok, east): glass front, wooden floor, order
+ -- counter (SnackShop "HanokCafe"), low tables with cushions, courtyard with
+ -- a persimmon tree, wooden table and chairs, stepping stones, stone lantern.
+ do local cc=CFrame.lookAt(Vector3.new(240,G,246),Vector3.new(220,G,246)) local W,D=26,14
+  local cafe=house("OHU_HanokCafe",cc,W,D,{glass=true,h=8,maru=false})
+  box(cafe,"CafeFloor",240-D/2+0.3,1.7,246-W/2+0.3,240+D/2-0.3,1.8,246+W/2-0.3,Color3.fromRGB(190,145,100))
+  local counter=box(cafe,"Counter",243,1.8,238,246,5.2,252,Color3.fromRGB(150,105,70))
+  local top=box(cafe,"CounterTop",242.8,5.2,237.8,246.2,5.5,252.2,Color3.fromRGB(235,225,205))
+  top:SetAttribute("Shop","HanokCafe") CS:AddTag(top,"SnackShop")
+  label(cafe,"🍵 주문 (E)",Vector3.new(244.5,10,245))
+  for _,tz in ipairs({238,246,254}) do
+   P(cafe,"LowTable",Vector3.new(3.2,0.3,3.2),CFrame.new(238,2.9,tz),Color3.fromRGB(110,70,45))
+   P(cafe,"LowTableLegs",Vector3.new(2.6,1.0,2.6),CFrame.new(238,2.3,tz),Color3.fromRGB(110,70,45))
+   for _,dx in ipairs({-2.4,2.4}) do local pos=Vector3.new(238+dx,2.1,tz) seat(cafe,"Cushion",CFrame.lookAt(pos,Vector3.new(238,2.1,tz)),Vector3.new(2,0.5,2),Color3.fromRGB(200,90,80)) end end
+  -- small interior garden at the north end (behind glass)
+  P(cafe,"InnerGarden",Vector3.new(4,0.3,4),CFrame.new(236,1.95,257),Color3.fromRGB(200,195,180))
+  P(cafe,"GardenRock",Vector3.new(1.6,1.2,1.4),CFrame.new(235.5,2.6,257.5),Color3.fromRGB(120,120,115))
+  P(cafe,"GardenShrub",Vector3.new(2,2,2),CFrame.new(237,3,256.6),Color3.fromRGB(70,130,70),{shape=Enum.PartType.Ball})
+  P(cafe,"SignPost",Vector3.new(0.5,5,0.5),CFrame.new(229,3,234),Color3.fromRGB(70,45,30))
+  local sign=P(cafe,"CafeSign",Vector3.new(0.3,1.6,6),CFrame.new(229,5.6,234),Color3.fromRGB(70,45,30))
+  do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0 g.Parent=sign
+   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.fromRGB(255,225,170) l.Text="OHU 한옥카페" l.Parent=g end
+  -- courtyard (마당)
+  box(z,"Courtyard",206,0.5,232,231,0.55,260,Color3.fromRGB(225,210,180),{mat=Enum.Material.Sand})
+  persimmon(Vector3.new(214,G,240))
+  P(z,"CourtTable",Vector3.new(4,0.3,2.4),CFrame.new(216,2.9,247),Color3.fromRGB(150,105,70))
+  P(z,"CourtTableLegs",Vector3.new(3.4,2.4,1.8),CFrame.new(216,1.7,247),Color3.fromRGB(150,105,70),{t=0.6})
+  for _,dz in ipairs({-2.2,2.2}) do local pos=Vector3.new(216,1.7,247+dz) seat(z,"CourtChair",CFrame.lookAt(pos,Vector3.new(216,1.7,247)),Vector3.new(1.8,0.3,1.8),Color3.fromRGB(150,105,70)) end
+  for k=0,6 do P(z,"SteppingStone",Vector3.new(1.8,0.25,1.4),CFrame.new(207+k*3.6,0.6,250+(k%2)*1.2),Color3.fromRGB(150,148,140),{mat=Enum.Material.Slate}) end
+  P(z,"StoneLantern",Vector3.new(1,3,1),CFrame.new(226,2,256),stoneC) P(z,"StoneLanternTop",Vector3.new(1.8,0.6,1.8),CFrame.new(226,3.8,256),stoneC)
+  for k=0,3 do P(z,"GardenRock",Vector3.new(1.4+k*0.3,0.9,1.2),CFrame.new(222+k*1.8,0.9,258),Color3.fromRGB(130,128,120)) end
+  label(z,"OHU 한옥카페",Vector3.new(232,22,246),true)
+ end
+
+ -- WEST HILL: retaining wall, stone-stair alley up to a terrace (H 8) with
+ -- two houses and a lookout pavilion (view over the roofs)
+ do local TH=8
+  box(z,"TerraceFill",88,0.5,206,128,TH,292,Color3.fromRGB(190,180,160))
+  box(z,"RetainingWall",127,0.5,206,129,TH,236,Color3.fromRGB(165,160,150),{mat=Enum.Material.Slate})
+  box(z,"RetainingWall",127,0.5,248,129,TH,292,Color3.fromRGB(165,160,150),{mat=Enum.Material.Slate})
+  -- stone stairs going west (x 145 → 129) between z 236 and 248
+  for j=1,8 do box(z,"StoneStep",145-2*j,0.5,236,147-2*j,0.5+j*(TH-0.5)/8,248,Color3.fromRGB(160,155,145),{mat=Enum.Material.Slate,nocol=true}) end
+  do local c=Vector3.new(137,(0.5+TH)/2,242) P(z,"StoneStairRamp",Vector3.new(12,TH-0.5,16),CFrame.lookAt(c,c+Vector3.new(1,0,0)),Color3.new(1,1,1),{class="WedgePart",t=1}) end
+  for i,lz in ipairs({236,248}) do lantern(Vector3.new(131,TH,lz+(i==1 and -1 or 1)),i==1) end
+  house("Hanok_HillA",CFrame.lookAt(Vector3.new(104,TH,222),Vector3.new(104,TH,240)),16,10)
+  house("Hanok_HillB",CFrame.lookAt(Vector3.new(104,TH,262),Vector3.new(104,TH,244)),16,10)
+  -- lookout pavilion
+  local lc=Vector3.new(112,TH,284)
+  box(z,"LookoutFloor",lc.X-4,TH,lc.Z-4,lc.X+4,TH+1,lc.Z+4,Color3.fromRGB(170,125,85))
+  for _,c in ipairs({{-3.4,-3.4},{3.4,-3.4},{-3.4,3.4},{3.4,3.4}}) do P(z,"LookoutColumn",Vector3.new(0.6,6,0.6),CFrame.new(lc+Vector3.new(c[1],4,c[2])),Color3.fromRGB(140,60,45)) end
+  for k=0,3 do local cf=CFrame.new(lc+Vector3.new(0,7,0))*CFrame.Angles(0,k*math.pi/2,0)*CFrame.new(2.8,1.2,2.8)
+   P(z,"LookoutRoof",Vector3.new(5.6,2.4,5.6),cf*CFrame.Angles(0,math.pi,0),roofC,{class="CornerWedgePart",mat=Enum.Material.Slate}) end
+  for _,s in ipairs({{-2,0},{2,0}}) do seat(z,"LookoutSeat",CFrame.new(lc+Vector3.new(s[1],1.1,s[2]))*CFrame.Angles(0,math.rad(-90),0),Vector3.new(2,0.2,2),Color3.fromRGB(170,125,85),1) end
+  pine(Vector3.new(96,TH,284)) pine(Vector3.new(120,TH,210))
+  label(z,"언덕 전망대",lc+Vector3.new(0,13,0))
+ end
+
+ -- SOUTH GARDEN: cherry trees, window frame photo spot (창살 너머 풍경)
+ do
+  for _,p in ipairs({Vector3.new(196,G,276),Vector3.new(214,G,284),Vector3.new(150,G,282),Vector3.new(232,G,278)}) do cherry(p,1) end
+  local fc=CFrame.lookAt(Vector3.new(175,G,272),Vector3.new(175,G,290))
+  P(z,"FrameWall_L",Vector3.new(4,9,1),fc*CFrame.new(-5,4.5,0),plaster) P(z,"FrameWall_R",Vector3.new(4,9,1),fc*CFrame.new(5,4.5,0),plaster)
+  P(z,"FrameWall_Top",Vector3.new(14,2,1),fc*CFrame.new(0,8,0),plaster) P(z,"FrameWall_Low",Vector3.new(6,1.6,1),fc*CFrame.new(0,0.8,0),plaster)
+  for _,f in ipairs({{0,7,6.2,0.4},{0,1.6,6.2,0.4},{-3,4.3,0.4,5.8},{3,4.3,0.4,5.8}}) do P(z,"WindowFrame",Vector3.new(f[3],f[4],1.2),fc*CFrame.new(f[1],f[2],0),woodC) end
+  giwaRoof(z,fc*CFrame.new(0,9,0),14,1,false)
+  cherry(Vector3.new(175,G,283),1.2)
+  photo(z,Vector3.new(175,G,266),"창살 너머 벚꽃")
+  for _,bx in ipairs({160,190}) do
+   P(z,"GardenBench",Vector3.new(5,0.4,1.6),CFrame.new(bx,1.8,270),Color3.fromRGB(170,125,85))
+   for _,sx in ipairs({-1.2,1.2}) do seat(z,"GardenBenchSeat",CFrame.new(bx+sx,2.05,270),Vector3.new(2,0.2,1.4),woodC,1) end end
+ end
+ label(z,"한옥 마을",Vector3.new(175,30,230),true)
  z.Parent=root
 end
 do -- 08_PhotoBooth (snapshot of the other session's booths, PHOTO_BOOTH.md)

@@ -20,7 +20,8 @@ local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitFor
 
 local ClubScreenService = {}
 
-local SECONDS_PER_PLAYER = 8
+-- 30 s per player, random order (user, 2026-10-22)
+local SECONDS_PER_PLAYER = 30
 local order: {number} = {}
 
 local function show(model: Instance, target: Player?)
@@ -60,16 +61,31 @@ end
 
 function ClubScreenService.Start()
 	task.spawn(function()
+		local since = -math.huge
 		while true do
 			local inClub = clubPlayers()
-			local used: {[number]: boolean} = {}
+			-- Change every SECONDS_PER_PLAYER, or at once when a shown player left
+			-- the club or the pillars are idle while someone is inside.
+			local stale = false
 			for _, model in ipairs(CollectionService:GetTagged("LEDPillar")) do
-				-- Pillars show different people when possible.
-				local target = nextPlayer(inClub, used) or inClub[1]
-				if target then used[target.UserId] = true end
-				show(model, target)
+				local shown = model:GetAttribute("ShowUserId")
+				local present = false
+				for _, player in ipairs(inClub) do
+					if player.UserId == shown then present = true end
+				end
+				if (shown ~= 0 and shown ~= nil and not present) or ((shown == 0 or shown == nil) and #inClub > 0) then stale = true end
 			end
-			task.wait(SECONDS_PER_PLAYER)
+			if stale or os.clock() - since >= SECONDS_PER_PLAYER then
+				since = os.clock()
+				local used: {[number]: boolean} = {}
+				for _, model in ipairs(CollectionService:GetTagged("LEDPillar")) do
+					-- Pillars show different people when possible.
+					local target = nextPlayer(inClub, used) or inClub[1]
+					if target then used[target.UserId] = true end
+					show(model, target)
+				end
+			end
+			task.wait(1)
 		end
 	end)
 end

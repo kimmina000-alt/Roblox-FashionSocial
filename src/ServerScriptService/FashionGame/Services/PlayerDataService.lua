@@ -50,7 +50,7 @@ type Outfit = { id: string, name: string, createdAt: number, snapshot: any }
 -- Album: PhotoConfig.MaxPhotos free slots + bought slots (wallet.slots).
 PlayerDataService.MaxPhotos = PhotoConfig.MaxPhotos
 -- Wallet (D-064): coins, unlocked frames, bought album slots, daily counters.
-export type Wallet = { coins: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} } }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} } }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -125,10 +125,14 @@ local function sanitizePhotos(list: any): {any}
 end
 
 local function sanitizeWallet(raw: any): Wallet
-	local wallet: Wallet = { coins = 0, frames = {}, slots = 0, daily = { day = "", counts = {} } }
+	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} } }
 	if typeof(raw) ~= "table" then return wallet end
 	if typeof(raw.coins) == "number" and raw.coins == raw.coins then
 		wallet.coins = math.clamp(math.floor(raw.coins), 0, 99999)
+	end
+	-- XP (D-074): minutes played, only ever grows; shown above the name.
+	if typeof(raw.xp) == "number" and raw.xp == raw.xp then
+		wallet.xp = math.max(0, math.floor(raw.xp))
 	end
 	if typeof(raw.slots) == "number" then
 		wallet.slots = math.clamp(math.floor(raw.slots), 0, PhotoConfig.HardMaxPhotos - PhotoConfig.MaxPhotos)

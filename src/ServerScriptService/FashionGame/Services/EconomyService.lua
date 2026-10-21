@@ -51,6 +51,7 @@ local function publish(player: Player)
 	if not player.Parent then return end
 	local w = playerData.Wallet(player)
 	player:SetAttribute("Coins", w.coins)
+	player:SetAttribute("XP", w.xp or 0)
 	player:SetAttribute("OwnedFrames", HttpService:JSONEncode(w.frames))
 	player:SetAttribute("AlbumSlots", w.slots)
 end
@@ -165,6 +166,11 @@ end
 local function passiveTick()
 	local now = os.clock()
 	for _, player in ipairs(Players:GetPlayers()) do
+		-- XP (D-074): +1 per minute online, active or not; never spent.
+		local xpWallet = playerData.Wallet(player)
+		xpWallet.xp = (xpWallet.xp or 0) + 1
+		playerData.MarkDirty(player)
+		player:SetAttribute("XP", xpWallet.xp)
 		if lastActive[player] and now - lastActive[player] <= EconomyConfig.ActiveWindow then
 			local w = wallet(player)
 			local minutes = w.daily.counts.Passive or 0

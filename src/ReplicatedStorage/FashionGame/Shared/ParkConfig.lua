@@ -144,6 +144,23 @@ function ParkConfig.horseCFrame(model: Instance, index: number, t: number): CFra
 end
 
 --------------------------------------------------
+-- Floating things on the sea (beach, 2026-10-22): tubes (tag "FloatTube",
+-- rideable, attribute Rider) and decorations (tag "FloatDeco", rubber ducks).
+-- Attributes: Base (Vector3, water level), Drift (radius), Period, Phase.
+--------------------------------------------------
+
+function ParkConfig.floatCFrame(model: Instance, t: number): CFrame?
+	local base = model:GetAttribute("Base")
+	if typeof(base) ~= "Vector3" then return nil end
+	local phase = attr(model, "Phase", 0)
+	local a = ((t / attr(model, "Period", 90)) % 1) * 2 * math.pi + phase
+	local radius = attr(model, "Drift", 5)
+	local bob = 0.22 * math.sin((t % 1000) * 1.4 + phase * 3)
+	local rock = math.rad(4) * math.sin((t % 1000) * 0.9 + phase)
+	return CFrame.new(base + Vector3.new(math.cos(a) * radius, bob, math.sin(a) * radius)) * CFrame.Angles(rock, -a * 0.5, 0)
+end
+
+--------------------------------------------------
 -- Slide path (quadratic Bézier P0 → P1 → P2)
 --------------------------------------------------
 
