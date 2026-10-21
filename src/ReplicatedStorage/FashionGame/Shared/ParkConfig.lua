@@ -44,9 +44,11 @@ ParkConfig.SpringAngle = math.rad(11)
 ParkConfig.SpringPeriod = 1.1
 
 ParkConfig.SlideSeconds = 1.5
--- Cartoon Slide Whistle #1 (Creator Store, free). The "야호!" itself is a
--- speech bubble; replace with a licensed voice clip when one is chosen.
+-- Cartoon Slide Whistle #1 (Creator Store, free) while sliding down.
 ParkConfig.SlideSoundId = 95716072659114
+-- "야호" voice at the bottom (Creator Store audio chosen by the user,
+-- 2026-10-22), heard by everyone near, with the "야호!" bubble.
+ParkConfig.YahooSoundId = 130278670102424
 
 local function attr(model: Instance, name: string, default: number): number
 	local value = model:GetAttribute(name)

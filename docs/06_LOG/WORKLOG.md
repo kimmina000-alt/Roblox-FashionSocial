@@ -446,3 +446,8 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 ### Mobile 2-player test (2026-10-22)
 See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session still has the old client code; restart to see the fixes.
 - [x] Real phone (user): catalog C, 🖼 album, 📸 menu OK.
+
+## 2026-10-22 (4) — 야호 voice, toolbox cherry trees, mobile 2-player rides
+- 야호 audio 130278670102424 on the slide landing (needs a restarted test to hear it).
+- Hanok cherry trees → Falling Blossom Cherry Tree (ServerStorage asset, no scripts).
+- [x] Mobile 2P: ferris wheel same gondola (seats match on both screens), two swings with speed control, buttons on phone layout.

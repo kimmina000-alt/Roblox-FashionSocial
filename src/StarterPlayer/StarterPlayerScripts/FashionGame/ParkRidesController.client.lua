@@ -598,14 +598,14 @@ notify.OnClientEvent:Connect(function(kind: any, who: any)
 	local character = who.Character
 	local head = character and character:FindFirstChild("Head")
 	if not head or not head:IsA("BasePart") then return end
-	if who ~= player then
-		local sound = Instance.new("Sound")
-		sound.SoundId = "rbxassetid://" .. ParkConfig.SlideSoundId
-		sound.Volume = 0.5
-		sound.Parent = head
-		sound:Play()
-		game:GetService("Debris"):AddItem(sound, 4)
-	end
+	-- "야호" voice for everyone near (the slider included).
+	local sound = Instance.new("Sound")
+	sound.SoundId = "rbxassetid://" .. ParkConfig.YahooSoundId
+	sound.Volume = 0.8
+	sound.RollOffMaxDistance = 80
+	sound.Parent = head
+	sound:Play()
+	game:GetService("Debris"):AddItem(sound, 5)
 	local billboard = Instance.new("BillboardGui")
 	billboard.Size = UDim2.fromOffset(150, 50)
 	billboard.StudsOffset = Vector3.new(0, 2.6, 0)

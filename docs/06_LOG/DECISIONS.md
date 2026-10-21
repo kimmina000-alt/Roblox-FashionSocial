@@ -250,3 +250,5 @@ D-079 — 인생네컷: the host alone picks the 4 shots and the frame, others w
 D-080 — LED pillars show the live avatar from the front (camera-like), the picture scrolling around the pillar; Studio's negative test ids count as players (2026-10-22). CLUB.md §19.
 
 D-081 — The 🏠 button may take a rider off the ferris wheel (or any ride) at any height (2026-10-22).
+
+D-082 — Art assets from the Creator Store: show the user a shortlist first, place only after they choose (user, 2026-10-22). First temporary pick: Falling Blossom Cherry Tree for the hanok village. 야호 voice: audio 130278670102424 chosen by the user. Default play test = 2-player in phone emulation.

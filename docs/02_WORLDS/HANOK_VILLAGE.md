@@ -26,3 +26,7 @@
 6. 입구 근처 **노란 꽃나무 담장** 포토 스팟
 
 모든 앉을 곳은 "앉기" 프롬프트(PromptSeat). 코드: `tools/graybox` 07_Hanok_Village.
+
+## 에셋 교체 (2026-10-22)
+- 벚나무 9그루(대문 4, 남쪽 정원 5)를 Creator Store 모델 **"Falling Blossom Cherry Tree"**(8651908577, softlypoetic, 좋아요 약 96%, 인증 제작자, 스크립트 없음, 꽃잎 떨어지는 파티클)로 바꿨다. 임시 선택 — 사용자 지시로 앞으로는 **배치 전에 후보를 먼저 보고**한다.
+- 원본은 ServerStorage `FallingBlossomCherryTree`에 두고 회색 박스 스크립트가 복제·크기 조정해서 배치한다 (없으면 블록아웃 나무).

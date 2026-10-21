@@ -952,8 +952,24 @@ local z=zone("07_Hanok_Village")
   P(z,"WallCopingRidge",Vector3.new(0.7,0.5,len+0.6),base*CFrame.new(0,G+4.7,0),Color3.fromRGB(45,47,52))
  end
  local function trunk(par,a,b,th) return beam(par,"Trunk",a,b,th,Color3.fromRGB(85,60,45)) end
+ -- Cherry trees: the Creator Store model "Falling Blossom Cherry Tree"
+ -- (8651908577, softlypoetic, ~96 % likes; no scripts, falling petals) kept in
+ -- ServerStorage, chosen as a temporary pick (user, 2026-10-22). Blockout
+ -- spheres when it is missing.
+ local cherryAsset=game:GetService("ServerStorage"):FindFirstChild("FallingBlossomCherryTree")
  local function cherry(p,s)
-  local m=M(z,"CherryTree",{},{}) s=s or 1
+  s=s or 1
+  if cherryAsset then
+   local m=cherryAsset:Clone() m.Name="CherryTree"
+   for _,d in ipairs(m:GetDescendants()) do if d:IsA("BasePart") then d.Anchored=true d.CanCollide=false end end
+   local _,size=m:GetBoundingBox()
+   m:ScaleTo(m:GetScale()*(13*s)/size.Y)
+   local cf,sz=m:GetBoundingBox()
+   m:PivotTo(m:GetPivot()+(p-Vector3.new(cf.X,cf.Y-sz.Y/2,cf.Z)))
+   m.Parent=z
+   return
+  end
+  local m=M(z,"CherryTree",{},{})
   local top=p+Vector3.new(0.6,6*s,0.3) trunk(m,p,top,1.1*s)
   trunk(m,top,top+Vector3.new(2.5,2.4,1)*s,0.6*s) trunk(m,top,top+Vector3.new(-2.2,2.6,-1.2)*s,0.6*s)
   for k=0,5 do local a=k*1.05 P(m,"Blossom",Vector3.new(5,4,5)*s,CFrame.new(top+Vector3.new(math.cos(a)*2.6,2.6+(k%2)*1.2,math.sin(a)*2.6)*s),Color3.fromRGB(255,192,212),{shape=Enum.PartType.Ball,nocol=true}) end

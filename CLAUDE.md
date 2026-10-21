@@ -21,13 +21,14 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-10-22 (3): booth host-only picking + copies step (D-079), live front-facing pillars + negative test ids (D-080), rides every frame / V fix / 🏠 leaves rides (D-081).
 - 2-player + mobile tests done 2026-10-22 (booth watching/copies, pillars swap, ISSUE-MOBILE-001 fixes verified).
 - Real phone check by the user: catalog C, album, 📸 OK.
-- Open items: two-player ride test, real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip.
+- 2026-10-22 (4): 야호 voice (130278670102424), toolbox cherry trees in the hanok village (ServerStorage FallingBlossomCherryTree), mobile 2P ride test passed. Rule: show Creator Store candidates before placing (D-082); test as mobile 2P.
+- Open items: real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip.
 - Next: test + fix the batch → 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9).
 - Start of next session: push works from this machine now (Git Credential Manager has the login). Check the Studio place was saved (graybox zones live in Workspace only). Ask whether to apply economy v2 coins in code.
 
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
-- `docs/06_LOG/DECISIONS.md`: D-001 to D-081.
+- `docs/06_LOG/DECISIONS.md`: D-001 to D-082.
 - `docs/06_LOG/ISSUES.md`, `WORKLOG.md`, `CHANGELOG.md`.
 - `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`.
 - `docs/02_WORLDS/MAIN_SOCIAL_LAYOUT_PROPOSAL.md`, `CLUB_AREA.md`.
