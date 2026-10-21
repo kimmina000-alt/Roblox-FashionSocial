@@ -289,10 +289,14 @@ gui.ResetOnSpawn = false
 gui.DisplayOrder = 30
 gui.Parent = playerGui
 
+-- Key hints only with a keyboard; phones show plain buttons, placed low
+-- between the thumbstick and the jump button (user mobile test 2026-10-22).
+local KEY = if UserInputService.KeyboardEnabled then "[E] " else ""
+local TOUCH = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
 local bar = Instance.new("Frame")
 bar.Name = "Bar"
 bar.AnchorPoint = Vector2.new(0.5, 1)
-bar.Position = UDim2.new(0.5, 0, 1, -110)
+bar.Position = if TOUCH then UDim2.new(0.5, 0, 1, -24) else UDim2.new(0.5, 0, 1, -110)
 bar.Size = UDim2.fromOffset(0, 48)
 bar.AutomaticSize = Enum.AutomaticSize.X
 bar.BackgroundTransparency = 1
@@ -486,7 +490,7 @@ local function refreshUi(t: number)
 	if entry then
 		bar.Visible = true
 		mainButton.Visible = true
-		mainButton.Text = "[E] 내리기"
+		mainButton.Text = KEY .. "내리기"
 		mainButton.BackgroundColor3 = Color3.fromRGB(255, 110, 170)
 		if entry.kind == "ParkWheel" then
 			local index = tonumber(string.match(entry.slot.Name, "^Cabin(%d+)$")) or 1
@@ -496,12 +500,12 @@ local function refreshUi(t: number)
 				local a = ParkConfig.cabinAngle(entry.ride, index, t) % (2 * math.pi)
 				local toBottom = (2 * math.pi - ParkConfig.WheelBoardAngle) - a
 				if toBottom < 0 then toBottom += 2 * math.pi end
-				mainButton.Text = string.format("[E] 내리기 (아래까지 %d초)", math.ceil(toBottom / speed))
+				mainButton.Text = string.format(KEY .. "내리기 (아래까지 %d초)", math.ceil(toBottom / speed))
 				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130)
 			end
 		end
 		viewButton.Visible = entry.kind == "ParkWheel"
-		viewButton.Text = if firstPerson then "🎥 3인칭 (V)" else "👁 1인칭 (V)"
+		viewButton.Text = if firstPerson then (if KEY ~= "" then "🎥 3인칭 (V)" else "🎥 3인칭") else (if KEY ~= "" then "👁 1인칭 (V)" else "👁 1인칭")
 		local isSwing = entry.kind == "ParkSwing"
 		minusButton.Visible = isSwing
 		plusButton.Visible = isSwing
@@ -520,7 +524,7 @@ local function refreshUi(t: number)
 	if current then
 		bar.Visible = true
 		mainButton.Visible = true
-		mainButton.Text = if current.ready then "[E] " .. current.text else current.text
+		mainButton.Text = if current.ready then KEY .. current.text else current.text
 		mainButton.BackgroundColor3 = if current.ready then Color3.fromRGB(255, 110, 170) else Color3.fromRGB(120, 110, 130)
 	else
 		bar.Visible = false

@@ -636,7 +636,7 @@ local z=zone("04_Beach_Aquarium")
   P(m,"DuckBeak",Vector3.new(0.7*s,0.3*s,0.6*s),CFrame.new(b+Vector3.new(0,1.3*s,-1.5*s)),Color3.fromRGB(255,140,40),{ghost=true})
   m.WorldPivot=CFrame.new(b)
  end
- label(z,"튜브 타기 (가까이 가서 E)",Vector3.new(-292,6,-70))
+ label(z,"튜브 타기 (가까이 가기)",Vector3.new(-292,6,-70))
 
  -- OCEAN-VIEW CAFE (OHU CAFE · Sunset): raised floor, full-height glass on
  -- the sea side (west), counter + order (SnackShop "BeachCafe"), window bar
@@ -671,7 +671,7 @@ local z=zone("04_Beach_Aquarium")
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0 g.Parent=menu
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1)
    l.Text="OHU CAFE MENU\n아이스 아메리카노 · 카페라떼\n블루 레몬에이드 · 망고 스무디" l.Parent=g end
-  label(cm,"☕ 주문 (E)",Vector3.new(x1-6,FY+8,39))
+  label(cm,"☕ 음료 주문",Vector3.new(x1-6,FY+8,39))
   -- window bar facing the sea with stools
   box(cm,"WindowBar",x0+0.6,FY+3.2,z0+3,x0+2.4,FY+3.5,z1-3,Color3.fromRGB(190,150,100))
   for k=0,6 do local sz=z0+5+k*4 local pos=Vector3.new(x0+4.2,FY+2.3,sz)
@@ -1059,7 +1059,7 @@ local z=zone("07_Hanok_Village")
   local counter=box(cafe,"Counter",243,1.8,238,246,5.2,252,Color3.fromRGB(150,105,70))
   local top=box(cafe,"CounterTop",242.8,5.2,237.8,246.2,5.5,252.2,Color3.fromRGB(235,225,205))
   top:SetAttribute("Shop","HanokCafe") CS:AddTag(top,"SnackShop")
-  label(cafe,"🍵 주문 (E)",Vector3.new(244.5,10,245))
+  label(cafe,"🍵 음료 주문",Vector3.new(244.5,10,245))
   for _,tz in ipairs({238,246,254}) do
    P(cafe,"LowTable",Vector3.new(3.2,0.3,3.2),CFrame.new(238,2.9,tz),Color3.fromRGB(110,70,45))
    P(cafe,"LowTableLegs",Vector3.new(2.6,1.0,2.6),CFrame.new(238,2.3,tz),Color3.fromRGB(110,70,45))

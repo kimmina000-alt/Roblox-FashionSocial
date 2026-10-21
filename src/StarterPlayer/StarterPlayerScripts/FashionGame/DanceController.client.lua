@@ -423,13 +423,17 @@ local function layoutPanel()
 	-- the panel is closed with X to walk.
 	local bottomFree = if UserInputService.TouchEnabled and viewport.Y >= 520 then 150 else 10
 	local height = math.clamp(viewport.Y - top - bottomFree, 200, 560)
-	panel.Position = UDim2.fromOffset(10, top)
+	-- Phones in landscape: the panel needs the full height, so it moves right
+	-- of the thumbstick instead (user mobile test 2026-10-22: the panel hid
+	-- the thumbstick, so you could not walk while it was open).
+	local leftX = if UserInputService.TouchEnabled and viewport.Y < 520 then 170 else 10
+	panel.Position = UDim2.fromOffset(leftX, top)
 	panel.Size = UDim2.fromOffset(width, height)
 	-- Short screens: slightly smaller dance buttons so more fit.
 	gridLayout.CellSize = UDim2.new(0.5, -4, 0, if viewport.Y < 450 then 32 else 36)
 	-- Banner, sync pill and player card sit between the open panel and the
 	-- top-right buttons (🎵 💃 C); centred on screen when there is room.
-	local leftEdge = if panel.Visible then 10 + width + 10 else 10
+	local leftEdge = if panel.Visible then leftX + width + 10 else 10
 	local rightEdge = viewport.X - 180
 	local function place(item: GuiObject, wanted: number, y: number)
 		local w = math.max(math.min(wanted, rightEdge - leftEdge), 160)

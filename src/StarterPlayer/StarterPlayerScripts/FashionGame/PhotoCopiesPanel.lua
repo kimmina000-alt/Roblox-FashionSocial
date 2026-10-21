@@ -27,14 +27,31 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 	if old then old:Destroy() end
 	local maxCount = math.max(1, info.max)
 	local count = 1
-	local panel = make("Frame", {
+	local outer = make("Frame", {
 		Name = "CopiesPanel",
 		Size = UDim2.fromScale(1, 1),
 		BackgroundTransparency = 1,
 		ZIndex = zIndex,
 	}, parent)
+	-- Fixed 260 × 206 content, scaled down to fit small (phone) boxes
+	-- (user mobile test 2026-10-22: texts overlapped).
+	local panel = make("Frame", {
+		Name = "Content",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(260, 206),
+		BackgroundTransparency = 1,
+		ZIndex = zIndex,
+	}, outer)
+	local scale = make("UIScale", {}, panel)
+	local function fit()
+		local size = outer.AbsoluteSize
+		scale.Scale = math.clamp(math.min(size.X / 270, size.Y / 216), 0.4, 1.3)
+	end
+	outer:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+	task.defer(fit)
 	make("TextLabel", {
-		Position = UDim2.fromScale(0, 0.06),
+		Position = UDim2.fromOffset(0, 0),
 		Size = UDim2.new(1, 0, 0, 30),
 		BackgroundTransparency = 1,
 		Font = Enum.Font.GothamBlack,
@@ -44,8 +61,8 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		ZIndex = zIndex,
 	}, panel)
 	make("TextLabel", {
-		Position = UDim2.new(0, 0, 0.06, 34),
-		Size = UDim2.new(1, 0, 0, 22),
+		Position = UDim2.fromOffset(0, 32),
+		Size = UDim2.new(1, 0, 0, 20),
 		BackgroundTransparency = 1,
 		Font = Enum.Font.GothamMedium,
 		TextSize = 14,
@@ -55,8 +72,8 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 	}, panel)
 	-- <  1  >
 	local row = make("Frame", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.45),
+		AnchorPoint = Vector2.new(0.5, 0),
+		Position = UDim2.new(0.5, 0, 0, 60),
 		Size = UDim2.fromOffset(220, 64),
 		BackgroundColor3 = Color3.fromRGB(40, 38, 50),
 		ZIndex = zIndex,
@@ -94,8 +111,8 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 	}, row)
 	local cost = make("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromScale(0.5, 0.58),
-		Size = UDim2.new(1, 0, 0, 24),
+		Position = UDim2.new(0.5, 0, 0, 130),
+		Size = UDim2.new(1, 0, 0, 22),
 		BackgroundTransparency = 1,
 		Font = Enum.Font.GothamBold,
 		TextSize = 15,
@@ -106,8 +123,8 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 	local save = make("TextButton", {
 		Name = "SaveCopies",
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.fromScale(0.5, 0.72),
-		Size = UDim2.fromOffset(220, 42),
+		Position = UDim2.new(0.5, 0, 0, 160),
+		Size = UDim2.fromOffset(220, 44),
 		BackgroundColor3 = Color3.fromRGB(255, 214, 90),
 		Font = Enum.Font.GothamBold,
 		TextSize = 17,
@@ -137,10 +154,10 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		save.Text = "저장 중..."
 		onSave(count)
 		busy = false
-		if panel.Parent then refresh() end
+		if outer.Parent then refresh() end
 	end)
 	refresh()
-	return panel
+	return outer
 end
 
 return PhotoCopiesPanel

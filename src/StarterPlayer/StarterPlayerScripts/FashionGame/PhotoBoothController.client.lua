@@ -155,7 +155,13 @@ local function boxRect(kind: string): (number, number, number, number)
 	local top = math.max(GuiService.TopbarInset.Max.Y, 36) + 6
 	local bottomRoom = 84 -- hotbar / inventory
 	local w, h
-	if kind == "album" then
+	if vp.Y < 500 then
+		-- Phone (landscape, user mobile test 2026-10-22): no hotbar, little
+		-- height, so use almost all of it and more of the width.
+		bottomRoom = 8
+		w = math.min(820, math.floor(vp.X * 0.66))
+		h = vp.Y - top - bottomRoom
+	elseif kind == "album" then
 		w = math.min(760, math.max(280, math.floor(vp.X * 0.42)))
 		h = math.min(math.max(260, math.floor(vp.Y * 0.58)), vp.Y - top - bottomRoom)
 	else
@@ -468,6 +474,13 @@ shoot:GetPropertyChangedSignal("Visible"):Connect(function()
 			if other.Parent then other.Enabled = true end
 		end
 		table.clear(hiddenGuis)
+	end
+	-- Name tags (nickname + XP) over the heads would sit in the photo window
+	-- (user mobile test 2026-10-22): hidden on this screen while shooting.
+	for _, other in ipairs(Players:GetPlayers()) do
+		local head = other.Character and other.Character:FindFirstChild("Head")
+		local tag = head and head:FindFirstChild("OHUNameTag")
+		if tag and tag:IsA("BillboardGui") then tag.Enabled = not shoot.Visible end
 	end
 end)
 

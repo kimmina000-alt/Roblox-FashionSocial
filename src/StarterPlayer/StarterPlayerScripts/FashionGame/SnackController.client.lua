@@ -139,7 +139,14 @@ local function show(shopKey: string)
 			if ok then task.delay(1.2, function() if openShop == shopKey then hide() end end) end
 		end)
 	end
-	panel.Size = UDim2.fromOffset(320, 100 + #shop.items * 48)
+	local height = 100 + #shop.items * 48
+	panel.Size = UDim2.fromOffset(320, height)
+	-- Phones: scale the whole menu down to fit the screen height (user mobile
+	-- test 2026-10-22: the bottom was cut off).
+	local camera = workspace.CurrentCamera
+	local vp = if camera then camera.ViewportSize else Vector2.new(1000, 800)
+	local scale = panel:FindFirstChildOfClass("UIScale") or make("UIScale", {}, panel)
+	scale.Scale = math.clamp(math.min((vp.Y - 24) / height, (vp.X - 24) / 320), 0.5, 1)
 	panel.Visible = true
 end
 

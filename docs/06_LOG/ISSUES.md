@@ -263,3 +263,15 @@ Rides moved at 30 Hz while riders moved every frame → both every frame. Camera
 
 ### ISSUE-STUDIO-003 — Studio 3D view white after an MCP reconnect (open)
 After a long execute_luau timed out and MCP reconnected, the play view rendered white (GUI only). Code unaffected; restart the play test.
+
+### ISSUE-MOBILE-001 — Mobile 2-player test (2026-10-22, Studio phone emulation 705×338, touch)
+Fixed:
+- Cafe / ice cream menu cut off at the bottom → menu scales to the screen (SnackController).
+- Photo booth boxes small on phones → on screens < 500 px tall the pick / frame / result / album box uses the full height and 66 % of the width.
+- "몇 장 저장할까요?" texts and buttons overlapped → fixed-size content scaled to fit (PhotoCopiesPanel).
+- Name tags (nickname + XP) showed inside the shooting window → hidden while shooting.
+- Dance panel covered the thumbstick (no walking while open) → on phones it opens right of the thumbstick.
+- Ride buttons: no "[E]" hint without a keyboard; on phones the bar sits low between the thumbstick and jump.
+- World labels without "(E)" (tube, cafe counters).
+Checked OK on mobile: wait bar, shooting screen, host picking + watching, copies → save, VIP purchase window, ferris wheel tap to board (내리기 / 1인칭 buttons).
+Not checked by tap (Studio cannot inject taps at the right place in phone emulation): catalog C button, album, 📸 menu — please tap them once on a real phone.
