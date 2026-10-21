@@ -412,3 +412,15 @@ Follow `docs/00_PROJECT/DEVELOPMENT_ORDER.md`, starting with P0 Catalog correctn
 - [x] Saved cut with crown + sunglasses in place; wall shows 4 cuts.
 - [x] Ferris wheel board at the bottom, ride up, leave refused away from the bottom; carousel board/leave; swing +/− (4/5); spring rider; slide → 야호.
 - [ ] Two players; phone layout; economy v2 code; VIP pass purchase through the new wall on a real server.
+
+## 2026-10-22 (2) — Fixes + beach, cafe, hanok village, XP
+
+### Done
+- GitHub push works from this machine now (user signed in once through Git Credential Manager in the Terminal tab).
+- Fixes: park E key + V view toggle (ISSUE-PARK-003), club rebuilt in place (ISSUE-CLUB-008), pillar 30 s random rotation.
+- XP name tags (D-078). Beach: terrain sea + swimming, tubes, ducks, parasols, palms, ice cream truck (D-075). Shared cafe/snack system + ocean-view cafe (D-076). Hanok village (D-077).
+- Studio sync tools: `zones.ps1` builds only the chosen graybox zones; HTTP sync as before.
+
+### Checks (Studio, 1 player)
+- [x] XP tag (0 → 3 after 3 min), VIP wall → stair → 2F walk (with pass), swimming state in the sea, tube ride with E, ice cream purchase (22 → 7 coins) and eating, cafe order → sit on a window stool → drink, hanok village and cafe screenshots.
+- [ ] Two-player pillar test with different outfits (needs a new 2-player session).

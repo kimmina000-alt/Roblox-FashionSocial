@@ -236,3 +236,11 @@ OHU PHOTO / OHU CLUB / OHU CAFE; OHU as the shop name on signs. VISION.md.
 
 D-074 — Economy v2 first test (2026-10-22).
 1 coin per minute online regardless of activity, no first-login bonus, photo/dance/wall rewards off, no daily cap; XP (never spent, shown above the name) separate from the coin balance; test prices 30–60 / 60–120 / 120–180. Code still v1. ECONOMY.md.
+
+D-075 — Beach: Terrain-water sea with real swimming, floating tubes (ride with E) and ducks, varied parasol groups with sittable chairs and mats, palms, ice cream truck (💰15 cones) (2026-10-22). BEACH.md §8.
+
+D-076 — Shared snack/cafe system (SnackConfig/Service/Controller): counter prompt → menu → hand-held item → sip/lick, sit anywhere. First used by the ocean-view beach cafe (full-glass west wall, replaces the kiosk idea of D-072), the hanok cafe and the ice cream truck (2026-10-22). CAFE.md §10.
+
+D-077 — Hanok village graybox from the user's references: flower walls, gate with cherry trees, stone alley, lotus pond with pavilion and arched bridge, fusion OHU 한옥카페 with persimmon courtyard, window-frame spot, stone-stair alley to a hill lookout (2026-10-22). HANOK_VILLAGE.md.
+
+D-078 — XP: +1 per minute online, shown with the nickname above the head (2026-10-22). ECONOMY.md §6.

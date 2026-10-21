@@ -1,3 +1,8 @@
+## 2026-10-22 (2) — Beach, cafes, hanok village, XP, fixes
+- New: NameTagService (XP tag), SnackConfig/SnackService/SnackController + remotes Snack/SnackNotify, ParkConfig.floatCFrame + FloatTube rides.
+- Changed: EconomyService (+1 XP per minute), PlayerDataService (wallet.xp), ClubScreenService (30 s, immediate switch), ParkRidesController (E / V keys, tubes, floating decorations), ParkRideService (tubes).
+- Graybox: 00_Ground (sea floor + Terrain water), 02_Club rebuilt in place, 04 beach rebuilt, 07 hanok village rebuilt; global `beam()` helper.
+
 ## 2026-10-22 — Club rev4, live LED pillars, PARK rides, photo booth fixes
 - Graybox 02_Club rev4 (VIP wall in the corridor, VIP stair, mid-corridor hall door, 2F VIP U, table zone, DJ deck 180°, chevron stairs, 2 tall LED pillars); 06_Park_Playground rides; booth CameraPoint level. `cyl()` no longer mutates the shared option table.
 - ClubLightsController: live avatar on the pillar panels (ViewportFrame copies, SurfaceGuis in PlayerGui).

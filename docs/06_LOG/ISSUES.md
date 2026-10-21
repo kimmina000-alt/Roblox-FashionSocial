@@ -245,3 +245,12 @@ Angles built from the server clock (~1.8e9 s) were huge; CFrame.Angles is single
 
 ### ISSUE-PARK-002 — Open: two-player ride test, phone buttons, "야호" voice clip
 Single-player Studio test passed for all five rides (board, ride, leave, swing +/−, slide + 야호). Still to check: two people in one gondola / seeing other riders, button positions on a phone, choosing a licensed voice clip.
+
+### ISSUE-CLUB-008 — Club sunk into the ground / VIP stair blocked (fixed 2026-10-22)
+The saved place had the whole 02_Club model moved (2, -6, -29) relative to the graybox script, so it no longer matched the ground hole: the building sat 6 studs too low and Ground_N covered the top of the VIP stair. Rebuilt from the script; walked through the VIP wall and up to the 2F landing with a VIP pass. Tip: do not drag graybox zones in Studio — change the script.
+
+### ISSUE-PARK-003 — Stuck in first person on the ferris wheel (fixed 2026-10-22)
+LockFirstPerson locks the mouse, so the 3인칭 button could not be clicked. Fix: V toggles the view; the view button is Modal in first person (frees the mouse).
+
+### ISSUE-CLUB-001 (update 2026-10-22) — Two-player pillar test still to do
+Pillar rotation is now 30 s, random order, immediate switch when the shown player leaves. The two-player check (different outfits, both appear in turn) waits for a new 2-player test session: the running one used old code and could not be stopped from MCP.
