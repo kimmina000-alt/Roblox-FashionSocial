@@ -467,20 +467,21 @@ game:GetService("ScriptEditorService"):UpdateSourceAsync(sc,function() return st
 -- Graybox only: rooftop elevator placeholder (replace with a real lift in the art pass).
 local up, down = script.Parent:WaitForChild("ElevatorPadUp"), script.Parent:WaitForChild("ElevatorPadDown")
 local busy = {}
-local function hook(pad, target)
+-- targets are relative to the other pad, so they follow when the club is moved
+local function hook(pad, other, offset)
 	pad.Touched:Connect(function(hit)
 		local character = hit.Parent
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		if not humanoid or busy[humanoid] then return end
 		busy[humanoid] = true
-		character:PivotTo(CFrame.new(target))
+		character:PivotTo(CFrame.new(other.CFrame:PointToWorldSpace(offset)))
 		task.wait(1.5)
 		busy[humanoid] = nil
 	end)
 end
-hook(up, Vector3.new(40, %d, -178))
-hook(down, Vector3.new(36, 4, -130))
-]==],RT+4) end)
+hook(up, down, Vector3.new(-20, 3.4, -16))
+hook(down, up, Vector3.new(0, 3.4, 10))
+]==]) end)
 
 -- music zones (ClubConfig.ZoneVolumes) and the club interior (dancing allowed)
 local function zoneBox(name,x0,y0,z0,x1,y1,z1,zoneName)

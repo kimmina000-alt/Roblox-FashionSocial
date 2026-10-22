@@ -1,25 +1,39 @@
--- TEMPORARY layout test: OHU 배치도 v1 (docs/02_WORLDS/HONGDAE_LAYOUT.md).
+-- TEMPORARY layout test v2 (docs/02_WORLDS/HONGDAE_LAYOUT.md "v2").
 -- Run in the Studio command bar (Edit mode). Set MODE below:
---   "apply"  → moves the zones to the Hongdae layout, hides the old ring
---              plaza, adds the station + streets (Workspace.Hongdae_v1_Temp)
+--   "apply"  → moves zones to the layout, hides the old ring plaza paths and
+--              ground pieces, adds Workspace.Hongdae_v1_Temp (station, streets,
+--              ground with the club hole in its new place, sunset photo spot)
 --   "revert" → puts everything back exactly as built
--- Compass for this layout: north = +X, east = +Z (so the beach/sea in the
--- west of the old map becomes the Han river in the south, like the real map).
--- The club (underground hole in 00_Ground) and the beach (terrain sea) stay
--- where they are; everything else is placed around them.
+-- Real compass in Roblox (Lighting:GetSunDirection, measured 2026-10-22):
+-- the sun rises at +X (east) and sets at -X (west); at noon it leans to -Z
+-- (south). So north = +Z. The sea is already in the west (-X): sunset over it.
 local MODE = ... or "apply"
 
 local root = workspace:WaitForChild("Graybox_MainSocial")
 local SS = game:GetService("ServerStorage")
 local HIDE = "Hongdae_v1_HiddenParts"
+local function R(deg) return CFrame.Angles(0, math.rad(deg), 0) end
 
--- zone → target move (applied to the zone's built pivot)
+-- zone → world move applied to the zone's built pivot
 local MOVES = {
-	["03_Rooftop_Backstage"] = CFrame.new(40, 0, 130) * CFrame.Angles(0, math.rad(90), 0) * CFrame.new(-125, 0, 160),
-	["05_Cafe"] = CFrame.new(250, 0, -70) * CFrame.new(130, 0, -185),
-	["06_Park_Playground"] = CFrame.new(25, 0, -230),
-	["08_PhotoBooth"] = CFrame.new(70, 0, -32) * CFrame.new(-205, 0, 112),
+	-- ④ club: north of the plaza, entrance + neon sign turned to face the plaza
+	["02_Club"] = CFrame.new(0, 0, 230) * R(180) * CFrame.new(0, 0, 210),
+	-- ② hanok village: south-east, gate turned to face south-east (morning sun)
+	["07_Hanok_Village"] = CFrame.new(265, 0, -240) * R(-45) * CFrame.new(-175, 0, -230),
+	-- ⑤ photo booth: on the street between the plaza and the east, sign to the street
+	["08_PhotoBooth"] = CFrame.new(110, 0, 45) * R(-90) * CFrame.new(-205, 0, 112),
+	-- fashion week runway next to the club (concert / show space)
+	["03_Rooftop_Backstage"] = CFrame.new(5, 0, 410),
+	-- park rides at the east end of the photo booth street
+	["06_Park_Playground"] = CFrame.new(15, 0, 60),
 }
+-- parts set aside while the layout is applied (restored by revert)
+local function shouldHide(zn, p)
+	if zn == "09_Paths" then return true end
+	if zn == "01_Plaza_Street" then return p.Name == "Loop" or p.Name == "Spoke" or p.Name:find("^BG_Building") ~= nil end
+	if zn == "00_Ground" then return p.Name == "Ground_N" or p.Name == "Ground_S" or p.Name == "Ground_W" or p.Name == "Ground_E" end
+	return false
+end
 
 local function moveTo(m: Model, target: CFrame)
 	local d = target * m:GetPivot():Inverse()
@@ -35,11 +49,10 @@ end
 
 local spawn = workspace:FindFirstChild("SpawnLocation") :: SpawnLocation?
 
-if MODE == "revert" then
-	for name in pairs(MOVES) do
-		local z = root:FindFirstChild(name)
-		local b = z and z:GetAttribute("BuiltPivot")
-		if typeof(b) == "CFrame" then moveTo(z, b) end
+local function revert()
+	for _, z in ipairs(root:GetChildren()) do
+		local b = z:GetAttribute("BuiltPivot")
+		if z:IsA("Model") and typeof(b) == "CFrame" and z:GetPivot() ~= b then moveTo(z, b) end
 	end
 	local hidden = SS:FindFirstChild(HIDE)
 	if hidden then
@@ -54,33 +67,56 @@ if MODE == "revert" then
 		spawn.Position = spawn:GetAttribute("OldPosition")
 		spawn:SetAttribute("OldPosition", nil)
 	end
-	return "reverted (zones back to BuiltPivot, ring plaza restored, temp model removed)"
 end
 
--- apply ------------------------------------------------------------------
+if MODE == "revert" then
+	revert()
+	return "reverted (zones back to BuiltPivot, hidden parts restored, temp model removed)"
+end
+
+-- apply (always from the built layout, so it can be re-run) -----------------
+revert()
 for name, d in pairs(MOVES) do
 	local z = root:FindFirstChild(name)
 	local b = z and z:GetAttribute("BuiltPivot")
 	if typeof(b) == "CFrame" then moveTo(z, d * b) end
 end
 
--- hide the old ring plaza (Loop/Spoke) and the old connecting paths
-local hidden = SS:FindFirstChild(HIDE) or Instance.new("Folder")
+local hidden = Instance.new("Folder")
 hidden.Name = HIDE
 hidden.Parent = SS
-for _, zn in ipairs({ "01_Plaza_Street", "09_Paths" }) do
+local groundTemplate: BasePart? = nil
+for _, zn in ipairs({ "00_Ground", "01_Plaza_Street", "09_Paths" }) do
 	for _, p in ipairs(root[zn]:GetChildren()) do
-		if p:IsA("BasePart") and (p.Name == "Loop" or p.Name == "Spoke" or zn == "09_Paths") then
+		if p:IsA("BasePart") and shouldHide(zn, p) then
+			if p.Name == "Ground_N" then groundTemplate = p end
 			p:SetAttribute("HomeZone", zn)
 			p.Parent = hidden
 		end
 	end
 end
 
-local old = workspace:FindFirstChild("Hongdae_v1_Temp")
-if old then old:Destroy() end
 local T = Instance.new("Model")
 T.Name = "Hongdae_v1_Temp"
+
+-- ground around the club's new hole (x -80..80, z 170..290); the old ground
+-- spans x -268..1024, z -1024..1024
+if groundTemplate then
+	local y = groundTemplate.Position.Y
+	local h = groundTemplate.Size.Y
+	local function ground(name, x0, z0, x1, z1)
+		local g = groundTemplate:Clone()
+		g.Name = name
+		g.Size = Vector3.new(x1 - x0, h, z1 - z0)
+		g.CFrame = CFrame.new((x0 + x1) / 2, y, (z0 + z1) / 2)
+		g:SetAttribute("HomeZone", nil)
+		g.Parent = T
+	end
+	ground("Ground_S", -268, -1024, 1024, 170)
+	ground("Ground_N", -268, 290, 1024, 1024)
+	ground("Ground_W", -268, 170, -80, 290)
+	ground("Ground_E", 80, 170, 1024, 290)
+end
 
 local function part(name, size, cf, color, opt)
 	local p = Instance.new("Part")
@@ -98,9 +134,8 @@ end
 -- flat strip from a to b on the ground (x,z), width w
 local function strip(name, a: Vector2, b: Vector2, w, color, y)
 	local mid = (a + b) / 2
-	local len = (b - a).Magnitude
 	local cf = CFrame.lookAt(Vector3.new(mid.X, y or 0.06, mid.Y), Vector3.new(b.X, y or 0.06, b.Y))
-	return part(name, Vector3.new(w, 0.12, len), cf, color)
+	return part(name, Vector3.new(w, 0.12, (b - a).Magnitude), cf, color)
 end
 local function label(adornee: BasePart, text, color, offsetY, scale)
 	local g = Instance.new("BillboardGui")
@@ -131,59 +166,67 @@ end
 
 local GREY = Color3.fromRGB(150, 146, 140)
 local RED = Color3.fromRGB(205, 75, 70)
--- 양화로 (east-west boulevard, along Z)
-strip("Yanghwaro", Vector2.new(150, -420), Vector2.new(150, 420), 36, GREY)
-for z = -400, 400, 24 do
-	part("LaneDash", Vector3.new(0.6, 0.14, 10), CFrame.new(150, 0.08, z), Color3.new(1, 1, 1))
+local PURPLE = Color3.fromRGB(110, 85, 160)
+local SAND = Color3.fromRGB(215, 200, 170)
+
+-- 양화로 (east-west boulevard along X, south of the plaza; station on it)
+strip("Yanghwaro", Vector2.new(-198, -100), Vector2.new(420, -100), 36, GREY)
+for x = -180, 400, 24 do
+	part("LaneDash", Vector3.new(10, 0.14, 0.6), CFrame.new(x, 0.08, -100), Color3.new(1, 1, 1))
 end
-marker("양화로", 150, -300, Color3.fromRGB(80, 80, 80), 2, 0.8)
--- ① 걷고싶은거리 · 레드로드 → 클럽거리 → OHU CLUB
-strip("RedRoad", Vector2.new(128, -50), Vector2.new(0, -104), 18, RED)
-marker("① 걷고싶은거리 · 레드로드", 70, -82, RED, 3)
--- 클럽 입구 앞 클럽거리(잔다리로)
-strip("ClubStreet", Vector2.new(-80, -108), Vector2.new(80, -108), 16, Color3.fromRGB(110, 85, 160))
-marker("클럽거리 (잔다리로)", -40, -108, Color3.fromRGB(160, 110, 230), 3)
--- 홍대 놀이터 광장 (버스킹) = the old round center plaza, joined to the red road
-strip("PlaygroundLink", Vector2.new(70, -76), Vector2.new(40, -40), 12, RED)
-marker("홍대 놀이터 광장", 0, 0, Color3.fromRGB(200, 150, 40), 8)
--- ③ 와우산로 → 상수 → 한강 해변 (passes east of the plaza)
-strip("Wausanro_A", Vector2.new(124, -12), Vector2.new(70, 75), 22, GREY)
-strip("Wausanro_B", Vector2.new(78, 75), Vector2.new(-200, 75), 22, GREY)
-marker("③ 와우산로 → 상수 → 한강", -60, 75, Color3.fromRGB(42, 143, 179), 3)
--- ② 경의선 책거리 → 한옥 마을
-strip("BookStreet", Vector2.new(168, 0), Vector2.new(180, 160), 16, Color3.fromRGB(185, 160, 122))
-marker("② 경의선 책거리 → 한옥", 175, 80, Color3.fromRGB(150, 110, 60), 3)
--- ④ 경의선숲길 (연트럴파크) → 연남동 카페거리 → 공원
-local forest = strip("ForestPark", Vector2.new(168, -50), Vector2.new(300, -160), 34, Color3.fromRGB(120, 185, 110))
-forest.Material = Enum.Material.Grass
-strip("ForestWalk", Vector2.new(168, -50), Vector2.new(300, -160), 6, Color3.fromRGB(215, 200, 170), 0.1)
-marker("④ 경의선숲길 · 연트럴파크", 235, -110, Color3.fromRGB(60, 140, 60), 3)
-marker("연남동 카페거리", 250, -40, Color3.fromRGB(60, 140, 60), 22)
--- street shops on 양화로 (blocks)
-for i, s in ipairs({ { "노래방", 185, 30 }, { "세탁소", 185, 60 }, { "스터디카페", 120, 40 }, { "붕어빵", 120, -10 } }) do
-	local b = part("Shop_" .. s[1], Vector3.new(16, 12, 20), CFrame.new(s[2], 6, s[3]), Color3.fromRGB(225, 220, 210))
+marker("양화로", -150, -100, Color3.fromRGB(80, 80, 80), 2, 0.8)
+marker("중앙 광장 (홍대 놀이터)", 0, 0, Color3.fromRGB(200, 150, 40), 10)
+
+-- ① 클럽: plaza → north (red road), club neon sign seen from the plaza
+strip("RedRoad", Vector2.new(0, 58), Vector2.new(0, 152), 18, RED)
+marker("① 레드로드 → OHU CLUB (북쪽)", 0, 105, RED, 3)
+strip("ShowLink", Vector2.new(20, 158), Vector2.new(108, 184), 10, PURPLE)
+marker("런웨이·공연 무대 (클럽과 연결)", 130, 184, Color3.fromRGB(160, 110, 230), 4)
+
+-- ⑤ 포토부스 거리: plaza → east, booth on the north side, rides at the end
+strip("PhotoStreet", Vector2.new(58, 0), Vector2.new(216, 0), 16, Color3.fromRGB(235, 170, 190))
+marker("⑤ 포토부스 거리 → 공원", 160, 0, Color3.fromRGB(200, 70, 130), 3)
+
+-- ③ 서쪽 해변: plaza → west to the beach promenade (looking west at sunset)
+strip("BeachWalk", Vector2.new(-58, 0), Vector2.new(-198, 0), 14, SAND)
+marker("③ 해변 산책로 · 서쪽 석양", -140, 0, Color3.fromRGB(42, 143, 179), 3)
+-- sunset photo frame at the end of the north pier, facing the sea (west)
+local frameCol = Color3.fromRGB(255, 150, 90)
+local px, pz = -344, 80
+part("SunsetFramePostN", Vector3.new(1, 10, 1), CFrame.new(px, 6, pz + 5), frameCol, { material = Enum.Material.Neon })
+part("SunsetFramePostS", Vector3.new(1, 10, 1), CFrame.new(px, 6, pz - 5), frameCol, { material = Enum.Material.Neon })
+part("SunsetFrameTop", Vector3.new(1, 1, 11), CFrame.new(px, 11.5, pz), frameCol, { material = Enum.Material.Neon })
+marker("석양 포토 스팟 (서쪽 바다)", px, pz, frameCol, 16)
+
+-- ② 한옥 마을: boulevard → east → south to the gate (gate faces south-east)
+strip("BookStreet_A", Vector2.new(390, -100), Vector2.new(390, -335), 14, Color3.fromRGB(185, 160, 122))
+strip("BookStreet_B", Vector2.new(390, -335), Vector2.new(316, -290), 14, Color3.fromRGB(185, 160, 122))
+marker("② 책거리 → 한옥 대문 (동남향)", 390, -220, Color3.fromRGB(150, 110, 60), 3)
+
+-- shops along the boulevard
+for _, s in ipairs({ { "노래방", -110 }, { "세탁소", -75 }, { "스터디카페", 70 }, { "붕어빵", 105 } }) do
+	local b = part("Shop_" .. s[1], Vector3.new(24, 12, 16), CFrame.new(s[2], 6, -134), Color3.fromRGB(225, 220, 210))
 	label(b, s[1], Color3.fromRGB(70, 70, 70), 8, 0.6)
 end
 
--- OHU입구역 (station hall on 양화로, spawn inside)
+-- OHU입구역 on the boulevard just south of the plaza (spawn inside, facing north)
 local ST = Instance.new("Model")
 ST.Name = "OHU_Station"
 ST.Parent = T
 local GREEN = Color3.fromRGB(46, 125, 50)
-local cx, cz = 150, -30
+local cx, cz = 0, -100
 part("StationFloor", Vector3.new(56, 0.4, 44), CFrame.new(cx, 0.2, cz), Color3.fromRGB(205, 210, 205), { parent = ST })
 local roof = part("StationRoof", Vector3.new(58, 1, 46), CFrame.new(cx, 14, cz), GREEN, { parent = ST, transparency = 0.35 })
 label(roof, "OHU입구역", Color3.new(1, 1, 1), 5, 1.2)
 for _, c in ipairs({ { -27, -21 }, { 27, -21 }, { -27, 21 }, { 27, 21 } }) do
 	part("Pillar", Vector3.new(2, 14, 2), CFrame.new(cx + c[1], 7, cz + c[2]), GREEN, { parent = ST })
 end
-part("Gates", Vector3.new(2, 4, 30), CFrame.new(cx + 6, 2, cz), Color3.fromRGB(60, 60, 60), { parent = ST })
--- exits ① SW ② E ③ S ④ NW
+part("Gates", Vector3.new(30, 4, 2), CFrame.new(cx, 2, cz - 6), Color3.fromRGB(60, 60, 60), { parent = ST })
 local EXITS = {
-	{ "1", "클럽", Color3.fromRGB(255, 122, 214), cx - 28, cz - 22 },
-	{ "2", "한옥 마을", Color3.fromRGB(185, 135, 74), cx + 4, cz + 23 },
-	{ "3", "한강 해변", Color3.fromRGB(42, 143, 179), cx - 29, cz + 10 },
-	{ "4", "연남·공원", Color3.fromRGB(76, 175, 80), cx + 28, cz - 22 },
+	{ "1", "클럽 (북쪽)", Color3.fromRGB(255, 122, 214), cx - 8, cz + 22 },
+	{ "2", "한옥 마을 (동남)", Color3.fromRGB(185, 135, 74), cx + 28, cz - 16 },
+	{ "3", "해변 (서쪽)", Color3.fromRGB(42, 143, 179), cx - 29, cz },
+	{ "4", "포토부스·공원 (동쪽)", Color3.fromRGB(76, 175, 80), cx + 18, cz + 22 },
 }
 for _, e in ipairs(EXITS) do
 	local post = part("Exit" .. e[1], Vector3.new(3, 9, 3), CFrame.new(e[4], 4.5, e[5]), e[3], { parent = ST })
@@ -192,7 +235,7 @@ end
 
 if spawn then
 	if not spawn:GetAttribute("OldPosition") then spawn:SetAttribute("OldPosition", spawn.Position) end
-	spawn.Position = Vector3.new(cx - 8, 0.5, cz)
+	spawn.CFrame = CFrame.new(cx, 0.5, cz - 12) -- default orientation looks -Z; players face the way they walk
 end
 T.Parent = workspace
-return "applied: station at (" .. cx .. "," .. cz .. "), MODE=revert to undo"
+return "applied v2: station at (" .. cx .. "," .. cz .. "), MODE=revert to undo"
