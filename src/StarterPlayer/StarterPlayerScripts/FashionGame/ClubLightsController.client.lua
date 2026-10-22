@@ -17,6 +17,7 @@ local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
+local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 
 local DRAW_DISTANCE = 260
 
@@ -81,6 +82,9 @@ CollectionService:GetInstanceAddedSignal("ClubLaser"):Connect(addEmitter)
 
 local function updateLasers(t: number)
 	local on = FashionGame:GetAttribute("ClubLights") ~= false
+	-- DJ colour pick (ClubLightColor); rainbow / none = colour cycle
+	local picked = ClubConfig.findLightColor(FashionGame:GetAttribute("ClubLightColor"))
+	local fixed: Color3? = picked and picked.color
 	-- Pattern changes every 12 s: 0 = circle sweep, 1 = fan sweep.
 	local pattern = math.floor(t / 12) % 2
 	for _, entry in ipairs(emitters) do
@@ -104,8 +108,14 @@ local function updateLasers(t: number)
 					offset = Vector3.new(spread + swing, 0, math.cos(t * 0.9 + entry.index) * 10)
 				end
 				entry.targets[i].WorldPosition = base + offset
-				local hue = (t * 0.05 + entry.index * 0.13 + i * 0.07) % 1
-				local color = Color3.fromHSV(hue, 0.85, 1)
+				local color: Color3
+				if fixed then
+					-- one colour, beams shimmer slightly brighter / darker
+					color = fixed:Lerp(Color3.new(1, 1, 1), 0.15 * (0.5 + 0.5 * math.sin(t * 3 + i + entry.index)))
+				else
+					local hue = (t * 0.05 + entry.index * 0.13 + i * 0.07) % 1
+					color = Color3.fromHSV(hue, 0.85, 1)
+				end
 				beam.Color = ColorSequence.new(color)
 			end
 		end

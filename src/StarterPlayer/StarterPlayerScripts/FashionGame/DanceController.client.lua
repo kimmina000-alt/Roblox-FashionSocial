@@ -1092,6 +1092,9 @@ RunService.RenderStepped:Connect(function(dt)
 		local pulse = math.clamp(music.PlaybackLoudness / 500, 0, 1)
 		-- The DJ can switch the lights off (attribute ClubLights = false).
 		local lightsOff = FashionGame:GetAttribute("ClubLights") == false
+		-- DJ colour pick (ClubLightColor): beat lights take the colour
+		local picked = ClubConfig.findLightColor(FashionGame:GetAttribute("ClubLightColor"))
+		local tint: Color3? = picked and picked.color
 		for _, part in ipairs(CollectionService:GetTagged("ClubBeat")) do
 			if part:IsA("BasePart") then
 				local base = beatBase[part]
@@ -1099,7 +1102,8 @@ RunService.RenderStepped:Connect(function(dt)
 					base = part.Color
 					beatBase[part] = base
 				end
-				part.Color = if lightsOff then base:Lerp(Color3.new(0, 0, 0), 0.7) else base:Lerp(Color3.new(1, 1, 1), pulse * 0.45)
+				local lit = if tint then tint else base
+				part.Color = if lightsOff then base:Lerp(Color3.new(0, 0, 0), 0.7) else lit:Lerp(Color3.new(1, 1, 1), pulse * 0.45)
 			end
 		end
 	end

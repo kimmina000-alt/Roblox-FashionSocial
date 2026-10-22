@@ -397,7 +397,7 @@ do
  -- laptop on a stand, screen facing the DJ (east)
  box(m,"LaptopStand",66.6,deckY,-218.6,67.4,deckY+1.2,-217.4,Color3.fromRGB(150,150,160))
  P(m,"LaptopScreen",Vector3.new(0.1,1.5,2.3),CFrame.new(67.6,deckY+2,-218)*CFrame.Angles(0,0,math.rad(-12)),Color3.fromRGB(90,160,255),{mat=Enum.Material.Neon})
- label(m,"🎧 DJ 테이블 (DJ: 클릭하면 음악 창)",Vector3.new(66,S0+8,-218))
+ label(m,"🎧 DJ 턴테이블 · 디제잉하기 (E)",Vector3.new(66,S0+8,-218))
  -- The DJ stands at the wall (east) facing the crowd: turn the decks, mixer
  -- and laptop 180° so they face the DJ, not the dance floor (user, 2026-10-22).
  -- The desk body and its glowing front stay facing the crowd.

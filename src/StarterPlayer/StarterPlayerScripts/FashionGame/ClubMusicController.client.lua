@@ -1,6 +1,10 @@
 --!strict
--- Club music panel (client): 🎵 button next to 💃, shown ONLY to the current
--- DJ (user, 2026-10-20). Others buy DJ time at the DJ zone gate.
+-- Club music panel (client). Opened with the "디제잉하기" prompt (E) at the DJ
+-- turntable (user, 2026-10-22: the 🎵 top-bar button is gone). The DJ starts
+-- DJing there (DjService.Actions.Djing: DJ spot + hand motion); others see the
+-- same window with DJ time to buy / song requests.
+-- Phones (short screens): two columns, controls left and the song list right,
+-- so the list is never squeezed out (user, 2026-10-22: no songs on mobile).
 --   * DJ: 지금 틀기 / 다음 곡 / 건너뛰기, remaining time, 시간 연장, and the DJ
 --     console placeholders for future abilities (DJ_SYSTEM.md).
 --   * The no-DJ request list below is kept for when requests get their own
@@ -55,22 +59,6 @@ local gui = create("ScreenGui", {
 	DisplayOrder = 19,
 }, playerGui)
 
-local musicButton = create("TextButton", {
-	Name = "MusicButton",
-	AnchorPoint = Vector2.new(1, 0.5),
-	Size = UDim2.fromOffset(44, 44),
-	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
-	BackgroundTransparency = 0.2,
-	Text = "🎵",
-	TextSize = 22,
-	Font = Enum.Font.GothamBold,
-	TextColor3 = COLORS.text,
-	Visible = false,
-}, gui)
-create("UICorner", { CornerRadius = UDim.new(1, 0) }, musicButton)
-
--- Left of the 💃 button (which sits left of the catalog C button).
-require(script.Parent:WaitForChild("TopBar")).add(musicButton, 2)
 
 local panel = create("Frame", {
 	Name = "MusicPanel",
@@ -170,11 +158,13 @@ local function djToolButton(name: string, text: string, enabled: boolean): TextB
 		BackgroundColor3 = if enabled then COLORS.dj else COLORS.card,
 		Text = text,
 		TextColor3 = if enabled then COLORS.text else COLORS.sub,
-		TextSize = 13,
+		TextScaled = true,
 		Font = Enum.Font.GothamBold,
 		AutoButtonColor = enabled,
 	}, djTools)
 	corner(button, 8)
+	create("UITextSizeConstraint", { MaxTextSize = 13 }, button)
+	create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, button)
 	return button
 end
 local skipButton = djToolButton("Skip", "⏭ 건너뛰기", true)
@@ -182,6 +172,30 @@ local skipButton = djToolButton("Skip", "⏭ 건너뛰기", true)
 local guestsButton = djToolButton("Guests", "👥 초대", true)
 -- Club lights / lasers on-off (DjService.Actions.Lights, attribute ClubLights).
 local lightsButton = djToolButton("Lights", "💡 조명 ON", true)
+
+-- light colours (DJ only): ClubConfig.LightColors swatches
+local colorRow = create("Frame", {
+	Name = "LightColors",
+	BackgroundTransparency = 1,
+	Visible = false,
+}, panel)
+local colorGrid = create("UIGridLayout", { CellPadding = UDim2.fromOffset(4, 4), SortOrder = Enum.SortOrder.LayoutOrder }, colorRow)
+local colorButtons: {[string]: TextButton} = {}
+for index, entry in ipairs(ClubConfig.LightColors) do
+	local swatch = entry.color or Color3.fromRGB(60, 60, 75)
+	local button = create("TextButton", {
+		Name = "Color_" .. entry.key,
+		LayoutOrder = index,
+		BackgroundColor3 = swatch,
+		Text = if entry.color then "" else "🌈",
+		TextScaled = true,
+		Font = Enum.Font.GothamBold,
+		TextColor3 = COLORS.text,
+	}, colorRow)
+	corner(button, 6)
+	create("UIStroke", { Name = "Picked", Color = Color3.new(1, 1, 1), Thickness = 2, Enabled = false }, button)
+	colorButtons[entry.key] = button
+end
 
 local listTitle = create("TextLabel", {
 	Name = "ListTitle",
@@ -249,11 +263,66 @@ local function layout()
 	if not camera then return end
 	local viewport = camera.ViewportSize
 	local top = math.max(GuiService.TopbarInset.Max.Y, 36) + 8
-	local width = math.clamp(math.floor(viewport.X * 0.36), 260, 340)
-	-- Phones in landscape are ~340 px tall: fit the screen instead of a fixed minimum.
-	local height = math.min(viewport.Y - top - 10, 560)
+	local untilTime = FashionGame:GetAttribute("ClubDJUntil")
+	local dj = FashionGame:GetAttribute("ClubDJ") == player.UserId
+		and typeof(untilTime) == "number" and untilTime > workspace:GetServerTimeNow()
+	-- Phones in landscape are ~340 px tall: two columns (controls | songs).
+	local compact = viewport.Y < 450
+	local width = if compact then math.clamp(math.floor(viewport.X * 0.64), 380, 520) else math.clamp(math.floor(viewport.X * 0.36), 260, 340)
+	local height = math.min(viewport.Y - top - 8, 560)
 	panel.Position = UDim2.new(1, -width - 12, 0, top)
 	panel.Size = UDim2.fromOffset(width, height)
+	local W, H = width - 20, height - 20
+	local leftW = if compact then math.floor(W * 0.46) else W
+	local nowLabel = panel:FindFirstChild("NowLabel") :: TextLabel
+	local header = panel:FindFirstChild("Header") :: TextLabel
+	header.Size = UDim2.new(0, leftW - (if compact then 0 else 34), 0, 24)
+	nowLabel.Position = UDim2.fromOffset(0, if compact then 26 else 32)
+	nowLabel.Size = UDim2.fromOffset(leftW, if compact then 18 else 22)
+	nowLabel.TextSize = if compact then 13 else 16
+	local y = if compact then 48 else 58
+	djRow.Position = UDim2.fromOffset(0, y)
+	djRow.Size = UDim2.fromOffset(leftW, if compact then 58 else 40)
+	if compact then
+		djLabel.Position = UDim2.fromOffset(6, 2)
+		djLabel.Size = UDim2.new(1, -12, 0, 26)
+		djButton.AnchorPoint = Vector2.new(1, 1)
+		djButton.Position = UDim2.new(1, -4, 1, -4)
+		djButton.Size = UDim2.fromOffset(math.min(150, leftW - 8), 24)
+	else
+		djLabel.Position = UDim2.fromOffset(10, 0)
+		djLabel.Size = UDim2.new(1, -120, 1, 0)
+		djButton.AnchorPoint = Vector2.new(1, 0.5)
+		djButton.Position = UDim2.new(1, -6, 0.5, 0)
+		djButton.Size = UDim2.fromOffset(104, 30)
+	end
+	y += (if compact then 58 else 40) + 6
+	if dj then
+		djTools.Position = UDim2.fromOffset(0, y)
+		djTools.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
+		y += (if compact then 26 else 30) + 6
+		local perRow = if compact then 4 else 8
+		local rows = math.ceil(#ClubConfig.LightColors / perRow)
+		local cellH = if compact then 22 else 24
+		colorGrid.CellSize = UDim2.fromOffset(math.floor((leftW - (perRow - 1) * 4) / perRow), cellH)
+		colorRow.Position = UDim2.fromOffset(0, y)
+		colorRow.Size = UDim2.fromOffset(leftW, rows * (cellH + 4))
+		y += rows * (cellH + 4) + 4
+	end
+	if compact then
+		local x = leftW + 10
+		listTitle.Position = UDim2.fromOffset(x, 30)
+		listTitle.Size = UDim2.fromOffset(W - x, 18)
+		trackList.Position = UDim2.fromOffset(x, 50)
+		trackList.Size = UDim2.fromOffset(W - x, H - 50)
+		queueLabel.Visible = false
+	else
+		listTitle.Position = UDim2.fromOffset(0, y)
+		listTitle.Size = UDim2.new(1, 0, 0, 22)
+		trackList.Position = UDim2.fromOffset(0, y + 24)
+		trackList.Size = UDim2.new(1, 0, 1, -(y + 24) - 74)
+		queueLabel.Visible = true
+	end
 end
 layout()
 if workspace.CurrentCamera then
@@ -451,9 +520,12 @@ local function refresh()
 		djButton.Text = string.format("DJ %d분 · R$%d", MonetizationConfig.DJMinutes, MonetizationConfig.Products.DJ.price)
 	end
 	djTools.Visible = dj
-	listTitle.Position = UDim2.fromOffset(0, if dj then 140 else 104)
-	trackList.Position = UDim2.fromOffset(0, if dj then 164 else 128)
-	trackList.Size = UDim2.new(1, 0, 1, (if dj then -164 else -128) - 74)
+	colorRow.Visible = dj
+	local pickedColor = FashionGame:GetAttribute("ClubLightColor") or "rainbow"
+	for key, button in pairs(colorButtons) do
+		(button:FindFirstChild("Picked") :: UIStroke).Enabled = key == pickedColor
+	end
+	layout()
 	listTitle.Text = if dj and showGuests then "DJ 존 초대 (초대한 사람만 올라올 수 있어요)"
 		elseif dj then "곡 고르기 (지금 / 다음)" elseif djId ~= 0 then "DJ가 곡을 고르는 중" else "곡 신청 (한 번에 한 곡)"
 	guestsButton.Text = if showGuests then "🎵 곡 목록" else "👥 초대"
@@ -470,21 +542,24 @@ local function refresh()
 	queueLabel.Text = if #lines > 0 then "다음 곡\n" .. table.concat(lines, "\n") else "다음 곡: 자동 재생"
 end
 
+local openedAt: Vector3? = nil
 local function setPanelOpen(open: boolean)
 	panel.Visible = open
-	musicButton.BackgroundColor3 = if open then COLORS.accent else Color3.fromRGB(0, 0, 0)
 	if open then
+		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		openedAt = if root and root:IsA("BasePart") then root.Position else nil
 		layout()
 		refresh()
 		renderTracks()
 	end
 end
 
--- Only the DJ sees the 🎵 button; the panel closes when DJ time ends.
+-- The panel closes when the player walks away from where they opened it.
 local function updateVisibility()
-	local dj = isDJ()
-	musicButton.Visible = dj
-	if not dj and panel.Visible then setPanelOpen(false) end
+	if panel.Visible and openedAt then
+		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+		if not root or not root:IsA("BasePart") or (root.Position - openedAt).Magnitude > 24 then setPanelOpen(false) end
+	end
 end
 
 local function refreshAll()
@@ -493,13 +568,13 @@ local function refreshAll()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLightColor" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
-musicButton.MouseButton1Click:Connect(function()
-	setPanelOpen(not panel.Visible)
-end)
+for key, button in pairs(colorButtons) do
+	button.MouseButton1Click:Connect(function() call("LightColor", key) end)
+end
 closeButton.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
 end)
@@ -508,17 +583,38 @@ lightsButton.MouseButton1Click:Connect(function()
 	call("Lights", FashionGame:GetAttribute("ClubLights") == false)
 end)
 
--- The DJ table (parts tagged "DJConsole", each with a ClickDetector) opens
--- this window for the DJ (user, 2026-10-20); others get a short note.
+-- The DJ table (models tagged "DJConsole"): a local "디제잉하기" prompt (E)
+-- opens this window; the DJ also starts DJing (moved to the DJ spot, hand
+-- motion). The old ClickDetector still opens it for the DJ on desktop.
+local function startDjing()
+	if isDJ() then
+		pcall(function() Remotes:WaitForChild("Dance"):FireServer("Stop") end)
+		call("Djing", true)
+	end
+	setPanelOpen(true)
+end
 local function watchConsole(console: Instance)
+	local anchor = console:FindFirstChild("DeskTop", true) or console:FindFirstChildWhichIsA("BasePart", true)
+	if anchor and not anchor:FindFirstChild("DjingPrompt") then
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "DjingPrompt"
+		prompt.ActionText = "디제잉하기"
+		prompt.ObjectText = "DJ 턴테이블"
+		prompt.KeyboardKeyCode = Enum.KeyCode.E
+		prompt.HoldDuration = 0
+		prompt.MaxActivationDistance = 12
+		prompt.RequiresLineOfSight = false
+		prompt.Parent = anchor
+		prompt.Triggered:Connect(startDjing)
+	end
 	local detector = console:FindFirstChildWhichIsA("ClickDetector", true)
 	if not detector then return end
 	(detector :: ClickDetector).MouseClick:Connect(function(clicker)
 		if clicker ~= player then return end
 		if isDJ() then
-			setPanelOpen(true)
+			startDjing()
 		else
-			toast("DJ 테이블은 DJ만 쓸 수 있어요. 🎵 DJ 시간을 사면 곡과 조명을 고를 수 있어요.")
+			toast("DJ 테이블은 DJ만 쓸 수 있어요. DJ 시간을 사면 곡과 조명을 고를 수 있어요.")
 		end
 	end)
 end

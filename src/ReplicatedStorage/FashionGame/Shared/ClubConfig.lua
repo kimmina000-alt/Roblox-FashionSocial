@@ -113,6 +113,25 @@ export type Drink = {
 	coins: number?,
 }
 
+-- Club light colours the DJ can pick (user, 2026-10-22: "보통 클럽에서 쓰는
+-- 조명 색"). Lasers and beat lights use the colour; "rainbow" = colour cycle.
+ClubConfig.LightColors = {
+	{ key = "rainbow", name = "무지개", color = nil :: Color3? },
+	{ key = "magenta", name = "마젠타", color = Color3.fromRGB(255, 40, 200) },
+	{ key = "uv", name = "UV 보라", color = Color3.fromRGB(140, 60, 255) },
+	{ key = "blue", name = "딥 블루", color = Color3.fromRGB(40, 80, 255) },
+	{ key = "cyan", name = "시안", color = Color3.fromRGB(40, 230, 255) },
+	{ key = "red", name = "레드", color = Color3.fromRGB(255, 40, 60) },
+	{ key = "green", name = "그린 레이저", color = Color3.fromRGB(60, 255, 90) },
+	{ key = "white", name = "화이트 스트로브", color = Color3.fromRGB(255, 255, 255) },
+}
+function ClubConfig.findLightColor(key: any)
+	for _, entry in ipairs(ClubConfig.LightColors) do
+		if entry.key == key then return entry end
+	end
+	return nil
+end
+
 ClubConfig.Drinks = {
 	{ key = "water", name = "물", color = Color3.fromRGB(190, 230, 255) },
 	{ key = "cider", name = "사이다", color = Color3.fromRGB(200, 255, 200) },

@@ -18,6 +18,9 @@
 --   ClubDJUntil  server time the current DJ's time ends
 --   ClubDJQueue  number of people waiting
 --   ClubDJGuests JSON list of invited userIds
+--   ClubLights   lights on (nil/true) or off; ClubLightColor = ClubConfig.LightColors key
+-- Character attribute "Djing" = true while the DJ stands at the turntable
+-- after "디제잉하기" (clients show the DJ hand motion, DJMotionController).
 --
 -- DJ abilities live in ClubService (music) today. Future DJ features (lights,
 -- effects, announcements, crowd votes) hook in through DjService.IsDJ and the
@@ -28,6 +31,8 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local MonetizationConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("MonetizationConfig"))
+local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
+local CollectionService = game:GetService("CollectionService")
 
 local DjService = {}
 
@@ -63,6 +68,7 @@ local function startNext()
 	currentUntil = 0
 	table.clear(guests)
 	FashionGame:SetAttribute("ClubLights", true)
+	FashionGame:SetAttribute("ClubLightColor", "rainbow")
 	while #queue > 0 do
 		local slot = table.remove(queue, 1) :: Slot
 		if Players:GetPlayerByUserId(slot.userId) then
@@ -138,7 +144,7 @@ function DjService.AddTime(player: Player): (boolean, string?, string?)
 		currentUntil = now() + seconds
 		fromQueue = false
 		publish()
-		return true, string.format("지금부터 %d분 동안 DJ입니다! DJ 테이블이나 🎵 버튼으로 곡을 고르세요.", MonetizationConfig.DJMinutes), "start"
+		return true, string.format("지금부터 %d분 동안 DJ입니다! DJ 턴테이블 앞에서 '디제잉하기'를 누르세요.", MonetizationConfig.DJMinutes), "start"
 	end
 	table.insert(queue, { userId = player.UserId, seconds = seconds })
 	publish()
@@ -179,6 +185,53 @@ end
 DjService.Actions.Lights = function(_dj: Player, on: any): (boolean, any)
 	FashionGame:SetAttribute("ClubLights", on == true)
 	return true, if on == true then "조명을 켰어요." else "조명을 껐어요."
+end
+
+-- "LightColor" (payload = ClubConfig.LightColors key): colour of the lasers and
+-- beat lights; picking a colour also switches the lights on.
+DjService.Actions.LightColor = function(_dj: Player, key: any): (boolean, any)
+	local entry = ClubConfig.findLightColor(key)
+	if not entry then return false, "없는 조명 색이에요." end
+	FashionGame:SetAttribute("ClubLightColor", entry.key)
+	FashionGame:SetAttribute("ClubLights", true)
+	return true, "조명: " .. entry.name
+end
+
+-- "Djing" (payload = true): the DJ starts DJing at the turntable — moved to the
+-- DJ spot facing the crowd, character attribute Djing for the hand motion.
+-- It ends when they walk away from the spot or their DJ time ends.
+local function djSpot(): BasePart?
+	for _, spot in ipairs(CollectionService:GetTagged("DJSpot")) do
+		if spot:IsA("BasePart") and spot:IsDescendantOf(workspace) then return spot end
+	end
+	return nil
+end
+DjService.Actions.Djing = function(dj: Player, on: any): (boolean, any)
+	local character = dj.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not character or not root then return false, nil end
+	if on ~= true then
+		character:SetAttribute("Djing", nil)
+		return true, nil
+	end
+	local spot = djSpot()
+	if not spot then return false, "DJ 자리를 찾을 수 없어요." end
+	if (root.Position - spot.Position).Magnitude > 24 then return false, "턴테이블 앞으로 가 주세요." end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if humanoid and humanoid.SeatPart then humanoid.Sit = false end
+	character:PivotTo(spot.CFrame + Vector3.new(0, 2.5, 0))
+	if character:GetAttribute("Djing") then return true, nil end
+	character:SetAttribute("Djing", true)
+	task.spawn(function()
+		while character.Parent and character:GetAttribute("Djing") do
+			task.wait(0.5)
+			local r = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+			if not r or not DjService.IsDJ(dj) or (r.Position - spot.Position).Magnitude > 7 then
+				character:SetAttribute("Djing", nil)
+			end
+		end
+	end)
+	return true, "🎧 디제잉 시작! 곡을 고르고 조명을 바꿔 보세요."
 end
 
 DjService.Actions.Uninvite = function(dj: Player, userId: any): (boolean, any)
