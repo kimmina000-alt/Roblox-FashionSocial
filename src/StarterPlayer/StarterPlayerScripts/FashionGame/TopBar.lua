@@ -34,6 +34,18 @@ local function layout()
 	end
 end
 
+-- Bottom edge (px, IgnoreGuiInset space) of the button row. Popups start
+-- below it (user, 2026-10-22: popups covered the buttons on phones, where the
+-- Roblox top-bar inset can be 0 and the buttons use the fallback row).
+function TopBar.bottom(): number
+	local inset = GuiService.TopbarInset
+	if inset.Height > 0 then
+		local size = math.clamp(inset.Height - 12, 32, 44)
+		return math.max(inset.Min.Y + inset.Height / 2 + size / 2, inset.Max.Y)
+	end
+	return 34 + 44 / 2
+end
+
 function TopBar.add(button: GuiObject, order: number)
 	button.AnchorPoint = Vector2.new(1, 0.5)
 	table.insert(entries, { button = button, order = order })

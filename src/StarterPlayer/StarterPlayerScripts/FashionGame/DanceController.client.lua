@@ -409,7 +409,7 @@ local cardInvite = button({
 }, playerCard, 10)
 
 local function topY(): number
-	return math.max(GuiService.TopbarInset.Max.Y, 36) + 6
+	return require(script.Parent:WaitForChild("TopBar")).bottom() + 6
 end
 
 local function layoutPanel()

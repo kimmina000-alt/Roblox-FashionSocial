@@ -21,9 +21,10 @@ local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitFor
 local ClubScreenService = {}
 
 -- 30 s per player (user, 2026-10-22). The people in the club are put in a
--- random order; every 30 s each pillar moves on to the next person in that
--- order, so two players always swap and everyone gets a turn. The order is
--- shuffled again when someone enters or leaves.
+-- random order; every 30 s the pillars move on to the next person in that
+-- order so everyone gets a turn. All pillars show the SAME person (user,
+-- 2026-10-22: two pillars showing two different people looked wrong). The
+-- order is shuffled again when someone enters or leaves.
 local SECONDS_PER_PLAYER = 30
 local order: {number} = {}
 local offset = 0
@@ -73,17 +74,12 @@ function ClubScreenService.Start()
 			if changed or due then
 				since = os.clock()
 				if due and not changed then offset += 1 end
-				local pillars = CollectionService:GetTagged("LEDPillar")
-				table.sort(pillars, function(a, b)
-					return (a :: Model):GetPivot().Position.Z < (b :: Model):GetPivot().Position.Z
-				end)
-				for k, model in ipairs(pillars) do
-					local target: Player? = nil
-					if #order > 0 then
-						local userId = order[((k - 1 + offset) % #order) + 1]
-						target = Players:GetPlayerByUserId(userId)
-					end
-					show(model, target)
+				local target: Player? = nil
+				if #order > 0 then
+					target = Players:GetPlayerByUserId(order[(offset % #order) + 1])
+				end
+				for _, model in ipairs(CollectionService:GetTagged("LEDPillar")) do
+					if model:IsDescendantOf(workspace) then show(model, target) end
 				end
 			end
 			task.wait(1)

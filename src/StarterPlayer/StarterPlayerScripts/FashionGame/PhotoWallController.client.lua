@@ -307,7 +307,7 @@ local function startPlacing(wall: BasePart, photo: any)
 		CFrame = wallCFrame(wall, 0.5, 0.5),
 	}, workspace)
 	placing = { wall = wall, photo = photo, ghost = ghost }
-	local top = math.max(GuiService.TopbarInset.Max.Y, 36) + 10
+	local top = require(script.Parent:WaitForChild("TopBar")).bottom() + 10
 	hint.Position = UDim2.new(0.5, 0, 0, top)
 	cancelButton.Position = UDim2.new(0.5, 0, 0, top + 46)
 	hint.Visible = true
@@ -367,7 +367,7 @@ pickerClose.MouseButton1Click:Connect(closePicker)
 
 local function openPicker(wall: BasePart)
 	local vp = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1280, 720)
-	local top = math.max(GuiService.TopbarInset.Max.Y, 36) + 6
+	local top = require(script.Parent:WaitForChild("TopBar")).bottom() + 6
 	local w = math.min(760, math.max(280, math.floor(vp.X * 0.42)))
 	local h = math.min(math.max(260, math.floor(vp.Y * 0.58)), vp.Y - top - 84)
 	picker.Position = UDim2.fromOffset(math.floor((vp.X - w) / 2), math.floor(top + math.max(0, (vp.Y - top - 84 - h) / 2)))

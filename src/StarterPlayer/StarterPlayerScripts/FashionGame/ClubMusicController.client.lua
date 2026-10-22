@@ -301,7 +301,7 @@ local function layout()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
-	local top = math.max(GuiService.TopbarInset.Max.Y, 36) + 8
+	local top = require(script.Parent:WaitForChild("TopBar")).bottom() + 8
 	local untilTime = FashionGame:GetAttribute("ClubDJUntil")
 	local dj = FashionGame:GetAttribute("ClubDJ") == player.UserId
 		and typeof(untilTime) == "number" and untilTime > workspace:GetServerTimeNow()

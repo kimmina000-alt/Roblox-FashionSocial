@@ -43,6 +43,9 @@ type Screen = {
 	clone: Model?,
 	cloneParts: {[BasePart]: BasePart},
 	sourceUserId: number,
+	-- outfit changes while DJing: the copy is rebuilt (user, 2026-10-22)
+	watch: {RBXScriptConnection},
+	dirtyAt: number?,
 }
 local screen: Screen? = nil
 
@@ -128,7 +131,7 @@ local function build(part: BasePart, spot: BasePart)
 	screen = {
 		part = part, gui = gui, gradient = gradient, bars = bars, logo = logo,
 		viewport = viewport, camera = camera, nameLabel = nameLabel,
-		clone = nil, cloneParts = {}, sourceUserId = 0,
+		clone = nil, cloneParts = {}, sourceUserId = 0, watch = {}, dirtyAt = nil,
 	}
 end
 
@@ -144,6 +147,17 @@ local function clearClone(s: Screen)
 	s.clone = nil
 	s.cloneParts = {}
 	s.sourceUserId = 0
+	for _, connection in ipairs(s.watch) do connection:Disconnect() end
+	s.watch = {}
+	s.dirtyAt = nil
+end
+
+-- things that change how a character looks
+local function isLook(instance: Instance): boolean
+	return instance:IsA("Accessory") or instance:IsA("Clothing") or instance:IsA("ShirtGraphic")
+		or instance:IsA("BodyColors") or instance:IsA("CharacterMesh") or instance:IsA("BasePart")
+		or instance:IsA("SpecialMesh") or instance:IsA("Decal") or instance:IsA("SurfaceAppearance")
+		or instance:IsA("WrapLayer")
 end
 
 -- copy of the DJ's character (no scripts, anchored), parts mapped to the real ones
@@ -174,6 +188,13 @@ local function makeClone(s: Screen, character: Model)
 	end
 	s.clone = copy
 	s.cloneParts = map
+	local function changed(instance: Instance)
+		if isLook(instance) and not s.dirtyAt then s.dirtyAt = os.clock() end
+	end
+	s.watch = {
+		character.DescendantAdded:Connect(changed),
+		character.DescendantRemoving:Connect(changed),
+	}
 end
 
 local function djUserId(): number
@@ -238,7 +259,8 @@ RunService.RenderStepped:Connect(function()
 		if s.clone then clearClone(s) end
 		return
 	end
-	if s.sourceUserId ~= id or not s.clone or not s.clone.Parent then
+	local outfitChanged = s.dirtyAt ~= nil and os.clock() - (s.dirtyAt :: number) > 0.4
+	if s.sourceUserId ~= id or outfitChanged or not s.clone or not s.clone.Parent then
 		makeClone(s, character)
 		s.sourceUserId = id
 		s.nameLabel.Text = "🎧 DJ " .. dj.DisplayName

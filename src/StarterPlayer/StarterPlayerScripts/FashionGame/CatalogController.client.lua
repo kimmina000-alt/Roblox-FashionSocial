@@ -1348,7 +1348,8 @@ updateCatalogLayout = function()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
-	local insetTop = GuiService:GetGuiInset().Y
+	-- below the top-bar button row (it can sit lower than the Roblox inset on phones)
+	local insetTop = math.max(GuiService:GetGuiInset().Y, require(script.Parent:WaitForChild("TopBar")).bottom())
 	-- Phones: narrow, or touch devices with a short landscape height. Tablets keep
 	-- the wider compact window.
 	local isPhone = viewport.X < 600 or (UserInputService.TouchEnabled and viewport.Y < 500)

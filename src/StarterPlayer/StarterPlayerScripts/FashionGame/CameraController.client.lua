@@ -151,7 +151,7 @@ local function placeMenu()
 	local pos = captureButton.AbsolutePosition
 	local size = captureButton.AbsoluteSize
 	-- Below the top bar (AbsolutePosition.Y does not include the inset).
-	local top = math.max(GuiService.TopbarInset.Max.Y, 44) + 8
+	local top = require(script.Parent:WaitForChild("TopBar")).bottom() + 8
 	menu.Position = UDim2.fromOffset(pos.X + size.X, top)
 	recPill.Position = UDim2.new(0.5, 0, 0, top)
 end

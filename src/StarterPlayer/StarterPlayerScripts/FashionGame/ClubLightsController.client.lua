@@ -163,8 +163,20 @@ type Pillar = {
 	showing: number,
 	source: Model?,
 	sourceParts: {BasePart},
+	-- outfit changes on the shown character (catalog try-on, wardrobe): the
+	-- copy is rebuilt (user, 2026-10-22: the pillar kept the old outfit)
+	watch: {RBXScriptConnection},
+	dirtyAt: number?,
 }
 local pillars: {Pillar} = {}
+
+-- things that change how a character looks
+local function isLook(instance: Instance): boolean
+	return instance:IsA("Accessory") or instance:IsA("Clothing") or instance:IsA("ShirtGraphic")
+		or instance:IsA("BodyColors") or instance:IsA("CharacterMesh") or instance:IsA("BasePart")
+		or instance:IsA("SpecialMesh") or instance:IsA("Decal") or instance:IsA("SurfaceAppearance")
+		or instance:IsA("WrapLayer")
+end
 
 -- "Accessory/Handle"-style path of a part inside its model.
 local function pathOf(part: Instance, model: Instance): string
@@ -193,6 +205,9 @@ local function clearClones(pillar: Pillar)
 	end
 	pillar.source = nil
 	pillar.sourceParts = {}
+	for _, connection in ipairs(pillar.watch) do connection:Disconnect() end
+	pillar.watch = {}
+	pillar.dirtyAt = nil
 end
 
 -- Copies `character` into every panel. Returns false when it cannot.
@@ -245,6 +260,13 @@ local function buildClones(pillar: Pillar, character: Model): boolean
 	end
 	pillar.source = character
 	pillar.sourceParts = sourceParts
+	local function changed(instance: Instance)
+		if isLook(instance) and not pillar.dirtyAt then pillar.dirtyAt = os.clock() end
+	end
+	pillar.watch = {
+		character.DescendantAdded:Connect(changed),
+		character.DescendantRemoving:Connect(changed),
+	}
 	return true
 end
 
@@ -321,7 +343,7 @@ local function buildPillar(model: Model): Pillar
 	local repeatPanels = math.max(1, math.floor(#list / 2))
 	local pillar: Pillar = {
 		model = model, panels = {}, nameLabel = nil, center = Vector3.zero, showing = -1,
-		source = nil, sourceParts = {},
+		source = nil, sourceParts = {}, watch = {}, dirtyAt = nil,
 	}
 	for _, item in ipairs(list) do
 		table.insert(pillar.panels, newPanel(item.part, item.slice, repeatPanels))
@@ -395,7 +417,9 @@ local function updatePillars(t: number)
 			-- the pillars stayed empty in the 2-player test.)
 			local shownPlayer = if id ~= 0 then Players:GetPlayerByUserId(id) else nil
 			local character = shownPlayer and shownPlayer.Character
-			if id ~= pillar.showing or (character and character ~= pillar.source) or (not character and pillar.source) then
+			-- rebuild a little after an outfit change (several parts change at once)
+			local outfitChanged = pillar.dirtyAt ~= nil and os.clock() - (pillar.dirtyAt :: number) > 0.4
+			if id ~= pillar.showing or outfitChanged or (character and character ~= pillar.source) or (not character and pillar.source) then
 				pillar.showing = id
 				local live = character ~= nil and buildClones(pillar, character)
 				if not live then clearClones(pillar) end

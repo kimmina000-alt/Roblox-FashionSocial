@@ -215,11 +215,12 @@ local function djSpot(): BasePart?
 	return nil
 end
 -- DJ lift (user, 2026-10-22: small avatars disappeared behind the turntable).
--- A platform under the DJ spot rises so the DJ's waist (root height) sits
--- just below the desk top, whatever the body size; tall avatars stay at floor
--- level (the IK reaches down). It sinks back when DJing ends.
+-- A platform under the DJ spot rises so the DJ's hips are level with the desk
+-- top (user, 2026-10-22: "엉덩이 위치를 턴테이블 상단 높이에 맞춰"), whatever
+-- the body size; tall avatars stay at floor level (the IK reaches down). It
+-- sinks back when DJing ends.
 local TweenService = game:GetService("TweenService")
-local LIFT_MAX = 6
+local LIFT_MAX = 8
 local liftParts: {BasePart} = {}
 local function deskTop(): number?
 	for _, console in ipairs(CollectionService:GetTagged("DJConsole")) do
@@ -270,11 +271,21 @@ DjService.Actions.Djing = function(dj: Player, on: any): (boolean, any)
 	if (root.Position - spot.Position).Magnitude > 24 then return false, "턴테이블 앞으로 가 주세요." end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if humanoid and humanoid.SeatPart then humanoid.Sit = false end
-	-- lift height for this body: waist (root centre) about 0.6 below the desk top
+	-- lift height for this body: hips (top of the upper legs) at the desk top
 	local floorY = spot.Position.Y - spot.Size.Y / 2
 	local rootHeight = (if humanoid then humanoid.HipHeight else 2) + root.Size.Y / 2
+	local feetY = root.Position.Y - rootHeight
+	local hipY: number? = nil
+	for _, name in ipairs({ "LeftUpperLeg", "RightUpperLeg", "Left Leg", "Right Leg" }) do
+		local leg = character:FindFirstChild(name)
+		if leg and leg:IsA("BasePart") then
+			local legTop = leg.Position.Y + leg.Size.Y / 2
+			hipY = if hipY then math.max(hipY, legTop) else legTop
+		end
+	end
+	local hipHeight = if hipY then hipY - feetY else (if humanoid then humanoid.HipHeight else 2)
 	local top = deskTop()
-	local height = if top then math.clamp(top - 0.6 - floorY - rootHeight, 0, LIFT_MAX) else 0
+	local height = if top then math.clamp(top - floorY - hipHeight, 0, LIFT_MAX) else 0
 	character:PivotTo(spot.CFrame + Vector3.new(0, rootHeight - spot.Size.Y / 2 + 0.2, 0))
 	setLift(spot, height)
 	task.delay(0.85, function()

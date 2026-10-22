@@ -89,7 +89,7 @@ local function viewport(): Vector2
 	return if camera then camera.ViewportSize else Vector2.new(1280, 720)
 end
 local function topY(): number
-	return math.max(GuiService.TopbarInset.Max.Y, 36) + 6
+	return require(script.Parent:WaitForChild("TopBar")).bottom() + 6
 end
 
 -- Toast
@@ -152,7 +152,7 @@ local PhotoCopiesPanel = require(script.Parent:WaitForChild("PhotoCopiesPanel"))
 -- kind "album" = catalog compact size, "flow" = a little larger for 8 shots.
 local function boxRect(kind: string): (number, number, number, number)
 	local vp = viewport()
-	local top = math.max(GuiService.TopbarInset.Max.Y, 36) + 6
+	local top = require(script.Parent:WaitForChild("TopBar")).bottom() + 6
 	local bottomRoom = 84 -- hotbar / inventory
 	local w, h
 	if vp.Y < 500 then
