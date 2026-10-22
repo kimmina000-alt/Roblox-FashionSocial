@@ -3,8 +3,9 @@
 -- turntable (user, 2026-10-22: the 🎵 top-bar button is gone). The DJ starts
 -- DJing there (DjService.Actions.Djing: DJ spot + hand motion); others see the
 -- same window with DJ time to buy / song requests.
--- Phones (short screens): two columns, controls left and the song list right,
--- so the list is never squeezed out (user, 2026-10-22: no songs on mobile).
+-- Phones (short screens): two popups, "디제잉" (controls) on the left edge and
+-- "음악" (song list) on the right edge, so the DJ's character in the middle
+-- stays visible (user, 2026-10-22).
 --   * DJ: 지금 틀기 / 다음 곡 / 건너뛰기, remaining time, 시간 연장, and the DJ
 --     console placeholders for future abilities (DJ_SYSTEM.md).
 --   * The no-DJ request list below is kept for when requests get their own
@@ -232,6 +233,42 @@ local queueLabel = create("TextLabel", {
 	Font = Enum.Font.GothamMedium,
 }, panel)
 
+-- right-hand popup for the song list on phones (the list moves in here)
+local listPanel = create("Frame", {
+	Name = "MusicListPanel",
+	BackgroundColor3 = COLORS.panel,
+	BackgroundTransparency = 0.08,
+	Visible = false,
+}, gui)
+corner(listPanel, 15)
+create("UIPadding", {
+	PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10),
+	PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10),
+}, listPanel)
+create("TextLabel", {
+	Name = "Header",
+	Size = UDim2.new(1, -40, 0, 24),
+	BackgroundTransparency = 1,
+	Text = "🎵 음악",
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextColor3 = COLORS.text,
+	TextSize = 18,
+	Font = Enum.Font.GothamBold,
+}, listPanel)
+local listClose = create("TextButton", {
+	Name = "CloseButton",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.new(1, 0, 0, 0),
+	Size = UDim2.fromOffset(26, 26),
+	BackgroundColor3 = COLORS.card,
+	Text = "X",
+	TextColor3 = COLORS.text,
+	TextSize = 14,
+	Font = Enum.Font.GothamBold,
+}, listPanel)
+corner(listClose, 13)
+local compactNow = false
+
 local toastLabel = create("TextLabel", {
 	Name = "Toast",
 	AnchorPoint = Vector2.new(0.5, 1),
@@ -266,17 +303,31 @@ local function layout()
 	local untilTime = FashionGame:GetAttribute("ClubDJUntil")
 	local dj = FashionGame:GetAttribute("ClubDJ") == player.UserId
 		and typeof(untilTime) == "number" and untilTime > workspace:GetServerTimeNow()
-	-- Phones in landscape are ~340 px tall: two columns (controls | songs).
+	-- Phones in landscape are ~340 px tall: two popups at the left and right
+	-- edges (디제잉 | 음악), the middle of the screen stays free.
 	local compact = viewport.Y < 450
-	local width = if compact then math.clamp(math.floor(viewport.X * 0.64), 380, 520) else math.clamp(math.floor(viewport.X * 0.36), 260, 340)
+	compactNow = compact
+	local width = if compact then math.clamp(math.floor(viewport.X * 0.3), 210, 300) else math.clamp(math.floor(viewport.X * 0.36), 260, 340)
 	local height = math.min(viewport.Y - top - 8, 560)
-	panel.Position = UDim2.new(1, -width - 12, 0, top)
+	if compact then
+		panel.Position = UDim2.new(0, 12, 0, top)
+		listPanel.Position = UDim2.new(1, -width - 12, 0, top)
+		listPanel.Size = UDim2.fromOffset(width, height)
+	else
+		panel.Position = UDim2.new(1, -width - 12, 0, top)
+	end
 	panel.Size = UDim2.fromOffset(width, height)
 	local W, H = width - 20, height - 20
-	local leftW = if compact then math.floor(W * 0.46) else W
+	local leftW = W
+	local listParent = if compact then listPanel else panel
+	for _, item in ipairs({ listTitle, trackList, queueLabel }) do
+		if item.Parent ~= listParent then item.Parent = listParent end
+	end
+	listPanel.Visible = compact and panel.Visible
 	local nowLabel = panel:FindFirstChild("NowLabel") :: TextLabel
 	local header = panel:FindFirstChild("Header") :: TextLabel
-	header.Size = UDim2.new(0, leftW - (if compact then 0 else 34), 0, 24)
+	header.Size = UDim2.new(0, leftW - 34, 0, 24)
+	header.Text = if compact then "🎧 디제잉" else "음악"
 	nowLabel.Position = UDim2.fromOffset(0, if compact then 26 else 32)
 	nowLabel.Size = UDim2.fromOffset(leftW, if compact then 18 else 22)
 	nowLabel.TextSize = if compact then 13 else 16
@@ -310,11 +361,10 @@ local function layout()
 		y += rows * (cellH + 4) + 4
 	end
 	if compact then
-		local x = leftW + 10
-		listTitle.Position = UDim2.fromOffset(x, 30)
-		listTitle.Size = UDim2.fromOffset(W - x, 18)
-		trackList.Position = UDim2.fromOffset(x, 50)
-		trackList.Size = UDim2.fromOffset(W - x, H - 50)
+		listTitle.Position = UDim2.fromOffset(0, 28)
+		listTitle.Size = UDim2.new(1, 0, 0, 18)
+		trackList.Position = UDim2.fromOffset(0, 48)
+		trackList.Size = UDim2.new(1, 0, 1, -48)
 		queueLabel.Visible = false
 	else
 		listTitle.Position = UDim2.fromOffset(0, y)
@@ -460,7 +510,7 @@ local function renderTracks()
 		corner(row, 8)
 		create("TextLabel", {
 			Position = UDim2.fromOffset(8, 0),
-			Size = UDim2.new(1, if dj then -150 else -86, 1, 0),
+			Size = UDim2.new(1, if dj then (if compactNow then -110 else -150) else (if compactNow then -62 else -86), 1, 0),
 			BackgroundTransparency = 1,
 			Text = track.title .. "  ·  " .. track.channel,
 			TextXAlignment = Enum.TextXAlignment.Left,
@@ -474,7 +524,7 @@ local function renderTracks()
 				Name = name,
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, x, 0.5, 0),
-				Size = UDim2.fromOffset(64, 28),
+				Size = UDim2.fromOffset(if compactNow then 48 else 64, 28),
 				BackgroundColor3 = color,
 				Text = text,
 				TextColor3 = COLORS.text,
@@ -485,7 +535,7 @@ local function renderTracks()
 			button.MouseButton1Click:Connect(onClick)
 		end
 		if dj then
-			rowButton("Play", "지금", -72, COLORS.dj, function() call("Play", index) end)
+			rowButton("Play", "지금", if compactNow then -56 else -72, COLORS.dj, function() call("Play", index) end)
 			rowButton("Queue", "다음", -4, COLORS.card, function() call("Queue", index) end)
 		elseif not otherDJ then
 			rowButton("Request", "신청", -4, COLORS.accent, function() call("Request", index) end)
@@ -545,6 +595,7 @@ end
 local openedAt: Vector3? = nil
 local function setPanelOpen(open: boolean)
 	panel.Visible = open
+	listPanel.Visible = open and compactNow
 	if open then
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		openedAt = if root and root:IsA("BasePart") then root.Position else nil
@@ -575,6 +626,9 @@ end
 for key, button in pairs(colorButtons) do
 	button.MouseButton1Click:Connect(function() call("LightColor", key) end)
 end
+listClose.MouseButton1Click:Connect(function()
+	setPanelOpen(false)
+end)
 closeButton.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
 end)

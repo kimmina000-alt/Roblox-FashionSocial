@@ -206,30 +206,88 @@ local function djSpot(): BasePart?
 	end
 	return nil
 end
+-- DJ lift (user, 2026-10-22: small avatars disappeared behind the turntable).
+-- A platform under the DJ spot rises so the DJ's waist (root height) sits
+-- just below the desk top, whatever the body size; tall avatars stay at floor
+-- level (the IK reaches down). It sinks back when DJing ends.
+local TweenService = game:GetService("TweenService")
+local LIFT_MAX = 6
+local liftParts: {BasePart} = {}
+local function deskTop(): number?
+	for _, console in ipairs(CollectionService:GetTagged("DJConsole")) do
+		if console:IsDescendantOf(workspace) then
+			local desk = console:FindFirstChild("DeskTop", true)
+			if desk and desk:IsA("BasePart") then return desk.Position.Y + desk.Size.Y / 2 end
+		end
+	end
+	return nil
+end
+local function setLift(spot: BasePart, height: number)
+	local floorY = spot.Position.Y - spot.Size.Y / 2
+	if #liftParts == 0 then
+		local base = Instance.new("Part")
+		base.Name = "DJLift"
+		base.Anchored = true
+		base.Size = Vector3.new(5, 8, 5)
+		base.Color = Color3.fromRGB(30, 30, 38)
+		base.Material = Enum.Material.DiamondPlate
+		local glow = Instance.new("Part")
+		glow.Name = "DJLiftGlow"
+		glow.Anchored = true
+		glow.CanCollide = false
+		glow.Size = Vector3.new(5.3, 0.25, 5.3)
+		glow.Color = Color3.fromRGB(255, 80, 200)
+		glow.Material = Enum.Material.Neon
+		base.CFrame = CFrame.new(spot.Position.X, floorY - 4 - 0.05, spot.Position.Z)
+		glow.CFrame = CFrame.new(spot.Position.X, floorY - 0.2, spot.Position.Z)
+		base.Parent = spot.Parent
+		glow.Parent = spot.Parent
+		liftParts = { base, glow }
+	end
+	local info = TweenInfo.new(0.8, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut)
+	TweenService:Create(liftParts[1], info, { CFrame = CFrame.new(spot.Position.X, floorY + height - 4, spot.Position.Z) }):Play()
+	TweenService:Create(liftParts[2], info, { CFrame = CFrame.new(spot.Position.X, floorY + height - 0.1, spot.Position.Z) }):Play()
+end
+
 DjService.Actions.Djing = function(dj: Player, on: any): (boolean, any)
 	local character = dj.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	if not character or not root then return false, nil end
+	local spot = djSpot()
 	if on ~= true then
 		character:SetAttribute("Djing", nil)
 		return true, nil
 	end
-	local spot = djSpot()
 	if not spot then return false, "DJ 자리를 찾을 수 없어요." end
 	if (root.Position - spot.Position).Magnitude > 24 then return false, "턴테이블 앞으로 가 주세요." end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if humanoid and humanoid.SeatPart then humanoid.Sit = false end
-	character:PivotTo(spot.CFrame + Vector3.new(0, 2.5, 0))
+	-- lift height for this body: waist (root centre) about 0.6 below the desk top
+	local floorY = spot.Position.Y - spot.Size.Y / 2
+	local rootHeight = (if humanoid then humanoid.HipHeight else 2) + root.Size.Y / 2
+	local top = deskTop()
+	local height = if top then math.clamp(top - 0.6 - floorY - rootHeight, 0, LIFT_MAX) else 0
+	character:PivotTo(spot.CFrame + Vector3.new(0, rootHeight - spot.Size.Y / 2 + 0.2, 0))
+	setLift(spot, height)
+	task.delay(0.85, function()
+		if character.Parent and character:GetAttribute("Djing") then
+			character:PivotTo(spot.CFrame + Vector3.new(0, height + rootHeight - spot.Size.Y / 2 + 0.2, 0))
+		end
+	end)
 	if character:GetAttribute("Djing") then return true, nil end
 	character:SetAttribute("Djing", true)
+	character:SetAttribute("DjLift", height)
 	task.spawn(function()
 		while character.Parent and character:GetAttribute("Djing") do
 			task.wait(0.5)
 			local r = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-			if not r or not DjService.IsDJ(dj) or (r.Position - spot.Position).Magnitude > 7 then
+			local flat = r and Vector3.new(r.Position.X - spot.Position.X, 0, r.Position.Z - spot.Position.Z).Magnitude
+			if not r or not DjService.IsDJ(dj) or (flat :: number) > 5 then
 				character:SetAttribute("Djing", nil)
 			end
 		end
+		character:SetAttribute("DjLift", nil)
+		setLift(spot, 0)
 	end)
 	return true, "🎧 디제잉 시작! 곡을 고르고 조명을 바꿔 보세요."
 end
