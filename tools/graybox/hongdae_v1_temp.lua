@@ -432,15 +432,13 @@ local function planter(pos: Vector3, along: Vector3, len: number?)
 		end
 		prop(tree, "Tree")
 	end
-	-- shrubs and grass tufts along the bed, a little irregular
-	for k, z in ipairs({ -5.2, -3.1, 3.1, 5.2 }) do
-		local x = ((k + plantN) % 2 - 0.5) * 0.6
-		local s = foliage("Shrub", 0.2 + ((k + plantN) % 3) * 0.03, cf * CFrame.new(x, soilTop - 0.2, z) * CFrame.Angles(0, k * 2.3 + plantN, 0))
+	-- only this shrub (user 2026-10-22), larger, two on each side of the tree in
+	-- a row, each turned a little differently
+	for k, z in ipairs({ -5.4, -2.8, 2.8, 5.4 }) do
+		local scale = 0.3 + ((k * 7 + plantN * 3) % 5) * 0.012
+		local yaw = math.rad(((k * 97 + plantN * 53) % 360))
+		local s = foliage("Shrub", scale, cf * CFrame.new(0, soilTop - 0.25, z) * CFrame.Angles(0, yaw, 0))
 		if s then prop(s, "Shrub") end
-	end
-	for k, z in ipairs({ -6.1, -4.2, -1.8, 1.8, 4.2, 6.1 }) do
-		local g = foliage("GrassTuft", 0.3, cf * CFrame.new(((k % 2) - 0.5) * 1.6, soilTop, z) * CFrame.Angles(0, k * 1.1, 0))
-		if g then prop(g, "Grass") end
 	end
 end
 -- painted arrow on the road (pointing along dir)
