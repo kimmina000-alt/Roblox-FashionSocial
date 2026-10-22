@@ -562,11 +562,10 @@ do -- 04_Beach_Aquarium: Sunset Beach (2026-10-22, user references: striped
 -- floating tubes and rubber ducks, ocean-view cafe). The sea is Terrain water
 -- (00_Ground) so players swim; the sand slopes down into it.
 local z=zone("04_Beach_Aquarium")
- -- 2026-10-22 (user): the north part becomes the amusement park, so the sand
- -- runs z -30..250 with a rounded north end (Gwangalli-like bay).
- S(z,"Part","Beach",{70,0.6,280},{-233,0.3,110,1,0,0,0,1,0,0,0,1},{240,220,160},"Sand",0,0,nil,{},{})
- cyl(z,"BeachCap",70,0.6,Vector3.new(-233,0.3,-30),Color3.fromRGB(240,220,160),{mat=Enum.Material.Sand})
- do local c=Vector3.new(-289,-7.7,95) P(z,"ShoreSlope",Vector3.new(310,16.6,42),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),Color3.fromRGB(235,212,155),{class="WedgePart",mat=Enum.Material.Sand}) end
+ -- 2026-10-22 (user): the whole west side is beach and sea again, along the
+ -- full length of the map (z -480..250).
+ S(z,"Part","Beach",{70,0.6,730},{-233,0.3,-115,1,0,0,0,1,0,0,0,1},{240,220,160},"Sand",0,0,nil,{},{})
+ do local c=Vector3.new(-289,-7.7,-115) P(z,"ShoreSlope",Vector3.new(730,16.6,42),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),Color3.fromRGB(235,212,155),{class="WedgePart",mat=Enum.Material.Sand}) end
  math.randomseed(20261022)
  local stripeSets={{Color3.fromRGB(30,150,160),Color3.new(1,1,1)},{Color3.fromRGB(255,200,40),Color3.new(1,1,1)},{Color3.fromRGB(255,120,60),Color3.new(1,1,1)},{Color3.fromRGB(255,150,190),Color3.new(1,1,1)}}
  local wood=Color3.fromRGB(190,150,100)
@@ -611,7 +610,7 @@ local z=zone("04_Beach_Aquarium")
  -- parasol groups: varied (closed / mat+box / mat / 2 chairs / chair+mat / 2 chairs+box)
  local kinds={"closed","matbox","mat","chairs2","chairmat","chairs2box"}
  local spots={}
- for zc=-28,236,26 do if not (zc>2 and zc<132) and not (zc>-36 and zc<-2) then table.insert(spots,zc) end end
+ for zc=-470,236,26 do if not (zc>2 and zc<132) and not (zc>-36 and zc<-2) then table.insert(spots,zc) end end
  for i,zc in ipairs(spots) do
   local x=-250+((i%3)-1)*9+math.random(-2,2) local g=Vector3.new(x,SAND,zc+math.random(-3,3))
   local kind=kinds[(i-1)%#kinds+1] local cols=stripeSets[(i-1)%#stripeSets+1]
@@ -634,7 +633,7 @@ local z=zone("04_Beach_Aquarium")
    beam(m,"PalmFrond",mid,tip,0.3,Color3.fromRGB(60,145,60),{nocol=true}).Size=Vector3.new(1.4,0.2,(tip-mid).Magnitude) end
   for k=0,2 do local a=k*2.1 P(m,"Coconut",Vector3.new(0.8,0.8,0.8),CFrame.new(p+Vector3.new(math.cos(a)*0.6,-0.7,math.sin(a)*0.6)),Color3.fromRGB(110,75,40),{shape=Enum.PartType.Ball}) end
  end
- for i,pz in ipairs({140,172,214,240}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
+ for i,pz in ipairs({-450,-390,-330,-262,-200,-140,-84,-44,140,172,214,240}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
  palm(Vector3.new(-262,SAND,-8),15,math.rad(200)) palm(Vector3.new(-262,SAND,138),17,math.rad(160))
 
  -- ICE CREAM TRUCK (pink, striped awning, giant cone) at the beach entrance
@@ -671,11 +670,11 @@ local z=zone("04_Beach_Aquarium")
    local mid=(p0+p1)/2 P(par,"TubeSeg",Vector3.new(thick,thick,(p1-p0).Magnitude+0.25),CFrame.lookAt(mid,p1),cols[k%2+1],{ghost=true,shape=nil}) end
  end
  local tubeCols={{Color3.fromRGB(255,120,170),Color3.new(1,1,1)},{Color3.fromRGB(255,200,60),Color3.fromRGB(80,200,255)},{Color3.fromRGB(120,220,160),Color3.new(1,1,1)},{Color3.fromRGB(255,150,90),Color3.fromRGB(255,240,120)}}
- for i,b in ipairs({Vector3.new(-292,0,-70),Vector3.new(-296,0,-6),Vector3.new(-312,0,104),Vector3.new(-300,0,150)}) do
+ for i,b in ipairs({Vector3.new(-292,0,-70),Vector3.new(-296,0,-6),Vector3.new(-312,0,104),Vector3.new(-300,0,150),Vector3.new(-294,0,-210),Vector3.new(-298,0,-340),Vector3.new(-292,0,-430)}) do
   local m=M(z,"Tube"..i,{"FloatTube"},{Base=b,Drift=4+i,Period=70+i*9,Phase=i*1.3})
-  ring(m,b,1.7,1,tubeCols[i],10) m.WorldPivot=CFrame.new(b)
+  ring(m,b,1.7,1,tubeCols[(i-1)%#tubeCols+1],10) m.WorldPivot=CFrame.new(b)
  end
- for i,b in ipairs({Vector3.new(-285,0,-40),Vector3.new(-314,0,40),Vector3.new(-316,0,70),Vector3.new(-305,0,-110),Vector3.new(-283,0,130),Vector3.new(-310,0,10)}) do
+ for i,b in ipairs({Vector3.new(-285,0,-40),Vector3.new(-314,0,40),Vector3.new(-316,0,70),Vector3.new(-305,0,-110),Vector3.new(-283,0,130),Vector3.new(-310,0,10),Vector3.new(-290,0,-270),Vector3.new(-303,0,-390)}) do
   local m=M(z,"RubberDuck"..i,{"FloatDeco"},{Base=b,Drift=3+i%3,Period=55+i*7,Phase=i*0.9})
   local s=1+(i%2)*0.6
   P(m,"DuckBody",Vector3.new(2*s,1.5*s,2.6*s),CFrame.new(b+Vector3.new(0,0.4*s,0)),Color3.fromRGB(255,220,40),{shape=Enum.PartType.Ball,ghost=true})

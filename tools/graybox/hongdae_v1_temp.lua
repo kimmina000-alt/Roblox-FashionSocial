@@ -63,6 +63,24 @@ end
 local spawn = workspace:FindFirstChild("SpawnLocation") :: SpawnLocation?
 
 local function revert()
+	-- groups moved inside a zone (park rides): back to where they were
+	for _, z in ipairs(root:GetChildren()) do
+		for _, c in ipairs(z:GetChildren()) do
+			local orig, d = c:GetAttribute("TempOrig"), c:GetAttribute("TempDelta")
+			if typeof(orig) == "CFrame" and typeof(d) == "CFrame" then
+				local list = c:GetDescendants()
+				table.insert(list, c)
+				for _, x in ipairs(list) do
+					for k, v in pairs(x:GetAttributes()) do
+						if typeof(v) == "Vector3" then x:SetAttribute(k, d:Inverse() * v) end
+					end
+				end
+				if c:IsA("Model") then c:PivotTo(orig) elseif c:IsA("BasePart") then c.CFrame = orig end
+				c:SetAttribute("TempOrig", nil)
+				c:SetAttribute("TempDelta", nil)
+			end
+		end
+	end
 	for _, z in ipairs(root:GetChildren()) do
 		local b = z:GetAttribute("BuiltPivot")
 		if z:IsA("Model") and typeof(b) == "CFrame" and z:GetPivot() ~= b then moveTo(z, b) end
@@ -111,6 +129,46 @@ for _, zn in ipairs({ "00_Ground", "01_Plaza_Street", "09_Paths" }) do
 			if p.Name == "Ground_N" then groundTemplate = p end
 			p:SetAttribute("HomeZone", zn)
 			p.Parent = hidden
+		end
+	end
+end
+
+-- park rides rearranged to fit the user's red box (x -148..-38, z -475..-229):
+-- every child of 06 whose centre lies in a source box gets the same move
+do
+	local park = root:FindFirstChild("06_Park_Playground")
+	local GROUPS = { -- source box (x0, z0, x1, z1) → move
+		{ { -125, -145, -85, -105 }, Vector3.new(-10, 0, -184) }, -- carousel → (-115, -310)
+		{ { -215, -145, -160, -90 }, Vector3.new(123, 0, -193) }, -- playground → (-66, -312)
+		{ { -120, -262, -90, -190 }, Vector3.new(5, 0, -173) }, -- ferris wheel → (-100, -400)
+		{ { -220, -245, -200, -178 }, Vector3.new(148, 0, -188) }, -- flower tunnel → (-62, -400)
+		{ { -155, -176, -145, -166 }, Vector3.new(57, 0, -129) }, -- park name label → (-93, -300)
+	}
+	if park then
+		for _, c in ipairs(park:GetChildren()) do
+			if c.Name == "ParkGrass" then
+				c:SetAttribute("HomeZone", park.Name)
+				c.Parent = hidden
+			elseif c:IsA("Model") or c:IsA("BasePart") then
+				local pos = c:GetPivot().Position
+				for _, g in ipairs(GROUPS) do
+					local b = g[1]
+					if pos.X > b[1] and pos.X < b[3] and pos.Z > b[2] and pos.Z < b[4] then
+						local d = CFrame.new(g[2])
+						c:SetAttribute("TempOrig", c:GetPivot())
+						c:SetAttribute("TempDelta", d)
+						local list = c:GetDescendants()
+						table.insert(list, c)
+						for _, x in ipairs(list) do
+							for k, v in pairs(x:GetAttributes()) do
+								if typeof(v) == "Vector3" then x:SetAttribute(k, d * v) end
+							end
+						end
+						if c:IsA("Model") then c:PivotTo(d * c:GetPivot()) else c.CFrame = d * c.CFrame end
+						break
+					end
+				end
+			end
 		end
 	end
 end
@@ -491,18 +549,20 @@ busStop(4, "광안리 해변", Vector3.new(-153, 0, 150), Vector3.new(-1, 0, 0),
 
 ------------------------------------------------------- 광안리 seafront
 do
-	local z0, z1 = -30, 300
+	-- full length of the west side (user: the whole west is beach and sea)
+	local z0, z1 = -480, 300
 	box("Promenade", -198, 0, z0, -182, CURB, z1, Color3.fromRGB(175, 135, 120), { material = Enum.Material.Brick })
-	box("SeaRoad", -182, 0, 34, -158, 0.12, z1, ASPHALT, { material = Enum.Material.Asphalt })
-	box("SeaRoadJoin", -182, 0, -24, -158, 0.12, 34, ASPHALT, { material = Enum.Material.Asphalt }) -- T-junction with the west road
-	paint("RedLane", -182, 34, -174, z1, Color3.fromRGB(190, 85, 75))
-	paint("EdgeLine", -174.2, 34, -173.8, z1, WHITE)
-	paint("CenterLine", -166.5, 34, -166.1, z1, YELLOW) paint("CenterLine", -165.9, 34, -165.5, z1, YELLOW)
-	walk(-158, 34, -150, z1)
-	for _, cz in ipairs({ 60, 180, 260 }) do
+	box("SeaRoad", -182, 0, z0, -158, 0.12, z1, ASPHALT, { material = Enum.Material.Asphalt })
+	for _, seg in ipairs({ { z0, -24 }, { 24, z1 } }) do -- lane paint stops at the junction with the west road
+		paint("RedLane", -182, seg[1], -174, seg[2], Color3.fromRGB(190, 85, 75))
+		paint("EdgeLine", -174.2, seg[1], -173.8, seg[2], WHITE)
+		paint("CenterLine", -166.5, seg[1], -166.1, seg[2], YELLOW) paint("CenterLine", -165.9, seg[1], -165.5, seg[2], YELLOW)
+	end
+	walk(-158, z0, -150, -34) walk(-158, 34, -150, z1)
+	for _, cz in ipairs({ -400, -250, -100, 60, 180, 260 }) do
 		for x = -181, -159, 3 do paint("Crosswalk", x, cz - 4, x + 1.5, cz + 4, WHITE) end
 	end
-	for zz = 40, z1 - 6, 18 do -- drains along both curbs
+	for zz = z0 + 6, z1 - 6, 18 do -- drains along both curbs
 		for _, x in ipairs({ -181.4, -158.6 }) do
 			box("Drain", x - 0.6, 0.12, zz, x + 0.6, 0.15, zz + 2.4, Color3.fromRGB(35, 35, 38), { nocol = true })
 			for k = 0, 3 do box("DrainBar", x - 0.6, 0.15, zz + 0.3 + k * 0.6, x + 0.6, 0.17, zz + 0.45 + k * 0.6, Color3.fromRGB(90, 90, 95), { nocol = true }) end
@@ -620,6 +680,8 @@ do
 end
 
 ------------------------------------------------------- 에버랜드-style park gate
+-- the park fits the user's red box (x -148..-38, z -475..-229); the gate faces
+-- south onto an empty lot (kept free for later)
 do
 	local E = Instance.new("Model")
 	E.Name = "AmusementParkGate"
@@ -627,8 +689,9 @@ do
 	local cream = Color3.fromRGB(245, 235, 210)
 	local blue = Color3.fromRGB(70, 110, 170)
 	local roofBlue = Color3.fromRGB(60, 90, 140)
-	local x0, x1, z0, z1 = -258, -42, -280, -60
-	local gateX0, gateX1 = -192, -108
+	local x0, x1, z0, z1 = -148, -38, -475, -229
+	local gateX0, gateX1 = -123, -63
+	box("ParkGround", x0 + 1, 0, z0 + 1, x1 - 1, 0.25, z1 - 1, Color3.fromRGB(110, 175, 95), { parent = E, material = Enum.Material.Grass })
 	-- perimeter wall: parks are closed off by themed walls so the outside is
 	-- hidden and everyone enters through the main gate
 	local function wallSeg(ax, az, bx, bz)
@@ -646,8 +709,9 @@ do
 		vcyl("Pinnacle", Vector3.new(cx, h + s * 0.8, cz), 0.4, 3, Color3.fromRGB(220, 190, 90), { parent = E })
 	end
 	for _, c in ipairs({ { x0, z0 }, { x1, z0 }, { x0, z1 }, { x1, z1 } }) do turret(c[1], c[2], 8, 16) end
+	-- main gate: a row of 5 arches with a blue mansard roof and towers
 	local gz0, gz1 = z1 - 2, z1 + 6
-	local n = 7
+	local n = 5
 	local w = (gateX1 - gateX0) / n
 	for i = 0, n do box("GatePier", gateX0 + i * w - 1.5, 0, gz0, gateX0 + i * w + 1.5, 16, gz1, cream, { parent = E }) end
 	for i = 0, n - 1 do
@@ -659,8 +723,8 @@ do
 	part("GateRoof", Vector3.new(gateX1 - gateX0 + 4, 4, 5), CFrame.new((gateX0 + gateX1) / 2, 18, gz0 + 2) * CFrame.Angles(0, math.rad(180), 0), roofBlue, { parent = E, class = "WedgePart" })
 	box("GateCornice", gateX0 - 2, 16, gz0 - 0.5, gateX1 + 2, 16.6, gz1 + 0.5, Color3.fromRGB(230, 220, 195), { parent = E })
 	turret(gateX0 - 4, (gz0 + gz1) / 2, 7, 22) turret(gateX1 + 4, (gz0 + gz1) / 2, 7, 22)
-	turret((gateX0 + gateX1) / 2, (gz0 + gz1) / 2, 7, 24, 16) -- centre tower sits on the gate roof (keeps the middle arch open)
-	local sign = box("GateSign", -164, 17, gz1 + 0.6, -136, 21, gz1 + 1, Color3.fromRGB(255, 250, 235), { parent = E })
+	turret((gateX0 + gateX1) / 2, (gz0 + gz1) / 2, 7, 24, 16) -- centre tower on the gate roof (middle arch stays open)
+	local sign = box("GateSign", -107, 17, gz1 + 0.6, -79, 21, gz1 + 1, Color3.fromRGB(255, 250, 235), { parent = E })
 	surfaceText(sign, Enum.NormalId.Back, "OHU LAND", Color3.fromRGB(60, 90, 140), Enum.Font.FredokaOne)
 	label(sign, "놀이공원 정문", Color3.fromRGB(60, 90, 140), 8, 0.9)
 	local function booth(bx0, bz0, bx1, bz1, title, windows)
@@ -678,11 +742,11 @@ do
 		surfaceText(b, Enum.NormalId.Back, title, Color3.new(1, 1, 1), Enum.Font.GothamBold)
 		label(b, title, Color3.fromRGB(60, 90, 140), 6, 0.6)
 	end
-	booth(-226, -58, -206, -48, "매표소 TICKETS", 3)
-	booth(-94, -56, -84, -48, "i 안내", 1)
+	booth(-146, -226, -130, -216, "매표소 TICKETS", 2)
+	booth(-56, -226, -46, -218, "i 안내", 1)
 	-- inside: round symbol plaza (round flower bed + a pedestal for the park's
 	-- landmark / character sculpture, to be designed)
-	local pc = Vector3.new(-150, 0, -95)
+	local pc = Vector3.new(-93, 0.25, -262)
 	vcyl("SymbolPlaza", pc, 50, 0.35, Color3.fromRGB(215, 205, 190), { parent = E, material = Enum.Material.Slate })
 	vcyl("FlowerBed", pc + Vector3.new(0, 0.35, 0), 24, 1.4, Color3.fromRGB(90, 160, 80), { parent = E, material = Enum.Material.Grass })
 	for k = 0, 11 do
@@ -691,9 +755,8 @@ do
 	end
 	local ped = vcyl("SymbolPedestal", pc + Vector3.new(0, 1.75, 0), 8, 2, Color3.fromRGB(235, 230, 220), { parent = E })
 	label(ped, "★ 상징물 자리 (캐릭터 조형물 예정)", Color3.fromRGB(200, 120, 40), 6, 0.8)
-	box("GatePlaza", gateX0 - 8, 0, -34, gateX1 + 8, 0.3, gz1, Color3.fromRGB(215, 205, 190), { parent = E, material = Enum.Material.Slate })
+	box("GatePlaza", gateX0 - 8, 0, gz1, gateX1 + 8, 0.3, gz1 + 14, Color3.fromRGB(215, 205, 190), { parent = E, material = Enum.Material.Slate })
 end
-
 ------------------------------------------------------- club facade (references)
 do
 	local K = Instance.new("Model")
