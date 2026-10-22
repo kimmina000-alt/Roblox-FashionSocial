@@ -69,6 +69,7 @@ local function startNext()
 	table.clear(guests)
 	FashionGame:SetAttribute("ClubLights", true)
 	FashionGame:SetAttribute("ClubLightColor", "rainbow")
+	FashionGame:SetAttribute("ClubDJScreen", true)
 	while #queue > 0 do
 		local slot = table.remove(queue, 1) :: Slot
 		if Players:GetPlayerByUserId(slot.userId) then
@@ -185,6 +186,13 @@ end
 DjService.Actions.Lights = function(_dj: Player, on: any): (boolean, any)
 	FashionGame:SetAttribute("ClubLights", on == true)
 	return true, if on == true then "조명을 켰어요." else "조명을 껐어요."
+end
+
+-- "Screen" (payload = true/false): show the DJ on the big LED screen behind
+-- the booth (DJScreenController). Attribute ClubDJScreen, on for each new DJ.
+DjService.Actions.Screen = function(_dj: Player, on: any): (boolean, any)
+	FashionGame:SetAttribute("ClubDJScreen", on == true)
+	return true, if on == true then "전광판에 내 모습을 보여 줘요." else "전광판에서 내 모습을 껐어요."
 end
 
 -- "LightColor" (payload = ClubConfig.LightColors key): colour of the lasers and

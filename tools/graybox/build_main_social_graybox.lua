@@ -404,6 +404,14 @@ do
  local turn=CFrame.new(66.25,0,-218)*CFrame.Angles(0,math.pi,0)*CFrame.new(-66.25,0,218)
  local onTop={Deck=1,Platter=1,RecordLabel=1,PlatterRing=1,Tonearm=1,PitchFader=1,Mixer=1,Knob=1,Fader=1,LaptopStand=1,LaptopScreen=1}
  for _,p in ipairs(m:GetChildren()) do if p:IsA("BasePart") and onTop[p.Name] then p.CFrame=turn*p.CFrame end end
+ -- The laptop in the middle hid the DJ's body (user, 2026-10-22): it moves to
+ -- a small side table at the crowd's left end, screen angled toward the DJ.
+ box(m,"LaptopTable",64.8,S0,-230.5,67.8,S0+3.7,-227,Color3.fromRGB(28,28,36))
+ local stand,screen=m:FindFirstChild("LaptopStand"),m:FindFirstChild("LaptopScreen")
+ local lp=Vector3.new(66.3,deckY+0.6,-228.8)
+ local face=CFrame.lookAt(lp,Vector3.new(71,lp.Y,-218))
+ if stand then stand.Size=Vector3.new(1.2,1.2,0.8) stand.CFrame=face end
+ if screen then screen.Size=Vector3.new(2.3,1.5,0.1) screen.CFrame=face*CFrame.new(0,1.4,0.2)*CFrame.Angles(math.rad(-12),0,0) end
 end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
 for _,sz in ipairs({-243,-193}) do

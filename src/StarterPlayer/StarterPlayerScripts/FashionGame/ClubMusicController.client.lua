@@ -155,7 +155,7 @@ local function djToolButton(name: string, text: string, enabled: boolean): TextB
 	local button = create("TextButton", {
 		Name = name,
 		LayoutOrder = djToolCount,
-		Size = UDim2.new(1 / 3, -4, 1, 0),
+		Size = UDim2.new(1 / 4, -5, 1, 0),
 		BackgroundColor3 = if enabled then COLORS.dj else COLORS.card,
 		Text = text,
 		TextColor3 = if enabled then COLORS.text else COLORS.sub,
@@ -173,6 +173,8 @@ local skipButton = djToolButton("Skip", "⏭ 건너뛰기", true)
 local guestsButton = djToolButton("Guests", "👥 초대", true)
 -- Club lights / lasers on-off (DjService.Actions.Lights, attribute ClubLights).
 local lightsButton = djToolButton("Lights", "💡 조명 ON", true)
+-- DJ shown on the big LED screen (DjService.Actions.Screen, attribute ClubDJScreen).
+local screenButton = djToolButton("Screen", "📺 전광판 ON", true)
 
 -- light colours (DJ only): ClubConfig.LightColors swatches
 local colorRow = create("Frame", {
@@ -582,6 +584,9 @@ local function refresh()
 	local lightsOn = FashionGame:GetAttribute("ClubLights") ~= false
 	lightsButton.Text = if lightsOn then "💡 조명 ON" else "🌑 조명 OFF"
 	lightsButton.BackgroundColor3 = if lightsOn then COLORS.dj else COLORS.card
+	local screenOn = FashionGame:GetAttribute("ClubDJScreen") ~= false
+	screenButton.Text = if screenOn then "📺 전광판 ON" else "📺 전광판 OFF"
+	screenButton.BackgroundColor3 = if screenOn then COLORS.dj else COLORS.card
 	local lines = {}
 	for position, entry in ipairs(requests()) do
 		local queued = ClubConfig.Playlist[entry.i]
@@ -619,7 +624,7 @@ local function refreshAll()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLightColor" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLightColor", "ClubDJScreen" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
@@ -633,6 +638,9 @@ closeButton.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
 end)
 skipButton.MouseButton1Click:Connect(function() call("Skip", nil) end)
+screenButton.MouseButton1Click:Connect(function()
+	call("Screen", FashionGame:GetAttribute("ClubDJScreen") == false)
+end)
 lightsButton.MouseButton1Click:Connect(function()
 	call("Lights", FashionGame:GetAttribute("ClubLights") == false)
 end)
