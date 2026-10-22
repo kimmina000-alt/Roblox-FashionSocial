@@ -27,6 +27,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-10-22 (7), merged into `catalog-ui-redesign` (user approved): DJ "디제잉하기" prompt + light colours + IK DJ motion + left/right popups on phones + DJ lift (hips level with the turntable top, D-097) + LED wall DJ screen with 📺 on/off (D-095/D-096); both LED pillars show the same player; pillar and DJ screen copies follow outfit changes; popups start below the top bar (`TopBar.bottom()`) and only one popup is open at a time (`Popups.lua`, D-098); cafe part-time job (CafeJobService/Controller, CafeJobConfig, CAFE.md §9, D-099) with 알바 XP saved apart from capped coins (`wallet.jobs.cafe`, D-100). Mobile 2P tests passed (WORKLOG (8)–(11)).
 - Studio is now on placeId 97823572137260 ("cortis_ian의 장소: 10222026_1"), not the original 108570975325527: confirm with the user which place to publish.
 - The street layout is applied by `tools/graybox/hongdae_v1_temp.lua` (MODE apply/revert) into Workspace.Hongdae_v1_Temp; it is not yet folded into build_main_social_graybox.lua. The Studio place must be saved for it to stay.
+- Products: the user creates the 5 items on the Creator Dashboard from PRODUCTS.md §7, then sends the ids for MonetizationConfig.
 - Open items: real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip, friend-look NPC customers only checkable in a live game (Studio test players have no friends), 알바 levels on top of job XP.
 - Club dress-code event (입뺀): spec done (`docs/01_SYSTEMS/CLUB_DRESS_CODE.md`, D-101); build it after the game is finished, together with the guard the user will make (send their guard account name or item ids).
 - Next: fold the v7b layout into the graybox script when the user confirms it → 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9). User to check on a phone: 🏠 button, booth picking + copies step by hand.
@@ -34,7 +35,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
-- `docs/06_LOG/DECISIONS.md`: D-001 to D-101.
+- `docs/06_LOG/DECISIONS.md`: D-001 to D-102.
+- `docs/04_ART/REFERENCES.md` + `docs/04_ART/references/`: the user's photos/videos. Art direction = build realistically from these (D-102); save new references there.
 - `docs/06_LOG/ISSUES.md`, `WORKLOG.md`, `CHANGELOG.md`.
 - `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`, `docs/02_WORLDS/CAFE.md` (§9 part-time job), `CLUB_DRESS_CODE.md`.
 - `docs/02_WORLDS/HONGDAE_LAYOUT.md` (current layout v7b + history), `MAIN_SOCIAL_LAYOUT_PROPOSAL.md`, `CLUB_AREA.md`.

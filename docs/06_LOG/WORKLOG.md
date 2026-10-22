@@ -486,3 +486,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - `feat/dj-console-1022` → `catalog-ui-redesign` 병합(사용자 승인).
 ## 2026-10-22 (12) — 드레스코드 이벤트 기획서
 - `docs/01_SYSTEMS/CLUB_DRESS_CODE.md` 작성(D-101): 시즌 기간, 색 지정, 이름·설명 색 단어 판정, 가드 1명씩 검사·인사/입뺀·3 스터드 튕김, 클럽 안 30초 경고, VIP·DJ 예외, 1코인 랜덤 색 아이템 뽑기·다시 뽑기, 보상 없음. 가드는 사용자가 게임 완성 후 직접 제작.
+## 2026-10-22 (13) — 상품 등록 목록, 아트 방향
+- PRODUCTS.md §7: Creator Dashboard 등록 목록(패스 2, 개발자 상품 3, 환타 → 오렌지 소다).
+- 아트 방향 결정(D-102): 사용자 레퍼런스 기반 사실적 구현. 지금까지 받은 사진·동영상을 `docs/04_ART/references/`에 모으고 `REFERENCES.md`에 공간별 정리.
