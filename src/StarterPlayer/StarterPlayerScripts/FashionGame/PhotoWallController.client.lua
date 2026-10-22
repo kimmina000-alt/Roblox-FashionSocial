@@ -357,8 +357,10 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if ok then stopPlacing() end
 end)
 
+local Popups = require(script.Parent:WaitForChild("Popups"))
 local function closePicker()
 	picker.Visible = false
+	Popups.closed("PhotoWall")
 	for _, child in ipairs(pickerList:GetChildren()) do
 		if child:IsA("GuiObject") then child:Destroy() end
 	end
@@ -377,6 +379,7 @@ local function openPicker(wall: BasePart)
 	pickerGrid.CellSize = UDim2.fromOffset(math.floor(cellH * 0.55), cellH)
 	closePicker()
 	picker.Visible = true
+	Popups.opened("PhotoWall", closePicker)
 	pickerTitle.Text = "불러오는 중..."
 	local ok, data = invoke("GetAlbum", nil)
 	if not picker.Visible then return end

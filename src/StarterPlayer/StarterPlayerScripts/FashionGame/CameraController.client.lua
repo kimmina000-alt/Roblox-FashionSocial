@@ -156,9 +156,11 @@ local function placeMenu()
 	recPill.Position = UDim2.new(0.5, 0, 0, top)
 end
 
+local Popups = require(script.Parent:WaitForChild("Popups"))
 local function setMenu(open: boolean)
 	if open then placeMenu() end
 	menu.Visible = open
+	if open then Popups.opened("Camera", function() setMenu(false) end) else Popups.closed("Camera") end
 	captureButton.BackgroundColor3 = if open then Color3.fromRGB(255, 110, 170) else Color3.fromRGB(0, 0, 0)
 end
 

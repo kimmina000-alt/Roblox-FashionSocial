@@ -598,10 +598,13 @@ local function refresh()
 end
 
 local openedAt: Vector3? = nil
+local Popups = require(script.Parent:WaitForChild("Popups"))
 local function setPanelOpen(open: boolean)
 	panel.Visible = open
 	listPanel.Visible = open and compactNow
+	if not open then Popups.closed("ClubMusic") end
 	if open then
+		Popups.opened("ClubMusic", function() setPanelOpen(false) end)
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		openedAt = if root and root:IsA("BasePart") then root.Position else nil
 		layout()

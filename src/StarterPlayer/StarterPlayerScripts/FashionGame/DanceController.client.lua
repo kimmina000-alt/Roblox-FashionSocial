@@ -816,11 +816,14 @@ end)
 syncLeave.MouseButton1Click:Connect(leaveSync)
 
 local preloaded = false
+local Popups = require(script.Parent:WaitForChild("Popups"))
 local function setPanelOpen(open: boolean)
 	panel.Visible = open
 	danceButton.BackgroundColor3 = if open then COLORS.accent else Color3.fromRGB(0, 0, 0)
 	layoutPanel()
+	if not open then Popups.closed("Dance") end
 	if open then
+		Popups.opened("Dance", function() setPanelOpen(false) end)
 		if selectedTab == JOIN_TAB then renderJoinList() end
 		if not preloaded then
 			preloaded = true
@@ -855,6 +858,7 @@ local function closeCard()
 	cardTarget = nil
 	playerCard.Visible = false
 	cardHighlight.Parent = nil
+	Popups.closed("PlayerCard")
 end
 
 local function refreshCard()
@@ -892,6 +896,7 @@ local function openCard(target: Player)
 	cardPhoto.Image = ""
 	layoutPanel()
 	playerCard.Visible = true
+	Popups.opened("PlayerCard", closeCard)
 	refreshCard()
 	task.spawn(function()
 		local ok, image = pcall(function()

@@ -3173,6 +3173,7 @@ local function closeCatalogNow()
 	filterPanelOpen = false
 	filterPanel.Visible = false
 	toastLabel.Visible = false
+	require(script.Parent:WaitForChild("Popups")).closed("Catalog")
 end
 
 local function closeCatalog()
@@ -3189,6 +3190,12 @@ openButton.MouseButton1Click:Connect(function()
 		return
 	end
 	mainFrame.Visible = true
+	-- one popup at a time: another window opening closes the catalog (and the
+	-- avatar editor, without asking)
+	require(script.Parent:WaitForChild("Popups")).opened("Catalog", function()
+		if avatarEditor and avatarEditor:isOpen() then avatarEditor:_close() end
+		closeCatalogNow()
+	end)
 	-- Every open starts from the first screen: minimized, 전체/전체, normal catalog,
 	-- no keyword, default sort and filters, scrolled to the top (2026-10-19/20 feedback).
 	expandedPanel = false

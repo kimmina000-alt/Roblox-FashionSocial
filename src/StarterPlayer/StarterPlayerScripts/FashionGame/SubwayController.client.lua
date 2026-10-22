@@ -76,9 +76,11 @@ local status = make("TextLabel", {
 
 local openedAt: Vector3? = nil
 
+local Popups = require(script.Parent:WaitForChild("Popups"))
 local function hide()
 	panel.Visible = false
 	openedAt = nil
+	Popups.closed("Subway")
 end
 close.MouseButton1Click:Connect(hide)
 
@@ -96,6 +98,7 @@ end
 
 local function show(tag: string, current: number)
 	local bus = tag == "BusStop"
+	Popups.opened("Subway", hide)
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 	openedAt = if root and root:IsA("BasePart") then root.Position else nil
 	heading.Text = if bus then "어느 정류장으로 가시겠습니까?" else "몇 번 출구로 가시겠습니까?"

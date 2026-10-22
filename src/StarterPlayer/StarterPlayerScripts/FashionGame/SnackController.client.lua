@@ -78,9 +78,11 @@ local status = make("TextLabel", {
 local openShop: string? = nil
 local openedAt: Vector3? = nil
 
+local Popups = require(script.Parent:WaitForChild("Popups"))
 local function hide()
 	panel.Visible = false
 	openShop = nil
+	Popups.closed("Snack")
 end
 close.MouseButton1Click:Connect(hide)
 
@@ -88,6 +90,7 @@ local function show(shopKey: string)
 	local shop = SnackConfig.Shops[shopKey]
 	if not shop then return end
 	openShop = shopKey
+	Popups.opened("Snack", hide)
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 	openedAt = if root and root:IsA("BasePart") then root.Position else nil
 	title.Text = shop.title

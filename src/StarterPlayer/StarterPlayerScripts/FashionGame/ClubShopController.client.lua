@@ -138,7 +138,9 @@ create("UIListLayout", {
 }, modalButtons)
 
 type ModalButton = { name: string, text: string, color: Color3?, onClick: () -> () }
+local Popups = require(script.Parent:WaitForChild("Popups"))
 local function showModal(title: string, body: string, buttons: {ModalButton})
+	Popups.opened("ClubShop", function() modal.Visible = false end)
 	modalTitle.Text = title
 	modalBody.Text = body
 	for _, child in ipairs(modalButtons:GetChildren()) do
@@ -160,12 +162,13 @@ local function showModal(title: string, body: string, buttons: {ModalButton})
 		corner(button, 10)
 		button.MouseButton1Click:Connect(function()
 			modal.Visible = false
+			Popups.closed("ClubShop")
 			spec.onClick()
 		end)
 	end
 	modal.Visible = true
 end
-local function closeModal() modal.Visible = false end
+local function closeModal() modal.Visible = false; Popups.closed("ClubShop") end
 
 --------------------------------------------------
 -- Purchases

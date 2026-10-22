@@ -388,17 +388,22 @@ local function layoutSetup()
 	uiScale.Scale = scale
 end
 
+-- one popup at a time: the setup window, the album and the result screen
+-- close when another window opens (the shooting session itself stays)
+local Popups = require(script.Parent:WaitForChild("Popups"))
 local setupBooth: Model? = nil
+local function closeSetup()
+	setup.Visible = false
+	if state.stage == "setup" then state.stage = "none" end
+	Popups.closed("PhotoSetup")
+end
 local function openSetup(booth: Model)
 	if state.stage ~= "none" then return end
 	setupBooth = booth
 	layoutSetup()
 	setup.Visible = true
 	state.stage = "setup"
-end
-local function closeSetup()
-	setup.Visible = false
-	if state.stage == "setup" then state.stage = "none" end
+	Popups.opened("PhotoSetup", closeSetup)
 end
 setupClose.MouseButton1Click:Connect(closeSetup)
 enterButton.MouseButton1Click:Connect(function()
@@ -1043,6 +1048,7 @@ local function closeAllFlow()
 	state.stage = "none"
 	state.shots = nil
 	previewStrip = nil
+	Popups.closed("PhotoResult")
 end
 
 resultButton("📸 캡처 저장", COLORS.pink, 1, function()
@@ -1075,6 +1081,7 @@ local function showResult(saved: any)
 	previewStrip = nil
 	layoutResult()
 	result.Visible = true
+	Popups.opened("PhotoResult", closeAllFlow)
 	local count = if typeof(saved) == "table" then saved.count else nil
 	resultTitle.Text = if count then string.format("사진첩에 저장했어요! (%d/%d)", count, saved.max or PhotoConfig.MaxPhotos) else "사진첩에 저장했어요!"
 	if typeof(saved) == "table" and not saved.persistent and saved.note then toast("사진첩: " .. tostring(saved.note)) end
@@ -1289,14 +1296,17 @@ local function renderAlbum()
 	end
 end
 
+local closeAlbum: () -> ()
 openAlbum = function()
 	if state.stage ~= "none" then return end
 	layoutAlbum()
 	album.Visible = true
 	albumButton.BackgroundColor3 = COLORS.pink
 	task.spawn(renderAlbum)
+	Popups.opened("Album", closeAlbum)
 end
-local function closeAlbum()
+closeAlbum = function()
+	Popups.closed("Album")
 	album.Visible = false
 	viewer.Visible = false
 	albumButton.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
