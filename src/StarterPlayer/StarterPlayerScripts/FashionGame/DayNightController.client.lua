@@ -17,6 +17,13 @@ local dayLength = if RunService:IsStudio() and DayNightConfig.TestInStudio
 	else DayNightConfig.DayLengthSeconds
 
 RunService.RenderStepped:Connect(function()
+	-- a fixed hour while comparing looks (Lighting attribute HoldClockTime,
+	-- set by tools/graybox/art_sample_street.lua)
+	local hold = Lighting:GetAttribute("HoldClockTime")
+	if typeof(hold) == "number" then
+		Lighting.ClockTime = hold
+		return
+	end
 	-- (t / period) % 1 keeps the value small before turning it into hours
 	local dayFraction = (workspace:GetServerTimeNow() / dayLength) % 1
 	Lighting.ClockTime = (DayNightConfig.StartClockTime + dayFraction * 24) % 24
