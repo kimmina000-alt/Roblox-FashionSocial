@@ -1,3 +1,8 @@
+## 2026-10-23 — Realistic street, boundary, official map (feat/art-realistic-1022)
+- Street v7c: wide sidewalks, set-back buildings, yellow box junction, planting beds with street trees and shrubs, bike lane against the beds, grid pavers, Korean signals, street lights, bus shelters + clickable bus stop signs (SubwayService), curved-roof subway entrances, beach steps, realistic fan palms, editable props (prop_save.lua).
+- Play-area boundary (invisible walls) with backdrop: hanok wall extended, fake shop buildings, continuing beach and south street.
+- Official map script tools/graybox/build_hongdae_layout.lua (was hongdae_v1_temp.lua). DayNightController: HoldClockTime attribute.
+- Docs: D-102..D-111, docs/04_ART/REFERENCES.md + references/, tools/graybox/LAYOUT.md.
 ## 2026-10-22 (4) — DJ fixes, one popup at a time, cafe part-time job (feat/dj-console-1022)
 - TopBar.bottom(): every popup starts below the top-bar buttons (phones with a 0 inset too).
 - New Popups module: opening a window closes the previous one (catalog, album, dance, DJ/music, 📸, player card, photo wall, booth setup/result, snacks, subway/bus, club shop).
@@ -249,3 +254,4 @@
 - Expanded per-space plans for Beach/Dream Aquarium, Cafe/City View, Park/Playground, City Street, Club spatial layout and Fashion Week Backstage.
 - Linked the new authority documents from GAME_MASTER, ROADMAP, TODO and world planning docs.
 - Documentation-only update. No Roblox game source changes, Studio runtime tests, published multi-client tests or DataStore tests were performed.
+

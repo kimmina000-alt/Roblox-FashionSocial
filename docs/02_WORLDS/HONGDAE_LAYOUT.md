@@ -73,7 +73,7 @@
 - 공원 바닥(지름 210)은 서쪽이 해변 모래와 겹침(손그림도 겹침).
 
 ## v4 — 사용자 손그림 (기록)
-손그림: `docs/04_ART/diagrams/ohu_layout_v4_user_sketch.png` → 블록아웃: `ohu_layout_v4_studio.png`. 스크립트 `tools/graybox/hongdae_v1_temp.lua` (v4).
+손그림: `docs/04_ART/diagrams/ohu_layout_v4_user_sketch.png` → 블록아웃: `ohu_layout_v4_studio.png`. 스크립트 `tools/graybox/build_hongdae_layout.lua` (v4).
 - 축척: 손그림에 클럽·공원 놀이기구가 실제 크기로 붙어 있어 1 stud ≈ 3 px로 읽음. 로터리 중심 = (0,0).
 - **방향 기준 = Studio 위에서 본 화면: 화면 위 = -Z(북), 오른쪽 = +X(동).** 처음엔 +Z를 위로 그려 Studio에서 상하가 뒤집혀 보였음(사용자 지적) → 남북을 뒤집어 다시 지음. 해는 +X(동)에서 떠서 -X(서쪽 바다)로 짐(이건 그대로). 그림 파일도 같은 방향.
 - 구역 안쪽 배치(한옥 집들, 놀이기구 순서)는 거울처럼 뒤집을 수 없어서 원래 모양 그대로; 대문 동향·클럽 입구 서향·카페 테라스(길 쪽)는 맞춤.
@@ -89,7 +89,7 @@
 - 역 출구: ① 클럽(북동) ② 한옥(동) ③ 한강 해변(서남) ④ 연남·공원(북서).
 
 ## v2 — 햇빛 방향 기준 (기록)
-그림: `docs/04_ART/diagrams/ohu_layout_v2_studio.png`. 스크립트는 같은 `tools/graybox/hongdae_v1_temp.lua` (v2 내용).
+그림: `docs/04_ART/diagrams/ohu_layout_v2_studio.png`. 스크립트는 같은 `tools/graybox/build_hongdae_layout.lua` (v2 내용).
 - **Roblox 실제 방위 (Studio에서 측정):** 해는 +X에서 떠서 -X로 짐, 정오에 -Z 쪽으로 기움 → **동 = +X, 서 = -X, 북 = +Z, 남 = -Z**. 바다는 원래부터 서쪽(-X)이라 석양이 바다 위로 진다.
 - 공간별 원칙 (사용자):
   1. **해변 — 서쪽.** 산책로·파라솔·부두·사진 명소가 서쪽 바다를 향하게. 석양 때 주황·분홍 빛 반사. 핵심 = 바다를 보는 시선이 서쪽. → 그대로 + 북쪽 부두 끝에 "석양 포토 스팟" 액자(서쪽 향).
@@ -102,7 +102,7 @@
 - 남은 것: 석양·아침 조명 연출(시간대), 한옥 카페 등불, 클럽 외벽 창 처리, 지하 대합실, 확정 후 그래이박스 스크립트에 정식 반영.
 
 ## Studio 임시 적용 (v1 기록, 2026-10-22)
-- 스크립트: `tools/graybox/hongdae_v1_temp.lua` (Studio 명령줄, 편집 모드). 맨 위 `MODE`를 `"apply"`/`"revert"`로.
+- 스크립트: `tools/graybox/build_hongdae_layout.lua` (Studio 명령줄, 편집 모드). 맨 위 `MODE`를 `"apply"`/`"revert"`로.
 - 결과 그림: `docs/04_ART/diagrams/ohu_hongdae_v1_studio.png` (Studio 파트로 그린 위에서 본 모습).
 - 방향: 북 = +X, 동 = +Z. 클럽(땅 구멍)과 해변(지형 바다)은 그대로 두고 나머지를 그 둘레에 배치 → 바다가 남쪽 한강이 됨.
 - apply가 하는 일: 구역 이동(백스테이지·Glasshouse 카페·공원·인생네컷), 원형 광장 길(Loop/Spoke)과 09_Paths를 ServerStorage `Hongdae_v1_HiddenParts`로 치움, `Workspace.Hongdae_v1_Temp`(역·양화로·레드로드·와우산로·책거리·경의선숲길·상가) 추가, 스폰을 역 안으로.
@@ -126,3 +126,6 @@
 - 화단: 화강석 테두리 + 흙 + 관목·풀 + 가운데 가로수(Creator Store 에셋). 가로등 하나 걸러 하나(간격 80). 차는 G70·G80만.
 - 해변: 모래 2.4 아래로, 바다 3 아래로 → 산책로 끝 화강석 단 + 나무 계단 2단으로 모래사장에 내려감.
 - 배치도 그림(v7c, Studio 실제 파트로 그림): `map_v7c.png`
+
+## 정식 맵 (2026-10-23, D-111)
+v7c(+ 경계 D-109·D-110)를 정식 맵으로 확정. 임시 스크립트 `hongdae_v1_temp.lua`를 `tools/graybox/build_hongdae_layout.lua`로 옮겼다. 빌드 순서와 손 편집 방법: `tools/graybox/LAYOUT.md`. 배치도 그림: `map_v7c.png` (경계 추가 전).

@@ -125,7 +125,7 @@ local C = {
 }
 
 ---------------------------------------------------------------- 1. materials on what exists
-local roots = { workspace:FindFirstChild("Hongdae_v1_Temp"), workspace:FindFirstChild("Graybox_MainSocial") }
+local roots = { workspace:FindFirstChild("Hongdae_Layout"), workspace:FindFirstChild("Graybox_MainSocial") }
 local changed = 0
 for _, r in ipairs(roots) do
 	if r then
@@ -198,7 +198,7 @@ paving(-40, -170, -24, -24) -- NW
 paving(-40, 24, -24, 75) -- SW
 
 ---------------------------------------------------------------- 3. granite curbs + tactile blocks on the road side of long sidewalks
-local temp = workspace:FindFirstChild("Hongdae_v1_Temp")
+local temp = workspace:FindFirstChild("Hongdae_Layout")
 if temp then
 	for _, s in ipairs(temp:GetChildren()) do
 		if s:IsA("BasePart") and s.Name == "Sidewalk" and inBox(s.Position) then

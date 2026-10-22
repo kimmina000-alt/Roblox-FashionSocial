@@ -1,4 +1,8 @@
--- TEMPORARY layout test v7 (docs/02_WORLDS/HONGDAE_LAYOUT.md "v7", user 2026-10-22):
+-- OFFICIAL map layout v7c (docs/02_WORLDS/HONGDAE_LAYOUT.md, user approved 2026-10-23).
+-- Build order (tools/graybox/LAYOUT.md): 1) build_main_social_graybox.lua
+-- (the zones), 2) this script (street layout, zone positions, boundary,
+-- backdrop), 3) street_dress.lua (real assets). Hand edits of props are kept
+-- by prop_save.lua (D-105). Earlier name: hongdae_v1_temp.lua (D-086..D-110).
 --   * 강남역 사거리 instead of the roundabout (videos): wide roads with central
 --     bus lanes, lane lines / arrows, crosswalks, yellow safety zones, planters
 --   * subway exits 1-4 = real stair entrances coming up in the arrow direction
@@ -102,7 +106,8 @@ local function revert()
 		end
 		hidden:Destroy()
 	end
-	local old = workspace:FindFirstChild("Hongdae_v1_Temp")
+	-- (also the folder of the earlier temporary version)
+	local old = workspace:FindFirstChild("Hongdae_Layout") or workspace:FindFirstChild("Hongdae_v1_Temp")
 	if old then
 		if old:GetAttribute("Mountains") then
 			for _, m in ipairs(MOUNTAINS) do workspace.Terrain:FillBall(m[1], m[2] + 1, Enum.Material.Air) end
@@ -189,7 +194,7 @@ end
 -- a Folder, not a Model: in Studio one click selects one tree / car / bed
 -- instead of the whole street (user 2026-10-22)
 local T = Instance.new("Folder")
-T.Name = "Hongdae_v1_Temp"
+T.Name = "Hongdae_Layout"
 
 -- Hand edits that survive a rebuild (D-105): every prop gets a PropId made
 -- from its kind and generated position. tools/graybox/prop_save.lua records

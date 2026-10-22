@@ -2,8 +2,8 @@
 -- "창문이 있는 건물 외벽, 도로, 한국식 신호등, 가로등, 버스 정류장 ... 현실적인
 -- 에셋 찾아서 적용 / 인도 블록이랑 차도 디자인 다름 / 인도 꺾이는 부분 라운드 /
 -- 전봇대도 넣어".
--- Run in Edit mode AFTER tools/graybox/hongdae_v1_temp.lua (it dresses
--- Workspace.Hongdae_v1_Temp). MODE: "apply" (default) / "revert".
+-- Run in Edit mode AFTER tools/graybox/build_hongdae_layout.lua (it dresses
+-- Workspace.Hongdae_Layout). MODE: "apply" (default) / "revert".
 -- Assets live in ServerStorage.ArtAssets (inserted 2026-10-22, every script
 -- removed; ids in docs/04_ART/REFERENCES.md). Nothing is deleted: replaced
 -- blockout parts are made invisible (attributes DressOrig*), new things go into
@@ -15,7 +15,7 @@ local SS = game:GetService("ServerStorage")
 local CS = game:GetService("CollectionService")
 local MS = game:GetService("MaterialService")
 local A = SS:WaitForChild("ArtAssets")
-local temp = workspace:FindFirstChild("Hongdae_v1_Temp")
+local temp = workspace:FindFirstChild("Hongdae_Layout")
 local DRESS = "StreetDress"
 
 local IMG = {
@@ -54,7 +54,7 @@ end
 
 revert()
 if MODE == "revert" then return "street dressing removed" end
-assert(temp, "run hongdae_v1_temp.lua first")
+assert(temp, "run build_hongdae_layout.lua first")
 
 ---------------------------------------------------------------- helpers
 -- Folders, not Models: one click in Studio selects one light / pole (D-105)
@@ -67,7 +67,7 @@ local function folder(name: string): Folder
 	return m
 end
 
--- hand edits that survive a re-run (same scheme as hongdae_v1_temp.lua, D-105)
+-- hand edits that survive a re-run (same scheme as build_hongdae_layout.lua, D-105)
 local HS = game:GetService("HttpService")
 local function jsonValue(name: string): {[string]: any}
 	local v = SS:FindFirstChild(name)

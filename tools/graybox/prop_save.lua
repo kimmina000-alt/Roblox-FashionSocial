@@ -4,7 +4,7 @@
 -- utility pole, traffic light, bus shelter) carries attributes PropId and
 -- PropBase (where the script put it). Run this in Edit mode after moving or
 -- deleting props by hand: it writes the differences to
--- ServerStorage.PropOverrides (JSON). hongdae_v1_temp.lua and street_dress.lua
+-- ServerStorage.PropOverrides (JSON). build_hongdae_layout.lua and street_dress.lua
 -- apply them again on every rebuild. The JSON is also returned, so it can be
 -- kept in git as tools/graybox/prop_overrides.json.
 --   MODE "save" (default) | "clear" (forget every hand edit) | "restore <id>"
@@ -48,7 +48,7 @@ for _, d in ipairs(workspace:GetDescendants()) do
 end
 -- only judge props whose script output is in the world right now
 local live = {
-	temp = workspace:FindFirstChild("Hongdae_v1_Temp") ~= nil,
+	temp = workspace:FindFirstChild("Hongdae_Layout") ~= nil,
 	dress = workspace:FindFirstChild("StreetDress") ~= nil,
 }
 
