@@ -793,10 +793,17 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 	local signBase = base + roadDir * 5.4 + along * 9 -- at the curb, road side (user)
 	local scf = CFrame.lookAt(signBase, signBase + along) -- the sign faces along the street
 	-- half the size it was (user 2026-10-22)
-	vcyl("BusSignPole", signBase, 0.3, 7, Color3.fromRGB(110, 112, 116), { parent = m, material = Enum.Material.Metal })
-	local disc = part("BusSignDisc", Vector3.new(0.15, 1.1, 1.1), scf * CFrame.new(0, 7.3, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(60, 165, 75), { parent = m, shape = Enum.PartType.Cylinder })
-	for _, face in ipairs({ Enum.NormalId.Right, Enum.NormalId.Left }) do surfaceText(disc, face, "🚌", Color3.new(1, 1, 1), Enum.Font.GothamBold) end
-	local sign = part("BusStopSign", Vector3.new(1.2, 2.3, 0.2), scf * CFrame.new(0, 5.4, 0), Color3.fromRGB(28, 28, 30), { parent = m })
+	-- thin pole that ends inside the sign (it must not show in front of the
+	-- panels, user 2026-10-22); the disc sits on top of the sign
+	vcyl("BusSignPole", signBase, 0.18, 6, Color3.fromRGB(110, 112, 116), { parent = m, material = Enum.Material.Metal })
+	local disc = part("BusSignDisc", Vector3.new(0.4, 1.15, 1.15), scf * CFrame.new(0, 7.12, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(60, 165, 75), { parent = m, shape = Enum.PartType.Cylinder })
+	for _, face in ipairs({ Enum.NormalId.Right, Enum.NormalId.Left }) do
+		local icon = Instance.new("Decal") -- white bus filling the disc
+		icon.Texture = "rbxassetid://10804592292"
+		icon.Face = face
+		icon.Parent = disc
+	end
+	local sign = part("BusStopSign", Vector3.new(1.2, 2.3, 0.5), scf * CFrame.new(0, 5.4, 0), Color3.fromRGB(28, 28, 30), { parent = m })
 	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
 		local g = Instance.new("SurfaceGui")
 		g.Face = face
@@ -824,8 +831,7 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 		textLabel("OHU 01  ●─●─●─●\nOHU 02  ●─●─●─●\nOHU 03  ●─●─●─●", 0.34, 0.5, Color3.fromRGB(40, 110, 60), Color3.fromRGB(245, 245, 242), 8)
 		textLabel("탭해서 정류장 고르기", 0.84, 0.16, Color3.new(1, 1, 1), Color3.fromRGB(40, 120, 220), 6)
 	end
-	local noSmoke = part("NoSmokingPlate", Vector3.new(0.9, 0.35, 0.1), scf * CFrame.new(0, 3.9, 0), Color3.fromRGB(60, 165, 75), { parent = m })
-	surfaceText(noSmoke, Enum.NormalId.Front, "금연", Color3.new(1, 1, 1), Enum.Font.GothamBold)
+
 	sign:SetAttribute("ExitNumber", n)
 	sign:SetAttribute("ExitName", name)
 	sign:SetAttribute("Out", along) -- arrivals stand next to the sign, along the street
@@ -859,8 +865,10 @@ do
 			end
 			if free then
 				box("BeachStepEdge", -198.7, sandTop, zs, -198, CURB + 0.1, ze, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
-				box("BeachStep", -201.2, sandTop, zs, -198.7, CURB - 0.8, ze, wood, { material = Enum.Material.WoodPlanks })
-				box("BeachStep", -203.7, sandTop, zs, -201.2, CURB - 1.6, ze, wood, { material = Enum.Material.WoodPlanks })
+				-- three wooden steps (user 2026-10-22)
+				box("BeachStep", -201.2, sandTop, zs, -198.7, CURB - 0.6, ze, wood, { material = Enum.Material.WoodPlanks })
+				box("BeachStep", -203.7, sandTop, zs, -201.2, CURB - 1.2, ze, wood, { material = Enum.Material.WoodPlanks })
+				box("BeachStep", -206.2, sandTop, zs, -203.7, CURB - 1.8, ze, wood, { material = Enum.Material.WoodPlanks })
 			end
 		end
 	end
@@ -880,7 +888,8 @@ do
 			for k = 0, 3 do box("DrainBar", x - 0.6, 0.15, zz + 0.3 + k * 0.6, x + 0.6, 0.17, zz + 0.45 + k * 0.6, Color3.fromRGB(90, 90, 95), { nocol = true }) end
 		end
 	end
-	for zz = z0 + 4, z1 - 2, 7 do vcyl("Bollard", Vector3.new(-183.5, CURB, zz), 1.1, 1.6, Color3.fromRGB(150, 145, 140), { material = Enum.Material.Slate }) end
+	-- each bollard can be moved / deleted by hand (user 2026-10-22, D-105)
+	for zz = z0 + 4, z1 - 2, 7 do prop(vcyl("Bollard", Vector3.new(-183.5, CURB, zz), 1.1, 1.6, Color3.fromRGB(150, 145, 140), { material = Enum.Material.Slate }), "Bollard") end
 	local function pine(pos: Vector3)
 		vcyl("PlanterRing", pos + Vector3.new(0, CURB, 0), 8, 1.4, Color3.fromRGB(170, 160, 150), { material = Enum.Material.Slate })
 		vcyl("PlanterSoil", pos + Vector3.new(0, CURB, 0), 6.6, 1.5, Color3.fromRGB(120, 95, 70), { material = Enum.Material.Ground })
@@ -897,7 +906,34 @@ do
 			part("PineSupport", Vector3.new(0.25, 0.25, (tip - foot).Magnitude), CFrame.lookAt((foot + tip) / 2, tip), Color3.fromRGB(110, 80, 55), { nocol = true })
 		end
 	end
-	for zz = z0 + 14, z1 - 10, 30 do if math.abs(zz - 61) > 8 then pine(Vector3.new(-190, 0, zz)) end end
+	-- beach palms of the graybox (blocky) → the same realistic palm, as props.
+	-- The blocky ones are parked in the hidden folder, put back where the
+	-- built (unmoved) zone has them so "revert" restores them correctly.
+	local beachZone = root:FindFirstChild("04_Beach_Aquarium")
+	if beachZone then
+		local undo = CFrame.new(0, BEACH_DROP, 0) -- inverse of the zone move
+		for _, old in ipairs(beachZone:GetChildren()) do
+			if old:IsA("Model") and old.Name == "PalmTree" then
+				local cf, size = old:GetBoundingBox()
+				local foot = Vector3.new(cf.X, cf.Y - size.Y / 2, cf.Z)
+				old:PivotTo(undo * old:GetPivot())
+				old:SetAttribute("HomeZone", beachZone.Name)
+				old.Parent = hidden
+				local p = foliage("PalmTreeReal", 0.5 + (math.floor(foot.Z) % 3) * 0.05, CFrame.new(foot) * CFrame.Angles(0, math.rad((math.floor(foot.X * 7 + foot.Z) % 360)), 0))
+				if p then prop(p, "Palm") end
+			end
+		end
+	end
+	-- realistic fan palms (광안리 photo, user 2026-10-22) instead of the round
+	-- pines; each one can be moved / deleted by hand
+	for zz = z0 + 14, z1 - 10, 30 do
+		if math.abs(zz - 61) > 8 then
+			local base = Vector3.new(-190, CURB, zz)
+			box("PalmBed", base.X - 2.2, CURB, zz - 2.2, base.X + 2.2, CURB + 0.25, zz + 2.2, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
+			local p = foliage("PalmTreeReal", 0.55 + (zz % 3) * 0.04, CFrame.new(base + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, math.rad((zz * 37) % 360), 0))
+			if p then prop(p, "Palm") end
+		end
+	end
 	for zz = z0 + 10, z1, 80 do streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
 	for zz = z0 + 28, z1, 60 do
 		box("BenchBase", -197.5, CURB, zz, -195.5, CURB + 1.6, zz + 6, Color3.fromRGB(110, 110, 115))
