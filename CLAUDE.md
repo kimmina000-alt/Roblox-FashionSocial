@@ -35,7 +35,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
-- `docs/06_LOG/DECISIONS.md`: D-001 to D-103.
+- `docs/06_LOG/DECISIONS.md`: D-001 to D-104.
 - `docs/04_ART/REFERENCES.md` + `docs/04_ART/references/`: the user's photos/videos. Art direction = build realistically from these (D-102); save new references there.
 - `docs/06_LOG/ISSUES.md`, `WORKLOG.md`, `CHANGELOG.md`.
 - `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`, `docs/02_WORLDS/CAFE.md` (§9 part-time job), `CLUB_DRESS_CODE.md`.
@@ -55,5 +55,6 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - Copies kept in ServerStorage still carry CollectionService tags: services that act on positions must only use tagged instances inside Workspace.
 - Studio test windows in the background run slowly: keep MCP execute_luau calls short (no long waits) during 2P tests.
 - Studio screenshots: screen_capture is white in Edit mode; use Play mode and lock the camera with BindToRenderStep (Lighting attribute HoldClockTime fixes the hour).
+- Cars: only Car_G70 and Car_G80 (user pick, D-104). Street layout is v7c (wide sidewalks, D-104).
 - Creator Store assets often hide malicious scripts (fake "LightConfig"/"Runtime"): strip every script before using an asset.
 - MCP mouse clicks do not reach GUI buttons in phone emulation: set `GuiService.SelectedObject` to the button and send Return. Prompts: `InputHoldBegin/End` (WaitForChild first: children replicate late). Teleporting onto a seat sits the character on the server; unsit before the next teleport.

@@ -23,19 +23,28 @@ local function R(deg) return CFrame.Angles(0, math.rad(deg), 0) end
 
 -- crossroads centre C = (0,0). Big roads: asphalt 48 (bus 8+8 in the middle,
 -- 2 car lanes of 8 each side), sidewalks 10 → buildings start 36 from the axes.
+-- v7c (user 2026-10-22, Hongdae photo): sidewalks are a furniture strip (10:
+-- exits, planters, lamps) + a walkway of about the same width, so the
+-- sidewalks reach 47 from the road axis and the buildings stand behind that.
+-- The club moves 6 north and the photo booth 12 north (its side face clears
+-- the east-road sidewalk), the hanok village 12 south. The beach goes 2.4
+-- down (and the sea 3) so the promenade steps down to the sand (광안리 photo).
+local CLUB_DZ = -6
 local MOVES = {
-	["02_Club"] = CFrame.new(109, 0, -172) * R(-90) * CFrame.new(0, 0, 210), -- entrance faces west (club street)
-	["03_Rooftop_Backstage"] = CFrame.new(109, 0, -366) * R(180) * CFrame.new(-125, 0, 160), -- runway behind the club
-	["07_Hanok_Village"] = CFrame.new(161, 0, 126) * R(-90) * CFrame.new(-175, 0, -230), -- main gate east, back gate west (광화문)
-	["08_PhotoBooth"] = CFrame.new(-126, 0, 51), -- 인생네컷 below the club
+	["02_Club"] = CFrame.new(0, 0, CLUB_DZ) * CFrame.new(109, 0, -172) * R(-90) * CFrame.new(0, 0, 210), -- entrance faces west (club street)
+	["03_Rooftop_Backstage"] = CFrame.new(0, 0, CLUB_DZ) * CFrame.new(109, 0, -366) * R(180) * CFrame.new(-125, 0, 160), -- runway behind the club
+	["07_Hanok_Village"] = CFrame.new(0, 0, 12) * CFrame.new(161, 0, 126) * R(-90) * CFrame.new(-175, 0, -230), -- main gate east, back gate west (광화문)
+	["08_PhotoBooth"] = CFrame.new(0, 0, -12) * CFrame.new(-126, 0, 51), -- 인생네컷 below the club
 	["06_Park_Playground"] = CFrame.new(-455, 0, -171), -- amusement park north-west
 	["05_Cafe"] = CFrame.new(-123.5, 0, 175) * R(-90) * CFrame.new(130, 0, -185), -- Glasshouse south-west
+	["04_Beach_Aquarium"] = CFrame.new(0, -2.4, 0), -- sand below the promenade
 }
+local BEACH_DROP, SEA_DROP = 2.4, 3
 -- ground holes: club + the four subway stair pits (x0, z0, x1, z1)
 local HOLES = {
-	{ 49, -252, 169, -92 },
-	{ 26, -59, 32, -41 }, { -32, -59, -26, -41 }, -- exits 1, 3 (come up northwards)
-	{ 26, 41, 32, 59 }, { -32, 41, -26, 59 }, -- exits 2, 4 (come up southwards)
+	{ 49, -252 + CLUB_DZ, 169, -92 + CLUB_DZ },
+	{ 26, -68, 32, -50 }, { -32, -68, -26, -50 }, -- exits 1, 3 (come up northwards)
+	{ 26, 50, 32, 68 }, { -32, 50, -26, 68 }, -- exits 2, 4 (come up southwards)
 }
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
 	{ Vector3.new(400, -55, 60), 95 }, { Vector3.new(470, -60, 175), 110 }, { Vector3.new(420, -55, 295), 95 },
@@ -97,6 +106,10 @@ local function revert()
 	if old then
 		if old:GetAttribute("Mountains") then
 			for _, m in ipairs(MOUNTAINS) do workspace.Terrain:FillBall(m[1], m[2] + 1, Enum.Material.Air) end
+		end
+		if old:GetAttribute("SeaLowered") then -- sea back up to y 0 (dome kept dry, as the graybox builds it)
+			workspace.Terrain:FillBlock(CFrame.new((-1024 - 268) / 2, -SEA_DROP / 2, 0), Vector3.new(1024 - 268, SEA_DROP, 2048), Enum.Material.Water)
+			workspace.Terrain:FillBall(Vector3.new(-368, 0, -150), 44, Enum.Material.Air)
 		end
 		old:Destroy()
 	end
@@ -177,10 +190,20 @@ local T = Instance.new("Model")
 T.Name = "Hongdae_v1_Temp"
 
 -- ground with holes: split x / z at every hole edge, keep the cells outside
--- the holes, merge runs along x (old ground: x -268..1024, z -1024..1024)
+-- the holes, merge runs along x (old ground: x -268..1024, z -1024..1024;
+-- west of the promenade, x -268..-198, the ground is lowered with the beach)
 if groundTemplate then
 	local y, h = groundTemplate.Position.Y, groundTemplate.Size.Y
-	local xs, zs = { -268, 1024 }, { -1024, 1024 }
+	local low = groundTemplate:Clone()
+	low.Name = "Ground"
+	low.Size = Vector3.new(70, h, 2048)
+	low.CFrame = CFrame.new(-233, y - BEACH_DROP, 0)
+	low:SetAttribute("HomeZone", nil)
+	low.Parent = T
+	-- sea 3 lower so the sand stays above the water
+	workspace.Terrain:FillBlock(CFrame.new((-1024 - 268) / 2, -SEA_DROP / 2, 0), Vector3.new(1024 - 268, SEA_DROP, 2048), Enum.Material.Air)
+	T:SetAttribute("SeaLowered", true)
+	local xs, zs = { -198, 1024 }, { -1024, 1024 }
 	for _, o in ipairs(HOLES) do table.insert(xs, o[1]) table.insert(xs, o[3]) table.insert(zs, o[2]) table.insert(zs, o[4]) end
 	table.sort(xs) table.sort(zs)
 	local function inHole(x, z)
@@ -321,10 +344,52 @@ local function trafficLight(base: Vector3, toward: Vector3, reach)
 		part("SignalLamp", Vector3.new(0.9, 0.9, 0.3), head.CFrame * CFrame.new((i - 2) * 1.3, 0, -0.65), c, { material = Enum.Material.Neon, nocol = true })
 	end
 end
-local function planter(pos: Vector3, along: Vector3)
-	local cf = CFrame.lookAt(pos, pos + along)
-	part("Planter", Vector3.new(2.4, 1.4, 7), cf * CFrame.new(0, CURB + 0.7, 0), Color3.fromRGB(110, 105, 100), { material = Enum.Material.Concrete })
-	part("Hedge", Vector3.new(2.2, 1.6, 6.6), cf * CFrame.new(0, CURB + 2.1, 0), Color3.fromRGB(70, 140, 60), { material = Enum.Material.Grass })
+-- roadside planting bed (user 2026-10-22, Seoul photos): a soil bed framed by
+-- low granite, shrubs and grass on the soil, a street tree in the middle.
+-- Foliage comes from ServerStorage.ArtAssets (Creator Store, scripts removed).
+local ART = SS:FindFirstChild("ArtAssets")
+local plantN = 0
+local function foliage(name: string, scale: number, at: CFrame): Model?
+	local src = ART and ART:FindFirstChild(name)
+	if not src then return nil end
+	local m = src:Clone()
+	if scale ~= 1 then m:ScaleTo(scale) end
+	-- sit the bottom of the model on the given point
+	local cf, size = m:GetBoundingBox()
+	m:PivotTo(at * CFrame.new(0, size.Y / 2, 0) * cf:ToObjectSpace(m:GetPivot()))
+	for _, p in ipairs(m:GetDescendants()) do
+		if p:IsA("BasePart") then p.CanCollide = false p.CanQuery = false p.Anchored = true end
+	end
+	m.Parent = T
+	return m
+end
+local function planter(pos: Vector3, along: Vector3, len: number?)
+	local L, W = len or 14, 3.2
+	local cf = CFrame.lookAt(pos, pos + along) -- -Z = along the street
+	local granite = Color3.fromRGB(196, 194, 188)
+	local top = CURB + 0.35
+	for _, s in ipairs({ -1, 1 }) do
+		part("PlanterEdge", Vector3.new(0.3, 0.6, L), cf * CFrame.new(s * (W / 2 - 0.15), top - 0.3, 0), granite, { material = Enum.Material.Granite })
+		part("PlanterEdge", Vector3.new(W, 0.6, 0.3), cf * CFrame.new(0, top - 0.3, s * (L / 2 - 0.15)), granite, { material = Enum.Material.Granite })
+	end
+	part("PlanterSoil", Vector3.new(W - 0.6, 0.5, L - 0.6), cf * CFrame.new(0, top - 0.35, 0), Color3.fromRGB(98, 74, 52), { material = Enum.Material.Ground })
+	local soilTop = top - 0.1
+	plantN += 1
+	-- street tree in the middle (its own tree grate is not used: the bed is the pit)
+	local tree = foliage("StreetTree", 0.85, cf * CFrame.new(0, soilTop, 0) * CFrame.Angles(0, plantN * 1.7, 0))
+	if tree then
+		for _, p in ipairs(tree:GetChildren()) do
+			if p:IsA("BasePart") and p.Name == "Part" and p.Size.Y < 1.5 then p:Destroy() end
+		end
+	end
+	-- shrubs and grass tufts along the bed, a little irregular
+	for k, z in ipairs({ -5.2, -3.1, 3.1, 5.2 }) do
+		local x = ((k + plantN) % 2 - 0.5) * 0.6
+		foliage("Shrub", 0.2 + ((k + plantN) % 3) * 0.03, cf * CFrame.new(x, soilTop - 0.2, z) * CFrame.Angles(0, k * 2.3 + plantN, 0))
+	end
+	for k, z in ipairs({ -6.1, -4.2, -1.8, 1.8, 4.2, 6.1 }) do
+		foliage("GrassTuft", 0.3, cf * CFrame.new(((k % 2) - 0.5) * 1.6, soilTop, z) * CFrame.Angles(0, k * 1.1, 0))
+	end
 end
 -- painted arrow on the road (pointing along dir)
 local function arrow(pos: Vector3, dir: Vector3, turn)
@@ -338,7 +403,11 @@ end
 
 local CAR_COLORS = { Color3.fromRGB(245, 245, 245), Color3.fromRGB(25, 25, 30), Color3.fromRGB(150, 155, 160), Color3.fromRGB(40, 60, 110), Color3.fromRGB(160, 30, 35) }
 local carCount = 0
-local carDesigns = (SS:FindFirstChild("Cars") and SS.Cars:GetChildren()) or {}
+-- only the models the user picked (2026-10-22 screenshots): Genesis G70, G80
+local carDesigns = {}
+for _, c in ipairs((SS:FindFirstChild("Cars") and SS.Cars:GetChildren()) or {}) do
+	if c.Name == "Car_G70" or c.Name == "Car_G80" then table.insert(carDesigns, c) end
+end
 table.sort(carDesigns, function(a, b) return a.Name < b.Name end)
 local function car(pos: Vector3, along: Vector3)
 	carCount += 1
@@ -362,8 +431,26 @@ end
 
 ------------------------------------------------------- 강남역 사거리 (crossroads)
 box("IntersectionRoad", -24, 0, -24, 24, 0.12, 24, ASPHALT, { material = Enum.Material.Asphalt })
-for _, s in ipairs({ { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } }) do walk(s[1] * 24, s[2] * 24, s[1] * 34, s[2] * 34) end
-for _, o in ipairs({ -24, 24 }) do paint("JunctionLine", -24, o - 0.2, 24, o + 0.2, YELLOW) paint("JunctionLine", o - 0.2, -24, o + 0.2, 24, YELLOW) end
+local WIDE = 47 -- sidewalk outer edge from the road axis (v7c)
+for _, s in ipairs({ { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } }) do walk(s[1] * 24, s[2] * 24, s[1] * WIDE, s[2] * WIDE) end
+-- 정차금지지대 (강남 video): a yellow box just inside the junction with short
+-- slanted ticks pointing inward along every side
+do
+	local B, TH = 21.5, 0.4
+	for _, o in ipairs({ -B, B }) do
+		paint("JunctionLine", -B, o - TH / 2, B, o + TH / 2, YELLOW)
+		paint("JunctionLine", o - TH / 2, -B, o + TH / 2, B, YELLOW)
+	end
+	for t = -B + 2, B - 2, 2.6 do
+		for _, e in ipairs({ { Vector3.new(t, 0, -B), Vector3.new(0, 0, 1) }, { Vector3.new(t, 0, B), Vector3.new(0, 0, -1) }, { Vector3.new(-B, 0, t), Vector3.new(1, 0, 0) }, { Vector3.new(B, 0, t), Vector3.new(-1, 0, 0) } }) do
+			local inward = e[2]
+			local slant = (inward + Vector3.new(inward.Z, 0, -inward.X)).Unit -- 45° to the side
+			local a = e[1] + inward * 0.2 + Vector3.new(0, 0.14, 0)
+			local b = a + slant * 2.4
+			part("JunctionTick", Vector3.new(TH, 0.04, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), YELLOW, { nocol = true })
+		end
+	end
+end
 
 -- a big road from the crossroads; dir = ±X/±Z; u along, v across (+v = right of dir)
 -- pits = sidewalk cut-outs for stair pits {u0, u1, v0, v1}; cars = {u, v}
@@ -373,7 +460,9 @@ local function clear(p: Vector3)
 	for _, k in ipairs(KEEP_CLEAR) do if p.X > k[1] and p.X < k[3] and p.Z > k[2] and p.Z < k[4] then return false end end
 	return true
 end
-local function bigRoad(dir: Vector3, len: number, pits, cars)
+-- outer = sidewalk outer edge per side { [-1] = left of dir, [1] = right }
+local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
+	outer = outer or { [-1] = WIDE, [1] = WIDE }
 	local across = Vector3.new(-dir.Z, 0, dir.X)
 	local function at(u, v) return dir * u + across * v end
 	local function uv(name, u0, v0, u1, v1, y0, y1, color, opt)
@@ -382,11 +471,11 @@ local function bigRoad(dir: Vector3, len: number, pits, cars)
 	end
 	uv("Road", 24, -24, len, 24, 0, 0.12, ASPHALT, { material = Enum.Material.Asphalt })
 	for _, side in ipairs({ -1, 1 }) do
-		local v0, v1 = if side < 0 then -34 else 24, if side < 0 then -24 else 34
+		local v0, v1 = if side < 0 then -outer[-1] else 24, if side < 0 then -24 else outer[1]
 		local cuts = {}
 		for _, p in ipairs(pits) do if p[3] >= v0 and p[4] <= v1 then table.insert(cuts, p) end end
 		table.sort(cuts, function(a, b) return a[1] < b[1] end)
-		local u = 34
+		local u = WIDE
 		for _, p in ipairs(cuts) do
 			uv("Sidewalk", u, v0, p[1], v1, 0, CURB, WALK, { material = Enum.Material.Brick })
 			uv("Sidewalk", p[1], v0, p[2], p[3], 0, CURB, WALK, { material = Enum.Material.Brick })
@@ -395,39 +484,44 @@ local function bigRoad(dir: Vector3, len: number, pits, cars)
 		end
 		uv("Sidewalk", u, v0, len, v1, 0, CURB, WALK, { material = Enum.Material.Brick })
 	end
-	local function line(name, v, col, dashed)
+	local function line(name, v, col, dashed, from)
 		if dashed then
 			for u = 40, len - 6, 12 do uv(name, u, v - 0.2, u + 6, v + 0.2, 0.12, 0.16, col, { nocol = true }) end
 		else
-			uv(name, 38, v - 0.2, len, v + 0.2, 0.12, 0.16, col, { nocol = true })
+			uv(name, from or 38, v - 0.2, len, v + 0.2, 0.12, 0.16, col, { nocol = true })
 		end
 	end
-	line("CenterLine", -0.45, YELLOW) line("CenterLine", 0.45, YELLOW)
+	-- the double centre line starts where the safety zone ends
+	line("CenterLine", -0.45, YELLOW, false, 58) line("CenterLine", 0.45, YELLOW, false, 58)
 	line("BusLane", -8, BLUE) line("BusLane", 8, BLUE)
 	line("LaneDash", -16, WHITE, true) line("LaneDash", 16, WHITE, true)
 	for v = -22.5, 22.5, 3 do uv("Crosswalk", 26, v - 0.75, 34, v + 0.75, 0.12, 0.16, WHITE, { nocol = true }) end
 	uv("StopLine", 36, 0, 36.6, 24, 0.12, 0.16, WHITE, { nocol = true })
 	arrow(at(46, 12), -dir, true) arrow(at(46, 20), -dir, false)
-	-- yellow safety zone (안전지대) at the median start
-	for u = 39, 57, 3 do
+	-- yellow safety zone (안전지대) at the median start: outline + diagonal
+	-- hatch that stays inside the outline
+	for u = 39.5, 56.5, 2.2 do
 		local a = at(u, 0) + Vector3.new(0, 0.15, 0)
-		part("SafetyStripe", Vector3.new(0.4, 0.04, 4), CFrame.lookAt(a, a + dir + across), YELLOW, { nocol = true })
+		part("SafetyStripe", Vector3.new(0.35, 0.04, 3.9), CFrame.lookAt(a, a + dir + across), YELLOW, { nocol = true })
 	end
-	uv("SafetyEdge", 38, -1.8, 58, -1.5, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", 38, 1.5, 58, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
-	for u = 62, len - 6, 18 do
+	uv("SafetyEdge", 38, -1.8, 58, -1.4, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", 38, 1.4, 58, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
+	uv("SafetyEdge", 57.6, -1.8, 58, 1.8, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", 38, -1.8, 38.4, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
+	for u = 62, len - 10, 18 do
 		local free = true
-		for _, p in ipairs(pits) do if u > p[1] - 6 and u < p[2] + 6 then free = false end end
-		if free then for _, v in ipairs({ -25.5, 25.5 }) do if clear(at(u, v)) then planter(at(u, v), dir) end end end
+		for _, p in ipairs(pits) do if u > p[1] - 9 and u < p[2] + 9 then free = false end end
+		if free then for _, v in ipairs({ -26.2, 26.2 }) do if clear(at(u, v)) then planter(at(u, v), dir) end end end
 	end
-	for u = 70, len - 6, 40 do
+	for u = 70, len - 6, 80 do -- every other lamp (user: too many)
 		if clear(at(u, -32.5)) then streetLamp(at(u, -32.5) + Vector3.new(0, CURB, 0), across) end
 		if clear(at(u, 32.5)) then streetLamp(at(u, 32.5) + Vector3.new(0, CURB, 0), -across) end
 	end
 	trafficLight(at(38, 30) + Vector3.new(0, CURB, 0), -across, 26)
 	for _, c in ipairs(cars) do car(at(c[1], c[2]), if c[2] > 0 then -dir else dir) end
 end
-bigRoad(Vector3.new(0, 0, -1), 470, { { 41, 59, 26, 32 }, { 41, 59, -32, -26 } }, { { 48, 12 }, { 66, 20 } }) -- north
-bigRoad(Vector3.new(0, 0, 1), 300, { { 41, 59, 26, 32 }, { 41, 59, -32, -26 } }, { { 48, 20 }, { 120, -12 } }) -- south
+-- north road: west side stays narrow along the park's red box; east side
+-- reaches the club / photo booth fronts (49)
+bigRoad(Vector3.new(0, 0, -1), 470, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 48, 12 }, { 66, 20 } }, { [-1] = 34, [1] = 49 }) -- north
+bigRoad(Vector3.new(0, 0, 1), 300, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 48, 20 }, { 120, -12 } }) -- south
 bigRoad(Vector3.new(1, 0, 0), 260, {}, { { 46, 12 }, { 64, 12 }, { 90, -20 } }) -- east
 bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 48, 20 }, { 80, -12 } }) -- west, to the seafront road
 
@@ -450,8 +544,8 @@ smallRoad(Vector2.new(181, -34), Vector2.new(181, -470)) -- east of the club
 smallRoad(Vector2.new(-34, 98), Vector2.new(-150, 98)) -- south-west, to the seafront
 -- lane from the east road to the hanok main gate (east side, gate at x 225, z 126)
 local LANE = Color3.fromRGB(185, 160, 122)
-box("HanokLane", 232, 0, 34, 240, 0.3, 130, LANE, { material = Enum.Material.Slate })
-box("HanokLane2", 225, 0, 122, 240, 0.3, 130, LANE, { material = Enum.Material.Slate })
+box("HanokLane", 232, 0, WIDE, 240, 0.3, 142, LANE, { material = Enum.Material.Slate })
+box("HanokLane2", 225, 0, 134, 240, 0.3, 142, LANE, { material = Enum.Material.Slate })
 
 ------------------------------------------------------- subway exits (stairs)
 -- stairs come up in the arrow direction under a glass canopy that slopes
@@ -459,10 +553,11 @@ box("HanokLane2", 225, 0, 122, 240, 0.3, 130, LANE, { material = Enum.Material.S
 -- (like going down to the platform): step on it → exit picker; arrivals
 -- appear at the foot of the stairs and walk up (user 2026-10-22)
 local EXITS = {
-	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -50, Vector3.new(0, 0, -1) },
-	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 50, Vector3.new(0, 0, 1) },
-	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -29, -50, Vector3.new(0, 0, -1) },
-	{ 4, "광안리 해변 · 카페", Color3.fromRGB(42, 143, 179), -29, 50, Vector3.new(0, 0, 1) },
+	-- pits 18 long at 50..68 from the junction: clear of the wide corner squares (v7c)
+	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -59, Vector3.new(0, 0, -1) },
+	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 59, Vector3.new(0, 0, 1) },
+	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -29, -59, Vector3.new(0, 0, -1) },
+	{ 4, "광안리 해변 · 카페", Color3.fromRGB(42, 143, 179), -29, 59, Vector3.new(0, 0, 1) },
 }
 local exitPads, exitMouths = {}, {}
 for _, e in ipairs(EXITS) do
@@ -552,6 +647,28 @@ do
 	-- full length of the west side (user: the whole west is beach and sea)
 	local z0, z1 = -480, 300
 	box("Promenade", -198, 0, z0, -182, CURB, z1, Color3.fromRGB(175, 135, 120), { material = Enum.Material.Brick })
+	-- steps down to the sand (광안리 photo): granite edge, then wooden tiers;
+	-- skipped where the beach cafe / pier already meet the promenade
+	do
+		local sandTop = CURB - BEACH_DROP
+		local wood = Color3.fromRGB(120, 88, 62)
+		local params = OverlapParams.new()
+		params.FilterType = Enum.RaycastFilterType.Exclude
+		params.FilterDescendantsInstances = { T }
+		for zs = z0, z1 - 1, 20 do
+			local ze = math.min(zs + 20, z1)
+			local free = true
+			local probe = CFrame.new(-201, (sandTop + CURB) / 2 + 0.2, (zs + ze) / 2)
+			for _, p in ipairs(workspace:GetPartBoundsInBox(probe, Vector3.new(6, CURB - sandTop - 0.6, ze - zs - 1), params)) do
+				if p.Name ~= "Beach" and p.Name ~= "Ground" and p.Transparency < 1 then free = false break end
+			end
+			if free then
+				box("BeachStepEdge", -198.7, sandTop, zs, -198, CURB + 0.1, ze, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
+				box("BeachStep", -201.2, sandTop, zs, -198.7, CURB - 0.8, ze, wood, { material = Enum.Material.WoodPlanks })
+				box("BeachStep", -203.7, sandTop, zs, -201.2, CURB - 1.6, ze, wood, { material = Enum.Material.WoodPlanks })
+			end
+		end
+	end
 	box("SeaRoad", -182, 0, z0, -158, 0.12, z1, ASPHALT, { material = Enum.Material.Asphalt })
 	for _, seg in ipairs({ { z0, -24 }, { 24, z1 } }) do -- lane paint stops at the junction with the west road
 		paint("RedLane", -182, seg[1], -174, seg[2], Color3.fromRGB(190, 85, 75))
@@ -586,7 +703,7 @@ do
 		end
 	end
 	for zz = z0 + 14, z1 - 10, 30 do if math.abs(zz - 61) > 8 then pine(Vector3.new(-190, 0, zz)) end end
-	for zz = z0 + 10, z1, 40 do streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
+	for zz = z0 + 10, z1, 80 do streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
 	for zz = z0 + 28, z1, 60 do
 		box("BenchBase", -197.5, CURB, zz, -195.5, CURB + 1.6, zz + 6, Color3.fromRGB(110, 110, 115))
 		seat("PromenadeBench", CFrame.lookAt(Vector3.new(-196.5, CURB + 1.8, zz + 3), Vector3.new(-260, CURB + 1.8, zz + 3)), Vector3.new(2, 0.4, 6), Color3.fromRGB(160, 110, 70))
@@ -626,12 +743,12 @@ do
 	local granite = Color3.fromRGB(200, 196, 188)
 	local wood = Color3.fromRGB(150, 55, 40)
 	local roofC = Color3.fromRGB(60, 62, 66)
-	local gx0, gx1, gz0, gz1 = 82, 96, 128, 184 -- in front of the village back wall (gate at z 156)
+	local gx0, gx1, gz0, gz1 = 82, 96, 140, 196 -- in front of the village back wall (gate at z 168, v7c)
 	local H = 12
 	-- stone base with 3 arched openings (centre 10 wide, sides 6)
-	local cuts = { gz0, 137, 143, 151, 161, 169, 175, gz1 }
+	local cuts = { gz0, 149, 155, 163, 173, 181, 187, gz1 }
 	for i = 1, #cuts - 1, 2 do box("GateStone", gx0, 0, cuts[i], gx1, H, cuts[i + 1], stone, { parent = G, material = Enum.Material.Slate }) end
-	for _, o in ipairs({ { 151, 161, 9 }, { 137, 143, 7 }, { 169, 175, 7 } }) do
+	for _, o in ipairs({ { 163, 173, 9 }, { 149, 155, 7 }, { 181, 187, 7 } }) do
 		box("GateStoneTop", gx0, o[3], o[1], gx1, H, o[2], stone, { parent = G, material = Enum.Material.Slate })
 		box("ArchTrim", gx0 - 0.2, o[3] - 0.6, o[1], gx0, o[3], o[2], Color3.fromRGB(120, 115, 105), { parent = G })
 	end
@@ -651,14 +768,14 @@ do
 	hipRoof(H + 8, gx0 - 3, gx1 + 3, gz0 + 1, gz1 - 1, 4)
 	box("UpperFloor", gx0 + 2, H + 12, gz0 + 10, gx1 - 2, H + 15, gz1 - 10, wood, { parent = G })
 	hipRoof(H + 15, gx0 - 1, gx1 + 1, gz0 + 6, gz1 - 6, 5)
-	local plaque = box("NamePlaque", gx0 - 0.4, H + 12.4, 152, gx0 - 0.1, H + 14.6, 160, Color3.fromRGB(30, 30, 35), { parent = G })
+	local plaque = box("NamePlaque", gx0 - 0.4, H + 12.4, 164, gx0 - 0.1, H + 14.6, 172, Color3.fromRGB(30, 30, 35), { parent = G })
 	surfaceText(plaque, Enum.NormalId.Left, "光化門", Color3.fromRGB(230, 200, 120), Enum.Font.Antique)
 	label(plaque, "광화문 (한옥 마을 서쪽 입구)", Color3.fromRGB(150, 60, 40), 8, 0.9)
 	-- plaza in front: stone paving, central path, lawns on both sides
-	box("PlazaStone", 34, 0, 106, 82, 0.3, 206, granite, { parent = G, material = Enum.Material.Slate })
-	box("PlazaPath", 34, 0.3, 148, 82, 0.35, 164, Color3.fromRGB(215, 210, 200), { parent = G, material = Enum.Material.Slate })
-	box("PlazaLawn", 38, 0.3, 110, 66, 0.45, 142, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
-	box("PlazaLawn", 38, 0.3, 170, 66, 0.45, 202, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
+	box("PlazaStone", WIDE, 0, 118, 82, 0.3, 218, granite, { parent = G, material = Enum.Material.Slate })
+	box("PlazaPath", WIDE, 0.3, 160, 82, 0.35, 176, Color3.fromRGB(215, 210, 200), { parent = G, material = Enum.Material.Slate })
+	box("PlazaLawn", 51, 0.3, 122, 72, 0.45, 154, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
+	box("PlazaLawn", 51, 0.3, 182, 72, 0.45, 214, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
 	local function haetae(pos: Vector3, facing: Vector3)
 		local cf = CFrame.lookAt(pos, pos + facing)
 		local c1, c2 = Color3.fromRGB(170, 165, 155), Color3.fromRGB(160, 155, 145)
@@ -670,8 +787,8 @@ do
 		part("HaetaeHorn", Vector3.new(0.5, 1, 0.5), cf * CFrame.new(0, 11.2, -1.6), c2, { parent = G })
 		for _, lx in ipairs({ -0.8, 0.8 }) do part("HaetaeLeg", Vector3.new(0.7, 2, 0.7), cf * CFrame.new(lx, 6, -1.6), c2, { parent = G, material = Enum.Material.Slate }) end
 	end
-	haetae(Vector3.new(74, 0.3, 140), Vector3.new(-1, 0, 0))
-	haetae(Vector3.new(74, 0.3, 172), Vector3.new(-1, 0, 0))
+	haetae(Vector3.new(76, 0.3, 152), Vector3.new(-1, 0, 0))
+	haetae(Vector3.new(76, 0.3, 184), Vector3.new(-1, 0, 0))
 	for _, mnt in ipairs(MOUNTAINS) do
 		workspace.Terrain:FillBall(mnt[1], mnt[2], Enum.Material.Grass)
 		workspace.Terrain:FillBall(mnt[1] + Vector3.new(0, mnt[2] * 0.55, 0), mnt[2] * 0.35, Enum.Material.Rock)
@@ -762,26 +879,26 @@ do
 	local K = Instance.new("Model")
 	K.Name = "ClubFacade"
 	K.Parent = T
-	box("ClubStreet", 36, 0, -252, 49, 0.14, -36, Color3.fromRGB(70, 60, 90), { parent = K })
-	box("FacadePanel", 48.2, 13, -205, 48.9, 34, -139, Color3.fromRGB(28, 28, 34), { parent = K, material = Enum.Material.DiamondPlate })
-	local sign = box("ClubSign", 47.6, 20, -196, 48.2, 30, -148, Color3.fromRGB(15, 15, 25), { parent = K })
+	-- (the purple club street is sidewalk now, v7c)
+	box("FacadePanel", 48.2, 13, -205 + CLUB_DZ, 48.9, 34, -139 + CLUB_DZ, Color3.fromRGB(28, 28, 34), { parent = K, material = Enum.Material.DiamondPlate })
+	local sign = box("ClubSign", 47.6, 20, -196 + CLUB_DZ, 48.2, 30, -148 + CLUB_DZ, Color3.fromRGB(15, 15, 25), { parent = K })
 	surfaceText(sign, Enum.NormalId.Left, "OHU CLUB", Color3.fromRGB(90, 160, 255), Enum.Font.Michroma)
 	local glow = Instance.new("SurfaceLight") glow.Face = Enum.NormalId.Left glow.Color = Color3.fromRGB(80, 140, 255) glow.Range = 20 glow.Brightness = 2 glow.Parent = sign
-	for _, zz in ipairs({ -205, -139 }) do box("NeonEdge", 47.8, 0.2, zz - 0.3, 48.4, 34, zz + 0.3, Color3.fromRGB(40, 80, 255), { parent = K, material = Enum.Material.Neon }) end
-	for _, zz in ipairs({ -182, -162 }) do box("DoorFrameGold", 47.8, 0.2, zz - 0.4, 48.6, 12, zz + 0.4, Color3.fromRGB(230, 180, 80), { parent = K, material = Enum.Material.Neon }) end
-	box("DoorLintelGold", 47.8, 12, -182.4, 48.6, 12.8, -161.6, Color3.fromRGB(230, 180, 80), { parent = K, material = Enum.Material.Neon })
+	for _, zz in ipairs({ -205 + CLUB_DZ, -139 + CLUB_DZ }) do box("NeonEdge", 47.8, 0.2, zz - 0.3, 48.4, 34, zz + 0.3, Color3.fromRGB(40, 80, 255), { parent = K, material = Enum.Material.Neon }) end
+	for _, zz in ipairs({ -182 + CLUB_DZ, -162 + CLUB_DZ }) do box("DoorFrameGold", 47.8, 0.2, zz - 0.4, 48.6, 12, zz + 0.4, Color3.fromRGB(230, 180, 80), { parent = K, material = Enum.Material.Neon }) end
+	box("DoorLintelGold", 47.8, 12, -182.4 + CLUB_DZ, 48.6, 12.8, -161.6 + CLUB_DZ, Color3.fromRGB(230, 180, 80), { parent = K, material = Enum.Material.Neon })
 	for _, x in ipairs({ 39, 45 }) do
 		local last: Vector3? = nil
-		for zz = -150, -112, 6 do
-			local top = Vector3.new(x, 3.2, zz)
-			vcyl("Stanchion", Vector3.new(x, 0.14, zz), 0.4, 3, Color3.fromRGB(200, 170, 80), { parent = K })
+		for zz = -150 + CLUB_DZ, -112 + CLUB_DZ, 6 do
+			local top = Vector3.new(x, CURB + 3.1, zz)
+			vcyl("Stanchion", Vector3.new(x, CURB, zz), 0.4, 3, Color3.fromRGB(200, 170, 80), { parent = K })
 			if last then part("Rope", Vector3.new(0.25, 0.25, (top - last).Magnitude), CFrame.lookAt((top + last) / 2 - Vector3.new(0, 0.3, 0), top - Vector3.new(0, 0.3, 0)), Color3.fromRGB(180, 20, 30), { parent = K, nocol = true }) end
 			last = top
 		end
 	end
-	for _, c in ipairs({ { 37.5, -104 }, { 47.5, -104 }, { 37.5, -94 }, { 47.5, -94 } }) do vcyl("TentLeg", Vector3.new(c[1], 0.14, c[2]), 0.3, 8, Color3.fromRGB(230, 230, 235), { parent = K }) end
-	box("TentRoof", 37, 8, -105, 48, 8.4, -93, Color3.fromRGB(245, 245, 250), { parent = K, nocol = true })
-	local clock = box("ClockBoard", 48.2, 9, -134, 48.7, 13, -120, Color3.fromRGB(10, 10, 15), { parent = K })
+	for _, c in ipairs({ { 37.5, -110 }, { 47.5, -110 }, { 37.5, -100 }, { 47.5, -100 } }) do vcyl("TentLeg", Vector3.new(c[1], CURB, c[2]), 0.3, 8, Color3.fromRGB(230, 230, 235), { parent = K }) end
+	box("TentRoof", 37, 8.5, -111, 48, 8.9, -99, Color3.fromRGB(245, 245, 250), { parent = K, nocol = true })
+	local clock = box("ClockBoard", 48.2, 9, -134 + CLUB_DZ, 48.7, 13, -120 + CLUB_DZ, Color3.fromRGB(10, 10, 15), { parent = K })
 	surfaceText(clock, Enum.NormalId.Left, "OPEN 22:00", Color3.fromRGB(80, 230, 255), Enum.Font.Michroma)
 end
 
@@ -822,11 +939,11 @@ end
 tower(193, -470, 243, -380, 150, "glass", "W", "OHU 타워", "OHU FASHION WEEK")
 tower(193, -370, 243, -262, 96, "concrete", "W", "PC방")
 tower(193, -252, 243, -170, 128, "glass", "W", "HOMME", "NEW SEASON")
-tower(193, -160, 243, -36, 70, "concrete", "W", "뷰티 & 샵")
-tower(250, -130, 310, -36, 110, "glass", "S", "OHU 마트", "인생네컷 SALE")
-tower(-76, 110, -40, 170, 120, "glass", "E", "카페")
-tower(-76, 180, -40, 250, 80, "concrete", "E", "약국")
-tower(-146, 36, -126, 80, 60, "concrete", "N", "노래방")
+tower(193, -160, 243, -48, 70, "concrete", "W", "뷰티 & 샵")
+tower(250, -142, 310, -48, 110, "glass", "S", "OHU 마트", "인생네컷 SALE")
+tower(-76, 110, -48, 170, 120, "glass", "E", "카페")
+tower(-76, 180, -48, 250, 80, "concrete", "E", "약국")
+tower(-146, 48, -126, 92, 60, "concrete", "N", "노래방")
 
 do -- alley between two towers: dumpsters, bags, fire barrel, purple neon shutter
 	local A = Instance.new("Model")
@@ -846,7 +963,7 @@ do -- alley between two towers: dumpsters, bags, fire barrel, purple neon shutte
 end
 
 do -- construction site (future prop shop)
-	local x0, z0, x1, z1, title = 36, 36, 74, 66, "소품샵 예정"
+	local x0, z0, x1, z1, title = 48, 48, 86, 78, "소품샵 예정"
 	local m = Instance.new("Model")
 	m.Name = "ConstructionSite(" .. title .. ")"
 	m.Parent = T
@@ -896,12 +1013,12 @@ do -- construction site (future prop shop)
 end
 
 do -- convenience store with automatic sliding doors (front = north, to the west road)
-	local x0, z0, x1, z1, H = -120, 44, -80, 76, 14
+	local x0, z0, x1, z1, H = -120, 48, -80, 80, 14
 	local S = Instance.new("Model")
 	S.Name = "ConvenienceStore"
 	S.Parent = T
 	local wallC = Color3.fromRGB(240, 240, 238)
-	walk(x0, 34, x1, z0)
+	walk(x0, WIDE, x1, z0)
 	box("StoreFloor", x0, 0, z0, x1, CURB, z1, Color3.fromRGB(235, 235, 235), { parent = S, material = Enum.Material.Marble })
 	box("WallBack", x0, CURB, z1 - 0.6, x1, H, z1, wallC, { parent = S })
 	box("WallW", x0, CURB, z0, x0 + 0.6, H, z1, wallC, { parent = S })
@@ -953,9 +1070,9 @@ end
 do -- sunset photo frame at the end of the pier, facing the sea (west)
 	local frameCol = Color3.fromRGB(255, 150, 90)
 	local px, pz = -344, 122
-	part("SunsetFramePostN", Vector3.new(1, 10, 1), CFrame.new(px, 6, pz + 5), frameCol, { material = Enum.Material.Neon })
-	part("SunsetFramePostS", Vector3.new(1, 10, 1), CFrame.new(px, 6, pz - 5), frameCol, { material = Enum.Material.Neon })
-	local top = part("SunsetFrameTop", Vector3.new(1, 1, 11), CFrame.new(px, 11.5, pz), frameCol, { material = Enum.Material.Neon })
+	part("SunsetFramePostN", Vector3.new(1, 10, 1), CFrame.new(px, 6 - BEACH_DROP, pz + 5), frameCol, { material = Enum.Material.Neon })
+	part("SunsetFramePostS", Vector3.new(1, 10, 1), CFrame.new(px, 6 - BEACH_DROP, pz - 5), frameCol, { material = Enum.Material.Neon })
+	local top = part("SunsetFrameTop", Vector3.new(1, 1, 11), CFrame.new(px, 11.5 - BEACH_DROP, pz), frameCol, { material = Enum.Material.Neon })
 	label(top, "석양 포토 스팟 (서쪽 바다)", frameCol, 4, 0.8)
 end
 

@@ -205,7 +205,7 @@ local function roundCorner(s: BasePart)
 			-- the corner pointing at the junction: road beyond it diagonally AND on both sides
 			if onRoad(c + Vector3.new(sx * 1.5, 0, sz * 1.5)) and onRoad(c + Vector3.new(sx * 1.5, 0, -sz * 1)) and onRoad(c + Vector3.new(-sx * 1, 0, sz * 1.5)) then
 				hide(s)
-				local r = math.min(6, math.min(s.Size.X, s.Size.Z) - 1)
+				local r = math.min(8, math.min(s.Size.X, s.Size.Z) - 1)
 				local ix, iz = -sx, -sz
 				local h = s.Size.Y
 				local y = s.Position.Y
@@ -240,7 +240,7 @@ end
 
 for _, s in ipairs(temp:GetChildren()) do
 	if s:IsA("BasePart") and s.Name == "Sidewalk" then
-		local square = math.abs(s.Size.X - s.Size.Z) < 0.5 and s.Size.X <= 12
+		local square = math.abs(s.Size.X - s.Size.Z) < 0.5 and s.Size.X <= 24 -- crossroads corners (23 wide since v7c)
 		if square then
 			paveLook(s)
 			roundCorner(s)
@@ -278,7 +278,15 @@ end
 
 ---------------------------------------------------------------- 3. street lights (asset 9553474820)
 local lightF = folder("StreetLights")
-local lightSrc = A.StreetLight
+-- a thinner pole than the asset (user 2026-10-22)
+local lightSrc = A.StreetLight:Clone()
+do
+	local pole = tallest(lightSrc) :: BasePart
+	local c = pole.CFrame
+	local function thin(axisY: number) return if math.abs(axisY) > 0.7 then 1 else 0.55 end
+	pole.Size = Vector3.new(pole.Size.X * thin(c.RightVector.Y), pole.Size.Y * thin(c.UpVector.Y), pole.Size.Z * thin(c.LookVector.Y))
+	pole.CFrame = c
+end
 local lPole = tallest(lightSrc) :: BasePart
 local lCf, lSize = lightSrc:GetBoundingBox()
 local lBase = Vector3.new(lPole.Position.X, lCf.Y - lSize.Y / 2, lPole.Position.Z)
@@ -399,6 +407,12 @@ local packPoles = {}
 for _, m in ipairs(A.UtilityPolePack:GetDescendants()) do
 	if m:IsA("Model") and m.Name == "pole" then
 		local c = m:Clone()
+		-- thicker mast (user 2026-10-22): scale the tallest piece across, not up
+		local mast = tallest(c) :: BasePart
+		local mc = mast.CFrame
+		local function thick(axisY: number) return if math.abs(axisY) > 0.7 then 1 else 1.8 end
+		mast.Size = Vector3.new(mast.Size.X * thick(mc.RightVector.Y), mast.Size.Y * thick(mc.UpVector.Y), mast.Size.Z * thick(mc.LookVector.Y))
+		mast.CFrame = mc
 		-- Korean poles: grey concrete, steel crossarms
 		for _, p in ipairs(c:GetDescendants()) do
 			if p:IsA("MeshPart") then
