@@ -1,7 +1,8 @@
 --!strict
--- Subway exit picker (SubwayService): "몇 번 출구로 가시겠습니까?" with one
--- button per exit (from the parts tagged SubwayExit). Closes on X or when the
--- player walks away from the pad.
+-- Subway exit / bus stop picker (SubwayService): "몇 번 출구로 가시겠습니까?"
+-- or "어느 정류장으로 가시겠습니까?" with one button per pad of that network
+-- (parts tagged SubwayExit / BusStop). Closes on X or when the player walks
+-- away from the pad.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -34,7 +35,7 @@ local panel = make("Frame", {
 }, gui)
 round(panel, 16)
 make("UIStroke", { Color = Color3.fromRGB(46, 125, 50), Thickness = 2 }, panel)
-make("TextLabel", {
+local heading = make("TextLabel", {
 	Position = UDim2.fromOffset(16, 10),
 	Size = UDim2.new(1, -60, 0, 32),
 	BackgroundTransparency = 1,
@@ -81,9 +82,9 @@ local function hide()
 end
 close.MouseButton1Click:Connect(hide)
 
-local function exits(): {{ number: number, name: string, color: Color3 }}
+local function exits(tag: string): {{ number: number, name: string, color: Color3 }}
 	local found = {}
-	for _, pad in ipairs(CollectionService:GetTagged("SubwayExit")) do
+	for _, pad in ipairs(CollectionService:GetTagged(tag)) do
 		local number = pad:GetAttribute("ExitNumber")
 		if pad:IsA("BasePart") and typeof(number) == "number" then
 			table.insert(found, { number = number, name = tostring(pad:GetAttribute("ExitName") or ""), color = pad.Color })
@@ -93,14 +94,16 @@ local function exits(): {{ number: number, name: string, color: Color3 }}
 	return found
 end
 
-local function show(current: number)
+local function show(tag: string, current: number)
+	local bus = tag == "BusStop"
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 	openedAt = if root and root:IsA("BasePart") then root.Position else nil
-	status.Text = string.format("지금 %d번 출구예요.", current)
+	heading.Text = if bus then "어느 정류장으로 가시겠습니까?" else "몇 번 출구로 가시겠습니까?"
+	status.Text = if bus then "버스로 이동해요." else string.format("지금 %d번 출구예요.", current)
 	for _, child in ipairs(list:GetChildren()) do
 		if child:IsA("TextButton") then child:Destroy() end
 	end
-	local all = exits()
+	local all = exits(tag)
 	for index, exit in ipairs(all) do
 		local here = exit.number == current
 		local button = make("TextButton", {
@@ -130,12 +133,12 @@ local function show(current: number)
 			TextSize = 15,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextColor3 = if here then Color3.fromRGB(140, 150, 140) else Color3.fromRGB(40, 60, 45),
-			Text = string.format("%d번 출구 · %s%s", exit.number, exit.name, if here then " (지금 여기)" else ""),
+			Text = (if bus then exit.name else string.format("%d번 출구 · %s", exit.number, exit.name)) .. (if here then " (지금 여기)" else ""),
 		}, button)
 		if not here then
 			button.MouseButton1Click:Connect(function()
 				status.Text = "이동 중…"
-				local ok, message = remote:InvokeServer("Go", exit.number)
+				local ok, message = remote:InvokeServer("Go", tag, exit.number)
 				status.Text = if typeof(message) == "string" then message else ""
 				if ok then hide() end
 			end)
@@ -151,8 +154,8 @@ local function show(current: number)
 	panel.Visible = true
 end
 
-notify.OnClientEvent:Connect(function(kind: any, number: any)
-	if kind == "Open" and typeof(number) == "number" then show(number) end
+notify.OnClientEvent:Connect(function(kind: any, tag: any, number: any)
+	if kind == "Open" and typeof(tag) == "string" and typeof(number) == "number" then show(tag, number) end
 end)
 
 -- close when the player walks away from the pad

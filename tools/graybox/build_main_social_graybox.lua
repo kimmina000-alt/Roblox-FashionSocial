@@ -562,8 +562,11 @@ do -- 04_Beach_Aquarium: Sunset Beach (2026-10-22, user references: striped
 -- floating tubes and rubber ducks, ocean-view cafe). The sea is Terrain water
 -- (00_Ground) so players swim; the sand slopes down into it.
 local z=zone("04_Beach_Aquarium")
- S(z,"Part","Beach",{70,0.6,600},{-233,0.3,-50,1,0,0,0,1,0,0,0,1},{240,220,160},"Sand",0,0,nil,{},{})
- do local c=Vector3.new(-289,-7.7,-50) P(z,"ShoreSlope",Vector3.new(600,16.6,42),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),Color3.fromRGB(235,212,155),{class="WedgePart",mat=Enum.Material.Sand}) end
+ -- 2026-10-22 (user): the north part becomes the amusement park, so the sand
+ -- runs z -30..250 with a rounded north end (Gwangalli-like bay).
+ S(z,"Part","Beach",{70,0.6,280},{-233,0.3,110,1,0,0,0,1,0,0,0,1},{240,220,160},"Sand",0,0,nil,{},{})
+ cyl(z,"BeachCap",70,0.6,Vector3.new(-233,0.3,-30),Color3.fromRGB(240,220,160),{mat=Enum.Material.Sand})
+ do local c=Vector3.new(-289,-7.7,95) P(z,"ShoreSlope",Vector3.new(310,16.6,42),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),Color3.fromRGB(235,212,155),{class="WedgePart",mat=Enum.Material.Sand}) end
  math.randomseed(20261022)
  local stripeSets={{Color3.fromRGB(30,150,160),Color3.new(1,1,1)},{Color3.fromRGB(255,200,40),Color3.new(1,1,1)},{Color3.fromRGB(255,120,60),Color3.new(1,1,1)},{Color3.fromRGB(255,150,190),Color3.new(1,1,1)}}
  local wood=Color3.fromRGB(190,150,100)
@@ -608,7 +611,7 @@ local z=zone("04_Beach_Aquarium")
  -- parasol groups: varied (closed / mat+box / mat / 2 chairs / chair+mat / 2 chairs+box)
  local kinds={"closed","matbox","mat","chairs2","chairmat","chairs2box"}
  local spots={}
- for zc=-330,236,26 do if not (zc>2 and zc<132) and not (zc>-36 and zc<-2) then table.insert(spots,zc) end end
+ for zc=-28,236,26 do if not (zc>2 and zc<132) and not (zc>-36 and zc<-2) then table.insert(spots,zc) end end
  for i,zc in ipairs(spots) do
   local x=-250+((i%3)-1)*9+math.random(-2,2) local g=Vector3.new(x,SAND,zc+math.random(-3,3))
   local kind=kinds[(i-1)%#kinds+1] local cols=stripeSets[(i-1)%#stripeSets+1]
@@ -631,7 +634,7 @@ local z=zone("04_Beach_Aquarium")
    beam(m,"PalmFrond",mid,tip,0.3,Color3.fromRGB(60,145,60),{nocol=true}).Size=Vector3.new(1.4,0.2,(tip-mid).Magnitude) end
   for k=0,2 do local a=k*2.1 P(m,"Coconut",Vector3.new(0.8,0.8,0.8),CFrame.new(p+Vector3.new(math.cos(a)*0.6,-0.7,math.sin(a)*0.6)),Color3.fromRGB(110,75,40),{shape=Enum.PartType.Ball}) end
  end
- for i,pz in ipairs({-320,-262,-200,-140,-84,-44,140,172,214}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
+ for i,pz in ipairs({140,172,214,240}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
  palm(Vector3.new(-262,SAND,-8),15,math.rad(200)) palm(Vector3.new(-262,SAND,138),17,math.rad(160))
 
  -- ICE CREAM TRUCK (pink, striped awning, giant cone) at the beach entrance

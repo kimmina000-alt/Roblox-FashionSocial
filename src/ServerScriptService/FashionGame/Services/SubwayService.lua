@@ -1,14 +1,16 @@
 --!strict
--- Subway exits (user, 2026-10-22): stepping on an exit pad asks "몇 번 출구로
--- 가시겠습니까?" and moves the player to the chosen exit.
+-- Subway exits and bus stops (user, 2026-10-22): stepping on a pad asks where
+-- to go ("몇 번 출구로 가시겠습니까?" / "어느 정류장으로 가시겠습니까?") and
+-- moves the player to the chosen exit / stop of the same network.
 --
---   * Parts tagged "SubwayExit": attributes ExitNumber (number), ExitName
---     (string), Out (Vector3, the way out of the exit; default LookVector).
---   * Touching a pad → SubwayNotify "Open", exitNumber (the client lists the
---     other exits from the tagged parts).
---   * Remote Subway (RemoteFunction) "Go", exitNumber: the player must still be
---     next to the pad they stepped on; then they are placed just outside the
---     chosen exit, facing out.
+--   * Networks = CollectionService tags: "SubwayExit", "BusStop". Pad
+--     attributes: ExitNumber (number), ExitName (string), Out (Vector3, the
+--     way out; default LookVector).
+--   * Touching a pad → SubwayNotify "Open", tag, number (the client lists the
+--     other pads with that tag).
+--   * Remote Subway (RemoteFunction) "Go", tag, number: the player must still
+--     be next to the pad they stepped on; then they are placed just outside the
+--     chosen pad, facing out.
 
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
@@ -18,13 +20,14 @@ local Remotes = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Remo
 
 local SubwayService = {}
 
+local NETWORKS = { SubwayExit = "출구", BusStop = "정류장" }
 local NEAR = 12 -- studs from the pad that still count as "at the exit"
 local REOPEN = 3 -- seconds before the same pad asks again
 local lastPad: {[Player]: BasePart} = {}
 local lastOpen: {[Player]: number} = {}
 
-local function findExit(number: number): BasePart?
-	for _, pad in ipairs(CollectionService:GetTagged("SubwayExit")) do
+local function findPad(tag: string, number: number): BasePart?
+	for _, pad in ipairs(CollectionService:GetTagged(tag)) do
 		if pad:IsA("BasePart") and pad:GetAttribute("ExitNumber") == number then return pad end
 	end
 	return nil
@@ -35,7 +38,7 @@ local function outOf(pad: BasePart): Vector3
 	return if typeof(out) == "Vector3" and out.Magnitude > 0 then out.Unit else pad.CFrame.LookVector
 end
 
-local function onTouched(pad: BasePart, hit: BasePart)
+local function onTouched(tag: string, pad: BasePart, hit: BasePart)
 	local character = hit.Parent
 	local player = character and Players:GetPlayerFromCharacter(character)
 	if not player then return end
@@ -44,21 +47,22 @@ local function onTouched(pad: BasePart, hit: BasePart)
 	lastPad[player] = pad
 	lastOpen[player] = now
 	local notify = Remotes:FindFirstChild("SubwayNotify") :: RemoteEvent?
-	if notify then notify:FireClient(player, "Open", pad:GetAttribute("ExitNumber")) end
+	if notify then notify:FireClient(player, "Open", tag, pad:GetAttribute("ExitNumber")) end
 end
 
-local function go(player: Player, number: any): (boolean, string?)
-	if typeof(number) ~= "number" then return false, "출구를 골라 주세요." end
+local function go(player: Player, tag: any, number: any): (boolean, string?)
+	if typeof(tag) ~= "string" or not NETWORKS[tag] then return false, "잘못된 요청입니다." end
+	if typeof(number) ~= "number" then return false, NETWORKS[tag] .. "을 골라 주세요." end
 	local from = lastPad[player]
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not from or not root or not humanoid or (root.Position - from.Position).Magnitude > NEAR then
-		return false, "출구 발판 위에서 골라 주세요."
+	if not from or not CollectionService:HasTag(from, tag) or not root or not humanoid or (root.Position - from.Position).Magnitude > NEAR then
+		return false, "발판 위에서 골라 주세요."
 	end
-	local target = findExit(number)
-	if not target then return false, "없는 출구예요." end
-	if target == from then return false, "지금 이 출구에 있어요." end
+	local target = findPad(tag, number)
+	if not target then return false, "없는 " .. NETWORKS[tag] .. "이에요." end
+	if target == from then return false, "지금 여기 있어요." end
 	humanoid.Sit = false
 	local out = outOf(target)
 	local spot = target.Position + out * 4.5 + Vector3.new(0, 3.5, 0)
@@ -66,22 +70,28 @@ local function go(player: Player, number: any): (boolean, string?)
 	lastPad[player] = target
 	lastOpen[player] = os.clock() + 2
 	character:PivotTo(CFrame.lookAt(spot, spot + out))
-	return true, string.format("%d번 출구로 나왔어요.", number)
+	local name = target:GetAttribute("ExitName")
+	return true, if tag == "BusStop" then string.format("%s 정류장에 내렸어요.", tostring(name or number)) else string.format("%d번 출구로 나왔어요.", number)
 end
 
-local function hook(pad: Instance)
-	if not pad:IsA("BasePart") then return end
-	pad.Touched:Connect(function(hit) onTouched(pad, hit) end)
+local function hook(tag: string)
+	return function(pad: Instance)
+		if not pad:IsA("BasePart") then return end
+		pad.Touched:Connect(function(hit) onTouched(tag, pad, hit) end)
+	end
 end
 
 function SubwayService.Start()
 	local remote = Remotes:WaitForChild("Subway") :: RemoteFunction
-	remote.OnServerInvoke = function(player: Player, action: any, number: any)
-		if action == "Go" then return go(player, number) end
+	remote.OnServerInvoke = function(player: Player, action: any, tag: any, number: any)
+		if action == "Go" then return go(player, tag, number) end
 		return false, nil
 	end
-	for _, pad in ipairs(CollectionService:GetTagged("SubwayExit")) do hook(pad) end
-	CollectionService:GetInstanceAddedSignal("SubwayExit"):Connect(hook)
+	for tag in pairs(NETWORKS) do
+		local h = hook(tag)
+		for _, pad in ipairs(CollectionService:GetTagged(tag)) do h(pad) end
+		CollectionService:GetInstanceAddedSignal(tag):Connect(h)
+	end
 	Players.PlayerRemoving:Connect(function(player)
 		lastPad[player] = nil
 		lastOpen[player] = nil
