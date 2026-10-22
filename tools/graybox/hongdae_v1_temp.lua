@@ -570,9 +570,9 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 		for _, p in ipairs(pits) do if u > p[1] - 9 and u < p[2] + 9 then free = false end end
 		if free then for _, v in ipairs({ -26.4, 26.4 }) do if clear(at(u, v)) then planter(at(u, v), dir, 16) end end end
 	end
-	for u = 70, len - 6, 80 do -- every other lamp (user: too many); in the planting strip
-		if clear(at(u, -29.5)) then streetLamp(at(u, -29.5) + Vector3.new(0, CURB, 0), across) end
-		if clear(at(u, 29.5)) then streetLamp(at(u, 29.5) + Vector3.new(0, CURB, 0), -across) end
+	for u = 71, len - 6, 72 do -- every other lamp (user: too many); in a gap between planting beds
+		if clear(at(u, -26.4)) then streetLamp(at(u, -26.4) + Vector3.new(0, CURB, 0), across) end
+		if clear(at(u, 26.4)) then streetLamp(at(u, 26.4) + Vector3.new(0, CURB, 0), -across) end
 	end
 	-- bike lane between the planting strip and the walkway (user photo
 	-- 2026-10-22, 다산동): dark asphalt band with white edges and bike symbols,
@@ -585,19 +585,20 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 			end
 			local function free(u) 
 				for _, b in ipairs(blocked) do if u > b[1] and u < b[2] then return false end end
-				return clear(at(u, side * 33))
+				return clear(at(u, side * 30))
 			end
 			local runStart: number? = nil
 			local function lane(u0, u1)
 				if u1 - u0 < 6 then return end
-				local a, b = at(u0, side * 31), at(u1, side * 35)
+				-- right against the planting beds (user 2026-10-22: no gap)
+				local a, b = at(u0, side * 28), at(u1, side * 32)
 				box("BikeLane", a.X, CURB, a.Z, b.X, CURB + 0.03, b.Z, Color3.fromRGB(62, 63, 66), { material = Enum.Material.Asphalt, nocol = true })
-				for _, ev in ipairs({ 31.15, 34.85 }) do
+				for _, ev in ipairs({ 28.15, 31.85 }) do
 					local c, d = at(u0, side * (ev - 0.15)), at(u1, side * (ev + 0.15))
 					box("BikeLaneEdge", c.X, CURB + 0.03, c.Z, d.X, CURB + 0.05, d.Z, WHITE, { nocol = true })
 				end
 				for u = u0 + 8, u1 - 6, 32 do
-					local pos = at(u, side * 33) + Vector3.new(0, CURB + 0.06, 0)
+					local pos = at(u, side * 30) + Vector3.new(0, CURB + 0.06, 0)
 					local mark = part("BikeSymbol", Vector3.new(3.7, 0.02, 3.7), CFrame.lookAt(pos, pos + across * side) , WHITE, { nocol = true, transparency = 1 })
 					local dcl = Instance.new("Decal")
 					dcl.Texture = "rbxassetid://14547829073"
@@ -795,13 +796,22 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 	-- half the size it was (user 2026-10-22)
 	-- thin pole that ends inside the sign (it must not show in front of the
 	-- panels, user 2026-10-22); the disc sits on top of the sign
-	vcyl("BusSignPole", signBase, 0.18, 6, Color3.fromRGB(110, 112, 116), { parent = m, material = Enum.Material.Metal })
-	local disc = part("BusSignDisc", Vector3.new(0.4, 1.15, 1.15), scf * CFrame.new(0, 7.12, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(60, 165, 75), { parent = m, shape = Enum.PartType.Cylinder })
+	vcyl("BusSignPole", signBase, 0.18, 7.4, Color3.fromRGB(110, 112, 116), { parent = m, material = Enum.Material.Metal })
+	local disc = part("BusSignDisc", Vector3.new(0.4, 1.15, 1.15), scf * CFrame.new(0, 7.75, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(60, 165, 75), { parent = m, shape = Enum.PartType.Cylinder })
 	for _, face in ipairs({ Enum.NormalId.Right, Enum.NormalId.Left }) do
-		local icon = Instance.new("Decal") -- white bus filling the disc
-		icon.Texture = "rbxassetid://10804592292"
-		icon.Face = face
-		icon.Parent = disc
+		-- white bus, a little smaller than the disc so the whole icon shows
+		local g = Instance.new("SurfaceGui")
+		g.Face = face
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 120
+		g.Parent = disc
+		local img = Instance.new("ImageLabel")
+		img.AnchorPoint = Vector2.new(0.5, 0.5)
+		img.Position = UDim2.fromScale(0.5, 0.5)
+		img.Size = UDim2.fromScale(0.62, 0.62)
+		img.BackgroundTransparency = 1
+		img.Image = "rbxassetid://10804592292"
+		img.Parent = g
 	end
 	local sign = part("BusStopSign", Vector3.new(1.2, 2.3, 0.5), scf * CFrame.new(0, 5.4, 0), Color3.fromRGB(28, 28, 30), { parent = m })
 	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do

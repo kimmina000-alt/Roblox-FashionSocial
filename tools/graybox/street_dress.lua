@@ -489,9 +489,11 @@ local function blocked(p: Vector3): boolean
 	return false
 end
 
+-- utility poles and wires removed (user 2026-10-22); set true to bring them back
+local UTILITY_POLES = false
 local poles = 0
 local SPACING = 46
-for _, s in ipairs(temp:GetChildren()) do
+for _, s in ipairs(if UTILITY_POLES then temp:GetChildren() else {}) do
 	if s:IsA("BasePart") and s.Name == "Sidewalk" and math.max(s.Size.X, s.Size.Z) >= 60 and math.min(s.Size.X, s.Size.Z) >= 4 then
 		local alongX = s.Size.X >= s.Size.Z
 		local long = if alongX then s.Size.X else s.Size.Z
