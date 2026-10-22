@@ -6,8 +6,10 @@
 --   * Networks = CollectionService tags: "SubwayExit", "BusStop". Pad
 --     attributes: ExitNumber (number), ExitName (string), Out (Vector3, the
 --     way out; default LookVector).
---   * Touching a pad → SubwayNotify "Open", tag, number (the client lists the
---     other pads with that tag).
+--   * Subway: touching a pad → SubwayNotify "Open", tag, number (the client
+--     lists the other pads with that tag).
+--   * Bus: clicking (tapping) the bus stop sign does the same (user 2026-10-22:
+--     "표지판 클릭하면 스포너"; the tagged part is the sign, not a floor pad).
 --   * Remote Subway (RemoteFunction) "Go", tag, number: the player must still
 --     be next to the pad they stepped on; then they are placed just outside the
 --     chosen pad, facing out.
@@ -38,16 +40,19 @@ local function outOf(pad: BasePart): Vector3
 	return if typeof(out) == "Vector3" and out.Magnitude > 0 then out.Unit else pad.CFrame.LookVector
 end
 
-local function onTouched(tag: string, pad: BasePart, hit: BasePart)
-	local character = hit.Parent
-	local player = character and Players:GetPlayerFromCharacter(character)
-	if not player then return end
+local function open(tag: string, pad: BasePart, player: Player)
 	local now = os.clock()
 	if lastPad[player] == pad and now - (lastOpen[player] or 0) < REOPEN then return end
 	lastPad[player] = pad
 	lastOpen[player] = now
 	local notify = Remotes:FindFirstChild("SubwayNotify") :: RemoteEvent?
 	if notify then notify:FireClient(player, "Open", tag, pad:GetAttribute("ExitNumber")) end
+end
+
+local function onTouched(tag: string, pad: BasePart, hit: BasePart)
+	local character = hit.Parent
+	local player = character and Players:GetPlayerFromCharacter(character)
+	if player then open(tag, pad, player) end
 end
 
 local function go(player: Player, tag: any, number: any): (boolean, string?)
@@ -58,14 +63,20 @@ local function go(player: Player, tag: any, number: any): (boolean, string?)
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if not from or not CollectionService:HasTag(from, tag) or not root or not humanoid or (root.Position - from.Position).Magnitude > NEAR then
-		return false, "발판 위에서 골라 주세요."
+		return false, if tag == "BusStop" then "정류장 표지판 가까이에서 골라 주세요." else "발판 위에서 골라 주세요."
 	end
 	local target = findPad(tag, number)
 	if not target then return false, "없는 " .. NETWORKS[tag] .. "이에요." end
 	if target == from then return false, "지금 여기 있어요." end
 	humanoid.Sit = false
 	local out = outOf(target)
-	local spot = target.Position + out * 4.5 + Vector3.new(0, 3.5, 0)
+	-- stand on the ground next to the pad / sign
+	local spot = target.Position + out * 4.5
+	local params = RaycastParams.new()
+	params.FilterDescendantsInstances = { character :: Model }
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local hit = workspace:Raycast(spot + Vector3.new(0, 12, 0), Vector3.new(0, -40, 0), params)
+	spot = if hit then hit.Position + Vector3.new(0, 3.2, 0) else spot + Vector3.new(0, 3.5, 0)
 	-- arrive next to the pad (not on it), so it does not ask again right away
 	lastPad[player] = target
 	lastOpen[player] = os.clock() + 2
@@ -77,7 +88,14 @@ end
 local function hook(tag: string)
 	return function(pad: Instance)
 		if not pad:IsA("BasePart") then return end
-		pad.Touched:Connect(function(hit) onTouched(tag, pad, hit) end)
+		if tag == "BusStop" then
+			local click = pad:FindFirstChildOfClass("ClickDetector") or Instance.new("ClickDetector")
+			click.MaxActivationDistance = NEAR
+			click.Parent = pad
+			click.MouseClick:Connect(function(player) open(tag, pad, player) end)
+		else
+			pad.Touched:Connect(function(hit) onTouched(tag, pad, hit) end)
+		end
 	end
 end
 

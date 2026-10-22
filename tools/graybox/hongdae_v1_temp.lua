@@ -438,9 +438,10 @@ local function planter(pos: Vector3, along: Vector3, len: number?)
 	-- only this shrub (user 2026-10-22), larger, two on each side of the tree in
 	-- a row, each turned a little differently
 	for k, z in ipairs({ -5.4, -2.8, 2.8, 5.4 }) do
-		local scale = 0.38 + ((k * 7 + plantN * 3) % 5) * 0.012 -- a bit larger again (user)
+		local scale = 0.44 + ((k * 7 + plantN * 3) % 5) * 0.012 -- larger again (user)
 		local yaw = math.rad(((k * 97 + plantN * 53) % 360))
-		local s = foliage("Shrub", scale, cf * CFrame.new(0, soilTop - 0.25, z) * CFrame.Angles(0, yaw, 0))
+		-- sunk so the brown stems go into the soil (user)
+		local s = foliage("Shrub", scale, cf * CFrame.new(0, soilTop - 1.1, z) * CFrame.Angles(0, yaw, 0))
 		if s then prop(s, "Shrub") end
 	end
 end
@@ -509,7 +510,11 @@ end
 -- a big road from the crossroads; dir = ±X/±Z; u along, v across (+v = right of dir)
 -- pits = sidewalk cut-outs for stair pits {u0, u1, v0, v1}; cars = {u, v}
 -- sidewalk areas kept free of lamps / planters (entrances)
-local KEEP_CLEAR = { { -196, -40, -104, -20 } } -- park gate
+local KEEP_CLEAR = {
+	{ -196, -40, -104, -20 }, -- park gate
+	-- bus stops: no planting bed between the shelter / sign and the curb
+	{ -40, -148, -22, -112 }, { 112, 22, 150, 40 }, { 22, 212, 40, 250 }, { -162, 132, -144, 168 },
+}
 local function clear(p: Vector3)
 	for _, k in ipairs(KEEP_CLEAR) do if p.X > k[1] and p.X < k[3] and p.Z > k[2] and p.Z < k[4] then return false end end
 	return true
@@ -634,28 +639,66 @@ for _, e in ipairs(EXITS) do
 	local back = at(-9)
 	local bw = box("PitBack", back.X - 3, -9, back.Z - 0.2, back.X + 3, CURB + 2.6, back.Z + 0.2, Color3.fromRGB(40, 40, 45), { parent = m })
 	surfaceText(bw, if out.Z < 0 then Enum.NormalId.Front else Enum.NormalId.Back, "🚇 승강장\n발판을 밟으면 출구 선택", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold)
-	-- canopy: high at the mouth (+5.2), low at the back (+2.6)
-	local hiY, loY = CURB + 5.2, CURB + 2.6
-	for _, sx in ipairs({ -1, 1 }) do
-		local front, rear = at(9) + side * (sx * 3.2), at(-9) + side * (sx * 3.2)
-		vcyl("ShelterPost", front + Vector3.new(0, CURB, 0), 0.3, hiY - CURB, Color3.fromRGB(110, 115, 120), { parent = m })
-		vcyl("ShelterPost", rear + Vector3.new(0, CURB, 0), 0.3, loY - CURB, Color3.fromRGB(110, 115, 120), { parent = m })
-		box("ShelterGlass", c.X + sx * 3.2 - 0.1, CURB, c.Z - 9, c.X + sx * 3.2 + 0.1, loY, c.Z + 9, Color3.fromRGB(190, 220, 230), { parent = m, material = Enum.Material.Glass, transparency = 0.55 })
-		local mid = c + side * (sx * 3.2) + Vector3.new(0, loY + (hiY - loY) / 2, 0)
-		part("ShelterGlassTop", Vector3.new(0.2, hiY - loY, 18), CFrame.lookAt(mid, mid - out), Color3.fromRGB(190, 220, 230), { parent = m, class = "WedgePart", material = Enum.Material.Glass, transparency = 0.55 })
+	-- entrance building (user photo 2026-10-22): granite base, glass sides with
+	-- dark frames, a grey roof high at the open end that sweeps down in a curve
+	-- to the base at the back
+	local granite = Color3.fromRGB(176, 176, 172)
+	local dark = Color3.fromRGB(38, 40, 44)
+	local roofC = Color3.fromRGB(150, 153, 157)
+	local BASE = CURB + 2.6 -- top of the granite base
+	local U0, U1 = -9.6, 9.4 -- back, mouth
+	local function roofY(u: number): number
+		if u >= -3 then return CURB + 6.2 + (u + 3) / (U1 + 3) * 1.4 end -- straight, rising to the mouth
+		local t = math.clamp((u + 3) / (U0 + 3), 0, 1) -- 0 at -3, 1 at the back
+		return BASE + 3.6 * math.sqrt(math.max(0, 1 - t * t)) -- elliptic curve down to the base
 	end
-	local rTop, rBack = at(9) + Vector3.new(0, hiY, 0), at(-9) + Vector3.new(0, loY, 0)
-	part("ShelterRoof", Vector3.new(7, 0.3, (rTop - rBack).Magnitude), CFrame.lookAt((rTop + rBack) / 2, rTop), Color3.fromRGB(170, 205, 220), { parent = m, material = Enum.Material.Glass, transparency = 0.35 })
-	-- number pole (blue / yellow, like a Seoul exit sign) next to the mouth
+	for _, sx in ipairs({ -1, 1 }) do
+		local a, b = at(U0) + side * (sx * 3.4), at(U1) + side * (sx * 4.2)
+		box("EntranceBase", math.min(a.X, b.X), CURB, math.min(a.Z, b.Z), math.max(a.X, b.X), BASE, math.max(a.Z, b.Z), granite, { parent = m, material = Enum.Material.Granite })
+	end
+	do
+		local a, b = at(U0) + side * -4.2, at(U0 + 0.6) + side * 4.2
+		box("EntranceBase", math.min(a.X, b.X), CURB, math.min(a.Z, b.Z), math.max(a.X, b.X), BASE, math.max(a.Z, b.Z), granite, { parent = m, material = Enum.Material.Granite })
+	end
+	-- roof: one straight slab + a curved run of short slabs
+	local pts = { U1 }
+	for k = 0, 8 do table.insert(pts, -3 + (U0 + 3) * (k / 8)) end
+	for i = 1, #pts - 1 do
+		local p0 = at(pts[i]) + Vector3.new(0, roofY(pts[i]), 0)
+		local p1 = at(pts[i + 1]) + Vector3.new(0, roofY(pts[i + 1]), 0)
+		local mid = (p0 + p1) / 2
+		local len = (p1 - p0).Magnitude + 0.25
+		local look = CFrame.lookAt(mid, p1)
+		part("EntranceRoof", Vector3.new(8.6, 0.9, len), look * CFrame.new(0, 0.45, 0), roofC, { parent = m, material = Enum.Material.Metal })
+	end
+	-- glass panels with dark mullions on both sides
+	local cuts = { U1 - 0.6, 6, 2.5, -1, -3.8, -6.6, U0 + 0.6 }
+	for _, sx in ipairs({ -1, 1 }) do
+		for i = 1, #cuts - 1 do
+			local ua, ub = cuts[i + 1], cuts[i]
+			local top = math.min(roofY(ua), roofY(ub)) - 0.05
+			if top - BASE > 0.4 then
+				local a, b = at(ua) + side * (sx * 3.9), at(ub) + side * (sx * 3.9)
+				box("EntranceGlass", math.min(a.X, b.X) - 0.07, BASE, math.min(a.Z, b.Z), math.max(a.X, b.X) + 0.07, top, math.max(a.Z, b.Z), Color3.fromRGB(70, 90, 100), { parent = m, material = Enum.Material.Glass, transparency = 0.45 })
+			end
+			local mpos = at(ub) + side * (sx * 3.9)
+			box("EntranceMullion", mpos.X - 0.15, BASE, mpos.Z - 0.15, mpos.X + 0.15, roofY(ub), mpos.Z + 0.15, dark, { parent = m, material = Enum.Material.Metal })
+		end
+	end
+	-- the dark frame of the open end
+	for _, sx in ipairs({ -1, 1 }) do
+		local a, b = at(U1 - 0.8) + side * (sx * 3.6), at(U1) + side * (sx * 4.4)
+		box("EntranceFrame", math.min(a.X, b.X), CURB, math.min(a.Z, b.Z), math.max(a.X, b.X), roofY(U1) + 0.9, math.max(a.Z, b.Z), dark, { parent = m, material = Enum.Material.Metal })
+	end
+	-- exit number pole (Seoul style): dark pole, yellow number panel on top
 	local mouth = at(9)
-	local polePos = mouth + side * 5 * math.sign(e[4]) + out * 1
-	vcyl("ExitPole", polePos + Vector3.new(0, CURB, 0), 0.5, 8, Color3.fromRGB(40, 110, 200), { parent = m })
-	local sign = box("ExitNumberSign", polePos.X - 0.9, CURB + 6, polePos.Z - 0.9, polePos.X + 0.9, CURB + 10.5, polePos.Z + 0.9, Color3.fromRGB(40, 110, 200), { parent = m })
-	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do surfaceText(sign, face, tostring(e[1]), Color3.new(1, 1, 1), Enum.Font.GothamBlack) end
-	box("ExitPoleBand", polePos.X - 0.95, CURB + 5.4, polePos.Z - 0.95, polePos.X + 0.95, CURB + 6, polePos.Z + 0.95, YELLOW, { parent = m })
+	local polePos = mouth + side * 5.6 * math.sign(e[4]) + out * 1
+	box("ExitPole", polePos.X - 0.45, CURB, polePos.Z - 0.45, polePos.X + 0.45, CURB + 11, polePos.Z + 0.45, dark, { parent = m, material = Enum.Material.Metal })
+	local sign = box("ExitNumberSign", polePos.X - 0.55, CURB + 9, polePos.Z - 0.55, polePos.X + 0.55, CURB + 10.8, polePos.Z + 0.55, Color3.fromRGB(250, 200, 30), { parent = m })
+	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do surfaceText(sign, face, tostring(e[1]), Color3.fromRGB(20, 20, 20), Enum.Font.GothamBlack) end
+	box("ExitPoleBand", polePos.X - 0.5, CURB + 5, polePos.Z - 0.5, polePos.X + 0.5, CURB + 7.5, polePos.Z + 0.5, Color3.fromRGB(200, 40, 60), { parent = m })
 	label(sign, e[1] .. "번 출구 · " .. e[2], e[3], 4, 0.8)
-	local hedgePos = c + side * 6.5 * math.sign(e[4])
-	box("ExitHedge", hedgePos.X - 0.8, CURB, hedgePos.Z - 8, hedgePos.X + 0.8, CURB + 1.8, hedgePos.Z + 8, Color3.fromRGB(70, 140, 60), { parent = m, material = Enum.Material.Grass })
+
 	-- the landing pad (exit picker)
 	local padPos = at(-6) + Vector3.new(0, bottom + 0.2, 0)
 	local pad = part("SubwayExitPad", Vector3.new(6, 0.4, 6), CFrame.lookAt(padPos, padPos + out), e[3], { parent = m, material = Enum.Material.Neon })
@@ -671,25 +714,81 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 	local m = Instance.new("Model")
 	m.Name = "BusStop" .. n
 	m.Parent = T
+	-- Seoul bus shelter (user photo 2026-10-22, 화곡역): dark steel posts in the
+	-- back plane, a louvered glass roof cantilevered toward the road, a dark
+	-- station header under the roof, two lit ad panels and a route map in the
+	-- back, a glass bench
 	local base = center + Vector3.new(0, CURB, 0)
 	local cf = CFrame.lookAt(base, base + roadDir) -- -Z local = toward the road
-	local frameC = Color3.fromRGB(45, 45, 50)
-	for _, s in ipairs({ -6, 6 }) do part("ShelterPost", Vector3.new(0.5, 9, 0.5), cf * CFrame.new(s, 4.5, 1.6), frameC, { parent = m }) end
-	part("ShelterRoof", Vector3.new(14, 0.4, 5), cf * CFrame.new(0, 9.2, 0), Color3.fromRGB(170, 200, 215), { parent = m, material = Enum.Material.Glass, transparency = 0.3 })
-	part("ShelterBack", Vector3.new(9, 6.5, 0.2), cf * CFrame.new(1.5, 4, 1.8), Color3.fromRGB(190, 215, 225), { parent = m, material = Enum.Material.Glass, transparency = 0.5 })
-	local ad = part("AdPanel", Vector3.new(3.6, 7.5, 0.6), cf * CFrame.new(-4.6, 3.75, 1.8), Color3.fromRGB(250, 250, 250), { parent = m, material = Enum.Material.Neon })
-	surfaceText(ad, Enum.NormalId.Front, "광고 문의\nOHU 광고", Color3.fromRGB(60, 60, 70), Enum.Font.GothamBold)
-	part("BenchFrame", Vector3.new(8, 1.6, 1.4), cf * CFrame.new(1.5, 0.8, 0.9), frameC, { parent = m })
-	seat("BusBench", cf * CFrame.new(1.5, 1.8, 0.9), Vector3.new(8, 0.4, 1.6), Color3.fromRGB(190, 120, 60), m)
-	local info = part("RouteBoard", Vector3.new(1.6, 6, 0.3), cf * CFrame.new(7.5, 3, 1.6), Color3.fromRGB(30, 80, 150), { parent = m })
-	surfaceText(info, Enum.NormalId.Front, "BUS\n" .. name, Color3.new(1, 1, 1), Enum.Font.GothamBold)
-	local padPos = base + roadDir * 2.6 + along * 9 + Vector3.new(0, 0.2, 0)
-	local pad = part("BusStopPad", Vector3.new(5, 0.4, 5), CFrame.lookAt(padPos, padPos + along), Color3.fromRGB(60, 160, 255), { parent = m, material = Enum.Material.Neon })
-	pad:SetAttribute("ExitNumber", n)
-	pad:SetAttribute("ExitName", name)
-	pad:SetAttribute("Out", along)
-	CS:AddTag(pad, "BusStop")
-	label(info, "🚌 " .. name .. " 정류장", Color3.fromRGB(60, 140, 230), 6, 0.7)
+	local steel = Color3.fromRGB(46, 48, 52)
+	local W, H = 15, 8.6
+	for _, x in ipairs({ -W / 2, -2.5, 2.5, W / 2 }) do part("ShelterPost", Vector3.new(0.4, H, 0.4), cf * CFrame.new(x, H / 2, 1.8), steel, { parent = m, material = Enum.Material.Metal }) end
+	part("ShelterRoofFrame", Vector3.new(W + 0.6, 0.35, 5.4), cf * CFrame.new(0, H + 0.2, -0.4) * CFrame.Angles(math.rad(-3), 0, 0), steel, { parent = m, material = Enum.Material.Metal })
+	part("ShelterRoof", Vector3.new(W, 0.1, 5), cf * CFrame.new(0, H + 0.42, -0.4) * CFrame.Angles(math.rad(-3), 0, 0), Color3.fromRGB(180, 205, 215), { parent = m, material = Enum.Material.Glass, transparency = 0.4 })
+	for z = -2.6, 1.8, 0.55 do
+		part("RoofLouver", Vector3.new(W, 0.25, 0.12), cf * CFrame.new(0, H - 0.05, z) * CFrame.Angles(math.rad(-3), 0, 0), Color3.fromRGB(35, 37, 40), { parent = m, material = Enum.Material.Metal, nocol = true })
+	end
+	local header = part("StationHeader", Vector3.new(9, 1.1, 0.35), cf * CFrame.new(0, H - 1, -1.6), Color3.fromRGB(32, 33, 36), { parent = m, material = Enum.Material.Metal })
+	surfaceText(header, Enum.NormalId.Front, "◀ 이전 정류장     " .. name .. "     다음 정류장 ▶", Color3.fromRGB(240, 240, 240), Enum.Font.GothamBold)
+	-- back: ad panels (lit lightboxes) left and right, route map in the middle
+	local ads = { { "OHU\nFASHION WEEK\n신상 런웨이", Color3.fromRGB(235, 60, 70) }, { "만나서\n반가워요\nOHU 오후!", Color3.fromRGB(245, 120, 40) } }
+	for i, x in ipairs({ -5, 5 }) do
+		part("AdFrame", Vector3.new(4.6, 7.4, 0.5), cf * CFrame.new(x, 4.6, 1.8), steel, { parent = m, material = Enum.Material.Metal })
+		-- a lightbox, not a glow: plain colour + a soft light
+		local ad = part("AdPanel", Vector3.new(4, 6.8, 0.1), cf * CFrame.new(x, 4.6, 1.5), ads[i][2], { parent = m, nocol = true })
+		local glow = Instance.new("SurfaceLight") glow.Face = Enum.NormalId.Front glow.Range = 6 glow.Brightness = 0.6 glow.Parent = ad
+		surfaceText(ad, Enum.NormalId.Front, ads[i][1], Color3.fromRGB(255, 255, 255), Enum.Font.GothamBlack)
+	end
+	local map = part("RouteMap", Vector3.new(4.6, 3.4, 0.15), cf * CFrame.new(0, 6, 1.8), Color3.fromRGB(240, 242, 240), { parent = m })
+	surfaceText(map, Enum.NormalId.Front, "OHU 01 ─●─●─●─\nOHU 02 ─●─●─●─\nOHU 03 ─●─●─●─", Color3.fromRGB(40, 120, 60), Enum.Font.GothamBold)
+	part("BackGlass", Vector3.new(4.6, 3.4, 0.1), cf * CFrame.new(0, 2.6, 1.8), Color3.fromRGB(200, 220, 228), { parent = m, material = Enum.Material.Glass, transparency = 0.6 })
+	for _, x in ipairs({ -1.9, 1.9 }) do part("BenchLeg", Vector3.new(0.3, 1.6, 1), cf * CFrame.new(x, 0.8, 1), steel, { parent = m, material = Enum.Material.Metal }) end
+	seat("BusBench", cf * CFrame.new(0, 1.75, 1), Vector3.new(4.4, 0.3, 1.2), Color3.fromRGB(150, 175, 180), m)
+	local plate = part("StopNumber", Vector3.new(1.2, 0.8, 0.1), cf * CFrame.new(W / 2 - 1, H - 1.5, 1.55), Color3.fromRGB(40, 90, 200), { parent = m })
+	surfaceText(plate, Enum.NormalId.Front, string.format("%02d-%03d", 13, 100 + n), Color3.new(1, 1, 1), Enum.Font.GothamBold)
+	-- bus stop sign pole at the curb (user photo, 노원구청): green bus disc on
+	-- top, black name panel + white route board, small 금연 plate. Clicking the
+	-- sign opens the stop picker (SubwayService, tag BusStop)
+	local signBase = base + roadDir * 2.4 + along * 9
+	local scf = CFrame.lookAt(signBase, signBase + along) -- the sign faces along the street
+	vcyl("BusSignPole", signBase, 0.45, 11.5, Color3.fromRGB(110, 112, 116), { parent = m, material = Enum.Material.Metal })
+	local disc = part("BusSignDisc", Vector3.new(0.2, 2.2, 2.2), scf * CFrame.new(0, 11.4, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(60, 165, 75), { parent = m, shape = Enum.PartType.Cylinder })
+	for _, face in ipairs({ Enum.NormalId.Right, Enum.NormalId.Left }) do surfaceText(disc, face, "🚌", Color3.new(1, 1, 1), Enum.Font.GothamBold) end
+	local sign = part("BusStopSign", Vector3.new(2.4, 4.6, 0.35), scf * CFrame.new(0, 7.7, 0), Color3.fromRGB(28, 28, 30), { parent = m })
+	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+		local g = Instance.new("SurfaceGui")
+		g.Face = face
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 40
+		g.LightInfluence = 0.3
+		g.Parent = sign
+		local function textLabel(text, y, h, color, bg, size)
+			local t = Instance.new("TextLabel")
+			t.Position = UDim2.fromScale(0, y)
+			t.Size = UDim2.fromScale(1, h)
+			t.BackgroundColor3 = bg
+			t.BorderSizePixel = 0
+			t.Font = Enum.Font.GothamBold
+			t.TextScaled = true
+			t.TextColor3 = color
+			t.Text = text
+			local pad = Instance.new("UIPadding")
+			pad.PaddingLeft = UDim.new(0, size) pad.PaddingRight = UDim.new(0, size) pad.PaddingTop = UDim.new(0, size // 2) pad.PaddingBottom = UDim.new(0, size // 2)
+			pad.Parent = t
+			t.Parent = g
+		end
+		textLabel(name, 0, 0.2, Color3.new(1, 1, 1), Color3.fromRGB(28, 28, 30), 6)
+		textLabel("OHU 01 · OHU 02", 0.2, 0.12, Color3.fromRGB(255, 220, 90), Color3.fromRGB(28, 28, 30), 6)
+		textLabel("OHU 01  ●─●─●─●\nOHU 02  ●─●─●─●\nOHU 03  ●─●─●─●", 0.34, 0.5, Color3.fromRGB(40, 110, 60), Color3.fromRGB(245, 245, 242), 8)
+		textLabel("탭해서 정류장 고르기", 0.84, 0.16, Color3.new(1, 1, 1), Color3.fromRGB(40, 120, 220), 6)
+	end
+	local noSmoke = part("NoSmokingPlate", Vector3.new(1.8, 0.7, 0.2), scf * CFrame.new(0, 4.6, 0), Color3.fromRGB(60, 165, 75), { parent = m })
+	surfaceText(noSmoke, Enum.NormalId.Front, "금연", Color3.new(1, 1, 1), Enum.Font.GothamBold)
+	sign:SetAttribute("ExitNumber", n)
+	sign:SetAttribute("ExitName", name)
+	sign:SetAttribute("Out", along) -- arrivals stand next to the sign, along the street
+	CS:AddTag(sign, "BusStop")
+	label(sign, "🚌 " .. name .. " 정류장", Color3.fromRGB(60, 140, 230), 4, 0.7)
 end
 busStop(1, "OHU CLUB 앞", Vector3.new(-31, 0, -130), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1))
 busStop(2, "고층 빌딩가", Vector3.new(130, 0, 31), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0))
