@@ -608,7 +608,7 @@ local z=zone("04_Beach_Aquarium")
  -- parasol groups: varied (closed / mat+box / mat / 2 chairs / chair+mat / 2 chairs+box)
  local kinds={"closed","matbox","mat","chairs2","chairmat","chairs2box"}
  local spots={}
- for zc=-330,236,26 do if not (zc>12 and zc<74) and not (zc>-36 and zc<-2) then table.insert(spots,zc) end end
+ for zc=-330,236,26 do if not (zc>2 and zc<132) and not (zc>-36 and zc<-2) then table.insert(spots,zc) end end
  for i,zc in ipairs(spots) do
   local x=-250+((i%3)-1)*9+math.random(-2,2) local g=Vector3.new(x,SAND,zc+math.random(-3,3))
   local kind=kinds[(i-1)%#kinds+1] local cols=stripeSets[(i-1)%#stripeSets+1]
@@ -631,8 +631,8 @@ local z=zone("04_Beach_Aquarium")
    beam(m,"PalmFrond",mid,tip,0.3,Color3.fromRGB(60,145,60),{nocol=true}).Size=Vector3.new(1.4,0.2,(tip-mid).Magnitude) end
   for k=0,2 do local a=k*2.1 P(m,"Coconut",Vector3.new(0.8,0.8,0.8),CFrame.new(p+Vector3.new(math.cos(a)*0.6,-0.7,math.sin(a)*0.6)),Color3.fromRGB(110,75,40),{shape=Enum.PartType.Ball}) end
  end
- for i,pz in ipairs({-320,-262,-200,-140,-84,-44,86,128,172,214}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
- palm(Vector3.new(-262,SAND,20),15,math.rad(200)) palm(Vector3.new(-262,SAND,70),17,math.rad(160))
+ for i,pz in ipairs({-320,-262,-200,-140,-84,-44,140,172,214}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
+ palm(Vector3.new(-262,SAND,-8),15,math.rad(200)) palm(Vector3.new(-262,SAND,138),17,math.rad(160))
 
  -- ICE CREAM TRUCK (pink, striped awning, giant cone) at the beach entrance
  do local tc=Vector3.new(-214,SAND,-19) local pink=Color3.fromRGB(255,170,200)
@@ -668,11 +668,11 @@ local z=zone("04_Beach_Aquarium")
    local mid=(p0+p1)/2 P(par,"TubeSeg",Vector3.new(thick,thick,(p1-p0).Magnitude+0.25),CFrame.lookAt(mid,p1),cols[k%2+1],{ghost=true,shape=nil}) end
  end
  local tubeCols={{Color3.fromRGB(255,120,170),Color3.new(1,1,1)},{Color3.fromRGB(255,200,60),Color3.fromRGB(80,200,255)},{Color3.fromRGB(120,220,160),Color3.new(1,1,1)},{Color3.fromRGB(255,150,90),Color3.fromRGB(255,240,120)}}
- for i,b in ipairs({Vector3.new(-292,0,-70),Vector3.new(-296,0,-6),Vector3.new(-290,0,96),Vector3.new(-300,0,150)}) do
+ for i,b in ipairs({Vector3.new(-292,0,-70),Vector3.new(-296,0,-6),Vector3.new(-312,0,104),Vector3.new(-300,0,150)}) do
   local m=M(z,"Tube"..i,{"FloatTube"},{Base=b,Drift=4+i,Period=70+i*9,Phase=i*1.3})
   ring(m,b,1.7,1,tubeCols[i],10) m.WorldPivot=CFrame.new(b)
  end
- for i,b in ipairs({Vector3.new(-285,0,-40),Vector3.new(-298,0,40),Vector3.new(-288,0,64),Vector3.new(-305,0,-110),Vector3.new(-283,0,130),Vector3.new(-310,0,10)}) do
+ for i,b in ipairs({Vector3.new(-285,0,-40),Vector3.new(-314,0,40),Vector3.new(-316,0,70),Vector3.new(-305,0,-110),Vector3.new(-283,0,130),Vector3.new(-310,0,10)}) do
   local m=M(z,"RubberDuck"..i,{"FloatDeco"},{Base=b,Drift=3+i%3,Period=55+i*7,Phase=i*0.9})
   local s=1+(i%2)*0.6
   P(m,"DuckBody",Vector3.new(2*s,1.5*s,2.6*s),CFrame.new(b+Vector3.new(0,0.4*s,0)),Color3.fromRGB(255,220,40),{shape=Enum.PartType.Ball,ghost=true})
@@ -682,82 +682,136 @@ local z=zone("04_Beach_Aquarium")
  end
  label(z,"튜브 타기 (가까이 가기)",Vector3.new(-292,6,-70))
 
- -- OCEAN-VIEW CAFE (OHU CAFE · Sunset): raised floor, full-height glass on
- -- the sea side (west), counter + order (SnackShop "BeachCafe"), window bar
- -- facing the sea, tables, sofa booth, plants, lamps, outdoor terrace.
- do local x0,x1,z0,z1=-244,-206,28,62 local FY=2.6 local H=12
+ -- OCEAN-VIEW CAFE v2 (OHU CAFE · Sunset). User reference video 2026-10-22
+ -- ("Cafe Uijeongbu · 물멍 때리기 좋은 카페") and "카페 사이즈 더 키워": a tall
+ -- glass box (90×90, 30 high) with full-height glass on the sea side (west,
+ -- sunset) and the west half of the long sides, thin white mullions, white
+ -- round columns, a warm wooden slat ceiling, a mezzanine with a glass railing,
+ -- an indoor water pool to gaze at (물멍) with stepped wooden seating, white
+ -- sofa lounge, grand piano, long marble table, bakery table with wooden trays,
+ -- window bar facing the sea, order counter (SnackShop "BeachCafe").
+ -- The west part stands on piles over the shallow sea.
+ do local x0,x1,z0,z1=-296,-206,16,106 local FY=3 local H=30 local MY=FY+13 local mx=-234
   local cm=M(z,"BeachCafe",{},{})
-  local floorC=Color3.fromRGB(205,170,125) local wallC=Color3.fromRGB(250,246,238) local glass=Color3.fromRGB(190,225,240)
-  box(cm,"CafeDeck",x0,0,z0,x1,FY,z1,floorC)
-  for k=1,3 do box(cm,"CafeStep",x1+(k-1)*1.4,0,40,x1+k*1.4,FY-(k-1)*FY/3,50,floorC,{nocol=true}) end
-  do local c=Vector3.new(x1+2.1,FY/2,45) P(cm,"CafeStepRamp",Vector3.new(10,FY,4.2),CFrame.lookAt(c,c+Vector3.new(1,0,0)),floorC,{class="WedgePart",t=1}) end
-  -- walls: east wall with the door, north/south half glass, west = full glass
-  box(cm,"Wall_E_N",x1-0.6,FY,z0,x1,FY+H,40,wallC) box(cm,"Wall_E_S",x1-0.6,FY,50,x1,FY+H,z1,wallC) box(cm,"Wall_E_Top",x1-0.6,FY+8,40,x1,FY+H,50,wallC)
-  for _,wz in ipairs({{z0,z0+0.6},{z1-0.6,z1}}) do
-   box(cm,"Wall_Side_Low",x0,FY,wz[1],x1,FY+3,wz[2],wallC)
-   box(cm,"Wall_Side_Glass",x0,FY+3,wz[1],x1-10,FY+H,wz[2],glass,{t=0.6,mat=Enum.Material.Glass})
-   box(cm,"Wall_Side_Solid",x1-10,FY+3,wz[1],x1,FY+H,wz[2],wallC) end
-  box(cm,"Glass_W",x0,FY,z0,x0+0.4,FY+H,z1,glass,{t=0.75,mat=Enum.Material.Glass})
-  for k=0,4 do local mz=z0+k*(z1-z0)/4 box(cm,"Mullion",x0-0.1,FY,mz-0.25,x0+0.5,FY+H,mz+0.25,Color3.fromRGB(60,60,65)) end
-  box(cm,"Roof",x0-3,FY+H,z0-2,x1+1,FY+H+0.8,z1+2,Color3.fromRGB(245,240,230))
-  box(cm,"RoofTrim",x0-3,FY+H-0.6,z0-2,x0-2.6,FY+H,z1+2,Color3.fromRGB(190,150,100))
-  -- counter along the east wall with the order point
-  box(cm,"Counter",x1-7,FY,32,x1-5,FY+3.6,46,Color3.fromRGB(190,150,100))
-  local top=box(cm,"CounterTop",x1-7.3,FY+3.6,31.7,x1-4.7,FY+3.9,46.3,Color3.fromRGB(250,250,250))
+  local floorC=Color3.fromRGB(228,224,216) local white=Color3.fromRGB(246,245,242) local woodC=Color3.fromRGB(196,150,98)
+  local glass=Color3.fromRGB(200,228,238) local frameC=Color3.fromRGB(238,238,235) local dark=Color3.fromRGB(38,38,42)
+  local sofaC=Color3.fromRGB(244,242,236)
+  -- floor slab, base on the sand, piles in the sea
+  box(cm,"CafeFloor",x0,FY-1,z0,x1,FY,z1,floorC,{mat=Enum.Material.Slate})
+  box(cm,"CafeBase",-268,0,z0,x1,FY-1,z1,Color3.fromRGB(205,200,190))
+  for px=x0+4,-272,12 do for pz=z0+4,z1-4,15 do cyl(cm,"Pile",1.6,22,Vector3.new(px,FY-12,pz),Color3.fromRGB(180,175,168)) end end
+  do local c=Vector3.new(x1+3.5,0.6+(FY-0.6)/2,61) P(cm,"EntranceRamp",Vector3.new(12,FY-0.6,7),CFrame.lookAt(c,c+Vector3.new(1,0,0)),floorC,{class="WedgePart"}) end
+  -- glass: west wall full, north/south glass on the west part, white walls east
+  box(cm,"Glass_W",x0,FY,z0,x0+0.4,FY+H,z1,glass,{t=0.82,mat=Enum.Material.Glass})
+  for mz=z0,z1,6 do box(cm,"Mullion",x0-0.1,FY,mz-0.2,x0+0.5,FY+H,mz+0.2,frameC) end
+  for _,wz in ipairs({{z0,z0+0.4},{z1-0.4,z1}}) do
+   box(cm,"Glass_Side",x0,FY,wz[1],mx,FY+H,wz[2],glass,{t=0.82,mat=Enum.Material.Glass})
+   for mxx=x0,mx,6 do box(cm,"Mullion",mxx-0.2,FY,wz[1]-0.1,mxx+0.2,FY+H,wz[2]+0.1,frameC) end
+   box(cm,"Wall_Side",mx,FY,wz[1],x1,FY+H,wz[2],white)
+  end
+  box(cm,"Transom",x0-0.1,FY+H-1,z0,x0+0.5,FY+H,z1,frameC)
+  box(cm,"Wall_E_S",x1-0.6,FY,z0,x1,FY+H,56,white) box(cm,"Wall_E_N",x1-0.6,FY,66,x1,FY+H,z1,white)
+  box(cm,"Wall_E_Top",x1-0.6,FY+10,56,x1,FY+H,66,white)
+  box(cm,"Roof",x0-2,FY+H,z0-2,x1+2,FY+H+1.2,z1+2,white)
+  -- warm wooden slat ceiling
+  for sz=z0+1,z1-1,2.4 do box(cm,"CeilingSlat",x0+0.6,FY+H-1.4,sz,x1-0.6,FY+H-0.4,sz+0.9,woodC,{ghost=true}) end
+  -- white round columns
+  for _,c in ipairs({{-266,44},{-266,84},{-240,44},{-240,84}}) do cyl(cm,"Column",3,H,Vector3.new(c[1],FY+H/2,c[2]),white) end
+  -- MEZZANINE (east third) with a glass railing; stairs along the north wall
+  box(cm,"Mezzanine",mx,MY-1,z0,x1,MY,z1,floorC,{mat=Enum.Material.Slate})
+  box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+3.4,95,glass,{t=0.7,mat=Enum.Material.Glass})
+  box(cm,"MezzHandrail",mx-0.4,MY+3.4,z0,mx+0.1,MY+3.7,95,frameC)
+  for k=1,13 do box(cm,"Stair",-262+(k-1)*2,FY,96,-262+k*2,FY+k,104,woodC) end
+  do local c=Vector3.new(-249,FY+6.5,100) P(cm,"StairRamp",Vector3.new(8,13,26),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),woodC,{class="WedgePart",t=1}) end
+  box(cm,"StairRail",-262,FY+1,95.6,-236,FY+14,95.9,glass,{t=0.7,mat=Enum.Material.Glass,nocol=true})
+  -- mezzanine window bar at the railing (view over the pool to the sea)
+  box(cm,"MezzBar",mx+0.2,MY+3.2,z0+3,mx+1.8,MY+3.5,93,white)
+  for sz=z0+5,91,5 do local pos=Vector3.new(mx+4,MY+2.3,sz)
+   seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),dark)
+   cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(mx+4,MY+1.05,sz),dark) end
+  for _,tp in ipairs({{-220,30},{-220,50},{-220,70}}) do
+   cyl(cm,"TableLeg",0.4,3,Vector3.new(tp[1],MY+1.5,tp[2]),dark)
+   local tt=cyl(cm,"CafeTable",3.8,0.3,Vector3.new(tp[1],MY+3.1,tp[2]),woodC) CS:AddTag(tt,"CafeTable")
+   for _,dz in ipairs({-2.7,2.7}) do local pos=Vector3.new(tp[1],MY+1.6,tp[2]+dz)
+    seat(cm,"CafeChair",CFrame.lookAt(pos,Vector3.new(tp[1],MY+1.6,tp[2])),Vector3.new(1.8,0.3,1.8),white) end end
+  -- ORDER COUNTER + bakery (under the mezzanine)
+  box(cm,"Counter",-225,FY,30,-222,FY+3.6,52,white)
+  local top=box(cm,"CounterTop",-225.3,FY+3.6,29.7,-221.7,FY+3.9,52.3,Color3.fromRGB(235,235,235),{mat=Enum.Material.Marble})
   top:SetAttribute("Shop","BeachCafe") CS:AddTag(top,"SnackShop")
-  box(cm,"EspressoMachine",x1-6.6,FY+3.9,33,x1-5.2,FY+5.4,35.4,Color3.fromRGB(180,180,190))
-  box(cm,"Register",x1-6.6,FY+3.9,43,x1-5.6,FY+4.8,44.4,Color3.fromRGB(40,40,45))
-  local case=box(cm,"PastryCase",x1-7.2,FY+3.9,37,x1-5,FY+5.6,41,glass,{t=0.5,mat=Enum.Material.Glass})
-  for k=0,5 do P(cm,"Pastry",Vector3.new(0.7,0.5,0.7),CFrame.new(x1-6.1,FY+4.3+(k%2)*0.7,37.6+math.floor(k/2)*1.3),({Color3.fromRGB(240,190,120),Color3.fromRGB(255,170,200),Color3.fromRGB(150,100,70)})[k%3+1],{shape=Enum.PartType.Ball}) end
-  box(cm,"BackShelf",x1-1.4,FY+5,31,x1-0.6,FY+5.3,47,Color3.fromRGB(190,150,100))
-  for k=0,7 do cyl(cm,"CupStack",0.6,0.9,Vector3.new(x1-1,FY+5.75,32+k*2),Color3.new(1,1,1)) end
-  local menu=box(cm,"MenuBoard",x1-0.7,FY+6.5,34,x1-0.6,FY+10,44,Color3.fromRGB(40,45,50))
+  box(cm,"EspressoMachine",-224.6,FY+3.9,32,-222.4,FY+5.6,35,Color3.fromRGB(180,180,190))
+  box(cm,"Register",-224.4,FY+3.9,48,-223,FY+4.8,49.6,dark)
+  box(cm,"BackCounter",-212,FY,26,-207,FY+3.6,54,woodC)
+  local menu=box(cm,"MenuBoard",x1-0.7,FY+6,30,x1-0.6,FY+10.5,52,dark)
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0 g.Parent=menu
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1)
-   l.Text="OHU CAFE MENU\n아이스 아메리카노 · 카페라떼\n블루 레몬에이드 · 망고 스무디" l.Parent=g end
-  label(cm,"☕ 음료 주문",Vector3.new(x1-6,FY+8,39))
-  -- window bar facing the sea with stools
-  box(cm,"WindowBar",x0+0.6,FY+3.2,z0+3,x0+2.4,FY+3.5,z1-3,Color3.fromRGB(190,150,100))
-  for k=0,6 do local sz=z0+5+k*4 local pos=Vector3.new(x0+4.2,FY+2.3,sz)
-   seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),Color3.fromRGB(240,235,225))
-   cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(x0+4.2,FY+1.05,sz),Color3.fromRGB(60,60,65)) end
-  -- round tables with 2 chairs each
-  for _,tp in ipairs({{-226,36},{-226,48},{-218,56}}) do
-   cyl(cm,"TableLeg",0.4,3,Vector3.new(tp[1],FY+1.5,tp[2]),Color3.fromRGB(60,60,65))
-   local tt=cyl(cm,"CafeTable",3.6,0.3,Vector3.new(tp[1],FY+3.1,tp[2]),Color3.fromRGB(250,250,250)) CS:AddTag(tt,"CafeTable")
-   for _,dx in ipairs({-2.6,2.6}) do local pos=Vector3.new(tp[1]+dx,FY+1.6,tp[2])
-    seat(cm,"CafeChair",CFrame.lookAt(pos,Vector3.new(tp[1],FY+1.6,tp[2])),Vector3.new(1.8,0.3,1.8),Color3.fromRGB(230,200,160))
-    P(cm,"ChairBack",Vector3.new(0.2,1.8,1.8),CFrame.new(tp[1]+dx*1.38,FY+2.6,tp[2]),Color3.fromRGB(230,200,160)) end end
-  -- sofa booth along the north side
-  box(cm,"SofaBack",-236,FY,z1-1.6,-226,FY+3.4,z1-0.6,Color3.fromRGB(120,170,190))
-  for k=0,2 do local pos=Vector3.new(-234+k*3.4,FY+1.1,z1-3) seat(cm,"Sofa",CFrame.lookAt(pos,pos+Vector3.new(0,0,-1)),Vector3.new(3.2,0.8,2.4),Color3.fromRGB(140,190,210)) end
-  cyl(cm,"SofaTable",4,0.3,Vector3.new(-231,FY+2.4,z1-7),Color3.fromRGB(250,250,250))
-  cyl(cm,"SofaTableLeg",0.4,2.3,Vector3.new(-231,FY+1.15,z1-7),Color3.fromRGB(60,60,65))
-  -- plants, pendant lamps, rug, photo spot
-  for _,pp in ipairs({{x0+2,z0+1.5},{x0+2,z1-1.5},{x1-9,z0+1.5}}) do
-   cyl(cm,"PlantPot",1.6,1.6,Vector3.new(pp[1],FY+0.8,pp[2]),Color3.fromRGB(200,120,80))
-   P(cm,"PlantLeaves",Vector3.new(2.6,2.6,2.6),CFrame.new(pp[1],FY+2.8,pp[2]),Color3.fromRGB(70,150,80),{shape=Enum.PartType.Ball}) end
-  for _,lp in ipairs({{-226,36},{-226,48},{-218,56},{-236,45}}) do
-   beam(cm,"LampCord",Vector3.new(lp[1],FY+H,lp[2]),Vector3.new(lp[1],FY+7.6,lp[2]),0.08,Color3.fromRGB(40,40,40),{ghost=true})
-   local bulb=P(cm,"PendantLamp",Vector3.new(1.1,1.1,1.1),CFrame.new(lp[1],FY+7.2,lp[2]),Color3.fromRGB(255,225,170),{mat=Enum.Material.Neon,shape=Enum.PartType.Ball,ghost=true})
-   local light=Instance.new("PointLight") light.Color=Color3.fromRGB(255,215,160) light.Range=12 light.Brightness=0.8 light.Parent=bulb end
-  P(cm,"Rug",Vector3.new(10,0.06,12),CFrame.new(-227,FY+0.03,45),Color3.fromRGB(240,225,200),{nocol=true})
-  photo(cm,Vector3.new(x0+5,FY,z0+3),"오션뷰 창가")
-  -- terrace on the sea side
-  box(cm,"Terrace",x0-14,0,z0,x0,FY-0.4,z1,floorC)
-  do local c=Vector3.new(x0-7,(FY-0.4)/2,z0-3) P(cm,"TerraceRamp",Vector3.new(14,FY-0.4,6),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),floorC,{class="WedgePart"}) end
-  for _,tp in ipairs({{-252,36},{-252,54}}) do
-   cyl(cm,"TerraceTable",3.4,0.3,Vector3.new(tp[1],FY+2.4,tp[2]),Color3.new(1,1,1)) cyl(cm,"TerraceTableLeg",0.4,2.6,Vector3.new(tp[1],FY+1,tp[2]),Color3.fromRGB(60,60,65))
-   parasol(cm,Vector3.new(tp[1],FY-0.4,tp[2]),true,stripeSets[1])
-   for _,dz in ipairs({-2.6,2.6}) do local pos=Vector3.new(tp[1],FY+1,tp[2]+dz) seat(cm,"TerraceChair",CFrame.lookAt(pos,Vector3.new(-300,FY+1,tp[2]+dz)),Vector3.new(1.8,0.3,1.8),Color3.fromRGB(255,255,255)) end end
-  local sign=box(cm,"CafeSign",x1+0.05,FY+H-3.6,36,x1+0.4,FY+H-0.8,54,Color3.fromRGB(40,45,50))
+   l.Text="OHU CAFE · SUNSET\n아이스 아메리카노 · 카페라떼\n블루 레몬에이드 · 망고 스무디" l.Parent=g end
+  label(cm,"☕ 음료 주문",Vector3.new(-223,FY+8,41))
+  -- coffee bag wall (colourful packs) on the south wall behind the bakery
+  for k=0,17 do local col=({Color3.fromRGB(200,40,50),Color3.fromRGB(30,30,30),Color3.fromRGB(230,200,60),Color3.fromRGB(60,110,180),Color3.fromRGB(240,240,240)})[k%5+1]
+   box(cm,"CoffeeBag",mx+1+(k%9)*2.8,FY+5+math.floor(k/9)*2.4,z0+0.5,mx+3+(k%9)*2.8,FY+6.8+math.floor(k/9)*2.4,z0+1.3,col) end
+  box(cm,"BagShelf",mx+0.5,FY+4.8,z0+0.4,mx+27,FY+5,z0+1.6,woodC) box(cm,"BagShelf",mx+0.5,FY+7.2,z0+0.4,mx+27,FY+7.4,z0+1.6,woodC)
+  for _,bz in ipairs({{30,40},{42,52}}) do -- bakery tables with wooden trays of bread
+   box(cm,"BakeryTable",-244,FY,bz[1],-236,FY+3.4,bz[2],white)
+   for tz=bz[1]+0.5,bz[2]-2.5,2.6 do box(cm,"BreadTray",-243.5,FY+3.4,tz,-236.5,FY+3.9,tz+2.2,woodC)
+    for k=0,2 do P(cm,"Bread",Vector3.new(1.4,0.7,0.9),CFrame.new(-242+k*2.2,FY+4.2,tz+1.1),({Color3.fromRGB(205,150,80),Color3.fromRGB(225,180,110),Color3.fromRGB(170,110,60)})[k+1],{nocol=true}) end end end
+  label(cm,"🥐 베이커리",Vector3.new(-240,FY+7,41))
+  -- WINDOW BAR along the sea-side glass
+  box(cm,"WindowBar",x0+0.4,FY+3.2,z0+3,x0+2.6,FY+3.5,z1-3,white)
+  for sz=z0+5,z1-5,5 do local pos=Vector3.new(x0+4.4,FY+2.3,sz)
+   seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),dark)
+   cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(x0+4.4,FY+1.05,sz),dark) end
+  -- WATER POOL (물멍) with a stone rim and stepped wooden seating facing it
+  local pool=box(cm,"WaterPool",-286,FY,48,-262,FY+0.2,76,Color3.fromRGB(28,50,60),{mat=Enum.Material.Glass,t=0.05})
+  pool.Reflectance=0.35
+  for _,r in ipairs({{-287,48,-286,76},{-262,48,-261,76},{-287,47,-261,48},{-287,76,-261,77}}) do box(cm,"PoolRim",r[1],FY,r[2],r[3],FY+0.9,r[4],Color3.fromRGB(70,70,72),{mat=Enum.Material.Slate}) end
+  for k,sp in ipairs({{-281,55},{-275,68},{-268,58}}) do P(cm,"PoolStone",Vector3.new(2.4+k*0.4,1,2+k*0.3),CFrame.new(sp[1],FY+0.4,sp[2]),Color3.fromRGB(50,50,52),{shape=Enum.PartType.Ball}) end
+  label(cm,"물멍 풀",Vector3.new(-274,FY+5,62))
+  for k=1,3 do box(cm,"SeatTier",-261+(k-1)*4,FY,46,-257+(k-1)*4,FY+k*1.2,78,woodC)
+   for sz=49,75,4 do local pos=Vector3.new(-259+(k-1)*4,FY+k*1.2+0.15,sz) seat(cm,"TierSeat",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.2,1.8),woodC,1) end end
+  -- SOFA LOUNGE (white sofas, round wooden tables), facing the sea
+  local function sofa(cx,cz)
+   box(cm,"SofaBase",cx,FY,cz-5,cx+3,FY+1.6,cz+5,sofaC)
+   box(cm,"SofaBack",cx+3,FY,cz-5,cx+4,FY+3.4,cz+5,sofaC)
+   for _,sz in ipairs({cz-3.2,cz,cz+3.2}) do local pos=Vector3.new(cx+1.5,FY+1.8,sz) seat(cm,"Sofa",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(2.6,0.3,2.8),sofaC) end
+   local tt=cyl(cm,"CoffeeTable",3.4,1.6,Vector3.new(cx-3,FY+0.8,cz),woodC) CS:AddTag(tt,"CafeTable")
+  end
+  sofa(-282,27) sofa(-258,27) sofa(-282,39)
+  -- GRAND PIANO and the long MARBLE TABLE in the north part
+  local piano=M(cm,"GrandPiano",{},{})
+  box(piano,"PianoBody",-290,FY+2.2,82,-284,FY+3.6,89,dark)
+  P(piano,"PianoLid",Vector3.new(6,0.2,7),CFrame.new(-287,FY+5,85.5)*CFrame.Angles(math.rad(-30),0,0),dark,{nocol=true})
+  for _,lp in ipairs({{-289.5,82.5},{-284.5,82.5},{-287,88.5}}) do box(piano,"PianoLeg",lp[1]-0.3,FY,lp[2]-0.3,lp[1]+0.3,FY+2.2,lp[2]+0.3,dark) end
+  box(piano,"Keys",-290,FY+3.3,81.4,-284,FY+3.6,82,Color3.new(1,1,1))
+  do local pos=Vector3.new(-287,FY+1.6,79.6) seat(cm,"PianoBench",CFrame.lookAt(pos,pos+Vector3.new(0,0,1)),Vector3.new(3,0.4,1.4),dark) end
+  box(cm,"MarbleTable",-262,FY+3,86,-242,FY+3.4,92,Color3.fromRGB(240,238,235),{mat=Enum.Material.Marble})
+  for _,lx in ipairs({-261,-243}) do box(cm,"MarbleLeg",lx-0.4,FY,87,lx+0.4,FY+3,91,white) end
+  for k=0,5 do local sx=-259.5+k*3.3
+   for _,side in ipairs({{84.2,1},{93.8,-1}}) do local pos=Vector3.new(sx,FY+1.6,side[1])
+    seat(cm,"TableChair",CFrame.lookAt(pos,pos+Vector3.new(0,0,side[2])),Vector3.new(1.8,0.3,1.8),white) end end
+  -- plants along the north glass
+  box(cm,"Planter",x0+1,FY,z1-4,mx-30,FY+1.4,z1-1,Color3.fromRGB(80,80,80))
+  for px=x0+3,mx-32,4 do P(cm,"Plant",Vector3.new(3,3.6,3),CFrame.new(px,FY+3.2,z1-2.5),Color3.fromRGB(70,140,80),{shape=Enum.PartType.Ball,nocol=true}) end
+  -- warm ceiling lights
+  for _,lp in ipairs({{-280,30},{-280,62},{-280,92},{-252,30},{-252,62},{-220,40}}) do
+   local l=P(cm,"CeilingLight",Vector3.new(1.4,0.3,1.4),CFrame.new(lp[1],FY+H-1.6,lp[2]),Color3.fromRGB(255,230,180),{mat=Enum.Material.Neon,ghost=true})
+   local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,215,160) pl.Range=22 pl.Brightness=0.7 pl.Parent=l end
+  photo(cm,Vector3.new(x0+8,FY,44),"오션뷰 창가")
+  photo(cm,Vector3.new(-274,FY,80),"물멍 풀")
+  -- sunset terrace outside on the south side
+  box(cm,"Terrace",-268,0,z0-12,-230,FY,z0,woodC)
+  do local c=Vector3.new(-249,FY/2,z0-15) P(cm,"TerraceRamp",Vector3.new(14,FY,6),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),woodC,{class="WedgePart"}) end
+  for _,tp in ipairs({{-260,z0-6},{-240,z0-6}}) do
+   cyl(cm,"TerraceTable",3.4,0.3,Vector3.new(tp[1],FY+2.4,tp[2]),Color3.new(1,1,1)) cyl(cm,"TerraceTableLeg",0.4,2.4,Vector3.new(tp[1],FY+1.2,tp[2]),dark)
+   parasol(cm,Vector3.new(tp[1],FY,tp[2]),true,stripeSets[1])
+   for _,dz in ipairs({-2.6,2.6}) do local pos=Vector3.new(tp[1]+dz,FY+1,tp[2]) seat(cm,"TerraceChair",CFrame.lookAt(pos,Vector3.new(-320,FY+1,tp[2])),Vector3.new(1.8,0.3,1.8),Color3.new(1,1,1)) end end
+  local sign=box(cm,"CafeSign",x1+0.05,FY+H-7,44,x1+0.4,FY+H-2,78,dark)
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Brightness=2 g.Parent=sign
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Michroma l.TextColor3=Color3.fromRGB(255,225,170) l.Text="OHU CAFE · SUNSET" l.Parent=g end
-  label(cm,"OHU CAFE · Sunset (오션뷰)",Vector3.new(-225,FY+H+6,45),true)
+  label(cm,"OHU CAFE · Sunset (오션뷰)",Vector3.new(-250,FY+H+6,61),true)
  end
- S(z,"Part","SunsetPier",{80,1,12},{-308,1,80,1,0,0,0,1,0,0,0,1},{160,120,80},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","PhotoSpot",{0.6,8,8},{-343,1.8,80,0,-1,0,1,0,0,0,0,1},{255,159,28},"SmoothPlastic",0,0,"Cylinder",{},{})
- label(z,"★ 석양 피어",Vector3.new(-343,8.5,80),false)
+ S(z,"Part","SunsetPier",{80,1,12},{-308,1,122,1,0,0,0,1,0,0,0,1},{160,120,80},"SmoothPlastic",0,0,nil,{},{})
+ S(z,"Part","PhotoSpot",{0.6,8,8},{-343,1.8,122,0,-1,0,1,0,0,0,0,1},{255,159,28},"SmoothPlastic",0,0,"Cylinder",{},{})
+ label(z,"★ 석양 피어",Vector3.new(-343,8.5,122),false)
  S(z,"Part","DomePier",{60,1,10},{-296,1,-150,1,0,0,0,1,0,0,0,1},{160,120,80},"SmoothPlastic",0,0,nil,{},{})
  S(z,"Part","DreamAquarium_Dome",{90,90,90},{-368,0,-150,1,0,0,0,1,0,0,0,1},{190,230,245},"SmoothPlastic",0.55,1,"Ball",{},{})
  S(z,"Part","DomeFloor",{1,88,88},{-368,0.8,-150,0,-1,0,1,0,0,0,0,1},{60,120,150},"SmoothPlastic",0,0,"Cylinder",{},{})
