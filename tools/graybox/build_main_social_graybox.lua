@@ -1044,16 +1044,22 @@ local z=zone("07_Hanok_Village")
 
  -- perimeter flower walls with the north gate opening (x 168..182)
  flowerWall(Vector3.new(86,0,166),Vector3.new(167,0,166)) flowerWall(Vector3.new(183,0,166),Vector3.new(264,0,166))
- flowerWall(Vector3.new(264,0,166),Vector3.new(264,0,294)) flowerWall(Vector3.new(86,0,294),Vector3.new(264,0,294))
+ flowerWall(Vector3.new(264,0,166),Vector3.new(264,0,294))
+ -- back wall with the second gate opening (x 198..212, user 2026-10-22: 입구 두 개)
+ flowerWall(Vector3.new(86,0,294),Vector3.new(197,0,294)) flowerWall(Vector3.new(213,0,294),Vector3.new(264,0,294))
  flowerWall(Vector3.new(86,0,166),Vector3.new(86,0,294))
- -- GATE (솟을대문): pillars, open doors, roof, cherry trees on both sides
- do local gc=CFrame.lookAt(Vector3.new(175,G,166),Vector3.new(175,G,160))
+ -- GATES (솟을대문): pillars, open doors, roof; main gate + back gate
+ local function gate(pos,out,text)
+  local gc=CFrame.lookAt(pos,pos+out)
   for _,sx in ipairs({-6.5,6.5}) do P(z,"GatePillar",Vector3.new(1.2,10,1.2),gc*CFrame.new(sx,5,0),woodC) end
   P(z,"GateBeam",Vector3.new(14.4,0.8,1.2),gc*CFrame.new(0,9.6,0),woodC)
   for _,sx in ipairs({-1,1}) do P(z,"GateDoor",Vector3.new(0.4,8.4,6),gc*CFrame.new(sx*6.2,4.4,2.9),Color3.fromRGB(140,90,55),{nocol=true}) end
   giwaRoof(z,gc*CFrame.new(0,10,0),14,3,false)
-  label(z,"한옥 마을 · 대문",Vector3.new(175,18,166),true)
+  label(z,text,pos+Vector3.new(0,18-G,0),true)
  end
+ gate(Vector3.new(175,G,166),Vector3.new(0,0,-1),"한옥 마을 · 대문")
+ gate(Vector3.new(205,G,294),Vector3.new(0,0,1),"한옥 마을 · 후문")
+ box(z,"BackGateStone",199,0.5,268,211,0.62,294,Color3.fromRGB(170,165,155),{mat=Enum.Material.Cobblestone})
  cherry(Vector3.new(160,G,160),1.1) cherry(Vector3.new(190,G,160),1.1) cherry(Vector3.new(158,G,172),0.9) cherry(Vector3.new(192,G,172),0.9)
  photo(z,Vector3.new(175,G,176),"한옥 대문")
  -- MAIN ALLEY: stone paving with lanterns, houses on both sides

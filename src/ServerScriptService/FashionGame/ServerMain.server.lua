@@ -41,6 +41,7 @@ if require(game:GetService("ReplicatedStorage").FashionGame.Shared.EconomyConfig
 	require(script.Parent.Services.NameTagService).Start()
 end
 require(script.Parent.Services.SnackService).Start(EconomyService)
+require(script.Parent.Services.SubwayService).Start()
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers

@@ -21,21 +21,24 @@ local function R(deg) return CFrame.Angles(0, math.rad(deg), 0) end
 
 -- zone → world move applied to the zone's built pivot
 -- Map orientation = the Studio top view: screen up = -Z ("north"), right = +X (east).
+-- v4b (user 2026-10-22: "거리 및 사이즈 1/3, 너무 멀어" → gaps, roads and the
+-- roundabout at about 1/3, building sizes unchanged). Roundabout centre C.
+local C = Vector3.new(-60, 0, 0)
 local MOVES = {
-	-- club north-east of the roundabout, entrance + neon facing west onto the north road
-	["02_Club"] = CFrame.new(110, 0, -193) * R(-90) * CFrame.new(0, 0, 210),
+	-- club north-east of the roundabout, entrance + neon facing west onto the club street
+	["02_Club"] = CFrame.new(22, 0, -145) * R(-90) * CFrame.new(0, 0, 210),
 	-- fashion week runway right behind the club (show / concert space), runway toward the club
-	["03_Rooftop_Backstage"] = CFrame.new(110, 0, -380) * R(180) * CFrame.new(-125, 0, 160),
-	-- hanok village south-east, gate facing east (morning sun)
-	["07_Hanok_Village"] = CFrame.new(158, 0, 213) * R(-90) * CFrame.new(-175, 0, -230),
+	["03_Rooftop_Backstage"] = CFrame.new(22, 0, -337) * R(180) * CFrame.new(-125, 0, 160),
+	-- hanok village south-east: main gate east (morning sun), back gate west
+	["07_Hanok_Village"] = CFrame.new(65, 0, 120) * R(-90) * CFrame.new(-175, 0, -230),
 	-- 인생네컷 between the roundabout and the east, below the club
-	["08_PhotoBooth"] = CFrame.new(128, 0, -48) * CFrame.new(-205, 0, 112),
-	-- park rides north-west
-	["06_Park_Playground"] = CFrame.new(-499, 0, -186),
+	["08_PhotoBooth"] = CFrame.new(2, 0, -35) * CFrame.new(-205, 0, 112),
+	-- park rides north-west (west part over the beach, as in the drawing)
+	["06_Park_Playground"] = CFrame.new(-500, 0, -135),
 	-- Glasshouse cafe south-west, long side along the road, terrace toward the road (north)
-	["05_Cafe"] = CFrame.new(-134, 0, 230) * R(-90) * CFrame.new(130, 0, -185),
+	["05_Cafe"] = CFrame.new(-128, 0, 145) * R(-90) * CFrame.new(130, 0, -185),
 }
-local HOLE = { 50, -273, 170, -113 } -- club ground hole x0, z0, x1, z1 (follows 02_Club)
+local HOLE = { -38, -225, 82, -65 } -- club ground hole x0, z0, x1, z1 (follows 02_Club)
 -- set aside while the layout is applied (restored by revert): the whole old
 -- ring plaza (the roundabout replaces it), old paths, old ground pieces
 local function shouldHide(zn, p)
@@ -174,50 +177,62 @@ local function block(name, x0, z0, x1, z1, h, color, text, textColor)
 end
 
 local ASPHALT = Color3.fromRGB(110, 110, 115)
-local W = 30 -- main road width
+local W = 10 -- main road width (1/3 of v4)
+local CS = game:GetService("CollectionService")
 
 -- roundabout: asphalt ring around a round lawn (cylinders lying with the axis up)
 local UP = CFrame.Angles(0, 0, math.rad(90))
-part("Roundabout", Vector3.new(0.14, 156, 156), CFrame.new(0, 0.07, 0) * UP, ASPHALT, { shape = Enum.PartType.Cylinder, material = Enum.Material.Asphalt })
-local lawn = part("RoundaboutLawn", Vector3.new(0.6, 76, 76), CFrame.new(0, 0.3, 0) * UP, Color3.fromRGB(90, 170, 80), { shape = Enum.PartType.Cylinder, material = Enum.Material.Grass })
+part("Roundabout", Vector3.new(0.14, 52, 52), CFrame.new(C.X, 0.07, C.Z) * UP, ASPHALT, { shape = Enum.PartType.Cylinder, material = Enum.Material.Asphalt })
+local lawn = part("RoundaboutLawn", Vector3.new(0.6, 26, 26), CFrame.new(C.X, 0.3, C.Z) * UP, Color3.fromRGB(90, 170, 80), { shape = Enum.PartType.Cylinder, material = Enum.Material.Grass })
 label(lawn, "잔디밭", Color3.fromRGB(40, 110, 40), 4, 0.6)
 
--- roads (from the drawing)
-strip("Road_West", Vector2.new(-70, -5), Vector2.new(-198, -5), W, ASPHALT)
-strip("Road_Beach", Vector2.new(-183, -80), Vector2.new(-183, 371), 26, ASPHALT)
-strip("Road_North", Vector2.new(-5, -70), Vector2.new(-5, -330), W, ASPHALT)
-strip("Road_South", Vector2.new(0, 70), Vector2.new(0, 371), W, ASPHALT)
-strip("Road_East", Vector2.new(70, 0), Vector2.new(330, 0), W, ASPHALT)
-strip("Road_SouthWest", Vector2.new(-183, 137), Vector2.new(30, 137), 22, ASPHALT)
-strip("Road_EastNS", Vector2.new(183, -15), Vector2.new(183, -300), 24, ASPHALT)
-strip("Road_NorthEast", Vector2.new(171, -192), Vector2.new(330, -192), 24, ASPHALT)
-strip("HanokLane", Vector2.new(250, 15), Vector2.new(250, 213), 14, Color3.fromRGB(185, 160, 122))
-strip("HanokLane2", Vector2.new(257, 213), Vector2.new(222, 213), 14, Color3.fromRGB(185, 160, 122))
-local clubStreet = strip("ClubStreet", Vector2.new(30, -113), Vector2.new(30, -273), 38, Color3.fromRGB(110, 85, 160))
+-- roads (the drawing, gaps at about 1/3)
+strip("Road_West", Vector2.new(-84, 0), Vector2.new(-190, 0), W, ASPHALT)
+strip("Road_Beach", Vector2.new(-190, -5), Vector2.new(-190, 300), W, ASPHALT)
+strip("Road_North", Vector2.new(-60, -24), Vector2.new(-60, -230), W, ASPHALT)
+strip("Road_South", Vector2.new(-60, 24), Vector2.new(-60, 300), W, ASPHALT)
+strip("Road_East", Vector2.new(-36, 0), Vector2.new(155, 0), W, ASPHALT)
+strip("Road_SouthWest", Vector2.new(-190, 70), Vector2.new(-60, 70), W, ASPHALT)
+strip("Road_EastNS", Vector2.new(92, -5), Vector2.new(92, -230), W, ASPHALT)
+strip("Road_NorthEast", Vector2.new(92, -180), Vector2.new(152, -180), W, ASPHALT)
+local LANE = Color3.fromRGB(185, 160, 122)
+strip("HanokLane_East", Vector2.new(145, 5), Vector2.new(145, 120), 8, LANE)
+strip("HanokLane_East2", Vector2.new(149, 120), Vector2.new(129, 120), 8, LANE)
+strip("HanokLane_West", Vector2.new(-55, 150), Vector2.new(1, 150), 8, LANE)
+local clubStreet = strip("ClubStreet", Vector2.new(-44.5, -65), Vector2.new(-44.5, -225), 13, Color3.fromRGB(110, 85, 160))
 clubStreet.Material = Enum.Material.SmoothPlastic
 label(clubStreet, "클럽거리 (잔다리로)", Color3.fromRGB(160, 110, 230), 3, 0.8)
 
 -- background buildings (진입불가, red boxes in the drawing)
 local BG = Color3.fromRGB(200, 190, 185)
-block("BG_Building(진입불가)", 200, -280, 300, -212, 30, BG, "가짜 건물")
-block("BG_Building(진입불가)", 205, -172, 300, -22, 26, BG, "가짜 건물")
-block("BG_Building(진입불가)", -60, 92, -23, 123, 16, BG, "가짜 건물")
-block("BG_Building(진입불가)", -58, 162, -18, 370, 24, BG, "가짜 건물")
+block("BG_Building(진입불가)", 102, -225, 152, -190, 30, BG, "가짜 건물")
+block("BG_Building(진입불가)", 102, -170, 152, -10, 26, BG, "가짜 건물")
+block("BG_Building(진입불가)", -88, 40, -70, 60, 16, BG, "가짜 건물")
+block("BG_Building(진입불가)", -95, 80, -70, 200, 24, BG, "가짜 건물")
+-- between exit 2 and the hanok village: may become the prop shop later
+block("BG_Building(소품샵 예정)", -45, 34, -8, 62, 16, Color3.fromRGB(235, 205, 190), "가짜 건물 (소품샵 예정)")
 -- convenience store (blue box in the drawing)
-block("ConvenienceStore", -158, 25, -80, 115, 12, Color3.fromRGB(120, 190, 235), "편의점", Color3.fromRGB(30, 100, 170))
+block("ConvenienceStore", -140, 12, -95, 55, 12, Color3.fromRGB(120, 190, 235), "편의점", Color3.fromRGB(30, 100, 170))
 
--- subway exits at the roundabout corners (stair kiosks; the concourse comes later)
+-- subway exits at the roundabout corners: step on the pad → "몇 번 출구로
+-- 가시겠습니까?" (SubwayService). Tag SubwayExit, ExitNumber, ExitName, Out.
 local EXITS = {
-	{ "1", "클럽", Color3.fromRGB(255, 122, 214), 28, -96 },
-	{ "2", "한옥 마을", Color3.fromRGB(185, 135, 74), 110, 45 },
-	{ "3", "공원 놀이기구", Color3.fromRGB(76, 175, 80), -100, -35 },
-	{ "4", "해변 · 카페", Color3.fromRGB(42, 143, 179), -70, 28 },
+	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 24, -24 },
+	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 24, 24 },
+	{ 3, "공원 놀이기구", Color3.fromRGB(76, 175, 80), -24, -24 },
+	{ 4, "해변 · 카페", Color3.fromRGB(42, 143, 179), -24, 24 },
 }
 for _, e in ipairs(EXITS) do
-	local k = part("Exit" .. e[1], Vector3.new(10, 7, 8), CFrame.new(e[4], 3.5, e[5]), Color3.fromRGB(46, 125, 50), { transparency = 0.2 })
-	label(k, e[1] .. "번 출구 · " .. e[2], e[3], 6, 0.8)
+	local pos = C + Vector3.new(e[4], 0, e[5])
+	local out = Vector3.new(e[4], 0, e[5]).Unit
+	local pad = part("SubwayExit" .. e[1], Vector3.new(8, 0.4, 8), CFrame.lookAt(pos + Vector3.new(0, 0.2, 0), pos + Vector3.new(0, 0.2, 0) + out), e[3], { material = Enum.Material.Neon })
+	pad:SetAttribute("ExitNumber", e[1])
+	pad:SetAttribute("ExitName", e[2])
+	pad:SetAttribute("Out", out)
+	CS:AddTag(pad, "SubwayExit")
+	local sign = part("ExitSign" .. e[1], Vector3.new(1, 8, 1), CFrame.new(pos - out * 5 + Vector3.new(0, 4, 0)), Color3.fromRGB(46, 125, 50))
+	label(sign, e[1] .. "번 출구 · " .. e[2], e[3], 6, 0.8)
 end
-
 -- sunset photo frame at the end of the north pier, facing the sea (west)
 local frameCol = Color3.fromRGB(255, 150, 90)
 local px, pz = -344, 80
@@ -229,7 +244,7 @@ label(top, "석양 포토 스팟 (서쪽 바다)", frameCol, 4, 0.8)
 -- spawn on the lawn in the middle of the roundabout
 if spawn then
 	if not spawn:GetAttribute("OldPosition") then spawn:SetAttribute("OldPosition", spawn.Position) end
-	spawn.CFrame = CFrame.new(0, 1.1, 0)
+	spawn.CFrame = CFrame.new(C.X, 1.1, C.Z)
 end
 T.Parent = workspace
-return "applied v4 (user's drawing), MODE=revert to undo"
+return "applied v4b (user's drawing, gaps 1/3), MODE=revert to undo"
