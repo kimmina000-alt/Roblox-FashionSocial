@@ -9,7 +9,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - Studio MCP: `execute_luau` from the command bar `require`s a separate copy of ModuleScripts. Test through remotes from the Client datamodel instead.
 - Sync without Rojo (2026-10-22): serve the scratchpad with a small PowerShell HttpListener on localhost:8765, then in Edit mode switch `HttpService.HttpEnabled` on, `GetAsync` the file, `ScriptEditorService:UpdateSourceAsync` (or `loadstring` a graybox zone), and switch it back off. Much cheaper than pasting code into tool calls. `scratchpad/zones.ps1 -Zones 02_Club,...` writes only the chosen graybox zones. MCP cannot stop a multi-client (2-player) test; ask the user to restart it after code changes. Never run an execute_luau longer than ~60 s: on timeout MCP restores the camera it saw at the start (e.g. a Scriptable booth camera).
 
-## Where things stand (2026-10-22)
+## Where things stand (2026-10-22, late)
 - Merged in `catalog-ui-redesign`: catalog, avatar editor, wardrobe, QA pass, graybox layout C, and (2026-10-22, user approved) everything from `feat/coins-layout-1022` below.
 - Not merged (stacked, waiting for the user's play test):
   - `feat/club-mvp-stage4` → `feat/club-vip-dj-drinks` → `feat/photobooth-club2` (latest; includes everything).
@@ -24,16 +24,19 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-10-22 (4): 야호 voice (130278670102424), toolbox cherry trees in the hanok village (ServerStorage FallingBlossomCherryTree), mobile 2P ride test passed. Rule: show Creator Store candidates before placing (D-082); test as mobile 2P.
 - 2026-10-22 (5): coins 1/min + XP locked (D-083), movable buildings (D-084, tools/graybox/LAYOUT.md), product SKUs (D-085, PRODUCTS.md), layout rounds v1→v7b (D-086..D-093, HONGDAE_LAYOUT.md).
 - 2026-10-22 (6), merged: day/night cycle (D-088, 1 day = 1 min in Studio), map orientation = Studio top view, screen up = -Z (D-089), subway exits = stair pits with the picker pad on the bottom landing + bus stops (SubwayService, tags SubwayExit / BusStop, D-090/D-094), convenience store with auto doors (AutoDoorController), beach cafe v2 glass box (D-092), 강남 사거리 / 광안리 seafront / 광화문 / park gate inside the user's red box (D-093, v7b), 9 Creator Store cars (ServerStorage.Cars), club entry fix (ClubAccessService ignores tagged copies outside Workspace; the ServerStorage map backup has its tags parked in BackupTags). Mobile 2P regression test passed (WORKLOG 2026-10-22 (6)).
+- 2026-10-22 (7), merged into `catalog-ui-redesign` (user approved): DJ "디제잉하기" prompt + light colours + IK DJ motion + left/right popups on phones + DJ lift (hips level with the turntable top, D-097) + LED wall DJ screen with 📺 on/off (D-095/D-096); both LED pillars show the same player; pillar and DJ screen copies follow outfit changes; popups start below the top bar (`TopBar.bottom()`) and only one popup is open at a time (`Popups.lua`, D-098); cafe part-time job (CafeJobService/Controller, CafeJobConfig, CAFE.md §9, D-099) with 알바 XP saved apart from capped coins (`wallet.jobs.cafe`, D-100). Mobile 2P tests passed (WORKLOG (8)–(11)).
+- Studio is now on placeId 97823572137260 ("cortis_ian의 장소: 10222026_1"), not the original 108570975325527: confirm with the user which place to publish.
 - The street layout is applied by `tools/graybox/hongdae_v1_temp.lua` (MODE apply/revert) into Workspace.Hongdae_v1_Temp; it is not yet folded into build_main_social_graybox.lua. The Studio place must be saved for it to stay.
-- Open items: real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip.
+- Open items: real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip, friend-look NPC customers only checkable in a live game (Studio test players have no friends), 알바 levels on top of job XP.
+- Proposed, waiting for the user: club dress-code event with a door guard (colour dress code read from worn items).
 - Next: fold the v7b layout into the graybox script when the user confirms it → 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9). User to check on a phone: 🏠 button, booth picking + copies step by hand.
 - Start of next session: push works from this machine now (Git Credential Manager has the login). Check the Studio place was saved (graybox zones live in Workspace only). Ask whether to apply economy v2 coins in code.
 
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
-- `docs/06_LOG/DECISIONS.md`: D-001 to D-094.
+- `docs/06_LOG/DECISIONS.md`: D-001 to D-100.
 - `docs/06_LOG/ISSUES.md`, `WORKLOG.md`, `CHANGELOG.md`.
-- `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`.
+- `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`, `docs/02_WORLDS/CAFE.md` (§9 part-time job).
 - `docs/02_WORLDS/HONGDAE_LAYOUT.md` (current layout v7b + history), `MAIN_SOCIAL_LAYOUT_PROPOSAL.md`, `CLUB_AREA.md`.
 
 ## Rules learned
@@ -49,3 +52,4 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - Keep angles small before CFrame.Angles (single precision): use (t / period) % 1 with the server clock.
 - Copies kept in ServerStorage still carry CollectionService tags: services that act on positions must only use tagged instances inside Workspace.
 - Studio test windows in the background run slowly: keep MCP execute_luau calls short (no long waits) during 2P tests.
+- MCP mouse clicks do not reach GUI buttons in phone emulation: set `GuiService.SelectedObject` to the button and send Return. Prompts: `InputHoldBegin/End` (WaitForChild first: children replicate late). Teleporting onto a seat sits the character on the server; unsit before the next teleport.

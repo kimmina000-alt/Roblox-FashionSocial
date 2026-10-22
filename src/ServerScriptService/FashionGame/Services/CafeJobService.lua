@@ -287,6 +287,7 @@ local function newCup(shopKey: string, at: Vector3, item: SnackConfig.Item?): Pa
 		-- a drink with some left: only once its owner has left the cafe (user, 2026-10-22)
 		if cup:GetAttribute("Owner") ~= nil and not cup:GetAttribute("Clearable") then return end
 		cup:Destroy()
+		economy.AddJobXP(player, CafeJobConfig.JobKey, "cleaned", CafeJobConfig.CleanXP)
 		economy.Earn(player, CafeJobConfig.CleanCoins, "CafeJob", CafeJobConfig.DailyCap, "테이블 정리")
 		player:SetAttribute("CafeJobEarned", economy.Earned(player, "CafeJob"))
 	end)
@@ -732,6 +733,8 @@ local function serve(player: Player, id: any): (boolean, string?)
 			toast(customer, string.format("☕ %s님이 %s 가져다 줬어요!", player.DisplayName, item.name))
 		end
 	end
+	-- job XP every serve, also after the daily coin cap (D-100)
+	economy.AddJobXP(player, CafeJobConfig.JobKey, "served", CafeJobConfig.ServeXP)
 	local given = 0
 	if pay then
 		given = economy.Earn(player, CafeJobConfig.ServeCoins, "CafeJob", CafeJobConfig.DailyCap, "음료 서빙")

@@ -1,3 +1,10 @@
+## 2026-10-22 (4) — DJ fixes, one popup at a time, cafe part-time job (feat/dj-console-1022)
+- TopBar.bottom(): every popup starts below the top-bar buttons (phones with a 0 inset too).
+- New Popups module: opening a window closes the previous one (catalog, album, dance, DJ/music, 📸, player card, photo wall, booth setup/result, snacks, subway/bus, club shop).
+- ClubScreenService: both LED pillars show the same player. ClubLightsController / DJScreenController: avatar copies rebuilt ~0.4 s after an outfit change.
+- DjService: the DJ lift puts the hips (top of the upper legs) level with the turntable top (max 8).
+- New cafe part-time job: CafeJobConfig, CafeJobService, CafeJobController, remote CafeJob; SnackService order/finished hooks + Give/MakeTool; EconomyService.Earn (daily cap) and AddJobXP; PlayerDataService wallet.jobs; ClubService refuses sitting during a shift.
+- Docs: CAFE.md §9, ECONOMY.md §8, DJ_SYSTEM.md, CLUB.md, DATA_SCHEMA.md, D-097–D-100, WORKLOG (8)–(10).
 ## 2026-10-22 (3) — Booth host picking + copies, live front pillars, ride fixes
 - PhotoBoothService: picker, PickUpdate/Confirm/SaveCopies, "copies" phase, auto-save 1 copy; PhotoConfig CopySeconds/MaxCopies/ExtraCopyCoins.
 - PhotoBoothController: watch mode, copies step; new PhotoCopiesPanel module.

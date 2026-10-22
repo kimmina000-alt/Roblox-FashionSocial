@@ -254,7 +254,8 @@ render = function()
 	pill.Text = string.format("☕ 알바 중 · 주문 %d", #orders)
 	local shopInfo = SnackConfig.Shops[shop]
 	title.Text = "☕ " .. (if shopInfo then shopInfo.title else "주문 목록")
-	earnedLabel.Text = string.format("오늘 알바 %s %d / %d", EconomyConfig.Icon, earned, CafeJobConfig.DailyCap)
+	local xp = player:GetAttribute("JobXP_" .. CafeJobConfig.JobKey)
+	earnedLabel.Text = string.format("오늘 %s %d / %d · 알바 XP %d", EconomyConfig.Icon, earned, CafeJobConfig.DailyCap, if typeof(xp) == "number" then xp else 0)
 	if not panel.Visible then return end
 	for _, child in ipairs(list:GetChildren()) do
 		if child:IsA("Frame") or child:IsA("TextLabel") then child:Destroy() end
@@ -507,6 +508,7 @@ player.CharacterAdded:Connect(onCharacter)
 
 FashionGame:GetAttributeChangedSignal("CafeOrders"):Connect(render)
 player:GetAttributeChangedSignal("CafeJobEarned"):Connect(render)
+player:GetAttributeChangedSignal("JobXP_" .. CafeJobConfig.JobKey):Connect(render)
 if workspace.CurrentCamera then
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(layout)
 end

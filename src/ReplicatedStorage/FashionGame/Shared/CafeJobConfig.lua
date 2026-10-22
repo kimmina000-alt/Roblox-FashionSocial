@@ -17,6 +17,12 @@ CafeJobConfig.ServeCoins = 4
 CafeJobConfig.CleanCoins = 2
 CafeJobConfig.DailyCap = 60 -- serving + cleaning, per player per day (UTC)
 
+-- 알바 XP (user, 2026-10-22, D-100): saved for good, no daily cap; job levels
+-- will be built on it later (PlayerData wallet.jobs[JobKey] = { xp, served, cleaned }).
+CafeJobConfig.JobKey = "cafe"
+CafeJobConfig.ServeXP = 1
+CafeJobConfig.CleanXP = 1
+
 CafeJobConfig.MakeSeconds = 2.5 -- making a drink at the counter
 CafeJobConfig.CounterDistance = 7 -- start work / make drinks this close to the work counter (BackCounter)
 CafeJobConfig.ServeDistance = 9 -- hand the drink over this close to the customer

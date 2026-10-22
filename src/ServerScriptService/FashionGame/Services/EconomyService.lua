@@ -54,6 +54,9 @@ local function publish(player: Player)
 	player:SetAttribute("XP", w.xp or 0)
 	player:SetAttribute("OwnedFrames", HttpService:JSONEncode(w.frames))
 	player:SetAttribute("AlbumSlots", w.slots)
+	for job, record in pairs(w.jobs or {}) do
+		player:SetAttribute("JobXP_" .. job, record.xp)
+	end
 end
 EconomyService.Publish = publish
 
@@ -97,6 +100,28 @@ function EconomyService.Earn(player: Player, amount: number, capKey: string, cap
 	add(player, given)
 	toast(player, string.format("%s +%d %s · %s", EconomyConfig.Icon, given, EconomyConfig.CurrencyName, text))
 	return given
+end
+
+-- Part-time job XP (D-100): saved per job, never capped (the coins are, per
+-- day). Base for job levels later. Shown as player attribute JobXP_<job>.
+function EconomyService.AddJobXP(player: Player, job: string, field: string, xp: number): number
+	local w = playerData.Wallet(player)
+	w.jobs = w.jobs or {}
+	local record = w.jobs[job]
+	if not record then
+		record = { xp = 0, served = 0, cleaned = 0 }
+		w.jobs[job] = record
+	end
+	record.xp += xp
+	if field == "served" or field == "cleaned" then record[field] += 1 end
+	playerData.MarkDirty(player)
+	player:SetAttribute("JobXP_" .. job, record.xp)
+	return record.xp
+end
+
+function EconomyService.JobXP(player: Player, job: string): number
+	local jobs = playerData.Wallet(player).jobs
+	return if jobs and jobs[job] then jobs[job].xp else 0
 end
 
 function EconomyService.Earned(player: Player, capKey: string): number

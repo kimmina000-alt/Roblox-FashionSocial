@@ -40,3 +40,6 @@ Status: design only; implementation and rejoin persistence are not confirmed.
 
 ## Deferred Schema
 House / furniture placement / structural customization are deferred and should not be represented as current MVP requirements.
+
+## wallet.jobs — 알바 기록 (2026-10-22, D-100)
+`wallet.jobs[job] = { xp: number, served: number, cleaned: number }` (job: `"cafe"`). 정수, 0 이상, 줄지 않음. 로드 때 `sanitizeWallet`가 검사. 코인 일일 상한과 관계없이 쌓이는 영구 기록이며, 나중에 알바 레벨의 기준이 된다.

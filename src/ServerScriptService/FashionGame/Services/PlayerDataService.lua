@@ -49,8 +49,11 @@ type Outfit = { id: string, name: string, createdAt: number, snapshot: any }
 -- the data to redraw the shots, never as images.
 -- Album: PhotoConfig.MaxPhotos free slots + bought slots (wallet.slots).
 PlayerDataService.MaxPhotos = PhotoConfig.MaxPhotos
--- Wallet (D-064): coins, unlocked frames, bought album slots, daily counters.
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} } }
+-- Wallet (D-064): coins, unlocked frames, bought album slots, daily counters,
+-- part-time job records (D-100): jobs[job] = { xp, served, cleaned }, never
+-- capped (only the coins are, per day), for job levels later.
+export type JobRecord = { xp: number, served: number, cleaned: number }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord} }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -125,7 +128,7 @@ local function sanitizePhotos(list: any): {any}
 end
 
 local function sanitizeWallet(raw: any): Wallet
-	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} } }
+	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} }, jobs = {} }
 	if typeof(raw) ~= "table" then return wallet end
 	if typeof(raw.coins) == "number" and raw.coins == raw.coins then
 		wallet.coins = math.clamp(math.floor(raw.coins), 0, 99999)
@@ -148,6 +151,16 @@ local function sanitizeWallet(raw: any): Wallet
 		wallet.daily.day = raw.daily.day
 		for key, value in pairs(raw.daily.counts) do
 			if typeof(key) == "string" and typeof(value) == "number" then wallet.daily.counts[key] = value end
+		end
+	end
+	if typeof(raw.jobs) == "table" then
+		for job, record in pairs(raw.jobs) do
+			if typeof(job) == "string" and typeof(record) == "table" then
+				local function count(value: any): number
+					return if typeof(value) == "number" and value == value then math.max(0, math.floor(value)) else 0
+				end
+				wallet.jobs[job] = { xp = count(record.xp), served = count(record.served), cleaned = count(record.cleaned) }
+			end
 		end
 	end
 	return wallet
