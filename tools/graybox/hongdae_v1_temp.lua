@@ -622,7 +622,7 @@ end
 -- north road: west side stays narrow along the park's red box; east side
 -- reaches the club / photo booth fronts (49)
 bigRoad(Vector3.new(0, 0, -1), 470, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 48, 12 }, { 66, 20 } }, { [-1] = 34, [1] = 49 }) -- north
-bigRoad(Vector3.new(0, 0, 1), 300, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 48, 20 }, { 120, -12 } }) -- south
+bigRoad(Vector3.new(0, 0, 1), 640, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 48, 20 }, { 120, -12 } }) -- south (past the boundary at 299: the street goes on, D-110)
 bigRoad(Vector3.new(1, 0, 0), 260, {}, { { 46, 12 }, { 64, 12 }, { 90, -20 } }) -- east
 bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 48, 20 }, { 80, -12 } }) -- west, to the seafront road
 
@@ -1328,8 +1328,10 @@ do
 	B.Parent = T
 	-- polygon (x, z), clockwise from the north-west corner in the sea
 	local P = {
-		{ -305, -371 }, { -151, -371 }, { -151, -479 }, { -35, -479 }, { -35, -374 }, { 59, -374 }, { 59, -265 },
-		{ 177, -265 }, { 177, 52 }, { 220, 52 }, { 220, 224 }, { 93, 224 }, { 93, 299 }, { -50, 299 }, { -50, 109 },
+		-- 2026-10-23 (2): the beach road is closed further south (z -300)
+		{ -305, -300 }, { -151, -300 }, { -151, -479 }, { -35, -479 }, { -35, -374 }, { 59, -374 }, { 59, -265 },
+		-- the hanok village keeps its own walls; this keeps players next to it
+		{ 177, -265 }, { 177, 47 }, { 232, 47 }, { 232, 234 }, { 97, 234 }, { 97, 299 }, { -50, 299 }, { -50, 109 },
 		{ -89, 109 }, { -89, 218 }, { -151, 218 }, { -151, 237 }, { -305, 237 },
 	}
 	for i = 1, #P do
@@ -1342,35 +1344,24 @@ do
 		w.CastShadow = false
 	end
 
-	-- 기와 돌담 (photo: cut-stone wall, granite plinth, dark tiled roof)
-	local stoneC, plinthC, tileC = Color3.fromRGB(222, 216, 202), Color3.fromRGB(196, 192, 182), Color3.fromRGB(70, 72, 76)
-	local function giwaWall(a: Vector3, b: Vector3, out: Vector3)
-		local G = Instance.new("Model")
-		G.Name = "GiwaStoneWall"
-		G.Parent = T
+	-- the hanok village's own wall (granite base, red brick, slate coping)
+	-- continued to the end of the map along its north and west lines
+	-- (user 2026-10-23, the light-blue lines): north toward the east, and a
+	-- 돌담길 along the south road side
+	local function hanokWall(a: Vector3, b: Vector3)
+		local W = Instance.new("Model")
+		W.Name = "HanokWallExtension"
+		W.Parent = T
 		local len = (b - a).Magnitude
-		local base = (a + b) / 2 + out * 1.6
-		local cf = CFrame.lookAt(base, base + (b - a))
-		local H = 10
-		part("WallPlinth", Vector3.new(2.6, 1.4, len), cf * CFrame.new(0, 0.7, 0), plinthC, { parent = G, material = Enum.Material.Granite })
-		local body = part("WallStone", Vector3.new(2.2, H - 1.4, len), cf * CFrame.new(0, 1.4 + (H - 1.4) / 2, 0), stoneC, { parent = G, material = Enum.Material.Brick })
-		body.MaterialVariant = ""
-		part("WallCap", Vector3.new(3.4, 0.4, len + 0.4), cf * CFrame.new(0, H + 0.2, 0), Color3.fromRGB(60, 60, 64), { parent = G })
-		for _, s in ipairs({ -1, 1 }) do
-			part("WallRoof", Vector3.new(2.2, 1.3, len + 0.6), cf * CFrame.new(s * 1.1, H + 1.05, 0) * CFrame.Angles(0, if s > 0 then math.rad(180) else 0, 0), tileC, { parent = G, class = "WedgePart", material = Enum.Material.Slate })
-		end
-		part("WallRidge", Vector3.new(0.7, 0.6, len + 0.8), cf * CFrame.new(0, H + 1.9, 0), Color3.fromRGB(40, 40, 44), { parent = G })
-		-- tile ribs
-		for t = -len / 2 + 0.6, len / 2 - 0.6, 1.2 do
-			for _, s in ipairs({ -1, 1 }) do
-				part("RoofRib", Vector3.new(1.9, 0.18, 0.22), cf * CFrame.new(s * 1.15, H + 1.1, t) * CFrame.Angles(0, 0, s * math.rad(-30)), Color3.fromRGB(52, 54, 58), { parent = G, nocol = true })
-			end
-		end
+		local mid = (a + b) / 2
+		local cf = CFrame.lookAt(mid, mid + (b - a))
+		part("WallGranite", Vector3.new(1.4, 2.6, len), cf * CFrame.new(0, 1.8, 0), Color3.fromRGB(205, 200, 188), { parent = W, material = Enum.Material.Slate })
+		part("WallBrick", Vector3.new(1.4, 1.4, len), cf * CFrame.new(0, 3.8, 0), Color3.fromRGB(165, 75, 55), { parent = W, material = Enum.Material.Brick })
+		part("WallCoping", Vector3.new(2.6, 0.5, len + 0.6), cf * CFrame.new(0, 4.8, 0), Color3.fromRGB(55, 58, 64), { parent = W, material = Enum.Material.Slate })
+		part("WallCopingRidge", Vector3.new(0.7, 0.5, len + 0.6), cf * CFrame.new(0, 5.2, 0), Color3.fromRGB(45, 47, 52), { parent = W })
 	end
-	giwaWall(Vector3.new(177, 0, 52), Vector3.new(220, 0, 52), Vector3.new(0, 0, -1))
-	giwaWall(Vector3.new(220, 0, 52), Vector3.new(220, 0, 224), Vector3.new(1, 0, 0))
-	giwaWall(Vector3.new(220, 0, 224), Vector3.new(93, 0, 224), Vector3.new(0, 0, 1))
-
+	hanokWall(Vector3.new(225.7, 0, 49), Vector3.new(700, 0, 49))
+	hanokWall(Vector3.new(97, 0, 227.7), Vector3.new(97, 0, 700))
 	-- fake shop buildings (photos: stacked shop signs on every floor, glass
 	-- and stone facade, ground-floor shops). Walls only, nobody goes in.
 	local SHOPS = {
@@ -1443,29 +1434,34 @@ do
 		end
 		part("Roof", Vector3.new(width + 1, 1, depth + 1), cf * CFrame.new(0, height + 0.5, 0), Color3.fromRGB(90, 90, 95), { parent = M })
 	end
-	-- south: across the end of the south road, shops facing the player (north)
-	for i, b in ipairs({ { -38, 22, 52 }, { 38, 26, 64 }, { 66, 26, 46 }, { -66, 24, 58 } }) do
-		fakeBuilding(Vector3.new(b[1], 0, 316), b[2], 26, b[3], Vector3.new(0, 0, -1))
+	-- south road (it runs on to z 640 with trees, sidewalks and bike lane,
+	-- bigRoad): the beach side gets a row of shops set back from the
+	-- sidewalk; the hanok side stays an empty lot up to the 돌담길
+	local hgt = { 44, 58, 38, 66, 50, 42, 60, 48 }
+	for i, zz in ipairs({ 316, 352, 388, 424, 460, 496, 532, 568 }) do
+		fakeBuilding(Vector3.new(-72, 0, zz), 34, 22, hgt[i], Vector3.new(1, 0, 0))
 	end
-	-- the street goes on: shops on both sides, a tall block closing the view
-	for _, zz in ipairs({ 352, 388 }) do
-		fakeBuilding(Vector3.new(-42, 0, zz), 34, 30, 40 + (zz % 3) * 8, Vector3.new(1, 0, 0))
-		fakeBuilding(Vector3.new(42, 0, zz), 34, 30, 48 - (zz % 3) * 6, Vector3.new(-1, 0, 0))
+	-- beach road, south of the Glasshouse cafe: shops facing the sea
+	for i, zz in ipairs({ 262, 298, 334, 370, 406, 442, 478, 514, 550, 586, 622 }) do
+		fakeBuilding(Vector3.new(-134, 0, zz), 34, 22, hgt[(i % #hgt) + 1], Vector3.new(-1, 0, 0))
 	end
-	fakeBuilding(Vector3.new(0, 0, 440), 90, 30, 90, Vector3.new(0, 0, -1))
-	-- north: along the north road behind the boundary, facing the road
-	fakeBuilding(Vector3.new(54, 0, -400), 10, 24, 46, Vector3.new(-1, 0, 0))
-	fakeBuilding(Vector3.new(54, 0, -440), 10, 24, 58, Vector3.new(-1, 0, 0))
-	-- the south road carries on past the boundary (the view goes on)
-	box("Road", -24, 0, 300, 24, 0.12, 420, ASPHALT, { material = Enum.Material.Asphalt })
-	for _, v in ipairs({ -0.45, 0.45 }) do paint("CenterLine", v - 0.2, 300, v + 0.2, 420, YELLOW) end
+	-- next to the club, along the north road (hides the future runway lot)
+	for i, zz in ipairs({ -285, -320, -355, -410, -446 }) do
+		fakeBuilding(Vector3.new(67, 0, zz), 34, 16, hgt[(i + 3) % #hgt + 1], Vector3.new(-1, 0, 0))
+	end
 
 	-- the beach goes on north and south past the boundary
 	local sandY = -BEACH_DROP + 0.6
-	box("BeachSand", -268, sandY - 1.2, -900, -204, sandY, -480, Color3.fromRGB(232, 214, 165), { material = Enum.Material.Sand })
-	box("BeachSand", -268, sandY - 1.2, 250, -204, sandY, 800, Color3.fromRGB(232, 214, 165), { material = Enum.Material.Sand })
+	box("BeachSand", -268, sandY - 1.2, -900, -198, sandY, -480, Color3.fromRGB(232, 214, 165), { material = Enum.Material.Sand })
+	box("BeachSand", -268, sandY - 1.2, 250, -198, sandY, 800, Color3.fromRGB(232, 214, 165), { material = Enum.Material.Sand })
 	for _, seg in ipairs({ { -900, -480 }, { 300, 800 } }) do
-		box("Promenade", -204, 0, seg[1], -182, CURB, seg[2], Color3.fromRGB(175, 135, 120), { material = Enum.Material.Brick })
+		box("Promenade", -198, 0, seg[1], -182, CURB, seg[2], Color3.fromRGB(175, 135, 120), { material = Enum.Material.Brick })
+		-- the steps down to the sand go on to the end (user 2026-10-23)
+		local wood = Color3.fromRGB(120, 88, 62)
+		box("BeachStepEdge", -198.7, sandY, seg[1], -198, CURB + 0.1, seg[2], Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
+		box("BeachStep", -201.2, sandY, seg[1], -198.7, CURB - 0.6, seg[2], wood, { material = Enum.Material.WoodPlanks })
+		box("BeachStep", -203.7, sandY, seg[1], -201.2, CURB - 1.2, seg[2], wood, { material = Enum.Material.WoodPlanks })
+		box("BeachStep", -206.2, sandY, seg[1], -203.7, CURB - 1.8, seg[2], wood, { material = Enum.Material.WoodPlanks })
 		box("SeaRoad", -182, 0, seg[1], -158, 0.12, seg[2], ASPHALT, { material = Enum.Material.Asphalt })
 		paint("RedLane", -182, seg[1], -174, seg[2], Color3.fromRGB(190, 85, 75))
 		box("Sidewalk", -158, 0, seg[1], -150, CURB, seg[2], WALK, { material = Enum.Material.Brick })
