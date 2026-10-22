@@ -342,6 +342,8 @@ local function addSeatPrompt(seat: Instance)
 	prompt.Triggered:Connect(function(player)
 		local character = characterOf(player)
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		-- no sitting during a cafe shift (user, 2026-10-22: the sit prompt hid "서빙하기")
+		if character and character:GetAttribute("CafeJob") then return end
 		if humanoid and not seat.Occupant then
 			stopDance(player)
 			seat:Sit(humanoid)

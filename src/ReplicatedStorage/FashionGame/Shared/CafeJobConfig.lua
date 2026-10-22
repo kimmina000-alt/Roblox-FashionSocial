@@ -18,9 +18,11 @@ CafeJobConfig.CleanCoins = 2
 CafeJobConfig.DailyCap = 60 -- serving + cleaning, per player per day (UTC)
 
 CafeJobConfig.MakeSeconds = 2.5 -- making a drink at the counter
-CafeJobConfig.CounterDistance = 14 -- make drinks / start work this close to the counter
+CafeJobConfig.CounterDistance = 7 -- start work / make drinks this close to the work counter (BackCounter)
 CafeJobConfig.ServeDistance = 9 -- hand the drink over this close to the customer
-CafeJobConfig.WorkArea = 60 -- work ends when the staff walks this far from the counter
+-- work ends when the staff walks this far outside the cafe building (its box;
+-- user 2026-10-22: the window seats were too far for a distance from the counter)
+CafeJobConfig.WorkArea = 25
 
 -- NPC customers (only while someone works at that cafe; PERFORMANCE.md: few)
 CafeJobConfig.NpcMax = 3

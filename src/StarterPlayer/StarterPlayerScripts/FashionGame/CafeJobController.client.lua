@@ -389,6 +389,11 @@ local function updateCups()
 		if prompt and prompt:IsA("ProximityPrompt") then
 			prompt.Enabled = shop ~= nil and cup:GetAttribute("Shop") == shop
 		end
+		-- my own drink on the table: pick it up again
+		local pick = cup:FindFirstChild("PickPrompt")
+		if pick and pick:IsA("ProximityPrompt") then
+			pick.Enabled = cup:GetAttribute("Owner") == player.UserId
+		end
 	end
 end
 
@@ -397,6 +402,9 @@ end
 --------------------------------------------------
 
 local jobPrompts: {[BasePart]: ProximityPrompt} = {}
+-- the prompts sit on the work counter behind the bar ("BackCounter", user
+-- 2026-10-22), on an attachment that follows the nearest point to the player
+local anchors: {[Attachment]: BasePart} = {}
 
 local function refreshJobPrompts()
 	local shop = myShop()
@@ -423,8 +431,12 @@ local function watchCounter(part: Instance)
 		HoldDuration = 0.3,
 		MaxActivationDistance = 10,
 		RequiresLineOfSight = false,
-		UIOffset = Vector2.new(0, -70),
-	}, part)
+	})
+	local station = part.Parent and part.Parent:FindFirstChild("BackCounter")
+	local stationPart: BasePart = if station and station:IsA("BasePart") then station else part
+	local anchor = make("Attachment", { Name = "CafeJobAnchor" }, stationPart)
+	anchors[anchor] = stationPart
+	prompt.Parent = anchor
 	prompt.Triggered:Connect(function()
 		if myShop() == key then
 			local _, message = remote:InvokeServer("Stop", nil)
@@ -452,7 +464,7 @@ local function watchCounter(part: Instance)
 		MaxActivationDistance = 10,
 		RequiresLineOfSight = false,
 		Enabled = false,
-	}, part)
+	}, anchor)
 	makePrompt.Triggered:Connect(function()
 		local shop = myShop()
 		if shop ~= key then return end
@@ -498,10 +510,136 @@ if workspace.CurrentCamera then
 end
 layout()
 
+-- prompt anchors: nearest point on the top of the work counter
+local function updateAnchors()
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then return end
+	for anchor, part in pairs(anchors) do
+		if anchor.Parent then
+			local here = part.CFrame:PointToObjectSpace(root.Position)
+			local half = part.Size / 2
+			anchor.Position = Vector3.new(math.clamp(here.X, -half.X + 0.5, half.X - 0.5), half.Y + 0.5, math.clamp(here.Z, -half.Z + 0.5, half.Z - 0.5))
+		end
+	end
+end
+
+-- no sitting during a shift (user, 2026-10-22: the sit prompt hid "서빙하기")
+local sittingBlocked = false
+local function updateSeats()
+	local onDuty = myShop() ~= nil
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid and onDuty ~= sittingBlocked then
+		humanoid:SetStateEnabled(Enum.HumanoidStateType.Seated, not onDuty)
+	end
+	if onDuty or sittingBlocked then
+		for _, seat in ipairs(CollectionService:GetTagged("PromptSeat")) do
+			local prompt = seat:FindFirstChild("SitPrompt")
+			if prompt and prompt:IsA("ProximityPrompt") and seat:IsA("Seat") then
+				prompt.Enabled = not onDuty and seat.Occupant == nil
+			end
+		end
+	end
+	sittingBlocked = onDuty
+end
+
+-- order bubbles: only the staff of that cafe and the customer see them
+local function updateBubbles()
+	local shop = myShop()
+	local heads = {}
+	local npcs = workspace:FindFirstChild("CafeNPCs")
+	if npcs then
+		for _, npc in ipairs(npcs:GetChildren()) do table.insert(heads, npc:FindFirstChild("Head")) end
+	end
+	for _, other in ipairs(Players:GetPlayers()) do
+		table.insert(heads, other.Character and other.Character:FindFirstChild("Head"))
+	end
+	for _, head in ipairs(heads) do
+		local bubble = head and head:FindFirstChild("CafeOrderBubble")
+		if bubble and bubble:IsA("BillboardGui") then
+			bubble.Enabled = (shop ~= nil and bubble:GetAttribute("Shop") == shop) or bubble:GetAttribute("Customer") == player.UserId
+		end
+	end
+end
+
+-- put the drink in my hand on a cafe table (user, 2026-10-22)
+local putPrompt: ProximityPrompt? = nil
+local putTable: BasePart? = nil
+local function isTable(part: Instance): boolean
+	if not part:IsA("BasePart") then return false end
+	local name = string.lower(part.Name)
+	if string.find(name, "leg") or string.find(name, "stool") then return false end
+	local surface = string.find(name, "table") ~= nil or string.sub(name, -3) == "bar"
+	return surface and part.Size.Y <= 1.5 and math.min(part.Size.X, part.Size.Z) >= 1 and math.max(part.Size.X, part.Size.Z) >= 1.5
+end
+local tableCache: {BasePart}? = nil
+local function cafeTables(): {BasePart}
+	if tableCache then return tableCache end
+	local list = {}
+	for _, counter in ipairs(CollectionService:GetTagged("SnackShop")) do
+		if counter:IsDescendantOf(workspace) and table.find(CafeJobConfig.Shops, counter:GetAttribute("Shop")) and counter.Parent then
+			for _, part in ipairs(counter.Parent:GetDescendants()) do
+				if isTable(part) then table.insert(list, part :: BasePart) end
+			end
+		end
+	end
+	if #list > 0 then tableCache = list end
+	return list
+end
+local function updatePutDown()
+	local character = player.Character
+	local tool = character and character:FindFirstChildOfClass("Tool")
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local holding = tool ~= nil and tool:GetAttribute("Snack") ~= nil and tool:GetAttribute("CafeOrder") == nil
+		and tool:FindFirstChild("Handle") ~= nil and (tool:FindFirstChild("Handle") :: Instance):FindFirstChild("Straw", true) ~= nil
+	local best: BasePart? = nil
+	if holding and root and root:IsA("BasePart") then
+		local bestDistance = 7
+		for _, part in ipairs(cafeTables()) do
+			-- distance to the nearest point of the top (long bars)
+			local here = part.CFrame:PointToObjectSpace(root.Position)
+			local half = part.Size / 2
+			local flat = Vector2.new(here.X - math.clamp(here.X, -half.X, half.X), here.Z - math.clamp(here.Z, -half.Z, half.Z)).Magnitude
+			if flat < bestDistance and math.abs(part.Position.Y - root.Position.Y) < 6 then best, bestDistance = part, flat end
+		end
+	end
+	if best ~= putTable then
+		if putPrompt then (putPrompt.Parent :: Instance):Destroy() end
+		putPrompt = nil
+		putTable = best
+		if best then
+			-- on an attachment at the nearest point of the top (long bars)
+			local anchor = make("Attachment", { Name = "PutDownAnchor" }, best)
+			local prompt = make("ProximityPrompt", {
+				Name = "PutDownPrompt",
+				ActionText = "테이블에 놓기",
+				ObjectText = "",
+				KeyboardKeyCode = Enum.KeyCode.R,
+				HoldDuration = 0,
+				MaxActivationDistance = 8,
+				RequiresLineOfSight = false,
+			}, anchor)
+			prompt.Triggered:Connect(function()
+				local _, message = remote:InvokeServer("PutDown", best)
+				toast(message)
+			end)
+			putPrompt = prompt
+		end
+	end
+	if best and putPrompt and root and root:IsA("BasePart") then
+		local here = best.CFrame:PointToObjectSpace(root.Position)
+		local half = best.Size / 2;
+		(putPrompt.Parent :: Attachment).Position = Vector3.new(math.clamp(here.X, -half.X, half.X), half.Y + 0.3, math.clamp(here.Z, -half.Z, half.Z))
+	end
+end
+
 task.spawn(function()
 	while true do
 		task.wait(0.4)
 		updateServing()
 		updateCups()
+		updateSeats()
+		updateBubbles()
+		updatePutDown()
 	end
 end)
+game:GetService("RunService").Heartbeat:Connect(updateAnchors)

@@ -82,6 +82,55 @@ local function distanceTo(player: Player, part: BasePart): number
 	return if root then (root.Position - part.Position).Magnitude else math.huge
 end
 
+local function cafeModel(shopKey: string): Instance?
+	local counter = counterOf(shopKey)
+	return counter and counter.Parent
+end
+
+-- where staff start work and make drinks: the back counter behind the bar
+-- when the cafe has one (user, 2026-10-22), else the counter
+local function stationOf(shopKey: string): BasePart?
+	local model = cafeModel(shopKey)
+	local back = model and model:FindFirstChild("BackCounter")
+	if back and back:IsA("BasePart") then return back end
+	return counterOf(shopKey)
+end
+
+-- distance from a point to the nearest point of a part's box
+local function boxDistance(part: BasePart, point: Vector3): number
+	local here = part.CFrame:PointToObjectSpace(point)
+	local half = part.Size / 2
+	local clamped = Vector3.new(math.clamp(here.X, -half.X, half.X), math.clamp(here.Y, -half.Y, half.Y), math.clamp(here.Z, -half.Z, half.Z))
+	return (here - clamped).Magnitude
+end
+
+local function nearStation(player: Player, shopKey: string): boolean
+	local station = stationOf(shopKey)
+	local root = rootOf(player.Character)
+	return station ~= nil and root ~= nil and boxDistance(station, root.Position) <= CafeJobConfig.CounterDistance
+end
+
+-- inside the cafe building (its bounding box) plus a margin around it
+local areaCache: {[string]: { cf: CFrame, size: Vector3 }} = {}
+local function inCafe(shopKey: string, point: Vector3, margin: number): boolean
+	local box = areaCache[shopKey]
+	local model = cafeModel(shopKey)
+	if not box and model and model:IsA("Model") then
+		local cf, size = model:GetBoundingBox()
+		box = { cf = cf, size = size }
+		areaCache[shopKey] = box
+	end
+	if not box then return false end
+	local here = box.cf:PointToObjectSpace(point)
+	local half = box.size / 2
+	return math.abs(here.X) <= half.X + margin and math.abs(here.Z) <= half.Z + margin and math.abs(here.Y) <= half.Y + margin
+end
+
+local function playerInCafe(player: Player, shopKey: string, margin: number): boolean
+	local root = rootOf(player.Character)
+	return root ~= nil and inCafe(shopKey, root.Position, margin)
+end
+
 local function staffCount(shopKey: string): number
 	local n = 0
 	for _, shop in pairs(staff) do
@@ -124,8 +173,10 @@ local function publish()
 	FashionGame:SetAttribute("CafeOrders", HttpService:JSONEncode(list))
 end
 
--- speech bubble over a customer's head: what they ordered
-local function setBubble(model: Model?, text: string?)
+-- speech bubble over a customer's head: what they ordered. Only the staff of
+-- that cafe and the customer see it (user, 2026-10-22): it starts disabled
+-- and CafeJobController turns it on.
+local function setBubble(model: Model?, text: string?, shopKey: string?, customerId: number?)
 	local head = model and model:FindFirstChild("Head")
 	if not head then return end
 	local old = head:FindFirstChild("CafeOrderBubble")
@@ -137,6 +188,9 @@ local function setBubble(model: Model?, text: string?)
 	gui.StudsOffset = Vector3.new(0, 2.6, 0)
 	gui.AlwaysOnTop = true
 	gui.MaxDistance = 70
+	gui.Enabled = false
+	gui:SetAttribute("Shop", shopKey or "")
+	gui:SetAttribute("Customer", customerId or 0)
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
 	label.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
@@ -157,40 +211,49 @@ local function setBubble(model: Model?, text: string?)
 end
 
 --------------------------------------------------
--- Empty cups on tables
+-- Cups on tables: empty cups left by customers, and drinks customers put
+-- down (user, 2026-10-22). Staff of that cafe clear both.
 --------------------------------------------------
 
-local function cafeModel(shopKey: string): Instance?
-	local counter = counterOf(shopKey)
-	return counter and counter.Parent
+-- tables and bar tops (window bar, mezzanine bar), not their legs or stools
+local function isTable(part: Instance): boolean
+	if not part:IsA("BasePart") then return false end
+	local name = string.lower(part.Name)
+	if string.find(name, "leg") or string.find(name, "stool") then return false end
+	local surface = string.find(name, "table") ~= nil or string.sub(name, -3) == "bar"
+	return surface and part.Size.Y <= 1.5 and math.min(part.Size.X, part.Size.Z) >= 1 and math.max(part.Size.X, part.Size.Z) >= 1.5
 end
+CafeJobService.IsTable = isTable
 
--- top centre of the table next to a position (parts named "...Table..." in the cafe)
-local function tableTop(shopKey: string, near: Vector3): Vector3?
+local function nearestTable(shopKey: string, near: Vector3): BasePart?
 	local model = cafeModel(shopKey)
 	if not model then return nil end
-	local best, bestDistance = nil, 9
+	local best, bestDistance = nil, 6
 	for _, part in ipairs(model:GetDescendants()) do
-		if part:IsA("BasePart") and string.find(string.lower(part.Name), "table") and part.Size.X >= 1.5 and part.Size.Z >= 1.5 then
-			local flat = Vector3.new(part.Position.X - near.X, 0, part.Position.Z - near.Z).Magnitude
-			if flat < bestDistance then best, bestDistance = part, flat end
+		if isTable(part) and math.abs(part.Position.Y - near.Y) < 6 then
+			local d = boxDistance(part, Vector3.new(near.X, part.Position.Y, near.Z))
+			if d < bestDistance then best, bestDistance = part, d end
 		end
 	end
-	if not best then return nil end
-	local top = best.Position.Y + best.Size.Y / 2
-	-- a little off the centre so several cups do not overlap
-	return Vector3.new(best.Position.X + (math.random() - 0.5) * math.min(best.Size.X, 2), top, best.Position.Z + (math.random() - 0.5) * math.min(best.Size.Z, 2))
+	return best
 end
 
-local function placeCup(shopKey: string, near: Vector3)
-	if staffCount(shopKey) == 0 then return end
-	local top = tableTop(shopKey, near)
-	if not top then return end
+-- the spot on the table top nearest to a position (long bars: right in front
+-- of the seat), a little jitter so cups do not overlap
+local function spotOn(tablePart: BasePart, near: Vector3): Vector3
+	local here = tablePart.CFrame:PointToObjectSpace(near)
+	local half = tablePart.Size / 2
+	local x = math.clamp(here.X + (math.random() - 0.5) * 0.8, -half.X + 0.4, half.X - 0.4)
+	local z = math.clamp(here.Z + (math.random() - 0.5) * 0.8, -half.Z + 0.4, half.Z - 0.4)
+	return tablePart.CFrame:PointToWorldSpace(Vector3.new(x, half.Y, z))
+end
+
+local function newCup(shopKey: string, at: Vector3, item: SnackConfig.Item?): Part
 	local cup = Instance.new("Part")
-	cup.Name = "EmptyCup"
+	cup.Name = if item then "PlacedDrink" else "EmptyCup"
 	cup.Shape = Enum.PartType.Cylinder
 	cup.Size = Vector3.new(0.85, 0.6, 0.6)
-	cup.CFrame = CFrame.new(top + Vector3.new(0, 0.43, 0)) * CFrame.Angles(0, 0, math.rad(90))
+	cup.CFrame = CFrame.new(at + Vector3.new(0, 0.43, 0)) * CFrame.Angles(0, 0, math.rad(90))
 	cup.Color = Color3.fromRGB(245, 245, 250)
 	cup.Material = Enum.Material.Glass
 	cup.Transparency = 0.3
@@ -198,10 +261,22 @@ local function placeCup(shopKey: string, near: Vector3)
 	cup.CanCollide = false
 	cup:SetAttribute("Shop", shopKey)
 	cup:SetAttribute("Since", os.clock())
+	if item then
+		local fill = Instance.new("Part")
+		fill.Name = "Fill"
+		fill.Shape = Enum.PartType.Cylinder
+		fill.Size = Vector3.new(0.65, 0.5, 0.5)
+		fill.CFrame = cup.CFrame * CFrame.new(-0.05, 0, 0)
+		fill.Color = item.color
+		fill.Anchored = true
+		fill.CanCollide = false
+		fill.CanQuery = false
+		fill.Parent = cup
+	end
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "CleanPrompt"
 	prompt.ActionText = "테이블 정리"
-	prompt.ObjectText = "빈 컵"
+	prompt.ObjectText = if item then item.name else "빈 컵"
 	prompt.HoldDuration = 0.5
 	prompt.MaxActivationDistance = 9
 	prompt.RequiresLineOfSight = false
@@ -213,7 +288,59 @@ local function placeCup(shopKey: string, near: Vector3)
 		economy.Earn(player, CafeJobConfig.CleanCoins, "CafeJob", CafeJobConfig.DailyCap, "테이블 정리")
 		player:SetAttribute("CafeJobEarned", economy.Earned(player, "CafeJob"))
 	end)
+	return cup
+end
+
+local function placeCup(shopKey: string, near: Vector3)
+	if staffCount(shopKey) == 0 then return end
+	local tablePart = nearestTable(shopKey, near)
+	if not tablePart then return end
+	newCup(shopKey, spotOn(tablePart, near), nil).Parent = folder("CafeCups")
+end
+
+-- the drink tool the player holds → onto a table of a job cafe
+local function putDown(player: Player, tablePart: any): (boolean, string?)
+	if typeof(tablePart) ~= "Instance" or not isTable(tablePart) then return false, "테이블에만 놓을 수 있어요." end
+	local shopKey: string? = nil
+	for _, key in ipairs(CafeJobConfig.Shops) do
+		local model = cafeModel(key)
+		if model and tablePart:IsDescendantOf(model) then shopKey = key end
+	end
+	local root = rootOf(player.Character)
+	if not shopKey or not root or boxDistance(tablePart, root.Position) > 8 then return false, "테이블 가까이에서 놓아 주세요." end
+	local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+	local key = tool and tool:GetAttribute("Snack")
+	if not tool or typeof(key) ~= "string" or tool:GetAttribute("CafeOrder") then return false, "손에 든 음료가 없어요." end
+	local item: SnackConfig.Item? = nil
+	for _, shop in pairs(SnackConfig.Shops) do
+		local _, found = SnackConfig.find(shop.key, key)
+		if found then item = found end
+	end
+	if not item or item.kind ~= "cup" then return false, "음료만 놓을 수 있어요." end
+	local bites = tool:GetAttribute("Bites")
+	tool:Destroy()
+	local cup = newCup(shopKey :: string, spotOn(tablePart :: BasePart, root.Position), item)
+	cup:SetAttribute("Owner", player.UserId)
+	cup:SetAttribute("Item", item.key)
+	cup:SetAttribute("Bites", if typeof(bites) == "number" then bites else SnackConfig.Bites)
+	-- the owner picks it up again (prompt turned on by the owner's client)
+	local pick = Instance.new("ProximityPrompt")
+	pick.Name = "PickPrompt"
+	pick.ActionText = "다시 들기"
+	pick.ObjectText = item.name
+	pick.HoldDuration = 0
+	pick.MaxActivationDistance = 9
+	pick.RequiresLineOfSight = false
+	pick.Enabled = false
+	pick.Parent = cup
+	pick.Triggered:Connect(function(who)
+		if not cup.Parent or who.UserId ~= cup:GetAttribute("Owner") then return end
+		cup:Destroy()
+		local again = snack.Give(who, item)
+		if again then again:SetAttribute("Bites", cup:GetAttribute("Bites")) end
+	end)
 	cup.Parent = folder("CafeCups")
+	return true, nil
 end
 
 --------------------------------------------------
@@ -234,7 +361,7 @@ local function removeOrder(order: Order)
 	end
 	if order.kind == "player" then
 		local customer = Players:GetPlayerByUserId(order.userId)
-		setBubble(customer and customer.Character, nil)
+		setBubble(customer and customer.Character, nil, nil, nil)
 	end
 	publish()
 end
@@ -245,7 +372,9 @@ local function npcLeave(order: Order, served: boolean)
 	removeOrder(order)
 	if not npc then return end
 	if served then
-		setBubble(npc, "😋 맛있어요!")
+		-- the thank-you shows for a second only (user, 2026-10-22)
+		setBubble(npc, "😋 맛있어요!", order.shop, 0)
+		task.delay(1, function() setBubble(npc, nil, nil, nil) end)
 		task.delay(CafeJobConfig.NpcStaySeconds, function()
 			if seat then placeCup(order.shop, seat.Position) end
 			if npc.Parent then npc:Destroy() end
@@ -282,7 +411,7 @@ local function playerOrder(player: Player, shop: SnackConfig.Shop, item: SnackCo
 		id = nextId, shop = shop.key, item = item.key, kind = "player", userId = player.UserId,
 		npc = nil, seat = nil, created = os.clock(), maker = 0, ready = false,
 	}
-	setBubble(player.Character, "☕ " .. item.name)
+	setBubble(player.Character, "☕ " .. item.name, shop.key, player.UserId)
 	publish()
 	for other, shopKey in pairs(staff) do
 		if shopKey == shop.key then toast(other, string.format("🔔 새 주문: %s · %s", item.name, player.DisplayName)) end
@@ -419,7 +548,7 @@ local function spawnNpc(shopKey: string)
 		npc = npc, seat = seat, created = os.clock(), maker = 0, ready = false,
 		who = if friend then friend.name else nil,
 	}
-	setBubble(npc, (if friend then friend.name .. " · " else "") .. "☕ " .. item.name)
+	setBubble(npc, (if friend then friend.name .. " · " else "") .. "☕ " .. item.name, shopKey, 0)
 	publish()
 end
 
@@ -491,9 +620,8 @@ end
 
 local function startWork(player: Player, shopKey: any): (boolean, string?)
 	if typeof(shopKey) ~= "string" or not isJobShop(shopKey) then return false, "알바할 수 없는 곳이에요." end
-	local counter = counterOf(shopKey)
-	if not counter or distanceTo(player, counter) > CafeJobConfig.CounterDistance then
-		return false, "카운터 가까이에서 시작해 주세요."
+	if not nearStation(player, shopKey) then
+		return false, "카운터 안쪽 작업대에서 시작해 주세요."
 	end
 	if staff[player] == shopKey then return true, nil end
 	if staff[player] then stopWork(player, nil) end
@@ -528,9 +656,8 @@ local function make(player: Player, id: any): (boolean, string?)
 	if not order or not shopKey or order.shop ~= shopKey then return false, "만들 수 없는 주문이에요." end
 	if order.maker ~= 0 then return false, "다른 알바생이 만들고 있어요." end
 	if carrying(player) >= 2 then return false, "음료는 한 번에 2잔까지 들 수 있어요." end
-	local counter = counterOf(shopKey)
-	if not counter or distanceTo(player, counter) > CafeJobConfig.CounterDistance then
-		return false, "카운터에서 만들어 주세요."
+	if not nearStation(player, shopKey) then
+		return false, "작업대에서 만들어 주세요."
 	end
 	order.maker = player.UserId
 	publish()
@@ -538,7 +665,7 @@ local function make(player: Player, id: any): (boolean, string?)
 	if orders[order.id] ~= order or order.maker ~= player.UserId or staff[player] ~= shopKey then
 		return false, nil
 	end
-	if distanceTo(player, counter) > CafeJobConfig.CounterDistance then
+	if not nearStation(player, shopKey) then
 		order.maker = 0
 		publish()
 		return false, "만드는 동안 카운터를 떠났어요."
@@ -623,7 +750,7 @@ local function tick()
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 		if not player.Parent or not counter or not humanoid or humanoid.Health <= 0 then
 			stopWork(player, nil)
-		elseif distanceTo(player, counter) > CafeJobConfig.WorkArea then
+		elseif not playerInCafe(player, shopKey, CafeJobConfig.WorkArea) then
 			stopWork(player, "카페에서 멀어져서 알바를 마쳤어요.")
 		elseif player.Character:GetAttribute("CafeJob") ~= shopKey then
 			-- new character (respawn): put the apron back on
@@ -641,12 +768,11 @@ local function tick()
 				if late or not order.npc or not order.npc.Parent then npcLeave(order, false) end
 			else
 				local customer = Players:GetPlayerByUserId(order.userId)
-				local counter = counterOf(order.shop)
 				if not customer then
 					removeOrder(order)
 				elseif late then
 					selfServe(order, "기다려 줘서 고마워요! 음료를 바로 받았어요.")
-				elseif counter and distanceTo(customer, counter) > CafeJobConfig.WorkArea + 20 then
+				elseif not playerInCafe(customer, order.shop, CafeJobConfig.WorkArea + 20) then
 					removeOrder(order)
 					toast(customer, "카페를 떠나서 주문이 취소됐어요.")
 				end
@@ -685,8 +811,7 @@ function CafeJobService.Start(economyService: any, snackService: any)
 		local root = rootOf(character)
 		if not root then return end
 		for _, shopKey in ipairs(CafeJobConfig.Shops) do
-			local counter = counterOf(shopKey)
-			if counter and (counter.Position - root.Position).Magnitude < CafeJobConfig.WorkArea then
+			if inCafe(shopKey, root.Position, 6) then
 				placeCup(shopKey, root.Position)
 				return
 			end
@@ -700,6 +825,7 @@ function CafeJobService.Start(economyService: any, snackService: any)
 			return true, string.format("알바 끝! 오늘 알바로 %d %s 받았어요.", economy.Earned(player, "CafeJob"), "코인")
 		elseif action == "Make" then return make(player, payload)
 		elseif action == "Serve" then return serve(player, payload)
+		elseif action == "PutDown" then return putDown(player, payload)
 		end
 		return false, nil
 	end
