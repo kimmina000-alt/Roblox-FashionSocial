@@ -206,6 +206,9 @@ local function jsonValue(name: string): {[string]: any}
 end
 local OVERRIDES = jsonValue("PropOverrides")
 local REGISTRY = jsonValue("PropRegistry")
+-- this run regenerates every prop of this script: forget the old ids, so ids
+-- of props that no longer exist are not mistaken for hand deletions
+for id, owner in pairs(REGISTRY) do if owner == "temp" then REGISTRY[id] = nil end end
 local usedIds: {[string]: boolean} = {}
 -- returns false when the user deleted this prop
 local function prop(inst: Instance, kind: string): boolean
@@ -435,7 +438,7 @@ local function planter(pos: Vector3, along: Vector3, len: number?)
 	-- only this shrub (user 2026-10-22), larger, two on each side of the tree in
 	-- a row, each turned a little differently
 	for k, z in ipairs({ -5.4, -2.8, 2.8, 5.4 }) do
-		local scale = 0.3 + ((k * 7 + plantN * 3) % 5) * 0.012
+		local scale = 0.38 + ((k * 7 + plantN * 3) % 5) * 0.012 -- a bit larger again (user)
 		local yaw = math.rad(((k * 97 + plantN * 53) % 360))
 		local s = foliage("Shrub", scale, cf * CFrame.new(0, soilTop - 0.25, z) * CFrame.Angles(0, yaw, 0))
 		if s then prop(s, "Shrub") end

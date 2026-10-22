@@ -79,6 +79,9 @@ local function jsonValue(name: string): {[string]: any}
 end
 local OVERRIDES = jsonValue("PropOverrides")
 local REGISTRY = jsonValue("PropRegistry")
+-- this run regenerates every prop of this script: forget the old ids, so ids
+-- of props that no longer exist are not mistaken for hand deletions
+for id, owner in pairs(REGISTRY) do if owner == "dress" then REGISTRY[id] = nil end end
 local usedIds: {[string]: boolean} = {}
 local function prop(inst: Model, kind: string): boolean
 	local cf = inst:GetPivot()
