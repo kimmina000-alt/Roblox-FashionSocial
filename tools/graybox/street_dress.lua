@@ -19,7 +19,7 @@ local temp = workspace:FindFirstChild("Hongdae_v1_Temp")
 local DRESS = "StreetDress"
 
 local IMG = {
-	sidewalk = "rbxassetid://250404336", -- grey herringbone pavers
+	sidewalk = "rbxassetid://133933193561069", -- grey rectangular pavers in a grid (user photo 2026-10-22, not herringbone)
 	glassTeal = "rbxassetid://13654404035", -- curtain wall (강남 towers)
 	glassBlue = "rbxassetid://11361294440",
 	concreteGrid = "rbxassetid://17593427084",
@@ -228,7 +228,7 @@ local GRANITE = Color3.fromRGB(190, 188, 182)
 local TACTILE = Color3.fromRGB(238, 194, 36)
 local function paveLook(p: BasePart)
 	restyle(p, Color3.fromRGB(176, 172, 166), Enum.Material.SmoothPlastic)
-	texture(p, IMG.sidewalk, { Enum.NormalId.Top }, 6, 6)
+	texture(p, IMG.sidewalk, { Enum.NormalId.Top }, 7, 7)
 end
 
 local function roundCorner(s: BasePart)
@@ -293,16 +293,10 @@ for _, s in ipairs(temp:GetChildren()) do
 						local top = s.Position.Y + s.Size.Y / 2
 						if alongX then
 							part("Curb", Vector3.new(s.Size.X, s.Size.Y + 0.15, 0.7), CFrame.new(s.Position.X, s.Position.Y + 0.075, s.Position.Z + edgeOff - side * 0.35), GRANITE, Enum.Material.Granite, walkF)
-							if wide >= 6 then
-								local t = part("TactileLine", Vector3.new(s.Size.X, 0.05, 0.9), CFrame.new(s.Position.X, top + 0.03, s.Position.Z + edgeOff - side * 2.6), TACTILE, Enum.Material.DiamondPlate, walkF)
-								t.CanCollide = false
-							end
+
 						else
 							part("Curb", Vector3.new(0.7, s.Size.Y + 0.15, s.Size.Z), CFrame.new(s.Position.X + edgeOff - side * 0.35, s.Position.Y + 0.075, s.Position.Z), GRANITE, Enum.Material.Granite, walkF)
-							if wide >= 6 then
-								local t = part("TactileLine", Vector3.new(0.9, 0.05, s.Size.Z), CFrame.new(s.Position.X + edgeOff - side * 2.6, top + 0.03, s.Position.Z), TACTILE, Enum.Material.DiamondPlate, walkF)
-								t.CanCollide = false
-							end
+
 						end
 					end
 				end

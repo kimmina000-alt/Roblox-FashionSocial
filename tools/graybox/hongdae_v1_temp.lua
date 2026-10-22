@@ -565,14 +565,55 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 	end
 	uv("SafetyEdge", 38, -1.8, 58, -1.4, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", 38, 1.4, 58, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
 	uv("SafetyEdge", 57.6, -1.8, 58, 1.8, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", 38, -1.8, 38.4, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
-	for u = 62, len - 10, 18 do
+	for u = 62, len - 10, 18 do -- beds 16 long → a nearly continuous strip
 		local free = true
 		for _, p in ipairs(pits) do if u > p[1] - 9 and u < p[2] + 9 then free = false end end
-		if free then for _, v in ipairs({ -26.2, 26.2 }) do if clear(at(u, v)) then planter(at(u, v), dir) end end end
+		if free then for _, v in ipairs({ -26.4, 26.4 }) do if clear(at(u, v)) then planter(at(u, v), dir, 16) end end end
 	end
-	for u = 70, len - 6, 80 do -- every other lamp (user: too many)
-		if clear(at(u, -32.5)) then streetLamp(at(u, -32.5) + Vector3.new(0, CURB, 0), across) end
-		if clear(at(u, 32.5)) then streetLamp(at(u, 32.5) + Vector3.new(0, CURB, 0), -across) end
+	for u = 70, len - 6, 80 do -- every other lamp (user: too many); in the planting strip
+		if clear(at(u, -29.5)) then streetLamp(at(u, -29.5) + Vector3.new(0, CURB, 0), across) end
+		if clear(at(u, 29.5)) then streetLamp(at(u, 29.5) + Vector3.new(0, CURB, 0), -across) end
+	end
+	-- bike lane between the planting strip and the walkway (user photo
+	-- 2026-10-22, 다산동): dark asphalt band with white edges and bike symbols,
+	-- broken at subway exits and bus stops
+	for _, side in ipairs({ -1, 1 }) do
+		if (outer[side] or WIDE) >= 40 then
+			local blocked = {}
+			for _, p in ipairs(pits) do
+				if (side > 0 and p[3] > 0) or (side < 0 and p[4] < 0) then table.insert(blocked, { p[1] - 3, p[2] + 3 }) end
+			end
+			local function free(u) 
+				for _, b in ipairs(blocked) do if u > b[1] and u < b[2] then return false end end
+				return clear(at(u, side * 33))
+			end
+			local runStart: number? = nil
+			local function lane(u0, u1)
+				if u1 - u0 < 6 then return end
+				local a, b = at(u0, side * 31), at(u1, side * 35)
+				box("BikeLane", a.X, CURB, a.Z, b.X, CURB + 0.03, b.Z, Color3.fromRGB(62, 63, 66), { material = Enum.Material.Asphalt, nocol = true })
+				for _, ev in ipairs({ 31.15, 34.85 }) do
+					local c, d = at(u0, side * (ev - 0.15)), at(u1, side * (ev + 0.15))
+					box("BikeLaneEdge", c.X, CURB + 0.03, c.Z, d.X, CURB + 0.05, d.Z, WHITE, { nocol = true })
+				end
+				for u = u0 + 8, u1 - 6, 32 do
+					local pos = at(u, side * 33) + Vector3.new(0, CURB + 0.06, 0)
+					local mark = part("BikeSymbol", Vector3.new(3.7, 0.02, 3.7), CFrame.lookAt(pos, pos + across * side) , WHITE, { nocol = true, transparency = 1 })
+					local dcl = Instance.new("Decal")
+					dcl.Texture = "rbxassetid://14547829073"
+					dcl.Face = Enum.NormalId.Top
+					dcl.Parent = mark
+				end
+			end
+			for u = WIDE + 3, len - 4, 1 do
+				if free(u) then
+					if not runStart then runStart = u end
+				elseif runStart then
+					lane(runStart, u - 1) runStart = nil
+				end
+			end
+			if runStart then lane(runStart, len - 4) end
+		end
 	end
 	trafficLight(at(38, 30) + Vector3.new(0, CURB, 0), -across, 26)
 	for _, c in ipairs(cars) do car(at(c[1], c[2]), if c[2] > 0 then -dir else dir) end
@@ -749,17 +790,18 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 	-- bus stop sign pole at the curb (user photo, 노원구청): green bus disc on
 	-- top, black name panel + white route board, small 금연 plate. Clicking the
 	-- sign opens the stop picker (SubwayService, tag BusStop)
-	local signBase = base + roadDir * 2.4 + along * 9
+	local signBase = base + roadDir * 5.4 + along * 9 -- at the curb, road side (user)
 	local scf = CFrame.lookAt(signBase, signBase + along) -- the sign faces along the street
-	vcyl("BusSignPole", signBase, 0.45, 11.5, Color3.fromRGB(110, 112, 116), { parent = m, material = Enum.Material.Metal })
-	local disc = part("BusSignDisc", Vector3.new(0.2, 2.2, 2.2), scf * CFrame.new(0, 11.4, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(60, 165, 75), { parent = m, shape = Enum.PartType.Cylinder })
+	-- half the size it was (user 2026-10-22)
+	vcyl("BusSignPole", signBase, 0.3, 7, Color3.fromRGB(110, 112, 116), { parent = m, material = Enum.Material.Metal })
+	local disc = part("BusSignDisc", Vector3.new(0.15, 1.1, 1.1), scf * CFrame.new(0, 7.3, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(60, 165, 75), { parent = m, shape = Enum.PartType.Cylinder })
 	for _, face in ipairs({ Enum.NormalId.Right, Enum.NormalId.Left }) do surfaceText(disc, face, "🚌", Color3.new(1, 1, 1), Enum.Font.GothamBold) end
-	local sign = part("BusStopSign", Vector3.new(2.4, 4.6, 0.35), scf * CFrame.new(0, 7.7, 0), Color3.fromRGB(28, 28, 30), { parent = m })
+	local sign = part("BusStopSign", Vector3.new(1.2, 2.3, 0.2), scf * CFrame.new(0, 5.4, 0), Color3.fromRGB(28, 28, 30), { parent = m })
 	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
 		local g = Instance.new("SurfaceGui")
 		g.Face = face
 		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		g.PixelsPerStud = 40
+		g.PixelsPerStud = 80
 		g.LightInfluence = 0.3
 		g.Parent = sign
 		local function textLabel(text, y, h, color, bg, size)
@@ -782,7 +824,7 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 		textLabel("OHU 01  ●─●─●─●\nOHU 02  ●─●─●─●\nOHU 03  ●─●─●─●", 0.34, 0.5, Color3.fromRGB(40, 110, 60), Color3.fromRGB(245, 245, 242), 8)
 		textLabel("탭해서 정류장 고르기", 0.84, 0.16, Color3.new(1, 1, 1), Color3.fromRGB(40, 120, 220), 6)
 	end
-	local noSmoke = part("NoSmokingPlate", Vector3.new(1.8, 0.7, 0.2), scf * CFrame.new(0, 4.6, 0), Color3.fromRGB(60, 165, 75), { parent = m })
+	local noSmoke = part("NoSmokingPlate", Vector3.new(0.9, 0.35, 0.1), scf * CFrame.new(0, 3.9, 0), Color3.fromRGB(60, 165, 75), { parent = m })
 	surfaceText(noSmoke, Enum.NormalId.Front, "금연", Color3.new(1, 1, 1), Enum.Font.GothamBold)
 	sign:SetAttribute("ExitNumber", n)
 	sign:SetAttribute("ExitName", name)
