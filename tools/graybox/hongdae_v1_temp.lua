@@ -15,18 +15,20 @@ local HIDE = "Hongdae_v1_HiddenParts"
 local function R(deg) return CFrame.Angles(0, math.rad(deg), 0) end
 
 -- zone → world move applied to the zone's built pivot
+-- v3 = v1's Hongdae streets + v2's compass (user, 2026-10-22)
 local MOVES = {
-	-- ④ club: north of the plaza, entrance + neon sign turned to face the plaza
-	["02_Club"] = CFrame.new(0, 0, 230) * R(180) * CFrame.new(0, 0, 210),
-	-- ② hanok village: south-east, gate turned to face south-east (morning sun)
-	["07_Hanok_Village"] = CFrame.new(265, 0, -240) * R(-45) * CFrame.new(-175, 0, -230),
-	-- ⑤ photo booth: on the street between the plaza and the east, sign to the street
-	["08_PhotoBooth"] = CFrame.new(110, 0, 45) * R(-90) * CFrame.new(-205, 0, 112),
-	-- fashion week runway next to the club (concert / show space)
-	["03_Rooftop_Backstage"] = CFrame.new(5, 0, 410),
-	-- park rides at the east end of the photo booth street
-	["06_Park_Playground"] = CFrame.new(15, 0, 60),
+	-- ① club: north-east at the end of the red road, entrance + neon to the south (plaza side)
+	["02_Club"] = CFrame.new(170, 0, 240) * R(180) * CFrame.new(0, 0, 210),
+	-- fashion week runway right next to the club (show / concert space)
+	["03_Rooftop_Backstage"] = CFrame.new(175, 0, 410),
+	-- ② hanok village: east/south-east, gate turned to the east (morning sun) onto the book street
+	["07_Hanok_Village"] = CFrame.new(260, 0, -215) * R(-90) * CFrame.new(-175, 0, -230),
+	-- ⑤ 인생네컷 on the red road, east of the plaza, sign facing the road
+	["08_PhotoBooth"] = CFrame.new(-95, 0, 122),
+	-- ④ park rides at the end of the Gyeongui forest path (north-west)
+	["06_Park_Playground"] = CFrame.new(-365, 0, 330),
 }
+local HOLE = { 90, 180, 250, 300 } -- club ground hole x0, z0, x1, z1 (follows 02_Club)
 -- parts set aside while the layout is applied (restored by revert)
 local function shouldHide(zn, p)
 	if zn == "09_Paths" then return true end
@@ -112,10 +114,11 @@ if groundTemplate then
 		g:SetAttribute("HomeZone", nil)
 		g.Parent = T
 	end
-	ground("Ground_S", -268, -1024, 1024, 170)
-	ground("Ground_N", -268, 290, 1024, 1024)
-	ground("Ground_W", -268, 170, -80, 290)
-	ground("Ground_E", 80, 170, 1024, 290)
+	local x0, z0, x1, z1 = HOLE[1], HOLE[2], HOLE[3], HOLE[4]
+	ground("Ground_S", -268, -1024, 1024, z0)
+	ground("Ground_N", -268, z1, 1024, 1024)
+	ground("Ground_W", -268, z0, x0, z1)
+	ground("Ground_E", x1, z0, 1024, z1)
 end
 
 local function part(name, size, cf, color, opt)
@@ -175,21 +178,28 @@ for x = -180, 400, 24 do
 	part("LaneDash", Vector3.new(10, 0.14, 0.6), CFrame.new(x, 0.08, -100), Color3.new(1, 1, 1))
 end
 marker("양화로", -150, -100, Color3.fromRGB(80, 80, 80), 2, 0.8)
-marker("중앙 광장 (홍대 놀이터)", 0, 0, Color3.fromRGB(200, 150, 40), 10)
+marker("홍대 놀이터 광장", 0, 0, Color3.fromRGB(200, 150, 40), 10)
 
--- ① 클럽: plaza → north (red road), club neon sign seen from the plaza
-strip("RedRoad", Vector2.new(0, 58), Vector2.new(0, 152), 18, RED)
-marker("① 레드로드 → OHU CLUB (북쪽)", 0, 105, RED, 3)
-strip("ShowLink", Vector2.new(20, 158), Vector2.new(108, 184), 10, PURPLE)
-marker("런웨이·공연 무대 (클럽과 연결)", 130, 184, Color3.fromRGB(160, 110, 230), 4)
+-- ① 걷고싶은거리·레드로드: station → north-east past the playground plaza and
+-- 인생네컷 to 클럽거리 in front of the club (entrance + neon seen from the road)
+strip("RedRoad", Vector2.new(25, -80), Vector2.new(110, 146), 18, RED)
+marker("① 걷고싶은거리 · 레드로드", 62, 20, RED, 3)
+strip("ClubStreet", Vector2.new(60, 152), Vector2.new(330, 152), 16, PURPLE)
+marker("클럽거리 (잔다리로)", 200, 152, Color3.fromRGB(160, 110, 230), 3)
+marker("런웨이·공연 무대", 300, 184, Color3.fromRGB(160, 110, 230), 4)
 
--- ⑤ 포토부스 거리: plaza → east, booth on the north side, rides at the end
-strip("PhotoStreet", Vector2.new(58, 0), Vector2.new(216, 0), 16, Color3.fromRGB(235, 170, 190))
-marker("⑤ 포토부스 거리 → 공원", 160, 0, Color3.fromRGB(200, 70, 130), 3)
+-- ③ 와우산로: station → south-west → 상수 → beach (the sea is in the west)
+strip("Wausanro", Vector2.new(-25, -116), Vector2.new(-198, -230), 22, GREY)
+marker("③ 와우산로 → 상수 → 한강 해변", -110, -172, Color3.fromRGB(42, 143, 179), 3)
 
--- ③ 서쪽 해변: plaza → west to the beach promenade (looking west at sunset)
-strip("BeachWalk", Vector2.new(-58, 0), Vector2.new(-198, 0), 14, SAND)
-marker("③ 해변 산책로 · 서쪽 석양", -140, 0, Color3.fromRGB(42, 143, 179), 3)
+-- ④ 경의선숲길 (연트럴파크): station → north-west → 연남동 카페거리 → park rides
+local forest = strip("ForestPark", Vector2.new(-40, -82), Vector2.new(-140, 150), 34, Color3.fromRGB(120, 185, 110))
+forest.Material = Enum.Material.Grass
+strip("ForestWalk", Vector2.new(-40, -82), Vector2.new(-140, 150), 6, SAND, 0.1)
+local forest2 = strip("ForestPark2", Vector2.new(-140, 150), Vector2.new(-90, 228), 34, Color3.fromRGB(120, 185, 110))
+forest2.Material = Enum.Material.Grass
+marker("④ 경의선숲길 · 연트럴파크", -90, 40, Color3.fromRGB(60, 140, 60), 3)
+marker("연남동 카페거리", -130, 185, Color3.fromRGB(60, 140, 60), 22)
 -- sunset photo frame at the end of the north pier, facing the sea (west)
 local frameCol = Color3.fromRGB(255, 150, 90)
 local px, pz = -344, 80
@@ -198,14 +208,14 @@ part("SunsetFramePostS", Vector3.new(1, 10, 1), CFrame.new(px, 6, pz - 5), frame
 part("SunsetFrameTop", Vector3.new(1, 1, 11), CFrame.new(px, 11.5, pz), frameCol, { material = Enum.Material.Neon })
 marker("석양 포토 스팟 (서쪽 바다)", px, pz, frameCol, 16)
 
--- ② 한옥 마을: boulevard → east → south to the gate (gate faces south-east)
-strip("BookStreet_A", Vector2.new(390, -100), Vector2.new(390, -335), 14, Color3.fromRGB(185, 160, 122))
-strip("BookStreet_B", Vector2.new(390, -335), Vector2.new(316, -290), 14, Color3.fromRGB(185, 160, 122))
-marker("② 책거리 → 한옥 대문 (동남향)", 390, -220, Color3.fromRGB(150, 110, 60), 3)
+-- ② 경의선 책거리: 양화로 → east → south along the village to its gate (gate faces east)
+strip("BookStreet_A", Vector2.new(380, -100), Vector2.new(362, -215), 16, Color3.fromRGB(185, 160, 122))
+strip("BookStreet_B", Vector2.new(362, -215), Vector2.new(322, -215), 12, Color3.fromRGB(185, 160, 122))
+marker("② 경의선 책거리 → 한옥 대문 (동향)", 390, -160, Color3.fromRGB(150, 110, 60), 3)
 
 -- shops along the boulevard
-for _, s in ipairs({ { "노래방", -110 }, { "세탁소", -75 }, { "스터디카페", 70 }, { "붕어빵", 105 } }) do
-	local b = part("Shop_" .. s[1], Vector3.new(24, 12, 16), CFrame.new(s[2], 6, -134), Color3.fromRGB(225, 220, 210))
+for _, s in ipairs({ { "노래방", -110, -68 }, { "세탁소", -80, -68 }, { "스터디카페", 70, -134 }, { "붕어빵", 105, -134 } }) do
+	local b = part("Shop_" .. s[1], Vector3.new(24, 12, 16), CFrame.new(s[2], 6, s[3]), Color3.fromRGB(225, 220, 210))
 	label(b, s[1], Color3.fromRGB(70, 70, 70), 8, 0.6)
 end
 
@@ -223,10 +233,10 @@ for _, c in ipairs({ { -27, -21 }, { 27, -21 }, { -27, 21 }, { 27, 21 } }) do
 end
 part("Gates", Vector3.new(30, 4, 2), CFrame.new(cx, 2, cz - 6), Color3.fromRGB(60, 60, 60), { parent = ST })
 local EXITS = {
-	{ "1", "클럽 (북쪽)", Color3.fromRGB(255, 122, 214), cx - 8, cz + 22 },
-	{ "2", "한옥 마을 (동남)", Color3.fromRGB(185, 135, 74), cx + 28, cz - 16 },
-	{ "3", "해변 (서쪽)", Color3.fromRGB(42, 143, 179), cx - 29, cz },
-	{ "4", "포토부스·공원 (동쪽)", Color3.fromRGB(76, 175, 80), cx + 18, cz + 22 },
+	{ "1", "클럽 (북동)", Color3.fromRGB(255, 122, 214), cx + 22, cz + 22 },
+	{ "2", "한옥 마을 (동)", Color3.fromRGB(185, 135, 74), cx + 29, cz - 8 },
+	{ "3", "한강 해변 (서남)", Color3.fromRGB(42, 143, 179), cx - 26, cz - 22 },
+	{ "4", "연남·공원 (북서)", Color3.fromRGB(76, 175, 80), cx - 22, cz + 22 },
 }
 for _, e in ipairs(EXITS) do
 	local post = part("Exit" .. e[1], Vector3.new(3, 9, 3), CFrame.new(e[4], 4.5, e[5]), e[3], { parent = ST })
@@ -238,4 +248,4 @@ if spawn then
 	spawn.CFrame = CFrame.new(cx, 0.5, cz - 12) -- default orientation looks -Z; players face the way they walk
 end
 T.Parent = workspace
-return "applied v2: station at (" .. cx .. "," .. cz .. "), MODE=revert to undo"
+return "applied v3: station at (" .. cx .. "," .. cz .. "), MODE=revert to undo"
