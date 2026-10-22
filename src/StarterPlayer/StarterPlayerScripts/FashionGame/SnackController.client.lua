@@ -95,6 +95,13 @@ local function show(shopKey: string)
 	openedAt = if root and root:IsA("BasePart") then root.Position else nil
 	title.Text = shop.title
 	status.Text = "메뉴를 고르면 손에 들려 줘요. 자리에 앉아서 드세요!"
+	-- cafe job (D-099): with staff on duty the drink is brought to the customer
+	for _, other in ipairs(Players:GetPlayers()) do
+		if other ~= player and other.Character and other.Character:GetAttribute("CafeJob") == shopKey then
+			status.Text = "☕ 알바생 근무 중! 주문하면 만들어서 자리로 가져다 줘요."
+			break
+		end
+	end
 	for _, child in ipairs(list:GetChildren()) do
 		if child:IsA("TextButton") then child:Destroy() end
 	end

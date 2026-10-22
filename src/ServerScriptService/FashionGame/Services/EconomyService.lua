@@ -85,6 +85,24 @@ function EconomyService.Award(player: Player, key: string): number
 	return amount
 end
 
+-- Pay for work (cafe job, D-099) with a daily cap shared under capKey.
+-- Returns the amount given (less, or 0, once the cap is reached).
+function EconomyService.Earn(player: Player, amount: number, capKey: string, cap: number, text: string): number
+	local w = wallet(player)
+	local earned = w.daily.counts[capKey] or 0
+	local given = math.max(0, math.min(amount, cap - earned))
+	if given <= 0 then return 0 end
+	w.daily.counts[capKey] = earned + given
+	playerData.MarkDirty(player)
+	add(player, given)
+	toast(player, string.format("%s +%d %s · %s", EconomyConfig.Icon, given, EconomyConfig.CurrencyName, text))
+	return given
+end
+
+function EconomyService.Earned(player: Player, capKey: string): number
+	return wallet(player).daily.counts[capKey] or 0
+end
+
 function EconomyService.Spend(player: Player, amount: number): boolean
 	if amount <= 0 then return true end
 	local w = wallet(player)

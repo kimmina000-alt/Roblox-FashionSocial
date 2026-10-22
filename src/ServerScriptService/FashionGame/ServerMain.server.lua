@@ -40,7 +40,9 @@ require(script.Parent.Services.ParkRideService).Start()
 if require(game:GetService("ReplicatedStorage").FashionGame.Shared.EconomyConfig).XPEnabled then
 	require(script.Parent.Services.NameTagService).Start()
 end
-require(script.Parent.Services.SnackService).Start(EconomyService)
+local SnackService = require(script.Parent.Services.SnackService)
+SnackService.Start(EconomyService)
+require(script.Parent.Services.CafeJobService).Start(EconomyService, SnackService)
 require(script.Parent.Services.SubwayService).Start()
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who

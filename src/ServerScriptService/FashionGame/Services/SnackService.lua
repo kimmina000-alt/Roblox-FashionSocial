@@ -21,6 +21,10 @@ local EconomyConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("E
 
 local SnackService = {}
 local economy: any = nil
+-- cafe job (CafeJobService): takes orders while staff is on duty, and hears
+-- about finished drinks (empty cup on the table)
+local orderHandler: ((Player, SnackConfig.Shop, SnackConfig.Item) -> (boolean, string?))? = nil
+local finishedHandler: ((Model, SnackConfig.Item) -> ())? = nil
 
 local function part(name: string, size: Vector3, color: Color3, material: Enum.Material?, shape: Enum.PartType?): Part
 	local p = Instance.new("Part")
@@ -72,7 +76,8 @@ local function mouthGrip(character: Model, lift: number): CFrame?
 end
 
 local function bite(tool: Tool, item: SnackConfig.Item)
-	if tool:GetAttribute("Busy") then return end
+	-- a cup the cafe staff is carrying to a customer is not theirs to drink
+	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return end
 	local character = tool.Parent
 	if not character or not character:IsA("Model") then return end
 	tool:SetAttribute("Busy", true)
@@ -91,7 +96,12 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	local fill = handle and handle:FindFirstChild("Fill") :: BasePart?
 	if fill and left > 0 then fill.Size *= (0.4 + 0.6 * left / SnackConfig.Bites) / (0.4 + 0.6 * (left + 1) / SnackConfig.Bites) end
 	tool:SetAttribute("Busy", nil)
-	if left <= 0 then tool:Destroy() end
+	if left <= 0 then
+		if finishedHandler and tool.Parent and tool.Parent:IsA("Model") then
+			task.spawn(finishedHandler, tool.Parent :: Model, item)
+		end
+		tool:Destroy()
+	end
 end
 
 local function makeTool(item: SnackConfig.Item): Tool
@@ -156,6 +166,10 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	end
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then return false, "잠시 후 다시 시도해 주세요." end
+	if orderHandler and not item.coins then
+		local handled, message = orderHandler(player, shop, item)
+		if handled then return true, message end
+	end
 	local price = item.coins or 0
 	if price > 0 then
 		if not economy or not economy.Spend(player, price) then
@@ -188,6 +202,28 @@ local function addPrompt(shopPart: Instance)
 		local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
 		if notify then notify:FireClient(player, "Open", shop.key) end
 	end)
+end
+
+-- Gives a ready drink / snack (cafe job: the staff hands it over).
+function SnackService.Give(player: Player, item: SnackConfig.Item): Tool?
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if not backpack then return nil end
+	local tool = makeTool(item)
+	tool.Parent = backpack
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then humanoid:EquipTool(tool) end
+	return tool
+end
+
+-- A drink tool for anyone (an NPC customer, the cup the staff carries).
+SnackService.MakeTool = function(item: SnackConfig.Item): Tool return makeTool(item) end
+
+function SnackService.SetOrderHandler(handler: (Player, SnackConfig.Shop, SnackConfig.Item) -> (boolean, string?))
+	orderHandler = handler
+end
+
+function SnackService.SetFinishedHandler(handler: (Model, SnackConfig.Item) -> ())
+	finishedHandler = handler
 end
 
 function SnackService.Start(economyService: any)
