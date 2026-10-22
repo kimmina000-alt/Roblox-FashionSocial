@@ -1,6 +1,6 @@
 # OHU 배치도 v1 — 홍대입구역 주변을 본뜬 구조 (안, 2026-10-22)
 
-그림: `docs/04_ART/diagrams/ohu_hongdae_layout_v1.svg` · 상태: **사용자 확인 대기 (확인 전에는 맵을 다시 짓지 않음)**
+그림: `docs/04_ART/diagrams/ohu_hongdae_layout_v1.svg` · 상태: **Studio에 임시 적용(되돌리기 가능), 사용자 확인 대기** — 아래 "Studio 임시 적용"
 
 ## 왜 바꾸나 (사용자)
 "한국에 현실적으로 저런 공간 없음. 홍대 핫플레이스를 기준으로 복사 붙여넣기 한 것처럼 배치." + 지하철역에서 시작해 출구 번호로 구역을 나눔(1번 클럽, 2번 한옥 마을, 3번 해변).
@@ -30,6 +30,15 @@
 1. 사용자 확인/수정 → 배치도 v2.
 2. 회색 박스를 새 배치로 다시 짓기 (구역별 모델은 지금 그대로 옮겨 재사용: 클럽·한옥·해변·공원·카페·인생네컷·백스테이지). 지하 클럽 땅 구멍·엘리베이터·스폰을 새 위치로.
 3. 지하철역 대합실 + 출구 계단 4개 새로 만들기, 🏠 = 대합실.
+
+## Studio 임시 적용 (2026-10-22, 되돌리기 가능)
+- 스크립트: `tools/graybox/hongdae_v1_temp.lua` (Studio 명령줄, 편집 모드). 맨 위 `MODE`를 `"apply"`/`"revert"`로.
+- 결과 그림: `docs/04_ART/diagrams/ohu_hongdae_v1_studio.png` (Studio 파트로 그린 위에서 본 모습).
+- 방향: 북 = +X, 동 = +Z. 클럽(땅 구멍)과 해변(지형 바다)은 그대로 두고 나머지를 그 둘레에 배치 → 바다가 남쪽 한강이 됨.
+- apply가 하는 일: 구역 이동(백스테이지·Glasshouse 카페·공원·인생네컷), 원형 광장 길(Loop/Spoke)과 09_Paths를 ServerStorage `Hongdae_v1_HiddenParts`로 치움, `Workspace.Hongdae_v1_Temp`(역·양화로·레드로드·와우산로·책거리·경의선숲길·상가) 추가, 스폰을 역 안으로.
+- revert: 구역을 지은 위치(BuiltPivot)로, 숨긴 파트 복구, 임시 모델 삭제, 스폰 원위치. Studio에서 시험 완료.
+- 추가 백업: ServerStorage `Graybox_Backup_Before_Hongdae` (적용 전 맵 통째 복사본).
+- 아직 안 한 것(확정 후): 지하 대합실·출구 계단, 원형 광장 바닥 정리, 공원 바닥 크기, 그래이박스 스크립트에 정식 반영.
 
 ## 출처
 - 서울시 미디어허브 — 3번 출구 경의선숲길, 6번 출구 경의선 책거리: https://mediahub.seoul.go.kr/archives/2006092

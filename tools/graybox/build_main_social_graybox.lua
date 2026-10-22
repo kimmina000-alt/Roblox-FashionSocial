@@ -54,7 +54,7 @@ local function finish(z)
  z.WorldPivot=CFrame.new() -- fixed zone pivot (not the bounding box), so moving one building does not count as moving the zone
  z:SetAttribute("BuiltPivot",z:GetPivot())
  local d=savedMoves[z.Name] if d then applyMove(z,d) end
- finish(z)
+ z.Parent=root
 end
 local function P(par,name,size,cf,color,opt)
  opt=opt or {}
