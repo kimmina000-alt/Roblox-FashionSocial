@@ -35,7 +35,11 @@ ClubService.Start()
 ClubScreenService.Start()
 PhotoBoothService.Start(PlayerDataService)
 require(script.Parent.Services.ParkRideService).Start()
-require(script.Parent.Services.NameTagService).Start()
+-- XP name tags are locked with XP (EconomyConfig.XPEnabled, user 2026-10-22):
+-- players keep Roblox's own name display.
+if require(game:GetService("ReplicatedStorage").FashionGame.Shared.EconomyConfig).XPEnabled then
+	require(script.Parent.Services.NameTagService).Start()
+end
 require(script.Parent.Services.SnackService).Start(EconomyService)
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who

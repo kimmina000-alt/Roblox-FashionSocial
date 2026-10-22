@@ -14,12 +14,20 @@ EconomyConfig.CurrencyName = "코인"
 EconomyConfig.Icon = "💰" -- 🪙 is not in the Roblox font (shows a box)
 EconomyConfig.MaxBalance = 99999
 
--- Passive: every PassiveSeconds while active (moved or danced within
--- ActiveWindow seconds). After PassiveFullMinutes per day it drops to the
--- reduced amount.
+-- Economy v2, first test (user, 2026-10-22; ECONOMY.md, D-074/D-083):
+-- 1 coin per minute online, whether the player moves or not, no daily cap,
+-- activity bonuses off. XP is locked (on hold): no XP, no number above the
+-- avatar (NameTagService stays off).
+EconomyConfig.XPEnabled = false
+EconomyConfig.BonusesEnabled = false
+EconomyConfig.PassiveNeedsActivity = false
+
+-- Passive: every PassiveSeconds (only while active when PassiveNeedsActivity,
+-- i.e. moved or danced within ActiveWindow seconds). After PassiveFullMinutes
+-- per day it drops to the reduced amount.
 EconomyConfig.PassiveSeconds = 60
-EconomyConfig.PassiveAmount = 2
-EconomyConfig.PassiveFullMinutes = 120
+EconomyConfig.PassiveAmount = 1
+EconomyConfig.PassiveFullMinutes = math.huge
 EconomyConfig.PassiveReducedAmount = 1
 EconomyConfig.ActiveWindow = 180
 

@@ -12,7 +12,50 @@
 local root=workspace:FindFirstChild("Graybox_MainSocial") or Instance.new("Folder")
 root.Name="Graybox_MainSocial" root.Parent=workspace
 local CS=game:GetService("CollectionService")
-local function zone(name) local f=root:FindFirstChild(name) if f then f:Destroy() end f=Instance.new("Model") f.Name=name return f end
+-- MOVABLE BUILDINGS (user, 2026-10-22: "건물마다 그룹으로 묶어서 내가 옮길 수
+-- 있도록"). Every zone and every Model directly inside a zone (a building,
+-- tree, ride, parasol group…) is movable in Studio: select it and move /
+-- rotate it. Each records BuiltPivot when built; when this script rebuilds a
+-- zone it first reads how far you moved each model (current pivot vs
+-- BuiltPivot) and applies the same move to the new build, so your
+-- placement survives rebuilds. Vector3 attributes on a moved model (slide
+-- path, tube Base) move with it. tools/graybox/LAYOUT.md has the details.
+-- Moves copied from Studio into the source (tools/graybox/export_layout.lua
+-- prints these lines). Used when a zone does not exist yet (fresh place);
+-- moves found in Workspace win.
+local LAYOUT_MOVES={
+}
+local savedMoves={} for k,v in pairs(LAYOUT_MOVES) do savedMoves[k]=v end
+local function modelKey(z,m)
+ local n=0 for _,c in ipairs(z:GetChildren()) do if c:IsA("Model") and c.Name==m.Name then n+=1 if c==m then break end end end
+ return z.Name.."/"..m.Name.."#"..n end
+-- zone move Z (world) and each child's own move L inside the zone:
+-- current child pivot = Z * L * built pivot
+local function rememberMoves(old)
+ local zb=old:GetAttribute("BuiltPivot")
+ local Z=if typeof(zb)=="CFrame" then old:GetPivot()*zb:Inverse() else CFrame.new()
+ savedMoves[old.Name]=Z
+ for _,c in ipairs(old:GetChildren()) do if c:IsA("Model") then
+  local b=c:GetAttribute("BuiltPivot")
+  if typeof(b)=="CFrame" then savedMoves[modelKey(old,c)]=Z:Inverse()*c:GetPivot()*b:Inverse() end end end
+end
+local function zone(name) local f=root:FindFirstChild(name) if f then rememberMoves(f) f:Destroy() end f=Instance.new("Model") f.Name=name return f end
+local function applyMove(m,d)
+ if d==CFrame.new() then return end
+ m:PivotTo(d*m:GetPivot())
+ local list=m:GetDescendants() table.insert(list,m) -- positions stored as Vector3 attributes (slide path, tube Base, club Exit) move too
+ for _,x in ipairs(list) do for k,v in pairs(x:GetAttributes()) do if typeof(v)=="Vector3" then x:SetAttribute(k,d*v) end end end
+end
+-- called instead of z.Parent=root at the end of every zone
+local function finish(z)
+ for _,c in ipairs(z:GetChildren()) do if c:IsA("Model") then
+  c:SetAttribute("BuiltPivot",c:GetPivot())
+  local d=savedMoves[modelKey(z,c)] if d then applyMove(c,d) end end end
+ z.WorldPivot=CFrame.new() -- fixed zone pivot (not the bounding box), so moving one building does not count as moving the zone
+ z:SetAttribute("BuiltPivot",z:GetPivot())
+ local d=savedMoves[z.Name] if d then applyMove(z,d) end
+ finish(z)
+end
 local function P(par,name,size,cf,color,opt)
  opt=opt or {}
  local p=Instance.new(opt.class or "Part") p.Name=name p.Anchored=true p.Size=size p.CFrame=cf
@@ -73,7 +116,7 @@ local T=workspace.Terrain
 T:FillBlock(CFrame.new((-1024+SEA_X)/2,SEA_FLOOR/2,0),Vector3.new(SEA_X+1024,-SEA_FLOOR,2048),Enum.Material.Water)
 T:FillBall(Vector3.new(-368,0,-150),44,Enum.Material.Air) -- keep the aquarium dome dry
 T.WaterColor=Color3.fromRGB(40,170,200) T.WaterTransparency=0.6 T.WaterWaveSize=0.12 T.WaterWaveSpeed=8 T.WaterReflectance=0.6
-z.Parent=root
+finish(z)
 end
 do
 -- PLAZA + LOOP + SPOKES (compacted: plaza 120, loop rx 180, rz 105 north / 160 south)
@@ -97,7 +140,7 @@ label(z,"City Street 루프",Vector3.new(129.6,12,-73.5))
 local sp=workspace:FindFirstChild("SpawnLocation") if sp then sp.CFrame=CFrame.new(0,0.5,30) sp.Size=Vector3.new(12,1,12) end
 local bgs={{Vector3.new(-112.5,0,-142.5),Vector3.new(60,26,40)},{Vector3.new(225,0,127.5),Vector3.new(50,22,60)},{Vector3.new(22.5,0,210),Vector3.new(70,20,40)},{Vector3.new(-45,0,240),Vector3.new(50,18,40)}}
 for _,b in ipairs(bgs) do P(z,"BG_Building(진입불가)",b[2],CFrame.new(b[1]+Vector3.new(0,b[2].Y/2,0)),C.bg) end
-z.Parent=root
+finish(z)
 end
 do
 -- CLUB rev3 (2026-10-20, D-065, user floor plan): underground hall with a high
@@ -449,7 +492,7 @@ zoneBox("ClubZone_Stairs",-80,F,-166.5,12,12,-151,"Stairs")
 zoneBox("ClubZone_Rooftop",-80,RT,-270,80,RT+24,-150,"Rooftop")
 for _,b in ipairs({{-80,F,-270,80,TOP,-150},{-80,RT,-270,80,RT+24,-150}}) do
  local i=box(z,"ClubInterior",b[1],b[2],b[3],b[4],b[5],b[6],W,{t=1,ghost=true}) CS:AddTag(i,"ClubInterior") end
-z.Parent=root
+finish(z)
 end
 do
 -- FASHION WEEK BACKSTAGE (2026-10-21, FASHION_WEEK_BACKSTAGE.md §7): between
@@ -511,7 +554,7 @@ label(z,"런웨이 (후속 부지)",Vector3.new(cx,8,z0-43))
 label(z,"Fashion Week Backstage",Vector3.new(cx,24,cz),true)
 -- path from the loop (centre line at x=125 is z≈-75.6) to the front door
 P(z,"BackstagePath",Vector3.new(14,0.45,math.abs(z1+76)),CFrame.new(cx,0.22,(z1-76)/2),C.road)
-z.Parent=root
+finish(z)
 end
 do -- 04_Beach_Aquarium: Sunset Beach (2026-10-22, user references: striped
 -- parasols, deck chairs, mats, ice boxes, palm trees, pink ice cream truck,
@@ -721,7 +764,7 @@ local z=zone("04_Beach_Aquarium")
  label(z,"★ 돔 내부",Vector3.new(-378,8.5,-140),false)
  label(z,"Dream Aquarium",Vector3.new(-368,52,-150),true)
  label(z,"Sunset Beach",Vector3.new(-233,14,-20),true)
- z.Parent=root
+ finish(z)
 end
 do -- 05_Cafe (snapshot)
 local z=zone("05_Cafe")
@@ -738,7 +781,7 @@ local z=zone("05_Cafe")
  S(z,"Part","PhotoSpot",{0.6,8,8},{-160,0.3,199,0,-1,0,1,0,0,0,0,1},{255,159,28},"SmoothPlastic",0,0,"Cylinder",{},{})
  label(z,"★ 카페 창가",Vector3.new(-160,7,199),false)
  label(z,"Glasshouse Cafe",Vector3.new(-130,26,185),true)
- z.Parent=root
+ finish(z)
 end
 do -- 06_Park_Playground: rides (user, 2026-10-22; docs/02_WORLDS/PARK.md).
 -- Rides move on the clients from the server clock (ParkConfig,
@@ -871,7 +914,7 @@ local z=zone("06_Park_Playground")
   for _,side in ipairs({-1.6,1.6}) do local off=Vector3.new(0,0.35,side) beam(SL,"SlideRail",a+off,b+off,0.3,Color3.fromRGB(255,140,120),{nocol=true}) end end
  box(SL,"SlideStart",281.2,7,58.6,283.2,10,61.4,Color3.new(1,1,1),{t=1,ghost=true})
  label(z,"미끄럼틀",Vector3.new(284,13,60))
- z.Parent=root
+ finish(z)
 end
 do -- 07_Hanok_Village (2026-10-22, user references: giwa roofs over red
 -- brick and granite flower walls, white wall + yellow flowering tree + bench,
@@ -1138,7 +1181,7 @@ local z=zone("07_Hanok_Village")
    for _,sx in ipairs({-1.2,1.2}) do seat(z,"GardenBenchSeat",CFrame.new(bx+sx,2.05,270),Vector3.new(2,0.2,1.4),woodC,1) end end
  end
  label(z,"한옥 마을",Vector3.new(175,30,230),true)
- z.Parent=root
+ finish(z)
 end
 do -- 08_PhotoBooth (snapshot of the other session's booths, PHOTO_BOOTH.md)
 local z=zone("08_PhotoBooth")
@@ -1169,13 +1212,13 @@ local z=zone("08_PhotoBooth")
  S(z,"Part","PhotoWall",{30,10,0.5},{199,7,-136.5,1,0,0,0,1,0,0,0,1},{255,255,255},"SmoothPlastic",0,0,nil,{"PhotoWall"},{WallKey="SHOP",Face="Back"})
  label(z,"포토 월 (사진 붙이기)",Vector3.new(199,14,-135),false)
  label(z,"인생네컷 포토 부스",Vector3.new(205,26,-112),true)
- z.Parent=root
+ finish(z)
 end
 do -- 09_Paths (snapshot)
 local z=zone("09_Paths")
  S(z,"Part","CafePath",{16,0.45,34.527},{-109.327,0.22,147.573,-0.865,0,0.502,0,1,0,-0.502,0,-0.865},{201,170,110},"SmoothPlastic",0,0,nil,{},{})
  S(z,"Part","GatePath",{20,0.45,72.713},{151.14,0.22,140.569,-0.755,0,-0.656,0,1,0,0.656,0,-0.755},{201,170,110},"SmoothPlastic",0,0,nil,{},{})
  S(z,"Part","ShopPath",{14,0.45,57.206},{156.943,0.22,-89.039,0.803,0,-0.596,0,1,0,0.596,0,0.803},{201,170,110},"SmoothPlastic",0,0,nil,{},{})
- z.Parent=root
+ finish(z)
 end
 return "graybox built"

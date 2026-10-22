@@ -72,7 +72,7 @@ end
 -- Activity bonus. Returns the amount given (0 when capped).
 function EconomyService.Award(player: Player, key: string): number
 	local bonus = EconomyConfig.Bonuses[key]
-	if not bonus then return 0 end
+	if not bonus or not EconomyConfig.BonusesEnabled then return 0 end
 	local w = wallet(player)
 	local count = w.daily.counts[key] or 0
 	local amount = if count < bonus.perDay then bonus.amount else bonus.after
@@ -166,12 +166,15 @@ end
 local function passiveTick()
 	local now = os.clock()
 	for _, player in ipairs(Players:GetPlayers()) do
-		-- XP (D-074): +1 per minute online, active or not; never spent.
-		local xpWallet = playerData.Wallet(player)
-		xpWallet.xp = (xpWallet.xp or 0) + 1
-		playerData.MarkDirty(player)
-		player:SetAttribute("XP", xpWallet.xp)
-		if lastActive[player] and now - lastActive[player] <= EconomyConfig.ActiveWindow then
+		-- XP (D-078) is locked / on hold (user, 2026-10-22): EconomyConfig.XPEnabled.
+		if EconomyConfig.XPEnabled then
+			local xpWallet = playerData.Wallet(player)
+			xpWallet.xp = (xpWallet.xp or 0) + 1
+			playerData.MarkDirty(player)
+			player:SetAttribute("XP", xpWallet.xp)
+		end
+		local active = lastActive[player] ~= nil and now - lastActive[player] <= EconomyConfig.ActiveWindow
+		if active or not EconomyConfig.PassiveNeedsActivity then
 			local w = wallet(player)
 			local minutes = w.daily.counts.Passive or 0
 			w.daily.counts.Passive = minutes + 1

@@ -209,12 +209,56 @@ local function refreshBottleLabel(bottle: BasePart)
 	end
 end
 
+-- Sign above a table with the Roblox ID (@username) of whoever put a bought
+-- bottle on it (user, 2026-10-22). Gone when the table has no bottles.
+local function refreshTableSign(tablePart: Instance)
+	if not tablePart:IsA("BasePart") then return end
+	local names = {}
+	for _, child in ipairs(tablePart:GetChildren()) do
+		local owner = child:IsA("Attachment") and child:GetAttribute("OwnerName")
+		if typeof(owner) == "string" and not table.find(names, owner) then table.insert(names, owner) end
+	end
+	local sign = tablePart:FindFirstChild("TableOwnerSign")
+	if #names == 0 then
+		if sign then sign:Destroy() end
+		return
+	end
+	if not sign then
+		local billboard = Instance.new("BillboardGui")
+		billboard.Name = "TableOwnerSign"
+		billboard.Size = UDim2.fromOffset(220, 34)
+		billboard.StudsOffset = Vector3.new(0, 4.5, 0)
+		billboard.MaxDistance = 70
+		billboard.LightInfluence = 0
+		local label = Instance.new("TextLabel")
+		label.Name = "Text"
+		label.Size = UDim2.fromScale(1, 1)
+		label.BackgroundColor3 = Color3.fromRGB(20, 12, 30)
+		label.BackgroundTransparency = 0.25
+		label.TextColor3 = Color3.fromRGB(255, 220, 120)
+		label.TextScaled = true
+		label.Font = Enum.Font.GothamBold
+		label.Parent = billboard
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(0.5, 0)
+		corner.Parent = label
+		billboard.Parent = tablePart
+		sign = billboard
+	end
+	local shown = {}
+	for _, name in ipairs(names) do table.insert(shown, "@" .. name) end
+	(sign :: any).Text.Text = "🍾 " .. table.concat(shown, " · ") .. " 테이블"
+end
+
 local function removeBottle(bottle: BasePart)
 	local slot = bottle:FindFirstChild("SlotRef") :: ObjectValue?
+	local tablePart = slot and slot.Value and (slot.Value :: Instance).Parent
 	if slot and slot.Value then
-		(slot.Value :: Instance):SetAttribute("Occupied", nil)
+		(slot.Value :: Instance):SetAttribute("Occupied", nil);
+		(slot.Value :: Instance):SetAttribute("OwnerName", nil)
 	end
 	bottle:Destroy()
+	if tablePart then refreshTableSign(tablePart) end
 end
 
 local function freeSlot(tablePart: BasePart): Attachment?
@@ -262,6 +306,8 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	servings = if typeof(servings) == "number" then math.clamp(servings, 1, ClubConfig.BottleServings) else ClubConfig.BottleServings
 	bottleTool:Destroy()
 	slot:SetAttribute("Occupied", true)
+	slot:SetAttribute("OwnerName", player.Name)
+	refreshTableSign(tablePart)
 
 	local bottle = Instance.new("Part")
 	bottle.Name = "PlacedBottle"
