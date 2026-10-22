@@ -1,0 +1,104 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 860" font-family="Pretendard, 'Noto Sans KR', sans-serif">
+  <rect width="1100" height="860" fill="#f4f1ea"/><style>.halo{paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}</style>
+  <text x="30" y="40" font-size="24" font-weight="800" fill="#222">OHU 배치도 v1 — 홍대입구역 주변을 본뜬 구조 (안)</text>
+  <text x="30" y="64" font-size="13" fill="#555">위 = 북쪽. 실제 홍대의 방향·길 이름을 기준으로 줄여서 배치. 숫자 ①②③④ = 지하철 출구. ★ = 포토 스팟</text>
+
+  <g transform="translate(0,40)">
+  <!-- Han river / beach (south) -->
+  <path d="M0,700 C250,670 600,720 1100,690 L1100,820 L0,820 Z" fill="#9fd3e6"/>
+  <path d="M0,700 C250,670 600,720 1100,690 L1100,712 C600,742 250,692 0,722 Z" fill="#ead9a8"/>
+  <text x="640" y="782" font-size="17" font-weight="700" fill="#1f5f78">③ 해변 · 한강 선셋 비치 (망원·당인리 한강변 느낌)</text>
+  <text x="640" y="802" font-size="12" fill="#1f5f78">파라솔·야자수·튜브·아이스크림 트럭·오션뷰 카페(OHU CAFE · Sunset)</text>
+
+  <!-- Yanghwa-ro main boulevard -->
+  <path d="M0,350 L1100,300" stroke="#c9c2b4" stroke-width="46"/>
+  <path d="M0,350 L1100,300" stroke="#fff" stroke-width="2" stroke-dasharray="14 12"/>
+  <text x="30" y="324" font-size="13" fill="#777" transform="rotate(-2.6 30 324)">양화로 (큰길 · 버스정류장 · 대로변 상가)</text>
+
+  <!-- Gyeongui line forest park (NW diagonal) -->
+  <path d="M520,315 L170,95" stroke="#8fc98f" stroke-width="54" stroke-linecap="round"/>
+  <path d="M520,315 L170,95" stroke="#6aa86a" stroke-width="3" stroke-dasharray="6 8"/>
+  <text x="232" y="190" class="halo" font-size="14" font-weight="700" fill="#2f6b2f" transform="rotate(32 232 190)">경의선숲길 · 연트럴파크 (잔디·산책로)</text>
+  <!-- Park rides at the end of the forest park -->
+  <circle cx="135" cy="80" r="44" fill="none" stroke="#e6a23c" stroke-width="5"/>
+  <text x="60" y="145" font-size="13" font-weight="700" fill="#8a5a10">🎡 관람차·회전목마</text>
+  <text x="60" y="161" font-size="12" fill="#8a5a10">놀이터(그네·미끄럼틀·흔들그네)</text>
+  <!-- Yeonnam cafe street along the park -->
+  <rect x="330" y="120" width="120" height="70" rx="8" fill="#fff" stroke="#5a8a5a" stroke-width="2"/>
+  <text x="342" y="146" font-size="13" font-weight="700" fill="#2f6b2f">연남동 카페거리</text>
+  <text x="342" y="164" font-size="12" fill="#2f6b2f">Glasshouse 온실 카페</text>
+  <text x="342" y="180" font-size="12" fill="#2f6b2f">소품샵(준비 중)</text>
+
+  <!-- Hongdae core: Eoulmadang-ro walking street (red road) SW -->
+  <path d="M480,345 L250,640" stroke="#d9534f" stroke-width="30" stroke-linecap="round"/>
+  <text x="345" y="440" class="halo" font-size="14" font-weight="800" fill="#c0392b" transform="rotate(-52 345 440)">걷고싶은거리 · 레드로드</text>
+  <!-- Wausan-ro / club street -->
+  <path d="M600,360 L560,650" stroke="#c9c2b4" stroke-width="22"/>
+  <text x="602" y="520" font-size="12" fill="#666" transform="rotate(82 602 520)">와우산로</text>
+  <path d="M330,560 L560,600" stroke="#7b5ea7" stroke-width="20"/>
+  <text x="350" y="588" class="halo" font-size="13" font-weight="800" fill="#5b3f8a" transform="rotate(10 350 588)">클럽거리 (잔다리로)</text>
+
+  <!-- Club -->
+  <rect x="380" y="610" width="150" height="62" rx="6" fill="#3b2a5c"/>
+  <text x="392" y="636" font-size="15" font-weight="800" fill="#ff7ad6">① OHU CLUB</text>
+  <text x="392" y="656" font-size="11" fill="#ddd">지하 클럽 + 옥상 · 레드카펫 ★</text>
+  <!-- Photo booth street -->
+  <rect x="380" y="400" width="130" height="58" rx="6" fill="#fff" stroke="#e86aa6" stroke-width="2"/>
+  <text x="390" y="424" font-size="13" font-weight="700" fill="#b8336f">인생네컷 거리</text>
+  <text x="390" y="442" font-size="11" fill="#b8336f">OHU PHOTO 부스 · 포토월</text>
+  <!-- Hongdae playground (busking) -->
+  <rect x="200" y="470" width="120" height="70" rx="10" fill="#ffe9a8" stroke="#d1a23a" stroke-width="2"/>
+  <text x="210" y="496" font-size="13" font-weight="700" fill="#7a5a10">홍대 놀이터 광장</text>
+  <text x="210" y="514" font-size="11" fill="#7a5a10">버스킹 무대·벤치 ★</text>
+  <text x="210" y="530" font-size="11" fill="#7a5a10">(지금 중앙 광장 역할)</text>
+  <!-- Fashion week (Sangsangmadang-like culture building) -->
+  <rect x="630" y="400" width="140" height="66" rx="6" fill="#2b2b33"/>
+  <text x="640" y="424" font-size="13" font-weight="700" fill="#ffd25a">패션위크 백스테이지</text>
+  <text x="640" y="442" font-size="11" fill="#ccc">상상마당 같은 문화 건물</text>
+  <text x="640" y="458" font-size="11" fill="#ccc">(런웨이 예정 부지 뒤)</text>
+  <!-- Street shops on the boulevard -->
+  <g font-size="11" fill="#555">
+    <rect x="620" y="340" width="96" height="30" fill="#fff" stroke="#999"/><text x="626" y="360">노래방(열린무대)</text>
+    <rect x="724" y="336" width="56" height="30" fill="#fff" stroke="#999"/><text x="733" y="356">세탁소</text>
+    <rect x="788" y="332" width="74" height="30" fill="#fff" stroke="#999"/><text x="793" y="352">스터디카페</text>
+    <rect x="300" y="360" width="64" height="30" fill="#fff" stroke="#999"/><text x="306" y="380">붕어빵</text>
+  </g>
+
+  <!-- Hanok village east -->
+  <rect x="860" y="130" width="210" height="140" rx="10" fill="#e9dcc6" stroke="#8a6a4a" stroke-width="2"/>
+  <text x="874" y="160" font-size="16" font-weight="800" fill="#5a3a1a">② 한옥 마을</text>
+  <text x="874" y="180" font-size="12" fill="#5a3a1a">익선동·북촌 같은 한옥 골목</text>
+  <text x="874" y="198" font-size="12" fill="#5a3a1a">대문 벚꽃 ★ · 연못 정자 ★</text>
+  <text x="874" y="216" font-size="12" fill="#5a3a1a">OHU 한옥카페 · 언덕 전망대</text>
+  <path d="M640,308 L860,210" stroke="#b9a07a" stroke-width="16" stroke-dasharray="2 0"/>
+  <text x="690" y="262" class="halo" font-size="12" font-weight="700" fill="#7a5a3a" transform="rotate(-24 690 262)">경의선 책거리 → 한옥골목</text>
+
+  <!-- Station -->
+  <rect x="440" y="282" width="150" height="80" rx="14" fill="#2e7d32" stroke="#1b4d1e" stroke-width="3"/>
+  <text x="455" y="312" font-size="16" font-weight="800" fill="#fff">OHU입구역</text>
+  <text x="455" y="332" font-size="11" fill="#e0ffe0">지하 대합실 = 스폰 · 🏠</text>
+  <text x="455" y="348" font-size="11" fill="#e0ffe0">출구 안내판 · 개찰구</text>
+  <!-- Exits -->
+  <g font-size="15" font-weight="800">
+    <circle cx="440" cy="365" r="15" fill="#ff7ad6"/><text x="434" y="371" fill="#fff">1</text>
+    <circle cx="592" cy="290" r="15" fill="#b9874a"/><text x="586" y="296" fill="#fff">2</text>
+    <circle cx="560" cy="368" r="15" fill="#2a8fb3"/><text x="554" y="374" fill="#fff">3</text>
+    <circle cx="452" cy="278" r="15" fill="#4caf50"/><text x="446" y="284" fill="#fff">4</text>
+  </g>
+  <path d="M560,384 L600,690" stroke="#2a8fb3" stroke-width="4" stroke-dasharray="10 8"/>
+  <text x="604" y="560" font-size="12" fill="#2a8fb3">③ → 상수 방향 → 한강 해변</text>
+
+  <!-- Legend -->
+  <rect x="800" y="420" width="280" height="190" rx="10" fill="#fff" stroke="#bbb"/>
+  <text x="815" y="446" font-size="14" font-weight="800" fill="#222">출구 → 도착</text>
+  <g font-size="12" fill="#333">
+    <text x="815" y="470">① 클럽거리 → OHU CLUB (레드로드 따라)</text>
+    <text x="815" y="490">② 경의선 책거리 → 한옥 마을</text>
+    <text x="815" y="510">③ 와우산로 → 상수 → 한강 해변</text>
+    <text x="815" y="530">④ 경의선숲길(연트럴파크) → 연남</text>
+    <text x="830" y="546">카페거리 → 공원 놀이기구</text>
+    <text x="815" y="570">걷고싶은거리 가운데: 인생네컷·</text>
+    <text x="830" y="586">놀이터 광장·패션위크</text>
+  </g>
+  </g>
+</svg>

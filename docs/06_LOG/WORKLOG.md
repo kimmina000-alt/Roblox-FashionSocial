@@ -451,3 +451,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 야호 audio 130278670102424 on the slide landing (needs a restarted test to hear it).
 - Hanok cherry trees → Falling Blossom Cherry Tree (ServerStorage asset, no scripts).
 - [x] Mobile 2P: ferris wheel same gondola (seats match on both screens), two swings with speed control, buttons on phone layout.
+
+## 2026-10-22 (5) — Merge, coins, product list, movable buildings, Hongdae layout v1
+- Merged `feat/photobooth-club2` into `catalog-ui-redesign` (fast-forward, 408f7f1). New branch `feat/coins-layout-1022`.
+- Coins 1/min, XP locked (D-083). Table owner sign. PRODUCTS.md + MonetizationConfig SKUs (D-085). Movable graybox buildings + export tool (D-084). Hongdae layout v1 diagram (D-086).
+- [ ] Studio: sync these scripts and rebuild zones to stamp BuiltPivot (Studio was disconnected), then test a moved building surviving a rebuild.

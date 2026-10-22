@@ -22,13 +22,14 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2-player + mobile tests done 2026-10-22 (booth watching/copies, pillars swap, ISSUE-MOBILE-001 fixes verified).
 - Real phone check by the user: catalog C, album, 📸 OK.
 - 2026-10-22 (4): 야호 voice (130278670102424), toolbox cherry trees in the hanok village (ServerStorage FallingBlossomCherryTree), mobile 2P ride test passed. Rule: show Creator Store candidates before placing (D-082); test as mobile 2P.
+- 2026-10-22 (5): stack merged into catalog-ui-redesign; work continues on feat/coins-layout-1022: coins 1/min + XP locked (D-083), movable buildings (D-084, tools/graybox/LAYOUT.md), product SKUs (D-085, PRODUCTS.md), Hongdae layout v1 waiting for review (D-086, HONGDAE_LAYOUT.md). Studio sync of these is pending.
 - Open items: real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip.
 - Next: test + fix the batch → 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9).
 - Start of next session: push works from this machine now (Git Credential Manager has the login). Check the Studio place was saved (graybox zones live in Workspace only). Ask whether to apply economy v2 coins in code.
 
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
-- `docs/06_LOG/DECISIONS.md`: D-001 to D-082.
+- `docs/06_LOG/DECISIONS.md`: D-001 to D-086.
 - `docs/06_LOG/ISSUES.md`, `WORKLOG.md`, `CHANGELOG.md`.
 - `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`.
 - `docs/02_WORLDS/MAIN_SOCIAL_LAYOUT_PROPOSAL.md`, `CLUB_AREA.md`.

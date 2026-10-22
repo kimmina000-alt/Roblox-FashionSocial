@@ -252,3 +252,13 @@ D-080 — LED pillars show the live avatar from the front (camera-like), the pic
 D-081 — The 🏠 button may take a rider off the ferris wheel (or any ride) at any height (2026-10-22).
 
 D-082 — Art assets from the Creator Store: show the user a shortlist first, place only after they choose (user, 2026-10-22). First temporary pick: Falling Blossom Cherry Tree for the hanok village. 야호 voice: audio 130278670102424 chosen by the user. Default play test = 2-player in phone emulation.
+
+D-083 — XP locked (on hold), coins 1 per minute regardless of activity, no cap, activity bonuses off (user, 2026-10-22). Flags in EconomyConfig. ECONOMY.md §7.
+
+D-084 — Graybox buildings are movable by the user in Studio; rebuilding a zone re-applies the user's moves (BuiltPivot), export_layout.lua copies them into LAYOUT_MOVES (2026-10-22). tools/graybox/LAYOUT.md.
+
+D-085 — Product naming: SKU AREA-TYPE-NAME (PASS / DP); Roblox IDs are assigned by Roblox and only pasted in; list + add-item steps in PRODUCTS.md. IDs are registered after testing the basic items (user, 2026-10-22).
+
+D-086 — Layout proposal v1 modelled on Hongdae around Hongik Univ. station: spawn in an underground station concourse; exits ① club street ② hanok village ③ Han-river beach ④ Gyeongui forest park → Yeonnam cafes → park rides; walking street (red road) with 인생네컷, playground square, fashion week. Waiting for the user's review (HONGDAE_LAYOUT.md).
+
+Note — Club bottles: a sign "🍾 @username 테이블" shows above a table while that player's bought bottle is on it (user, 2026-10-22).
