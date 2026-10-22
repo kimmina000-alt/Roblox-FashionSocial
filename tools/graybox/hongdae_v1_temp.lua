@@ -34,8 +34,8 @@ local MOVES = {
 -- ground holes: club + the four subway stair pits (x0, z0, x1, z1)
 local HOLES = {
 	{ 49, -252, 169, -92 },
-	{ 26, -56, 32, -44 }, { -32, -56, -26, -44 }, -- exits 1, 3 (come up northwards)
-	{ 26, 44, 32, 56 }, { -32, 44, -26, 56 }, -- exits 2, 4 (come up southwards)
+	{ 26, -59, 32, -41 }, { -32, -59, -26, -41 }, -- exits 1, 3 (come up northwards)
+	{ 26, 41, 32, 59 }, { -32, 41, -26, 59 }, -- exits 2, 4 (come up southwards)
 }
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
 	{ Vector3.new(400, -55, 60), 95 }, { Vector3.new(470, -60, 175), 110 }, { Vector3.new(420, -55, 295), 95 },
@@ -280,8 +280,16 @@ end
 
 local CAR_COLORS = { Color3.fromRGB(245, 245, 245), Color3.fromRGB(25, 25, 30), Color3.fromRGB(150, 155, 160), Color3.fromRGB(40, 60, 110), Color3.fromRGB(160, 30, 35) }
 local carCount = 0
+local carDesigns = (SS:FindFirstChild("Cars") and SS.Cars:GetChildren()) or {}
+table.sort(carDesigns, function(a, b) return a.Name < b.Name end)
 local function car(pos: Vector3, along: Vector3)
 	carCount += 1
+	if #carDesigns > 0 then -- Creator Store cars picked by the user (anchored, scripts removed, 15 long)
+		local c = carDesigns[((carCount - 1) % #carDesigns) + 1]:Clone()
+		c:PivotTo(CFrame.lookAt(pos + Vector3.new(0, 0.12, 0), pos + Vector3.new(0, 0.12, 0) + along))
+		c.Parent = T
+		return
+	end
 	local m = Instance.new("Model")
 	m.Name = "Car"
 	local cf = CFrame.lookAt(pos, pos + along)
@@ -301,6 +309,12 @@ for _, o in ipairs({ -24, 24 }) do paint("JunctionLine", -24, o - 0.2, 24, o + 0
 
 -- a big road from the crossroads; dir = ±X/±Z; u along, v across (+v = right of dir)
 -- pits = sidewalk cut-outs for stair pits {u0, u1, v0, v1}; cars = {u, v}
+-- sidewalk areas kept free of lamps / planters (entrances)
+local KEEP_CLEAR = { { -196, -40, -104, -20 } } -- park gate
+local function clear(p: Vector3)
+	for _, k in ipairs(KEEP_CLEAR) do if p.X > k[1] and p.X < k[3] and p.Z > k[2] and p.Z < k[4] then return false end end
+	return true
+end
 local function bigRoad(dir: Vector3, len: number, pits, cars)
 	local across = Vector3.new(-dir.Z, 0, dir.X)
 	local function at(u, v) return dir * u + across * v end
@@ -345,17 +359,17 @@ local function bigRoad(dir: Vector3, len: number, pits, cars)
 	for u = 62, len - 6, 18 do
 		local free = true
 		for _, p in ipairs(pits) do if u > p[1] - 6 and u < p[2] + 6 then free = false end end
-		if free then planter(at(u, -25.5), dir) planter(at(u, 25.5), dir) end
+		if free then for _, v in ipairs({ -25.5, 25.5 }) do if clear(at(u, v)) then planter(at(u, v), dir) end end end
 	end
 	for u = 70, len - 6, 40 do
-		streetLamp(at(u, -32.5) + Vector3.new(0, CURB, 0), across)
-		streetLamp(at(u, 32.5) + Vector3.new(0, CURB, 0), -across)
+		if clear(at(u, -32.5)) then streetLamp(at(u, -32.5) + Vector3.new(0, CURB, 0), across) end
+		if clear(at(u, 32.5)) then streetLamp(at(u, 32.5) + Vector3.new(0, CURB, 0), -across) end
 	end
 	trafficLight(at(38, 30) + Vector3.new(0, CURB, 0), -across, 26)
 	for _, c in ipairs(cars) do car(at(c[1], c[2]), if c[2] > 0 then -dir else dir) end
 end
-bigRoad(Vector3.new(0, 0, -1), 470, { { 44, 56, 26, 32 }, { 44, 56, -32, -26 } }, { { 48, 12 }, { 66, 20 } }) -- north
-bigRoad(Vector3.new(0, 0, 1), 300, { { 44, 56, 26, 32 }, { 44, 56, -32, -26 } }, { { 48, 20 }, { 120, -12 } }) -- south
+bigRoad(Vector3.new(0, 0, -1), 470, { { 41, 59, 26, 32 }, { 41, 59, -32, -26 } }, { { 48, 12 }, { 66, 20 } }) -- north
+bigRoad(Vector3.new(0, 0, 1), 300, { { 41, 59, 26, 32 }, { 41, 59, -32, -26 } }, { { 48, 20 }, { 120, -12 } }) -- south
 bigRoad(Vector3.new(1, 0, 0), 260, {}, { { 46, 12 }, { 64, 12 }, { 90, -20 } }) -- east
 bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 48, 20 }, { 80, -12 } }) -- west, to the seafront road
 
@@ -382,54 +396,69 @@ box("HanokLane", 232, 0, 34, 240, 0.3, 130, LANE, { material = Enum.Material.Sla
 box("HanokLane2", 225, 0, 122, 240, 0.3, 130, LANE, { material = Enum.Material.Slate })
 
 ------------------------------------------------------- subway exits (stairs)
+-- stairs come up in the arrow direction under a glass canopy that slopes
+-- down toward the back; the pad is the landing at the bottom of the stairs
+-- (like going down to the platform): step on it → exit picker; arrivals
+-- appear at the foot of the stairs and walk up (user 2026-10-22)
 local EXITS = {
 	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -50, Vector3.new(0, 0, -1) },
 	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 50, Vector3.new(0, 0, 1) },
 	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -29, -50, Vector3.new(0, 0, -1) },
 	{ 4, "광안리 해변 · 카페", Color3.fromRGB(42, 143, 179), -29, 50, Vector3.new(0, 0, 1) },
 }
-local exitPads = {}
+local exitPads, exitMouths = {}, {}
 for _, e in ipairs(EXITS) do
 	local m = Instance.new("Model")
 	m.Name = "SubwayExit" .. e[1]
 	m.Parent = T
 	local out = e[6]
-	local c = Vector3.new(e[4], 0, e[5]) -- pit centre (6 wide, 12 long)
-	local top = c + out * 6 -- mouth (ground level)
+	local c = Vector3.new(e[4], 0, e[5]) -- pit centre: 6 wide, 18 long (u -9..9 along out)
 	local side = Vector3.new(1, 0, 0)
-	for k = 1, 10 do -- stairs from the mouth down to y -8
-		local a, b = c + out * (6 - (k - 1) * 1.2), c + out * (6 - k * 1.2)
-		box("Step", a.X - 3, -8.6, a.Z, b.X + 3, CURB - k * 0.86, b.Z, Color3.fromRGB(150, 150, 155), { parent = m, material = Enum.Material.Concrete })
+	local function at(u) return c + out * u end
+	local bottom = CURB - 10 * 0.86
+	for k = 1, 10 do -- stairs from the mouth (u 9) down to u -3
+		local a, b = at(9 - (k - 1) * 1.2), at(9 - k * 1.2)
+		box("Step", a.X - 3, -9, a.Z, b.X + 3, CURB - k * 0.86, b.Z, Color3.fromRGB(150, 150, 155), { parent = m, material = Enum.Material.Concrete })
 	end
-	box("PitWallL", c.X - 3.4, -9, c.Z - 6, c.X - 3, CURB, c.Z + 6, Color3.fromRGB(200, 200, 205), { parent = m })
-	box("PitWallR", c.X + 3, -9, c.Z - 6, c.X + 3.4, CURB, c.Z + 6, Color3.fromRGB(200, 200, 205), { parent = m })
-	local back = c - out * 6
-	box("PitBack", back.X - 3, -9, back.Z - 0.2, back.X + 3, CURB + 4.6, back.Z + 0.2, Color3.fromRGB(40, 40, 45), { parent = m })
+	local l0, l1 = at(-3), at(-9)
+	box("Landing", l0.X - 3, -9, l0.Z, l1.X + 3, bottom, l1.Z, Color3.fromRGB(120, 120, 128), { parent = m, material = Enum.Material.Concrete })
+	box("PitWallL", c.X - 3.4, -9, c.Z - 9, c.X - 3, CURB, c.Z + 9, Color3.fromRGB(200, 200, 205), { parent = m })
+	box("PitWallR", c.X + 3, -9, c.Z - 9, c.X + 3.4, CURB, c.Z + 9, Color3.fromRGB(200, 200, 205), { parent = m })
+	local back = at(-9)
+	local bw = box("PitBack", back.X - 3, -9, back.Z - 0.2, back.X + 3, CURB + 2.6, back.Z + 0.2, Color3.fromRGB(40, 40, 45), { parent = m })
+	surfaceText(bw, if out.Z < 0 then Enum.NormalId.Front else Enum.NormalId.Back, "🚇 승강장\n발판을 밟으면 출구 선택", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold)
+	-- canopy: high at the mouth (+5.2), low at the back (+2.6)
+	local hiY, loY = CURB + 5.2, CURB + 2.6
 	for _, sx in ipairs({ -1, 1 }) do
-		for _, su in ipairs({ -6, 6 }) do
-			vcyl("ShelterPost", c + side * (sx * 3.2) + out * su + Vector3.new(0, CURB, 0), 0.3, if su < 0 then 5 else 3.8, Color3.fromRGB(110, 115, 120), { parent = m })
-		end
-		box("ShelterGlass", c.X + sx * 3.2 - 0.1, CURB, c.Z - 6, c.X + sx * 3.2 + 0.1, CURB + 3.6, c.Z + 6, Color3.fromRGB(190, 220, 230), { parent = m, material = Enum.Material.Glass, transparency = 0.55 })
+		local front, rear = at(9) + side * (sx * 3.2), at(-9) + side * (sx * 3.2)
+		vcyl("ShelterPost", front + Vector3.new(0, CURB, 0), 0.3, hiY - CURB, Color3.fromRGB(110, 115, 120), { parent = m })
+		vcyl("ShelterPost", rear + Vector3.new(0, CURB, 0), 0.3, loY - CURB, Color3.fromRGB(110, 115, 120), { parent = m })
+		box("ShelterGlass", c.X + sx * 3.2 - 0.1, CURB, c.Z - 9, c.X + sx * 3.2 + 0.1, loY, c.Z + 9, Color3.fromRGB(190, 220, 230), { parent = m, material = Enum.Material.Glass, transparency = 0.55 })
+		local mid = c + side * (sx * 3.2) + Vector3.new(0, loY + (hiY - loY) / 2, 0)
+		part("ShelterGlassTop", Vector3.new(0.2, hiY - loY, 18), CFrame.lookAt(mid, mid - out), Color3.fromRGB(190, 220, 230), { parent = m, class = "WedgePart", material = Enum.Material.Glass, transparency = 0.55 })
 	end
-	local roofMid = c + Vector3.new(0, CURB + 4.5, 0)
-	part("ShelterRoof", Vector3.new(7, 0.3, 13), CFrame.lookAt(roofMid, roofMid + out + Vector3.new(0, -0.1, 0)), Color3.fromRGB(170, 205, 220), { parent = m, material = Enum.Material.Glass, transparency = 0.35 })
-	local polePos = top + side * 5 + out * 1
+	local rTop, rBack = at(9) + Vector3.new(0, hiY, 0), at(-9) + Vector3.new(0, loY, 0)
+	part("ShelterRoof", Vector3.new(7, 0.3, (rTop - rBack).Magnitude), CFrame.lookAt((rTop + rBack) / 2, rTop), Color3.fromRGB(170, 205, 220), { parent = m, material = Enum.Material.Glass, transparency = 0.35 })
+	-- number pole (blue / yellow, like a Seoul exit sign) next to the mouth
+	local mouth = at(9)
+	local polePos = mouth + side * 5 * math.sign(e[4]) + out * 1
 	vcyl("ExitPole", polePos + Vector3.new(0, CURB, 0), 0.5, 8, Color3.fromRGB(40, 110, 200), { parent = m })
 	local sign = box("ExitNumberSign", polePos.X - 0.9, CURB + 6, polePos.Z - 0.9, polePos.X + 0.9, CURB + 10.5, polePos.Z + 0.9, Color3.fromRGB(40, 110, 200), { parent = m })
 	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do surfaceText(sign, face, tostring(e[1]), Color3.new(1, 1, 1), Enum.Font.GothamBlack) end
 	box("ExitPoleBand", polePos.X - 0.95, CURB + 5.4, polePos.Z - 0.95, polePos.X + 0.95, CURB + 6, polePos.Z + 0.95, YELLOW, { parent = m })
 	label(sign, e[1] .. "번 출구 · " .. e[2], e[3], 4, 0.8)
 	local hedgePos = c + side * 6.5 * math.sign(e[4])
-	box("ExitHedge", hedgePos.X - 0.8, CURB, hedgePos.Z - 5, hedgePos.X + 0.8, CURB + 1.8, hedgePos.Z + 5, Color3.fromRGB(70, 140, 60), { parent = m, material = Enum.Material.Grass })
-	local padPos = top + out * 3 + Vector3.new(0, CURB + 0.2, 0)
-	local pad = part("SubwayExitPad", Vector3.new(6, 0.4, 5), CFrame.lookAt(padPos, padPos + out), e[3], { parent = m, material = Enum.Material.Neon })
+	box("ExitHedge", hedgePos.X - 0.8, CURB, hedgePos.Z - 8, hedgePos.X + 0.8, CURB + 1.8, hedgePos.Z + 8, Color3.fromRGB(70, 140, 60), { parent = m, material = Enum.Material.Grass })
+	-- the landing pad (exit picker)
+	local padPos = at(-6) + Vector3.new(0, bottom + 0.2, 0)
+	local pad = part("SubwayExitPad", Vector3.new(6, 0.4, 6), CFrame.lookAt(padPos, padPos + out), e[3], { parent = m, material = Enum.Material.Neon })
 	pad:SetAttribute("ExitNumber", e[1])
 	pad:SetAttribute("ExitName", e[2])
-	pad:SetAttribute("Out", out)
+	pad:SetAttribute("Out", out) -- arrivals step off toward the stairs (up)
 	CS:AddTag(pad, "SubwayExit")
 	exitPads[e[1]] = pad
+	exitMouths[e[1]] = mouth
 end
-
 ------------------------------------------------------- bus stops (4)
 local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector3)
 	local m = Instance.new("Model")
@@ -608,8 +637,8 @@ do
 	end
 	wallSeg(x0, z0, x0 + 1, z1) wallSeg(x1 - 1, z0, x1, z1) wallSeg(x0, z0, x1, z0 + 1)
 	wallSeg(x0, z1 - 1, gateX0, z1) wallSeg(gateX1, z1 - 1, x1, z1)
-	local function turret(cx, cz, s, h)
-		box("Turret", cx - s / 2, 0, cz - s / 2, cx + s / 2, h, cz + s / 2, cream, { parent = E })
+	local function turret(cx, cz, s, h, base)
+		box("Turret", cx - s / 2, base or 0, cz - s / 2, cx + s / 2, h, cz + s / 2, cream, { parent = E })
 		box("TurretBand", cx - s / 2 - 0.2, h - 1, cz - s / 2 - 0.2, cx + s / 2 + 0.2, h, cz + s / 2 + 0.2, blue, { parent = E })
 		for k = 0, 3 do
 			part("TurretRoof", Vector3.new(s + 1, s * 0.8, (s + 1) / 2), CFrame.new(cx, h + s * 0.4, cz) * CFrame.Angles(0, math.rad(k * 90), 0) * CFrame.new(0, 0, (s + 1) / 4), roofBlue, { parent = E, class = "WedgePart" })
@@ -629,7 +658,8 @@ do
 	end
 	part("GateRoof", Vector3.new(gateX1 - gateX0 + 4, 4, 5), CFrame.new((gateX0 + gateX1) / 2, 18, gz0 + 2) * CFrame.Angles(0, math.rad(180), 0), roofBlue, { parent = E, class = "WedgePart" })
 	box("GateCornice", gateX0 - 2, 16, gz0 - 0.5, gateX1 + 2, 16.6, gz1 + 0.5, Color3.fromRGB(230, 220, 195), { parent = E })
-	for _, tx in ipairs({ gateX0 - 4, (gateX0 + gateX1) / 2, gateX1 + 4 }) do turret(tx, (gz0 + gz1) / 2, 7, 22) end
+	turret(gateX0 - 4, (gz0 + gz1) / 2, 7, 22) turret(gateX1 + 4, (gz0 + gz1) / 2, 7, 22)
+	turret((gateX0 + gateX1) / 2, (gz0 + gz1) / 2, 7, 24, 16) -- centre tower sits on the gate roof (keeps the middle arch open)
 	local sign = box("GateSign", -164, 17, gz1 + 0.6, -136, 21, gz1 + 1, Color3.fromRGB(255, 250, 235), { parent = E })
 	surfaceText(sign, Enum.NormalId.Back, "OHU LAND", Color3.fromRGB(60, 90, 140), Enum.Font.FredokaOne)
 	label(sign, "놀이공원 정문", Color3.fromRGB(60, 90, 140), 8, 0.9)
@@ -869,7 +899,7 @@ end
 -- first spawn: in front of exit 1 (players come up facing north)
 if spawn then
 	if not spawn:GetAttribute("OldPosition") then spawn:SetAttribute("OldPosition", spawn.Position) end
-	local p = exitPads[1].Position + Vector3.new(0, 0, -10)
+	local p = exitMouths[1] + Vector3.new(0, 0, -7)
 	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, CURB + 0.5, p.Z), Vector3.new(p.X, CURB + 0.5, p.Z - 10))
 end
 T.Parent = workspace

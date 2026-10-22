@@ -75,6 +75,17 @@ local function setupGroups()
 	end
 end
 
+-- Only regions in the live world count: copies kept in ServerStorage (map
+-- backups) still carry the tags, at their old positions (2026-10-22 bug: the
+-- backup's VIP region threw players out of the moved club into the void).
+local function liveRegions(): {Instance}
+	local list = {}
+	for _, region in ipairs(CollectionService:GetTagged("ClubRegion")) do
+		if region:IsDescendantOf(workspace) then table.insert(list, region) end
+	end
+	return list
+end
+
 local function insideBox(box: BasePart, position: Vector3): boolean
 	local p = box.CFrame:PointToObjectSpace(position)
 	local half = box.Size / 2
@@ -115,7 +126,7 @@ end
 
 -- Moves anyone without access out of paid areas.
 local function sweep()
-	local regions = CollectionService:GetTagged("ClubRegion")
+	local regions = liveRegions()
 	for _, player in ipairs(Players:GetPlayers()) do
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
@@ -142,9 +153,12 @@ function ClubAccessService.SendToDJBooth(player: Player)
 	if not DjService.IsDJ(player) then return end
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	local spot = CollectionService:GetTagged("DJSpot")[1]
+	local spot: Instance? = nil
+	for _, s in ipairs(CollectionService:GetTagged("DJSpot")) do
+		if s:IsDescendantOf(workspace) then spot = s break end
+	end
 	if not character or not root or not spot or not spot:IsA("BasePart") then return end
-	for _, region in ipairs(CollectionService:GetTagged("ClubRegion")) do
+	for _, region in ipairs(liveRegions()) do
 		if region:IsA("BasePart") and region:GetAttribute("Gate") == "DJ" and insideBox(region, root.Position) then
 			return
 		end
@@ -162,7 +176,7 @@ function ClubAccessService.OfferDJBooth(player: Player, queued: boolean)
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	if root then
-		for _, region in ipairs(CollectionService:GetTagged("ClubRegion")) do
+		for _, region in ipairs(liveRegions()) do
 			if region:IsA("BasePart") and region:GetAttribute("Gate") == "DJ" and insideBox(region, root.Position) then
 				return
 			end
