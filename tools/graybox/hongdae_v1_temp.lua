@@ -24,21 +24,24 @@ local function R(deg) return CFrame.Angles(0, math.rad(deg), 0) end
 -- v4b (user 2026-10-22: "거리 및 사이즈 1/3, 너무 멀어" → gaps, roads and the
 -- roundabout at about 1/3, building sizes unchanged). Roundabout centre C.
 local C = Vector3.new(-60, 0, 0)
+-- v5 (user 2026-10-22, street photo of 강남대로61길): the four big roads from
+-- the roundabout are wider (2 lanes + parking both sides) with raised
+-- sidewalks, so buildings start 36 studs from the roundabout axes.
 local MOVES = {
 	-- club north-east of the roundabout, entrance + neon facing west onto the club street
-	["02_Club"] = CFrame.new(22, 0, -145) * R(-90) * CFrame.new(0, 0, 210),
+	["02_Club"] = CFrame.new(49, 0, -172) * R(-90) * CFrame.new(0, 0, 210),
 	-- fashion week runway right behind the club (show / concert space), runway toward the club
-	["03_Rooftop_Backstage"] = CFrame.new(22, 0, -337) * R(180) * CFrame.new(-125, 0, 160),
+	["03_Rooftop_Backstage"] = CFrame.new(49, 0, -366) * R(180) * CFrame.new(-125, 0, 160),
 	-- hanok village south-east: main gate east (morning sun), back gate west
-	["07_Hanok_Village"] = CFrame.new(65, 0, 120) * R(-90) * CFrame.new(-175, 0, -230),
+	["07_Hanok_Village"] = CFrame.new(85, 0, 126) * R(-90) * CFrame.new(-175, 0, -230),
 	-- 인생네컷 between the roundabout and the east, below the club
-	["08_PhotoBooth"] = CFrame.new(2, 0, -35) * CFrame.new(-205, 0, 112),
+	["08_PhotoBooth"] = CFrame.new(6, 0, -61) * CFrame.new(-205, 0, 112),
 	-- park rides north-west (west part over the beach, as in the drawing)
-	["06_Park_Playground"] = CFrame.new(-500, 0, -135),
+	["06_Park_Playground"] = CFrame.new(-506, 0, -141),
 	-- Glasshouse cafe south-west, long side along the road, terrace toward the road (north)
-	["05_Cafe"] = CFrame.new(-128, 0, 145) * R(-90) * CFrame.new(130, 0, -185),
+	["05_Cafe"] = CFrame.new(-153.5, 0, 175) * R(-90) * CFrame.new(130, 0, -185),
 }
-local HOLE = { -38, -225, 82, -65 } -- club ground hole x0, z0, x1, z1 (follows 02_Club)
+local HOLE = { -11, -252, 109, -92 } -- club ground hole x0, z0, x1, z1 (follows 02_Club)
 -- set aside while the layout is applied (restored by revert): the whole old
 -- ring plaza (the roundabout replaces it), old paths, old ground pieces
 local function shouldHide(zn, p)
@@ -176,56 +179,319 @@ local function block(name, x0, z0, x1, z1, h, color, text, textColor)
 	return b
 end
 
-local ASPHALT = Color3.fromRGB(110, 110, 115)
-local W = 10 -- main road width (1/3 of v4)
+local ASPHALT = Color3.fromRGB(78, 78, 82)
+local WALK = Color3.fromRGB(196, 190, 180) -- sidewalk paving
+local CURB = 0.6 -- sidewalk height above the road (one easy step)
+local WHITE = Color3.fromRGB(240, 240, 240)
+local YELLOW = Color3.fromRGB(240, 190, 40)
 local CS = game:GetService("CollectionService")
 
--- roundabout: asphalt ring around a round lawn (cylinders lying with the axis up)
-local UP = CFrame.Angles(0, 0, math.rad(90))
-part("Roundabout", Vector3.new(0.14, 52, 52), CFrame.new(C.X, 0.07, C.Z) * UP, ASPHALT, { shape = Enum.PartType.Cylinder, material = Enum.Material.Asphalt })
-local lawn = part("RoundaboutLawn", Vector3.new(0.6, 26, 26), CFrame.new(C.X, 0.3, C.Z) * UP, Color3.fromRGB(90, 170, 80), { shape = Enum.PartType.Cylinder, material = Enum.Material.Grass })
-label(lawn, "잔디밭", Color3.fromRGB(40, 110, 40), 4, 0.6)
+-- world-aligned box from (x0,y0,z0) to (x1,y1,z1)
+local function box(name, x0, y0, z0, x1, y1, z1, color, opt)
+	local lx, hx = math.min(x0, x1), math.max(x0, x1)
+	local ly, hy = math.min(y0, y1), math.max(y0, y1)
+	local lz, hz = math.min(z0, z1), math.max(z0, z1)
+	return part(name, Vector3.new(hx - lx, hy - ly, hz - lz), CFrame.new((lx + hx) / 2, (ly + hy) / 2, (lz + hz) / 2), color, opt)
+end
+local function walk(x0, z0, x1, z1)
+	return box("Sidewalk", x0, 0, z0, x1, CURB, z1, WALK, { material = Enum.Material.Pavement })
+end
+local function vcyl(name, pos: Vector3, d, h, color, opt)
+	opt = opt or {}
+	opt.shape = Enum.PartType.Cylinder
+	return part(name, Vector3.new(h, d, d), CFrame.new(pos + Vector3.new(0, h / 2, 0)) * CFrame.Angles(0, 0, math.rad(90)), color, opt)
+end
 
--- roads (the drawing, gaps at about 1/3)
-strip("Road_West", Vector2.new(-84, 0), Vector2.new(-190, 0), W, ASPHALT)
-strip("Road_Beach", Vector2.new(-190, -5), Vector2.new(-190, 300), W, ASPHALT)
-strip("Road_North", Vector2.new(-60, -24), Vector2.new(-60, -230), W, ASPHALT)
-strip("Road_South", Vector2.new(-60, 24), Vector2.new(-60, 300), W, ASPHALT)
-strip("Road_East", Vector2.new(-36, 0), Vector2.new(155, 0), W, ASPHALT)
-strip("Road_SouthWest", Vector2.new(-190, 70), Vector2.new(-60, 70), W, ASPHALT)
-strip("Road_EastNS", Vector2.new(92, -5), Vector2.new(92, -230), W, ASPHALT)
-strip("Road_NorthEast", Vector2.new(92, -180), Vector2.new(152, -180), W, ASPHALT)
+-- roundabout: asphalt ring around a raised round lawn
+local UP = CFrame.Angles(0, 0, math.rad(90))
+part("Roundabout", Vector3.new(0.14, 68, 68), CFrame.new(C.X, 0.07, C.Z) * UP, ASPHALT, { shape = Enum.PartType.Cylinder, material = Enum.Material.Asphalt })
+local lawn = part("RoundaboutLawn", Vector3.new(CURB, 28, 28), CFrame.new(C.X, CURB / 2, C.Z) * UP, Color3.fromRGB(90, 170, 80), { shape = Enum.PartType.Cylinder, material = Enum.Material.Grass })
+label(lawn, "잔디밭", Color3.fromRGB(40, 110, 40), 4, 0.6)
+-- corner sidewalks between the arms (exits stand here)
+for _, s in ipairs({ { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } }) do
+	walk(C.X + s[1] * 24, C.Z + s[2] * 24, C.X + s[1] * 36, C.Z + s[2] * 36)
+	walk(C.X + s[1] * 16, C.Z + s[2] * 30, C.X + s[1] * 24, C.Z + s[2] * 36)
+	walk(C.X + s[1] * 30, C.Z + s[2] * 16, C.X + s[1] * 36, C.Z + s[2] * 24)
+end
+
+-- a big road from the roundabout: asphalt 32 (parking 7 | lane 9 | lane 9 | parking 7),
+-- sidewalks 8 both sides, crosswalk, centre line, parked cars, poles, traffic light.
+-- dir = unit axis (±X or ±Z); u = distance along it from C, v = across.
+local CAR_COLORS = { Color3.fromRGB(245, 245, 245), Color3.fromRGB(25, 25, 30), Color3.fromRGB(150, 155, 160), Color3.fromRGB(40, 60, 110), Color3.fromRGB(160, 30, 35), Color3.fromRGB(230, 230, 225) }
+local carCount = 0
+local function car(pos: Vector3, along: Vector3)
+	carCount += 1
+	local m = Instance.new("Model")
+	m.Name = "ParkedCar"
+	local cf = CFrame.lookAt(pos, pos + along)
+	local col = CAR_COLORS[(carCount % #CAR_COLORS) + 1]
+	part("Body", Vector3.new(6.4, 2.4, 14), cf * CFrame.new(0, 2.1, 0), col, { parent = m })
+	part("Cabin", Vector3.new(5.8, 2.2, 7.5), cf * CFrame.new(0, 4.4, 0.6), Color3.fromRGB(35, 40, 50), { parent = m, material = Enum.Material.Glass })
+	for _, w in ipairs({ { -3.1, -4.5 }, { 3.1, -4.5 }, { -3.1, 4.5 }, { 3.1, 4.5 } }) do
+		part("Wheel", Vector3.new(1.2, 2.6, 2.6), cf * CFrame.new(w[1], 1.3, w[2]), Color3.fromRGB(20, 20, 20), { parent = m, shape = Enum.PartType.Cylinder })
+	end
+	m.Parent = T
+end
+local function pole(pos: Vector3)
+	vcyl("UtilityPole", pos, 1.2, 26, Color3.fromRGB(165, 165, 160), { material = Enum.Material.Concrete })
+	box("PoleArm", pos.X - 3.5, 23.6, pos.Z - 0.25, pos.X + 3.5, 24.1, pos.Z + 0.25, Color3.fromRGB(70, 70, 70))
+	return pos + Vector3.new(0, 24.1, 0)
+end
+local function wire(a: Vector3, b: Vector3)
+	for _, dx in ipairs({ -3, 3 }) do
+		local p, q = a + Vector3.new(dx, 0, 0), b + Vector3.new(dx, 0, 0)
+		local w = part("Wire", Vector3.new(0.12, 0.12, (q - p).Magnitude), CFrame.lookAt((p + q) / 2, q), Color3.fromRGB(20, 20, 20))
+		w.CanCollide = false
+		w.CanQuery = false
+	end
+end
+local function trafficLight(base: Vector3, toward: Vector3)
+	vcyl("SignalPole", base, 1, 18, Color3.fromRGB(70, 75, 80))
+	local tip = base + toward * 12 + Vector3.new(0, 17, 0)
+	local arm = part("SignalArm", Vector3.new(0.6, 0.6, 12), CFrame.lookAt(base + toward * 6 + Vector3.new(0, 17, 0), tip), Color3.fromRGB(70, 75, 80))
+	arm.CanCollide = false
+	local head = part("SignalHead", Vector3.new(4.2, 1.5, 1.2), CFrame.lookAt(tip - Vector3.new(0, 1.2, 0), tip - Vector3.new(0, 1.2, 0) + toward:Cross(Vector3.yAxis)), Color3.fromRGB(25, 25, 25))
+	for i, c in ipairs({ Color3.fromRGB(255, 60, 50), Color3.fromRGB(255, 190, 40), Color3.fromRGB(60, 230, 110) }) do
+		local l = part("SignalLamp", Vector3.new(0.9, 0.9, 0.3), head.CFrame * CFrame.new((i - 2) * 1.3, 0, -0.65), c, { material = Enum.Material.Neon })
+		l.CanCollide = false
+	end
+end
+
+local function bigRoad(dir: Vector3, len: number, cars: { number }, carsOther: { number })
+	local across = Vector3.new(dir.Z, 0, -dir.X) -- 90° to the right of dir
+	local function at(u, v) return C + dir * u + across * v end
+	local function boxUV(name, u0, v0, u1, v1, y0, y1, color, opt)
+		local a, b = at(u0, v0), at(u1, v1)
+		return box(name, a.X, y0, a.Z, b.X, y1, b.Z, color, opt)
+	end
+	boxUV("Road", 30, -16, len, 16, 0, 0.12, ASPHALT, { material = Enum.Material.Asphalt })
+	boxUV("Sidewalk", 36, -24, len, -16, 0, CURB, WALK, { material = Enum.Material.Pavement })
+	boxUV("Sidewalk", 36, 16, len, 24, 0, CURB, WALK, { material = Enum.Material.Pavement })
+	-- centre double yellow line, white parking lines
+	boxUV("CenterLine", 46, -0.55, len, -0.25, 0.12, 0.16, YELLOW)
+	boxUV("CenterLine", 46, 0.25, len, 0.55, 0.12, 0.16, YELLOW)
+	boxUV("ParkingLine", 46, -9.15, len, -8.85, 0.12, 0.16, WHITE)
+	boxUV("ParkingLine", 46, 8.85, len, 9.15, 0.12, 0.16, WHITE)
+	for u = 52, len - 8, 16 do -- parking bay ticks
+		boxUV("ParkingTick", u, -16, u + 0.3, -9, 0.12, 0.16, WHITE)
+		boxUV("ParkingTick", u, 9, u + 0.3, 16, 0.12, 0.16, WHITE)
+	end
+	-- zebra crosswalk + stop lines near the roundabout
+	for v = -14.4, 14.4, 3.2 do boxUV("Crosswalk", 37, v - 0.8, 43, v + 0.8, 0.12, 0.16, WHITE) end
+	boxUV("StopLine", 44.5, 0, 45.2, 16, 0.12, 0.16, WHITE)
+	boxUV("StopLine", 44.5, -16, 45.2, 0, 0.12, 0.16, WHITE)
+	-- parked cars (bays at v ±12.5)
+	for _, u in ipairs(cars) do car(at(u, -12.5), dir) end
+	for _, u in ipairs(carsOther) do car(at(u, 12.5), -dir) end
+	-- utility poles with wires on one side, a pole on the other
+	local last: Vector3? = nil
+	for u = 56, len - 4, 48 do
+		local top = pole(at(u, -22.5))
+		if last then wire(last, top) end
+		last = top
+		pole(at(u + 24, 22.5))
+	end
+	trafficLight(at(47, 22.5), -across)
+end
+bigRoad(Vector3.new(-1, 0, 0), 136, { 62, 96 }, { 80, 112 }) -- west, to the beach road
+bigRoad(Vector3.new(1, 0, 0), 320, { 64, 112, 192, 272 }, { 80, 144, 224, 288 }) -- east
+bigRoad(Vector3.new(0, 0, -1), 470, { 64, 128, 208, 320, 400 }, { 96, 176, 256, 352 }) -- north
+bigRoad(Vector3.new(0, 0, 1), 300, { 64, 144, 224 }, { 96, 192, 272 }) -- south
+
+-- smaller roads: asphalt 12 with a dashed centre line, sidewalks 4
+local function smallRoad(a: Vector2, b: Vector2)
+	local dir = Vector3.new(b.X - a.X, 0, b.Y - a.Y)
+	local len = dir.Magnitude
+	dir = dir.Unit
+	local across = Vector3.new(dir.Z, 0, -dir.X)
+	local o = Vector3.new(a.X, 0, a.Y)
+	local function bx(name, u0, v0, u1, v1, y0, y1, color, opt)
+		local p, q = o + dir * u0 + across * v0, o + dir * u1 + across * v1
+		return box(name, p.X, y0, p.Z, q.X, y1, q.Z, color, opt)
+	end
+	bx("Road", 0, -6, len, 6, 0, 0.12, ASPHALT, { material = Enum.Material.Asphalt })
+	bx("Sidewalk", 0, -10, len, -6, 0, CURB, WALK, { material = Enum.Material.Pavement })
+	bx("Sidewalk", 0, 6, len, 10, 0, CURB, WALK, { material = Enum.Material.Pavement })
+	for u = 4, len - 6, 10 do bx("LaneDash", u, -0.15, u + 5, 0.15, 0.12, 0.16, WHITE) end
+	for u = 20, len - 4, 60 do pole(o + dir * u + across * 8) end
+end
+smallRoad(Vector2.new(121, -24), Vector2.new(121, -470)) -- east of the club
+smallRoad(Vector2.new(-84, 98), Vector2.new(-190, 98)) -- south-west, to the beach road
+smallRoad(Vector2.new(-190, 24), Vector2.new(-190, 300)) -- along the beach
 local LANE = Color3.fromRGB(185, 160, 122)
-strip("HanokLane_East", Vector2.new(145, 5), Vector2.new(145, 120), 8, LANE)
-strip("HanokLane_East2", Vector2.new(149, 120), Vector2.new(129, 120), 8, LANE)
-strip("HanokLane_West", Vector2.new(-55, 150), Vector2.new(1, 150), 8, LANE)
-local clubStreet = strip("ClubStreet", Vector2.new(-44.5, -65), Vector2.new(-44.5, -225), 13, Color3.fromRGB(110, 85, 160))
-clubStreet.Material = Enum.Material.SmoothPlastic
+strip("HanokLane_East", Vector2.new(162, 24), Vector2.new(162, 130), 8, LANE)
+strip("HanokLane_East2", Vector2.new(166, 126), Vector2.new(148, 126), 8, LANE)
+strip("HanokLane_West", Vector2.new(-36, 156), Vector2.new(22, 156), 8, LANE)
+local clubStreet = box("ClubStreet", -36, 0, -252, -11, 0.14, -92, Color3.fromRGB(110, 85, 160))
 label(clubStreet, "클럽거리 (잔다리로)", Color3.fromRGB(160, 110, 230), 3, 0.8)
 
--- background buildings (진입불가, red boxes in the drawing)
-local BG = Color3.fromRGB(200, 190, 185)
-block("BG_Building(진입불가)", 102, -225, 152, -190, 30, BG, "가짜 건물")
-block("BG_Building(진입불가)", 102, -170, 152, -10, 26, BG, "가짜 건물")
-block("BG_Building(진입불가)", -88, 40, -70, 60, 16, BG, "가짜 건물")
-block("BG_Building(진입불가)", -95, 80, -70, 200, 24, BG, "가짜 건물")
--- between exit 2 and the hanok village: may become the prop shop later
-block("BG_Building(소품샵 예정)", -45, 34, -8, 62, 16, Color3.fromRGB(235, 205, 190), "가짜 건물 (소품샵 예정)")
--- convenience store (blue box in the drawing)
-block("ConvenienceStore", -140, 12, -95, 55, 12, Color3.fromRGB(120, 190, 235), "편의점", Color3.fromRGB(30, 100, 170))
+-- high-rise background buildings along the roads (진입불가): glass towers and
+-- concrete mid-rises with window bands and shop signs, like the street photo
+local SIGNS = { Color3.fromRGB(230, 60, 70), Color3.fromRGB(40, 120, 220), Color3.fromRGB(250, 200, 40), Color3.fromRGB(60, 180, 90), Color3.fromRGB(240, 120, 40) }
+local function tower(x0, z0, x1, z1, h, kind)
+	local m = Instance.new("Model")
+	m.Name = "BG_Tower(진입불가)"
+	local glass = kind == "glass"
+	local body = box("Body", x0, 0, z0, x1, h, z1, if glass then Color3.fromRGB(105, 135, 160) else Color3.fromRGB(185, 180, 172), { parent = m, material = if glass then Enum.Material.Glass else Enum.Material.Concrete })
+	if glass then body.Reflectance = 0.15 end
+	local step = if glass then 6 else 7
+	for y = step, h - 2, step do
+		if glass then
+			box("FloorBand", x0 - 0.2, y - 0.3, z0 - 0.2, x1 + 0.2, y + 0.3, z1 + 0.2, Color3.fromRGB(70, 80, 90), { parent = m })
+		else
+			box("WindowBand", x0 - 0.2, y - 3.6, z0 - 0.2, x1 + 0.2, y - 1, z1 + 0.2, Color3.fromRGB(45, 55, 65), { parent = m, material = Enum.Material.Glass })
+		end
+	end
+	box("Roof", x0 - 0.5, h, z0 - 0.5, x1 + 0.5, h + 1.5, z1 + 0.5, Color3.fromRGB(90, 90, 95), { parent = m })
+	if not glass then -- vertical shop signs on the street face corners
+		for i = 0, 2 do
+			local c = SIGNS[((x0 + z0 + i) % #SIGNS) + 1]
+			box("ShopSign", x0 - 1.2, 8 + i * 12, z0 + 2, x0 - 0.2, 17 + i * 12, z0 + 5, c, { parent = m, material = Enum.Material.Neon })
+		end
+	end
+	m.Parent = T
+end
+tower(133, -470, 183, -380, 150, "glass")
+tower(133, -370, 183, -262, 96, "concrete")
+tower(133, -252, 183, -170, 128, "glass")
+tower(133, -160, 183, -36, 70, "concrete")
+tower(170, 36, 215, 120, 90, "concrete")
+tower(170, 130, 215, 220, 60, "concrete")
+tower(-126, 110, -92, 170, 120, "glass")
+tower(-126, 180, -92, 250, 80, "concrete")
+tower(-176, 36, -146, 80, 60, "concrete")
+tower(200, -120, 260, -36, 110, "glass")
+
+-- construction site look for buildings that will get a function later
+-- (photo: white hoarding with a blue line mural, crane, cones)
+local function construction(x0, z0, x1, z1, title)
+	local m = Instance.new("Model")
+	m.Name = "ConstructionSite(" .. title .. ")"
+	box("Dirt", x0, 0, z0, x1, 0.2, z1, Color3.fromRGB(150, 120, 90), { parent = m, material = Enum.Material.Ground })
+	local H = 9
+	local walls = {
+		box("Hoarding", x0, 0, z0, x1, H, z0 + 0.4, Color3.fromRGB(245, 245, 245), { parent = m }),
+		box("Hoarding", x0, 0, z1 - 0.4, x1, H, z1, Color3.fromRGB(245, 245, 245), { parent = m }),
+		box("Hoarding", x0, 0, z0, x0 + 0.4, H, z1, Color3.fromRGB(245, 245, 245), { parent = m }),
+		box("Hoarding", x1 - 0.4, 0, z0, x1, H, z1, Color3.fromRGB(245, 245, 245), { parent = m }),
+	}
+	for i, w in ipairs(walls) do -- blue line mural + title on every face
+		for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do
+			local long = (face == Enum.NormalId.Front or face == Enum.NormalId.Back) == (w.Size.X > w.Size.Z)
+			if long then
+				local g = Instance.new("SurfaceGui")
+				g.Face = face
+				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+				g.PixelsPerStud = 20
+				g.Parent = w
+				for k = 0, 5 do
+					local line = Instance.new("Frame")
+					line.BackgroundColor3 = Color3.fromRGB(70, 90, 190)
+					line.BorderSizePixel = 0
+					line.AnchorPoint = Vector2.new(0.5, 0.5)
+					line.Position = UDim2.fromScale(0.12 + k * 0.16, 0.45 + ((k % 2) - 0.5) * 0.25)
+					line.Size = UDim2.new(0.14, 0, 0, 6)
+					line.Rotation = (k % 2) * 30 - 15
+					line.Parent = g
+				end
+				local t = Instance.new("TextLabel")
+				t.BackgroundTransparency = 1
+				t.Size = UDim2.fromScale(1, 0.22)
+				t.Position = UDim2.fromScale(0, 0.72)
+				t.Font = Enum.Font.GothamBold
+				t.TextScaled = true
+				t.TextColor3 = Color3.fromRGB(70, 90, 190)
+				t.Text = title .. " · 공사 중"
+				t.Parent = g
+			end
+		end
+		if i == 1 then label(w, title .. " (공사 중)", Color3.fromRGB(70, 90, 190), 8, 0.7) end
+	end
+	-- tower crane in the back corner
+	local cx, cz = x1 - 4, z1 - 4
+	box("CraneMast", cx - 1, 0, cz - 1, cx + 1, 46, cz + 1, Color3.fromRGB(240, 180, 30), { parent = m })
+	local jib = part("CraneJib", Vector3.new(1.4, 1.4, 34), CFrame.new(cx, 46.7, cz) * CFrame.Angles(0, math.rad(35), 0) * CFrame.new(0, 0, -11), Color3.fromRGB(240, 180, 30), { parent = m })
+	jib.CanCollide = false
+	box("CraneCab", cx - 1.5, 43, cz - 1.5, cx + 1.5, 46, cz + 1.5, Color3.fromRGB(60, 60, 60), { parent = m })
+	box("CraneCounterweight", cx - 1.5, 45, cz + 4, cx + 1.5, 48, cz + 9, Color3.fromRGB(120, 120, 120), { parent = m })
+	-- traffic cones along the front
+	for x = x0 + 3, x1 - 3, 6 do
+		local cone = part("Cone", Vector3.new(1.2, 2, 1.2), CFrame.new(x, 1, z0 - 2), Color3.fromRGB(255, 110, 30), { parent = m })
+		cone.CanCollide = false
+	end
+	m.Parent = T
+end
+construction(-24, 36, 14, 66, "소품샵 예정")
+
+-- convenience store with automatic sliding doors and a counter (front = north, to the west road)
+do
+	local x0, z0, x1, z1, H = -140, 36, -100, 68, 14
+	local S = Instance.new("Model")
+	S.Name = "ConvenienceStore"
+	S.Parent = T
+	local wallC = Color3.fromRGB(240, 240, 238)
+	walk(x0, 24, x1, z0) -- forecourt up to the sidewalk
+	box("StoreFloor", x0, 0, z0, x1, CURB, z1, Color3.fromRGB(235, 235, 235), { parent = S, material = Enum.Material.Marble })
+	box("WallBack", x0, CURB, z1 - 0.6, x1, H, z1, wallC, { parent = S })
+	box("WallW", x0, CURB, z0, x0 + 0.6, H, z1, wallC, { parent = S })
+	box("WallE", x1 - 0.6, CURB, z0, x1, H, z1, wallC, { parent = S })
+	box("Roof", x0 - 0.5, H, z0 - 1, x1 + 0.5, H + 1, z1 + 0.5, Color3.fromRGB(70, 70, 75), { parent = S })
+	-- glass front with a door gap in the middle (8 wide)
+	local mid = (x0 + x1) / 2
+	box("FrontGlass", x0, CURB, z0, mid - 4, H - 3, z0 + 0.4, Color3.fromRGB(200, 230, 240), { parent = S, material = Enum.Material.Glass, transparency = 0.5 })
+	box("FrontGlass", mid + 4, CURB, z0, x1, H - 3, z0 + 0.4, Color3.fromRGB(200, 230, 240), { parent = S, material = Enum.Material.Glass, transparency = 0.5 })
+	box("DoorHeader", x0, H - 3, z0, x1, H, z0 + 0.4, Color3.fromRGB(70, 70, 75), { parent = S })
+	-- sign band (no real brand)
+	local sign = box("StoreSign", x0, H - 2.6, z0 - 0.6, x1, H - 0.4, z0, Color3.fromRGB(40, 150, 110), { parent = S })
+	local sg = Instance.new("SurfaceGui")
+	sg.Face = Enum.NormalId.Front
+	sg.Parent = sign
+	local st = Instance.new("TextLabel")
+	st.Size = UDim2.fromScale(1, 1)
+	st.BackgroundTransparency = 1
+	st.Font = Enum.Font.GothamBlack
+	st.TextScaled = true
+	st.TextColor3 = Color3.new(1, 1, 1)
+	st.Text = "OHU 24 편의점"
+	st.Parent = sg
+	-- automatic doors: two glass panels that slide apart (AutoDoorController)
+	local door = Instance.new("Model")
+	door.Name = "AutoDoor"
+	door:SetAttribute("Range", 9)
+	for _, s in ipairs({ -1, 1 }) do
+		local panel = box("DoorPanel", mid + s * 4, CURB, z0 + 0.05, mid, H - 3, z0 + 0.35, Color3.fromRGB(190, 225, 240), { parent = door, material = Enum.Material.Glass, transparency = 0.45 })
+		panel:SetAttribute("Slide", Vector3.new(s * 3.8, 0, 0))
+		box("DoorFrame", mid + s * 4 - 0.15, CURB, z0, mid + s * 4 + 0.15, H - 3, z0 + 0.4, Color3.fromRGB(150, 150, 155), { parent = S })
+	end
+	door.WorldPivot = CFrame.new(mid, CURB + 4, z0)
+	door.Parent = S
+	CS:AddTag(door, "AutoDoor")
+	-- counter by the door with a register, shelves, drink fridges at the back
+	box("Counter", x1 - 12, CURB, z0 + 3, x1 - 2, CURB + 3.6, z0 + 6, Color3.fromRGB(250, 250, 250), { parent = S })
+	box("CounterTop", x1 - 12.3, CURB + 3.6, z0 + 2.7, x1 - 1.7, CURB + 3.9, z0 + 6.3, Color3.fromRGB(40, 150, 110), { parent = S })
+	box("Register", x1 - 6, CURB + 3.9, z0 + 4, x1 - 4, CURB + 5.3, z0 + 5.5, Color3.fromRGB(40, 40, 45), { parent = S })
+	box("CigaretteShelfBack", x1 - 12, CURB, z0 + 9, x1 - 2, CURB + 8, z0 + 10, Color3.fromRGB(220, 220, 225), { parent = S })
+	for i = 0, 2 do
+		local sx = x0 + 6 + i * 8
+		box("Shelf", sx, CURB, z0 + 10, sx + 2.5, CURB + 5.5, z1 - 8, Color3.fromRGB(230, 230, 232), { parent = S })
+		for k = 1, 3 do box("Goods", sx - 0.3, CURB + k * 1.6, z0 + 10.5, sx + 2.8, CURB + k * 1.6 + 1, z1 - 8.5, SIGNS[((i + k) % #SIGNS) + 1], { parent = S }) end
+	end
+	box("Fridge", x0 + 2, CURB, z1 - 3.5, x1 - 2, CURB + 9, z1 - 0.6, Color3.fromRGB(170, 215, 235), { parent = S, material = Enum.Material.Glass, transparency = 0.25 })
+	label(sign, "편의점", Color3.fromRGB(30, 120, 90), 4, 0.7)
+end
 
 -- subway exits at the roundabout corners: step on the pad → "몇 번 출구로
 -- 가시겠습니까?" (SubwayService). Tag SubwayExit, ExitNumber, ExitName, Out.
 local EXITS = {
-	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 24, -24 },
-	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 24, 24 },
-	{ 3, "공원 놀이기구", Color3.fromRGB(76, 175, 80), -24, -24 },
-	{ 4, "해변 · 카페", Color3.fromRGB(42, 143, 179), -24, 24 },
+	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -29 },
+	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 29 },
+	{ 3, "공원 놀이기구", Color3.fromRGB(76, 175, 80), -29, -29 },
+	{ 4, "해변 · 카페", Color3.fromRGB(42, 143, 179), -29, 29 },
 }
 for _, e in ipairs(EXITS) do
-	local pos = C + Vector3.new(e[4], 0, e[5])
+	local pos = C + Vector3.new(e[4], CURB, e[5])
 	local out = Vector3.new(e[4], 0, e[5]).Unit
-	local pad = part("SubwayExit" .. e[1], Vector3.new(8, 0.4, 8), CFrame.lookAt(pos + Vector3.new(0, 0.2, 0), pos + Vector3.new(0, 0.2, 0) + out), e[3], { material = Enum.Material.Neon })
+	local pad = part("SubwayExit" .. e[1], Vector3.new(7, 0.4, 7), CFrame.lookAt(pos + Vector3.new(0, 0.2, 0), pos + Vector3.new(0, 0.2, 0) + out), e[3], { material = Enum.Material.Neon })
 	pad:SetAttribute("ExitNumber", e[1])
 	pad:SetAttribute("ExitName", e[2])
 	pad:SetAttribute("Out", out)
@@ -233,6 +499,7 @@ for _, e in ipairs(EXITS) do
 	local sign = part("ExitSign" .. e[1], Vector3.new(1, 8, 1), CFrame.new(pos - out * 5 + Vector3.new(0, 4, 0)), Color3.fromRGB(46, 125, 50))
 	label(sign, e[1] .. "번 출구 · " .. e[2], e[3], 6, 0.8)
 end
+
 -- sunset photo frame at the end of the north pier, facing the sea (west)
 local frameCol = Color3.fromRGB(255, 150, 90)
 local px, pz = -344, 80
@@ -247,4 +514,4 @@ if spawn then
 	spawn.CFrame = CFrame.new(C.X, 1.1, C.Z)
 end
 T.Parent = workspace
-return "applied v4b (user's drawing, gaps 1/3), MODE=revert to undo"
+return "applied v5 (big roads, sidewalks, towers, store), MODE=revert to undo"
