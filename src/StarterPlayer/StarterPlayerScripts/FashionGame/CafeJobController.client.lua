@@ -197,10 +197,50 @@ local function setPanel(open: boolean)
 end
 
 local busy: {[number]: boolean} = {}
+local render: () -> ()
 
-local function render()
+-- Make the oldest order nobody is making yet (counter prompt and list button).
+local makePrompts: {[BasePart]: ProximityPrompt} = {}
+local function waitingOrders(shop: string): ({OrderInfo}, number)
+	local waiting, carried = {}, 0
+	for _, order in ipairs(readOrders()) do
+		if order.shop == shop then
+			if order.maker == 0 and not busy[order.id] then table.insert(waiting, order) end
+			if order.maker == player.UserId then carried += 1 end
+		end
+	end
+	return waiting, carried
+end
+local function makeOrder(id: number)
+	if busy[id] then return end
+	busy[id] = true
+	render()
+	local ok, message = remote:InvokeServer("Make", id)
+	busy[id] = nil
+	toast(message)
+	render()
+	-- the cup is ready: close the list so the way to the customer is clear
+	if ok and panel.Visible then setPanel(false) end
+end
+local function updateMakePrompts()
+	local shop = myShop()
+	local making = next(busy) ~= nil
+	for counter, prompt in pairs(makePrompts) do
+		local key = counter:GetAttribute("Shop")
+		if shop ~= key then
+			prompt.Enabled = false
+		else
+			local waiting, carried = waitingOrders(shop :: string)
+			prompt.Enabled = #waiting > 0 and carried < 2 and not making
+			prompt.ObjectText = string.format("주문 %d잔 · %s", #waiting, if #waiting > 0 then waiting[1].name else "")
+		end
+	end
+end
+
+render = function()
 	local shop = myShop()
 	pill.Visible = shop ~= nil
+	updateMakePrompts()
 	if not shop then
 		if panel.Visible then setPanel(false) end
 		return
@@ -281,17 +321,7 @@ local function render()
 		}, row)
 		round(button, 8)
 		if active then
-			button.MouseButton1Click:Connect(function()
-				if busy[order.id] then return end
-				busy[order.id] = true
-				render()
-				local ok, message = remote:InvokeServer("Make", order.id)
-				busy[order.id] = nil
-				toast(message)
-				render()
-				-- the cup is ready: close the list so the way to the customer is clear
-				if ok and panel.Visible then setPanel(false) end
-			end)
+			button.MouseButton1Click:Connect(function() makeOrder(order.id) end)
 		end
 	end
 end
@@ -373,7 +403,11 @@ local function refreshJobPrompts()
 	for counter, prompt in pairs(jobPrompts) do
 		local key = counter:GetAttribute("Shop")
 		prompt.ActionText = if shop == key then "알바 끝내기" else "알바 시작"
+		-- staff do not order at their own cafe (user, 2026-10-22): hide "음료 주문하기"
+		local order = counter:FindFirstChild("SnackPrompt")
+		if order and order:IsA("ProximityPrompt") then order.Enabled = shop ~= key end
 	end
+	updateMakePrompts()
 end
 
 local function watchCounter(part: Instance)
@@ -407,6 +441,29 @@ local function watchCounter(part: Instance)
 		end
 	end)
 	jobPrompts[part] = prompt
+	-- "음료 만들기" right at the counter (user, 2026-10-22: the list button was
+	-- not found): makes the oldest waiting order
+	local makePrompt = make("ProximityPrompt", {
+		Name = "MakePrompt",
+		ActionText = "음료 만들기",
+		ObjectText = "",
+		KeyboardKeyCode = Enum.KeyCode.E,
+		HoldDuration = 0,
+		MaxActivationDistance = 10,
+		RequiresLineOfSight = false,
+		Enabled = false,
+	}, part)
+	makePrompt.Triggered:Connect(function()
+		local shop = myShop()
+		if shop ~= key then return end
+		local waiting = waitingOrders(shop :: string)
+		if waiting[1] then makeOrder(waiting[1].id) end
+	end)
+	makePrompts[part] = makePrompt
+	-- the order prompt is made by the server; it may arrive after this
+	part.ChildAdded:Connect(function(child)
+		if child.Name == "SnackPrompt" then refreshJobPrompts() end
+	end)
 	refreshJobPrompts()
 end
 

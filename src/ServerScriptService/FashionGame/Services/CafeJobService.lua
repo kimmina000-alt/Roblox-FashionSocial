@@ -43,6 +43,7 @@ type Order = {
 	created: number,
 	maker: number, -- staff UserId making / carrying it (0 = nobody yet)
 	ready: boolean,
+	who: string?, -- NPC: the name it shows (a staff member's friend)
 }
 
 local orders: {[number]: Order} = {}
@@ -108,7 +109,7 @@ local function publish()
 	local list = {}
 	for _, order in pairs(orders) do
 		local item = itemOf(order)
-		local who = "손님"
+		local who = order.who or "손님"
 		if order.kind == "player" then
 			local customer = Players:GetPlayerByUserId(order.userId)
 			who = if customer then customer.DisplayName else "손님"
@@ -266,6 +267,7 @@ local function selfServe(order: Order, message: string)
 end
 
 local function playerOrder(player: Player, shop: SnackConfig.Shop, item: SnackConfig.Item): (boolean, string?)
+	if staff[player] == shop.key then return true, "알바 중에는 주문할 수 없어요. 주문 목록의 음료를 만들어 주세요!" end
 	if not isJobShop(shop.key) or staffCount(shop.key) == 0 or staff[player] then return false, nil end
 	for _, order in pairs(orders) do
 		if order.kind == "player" and order.userId == player.UserId then
@@ -311,10 +313,50 @@ local function freeSeat(shopKey: string): Seat?
 	return if #free > 0 then free[math.random(1, #free)] else nil
 end
 
-local function spawnNpc(shopKey: string)
-	local shop = SnackConfig.Shops[shopKey]
-	local seat = freeSeat(shopKey)
-	if not shop or not seat then return end
+-- Friends of the staff (user, 2026-10-22: NPC customers look like the
+-- player's friends; the default NPC when there are none). Cached per staff.
+local friendCache: {[number]: {{ id: number, name: string }}} = {}
+local function friendsOf(userId: number): {{ id: number, name: string }}
+	local cached = friendCache[userId]
+	if cached then return cached end
+	local list = {}
+	friendCache[userId] = list
+	if userId <= 0 then return list end -- Studio test players have no friends list
+	local ok, pages = pcall(function() return Players:GetFriendsAsync(userId) end)
+	if not ok or not pages then return list end
+	while #list < 200 do
+		for _, friend in ipairs(pages:GetCurrentPage()) do
+			table.insert(list, { id = friend.Id, name = friend.DisplayName or friend.Username })
+		end
+		if pages.IsFinished then break end
+		local okNext = pcall(function() pages:AdvanceToNextPageAsync() end)
+		if not okNext then break end
+	end
+	return list
+end
+
+-- a friend of someone working at this cafe who is not in this server and not
+-- already sitting here; nil → default NPC
+local function pickFriend(shopKey: string): ({ id: number, name: string })?
+	local candidates = {}
+	local seated: {[number]: boolean} = {}
+	for _, order in pairs(orders) do
+		if order.npc then
+			local id = order.npc:GetAttribute("FriendId")
+			if typeof(id) == "number" then seated[id] = true end
+		end
+	end
+	for member, key in pairs(staff) do
+		if key == shopKey then
+			for _, friend in ipairs(friendsOf(member.UserId)) do
+				if not seated[friend.id] and not Players:GetPlayerByUserId(friend.id) then table.insert(candidates, friend) end
+			end
+		end
+	end
+	return if #candidates > 0 then candidates[math.random(1, #candidates)] else nil
+end
+
+local function defaultDescription(): HumanoidDescription
 	local description = Instance.new("HumanoidDescription")
 	local skin = SKIN[math.random(1, #SKIN)]
 	local top = CLOTHES[math.random(1, #CLOTHES)]
@@ -325,13 +367,30 @@ local function spawnNpc(shopKey: string)
 	description.TorsoColor = top
 	description.LeftLegColor = bottom
 	description.RightLegColor = bottom
+	return description
+end
+
+local function spawnNpc(shopKey: string)
+	local shop = SnackConfig.Shops[shopKey]
+	local seat = freeSeat(shopKey)
+	if not shop or not seat then return end
+	local friend = pickFriend(shopKey)
+	local description: HumanoidDescription? = nil
+	if friend then
+		local okFriend, friendLook = pcall(function() return Players:GetHumanoidDescriptionFromUserId(friend.id) end)
+		if okFriend and friendLook then description = friendLook else friend = nil end
+	end
+	if not description then description = defaultDescription() end
+	-- the seat may have been taken while loading the look
+	if seat.Occupant or staffCount(shopKey) == 0 then return end
 	local ok, npc = pcall(function()
-		return Players:CreateHumanoidModelFromDescription(description, Enum.HumanoidRigType.R15)
+		return Players:CreateHumanoidModelFromDescription(description :: HumanoidDescription, Enum.HumanoidRigType.R15)
 	end)
 	if not ok or not npc then return end
 	local item = shop.items[math.random(1, #shop.items)]
 	nextId += 1
 	npc.Name = "CafeNPC_" .. nextId
+	if friend then npc:SetAttribute("FriendId", friend.id) end
 	local humanoid = npc:FindFirstChildOfClass("Humanoid")
 	if humanoid then
 		humanoid.DisplayName = "손님"
@@ -358,8 +417,9 @@ local function spawnNpc(shopKey: string)
 	orders[nextId] = {
 		id = nextId, shop = shopKey, item = item.key, kind = "npc", userId = 0,
 		npc = npc, seat = seat, created = os.clock(), maker = 0, ready = false,
+		who = if friend then friend.name else nil,
 	}
-	setBubble(npc, "☕ " .. item.name)
+	setBubble(npc, (if friend then friend.name .. " · " else "") .. "☕ " .. item.name)
 	publish()
 end
 
