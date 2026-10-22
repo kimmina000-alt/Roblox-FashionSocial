@@ -186,8 +186,52 @@ do
 	end
 end
 
-local T = Instance.new("Model")
+-- a Folder, not a Model: in Studio one click selects one tree / car / bed
+-- instead of the whole street (user 2026-10-22)
+local T = Instance.new("Folder")
 T.Name = "Hongdae_v1_Temp"
+
+-- Hand edits that survive a rebuild (D-105): every prop gets a PropId made
+-- from its kind and generated position. tools/graybox/prop_save.lua records
+-- props the user moved or deleted in ServerStorage.PropOverrides (JSON); here
+-- those overrides are applied again when the prop is generated.
+local HS = game:GetService("HttpService")
+local function jsonValue(name: string): {[string]: any}
+	local v = SS:FindFirstChild(name)
+	if v and v:IsA("StringValue") and v.Value ~= "" then
+		local ok, t = pcall(function() return HS:JSONDecode(v.Value) end)
+		if ok and typeof(t) == "table" then return t end
+	end
+	return {}
+end
+local OVERRIDES = jsonValue("PropOverrides")
+local REGISTRY = jsonValue("PropRegistry")
+local usedIds: {[string]: boolean} = {}
+-- returns false when the user deleted this prop
+local function prop(inst: Instance, kind: string): boolean
+	local cf = if inst:IsA("Model") then inst:GetPivot() else (inst :: BasePart).CFrame
+	local id = string.format("%s@%d,%d", kind, math.floor(cf.X + 0.5), math.floor(cf.Z + 0.5))
+	while usedIds[id] do id ..= "+" end
+	usedIds[id] = true
+	REGISTRY[id] = "temp"
+	inst:SetAttribute("PropId", id)
+	inst:SetAttribute("PropBase", cf)
+	local o = OVERRIDES[id]
+	if o == "delete" then
+		inst:Destroy()
+		return false
+	elseif typeof(o) == "table" and #o == 12 then
+		local moved = CFrame.new(table.unpack(o))
+		if inst:IsA("Model") then inst:PivotTo(moved) else (inst :: BasePart).CFrame = moved end
+	end
+	return true
+end
+local function saveRegistry()
+	local v = SS:FindFirstChild("PropRegistry") or Instance.new("StringValue")
+	v.Name = "PropRegistry"
+	v.Value = HS:JSONEncode(REGISTRY)
+	v.Parent = SS
+end
 
 -- ground with holes: split x / z at every hole edge, keep the cells outside
 -- the holes, merge runs along x (old ground: x -268..1024, z -1024..1024;
@@ -368,11 +412,16 @@ local function planter(pos: Vector3, along: Vector3, len: number?)
 	local cf = CFrame.lookAt(pos, pos + along) -- -Z = along the street
 	local granite = Color3.fromRGB(196, 194, 188)
 	local top = CURB + 0.35
+	local bed = Instance.new("Model")
+	bed.Name = "PlanterBed"
 	for _, s in ipairs({ -1, 1 }) do
-		part("PlanterEdge", Vector3.new(0.3, 0.6, L), cf * CFrame.new(s * (W / 2 - 0.15), top - 0.3, 0), granite, { material = Enum.Material.Granite })
-		part("PlanterEdge", Vector3.new(W, 0.6, 0.3), cf * CFrame.new(0, top - 0.3, s * (L / 2 - 0.15)), granite, { material = Enum.Material.Granite })
+		part("PlanterEdge", Vector3.new(0.3, 0.6, L), cf * CFrame.new(s * (W / 2 - 0.15), top - 0.3, 0), granite, { material = Enum.Material.Granite, parent = bed })
+		part("PlanterEdge", Vector3.new(W, 0.6, 0.3), cf * CFrame.new(0, top - 0.3, s * (L / 2 - 0.15)), granite, { material = Enum.Material.Granite, parent = bed })
 	end
-	part("PlanterSoil", Vector3.new(W - 0.6, 0.5, L - 0.6), cf * CFrame.new(0, top - 0.35, 0), Color3.fromRGB(98, 74, 52), { material = Enum.Material.Ground })
+	part("PlanterSoil", Vector3.new(W - 0.6, 0.5, L - 0.6), cf * CFrame.new(0, top - 0.35, 0), Color3.fromRGB(98, 74, 52), { material = Enum.Material.Ground, parent = bed })
+	bed.WorldPivot = cf * CFrame.new(0, top, 0)
+	bed.Parent = T
+	prop(bed, "Bed")
 	local soilTop = top - 0.1
 	plantN += 1
 	-- street tree in the middle (its own tree grate is not used: the bed is the pit)
@@ -381,14 +430,17 @@ local function planter(pos: Vector3, along: Vector3, len: number?)
 		for _, p in ipairs(tree:GetChildren()) do
 			if p:IsA("BasePart") and p.Name == "Part" and p.Size.Y < 1.5 then p:Destroy() end
 		end
+		prop(tree, "Tree")
 	end
 	-- shrubs and grass tufts along the bed, a little irregular
 	for k, z in ipairs({ -5.2, -3.1, 3.1, 5.2 }) do
 		local x = ((k + plantN) % 2 - 0.5) * 0.6
-		foliage("Shrub", 0.2 + ((k + plantN) % 3) * 0.03, cf * CFrame.new(x, soilTop - 0.2, z) * CFrame.Angles(0, k * 2.3 + plantN, 0))
+		local s = foliage("Shrub", 0.2 + ((k + plantN) % 3) * 0.03, cf * CFrame.new(x, soilTop - 0.2, z) * CFrame.Angles(0, k * 2.3 + plantN, 0))
+		if s then prop(s, "Shrub") end
 	end
 	for k, z in ipairs({ -6.1, -4.2, -1.8, 1.8, 4.2, 6.1 }) do
-		foliage("GrassTuft", 0.3, cf * CFrame.new(((k % 2) - 0.5) * 1.6, soilTop, z) * CFrame.Angles(0, k * 1.1, 0))
+		local g = foliage("GrassTuft", 0.3, cf * CFrame.new(((k % 2) - 0.5) * 1.6, soilTop, z) * CFrame.Angles(0, k * 1.1, 0))
+		if g then prop(g, "Grass") end
 	end
 end
 -- painted arrow on the road (pointing along dir)
@@ -415,6 +467,7 @@ local function car(pos: Vector3, along: Vector3)
 		local c = carDesigns[((carCount - 1) % #carDesigns) + 1]:Clone()
 		c:PivotTo(CFrame.lookAt(pos + Vector3.new(0, 0.12, 0), pos + Vector3.new(0, 0.12, 0) + along))
 		c.Parent = T
+		prop(c, "Car")
 		return
 	end
 	local m = Instance.new("Model")
@@ -1082,5 +1135,6 @@ if spawn then
 	local p = exitMouths[1] + Vector3.new(0, 0, -7)
 	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, CURB + 0.5, p.Z), Vector3.new(p.X, CURB + 0.5, p.Z - 10))
 end
+saveRegistry()
 T.Parent = workspace
 return "applied v7 (강남 사거리, 광안리, 광화문, 놀이공원 정문), MODE=revert to undo"

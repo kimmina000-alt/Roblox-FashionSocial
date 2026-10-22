@@ -57,13 +57,45 @@ if MODE == "revert" then return "street dressing removed" end
 assert(temp, "run hongdae_v1_temp.lua first")
 
 ---------------------------------------------------------------- helpers
-local root = Instance.new("Model")
+-- Folders, not Models: one click in Studio selects one light / pole (D-105)
+local root = Instance.new("Folder")
 root.Name = DRESS
-local function folder(name: string): Model
-	local m = Instance.new("Model")
+local function folder(name: string): Folder
+	local m = Instance.new("Folder")
 	m.Name = name
 	m.Parent = root
 	return m
+end
+
+-- hand edits that survive a re-run (same scheme as hongdae_v1_temp.lua, D-105)
+local HS = game:GetService("HttpService")
+local function jsonValue(name: string): {[string]: any}
+	local v = SS:FindFirstChild(name)
+	if v and v:IsA("StringValue") and v.Value ~= "" then
+		local ok, t = pcall(function() return HS:JSONDecode(v.Value) end)
+		if ok and typeof(t) == "table" then return t end
+	end
+	return {}
+end
+local OVERRIDES = jsonValue("PropOverrides")
+local REGISTRY = jsonValue("PropRegistry")
+local usedIds: {[string]: boolean} = {}
+local function prop(inst: Model, kind: string): boolean
+	local cf = inst:GetPivot()
+	local id = string.format("%s@%d,%d", kind, math.floor(cf.X + 0.5), math.floor(cf.Z + 0.5))
+	while usedIds[id] do id ..= "+" end
+	usedIds[id] = true
+	REGISTRY[id] = "dress"
+	inst:SetAttribute("PropId", id)
+	inst:SetAttribute("PropBase", cf)
+	local o = OVERRIDES[id]
+	if o == "delete" then
+		inst:Destroy()
+		return false
+	elseif typeof(o) == "table" and #o == 12 then
+		inst:PivotTo(CFrame.new(table.unpack(o)))
+	end
+	return true
 end
 
 local function remember(p: BasePart)
@@ -309,8 +341,8 @@ for _, pole in ipairs(temp:GetChildren()) do
 			if d < hd then head, hd = x, d end
 		end
 		local dir = if head and hd < 8 then flat(head.Position - pole.Position) else Vector3.new(1, 0, 0)
-		placeCopy(lightSrc, lBase, lDir, base, dir, lightF)
-		table.insert(lightSpots, base)
+		local light = placeCopy(lightSrc, lBase, lDir, base, dir, lightF)
+		if prop(light, "Light") then table.insert(lightSpots, light:GetPivot().Position) end
 		hide(pole)
 		for _, x in ipairs(temp:GetChildren()) do
 			if x:IsA("BasePart") and (x.Name == "LampArm" or x.Name == "LampHead") and (Vector3.new(x.Position.X, 0, x.Position.Z) - Vector3.new(base.X, 0, base.Z)).Magnitude < 6 then hide(x) end
@@ -362,7 +394,7 @@ for _, sp in ipairs(temp:GetChildren()) do
 		local dir = if arm then flat(arm.Position - sp.Position) else flat(-base)
 		signals += 1
 		local u = units[((signals - 1) % #units) + 1]
-		placeCopy(u.model, u.base, u.dir, base, dir, sigF)
+		prop(placeCopy(u.model, u.base, u.dir, base, dir, sigF), "Signal")
 	end
 end
 for _, x in ipairs(temp:GetChildren()) do
@@ -390,6 +422,7 @@ for _, m in ipairs(temp:GetChildren()) do
 			local base = Vector3.new(roof.Position.X, 0.6, roof.Position.Z)
 			local copy = placeCopy(busSrc, bBase, bDir, base, dir, busF)
 			copy.Name = m.Name .. "_Shelter"
+			prop(copy, "Shelter")
 			for _, s in ipairs(copy:GetDescendants()) do
 				if s:IsA("Seat") then CS:AddTag(s, "PromptSeat") end -- "앉기" prompt like other seats
 			end
@@ -485,8 +518,12 @@ for _, s in ipairs(temp:GetChildren()) do
 				local info = poleInfo(src)
 				-- crossarm across the street: rotate so the arm axis is perpendicular to the street axis
 				local c = placeCopy(src, info.base, info.armAxis, p, side, poleF)
-				table.insert(placed, { model = c, src = src })
-				poles += 1
+				if prop(c, "Pole") then
+					table.insert(placed, { model = c, src = src })
+					poles += 1
+				else
+					table.insert(placed, false) -- deleted by hand: no wires to it
+				end
 			else
 				table.insert(placed, false)
 			end
@@ -534,6 +571,12 @@ for _, m in ipairs(temp:GetChildren()) do
 	end
 end
 
+do
+	local v = SS:FindFirstChild("PropRegistry") or Instance.new("StringValue")
+	v.Name = "PropRegistry"
+	v.Value = HS:JSONEncode(REGISTRY)
+	v.Parent = SS
+end
 root.Parent = workspace
 return string.format("dressed: roads %d, %d lights, %d traffic lights, %d bus shelters, %d utility poles, %d towers (MODE=revert to undo)",
 	#roads, lights, signals, shelters, poles, towers)
