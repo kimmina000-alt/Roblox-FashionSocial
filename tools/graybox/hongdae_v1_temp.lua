@@ -1317,6 +1317,164 @@ do -- sunset photo frame at the end of the pier, facing the sea (west)
 	label(top, "석양 포토 스팟 (서쪽 바다)", frameCol, 4, 0.8)
 end
 
+------------------------------------------------------- play area boundary + backdrop (D-109)
+-- The user drew the walkable area on the v7c map (2026-10-23, red line):
+-- invisible walls along it keep players inside. Outside, only what can be
+-- seen is built: a tiled stone wall (기와 돌담) around the hanok village,
+-- fake shop buildings with stacked signs elsewhere, the beach going on.
+do
+	local B = Instance.new("Folder")
+	B.Name = "MapBoundary"
+	B.Parent = T
+	-- polygon (x, z), clockwise from the north-west corner in the sea
+	local P = {
+		{ -305, -371 }, { -151, -371 }, { -151, -479 }, { -35, -479 }, { -35, -374 }, { 59, -374 }, { 59, -265 },
+		{ 177, -265 }, { 177, 52 }, { 220, 52 }, { 220, 224 }, { 93, 224 }, { 93, 299 }, { -50, 299 }, { -50, 109 },
+		{ -89, 109 }, { -89, 218 }, { -151, 218 }, { -151, 237 }, { -305, 237 },
+	}
+	for i = 1, #P do
+		local a, b = P[i], P[(i % #P) + 1]
+		local pa, pb = Vector3.new(a[1], 0, a[2]), Vector3.new(b[1], 0, b[2])
+		local mid = (pa + pb) / 2 + Vector3.new(0, 55, 0)
+		local w = part("BoundaryWall", Vector3.new(2, 150, (pb - pa).Magnitude + 2), CFrame.lookAt(mid, mid + (pb - pa)), Color3.new(1, 1, 1), { parent = B, transparency = 1 })
+		w.CanQuery = false -- the camera does not bump into it
+		w.CanTouch = false
+		w.CastShadow = false
+	end
+
+	-- 기와 돌담 (photo: cut-stone wall, granite plinth, dark tiled roof)
+	local stoneC, plinthC, tileC = Color3.fromRGB(222, 216, 202), Color3.fromRGB(196, 192, 182), Color3.fromRGB(70, 72, 76)
+	local function giwaWall(a: Vector3, b: Vector3, out: Vector3)
+		local G = Instance.new("Model")
+		G.Name = "GiwaStoneWall"
+		G.Parent = T
+		local len = (b - a).Magnitude
+		local base = (a + b) / 2 + out * 1.6
+		local cf = CFrame.lookAt(base, base + (b - a))
+		local H = 10
+		part("WallPlinth", Vector3.new(2.6, 1.4, len), cf * CFrame.new(0, 0.7, 0), plinthC, { parent = G, material = Enum.Material.Granite })
+		local body = part("WallStone", Vector3.new(2.2, H - 1.4, len), cf * CFrame.new(0, 1.4 + (H - 1.4) / 2, 0), stoneC, { parent = G, material = Enum.Material.Brick })
+		body.MaterialVariant = ""
+		part("WallCap", Vector3.new(3.4, 0.4, len + 0.4), cf * CFrame.new(0, H + 0.2, 0), Color3.fromRGB(60, 60, 64), { parent = G })
+		for _, s in ipairs({ -1, 1 }) do
+			part("WallRoof", Vector3.new(2.2, 1.3, len + 0.6), cf * CFrame.new(s * 1.1, H + 1.05, 0) * CFrame.Angles(0, if s > 0 then math.rad(180) else 0, 0), tileC, { parent = G, class = "WedgePart", material = Enum.Material.Slate })
+		end
+		part("WallRidge", Vector3.new(0.7, 0.6, len + 0.8), cf * CFrame.new(0, H + 1.9, 0), Color3.fromRGB(40, 40, 44), { parent = G })
+		-- tile ribs
+		for t = -len / 2 + 0.6, len / 2 - 0.6, 1.2 do
+			for _, s in ipairs({ -1, 1 }) do
+				part("RoofRib", Vector3.new(1.9, 0.18, 0.22), cf * CFrame.new(s * 1.15, H + 1.1, t) * CFrame.Angles(0, 0, s * math.rad(-30)), Color3.fromRGB(52, 54, 58), { parent = G, nocol = true })
+			end
+		end
+	end
+	giwaWall(Vector3.new(177, 0, 52), Vector3.new(220, 0, 52), Vector3.new(0, 0, -1))
+	giwaWall(Vector3.new(220, 0, 52), Vector3.new(220, 0, 224), Vector3.new(1, 0, 0))
+	giwaWall(Vector3.new(220, 0, 224), Vector3.new(93, 0, 224), Vector3.new(0, 0, 1))
+
+	-- fake shop buildings (photos: stacked shop signs on every floor, glass
+	-- and stone facade, ground-floor shops). Walls only, nobody goes in.
+	local SHOPS = {
+		{ "보드게임카페", Color3.fromRGB(200, 40, 50) }, { "코인노래연습장", Color3.fromRGB(30, 30, 35) }, { "비스듬히", Color3.fromRGB(40, 40, 45) },
+		{ "하나투어", Color3.fromRGB(40, 50, 140) }, { "VELVET", Color3.fromRGB(35, 35, 40) }, { "ZERO 전자담배", Color3.fromRGB(240, 180, 20) },
+		{ "PASTA BAR", Color3.fromRGB(60, 60, 64) }, { "로라 헤어", Color3.fromRGB(245, 245, 245) }, { "경희 한의원 4F", Color3.fromRGB(40, 50, 120) },
+		{ "프라임에셋", Color3.fromRGB(245, 245, 250) }, { "GS25 편의점", Color3.fromRGB(30, 140, 220) }, { "한우 곱창 전골", Color3.fromRGB(150, 30, 30) },
+		{ "세무사 사무소", Color3.fromRGB(250, 250, 250) }, { "필라테스 3F", Color3.fromRGB(230, 120, 160) }, { "OHU 치과", Color3.fromRGB(60, 160, 140) },
+		{ "PC방 24시", Color3.fromRGB(20, 20, 25) }, { "파티룸 · 셀프 사진", Color3.fromRGB(245, 245, 245) }, { "내과 · 건강검진", Color3.fromRGB(250, 248, 240) },
+	}
+	local TEX = { "rbxassetid://13654404035", "rbxassetid://14844635151", "rbxassetid://11361294440", "rbxassetid://36951684", "rbxassetid://17593427084" }
+	local shopN = 0
+	local function sign(parent, cf, w, h, text, bg)
+		local s = part("ShopSign", Vector3.new(w, h, 0.3), cf, bg, { parent = parent })
+		local g = Instance.new("SurfaceGui")
+		g.Face = Enum.NormalId.Front
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 24
+		g.LightInfluence = 0.4
+		g.Parent = s
+		local t = Instance.new("TextLabel")
+		t.Size = UDim2.fromScale(1, 1)
+		t.BackgroundTransparency = 1
+		t.Font = Enum.Font.GothamBlack
+		t.TextScaled = true
+		local dark = bg.R + bg.G + bg.B < 1.5
+		t.TextColor3 = if dark then Color3.fromRGB(255, 255, 255) else Color3.fromRGB(30, 40, 110)
+		t.Text = text
+		local pad = Instance.new("UIPadding")
+		pad.PaddingLeft = UDim.new(0, 10) pad.PaddingRight = UDim.new(0, 10) pad.PaddingTop = UDim.new(0, 4) pad.PaddingBottom = UDim.new(0, 4)
+		pad.Parent = t
+		t.Parent = g
+	end
+	-- a building whose front (local -Z) looks along `front`
+	local function fakeBuilding(center: Vector3, width: number, depth: number, height: number, front: Vector3)
+		shopN += 1
+		local M = Instance.new("Model")
+		M.Name = "BG_Facade(진입불가)"
+		M.Parent = T
+		local cf = CFrame.lookAt(center, center + front)
+		local body = part("Body", Vector3.new(width, height, depth), cf * CFrame.new(0, height / 2, 0), Color3.fromRGB(255, 255, 255), { parent = M })
+		for _, f in ipairs({ Enum.NormalId.Front, Enum.NormalId.Left, Enum.NormalId.Right }) do
+			local tx = Instance.new("Texture")
+			tx.Texture = TEX[(shopN % #TEX) + 1]
+			tx.Face = f
+			tx.StudsPerTileU = 20 tx.StudsPerTileV = 18
+			tx.Parent = body
+		end
+		-- stone pilasters on the front
+		for _, x in ipairs({ -width / 2 + 1, 0, width / 2 - 1 }) do
+			part("Pilaster", Vector3.new(2, height, 0.6), cf * CFrame.new(x, height / 2, -depth / 2 - 0.3), Color3.fromRGB(205, 185, 150), { parent = M, material = Enum.Material.Sandstone })
+		end
+		-- ground floor shops: dark glass + awnings
+		part("ShopGlass", Vector3.new(width - 2, 8, 0.3), cf * CFrame.new(0, 4.6, -depth / 2 - 0.2), Color3.fromRGB(40, 50, 60), { parent = M, material = Enum.Material.Glass, transparency = 0.2 })
+		for k = 0, 1 do
+			local sx = (k - 0.5) * width / 2
+			local s = SHOPS[((shopN * 3 + k) % #SHOPS) + 1]
+			sign(M, cf * CFrame.new(sx, 9.6, -depth / 2 - 0.8), width / 2 - 2.5, 1.8, s[1], s[2])
+			part("Awning", Vector3.new(width / 2 - 3, 0.3, 2.2), cf * CFrame.new(sx, 8.2, -depth / 2 - 1.3) * CFrame.Angles(math.rad(-12), 0, 0), if k == 0 then Color3.fromRGB(200, 40, 50) else Color3.fromRGB(60, 60, 66), { parent = M, nocol = true })
+		end
+		-- upper floors: a sign band per floor, two signs side by side
+		local floor = 1
+		for y = 13, height - 6, 7 do
+			for k = 0, 1 do
+				local s = SHOPS[((shopN * 5 + floor * 2 + k) % #SHOPS) + 1]
+				local sx = (k - 0.5) * (width / 2 - 1)
+				sign(M, cf * CFrame.new(sx, y, -depth / 2 - 0.65), width / 2 - 4, 2.4, s[1] .. (if k == 0 then string.format(" %dF", floor + 1) else ""), s[2])
+			end
+			floor += 1
+		end
+		part("Roof", Vector3.new(width + 1, 1, depth + 1), cf * CFrame.new(0, height + 0.5, 0), Color3.fromRGB(90, 90, 95), { parent = M })
+	end
+	-- south: across the end of the south road, shops facing the player (north)
+	for i, b in ipairs({ { -38, 22, 52 }, { 38, 26, 64 }, { 66, 26, 46 }, { -66, 24, 58 } }) do
+		fakeBuilding(Vector3.new(b[1], 0, 316), b[2], 26, b[3], Vector3.new(0, 0, -1))
+	end
+	-- the street goes on: shops on both sides, a tall block closing the view
+	for _, zz in ipairs({ 352, 388 }) do
+		fakeBuilding(Vector3.new(-42, 0, zz), 34, 30, 40 + (zz % 3) * 8, Vector3.new(1, 0, 0))
+		fakeBuilding(Vector3.new(42, 0, zz), 34, 30, 48 - (zz % 3) * 6, Vector3.new(-1, 0, 0))
+	end
+	fakeBuilding(Vector3.new(0, 0, 440), 90, 30, 90, Vector3.new(0, 0, -1))
+	-- north: along the north road behind the boundary, facing the road
+	fakeBuilding(Vector3.new(54, 0, -400), 10, 24, 46, Vector3.new(-1, 0, 0))
+	fakeBuilding(Vector3.new(54, 0, -440), 10, 24, 58, Vector3.new(-1, 0, 0))
+	-- the south road carries on past the boundary (the view goes on)
+	box("Road", -24, 0, 300, 24, 0.12, 420, ASPHALT, { material = Enum.Material.Asphalt })
+	for _, v in ipairs({ -0.45, 0.45 }) do paint("CenterLine", v - 0.2, 300, v + 0.2, 420, YELLOW) end
+
+	-- the beach goes on north and south past the boundary
+	local sandY = -BEACH_DROP + 0.6
+	box("BeachSand", -268, sandY - 1.2, -900, -204, sandY, -480, Color3.fromRGB(232, 214, 165), { material = Enum.Material.Sand })
+	box("BeachSand", -268, sandY - 1.2, 250, -204, sandY, 800, Color3.fromRGB(232, 214, 165), { material = Enum.Material.Sand })
+	for _, seg in ipairs({ { -900, -480 }, { 300, 800 } }) do
+		box("Promenade", -204, 0, seg[1], -182, CURB, seg[2], Color3.fromRGB(175, 135, 120), { material = Enum.Material.Brick })
+		box("SeaRoad", -182, 0, seg[1], -158, 0.12, seg[2], ASPHALT, { material = Enum.Material.Asphalt })
+		paint("RedLane", -182, seg[1], -174, seg[2], Color3.fromRGB(190, 85, 75))
+		box("Sidewalk", -158, 0, seg[1], -150, CURB, seg[2], WALK, { material = Enum.Material.Brick })
+		for zz = seg[1] + 15, seg[2] - 10, 30 do
+			foliage("PalmTreeReal", 0.55, CFrame.new(-190, CURB + 0.2, zz) * CFrame.Angles(0, math.rad((zz * 37) % 360), 0))
+		end
+	end
+end
+
 -- first spawn: in front of exit 1 (players come up facing north)
 if spawn then
 	if not spawn:GetAttribute("OldPosition") then spawn:SetAttribute("OldPosition", spawn.Position) end

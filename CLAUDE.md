@@ -35,7 +35,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
-- `docs/06_LOG/DECISIONS.md`: D-001 to D-108.
+- `docs/06_LOG/DECISIONS.md`: D-001 to D-109.
 - `docs/04_ART/REFERENCES.md` + `docs/04_ART/references/`: the user's photos/videos. Art direction = build realistically from these (D-102); save new references there.
 - `docs/06_LOG/ISSUES.md`, `WORKLOG.md`, `CHANGELOG.md`.
 - `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`, `docs/02_WORLDS/CAFE.md` (§9 part-time job), `CLUB_DRESS_CODE.md`.

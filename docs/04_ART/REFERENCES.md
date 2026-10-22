@@ -34,6 +34,9 @@
 | `bus_02_stop_sign_nowon.webp` | 버스 정류장 표지판 | 기둥 위 초록 버스 원판, 검은 정류장 이름판(노원구청), 흰 노선판, 금연 표시. → 표지판 탭 = 정류장 선택(D-106). |
 | `street_10_dasan_road_planting_bikelane_sidewalk.webp` | 거리 단면 (다산동) | **도로 → 연석 → 화단(나무·관목) → 자전거 도로(어두운 아스팔트·흰 테두리·자전거 표시) → 인도(회색 직사각형 보도블록 격자)**, 볼라드. → D-107. |
 | `beach_04_gwangalli_palms_bollards.webp` | 광안리 | 키 큰 가는 줄기의 **부채야자(워싱턴야자)**, 화강석 화단, 붉은 자전거 도로, 돌 볼라드, 해변 쪽 보도블록. → 실사 야자수(8626962700) D-108. |
+| `layout_02_play_area_red_line.png` | 전체 배치 | v7c 배치도 위 빨간 선 = 플레이어가 다닐 수 있는 영역(D-109). |
+| `boundary_01_giwa_stone_wall.webp` | 경계(한옥 쪽) | 기와 지붕 얹은 돌담, 화강석 기단, 인도·잔디 띠. |
+| `boundary_02_shop_signs_building_a.webp`, `boundary_03_shop_signs_building_b.webp` | 경계(그 외) | 층마다 간판이 빼곡한 상가 건물(유리·석재 외벽, 1층 가게·차양). → 간판 가건물. |
 | `cafe_video_frames.png`, `cafe_video_frames_2.png` | 카페 | 의정부 숲속 카페 영상: **2층 높이 통창**, 숲 전망, 흰 콘크리트·밝은 나무, 계단식 좌석, 창가 바 좌석, 그랜드 피아노, 베이커리 진열, 긴 대리석 테이블. → 해변 카페 v2 유리 박스(D-092)의 바탕. |
 
 ## 위 레퍼런스로 이미 반영한 것 (요약)
