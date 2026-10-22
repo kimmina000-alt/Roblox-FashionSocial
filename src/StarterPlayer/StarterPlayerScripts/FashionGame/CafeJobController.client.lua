@@ -387,7 +387,9 @@ local function updateCups()
 	for _, cup in ipairs(cups:GetChildren()) do
 		local prompt = cup:FindFirstChild("CleanPrompt")
 		if prompt and prompt:IsA("ProximityPrompt") then
-			prompt.Enabled = shop ~= nil and cup:GetAttribute("Shop") == shop
+			-- empty cups always; a drink with some left only once its owner left the cafe
+			local clearable = cup:GetAttribute("Owner") == nil or cup:GetAttribute("Clearable") == true
+			prompt.Enabled = shop ~= nil and cup:GetAttribute("Shop") == shop and clearable
 		end
 		-- my own drink on the table: pick it up again
 		local pick = cup:FindFirstChild("PickPrompt")

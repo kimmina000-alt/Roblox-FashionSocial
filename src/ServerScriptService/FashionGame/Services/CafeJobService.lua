@@ -284,6 +284,8 @@ local function newCup(shopKey: string, at: Vector3, item: SnackConfig.Item?): Pa
 	prompt.Parent = cup
 	prompt.Triggered:Connect(function(player)
 		if not cup.Parent or staff[player] ~= shopKey then return end
+		-- a drink with some left: only once its owner has left the cafe (user, 2026-10-22)
+		if cup:GetAttribute("Owner") ~= nil and not cup:GetAttribute("Clearable") then return end
 		cup:Destroy()
 		economy.Earn(player, CafeJobConfig.CleanCoins, "CafeJob", CafeJobConfig.DailyCap, "테이블 정리")
 		player:SetAttribute("CafeJobEarned", economy.Earned(player, "CafeJob"))
@@ -546,9 +548,10 @@ local function spawnNpc(shopKey: string)
 	orders[nextId] = {
 		id = nextId, shop = shopKey, item = item.key, kind = "npc", userId = 0,
 		npc = npc, seat = seat, created = os.clock(), maker = 0, ready = false,
-		who = if friend then friend.name else nil,
+		who = nil,
 	}
-	setBubble(npc, (if friend then friend.name .. " · " else "") .. "☕ " .. item.name, shopKey, 0)
+	-- a friend's look only, no name (user, 2026-10-22)
+	setBubble(npc, "☕ " .. item.name, shopKey, 0)
 	publish()
 end
 
@@ -792,12 +795,22 @@ local function tick()
 			end
 		end
 	end
-	-- old cups
+	-- old cups; drinks put down can be cleared once their owner left the cafe
 	local cups = workspace:FindFirstChild("CafeCups")
 	if cups then
 		for _, cup in ipairs(cups:GetChildren()) do
 			local since = cup:GetAttribute("Since")
-			if typeof(since) == "number" and now - since > CafeJobConfig.CupSeconds then cup:Destroy() end
+			if typeof(since) == "number" and now - since > CafeJobConfig.CupSeconds then
+				cup:Destroy()
+			else
+				local ownerId = cup:GetAttribute("Owner")
+				local shopKey = cup:GetAttribute("Shop")
+				if typeof(ownerId) == "number" and typeof(shopKey) == "string" then
+					local owner = Players:GetPlayerByUserId(ownerId)
+					local away = not owner or not playerInCafe(owner, shopKey, CafeJobConfig.WorkArea)
+					if cup:GetAttribute("Clearable") ~= away then cup:SetAttribute("Clearable", away) end
+				end
+			end
 		end
 	end
 end
