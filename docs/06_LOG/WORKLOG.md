@@ -619,3 +619,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - '광안리 해변'은 모두 '해변'으로 바꿨습니다.
 
 ![](images/2026-10-23/exit_sign_v2.jpg)
+
+### 추가 (D-153)
+- 출입구 기둥을 사진처럼 바꿨습니다. 윗면이 정사각형인 가는 기둥이고, 네 면 모두 같은 내용입니다.
+  - 한글 역 이름은 세로로 씁니다.
+  - '출입구'와 외국어 표기는 아주 작게 넣었습니다.
+
+![](images/2026-10-23/exit_sign_v3.jpg)

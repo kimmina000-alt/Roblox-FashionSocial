@@ -968,40 +968,41 @@ for _, e in ipairs(EXITS) do
 	-- 출입구 / Entrance, the station name in Korean, English, Hanja, Japanese
 	local mouth = at(9)
 	local polePos = mouth + side * 5.6 * math.sign(e[4]) + out * 1
-	local PW, PD, PH = 1.7, 0.5, 9.5
+	-- a square post (photo: slim, the same on all four faces), the Korean name
+	-- written top to bottom, the small print really small
+	local PW, PD, PH = 1.15, 1.15, 10
 	local pillar = part("ExitPole", Vector3.new(PW, PH, PD), CFrame.fromMatrix(polePos + Vector3.new(0, TOPY + PH / 2, 0), side, Vector3.yAxis), dark, { parent = m, material = Enum.Material.Metal })
 	-- each exit names where it leads (user 2026-10-23): Korean, English, Hanja, Japanese
 	local STATIONS = {
 		{ "클럽", "Club", "俱樂部", "クラブ" },
-		{ "한옥 마을", "Hanok Village", "韓屋村", "ハノク村" },
+		{ "한옥마을", "Hanok Village", "韓屋村", "ハノク村" },
 		{ "놀이공원", "Amusement Park", "遊樂公園", "遊園地" },
 		{ "해변", "Beach", "海邊", "ビーチ" },
 	}
 	local STATION = STATIONS[e[1]]
-	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+	local YELLOW = Color3.fromRGB(252, 196, 30)
+	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do
 		local g = Instance.new("SurfaceGui")
 		g.Face = face
 		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		g.PixelsPerStud = 60
+		g.PixelsPerStud = 100 -- 115 px wide
 		g.LightInfluence = 0.4
 		g.Parent = pillar
 		local list = Instance.new("UIListLayout")
 		list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		list.SortOrder = Enum.SortOrder.LayoutOrder
-		list.Padding = UDim.new(0, 6)
+		list.Padding = UDim.new(0, 4)
 		list.Parent = g
 		local pad = Instance.new("UIPadding")
-		pad.PaddingTop = UDim.new(0, 14)
+		pad.PaddingTop = UDim.new(0, 8)
 		pad.Parent = g
 		local order = 0
-		local function line(text, h, color, font, bg)
+		local function line(text, h, color, font)
 			order += 1
 			local l = Instance.new("TextLabel")
 			l.LayoutOrder = order
-			l.Size = UDim2.new(0.86, 0, 0, h)
-			l.BackgroundTransparency = if bg then 0 else 1
-			if bg then l.BackgroundColor3 = bg end
-			l.BorderSizePixel = 0
+			l.Size = UDim2.new(0.84, 0, 0, h)
+			l.BackgroundTransparency = 1
 			l.Font = font or Enum.Font.GothamBold
 			l.TextScaled = true
 			l.TextColor3 = color
@@ -1009,12 +1010,15 @@ for _, e in ipairs(EXITS) do
 			l.Parent = g
 			return l
 		end
-		local YELLOW = Color3.fromRGB(252, 196, 30)
+		local function gap(h)
+			order += 1
+			local s = Instance.new("Frame") s.LayoutOrder = order s.Size = UDim2.new(0, 1, 0, h) s.BackgroundTransparency = 1 s.Parent = g
+		end
 		-- one-colour subway pictogram (Creator Store decal 994265483, background removed: docs/04_ART/references/subway_icon_mono.png)
 		order += 1
 		local tile = Instance.new("Frame")
 		tile.LayoutOrder = order
-		tile.Size = UDim2.new(0, 78, 0, 78)
+		tile.Size = UDim2.new(0, 84, 0, 84)
 		tile.BackgroundColor3 = YELLOW
 		tile.BorderSizePixel = 0
 		tile.Parent = g
@@ -1027,17 +1031,20 @@ for _, e in ipairs(EXITS) do
 		icon.Image = "rbxassetid://132112761852193"
 		icon.ScaleType = Enum.ScaleType.Fit
 		icon.Parent = tile
-		line(tostring(e[1]), 110, YELLOW, Enum.Font.GothamBlack)
-		line("출입구", 30, YELLOW, Enum.Font.GothamBold)
-		line("Entrance", 22, YELLOW, Enum.Font.Gotham)
-		order += 1
-		local gap = Instance.new("Frame") gap.LayoutOrder = order gap.Size = UDim2.new(0.6, 0, 0, 24) gap.BackgroundTransparency = 1 gap.Parent = g
-		line(STATION[1], 46, Color3.new(1, 1, 1), Enum.Font.GothamBold)
-		line(STATION[2], 22, Color3.fromRGB(220, 220, 220), Enum.Font.Gotham)
-		line(STATION[3], 24, Color3.fromRGB(220, 220, 220), Enum.Font.Gotham)
-		line(STATION[4], 22, Color3.fromRGB(220, 220, 220), Enum.Font.Gotham)
-	end
-	local sign = pillar
+		gap(6)
+		line(tostring(e[1]), 92, YELLOW, Enum.Font.GothamBlack)
+		line("출입구", 12, YELLOW, Enum.Font.GothamMedium)
+		line("Entrance", 9, YELLOW, Enum.Font.Gotham)
+		gap(22)
+		-- the Korean name top to bottom, one syllable per line
+		for _, ch in utf8.codes(STATION[1]) do
+			line(utf8.char(ch), 64, Color3.new(1, 1, 1), Enum.Font.GothamBold)
+		end
+		gap(8)
+		line(STATION[2], 9, Color3.fromRGB(215, 215, 215), Enum.Font.Gotham)
+		line(STATION[3], 10, Color3.fromRGB(215, 215, 215), Enum.Font.Gotham)
+		line(STATION[4], 9, Color3.fromRGB(215, 215, 215), Enum.Font.Gotham)
+	end	local sign = pillar
 	label(sign, e[1] .. "번 출구 · " .. e[2], e[3], 4, 0.8)
 
 	-- the landing pad (exit picker)
