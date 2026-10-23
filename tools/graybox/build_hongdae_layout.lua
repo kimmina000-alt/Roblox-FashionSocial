@@ -1235,8 +1235,24 @@ do
 	for z = -22.5, 22.5, 3 do paint("Crosswalk", -156, z - 0.75, -144, z + 0.75, WHITE) end
 	paint("StopLine", -138, -24, -136.8, 0, WHITE)
 	-- (curb drains removed, user 2026-10-23: 430 parts for little detail)
-	-- each bollard can be moved / deleted by hand (user 2026-10-22, D-105)
-	for zz = z0 + 4, z1 - 2, 7 do prop(vcyl("Bollard", Vector3.new(-183.5, CURB, zz), 1.1, 1.6, Color3.fromRGB(150, 145, 140), { material = Enum.Material.Slate }), "Bollard") end
+	-- Bollards (차량진입억제용 말뚝) only where a car could drive onto the
+	-- promenade: the lowered curb at each crosswalk (user 2026-10-23: far too
+	-- many). 교통약자의 이동편의 증진법 시행규칙 standard: height 80–100 cm
+	-- (2.6), diameter 10–20 cm (0.5), about 1.5 m (4.4) apart, a shock-
+	-- absorbing material (no stone), a reflective band. Each one can still be
+	-- moved / deleted by hand (D-105).
+	for _, cz in ipairs(CROSS) do
+		for _, dz in ipairs({ -4.4, 0, 4.4 }) do
+			local base = Vector3.new(-183.5, CURB, cz + dz)
+			local b = Instance.new("Model")
+			b.Name = "Bollard"
+			vcyl("BollardPost", base, 0.5, 2.6, Color3.fromRGB(110, 112, 118), { material = Enum.Material.SmoothPlastic, parent = b })
+			vcyl("BollardBand", base + Vector3.new(0, 2.05, 0), 0.52, 0.25, Color3.fromRGB(250, 210, 40), { material = Enum.Material.SmoothPlastic, nocol = true, parent = b })
+			b.WorldPivot = CFrame.new(base)
+			b.Parent = T
+			prop(b, "Bollard")
+		end
+	end
 	local function pine(pos: Vector3)
 		vcyl("PlanterRing", pos + Vector3.new(0, CURB, 0), 8, 1.4, Color3.fromRGB(170, 160, 150), { material = Enum.Material.Slate })
 		vcyl("PlanterSoil", pos + Vector3.new(0, CURB, 0), 6.6, 1.5, Color3.fromRGB(120, 95, 70), { material = Enum.Material.Ground })
