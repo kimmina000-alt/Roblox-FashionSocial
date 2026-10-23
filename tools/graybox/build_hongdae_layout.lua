@@ -2656,13 +2656,15 @@ do
 	box("ShopFloor", W0, F - 0.4, N0, W1, F, S0 - CH, FLOOR_COL, tileOpt)
 	box("ShopFloor", W0 + CH, F - 0.4, S0 - CH, W1, F, S0, FLOOR_COL, tileOpt)
 	cutPart("ShopFloor", CH * math.sqrt(2), F - 0.4, F, depthIn, -depthIn / 2, FLOOR_COL, tileOpt)
-	box("PlinthLedge", W0 - 0.6, 0, N0, W0, F - 0.3, S0 - CH, GRANITE, opt({ material = Enum.Material.Granite }))
-	box("PlinthLedge", W0 + CH, 0, S0, W1, F - 0.3, S0 + 0.6, GRANITE, opt({ material = Enum.Material.Granite }))
-	-- steps parallel to the cut corner (user 2026-10-23: 사선): a granite
-	-- landing at floor height in front of the doors, one step down, then the
-	-- pavement fills the rest of the corner; an invisible ramp on top
-	cutPart("Landing", CH * math.sqrt(2), 0, F, 2.4, 1.2, GRANITE, opt({ material = Enum.Material.Granite }))
-	cutPart("Step", CH * math.sqrt(2) + 2, 0, F - 0.5, 1.4, 3.1, GRANITE, opt({ material = Enum.Material.Granite }))
+	-- one wooden deck step at floor height along all three street faces
+	-- (user 2026-10-23: the wood of the old right-hand deck everywhere, one step
+	-- instead of two in front of the door), an invisible ramp at the door
+	local WOOD = Color3.fromRGB(150, 112, 78)
+	local DECK = 2.6
+	local woodOpt = opt({ material = Enum.Material.WoodPlanks })
+	box("Deck", W0 - DECK, 0, N0 + 1, W0, F, S0 - CH + 1.1, WOOD, woodOpt)
+	box("Deck", W0 + CH - 1.1, 0, S0, W1 - 1, F, S0 + DECK, WOOD, woodOpt)
+	cutPart("Deck", CH * math.sqrt(2) + 2.2, 0, F, DECK, DECK / 2, WOOD, woodOpt)
 	-- pavement in the rest of the corner (named Sidewalk: street_dress gives it
 	-- the paver texture), a hair lower than the sidewalks it overlaps
 	cutPart("Sidewalk", CH * math.sqrt(2) + 12, 0, CURB - 0.02, 6, 3.8 + 3, WALK, { parent = T, material = Enum.Material.Brick })
@@ -2671,8 +2673,8 @@ do
 		ramp.Name = "StepRamp"
 		ramp.Anchored = true
 		ramp.Transparency = 1
-		ramp.Size = Vector3.new(CH * math.sqrt(2) + 2, F - CURB, 3.6)
-		local rc = MC + nC * 2.0
+		ramp.Size = Vector3.new(CH * math.sqrt(2) + 2, F - CURB, 2.4)
+		local rc = MC + nC * (DECK + 1.2)
 		ramp.CFrame = CFrame.lookAt(Vector3.new(rc.X, (F + CURB) / 2, rc.Z), Vector3.new(rc.X, (F + CURB) / 2, rc.Z) + nC)
 		ramp.Parent = B
 	end
@@ -2698,11 +2700,18 @@ do
 	cutPart("CornerHead", cutLen, F + 10.6, GF, 1, -0.5, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	for _, s in ipairs({ -1, 1 }) do
 		cutAt("PinkPost", s * (cutLen / 2 - 0.5), Vector3.new(1, 10.6, 1.4), F + 5.3, -0.3, PINK)
-		cutAt("PinkMullion", s * (DOOR / 2 + 0.4), Vector3.new(0.8, 10.6, 1.4), F + 5.3, -0.3, PINK)
+		cutAt("PinkMullion", s * (DOOR / 2 + 0.3), Vector3.new(0.35, 10.6, 1), F + 5.3, -0.3, PINK) -- thinner than the outer frame (user)
+		-- light panel inside the outer post: lights up at night (NightGlow)
+		local gp = cutAt("FrameGlow", s * (cutLen / 2 - 0.5), Vector3.new(0.5, 10, 0.1), F + 5.3, 0.45, Color3.fromRGB(255, 225, 240), opt({ nocol = true }))
+		CS:AddTag(gp, "NightGlow")
 		local w = cutLen / 2 - DOOR / 2 - 1.8
 		cutAt("Sidelight", s * (DOOR / 2 + 0.8 + w / 2), Vector3.new(w, 9.4, 0.3), F + 5.3, -0.4, Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
 	end
 	cutAt("PinkHead", 0, Vector3.new(cutLen, 1.2, 1.4), F + 10.6, -0.3, PINK)
+	do
+		local gh = cutAt("FrameGlow", 0, Vector3.new(cutLen - 1, 0.5, 0.1), F + 10.6, 0.45, Color3.fromRGB(255, 225, 240), opt({ nocol = true }))
+		CS:AddTag(gh, "NightGlow")
+	end
 	local door = Instance.new("Model")
 	door.Name = "AutoDoor"
 	door:SetAttribute("Range", 9)
@@ -2721,8 +2730,9 @@ do
 	local function westPanel(name, z0, z1, y0, y1, out, color, op)
 		return box(name, W0 - out, y0, z0, W0, y1, z1, color, op)
 	end
-	westPanel("PosterFrame", -86, -62, F + 1.8, F + 11.6, 0.5, PINK, o)
-	local poster = westPanel("Poster", -85, -63, F + 2.6, F + 10.8, 0.6, Color3.fromRGB(196, 190, 236), o)
+	-- the poster fills the west face up to the sign band (user 2026-10-23)
+	westPanel("PosterFrame", N0 + 2.5, S0 - CH - 1.5, F + 0.6, F + 11.2, 0.5, PINK, o)
+	local poster = westPanel("Poster", N0 + 3.3, S0 - CH - 2.3, F + 1.4, F + 10.4, 0.6, Color3.fromRGB(196, 190, 236), o)
 	do
 		local g = Instance.new("SurfaceGui")
 		g.Face = Enum.NormalId.Left
@@ -2791,14 +2801,13 @@ do
 		-- clear glass in the middle of the wall: see in, can't walk through
 		pill("PillGlass", x, PILL_W, PILL_H, S0 - 0.5, 0.1, Color3.fromRGB(225, 235, 240), opt({ material = Enum.Material.Glass, transparency = 0.75 }))
 	end
-	box("Deck", 62, CURB, S0, 107, CURB + 0.9, S0 + 2.6, Color3.fromRGB(150, 112, 78), opt({ material = Enum.Material.WoodPlanks }))
 
 	-- fascia band over the ground floor with the signs (인생네컷-style: white
 	-- raised letters with a lavender edge, aperture logo)
 	-- the sign band sits just above the doors (user 2026-10-23: lower the box
 	-- with the letters, so it shows on screen); a thin cornice marks the floor
 	-- line under the upper floors
-	local FAS0, FAS1 = F + 12, F + 15.4
+	local FAS0, FAS1 = F + 11.4, F + 17.6 -- taller white band (user 2026-10-23)
 
 	local FASCIA = Color3.fromRGB(232, 231, 228) -- a touch darker than the white letters
 	box("Fascia", W0 - 1.2, FAS0, N0 + 2, W0 + 1, FAS1, S0 - CH, FASCIA, o)
@@ -2850,6 +2859,9 @@ do
 			local cf = CFrame.fromMatrix((a + b) / 2, (b - a).Unit, out)
 			part("Letter", Vector3.new(len + SW * 0.9, DEPTH - 0.06, SW), cf * CFrame.new(0, -0.03, 0), Color3.fromRGB(196, 196, 204), { parent = m, nocol = true })
 			part("LetterFace", Vector3.new(len + SW * 0.9, 0.06, SW), cf * CFrame.new(0, DEPTH / 2 - 0.03, 0), SIGN_WHITE, { parent = m, nocol = true, material = Enum.Material.SmoothPlastic })
+			-- halo: a soft lavender neon behind each stroke, on the band (user 2026-10-23)
+			local halo = part("LetterHalo", Vector3.new(len + SW * 0.9 + 0.35, 0.04, SW + 0.35), cf * CFrame.new(0, -DEPTH / 2 - 0.01, 0), Color3.fromRGB(170, 125, 255), { parent = m, nocol = true, material = Enum.Material.Neon, transparency = 0.25 })
+			halo.CastShadow = false
 		end
 		local x = -total / 2
 		for i, ch in ipairs(chars) do
@@ -2877,8 +2889,8 @@ do
 	-- the shop name sits one band lower, on the wall between the door frame and
 	-- the fascia, so players see it from the street (user 2026-10-23)
 	local fasMid = (FAS0 + FAS1) / 2
-	sign3d("Sign_OhuNeCut", { "◎", "오", "후", "네", "컷" }, Vector3.new(MC.X, fasMid, MC.Z) + nC * 1.2, tC, nC, 2)
-	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, -74), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 2)
+	sign3d("Sign_OhuNeCut", { "◎", "오", "후", "네", "컷" }, Vector3.new(MC.X, fasMid, MC.Z) + nC * 1.2, tC, nC, 1.33) -- 2/3 size
+	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, -74), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.33)
 
 	-- upper floors (2F, 3F): white brick mass with the cut corner, dark-framed
 	-- windows, floor bands, then a parapet with a steel railing (roof terrace)
