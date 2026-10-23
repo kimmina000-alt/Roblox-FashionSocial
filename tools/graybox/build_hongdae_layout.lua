@@ -51,7 +51,7 @@ local BEACH_DROP, SEA_DROP = 2.4, 3
 -- ground holes: club + the four subway stair pits (x0, z0, x1, z1)
 local HOLES = {
 	{ 49, -252 + CLUB_DZ, 169, -92 + CLUB_DZ },
-	{ 26, -68, 32, -50 }, { -46.8, -57.4, -28.8, -51.4 }, -- exit 1 comes up northwards, 3 westwards (toward the beach)
+	{ 26, -68, 32, -50 }, { -67, -57.4, -49, -51.4 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -32, 50, -26, 68 }, -- exits 2, 4 (come up southwards)
 }
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
@@ -405,6 +405,7 @@ local function streetLamp(base: Vector3, toward: Vector3)
 	light.Parent = head
 end
 local function trafficLight(base: Vector3, toward: Vector3, reach)
+	if true then return end -- no traffic signals at all, poles included (user 2026-10-23)
 	vcyl("SignalPole", base, 1, 18, Color3.fromRGB(70, 75, 80))
 	local tip = base + toward * reach + Vector3.new(0, 17, 0)
 	part("SignalArm", Vector3.new(0.6, 0.6, reach), CFrame.lookAt(base + toward * reach / 2 + Vector3.new(0, 17, 0), tip), Color3.fromRGB(70, 75, 80), { nocol = true })
@@ -727,7 +728,8 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing
 		bedN += 1
 		local far = u > DETAIL
 		local free = not far or bedN % 2 == 0
-		for _, p in ipairs(pits) do if u > p[1] - 9 and u < p[2] + 9 then free = false end end
+		-- no bed right in front of a subway exit either (user 2026-10-23)
+		for _, p in ipairs(pits) do if u > p[1] - 9 and u < p[2] + 20 then free = false end end
 		if free then for _, v in ipairs({ -TREE_V, TREE_V }) do if clear(at(u, v)) then planter(at(u, v), dir, 15, far) end end end
 	end
 	-- a lamp every third gap between planting beds (about every 70, user: not
@@ -799,7 +801,7 @@ end
 -- reaches the club / photo booth fronts (49)
 -- (north, south and east run on to the map edge, 1000 from the junction, so
 -- no road end shows on screen; user 2026-10-23)
-bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 }, { 51.4, 57.4, -46.8, -28.8 } }, { { 92, -1 }, { 150, 1 }, { 205, -1 } }, { [-1] = 34, [1] = 49 }, nil, 480) -- north
+bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 } }, { { 92, -1 }, { 150, 1 }, { 205, -1 } }, { [-1] = 34, [1] = 49 }, nil, 480) -- north
 bigRoad(Vector3.new(0, 0, 1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }, nil, nil, 300) -- south (past the boundary at 299: the street goes on, D-110)
 bigRoad(Vector3.new(1, 0, 0), 1000, {}, { { 100, 1 }, { 165, -1 } }, nil, nil, 180) -- east
 bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 100, -1 } }, nil, true) -- west, to the seafront road (bike lanes run on to the bike crossings)
@@ -869,7 +871,7 @@ local EXITS = {
 	-- pits 18 long at 50..68 from the junction: clear of the wide corner squares (v7c)
 	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -59, Vector3.new(0, 0, -1) },
 	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 59, Vector3.new(0, 0, 1) },
-	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -37.8, -54.4, Vector3.new(-1, 0, 0) }, -- faces the beach (user 2026-10-23)
+	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -58, -54.4, Vector3.new(-1, 0, 0), 0 }, -- in the corner square, away from the road, facing the beach (user 2026-10-23); ground at y 0
 	{ 4, "광안리 해변 · 카페", Color3.fromRGB(42, 143, 179), -29, 59, Vector3.new(0, 0, 1) },
 }
 local exitPads, exitMouths = {}, {}
@@ -878,24 +880,25 @@ for _, e in ipairs(EXITS) do
 	m.Name = "SubwayExit" .. e[1]
 	m.Parent = T
 	local out = e[6]
+	local TOPY = e[7] or CURB -- ground level around this exit
 	local c = Vector3.new(e[4], 0, e[5]) -- pit centre: 6 wide, 18 long (u -9..9 along out)
 	local side = Vector3.new(math.abs(out.Z), 0, math.abs(out.X)) -- across the pit
 	local function at(u) return c + out * u end
-	local bottom = CURB - 10 * 0.86
+	local bottom = TOPY - 10 * 0.86
 	for k = 1, 10 do -- stairs from the mouth (u 9) down to u -3
 		local a, b = at(9 - (k - 1) * 1.2) - side * 3, at(9 - k * 1.2) + side * 3
-		box("Step", a.X, -9, a.Z, b.X, CURB - k * 0.86, b.Z, Color3.fromRGB(150, 150, 155), { parent = m, material = Enum.Material.Concrete })
+		box("Step", a.X, -9, a.Z, b.X, TOPY - k * 0.86, b.Z, Color3.fromRGB(150, 150, 155), { parent = m, material = Enum.Material.Concrete })
 	end
 	local l0, l1 = at(-3) - side * 3, at(-9) + side * 3
 	box("Landing", l0.X, -9, l0.Z, l1.X, bottom, l1.Z, Color3.fromRGB(120, 120, 128), { parent = m, material = Enum.Material.Concrete })
 	do
 		local a, b = at(-9) - side * 3.4, at(9) - side * 3
-		box("PitWallL", a.X, -9, a.Z, b.X, CURB, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
+		box("PitWallL", a.X, -9, a.Z, b.X, TOPY, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
 		a, b = at(-9) + side * 3, at(9) + side * 3.4
-		box("PitWallR", a.X, -9, a.Z, b.X, CURB, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
+		box("PitWallR", a.X, -9, a.Z, b.X, TOPY, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
 	end
 	local ba, bb = at(-9.2) - side * 3, at(-8.8) + side * 3
-	local bw = box("PitBack", ba.X, -9, ba.Z, bb.X, CURB + 2.6, bb.Z, Color3.fromRGB(40, 40, 45), { parent = m })
+	local bw = box("PitBack", ba.X, -9, ba.Z, bb.X, TOPY + 2.6, bb.Z, Color3.fromRGB(40, 40, 45), { parent = m })
 	surfaceText(bw, if out.Z < -0.5 then Enum.NormalId.Front elseif out.Z > 0.5 then Enum.NormalId.Back elseif out.X > 0 then Enum.NormalId.Right else Enum.NormalId.Left, "🚇 승강장\n발판을 밟으면 출구 선택", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold)
 	-- entrance building (user photo 2026-10-22): granite base, glass sides with
 	-- dark frames, a grey roof high at the open end that sweeps down in a curve
@@ -903,20 +906,20 @@ for _, e in ipairs(EXITS) do
 	local granite = Color3.fromRGB(176, 176, 172)
 	local dark = Color3.fromRGB(38, 40, 44)
 	local roofC = Color3.fromRGB(150, 153, 157)
-	local BASE = CURB + 2.6 -- top of the granite base
+	local BASE = TOPY + 2.6 -- top of the granite base
 	local U0, U1 = -9.6, 9.4 -- back, mouth
 	local function roofY(u: number): number
-		if u >= -3 then return CURB + 6.2 + (u + 3) / (U1 + 3) * 1.4 end -- straight, rising to the mouth
+		if u >= -3 then return TOPY + 6.2 + (u + 3) / (U1 + 3) * 1.4 end -- straight, rising to the mouth
 		local t = math.clamp((u + 3) / (U0 + 3), 0, 1) -- 0 at -3, 1 at the back
 		return BASE + 3.6 * math.sqrt(math.max(0, 1 - t * t)) -- elliptic curve down to the base
 	end
 	for _, sx in ipairs({ -1, 1 }) do
 		local a, b = at(U0) + side * (sx * 3.4), at(U1) + side * (sx * 4.2)
-		box("EntranceBase", math.min(a.X, b.X), CURB, math.min(a.Z, b.Z), math.max(a.X, b.X), BASE, math.max(a.Z, b.Z), granite, { parent = m, material = Enum.Material.Granite })
+		box("EntranceBase", math.min(a.X, b.X), TOPY, math.min(a.Z, b.Z), math.max(a.X, b.X), BASE, math.max(a.Z, b.Z), granite, { parent = m, material = Enum.Material.Granite })
 	end
 	do
 		local a, b = at(U0) + side * -4.2, at(U0 + 0.6) + side * 4.2
-		box("EntranceBase", math.min(a.X, b.X), CURB, math.min(a.Z, b.Z), math.max(a.X, b.X), BASE, math.max(a.Z, b.Z), granite, { parent = m, material = Enum.Material.Granite })
+		box("EntranceBase", math.min(a.X, b.X), TOPY, math.min(a.Z, b.Z), math.max(a.X, b.X), BASE, math.max(a.Z, b.Z), granite, { parent = m, material = Enum.Material.Granite })
 	end
 	-- roof: one straight slab + a curved run of short slabs
 	local pts = { U1 }
@@ -946,15 +949,15 @@ for _, e in ipairs(EXITS) do
 	-- the dark frame of the open end
 	for _, sx in ipairs({ -1, 1 }) do
 		local a, b = at(U1 - 0.8) + side * (sx * 3.6), at(U1) + side * (sx * 4.4)
-		box("EntranceFrame", math.min(a.X, b.X), CURB, math.min(a.Z, b.Z), math.max(a.X, b.X), roofY(U1) + 0.9, math.max(a.Z, b.Z), dark, { parent = m, material = Enum.Material.Metal })
+		box("EntranceFrame", math.min(a.X, b.X), TOPY, math.min(a.Z, b.Z), math.max(a.X, b.X), roofY(U1) + 0.9, math.max(a.Z, b.Z), dark, { parent = m, material = Enum.Material.Metal })
 	end
 	-- exit number pole (Seoul style): dark pole, yellow number panel on top
 	local mouth = at(9)
 	local polePos = mouth + side * 5.6 * math.sign(e[4]) + out * 1
-	box("ExitPole", polePos.X - 0.45, CURB, polePos.Z - 0.45, polePos.X + 0.45, CURB + 11, polePos.Z + 0.45, dark, { parent = m, material = Enum.Material.Metal })
-	local sign = box("ExitNumberSign", polePos.X - 0.55, CURB + 9, polePos.Z - 0.55, polePos.X + 0.55, CURB + 10.8, polePos.Z + 0.55, Color3.fromRGB(250, 200, 30), { parent = m })
+	box("ExitPole", polePos.X - 0.45, TOPY, polePos.Z - 0.45, polePos.X + 0.45, TOPY + 11, polePos.Z + 0.45, dark, { parent = m, material = Enum.Material.Metal })
+	local sign = box("ExitNumberSign", polePos.X - 0.55, TOPY + 9, polePos.Z - 0.55, polePos.X + 0.55, TOPY + 10.8, polePos.Z + 0.55, Color3.fromRGB(250, 200, 30), { parent = m })
 	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do surfaceText(sign, face, tostring(e[1]), Color3.fromRGB(20, 20, 20), Enum.Font.GothamBlack) end
-	box("ExitPoleBand", polePos.X - 0.5, CURB + 5, polePos.Z - 0.5, polePos.X + 0.5, CURB + 7.5, polePos.Z + 0.5, Color3.fromRGB(200, 40, 60), { parent = m })
+	box("ExitPoleBand", polePos.X - 0.5, TOPY + 5, polePos.Z - 0.5, polePos.X + 0.5, TOPY + 7.5, polePos.Z + 0.5, Color3.fromRGB(200, 40, 60), { parent = m })
 	label(sign, e[1] .. "번 출구 · " .. e[2], e[3], 4, 0.8)
 
 	-- the landing pad (exit picker)
@@ -1760,7 +1763,8 @@ do
 		-- small stone spouts under the cornice
 		for z = gz0 + 5, gz1 - 4, 9.2 do
 			deco(part("StoneSpout", Vector3.new(0.7, 0.45, 0.45), CFrame.new(fx + s * 0.35, TOP - 3.1, z), LIGHT, { parent = G, nocol = true, material = Enum.Material.Slate }))
-			deco(part("StoneSpoutHead", Vector3.new(0.45, 0.45, 0.45), CFrame.new(fx + s * 0.7, TOP - 3.05, z), LIGHT, { parent = G, nocol = true, material = Enum.Material.Slate, shape = Enum.PartType.Ball }))
+			-- a round hole in the block end (user: no ball)
+			deco(part("StoneSpoutHole", Vector3.new(0.04, 0.26, 0.26), CFrame.new(fx + s * 0.71, TOP - 3.1, z), Color3.fromRGB(40, 38, 36), { parent = G, nocol = true, shape = Enum.PartType.Cylinder }))
 		end
 	end
 	-- white cornice, then the dark brick band with key-pattern panels and grilles
@@ -2000,6 +2004,8 @@ do
 	end
 	palaceRoof(H + 8 + LIFT, gx0 - 3, gx1 + 3, gz0 + 1, gz1 - 1, 4)
 	-- upper storey: a green box with the pattern, the plaque on its face
+	-- a plain green body under it reaches down into the lower roof, so nothing floats over the hip (user)
+	box("UpperBody", gx0 + 2.05, H + 8 + LIFT, gz0 + 10.05, gx1 - 2.05, H + 12 + LIFT, gz1 - 10.05, GREEN, { parent = G })
 	local box2 = box("UpperFloor", gx0 + 2, H + 12 + LIFT, gz0 + 10, gx1 - 2, H + 15 + LIFT, gz1 - 10, GREEN, { parent = G })
 	patterned(box2, "rbxassetid://112062659381290", 3 * 262 / 212)	palaceRoof(H + 15 + LIFT, gx0 - 1, gx1 + 1, gz0 + 6, gz1 - 6, 5)
 	box("PlaqueFrame", gx0 + 1.55, H + 12.2 + LIFT, 163.6, gx0 + 1.75, H + 14.6 + LIFT, 172.4, Color3.fromRGB(188, 64, 52), { parent = G, nocol = true })
@@ -2048,7 +2054,7 @@ do
 	-- line (x 68 to the wall), the path to the gate as wide as the gate
 	-- (between the railings), two big lawns from the yard to the sidewalk
 	local PATH0, PATH1 = gz0, gz1 -- railings on the gate's outer edges (user 2026-10-23)
-	local YARD = 68
+	local YARD = gx0 - 8 -- lawns reach toward the gate (user 2026-10-23)
 	local PAVE = Color3.fromRGB(226, 216, 190)
 	box("PlazaStone", WIDE, 0, WIDE, 96.4, 0.3, 299, PAVE, { parent = G, material = Enum.Material.Slate })
 	box("PlazaLawn", WIDE, 0.3, WIDE, YARD, 0.45, PATH0 - 0.6, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
