@@ -265,8 +265,9 @@ local function roundCorner(s: BasePart)
 				for i = 0, steps - 1 do
 					local t0 = a0 + (a1 - a0) * i / steps
 					local t1 = a0 + (a1 - a0) * (i + 1) / steps
-					local p0 = center + Vector3.new(math.cos(t0), 0, math.sin(t0)) * (r + 0.35)
-					local p1 = center + Vector3.new(math.cos(t1), 0, math.sin(t1)) * (r + 0.35)
+					-- inside the edge like the straight curbs, so they join
+					local p0 = center + Vector3.new(math.cos(t0), 0, math.sin(t0)) * (r - 0.35)
+					local p1 = center + Vector3.new(math.cos(t1), 0, math.sin(t1)) * (r - 0.35)
 					local mid = (p0 + p1) / 2
 					part("Curb", Vector3.new(0.7, h + 0.15, (p1 - p0).Magnitude + 0.15), CFrame.lookAt(mid, mid + (p1 - p0)) + Vector3.new(0, 0.075, 0), GRANITE, Enum.Material.Granite, walkF)
 				end
@@ -283,6 +284,17 @@ for _, s in ipairs(temp:GetChildren()) do
 		if square then
 			paveLook(s)
 			roundCorner(s)
+			-- and the two straight edges from the end of the arc on (user 2026-10-23)
+			local rc = rounded[s]
+			if rc then
+				local ix = if s.Position.X > rc.c.X then 1 else -1
+				local iz = if s.Position.Z > rc.c.Z then 1 else -1
+				local h = s.Size.Y
+				local z0, z1 = rc.c.Z + iz * rc.r, rc.c.Z + iz * s.Size.Z
+				part("Curb", Vector3.new(0.7, h + 0.15, math.abs(z1 - z0)), CFrame.new(rc.c.X + ix * 0.35, s.Position.Y + 0.075, (z0 + z1) / 2), GRANITE, Enum.Material.Granite, walkF)
+				local x0, x1 = rc.c.X + ix * rc.r, rc.c.X + ix * s.Size.X
+				part("Curb", Vector3.new(math.abs(x1 - x0), h + 0.15, 0.7), CFrame.new((x0 + x1) / 2, s.Position.Y + 0.075, rc.c.Z + iz * 0.35), GRANITE, Enum.Material.Granite, walkF)
+			end
 		else
 			paveLook(s)
 			-- every other sidewalk corner that points into a junction is rounded

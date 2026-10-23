@@ -51,9 +51,11 @@ local BEACH_DROP, SEA_DROP = 2.4, 3
 -- ground holes: club + the four subway stair pits (x0, z0, x1, z1)
 local HOLES = {
 	{ 49, -252 + CLUB_DZ, 169, -92 + CLUB_DZ },
-	{ 26, -68, 32, -50 }, { -67, -57.4, -49, -51.4 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
+	{ 26, -68, 32, -50 }, { -71.6, -60.2, -53.6, -54.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -32, 50, -26, 68 }, -- exits 2, 4 (come up southwards)
 }
+-- 광화문 lawns planted as terrain grass (blades), x0, z0, x1, z1 (user 2026-10-23)
+local LAWN_TERRAIN = { { 48, 48, 81, 138.4 }, { 48, 197.6, 81, 288 } }
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
 	{ Vector3.new(400, -55, 60), 95 }, { Vector3.new(470, -60, 175), 110 }, { Vector3.new(420, -55, 295), 95 },
 	{ Vector3.new(290, -70, 370), 90 }, { Vector3.new(150, -75, 390), 90 },
@@ -126,6 +128,11 @@ local function revert()
 	-- (also the folder of the earlier temporary version)
 	local old = workspace:FindFirstChild("Hongdae_Layout") or workspace:FindFirstChild("Hongdae_v1_Temp")
 	if old then
+		if old:GetAttribute("LawnTerrain") then
+			for _, l in ipairs(LAWN_TERRAIN) do
+				workspace.Terrain:FillBlock(CFrame.new((l[1] + l[3]) / 2, -1, (l[2] + l[4]) / 2), Vector3.new(l[3] - l[1] + 8, 6, l[4] - l[2] + 8), Enum.Material.Air)
+			end
+		end
 		if old:GetAttribute("Mountains") then
 			for _, m in ipairs(MOUNTAINS) do workspace.Terrain:FillBall(m[1], m[2] + 1, Enum.Material.Air) end
 		end
@@ -871,7 +878,7 @@ local EXITS = {
 	-- pits 18 long at 50..68 from the junction: clear of the wide corner squares (v7c)
 	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -59, Vector3.new(0, 0, -1) },
 	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 59, Vector3.new(0, 0, 1) },
-	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -58, -54.4, Vector3.new(-1, 0, 0), 0 }, -- in the corner square, away from the road, facing the beach (user 2026-10-23); ground at y 0
+	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -62.6, -57.2, Vector3.new(-1, 0, 0), 0 }, -- 6 from both sidewalks (user) -- in the corner square, away from the road, facing the beach (user 2026-10-23); ground at y 0
 	{ 4, "광안리 해변 · 카페", Color3.fromRGB(42, 143, 179), -29, 59, Vector3.new(0, 0, 1) },
 }
 local exitPads, exitMouths = {}, {}
@@ -2059,6 +2066,12 @@ do
 	box("PlazaStone", WIDE, 0, WIDE, 96.4, 0.3, 299, PAVE, { parent = G, material = Enum.Material.Slate })
 	box("PlazaLawn", WIDE, 0.3, WIDE, YARD, 0.45, PATH0 - 0.6, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
 	box("PlazaLawn", WIDE, 0.3, PATH1 + 0.6, YARD, 0.45, PATH1 + 0.6 + (PATH0 - 0.6 - WIDE), Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
+	-- real grass on the lawns: terrain grass (its blades wave), the lawn part stays under it
+	for _, l in ipairs(LAWN_TERRAIN) do
+		workspace.Terrain:FillBlock(CFrame.new((l[1] + l[3]) / 2, 0.45 - 2, (l[2] + l[4]) / 2), Vector3.new(l[3] - l[1], 4, l[4] - l[2]), Enum.Material.Grass)
+	end
+	pcall(function() workspace.Terrain.Decoration = true end)
+	T:SetAttribute("LawnTerrain", true)
 	-- 돌난간 (user photo): a low kerb, square posts with a stacked cap and a
 	-- round knob, a thick round top rail held by two vase-shaped balusters
 	-- per bay. One 5-stud bay is one merged part, cloned along the line (the
@@ -2085,10 +2098,12 @@ do
 		local seg = (x1 - x0) / n
 		for k = 0, n - 1 do
 			local xc = x0 + seg * (k + 0.5)
-			placeTemplate(railT, railOff, CFrame.new(xc, 0.3, z), seg / BAY, 1).CanCollide = true
+			local bay = placeTemplate(railT, railOff, CFrame.new(xc, 0.3, z), seg / BAY, 1)
+			bay.CanCollide = true
+			bay.Material = Enum.Material.Granite -- carved stone, not plastic (user)
 		end
 		-- the last post at the gate end
-		box("RailPost", x1 - 0.8, 0.3, z - 0.4, x1, 2.6, z + 0.4, RAIL, { parent = G, material = Enum.Material.Slate })
+		box("RailPost", x1 - 0.8, 0.3, z - 0.4, x1, 2.6, z + 0.4, RAIL, { parent = G, material = Enum.Material.Granite })
 		part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(x1 - 0.4, 3.15, z), RAIL, { parent = G, shape = Enum.PartType.Ball })
 	end	-- 해태 (user photos of the 광화문 haetae): the statue is an AI-made mesh
 	-- (ServerStorage.ArtAssets.HaetaeAI: crouching low, head raised, scales,
@@ -4380,8 +4395,11 @@ end
 -- first spawn: in front of exit 1 (players come up facing north)
 if spawn then
 	if not spawn:GetAttribute("OldPosition") then spawn:SetAttribute("OldPosition", spawn.Position) end
-	local p = exitMouths[1] + Vector3.new(0, 0, -7)
-	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, CURB + 0.5, p.Z), Vector3.new(p.X, CURB + 0.5, p.Z - 10))
+	-- the north-west corner square, looking across the junction (user 2026-10-23:
+	-- pick a strategic spot): 오후네컷 and the club ahead-left, OH24 ahead-right,
+	-- 광화문 far ahead, the beach behind; subway exit 3 right beside
+	local p = Vector3.new(-78, 0, -78)
+	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, 0.5, p.Z), Vector3.new(0, 0.5, 0))
 end
 saveRegistry()
 T.Parent = workspace
