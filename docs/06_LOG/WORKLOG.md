@@ -548,3 +548,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 캡처: oh24_front.jpg, oh24_interior.jpg, oh24_counter.jpg. 성능(부품 1,826 / GUI 758) 모바일 확인 필요.
 ## 2026-10-23 (10) — OH24 v2 (D-121)
 - 편의점 확장, 도로 쪽 세 면 통유리 + 간판, 계산대 물건 방향 반대로. 캡처 oh24_v2_corner / interior / counter.jpg. 부품 2,702 / GUI 1,230 → 모바일 확인 필요.
+## 2026-10-23 (11) — OH24 v3 (D-122)
+- 원래 장소 '오후'(108570975325527)로 다시 열린 Studio에서 재빌드. 서쪽 벽 일반 벽 + 계산대 이동, 상품 간격 넓힘. 캡처 oh24_v3_interior / counter.jpg.

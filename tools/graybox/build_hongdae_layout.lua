@@ -1700,9 +1700,10 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	-- an umbrella stand. Goods come from Shared/OH24Products (each has an
 	-- image slot for its own artwork; placeholders until then). No tobacco /
 	-- alcohol (the counter wall shows gift cards and daily goods instead).
-	-- grown into the empty land around it (user 2026-10-23): x -146..-52, z 48..86;
-	-- glass fronts with the OH24 sign on the north, east and west street sides
-	local x0, z0, x1, z1, H = -146, 48, -52, 86, 14
+	-- grown into the empty land around it (user 2026-10-23): x -126..-52, z 48..86
+	-- (the 노래방 tower stands west of it); glass fronts with the OH24 sign on
+	-- the north and east street sides, a solid wall on the tower side
+	local x0, z0, x1, z1, H = -126, 48, -52, 86, 14
 	local S = Instance.new("Model")
 	S.Name = "OH24Store"
 	S.Parent = T
@@ -1821,13 +1822,11 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 			local scale = if maxH then math.min(1, (maxH - 0.12) / (base.Y + extra)) else 1
 			local sz = base * scale
 			if x + sz.X > len then break end
-			local facings = if sz.X < 0.8 then 2 else 1 -- small items come two side by side
-			for _ = 1, facings do
-				if x + sz.X > len then break end
-				pack(pr, cf * CFrame.new(x + sz.X / 2, 0, sz.Z / 2 + 0.12), parent, scale)
-				x += sz.X + 0.06
-				n += 1
-			end
+			-- one pack per product with room between them (user 2026-10-23:
+			-- less crowded shelves)
+			pack(pr, cf * CFrame.new(x + sz.X / 2, 0, sz.Z / 2 + 0.12), parent, scale)
+			x += sz.X + math.max(0.45, sz.X * 0.5)
+			n += 1
 		end
 		if tags ~= false then
 			local strip = part("PriceStrip", Vector3.new(len, 0.28, 0.06), cf * CFrame.new(len / 2, -0.16, 0.03), Color3.fromRGB(215, 215, 220), { parent = parent, nocol = true })
@@ -1850,6 +1849,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	box("StoreFloor", x0, 0, z0, x1, CURB, z1, Color3.fromRGB(232, 228, 220), opt({ material = Enum.Material.CeramicTiles })).Reflectance = 0.04
 	local STONE = Color3.fromRGB(38, 38, 42)
 	box("WallBack", x0, CURB, z1 - 0.6, x1, H, z1, WHITE_IN, o)
+	box("WallW", x0, CURB, z0, x0 + 0.6, H, z1, WHITE_IN, o)
 	box("OuterBack", x0 - 0.3, 0, z1, x1 + 0.3, H + 6, z1 + 0.3, STONE, opt({ material = Enum.Material.Slate }))
 	box("Roof", x0 - 0.3, H, z0, x1 + 0.3, H + 0.6, z1, Color3.fromRGB(90, 90, 95), o)
 	-- ceiling: white panels, grid lines, LED strips
@@ -1952,7 +1952,6 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	local DOOR_X = -78
 	storeFront(Vector3.new(x0, 0, z0), Vector3.new(x1, 0, z0), Vector3.new(0, 0, -1), DOOR_X - x0, "홍대점") -- north (west road)
 	storeFront(Vector3.new(x1, 0, z0), Vector3.new(x1, 0, z1), Vector3.new(1, 0, 0), nil, "남부대로점") -- east (south road)
-	storeFront(Vector3.new(x0, 0, z1), Vector3.new(x0, 0, z0), Vector3.new(-1, 0, 0), nil, "광안리점") -- west (seafront road)
 
 	---------------------------------------------------------------- window bars inside the glass
 	local function windowBar(a: Vector3, b: Vector3, inward: Vector3)
@@ -1971,7 +1970,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 			seat("WindowStool", CFrame.lookAt(Vector3.new(p.X, CURB + 2.45, p.Z), Vector3.new(p.X, CURB + 2.45, p.Z) - inward), Vector3.new(1.4, 0.3, 1.4), Color3.fromRGB(235, 235, 235), S)
 		end
 	end
-	windowBar(Vector3.new(x0 + 10, 0, z0 + 0.3), Vector3.new(-96, 0, z0 + 0.3), Vector3.new(0, 0, 1)) -- north, west of the door
+	windowBar(Vector3.new(-110, 0, z0 + 0.3), Vector3.new(-86, 0, z0 + 0.3), Vector3.new(0, 0, 1)) -- north, between the counter and the door
 	windowBar(Vector3.new(x1 - 0.3, 0, 70), Vector3.new(x1 - 0.3, 0, z1 - 3), Vector3.new(-1, 0, 0)) -- east, south part
 
 	---------------------------------------------------------------- back wall: glass-door drink fridges (west part)
@@ -1990,14 +1989,14 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		text(hg, "음료 · 생수 · 우유", Color3.fromRGB(0, 120, 120), Enum.Font.GothamBold)
 		local inner = box("FridgeInner", fx0 + 0.3, CURB + 0.5, fz - 0.45, fx1 - 0.3, top - 0.4, fz - 0.4, Color3.fromRGB(235, 238, 242), opt({ nocol = true }))
 		local il = Instance.new("SurfaceLight") il.Face = Enum.NormalId.Front il.Range = 4 il.Brightness = 0.6 il.Parent = inner
-		local doors = 10
+		local doors = 6
 		local doorW = (fx1 - fx0) / doors
 		for k = 0, doors - 1 do
 			local dx0 = fx0 + k * doorW
 			box("FridgeFrame", dx0, CURB, fz - depth - 0.15, dx0 + 0.2, top, fz - depth, Color3.fromRGB(45, 45, 50), opt({ material = Enum.Material.Metal }))
 			box("FridgeDoor", dx0 + 0.2, CURB + 0.5, fz - depth - 0.12, dx0 + doorW, top - 0.3, fz - depth - 0.05, Color3.fromRGB(225, 235, 240), opt({ material = Enum.Material.Glass, transparency = 0.75 }))
 			box("FridgeHandle", dx0 + doorW - 0.5, CURB + 3, fz - depth - 0.35, dx0 + doorW - 0.35, CURB + 6.5, fz - depth - 0.15, Color3.fromRGB(190, 190, 195), opt({ material = Enum.Material.Metal, nocol = true }))
-			local cat = ({ "drink_bottle", "drink_bottle", "drink_bottle", "drink_bottle", "drink_can", "drink_can", "drink_can", "milk", "drink_bottle", "drink_bottle" })[k + 1]
+			local cat = ({ "drink_bottle", "drink_bottle", "drink_can", "drink_can", "milk", "drink_bottle" })[k + 1]
 			for lv = 0, 4 do
 				local y = CURB + 0.8 + lv * 1.65
 				box("FridgeShelf", dx0 + 0.25, y - 0.08, fz - depth + 0.1, dx0 + doorW - 0.05, y, fz - 0.5, Color3.fromRGB(205, 210, 215), opt({ nocol = true }))
@@ -2056,58 +2055,56 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		end
 		return m
 	end
-	-- perimeter shelf along the west glass (back to the glass, faces east)
-	shelfUnit("WallShelf", CFrame.lookAt(Vector3.new(x0 + 2.2, CURB, 58), Vector3.new(x0 + 10, CURB, 58)), 22, 5, 7, 1.6, { "noodle", "snack_bag", "snack_bag", "sweets_box", "bread" }, "라면 · 과자 · 베이커리")
-	-- five double-sided gondolas along z (60..76), wide aisles, end caps at the front
+	-- wall shelf on the west wall, south of the counter (faces east)
+	shelfUnit("WallShelf", CFrame.lookAt(Vector3.new(x0 + 2.2, CURB, 67), Vector3.new(x0 + 10, CURB, 67)), 14, 5, 7, 1.6, { "noodle", "snack_bag", "snack_bag", "sweets_box", "bread" }, "라면 · 과자 · 베이커리")
+	-- four double-sided gondolas along z (60..76), wide aisles, end caps at the front
 	local GCATS = {
 		{ { "snack_bag", "snack_bag", "snack_tube", "snack_bag" }, { "sweets_box", "snack_tube", "sweets_box", "candy" }, "스낵", "과자 · 초콜릿" },
 		{ { "noodle", "noodle", "bread", "noodle" }, { "snack_bag", "sweets_box", "snack_bag", "snack_tube" }, "라면 · 즉석", "스낵" },
 		{ { "sweets_box", "candy", "sweets_box", "bread" }, { "bread", "snack_bag", "bread", "sweets_box" }, "과자 · 디저트", "베이커리" },
-		{ { "snack_tube", "snack_bag", "candy", "snack_bag" }, { "noodle", "noodle", "noodle", "noodle" }, "스낵", "라면" },
-		{ { "goods", "goods", "candy", "goods" }, { "sweets_box", "snack_bag", "noodle", "sweets_box" }, "생활용품", "과자" },
+		{ { "goods", "goods", "candy", "goods" }, { "noodle", "snack_bag", "noodle", "sweets_box" }, "생활용품", "라면 · 과자" },
 	}
-	for i, gx in ipairs({ -132, -120, -108, -96, -84 }) do
+	for i, gx in ipairs({ -104, -92, -80, -68 }) do
 		local c = GCATS[i]
 		shelfUnit("Gondola" .. i .. "W", CFrame.lookAt(Vector3.new(gx - 1.4, CURB, 76), Vector3.new(gx - 10, CURB, 76)), 16, 4, 6.2, 1.4, c[1], c[3])
 		shelfUnit("Gondola" .. i .. "E", CFrame.lookAt(Vector3.new(gx + 1.4, CURB, 60), Vector3.new(gx + 10, CURB, 60)), 16, 4, 6.2, 1.4, c[2], c[4])
 		shelfUnit("EndCap" .. i, CFrame.lookAt(Vector3.new(gx - 1.4, CURB, 58.8), Vector3.new(gx - 1.4, CURB, 50)), 2.8, 5, 6.6, 1.2, { "snack_bag" }, nil)
 	end
 
-	---------------------------------------------------------------- counter (east of the door; customers on the west side, staff on the east)
+	---------------------------------------------------------------- counter on the west wall (user 2026-10-23); staff between it and the wall
 	do
-		local cx0, cx1, cz0, cz1 = -66, -62.5, 51, 64
+		local cx0, cx1, cz0, cz1 = -119, -115.5, 51, 64 -- cx0 = staff side (west), cx1 = customer side (east)
 		local TEALTOP = Color3.fromRGB(0, 150, 150)
 		box("CounterBody", cx0, CURB, cz0, cx1, CURB + 3.4, cz1, Color3.fromRGB(245, 245, 245), o)
-		box("CounterTop", cx0 - 0.3, CURB + 3.4, cz0 - 0.2, cx1 + 0.2, CURB + 3.7, cz1 + 0.2, TEALTOP, o)
-		-- candy racks on the customer face (looks -x)
+		box("CounterTop", cx0 - 0.2, CURB + 3.4, cz0 - 0.2, cx1 + 0.3, CURB + 3.7, cz1 + 0.2, TEALTOP, o)
+		-- candy racks on the customer face (looks +x)
 		for lv = 0, 2 do
 			local y = CURB + 0.5 + lv * 0.95
-			box("CandyRack", cx0 - 1, y - 0.08, cz0 + 0.4, cx0, y, cz1 - 0.4, Color3.fromRGB(200, 200, 205), opt({ material = Enum.Material.Metal }))
-			row(CFrame.lookAt(Vector3.new(cx0 - 1, y, cz1 - 0.4), Vector3.new(cx0 - 10, y, cz1 - 0.4)), cz1 - cz0 - 0.8, "candy", S, nil, 0.9)
+			box("CandyRack", cx1, y - 0.08, cz0 + 0.4, cx1 + 1, y, cz1 - 0.4, Color3.fromRGB(200, 200, 205), opt({ material = Enum.Material.Metal }))
+			row(CFrame.lookAt(Vector3.new(cx1 + 1, y, cz0 + 0.4), Vector3.new(cx1 + 10, y, cz0 + 0.4)), cz1 - cz0 - 0.8, "candy", S, nil, 0.9)
 		end
 		local top = CURB + 3.7
-		-- POS monitor on the staff side, its screen turned to the cashier (+x)
-		box("PosBase", cx1 - 1.5, top, 55.2, cx1 - 0.3, top + 0.35, 57.2, Color3.fromRGB(235, 235, 235), o)
-		local mon = CFrame.new(cx1 - 1.1, top + 1.25, 56.2) * CFrame.Angles(0, 0, math.rad(15))
+		-- POS monitor on the staff side, its screen turned to the cashier (-x)
+		box("PosBase", cx0 + 0.3, top, 55.2, cx0 + 1.5, top + 0.35, 57.2, Color3.fromRGB(235, 235, 235), o)
+		local mon = CFrame.new(cx0 + 1.1, top + 1.25, 56.2) * CFrame.Angles(0, 0, math.rad(-15))
 		part("PosMonitor", Vector3.new(0.18, 1.3, 1.9), mon, Color3.fromRGB(30, 30, 34), o)
-		local disp = part("PosDisplay", Vector3.new(0.02, 1.12, 1.72), mon * CFrame.new(0.1, 0, 0), Color3.fromRGB(40, 90, 160), o)
-		text(gui(disp, Enum.NormalId.Right, 60, 30), "OH24 POS", Color3.new(1, 1, 1), Enum.Font.GothamBold)
-		box("Scanner", cx1 - 0.9, top, 58.2, cx1 - 0.4, top + 0.9, 58.6, Color3.fromRGB(70, 70, 75), o)
+		local disp = part("PosDisplay", Vector3.new(0.02, 1.12, 1.72), mon * CFrame.new(-0.1, 0, 0), Color3.fromRGB(40, 90, 160), o)
+		text(gui(disp, Enum.NormalId.Left, 60, 30), "OH24 POS", Color3.new(1, 1, 1), Enum.Font.GothamBold)
+		box("Scanner", cx0 + 0.4, top, 58.2, cx0 + 0.9, top + 0.9, 58.6, Color3.fromRGB(70, 70, 75), o)
 		-- customer side: display facing the customer, card terminal, tray mat
-		local cust = part("CustomerScreen", Vector3.new(0.1, 1.2, 1.7), CFrame.new(cx0 + 0.3, top + 1.3, 60.2) * CFrame.Angles(0, 0, math.rad(-10)), Color3.fromRGB(70, 180, 230), o)
-		local cg = gui(cust, Enum.NormalId.Left, 40, 40)
+		local cust = part("CustomerScreen", Vector3.new(0.1, 1.2, 1.7), CFrame.new(cx1 - 0.3, top + 1.3, 60.2) * CFrame.Angles(0, 0, math.rad(10)), Color3.fromRGB(70, 180, 230), o)
+		local cg = gui(cust, Enum.NormalId.Right, 40, 40)
 		cg.LightInfluence = 0
 		text(cg, "OH24\n포인트 적립", Color3.new(1, 1, 1), Enum.Font.GothamBold, Color3.fromRGB(70, 180, 230))
-		box("CardTerminal", cx0 + 0.15, top, 53, cx0 + 0.85, top + 0.5, 53.8, Color3.fromRGB(40, 40, 45), o)
-		box("CounterMat", cx0 - 0.1, top, 55.4, cx0 + 1.4, top + 0.02, 58.4, Color3.fromRGB(120, 200, 230), opt({ nocol = true }))
-		-- goods wall behind the cashier (faces -x, its back to the east glass)
-		shelfUnit("GoodsWall", CFrame.lookAt(Vector3.new(x1 - 3.4, CURB, cz1 - 0.5), Vector3.new(x1 - 10, CURB, cz1 - 0.5)), cz1 - cz0 - 1, 5, 9, 1.6, { "goods" }, "기프트카드 · 생활용품")
-		label(box("CounterLabel", cx0, top + 3, 57, cx0 + 0.2, top + 3.2, 57.2, Color3.new(1, 1, 1), opt({ transparency = 1, nocol = true })), "계산대", Color3.fromRGB(0, 160, 160), 0, 0.5)
+		box("CardTerminal", cx1 - 0.85, top, 53, cx1 - 0.15, top + 0.5, 53.8, Color3.fromRGB(40, 40, 45), o)
+		box("CounterMat", cx1 - 1.4, top, 55.4, cx1 + 0.1, top + 0.02, 58.4, Color3.fromRGB(120, 200, 230), opt({ nocol = true }))
+		-- goods wall behind the cashier, on the west wall (faces +x)
+		shelfUnit("GoodsWall", CFrame.lookAt(Vector3.new(x0 + 2.2, CURB, cz0 + 0.5), Vector3.new(x0 + 10, CURB, cz0 + 0.5)), cz1 - cz0 - 1, 5, 9, 1.6, { "goods" }, "기프트카드 · 생활용품")
+		label(box("CounterLabel", cx1 - 0.2, top + 3, 57, cx1, top + 3.2, 57.2, Color3.new(1, 1, 1), opt({ transparency = 1, nocol = true })), "계산대", Color3.fromRGB(0, 160, 160), 0, 0.5)
 	end
-
 	---------------------------------------------------------------- ice cream chest, umbrella stand, mirror
 	do
-		local ix0, ix1, iz0, iz1 = x0 + 2.6, x0 + 8.6, 54.5, 57.8
+		local ix0, ix1, iz0, iz1 = x1 - 9, x1 - 3, 54.5, 57.8 -- by the east glass, north of the window bar
 		box("FreezerBody", ix0, CURB, iz0, ix1, CURB + 2.6, iz1, Color3.fromRGB(245, 245, 248), o)
 		local side = box("FreezerPanel", ix0 + 0.5, CURB + 0.6, iz0 - 0.05, ix1 - 0.5, CURB + 2, iz0, Color3.fromRGB(60, 170, 90), opt({ nocol = true }))
 		text(gui(side, Enum.NormalId.Front, 40, 40), "아이스크림", Color3.new(1, 1, 1), Enum.Font.GothamBold)
@@ -2131,7 +2128,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 			local p1 = p0 + Vector3.new(math.cos(a) * 0.25, 4.2, math.sin(a) * 0.25)
 			part("Umbrella", Vector3.new(0.28, 0.28, (p1 - p0).Magnitude), CFrame.lookAt((p0 + p1) / 2, p1), if k % 3 == 0 then Color3.fromRGB(220, 225, 235) else Color3.fromRGB(40, 50, 90), opt({ nocol = true, material = Enum.Material.Fabric }))
 		end
-		local mc = Vector3.new(x0 + 1.4, 10, z1 - 1.4)
+		local mc = Vector3.new(x1 - 1.4, 10, z1 - 1.4)
 		local mirror = part("SecurityMirror", Vector3.new(0.3, 2.2, 2.2), CFrame.lookAt(mc, Vector3.new(-100, 6, 66)) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(200, 210, 220), opt({ shape = Enum.PartType.Cylinder, material = Enum.Material.Glass, nocol = true }))
 		mirror.Reflectance = 0.6
 	end
