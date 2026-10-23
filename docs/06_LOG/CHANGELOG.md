@@ -7,6 +7,7 @@
 - Street trees by Korean rules (D-113, docs/04_ART/STREET_TREES.md): spacing, curb distance, wider beds, first tree past the crosswalk, lamps clear of trees; fixed the straight-and-left arrow.
 - Road and tree rules across the whole map: side streets, seafront road, T junction, promenade palms (D-114); signal foot plate (street_dress).
 - 오후네컷 corner building for the photo booth from the user's photo (D-115).
+- Round 3 (D-116): one road colour, rounded corners everywhere, parked black/grey cars, 8 m tree spacing, signal base cover, booth diagonal steps / see-through pill windows / 3D channel-letter signs.
 ## 2026-10-22 (4) — DJ fixes, one popup at a time, cafe part-time job (feat/dj-console-1022)
 - TopBar.bottom(): every popup starts below the top-bar buttons (phones with a 0 inset too).
 - New Popups module: opening a window closes the previous one (catalog, album, dance, DJ/music, 📸, player card, photo wall, booth setup/result, snacks, subway/bus, club shop).

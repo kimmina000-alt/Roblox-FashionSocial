@@ -191,7 +191,8 @@ end
 -- is a point (XZ) on a road?
 local roads = {}
 for _, p in ipairs(temp:GetChildren()) do
-	if p:IsA("BasePart") and (p.Name == "Road" or p.Name == "IntersectionRoad") then table.insert(roads, p) end
+	-- every asphalt surface, the seafront road too (user 2026-10-23: one road colour)
+	if p:IsA("BasePart") and (p.Name == "Road" or p.Name == "IntersectionRoad" or p.Name == "SeaRoad") then table.insert(roads, p) end
 end
 local function onRoad(pt: Vector3): boolean
 	for _, r in ipairs(roads) do
@@ -213,7 +214,7 @@ end
 local ASPHALT = variant("MaterialVariant2", "OHU_Asphalt")
 local CONCRETE = variant("MaterialVariant1", "OHU_Concrete")
 for _, r in ipairs(roads) do
-	restyle(r, Color3.fromRGB(105, 106, 110), Enum.Material.Concrete, ASPHALT)
+	restyle(r, Color3.fromRGB(78, 79, 83), Enum.Material.Concrete, ASPHALT) -- one dark asphalt everywhere (user)
 end
 -- the bare city ground between sidewalks and buildings: concrete plaza
 for _, g in ipairs(temp:GetChildren()) do
@@ -231,6 +232,7 @@ local function paveLook(p: BasePart)
 	texture(p, IMG.sidewalk, { Enum.NormalId.Top }, 7, 7)
 end
 
+local rounded: {[BasePart]: {c: Vector3, r: number}} = {}
 local function roundCorner(s: BasePart)
 	local top = s.Position.Y + s.Size.Y / 2
 	local half = s.Size / 2
@@ -253,6 +255,7 @@ local function roundCorner(s: BasePart)
 				local d = part("SidewalkRound", Vector3.new(h, r * 2, r * 2), CFrame.new(center) * CFrame.Angles(0, 0, math.rad(90)), s.Color, Enum.Material.SmoothPlastic, walkF)
 				d.Shape = Enum.PartType.Cylinder
 				paveLook(a); paveLook(b)
+				rounded[s] = { c = c, r = r }
 				texture(d, IMG.sidewalk, { Enum.NormalId.Right }, 6, 6)
 				-- granite curb along the arc (towards the road)
 				local a0 = math.atan2(0, sx) -- direction +sx on X
@@ -274,6 +277,7 @@ local function roundCorner(s: BasePart)
 end
 
 for _, s in ipairs(temp:GetChildren()) do
+	if s:IsA("BasePart") and s.Name == "SidewalkFillet" then paveLook(s) end
 	if s:IsA("BasePart") and s.Name == "Sidewalk" then
 		local square = math.abs(s.Size.X - s.Size.Z) < 0.5 and s.Size.X <= 24 -- crossroads corners (23 wide since v7c)
 		if square then
@@ -281,6 +285,10 @@ for _, s in ipairs(temp:GetChildren()) do
 			roundCorner(s)
 		else
 			paveLook(s)
+			-- every other sidewalk corner that points into a junction is rounded
+			-- too (T junction with the seafront road, user 2026-10-23)
+			roundCorner(s)
+			local rc = rounded[s]
 			-- curb + tactile guide line on each long edge that touches a road
 			local alongX = s.Size.X >= s.Size.Z
 			local long = if alongX then s.Size.X else s.Size.Z
@@ -292,10 +300,18 @@ for _, s in ipairs(temp:GetChildren()) do
 					if onRoad(probe) then
 						local top = s.Position.Y + s.Size.Y / 2
 						if alongX then
-							part("Curb", Vector3.new(s.Size.X, s.Size.Y + 0.15, 0.7), CFrame.new(s.Position.X, s.Position.Y + 0.075, s.Position.Z + edgeOff - side * 0.35), GRANITE, Enum.Material.Granite, walkF)
+							local x0, x1 = s.Position.X - s.Size.X / 2, s.Position.X + s.Size.X / 2
+						if rc and math.abs(rc.c.Z - (s.Position.Z + edgeOff)) < 0.1 then -- stop at the rounded corner
+							if math.abs(rc.c.X - x0) < 0.1 then x0 += rc.r else x1 -= rc.r end
+						end
+						part("Curb", Vector3.new(x1 - x0, s.Size.Y + 0.15, 0.7), CFrame.new((x0 + x1) / 2, s.Position.Y + 0.075, s.Position.Z + edgeOff - side * 0.35), GRANITE, Enum.Material.Granite, walkF)
 
 						else
-							part("Curb", Vector3.new(0.7, s.Size.Y + 0.15, s.Size.Z), CFrame.new(s.Position.X + edgeOff - side * 0.35, s.Position.Y + 0.075, s.Position.Z), GRANITE, Enum.Material.Granite, walkF)
+							local z0, z1 = s.Position.Z - s.Size.Z / 2, s.Position.Z + s.Size.Z / 2
+						if rc and math.abs(rc.c.X - (s.Position.X + edgeOff)) < 0.1 then -- stop at the rounded corner
+							if math.abs(rc.c.Z - z0) < 0.1 then z0 += rc.r else z1 -= rc.r end
+						end
+						part("Curb", Vector3.new(0.7, s.Size.Y + 0.15, z1 - z0), CFrame.new(s.Position.X + edgeOff - side * 0.35, s.Position.Y + 0.075, (z0 + z1) / 2), GRANITE, Enum.Material.Granite, walkF)
 
 						end
 					end
@@ -399,12 +415,12 @@ for _, sp in ipairs(temp:GetChildren()) do
 			if b:IsA("BasePart") and b.Name == "Base" and b.Size.Y < 2 then
 				b.Transparency = 1
 				b.CanCollide = false
-				local mast = tallest(sig) :: BasePart
 				local plate = Instance.new("Part")
 				plate.Name = "BasePlate"
 				plate.Anchored = true
-				plate.Size = Vector3.new(1.6, 0.1, 1.6)
-				plate.CFrame = CFrame.new(mast.Position.X, b.Position.Y - b.Size.Y / 2 + 0.05, mast.Position.Z)
+				-- as tall as the asset block, so the pole collar still sits on it
+				plate.Size = Vector3.new(1.5, b.Size.Y, 1.5)
+				plate.CFrame = CFrame.new(b.Position.X, b.Position.Y, b.Position.Z)
 				plate.Color = Color3.fromRGB(88, 90, 94)
 				plate.Material = Enum.Material.Metal
 				plate.Parent = b.Parent

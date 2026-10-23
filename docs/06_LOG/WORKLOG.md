@@ -518,3 +518,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 해변 규정 조사 → BEACH_RULES.md(시설·건축물은 보고만).
 - 오후네컷 건물: 사진대로 3층 모퉁이 건물 + 기단·계단, 간판 오후네컷/OHU4cuts. Play 확인: 모서리·서쪽에서 걸어 들어가기, 부스 2개 프롬프트, 포토 월. 캡처 photo_booth_building_v1.jpg / _side_v1.jpg.
 - 수정하며 고친 것: SurfaceGui 기본 FixedSize라 간판 글자가 찌그러짐 → PixelsPerStud.
+## 2026-10-23 (5) — 3차 수정 (D-116)
+- 도로 색 통일(해변도로 포함), T자 교차로 인도 모서리 라운드, 옆길 입구 오목 라운드(CSG), 해변도로 횡단보도를 교차로 바로 옆으로.
+- 차: 연석 옆 주차, 검정·회색 계열. G70 에셋에 같은 차가 두 대 겹쳐 있던 것 제거(사용자 캡처의 "겹친 차").
+- 가로수 간격 8m(법 기준 최대)로 줄임. 사용자 손 편집(나무·관목 삭제 1건씩)은 가장 가까운 새 위치로 옮김.
+- 신호등 받침: 기둥 바로 아래 진회색 철제 커버(높이 1) → 기둥 고리가 떠 보이던 문제 해결.
+- 오후네컷: 사선 계단, 캡슐 창 벽 뚫기 + 투명 유리, 입체 채널 간판(흰 앞면·연회색 옆면, 그림자 자연스럽게). 캡처 photo_booth_building_v2.jpg, photo_booth_sign_3d.jpg, photo_booth_pill_windows.jpg.
+- 차로 폭 3.0m 미리보기만(임시 스크립트, 적용 안 함): lane_width_compare_top.jpg / _street.jpg. 공식 맵은 원래대로 다시 빌드.
+- 후보 이미지(감시탑·세족장·탈의/샤워 건물·가로수): candidates_beach_trees.png, 사용자 선택 대기.
