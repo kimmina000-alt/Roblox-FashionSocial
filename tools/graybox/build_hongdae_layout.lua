@@ -1325,6 +1325,32 @@ do
 		if math.abs(cz) > 41 then paint("BikeLaneRed", -182, cz - 10, -174.2, cz + 10, BIKE_RED) end
 	end
 	-- (no red band through the T junction: user 2026-10-24)
+	-- 도로교통법 시행규칙 별표 6: no centre line inside the junction (it stops at
+	-- the crossings, as here); 좌회전 유도선 (white dashes inside the junction)
+	-- for the two left turns of the T: from the west road (westbound, z < 0)
+	-- into the southbound lane (x -170), and from the southbound lane into the
+	-- west road's eastbound side (z > 0). No 정차금지지대: that is for junctions
+	-- that queue up, this one is quiet. (user 2026-10-24: check the centre by law)
+	local function guide(p0: Vector3, d0: Vector3, p2: Vector3, d2: Vector3)
+		local c1, c2 = p0 + d0 * 11, p2 - d2 * 11 -- long handles: a smooth quarter curve
+		local function bez(tt)
+			local s = 1 - tt
+			return p0 * s ^ 3 + c1 * 3 * s * s * tt + c2 * 3 * s * tt * tt + p2 * tt ^ 3
+		end
+		local steps, last, dist, on = 60, bez(0), 0, true
+		for i = 1, steps do
+			local p = bez(i / steps)
+			if on then
+				local a, b = last + Vector3.new(0, 0.14, 0), p + Vector3.new(0, 0.14, 0)
+				part("TurnGuide", Vector3.new(0.4, 0.04, (b - a).Magnitude + 0.05), CFrame.lookAt((a + b) / 2, b), WHITE, { nocol = true })
+			end
+			dist += (p - last).Magnitude
+			if dist >= 2 then dist = 0 on = not on end
+			last = p
+		end
+	end
+	guide(Vector3.new(-158, 0, -4), Vector3.new(-1, 0, 0), Vector3.new(-170, 0, 24), Vector3.new(0, 0, 1))
+	guide(Vector3.new(-170, 0, -24), Vector3.new(0, 0, 1), Vector3.new(-158, 0, 4), Vector3.new(1, 0, 0))
 	walk(-158, z0, -150, -34) walk(-158, 34, -150, z1)
 	for _, cz in ipairs(CROSS) do
 		for x = -181, -159, 3 do paint("Crosswalk", x, cz - 6, x + 1.5, cz + 6, WHITE) end

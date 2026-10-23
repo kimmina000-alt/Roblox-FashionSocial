@@ -241,23 +241,44 @@ local function roundCorner(s: BasePart)
 			local c = Vector3.new(s.Position.X + sx * half.X, top, s.Position.Z + sz * half.Z)
 			-- the corner pointing at the junction: road beyond it diagonally AND on both sides
 			if onRoad(c + Vector3.new(sx * 1.5, 0, sz * 1.5)) and onRoad(c + Vector3.new(sx * 1.5, 0, -sz * 1)) and onRoad(c + Vector3.new(-sx * 1, 0, sz * 1.5)) then
-				hide(s)
+				-- one piece, one texture (user 2026-10-24: the corner showed as a
+				-- separate pattern): the sidewalk itself is copied and its corner
+				-- cut round with CSG, instead of rebuilding it from 3 parts
 				local r = math.min(2, math.min(s.Size.X, s.Size.Z) - 1) -- a quarter of the old 8 (user 2026-10-24)
 				local ix, iz = -sx, -sz
 				local h = s.Size.Y
 				local y = s.Position.Y
-				-- two rectangles + a disc = a square with one round corner
-				local ax0, ax1 = c.X + ix * r, c.X + ix * s.Size.X
-				local a = part("SidewalkRound", Vector3.new(math.abs(ax1 - ax0), h, s.Size.Z), CFrame.new((ax0 + ax1) / 2, y, s.Position.Z), s.Color, Enum.Material.SmoothPlastic, walkF)
-				local bz0, bz1 = c.Z + iz * r, c.Z + iz * s.Size.Z
-				local b = part("SidewalkRound", Vector3.new(r, h, math.abs(bz1 - bz0)), CFrame.new(c.X + ix * r / 2, y, (bz0 + bz1) / 2), s.Color, Enum.Material.SmoothPlastic, walkF)
 				local center = Vector3.new(c.X + ix * r, y, c.Z + iz * r)
-				local d = part("SidewalkRound", Vector3.new(h, r * 2, r * 2), CFrame.new(center) * CFrame.Angles(0, 0, math.rad(90)), s.Color, Enum.Material.SmoothPlastic, walkF)
-				d.Shape = Enum.PartType.Cylinder
-				paveLook(a); paveLook(b)
-				rounded[s] = { c = c, r = r }
-				texture(d, IMG.sidewalk, { Enum.NormalId.Right }, 6, 6)
-				-- granite curb along the arc (towards the road)
+				local copy = s:Clone()
+				for _, ch in ipairs(copy:GetChildren()) do ch:Destroy() end
+				copy.Name = "SidewalkRound"
+				copy.Parent = workspace
+				local block = part("CornerCut", Vector3.new(r + 0.2, h + 1, r + 0.2), CFrame.new(c.X + ix * (r / 2 - 0.1), y, c.Z + iz * (r / 2 - 0.1)), s.Color, Enum.Material.SmoothPlastic, workspace)
+				local disc = part("CornerCut", Vector3.new(h + 2, r * 2, r * 2), CFrame.new(center) * CFrame.Angles(0, 0, math.rad(90)), s.Color, Enum.Material.SmoothPlastic, workspace)
+				disc.Shape = Enum.PartType.Cylinder
+				local ok, res = pcall(function()
+					local cutter = block:SubtractAsync({ disc })
+					cutter.Parent = workspace
+					local out = copy:SubtractAsync({ cutter })
+					cutter:Destroy()
+					return out
+				end)
+				block:Destroy()
+				disc:Destroy()
+				if ok and res then
+					hide(s)
+					res.Name = "SidewalkRound"
+					res.Anchored = true
+					res.UsePartColor = true
+					res.Parent = walkF
+					paveLook(res)
+					copy:Destroy()
+				else
+					warn("corner CSG failed", res)
+					copy:Destroy()
+					return
+				end
+				rounded[s] = { c = c, r = r }				-- granite curb along the arc (towards the road)
 				local a0 = math.atan2(0, sx) -- direction +sx on X
 				local a1 = math.atan2(sz, 0) -- direction +sz on Z
 				if math.abs(a1 - a0) > math.pi then a1 += if a1 < a0 then 2 * math.pi else -2 * math.pi end
