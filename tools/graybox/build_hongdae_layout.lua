@@ -1398,8 +1398,8 @@ local function palaceWall(a: Vector3, b: Vector3, parent: Instance, out: Vector3
 	local GRANITE = Color3.fromRGB(196, 190, 178)
 	local STONE = Color3.fromRGB(205, 192, 168) -- beige stone (Cobblestone: Brick read as red brick)
 	local TILE = Color3.fromRGB(64, 66, 72)
-	part("PalaceWallBase", Vector3.new(2.6, 2.4, len), cf * CFrame.new(0, 1.2, 0), GRANITE, { parent = parent, material = Enum.Material.Slate })
-	part("PalaceWallStone", Vector3.new(2.2, PALACE_H - 2.4, len), cf * CFrame.new(0, (2.4 + PALACE_H) / 2, 0), STONE, { parent = parent, material = Enum.Material.Cobblestone })
+	-- the stone pattern runs down to the ground (user 2026-10-23: no plain base)
+	part("PalaceWallStone", Vector3.new(2.2, PALACE_H, len), cf * CFrame.new(0, PALACE_H / 2, 0), STONE, { parent = parent, material = Enum.Material.Cobblestone })
 	part("PalaceWallEave", Vector3.new(3.6, 0.3, len + 0.6), cf * CFrame.new(0, PALACE_H + 0.15, 0), TILE, { parent = parent, material = Enum.Material.Slate })
 	local rise = 0.9
 	for _, s in ipairs({ -1, 1 }) do
@@ -1410,7 +1410,7 @@ local function palaceWall(a: Vector3, b: Vector3, parent: Instance, out: Vector3
 	part("PalaceWallRidge", Vector3.new(0.7, 0.5, len + 0.6), cf * CFrame.new(0, PALACE_H + 0.3 + rise + 0.2, 0), Color3.fromRGB(46, 48, 52), { parent = parent, material = Enum.Material.Slate })
 	if out then
 		local o = Vector3.new(out.X, 0, out.Z).Unit
-		local p = Vector3.new(mid.X, 0.25, mid.Z) + o * 1.7
+		local p = Vector3.new(mid.X, 0.25, mid.Z) + o * 1.45
 		-- long side along the wall, its front face (the light) toward the wall
 		local x = if Vector3.yAxis:Cross(along):Dot(o) > 0 then -along else along -- (x × up = o, so -Z looks at -o)
 		local glow = part("WallUplight", Vector3.new(len - 0.4, 0.2, 0.25), CFrame.fromMatrix(p, x, Vector3.yAxis) * CFrame.Angles(math.rad(35), 0, 0), Color3.fromRGB(255, 205, 150), { parent = parent, nocol = true })
@@ -1420,7 +1420,7 @@ local function palaceWall(a: Vector3, b: Vector3, parent: Instance, out: Vector3
 		glow:SetAttribute("NightAngle", 120)
 		-- the wash on the wall face above the strip (its front looks out, +o)
 		local wx = if Vector3.yAxis:Cross(along):Dot(o) > 0 then along else -along
-		local wp = Vector3.new(mid.X, PALACE_H / 2 + 0.1, mid.Z) + o * 1.33
+		local wp = Vector3.new(mid.X, PALACE_H / 2 + 0.1, mid.Z) + o * 1.13
 		nightWash(CFrame.fromMatrix(wp, wx, Vector3.yAxis), len, PALACE_H - 0.2, parent)
 		CS:AddTag(glow, "NightGlow")
 	end
