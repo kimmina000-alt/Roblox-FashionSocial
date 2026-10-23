@@ -135,6 +135,9 @@ end
 
 -- Just outside the open side, behind the camera, facing the booth.
 local function exitFor(booth: Model): CFrame?
+	-- a booth whose opening is not behind the camera marks its way out
+	local exitPoint = part(booth, "ExitPoint")
+	if exitPoint then return exitPoint.CFrame end
 	local stand = part(booth, "Stand")
 	local camera = part(booth, "CameraPoint")
 	if not stand or not camera then return nil end

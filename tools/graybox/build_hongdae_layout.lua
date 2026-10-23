@@ -83,6 +83,9 @@ local function revert()
 	-- graybox labels this script re-texted / moved (photo booth): back first,
 	-- while their zone still stands where they were changed
 	for _, x in ipairs(root:GetDescendants()) do
+		if x:GetAttribute("LayoutAdded") then x:Destroy() continue end
+		local sz = x:GetAttribute("OrigSize")
+		if typeof(sz) == "Vector3" and x:IsA("BasePart") then x.Size = sz x:SetAttribute("OrigSize", nil) end
 		local tr, col = x:GetAttribute("OrigTransparency"), x:GetAttribute("OrigColor")
 		if typeof(tr) == "number" and x:IsA("BasePart") then x.Transparency = tr x:SetAttribute("OrigTransparency", nil) end
 		if typeof(col) == "Color3" and x:IsA("BasePart") then x.Color = col x:SetAttribute("OrigColor", nil) end
@@ -2647,7 +2650,7 @@ do
 
 	-- plinth + floor follow the cut corner (the graybox shop floor is parked):
 	-- granite base, the shop floor on top, a ledge along the two street faces
-	local FLOOR_COL = Color3.fromRGB(206, 202, 196) -- grey-beige tiles (user interior photos)
+	local FLOOR_COL = Color3.fromRGB(246, 246, 244) -- white tiles (a grey diagonal grid is drawn on top)
 	local depthIn = CH / math.sqrt(2) * 2
 	box("Plinth", W0, 0, N0, W1, F - 0.4, S0 - CH, GRANITE, opt({ material = Enum.Material.Granite }))
 	box("Plinth", W0 + CH, 0, S0 - CH, W1, F - 0.4, S0, GRANITE, opt({ material = Enum.Material.Granite }))
@@ -2684,13 +2687,14 @@ do
 	local wallS = box("WallS", W0 + CH, F, S0 - 1, W1, GF, S0, WHITE_WALL, opt({ material = Enum.Material.CeramicTiles }))
 	box("WallN", W0, F, N0, W1, GF + 26, N0 + 1, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	box("WallE", W1 - 1, F, N0, W1, GF + 26, S0, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
-	box("Ceiling", W0, GF - 0.4, N0, W1, GF, S0 - CH, Color3.fromRGB(250, 248, 250), o)
-	box("Ceiling", W0 + CH, GF - 0.4, S0 - CH, W1, GF, S0, Color3.fromRGB(250, 248, 250), o)
+	box("Ceiling", W0, GF - 0.4, N0, W1, GF, S0 - CH, Color3.fromRGB(252, 238, 238), o)
+	box("Ceiling", W0 + CH, GF - 0.4, S0 - CH, W1, GF, S0, Color3.fromRGB(252, 238, 238), o)
 	for _, p in ipairs({ { 58, -88 }, { 58, -70 }, { 72, -88 }, { 72, -70 }, { 72, -56 }, { 84, -88 }, { 84, -70 }, { 84, -56 }, { 98, -85 }, { 98, -61 } }) do
 		-- plain white panels (Neon panels made the bloom wash the room out)
 		local lamp = box("CeilingLight", p[1] - 1.5, GF - 0.55, p[2] - 1.5, p[1] + 1.5, GF - 0.4, p[2] + 1.5, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		local l = Instance.new("PointLight")
-		l.Range, l.Brightness, l.Color = 26, 1.2, Color3.fromRGB(255, 244, 232)
+		-- low: ten lights at 1.2 blew the white room out (user: too bright)
+		l.Range, l.Brightness, l.Color = 22, 0.3, Color3.fromRGB(255, 230, 220)
 		l.Parent = lamp
 	end
 
@@ -2941,15 +2945,20 @@ do
 	rail(P1 + Vector3.new(0.4, 0, 0), P2 + Vector3.new(0, 0, -0.4))
 	rail(P2 + Vector3.new(0, 0, -0.4), Vector3.new(W1 - 0.5, 0, S0 - 0.4))
 	box("StairHouse", W1 - 16, U1 + 0.5, N0 + 2, W1 - 3, U1 + 9, N0 + 12, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
-	------------------------------------------------- interior (user photos 2026-10-23)
-	-- White grid-tile walls, a tiled front wall with a mint arch per booth
-	-- (curtain pulled aside, "PHOTO 01 / 02" plates), the photo machine
-	-- inside, mint arch niches with white wire shelves of hats and plush (OHU
-	-- 4 CUT PLAYGROUND), an accessory arch with headbands, blue light boxes
-	-- with neon tubes, pink notice posters and a bulb vanity mirror on a
-	-- yellow acrylic table.
-	local MINT, CURTAIN = Color3.fromRGB(128, 196, 186), Color3.fromRGB(196, 120, 120)
-	local TILE = opt({ material = Enum.Material.CeramicTiles })
+	------------------------------------------------- interior (user plan + photos 2026-10-23, v2)
+	-- Pink plaster walls (not white: the white room glared), a white tile floor
+	-- with a grey diagonal grid, softer ceiling lights. West wall: two arched
+	-- niches cut into the pink wall, sky-blue inside, with glass shelves of
+	-- hats and plush, and a pill-shaped mirror between them. Booth wall: a
+	-- smaller arch per booth near its north end (no curtains), the photo
+	-- machine on each booth's north wall looking south at the backdrop (the
+	-- booth's CameraPoint / Stand / Backdrop are moved to match). South wall:
+	-- two arched make-up vanities between the capsule windows. A white oval
+	-- table in the middle of the hall.
+	local PINK_WALL = Color3.fromRGB(255, 192, 188)
+	local SKY = Color3.fromRGB(150, 212, 228) -- 인디스카이
+	local GOLDT = Color3.fromRGB(214, 172, 92)
+	local PLASTER = opt({ material = Enum.Material.Plaster })
 	local function txt(p: BasePart, face, text, color, font, bg, ppStud)
 		local g = Instance.new("SurfaceGui")
 		g.Face = face
@@ -2970,12 +2979,12 @@ do
 	end
 	-- arch outline in a vertical plane: centre bottom c, along = unit along the
 	-- wall, out = unit out of the wall; w wide, h tall (incl. the half circle)
-	local function archRim(c: Vector3, along: Vector3, out: Vector3, w, h, th, depth, color, parent)
+	local function archRim(c: Vector3, along: Vector3, out: Vector3, w, h, th, depth, color, parent, mat)
 		local r = w / 2
 		local postH = h - r
 		for _, s in ipairs({ -1, 1 }) do
 			local p = c + along * (s * (r - th / 2)) + Vector3.new(0, postH / 2, 0)
-			part("ArchRim", Vector3.new(th, postH, depth), CFrame.fromMatrix(p, along, Vector3.yAxis), color, { parent = parent })
+			part("ArchRim", Vector3.new(th, postH, depth), CFrame.fromMatrix(p, along, Vector3.yAxis), color, { parent = parent, material = mat })
 		end
 		local top = c + Vector3.new(0, postH, 0)
 		local N = 10
@@ -2984,7 +2993,7 @@ do
 			local p0 = top + along * (math.cos(a0) * (r - th / 2)) + Vector3.new(0, math.sin(a0) * (r - th / 2), 0)
 			local p1 = top + along * (math.cos(a1) * (r - th / 2)) + Vector3.new(0, math.sin(a1) * (r - th / 2), 0)
 			local d = p1 - p0
-			part("ArchRim", Vector3.new(d.Magnitude + th * 0.6, th, depth), CFrame.fromMatrix((p0 + p1) / 2, d.Unit, out:Cross(d.Unit)), color, { parent = parent })
+			part("ArchRim", Vector3.new(d.Magnitude + th * 0.6, th, depth), CFrame.fromMatrix((p0 + p1) / 2, d.Unit, out:Cross(d.Unit)), color, { parent = parent, material = mat })
 		end
 	end
 	-- a flat arch-shaped panel (box + half disc)
@@ -2994,109 +3003,194 @@ do
 		part("ArchPanel", Vector3.new(depth, w, w), CFrame.fromMatrix(c + Vector3.new(0, h - r, 0), out, Vector3.yAxis), color, { parent = parent, material = mat, shape = Enum.PartType.Cylinder })
 		return body
 	end
+	-- arch-shaped hole parts (for CSG) in a wall whose normal is `out`
+	local function archHole(c: Vector3, along: Vector3, out: Vector3, w, h, depth)
+		local r = w / 2
+		local a = part("ArchHole", Vector3.new(w, h - r, depth), CFrame.fromMatrix(c + Vector3.new(0, (h - r) / 2, 0), along, Vector3.yAxis), WHITE_WALL, o)
+		local b = part("ArchHole", Vector3.new(depth, w, w), CFrame.fromMatrix(c + Vector3.new(0, h - r, 0), out, Vector3.yAxis), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder }))
+		return { a, b }
+	end
+	local function subtract(wall: BasePart, holes: {BasePart}, name: string, mat)
+		wall.Parent = workspace
+		for _, p in ipairs(holes) do p.Parent = workspace end
+		local ok, res = pcall(function() return wall:SubtractAsync(holes) end)
+		for _, p in ipairs(holes) do p:Destroy() end
+		wall.Parent = B
+		if ok and res then
+			res.Name = name
+			res.UsePartColor = true
+			res.Material = mat
+			res.Anchored = true
+			res.Parent = B
+			wall:Destroy()
+			return res
+		end
+		return wall
+	end
 
-	-- wall liners: white grid tiles on the inside faces. The club south wall
-	-- reaches z -96 (inside this shop since the shop moved north, D-104), so
-	-- the north liner stands in front of it and the photo wall moves out too.
+	-- the club south wall reaches z -96 (inside this shop since the shop moved
+	-- north, D-104): the north liner stands in front of it, the photo wall too
 	local NIN = -95.8
-	box("WallTiles", W0 + 1, F, NIN - 0.1, W1 - 1, GF - 0.4, NIN, Color3.fromRGB(246, 246, 244), TILE)
-	box("WallTiles", W0 + 1, F, NIN, W0 + 1.1, GF - 0.4, S0 - CH, Color3.fromRGB(246, 246, 244), TILE)
+	box("WallPink", W0 + 1, F, NIN - 0.1, W1 - 1, GF - 0.4, NIN, PINK_WALL, PLASTER)
 	local zoneP = root:FindFirstChild("08_PhotoBooth")
-	for _, name in ipairs({ "PhotoWall" }) do
-		local p = zoneP and zoneP:FindFirstChild(name)
+	do
+		local p = zoneP and zoneP:FindFirstChild("PhotoWall")
 		if p and p:IsA("BasePart") then
 			p:SetAttribute("OrigCFrame", p.CFrame)
 			p.CFrame = p.CFrame + Vector3.new(0, 0, NIN + p.Size.Z / 2 + 0.05 - p.Position.Z)
 		end
 	end
+	-- south wall inside: pink between / above / below the capsule windows
+	do
+		local zi = S0 - 1.1
+		local xs = { W0 + CH, 65.5, 70.5, 76.5, 81.5, 87.5, 92.5, 98.5, 103.5, W1 - 1 }
+		for k = 1, #xs - 1, 2 do box("WallPink", xs[k], F, zi, xs[k + 1], GF - 0.4, zi + 0.1, PINK_WALL, PLASTER) end
+		for k = 2, #xs - 1, 2 do
+			box("WallPink", xs[k], F, zi, xs[k + 1], F + 1.4, zi + 0.1, PINK_WALL, PLASTER)
+			box("WallPink", xs[k], F + 10.6, zi, xs[k + 1], GF - 0.4, zi + 0.1, PINK_WALL, PLASTER)
+		end
+	end
+	-- pink around each capsule window too (a liner with a pill-shaped hole)
+	for _, cx in ipairs({ 68, 79, 90, 101 }) do
+		local zi = S0 - 1.1
+		local liner = box("WallPink", cx - 2.5, F + 1.4, zi, cx + 2.5, F + 10.6, zi + 0.1, PINK_WALL, PLASTER)
+		local w, h, cy = 4.9, 9.7, F + 6
+		local holes = { part("PillCut", Vector3.new(w, h - w, 2), CFrame.new(cx, cy, zi), WHITE_WALL, o) }
+		for _, s in ipairs({ -1, 1 }) do
+			table.insert(holes, part("PillCut", Vector3.new(2, w, w), CFrame.new(cx, cy + s * (h - w) / 2, zi) * CFrame.Angles(0, math.rad(90), 0), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder })))
+		end
+		subtract(liner, holes, "WallPink", Enum.Material.Plaster)
+	end
+	-- floor: white tiles with a grey diagonal grid (bottom photo)
+	do
+		local fx0, fx1, fz0, fz1 = W0 + 1.1, 87, NIN, S0 - 1.1
+		local SP = 4.2
+		local function clipLine(px, pz, dx, dz)
+			-- intersect the line p + t d with the rectangle
+			local t0, t1 = -1e9, 1e9
+			for _, lim in ipairs({ { px, dx, fx0, fx1 }, { pz, dz, fz0, fz1 } }) do
+				local p0, d, lo, hi = lim[1], lim[2], lim[3], lim[4]
+				local a, b = (lo - p0) / d, (hi - p0) / d
+				t0 = math.max(t0, math.min(a, b))
+				t1 = math.min(t1, math.max(a, b))
+			end
+			if t1 <= t0 then return end
+			local a = Vector3.new(px + dx * t0, F + 0.015, pz + dz * t0)
+			local b = Vector3.new(px + dx * t1, F + 0.015, pz + dz * t1)
+			local gl = part("FloorGrid", Vector3.new(0.1, 0.03, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), Color3.fromRGB(176, 176, 182), opt({ nocol = true }))
+			gl.CastShadow = false
+		end
+		local d = 1 / math.sqrt(2)
+		for k = -20, 20 do
+			clipLine(fx0 + k * SP * math.sqrt(2), fz0, d, d)
+			clipLine(fx0 + k * SP * math.sqrt(2), fz1, d, -d)
+		end
+	end
 
-	-- booth front wall at x 87 with an arch per booth
-	local FX = 87
+	---------------------------------------------------------------- booths
 	local booths = {}
 	local shopZone = root:FindFirstChild("08_PhotoBooth")
 	if shopZone then
 		for _, m in ipairs(shopZone:GetChildren()) do
-			if m:IsA("Model") and CS:HasTag(m, "PhotoBooth") and m:FindFirstChild("CameraPoint") then table.insert(booths, m) end
+			if m:IsA("Model") and CS:HasTag(m, "PhotoBooth") and m:FindFirstChild("StudioFloor") then table.insert(booths, m) end
 		end
 	end
-	table.sort(booths, function(a, b) return a.CameraPoint.Position.Z < b.CameraPoint.Position.Z end)
-	local front = box("BoothWall", FX, F, NIN, FX + 1, GF - 0.4, -52, Color3.fromRGB(246, 246, 244), TILE)
-	local cuts = {}
-	local AW, AH = 12, 14
+	table.sort(booths, function(a, b) return a.StudioFloor.Position.Z < b.StudioFloor.Position.Z end)
+	local FX = 87
+	local AW, AH = 7, 10
+	local function remember(p: Instance?)
+		if p and p:IsA("BasePart") then
+			p:SetAttribute("OrigCFrame", p.CFrame)
+			p:SetAttribute("OrigSize", p.Size)
+		end
+	end
+	local archZ = {}
 	for _, m in ipairs(booths) do
-		local bz = m.CameraPoint.Position.Z
-		local hole = part("ArchHole", Vector3.new(4, AH - AW / 2, AW), CFrame.new(FX + 0.5, F + (AH - AW / 2) / 2 - 0.5, bz), WHITE_WALL, o)
-		local disc = part("ArchHole", Vector3.new(4, AW, AW), CFrame.new(FX + 0.5, F + AH - AW / 2, bz) * CFrame.Angles(0, 0, math.rad(90)), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder }))
-		table.insert(cuts, hole) table.insert(cuts, disc)
-	end
-	front.Parent = workspace
-	for _, p in ipairs(cuts) do p.Parent = workspace end
-	local okF, cutFront = pcall(function() return front:SubtractAsync(cuts) end)
-	for _, p in ipairs(cuts) do p:Destroy() end
-	front.Parent = B
-	if okF and cutFront then
-		cutFront.Name = "BoothWall"
-		cutFront.UsePartColor = true
-		cutFront.Material = Enum.Material.CeramicTiles
-		cutFront.Anchored = true
-		cutFront.Parent = B
-		front:Destroy()
-	end
-	local along, out = Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0)
-	for i, m in ipairs(booths) do
-		local cam = m.CameraPoint
-		local bz = cam.Position.Z
-		archRim(Vector3.new(FX - 0.15, F, bz), along, out, AW + 1.2, AH + 0.6, 0.9, 1.6, MINT, B)
-		-- curtain pulled to the north side of the arch (decor, walk-through)
-		for k = 0, 3 do
-			part("Curtain", Vector3.new(0.35, AH - AW / 2 - 0.5, 0.9), CFrame.new(FX + 0.9, F + (AH - AW / 2 - 0.5) / 2, bz - AW / 2 + 0.6 + k * 0.75) * CFrame.Angles(0, math.rad(if k % 2 == 0 then 20 else -20), 0), CURTAIN, opt({ material = Enum.Material.Fabric, nocol = true }))
-		end
-		local plate = part("PhotoPlate", Vector3.new(0.2, 1.3, 4.2), CFrame.new(FX - 0.25, F + AH + 1.6, bz), Color3.new(1, 1, 1), opt({ nocol = true }))
-		txt(plate, Enum.NormalId.Left, string.format("PHOTO %02d", i), Color3.fromRGB(30, 30, 30), Enum.Font.GothamMedium, nil, 60)
-		-- photo machine (user photo "Pick"): its front face stays just behind
-		-- the photo camera point so it never shows in the shots
+		local floorP = m.StudioFloor
+		local bx, bz = floorP.Position.X, floorP.Position.Z
+		local camP, stand, back = m:FindFirstChild("CameraPoint"), m:FindFirstChild("Stand"), m:FindFirstChild("Backdrop")
+		remember(camP) remember(stand) remember(back)
+		-- the camera on the north wall looking south (+z)
+		local camPos = Vector3.new(bx, F + 3.8, bz - 6.4)
+		camP.CFrame = CFrame.lookAt(camPos, camPos + Vector3.new(0, 0, 1))
+		-- people stand south of it, facing it (Stand -Z = toward the camera)
+		local sp = Vector3.new(bx, stand.Position.Y, bz + 3.4)
+		stand.Size = Vector3.new(13, stand.Size.Y, 7)
+		stand.CFrame = CFrame.lookAt(sp, sp + Vector3.new(0, 0, -1))
+		-- backdrop on the south wall of the booth
+		back.CFrame = CFrame.new(bx, back.Position.Y, bz + 7.6) * CFrame.Angles(0, math.rad(90), 0)
+		-- the old camera prop stays hidden
 		local camProp = m:FindFirstChild("CameraProp")
 		if camProp and camProp:IsA("BasePart") then
 			camProp:SetAttribute("OrigTransparency", camProp.Transparency)
 			camProp.Transparency = 1
 		end
-		local lensY = cam.Position.Y
-		local fx = cam.Position.X - 0.1 -- front face
+		table.insert(archZ, bz - 4.5)
+		-- leaving the booth: out through its arch (PhotoBoothService uses ExitPoint)
+		local ex = Vector3.new(FX - 3, F + 3, bz - 4.5)
+		local exitP = part("ExitPoint", Vector3.new(1, 1, 1), CFrame.lookAt(ex, ex + Vector3.new(-1, 0, 0)), WHITE_WALL, { parent = m, nocol = true, transparency = 1 })
+		exitP.CanQuery = false
+		exitP.CanTouch = false
+		exitP:SetAttribute("LayoutAdded", true)
+	end
+	-- pink booth wall at x 87 with a small arch per booth
+	do
+		local wall = box("BoothWall", FX, F, NIN, FX + 1, GF - 0.4, -52, PINK_WALL, PLASTER)
+		local holes = {}
+		for _, z in ipairs(archZ) do
+			for _, h in ipairs(archHole(Vector3.new(FX + 0.5, F - 0.1, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH + 0.1, 4)) do table.insert(holes, h) end
+		end
+		subtract(wall, holes, "BoothWall", Enum.Material.Plaster)
+	end
+	for i, z in ipairs(archZ) do
+		archRim(Vector3.new(FX - 0.15, F, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW + 1, AH + 0.5, 0.5, 1.3, GOLDT, B, Enum.Material.Foil)
+		local plate = part("PhotoPlate", Vector3.new(0.2, 1.1, 3.6), CFrame.new(FX - 0.25, F + AH + 1.4, z), Color3.new(1, 1, 1), opt({ nocol = true }))
+		txt(plate, Enum.NormalId.Left, string.format("PHOTO %02d", i), Color3.fromRGB(60, 50, 60), Enum.Font.GothamMedium, nil, 60)
+	end
+
+	-- photo machine (user photo "Pick") on each booth's north wall; its front
+	-- face is just behind CameraPoint so it never shows in the photos
+	for _, m in ipairs(booths) do
+		local camP = m.CameraPoint
+		local look = camP.CFrame.LookVector
+		local front = camP.Position - look * 0.1
+		local base = CFrame.lookAt(Vector3.new(front.X, F, front.Z), Vector3.new(front.X, F, front.Z) + Vector3.new(look.X, 0, look.Z))
 		local K = Instance.new("Model")
 		K.Name = "PhotoMachine"
 		K.Parent = B
-		local D = 2
-		local function kbox(name, y0, y1, w, color, depth, mat)
-			return part(name, Vector3.new(depth or D, y1 - y0, w), CFrame.new(fx - (depth or D) / 2, (y0 + y1) / 2, bz), color, { parent = K, material = mat })
-		end
+		local D = 1.4
+		local lensY = camP.Position.Y - F
 		local RED, KWHITE = Color3.fromRGB(196, 54, 58), Color3.fromRGB(242, 242, 244)
+		local function kbox(name, y0, y1, w, color, depth)
+			local dd = depth or D
+			return part(name, Vector3.new(w, y1 - y0, dd), base * CFrame.new(0, (y0 + y1) / 2, dd / 2), color, { parent = K })
+		end
+		local function face(name, y, w, h, color, mat) -- a thin panel on the front face
+			return part(name, Vector3.new(w, h, 0.05), base * CFrame.new(0, y, -0.03), color, { parent = K, nocol = true, material = mat })
+		end
 		local baseTop = lensY - 2.2
-		local base = kbox("MachineBase", F, baseTop, 4.6, RED)
+		kbox("MachineBase", 0, baseTop, 4.6, RED)
 		kbox("MachineLedge", baseTop, baseTop + 0.25, 4.8, KWHITE, D + 0.2)
-		local body = kbox("MachineBody", baseTop + 0.25, lensY + 1.3, 4.6, KWHITE)
+		kbox("MachineBody", baseTop + 0.25, lensY + 1.3, 4.6, KWHITE)
 		kbox("MachineHood", lensY + 1.3, lensY + 2.4, 4.6, Color3.fromRGB(230, 230, 232))
 		local band = kbox("MachineBand", lensY + 2.4, lensY + 3, 4.8, RED, D + 0.1)
-		txt(band, Enum.NormalId.Right, "OHU", Color3.fromRGB(255, 225, 200), Enum.Font.FredokaOne, nil, 50)
-		-- light panel under the band, two light bars, screen, lens
-		part("MachineLight", Vector3.new(0.1, 0.9, 4), CFrame.new(fx + 0.02, lensY + 1.85, bz), Color3.fromRGB(225, 238, 255), { parent = K, material = Enum.Material.Neon, nocol = true })
+		txt(band, Enum.NormalId.Front, "OHU", Color3.fromRGB(255, 225, 200), Enum.Font.FredokaOne, nil, 50)
+		face("MachineLight", lensY + 1.85, 4, 0.9, Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
 		for _, s in ipairs({ -1, 1 }) do
-			part("MachineBar", Vector3.new(0.1, 2.4, 0.45), CFrame.new(fx + 0.02, lensY - 0.4, bz + s * 1.95), Color3.fromRGB(225, 238, 255), { parent = K, material = Enum.Material.Neon, nocol = true })
+			part("MachineBar", Vector3.new(0.45, 2.4, 0.05), base * CFrame.new(s * 1.95, lensY - 0.4, -0.03), Color3.fromRGB(225, 238, 255), { parent = K, nocol = true, material = Enum.Material.Neon })
 		end
-		local screen = part("MachineScreen", Vector3.new(0.05, 1.1, 2.6), CFrame.new(fx + 0.01, lensY - 1.1, bz), Color3.fromRGB(250, 240, 245), { parent = K, nocol = true })
-		txt(screen, Enum.NormalId.Right, "OHU4cuts  ×  FRAME", Color3.fromRGB(200, 70, 110), Enum.Font.GothamBold, Color3.fromRGB(255, 236, 244), 60)
-		part("MachineLens", Vector3.new(0.05, 0.75, 0.75), CFrame.new(fx + 0.01, lensY, bz), Color3.fromRGB(15, 15, 18), { parent = K, nocol = true, shape = Enum.PartType.Cylinder })
-		local look = part("MachineLook", Vector3.new(0.05, 0.4, 3.4), CFrame.new(fx + 0.01, lensY, bz), KWHITE, { parent = K, nocol = true, transparency = 1 })
-		txt(look, Enum.NormalId.Right, "LOOK       HERE", Color3.fromRGB(200, 50, 50), Enum.Font.GothamBold, nil, 60)
-		local slot = part("CardSlot", Vector3.new(0.05, 0.5, 0.9), CFrame.new(fx + 0.01, baseTop - 0.7, bz - 0.6), Color3.fromRGB(20, 20, 22), { parent = K, nocol = true })
-		part("PhotoOutlet", Vector3.new(0.05, 0.6, 1.1), CFrame.new(fx + 0.01, baseTop - 1.3, bz + 1.1), Color3.fromRGB(205, 225, 255), { parent = K, material = Enum.Material.Neon, nocol = true })
-		local _ = slot
-		local _b = base
-		local _c = body
+		local screen = face("MachineScreen", lensY - 1.1, 2.6, 1.1, Color3.fromRGB(250, 240, 245))
+		txt(screen, Enum.NormalId.Front, "OHU4cuts  ×  FRAME", Color3.fromRGB(200, 70, 110), Enum.Font.GothamBold, Color3.fromRGB(255, 236, 244), 60)
+		part("MachineLens", Vector3.new(0.05, 0.75, 0.75), base * CFrame.new(0, lensY, -0.04) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(15, 15, 18), { parent = K, nocol = true, shape = Enum.PartType.Cylinder })
+		local lk = face("MachineLook", lensY, 3.4, 0.4, KWHITE)
+		lk.Transparency = 1
+		txt(lk, Enum.NormalId.Front, "LOOK       HERE", Color3.fromRGB(200, 50, 50), Enum.Font.GothamBold, nil, 60)
+		part("PhotoOutlet", Vector3.new(1.1, 0.6, 0.05), base * CFrame.new(1.1, baseTop - 1.3, -0.03), Color3.fromRGB(205, 225, 255), { parent = K, nocol = true, material = Enum.Material.Neon })
 	end
 
-	-- between the arches: blue light boxes with neon tubes + pink posters
+	-- between the arches: blue light boxes with neon tubes + pink notices
 	if #booths >= 2 then
-		local zMid = (booths[1].CameraPoint.Position.Z + booths[2].CameraPoint.Position.Z) / 2
+		local zMid = (booths[1].StudioFloor.Position.Z + booths[2].StudioFloor.Position.Z) / 2
 		for _, b in ipairs({ { F + 9, F + 13.2, zMid - 3.2 }, { F + 2.5, F + 8, zMid - 3.2 } }) do
 			local box3 = box("LightBox", FX - 1.2, b[1], b[3] - 2.4, FX, b[2], b[3] + 2.4, Color3.fromRGB(28, 60, 200), opt({ material = Enum.Material.Glass, transparency = 0.15 }))
 			for k = -1, 1 do
@@ -3108,75 +3202,114 @@ do
 		for i, s in ipairs(notes) do
 			local col, row = (i - 1) % 2, math.floor((i - 1) / 2)
 			local zc, yc = zMid + 1.2 + col * 2.6, F + 10 - row * 3.4
-			local poster = part("NoticePoster", Vector3.new(0.1, 3, 2.3), CFrame.new(FX - 0.06, yc, zc), Color3.fromRGB(248, 205, 214), opt({ nocol = true }))
+			local poster = part("NoticePoster", Vector3.new(0.1, 3, 2.3), CFrame.new(FX - 0.06, yc, zc), Color3.fromRGB(255, 240, 242), opt({ nocol = true }))
 			txt(poster, Enum.NormalId.Left, s, Color3.fromRGB(200, 70, 90), Enum.Font.GothamBold, nil, 50)
 		end
 	end
 
-	-- west wall: two mint arch niches with wire shelves ("OHU 4 CUT PLAYGROUND")
-	local inX = W0 + 1.1
-	local wAlong, wOut = Vector3.new(0, 0, 1), Vector3.new(1, 0, 0)
-	local HAT = { Color3.fromRGB(240, 120, 150), Color3.fromRGB(250, 210, 80), Color3.fromRGB(120, 190, 120), Color3.fromRGB(220, 60, 60), Color3.fromRGB(160, 120, 90), Color3.fromRGB(250, 250, 250), Color3.fromRGB(120, 160, 230) }
-	for idx, zc in ipairs({ -91, -81 }) do
-		local panel = archPanel(Vector3.new(inX + 0.1, F, zc), wAlong, wOut, 8.6, 15, 0.2, MINT, B)
-		local glow = Instance.new("SurfaceLight") glow.Face = Enum.NormalId.Back glow.Range = 6 glow.Brightness = 0.6 glow.Color = Color3.fromRGB(190, 255, 235) glow.Parent = panel
-		local title = part("PlaygroundTitle", Vector3.new(0.05, 1.6, 5.4), CFrame.new(inX + 0.25, F + 12.6, zc), MINT, opt({ nocol = true, transparency = 1 }))
-		txt(title, Enum.NormalId.Right, "OHU 4 CUT\nPLAYGROUND", Color3.fromRGB(40, 50, 55), Enum.Font.GothamMedium, nil, 50)
-		-- white wire shelf, 5 levels, filled with hats / plush
-		local x0, x1 = inX + 0.3, inX + 2.4
-		for _, s in ipairs({ -1, 1 }) do
-			for _, xx in ipairs({ x0 + 0.1, x1 - 0.1 }) do
-				part("ShelfPost", Vector3.new(0.15, 10.4, 0.15), CFrame.new(xx, F + 5.2, zc + s * 3.1), Color3.new(1, 1, 1), opt({ material = Enum.Material.Metal }))
-			end
-		end
-		for lv = 0, 4 do
-			local y = F + 0.4 + lv * 2.4
-			box("ShelfBoard", x0, y, zc - 3.2, x1, y + 0.12, zc + 3.2, Color3.new(1, 1, 1), opt({ material = Enum.Material.Metal }))
-			for k = 0, 3 do
-				local c = HAT[((idx * 3 + lv * 2 + k) % #HAT) + 1]
-				local p = Vector3.new((x0 + x1) / 2, y + 0.75, zc - 2.3 + k * 1.55)
-				part("Plush", Vector3.new(1.5, 1.2, 1.3), CFrame.new(p) * CFrame.Angles(0, math.rad((k * 37 + lv * 11) % 60 - 30), 0), c, opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
-				if (k + lv) % 2 == 0 then part("PlushEar", Vector3.new(0.5, 0.5, 0.5), CFrame.new(p + Vector3.new(0, 0.65, 0.4)), c, opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true })) end
-			end
-		end
-	end
-	-- accessory arch: pale pink back, mint neon edge, rows of headbands
+	---------------------------------------------------------------- west wall (left photo)
+	local HAT = { Color3.fromRGB(30, 30, 34), Color3.fromRGB(240, 120, 150), Color3.fromRGB(250, 210, 80), Color3.fromRGB(120, 190, 120), Color3.fromRGB(220, 60, 60), Color3.fromRGB(160, 120, 90), Color3.fromRGB(250, 250, 250), Color3.fromRGB(120, 160, 230) }
 	do
-		local zc = -71
-		local panel = archPanel(Vector3.new(inX + 0.1, F, zc), wAlong, wOut, 7, 13, 0.2, Color3.fromRGB(252, 236, 236), B)
-		archRim(Vector3.new(inX + 0.15, F, zc), wAlong, wOut, 7.4, 13.2, 0.25, 0.3, Color3.fromRGB(150, 245, 220), B)
-		for _, r in ipairs(B:GetChildren()) do
-			if r.Name == "ArchRim" and r:IsA("BasePart") and math.abs(r.Position.Z - zc) < 4 and r.Position.X < inX + 1 then r.Material = Enum.Material.Neon end
+		local WX0, WX1 = W0 + 1, W0 + 2.6 -- the pink wall is 1.6 thick so the niches are recessed
+		local wAlong, wOut = Vector3.new(0, 0, 1), Vector3.new(1, 0, 0)
+		local NICHES = { -88.5, -67.5 }
+		local NW, NH = 9, 13.5
+		local wall = box("PinkWallW", WX0, F, NIN, WX1, GF - 0.4, S0 - CH, PINK_WALL, PLASTER)
+		local holes = {}
+		for _, zc in ipairs(NICHES) do
+			for _, h in ipairs(archHole(Vector3.new((WX0 + WX1) / 2, F - 0.1, zc), wAlong, wOut, NW, NH + 0.1, 2.2)) do table.insert(holes, h) end
 		end
-		local title = part("AccessoryTitle", Vector3.new(0.05, 1, 4.4), CFrame.new(inX + 0.25, F + 10.8, zc), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
-		txt(title, Enum.NormalId.Right, "Accessory", Color3.fromRGB(220, 60, 80), Enum.Font.IndieFlower, nil, 60)
-		for row = 0, 3 do
-			local y = F + 8.8 - row * 2.1
-			box("HookBar", inX + 0.2, y, zc - 2.8, inX + 0.35, y + 0.12, zc + 2.8, Color3.fromRGB(200, 200, 205), opt({ material = Enum.Material.Metal }))
-			for k = 0, 6 do
-				local c = HAT[((row * 2 + k) % #HAT) + 1]
-				local p = Vector3.new(inX + 0.6, y - 0.6, zc - 2.5 + k * 0.83)
-				part("Headband", Vector3.new(0.3, 1, 0.7), CFrame.new(p) * CFrame.Angles(math.rad((k * 23) % 30 - 15), 0, 0), c, opt({ material = Enum.Material.Fabric, nocol = true }))
-				part("Pompom", Vector3.new(0.55, 0.55, 0.55), CFrame.new(p + Vector3.new(0.15, 0.5, 0)), HAT[((row + k * 3) % #HAT) + 1], opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
+		subtract(wall, holes, "PinkWallW", Enum.Material.Plaster)
+		local hatN = 0
+		for _, zc in ipairs(NICHES) do
+			-- sky-blue back + lit edge
+			local back = archPanel(Vector3.new(WX0 + 0.15, F, zc), wAlong, wOut, NW, NH, 0.2, SKY, B, Enum.Material.SmoothPlastic)
+			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 6 sl.Brightness = 0.5 sl.Color = Color3.fromRGB(220, 245, 255) sl.Parent = back
+			archRim(Vector3.new(WX1 - 0.05, F, zc), wAlong, wOut, NW + 0.3, NH + 0.15, 0.18, 0.3, Color3.fromRGB(255, 250, 240), B, Enum.Material.Neon)
+			local sign = part("NicheSign", Vector3.new(0.05, 0.9, 3.4), CFrame.new(WX0 + 0.3, F + NH - 2.4, zc), SKY, opt({ nocol = true, transparency = 1 }))
+			txt(sign, Enum.NormalId.Right, "OHU 4 CUT\nPLAYGROUND", Color3.fromRGB(40, 60, 80), Enum.Font.GothamMedium, nil, 60)
+			-- glass shelves on chrome posts, hats and plush on them
+			local sx0, sx1 = WX0 + 0.3, WX1 + 1.2
+			for _, s in ipairs({ -1, 1 }) do
+				for _, xx in ipairs({ sx0 + 0.1, sx1 - 0.1 }) do
+					part("ShelfPost", Vector3.new(0.12, 8.6, 0.12), CFrame.new(xx, F + 4.3, zc + s * 3.6), Color3.fromRGB(215, 215, 220), opt({ material = Enum.Material.Metal }))
+				end
+			end
+			for lv = 0, 3 do
+				local y = F + 1.4 + lv * 2.2
+				box("GlassShelf", sx0, y, zc - 3.8, sx1, y + 0.1, zc + 3.8, Color3.fromRGB(220, 240, 245), opt({ material = Enum.Material.Glass, transparency = 0.5 }))
+				for k = 0, 3 do
+					hatN += 1
+					local c = HAT[(hatN % #HAT) + 1]
+					local p = Vector3.new((sx0 + sx1) / 2, y + 0.1, zc - 2.7 + k * 1.8)
+					if (k + lv) % 3 ~= 2 then
+						-- cap: dome + brim
+						part("HatDome", Vector3.new(1.3, 1.3, 1.3), CFrame.new(p + Vector3.new(0, 0.1, 0)), c, opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
+						part("HatBrim", Vector3.new(0.12, 1.6, 1.6), CFrame.new(p + Vector3.new(0.35, 0.12, 0)) * CFrame.Angles(0, 0, math.rad(90)), c, opt({ shape = Enum.PartType.Cylinder, material = Enum.Material.Fabric, nocol = true }))
+					else
+						-- plush
+						part("Plush", Vector3.new(1.2, 1.1, 1.1), CFrame.new(p + Vector3.new(0, 0.55, 0)), c, opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
+						part("PlushEar", Vector3.new(0.45, 0.45, 0.45), CFrame.new(p + Vector3.new(0, 1.15, 0.35)), c, opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
+					end
+				end
 			end
 		end
-		local _ = panel
+		-- pill mirror between the niches (white rim, warm light)
+		local mz = (NICHES[1] + NICHES[2]) / 2
+		local function pill(name, w, h, x, depth, color, mat)
+			part(name, Vector3.new(depth, h - w, w), CFrame.new(x, F + 6.5, mz), color, opt({ material = mat, nocol = true }))
+			for _, s in ipairs({ -1, 1 }) do
+				part(name, Vector3.new(depth, w, w), CFrame.new(x, F + 6.5 + s * (h - w) / 2, mz), color, opt({ material = mat, nocol = true, shape = Enum.PartType.Cylinder }))
+			end
+		end
+		pill("MirrorRim", 4, 10, WX1 + 0.15, 0.3, Color3.fromRGB(250, 248, 244), Enum.Material.SmoothPlastic)
+		pill("MirrorGlow", 3.4, 9.4, WX1 + 0.32, 0.06, Color3.fromRGB(255, 236, 200), Enum.Material.Neon)
+		pill("Mirror", 3, 9, WX1 + 0.38, 0.06, Color3.fromRGB(205, 215, 222), Enum.Material.Glass)
+		for _, d in ipairs(B:GetChildren()) do if d.Name == "Mirror" and d:IsA("BasePart") then d.Reflectance = 0.45 end end
 	end
 
-	-- vanity: round bulb mirror on a yellow acrylic table, by the south wall
+	---------------------------------------------------------------- south wall: arched make-up vanities between the capsule windows
+	for _, vx in ipairs({ 73.5, 84.5 }) do
+		local zi = S0 - 1.15 -- inner face of the south wall liner
+		local along, out = Vector3.new(1, 0, 0), Vector3.new(0, 0, -1)
+		local c0 = Vector3.new(vx, F, zi)
+		-- white tile arch backing with a gold rim and a warm glow
+		local back = archPanel(c0 - out * 0.05, along, out, 5.6, 11.5, 0.12, Color3.fromRGB(250, 250, 248), B, Enum.Material.CeramicTiles)
+		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 7 sl.Brightness = 0.6 sl.Color = Color3.fromRGB(255, 225, 180) sl.Parent = back
+		archRim(c0 + out * 0.12, along, out, 6, 11.8, 0.35, 0.25, GOLDT, B, Enum.Material.Foil)
+		-- bulb mirror
+		local my = F + 6.6
+		part("VanityMirrorFrame", Vector3.new(4.4, 2.8, 0.15), CFrame.new(vx, my, zi - 0.2), Color3.new(1, 1, 1), opt({ nocol = true }))
+		local mirror = part("VanityMirror", Vector3.new(3.8, 2.2, 0.06), CFrame.new(vx, my, zi - 0.3), Color3.fromRGB(205, 215, 222), opt({ nocol = true, material = Enum.Material.Glass }))
+		mirror.Reflectance = 0.45
+		for k = 0, 4 do
+			for _, sy in ipairs({ -1, 1 }) do
+				part("VanityBulb", Vector3.new(0.38, 0.38, 0.38), CFrame.new(vx - 1.8 + k * 0.9, my + sy * 1.35, zi - 0.32), Color3.fromRGB(255, 244, 214), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Neon, nocol = true }))
+			end
+		end
+		for _, sx in ipairs({ -1, 1 }) do
+			part("VanityBulb", Vector3.new(0.38, 0.38, 0.38), CFrame.new(vx + sx * 2.2, my, zi - 0.32), Color3.fromRGB(255, 244, 214), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Neon, nocol = true }))
+		end
+		local plate = part("VanitySign", Vector3.new(2.2, 0.6, 0.05), CFrame.new(vx, my + 2.3, zi - 0.2), Color3.fromRGB(255, 255, 255), opt({ nocol = true }))
+		txt(plate, Enum.NormalId.Front, "MAKE UP", Color3.fromRGB(220, 110, 130), Enum.Font.GothamBold, nil, 60)
+		-- floating white counter with a drawer line
+		box("VanityCounter", vx - 2.6, F + 3.1, zi - 1.6, vx + 2.6, F + 3.5, zi, Color3.fromRGB(252, 252, 250), o)
+		box("VanityDrawer", vx - 2.5, F + 2.5, zi - 1.5, vx + 2.5, F + 3.1, zi, Color3.fromRGB(245, 245, 243), o)
+		part("Hairdryer", Vector3.new(0.4, 0.5, 1), CFrame.new(vx + 1.6, F + 3.75, zi - 0.8), Color3.fromRGB(60, 60, 64), opt({ nocol = true }))
+		part("Brush", Vector3.new(0.2, 0.2, 0.9), CFrame.new(vx - 1.4, F + 3.6, zi - 0.8), Color3.fromRGB(240, 160, 180), opt({ nocol = true }))
+	end
+
+	---------------------------------------------------------------- white oval table in the middle (user plan)
 	do
-		local vx, vz = 84.5, -50.2
-		box("VanityTable", vx - 2.6, F, vz - 1.3, vx + 2.6, F + 3, vz + 1.3, Color3.fromRGB(255, 205, 40), opt({ material = Enum.Material.Glass, transparency = 0.35 }))
-		vcyl("MirrorStand", Vector3.new(vx, F + 3, vz + 0.6), 0.3, 2.2, Color3.fromRGB(240, 240, 240), opt({ material = Enum.Material.Metal }))
-		local mc = Vector3.new(vx, F + 7.4, vz + 0.6)
-		part("MirrorRim", Vector3.new(0.4, 4.8, 4.8), CFrame.new(mc) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(248, 248, 248), opt({ shape = Enum.PartType.Cylinder }))
-		local glass = part("Mirror", Vector3.new(0.42, 4.1, 4.1), CFrame.new(mc + Vector3.new(0, 0, -0.02)) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(200, 215, 225), opt({ shape = Enum.PartType.Cylinder, material = Enum.Material.Glass }))
-		glass.Reflectance = 0.5
-		for k = 0, 9 do
-			local a = k / 10 * 2 * math.pi
-			part("MirrorBulb", Vector3.new(0.5, 0.5, 0.5), CFrame.new(mc + Vector3.new(math.cos(a) * 2.6, math.sin(a) * 2.6, -0.3)), Color3.fromRGB(255, 240, 200), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Neon, nocol = true }))
+		local tx, tz, len, w = 72.5, -75.5, 16, 6
+		local y = F + 2.6
+		box("OvalTableTop", tx - w / 2, y, tz - (len - w) / 2, tx + w / 2, y + 0.3, tz + (len - w) / 2, Color3.fromRGB(252, 252, 250), o)
+		for _, s in ipairs({ -1, 1 }) do
+			vcyl("OvalTableEnd", Vector3.new(tx, y, tz + s * (len - w) / 2), w, 0.3, Color3.fromRGB(252, 252, 250), o)
+			vcyl("OvalTableLeg", Vector3.new(tx, F, tz + s * (len - w) / 2), 0.5, 2.6, GOLDT, opt({ material = Enum.Material.Foil }))
 		end
 	end
+
 	label(box("ShopLabel", 78, U1 + 10, -74, 80, U1 + 11, -72, WHITE, opt({ transparency = 1, nocol = true })), "📸 오후네컷 포토 부스", Color3.fromRGB(255, 160, 200), 3)
 end
 
