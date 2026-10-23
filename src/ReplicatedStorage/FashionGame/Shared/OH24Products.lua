@@ -147,4 +147,14 @@ OH24Products.CATEGORIES = {
 	},
 }
 
+-- One picture per shelf row (user 2026-10-23: a whole row is one image, like
+-- a shelf photo). Category → rbxassetid of a row image ("" = placeholder).
+-- Size: 30 px per stud → a 16-stud gondola row ≈ 480 × 57 px; draw it wider
+-- (e.g. 1600 × 190) for sharpness, products standing on the bottom edge.
+OH24Products.ROW_IMAGES = {
+	snack_bag = "", snack_tube = "", sweets_box = "", candy = "", noodle = "",
+	bread = "", drink_bottle = "", drink_can = "", milk = "", fresh = "",
+	lunch = "", goods = "",
+}
+
 return OH24Products

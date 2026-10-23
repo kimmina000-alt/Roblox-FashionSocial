@@ -1803,40 +1803,81 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		end
 		return front
 	end
-	-- a row of packs on a shelf: cf = left end of the shelf front edge on the
-	-- shelf top, -Z out; fills `len` studs; a price-tag strip on the edge
-	-- maxH = clear height above the shelf: packs are scaled down to fit it
+	-- One shelf row = ONE part with one picture (user 2026-10-23: merge a row
+	-- into a single image like a shelf photo, far fewer parts). cf = left end
+	-- of the shelf front edge on the shelf top, -Z out; len studs long; maxH =
+	-- clear height above the shelf. The picture is the category's row image
+	-- (OH24Products.ROW_IMAGES[cat], a Decal) once it is designed; until then a
+	-- placeholder drawn in one SurfaceGui: product tiles + the price strip.
 	local function row(cf: CFrame, len: number, cat: string, parent: Instance, tags: boolean?, maxH: number?)
+		local h = math.min(maxH or 1.6, 1.9)
+		local face = part("ShelfRow", Vector3.new(len, h + 0.3, 0.6), cf * CFrame.new(len / 2, h / 2 - 0.15, 0.4), Color3.fromRGB(240, 240, 242), { parent = parent, nocol = true })
+		face.CastShadow = false
+		local img = catalog.ROW_IMAGES and catalog.ROW_IMAGES[cat]
+		if typeof(img) == "string" and img ~= "" then
+			local d = Instance.new("Decal")
+			d.Texture = img
+			d.Face = Enum.NormalId.Front
+			d.Parent = face
+			return
+		end
+		local g = gui(face, Enum.NormalId.Front, 30, 90) -- one gui per row now, so it can draw from farther
+		local stripH = if tags == false then 0 else 0.3 / (h + 0.3)
+		local holder = Instance.new("Frame")
+		holder.BackgroundTransparency = 1
+		holder.Size = UDim2.fromScale(1, 1 - stripH)
+		holder.Parent = g
+		local lay = Instance.new("UIListLayout")
+		lay.FillDirection = Enum.FillDirection.Horizontal
+		lay.VerticalAlignment = Enum.VerticalAlignment.Bottom
+		lay.Padding = UDim.new(0.035, 0)
+		lay.Parent = holder
+		local pad = Instance.new("UIPadding") pad.PaddingLeft = UDim.new(0.02, 0) pad.Parent = holder
+		-- product tiles with gaps, scaled to the row height
 		local x = 0.1
-		local n = 0
 		while true do
 			local pr = nextProduct(cat)
-			if not pr then return end
+			if not pr then break end
 			local base = shapeSize(pr.shape)
-			local extra = if pr.shape == "bottle" then 0.2 else 0
-			local scale = if maxH then math.min(1, (maxH - 0.12) / (base.Y + extra)) else 1
-			local sz = base * scale
-			if x + sz.X > len then break end
-			-- one pack per product with room between them (user 2026-10-23:
-			-- less crowded shelves)
-			pack(pr, cf * CFrame.new(x + sz.X / 2, 0, sz.Z / 2 + 0.12), parent, scale)
-			x += sz.X + math.max(0.45, sz.X * 0.5)
-			n += 1
+			local scale = math.min(1, (h - 0.12) / base.Y)
+			local w, ph = base.X * scale, base.Y * scale
+			if x + w > len then break end
+			local tile = Instance.new("Frame")
+			tile.Size = UDim2.fromScale(w / len, ph / h)
+			tile.BackgroundColor3 = pr.color
+			tile.BorderSizePixel = 0
+			tile.Parent = holder
+			if pr.shape == "bottle" or pr.shape == "can" or pr.shape == "milk" or pr.shape == "tube" then
+				local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0.25, 0) c.Parent = tile
+			end
+			local band = Instance.new("Frame")
+			band.Size = UDim2.fromScale(1, 0.16)
+			band.BackgroundColor3 = Color3.new(1, 1, 1)
+			band.BackgroundTransparency = 0.2
+			band.BorderSizePixel = 0
+			band.Parent = tile
+			local l = text(tile, pr.name, if pr.color.R + pr.color.G + pr.color.B > 2.2 then Color3.fromRGB(40, 40, 50) else Color3.new(1, 1, 1), Enum.Font.GothamBlack)
+			l.Size = UDim2.fromScale(0.9, 0.62)
+			l.Position = UDim2.fromScale(0.05, 0.24)
+			x += w + math.max(0.45, w * 0.5)
 		end
 		if tags ~= false then
-			local strip = part("PriceStrip", Vector3.new(len, 0.28, 0.06), cf * CFrame.new(len / 2, -0.16, 0.03), Color3.fromRGB(215, 215, 220), { parent = parent, nocol = true })
-			local g = gui(strip, Enum.NormalId.Front, 40, 30)
-			local lay = Instance.new("UIListLayout")
-			lay.FillDirection = Enum.FillDirection.Horizontal
-			lay.Padding = UDim.new(0, 18)
-			lay.Parent = g
+			local strip = Instance.new("Frame")
+			strip.Position = UDim2.fromScale(0, 1 - stripH)
+			strip.Size = UDim2.fromScale(1, stripH)
+			strip.BackgroundColor3 = Color3.fromRGB(215, 215, 220)
+			strip.BorderSizePixel = 0
+			strip.Parent = g
+			local sl = Instance.new("UIListLayout")
+			sl.FillDirection = Enum.FillDirection.Horizontal
+			sl.Padding = UDim.new(0, 18)
+			sl.Parent = strip
 			for k = 1, math.max(1, math.floor(len / 1.4)) do
-				local tag = text(g, (({ "1,500", "1,800", "2,200", "1,200", "2,500", "1+1", "2+1" })[(k % 7) + 1]), Color3.fromRGB(30, 30, 30), Enum.Font.GothamBold, if k % 5 == 0 then Color3.fromRGB(250, 220, 60) else Color3.new(1, 1, 1))
+				local tag = text(strip, (({ "1,500", "1,800", "2,200", "1,200", "2,500", "1+1", "2+1" })[(k % 7) + 1]), Color3.fromRGB(30, 30, 30), Enum.Font.GothamBold, if k % 5 == 0 then Color3.fromRGB(250, 220, 60) else Color3.new(1, 1, 1))
 				tag.Size = UDim2.new(0, 36, 1, 0)
 			end
 		end
 	end
-
 	---------------------------------------------------------------- shell
 	-- (user 2026-10-23: bigger, with the empty land around it; every street
 	-- side is a glass front with the same OH24 sign)
