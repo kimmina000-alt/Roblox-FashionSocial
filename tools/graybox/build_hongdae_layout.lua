@@ -1388,6 +1388,96 @@ local function nightWash(cf: CFrame, w: number, h: number, parent: Instance)
 	CS:AddTag(p, "NightWash")
 	return p
 end
+-- 기와 roof module for the wall tops (user pick: candidate 2, made regular,
+-- 2026-10-23): one 8-stud piece built from exact parts and merged (CSG) into
+-- a single part, then cloned along the walls (identical copies are cheap to
+-- draw). Per side: 8 round cover tiles down the slope, a round end cap on
+-- each (수막새), a hanging drip tile between them (암막새); a stacked flat
+-- ridge on top. Local frame: X along the wall, Y up, origin = wall top centre.
+local GIWA_LEN = 8
+local GIWA_OFFSET = Vector3.zero
+local giwaTemplate: BasePart? = nil
+local function giwaModule(): BasePart
+	if giwaTemplate then return giwaTemplate end
+	local TILE = Color3.fromRGB(64, 68, 72)
+	local O = Vector3.new(0, 3000, 0) -- built away from the map
+	local tmp = Instance.new("Model")
+	tmp.Name = "GiwaBuild"
+	tmp.Parent = workspace
+	local parts = {}
+	local function add(size, cf, shape, class)
+		local p = part("Giwa", size, CFrame.new(O) * cf, TILE, { parent = tmp, shape = shape, class = class, material = Enum.Material.Slate })
+		table.insert(parts, p)
+		return p
+	end
+	local BASE, RISE, RUN = 0.25, 0.8, 1.75
+	add(Vector3.new(GIWA_LEN, BASE, 2 * RUN), CFrame.new(0, BASE / 2, 0)) -- bed on the wall
+	local L = math.sqrt(RUN * RUN + RISE * RISE)
+	for _, s in ipairs({ -1, 1 }) do
+		local sv = Vector3.new(0, 0, s)
+		-- the tile field (concave tiles read as the slope between the covers)
+		add(Vector3.new(GIWA_LEN, RISE, RUN), CFrame.fromMatrix(Vector3.new(0, BASE + RISE / 2, s * RUN / 2), Vector3.yAxis:Cross(-sv), Vector3.yAxis, -sv), nil, "WedgePart")
+		local d = Vector3.new(0, -RISE, s * RUN).Unit -- down the slope, outward
+		local nrm = Vector3.new(0, RUN, s * RISE).Unit -- out of the slope
+		local midS = Vector3.new(0, BASE + RISE / 2, s * RUN / 2)
+		-- photo: tight rows, a concave tile trough between every two covers
+		local PITCH = GIWA_LEN / 10
+		for i = 0, 9 do
+			local x = -GIWA_LEN / 2 + PITCH * (i + 0.5)
+			local c = midS + Vector3.new(x, 0, 0) + nrm * 0.12 + d * 0.1
+			add(Vector3.new(L + 0.2, 0.34, 0.34), CFrame.fromMatrix(c, d, nrm), Enum.PartType.Cylinder) -- cover tile
+			local e = c + d * ((L + 0.2) / 2 + 0.04)
+			add(Vector3.new(0.08, 0.46, 0.46), CFrame.fromMatrix(e, d, nrm), Enum.PartType.Cylinder) -- end cap (수막새)
+			add(Vector3.new(0.05, 0.3, 0.3), CFrame.fromMatrix(e + d * 0.06, d, nrm), Enum.PartType.Cylinder) -- its raised centre
+			-- concave tile edge peeking out between covers at the eave
+			local xm = x + PITCH / 2
+			if xm < GIWA_LEN / 2 - 0.01 then
+				add(Vector3.new(0.5, 0.06, 0.22), CFrame.fromMatrix(midS + Vector3.new(xm, 0, 0) + d * (L / 2 - 0.05) + nrm * 0.02, Vector3.xAxis, nrm))
+			end
+		end
+		-- drip tiles (암막새): a curved hanging plate under the eave between
+		-- the caps, the scalloped edge of the photo
+		local eave = Vector3.new(0, BASE - 0.12, s * (RUN + 0.02))
+		for i = 0, 10 do
+			local x = -GIWA_LEN / 2 + PITCH * i
+			local w = if i == 0 or i == 10 then PITCH / 2 - 0.04 else PITCH - 0.08
+			local xc = if i == 0 then x + w / 2 elseif i == 10 then x - w / 2 else x
+			add(Vector3.new(w, 0.42, 0.07), CFrame.fromMatrix(eave + Vector3.new(xc, 0, 0), Vector3.xAxis, Vector3.new(0, 1, -s * 0.5).Unit))
+			add(Vector3.new(0.07, w * 0.72, w * 0.72), CFrame.fromMatrix(eave + Vector3.new(xc, -0.13, s * 0.07), Vector3.new(0, 0, s), Vector3.yAxis), Enum.PartType.Cylinder) -- round lower edge
+		end
+	end	-- stacked flat ridge (용마루)
+	local top = BASE + RISE
+	add(Vector3.new(GIWA_LEN, 0.24, 1.2), CFrame.new(0, top + 0.06, 0))
+	add(Vector3.new(GIWA_LEN, 0.2, 0.86), CFrame.new(0, top + 0.26, 0))
+	add(Vector3.new(GIWA_LEN, 0.2, 0.64), CFrame.new(0, top + 0.46, 0))
+	add(Vector3.new(GIWA_LEN, 0.16, 0.42), CFrame.new(0, top + 0.64, 0))
+	local first = table.remove(parts, 1)
+	local ok, u = pcall(function() return first:UnionAsync(parts) end)
+	local result: BasePart
+	if ok and u then
+		u.Name = "GiwaRoof"
+		u.UsePartColor = true
+		u.Color = TILE
+		u.Material = Enum.Material.Slate
+		pcall(function() u.CollisionFidelity = Enum.CollisionFidelity.Box end)
+		u.Parent = nil
+		result = u
+	else
+		warn("giwa union failed", u)
+		first.Size = Vector3.new(GIWA_LEN, 1.6, 3.6)
+		first.Parent = nil
+		result = first
+	end
+	result.Anchored = true
+	result.CanCollide = false
+	result.CanTouch = false
+	result.CastShadow = false
+	GIWA_OFFSET = result.Position - O -- its centre from the module origin
+	result.CFrame = CFrame.new(result.Position)
+	tmp:Destroy()
+	giwaTemplate = result
+	return result
+end
 local function palaceWall(a: Vector3, b: Vector3, parent: Instance, out: Vector3?)
 	local len = (b - a).Magnitude
 	if len < 0.5 then return end
@@ -1400,14 +1490,17 @@ local function palaceWall(a: Vector3, b: Vector3, parent: Instance, out: Vector3
 	local TILE = Color3.fromRGB(64, 66, 72)
 	-- the stone pattern runs down to the ground (user 2026-10-23: no plain base)
 	part("PalaceWallStone", Vector3.new(2.2, PALACE_H, len), cf * CFrame.new(0, PALACE_H / 2, 0), STONE, { parent = parent, material = Enum.Material.Cobblestone })
-	part("PalaceWallEave", Vector3.new(3.6, 0.3, len + 0.6), cf * CFrame.new(0, PALACE_H + 0.15, 0), TILE, { parent = parent, material = Enum.Material.Slate })
-	local rise = 0.9
-	for _, s in ipairs({ -1, 1 }) do
-		local sv = side * s
-		local pos = Vector3.new(mid.X, PALACE_H + 0.3 + rise / 2, mid.Z) + sv * 0.9
-		part("PalaceWallTile", Vector3.new(len + 0.6, rise, 1.8), CFrame.fromMatrix(pos, Vector3.yAxis:Cross(-sv), Vector3.yAxis, -sv), TILE, { parent = parent, class = "WedgePart", material = Enum.Material.Slate })
+	-- tiled roof: the 8-stud giwa module repeated, stretched a little so a
+	-- whole number of modules fills the run
+	local n = math.max(1, math.floor(len / GIWA_LEN + 0.5))
+	local seg = len / n
+	for k = 0, n - 1 do
+		local m = giwaModule():Clone()
+		m.Size = Vector3.new(m.Size.X * seg / GIWA_LEN, m.Size.Y, m.Size.Z)
+		local c = a + along * (seg * (k + 0.5))
+		m.CFrame = CFrame.fromMatrix(Vector3.new(c.X, PALACE_H, c.Z), along, Vector3.yAxis) * CFrame.new(GIWA_OFFSET)
+		m.Parent = parent
 	end
-	part("PalaceWallRidge", Vector3.new(0.7, 0.5, len + 0.6), cf * CFrame.new(0, PALACE_H + 0.3 + rise + 0.2, 0), Color3.fromRGB(46, 48, 52), { parent = parent, material = Enum.Material.Slate })
 	if out then
 		local o = Vector3.new(out.X, 0, out.Z).Unit
 		local p = Vector3.new(mid.X, 0.25, mid.Z) + o * 1.45
