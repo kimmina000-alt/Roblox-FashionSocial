@@ -879,7 +879,7 @@ local EXITS = {
 	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -59, Vector3.new(0, 0, -1) },
 	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 59, Vector3.new(0, 0, 1) },
 	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -44, -51.2, Vector3.new(-1, 0, 0), 0 }, -- back corner of its base on the square's inner corner (-34.4, -47) (user) -- in the corner square, away from the road, facing the beach (user 2026-10-23); ground at y 0
-	{ 4, "광안리 해변 · 카페", Color3.fromRGB(42, 143, 179), -29, 59, Vector3.new(0, 0, 1) },
+	{ 4, "해변", Color3.fromRGB(42, 143, 179), -29, 59, Vector3.new(0, 0, 1) },
 }
 local exitPads, exitMouths = {}, {}
 for _, e in ipairs(EXITS) do
@@ -970,7 +970,14 @@ for _, e in ipairs(EXITS) do
 	local polePos = mouth + side * 5.6 * math.sign(e[4]) + out * 1
 	local PW, PD, PH = 1.7, 0.5, 9.5
 	local pillar = part("ExitPole", Vector3.new(PW, PH, PD), CFrame.fromMatrix(polePos + Vector3.new(0, TOPY + PH / 2, 0), side, Vector3.yAxis), dark, { parent = m, material = Enum.Material.Metal })
-	local STATION = { "홍대입구", "Hongik Univ.", "弘大入口", "ホンデイック" }
+	-- each exit names where it leads (user 2026-10-23): Korean, English, Hanja, Japanese
+	local STATIONS = {
+		{ "클럽", "Club", "俱樂部", "クラブ" },
+		{ "한옥 마을", "Hanok Village", "韓屋村", "ハノク村" },
+		{ "놀이공원", "Amusement Park", "遊樂公園", "遊園地" },
+		{ "해변", "Beach", "海邊", "ビーチ" },
+	}
+	local STATION = STATIONS[e[1]]
 	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
 		local g = Instance.new("SurfaceGui")
 		g.Face = face
@@ -1003,8 +1010,23 @@ for _, e in ipairs(EXITS) do
 			return l
 		end
 		local YELLOW = Color3.fromRGB(252, 196, 30)
-		local icon = line("🚇", 78, Color3.fromRGB(30, 30, 30), Enum.Font.GothamBlack, YELLOW)
-		local c1 = Instance.new("UICorner") c1.CornerRadius = UDim.new(0, 8) c1.Parent = icon
+		-- one-colour subway pictogram (Creator Store decal 994265483, background removed: docs/04_ART/references/subway_icon_mono.png)
+		order += 1
+		local tile = Instance.new("Frame")
+		tile.LayoutOrder = order
+		tile.Size = UDim2.new(0, 78, 0, 78)
+		tile.BackgroundColor3 = YELLOW
+		tile.BorderSizePixel = 0
+		tile.Parent = g
+		local c1 = Instance.new("UICorner") c1.CornerRadius = UDim.new(0, 8) c1.Parent = tile
+		local icon = Instance.new("ImageLabel")
+		icon.AnchorPoint = Vector2.new(0.5, 0.5)
+		icon.Position = UDim2.fromScale(0.5, 0.5)
+		icon.Size = UDim2.fromScale(0.78, 0.78)
+		icon.BackgroundTransparency = 1
+		icon.Image = "rbxassetid://132112761852193"
+		icon.ScaleType = Enum.ScaleType.Fit
+		icon.Parent = tile
 		line(tostring(e[1]), 110, YELLOW, Enum.Font.GothamBlack)
 		line("출입구", 30, YELLOW, Enum.Font.GothamBold)
 		line("Entrance", 22, YELLOW, Enum.Font.Gotham)
@@ -1128,7 +1150,7 @@ end
 busStop(1, "OHU CLUB 앞", Vector3.new(-31, 0, -130), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1))
 busStop(2, "고층 빌딩가", Vector3.new(130, 0, 31), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0))
 busStop(3, "한옥 마을 · 광화문", Vector3.new(31, 0, 230), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1))
-busStop(4, "광안리 해변", Vector3.new(-153, 0, 150), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1))
+busStop(4, "해변", Vector3.new(-153, 0, 150), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1))
 
 ------------------------------------------------------- 광안리 seafront
 do
