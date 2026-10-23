@@ -2664,7 +2664,7 @@ do
 	local woodOpt = opt({ material = Enum.Material.WoodPlanks })
 	box("Deck", W0 - DECK, 0, N0 + 1, W0, F, S0 - CH + 1.1, WOOD, woodOpt)
 	box("Deck", W0 + CH - 1.1, 0, S0, W1 - 1, F, S0 + DECK, WOOD, woodOpt)
-	cutPart("Deck", CH * math.sqrt(2) + 2.2, 0, F, DECK, DECK / 2, WOOD, woodOpt)
+	cutPart("Deck", CH * math.sqrt(2) + 2.2, 0, F + 0.02, DECK + 1.3, (DECK - 1.3) / 2, WOOD, woodOpt) -- runs in under the doors too (user)
 	-- pavement in the rest of the corner (named Sidewalk: street_dress gives it
 	-- the paver texture), a hair lower than the sidewalks it overlaps
 	cutPart("Sidewalk", CH * math.sqrt(2) + 12, 0, CURB - 0.02, 7.4, DECK + 3.6, WALK, { parent = T, material = Enum.Material.Brick }) -- from the deck edge out (no gap)
