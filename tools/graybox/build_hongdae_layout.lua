@@ -900,9 +900,10 @@ for _, e in ipairs(EXITS) do
 	box("Landing", l0.X, -9, l0.Z, l1.X, bottom, l1.Z, Color3.fromRGB(120, 120, 128), { parent = m, material = Enum.Material.Concrete })
 	do
 		local a, b = at(-9) - side * 3.4, at(9) - side * 3
-		box("PitWallL", a.X, -9, a.Z, b.X, TOPY, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
+		-- tops a hair under the ground (their tops sat in the pavement plane and flickered)
+		box("PitWallL", a.X, -9, a.Z, b.X, TOPY - 0.03, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
 		a, b = at(-9) + side * 3, at(9) + side * 3.4
-		box("PitWallR", a.X, -9, a.Z, b.X, TOPY, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
+		box("PitWallR", a.X, -9, a.Z, b.X, TOPY - 0.03, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
 	end
 	local ba, bb = at(-9.2) - side * 3, at(-8.8) + side * 3
 	local bw = box("PitBack", ba.X, -9, ba.Z, bb.X, TOPY + 2.6, bb.Z, Color3.fromRGB(40, 40, 45), { parent = m })
@@ -921,7 +922,8 @@ for _, e in ipairs(EXITS) do
 		return BASE + 3.6 * math.sqrt(math.max(0, 1 - t * t)) -- elliptic curve down to the base
 	end
 	for _, sx in ipairs({ -1, 1 }) do
-		local a, b = at(U0) + side * (sx * 3.4), at(U1) + side * (sx * 4.2)
+		-- the side bases stop where the back block and the front frame begin (they overlapped it face to face)
+		local a, b = at(U0 + 0.6) + side * (sx * 3.4), at(U1 - 0.8) + side * (sx * 4.2)
 		box("EntranceBase", math.min(a.X, b.X), TOPY, math.min(a.Z, b.Z), math.max(a.X, b.X), BASE, math.max(a.Z, b.Z), granite, { parent = m, material = Enum.Material.Granite })
 	end
 	do
@@ -937,7 +939,10 @@ for _, e in ipairs(EXITS) do
 		local mid = (p0 + p1) / 2
 		local len = (p1 - p0).Magnitude + 0.25
 		local look = CFrame.lookAt(mid, p1)
-		part("EntranceRoof", Vector3.new(8.6, 0.9, len), look * CFrame.new(0, 0.45, 0), roofC, { parent = m, material = Enum.Material.Metal })
+		-- neighbouring slabs overlap: alternate their width / thickness a hair so no faces coincide
+		local w = if i % 2 == 0 then 8.6 else 8.64
+		local h = if i % 2 == 0 then 0.9 else 0.92
+		part("EntranceRoof", Vector3.new(w, h, len), look * CFrame.new(0, h / 2, 0), roofC, { parent = m, material = Enum.Material.Metal })
 	end
 	-- glass panels with dark mullions on both sides
 	local cuts = { U1 - 0.6, 6, 2.5, -1, -3.8, -6.6, U0 + 0.6 }
@@ -958,13 +963,59 @@ for _, e in ipairs(EXITS) do
 		local a, b = at(U1 - 0.8) + side * (sx * 3.6), at(U1) + side * (sx * 4.4)
 		box("EntranceFrame", math.min(a.X, b.X), TOPY, math.min(a.Z, b.Z), math.max(a.X, b.X), roofY(U1) + 0.9, math.max(a.Z, b.Z), dark, { parent = m, material = Enum.Material.Metal })
 	end
-	-- exit number pole (Seoul style): dark pole, yellow number panel on top
+	-- exit sign pillar (user photo of a Seoul exit sign, 2026-10-23): a tall
+	-- dark slab; on both faces, top to bottom: subway icon, exit number,
+	-- 출입구 / Entrance, the station name in Korean, English, Hanja, Japanese
 	local mouth = at(9)
 	local polePos = mouth + side * 5.6 * math.sign(e[4]) + out * 1
-	box("ExitPole", polePos.X - 0.45, TOPY, polePos.Z - 0.45, polePos.X + 0.45, TOPY + 11, polePos.Z + 0.45, dark, { parent = m, material = Enum.Material.Metal })
-	local sign = box("ExitNumberSign", polePos.X - 0.55, TOPY + 9, polePos.Z - 0.55, polePos.X + 0.55, TOPY + 10.8, polePos.Z + 0.55, Color3.fromRGB(250, 200, 30), { parent = m })
-	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do surfaceText(sign, face, tostring(e[1]), Color3.fromRGB(20, 20, 20), Enum.Font.GothamBlack) end
-	box("ExitPoleBand", polePos.X - 0.5, TOPY + 5, polePos.Z - 0.5, polePos.X + 0.5, TOPY + 7.5, polePos.Z + 0.5, Color3.fromRGB(200, 40, 60), { parent = m })
+	local PW, PD, PH = 1.7, 0.5, 9.5
+	local pillar = part("ExitPole", Vector3.new(PW, PH, PD), CFrame.fromMatrix(polePos + Vector3.new(0, TOPY + PH / 2, 0), side, Vector3.yAxis), dark, { parent = m, material = Enum.Material.Metal })
+	local STATION = { "홍대입구", "Hongik Univ.", "弘大入口", "ホンデイック" }
+	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+		local g = Instance.new("SurfaceGui")
+		g.Face = face
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 60
+		g.LightInfluence = 0.4
+		g.Parent = pillar
+		local list = Instance.new("UIListLayout")
+		list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		list.SortOrder = Enum.SortOrder.LayoutOrder
+		list.Padding = UDim.new(0, 6)
+		list.Parent = g
+		local pad = Instance.new("UIPadding")
+		pad.PaddingTop = UDim.new(0, 14)
+		pad.Parent = g
+		local order = 0
+		local function line(text, h, color, font, bg)
+			order += 1
+			local l = Instance.new("TextLabel")
+			l.LayoutOrder = order
+			l.Size = UDim2.new(0.86, 0, 0, h)
+			l.BackgroundTransparency = if bg then 0 else 1
+			if bg then l.BackgroundColor3 = bg end
+			l.BorderSizePixel = 0
+			l.Font = font or Enum.Font.GothamBold
+			l.TextScaled = true
+			l.TextColor3 = color
+			l.Text = text
+			l.Parent = g
+			return l
+		end
+		local YELLOW = Color3.fromRGB(252, 196, 30)
+		local icon = line("🚇", 78, Color3.fromRGB(30, 30, 30), Enum.Font.GothamBlack, YELLOW)
+		local c1 = Instance.new("UICorner") c1.CornerRadius = UDim.new(0, 8) c1.Parent = icon
+		line(tostring(e[1]), 110, YELLOW, Enum.Font.GothamBlack)
+		line("출입구", 30, YELLOW, Enum.Font.GothamBold)
+		line("Entrance", 22, YELLOW, Enum.Font.Gotham)
+		order += 1
+		local gap = Instance.new("Frame") gap.LayoutOrder = order gap.Size = UDim2.new(0.6, 0, 0, 24) gap.BackgroundTransparency = 1 gap.Parent = g
+		line(STATION[1], 46, Color3.new(1, 1, 1), Enum.Font.GothamBold)
+		line(STATION[2], 22, Color3.fromRGB(220, 220, 220), Enum.Font.Gotham)
+		line(STATION[3], 24, Color3.fromRGB(220, 220, 220), Enum.Font.Gotham)
+		line(STATION[4], 22, Color3.fromRGB(220, 220, 220), Enum.Font.Gotham)
+	end
+	local sign = pillar
 	label(sign, e[1] .. "번 출구 · " .. e[2], e[3], 4, 0.8)
 
 	-- the landing pad (exit picker)
