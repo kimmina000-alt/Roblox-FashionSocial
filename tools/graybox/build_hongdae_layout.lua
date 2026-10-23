@@ -2710,13 +2710,14 @@ do
 	local ENTRY = Color3.fromRGB(248, 248, 246) -- the entrance frame is white (user 2026-10-23, was pink)
 	cutPart("CornerHead", cutLen, F + 10.6, GF, 1, -0.5, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	for _, s in ipairs({ -1, 1 }) do
-		cutAt("PinkPost", s * (cutLen / 2 - 0.5), Vector3.new(1, 10.6, 1.4), F + 5.3, -0.3, ENTRY)
+		-- the outer posts stand on the corners where the glass bays meet (user)
+		cutAt("PinkPost", s * (cutLen / 2), Vector3.new(1.2, 10.6, 1.4), F + 5.3, -0.3, ENTRY)
 		cutAt("PinkMullion", s * (DOOR / 2 + 0.3), Vector3.new(0.35, 10.6, 1), F + 5.3, -0.3, ENTRY) -- thinner than the outer frame (user)
 		-- light panel inside the outer post: lights up at night (NightGlow)
-		local gp = cutAt("FrameGlow", s * (cutLen / 2 - 0.5), Vector3.new(0.5, 10, 0.1), F + 5.3, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
+		local gp = cutAt("FrameGlow", s * (cutLen / 2), Vector3.new(0.5, 10, 0.1), F + 5.3, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		CS:AddTag(gp, "NightGlow")
-		local w = cutLen / 2 - DOOR / 2 - 1.8
-		cutAt("Sidelight", s * (DOOR / 2 + 0.8 + w / 2), Vector3.new(w, 9.4, 0.3), F + 5.3, -0.4, Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
+		local w = cutLen / 2 - DOOR / 2 - 1.1
+		cutAt("Sidelight", s * (DOOR / 2 + 0.5 + w / 2), Vector3.new(w, 9.4, 0.3), F + 5.3, -0.4, Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
 	end
 	cutAt("PinkHead", 0, Vector3.new(cutLen, 1.2, 1.4), F + 10.6, -0.3, ENTRY)
 	do
@@ -2741,11 +2742,16 @@ do
 		local along = (p1 - p0).Unit
 		local len = (p1 - p0).Magnitude
 		local function at(s, y) return CFrame.fromMatrix(p0 + along * s + Vector3.new(0, y, 0), along, Vector3.yAxis) end
-		part(name .. "Post", Vector3.new(1, 10.6, 1.4), at(0.5, 5.3), ENTRY, o)
-		part(name .. "Mullion", Vector3.new(0.35, 10, 1), at((len + 1) / 2, 5), ENTRY, o)
-		part(name .. "Head", Vector3.new(len, 1.2, 1.4), at(len / 2, 10.6), ENTRY, o)
-		part(name .. "Glass", Vector3.new(len - 1, 10, 0.3), at((len + 1) / 2, 5), Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
+		-- one pane: no middle post; thin white frames top and bottom (user)
+		local FR = 0.45
+		part(name .. "Post", Vector3.new(1, 11.2, 1.2), at(0.5, 5.6), ENTRY, o)
+		part(name .. "Head", Vector3.new(len, FR, 1), at(len / 2, 11.2 - FR / 2), ENTRY, o)
+		part(name .. "Sill", Vector3.new(len, FR, 1), at(len / 2, FR / 2), ENTRY, o)
+		part(name .. "Glass", Vector3.new(len - 1, 11.2 - 2 * FR, 0.3), at((len + 1) / 2, 5.6), Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
 	end
+	-- the wooden step runs in under the bays up to the glass, like at the doors (user)
+	box("Deck", W0, F - 0.3, WBAY, W0 + 1.3, F + 0.02, S0 - CH, WOOD, woodOpt)
+	box("Deck", W0 + CH, F - 0.3, S0 - 1.3, SBAY, F + 0.02, S0, WOOD, woodOpt)
 	glassBay(Vector3.new(W0 + 0.5, F, WBAY), Vector3.new(W0 + 0.5, F, S0 - CH), "WestBay")
 	glassBay(Vector3.new(SBAY, F, S0 - 0.5), Vector3.new(W0 + CH, F, S0 - 0.5), "SouthBay")
 
@@ -2781,19 +2787,19 @@ do
 	-- (user 2026-10-23); the window by the sky booth is gone
 	local PILL_W, PILL_H, PILL_Y = 4, 8.8, F + 6
 	local VW, VH = 5.6, 11.5 -- make-up vanity arches
+	-- the south glass bay took the first window and vanity (user); the window,
+	-- vanity, window left are spaced with equal gaps from the slanted wall end
+	-- by the bay (x SBAY + 1.6) to the booth wall (x 91.9)
 	local PILL_X, VANITY_X = {}, {}
 	do
-		local x0, x1 = W0 + CH, 91.9
-		local gap = (x1 - x0 - 3 * PILL_W - 2 * VW) / 6
+		local x0, x1 = 68 + 1.6, 91.9
+		local gap = (x1 - x0 - 2 * PILL_W - VW) / 4
 		local x = x0 + gap
-		for k = 1, 5 do
+		for k = 1, 3 do
 			local w = if k % 2 == 1 then PILL_W else VW
 			table.insert(if k % 2 == 1 then PILL_X else VANITY_X, x + w / 2)
 			x += w + gap
 		end
-		-- the first window and vanity gave way to the south glass bay (user)
-		table.remove(PILL_X, 1)
-		table.remove(VANITY_X, 1)
 	end
 	local function pill(name, x, w, h, z, depth, color, op) -- box + two half discs
 		local ps = { part(name, Vector3.new(w, h - w, depth), CFrame.new(x, PILL_Y, z), color, op) }
@@ -3078,6 +3084,8 @@ do
 			p:SetAttribute("OrigCFrame", p.CFrame)
 			-- centred on the wall as seen inside: pink west wall face (W0 + 2.6) to the booth wall (91.9)
 			p.CFrame = p.CFrame.Rotation + Vector3.new((W0 + 2.6 + 91.9) / 2, p.Position.Y, NIN + p.Size.Z / 2 + 0.05)
+			-- the shop name over the photo wall (user)
+			sign3d("Sign_PhotoWall", { "◎", "오", "후", "네", "컷" }, Vector3.new(p.Position.X, p.Position.Y + p.Size.Y / 2 + 2.2, NIN), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), 2)
 		end
 	end
 	-- the entrance (cut corner) wall is pink above the doors too
@@ -3087,7 +3095,22 @@ do
 	-- for each make-up vanity; it ends at the booth wall
 	local SZ0, SZ1 = S0 - 2.6, S0 - 1 -- inner face / against the outer wall
 	do
-		local wall = box("PinkWallS", SBAY, F, SZ0, 91.9, GF - 0.4, SZ1, PINK_WALL, PLASTER)
+		-- where the thick walls meet the glass bays the wall end is slanted (user)
+		local function wedgeTri(name, A: Vector3, Bv: Vector3, C: Vector3) -- right angle at Bv, A on the glass side
+			local w = Instance.new("WedgePart")
+			w.Name = name
+			w.Anchored = true
+			w.Color = PINK_WALL
+			w.Material = Enum.Material.SmoothPlastic
+			local ly, lz = (C - Bv).Unit, (Bv - A).Unit
+			w.Size = Vector3.new(GF - 0.4 - F, (C - Bv).Magnitude, (Bv - A).Magnitude)
+			local mid = (A + C) / 2
+			w.CFrame = CFrame.fromMatrix(Vector3.new(mid.X, (F + GF - 0.4) / 2, mid.Z), ly:Cross(lz), ly, lz)
+			w.Parent = B
+		end
+		wedgeTri("PinkWallEnd", Vector3.new(SBAY, 0, SZ1), Vector3.new(SBAY + 1.6, 0, SZ1), Vector3.new(SBAY + 1.6, 0, SZ0))
+		wedgeTri("PinkWallEnd", Vector3.new(W0 + 1, 0, WBAY), Vector3.new(W0 + 1, 0, WBAY - 1.6), Vector3.new(W0 + 2.6, 0, WBAY - 1.6))
+		local wall = box("PinkWallS", SBAY + 1.6, F, SZ0, 91.9, GF - 0.4, SZ1, PINK_WALL, PLASTER)
 		-- pink above the glass bays inside
 		box("WallPink", W0 + CH, F + 11.2, S0 - 1.1, SBAY, GF - 0.4, S0 - 1, PINK_WALL, PLASTER)
 		box("WallPink", W0 + 1, F + 11.2, WBAY, W0 + 1.1, GF - 0.4, S0 - CH, PINK_WALL, PLASTER)
@@ -3356,9 +3379,9 @@ do
 	do
 		local WX0, WX1 = W0 + 1, W0 + 2.6 -- the pink wall is 1.6 thick so the niches are recessed
 		local wAlong, wOut = Vector3.new(0, 0, 1), Vector3.new(1, 0, 0)
-		local NICHES = { -91, -73 } -- north a little: the glass bay starts at z -67
+		local NICHES = { -91, -74.5 } -- north a little: the glass bay starts at z -67, its slanted wall end at -68.6
 		local NW, NH = 9, 13.5
-		local wall = box("PinkWallW", WX0, F, NIN, WX1, GF - 0.4, WBAY, PINK_WALL, PLASTER)
+		local wall = box("PinkWallW", WX0, F, NIN, WX1, GF - 0.4, WBAY - 1.6, PINK_WALL, PLASTER)
 		local holes = {}
 		for _, zc in ipairs(NICHES) do
 			for _, h in ipairs(archHole(Vector3.new((WX0 + WX1) / 2, F - 0.1, zc), wAlong, wOut, NW, NH + 0.1, 2.2)) do table.insert(holes, h) end
@@ -3366,7 +3389,7 @@ do
 		-- the pill mirror sits in a pill-shaped recess too (user 2026-10-23)
 		local mz = (NICHES[1] + NICHES[2]) / 2
 		do
-			local w, h, xc, cy = 4.4, 12.2, (WX0 + WX1) / 2, F + 7.4 -- top level with the niches (user)
+			local w, h, xc, cy = 4.4, 8.4, (WX0 + WX1) / 2, F + 7.2 -- F + 3 .. F + 11.4 (user sketch)
 			table.insert(holes, part("PillCut", Vector3.new(2.2, h - w, w), CFrame.new(xc, cy, mz), WHITE_WALL, o))
 			for _, s in ipairs({ -1, 1 }) do
 				table.insert(holes, part("PillCut", Vector3.new(2.2, w, w), CFrame.new(xc, cy + s * (h - w) / 2, mz), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder })))
@@ -3409,27 +3432,27 @@ do
 		end
 		-- pill mirror between the niches (white rim, warm light)
 		local function pill(name, w, h, x, depth, color, mat)
-			part(name, Vector3.new(depth, h - w, w), CFrame.new(x, F + 7.4, mz), color, opt({ material = mat, nocol = true }))
+			part(name, Vector3.new(depth, h - w, w), CFrame.new(x, F + 7.2, mz), color, opt({ material = mat, nocol = true }))
 			for _, s in ipairs({ -1, 1 }) do
-				part(name, Vector3.new(depth, w, w), CFrame.new(x, F + 7.4 + s * (h - w) / 2, mz), color, opt({ material = mat, nocol = true, shape = Enum.PartType.Cylinder }))
+				part(name, Vector3.new(depth, w, w), CFrame.new(x, F + 7.2 + s * (h - w) / 2, mz), color, opt({ material = mat, nocol = true, shape = Enum.PartType.Cylinder }))
 			end
 		end
 		-- the mirror fills the whole recess (4.4 x 10.4) and stands inside the
 		-- pink wall, between the outer (white) wall and the pink face, a bit
 		-- larger than the hole so its edges hide in the wall (user 2026-10-23)
 		local MX = WX0 + 0.8
-		pill("Mirror", 4.7, 12.5, MX - 0.06, 0.06, Color3.fromRGB(205, 215, 222), Enum.Material.Glass)
+		pill("Mirror", 4.7, 8.7, MX - 0.06, 0.06, Color3.fromRGB(205, 215, 222), Enum.Material.Glass)
 		do -- the live reflection (MirrorController); the wall clips it to the pill
-			local c = Vector3.new(MX, F + 7.4, mz)
-			local view = part("MirrorView", Vector3.new(4.7, 12.5, 0.05), CFrame.lookAt(c, c + Vector3.new(1, 0, 0)), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+			local c = Vector3.new(MX, F + 7.2, mz)
+			local view = part("MirrorView", Vector3.new(4.7, 8.7, 0.05), CFrame.lookAt(c, c + Vector3.new(1, 0, 0)), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
 			view.CanQuery = false
 			CS:AddTag(view, "Mirror")
 		end
 		-- the glowing frame sits on the pink face around the recess, like the niches
 		do
-			local w, h, th, depth = 4.4 + 0.3, 12.2 + 0.3, 0.18, 0.3
+			local w, h, th, depth = 4.4 + 0.3, 8.4 + 0.3, 0.18, 0.3
 			local r, straight = w / 2, h - w
-			local c = Vector3.new(WX1 - 0.05, F + 7.4, mz)
+			local c = Vector3.new(WX1 - 0.05, F + 7.2, mz)
 			local along, out = Vector3.new(0, 0, 1), Vector3.new(1, 0, 0)
 			local NEON = Color3.fromRGB(255, 250, 240)
 			for _, s in ipairs({ -1, 1 }) do
