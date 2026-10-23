@@ -2667,7 +2667,7 @@ do
 	cutPart("Deck", CH * math.sqrt(2) + 2.2, 0, F, DECK, DECK / 2, WOOD, woodOpt)
 	-- pavement in the rest of the corner (named Sidewalk: street_dress gives it
 	-- the paver texture), a hair lower than the sidewalks it overlaps
-	cutPart("Sidewalk", CH * math.sqrt(2) + 12, 0, CURB - 0.02, 6, 3.8 + 3, WALK, { parent = T, material = Enum.Material.Brick })
+	cutPart("Sidewalk", CH * math.sqrt(2) + 12, 0, CURB - 0.02, 7.4, DECK + 3.6, WALK, { parent = T, material = Enum.Material.Brick }) -- from the deck edge out (no gap)
 	do
 		local ramp = Instance.new("WedgePart")
 		ramp.Name = "StepRamp"
