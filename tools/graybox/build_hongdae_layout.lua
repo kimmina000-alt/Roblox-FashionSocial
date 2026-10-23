@@ -1445,25 +1445,93 @@ do
 		vcyl("Pinnacle", Vector3.new(cx, h + s * 0.8, cz), 0.4, 3, Color3.fromRGB(220, 190, 90), { parent = E })
 	end
 	for _, c in ipairs({ { x0, z0 }, { x1, z0 }, { x0, z1 }, { x1, z1 } }) do turret(c[1], c[2], 8, 16) end
-	-- main gate: a row of 5 arches with a blue mansard roof and towers
-	local gz0, gz1 = z1 - 2, z1 + 6
-	local n = 5
-	local w = (gateX1 - gateX0) / n
-	for i = 0, n do box("GatePier", gateX0 + i * w - 1.5, 0, gz0, gateX0 + i * w + 1.5, 16, gz1, cream, { parent = E }) end
-	for i = 0, n - 1 do
-		local ax = gateX0 + i * w
-		box("ArchTop", ax + 1.5, 10, gz0, ax + w - 1.5, 16, gz1, cream, { parent = E })
-		box("ArchTrim", ax + 1.5, 9.4, gz1, ax + w - 1.5, 10, gz1 + 0.3, blue, { parent = E })
-		box("ArchWindow", ax + w / 2 - 1.5, 11.5, gz1, ax + w / 2 + 1.5, 14.5, gz1 + 0.2, Color3.fromRGB(120, 150, 190), { parent = E })
+	-- main gate (user photo 2026-10-23, an ADVENTURELAND-style arch): two tall
+	-- sandstone towers with carved panels, domes and spires carry a big
+	-- arched sign band "OHU LAND"; lower outer towers with half arches on
+	-- each side, black iron fences between the gate and the park walls.
+	local STONE, CARVE = Color3.fromRGB(214, 194, 156), Color3.fromRGB(176, 152, 112)
+	local DOME, GOLD = Color3.fromRGB(120, 128, 140), Color3.fromRGB(214, 172, 80)
+	local gz0, gz1 = z1 - 3, z1 + 5 -- gate depth (south face at gz1)
+	local gzc = (gz0 + gz1) / 2
+	local CX = (gateX0 + gateX1) / 2
+	local function gtower(cx, s, h)
+		box("GateTowerBase", cx - s / 2 - 0.6, 0, gzc - s / 2 - 0.6, cx + s / 2 + 0.6, 3, gzc + s / 2 + 0.6, CARVE, { parent = E, material = Enum.Material.Sandstone })
+		box("GateTower", cx - s / 2, 3, gzc - s / 2, cx + s / 2, h, gzc + s / 2, STONE, { parent = E, material = Enum.Material.Sandstone })
+		-- carved panel + relief figure on the street face
+		box("GateCarving", cx - s / 2 + 0.8, h * 0.3, gzc + s / 2, cx + s / 2 - 0.8, h * 0.72, gzc + s / 2 + 0.3, CARVE, { parent = E, material = Enum.Material.Sandstone })
+		vcyl("GateRelief", Vector3.new(cx, h * 0.36, gzc + s / 2 + 0.1), s * 0.35, h * 0.3, Color3.fromRGB(196, 176, 138), { parent = E, material = Enum.Material.Sandstone })
+		-- capital, drum, dome, spire
+		box("GateCapital", cx - s / 2 - 0.8, h, gzc - s / 2 - 0.8, cx + s / 2 + 0.8, h + 1.4, gzc + s / 2 + 0.8, CARVE, { parent = E, material = Enum.Material.Sandstone })
+		vcyl("GateDrum", Vector3.new(cx, h + 1.4, gzc), s * 0.8, 2.2, STONE, { parent = E, material = Enum.Material.Sandstone })
+		part("GateDome", Vector3.new(s * 0.85, s * 0.85, s * 0.85), CFrame.new(cx, h + 3.6, gzc), DOME, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
+		vcyl("GateSpire", Vector3.new(cx, h + 3.6 + s * 0.4, gzc), 0.45, 3.4, GOLD, { parent = E, material = Enum.Material.Foil })
+		part("GateFinial", Vector3.new(0.9, 0.9, 0.9), CFrame.new(cx, h + 7.4 + s * 0.4, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil })
 	end
-	part("GateRoof", Vector3.new(gateX1 - gateX0 + 4, 4, 5), CFrame.new((gateX0 + gateX1) / 2, 18, gz0 + 2) * CFrame.Angles(0, math.rad(180), 0), roofBlue, { parent = E, class = "WedgePart" })
-	box("GateCornice", gateX0 - 2, 16, gz0 - 0.5, gateX1 + 2, 16.6, gz1 + 0.5, Color3.fromRGB(230, 220, 195), { parent = E })
-	turret(gateX0 - 4, (gz0 + gz1) / 2, 7, 22) turret(gateX1 + 4, (gz0 + gz1) / 2, 7, 22)
-	turret((gateX0 + gateX1) / 2, (gz0 + gz1) / 2, 7, 24, 16) -- centre tower on the gate roof (middle arch stays open)
-	local sign = box("GateSign", -107, 17, gz1 + 0.6, -79, 21, gz1 + 1, Color3.fromRGB(255, 250, 235), { parent = E })
-	surfaceText(sign, Enum.NormalId.Back, "OHU LAND", Color3.fromRGB(60, 90, 140), Enum.Font.FredokaOne)
-	label(sign, "놀이공원 정문", Color3.fromRGB(60, 90, 140), 8, 0.9)
-	local function booth(bx0, bz0, bx1, bz1, title, windows)
+	-- an arch band between two x positions: base height y0, rise at the middle
+	local function archBand(xa, xb, y0, rise, thick, name, color, mat)
+		local N = 14
+		local prev
+		for k = 0, N do
+			local tt = k / N
+			local x = xa + (xb - xa) * tt
+			local y = y0 + rise * math.sin(math.pi * tt)
+			local pnt = Vector3.new(x, y, gzc)
+			if prev then
+				local d = pnt - prev
+				part(name, Vector3.new(d.Magnitude + 0.3, thick, gz1 - gz0 - 1), CFrame.fromMatrix((prev + pnt) / 2, d.Unit, Vector3.zAxis:Cross(d.Unit)), color, { parent = E, material = mat })
+			end
+			prev = pnt
+		end
+	end
+	local MAIN_S, MAIN_H, OUT_S, OUT_H = 7, 30, 5.5, 21
+	local mainL, mainR = CX - 14, CX + 14
+	local outL, outR = gateX0 + 4, gateX1 - 4
+	gtower(mainL, MAIN_S, MAIN_H) gtower(mainR, MAIN_S, MAIN_H)
+	gtower(outL, OUT_S, OUT_H) gtower(outR, OUT_S, OUT_H)
+	-- big arch with the sign band
+	local ax0, ax1 = mainL + MAIN_S / 2, mainR - MAIN_S / 2
+	archBand(ax0, ax1, 19, 5, 1.4, "GateArch", CARVE, Enum.Material.Sandstone)
+	archBand(ax0, ax1, 23.2, 5, 1.2, "GateArchTop", STONE, Enum.Material.Sandstone)
+	-- sign: dark band in the middle of the arch, gold letters
+	part("GateSignFrame", Vector3.new(ax1 - ax0 - 2.6, 4.6, 0.5), CFrame.new(CX, 24.6, gz1 - 0.4), GOLD, { parent = E, material = Enum.Material.Foil })
+	local sign = part("GateSign", Vector3.new(ax1 - ax0 - 3.4, 3.8, 0.4), CFrame.new(CX, 24.6, gz1 - 0.1), Color3.fromRGB(62, 54, 44), { parent = E })
+	do
+		local g = Instance.new("SurfaceGui")
+		g.Face = Enum.NormalId.Back -- the street side (+z)
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 40
+		g.LightInfluence = 0.4
+		g.Parent = sign
+		local l = Instance.new("TextLabel")
+		l.Size = UDim2.fromScale(0.92, 0.86)
+		l.Position = UDim2.fromScale(0.04, 0.07)
+		l.BackgroundTransparency = 1
+		l.TextScaled = true
+		l.Font = Enum.Font.Fondamento
+		l.TextColor3 = GOLD
+		l.TextStrokeColor3 = Color3.fromRGB(40, 30, 15)
+		l.TextStrokeTransparency = 0.3
+		l.Text = "OHU  LAND"
+		l.Parent = g
+	end
+	part("GateCrest", Vector3.new(6, 3, 0.6), CFrame.new(CX, 29.8, gzc), CARVE, { parent = E, material = Enum.Material.Sandstone })
+	part("GateCrestBall", Vector3.new(1.4, 1.4, 1.4), CFrame.new(CX, 31.6, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil })
+	-- side half arches from the outer towers to the main towers
+	archBand(outL + OUT_S / 2, mainL - MAIN_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone)
+	archBand(mainR + MAIN_S / 2, outR - OUT_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone)
+	-- black iron fences + open iron gates under the side arches, fences out to the walls
+	local IRON = Color3.fromRGB(28, 28, 32)
+	local function fence(xa, xb, h)
+		box("FenceRail", xa, h - 0.6, gzc - 0.15, xb, h - 0.3, gzc + 0.15, IRON, { parent = E })
+		box("FenceRail", xa, 1, gzc - 0.15, xb, 1.3, gzc + 0.15, IRON, { parent = E })
+		for x = xa, xb, 0.8 do box("FenceBar", x - 0.07, 0, gzc - 0.07, x + 0.07, h, gzc + 0.07, IRON, { parent = E, nocol = true }) end
+	end
+	fence(gateX0, outL - OUT_S / 2, 9) fence(outR + OUT_S / 2, gateX1, 9)
+	-- side passages stay open (people walk through), gates folded back
+	for _, x in ipairs({ outL + OUT_S / 2 + 0.6, mainL - MAIN_S / 2 - 0.6, mainR + MAIN_S / 2 + 0.6, outR - OUT_S / 2 - 0.6 }) do
+		box("GateLeaf", x - 0.2, 0, gzc - 3, x + 0.2, 9, gzc + 0.2, IRON, { parent = E, nocol = true })
+	end
+	label(sign, "놀이공원 정문", Color3.fromRGB(60, 90, 140), 8, 0.9)	local function booth(bx0, bz0, bx1, bz1, title, windows)
 		box("BoothBody", bx0, 0, bz0, bx1, 9, bz1, cream, { parent = E })
 		box("BoothBase", bx0 - 0.3, 0, bz0 - 0.3, bx1 + 0.3, 1.5, bz1 + 0.3, blue, { parent = E })
 		for k = 0, 3 do
@@ -1731,7 +1799,8 @@ tower(193, -160, 243, -48, 70, "concrete", "W", "뷰티 & 샵")
 tower(250, -142, 310, -48, 110, "glass", "S", "OHU 마트", "인생네컷 SALE")
 tower(-76, 110, -48, 170, 120, "glass", "E", "카페")
 tower(-76, 180, -48, 250, 80, "concrete", "E", "약국")
-tower(-146, 48, -126, 92, 60, "concrete", "N", "노래방")
+-- (6 narrower than before: a 6-stud gap to the OH24 store, user 2026-10-23)
+tower(-146, 48, -132, 92, 60, "concrete", "N", "노래방")
 
 do -- alley between two towers: dumpsters, bags, fire barrel, purple neon shutter
 	local A = Instance.new("Model")
@@ -1751,7 +1820,9 @@ do -- alley between two towers: dumpsters, bags, fire barrel, purple neon shutte
 end
 
 do -- construction site (future prop shop)
-	local x0, z0, x1, z1, title = 48, 48, 86, 78, "소품샵 예정"
+	-- the empty lot east of the 오후네컷 building, along the east road (user
+	-- 2026-10-23), with an alley to the photo booth building
+	local x0, z0, x1, z1, title = 116, -96, 156, -58, "소품샵 예정"
 	local m = Instance.new("Model")
 	m.Name = "ConstructionSite(" .. title .. ")"
 	m.Parent = T
