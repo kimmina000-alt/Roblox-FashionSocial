@@ -3063,7 +3063,7 @@ do
 	end
 	-- floor: white tiles with a grey diagonal grid (bottom photo)
 	do
-		local fx0, fx1, fz0, fz1 = W0 + 1.1, 87, NIN, S0 - 1.1
+		local fx0, fx1, fz0, fz1 = W0 + 1.1, 91.9, NIN, S0 - 1.1
 		local SP = 4.2
 		local function clipLine(px, pz, dx, dz)
 			-- intersect the line p + t d with the rectangle
@@ -3096,7 +3096,26 @@ do
 		end
 	end
 	table.sort(booths, function(a, b) return a.StudioFloor.Position.Z < b.StudioFloor.Position.Z end)
-	local FX = 87
+	-- the booths sit against the north wall and against each other (user
+	-- 2026-10-23); a booth is 17 deep (walls at its floor centre ±8, 1 thick)
+	do
+		local northFace = NIN
+		for _, m in ipairs(booths) do
+			local bz = m.StudioFloor.Position.Z
+			local dz = (northFace + 8.5) - bz
+			if math.abs(dz) > 0.01 then
+				local d = CFrame.new(0, 0, dz)
+				m:SetAttribute("TempOrig", m:GetPivot())
+				m:SetAttribute("TempDelta", d)
+				for _, x in ipairs(m:GetDescendants()) do
+					for k, v in pairs(x:GetAttributes()) do if typeof(v) == "Vector3" then x:SetAttribute(k, d * v) end end
+				end
+				m:PivotTo(d * m:GetPivot())
+			end
+			northFace += 17
+		end
+	end
+	local FX = 91.9 -- right against the booths (their west side is x 93)
 	local AW, AH = 7, 10
 	local function remember(p: Instance?)
 		if p and p:IsA("BasePart") then
@@ -3135,7 +3154,9 @@ do
 	end
 	-- pink booth wall at x 87 with a small arch per booth
 	do
-		local wall = box("BoothWall", FX, F, NIN, FX + 1, GF - 0.4, -52, PINK_WALL, PLASTER)
+		-- on to the south wall: the space beside the capsule windows behind the
+		-- booths is closed off (user 2026-10-23)
+		local wall = box("BoothWall", FX, F, NIN, FX + 1, GF - 0.4, S0 - 1.1, PINK_WALL, PLASTER)
 		local holes = {}
 		for _, z in ipairs(archZ) do
 			for _, h in ipairs(archHole(Vector3.new(FX + 0.5, F - 0.1, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH + 0.1, 4)) do table.insert(holes, h) end
@@ -3143,7 +3164,8 @@ do
 		subtract(wall, holes, "BoothWall", Enum.Material.Plaster)
 	end
 	for i, z in ipairs(archZ) do
-		archRim(Vector3.new(FX - 0.15, F, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW + 1, AH + 0.5, 0.5, 1.3, GOLDT, B, Enum.Material.Foil)
+		-- sky-blue lining inside the arch opening (no gold frame, user)
+		archRim(Vector3.new(FX + 0.5, F, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH, 0.15, 1.02, SKY, B, Enum.Material.SmoothPlastic)
 		local plate = part("PhotoPlate", Vector3.new(0.2, 1.1, 3.6), CFrame.new(FX - 0.25, F + AH + 1.4, z), Color3.new(1, 1, 1), opt({ nocol = true }))
 		txt(plate, Enum.NormalId.Left, string.format("PHOTO %02d", i), Color3.fromRGB(60, 50, 60), Enum.Font.GothamMedium, nil, 60)
 	end
@@ -3201,7 +3223,7 @@ do
 		local notes = { "파우더룸\n이용방법", "예방수칙", "이용 시\n유의사항", "안내" }
 		for i, s in ipairs(notes) do
 			local col, row = (i - 1) % 2, math.floor((i - 1) / 2)
-			local zc, yc = zMid + 1.2 + col * 2.6, F + 10 - row * 3.4
+			local zc, yc = archZ[2] + 5.2 + col * 2.6, F + 10 - row * 3.4
 			local poster = part("NoticePoster", Vector3.new(0.1, 3, 2.3), CFrame.new(FX - 0.06, yc, zc), Color3.fromRGB(255, 240, 242), opt({ nocol = true }))
 			txt(poster, Enum.NormalId.Left, s, Color3.fromRGB(200, 70, 90), Enum.Font.GothamBold, nil, 50)
 		end
