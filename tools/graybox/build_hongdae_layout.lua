@@ -51,7 +51,7 @@ local BEACH_DROP, SEA_DROP = 2.4, 3
 -- ground holes: club + the four subway stair pits (x0, z0, x1, z1)
 local HOLES = {
 	{ 49, -252 + CLUB_DZ, 169, -92 + CLUB_DZ },
-	{ 26, -68, 32, -50 }, { -71.6, -60.2, -53.6, -54.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
+	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -32, 50, -26, 68 }, -- exits 2, 4 (come up southwards)
 }
 -- 광화문 lawns planted as terrain grass (blades), x0, z0, x1, z1 (user 2026-10-23)
@@ -878,7 +878,7 @@ local EXITS = {
 	-- pits 18 long at 50..68 from the junction: clear of the wide corner squares (v7c)
 	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -59, Vector3.new(0, 0, -1) },
 	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 59, Vector3.new(0, 0, 1) },
-	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -62.6, -57.2, Vector3.new(-1, 0, 0), 0 }, -- 6 from both sidewalks (user) -- in the corner square, away from the road, facing the beach (user 2026-10-23); ground at y 0
+	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -44, -51.2, Vector3.new(-1, 0, 0), 0 }, -- back corner of its base on the square's inner corner (-34.4, -47) (user) -- in the corner square, away from the road, facing the beach (user 2026-10-23); ground at y 0
 	{ 4, "광안리 해변 · 카페", Color3.fromRGB(42, 143, 179), -29, 59, Vector3.new(0, 0, 1) },
 }
 local exitPads, exitMouths = {}, {}
@@ -4400,6 +4400,9 @@ if spawn then
 	-- 광화문 far ahead, the beach behind; subway exit 3 right beside
 	local p = Vector3.new(-78, 0, -78)
 	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, 0.5, p.Z), Vector3.new(0, 0.5, 0))
+	-- hidden in the paving (user 2026-10-23): no pad or logo showing
+	spawn.Transparency = 1
+	for _, d in ipairs(spawn:GetChildren()) do if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end end
 end
 saveRegistry()
 T.Parent = workspace
