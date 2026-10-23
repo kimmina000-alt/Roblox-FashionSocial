@@ -542,3 +542,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 오후네컷: 간판 위 흰 띠 제거(벽돌을 간판 바로 위부터, 위층은 겉벽만). 산책로 벤치 2인석. 클럽 레드카펫·로프 삭제.
 - 클럽 포토월은 기능 없는 그레이박스 자리(흰 벽 + 주황 원판 + 이름표)임을 확인.
 - 캡처: photo_booth_building_v5.jpg, signal_pole_lowered.jpg, seafront_crosswalks_v3.jpg, promenade_bench_v2.jpg, club_front_no_carpet.jpg.
+## 2026-10-23 (9) — OH24 편의점 (D-120)
+- 레퍼런스 9장 보고 외관 + 실내 전체 새로 만듦. 상품 목록 모듈(OH24Products) + 상품별 이미지 칸, 진열대 높이에 맞춰 상품 크기 자동 조절.
+- 버그 수정: 냉장고 몸체가 꽉 찬 상자라 안의 음료가 가려짐 → 뒤판·위·아래만 남김. 라이트 박스 Neon 번짐 → 일반 재질 + 화면 빛.
+- 캡처: oh24_front.jpg, oh24_interior.jpg, oh24_counter.jpg. 성능(부품 1,826 / GUI 758) 모바일 확인 필요.

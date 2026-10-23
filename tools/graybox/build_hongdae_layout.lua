@@ -1688,59 +1688,422 @@ do -- construction site (future prop shop)
 	for x = x0 + 3, x1 - 3, 6 do part("Cone", Vector3.new(1.2, 2, 1.2), CFrame.new(x, 1, z0 - 2), Color3.fromRGB(255, 110, 30), { parent = m, nocol = true }) end
 end
 
-do -- convenience store with automatic sliding doors (front = north, to the west road)
+do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_STORE.md)
+	-- Front = north (z 48, toward the west road). Outside like the GS25
+	-- photos: black stone facade, white "OH" + cyan "24" logo with cyan light
+	-- bars, dark awning, full glass front with a window bar inside, diamond
+	-- plate step. Inside like the store photos: white-beige tiles, white
+	-- ceiling with LED strips, a teal stripe band, glass-door drink fridges on
+	-- the back wall, wall shelves, three double-sided gondolas with end caps,
+	-- the counter by the door (candy racks on the front, goods wall behind),
+	-- an open chilled case for 간편식, a hot drink warmer, an ice cream chest,
+	-- an umbrella stand. Goods come from Shared/OH24Products (each has an
+	-- image slot for its own artwork; placeholders until then). No tobacco /
+	-- alcohol (the counter wall shows gift cards and daily goods instead).
 	local x0, z0, x1, z1, H = -120, 48, -80, 80, 14
 	local S = Instance.new("Model")
-	S.Name = "ConvenienceStore"
+	S.Name = "OH24Store"
 	S.Parent = T
-	local wallC = Color3.fromRGB(240, 240, 238)
-	walk(x0, WIDE, x1, z0)
-	box("StoreFloor", x0, 0, z0, x1, CURB, z1, Color3.fromRGB(235, 235, 235), { parent = S, material = Enum.Material.Marble })
-	box("WallBack", x0, CURB, z1 - 0.6, x1, H, z1, wallC, { parent = S })
-	box("WallW", x0, CURB, z0, x0 + 0.6, H, z1, wallC, { parent = S })
-	box("WallE", x1 - 0.6, CURB, z0, x1, H, z1, wallC, { parent = S })
-	box("Roof", x0 - 0.5, H, z0 - 1, x1 + 0.5, H + 1, z1 + 0.5, Color3.fromRGB(70, 70, 75), { parent = S })
-	local mid = (x0 + x1) / 2
-	box("FrontGlass", x0, CURB, z0, mid - 4, H - 3, z0 + 0.4, Color3.fromRGB(200, 230, 240), { parent = S, material = Enum.Material.Glass, transparency = 0.5 })
-	box("FrontGlass", mid + 4, CURB, z0, x1, H - 3, z0 + 0.4, Color3.fromRGB(200, 230, 240), { parent = S, material = Enum.Material.Glass, transparency = 0.5 })
-	box("DoorHeader", x0, H - 3, z0, x1, H, z0 + 0.4, Color3.fromRGB(70, 70, 75), { parent = S })
-	local sign = box("StoreSign", x0, H - 2.6, z0 - 0.6, x1, H - 0.4, z0, Color3.fromRGB(30, 110, 205), { parent = S, material = Enum.Material.Neon })
-	surfaceText(sign, Enum.NormalId.Front, "OHU 24 편의점", Color3.new(1, 1, 1))
-	box("StoreSignStripe", x0, H - 3.2, z0 - 0.7, x1, H - 2.6, z0, Color3.fromRGB(255, 255, 255), { parent = S, material = Enum.Material.Neon })
-	for k = 0, 5 do box("Shutter", x0 + 0.6, H - 3.2 - k * 0.8, z0 - 0.35, mid - 5, H - 2.5 - k * 0.8, z0 - 0.05, Color3.fromRGB(150 + (k % 2) * 20, 152 + (k % 2) * 20, 158 + (k % 2) * 20), { parent = S }) end
-	for _, px in ipairs({ x0 + 6, x1 - 10 }) do
-		box("PicnicTable", px, CURB + 2.8, 37, px + 6, CURB + 3.1, 41, Color3.fromRGB(70, 50, 40), { parent = S })
-		box("PicnicLeg", px + 2.8, CURB, 38, px + 3.2, CURB + 2.8, 40, Color3.fromRGB(40, 40, 40), { parent = S })
-		for _, bz in ipairs({ 35.6, 42.4 }) do seat("PicnicBench", CFrame.lookAt(Vector3.new(px + 3, CURB + 1.7, bz), Vector3.new(px + 3, CURB + 1.7, 39)), Vector3.new(6, 0.4, 1.4), Color3.fromRGB(70, 50, 40), S) end
+	local TEAL, TEAL2 = Color3.fromRGB(0, 160, 160), Color3.fromRGB(110, 205, 200)
+	local CYAN = Color3.fromRGB(30, 200, 240)
+	local WHITE_IN = Color3.fromRGB(246, 246, 244)
+	local SHELF = Color3.fromRGB(236, 236, 238)
+	local o = { parent = S }
+	local function opt(t2) local r = { parent = S } for k, v in pairs(t2) do r[k] = v end return r end
+	local function gui(p: BasePart, face, ppStud, maxDist)
+		local g = Instance.new("SurfaceGui")
+		g.Face = face
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = ppStud or 40
+		g.LightInfluence = 0.5
+		pcall(function() (g :: any).MaxDistance = maxDist or 60 end)
+		g.Parent = p
+		return g
 	end
+	local function text(parent: Instance, s, color, font, bg)
+		local l = Instance.new("TextLabel")
+		l.Size = UDim2.fromScale(1, 1)
+		l.BackgroundTransparency = if bg then 0 else 1
+		if bg then l.BackgroundColor3 = bg end
+		l.BorderSizePixel = 0
+		l.TextScaled = true
+		l.RichText = true
+		l.Font = font or Enum.Font.GothamBold
+		l.TextColor3 = color
+		l.Text = s
+		l.Parent = parent
+		return l
+	end
+
+	-- goods catalogue (read from the module source, so a fresh edit is used)
+	local catalog = { CATEGORIES = {}, SHAPES = {} } :: any
+	do
+		local mod = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
+		mod = mod and mod:FindFirstChild("Shared")
+		mod = mod and mod:FindFirstChild("OH24Products")
+		if mod and mod:IsA("ModuleScript") then
+			local fn = loadstring(mod.Source)
+			local ok, res = pcall(fn :: any)
+			if ok and typeof(res) == "table" then catalog = res end
+		end
+	end
+	local counters: {[string]: number} = {}
+	local function nextProduct(cat: string)
+		local list = catalog.CATEGORIES[cat]
+		if not list or #list == 0 then return nil end
+		counters[cat] = (counters[cat] or 0) % #list + 1
+		return list[counters[cat]]
+	end
+	local function shapeSize(shape: string): Vector3
+		local s = catalog.SHAPES[shape]
+		return if s then s.size else Vector3.new(1, 1, 0.5)
+	end
+	-- one pack: cf = bottom centre, -Z facing out of the shelf
+	local function pack(pr, cf: CFrame, parent: Instance, scale: number?)
+		local sz = shapeSize(pr.shape) * (scale or 1)
+		local front: BasePart
+		if pr.shape == "tube" or pr.shape == "bottle" or pr.shape == "can" or pr.shape == "milk" then
+			local body = part("Pack", Vector3.new(sz.Y, sz.X, sz.X), cf * CFrame.new(0, sz.Y / 2, 0) * CFrame.Angles(0, 0, math.rad(90)), pr.color, { parent = parent, nocol = true, shape = Enum.PartType.Cylinder, material = if pr.shape == "bottle" then Enum.Material.Glass else Enum.Material.SmoothPlastic, transparency = if pr.shape == "bottle" and pr.id == "water" then 0.3 else 0 })
+			if pr.shape == "bottle" then
+				part("Cap", Vector3.new(0.18, sz.X * 0.45, sz.X * 0.45), cf * CFrame.new(0, sz.Y + 0.09, 0) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromRGB(245, 245, 245), { parent = parent, nocol = true, shape = Enum.PartType.Cylinder })
+			end
+			-- flat label in front of the round body (artwork goes here)
+			local lh = if pr.shape == "bottle" then sz.Y * 0.4 else sz.Y * 0.8
+			local ly = if pr.shape == "bottle" then sz.Y * 0.45 else sz.Y / 2
+			front = part("PackLabel", Vector3.new(sz.X * 0.92, lh, 0.02), cf * CFrame.new(0, ly, -sz.Z / 2 - 0.01), if pr.shape == "bottle" then Color3.new(1, 1, 1) else pr.color, { parent = parent, nocol = true })
+		elseif pr.shape == "tri" then
+			local w = part("Pack", Vector3.new(sz.Z, sz.Y, sz.X * 0.6), cf * CFrame.new(-sz.X * 0.25, sz.Y / 2, 0) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(235, 235, 230), { parent = parent, nocol = true, class = "WedgePart" })
+			local w2 = part("Pack", Vector3.new(sz.Z, sz.Y, sz.X * 0.6), cf * CFrame.new(sz.X * 0.25, sz.Y / 2, 0) * CFrame.Angles(0, math.rad(-90), 0), Color3.fromRGB(235, 235, 230), { parent = parent, nocol = true, class = "WedgePart" })
+			local _ = w and w2
+			front = part("PackLabel", Vector3.new(sz.X * 0.45, sz.Y * 0.35, 0.02), cf * CFrame.new(0, sz.Y * 0.3, -sz.Z / 2 - 0.02), Color3.fromRGB(230, 40, 40), { parent = parent, nocol = true })
+		else
+			front = part("Pack", sz, cf * CFrame.new(0, sz.Y / 2, 0), pr.color, { parent = parent, nocol = true })
+		end
+		front:SetAttribute("ProductId", pr.id)
+		if pr.image ~= "" then
+			local d = Instance.new("Decal")
+			d.Texture = pr.image
+			d.Face = Enum.NormalId.Front
+			d.Parent = front
+		elseif pr.shape ~= "bottle" and pr.shape ~= "can" then
+			local g = gui(front, Enum.NormalId.Front, 60, 34)
+			local bg = Instance.new("Frame")
+			bg.Size = UDim2.fromScale(1, 1)
+			bg.BackgroundColor3 = pr.color
+			bg.BorderSizePixel = 0
+			bg.Parent = g
+			local band = Instance.new("Frame")
+			band.Size = UDim2.fromScale(1, 0.16)
+			band.BackgroundColor3 = Color3.new(1, 1, 1)
+			band.BackgroundTransparency = 0.15
+			band.BorderSizePixel = 0
+			band.Parent = bg
+			local l = text(bg, pr.name, if pr.color.R + pr.color.G + pr.color.B > 2.2 then Color3.fromRGB(40, 40, 50) else Color3.new(1, 1, 1), Enum.Font.GothamBlack)
+			l.Size = UDim2.fromScale(0.92, 0.66)
+			l.Position = UDim2.fromScale(0.04, 0.22)
+			l.TextStrokeTransparency = 0.7
+		end
+		return front
+	end
+	-- a row of packs on a shelf: cf = left end of the shelf front edge on the
+	-- shelf top, -Z out; fills `len` studs; a price-tag strip on the edge
+	-- maxH = clear height above the shelf: packs are scaled down to fit it
+	local function row(cf: CFrame, len: number, cat: string, parent: Instance, tags: boolean?, maxH: number?)
+		local x = 0.1
+		local n = 0
+		while true do
+			local pr = nextProduct(cat)
+			if not pr then return end
+			local base = shapeSize(pr.shape)
+			local extra = if pr.shape == "bottle" then 0.2 else 0
+			local scale = if maxH then math.min(1, (maxH - 0.12) / (base.Y + extra)) else 1
+			local sz = base * scale
+			if x + sz.X > len then break end
+			local facings = if sz.X < 0.8 then 2 else 1 -- small items come two side by side
+			for _ = 1, facings do
+				if x + sz.X > len then break end
+				pack(pr, cf * CFrame.new(x + sz.X / 2, 0, sz.Z / 2 + 0.12), parent, scale)
+				x += sz.X + 0.06
+				n += 1
+			end
+		end
+		if tags ~= false then
+			local strip = part("PriceStrip", Vector3.new(len, 0.28, 0.06), cf * CFrame.new(len / 2, -0.16, 0.03), Color3.fromRGB(215, 215, 220), { parent = parent, nocol = true })
+			local g = gui(strip, Enum.NormalId.Front, 40, 30)
+			local lay = Instance.new("UIListLayout")
+			lay.FillDirection = Enum.FillDirection.Horizontal
+			lay.Padding = UDim.new(0, 18)
+			lay.Parent = g
+			for k = 1, math.max(1, math.floor(len / 1.4)) do
+				local tag = text(g, (({ "1,500", "1,800", "2,200", "1,200", "2,500", "1+1", "2+1" })[(k % 7) + 1]), Color3.fromRGB(30, 30, 30), Enum.Font.GothamBold, if k % 5 == 0 then Color3.fromRGB(250, 220, 60) else Color3.new(1, 1, 1))
+				tag.Size = UDim2.new(0, 36, 1, 0)
+			end
+		end
+	end
+
+	---------------------------------------------------------------- shell
+	walk(x0, WIDE, x1, z0)
+	box("StoreFloor", x0, 0, z0, x1, CURB, z1, Color3.fromRGB(232, 228, 220), opt({ material = Enum.Material.CeramicTiles })).Reflectance = 0.04
+	box("WallBack", x0, CURB, z1 - 0.6, x1, H, z1, WHITE_IN, o)
+	box("WallW", x0, CURB, z0, x0 + 0.6, H, z1, WHITE_IN, o)
+	box("WallE", x1 - 0.6, CURB, z0, x1, H, z1, WHITE_IN, o)
+	-- outside faces: charcoal stone
+	local STONE = Color3.fromRGB(38, 38, 42)
+	box("OuterW", x0 - 0.3, 0, z0, x0, H + 6, z1 + 0.3, STONE, opt({ material = Enum.Material.Slate }))
+	box("OuterE", x1, 0, z0, x1 + 0.3, H + 6, z1 + 0.3, STONE, opt({ material = Enum.Material.Slate }))
+	box("OuterBack", x0 - 0.3, 0, z1, x1 + 0.3, H + 6, z1 + 0.3, STONE, opt({ material = Enum.Material.Slate }))
+	box("Roof", x0 - 0.3, H, z0, x1 + 0.3, H + 0.6, z1, Color3.fromRGB(90, 90, 95), o)
+	-- ceiling: white panels, grid lines, LED strips
+	box("Ceiling", x0, H - 0.3, z0, x1, H, z1, Color3.fromRGB(244, 244, 242), o)
+	for x = x0 + 4, x1 - 4, 4 do box("CeilingGrid", x - 0.05, H - 0.34, z0, x + 0.05, H - 0.3, z1, Color3.fromRGB(205, 205, 205), opt({ nocol = true })) end
+	for z = z0 + 4, z1 - 4, 4 do box("CeilingGrid", x0, H - 0.34, z - 0.05, x1, H - 0.3, z + 0.05, Color3.fromRGB(205, 205, 205), opt({ nocol = true })) end
+	for _, x in ipairs({ -114, -106, -98, -90 }) do
+		local led = box("LEDStrip", x - 0.35, H - 0.45, z0 + 3, x + 0.35, H - 0.34, z1 - 3, Color3.fromRGB(255, 255, 252), opt({ nocol = true }))
+		local l = Instance.new("SurfaceLight")
+		l.Face = Enum.NormalId.Bottom
+		l.Range, l.Brightness, l.Angle = 16, 0.9, 120
+		l.Parent = led
+	end
+	-- teal stripe band (back + side walls) with the slogan
+	for _, b in ipairs({ { x0 + 0.6, z1 - 0.65, x1 - 0.6, z1 - 0.6, Enum.NormalId.Front }, { x0 + 0.6, z0, x0 + 0.65, z1 - 0.6, Enum.NormalId.Right }, { x1 - 0.65, z0, x1 - 0.6, z1 - 0.6, Enum.NormalId.Left } }) do
+		box("StripeTeal", b[1], 11.6, b[2], b[3], 12.4, b[4], TEAL, opt({ nocol = true }))
+		box("StripeLight", b[1], 11.1, b[2], b[3], 11.5, b[4], TEAL2, opt({ nocol = true }))
+	end
+	do
+		local slogan = box("Slogan", -110, 11.65, z1 - 0.7, -90, 12.35, z1 - 0.66, TEAL, opt({ nocol = true }))
+		text(gui(slogan, Enum.NormalId.Front, 30, 90), "OH24  Fresh &amp; Friendly", Color3.new(1, 1, 1), Enum.Font.GothamMedium)
+	end
+
+	---------------------------------------------------------------- facade (GS25-like)
+	box("FacadePier", x0 - 0.3, 0, z0 - 0.4, x0 + 1.6, H + 6, z0, STONE, opt({ material = Enum.Material.Slate }))
+	box("FacadePier", x1 - 1.6, 0, z0 - 0.4, x1 + 0.3, H + 6, z0, STONE, opt({ material = Enum.Material.Slate }))
+	local fascia = box("Fascia", x0 - 0.3, 13, z0 - 0.6, x1 + 0.3, H + 6, z0, Color3.fromRGB(26, 26, 30), opt({ material = Enum.Material.Slate }))
+	local _ = fascia
+	do -- logo plaque: white OH + cyan 24
+		local logo = box("Logo", -107, 14.6, z0 - 0.75, -93, 18.8, z0 - 0.6, Color3.fromRGB(26, 26, 30), opt({ nocol = true }))
+		local g = gui(logo, Enum.NormalId.Front, 30, 400)
+		g.LightInfluence = 0
+		g.Brightness = 1.4
+		text(g, '<font color="#FFFFFF">OH</font><font color="#1EC8F0">24</font>', Color3.new(1, 1, 1), Enum.Font.GothamBlack)
+	end
+	-- seen from the street, +x is on the viewer's left
+	for _, b in ipairs({ { -91.8, -81.6, "Lifestyle Platform", true }, { -118.4, -108.2, "홍대점", false } }) do
+		local bar = box("LightBar", b[1], 16, z0 - 0.8, b[2], 17.6, z0 - 0.6, CYAN, opt({ nocol = true })) -- lit by its gui (Neon bloom hid the text)
+		local g = gui(bar, Enum.NormalId.Front, 30, 200)
+		g.LightInfluence = 0
+		local bgf = Instance.new("Frame") bgf.Size = UDim2.fromScale(1, 1) bgf.BackgroundColor3 = CYAN bgf.BorderSizePixel = 0 bgf.Parent = g
+		local l = text(g, b[3], Color3.fromRGB(10, 40, 60), Enum.Font.GothamMedium)
+		l.TextXAlignment = if b[4] then Enum.TextXAlignment.Left else Enum.TextXAlignment.Right
+		l.Size = UDim2.fromScale(0.94, 0.7)
+		l.Position = UDim2.fromScale(0.03, 0.15)
+		box("LightBarBase", b[1], 15.4, z0 - 0.8, b[2], 15.8, z0 - 0.6, Color3.fromRGB(245, 245, 245), opt({ nocol = true }))
+	end
+	-- awning: dark brown, sloping out, with small text on its front edge
+	do
+		local a, b = Vector3.new(0, 13.4, z0 - 0.6), Vector3.new(0, 12.4, z0 - 3.4)
+		local d = b - a
+		local aw = part("Awning", Vector3.new(x1 - x0 - 2, 0.2, d.Magnitude), CFrame.lookAt(Vector3.new(-100, (a.Y + b.Y) / 2, (a.Z + b.Z) / 2), Vector3.new(-100, b.Y, b.Z)), Color3.fromRGB(58, 40, 36), opt({ material = Enum.Material.Fabric, nocol = true }))
+		local _a = aw
+		local valance = box("AwningEdge", x0 + 1, 11.8, z0 - 3.5, x1 - 1, 12.5, z0 - 3.3, Color3.fromRGB(58, 40, 36), opt({ material = Enum.Material.Fabric, nocol = true }))
+		local g = gui(valance, Enum.NormalId.Front, 30, 120)
+		local l = text(g, "Lifestyle Platform   OH24", Color3.fromRGB(230, 230, 230), Enum.Font.GothamMedium)
+		l.TextXAlignment = Enum.TextXAlignment.Right
+		l.Size = UDim2.fromScale(0.97, 0.6)
+		l.Position = UDim2.fromScale(0, 0.2)
+	end
+	-- glass front with slim dark mullions, auto door in the middle
+	local mid = (x0 + x1) / 2
+	local DOOR = 8
+	for _, r in ipairs({ { x0 + 1.6, mid - DOOR / 2 - 0.4 }, { mid + DOOR / 2 + 0.4, x1 - 1.6 } }) do
+		box("FrontGlass", r[1], CURB + 0.6, z0 - 0.2, r[2], 12.8, z0, Color3.fromRGB(215, 230, 235), opt({ material = Enum.Material.Glass, transparency = 0.6 }))
+		box("Kickplate", r[1], CURB, z0 - 0.25, r[2], CURB + 0.6, z0, Color3.fromRGB(150, 150, 155), opt({ material = Enum.Material.Metal }))
+		for x = r[1], r[2], (r[2] - r[1]) / 2 do box("Mullion", x - 0.12, CURB, z0 - 0.3, x + 0.12, 12.8, z0, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal })) end
+		-- small OH24 marks on the glass
+		local mark = box("GlassMark", (r[1] + r[2]) / 2 - 1.2, 10.4, z0 - 0.22, (r[1] + r[2]) / 2 + 1.2, 11, z0 - 0.21, Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+		text(gui(mark, Enum.NormalId.Front, 40, 80), '<font color="#FFFFFF">OH</font><font color="#1EC8F0">24</font>', Color3.new(1, 1, 1), Enum.Font.GothamBlack)
+	end
+	box("DoorHead", mid - DOOR / 2 - 0.4, 11.4, z0 - 0.3, mid + DOOR / 2 + 0.4, 12.8, z0, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
 	local door = Instance.new("Model")
 	door.Name = "AutoDoor"
 	door:SetAttribute("Range", 9)
-	for _, s in ipairs({ -1, 1 }) do
-		local panel = box("DoorPanel", mid + s * 4, CURB, z0 + 0.05, mid, H - 3, z0 + 0.35, Color3.fromRGB(190, 225, 240), { parent = door, material = Enum.Material.Glass, transparency = 0.45 })
-		panel:SetAttribute("Slide", Vector3.new(s * 3.8, 0, 0))
-		box("DoorFrame", mid + s * 4 - 0.15, CURB, z0, mid + s * 4 + 0.15, H - 3, z0 + 0.4, Color3.fromRGB(150, 150, 155), { parent = S })
+	for _, s2 in ipairs({ -1, 1 }) do
+		local panel = box("DoorPanel", mid + s2 * DOOR / 2, CURB, z0 - 0.2, mid, 11.4, z0 - 0.05, Color3.fromRGB(215, 230, 235), { parent = door, material = Enum.Material.Glass, transparency = 0.55 })
+		panel:SetAttribute("Slide", Vector3.new(s2 * (DOOR / 2 - 0.2), 0, 0))
+		local handle = box("DoorHandle", mid + s2 * 0.5 - 0.06, 4, z0 - 0.35, mid + s2 * 0.5 + 0.06, 7.5, z0 - 0.25, Color3.fromRGB(200, 200, 205), { parent = door, material = Enum.Material.Metal, nocol = true })
+		handle:SetAttribute("Slide", Vector3.new(s2 * (DOOR / 2 - 0.2), 0, 0))
 	end
 	door.WorldPivot = CFrame.new(mid, CURB + 4, z0)
+	door:SetAttribute("Panels", 4)
 	door.Parent = S
 	CS:AddTag(door, "AutoDoor")
-	box("Counter", x1 - 12, CURB, z0 + 3, x1 - 2, CURB + 3.6, z0 + 6, Color3.fromRGB(250, 250, 250), { parent = S })
-	box("CounterTop", x1 - 12.3, CURB + 3.6, z0 + 2.7, x1 - 1.7, CURB + 3.9, z0 + 6.3, Color3.fromRGB(30, 110, 205), { parent = S })
-	box("Register", x1 - 6, CURB + 3.9, z0 + 4, x1 - 4, CURB + 5.3, z0 + 5.5, Color3.fromRGB(40, 40, 45), { parent = S })
-	box("CardKeypad", x1 - 9, CURB + 3.9, z0 + 3.2, x1 - 7.6, CURB + 4.2, z0 + 4.4, Color3.fromRGB(225, 225, 230), { parent = S })
-	box("CigaretteShelfBack", x1 - 12, CURB, z0 + 9, x1 - 2, CURB + 8, z0 + 10, Color3.fromRGB(220, 220, 225), { parent = S })
-	for i = 0, 2 do
-		local sx = x0 + 6 + i * 8
-		box("Shelf", sx, CURB, z0 + 10, sx + 2.5, CURB + 5.5, z1 - 8, Color3.fromRGB(230, 230, 232), { parent = S })
-		for k = 1, 3 do box("Goods", sx - 0.3, CURB + k * 1.6, z0 + 10.5, sx + 2.8, CURB + k * 1.6 + 1, z1 - 8.5, SIGNS[((i + k) % #SIGNS) + 1], { parent = S }) end
+	-- diamond-plate step along the front
+	box("FrontStep", x0, CURB, z0 - 1.6, x1, CURB + 0.2, z0, Color3.fromRGB(175, 178, 182), opt({ material = Enum.Material.DiamondPlate }))
+
+	---------------------------------------------------------------- window bar (inside the glass, west of the door)
+	box("WindowBar", x0 + 1, CURB + 3.4, z0 + 0.4, mid - DOOR / 2 - 1, CURB + 3.6, z0 + 2, Color3.fromRGB(245, 245, 245), o)
+	for x = x0 + 2, mid - DOOR / 2 - 2, 4 do box("BarLeg", x - 0.1, CURB, z0 + 1.6, x + 0.1, CURB + 3.4, z0 + 1.8, Color3.fromRGB(190, 190, 195), opt({ material = Enum.Material.Metal })) end
+	for x = x0 + 3, mid - DOOR / 2 - 2, 3.4 do
+		vcyl("StoolLeg", Vector3.new(x, CURB, z0 + 3.4), 0.3, 2.3, Color3.fromRGB(200, 200, 205), opt({ material = Enum.Material.Metal }))
+		seat("WindowStool", CFrame.lookAt(Vector3.new(x, CURB + 2.45, z0 + 3.4), Vector3.new(x, CURB + 2.45, z0)), Vector3.new(1.4, 0.3, 1.4), Color3.fromRGB(235, 235, 235), S)
 	end
-	box("Fridge", x0 + 2, CURB, z1 - 3.5, x1 - 2, CURB + 9, z1 - 0.6, Color3.fromRGB(170, 215, 235), { parent = S, material = Enum.Material.Glass, transparency = 0.25 })
-	for fx = x0 + 2, x1 - 2, 4 do box("FridgeFrame", fx - 0.2, CURB, z1 - 3.7, fx + 0.2, CURB + 9, z1 - 3.4, Color3.fromRGB(120, 125, 135), { parent = S }) end
-	local fl = box("FridgeLight", x0 + 2, CURB + 9, z1 - 3.6, x1 - 2, CURB + 9.4, z1 - 0.6, Color3.fromRGB(240, 250, 255), { parent = S, material = Enum.Material.Neon })
-	local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 10 sl.Brightness = 1.2 sl.Parent = fl
-	local ceil = box("CeilingLight", x0 + 4, H - 0.4, z0 + 4, x1 - 4, H - 0.2, z1 - 4, Color3.fromRGB(250, 252, 255), { parent = S, material = Enum.Material.Neon })
-	local cl = Instance.new("SurfaceLight") cl.Face = Enum.NormalId.Bottom cl.Range = 16 cl.Brightness = 1 cl.Parent = ceil
-	label(sign, "편의점", Color3.fromRGB(30, 110, 205), 4, 0.7)
+
+	---------------------------------------------------------------- back wall: glass-door drink fridges
+	do
+		local fx0, fx1, fz = x0 + 0.6, -84, z1 - 0.6
+		local depth, top = 2.6, CURB + 9
+		local DARK = Color3.fromRGB(60, 62, 66)
+		box("FridgeBackPanel", fx0, CURB, fz - 0.4, fx1, top, fz, DARK, opt({ material = Enum.Material.Metal }))
+		box("FridgeBase", fx0, CURB, fz - depth, fx1, CURB + 0.5, fz, DARK, opt({ material = Enum.Material.Metal }))
+		box("FridgeTop", fx0, top - 0.4, fz - depth, fx1, top, fz, DARK, opt({ material = Enum.Material.Metal }))
+		box("FridgeEnd", fx1 - 0.2, CURB, fz - depth, fx1, top, fz, DARK, opt({ material = Enum.Material.Metal }))
+		local head = box("FridgeHeader", fx0, top, fz - depth - 0.1, fx1, top + 1, fz, Color3.fromRGB(250, 250, 250), o)
+		local hg = gui(head, Enum.NormalId.Front, 30, 90)
+		hg.LightInfluence = 0
+		text(hg, "음료 · 생수 · 우유", Color3.fromRGB(0, 120, 120), Enum.Font.GothamBold)
+		local inner = box("FridgeInner", fx0 + 0.3, CURB + 0.5, fz - 0.45, fx1 - 0.3, top - 0.4, fz - 0.4, Color3.fromRGB(235, 238, 242), opt({ nocol = true }))
+		local il = Instance.new("SurfaceLight") il.Face = Enum.NormalId.Front il.Range = 4 il.Brightness = 0.6 il.Parent = inner
+		local doorW = (fx1 - fx0) / 8
+		for k = 0, 7 do
+			local dx0 = fx0 + k * doorW
+			box("FridgeFrame", dx0, CURB, fz - depth - 0.15, dx0 + 0.2, top, fz - depth, Color3.fromRGB(45, 45, 50), opt({ material = Enum.Material.Metal }))
+			box("FridgeDoor", dx0 + 0.2, CURB + 0.5, fz - depth - 0.12, dx0 + doorW, top - 0.3, fz - depth - 0.05, Color3.fromRGB(225, 235, 240), opt({ material = Enum.Material.Glass, transparency = 0.75 }))
+			box("FridgeHandle", dx0 + doorW - 0.5, CURB + 3, fz - depth - 0.35, dx0 + doorW - 0.35, CURB + 6.5, fz - depth - 0.15, Color3.fromRGB(190, 190, 195), opt({ material = Enum.Material.Metal, nocol = true }))
+			local cat = if k < 3 then "drink_bottle" elseif k < 5 then "drink_can" elseif k < 6 then "milk" else "drink_bottle"
+			for lv = 0, 4 do
+				local y = CURB + 0.8 + lv * 1.65
+				box("FridgeShelf", dx0 + 0.25, y - 0.08, fz - depth + 0.1, dx0 + doorW - 0.05, y, fz - 0.5, Color3.fromRGB(205, 210, 215), opt({ nocol = true }))
+				row(CFrame.lookAt(Vector3.new(dx0 + 0.3, y, fz - depth + 0.25), Vector3.new(dx0 + 0.3, y, fz - depth - 1)), doorW - 0.4, cat, S, false, 1.55)
+			end
+		end
+	end
+
+	---------------------------------------------------------------- shelving units
+	-- unit: cf at floor level, left end of its front face, -Z out
+	local function shelfUnit(name, cf: CFrame, len, levels, height, depth, cats, header)
+		local m = Instance.new("Model")
+		m.Name = name
+		m.Parent = S
+		part("ShelfBack", Vector3.new(len, height, 0.15), cf * CFrame.new(len / 2, height / 2, depth), SHELF, { parent = m })
+		for _, e in ipairs({ 0, len }) do part("ShelfSide", Vector3.new(0.12, height, depth), cf * CFrame.new(e, height / 2, depth / 2), SHELF, { parent = m }) end
+		part("ShelfBase", Vector3.new(len, 0.6, depth), cf * CFrame.new(len / 2, 0.3, depth / 2), Color3.fromRGB(200, 200, 205), { parent = m })
+		local gap = (height - 1.2) / levels
+		for lv = 0, levels - 1 do
+			local y = 0.6 + lv * gap
+			part("ShelfBoard", Vector3.new(len, 0.1, depth), cf * CFrame.new(len / 2, y, depth / 2), SHELF, { parent = m })
+			local cat = cats[(lv % #cats) + 1]
+			row(cf * CFrame.new(0, y + 0.05, 0), len, cat, m, nil, gap - 0.1)
+		end
+		if header then
+			local h = part("ShelfHeader", Vector3.new(len, 0.8, 0.12), cf * CFrame.new(len / 2, height + 0.4, depth - 0.1), Color3.new(1, 1, 1), { parent = m })
+			text(gui(h, Enum.NormalId.Front, 30, 70), header, TEAL, Enum.Font.GothamBold)
+		end
+		return m
+	end
+	-- west wall shelves (face east)
+	shelfUnit("WallShelf", CFrame.lookAt(Vector3.new(x0 + 2.2, CURB, 58.5), Vector3.new(x0 + 10, CURB, 58.5)), 17.5, 5, 8, 1.6, { "noodle", "snack_bag", "snack_bag", "sweets_box", "bread" }, "라면 · 과자 · 베이커리")
+	-- three double-sided gondolas along z (59..74), end caps at the front
+	for i, gx in ipairs({ -112.5, -105.5, -98.5 }) do
+		local cats = ({ { { "snack_bag", "snack_bag", "snack_tube", "snack_bag" }, { "sweets_box", "snack_tube", "sweets_box", "candy" } }, { { "noodle", "noodle", "bread", "noodle" }, { "snack_bag", "sweets_box", "snack_bag", "snack_tube" } }, { { "sweets_box", "candy", "sweets_box", "bread" }, { "goods", "snack_bag", "noodle", "sweets_box" } } })[i]
+		local heads = ({ { "스낵", "과자 · 초콜릿" }, { "라면 · 즉석", "스낵" }, { "과자 · 디저트", "생활용품" } })[i]
+		-- west face (looks -x) and east face (looks +x), back to back
+		shelfUnit("Gondola" .. i .. "W", CFrame.lookAt(Vector3.new(gx - 1.4, CURB, 74), Vector3.new(gx - 10, CURB, 74)), 15, 4, 6.2, 1.4, cats[1], heads[1])
+		shelfUnit("Gondola" .. i .. "E", CFrame.lookAt(Vector3.new(gx + 1.4, CURB, 59), Vector3.new(gx + 10, CURB, 59)), 15, 4, 6.2, 1.4, cats[2], heads[2])
+		-- end cap at the front end (faces the door)
+		shelfUnit("EndCap" .. i, CFrame.lookAt(Vector3.new(gx - 1.4, CURB, 57.6), Vector3.new(gx - 1.4, CURB, 50)), 2.8, 5, 6.6, 1.2, { "snack_bag" }, nil)
+	end
+
+	---------------------------------------------------------------- counter (east, by the door)
+	do
+		local cx0, cx1, cz0, cz1 = -91.5, -88, 51, 62
+		local TEALTOP = Color3.fromRGB(0, 150, 150)
+		box("CounterBody", cx0, CURB, cz0, cx1, CURB + 3.4, cz1, Color3.fromRGB(245, 245, 245), o)
+		box("CounterTop", cx0 - 0.3, CURB + 3.4, cz0 - 0.2, cx1 + 0.2, CURB + 3.7, cz1 + 0.2, TEALTOP, o)
+		-- candy racks on the customer face (looks -x)
+		for lv = 0, 2 do
+			local y = CURB + 0.5 + lv * 0.95
+			box("CandyRack", cx0 - 1, y - 0.08, cz0 + 0.4, cx0, y, cz1 - 0.4, Color3.fromRGB(200, 200, 205), opt({ material = Enum.Material.Metal }))
+			row(CFrame.lookAt(Vector3.new(cx0 - 1, y, cz1 - 0.4), Vector3.new(cx0 - 10, y, cz1 - 0.4)), cz1 - cz0 - 0.8, "candy", S, nil, 0.9)
+		end
+		-- POS: screen facing the staff, customer display, card terminal, scanner
+		local top = CURB + 3.7
+		box("PosBase", cx1 - 1.6, top, 55, cx1 - 0.3, top + 0.4, 57.4, Color3.fromRGB(235, 235, 235), o)
+		part("PosScreen", Vector3.new(0.12, 1.3, 1.9), CFrame.new(cx1 - 0.9, top + 1.2, 56.2) * CFrame.Angles(0, 0, math.rad(-15)), Color3.fromRGB(25, 25, 30), o)
+		local cust = part("CustomerScreen", Vector3.new(0.1, 1.2, 1.7), CFrame.new(cx0 + 0.3, top + 1.3, 59.6) * CFrame.Angles(0, 0, math.rad(10)), Color3.fromRGB(70, 180, 230), opt({ material = Enum.Material.Neon }))
+		text(gui(cust, Enum.NormalId.Left, 40, 40), "OH24\n포인트 적립", Color3.new(1, 1, 1), Enum.Font.GothamBold)
+		box("CardTerminal", cx0 + 0.2, top, 53, cx0 + 0.9, top + 0.5, 53.8, Color3.fromRGB(40, 40, 45), o)
+		box("Scanner", cx0 + 0.3, top, 54.6, cx0 + 0.8, top + 0.9, 55, Color3.fromRGB(70, 70, 75), o)
+		box("CounterMat", cx0 - 0.1, top, 57.6, cx0 + 1.6, top + 0.02, 60.6, Color3.fromRGB(120, 200, 230), opt({ nocol = true }))
+		-- goods wall behind the counter (east wall, faces -x)
+		shelfUnit("GoodsWall", CFrame.lookAt(Vector3.new(x1 - 2.4, CURB, cz1 - 0.5), Vector3.new(x1 - 10, CURB, cz1 - 0.5)), cz1 - cz0 - 1, 5, 9, 1.6, { "goods" }, "기프트카드 · 생활용품")
+		label(box("CounterLabel", cx0, top + 3, 56, cx0 + 0.2, top + 3.2, 56.2, Color3.new(1, 1, 1), opt({ transparency = 1, nocol = true })), "계산대", Color3.fromRGB(0, 160, 160), 0, 0.5)
+	end
+
+	---------------------------------------------------------------- east wall: hot drink warmer + open chilled case
+	do
+		local wx = x1 - 0.6
+		box("Warmer", wx - 2.6, CURB, 63, wx, CURB + 6.2, 66.6, Color3.fromRGB(240, 240, 240), o)
+		for k = 0, 1 do
+			local zz = 63.2 + k * 1.7
+			box("WarmerDoor", wx - 2.7, CURB + 1.6, zz, wx - 2.6, CURB + 5.8, zz + 1.6, Color3.fromRGB(230, 180, 160), opt({ material = Enum.Material.Glass, transparency = 0.5 }))
+			local sign = box("WarmerSign", wx - 2.72, CURB + 0.6, zz + 0.1, wx - 2.62, CURB + 1.4, zz + 1.5, Color3.fromRGB(200, 40, 50), opt({ nocol = true }))
+			text(gui(sign, Enum.NormalId.Left, 40, 40), "따뜻한 음료", Color3.new(1, 1, 1), Enum.Font.GothamBold)
+		end
+		-- open chilled case (간편식), 4 levels, light canopy
+		local cz0c, cz1c = 67.4, z1 - 3.4
+		box("ChilledBack", wx - 0.2, CURB, cz0c, wx, CURB + 8.4, cz1c, Color3.fromRGB(235, 240, 245), o)
+		box("ChilledBase", wx - 2.6, CURB, cz0c, wx, CURB + 1.4, cz1c, Color3.fromRGB(70, 75, 85), opt({ material = Enum.Material.Metal }))
+		local canopy = box("ChilledCanopy", wx - 2.8, CURB + 8.4, cz0c, wx, CURB + 9.4, cz1c, Color3.new(1, 1, 1), o)
+		text(gui(canopy, Enum.NormalId.Left, 30, 70), "간편식품 · 냉장식품 · 유제품", TEAL, Enum.Font.GothamBold)
+		local cats = { "lunch", "fresh", "fresh", "milk" }
+		for lv = 0, 3 do
+			local y = CURB + 1.4 + lv * 1.7
+			local d = 2.4 - lv * 0.3
+			box("ChilledShelf", wx - d, y - 0.08, cz0c, wx - 0.2, y, cz1c, Color3.fromRGB(230, 232, 236), opt({ nocol = true }))
+			row(CFrame.lookAt(Vector3.new(wx - d, y, cz1c), Vector3.new(wx - d - 10, y, cz1c)), cz1c - cz0c, cats[lv + 1], S, nil, 1.6)
+		end
+		local cl = box("ChilledLight", wx - 2.7, CURB + 8.3, cz0c, wx - 0.2, CURB + 8.4, cz1c, Color3.new(1, 1, 1), opt({ nocol = true }))
+		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 9 sl.Brightness = 0.8 sl.Parent = cl
+	end
+
+	---------------------------------------------------------------- ice cream chest, umbrella stand, mirror, promo poster
+	do
+		local ix0, ix1, iz0, iz1 = x0 + 1, x0 + 7, 53.5, 56.8
+		box("FreezerBody", ix0, CURB, iz0, ix1, CURB + 2.6, iz1, Color3.fromRGB(245, 245, 248), o)
+		local side = box("FreezerPanel", ix0 + 0.5, CURB + 0.6, iz0 - 0.05, ix1 - 0.5, CURB + 2, iz0, Color3.fromRGB(60, 170, 90), opt({ nocol = true }))
+		text(gui(side, Enum.NormalId.Front, 40, 40), "아이스크림", Color3.new(1, 1, 1), Enum.Font.GothamBold)
+		box("FreezerInside", ix0 + 0.3, CURB + 1.6, iz0 + 0.3, ix1 - 0.3, CURB + 1.7, iz1 - 0.3, Color3.fromRGB(200, 225, 240), opt({ nocol = true }))
+		-- ice cream lying in the chest, label up
+		local n = 0
+		for xx = ix0 + 0.8, ix1 - 0.8, 1.0 do
+			for zz = iz0 + 0.8, iz1 - 0.8, 0.8 do
+				n += 1
+				local pr = nextProduct("icecream")
+				if pr then
+					local sz = shapeSize(pr.shape)
+					-- lying flat, label up: local Y runs along world +Z after the turn
+					pack(pr, CFrame.new(xx, CURB + 1.7 + sz.Z / 2, zz - sz.Y / 2) * CFrame.Angles(math.rad(90), 0, 0), S)
+				end
+			end
+		end
+		box("FreezerGlass", ix0 + 0.2, CURB + 2.6, iz0 + 0.2, ix1 - 0.2, CURB + 2.7, iz1 - 0.2, Color3.fromRGB(220, 235, 245), opt({ material = Enum.Material.Glass, transparency = 0.7 }))
+		-- umbrella stand by the door
+		local ux, uz = mid + DOOR / 2 + 1.6, z0 + 1.6
+		vcyl("UmbrellaBin", Vector3.new(ux, CURB, uz), 1.6, 1.6, Color3.fromRGB(210, 210, 215), opt({ material = Enum.Material.Metal }))
+		for k = 0, 9 do
+			local a = k * 0.63
+			local p0 = Vector3.new(ux + math.cos(a) * 0.45, CURB + 0.2, uz + math.sin(a) * 0.45)
+			local p1 = p0 + Vector3.new(math.cos(a) * 0.25, 4.2, math.sin(a) * 0.25)
+			part("Umbrella", Vector3.new(0.28, 0.28, (p1 - p0).Magnitude), CFrame.lookAt((p0 + p1) / 2, p1), if k % 3 == 0 then Color3.fromRGB(220, 225, 235) else Color3.fromRGB(40, 50, 90), opt({ nocol = true, material = Enum.Material.Fabric }))
+		end
+		-- round security mirror in the back west corner
+		local mc = Vector3.new(x0 + 1.4, 10, z1 - 1.4)
+		local mirror = part("SecurityMirror", Vector3.new(0.3, 2.2, 2.2), CFrame.lookAt(mc, Vector3.new(-100, 6, 60)) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(200, 210, 220), opt({ shape = Enum.PartType.Cylinder, material = Enum.Material.Glass, nocol = true }))
+		mirror.Reflectance = 0.6
+		-- promo poster on the west wall by the window bar
+		local poster = box("PromoPoster", x0 + 0.62, 6, 58, x0 + 0.66, 9.5, 61.6, Color3.fromRGB(250, 220, 60), opt({ nocol = true }))
+		text(gui(poster, Enum.NormalId.Right, 40, 60), "이달의 행사\n1+1 · 2+1", Color3.fromRGB(200, 40, 40), Enum.Font.GothamBlack)
+	end
+	label(box("StoreLabelAnchor", -101, H + 7, z0 - 1, -99, H + 7.2, z0 - 0.8, Color3.new(1, 1, 1), opt({ transparency = 1, nocol = true })), "OH24 편의점", Color3.fromRGB(30, 200, 240), 3, 0.7)
 end
 
 do -- sunset photo frame at the end of the pier, facing the sea (west)
