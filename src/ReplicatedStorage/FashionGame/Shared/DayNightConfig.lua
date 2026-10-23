@@ -14,5 +14,8 @@ DayNightConfig.TestInStudio = true
 DayNightConfig.TestDayLengthSeconds = 60
 -- Clock time at server time 0 (only shifts which hour the cycle starts on).
 DayNightConfig.StartClockTime = 14.5
+-- While the game is being built the sky stays at 2 pm (user, 2026-10-23).
+-- Set to nil when the game is finished so the day flows again.
+DayNightConfig.FixedClockTime = 14 :: number?
 
 return DayNightConfig

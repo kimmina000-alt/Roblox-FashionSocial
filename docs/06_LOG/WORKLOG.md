@@ -526,3 +526,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 오후네컷: 사선 계단, 캡슐 창 벽 뚫기 + 투명 유리, 입체 채널 간판(흰 앞면·연회색 옆면, 그림자 자연스럽게). 캡처 photo_booth_building_v2.jpg, photo_booth_sign_3d.jpg, photo_booth_pill_windows.jpg.
 - 차로 폭 3.0m 미리보기만(임시 스크립트, 적용 안 함): lane_width_compare_top.jpg / _street.jpg. 공식 맵은 원래대로 다시 빌드.
 - 후보 이미지(감시탑·세족장·탈의/샤워 건물·가로수): candidates_beach_trees.png, 사용자 선택 대기.
+## 2026-10-23 (6) — 자전거횡단도, 해변 시설, 자작나무 (D-117)
+- 자전거도로 색 조사: 기본은 포장재 고유색, 교차·접속 구간만 암적색 → 인도 자전거 도로는 회색 유지, 사거리 횡단보도 바깥쪽에 붉은 자전거횡단도 + 인도 쪽 붉은 연결, 해변도로 T자 교차로에 횡단보도 + 자전거횡단도(사용자 사진). 캡처 bike_crossings_crossroads.jpg / bike_crossings_seafront.jpg.
+- 가로수: 자작나무 묶음 6종 섞어서(크기·방향 다르게). 손 편집 2건 새 위치로(Tree@27,-173, Shrub@27,-176).
+- 해변: 인도 야자수 삭제(모래 위 야자수 유지), 세족장(화강석 계단·수도꼭지·스티커·깃발) + 음수대, 표지판 2개(내용은 비움), 짚 파라솔 쉼터 22곳. 캡처 foot_wash_v1.jpg, straw_parasol_v1.jpg.
+- 오후네컷: 천장 높임, 간판 한 칸 아래 + 두께 1.0. 캡처 photo_booth_building_v3.jpg.
+- 게임 시간 오후 2시 고정(DayNightConfig.FixedClockTime), Studio에 스크립트 반영함.

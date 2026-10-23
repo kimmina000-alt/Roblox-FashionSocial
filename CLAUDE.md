@@ -31,6 +31,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - Open items: real 캡처 저장 and 🎥 video on a device, product IDs (ISSUE-SHOP-001), economy v2 code, 야호 voice clip, friend-look NPC customers only checkable in a live game (Studio test players have no friends), 알바 levels on top of job XP.
 - Club dress-code event (입뺀): spec done (`docs/01_SYSTEMS/CLUB_DRESS_CODE.md`, D-101); build it after the game is finished, together with the guard the user will make (send their guard account name or item ids).
 - 2026-10-23: realistic street work on `feat/art-realistic-1022` (D-102..D-111, not merged into catalog-ui-redesign yet). Start of next session: in Edit mode run prop_save → build_hongdae_layout → street_dress once (Studio still has the old folder name Hongdae_v1_Temp), then mobile 2P test (frame rate with trees/palms/fake buildings, boundary walls), then ask to merge.
+- Game clock is fixed at 14:00 while building (DayNightConfig.FixedClockTime = 14, user 2026-10-23): set it to nil when the game is finished.
 - Next: 인생네컷 P2 (`docs/01_SYSTEMS/PHOTO_BOOTH.md` §9). User to check on a phone: 🏠 button, booth picking + copies step by hand.
 - Start of next session: push works from this machine now (Git Credential Manager has the login). Check the Studio place was saved (graybox zones live in Workspace only). Ask whether to apply economy v2 coins in code.
 

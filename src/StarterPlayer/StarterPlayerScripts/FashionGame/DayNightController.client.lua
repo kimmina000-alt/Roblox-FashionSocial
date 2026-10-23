@@ -24,6 +24,10 @@ RunService.RenderStepped:Connect(function()
 		Lighting.ClockTime = hold
 		return
 	end
+	if DayNightConfig.FixedClockTime then
+		Lighting.ClockTime = DayNightConfig.FixedClockTime
+		return
+	end
 	-- (t / period) % 1 keeps the value small before turning it into hours
 	local dayFraction = (workspace:GetServerTimeNow() / dayLength) % 1
 	Lighting.ClockTime = (DayNightConfig.StartClockTime + dayFraction * 24) % 24

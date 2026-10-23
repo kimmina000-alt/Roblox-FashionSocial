@@ -443,7 +443,12 @@ local function planter(pos: Vector3, along: Vector3, len: number?)
 	local soilTop = top - 0.1
 	plantN += 1
 	-- street tree in the middle (its own tree grate is not used: the bed is the pit)
-	local tree = foliage("StreetTree", 0.85, cf * CFrame.new(0, soilTop, 0) * CFrame.Angles(0, plantN * 1.7, 0))
+	-- realistic birches with light crowns (user pick D1, Creator Store 11351912067,
+	-- 2026-10-23): the six models of the pack mixed, each turned and sized a
+	-- little differently, about 26–34 tall (9–12 m)
+	local BIRCH_SCALE = { 1.3, 1.15, 0.95, 0.85, 0.9, 0.7 }
+	local pick = ((plantN * 5) % 6) + 1
+	local tree = foliage("Birch" .. pick, BIRCH_SCALE[pick] * (0.92 + ((plantN * 7) % 5) * 0.04), cf * CFrame.new(0, soilTop, 0) * CFrame.Angles(0, plantN * 1.7, 0))
 	if tree then
 		for _, p in ipairs(tree:GetChildren()) do
 			if p:IsA("BasePart") and p.Name == "Part" and p.Size.Y < 1.5 then p:Destroy() end
@@ -479,6 +484,7 @@ local function arrow(pos: Vector3, dir: Vector3, turn)
 	end
 end
 
+local BIKE_RED = Color3.fromRGB(150, 52, 46) -- 암적색 (dark red) for bike crossings
 local CAR_COLORS = { Color3.fromRGB(245, 245, 245), Color3.fromRGB(25, 25, 30), Color3.fromRGB(150, 155, 160), Color3.fromRGB(40, 60, 110), Color3.fromRGB(160, 30, 35) }
 local carCount = 0
 local PARKED_COLORS = { Color3.fromRGB(20, 20, 23), Color3.fromRGB(96, 98, 103), Color3.fromRGB(38, 39, 42), Color3.fromRGB(150, 153, 158), Color3.fromRGB(62, 64, 68) }
@@ -573,7 +579,7 @@ local function clear(p: Vector3)
 	return true
 end
 -- outer = sidewalk outer edge per side { [-1] = left of dir, [1] = right }
-local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
+local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing: boolean?)
 	outer = outer or { [-1] = WIDE, [1] = WIDE }
 	local across = Vector3.new(-dir.Z, 0, dir.X)
 	local function at(u, v) return dir * u + across * v end
@@ -601,7 +607,13 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 	-- right: traffic coming into the junction (moving -dir) uses the -v side.
 	-- 1 stud ≈ 0.34 m.
 	local CW0, CW1 = 25, 37 -- crosswalk 12 wide (≥ 4 m)
-	local STOP = 43 -- stop line 6 behind the crosswalk (2–5 m rule)
+	-- 자전거횡단도 (별표 6 534, 2.4 m ≈ 7 wide) right beside the crosswalk on its
+	-- outer side, dark red (자전거 이용시설 설치 및 관리 지침: 암적색 where a bike
+	-- path crosses a road), white side line only on the far side (the side
+	-- touching the crosswalk may be left out)
+	local BX0, BX1 = CW1, CW1 + 7
+	local STOP = BX1 + 6 -- stop line 6 behind the bike crossing (2–5 m rule)
+	local SZ = STOP + 16 -- end of the safety zone outline, taper to SZ + 6
 	local function solid(name, v, u0, u1, col, w)
 		uv(name, u0, v - (w or 0.4) / 2, u1, v + (w or 0.4) / 2, 0.12, 0.16, col, { nocol = true })
 	end
@@ -609,16 +621,26 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 		for u = u0, u1 - 6, 12 do solid(name, v, u, u + 6, col) end
 	end
 	-- double yellow centre line, starting after the safety zone taper
-	solid("CenterLine", -0.45, 66, len, YELLOW) solid("CenterLine", 0.45, 66, len, YELLOW)
+	solid("CenterLine", -0.45, SZ + 6, len, YELLOW) solid("CenterLine", 0.45, SZ + 6, len, YELLOW)
 	-- blue bus lane lines (median bus lanes)
-	solid("BusLane", -8, STOP, len, BLUE) solid("BusLane", 8, CW1 + 1, len, BLUE)
+	solid("BusLane", -8, STOP, len, BLUE) solid("BusLane", 8, BX1 + 1, len, BLUE)
 	-- lane line: solid 진로변경제한선 for 40 studs (≈ 14 m, rule: within 50 m)
 	-- before the stop line on the incoming side, dashed further out
 	solid("LaneSolid", -16, STOP, STOP + 40, WHITE)
 	dashed("LaneDash", -16, STOP + 46, len, WHITE)
-	dashed("LaneDash", 16, CW1 + 3, len, WHITE)
+	dashed("LaneDash", 16, BX1 + 3, len, WHITE)
 	-- zebra crosswalk across the whole road
 	for v = -22.5, 22.5, 3 do uv("Crosswalk", CW0, v - 0.75, CW1, v + 0.75, 0.12, 0.16, WHITE, { nocol = true }) end
+	uv("BikeCrossing", BX0, -24, BX1, 24, 0.12, 0.15, BIKE_RED, { nocol = true, material = Enum.Material.Asphalt })
+	uv("BikeCrossingLine", BX1 - 0.4, -24, BX1, 24, 0.15, 0.17, WHITE, { nocol = true })
+	for _, v in ipairs({ -12, 12 }) do
+		local pos = at((BX0 + BX1) / 2, v) + Vector3.new(0, 0.18, 0)
+		local mark = part("BikeSymbol", Vector3.new(3.7, 0.02, 3.7), CFrame.lookAt(pos, pos + across * (if v < 0 then 1 else -1)), WHITE, { nocol = true, transparency = 1 })
+		local dcl = Instance.new("Decal")
+		dcl.Texture = "rbxassetid://14547829073"
+		dcl.Face = Enum.NormalId.Top
+		dcl.Parent = mark
+	end
 	-- stop line: incoming half only, 1.2 wide (≈ 40 cm)
 	uv("StopLine", STOP, -24, STOP + 1.2, 0, 0.12, 0.16, WHITE, { nocol = true })
 	-- direction arrows 8 behind the stop line, lane centres; repeated 25 m on
@@ -637,14 +659,14 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 	end
 	-- yellow safety zone (안전지대) at the median start: outline + hatch,
 	-- the far end tapers to a point into the centre line
-	for u = STOP + 2, 58, 2.2 do
+	for u = STOP + 2, SZ - 2, 2.2 do
 		local a = at(u, 0) + Vector3.new(0, 0.15, 0)
 		part("SafetyStripe", Vector3.new(0.35, 0.04, 3.9), CFrame.lookAt(a, a + dir + across), YELLOW, { nocol = true })
 	end
-	uv("SafetyEdge", STOP + 1.2, -1.8, 60, -1.4, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", STOP + 1.2, 1.4, 60, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
+	uv("SafetyEdge", STOP + 1.2, -1.8, SZ, -1.4, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", STOP + 1.2, 1.4, SZ, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
 	uv("SafetyEdge", STOP + 1.2, -1.8, STOP + 1.6, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
 	for _, s in ipairs({ -1, 1 }) do
-		local a, b = at(60, s * 1.6) + Vector3.new(0, 0.14, 0), at(66, s * 0.45) + Vector3.new(0, 0.14, 0)
+		local a, b = at(SZ, s * 1.6) + Vector3.new(0, 0.14, 0), at(SZ + 6, s * 0.45) + Vector3.new(0, 0.14, 0)
 		part("SafetyEdge", Vector3.new(0.4, 0.04, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), YELLOW, { nocol = true })
 	end
 	-- left-turn guide line (유도선, one per approach): white dashes (2 on, 2
@@ -677,9 +699,9 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 	-- common Korean street-tree practice (docs/04_ART/STREET_TREES.md):
 	-- trees 4–8 m apart (here 23.5 = 8 m, the widest allowed: fewer trees so
 	-- the buildings show, user 2026-10-23), trunk ≥ 1 m from the curb (v 27),
-	-- first tree 4 m past the crosswalk paint (u 49), ≥ 3 m from street lights
+	-- first tree 4 m past the crossing paint (u 56), ≥ 3 m from street lights
 	-- and signals, none at bus stops (KEEP_CLEAR) or subway exits.
-	local TREE_V, TREE_U0, TREE_STEP = 27, 49, 23.5
+	local TREE_V, TREE_U0, TREE_STEP = 27, 56, 23.5
 	for u = TREE_U0, len - 10, TREE_STEP do -- beds 15 long → a nearly continuous strip
 		local free = true
 		for _, p in ipairs(pits) do if u > p[1] - 9 and u < p[2] + 9 then free = false end end
@@ -709,8 +731,23 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 			local runStart: number? = nil
 			local function lane(u0, u1)
 				if u1 - u0 < 6 then return end
-				-- right against the planting beds (user 2026-10-22: no gap)
-				local a, b = at(u0, side * 29.2), at(u1, side * 33.2)
+				-- right against the planting beds (user 2026-10-22: no gap). The
+				-- pavement keeps its own colour (자전거 이용시설 구조·시설 기준 제15조);
+				-- only the part that joins the bike crossing is dark red, with a
+				-- red link over the curb strip to the crossing
+				local redTo = if u0 < 47 then math.min(u1, 52) else u0
+				if redTo > u0 then
+					local a, b = at(u0, side * 29.2), at(redTo, side * 33.2)
+					box("BikeLaneRed", a.X, CURB, a.Z, b.X, CURB + 0.03, b.Z, BIKE_RED, { material = Enum.Material.Asphalt, nocol = true })
+					local c, d = at(BX0, side * 24), at(BX1, side * 29.2)
+					box("BikeLaneRed", c.X, CURB, c.Z, d.X, CURB + 0.03, d.Z, BIKE_RED, { material = Enum.Material.Asphalt, nocol = true })
+				end
+				local redFrom = if endCrossing and u1 >= len - 1 then math.max(redTo, len - 12) else u1
+				if redFrom < u1 then
+					local c, d = at(redFrom, side * 29.2), at(u1, side * 33.2)
+					box("BikeLaneRed", c.X, CURB, c.Z, d.X, CURB + 0.03, d.Z, BIKE_RED, { material = Enum.Material.Asphalt, nocol = true })
+				end
+				local a, b = at(redTo, side * 29.2), at(redFrom, side * 33.2)
 				box("BikeLane", a.X, CURB, a.Z, b.X, CURB + 0.03, b.Z, Color3.fromRGB(62, 63, 66), { material = Enum.Material.Asphalt, nocol = true })
 				for _, ev in ipairs({ 29.35, 33.05 }) do
 					local c, d = at(u0, side * (ev - 0.15)), at(u1, side * (ev + 0.15))
@@ -725,17 +762,18 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 					dcl.Parent = mark
 				end
 			end
-			for u = WIDE + 3, len - 4, 1 do
+			for u = BX0, len - 4, 1 do -- from the bike crossing at the junction
 				if free(u) then
 					if not runStart then runStart = u end
 				elseif runStart then
 					lane(runStart, u - 1) runStart = nil
 				end
 			end
-			if runStart then lane(runStart, len - 4) end
+			if runStart then lane(runStart, if endCrossing then len else len - 4) end
 		end
 	end
-	trafficLight(at(38, 30) + Vector3.new(0, CURB, 0), -across, 26)
+	-- far-side signal pole, outside the bike path that turns to the crossing
+	trafficLight(at(38, 36) + Vector3.new(0, CURB, 0), -across, 32)
 	-- parked along the curb (user 2026-10-23), facing the traffic of their side
 	-- (right-hand traffic: the -v side drives toward the junction, -dir); never
 	-- at a bus stop
@@ -749,7 +787,7 @@ end
 bigRoad(Vector3.new(0, 0, -1), 470, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 92, -1 }, { 150, 1 }, { 205, -1 } }, { [-1] = 34, [1] = 49 }) -- north
 bigRoad(Vector3.new(0, 0, 1), 640, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }) -- south (past the boundary at 299: the street goes on, D-110)
 bigRoad(Vector3.new(1, 0, 0), 260, {}, { { 100, 1 }, { 165, -1 } }) -- east
-bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 100, -1 } }) -- west, to the seafront road
+bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 100, -1 } }, nil, true) -- west, to the seafront road (bike lanes run on to the bike crossings)
 
 local function smallRoad(a: Vector2, b: Vector2, stopEnds)
 	local dir = Vector3.new(b.X - a.X, 0, b.Y - a.Y)
@@ -1025,6 +1063,97 @@ do
 		local params = OverlapParams.new()
 		params.FilterType = Enum.RaycastFilterType.Exclude
 		params.FilterDescendantsInstances = { T }
+		-- 세족장 (foot wash, user photos 2026-10-23, 광안리): the steps of this
+		-- stretch are granite, with taps on the sea-side face of every step
+		-- (the water runs down the steps), a "발 씻는 곳 / 빨래금지" sticker, a
+		-- blue 세족장 banner on the sand and a granite drinking fountain (음수대)
+		local function footWash(zs, ze, sandTop)
+			local G = Color3.fromRGB(150, 146, 140)
+			box("BeachStepEdge", -198.7, sandTop, zs, -198, CURB + 0.1, ze, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
+			local tops = { CURB - 0.6, CURB - 1.2, CURB - 1.8 }
+			local xs = { { -201.2, -198.7 }, { -203.7, -201.2 }, { -206.2, -203.7 } }
+			for k = 1, 3 do
+				box("FootWashStep", xs[k][1], sandTop, zs, xs[k][2], tops[k], ze, G, { material = Enum.Material.Granite })
+				-- taps on the riser below each tread, every 3.5
+				local riserX = xs[k][1]
+				local y = tops[k] - 0.3
+				for z = zs + 2, ze - 1.5, 3.5 do
+					local base = Vector3.new(riserX - 0.05, y, z)
+					part("TapBody", Vector3.new(0.3, 0.25, 0.25), CFrame.new(base + Vector3.new(-0.15, 0, 0)), Color3.fromRGB(200, 202, 206), { material = Enum.Material.Metal, nocol = true })
+					part("TapSpout", Vector3.new(0.12, 0.3, 0.12), CFrame.new(base + Vector3.new(-0.3, -0.12, 0)), Color3.fromRGB(200, 202, 206), { material = Enum.Material.Metal, nocol = true })
+					part("TapHandle", Vector3.new(0.08, 0.08, 0.35), CFrame.new(base + Vector3.new(-0.18, 0.18, 0)), Color3.fromRGB(200, 202, 206), { material = Enum.Material.Metal, nocol = true })
+					part("WetStain", Vector3.new(0.9, 0.02, 0.7), CFrame.new(riserX - 0.45, (if k < 3 then tops[k + 1] else sandTop) + 0.01, z), Color3.fromRGB(110, 106, 100), { material = Enum.Material.Slate, nocol = true })
+				end
+			end
+			-- sticker on the top riser
+			local st = part("FootWashSticker", Vector3.new(0.05, 0.45, 3.4), CFrame.new(-198.75, CURB - 0.1, (zs + ze) / 2), Color3.new(1, 1, 1), { nocol = true })
+			do
+				local g = Instance.new("SurfaceGui")
+				g.Face = Enum.NormalId.Left
+				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+				g.PixelsPerStud = 60
+				g.Parent = st
+				local l = Instance.new("TextLabel")
+				l.Size = UDim2.fromScale(1, 1)
+				l.BackgroundColor3 = Color3.fromRGB(235, 240, 255)
+				l.TextScaled = true
+				l.Font = Enum.Font.GothamBold
+				l.RichText = true
+				l.Text = '<font color="#1d4fd8">발 씻는 곳</font> <font color="#e02424">빨래금지</font>'
+				l.Parent = g
+			end
+			-- 세족장 banner (blue feather flag) on the sand
+			local fx, fz = -209, ze - 4
+			vcyl("FlagPole", Vector3.new(fx, sandTop, fz), 0.18, 11, Color3.fromRGB(190, 190, 195), { material = Enum.Material.Metal, nocol = true })
+			local flag = part("FootWashFlag", Vector3.new(0.08, 7.5, 2), CFrame.new(fx, sandTop + 7, fz + 1.05), Color3.fromRGB(32, 60, 160), { nocol = true, material = Enum.Material.Fabric })
+			do
+				for _, face in ipairs({ Enum.NormalId.Left, Enum.NormalId.Right }) do
+					local g = Instance.new("SurfaceGui")
+					g.Face = face
+					g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+					g.PixelsPerStud = 40
+					g.Parent = flag
+					local l = Instance.new("TextLabel")
+					l.Size = UDim2.fromScale(1, 0.75)
+					l.BackgroundTransparency = 1
+					l.TextScaled = true
+					l.Font = Enum.Font.GothamBlack
+					l.TextColor3 = Color3.fromRGB(255, 120, 60)
+					l.Text = "세\n족\n장"
+					l.Parent = g
+					local s = Instance.new("TextLabel")
+					s.Size = UDim2.fromScale(1, 0.12)
+					s.Position = UDim2.fromScale(0, 0.78)
+					s.BackgroundTransparency = 1
+					s.TextScaled = true
+					s.Font = Enum.Font.GothamBold
+					s.TextColor3 = Color3.new(1, 1, 1)
+					s.Text = "Foot Washing Place"
+					s.Parent = g
+				end
+			end
+			-- 음수대 (drinking fountain): granite block with a basin and a tap,
+			-- standing on the sand beside the steps
+			local dx, dz = -209, ze + 2.5
+			box("FountainBase", dx - 1.1, sandTop, dz - 0.9, dx + 1.1, sandTop + 3.4, dz + 0.9, Color3.fromRGB(196, 160, 140), { material = Enum.Material.Granite })
+			box("FountainTop", dx - 1.3, sandTop + 3.4, dz - 1.1, dx + 1.3, sandTop + 3.7, dz + 1.1, Color3.fromRGB(196, 160, 140), { material = Enum.Material.Granite })
+			box("FountainBasin", dx - 1.6, sandTop + 1.6, dz - 0.7, dx - 1.1, sandTop + 2, dz + 0.7, Color3.fromRGB(180, 145, 125), { material = Enum.Material.Granite })
+			part("FountainTap", Vector3.new(0.4, 0.15, 0.15), CFrame.new(dx - 1.3, sandTop + 2.8, dz), Color3.fromRGB(200, 202, 206), { material = Enum.Material.Metal, nocol = true })
+			local plate = part("FountainSign", Vector3.new(0.05, 0.9, 1.4), CFrame.new(dx - 1.13, sandTop + 3.05, dz), Color3.fromRGB(120, 190, 240), { nocol = true })
+			local g = Instance.new("SurfaceGui")
+			g.Face = Enum.NormalId.Left
+			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			g.PixelsPerStud = 60
+			g.Parent = plate
+			local l = Instance.new("TextLabel")
+			l.Size = UDim2.fromScale(1, 1)
+			l.BackgroundTransparency = 1
+			l.TextScaled = true
+			l.Font = Enum.Font.GothamBold
+			l.TextColor3 = Color3.fromRGB(20, 40, 90)
+			l.Text = "음수대(수돗물)\nWater Fountain"
+			l.Parent = g
+		end
 		for zs = z0, z1 - 1, 20 do
 			local ze = math.min(zs + 20, z1)
 			local free = true
@@ -1032,7 +1161,9 @@ do
 			for _, p in ipairs(workspace:GetPartBoundsInBox(probe, Vector3.new(6, CURB - sandTop - 0.6, ze - zs - 1), params)) do
 				if p.Name ~= "Beach" and p.Name ~= "Ground" and p.Transparency < 1 then free = false break end
 			end
-			if free then
+			if free and zs == -200 then -- open beach, clear of the truck and the cafes, next to the beach signs
+				footWash(zs, ze, sandTop)
+			elseif free then
 				box("BeachStepEdge", -198.7, sandTop, zs, -198, CURB + 0.1, ze, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
 				-- three wooden steps (user 2026-10-22)
 				box("BeachStep", -201.2, sandTop, zs, -198.7, CURB - 0.6, ze, wood, { material = Enum.Material.WoodPlanks })
@@ -1047,14 +1178,20 @@ do
 	-- (ROAD_MARKINGS.md): single yellow solid centre line (편도 1차로),
 	-- crosswalks 12 wide, stop lines 1.2 wide 6 before each crosswalk on the
 	-- side the traffic comes from, bike symbols on the bike lane
-	local CROSS = { -400, -250, -100, -30, 60, 180, 260 } -- -30: right at the T junction with the west road (user)
+	-- Crossings at the T junction follow the user's 광안리 photo: a zebra
+	-- crosswalk and, right beside it on the junction side, a dark red bike
+	-- crossing (자전거횡단도) that carries the west road's sidewalk bike lanes
+	-- over the road to the bike lane on the promenade side. The bike lane keeps
+	-- the road surface colour and turns dark red only where it meets crossings
+	-- and the junction (자전거 이용시설 구조·시설 기준 제15조, 설치·관리 지침).
+	local CROSS = { -400, -250, -100, -40.7, 40.7, 180, 260 } -- ±40.7: the T junction pair
+	local BIKE_X = { { -34.7, -27.7 }, { 27.7, 34.7 } } -- bike crossings in line with the sidewalk bike lanes (z ±29.2..33.2)
 	for _, seg in ipairs({ { z0, -24 }, { 24, z1 } }) do -- lane paint stops at the junction with the west road
-		paint("RedLane", -182, seg[1], -174, seg[2], Color3.fromRGB(190, 85, 75))
 		paint("EdgeLine", -174.2, seg[1], -173.8, seg[2], WHITE)
 		paint("CenterLine", -166.2, seg[1], -165.8, seg[2], YELLOW)
 		for zz = seg[1] + 10, seg[2] - 6, 40 do
 			local near = false
-			for _, cz in ipairs(CROSS) do if math.abs(zz - cz) < 12 then near = true end end
+			for _, cz in ipairs(CROSS) do if math.abs(zz - cz) < 14 then near = true end end
 			if not near then
 				local mark = part("BikeSymbol", Vector3.new(3.7, 0.02, 3.7), CFrame.lookAt(Vector3.new(-178, 0.17, zz), Vector3.new(-178, 0.17, zz + 1)), WHITE, { nocol = true, transparency = 1 })
 				local dcl = Instance.new("Decal")
@@ -1064,14 +1201,30 @@ do
 			end
 		end
 	end
+	-- dark red bike lane where it meets a crossing (4 either side of the paint)
+	for _, cz in ipairs(CROSS) do
+		if math.abs(cz) > 41 then paint("BikeLaneRed", -182, cz - 10, -174.2, cz + 10, BIKE_RED) end
+	end
+	paint("BikeLaneRed", -182, -50.7, -174.2, 50.7, BIKE_RED) -- through the T junction
 	walk(-158, z0, -150, -34) walk(-158, 34, -150, z1)
 	for _, cz in ipairs(CROSS) do
 		for x = -181, -159, 3 do paint("Crosswalk", x, cz - 6, x + 1.5, cz + 6, WHITE) end
-		-- northbound (moving -z) stops south of it, except at -30 where it has
-		-- just come through the junction; southbound (+z) north of it, across
-		-- the bike lane too
-		if cz ~= -30 then paint("StopLine", -166, cz + 12, -158, cz + 13.2, WHITE) end
-		paint("StopLine", -182, cz - 13.2, -166, cz - 12, WHITE)
+		-- stop lines 6 before the crossing, on the side the traffic comes from;
+		-- not on the side that has just come through the junction
+		if cz ~= -40.7 then paint("StopLine", -166, cz + 12, -158, cz + 13.2, WHITE) end -- northbound (moving -z)
+		if cz ~= 40.7 then paint("StopLine", -182, cz - 13.2, -166, cz - 12, WHITE) end -- southbound (+z), over the bike lane too
+	end
+	for _, b in ipairs(BIKE_X) do
+		box("BikeCrossing", -182, 0.12, b[1], -158, 0.15, b[2], BIKE_RED, { nocol = true, material = Enum.Material.Asphalt })
+		local lineZ = if b[1] < 0 then b[2] else b[1] -- white side line on the junction side only
+		paint("BikeCrossingLine", -182, lineZ - 0.2, -158, lineZ + 0.2, WHITE)
+		for _, x in ipairs({ -176, -164 }) do
+			local mark = part("BikeSymbol", Vector3.new(3.7, 0.02, 3.7), CFrame.lookAt(Vector3.new(x, 0.18, (b[1] + b[2]) / 2), Vector3.new(x + (if x < -170 then -1 else 1), 0.18, (b[1] + b[2]) / 2)), WHITE, { nocol = true, transparency = 1 })
+			local dcl = Instance.new("Decal")
+			dcl.Texture = "rbxassetid://14547829073"
+			dcl.Face = Enum.NormalId.Top
+			dcl.Parent = mark
+		end
 	end
 	-- T junction with the west road: crosswalk across the west road's mouth,
 	-- stop line on the lanes coming out of it (+v side of the west road = north)
@@ -1119,31 +1272,14 @@ do
 			end
 		end
 	end
-	-- realistic fan palms (광안리 photo, user 2026-10-22) instead of the round
-	-- pines; each one can be moved / deleted by hand
-	-- street-tree rules (STREET_TREES.md): at most 8 m (23.5) apart, beds 1.5 m
-	-- (4.4) square, 2.7 m from the curb, and 4 m clear of crosswalk paint
-	local palmZ = {}
-	for zz = z0 + 14, z1 - 10, 23.5 do
-		local clearOfCross = true
-		for _, cz in ipairs(CROSS) do if math.abs(zz - cz) < 18 then clearOfCross = false end end
-		if math.abs(zz - 61) > 8 and clearOfCross then
-			table.insert(palmZ, zz)
-			local base = Vector3.new(-190, CURB, zz)
-			box("PalmBed", base.X - 2.2, CURB, zz - 2.2, base.X + 2.2, CURB + 0.25, zz + 2.2, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
-			local p = foliage("PalmTreeReal", 0.55 + (zz % 3) * 0.04, CFrame.new(base + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, math.rad((zz * 37) % 360), 0))
-			if p then prop(p, "Palm") end
-		end
-	end
-	-- lamps halfway between two palms (≥ 3 m from each), about every 70
-	local lastLamp = -math.huge
-	for i = 1, #palmZ - 1 do
-		local a, b = palmZ[i], palmZ[i + 1]
-		local onBench = ((a + b) / 2 - (z0 + 28)) % 60 < 8 or ((a + b) / 2 - (z0 + 28)) % 60 > 58
-		if b - a < 30 and (a + b) / 2 - lastLamp >= 70 and not onBench then
-			lastLamp = (a + b) / 2
-			streetLamp(Vector3.new(-196.5, CURB, lastLamp), Vector3.new(1, 0, 0))
-		end
+	-- no trees on the promenade any more (user 2026-10-23: keep the palms on the
+	-- sand, remove the ones on the walk); lamps about every 70, clear of the
+	-- crossings and the benches
+	for zz = z0 + 40, z1 - 10, 70 do
+		local near = false
+		for _, cz in ipairs(CROSS) do if math.abs(zz - cz) < 14 then near = true end end
+		local onBench = (zz - (z0 + 28)) % 60 < 8 or (zz - (z0 + 28)) % 60 > 58
+		if not near and not onBench then streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
 	end
 	for zz = z0 + 28, z1, 60 do
 		box("BenchBase", -197.5, CURB, zz, -195.5, CURB + 1.6, zz + 6, Color3.fromRGB(110, 110, 115))
@@ -1667,10 +1803,118 @@ do
 		box("Sidewalk", -158, 0, seg[1], -150, CURB, seg[2], WALK, { material = Enum.Material.Brick })
 		paint("EdgeLine", -174.2, seg[1], -173.8, seg[2], WHITE)
 		paint("CenterLine", -166.2, seg[1], -165.8, seg[2], YELLOW)
-		for zz = seg[1] + 15, seg[2] - 10, 23.5 do -- same spacing as inside (≤ 8 m)
-			box("PalmBed", -192.2, CURB, zz - 2.2, -187.8, CURB + 0.25, zz + 2.2, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
-			foliage("PalmTreeReal", 0.55, CFrame.new(-190, CURB + 0.2, zz) * CFrame.Angles(0, math.rad((zz * 37) % 360), 0))
+
+	end
+end
+
+------------------------------------------------------- beach furniture (광안리 photos, user 2026-10-23)
+do
+	local SAND_Y = CURB - BEACH_DROP
+	local beachZone = root:FindFirstChild("04_Beach_Aquarium")
+	-- straw parasol rest spots (third photo): a round brick pad, a thatched
+	-- parasol, a round stone table and two curved benches facing it. They
+	-- replace the striped parasol / mat / chair groups of the graybox (parked
+	-- in the hidden folder, put back where the built zone has them).
+	local B_RED, WOOD, STONE = Color3.fromRGB(168, 96, 82), Color3.fromRGB(112, 82, 58), Color3.fromRGB(150, 150, 152)
+	local STRAW, STRAW_DARK = Color3.fromRGB(176, 146, 98), Color3.fromRGB(150, 120, 78)
+	local function tri(name, A: Vector3, M: Vector3, Bp: Vector3, color, parent) -- right triangle, right angle at M
+		local y, z = (A - M), (M - Bp)
+		local w = Instance.new("WedgePart")
+		w.Name = name
+		w.Anchored = true
+		w.CanCollide = false
+		w.CastShadow = true
+		w.Size = Vector3.new(0.3, y.Magnitude, z.Magnitude)
+		w.CFrame = CFrame.fromMatrix(M + (A - M) / 2 + (Bp - M) / 2, y.Unit:Cross(z.Unit), y.Unit, z.Unit)
+		w.Color = color
+		w.Material = Enum.Material.Grass
+		w.Parent = parent
+	end
+	local function strawSpot(g: Vector3, n: number)
+		local m = Instance.new("Model")
+		m.Name = "StrawParasolSpot"
+		m.Parent = T
+		local op = { parent = m }
+		vcyl("BeachPad", g, 14, 0.25, B_RED, { parent = m, material = Enum.Material.Brick })
+		vcyl("ParasolPole", g + Vector3.new(0, 0.25, 0), 0.55, 10.6, WOOD, { parent = m, material = Enum.Material.Wood })
+		-- thatched cone: 10 panels, each two right-angled wedges
+		local apex, R, baseY, PANELS = g + Vector3.new(0, 12.4, 0), 7.4, 8.8, 10
+		local rot = n * 0.4
+		for k = 0, PANELS - 1 do
+			local a0, a1 = rot + k / PANELS * 2 * math.pi, rot + (k + 1) / PANELS * 2 * math.pi
+			local b0 = g + Vector3.new(math.cos(a0) * R, baseY, math.sin(a0) * R)
+			local b1 = g + Vector3.new(math.cos(a1) * R, baseY, math.sin(a1) * R)
+			local mid = (b0 + b1) / 2
+			local col = if k % 2 == 0 then STRAW else STRAW_DARK
+			tri("Thatch", apex, mid, b0, col, m)
+			tri("Thatch", apex, mid, b1, col, m)
+			-- ragged eave hanging below the edge
+			part("ThatchEave", Vector3.new((b1 - b0).Magnitude, 0.7, 0.2), CFrame.lookAt(mid - Vector3.new(0, 0.35, 0), mid - Vector3.new(0, 0.35, 0) + (mid - g) * Vector3.new(1, 0, 1)), STRAW_DARK, { parent = m, material = Enum.Material.Grass, nocol = true })
 		end
+		-- round stone table
+		vcyl("TableStem", g + Vector3.new(0, 0.25, 0), 1, 2.2, STONE, { parent = m, material = Enum.Material.Concrete })
+		vcyl("TableTop", g + Vector3.new(0, 2.45, 0), 3.8, 0.3, STONE, { parent = m, material = Enum.Material.Concrete })
+		-- two curved benches (120° each) around the table, seats facing it
+		for _, arc in ipairs({ { 20, 140 }, { 200, 320 } }) do
+			local steps = 6
+			for i = 0, steps - 1 do
+				local a = math.rad(arc[1] + (arc[2] - arc[1]) * (i + 0.5) / steps) + rot
+				local p = g + Vector3.new(math.cos(a) * 4.8, 0, math.sin(a) * 4.8)
+				local chord = 2 * 4.8 * math.sin(math.rad((arc[2] - arc[1]) / steps / 2)) + 0.1
+				local face = CFrame.lookAt(p, Vector3.new(g.X, p.Y, g.Z))
+				part("BenchBase", Vector3.new(chord, 1.2, 1), face * CFrame.new(0, 0.85, 0), STONE, { parent = m, material = Enum.Material.Concrete })
+				if i % 2 == 0 then
+					seat("BeachBench", face * CFrame.new(0, 1.55, 0), Vector3.new(chord, 0.2, 1.3), STONE, m)
+				else
+					part("BenchTop", Vector3.new(chord, 0.2, 1.3), face * CFrame.new(0, 1.55, 0), STONE, { parent = m, material = Enum.Material.Concrete })
+				end
+			end
+		end
+		return m
+	end
+	if beachZone then
+		local undo = CFrame.new(0, BEACH_DROP, 0) -- inverse of the zone move
+		local n = 0
+		for _, old in ipairs(beachZone:GetChildren()) do
+			if old:IsA("Model") and string.match(old.Name, "^BeachSpot_") then
+				local cf = old:GetBoundingBox()
+				n += 1
+				old:PivotTo(undo * old:GetPivot())
+				old:SetAttribute("HomeZone", beachZone.Name)
+				old.Parent = hidden
+				strawSpot(Vector3.new(cf.X, SAND_Y, cf.Z), n)
+			end
+		end
+	end
+	-- beach signs (second photo); the boards are blank for now, the user
+	-- designs the content later (parts named SignContent)
+	local BROWN, BROWN2 = Color3.fromRGB(92, 48, 36), Color3.fromRGB(122, 66, 48)
+	do -- tall rounded "surfboard" rules board, facing the promenade (+X)
+		local x, z = -212, -166
+		local board = Instance.new("Model")
+		board.Name = "BeachRulesSign"
+		board.Parent = T
+		local W, H, bottom = 3.2, 7.2, SAND_Y + 1.6
+		part("SignBoard", Vector3.new(0.3, H, W), CFrame.new(x, bottom + W / 2 + H / 2, z), BROWN, { parent = board })
+		for _, y in ipairs({ bottom + W / 2, bottom + W / 2 + H }) do
+			part("SignBoardEnd", Vector3.new(0.3, W, W), CFrame.new(x, y, z), BROWN, { parent = board, shape = Enum.PartType.Cylinder })
+		end
+		part("SignContent", Vector3.new(0.05, H - 0.6, W - 0.6), CFrame.new(x + 0.18, bottom + W / 2 + H / 2, z), BROWN2, { parent = board, nocol = true })
+		for _, dz in ipairs({ -0.8, 0.8 }) do
+			part("SignLeg", Vector3.new(0.25, 1.9, 0.25), CFrame.new(x, SAND_Y + 0.95, z + dz), Color3.fromRGB(60, 34, 26), { parent = board })
+		end
+	end
+	do -- map board on two posts
+		local x, z = -212, -154
+		local board = Instance.new("Model")
+		board.Name = "BeachMapSign"
+		board.Parent = T
+		local W, H, y0 = 8.4, 5.4, SAND_Y + 1.8
+		for _, dz in ipairs({ -W / 2 + 0.3, W / 2 - 0.3 }) do
+			part("SignPost", Vector3.new(0.45, y0 + H - SAND_Y + 0.3, 0.45), CFrame.new(x - 0.2, (SAND_Y + y0 + H + 0.3) / 2, z + dz), Color3.fromRGB(70, 44, 32), { parent = board, material = Enum.Material.Wood })
+		end
+		part("SignFrame", Vector3.new(0.35, H, W), CFrame.new(x, y0 + H / 2, z), Color3.fromRGB(100, 62, 42), { parent = board, material = Enum.Material.Wood })
+		part("SignContent", Vector3.new(0.05, H - 0.7, W - 0.7), CFrame.new(x + 0.2, y0 + H / 2, z), Color3.fromRGB(242, 238, 228), { parent = board, nocol = true })
 	end
 end
 
@@ -1715,7 +1959,7 @@ do
 	B.Name = "OhuFourCuts"
 	B.Parent = T
 	local F = 1.6 -- shop floor top (graybox 0.4 + 1.2 lift)
-	local GF = F + 14.8 -- top of the ground floor / underside of the fascia
+	local GF = F + 19 -- top of the ground floor / underside of the fascia (high ceiling, user)
 	local W0, W1, N0, S0 = 48.5, 109.5, -98.5, -47.5 -- outer faces: west, east, north, south
 	local CH = 11 -- cut corner
 	local P1, P2 = Vector3.new(W0, 0, S0 - CH), Vector3.new(W0 + CH, 0, S0) -- ends of the cut corner
@@ -1924,7 +2168,7 @@ do
 	end
 	-- origin = centre of the sign on the fascia face, right / out = unit vectors
 	local function sign3d(name, chars, origin: Vector3, right: Vector3, out: Vector3, H)
-		local SW, DEPTH, GAP = 0.15 * H, 0.6, 0.16
+		local SW, DEPTH, GAP = 0.17 * H, 1.0, 0.16
 		local up = Vector3.yAxis
 		local total = 0
 		for i, ch in ipairs(chars) do total += GLYPHS[ch][1] + (if i > 1 then GAP else 0) end
@@ -1963,9 +2207,11 @@ do
 			x += g[1]
 		end
 	end
-	local fasMid = (FAS0 + FAS1) / 2
-	sign3d("Sign_OhuNeCut", { "◎", "오", "후", "네", "컷" }, Vector3.new(MC.X, fasMid, MC.Z) + nC * 1.2, tC, nC, 1.7)
-	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, -75), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.7)
+	-- the shop name sits one band lower, on the wall between the door frame and
+	-- the fascia, so players see it from the street (user 2026-10-23)
+	local fasMid = F + 14.6
+	sign3d("Sign_OhuNeCut", { "◎", "오", "후", "네", "컷" }, Vector3.new(MC.X, fasMid, MC.Z), tC, nC, 2)
+	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0, fasMid, -74), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 2)
 
 	-- upper floors (2F, 3F): white brick mass with the cut corner, dark-framed
 	-- windows, floor bands, then a parapet with a steel railing (roof terrace)
