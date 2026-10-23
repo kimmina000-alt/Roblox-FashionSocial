@@ -33,7 +33,9 @@ local function R(deg) return CFrame.Angles(0, math.rad(deg), 0) end
 -- The club moves 6 north and the photo booth 12 north (its side face clears
 -- the east-road sidewalk), the hanok village 12 south. The beach goes 2.4
 -- down (and the sea 3) so the promenade steps down to the sand (광안리 photo).
-local CLUB_DZ = -6
+-- -14 (was -6): an alley between the club and the 오후네컷 building (user 2026-10-23)
+local CLUB_DZ = -14
+local CDZ = CLUB_DZ + 6 -- shift for positions measured when CLUB_DZ was -6
 local MOVES = {
 	["02_Club"] = CFrame.new(0, 0, CLUB_DZ) * CFrame.new(109, 0, -172) * R(-90) * CFrame.new(0, 0, 210), -- entrance faces west (club street)
 	["03_Rooftop_Backstage"] = CFrame.new(0, 0, CLUB_DZ) * CFrame.new(109, 0, -366) * R(180) * CFrame.new(-125, 0, 160), -- runway behind the club
@@ -427,7 +429,7 @@ local function foliage(name: string, scale: number, at: CFrame): Model?
 	m.Parent = T
 	return m
 end
-local function planter(pos: Vector3, along: Vector3, len: number?)
+local function planter(pos: Vector3, along: Vector3, len: number?, bare: boolean?)
 	-- 4.4 wide: tree pits are at least 1.5 m wide (산림청 도시숲·가로수 기준)
 	local L, W = len or 14, 4.4
 	local cf = CFrame.lookAt(pos, pos + along) -- -Z = along the street
@@ -468,7 +470,7 @@ local function planter(pos: Vector3, along: Vector3, len: number?)
 	end
 	-- only this shrub (user 2026-10-22), larger, two on each side of the tree in
 	-- a row, each turned a little differently
-	for k, z in ipairs({ -5.4, -2.8, 2.8, 5.4 }) do
+	for k, z in ipairs(if bare then {} else { -5.4, -2.8, 2.8, 5.4 }) do
 		local scale = 0.44 + ((k * 7 + plantN * 3) % 5) * 0.012 -- larger again (user)
 		local yaw = math.rad(((k * 97 + plantN * 53) % 360))
 		-- sunk so the brown stems go into the soil (user)
@@ -590,7 +592,11 @@ local function clear(p: Vector3)
 	return true
 end
 -- outer = sidewalk outer edge per side { [-1] = left of dir, [1] = right }
-local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing: boolean?)
+-- detail = how far from the junction the full street furniture goes; past it
+-- (outside the play area, only seen from afar) the street runs on with
+-- every other bed, bare beds (no shrubs) and no lamps or bike symbols
+local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing: boolean?, detail: number?)
+	local DETAIL = detail or len
 	outer = outer or { [-1] = WIDE, [1] = WIDE }
 	local across = Vector3.new(-dir.Z, 0, dir.X)
 	local function at(u, v) return dir * u + across * v end
@@ -713,14 +719,17 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing
 	-- first tree 4 m past the crossing paint (u 56), ≥ 3 m from street lights
 	-- and signals, none at bus stops (KEEP_CLEAR) or subway exits.
 	local TREE_V, TREE_U0, TREE_STEP = 27, 56, 23.5
+	local bedN = 0
 	for u = TREE_U0, len - 10, TREE_STEP do -- beds 15 long → a nearly continuous strip
-		local free = true
+		bedN += 1
+		local far = u > DETAIL
+		local free = not far or bedN % 2 == 0
 		for _, p in ipairs(pits) do if u > p[1] - 9 and u < p[2] + 9 then free = false end end
-		if free then for _, v in ipairs({ -TREE_V, TREE_V }) do if clear(at(u, v)) then planter(at(u, v), dir, 15) end end end
+		if free then for _, v in ipairs({ -TREE_V, TREE_V }) do if clear(at(u, v)) then planter(at(u, v), dir, 15, far) end end end
 	end
 	-- a lamp every third gap between planting beds (about every 70, user: not
 	-- too many), 11.75 (4 m) from the nearest trees
-	for u = TREE_U0 + TREE_STEP / 2, len - 6, TREE_STEP * 3 do
+	for u = TREE_U0 + TREE_STEP / 2, math.min(len, DETAIL) - 6, TREE_STEP * 3 do
 		local free = true
 		for _, p in ipairs(pits) do if u > p[1] - 2 and u < p[2] + 2 then free = false end end
 		if free and clear(at(u, -TREE_V)) then streetLamp(at(u, -TREE_V) + Vector3.new(0, CURB, 0), across) end
@@ -754,7 +763,7 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing
 					local c, d = at(u0, side * (ev - 0.15)), at(u1, side * (ev + 0.15))
 					box("BikeLaneEdge", c.X, CURB + 0.03, c.Z, d.X, CURB + 0.05, d.Z, WHITE, { nocol = true })
 				end
-				for u = u0 + 8, u1 - 6, 32 do
+				for u = u0 + 8, math.min(u1, DETAIL) - 6, 32 do
 					local pos = at(u, side * 31.2) + Vector3.new(0, CURB + 0.06, 0)
 					local mark = part("BikeSymbol", Vector3.new(3.7, 0.02, 3.7), CFrame.lookAt(pos, pos + across * side) , WHITE, { nocol = true, transparency = 1 })
 					local dcl = Instance.new("Decal")
@@ -785,9 +794,11 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing
 end
 -- north road: west side stays narrow along the park's red box; east side
 -- reaches the club / photo booth fronts (49)
-bigRoad(Vector3.new(0, 0, -1), 470, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 92, -1 }, { 150, 1 }, { 205, -1 } }, { [-1] = 34, [1] = 49 }) -- north
-bigRoad(Vector3.new(0, 0, 1), 640, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }) -- south (past the boundary at 299: the street goes on, D-110)
-bigRoad(Vector3.new(1, 0, 0), 260, {}, { { 100, 1 }, { 165, -1 } }) -- east
+-- (north, south and east run on to the map edge, 1000 from the junction, so
+-- no road end shows on screen; user 2026-10-23)
+bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 92, -1 }, { 150, 1 }, { 205, -1 } }, { [-1] = 34, [1] = 49 }, nil, 480) -- north
+bigRoad(Vector3.new(0, 0, 1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }, nil, nil, 300) -- south (past the boundary at 299: the street goes on, D-110)
+bigRoad(Vector3.new(1, 0, 0), 1000, {}, { { 100, 1 }, { 165, -1 } }, nil, nil, 180) -- east
 bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 100, -1 } }, nil, true) -- west, to the seafront road (bike lanes run on to the bike crossings)
 
 local function smallRoad(a: Vector2, b: Vector2, stopEnds)
@@ -1495,8 +1506,8 @@ do
 	-- graybox walls are lilac; the cladding covers their outside faces.
 	local BLACK, BLACK2 = Color3.fromRGB(26, 27, 30), Color3.fromRGB(40, 42, 46)
 	local GOLD = Color3.fromRGB(214, 172, 92)
-	local DZ0, DZ1 = -189, -167 -- door gap (with its gold frame)
-	local Z0, Z1, TOPY = -258, -98, 37
+	local DZ0, DZ1 = -189 + CDZ, -167 + CDZ -- door gap (with its gold frame)
+	local Z0, Z1, TOPY = -260.2 + CDZ, -95.8 + CDZ, 37 -- to the outer faces of the lilac side walls
 	local function gold(name, x0, y0, z0, x1, y1, z1)
 		local p = box(name, x0, y0, z0, x1, y1, z1, GOLD, { parent = K, material = Enum.Material.Foil })
 		p.Reflectance = 0.25
@@ -1506,19 +1517,19 @@ do
 	box("Cladding", 47.8, 0, Z0, 48, TOPY, DZ0, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("Cladding", 47.8, 0, DZ1, 48, TOPY, Z1, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("Cladding", 47.8, 12, DZ0, 48, TOPY, DZ1, BLACK, { parent = K, material = Enum.Material.Metal })
-	box("Cladding", 48, 0, -260.2, 171.2, TOPY, -260, BLACK, { parent = K, material = Enum.Material.Metal })
-	box("Cladding", 171, 0, -260.2, 171.2, TOPY, -95.8, BLACK, { parent = K, material = Enum.Material.Metal })
-	box("Cladding", 109.6, 0, -96, 171.2, TOPY, -95.8, BLACK, { parent = K, material = Enum.Material.Metal })
+	box("Cladding", 48, 0, -260.2 + CDZ, 171.2, TOPY, -260 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
+	box("Cladding", 171, 0, -260.2 + CDZ, 171.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
+	box("Cladding", 48, 0, -96 + CDZ, 171.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("CapBand", 47.3, TOPY - 0.8, Z0 - 2, 48, TOPY + 0.4, Z1 + 1, BLACK2, { parent = K, material = Enum.Material.Metal })
 	-- ground floor: gold strips, gold portal around the door
-	gold("GoldStrip", 47.5, 6.4, -242, 47.8, 7, -196)
-	gold("GoldStrip", 47.5, 6.4, -160, 47.8, 7, -114)
+	gold("GoldStrip", 47.5, 6.4, -242 + CDZ, 47.8, 7, -196 + CDZ)
+	gold("GoldStrip", 47.5, 6.4, -160 + CDZ, 47.8, 7, -114 + CDZ)
 	gold("GoldJamb", 45.8, 0, DZ0 - 3, 47.8, 15, DZ0)
 	gold("GoldJamb", 45.8, 0, DZ1, 47.8, 15, DZ1 + 3)
 	gold("GoldLintel", 45.8, 12, DZ0, 47.8, 15, DZ1)
 	for _, zz in ipairs({ DZ0 + 0.2, DZ1 - 0.2 }) do gold("GoldDoorFrame", 46.6, 0.1, zz - 0.2, 47.8, 12, zz + 0.2) end
 	-- sign band with spaced white letters and the crown
-	local band = box("ClubSign", 46.4, 15, -250, 47.8, 20.6, -106, BLACK, { parent = K, material = Enum.Material.Metal })
+	local band = box("ClubSign", 46.4, 15, -250 + CDZ, 47.8, 20.6, -106 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
 	do
 		local g = Instance.new("SurfaceGui")
 		g.Face = Enum.NormalId.Left
@@ -1549,7 +1560,7 @@ do
 		end
 	end
 	-- upper floors: horizontal louvres + a run of tall black-framed windows
-	local WZ0, WZ1 = -232, -150
+	local WZ0, WZ1 = -232 + CDZ, -150 + CDZ
 	for y = 21.4, TOPY - 1.2, 1.1 do
 		for _, r in ipairs({ { Z0, WZ0 }, { WZ1, Z1 } }) do
 			box("Louvre", 47.3, y, r[1], 47.8, y + 0.35, r[2], BLACK2, { parent = K, material = Enum.Material.Metal })
@@ -1560,7 +1571,7 @@ do
 	box("WindowFrame", 47.2, 33.5, WZ0, 47.8, 34.1, WZ1, BLACK, { parent = K })
 	for zz = WZ0, WZ1, 5.5 do box("WindowMullion", 47.2, 22, zz - 0.25, 47.8, 33.5, zz + 0.25, BLACK, { parent = K }) end
 	-- low black iron fence along the front (gaps at the door and the queue)
-	for _, r in ipairs({ { -256, DZ0 - 4 }, { DZ1 + 4, -158 } }) do
+	for _, r in ipairs({ { -256 + CDZ, DZ0 - 4 }, { DZ1 + 4, -158 + CDZ } }) do
 		box("FenceRail", 46.3, 3, r[1], 46.5, 3.2, r[2], BLACK, { parent = K })
 		box("FenceRail", 46.3, 0.8, r[1], 46.5, 1, r[2], BLACK, { parent = K })
 		for zz = r[1], r[2], 0.6 do box("FencePicket", 46.35, CURB, zz - 0.05, 46.45, 3.2, zz + 0.05, BLACK, { parent = K, nocol = true }) end
@@ -1588,7 +1599,11 @@ do
 		local undo = MOVES["02_Club"]:Inverse()
 		if clubZ then
 			for _, c in ipairs(clubZ:GetChildren()) do
-				if c:IsA("BasePart") and (c.Name == "RedCarpetYard" or c.Name == "RopePost" or c.Name == "Rope") then
+				-- the name labels of the photo wall and the outdoor lift pad go too
+				local bb = c:FindFirstChildWhichIsA("BillboardGui")
+				local tl = bb and bb:FindFirstChildWhichIsA("TextLabel")
+				local labelHere = c.Name == "Label" and tl ~= nil and (string.find(tl.Text, "포토월") ~= nil or (string.find(tl.Text, "엘리베이터") ~= nil and c.Position.Y < 20))
+				if c:IsA("BasePart") and (c.Name == "RedCarpetYard" or c.Name == "RopePost" or c.Name == "Rope" or c.Name == "PhotoWall" or c.Name == "PhotoSpot" or c.Name == "DoormanNPC(placeholder)" or labelHere) then
 					c.CFrame = undo * c.CFrame
 					c:SetAttribute("HomeZone", clubZ.Name)
 					c.Parent = hidden
@@ -1596,8 +1611,81 @@ do
 			end
 		end
 	end
-	for _, c in ipairs({ { 37.5, -110 }, { 47.5, -110 }, { 37.5, -100 }, { 47.5, -100 } }) do vcyl("TentLeg", Vector3.new(c[1], CURB, c[2]), 0.3, 8, Color3.fromRGB(230, 230, 235), { parent = K }) end
-	box("TentRoof", 37, 8.5, -111, 48, 8.9, -99, Color3.fromRGB(245, 245, 250), { parent = K, nocol = true })
+	-- (white tent and the red-carpet photo wall removed, user 2026-10-23)
+
+	-- Rooftop lift inside the club (user 2026-10-23): the corridor to the
+	-- right of the entrance (south, +z) runs on into the solid entry fill and
+	-- ends at a lift car with an automatic door; the graybox ElevatorPadUp
+	-- (GrayboxElevator script) moves onto the car floor, so stepping in sends
+	-- the player to the roof, and the way back lands in the corridor.
+	do
+		local clubZ = root:FindFirstChild("02_Club")
+		local undo = MOVES["02_Club"]:Inverse()
+		local CX0, CX1 = 50, 65.5 -- inside faces of the front wall and the hall wall
+		local FOYER_END = -165.5 + CDZ -- the old foyer end wall
+		local CAR0, CAR1 = -152 + CDZ, -143 + CDZ -- lift car (door at CAR0)
+		local FILL_END = -98 + CDZ
+		local DARK = Color3.fromRGB(28, 28, 32)
+		local function park(c: BasePart)
+			c.CFrame = undo * c.CFrame
+			c:SetAttribute("HomeZone", clubZ.Name)
+			c.Parent = hidden
+		end
+		if clubZ then
+			for _, c in ipairs(clubZ:GetChildren()) do
+				if c:IsA("BasePart") and (c.Name == "Foyer_E" or c.Name == "Entry_Fill") then park(c) end
+			end
+		end
+		local E = Instance.new("Model")
+		E.Name = "ClubLift"
+		E.Parent = T
+		-- corridor: floor, ceiling, black walls
+		box("LiftCorridorFloor", CX0, -0.5, FOYER_END - 0.5, CX1, 0, CAR0, Color3.fromRGB(34, 34, 40), { parent = E, material = Enum.Material.Marble })
+		box("LiftCorridorCeiling", CX0, 12, FOYER_END - 0.5, CX1, 13, CAR1 + 0.6, DARK, { parent = E })
+		-- the rest of the old fill behind the car stays solid
+		box("EntryFillRest", CX0 - 0.1, -24, CAR1 + 0.6, CX1 + 0.1, 36, FILL_END, Color3.fromRGB(40, 42, 46), { parent = E })
+		-- strip lights along the corridor ceiling
+		for z = FOYER_END + 2, CAR0 - 2, 4 do
+			local l = box("LiftCorridorLight", 56.6, 11.8, z - 0.8, 58.9, 12, z + 0.8, Color3.fromRGB(255, 240, 220), { parent = E, nocol = true })
+			local pl = Instance.new("PointLight") pl.Range = 10 pl.Brightness = 0.7 pl.Color = Color3.fromRGB(255, 225, 200) pl.Parent = l
+		end
+		-- lift car: brushed steel walls, gold frame, floor pad
+		local STEEL = Color3.fromRGB(150, 152, 158)
+		box("LiftCarFloor", CX0, -0.5, CAR0, CX1, 0, CAR1, Color3.fromRGB(60, 60, 66), { parent = E, material = Enum.Material.Metal })
+		box("LiftCarBack", CX0, 0, CAR1, CX1, 12, CAR1 + 0.6, STEEL, { parent = E, material = Enum.Material.Metal })
+		box("LiftCarCeiling", CX0, 11.4, CAR0, CX1, 12, CAR1, STEEL, { parent = E, material = Enum.Material.Metal })
+		local cl = box("LiftCarLight", 55, 11.3, CAR0 + 2, 60.5, 11.4, CAR1 - 2, Color3.fromRGB(255, 250, 240), { parent = E, nocol = true })
+		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 12 sl.Brightness = 1 sl.Parent = cl
+		-- front wall with the door opening (door 7 wide in the middle)
+		local mid, DOOR = (CX0 + CX1) / 2, 7
+		box("LiftFront", CX0, 0, CAR0 - 0.5, mid - DOOR / 2, 12, CAR0, DARK, { parent = E })
+		box("LiftFront", mid + DOOR / 2, 0, CAR0 - 0.5, CX1, 12, CAR0, DARK, { parent = E })
+		box("LiftFront", mid - DOOR / 2, 9, CAR0 - 0.5, mid + DOOR / 2, 12, CAR0, DARK, { parent = E })
+		for _, s in ipairs({ -1, 1 }) do
+			box("LiftFrameGold", mid + s * (DOOR / 2 + 0.3) - 0.3, 0, CAR0 - 0.7, mid + s * (DOOR / 2 + 0.3) + 0.3, 9.3, CAR0 - 0.4, Color3.fromRGB(214, 172, 92), { parent = E, material = Enum.Material.Foil, nocol = true })
+		end
+		box("LiftFrameGold", mid - DOOR / 2 - 0.6, 9, CAR0 - 0.7, mid + DOOR / 2 + 0.6, 9.4, CAR0 - 0.4, Color3.fromRGB(214, 172, 92), { parent = E, material = Enum.Material.Foil, nocol = true })
+		local door = Instance.new("Model")
+		door.Name = "AutoDoor"
+		door:SetAttribute("Range", 8)
+		for _, s in ipairs({ -1, 1 }) do
+			local panel = box("LiftDoorPanel", mid + s * DOOR / 2, 0, CAR0 - 0.35, mid, 9, CAR0 - 0.15, Color3.fromRGB(175, 178, 184), { parent = door, material = Enum.Material.Metal })
+			panel:SetAttribute("Slide", Vector3.new(s * (DOOR / 2 - 0.1), 0, 0))
+		end
+		door.WorldPivot = CFrame.new(mid, 4, CAR0)
+		door.Parent = E
+		CS:AddTag(door, "AutoDoor")
+		local sign = box("LiftSign", mid - 3, 9.7, CAR0 - 0.75, mid + 3, 11, CAR0 - 0.7, Color3.fromRGB(15, 15, 18), { parent = E, nocol = true })
+		surfaceText(sign, Enum.NormalId.Front, "▲ ROOFTOP", Color3.fromRGB(255, 120, 210), Enum.Font.Michroma)
+		-- the graybox pad onto the car floor; its local +Z points back into the
+		-- corridor (the script lands arrivals 10 studs along it)
+		local pad = clubZ and clubZ:FindFirstChild("ElevatorPadUp")
+		if pad and pad:IsA("BasePart") then
+			pad:SetAttribute("OrigCFrame", pad.CFrame)
+			local pc = Vector3.new(mid, 0.1, (CAR0 + CAR1) / 2 + 0.5)
+			pad.CFrame = CFrame.lookAt(pc, pc + Vector3.new(0, 0, 1))
+		end
+	end
 	local clock = box("ClockBoard", 48.2, 9, -134 + CLUB_DZ, 48.7, 13, -120 + CLUB_DZ, Color3.fromRGB(10, 10, 15), { parent = K })
 	surfaceText(clock, Enum.NormalId.Left, "OPEN 22:00", Color3.fromRGB(80, 230, 255), Enum.Font.Michroma)
 end
@@ -2337,9 +2425,28 @@ do
 	for i, zz in ipairs({ 262, 298, 334, 370, 406, 442, 478, 514, 550, 586, 622 }) do
 		fakeBuilding(Vector3.new(-134, 0, zz), 34, 22, hgt[(i % #hgt) + 1], Vector3.new(-1, 0, 0))
 	end
-	-- next to the club, along the north road (hides the future runway lot)
-	for i, zz in ipairs({ -285, -320, -355, -410, -446 }) do
-		fakeBuilding(Vector3.new(67, 0, zz), 34, 16, hgt[(i + 3) % #hgt + 1], Vector3.new(-1, 0, 0))
+	-- next to the club, along the north road: fronts on the club line (x 48)
+	-- right against the sidewalk (user 2026-10-23), on to the map edge
+	local i2 = 0
+	for zz = -252 + CLUB_DZ - 17.5, -985, -35 do -- the club's north face is at -252 + CLUB_DZ
+		i2 += 1
+		fakeBuilding(Vector3.new(56, 0, zz), 34, 16, hgt[(i2 + 3) % #hgt + 1], Vector3.new(-1, 0, 0))
+	end
+	-- the rest of the extended roads: shops on both sides past the boundary
+	i2 = 0
+	for zz = -505, -985, -35 do -- north road, west side (front +x at x -34)
+		i2 += 1
+		fakeBuilding(Vector3.new(-45, 0, zz), 34, 22, hgt[(i2 + 1) % #hgt + 1], Vector3.new(1, 0, 0))
+	end
+	i2 = 0
+	for zz = 604, 985, 36 do -- south road, west side (after the existing row)
+		i2 += 1
+		fakeBuilding(Vector3.new(-72, 0, zz), 34, 22, hgt[(i2 + 5) % #hgt + 1], Vector3.new(1, 0, 0))
+	end
+	i2 = 0
+	for xx = 330, 985, 35 do -- east road, north side (front +z at z -47)
+		i2 += 1
+		fakeBuilding(Vector3.new(xx, 0, -58), 34, 22, hgt[(i2 + 2) % #hgt + 1], Vector3.new(0, 0, 1))
 	end
 
 	-- the beach goes on north and south past the boundary
