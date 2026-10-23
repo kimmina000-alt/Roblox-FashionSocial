@@ -416,7 +416,8 @@ local function foliage(name: string, scale: number, at: CFrame): Model?
 	return m
 end
 local function planter(pos: Vector3, along: Vector3, len: number?)
-	local L, W = len or 14, 3.2
+	-- 4.4 wide: tree pits are at least 1.5 m wide (산림청 도시숲·가로수 기준)
+	local L, W = len or 14, 4.4
 	local cf = CFrame.lookAt(pos, pos + along) -- -Z = along the street
 	local granite = Color3.fromRGB(196, 194, 188)
 	local top = CURB + 0.35
@@ -457,7 +458,16 @@ local function arrow(pos: Vector3, dir: Vector3, turn)
 	local headCf = cf * CFrame.new(0, 0, -5)
 	part("ArrowHead", Vector3.new(0.7, 0.04, 3), headCf * CFrame.Angles(0, math.rad(35), 0) * CFrame.new(0, 0, 1), WHITE, { nocol = true })
 	part("ArrowHead", Vector3.new(0.7, 0.04, 3), headCf * CFrame.Angles(0, math.rad(-35), 0) * CFrame.new(0, 0, 1), WHITE, { nocol = true })
-	if turn then part("ArrowTurn", Vector3.new(0.8, 0.04, 4), cf * CFrame.new(-1.6, 0, -1) * CFrame.Angles(0, math.rad(-60), 0), WHITE, { nocol = true }) end
+	if turn then
+		-- 직진·좌회전 arrow (별표 6): a branch leaves the shaft and bends to
+		-- the left with its own head
+		local a, b = (cf * CFrame.new(0, 0, 0.6)).Position, (cf * CFrame.new(-3.4, 0, -1.8)).Position
+		part("ArrowTurn", Vector3.new(0.8, 0.04, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), WHITE, { nocol = true })
+		local tip = CFrame.lookAt(b, b + (b - a))
+		for _, s in ipairs({ 1, -1 }) do
+			part("ArrowHead", Vector3.new(0.7, 0.04, 2.6), tip * CFrame.Angles(0, math.rad(35 * s), 0) * CFrame.new(0, 0, 1), WHITE, { nocol = true })
+		end
+	end
 end
 
 local CAR_COLORS = { Color3.fromRGB(245, 245, 245), Color3.fromRGB(25, 25, 30), Color3.fromRGB(150, 155, 160), Color3.fromRGB(40, 60, 110), Color3.fromRGB(160, 30, 35) }
@@ -625,14 +635,24 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 			last = p
 		end
 	end
-	for u = 62, len - 10, 18 do -- beds 16 long → a nearly continuous strip
+	-- Street trees per 산림청 「도시숲·생활숲·가로수 조성·관리 기준」 and
+	-- common Korean street-tree practice (docs/04_ART/STREET_TREES.md):
+	-- trees 4–8 m apart (here 17.3 ≈ 5.9 m), trunk ≥ 1 m from the curb (v 27),
+	-- first tree 4 m past the crosswalk paint (u 49), ≥ 3 m from street lights
+	-- and signals, none at bus stops (KEEP_CLEAR) or subway exits.
+	local TREE_V, TREE_U0, TREE_STEP = 27, 49, 121 / 7
+	for u = TREE_U0, len - 10, TREE_STEP do -- beds 15 long → a nearly continuous strip
 		local free = true
 		for _, p in ipairs(pits) do if u > p[1] - 9 and u < p[2] + 9 then free = false end end
-		if free then for _, v in ipairs({ -26.4, 26.4 }) do if clear(at(u, v)) then planter(at(u, v), dir, 16) end end end
+		if free then for _, v in ipairs({ -TREE_V, TREE_V }) do if clear(at(u, v)) then planter(at(u, v), dir, 15) end end end
 	end
-	for u = 71, len - 6, 72 do -- every other lamp (user: too many); in a gap between planting beds
-		if clear(at(u, -26.4)) then streetLamp(at(u, -26.4) + Vector3.new(0, CURB, 0), across) end
-		if clear(at(u, 26.4)) then streetLamp(at(u, 26.4) + Vector3.new(0, CURB, 0), -across) end
+	-- every other lamp (user: too many), in a gap between planting beds, so
+	-- 8.6 (≈ 3 m) from the nearest trees
+	for u = TREE_U0 + TREE_STEP / 2, len - 6, TREE_STEP * 4 do
+		local free = true
+		for _, p in ipairs(pits) do if u > p[1] - 2 and u < p[2] + 2 then free = false end end
+		if free and clear(at(u, -TREE_V)) then streetLamp(at(u, -TREE_V) + Vector3.new(0, CURB, 0), across) end
+		if free and clear(at(u, TREE_V)) then streetLamp(at(u, TREE_V) + Vector3.new(0, CURB, 0), -across) end
 	end
 	-- bike lane between the planting strip and the walkway (user photo
 	-- 2026-10-22, 다산동): dark asphalt band with white edges and bike symbols,
@@ -645,20 +665,20 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 			end
 			local function free(u) 
 				for _, b in ipairs(blocked) do if u > b[1] and u < b[2] then return false end end
-				return clear(at(u, side * 30))
+				return clear(at(u, side * 31.2))
 			end
 			local runStart: number? = nil
 			local function lane(u0, u1)
 				if u1 - u0 < 6 then return end
 				-- right against the planting beds (user 2026-10-22: no gap)
-				local a, b = at(u0, side * 28), at(u1, side * 32)
+				local a, b = at(u0, side * 29.2), at(u1, side * 33.2)
 				box("BikeLane", a.X, CURB, a.Z, b.X, CURB + 0.03, b.Z, Color3.fromRGB(62, 63, 66), { material = Enum.Material.Asphalt, nocol = true })
-				for _, ev in ipairs({ 28.15, 31.85 }) do
+				for _, ev in ipairs({ 29.35, 33.05 }) do
 					local c, d = at(u0, side * (ev - 0.15)), at(u1, side * (ev + 0.15))
 					box("BikeLaneEdge", c.X, CURB + 0.03, c.Z, d.X, CURB + 0.05, d.Z, WHITE, { nocol = true })
 				end
 				for u = u0 + 8, u1 - 6, 32 do
-					local pos = at(u, side * 30) + Vector3.new(0, CURB + 0.06, 0)
+					local pos = at(u, side * 31.2) + Vector3.new(0, CURB + 0.06, 0)
 					local mark = part("BikeSymbol", Vector3.new(3.7, 0.02, 3.7), CFrame.lookAt(pos, pos + across * side) , WHITE, { nocol = true, transparency = 1 })
 					local dcl = Instance.new("Decal")
 					dcl.Texture = "rbxassetid://14547829073"

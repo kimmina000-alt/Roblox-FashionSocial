@@ -4,6 +4,7 @@
 - Official map script tools/graybox/build_hongdae_layout.lua (was hongdae_v1_temp.lua). DayNightController: HoldClockTime attribute.
 - Docs: D-102..D-111, docs/04_ART/REFERENCES.md + references/, tools/graybox/LAYOUT.md.
 - Crossroads road markings by Korean rules (D-112, docs/04_ART/ROAD_MARKINGS.md): right-hand traffic, 12-wide crosswalks, stop lines, solid lane lines before the stop line, arrows, ◇ crosswalk-ahead, tapered safety zone, left-turn guide curves.
+- Street trees by Korean rules (D-113, docs/04_ART/STREET_TREES.md): spacing, curb distance, wider beds, first tree past the crosswalk, lamps clear of trees; fixed the straight-and-left arrow.
 ## 2026-10-22 (4) — DJ fixes, one popup at a time, cafe part-time job (feat/dj-console-1022)
 - TopBar.bottom(): every popup starts below the top-bar buttons (phones with a 0 inset too).
 - New Popups module: opening a window closes the previous one (catalog, album, dance, DJ/music, 📸, player card, photo wall, booth setup/result, snacks, subway/bus, club shop).

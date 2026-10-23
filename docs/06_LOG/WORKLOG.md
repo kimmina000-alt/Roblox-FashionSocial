@@ -510,3 +510,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - ROAD_MARKINGS.md 기준으로 build_hongdae_layout.lua bigRoad 수정: 우측통행(진입 차로·화살표·정지선·차 방향), 횡단보도 폭 12, 정지선 1.2(횡단보도에서 6), 진로변경제한 실선 40, 화살표 반복, 횡단보도 예고 ◇, 안전지대 테이퍼, 좌회전 유도선(교차로 중심 안쪽 곡선, 마주 오는 좌회전과 안 겹침).
 - Studio: prop_save(손 편집 2건 유지) → 옛 폴더 Hongdae_v1_Temp를 정식 이름 Hongdae_Layout으로 바꾼 뒤 다시 빌드 → street_dress. Play 위에서 본 캡처: docs/04_ART/road_markings_v1.jpg.
 - 남은 일: 모바일 2인 테스트(프레임, 경계 벽), 병합 여부 확인, Studio 저장.
+- 사용자 질문(빨간 동그라미): 직진·좌회전 화살표의 좌회전 가지가 머리 없이 떨어져 그려져 있었음 → 몸통에서 갈라져 왼쪽으로 꺾이는 가지 + 화살촉으로 수정.
+- 가로수 기준 조사·적용(D-113, STREET_TREES.md): 간격 17.3, 연석에서 1m, 화단 폭 4.4, 첫 나무 횡단보도 끝 4m, 가로등은 화단 틈(나무에서 3m). 나무 135·화단 136·가로등 43. 손 편집 2건은 새 이름표로 옮겨 유지. 캡처 docs/04_ART/street_trees_v1.jpg.
