@@ -903,10 +903,12 @@ for _, e in ipairs(EXITS) do
 	local l0, l1 = at(-3) - side * 3, at(-9) + side * 3
 	box("Landing", l0.X, -9, l0.Z, l1.X, bottom, l1.Z, Color3.fromRGB(120, 120, 128), { parent = m, material = Enum.Material.Concrete })
 	do
-		local a, b = at(-9) - side * 3.4, at(9) - side * 3
+		-- inner faces 0.03 into the pit: at exactly 3 they shared a plane with the
+		-- cut edges of the ground / sidewalk round the hole and flickered (user video);
 		-- tops a hair under the ground (their tops sat in the pavement plane and flickered)
+		local a, b = at(-9) - side * 3.4, at(9) - side * 2.97
 		box("PitWallL", a.X, -9, a.Z, b.X, TOPY - 0.03, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
-		a, b = at(-9) + side * 3, at(9) + side * 3.4
+		a, b = at(-9) + side * 2.97, at(9) + side * 3.4
 		box("PitWallR", a.X, -9, a.Z, b.X, TOPY - 0.03, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
 	end
 	local ba, bb = at(-9.2) - side * 3, at(-8.8) + side * 3
@@ -972,7 +974,7 @@ for _, e in ipairs(EXITS) do
 	-- 출입구 / Entrance, the station name in Korean, English, Hanja, Japanese
 	local mouth = at(9)
 	-- on the road side of the mouth (user 2026-10-23), just past the opening
-	local polePos = mouth + out * 1.6 - side * 3.5 * math.sign(e[4])
+	local polePos = mouth + out * 3.6 - side * 3.8 * math.sign(e[4]) -- a step clear of the entrance frame (user)
 	-- a square post (photo: slim, the same on all four faces), the Korean name
 	-- written top to bottom, the small print really small
 	local PW, PD, PH = 1.15, 1.15, 10

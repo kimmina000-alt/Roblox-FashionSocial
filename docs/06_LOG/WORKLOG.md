@@ -638,3 +638,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | ![](images/2026-10-23/lawn_before.jpg) | ![](images/2026-10-23/lawn_after.jpg) |
 
 ![](images/2026-10-23/exit_sign_road_side.jpg)
+
+### 추가 (D-155)
+- 지하철 계단 안쪽 벽이 번쩍이던 원인은 벽 안쪽 면이 주변 바닥·인도의 잘린 면과 같은 위치에 겹쳐 있던 것입니다.
+  - 벽 안쪽 면을 아주 조금 안으로 당겨서 겹치지 않게 했습니다.
+- 출입구 기둥을 입구 앞쪽으로 한 걸음 떨어뜨렸습니다.
+
+![](images/2026-10-23/exit_sign_spaced.jpg)
