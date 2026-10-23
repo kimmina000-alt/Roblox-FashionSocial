@@ -665,7 +665,7 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing
 	for v = -22.5, 22.5, 3 do uv("Crosswalk", CW0, v - 0.75, CW1, v + 0.75, 0.12, 0.16, WHITE, { nocol = true }) end
 	uv("BikeCrossing", BX0, -24, BX1, 24, 0.12, 0.15, BIKE_RED, { nocol = true, material = Enum.Material.Asphalt })
 	uv("BikeCrossingLine", BX1 - 0.4, -24, BX1, 24, 0.15, 0.17, WHITE, { nocol = true })
-	for _, v in ipairs({ -12, 12 }) do
+	for _, v in ipairs({ 0 }) do -- one symbol per bike crossing (user 2026-10-24)
 		local pos = at((BX0 + BX1) / 2, v) + Vector3.new(0, 0.18, 0)
 		local mark = part("BikeSymbol", Vector3.new(3.7, 0.02, 3.7), CFrame.lookAt(pos, pos + across * (if v < 0 then 1 else -1)), WHITE, { nocol = true, transparency = 1 })
 		local dcl = Instance.new("Decal")
@@ -1308,7 +1308,7 @@ do
 	for _, seg in ipairs({ { z0, -24 }, { 24, z1 } }) do -- lane paint stops at the junction with the west road
 		paint("EdgeLine", -174.2, seg[1], -173.8, seg[2], WHITE)
 		paint("CenterLine", -166.2, seg[1], -165.8, seg[2], YELLOW)
-		for zz = seg[1] + 10, seg[2] - 6, 40 do
+		for zz = seg[1] + 10, seg[2] - 6, 80 do -- every other symbol of the old 40 (user 2026-10-24)
 			local near = false
 			for _, cz in ipairs(CROSS) do if math.abs(zz - cz) < 14 then near = true end end
 			if not near then
@@ -1363,7 +1363,7 @@ do
 		box("BikeCrossing", -182, 0.12, b[1], -158, 0.15, b[2], BIKE_RED, { nocol = true, material = Enum.Material.Asphalt })
 		local lineZ = if b[1] < 0 then b[2] else b[1] -- white side line on the junction side only
 		paint("BikeCrossingLine", -182, lineZ - 0.2, -158, lineZ + 0.2, WHITE)
-		for _, x in ipairs({ -176, -164 }) do
+		for _, x in ipairs({ -170 }) do -- one symbol per bike crossing (user 2026-10-24)
 			local mark = part("BikeSymbol", Vector3.new(3.7, 0.02, 3.7), CFrame.lookAt(Vector3.new(x, 0.18, (b[1] + b[2]) / 2), Vector3.new(x + (if x < -170 then -1 else 1), 0.18, (b[1] + b[2]) / 2)), WHITE, { nocol = true, transparency = 1 })
 			local dcl = Instance.new("Decal")
 			dcl.Texture = "rbxassetid://14547829073"

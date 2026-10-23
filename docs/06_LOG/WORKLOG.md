@@ -677,3 +677,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
   - 정차금지지대는 넣지 않았습니다. 막히는 교차로에 쓰는 표시이기 때문입니다.
 
 ![](images/2026-10-24/beach_t_guides.jpg)
+
+### 추가 (D-159)
+- 자전거 횡단도마다 자전거 표시를 하나씩만 남겼습니다.
+- 해변 도로 자전거길 표시를 하나 걸러 하나씩 지웠습니다.
+- 교차로 앞에서 차선이 끊기는 것은 법규대로라 그대로 두었습니다. 교차로 안에는 유도선 말고는 선을 긋지 않습니다.
+
+![](images/2026-10-24/sea_road_bikes.jpg)
