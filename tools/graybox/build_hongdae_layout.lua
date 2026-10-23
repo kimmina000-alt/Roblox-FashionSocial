@@ -548,28 +548,83 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 		end
 		uv("Sidewalk", u, v0, len, v1, 0, CURB, WALK, { material = Enum.Material.Brick })
 	end
-	local function line(name, v, col, dashed, from)
-		if dashed then
-			for u = 40, len - 6, 12 do uv(name, u, v - 0.2, u + 6, v + 0.2, 0.12, 0.16, col, { nocol = true }) end
-		else
-			uv(name, from or 38, v - 0.2, len, v + 0.2, 0.12, 0.16, col, { nocol = true })
+	-- Road markings per 도로교통법 시행규칙 별표 6 and the 경찰청 노면표시
+	-- manual (docs/04_ART/ROAD_MARKINGS.md, 2026-10-23). Korea drives on the
+	-- right: traffic coming into the junction (moving -dir) uses the -v side.
+	-- 1 stud ≈ 0.34 m.
+	local CW0, CW1 = 25, 37 -- crosswalk 12 wide (≥ 4 m)
+	local STOP = 43 -- stop line 6 behind the crosswalk (2–5 m rule)
+	local function solid(name, v, u0, u1, col, w)
+		uv(name, u0, v - (w or 0.4) / 2, u1, v + (w or 0.4) / 2, 0.12, 0.16, col, { nocol = true })
+	end
+	local function dashed(name, v, u0, u1, col)
+		for u = u0, u1 - 6, 12 do solid(name, v, u, u + 6, col) end
+	end
+	-- double yellow centre line, starting after the safety zone taper
+	solid("CenterLine", -0.45, 66, len, YELLOW) solid("CenterLine", 0.45, 66, len, YELLOW)
+	-- blue bus lane lines (median bus lanes)
+	solid("BusLane", -8, STOP, len, BLUE) solid("BusLane", 8, CW1 + 1, len, BLUE)
+	-- lane line: solid 진로변경제한선 for 40 studs (≈ 14 m, rule: within 50 m)
+	-- before the stop line on the incoming side, dashed further out
+	solid("LaneSolid", -16, STOP, STOP + 40, WHITE)
+	dashed("LaneDash", -16, STOP + 46, len, WHITE)
+	dashed("LaneDash", 16, CW1 + 3, len, WHITE)
+	-- zebra crosswalk across the whole road
+	for v = -22.5, 22.5, 3 do uv("Crosswalk", CW0, v - 0.75, CW1, v + 0.75, 0.12, 0.16, WHITE, { nocol = true }) end
+	-- stop line: incoming half only, 1.2 wide (≈ 40 cm)
+	uv("StopLine", STOP, -24, STOP + 1.2, 0, 0.12, 0.16, WHITE, { nocol = true })
+	-- direction arrows 8 behind the stop line, lane centres; repeated 25 m on
+	arrow(at(STOP + 9, -12), -dir, true) arrow(at(STOP + 9, -20), -dir, false)
+	if len > 130 then arrow(at(STOP + 82, -12), -dir, true) arrow(at(STOP + 82, -20), -dir, false) end
+	-- 횡단보도 예고 ◇ 50–60 m before the crosswalk, each lane
+	if len > 220 then
+		for _, v in ipairs({ -12, -20 }) do
+			local c = at(CW1 + 165, v) + Vector3.new(0, 0.14, 0)
+			for _, s in ipairs({ { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } }) do
+				local a = c + dir * (s[1] * 3)
+				local b = c + across * (s[2] * 1.6)
+				part("CrossingAhead", Vector3.new(0.35, 0.04, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), WHITE, { nocol = true })
+			end
 		end
 	end
-	-- the double centre line starts where the safety zone ends
-	line("CenterLine", -0.45, YELLOW, false, 58) line("CenterLine", 0.45, YELLOW, false, 58)
-	line("BusLane", -8, BLUE) line("BusLane", 8, BLUE)
-	line("LaneDash", -16, WHITE, true) line("LaneDash", 16, WHITE, true)
-	for v = -22.5, 22.5, 3 do uv("Crosswalk", 26, v - 0.75, 34, v + 0.75, 0.12, 0.16, WHITE, { nocol = true }) end
-	uv("StopLine", 36, 0, 36.6, 24, 0.12, 0.16, WHITE, { nocol = true })
-	arrow(at(46, 12), -dir, true) arrow(at(46, 20), -dir, false)
-	-- yellow safety zone (안전지대) at the median start: outline + diagonal
-	-- hatch that stays inside the outline
-	for u = 39.5, 56.5, 2.2 do
+	-- yellow safety zone (안전지대) at the median start: outline + hatch,
+	-- the far end tapers to a point into the centre line
+	for u = STOP + 2, 58, 2.2 do
 		local a = at(u, 0) + Vector3.new(0, 0.15, 0)
 		part("SafetyStripe", Vector3.new(0.35, 0.04, 3.9), CFrame.lookAt(a, a + dir + across), YELLOW, { nocol = true })
 	end
-	uv("SafetyEdge", 38, -1.8, 58, -1.4, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", 38, 1.4, 58, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
-	uv("SafetyEdge", 57.6, -1.8, 58, 1.8, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", 38, -1.8, 38.4, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
+	uv("SafetyEdge", STOP + 1.2, -1.8, 60, -1.4, 0.12, 0.16, YELLOW, { nocol = true }) uv("SafetyEdge", STOP + 1.2, 1.4, 60, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
+	uv("SafetyEdge", STOP + 1.2, -1.8, STOP + 1.6, 1.8, 0.12, 0.16, YELLOW, { nocol = true })
+	for _, s in ipairs({ -1, 1 }) do
+		local a, b = at(60, s * 1.6) + Vector3.new(0, 0.14, 0), at(66, s * 0.45) + Vector3.new(0, 0.14, 0)
+		part("SafetyEdge", Vector3.new(0.4, 0.04, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), YELLOW, { nocol = true })
+	end
+	-- left-turn guide line (유도선, one per approach): white dashes (2 on, 2
+	-- off) on a curve from the inner incoming car lane into the road on the left.
+	-- 도로교통법 제25조: turn inside the junction centre, so the curve passes
+	-- the centre on the near side and opposite left turns never cross.
+	do
+		local exitDir = across -- turning left from -dir ends up heading +across
+		local exitAcross = Vector3.new(-exitDir.Z, 0, exitDir.X)
+		local p0 = at(24, -10)
+		local p2 = exitDir * 24 + exitAcross * 10
+		local c1, c2 = p0 - dir * 15, p2 - exitDir * 15
+		local function bez(t)
+			local s = 1 - t
+			return p0 * s ^ 3 + c1 * 3 * s * s * t + c2 * 3 * s * t * t + p2 * t ^ 3
+		end
+		local steps, last, dist, on = 80, bez(0), 0, true
+		for i = 1, steps do
+			local p = bez(i / steps)
+			if on then
+				local a, b = last + Vector3.new(0, 0.14, 0), p + Vector3.new(0, 0.14, 0)
+				part("TurnGuide", Vector3.new(0.4, 0.04, (b - a).Magnitude + 0.05), CFrame.lookAt((a + b) / 2, b), WHITE, { nocol = true })
+			end
+			dist += (p - last).Magnitude
+			if dist >= 2 then dist = 0 on = not on end
+			last = p
+		end
+	end
 	for u = 62, len - 10, 18 do -- beds 16 long → a nearly continuous strip
 		local free = true
 		for _, p in ipairs(pits) do if u > p[1] - 9 and u < p[2] + 9 then free = false end end
@@ -622,7 +677,8 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer)
 		end
 	end
 	trafficLight(at(38, 30) + Vector3.new(0, CURB, 0), -across, 26)
-	for _, c in ipairs(cars) do car(at(c[1], c[2]), if c[2] > 0 then -dir else dir) end
+	-- right-hand traffic: -v side drives toward the junction (-dir)
+	for _, c in ipairs(cars) do car(at(c[1], c[2]), if c[2] < 0 then -dir else dir) end
 end
 -- north road: west side stays narrow along the park's red box; east side
 -- reaches the club / photo booth fronts (49)
