@@ -51,7 +51,7 @@ local BEACH_DROP, SEA_DROP = 2.4, 3
 -- ground holes: club + the four subway stair pits (x0, z0, x1, z1)
 local HOLES = {
 	{ 49, -252 + CLUB_DZ, 169, -92 + CLUB_DZ },
-	{ 26, -68, 32, -50 }, { -32, -68, -26, -50 }, -- exits 1, 3 (come up northwards)
+	{ 26, -68, 32, -50 }, { -46.8, -57.4, -28.8, -51.4 }, -- exit 1 comes up northwards, 3 westwards (toward the beach)
 	{ 26, 50, 32, 68 }, { -32, 50, -26, 68 }, -- exits 2, 4 (come up southwards)
 }
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
@@ -799,7 +799,7 @@ end
 -- reaches the club / photo booth fronts (49)
 -- (north, south and east run on to the map edge, 1000 from the junction, so
 -- no road end shows on screen; user 2026-10-23)
-bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 92, -1 }, { 150, 1 }, { 205, -1 } }, { [-1] = 34, [1] = 49 }, nil, 480) -- north
+bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 }, { 51.4, 57.4, -46.8, -28.8 } }, { { 92, -1 }, { 150, 1 }, { 205, -1 } }, { [-1] = 34, [1] = 49 }, nil, 480) -- north
 bigRoad(Vector3.new(0, 0, 1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }, nil, nil, 300) -- south (past the boundary at 299: the street goes on, D-110)
 bigRoad(Vector3.new(1, 0, 0), 1000, {}, { { 100, 1 }, { 165, -1 } }, nil, nil, 180) -- east
 bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 100, -1 } }, nil, true) -- west, to the seafront road (bike lanes run on to the bike crossings)
@@ -869,7 +869,7 @@ local EXITS = {
 	-- pits 18 long at 50..68 from the junction: clear of the wide corner squares (v7c)
 	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -59, Vector3.new(0, 0, -1) },
 	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 59, Vector3.new(0, 0, 1) },
-	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -29, -59, Vector3.new(0, 0, -1) },
+	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -37.8, -54.4, Vector3.new(-1, 0, 0) }, -- faces the beach (user 2026-10-23)
 	{ 4, "광안리 해변 · 카페", Color3.fromRGB(42, 143, 179), -29, 59, Vector3.new(0, 0, 1) },
 }
 local exitPads, exitMouths = {}, {}
@@ -879,20 +879,24 @@ for _, e in ipairs(EXITS) do
 	m.Parent = T
 	local out = e[6]
 	local c = Vector3.new(e[4], 0, e[5]) -- pit centre: 6 wide, 18 long (u -9..9 along out)
-	local side = Vector3.new(1, 0, 0)
+	local side = Vector3.new(math.abs(out.Z), 0, math.abs(out.X)) -- across the pit
 	local function at(u) return c + out * u end
 	local bottom = CURB - 10 * 0.86
 	for k = 1, 10 do -- stairs from the mouth (u 9) down to u -3
-		local a, b = at(9 - (k - 1) * 1.2), at(9 - k * 1.2)
-		box("Step", a.X - 3, -9, a.Z, b.X + 3, CURB - k * 0.86, b.Z, Color3.fromRGB(150, 150, 155), { parent = m, material = Enum.Material.Concrete })
+		local a, b = at(9 - (k - 1) * 1.2) - side * 3, at(9 - k * 1.2) + side * 3
+		box("Step", a.X, -9, a.Z, b.X, CURB - k * 0.86, b.Z, Color3.fromRGB(150, 150, 155), { parent = m, material = Enum.Material.Concrete })
 	end
-	local l0, l1 = at(-3), at(-9)
-	box("Landing", l0.X - 3, -9, l0.Z, l1.X + 3, bottom, l1.Z, Color3.fromRGB(120, 120, 128), { parent = m, material = Enum.Material.Concrete })
-	box("PitWallL", c.X - 3.4, -9, c.Z - 9, c.X - 3, CURB, c.Z + 9, Color3.fromRGB(200, 200, 205), { parent = m })
-	box("PitWallR", c.X + 3, -9, c.Z - 9, c.X + 3.4, CURB, c.Z + 9, Color3.fromRGB(200, 200, 205), { parent = m })
-	local back = at(-9)
-	local bw = box("PitBack", back.X - 3, -9, back.Z - 0.2, back.X + 3, CURB + 2.6, back.Z + 0.2, Color3.fromRGB(40, 40, 45), { parent = m })
-	surfaceText(bw, if out.Z < 0 then Enum.NormalId.Front else Enum.NormalId.Back, "🚇 승강장\n발판을 밟으면 출구 선택", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold)
+	local l0, l1 = at(-3) - side * 3, at(-9) + side * 3
+	box("Landing", l0.X, -9, l0.Z, l1.X, bottom, l1.Z, Color3.fromRGB(120, 120, 128), { parent = m, material = Enum.Material.Concrete })
+	do
+		local a, b = at(-9) - side * 3.4, at(9) - side * 3
+		box("PitWallL", a.X, -9, a.Z, b.X, CURB, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
+		a, b = at(-9) + side * 3, at(9) + side * 3.4
+		box("PitWallR", a.X, -9, a.Z, b.X, CURB, b.Z, Color3.fromRGB(200, 200, 205), { parent = m })
+	end
+	local ba, bb = at(-9.2) - side * 3, at(-8.8) + side * 3
+	local bw = box("PitBack", ba.X, -9, ba.Z, bb.X, CURB + 2.6, bb.Z, Color3.fromRGB(40, 40, 45), { parent = m })
+	surfaceText(bw, if out.Z < -0.5 then Enum.NormalId.Front elseif out.Z > 0.5 then Enum.NormalId.Back elseif out.X > 0 then Enum.NormalId.Right else Enum.NormalId.Left, "🚇 승강장\n발판을 밟으면 출구 선택", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold)
 	-- entrance building (user photo 2026-10-22): granite base, glass sides with
 	-- dark frames, a grey roof high at the open end that sweeps down in a curve
 	-- to the base at the back
@@ -1536,7 +1540,9 @@ do
 	local wood = Color3.fromRGB(160, 50, 38)
 	local roofC = Color3.fromRGB(60, 62, 66)
 	local DANCHEONG = Color3.fromRGB(50, 120, 95)
-	local gx0, gx1, gz0, gz1 = 82, 96, 140, 196 -- in front of the village back wall (gate at z 168, v7c)
+	-- the gate sits on the village wall line: the wall meets the middle of its
+	-- sides (user 2026-10-23); x 90..104, the wall at x 97
+	local gx0, gx1, gz0, gz1 = 90, 104, 140, 196
 	local H = 12
 	local TOP = H + 4.6 -- the stone base and its band reach the green box (user 2026-10-23)
 	local LIFT = 1.6 -- everything above the lower green box goes up so the box shows under the eave
@@ -1567,7 +1573,7 @@ do
 		for _, a in ipairs(ARCHES) do
 			local r = a[2] / 2
 			for _, s in ipairs({ -1, 1 }) do
-				part("GateDoorLeaf", Vector3.new(r, a[3] - r, 0.3), CFrame.new(89 + r / 2, (a[3] - r) / 2, a[1] + s * (r - 0.15)), wood, { parent = G })
+				part("GateDoorLeaf", Vector3.new(r, a[3] - r, 0.3), CFrame.new((gx0 + gx1) / 2 + r / 2, (a[3] - r) / 2, a[1] + s * (r - 0.15)), wood, { parent = G })
 			end
 		end
 	end
@@ -1803,6 +1809,19 @@ do
 			frame(0.16, KEY)
 		end
 	end
+	for _, fz in ipairs({ { gz0 - 0.18, -1 }, { gz1 + 0.18, 1 } }) do -- the short sides (photo: the band runs round)
+		for i = 0, 2 do
+			panel(Vector3.new(gx0 + 2.5 + (gx1 - gx0 - 5) * i / 2, TOP - 1.2, fz[1]), Vector3.new(0, 0, fz[2]), i == 1)
+		end
+		for k = 1, 8 do
+			deco(part("StoneJoint", Vector3.new(gx1 - gx0 - 0.1, 0.07, 0.06), CFrame.new((gx0 + gx1) / 2, k * step, fz[1] + fz[2] * -0.16), JOINT, nopt))
+		end
+		for k = 0, 8 do
+			for xx = gx0 + 1.5 + (k % 2) * 1.5, gx1 - 0.5, 3 do
+				deco(part("StoneJoint", Vector3.new(0.07, step, 0.06), CFrame.new(xx, (k + 0.5) * step, fz[1] + fz[2] * -0.16), JOINT, nopt))
+			end
+		end
+	end
 	local nP = 14
 	for i = 0, nP - 1 do
 		local z = gz0 + 2 + (gz1 - gz0 - 4) * i / (nP - 1)
@@ -1857,48 +1876,124 @@ do
 			add(Vector3.new(0.26, 0.26, 0.05), CFrame.new(x + 0.4, 0.3, 1.72), Color3.fromRGB(190, 50, 40))
 		end
 	end)
+	-- one row of cover tiles (the wall giwa made bigger), 10 long along +Z,
+	-- end cap and drip at +Z; cloned per row and stretched to the row length
+	local rowT, rowOff = unionTemplate("RoofTileRow", false, function(add)
+		local L = 10
+		add(Vector3.new(1, 0.06, L), CFrame.new(0, -0.03, 0), TILE_C) -- axis-aligned base first
+		add(Vector3.new(L, 0.56, 0.56), CFrame.new(0, 0.2, 0) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+		for j = 1, 6 do
+			add(Vector3.new(0.12, 0.64, 0.64), CFrame.new(0, 0.2, -L / 2 + j * L / 7) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+		end
+		add(Vector3.new(0.1, 0.72, 0.72), CFrame.new(0, 0.2, L / 2 + 0.03) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+		add(Vector3.new(0.06, 0.38, 0.38), CFrame.new(0, 0.2, L / 2 + 0.1) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+		add(Vector3.new(0.8, 0.42, 0.08), CFrame.new(0.5, -0.12, L / 2 + 0.02) * CFrame.Angles(math.rad(-25), 0, 0), TILE_C) -- 암막새
+	end)
+	-- 우진각 (hipped) roof like the real 광화문 (user side photos 2026-10-23):
+	-- slopes on all four sides, a short 용마루, white hip ridges down to the
+	-- corners with 잡상, eaves and rafters all round
 	local function palaceRoof(y, x0, x1, z0, z1, rise)
 		local cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
 		local w, d = x1 - x0, z1 - z0
-		part("RoofSlope", Vector3.new(d, rise, w / 2), CFrame.new(cx - w / 4, y + rise / 2, cz) * CFrame.Angles(0, math.rad(90), 0), roofC, { parent = G, class = "WedgePart", material = Enum.Material.Slate })
-		part("RoofSlope", Vector3.new(d, rise, w / 2), CFrame.new(cx + w / 4, y + rise / 2, cz) * CFrame.Angles(0, math.rad(-90), 0), roofC, { parent = G, class = "WedgePart", material = Enum.Material.Slate })
-		local eave = box("Eave", x0, y - 0.4, z0, x1, y, z1, GREEN, { parent = G })
-		dancheongGui(eave, Enum.NormalId.Bottom)
 		local run = w / 2
 		local Ls = math.sqrt(run * run + rise * rise)
+		local WHITE_R = Color3.fromRGB(236, 234, 228)
+		-- body: (gable along z) ∩ (gable along x with the same pitch) = hip roof
+		do
+			local was = G.Parent
+			G.Parent = workspace -- CSG only works in the Workspace
+			local a1 = part("RoofSlope", Vector3.new(d, rise, run), CFrame.new(cx - run / 2, y + rise / 2, cz) * CFrame.Angles(0, math.rad(90), 0), roofC, { parent = G, class = "WedgePart", material = Enum.Material.Slate })
+			local a2 = part("RoofSlope", Vector3.new(d, rise, run), CFrame.new(cx + run / 2, y + rise / 2, cz) * CFrame.Angles(0, math.rad(-90), 0), roofC, { parent = G, class = "WedgePart", material = Enum.Material.Slate })
+			local riseB = rise * (d / 2) / run
+			local b1 = part("RoofHip", Vector3.new(w, riseB, d / 2), CFrame.new(cx, y + riseB / 2, cz - d / 4), roofC, { parent = G, class = "WedgePart" })
+			local b2 = part("RoofHip", Vector3.new(w, riseB, d / 2), CFrame.new(cx, y + riseB / 2, cz + d / 4) * CFrame.Angles(0, math.rad(180), 0), roofC, { parent = G, class = "WedgePart" })
+			local ok, res = pcall(function()
+				local ua = a1:UnionAsync({ a2 })
+				ua.Parent = G
+				local ub = b1:UnionAsync({ b2 })
+				ub.Parent = G
+				local r = ua:IntersectAsync({ ub })
+				ua:Destroy()
+				ub:Destroy()
+				return r
+			end)
+			if ok and res then
+				res.Name = "RoofBody"
+				res.UsePartColor = true
+				res.Color = roofC
+				res.Material = Enum.Material.Slate
+				res.Anchored = true
+				res.Parent = G
+				a1:Destroy() a2:Destroy() b1:Destroy() b2:Destroy()
+			else
+				warn("hip roof CSG failed", res)
+				b1:Destroy() b2:Destroy()
+			end
+			G.Parent = was
+		end
+		local eave = box("Eave", x0, y - 0.4, z0, x1, y, z1, GREEN, { parent = G })
+		dancheongGui(eave, Enum.NormalId.Bottom)
+		-- tile rows: long sides (square to the 용마루), then the hipped ends
+		local function row(pos: Vector3, xAxis: Vector3, nrm: Vector3, rowRun: number)
+			if rowRun < 0.4 then return end
+			placeTemplate(rowT, rowOff, CFrame.fromMatrix(pos, xAxis, nrm), 1, rowRun * Ls / run / 10)
+		end
+		for _, s in ipairs({ -1, 1 }) do
+			local nrm = Vector3.new(s * rise, run, 0).Unit
+			for z = z0 + 0.5, z1 - 0.49, 1 do
+				local rr = math.min(math.min(z - z0, z1 - z), run)
+				local lat = run - rr / 2
+				row(Vector3.new(cx + s * lat, y + rise * (rr / 2) / run, z), Vector3.new(0, 0, -s), nrm, rr)
+			end
+		end
+		for _, e in ipairs({ -1, 1 }) do
+			local nrm = Vector3.new(0, run, e * rise).Unit
+			local endZ = if e < 0 then z0 else z1
+			for u = -run + 0.5, run - 0.49, 1 do
+				local rr = run - math.abs(u)
+				row(Vector3.new(cx + u, y + rise * (rr / 2) / run, endZ - e * rr / 2), Vector3.new(e, 0, 0), nrm, rr)
+			end
+		end
+		-- rafters under the eaves on all four sides
 		local n = math.max(1, math.floor(d / 4 + 0.5))
 		local seg = d / n
 		for _, s in ipairs({ -1, 1 }) do
-			local nrm = Vector3.new(s * rise, run, 0).Unit
-			local mid = Vector3.new(cx + s * w / 4, y + rise / 2, cz)
 			local edge = if s < 0 then x0 else x1
 			for k = 0, n - 1 do
-				local z = z0 + seg * (k + 0.5)
-				placeTemplate(tileT, tileOff, CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, z), Vector3.new(0, 0, -s), nrm), seg / 4, Ls / 10)
-				placeTemplate(rafterT, rafterOff, CFrame.fromMatrix(Vector3.new(edge - s * 1.72, y - 0.85, z), Vector3.new(0, 0, -s), Vector3.yAxis), seg / 4, 1)
+				placeTemplate(rafterT, rafterOff, CFrame.fromMatrix(Vector3.new(edge - s * 1.72, y - 0.85, z0 + seg * (k + 0.5)), Vector3.new(0, 0, -s), Vector3.yAxis), seg / 4, 1)
 			end
 		end
-		-- ridge: white with dark end blocks (취두)
-		box("RoofRidge", cx - 0.6, y + rise, z0 + 1, cx + 0.6, y + rise + 0.9, z1 - 1, Color3.fromRGB(236, 234, 228), { parent = G })
-		-- 용마루 top: the stacked dark ridge tiles of the wall giwa, bigger
+		local n2 = math.max(1, math.floor(w / 4 + 0.5))
+		local seg2 = w / n2
+		for _, e in ipairs({ -1, 1 }) do
+			local endZ = if e < 0 then z0 else z1
+			for k = 0, n2 - 1 do
+				placeTemplate(rafterT, rafterOff, CFrame.fromMatrix(Vector3.new(x0 + seg2 * (k + 0.5), y - 0.85, endZ - e * 1.72), Vector3.new(e, 0, 0), Vector3.yAxis), seg2 / 4, 1)
+			end
+		end
+		-- 용마루: white sides, stacked dark ridge tiles, 취두 at both ends
+		local r0, r1 = z0 + run, z1 - run
+		box("RoofRidge", cx - 0.6, y + rise, r0, cx + 0.6, y + rise + 0.9, r1, WHITE_R, { parent = G })
 		for i, wdt in ipairs({ 1.5, 1.2, 0.95, 0.7 }) do
 			local yb = y + rise + 0.9 + (i - 1) * 0.3
-			box("RidgeTiles", cx - wdt / 2, yb, z0 + 1, cx + wdt / 2, yb + 0.3, z1 - 1, Color3.fromRGB(62, 66, 72), { parent = G, material = Enum.Material.Slate })
+			box("RidgeTiles", cx - wdt / 2, yb, r0, cx + wdt / 2, yb + 0.3, r1, Color3.fromRGB(62, 66, 72), { parent = G, material = Enum.Material.Slate })
 		end
-		for _, ze in ipairs({ z0 + 1.4, z1 - 1.4 }) do
-			part("RidgeEnd", Vector3.new(1.3, 1.8, 1), CFrame.new(cx, y + rise + 1.4, ze), Color3.fromRGB(58, 60, 66), { parent = G, material = Enum.Material.Slate })
+		for _, ze in ipairs({ r0, r1 }) do
+			part("RidgeEnd", Vector3.new(1.3, 2.2, 1.1), CFrame.new(cx, y + rise + 1.6, ze), Color3.fromRGB(58, 60, 66), { parent = G, material = Enum.Material.Slate })
 		end
-		-- gable ridges (white) running down to the eave corners, with 잡상
-		for _, ze in ipairs({ z0 + 0.3, z1 - 0.3 }) do
+		-- hip ridges (white) from the ridge ends down to the four corners, 잡상 on the lower half
+		for _, e in ipairs({ -1, 1 }) do
+			local rz = if e < 0 then r0 else r1
+			local endZ = if e < 0 then z0 else z1
 			for _, xe in ipairs({ x0, x1 }) do
-				local top = Vector3.new(cx, y + rise + 0.45, ze)
-				local bot = Vector3.new(xe, y + 0.25, ze)
+				local top = Vector3.new(cx, y + rise + 0.45, rz)
+				local bot = Vector3.new(xe, y + 0.35, endZ)
 				local len = (bot - top).Magnitude
-				part("GableRidge", Vector3.new(0.7, 0.55, len), CFrame.lookAt((top + bot) / 2, bot), Color3.fromRGB(236, 234, 228), { parent = G })
+				part("HipRidge", Vector3.new(0.8, 0.6, len), CFrame.lookAt((top + bot) / 2, bot), WHITE_R, { parent = G })
 				for j = 0, 4 do
-					local p = top:Lerp(bot, 0.5 + j * 0.09) + Vector3.new(0, 0.55, 0)
-					deco(part("Japsang", Vector3.new(0.32, 0.45, 0.32), CFrame.new(p), Color3.fromRGB(64, 66, 72), nopt))
-					deco(part("JapsangHead", Vector3.new(0.28, 0.28, 0.28), CFrame.new(p + Vector3.new(0, 0.32, 0)), Color3.fromRGB(64, 66, 72), { parent = G, nocol = true, shape = Enum.PartType.Ball }))
+					local p = top:Lerp(bot, 0.55 + j * 0.08) + Vector3.new(0, 0.6, 0)
+					deco(part("Japsang", Vector3.new(0.34, 0.48, 0.34), CFrame.new(p), Color3.fromRGB(64, 66, 72), nopt))
+					deco(part("JapsangHead", Vector3.new(0.3, 0.3, 0.3), CFrame.new(p + Vector3.new(0, 0.34, 0)), Color3.fromRGB(64, 66, 72), { parent = G, nocol = true, shape = Enum.PartType.Ball }))
 				end
 			end
 		end
@@ -2068,6 +2163,35 @@ do
 				c.Parent = hidden
 			end
 		end
+		-- the old back gate on the inside (graybox 후문) goes (user 2026-10-23)
+		for _, c in ipairs(zone:GetChildren()) do
+			if c:IsA("BasePart") then
+				local p = c.Position
+				local isGate = (c.Name == "GatePillar" or c.Name == "GateBeam" or c.Name == "GateDoor" or c.Name == "GiwaRoof" or c.Name == "EaveTip"
+					or c.Name == "Ridge" or c.Name == "RidgeEnd" or c.Name == "BackGateStone") and p.X > 94 and p.X < 118 and p.Z > 155 and p.Z < 181
+				local gui = c:FindFirstChildOfClass("BillboardGui")
+				local lbl = gui and gui:FindFirstChildOfClass("TextLabel")
+				local isLabel = lbl ~= nil and lbl.Text:find("후문") ~= nil
+				if isGate or isLabel then
+					c.CFrame = undo * c.CFrame
+					c:SetAttribute("HomeZone", zone.Name)
+					c.Parent = hidden
+				end
+			end
+		end
+		-- the wall stops at the gate's sides (it would run through the arches)
+		local clipped = {}
+		for _, r in ipairs(runs) do
+			local a, b = r[1], r[2]
+			if math.abs(a.X - b.X) < 0.5 and a.X > gx0 and a.X < gx1 then
+				local lo, hi = math.min(a.Z, b.Z), math.max(a.Z, b.Z)
+				if lo < gz0 then table.insert(clipped, { Vector3.new(a.X, 0, lo), Vector3.new(a.X, 0, math.min(hi, gz0)) }) end
+				if hi > gz1 then table.insert(clipped, { Vector3.new(a.X, 0, math.max(lo, gz1)), Vector3.new(a.X, 0, hi) }) end
+			else
+				table.insert(clipped, r)
+			end
+		end
+		runs = clipped
 		local W = Instance.new("Model")
 		W.Name = "HanokPalaceWall"
 		W.Parent = T
@@ -2079,11 +2203,7 @@ do
 		end
 	end
 
-	for _, mnt in ipairs(MOUNTAINS) do
-		workspace.Terrain:FillBall(mnt[1], mnt[2], Enum.Material.Grass)
-		workspace.Terrain:FillBall(mnt[1] + Vector3.new(0, mnt[2] * 0.55, 0), mnt[2] * 0.35, Enum.Material.Rock)
-	end
-	T:SetAttribute("Mountains", true)
+	-- (no hills behind the village any more, user 2026-10-23; revert still clears old ones)
 end
 ------------------------------------------------------- 에버랜드-style park gate
 -- the park fits the user's red box (x -148..-38, z -475..-229); the gate faces
@@ -2785,15 +2905,19 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		text(g, '<font color="#FFFFFF">OH</font><font color="#1EC8F0">24</font>', Color3.new(1, 1, 1), Enum.Font.GothamBlack)
 		local barW = math.min(14, L / 2 - 9)
 		for _, b in ipairs({ { L - 1.6 - barW, L - 1.6, "Lifestyle Platform", true }, { 1.6, 1.6 + barW, branch, false } }) do
-			local bar = fp("LightBar", b[1], b[2], 16, 17.6, 0.6, 0.8, CYAN, opt({ nocol = true }))
+			-- each bar runs on to the logo (user 2026-10-23); the text stays where it was
+			local u0, u1 = b[1], b[2]
+			if b[4] then u0 = L / 2 + 7.3 else u1 = L / 2 - 7.3 end
+			local k = barW / (u1 - u0)
+			local bar = fp("LightBar", u0, u1, 16, 17.6, 0.6, 0.8, CYAN, opt({ nocol = true }))
 			local bg = gui(bar, Enum.NormalId.Front, 30, 200)
 			bg.LightInfluence = 0
 			local bgf = Instance.new("Frame") bgf.Size = UDim2.fromScale(1, 1) bgf.BackgroundColor3 = CYAN bgf.BorderSizePixel = 0 bgf.Parent = bg
 			local l = text(bg, b[3], Color3.fromRGB(10, 40, 60), Enum.Font.GothamMedium)
 			l.TextXAlignment = if b[4] then Enum.TextXAlignment.Left else Enum.TextXAlignment.Right
-			l.Size = UDim2.fromScale(0.94, 0.7)
-			l.Position = UDim2.fromScale(0.03, 0.15)
-			fp("LightBarBase", b[1], b[2], 15.4, 15.8, 0.6, 0.8, Color3.fromRGB(245, 245, 245), opt({ nocol = true }))
+			l.Size = UDim2.fromScale(0.94 * k, 0.7)
+			l.Position = UDim2.fromScale(if b[4] then 0.03 * k else 1 - 0.97 * k, 0.15)
+			fp("LightBarBase", u0, u1, 15.4, 15.8, 0.6, 0.8, Color3.fromRGB(245, 245, 245), opt({ nocol = true }))
 		end
 		-- awning sloping out, small text on its edge
 		local a = p0 + along * (L / 2) + out * 0.6 + Vector3.new(0, 13.4, 0)
