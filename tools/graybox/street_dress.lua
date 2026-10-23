@@ -266,8 +266,8 @@ local function roundCorner(s: BasePart)
 					local t0 = a0 + (a1 - a0) * i / steps
 					local t1 = a0 + (a1 - a0) * (i + 1) / steps
 					-- inside the edge like the straight curbs, so they join
-					local p0 = center + Vector3.new(math.cos(t0), 0, math.sin(t0)) * (r - 0.35)
-					local p1 = center + Vector3.new(math.cos(t1), 0, math.sin(t1)) * (r - 0.35)
+					local p0 = center + Vector3.new(math.cos(t0), 0, math.sin(t0)) * (r - 0.33)
+					local p1 = center + Vector3.new(math.cos(t1), 0, math.sin(t1)) * (r - 0.33)
 					local mid = (p0 + p1) / 2
 					part("Curb", Vector3.new(0.7, h + 0.15, (p1 - p0).Magnitude + 0.15), CFrame.lookAt(mid, mid + (p1 - p0)) + Vector3.new(0, 0.075, 0), GRANITE, Enum.Material.Granite, walkF)
 				end
@@ -277,62 +277,91 @@ local function roundCorner(s: BasePart)
 	end
 end
 
-for _, s in ipairs(temp:GetChildren()) do
-	if s:IsA("BasePart") and s.Name == "SidewalkFillet" then paveLook(s) end
-	if s:IsA("BasePart") and s.Name == "Sidewalk" then
-		local square = math.abs(s.Size.X - s.Size.Z) < 0.5 and s.Size.X <= 24 -- crossroads corners (23 wide since v7c)
-		if square then
-			paveLook(s)
-			roundCorner(s)
-			-- and the two straight edges from the end of the arc on (user 2026-10-23)
-			local rc = rounded[s]
-			if rc then
-				local ix = if s.Position.X > rc.c.X then 1 else -1
-				local iz = if s.Position.Z > rc.c.Z then 1 else -1
-				local h = s.Size.Y
-				local z0, z1 = rc.c.Z + iz * rc.r, rc.c.Z + iz * s.Size.Z
-				part("Curb", Vector3.new(0.7, h + 0.15, math.abs(z1 - z0)), CFrame.new(rc.c.X + ix * 0.35, s.Position.Y + 0.075, (z0 + z1) / 2), GRANITE, Enum.Material.Granite, walkF)
-				local x0, x1 = rc.c.X + ix * rc.r, rc.c.X + ix * s.Size.X
-				part("Curb", Vector3.new(math.abs(x1 - x0), h + 0.15, 0.7), CFrame.new((x0 + x1) / 2, s.Position.Y + 0.075, rc.c.Z + iz * 0.35), GRANITE, Enum.Material.Granite, walkF)
+-- Curbs (user video 2026-10-23: they flickered and broke off in places).
+-- Every edge of every sidewalk piece is sampled; where the road lies just
+-- outside it gets a curb, also on short ends (those were skipped before and
+-- left gaps). The runs are merged per line so no two curbs overlap, and each
+-- curb's outer face stands 0.02 past the sidewalk edge (it shared the plane
+-- of the sidewalk side before and flickered).
+local curbRuns: {[string]: {line: number, axis: string, side: number, y0: number, y1: number, runs: {{number}}}} = {}
+local function addRun(axis: string, line: number, side: number, a: number, b: number, y0: number, y1: number)
+	local key = string.format("%s|%.2f|%d|%.2f", axis, line, side, y1)
+	local e = curbRuns[key]
+	if not e then
+		e = { line = line, axis = axis, side = side, y0 = y0, y1 = y1, runs = {} }
+		curbRuns[key] = e
+	end
+	table.insert(e.runs, { math.min(a, b), math.max(a, b) })
+end
+local function edgeCurbs(s: BasePart, rc: {c: Vector3, r: number}?)
+	local half = s.Size / 2
+	local y0, y1 = s.Position.Y - half.Y, s.Position.Y + half.Y
+	-- axis "X": the edge runs along X at z = line; "Z": along Z at x = line
+	for _, ed in ipairs({
+		{ "X", s.Position.Z + half.Z, 1, s.Position.X - half.X, s.Position.X + half.X },
+		{ "X", s.Position.Z - half.Z, -1, s.Position.X - half.X, s.Position.X + half.X },
+		{ "Z", s.Position.X + half.X, 1, s.Position.Z - half.Z, s.Position.Z + half.Z },
+		{ "Z", s.Position.X - half.X, -1, s.Position.Z - half.Z, s.Position.Z + half.Z },
+	}) do
+		local axis, line, side, u0, u1 = ed[1], ed[2], ed[3], ed[4], ed[5]
+		-- stop at a rounded corner (its arc has its own curb)
+		if rc then
+			local cl = if axis == "X" then rc.c.Z else rc.c.X
+			local cu = if axis == "X" then rc.c.X else rc.c.Z
+			if math.abs(cl - line) < 0.1 then
+				if math.abs(cu - u0) < 0.1 then u0 += rc.r elseif math.abs(cu - u1) < 0.1 then u1 -= rc.r end
 			end
-		else
-			paveLook(s)
-			-- every other sidewalk corner that points into a junction is rounded
-			-- too (T junction with the seafront road, user 2026-10-23)
-			roundCorner(s)
-			local rc = rounded[s]
-			-- curb + tactile guide line on each long edge that touches a road
-			local alongX = s.Size.X >= s.Size.Z
-			local long = if alongX then s.Size.X else s.Size.Z
-			local wide = if alongX then s.Size.Z else s.Size.X
-			if long >= 8 then
-				for _, side in ipairs({ 1, -1 }) do
-					local edgeOff = side * wide / 2
-					local probe = if alongX then s.Position + Vector3.new(0, 0, edgeOff + side * 1.5) else s.Position + Vector3.new(edgeOff + side * 1.5, 0, 0)
-					if onRoad(probe) then
-						local top = s.Position.Y + s.Size.Y / 2
-						if alongX then
-							local x0, x1 = s.Position.X - s.Size.X / 2, s.Position.X + s.Size.X / 2
-						if rc and math.abs(rc.c.Z - (s.Position.Z + edgeOff)) < 0.1 then -- stop at the rounded corner
-							if math.abs(rc.c.X - x0) < 0.1 then x0 += rc.r else x1 -= rc.r end
-						end
-						part("Curb", Vector3.new(x1 - x0, s.Size.Y + 0.15, 0.7), CFrame.new((x0 + x1) / 2, s.Position.Y + 0.075, s.Position.Z + edgeOff - side * 0.35), GRANITE, Enum.Material.Granite, walkF)
-
-						else
-							local z0, z1 = s.Position.Z - s.Size.Z / 2, s.Position.Z + s.Size.Z / 2
-						if rc and math.abs(rc.c.X - (s.Position.X + edgeOff)) < 0.1 then -- stop at the rounded corner
-							if math.abs(rc.c.Z - z0) < 0.1 then z0 += rc.r else z1 -= rc.r end
-						end
-						part("Curb", Vector3.new(0.7, s.Size.Y + 0.15, z1 - z0), CFrame.new(s.Position.X + edgeOff - side * 0.35, s.Position.Y + 0.075, (z0 + z1) / 2), GRANITE, Enum.Material.Granite, walkF)
-
-						end
-					end
-				end
+		end
+		local runStart: number? = nil
+		local step = 0.5
+		local u = u0
+		while u <= u1 + 1e-6 do
+			local pu = math.min(u, u1)
+			local probe = if axis == "X" then Vector3.new(pu, 0, line + side * 1.0) else Vector3.new(line + side * 1.0, 0, pu)
+			local road = onRoad(probe)
+			if road and not runStart then runStart = pu end
+			if (not road or u + step > u1 + 1e-6) and runStart then
+				local runEnd = if road then u1 else pu - step
+				if runEnd - runStart > 0.4 then addRun(axis, line, side, runStart, runEnd, y0, y1) end
+				runStart = nil
 			end
+			u += step
 		end
 	end
 end
 
+for _, s in ipairs(temp:GetChildren()) do
+	if s:IsA("BasePart") and s.Name == "SidewalkFillet" then paveLook(s) end
+	if s:IsA("BasePart") and s.Name == "Sidewalk" then
+		paveLook(s)
+		-- corners pointing into a junction are rounded (crossroads squares and
+		-- the T junction with the seafront road)
+		roundCorner(s)
+		edgeCurbs(s, rounded[s])
+	end
+end
+-- one curb per merged run
+for _, e in pairs(curbRuns) do
+	table.sort(e.runs, function(p, q) return p[1] < q[1] end)
+	local merged = {}
+	for _, r in ipairs(e.runs) do
+		local last = merged[#merged]
+		if last and r[1] <= last[2] + 0.6 then last[2] = math.max(last[2], r[2]) else table.insert(merged, { r[1], r[2] }) end
+	end
+	local W = 0.7
+	local cLine = e.line + e.side * (0.02 - W / 2) -- outer face 0.02 past the edge
+	local h = e.y1 - e.y0 + 0.15
+	local cy = e.y0 + h / 2
+	for _, r in ipairs(merged) do
+		local len = r[2] - r[1]
+		local mid = (r[1] + r[2]) / 2
+		if e.axis == "X" then
+			part("Curb", Vector3.new(len, h, W), CFrame.new(mid, cy, cLine), GRANITE, Enum.Material.Granite, walkF)
+		else
+			part("Curb", Vector3.new(W, h, len), CFrame.new(cLine, cy, mid), GRANITE, Enum.Material.Granite, walkF)
+		end
+	end
+end
 ---------------------------------------------------------------- 3. street lights (asset 9553474820)
 local lightF = folder("StreetLights")
 -- a thinner pole than the asset (user 2026-10-22)

@@ -974,7 +974,7 @@ for _, e in ipairs(EXITS) do
 	-- 출입구 / Entrance, the station name in Korean, English, Hanja, Japanese
 	local mouth = at(9)
 	-- on the road side of the mouth (user 2026-10-23), just past the opening
-	local polePos = mouth + out * 3.6 - side * 3.8 * math.sign(e[4]) -- a step clear of the entrance frame (user)
+	local polePos = mouth + out * 7.2 - side * 3.8 * math.sign(e[4]) -- two steps clear of the entrance frame (user)
 	-- a square post (photo: slim, the same on all four faces), the Korean name
 	-- written top to bottom, the small print really small
 	local PW, PD, PH = 1.15, 1.15, 10
