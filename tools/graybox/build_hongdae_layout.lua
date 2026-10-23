@@ -1569,33 +1569,356 @@ do
 			end
 		end
 	end
-	-- band of loopholes along the top of the stone base
-	box("GateParapet", gx0 - 0.3, H - 1.4, gz0 - 0.3, gx1 + 0.3, H, gz1 + 0.3, Color3.fromRGB(190, 184, 170), { parent = G, material = Enum.Material.Slate })
-	for zz = gz0 + 2, gz1 - 2, 3 do
-		for _, xx in ipairs({ gx0 - 0.32, gx1 + 0.32 }) do
-			part("Loophole", Vector3.new(0.06, 0.6, 0.9), CFrame.new(xx, H - 0.7, zz), Color3.fromRGB(40, 36, 34), { parent = G, nocol = true })
+	-- 광화문 details (user photos 2026-10-23): dressed granite blocks with
+	-- joints on the stone base, a voussoir ring around each arch with a carved
+	-- head at the top, a white cornice and a dark brick band with white key-
+	-- pattern panels and grilles, small stone spouts; a dancheong pavilion
+	-- (green walls, red posts, painted bracket bands, rows of green rafters
+	-- with painted ends), tiled roofs (the cover-tile module of the stone
+	-- walls, D-143), white ridges with dark end blocks and 잡상 figures on the
+	-- gable ridges; the dark plaque 門化光 on the upper storey.
+	local JOINT = Color3.fromRGB(176, 170, 158)
+	local LIGHT = Color3.fromRGB(228, 222, 208)
+	local RED = Color3.fromRGB(176, 44, 36)
+	local GREEN = Color3.fromRGB(40, 116, 88)
+	local nopt = { parent = G, nocol = true }
+	local function deco(p: BasePart)
+		p.CastShadow = false
+		p.CanQuery = false
+		p.CanTouch = false
+		return p
+	end
+	-- one template made of parts, merged once and cloned (cheap to draw)
+	local function unionTemplate(name: string, keepColors: boolean, build: (add: (Vector3, CFrame, Color3, Enum.PartType?) -> ()) -> ()): (BasePart, Vector3)
+		local O = Vector3.new(0, 3200, 0)
+		local tmp = Instance.new("Model")
+		tmp.Parent = workspace
+		local list = {}
+		build(function(size, cf, color, shape)
+			table.insert(list, part(name, size, CFrame.new(O) * cf, color, { parent = tmp, shape = shape, material = Enum.Material.SmoothPlastic }))
+		end)
+		local first = table.remove(list, 1)
+		local ok, u = pcall(function() return first:UnionAsync(list) end)
+		local res: BasePart = first
+		if ok and u then
+			u.UsePartColor = not keepColors
+			res = u
+		end
+		res.Name = name
+		res.Anchored = true
+		res.CanCollide = false
+		res.CanTouch = false
+		res.CanQuery = false
+		res.CastShadow = false
+		pcall(function() (res :: any).CollisionFidelity = Enum.CollisionFidelity.Box end)
+		res.Parent = nil
+		local off = res.Position - O
+		tmp:Destroy()
+		return res, off
+	end
+	local function placeTemplate(t: BasePart, off: Vector3, frame: CFrame, sx: number, sz: number)
+		local c = t:Clone()
+		c.Size = Vector3.new(t.Size.X * sx, t.Size.Y, t.Size.Z * sz)
+		c.CFrame = frame * CFrame.new(off.X * sx, off.Y, off.Z * sz)
+		c.Parent = G
+		return c
+	end
+	-- dancheong band painted on a face (SurfaceGui cells: red / blue stripes,
+	-- an orange flower in the middle)
+	local function dancheongGui(p: BasePart, face: Enum.NormalId)
+		local g = Instance.new("SurfaceGui")
+		g.Face = face
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 12
+		g.LightInfluence = 0.7
+		g.Parent = p
+		local bg = Instance.new("Frame")
+		bg.Size = UDim2.fromScale(1, 1)
+		bg.BackgroundColor3 = GREEN
+		bg.BorderSizePixel = 0
+		bg.Parent = g
+		local w = if face == Enum.NormalId.Left or face == Enum.NormalId.Right then p.Size.Z else p.Size.X
+		local n = math.max(1, math.floor(w / 2))
+		for i = 0, n - 1 do
+			local cell = Instance.new("Frame")
+			cell.BackgroundTransparency = 1
+			cell.Size = UDim2.fromScale(1 / n, 1)
+			cell.Position = UDim2.fromScale(i / n, 0)
+			cell.Parent = bg
+			for _, s in ipairs({ { 0, Color3.fromRGB(190, 50, 40) }, { 0.82, Color3.fromRGB(46, 84, 164) } }) do
+				local st = Instance.new("Frame")
+				st.BorderSizePixel = 0
+				st.BackgroundColor3 = s[2]
+				st.Size = UDim2.fromScale(1, 0.18)
+				st.Position = UDim2.fromScale(0, s[1])
+				st.Parent = cell
+			end
+			local fl = Instance.new("Frame")
+			fl.AnchorPoint = Vector2.new(0.5, 0.5)
+			fl.Position = UDim2.fromScale(0.5, 0.5)
+			fl.Size = UDim2.fromScale(0.5, 0.5)
+			fl.BackgroundColor3 = Color3.fromRGB(236, 150, 52)
+			fl.BorderSizePixel = 0
+			local ar = Instance.new("UIAspectRatioConstraint")
+			ar.Parent = fl
+			local cr = Instance.new("UICorner")
+			cr.CornerRadius = UDim.new(0.5, 0)
+			cr.Parent = fl
+			local dot = fl:Clone()
+			dot.Size = UDim2.fromScale(0.45, 0.45)
+			dot.BackgroundColor3 = Color3.fromRGB(250, 246, 236)
+			dot.Parent = fl
+			fl.Parent = cell
 		end
 	end
+
+	-- stone base: joints, arch rings, carved heads (both long faces)
+	local step = (H - 2.6) / 7
+	local function blocked(y: number): { { number } }
+		local list = {}
+		for _, a in ipairs(ARCHES) do
+			local r = a[2] / 2
+			local spring = a[3] - r
+			local half: number? = nil
+			if y <= spring then
+				half = r + 0.15
+			else
+				local R = r + 0.95
+				local dy = y - spring
+				if dy < R then half = math.sqrt(R * R - dy * dy) end
+			end
+			if half then table.insert(list, { a[1] - half, a[1] + half }) end
+		end
+		return list
+	end
+	local function free(y: number, z: number): boolean
+		for _, b in ipairs(blocked(y)) do
+			if z > b[1] and z < b[2] then return false end
+		end
+		return true
+	end
+	for _, fc in ipairs({ { gx0, -1 }, { gx1, 1 } }) do
+		local fx, s = fc[1], fc[2]
+		local out = Vector3.new(s, 0, 0)
+		-- horizontal joints, split around the arches
+		for k = 1, 6 do
+			local y = k * step
+			local z = gz0 + 0.05
+			local cuts = blocked(y)
+			table.sort(cuts, function(p, q) return p[1] < q[1] end)
+			local spans = {}
+			for _, c in ipairs(cuts) do
+				if c[1] > z then table.insert(spans, { z, c[1] }) end
+				z = math.max(z, c[2])
+			end
+			if z < gz1 - 0.05 then table.insert(spans, { z, gz1 - 0.05 }) end
+			for _, sp in ipairs(spans) do
+				deco(part("StoneJoint", Vector3.new(0.06, 0.07, sp[2] - sp[1]), CFrame.new(fx + s * 0.02, y, (sp[1] + sp[2]) / 2), JOINT, nopt))
+			end
+		end
+		-- vertical joints, staggered course by course
+		for k = 0, 6 do
+			local y0, y1 = k * step, (k + 1) * step
+			local z = gz0 + 1.5 + (k % 2) * 1.5
+			while z < gz1 - 0.5 do
+				if free(y0 + 0.05, z) and free(y1 - 0.05, z) then
+					deco(part("StoneJoint", Vector3.new(0.06, y1 - y0, 0.07), CFrame.new(fx + s * 0.02, (y0 + y1) / 2, z), JOINT, nopt))
+				end
+				z += 3
+			end
+		end
+		-- arch rings (voussoirs) and the carved head on top of each arch
+		for _, a in ipairs(ARCHES) do
+			local r = a[2] / 2
+			local spring = a[3] - r
+			local N = if a[2] > 8 then 11 else 7
+			for i = 0, N - 1 do
+				local a0, a1 = math.pi * i / N, math.pi * (i + 1) / N
+				local am = (a0 + a1) / 2
+				local rr = r + 0.45
+				local p = Vector3.new(fx + s * 0.06, spring + math.sin(am) * rr, a[1] + math.cos(am) * rr)
+				local tangent = Vector3.new(0, math.cos(am), -math.sin(am))
+				local radial = Vector3.new(0, math.sin(am), math.cos(am))
+				local len = 2 * rr * math.sin((a1 - a0) / 2) - 0.08
+				deco(part("ArchStone", Vector3.new(len, 0.9, 0.12), CFrame.fromMatrix(p, tangent, radial), LIGHT, { parent = G, nocol = true, material = Enum.Material.Slate }))
+			end
+			for _, e in ipairs({ -1, 1 }) do -- impost blocks at the spring line
+				deco(part("ArchImpost", Vector3.new(0.25, 0.35, 1.1), CFrame.new(fx + s * 0.12, spring - 0.1, a[1] + e * (r + 0.45)), LIGHT, { parent = G, nocol = true, material = Enum.Material.Slate }))
+			end
+			local hy = a[3] + 0.5
+			deco(part("ArchHead", Vector3.new(0.5, 0.9, 0.9), CFrame.new(fx + s * 0.25, hy, a[1]), LIGHT, { parent = G, nocol = true, material = Enum.Material.Slate }))
+			deco(part("ArchHeadFace", Vector3.new(0.5, 0.55, 0.55), CFrame.new(fx + s * 0.5, hy + 0.05, a[1]), LIGHT, { parent = G, nocol = true, material = Enum.Material.Slate, shape = Enum.PartType.Ball }))
+		end
+		-- small stone spouts under the cornice
+		for z = gz0 + 5, gz1 - 4, 9.2 do
+			deco(part("StoneSpout", Vector3.new(0.7, 0.45, 0.45), CFrame.new(fx + s * 0.35, H - 3.1, z), LIGHT, { parent = G, nocol = true, material = Enum.Material.Slate }))
+			deco(part("StoneSpoutHead", Vector3.new(0.45, 0.45, 0.45), CFrame.new(fx + s * 0.7, H - 3.05, z), LIGHT, { parent = G, nocol = true, material = Enum.Material.Slate, shape = Enum.PartType.Ball }))
+		end
+	end
+	-- white cornice, then the dark brick band with key-pattern panels and grilles
+	box("GateCornice", gx0 - 0.35, H - 2.6, gz0 - 0.35, gx1 + 0.35, H - 2.4, gz1 + 0.35, LIGHT, { parent = G, material = Enum.Material.Slate })
+	box("GateBrickBand", gx0 - 0.15, H - 2.4, gz0 - 0.15, gx1 + 0.15, H, gz1 + 0.15, Color3.fromRGB(72, 74, 80), { parent = G, material = Enum.Material.Brick })
+	local function panel(p: Vector3, out: Vector3, grille: boolean)
+		local pp = deco(part("BandPanel", Vector3.new(1.8, 1.8, 0.05), CFrame.lookAt(p, p + out), Color3.fromRGB(246, 244, 238), nopt))
+		local g = Instance.new("SurfaceGui")
+		g.Face = Enum.NormalId.Front
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 40
+		g.LightInfluence = 0.8
+		g.Parent = pp
+		local function frame(size: number, color: Color3?, stroke: Color3?, thick: number?)
+			local f = Instance.new("Frame")
+			f.AnchorPoint = Vector2.new(0.5, 0.5)
+			f.Position = UDim2.fromScale(0.5, 0.5)
+			f.Size = UDim2.fromScale(size, size)
+			f.BorderSizePixel = 0
+			f.BackgroundTransparency = if color then 0 else 1
+			if color then f.BackgroundColor3 = color end
+			if stroke then
+				local st = Instance.new("UIStroke")
+				st.Color = stroke
+				st.Thickness = thick or 3
+				st.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+				st.Parent = f
+			end
+			f.Parent = g
+			return f
+		end
+		if grille then
+			for i = 1, 5 do
+				local slat = Instance.new("Frame")
+				slat.BorderSizePixel = 0
+				slat.BackgroundColor3 = Color3.fromRGB(90, 92, 98)
+				slat.Size = UDim2.fromScale(0.07, 0.8)
+				slat.Position = UDim2.fromScale(0.08 + (i - 1) * 0.19, 0.1)
+				slat.Parent = g
+			end
+		else
+			local KEY = Color3.fromRGB(196, 58, 46)
+			frame(0.88, nil, KEY, 4)
+			frame(0.66, nil, KEY, 3)
+			frame(0.42, nil, KEY, 2)
+			frame(0.16, KEY)
+		end
+	end
+	local nP = 14
+	for i = 0, nP - 1 do
+		local z = gz0 + 2 + (gz1 - gz0 - 4) * i / (nP - 1)
+		for _, fc in ipairs({ { gx0 - 0.18, -1 }, { gx1 + 0.18, 1 } }) do
+			panel(Vector3.new(fc[1], H - 1.2, z), Vector3.new(fc[2], 0, 0), i % 4 == 2)
+		end
+	end
+
+	-- pavilion: floor, red columns, green walls with red rails, painted bands
 	box("PavilionFloor", gx0 + 1, H, gz0 + 4, gx1 - 1, H + 1, gz1 - 4, granite, { parent = G })
 	for zz = gz0 + 6, gz1 - 6, 8 do
-		for _, xx in ipairs({ gx0 + 2.5, gx1 - 2.5 }) do vcyl("PavilionColumn", Vector3.new(xx, H + 1, zz), 1, 7, wood, { parent = G }) end
+		for _, xx in ipairs({ gx0 + 2.5, gx1 - 2.5 }) do vcyl("PavilionColumn", Vector3.new(xx, H + 1, zz), 1, 7, RED, { parent = G }) end
 	end
-	box("PavilionWall", gx0 + 3, H + 5, gz0 + 6, gx1 - 3, H + 8, gz1 - 6, DANCHEONG, { parent = G })
-	box("Dancheong", gx0 + 1.6, H + 7, gz0 + 4.6, gx1 - 1.6, H + 8, gz1 - 4.6, DANCHEONG, { parent = G })
-	local function hipRoof(y, x0, x1, z0, z1, rise)
+	box("PavilionWall", gx0 + 3, H + 4.6, gz0 + 6, gx1 - 3, H + 7, gz1 - 6, GREEN, { parent = G })
+	for _, y in ipairs({ H + 4.6, H + 6.8 }) do
+		box("PavilionRail", gx0 + 2.9, y, gz0 + 5.9, gx1 - 2.9, y + 0.2, gz1 - 5.9, RED, { parent = G, nocol = true })
+	end
+	local band1 = box("Dancheong", gx0 + 1.6, H + 7, gz0 + 4.6, gx1 - 1.6, H + 8, gz1 - 4.6, GREEN, { parent = G })
+	for _, fce in ipairs({ Enum.NormalId.Left, Enum.NormalId.Right, Enum.NormalId.Front, Enum.NormalId.Back }) do dancheongGui(band1, fce) end
+
+	-- roof pieces: cover tiles down each long slope (same idea as the wall
+	-- giwa), rows of rafters under the eaves, white ridges, 잡상
+	local TILE_C = Color3.fromRGB(70, 74, 80)
+	local tileT, tileOff = unionTemplate("RoofTiles", false, function(add)
+		local L = 10
+		for i = 0, 4 do
+			local x = -2 + 0.4 + i * 0.8
+			add(Vector3.new(L, 0.36, 0.36), CFrame.new(x, 0.12, 0) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+			add(Vector3.new(0.08, 0.5, 0.5), CFrame.new(x, 0.12, L / 2 + 0.04) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+			add(Vector3.new(0.05, 0.28, 0.28), CFrame.new(x, 0.12, L / 2 + 0.1) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+		end
+	end)
+	local rafterT, rafterOff = unionTemplate("RoofRafters", true, function(add)
+		add(Vector3.new(4, 0.42, 0.42), CFrame.new(0, -0.32, -0.2), GREEN)
+		for i = 0, 4 do
+			local x = -2 + 0.4 + i * 0.8
+			add(Vector3.new(1.8, 0.3, 0.3), CFrame.new(x, 0, 0) * CFrame.Angles(0, math.rad(90), 0), GREEN, Enum.PartType.Cylinder)
+			add(Vector3.new(0.06, 0.32, 0.32), CFrame.new(x, 0, 0.92) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(240, 172, 60), Enum.PartType.Cylinder)
+			add(Vector3.new(0.04, 0.14, 0.14), CFrame.new(x, 0, 0.96) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(40, 70, 150), Enum.PartType.Cylinder)
+			add(Vector3.new(0.24, 0.24, 1.0), CFrame.new(x + 0.4, 0.3, 1.2), GREEN)
+			add(Vector3.new(0.26, 0.26, 0.05), CFrame.new(x + 0.4, 0.3, 1.72), Color3.fromRGB(190, 50, 40))
+		end
+	end)
+	local function palaceRoof(y, x0, x1, z0, z1, rise)
 		local cx, cz = (x0 + x1) / 2, (z0 + z1) / 2
 		local w, d = x1 - x0, z1 - z0
 		part("RoofSlope", Vector3.new(d, rise, w / 2), CFrame.new(cx - w / 4, y + rise / 2, cz) * CFrame.Angles(0, math.rad(90), 0), roofC, { parent = G, class = "WedgePart", material = Enum.Material.Slate })
 		part("RoofSlope", Vector3.new(d, rise, w / 2), CFrame.new(cx + w / 4, y + rise / 2, cz) * CFrame.Angles(0, math.rad(-90), 0), roofC, { parent = G, class = "WedgePart", material = Enum.Material.Slate })
-		box("RoofRidge", cx - 0.5, y + rise, z0 + 2, cx + 0.5, y + rise + 0.8, z1 - 2, Color3.fromRGB(230, 230, 230), { parent = G })
-		box("Eave", x0, y - 0.4, z0, x1, y, z1, roofC, { parent = G })
+		local eave = box("Eave", x0, y - 0.4, z0, x1, y, z1, GREEN, { parent = G })
+		dancheongGui(eave, Enum.NormalId.Bottom)
+		local run = w / 2
+		local Ls = math.sqrt(run * run + rise * rise)
+		local n = math.max(1, math.floor(d / 4 + 0.5))
+		local seg = d / n
+		for _, s in ipairs({ -1, 1 }) do
+			local nrm = Vector3.new(s * rise, run, 0).Unit
+			local mid = Vector3.new(cx + s * w / 4, y + rise / 2, cz)
+			local edge = if s < 0 then x0 else x1
+			for k = 0, n - 1 do
+				local z = z0 + seg * (k + 0.5)
+				placeTemplate(tileT, tileOff, CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, z), Vector3.new(0, 0, -s), nrm), seg / 4, Ls / 10)
+				placeTemplate(rafterT, rafterOff, CFrame.fromMatrix(Vector3.new(edge - s * 1.72, y - 0.85, z), Vector3.new(0, 0, -s), Vector3.yAxis), seg / 4, 1)
+			end
+		end
+		-- ridge: white with dark end blocks (취두)
+		box("RoofRidge", cx - 0.6, y + rise, z0 + 1, cx + 0.6, y + rise + 0.9, z1 - 1, Color3.fromRGB(236, 234, 228), { parent = G })
+		for _, ze in ipairs({ z0 + 1.4, z1 - 1.4 }) do
+			part("RidgeEnd", Vector3.new(1.3, 1.8, 1), CFrame.new(cx, y + rise + 1.4, ze), Color3.fromRGB(58, 60, 66), { parent = G, material = Enum.Material.Slate })
+		end
+		-- gable ridges (white) running down to the eave corners, with 잡상
+		for _, ze in ipairs({ z0 + 0.3, z1 - 0.3 }) do
+			for _, xe in ipairs({ x0, x1 }) do
+				local top = Vector3.new(cx, y + rise + 0.45, ze)
+				local bot = Vector3.new(xe, y + 0.25, ze)
+				local len = (bot - top).Magnitude
+				part("GableRidge", Vector3.new(0.7, 0.55, len), CFrame.lookAt((top + bot) / 2, bot), Color3.fromRGB(236, 234, 228), { parent = G })
+				for j = 0, 4 do
+					local p = top:Lerp(bot, 0.5 + j * 0.09) + Vector3.new(0, 0.55, 0)
+					deco(part("Japsang", Vector3.new(0.32, 0.45, 0.32), CFrame.new(p), Color3.fromRGB(64, 66, 72), nopt))
+					deco(part("JapsangHead", Vector3.new(0.28, 0.28, 0.28), CFrame.new(p + Vector3.new(0, 0.32, 0)), Color3.fromRGB(64, 66, 72), { parent = G, nocol = true, shape = Enum.PartType.Ball }))
+				end
+			end
+		end
 	end
-	hipRoof(H + 8, gx0 - 3, gx1 + 3, gz0 + 1, gz1 - 1, 4)
-	box("UpperFloor", gx0 + 2, H + 12, gz0 + 10, gx1 - 2, H + 15, gz1 - 10, wood, { parent = G })
-	box("Dancheong", gx0 + 1.6, H + 14.2, gz0 + 9.6, gx1 - 1.6, H + 15, gz1 - 9.6, DANCHEONG, { parent = G })
-	hipRoof(H + 15, gx0 - 1, gx1 + 1, gz0 + 6, gz1 - 6, 5)
-	local plaque = box("NamePlaque", gx0 - 0.4, H + 12.4, 164, gx0 - 0.1, H + 14.6, 172, Color3.fromRGB(30, 30, 35), { parent = G })
-	surfaceText(plaque, Enum.NormalId.Left, "門化光", Color3.fromRGB(230, 200, 120), Enum.Font.Antique) -- read right to left, like the real plaque
+	palaceRoof(H + 8, gx0 - 3, gx1 + 3, gz0 + 1, gz1 - 1, 4)
+	-- upper storey: green walls, red posts and rails, the plaque
+	box("UpperFloor", gx0 + 2, H + 12, gz0 + 10, gx1 - 2, H + 15, gz1 - 10, GREEN, { parent = G })
+	for _, fx in ipairs({ gx0 + 1.95, gx1 - 1.95 }) do
+		for z = gz0 + 10, gz1 - 10 + 0.01, 4.5 do
+			box("UpperPost", fx - 0.25, H + 12, z - 0.25, fx + 0.25, H + 15, z + 0.25, RED, { parent = G, nocol = true })
+		end
+		for _, y in ipairs({ H + 12, H + 14.75 }) do
+			box("UpperRail", fx - 0.2, y, gz0 + 10, fx + 0.2, y + 0.25, gz1 - 10, RED, { parent = G, nocol = true })
+		end
+	end
+	local band2 = box("Dancheong", gx0 + 1.6, H + 14.2, gz0 + 9.6, gx1 - 1.6, H + 15, gz1 - 9.6, GREEN, { parent = G })
+	for _, fce in ipairs({ Enum.NormalId.Left, Enum.NormalId.Right, Enum.NormalId.Front, Enum.NormalId.Back }) do dancheongGui(band2, fce) end
+	palaceRoof(H + 15, gx0 - 1, gx1 + 1, gz0 + 6, gz1 - 6, 5)
+	box("PlaqueFrame", gx0 + 1.55, H + 12.2, 163.6, gx0 + 1.75, H + 14.6, 172.4, Color3.fromRGB(188, 64, 52), { parent = G, nocol = true })
+	local plaque = box("NamePlaque", gx0 + 1.4, H + 12.4, 164, gx0 + 1.6, H + 14.4, 172, Color3.fromRGB(28, 28, 32), { parent = G, nocol = true })
+	do -- 門化光 (read right to left, like the real plaque), big gold letters
+		local g = Instance.new("SurfaceGui")
+		g.Face = Enum.NormalId.Left
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 40
+		g.LightInfluence = 0.3
+		g.Parent = plaque
+		local l = Instance.new("TextLabel")
+		l.AnchorPoint = Vector2.new(0.5, 0.5)
+		l.Position = UDim2.fromScale(0.5, 0.5)
+		l.Size = UDim2.fromScale(0.86, 0.8)
+		l.BackgroundTransparency = 1
+		l.Font = Enum.Font.Antique
+		l.TextScaled = true
+		l.TextColor3 = Color3.fromRGB(232, 196, 110)
+		l.Text = "門 化 光"
+		l.Parent = g
+	end
 	label(plaque, "광화문 (한옥 마을 서쪽 입구)", Color3.fromRGB(150, 60, 40), 8, 0.9)
 	do -- night: the stone base lit from the ground on the street side
 		local p = Vector3.new(gx0 - 1.8, 0.25, (gz0 + gz1) / 2)
@@ -1629,8 +1952,10 @@ do
 	box("PlazaLawn", WIDE, 0.3, PATH1 + 0.6, YARD, 0.45, PATH1 + 0.6 + (PATH0 - 0.6 - 51), Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
 	-- 월대 난간 (photo): a low stone kerb, short vase-shaped posts, a round
 	-- rail, and taller posts with round caps every 6 studs
-	for _, z in ipairs({ PATH0, PATH1 }) do
-		local x0, x1 = WIDE + 1, gx0 - 0.5
+	-- the railings run on the lawn edges only, from the sidewalk to the stone
+	-- yard; the yard side stays open so people walk in from the yard (user)
+	for _, z in ipairs({ PATH0 - 0.6, PATH1 + 0.6 }) do
+		local x0, x1 = WIDE + 1, YARD
 		box("RailKerb", x0, 0.3, z - 0.55, x1, 0.8, z + 0.55, granite, { parent = G, material = Enum.Material.Slate })
 		part("RailBar", Vector3.new(x1 - x0, 0.42, 0.42), CFrame.new((x0 + x1) / 2, 2.1, z), granite, { parent = G, material = Enum.Material.Slate, shape = Enum.PartType.Cylinder })
 		local n = math.floor((x1 - x0) / 6)
@@ -3229,7 +3554,7 @@ do
 	local FAS0, FAS1 = F + 11.4, F + 17.6 -- taller white band (user 2026-10-23)
 
 	local FASCIA = Color3.fromRGB(232, 231, 228) -- a touch darker than the white letters
-	box("Fascia", W0 - 1.2, FAS0, N0 + 2, W0 + 1, FAS1, S0 - CH, FASCIA, o)
+	box("Fascia", W0 - 1.2, FAS0, N0, W0 + 1, FAS1, S0 - CH, FASCIA, o) -- to the building's north edge (user)
 	box("Fascia", W0 + CH, FAS0, S0 - 1, W1 - 2, FAS1, S0 + 1.2, FASCIA, o)
 	cutPart("Fascia", cutLen, FAS0 - 0.03, FAS1 + 0.03, 2.2, 0.1, FASCIA) -- a hair past the side bands (no flicker where they overlap)
 	-- 3D sign letters (user 2026-10-23: white, thick, real shadows from the sun
