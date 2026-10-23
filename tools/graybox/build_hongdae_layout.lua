@@ -2687,7 +2687,7 @@ do
 	-- cut corner, south x the cut corner..SBAY; white frames like the entrance
 	local WBAY, SBAY = -67, 68
 	box("WallW", W0, F, N0, W0 + 1, GF, WBAY, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
-	box("WallW", W0, F + 11.2, WBAY, W0 + 1, GF, S0 - CH, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
+	box("WallW", W0, F + 11.4, WBAY, W0 + 1, GF, S0 - CH, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	local wallS = box("WallS", W0 + CH, F, S0 - 1, W1, GF, S0, WHITE_WALL, opt({ material = Enum.Material.CeramicTiles }))
 	box("WallN", W0, F, N0, W1, GF + 26, N0 + 1, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	box("WallE", W1 - 1, F, N0, W1, GF + 26, S0, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
@@ -2708,10 +2708,10 @@ do
 	local cutLen = CH * math.sqrt(2)
 	local DOOR = 7
 	local ENTRY = Color3.fromRGB(248, 248, 246) -- the entrance frame is white (user 2026-10-23, was pink)
-	cutPart("CornerHead", cutLen, F + 10.6, GF, 1, -0.5, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
+	cutPart("CornerHead", cutLen, F + 11.4, GF, 1, -0.5, WHITE_WALL, opt({ material = Enum.Material.Plaster })) -- above the frame head (they overlapped and flickered)
 	for _, s in ipairs({ -1, 1 }) do
 		-- the outer posts stand on the corners where the glass bays meet (user)
-		cutAt("PinkPost", s * (cutLen / 2), Vector3.new(1.2, 10.6, 1.4), F + 5.3, -0.3, ENTRY)
+		cutAt("PinkPost", s * (cutLen / 2), Vector3.new(1.2, 11.4, 1.4), F + 5.7, -0.3, ENTRY) -- up to the sign band (user)
 		cutAt("PinkMullion", s * (DOOR / 2 + 0.3), Vector3.new(0.35, 10.6, 1), F + 5.3, -0.3, ENTRY) -- thinner than the outer frame (user)
 		-- light panel inside the outer post: lights up at night (NightGlow)
 		local gp = cutAt("FrameGlow", s * (cutLen / 2), Vector3.new(0.5, 10, 0.1), F + 5.3, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
@@ -2719,9 +2719,9 @@ do
 		local w = cutLen / 2 - DOOR / 2 - 1.1
 		cutAt("Sidelight", s * (DOOR / 2 + 0.5 + w / 2), Vector3.new(w, 9.4, 0.3), F + 5.3, -0.4, Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
 	end
-	cutAt("PinkHead", 0, Vector3.new(cutLen, 1.2, 1.4), F + 10.6, -0.3, ENTRY)
+	cutAt("PinkHead", 0, Vector3.new(cutLen, 1.2, 1.4), F + 10.8, -0.3, ENTRY)
 	do
-		local gh = cutAt("FrameGlow", 0, Vector3.new(cutLen - 1, 0.5, 0.1), F + 10.6, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
+		local gh = cutAt("FrameGlow", 0, Vector3.new(cutLen - 1, 0.5, 0.1), F + 10.8, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		CS:AddTag(gh, "NightGlow")
 	end
 	local door = Instance.new("Model")
@@ -2744,10 +2744,10 @@ do
 		local function at(s, y) return CFrame.fromMatrix(p0 + along * s + Vector3.new(0, y, 0), along, Vector3.yAxis) end
 		-- one pane: no middle post; thin white frames top and bottom (user)
 		local FR = 0.45
-		part(name .. "Post", Vector3.new(1, 11.2, 1.2), at(0.5, 5.6), ENTRY, o)
-		part(name .. "Head", Vector3.new(len, FR, 1), at(len / 2, 11.2 - FR / 2), ENTRY, o)
+		part(name .. "Post", Vector3.new(1, 11.4, 1.2), at(0.5, 5.7), ENTRY, o)
+		part(name .. "Head", Vector3.new(len, FR, 1), at(len / 2, 11.4 - FR / 2), ENTRY, o)
 		part(name .. "Sill", Vector3.new(len, FR, 1), at(len / 2, FR / 2), ENTRY, o)
-		part(name .. "Glass", Vector3.new(len - 1, 11.2 - 2 * FR, 0.3), at((len + 1) / 2, 5.6), Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
+		part(name .. "Glass", Vector3.new(len - 1, 11.4 - 2 * FR, 0.3), at((len + 1) / 2, 5.7), Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
 	end
 	-- the wooden step runs in under the bays up to the glass, like at the doors (user)
 	box("Deck", W0, F - 0.3, WBAY, W0 + 1.3, F + 0.02, S0 - CH, WOOD, woodOpt)
@@ -2808,7 +2808,7 @@ do
 		end
 		return ps
 	end
-	local holes = { part("BayHole", Vector3.new(SBAY - (W0 + CH) + 0.2, 11.3, 3), CFrame.new((SBAY + W0 + CH) / 2, F + 11.2 - 5.65, S0 - 0.5), WHITE_WALL, o) }
+	local holes = { part("BayHole", Vector3.new(SBAY - (W0 + CH) + 0.2, 11.5, 3), CFrame.new((SBAY + W0 + CH) / 2, F + 11.4 - 5.75, S0 - 0.5), WHITE_WALL, o) }
 	for _, x in ipairs(PILL_X) do
 		for _, p in ipairs(pill("PillHole", x, PILL_W, PILL_H, S0 - 0.5, 3, WHITE_WALL, o)) do table.insert(holes, p) end
 	end
@@ -2859,7 +2859,7 @@ do
 	local FASCIA = Color3.fromRGB(232, 231, 228) -- a touch darker than the white letters
 	box("Fascia", W0 - 1.2, FAS0, N0 + 2, W0 + 1, FAS1, S0 - CH, FASCIA, o)
 	box("Fascia", W0 + CH, FAS0, S0 - 1, W1 - 2, FAS1, S0 + 1.2, FASCIA, o)
-	cutPart("Fascia", cutLen, FAS0, FAS1, 2.2, 0.1, FASCIA)
+	cutPart("Fascia", cutLen, FAS0 - 0.03, FAS1 + 0.03, 2.2, 0.1, FASCIA) -- a hair past the side bands (no flicker where they overlap)
 	-- 3D sign letters (user 2026-10-23: white, thick, real shadows from the sun
 	-- instead of the lavender shadow): every stroke is a white part 0.35 deep on
 	-- the fascia. Glyphs are drawn in a unit box (x right, y up): seg = straight
@@ -3089,7 +3089,7 @@ do
 		end
 	end
 	-- the entrance (cut corner) wall is pink above the doors too
-	cutPart("WallPink", CH * math.sqrt(2), F + 11.2, GF - 0.4, 0.1, -1.05, PINK_WALL, PLASTER)
+	cutPart("WallPink", CH * math.sqrt(2), F + 11.4, GF - 0.4, 0.1, -1.05, PINK_WALL, PLASTER)
 	-- south wall: a thick pink wall like the west one (user 2026-10-23), cut
 	-- through in the shape of each capsule window and with an arched recess
 	-- for each make-up vanity; it ends at the booth wall
@@ -3112,8 +3112,8 @@ do
 		wedgeTri("PinkWallEnd", Vector3.new(W0 + 1, 0, WBAY), Vector3.new(W0 + 1, 0, WBAY - 1.6), Vector3.new(W0 + 2.6, 0, WBAY - 1.6))
 		local wall = box("PinkWallS", SBAY + 1.6, F, SZ0, 91.9, GF - 0.4, SZ1, PINK_WALL, PLASTER)
 		-- pink above the glass bays inside
-		box("WallPink", W0 + CH, F + 11.2, S0 - 1.1, SBAY, GF - 0.4, S0 - 1, PINK_WALL, PLASTER)
-		box("WallPink", W0 + 1, F + 11.2, WBAY, W0 + 1.1, GF - 0.4, S0 - CH, PINK_WALL, PLASTER)
+		box("WallPink", W0 + CH, F + 11.4, S0 - 1.1, SBAY, GF - 0.4, S0 - 1, PINK_WALL, PLASTER)
+		box("WallPink", W0 + 1, F + 11.4, WBAY, W0 + 1.1, GF - 0.4, S0 - CH, PINK_WALL, PLASTER)
 		local holes = {}
 		for _, cx in ipairs(PILL_X) do
 			local w, h, cy = PILL_W, PILL_H, PILL_Y
@@ -3202,8 +3202,6 @@ do
 			if p and p:IsA("BasePart") then p.Color = SKYB end
 		end
 		m.StudioFloor.Color = SKYF
-		-- the shop's east wall is the booth's east side: sky lining on it
-		part("BoothLining", Vector3.new(0.1, 12, DEPTH - 2), CFrame.new(108.45, F + 6, m.StudioFloor.Position.Z), SKYB, { parent = m, material = Enum.Material.SmoothPlastic })
 		m.Parent = shopZone
 		table.insert(booths, m)
 	end
@@ -3230,6 +3228,10 @@ do
 			camProp.Transparency = 1
 		end
 		local az = bz - half + 3.5
+		-- the shop's east wall is each booth's east side: painted in the booth colour (user)
+		local wn = m:FindFirstChild("Wall_N")
+		local lining = part("BoothLining", Vector3.new(0.1, 12, half * 2), CFrame.new(108.45, F + 6, bz), if wn and wn:IsA("BasePart") then wn.Color else WHITE_WALL, { parent = m, material = Enum.Material.SmoothPlastic })
+		lining:SetAttribute("LayoutAdded", true)
 		table.insert(archZ, az)
 		-- leaving the booth: out through its arch (PhotoBoothService uses ExitPoint)
 		local ex = Vector3.new(FX - 3, F + 3, az)
