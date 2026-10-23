@@ -391,7 +391,26 @@ for _, sp in ipairs(temp:GetChildren()) do
 		local dir = if arm then flat(arm.Position - sp.Position) else flat(-base)
 		signals += 1
 		local u = units[((signals - 1) % #units) + 1]
-		prop(placeCopy(u.model, u.base, u.dir, base, dir, sigF), "Signal")
+		local sig = placeCopy(u.model, u.base, u.dir, base, dir, sigF)
+		-- the asset's tan concrete block at the foot (user 2026-10-23: "이건
+		-- 맞아?"): Korean signal poles stand on a flat steel base plate, the
+		-- foundation is under the pavement
+		for _, b in ipairs(sig:GetDescendants()) do
+			if b:IsA("BasePart") and b.Name == "Base" and b.Size.Y < 2 then
+				b.Transparency = 1
+				b.CanCollide = false
+				local mast = tallest(sig) :: BasePart
+				local plate = Instance.new("Part")
+				plate.Name = "BasePlate"
+				plate.Anchored = true
+				plate.Size = Vector3.new(1.6, 0.1, 1.6)
+				plate.CFrame = CFrame.new(mast.Position.X, b.Position.Y - b.Size.Y / 2 + 0.05, mast.Position.Z)
+				plate.Color = Color3.fromRGB(88, 90, 94)
+				plate.Material = Enum.Material.Metal
+				plate.Parent = b.Parent
+			end
+		end
+		prop(sig, "Signal")
 	end
 end
 for _, x in ipairs(temp:GetChildren()) do
