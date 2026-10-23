@@ -2667,7 +2667,7 @@ do
 	local woodOpt = opt({ material = Enum.Material.WoodPlanks })
 	box("Deck", W0 - DECK, 0, N0, W0, F, S0 - CH + 1.1, WOOD, woodOpt) -- ends on the building line (user)
 	box("Deck", W0 + CH - 1.1, 0, S0, W1 - 1, F, S0 + DECK, WOOD, woodOpt)
-	cutPart("Deck", CH * math.sqrt(2) + 2.2, 0, F + 0.02, DECK + 1.3, (DECK - 1.3) / 2, WOOD, woodOpt) -- runs in under the doors too (user)
+	cutPart("Deck", CH * math.sqrt(2) + 2.2, 0, F + 0.02, DECK + 0.5, (DECK - 0.5) / 2, WOOD, woodOpt) -- up to the door glass, none inside (user)
 	-- pavement in the rest of the corner (named Sidewalk: street_dress gives it
 	-- the paver texture), a hair lower than the sidewalks it overlaps
 	cutPart("Sidewalk", CH * math.sqrt(2) + 12, 0, CURB - 0.02, 7.4, DECK + 3.6, WALK, { parent = T, material = Enum.Material.Brick }) -- from the deck edge out (no gap)
@@ -2792,8 +2792,8 @@ do
 		part(name .. "Glass", Vector3.new(len - 1, 11.4 - 2 * FR, 0.3), at((len + 1) / 2, 5.7), Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
 	end
 	-- the wooden step runs in under the bays up to the glass, like at the doors (user)
-	box("Deck", W0, F - 0.3, WBAY, W0 + 1.3, F + 0.02, S0 - CH, WOOD, woodOpt)
-	box("Deck", W0 + CH, F - 0.3, S0 - 1.3, SBAY, F + 0.02, S0, WOOD, woodOpt)
+	box("Deck", W0, F - 0.3, WBAY, W0 + 0.5, F + 0.02, S0 - CH, WOOD, woodOpt) -- to the glass, none inside (user)
+	box("Deck", W0 + CH, F - 0.3, S0 - 0.5, SBAY, F + 0.02, S0, WOOD, woodOpt)
 	glassBay(Vector3.new(W0 + 0.5, F, WBAY), Vector3.new(W0 + 0.5, F, S0 - CH), "WestBay")
 	glassBay(Vector3.new(SBAY, F, S0 - 0.5), Vector3.new(W0 + CH, F, S0 - 0.5), "SouthBay")
 
