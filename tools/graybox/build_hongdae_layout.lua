@@ -2689,6 +2689,8 @@ do
 	box("WallE", W1 - 1, F, N0, W1, GF + 26, S0, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	box("Ceiling", W0, GF - 0.4, N0, W1, GF, S0 - CH, Color3.fromRGB(252, 238, 238), o)
 	box("Ceiling", W0 + CH, GF - 0.4, S0 - CH, W1, GF, S0, Color3.fromRGB(252, 238, 238), o)
+	-- and over the cut corner (the brick showed through the gap above the door)
+	cutPart("Ceiling", CH * math.sqrt(2), GF - 0.4, GF, depthIn, -depthIn / 2, Color3.fromRGB(252, 238, 238), o)
 	for _, p in ipairs({ { 58, -88 }, { 58, -70 }, { 72, -88 }, { 72, -70 }, { 72, -56 }, { 84, -88 }, { 84, -70 }, { 84, -56 }, { 98, -85 }, { 98, -61 } }) do
 		-- plain white panels (Neon panels made the bloom wash the room out)
 		local lamp = box("CeilingLight", p[1] - 1.5, GF - 0.55, p[2] - 1.5, p[1] + 1.5, GF - 0.4, p[2] + 1.5, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
@@ -2955,7 +2957,7 @@ do
 	-- booth's CameraPoint / Stand / Backdrop are moved to match). South wall:
 	-- two arched make-up vanities between the capsule windows. A white oval
 	-- table in the middle of the hall.
-	local PINK_WALL = Color3.fromRGB(255, 192, 188)
+	local PINK_WALL = Color3.fromRGB(255, 208, 204) -- one tone lighter (user 2026-10-23)
 	local SKY = Color3.fromRGB(150, 212, 228) -- 인디스카이
 	local GOLDT = Color3.fromRGB(214, 172, 92)
 	local PLASTER = opt({ material = Enum.Material.Plaster })
@@ -3040,53 +3042,30 @@ do
 			p.CFrame = p.CFrame + Vector3.new(0, 0, NIN + p.Size.Z / 2 + 0.05 - p.Position.Z)
 		end
 	end
-	-- south wall inside: pink between / above / below the capsule windows
+	-- the entrance (cut corner) wall is pink above the doors too
+	cutPart("WallPink", CH * math.sqrt(2), F + 11.2, GF - 0.4, 0.1, -1.05, PINK_WALL, PLASTER)
+	-- south wall: a thick pink wall like the west one (user 2026-10-23), cut
+	-- through in the shape of each capsule window and with an arched recess
+	-- for each make-up vanity; it ends at the booth wall
+	local SZ0, SZ1 = S0 - 2.6, S0 - 1 -- inner face / against the outer wall
+	local VANITY_X = { 73.5, 84.5 }
+	local VW, VH = 5.6, 11.5
 	do
-		local zi = S0 - 1.1
-		local xs = { W0 + CH, 65.5, 70.5, 76.5, 81.5, 87.5, 92.5, 98.5, 103.5, W1 - 1 }
-		for k = 1, #xs - 1, 2 do box("WallPink", xs[k], F, zi, xs[k + 1], GF - 0.4, zi + 0.1, PINK_WALL, PLASTER) end
-		for k = 2, #xs - 1, 2 do
-			box("WallPink", xs[k], F, zi, xs[k + 1], F + 1.4, zi + 0.1, PINK_WALL, PLASTER)
-			box("WallPink", xs[k], F + 10.6, zi, xs[k + 1], GF - 0.4, zi + 0.1, PINK_WALL, PLASTER)
-		end
-	end
-	-- pink around each capsule window too (a liner with a pill-shaped hole)
-	for _, cx in ipairs({ 68, 79, 90, 101 }) do
-		local zi = S0 - 1.1
-		local liner = box("WallPink", cx - 2.5, F + 1.4, zi, cx + 2.5, F + 10.6, zi + 0.1, PINK_WALL, PLASTER)
-		local w, h, cy = 4.9, 9.7, F + 6
-		local holes = { part("PillCut", Vector3.new(w, h - w, 2), CFrame.new(cx, cy, zi), WHITE_WALL, o) }
-		for _, s in ipairs({ -1, 1 }) do
-			table.insert(holes, part("PillCut", Vector3.new(2, w, w), CFrame.new(cx, cy + s * (h - w) / 2, zi) * CFrame.Angles(0, math.rad(90), 0), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder })))
-		end
-		subtract(liner, holes, "WallPink", Enum.Material.Plaster)
-	end
-	-- floor: white tiles with a grey diagonal grid (bottom photo)
-	do
-		local fx0, fx1, fz0, fz1 = W0 + 1.1, 91.9, NIN, S0 - 1.1
-		local SP = 4.2
-		local function clipLine(px, pz, dx, dz)
-			-- intersect the line p + t d with the rectangle
-			local t0, t1 = -1e9, 1e9
-			for _, lim in ipairs({ { px, dx, fx0, fx1 }, { pz, dz, fz0, fz1 } }) do
-				local p0, d, lo, hi = lim[1], lim[2], lim[3], lim[4]
-				local a, b = (lo - p0) / d, (hi - p0) / d
-				t0 = math.max(t0, math.min(a, b))
-				t1 = math.min(t1, math.max(a, b))
+		local wall = box("PinkWallS", W0 + CH, F, SZ0, 91.9, GF - 0.4, SZ1, PINK_WALL, PLASTER)
+		local holes = {}
+		for _, cx in ipairs({ 68, 79, 90 }) do
+			local w, h, cy = PILL_W, PILL_H, PILL_Y
+			table.insert(holes, part("PillCut", Vector3.new(w, h - w, 3), CFrame.new(cx, cy, (SZ0 + SZ1) / 2), WHITE_WALL, o))
+			for _, s in ipairs({ -1, 1 }) do
+				table.insert(holes, part("PillCut", Vector3.new(3, w, w), CFrame.new(cx, cy + s * (h - w) / 2, (SZ0 + SZ1) / 2) * CFrame.Angles(0, math.rad(90), 0), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder })))
 			end
-			if t1 <= t0 then return end
-			local a = Vector3.new(px + dx * t0, F + 0.015, pz + dz * t0)
-			local b = Vector3.new(px + dx * t1, F + 0.015, pz + dz * t1)
-			local gl = part("FloorGrid", Vector3.new(0.1, 0.03, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), Color3.fromRGB(176, 176, 182), opt({ nocol = true }))
-			gl.CastShadow = false
 		end
-		local d = 1 / math.sqrt(2)
-		for k = -20, 20 do
-			clipLine(fx0 + k * SP * math.sqrt(2), fz0, d, d)
-			clipLine(fx0 + k * SP * math.sqrt(2), fz1, d, -d)
+		for _, vx in ipairs(VANITY_X) do
+			for _, h in ipairs(archHole(Vector3.new(vx, F - 0.1, (SZ0 + SZ1) / 2), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1), VW, VH + 0.1, SZ1 - SZ0 + 0.6)) do table.insert(holes, h) end
 		end
+		subtract(wall, holes, "PinkWallS", Enum.Material.Plaster)
 	end
-
+	-- (no grid lines on the floor: user 2026-10-23; the tiles alone)
 	---------------------------------------------------------------- booths
 	local booths = {}
 	local shopZone = root:FindFirstChild("08_PhotoBooth")
@@ -3115,6 +3094,62 @@ do
 			northFace += 17
 		end
 	end
+	-- a third booth, sky blue, in the space behind the booths by the capsule
+	-- windows (user 2026-10-23): a copy of the WHITE booth that uses the WHITE
+	-- booth's south wall as its north wall and the shop's south wall as its
+	-- south wall, so it is only 13.3 deep (camera / stand / backdrop closer)
+	if #booths >= 2 and shopZone then
+		local src = booths[#booths]
+		local SKYB = Color3.fromRGB(150, 212, 228)
+		local SKYF = Color3.fromRGB(196, 232, 242)
+		local srcFloor = src.StudioFloor
+		local z0 = srcFloor.Position.Z + 8.5 -- the source booth's south wall, outer face
+		local z1 = S0 - 1
+		local m = src:Clone()
+		m.Name = "PhotoBooth_SKY"
+		m:SetAttribute("BoothKey", "SKY")
+		m:SetAttribute("BoothName", "SKY 부스")
+		m:SetAttribute("TempOrig", nil)
+		m:SetAttribute("TempDelta", nil)
+		m:SetAttribute("LayoutAdded", true)
+		for _, x in ipairs(m:GetDescendants()) do
+			for k in pairs(x:GetAttributes()) do
+				if k:sub(1, 4) == "Orig" then x:SetAttribute(k, nil) end
+			end
+			if x:IsA("TextLabel") then x.Text = (x.Text:gsub("WHITE", "SKY")) end
+		end
+		local zc, depth = (z0 + z1) / 2, z1 - z0
+		-- labels and the rest move with the booth
+		for _, p in ipairs(m:GetDescendants()) do
+			if p:IsA("BasePart") then p.CFrame = p.CFrame + Vector3.new(0, 0, zc - srcFloor.Position.Z) end
+		end
+		local function fit(p: BasePart?, sizeZ, y, color)
+			if not p then return end
+			p.Size = Vector3.new(p.Size.X, p.Size.Y, sizeZ)
+			p.CFrame = CFrame.new(p.Position.X, y or p.Position.Y, zc)
+			if color then p.Color = color end
+		end
+		local floorP = m:FindFirstChild("StudioFloor") :: BasePart
+		fit(floorP, depth, nil, SKYF)
+		fit(m:FindFirstChild("Ceiling") :: BasePart?, depth + 0.5, nil, SKYB)
+		for _, nm in ipairs({ "Wall_N", "Wall_S" }) do
+			local w = m:FindFirstChild(nm)
+			if w then w:Destroy() end
+		end
+		local back = m:FindFirstChild("Backdrop") :: BasePart?
+		if back then back.Color = SKYB end
+		-- sky lining on the three walls inside (north, south, east)
+		part("BoothLining", Vector3.new(15.5, 12, 0.1), CFrame.new(100.75, F + 6, z0 + 0.05), SKYB, { parent = m, material = Enum.Material.SmoothPlastic })
+		part("BoothLining", Vector3.new(15.5, 12, 0.1), CFrame.new(100.75, F + 6, z1 - 0.05), SKYB, { parent = m, material = Enum.Material.SmoothPlastic })
+		part("BoothLining", Vector3.new(0.1, 12, depth), CFrame.new(108.45, F + 6, zc), SKYB, { parent = m, material = Enum.Material.SmoothPlastic })
+		-- camera / stand / backdrop offsets for the short booth (from the floor centre)
+		m:SetAttribute("CamDZ", -(depth / 2) + 0.55)
+		m:SetAttribute("StandDZ", depth / 2 - 3.6)
+		m:SetAttribute("BackDZ", depth / 2 + 0.05)
+		m:SetAttribute("ArchDZ", -(depth / 2) + 4.2)
+		m.Parent = shopZone
+		table.insert(booths, m)
+	end
 	local FX = 91.9 -- right against the booths (their west side is x 93)
 	local AW, AH = 7, 10
 	local function remember(p: Instance?)
@@ -3130,27 +3165,38 @@ do
 		local camP, stand, back = m:FindFirstChild("CameraPoint"), m:FindFirstChild("Stand"), m:FindFirstChild("Backdrop")
 		remember(camP) remember(stand) remember(back)
 		-- the camera on the north wall looking south (+z)
-		local camPos = Vector3.new(bx, F + 3.8, bz - 6.4)
+		local camPos = Vector3.new(bx, F + 3.8, bz + (m:GetAttribute("CamDZ") or -6.4))
 		camP.CFrame = CFrame.lookAt(camPos, camPos + Vector3.new(0, 0, 1))
 		-- people stand south of it, facing it (Stand -Z = toward the camera)
-		local sp = Vector3.new(bx, stand.Position.Y, bz + 3.4)
+		local sp = Vector3.new(bx, stand.Position.Y, bz + (m:GetAttribute("StandDZ") or 3.4))
 		stand.Size = Vector3.new(13, stand.Size.Y, 7)
 		stand.CFrame = CFrame.lookAt(sp, sp + Vector3.new(0, 0, -1))
 		-- backdrop on the south wall of the booth
-		back.CFrame = CFrame.new(bx, back.Position.Y, bz + 7.6) * CFrame.Angles(0, math.rad(90), 0)
+		back.CFrame = CFrame.new(bx, back.Position.Y, bz + (m:GetAttribute("BackDZ") or 7.6)) * CFrame.Angles(0, math.rad(90), 0)
 		-- the old camera prop stays hidden
 		local camProp = m:FindFirstChild("CameraProp")
 		if camProp and camProp:IsA("BasePart") then
 			camProp:SetAttribute("OrigTransparency", camProp.Transparency)
 			camProp.Transparency = 1
 		end
-		table.insert(archZ, bz - 4.5)
+		local az = bz + (m:GetAttribute("ArchDZ") or -4.5)
+		table.insert(archZ, az)
 		-- leaving the booth: out through its arch (PhotoBoothService uses ExitPoint)
-		local ex = Vector3.new(FX - 3, F + 3, bz - 4.5)
+		local ex = Vector3.new(FX - 3, F + 3, az)
 		local exitP = part("ExitPoint", Vector3.new(1, 1, 1), CFrame.lookAt(ex, ex + Vector3.new(-1, 0, 0)), WHITE_WALL, { parent = m, nocol = true, transparency = 1 })
 		exitP.CanQuery = false
 		exitP.CanTouch = false
 		exitP:SetAttribute("LayoutAdded", true)
+		-- a soft light under each booth ceiling (the hall lights are above it)
+		local ceil = m:FindFirstChild("Ceiling")
+		if ceil and ceil:IsA("BasePart") then
+			local l = Instance.new("SurfaceLight")
+			l.Name = "BoothLight"
+			l.Face = Enum.NormalId.Bottom
+			l.Range, l.Brightness, l.Angle, l.Color = 12, 0.6, 120, Color3.fromRGB(255, 244, 236)
+			l:SetAttribute("LayoutAdded", true)
+			l.Parent = ceil
+		end
 	end
 	-- pink booth wall at x 87 with a small arch per booth
 	do
@@ -3287,32 +3333,45 @@ do
 		pill("MirrorRim", 4, 10, WX1 + 0.15, 0.3, Color3.fromRGB(250, 248, 244), Enum.Material.SmoothPlastic)
 		pill("MirrorGlow", 3.4, 9.4, WX1 + 0.32, 0.06, Color3.fromRGB(255, 236, 200), Enum.Material.Neon)
 		pill("Mirror", 3, 9, WX1 + 0.38, 0.06, Color3.fromRGB(205, 215, 222), Enum.Material.Glass)
+		do -- the live reflection, clipped to the pill (MirrorController)
+			local c = Vector3.new(WX1 + 0.44, F + 6.5, mz)
+			local view = part("MirrorView", Vector3.new(3, 9, 0.05), CFrame.lookAt(c, c + Vector3.new(1, 0, 0)), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+			view.CanQuery = false
+			view:SetAttribute("Rounded", true)
+			CS:AddTag(view, "Mirror")
+		end
 		for _, d in ipairs(B:GetChildren()) do if d.Name == "Mirror" and d:IsA("BasePart") then d.Reflectance = 0.45 end end
 	end
 
 	---------------------------------------------------------------- south wall: arched make-up vanities between the capsule windows
-	for _, vx in ipairs({ 73.5, 84.5 }) do
-		local zi = S0 - 1.15 -- inner face of the south wall liner
+	for _, vx in ipairs(VANITY_X) do
+		-- each vanity stands in its arched recess in the thick pink wall
+		local zi = SZ1 - 0.06 -- back of the recess
 		local along, out = Vector3.new(1, 0, 0), Vector3.new(0, 0, -1)
 		local c0 = Vector3.new(vx, F, zi)
 		-- white tile arch backing with a gold rim and a warm glow
-		local back = archPanel(c0 - out * 0.05, along, out, 5.6, 11.5, 0.12, Color3.fromRGB(250, 250, 248), B, Enum.Material.CeramicTiles)
+		local back = archPanel(c0, along, out, VW, VH, 0.12, Color3.fromRGB(250, 250, 248), B, Enum.Material.CeramicTiles)
 		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 7 sl.Brightness = 0.6 sl.Color = Color3.fromRGB(255, 225, 180) sl.Parent = back
-		archRim(c0 + out * 0.12, along, out, 6, 11.8, 0.35, 0.25, GOLDT, B, Enum.Material.Foil)
+		archRim(Vector3.new(vx, F, SZ0 - 0.1), along, out, VW + 0.4, VH + 0.2, 0.35, 0.25, GOLDT, B, Enum.Material.Foil)
 		-- bulb mirror
-		local my = F + 6.6
-		part("VanityMirrorFrame", Vector3.new(4.4, 2.8, 0.15), CFrame.new(vx, my, zi - 0.2), Color3.new(1, 1, 1), opt({ nocol = true }))
-		local mirror = part("VanityMirror", Vector3.new(3.8, 2.2, 0.06), CFrame.new(vx, my, zi - 0.3), Color3.fromRGB(205, 215, 222), opt({ nocol = true, material = Enum.Material.Glass }))
+		-- tall and low enough that short avatars see themselves (user: real mirror)
+		local my, MH = F + 5.75, 3.7 -- bottom bulbs sit on the counter
+		part("VanityMirrorFrame", Vector3.new(4.4, MH + 0.6, 0.15), CFrame.new(vx, my, zi - 0.2), Color3.new(1, 1, 1), opt({ nocol = true }))
+		local mirror = part("VanityMirror", Vector3.new(3.8, MH, 0.06), CFrame.new(vx, my, zi - 0.3), Color3.fromRGB(205, 215, 222), opt({ nocol = true, material = Enum.Material.Glass }))
 		mirror.Reflectance = 0.45
+		-- the live reflection (MirrorController draws on its front face)
+		local view = part("MirrorView", Vector3.new(3.8, MH, 0.05), CFrame.lookAt(Vector3.new(vx, my, zi - 0.36), Vector3.new(vx, my, zi - 1.36)), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+		view.CanQuery = false
+		CS:AddTag(view, "Mirror")
 		for k = 0, 4 do
 			for _, sy in ipairs({ -1, 1 }) do
-				part("VanityBulb", Vector3.new(0.38, 0.38, 0.38), CFrame.new(vx - 1.8 + k * 0.9, my + sy * 1.35, zi - 0.32), Color3.fromRGB(255, 244, 214), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Neon, nocol = true }))
+				part("VanityBulb", Vector3.new(0.38, 0.38, 0.38), CFrame.new(vx - 1.8 + k * 0.9, my + sy * (MH / 2 + 0.25), zi - 0.32), Color3.fromRGB(255, 244, 214), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Neon, nocol = true }))
 			end
 		end
 		for _, sx in ipairs({ -1, 1 }) do
-			part("VanityBulb", Vector3.new(0.38, 0.38, 0.38), CFrame.new(vx + sx * 2.2, my, zi - 0.32), Color3.fromRGB(255, 244, 214), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Neon, nocol = true }))
+			for _, sy in ipairs({ -0.9, 0.9 }) do part("VanityBulb", Vector3.new(0.38, 0.38, 0.38), CFrame.new(vx + sx * 2.2, my + sy, zi - 0.32), Color3.fromRGB(255, 244, 214), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Neon, nocol = true })) end
 		end
-		local plate = part("VanitySign", Vector3.new(2.2, 0.6, 0.05), CFrame.new(vx, my + 2.3, zi - 0.2), Color3.fromRGB(255, 255, 255), opt({ nocol = true }))
+		local plate = part("VanitySign", Vector3.new(2.2, 0.6, 0.05), CFrame.new(vx, my + MH / 2 + 1.2, zi - 0.2), Color3.fromRGB(255, 255, 255), opt({ nocol = true }))
 		txt(plate, Enum.NormalId.Front, "MAKE UP", Color3.fromRGB(220, 110, 130), Enum.Font.GothamBold, nil, 60)
 		-- floating white counter with a drawer line
 		box("VanityCounter", vx - 2.6, F + 3.1, zi - 1.6, vx + 2.6, F + 3.5, zi, Color3.fromRGB(252, 252, 250), o)
