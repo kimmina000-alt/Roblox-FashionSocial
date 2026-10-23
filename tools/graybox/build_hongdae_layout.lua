@@ -1525,15 +1525,19 @@ do
 
 	-- in front, sidewalk (x WIDE) to the gate: stone ground, a path between
 	-- two stone balustrades, lawns either side, 해태 at the street end
-	local PATH0, PATH1 = 155.5, 180.5
-	box("PlazaStone", WIDE, 0, 88, gx0, 0.3, 248, granite, { parent = G, material = Enum.Material.Slate })
-	box("PlazaPath", WIDE, 0.3, PATH0, gx0, 0.36, PATH1, Color3.fromRGB(220, 214, 202), { parent = G, material = Enum.Material.Slate })
-	box("PlazaLawn", WIDE, 0.3, 90, 75, 0.45, PATH0 - 2, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
-	box("PlazaLawn", WIDE, 0.3, PATH1 + 2, 75, 0.45, 246, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
+	-- front yard (user plan 2026-10-23): a stone yard along the whole wall
+	-- line (x 68 to the wall), the path to the gate as wide as the gate
+	-- (between the railings), two big lawns from the yard to the sidewalk
+	local PATH0, PATH1 = gz0 + 5, gz1 - 5 -- railings at the gate's edges
+	local YARD = 68
+	local PAVE = Color3.fromRGB(226, 216, 190)
+	box("PlazaStone", WIDE, 0, 49, 96.4, 0.3, 299, PAVE, { parent = G, material = Enum.Material.Slate })
+	box("PlazaLawn", WIDE, 0.3, 51, YARD, 0.45, PATH0 - 0.6, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
+	box("PlazaLawn", WIDE, 0.3, PATH1 + 0.6, YARD, 0.45, PATH1 + 0.6 + (PATH0 - 0.6 - 51), Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
 	-- 월대 난간 (photo): a low stone kerb, short vase-shaped posts, a round
 	-- rail, and taller posts with round caps every 6 studs
-	for _, z in ipairs({ PATH0 - 1, PATH1 + 1 }) do
-		local x0, x1 = WIDE + 2, gx0 - 0.5
+	for _, z in ipairs({ PATH0, PATH1 }) do
+		local x0, x1 = WIDE + 1, gx0 - 0.5
 		box("RailKerb", x0, 0.3, z - 0.55, x1, 0.8, z + 0.55, granite, { parent = G, material = Enum.Material.Slate })
 		part("RailBar", Vector3.new(x1 - x0, 0.42, 0.42), CFrame.new((x0 + x1) / 2, 2.1, z), granite, { parent = G, material = Enum.Material.Slate, shape = Enum.PartType.Cylinder })
 		local n = math.floor((x1 - x0) / 6)
@@ -2634,7 +2638,21 @@ do
 		palaceWall(a, b, W, out) -- the same palace wall as the village (user photos)
 	end
 	hanokWall(Vector3.new(225.7, 0, 49), Vector3.new(700, 0, 49), Vector3.new(0, 0, -1))
-	hanokWall(Vector3.new(97, 0, 227.7), Vector3.new(97, 0, 700), Vector3.new(-1, 0, 0))
+	-- south of the village the wall runs on and bends once (user photo of a
+	-- 돌담길), with a stone path along its street side
+	do
+		local A, Bn, C = Vector3.new(97, 0, 227.7), Vector3.new(97, 0, 330), Vector3.new(185, 0, 700)
+		hanokWall(A, Bn + Vector3.new(0, 0, 1.1), Vector3.new(-1, 0, 0))
+		local d = (C - Bn).Unit
+		local out = Vector3.yAxis:Cross(d)
+		if out.X > 0 then out = -out end
+		hanokWall(Bn - d * 1.1, C, out)
+		local PAVE = Color3.fromRGB(226, 216, 190)
+		box("DoldamPath", 89, 0, 299, 96.4, 0.3, 331, PAVE, { material = Enum.Material.Slate })
+		local len = (C - Bn).Magnitude
+		local mid = (Bn + C) / 2 + out * 4.8
+		part("DoldamPath", Vector3.new(8, 0.3, len + 4), CFrame.lookAt(Vector3.new(mid.X, 0.15, mid.Z), Vector3.new(mid.X, 0.15, mid.Z) + d), PAVE, { material = Enum.Material.Slate })
+	end
 	-- fake shop buildings (photos: stacked shop signs on every floor, glass
 	-- and stone facade, ground-floor shops). Walls only, nobody goes in.
 	local SHOPS = {
