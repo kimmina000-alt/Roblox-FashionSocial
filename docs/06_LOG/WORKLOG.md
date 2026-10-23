@@ -546,3 +546,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 레퍼런스 9장 보고 외관 + 실내 전체 새로 만듦. 상품 목록 모듈(OH24Products) + 상품별 이미지 칸, 진열대 높이에 맞춰 상품 크기 자동 조절.
 - 버그 수정: 냉장고 몸체가 꽉 찬 상자라 안의 음료가 가려짐 → 뒤판·위·아래만 남김. 라이트 박스 Neon 번짐 → 일반 재질 + 화면 빛.
 - 캡처: oh24_front.jpg, oh24_interior.jpg, oh24_counter.jpg. 성능(부품 1,826 / GUI 758) 모바일 확인 필요.
+## 2026-10-23 (10) — OH24 v2 (D-121)
+- 편의점 확장, 도로 쪽 세 면 통유리 + 간판, 계산대 물건 방향 반대로. 캡처 oh24_v2_corner / interior / counter.jpg. 부품 2,702 / GUI 1,230 → 모바일 확인 필요.
