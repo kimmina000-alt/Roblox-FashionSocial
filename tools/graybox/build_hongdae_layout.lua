@@ -53,9 +53,13 @@ local HOLES = {
 	{ 49, -252 + CLUB_DZ, 169, -92 + CLUB_DZ },
 	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -32, 50, -26, 68 }, -- exits 2, 4 (come up southwards)
+	{ 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
 }
 -- 광화문 lawns planted as terrain grass (blades), x0, z0, x1, z1 (user 2026-10-23)
-local LAWN_TERRAIN = { { 48, 48, 81, 138.4 }, { 48, 197.6, 81, 288 } }
+-- the lawns are sunken beds: terrain heights snap to 4 studs, so terrain
+-- grass can only stand at about -1.6 (or 2.4, which bulged, user 2026-10-23);
+-- the ground and the yard paving are cut there and a stone kerb rims the bed
+local LAWN_TERRAIN = { { 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 } }
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
 	{ Vector3.new(400, -55, 60), 95 }, { Vector3.new(470, -60, 175), 110 }, { Vector3.new(420, -55, 295), 95 },
 	{ Vector3.new(290, -70, 370), 90 }, { Vector3.new(150, -75, 390), 90 },
@@ -130,7 +134,7 @@ local function revert()
 	if old then
 		if old:GetAttribute("LawnTerrain") then
 			for _, l in ipairs(LAWN_TERRAIN) do
-				workspace.Terrain:FillBlock(CFrame.new((l[1] + l[3]) / 2, -1, (l[2] + l[4]) / 2), Vector3.new(l[3] - l[1] + 8, 6, l[4] - l[2] + 8), Enum.Material.Air)
+				workspace.Terrain:FillBlock(CFrame.new((l[1] + l[3]) / 2, -2, (l[2] + l[4]) / 2), Vector3.new(l[3] - l[1] + 8, 12, l[4] - l[2] + 8), Enum.Material.Air)
 			end
 		end
 		if old:GetAttribute("Mountains") then
@@ -967,7 +971,8 @@ for _, e in ipairs(EXITS) do
 	-- dark slab; on both faces, top to bottom: subway icon, exit number,
 	-- 출입구 / Entrance, the station name in Korean, English, Hanja, Japanese
 	local mouth = at(9)
-	local polePos = mouth + side * 5.6 * math.sign(e[4]) + out * 1
+	-- on the road side of the mouth (user 2026-10-23), just past the opening
+	local polePos = mouth + out * 1.6 - side * 3.5 * math.sign(e[4])
 	-- a square post (photo: slim, the same on all four faces), the Korean name
 	-- written top to bottom, the small print really small
 	local PW, PD, PH = 1.15, 1.15, 10
@@ -2143,12 +2148,23 @@ do
 	local PATH0, PATH1 = gz0, gz1 -- railings on the gate's outer edges (user 2026-10-23)
 	local YARD = gx0 - 8 -- lawns reach toward the gate (user 2026-10-23)
 	local PAVE = Color3.fromRGB(226, 216, 190)
-	box("PlazaStone", WIDE, 0, WIDE, 96.4, 0.3, 299, PAVE, { parent = G, material = Enum.Material.Slate })
-	box("PlazaLawn", WIDE, 0.3, WIDE, YARD, 0.45, PATH0 - 0.6, Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
-	box("PlazaLawn", WIDE, 0.3, PATH1 + 0.6, YARD, 0.45, PATH1 + 0.6 + (PATH0 - 0.6 - WIDE), Color3.fromRGB(90, 165, 80), { parent = G, material = Enum.Material.Grass })
+	-- paving everywhere except the two lawn beds
+	local L1, L2 = LAWN_TERRAIN[1], LAWN_TERRAIN[2]
+	box("PlazaStone", L1[3], 0, WIDE, 96.4, 0.3, 299, PAVE, { parent = G, material = Enum.Material.Slate })
+	box("PlazaStone", WIDE, 0, L1[4], L1[3], 0.3, L2[2], PAVE, { parent = G, material = Enum.Material.Slate })
+	box("PlazaStone", WIDE, 0, L2[4], L1[3], 0.3, 299, PAVE, { parent = G, material = Enum.Material.Slate })
+	-- stone kerb round each bed, reaching down to the grass so no hole shows
+	for _, l in ipairs(LAWN_TERRAIN) do
+		local K, KC = 0.6, Color3.fromRGB(200, 196, 186)
+		local ko = { parent = G, material = Enum.Material.Granite }
+		box("LawnKerb", l[1], -2.4, l[2], l[3], 0.4, l[2] + K, KC, ko)
+		box("LawnKerb", l[1], -2.4, l[4] - K, l[3], 0.4, l[4], KC, ko)
+		box("LawnKerb", l[1], -2.4, l[2] + K, l[1] + K, 0.4, l[4] - K, KC, ko)
+		box("LawnKerb", l[3] - K, -2.4, l[2] + K, l[3], 0.4, l[4] - K, KC, ko)
+	end
 	-- real grass on the lawns: terrain grass (its blades wave), the lawn part stays under it
 	for _, l in ipairs(LAWN_TERRAIN) do
-		workspace.Terrain:FillBlock(CFrame.new((l[1] + l[3]) / 2, 0.45 - 2, (l[2] + l[4]) / 2), Vector3.new(l[3] - l[1], 4, l[4] - l[2]), Enum.Material.Grass)
+		workspace.Terrain:FillBlock(CFrame.new((l[1] + l[3]) / 2, -2, (l[2] + l[4]) / 2), Vector3.new(l[3] - l[1], 4, l[4] - l[2]), Enum.Material.Grass) -- one voxel layer -4..0: grass surface about -1.6
 	end
 	pcall(function() workspace.Terrain.Decoration = true end)
 	T:SetAttribute("LawnTerrain", true)
@@ -2191,6 +2207,8 @@ do
 	-- slab, two courses of big blocks, a moulded tier, a frieze of round
 	-- medallions, and a top slab with a lotus-petal band.
 	local function haetae(pos: Vector3, facing: Vector3)
+		-- footing down into the lawn bed
+		box("HaetaeFooting", pos.X - 3.3, -2.4, pos.Z - 4.3, pos.X + 3.3, pos.Y, pos.Z + 4.3, Color3.fromRGB(200, 196, 186), { parent = G, material = Enum.Material.Granite })
 		local cf = CFrame.lookAt(pos, pos + facing) -- local Z runs along the statue
 		local GR = Color3.fromRGB(200, 196, 186)
 		local LINE = Color3.fromRGB(160, 155, 145)

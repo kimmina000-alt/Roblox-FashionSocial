@@ -626,3 +626,15 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
   - '출입구'와 외국어 표기는 아주 작게 넣었습니다.
 
 ![](images/2026-10-23/exit_sign_v3.jpg)
+
+### 추가 (D-154)
+- 광화문 앞 잔디가 볼록하게 솟아 보이던 것을 고쳤습니다.
+  - 로블록스 지형은 높이가 4스터드 단위로만 맞춰져서, 원하는 높이에 잔디를 놓을 수 없었습니다.
+  - 그래서 잔디밭 자리를 파서 화단으로 만들고, 잔디가 땅에서 자란 것처럼 보이게 했습니다.
+- 출입구 기둥을 도로 쪽으로 옮겼습니다.
+
+| 잔디 전 | 잔디 후 |
+|---|---|
+| ![](images/2026-10-23/lawn_before.jpg) | ![](images/2026-10-23/lawn_after.jpg) |
+
+![](images/2026-10-23/exit_sign_road_side.jpg)
