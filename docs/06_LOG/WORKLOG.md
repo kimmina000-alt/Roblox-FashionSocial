@@ -660,3 +660,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전 | 후 |
 |---|---|
 | ![](images/2026-10-23/curb_before.jpg) | ![](images/2026-10-23/curb_after.jpg) |
+
+## 2026-10-24 — 해변 사거리 정리 (D-157)
+- 해변 T자 교차로를 가로지르던 빨간 띠를 지웠습니다.
+- 인도 모서리 둥글기를 1/4로 줄였습니다(반지름 8 → 2). 곡선 부분 무늬가 따로 보이던 것이 거의 사라졌습니다.
+
+| 전 | 후 |
+|---|---|
+| ![](images/2026-10-24/beach_t_before.jpg) | ![](images/2026-10-24/beach_t_after.jpg) |

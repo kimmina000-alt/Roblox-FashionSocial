@@ -1324,7 +1324,7 @@ do
 	for _, cz in ipairs(CROSS) do
 		if math.abs(cz) > 41 then paint("BikeLaneRed", -182, cz - 10, -174.2, cz + 10, BIKE_RED) end
 	end
-	paint("BikeLaneRed", -182, -50.7, -174.2, 50.7, BIKE_RED) -- through the T junction
+	-- (no red band through the T junction: user 2026-10-24)
 	walk(-158, z0, -150, -34) walk(-158, 34, -150, z1)
 	for _, cz in ipairs(CROSS) do
 		for x = -181, -159, 3 do paint("Crosswalk", x, cz - 6, x + 1.5, cz + 6, WHITE) end

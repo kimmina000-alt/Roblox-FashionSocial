@@ -242,7 +242,7 @@ local function roundCorner(s: BasePart)
 			-- the corner pointing at the junction: road beyond it diagonally AND on both sides
 			if onRoad(c + Vector3.new(sx * 1.5, 0, sz * 1.5)) and onRoad(c + Vector3.new(sx * 1.5, 0, -sz * 1)) and onRoad(c + Vector3.new(-sx * 1, 0, sz * 1.5)) then
 				hide(s)
-				local r = math.min(8, math.min(s.Size.X, s.Size.Z) - 1)
+				local r = math.min(2, math.min(s.Size.X, s.Size.Z) - 1) -- a quarter of the old 8 (user 2026-10-24)
 				local ix, iz = -sx, -sz
 				local h = s.Size.Y
 				local y = s.Position.Y
