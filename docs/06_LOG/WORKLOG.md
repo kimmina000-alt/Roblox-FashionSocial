@@ -537,3 +537,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 간판: 네모칸째 문 위로 내림, 글자 두께 0.8.
 - 클럽: 검정 외관(KING CLUB 사진). 해변 의자 원래대로. 인도 위 붉은 자전거 도로 삭제. 자작나무 기둥 갈색.
 - 캡처: photo_booth_interior_west/booths.jpg, photo_machine.jpg, club_black_facade.jpg, photo_booth_building_v4.jpg, birch_brown_bike_lane.jpg.
+## 2026-10-23 (8) — 신호등·횡단보도 간격·벽돌·벤치·레드카펫 (D-119)
+- 신호등: 받침 블록 제거 + 신호등 전체 1 내림. 횡단보도: 시행규칙 제11조(100m/200m)로 해변도로 중간 횡단보도 4개 삭제(-250, -100, 180, 260), T자 교차로 + z -400만.
+- 오후네컷: 간판 위 흰 띠 제거(벽돌을 간판 바로 위부터, 위층은 겉벽만). 산책로 벤치 2인석. 클럽 레드카펫·로프 삭제.
+- 클럽 포토월은 기능 없는 그레이박스 자리(흰 벽 + 주황 원판 + 이름표)임을 확인.
+- 캡처: photo_booth_building_v5.jpg, signal_pole_lowered.jpg, seafront_crosswalks_v3.jpg, promenade_bench_v2.jpg, club_front_no_carpet.jpg.

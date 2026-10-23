@@ -1185,7 +1185,10 @@ do
 	-- over the road to the bike lane on the promenade side. The bike lane keeps
 	-- the road surface colour and turns dark red only where it meets crossings
 	-- and the junction (자전거 이용시설 구조·시설 기준 제15조, 설치·관리 지침).
-	local CROSS = { -400, -250, -100, -40.7, 40.7, 180, 260 } -- ±40.7: the T junction pair
+	-- 도로교통법 시행규칙 제11조 4호: no crosswalk within 100 m (집산·국지도로;
+	-- 200 m elsewhere) of another crosswalk → only the T junction pair and one
+	-- mid-block crossing far beyond it (-400 is 120 m from the junction)
+	local CROSS = { -400, -40.7, 40.7 } -- ±40.7: the T junction pair
 	local BIKE_X = { { -34.7, -27.7 }, { 27.7, 34.7 } } -- bike crossings in line with the sidewalk bike lanes (z ±29.2..33.2)
 	for _, seg in ipairs({ { z0, -24 }, { 24, z1 } }) do -- lane paint stops at the junction with the west road
 		paint("EdgeLine", -174.2, seg[1], -173.8, seg[2], WHITE)
@@ -1284,7 +1287,10 @@ do
 	end
 	for zz = z0 + 28, z1, 60 do
 		box("BenchBase", -197.5, CURB, zz, -195.5, CURB + 1.6, zz + 6, Color3.fromRGB(110, 110, 115))
-		seat("PromenadeBench", CFrame.lookAt(Vector3.new(-196.5, CURB + 1.8, zz + 3), Vector3.new(-260, CURB + 1.8, zz + 3)), Vector3.new(2, 0.4, 6), Color3.fromRGB(160, 110, 70))
+		-- wooden top along the bench, two seats side by side (user 2026-10-23)
+		for _, dz in ipairs({ 1.5, 4.5 }) do
+			seat("PromenadeBench", CFrame.lookAt(Vector3.new(-196.5, CURB + 1.8, zz + dz), Vector3.new(-260, CURB + 1.8, zz + dz)), Vector3.new(3, 0.4, 2), Color3.fromRGB(160, 110, 70))
+		end
 	end
 	-- 광안대교 (suspension bridge) out in the sea, lit purple at night
 	local bx, deckY = -820, 34
@@ -1551,13 +1557,19 @@ do
 			end
 		end
 	end
-	for _, x in ipairs({ 39, 45 }) do
-		local last: Vector3? = nil
-		for zz = -150 + CLUB_DZ, -112 + CLUB_DZ, 6 do
-			local top = Vector3.new(x, CURB + 3.1, zz)
-			vcyl("Stanchion", Vector3.new(x, CURB, zz), 0.4, 3, Color3.fromRGB(200, 170, 80), { parent = K })
-			if last then part("Rope", Vector3.new(0.25, 0.25, (top - last).Magnitude), CFrame.lookAt((top + last) / 2 - Vector3.new(0, 0.3, 0), top - Vector3.new(0, 0.3, 0)), Color3.fromRGB(180, 20, 30), { parent = K, nocol = true }) end
-			last = top
+	-- red carpet, rope posts and the queue ropes removed (user 2026-10-23);
+	-- the graybox ones are parked in the hidden folder while the layout is on
+	do
+		local clubZ = root:FindFirstChild("02_Club")
+		local undo = MOVES["02_Club"]:Inverse()
+		if clubZ then
+			for _, c in ipairs(clubZ:GetChildren()) do
+				if c:IsA("BasePart") and (c.Name == "RedCarpetYard" or c.Name == "RopePost" or c.Name == "Rope") then
+					c.CFrame = undo * c.CFrame
+					c:SetAttribute("HomeZone", clubZ.Name)
+					c.Parent = hidden
+				end
+			end
 		end
 	end
 	for _, c in ipairs({ { 37.5, -110 }, { 47.5, -110 }, { 37.5, -100 }, { 47.5, -100 } }) do vcyl("TentLeg", Vector3.new(c[1], CURB, c[2]), 0.3, 8, Color3.fromRGB(230, 230, 235), { parent = K }) end
@@ -2152,9 +2164,7 @@ do
 	-- with the letters, so it shows on screen); a thin cornice marks the floor
 	-- line under the upper floors
 	local FAS0, FAS1 = F + 12, F + 15.4
-	box("Cornice", W0 - 0.6, GF, N0 + 2, W0 + 1, GF + 0.8, S0 - CH, WHITE_WALL, o)
-	box("Cornice", W0 + CH, GF, S0 - 1, W1 - 2, GF + 0.8, S0 + 0.6, WHITE_WALL, o)
-	cutPart("Cornice", cutLen, GF, GF + 0.8, 1.6, -0.2, WHITE_WALL)
+
 	local FASCIA = Color3.fromRGB(232, 231, 228) -- a touch darker than the white letters
 	box("Fascia", W0 - 1.2, FAS0, N0 + 2, W0 + 1, FAS1, S0 - CH, FASCIA, o)
 	box("Fascia", W0 + CH, FAS0, S0 - 1, W1 - 2, FAS1, S0 + 1.2, FASCIA, o)
@@ -2237,10 +2247,14 @@ do
 
 	-- upper floors (2F, 3F): white brick mass with the cut corner, dark-framed
 	-- windows, floor bands, then a parapet with a steel railing (roof terrace)
-	local U0, FLOOR, U1 = GF + 0.8, 11, GF + 22.8
-	box("UpperW", W0, U0, N0, W1, U1, S0 - CH, BRICK, opt({ material = Enum.Material.Brick }))
-	box("UpperS", W0 + CH, U0, S0 - CH - 1, W1, U1, S0, BRICK, opt({ material = Enum.Material.Brick }))
-	cutPart("UpperCut", cutLen, U0, U1, CH / math.sqrt(2) * 2, -CH / math.sqrt(2), BRICK, opt({ material = Enum.Material.Brick }))
+	-- the brick starts right on top of the sign band (user 2026-10-23: no white
+	-- strip). The upper floors are a brick shell on the street faces only, so
+	-- the high shop ceiling inside stays where it is.
+	local U0, U1 = FAS1, GF + 22.8
+	local FLOOR = (U1 - U0) / 2
+	box("UpperW", W0 - 0.05, U0, N0, W0 + 1, U1, S0 - CH, BRICK, opt({ material = Enum.Material.Brick }))
+	box("UpperS", W0 + CH, U0, S0 - 1, W1, U1, S0 + 0.05, BRICK, opt({ material = Enum.Material.Brick }))
+	cutPart("UpperCut", cutLen, U0, U1, 1, -0.45, BRICK, opt({ material = Enum.Material.Brick }))
 	local function window(cf: CFrame, w, h) -- cf at the window centre on the wall face, looking out
 		part("WindowFrame", Vector3.new(w + 0.6, h + 0.6, 0.3), cf * CFrame.new(0, 0, -0.15), FRAME, o)
 		part("WindowGlass", Vector3.new(w, h, 0.2), cf * CFrame.new(0, 0, -0.25), GLASS, opt({ material = Enum.Material.Glass, transparency = 0.15 }))
@@ -2248,7 +2262,7 @@ do
 		part("WindowSill", Vector3.new(w + 1, 0.3, 0.7), cf * CFrame.new(0, -h / 2 - 0.45, -0.35), WHITE_WALL, o)
 	end
 	for f = 0, 1 do
-		local y = U0 + f * FLOOR + 5.5
+		local y = U0 + f * FLOOR + FLOOR / 2
 		for _, z in ipairs({ -90, -78, -66 }) do window(CFrame.lookAt(Vector3.new(W0, y, z), Vector3.new(W0 - 1, y, z)), 5, 6) end
 		for _, x in ipairs({ 68, 81, 94 }) do window(CFrame.lookAt(Vector3.new(x, y, S0), Vector3.new(x, y, S0 + 1)), 5, 6) end
 		local c = MC + nC * 0

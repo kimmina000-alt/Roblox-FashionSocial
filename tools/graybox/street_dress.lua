@@ -408,25 +408,17 @@ for _, sp in ipairs(temp:GetChildren()) do
 		signals += 1
 		local u = units[((signals - 1) % #units) + 1]
 		local sig = placeCopy(u.model, u.base, u.dir, base, dir, sigF)
-		-- the asset's tan concrete block at the foot (user 2026-10-23: "이건
-		-- 맞아?"): Korean signal poles stand on a flat steel base plate, the
-		-- foundation is under the pavement
+		-- the asset stands on a 1-tall concrete block (user 2026-10-23: no box
+		-- under the pole): the block goes and the whole signal is lowered so
+		-- the pole collar sits on the pavement
 		for _, b in ipairs(sig:GetDescendants()) do
 			if b:IsA("BasePart") and b.Name == "Base" and b.Size.Y < 2 then
-				b.Transparency = 1
-				b.CanCollide = false
-				local plate = Instance.new("Part")
-				plate.Name = "BasePlate"
-				plate.Anchored = true
-				-- as tall as the asset block, so the pole collar still sits on it
-				plate.Size = Vector3.new(1.5, b.Size.Y, 1.5)
-				plate.CFrame = CFrame.new(b.Position.X, b.Position.Y, b.Position.Z)
-				plate.Color = Color3.fromRGB(88, 90, 94)
-				plate.Material = Enum.Material.Metal
-				plate.Parent = b.Parent
+				local drop = b.Size.Y
+				b:Destroy()
+				sig:PivotTo(sig:GetPivot() - Vector3.new(0, drop, 0))
+				break
 			end
-		end
-		prop(sig, "Signal")
+		end		prop(sig, "Signal")
 	end
 end
 for _, x in ipairs(temp:GetChildren()) do
