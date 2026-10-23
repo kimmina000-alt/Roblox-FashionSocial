@@ -1547,25 +1547,61 @@ do
 			end
 		end
 	end
-	-- 해태 (photo): seated on a two-step stone plinth, looking at the street
+	-- 해태 (user photos of the 광화문 haetae): the statue is an AI-made mesh
+	-- (ServerStorage.ArtAssets.HaetaeAI: crouching low, head raised, scales,
+	-- swirls, curly mane), on the tall stone pedestal of the photos: a base
+	-- slab, two courses of big blocks, a moulded tier, a frieze of round
+	-- medallions, and a top slab with a lotus-petal band.
 	local function haetae(pos: Vector3, facing: Vector3)
-		local cf = CFrame.lookAt(pos, pos + facing)
-		local c1, c2 = Color3.fromRGB(205, 196, 178), Color3.fromRGB(190, 182, 165)
-		part("HaetaePlinth", Vector3.new(5, 1.2, 6), cf * CFrame.new(0, 0.6, 0), granite, { parent = G, material = Enum.Material.Slate })
-		part("HaetaePedestal", Vector3.new(4, 3, 5), cf * CFrame.new(0, 2.7, 0), stone, { parent = G, material = Enum.Material.Slate })
-		part("HaetaeHaunch", Vector3.new(3, 2.2, 2.6), cf * CFrame.new(0, 5.3, 1), c1, { parent = G, material = Enum.Material.Slate, shape = Enum.PartType.Ball })
-		part("HaetaeChest", Vector3.new(2.6, 3, 2), cf * CFrame.new(0, 5.9, -0.7), c1, { parent = G, material = Enum.Material.Slate })
-		part("HaetaeHead", Vector3.new(2.8, 2.6, 2.6), cf * CFrame.new(0, 8.2, -1.2), c1, { parent = G, material = Enum.Material.Slate, shape = Enum.PartType.Ball })
-		part("HaetaeSnout", Vector3.new(1.6, 1.1, 1), cf * CFrame.new(0, 7.8, -2.4), c2, { parent = G, material = Enum.Material.Slate })
-		for _, sx in ipairs({ -1, 1 }) do
-			part("HaetaeMane", Vector3.new(1.1, 1.1, 1.1), cf * CFrame.new(sx * 1.2, 8.8, -0.6), c2, { parent = G, material = Enum.Material.Slate, shape = Enum.PartType.Ball })
-			part("HaetaeEye", Vector3.new(0.35, 0.35, 0.2), cf * CFrame.new(sx * 0.6, 8.6, -2.45), Color3.fromRGB(120, 112, 100), { parent = G, nocol = true })
-			part("HaetaeLeg", Vector3.new(0.8, 2.4, 0.8), cf * CFrame.new(sx * 0.8, 5.4, -1.5), c2, { parent = G, material = Enum.Material.Slate })
+		local cf = CFrame.lookAt(pos, pos + facing) -- local Z runs along the statue
+		local GR = Color3.fromRGB(200, 196, 186)
+		local LINE = Color3.fromRGB(160, 155, 145)
+		local gopt = { parent = G, material = Enum.Material.Granite }
+		local function slab(name, w, y0, y1, l)
+			return part(name, Vector3.new(w, y1 - y0, l), cf * CFrame.new(0, (y0 + y1) / 2, 0), GR, gopt)
 		end
-		part("HaetaeHorn", Vector3.new(0.5, 0.9, 0.5), cf * CFrame.new(0, 9.7, -1.2), c2, { parent = G, nocol = true })
+		slab("HaetaeBaseSlab", 6.6, 0, 0.5, 8.6)
+		slab("HaetaeBlocks", 5.4, 0.5, 2.9, 7.4)
+		slab("HaetaeTierLower", 6.0, 2.9, 3.8, 8.0)
+		slab("HaetaeTierLip", 6.25, 3.25, 3.45, 8.25)
+		slab("HaetaeFrieze", 5.2, 3.8, 4.5, 7.2)
+		slab("HaetaeTopSlab", 6.0, 4.5, 5.4, 8.0)
+		slab("HaetaeTopLip", 6.25, 4.6, 4.8, 8.25)
+		-- block joints (thin grooves) on the two courses
+		local function line(size, at) part("HaetaeJoint", size, cf * at, LINE, { parent = G, nocol = true, material = Enum.Material.Granite }) end
+		line(Vector3.new(5.46, 0.06, 7.46), CFrame.new(0, 1.7, 0))
+		for _, s in ipairs({ -1, 1 }) do
+			line(Vector3.new(0.06, 1.2, 0.06), CFrame.new(s * 2.71, 1.1, -1.2))
+			line(Vector3.new(0.06, 1.2, 0.06), CFrame.new(s * 2.71, 2.3, 1.6))
+			line(Vector3.new(0.06, 1.2, 0.06), CFrame.new(0.6, 1.1, s * 3.71))
+			line(Vector3.new(0.06, 1.2, 0.06), CFrame.new(-0.9, 2.3, s * 3.71))
+		end
+		-- frieze medallions and the lotus band on the top slab, all four faces
+		local function row(y, depthX, depthZ, step, d, name)
+			for _, s in ipairs({ -1, 1 }) do
+				for z = -depthZ + step / 2, depthZ - step / 2 + 0.01, step do
+					part(name, Vector3.new(0.08, d, d), cf * CFrame.new(s * depthX, y, z), GR, { parent = G, nocol = true, material = Enum.Material.Granite, shape = Enum.PartType.Cylinder })
+				end
+				for x = -depthX + step / 2, depthX - step / 2 + 0.01, step do
+					part(name, Vector3.new(0.08, d, d), cf * CFrame.new(x, y, s * depthZ) * CFrame.Angles(0, math.rad(90), 0), GR, { parent = G, nocol = true, material = Enum.Material.Granite, shape = Enum.PartType.Cylinder })
+				end
+			end
+		end
+		row(4.15, 2.62, 3.62, 0.9, 0.5, "HaetaeMedallion")
+		row(5.05, 3.02, 4.02, 0.8, 0.42, "HaetaeLotus")
+		-- the statue on top
+		local src = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+		src = src and src:FindFirstChild("HaetaeAI")
+		if src then
+			local m = src:Clone()
+			m.Name = "Haetae"
+			m.Parent = G
+			local top = pos + Vector3.new(0, 5.4, 0)
+			m:PivotTo(CFrame.lookAt(top, top + facing)) -- the asset's pivot: bottom centre, looking where the face looks
+		end
 	end
-	haetae(Vector3.new(WIDE + 4, 0.45, PATH0 - 5), Vector3.new(-1, 0, 0))
-	haetae(Vector3.new(WIDE + 4, 0.45, PATH1 + 5), Vector3.new(-1, 0, 0))
+	haetae(Vector3.new(WIDE + 5.5, 0.45, PATH0 - 5.5), Vector3.new(-1, 0, 0))
+	haetae(Vector3.new(WIDE + 5.5, 0.45, PATH1 + 5.5), Vector3.new(-1, 0, 0))
 
 	-- the village wall: the graybox wall runs (granite / brick / coping) give
 	-- way to the palace wall along the same lines
