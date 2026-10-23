@@ -2712,32 +2712,74 @@ do
 	for _, s in ipairs({ -1, 1 }) do
 		-- the outer posts stand on the corners where the glass bays meet (user)
 		cutAt("PinkPost", s * (cutLen / 2), Vector3.new(1.2, 11.4, 1.4), F + 5.7, -0.3, ENTRY) -- up to the sign band (user)
-		cutAt("PinkMullion", s * (DOOR / 2 + 0.3), Vector3.new(0.35, 10.6, 1), F + 5.3, -0.3, ENTRY) -- thinner than the outer frame (user)
 		-- light panel inside the outer post: lights up at night (NightGlow)
 		local gp = cutAt("FrameGlow", s * (cutLen / 2), Vector3.new(0.5, 10, 0.1), F + 5.3, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		CS:AddTag(gp, "NightGlow")
-		local w = cutLen / 2 - DOOR / 2 - 1.1
-		cutAt("Sidelight", s * (DOOR / 2 + 0.5 + w / 2), Vector3.new(w, 9.4, 0.3), F + 5.3, -0.4, Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
 	end
 	cutAt("PinkHead", 0, Vector3.new(cutLen, 1.2, 1.4), F + 10.8, -0.3, ENTRY)
 	do
 		local gh = cutAt("FrameGlow", 0, Vector3.new(cutLen - 1, 0.5, 0.1), F + 10.8, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		CS:AddTag(gh, "NightGlow")
 	end
+	-- one sliding door (user sketch 2026-10-23): the doorway is on the left
+	-- (west) between the corner post and one thin white post; right of that
+	-- post is fixed glass, and the door leaf slides right behind it. The
+	-- glass reaches the frame head (F + 10.2). A PUSH button on the left post
+	-- (looks only).
+	local GLASS = Color3.fromRGB(205, 220, 232)
+	local DH = 10.2
+	local L0, L1 = -cutLen / 2 + 0.6, -1.45 -- doorway (s along the cut corner)
+	local P = -1.25 -- the white post between door and fixed glass
+	cutAt("DoorPost", P, Vector3.new(0.4, DH, 1), F + DH / 2, -0.3, ENTRY)
+	local f0, f1 = P + 0.2, cutLen / 2 - 0.6
+	cutAt("FixedGlass", (f0 + f1) / 2, Vector3.new(f1 - f0, DH, 0.3), F + DH / 2, -0.3, GLASS, opt({ material = Enum.Material.Glass, transparency = 0.45 }))
 	local door = Instance.new("Model")
 	door.Name = "AutoDoor"
 	door:SetAttribute("Range", 9)
-	for _, s in ipairs({ -1, 1 }) do
-		local panel = cutAt("DoorPanel", s * DOOR / 4, Vector3.new(DOOR / 2, 10, 0.3), F + 5, -0.5, Color3.fromRGB(205, 220, 232), opt({ parent = door, material = Enum.Material.Glass, transparency = 0.4 }))
-		panel:SetAttribute("Slide", tC * (s * (DOOR / 2 - 0.2)))
-		cutAt("DoorFrame", s * (DOOR / 2 - 0.1), Vector3.new(0.25, 10, 0.4), F + 5, -0.5, ENTRY, opt({ parent = door, nocol = true })):SetAttribute("Slide", tC * (s * (DOOR / 2 - 0.2)))
+	local leafW = L1 - L0 + 0.2
+	local slide = tC * (leafW - 0.1)
+	local leafC = (L0 + L1 + 0.2) / 2
+	cutAt("DoorPanel", leafC, Vector3.new(leafW, DH, 0.3), F + DH / 2, -0.65, GLASS, opt({ parent = door, material = Enum.Material.Glass, transparency = 0.4 })):SetAttribute("Slide", slide)
+	for _, e in ipairs({ -1, 1 }) do
+		cutAt("DoorFrame", leafC + e * (leafW / 2 - 0.12), Vector3.new(0.25, DH, 0.4), F + DH / 2, -0.65, ENTRY, opt({ parent = door, nocol = true })):SetAttribute("Slide", slide)
 	end
-	local dc = MC - nC * 0.5
+	local dc = MC + tC * ((L0 + L1) / 2) - nC * 0.5
 	door.WorldPivot = CFrame.new(dc.X, F + 4, dc.Z)
-	door:SetAttribute("Panels", 4)
+	door:SetAttribute("Panels", 3)
 	door.Parent = B
 	CS:AddTag(door, "AutoDoor")
-	-- the glass bays: a post at the far end, a thin mullion, the head, glass
+	do -- PUSH / 눌러주세요 button on the left post, beside the doorway
+		local btn = cutAt("PushButton", -cutLen / 2 + 0.42, Vector3.new(0.36, 1.5, 0.1), F + 4.3, 0.45, Color3.fromRGB(236, 238, 240), opt({ nocol = true, material = Enum.Material.Metal }))
+		local g = Instance.new("SurfaceGui")
+		g.Face = Enum.NormalId.Front
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 160
+		g.LightInfluence = 0.6
+		g.Parent = btn
+		local top = Instance.new("Frame")
+		top.Size = UDim2.fromScale(1, 0.24)
+		top.BackgroundColor3 = Color3.fromRGB(22, 22, 24)
+		top.BorderSizePixel = 0
+		top.Parent = g
+		local push = Instance.new("TextLabel")
+		push.Size = UDim2.fromScale(0.9, 0.5)
+		push.Position = UDim2.fromScale(0.05, 0.4)
+		push.BackgroundTransparency = 1
+		push.Font = Enum.Font.Merriweather
+		push.TextScaled = true
+		push.TextColor3 = Color3.new(1, 1, 1)
+		push.Text = "PUSH"
+		push.Parent = top
+		local ko = Instance.new("TextLabel")
+		ko.Size = UDim2.fromScale(0.7, 0.68)
+		ko.Position = UDim2.fromScale(0.15, 0.28)
+		ko.BackgroundTransparency = 1
+		ko.Font = Enum.Font.GothamMedium
+		ko.TextScaled = true
+		ko.TextColor3 = Color3.fromRGB(30, 30, 32)
+		ko.Text = "눌\n러\n주\n세\n요"
+		ko.Parent = g
+	end	-- the glass bays: a post at the far end, a thin mullion, the head, glass
 	local function glassBay(p0: Vector3, p1: Vector3, name: string)
 		local along = (p1 - p0).Unit
 		local len = (p1 - p0).Magnitude
