@@ -1234,12 +1234,7 @@ do
 	-- stop line on the lanes coming out of it (+v side of the west road = north)
 	for z = -22.5, 22.5, 3 do paint("Crosswalk", -156, z - 0.75, -144, z + 0.75, WHITE) end
 	paint("StopLine", -138, -24, -136.8, 0, WHITE)
-	for zz = z0 + 6, z1 - 6, 18 do -- drains along both curbs
-		for _, x in ipairs({ -181.4, -158.6 }) do
-			box("Drain", x - 0.6, 0.12, zz, x + 0.6, 0.15, zz + 2.4, Color3.fromRGB(35, 35, 38), { nocol = true })
-			for k = 0, 3 do box("DrainBar", x - 0.6, 0.15, zz + 0.3 + k * 0.6, x + 0.6, 0.17, zz + 0.45 + k * 0.6, Color3.fromRGB(90, 90, 95), { nocol = true }) end
-		end
-	end
+	-- (curb drains removed, user 2026-10-23: 430 parts for little detail)
 	-- each bollard can be moved / deleted by hand (user 2026-10-22, D-105)
 	for zz = z0 + 4, z1 - 2, 7 do prop(vcyl("Bollard", Vector3.new(-183.5, CURB, zz), 1.1, 1.6, Color3.fromRGB(150, 145, 140), { material = Enum.Material.Slate }), "Bollard") end
 	local function pine(pos: Vector3)
