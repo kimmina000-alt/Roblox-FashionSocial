@@ -23,13 +23,23 @@ local function apply(part: Instance, night: boolean)
 		local l = Instance.new("SurfaceLight")
 		l.Name = "NightLight"
 		l.Face = Enum.NormalId.Front
-		l.Range = 10
-		l.Brightness = 1.4
+		-- per part: NightRange / NightBrightness / NightAngle (wall uplights)
+		l.Range = (part:GetAttribute("NightRange") :: number?) or 10
+		l.Brightness = (part:GetAttribute("NightBrightness") :: number?) or 1.4
+		l.Angle = (part:GetAttribute("NightAngle") :: number?) or 90
 		l.Color = part.Color
 		l.Parent = part
 		light = l
 	end
 	(light :: SurfaceLight).Enabled = night
+end
+
+-- Parts tagged "NightWash" carry a SurfaceGui with a warm gradient: the light
+-- washing up a wall from its uplights (hanok palace wall, 광화문). Shown at night only.
+local function wash(part: Instance, night: boolean)
+	for _, g in ipairs(part:GetDescendants()) do
+		if g:IsA("SurfaceGui") then g.Enabled = night end
+	end
 end
 
 local current: boolean? = nil
@@ -38,10 +48,14 @@ local function refresh(force: boolean?)
 	if night == current and not force then return end
 	current = night
 	for _, part in ipairs(CollectionService:GetTagged("NightGlow")) do apply(part, night) end
+	for _, part in ipairs(CollectionService:GetTagged("NightWash")) do wash(part, night) end
 end
 
 CollectionService:GetInstanceAddedSignal("NightGlow"):Connect(function(part)
 	apply(part, isNight())
+end)
+CollectionService:GetInstanceAddedSignal("NightWash"):Connect(function(part)
+	wash(part, isNight())
 end)
 Lighting:GetPropertyChangedSignal("ClockTime"):Connect(function() refresh(false) end)
 refresh(true)
