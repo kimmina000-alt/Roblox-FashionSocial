@@ -1503,10 +1503,10 @@ local function palaceWall(a: Vector3, b: Vector3, parent: Instance, out: Vector3
 	end
 	if out then
 		local o = Vector3.new(out.X, 0, out.Z).Unit
-		local p = Vector3.new(mid.X, 0.25, mid.Z) + o * 1.45
+		local p = Vector3.new(mid.X, 0.312, mid.Z) + o * 1.45 -- snapped onto the ground at the end of the build
 		-- long side along the wall, its front face (the light) toward the wall
 		local x = if Vector3.yAxis:Cross(along):Dot(o) > 0 then -along else along -- (x × up = o, so -Z looks at -o)
-		local glow = part("WallUplight", Vector3.new(len - 0.4, 0.2, 0.25), CFrame.fromMatrix(p, x, Vector3.yAxis) * CFrame.Angles(math.rad(35), 0, 0), Color3.fromRGB(255, 205, 150), { parent = parent, nocol = true })
+		local glow = part("WallUplight", Vector3.new(len - 0.4, 0.02, 0.06), CFrame.fromMatrix(p, x, Vector3.yAxis), Color3.fromRGB(255, 205, 150), { parent = parent, nocol = true })
 		glow.CastShadow = false
 		glow:SetAttribute("NightRange", 14)
 		glow:SetAttribute("NightBrightness", 3)
@@ -1828,30 +1828,25 @@ do
 	-- roof pieces: cover tiles down each long slope (same idea as the wall
 	-- giwa), rows of rafters under the eaves, white ridges, 잡상
 	local TILE_C = Color3.fromRGB(70, 74, 80)
+	-- the wall giwa, made bigger (user 2026-10-23): rows of cover tiles running
+	-- straight from the ridge down to the eave (square to the 용마루), a joint
+	-- ring at every tile, a 수막새 end cap at the eave and 암막새 drips
+	-- between. The flat base goes first: a union takes the rotation of its
+	-- first part, and a rotated first part turned the rows along the ridge.
 	local tileT, tileOff = unionTemplate("RoofTiles", false, function(add)
 		local L = 10
-		-- short courses like the wall giwa, every other course shifted half a
-		-- tile so no row reads as a long pole (user 2026-10-23)
-		local C = 5
-		for j = 0, C - 1 do
-			local z0 = -L / 2 + j * (L / C)
-			local shift = (j % 2) * 0.4
-			for i = 0, 4 do
-				local x = -2 + 0.4 + i * 0.8 + shift
-				if x < 2 - 0.15 then
-					add(Vector3.new(L / C - 0.2, 0.34, 0.34), CFrame.new(x, 0.1, z0 + L / C / 2 - 0.05) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
-					add(Vector3.new(0.08, 0.44, 0.44), CFrame.new(x, 0.1, z0 + L / C - 0.12) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
-				end
+		add(Vector3.new(4, 0.06, L), CFrame.new(0, -0.03, 0), TILE_C) -- base, axis-aligned
+		for i = 0, 3 do
+			local x = -1.5 + i
+			add(Vector3.new(L, 0.56, 0.56), CFrame.new(x, 0.2, 0) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+			for j = 1, 6 do
+				add(Vector3.new(0.12, 0.64, 0.64), CFrame.new(x, 0.2, -L / 2 + j * L / 7) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
 			end
+			add(Vector3.new(0.1, 0.72, 0.72), CFrame.new(x, 0.2, L / 2 + 0.03) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+			add(Vector3.new(0.06, 0.38, 0.38), CFrame.new(x, 0.2, L / 2 + 0.1) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+			add(Vector3.new(0.8, 0.42, 0.08), CFrame.new(x + 0.5, -0.12, L / 2 + 0.02) * CFrame.Angles(math.rad(-25), 0, 0), TILE_C) -- 암막새
 		end
-		for i = 0, 4 do
-			local x = -2 + 0.4 + i * 0.8
-			add(Vector3.new(0.08, 0.5, 0.5), CFrame.new(x, 0.12, L / 2 + 0.04) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
-			add(Vector3.new(0.05, 0.28, 0.28), CFrame.new(x, 0.12, L / 2 + 0.1) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
-			add(Vector3.new(0.66, 0.36, 0.07), CFrame.new(x + 0.4, -0.1, L / 2 + 0.02) * CFrame.Angles(math.rad(-25), 0, 0), TILE_C) -- 암막새
-		end
-	end)
-	local rafterT, rafterOff = unionTemplate("RoofRafters", true, function(add)
+	end)	local rafterT, rafterOff = unionTemplate("RoofRafters", true, function(add)
 		add(Vector3.new(4, 0.42, 0.42), CFrame.new(0, -0.32, -0.2), GREEN)
 		for i = 0, 4 do
 			local x = -2 + 0.4 + i * 0.8
@@ -1885,6 +1880,11 @@ do
 		end
 		-- ridge: white with dark end blocks (취두)
 		box("RoofRidge", cx - 0.6, y + rise, z0 + 1, cx + 0.6, y + rise + 0.9, z1 - 1, Color3.fromRGB(236, 234, 228), { parent = G })
+		-- 용마루 top: the stacked dark ridge tiles of the wall giwa, bigger
+		for i, wdt in ipairs({ 1.5, 1.2, 0.95, 0.7 }) do
+			local yb = y + rise + 0.9 + (i - 1) * 0.3
+			box("RidgeTiles", cx - wdt / 2, yb, z0 + 1, cx + wdt / 2, yb + 0.3, z1 - 1, Color3.fromRGB(62, 66, 72), { parent = G, material = Enum.Material.Slate })
+		end
 		for _, ze in ipairs({ z0 + 1.4, z1 - 1.4 }) do
 			part("RidgeEnd", Vector3.new(1.3, 1.8, 1), CFrame.new(cx, y + rise + 1.4, ze), Color3.fromRGB(58, 60, 66), { parent = G, material = Enum.Material.Slate })
 		end
@@ -1929,8 +1929,8 @@ do
 	end
 	label(plaque, "광화문 (한옥 마을 서쪽 입구)", Color3.fromRGB(150, 60, 40), 8, 0.9)
 	do -- night: the stone base lit from the ground on the street side
-		local p = Vector3.new(gx0 - 0.25, 0.25, (gz0 + gz1) / 2) -- right at the foot of the gate (user)
-		local glow = part("WallUplight", Vector3.new(gz1 - gz0, 0.2, 0.25), CFrame.fromMatrix(p, Vector3.new(0, 0, 1), Vector3.yAxis) * CFrame.Angles(math.rad(35), 0, 0), Color3.fromRGB(255, 205, 150), { parent = G, nocol = true }) -- front faces +x, the gate
+		local p = Vector3.new(gx0 - 0.1, 0.312, (gz0 + gz1) / 2) -- right at the foot of the gate, flush with the yard (user)
+		local glow = part("WallUplight", Vector3.new(gz1 - gz0, 0.02, 0.06), CFrame.fromMatrix(p, Vector3.new(0, 0, 1), Vector3.yAxis), Color3.fromRGB(255, 205, 150), { parent = G, nocol = true }) -- front faces +x, the gate
 		glow.CastShadow = false
 		glow:SetAttribute("NightRange", 16)
 		glow:SetAttribute("NightBrightness", 3)
@@ -1979,7 +1979,7 @@ do
 		end
 	end)
 	for _, z in ipairs({ PATH0, PATH1 }) do
-		local x0, x1 = WIDE + 0.6, gx0 - 0.2
+		local x0, x1 = WIDE + 0.6, YARD -- the part across the stone yard is gone (user)
 		local n = math.max(1, math.floor((x1 - x0) / BAY + 0.5))
 		local seg = (x1 - x0) / n
 		for k = 0, n - 1 do
@@ -3076,6 +3076,8 @@ do
 		palaceWall(a, b, W, out) -- the same palace wall as the village (user photos)
 	end
 	hanokWall(Vector3.new(225.7, 0, 49), Vector3.new(700, 0, 49), Vector3.new(0, 0, -1))
+	-- the strip between the sidewalk edge and the wall foot was empty (user): paved
+	box("Sidewalk", 96.4, 0, WIDE - 0.05, 700, CURB - 0.01, 48.2, WALK, { parent = T, material = Enum.Material.Brick })
 	-- south of the village the wall runs on and bends once (user photo of a
 	-- 돌담길), with a stone path along its street side
 	do
@@ -4253,4 +4255,19 @@ if spawn then
 end
 saveRegistry()
 T.Parent = workspace
+-- wall uplight strips sit on whatever ground is under them, only a hair
+-- above it (user 2026-10-23: hidden by day, still glowing at night)
+do
+	local strips = {}
+	for _, d in ipairs(T:GetDescendants()) do
+		if d:IsA("BasePart") and d.Name == "WallUplight" and d.Position.Y < 3 then table.insert(strips, d) end
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = strips
+	for _, s in ipairs(strips) do
+		local hit = workspace:Raycast(Vector3.new(s.Position.X, 1.6, s.Position.Z), Vector3.new(0, -6, 0), params)
+		if hit then s.CFrame = s.CFrame + Vector3.new(0, hit.Position.Y + s.Size.Y / 2 + 0.002 - s.Position.Y, 0) end
+	end
+end
 return "applied v7 (강남 사거리, 광안리, 광화문, 놀이공원 정문), MODE=revert to undo"
