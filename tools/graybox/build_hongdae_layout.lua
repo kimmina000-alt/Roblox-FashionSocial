@@ -1266,8 +1266,21 @@ do
 				old:PivotTo(undo * old:GetPivot())
 				old:SetAttribute("HomeZone", beachZone.Name)
 				old.Parent = hidden
-				local p = foliage("PalmTreeReal", 0.5 + (math.floor(foot.Z) % 3) * 0.05, CFrame.new(foot) * CFrame.Angles(0, math.rad((math.floor(foot.X * 7 + foot.Z) % 360)), 0))
-				if p then prop(p, "Palm") end
+				-- California fan palm (user pick P4, Creator Store 130498222865089,
+				-- 6 meshes instead of 67, scripts stripped), planted on the sand:
+				-- the trunk foot goes 0.6 into the ground found by a raycast
+				local params = RaycastParams.new()
+				params.FilterType = Enum.RaycastFilterType.Exclude
+				params.FilterDescendantsInstances = { old }
+				local hit = workspace:Raycast(foot + Vector3.new(0, 10, 0), Vector3.new(0, -40, 0), params)
+				local ground = if hit then hit.Position - Vector3.new(0, 0.6, 0) else foot
+				local p = foliage("PalmTreeP4", 0.42 + (math.floor(foot.Z) % 3) * 0.04, CFrame.new(ground) * CFrame.Angles(0, math.rad((math.floor(foot.X * 7 + foot.Z) % 360)), 0))
+				if p then
+					-- foliage() sits the bounding box bottom on the point; put the
+					-- trunk foot (the pivot) there instead
+					p:PivotTo(CFrame.new(ground) * p:GetPivot().Rotation)
+					prop(p, "Palm")
+				end
 			end
 		end
 	end
