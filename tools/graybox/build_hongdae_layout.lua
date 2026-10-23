@@ -3212,30 +3212,37 @@ do
 		end
 		subtract(wall, holes, "BoothWall", Enum.Material.Plaster)
 	end
-	for i, z in ipairs(archZ) do
-		-- sky-blue lining inside the arch opening (no gold frame, user)
-		archRim(Vector3.new(FX + 0.5, F, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH, 0.15, 1.02, SKY, B, Enum.Material.SmoothPlastic)
-		-- LED light-box sign over the arch (user photo): a white rounded box,
-		-- lit from inside, black letters
-		local ROOMS = { PINK = "PINK ROOM", WHITE = "WHITE ROOM", SKY = "SKY ROOM" }
-		local name = ROOMS[booths[i]:GetAttribute("BoothKey") or ""] or string.format("PHOTO %02d", i)
-		local sy = F + AH + 1.6
-		part("RoomSignBox", Vector3.new(0.3, 1.15, 4.65), CFrame.new(FX - 0.15, sy, z), Color3.fromRGB(236, 236, 236), opt({ nocol = true }))
-		local face = part("RoomSign", Vector3.new(0.05, 1.35, 4.85), CFrame.new(FX - 0.33, sy, z), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
-		local g = Instance.new("SurfaceGui")
-		g.Face = Enum.NormalId.Left
-		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		g.PixelsPerStud = 80
-		g.LightInfluence = 0
-		g.Brightness = 1.3
-		g.Parent = face
-		local bg = Instance.new("Frame")
-		bg.Size = UDim2.fromScale(1, 1)
-		bg.BackgroundColor3 = Color3.fromRGB(255, 255, 253)
-		bg.Parent = g
-		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(0.28, 0)
-		corner.Parent = bg
+	-- LED light box (user photo): a white rounded sign lit from inside, black
+	-- letters, a faint glow on the wall around it. c = centre of the face,
+	-- out = the way it faces
+	local function ledSign(name: string, c: Vector3, out: Vector3, w: number, h: number, text: string)
+		local cf = CFrame.lookAt(c, c + out) -- local +Z points back into the wall
+		part(name .. "Box", Vector3.new(w - 0.2, h - 0.2, 0.3), cf * CFrame.new(0, 0, 0.17), Color3.fromRGB(236, 236, 236), opt({ nocol = true }))
+		local function layer(partName, size, back, color, alpha, brightness)
+			local p = part(partName, Vector3.new(size.X, size.Y, 0.02), cf * CFrame.new(0, 0, back), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+			p.CastShadow = false
+			local g = Instance.new("SurfaceGui")
+			g.Face = Enum.NormalId.Front
+			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			g.PixelsPerStud = 80
+			g.LightInfluence = 0
+			g.Brightness = brightness
+			g.Parent = p
+			local bg = Instance.new("Frame")
+			bg.Size = UDim2.fromScale(1, 1)
+			bg.BackgroundColor3 = color
+			bg.BackgroundTransparency = alpha
+			bg.BorderSizePixel = 0
+			bg.Parent = g
+			local corner = Instance.new("UICorner")
+			corner.CornerRadius = UDim.new(0, math.floor(math.min(size.X, size.Y) * 80 * 0.3))
+			corner.Parent = bg
+			return p, bg
+		end
+		-- soft halo on the wall (two faint rounded layers), then the face
+		layer(name .. "Halo", Vector2.new(w + 0.5, h + 0.5), 0.33, Color3.fromRGB(255, 252, 240), 0.82, 1)
+		layer(name .. "Halo", Vector2.new(w + 0.22, h + 0.22), 0.32, Color3.fromRGB(255, 252, 240), 0.6, 1)
+		local face, bg = layer(name, Vector2.new(w, h), 0, Color3.fromRGB(255, 255, 253), 0, 1.25)
 		local l = Instance.new("TextLabel")
 		l.AnchorPoint = Vector2.new(0.5, 0.5)
 		l.Position = UDim2.fromScale(0.5, 0.5)
@@ -3244,12 +3251,21 @@ do
 		l.Font = Enum.Font.GothamMedium
 		l.TextScaled = true
 		l.TextColor3 = Color3.fromRGB(28, 28, 30)
-		l.Text = name
+		l.Text = text
 		l.Parent = bg
 		local glow = Instance.new("SurfaceLight")
-		glow.Face = Enum.NormalId.Left
-		glow.Range, glow.Brightness, glow.Color = 5, 0.5, Color3.fromRGB(255, 252, 245)
+		glow.Face = Enum.NormalId.Front
+		glow.Range, glow.Brightness, glow.Angle, glow.Color = 5, 0.45, 150, Color3.fromRGB(255, 250, 240)
 		glow.Parent = face
+	end
+	local ROOMS = { PINK = "PINK ROOM", WHITE = "WHITE ROOM", SKY = "SKY ROOM" }
+	for i, z in ipairs(archZ) do
+		-- the lining inside the arch opening takes the booth's colour (user)
+		local wn = booths[i]:FindFirstChild("Wall_N")
+		local lining = if wn and wn:IsA("BasePart") then wn.Color else SKY
+		archRim(Vector3.new(FX + 0.5, F, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH, 0.15, 1.02, lining, B, Enum.Material.SmoothPlastic)
+		local name = ROOMS[booths[i]:GetAttribute("BoothKey") or ""] or string.format("PHOTO %02d", i)
+		ledSign("RoomSign", Vector3.new(FX - 0.35, F + AH + 1.6, z), Vector3.new(-1, 0, 0), 4.85, 1.35, name)
 	end
 
 	-- photo machine (user photo "Pick") on each booth's north wall; its front
@@ -3374,16 +3390,38 @@ do
 				part(name, Vector3.new(depth, w, w), CFrame.new(x, F + 6.5 + s * (h - w) / 2, mz), color, opt({ material = mat, nocol = true, shape = Enum.PartType.Cylinder }))
 			end
 		end
-		-- at the back of the recess (WX0 = the outer wall's inner face)
-		pill("MirrorRim", 4, 10, WX0 + 0.15, 0.3, Color3.fromRGB(250, 248, 244), Enum.Material.SmoothPlastic)
-		pill("MirrorGlow", 3.4, 9.4, WX0 + 0.32, 0.06, Color3.fromRGB(255, 236, 200), Enum.Material.Neon)
-		pill("Mirror", 3, 9, WX0 + 0.38, 0.06, Color3.fromRGB(205, 215, 222), Enum.Material.Glass)
-		do -- the live reflection, clipped to the pill (MirrorController)
-			local c = Vector3.new(WX0 + 0.44, F + 6.5, mz)
-			local view = part("MirrorView", Vector3.new(3, 9, 0.05), CFrame.lookAt(c, c + Vector3.new(1, 0, 0)), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+		-- the mirror fills the whole recess (4.4 x 10.4) and stands inside the
+		-- pink wall, between the outer (white) wall and the pink face, a bit
+		-- larger than the hole so its edges hide in the wall (user 2026-10-23)
+		local MX = WX0 + 0.8
+		pill("Mirror", 4.7, 10.7, MX - 0.06, 0.06, Color3.fromRGB(205, 215, 222), Enum.Material.Glass)
+		do -- the live reflection (MirrorController); the wall clips it to the pill
+			local c = Vector3.new(MX, F + 6.5, mz)
+			local view = part("MirrorView", Vector3.new(4.7, 10.7, 0.05), CFrame.lookAt(c, c + Vector3.new(1, 0, 0)), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
 			view.CanQuery = false
-			view:SetAttribute("Rounded", true)
 			CS:AddTag(view, "Mirror")
+		end
+		-- the glowing frame sits on the pink face around the recess, like the niches
+		do
+			local w, h, th, depth = 4.4 + 0.3, 10.4 + 0.3, 0.18, 0.3
+			local r, straight = w / 2, h - w
+			local c = Vector3.new(WX1 - 0.05, F + 6.5, mz)
+			local along, out = Vector3.new(0, 0, 1), Vector3.new(1, 0, 0)
+			local NEON = Color3.fromRGB(255, 250, 240)
+			for _, s in ipairs({ -1, 1 }) do
+				part("MirrorGlow", Vector3.new(th, straight, depth), CFrame.fromMatrix(c + along * (s * (r - th / 2)), along, Vector3.yAxis), NEON, opt({ material = Enum.Material.Neon, nocol = true }))
+			end
+			for _, e in ipairs({ 1, -1 }) do
+				local ce = c + Vector3.yAxis * (e * straight / 2)
+				local N = 10
+				for k = 0, N - 1 do
+					local a0, a1 = math.pi * k / N, math.pi * (k + 1) / N
+					local function at(a) return ce + along * (math.cos(a) * (r - th / 2)) + Vector3.yAxis * (e * math.sin(a) * (r - th / 2)) end
+					local p0, p1 = at(a0), at(a1)
+					local d = p1 - p0
+					part("MirrorGlow", Vector3.new(d.Magnitude + th * 0.6, th, depth), CFrame.fromMatrix((p0 + p1) / 2, d.Unit, out:Cross(d.Unit)), NEON, opt({ material = Enum.Material.Neon, nocol = true }))
+				end
+			end
 		end
 		for _, d in ipairs(B:GetChildren()) do if d.Name == "Mirror" and d:IsA("BasePart") then d.Reflectance = 0.45 end end
 	end
@@ -3414,10 +3452,9 @@ do
 			end
 		end
 		for _, sx in ipairs({ -1, 1 }) do
-			for _, sy in ipairs({ -0.9, 0.9 }) do part("VanityBulb", Vector3.new(0.38, 0.38, 0.38), CFrame.new(vx + sx * 2.2, my + sy, zi - 0.32), Color3.fromRGB(255, 244, 214), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Neon, nocol = true })) end
+			for k = 0, 4 do part("VanityBulb", Vector3.new(0.38, 0.38, 0.38), CFrame.new(vx + sx * 2.2, my - 1.8 + k * 0.9, zi - 0.32), Color3.fromRGB(255, 244, 214), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Neon, nocol = true })) end
 		end
-		local plate = part("VanitySign", Vector3.new(2.2, 0.6, 0.05), CFrame.new(vx, my + MH / 2 + 1.2, zi - 0.2), Color3.fromRGB(255, 255, 255), opt({ nocol = true }))
-		txt(plate, Enum.NormalId.Front, "MAKE UP", Color3.fromRGB(220, 110, 130), Enum.Font.GothamBold, nil, 60)
+		ledSign("MakeupSign", Vector3.new(vx, my + MH / 2 + 1.3, zi - 0.42), Vector3.new(0, 0, -1), 2.8, 0.8, "MAKE UP")
 		-- floating white counter with a drawer line
 		box("VanityCounter", vx - 2.6, F + 3.1, zi - 1.6, vx + 2.6, F + 3.5, zi, Color3.fromRGB(252, 252, 250), o)
 		box("VanityDrawer", vx - 2.5, F + 2.5, zi - 1.5, vx + 2.5, F + 3.1, zi, Color3.fromRGB(245, 245, 243), o)
