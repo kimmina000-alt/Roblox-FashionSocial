@@ -9,6 +9,7 @@
 - 오후네컷 corner building for the photo booth from the user's photo (D-115).
 - Round 3 (D-116): one road colour, rounded corners everywhere, parked black/grey cars, 8 m tree spacing, signal base cover, booth diagonal steps / see-through pill windows / 3D channel-letter signs.
 - D-117: bike crossings (dark red) at the crossroads and the seafront T junction, birch street trees, beach foot wash + drinking fountain + signs + straw parasol spots, promenade palms removed, booth ceiling / sign position; DayNightConfig.FixedClockTime = 14 during development.
+- D-118: photo booth interior + photo machines, lowered shop sign band, black club front, original beach parasols back, no red bike paint on sidewalks, brown birch bark.
 ## 2026-10-22 (4) — DJ fixes, one popup at a time, cafe part-time job (feat/dj-console-1022)
 - TopBar.bottom(): every popup starts below the top-bar buttons (phones with a 0 inset too).
 - New Popups module: opening a window closes the previous one (catalog, album, dance, DJ/music, 📸, player card, photo wall, booth setup/result, snacks, subway/bus, club shop).

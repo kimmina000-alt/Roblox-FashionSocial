@@ -532,3 +532,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 해변: 인도 야자수 삭제(모래 위 야자수 유지), 세족장(화강석 계단·수도꼭지·스티커·깃발) + 음수대, 표지판 2개(내용은 비움), 짚 파라솔 쉼터 22곳. 캡처 foot_wash_v1.jpg, straw_parasol_v1.jpg.
 - 오후네컷: 천장 높임, 간판 한 칸 아래 + 두께 1.0. 캡처 photo_booth_building_v3.jpg.
 - 게임 시간 오후 2시 고정(DayNightConfig.FixedClockTime), Studio에 스크립트 반영함.
+## 2026-10-23 (7) — 포토부스 실내, 검은 클럽 (D-118)
+- 포토부스 실내: 사용자 사진 하나하나 반영(타일 벽, 민트 아치 + 커튼 + PHOTO 01/02, 기계, 소품 선반, 액세서리 벽, 파란 라이트박스, 분홍 안내문, 전구 거울). 기계 앞면은 CameraPoint 뒤라 사진에 안 찍힘. 포토월이 클럽 벽에 묻혀 있던 것 발견 → 앞으로 꺼냄.
+- 간판: 네모칸째 문 위로 내림, 글자 두께 0.8.
+- 클럽: 검정 외관(KING CLUB 사진). 해변 의자 원래대로. 인도 위 붉은 자전거 도로 삭제. 자작나무 기둥 갈색.
+- 캡처: photo_booth_interior_west/booths.jpg, photo_machine.jpg, club_black_facade.jpg, photo_booth_building_v4.jpg, birch_brown_bike_lane.jpg.
