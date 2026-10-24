@@ -1149,3 +1149,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 복도에서 | 안에서 |
 |---|---|
 | ![](images/2026-10-25/club_lift_car.jpg) | ![](images/2026-10-25/club_lift_buttons.jpg) |
+
+### 추가 (D-214) — 엘리베이터 글자판 삭제, 호출 버튼
+- 문 위 "▲ ROOFTOP" 글자판을 지우고, 문 오른쪽 벽에 호출 버튼판(▲ 불 켜짐, ▼)을 블록으로 달았습니다.
+
+![](images/2026-10-25/club_lift_call_buttons.jpg)

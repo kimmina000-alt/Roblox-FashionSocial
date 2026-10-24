@@ -3977,8 +3977,22 @@ do
 		door.WorldPivot = CFrame.new(mid, 4, CAR0)
 		door.Parent = E
 		CS:AddTag(door, "AutoDoor")
-		local sign = box("LiftSign", mid - 3, 9.7, CAR0 - 0.75, mid + 3, 11, CAR0 - 0.7, Color3.fromRGB(15, 15, 18), { parent = E, nocol = true })
-		surfaceText(sign, Enum.NormalId.Front, "▲ ROOFTOP", Color3.fromRGB(255, 120, 210), Enum.Font.Michroma)
+		-- (no "▲ ROOFTOP" sign over the door: a call button panel on the wall to
+		-- the right of the door instead, ▲ lit and ▼, plain parts, user 2026-10-25)
+		do
+			local px = mid - DOOR / 2 - 1.6 -- seen from the corridor (looking +z) the right is -x
+			local zf = CAR0 - 0.5 -- the corridor face of the front wall
+			box("LiftCallPanel", px - 0.45, 3.4, zf - 0.08, px + 0.45, 5.4, zf, Color3.fromRGB(150, 152, 158), { parent = E, material = Enum.Material.Metal, nocol = true })
+			for k, y in ipairs({ 4.85, 3.95 }) do
+				local up = k == 1
+				part("LiftCallButton", Vector3.new(0.08, 0.6, 0.6), CFrame.new(px, y, zf - 0.12) * CFrame.Angles(0, math.rad(90), 0), if up then Color3.fromRGB(255, 190, 90) else Color3.fromRGB(215, 217, 222), { parent = E, shape = Enum.PartType.Cylinder, material = if up then Enum.Material.Neon else Enum.Material.Metal, nocol = true }).CastShadow = false
+				-- a chevron on the button: two short bars (▲ / ▼)
+				for _, s in ipairs({ -1, 1 }) do
+					local tilt = math.rad(40) * -s * (if up then 1 else -1) -- (the apex in the middle: up for ▲)
+					part("LiftCallArrow", Vector3.new(0.26, 0.05, 0.03), CFrame.new(px + s * 0.08, y, zf - 0.17) * CFrame.Angles(0, 0, tilt), Color3.fromRGB(40, 40, 44), { parent = E, nocol = true }).CastShadow = false
+				end
+			end
+		end
 		-- the graybox pad onto the car floor; its local +Z points back into the
 		-- corridor (the script lands arrivals 10 studs along it)
 		local pad = clubZ and clubZ:FindFirstChild("ElevatorPadUp")
