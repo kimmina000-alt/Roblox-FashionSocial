@@ -933,3 +933,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 볼록한 언덕을 지우고, 원형 광장을 3단으로 낮췄습니다: 반지름 44 안은 -0.8, 34 안은 -1.6, 20 안(가운데 원형 단)은 -2.4. 원마다 한 단씩 내려갑니다. 놀이공원 정문 쪽에서 축을 따라 내려가는 폭 16 계단(0.2씩 4단)을 만들었습니다. 바닥 포장과 단은 CSG로 둥글게 잘랐고, 땅(Ground)에도 그만큼 구멍(HOLES)을 냈습니다.
 
 ![](images/2026-10-24/pocket_park_sunken_after.jpg)
+
+- 정문 쪽 계단: 칸 깊이를 4.5 → 2.25로 반, 높이를 0.2 → 0.4로 올려 2단짜리 진짜 계단으로 바꿨습니다(앞쪽 긴 경사 구간은 다시 평평한 포장).
+
+![](images/2026-10-24/pocket_park_stair_v2_after.jpg)

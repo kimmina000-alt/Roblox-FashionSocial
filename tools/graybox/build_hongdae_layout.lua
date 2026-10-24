@@ -3025,7 +3025,7 @@ do
 	local paving = box("ParkPaving", X0, -8, Z0, X1, 0.08, Z1, PAVE, { parent = workspace, material = Enum.Material.Slate })
 	local cuts = {
 		part("Cut", Vector3.new(30, 88.2, 88.2), CFrame.new(-96, 0, -128) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }),
-		box("Cut", -104, -9, -190, -88, 2, -171, PAVE, { parent = workspace }),
+		box("Cut", -104, -9, -175.5, -88, 2, -171, PAVE, { parent = workspace }),
 	}
 	local okP, cutP = pcall(function() return paving:SubtractAsync(cuts) end)
 	for _, c in ipairs(cuts) do c:Destroy() end
@@ -3069,12 +3069,14 @@ do
 			outer.Parent = P
 		end
 	end
-	-- the stair from the gate down to the first level (4 steps of 0.2)
-	for k = 1, 4 do
-		local za = -190 + (k - 1) * 4.5
-		local zb = if k == 4 then -168 else za + 4.5
-		box("ParkStair", -104, -8, za, -88, -0.2 * k, zb, STONE, o(Enum.Material.Limestone))
-	end	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
+	-- the stair from the gate side down to the first level: real steps (user
+	-- 2026-10-24: half the tread, higher risers), 2 steps of 0.4 on 2.25 treads
+	for k = 1, 2 do
+		local za = -175.5 + (k - 1) * 2.25
+		local zb = if k == 2 then -171 else za + 2.25
+		box("ParkStair", -104, -8, za, -88, if k == 2 then -0.78 else -0.4, zb, STONE, o(Enum.Material.Limestone)) -- (the last one 0.02 over the ring it meets)
+	end
+	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
 	local function arc(name, c: Vector3, r0, r1, a0, a1, y0, y1, color, mat, n)
 		n = n or math.max(6, math.floor(math.abs(a1 - a0) / 8))
 		local rm, w = (r0 + r1) / 2, r1 - r0
