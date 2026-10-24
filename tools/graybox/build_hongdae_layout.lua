@@ -2515,9 +2515,11 @@ do
 		part("BoothDome", Vector3.new(s * 0.6, s * 0.6, s * 0.6), CFrame.new(cx, H2 + 2.9, cz), DOME, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
 		vcyl("BoothSpire", Vector3.new(cx, H2 + 2.9 + s * 0.28, cz), 0.3, 2.2, GOLD, { parent = E, material = Enum.Material.Foil })
 		-- arched windows on the front (+z), iron frames, a stone sill
-		local ww = (bx1 - bx0) / windows
-		for k = 0, windows - 1 do
-			local wx0, wx1 = bx0 + k * ww + 0.9, bx0 + (k + 1) * ww - 0.9
+		-- one arched window in the middle (user 2026-10-24), at most 6 wide so the
+		-- round top's circle never shows below the sill
+		for _ = 1, 1 do
+			local w0 = math.min(6, bx1 - bx0 - 1.8)
+			local wx0, wx1 = (bx0 + bx1) / 2 - w0 / 2, (bx0 + bx1) / 2 + w0 / 2
 			local wc, w = (wx0 + wx1) / 2, wx1 - wx0
 			local spring = H2 - 1.9 - w / 2 - 0.3 -- the arch top stays under the sign band
 			box("BoothWindowFrame", wx0 - 0.25, 2.8, bz1, wx1 + 0.25, spring, bz1 + 0.25, IRON, { parent = E })
@@ -2530,7 +2532,7 @@ do
 		surfaceText(b, Enum.NormalId.Back, title, GOLD, Enum.Font.Fantasy)
 		label(b, title, Color3.fromRGB(150, 110, 50), 6, 0.6)
 	end	booth(-146, -226, -130, -216, "매표소 TICKETS", 2)
-	booth(-56, -226, -46, -218, "i 안내", 2) -- two small arches: one big arch hung below the sill (user)
+	booth(-56, -226, -46, -218, "i 안내", 1)
 	-- inside: round symbol plaza (round flower bed + a pedestal for the park's
 	-- landmark / character sculpture, to be designed)
 	local pc = Vector3.new(-93, 0.25, -262)

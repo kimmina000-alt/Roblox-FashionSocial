@@ -724,3 +724,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | ![](images/2026-10-24/park_gate_before.jpg) | ![](images/2026-10-24/park_gate_after.jpg) |
 
 ![](images/2026-10-24/park_info_after.jpg)
+
+### 추가 (D-164)
+- 매표소와 안내소의 창을 각각 가운데 아치 창 하나로 줄였습니다.
+
+![](images/2026-10-24/park_ticket_one_window.jpg)
