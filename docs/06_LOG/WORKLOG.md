@@ -1110,3 +1110,17 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 결과(Edit 모드 측정): 파트 17,180 → 14,628, SurfaceGui·Billboard 1,460 → 534, 그림자 12,775 → 6,217, 터치 13,991 → 2,137.
 - VIP/DJ 문에서 뜬 테스트 구매 창은 14스터드 벗어나면 닫힙니다(혼자 플레이로 확인).
 - 사진 비교는 Studio 창 4개(2인 테스트 실행 중)로 캡처가 시간 초과되어 다음 테스트 때 찍습니다.
+
+### 추가 (D-209) — 광화문 이음줄·기와 줄, 공원 충돌 줄 합치기 (전후 비교)
+- 광화문: 돌 이음줄 368개 → 7덩어리, 기와 줄 268개 → 9덩어리. 광화문 전체 1,144 → 524파트.
+- 공원: 보이지 않는 충돌 줄 352 → 231(이웃 줄의 가장자리가 0.25 안이면 하나로, 안쪽 가장자리 유지). 공원 1,031 → 814.
+- 같은 카메라 위치에서 전후 촬영(전: 2인 테스트 클라이언트, 후: 다시 빌드 후 플레이). 충돌 줄은 비교용으로 화면에서만 빨갛게 칠함.
+- 덩어리는 처음 불러오는 몇 초 동안 이음줄이 흐리게 보였다가 정상으로 돌아옴(정밀 렌더 설정).
+- 걷기 확인: 정문 계단, 원형 고리, 남쪽 길·계단, 동쪽·서쪽·북쪽 윗바닥 모두 높이 그대로.
+
+| | 전 | 후 |
+|---|---|---|
+| 광화문 벽 | ![](images/2026-10-24/merge_before_gw_wall.jpg) | ![](images/2026-10-24/merge_after_gw_wall.jpg) |
+| 광화문 지붕 | ![](images/2026-10-24/merge_before_gw_roof.jpg) | ![](images/2026-10-24/merge_after_gw_roof.jpg) |
+| 공원 | ![](images/2026-10-24/merge_before_park.jpg) | ![](images/2026-10-24/merge_after_park.jpg) |
+| 공원 충돌 줄(빨강) | ![](images/2026-10-24/merge_before_park_collide.jpg) | ![](images/2026-10-24/merge_after_park_collide.jpg) |

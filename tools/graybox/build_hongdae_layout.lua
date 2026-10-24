@@ -2526,6 +2526,57 @@ do
 		end
 	end
 
+	-- (user 2026-10-24, performance) the stone joint lines and the roof tile
+	-- rows are merged into a few solids each (neighbours together, so far ones
+	-- still drop out of view): 368 + 268 parts → about 15
+	do
+		local function mergeByName(model: Instance, name: string, chunk: number)
+			local groups = {}
+			for _, d in ipairs(model:GetDescendants()) do
+				if d:IsA("BasePart") and d.Name == name then
+					groups[d.Parent] = groups[d.Parent] or {}
+					table.insert(groups[d.Parent], d)
+				end
+			end
+			for par, list in pairs(groups) do
+				table.sort(list, function(a, b)
+					local pa, pb = a.Position, b.Position
+					if math.abs(pa.X - pb.X) > 4 then return pa.X < pb.X end
+					if math.abs(pa.Z - pb.Z) > 0.5 then return pa.Z < pb.Z end
+					return pa.Y < pb.Y
+				end)
+				for i = 1, #list, chunk do
+					local slice = {}
+					for j = i, math.min(i + chunk - 1, #list) do table.insert(slice, list[j]) end
+					if #slice > 1 then
+						local first = table.remove(slice, 1)
+						local ok, u = pcall(function() return first:UnionAsync(slice) end)
+						if ok and u then
+							u.Name = name
+							u.UsePartColor = true
+							u.Color = first.Color
+							u.Material = first.Material
+							u.Anchored = true
+							u.CanCollide = first.CanCollide
+							u.CanQuery = false
+							u.CanTouch = false
+							u.CastShadow = first.CastShadow
+							-- (Automatic thins the merged lines out at a distance: they showed pale)
+							pcall(function() u.RenderFidelity = Enum.RenderFidelity.Precise end)
+							u.Parent = par
+							first:Destroy()
+							for _, p in ipairs(slice) do p:Destroy() end
+						end
+					end
+				end
+			end
+		end
+		local was = G.Parent
+		G.Parent = workspace -- (CSG only works in the Workspace)
+		mergeByName(G, "StoneJoint", 60)
+		mergeByName(G, "RoofTileRow", 30)
+		G.Parent = was
+	end
 	-- (no hills behind the village any more, user 2026-10-23; revert still clears old ones)
 end
 ------------------------------------------------------- 에버랜드-style park gate
@@ -3608,6 +3659,52 @@ do
 	end
 	local anchor = part("ParkLabelAnchor", Vector3.new(1, 1, 1), CFrame.new(C + Vector3.new(0, 13, 0)), PAVE, o(Enum.Material.SmoothPlastic, { transparency = 1, nocol = true }))
 	label(anchor, "도시 공원", Color3.fromRGB(60, 140, 90), 2, 0.7)
+	-- (user 2026-10-24, performance) the invisible collision rows are merged:
+	-- rows of the same height that follow each other with edges no more than
+	-- 0.25 apart become one box (the box keeps the inner edges, so it never
+	-- reaches over a hole by more than nothing and falls short by 0.25 at most)
+	do
+		local TOL = 0.25
+		local groups = {}
+		for _, c in ipairs(P:GetChildren()) do
+			if c:IsA("BasePart") and c.Name == "ParkCollide" then
+				local key = string.format("%.2f|%.2f", c.Position.Y, c.Size.Y)
+				groups[key] = groups[key] or {}
+				table.insert(groups[key], { p = c, x0 = c.Position.X - c.Size.X / 2, x1 = c.Position.X + c.Size.X / 2, z0 = c.Position.Z - c.Size.Z / 2, z1 = c.Position.Z + c.Size.Z / 2 })
+			end
+		end
+		for _, list in pairs(groups) do
+			table.sort(list, function(a, b)
+				if math.abs(a.z0 - b.z0) > 1e-3 then return a.z0 < b.z0 end
+				return a.x0 < b.x0
+			end)
+			local runs = {}
+			for _, r in ipairs(list) do
+				local hit
+				for _, o in ipairs(runs) do
+					if math.abs(o.z1 - r.z0) < 1e-3
+						and math.max(o.x0hi, r.x0) - math.min(o.x0lo, r.x0) <= TOL
+						and math.max(o.x1hi, r.x1) - math.min(o.x1lo, r.x1) <= TOL then
+						hit = o
+						break
+					end
+				end
+				if hit then
+					hit.x0lo, hit.x0hi = math.min(hit.x0lo, r.x0), math.max(hit.x0hi, r.x0)
+					hit.x1lo, hit.x1hi = math.min(hit.x1lo, r.x1), math.max(hit.x1hi, r.x1)
+					hit.z1 = r.z1
+					r.p:Destroy()
+				else
+					table.insert(runs, { p = r.p, x0lo = r.x0, x0hi = r.x0, x1lo = r.x1, x1hi = r.x1, z0 = r.z0, z1 = r.z1 })
+				end
+			end
+			for _, o in ipairs(runs) do
+				local y = o.p.Position.Y
+				o.p.Size = Vector3.new(o.x1lo - o.x0hi, o.p.Size.Y, o.z1 - o.z0)
+				o.p.CFrame = CFrame.new((o.x0hi + o.x1lo) / 2, y, (o.z0 + o.z1) / 2)
+			end
+		end
+	end
 	-- (user 2026-10-24) no step at the sidewalks: the whole park goes up so its
 	-- top paving is level with them (0.6; the sunken levels, stairs and decks
 	-- keep their heights relative to it), and that paving gets the sidewalks'
