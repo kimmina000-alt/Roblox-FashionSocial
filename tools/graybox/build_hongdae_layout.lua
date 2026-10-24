@@ -4538,14 +4538,33 @@ do
 	}
 	local TEX = { "rbxassetid://13654404035", "rbxassetid://14844635151", "rbxassetid://11361294440", "rbxassetid://36951684", "rbxassetid://17593427084" }
 	local shopN = 0
-	local function sign(parent, cf, w, h, text, bg)
-		local s = part("ShopSign", Vector3.new(w, h, 0.3), cf, bg, { parent = parent })
+	-- (user 2026-10-24, performance) all the signs of one building are drawn on
+	-- one invisible board in front of its face (one part + one SurfaceGui per
+	-- building instead of one per sign: 1,010 → about 100). board = { part,
+	-- width, top } in the building's local frame; sx, y = the sign's centre
+	local SIGN_PPS = 20
+	local function signBoard(parent, cf, width, y0, y1, z)
+		local p = part("ShopSignBoard", Vector3.new(width, y1 - y0, 0.05), cf * CFrame.new(0, (y0 + y1) / 2, z), Color3.new(1, 1, 1), { parent = parent, nocol = true, transparency = 1 })
+		p.CanQuery = false
+		p.CanTouch = false
+		p.CastShadow = false
 		local g = Instance.new("SurfaceGui")
 		g.Face = Enum.NormalId.Front
 		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		g.PixelsPerStud = 24
+		g.PixelsPerStud = SIGN_PPS
 		g.LightInfluence = 0.4
-		g.Parent = s
+		g.Parent = p
+		return { gui = g, width = width, top = y1 }
+	end
+	local function sign(board, sx, y, w, h, text, bg)
+		-- the Front face is seen from local -Z: the viewer's right is local -X
+		local f = Instance.new("Frame")
+		f.Name = "ShopSign"
+		f.Position = UDim2.fromOffset((board.width / 2 - (sx + w / 2)) * SIGN_PPS, (board.top - (y + h / 2)) * SIGN_PPS)
+		f.Size = UDim2.fromOffset(w * SIGN_PPS, h * SIGN_PPS)
+		f.BackgroundColor3 = bg
+		f.BorderSizePixel = 0
+		f.Parent = board.gui
 		local t = Instance.new("TextLabel")
 		t.Size = UDim2.fromScale(1, 1)
 		t.BackgroundTransparency = 1
@@ -4555,9 +4574,9 @@ do
 		t.TextColor3 = if dark then Color3.fromRGB(255, 255, 255) else Color3.fromRGB(30, 40, 110)
 		t.Text = text
 		local pad = Instance.new("UIPadding")
-		pad.PaddingLeft = UDim.new(0, 10) pad.PaddingRight = UDim.new(0, 10) pad.PaddingTop = UDim.new(0, 4) pad.PaddingBottom = UDim.new(0, 4)
+		pad.PaddingLeft = UDim.new(0, 8) pad.PaddingRight = UDim.new(0, 8) pad.PaddingTop = UDim.new(0, 3) pad.PaddingBottom = UDim.new(0, 3)
 		pad.Parent = t
-		t.Parent = g
+		t.Parent = f
 	end
 	-- a building whose front (local -Z) looks along `front`
 	local function fakeBuilding(center: Vector3, width: number, depth: number, height: number, front: Vector3)
@@ -4580,10 +4599,11 @@ do
 		end
 		-- ground floor shops: dark glass + awnings
 		part("ShopGlass", Vector3.new(width - 2, 8, 0.3), cf * CFrame.new(0, 4.6, -depth / 2 - 0.2), Color3.fromRGB(40, 50, 60), { parent = M, material = Enum.Material.Glass, transparency = 0.2 })
+		local board = signBoard(M, cf, width, 8.6, height - 4, -depth / 2 - 0.8)
 		for k = 0, 1 do
 			local sx = (k - 0.5) * width / 2
 			local s = SHOPS[((shopN * 3 + k) % #SHOPS) + 1]
-			sign(M, cf * CFrame.new(sx, 9.6, -depth / 2 - 0.8), width / 2 - 2.5, 1.8, s[1], s[2])
+			sign(board, sx, 9.6, width / 2 - 2.5, 1.8, s[1], s[2])
 			part("Awning", Vector3.new(width / 2 - 3, 0.3, 2.2), cf * CFrame.new(sx, 8.2, -depth / 2 - 1.3) * CFrame.Angles(math.rad(-12), 0, 0), if k == 0 then Color3.fromRGB(200, 40, 50) else Color3.fromRGB(60, 60, 66), { parent = M, nocol = true })
 		end
 		-- upper floors: a sign band per floor, two signs side by side
@@ -4592,7 +4612,7 @@ do
 			for k = 0, 1 do
 				local s = SHOPS[((shopN * 5 + floor * 2 + k) % #SHOPS) + 1]
 				local sx = (k - 0.5) * (width / 2 - 1)
-				sign(M, cf * CFrame.new(sx, y, -depth / 2 - 0.65), width / 2 - 4, 2.4, s[1] .. (if k == 0 then string.format(" %dF", floor + 1) else ""), s[2])
+				sign(board, sx, y, width / 2 - 4, 2.4, s[1] .. (if k == 0 then string.format(" %dF", floor + 1) else ""), s[2])
 			end
 			floor += 1
 		end
@@ -5286,6 +5306,35 @@ do
 			end
 			x += g[1]
 		end
+		-- (user 2026-10-24, performance) the strokes become two solids: the letters
+		-- (grey sides + white faces, colours kept) and the lavender halo; a sign
+		-- was about 1,500 parts. CSG needs the parts in Workspace for a moment
+		local home = m.Parent
+		m.Parent = workspace
+		local function merge(name, names, transparency)
+			local list = {}
+			for _, c in ipairs(m:GetChildren()) do
+				if c:IsA("BasePart") and names[c.Name] then table.insert(list, c) end
+			end
+			if #list < 2 then return end
+			local first = table.remove(list, 1)
+			local ok, u = pcall(function() return first:UnionAsync(list) end)
+			if not ok or not u then return end
+			u.Name = name
+			u.UsePartColor = false
+			u.Anchored = true
+			u.CanCollide = false
+			u.CanQuery = false
+			u.CanTouch = false
+			u.Transparency = transparency
+			if name == "LetterHalo" then u.CastShadow = false end
+			u.Parent = m
+			first:Destroy()
+			for _, p in ipairs(list) do p:Destroy() end
+		end
+		merge("Letters", { Letter = true, LetterFace = true }, 0)
+		merge("LetterHalo", { LetterHalo = true }, 0.25)
+		m.Parent = home
 	end
 	-- the shop name sits one band lower, on the wall between the door frame and
 	-- the fascia, so players see it from the street (user 2026-10-23)
@@ -5899,6 +5948,20 @@ if spawn then
 	-- hidden in the paving (user 2026-10-23): no pad or logo showing
 	spawn.Transparency = 1
 	for _, d in ipairs(spawn:GetChildren()) do if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end end
+end
+-- (user 2026-10-24, performance: docs/05_TECH/PERFORMANCE.md §9) small or flat
+-- decoration casts no shadow (signs, letters, markings, pavers, props), and
+-- nothing static here needs touch events except tagged parts and seats
+do
+	for _, d in ipairs(T:GetDescendants()) do
+		if d:IsA("BasePart") then
+			local s = d.Size
+			local big = math.max(s.X, s.Y, s.Z)
+			local flatOnGround = s.Y <= 0.35 and math.abs(d.CFrame.UpVector.Y) > 0.99 and d.Position.Y < 1.5
+			if d.CastShadow and (big <= 4 or flatOnGround or d.Transparency >= 1) then d.CastShadow = false end
+			if d.CanTouch and d.Anchored and not d:IsA("Seat") and not d:IsA("VehicleSeat") and #CS:GetTags(d) == 0 then d.CanTouch = false end
+		end
+	end
 end
 saveRegistry()
 T.Parent = workspace

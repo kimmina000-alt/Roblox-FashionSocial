@@ -1102,3 +1102,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 포토부스 촬영 | 장수 고르기 | 클럽 같이 추기 | DJ (폰) | 카탈로그 |
 |---|---|---|---|---|
 | ![](images/2026-10-24/test2p_booth_shoot.jpg) | ![](images/2026-10-24/test2p_booth_copies.jpg) | ![](images/2026-10-24/test2p_club_dance.jpg) | ![](images/2026-10-24/test2p_club_dj.jpg) | ![](images/2026-10-24/test2p_catalog.jpg) |
+
+### 추가 (D-208) — 성능 최적화 1차, VIP 구매 창
+- 가짜 건물 간판: 간판마다 파트+SurfaceGui이던 것을 건물마다 투명판 1장에 그렸습니다(84장).
+- 오후네컷 입체 간판: 획마다 파트 3개(1,482)를 간판마다 글자 1덩어리 + 후광 1덩어리로 합쳤습니다(색 유지).
+- 작은 장식·바닥 표시·투명 파트는 그림자 끔, 태그 없는 고정 장식은 터치 판정 끔.
+- 결과(Edit 모드 측정): 파트 17,180 → 14,628, SurfaceGui·Billboard 1,460 → 534, 그림자 12,775 → 6,217, 터치 13,991 → 2,137.
+- VIP/DJ 문에서 뜬 테스트 구매 창은 14스터드 벗어나면 닫힙니다(혼자 플레이로 확인).
+- 사진 비교는 Studio 창 4개(2인 테스트 실행 중)로 캡처가 시간 초과되어 다음 테스트 때 찍습니다.

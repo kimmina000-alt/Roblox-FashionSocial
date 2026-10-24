@@ -139,8 +139,17 @@ create("UIListLayout", {
 
 type ModalButton = { name: string, text: string, color: Color3?, onClick: () -> () }
 local Popups = require(script.Parent:WaitForChild("Popups"))
-local function showModal(title: string, body: string, buttons: {ModalButton})
+-- closeFar: a window opened by walking into a gate closes again when the
+-- player walks away from that spot (user 2026-10-24: the VIP pass window
+-- stayed open after leaving the gate)
+local modalOpenedAt: Vector3? = nil
+local function rootPosition(): Vector3?
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	return if root and root:IsA("BasePart") then root.Position else nil
+end
+local function showModal(title: string, body: string, buttons: {ModalButton}, closeFar: boolean?)
 	Popups.opened("ClubShop", function() modal.Visible = false end)
+	modalOpenedAt = if closeFar then rootPosition() else nil
 	modalTitle.Text = title
 	modalBody.Text = body
 	for _, child in ipairs(modalButtons:GetChildren()) do
@@ -169,12 +178,25 @@ local function showModal(title: string, body: string, buttons: {ModalButton})
 	modal.Visible = true
 end
 local function closeModal() modal.Visible = false; Popups.closed("ClubShop") end
+task.spawn(function()
+	while true do
+		task.wait(0.5)
+		local at = modalOpenedAt
+		if modal.Visible and at then
+			local now = rootPosition()
+			if not now or (now - at).Magnitude > 14 then
+				modalOpenedAt = nil
+				closeModal()
+			end
+		end
+	end
+end)
 
 --------------------------------------------------
 -- Purchases
 --------------------------------------------------
 
-local function studioTest(kind: string, key: string, name: string, price: number)
+local function studioTest(kind: string, key: string, name: string, price: number, closeFar: boolean?)
 	showModal("[Studio 테스트] " .. name,
 		string.format("상품 ID가 아직 없어 실제 결제창 대신 테스트 구매를 합니다.\n실제 가격(예정): %d R$ · 결제는 일어나지 않습니다.", price),
 		{
@@ -183,28 +205,28 @@ local function studioTest(kind: string, key: string, name: string, price: number
 				local ok, message = ClubShop:InvokeServer("StudioTestBuy", { kind = kind, key = key })
 				if not ok then toast(tostring(message or "테스트 구매 실패")) end
 			end },
-		})
+		}, closeFar)
 end
 
-local function buyPass(key: string)
+local function buyPass(key: string, closeFar: boolean?)
 	local pass = MonetizationConfig.GamePasses[key]
 	if not pass then return end
 	if pass.id ~= 0 then
 		MarketplaceService:PromptGamePassPurchase(player, pass.id)
 	elseif RunService:IsStudio() then
-		studioTest("pass", key, pass.name, pass.price)
+		studioTest("pass", key, pass.name, pass.price, closeFar)
 	else
 		toast("준비 중인 상품입니다.")
 	end
 end
 
-local function buyProduct(key: string)
+local function buyProduct(key: string, closeFar: boolean?)
 	local product = MonetizationConfig.Products[key]
 	if not product then return end
 	if product.id ~= 0 then
 		MarketplaceService:PromptProductPurchase(player, product.id)
 	elseif RunService:IsStudio() then
-		studioTest("product", key, product.name, product.price)
+		studioTest("product", key, product.name, product.price, closeFar)
 	else
 		toast("준비 중인 상품입니다.")
 	end
@@ -227,10 +249,10 @@ ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 	elseif kind == "Gate" then
 		if value == "VIP" then
 			toast("VIP 전용 공간이에요. VIP 패스로 입장할 수 있어요.")
-			buyPass("VIP")
+			buyPass("VIP", true)
 		elseif value == "DJ" then
 			toast(djStatusLine())
-			buyProduct("DJ")
+			buyProduct("DJ", true)
 		end
 	elseif kind == "DJTurn" then
 		-- Never move people without asking (user, 2026-10-20).

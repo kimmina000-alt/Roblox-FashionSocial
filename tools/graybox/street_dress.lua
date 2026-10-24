@@ -665,6 +665,17 @@ do
 	v.Value = HS:JSONEncode(REGISTRY)
 	v.Parent = SS
 end
+-- (user 2026-10-24, performance: docs/05_TECH/PERFORMANCE.md §9) small or flat
+-- dressing casts no shadow, and none of it needs touch events
+for _, d in ipairs(root:GetDescendants()) do
+	if d:IsA("BasePart") then
+		local s = d.Size
+		local big = math.max(s.X, s.Y, s.Z)
+		local flatOnGround = s.Y <= 0.35 and math.abs(d.CFrame.UpVector.Y) > 0.99 and d.Position.Y < 1.5
+		if d.CastShadow and (big <= 4 or flatOnGround or d.Transparency >= 1) then d.CastShadow = false end
+		if d.CanTouch and d.Anchored and not d:IsA("Seat") then d.CanTouch = false end
+	end
+end
 root.Parent = workspace
 return string.format("dressed: roads %d, %d lights, %d traffic lights, %d bus shelters, %d utility poles, %d towers (MODE=revert to undo)",
 	#roads, lights, signals, shelters, poles, towers)
