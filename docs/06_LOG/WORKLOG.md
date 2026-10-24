@@ -738,3 +738,15 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전 | 후 |
 |---|---|
 | ![](images/2026-10-24/park_ticket_one_window.jpg) | ![](images/2026-10-24/park_booths_forecourt_after.jpg) |
+
+### 추가 (D-166) — 놀이공원 공사 중으로 닫기
+- 게임을 먼저 공개하고 공원 안은 나중에 만들기로 해서, 실제 놀이공원 공사 현장처럼 닫았습니다. 참고 사진: `docs/04_ART/references/park_closed_*.webp`.
+- 정문 철문 세 곳(가운데 아치, 양옆 통로)을 닫고, 가운데에 쇠사슬과 자물쇠를 달았습니다. 정문 전체에 보이지 않는 벽을 세워서 들어갈 수 없습니다.
+- 정문 바로 안쪽에 남색 가림막을 세웠습니다. 가운데 큰 판에는 OHU LAND / COMING SOON / 더 신나는 놀이공원으로 곧 찾아올게요!가, 나머지 판에는 ★ OHU LAND / 공사 중 · UNDER CONSTRUCTION이 적혀 있고, 뒤에는 철제 기둥과 버팀대가 있습니다.
+- 가운데 아치 앞에 바퀴 달린 검은 메쉬 공사 펜스, Please Pardon Our PROGRESS 안내판, 출입 금지 표지, SOMETHING NEW COMING SOON! 기둥 표지판을 세웠습니다.
+- 매표소와 안내소 창 아래쪽에 CLOSED / 운영 준비 중 / OPENING SOON 안내문을 붙였습니다.
+- 공원 안 놀이기구 이름표는 닫혀 있는 동안 꺼 두었습니다(되돌리면 다시 켜집니다).
+
+| 정문 | 매표소 |
+|---|---|
+| ![](images/2026-10-24/park_closed_gate_after.jpg) | ![](images/2026-10-24/park_ticket_closed_after.jpg) |

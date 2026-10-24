@@ -146,6 +146,13 @@ local function revert()
 		end
 		old:Destroy()
 	end
+	-- ride name signs switched off while the park was closed
+	for _, g in ipairs(root:GetDescendants()) do
+		if g:IsA("BillboardGui") and g:GetAttribute("ParkClosedHidden") then
+			g.Enabled = true
+			g:SetAttribute("ParkClosedHidden", nil)
+		end
+	end
 	if spawn and spawn:GetAttribute("OldPosition") then
 		spawn.CFrame = CFrame.new(spawn:GetAttribute("OldPosition"))
 		spawn:SetAttribute("OldPosition", nil)
@@ -2493,15 +2500,83 @@ do
 		for x = xa, xb, 0.8 do box("FenceBar", x - 0.07, 0, gzc - 0.07, x + 0.07, h, gzc + 0.07, IRON, { parent = E, nocol = true }) end
 	end
 	fence(gateX0, outL - OUT_S / 2, 9) fence(outR + OUT_S / 2, gateX1, 9)
-	-- side passages stay open (people walk through), gates folded back
-	for _, x in ipairs({ outL + OUT_S / 2 + 0.6, mainL - MAIN_S / 2 - 0.6, mainR + MAIN_S / 2 + 0.6, outR - OUT_S / 2 - 0.6 }) do
-		box("GateLeaf", x - 0.2, 0, gzc - 3, x + 0.2, 9, gzc + 0.2, IRON, { parent = E, nocol = true })
+	-- the park is closed until its inside is built (user 2026-10-24): every
+	-- passage has a closed pair of iron gates, chained and padlocked in the middle
+	local function closedGates(xa, xb, h)
+		local mid = (xa + xb) / 2
+		for _, side in ipairs({ { xa, mid - 0.05 }, { mid + 0.05, xb } }) do
+			local a, b2 = side[1], side[2]
+			box("GateLeafFrame", a, 0.4, gzc - 0.12, b2, 0.8, gzc + 0.12, IRON, { parent = E })
+			box("GateLeafFrame", a, h * 0.45, gzc - 0.12, b2, h * 0.45 + 0.35, gzc + 0.12, IRON, { parent = E })
+			box("GateLeafFrame", a, h - 0.4, gzc - 0.12, b2, h, gzc + 0.12, IRON, { parent = E })
+			box("GateLeafStile", a, 0.4, gzc - 0.14, a + 0.3, h, gzc + 0.14, IRON, { parent = E })
+			box("GateLeafStile", b2 - 0.3, 0.4, gzc - 0.14, b2, h, gzc + 0.14, IRON, { parent = E })
+			local n = math.max(2, math.floor((b2 - a) / 0.6))
+			for k = 1, n - 1 do
+				local x = a + (b2 - a) * k / n
+				box("GateLeafBar", x - 0.06, 0.4, gzc - 0.06, x + 0.06, h + 0.6, gzc + 0.06, IRON, { parent = E, nocol = true })
+				part("GateLeafSpear", Vector3.new(0.3, 0.3, 0.3), CFrame.new(x, h + 0.7, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil, nocol = true })
+			end
+		end
+		-- chain wrapped round the two middle stiles + a padlock (street side)
+		for k = 0, 3 do
+			part("GateChain", Vector3.new(0.9, 0.12, 0.35), CFrame.new(mid, h * 0.45 - 0.6 - k * 0.22, gzc + 0.25) * CFrame.Angles(0, 0, math.rad(if k % 2 == 0 then 20 else -20)), Color3.fromRGB(150, 150, 155), { parent = E, material = Enum.Material.Metal, nocol = true })
+		end
+		box("GatePadlock", mid - 0.25, h * 0.45 - 1.9, gzc + 0.28, mid + 0.25, h * 0.45 - 1.3, gzc + 0.48, Color3.fromRGB(196, 160, 70), { parent = E, material = Enum.Material.Metal, nocol = true })
 	end
+	closedGates(ax0, ax1, 12)
+	closedGates(outL + OUT_S / 2, mainL - MAIN_S / 2, 9)
+	closedGates(mainR + MAIN_S / 2, outR - OUT_S / 2, 9)
+	-- the bars let you see in but nobody walks through: one invisible wall over the whole gate
+	box("ParkClosedBlocker", gateX0, 0, gzc - 0.5, gateX1, 32, gzc + 0.5, IRON, { parent = E, transparency = 1 })
 	label(sign, "놀이공원 정문", Color3.fromRGB(60, 90, 140), 8, 0.9)
 	-- ticket office / information in the gate's style (user 2026-10-24):
 	-- sandstone plinth and block walls, arched windows in dark iron frames,
 	-- a cornice and stepped cap, a dark sign band with gold letters, and a
 	-- small grey dome with a gold spire like the gate towers
+	-- a printed sign: rows of { text, colour, font, share of the height }, with
+	-- an optional border line (closed-park signs, user 2026-10-24)
+	local function notice(p: BasePart, face, rows, bg, border, ppsOverride)
+		local g = Instance.new("SurfaceGui")
+		g.Face = face
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = ppsOverride or 40
+		g.LightInfluence = 0.6
+		g.Parent = p
+		local fr = Instance.new("Frame")
+		fr.Size = UDim2.fromScale(1, 1)
+		fr.BackgroundColor3 = bg
+		fr.BorderSizePixel = 0
+		fr.Parent = g
+		if border then
+			local inner = Instance.new("Frame")
+			inner.Size = UDim2.new(1, -16, 1, -16)
+			inner.Position = UDim2.fromOffset(8, 8)
+			inner.BackgroundTransparency = 1
+			inner.Parent = fr
+			local st = Instance.new("UIStroke")
+			st.Color = border
+			st.Thickness = 4
+			st.Parent = inner
+		end
+		local y = 0.06
+		local total = 0
+		for _, r in ipairs(rows) do total += r[4] end
+		local scale = 0.88 / total
+		for _, r in ipairs(rows) do
+			local l = Instance.new("TextLabel")
+			l.BackgroundTransparency = 1
+			l.Size = UDim2.fromScale(0.86, r[4] * scale)
+			l.Position = UDim2.fromScale(0.07, y)
+			l.TextScaled = true
+			l.Text = r[1]
+			l.TextColor3 = r[2]
+			l.Font = r[3]
+			l.Parent = fr
+			y += r[4] * scale
+		end
+		return g
+	end
 	local function booth(center: Vector3, facing: Vector3, W: number, D: number, title: string)
 		-- local frame: X across the front, Y up, Z out of the front (facing)
 		local fr = CFrame.fromMatrix(Vector3.new(center.X, 0, center.Z), Vector3.yAxis:Cross(facing), Vector3.yAxis, facing)
@@ -2535,6 +2610,13 @@ do
 		lb("BoothWindow", -w / 2, 3, hd + 0.2, w / 2, spring, hd + 0.3, GL, { parent = E, material = Enum.Material.Glass })
 		part("BoothWindowTop", Vector3.new(0.08, w, w), fr * CFrame.new(0, spring, hd + 0.255) * CFrame.Angles(0, math.rad(90), 0), GL, { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Glass })
 		lb("BoothSill", -w / 2 - 0.4, 2.6, hd, w / 2 + 0.4, 2.9, hd + 0.8, CARVE, sopt)
+		-- closed for now (user 2026-10-24): a printed card taped inside the lower glass
+		local card = lb("BoothClosedCard", -w / 2 + 0.6, 3.5, hd + 0.31, w / 2 - 0.6, 5.7, hd + 0.34, Color3.fromRGB(250, 248, 240), { parent = E, nocol = true })
+		notice(card, Enum.NormalId.Back, {
+			{ "CLOSED", Color3.fromRGB(200, 30, 40), Enum.Font.GothamBlack, 0.5 },
+			{ "운영 준비 중", Color3.fromRGB(40, 40, 45), Enum.Font.GothamBold, 0.27 },
+			{ "OPENING SOON", Color3.fromRGB(110, 110, 115), Enum.Font.Gotham, 0.18 },
+		}, Color3.fromRGB(250, 248, 240), Color3.fromRGB(200, 30, 40))
 		local b = lb("BoothSign", -hw + 0.8, H2 - 1.5, hd + 0.05, hw - 0.8, H2 - 0.2, hd + 0.35, IRON, { parent = E })
 		surfaceText(b, Enum.NormalId.Back, title, GOLD, Enum.Font.Fantasy)
 		label(b, title, Color3.fromRGB(150, 110, 50), 6, 0.6)
@@ -2542,6 +2624,108 @@ do
 	-- out in the forecourt either side of the path, windows facing the path (user sketch 2026-10-24)
 	booth(Vector3.new(-127, 0, -200), Vector3.new(1, 0, 0), 12, 8, "매표소 TICKETS")
 	booth(Vector3.new(-59, 0, -200), Vector3.new(-1, 0, 0), 10, 7, "i 안내")
+	-- closed while the inside is being built (user 2026-10-24, photos
+	-- docs/04_ART/references/park_closed_*.webp): printed hoarding just inside the
+	-- gate (seen through the bars), a black mesh site fence on wheeled feet in
+	-- front of the main arch, a "pardon our progress" sign and a pole sign
+	do
+		local NAVY, NAVY2 = Color3.fromRGB(28, 42, 78), Color3.fromRGB(36, 54, 98)
+		local hz = gz0 - 2.5 -- hoarding face (street side), inside the park
+		local HH = 17 -- above the site fence and the side gates, under the main arch
+		-- panel joints: one wide printed panel right behind the main arch, the
+		-- rest in 10-stud panels out to the side towers
+		local cuts = { gateX0 }
+		local cL, cR = ax0 - 1, ax1 + 1
+		local x = gateX0
+		while x + 10 < cL - 0.1 do x += 10 table.insert(cuts, x) end
+		table.insert(cuts, cL) table.insert(cuts, cR)
+		x = cR
+		while x + 10 < gateX1 - 0.1 do x += 10 table.insert(cuts, x) end
+		table.insert(cuts, gateX1)
+		for k = 1, #cuts - 1 do
+			local px, pw = cuts[k], cuts[k + 1] - cuts[k]
+			local col = if k % 2 == 0 then NAVY2 else NAVY
+			local panel = box("HoardingPanel", px, 0, hz - 0.3, px + pw, if px == cL then 21 else HH, hz, col, { parent = E }) -- the centre one fills the arch above the closed gates
+			if px == cL then
+				-- the big "coming soon" print; its lower third stays plain (the site fence covers it)
+				notice(panel, Enum.NormalId.Back, {
+					{ "OHU LAND", GOLD, Enum.Font.Fondamento, 0.1 },
+					{ "COMING SOON", Color3.new(1, 1, 1), Enum.Font.GothamBlack, 0.13 },
+					{ "더 신나는 놀이공원으로 곧 찾아올게요!", Color3.fromRGB(235, 220, 180), Enum.Font.GothamBold, 0.055 },
+					{ "Something new is coming", Color3.fromRGB(200, 190, 160), Enum.Font.Gotham, 0.04 },
+					{ "", col, Enum.Font.Gotham, 0.675 }, -- text stays above the gate's top rail
+				}, col, GOLD, 20)
+			else
+				notice(panel, Enum.NormalId.Back, {
+					{ "★", GOLD, Enum.Font.GothamBlack, 0.25 },
+					{ "OHU LAND", GOLD, Enum.Font.Fondamento, 0.15 },
+					{ "공사 중 · UNDER CONSTRUCTION", Color3.fromRGB(220, 210, 185), Enum.Font.GothamBold, 0.08 },
+					{ "", col, Enum.Font.Gotham, 0.3 },
+				}, col, GOLD, 20)
+			end
+			-- steel posts and a back brace behind every panel joint
+			box("HoardingPost", px - 0.15, 0, hz - 0.6, px + 0.15, HH, hz - 0.3, Color3.fromRGB(90, 90, 95), { parent = E, material = Enum.Material.DiamondPlate })
+			part("HoardingBrace", Vector3.new(0.2, 9, 0.2), CFrame.new(px, 4, hz - 3) * CFrame.Angles(math.rad(-36), 0, 0), Color3.fromRGB(90, 90, 95), { parent = E, material = Enum.Material.DiamondPlate })
+		end
+		-- black mesh site fence on wheeled feet, in front of the main arch
+		local fz = gz1 + 2.2
+		local fx0, fx1 = ax0 - 1.5, ax1 + 1.5
+		local FH = 8
+		local nPan = math.ceil((fx1 - fx0) / 7)
+		local pw = (fx1 - fx0) / nPan
+		for i = 0, nPan - 1 do
+			local a = fx0 + i * pw
+			local b2 = a + pw
+			box("SiteFenceTube", a + 0.05, 0.5, fz - 0.07, b2 - 0.05, 0.62, fz + 0.07, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
+			box("SiteFenceTube", a + 0.05, FH - 0.12, fz - 0.07, b2 - 0.05, FH, fz + 0.07, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
+			box("SiteFenceTube", a + 0.05, 0.5, fz - 0.07, a + 0.17, FH, fz + 0.07, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
+			box("SiteFenceTube", b2 - 0.17, 0.5, fz - 0.07, b2 - 0.05, FH, fz + 0.07, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
+			box("SiteFenceTube", a + 0.1, FH / 2 - 0.06, fz - 0.06, b2 - 0.1, FH / 2 + 0.06, fz + 0.06, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
+			-- the black privacy screen zip-tied to the mesh: a little see-through
+			box("SiteFenceScreen", a + 0.2, 0.7, fz - 0.03, b2 - 0.2, FH - 0.15, fz + 0.03, Color3.fromRGB(18, 18, 20), { parent = E, material = Enum.Material.Fabric, transparency = 0.18 })
+			-- feet: a yellow-tipped bar with a wheel at each panel joint
+			for _, x in ipairs({ a + 0.1, b2 - 0.1 }) do
+				box("SiteFenceFoot", x - 0.12, 0, fz - 1.4, x + 0.12, 0.25, fz + 1.4, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
+				box("SiteFenceFootTip", x - 0.13, 0, fz + 1.0, x + 0.13, 0.26, fz + 1.4, Color3.fromRGB(240, 196, 30), { parent = E })
+				part("SiteFenceWheel", Vector3.new(0.3, 0.9, 0.9), CFrame.new(x, 0.45, fz - 1.0), Color3.fromRGB(25, 25, 25), { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Rubber, nocol = true })
+			end
+		end
+		-- padlock where the two middle panels meet
+		box("SiteFencePadlock", CX - 0.2, 3.6, fz + 0.08, CX + 0.2, 4.1, fz + 0.25, Color3.fromRGB(196, 160, 70), { parent = E, material = Enum.Material.Metal, nocol = true })
+		-- signs zip-tied to the screen
+		local s1 = box("SiteSign", CX - 7.5, 3.4, fz + 0.08, CX - 2.5, 6.0, fz + 0.14, Color3.new(1, 1, 1), { parent = E, nocol = true })
+		notice(s1, Enum.NormalId.Back, {
+			{ "Please Pardon Our", Color3.fromRGB(190, 30, 40), Enum.Font.Fondamento, 0.3 },
+			{ "PROGRESS", Color3.fromRGB(30, 70, 170), Enum.Font.GothamBlack, 0.34 },
+			{ "공사 중입니다 · 출입 금지", Color3.fromRGB(40, 40, 45), Enum.Font.GothamBold, 0.2 },
+		}, Color3.new(1, 1, 1), Color3.fromRGB(30, 70, 170))
+		local s2 = box("SiteSign", ax0 - 0.5, 4.2, fz + 0.08, ax0 + 1.7, 5.4, fz + 0.14, Color3.fromRGB(200, 30, 40), { parent = E, nocol = true })
+		notice(s2, Enum.NormalId.Back, {
+			{ "출입 금지", Color3.new(1, 1, 1), Enum.Font.GothamBlack, 0.6 },
+			{ "NO ENTRY", Color3.new(1, 1, 1), Enum.Font.GothamBold, 0.4 },
+		}, Color3.fromRGB(200, 30, 40))
+		-- free-standing pole sign on a weighted base, a step in front of the fence
+		local sx, sz = CX + 5, fz + 2.6
+		vcyl("PoleSignBase", Vector3.new(sx, 0, sz), 2.4, 0.9, Color3.fromRGB(30, 30, 32), { parent = E, material = Enum.Material.Plastic })
+		vcyl("PoleSignPost", Vector3.new(sx, 0.9, sz), 0.2, 5.4, Color3.fromRGB(30, 30, 32), { parent = E, material = Enum.Material.Metal })
+		local s3 = box("PoleSign", sx - 1.6, 4.4, sz + 0.1, sx + 1.6, 7.6, sz + 0.2, Color3.fromRGB(246, 244, 236), { parent = E })
+		notice(s3, Enum.NormalId.Back, {
+			{ "SOMETHING", Color3.fromRGB(50, 40, 30), Enum.Font.Fondamento, 0.2 },
+			{ "NEW COMING", Color3.fromRGB(50, 40, 30), Enum.Font.Fondamento, 0.2 },
+			{ "SOON!", Color3.fromRGB(50, 40, 30), Enum.Font.Fondamento, 0.26 },
+			{ "오후랜드 곧 오픈", Color3.fromRGB(90, 70, 50), Enum.Font.GothamBold, 0.16 },
+		}, Color3.fromRGB(246, 244, 236), Color3.fromRGB(60, 50, 40))
+		-- the ride name signs inside would float over the hoarding: off while closed
+		local pz = root:FindFirstChild("06_Park_Playground")
+		if pz then
+			for _, g in ipairs(pz:GetDescendants()) do
+				if g:IsA("BillboardGui") and g.Enabled then
+					g.Enabled = false
+					g:SetAttribute("ParkClosedHidden", true)
+				end
+			end
+		end
+	end
 	-- inside: round symbol plaza (round flower bed + a pedestal for the park's
 	-- landmark / character sculpture, to be designed)
 	local pc = Vector3.new(-93, 0.25, -262)
@@ -2552,7 +2736,7 @@ do
 		part("Flower", Vector3.new(1.6, 1.6, 1.6), CFrame.new(pc + Vector3.new(math.cos(a) * 10, 2.3, math.sin(a) * 10)), SIGNS[(k % #SIGNS) + 1], { parent = E, shape = Enum.PartType.Ball, nocol = true })
 	end
 	local ped = vcyl("SymbolPedestal", pc + Vector3.new(0, 1.75, 0), 8, 2, Color3.fromRGB(235, 230, 220), { parent = E })
-	label(ped, "★ 상징물 자리 (캐릭터 조형물 예정)", Color3.fromRGB(200, 120, 40), 6, 0.8)
+	local _ = ped -- (its "상징물 자리" label is off while the park is closed)
 	box("GatePlaza", gateX0 - 8, 0, gz1, gateX1 + 8, 0.3, gz1 + 14, Color3.fromRGB(215, 205, 190), { parent = E, material = Enum.Material.Slate })
 end
 ------------------------------------------------------- club facade (references)
