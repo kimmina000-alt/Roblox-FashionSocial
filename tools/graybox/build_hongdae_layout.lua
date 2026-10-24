@@ -1556,6 +1556,20 @@ do
 	local beachZone = root:FindFirstChild("04_Beach_Aquarium")
 	if beachZone then
 		local undo = CFrame.new(0, BEACH_DROP, 0) -- inverse of the zone move
+		-- the Dream Aquarium (dome, floor, pier, photo spot and labels) is gone
+		-- (user 2026-10-24); the sea comes back where the dome kept it dry
+		for _, c in ipairs(beachZone:GetChildren()) do
+			if c:IsA("BasePart") then
+				local p = c.Position
+				local nearDome = math.abs(p.X + 368) < 50 and math.abs(p.Z + 150) < 50
+				if c.Name == "DreamAquarium_Dome" or c.Name == "DomeFloor" or c.Name == "DomePier" or (nearDome and (c.Name == "PhotoSpot" or c.Name == "Label")) then
+					c.CFrame = undo * c.CFrame
+					c:SetAttribute("HomeZone", beachZone.Name)
+					c.Parent = hidden
+				end
+			end
+		end
+		workspace.Terrain:FillBlock(CFrame.new(-368, -9.5, -150), Vector3.new(92, 13, 92), Enum.Material.Water)
 		for _, old in ipairs(beachZone:GetChildren()) do
 			if old:IsA("Model") and old.Name == "PalmTree" then
 				local cf, size = old:GetBoundingBox()
@@ -2617,10 +2631,9 @@ do
 	local sign
 	do
 		local xa, xb = ax0 - 0.8, ax1 + 0.8 -- the arch-top band's span (archBand adds 0.8)
-		-- bigger (user 2026-10-24): tower face to tower face, 6.4 high, its top
-		-- under the crest at the middle
-		local function sy(x) return 23.2 + 5 * math.sin(math.pi * (x - xa) / (xb - xa)) - 2.4 end
-		local half = (ax1 - ax0) / 2 + 0.6
+		-- (a bigger one, tower to tower, was tried and taken back: user 2026-10-24)
+		local function sy(x) return 23.2 + 5 * math.sin(math.pi * (x - xa) / (xb - xa)) - 3.6 end
+		local half = (ax1 - ax0 - 2.6) / 2
 		local K = 14
 		for k = 0, K - 1 do
 			local x0s, x1s = CX - half + 2 * half * k / K, CX - half + 2 * half * (k + 1) / K
@@ -2629,18 +2642,18 @@ do
 			local up = Vector3.zAxis:Cross(d)
 			local mid = (pa + pb) / 2
 			local len = (pb - pa).Magnitude + 0.25
-			part("GateSignFrame", Vector3.new(len, 6.4, 0.5), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.4), d, up), GOLD, { parent = E, material = Enum.Material.Foil })
-			local seg = part("GateSign", Vector3.new(len, 5.6, 0.4), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.1), d, up), Color3.fromRGB(62, 54, 44), { parent = E })
+			part("GateSignFrame", Vector3.new(len, 4.6, 0.5), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.4), d, up), GOLD, { parent = E, material = Enum.Material.Foil })
+			local seg = part("GateSign", Vector3.new(len, 3.8, 0.4), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.1), d, up), Color3.fromRGB(62, 54, 44), { parent = E })
 			if k == K // 2 then sign = seg end
 		end
 		local text = { "O", "H", "U", "", "L", "A", "N", "D" }
-		local step = 2.3
+		local step = 1.65
 		for i, ch in ipairs(text) do
 			if ch ~= "" then
 				local x = CX + (i - (#text + 1) / 2) * step
 				local p0, p1 = Vector3.new(x - 0.1, sy(x - 0.1), 0), Vector3.new(x + 0.1, sy(x + 0.1), 0)
 				local d = (p1 - p0).Unit
-				local plate = part("GateSignLetter", Vector3.new(3.6, 4.6, 0.05), CFrame.fromMatrix(Vector3.new(x, sy(x), gz1 + 0.13), d, Vector3.zAxis:Cross(d)), GOLD, { parent = E, transparency = 1, nocol = true })
+				local plate = part("GateSignLetter", Vector3.new(2, 3.3, 0.05), CFrame.fromMatrix(Vector3.new(x, sy(x), gz1 + 0.13), d, Vector3.zAxis:Cross(d)), GOLD, { parent = E, transparency = 1, nocol = true })
 				local g = Instance.new("SurfaceGui")
 				g.Face = Enum.NormalId.Back -- the street side (+z)
 				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
@@ -2660,8 +2673,8 @@ do
 			end
 		end
 	end
-	part("GateCrest", Vector3.new(6, 3, 0.6), CFrame.new(CX, 31, gzc), CARVE, { parent = E, material = Enum.Material.Sandstone })
-	part("GateCrestBall", Vector3.new(1.4, 1.4, 1.4), CFrame.new(CX, 32.8, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil })
+	part("GateCrest", Vector3.new(6, 3, 0.6), CFrame.new(CX, 29.8, gzc), CARVE, { parent = E, material = Enum.Material.Sandstone })
+	part("GateCrestBall", Vector3.new(1.4, 1.4, 1.4), CFrame.new(CX, 31.6, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil })
 	-- side half arches from the outer towers to the main towers
 	archBand(outL + OUT_S / 2, mainL - MAIN_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone, OUT_S - 0.4)
 	archBand(mainR + MAIN_S / 2, outR - OUT_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone, OUT_S - 0.4)
@@ -2882,7 +2895,7 @@ do
 		lb("BoothWindow", -w / 2, SILL_Y, hd - REC, w / 2, spring, hd - REC + 0.08, GL, { parent = E })
 		part("BoothWindowTop", Vector3.new(0.08, w, w), fr * CFrame.new(0, spring, hd - REC - 0.06) * CFrame.Angles(0, math.rad(90), 0), GL, { parent = E, shape = Enum.PartType.Cylinder }) -- plain: Glass on the round top drew a reflection patch
 		-- the counter under the window: a thin stone plate that sticks out a little more (user 2026-10-24)
-		lb("BoothSill", -w / 2 - 0.5, 2.72, hd - REC, w / 2 + 0.5, 2.9, hd + 1.3, CARVE, sopt)
+		lb("BoothSill", -w / 2 - 0.5, 2.72, hd - REC, w / 2 + 0.5, 2.96, hd + 1.3, CARVE, sopt) -- top 0.06 over the cut floor and the frame (they flickered, user 2026-10-24)
 		-- closed for now (user 2026-10-24): a printed card taped inside the glass
 		local card = lb("BoothClosedCard", -w / 2 + 0.6, 3.5, hd - REC + 0.09, w / 2 - 0.6, 5.7, hd - REC + 0.12, Color3.fromRGB(250, 248, 240), { parent = E, nocol = true })
 		notice(card, Enum.NormalId.Back, {
@@ -2969,6 +2982,114 @@ do
 	local _ = ped -- (its "상징물 자리" label is off while the park is closed)
 	box("GatePlaza", gateX0 - 8, 0, gz1, gateX1 + 8, 0.3, gz1 + 14, Color3.fromRGB(215, 205, 190), { parent = E, material = Enum.Material.Slate })
 end
+------------------------------------------------------- pocket park in front of the park gate (user 2026-10-24)
+-- The empty lot between the gate and the south road becomes a small city park
+-- (도시 속 작은 공원): a wide granite walk on the gate's axis, a round fountain
+-- plaza with a cross walk, four lawns in granite curbs with birches, shrubs
+-- and a flower strip, benches facing the walk and low park lamps. The corner
+-- by subway exit 3 (x > -64, z > -64) stays open paving.
+do
+	local P = Instance.new("Model")
+	P.Name = "PocketPark"
+	P.Parent = T
+	local X0, X1, Z0, Z1 = -150, -47, -210, -47 -- the lot
+	local CXp, FZ = -93, -132 -- axis x, fountain centre z
+	local GRANITE, PAVE = Color3.fromRGB(196, 194, 188), Color3.fromRGB(214, 208, 196)
+	local o = { parent = P, material = Enum.Material.Slate }
+	-- walks: the gate axis and a cross walk, slightly raised light pavers
+	box("ParkWalk", CXp - 9, 0, Z0, CXp + 9, 0.08, Z1, PAVE, o)
+	box("ParkWalk", X0, 0, FZ - 4, X1, 0.08, FZ + 4, PAVE, o)
+	vcyl("FountainPlaza", Vector3.new(CXp, 0, FZ), 34, 0.1, PAVE, o)
+	-- lawns in granite curbs (top of the grass 0.45, curb 0.6)
+	local function lawn(ax, az, bx, bz)
+		box("ParkCurb", ax, 0, az, bx, 0.6, bz, GRANITE, { parent = P, material = Enum.Material.Granite })
+		box("ParkLawn", ax + 0.4, 0, az + 0.4, bx - 0.4, 0.65, bz - 0.4, Color3.fromRGB(96, 150, 72), { parent = P, material = Enum.Material.Grass })
+	end
+	local LAWNS = {
+		{ X0 + 4, Z0 + 6, CXp - 14, FZ - 8 }, -- north-west
+		{ CXp + 14, Z0 + 6, X1 - 4, FZ - 8 }, -- north-east
+		{ X0 + 4, FZ + 8, CXp - 14, Z1 - 6 }, -- south-west
+		{ CXp + 14, FZ + 8, X1 - 4, -66 }, -- south-east (stops before exit 3)
+	}
+	for _, l in ipairs(LAWNS) do lawn(l[1], l[2], l[3], l[4]) end
+	-- birches on the lawns (the street trees' models), a few shrubs at their feet
+	local BIRCH_SCALE = { 1.3, 1.15, 0.95, 0.85, 0.9, 0.7 }
+	local n = 0
+	for li, l in ipairs(LAWNS) do
+		local w, d = l[3] - l[1], l[4] - l[2]
+		for _, f in ipairs({ { 0.25, 0.3 }, { 0.7, 0.22 }, { 0.45, 0.7 }, { 0.8, 0.78 } }) do
+			n += 1
+			local pick = ((n * 5) % 6) + 1
+			local at = CFrame.new(l[1] + w * f[1], 0.65, l[2] + d * f[2]) * CFrame.Angles(0, n * 1.3, 0)
+			local tree = foliage("Birch" .. pick, BIRCH_SCALE[pick] * 0.95, at)
+			if tree then
+				tree.Parent = P
+				for _, sa in ipairs(tree:GetDescendants()) do
+					if sa:IsA("SurfaceAppearance") and sa.AlphaMode == Enum.AlphaMode.Overlay then
+						pcall(function() sa.Color = Color3.fromRGB(150, 112, 82) end)
+					end
+				end
+			end
+			local s = foliage("Shrub", 0.45, at * CFrame.new(2.6, -1.1, 1.2))
+			if s then s.Parent = P end
+		end
+		-- a flower strip along the lawn's edge on the walk side
+		local fx = if l[1] < CXp then l[3] - 2.2 else l[1] + 1
+		local fl = box("FlowerStrip", fx, 0.6, l[2] + 2, fx + 1.2, 0.95, l[4] - 2, Color3.fromRGB(110, 80, 60), { parent = P, material = Enum.Material.Ground })
+		local _ = fl
+		local COLS = { Color3.fromRGB(240, 120, 150), Color3.fromRGB(250, 210, 80), Color3.fromRGB(245, 245, 250), Color3.fromRGB(180, 130, 220) }
+		local k = 0
+		for z = l[2] + 3, l[4] - 3, 1.6 do
+			k += 1
+			part("Flower", Vector3.new(0.9, 0.9, 0.9), CFrame.new(fx + 0.6, 1.25, z), COLS[(k + li) % #COLS + 1], { parent = P, shape = Enum.PartType.Ball, nocol = true, material = Enum.Material.Fabric })
+		end
+	end
+	-- fountain: granite basin, water, a centre bowl and jets
+	local fc = Vector3.new(CXp, 0, FZ)
+	vcyl("FountainRim", fc, 18, 1.3, GRANITE, { parent = P, material = Enum.Material.Granite })
+	local water = vcyl("FountainWater", fc + Vector3.new(0, 1.3, 0), 16.6, 0.05, Color3.fromRGB(90, 170, 200), { parent = P, material = Enum.Material.Glass, nocol = true, transparency = 0.25 })
+	water.Reflectance = 0.2
+	vcyl("FountainPedestal", fc + Vector3.new(0, 1.3, 0), 2, 2.4, GRANITE, { parent = P, material = Enum.Material.Granite })
+	vcyl("FountainBowl", fc + Vector3.new(0, 3.7, 0), 6, 0.6, GRANITE, { parent = P, material = Enum.Material.Granite })
+	vcyl("FountainBowlWater", fc + Vector3.new(0, 4.3, 0), 5.4, 0.05, Color3.fromRGB(90, 170, 200), { parent = P, material = Enum.Material.Glass, nocol = true, transparency = 0.25 })
+	vcyl("FountainJet", fc + Vector3.new(0, 4.3, 0), 0.5, 3.2, Color3.fromRGB(225, 240, 250), { parent = P, material = Enum.Material.Glass, nocol = true, transparency = 0.45 })
+	for k = 0, 5 do
+		local a = k / 6 * 2 * math.pi
+		local base = fc + Vector3.new(math.cos(a) * 6.2, 1.3, math.sin(a) * 6.2)
+		local tip = fc + Vector3.new(math.cos(a) * 3.6, 4.4, math.sin(a) * 3.6)
+		part("FountainArc", Vector3.new(0.25, 0.25, (tip - base).Magnitude), CFrame.lookAt((base + tip) / 2, tip), Color3.fromRGB(225, 240, 250), { parent = P, material = Enum.Material.Glass, nocol = true, transparency = 0.45 })
+	end
+	-- benches round the fountain plaza and along the walk, facing it
+	local function bench(pos: Vector3, face: Vector3)
+		local cf = CFrame.lookAt(pos, pos + face)
+		part("ParkBenchLeg", Vector3.new(5.4, 1.5, 0.4), cf * CFrame.new(0, 0.75, 0.6), Color3.fromRGB(60, 62, 66), { parent = P, material = Enum.Material.Metal })
+		part("ParkBenchBack", Vector3.new(5.4, 1.4, 0.25), cf * CFrame.new(0, 2.4, 1.3), Color3.fromRGB(150, 105, 70), { parent = P, material = Enum.Material.Wood })
+		for _, dx in ipairs({ -1.4, 1.4 }) do
+			seat("ParkBench", cf * CFrame.new(dx, 1.7, 0.4), Vector3.new(2.6, 0.3, 1.6), Color3.fromRGB(160, 110, 70), P)
+		end
+	end
+	for _, a in ipairs({ 45, 135, 225, 315 }) do
+		local r = math.rad(a)
+		local p = fc + Vector3.new(math.cos(r) * 15.5, 0, math.sin(r) * 15.5)
+		bench(p, (fc - p).Unit)
+	end
+	for _, z in ipairs({ -192, -168, -104, -80 }) do
+		bench(Vector3.new(CXp - 10.5, 0, z), Vector3.new(1, 0, 0))
+		bench(Vector3.new(CXp + 10.5, 0, z), Vector3.new(-1, 0, 0))
+	end
+	-- low park lamps (black post, white globe) along the walk; they glow at night
+	for _, z in ipairs({ -200, -180, -156, -108, -84, -60 }) do
+		for _, sx in ipairs({ -1, 1 }) do
+			local b = Vector3.new(CXp + sx * 9.6, 0, z)
+			vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), { parent = P, material = Enum.Material.Metal })
+			local g = part("ParkLampGlobe", Vector3.new(1.4, 1.4, 1.4), CFrame.new(b + Vector3.new(0, 8.6, 0)), Color3.fromRGB(255, 244, 220), { parent = P, shape = Enum.PartType.Ball, nocol = true })
+			g:SetAttribute("NightRange", 14)
+			g:SetAttribute("NightBrightness", 1.2)
+			CS:AddTag(g, "NightGlow")
+		end
+	end
+	label(water, "도시 공원 · 분수 광장", Color3.fromRGB(60, 140, 90), 8, 0.7)
+end
 ------------------------------------------------------- club facade (references)
 do
 	local K = Instance.new("Model")
@@ -2998,14 +3119,14 @@ do
 	box("Cladding", 48, 0, -96 + CDZ, 171.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("CapBand", 47.3, TOPY - 0.8, Z0 - 2, 48, TOPY + 0.4, Z1 + 1, BLACK2, { parent = K, material = Enum.Material.Metal })
 	-- ground floor: gold strips, gold portal around the door
-	gold("GoldStrip", 47.5, 6.4, -242 + CDZ, 47.8, 7, -196 + CDZ)
-	gold("GoldStrip", 47.5, 6.4, -160 + CDZ, 47.8, 7, -114 + CDZ)
+	-- (the gold strips along the ground floor are gone: the louvres come down
+	-- to their height instead, user 2026-10-24)
 	gold("GoldJamb", 45.8, 0, DZ0 - 3, 47.8, 15, DZ0)
 	gold("GoldJamb", 45.8, 0, DZ1, 47.8, 15, DZ1 + 3)
 	gold("GoldLintel", 45.8, 12, DZ0, 47.8, 15, DZ1)
 	for _, zz in ipairs({ DZ0 + 0.2, DZ1 - 0.2 }) do gold("GoldDoorFrame", 46.6, 0.1, zz - 0.2, 47.8, 12, zz + 0.2) end
 	-- sign band with spaced white letters and the crown
-	local band = box("ClubSign", 46.4, 15, -250 + CDZ, 47.8, 20.6, -106 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
+	local band = box("ClubSign", 46.4, 15, Z0, 47.8, 20.6, Z1, BLACK, { parent = K, material = Enum.Material.Metal }) -- end to end of the front (user 2026-10-24)
 	do
 		local g = Instance.new("SurfaceGui")
 		g.Face = Enum.NormalId.Left
@@ -3035,17 +3156,33 @@ do
 			b.Reflectance = 0.25
 		end
 	end
-	-- upper floors: horizontal louvres + a run of tall black-framed windows
-	local WZ0, WZ1 = -232 + CDZ, -150 + CDZ
-	for y = 21.4, TOPY - 1.2, 1.1 do
-		for _, r in ipairs({ { Z0, WZ0 }, { WZ1, Z1 } }) do
-			box("Louvre", 47.3, y, r[1], 47.8, y + 0.35, r[2], BLACK2, { parent = K, material = Enum.Material.Metal })
+	-- (user 2026-10-24) the louvres come down between the ground floor and the
+	-- sign band, as real slats: each one 0.9 deep, tilted down 30 degrees, on
+	-- black fins; they run to the end of the front and round the corner by the
+	-- photo booth building. The top floor is one run of tall black-framed
+	-- windows from end to end.
+	local function slats(z0s, z1s)
+		for y = 7.4, 14.2, 0.85 do
+			part("Louvre", Vector3.new(0.9, 0.16, z1s - z0s), CFrame.new(47.35, y, (z0s + z1s) / 2) * CFrame.Angles(0, 0, math.rad(30)), BLACK2, { parent = K, material = Enum.Material.Metal, nocol = true })
 		end
+		for zz = z0s, z1s, 8 do box("LouvreFin", 46.8, 7, zz - 0.12, 47.8, 14.8, zz + 0.12, BLACK, { parent = K, material = Enum.Material.Metal }) end
+		box("LouvreFin", 46.8, 7, z1s - 0.24, 47.8, 14.8, z1s, BLACK, { parent = K, material = Enum.Material.Metal })
 	end
+	slats(Z0, DZ0 - 3)
+	slats(DZ1 + 3, Z1)
+	-- round the corner: the club's south face in the gap to the photo booth building
+	for y = 7.4, 14.2, 0.85 do
+		part("Louvre", Vector3.new(10, 0.16, 0.9), CFrame.new(53, y, Z1 + 0.45) * CFrame.Angles(math.rad(30), 0, 0), BLACK2, { parent = K, material = Enum.Material.Metal, nocol = true })
+	end
+	local WZ0, WZ1 = Z0 + 1, Z1 - 1
 	box("WindowGlass", 47.6, 22, WZ0, 47.8, 33.5, WZ1, Color3.fromRGB(38, 46, 54), { parent = K, material = Enum.Material.Glass })
 	box("WindowFrame", 47.2, 21.4, WZ0, 47.8, 22, WZ1, BLACK, { parent = K })
 	box("WindowFrame", 47.2, 33.5, WZ0, 47.8, 34.1, WZ1, BLACK, { parent = K })
-	for zz = WZ0, WZ1, 5.5 do box("WindowMullion", 47.2, 22, zz - 0.25, 47.8, 33.5, zz + 0.25, BLACK, { parent = K }) end
+	local nW = math.floor((WZ1 - WZ0) / 5.5 + 0.5)
+	for i = 0, nW do
+		local zz = WZ0 + (WZ1 - WZ0) * i / nW
+		box("WindowMullion", 47.2, 22, zz - 0.25, 47.8, 33.5, zz + 0.25, BLACK, { parent = K })
+	end
 	-- low black iron fence along the front (gaps at the door and the queue)
 	for _, r in ipairs({ { -256 + CDZ, DZ0 - 4 }, { DZ1 + 4, -158 + CDZ } }) do
 		box("FenceRail", 46.3, 3, r[1], 46.5, 3.2, r[2], BLACK, { parent = K })
@@ -3996,11 +4133,11 @@ do
 	local EDGES = { -270 }
 	for k = 1, 26 do table.insert(EDGES, -270 - 4130 * (k / 26) ^ 1.8) end
 	local NEAR, FAR = Color3.fromRGB(70, 184, 198), Color3.fromRGB(24, 86, 142)
-	local DOME = { -416, -198, -320, -102 } -- the aquarium dome stays dry inside (an octagon hole, below)
+	local DOME = nil -- (the Dream Aquarium dome is gone, user 2026-10-24: no hole in the sea any more)
 	for i = 1, #EDGES - 1 do
 		local xa, xb = EDGES[i + 1], EDGES[i]
 		local col = NEAR:Lerp(FAR, ((i - 1) / (#EDGES - 2)) ^ 0.8)
-		if xb > DOME[1] and xa < DOME[3] then
+		if DOME and xb > DOME[1] and xa < DOME[3] then
 			flat("SeaSurface", xa, xb, -4400, DOME[2], SEA_Y, col)
 			flat("SeaSurface", xa, xb, DOME[4], 4400, SEA_Y, col)
 			if xa < DOME[1] then flat("SeaSurface", xa, DOME[1], DOME[2], DOME[4], SEA_Y, col) end
@@ -4031,7 +4168,7 @@ do
 		if d2 > 0.01 then part(name, Vector3.new(th, h, d2), CFrame.fromMatrix((a + c) / 2, -right, up, -back), color, o) end
 	end
 	-- the square round the dome, less an octagon just outside the dome (r 44)
-	do
+	if DOME then
 		local cx, cz, half, r = (DOME[1] + DOME[3]) / 2, (DOME[2] + DOME[4]) / 2, (DOME[3] - DOME[1]) / 2, 47.5
 		local function sq(a) -- the square's edge along direction a (a multiple of 45 degrees)
 			local d = Vector3.new(math.cos(a), 0, math.sin(a))
