@@ -478,6 +478,17 @@ local function foliage(name: string, scale: number, at: CFrame): Model?
 	-- (user 2026-10-24, performance) trunks and branches lose their own colour
 	-- and normal images (Overlay SurfaceAppearance, two per mesh) and wear the
 	-- built-in wood in the bark brown; the leaves (one shared image) stay
+	-- the built-in wood ran across the trunks, so one shared custom wood with the
+	-- grain turned upright (docs/04_ART/references/bark_vertical_grain.png, user 2026-10-24)
+	local MS = game:GetService("MaterialService")
+	if not MS:FindFirstChild("OhuBarkVertical") then
+		local mv = Instance.new("MaterialVariant")
+		mv.Name = "OhuBarkVertical"
+		mv.BaseMaterial = Enum.Material.Wood
+		mv.ColorMap = "rbxassetid://116546178723140"
+		mv.StudsPerTile = 3
+		mv.Parent = MS
+	end
 	for _, sa in ipairs(m:GetDescendants()) do
 		if sa:IsA("SurfaceAppearance") and sa.AlphaMode == Enum.AlphaMode.Overlay then
 			local mp = sa.Parent
@@ -485,6 +496,7 @@ local function foliage(name: string, scale: number, at: CFrame): Model?
 			if mp and mp:IsA("MeshPart") then
 				mp.Color = Color3.fromRGB(112, 84, 60)
 				mp.Material = Enum.Material.Wood
+				mp.MaterialVariant = "OhuBarkVertical"
 			end
 		end
 	end

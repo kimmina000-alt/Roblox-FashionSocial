@@ -1138,3 +1138,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전 | 후 |
 |---|---|
 | ![](images/2026-10-24/birch_trunk_before.jpg) | ![](images/2026-10-24/birch_trunk_after.jpg) |
+
+### 추가 (D-212) — 자작나무 줄기 결 세로로
+- 기본 나무 재질은 결 방향을 돌릴 수 없어서, 세로 결 회색 무늬 1장을 만들어 커스텀 재질(MaterialVariant "OhuBarkVertical")로 등록하고 줄기 406개가 같이 씁니다(색은 줄기 갈색이 입혀짐). 이미지는 1장만 늘어납니다.
+
+![](images/2026-10-24/birch_trunk_vertical.jpg)
