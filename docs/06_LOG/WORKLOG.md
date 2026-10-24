@@ -729,3 +729,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 매표소와 안내소의 창을 각각 가운데 아치 창 하나로 줄였습니다.
 
 ![](images/2026-10-24/park_ticket_one_window.jpg)
+
+### 추가 (D-165)
+- 사용자 그림에 맞춰 매표소와 안내소를 정문 앞 광장 가운데(z -200)로 옮겼습니다.
+- 매표소는 왼쪽(x -127), 안내소는 오른쪽(x -59)에 있고, 창은 둘 다 가운데 길 쪽을 봅니다.
+- `booth()`가 이제 중심, 바라보는 방향, 폭, 깊이를 받아서 어느 방향으로든 세울 수 있습니다.
+
+| 전 | 후 |
+|---|---|
+| ![](images/2026-10-24/park_ticket_one_window.jpg) | ![](images/2026-10-24/park_booths_forecourt_after.jpg) |

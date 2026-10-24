@@ -2502,37 +2502,46 @@ do
 	-- sandstone plinth and block walls, arched windows in dark iron frames,
 	-- a cornice and stepped cap, a dark sign band with gold letters, and a
 	-- small grey dome with a gold spire like the gate towers
-	local function booth(bx0, bz0, bx1, bz1, title, windows)
-		local H2 = 11.5 -- room for the arched windows under the sign
-		course("BoothBase", bx0, bz0, bx1, bz1, 0, 1.5, 0.3, CARVE)
-		local body = course("BoothBody", bx0, bz0, bx1, bz1, 1.5, H2, 0, STONE, true)
-		course("BoothCornice", bx0, bz0, bx1, bz1, H2, H2 + 0.6, 0.4, CARVE)
-		course("BoothCap", bx0, bz0, bx1, bz1, H2 + 0.6, H2 + 1.3, 0.15, STONE)
-		course("BoothCap", bx0, bz0, bx1, bz1, H2 + 1.3, H2 + 1.7, 0.5, CARVE)
-		local cx, cz = (bx0 + bx1) / 2, (bz0 + bz1) / 2
-		local s = math.min(bx1 - bx0, bz1 - bz0)
-		vcyl("BoothDrum", Vector3.new(cx, H2 + 1.7, cz), s * 0.55, 1.2, STONE, sopt)
-		part("BoothDome", Vector3.new(s * 0.6, s * 0.6, s * 0.6), CFrame.new(cx, H2 + 2.9, cz), DOME, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
-		vcyl("BoothSpire", Vector3.new(cx, H2 + 2.9 + s * 0.28, cz), 0.3, 2.2, GOLD, { parent = E, material = Enum.Material.Foil })
-		-- arched windows on the front (+z), iron frames, a stone sill
-		-- one arched window in the middle (user 2026-10-24), at most 6 wide so the
-		-- round top's circle never shows below the sill
-		for _ = 1, 1 do
-			local w0 = math.min(6, bx1 - bx0 - 1.8)
-			local wx0, wx1 = (bx0 + bx1) / 2 - w0 / 2, (bx0 + bx1) / 2 + w0 / 2
-			local wc, w = (wx0 + wx1) / 2, wx1 - wx0
-			local spring = H2 - 1.9 - w / 2 - 0.3 -- the arch top stays under the sign band
-			box("BoothWindowFrame", wx0 - 0.25, 2.8, bz1, wx1 + 0.25, spring, bz1 + 0.25, IRON, { parent = E })
-			part("BoothWindowArch", Vector3.new(0.22, w + 0.5, w + 0.5), CFrame.new(wc, spring, bz1 + 0.12) * CFrame.Angles(0, math.rad(90), 0), IRON, { parent = E, shape = Enum.PartType.Cylinder })
-			box("BoothWindow", wx0, 3, bz1 + 0.2, wx1, spring, bz1 + 0.3, Color3.fromRGB(110, 140, 165), { parent = E, material = Enum.Material.Glass }) -- opaque: overlapping see-through glass drew a darker circle (user)
-			part("BoothWindowTop", Vector3.new(0.08, w, w), CFrame.new(wc, spring, bz1 + 0.255) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(110, 140, 165), { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Glass })
-			box("BoothSill", wx0 - 0.4, 2.6, bz1, wx1 + 0.4, 2.9, bz1 + 0.8, CARVE, sopt)
+	local function booth(center: Vector3, facing: Vector3, W: number, D: number, title: string)
+		-- local frame: X across the front, Y up, Z out of the front (facing)
+		local fr = CFrame.fromMatrix(Vector3.new(center.X, 0, center.Z), Vector3.yAxis:Cross(facing), Vector3.yAxis, facing)
+		local function lb(name, x0, y0, z0, x1, y1, z1, color, opt, tex)
+			local p = part(name, Vector3.new(x1 - x0, y1 - y0, z1 - z0), fr * CFrame.new((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), color, opt)
+			if tex then blocks(p) end
+			return p
 		end
-		local b = box("BoothSign", bx0 + 0.8, H2 - 1.5, bz1 + 0.05, bx1 - 0.8, H2 - 0.2, bz1 + 0.35, IRON, { parent = E })
+		local hw, hd = W / 2, D / 2
+		local function course2(name, y0, y1, grow, color, tex)
+			return lb(name, -hw - grow, y0, -hd - grow, hw + grow, y1, hd + grow, color, sopt, tex)
+		end
+		local H2 = 11.5 -- room for the arched window under the sign
+		course2("BoothBase", 0, 1.5, 0.3, CARVE)
+		course2("BoothBody", 1.5, H2, 0, STONE, true)
+		course2("BoothCornice", H2, H2 + 0.6, 0.4, CARVE)
+		course2("BoothCap", H2 + 0.6, H2 + 1.3, 0.15, STONE)
+		course2("BoothCap", H2 + 1.3, H2 + 1.7, 0.5, CARVE)
+		local s = math.min(W, D)
+		local c = Vector3.new(center.X, 0, center.Z)
+		vcyl("BoothDrum", c + Vector3.new(0, H2 + 1.7, 0), s * 0.55, 1.2, STONE, sopt)
+		part("BoothDome", Vector3.new(s * 0.6, s * 0.6, s * 0.6), CFrame.new(c + Vector3.new(0, H2 + 2.9, 0)), DOME, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
+		vcyl("BoothSpire", c + Vector3.new(0, H2 + 2.9 + s * 0.28, 0), 0.3, 2.2, GOLD, { parent = E, material = Enum.Material.Foil })
+		-- one arched window in the middle of the front, at most 6 wide so the
+		-- round top's circle never shows below the sill (user 2026-10-24)
+		local w = math.min(6, W - 1.8)
+		local spring = H2 - 1.9 - w / 2 - 0.3 -- the arch top stays under the sign band
+		local GL = Color3.fromRGB(110, 140, 165)
+		lb("BoothWindowFrame", -w / 2 - 0.25, 2.8, hd, w / 2 + 0.25, spring, hd + 0.25, IRON, { parent = E })
+		part("BoothWindowArch", Vector3.new(0.22, w + 0.5, w + 0.5), fr * CFrame.new(0, spring, hd + 0.12) * CFrame.Angles(0, math.rad(90), 0), IRON, { parent = E, shape = Enum.PartType.Cylinder })
+		lb("BoothWindow", -w / 2, 3, hd + 0.2, w / 2, spring, hd + 0.3, GL, { parent = E, material = Enum.Material.Glass })
+		part("BoothWindowTop", Vector3.new(0.08, w, w), fr * CFrame.new(0, spring, hd + 0.255) * CFrame.Angles(0, math.rad(90), 0), GL, { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Glass })
+		lb("BoothSill", -w / 2 - 0.4, 2.6, hd, w / 2 + 0.4, 2.9, hd + 0.8, CARVE, sopt)
+		local b = lb("BoothSign", -hw + 0.8, H2 - 1.5, hd + 0.05, hw - 0.8, H2 - 0.2, hd + 0.35, IRON, { parent = E })
 		surfaceText(b, Enum.NormalId.Back, title, GOLD, Enum.Font.Fantasy)
 		label(b, title, Color3.fromRGB(150, 110, 50), 6, 0.6)
-	end	booth(-146, -226, -130, -216, "매표소 TICKETS", 2)
-	booth(-56, -226, -46, -218, "i 안내", 1)
+	end
+	-- out in the forecourt either side of the path, windows facing the path (user sketch 2026-10-24)
+	booth(Vector3.new(-127, 0, -200), Vector3.new(1, 0, 0), 12, 8, "매표소 TICKETS")
+	booth(Vector3.new(-59, 0, -200), Vector3.new(-1, 0, 0), 10, 7, "i 안내")
 	-- inside: round symbol plaza (round flower bed + a pedestal for the park's
 	-- landmark / character sculpture, to be designed)
 	local pc = Vector3.new(-93, 0.25, -262)
