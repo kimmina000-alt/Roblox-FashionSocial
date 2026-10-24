@@ -1310,6 +1310,7 @@ do
 		for zs = STEP_N, z1 - 1, 20 do
 			local ze = math.min(zs + 20, z1)
 			if zs < -4.2 and ze > -4.2 then ze = -4.2 end -- the beach cafe's corner steps take over from here (graybox 04)
+			if zs < 126.2 and ze > 126.2 then zs = 126.2 end -- and hand back after its north corner
 			local free = true
 			local probe = CFrame.new(-201, (sandTop + CURB) / 2 + 0.2, (zs + ze) / 2)
 			for _, p in ipairs(workspace:GetPartBoundsInBox(probe, Vector3.new(6, CURB - sandTop - 0.6, ze - zs - 1), params)) do
@@ -1324,8 +1325,11 @@ do
 				box("BeachStep", -203.7, sandTop, zs, -201.2, CURB - 1.2, ze, wood, { material = Enum.Material.WoodPlanks })
 				box("BeachStep", -206.2, sandTop, zs, -203.7, CURB - 1.8, ze, wood, { material = Enum.Material.WoodPlanks })
 			else
-				-- the granite edge along the promenade runs on past the beach cafe too (user 2026-10-24)
-				box("BeachStepEdge", -198.7, sandTop, zs, -198, CURB + 0.1, ze, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
+				-- the granite edge along the promenade runs on past the beach cafe too (user 2026-10-24);
+				-- by the cafe only along its front (z 16..106): the corners have the cafe's own edge
+				local ea, eb = zs, ze
+				if ze > -4.2 and zs < 126.2 then ea, eb = math.max(zs, 16), math.min(ze, 106) end
+				if eb > ea then box("BeachStepEdge", -198.7, sandTop, ea, -198, CURB + 0.1, eb, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite }) end
 			end
 		end
 	end
@@ -3922,7 +3926,7 @@ end
 
 do -- sunset photo frame at the end of the pier, facing the sea (west)
 	local frameCol = Color3.fromRGB(255, 150, 90)
-	local px, pz = -344, 122
+	local px, pz = -344, 136 -- (moved with the pier, north of the beach cafe deck)
 	part("SunsetFramePostN", Vector3.new(1, 10, 1), CFrame.new(px, 6 - BEACH_DROP, pz + 5), frameCol, { material = Enum.Material.Neon })
 	part("SunsetFramePostS", Vector3.new(1, 10, 1), CFrame.new(px, 6 - BEACH_DROP, pz - 5), frameCol, { material = Enum.Material.Neon })
 	local top = part("SunsetFrameTop", Vector3.new(1, 1, 11), CFrame.new(px, 11.5 - BEACH_DROP, pz), frameCol, { material = Enum.Material.Neon })
