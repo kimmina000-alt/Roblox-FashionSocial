@@ -909,3 +909,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 카페 입구 데크를 단상과 같은 높이로 내려 단차를 없앴고(바 스툴도 같이 내림), 건물 아래 회색 띠를 흰 받침으로 덮어 건물 색으로 통일했습니다. 데크 위 파라솔·테이블과 석양 피어(다리, 포토 스팟, 포토 프레임)를 지웠습니다.
 
 ![](images/2026-10-24/cafe_deck_level_plinth_after.jpg)
+
+### 추가 (D-188) — 도시 공원 v2 (사용자 조경 그림)
+- 참고: `docs/04_ART/references/pocket_park_sketch.webp`. 놀이공원 앞 공터 전체를 포장하고, 가운데 3단 원형 단(앉는 턱과 조형물), 북서쪽 곡선 나무 데크와 곡선 소파, 동쪽 3단 곡선 나무 좌석, 남동쪽 S자 나무 데크 길, 서쪽 라탄 의자 4개, 흰 파라솔 테이블 2개, 남서쪽 넓은 계단, 가장자리 화단(둥근 관목·자작나무), 공원등 7개(밤에 켜짐)로 다시 만들었습니다.
+
+![](images/2026-10-24/pocket_park_v2_after.jpg)

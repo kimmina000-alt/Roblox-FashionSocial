@@ -2995,46 +2995,125 @@ do
 	local _ = ped -- (its "상징물 자리" label is off while the park is closed)
 	box("GatePlaza", gateX0 - 8, 0, gz1, gateX1 + 8, 0.3, gz1 + 14, Color3.fromRGB(215, 205, 190), { parent = E, material = Enum.Material.Slate })
 end
-------------------------------------------------------- pocket park in front of the park gate (user 2026-10-24)
--- The empty lot between the gate and the south road becomes a small city park
--- (도시 속 작은 공원): a wide granite walk on the gate's axis, a round fountain
--- plaza with a cross walk, four lawns in granite curbs with birches, shrubs
--- and a flower strip, benches facing the walk and low park lamps. The corner
--- by subway exit 3 (x > -64, z > -64) stays open paving.
+------------------------------------------------------- pocket park in front of the park gate (user 2026-10-24, v2)
+-- From the user's landscape sketch (docs/04_ART/references/pocket_park_sketch.webp):
+-- one paved plaza with a round stepped seating mound and a sculpture in the
+-- middle, curved wooden decks wrapped round it (a long sofa deck on the north
+-- west, tiered wooden seats on the east, an S-shaped deck walk to the south
+-- east corner), wicker chairs, white parasols with tables, wide steps, and
+-- planting beds of round shrubs and trees along the edges. The corner by
+-- subway exit 3 (x > -64, z > -64) stays open paving.
 do
 	local P = Instance.new("Model")
 	P.Name = "PocketPark"
 	P.Parent = T
-	local X0, X1, Z0, Z1 = -150, -47, -210, -47 -- the lot
-	local CXp, FZ = -93, -132 -- axis x, fountain centre z
-	local GRANITE, PAVE = Color3.fromRGB(196, 194, 188), Color3.fromRGB(214, 208, 196)
-	local o = { parent = P, material = Enum.Material.Slate }
-	-- walks: the gate axis and a cross walk, slightly raised light pavers
-	box("ParkWalk", CXp - 9, 0, Z0, CXp + 9, 0.08, Z1, PAVE, o)
-	box("ParkWalk", X0, 0, FZ - 4, X1, 0.08, FZ + 4, PAVE, o)
-	vcyl("FountainPlaza", Vector3.new(CXp, 0, FZ), 34, 0.1, PAVE, o)
-	-- lawns in granite curbs (top of the grass 0.45, curb 0.6)
-	local function lawn(ax, az, bx, bz)
-		box("ParkCurb", ax, 0, az, bx, 0.6, bz, GRANITE, { parent = P, material = Enum.Material.Granite })
-		box("ParkLawn", ax + 0.4, 0, az + 0.4, bx - 0.4, 0.65, bz - 0.4, Color3.fromRGB(96, 150, 72), { parent = P, material = Enum.Material.Grass })
+	local X0, X1, Z0, Z1 = -150, -47, -210, -47
+	local C = Vector3.new(-96, 0, -128) -- centre of the round mound
+	local PAVE, PAVE2 = Color3.fromRGB(222, 216, 204), Color3.fromRGB(206, 200, 188)
+	local STONE = Color3.fromRGB(232, 228, 220)
+	local WOOD = Color3.fromRGB(150, 98, 60)
+	local CUSH = Color3.fromRGB(240, 236, 226)
+	local function o(mat, extra)
+		local r = { parent = P, material = mat }
+		for k, v in pairs(extra or {}) do r[k] = v end
+		return r
 	end
-	local LAWNS = {
-		{ X0 + 4, Z0 + 6, CXp - 14, FZ - 8 }, -- north-west
-		{ CXp + 14, Z0 + 6, X1 - 4, FZ - 8 }, -- north-east
-		{ X0 + 4, FZ + 8, CXp - 14, Z1 - 6 }, -- south-west
-		{ CXp + 14, FZ + 8, X1 - 4, -66 }, -- south-east (stops before exit 3)
-	}
-	for _, l in ipairs(LAWNS) do lawn(l[1], l[2], l[3], l[4]) end
-	-- birches on the lawns (the street trees' models), a few shrubs at their feet
-	local BIRCH_SCALE = { 1.3, 1.15, 0.95, 0.85, 0.9, 0.7 }
-	local n = 0
-	for li, l in ipairs(LAWNS) do
-		local w, d = l[3] - l[1], l[4] - l[2]
-		for _, f in ipairs({ { 0.25, 0.3 }, { 0.7, 0.22 }, { 0.45, 0.7 }, { 0.8, 0.78 } }) do
-			n += 1
-			local pick = ((n * 5) % 6) + 1
-			local at = CFrame.new(l[1] + w * f[1], 0.65, l[2] + d * f[2]) * CFrame.Angles(0, n * 1.3, 0)
-			local tree = foliage("Birch" .. pick, BIRCH_SCALE[pick] * 0.95, at)
+	-- paving over the whole lot
+	box("ParkPaving", X0, 0, Z0, X1, 0.08, Z1, PAVE, o(Enum.Material.Slate))
+	-- a ring of darker pavers round the mound
+	vcyl("ParkPavingRing", C, 46, 0.1, PAVE2, o(Enum.Material.Slate))
+	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
+	local function arc(name, c: Vector3, r0, r1, a0, a1, y0, y1, color, mat, n)
+		n = n or math.max(6, math.floor(math.abs(a1 - a0) / 8))
+		local rm, w = (r0 + r1) / 2, r1 - r0
+		for i = 0, n - 1 do
+			local t0, t1 = math.rad(a0 + (a1 - a0) * i / n), math.rad(a0 + (a1 - a0) * (i + 1) / n)
+			local tm = (t0 + t1) / 2
+			local len = 2 * r1 * math.sin(math.abs(t1 - t0) / 2) + 0.15
+			local p = Vector3.new(c.X + rm * math.cos(tm), (y0 + y1) / 2, c.Z + rm * math.sin(tm))
+			local out = Vector3.new(math.cos(tm), 0, math.sin(tm))
+			part(name, Vector3.new(w, y1 - y0, len), CFrame.lookAt(p, p + Vector3.yAxis:Cross(out)), color, o(mat))
+		end
+	end
+	-- the round stepped mound: three stone rings stepping up, a seat ledge, a sculpture
+	vcyl("MoundStep", C, 30, 0.6, STONE, o(Enum.Material.Limestone))
+	vcyl("MoundStep", C, 22, 1.2, STONE, o(Enum.Material.Limestone))
+	vcyl("MoundStep", C, 14, 1.8, STONE, o(Enum.Material.Limestone))
+	vcyl("MoundTop", C + Vector3.new(0, 1.8, 0), 12, 0.1, PAVE2, o(Enum.Material.Slate))
+	arc("MoundSeat", C, 9.6, 11, 200, 340, 1.2, 2.6, STONE, Enum.Material.Limestone)
+	arc("MoundCushion", C, 9.7, 10.9, 200, 340, 2.6, 2.8, CUSH, Enum.Material.Fabric)
+	vcyl("SculptureBase", C + Vector3.new(0, 1.9, 0), 3, 1, Color3.fromRGB(70, 70, 74), o(Enum.Material.Granite))
+	part("Sculpture", Vector3.new(1.6, 5, 1.6), CFrame.new(C + Vector3.new(0, 5.4, 0)) * CFrame.Angles(0, 0, math.rad(8)), Color3.fromRGB(160, 120, 80), o(Enum.Material.Metal))
+	part("Sculpture", Vector3.new(1.2, 3.4, 1.2), CFrame.new(C + Vector3.new(0.9, 4.6, 0.6)) * CFrame.Angles(0, 0, math.rad(-14)), Color3.fromRGB(160, 120, 80), o(Enum.Material.Metal))
+	-- north-west: a long curved wooden deck with a curved white sofa on it
+	arc("ParkDeck", C, 24, 31, 195, 280, 0, 0.9, WOOD, Enum.Material.WoodPlanks)
+	arc("CurvedSofa", C, 28.4, 30.4, 205, 272, 0.9, 2.3, CUSH, Enum.Material.Fabric)
+	arc("CurvedSofaBack", C, 30.4, 31, 205, 272, 0.9, 3.6, CUSH, Enum.Material.Fabric)
+	for a = 210, 266, 8 do
+		local r = math.rad(a)
+		local p = Vector3.new(C.X + 29.3 * math.cos(r), 2.6, C.Z + 29.3 * math.sin(r))
+		seat("ParkSofa", CFrame.lookAt(p, Vector3.new(C.X, 2.6, C.Z)), Vector3.new(2.2, 0.3, 1.8), CUSH, P)
+	end
+	-- east: tiered wooden seats in an arc facing the mound
+	for k = 0, 2 do
+		arc("ParkTier", C, 22 + k * 2.6, 24.6 + k * 2.6, -60, 40, 0, 0.9 + k * 0.9, WOOD, Enum.Material.WoodPlanks)
+	end
+	for a = -52, 34, 10 do
+		local r = math.rad(a)
+		for k = 0, 2 do
+			local rr = 23.3 + k * 2.6
+			local p = Vector3.new(C.X + rr * math.cos(r), 1.0 + k * 0.9, C.Z + rr * math.sin(r))
+			seat("ParkTierSeat", CFrame.lookAt(p, Vector3.new(C.X, p.Y, C.Z)), Vector3.new(1.8, 0.2, 1.8), WOOD, P)
+		end
+	end
+	-- south-east: an S-shaped deck walk from the mound out to the corner path
+	local S1 = Vector3.new(-78, 0, -98)
+	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
+	arc("ParkDeckWalk", S1 + Vector3.new(0, 0, 26), 21, 26, 260, 320, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
+	box("ParkDeckWalk", -72, 0, -72, -64, 0.6, -60, WOOD, o(Enum.Material.WoodPlanks))
+	-- wide steps on the south-west side of the plaza
+	for k = 0, 2 do box("ParkSteps", -134 + k * 1.6, 0, -92, -132.4 + k * 1.6, 0.4 + k * 0.4, -76, STONE, o(Enum.Material.Limestone)) end
+	-- wicker chairs (round baskets) on the west
+	for _, cp in ipairs({ { -134, -132 }, { -128, -122 }, { -136, -114 }, { -124, -108 } }) do
+		local b = Vector3.new(cp[1], 0, cp[2])
+		vcyl("WickerChair", b, 3.2, 2.4, Color3.fromRGB(176, 140, 96), o(Enum.Material.Fabric))
+		vcyl("WickerCushion", b + Vector3.new(0, 1.2, 0), 2.6, 0.5, CUSH, o(Enum.Material.Fabric))
+		seat("WickerSeat", CFrame.lookAt(b + Vector3.new(0, 1.8, 0), Vector3.new(C.X, 1.8, C.Z)), Vector3.new(1.8, 0.2, 1.8), CUSH, P)
+	end
+	-- white parasols with a round table and two chairs
+	local function parasolSet(at: Vector3)
+		vcyl("ParasolPole", at, 0.25, 9, Color3.fromRGB(200, 200, 204), o(Enum.Material.Metal, { nocol = true }))
+		for k = 0, 9 do
+			local a = k / 10 * 2 * math.pi
+			local tip = at + Vector3.new(math.cos(a) * 5, 7.4, math.sin(a) * 5)
+			local top = at + Vector3.new(0, 9, 0)
+			part("ParasolRib", Vector3.new(3.2, 0.12, (tip - top).Magnitude), CFrame.lookAt((tip + top) / 2, tip), Color3.fromRGB(246, 244, 238), o(Enum.Material.Fabric, { nocol = true }))
+		end
+		vcyl("ParkTable", at + Vector3.new(0, 2.4, 0), 3.4, 0.25, Color3.fromRGB(70, 70, 74), o(Enum.Material.Metal))
+		vcyl("ParkTableLeg", at, 0.4, 2.4, Color3.fromRGB(70, 70, 74), o(Enum.Material.Metal))
+		for _, d in ipairs({ -2.4, 2.4 }) do
+			local p = at + Vector3.new(d, 1.3, 0)
+			seat("ParkChair", CFrame.lookAt(p, at + Vector3.new(0, 1.3, 0)), Vector3.new(1.8, 0.3, 1.8), Color3.fromRGB(90, 90, 96), P)
+		end
+	end
+	parasolSet(Vector3.new(-104, 0, -92))
+	parasolSet(Vector3.new(-122, 0, -172))
+	-- planting beds along the north and east edges and the south-west corner:
+	-- curbed soil with round shrubs (balls) of several greens, trees behind
+	local GREENS = { Color3.fromRGB(86, 128, 70), Color3.fromRGB(110, 146, 82), Color3.fromRGB(70, 110, 62), Color3.fromRGB(140, 160, 96), Color3.fromRGB(96, 120, 84) }
+	local rng = Random.new(2410)
+	local function bed(ax, az, bx, bz, nShrubs, trees)
+		box("ParkBedCurb", ax, 0, az, bx, 0.7, bz, Color3.fromRGB(196, 194, 188), o(Enum.Material.Granite))
+		box("ParkBedSoil", ax + 0.4, 0, az + 0.4, bx - 0.4, 0.75, bz - 0.4, Color3.fromRGB(96, 76, 56), o(Enum.Material.Ground))
+		for _ = 1, nShrubs do
+			local s = rng:NextNumber(2, 4.2)
+			local p = Vector3.new(rng:NextNumber(ax + 1.5, bx - 1.5), 0.75 + s * 0.35, rng:NextNumber(az + 1.5, bz - 1.5))
+			part("ParkShrub", Vector3.new(s, s * 0.85, s), CFrame.new(p), GREENS[rng:NextInteger(1, #GREENS)], o(Enum.Material.Grass, { shape = Enum.PartType.Ball, nocol = true }))
+		end
+		local BIRCH_SCALE = { 1.3, 1.15, 0.95, 0.85, 0.9, 0.7 }
+		for i, tp in ipairs(trees) do
+			local pick = ((i * 5) % 6) + 1
+			local tree = foliage("Birch" .. pick, BIRCH_SCALE[pick] * 0.9, CFrame.new(tp[1], 0.75, tp[2]) * CFrame.Angles(0, i * 1.7, 0))
 			if tree then
 				tree.Parent = P
 				for _, sa in ipairs(tree:GetDescendants()) do
@@ -3043,65 +3122,23 @@ do
 					end
 				end
 			end
-			local s = foliage("Shrub", 0.45, at * CFrame.new(2.6, -1.1, 1.2))
-			if s then s.Parent = P end
-		end
-		-- a flower strip along the lawn's edge on the walk side
-		local fx = if l[1] < CXp then l[3] - 2.2 else l[1] + 1
-		local fl = box("FlowerStrip", fx, 0.6, l[2] + 2, fx + 1.2, 0.95, l[4] - 2, Color3.fromRGB(110, 80, 60), { parent = P, material = Enum.Material.Ground })
-		local _ = fl
-		local COLS = { Color3.fromRGB(240, 120, 150), Color3.fromRGB(250, 210, 80), Color3.fromRGB(245, 245, 250), Color3.fromRGB(180, 130, 220) }
-		local k = 0
-		for z = l[2] + 3, l[4] - 3, 1.6 do
-			k += 1
-			part("Flower", Vector3.new(0.9, 0.9, 0.9), CFrame.new(fx + 0.6, 1.25, z), COLS[(k + li) % #COLS + 1], { parent = P, shape = Enum.PartType.Ball, nocol = true, material = Enum.Material.Fabric })
 		end
 	end
-	-- fountain: granite basin, water, a centre bowl and jets
-	local fc = Vector3.new(CXp, 0, FZ)
-	vcyl("FountainRim", fc, 18, 1.3, GRANITE, { parent = P, material = Enum.Material.Granite })
-	local water = vcyl("FountainWater", fc + Vector3.new(0, 1.3, 0), 16.6, 0.05, Color3.fromRGB(90, 170, 200), { parent = P, material = Enum.Material.Glass, nocol = true, transparency = 0.25 })
-	water.Reflectance = 0.2
-	vcyl("FountainPedestal", fc + Vector3.new(0, 1.3, 0), 2, 2.4, GRANITE, { parent = P, material = Enum.Material.Granite })
-	vcyl("FountainBowl", fc + Vector3.new(0, 3.7, 0), 6, 0.6, GRANITE, { parent = P, material = Enum.Material.Granite })
-	vcyl("FountainBowlWater", fc + Vector3.new(0, 4.3, 0), 5.4, 0.05, Color3.fromRGB(90, 170, 200), { parent = P, material = Enum.Material.Glass, nocol = true, transparency = 0.25 })
-	vcyl("FountainJet", fc + Vector3.new(0, 4.3, 0), 0.5, 3.2, Color3.fromRGB(225, 240, 250), { parent = P, material = Enum.Material.Glass, nocol = true, transparency = 0.45 })
-	for k = 0, 5 do
-		local a = k / 6 * 2 * math.pi
-		local base = fc + Vector3.new(math.cos(a) * 6.2, 1.3, math.sin(a) * 6.2)
-		local tip = fc + Vector3.new(math.cos(a) * 3.6, 4.4, math.sin(a) * 3.6)
-		part("FountainArc", Vector3.new(0.25, 0.25, (tip - base).Magnitude), CFrame.lookAt((base + tip) / 2, tip), Color3.fromRGB(225, 240, 250), { parent = P, material = Enum.Material.Glass, nocol = true, transparency = 0.45 })
+	bed(X0 + 1, Z0 + 4, -110, Z0 + 16, 22, { { -144, -200 }, { -130, -202 }, { -116, -199 } }) -- north-west (beside the gate path)
+	bed(-80, Z0 + 4, X1 - 1, Z0 + 16, 22, { { -74, -200 }, { -60, -202 } }) -- north-east
+	bed(X1 - 18, Z0 + 20, X1 - 1, -78, 40, { { -55, -180 }, { -56, -150 }, { -54, -118 }, { -57, -92 } }) -- east
+	bed(X0 + 1, -74, -118, Z1 - 1, 24, { { -144, -66 }, { -128, -56 } }) -- south-west
+	-- low park lamps along the edges; they glow at night
+	for _, lp in ipairs({ { -112, -186 }, { -84, -186 }, { -70, -150 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
+		local b = Vector3.new(lp[1], 0, lp[2])
+		vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), o(Enum.Material.Metal))
+		local g = part("ParkLampGlobe", Vector3.new(1.4, 1.4, 1.4), CFrame.new(b + Vector3.new(0, 8.6, 0)), Color3.fromRGB(255, 244, 220), o(Enum.Material.SmoothPlastic, { shape = Enum.PartType.Ball, nocol = true }))
+		g:SetAttribute("NightRange", 14)
+		g:SetAttribute("NightBrightness", 1.2)
+		CS:AddTag(g, "NightGlow")
 	end
-	-- benches round the fountain plaza and along the walk, facing it
-	local function bench(pos: Vector3, face: Vector3)
-		local cf = CFrame.lookAt(pos, pos + face)
-		part("ParkBenchLeg", Vector3.new(5.4, 1.5, 0.4), cf * CFrame.new(0, 0.75, 0.6), Color3.fromRGB(60, 62, 66), { parent = P, material = Enum.Material.Metal })
-		part("ParkBenchBack", Vector3.new(5.4, 1.4, 0.25), cf * CFrame.new(0, 2.4, 1.3), Color3.fromRGB(150, 105, 70), { parent = P, material = Enum.Material.Wood })
-		for _, dx in ipairs({ -1.4, 1.4 }) do
-			seat("ParkBench", cf * CFrame.new(dx, 1.7, 0.4), Vector3.new(2.6, 0.3, 1.6), Color3.fromRGB(160, 110, 70), P)
-		end
-	end
-	for _, a in ipairs({ 45, 135, 225, 315 }) do
-		local r = math.rad(a)
-		local p = fc + Vector3.new(math.cos(r) * 15.5, 0, math.sin(r) * 15.5)
-		bench(p, (fc - p).Unit)
-	end
-	for _, z in ipairs({ -192, -168, -104, -80 }) do
-		bench(Vector3.new(CXp - 10.5, 0, z), Vector3.new(1, 0, 0))
-		bench(Vector3.new(CXp + 10.5, 0, z), Vector3.new(-1, 0, 0))
-	end
-	-- low park lamps (black post, white globe) along the walk; they glow at night
-	for _, z in ipairs({ -200, -180, -156, -108, -84, -60 }) do
-		for _, sx in ipairs({ -1, 1 }) do
-			local b = Vector3.new(CXp + sx * 9.6, 0, z)
-			vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), { parent = P, material = Enum.Material.Metal })
-			local g = part("ParkLampGlobe", Vector3.new(1.4, 1.4, 1.4), CFrame.new(b + Vector3.new(0, 8.6, 0)), Color3.fromRGB(255, 244, 220), { parent = P, shape = Enum.PartType.Ball, nocol = true })
-			g:SetAttribute("NightRange", 14)
-			g:SetAttribute("NightBrightness", 1.2)
-			CS:AddTag(g, "NightGlow")
-		end
-	end
-	label(water, "도시 공원 · 분수 광장", Color3.fromRGB(60, 140, 90), 8, 0.7)
+	local anchor = part("ParkLabelAnchor", Vector3.new(1, 1, 1), CFrame.new(C + Vector3.new(0, 10, 0)), PAVE, o(Enum.Material.SmoothPlastic, { transparency = 1, nocol = true }))
+	label(anchor, "도시 공원", Color3.fromRGB(60, 140, 90), 2, 0.7)
 end
 ------------------------------------------------------- club facade (references)
 do
