@@ -383,3 +383,4 @@ D-193 — (2026-10-24) New seat tag TouchSeat (ClubService): no prompt; an invis
 D-194 — (2026-10-24) Pocket park raised wooden deck (one 0.9 step, tier wood) per the user's outline: x -141..-110.5 from z -198 to the r 44 circle, curved edge along the circle; parasol set and lamps on it raised.
 D-195 — (2026-10-24) Tier seats every 2 studs (people sit side by side); west arc seats only in the user's three zones (151-182, 189.5-208.5, 218-230.5 degrees), the rest is walkway; east arc seats along its whole length.
 D-196 — (2026-10-24) East tiers moved from beside the mound (r 22-30) to the outer ring like the west (r 34.6-44.3, 297..367 degrees, flush on x -75.5), seat zones 314-335 and 342-362; tiers() takes arcs running either way.
+D-197 — (2026-10-24) Tiers: bottom tier front on the r 34 ring edge, three equal risers of 1.167 from the lower floor (-3.3) to the top tread (0.2); tiers and their seats are built at absolute heights.

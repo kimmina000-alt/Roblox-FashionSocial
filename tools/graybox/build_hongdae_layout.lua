@@ -3185,13 +3185,21 @@ do
 	-- 2026-10-24: plain wood, no cushions and no E prompt; walking onto a seat
 	-- still sits you down, so the seat parts are invisible and untagged)
 	local function tiers(a0, a1, r0, xStop, seatZones)
+		-- (user 2026-10-24) the bottom tier's front stands on the ring edge (r 34)
+		-- down on the lower level, and the three risers share the whole height
+		-- evenly, from the lower level's floor to the top tread; built at absolute
+		-- heights (not shifted by level below)
+		local FLOOR = LEVELS[2][2]
+		local TOPMAX = LEVELS[1][2] + 2.7
+		local RISE = (TOPMAX - FLOOR) / 3
 		for k = 0, 2 do
 			local ri, ro = r0 + k * 2.6, r0 + 2.6 + k * 2.6
+			if k == 0 then ri = LEVELS[2][1] - 0.05 end -- (a hair in front of the ring's cut face: no flicker)
 			-- the west arc's top tier runs out to the circle's edge (r 44), under the
 			-- raised deck, so no floor gap shows between them (user 2026-10-24)
 			local nSeg = nil
 			if xStop and k == 2 then ro, nSeg = 44.3, 40 end
-			local top = 0.9 + k * 0.9
+			local top = FLOOR + (k + 1) * RISE
 			-- the west arc runs on to the walk's edge (x = xStop), each tier as far as it reaches
 			local ak = a1
 			if xStop then
@@ -3206,25 +3214,25 @@ do
 				-- line); the wedges fill from there: inner arc, the line, outer arc
 				local dir = if ak > a0 then 1 else -1 -- the arc may run either way round to its line end
 				local aS = ai - 4 * dir
-				arc("ParkTier", C, ri, ro, a0, aS, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
-				local L = LEVELS[1][2]
-				local y = L + top / 2
+				arc("ParkTier", C, ri, ro, a0, aS, FLOOR, top, WOOD, Enum.Material.WoodPlanks, nSeg)
+				local y = (FLOOR + top) / 2
+				local th = top - FLOOR
 				local function on(r, a) return Vector3.new(C.X + r * math.cos(math.rad(a)), y, C.Z + r * math.sin(math.rad(a))) end
 				local wo2 = o(Enum.Material.WoodPlanks)
 				local pin = on(ri, aS)
 				local prev = pin
 				for j = 1, 4 do
 					local p = on(ri, aS + (ai - aS) * j / 4)
-					wedgeTri("ParkTierEnd", on(ro, aS), prev, p, top, WOOD, wo2)
+					wedgeTri("ParkTierEnd", on(ro, aS), prev, p, th, WOOD, wo2)
 					prev = p
 				end
 				-- prev is the inner point on the line; fan from it over the outer arc
 				local m = 8
 				for j = 0, m - 1 do
-					wedgeTri("ParkTierEnd", prev, on(ro, ak - (ak - aS) * j / m), on(ro, ak - (ak - aS) * (j + 1) / m), top, WOOD, wo2)
+					wedgeTri("ParkTierEnd", prev, on(ro, ak - (ak - aS) * j / m), on(ro, ak - (ak - aS) * (j + 1) / m), th, WOOD, wo2)
 				end
 			else
-				arc("ParkTier", C, ri, ro, a0, ak, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
+				arc("ParkTier", C, ri, ro, a0, ak, FLOOR, top, WOOD, Enum.Material.WoodPlanks, nSeg)
 			end
 			-- invisible seats sunk into the tread near its front edge, so the sitter's
 			-- hips rest on the wood and the legs hang over the step below (user 2026-10-24)
@@ -3356,7 +3364,7 @@ do
 	end
 	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
 	for _, c in ipairs(P:GetChildren()) do
-		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide" or c.Name == "ParkUpperDeck" or c.Name == "ParkTierEnd" or c.Name == "ParkWalkWall") then
+		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide" or c.Name == "ParkUpperDeck" or c.Name == "ParkTierEnd" or c.Name == "ParkWalkWall" or c.Name == "ParkTier" or c.Name == "ParkTierSeat") then
 			local h = domeH(c.Position.X, c.Position.Z)
 			if h ~= 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
 		end
