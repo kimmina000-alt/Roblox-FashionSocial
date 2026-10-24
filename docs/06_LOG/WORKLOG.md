@@ -700,3 +700,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 네 모서리의 파란 지붕 탑을 같은 사암 기둥으로 바꿨습니다.
 
 ![](images/2026-10-24/park_wall_after.jpg)
+
+### 추가 (D-162)
+- 매표소와 안내소를 정문과 같은 디자인으로 바꿨습니다.
+  - 사암 블록 벽에 철제 틀 아치 창, 어두운 간판 띠에 금색 글씨를 넣었습니다.
+  - 지붕은 작은 회색 돔과 금색 첨탑입니다.
+
+| 전 | 후 |
+|---|---|
+| ![](images/2026-10-24/park_ticket_before.jpg) | ![](images/2026-10-24/park_ticket_after.jpg) |

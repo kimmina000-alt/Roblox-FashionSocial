@@ -2489,22 +2489,39 @@ do
 	for _, x in ipairs({ outL + OUT_S / 2 + 0.6, mainL - MAIN_S / 2 - 0.6, mainR + MAIN_S / 2 + 0.6, outR - OUT_S / 2 - 0.6 }) do
 		box("GateLeaf", x - 0.2, 0, gzc - 3, x + 0.2, 9, gzc + 0.2, IRON, { parent = E, nocol = true })
 	end
-	label(sign, "놀이공원 정문", Color3.fromRGB(60, 90, 140), 8, 0.9)	local function booth(bx0, bz0, bx1, bz1, title, windows)
-		box("BoothBody", bx0, 0, bz0, bx1, 9, bz1, cream, { parent = E })
-		box("BoothBase", bx0 - 0.3, 0, bz0 - 0.3, bx1 + 0.3, 1.5, bz1 + 0.3, blue, { parent = E })
-		for k = 0, 3 do
-			part("BoothRoof", Vector3.new(bx1 - bx0 + 2, 4, (bz1 - bz0 + 2) / 2), CFrame.new((bx0 + bx1) / 2, 11, (bz0 + bz1) / 2) * CFrame.Angles(0, math.rad(k * 90), 0) * CFrame.new(0, 0, (bz1 - bz0 + 2) / 4), roofBlue, { parent = E, class = "WedgePart" })
-		end
+	label(sign, "놀이공원 정문", Color3.fromRGB(60, 90, 140), 8, 0.9)
+	-- ticket office / information in the gate's style (user 2026-10-24):
+	-- sandstone plinth and block walls, arched windows in dark iron frames,
+	-- a cornice and stepped cap, a dark sign band with gold letters, and a
+	-- small grey dome with a gold spire like the gate towers
+	local function booth(bx0, bz0, bx1, bz1, title, windows)
+		local H2 = 11.5 -- room for the arched windows under the sign
+		course("BoothBase", bx0, bz0, bx1, bz1, 0, 1.5, 0.3, CARVE)
+		local body = course("BoothBody", bx0, bz0, bx1, bz1, 1.5, H2, 0, STONE, true)
+		course("BoothCornice", bx0, bz0, bx1, bz1, H2, H2 + 0.6, 0.4, CARVE)
+		course("BoothCap", bx0, bz0, bx1, bz1, H2 + 0.6, H2 + 1.3, 0.15, STONE)
+		course("BoothCap", bx0, bz0, bx1, bz1, H2 + 1.3, H2 + 1.7, 0.5, CARVE)
+		local cx, cz = (bx0 + bx1) / 2, (bz0 + bz1) / 2
+		local s = math.min(bx1 - bx0, bz1 - bz0)
+		vcyl("BoothDrum", Vector3.new(cx, H2 + 1.7, cz), s * 0.55, 1.2, STONE, sopt)
+		part("BoothDome", Vector3.new(s * 0.6, s * 0.6, s * 0.6), CFrame.new(cx, H2 + 2.9, cz), DOME, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
+		vcyl("BoothSpire", Vector3.new(cx, H2 + 2.9 + s * 0.28, cz), 0.3, 2.2, GOLD, { parent = E, material = Enum.Material.Foil })
+		-- arched windows on the front (+z), iron frames, a stone sill
 		local ww = (bx1 - bx0) / windows
 		for k = 0, windows - 1 do
-			box("BoothWindow", bx0 + k * ww + 0.8, 3, bz1, bx0 + (k + 1) * ww - 0.8, 7, bz1 + 0.2, Color3.fromRGB(150, 190, 220), { parent = E, material = Enum.Material.Glass })
-			box("BoothSill", bx0 + k * ww + 0.6, 2.8, bz1, bx0 + (k + 1) * ww - 0.6, 3.1, bz1 + 0.8, blue, { parent = E })
+			local wx0, wx1 = bx0 + k * ww + 0.9, bx0 + (k + 1) * ww - 0.9
+			local wc, w = (wx0 + wx1) / 2, wx1 - wx0
+			local spring = H2 - 1.9 - w / 2 - 0.3 -- the arch top stays under the sign band
+			box("BoothWindowFrame", wx0 - 0.25, 2.8, bz1, wx1 + 0.25, spring, bz1 + 0.25, IRON, { parent = E })
+			part("BoothWindowArch", Vector3.new(0.25, w + 0.5, w + 0.5), CFrame.new(wc, spring, bz1 + 0.125) * CFrame.Angles(0, math.rad(90), 0), IRON, { parent = E, shape = Enum.PartType.Cylinder })
+			box("BoothWindow", wx0, 3, bz1 + 0.2, wx1, spring, bz1 + 0.3, Color3.fromRGB(150, 175, 190), { parent = E, material = Enum.Material.Glass, transparency = 0.3 })
+			part("BoothWindowTop", Vector3.new(0.1, w, w), CFrame.new(wc, spring, bz1 + 0.25) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(150, 175, 190), { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Glass, transparency = 0.3 })
+			box("BoothSill", wx0 - 0.4, 2.6, bz1, wx1 + 0.4, 2.9, bz1 + 0.8, CARVE, sopt)
 		end
-		local b = box("BoothSign", bx0 + 1, 7.4, bz1 + 0.2, bx1 - 1, 8.8, bz1 + 0.4, blue, { parent = E })
-		surfaceText(b, Enum.NormalId.Back, title, Color3.new(1, 1, 1), Enum.Font.GothamBold)
-		label(b, title, Color3.fromRGB(60, 90, 140), 6, 0.6)
-	end
-	booth(-146, -226, -130, -216, "매표소 TICKETS", 2)
+		local b = box("BoothSign", bx0 + 0.8, H2 - 1.5, bz1 + 0.05, bx1 - 0.8, H2 - 0.2, bz1 + 0.35, IRON, { parent = E })
+		surfaceText(b, Enum.NormalId.Back, title, GOLD, Enum.Font.Fantasy)
+		label(b, title, Color3.fromRGB(150, 110, 50), 6, 0.6)
+	end	booth(-146, -226, -130, -216, "매표소 TICKETS", 2)
 	booth(-56, -226, -46, -218, "i 안내", 1)
 	-- inside: round symbol plaza (round flower bed + a pedestal for the park's
 	-- landmark / character sculpture, to be designed)
