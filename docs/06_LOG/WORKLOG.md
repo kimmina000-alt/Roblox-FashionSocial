@@ -823,3 +823,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-24/cafe_pool_jets_after.jpg)
 ![](images/2026-10-24/cafe_lighting_after.jpg)
+
+### 추가 (D-180) — 카페 입구 옆 테이크아웃 커피 창
+- 참고 사진: `docs/04_ART/references/cafe_walkup_window_1.jpg`, `_2.jpg`.
+- 해변 카페 도로 쪽 벽, 문 남쪽(z 32..48)에 창을 뚫고 나무 창틀, 바깥 나무 카운터 선반과 받침, 컵과 작은 화분, 입구 데크 위 나무 바 스툴 3개, 양옆 검은 벽등, 창 위 COFFEE 글자, 벽 위로 분홍 꽃이 핀 덩굴, 큰 화분 선인장과 문 옆 화분 나무, 창 안쪽 ORDER HERE 걸이 판, 안쪽 뒤 카운터 위 펜던트 조명 2개와 병 선반을 넣었습니다.
+- 다시 짓는 도중 Studio 연결이 끊겨 사진 확인을 못 했습니다(다음에 Studio를 다시 열고 다시 지은 뒤 확인).
