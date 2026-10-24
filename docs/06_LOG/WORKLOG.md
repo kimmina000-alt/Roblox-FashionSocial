@@ -862,3 +862,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 물멍 풀 조명을 높이 0.9로 더 낮췄습니다(물 위로 살짝만 보임).
 
 ![](images/2026-10-24/cafe_pool_lamps_lower_after.jpg)
+
+### 추가 (D-183) — 카페 쪽으로 꺾이는 나무 계단
+- 해변 산책로의 나무 계단이 카페 건물에 닿으면 꺾여서, 카페 남쪽 테라스 가장자리를 따라 바다 끝까지 이어집니다(화강석 턱 + 나무 3단). 테라스(데크)도 바다 쪽 끝까지 늘렸고, 옛 테라스 경사로는 지웠습니다.
+- 물멍 풀 조명을 높이 1.4로 조금 올렸습니다.
+
+![](images/2026-10-24/cafe_corner_steps_after.jpg)

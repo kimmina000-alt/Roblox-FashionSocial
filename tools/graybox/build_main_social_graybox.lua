@@ -819,7 +819,7 @@ local z=zone("04_Beach_Aquarium")
   -- the same as the floor lamps; no jets or ripples
   for _,jz in ipairs({53,59,65,71}) do
    cyl(cm,"PoolLampBase",1.6,0.2,Vector3.new(-274,FY+0.1,jz),Color3.fromRGB(60,50,40),{ghost=true})
-   local s=cyl(cm,"PoolLamp",1.8,0.9,Vector3.new(-274,FY+0.2+0.45,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true}) -- low, just above the water (user 2026-10-24)
+   local s=cyl(cm,"PoolLamp",1.8,1.4,Vector3.new(-274,FY+0.2+0.7,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true}) -- low, just above the water (user 2026-10-24)
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=Color3.fromRGB(255,214,160) pl.Parent=s
   end
   -- (no black stone blocks: user 2026-10-24)
@@ -873,8 +873,18 @@ local z=zone("04_Beach_Aquarium")
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=WARM pl.Parent=s end
   local _=paperLamp -- (no floor lamps outside the pool any more, user 2026-10-24)
   -- sunset terrace outside on the south side
-  box(cm,"Terrace",-268,0,z0-12,-198,FY,z0,woodC) -- out to the promenade (user 2026-10-24)
-  do local c=Vector3.new(-249,FY/2,z0-15) P(cm,"TerraceRamp",Vector3.new(14,FY,6),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),woodC,{class="WedgePart"}) end
+  box(cm,"Terrace",x0,0,z0-12,-198,FY,z0,woodC) -- out to the promenade and to the sea end (user 2026-10-24)
+  -- the promenade's wooden steps turn the corner at the cafe and run west along
+  -- the terrace's south edge to the sea (user 2026-10-24): granite edge, three
+  -- wooden tiers down to the sand, like the promenade's
+  do local tz=z0-12 local sandY=0.6 local wood=Color3.fromRGB(120,88,62)
+   box(cm,"BeachStepEdge",x0,sandY,tz-0.7,-198,FY+0.1,tz,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
+   for k=1,3 do
+    local za,zb=tz-0.7-2.5*k,tz-0.7-2.5*(k-1)
+    box(cm,"BeachStep",x0,sandY,za,-206.2+2.5*(k-1)*0,FY-0.6*k,zb,wood,{mat=Enum.Material.WoodPlanks}) end
+   -- the corner: the promenade steps end where these begin
+   box(cm,"BeachStep",-206.2,sandY,tz-8.2,-198.7,FY-0.6,tz-0.7,wood,{mat=Enum.Material.WoodPlanks})
+  end
   for _,tp in ipairs({{-260,z0-6},{-240,z0-6}}) do
    cyl(cm,"TerraceTable",3.4,0.3,Vector3.new(tp[1],FY+2.4,tp[2]),Color3.new(1,1,1)) cyl(cm,"TerraceTableLeg",0.4,2.4,Vector3.new(tp[1],FY+1.2,tp[2]),dark)
    parasol(cm,Vector3.new(tp[1],FY,tp[2]),true,stripeSets[1])

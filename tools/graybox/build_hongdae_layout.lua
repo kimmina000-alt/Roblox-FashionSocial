@@ -1312,7 +1312,7 @@ do
 			local free = true
 			local probe = CFrame.new(-201, (sandTop + CURB) / 2 + 0.2, (zs + ze) / 2)
 			for _, p in ipairs(workspace:GetPartBoundsInBox(probe, Vector3.new(6, CURB - sandTop - 0.6, ze - zs - 1), params)) do
-				if p.Name ~= "Beach" and p.Name ~= "Ground" and p.Transparency < 1 then free = false break end
+				if p.Name ~= "Beach" and p.Name ~= "Ground" and p.Name ~= "BeachStep" and p.Name ~= "BeachStepEdge" and p.Transparency < 1 then free = false break end -- (the cafe's own steps join these)
 			end
 			if free and zs == -200 then -- open beach, clear of the truck and the cafes, next to the beach signs
 				footWash(zs, ze, sandTop)
