@@ -712,7 +712,7 @@ local z=zone("04_Beach_Aquarium")
   box(cm,"CafeBase",-268,0,z0,x1,FY-1,z1,Color3.fromRGB(205,200,190))
   for px=x0+4,-272,12 do for pz=z0+4,z1-4,15 do cyl(cm,"Pile",1.6,22,Vector3.new(px,FY-12,pz),Color3.fromRGB(180,175,168)) end end
   -- entrance deck at floor level the whole width of the front, out to the promenade (user 2026-10-24)
-  box(cm,"EntranceDeck",x1,0,z0,-198,FY,z1,floorC,{mat=Enum.Material.Slate})
+  box(cm,"EntranceDeck",x1,0,z0,-198,FY,z1,Color3.fromRGB(120,88,62),{mat=Enum.Material.WoodPlanks}) -- the same wood as the decks and steps (user 2026-10-24)
   -- glass: west wall full, north/south glass on the west part, white walls east
   box(cm,"Glass_W",x0,FY,z0,x0+0.4,FY+H,z1,glass,{t=0.82,mat=Enum.Material.Glass})
   -- mullions about every 12, spaced evenly; one square post at each glass
@@ -921,35 +921,21 @@ local z=zone("04_Beach_Aquarium")
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=WARM pl.Parent=s end
   local _=paperLamp -- (no floor lamps outside the pool any more, user 2026-10-24)
   -- sunset terrace outside on the south side
-  -- DECK + STEPS round the cafe (user 2026-10-24): a deck level with the steps'
-  -- top tread on the south, west (sea end) and north sides, two more wooden
-  -- tiers down round its outside the whole way, turning the corners into the
-  -- promenade's steps at both ends; piles under everything over the sea
+  -- DECKS (user 2026-10-24): a plain raised wooden platform on the south and
+  -- north sides, only over the beach (to x -268, nothing over the sea), level
+  -- with the promenade steps' top tread; the promenade's steps turn the corner
+  -- and run along until they meet the platform, and stop there
   do local sandY=0.6 local wood=Color3.fromRGB(120,88,62) local wo={mat=Enum.Material.WoodPlanks}
-   local XR=-198.7 local D=15.2 local W=2.5
-   local ZS,ZN=z0-D-2*W,z1+D+2*W -- where the promenade's own steps take over (-4.2 / 126.2)
+   local XR=-198.7 local D=15.2 local W=2.5 local BX=-268
+   local ZS,ZN=z0-D-2*W,z1+D+2*W -- where the promenade's own steps hand over (-4.2 / 126.2)
    local function top(k) return FY-0.6*k end
-   -- tier 1 = the deck
-   box(cm,"Terrace",x0-D,0,z0-D,XR,top(1),z0,wood,wo)
-   box(cm,"Terrace",x0-D,0,z1,XR,top(1),z1+D,wood,wo)
-   box(cm,"Terrace",x0-D,0,z0,x0,top(1),z1,wood,wo)
-   -- tiers 2 and 3: a band round the outside (south, north, west)
-   for k=2,3 do local lo,hi=D+W*(k-2),D+W*(k-1) local xr=XR-W*(k-1)
-    box(cm,"BeachStep",x0-hi,sandY,z0-hi,xr,top(k),z0-lo,wood,wo)
-    box(cm,"BeachStep",x0-hi,sandY,z1+lo,xr,top(k),z1+hi,wood,wo)
-    box(cm,"BeachStep",x0-hi,sandY,z0-lo,x0-lo,top(k),z1+lo,wood,wo) end
-   -- the promenade's tiers turn the corners at both ends
+   box(cm,"Terrace",BX,0,z0-D,XR,top(1),z0,wood,wo)
+   box(cm,"Terrace",BX,0,z1,XR,top(1),z1+D,wood,wo)
    for k=1,3 do local xa,xb=XR-W*k,XR-W*(k-1)
-    box(cm,"BeachStep",xa,sandY,ZS,xb,top(k),z0-D-W*(k-1),wood,wo)
-    box(cm,"BeachStep",xa,sandY,z1+D+W*(k-1),xb,top(k),ZN,wood,wo) end
-   -- the promenade's granite edge along the two corner pieces
+    box(cm,"BeachStep",xa,sandY,ZS,xb,top(k),z0-D,wood,wo)
+    box(cm,"BeachStep",xa,sandY,z1+D,xb,top(k),ZN,wood,wo) end
    box(cm,"BeachStepEdge",XR,sandY,ZS,-198,FY+0.1,z0,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
    box(cm,"BeachStepEdge",XR,sandY,z1,-198,FY+0.1,ZN,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
-   -- piles over the sea (x < -270), tops 0.05 under the deck (they flickered at the deck top)
-   local PC=Color3.fromRGB(110,82,58)
-   local function pile(px,pz) cyl(cm,"Pile",1.2,FY+10,Vector3.new(px,-0.05-(FY+10)/2,pz),PC) end
-   for px=x0-D+2,-272,8 do for _,pz in ipairs({z0-D+2,z0-3,z1+3,z1+D-2,z0-D-2*W+1.2,z1+D+2*W-1.2}) do pile(px,pz) end end
-   for pz=z0+6,z1-6,10 do for _,px in ipairs({x0-D+2,x0-3,x0-D-2*W+1.2}) do pile(px,pz) end end
   end  local DY=FY-0.6 -- the deck level
   for _,tp in ipairs({{-260,z0-6},{-240,z0-6}}) do
    cyl(cm,"TerraceTable",3.4,0.3,Vector3.new(tp[1],DY+2.4,tp[2]),Color3.new(1,1,1)) cyl(cm,"TerraceTableLeg",0.4,2.4,Vector3.new(tp[1],DY+1.2,tp[2]),dark)

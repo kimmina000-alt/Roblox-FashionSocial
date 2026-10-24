@@ -899,3 +899,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 석양 피어를 데크 북쪽으로 옮기고(z 136) 떠 있던 '석양 피어' 이름표를 지웠습니다.
 
 ![](images/2026-10-24/cafe_deck_ring_after.jpg)
+
+### 추가 (D-187) — 카페 단상 데크
+- 카페 남·북쪽 데크를 계단 없는 평평한 높은 단상으로 바꾸고, 해변 위(x -268까지)만 남겼습니다. 바다 위 데크·기둥·서쪽 데크는 지웠습니다. 산책로 계단은 꺾여서 단상에 닿고 끝납니다(양쪽 동일).
+- 카페 입구 앞 바닥도 같은 나무 데크로 바꿨습니다.
+
+![](images/2026-10-24/cafe_platform_after.jpg)
