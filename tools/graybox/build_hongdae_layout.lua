@@ -923,7 +923,7 @@ local function smallRoad(a: Vector2, b: Vector2, stopEnds)
 	end
 end
 smallRoad(Vector2.new(181, -34), Vector2.new(181, -470), { 0 }) -- east of the club
-smallRoad(Vector2.new(-34, 98), Vector2.new(-150, 98), { 0, 1 }) -- south-west, to the seafront
+-- (no south-west lane to the seafront at z 98: the OH24 store stands on it, user 2026-10-25)
 -- lane from the east road to the hanok main gate (east side, gate at x 225, z 126)
 local LANE = Color3.fromRGB(185, 160, 122)
 box("HanokLane", 232, 0, WIDE, 240, 0.3, 142, LANE, { material = Enum.Material.Slate })
@@ -4139,7 +4139,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	-- (the 노래방 tower stands west of it); glass fronts with the OH24 sign on
 	-- the north and east street sides, a solid wall on the tower side
 	local x0, z0, x1, z1, H = -126, 48, -52, 86, 14
-	local OH24_SHIFT = -4 -- (applied to the finished model below)
+	local OH24_SHIFT = Vector3.new(-4, 0, 18) -- (applied to the finished model below)
 	local S = Instance.new("Model")
 	S.Name = "OH24Store"
 	S.Parent = T
@@ -4615,11 +4615,16 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	end
 	label(box("StoreLabelAnchor", -100, H + 7, z0 - 1, -98, H + 7.2, z0 - 0.8, Color3.new(1, 1, 1), opt({ transparency = 1, nocol = true })), "OH24 편의점", Color3.fromRGB(30, 200, 240), 3, 0.7)
 	-- (user 2026-10-25) the whole store moves 4 west, close to the 노래방 tower
-	-- (1.5 apart), so the east sidewalk is wider and subway exit 4 fits in the
-	-- corner in front of it; the sidewalk follows
-	S:PivotTo(S:GetPivot() + Vector3.new(OH24_SHIFT, 0, 0))
-	walk(x0 + OH24_SHIFT, WIDE, x1 + OH24_SHIFT, z0)
-	walk(x1 + OH24_SHIFT, WIDE, -47, z1)
+	-- (1.5 apart), and 18 south over the old lane to the seafront, up to the
+	-- Glasshouse cafe's terrace (z 104 / 105): the sidewalks in front of it and
+	-- on its east side are wider, subway exit 4 stands in front; the ground
+	-- round it is paved (the lane's place west and south of it too)
+	S:PivotTo(S:GetPivot() + OH24_SHIFT)
+	local sx0, sz0, sx1, sz1 = x0 + OH24_SHIFT.X, z0 + OH24_SHIFT.Z, x1 + OH24_SHIFT.X, z1 + OH24_SHIFT.Z
+	walk(sx0, WIDE, sx1, sz0) -- in front
+	walk(sx1, WIDE, -47, sz1) -- east side, up to the south road's sidewalk
+	walk(-150, 86, sx0, 108) -- west (the lane's old place by the 노래방 tower)
+	walk(sx0, sz1, -47, 108) -- south, up to the cafe terrace
 end
 
 -- (the sunset photo frame went with the pier, user 2026-10-24)
