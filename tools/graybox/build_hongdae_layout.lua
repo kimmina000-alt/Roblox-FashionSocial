@@ -850,7 +850,7 @@ bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 } }, { { 92, -1 }, { 150
 -- along the pocket park and the amusement park the west sidewalk is as wide as
 -- the others (to x -47, the corner squares' line; user 2026-10-24)
 walk(-47, -478.6, -34, -54.2) -- (from the amusement park's north-east pillar, now off the sidewalk, to subway exit 3's pit)
-walk(-51.05, -478.6, -47, -225.4) -- the same paving up to the amusement park's east wall (its plinth face; no bare ground strip at the wall's foot)
+walk(-51.05, -478.6, -47, -228.75) -- (to the wall line, where the pocket park's paving begins) the same paving up to the amusement park's east wall (its plinth face; no bare ground strip at the wall's foot)
 bigRoad(Vector3.new(0, 0, 1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }, nil, nil, 300) -- south (past the boundary at 299: the street goes on, D-110)
 bigRoad(Vector3.new(1, 0, 0), 1000, {}, { { 100, 1 }, { 165, -1 } }, nil, nil, 180) -- east
 bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 100, -1 } }, nil, true) -- west, to the seafront road (bike lanes run on to the bike crossings)
@@ -920,7 +920,7 @@ local EXITS = {
 	-- pits 18 long at 50..68 from the junction: clear of the wide corner squares (v7c)
 	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -59, Vector3.new(0, 0, -1) },
 	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 59, Vector3.new(0, 0, 1) },
-	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -44, -51.2, Vector3.new(-1, 0, 0), 0 }, -- back corner of its base on the square's inner corner (-34.4, -47) (user) -- in the corner square, away from the road, facing the beach (user 2026-10-23); ground at y 0
+	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -44, -51.2, Vector3.new(-1, 0, 0) }, -- back corner of its base on the square's inner corner (-34.4, -47) (user) -- in the corner square, away from the road, facing the beach (user 2026-10-23); at sidewalk level like the others (user 2026-10-24: it stood 0.6 below)
 	{ 4, "해변", Color3.fromRGB(42, 143, 179), -29, 59, Vector3.new(0, 0, 1) },
 }
 local exitPads, exitMouths = {}, {}
@@ -3003,7 +3003,7 @@ do
 	end
 	local ped = vcyl("SymbolPedestal", pc + Vector3.new(0, 1.75, 0), 8, 2, Color3.fromRGB(235, 230, 220), { parent = E })
 	local _ = ped -- (its "상징물 자리" label is off while the park is closed)
-	box("GatePlaza", gateX0 - 8, 0, gz1, gateX1 + 8, 0.3, gz1 + 14, Color3.fromRGB(215, 205, 190), { parent = E, material = Enum.Material.Slate })
+	-- (no gate plaza: the pocket park's paving runs up to the wall at sidewalk height, user 2026-10-24)
 end
 ------------------------------------------------------- pocket park in front of the park gate (user 2026-10-24, v2)
 -- From the user's landscape sketch (docs/04_ART/references/pocket_park_sketch.webp):
@@ -3079,11 +3079,17 @@ do
 	end	-- paving over the whole lot
 	-- the lot's paving, with the sunken plaza and the entrance stair cut out
 	-- (the ground has a hole under it, HOLES)
-	local paving = box("ParkPaving", X0, -8, Z0, X1, 0.08, Z1, PAVE, { parent = workspace, material = Enum.Material.Slate })
+	-- (user 2026-10-24) the paving runs north up to the amusement park wall's
+	-- plinth (the gate plaza is gone), and exit 3's pit is cut out of it (the
+	-- paving covered the stair's top steps)
+	local PZ0 = -228.75
+	local PIT = { -53, -54.2, -47, -48.2 } -- exit 3's opening on the park side (x0, z0, x1, z1)
+	local paving = box("ParkPaving", X0, -8, PZ0, X1, 0.08, Z1, PAVE, { parent = workspace, material = Enum.Material.Slate })
 	local cuts = {
 		part("Cut", Vector3.new(30, 88.2, 88.2), CFrame.new(-96, 0, -128) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }),
 		box("Cut", -114.5, -9, -196, -79.5, 2, -165, PAVE, { parent = workspace }), -- into the ring, so no paving is left between the walk and the circle
 		box("Cut", WALK_X0, -9, -63.2, WALK_X1, 2, -54, PAVE, { parent = workspace }), -- the south stair
+		box("Cut", PIT[1], -9, PIT[2], PIT[3] + 1, 2, PIT[4], PAVE, { parent = workspace }), -- subway exit 3
 	}
 	table.insert(cuts, box("Cut", WALK_X0, -9, C.Z, WALK_X1, 2, -63, PAVE, { parent = workspace })) -- the walk (its north end is inside the circle)
 	local okP, cutP = pcall(function() return paving:SubtractAsync(cuts) end)
@@ -3204,6 +3210,7 @@ do
 			end
 		end
 		local function corridor(z) if z > -196 and z < -165 then return -114.5, -79.5 end return nil end
+		local function pit(z) if z > PIT[2] and z < PIT[4] then return PIT[1], PIT[3] + 1 end return nil end
 		local function southWalk(z) -- the walk between its fillets and the south stair
 			if z > -54 then return nil end
 			local dz = z - C.Z
@@ -3213,7 +3220,7 @@ do
 			return a, b
 		end
 		-- the paving (top 0.08)
-		collideRows("ParkCollide", Z0, Z1, 0.08, { circleOut(44), corridor, southWalk })
+		collideRows("ParkCollide", PZ0, Z1, 0.08, { circleOut(44), corridor, southWalk, pit })
 		-- ring 1 (r 34..44) and ring 2 (r 20..34)
 		for i = 1, #LEVELS - 1 do
 			local ro, ri, top = LEVELS[i][1], LEVELS[i + 1][1], LEVELS[i][2]
@@ -3569,10 +3576,8 @@ do
 	-- (user 2026-10-24, first pass) no beds by the gate; along the east street a
 	-- single row of trees in square pits; along the west (beach road) side one
 	-- long bed packed with trees and round shrubs
-	for z = Z0 + 14, -76, 14 do
-		box("ParkTreePit", X1 - 3.8, 0, z - 1.8, X1 - 0.4, 0.3, z + 1.8, Color3.fromRGB(96, 76, 56), o(Enum.Material.Ground))
-		bed(X1 - 3.8, z - 1.8, X1 - 0.4, z + 1.8, 0, { { X1 - 2.1, z } }) -- clear of the hill (its edge is at x -52)
-	end
+	-- (the row of tree pits along the east sidewalk is gone, user 2026-10-24)
+
 	bed(X0 + 1, Z0 + 6, X0 + 9, Z1 - 4, 70, { { -146, -196 }, { -144, -182 }, { -146, -168 }, { -144, -154 }, { -146, -140 }, { -144, -126 }, { -146, -112 }, { -144, -98 }, { -146, -84 }, { -144, -70 }, { -146, -56 } })	-- low park lamps along the edges; they glow at night
 	for _, lp in ipairs({ { -118, -186 }, { -76, -186 }, { -60, -162 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
 		local b = Vector3.new(lp[1], if onDeck(lp[1], lp[2]) then DECK_TOP - 0.08 else 0, lp[2])
@@ -3591,6 +3596,33 @@ do
 	end
 	local anchor = part("ParkLabelAnchor", Vector3.new(1, 1, 1), CFrame.new(C + Vector3.new(0, 13, 0)), PAVE, o(Enum.Material.SmoothPlastic, { transparency = 1, nocol = true }))
 	label(anchor, "도시 공원", Color3.fromRGB(60, 140, 90), 2, 0.7)
+	-- (user 2026-10-24) no step at the sidewalks: the whole park goes up so its
+	-- top paving is level with them (0.6; the sunken levels, stairs and decks
+	-- keep their heights relative to it), and that paving gets the sidewalks'
+	-- pavers (street_dress's look: colour, the paver texture 7 x 7 on top)
+	local RAISE = CURB - 0.08
+	for _, c in ipairs(P:GetChildren()) do
+		if c:IsA("BasePart") then c.CFrame += Vector3.new(0, RAISE, 0)
+		elseif c:IsA("Model") then c:PivotTo(c:GetPivot() + Vector3.new(0, RAISE, 0)) end
+	end
+	for _, c in ipairs(P:GetChildren()) do
+		if c:IsA("BasePart") and (c.Name == "ParkPaving" or c.Name == "ParkInfill") then
+			c.Color = Color3.fromRGB(176, 172, 166)
+			c.Material = Enum.Material.SmoothPlastic
+			local tx = Instance.new("Texture")
+			tx.Texture = "rbxassetid://133933193561069" -- (street_dress IMG.sidewalk)
+			-- (the infill is a union of wedges: its own axes are turned, so find the
+			-- face that points up in the world)
+			local up = c.CFrame:VectorToObjectSpace(Vector3.yAxis)
+			local ax, ay, az = math.abs(up.X), math.abs(up.Y), math.abs(up.Z)
+			tx.Face = if ay >= ax and ay >= az then (if up.Y > 0 then Enum.NormalId.Top else Enum.NormalId.Bottom)
+				elseif ax >= az then (if up.X > 0 then Enum.NormalId.Right else Enum.NormalId.Left)
+				else (if up.Z > 0 then Enum.NormalId.Back else Enum.NormalId.Front)
+			tx.StudsPerTileU = 7
+			tx.StudsPerTileV = 7
+			tx.Parent = c
+		end
+	end
 end
 ------------------------------------------------------- club facade (references)
 do
@@ -5838,7 +5870,8 @@ if spawn then
 	-- pick a strategic spot): 오후네컷 and the club ahead-left, OH24 ahead-right,
 	-- 광화문 far ahead, the beach behind; subway exit 3 right beside
 	local p = Vector3.new(-62, 0, -70) -- (moved off the pocket park's new south walk, 2026-10-24)
-	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, 0.5, p.Z), Vector3.new(0, 0.5, 0))
+	local sy = CURB - spawn.Size.Y / 2 -- its top level with the raised park paving (it stuck up as an invisible bump)
+	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, sy, p.Z), Vector3.new(0, sy, 0))
 	-- hidden in the paving (user 2026-10-23): no pad or logo showing
 	spawn.Transparency = 1
 	for _, d in ipairs(spawn:GetChildren()) do if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end end
