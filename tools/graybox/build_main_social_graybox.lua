@@ -819,7 +819,7 @@ local z=zone("04_Beach_Aquarium")
   -- the same as the floor lamps; no jets or ripples
   for _,jz in ipairs({53,59,65,71}) do
    cyl(cm,"PoolLampBase",1.6,0.2,Vector3.new(-274,FY+0.1,jz),Color3.fromRGB(60,50,40),{ghost=true})
-   local s=cyl(cm,"PoolLamp",1.8,2,Vector3.new(-274,FY+0.2+1,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true}) -- low, just above the water (user 2026-10-24)
+   local s=cyl(cm,"PoolLamp",1.8,0.9,Vector3.new(-274,FY+0.2+0.45,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true}) -- low, just above the water (user 2026-10-24)
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=Color3.fromRGB(255,214,160) pl.Parent=s
   end
   -- (no black stone blocks: user 2026-10-24)

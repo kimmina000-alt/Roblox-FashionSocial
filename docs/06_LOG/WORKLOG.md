@@ -858,3 +858,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-24/cafe_stair_post_after.jpg)
 ![](images/2026-10-24/cafe_pool_low_lamps_after.jpg)
+
+- 물멍 풀 조명을 높이 0.9로 더 낮췄습니다(물 위로 살짝만 보임).
+
+![](images/2026-10-24/cafe_pool_lamps_lower_after.jpg)
