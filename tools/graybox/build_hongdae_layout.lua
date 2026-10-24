@@ -3174,14 +3174,17 @@ do
 	vcyl("SculptureBase", C + Vector3.new(0, 1.9, 0), 3, 1, Color3.fromRGB(70, 70, 74), o(Enum.Material.Granite))
 	part("Sculpture", Vector3.new(1.6, 5, 1.6), CFrame.new(C + Vector3.new(0, 5.4, 0)) * CFrame.Angles(0, 0, math.rad(8)), Color3.fromRGB(160, 120, 80), o(Enum.Material.Metal))
 	part("Sculpture", Vector3.new(1.2, 3.4, 1.2), CFrame.new(C + Vector3.new(0.9, 4.6, 0.6)) * CFrame.Angles(0, 0, math.rad(-14)), Color3.fromRGB(160, 120, 80), o(Enum.Material.Metal))
-	-- north-west: a long curved wooden deck with a curved white sofa on it
-	arc("ParkDeck", C, 24, 31, 195, 280, 0, 0.9, WOOD, Enum.Material.WoodPlanks)
-	arc("CurvedSofa", C, 28.4, 30.4, 205, 272, 0.9, 2.3, CUSH, Enum.Material.Fabric)
-	arc("CurvedSofaBack", C, 30.4, 31, 205, 272, 0.9, 3.6, CUSH, Enum.Material.Fabric)
-	for a = 210, 266, 8 do
+	-- the curved wooden deck with the white sofa: out of the circle, on the
+	-- paving by the west tree bed in the south-west (user 2026-10-24), curving
+	-- round a centre to its east so the sofa faces into the park
+	local SC = Vector3.new(-110, 0, -72)
+	arc("ParkDeck", SC, 23, 30, 145, 215, 0.08, 0.98, WOOD, Enum.Material.WoodPlanks)
+	arc("CurvedSofa", SC, 27.4, 29.4, 150, 210, 0.98, 2.38, CUSH, Enum.Material.Fabric)
+	arc("CurvedSofaBack", SC, 29.4, 30, 150, 210, 0.98, 3.68, CUSH, Enum.Material.Fabric)
+	for a = 154, 206, 7.5 do
 		local r = math.rad(a)
-		local p = Vector3.new(C.X + 29.3 * math.cos(r), 2.6, C.Z + 29.3 * math.sin(r))
-		seat("ParkSofa", CFrame.lookAt(p, Vector3.new(C.X, 2.6, C.Z)), Vector3.new(2.2, 0.3, 1.8), CUSH, P)
+		local p = Vector3.new(SC.X + 28.3 * math.cos(r), 2.68, SC.Z + 28.3 * math.sin(r))
+		seat("ParkSofa", CFrame.lookAt(p, Vector3.new(SC.X, 2.68, SC.Z)), Vector3.new(2.2, 0.3, 1.8), CUSH, P)
 	end
 	-- tiered wooden seats in an arc facing the mound, east and west (user
 	-- 2026-10-24: plain wood, no cushions and no E prompt; walking onto a seat

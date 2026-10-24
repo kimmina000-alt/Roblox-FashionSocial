@@ -1007,3 +1007,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 검증: 길 → 위 단 → 반지름 34 지점(턱 없음) → 가운데 원(-3.3) → 다시 위 단까지 걸어서 이동.
 
 ![](images/2026-10-24/pocket_park_two_levels_after.jpg)
+
+- 곡선 나무 데크와 흰 소파를 원형 광장 안에서 빼서, 사용자 표시대로 남서쪽 서쪽 화단 옆 바닥(x -140..-133, z -89..-55)으로 옮겼습니다. 소파는 공원 안쪽(동쪽)을 봅니다. 걸어서 데크에 올라가고(0.98) 내려오기, 소파에 앉기 확인.
+
+![](images/2026-10-24/pocket_park_sofa_moved_after.jpg)
