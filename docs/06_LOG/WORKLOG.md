@@ -868,3 +868,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 물멍 풀 조명을 높이 1.4로 조금 올렸습니다.
 
 ![](images/2026-10-24/cafe_corner_steps_after.jpg)
+
+- 카페 남쪽 데크를 계단 맨 윗단과 같은 짙은 나무로 바꿔(사이 회색 턱 삭제) 계단 윗면이 넓어진 모습이 되게 했고, 인도 쪽 회색 턱은 카페 앞에서도 끊기지 않고 이어집니다.
+
+![](images/2026-10-24/cafe_terrace_tread_after.jpg)

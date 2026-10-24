@@ -873,12 +873,13 @@ local z=zone("04_Beach_Aquarium")
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=WARM pl.Parent=s end
   local _=paperLamp -- (no floor lamps outside the pool any more, user 2026-10-24)
   -- sunset terrace outside on the south side
-  box(cm,"Terrace",x0,0,z0-12,-198,FY,z0,woodC) -- out to the promenade and to the sea end (user 2026-10-24)
+  -- the terrace is the top tread of the wooden steps below it (user 2026-10-24):
+  -- the same dark planks, no granite edge between them
+  box(cm,"Terrace",x0,0,z0-12.7,-198,FY,z0,Color3.fromRGB(120,88,62),{mat=Enum.Material.WoodPlanks})
   -- the promenade's wooden steps turn the corner at the cafe and run west along
   -- the terrace's south edge to the sea (user 2026-10-24): granite edge, three
   -- wooden tiers down to the sand, like the promenade's
   do local tz=z0-12 local sandY=0.6 local wood=Color3.fromRGB(120,88,62)
-   box(cm,"BeachStepEdge",x0,sandY,tz-0.7,-198,FY+0.1,tz,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
    for k=1,3 do
     local za,zb=tz-0.7-2.5*k,tz-0.7-2.5*(k-1)
     box(cm,"BeachStep",x0,sandY,za,-206.2+2.5*(k-1)*0,FY-0.6*k,zb,wood,{mat=Enum.Material.WoodPlanks}) end
