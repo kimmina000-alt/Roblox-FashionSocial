@@ -2416,7 +2416,17 @@ do
 		part("ParkPillarDome", Vector3.new(s * 0.85, s * 0.85, s * 0.85), CFrame.new(cx, top + 1.6, cz), Color3.fromRGB(120, 128, 140), { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
 		vcyl("ParkPillarSpire", Vector3.new(cx, top + 1.6 + s * 0.4, cz), 0.4, 2.6, Color3.fromRGB(214, 172, 80), { parent = E, material = Enum.Material.Foil })
 	end
-	for _, c in ipairs({ { x0, z0 }, { x1, z0 }, { x0, z1 }, { x1, z1 } }) do pillar(c[1], c[2], 6, 15) end	-- main gate (user photo 2026-10-23, an ADVENTURELAND-style arch): two tall
+	for _, c in ipairs({ { x0, z0 }, { x1, z0 }, { x0, z1 }, { x1, z1 } }) do pillar(c[1], c[2], 6, 15) end
+	-- the wall goes on west across the closed north road to the beach, then
+	-- north along the sand (user sketch 2026-10-24, white line): the road and
+	-- promenade behind it become park land for later
+	local BW, BZ_END = -207, -1400
+	wallSeg(BW, z0, x0, z0 + 1)
+	wallSeg(BW, BZ_END, BW + 1, z0 + 1)
+	pillar(BW + 0.5, z0 + 0.5, 6, 15)
+	for zz = z0 - 105, BZ_END + 50, -105 do pillar(BW + 0.5, zz, 6, 15) end
+	box("ParkGround", BW + 1, -2.6, BZ_END, x0, 0.25, z0, Color3.fromRGB(110, 175, 95), { parent = E, material = Enum.Material.Grass })
+	-- main gate (user photo 2026-10-23, an ADVENTURELAND-style arch): two tall
 	-- sandstone towers with carved panels, domes and spires carry a big
 	-- arched sign band "OHU LAND"; lower outer towers with half arches on
 	-- each side, black iron fences between the gate and the park walls.
@@ -2577,7 +2587,58 @@ do
 		end
 		return g
 	end
-	local function booth(center: Vector3, facing: Vector3, W: number, D: number, title: string)
+	-- 3D channel letters (user photo 2026-10-24, docs/04_ART/references/ticket_booth_3d_sign.png):
+	-- each stroke is a white-faced bar 0.7 deep with a soft pink neon halo behind it.
+	-- Glyphs in a unit box (x right, y up): s = straight stroke, e = elliptical arc
+	local function S(x0, y0, x1, y1) return { "s", x0, y0, x1, y1 } end
+	local function Ell(cx, cy, rx, ry) return { "e", cx, cy, rx, ry } end
+	local HANGUL = {
+		["매"] = { S(0.04, 0.82, 0.5, 0.82), S(0.04, 0.18, 0.5, 0.18), S(0.04, 0.82, 0.04, 0.18), S(0.5, 0.82, 0.5, 0.18), S(0.68, 0.96, 0.68, 0.04), S(0.68, 0.52, 0.92, 0.52), S(0.92, 1, 0.92, 0) },
+		["표"] = { S(0.12, 0.94, 0.88, 0.94), S(0.33, 0.94, 0.33, 0.6), S(0.67, 0.94, 0.67, 0.6), S(0.08, 0.6, 0.92, 0.6), S(0.35, 0.44, 0.35, 0.22), S(0.65, 0.44, 0.65, 0.22), S(0.02, 0.2, 0.98, 0.2) },
+		["소"] = { S(0.5, 0.97, 0.14, 0.5), S(0.5, 0.82, 0.86, 0.5), S(0.5, 0.42, 0.5, 0.22), S(0.02, 0.2, 0.98, 0.2) },
+		["안"] = { Ell(0.32, 0.73, 0.22, 0.2), S(0.76, 1, 0.76, 0.4), S(0.76, 0.72, 0.96, 0.72), S(0.16, 0.38, 0.16, 0.04), S(0.16, 0.04, 0.92, 0.04) },
+		["내"] = { S(0.06, 0.86, 0.06, 0.16), S(0.06, 0.16, 0.5, 0.16), S(0.68, 0.96, 0.68, 0.04), S(0.68, 0.52, 0.92, 0.52), S(0.92, 1, 0.92, 0) },
+	}
+	local function letters3d(text: { string }, origin: Vector3, right: Vector3, out: Vector3, H: number)
+		local SW, DEPTH, GAP = 0.16 * H, 0.7, 0.22
+		local m = Instance.new("Model")
+		m.Name = "BoothLetters"
+		m.Parent = E
+		local function stroke(a: Vector3, b: Vector3)
+			local len = (b - a).Magnitude
+			if len < 0.01 then return end
+			local cf = CFrame.fromMatrix((a + b) / 2, (b - a).Unit, out)
+			part("Letter", Vector3.new(len + SW * 0.9, DEPTH - 0.06, SW), cf * CFrame.new(0, -0.03, 0), Color3.fromRGB(235, 225, 230), { parent = m, nocol = true })
+			-- plain white by day; NightGlowController lights the faces after dark
+			local face = part("LetterFace", Vector3.new(len + SW * 0.9, 0.06, SW), cf * CFrame.new(0, DEPTH / 2 - 0.03, 0), Color3.fromRGB(255, 252, 250), { parent = m, nocol = true })
+			face:SetAttribute("NightRange", 4)
+			face:SetAttribute("NightBrightness", 0.6)
+			CS:AddTag(face, "NightGlow")
+			local halo = part("LetterHalo", Vector3.new(len + SW * 0.9 + 0.3, 0.04, SW + 0.3), cf * CFrame.new(0, -DEPTH / 2 + 0.05, 0), Color3.fromRGB(255, 110, 170), { parent = m, nocol = true, material = Enum.Material.Neon, transparency = 0.45 })
+			halo.CastShadow = false
+		end
+		local total = #text + (#text - 1) * GAP
+		local x = -total / 2
+		for _, ch in ipairs(text) do
+			local function at(px, py) return origin + out * (DEPTH / 2) + right * ((x + px) * H) + Vector3.yAxis * ((py - 0.5) * H) end
+			for _, s in ipairs(HANGUL[ch]) do
+				if s[1] == "s" then
+					stroke(at(s[2], s[3]), at(s[4], s[5]))
+				else
+					local n = 18
+					local prev = at(s[2] + s[4], s[3])
+					for k = 1, n do
+						local a = k / n * 2 * math.pi
+						local p = at(s[2] + s[4] * math.cos(a), s[3] + s[5] * math.sin(a))
+						stroke(prev, p)
+						prev = p
+					end
+				end
+			end
+			x += 1 + GAP
+		end
+	end
+	local function booth(center: Vector3, facing: Vector3, W: number, D: number, title: string, sign3d: { string })
 		-- local frame: X across the front, Y up, Z out of the front (facing)
 		local fr = CFrame.fromMatrix(Vector3.new(center.X, 0, center.Z), Vector3.yAxis:Cross(facing), Vector3.yAxis, facing)
 		local function lb(name, x0, y0, z0, x1, y1, z1, color, opt, tex)
@@ -2609,7 +2670,8 @@ do
 		part("BoothWindowArch", Vector3.new(0.22, w + 0.5, w + 0.5), fr * CFrame.new(0, spring, hd + 0.12) * CFrame.Angles(0, math.rad(90), 0), IRON, { parent = E, shape = Enum.PartType.Cylinder })
 		lb("BoothWindow", -w / 2, 3, hd + 0.2, w / 2, spring, hd + 0.3, GL, { parent = E, material = Enum.Material.Glass })
 		part("BoothWindowTop", Vector3.new(0.08, w, w), fr * CFrame.new(0, spring, hd + 0.255) * CFrame.Angles(0, math.rad(90), 0), GL, { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Glass })
-		lb("BoothSill", -w / 2 - 0.4, 2.6, hd, w / 2 + 0.4, 2.9, hd + 0.8, CARVE, sopt)
+		-- the counter under the window: a thin stone plate that sticks out a little more (user 2026-10-24)
+		lb("BoothSill", -w / 2 - 0.5, 2.72, hd, w / 2 + 0.5, 2.9, hd + 1.3, CARVE, sopt)
 		-- closed for now (user 2026-10-24): a printed card taped inside the lower glass
 		local card = lb("BoothClosedCard", -w / 2 + 0.6, 3.5, hd + 0.31, w / 2 - 0.6, 5.7, hd + 0.34, Color3.fromRGB(250, 248, 240), { parent = E, nocol = true })
 		notice(card, Enum.NormalId.Back, {
@@ -2617,13 +2679,18 @@ do
 			{ "운영 준비 중", Color3.fromRGB(40, 40, 45), Enum.Font.GothamBold, 0.27 },
 			{ "OPENING SOON", Color3.fromRGB(110, 110, 115), Enum.Font.Gotham, 0.18 },
 		}, Color3.fromRGB(250, 248, 240), Color3.fromRGB(200, 30, 40))
-		local b = lb("BoothSign", -hw + 0.8, H2 - 1.5, hd + 0.05, hw - 0.8, H2 - 0.2, hd + 0.35, IRON, { parent = E })
-		surfaceText(b, Enum.NormalId.Back, title, GOLD, Enum.Font.Fantasy)
-		label(b, title, Color3.fromRGB(150, 110, 50), 6, 0.6)
+		-- 3D letters across the cornice and cap (user sketch 2026-10-24); the old
+		-- flat sign band is gone (its small text broke up at a distance)
+		local LH = math.min(2.6, (W - 1.6) / (#sign3d + (#sign3d - 1) * 0.22))
+		letters3d(sign3d, (fr * CFrame.new(0, H2 + 0.45, hd + 0.5)).Position, fr.RightVector, fr.LookVector * -1, LH)
+		local anchor = lb("BoothLabelAnchor", -0.5, H2 + 2, -0.5, 0.5, H2 + 2.2, 0.5, IRON, { parent = E, transparency = 1, nocol = true })
+		label(anchor, title, Color3.fromRGB(150, 110, 50), 6, 0.6)
 	end
-	-- out in the forecourt either side of the path, windows facing the path (user sketch 2026-10-24)
-	booth(Vector3.new(-127, 0, -200), Vector3.new(1, 0, 0), 12, 8, "매표소 TICKETS")
-	booth(Vector3.new(-59, 0, -200), Vector3.new(-1, 0, 0), 10, 7, "i 안내")
+	-- as at real parks (user 2026-10-24): the ticket office out in the forecourt,
+	-- its window facing the street the visitors come from; information right
+	-- beside the gate (the right-hand tower), its window facing the path
+	booth(Vector3.new(-127, 0, -200), Vector3.new(0, 0, 1), 12, 8, "매표소 TICKETS", { "매", "표", "소" })
+	booth(Vector3.new(-65, 0, -218.5), Vector3.new(-1, 0, 0), 9, 8, "i 안내", { "안", "내", "소" })
 	-- closed while the inside is being built (user 2026-10-24, photos
 	-- docs/04_ART/references/park_closed_*.webp): printed hoarding just inside the
 	-- gate (seen through the bars), a black mesh site fence on wheeled feet in
@@ -3714,9 +3781,10 @@ do
 
 	-- the beach goes on north and south past the boundary
 	local sandY = -BEACH_DROP + 0.6
-	box("BeachSand", -268, sandY - 1.2, -900, -198, sandY, -480, Color3.fromRGB(232, 214, 165), { material = Enum.Material.Sand })
+	box("BeachSand", -268, sandY - 1.2, -1400, -198, sandY, -480, Color3.fromRGB(232, 214, 165), { material = Enum.Material.Sand })
 	box("BeachSand", -268, sandY - 1.2, 250, -198, sandY, 800, Color3.fromRGB(232, 214, 165), { material = Enum.Material.Sand })
-	for _, seg in ipairs({ { -900, -480 }, { 300, 800 } }) do
+	-- (north of the park the road is closed: the park wall runs across it, user 2026-10-24)
+	for _, seg in ipairs({ { 300, 800 } }) do
 		box("Promenade", -198, 0, seg[1], -182, CURB, seg[2], Color3.fromRGB(175, 135, 120), { material = Enum.Material.Brick })
 		-- the steps down to the sand go on to the end (user 2026-10-23)
 		local wood = Color3.fromRGB(120, 88, 62)
@@ -3733,6 +3801,185 @@ do
 	end
 end
 
+------------------------------------------------------- open sea + curved bay (user 2026-10-24)
+-- The sea looked like it stopped: the terrain water only streams in near the
+-- player, and past it the sand sea floor showed. A wide sea surface (a
+-- persistent model, always on every client) runs out to the horizon, lighter
+-- by the shore and deeper blue further out. In the north the beach curves round
+-- the bay to a wooded headland (user sketch + photos,
+-- docs/04_ART/references/beach_curve_ref_*.webp, beach_user_sketch_curve_wall.webp).
+do
+	local SEA = Instance.new("Model")
+	SEA.Name = "OpenSea"
+	SEA.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	SEA.Parent = T
+	local function flat(name, xa, xb, za, zb, y, color, mat)
+		-- parts are at most 2048 long: split big rectangles
+		local nx, nz = math.ceil((xb - xa) / 2000), math.ceil((zb - za) / 2000)
+		for i = 0, nx - 1 do
+			for j = 0, nz - 1 do
+				local a0, a1 = xa + (xb - xa) * i / nx, xa + (xb - xa) * (i + 1) / nx
+				local b0, b1 = za + (zb - za) * j / nz, za + (zb - za) * (j + 1) / nz
+				local p = box(name, a0, y - 0.2, b0, a1, y, b1, color, { parent = SEA, nocol = true, material = mat })
+				p.CanQuery = false
+				p.CanTouch = false
+				p.CastShadow = false
+			end
+		end
+	end
+	-- sea surface just under the terrain water top (-3): bands from the shore out
+	local SEA_Y = -3.4
+	-- many narrow bands, so no colour step shows as a line on the water
+	local EDGES = { -270 }
+	for k = 1, 26 do table.insert(EDGES, -270 - 4130 * (k / 26) ^ 1.8) end
+	local NEAR, FAR = Color3.fromRGB(70, 184, 198), Color3.fromRGB(24, 86, 142)
+	local DOME = { -416, -198, -320, -102 } -- the aquarium dome stays dry inside (an octagon hole, below)
+	for i = 1, #EDGES - 1 do
+		local xa, xb = EDGES[i + 1], EDGES[i]
+		local col = NEAR:Lerp(FAR, ((i - 1) / (#EDGES - 2)) ^ 0.8)
+		if xb > DOME[1] and xa < DOME[3] then
+			flat("SeaSurface", xa, xb, -4400, DOME[2], SEA_Y, col)
+			flat("SeaSurface", xa, xb, DOME[4], 4400, SEA_Y, col)
+			if xa < DOME[1] then flat("SeaSurface", xa, DOME[1], DOME[2], DOME[4], SEA_Y, col) end
+			if xb > DOME[3] then flat("SeaSurface", DOME[3], xb, DOME[2], DOME[4], SEA_Y, col) end
+		else
+			flat("SeaSurface", xa, xb, -4400, 4400, SEA_Y, col)
+		end
+	end
+
+	-- triangles from two wedges (any 3 points); th = thickness across the face
+	local function tri(name, a: Vector3, b: Vector3, c: Vector3, th, color, mat)
+		local ab, ac, bc = b - a, c - a, c - b
+		local abd, acd, bcd = ab:Dot(ab), ac:Dot(ac), bc:Dot(bc)
+		if abd > acd and abd > bcd then
+			c, a = a, c
+		elseif acd > bcd and acd > abd then
+			a, b = b, a
+		end
+		ab, ac, bc = b - a, c - a, c - b
+		if ac:Cross(ab).Magnitude < 0.01 then return end
+		local right = ac:Cross(ab).Unit
+		local up = bc:Cross(right).Unit
+		local back = bc.Unit
+		local h = math.abs(ab:Dot(up))
+		local o = { parent = SEA, class = "WedgePart", material = mat, nocol = true }
+		local d1, d2 = math.abs(ab:Dot(back)), math.abs(ac:Dot(back))
+		if d1 > 0.01 then part(name, Vector3.new(th, h, d1), CFrame.fromMatrix((a + b) / 2, right, up, back), color, o) end
+		if d2 > 0.01 then part(name, Vector3.new(th, h, d2), CFrame.fromMatrix((a + c) / 2, -right, up, -back), color, o) end
+	end
+	-- the square round the dome, less an octagon just outside the dome (r 44)
+	do
+		local cx, cz, half, r = (DOME[1] + DOME[3]) / 2, (DOME[2] + DOME[4]) / 2, (DOME[3] - DOME[1]) / 2, 47.5
+		local function sq(a) -- the square's edge along direction a (a multiple of 45 degrees)
+			local d = Vector3.new(math.cos(a), 0, math.sin(a))
+			local k = half / math.max(math.abs(d.X), math.abs(d.Z))
+			return Vector3.new(cx + d.X * k, SEA_Y - 0.1, cz + d.Z * k)
+		end
+		local colHole = NEAR:Lerp(FAR, 0.02)
+		for k = 0, 7 do
+			local a0, a1 = math.rad(k * 45), math.rad((k + 1) * 45)
+			local v0 = Vector3.new(cx + r * math.cos(a0), SEA_Y - 0.1, cz + r * math.sin(a0))
+			local v1 = Vector3.new(cx + r * math.cos(a1), SEA_Y - 0.1, cz + r * math.sin(a1))
+			tri("SeaSurface", v0, v1, sq(a1), 0.2, colHole, Enum.Material.SmoothPlastic)
+			tri("SeaSurface", v0, sq(a1), sq(a0), 0.2, colHole, Enum.Material.SmoothPlastic)
+		end
+	end
+	local SAND, WET = Color3.fromRGB(232, 214, 165), Color3.fromRGB(205, 186, 140)
+	local GRASS = Color3.fromRGB(104, 150, 82)
+	local FOREST = { Color3.fromRGB(44, 84, 48), Color3.fromRGB(56, 98, 56), Color3.fromRGB(38, 72, 44), Color3.fromRGB(64, 108, 60) }
+	local SAND_TOP = -BEACH_DROP + 0.6 -- the beach's sand level
+	local ZN = -1400 -- north edge of the land
+	-- the bay: a circle touching the straight beach (x -268) at z -330, so the
+	-- shore leaves the straight line smoothly and curves west round the bay
+	local C, R = Vector3.new(-560, 0, -330), 292
+	local TH_END = math.rad(120)
+	local N = 48
+	local function onArc(r, th, y) return Vector3.new(C.X + r * math.cos(th), y, C.Z - r * math.sin(th)) end
+	for i = 0, N - 1 do
+		local t0, t1 = TH_END * i / N, TH_END * (i + 1) / N
+		-- sand from the shore line north to the edge of the land (strips with a slanted end)
+		local a, b = onArc(R, t0, SAND_TOP - 0.8), onArc(R, t1, SAND_TOP - 0.8)
+		local bN, aN = Vector3.new(b.X, a.Y, ZN), Vector3.new(a.X, a.Y, ZN)
+		tri("BaySand", a, b, bN, 1.6, SAND, Enum.Material.Sand)
+		tri("BaySand", a, bN, aN, 1.6, SAND, Enum.Material.Sand)
+		-- wet sand sloping under the water to the sea floor (42 out, down to -16)
+		local sa, sb = onArc(R - 42, t0, -16.5), onArc(R - 42, t1, -16.5)
+		local a2, b2 = onArc(R + 0.3, t0, SAND_TOP - 0.5), onArc(R + 0.3, t1, SAND_TOP - 0.5)
+		tri("BayShore", a2, b2, sb, 1, WET, Enum.Material.Sand)
+		tri("BayShore", a2, sb, sa, 1, WET, Enum.Material.Sand)
+	end
+	-- grass behind the sand (55 back from the water), west of the straight beach
+	local R2 = R + 55
+	local tg0 = math.acos((-268 - C.X) / R2)
+	local tg1 = math.acos((onArc(R, TH_END, 0).X - C.X) / R2)
+	local NG = 36
+	for i = 0, NG - 1 do
+		local t0, t1 = tg0 + (tg1 - tg0) * i / NG, tg0 + (tg1 - tg0) * (i + 1) / NG
+		local a, b = onArc(R2, t0, SAND_TOP - 0.2), onArc(R2, t1, SAND_TOP - 0.2)
+		tri("BayGrass", a, b, Vector3.new(b.X, a.Y, ZN), 1.6, GRASS, Enum.Material.Grass)
+		tri("BayGrass", a, Vector3.new(b.X, a.Y, ZN), Vector3.new(a.X, a.Y, ZN), 1.6, GRASS, Enum.Material.Grass)
+	end
+	-- hills: ellipsoids (a Sphere mesh stretched to the part's size)
+	local function hill(name, c: Vector3, size: Vector3, color, mat)
+		local p = part(name, size, CFrame.new(c), color, { parent = SEA, nocol = true, material = mat })
+		local m = Instance.new("SpecialMesh")
+		m.MeshType = Enum.MeshType.Sphere
+		m.Parent = p
+		p.CastShadow = false
+		return p
+	end
+	local HILLS = { -- centre, size: the headland where the beach ends, the coast on north, the wooded rise behind the beach
+		{ Vector3.new(-735, -14, -640), Vector3.new(270, 64, 250) },
+		{ Vector3.new(-790, -18, -860), Vector3.new(260, 60, 320) },
+		{ Vector3.new(-760, -20, -1150), Vector3.new(240, 50, 320) },
+		{ Vector3.new(-500, -8, -1110), Vector3.new(460, 40, 420) },
+	}
+	for k, hl in ipairs(HILLS) do
+		hill("Headland", hl[1], hl[2], FOREST[(k % #FOREST) + 1], Enum.Material.Grass)
+		-- a rocky skirt where the hill meets the sea
+		if k <= 3 then hill("HeadlandRock", hl[1] + Vector3.new(0, 6, 0), Vector3.new(hl[2].X + 18, 22, hl[2].Z + 18), Color3.fromRGB(118, 112, 104), Enum.Material.Rock) end
+	end
+	local function hillTop(x, z): number?
+		local best: number? = nil
+		for _, hl in ipairs(HILLS) do
+			local c, s = hl[1], hl[2]
+			local q = ((x - c.X) / (s.X / 2)) ^ 2 + ((z - c.Z) / (s.Z / 2)) ^ 2
+			if q < 0.85 then
+				local y = c.Y + s.Y / 2 * math.sqrt(1 - q)
+				if not best or y > best then best = y end
+			end
+		end
+		return best
+	end
+	-- trees: round dark-green crowns, dense like the pine woods in the photos,
+	-- in a band behind the grass and over the hills (one random seed: same every build)
+	for _, p in ipairs(SEA:GetChildren()) do
+		if p.Name == "SeaSurface" then
+			p.Reflectance = 0.08
+			p.CanQuery = false
+			p.CanTouch = false
+			p.CastShadow = false
+		end
+	end
+	local rng = Random.new(1024)
+	local function crown(x, z, y)
+		local s = rng:NextNumber(14, 24)
+		local p = part("TreeCrown", Vector3.new(s, s, s), CFrame.new(x, y + s * 0.32, z), FOREST[rng:NextInteger(1, #FOREST)], { parent = SEA, nocol = true, shape = Enum.PartType.Ball, material = Enum.Material.Grass })
+		p.CastShadow = false
+	end
+	for x = -900, -276, 20 do
+		for z = ZN + 20, -400, 20 do
+			local jx, jz = x + rng:NextNumber(-7, 7), z + rng:NextNumber(-7, 7)
+			local d = (Vector3.new(jx, 0, jz) - C).Magnitude
+			local top = hillTop(jx, jz)
+			if top and top > -2 then
+				if rng:NextNumber() < 0.75 then crown(jx, jz, top - 1) end
+			elseif jz < C.Z and d > R2 + 6 and d < R2 + 110 and jx < -276 then
+				crown(jx, jz, SAND_TOP)
+			end
+		end
+	end
+end
 ------------------------------------------------------- beach furniture (광안리 photos, user 2026-10-23)
 do
 	local SAND_Y = CURB - BEACH_DROP
