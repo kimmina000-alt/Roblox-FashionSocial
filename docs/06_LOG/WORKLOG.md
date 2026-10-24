@@ -1214,3 +1214,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 피아노 | 가건물·편의점 (위에서) |
 |---|---|
 | ![](images/2026-10-25/cafe_piano_stage2.jpg) | ![](images/2026-10-25/tower_aligned_oh24.jpg) |
+
+### 추가 (D-224) — 피아노 구석으로 더
+- 피아노를 단상 위 유리 구석 쪽으로 6 더 옮겼습니다.
+
+![](images/2026-10-25/cafe_piano_corner.jpg)
