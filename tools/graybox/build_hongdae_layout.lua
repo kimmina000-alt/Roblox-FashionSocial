@@ -850,6 +850,7 @@ bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 } }, { { 92, -1 }, { 150
 -- along the pocket park and the amusement park the west sidewalk is as wide as
 -- the others (to x -47, the corner squares' line; user 2026-10-24)
 walk(-47, -478.6, -34, -54.2) -- (from the amusement park's north-east pillar, now off the sidewalk, to subway exit 3's pit)
+walk(-150, -478.6, -148.25, -228.75) -- the same on the west, from the beach road's sidewalk to the wall's plinth (bare ground showed there, user 2026-10-24)
 walk(-51.05, -478.6, -47, -228.75) -- (to the wall line, where the pocket park's paving begins) the same paving up to the amusement park's east wall (its plinth face; no bare ground strip at the wall's foot)
 bigRoad(Vector3.new(0, 0, 1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }, nil, nil, 300) -- south (past the boundary at 299: the street goes on, D-110)
 bigRoad(Vector3.new(1, 0, 0), 1000, {}, { { 100, 1 }, { 165, -1 } }, nil, nil, 180) -- east

@@ -1124,3 +1124,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 광화문 지붕 | ![](images/2026-10-24/merge_before_gw_roof.jpg) | ![](images/2026-10-24/merge_after_gw_roof.jpg) |
 | 공원 | ![](images/2026-10-24/merge_before_park.jpg) | ![](images/2026-10-24/merge_after_park.jpg) |
 | 공원 충돌 줄(빨강) | ![](images/2026-10-24/merge_before_park_collide.jpg) | ![](images/2026-10-24/merge_after_park_collide.jpg) |
+
+### 추가 (D-210) — 놀이공원 서쪽 벽 밑 맨땅 정리
+- 해변 도로 쪽 인도(x -150까지)와 공원 벽 받침(-148.25) 사이 1.75 폭 맨땅을 인도와 같은 보도블록으로 채웠습니다(동쪽과 같은 방식).
+- 그 자리는 기존 맵 경계 투명벽(x -151) 안쪽이라 사람이 들어가 걷는 곳은 아니고, 보이는 땅만 정리됩니다.
+
+![](images/2026-10-24/park_west_strip_after.jpg)
