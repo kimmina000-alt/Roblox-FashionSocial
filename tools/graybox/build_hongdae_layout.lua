@@ -3021,7 +3021,16 @@ do
 	-- paving over the whole lot
 	box("ParkPaving", X0, 0, Z0, X1, 0.08, Z1, PAVE, o(Enum.Material.Slate))
 	-- a ring of darker pavers round the mound
-	vcyl("ParkPavingRing", C, 46, 0.1, PAVE2, o(Enum.Material.Slate))
+	-- the plaza rises in a gentle dome (user 2026-10-24): eight paved discs,
+	-- each 0.35 higher and 4 smaller (a walkable slope), 2.8 high in the middle
+	local DOME_R = { 44, 40, 36, 32, 28, 24, 20, 16 }
+	for k, r in ipairs(DOME_R) do vcyl("ParkDome", C, r * 2, k * 0.35, if k % 2 == 0 then PAVE2 else PAVE, o(Enum.Material.Slate)) end
+	local function domeH(x, z)
+		local d = math.sqrt((x - C.X) ^ 2 + (z - C.Z) ^ 2)
+		local n = 0
+		for _, r in ipairs(DOME_R) do if d < r then n += 1 end end
+		return n * 0.35
+	end
 	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
 	local function arc(name, c: Vector3, r0, r1, a0, a1, y0, y1, color, mat, n)
 		n = n or math.max(6, math.floor(math.abs(a1 - a0) / 8))
@@ -3126,7 +3135,7 @@ do
 	end
 	bed(X0 + 1, Z0 + 4, -110, Z0 + 16, 22, { { -144, -200 }, { -130, -202 }, { -116, -199 } }) -- north-west (beside the gate path)
 	bed(-80, Z0 + 4, X1 - 1, Z0 + 16, 22, { { -74, -200 }, { -60, -202 } }) -- north-east
-	bed(X1 - 18, Z0 + 20, X1 - 1, -78, 40, { { -55, -180 }, { -56, -150 }, { -54, -118 }, { -57, -92 } }) -- east
+	bed(X1 - 13, Z0 + 20, X1 - 1, -78, 34, { { -55, -180 }, { -56, -150 }, { -54, -118 }, { -57, -92 } }) -- east
 	bed(X0 + 1, -74, -118, Z1 - 1, 24, { { -144, -66 }, { -128, -56 } }) -- south-west
 	-- low park lamps along the edges; they glow at night
 	for _, lp in ipairs({ { -112, -186 }, { -84, -186 }, { -70, -150 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
@@ -3137,7 +3146,14 @@ do
 		g:SetAttribute("NightBrightness", 1.2)
 		CS:AddTag(g, "NightGlow")
 	end
-	local anchor = part("ParkLabelAnchor", Vector3.new(1, 1, 1), CFrame.new(C + Vector3.new(0, 10, 0)), PAVE, o(Enum.Material.SmoothPlastic, { transparency = 1, nocol = true }))
+	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
+	for _, c in ipairs(P:GetChildren()) do
+		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkDome") then
+			local h = domeH(c.Position.X, c.Position.Z)
+			if h > 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
+		end
+	end
+	local anchor = part("ParkLabelAnchor", Vector3.new(1, 1, 1), CFrame.new(C + Vector3.new(0, 13, 0)), PAVE, o(Enum.Material.SmoothPlastic, { transparency = 1, nocol = true }))
 	label(anchor, "도시 공원", Color3.fromRGB(60, 140, 90), 2, 0.7)
 end
 ------------------------------------------------------- club facade (references)

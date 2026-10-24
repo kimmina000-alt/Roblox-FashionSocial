@@ -916,3 +916,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-24/pocket_park_v2_after.jpg)
 
 - 카페 남쪽 데크 바로 옆 해변 파라솔 묶음(z -2)을 지웠습니다.
+
+- 도시 공원 가운데 원형 광장을 볼록한 언덕으로: 포장 원판 8겹(각 0.35 높고 반지름 4씩 작게, 가운데 2.8), 그 위의 단·데크·의자·조명은 그 자리 높이만큼 올렸습니다(화단은 그대로).
+
+![](images/2026-10-24/pocket_park_dome_after.jpg)
