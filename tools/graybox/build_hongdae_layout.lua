@@ -351,6 +351,29 @@ local function vcyl(name, pos: Vector3, d, h, color, opt) -- pos = bottom centre
 	o.shape = Enum.PartType.Cylinder
 	return part(name, Vector3.new(h, d, d), CFrame.new(pos + Vector3.new(0, h / 2, 0)) * CFrame.Angles(0, 0, math.rad(90)), color, o)
 end
+-- a flat or sloped triangle from two wedges (any three points); th = slab
+-- thickness, centred on the triangle's plane
+local function wedgeTri(name, a: Vector3, b: Vector3, c: Vector3, th, color, opt)
+	local ab, ac, bc = b - a, c - a, c - b
+	local abd, acd, bcd = ab:Dot(ab), ac:Dot(ac), bc:Dot(bc)
+	if abd > acd and abd > bcd then
+		c, a = a, c
+	elseif acd > bcd and acd > abd then
+		a, b = b, a
+	end
+	ab, ac, bc = b - a, c - a, c - b
+	if ac:Cross(ab).Magnitude < 0.01 then return end
+	local right = ac:Cross(ab).Unit
+	local up = bc:Cross(right).Unit
+	local back = bc.Unit
+	local h = math.abs(ab:Dot(up))
+	local o = {}
+	for k, v in pairs(opt or {}) do o[k] = v end
+	o.class = "WedgePart"
+	local d1, d2 = math.abs(ab:Dot(back)), math.abs(ac:Dot(back))
+	if d1 > 0.01 then part(name, Vector3.new(th, h, d1), CFrame.fromMatrix((a + b) / 2, right, up, back), color, o) end
+	if d2 > 0.01 then part(name, Vector3.new(th, h, d2), CFrame.fromMatrix((a + c) / 2, -right, up, -back), color, o) end
+end
 local function label(adornee: BasePart, text, color, offsetY, scale)
 	local g = Instance.new("BillboardGui")
 	g.Name = "Label"
@@ -1176,7 +1199,13 @@ busStop(4, "해변", Vector3.new(-153, 0, 150), Vector3.new(-1, 0, 0), Vector3.n
 ------------------------------------------------------- 광안리 seafront
 do
 	-- full length of the west side (user: the whole west is beach and sea)
-	local z0, z1 = -480, 300
+	local z0, z1 = -474, 300 -- north end: the park wall's cross leg (user 2026-10-24)
+	-- the road ends in a U-turn bulb (user 2026-10-24, red line): no turnaround
+	-- size is given in the road rules found (도로의 구조·시설 기준에 관한 규칙
+	-- has none for a dead end), so the bulb is the usual 12 m turning circle
+	-- for a car: diameter 24 here, the full road width
+	local ROAD_N = -392 -- bulb centre; the asphalt ends 12 further north
+	local STEP_N = -400 -- straight wooden steps from here south; north of it they curve and taper
 	box("Promenade", -198, 0, z0, -182, CURB, z1, Color3.fromRGB(175, 135, 120), { material = Enum.Material.Brick })
 	-- steps down to the sand (광안리 photo): granite edge, then wooden tiers;
 	-- skipped where the beach cafe / pier already meet the promenade
@@ -1277,7 +1306,7 @@ do
 			l.Text = "음수대(수돗물)\nWater Fountain"
 			l.Parent = g
 		end
-		for zs = z0, z1 - 1, 20 do
+		for zs = STEP_N, z1 - 1, 20 do
 			local ze = math.min(zs + 20, z1)
 			local free = true
 			local probe = CFrame.new(-201, (sandTop + CURB) / 2 + 0.2, (zs + ze) / 2)
@@ -1295,7 +1324,100 @@ do
 			end
 		end
 	end
-	box("SeaRoad", -182, 0, z0, -158, 0.12, z1, ASPHALT, { material = Enum.Material.Asphalt })
+	box("SeaRoad", -182, 0, ROAD_N, -158, 0.12, z1, ASPHALT, { material = Enum.Material.Asphalt })
+	do -- the U-turn bulb, the paved end beyond it, U-turn marking and sign
+		local BR = 12
+		local bc = Vector3.new(-170, 0, ROAD_N)
+		-- the half circle past the straight road: a flat fan (a cylinder's round
+		-- face draws the asphalt lighter than the road)
+		for k = 0, 11 do
+			local a0, a1 = math.pi * k / 12, math.pi * (k + 1) / 12
+			local function ap(a) return Vector3.new(bc.X + BR * math.cos(a), 0.06, bc.Z - BR * math.sin(a)) end
+			wedgeTri("SeaRoadEnd", Vector3.new(bc.X, 0.06, bc.Z), ap(a0), ap(a1), 0.12, ASPHALT, { material = Enum.Material.Asphalt })
+		end
+		-- the same surface street_dress gives the roads (concrete + OHU_Asphalt variant)
+		for _, p in ipairs(T:GetChildren()) do
+			if p.Name == "SeaRoadEnd" and p:IsA("BasePart") then
+				p.Material = Enum.Material.Concrete
+				p.MaterialVariant = "OHU_Asphalt"
+				p.Color = Color3.fromRGB(78, 79, 83)
+			end
+		end
+		local PAVE = Color3.fromRGB(175, 135, 120)
+		local po = { material = Enum.Material.Brick }
+		-- paving over the old road north of the bulb, at the promenade's height
+		box("Promenade", -182, 0, z0, -158, CURB, ROAD_N - BR, PAVE, po)
+		-- the two corners between the bulb and the square end: fans of triangles
+		local function arcP(a) return Vector3.new(bc.X + BR * math.cos(a), CURB / 2, bc.Z - BR * math.sin(a)) end
+		for _, cn in ipairs({ { Vector3.new(-158, CURB / 2, ROAD_N - BR), 0, 90 }, { Vector3.new(-182, CURB / 2, ROAD_N - BR), 90, 180 } }) do
+			local N = 6
+			for k = 0, N - 1 do
+				local a0 = math.rad(cn[2] + (cn[3] - cn[2]) * k / N)
+				local a1 = math.rad(cn[2] + (cn[3] - cn[2]) * (k + 1) / N)
+				wedgeTri("Promenade", cn[1], arcP(a0), arcP(a1), CURB, PAVE, po)
+			end
+		end
+		-- 유턴 노면표시 on the northbound lane (it drives toward -z): up the right,
+		-- round to the left, the head pointing back south
+		local function uArrow(frame: CFrame, s, color, opt)
+			local w = 0.32 * s
+			local function P(x, y) return (frame * CFrame.new(x * s, y * s, 0)).Position end
+			local function stroke(a: Vector3, b: Vector3)
+				local d = (b - a)
+				part("UTurnArrow", Vector3.new(d.Magnitude + w * 0.8, 0.04, w), CFrame.fromMatrix((a + b) / 2, d.Unit, frame.ZVector), color, opt)
+			end
+			stroke(P(1, -2.2), P(1, 1))
+			local prev = P(1, 1)
+			for k = 1, 8 do
+				local a = math.pi * k / 8
+				local p = P(math.cos(a), 1 + math.sin(a))
+				stroke(prev, p)
+				prev = p
+			end
+			stroke(P(-1, 1), P(-1, -0.4))
+			local o = {}
+			for k2, v in pairs(opt) do o[k2] = v end
+			wedgeTri("UTurnArrow", P(-1.75, -0.4), P(-0.25, -0.4), P(-1, -1.6), 0.04, color, o)
+		end
+		-- on the road: x right = +x, "up" along the lane = -z, normal = up
+		uArrow(CFrame.fromMatrix(Vector3.new(-162, 0.15, ROAD_N + 22), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1)), 1.6, WHITE, { nocol = true })
+		-- 유턴 지시표지 (blue round sign, white U arrow) on the east sidewalk, facing the northbound traffic
+		local sp = Vector3.new(-154, CURB, ROAD_N + 14)
+		vcyl("UTurnSignPost", sp, 0.25, 7.2, Color3.fromRGB(150, 152, 156), { material = Enum.Material.Metal })
+		part("UTurnSign", Vector3.new(0.12, 2.6, 2.6), CFrame.new(sp + Vector3.new(0, 6.6, 0.1)) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(20, 80, 170), { shape = Enum.PartType.Cylinder })
+		uArrow(CFrame.fromMatrix(sp + Vector3.new(0, 6.6, 0.18), Vector3.new(1, 0, 0), Vector3.new(0, 1, 0)), 0.45, Color3.new(1, 1, 1), { nocol = true })
+	end
+	do -- the wooden steps go on north of STEP_N to the wall, curving west and
+		-- getting narrower (user 2026-10-24, brown line); the paving fills in behind
+		local sandTop = CURB - BEACH_DROP
+		local wood = Color3.fromRGB(120, 88, 62)
+		local M = 8
+		local function outerX(s) return -206.2 - 22 * s * s end
+		local function depth(s) return 7.5 * (1 - 0.66 * s) end
+		local function zAt(s) return STEP_N + (z0 - STEP_N) * s end
+		for i = 0, M - 1 do
+			local s0, s1 = i / M, (i + 1) / M
+			local za, zb = zAt(s0), zAt(s1)
+			local function quad(name, xa0, xa1, xb0, xb1, top, color, mat)
+				local y = (top + sandTop) / 2
+				local th = top - sandTop
+				local o = { material = mat }
+				wedgeTri(name, Vector3.new(xa0, y, za), Vector3.new(xa1, y, za), Vector3.new(xb1, y, zb), th, color, o)
+				wedgeTri(name, Vector3.new(xa0, y, za), Vector3.new(xb1, y, zb), Vector3.new(xb0, y, zb), th, color, o)
+			end
+			local oa, ob = outerX(s0), outerX(s1)
+			local da, db = depth(s0), depth(s1)
+			local ia, ib = oa + da, ob + db -- inner edge (the top of the steps)
+			-- paving from the promenade's edge out to the top of the steps
+			if ia < -198.05 or ib < -198.05 then quad("Promenade", ia, -198, ib, -198, CURB, Color3.fromRGB(175, 135, 120), Enum.Material.Brick) end
+			quad("BeachStepEdge", ia - 0.7, ia, ib - 0.7, ib, CURB + 0.1, Color3.fromRGB(196, 194, 188), Enum.Material.Granite)
+			for k = 1, 3 do
+				local fa0, fa1 = ia - 0.7 - (da - 0.7) * k / 3, ia - 0.7 - (da - 0.7) * (k - 1) / 3
+				local fb0, fb1 = ib - 0.7 - (db - 0.7) * k / 3, ib - 0.7 - (db - 0.7) * (k - 1) / 3
+				quad("BeachStep", fa0, fa1, fb0, fb1, CURB - 0.6 * k, wood, Enum.Material.WoodPlanks)
+			end
+		end
+	end
 	-- one car lane each way (-174..-166 southbound, -166..-158 northbound) and
 	-- the red bike lane along the promenade. Markings as on the crossroads
 	-- (ROAD_MARKINGS.md): single yellow solid centre line (편도 1차로),
@@ -1310,11 +1432,11 @@ do
 	-- 도로교통법 시행규칙 제11조 4호: no crosswalk within 100 m (집산·국지도로;
 	-- 200 m elsewhere) of another crosswalk → only the T junction pair and one
 	-- mid-block crossing far beyond it (-400 is 120 m from the junction)
-	local CROSS = { -400, -40.7, 40.7 } -- ±40.7: the T junction pair
+	local CROSS = { -40.7, 40.7 } -- the T junction pair (the -400 crossing went with the road's end, 2026-10-24)
 	local BIKE_X = { { -34.7, -27.7 }, { 27.7, 34.7 } } -- bike crossings in line with the sidewalk bike lanes (z ±29.2..33.2)
-	for _, seg in ipairs({ { z0, -24 }, { 24, z1 } }) do -- lane paint stops at the junction with the west road
+	for _, seg in ipairs({ { ROAD_N, -24 }, { 24, z1 } }) do -- lane paint stops at the junction with the west road
 		paint("EdgeLine", -174.2, seg[1], -173.8, seg[2], WHITE)
-		paint("CenterLine", -166.2, seg[1], -165.8, seg[2], YELLOW)
+		paint("CenterLine", -166.2, math.max(seg[1], ROAD_N + 12), -165.8, seg[2], YELLOW) -- ends where the bulb opens
 		for zz = seg[1] + 10, seg[2] - 6, 80 do -- every other symbol of the old 40 (user 2026-10-24)
 			local near = false
 			for _, cz in ipairs(CROSS) do if math.abs(zz - cz) < 14 then near = true end end
@@ -2476,26 +2598,52 @@ do
 	archBand(ax0, ax1, 19, 5, 1.4, "GateArch", CARVE, Enum.Material.Sandstone, MAIN_S - 0.4)
 	archBand(ax0, ax1, 23.2, 5, 1.2, "GateArchTop", STONE, Enum.Material.Sandstone, MAIN_S - 0.6)
 	-- sign: dark band in the middle of the arch, gold letters
-	part("GateSignFrame", Vector3.new(ax1 - ax0 - 2.6, 4.6, 0.5), CFrame.new(CX, 24.6, gz1 - 0.4), GOLD, { parent = E, material = Enum.Material.Foil })
-	local sign = part("GateSign", Vector3.new(ax1 - ax0 - 3.4, 3.8, 0.4), CFrame.new(CX, 24.6, gz1 - 0.1), Color3.fromRGB(62, 54, 44), { parent = E })
+	-- the sign bends with the arch behind it (user 2026-10-24): its centre line
+	-- runs 3.6 under the arch-top band's curve, in segments; each letter sits on
+	-- its own small plate turned to the curve
+	local sign
 	do
-		local g = Instance.new("SurfaceGui")
-		g.Face = Enum.NormalId.Back -- the street side (+z)
-		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		g.PixelsPerStud = 40
-		g.LightInfluence = 0.4
-		g.Parent = sign
-		local l = Instance.new("TextLabel")
-		l.Size = UDim2.fromScale(0.92, 0.86)
-		l.Position = UDim2.fromScale(0.04, 0.07)
-		l.BackgroundTransparency = 1
-		l.TextScaled = true
-		l.Font = Enum.Font.Fondamento
-		l.TextColor3 = GOLD
-		l.TextStrokeColor3 = Color3.fromRGB(40, 30, 15)
-		l.TextStrokeTransparency = 0.3
-		l.Text = "OHU  LAND"
-		l.Parent = g
+		local xa, xb = ax0 - 0.8, ax1 + 0.8 -- the arch-top band's span (archBand adds 0.8)
+		local function sy(x) return 23.2 + 5 * math.sin(math.pi * (x - xa) / (xb - xa)) - 3.6 end
+		local half = (ax1 - ax0 - 2.6) / 2
+		local K = 14
+		for k = 0, K - 1 do
+			local x0s, x1s = CX - half + 2 * half * k / K, CX - half + 2 * half * (k + 1) / K
+			local pa, pb = Vector3.new(x0s, sy(x0s), 0), Vector3.new(x1s, sy(x1s), 0)
+			local d = (pb - pa).Unit
+			local up = Vector3.zAxis:Cross(d)
+			local mid = (pa + pb) / 2
+			local len = (pb - pa).Magnitude + 0.25
+			part("GateSignFrame", Vector3.new(len, 4.6, 0.5), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.4), d, up), GOLD, { parent = E, material = Enum.Material.Foil })
+			local seg = part("GateSign", Vector3.new(len, 3.8, 0.4), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.1), d, up), Color3.fromRGB(62, 54, 44), { parent = E })
+			if k == K // 2 then sign = seg end
+		end
+		local text = { "O", "H", "U", "", "L", "A", "N", "D" }
+		local step = 1.65
+		for i, ch in ipairs(text) do
+			if ch ~= "" then
+				local x = CX + (i - (#text + 1) / 2) * step
+				local p0, p1 = Vector3.new(x - 0.1, sy(x - 0.1), 0), Vector3.new(x + 0.1, sy(x + 0.1), 0)
+				local d = (p1 - p0).Unit
+				local plate = part("GateSignLetter", Vector3.new(2, 3.3, 0.05), CFrame.fromMatrix(Vector3.new(x, sy(x), gz1 + 0.13), d, Vector3.zAxis:Cross(d)), GOLD, { parent = E, transparency = 1, nocol = true })
+				local g = Instance.new("SurfaceGui")
+				g.Face = Enum.NormalId.Back -- the street side (+z)
+				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+				g.PixelsPerStud = 50
+				g.LightInfluence = 0.4
+				g.Parent = plate
+				local l = Instance.new("TextLabel")
+				l.Size = UDim2.fromScale(1, 1)
+				l.BackgroundTransparency = 1
+				l.TextScaled = true
+				l.Font = Enum.Font.Fondamento
+				l.TextColor3 = GOLD
+				l.TextStrokeColor3 = Color3.fromRGB(40, 30, 15)
+				l.TextStrokeTransparency = 0.3
+				l.Text = ch
+				l.Parent = g
+			end
+		end
 	end
 	part("GateCrest", Vector3.new(6, 3, 0.6), CFrame.new(CX, 29.8, gzc), CARVE, { parent = E, material = Enum.Material.Sandstone })
 	part("GateCrestBall", Vector3.new(1.4, 1.4, 1.4), CFrame.new(CX, 31.6, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil })
@@ -2600,7 +2748,7 @@ do
 		["내"] = { S(0.06, 0.86, 0.06, 0.16), S(0.06, 0.16, 0.5, 0.16), S(0.68, 0.96, 0.68, 0.04), S(0.68, 0.52, 0.92, 0.52), S(0.92, 1, 0.92, 0) },
 	}
 	local function letters3d(text: { string }, origin: Vector3, right: Vector3, out: Vector3, H: number)
-		local SW, DEPTH, GAP = 0.16 * H, 0.7, 0.22
+		local SW, DEPTH, GAP = 0.16 * H, 0.47, 0.22 -- 2/3 of the first depth (user 2026-10-24)
 		local m = Instance.new("Model")
 		m.Name = "BoothLetters"
 		m.Parent = E
@@ -2614,8 +2762,7 @@ do
 			face:SetAttribute("NightRange", 4)
 			face:SetAttribute("NightBrightness", 0.6)
 			CS:AddTag(face, "NightGlow")
-			local halo = part("LetterHalo", Vector3.new(len + SW * 0.9 + 0.3, 0.04, SW + 0.3), cf * CFrame.new(0, -DEPTH / 2 + 0.05, 0), Color3.fromRGB(255, 110, 170), { parent = m, nocol = true, material = Enum.Material.Neon, transparency = 0.45 })
-			halo.CastShadow = false
+			-- (no pink halo behind the letters: user 2026-10-24)
 		end
 		local total = #text + (#text - 1) * GAP
 		local x = -total / 2
@@ -2681,20 +2828,19 @@ do
 		}, Color3.fromRGB(250, 248, 240), Color3.fromRGB(200, 30, 40))
 		-- 3D letters across the cornice and cap (user sketch 2026-10-24); the old
 		-- flat sign band is gone (its small text broke up at a distance)
-		local LH = math.min(2.6, (W - 1.6) / (#sign3d + (#sign3d - 1) * 0.22))
-		letters3d(sign3d, (fr * CFrame.new(0, H2 + 0.45, hd + 0.5)).Position, fr.RightVector, fr.LookVector * -1, LH)
+		-- small enough to stay inside the booth's outline (top H2 + 1.7, sides)
+		local LH = math.min(1.8, (W - 2.4) / (#sign3d + (#sign3d - 1) * 0.22))
+		letters3d(sign3d, (fr * CFrame.new(0, H2 + 0.5, hd + 0.5)).Position, fr.RightVector, fr.LookVector * -1, LH)
 		local anchor = lb("BoothLabelAnchor", -0.5, H2 + 2, -0.5, 0.5, H2 + 2.2, 0.5, IRON, { parent = E, transparency = 1, nocol = true })
 		label(anchor, title, Color3.fromRGB(150, 110, 50), 6, 0.6)
 	end
-	-- as at real parks (user 2026-10-24): the ticket office out in the forecourt,
-	-- its window facing the street the visitors come from; information right
-	-- beside the gate (the right-hand tower), its window facing the path
-	booth(Vector3.new(-127, 0, -200), Vector3.new(0, 0, 1), 12, 8, "매표소 TICKETS", { "매", "표", "소" })
-	booth(Vector3.new(-65, 0, -218.5), Vector3.new(-1, 0, 0), 9, 8, "i 안내", { "안", "내", "소" })
+	-- out in the forecourt either side of the path, windows facing the path
+	-- (the user's first sketch, 2026-10-24: back to it after trying the street-facing layout)
+	booth(Vector3.new(-127, 0, -200), Vector3.new(1, 0, 0), 12, 8, "매표소 TICKETS", { "매", "표", "소" })
+	booth(Vector3.new(-59, 0, -200), Vector3.new(-1, 0, 0), 10, 7, "i 안내", { "안", "내", "소" })
 	-- closed while the inside is being built (user 2026-10-24, photos
 	-- docs/04_ART/references/park_closed_*.webp): printed hoarding just inside the
-	-- gate (seen through the bars), a black mesh site fence on wheeled feet in
-	-- front of the main arch, a "pardon our progress" sign and a pole sign
+	-- gate, seen through the closed bars
 	do
 		local NAVY, NAVY2 = Color3.fromRGB(28, 42, 78), Color3.fromRGB(36, 54, 98)
 		local hz = gz0 - 2.5 -- hoarding face (street side), inside the park
@@ -2734,54 +2880,7 @@ do
 			box("HoardingPost", px - 0.15, 0, hz - 0.6, px + 0.15, HH, hz - 0.3, Color3.fromRGB(90, 90, 95), { parent = E, material = Enum.Material.DiamondPlate })
 			part("HoardingBrace", Vector3.new(0.2, 9, 0.2), CFrame.new(px, 4, hz - 3) * CFrame.Angles(math.rad(-36), 0, 0), Color3.fromRGB(90, 90, 95), { parent = E, material = Enum.Material.DiamondPlate })
 		end
-		-- black mesh site fence on wheeled feet, in front of the main arch
-		local fz = gz1 + 2.2
-		local fx0, fx1 = ax0 - 1.5, ax1 + 1.5
-		local FH = 8
-		local nPan = math.ceil((fx1 - fx0) / 7)
-		local pw = (fx1 - fx0) / nPan
-		for i = 0, nPan - 1 do
-			local a = fx0 + i * pw
-			local b2 = a + pw
-			box("SiteFenceTube", a + 0.05, 0.5, fz - 0.07, b2 - 0.05, 0.62, fz + 0.07, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
-			box("SiteFenceTube", a + 0.05, FH - 0.12, fz - 0.07, b2 - 0.05, FH, fz + 0.07, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
-			box("SiteFenceTube", a + 0.05, 0.5, fz - 0.07, a + 0.17, FH, fz + 0.07, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
-			box("SiteFenceTube", b2 - 0.17, 0.5, fz - 0.07, b2 - 0.05, FH, fz + 0.07, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
-			box("SiteFenceTube", a + 0.1, FH / 2 - 0.06, fz - 0.06, b2 - 0.1, FH / 2 + 0.06, fz + 0.06, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
-			-- the black privacy screen zip-tied to the mesh: a little see-through
-			box("SiteFenceScreen", a + 0.2, 0.7, fz - 0.03, b2 - 0.2, FH - 0.15, fz + 0.03, Color3.fromRGB(18, 18, 20), { parent = E, material = Enum.Material.Fabric, transparency = 0.18 })
-			-- feet: a yellow-tipped bar with a wheel at each panel joint
-			for _, x in ipairs({ a + 0.1, b2 - 0.1 }) do
-				box("SiteFenceFoot", x - 0.12, 0, fz - 1.4, x + 0.12, 0.25, fz + 1.4, Color3.fromRGB(40, 40, 42), { parent = E, material = Enum.Material.Metal })
-				box("SiteFenceFootTip", x - 0.13, 0, fz + 1.0, x + 0.13, 0.26, fz + 1.4, Color3.fromRGB(240, 196, 30), { parent = E })
-				part("SiteFenceWheel", Vector3.new(0.3, 0.9, 0.9), CFrame.new(x, 0.45, fz - 1.0), Color3.fromRGB(25, 25, 25), { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Rubber, nocol = true })
-			end
-		end
-		-- padlock where the two middle panels meet
-		box("SiteFencePadlock", CX - 0.2, 3.6, fz + 0.08, CX + 0.2, 4.1, fz + 0.25, Color3.fromRGB(196, 160, 70), { parent = E, material = Enum.Material.Metal, nocol = true })
-		-- signs zip-tied to the screen
-		local s1 = box("SiteSign", CX - 7.5, 3.4, fz + 0.08, CX - 2.5, 6.0, fz + 0.14, Color3.new(1, 1, 1), { parent = E, nocol = true })
-		notice(s1, Enum.NormalId.Back, {
-			{ "Please Pardon Our", Color3.fromRGB(190, 30, 40), Enum.Font.Fondamento, 0.3 },
-			{ "PROGRESS", Color3.fromRGB(30, 70, 170), Enum.Font.GothamBlack, 0.34 },
-			{ "공사 중입니다 · 출입 금지", Color3.fromRGB(40, 40, 45), Enum.Font.GothamBold, 0.2 },
-		}, Color3.new(1, 1, 1), Color3.fromRGB(30, 70, 170))
-		local s2 = box("SiteSign", ax0 - 0.5, 4.2, fz + 0.08, ax0 + 1.7, 5.4, fz + 0.14, Color3.fromRGB(200, 30, 40), { parent = E, nocol = true })
-		notice(s2, Enum.NormalId.Back, {
-			{ "출입 금지", Color3.new(1, 1, 1), Enum.Font.GothamBlack, 0.6 },
-			{ "NO ENTRY", Color3.new(1, 1, 1), Enum.Font.GothamBold, 0.4 },
-		}, Color3.fromRGB(200, 30, 40))
-		-- free-standing pole sign on a weighted base, a step in front of the fence
-		local sx, sz = CX + 5, fz + 2.6
-		vcyl("PoleSignBase", Vector3.new(sx, 0, sz), 2.4, 0.9, Color3.fromRGB(30, 30, 32), { parent = E, material = Enum.Material.Plastic })
-		vcyl("PoleSignPost", Vector3.new(sx, 0.9, sz), 0.2, 5.4, Color3.fromRGB(30, 30, 32), { parent = E, material = Enum.Material.Metal })
-		local s3 = box("PoleSign", sx - 1.6, 4.4, sz + 0.1, sx + 1.6, 7.6, sz + 0.2, Color3.fromRGB(246, 244, 236), { parent = E })
-		notice(s3, Enum.NormalId.Back, {
-			{ "SOMETHING", Color3.fromRGB(50, 40, 30), Enum.Font.Fondamento, 0.2 },
-			{ "NEW COMING", Color3.fromRGB(50, 40, 30), Enum.Font.Fondamento, 0.2 },
-			{ "SOON!", Color3.fromRGB(50, 40, 30), Enum.Font.Fondamento, 0.26 },
-			{ "오후랜드 곧 오픈", Color3.fromRGB(90, 70, 50), Enum.Font.GothamBold, 0.16 },
-		}, Color3.fromRGB(246, 244, 236), Color3.fromRGB(60, 50, 40))
+		-- (the black mesh site fence and its signs in front of the arch: removed, user 2026-10-24)
 		-- the ride name signs inside would float over the hoarding: off while closed
 		local pz = root:FindFirstChild("06_Park_Playground")
 		if pz then
@@ -3806,7 +3905,7 @@ end
 -- player, and past it the sand sea floor showed. A wide sea surface (a
 -- persistent model, always on every client) runs out to the horizon, lighter
 -- by the shore and deeper blue further out. In the north the beach curves round
--- the bay to a wooded headland (user sketch + photos,
+-- the bay and runs out to a sandy point (user sketches + photos,
 -- docs/04_ART/references/beach_curve_ref_*.webp, beach_user_sketch_curve_wall.webp).
 do
 	local SEA = Instance.new("Model")
@@ -3885,74 +3984,6 @@ do
 		end
 	end
 	local SAND, WET = Color3.fromRGB(232, 214, 165), Color3.fromRGB(205, 186, 140)
-	local GRASS = Color3.fromRGB(104, 150, 82)
-	local FOREST = { Color3.fromRGB(44, 84, 48), Color3.fromRGB(56, 98, 56), Color3.fromRGB(38, 72, 44), Color3.fromRGB(64, 108, 60) }
-	local SAND_TOP = -BEACH_DROP + 0.6 -- the beach's sand level
-	local ZN = -1400 -- north edge of the land
-	-- the bay: a circle touching the straight beach (x -268) at z -330, so the
-	-- shore leaves the straight line smoothly and curves west round the bay
-	local C, R = Vector3.new(-560, 0, -330), 292
-	local TH_END = math.rad(120)
-	local N = 48
-	local function onArc(r, th, y) return Vector3.new(C.X + r * math.cos(th), y, C.Z - r * math.sin(th)) end
-	for i = 0, N - 1 do
-		local t0, t1 = TH_END * i / N, TH_END * (i + 1) / N
-		-- sand from the shore line north to the edge of the land (strips with a slanted end)
-		local a, b = onArc(R, t0, SAND_TOP - 0.8), onArc(R, t1, SAND_TOP - 0.8)
-		local bN, aN = Vector3.new(b.X, a.Y, ZN), Vector3.new(a.X, a.Y, ZN)
-		tri("BaySand", a, b, bN, 1.6, SAND, Enum.Material.Sand)
-		tri("BaySand", a, bN, aN, 1.6, SAND, Enum.Material.Sand)
-		-- wet sand sloping under the water to the sea floor (42 out, down to -16)
-		local sa, sb = onArc(R - 42, t0, -16.5), onArc(R - 42, t1, -16.5)
-		local a2, b2 = onArc(R + 0.3, t0, SAND_TOP - 0.5), onArc(R + 0.3, t1, SAND_TOP - 0.5)
-		tri("BayShore", a2, b2, sb, 1, WET, Enum.Material.Sand)
-		tri("BayShore", a2, sb, sa, 1, WET, Enum.Material.Sand)
-	end
-	-- grass behind the sand (55 back from the water), west of the straight beach
-	local R2 = R + 55
-	local tg0 = math.acos((-268 - C.X) / R2)
-	local tg1 = math.acos((onArc(R, TH_END, 0).X - C.X) / R2)
-	local NG = 36
-	for i = 0, NG - 1 do
-		local t0, t1 = tg0 + (tg1 - tg0) * i / NG, tg0 + (tg1 - tg0) * (i + 1) / NG
-		local a, b = onArc(R2, t0, SAND_TOP - 0.2), onArc(R2, t1, SAND_TOP - 0.2)
-		tri("BayGrass", a, b, Vector3.new(b.X, a.Y, ZN), 1.6, GRASS, Enum.Material.Grass)
-		tri("BayGrass", a, Vector3.new(b.X, a.Y, ZN), Vector3.new(a.X, a.Y, ZN), 1.6, GRASS, Enum.Material.Grass)
-	end
-	-- hills: ellipsoids (a Sphere mesh stretched to the part's size)
-	local function hill(name, c: Vector3, size: Vector3, color, mat)
-		local p = part(name, size, CFrame.new(c), color, { parent = SEA, nocol = true, material = mat })
-		local m = Instance.new("SpecialMesh")
-		m.MeshType = Enum.MeshType.Sphere
-		m.Parent = p
-		p.CastShadow = false
-		return p
-	end
-	local HILLS = { -- centre, size: the headland where the beach ends, the coast on north, the wooded rise behind the beach
-		{ Vector3.new(-735, -14, -640), Vector3.new(270, 64, 250) },
-		{ Vector3.new(-790, -18, -860), Vector3.new(260, 60, 320) },
-		{ Vector3.new(-760, -20, -1150), Vector3.new(240, 50, 320) },
-		{ Vector3.new(-500, -8, -1110), Vector3.new(460, 40, 420) },
-	}
-	for k, hl in ipairs(HILLS) do
-		hill("Headland", hl[1], hl[2], FOREST[(k % #FOREST) + 1], Enum.Material.Grass)
-		-- a rocky skirt where the hill meets the sea
-		if k <= 3 then hill("HeadlandRock", hl[1] + Vector3.new(0, 6, 0), Vector3.new(hl[2].X + 18, 22, hl[2].Z + 18), Color3.fromRGB(118, 112, 104), Enum.Material.Rock) end
-	end
-	local function hillTop(x, z): number?
-		local best: number? = nil
-		for _, hl in ipairs(HILLS) do
-			local c, s = hl[1], hl[2]
-			local q = ((x - c.X) / (s.X / 2)) ^ 2 + ((z - c.Z) / (s.Z / 2)) ^ 2
-			if q < 0.85 then
-				local y = c.Y + s.Y / 2 * math.sqrt(1 - q)
-				if not best or y > best then best = y end
-			end
-		end
-		return best
-	end
-	-- trees: round dark-green crowns, dense like the pine woods in the photos,
-	-- in a band behind the grass and over the hills (one random seed: same every build)
 	for _, p in ipairs(SEA:GetChildren()) do
 		if p.Name == "SeaSurface" then
 			p.Reflectance = 0.08
@@ -3961,21 +3992,108 @@ do
 			p.CastShadow = false
 		end
 	end
-	local rng = Random.new(1024)
-	local function crown(x, z, y)
-		local s = rng:NextNumber(14, 24)
-		local p = part("TreeCrown", Vector3.new(s, s, s), CFrame.new(x, y + s * 0.32, z), FOREST[rng:NextInteger(1, #FOREST)], { parent = SEA, nocol = true, shape = Enum.PartType.Ball, material = Enum.Material.Grass })
-		p.CastShadow = false
+	-- The north end of the beach: sand only (user 2026-10-24: no trees, lighter),
+	-- shaped like the user's white lines. The shore leaves the straight beach on
+	-- a circle (C, R) round the bay, runs on west to a sandy point, and the
+	-- spit's north shore comes back east to the straight beach far up north.
+	local SAND_TOP = -BEACH_DROP + 0.6 -- the beach's sand level
+	local C, R = Vector3.new(-560, 0, -330), 292
+	local outline: { Vector2 } = {}
+	for i = 0, 24 do -- round the bay: 0..90 degrees
+		local th = math.rad(90) * i / 24
+		table.insert(outline, Vector2.new(C.X + R * math.cos(th), C.Z - R * math.sin(th)))
 	end
-	for x = -900, -276, 20 do
-		for z = ZN + 20, -400, 20 do
-			local jx, jz = x + rng:NextNumber(-7, 7), z + rng:NextNumber(-7, 7)
-			local d = (Vector3.new(jx, 0, jz) - C).Magnitude
-			local top = hillTop(jx, jz)
-			if top and top > -2 then
-				if rng:NextNumber() < 0.75 then crown(jx, jz, top - 1) end
-			elseif jz < C.Z and d > R2 + 6 and d < R2 + 110 and jx < -276 then
-				crown(jx, jz, SAND_TOP)
+	local function bez(p0: Vector2, p1: Vector2, p2: Vector2, p3: Vector2, n, skipFirst)
+		for i = (if skipFirst then 1 else 0), n do
+			local s = i / n
+			local q = 1 - s
+			table.insert(outline, p0 * q ^ 3 + p1 * 3 * q * q * s + p2 * 3 * q * s * s + p3 * s ^ 3)
+		end
+	end
+	local TIP = Vector2.new(-1080, -700)
+	-- south shore on to the point (leaves the circle heading west)
+	bez(Vector2.new(-560, -622), Vector2.new(-760, -622), Vector2.new(-960, -660), TIP, 12, true)
+	-- round the point and back along the north shore to the sand strip by the wall
+	-- (the outline then closes down x -268 to its start)
+	bez(TIP, Vector2.new(-1000, -760), Vector2.new(-520, -820), Vector2.new(-268, -1400), 16, true)
+	-- ear clipping wants the outline counter-clockwise in (x, z)
+	local function area(p)
+		local s = 0
+		for i = 1, #p do
+			local a, b = p[i], p[i % #p + 1]
+			s += a.X * b.Y - b.X * a.Y
+		end
+		return s / 2
+	end
+	if area(outline) < 0 then
+		local r = {}
+		for i = #outline, 1, -1 do table.insert(r, outline[i]) end
+		outline = r
+	end
+	local function cross(o: Vector2, a: Vector2, b: Vector2) return (a.X - o.X) * (b.Y - o.Y) - (a.Y - o.Y) * (b.X - o.X) end
+	local function inTri(p, a, b, c)
+		return cross(a, b, p) >= 0 and cross(b, c, p) >= 0 and cross(c, a, p) >= 0
+	end
+	local function v3(p: Vector2, y) return Vector3.new(p.X, y, p.Y) end
+	local so = { parent = SEA, nocol = true, material = Enum.Material.Sand }
+	do -- ear clipping
+		local idx = {}
+		for i = 1, #outline do idx[i] = i end
+		local guard = 0
+		while #idx > 3 and guard < 5000 do
+			guard += 1
+			local found = false
+			for k = 1, #idx do
+				local ia, ib, ic = idx[(k - 2) % #idx + 1], idx[k], idx[k % #idx + 1]
+				local a, b, c = outline[ia], outline[ib], outline[ic]
+				if cross(a, b, c) > 0 then
+					local ear = true
+					for _, j in ipairs(idx) do
+						if j ~= ia and j ~= ib and j ~= ic and inTri(outline[j], a, b, c) then
+							ear = false
+							break
+						end
+					end
+					if ear then
+						wedgeTri("BaySand", v3(a, SAND_TOP - 0.8), v3(b, SAND_TOP - 0.8), v3(c, SAND_TOP - 0.8), 1.6, SAND, so)
+						table.remove(idx, k)
+						found = true
+						break
+					end
+				end
+			end
+			if not found then break end
+		end
+		if #idx == 3 then
+			wedgeTri("BaySand", v3(outline[idx[1]], SAND_TOP - 0.8), v3(outline[idx[2]], SAND_TOP - 0.8), v3(outline[idx[3]], SAND_TOP - 0.8), 1.6, SAND, so)
+		end
+	end
+	-- wet sand sloping under the water (42 out, down to -16) along every shore
+	-- edge (not the edge on x -268, which meets the beach sand)
+	local SL = 42
+	local n = #outline
+	local normals = {}
+	for i = 1, n do
+		local a, b = outline[i], outline[i % n + 1]
+		local d = (b - a).Unit
+		normals[i] = Vector2.new(d.Y, -d.X) -- right of a counter-clockwise edge = outward
+	end
+	local function shoreEdge(i)
+		local a, b = outline[i], outline[i % n + 1]
+		return not (math.abs(a.X + 268) < 0.5 and math.abs(b.X + 268) < 0.5)
+	end
+	for i = 1, n do
+		if shoreEdge(i) then
+			local a, b, nn = outline[i], outline[i % n + 1], normals[i]
+			wedgeTri("BayShore", v3(a, SAND_TOP - 0.5), v3(b, SAND_TOP - 0.5), v3(b + nn * SL, -16.5), 1, WET, so)
+			wedgeTri("BayShore", v3(a, SAND_TOP - 0.5), v3(b + nn * SL, -16.5), v3(a + nn * SL, -16.5), 1, WET, so)
+			-- fill the gap at an outside corner with the next edge
+			local j = i % n + 1
+			if shoreEdge(j) then
+				local n2 = normals[j]
+				if nn.X * n2.Y - nn.Y * n2.X < 0 then
+					wedgeTri("BayShore", v3(b, SAND_TOP - 0.5), v3(b + nn * SL, -16.5), v3(b + n2 * SL, -16.5), 1, WET, so)
+				end
 			end
 		end
 	end
