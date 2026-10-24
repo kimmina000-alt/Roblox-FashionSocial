@@ -846,6 +846,10 @@ end
 -- (north, south and east run on to the map edge, 1000 from the junction, so
 -- no road end shows on screen; user 2026-10-23)
 bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 } }, { { 92, -1 }, { 150, 1 }, { 205, -1 } }, { [-1] = 34, [1] = 49 }, nil, 480) -- north
+-- along the pocket park the west sidewalk is as wide as the others (to x -47,
+-- the corner squares' line; user 2026-10-24): north of it the amusement park's
+-- wall (x -38) keeps it narrow
+walk(-47, -225, -34, -54.2) -- (stops at subway exit 3's pit and the park wall's corner pillar)
 bigRoad(Vector3.new(0, 0, 1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }, nil, nil, 300) -- south (past the boundary at 299: the street goes on, D-110)
 bigRoad(Vector3.new(1, 0, 0), 1000, {}, { { 100, 1 }, { 165, -1 } }, nil, nil, 180) -- east
 bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 100, -1 } }, nil, true) -- west, to the seafront road (bike lanes run on to the bike crossings)
@@ -3565,52 +3569,7 @@ do
 		box("ParkTreePit", X1 - 3.8, 0, z - 1.8, X1 - 0.4, 0.3, z + 1.8, Color3.fromRGB(96, 76, 56), o(Enum.Material.Ground))
 		bed(X1 - 3.8, z - 1.8, X1 - 0.4, z + 1.8, 0, { { X1 - 2.1, z } }) -- clear of the hill (its edge is at x -52)
 	end
-	bed(X0 + 1, Z0 + 6, X0 + 9, Z1 - 4, 70, { { -146, -196 }, { -144, -182 }, { -146, -168 }, { -144, -154 }, { -146, -140 }, { -144, -126 }, { -146, -112 }, { -144, -98 }, { -146, -84 }, { -144, -70 }, { -146, -56 } })
-	-- a planted strip on the bare ground between the park and the east sidewalk
-	-- (user 2026-10-24, red box + sketch): raised beds packed with round shrubs,
-	-- leafy bushes, tufts of ornamental grass, a few flowers and birches; a gap
-	-- opposite the bus stop so people can walk from it into the park, and it
-	-- stops short of subway exit 3
-	do
-		local EX0, EX1 = X1 + 0.2, -35.5 -- the park's edge to just before the bus shelter
-		local GRASS = { Color3.fromRGB(150, 168, 96), Color3.fromRGB(176, 180, 110), Color3.fromRGB(122, 150, 84) }
-		local FLOWERS = { Color3.fromRGB(196, 170, 220), Color3.fromRGB(245, 240, 230), Color3.fromRGB(236, 196, 120) }
-		local function tufts(ax, az, bx, bz, n)
-			for _ = 1, n do
-				local base = Vector3.new(rng:NextNumber(ax + 1, bx - 1), 0.7, rng:NextNumber(az + 1, bz - 1))
-				local col = GRASS[rng:NextInteger(1, #GRASS)]
-				for k = 1, 4 do
-					local h = rng:NextNumber(2.2, 3.6)
-					local yaw, lean = rng:NextNumber(0, 2 * math.pi), math.rad(rng:NextNumber(8, 24))
-					part("ParkGrassBlade", Vector3.new(0.35, h, 0.12), CFrame.new(base) * CFrame.Angles(0, yaw, lean) * CFrame.new(0, h / 2, 0), col, o(Enum.Material.Grass, { nocol = true }))
-				end
-			end
-		end
-		local function flowers(ax, az, bx, bz, n)
-			for _ = 1, n do
-				local p = Vector3.new(rng:NextNumber(ax + 1, bx - 1), rng:NextNumber(1.6, 2.4), rng:NextNumber(az + 1, bz - 1))
-				part("ParkFlower", Vector3.new(0.6, 0.6, 0.6), CFrame.new(p), FLOWERS[rng:NextInteger(1, #FLOWERS)], o(Enum.Material.Fabric, { shape = Enum.PartType.Ball, nocol = true }))
-			end
-		end
-		local function leafy(ax, az, bx, bz, n)
-			for i = 1, n do
-				local at = CFrame.new(rng:NextNumber(ax + 1.5, bx - 1.5), 0.75 - 1.1, rng:NextNumber(az + 1.5, bz - 1.5)) * CFrame.Angles(0, i * 2.1, 0)
-				local s = foliage("Shrub", rng:NextNumber(0.4, 0.5), at)
-				if s then s.Parent = P end
-			end
-		end
-		for _, seg in ipairs({ { Z0 - 4, -124 }, { -114, -59 } }) do -- (the gap just south of the bus shelter, whose back faces the park, between two tree pits)
-			local a, b = seg[1], seg[2]
-			local len = b - a
-			local trees = {}
-			for z = a + 7, b - 5, 15 do table.insert(trees, { (EX0 + EX1) / 2 + rng:NextNumber(-2, 2), z }) end
-			bed(EX0, a, EX1, b, math.floor(len * 0.9), trees)
-			leafy(EX0, a, EX1, b, math.floor(len / 6))
-			tufts(EX0, a, EX1, b, math.floor(len / 2.5))
-			flowers(EX0, a, EX1, b, math.floor(len / 2))
-		end
-	end
-	-- low park lamps along the edges; they glow at night
+	bed(X0 + 1, Z0 + 6, X0 + 9, Z1 - 4, 70, { { -146, -196 }, { -144, -182 }, { -146, -168 }, { -144, -154 }, { -146, -140 }, { -144, -126 }, { -146, -112 }, { -144, -98 }, { -146, -84 }, { -144, -70 }, { -146, -56 } })	-- low park lamps along the edges; they glow at night
 	for _, lp in ipairs({ { -114, -186 }, { -72, -186 }, { -60, -162 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
 		local b = Vector3.new(lp[1], if onDeck(lp[1], lp[2]) then DECK_TOP - 0.08 else 0, lp[2])
 		vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), o(Enum.Material.Metal))
