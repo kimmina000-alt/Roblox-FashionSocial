@@ -779,3 +779,14 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-24/gate_curved_sign_after.jpg)
 ![](images/2026-10-24/road_uturn_spit_after.jpg)
 ![](images/2026-10-24/beach_spit_top_after.jpg)
+
+### 추가 (D-174) — 부스 담 옆으로, 창 안으로, 큰 돔 / 큰 정문 간판 / 산책로 연장
+- 매표소·안내소를 정문 양쪽 담 앞(흰 박스 자리)으로 옮기고 창이 남쪽을 봅니다.
+- 창은 벽 안으로 0.6 들어가고(벽을 CSG로 파냄), 검은 철 테두리만 앞으로 나옵니다. 창 턱은 파인 자리 바닥부터 앞으로 나옵니다.
+- 지붕 돔과 받침을 부스 크기에 맞춰 키웠습니다(모서리 기둥과 같은 비율).
+- OHU LAND 간판을 탑과 탑 사이 전체 폭, 높이 6.4로 키웠고, 위 장식은 그만큼 올렸습니다.
+- 붉은 산책로와 좁은 계단이 담 모서리에서 끊기지 않고 공원 담을 따라 북쪽 끝까지 이어집니다. 곡선 계단 위에 있던 야자수는 모래 위로 옮겼습니다.
+
+![](images/2026-10-24/gate_booths_wall_after.jpg)
+![](images/2026-10-24/booth_window_recessed_after.jpg)
+![](images/2026-10-24/promenade_along_wall_after.jpg)

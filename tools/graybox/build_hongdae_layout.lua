@@ -1417,6 +1417,17 @@ do
 				quad("BeachStep", fa0, fa1, fb0, fb1, CURB - 0.6 * k, wood, Enum.Material.WoodPlanks)
 			end
 		end
+		-- past the wall corner the red paving and the narrow steps go on north
+		-- along the park wall (user 2026-10-24: it stopped dead at the corner)
+		local ox, d = outerX(1), depth(1)
+		local ix = ox + d
+		local zN = -1400
+		box("Promenade", ix, 0, zN, -207.25, CURB, z0, Color3.fromRGB(175, 135, 120), { material = Enum.Material.Brick })
+		box("BeachStepEdge", ix - 0.7, sandTop, zN, ix, CURB + 0.1, z0, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
+		for k = 1, 3 do
+			local x0s, x1s = ix - 0.7 - (d - 0.7) * k / 3, ix - 0.7 - (d - 0.7) * (k - 1) / 3
+			box("BeachStep", x0s, sandTop, zN, x1s, CURB - 0.6 * k, z0, wood, { material = Enum.Material.WoodPlanks })
+		end
 	end
 	-- one car lane each way (-174..-166 southbound, -166..-158 northbound) and
 	-- the red bike lane along the promenade. Markings as on the crossroads
@@ -1549,6 +1560,8 @@ do
 			if old:IsA("Model") and old.Name == "PalmTree" then
 				local cf, size = old:GetBoundingBox()
 				local foot = Vector3.new(cf.X, cf.Y - size.Y / 2, cf.Z)
+				-- north of z -400 the steps curve west: palms there go out onto the sand (user 2026-10-24)
+				if foot.Z < -400 and foot.X > -236 then foot = Vector3.new(-236, foot.Y, foot.Z) end
 				old:PivotTo(undo * old:GetPivot())
 				old:SetAttribute("HomeZone", beachZone.Name)
 				old.Parent = hidden
@@ -2604,8 +2617,10 @@ do
 	local sign
 	do
 		local xa, xb = ax0 - 0.8, ax1 + 0.8 -- the arch-top band's span (archBand adds 0.8)
-		local function sy(x) return 23.2 + 5 * math.sin(math.pi * (x - xa) / (xb - xa)) - 3.6 end
-		local half = (ax1 - ax0 - 2.6) / 2
+		-- bigger (user 2026-10-24): tower face to tower face, 6.4 high, its top
+		-- under the crest at the middle
+		local function sy(x) return 23.2 + 5 * math.sin(math.pi * (x - xa) / (xb - xa)) - 2.4 end
+		local half = (ax1 - ax0) / 2 + 0.6
 		local K = 14
 		for k = 0, K - 1 do
 			local x0s, x1s = CX - half + 2 * half * k / K, CX - half + 2 * half * (k + 1) / K
@@ -2614,18 +2629,18 @@ do
 			local up = Vector3.zAxis:Cross(d)
 			local mid = (pa + pb) / 2
 			local len = (pb - pa).Magnitude + 0.25
-			part("GateSignFrame", Vector3.new(len, 4.6, 0.5), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.4), d, up), GOLD, { parent = E, material = Enum.Material.Foil })
-			local seg = part("GateSign", Vector3.new(len, 3.8, 0.4), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.1), d, up), Color3.fromRGB(62, 54, 44), { parent = E })
+			part("GateSignFrame", Vector3.new(len, 6.4, 0.5), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.4), d, up), GOLD, { parent = E, material = Enum.Material.Foil })
+			local seg = part("GateSign", Vector3.new(len, 5.6, 0.4), CFrame.fromMatrix(Vector3.new(mid.X, mid.Y, gz1 - 0.1), d, up), Color3.fromRGB(62, 54, 44), { parent = E })
 			if k == K // 2 then sign = seg end
 		end
 		local text = { "O", "H", "U", "", "L", "A", "N", "D" }
-		local step = 1.65
+		local step = 2.3
 		for i, ch in ipairs(text) do
 			if ch ~= "" then
 				local x = CX + (i - (#text + 1) / 2) * step
 				local p0, p1 = Vector3.new(x - 0.1, sy(x - 0.1), 0), Vector3.new(x + 0.1, sy(x + 0.1), 0)
 				local d = (p1 - p0).Unit
-				local plate = part("GateSignLetter", Vector3.new(2, 3.3, 0.05), CFrame.fromMatrix(Vector3.new(x, sy(x), gz1 + 0.13), d, Vector3.zAxis:Cross(d)), GOLD, { parent = E, transparency = 1, nocol = true })
+				local plate = part("GateSignLetter", Vector3.new(3.6, 4.6, 0.05), CFrame.fromMatrix(Vector3.new(x, sy(x), gz1 + 0.13), d, Vector3.zAxis:Cross(d)), GOLD, { parent = E, transparency = 1, nocol = true })
 				local g = Instance.new("SurfaceGui")
 				g.Face = Enum.NormalId.Back -- the street side (+z)
 				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
@@ -2645,8 +2660,8 @@ do
 			end
 		end
 	end
-	part("GateCrest", Vector3.new(6, 3, 0.6), CFrame.new(CX, 29.8, gzc), CARVE, { parent = E, material = Enum.Material.Sandstone })
-	part("GateCrestBall", Vector3.new(1.4, 1.4, 1.4), CFrame.new(CX, 31.6, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil })
+	part("GateCrest", Vector3.new(6, 3, 0.6), CFrame.new(CX, 31, gzc), CARVE, { parent = E, material = Enum.Material.Sandstone })
+	part("GateCrestBall", Vector3.new(1.4, 1.4, 1.4), CFrame.new(CX, 32.8, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil })
 	-- side half arches from the outer towers to the main towers
 	archBand(outL + OUT_S / 2, mainL - MAIN_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone, OUT_S - 0.4)
 	archBand(mainR + MAIN_S / 2, outR - OUT_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone, OUT_S - 0.4)
@@ -2803,24 +2818,73 @@ do
 		course2("BoothCornice", H2, H2 + 0.6, 0.4, CARVE)
 		course2("BoothCap", H2 + 0.6, H2 + 1.3, 0.15, STONE)
 		course2("BoothCap", H2 + 1.3, H2 + 1.7, 0.5, CARVE)
+		-- drum and dome fill the roof like the corner pillars' (user 2026-10-24)
 		local s = math.min(W, D)
 		local c = Vector3.new(center.X, 0, center.Z)
-		vcyl("BoothDrum", c + Vector3.new(0, H2 + 1.7, 0), s * 0.55, 1.2, STONE, sopt)
-		part("BoothDome", Vector3.new(s * 0.6, s * 0.6, s * 0.6), CFrame.new(c + Vector3.new(0, H2 + 2.9, 0)), DOME, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
-		vcyl("BoothSpire", c + Vector3.new(0, H2 + 2.9 + s * 0.28, 0), 0.3, 2.2, GOLD, { parent = E, material = Enum.Material.Foil })
+		vcyl("BoothDrum", c + Vector3.new(0, H2 + 1.7, 0), s * 0.8, 1.6, STONE, sopt)
+		part("BoothDome", Vector3.new(s * 0.85, s * 0.85, s * 0.85), CFrame.new(c + Vector3.new(0, H2 + 3.3, 0)), DOME, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
+		vcyl("BoothSpire", c + Vector3.new(0, H2 + 3.3 + s * 0.4, 0), 0.4, 2.6, GOLD, { parent = E, material = Enum.Material.Foil })
 		-- one arched window in the middle of the front, at most 6 wide so the
 		-- round top's circle never shows below the sill (user 2026-10-24)
 		local w = math.min(6, W - 1.8)
 		local spring = H2 - 1.9 - w / 2 - 0.3 -- the arch top stays under the sign band
 		local GL = Color3.fromRGB(110, 140, 165)
-		lb("BoothWindowFrame", -w / 2 - 0.25, 2.8, hd, w / 2 + 0.25, spring, hd + 0.25, IRON, { parent = E })
-		part("BoothWindowArch", Vector3.new(0.22, w + 0.5, w + 0.5), fr * CFrame.new(0, spring, hd + 0.12) * CFrame.Angles(0, math.rad(90), 0), IRON, { parent = E, shape = Enum.PartType.Cylinder })
-		lb("BoothWindow", -w / 2, 3, hd + 0.2, w / 2, spring, hd + 0.3, GL, { parent = E, material = Enum.Material.Glass })
-		part("BoothWindowTop", Vector3.new(0.08, w, w), fr * CFrame.new(0, spring, hd + 0.255) * CFrame.Angles(0, math.rad(90), 0), GL, { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Glass })
+		-- the window is set into the wall (user 2026-10-24): the opening is cut
+		-- 0.6 deep, the glass sits at its back; only the iron frame stands out
+		local REC, SILL_Y = 0.6, 2.9
+		local function opening(name, grow, z0w, z1w, color)
+			local pieces = {
+				lb(name, -w / 2 - grow, SILL_Y - (if grow > 0 then 0.1 else 0), z0w, w / 2 + grow, spring, z1w, color, { parent = workspace }),
+				part(name, Vector3.new(z1w - z0w, w + grow * 2, w + grow * 2), fr * CFrame.new(0, spring, (z0w + z1w) / 2) * CFrame.Angles(0, math.rad(90), 0), color, { parent = workspace, shape = Enum.PartType.Cylinder }),
+			}
+			return pieces
+		end
+		do
+			local body = nil
+			for _, p in ipairs(E:GetChildren()) do
+				if p.Name == "BoothBody" and (p.Position - Vector3.new(center.X, p.Position.Y, center.Z)).Magnitude < 0.1 then body = p end
+			end
+			if body then
+				local hole = opening("BoothCut", 0, hd - REC - 0.2, hd + 0.5, STONE) -- 0.2 deeper than the glass: room for its round top
+				body.Parent = workspace
+				local ok, cut = pcall(function() return body:SubtractAsync(hole) end)
+				for _, h in ipairs(hole) do h:Destroy() end
+				if ok and cut then
+					cut.Name = "BoothBody"
+					cut.UsePartColor = true
+					cut.Anchored = true
+					cut.Parent = E
+					blocks(cut)
+					body:Destroy()
+				else
+					body.Parent = E
+				end
+			end
+			-- iron frame: a ring round the opening, lining it and standing 0.25 proud
+			local outer = opening("BoothFrameO", 0.25, hd - REC - 0.2, hd + 0.25, IRON) -- lines the whole cut, to the back
+			local inner = opening("BoothFrameI", -0.1, hd - REC - 0.3, hd + 0.35, IRON) -- 0.1 inside the cut, so the lining hides the cut stone
+			local ok1, ou = pcall(function() return outer[1]:UnionAsync({ outer[2] }) end)
+			if ok1 and ou then
+				ou.Parent = workspace
+				local ok2, ring = pcall(function() return ou:SubtractAsync(inner) end)
+				if ok2 and ring then
+					ring.Name = "BoothWindowFrame"
+					ring.UsePartColor = true
+					ring.Anchored = true
+					ring.Parent = E
+				end
+				ou:Destroy()
+			end
+			for _, p in ipairs(outer) do p:Destroy() end
+			for _, p in ipairs(inner) do p:Destroy() end
+		end
+		-- glass at the back of the opening (one opaque pane + its round top a hair behind)
+		lb("BoothWindow", -w / 2, SILL_Y, hd - REC, w / 2, spring, hd - REC + 0.08, GL, { parent = E })
+		part("BoothWindowTop", Vector3.new(0.08, w, w), fr * CFrame.new(0, spring, hd - REC - 0.06) * CFrame.Angles(0, math.rad(90), 0), GL, { parent = E, shape = Enum.PartType.Cylinder }) -- plain: Glass on the round top drew a reflection patch
 		-- the counter under the window: a thin stone plate that sticks out a little more (user 2026-10-24)
-		lb("BoothSill", -w / 2 - 0.5, 2.72, hd, w / 2 + 0.5, 2.9, hd + 1.3, CARVE, sopt)
-		-- closed for now (user 2026-10-24): a printed card taped inside the lower glass
-		local card = lb("BoothClosedCard", -w / 2 + 0.6, 3.5, hd + 0.31, w / 2 - 0.6, 5.7, hd + 0.34, Color3.fromRGB(250, 248, 240), { parent = E, nocol = true })
+		lb("BoothSill", -w / 2 - 0.5, 2.72, hd - REC, w / 2 + 0.5, 2.9, hd + 1.3, CARVE, sopt)
+		-- closed for now (user 2026-10-24): a printed card taped inside the glass
+		local card = lb("BoothClosedCard", -w / 2 + 0.6, 3.5, hd - REC + 0.09, w / 2 - 0.6, 5.7, hd - REC + 0.12, Color3.fromRGB(250, 248, 240), { parent = E, nocol = true })
 		notice(card, Enum.NormalId.Back, {
 			{ "CLOSED", Color3.fromRGB(200, 30, 40), Enum.Font.GothamBlack, 0.5 },
 			{ "운영 준비 중", Color3.fromRGB(40, 40, 45), Enum.Font.GothamBold, 0.27 },
@@ -2834,10 +2898,10 @@ do
 		local anchor = lb("BoothLabelAnchor", -0.5, H2 + 2, -0.5, 0.5, H2 + 2.2, 0.5, IRON, { parent = E, transparency = 1, nocol = true })
 		label(anchor, title, Color3.fromRGB(150, 110, 50), 6, 0.6)
 	end
-	-- out in the forecourt either side of the path, windows facing the path
-	-- (the user's first sketch, 2026-10-24: back to it after trying the street-facing layout)
-	booth(Vector3.new(-127, 0, -200), Vector3.new(1, 0, 0), 12, 8, "매표소 TICKETS", { "매", "표", "소" })
-	booth(Vector3.new(-59, 0, -200), Vector3.new(-1, 0, 0), 10, 7, "i 안내", { "안", "내", "소" })
+	-- against the park wall either side of the gate, windows facing south
+	-- (user 2026-10-24, white boxes on the screenshot)
+	booth(Vector3.new(-136, 0, -223.4), Vector3.new(0, 0, 1), 14, 10, "매표소 TICKETS", { "매", "표", "소" })
+	booth(Vector3.new(-51, 0, -223.4), Vector3.new(0, 0, 1), 12, 10, "i 안내", { "안", "내", "소" })
 	-- closed while the inside is being built (user 2026-10-24, photos
 	-- docs/04_ART/references/park_closed_*.webp): printed hoarding just inside the
 	-- gate, seen through the closed bars
