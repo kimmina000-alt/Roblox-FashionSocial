@@ -195,7 +195,7 @@ do
 	local park = root:FindFirstChild("06_Park_Playground")
 	local GROUPS = { -- source box (x0, z0, x1, z1) → move
 		{ { -125, -145, -85, -105 }, Vector3.new(-10, 0, -184) }, -- carousel → (-115, -310)
-		{ { -215, -145, -160, -90 }, Vector3.new(123, 0, -193) }, -- playground → (-66, -312)
+		{ { -215, -145, -160, -90 }, Vector3.new(113, 0, -193) }, -- playground → (-76, -312) (10 west: the east wall moved in, 2026-10-24)
 		{ { -120, -262, -90, -190 }, Vector3.new(5, 0, -173) }, -- ferris wheel → (-100, -400)
 		{ { -220, -245, -200, -178 }, Vector3.new(148, 0, -188) }, -- flower tunnel → (-62, -400)
 		{ { -155, -176, -145, -166 }, Vector3.new(57, 0, -129) }, -- park name label → (-93, -300)
@@ -210,7 +210,8 @@ do
 				for _, g in ipairs(GROUPS) do
 					local b = g[1]
 					if pos.X > b[1] and pos.X < b[3] and pos.Z > b[2] and pos.Z < b[4] then
-						local d = CFrame.new(g[2])
+						-- the slide's run-out pointed east through the moved-in east wall: 5 more west
+						local d = CFrame.new(g[2] + (if c.Name == "Slide" then Vector3.new(-5, 0, 0) else Vector3.zero))
 						c:SetAttribute("TempOrig", c:GetPivot())
 						c:SetAttribute("TempDelta", d)
 						local list = c:GetDescendants()
@@ -846,10 +847,10 @@ end
 -- (north, south and east run on to the map edge, 1000 from the junction, so
 -- no road end shows on screen; user 2026-10-23)
 bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 } }, { { 92, -1 }, { 150, 1 }, { 205, -1 } }, { [-1] = 34, [1] = 49 }, nil, 480) -- north
--- along the pocket park the west sidewalk is as wide as the others (to x -47,
--- the corner squares' line; user 2026-10-24): north of it the amusement park's
--- wall (x -38) keeps it narrow
-walk(-47, -225, -34, -54.2) -- (stops at subway exit 3's pit and the park wall's corner pillar)
+-- along the pocket park and the amusement park the west sidewalk is as wide as
+-- the others (to x -47, the corner squares' line; user 2026-10-24)
+walk(-47, -478.6, -34, -54.2) -- (from the amusement park's north-east pillar, now off the sidewalk, to subway exit 3's pit)
+walk(-51.05, -478.6, -47, -225.4) -- the same paving up to the amusement park's east wall (its plinth face; no bare ground strip at the wall's foot)
 bigRoad(Vector3.new(0, 0, 1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }, nil, nil, 300) -- south (past the boundary at 299: the street goes on, D-110)
 bigRoad(Vector3.new(1, 0, 0), 1000, {}, { { 100, 1 }, { 165, -1 } }, nil, nil, 180) -- east
 bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 100, -1 } }, nil, true) -- west, to the seafront road (bike lanes run on to the bike crossings)
@@ -2537,8 +2538,11 @@ do
 	local cream = Color3.fromRGB(245, 235, 210)
 	local blue = Color3.fromRGB(70, 110, 170)
 	local roofBlue = Color3.fromRGB(60, 90, 140)
-	local x0, x1, z0, z1 = -148, -38, -475, -229
-	local gateX0, gateX1 = -123, -63
+	-- (user 2026-10-24: the east wall stood on the sidewalk) the east wall's outer
+	-- face is now x -51, the corner pillars inside the sidewalk line (-47): the gate and the info booth moved
+	-- west by shortening the plain wall pieces either side of the gate
+	local x0, x1, z0, z1 = -148, -51.3, -475, -229 -- (the corner pillar caps end at x -47.6)
+	local gateX0, gateX1 = -127, -67
 	box("ParkGround", x0 + 1, 0, z0 + 1, x1 - 1, 0.25, z1 - 1, Color3.fromRGB(110, 175, 95), { parent = E, material = Enum.Material.Grass })
 	-- perimeter wall in the gate's style (user photo 2026-10-24: the gate
 	-- tower up to its capital, no dome, no relief): a darker sandstone plinth,
@@ -2933,7 +2937,7 @@ do
 	-- against the park wall either side of the gate, windows facing south
 	-- (user 2026-10-24, white boxes on the screenshot)
 	booth(Vector3.new(-136, 0, -223.4), Vector3.new(0, 0, 1), 14, 10, "매표소 TICKETS", { "매", "표", "소" })
-	booth(Vector3.new(-51, 0, -223.4), Vector3.new(0, 0, 1), 12, 10, "i 안내", { "안", "내", "소" })
+	booth(Vector3.new(-61, 0, -223.4), Vector3.new(0, 0, 1), 12, 10, "i 안내", { "안", "내", "소" })
 	-- closed while the inside is being built (user 2026-10-24, photos
 	-- docs/04_ART/references/park_closed_*.webp): printed hoarding just inside the
 	-- gate, seen through the closed bars
@@ -3078,7 +3082,7 @@ do
 	local paving = box("ParkPaving", X0, -8, Z0, X1, 0.08, Z1, PAVE, { parent = workspace, material = Enum.Material.Slate })
 	local cuts = {
 		part("Cut", Vector3.new(30, 88.2, 88.2), CFrame.new(-96, 0, -128) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }),
-		box("Cut", -110.5, -9, -196, -75.5, 2, -165, PAVE, { parent = workspace }), -- into the ring, so no paving is left between the walk and the circle
+		box("Cut", -114.5, -9, -196, -79.5, 2, -165, PAVE, { parent = workspace }), -- into the ring, so no paving is left between the walk and the circle
 		box("Cut", WALK_X0, -9, -63.2, WALK_X1, 2, -54, PAVE, { parent = workspace }), -- the south stair
 	}
 	table.insert(cuts, box("Cut", WALK_X0, -9, C.Z, WALK_X1, 2, -63, PAVE, { parent = workspace })) -- the walk (its north end is inside the circle)
@@ -3199,7 +3203,7 @@ do
 				return C.X - w, C.X + w
 			end
 		end
-		local function corridor(z) if z > -196 and z < -165 then return -110.5, -75.5 end return nil end
+		local function corridor(z) if z > -196 and z < -165 then return -114.5, -79.5 end return nil end
 		local function southWalk(z) -- the walk between its fillets and the south stair
 			if z > -54 then return nil end
 			local dz = z - C.Z
@@ -3236,7 +3240,7 @@ do
 	end
 	-- the stair from the gate side down to the first level: real steps (user
 	-- 2026-10-24: half the tread, higher risers), 5 steps of 0.5 on 2.25 treads
-	-- between the outer faces of the gate's two main towers (x -110.5..-75.5,
+	-- between the outer faces of the gate's two main towers (x -114.5..-79.5,
 	-- the user's orange lines 2026-10-24):
 	-- the stair right after the gate, then a level walk to the ring (user 2026-10-24)
 	-- the south stair: up from the walk to the paving at z -54, the same steps
@@ -3247,7 +3251,7 @@ do
 	for k = 1, 5 do
 		local za = -196 + (k - 1) * 2.25
 		local zb = if k == 5 then -165 else za + 2.25
-		box("ParkStair", -110.5, -8, za, -75.5, if k == 5 then -2.48 else -0.5 * k, zb, STONE, o(Enum.Material.Limestone)) -- (the last one runs on as the walk, 0.02 over the ring it meets)
+		box("ParkStair", -114.5, -8, za, -79.5, if k == 5 then -2.48 else -0.5 * k, zb, STONE, o(Enum.Material.Limestone)) -- (the last one runs on as the walk, 0.02 over the ring it meets)
 	end
 	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
 	local function arc(name, c: Vector3, r0, r1, a0, a1, y0, y1, color, mat, n)
@@ -3371,16 +3375,16 @@ do
 			end
 		end
 	end
-	-- east: in the outer ring from the gate walk's east edge (x -75.5) round to
+	-- east: in the outer ring from the gate walk's east edge (x -79.5) round to
 	-- the east; its south end is flush on z -114 (user 2026-10-24: the tiers are
 	-- the way down there, no separate stair); a walkway by the walk and one in the middle
 	-- (the line ends stop 0.03 short of the walk's cut face: the two faces flickered)
 	local EAST_ZL = -114
-	tiers(380, 297, 34.6, { "z", EAST_ZL }, { "x", -75.47 }, { { 314, 335 }, { 342, 362 } })
+	tiers(380, 297, 34.6, { "z", EAST_ZL }, { "x", -79.47 }, { { 314, 335 }, { 342, 362 } })
 	-- west: in the outer ring outside the curved sofa deck, where the four wicker
 	-- chairs stood (user 2026-10-24, red box): seats only in the user's three
 	-- red boxes, walkways between
-	tiers(145, 245, 34.6, nil, { "x", -110.53 }, { { 151, 182 }, { 189.5, 208.5 }, { 218, 230.5 } })
+	tiers(145, 245, 34.6, nil, { "x", -114.53 }, { { 151, 182 }, { 189.5, 208.5 }, { 218, 230.5 } })
 	-- the raised ground beside the west tiers' south end (user 2026-10-24): the
 	-- paving comes out from behind the tiers to their end, and its edge runs
 	-- from the bottom tier's front corner in a smooth curve down to the walk's
@@ -3491,11 +3495,11 @@ do
 	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
 	-- a raised wooden deck (one step, the tiers' wood) between the west tree bed,
 	-- the gate walk and the sunken circle (user 2026-10-24, red outline + sketch):
-	-- x -141..-110.5 from z -198 down to the circle (r 44), its curved edge
+	-- x -141..-114.5 from z -198 down to the circle (r 44), its curved edge
 	-- following the circle; built from wedge triangles fanned from its NW corner
 	local DECK_TOP = 0.08 + 0.9
 	local function onDeck(x, z)
-		if x < -141 or x > -110.5 or z < -198 then return false end
+		if x < -141 or x > -114.5 or z < -198 then return false end
 		return (x - C.X) ^ 2 + (z - C.Z) ^ 2 > 44 * 44
 	end
 	do
@@ -3503,10 +3507,10 @@ do
 		local wo = o(Enum.Material.WoodPlanks)
 		local corner = Vector3.new(-141, y, -198)
 		local function v(x, z) return Vector3.new(x, y, z) end
-		wedgeTri("ParkUpperDeck", corner, v(-110.5, -198), v(-110.5, -128 - math.sqrt(44 ^ 2 - 14.5 ^ 2)), DECK_TOP, WOOD, wo)
-		local aS = math.deg(math.atan2(-math.sqrt(44 ^ 2 - 14.5 ^ 2), -14.5)) % 360 -- where the circle meets x -110.5
+		wedgeTri("ParkUpperDeck", corner, v(-114.5, -198), v(-114.5, -128 - math.sqrt(44 ^ 2 - 18.5 ^ 2)), DECK_TOP, WOOD, wo)
+		local aS = math.deg(math.atan2(-math.sqrt(44 ^ 2 - 18.5 ^ 2), -18.5)) % 360 -- where the circle meets x -114.5
 		local N = 18
-		local prev = v(-110.5, -128 - math.sqrt(44 ^ 2 - 14.5 ^ 2))
+		local prev = v(-114.5, -128 - math.sqrt(44 ^ 2 - 18.5 ^ 2))
 		for i = 1, N do
 			local a = math.rad(aS + (180 - aS) * i / N)
 			local p = v(C.X + 44 * math.cos(a), C.Z + 44 * math.sin(a))
@@ -3517,7 +3521,7 @@ do
 	end
 	-- the walk's west wall under the deck in the deck's wood (user 2026-10-24),
 	-- from the walk level up to the deck top, a hair inside the walk
-	box("ParkWalkWall", -110.5, LEVELS[1][2], -196, -110.38, DECK_TOP, -128 - math.sqrt(44 ^ 2 - 14.5 ^ 2), WOOD, o(Enum.Material.WoodPlanks))
+	box("ParkWalkWall", -114.5, LEVELS[1][2], -196, -114.38, DECK_TOP, -128 - math.sqrt(44 ^ 2 - 18.5 ^ 2), WOOD, o(Enum.Material.WoodPlanks))
 	-- white parasols with a round table and two chairs
 	local function parasolSet(at: Vector3)
 		vcyl("ParasolPole", at, 0.25, 9, Color3.fromRGB(200, 200, 204), o(Enum.Material.Metal, { nocol = true }))
@@ -3570,7 +3574,7 @@ do
 		bed(X1 - 3.8, z - 1.8, X1 - 0.4, z + 1.8, 0, { { X1 - 2.1, z } }) -- clear of the hill (its edge is at x -52)
 	end
 	bed(X0 + 1, Z0 + 6, X0 + 9, Z1 - 4, 70, { { -146, -196 }, { -144, -182 }, { -146, -168 }, { -144, -154 }, { -146, -140 }, { -144, -126 }, { -146, -112 }, { -144, -98 }, { -146, -84 }, { -144, -70 }, { -146, -56 } })	-- low park lamps along the edges; they glow at night
-	for _, lp in ipairs({ { -114, -186 }, { -72, -186 }, { -60, -162 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
+	for _, lp in ipairs({ { -118, -186 }, { -76, -186 }, { -60, -162 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
 		local b = Vector3.new(lp[1], if onDeck(lp[1], lp[2]) then DECK_TOP - 0.08 else 0, lp[2])
 		vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), o(Enum.Material.Metal))
 		local g = part("ParkLampGlobe", Vector3.new(1.4, 1.4, 1.4), CFrame.new(b + Vector3.new(0, 8.6, 0)), Color3.fromRGB(255, 244, 220), o(Enum.Material.SmoothPlastic, { shape = Enum.PartType.Ball, nocol = true }))
