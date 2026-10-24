@@ -3101,7 +3101,7 @@ do
 	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
 	-- the granite coping round the hill's rim and four flights of steps up to it
 	arc("ParkDomeCoping", C, R - 0.6, R + 0.3, 0, 360, EDGE - 0.35, EDGE + 0.05, Color3.fromRGB(196, 194, 188), Enum.Material.Granite, 48)
-	for _, ad in ipairs({ 46, 120, 190, 300 }) do
+	for _, ad in ipairs({ 46, 120, 300 }) do -- (none on the west: the tree bed runs there)
 		local a = math.rad(ad)
 		local out = Vector3.new(math.cos(a), 0, math.sin(a))
 		for k = 1, 3 do
@@ -3162,11 +3162,14 @@ do
 			end
 		end
 	end
-	bed(X0 + 1, Z0 + 4, -110, Z0 + 16, 22, { { -144, -200 }, { -130, -202 }, { -116, -199 } }) -- north-west (beside the gate path)
-	bed(-80, Z0 + 4, X1 - 1, Z0 + 16, 22, { { -74, -200 }, { -60, -202 } }) -- north-east
-	bed(X1 - 13, Z0 + 20, X1 - 1, -78, 34, { { -55, -180 }, { -56, -150 }, { -54, -118 }, { -57, -92 } }) -- east
-	bed(X0 + 1, -74, -118, Z1 - 1, 24, { { -144, -66 }, { -128, -56 } }) -- south-west
-	-- low park lamps along the edges; they glow at night
+	-- (user 2026-10-24, first pass) no beds by the gate; along the east street a
+	-- single row of trees in square pits; along the west (beach road) side one
+	-- long bed packed with trees and round shrubs
+	for z = Z0 + 14, -76, 14 do
+		box("ParkTreePit", X1 - 3.8, 0, z - 1.8, X1 - 0.4, 0.3, z + 1.8, Color3.fromRGB(96, 76, 56), o(Enum.Material.Ground))
+		bed(X1 - 3.8, z - 1.8, X1 - 0.4, z + 1.8, 0, { { X1 - 2.1, z } }) -- clear of the hill (its edge is at x -52)
+	end
+	bed(X0 + 1, Z0 + 6, X0 + 9, Z1 - 4, 70, { { -146, -196 }, { -144, -182 }, { -146, -168 }, { -144, -154 }, { -146, -140 }, { -144, -126 }, { -146, -112 }, { -144, -98 }, { -146, -84 }, { -144, -70 }, { -146, -56 } })	-- low park lamps along the edges; they glow at night
 	for _, lp in ipairs({ { -112, -186 }, { -84, -186 }, { -70, -150 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
 		local b = Vector3.new(lp[1], 0, lp[2])
 		vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), o(Enum.Material.Metal))
