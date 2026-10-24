@@ -3180,27 +3180,31 @@ do
 		local p = Vector3.new(C.X + 29.3 * math.cos(r), 2.6, C.Z + 29.3 * math.sin(r))
 		seat("ParkSofa", CFrame.lookAt(p, Vector3.new(C.X, 2.6, C.Z)), Vector3.new(2.2, 0.3, 1.8), CUSH, P)
 	end
-	-- east: tiered wooden seats in an arc facing the mound
-	for k = 0, 2 do
-		arc("ParkTier", C, 22 + k * 2.6, 24.6 + k * 2.6, -60, 40, 0, 0.9 + k * 0.9, WOOD, Enum.Material.WoodPlanks)
-	end
-	for a = -52, 34, 10 do
-		local r = math.rad(a)
+	-- tiered wooden seats in an arc facing the mound, east and west (user
+	-- 2026-10-24: plain wood, no cushions and no E prompt; walking onto a seat
+	-- still sits you down, so the seat parts are invisible and untagged)
+	local function tiers(a0, a1)
 		for k = 0, 2 do
-			local rr = 23.3 + k * 2.6
-			local p = Vector3.new(C.X + rr * math.cos(r), 1.0 + k * 0.9, C.Z + rr * math.sin(r))
-			seat("ParkTierSeat", CFrame.lookAt(p, Vector3.new(C.X, p.Y, C.Z)), Vector3.new(1.8, 0.2, 1.8), WOOD, P)
+			arc("ParkTier", C, 22 + k * 2.6, 24.6 + k * 2.6, a0, a1, 0, 0.9 + k * 0.9, WOOD, Enum.Material.WoodPlanks)
+		end
+		for a = a0 + 8, a1 - 6, 10 do
+			local r = math.rad(a)
+			for k = 0, 2 do
+				local rr = 23.3 + k * 2.6
+				local p = Vector3.new(C.X + rr * math.cos(r), 1.0 + k * 0.9, C.Z + rr * math.sin(r))
+				local s = Instance.new("Seat")
+				s.Name = "ParkTierSeat"
+				s.Anchored = true
+				s.Size = Vector3.new(1.8, 0.2, 1.8)
+				s.CFrame = CFrame.lookAt(p, Vector3.new(C.X, p.Y, C.Z))
+				s.Transparency = 1
+				s.Parent = P
+			end
 		end
 	end
-	-- south-east: an S-shaped deck walk from the mound out to the corner path
-	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
-	-- wicker chairs (round baskets) on the west
-	for _, cp in ipairs({ { -134, -132 }, { -128, -122 }, { -136, -114 }, { -124, -108 } }) do
-		local b = Vector3.new(cp[1], 0, cp[2])
-		vcyl("WickerChair", b, 3.2, 2.4, Color3.fromRGB(176, 140, 96), o(Enum.Material.Fabric))
-		vcyl("WickerCushion", b + Vector3.new(0, 1.2, 0), 2.6, 0.5, CUSH, o(Enum.Material.Fabric))
-		seat("WickerSeat", CFrame.lookAt(b + Vector3.new(0, 1.8, 0), Vector3.new(C.X, 1.8, C.Z)), Vector3.new(1.8, 0.2, 1.8), CUSH, P)
-	end
+	tiers(-60, 40)
+	tiers(130, 190) -- (where the four wicker chairs were)	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
+	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
 	-- white parasols with a round table and two chairs
 	local function parasolSet(at: Vector3)
 		vcyl("ParasolPole", at, 0.25, 9, Color3.fromRGB(200, 200, 204), o(Enum.Material.Metal, { nocol = true }))

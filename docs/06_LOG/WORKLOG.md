@@ -952,3 +952,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 검증: 캐릭터를 걸려서 정문 앞(0.08) → 계단 중간(-0.96) → 길(-2.48) → 원 안(-3.3) → 다시 정문 앞(0.08)까지 오르내림 확인, 길 양끝과 원 경계도 걸어서 확인했습니다.
 
 ![](images/2026-10-24/pocket_park_walk_fixed_after.jpg)
+
+- 도시 공원: 원통형 라탄 의자 4개를 지우고 그 자리(서쪽)에 동쪽과 같은 3단 나무 계단식 의자를 놓았습니다. 계단식 의자의 네모 방석은 보이지 않게, E 앉기 버튼은 없앴고(PromptSeat 태그 제거), 걸어 올라가면 앉는 기능은 그대로입니다(캐릭터로 확인).
+
+![](images/2026-10-24/pocket_park_tiers_west_after.jpg)
