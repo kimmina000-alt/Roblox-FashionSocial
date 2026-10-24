@@ -872,3 +872,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 카페 남쪽 데크를 계단 맨 윗단과 같은 짙은 나무로 바꿔(사이 회색 턱 삭제) 계단 윗면이 넓어진 모습이 되게 했고, 인도 쪽 회색 턱은 카페 앞에서도 끊기지 않고 이어집니다.
 
 ![](images/2026-10-24/cafe_terrace_tread_after.jpg)
+
+### 추가 (D-184) — 카페 카운터, 스태프존
+- 참고 사진 `docs/04_ART/references/cafe_counter_ref.webp`대로 카운터를 다시 만들었습니다: 풀 쪽을 보는 긴 흰 카운터(대리석 상판), 가운데 불 켜진 빵·케이크 진열장, 포스기 2대와 팁 병, 줄 서는 기둥과 줄, 흰 뒤 카운터(알바 작업대, 이름 BackCounter 그대로)에 에스프레소 머신·그라인더 2세트와 병 선반, 뒷벽 위 검은 메뉴판 5개와 ORDER & PICK UP 글씨.
+- 계단 뒤(2층 아래 북쪽)는 흰 벽으로 막은 스태프존으로, 닫힌 STAFF ONLY 문만 있고 들어갈 수 없습니다.
+
+![](images/2026-10-24/cafe_counter_after.jpg)
