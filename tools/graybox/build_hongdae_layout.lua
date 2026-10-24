@@ -3025,7 +3025,7 @@ do
 	local paving = box("ParkPaving", X0, -8, Z0, X1, 0.08, Z1, PAVE, { parent = workspace, material = Enum.Material.Slate })
 	local cuts = {
 		part("Cut", Vector3.new(30, 88.2, 88.2), CFrame.new(-96, 0, -128) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }),
-		box("Cut", -103.5, -9, -196, -82.5, 2, -165, PAVE, { parent = workspace }), -- into the ring, so no paving is left between the walk and the circle
+		box("Cut", -110.5, -9, -196, -75.5, 2, -165, PAVE, { parent = workspace }), -- into the ring, so no paving is left between the walk and the circle
 	}
 	local okP, cutP = pcall(function() return paving:SubtractAsync(cuts) end)
 	for _, c in ipairs(cuts) do c:Destroy() end
@@ -3112,7 +3112,7 @@ do
 				return C.X - w, C.X + w
 			end
 		end
-		local function corridor(z) if z > -196 and z < -165 then return -103.5, -82.5 end return nil end
+		local function corridor(z) if z > -196 and z < -165 then return -110.5, -75.5 end return nil end
 		-- the paving (top 0.08)
 		collideRows("ParkCollide", Z0, Z1, 0.08, { circleOut(44), corridor })
 		-- ring 1 (r 34..44) and ring 2 (r 20..34)
@@ -3141,12 +3141,13 @@ do
 	end
 	-- the stair from the gate side down to the first level: real steps (user
 	-- 2026-10-24: half the tread, higher risers), 5 steps of 0.5 on 2.25 treads
-	-- as wide as the gate's main arch (between its tower faces, x -103.5..-82.5):
+	-- between the outer faces of the gate's two main towers (x -110.5..-75.5,
+	-- the user's orange lines 2026-10-24):
 	-- the stair right after the gate, then a level walk to the ring (user 2026-10-24)
 	for k = 1, 5 do
 		local za = -196 + (k - 1) * 2.25
 		local zb = if k == 5 then -165 else za + 2.25
-		box("ParkStair", -103.5, -8, za, -82.5, if k == 5 then -2.48 else -0.5 * k, zb, STONE, o(Enum.Material.Limestone)) -- (the last one runs on as the walk, 0.02 over the ring it meets)
+		box("ParkStair", -110.5, -8, za, -75.5, if k == 5 then -2.48 else -0.5 * k, zb, STONE, o(Enum.Material.Limestone)) -- (the last one runs on as the walk, 0.02 over the ring it meets)
 	end
 	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
 	local function arc(name, c: Vector3, r0, r1, a0, a1, y0, y1, color, mat, n)
@@ -3259,7 +3260,7 @@ do
 		bed(X1 - 3.8, z - 1.8, X1 - 0.4, z + 1.8, 0, { { X1 - 2.1, z } }) -- clear of the hill (its edge is at x -52)
 	end
 	bed(X0 + 1, Z0 + 6, X0 + 9, Z1 - 4, 70, { { -146, -196 }, { -144, -182 }, { -146, -168 }, { -144, -154 }, { -146, -140 }, { -144, -126 }, { -146, -112 }, { -144, -98 }, { -146, -84 }, { -144, -70 }, { -146, -56 } })	-- low park lamps along the edges; they glow at night
-	for _, lp in ipairs({ { -110, -186 }, { -76, -186 }, { -70, -150 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
+	for _, lp in ipairs({ { -114, -186 }, { -72, -186 }, { -70, -150 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
 		local b = Vector3.new(lp[1], 0, lp[2])
 		vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), o(Enum.Material.Metal))
 		local g = part("ParkLampGlobe", Vector3.new(1.4, 1.4, 1.4), CFrame.new(b + Vector3.new(0, 8.6, 0)), Color3.fromRGB(255, 244, 220), o(Enum.Material.SmoothPlastic, { shape = Enum.PartType.Ball, nocol = true }))
