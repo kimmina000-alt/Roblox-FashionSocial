@@ -888,3 +888,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 바다 물결이 안 보이던 이유: 바다 색 면(OpenSea)이 물 표면 바로 0.4 아래에 있어 지형 물이 평평한 색으로만 보였습니다. 물멍 풀 때문은 아닙니다. 색 면을 물 표면 4 아래(-7)로 내려, 가까이는 진짜 물결이 보이고 멀리는 바다가 수평선까지 이어집니다.
 
 ![](images/2026-10-24/cafe_deck_piles_waves_after.jpg)
+
+- 카페 스태프존: 계단 쪽 벽은 그대로 두고(계단까지 이어 틈 없앰) 가로 벽을 안쪽(z 91.4)으로 옮겼습니다. STAFF ONLY 문은 카운터 뒤 벽 남쪽 끝으로 옮기고(뒤 카운터·병 선반은 그만큼 줄임), 카운터 위 펜던트 조명은 지웠습니다.
+
+![](images/2026-10-24/cafe_staff_door_after.jpg)

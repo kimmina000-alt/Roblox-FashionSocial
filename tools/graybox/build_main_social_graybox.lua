@@ -807,14 +807,15 @@ local z=zone("04_Beach_Aquarium")
   for k,qz in ipairs({22,27,32}) do cyl(cm,"QueuePost",0.35,3,Vector3.new(-233,FY+1.5,qz),STEEL,{mat=Enum.Material.Metal})
    if k>1 then box(cm,"QueueBelt",-233.05,FY+2.4,qz-5,-232.95,FY+2.7,qz,Color3.fromRGB(30,30,34),{nocol=true}) end end
   -- back counter (the 알바 work station) with machines and a bottle shelf above
-  box(cm,"BackCounter",-212,FY,CZ0,-207,FY+3.6,CZ1,CW)
-  box(cm,"BackCounterTop",-212.2,FY+3.6,CZ0,-206.9,FY+3.8,CZ1,Color3.fromRGB(60,60,64),{mat=Enum.Material.Granite})
-  for _,ez in ipairs({26,58}) do
+  -- (it starts 5.5 later: the staff door is on the back wall at the south end, user 2026-10-24)
+  local BZ0=CZ0+5.5
+  box(cm,"BackCounter",-212,FY,BZ0,-207,FY+3.6,CZ1,CW)
+  box(cm,"BackCounterTop",-212.2,FY+3.6,BZ0,-206.9,FY+3.8,CZ1,Color3.fromRGB(60,60,64),{mat=Enum.Material.Granite})
+  for _,ez in ipairs({32,58}) do
    box(cm,"EspressoMachine",-211.6,FY+3.8,ez-1.6,-209,FY+5.8,ez+1.6,STEEL,{mat=Enum.Material.Metal})
    box(cm,"Grinder",-211.2,FY+3.8,ez+2.2,-209.8,FY+6.2,ez+3.4,dark) end
-  box(cm,"BottleShelf",-208.6,FY+7.4,CZ0+1,-206.6,FY+7.6,CZ0+9,Color3.fromRGB(150,96,56))
   box(cm,"BottleShelf",-208.6,FY+7.4,CZ1-9,-206.6,FY+7.6,CZ1-1,Color3.fromRGB(150,96,56))
-  for k=0,6 do for _,bz in ipairs({CZ0+1.6,CZ1-8.4}) do
+  for k=0,6 do for _,bz in ipairs({CZ1-8.4}) do
    cyl(cm,"Bottle",0.45,1.3,Vector3.new(-207.6,FY+8.25,bz+k*1.1),k%2==0 and Color3.fromRGB(60,40,30) or Color3.fromRGB(230,225,215),{nocol=true}) end end
   -- black menu boards high on the back (street) wall, ORDER & PICK UP sign at the left
   local nB=5 local bw=(CZ1-CZ0-6)/nB
@@ -828,14 +829,15 @@ local z=zone("04_Beach_Aquarium")
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=op
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Gotham l.TextColor3=Color3.fromRGB(120,120,124) l.Text="ORDER & PICK UP" l.Parent=g end
   label(cm,"☕ 음료 주문",Vector3.new(-227.5,FY+8,30))
-  -- STAFF ZONE behind the stairs (user 2026-10-24): a white wall closes it off
-  -- from the counter and the hall; a closed staff door (no way in)
-  box(cm,"StaffWall",mx,FY,70,x1-0.6,MY-1,70.6,CW)
-  box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,95.5,CW)
-  local sd=box(cm,"StaffDoor",-216,FY,69.85,-212,FY+8,70,Color3.fromRGB(210,208,204))
-  box(cm,"StaffDoorHandle",-212.8,FY+3.6,69.7,-212.5,FY+4.4,69.85,STEEL,{nocol=true})
-  local ss=box(cm,"StaffSign",-215.4,FY+8.6,69.85,-212.6,FY+9.6,69.95,dark,{nocol=true})
-  do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=ss
+  -- STAFF ZONE behind the stairs (user 2026-10-24): the wall along the stair
+  -- side stays, the cross wall stands far back (z 91.4) and the staff door is
+  -- on the back wall behind the counter's south end; it stays shut (no way in)
+  box(cm,"StaffWall",mx,FY,91.4,x1-0.6,MY-1,92,CW)
+  box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,96.2,CW) -- to the stairs' side (a gap showed)
+  local sd=box(cm,"StaffDoor",x1-0.75,FY,CZ0+0.5,x1-0.6,FY+8,CZ0+4.5,Color3.fromRGB(210,208,204))
+  box(cm,"StaffDoorHandle",x1-0.9,FY+3.6,CZ0+3.6,x1-0.75,FY+4.4,CZ0+3.9,STEEL,{nocol=true})
+  local ss=box(cm,"StaffSign",x1-0.8,FY+8.6,CZ0+1,x1-0.7,FY+9.6,CZ0+4,dark,{nocol=true})
+  do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=ss
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1) l.Text="STAFF ONLY" l.Parent=g end
   local _=sd  -- coffee bag wall (colourful packs) on the south wall behind the bakery
   for k=0,17 do local col=({Color3.fromRGB(200,40,50),Color3.fromRGB(30,30,30),Color3.fromRGB(230,200,60),Color3.fromRGB(60,110,180),Color3.fromRGB(240,240,240)})[k%5+1]
@@ -966,12 +968,7 @@ local z=zone("04_Beach_Aquarium")
    for _,bz in ipairs({WZ0+1.5,WZ1-1.5}) do box(cm,"CoffeeBracket",x1,WY0-1.4,bz-0.25,x1+1.2,WY0-0.4,bz+0.25,WOOD2) end
    -- on the counter: cups and a small plant
    for k,cz in ipairs({WZ0+2,WZ0+3.2,WZ1-3}) do cyl(cm,"CoffeeCup",0.6,0.8,Vector3.new(x1+1,WY0+0.35,cz),k==3 and Color3.fromRGB(70,140,80) or Color3.new(1,1,1),{nocol=true}) end
-   -- warm inside: pendant lamps over the back counter and a lit back wall
-   for _,pz in ipairs({36,44}) do
-    -- over the middle of the space between the order counter and the back counter
-    box(cm,"PendantCord",-216.55,WY1-0.5,pz-0.05,-216.45,MY-1,pz+0.05,BLACKL,{ghost=true})
-    local sh=P(cm,"PendantShade",Vector3.new(1.4,1,1.4),CFrame.new(-216.5,WY1-0.9,pz),Color3.fromRGB(255,214,150),{mat=Enum.Material.Neon,ghost=true})
-    local pl=Instance.new("PointLight") pl.Range=12 pl.Brightness=1.4 pl.Color=Color3.fromRGB(255,200,140) pl.Parent=sh end
+   -- (no pendant lamps over the counter, user 2026-10-24)
    -- cup shelf on the wall above the window, inside (user 2026-10-24)
    box(cm,"CoffeeShelf",x1-1.8,WY1+1.2,WZ0,x1-0.6,WY1+1.4,WZ1,WOOD2)
    for k=0,6 do box(cm,"ShelfJar",x1-1.5,WY1+1.4,WZ0+1+k*2.2,x1-0.9,WY1+2.4,WZ0+1.8+k*2.2,Color3.fromRGB(235,230,220),{nocol=true}) end
