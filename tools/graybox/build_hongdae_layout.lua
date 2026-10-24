@@ -2403,6 +2403,11 @@ do
 		course("ParkPillarCornice", cx - a, cz - a, cx + b2, cz + b2, h, h + 0.8, 0.5, CARVE)
 		course("ParkPillarCap", cx - a, cz - a, cx + b2, cz + b2, h + 0.8, h + 1.8, 0.2, STONE)
 		course("ParkPillarCap", cx - a, cz - a, cx + b2, cz + b2, h + 1.8, h + 2.3, 0.7, CARVE)
+		-- the gate towers' navy dome and gold spire on top (user 2026-10-24)
+		local top = h + 2.3
+		vcyl("ParkPillarDrum", Vector3.new(cx, top, cz), s * 0.8, 1.6, STONE, sopt)
+		part("ParkPillarDome", Vector3.new(s * 0.85, s * 0.85, s * 0.85), CFrame.new(cx, top + 1.6, cz), Color3.fromRGB(120, 128, 140), { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
+		vcyl("ParkPillarSpire", Vector3.new(cx, top + 1.6 + s * 0.4, cz), 0.4, 2.6, Color3.fromRGB(214, 172, 80), { parent = E, material = Enum.Material.Foil })
 	end
 	for _, c in ipairs({ { x0, z0 }, { x1, z0 }, { x0, z1 }, { x1, z1 } }) do pillar(c[1], c[2], 6, 15) end	-- main gate (user photo 2026-10-23, an ADVENTURELAND-style arch): two tall
 	-- sandstone towers with carved panels, domes and spires carry a big
@@ -2426,7 +2431,10 @@ do
 		part("GateFinial", Vector3.new(0.9, 0.9, 0.9), CFrame.new(cx, h + 7.4 + s * 0.4, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil })
 	end
 	-- an arch band between two x positions: base height y0, rise at the middle
-	local function archBand(xa, xb, y0, rise, thick, name, color, mat)
+	local function archBand(xa, xb, y0, rise, thick, name, color, mat, depth)
+		-- (user 2026-10-24: gaps showed where the band met the towers) the ends
+		-- run 0.8 into the towers and the band is no deeper than the thinner tower
+		xa, xb = xa - 0.8, xb + 0.8
 		local N = 14
 		local prev
 		for k = 0, N do
@@ -2436,7 +2444,7 @@ do
 			local pnt = Vector3.new(x, y, gzc)
 			if prev then
 				local d = pnt - prev
-				part(name, Vector3.new(d.Magnitude + 0.3, thick, gz1 - gz0 - 1), CFrame.fromMatrix((prev + pnt) / 2, d.Unit, Vector3.zAxis:Cross(d.Unit)), color, { parent = E, material = mat })
+				part(name, Vector3.new(d.Magnitude + 0.3, thick, depth or (gz1 - gz0 - 1)), CFrame.fromMatrix((prev + pnt) / 2, d.Unit, Vector3.zAxis:Cross(d.Unit)), color, { parent = E, material = mat })
 			end
 			prev = pnt
 		end
@@ -2448,8 +2456,8 @@ do
 	gtower(outL, OUT_S, OUT_H) gtower(outR, OUT_S, OUT_H)
 	-- big arch with the sign band
 	local ax0, ax1 = mainL + MAIN_S / 2, mainR - MAIN_S / 2
-	archBand(ax0, ax1, 19, 5, 1.4, "GateArch", CARVE, Enum.Material.Sandstone)
-	archBand(ax0, ax1, 23.2, 5, 1.2, "GateArchTop", STONE, Enum.Material.Sandstone)
+	archBand(ax0, ax1, 19, 5, 1.4, "GateArch", CARVE, Enum.Material.Sandstone, MAIN_S - 0.4)
+	archBand(ax0, ax1, 23.2, 5, 1.2, "GateArchTop", STONE, Enum.Material.Sandstone, MAIN_S - 0.6)
 	-- sign: dark band in the middle of the arch, gold letters
 	part("GateSignFrame", Vector3.new(ax1 - ax0 - 2.6, 4.6, 0.5), CFrame.new(CX, 24.6, gz1 - 0.4), GOLD, { parent = E, material = Enum.Material.Foil })
 	local sign = part("GateSign", Vector3.new(ax1 - ax0 - 3.4, 3.8, 0.4), CFrame.new(CX, 24.6, gz1 - 0.1), Color3.fromRGB(62, 54, 44), { parent = E })
@@ -2475,8 +2483,8 @@ do
 	part("GateCrest", Vector3.new(6, 3, 0.6), CFrame.new(CX, 29.8, gzc), CARVE, { parent = E, material = Enum.Material.Sandstone })
 	part("GateCrestBall", Vector3.new(1.4, 1.4, 1.4), CFrame.new(CX, 31.6, gzc), GOLD, { parent = E, shape = Enum.PartType.Ball, material = Enum.Material.Foil })
 	-- side half arches from the outer towers to the main towers
-	archBand(outL + OUT_S / 2, mainL - MAIN_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone)
-	archBand(mainR + MAIN_S / 2, outR - OUT_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone)
+	archBand(outL + OUT_S / 2, mainL - MAIN_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone, OUT_S - 0.4)
+	archBand(mainR + MAIN_S / 2, outR - OUT_S / 2, 13, 3, 1.4, "GateSideArch", CARVE, Enum.Material.Sandstone, OUT_S - 0.4)
 	-- black iron fences + open iron gates under the side arches, fences out to the walls
 	local IRON = Color3.fromRGB(28, 28, 32)
 	local function fence(xa, xb, h)
@@ -2513,16 +2521,16 @@ do
 			local wc, w = (wx0 + wx1) / 2, wx1 - wx0
 			local spring = H2 - 1.9 - w / 2 - 0.3 -- the arch top stays under the sign band
 			box("BoothWindowFrame", wx0 - 0.25, 2.8, bz1, wx1 + 0.25, spring, bz1 + 0.25, IRON, { parent = E })
-			part("BoothWindowArch", Vector3.new(0.25, w + 0.5, w + 0.5), CFrame.new(wc, spring, bz1 + 0.125) * CFrame.Angles(0, math.rad(90), 0), IRON, { parent = E, shape = Enum.PartType.Cylinder })
-			box("BoothWindow", wx0, 3, bz1 + 0.2, wx1, spring, bz1 + 0.3, Color3.fromRGB(150, 175, 190), { parent = E, material = Enum.Material.Glass, transparency = 0.3 })
-			part("BoothWindowTop", Vector3.new(0.1, w, w), CFrame.new(wc, spring, bz1 + 0.25) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(150, 175, 190), { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Glass, transparency = 0.3 })
+			part("BoothWindowArch", Vector3.new(0.22, w + 0.5, w + 0.5), CFrame.new(wc, spring, bz1 + 0.12) * CFrame.Angles(0, math.rad(90), 0), IRON, { parent = E, shape = Enum.PartType.Cylinder })
+			box("BoothWindow", wx0, 3, bz1 + 0.2, wx1, spring, bz1 + 0.3, Color3.fromRGB(110, 140, 165), { parent = E, material = Enum.Material.Glass }) -- opaque: overlapping see-through glass drew a darker circle (user)
+			part("BoothWindowTop", Vector3.new(0.08, w, w), CFrame.new(wc, spring, bz1 + 0.255) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(110, 140, 165), { parent = E, shape = Enum.PartType.Cylinder, material = Enum.Material.Glass })
 			box("BoothSill", wx0 - 0.4, 2.6, bz1, wx1 + 0.4, 2.9, bz1 + 0.8, CARVE, sopt)
 		end
 		local b = box("BoothSign", bx0 + 0.8, H2 - 1.5, bz1 + 0.05, bx1 - 0.8, H2 - 0.2, bz1 + 0.35, IRON, { parent = E })
 		surfaceText(b, Enum.NormalId.Back, title, GOLD, Enum.Font.Fantasy)
 		label(b, title, Color3.fromRGB(150, 110, 50), 6, 0.6)
 	end	booth(-146, -226, -130, -216, "매표소 TICKETS", 2)
-	booth(-56, -226, -46, -218, "i 안내", 1)
+	booth(-56, -226, -46, -218, "i 안내", 2) -- two small arches: one big arch hung below the sill (user)
 	-- inside: round symbol plaza (round flower bed + a pedestal for the park's
 	-- landmark / character sculpture, to be designed)
 	local pc = Vector3.new(-93, 0.25, -262)

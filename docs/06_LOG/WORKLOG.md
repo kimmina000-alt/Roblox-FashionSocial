@@ -709,3 +709,18 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전 | 후 |
 |---|---|
 | ![](images/2026-10-24/park_ticket_before.jpg) | ![](images/2026-10-24/park_ticket_after.jpg) |
+
+### 추가 (D-163)
+- 정문 아치가 기둥과 만나는 곳의 빈틈을 없앴습니다.
+  - 아치 끝을 기둥 안까지 넣었습니다.
+  - 아치 두께를 기둥 너비 안으로 줄였습니다.
+- 담장 모서리 기둥에 정문 탑과 같은 돔과 금색 첨탑을 올렸습니다.
+- 안내소 창 아래로 삐져나오던 반원을 없앴습니다.
+  - 아치 창을 작은 창 2개로 나눴습니다.
+  - 겹쳐서 번쩍이던 면을 정리했습니다.
+
+| 정문 전 | 정문 후 |
+|---|---|
+| ![](images/2026-10-24/park_gate_before.jpg) | ![](images/2026-10-24/park_gate_after.jpg) |
+
+![](images/2026-10-24/park_info_after.jpg)
