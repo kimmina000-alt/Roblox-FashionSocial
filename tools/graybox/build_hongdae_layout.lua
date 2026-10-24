@@ -146,6 +146,7 @@ local function revert()
 		end
 		old:Destroy()
 	end
+	workspace.Terrain:FillBlock(CFrame.new(-274, 1.02, 62), Vector3.new(24, 1.6, 28), Enum.Material.Air) -- the cafe pool's water
 	-- ride name signs switched off while the park was closed
 	for _, g in ipairs(root:GetDescendants()) do
 		if g:IsA("BillboardGui") and g:GetAttribute("ParkClosedHidden") then
@@ -1570,6 +1571,8 @@ do
 			end
 		end
 		workspace.Terrain:FillBlock(CFrame.new(-368, -9.5, -150), Vector3.new(92, 13, 92), Enum.Material.Water)
+		-- the beach cafe's 물멍 pool holds the same terrain water as the sea (user 2026-10-24)
+		workspace.Terrain:FillBlock(CFrame.new(-274, 0.7, 62), Vector3.new(24.4, 1.4, 28), Enum.Material.Water) -- to the rim (wider leaked past it onto the floor) -- from y 0: terrain water shows its surface at the filled share of the 4-stud cell (about 1.3 here)
 		for _, old in ipairs(beachZone:GetChildren()) do
 			if old:IsA("Model") and old.Name == "PalmTree" then
 				local cf, size = old:GetBoundingBox()
@@ -1604,10 +1607,11 @@ do
 		local near = false
 		for _, cz in ipairs(CROSS) do if math.abs(zz - cz) < 14 then near = true end end
 		local onBench = (zz - (z0 + 28)) % 60 < 8 or (zz - (z0 + 28)) % 60 > 58
-		local atCafe = zz > 8 and zz < 114 -- the beach cafe front (user 2026-10-24: no lamp at its door)
+		local atCafe = zz > 8 and zz < 114 -- the beach cafe front (user 2026-10-24: no lamp or bench there)
 		if not near and not onBench and not atCafe then streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
 	end
 	for zz = z0 + 28, z1, 60 do
+		if zz + 6 > 8 and zz < 114 then continue end -- not along the beach cafe (user 2026-10-24)
 		box("BenchBase", -197.5, CURB, zz, -195.5, CURB + 1.6, zz + 6, Color3.fromRGB(110, 110, 115))
 		-- wooden top along the bench, two seats side by side (user 2026-10-23)
 		for _, dz in ipairs({ 1.5, 4.5 }) do

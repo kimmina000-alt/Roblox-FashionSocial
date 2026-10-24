@@ -44,19 +44,10 @@ local function ring(at: Vector3)
 	r.CastShadow = false
 	r.Material = Enum.Material.SmoothPlastic
 	r.Color = Color3.fromRGB(235, 245, 250)
-	r.Transparency = 0.35
+	r.Transparency = 0.7 -- a faint light ring spreading over the terrain water
 	r.Size = Vector3.new(0.03, 0.6, 0.6)
-	-- a ring, not a disc: a darker water disc 0.25 smaller rides on top
-	local inner = r:Clone()
-	inner.Color = Color3.fromRGB(30, 40, 46)
-	inner.Transparency = 0.3 -- the same as the water, so it reads as water
-	inner.Size = Vector3.new(0.04, 0.35, 0.35)
 	r.CFrame = CFrame.new(at) * CFrame.Angles(0, 0, math.rad(90))
 	r.Parent = ringFolder
-	inner.CFrame = r.CFrame
-	inner.Parent = ringFolder
-	TweenService:Create(inner, TweenInfo.new(RING_LIFE, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = Vector3.new(0.04, RING_SIZE - 0.5, RING_SIZE - 0.5) }):Play()
-	task.delay(RING_LIFE, function() inner:Destroy() end)
 	local tw = TweenService:Create(r, TweenInfo.new(RING_LIFE, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Size = Vector3.new(0.03, RING_SIZE, RING_SIZE), Transparency = 1 })
 	tw.Completed:Connect(function() r:Destroy() end)
 	tw:Play()
