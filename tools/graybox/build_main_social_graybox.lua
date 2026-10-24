@@ -618,7 +618,7 @@ local z=zone("04_Beach_Aquarium")
  -- parasol groups: varied (closed / mat+box / mat / 2 chairs / chair+mat / 2 chairs+box)
  local kinds={"closed","matbox","mat","chairs2","chairmat","chairs2box"}
  local spots={}
- for zc=-470,236,26 do if not (zc>2 and zc<132) and not (zc>-36 and zc<-2) then table.insert(spots,zc) end end
+ for zc=-470,236,26 do if not (zc>2 and zc<132) and not (zc>-36 and zc<=-2) then table.insert(spots,zc) end end -- (no parasol right by the cafe deck, user 2026-10-24)
  for i,zc in ipairs(spots) do
   local x=-250+((i%3)-1)*9+math.random(-2,2) local g=Vector3.new(x,SAND,zc+math.random(-3,3))
   local kind=kinds[(i-1)%#kinds+1] local cols=stripeSets[(i-1)%#stripeSets+1]
