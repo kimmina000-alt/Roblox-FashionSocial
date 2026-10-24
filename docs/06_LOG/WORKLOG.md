@@ -1201,3 +1201,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 위에서 | 라운지 | 직원 문 |
 |---|---|---|
 | ![](images/2026-10-25/cafe_layout_v2_top.jpg) | ![](images/2026-10-25/cafe_layout_v2_lounge.jpg) | ![](images/2026-10-25/cafe_layout_v2_staffdoor.jpg) |
+
+### 추가 (D-222) — 피아노 3단 단상
+- 유리 모서리에 3단 대리석 단상(한 단 0.8)을 만들고 피아노와 의자를 맨 위에 올렸습니다. 걸어 올라가 피아노 의자에 앉는 것 확인.
+
+![](images/2026-10-25/cafe_piano_stage.jpg)

@@ -918,13 +918,18 @@ local z=zone("04_Beach_Aquarium")
    end
   end
   label(cm,"라운지",Vector3.new(-248,FY+9,83))
-  -- GRAND PIANO in the north-west corner (user plan)
+  -- GRAND PIANO in the north-west corner on a three-step stage in the glass
+  -- corner (user 2026-10-25: three nested squares, 0.8 a step)
+  for k,s in ipairs({{-273,80},{-276,83},{-280,86.5}}) do
+   box(cm,"PianoStage",x0+0.4,FY,s[2],s[1],FY+0.8*k,z1-0.4,Color3.fromRGB(236,230,218),{mat=Enum.Material.Marble})
+  end
+  local PY=FY+2.4 -- the stage top
   local piano=M(cm,"GrandPiano",{},{})
-  box(piano,"PianoBody",-290,FY+2.2,92,-284,FY+3.6,99,dark)
-  P(piano,"PianoLid",Vector3.new(6,0.2,7),CFrame.new(-287,FY+5,95.5)*CFrame.Angles(math.rad(-30),0,0),dark,{nocol=true})
-  for _,lp in ipairs({{-289.5,92.5},{-284.5,92.5},{-287,98.5}}) do box(piano,"PianoLeg",lp[1]-0.3,FY,lp[2]-0.3,lp[1]+0.3,FY+2.2,lp[2]+0.3,dark) end
-  box(piano,"Keys",-290,FY+3.3,91.4,-284,FY+3.6,92,Color3.new(1,1,1))
-  do local pos=Vector3.new(-287,FY+1.6,89.6) seat(cm,"PianoBench",CFrame.lookAt(pos,pos+Vector3.new(0,0,1)),Vector3.new(3,0.4,1.4),dark) end
+  box(piano,"PianoBody",-290,PY+2.2,92,-284,PY+3.6,99,dark)
+  P(piano,"PianoLid",Vector3.new(6,0.2,7),CFrame.new(-287,PY+5,95.5)*CFrame.Angles(math.rad(-30),0,0),dark,{nocol=true})
+  for _,lp in ipairs({{-289.5,92.5},{-284.5,92.5},{-287,98.5}}) do box(piano,"PianoLeg",lp[1]-0.3,PY,lp[2]-0.3,lp[1]+0.3,PY+2.2,lp[2]+0.3,dark) end
+  box(piano,"Keys",-290,PY+3.3,91.4,-284,PY+3.6,92,Color3.new(1,1,1))
+  do local pos=Vector3.new(-287,PY+1.6,89.6) seat(cm,"PianoBench",CFrame.lookAt(pos,pos+Vector3.new(0,0,1)),Vector3.new(3,0.4,1.4),dark) end
   -- (no sofas, long marble table, wooden pool tiers or north planter: user plan 2026-10-25)
   -- LIGHT (user photos 2026-10-24, warm hotel-lobby mood): a long glowing
   -- stretch-ceiling panel over the pool between the wooden slats, warm spots
