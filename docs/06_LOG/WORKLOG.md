@@ -1165,3 +1165,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 길 쪽 벽 | 바닥 |
 |---|---|
 | ![](images/2026-10-25/cafe_wall_plain.jpg) | ![](images/2026-10-25/cafe_floor_marble.jpg) |
+
+### 추가 (D-217) — 카페 스태프 문 삭제, 카운터를 왼쪽 벽에 붙임
+- STAFF ONLY 문과 표지판을 지웠습니다.
+- 주문 카운터와 뒤 카운터(알바 시작 작업대)를 왼쪽(남쪽) 벽에 붙이고, 오른쪽 입구(z 56..66)를 가리지 않게 z 55.7에서 끊었습니다. 에스프레소 기계는 카운터 안으로 옮겼습니다.
+- 확인: 카운터 안쪽 통로로 걸어 들어가 알바 시작 정상.
+
+![](images/2026-10-25/cafe_counters_to_wall.jpg)

@@ -786,7 +786,9 @@ local z=zone("04_Beach_Aquarium")
   -- two tills, queue posts, a white back counter with espresso machines and a
   -- bottle shelf, and a row of black menu boards high on the back wall
   local CW=Color3.fromRGB(244,243,240) local STEEL=Color3.fromRGB(176,178,182)
-  local CZ0,CZ1=22,66
+  -- (user 2026-10-25) both counters run from the south wall (the top a hair off
+  -- its face) and stop at z 56, clear of the street door (z 56..66)
+  local CZ0,CZ1=16.72,55.7
   box(cm,"Counter",-229,FY,CZ0,-226,FY+3.6,CZ1,CW)
   box(cm,"CounterKick",-229.15,FY,CZ0,-229,FY+0.4,CZ1,Color3.fromRGB(70,70,72))
   local top=box(cm,"CounterTop",-229.3,FY+3.6,CZ0-0.3,-225.7,FY+3.9,CZ1+0.3,Color3.fromRGB(238,238,236),{mat=Enum.Material.Marble})
@@ -811,11 +813,11 @@ local z=zone("04_Beach_Aquarium")
   for k,qz in ipairs({22,27,32}) do cyl(cm,"QueuePost",0.35,3,Vector3.new(-233,FY+1.5,qz),STEEL,{mat=Enum.Material.Metal})
    if k>1 then box(cm,"QueueBelt",-233.05,FY+2.4,qz-5,-232.95,FY+2.7,qz,Color3.fromRGB(30,30,34),{nocol=true}) end end
   -- back counter (the 알바 work station) with machines and a bottle shelf above
-  -- (it starts 5.5 later: the staff door is on the back wall at the south end, user 2026-10-24)
-  local BZ0=CZ0+5.5
+  -- (from the south wall too: the staff door there is gone, user 2026-10-25)
+  local BZ0=CZ0
   box(cm,"BackCounter",-212,FY,BZ0,-207,FY+3.6,CZ1,CW)
   box(cm,"BackCounterTop",-212.2,FY+3.6,BZ0,-206.9,FY+3.8,CZ1,Color3.fromRGB(60,60,64),{mat=Enum.Material.Granite})
-  for _,ez in ipairs({32,58}) do
+  for _,ez in ipairs({26,46}) do
    box(cm,"EspressoMachine",-211.6,FY+3.8,ez-1.6,-209,FY+5.8,ez+1.6,STEEL,{mat=Enum.Material.Metal})
    box(cm,"Grinder",-211.2,FY+3.8,ez+2.2,-209.8,FY+6.2,ez+3.4,dark) end
   box(cm,"BottleShelf",-208.6,FY+7.4,CZ1-9,-206.6,FY+7.6,CZ1-1,Color3.fromRGB(150,96,56))
@@ -838,12 +840,8 @@ local z=zone("04_Beach_Aquarium")
   -- on the back wall behind the counter's south end; it stays shut (no way in)
   box(cm,"StaffWall",mx,FY,91.4,x1-0.6,MY-1,92,CW)
   box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,96.2,CW) -- to the stairs' side (a gap showed)
-  local sd=box(cm,"StaffDoor",x1-0.75,FY,CZ0+0.5,x1-0.6,FY+8,CZ0+4.5,Color3.fromRGB(210,208,204))
-  box(cm,"StaffDoorHandle",x1-0.9,FY+3.6,CZ0+3.6,x1-0.75,FY+4.4,CZ0+3.9,STEEL,{nocol=true})
-  local ss=box(cm,"StaffSign",x1-0.8,FY+8.6,CZ0+1,x1-0.7,FY+9.6,CZ0+4,dark,{nocol=true})
-  do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=ss
-   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1) l.Text="STAFF ONLY" l.Parent=g end
-  local _=sd  -- coffee bag wall (colourful packs) on the south wall behind the bakery
+  -- (no staff door or STAFF ONLY sign on the back wall any more, user 2026-10-25)
+  -- coffee bag wall (colourful packs) on the south wall behind the bakery
   for k=0,17 do local col=({Color3.fromRGB(200,40,50),Color3.fromRGB(30,30,30),Color3.fromRGB(230,200,60),Color3.fromRGB(60,110,180),Color3.fromRGB(240,240,240)})[k%5+1]
    box(cm,"CoffeeBag",mx+1+(k%9)*2.8,FY+5+math.floor(k/9)*2.4,z0+0.5,mx+3+(k%9)*2.8,FY+6.8+math.floor(k/9)*2.4,z0+1.3,col) end
   box(cm,"BagShelf",mx+0.5,FY+4.8,z0+0.4,mx+27,FY+5,z0+1.6,woodC) box(cm,"BagShelf",mx+0.5,FY+7.2,z0+0.4,mx+27,FY+7.4,z0+1.6,woodC)
