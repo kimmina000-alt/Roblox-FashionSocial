@@ -851,3 +851,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-24/cafe_pool_lamps_after.jpg)
 ![](images/2026-10-24/cafe_glass_corner_after.jpg)
 ![](images/2026-10-24/cafe_stair_rail_after.jpg)
+
+### 추가 — 계단 유리 끝, 풀 조명 높이
+- 계단 유리 난간을 끝이 수직인 평행사변형(쐐기 4개)으로 바꿔, 아래 기둥 옆으로 튀어나오던 부분과 빈 틈을 없앴습니다.
+- 물멍 풀 조명 높이를 5 → 2로 낮추고, 풀 밖 종이 스탠드 2개를 지웠습니다.
+
+![](images/2026-10-24/cafe_stair_post_after.jpg)
+![](images/2026-10-24/cafe_pool_low_lamps_after.jpg)

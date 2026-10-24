@@ -747,7 +747,21 @@ local z=zone("04_Beach_Aquarium")
   do local run=NS*1.6 local c=Vector3.new(-262+run/2,FY+NS/2,100) P(cm,"StairRamp",Vector3.new(8,NS,run),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),woodC,{class="WedgePart",t=1}) end
   -- glass rail along the stair slope, 3.4 above the steps like the mezzanine rail (user 2026-10-24)
   do local a=Vector3.new(-261.2,FY+1.7+0.5,95.75) local b=Vector3.new(mx-0.4,MY+1.7,95.75) -- from the first step to the mezzanine raillocal d=(b-a).Unit
-   P(cm,"StairRail",Vector3.new(0.3,3.4,(b-a).Magnitude),CFrame.lookAt((a+b)/2,b),glass,{t=0.7,mat=Enum.Material.Glass,nocol=true})
+   -- the glass is a parallelogram with vertical ends (a box cut square to the
+   -- slope poked past the posts and left a gap under them, user 2026-10-24):
+   -- two triangles, each made of two wedges
+   local function tri(p1,p2,p3)
+    local ab,ac,bc=p2-p1,p3-p1,p3-p2
+    local abd,acd,bcd=ab:Dot(ab),ac:Dot(ac),bc:Dot(bc)
+    if abd>acd and abd>bcd then p3,p1=p1,p3 elseif acd>bcd and acd>abd then p1,p2=p2,p1 end
+    ab,ac,bc=p2-p1,p3-p1,p3-p2
+    local right=ac:Cross(ab).Unit local up=bc:Cross(right).Unit local back=bc.Unit
+    local h=math.abs(ab:Dot(up)) local d1,d2=math.abs(ab:Dot(back)),math.abs(ac:Dot(back))
+    local o={t=0.7,mat=Enum.Material.Glass,nocol=true,class="WedgePart"}
+    if d1>0.01 then P(cm,"StairRail",Vector3.new(0.3,h,d1),CFrame.fromMatrix((p1+p2)/2,right,up,back),glass,o) end
+    if d2>0.01 then P(cm,"StairRail",Vector3.new(0.3,h,d2),CFrame.fromMatrix((p1+p3)/2,-right,up,-back),glass,o) end end
+   local lo,hi=Vector3.new(0,1.7,0),Vector3.new(0,1.7,0)
+   tri(a-lo,b-lo,b+hi) tri(a-lo,b+hi,a+hi)
    local ha,hb=a+Vector3.new(0,1.85,0),b+Vector3.new(0,1.85,0)
    P(cm,"StairHandrail",Vector3.new(0.5,0.3,(hb-ha).Magnitude),CFrame.lookAt((ha+hb)/2,hb),frameC,{nocol=true})
    -- square end posts: on the floor at the bottom, against the mezzanine rail at the top
@@ -805,7 +819,7 @@ local z=zone("04_Beach_Aquarium")
   -- the same as the floor lamps; no jets or ripples
   for _,jz in ipairs({53,59,65,71}) do
    cyl(cm,"PoolLampBase",1.6,0.2,Vector3.new(-274,FY+0.1,jz),Color3.fromRGB(60,50,40),{ghost=true})
-   local s=cyl(cm,"PoolLamp",1.8,5,Vector3.new(-274,FY+0.2+2.5,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true})
+   local s=cyl(cm,"PoolLamp",1.8,2,Vector3.new(-274,FY+0.2+1,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true}) -- low, just above the water (user 2026-10-24)
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=Color3.fromRGB(255,214,160) pl.Parent=s
   end
   -- (no black stone blocks: user 2026-10-24)
@@ -857,7 +871,7 @@ local z=zone("04_Beach_Aquarium")
    cyl(cm,"PaperLampBase",1.6,0.2,Vector3.new(x,FY+0.1,z),Color3.fromRGB(60,50,40),{ghost=true})
    local s=cyl(cm,"PaperLamp",1.8,h,Vector3.new(x,FY+0.2+h/2,z),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true}) -- a soft amber glow (white glared)
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=WARM pl.Parent=s end
-  paperLamp(-287,22,6) paperLamp(-263,22,6) -- (the lamps and photo spots by the pool are gone, user 2026-10-24)
+  local _=paperLamp -- (no floor lamps outside the pool any more, user 2026-10-24)
   -- sunset terrace outside on the south side
   box(cm,"Terrace",-268,0,z0-12,-198,FY,z0,woodC) -- out to the promenade (user 2026-10-24)
   do local c=Vector3.new(-249,FY/2,z0-15) P(cm,"TerraceRamp",Vector3.new(14,FY,6),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),woodC,{class="WedgePart"}) end
