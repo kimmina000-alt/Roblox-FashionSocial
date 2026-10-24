@@ -941,3 +941,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 원형 광장을 더 깊게(-2.5 / -3.3 / -4.1) 파고, 정문 쪽 계단을 0.5씩 5칸으로 바꿨습니다.
 
 ![](images/2026-10-24/pocket_park_deeper_after.jpg)
+
+- 정문 쪽 계단/길 폭을 정문 가운데 아치 기둥 사이(x -103.5..-82.5)에 맞추고, 5칸 계단을 정문 바로 앞(z -196부터)으로 옮긴 뒤 원형 광장까지는 평평한 길로 이었습니다. 길에 걸리던 공원등 2개는 옆으로 옮겼습니다.
+
+![](images/2026-10-24/pocket_park_corridor_after.jpg)
