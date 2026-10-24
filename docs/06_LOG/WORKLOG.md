@@ -978,3 +978,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 걸어서 확인: 포장(0.08)에서 데크(0.97)로 올라가고 다시 내려오기, 데크 위 이동.
 
 ![](images/2026-10-24/pocket_park_upper_deck_after.jpg)
+
+- 서쪽 계단식 의자 맨 윗칸을 원 가장자리(반지름 44.3)까지 넓혀 데크와의 틈을 없앴습니다(곡선 40조각). 틈이던 띠를 6곳 x 2줄 레이캐스트로 확인했고, 캐릭터가 데크(0.98)와 윗칸(0.20) 사이를 오갈 수 있습니다.
+
+![](images/2026-10-24/pocket_park_tier_deck_joined_after.jpg)

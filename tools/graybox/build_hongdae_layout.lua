@@ -3187,11 +3187,15 @@ do
 	local function tiers(a0, a1, r0, xStop)
 		for k = 0, 2 do
 			local ri, ro = r0 + k * 2.6, r0 + 2.6 + k * 2.6
+			-- the west arc's top tier runs out to the circle's edge (r 44), under the
+			-- raised deck, so no floor gap shows between them (user 2026-10-24)
+			local nSeg = nil
+			if xStop and k == 2 then ro, nSeg = 44.3, 40 end
 			local top = 0.9 + k * 0.9
 			-- the west arc runs on to the walk's edge (x = xStop), each tier as far as it reaches
 			local ak = a1
 			if xStop then ak = 360 - math.deg(math.acos((xStop - C.X) / ro)) end
-			arc("ParkTier", C, ri, ro, a0, ak, 0, top, WOOD, Enum.Material.WoodPlanks)
+			arc("ParkTier", C, ri, ro, a0, ak, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
 			-- invisible seats sunk into the tread near its front edge, so the sitter's
 			-- hips rest on the wood and the legs hang over the step below (user 2026-10-24)
 			local rs = ri + 0.9
