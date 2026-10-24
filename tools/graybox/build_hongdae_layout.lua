@@ -55,7 +55,7 @@ local HOLES = {
 	{ 26, 50, 32, 68 }, { -32, 50, -26, 68 }, -- exits 2, 4 (come up southwards)
 	{ 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
 	{ -141, -197, -51, -83 }, -- the pocket park's sunken round plaza (user 2026-10-24)
-	{ -110, -92, -68, -53 }, { -56, -123, -43, -113 }, -- its south walk + stair and its east stair
+	{ -110, -92, -68, -53 }, -- its south walk + stair
 }
 -- 광화문 lawns planted as terrain grass (blades), x0, z0, x1, z1 (user 2026-10-23)
 -- the lawns are sunken beds: terrain heights snap to 4 studs, so terrain
@@ -3042,10 +3042,8 @@ do
 		-- (no west fillet: the raised ground beside the west tiers meets the walk there)
 		add(Vector2.new(WALK_X0, C.Z + math.sqrt(44 * 44 - (WALK_X0 - C.X) ^ 2)))
 		add(Vector2.new(WALK_X0, -63)) add(Vector2.new(WALK_X1, -63))
-		-- right fillet: from the walk's east edge round to the circle point
-		local b0, b1 = math.pi, angOf(Rc, Fr)
-		if b1 < 0 then b1 += 2 * math.pi end
-		for i = 0, 8 do local a = b0 + (b1 - b0) * i / 8 add(Fr + Vector2.new(math.cos(a), math.sin(a)) * FIL) end
+		-- (no east fillet either)
+		add(Vector2.new(WALK_X1, C.Z + math.sqrt(44 * 44 - (WALK_X1 - C.X) ^ 2)))
 		-- the circle back from the right point to the left one (through its south)
 		local c0, c1 = angOf(Rc, c2), angOf(Lc, c2)
 		for i = 1, 11 do local a = c0 + (c1 - c0) * i / 12 add(c2 + Vector2.new(math.cos(a), math.sin(a)) * 44) end
@@ -3078,10 +3076,8 @@ do
 		part("Cut", Vector3.new(30, 88.2, 88.2), CFrame.new(-96, 0, -128) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }),
 		box("Cut", -110.5, -9, -196, -75.5, 2, -165, PAVE, { parent = workspace }), -- into the ring, so no paving is left between the walk and the circle
 		box("Cut", WALK_X0, -9, -63.2, WALK_X1, 2, -54, PAVE, { parent = workspace }), -- the south stair
-		box("Cut", EAST_X0 - 0.2, -9, EAST_Z0, EAST_X1, 2, EAST_Z1, PAVE, { parent = workspace }), -- the east stair
 	}
 	table.insert(cuts, box("Cut", WALK_X0, -9, C.Z, WALK_X1, 2, -63, PAVE, { parent = workspace })) -- the walk (its north end is inside the circle)
-	table.insert(cuts, fillPiece(Fr, WALK_X1, Fr.X))
 	local okP, cutP = pcall(function() return paving:SubtractAsync(cuts) end)
 	for _, c in ipairs(cuts) do c:Destroy() end
 	if okP and cutP then
@@ -3138,7 +3134,8 @@ do
 		local floor = box("ParkLevel", Fl.X, LEVELS[1][2] - 6, C.Z, Fr.X, LEVELS[1][2], -63, PAVE, { parent = workspace, material = Enum.Material.Slate })
 		local neg = { part("Cut", Vector3.new(30, 88, 88), CFrame.new(C.X, 0, C.Z) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }) }
 		table.insert(neg, box("Cut", Fl.X - 1, -20, C.Z - 1, WALK_X0, 5, -62, PAVE, { parent = workspace })) -- west of the walk (no fillet there)
-		for _, side in ipairs({ { Fr, WALK_X1, Fr.X + 1 } }) do
+		table.insert(neg, box("Cut", WALK_X1, -20, C.Z - 1, Fr.X + 1, 5, -62, PAVE, { parent = workspace })) -- east of the walk (no fillet there either)
+		for _, side in ipairs({}) do
 			local keep = box("Cut", side[2], -20, C.Z - 1, side[3], 5, -62, PAVE, { parent = workspace })
 			local corner = fillPiece(side[1], math.max(side[2], Fl.X), math.min(side[3], Fr.X))
 			local ok, k = pcall(function() return keep:SubtractAsync({ corner }) end)
@@ -3204,13 +3201,11 @@ do
 			local dz = z - C.Z
 			local cw = math.sqrt(math.max(0, 44 * 44 - dz * dz)) -- the circle's half width here
 			local a, b = WALK_X0, WALK_X1
-			if z < Fr.Y then local d = FIL * FIL - (z - Fr.Y) ^ 2 b = if d > 0 then Fr.X - math.sqrt(d) else C.X + cw end
 			if z < Fr.Y - FIL and z < Fl.Y - FIL then return nil end -- (above both fillets: the circle covers it)
 			return a, b
 		end
-		local function eastStair(z) if z > EAST_Z0 and z < EAST_Z1 then return EAST_X0 - 0.2, EAST_X1 end return nil end
 		-- the paving (top 0.08)
-		collideRows("ParkCollide", Z0, Z1, 0.08, { circleOut(44), corridor, southWalk, eastStair })
+		collideRows("ParkCollide", Z0, Z1, 0.08, { circleOut(44), corridor, southWalk })
 		-- ring 1 (r 34..44) and ring 2 (r 20..34)
 		for i = 1, #LEVELS - 1 do
 			local ro, ri, top = LEVELS[i][1], LEVELS[i + 1][1], LEVELS[i][2]
@@ -3244,12 +3239,7 @@ do
 	for k = 1, 4 do
 		box("ParkStair", WALK_X0, -8, -54 - 2.25 * k, WALK_X1, -0.5 * k, -54 - 2.25 * (k - 1), STONE, o(Enum.Material.Limestone))
 	end
-	-- the east stair: down westward from the paving into the ring; the last
-	-- tread runs on to the circle (0.02 over the ring it meets)
-	for k = 1, 5 do
-		local xa = if k == 5 then EAST_X0 else EAST_X1 - 2.25 * k
-		box("ParkStair", xa, -8, EAST_Z0, EAST_X1 - 2.25 * (k - 1), if k == 5 then -2.48 else -0.5 * k, EAST_Z1, STONE, o(Enum.Material.Limestone))
-	end
+	-- (no east stair: the east tiers are the way down there, user 2026-10-24)
 	for k = 1, 5 do
 		local za = -196 + (k - 1) * 2.25
 		local zb = if k == 5 then -165 else za + 2.25
@@ -3292,49 +3282,61 @@ do
 	end
 	-- tiered wooden seats in an arc facing the mound, east and west (user
 	-- 2026-10-24: plain wood, no cushions and no E prompt; walking onto a seat
-	-- still sits you down, so the seat parts are invisible and untagged)
-	local function tiers(a0, a1, r0, xStop, seatZones)
+	-- still sits you down, so the seat parts are invisible and untagged).
+	-- stop0 / stop1: { "x" | "z", value } makes that end of every tier flush on
+	-- a straight line (the walk's edge, or the line the raised ground starts on)
+	local function angAt(r, stop, near)
+		local best
+		local cands = {}
+		if stop[1] == "x" then
+			local a = math.deg(math.acos(math.clamp((stop[2] - C.X) / r, -1, 1)))
+			cands = { a, -a }
+		else
+			local a = math.deg(math.asin(math.clamp((stop[2] - C.Z) / r, -1, 1)))
+			cands = { a, 180 - a }
+		end
+		for _, c in ipairs(cands) do
+			for k = -2, 2 do
+				local v = c + 360 * k
+				if not best or math.abs(v - near) < math.abs(best - near) then best = v end
+			end
+		end
+		return best
+	end
+	local function tiers(a0, a1, r0, stop0, stop1, seatZones)
+		local dir = if a1 > a0 then 1 else -1 -- the arc runs from a0 to a1
 		for k = 0, 2 do
 			local ri, ro = r0 + k * 2.6, r0 + 2.6 + k * 2.6
-			-- the west arc's top tier runs out to the circle's edge (r 44), under the
-			-- raised deck, so no floor gap shows between them (user 2026-10-24)
+			-- the top tier runs out to the circle's edge (r 44), so no floor gap
+			-- shows between it and the ground behind (user 2026-10-24)
 			local nSeg = nil
-			if xStop and k == 2 then ro, nSeg = 44.3, 40 end
+			if (stop0 or stop1) and k == 2 then ro, nSeg = 44.3, 40 end
 			local top = 0.9 + k * 0.9
-			-- the west arc runs on to the walk's edge (x = xStop), each tier as far as it reaches
-			local ak = a1
-			if xStop then
-				-- every tier ends flush on the walk's edge line (user 2026-10-24): the
-				-- full band runs to where its inner circle meets x = xStop, then a fan
-				-- of wedges fills the corner out to the outer circle along that line.
-				-- (built at the level's height directly: the end pieces reach the
-				-- circle's edge, where the level shift below would miss them)
-				local ai = 360 - math.deg(math.acos((xStop - C.X) / ri))
-				ak = 360 - math.deg(math.acos((xStop - C.X) / ro))
-				-- the boxes stop 4 degrees early (their square ends would poke past the
-				-- line); the wedges fill from there: inner arc, the line, outer arc
-				local dir = if ak > a0 then 1 else -1 -- the arc may run either way round to its line end
-				local aS = ai - 4 * dir
-				arc("ParkTier", C, ri, ro, a0, aS, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
-				local L = LEVELS[1][2]
-				local y = L + top / 2
-				local function on(r, a) return Vector3.new(C.X + r * math.cos(math.rad(a)), y, C.Z + r * math.sin(math.rad(a))) end
-				local wo2 = o(Enum.Material.WoodPlanks)
-				local pin = on(ri, aS)
-				local prev = pin
+			local y = LEVELS[1][2] + top / 2
+			local wo2 = o(Enum.Material.WoodPlanks)
+			local function on(r, a) return Vector3.new(C.X + r * math.cos(math.rad(a)), y, C.Z + r * math.sin(math.rad(a))) end
+			-- a flush end: the boxes stop 3-4 degrees before the line (their square
+			-- ends would poke past it); wedges fill from there: inner arc, the line,
+			-- outer arc. Built at the level's height directly (not shifted below)
+			local function flush(stop, near, inward)
+				local ai, ao = angAt(ri, stop, near), angAt(ro, stop, near)
+				local aS = (if inward > 0 then math.max(ai, ao) else math.min(ai, ao)) + 4 * inward
+				local prev = on(ri, aS)
 				for j = 1, 4 do
 					local p = on(ri, aS + (ai - aS) * j / 4)
 					wedgeTri("ParkTierEnd", on(ro, aS), prev, p, top, WOOD, wo2)
 					prev = p
 				end
-				-- prev is the inner point on the line; fan from it over the outer arc
-				local m = 8
-				for j = 0, m - 1 do
-					wedgeTri("ParkTierEnd", prev, on(ro, ak - (ak - aS) * j / m), on(ro, ak - (ak - aS) * (j + 1) / m), top, WOOD, wo2)
+				for j = 0, 7 do
+					wedgeTri("ParkTierEnd", prev, on(ro, ao - (ao - aS) * j / 8), on(ro, ao - (ao - aS) * (j + 1) / 8), top, WOOD, wo2)
 				end
-			else
-				arc("ParkTier", C, ri, ro, a0, ak, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
+				return aS, ai, ao
 			end
+			local b0, b1 = a0, a1
+			local e0, e1 = a0, a1 -- the band's real ends (for the seats)
+			if stop0 then b0, e0 = flush(stop0, a0, dir) end
+			if stop1 then b1, e1 = flush(stop1, a1, -dir) end
+			arc("ParkTier", C, ri, ro, b0, b1, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
 			-- invisible seats sunk into the tread near its front edge, so the sitter's
 			-- hips rest on the wood and the legs hang over the step below (user 2026-10-24)
 			local rs = ri + 0.9
@@ -3342,7 +3344,7 @@ do
 			-- seats side by side every 2 studs so a group sits together, the rest
 			-- of the tiers stays free to walk on (user 2026-10-24)
 			local angles = {}
-			for _, zone in ipairs(seatZones or { { a0 + 1, ak - 1 } }) do
+			for _, zone in ipairs(seatZones or { { e0 + dir, e1 - dir } }) do
 				local step = math.deg(2 / rs)
 				local lo, hi = math.min(zone[1], zone[2]), math.max(zone[1], zone[2])
 				local za, zb = lo + math.deg(1 / rs), hi - math.deg(1 / rs)
@@ -3365,31 +3367,35 @@ do
 			end
 		end
 	end
-	-- east: the same tiers as the west, in the outer ring from the gate walk's
-	-- east edge (x -75.5) round to the east (user 2026-10-24, red box; the old
-	-- east tiers by the mound are gone); a walkway by the walk and one in the middle
+	-- east: in the outer ring from the gate walk's east edge (x -75.5) round to
+	-- the east; its south end is flush on z -114 (user 2026-10-24: the tiers are
+	-- the way down there, no separate stair); a walkway by the walk and one in the middle
 	-- (the line ends stop 0.03 short of the walk's cut face: the two faces flickered)
-	tiers(367, 297, 34.6, -75.47, { { 314, 335 }, { 342, 362 } })
+	local EAST_ZL = -114
+	tiers(380, 297, 34.6, { "z", EAST_ZL }, { "x", -75.47 }, { { 314, 335 }, { 342, 362 } })
 	-- west: in the outer ring outside the curved sofa deck, where the four wicker
-	-- chairs stood (user 2026-10-24, red box): r 34.6..42.4, all on the first level
-	-- seats only in the user's three red boxes (2026-10-24), walkways between
-	tiers(145, 245, 34.6, -110.53, { { 151, 182 }, { 189.5, 208.5 }, { 218, 230.5 } })
+	-- chairs stood (user 2026-10-24, red box): seats only in the user's three
+	-- red boxes, walkways between
+	tiers(145, 245, 34.6, nil, { "x", -110.53 }, { { 151, 182 }, { 189.5, 208.5 }, { 218, 230.5 } })
 	-- the raised ground beside the west tiers' south end (user 2026-10-24): the
 	-- paving comes out from behind the tiers to their end, and its edge runs
 	-- from the bottom tier's front corner in a smooth curve down to the walk's
 	-- west edge (x -102), where it meets the circle. Built as one merged solid
 	-- (no seams) at the paving's height, with collision rows in its real shape
-	do
-		local c2 = Vector2.new(C.X, C.Z)
-		local function on(r, deg) return c2 + Vector2.new(math.cos(math.rad(deg)), math.sin(math.rad(deg))) * r end
-		local A = on(34.6, 145) -- the bottom tier's front corner
-		local B = on(44.1, 145) -- behind the tiers, on the paving's cut edge
-		local J = Vector2.new(WALK_X0, C.Z + math.sqrt(44.1 ^ 2 - (WALK_X0 - C.X) ^ 2)) -- the walk's edge on the circle
+	local c2i = Vector2.new(C.X, C.Z)
+	local function onI(r, deg) return c2i + Vector2.new(math.cos(math.rad(deg)), math.sin(math.rad(deg))) * r end
+	-- A: the bottom tier's front corner, B: behind the tiers on the paving's cut
+	-- edge, J: the walk's edge on the circle
+	local function infill(A: Vector2, B: Vector2, J: Vector2)
+		local c2 = c2i
+		local on = onI
 		local L = (J - A).Magnitude
 		local c1, cc2 = A + (J - A).Unit * (0.4 * L), J - Vector2.new(0, 1) * (0.4 * L)
 		local poly = { A, B }
+		local aB = math.deg(math.atan2(B.Y - C.Z, B.X - C.X))
 		local aJ = math.deg(math.atan2(J.Y - C.Z, J.X - C.X))
-		for i = 1, 11 do table.insert(poly, on(44.1, 145 + (aJ - 145) * i / 12)) end
+		if math.abs(aJ - aB) > 180 then aJ += if aJ < aB then 360 else -360 end
+		for i = 1, 11 do table.insert(poly, on(44.1, aB + (aJ - aB) * i / 12)) end
 		table.insert(poly, J)
 		for i = 11, 1, -1 do -- the curve back from J to A
 			local s = i / 12
@@ -3469,7 +3475,15 @@ do
 			end
 		end
 	end
-	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
+
+	infill(onI(34.6, 145), onI(44.1, 145), Vector2.new(WALK_X0, C.Z + math.sqrt(44.1 ^ 2 - (WALK_X0 - C.X) ^ 2)))
+	-- the same on the east (user 2026-10-24): from the east tiers' flush south
+	-- end (z -114) down to the walk's east edge
+	do
+		local dz = EAST_ZL - C.Z
+		infill(Vector2.new(C.X + math.sqrt(34.6 ^ 2 - dz * dz), EAST_ZL), Vector2.new(C.X + math.sqrt(44.1 ^ 2 - dz * dz), EAST_ZL),
+			Vector2.new(WALK_X1, C.Z + math.sqrt(44.1 ^ 2 - (WALK_X1 - C.X) ^ 2)))
+	end	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
 	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
 	-- a raised wooden deck (one step, the tiers' wood) between the west tree bed,
 	-- the gate walk and the sunken circle (user 2026-10-24, red outline + sketch):
