@@ -3516,7 +3516,7 @@ do
 			seat("ParkChair", CFrame.lookAt(p, at + Vector3.new(0, 1.3, 0)), Vector3.new(1.8, 0.3, 1.8), Color3.fromRGB(90, 90, 96), P)
 		end
 	end
-	parasolSet(Vector3.new(-104, 0, -92))
+	-- (the parasol table by the south walk is gone, user 2026-10-24)
 	parasolSet(Vector3.new(-122, DECK_TOP - 0.08, -172)) -- on the raised deck
 	-- planting beds along the north and east edges and the south-west corner:
 	-- curbed soil with round shrubs (balls) of several greens, trees behind
@@ -3562,7 +3562,7 @@ do
 	end
 	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
 	for _, c in ipairs(P:GetChildren()) do
-		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide" or c.Name == "ParkUpperDeck" or c.Name == "ParkTierEnd" or c.Name == "ParkWalkWall") then
+		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide" or c.Name == "ParkUpperDeck" or c.Name == "ParkTierEnd" or c.Name == "ParkWalkWall" or c.Name == "ParkInfill") then -- (built at their own heights)
 			local h = domeH(c.Position.X, c.Position.Z)
 			if h ~= 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
 		end

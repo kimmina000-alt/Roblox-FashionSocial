@@ -1025,3 +1025,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-24/pocket_park_infill_top_after.jpg)
 ![](images/2026-10-24/pocket_park_infill_after.jpg)
+
+- 고침: 새 높은 땅이 '광장 안 물건을 낮은 바닥 높이로 내리기' 처리에 걸려 2.5 내려가 땅속에 묻혀 있었습니다(위에서 선만 보이고 캐릭터는 충돌 줄 위에 떠 있었음). 그 처리에서 빼서 -2.6~0.08로 보이게 했습니다. 남쪽 길 옆 파라솔 테이블을 지웠습니다.
+
+![](images/2026-10-24/pocket_park_infill_visible_after.jpg)
