@@ -982,3 +982,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 서쪽 계단식 의자 맨 윗칸을 원 가장자리(반지름 44.3)까지 넓혀 데크와의 틈을 없앴습니다(곡선 40조각). 틈이던 띠를 6곳 x 2줄 레이캐스트로 확인했고, 캐릭터가 데크(0.98)와 윗칸(0.20) 사이를 오갈 수 있습니다.
 
 ![](images/2026-10-24/pocket_park_tier_deck_joined_after.jpg)
+
+- 서쪽 계단식 의자 각 단의 끝을 정문 길 끝선(x -110.5)에 일자로 맞췄습니다(끝 4도는 쐐기 삼각형으로 채움, 선 바깥 0.1에 나무가 없는 것을 레이캐스트로 확인). 데크 아래 길 쪽 회색 벽면에 데크와 같은 나무를 입혔습니다.
+
+![](images/2026-10-24/pocket_park_tier_ends_flush_after.jpg)

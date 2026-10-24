@@ -3194,8 +3194,37 @@ do
 			local top = 0.9 + k * 0.9
 			-- the west arc runs on to the walk's edge (x = xStop), each tier as far as it reaches
 			local ak = a1
-			if xStop then ak = 360 - math.deg(math.acos((xStop - C.X) / ro)) end
-			arc("ParkTier", C, ri, ro, a0, ak, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
+			if xStop then
+				-- every tier ends flush on the walk's edge line (user 2026-10-24): the
+				-- full band runs to where its inner circle meets x = xStop, then a fan
+				-- of wedges fills the corner out to the outer circle along that line.
+				-- (built at the level's height directly: the end pieces reach the
+				-- circle's edge, where the level shift below would miss them)
+				local ai = 360 - math.deg(math.acos((xStop - C.X) / ri))
+				ak = 360 - math.deg(math.acos((xStop - C.X) / ro))
+				-- the boxes stop 4 degrees early (their square ends would poke past the
+				-- line); the wedges fill from there: inner arc, the line, outer arc
+				local aS = ai - 4
+				arc("ParkTier", C, ri, ro, a0, aS, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
+				local L = LEVELS[1][2]
+				local y = L + top / 2
+				local function on(r, a) return Vector3.new(C.X + r * math.cos(math.rad(a)), y, C.Z + r * math.sin(math.rad(a))) end
+				local wo2 = o(Enum.Material.WoodPlanks)
+				local pin = on(ri, aS)
+				local prev = pin
+				for j = 1, 4 do
+					local p = on(ri, aS + (ai - aS) * j / 4)
+					wedgeTri("ParkTierEnd", on(ro, aS), prev, p, top, WOOD, wo2)
+					prev = p
+				end
+				-- prev is the inner point on the line; fan from it over the outer arc
+				local m = 8
+				for j = 0, m - 1 do
+					wedgeTri("ParkTierEnd", prev, on(ro, ak - (ak - aS) * j / m), on(ro, ak - (ak - aS) * (j + 1) / m), top, WOOD, wo2)
+				end
+			else
+				arc("ParkTier", C, ri, ro, a0, ak, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
+			end
 			-- invisible seats sunk into the tread near its front edge, so the sitter's
 			-- hips rest on the wood and the legs hang over the step below (user 2026-10-24)
 			local rs = ri + 0.9
@@ -3245,6 +3274,9 @@ do
 		end
 		wedgeTri("ParkUpperDeck", corner, prev, v(-141, C.Z), DECK_TOP, WOOD, wo)
 	end
+	-- the walk's west wall under the deck in the deck's wood (user 2026-10-24),
+	-- from the walk level up to the deck top, a hair inside the walk
+	box("ParkWalkWall", -110.5, LEVELS[1][2], -196, -110.38, DECK_TOP, -128 - math.sqrt(44 ^ 2 - 14.5 ^ 2), WOOD, o(Enum.Material.WoodPlanks))
 	-- white parasols with a round table and two chairs
 	local function parasolSet(at: Vector3)
 		vcyl("ParasolPole", at, 0.25, 9, Color3.fromRGB(200, 200, 204), o(Enum.Material.Metal, { nocol = true }))
@@ -3307,7 +3339,7 @@ do
 	end
 	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
 	for _, c in ipairs(P:GetChildren()) do
-		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide" or c.Name == "ParkUpperDeck") then
+		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide" or c.Name == "ParkUpperDeck" or c.Name == "ParkTierEnd" or c.Name == "ParkWalkWall") then
 			local h = domeH(c.Position.X, c.Position.Z)
 			if h ~= 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
 		end
