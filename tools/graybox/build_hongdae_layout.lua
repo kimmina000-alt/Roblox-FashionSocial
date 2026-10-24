@@ -1967,7 +1967,7 @@ do
 		end
 	end
 	local box1 = box("PavilionBox", gx0 + 2.5, TOP, gz0 + 5, gx1 - 2.5, H + 7.6 + LIFT, gz1 - 5, GREEN, { parent = G })
-	patterned(box1, "rbxassetid://84193721600355", 3 * 774 / 168)
+	patterned(box1, "rbxassetid://99197837879339", (box1.Size.Y) * 272 / 31) -- brighter band (user 2026-10-24)
 	-- roof pieces: cover tiles down each long slope (same idea as the wall
 	-- giwa), rows of rafters under the eaves, white ridges, 잡상
 	local TILE_C = Color3.fromRGB(70, 74, 80)
@@ -2127,7 +2127,7 @@ do
 	-- a plain green body under it reaches down into the lower roof, so nothing floats over the hip (user)
 	box("UpperBody", gx0 + 2.05, H + 8 + LIFT, gz0 + 10.05, gx1 - 2.05, H + 12 + LIFT, gz1 - 10.05, GREEN, { parent = G })
 	local box2 = box("UpperFloor", gx0 + 2, H + 12 + LIFT, gz0 + 10, gx1 - 2, H + 15 + LIFT, gz1 - 10, GREEN, { parent = G })
-	patterned(box2, "rbxassetid://112062659381290", 3 * 262 / 212)	palaceRoof(H + 15 + LIFT, gx0 - 1, gx1 + 1, gz0 + 6, gz1 - 6, 5)
+	patterned(box2, "rbxassetid://99197837879339", (box2.Size.Y) * 272 / 31)	palaceRoof(H + 15 + LIFT, gx0 - 1, gx1 + 1, gz0 + 6, gz1 - 6, 5)
 	box("PlaqueFrame", gx0 + 1.55, H + 12.2 + LIFT, 163.6, gx0 + 1.75, H + 14.6 + LIFT, 172.4, Color3.fromRGB(188, 64, 52), { parent = G, nocol = true })
 	local plaque = box("NamePlaque", gx0 + 1.4, H + 12.4 + LIFT, 164, gx0 + 1.6, H + 14.4 + LIFT, 172, Color3.fromRGB(28, 28, 32), { parent = G, nocol = true })
 	do -- 門化光 (read right to left, like the real plaque), big gold letters
