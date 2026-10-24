@@ -52,7 +52,7 @@ local BEACH_DROP, SEA_DROP = 2.4, 3
 local HOLES = {
 	{ 49, -253 + CLUB_DZ, 170, -92 + CLUB_DZ }, -- the club: edges in the middle of its walls (at the inner faces the ground flickered on the corridor and back walls, user 2026-10-24)
 	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
-	{ 26, 50, 32, 68 }, { -32, 50, -26, 68 }, -- exits 2, 4 (come up southwards)
+	{ 26, 50, 32, 68 }, { -53, 41, -35, 47 }, -- exit 2 comes up southwards, 4 westwards in the corner square (toward the beach, user 2026-10-25)
 	{ 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
 	{ -141, -197, -51, -83 }, -- the pocket park's sunken round plaza (user 2026-10-24)
 	{ -110, -92, -68, -53 }, -- its south walk + stair
@@ -621,7 +621,9 @@ end
 ------------------------------------------------------- 강남역 사거리 (crossroads)
 box("IntersectionRoad", -24, 0, -24, 24, 0.12, 24, ASPHALT, { material = Enum.Material.Asphalt })
 local WIDE = 47 -- sidewalk outer edge from the road axis (v7c)
-for _, s in ipairs({ { 1, 1 }, { 1, -1 }, { -1, 1 }, { -1, -1 } }) do walk(s[1] * 24, s[2] * 24, s[1] * WIDE, s[2] * WIDE) end
+for _, s in ipairs({ { 1, 1 }, { 1, -1 }, { -1, -1 } }) do walk(s[1] * 24, s[2] * 24, s[1] * WIDE, s[2] * WIDE) end
+-- south-west: subway exit 4's pit at its back edge (x -47..-35, z 41..47)
+walk(-24, 24, -47, 41) walk(-24, 41, -35, WIDE)
 -- 정차금지지대 (강남 video): a yellow box just inside the junction with short
 -- slanted ticks pointing inward along every side
 do
@@ -673,10 +675,12 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing
 		for _, p in ipairs(pits) do if p[3] >= v0 and p[4] <= v1 then table.insert(cuts, p) end end
 		table.sort(cuts, function(a, b) return a[1] < b[1] end)
 		local u = WIDE
+		-- (pieces of no width are skipped: a pit can sit on the sidewalk's edge)
+		local function sw(a0, b0, a1, b1) if math.abs(a1 - a0) > 0.01 and math.abs(b1 - b0) > 0.01 then uv("Sidewalk", a0, b0, a1, b1, 0, CURB, WALK, { material = Enum.Material.Brick }) end end
 		for _, p in ipairs(cuts) do
-			uv("Sidewalk", u, v0, p[1], v1, 0, CURB, WALK, { material = Enum.Material.Brick })
-			uv("Sidewalk", p[1], v0, p[2], p[3], 0, CURB, WALK, { material = Enum.Material.Brick })
-			uv("Sidewalk", p[1], p[4], p[2], v1, 0, CURB, WALK, { material = Enum.Material.Brick })
+			sw(u, v0, p[1], v1)
+			sw(p[1], v0, p[2], p[3])
+			sw(p[1], p[4], p[2], v1)
 			u = p[2]
 		end
 		uv("Sidewalk", u, v0, len, v1, 0, CURB, WALK, { material = Enum.Material.Brick })
@@ -865,9 +869,9 @@ bigRoad(Vector3.new(0, 0, -1), 1000, { { 50, 68, 26, 32 } }, { { 92, -1 }, { 150
 walk(-47, -478.6, -34, -54.2) -- (from the amusement park's north-east pillar, now off the sidewalk, to subway exit 3's pit)
 walk(-150, -478.6, -148.25, -228.75) -- the same on the west, from the beach road's sidewalk to the wall's plinth (bare ground showed there, user 2026-10-24)
 walk(-51.05, -478.6, -47, -228.75) -- (to the wall line, where the pocket park's paving begins) the same paving up to the amusement park's east wall (its plinth face; no bare ground strip at the wall's foot)
-bigRoad(Vector3.new(0, 0, 1), 1000, { { 50, 68, 26, 32 }, { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }, nil, nil, 300) -- south (past the boundary at 299: the street goes on, D-110)
+bigRoad(Vector3.new(0, 0, 1), 1000, { { 50, 68, -32, -26 } }, { { 100, 1 }, { 160, -1 }, { 235, 1 } }, nil, nil, 300) -- south (past the boundary at 299: the street goes on, D-110)
 bigRoad(Vector3.new(1, 0, 0), 1000, {}, { { 100, 1 }, { 165, -1 } }, nil, nil, 180) -- east
-bigRoad(Vector3.new(-1, 0, 0), 158, {}, { { 100, -1 } }, nil, true) -- west, to the seafront road (bike lanes run on to the bike crossings)
+bigRoad(Vector3.new(-1, 0, 0), 158, { { 47, 53, -47, -41 } }, { { 100, -1 } }, nil, true) -- west, to the seafront road (bike lanes run on to the bike crossings)
 
 local function smallRoad(a: Vector2, b: Vector2, stopEnds)
 	local dir = Vector3.new(b.X - a.X, 0, b.Y - a.Y)
@@ -935,7 +939,7 @@ local EXITS = {
 	{ 1, "클럽", Color3.fromRGB(255, 122, 214), 29, -59, Vector3.new(0, 0, -1) },
 	{ 2, "한옥 마을", Color3.fromRGB(185, 135, 74), 29, 59, Vector3.new(0, 0, 1) },
 	{ 3, "놀이공원", Color3.fromRGB(76, 175, 80), -44, -51.2, Vector3.new(-1, 0, 0) }, -- back corner of its base on the square's inner corner (-34.4, -47) (user) -- in the corner square, away from the road, facing the beach (user 2026-10-23); at sidewalk level like the others (user 2026-10-24: it stood 0.6 below)
-	{ 4, "해변", Color3.fromRGB(42, 143, 179), -29, 59, Vector3.new(0, 0, 1) },
+	{ 4, "해변", Color3.fromRGB(42, 143, 179), -44, 44, Vector3.new(-1, 0, 0), nil, -1 }, -- like exit 3: in the corner square, coming up westwards toward the beach (user 2026-10-25); its sign post on the road side (8th = side)
 }
 local exitPads, exitMouths = {}, {}
 for _, e in ipairs(EXITS) do
@@ -1026,7 +1030,7 @@ for _, e in ipairs(EXITS) do
 	-- 출입구 / Entrance, the station name in Korean, English, Hanja, Japanese
 	local mouth = at(9)
 	-- on the road side of the mouth (user 2026-10-23), just past the opening
-	local polePos = mouth + out * 7.2 - side * 3.8 * math.sign(e[4]) -- two steps clear of the entrance frame (user)
+	local polePos = mouth + out * 7.2 + side * 3.8 * (e[8] or -math.sign(e[4])) -- two steps clear of the entrance frame (user)
 	-- a square post (photo: slim, the same on all four faces), the Korean name
 	-- written top to bottom, the small print really small
 	local PW, PD, PH = 1.15, 1.15, 10
@@ -4135,6 +4139,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	-- (the 노래방 tower stands west of it); glass fronts with the OH24 sign on
 	-- the north and east street sides, a solid wall on the tower side
 	local x0, z0, x1, z1, H = -126, 48, -52, 86, 14
+	local OH24_SHIFT = -4 -- (applied to the finished model below)
 	local S = Instance.new("Model")
 	S.Name = "OH24Store"
 	S.Parent = T
@@ -4317,7 +4322,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	---------------------------------------------------------------- shell
 	-- (user 2026-10-23: bigger, with the empty land around it; every street
 	-- side is a glass front with the same OH24 sign)
-	walk(x0, WIDE, x1, z0)
+	-- (the sidewalk strip in front of it is laid after the move, at the end of this block)
 	box("StoreFloor", x0, 0, z0, x1, CURB, z1, Color3.fromRGB(232, 228, 220), opt({ material = Enum.Material.CeramicTiles })).Reflectance = 0.04
 	local STONE = Color3.fromRGB(38, 38, 42)
 	box("WallBack", x0, CURB, z1 - 0.6, x1, H, z1, WHITE_IN, o)
@@ -4609,6 +4614,12 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		mirror.Reflectance = 0.6
 	end
 	label(box("StoreLabelAnchor", -100, H + 7, z0 - 1, -98, H + 7.2, z0 - 0.8, Color3.new(1, 1, 1), opt({ transparency = 1, nocol = true })), "OH24 편의점", Color3.fromRGB(30, 200, 240), 3, 0.7)
+	-- (user 2026-10-25) the whole store moves 4 west, close to the 노래방 tower
+	-- (1.5 apart), so the east sidewalk is wider and subway exit 4 fits in the
+	-- corner in front of it; the sidewalk follows
+	S:PivotTo(S:GetPivot() + Vector3.new(OH24_SHIFT, 0, 0))
+	walk(x0 + OH24_SHIFT, WIDE, x1 + OH24_SHIFT, z0)
+	walk(x1 + OH24_SHIFT, WIDE, -47, z1)
 end
 
 -- (the sunset photo frame went with the pier, user 2026-10-24)
