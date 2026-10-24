@@ -737,7 +737,7 @@ local z=zone("04_Beach_Aquarium")
   -- warm wooden slat ceiling
   for sz=z0+1,z1-1,2.4 do box(cm,"CeilingSlat",x0+0.6,FY+H-1.4,sz,x1-0.6,FY+H-0.4,sz+0.9,woodC,{ghost=true}) end
   -- white round columns
-  for _,c in ipairs({{-266,44},{-266,84},{-240,44},{-240,84}}) do cyl(cm,"Column",3,H,Vector3.new(c[1],FY+H/2,c[2]),white) end
+  -- (no round columns inside: user 2026-10-24)
   -- MEZZANINE (east third) with a glass railing; stairs along the north wall
   box(cm,"Mezzanine",mx,MY-1,z0+0.4,x1-0.6,MY,z1-0.4,floorC,{mat=Enum.Material.Slate}) -- inside the walls (its ends flickered on the outer faces)
   box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+3.4,95.6,glass,{t=0.7,mat=Enum.Material.Glass})

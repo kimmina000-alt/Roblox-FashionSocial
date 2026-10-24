@@ -878,3 +878,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 계단 뒤(2층 아래 북쪽)는 흰 벽으로 막은 스태프존으로, 닫힌 STAFF ONLY 문만 있고 들어갈 수 없습니다.
 
 ![](images/2026-10-24/cafe_counter_after.jpg)
+
+- 카페 안 둥근 기둥 4개를 지웠습니다.
+
+![](images/2026-10-24/cafe_no_columns_after.jpg)
