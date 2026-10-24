@@ -3025,12 +3025,13 @@ do
 	local paving = box("ParkPaving", X0, -8, Z0, X1, 0.08, Z1, PAVE, { parent = workspace, material = Enum.Material.Slate })
 	local cuts = {
 		part("Cut", Vector3.new(30, 88.2, 88.2), CFrame.new(-96, 0, -128) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }),
-		box("Cut", -103.5, -9, -196, -82.5, 2, -171, PAVE, { parent = workspace }),
+		box("Cut", -103.5, -9, -196, -82.5, 2, -165, PAVE, { parent = workspace }), -- into the ring, so no paving is left between the walk and the circle
 	}
 	local okP, cutP = pcall(function() return paving:SubtractAsync(cuts) end)
 	for _, c in ipairs(cuts) do c:Destroy() end
 	if okP and cutP then
 		cutP.Name = "ParkPaving"
+		cutP.CanCollide = false -- (its hull filled the cut-outs with an invisible floor; collision below)
 		cutP.UsePartColor = true
 		cutP.Anchored = true
 		cutP.Parent = P
@@ -3058,6 +3059,7 @@ do
 			hole:Destroy()
 			if okR and ring then
 				ring.Name = "ParkLevel"
+				ring.CanCollide = false -- (collision below)
 				ring.UsePartColor = true
 				ring.Anchored = true
 				ring.Parent = P
@@ -3069,13 +3071,81 @@ do
 			outer.Parent = P
 		end
 	end
+	-- COLLISION for the cut shapes (user 2026-10-24: players floated on an
+	-- invisible floor). A CSG part collides as a hull that fills its holes and a
+	-- script cannot change that, so the paving and the rings collide through
+	-- invisible boxes in 1.5-wide rows that leave out the circle, the rings'
+	-- inner circles and the entrance stair / walk
+	do
+		local function collideRows(name, za, zb, top, keepOut)
+			for z = za, zb - 0.01, 1.5 do
+				local z1 = math.min(z + 1.5, zb)
+				local zm = (z + z1) / 2
+				local spans = { { X0, X1 } }
+				for _, f in ipairs(keepOut) do
+					local a, b = f(zm)
+					if a then
+						local nxt = {}
+						for _, s in ipairs(spans) do
+							if b <= s[1] or a >= s[2] then table.insert(nxt, s)
+							else
+								if a > s[1] then table.insert(nxt, { s[1], a }) end
+								if b < s[2] then table.insert(nxt, { b, s[2] }) end
+							end
+						end
+						spans = nxt
+					end
+				end
+				for _, s in ipairs(spans) do
+					if s[2] - s[1] > 0.05 then
+						local p = box(name, s[1], top - 1, z, s[2], top, z1, PAVE, { parent = P, transparency = 1 })
+						p.CastShadow = false
+					end
+				end
+			end
+		end
+		local function circleOut(r) -- the x span a circle of radius r covers at z (nil outside it)
+			return function(z)
+				local dz = z - C.Z
+				if math.abs(dz) >= r then return nil end
+				local w = math.sqrt(r * r - dz * dz)
+				return C.X - w, C.X + w
+			end
+		end
+		local function corridor(z) if z > -196 and z < -165 then return -103.5, -82.5 end return nil end
+		-- the paving (top 0.08)
+		collideRows("ParkCollide", Z0, Z1, 0.08, { circleOut(44), corridor })
+		-- ring 1 (r 34..44) and ring 2 (r 20..34)
+		for i = 1, 2 do
+			local ro, ri, top = LEVELS[i][1], LEVELS[i + 1][1], LEVELS[i][2]
+			for z = C.Z - ro, C.Z + ro - 0.01, 1.5 do
+				local z1 = math.min(z + 1.5, C.Z + ro)
+				local zm = (z + z1) / 2
+				local dz = zm - C.Z
+				local wo = math.sqrt(math.max(0, ro * ro - dz * dz))
+				local spans
+				if math.abs(dz) < ri then
+					local wi = math.sqrt(ri * ri - dz * dz)
+					spans = { { C.X - wo, C.X - wi }, { C.X + wi, C.X + wo } }
+				else
+					spans = { { C.X - wo, C.X + wo } }
+				end
+				for _, s in ipairs(spans) do
+					if s[2] - s[1] > 0.05 then
+						local p = box("ParkCollide", s[1], top - 1, z, s[2], top, z1, PAVE, { parent = P, transparency = 1 })
+						p.CastShadow = false
+					end
+				end
+			end
+		end
+	end
 	-- the stair from the gate side down to the first level: real steps (user
 	-- 2026-10-24: half the tread, higher risers), 5 steps of 0.5 on 2.25 treads
 	-- as wide as the gate's main arch (between its tower faces, x -103.5..-82.5):
 	-- the stair right after the gate, then a level walk to the ring (user 2026-10-24)
 	for k = 1, 5 do
 		local za = -196 + (k - 1) * 2.25
-		local zb = if k == 5 then -171 else za + 2.25
+		local zb = if k == 5 then -165 else za + 2.25
 		box("ParkStair", -103.5, -8, za, -82.5, if k == 5 then -2.48 else -0.5 * k, zb, STONE, o(Enum.Material.Limestone)) -- (the last one runs on as the walk, 0.02 over the ring it meets)
 	end
 	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
@@ -3193,7 +3263,7 @@ do
 	end
 	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
 	for _, c in ipairs(P:GetChildren()) do
-		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair") then
+		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide") then
 			local h = domeH(c.Position.X, c.Position.Z)
 			if h ~= 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
 		end
