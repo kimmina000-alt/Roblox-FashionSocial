@@ -3204,7 +3204,8 @@ do
 				ak = 360 - math.deg(math.acos((xStop - C.X) / ro))
 				-- the boxes stop 4 degrees early (their square ends would poke past the
 				-- line); the wedges fill from there: inner arc, the line, outer arc
-				local aS = ai - 4
+				local dir = if ak > a0 then 1 else -1 -- the arc may run either way round to its line end
+				local aS = ai - 4 * dir
 				arc("ParkTier", C, ri, ro, a0, aS, 0, top, WOOD, Enum.Material.WoodPlanks, nSeg)
 				local L = LEVELS[1][2]
 				local y = L + top / 2
@@ -3234,7 +3235,8 @@ do
 			local angles = {}
 			for _, zone in ipairs(seatZones or { { a0 + 1, ak - 1 } }) do
 				local step = math.deg(2 / rs)
-				local za, zb = zone[1] + math.deg(1 / rs), zone[2] - math.deg(1 / rs)
+				local lo, hi = math.min(zone[1], zone[2]), math.max(zone[1], zone[2])
+				local za, zb = lo + math.deg(1 / rs), hi - math.deg(1 / rs)
 				local n = math.max(0, math.floor((zb - za) / step + 1e-6))
 				local pad = ((zb - za) - n * step) / 2
 				for i = 0, n do table.insert(angles, za + pad + i * step) end
@@ -3254,7 +3256,10 @@ do
 			end
 		end
 	end
-	tiers(-60, 40, 22)
+	-- east: the same tiers as the west, in the outer ring from the gate walk's
+	-- east edge (x -75.5) round to the east (user 2026-10-24, red box; the old
+	-- east tiers by the mound are gone); a walkway by the walk and one in the middle
+	tiers(367, 297, 34.6, -75.5, { { 314, 335 }, { 342, 362 } })
 	-- west: in the outer ring outside the curved sofa deck, where the four wicker
 	-- chairs stood (user 2026-10-24, red box): r 34.6..42.4, all on the first level
 	-- seats only in the user's three red boxes (2026-10-24), walkways between
@@ -3341,7 +3346,7 @@ do
 		bed(X1 - 3.8, z - 1.8, X1 - 0.4, z + 1.8, 0, { { X1 - 2.1, z } }) -- clear of the hill (its edge is at x -52)
 	end
 	bed(X0 + 1, Z0 + 6, X0 + 9, Z1 - 4, 70, { { -146, -196 }, { -144, -182 }, { -146, -168 }, { -144, -154 }, { -146, -140 }, { -144, -126 }, { -146, -112 }, { -144, -98 }, { -146, -84 }, { -144, -70 }, { -146, -56 } })	-- low park lamps along the edges; they glow at night
-	for _, lp in ipairs({ { -114, -186 }, { -72, -186 }, { -70, -150 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
+	for _, lp in ipairs({ { -114, -186 }, { -72, -186 }, { -60, -162 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
 		local b = Vector3.new(lp[1], if onDeck(lp[1], lp[2]) then DECK_TOP - 0.08 else 0, lp[2])
 		vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), o(Enum.Material.Metal))
 		local g = part("ParkLampGlobe", Vector3.new(1.4, 1.4, 1.4), CFrame.new(b + Vector3.new(0, 8.6, 0)), Color3.fromRGB(255, 244, 220), o(Enum.Material.SmoothPlastic, { shape = Enum.PartType.Ball, nocol = true }))
