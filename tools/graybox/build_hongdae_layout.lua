@@ -3215,6 +3215,32 @@ do
 	-- chairs stood (user 2026-10-24, red box): r 34.6..42.4, all on the first level
 	tiers(145, 245, 34.6, -110.5) -- (to the walk's west edge, user's red line)	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
 	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
+	-- a raised wooden deck (one step, the tiers' wood) between the west tree bed,
+	-- the gate walk and the sunken circle (user 2026-10-24, red outline + sketch):
+	-- x -141..-110.5 from z -198 down to the circle (r 44), its curved edge
+	-- following the circle; built from wedge triangles fanned from its NW corner
+	local DECK_TOP = 0.08 + 0.9
+	local function onDeck(x, z)
+		if x < -141 or x > -110.5 or z < -198 then return false end
+		return (x - C.X) ^ 2 + (z - C.Z) ^ 2 > 44 * 44
+	end
+	do
+		local y = DECK_TOP / 2
+		local wo = o(Enum.Material.WoodPlanks)
+		local corner = Vector3.new(-141, y, -198)
+		local function v(x, z) return Vector3.new(x, y, z) end
+		wedgeTri("ParkUpperDeck", corner, v(-110.5, -198), v(-110.5, -128 - math.sqrt(44 ^ 2 - 14.5 ^ 2)), DECK_TOP, WOOD, wo)
+		local aS = math.deg(math.atan2(-math.sqrt(44 ^ 2 - 14.5 ^ 2), -14.5)) % 360 -- where the circle meets x -110.5
+		local N = 18
+		local prev = v(-110.5, -128 - math.sqrt(44 ^ 2 - 14.5 ^ 2))
+		for i = 1, N do
+			local a = math.rad(aS + (180 - aS) * i / N)
+			local p = v(C.X + 44 * math.cos(a), C.Z + 44 * math.sin(a))
+			wedgeTri("ParkUpperDeck", corner, prev, p, DECK_TOP, WOOD, wo)
+			prev = p
+		end
+		wedgeTri("ParkUpperDeck", corner, prev, v(-141, C.Z), DECK_TOP, WOOD, wo)
+	end
 	-- white parasols with a round table and two chairs
 	local function parasolSet(at: Vector3)
 		vcyl("ParasolPole", at, 0.25, 9, Color3.fromRGB(200, 200, 204), o(Enum.Material.Metal, { nocol = true }))
@@ -3232,7 +3258,7 @@ do
 		end
 	end
 	parasolSet(Vector3.new(-104, 0, -92))
-	parasolSet(Vector3.new(-122, 0, -172))
+	parasolSet(Vector3.new(-122, DECK_TOP - 0.08, -172)) -- on the raised deck
 	-- planting beds along the north and east edges and the south-west corner:
 	-- curbed soil with round shrubs (balls) of several greens, trees behind
 	local GREENS = { Color3.fromRGB(86, 128, 70), Color3.fromRGB(110, 146, 82), Color3.fromRGB(70, 110, 62), Color3.fromRGB(140, 160, 96), Color3.fromRGB(96, 120, 84) }
@@ -3268,7 +3294,7 @@ do
 	end
 	bed(X0 + 1, Z0 + 6, X0 + 9, Z1 - 4, 70, { { -146, -196 }, { -144, -182 }, { -146, -168 }, { -144, -154 }, { -146, -140 }, { -144, -126 }, { -146, -112 }, { -144, -98 }, { -146, -84 }, { -144, -70 }, { -146, -56 } })	-- low park lamps along the edges; they glow at night
 	for _, lp in ipairs({ { -114, -186 }, { -72, -186 }, { -70, -150 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
-		local b = Vector3.new(lp[1], 0, lp[2])
+		local b = Vector3.new(lp[1], if onDeck(lp[1], lp[2]) then DECK_TOP - 0.08 else 0, lp[2])
 		vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), o(Enum.Material.Metal))
 		local g = part("ParkLampGlobe", Vector3.new(1.4, 1.4, 1.4), CFrame.new(b + Vector3.new(0, 8.6, 0)), Color3.fromRGB(255, 244, 220), o(Enum.Material.SmoothPlastic, { shape = Enum.PartType.Ball, nocol = true }))
 		g:SetAttribute("NightRange", 14)
@@ -3277,7 +3303,7 @@ do
 	end
 	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
 	for _, c in ipairs(P:GetChildren()) do
-		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide") then
+		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide" or c.Name == "ParkUpperDeck") then
 			local h = domeH(c.Position.X, c.Position.Z)
 			if h ~= 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
 		end
