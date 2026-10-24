@@ -4054,7 +4054,7 @@ tower(250, -142, 310, -48, 110, "glass", "S", "OHU 마트", "인생네컷 SALE")
 tower(-76, 110, -48, 170, 120, "glass", "E", "카페")
 tower(-76, 180, -48, 250, 80, "concrete", "E", "약국")
 -- (6 narrower than before: a 6-stud gap to the OH24 store, user 2026-10-23)
-tower(-146, 48, -132, 92, 60, "concrete", "N", "노래방")
+tower(-146, 60, -132, 104, 60, "concrete", "N", "노래방") -- (12 south, its back on the OH24 store's back line z 104, user 2026-10-25; the ground it left is paved below)
 
 do -- alley between two towers: dumpsters, bags, fire barrel, purple neon shutter
 	local A = Instance.new("Model")
@@ -4626,6 +4626,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	walk(sx0, WIDE, sx1, sz0) -- in front
 	walk(sx1, WIDE, -47, sz1) -- east side, up to the south road's sidewalk
 	walk(-150, 86, sx0, 108) -- west (the lane's old place by the 노래방 tower)
+	walk(-150, WIDE, -146, 86) walk(-146, WIDE, sx0, 60) walk(-132, 60, sx0, 86) -- where the 노래방 tower stood before it moved south, and the strip on its west side
 	walk(sx0, sz1, -47, 108) -- south, up to the cafe terrace
 end
 
