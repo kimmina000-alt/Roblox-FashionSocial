@@ -3184,7 +3184,7 @@ do
 	-- tiered wooden seats in an arc facing the mound, east and west (user
 	-- 2026-10-24: plain wood, no cushions and no E prompt; walking onto a seat
 	-- still sits you down, so the seat parts are invisible and untagged)
-	local function tiers(a0, a1, r0, xStop)
+	local function tiers(a0, a1, r0, xStop, seatZones)
 		for k = 0, 2 do
 			local ri, ro = r0 + k * 2.6, r0 + 2.6 + k * 2.6
 			-- the west arc's top tier runs out to the circle's edge (r 44), under the
@@ -3228,9 +3228,19 @@ do
 			-- invisible seats sunk into the tread near its front edge, so the sitter's
 			-- hips rest on the wood and the legs hang over the step below (user 2026-10-24)
 			local rs = ri + 0.9
-			local n = math.max(1, math.floor((ak - a0 - 4) / 9))
-			for i = 0, n do
-				local a = math.rad(a0 + 2 + (ak - a0 - 4) * i / n)
+			-- where people can sit: given zones (user's red boxes) or the whole arc;
+			-- seats side by side every 2 studs so a group sits together, the rest
+			-- of the tiers stays free to walk on (user 2026-10-24)
+			local angles = {}
+			for _, zone in ipairs(seatZones or { { a0 + 1, ak - 1 } }) do
+				local step = math.deg(2 / rs)
+				local za, zb = zone[1] + math.deg(1 / rs), zone[2] - math.deg(1 / rs)
+				local n = math.max(0, math.floor((zb - za) / step + 1e-6))
+				local pad = ((zb - za) - n * step) / 2
+				for i = 0, n do table.insert(angles, za + pad + i * step) end
+			end
+			for _, ad in ipairs(angles) do
+				local a = math.rad(ad)
 				local p = Vector3.new(C.X + rs * math.cos(a), top - 0.3, C.Z + rs * math.sin(a)) -- seat top 0.2 under the tread: the hips touch the wood
 				local s = Instance.new("Seat")
 				s.Name = "ParkTierSeat"
@@ -3243,10 +3253,12 @@ do
 				s.Parent = P
 			end
 		end
-	end	tiers(-60, 40, 22)
+	end
+	tiers(-60, 40, 22)
 	-- west: in the outer ring outside the curved sofa deck, where the four wicker
 	-- chairs stood (user 2026-10-24, red box): r 34.6..42.4, all on the first level
-	tiers(145, 245, 34.6, -110.5) -- (to the walk's west edge, user's red line)	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
+	-- seats only in the user's three red boxes (2026-10-24), walkways between
+	tiers(145, 245, 34.6, -110.5, { { 151, 182 }, { 189.5, 208.5 }, { 218, 230.5 } })	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
 	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
 	-- a raised wooden deck (one step, the tiers' wood) between the west tree bed,
 	-- the gate walk and the sunken circle (user 2026-10-24, red outline + sketch):
