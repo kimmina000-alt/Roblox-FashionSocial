@@ -3039,9 +3039,8 @@ do
 		local Lc, Rc = circlePt(Fl), circlePt(Fr)
 		local function angOf(p, c) return math.atan2(p.Y - c.Y, p.X - c.X) end
 		local function add(p) table.insert(corridorPoly, p) end
-		-- left fillet: from the circle point round to the walk's west edge
-		local a0, a1 = angOf(Lc, Fl), 0
-		for i = 0, 8 do local a = a0 + (a1 - a0) * i / 8 add(Fl + Vector2.new(math.cos(a), math.sin(a)) * FIL) end
+		-- (no west fillet: the raised ground beside the west tiers meets the walk there)
+		add(Vector2.new(WALK_X0, C.Z + math.sqrt(44 * 44 - (WALK_X0 - C.X) ^ 2)))
 		add(Vector2.new(WALK_X0, -63)) add(Vector2.new(WALK_X1, -63))
 		-- right fillet: from the walk's east edge round to the circle point
 		local b0, b1 = math.pi, angOf(Rc, Fr)
@@ -3061,16 +3060,16 @@ do
 		return inside
 	end
 	local EAST_Z0, EAST_Z1, EAST_X0, EAST_X1 = -122.4, -114, -55, -44
-	-- the walk's rounded corners as solid pieces (boxes and cylinders, no thin
-	-- triangles: CSG left slivers of those standing in the walk)
-	local function fillPiece(fc: Vector2, xa, xb)
-		-- the corner between the walk's edge and its fillet circle
-		local b = box("Cut", xa, -9, fc.Y - FIL, xb, 2, fc.Y, PAVE, { parent = workspace })
-		local cyl = part("Cut", Vector3.new(30, FIL * 2, FIL * 2), CFrame.new(fc.X, 0, fc.Y) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder })
-		local ok, r = pcall(function() return b:SubtractAsync({ cyl }) end)
-		cyl:Destroy()
-		if ok and r then r.Name = "Cut" r.Parent = workspace b:Destroy() return r end
-		return b
+	-- the walk's rounded corners as solid pieces (boxes and cylinders, no thin
+	-- triangles: CSG left slivers of those standing in the walk)
+	local function fillPiece(fc: Vector2, xa, xb)
+		-- the corner between the walk's edge and its fillet circle
+		local b = box("Cut", xa, -9, fc.Y - FIL, xb, 2, fc.Y, PAVE, { parent = workspace })
+		local cyl = part("Cut", Vector3.new(30, FIL * 2, FIL * 2), CFrame.new(fc.X, 0, fc.Y) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder })
+		local ok, r = pcall(function() return b:SubtractAsync({ cyl }) end)
+		cyl:Destroy()
+		if ok and r then r.Name = "Cut" r.Parent = workspace b:Destroy() return r end
+		return b
 	end	-- paving over the whole lot
 	-- the lot's paving, with the sunken plaza and the entrance stair cut out
 	-- (the ground has a hole under it, HOLES)
@@ -3081,8 +3080,7 @@ do
 		box("Cut", WALK_X0, -9, -63.2, WALK_X1, 2, -54, PAVE, { parent = workspace }), -- the south stair
 		box("Cut", EAST_X0 - 0.2, -9, EAST_Z0, EAST_X1, 2, EAST_Z1, PAVE, { parent = workspace }), -- the east stair
 	}
-	table.insert(cuts, box("Cut", WALK_X0, -9, C.Z, WALK_X1, 2, -63, PAVE, { parent = workspace })) -- the walk (its north end is inside the circle)
-	table.insert(cuts, fillPiece(Fl, Fl.X, WALK_X0))
+	table.insert(cuts, box("Cut", WALK_X0, -9, C.Z, WALK_X1, 2, -63, PAVE, { parent = workspace })) -- the walk (its north end is inside the circle)
 	table.insert(cuts, fillPiece(Fr, WALK_X1, Fr.X))
 	local okP, cutP = pcall(function() return paving:SubtractAsync(cuts) end)
 	for _, c in ipairs(cuts) do c:Destroy() end
@@ -3135,29 +3133,30 @@ do
 	end
 	-- the south walk's floor: the outline's triangles at the upper level (top
 	-- -2.5, 6 thick), meeting the ring along the circle without overlapping it
-	do -- the walk's floor at the upper level: one box less the circle (the ring
-		-- is there) and less the paving on either side outside the rounded corners
-		local floor = box("ParkLevel", Fl.X, LEVELS[1][2] - 6, C.Z, Fr.X, LEVELS[1][2], -63, PAVE, { parent = workspace, material = Enum.Material.Slate })
-		local neg = { part("Cut", Vector3.new(30, 88, 88), CFrame.new(C.X, 0, C.Z) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }) }
-		for _, side in ipairs({ { Fl, Fl.X - 1, WALK_X0 }, { Fr, WALK_X1, Fr.X + 1 } }) do
-			local keep = box("Cut", side[2], -20, C.Z - 1, side[3], 5, -62, PAVE, { parent = workspace })
-			local corner = fillPiece(side[1], math.max(side[2], Fl.X), math.min(side[3], Fr.X))
-			local ok, k = pcall(function() return keep:SubtractAsync({ corner }) end)
-			corner:Destroy()
-			if ok and k then k.Parent = workspace keep:Destroy() table.insert(neg, k) else table.insert(neg, keep) end
-		end
-		local ok, fl = pcall(function() return floor:SubtractAsync(neg) end)
-		for _, n in ipairs(neg) do n:Destroy() end
-		if ok and fl then
-			fl.Name = "ParkLevel"
-			fl.UsePartColor = true
-			fl.Anchored = true
-			fl.Parent = P
-			floor:Destroy()
-		else
-			floor.Parent = P
-		end
-	end
+	do -- the walk's floor at the upper level: one box less the circle (the ring
+		-- is there) and less the paving on either side outside the rounded corners
+		local floor = box("ParkLevel", Fl.X, LEVELS[1][2] - 6, C.Z, Fr.X, LEVELS[1][2], -63, PAVE, { parent = workspace, material = Enum.Material.Slate })
+		local neg = { part("Cut", Vector3.new(30, 88, 88), CFrame.new(C.X, 0, C.Z) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }) }
+		table.insert(neg, box("Cut", Fl.X - 1, -20, C.Z - 1, WALK_X0, 5, -62, PAVE, { parent = workspace })) -- west of the walk (no fillet there)
+		for _, side in ipairs({ { Fr, WALK_X1, Fr.X + 1 } }) do
+			local keep = box("Cut", side[2], -20, C.Z - 1, side[3], 5, -62, PAVE, { parent = workspace })
+			local corner = fillPiece(side[1], math.max(side[2], Fl.X), math.min(side[3], Fr.X))
+			local ok, k = pcall(function() return keep:SubtractAsync({ corner }) end)
+			corner:Destroy()
+			if ok and k then k.Parent = workspace keep:Destroy() table.insert(neg, k) else table.insert(neg, keep) end
+		end
+		local ok, fl = pcall(function() return floor:SubtractAsync(neg) end)
+		for _, n in ipairs(neg) do n:Destroy() end
+		if ok and fl then
+			fl.Name = "ParkLevel"
+			fl.UsePartColor = true
+			fl.Anchored = true
+			fl.Parent = P
+			floor:Destroy()
+		else
+			floor.Parent = P
+		end
+	end
 	-- COLLISION for the cut shapes (user 2026-10-24: players floated on an
 	-- invisible floor). A CSG part collides as a hull that fills its holes and a
 	-- script cannot change that, so the paving and the rings collide through
@@ -3205,7 +3204,6 @@ do
 			local dz = z - C.Z
 			local cw = math.sqrt(math.max(0, 44 * 44 - dz * dz)) -- the circle's half width here
 			local a, b = WALK_X0, WALK_X1
-			if z < Fl.Y then local d = FIL * FIL - (z - Fl.Y) ^ 2 a = if d > 0 then Fl.X + math.sqrt(d) else C.X - cw end
 			if z < Fr.Y then local d = FIL * FIL - (z - Fr.Y) ^ 2 b = if d > 0 then Fr.X - math.sqrt(d) else C.X + cw end
 			if z < Fr.Y - FIL and z < Fl.Y - FIL then return nil end -- (above both fillets: the circle covers it)
 			return a, b
@@ -3376,6 +3374,101 @@ do
 	-- chairs stood (user 2026-10-24, red box): r 34.6..42.4, all on the first level
 	-- seats only in the user's three red boxes (2026-10-24), walkways between
 	tiers(145, 245, 34.6, -110.53, { { 151, 182 }, { 189.5, 208.5 }, { 218, 230.5 } })
+	-- the raised ground beside the west tiers' south end (user 2026-10-24): the
+	-- paving comes out from behind the tiers to their end, and its edge runs
+	-- from the bottom tier's front corner in a smooth curve down to the walk's
+	-- west edge (x -102), where it meets the circle. Built as one merged solid
+	-- (no seams) at the paving's height, with collision rows in its real shape
+	do
+		local c2 = Vector2.new(C.X, C.Z)
+		local function on(r, deg) return c2 + Vector2.new(math.cos(math.rad(deg)), math.sin(math.rad(deg))) * r end
+		local A = on(34.6, 145) -- the bottom tier's front corner
+		local B = on(44.1, 145) -- behind the tiers, on the paving's cut edge
+		local J = Vector2.new(WALK_X0, C.Z + math.sqrt(44.1 ^ 2 - (WALK_X0 - C.X) ^ 2)) -- the walk's edge on the circle
+		local L = (J - A).Magnitude
+		local c1, cc2 = A + (J - A).Unit * (0.4 * L), J - Vector2.new(0, 1) * (0.4 * L)
+		local poly = { A, B }
+		local aJ = math.deg(math.atan2(J.Y - C.Z, J.X - C.X))
+		for i = 1, 11 do table.insert(poly, on(44.1, 145 + (aJ - 145) * i / 12)) end
+		table.insert(poly, J)
+		for i = 11, 1, -1 do -- the curve back from J to A
+			local s = i / 12
+			local q = 1 - s
+			table.insert(poly, A * q ^ 3 + c1 * 3 * q * q * s + cc2 * 3 * q * s * s + J * s ^ 3)
+		end
+		-- ear clipping into triangles
+		local pts = {}
+		for i, p in ipairs(poly) do pts[i] = p end
+		local area = 0
+		for i = 1, #pts do local a, b = pts[i], pts[i % #pts + 1] area += a.X * b.Y - b.X * a.Y end
+		if area < 0 then local r = {} for i = #pts, 1, -1 do table.insert(r, pts[i]) end pts = r end
+		local function cr(o2, a, b) return (a.X - o2.X) * (b.Y - o2.Y) - (a.Y - o2.Y) * (b.X - o2.X) end
+		local tris = {}
+		local idx = {}
+		for i = 1, #pts do idx[i] = i end
+		local guard = 0
+		while #idx > 3 and guard < 2000 do
+			guard += 1
+			local found = false
+			for k = 1, #idx do
+				local ia, ib, ic = idx[(k - 2) % #idx + 1], idx[k], idx[k % #idx + 1]
+				local a, b, c = pts[ia], pts[ib], pts[ic]
+				if cr(a, b, c) > 1e-6 then
+					local ear = true
+					for _, j in ipairs(idx) do
+						if j ~= ia and j ~= ib and j ~= ic then
+							local p = pts[j]
+							if cr(a, b, p) >= 0 and cr(b, c, p) >= 0 and cr(c, a, p) >= 0 then ear = false break end
+						end
+					end
+					if ear then table.insert(tris, { a, b, c }) table.remove(idx, k) found = true break end
+				end
+			end
+			if not found then break end
+		end
+		if #idx == 3 then table.insert(tris, { pts[idx[1]], pts[idx[2]], pts[idx[3]] }) end
+		local holder = Instance.new("Folder")
+		holder.Parent = workspace
+		local bottom = LEVELS[1][2] - 0.1 -- (a hair into the ring below: no shared face)
+		for _, tr in ipairs(tris) do
+			local function v(p) return Vector3.new(p.X, (bottom + 0.08) / 2, p.Y) end
+			wedgeTri("ParkInfill", v(tr[1]), v(tr[2]), v(tr[3]), 0.08 - bottom, PAVE, { parent = holder, material = Enum.Material.Slate })
+		end
+		local pieces = holder:GetChildren()
+		local first = table.remove(pieces, 1)
+		local ok, u = pcall(function() return first:UnionAsync(pieces) end)
+		if ok and u then
+			u.Name = "ParkInfill"
+			u.UsePartColor = true
+			u.Color = PAVE
+			u.Material = Enum.Material.Slate
+			u.Anchored = true
+			u.CanCollide = false -- (collision rows below: a hull would cover the sunken side)
+			u.CanQuery = false
+			u.Parent = P
+		else
+			for _, w in ipairs(holder:GetChildren()) do w.Parent = P end
+		end
+		holder:Destroy()
+		-- collision rows: scan the outline row by row
+		local zMin, zMax = math.huge, -math.huge
+		for _, p in ipairs(poly) do zMin = math.min(zMin, p.Y) zMax = math.max(zMax, p.Y) end
+		for z = zMin, zMax - 0.01, 1 do
+			local zm = math.min(z + 0.5, zMax)
+			local xs = {}
+			for i = 1, #poly do
+				local a, b = poly[i], poly[i % #poly + 1]
+				if (a.Y > zm) ~= (b.Y > zm) then table.insert(xs, a.X + (zm - a.Y) / (b.Y - a.Y) * (b.X - a.X)) end
+			end
+			table.sort(xs)
+			for i = 1, #xs - 1, 2 do
+				if xs[i + 1] - xs[i] > 0.05 then
+					local p = box("ParkCollide", xs[i], -0.92, z, xs[i + 1], 0.08, math.min(z + 1, zMax), PAVE, { parent = P, transparency = 1 })
+					p.CastShadow = false
+				end
+			end
+		end
+	end
 	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
 	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
 	-- a raised wooden deck (one step, the tiers' wood) between the west tree bed,

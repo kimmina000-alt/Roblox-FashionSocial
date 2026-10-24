@@ -1020,3 +1020,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-24/pocket_park_south_walk_after.jpg)
 ![](images/2026-10-24/pocket_park_south_walk_top_after.jpg)
+
+- 서쪽 계단식 의자 남쪽 끝: 의자 뒤 높은 땅을 옆으로 빼서, 높은 땅 가장자리가 맨 아래 칸 앞 모서리에서 시작해 부드러운 곡선으로 남쪽 길 서쪽 끝선(x -102)까지 이어지게 했습니다(한 덩어리, 아래 단과 공유면 없음, 실제 모양 충돌 줄). 그 자리의 길 서쪽 둥근 모서리는 없앴습니다. 새 땅 위와 옆 낮은 바닥을 걸어서 확인했습니다.
+
+![](images/2026-10-24/pocket_park_infill_top_after.jpg)
+![](images/2026-10-24/pocket_park_infill_after.jpg)
