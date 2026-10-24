@@ -1172,3 +1172,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 확인: 카운터 안쪽 통로로 걸어 들어가 알바 시작 정상.
 
 ![](images/2026-10-25/cafe_counters_to_wall.jpg)
+
+### 추가 (D-218) — 빵 진열장 유리, 방향 반대로
+- 진열장의 검은 받침·양끝 틀·윗판을 하늘색 유리로 바꾸고, 180도 돌려 빛나는 선반이 매장 쪽으로 보이게 했습니다(유리판은 직원 쪽).
+
+![](images/2026-10-25/cafe_case_glass.jpg)

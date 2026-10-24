@@ -795,10 +795,14 @@ local z=zone("04_Beach_Aquarium")
   top:SetAttribute("Shop","BeachCafe") CS:AddTag(top,"SnackShop")
   -- pastry case: dark frame, glass, three lit shelves of cakes and bread
   local PZ0,PZ1=40,54
-  box(cm,"CaseBase",-229,FY+3.9,PZ0,-226,FY+4.1,PZ1,dark)
-  box(cm,"CaseGlass",-229.1,FY+4.1,PZ0,-228.9,FY+7,PZ1,glass,{t=0.75,mat=Enum.Material.Glass,nocol=true})
-  for _,cz in ipairs({PZ0,PZ1-0.15}) do box(cm,"CaseFrame",-229.1,FY+4.1,cz,-226,FY+7,cz+0.15,dark) end
-  box(cm,"CaseTop",-229.1,FY+7,PZ0,-226,FY+7.15,PZ1,dark)
+  -- (user 2026-10-25) the case turned round (its glass panel now on the staff
+  -- side, the open lit side towards the room) and its black frame, top and
+  -- base made of the same pale blue glass
+  local CASE={t=0.55,mat=Enum.Material.Glass}
+  box(cm,"CaseBase",-229,FY+3.9,PZ0,-226,FY+4.1,PZ1,glass,{mat=Enum.Material.Glass,t=0.3})
+  box(cm,"CaseGlass",-226.2,FY+4.1,PZ0,-226,FY+7,PZ1,glass,{t=0.75,mat=Enum.Material.Glass,nocol=true})
+  for _,cz in ipairs({PZ0,PZ1-0.15}) do box(cm,"CaseFrame",-229,FY+4.1,cz,-225.9,FY+7,cz+0.15,glass,CASE) end
+  box(cm,"CaseTop",-229,FY+7,PZ0,-225.9,FY+7.15,PZ1,glass,CASE)
   local BREAD={Color3.fromRGB(205,150,80),Color3.fromRGB(240,215,220),Color3.fromRGB(110,70,45),Color3.fromRGB(235,200,120)}
   for s,sy in ipairs({FY+4.1,FY+5.1,FY+6.1}) do
    local shelf=box(cm,"CaseShelf",-228.9,sy,PZ0+0.2,-226.2,sy+0.08,PZ1-0.2,Color3.fromRGB(250,248,240),{mat=Enum.Material.Neon,ghost=true,t=0.2})
