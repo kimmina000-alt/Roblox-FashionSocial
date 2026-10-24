@@ -774,8 +774,11 @@ local z=zone("04_Beach_Aquarium")
    seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),dark)
    cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(x0+4.4,FY+1.05,sz),dark) end
   -- WATER POOL (물멍) with a stone rim and stepped wooden seating facing it
-  local pool=box(cm,"WaterPool",-286,FY,48,-262,FY+0.2,76,Color3.fromRGB(28,50,60),{mat=Enum.Material.Glass,t=0.05})
-  pool.Reflectance=0.35
+  -- (user 2026-10-24: fill it with water) a pale stone bottom, then clear
+  -- blue-green water up to just under the rim
+  box(cm,"PoolBottom",-286,FY,48,-262,FY+0.1,76,Color3.fromRGB(175,220,225),{mat=Enum.Material.Slate})
+  local pool=box(cm,"WaterPool",-286,FY+0.1,48,-262,FY+0.75,76,Color3.fromRGB(95,200,220),{mat=Enum.Material.Glass,t=0.3,nocol=true})
+  pool.Reflectance=0.25
   for _,r in ipairs({{-287,48,-286,76},{-262,48,-261,76},{-287,47,-261,48},{-287,76,-261,77}}) do box(cm,"PoolRim",r[1],FY,r[2],r[3],FY+0.9,r[4],Color3.fromRGB(70,70,72),{mat=Enum.Material.Slate}) end
   for k,sp in ipairs({{-281,55},{-275,68},{-268,58}}) do P(cm,"PoolStone",Vector3.new(2.4+k*0.4,1,2+k*0.3),CFrame.new(sp[1],FY+0.4,sp[2]),Color3.fromRGB(50,50,52),{shape=Enum.PartType.Ball}) end
   label(cm,"물멍 풀",Vector3.new(-274,FY+5,62))

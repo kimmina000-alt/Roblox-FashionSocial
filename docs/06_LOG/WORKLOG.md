@@ -809,3 +809,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-24/beach_cafe_front_after.jpg)
 ![](images/2026-10-24/beach_cafe_inside_after.jpg)
 ![](images/2026-10-24/ohu4cuts_north_after.jpg)
+
+### 추가 — 물멍 풀에 물 채우기
+- 해변 카페 물멍 풀: 밝은 돌 바닥 위에 반투명 청록 물을 테두리 바로 아래까지 채웠습니다(돌은 반쯤 잠김).
+
+![](images/2026-10-24/cafe_pool_water_after.jpg)
