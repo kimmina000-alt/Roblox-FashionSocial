@@ -1154,12 +1154,3 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 문 위 "▲ ROOFTOP" 글자판을 지우고, 문 오른쪽 벽에 호출 버튼판(▲ 불 켜짐, ▼)을 블록으로 달았습니다.
 
 ![](images/2026-10-25/club_lift_call_buttons.jpg)
-
-### 추가 (D-215) — 해변 카페 입구 이동
-- 입구를 길 쪽 벽 남쪽 끝(테이크아웃 창 오른쪽, z 18..28)으로 옮기고 원래 입구(z 56..66)는 벽으로 막았습니다. 간판은 새 입구 위로.
-- 새 입구 안쪽에 있던 STAFF ONLY 문은 뒤 카운터 북쪽 끝 옆으로 옮겼습니다.
-- 걷기 확인: 새 입구로 들어가짐, 원래 입구는 막힘.
-
-| 밖 | 안 |
-|---|---|
-| ![](images/2026-10-25/cafe_door_moved.jpg) | ![](images/2026-10-25/cafe_door_moved_inside.jpg) |

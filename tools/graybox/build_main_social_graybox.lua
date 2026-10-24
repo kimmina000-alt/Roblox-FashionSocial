@@ -733,13 +733,10 @@ local z=zone("04_Beach_Aquarium")
   box(cm,"Transom",x0-0.1,FY+H-1,z0,x0+0.5,FY+H,z1,frameC)
   -- the south part of the street wall has a walk-up coffee window (z 32..48, user photos 2026-10-24)
   local WZ0,WZ1,WY0,WY1=32,48,FY+3.6,FY+10
-  -- the door is south of the window, z 18..28 (user 2026-10-25: moved from z 56..66, that opening is wall again)
-  local DZ0,DZ1=18,28
-  box(cm,"Wall_E_S",x1-0.6,FY,z0,x1,FY+H,DZ0,white) box(cm,"Wall_E_S",x1-0.6,FY,DZ1,x1,FY+H,WZ0,white)
-  box(cm,"Wall_E_Top",x1-0.6,FY+10,DZ0,x1,FY+H,DZ1,white)
-  box(cm,"Wall_E_S",x1-0.6,FY,WZ1,x1,FY+H,56,white)
+  box(cm,"Wall_E_S",x1-0.6,FY,z0,x1,FY+H,WZ0,white) box(cm,"Wall_E_S",x1-0.6,FY,WZ1,x1,FY+H,56,white)
   box(cm,"Wall_E_S",x1-0.6,FY,WZ0,x1,WY0,WZ1,white) box(cm,"Wall_E_S",x1-0.6,WY1,WZ0,x1,FY+H,WZ1,white)
-  box(cm,"Wall_E_N",x1-0.6,FY,56,x1,FY+H,z1,white)
+  box(cm,"Wall_E_N",x1-0.6,FY,66,x1,FY+H,z1,white)
+  box(cm,"Wall_E_Top",x1-0.6,FY+10,56,x1,FY+H,66,white)
   box(cm,"Roof",x0-2,FY+H,z0-2,x1+2,FY+H+1.2,z1+2,white)
   -- warm wooden slat ceiling
   for sz=z0+1,z1-1,2.4 do box(cm,"CeilingSlat",x0+0.6,FY+H-1.4,sz,x1-0.6,FY+H-0.4,sz+0.9,woodC,{ghost=true}) end
@@ -841,11 +838,9 @@ local z=zone("04_Beach_Aquarium")
   -- on the back wall behind the counter's south end; it stays shut (no way in)
   box(cm,"StaffWall",mx,FY,91.4,x1-0.6,MY-1,92,CW)
   box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,96.2,CW) -- to the stairs' side (a gap showed)
-  -- (the staff door moved from the new entrance to just past the back counter's north end, user 2026-10-25)
-  local SDZ=CZ1+0.5
-  local sd=box(cm,"StaffDoor",x1-0.75,FY,SDZ,x1-0.6,FY+8,SDZ+4,Color3.fromRGB(210,208,204))
-  box(cm,"StaffDoorHandle",x1-0.9,FY+3.6,SDZ+0.4,x1-0.75,FY+4.4,SDZ+0.7,STEEL,{nocol=true})
-  local ss=box(cm,"StaffSign",x1-0.8,FY+8.6,SDZ+0.5,x1-0.7,FY+9.6,SDZ+3.5,dark,{nocol=true})
+  local sd=box(cm,"StaffDoor",x1-0.75,FY,CZ0+0.5,x1-0.6,FY+8,CZ0+4.5,Color3.fromRGB(210,208,204))
+  box(cm,"StaffDoorHandle",x1-0.9,FY+3.6,CZ0+3.6,x1-0.75,FY+4.4,CZ0+3.9,STEEL,{nocol=true})
+  local ss=box(cm,"StaffSign",x1-0.8,FY+8.6,CZ0+1,x1-0.7,FY+9.6,CZ0+4,dark,{nocol=true})
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=ss
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1) l.Text="STAFF ONLY" l.Parent=g end
   local _=sd  -- coffee bag wall (colourful packs) on the south wall behind the bakery
@@ -946,7 +941,7 @@ local z=zone("04_Beach_Aquarium")
    box(cm,"BeachStepEdge",XR,sandY,ZS,-198,FY+0.1,z0,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
    box(cm,"BeachStepEdge",XR,sandY,z1,-198,FY+0.1,ZN,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
   end  -- (no parasols or tables on the deck, user 2026-10-24)
-  local sign=box(cm,"CafeSign",x1+0.05,FY+11,16.4,x1+0.4,FY+15,31.6,dark) -- down over the door (user 2026-10-24), the door moved south (2026-10-25)
+  local sign=box(cm,"CafeSign",x1+0.05,FY+11,51,x1+0.4,FY+15,73,dark) -- down over the door (user 2026-10-24)
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Brightness=2 g.Parent=sign
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Michroma l.TextColor3=Color3.fromRGB(255,225,170) l.Text="OHU CAFE · SUNSET" l.Parent=g end
   label(cm,"OHU CAFE · Sunset (오션뷰)",Vector3.new(-250,FY+H+6,61),true)
