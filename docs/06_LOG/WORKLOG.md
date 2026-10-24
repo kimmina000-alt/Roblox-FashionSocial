@@ -692,3 +692,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
   - 규모: 서버 파트 15,110(10-23의 14,154에서 +956), 유니온 800, SurfaceGui·Billboard 1,448. 클라이언트가 받은 파트 13,109, 그래픽 메모리 약 188MB.
   - FPS는 Studio가 뒤쪽 테스트 창을 15로 묶어서 잴 수 없었습니다(게임 성능과 무관).
 - 사용자 승인에 따라 `feat/art-realistic-1022`를 `catalog-ui-redesign`에 병합했습니다(fast-forward).
+
+## 2026-10-24 (3) — 놀이공원 담장 (D-161, `feat/park-wall-1024`)
+- 놀이공원 둘레 벽을 정문 탑과 같은 디자인으로 바꿨습니다.
+  - 아래에 어두운 사암 받침, 그 위에 사암 블록 벽(블록 이음선 텍스처), 위에 띠 장식과 계단식 갓돌을 올렸습니다.
+  - 돔과 조형물은 넣지 않았습니다.
+- 네 모서리의 파란 지붕 탑을 같은 사암 기둥으로 바꿨습니다.
+
+![](images/2026-10-24/park_wall_after.jpg)

@@ -2365,35 +2365,56 @@ do
 	local x0, x1, z0, z1 = -148, -38, -475, -229
 	local gateX0, gateX1 = -123, -63
 	box("ParkGround", x0 + 1, 0, z0 + 1, x1 - 1, 0.25, z1 - 1, Color3.fromRGB(110, 175, 95), { parent = E, material = Enum.Material.Grass })
-	-- perimeter wall: parks are closed off by themed walls so the outside is
-	-- hidden and everyone enters through the main gate
+	-- perimeter wall in the gate's style (user photo 2026-10-24: the gate
+	-- tower up to its capital, no dome, no relief): a darker sandstone plinth,
+	-- sandstone blocks (a joint texture, docs/04_ART/references/park_gate_tower_wall.jpg),
+	-- a moulded cornice and a stepped cap; corner pillars the same, taller
+	local STONE, CARVE = Color3.fromRGB(214, 194, 156), Color3.fromRGB(176, 152, 112)
+	local BLOCKS = "rbxassetid://88216016189617"
+	local sopt = { parent = E, material = Enum.Material.Sandstone }
+	local function blocks(p: BasePart)
+		for _, fce in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do
+			local tx = Instance.new("Texture")
+			tx.Texture = BLOCKS
+			tx.Face = fce
+			tx.StudsPerTileU = 3.2
+			tx.StudsPerTileV = 1.6
+			tx.Parent = p
+		end
+	end
+	local function course(name, ax, az, bx, bz, y0, y1, grow, color, tex)
+		local p = box(name, ax - grow, y0, az - grow, bx + grow, y1, bz + grow, color, sopt)
+		if tex then blocks(p) end
+		return p
+	end
 	local function wallSeg(ax, az, bx, bz)
-		box("ParkWall", ax, 0, az, bx, 12, bz, cream, { parent = E })
-		box("ParkWallTop", ax - 0.3, 12, az - 0.3, bx + 0.3, 13, bz + 0.3, roofBlue, { parent = E })
+		course("ParkWallPlinth", ax, az, bx, bz, 0, 2.4, 0.25, CARVE)
+		course("ParkWall", ax, az, bx, bz, 2.4, 11, 0, STONE, true)
+		course("ParkWallCornice", ax, az, bx, bz, 11, 11.6, 0.35, CARVE)
+		course("ParkWallTop", ax, az, bx, bz, 11.6, 12.4, 0.15, STONE)
+		course("ParkWallCap", ax, az, bx, bz, 12.4, 12.8, 0.4, CARVE)
 	end
 	wallSeg(x0, z0, x0 + 1, z1) wallSeg(x1 - 1, z0, x1, z1) wallSeg(x0, z0, x1, z0 + 1)
 	wallSeg(x0, z1 - 1, gateX0, z1) wallSeg(gateX1, z1 - 1, x1, z1)
-	local function turret(cx, cz, s, h, base)
-		box("Turret", cx - s / 2, base or 0, cz - s / 2, cx + s / 2, h, cz + s / 2, cream, { parent = E })
-		box("TurretBand", cx - s / 2 - 0.2, h - 1, cz - s / 2 - 0.2, cx + s / 2 + 0.2, h, cz + s / 2 + 0.2, blue, { parent = E })
-		for k = 0, 3 do
-			part("TurretRoof", Vector3.new(s + 1, s * 0.8, (s + 1) / 2), CFrame.new(cx, h + s * 0.4, cz) * CFrame.Angles(0, math.rad(k * 90), 0) * CFrame.new(0, 0, (s + 1) / 4), roofBlue, { parent = E, class = "WedgePart" })
-		end
-		vcyl("Pinnacle", Vector3.new(cx, h + s * 0.8, cz), 0.4, 3, Color3.fromRGB(220, 190, 90), { parent = E })
+	local function pillar(cx, cz, s, h)
+		local a, b2 = s / 2, s / 2
+		course("ParkPillarBase", cx - a, cz - a, cx + b2, cz + b2, 0, 3, 0.6, CARVE)
+		course("ParkPillar", cx - a, cz - a, cx + b2, cz + b2, 3, h, 0, STONE, true)
+		course("ParkPillarCornice", cx - a, cz - a, cx + b2, cz + b2, h, h + 0.8, 0.5, CARVE)
+		course("ParkPillarCap", cx - a, cz - a, cx + b2, cz + b2, h + 0.8, h + 1.8, 0.2, STONE)
+		course("ParkPillarCap", cx - a, cz - a, cx + b2, cz + b2, h + 1.8, h + 2.3, 0.7, CARVE)
 	end
-	for _, c in ipairs({ { x0, z0 }, { x1, z0 }, { x0, z1 }, { x1, z1 } }) do turret(c[1], c[2], 8, 16) end
-	-- main gate (user photo 2026-10-23, an ADVENTURELAND-style arch): two tall
+	for _, c in ipairs({ { x0, z0 }, { x1, z0 }, { x0, z1 }, { x1, z1 } }) do pillar(c[1], c[2], 6, 15) end	-- main gate (user photo 2026-10-23, an ADVENTURELAND-style arch): two tall
 	-- sandstone towers with carved panels, domes and spires carry a big
 	-- arched sign band "OHU LAND"; lower outer towers with half arches on
 	-- each side, black iron fences between the gate and the park walls.
-	local STONE, CARVE = Color3.fromRGB(214, 194, 156), Color3.fromRGB(176, 152, 112)
 	local DOME, GOLD = Color3.fromRGB(120, 128, 140), Color3.fromRGB(214, 172, 80)
 	local gz0, gz1 = z1 - 3, z1 + 5 -- gate depth (south face at gz1)
 	local gzc = (gz0 + gz1) / 2
 	local CX = (gateX0 + gateX1) / 2
 	local function gtower(cx, s, h)
 		box("GateTowerBase", cx - s / 2 - 0.6, 0, gzc - s / 2 - 0.6, cx + s / 2 + 0.6, 3, gzc + s / 2 + 0.6, CARVE, { parent = E, material = Enum.Material.Sandstone })
-		box("GateTower", cx - s / 2, 3, gzc - s / 2, cx + s / 2, h, gzc + s / 2, STONE, { parent = E, material = Enum.Material.Sandstone })
+		blocks(box("GateTower", cx - s / 2, 3, gzc - s / 2, cx + s / 2, h, gzc + s / 2, STONE, { parent = E, material = Enum.Material.Sandstone }))
 		-- carved panel + relief figure on the street face
 		box("GateCarving", cx - s / 2 + 0.8, h * 0.3, gzc + s / 2, cx + s / 2 - 0.8, h * 0.72, gzc + s / 2 + 0.3, CARVE, { parent = E, material = Enum.Material.Sandstone })
 		vcyl("GateRelief", Vector3.new(cx, h * 0.36, gzc + s / 2 + 0.1), s * 0.35, h * 0.3, Color3.fromRGB(196, 176, 138), { parent = E, material = Enum.Material.Sandstone })
