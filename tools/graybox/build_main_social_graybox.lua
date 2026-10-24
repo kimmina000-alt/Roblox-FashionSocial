@@ -845,64 +845,87 @@ local z=zone("04_Beach_Aquarium")
   box(cm,"StaffWall",mx,FY,91.4,x1-0.6,MY-1,92,CW)
   box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,96.2,CW) -- to the stairs' side (a gap showed)
   -- (no staff door or STAFF ONLY sign on the back wall any more, user 2026-10-25)
+  -- the staff zone gets a front wall at z 75.6 with a shut STAFF ONLY door at
+  -- its west end (user plan 2026-10-25)
+  do local SZ,DX0,DX1=75.6,-232,-225.6
+   box(cm,"StaffWall",mx,FY,SZ,DX0,MY-1,SZ+0.6,CW) box(cm,"StaffWall",DX1,FY,SZ,x1-0.6,MY-1,SZ+0.6,CW)
+   box(cm,"StaffWall",DX0,FY+8,SZ,DX1,MY-1,SZ+0.6,CW)
+   box(cm,"StaffDoor",DX0,FY,SZ+0.2,DX1,FY+8,SZ+0.4,Color3.fromRGB(210,208,204))
+   box(cm,"StaffDoorHandle",DX1-1,FY+3.6,SZ+0.05,DX1-0.7,FY+4.4,SZ+0.2,STEEL,{nocol=true})
+   local ss=box(cm,"StaffSign",DX0+1.7,FY+8.6,SZ-0.1,DX1-1.7,FY+9.6,SZ,dark,{nocol=true})
+   local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=ss
+   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1) l.Text="STAFF ONLY" l.Parent=g end
   -- coffee bag wall (colourful packs) on the south wall behind the bakery
   for k=0,17 do local col=({Color3.fromRGB(200,40,50),Color3.fromRGB(30,30,30),Color3.fromRGB(230,200,60),Color3.fromRGB(60,110,180),Color3.fromRGB(240,240,240)})[k%5+1]
    box(cm,"CoffeeBag",mx+1+(k%9)*2.8,FY+5+math.floor(k/9)*2.4,z0+0.5,mx+3+(k%9)*2.8,FY+6.8+math.floor(k/9)*2.4,z0+1.3,col) end
   box(cm,"BagShelf",mx+0.5,FY+4.8,z0+0.4,mx+27,FY+5,z0+1.6,woodC) box(cm,"BagShelf",mx+0.5,FY+7.2,z0+0.4,mx+27,FY+7.4,z0+1.6,woodC)
-  for _,bz in ipairs({{30,40},{42,52}}) do -- bakery tables with wooden trays of bread
-   box(cm,"BakeryTable",-244,FY,bz[1],-236,FY+3.4,bz[2],white)
-   for tz=bz[1]+0.5,bz[2]-2.5,2.6 do box(cm,"BreadTray",-243.5,FY+3.4,tz,-236.5,FY+3.9,tz+2.2,woodC)
-    for k=0,2 do P(cm,"Bread",Vector3.new(1.4,0.7,0.9),CFrame.new(-242+k*2.2,FY+4.2,tz+1.1),({Color3.fromRGB(205,150,80),Color3.fromRGB(225,180,110),Color3.fromRGB(170,110,60)})[k+1],{nocol=true}) end end end
-  label(cm,"🥐 베이커리",Vector3.new(-240,FY+7,41))
-  -- WINDOW BAR along the sea-side glass
-  box(cm,"WindowBar",x0+0.4,FY+3.2,z0+3,x0+2.6,FY+3.5,z1-3,white)
-  for sz=z0+5,z1-5,5 do local pos=Vector3.new(x0+4.4,FY+2.3,sz)
+  -- 1F LAYOUT v2 (user plan 2026-10-25, docs/02_WORLDS/images/beach_cafe_1F_plan.png
+  -- marked up): window bar along the sea glass, a long narrow 물멍 channel
+  -- beside it, three small round tables with four single chairs, the bakery
+  -- tables moved west, a lounge of benches and tables on four steps rising
+  -- eastwards (1 → 4) in front of the stairs, the piano in the north-west corner
+  -- WINDOW BAR along the sea-side glass (the south part)
+  box(cm,"WindowBar",x0+0.4,FY+3.2,19,x0+2.6,FY+3.5,79,white)
+  for sz=21,76,5 do local pos=Vector3.new(x0+4.4,FY+2.3,sz)
    seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),dark)
    cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(x0+4.4,FY+1.05,sz),dark) end
-  -- WATER POOL (물멍) with a stone rim and stepped wooden seating facing it
-  -- (user 2026-10-24: fill it with water) a pale stone bottom, then clear
-  -- blue-green water up to just under the rim
-  box(cm,"PoolBottom",-286,FY,48,-262,FY+0.1,76,Color3.fromRGB(22,24,26),{mat=Enum.Material.Granite}) -- black stone bottom like the photo: the lights and rings show on it
-  local pool=box(cm,"WaterPool",-286,FY+0.1,48,-262,FY+0.75,76,Color3.fromRGB(30,40,46),{t=1,nocol=true}) -- invisible: build_hongdae_layout fills it with terrain water like the sea (user 2026-10-24) -- plain: Glass picked up the ceiling as beige
+  -- WATER CHANNEL (물멍): black stone bottom, terrain water from
+  -- build_hongdae_layout (POOL there), four low amber lamps in a row
+  local PX0,PZ0,PX1,PZ1=-282.5,25,-272.5,69
+  box(cm,"PoolBottom",PX0,FY,PZ0,PX1,FY+0.1,PZ1,Color3.fromRGB(22,24,26),{mat=Enum.Material.Granite})
+  local pool=box(cm,"WaterPool",PX0,FY+0.1,PZ0,PX1,FY+0.75,PZ1,Color3.fromRGB(30,40,46),{t=1,nocol=true})
   pool.Reflectance=0.3
-  for _,r in ipairs({{-287,48,-286,76},{-262,48,-261,76},{-287,47,-261,48},{-287,76,-261,77}}) do box(cm,"PoolRim",r[1],FY,r[2],r[3],FY+0.9,r[4],Color3.fromRGB(70,70,72),{mat=Enum.Material.Slate}) end
-  -- underwater lights with a bubbling jet in a line down the middle, and black
-  -- stone blocks at the near end (user photos 2026-10-24: a hotel-lobby water
-  -- channel); WaterJetController bobs the jets and sends rings over the water
-  -- (user 2026-10-24) four amber lamp columns standing in the water in a row,
-  -- the same as the floor lamps; no jets or ripples
-  for _,jz in ipairs({53,59,65,71}) do
-   cyl(cm,"PoolLampBase",1.6,0.2,Vector3.new(-274,FY+0.1,jz),Color3.fromRGB(60,50,40),{ghost=true})
-   local s=cyl(cm,"PoolLamp",1.8,1.4,Vector3.new(-274,FY+0.2+0.7,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true}) -- low, just above the water (user 2026-10-24)
+  for _,r in ipairs({{PX0-1,PZ0,PX0,PZ1},{PX1,PZ0,PX1+1,PZ1},{PX0-1,PZ0-1,PX1+1,PZ0},{PX0-1,PZ1,PX1+1,PZ1+1}}) do box(cm,"PoolRim",r[1],FY,r[2],r[3],FY+0.9,r[4],Color3.fromRGB(70,70,72),{mat=Enum.Material.Slate}) end
+  for _,jz in ipairs({33,42,52,61}) do
+   cyl(cm,"PoolLampBase",1.6,0.2,Vector3.new((PX0+PX1)/2,FY+0.1,jz),Color3.fromRGB(60,50,40),{ghost=true})
+   local s=cyl(cm,"PoolLamp",1.8,1.4,Vector3.new((PX0+PX1)/2,FY+0.9,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true})
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=Color3.fromRGB(255,214,160) pl.Parent=s
   end
-  -- (no black stone blocks: user 2026-10-24)
-  label(cm,"물멍 풀",Vector3.new(-274,FY+5,62))
-  for k=1,3 do box(cm,"SeatTier",-261+(k-1)*4,FY,46,-257+(k-1)*4,FY+k*1.2,78,woodC)
-   for sz=49,75,4 do local pos=Vector3.new(-259+(k-1)*4,FY+k*1.2+0.15,sz) seat(cm,"TierSeat",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.2,1.8),woodC,1) end end
-  -- SOFA LOUNGE (white sofas, round wooden tables), facing the sea
-  local function sofa(cx,cz)
-   box(cm,"SofaBase",cx,FY,cz-5,cx+3,FY+1.6,cz+5,sofaC)
-   box(cm,"SofaBack",cx+3,FY,cz-5,cx+4,FY+3.4,cz+5,sofaC)
-   for _,sz in ipairs({cz-3.2,cz,cz+3.2}) do local pos=Vector3.new(cx+1.5,FY+1.8,sz) seat(cm,"Sofa",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(2.6,0.3,2.8),sofaC) end
-   local tt=cyl(cm,"CoffeeTable",3.4,1.6,Vector3.new(cx-3,FY+0.8,cz),woodC) CS:AddTag(tt,"CafeTable")
+  label(cm,"물멍 풀",Vector3.new((PX0+PX1)/2,FY+5,47))
+  -- three small round tables, four single chairs each (corners, facing in)
+  for _,tz in ipairs({29,43,58}) do
+   local tx=-265.6
+   cyl(cm,"TableLeg",0.4,2.6,Vector3.new(tx,FY+1.3,tz),dark)
+   local tt=cyl(cm,"CafeTable",2.8,0.25,Vector3.new(tx,FY+2.7,tz),woodC) CS:AddTag(tt,"CafeTable")
+   for _,d in ipairs({{-1,-1},{1,-1},{-1,1},{1,1}}) do
+    local pos=Vector3.new(tx+d[1]*2.3,FY+1.6,tz+d[2]*2.3)
+    local cf=CFrame.lookAt(pos,Vector3.new(tx,pos.Y,tz))
+    seat(cm,"CafeChair",cf,Vector3.new(1.8,0.3,1.8),white)
+    P(cm,"ChairBack",Vector3.new(1.8,1.6,0.25),cf*CFrame.new(0,0.95,0.85),white,{nocol=true})
+   end
   end
-  sofa(-282,27) sofa(-258,27) sofa(-282,39)
-  -- GRAND PIANO and the long MARBLE TABLE in the north part
+  -- bakery tables with wooden trays of bread (moved west, user plan)
+  for _,bz in ipairs({{25,37},{43,55}}) do
+   box(cm,"BakeryTable",-250.8,FY,bz[1],-242.8,FY+3.4,bz[2],white)
+   for tz=bz[1]+0.5,bz[2]-2.5,2.6 do box(cm,"BreadTray",-250.3,FY+3.4,tz,-243.3,FY+3.9,tz+2.2,woodC)
+    for k=0,2 do P(cm,"Bread",Vector3.new(1.4,0.7,0.9),CFrame.new(-248.8+k*2.2,FY+4.2,tz+1.1),({Color3.fromRGB(205,150,80),Color3.fromRGB(225,180,110),Color3.fromRGB(170,110,60)})[k+1],{nocol=true}) end end end
+  label(cm,"🥐 베이커리",Vector3.new(-246.8,FY+7,40))
+  -- STEPPED LOUNGE (user plan: "계단식 4층, 1→2→3→4"): four wooden steps rising
+  -- eastwards to the stairs' side, each with a row of three bench + table sets
+  -- facing the sea (west); 1 stud a step so people walk up
+  local LX0,LW,LZ0,LZ1=-262,6.8,70,96
+  for k=1,4 do
+   local xa=LX0+(k-1)*LW local top=FY+k
+   box(cm,"LoungeStep",xa,FY,LZ0,xa+LW,top,LZ1,woodC,{mat=Enum.Material.WoodPlanks})
+   for _,rz in ipairs({74,83,92}) do -- (4-stud aisles between the rows lead up the steps)
+    -- a round table at the step's front, a white bench behind it facing west
+    cyl(cm,"TableLeg",0.4,2.4,Vector3.new(xa+2,top+1.2,rz),dark)
+    local tt=cyl(cm,"CafeTable",2.6,0.25,Vector3.new(xa+2,top+2.5,rz),woodC) CS:AddTag(tt,"CafeTable")
+    box(cm,"BenchBase",xa+4,top,rz-2.5,xa+6.2,top+1.4,rz+2.5,sofaC)
+    box(cm,"BenchBack",xa+6.2,top,rz-2.5,xa+6.8,top+3.2,rz+2.5,sofaC)
+    for _,dz in ipairs({-1.25,1.25}) do local pos=Vector3.new(xa+5.1,top+1.6,rz+dz)
+     seat(cm,"Bench",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(2,0.3,2.3),sofaC) end
+   end
+  end
+  label(cm,"라운지",Vector3.new(-248,FY+9,83))
+  -- GRAND PIANO in the north-west corner (user plan)
   local piano=M(cm,"GrandPiano",{},{})
-  box(piano,"PianoBody",-290,FY+2.2,82,-284,FY+3.6,89,dark)
-  P(piano,"PianoLid",Vector3.new(6,0.2,7),CFrame.new(-287,FY+5,85.5)*CFrame.Angles(math.rad(-30),0,0),dark,{nocol=true})
-  for _,lp in ipairs({{-289.5,82.5},{-284.5,82.5},{-287,88.5}}) do box(piano,"PianoLeg",lp[1]-0.3,FY,lp[2]-0.3,lp[1]+0.3,FY+2.2,lp[2]+0.3,dark) end
-  box(piano,"Keys",-290,FY+3.3,81.4,-284,FY+3.6,82,Color3.new(1,1,1))
-  do local pos=Vector3.new(-287,FY+1.6,79.6) seat(cm,"PianoBench",CFrame.lookAt(pos,pos+Vector3.new(0,0,1)),Vector3.new(3,0.4,1.4),dark) end
-  box(cm,"MarbleTable",-262,FY+3,86,-242,FY+3.4,92,Color3.fromRGB(240,238,235),{mat=Enum.Material.Marble})
-  for _,lx in ipairs({-261,-243}) do box(cm,"MarbleLeg",lx-0.4,FY,87,lx+0.4,FY+3,91,white) end
-  for k=0,5 do local sx=-259.5+k*3.3
-   for _,side in ipairs({{84.2,1},{93.8,-1}}) do local pos=Vector3.new(sx,FY+1.6,side[1])
-    seat(cm,"TableChair",CFrame.lookAt(pos,pos+Vector3.new(0,0,side[2])),Vector3.new(1.8,0.3,1.8),white) end end
-  -- plants along the north glass
-  box(cm,"Planter",x0+1,FY,z1-4,mx-30,FY+1.4,z1-1,Color3.fromRGB(80,80,80))
-  for px=x0+3,mx-32,4 do P(cm,"Plant",Vector3.new(3,3.6,3),CFrame.new(px,FY+3.2,z1-2.5),Color3.fromRGB(70,140,80),{shape=Enum.PartType.Ball,nocol=true}) end
+  box(piano,"PianoBody",-290,FY+2.2,92,-284,FY+3.6,99,dark)
+  P(piano,"PianoLid",Vector3.new(6,0.2,7),CFrame.new(-287,FY+5,95.5)*CFrame.Angles(math.rad(-30),0,0),dark,{nocol=true})
+  for _,lp in ipairs({{-289.5,92.5},{-284.5,92.5},{-287,98.5}}) do box(piano,"PianoLeg",lp[1]-0.3,FY,lp[2]-0.3,lp[1]+0.3,FY+2.2,lp[2]+0.3,dark) end
+  box(piano,"Keys",-290,FY+3.3,91.4,-284,FY+3.6,92,Color3.new(1,1,1))
+  do local pos=Vector3.new(-287,FY+1.6,89.6) seat(cm,"PianoBench",CFrame.lookAt(pos,pos+Vector3.new(0,0,1)),Vector3.new(3,0.4,1.4),dark) end
+  -- (no sofas, long marble table, wooden pool tiers or north planter: user plan 2026-10-25)
   -- LIGHT (user photos 2026-10-24, warm hotel-lobby mood): a long glowing
   -- stretch-ceiling panel over the pool between the wooden slats, warm spots
   -- from the high ceiling, recessed downlights under the mezzanine (the 1F

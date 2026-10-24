@@ -1192,3 +1192,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전 | 후 |
 |---|---|
 | ![](images/2026-10-25/oh24_move_before.jpg) | ![](images/2026-10-25/oh24_move_after.jpg) |
+
+### 추가 (D-221) — 해변 카페 1층 배치 v2 (사용자 배치도 1차 구현)
+- 사용자 배치도대로: 창가 바(의자 12개), 길쭉한 물멍 풀(조명 4개 일렬), 1인 의자 4개 원형 테이블 3세트, 베이커리 테이블 서쪽으로, 계단식 4단 라운지(동쪽으로 1→4단, 단마다 벤치+테이블 3세트, 줄 사이 통로), 피아노 북서쪽 구석, 직원 공간 앞벽 + STAFF ONLY 문.
+- 소파 3세트, 긴 대리석 테이블, 풀 옆 나무 계단 좌석, 북쪽 화분 삭제.
+- 확인: 라운지 통로로 1단→4단 걸어 올라감.
+
+| 위에서 | 라운지 | 직원 문 |
+|---|---|---|
+| ![](images/2026-10-25/cafe_layout_v2_top.jpg) | ![](images/2026-10-25/cafe_layout_v2_lounge.jpg) | ![](images/2026-10-25/cafe_layout_v2_staffdoor.jpg) |
