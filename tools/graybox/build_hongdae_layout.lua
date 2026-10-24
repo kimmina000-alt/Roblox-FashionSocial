@@ -3941,6 +3941,23 @@ do
 		box("LiftCarCeiling", CX0, 11.4, CAR0, CX1, 12, CAR1, STEEL, { parent = E, material = Enum.Material.Metal })
 		local cl = box("LiftCarLight", 55, 11.3, CAR0 + 2, 60.5, 11.4, CAR1 - 2, Color3.fromRGB(255, 250, 240), { parent = E, nocol = true })
 		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 12 sl.Brightness = 1 sl.Parent = cl
+		-- (user 2026-10-24) the car's sides showed the club's marble walls: plain
+		-- brushed-steel lining (built-in Metal, no images), a handrail, the
+		-- inside of the front wall in steel and a small button panel by the door
+		local mopt = { parent = E, material = Enum.Material.Metal, nocol = true }
+		local mid, DOOR = (CX0 + CX1) / 2, 7 -- (the door below: 7 wide in the middle)
+		box("LiftCarSide", CX0 + 0.02, 0, CAR0, CX0 + 0.2, 11.4, CAR1, STEEL, mopt)
+		box("LiftCarSide", CX1 - 0.2, 0, CAR0, CX1 - 0.02, 11.4, CAR1, STEEL, mopt)
+		box("LiftCarInner", CX0 + 0.2, 0, CAR0, mid - DOOR / 2 - 0.6, 11.4, CAR0 + 0.15, STEEL, mopt)
+		box("LiftCarInner", mid + DOOR / 2 + 0.6, 0, CAR0, CX1 - 0.2, 11.4, CAR0 + 0.15, STEEL, mopt)
+		box("LiftCarInner", mid - DOOR / 2 - 0.6, 9.4, CAR0, mid + DOOR / 2 + 0.6, 11.4, CAR0 + 0.15, STEEL, mopt)
+		box("LiftHandrail", CX0 + 1, 3.2, CAR1 - 0.45, CX1 - 1, 3.4, CAR1 - 0.25, Color3.fromRGB(200, 202, 206), mopt)
+		local px = mid + DOOR / 2 + 1.6 -- button panel beside the door, inside
+		box("LiftButtonPanel", px - 0.6, 3.6, CAR0 + 0.15, px + 0.6, 6.4, CAR0 + 0.25, Color3.fromRGB(40, 42, 46), mopt)
+		for k, y in ipairs({ 5.7, 5.0, 4.3 }) do
+			local b = part("LiftButton", Vector3.new(0.12, 0.42, 0.42), CFrame.new(px, y, CAR0 + 0.3) * CFrame.Angles(0, math.rad(90), 0), if k == 1 then Color3.fromRGB(255, 190, 90) else Color3.fromRGB(220, 222, 226), { parent = E, shape = Enum.PartType.Cylinder, material = if k == 1 then Enum.Material.Neon else Enum.Material.Metal, nocol = true })
+			b.CastShadow = false
+		end
 		-- front wall with the door opening (door 7 wide in the middle)
 		local mid, DOOR = (CX0 + CX1) / 2, 7
 		box("LiftFront", CX0, 0, CAR0 - 0.5, mid - DOOR / 2, 12, CAR0, DARK, { parent = E })
