@@ -3111,9 +3111,11 @@ do
 	-- from the park gate on the axis
 	-- (user 2026-10-24) two levels: the upper ring now reaches in to r 20 (the
 	-- middle level is gone), the inner circle one 0.8 step below it
-	-- (user 2026-10-24) the inner circle 0.5 deeper (-3.8); a 1.3 drop is too high to
-	-- walk up, so a 1.2-wide step ring halfway down runs round its edge
-	local LEVELS = { { 44, -2.5 }, { 20, -3.15 }, { 18.8, -3.8 } }
+	-- (user 2026-10-24) no step ring: the inner circle round the mound drops
+	-- deep (a pit for a fountain, water to fall into it later); the mound stays
+	-- at its height (MOUND_H) on a stone plinth rising from the pit floor
+	local LEVELS = { { 44, -2.5 }, { 20, -7 } }
+	local MOUND_H = -3.8
 	local function domeH(x, z) -- (the name stays: everything below sits at the level under it)
 		local d = math.sqrt((x - C.X) ^ 2 + (z - C.Z) ^ 2)
 		local h = 0
@@ -3276,6 +3278,7 @@ do
 		end
 	end
 	-- the round stepped mound: three stone rings stepping up, a seat ledge, a sculpture
+	vcyl("MoundPlinth", C + Vector3.new(0, LEVELS[2][2] - MOUND_H, 0), 30, MOUND_H - LEVELS[2][2], STONE, o(Enum.Material.Limestone)) -- (from the pit floor up to the mound)
 	vcyl("MoundStep", C, 30, 0.6, STONE, o(Enum.Material.Limestone))
 	vcyl("MoundStep", C, 22, 1.2, STONE, o(Enum.Material.Limestone))
 	vcyl("MoundStep", C, 14, 1.8, STONE, o(Enum.Material.Limestone))
@@ -3531,6 +3534,13 @@ do
 	-- the walk's west wall under the deck in the deck's wood (user 2026-10-24),
 	-- from the walk level up to the deck top, a hair inside the walk
 	box("ParkWalkWall", -114.5, LEVELS[1][2], -196, -114.38, DECK_TOP, -128 - math.sqrt(44 ^ 2 - 18.5 ^ 2), WOOD, o(Enum.Material.WoodPlanks))
+	-- past the deck corner a strip of the same wood up to the top tier's top: the
+	-- paving's corner showed grey between the tiers' end and this wall (user 2026-10-24)
+	do -- the same at the east tiers' end on the gate walk's east edge
+		local zc = -128 - math.sqrt(44 ^ 2 - 16.53 ^ 2)
+		box("ParkWalkWall", -79.62, LEVELS[1][2], zc - 0.5, -79.47, LEVELS[1][2] + 2.68, zc + 0.5, WOOD, o(Enum.Material.WoodPlanks))
+	end
+	box("ParkWalkWall", -114.53, LEVELS[1][2], -128 - math.sqrt(44 ^ 2 - 18.5 ^ 2) - 0.02, -114.38, LEVELS[1][2] + 2.68, -128 - math.sqrt(44 ^ 2 - 18.5 ^ 2) + 0.6, WOOD, o(Enum.Material.WoodPlanks))
 	-- white parasols with a round table and two chairs
 	local function parasolSet(at: Vector3)
 		vcyl("ParasolPole", at, 0.25, 9, Color3.fromRGB(200, 200, 204), o(Enum.Material.Metal, { nocol = true }))
@@ -3548,7 +3558,7 @@ do
 		end
 	end
 	-- (the parasol table by the south walk is gone, user 2026-10-24)
-	parasolSet(Vector3.new(-122, DECK_TOP - 0.08, -172)) -- on the raised deck
+	-- (no parasol set on the raised deck either, user 2026-10-24)
 	-- planting beds along the north and east edges and the south-west corner:
 	-- curbed soil with round shrubs (balls) of several greens, trees behind
 	local GREENS = { Color3.fromRGB(86, 128, 70), Color3.fromRGB(110, 146, 82), Color3.fromRGB(70, 110, 62), Color3.fromRGB(140, 160, 96), Color3.fromRGB(96, 120, 84) }
@@ -3592,7 +3602,7 @@ do
 	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
 	for _, c in ipairs(P:GetChildren()) do
 		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair" or c.Name == "ParkCollide" or c.Name == "ParkUpperDeck" or c.Name == "ParkTierEnd" or c.Name == "ParkWalkWall" or c.Name == "ParkInfill") then -- (built at their own heights)
-			local h = domeH(c.Position.X, c.Position.Z)
+			local h = if c.Name:match("^Mound") or c.Name:match("^Sculpture") then MOUND_H else domeH(c.Position.X, c.Position.Z)
 			if h ~= 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
 		end
 	end
@@ -3608,21 +3618,33 @@ do
 		elseif c:IsA("Model") then c:PivotTo(c:GetPivot() + Vector3.new(0, RAISE, 0)) end
 	end
 	for _, c in ipairs(P:GetChildren()) do
-		if c:IsA("BasePart") and (c.Name == "ParkPaving" or c.Name == "ParkInfill" or c.Name == "ParkLevel" or c.Name == "ParkStair") then -- (the sunken floors and the stairs too, user 2026-10-24)
+		-- (user 2026-10-24) the stairs and the sunken floors below them: plain
+		-- near-white grey, no pavers
+		if c:IsA("BasePart") and (c.Name == "ParkLevel" or c.Name == "ParkStair") then
+			c.Color = Color3.fromRGB(224, 224, 220)
+			c.Material = Enum.Material.Concrete
+		end
+		if c:IsA("BasePart") and (c.Name == "ParkPaving" or c.Name == "ParkInfill") then
 			c.Color = Color3.fromRGB(176, 172, 166)
 			c.Material = Enum.Material.SmoothPlastic
-			local tx = Instance.new("Texture")
-			tx.Texture = "rbxassetid://133933193561069" -- (street_dress IMG.sidewalk)
-			-- (the infill is a union of wedges: its own axes are turned, so find the
-			-- face that points up in the world)
+			-- the face that points up in the world (the infill is a union of wedges:
+			-- its own axes are turned); pavers on it and on the side faces (the cut
+			-- walls showed plain, user 2026-10-24), none on the bottom
 			local up = c.CFrame:VectorToObjectSpace(Vector3.yAxis)
 			local ax, ay, az = math.abs(up.X), math.abs(up.Y), math.abs(up.Z)
-			tx.Face = if ay >= ax and ay >= az then (if up.Y > 0 then Enum.NormalId.Top else Enum.NormalId.Bottom)
+			local upF = if ay >= ax and ay >= az then (if up.Y > 0 then Enum.NormalId.Top else Enum.NormalId.Bottom)
 				elseif ax >= az then (if up.X > 0 then Enum.NormalId.Right else Enum.NormalId.Left)
 				else (if up.Z > 0 then Enum.NormalId.Back else Enum.NormalId.Front)
-			tx.StudsPerTileU = 7
-			tx.StudsPerTileV = 7
-			tx.Parent = c
+			for _, fc in ipairs(Enum.NormalId:GetEnumItems()) do
+				if Vector3.FromNormalId(fc):Dot(Vector3.FromNormalId(upF)) > -0.5 then
+					local tx = Instance.new("Texture")
+					tx.Texture = "rbxassetid://133933193561069" -- (street_dress IMG.sidewalk)
+					tx.Face = fc
+					tx.StudsPerTileU = 7
+					tx.StudsPerTileV = 7
+					tx.Parent = c
+				end
+			end
 		end
 	end
 end

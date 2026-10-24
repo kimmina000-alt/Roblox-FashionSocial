@@ -1071,3 +1071,14 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-24/pocket_park_pavers_all.jpg)
 ![](images/2026-10-24/pocket_park_inner_lower.jpg)
+
+### 추가 (D-206) — 분수 자리 구덩이, 아랫바닥 흰 회색, 나무 이음새, 파라솔 삭제
+- 계단 고리를 없애고 조형물 받침 둘레 원을 지하로 깊게(바깥 고리보다 4.5 아래) 내렸습니다. 나중에 물이 떨어지는 분수를 만들 자리입니다. 조형물 받침은 그 높이 그대로 돌기둥 위에 섭니다.
+- 계단부터 한 단 아래 땅(정문 계단·길, 바깥 고리, 남쪽 길·계단)은 흰색에 가까운 회색 콘크리트, 무늬 없음.
+- 공원 윗바닥과 높은 땅의 옆벽(민무늬였던 면)에도 보도블록 무늬.
+- 정문 길 양쪽에서 계단식 의자 끝과 데크/벽 사이에 공원 바닥 모서리가 회색으로 보였습니다: 나무 판으로 덮었습니다.
+- 데크 위 파라솔 의자 삭제.
+
+![](images/2026-10-24/pocket_park_fountain_pit.jpg)
+![](images/2026-10-24/pocket_park_side_pavers.jpg)
+![](images/2026-10-24/pocket_park_deck_joint.jpg)
