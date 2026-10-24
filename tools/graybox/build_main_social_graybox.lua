@@ -168,6 +168,8 @@ local lime=Color3.fromRGB(190,255,60)
 local cyan=Color3.fromRGB(80,230,255)
 local pink=Color3.fromRGB(255,80,200)
 local NEON={mat=Enum.Material.Neon}
+-- inside walls and floors: the black marble of the lift corridor (user 2026-10-24)
+local MARBLE_C=Color3.fromRGB(34,34,40) local MARBLE={mat=Enum.Material.Marble}
 -- outside: red carpet, ropes, photo wall, marquee, doorman
 P(z,"RedCarpetYard",Vector3.new(50,0.5,32),CFrame.new(0,0.3,-134),C.red)
 for _,x in ipairs({-14,14}) do for i=0,4 do P(z,"RopePost",Vector3.new(1,4,1),CFrame.new(x,2,-122-i*6),gold) end P(z,"Rope",Vector3.new(0.4,0.4,24),CFrame.new(x,3.3,-134),C.red,{nocol=true}) end
@@ -177,19 +179,19 @@ P(z,"Marquee_Landmark",Vector3.new(60,8,2),CFrame.new(0,19,-148.5),pink,NEON)
 P(z,"DoormanNPC(placeholder)",Vector3.new(2,6,2),CFrame.new(10,3,-148),Color3.fromRGB(20,20,20))
 label(z,"CLUB · Idol Concert City",Vector3.new(0,TOP+16,-150),true)
 -- shell (F = hall floor, TOP = ceiling)
-box(z,"Floor",-80,F-1,-270,80,F,-150,Color3.fromRGB(35,30,50))
-box(z,"Wall_W",-82,F,-271,-80,RT,-149,W)
-box(z,"Wall_E",80,F,-271,82,RT,-149,W)
-box(z,"Wall_N",-80,F,-272,80,RT,-270,W)
-box(z,"Wall_S_L",-80,F,-151,-8,RT,-149,W)
-box(z,"Wall_S_R",8,F,-151,80,RT,-149,W)
-box(z,"Wall_S_Top",-8,12,-151,8,RT,-149,W)
-box(z,"Wall_S_Below",-8,F,-151,8,0,-149,W)
+box(z,"Floor",-80,F-1,-270,80,F,-150,MARBLE_C,MARBLE)
+box(z,"Wall_W",-82,F,-271,-80,RT,-149,MARBLE_C,MARBLE)
+box(z,"Wall_E",80,F,-271,82,RT,-149,MARBLE_C,MARBLE)
+box(z,"Wall_N",-80,F,-272,80,RT,-270,MARBLE_C,MARBLE)
+box(z,"Wall_S_L",-80,F,-151,-8,RT,-149,MARBLE_C,MARBLE)
+box(z,"Wall_S_R",8,F,-151,80,RT,-149,MARBLE_C,MARBLE)
+box(z,"Wall_S_Top",-8,12,-151,8,RT,-149,MARBLE_C,MARBLE)
+box(z,"Wall_S_Below",-8,F,-151,8,0,-149,MARBLE_C,MARBLE)
 box(z,"Ceiling",-80,TOP,-270,80,TOP+0.5,-150,navy)
 -- foyer at street level and the stairs down to the west
-box(z,"Foyer",-24,-1,-166.5,12,0,-151,Color3.fromRGB(60,50,80))
-box(z,"Foyer_E",12,0,-166.5,13,12,-151,dark)
-box(z,"Foyer_E_Below",12,F,-166.5,13,0,-151,dark)
+box(z,"Foyer",-24,-1,-166.5,12,0,-151,MARBLE_C,MARBLE)
+box(z,"Foyer_E",12,0,-166.5,13,12,-151,MARBLE_C,MARBLE)
+box(z,"Foyer_E_Below",12,F,-166.5,13,0,-151,MARBLE_C,MARBLE)
 box(z,"Entry_Ceiling",-80,12,-166.5,12,13,-151,dark)
 box(z,"Entry_Fill",12,F,-166.5,80,TOP,-151,dark) -- closed block east of the foyer
 -- Stair look (user reference 2026-10-22): dark steps, a white neon nose and
@@ -211,16 +213,16 @@ for i=1,15 do local top=-1.5*i local x0=-24-2.5*(i-1)
 do local c=Vector3.new(-44,F/2,-158.75) P(z,"StairRamp",Vector3.new(15.5,-F,40),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
 label(z,"↓ 계단 (지하 클럽)",Vector3.new(-40,6,-158))
 -- wall between the stairs/foyer strip and the hall (opening for the corridor)
-box(z,"Wall_Entry_Hall",-64,F,-167.5,80,TOP,-166.5,dark)
-box(z,"Wall_Entry_Corridor_Top",-80,F+14,-167.5,-64,TOP,-166.5,dark)
+box(z,"Wall_Entry_Hall",-64,F,-167.5,80,TOP,-166.5,MARBLE_C,MARBLE)
+box(z,"Wall_Entry_Corridor_Top",-80,F+14,-167.5,-64,TOP,-166.5,MARBLE_C,MARBLE)
 -- corridor north along the west wall (x -80..-64), low ceiling. 1F plan
 -- (user, 2026-10-22): the hall door is in the MIDDLE of the corridor (on the
 -- right); the corridor ends at the VIP wall (z -236): see-through red glass
 -- with a neon "VIP" sign. VIP pass holders walk through it (ClubGate) and
 -- climb the VIP stair north to the 2nd floor; others get the purchase window.
-box(z,"Corridor_E_N",-65,F,-270,-64,V-1,-225,dark)
-box(z,"Corridor_E_S",-65,F,-211,-64,V-1,-167.5,dark)
-box(z,"Corridor_DoorTop",-65,F+14,-225,-64,V-1,-211,dark)
+box(z,"Corridor_E_N",-65,F,-270,-64,V-1,-225,MARBLE_C,MARBLE)
+box(z,"Corridor_E_S",-65,F,-211,-64,V-1,-167.5,MARBLE_C,MARBLE)
+box(z,"Corridor_DoorTop",-65,F+14,-225,-64,V-1,-211,MARBLE_C,MARBLE)
 box(z,"Corridor_Ceiling",-80,F+14,-236,-65,F+15,-167.5,dark)
 box(z,"CorridorNeon_W",-79.6,F,-236,-79.3,F+0.4,-167.5,cyan,{mat=Enum.Material.Neon,ghost=true})
 box(z,"CorridorNeon_E",-65.7,F,-236,-65.4,F+0.4,-167.5,pink,{mat=Enum.Material.Neon,ghost=true})
@@ -241,7 +243,7 @@ for _,face in ipairs({Enum.NormalId.Back,Enum.NormalId.Front}) do
  s.BackgroundTransparency=1 s.TextScaled=true s.Font=Enum.Font.GothamBold s.Text="VIP 패스 · 2층 라운지" s.TextColor3=Color3.new(1,1,1) s.Parent=g end
 for _,e in ipairs({{-80,F,-79,F+14},{-65,F,-64.6,F+14}}) do box(z,"VIP_GateNeon",e[1],e[2],-236.6,e[3],e[4],-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true}) end
 box(z,"VIP_GateNeon",-80,F+14,-236.6,-64.6,F+14.4,-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true})
-box(z,"VIP_GateTopFill",-80,F+15,-236.5,-65,V-1,-235.5,dark)
+box(z,"VIP_GateTopFill",-80,F+15,-236.5,-65,V-1,-235.5,MARBLE_C,MARBLE)
 -- VIP stair: north from the wall up to the 2nd floor landing (z -263..-270)
 local RUN=1.2
 for j=1,22 do local zs=-236.5-RUN*(j-1)
@@ -257,11 +259,11 @@ label(z,"VIP 2층 ↑ (VIP 패스)",Vector3.new(-72,F+17,-232))
 -- open up to the ceiling. Hole in the floor over the VIP stair (x -80..-64,
 -- z -263..-236); the stair arrives on the landing at the north-west corner.
 local vipFloor=Color3.fromRGB(150,120,60)
-box(z,"VIP_Floor_N",-64,V-1,-270,58,V,-246,vipFloor)
-box(z,"VIP_Floor_Landing",-80,V-1,-270,-64,V,-263,vipFloor)
-box(z,"VIP_Floor_W",-64,V-1,-246,-50,V,-190,vipFloor)
-box(z,"VIP_Floor_W2",-80,V-1,-236,-64,V,-190,vipFloor)
-box(z,"VIP_Floor_S",-80,V-1,-190,58,V,-167.5,vipFloor)
+box(z,"VIP_Floor_N",-64,V-1,-270,58,V,-246,MARBLE_C,MARBLE)
+box(z,"VIP_Floor_Landing",-80,V-1,-270,-64,V,-263,MARBLE_C,MARBLE)
+box(z,"VIP_Floor_W",-64,V-1,-246,-50,V,-190,MARBLE_C,MARBLE)
+box(z,"VIP_Floor_W2",-80,V-1,-236,-64,V,-190,MARBLE_C,MARBLE)
+box(z,"VIP_Floor_S",-80,V-1,-190,58,V,-167.5,MARBLE_C,MARBLE)
 local glass=Color3.fromRGB(200,230,255)
 box(z,"VIP_Rail_N",-50,V,-246.5,58,V+4,-246,glass,{t=0.6})
 box(z,"VIP_Rail_S",-50,V,-190,58,V+4,-189.5,glass,{t=0.6})
@@ -289,8 +291,7 @@ local function starCanopy(name,x0,z0,x1,z1,count)
   P(z,"Star",Vector3.new(s,s,s),CFrame.new(x,SOFFIT-0.05,zz),Color3.fromRGB(255,245+math.random(0,10),200+math.random(0,55)),{mat=Enum.Material.Neon,shape=Enum.PartType.Ball,ghost=true})
  end
 end
-starCanopy("VIP_StarCeiling_N",-80,-270,58,-252,70)
-starCanopy("VIP_StarCeiling_S",-80,-184,58,-167.5,60)
+-- (no starry canopies over the VIP lounges: removed, user 2026-10-24)
 -- VIP sofas along the outer walls + tables in front (DrinkTable)
 local sofa=Color3.fromRGB(120,30,70)
 local function vipGroup(cx,wallZ,dir)
@@ -318,7 +319,7 @@ for _,zc in ipairs({-226,-200}) do
  local top=box(z,"VIP_Table",-74,V+2.2,zc-4.5,-70,V+2.7,zc+4.5,Color3.fromRGB(250,245,235))
  CS:AddTag(top,"DrinkTable")
  for k=0,3 do slot(top,Vector3.new(-72,V+3,zc-3.3+k*2.2)) end end
-starCanopy("VIP_StarCeiling_W",-80,-236,-50,-190,40)
+-- (no west canopy either)
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,-258),true)
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,-178),true)
 local function vipRegion(name,x0,y0,z0,x1,y1,z1,exit)

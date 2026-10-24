@@ -1082,3 +1082,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-24/pocket_park_fountain_pit.jpg)
 ![](images/2026-10-24/pocket_park_side_pavers.jpg)
 ![](images/2026-10-24/pocket_park_deck_joint.jpg)
+
+### 추가 (D-207) — 클럽 내부 대리석, 벽 번쩍거림, 2층 별 천장 삭제
+- 클럽 안 벽과 바닥(홀 바닥, 바깥 벽 안쪽, 입구·복도 벽, VIP 2층 바닥)을 엘리베이터 복도의 검은 대리석으로 바꿨습니다.
+- 복도 벽(체크)과 댄스홀 뒤쪽 벽 번쩍거림: 바깥 건물이 아니라 땅(Ground)의 옆면이 클럽 벽 안쪽 면과 같은 자리에 있었습니다. 땅에 뚫린 클럽 구멍 가장자리를 벽 두께 가운데로 옮겼습니다.
+- 2층 라운지 위 2층 모양 판(별 조명 천장)을 삭제했습니다.
+
+![](images/2026-10-24/club_corridor_marble.jpg)
+![](images/2026-10-24/club_2f_no_canopy.jpg)
