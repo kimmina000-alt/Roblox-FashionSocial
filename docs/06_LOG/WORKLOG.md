@@ -1138,3 +1138,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전 | 후 |
 |---|---|
 | ![](images/2026-10-24/birch_trunk_before.jpg) | ![](images/2026-10-24/birch_trunk_after.jpg) |
+
+### 추가 (D-212) — 줄기 세로 결 시도 후 되돌림
+- 세로 결 커스텀 재질을 입혀 봤지만 사용자 판단으로 이전(D-211, 기본 나무 재질)이 나아서 되돌렸습니다. 커스텀 재질은 Studio에서도 지웠습니다.
