@@ -1219,3 +1219,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 피아노를 단상 위 유리 구석 쪽으로 6 더 옮겼습니다.
 
 ![](images/2026-10-25/cafe_piano_corner.jpg)
+
+### 추가 (D-225) — 피아노 북쪽 유리와 간격 맞춤
+- 바다 쪽 유리와 띄운 만큼(2.6) 북쪽 유리에서도 띄웠습니다. 의자에 앉기 확인.
+
+![](images/2026-10-25/cafe_piano_gap.jpg)

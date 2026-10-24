@@ -410,3 +410,4 @@ D-221 — (2026-10-25) Beach cafe 1F layout v2 from the user's marked plan (docs
 D-222 — (2026-10-25) Beach cafe: the grand piano stands on a three-step marble stage in the north-west glass corner (nested squares from the corner, 0.8 a step: to x -273 / z 80, x -276 / z 83, x -280 / z 86.5); piano and bench sit on the top step.
 D-223 — (2026-10-25) Piano 3 closer to the sea glass (x -293..-287), its stage steps half as deep (to x -276.5 / z 83.25, -278 / 84.75, -280 / 86.5). The 노래방 fake tower west of OH24 moves 12 south (z 60..104), its back on the store's back line; the ground it left (z 47..60), the strip on its west side and the gap to the store are paved.
 D-224 — (2026-10-25) The piano moves 6 further north into the glass corner on its stage (body z 98..105, bench z 95.6).
+D-225 — (2026-10-25) The piano keeps the same gap (2.6) from the north glass as from the sea glass: body z 96..103, bench z 93.6.
