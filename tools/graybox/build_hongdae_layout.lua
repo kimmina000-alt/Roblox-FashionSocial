@@ -3111,7 +3111,9 @@ do
 	-- from the park gate on the axis
 	-- (user 2026-10-24) two levels: the upper ring now reaches in to r 20 (the
 	-- middle level is gone), the inner circle one 0.8 step below it
-	local LEVELS = { { 44, -2.5 }, { 20, -3.3 } }
+	-- (user 2026-10-24) the inner circle 0.5 deeper (-3.8); a 1.3 drop is too high to
+	-- walk up, so a 1.2-wide step ring halfway down runs round its edge
+	local LEVELS = { { 44, -2.5 }, { 20, -3.15 }, { 18.8, -3.8 } }
 	local function domeH(x, z) -- (the name stays: everything below sits at the level under it)
 		local d = math.sqrt((x - C.X) ^ 2 + (z - C.Z) ^ 2)
 		local h = 0
@@ -3578,7 +3580,7 @@ do
 	-- long bed packed with trees and round shrubs
 	-- (the row of tree pits along the east sidewalk is gone, user 2026-10-24)
 
-	bed(X0 + 1, Z0 + 6, X0 + 9, Z1 - 4, 70, { { -146, -196 }, { -144, -182 }, { -146, -168 }, { -144, -154 }, { -146, -140 }, { -144, -126 }, { -146, -112 }, { -144, -98 }, { -146, -84 }, { -144, -70 }, { -146, -56 } })	-- low park lamps along the edges; they glow at night
+	-- (the long bed along the west edge is gone too, user 2026-10-24)	-- low park lamps along the edges; they glow at night
 	for _, lp in ipairs({ { -118, -186 }, { -76, -186 }, { -60, -162 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
 		local b = Vector3.new(lp[1], if onDeck(lp[1], lp[2]) then DECK_TOP - 0.08 else 0, lp[2])
 		vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), o(Enum.Material.Metal))
@@ -3606,7 +3608,7 @@ do
 		elseif c:IsA("Model") then c:PivotTo(c:GetPivot() + Vector3.new(0, RAISE, 0)) end
 	end
 	for _, c in ipairs(P:GetChildren()) do
-		if c:IsA("BasePart") and (c.Name == "ParkPaving" or c.Name == "ParkInfill") then
+		if c:IsA("BasePart") and (c.Name == "ParkPaving" or c.Name == "ParkInfill" or c.Name == "ParkLevel" or c.Name == "ParkStair") then -- (the sunken floors and the stairs too, user 2026-10-24)
 			c.Color = Color3.fromRGB(176, 172, 166)
 			c.Material = Enum.Material.SmoothPlastic
 			local tx = Instance.new("Texture")

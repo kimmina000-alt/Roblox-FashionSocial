@@ -1063,3 +1063,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-24/exit3_level_sidewalk.jpg)
 ![](images/2026-10-24/exit3_mouth_after.jpg)
 ![](images/2026-10-24/exit3_inside_open.jpg)
+
+### 추가 (D-205) — 공원 계단·아랫바닥 무늬, 서쪽 긴 화단 삭제, 가운데 원 더 낮추기
+- 정문 계단, 남쪽 계단, 내려간 바닥(바깥 고리, 남쪽 길, 가운데 원) 모두 인도와 같은 보도블록 무늬로 바꿨습니다.
+- 서쪽 가장자리를 따라 길게 있던 화단(관목·자작나무)을 지웠습니다.
+- 빨간 체크한 가운데 원을 0.5 더 낮췄습니다. 1.3 단차는 걸어서 못 올라와서(점프만 가능) 원 가장자리 안쪽에 폭 1.2 계단 고리를 넣어 0.65씩 두 번 오르내립니다. 원 안으로 들어갔다 걸어서 나오는 것 확인.
+
+![](images/2026-10-24/pocket_park_pavers_all.jpg)
+![](images/2026-10-24/pocket_park_inner_lower.jpg)
