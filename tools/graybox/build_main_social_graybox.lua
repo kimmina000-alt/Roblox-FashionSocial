@@ -701,7 +701,8 @@ local z=zone("04_Beach_Aquarium")
  -- sofa lounge, grand piano, long marble table, bakery table with wooden trays,
  -- window bar facing the sea, order counter (SnackShop "BeachCafe").
  -- The west part stands on piles over the shallow sea.
- do local x0,x1,z0,z1=-296,-206,16,106 local FY=3 local H=30 local MY=FY+13 local mx=-234
+ -- (user 2026-10-24: higher storeys, 1F 16 clear under the mezzanine, 2F about 20)
+ do local x0,x1,z0,z1=-296,-206,16,106 local FY=3 local H=38 local MY=FY+17 local mx=-234
   local cm=M(z,"BeachCafe",{},{})
   local floorC=Color3.fromRGB(228,224,216) local white=Color3.fromRGB(246,245,242) local woodC=Color3.fromRGB(196,150,98)
   local glass=Color3.fromRGB(200,228,238) local frameC=Color3.fromRGB(238,238,235) local dark=Color3.fromRGB(38,38,42)
@@ -710,7 +711,8 @@ local z=zone("04_Beach_Aquarium")
   box(cm,"CafeFloor",x0,FY-1,z0,x1,FY,z1,floorC,{mat=Enum.Material.Slate})
   box(cm,"CafeBase",-268,0,z0,x1,FY-1,z1,Color3.fromRGB(205,200,190))
   for px=x0+4,-272,12 do for pz=z0+4,z1-4,15 do cyl(cm,"Pile",1.6,22,Vector3.new(px,FY-12,pz),Color3.fromRGB(180,175,168)) end end
-  do local c=Vector3.new(x1+3.5,0.6+(FY-0.6)/2,61) P(cm,"EntranceRamp",Vector3.new(12,FY-0.6,7),CFrame.lookAt(c,c+Vector3.new(1,0,0)),floorC,{class="WedgePart"}) end
+  -- entrance deck at floor level the whole width of the front, out to the promenade (user 2026-10-24)
+  box(cm,"EntranceDeck",x1,0,z0,-198,FY,z1,floorC,{mat=Enum.Material.Slate})
   -- glass: west wall full, north/south glass on the west part, white walls east
   box(cm,"Glass_W",x0,FY,z0,x0+0.4,FY+H,z1,glass,{t=0.82,mat=Enum.Material.Glass})
   for mz=z0,z1,6 do box(cm,"Mullion",x0-0.1,FY,mz-0.2,x0+0.5,FY+H,mz+0.2,frameC) end
@@ -728,12 +730,13 @@ local z=zone("04_Beach_Aquarium")
   -- white round columns
   for _,c in ipairs({{-266,44},{-266,84},{-240,44},{-240,84}}) do cyl(cm,"Column",3,H,Vector3.new(c[1],FY+H/2,c[2]),white) end
   -- MEZZANINE (east third) with a glass railing; stairs along the north wall
-  box(cm,"Mezzanine",mx,MY-1,z0,x1,MY,z1,floorC,{mat=Enum.Material.Slate})
+  box(cm,"Mezzanine",mx,MY-1,z0+0.4,x1-0.6,MY,z1-0.4,floorC,{mat=Enum.Material.Slate}) -- inside the walls (its ends flickered on the outer faces)
   box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+3.4,95,glass,{t=0.7,mat=Enum.Material.Glass})
   box(cm,"MezzHandrail",mx-0.4,MY+3.4,z0,mx+0.1,MY+3.7,95,frameC)
-  for k=1,13 do box(cm,"Stair",-262+(k-1)*2,FY,96,-262+k*2,FY+k,104,woodC) end
-  do local c=Vector3.new(-249,FY+6.5,100) P(cm,"StairRamp",Vector3.new(8,13,26),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),woodC,{class="WedgePart",t=1}) end
-  box(cm,"StairRail",-262,FY+1,95.6,-236,FY+14,95.9,glass,{t=0.7,mat=Enum.Material.Glass,nocol=true})
+  local NS=MY-FY -- one step per stud of height, 1.6 deep
+  for k=1,NS do box(cm,"Stair",-262+(k-1)*1.6,FY,96,-262+k*1.6,FY+k,104,woodC) end
+  do local run=NS*1.6 local c=Vector3.new(-262+run/2,FY+NS/2,100) P(cm,"StairRamp",Vector3.new(8,NS,run),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),woodC,{class="WedgePart",t=1}) end
+  box(cm,"StairRail",-262,FY+1,95.6,-262+NS*1.6,MY+1,95.9,glass,{t=0.7,mat=Enum.Material.Glass,nocol=true})
   -- mezzanine window bar at the railing (view over the pool to the sea)
   box(cm,"MezzBar",mx+0.2,MY+3.2,z0+3,mx+1.8,MY+3.5,93,white)
   for sz=z0+5,91,5 do local pos=Vector3.new(mx+4,MY+2.3,sz)
@@ -808,7 +811,7 @@ local z=zone("04_Beach_Aquarium")
   photo(cm,Vector3.new(x0+8,FY,44),"오션뷰 창가")
   photo(cm,Vector3.new(-274,FY,80),"물멍 풀")
   -- sunset terrace outside on the south side
-  box(cm,"Terrace",-268,0,z0-12,-230,FY,z0,woodC)
+  box(cm,"Terrace",-268,0,z0-12,-198,FY,z0,woodC) -- out to the promenade (user 2026-10-24)
   do local c=Vector3.new(-249,FY/2,z0-15) P(cm,"TerraceRamp",Vector3.new(14,FY,6),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),woodC,{class="WedgePart"}) end
   for _,tp in ipairs({{-260,z0-6},{-240,z0-6}}) do
    cyl(cm,"TerraceTable",3.4,0.3,Vector3.new(tp[1],FY+2.4,tp[2]),Color3.new(1,1,1)) cyl(cm,"TerraceTableLeg",0.4,2.4,Vector3.new(tp[1],FY+1.2,tp[2]),dark)

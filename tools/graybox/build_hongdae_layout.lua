@@ -1604,7 +1604,8 @@ do
 		local near = false
 		for _, cz in ipairs(CROSS) do if math.abs(zz - cz) < 14 then near = true end end
 		local onBench = (zz - (z0 + 28)) % 60 < 8 or (zz - (z0 + 28)) % 60 > 58
-		if not near and not onBench then streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
+		local atCafe = zz > 8 and zz < 114 -- the beach cafe front (user 2026-10-24: no lamp at its door)
+		if not near and not onBench and not atCafe then streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
 	end
 	for zz = z0 + 28, z1, 60 do
 		box("BenchBase", -197.5, CURB, zz, -195.5, CURB + 1.6, zz + 6, Color3.fromRGB(110, 110, 115))
@@ -3117,7 +3118,10 @@ do
 	box("Cladding", 48, 0, -260.2 + CDZ, 171.2, TOPY, -260 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("Cladding", 171, 0, -260.2 + CDZ, 171.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("Cladding", 48, 0, -96 + CDZ, 171.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
-	box("CapBand", 47.3, TOPY - 0.8, Z0 - 2, 48, TOPY + 0.4, Z1 + 1, BLACK2, { parent = K, material = Enum.Material.Metal })
+	box("CapBand", 47.3, TOPY - 0.8, Z0, 48, TOPY + 0.4, Z1 + 1, BLACK2, { parent = K, material = Enum.Material.Metal })
+	-- a clean black end column where the front meets the shop building to the
+	-- north: it covers the ends of the sign band, louvres and windows (user 2026-10-24)
+	box("ClubEndColumn", 46.2, 0, Z0, 48, TOPY + 0.4, Z0 + 0.9, BLACK, { parent = K, material = Enum.Material.Metal })
 	-- ground floor: gold strips, gold portal around the door
 	-- (the gold strips along the ground floor are gone: the louvres come down
 	-- to their height instead, user 2026-10-24)
@@ -4767,10 +4771,14 @@ do
 		end
 	end
 	-- roof: slab, parapet on the street faces, steel railing, stair house
-	box("Roof", W0, U1, N0, W1, U1 + 0.5, S0 - CH, Color3.fromRGB(150, 150, 150), opt({ material = Enum.Material.Concrete }))
-	box("Roof", W0 + CH, U1, S0 - CH, W1, U1 + 0.5, S0, Color3.fromRGB(150, 150, 150), opt({ material = Enum.Material.Concrete }))
-	cutPart("Roof", cutLen, U1, U1 + 0.5, CH / math.sqrt(2) * 2, -CH / math.sqrt(2), Color3.fromRGB(150, 150, 150), opt({ material = Enum.Material.Concrete }))
+	-- (the roof slab stops 0.05 inside the parapets' outer faces: they flickered, user 2026-10-24)
+	box("Roof", W0 + 0.05, U1, N0 + 0.05, W1, U1 + 0.5, S0 - CH, Color3.fromRGB(150, 150, 150), opt({ material = Enum.Material.Concrete }))
+	box("Roof", W0 + CH, U1, S0 - CH, W1, U1 + 0.5, S0 - 0.05, Color3.fromRGB(150, 150, 150), opt({ material = Enum.Material.Concrete }))
+	cutPart("Roof", cutLen, U1, U1 + 0.5, CH / math.sqrt(2) * 2, -CH / math.sqrt(2) - 0.05, Color3.fromRGB(150, 150, 150), opt({ material = Enum.Material.Concrete }))
 	box("Parapet", W0, U1, N0, W0 + 0.8, U1 + 2.6, S0 - CH, WHITE_WALL, o)
+	-- the north side (the gap to the club) gets the same white brick, a parapet and the railing (user 2026-10-24)
+	box("UpperN", W0 - 0.05, 0, N0 - 0.6, W1, U1, N0, BRICK, opt({ material = Enum.Material.Brick }))
+	box("Parapet", W0 + 0.8, U1, N0, W1, U1 + 2.6, N0 + 0.8, WHITE_WALL, o)
 	box("Parapet", W0 + CH, U1, S0 - 0.8, W1, U1 + 2.6, S0, WHITE_WALL, o)
 	cutPart("Parapet", cutLen, U1, U1 + 2.6, 0.8, -0.4, WHITE_WALL)
 	local function rail(a: Vector3, b: Vector3)
@@ -4783,6 +4791,7 @@ do
 			part("RailPost", Vector3.new(0.15, 3, 0.15), CFrame.new(p.X, y + 1.5, p.Z), Color3.fromRGB(70, 72, 76), opt({ material = Enum.Material.Metal }))
 		end
 	end
+	rail(Vector3.new(W1 - 0.5, 0, N0 + 0.4), Vector3.new(W0 + 0.4, 0, N0 + 0.4))
 	rail(Vector3.new(W0 + 0.4, 0, N0 + 0.5), P1 + Vector3.new(0.4, 0, 0))
 	rail(P1 + Vector3.new(0.4, 0, 0), P2 + Vector3.new(0, 0, -0.4))
 	rail(P2 + Vector3.new(0, 0, -0.4), Vector3.new(W1 - 0.5, 0, S0 - 0.4))

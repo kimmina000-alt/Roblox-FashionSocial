@@ -800,3 +800,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-24/pocket_park_after.jpg)
 ![](images/2026-10-24/club_louvres_after.jpg)
+
+### 추가 (D-178) — 클럽 끝 정리, 오후네컷 북쪽 벽·난간, 해변 카페
+- 클럽 외관 북쪽 끝에 검은 마감 기둥을 세워 간판·루버·창 끝을 가리고, 위 띠가 옆 건물로 튀어나가지 않게 했습니다.
+- 오후네컷: 클럽 쪽(북쪽) 벽에 흰 벽돌을 붙이고, 옥상 북쪽에도 난간벽과 철 난간을 세웠습니다. 옥상 바닥을 난간벽 바깥면에서 0.05 안으로 넣어 번쩍임을 없앴습니다.
+- 해변 카페(`build_main_social_graybox.lua` 04 구역): 층고 30 → 38, 1층 위 높이 13 → 17(2층 바닥), 2층 높이 약 20. 계단은 높이에 맞춰 늘렸습니다. 입구 경사로 대신 건물 폭 전체에 인도까지 이어지는 입구 데크를 깔고, 남쪽 테라스도 인도까지 늘렸습니다. 메자닌 끝을 벽 안으로 넣어 외벽 번쩍임을 없앴고, 카페 앞 나무 계단은 데크 때문에 자동으로 끊깁니다. 입구 앞 가로등은 지웠습니다.
+
+![](images/2026-10-24/beach_cafe_front_after.jpg)
+![](images/2026-10-24/beach_cafe_inside_after.jpg)
+![](images/2026-10-24/ohu4cuts_north_after.jpg)
