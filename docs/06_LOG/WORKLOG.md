@@ -1157,3 +1157,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 추가 (D-215) — 해변 카페 입구 이동 시도 후 되돌림
 - 입구를 남쪽 끝으로 옮겼다가 사용자 요청으로 원래 위치(벽 가운데)로 되돌렸습니다. 간판·STAFF ONLY 문도 원래대로.
+
+### 추가 (D-216) — 해변 카페 테이크아웃 창 삭제, 상아색 대리석 바닥
+- 입구 옆 테이크아웃 창을 막아 벽만 남기고, 창틀·바깥 선반·컵·의자 3개·ORDER HERE 판·안쪽 컵 선반을 지웠습니다.
+- 1층·2층 바닥을 상아색 대리석으로 바꿨습니다(기본 대리석 재질).
+
+| 길 쪽 벽 | 바닥 |
+|---|---|
+| ![](images/2026-10-25/cafe_wall_plain.jpg) | ![](images/2026-10-25/cafe_floor_marble.jpg) |

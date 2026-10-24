@@ -705,11 +705,11 @@ local z=zone("04_Beach_Aquarium")
  -- (user 2026-10-24: higher storeys, 1F 16 clear under the mezzanine, 2F about 20)
  do local x0,x1,z0,z1=-296,-206,16,106 local FY=3 local H=38 local MY=FY+17 local mx=-234
   local cm=M(z,"BeachCafe",{},{})
-  local floorC=Color3.fromRGB(228,224,216) local white=Color3.fromRGB(246,245,242) local woodC=Color3.fromRGB(196,150,98)
+  local floorC=Color3.fromRGB(240,232,214) local white=Color3.fromRGB(246,245,242) local woodC=Color3.fromRGB(196,150,98) -- (floors: ivory marble, user 2026-10-25)
   local glass=Color3.fromRGB(200,228,238) local frameC=Color3.fromRGB(238,238,235) local dark=Color3.fromRGB(38,38,42)
   local sofaC=Color3.fromRGB(244,242,236)
   -- floor slab, base on the sand, piles in the sea
-  box(cm,"CafeFloor",x0,FY-1,z0,x1,FY,z1,floorC,{mat=Enum.Material.Slate})
+  box(cm,"CafeFloor",x0,FY-1,z0,x1,FY,z1,floorC,{mat=Enum.Material.Marble})
   box(cm,"CafeBase",-268,0,z0,x1,FY-1,z1,white)
   -- a white plinth round the outside below the walls, the same colour as the building (user 2026-10-24)
   box(cm,"CafePlinth",x1,0,z0,x1+0.05,FY,z1,white) box(cm,"CafePlinth",x0-0.05,FY-1,z0,x0,FY,z1,white)
@@ -733,8 +733,8 @@ local z=zone("04_Beach_Aquarium")
   box(cm,"Transom",x0-0.1,FY+H-1,z0,x0+0.5,FY+H,z1,frameC)
   -- the south part of the street wall has a walk-up coffee window (z 32..48, user photos 2026-10-24)
   local WZ0,WZ1,WY0,WY1=32,48,FY+3.6,FY+10
-  box(cm,"Wall_E_S",x1-0.6,FY,z0,x1,FY+H,WZ0,white) box(cm,"Wall_E_S",x1-0.6,FY,WZ1,x1,FY+H,56,white)
-  box(cm,"Wall_E_S",x1-0.6,FY,WZ0,x1,WY0,WZ1,white) box(cm,"Wall_E_S",x1-0.6,WY1,WZ0,x1,FY+H,WZ1,white)
+  -- (user 2026-10-25) the walk-up window is closed again: one plain wall south of the door
+  box(cm,"Wall_E_S",x1-0.6,FY,z0,x1,FY+H,56,white)
   box(cm,"Wall_E_N",x1-0.6,FY,66,x1,FY+H,z1,white)
   box(cm,"Wall_E_Top",x1-0.6,FY+10,56,x1,FY+H,66,white)
   box(cm,"Roof",x0-2,FY+H,z0-2,x1+2,FY+H+1.2,z1+2,white)
@@ -743,7 +743,7 @@ local z=zone("04_Beach_Aquarium")
   -- white round columns
   -- (no round columns inside: user 2026-10-24)
   -- MEZZANINE (east third) with a glass railing; stairs along the north wall
-  box(cm,"Mezzanine",mx,MY-1,z0+0.4,x1-0.6,MY,z1-0.4,floorC,{mat=Enum.Material.Slate}) -- inside the walls (its ends flickered on the outer faces)
+  box(cm,"Mezzanine",mx,MY-1,z0+0.4,x1-0.6,MY,z1-0.4,floorC,{mat=Enum.Material.Marble}) -- inside the walls (its ends flickered on the outer faces)
   box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+3.4,95.6,glass,{t=0.7,mat=Enum.Material.Glass})
   box(cm,"MezzHandrail",mx-0.4,MY+3.4,z0,mx+0.1,MY+3.7,95.9,frameC) -- runs to the stair rail's line
   local NS=MY-FY -- one step per stud of height, 1.6 deep
@@ -945,43 +945,7 @@ local z=zone("04_Beach_Aquarium")
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Brightness=2 g.Parent=sign
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Michroma l.TextColor3=Color3.fromRGB(255,225,170) l.Text="OHU CAFE · SUNSET" l.Parent=g end
   label(cm,"OHU CAFE · Sunset (오션뷰)",Vector3.new(-250,FY+H+6,61),true)
-  -- WALK-UP COFFEE WINDOW beside the door (user photos 2026-10-24,
-  -- docs/04_ART/references/cafe_walkup_window_*.jpg): a wooden window frame,
-  -- a wooden counter shelf on brackets, three wooden bar stools on the deck,
-  -- black wall lamps either side, COFFEE letters above, a flowering vine over
-  -- the top of the wall, potted cactus and a potted tree, an ORDER HERE board
-  do
-   local WOOD2=Color3.fromRGB(150,96,56) local BLACKL=Color3.fromRGB(32,32,34)
-   local wz,wy=(WZ0+WZ1)/2,(WY0+WY1)/2
-   -- frame (4 sides) standing 0.3 proud of the wall
-   box(cm,"CoffeeWindowFrame",x1-0.7,WY0-0.4,WZ0-0.5,x1+0.3,WY0,WZ1+0.5,frameC)
-   box(cm,"CoffeeWindowFrame",x1-0.7,WY1,WZ0-0.5,x1+0.3,WY1+0.5,WZ1+0.5,frameC)
-   box(cm,"CoffeeWindowFrame",x1-0.7,WY0,WZ0-0.5,x1+0.3,WY1,WZ0,frameC)
-   box(cm,"CoffeeWindowFrame",x1-0.7,WY0,WZ1,x1+0.3,WY1,WZ1+0.5,frameC)
-   -- counter shelf outside with two brackets
-   box(cm,"CoffeeCounter",x1+0.3,WY0-0.4,WZ0-1,x1+2.1,WY0-0.05,WZ1+1,WOOD2,{mat=Enum.Material.Wood})
-   for _,bz in ipairs({WZ0+1.5,WZ1-1.5}) do box(cm,"CoffeeBracket",x1,WY0-1.4,bz-0.25,x1+1.2,WY0-0.4,bz+0.25,WOOD2) end
-   -- on the counter: cups and a small plant
-   for k,cz in ipairs({WZ0+2,WZ0+3.2,WZ1-3}) do cyl(cm,"CoffeeCup",0.6,0.8,Vector3.new(x1+1,WY0+0.35,cz),k==3 and Color3.fromRGB(70,140,80) or Color3.new(1,1,1),{nocol=true}) end
-   -- (no pendant lamps over the counter, user 2026-10-24)
-   -- cup shelf on the wall above the window, inside (user 2026-10-24)
-   box(cm,"CoffeeShelf",x1-1.8,WY1+1.2,WZ0,x1-0.6,WY1+1.4,WZ1,WOOD2)
-   for k=0,6 do box(cm,"ShelfJar",x1-1.5,WY1+1.4,WZ0+1+k*2.2,x1-0.9,WY1+2.4,WZ0+1.8+k*2.2,Color3.fromRGB(235,230,220),{nocol=true}) end
-   -- ORDER HERE board hanging in the window
-   local ob=box(cm,"OrderHereBoard",x1-0.3,WY1-2.4,wz+2,x1-0.2,WY1-0.8,wz+6.5,Color3.fromRGB(176,110,62),{nocol=true})
-   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=50 g.Parent=ob
-    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.SpecialElite l.TextColor3=Color3.fromRGB(40,26,16) l.Text="ORDER HERE" l.Parent=g end
-   for _,dz in ipairs({2.6,5.9}) do box(cm,"OrderHereString",x1-0.27,WY1-0.8,wz+dz-0.03,x1-0.23,WY1,wz+dz+0.03,Color3.fromRGB(200,180,140),{ghost=true}) end
-   -- (COFFEE letters and the black wall lamps removed, user 2026-10-24)
-   -- three wooden bar stools on the deck facing the window
-   for k=0,2 do local sz=wz-5+k*5
-    local pos=Vector3.new(x1+3.6,FY+2.5,sz) -- (on the deck, 0.6 under the cafe floor)
-    seat(cm,"CoffeeStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.35,1.8),WOOD2)
-    for _,o in ipairs({{-0.6,-0.6},{0.6,-0.6},{-0.6,0.6},{0.6,0.6}}) do
-     P(cm,"StoolLeg",Vector3.new(0.18,3,0.18),CFrame.new(x1+3.6+o[1]*0.9,FY+0.9,sz+o[2]*0.9)*CFrame.Angles(o[2]*0.08,0,-o[1]*0.08),WOOD2,{nocol=true}) end
-    box(cm,"StoolRing",x1+2.9,FY+0.4,sz-0.05,x1+4.3,FY+0.5,sz+0.05,Color3.fromRGB(180,180,185),{nocol=true}) end
-   -- (the potted cactus and tree removed, user 2026-10-24)
-  end
+  -- (no walk-up coffee window, its counter shelf, stools, ORDER HERE board or cup shelf: user 2026-10-25)
  end
  -- (the sunset pier and its photo spot are gone, user 2026-10-24)
  -- (pier moved north of the cafe deck, its floating label removed: user 2026-10-24)
