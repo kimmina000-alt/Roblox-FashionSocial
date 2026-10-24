@@ -354,6 +354,43 @@ local function addSeatPrompt(seat: Instance)
 	end)
 end
 
+-- Seats tagged "TouchSeat" have no prompt: walking onto them sits you down
+-- (pocket park tiers, user 2026-10-24). The seat itself is sunk into the
+-- tread so the hips rest on the wood, out of reach of the feet, so an
+-- invisible zone over it does the touching. After standing up, the same
+-- player is left alone for a moment so a jump off is not caught again.
+local lastStood: { [Humanoid]: number } = {}
+local function addTouchSeat(seat: Instance)
+	if not seat:IsA("Seat") or seat:FindFirstChild("SitZone") then return end
+	local zone = Instance.new("Part")
+	zone.Name = "SitZone"
+	zone.Anchored = true
+	zone.CanCollide = false
+	zone.CanQuery = false
+	zone.Transparency = 1
+	zone.Size = Vector3.new(seat.Size.X, 1.6, seat.Size.Z)
+	zone.CFrame = seat.CFrame * CFrame.new(0, seat.Size.Y / 2 + 0.8, 0)
+	zone.Parent = seat
+	zone.Touched:Connect(function(hit)
+		local character = hit.Parent
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if not humanoid or humanoid.SeatPart or seat.Occupant or humanoid.Health <= 0 then return end
+		if character:GetAttribute("CafeJob") then return end
+		if os.clock() - (lastStood[humanoid] or 0) < 1.5 then return end
+		local player = Players:GetPlayerFromCharacter(character)
+		if player then stopDance(player) end
+		seat:Sit(humanoid)
+	end)
+end
+local function watchStanding(humanoid: Humanoid)
+	humanoid.Seated:Connect(function(active)
+		if not active then lastStood[humanoid] = os.clock() end
+	end)
+	humanoid.AncestryChanged:Connect(function(_, parent)
+		if parent == nil then lastStood[humanoid] = nil end
+	end)
+end
+
 -- Used by PhotoBoothService: the pose stops when the shoot ends.
 ClubService.StopDance = stopDance
 
@@ -363,9 +400,15 @@ function ClubService.Start()
 	danceRemote.OnServerEvent:Connect(onDance)
 	local function onPlayer(player: Player)
 		-- A new character has no dance: followers rest until the leader dances again.
-		player.CharacterAdded:Connect(function()
+		player.CharacterAdded:Connect(function(character)
 			task.defer(syncFollowers, player)
+			local humanoid = character:WaitForChild("Humanoid", 10)
+			if humanoid and humanoid:IsA("Humanoid") then watchStanding(humanoid) end
 		end)
+		if player.Character then
+			local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+			if humanoid then watchStanding(humanoid) end
+		end
 	end
 	Players.PlayerAdded:Connect(onPlayer)
 	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
@@ -390,6 +433,10 @@ function ClubService.Start()
 		addSeatPrompt(seat)
 	end
 	CollectionService:GetInstanceAddedSignal("PromptSeat"):Connect(addSeatPrompt)
+	for _, seat in ipairs(CollectionService:GetTagged("TouchSeat")) do
+		addTouchSeat(seat)
+	end
+	CollectionService:GetInstanceAddedSignal("TouchSeat"):Connect(addTouchSeat)
 	local musicRemote = remotes:WaitForChild("Music") :: RemoteFunction
 	musicRemote.OnServerInvoke = function(player, action, payload)
 		return onMusic(player, action, payload)
