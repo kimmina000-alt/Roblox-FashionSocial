@@ -709,10 +709,13 @@ local z=zone("04_Beach_Aquarium")
   local sofaC=Color3.fromRGB(244,242,236)
   -- floor slab, base on the sand, piles in the sea
   box(cm,"CafeFloor",x0,FY-1,z0,x1,FY,z1,floorC,{mat=Enum.Material.Slate})
-  box(cm,"CafeBase",-268,0,z0,x1,FY-1,z1,Color3.fromRGB(205,200,190))
+  box(cm,"CafeBase",-268,0,z0,x1,FY-1,z1,white)
+  -- a white plinth round the outside below the walls, the same colour as the building (user 2026-10-24)
+  box(cm,"CafePlinth",x1,0,z0,x1+0.05,FY,z1,white) box(cm,"CafePlinth",x0-0.05,FY-1,z0,x0,FY,z1,white)
+  box(cm,"CafePlinth",x0,0,z0-0.05,x1+0.05,FY,z0,white) box(cm,"CafePlinth",x0,0,z1,x1+0.05,FY,z1+0.05,white)
   for px=x0+4,-272,12 do for pz=z0+4,z1-4,15 do cyl(cm,"Pile",1.6,22,Vector3.new(px,FY-12,pz),Color3.fromRGB(180,175,168)) end end
   -- entrance deck at floor level the whole width of the front, out to the promenade (user 2026-10-24)
-  box(cm,"EntranceDeck",x1,0,z0,-198,FY,z1,Color3.fromRGB(120,88,62),{mat=Enum.Material.WoodPlanks}) -- the same wood as the decks and steps (user 2026-10-24)
+  box(cm,"EntranceDeck",x1,0,z0,-198,FY-0.6,z1,Color3.fromRGB(120,88,62),{mat=Enum.Material.WoodPlanks}) -- the same wood as the decks and steps (user 2026-10-24)
   -- glass: west wall full, north/south glass on the west part, white walls east
   box(cm,"Glass_W",x0,FY,z0,x0+0.4,FY+H,z1,glass,{t=0.82,mat=Enum.Material.Glass})
   -- mullions about every 12, spaced evenly; one square post at each glass
@@ -936,11 +939,7 @@ local z=zone("04_Beach_Aquarium")
     box(cm,"BeachStep",xa,sandY,z1+D,xb,top(k),ZN,wood,wo) end
    box(cm,"BeachStepEdge",XR,sandY,ZS,-198,FY+0.1,z0,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
    box(cm,"BeachStepEdge",XR,sandY,z1,-198,FY+0.1,ZN,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
-  end  local DY=FY-0.6 -- the deck level
-  for _,tp in ipairs({{-260,z0-6},{-240,z0-6}}) do
-   cyl(cm,"TerraceTable",3.4,0.3,Vector3.new(tp[1],DY+2.4,tp[2]),Color3.new(1,1,1)) cyl(cm,"TerraceTableLeg",0.4,2.4,Vector3.new(tp[1],DY+1.2,tp[2]),dark)
-   parasol(cm,Vector3.new(tp[1],DY,tp[2]),true,stripeSets[1])
-   for _,dz in ipairs({-2.6,2.6}) do local pos=Vector3.new(tp[1]+dz,DY+1,tp[2]) seat(cm,"TerraceChair",CFrame.lookAt(pos,Vector3.new(-320,DY+1,tp[2])),Vector3.new(1.8,0.3,1.8),Color3.new(1,1,1)) end end
+  end  -- (no parasols or tables on the deck, user 2026-10-24)
   local sign=box(cm,"CafeSign",x1+0.05,FY+11,51,x1+0.4,FY+15,73,dark) -- down over the door (user 2026-10-24)
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Brightness=2 g.Parent=sign
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Michroma l.TextColor3=Color3.fromRGB(255,225,170) l.Text="OHU CAFE · SUNSET" l.Parent=g end
@@ -975,16 +974,15 @@ local z=zone("04_Beach_Aquarium")
    -- (COFFEE letters and the black wall lamps removed, user 2026-10-24)
    -- three wooden bar stools on the deck facing the window
    for k=0,2 do local sz=wz-5+k*5
-    local pos=Vector3.new(x1+3.6,FY+3.1,sz)
+    local pos=Vector3.new(x1+3.6,FY+2.5,sz) -- (on the deck, 0.6 under the cafe floor)
     seat(cm,"CoffeeStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.35,1.8),WOOD2)
     for _,o in ipairs({{-0.6,-0.6},{0.6,-0.6},{-0.6,0.6},{0.6,0.6}}) do
-     P(cm,"StoolLeg",Vector3.new(0.18,3,0.18),CFrame.new(x1+3.6+o[1]*0.9,FY+1.5,sz+o[2]*0.9)*CFrame.Angles(o[2]*0.08,0,-o[1]*0.08),WOOD2,{nocol=true}) end
-    box(cm,"StoolRing",x1+2.9,FY+1,sz-0.05,x1+4.3,FY+1.1,sz+0.05,Color3.fromRGB(180,180,185),{nocol=true}) end
+     P(cm,"StoolLeg",Vector3.new(0.18,3,0.18),CFrame.new(x1+3.6+o[1]*0.9,FY+0.9,sz+o[2]*0.9)*CFrame.Angles(o[2]*0.08,0,-o[1]*0.08),WOOD2,{nocol=true}) end
+    box(cm,"StoolRing",x1+2.9,FY+0.4,sz-0.05,x1+4.3,FY+0.5,sz+0.05,Color3.fromRGB(180,180,185),{nocol=true}) end
    -- (the potted cactus and tree removed, user 2026-10-24)
   end
  end
- S(z,"Part","SunsetPier",{80,1,12},{-308,1,136,1,0,0,0,1,0,0,0,1},{160,120,80},"SmoothPlastic",0,0,nil,{},{})
- S(z,"Part","PhotoSpot",{0.6,8,8},{-343,1.8,136,0,-1,0,1,0,0,0,0,1},{255,159,28},"SmoothPlastic",0,0,"Cylinder",{},{})
+ -- (the sunset pier and its photo spot are gone, user 2026-10-24)
  -- (pier moved north of the cafe deck, its floating label removed: user 2026-10-24)
  S(z,"Part","DomePier",{60,1,10},{-296,1,-150,1,0,0,0,1,0,0,0,1},{160,120,80},"SmoothPlastic",0,0,nil,{},{})
  S(z,"Part","DreamAquarium_Dome",{90,90,90},{-368,0,-150,1,0,0,0,1,0,0,0,1},{190,230,245},"SmoothPlastic",0.55,1,"Ball",{},{})

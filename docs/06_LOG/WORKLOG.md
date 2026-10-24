@@ -905,3 +905,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 카페 입구 앞 바닥도 같은 나무 데크로 바꿨습니다.
 
 ![](images/2026-10-24/cafe_platform_after.jpg)
+
+- 카페 입구 데크를 단상과 같은 높이로 내려 단차를 없앴고(바 스툴도 같이 내림), 건물 아래 회색 띠를 흰 받침으로 덮어 건물 색으로 통일했습니다. 데크 위 파라솔·테이블과 석양 피어(다리, 포토 스팟, 포토 프레임)를 지웠습니다.
+
+![](images/2026-10-24/cafe_deck_level_plinth_after.jpg)
