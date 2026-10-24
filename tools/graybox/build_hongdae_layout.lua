@@ -1309,6 +1309,7 @@ do
 		end
 		for zs = STEP_N, z1 - 1, 20 do
 			local ze = math.min(zs + 20, z1)
+			if zs < -4.2 and ze > -4.2 then ze = -4.2 end -- the beach cafe's corner steps take over from here (graybox 04)
 			local free = true
 			local probe = CFrame.new(-201, (sandTop + CURB) / 2 + 0.2, (zs + ze) / 2)
 			for _, p in ipairs(workspace:GetPartBoundsInBox(probe, Vector3.new(6, CURB - sandTop - 0.6, ze - zs - 1), params)) do
@@ -4139,8 +4140,11 @@ do
 		end
 	end
 	-- sea surface just under the terrain water top (-3): bands from the shore out
-	local SEA_Y = -3.4
+	local SEA_Y = -7
 	-- many narrow bands, so no colour step shows as a line on the water
+	-- (user 2026-10-24: the waves were gone) the colour parts sit 4 under the
+	-- water top, so near the player the terrain water (and its waves) lies over
+	-- them; where the terrain water has not streamed in they carry the sea on
 	local EDGES = { -270 }
 	for k = 1, 26 do table.insert(EDGES, -270 - 4130 * (k / 26) ^ 1.8) end
 	local NEAR, FAR = Color3.fromRGB(70, 184, 198), Color3.fromRGB(24, 86, 142)

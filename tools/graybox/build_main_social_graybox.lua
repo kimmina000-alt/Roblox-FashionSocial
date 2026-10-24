@@ -919,23 +919,31 @@ local z=zone("04_Beach_Aquarium")
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=WARM pl.Parent=s end
   local _=paperLamp -- (no floor lamps outside the pool any more, user 2026-10-24)
   -- sunset terrace outside on the south side
-  -- the terrace is the top tread of the wooden steps below it (user 2026-10-24):
-  -- the same dark planks, no granite edge between them
-  box(cm,"Terrace",x0,0,z0-12.7,-198,FY,z0,Color3.fromRGB(120,88,62),{mat=Enum.Material.WoodPlanks})
-  -- the promenade's wooden steps turn the corner at the cafe and run west along
-  -- the terrace's south edge to the sea (user 2026-10-24): granite edge, three
-  -- wooden tiers down to the sand, like the promenade's
-  do local tz=z0-12 local sandY=0.6 local wood=Color3.fromRGB(120,88,62)
-   for k=1,3 do
-    local za,zb=tz-0.7-2.5*k,tz-0.7-2.5*(k-1)
-    box(cm,"BeachStep",x0,sandY,za,-206.2+2.5*(k-1)*0,FY-0.6*k,zb,wood,{mat=Enum.Material.WoodPlanks}) end
-   -- the corner: the promenade steps end where these begin
-   box(cm,"BeachStep",-206.2,sandY,tz-8.2,-198.7,FY-0.6,tz-0.7,wood,{mat=Enum.Material.WoodPlanks})
+  -- DECK + STEPS on the south side (user 2026-10-24): the deck is level with
+  -- the steps' top tread (one wooden plane), the steps run along it only as far
+  -- as the beach goes (x -268) and turn the corner into the promenade's steps;
+  -- the deck goes on over the sea to the cafe's end on piles
+  do local tz=z0-12 local sandY=0.6 local wood=Color3.fromRGB(120,88,62) local wo={mat=Enum.Material.WoodPlanks}
+   local T1=FY-0.6 local BEACH_X=-268 local XR=-198.7 local ZC=-4.2 -- right edge (promenade granite), where the promenade steps hand over
+   local function tierZ(k) return tz-0.7-2.5*k, tz-0.7-2.5*(k-1) end -- z range of tier k along the deck
+   local function tierX(k) return XR-2.5*k, XR-2.5*(k-1) end -- x range of tier k along the promenade
+   -- deck (= tier 1 along the deck)
+   box(cm,"Terrace",x0,0,tz-3.2,XR,T1,z0,wood,wo)
+   -- piles under the part over the sea
+   for px=x0+3,BEACH_X-3,8 do for _,pz in ipairs({tz-1.6,z0-2}) do cyl(cm,"Pile",1.2,FY+10,Vector3.new(px,T1-(FY+10)/2,pz),Color3.fromRGB(110,82,58)) end end
+   -- tiers 2 and 3 along the deck (beach part only), meeting the promenade's at the corner
+   for k=2,3 do local za,zb=tierZ(k) local _,xr=tierX(k-1)
+    box(cm,"BeachStep",BEACH_X,sandY,za,XR-2.5*(k-1),FY-0.6*k,zb,wood,wo) end
+   -- the promenade's tiers from ZC up to where the deck's tiers take over
+   for k=1,3 do local xa,xb=tierX(k) local zEnd=tierZ(k)
+    if zEnd>ZC then box(cm,"BeachStep",xa,sandY,ZC,xb,FY-0.6*k,zEnd,wood,wo) end end
+   box(cm,"BeachStepEdge",XR,sandY,ZC,-198,FY+0.1,z0,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
   end
+  local DY=FY-0.6 -- the deck level
   for _,tp in ipairs({{-260,z0-6},{-240,z0-6}}) do
-   cyl(cm,"TerraceTable",3.4,0.3,Vector3.new(tp[1],FY+2.4,tp[2]),Color3.new(1,1,1)) cyl(cm,"TerraceTableLeg",0.4,2.4,Vector3.new(tp[1],FY+1.2,tp[2]),dark)
-   parasol(cm,Vector3.new(tp[1],FY,tp[2]),true,stripeSets[1])
-   for _,dz in ipairs({-2.6,2.6}) do local pos=Vector3.new(tp[1]+dz,FY+1,tp[2]) seat(cm,"TerraceChair",CFrame.lookAt(pos,Vector3.new(-320,FY+1,tp[2])),Vector3.new(1.8,0.3,1.8),Color3.new(1,1,1)) end end
+   cyl(cm,"TerraceTable",3.4,0.3,Vector3.new(tp[1],DY+2.4,tp[2]),Color3.new(1,1,1)) cyl(cm,"TerraceTableLeg",0.4,2.4,Vector3.new(tp[1],DY+1.2,tp[2]),dark)
+   parasol(cm,Vector3.new(tp[1],DY,tp[2]),true,stripeSets[1])
+   for _,dz in ipairs({-2.6,2.6}) do local pos=Vector3.new(tp[1]+dz,DY+1,tp[2]) seat(cm,"TerraceChair",CFrame.lookAt(pos,Vector3.new(-320,DY+1,tp[2])),Vector3.new(1.8,0.3,1.8),Color3.new(1,1,1)) end end
   local sign=box(cm,"CafeSign",x1+0.05,FY+11,51,x1+0.4,FY+15,73,dark) -- down over the door (user 2026-10-24)
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Brightness=2 g.Parent=sign
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Michroma l.TextColor3=Color3.fromRGB(255,225,170) l.Text="OHU CAFE · SUNSET" l.Parent=g end
