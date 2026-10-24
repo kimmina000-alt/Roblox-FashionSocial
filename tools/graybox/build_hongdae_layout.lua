@@ -3922,7 +3922,7 @@ do -- sunset photo frame at the end of the pier, facing the sea (west)
 	part("SunsetFramePostN", Vector3.new(1, 10, 1), CFrame.new(px, 6 - BEACH_DROP, pz + 5), frameCol, { material = Enum.Material.Neon })
 	part("SunsetFramePostS", Vector3.new(1, 10, 1), CFrame.new(px, 6 - BEACH_DROP, pz - 5), frameCol, { material = Enum.Material.Neon })
 	local top = part("SunsetFrameTop", Vector3.new(1, 1, 11), CFrame.new(px, 11.5 - BEACH_DROP, pz), frameCol, { material = Enum.Material.Neon })
-	label(top, "석양 포토 스팟 (서쪽 바다)", frameCol, 4, 0.8)
+	local _ = top -- (its floating label is off: it showed through the beach cafe, user 2026-10-24)
 end
 
 ------------------------------------------------------- play area boundary + backdrop (D-109)

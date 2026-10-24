@@ -715,10 +715,15 @@ local z=zone("04_Beach_Aquarium")
   box(cm,"EntranceDeck",x1,0,z0,-198,FY,z1,floorC,{mat=Enum.Material.Slate})
   -- glass: west wall full, north/south glass on the west part, white walls east
   box(cm,"Glass_W",x0,FY,z0,x0+0.4,FY+H,z1,glass,{t=0.82,mat=Enum.Material.Glass})
-  for mz=z0,z1,6 do box(cm,"Mullion",x0-0.1,FY,mz-0.2,x0+0.5,FY+H,mz+0.2,frameC) end
+  -- mullions about every 12, spaced evenly; one square post at each glass
+  -- corner, flush with the floor edge (user 2026-10-24: two posts overlapped there)
+  local function evenly(a,b,step) local n=math.max(1,math.floor((b-a)/step+0.5)) local r={} for i=0,n do table.insert(r,a+(b-a)*i/n) end return r end
+  for _,mz in ipairs(evenly(z0,z1,12)) do
+   if mz==z0 or mz==z1 then local zz=mz==z0 and z0 or z1-0.6 box(cm,"Mullion",x0,FY,zz,x0+0.6,FY+H,zz+0.6,frameC)
+   else box(cm,"Mullion",x0,FY,mz-0.2,x0+0.5,FY+H,mz+0.2,frameC) end end
   for _,wz in ipairs({{z0,z0+0.4},{z1-0.4,z1}}) do
    box(cm,"Glass_Side",x0,FY,wz[1],mx,FY+H,wz[2],glass,{t=0.82,mat=Enum.Material.Glass})
-   for mxx=x0,mx,6 do box(cm,"Mullion",mxx-0.2,FY,wz[1]-0.1,mxx+0.2,FY+H,wz[2]+0.1,frameC) end
+   for _,mxx in ipairs(evenly(x0,mx,12)) do if mxx~=x0 then box(cm,"Mullion",mxx-0.2,FY,wz[1],mxx+0.2,FY+H,wz[2],frameC) end end
    box(cm,"Wall_Side",mx,FY,wz[1],x1,FY+H,wz[2],white)
   end
   box(cm,"Transom",x0-0.1,FY+H-1,z0,x0+0.5,FY+H,z1,frameC)
@@ -735,16 +740,19 @@ local z=zone("04_Beach_Aquarium")
   for _,c in ipairs({{-266,44},{-266,84},{-240,44},{-240,84}}) do cyl(cm,"Column",3,H,Vector3.new(c[1],FY+H/2,c[2]),white) end
   -- MEZZANINE (east third) with a glass railing; stairs along the north wall
   box(cm,"Mezzanine",mx,MY-1,z0+0.4,x1-0.6,MY,z1-0.4,floorC,{mat=Enum.Material.Slate}) -- inside the walls (its ends flickered on the outer faces)
-  box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+3.4,95,glass,{t=0.7,mat=Enum.Material.Glass})
-  box(cm,"MezzHandrail",mx-0.4,MY+3.4,z0,mx+0.1,MY+3.7,95,frameC)
+  box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+3.4,95.6,glass,{t=0.7,mat=Enum.Material.Glass})
+  box(cm,"MezzHandrail",mx-0.4,MY+3.4,z0,mx+0.1,MY+3.7,95.9,frameC) -- runs to the stair rail's line
   local NS=MY-FY -- one step per stud of height, 1.6 deep
   for k=1,NS do box(cm,"Stair",-262+(k-1)*1.6,FY,96,-262+k*1.6,FY+k,104,woodC) end
   do local run=NS*1.6 local c=Vector3.new(-262+run/2,FY+NS/2,100) P(cm,"StairRamp",Vector3.new(8,NS,run),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),woodC,{class="WedgePart",t=1}) end
   -- glass rail along the stair slope, 3.4 above the steps like the mezzanine rail (user 2026-10-24)
-  do local a=Vector3.new(-262,FY+1.7,95.75) local b=Vector3.new(-262+NS*1.6,MY+1.7,95.75) local d=(b-a).Unit
+  do local a=Vector3.new(-261.2,FY+1.7+0.5,95.75) local b=Vector3.new(mx-0.4,MY+1.7,95.75) -- from the first step to the mezzanine raillocal d=(b-a).Unit
    P(cm,"StairRail",Vector3.new(0.3,3.4,(b-a).Magnitude),CFrame.lookAt((a+b)/2,b),glass,{t=0.7,mat=Enum.Material.Glass,nocol=true})
    local ha,hb=a+Vector3.new(0,1.85,0),b+Vector3.new(0,1.85,0)
-   P(cm,"StairHandrail",Vector3.new(0.5,0.3,(hb-ha).Magnitude),CFrame.lookAt((ha+hb)/2,hb),frameC,{nocol=true}) end
+   P(cm,"StairHandrail",Vector3.new(0.5,0.3,(hb-ha).Magnitude),CFrame.lookAt((ha+hb)/2,hb),frameC,{nocol=true})
+   -- square end posts: on the floor at the bottom, against the mezzanine rail at the top
+   box(cm,"StairPost",a.X-0.25,FY,95.5,a.X+0.25,ha.Y+0.15,96,frameC)
+   box(cm,"StairPost",mx-0.4,MY,95.5,mx+0.1,MY+3.7,96,frameC) end
   -- mezzanine window bar at the railing (view over the pool to the sea)
   box(cm,"MezzBar",mx+0.2,MY+3.2,z0+3,mx+1.8,MY+3.5,93,white)
   for sz=z0+5,91,5 do local pos=Vector3.new(mx+4,MY+2.3,sz)
@@ -793,11 +801,12 @@ local z=zone("04_Beach_Aquarium")
   -- underwater lights with a bubbling jet in a line down the middle, and black
   -- stone blocks at the near end (user photos 2026-10-24: a hotel-lobby water
   -- channel); WaterJetController bobs the jets and sends rings over the water
+  -- (user 2026-10-24) four amber lamp columns standing in the water in a row,
+  -- the same as the floor lamps; no jets or ripples
   for _,jz in ipairs({53,59,65,71}) do
-   local lamp=cyl(cm,"PoolLight",1.4,0.12,Vector3.new(-274,FY+0.16,jz),Color3.fromRGB(255,236,190),{mat=Enum.Material.Neon,ghost=true})
-   local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Right sl.Angle=70 sl.Range=14 sl.Brightness=3 sl.Color=Color3.fromRGB(255,222,170) sl.Parent=lamp
-   local jet=P(cm,"WaterJet",Vector3.new(1.3,0.9,1.3),CFrame.new(-274,FY+0.75,jz),Color3.fromRGB(255,245,225),{shape=Enum.PartType.Ball,mat=Enum.Material.Glass,t=0.35,ghost=true,tag="WaterJet"})
-   local _=jet
+   cyl(cm,"PoolLampBase",1.6,0.2,Vector3.new(-274,FY+0.1,jz),Color3.fromRGB(60,50,40),{ghost=true})
+   local s=cyl(cm,"PoolLamp",1.8,5,Vector3.new(-274,FY+0.2+2.5,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true})
+   local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=Color3.fromRGB(255,214,160) pl.Parent=s
   end
   -- (no black stone blocks: user 2026-10-24)
   label(cm,"물멍 풀",Vector3.new(-274,FY+5,62))
@@ -837,7 +846,7 @@ local z=zone("04_Beach_Aquarium")
   local CZ=(z0+z1)/2
   local panel=box(cm,"LightCeiling",x0+6,FY+H-1.5,CZ-7,x1-6,FY+H-1.3,CZ+7,Color3.fromRGB(255,240,215),{mat=Enum.Material.Neon,ghost=true,t=0.15})
   do local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Angle=80 sl.Range=40 sl.Brightness=1.6 sl.Color=WARM sl.Parent=panel end
-  local SPOTS={} for k=0,5 do local sx=x0+7+k*(x1-x0-14)/5 table.insert(SPOTS,{sx,CZ-21}) table.insert(SPOTS,{sx,CZ+21}) end
+  local SPOTS={} for k=0,5 do local sx=x0+7+k*(x1-x0-14)/5 table.insert(SPOTS,{sx,CZ-33}) table.insert(SPOTS,{sx,CZ+33}) end
   for _,lp in ipairs(SPOTS) do
    local l=P(cm,"CeilingLight",Vector3.new(1.4,0.3,1.4),CFrame.new(lp[1],FY+H-1.6,lp[2]),Color3.fromRGB(255,230,180),{mat=Enum.Material.Neon,ghost=true})
    local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Bottom sl.Angle=60 sl.Range=42 sl.Brightness=1.4 sl.Color=WARM sl.Parent=l end
@@ -880,8 +889,9 @@ local z=zone("04_Beach_Aquarium")
    for k,cz in ipairs({WZ0+2,WZ0+3.2,WZ1-3}) do cyl(cm,"CoffeeCup",0.6,0.8,Vector3.new(x1+1,WY0+0.35,cz),k==3 and Color3.fromRGB(70,140,80) or Color3.new(1,1,1),{nocol=true}) end
    -- warm inside: pendant lamps over the back counter and a lit back wall
    for _,pz in ipairs({36,44}) do
-    box(cm,"PendantCord",-209.05,WY1-0.5,pz-0.05,-208.95,MY-1,pz+0.05,BLACKL,{ghost=true})
-    local sh=P(cm,"PendantShade",Vector3.new(1.4,1,1.4),CFrame.new(-209,WY1-0.9,pz),Color3.fromRGB(255,214,150),{mat=Enum.Material.Neon,ghost=true})
+    -- over the middle of the space between the order counter and the back counter
+    box(cm,"PendantCord",-216.55,WY1-0.5,pz-0.05,-216.45,MY-1,pz+0.05,BLACKL,{ghost=true})
+    local sh=P(cm,"PendantShade",Vector3.new(1.4,1,1.4),CFrame.new(-216.5,WY1-0.9,pz),Color3.fromRGB(255,214,150),{mat=Enum.Material.Neon,ghost=true})
     local pl=Instance.new("PointLight") pl.Range=12 pl.Brightness=1.4 pl.Color=Color3.fromRGB(255,200,140) pl.Parent=sh end
    -- cup shelf on the wall above the window, inside (user 2026-10-24)
    box(cm,"CoffeeShelf",x1-1.8,WY1+1.2,WZ0,x1-0.6,WY1+1.4,WZ1,WOOD2)
@@ -891,17 +901,7 @@ local z=zone("04_Beach_Aquarium")
    do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=50 g.Parent=ob
     local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.SpecialElite l.TextColor3=Color3.fromRGB(40,26,16) l.Text="ORDER HERE" l.Parent=g end
    for _,dz in ipairs({2.6,5.9}) do box(cm,"OrderHereString",x1-0.27,WY1-0.8,wz+dz-0.03,x1-0.23,WY1,wz+dz+0.03,Color3.fromRGB(200,180,140),{ghost=true}) end
-   -- COFFEE letters above the window
-   local cs=box(cm,"CoffeeLetters",x1,WY1+1.4,wz-5,x1+0.15,WY1+3.4,wz+5,white,{t=1,nocol=true})
-   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=1 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=50 g.Parent=cs
-    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBlack l.TextColor3=Color3.fromRGB(28,28,30) l.Text="COFFEE" l.Parent=g end
-   -- black wall lamps either side, glowing down and up
-   for _,lz in ipairs({WZ0-2.5,WZ1+2.5}) do
-    box(cm,"WallLampArm",x1,wy+1.3,lz-0.15,x1+0.6,wy+1.6,lz+0.15,BLACKL)
-    local sh=cyl(cm,"WallLamp",0.9,1.4,Vector3.new(x1+0.8,wy+1.2,lz),BLACKL)
-    local glow=P(cm,"WallLampGlow",Vector3.new(0.7,0.1,0.7),CFrame.new(x1+0.8,wy+0.45,lz),Color3.fromRGB(255,220,160),{mat=Enum.Material.Neon,ghost=true})
-    local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Bottom sl.Angle=70 sl.Range=8 sl.Brightness=2 sl.Color=Color3.fromRGB(255,210,150) sl.Parent=glow
-    local _=sh end
+   -- (COFFEE letters and the black wall lamps removed, user 2026-10-24)
    -- three wooden bar stools on the deck facing the window
    for k=0,2 do local sz=wz-5+k*5
     local pos=Vector3.new(x1+3.6,FY+3.1,sz)
@@ -909,15 +909,7 @@ local z=zone("04_Beach_Aquarium")
     for _,o in ipairs({{-0.6,-0.6},{0.6,-0.6},{-0.6,0.6},{0.6,0.6}}) do
      P(cm,"StoolLeg",Vector3.new(0.18,3,0.18),CFrame.new(x1+3.6+o[1]*0.9,FY+1.5,sz+o[2]*0.9)*CFrame.Angles(o[2]*0.08,0,-o[1]*0.08),WOOD2,{nocol=true}) end
     box(cm,"StoolRing",x1+2.9,FY+1,sz-0.05,x1+4.3,FY+1.1,sz+0.05,Color3.fromRGB(180,180,185),{nocol=true}) end
-   local GREENS={Color3.fromRGB(58,98,52),Color3.fromRGB(74,118,60),Color3.fromRGB(48,86,46)} -- (the flowering vine is gone, user 2026-10-24)
-   -- pots: a big cactus by the south end, a small tree by the door
-   cyl(cm,"PlantPot",3.4,3,Vector3.new(x1+2.4,FY+1.5,z0+4),Color3.fromRGB(196,112,70),{mat=Enum.Material.Slate})
-   for k,c in ipairs({{0,0,7},{0.9,0.6,5},{-0.8,-0.5,4.4},{0.4,-0.9,3.2}}) do
-    cyl(cm,"Cactus",0.9,c[3],Vector3.new(x1+2.4+c[1],FY+3+c[3]/2,z0+4+c[2]),Color3.fromRGB(70,120,72),{mat=Enum.Material.Grass,nocol=true})
-    P(cm,"CactusTop",Vector3.new(0.9,0.9,0.9),CFrame.new(x1+2.4+c[1],FY+3+c[3],z0+4+c[2]),Color3.fromRGB(70,120,72),{shape=Enum.PartType.Ball,mat=Enum.Material.Grass,nocol=true}) end
-   cyl(cm,"PlantPot",2.4,2.2,Vector3.new(x1+2.2,FY+1.1,53.5),Color3.fromRGB(196,112,70),{mat=Enum.Material.Slate})
-   cyl(cm,"PlantTrunk",0.3,4,Vector3.new(x1+2.2,FY+4.2,53.5),Color3.fromRGB(110,80,55),{nocol=true})
-   for k=0,4 do P(cm,"PlantLeaves",Vector3.new(2.2,2.6,2.2),CFrame.new(x1+2.2+math.cos(k)*0.6,FY+6.2+k*0.7,53.5+math.sin(k)*0.6),GREENS[k%3+1],{shape=Enum.PartType.Ball,mat=Enum.Material.Grass,ghost=true}) end
+   -- (the potted cactus and tree removed, user 2026-10-24)
   end
  end
  S(z,"Part","SunsetPier",{80,1,12},{-308,1,122,1,0,0,0,1,0,0,0,1},{160,120,80},"SmoothPlastic",0,0,nil,{},{})

@@ -839,3 +839,15 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-24/cafe_front_v2_after.jpg)
 ![](images/2026-10-24/cafe_pool_terrain_water_after.jpg)
 ![](images/2026-10-24/cafe_ceiling_after.jpg)
+
+### 추가 (D-182) — 해변 카페 다듬기
+- 카운터 펜던트 조명을 주문 카운터와 뒤 카운터 사이 가운데 줄로 옮겼습니다.
+- 계단 유리 난간: 첫 계단부터 2층 난간까지 이어지고, 양 끝에 네모 기둥을 세워 모서리를 깔끔하게 했습니다. 2층 난간도 계단 난간 선까지 늘렸습니다.
+- 천장 작은 조명 두 줄을 바깥쪽(중심에서 ±33)으로 옮겼습니다.
+- 통창: 프레임을 약 12 간격으로 절반 줄이고 고르게 나눴습니다. 모서리에는 바닥 끝선에 맞춘 기둥 하나만 둡니다(바다 쪽, 남쪽·북쪽 통창 모두).
+- 물멍 풀: 수중 조명·분수·물결을 지우고, 테이블 옆 호박색 원통 조명 4개를 물속에 한 줄로 세웠습니다. WaterJetController 스크립트는 지웠습니다.
+- 외벽: COFFEE 글자, 검은 벽등 2개, 선인장 화분, 화분 나무, 떠 있던 '석양 포토 스팟' 이름표를 지웠습니다.
+
+![](images/2026-10-24/cafe_pool_lamps_after.jpg)
+![](images/2026-10-24/cafe_glass_corner_after.jpg)
+![](images/2026-10-24/cafe_stair_rail_after.jpg)
