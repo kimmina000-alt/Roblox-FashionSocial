@@ -54,6 +54,7 @@ local HOLES = {
 	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -32, 50, -26, 68 }, -- exits 2, 4 (come up southwards)
 	{ 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
+	{ -141, -192, -51, -83 }, -- the pocket park's sunken round plaza (user 2026-10-24)
 }
 -- 광화문 lawns planted as terrain grass (blades), x0, z0, x1, z1 (user 2026-10-23)
 -- the lawns are sunken beds: terrain heights snap to 4 studs, so terrain
@@ -3019,41 +3020,61 @@ do
 		return r
 	end
 	-- paving over the whole lot
-	box("ParkPaving", X0, 0, Z0, X1, 0.08, Z1, PAVE, o(Enum.Material.Slate))
+	-- the lot's paving, with the sunken plaza and the entrance stair cut out
+	-- (the ground has a hole under it, HOLES)
+	local paving = box("ParkPaving", X0, -8, Z0, X1, 0.08, Z1, PAVE, { parent = workspace, material = Enum.Material.Slate })
+	local cuts = {
+		part("Cut", Vector3.new(30, 88.2, 88.2), CFrame.new(-96, 0, -128) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }),
+		box("Cut", -104, -9, -190, -88, 2, -171, PAVE, { parent = workspace }),
+	}
+	local okP, cutP = pcall(function() return paving:SubtractAsync(cuts) end)
+	for _, c in ipairs(cuts) do c:Destroy() end
+	if okP and cutP then
+		cutP.Name = "ParkPaving"
+		cutP.UsePartColor = true
+		cutP.Anchored = true
+		cutP.Parent = P
+		paving:Destroy()
+	else
+		paving.Parent = P
+	end
 	-- a ring of darker pavers round the mound
-	-- the plaza is a smooth round hill (user 2026-10-24: smooth, not stepped):
-	-- a low granite-edged base 1.6 high, then a paved dome rising smoothly to
-	-- 4.2 in the middle (a mesh of wedge triangles on rings), steps up at the edge
-	local R, EDGE, RISE = 44, 1.6, 2.6
-	local function domeH(x, z)
+	-- the round plaza is sunk in three levels (user 2026-10-24): one step down at
+	-- each ring (r 44, 34, 20), 0.8 each, reached by a straight stair coming down
+	-- from the park gate on the axis
+	local LEVELS = { { 44, -0.8 }, { 34, -1.6 }, { 20, -2.4 } }
+	local function domeH(x, z) -- (the name stays: everything below sits at the level under it)
 		local d = math.sqrt((x - C.X) ^ 2 + (z - C.Z) ^ 2)
-		if d >= R then return 0 end
-		return EDGE + RISE * (1 - (d / R) ^ 2)
+		local h = 0
+		for _, l in ipairs(LEVELS) do if d < l[1] then h = l[2] end end
+		return h
 	end
-	do
-		local NR, NS, TH = 7, 28, 0.6
-		local function pt(r, a) -- on the slab's mid plane (its top is the dome surface)
-			local x, z = C.X + r * math.cos(a), C.Z + r * math.sin(a)
-			return Vector3.new(x, EDGE + RISE * (1 - (r / R) ^ 2) - TH / 2, z)
-		end
-		local so = o(Enum.Material.Slate)
-		for i = 1, NR do
-			local r0, r1 = R * ((i - 1) / NR) ^ 0.8, R * (i / NR) ^ 0.8
-			for j = 0, NS - 1 do
-				local a0, a1 = 2 * math.pi * j / NS, 2 * math.pi * (j + 1) / NS
-				local col = if (i + j) % 2 == 0 then PAVE else PAVE2
-				if i == 1 then
-					wedgeTri("ParkDome", pt(0, 0), pt(r1, a0), pt(r1, a1), TH, col, so)
-				else
-					wedgeTri("ParkDome", pt(r0, a0), pt(r1, a0), pt(r1, a1), TH, col, so)
-					wedgeTri("ParkDome", pt(r0, a0), pt(r1, a1), pt(r0, a1), TH, col, so)
-				end
+	for i, l in ipairs(LEVELS) do
+		local outer = part("ParkLevel", Vector3.new(l[2] + 8, l[1] * 2, l[1] * 2), CFrame.new(C.X, (l[2] - 8) / 2, C.Z) * CFrame.Angles(0, 0, math.rad(90)), if i % 2 == 0 then PAVE2 else PAVE, { parent = workspace, shape = Enum.PartType.Cylinder, material = Enum.Material.Slate })
+		local nxt = LEVELS[i + 1]
+		if nxt then
+			local hole = part("Cut", Vector3.new(30, nxt[1] * 2, nxt[1] * 2), CFrame.new(C.X, 0, C.Z) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder })
+			local okR, ring = pcall(function() return outer:SubtractAsync({ hole }) end)
+			hole:Destroy()
+			if okR and ring then
+				ring.Name = "ParkLevel"
+				ring.UsePartColor = true
+				ring.Anchored = true
+				ring.Parent = P
+				outer:Destroy()
+			else
+				outer.Parent = P
 			end
+		else
+			outer.Parent = P
 		end
-		-- the solid base and a granite coping round the rim
-		vcyl("ParkDomeBase", C, R * 2, EDGE - 0.05, Color3.fromRGB(196, 194, 188), o(Enum.Material.Granite))
 	end
-	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
+	-- the stair from the gate down to the first level (4 steps of 0.2)
+	for k = 1, 4 do
+		local za = -190 + (k - 1) * 4.5
+		local zb = if k == 4 then -168 else za + 4.5
+		box("ParkStair", -104, -8, za, -88, -0.2 * k, zb, STONE, o(Enum.Material.Limestone))
+	end	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
 	local function arc(name, c: Vector3, r0, r1, a0, a1, y0, y1, color, mat, n)
 		n = n or math.max(6, math.floor(math.abs(a1 - a0) / 8))
 		local rm, w = (r0 + r1) / 2, r1 - r0
@@ -3099,18 +3120,6 @@ do
 	end
 	-- south-east: an S-shaped deck walk from the mound out to the corner path
 	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
-	-- the granite coping round the hill's rim and four flights of steps up to it
-	arc("ParkDomeCoping", C, R - 0.6, R + 0.3, 0, 360, EDGE - 0.35, EDGE + 0.05, Color3.fromRGB(196, 194, 188), Enum.Material.Granite, 48)
-	for _, ad in ipairs({ 46, 120, 300 }) do -- (none on the west: the tree bed runs there)
-		local a = math.rad(ad)
-		local out = Vector3.new(math.cos(a), 0, math.sin(a))
-		for k = 1, 3 do
-			local rm = R + (k - 0.5) * 1.2
-			local h = EDGE - 0.4 * k
-			local p = Vector3.new(C.X, h / 2, C.Z) + out * rm
-			part("ParkDomeStep", Vector3.new(9, h, 1.2), CFrame.lookAt(p, p + out), STONE, o(Enum.Material.Limestone))
-		end
-	end
 	-- wicker chairs (round baskets) on the west
 	for _, cp in ipairs({ { -134, -132 }, { -128, -122 }, { -136, -114 }, { -124, -108 } }) do
 		local b = Vector3.new(cp[1], 0, cp[2])
@@ -3180,10 +3189,9 @@ do
 	end
 	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
 	for _, c in ipairs(P:GetChildren()) do
-		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name:match("^ParkDome")) then
+		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkLevel" or c.Name == "ParkStair") then
 			local h = domeH(c.Position.X, c.Position.Z)
-			if c.Name:match("^Mound") or c.Name:match("^Sculpture") then h -= 0.35 end -- the mound's rim sits on the slope, not above it
-			if h > 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
+			if h ~= 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
 		end
 	end
 	local anchor = part("ParkLabelAnchor", Vector3.new(1, 1, 1), CFrame.new(C + Vector3.new(0, 13, 0)), PAVE, o(Enum.Material.SmoothPlastic, { transparency = 1, nocol = true }))
