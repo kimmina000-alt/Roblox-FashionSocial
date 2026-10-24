@@ -3183,14 +3183,14 @@ do
 	-- tiered wooden seats in an arc facing the mound, east and west (user
 	-- 2026-10-24: plain wood, no cushions and no E prompt; walking onto a seat
 	-- still sits you down, so the seat parts are invisible and untagged)
-	local function tiers(a0, a1)
+	local function tiers(a0, a1, r0)
 		for k = 0, 2 do
-			arc("ParkTier", C, 22 + k * 2.6, 24.6 + k * 2.6, a0, a1, 0, 0.9 + k * 0.9, WOOD, Enum.Material.WoodPlanks)
+			arc("ParkTier", C, r0 + k * 2.6, r0 + 2.6 + k * 2.6, a0, a1, 0, 0.9 + k * 0.9, WOOD, Enum.Material.WoodPlanks)
 		end
 		for a = a0 + 8, a1 - 6, 10 do
 			local r = math.rad(a)
 			for k = 0, 2 do
-				local rr = 23.3 + k * 2.6
+				local rr = r0 + 1.3 + k * 2.6
 				local p = Vector3.new(C.X + rr * math.cos(r), 1.0 + k * 0.9, C.Z + rr * math.sin(r))
 				local s = Instance.new("Seat")
 				s.Name = "ParkTierSeat"
@@ -3202,8 +3202,10 @@ do
 			end
 		end
 	end
-	tiers(-60, 40)
-	tiers(130, 190) -- (where the four wicker chairs were)	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
+	tiers(-60, 40, 22)
+	-- west: in the outer ring outside the curved sofa deck, where the four wicker
+	-- chairs stood (user 2026-10-24, red box): r 34.6..42.4, all on the first level
+	tiers(145, 245, 34.6)	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
 	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
 	-- white parasols with a round table and two chairs
 	local function parasolSet(at: Vector3)

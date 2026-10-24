@@ -956,3 +956,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 도시 공원: 원통형 라탄 의자 4개를 지우고 그 자리(서쪽)에 동쪽과 같은 3단 나무 계단식 의자를 놓았습니다. 계단식 의자의 네모 방석은 보이지 않게, E 앉기 버튼은 없앴고(PromptSeat 태그 제거), 걸어 올라가면 앉는 기능은 그대로입니다(캐릭터로 확인).
 
 ![](images/2026-10-24/pocket_park_tiers_west_after.jpg)
+
+- 서쪽 계단식 의자 위치 정정: 사용자 빨간 박스(곡선 소파 바깥, 바깥 원 안쪽 띠, 반지름 34.6~42.4, 145~245도)로 옮겼습니다. 사용자 사진과 같은 방향(정문 오른쪽, 해변 도로 위)에서 찍어 비교했고, 걸어가서 앉는 것도 확인했습니다.
+
+![](images/2026-10-24/pocket_park_tiers_redbox_after.jpg)
