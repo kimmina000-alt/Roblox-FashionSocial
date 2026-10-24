@@ -920,3 +920,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 도시 공원 가운데 원형 광장을 볼록한 언덕으로: 포장 원판 8겹(각 0.35 높고 반지름 4씩 작게, 가운데 2.8), 그 위의 단·데크·의자·조명은 그 자리 높이만큼 올렸습니다(화단은 그대로).
 
 ![](images/2026-10-24/pocket_park_dome_after.jpg)
+
+- 도시 공원 언덕을 계단식에서 매끈한 곡면으로 다시 만들었습니다: 높이 1.6의 화강석 테두리 받침 위에 쐐기 삼각형 728개로 만든 부드러운 돔(가운데 4.2), 가장자리 네 곳에 올라가는 3단 계단. 남동쪽 S자 데크 길의 바깥 부분과 옛 남서쪽 넓은 계단은 지웠습니다.
+
+![](images/2026-10-24/pocket_park_smooth_hill_after.jpg)

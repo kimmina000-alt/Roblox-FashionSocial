@@ -3021,15 +3021,37 @@ do
 	-- paving over the whole lot
 	box("ParkPaving", X0, 0, Z0, X1, 0.08, Z1, PAVE, o(Enum.Material.Slate))
 	-- a ring of darker pavers round the mound
-	-- the plaza rises in a gentle dome (user 2026-10-24): eight paved discs,
-	-- each 0.35 higher and 4 smaller (a walkable slope), 2.8 high in the middle
-	local DOME_R = { 44, 40, 36, 32, 28, 24, 20, 16 }
-	for k, r in ipairs(DOME_R) do vcyl("ParkDome", C, r * 2, k * 0.35, if k % 2 == 0 then PAVE2 else PAVE, o(Enum.Material.Slate)) end
+	-- the plaza is a smooth round hill (user 2026-10-24: smooth, not stepped):
+	-- a low granite-edged base 1.6 high, then a paved dome rising smoothly to
+	-- 4.2 in the middle (a mesh of wedge triangles on rings), steps up at the edge
+	local R, EDGE, RISE = 44, 1.6, 2.6
 	local function domeH(x, z)
 		local d = math.sqrt((x - C.X) ^ 2 + (z - C.Z) ^ 2)
-		local n = 0
-		for _, r in ipairs(DOME_R) do if d < r then n += 1 end end
-		return n * 0.35
+		if d >= R then return 0 end
+		return EDGE + RISE * (1 - (d / R) ^ 2)
+	end
+	do
+		local NR, NS, TH = 7, 28, 0.6
+		local function pt(r, a) -- on the slab's mid plane (its top is the dome surface)
+			local x, z = C.X + r * math.cos(a), C.Z + r * math.sin(a)
+			return Vector3.new(x, EDGE + RISE * (1 - (r / R) ^ 2) - TH / 2, z)
+		end
+		local so = o(Enum.Material.Slate)
+		for i = 1, NR do
+			local r0, r1 = R * ((i - 1) / NR) ^ 0.8, R * (i / NR) ^ 0.8
+			for j = 0, NS - 1 do
+				local a0, a1 = 2 * math.pi * j / NS, 2 * math.pi * (j + 1) / NS
+				local col = if (i + j) % 2 == 0 then PAVE else PAVE2
+				if i == 1 then
+					wedgeTri("ParkDome", pt(0, 0), pt(r1, a0), pt(r1, a1), TH, col, so)
+				else
+					wedgeTri("ParkDome", pt(r0, a0), pt(r1, a0), pt(r1, a1), TH, col, so)
+					wedgeTri("ParkDome", pt(r0, a0), pt(r1, a1), pt(r0, a1), TH, col, so)
+				end
+			end
+		end
+		-- the solid base and a granite coping round the rim
+		vcyl("ParkDomeBase", C, R * 2, EDGE - 0.05, Color3.fromRGB(196, 194, 188), o(Enum.Material.Granite))
 	end
 	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
 	local function arc(name, c: Vector3, r0, r1, a0, a1, y0, y1, color, mat, n)
@@ -3076,12 +3098,19 @@ do
 		end
 	end
 	-- south-east: an S-shaped deck walk from the mound out to the corner path
-	local S1 = Vector3.new(-78, 0, -98)
 	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
-	arc("ParkDeckWalk", S1 + Vector3.new(0, 0, 26), 21, 26, 260, 320, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
-	box("ParkDeckWalk", -72, 0, -72, -64, 0.6, -60, WOOD, o(Enum.Material.WoodPlanks))
-	-- wide steps on the south-west side of the plaza
-	for k = 0, 2 do box("ParkSteps", -134 + k * 1.6, 0, -92, -132.4 + k * 1.6, 0.4 + k * 0.4, -76, STONE, o(Enum.Material.Limestone)) end
+	-- the granite coping round the hill's rim and four flights of steps up to it
+	arc("ParkDomeCoping", C, R - 0.6, R + 0.3, 0, 360, EDGE - 0.35, EDGE + 0.05, Color3.fromRGB(196, 194, 188), Enum.Material.Granite, 48)
+	for _, ad in ipairs({ 46, 120, 190, 300 }) do
+		local a = math.rad(ad)
+		local out = Vector3.new(math.cos(a), 0, math.sin(a))
+		for k = 1, 3 do
+			local rm = R + (k - 0.5) * 1.2
+			local h = EDGE - 0.4 * k
+			local p = Vector3.new(C.X, h / 2, C.Z) + out * rm
+			part("ParkDomeStep", Vector3.new(9, h, 1.2), CFrame.lookAt(p, p + out), STONE, o(Enum.Material.Limestone))
+		end
+	end
 	-- wicker chairs (round baskets) on the west
 	for _, cp in ipairs({ { -134, -132 }, { -128, -122 }, { -136, -114 }, { -124, -108 } }) do
 		local b = Vector3.new(cp[1], 0, cp[2])
@@ -3148,8 +3177,9 @@ do
 	end
 	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
 	for _, c in ipairs(P:GetChildren()) do
-		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name == "ParkDome") then
+		if c:IsA("BasePart") and not (c.Name:match("^ParkBed") or c.Name == "ParkShrub" or c.Name == "ParkPaving" or c.Name:match("^ParkDome")) then
 			local h = domeH(c.Position.X, c.Position.Z)
+			if c.Name:match("^Mound") or c.Name:match("^Sculpture") then h -= 0.35 end -- the mound's rim sits on the slope, not above it
 			if h > 0 then c.CFrame = c.CFrame + Vector3.new(0, h, 0) end
 		end
 	end
