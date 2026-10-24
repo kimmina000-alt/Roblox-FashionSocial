@@ -3025,7 +3025,7 @@ do
 	local paving = box("ParkPaving", X0, -8, Z0, X1, 0.08, Z1, PAVE, { parent = workspace, material = Enum.Material.Slate })
 	local cuts = {
 		part("Cut", Vector3.new(30, 88.2, 88.2), CFrame.new(-96, 0, -128) * CFrame.Angles(0, 0, math.rad(90)), PAVE, { parent = workspace, shape = Enum.PartType.Cylinder }),
-		box("Cut", -104, -9, -175.5, -88, 2, -171, PAVE, { parent = workspace }),
+		box("Cut", -104, -9, -182.25, -88, 2, -171, PAVE, { parent = workspace }),
 	}
 	local okP, cutP = pcall(function() return paving:SubtractAsync(cuts) end)
 	for _, c in ipairs(cuts) do c:Destroy() end
@@ -3042,7 +3042,7 @@ do
 	-- the round plaza is sunk in three levels (user 2026-10-24): one step down at
 	-- each ring (r 44, 34, 20), 0.8 each, reached by a straight stair coming down
 	-- from the park gate on the axis
-	local LEVELS = { { 44, -0.8 }, { 34, -1.6 }, { 20, -2.4 } }
+	local LEVELS = { { 44, -2.5 }, { 34, -3.3 }, { 20, -4.1 } } -- deeper (user 2026-10-24): the stair has 5 steps of 0.5
 	local function domeH(x, z) -- (the name stays: everything below sits at the level under it)
 		local d = math.sqrt((x - C.X) ^ 2 + (z - C.Z) ^ 2)
 		local h = 0
@@ -3070,11 +3070,11 @@ do
 		end
 	end
 	-- the stair from the gate side down to the first level: real steps (user
-	-- 2026-10-24: half the tread, higher risers), 2 steps of 0.4 on 2.25 treads
-	for k = 1, 2 do
-		local za = -175.5 + (k - 1) * 2.25
-		local zb = if k == 2 then -171 else za + 2.25
-		box("ParkStair", -104, -8, za, -88, if k == 2 then -0.78 else -0.4, zb, STONE, o(Enum.Material.Limestone)) -- (the last one 0.02 over the ring it meets)
+	-- 2026-10-24: half the tread, higher risers), 5 steps of 0.5 on 2.25 treads
+	for k = 1, 5 do
+		local za = -182.25 + (k - 1) * 2.25
+		local zb = if k == 5 then -171 else za + 2.25
+		box("ParkStair", -104, -8, za, -88, if k == 5 then -2.48 else -0.5 * k, zb, STONE, o(Enum.Material.Limestone)) -- (the last one 0.02 over the ring it meets)
 	end
 	-- an arc of boxes (r0..r1 from c, angles a0..a1 in degrees, 0 = +x, 90 = +z)
 	local function arc(name, c: Vector3, r0, r1, a0, a1, y0, y1, color, mat, n)

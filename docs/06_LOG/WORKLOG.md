@@ -937,3 +937,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 정문 쪽 계단: 칸 깊이를 4.5 → 2.25로 반, 높이를 0.2 → 0.4로 올려 2단짜리 진짜 계단으로 바꿨습니다(앞쪽 긴 경사 구간은 다시 평평한 포장).
 
 ![](images/2026-10-24/pocket_park_stair_v2_after.jpg)
+
+- 원형 광장을 더 깊게(-2.5 / -3.3 / -4.1) 파고, 정문 쪽 계단을 0.5씩 5칸으로 바꿨습니다.
+
+![](images/2026-10-24/pocket_park_deeper_after.jpg)
