@@ -814,3 +814,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 해변 카페 물멍 풀: 밝은 돌 바닥 위에 반투명 청록 물을 테두리 바로 아래까지 채웠습니다(돌은 반쯤 잠김).
 
 ![](images/2026-10-24/cafe_pool_water_after.jpg)
+
+### 추가 (D-179) — 물멍 풀 수중 조명·분수·물결, 카페 조명
+- 참고 사진: `docs/04_ART/references/cafe_water_channel_*.jpg`, `cafe_mezzanine_lounge.jpg`.
+- 물멍 풀: 검은 돌 바닥과 어두운 물, 가운데 줄에 수중 조명 4개(위로 비추는 스포트라이트)와 물이 솟는 작은 분수, 앞쪽에 검은 돌 블록 2개.
+- 새 스크립트 `WaterJetController.client.lua`(태그 WaterJet): 분수가 출렁이고, 약 1초마다 동그란 물결이 퍼지며 사라집니다(플레이어 140 이내에서만).
+- 카페 조명: 풀 위 천장에 길게 빛나는 천장 패널, 높은 천장의 따뜻한 스포트라이트 6개, 2층 아래 1층 천장 다운라이트 15개(전에는 없음), 소파 옆 종이 스탠드 6개.
+
+![](images/2026-10-24/cafe_pool_jets_after.jpg)
+![](images/2026-10-24/cafe_lighting_after.jpg)

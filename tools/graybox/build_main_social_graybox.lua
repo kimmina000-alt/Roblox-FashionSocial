@@ -776,11 +776,21 @@ local z=zone("04_Beach_Aquarium")
   -- WATER POOL (물멍) with a stone rim and stepped wooden seating facing it
   -- (user 2026-10-24: fill it with water) a pale stone bottom, then clear
   -- blue-green water up to just under the rim
-  box(cm,"PoolBottom",-286,FY,48,-262,FY+0.1,76,Color3.fromRGB(175,220,225),{mat=Enum.Material.Slate})
-  local pool=box(cm,"WaterPool",-286,FY+0.1,48,-262,FY+0.75,76,Color3.fromRGB(95,200,220),{mat=Enum.Material.Glass,t=0.3,nocol=true})
-  pool.Reflectance=0.25
+  box(cm,"PoolBottom",-286,FY,48,-262,FY+0.1,76,Color3.fromRGB(22,24,26),{mat=Enum.Material.Granite}) -- black stone bottom like the photo: the lights and rings show on it
+  local pool=box(cm,"WaterPool",-286,FY+0.1,48,-262,FY+0.75,76,Color3.fromRGB(30,40,46),{t=0.3,nocol=true}) -- plain: Glass picked up the ceiling as beige
+  pool.Reflectance=0.3
   for _,r in ipairs({{-287,48,-286,76},{-262,48,-261,76},{-287,47,-261,48},{-287,76,-261,77}}) do box(cm,"PoolRim",r[1],FY,r[2],r[3],FY+0.9,r[4],Color3.fromRGB(70,70,72),{mat=Enum.Material.Slate}) end
-  for k,sp in ipairs({{-281,55},{-275,68},{-268,58}}) do P(cm,"PoolStone",Vector3.new(2.4+k*0.4,1,2+k*0.3),CFrame.new(sp[1],FY+0.4,sp[2]),Color3.fromRGB(50,50,52),{shape=Enum.PartType.Ball}) end
+  -- underwater lights with a bubbling jet in a line down the middle, and black
+  -- stone blocks at the near end (user photos 2026-10-24: a hotel-lobby water
+  -- channel); WaterJetController bobs the jets and sends rings over the water
+  for _,jz in ipairs({53,59,65,71}) do
+   local lamp=cyl(cm,"PoolLight",1.4,0.12,Vector3.new(-274,FY+0.16,jz),Color3.fromRGB(255,236,190),{mat=Enum.Material.Neon,ghost=true})
+   local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Right sl.Angle=70 sl.Range=14 sl.Brightness=3 sl.Color=Color3.fromRGB(255,222,170) sl.Parent=lamp
+   local jet=P(cm,"WaterJet",Vector3.new(1.3,0.9,1.3),CFrame.new(-274,FY+0.75,jz),Color3.fromRGB(255,245,225),{shape=Enum.PartType.Ball,mat=Enum.Material.Glass,t=0.35,ghost=true,tag="WaterJet"})
+   local _=jet
+  end
+  box(cm,"PoolBlock",-279,FY,49,-275.5,FY+3.4,52.5,Color3.fromRGB(26,26,28),{mat=Enum.Material.Granite})
+  box(cm,"PoolBlock",-274.6,FY,49.5,-271,FY+2.6,53,Color3.fromRGB(26,26,28),{mat=Enum.Material.Granite})
   label(cm,"물멍 풀",Vector3.new(-274,FY+5,62))
   for k=1,3 do box(cm,"SeatTier",-261+(k-1)*4,FY,46,-257+(k-1)*4,FY+k*1.2,78,woodC)
    for sz=49,75,4 do local pos=Vector3.new(-259+(k-1)*4,FY+k*1.2+0.15,sz) seat(cm,"TierSeat",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.2,1.8),woodC,1) end end
@@ -807,10 +817,24 @@ local z=zone("04_Beach_Aquarium")
   -- plants along the north glass
   box(cm,"Planter",x0+1,FY,z1-4,mx-30,FY+1.4,z1-1,Color3.fromRGB(80,80,80))
   for px=x0+3,mx-32,4 do P(cm,"Plant",Vector3.new(3,3.6,3),CFrame.new(px,FY+3.2,z1-2.5),Color3.fromRGB(70,140,80),{shape=Enum.PartType.Ball,nocol=true}) end
-  -- warm ceiling lights
-  for _,lp in ipairs({{-280,30},{-280,62},{-280,92},{-252,30},{-252,62},{-220,40}}) do
+  -- LIGHT (user photos 2026-10-24, warm hotel-lobby mood): a long glowing
+  -- stretch-ceiling panel over the pool between the wooden slats, warm spots
+  -- from the high ceiling, recessed downlights under the mezzanine (the 1F
+  -- there had none), and tall paper floor lamps by the seats
+  local WARM=Color3.fromRGB(255,214,160)
+  local panel=box(cm,"LightCeiling",-286,FY+H-1.5,30,-258,FY+H-1.3,96,Color3.fromRGB(255,240,215),{mat=Enum.Material.Neon,ghost=true,t=0.15})
+  do local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Angle=80 sl.Range=40 sl.Brightness=1.6 sl.Color=WARM sl.Parent=panel end
+  for _,lp in ipairs({{-292,36},{-292,66},{-292,94},{-252,36},{-252,66},{-246,94}}) do
    local l=P(cm,"CeilingLight",Vector3.new(1.4,0.3,1.4),CFrame.new(lp[1],FY+H-1.6,lp[2]),Color3.fromRGB(255,230,180),{mat=Enum.Material.Neon,ghost=true})
-   local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,215,160) pl.Range=22 pl.Brightness=0.7 pl.Parent=l end
+   local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Bottom sl.Angle=60 sl.Range=42 sl.Brightness=1.4 sl.Color=WARM sl.Parent=l end
+  for _,dx in ipairs({mx+6,mx+16,mx+24}) do for _,dz in ipairs({28,44,60,76,90}) do
+   local l=P(cm,"Downlight",Vector3.new(1,0.12,1),CFrame.new(dx,MY-1.06,dz),Color3.fromRGB(255,236,200),{mat=Enum.Material.Neon,ghost=true})
+   local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Bottom sl.Angle=70 sl.Range=20 sl.Brightness=1.3 sl.Color=WARM sl.Parent=l end end
+  local function paperLamp(x,z,h)
+   cyl(cm,"PaperLampBase",1.6,0.2,Vector3.new(x,FY+0.1,z),Color3.fromRGB(60,50,40),{ghost=true})
+   local s=cyl(cm,"PaperLamp",1.8,h,Vector3.new(x,FY+0.2+h/2,z),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true}) -- a soft amber glow (white glared)
+   local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=WARM pl.Parent=s end
+  paperLamp(-287,22,6) paperLamp(-263,22,6) paperLamp(-287,46,5) paperLamp(-258,46,5) paperLamp(-258,79,5) paperLamp(-290,79,6)
   photo(cm,Vector3.new(x0+8,FY,44),"오션뷰 창가")
   photo(cm,Vector3.new(-274,FY,80),"물멍 풀")
   -- sunset terrace outside on the south side
