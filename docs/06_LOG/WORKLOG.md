@@ -1130,3 +1130,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 그 자리는 기존 맵 경계 투명벽(x -151) 안쪽이라 사람이 들어가 걷는 곳은 아니고, 보이는 땅만 정리됩니다.
 
 ![](images/2026-10-24/park_west_strip_after.jpg)
+
+### 추가 (D-211) — 자작나무 줄기 가볍게
+- 줄기·가지에 붙어 있던 나무껍질 이미지(메시마다 색·요철 2장)를 빼고 기본 나무 재질 갈색으로 바꿨습니다. 잎은 그대로.
+- 고화질 표면 562 → 152, 쓰는 이미지 약 37장 → 1장. 폰 메모리 차이는 다음 모바일 2인 테스트에서 같은 조건으로 잽니다.
+
+| 전 | 후 |
+|---|---|
+| ![](images/2026-10-24/birch_trunk_before.jpg) | ![](images/2026-10-24/birch_trunk_after.jpg) |

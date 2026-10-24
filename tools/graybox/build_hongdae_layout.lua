@@ -475,6 +475,19 @@ local function foliage(name: string, scale: number, at: CFrame): Model?
 	for _, p in ipairs(m:GetDescendants()) do
 		if p:IsA("BasePart") then p.CanCollide = false p.CanQuery = false p.Anchored = true end
 	end
+	-- (user 2026-10-24, performance) trunks and branches lose their own colour
+	-- and normal images (Overlay SurfaceAppearance, two per mesh) and wear the
+	-- built-in wood in the bark brown; the leaves (one shared image) stay
+	for _, sa in ipairs(m:GetDescendants()) do
+		if sa:IsA("SurfaceAppearance") and sa.AlphaMode == Enum.AlphaMode.Overlay then
+			local mp = sa.Parent
+			sa:Destroy()
+			if mp and mp:IsA("MeshPart") then
+				mp.Color = Color3.fromRGB(112, 84, 60)
+				mp.Material = Enum.Material.Wood
+			end
+		end
+	end
 	m.Parent = T
 	return m
 end
