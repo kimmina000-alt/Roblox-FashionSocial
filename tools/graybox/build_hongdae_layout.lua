@@ -3043,7 +3043,9 @@ do
 	-- the round plaza is sunk in three levels (user 2026-10-24): one step down at
 	-- each ring (r 44, 34, 20), 0.8 each, reached by a straight stair coming down
 	-- from the park gate on the axis
-	local LEVELS = { { 44, -2.5 }, { 34, -3.3 }, { 20, -4.1 } } -- deeper (user 2026-10-24): the stair has 5 steps of 0.5
+	-- (user 2026-10-24) two levels: the upper ring now reaches in to r 20 (the
+	-- middle level is gone), the inner circle one 0.8 step below it
+	local LEVELS = { { 44, -2.5 }, { 20, -3.3 } }
 	local function domeH(x, z) -- (the name stays: everything below sits at the level under it)
 		local d = math.sqrt((x - C.X) ^ 2 + (z - C.Z) ^ 2)
 		local h = 0
@@ -3116,7 +3118,7 @@ do
 		-- the paving (top 0.08)
 		collideRows("ParkCollide", Z0, Z1, 0.08, { circleOut(44), corridor })
 		-- ring 1 (r 34..44) and ring 2 (r 20..34)
-		for i = 1, 2 do
+		for i = 1, #LEVELS - 1 do
 			local ro, ri, top = LEVELS[i][1], LEVELS[i + 1][1], LEVELS[i][2]
 			for z = C.Z - ro, C.Z + ro - 0.01, 1.5 do
 				local z1 = math.min(z + 1.5, C.Z + ro)
@@ -3259,11 +3261,13 @@ do
 	-- east: the same tiers as the west, in the outer ring from the gate walk's
 	-- east edge (x -75.5) round to the east (user 2026-10-24, red box; the old
 	-- east tiers by the mound are gone); a walkway by the walk and one in the middle
-	tiers(367, 297, 34.6, -75.5, { { 314, 335 }, { 342, 362 } })
+	-- (the line ends stop 0.03 short of the walk's cut face: the two faces flickered)
+	tiers(367, 297, 34.6, -75.47, { { 314, 335 }, { 342, 362 } })
 	-- west: in the outer ring outside the curved sofa deck, where the four wicker
 	-- chairs stood (user 2026-10-24, red box): r 34.6..42.4, all on the first level
 	-- seats only in the user's three red boxes (2026-10-24), walkways between
-	tiers(145, 245, 34.6, -110.5, { { 151, 182 }, { 189.5, 208.5 }, { 218, 230.5 } })	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
+	tiers(145, 245, 34.6, -110.53, { { 151, 182 }, { 189.5, 208.5 }, { 218, 230.5 } })
+	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
 	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
 	-- a raised wooden deck (one step, the tiers' wood) between the west tree bed,
 	-- the gate walk and the sunken circle (user 2026-10-24, red outline + sketch):
