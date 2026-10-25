@@ -489,3 +489,5 @@ D-263 — (2026-10-25) The hall LED wall bars were shifted 9.5 by the HZ pass (o
 D-264 — (2026-10-25) Club entry only at night (18:00–06:00 game clock, ~10 of every 20 real minutes); leaving is always free and players already inside stay. Off while the clock is fixed at 14:00 (enable together with FixedClockTime = nil). Spec: CLUB.md §20.
 
 D-265 — (2026-10-25, proposal, awaiting the user) DJ 30 min priced from coin income: 💰100 (test 80–120) so a 1 h player who does the cafe job (≈120/day) can DJ once a day; Robux shortcut 25 R$ (was 75); no extending while someone queues, at most one extension. VIP stays a one-time permanent Game Pass (299 R$). DJ_SYSTEM.md §6.
+
+D-266 — (2026-10-25) Laser up/down per beam instead of all at once; every 16 s it switches between criss-cross (every other beam goes the other way) and a wave running along the row of emitters (ClubLightsController).

@@ -110,15 +110,23 @@ local function updateLasers(lightTime: number)
 		-- AimLow = a second point the fan travels to and back (user 2026-10-25:
 		-- down to the far end of the floor by the entrance, then up again)
 		local aimLow = part:GetAttribute("AimLow")
-		local spreadScale = 1
-		if typeof(aimLow) == "Vector3" then
-			local s = 0.5 - 0.5 * math.cos(t * 0.35)
-			base = base:Lerp(aimLow, s)
-			spreadScale = 1 - 0.4 * s
-		end
 		for i, beam in ipairs(entry.beams) do
 			beam.Enabled = visible
 			if visible then
+				-- Up/down per beam (user 2026-10-25: not all at once). Every 16 s
+				-- the motion switches: 0 = criss-cross (every other beam goes the
+				-- other way), 1 = a wave running along the row of emitters.
+				local beamBase = base
+				local spreadScale = 1
+				if typeof(aimLow) == "Vector3" then
+					local upDown = math.floor(t / 16) % 2
+					local wave = if upDown == 0
+						then t * 0.35 + ((entry.index + i) % 2) * math.pi
+						else t * 0.5 - (entry.index * BEAMS_PER_EMITTER + i) * 0.45
+					local s = 0.5 - 0.5 * math.cos(wave)
+					beamBase = base:Lerp(aimLow, s)
+					spreadScale = 1 - 0.4 * s
+				end
 				local phase = entry.index * 0.9 + i * (math.pi * 2 / BEAMS_PER_EMITTER)
 				local offset: Vector3
 				if pattern == 0 then
@@ -130,7 +138,7 @@ local function updateLasers(lightTime: number)
 					local swing = math.sin(t * 1.6 + entry.index) * 14
 					offset = Vector3.new(spread + swing, 0, math.cos(t * 0.9 + entry.index) * 10)
 				end
-				entry.targets[i].WorldPosition = base + offset * spreadScale
+				entry.targets[i].WorldPosition = beamBase + offset * spreadScale
 				local color: Color3
 				if fixed then
 					-- one colour, beams shimmer slightly brighter / darker
