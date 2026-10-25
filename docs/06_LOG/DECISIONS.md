@@ -493,3 +493,7 @@ D-265 — (2026-10-25, proposal, awaiting the user) DJ 30 min priced from coin i
 D-266 — (2026-10-25) Laser up/down per beam instead of all at once; every 16 s it switches between criss-cross (every other beam goes the other way) and a wave running along the row of emitters (ClubLightsController).
 
 D-267 — (2026-10-25, user) Club night entry details: night stays 18:00–06:00 (~10 real min). DJ time can only be bought / queued inside the club, so nobody outside by day can buy it. A queued DJ may leave; when their turn comes, even by day, the existing turn prompt brings them to the DJ zone (the only daytime way in). CLUB.md §20.
+
+D-268 — (2026-10-25, user) DJ time is sold for Robux only (no coin price); 25 R$ per 30 min proposed. DJ_SYSTEM.md §6.6.
+
+D-269 — (2026-10-25, proposal, awaiting the user) Club shop pricing from reference club games: exchange rule 1 R$ = 10 coins for items sold in both (tier-2 drinks 💰100–150 / 10–15 R$); drinks in 3 tiers (free / coins or Robux / Robux only 49·79·99 with a VIP-only drink); VIP 20% off (separate VIP-price products, shown as struck-through price); sparklers 15 / 49 / 99 R$; no coin packs (keeps the 1-coin dress-code draw out of the paid-random-item policy), no guard/crew passes. CLUB_SHOP_PRICING.md.

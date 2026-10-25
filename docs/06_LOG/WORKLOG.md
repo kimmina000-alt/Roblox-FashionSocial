@@ -1505,3 +1505,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/club_laser_wave_b.jpg)
 
 ### 기획 (D-267) — 클럽 밤 입장 세부: 밤 10분 유지, DJ 이용권은 클럽 안에서만 구매·예약, 낮에 차례가 오면 기존 차례 안내창으로 DJ 존에 데려옴(CLUB.md §20).
+
+### 기획 (D-268, D-269) — DJ는 Robux만, 클럽 상점 가격 기획
+- 다른 클럽 게임 상점(머니 팩, Guest/CREW/VIP/GUARD 패스, 야광봉·폭죽·머니건, VIP 할인가, 후원 단계)과 실제 클럽 스파클러 버킷 사진을 보고 `docs/01_SYSTEMS/CLUB_SHOP_PRICING.md` 작성. 레퍼런스는 `docs/04_ART/references/club_shop_refs_2026-10-25.webp`, `club_sparkler_bucket_2026-10-25.webp`.

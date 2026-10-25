@@ -127,3 +127,8 @@ DJ 기능은 `DjService.Actions[이름] = function(player, payload) ... end`로 
 - `ClubShopController`(DJ 결제창): "💰100으로 DJ" / "25 R$로 바로" 두 버튼.
 - `MonetizationConfig`·PRODUCTS.md: DJ 가격 25 R$.
 - 출시 후 실제 데이터(평균 접속 시간, 7일 뒤 잔액, DJ 대기열 길이)로 다시 맞춘다.
+
+### 6.6 결정 (사용자 2026-10-25, D-268)
+- **DJ 이용권은 Robux로만 산다.** 위 §6.3의 코인(💰100) 경로는 만들지 않는다.
+- 가격 제안: **30분 25 R$**(테스트 25~49). 근거와 다른 상품과의 관계: CLUB_SHOP_PRICING.md §6.
+- 이용권은 클럽 안에서만 사고 예약한다(CLUB.md §20, D-267).
