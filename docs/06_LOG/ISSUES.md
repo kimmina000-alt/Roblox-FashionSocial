@@ -302,3 +302,5 @@ Every bottle label sat at the same height. Fix: each new bottle's label sits 0.9
 
 ### ISSUE-2P-007 — A banner hides under the open 💝 window
 Fix: Banner ZIndex 5 (BannerController).
+
+Re-test 2026-10-26 (new 2P session, Player2 on a 705×338 phone): all 7 are verified fixed. ISSUE-2P-002 needed one more change: `Humanoid.Jump = true` from the button is reset by the control script in the same frame, so the button now sets `Humanoid.Sit = false`.

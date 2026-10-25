@@ -141,7 +141,8 @@ local function open()
 	standUp.Activated:Connect(function()
 		local character = player.Character
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-		if humanoid then humanoid.Jump = true end
+		-- (Jump = true is reset by the control script in the same frame; Sit = false sticks)
+		if humanoid then humanoid.Sit = false end
 	end)
 	local keys = Instance.new("Frame")
 	keys.BackgroundTransparency = 1

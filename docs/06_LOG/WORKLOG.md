@@ -1753,3 +1753,17 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-26/2p_dj_panel_bug.jpg)
 ![](images/2026-10-26/2p_piano_phone.jpg)
 ![](images/2026-10-26/2p_oh24_band.jpg)
+
+### 모바일 2인 재테스트 — 버그 7개 수정 확인
+
+- DJ 패널: 가장 작은 휴대폰(705×338)에서도 모든 버튼이 패널 안에 들어와요.
+- 피아노: "일어나기" 버튼이 Jump 방식으로는 안 일어나서 Sit 해제 방식으로 바꿨어요.
+- 버스 광고: 가까이서 봐도 깜빡임이 없어요.
+- 투표: 후원 투표와 "내 표"가 되고, 큰손 투표(음수 테스트 id)도 돼요.
+- 병 이름표: 1.8 / 2.7 / 3.6 높이로 쌓여요.
+- 배너: 💝 창보다 위에 그려져요(ZIndex 5 > 1).
+
+![](images/2026-10-26/2p_fix_dj_panel.jpg)
+![](images/2026-10-26/2p_fix_piano_standup.jpg)
+![](images/2026-10-26/2p_fix_busad.jpg)
+![](images/2026-10-26/2p_fix_bottle_labels.jpg)
