@@ -236,6 +236,19 @@ for i=1,15 do local top=-1.5*i local x0=-24-2.5*(i-1)
  riser(z,Vector3.new(x0-2.54,top-0.75,-158.75),Vector3.new(-1,0,0),15.3,1.5) end
 do local c=Vector3.new(-44,F/2,-158.75) P(z,"StairRamp",Vector3.new(15.5,-F,40),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
 label(z,"↓ 계단 (지하 클럽)",Vector3.new(-40,6,-158))
+-- graffiti on the stair-side wall faces only (user 2026-10-25: keep the stairs
+-- and walls as they are, just the graffiti): see-through carrier panels with
+-- the pale graffiti Texture (docs/04_ART/textures/graffiti.png)
+do local GRAFFITI="rbxassetid://77520103793675"
+ local function graffiti(x0,y0,z0,x1,y1,z1,face,su,sv)
+  local p=box(z,"GraffitiWall",x0,y0,z0,x1,y1,z1,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
+  local tx=Instance.new("Texture") tx.Texture=GRAFFITI tx.Face=face tx.StudsPerTileU=su or 34 tx.StudsPerTileV=sv or 17 tx.Transparency=0.15 tx.Parent=p end
+ graffiti(-80,F,-166.5,12,12,-166.45,Enum.NormalId.Back)
+ graffiti(-80,F,-151.05,-24,12,-151,Enum.NormalId.Front)
+ graffiti(-24,0,-151.05,-8,12,-151,Enum.NormalId.Front)
+ graffiti(8,0,-151.05,12,12,-151,Enum.NormalId.Front)
+ graffiti(-80,F,-166.45,-79.95,12,-151.05,Enum.NormalId.Right,15,15)
+end
 -- wall between the stairs/foyer strip and the hall (opening for the corridor)
 box(z,"Wall_Entry_Hall",-64,F,-167.5,80,TOP,-166.5,WALL_C,WALLO)
 box(z,"Wall_Entry_Corridor_Top",-80,F+14,-167.5,-64,TOP,-166.5,WALL_C,WALLO)
