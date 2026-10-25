@@ -1652,3 +1652,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-297) — VIP 간판 로고·VIP·아이디 빛을 빨강으로
 
 ![](images/2026-10-25/vip_sign_red_glow.jpg)
+
+### 수정 (D-298) — VIP·아이디에 네온처럼 번지는 빨간 빛 (외곽선 → 블룸)
+
+![](images/2026-10-25/vip_sign_bloom.jpg)

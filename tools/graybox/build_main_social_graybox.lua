@@ -436,11 +436,19 @@ local function vipBooth(cx,wallZ,dir)
   local tg=Instance.new("SurfaceGui") tg.Face=face tg.LightInfluence=0 tg.Brightness=2 tg.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud tg.PixelsPerStud=60 tg.Parent=tag
   local vip=Instance.new("TextLabel") vip.Name="VIP" vip.BackgroundTransparency=1 vip.Position=UDim2.fromScale(0.1,0.12) vip.Size=UDim2.fromScale(0.8,0.76) vip.TextScaled=true
   vip.Font=Enum.Font.GothamBold vip.Text="VIP" vip.TextColor3=Color3.new(1,1,1) vip.Parent=tg
-  -- glow: two faint white halos behind the letters (no blur in Roblox) + light on the wall
-  local function halo(label: TextLabel, sizes)
-   for i,s in ipairs(sizes) do local h=label:Clone() h.Name="Halo" h.ZIndex=label.ZIndex-i h.TextTransparency=1 h.Parent=label.Parent
-    local st=Instance.new("UIStroke") st.Color=Color3.fromRGB(255,40,50) st.Thickness=s st.Transparency=0.6+0.15*i st.Parent=h end end -- (red glow, user 2026-10-25)
-  halo(vip,{4,9})
+  -- red glow that spreads like the neon frame (user 2026-10-25): a red copy of
+  -- the letters in a second, very bright SurfaceGui behind the white ones, so
+  -- the Bloom effect blurs it (an outline alone does not glow)
+  local function halo(label: TextLabel)
+   local part=label.Parent.Parent :: BasePart local main=label.Parent :: SurfaceGui
+   local gg=part:FindFirstChild("GlowGui")
+   if not gg then gg=Instance.new("SurfaceGui") gg.Name="GlowGui" gg.Face=main.Face gg.LightInfluence=0 gg.Brightness=12
+    gg.SizingMode=main.SizingMode gg.PixelsPerStud=main.PixelsPerStud gg.ZOffset=0 gg.Parent=part end
+   main.ZOffset=1
+   local r=label:Clone() for _,s in ipairs(r:GetChildren()) do s:Destroy() end
+   r.Name="Glow" r.TextColor3=Color3.fromRGB(255,20,30) r.Parent=gg
+   local st=Instance.new("UIStroke") st.Color=Color3.fromRGB(255,20,30) st.Thickness=3 st.Parent=r end
+  halo(vip)
   local tl=Instance.new("SurfaceLight") tl.Face=face tl.Color=Color3.fromRGB(255,40,50) tl.Range=4 tl.Brightness=1.2 tl.Angle=170 tl.Parent=tag
   -- the nickname board below the plate
   local board=box(z,"VIP_Sign",x0+0.3,y0+0.3,zz(0.1),x1-0.3,V+10.5,zz(0.12),Color3.new(0,0,0),{t=1,ghost=true})
@@ -448,7 +456,7 @@ local function vipBooth(cx,wallZ,dir)
   local nick=Instance.new("TextLabel") nick.Name="Nickname" nick.BackgroundTransparency=1 nick.Position=UDim2.fromScale(0.06,0.36) nick.Size=UDim2.fromScale(0.88,0.4) nick.TextScaled=true
   -- (the same look as "VIP": white with a soft white glow, user 2026-10-25)
   nick.Font=Enum.Font.GothamBold nick.Text="" nick.TextColor3=Color3.new(1,1,1) nick.Parent=g
-  halo(nick,{5,12})
+  halo(nick)
   local ov=Instance.new("ObjectValue") ov.Name="WallSign" ov.Value=nick ov.Parent=top
  end
 end

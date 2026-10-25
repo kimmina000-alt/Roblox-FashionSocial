@@ -553,3 +553,5 @@ D-295 — (2026-10-25, user mock-up) VIP sign: smaller crown on a slightly light
 D-296 — (2026-10-25, user) VIP sign: "VIP" white letters with no tag behind and a soft white glow (faint halo copies of the label + a small SurfaceLight), the @nickname in the same style (DrinkService keeps the "Halo" copies in step); the crown (club logo) a white-ish lemon with a yellow PointLight. The chasing LED wall bars continue along both long walls above the VIP signs (V+14..TOP-1.5, every 4 studs).
 
 D-297 — (2026-10-25, user) VIP sign glows red for all three: the crown (red see-through neon outline behind it + red PointLight), "VIP" and the @nickname (red halo strokes, red SurfaceLight); the letters stay white, the crown lemon.
+
+D-298 — (2026-10-25, user) "VIP" and the @nickname glow like the neon frame: a red copy of the text in a second SurfaceGui with Brightness 12 behind the white text (ZOffset), so the Bloom effect spreads it; DrinkService keeps the nickname's GlowGui copy in step. (Outline strokes alone did not glow.)
