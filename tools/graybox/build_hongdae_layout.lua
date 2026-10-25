@@ -6105,7 +6105,17 @@ if spawn then
 	-- 광화문 far ahead, the beach behind; subway exit 3 right beside
 	local p = Vector3.new(-62, 0, -70) -- (moved off the pocket park's new south walk, 2026-10-24)
 	local sy = CURB - spawn.Size.Y / 2 -- its top level with the raised park paving (it stuck up as an invisible bump)
-	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, sy, p.Z), Vector3.new(0, sy, 0))
+	local look = Vector3.new(0, sy, 0)
+	-- TEMPORARY (user 2026-10-25): while the beach cafe interior is being
+	-- built, spawn just inside its street door facing the room. Set
+	-- CAFE_WORK_SPAWN = false when the cafe is done.
+	local CAFE_WORK_SPAWN = true
+	if CAFE_WORK_SPAWN then
+		p = Vector3.new(-212, 0, 61)
+		sy = 0.6 - spawn.Size.Y / 2 -- the cafe floor top
+		look = Vector3.new(-260, sy, 61)
+	end
+	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, sy, p.Z), look)
 	-- hidden in the paving (user 2026-10-23): no pad or logo showing
 	spawn.Transparency = 1
 	for _, d in ipairs(spawn:GetChildren()) do if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end end

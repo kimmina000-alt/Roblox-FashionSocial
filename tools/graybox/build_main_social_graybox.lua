@@ -803,7 +803,7 @@ local z=zone("04_Beach_Aquarium")
   -- the lit pastry case in its west part, two tills in its east part;
   -- customers order from the north (the entrance side)
   local CW=Color3.fromRGB(244,243,240) local STEEL=Color3.fromRGB(176,178,182)
-  local KX0,KX1,KZ0,KZ1=mx+0.4,x1-0.6,76,79
+  local KX0,KX1,KZ0,KZ1=mx+0.4,x1-0.6,72,75 -- (4 further out into the room, user 2026-10-25)
   box(cm,"Counter",KX0,FY,KZ0,KX1,FY+3.6,KZ1,CW)
   box(cm,"CounterKick",KX0,FY,KZ0-0.15,KX1,FY+0.4,KZ0,Color3.fromRGB(70,70,72))
   local top=box(cm,"CounterTop",KX0,FY+3.6,KZ0-0.3,KX1,FY+3.9,KZ1,Color3.fromRGB(238,238,236),{mat=Enum.Material.Marble})
@@ -827,22 +827,15 @@ local z=zone("04_Beach_Aquarium")
    P(cm,"RegisterScreen",Vector3.new(1.5,1.1,0.12),CFrame.new(rx,FY+4.8,KZ0+1.8)*CFrame.Angles(math.rad(15),0,0),dark,{nocol=true}) end
   cyl(cm,"TipJar",0.7,0.9,Vector3.new(-212.5,FY+4.35,KZ0+0.8),glass,{t=0.5,mat=Enum.Material.Glass,nocol=true})
   label(cm,"☕ 음료 주문",Vector3.new(-220,FY+8,KZ0+1.5))
-  -- STAFF ZONE (no way in): the front wall right behind the counter with a
-  -- shut STAFF ONLY door at its west end, the wall along the stairs and the
-  -- cross wall at z 91.4
+  -- STAFF ZONE behind the counter: the wall along the stairs and the cross
+  -- wall at z 91.4; (user 2026-10-25) its front wall and STAFF ONLY door are
+  -- gone, only a header strip stays up top to carry the menu boards
   box(cm,"StaffWall",mx,FY,91.4,x1-0.6,MY-1,92,CW)
   box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,96.2,CW) -- the stairs' east side
-  local SZ=KZ1
-  do local DX0,DX1=-232,-225.6
-   box(cm,"StaffWall",mx,FY,SZ,DX0,MY-1,SZ+0.6,CW) box(cm,"StaffWall",DX1,FY,SZ,x1-0.6,MY-1,SZ+0.6,CW)
-   box(cm,"StaffWall",DX0,FY+8,SZ,DX1,MY-1,SZ+0.6,CW)
-   box(cm,"StaffDoor",DX0,FY,SZ+0.2,DX1,FY+8,SZ+0.4,Color3.fromRGB(210,208,204))
-   box(cm,"StaffDoorHandle",DX1-1,FY+3.6,SZ+0.05,DX1-0.7,FY+4.4,SZ+0.2,STEEL,{nocol=true})
-   local ss=box(cm,"StaffSign",DX0+1.7,FY+8.6,SZ-0.1,DX1-1.7,FY+9.6,SZ,dark,{nocol=true})
-   local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=ss
-   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1) l.Text="STAFF ONLY" l.Parent=g end
-  -- black menu boards high on the staff wall above the counter, facing the
-  -- customers, ORDER & PICK UP sign over the door
+  local SZ=79
+  box(cm,"StaffHeader",mx,FY+10.2,SZ,x1-0.6,MY-1,SZ+0.6,CW)
+  -- black menu boards on the header above the counter, facing the customers,
+  -- ORDER & PICK UP sign at its west end
   local nB=5 local MB0,MB1=-224,-207.6 local bw=(MB1-MB0)/nB
   for k=0,nB-1 do
    local bx0=MB0+k*bw
@@ -906,8 +899,8 @@ local z=zone("04_Beach_Aquarium")
   -- bakery: two long tables with wooden trays of bread where the counters were
   -- (user plan 2026-10-25, 1F layout v3)
   for _,bx in ipairs({-229.5,-214.7}) do
-   box(cm,"BakeryTable",bx,FY,20.6,bx+8,FY+3.4,53.6,white)
-   for tz=21.1,51.1,2.6 do box(cm,"BreadTray",bx+0.5,FY+3.4,tz,bx+7.5,FY+3.9,tz+2.2,woodC)
+   box(cm,"BakeryTable",bx,FY,24.2,bx+8,FY+3.4,53.6,white) -- (further off the coffee bag wall, user 2026-10-25)
+   for tz=24.7,51.1,2.6 do box(cm,"BreadTray",bx+0.5,FY+3.4,tz,bx+7.5,FY+3.9,tz+2.2,woodC)
     for k=0,2 do P(cm,"Bread",Vector3.new(1.4,0.7,0.9),CFrame.new(bx+1.8+k*2.2,FY+4.2,tz+1.1),({Color3.fromRGB(205,150,80),Color3.fromRGB(225,180,110),Color3.fromRGB(170,110,60)})[k+1],{nocol=true}) end end end
   label(cm,"🥐 베이커리",Vector3.new(-218,FY+7,37))
   -- STEPPED LOUNGE (user plan: "계단식 4층, 1→2→3→4"): four wooden steps rising

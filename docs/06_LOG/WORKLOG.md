@@ -1262,3 +1262,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/cafe_1F_v3_top.jpg)
 ![](images/2026-10-25/cafe_1F_v3_view.jpg)
+
+### 추가 (D-230) — 카운터 뒤 벽 삭제, 카운터 앞으로, 베이커리 간격, 임시 스폰
+- 카운터 뒤 STAFF ONLY 문과 벽 삭제, 위쪽 띠만 남겨 메뉴판·ORDER & PICK UP 간판을 붙임. 카운터를 손님 쪽으로 4 옮김.
+- 베이커리 테이블을 원두 선반 벽에서 더 띄움(간격 3 → 6.6).
+- 임시: 카페 내부 작업 동안 스폰을 카페 입구 안쪽으로(build_hongdae_layout.lua `CAFE_WORK_SPAWN = true`, 작업 끝나면 false).
+
+![](images/2026-10-25/cafe_counter_open.jpg)
