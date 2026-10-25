@@ -1626,3 +1626,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-292) — 클럽 복도 층고 통일, 댄스홀 문 높게, 문 바닥 조명 삭제, 문 기둥 안쪽 면만 빛
 
 ![](images/2026-10-25/hall_door_tall.jpg)
+
+### 수정 (D-293) — VIP 문 천장까지, VIP 글자 삭제, 댄스홀 문 기둥 바깥 면은 벽 색
+
+![](images/2026-10-25/vip_gate_tall.jpg)
+![](images/2026-10-25/hall_door_inner_glow.jpg)

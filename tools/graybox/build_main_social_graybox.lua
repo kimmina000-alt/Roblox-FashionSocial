@@ -290,26 +290,22 @@ box(z,"CorridorNeon_E",-65.7,F,-210.75,-65.4,F+0.4,-167.5,Color3.fromRGB(255,250
 -- (the LED lines along the entrance stairs were tried and taken out again, user 2026-10-25)
 -- pink door posts: only the faces looking into the doorway glow (user 2026-10-25)
 for _,d in ipairs({{-211.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
- P(z,"HallDoorFrame",Vector3.new(1.5,DH,1.5),CFrame.new(-64.5,F+DH/2,pz),Color3.fromRGB(200,60,170),{mat=Enum.Material.SmoothPlastic})
+ -- (the rest of the post is wall: wall colour, user 2026-10-25)
+ P(z,"HallDoorFrame",Vector3.new(1.5,DH,1.5),CFrame.new(-64.5,F+DH/2,pz),WALL_C,WALLO)
  local fz=pz+s*0.75
  local g=box(z,"HallDoorGlow",-65.25,F,math.min(fz,fz+s*0.12),-63.75,F+DH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
  local sl=Instance.new("SurfaceLight") sl.Face=if s>0 then Enum.NormalId.Back else Enum.NormalId.Front sl.Color=pink sl.Range=10 sl.Brightness=1.5 sl.Angle=150 sl.Parent=g end
 label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,-218))
 -- VIP wall across the corridor
 local vipRed=Color3.fromRGB(255,40,70)
-local vipGate=box(z,"VIP_Gate",-80,F,-236.4,-65,F+14,-235.6,vipRed,{t=0.55,mat=Enum.Material.Glass})
+-- (as high as the raised corridor ceiling; no "VIP" text on the glass, the
+-- purchase window still opens: user 2026-10-25)
+local GH=V-1-F-0.4 -- gate height up to the ceiling, under the top neon
+local vipGate=box(z,"VIP_Gate",-80,F,-236.4,-65,F+GH,-235.6,vipRed,{t=0.55,mat=Enum.Material.Glass})
 vipGate:SetAttribute("Gate","VIP") CS:AddTag(vipGate,"ClubGate")
 local glow=Instance.new("SurfaceLight") glow.Color=vipRed glow.Brightness=3 glow.Range=14 glow.Face=Enum.NormalId.Back glow.Parent=vipGate
-for _,face in ipairs({Enum.NormalId.Back,Enum.NormalId.Front}) do
- local g=Instance.new("SurfaceGui") g.Face=face g.LightInfluence=0 g.Brightness=4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=20 g.Parent=vipGate
- local l=Instance.new("TextLabel") l.AnchorPoint=Vector2.new(0.5,0.5) l.Position=UDim2.fromScale(0.5,0.42) l.Size=UDim2.fromScale(0.8,0.38)
- l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Michroma l.Text="VIP" l.TextColor3=Color3.fromRGB(255,120,170)
- l.TextStrokeColor3=Color3.fromRGB(255,20,90) l.TextStrokeTransparency=0 l.Parent=g
- local s=Instance.new("TextLabel") s.AnchorPoint=Vector2.new(0.5,0) s.Position=UDim2.fromScale(0.5,0.66) s.Size=UDim2.fromScale(0.8,0.1)
- s.BackgroundTransparency=1 s.TextScaled=true s.Font=Enum.Font.GothamBold s.Text="VIP 패스 · 2층 라운지" s.TextColor3=Color3.new(1,1,1) s.Parent=g end
-for _,e in ipairs({{-80,F,-79,F+14},{-65,F,-64.6,F+14}}) do box(z,"VIP_GateNeon",e[1],e[2],-236.6,e[3],e[4],-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true}) end
-box(z,"VIP_GateNeon",-80,F+14,-236.6,-64.6,F+14.4,-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true})
-box(z,"VIP_GateTopFill",-80,F+15,-236.5,-65,V-1,-235.5,WALL_C,WALLO)
+for _,e in ipairs({{-80,F,-79,F+GH},{-65,F,-64.6,F+GH}}) do box(z,"VIP_GateNeon",e[1],e[2],-236.6,e[3],e[4],-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true}) end
+box(z,"VIP_GateNeon",-80,F+GH,-236.6,-64.6,F+GH+0.4,-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true})
 -- VIP stair: north from the wall up to the 2nd floor landing (z -263..-270)
 local RUN=1.2
 for j=1,22 do local zs=-236.5-RUN*(j-1)
