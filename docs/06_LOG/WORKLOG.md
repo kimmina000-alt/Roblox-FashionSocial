@@ -1563,3 +1563,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/coin_shop.jpg)
 ![](images/2026-10-25/coin_shop_pass.jpg)
+
+### 구현 (D-279) — 버스 정류장 광고판 구매
+
+![](images/2026-10-25/busad_window.jpg)
+![](images/2026-10-25/busad_pose_picker.jpg)
+![](images/2026-10-25/busad_poster.jpg)

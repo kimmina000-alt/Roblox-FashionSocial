@@ -49,6 +49,8 @@ local SparkleService = require(script.Parent.Services.SparkleService)
 SparkleService.Start()
 local RankingService = require(script.Parent.Services.RankingService)
 RankingService.Start()
+local BusAdService = require(script.Parent.Services.BusAdService)
+BusAdService.Start()
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers
@@ -110,6 +112,8 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 	end
 	-- sparklers / cold spark / supporter gifts: the table and message picked before buying
 	local ok, result, handled = SparkleService.Handle(player, action, payload)
+	if handled then return ok, result end
+	ok, result, handled = BusAdService.Handle(player, action, payload)
 	if handled then return ok, result end
 	return DrinkService.Handle(player, action, payload)
 end

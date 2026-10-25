@@ -45,6 +45,11 @@ MonetizationConfig.GamePasses = {
 } :: {[string]: Item}
 
 MonetizationConfig.Products = {
+	-- Bus stop ad boards (BusAdService, D-279): 4 stops × 2 panels
+	BusAd1D = { sku = "CITY-DP-BUSAD-1D", id = 0, name = "버스 정류장 광고 24시간", price = 49, status = "planned",
+		description = "버스 정류장 광고판에 내 아바타와 아이디를 24시간 걸어요." },
+	BusAd3D = { sku = "CITY-DP-BUSAD-3D", id = 0, name = "버스 정류장 광고 3일", price = 99, status = "planned",
+		description = "버스 정류장 광고판에 내 아바타와 아이디를 3일 걸어요." },
 	-- 1 hour of coin x2 (counted while online; cannot be bought with the pass)
 	CoinBoost1h = { sku = "ECON-DP-BOOST1H", id = 0, name = "1시간 코인 x2 부스트", price = 25, status = "planned",
 		description = "접속해 있는 1시간 동안 코인을 2배로 받아요." },

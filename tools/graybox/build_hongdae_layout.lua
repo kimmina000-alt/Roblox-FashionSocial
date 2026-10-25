@@ -1157,6 +1157,10 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 		local ad = part("AdPanel", Vector3.new(4, 6.8, 0.1), cf * CFrame.new(x, 4.6, 1.5), ads[i][2], { parent = m, nocol = true })
 		local glow = Instance.new("SurfaceLight") glow.Face = Enum.NormalId.Front glow.Range = 6 glow.Brightness = 0.6 glow.Parent = ad
 		surfaceText(ad, Enum.NormalId.Front, ads[i][1], Color3.fromRGB(255, 255, 255), Enum.Font.GothamBlack)
+		-- players can buy this ad space (BusAdService, user 2026-10-25: 4 stops × 2)
+		ad:SetAttribute("Slot", "BusStop" .. n .. "_" .. i)
+		ad:SetAttribute("StopName", name)
+		CS:AddTag(ad, "BusAd")
 	end
 	local map = part("RouteMap", Vector3.new(4.6, 3.4, 0.15), cf * CFrame.new(0, 6, 1.8), Color3.fromRGB(240, 242, 240), { parent = m })
 	surfaceText(map, Enum.NormalId.Front, "OHU 01 ─●─●─●─\nOHU 02 ─●─●─●─\nOHU 03 ─●─●─●─", Color3.fromRGB(40, 120, 60), Enum.Font.GothamBold)
