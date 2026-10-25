@@ -4067,6 +4067,36 @@ tower(-76, 110, -48, 170, 120, "glass", "E", "카페")
 tower(-76, 180, -48, 250, 80, "concrete", "E", "약국")
 -- (6 narrower than before: a 6-stud gap to the OH24 store, user 2026-10-23)
 tower(-146, 60, -132, 104, 60, "concrete", "N", "노래방") -- (12 south, its back on the OH24 store's back line z 104, user 2026-10-25; the ground it left is paved below)
+do -- "오늘의 큰손" LED (user 2026-10-25: like the COEX corner screen): one
+	-- screen wrapping the north-west corner of the tower next to OH24, seen from
+	-- the crossing and from the beach road (RankBoard, RankingBoards client)
+	local L = Instance.new("Model")
+	L.Name = "BigSpenderLED"
+	L.Parent = T
+	local FR = Color3.fromRGB(18, 18, 22)
+	box("LEDFrame", -146.9, 17, 58.9, -131.6, 49, 59.6, FR, { parent = L })
+	box("LEDFrame", -147, 17, 59, -146.2, 49, 84.4, FR, { parent = L })
+	local n = box("LEDScreen_N", -146.6, 17.6, 58.75, -131.9, 48.4, 58.9, Color3.fromRGB(10, 10, 16), { parent = L, material = Enum.Material.SmoothPlastic })
+	n:SetAttribute("Board", "today") n:SetAttribute("Face", "Front") CS:AddTag(n, "RankBoard")
+	local w = box("LEDScreen_W", -147.15, 17.6, 59.3, -147, 48.4, 84.1, Color3.fromRGB(10, 10, 16), { parent = L, material = Enum.Material.SmoothPlastic })
+	w:SetAttribute("Board", "today") w:SetAttribute("Face", "Left") w:SetAttribute("Wide", true) CS:AddTag(w, "RankBoard")
+end
+do -- three ranking boards in the pocket park in front of the park gate (user
+	-- 2026-10-25): 후원 / 큰손 / 플레이 시간, on the open paving on the east side,
+	-- facing the plaza
+	local B = Instance.new("Model")
+	B.Name = "RankingBoards"
+	B.Parent = T
+	local POST = Color3.fromRGB(60, 62, 70)
+	for _, spec in ipairs({ { "support", -190 }, { "spend", -172 }, { "playtime", -154 } }) do
+		local z = spec[2]
+		box("BoardPost", -51.4, 0, z - 5.6, -50.6, 12.4, z - 4.8, POST, { parent = B, material = Enum.Material.Metal })
+		box("BoardPost", -51.4, 0, z + 4.8, -50.6, 12.4, z + 5.6, POST, { parent = B, material = Enum.Material.Metal })
+		box("BoardFrame", -51.6, 2.6, z - 5.8, -50.4, 12.6, z + 5.8, POST, { parent = B, material = Enum.Material.Metal })
+		local s = box("BoardScreen", -51.75, 2.9, z - 5.5, -51.6, 12.3, z + 5.5, Color3.fromRGB(14, 16, 24), { parent = B, material = Enum.Material.SmoothPlastic })
+		s:SetAttribute("Board", spec[1]) s:SetAttribute("Face", "Left") CS:AddTag(s, "RankBoard")
+	end
+end
 
 do -- alley between two towers: dumpsters, bags, fire barrel, purple neon shutter
 	local A = Instance.new("Model")

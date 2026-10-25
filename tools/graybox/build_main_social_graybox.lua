@@ -595,6 +595,13 @@ do
   e:SetAttribute("AimLow",Vector3.new(-72,F,-218+(ez+218)*3))
   box(z,"LaserLens",77.25,LY+0.2,ez-0.35,77.4,LY+0.8,ez+0.35,Color3.fromRGB(220,210,255),{mat=Enum.Material.Neon,ghost=true}) end
 end
+-- SUPPORTER STRIP above the LED wall and the lasers (user 2026-10-25): the
+-- supporter ranking scrolls along it, "○○님 후원 감사합니다!" when a gift
+-- comes in (RankBoard, RankingBoards client)
+do local s=box(z,"SupportStrip",78.9,F+40,-246,79.6,F+44,-190,Color3.fromRGB(8,8,12),{mat=Enum.Material.SmoothPlastic,nocol=true})
+ s:SetAttribute("Board","clubStrip") s:SetAttribute("Face","Left") CS:AddTag(s,"RankBoard")
+ box(z,"SupportStripFrame",78.8,F+39.6,-246.4,79.7,F+40,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true})
+ box(z,"SupportStripFrame",78.8,F+44,-246.4,79.7,F+44.4,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true}) end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
 for _,sz in ipairs({-243,-193}) do
  box(z,"Speaker",70,F+4,sz-2.5,75,F+16,sz+2.5,Color3.fromRGB(20,20,24))

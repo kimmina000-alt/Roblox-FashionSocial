@@ -47,6 +47,8 @@ require(script.Parent.Services.SubwayService).Start()
 require(script.Parent.Services.PianoService).Start()
 local SparkleService = require(script.Parent.Services.SparkleService)
 SparkleService.Start()
+local RankingService = require(script.Parent.Services.RankingService)
+RankingService.Start()
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers
@@ -92,6 +94,11 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 			return true, "DJ 차례를 다음 사람에게 넘겼어요."
 		end
 		return false, "지금 DJ 차례가 아니에요."
+	end
+	if action == "RankHidden" then
+		-- "순위에 내 이름 숨기기" (the 💝 window)
+		RankingService.SetHidden(player, payload == true)
+		return true, nil
 	end
 	-- sparklers / cold spark / supporter gifts: the table and message picked before buying
 	local ok, result, handled = SparkleService.Handle(player, action, payload)

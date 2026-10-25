@@ -27,6 +27,19 @@ type ProductHandler = (player: Player) -> (boolean, string?)
 
 local productHandlers: {[string]: ProductHandler} = {}
 local passListeners: {[string]: {(player: Player) -> ()}} = {}
+-- Every granted purchase (player, key, Robux): the spending ranking
+-- (RankingService, CLUB_SHOP_PRICING.md §13.4).
+local purchaseListeners: {(player: Player, key: string, robux: number) -> ()} = {}
+
+function MonetizationService.OnPurchase(listener: (player: Player, key: string, robux: number) -> ())
+	table.insert(purchaseListeners, listener)
+end
+
+local function purchased(player: Player, key: string, robux: number)
+	for _, listener in ipairs(purchaseListeners) do
+		task.spawn(listener, player, key, robux)
+	end
+end
 
 local purchaseStore: DataStore? = nil
 do
@@ -127,6 +140,7 @@ local function processReceipt(receipt: any): Enum.ProductPurchaseDecision
 		-- beyond one extra slot), which is the safer side for the buyer.
 		warn("[MonetizationService] Could not record receipt", receipt.PurchaseId)
 	end
+	purchased(player, key, receipt.CurrencySpent or 0)
 	return Enum.ProductPurchaseDecision.PurchaseGranted
 end
 
@@ -150,11 +164,14 @@ function MonetizationService.StudioTestBuy(player: Player, kind: any, key: any):
 	end
 	if kind == "pass" then
 		setPass(player, key, true)
+		purchased(player, key, MonetizationConfig.GamePasses[key].price)
 		return true, nil
 	end
 	local handler = productHandlers[key]
 	if not handler then return false, "상품 처리기가 없습니다." end
-	return handler(player)
+	local ok, message = handler(player)
+	if ok then purchased(player, key, MonetizationConfig.Products[key].price) end
+	return ok, message
 end
 
 function MonetizationService.Start()
@@ -162,7 +179,10 @@ function MonetizationService.Start()
 	MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passId, purchased)
 		if not purchased then return end
 		local key = MonetizationConfig.passKeyForId(passId)
-		if key then setPass(player, key, true) end
+		if key then
+			setPass(player, key, true)
+			purchased(player, key, MonetizationConfig.GamePasses[key].price)
+		end
 	end)
 	Players.PlayerAdded:Connect(refreshPasses)
 	for _, player in ipairs(Players:GetPlayers()) do

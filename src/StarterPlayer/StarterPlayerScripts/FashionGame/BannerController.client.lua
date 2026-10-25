@@ -111,7 +111,7 @@ end)
 local panel = Instance.new("Frame")
 panel.Name = "SupportShop"
 panel.AnchorPoint = Vector2.new(0.5, 0)
-panel.Size = UDim2.fromOffset(340, 230)
+panel.Size = UDim2.fromOffset(340, 266)
 panel.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
 panel.Visible = false
 panel.Parent = gui
@@ -150,7 +150,31 @@ close.Parent = panel
 Instance.new("UICorner", close).CornerRadius = UDim.new(1, 0)
 local grid = Instance.new("Frame")
 grid.Position = UDim2.fromOffset(16, 80)
-grid.Size = UDim2.new(1, -32, 1, -92)
+grid.Size = UDim2.new(1, -32, 1, -128)
+-- "순위에 내 이름 숨기기" (rankings are public; D-277)
+local hideButton = Instance.new("TextButton")
+hideButton.Name = "HideRank"
+hideButton.AnchorPoint = Vector2.new(0, 1)
+hideButton.Position = UDim2.new(0, 16, 1, -10)
+hideButton.Size = UDim2.new(1, -32, 0, 28)
+hideButton.BackgroundColor3 = Color3.fromRGB(38, 38, 50)
+hideButton.TextColor3 = Color3.fromRGB(210, 210, 225)
+hideButton.TextScaled = true
+hideButton.Font = Enum.Font.GothamMedium
+hideButton.Parent = panel
+Instance.new("UICorner", hideButton).CornerRadius = UDim.new(0, 8)
+Instance.new("UITextSizeConstraint", hideButton).MaxTextSize = 14
+local function hideText()
+	hideButton.Text = if player:GetAttribute("RankHidden") == true
+		then "☑ 순위에 내 이름 숨기는 중 (누르면 다시 보이기)"
+		else "☐ 순위(후원·큰손·플레이 시간)에 내 이름 숨기기"
+end
+hideText()
+player:GetAttributeChangedSignal("RankHidden"):Connect(hideText)
+hideButton.MouseButton1Click:Connect(function()
+	local remotes = FashionGame:WaitForChild("Remotes")
+	;(remotes:WaitForChild("ClubShop") :: RemoteFunction):InvokeServer("RankHidden", player:GetAttribute("RankHidden") ~= true)
+end)
 grid.BackgroundTransparency = 1
 grid.Parent = panel
 local layout = Instance.new("UIGridLayout")
@@ -167,7 +191,7 @@ local function setPanel(open: boolean)
 	if open then
 		local vp = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1000, 700)
 		panel.Position = UDim2.new(0.5, 0, 0, TopBar.bottom() + 8)
-		panel.Size = UDim2.fromOffset(math.min(340, vp.X - 24), math.min(230, vp.Y - TopBar.bottom() - 20))
+		panel.Size = UDim2.fromOffset(math.min(340, vp.X - 24), math.min(266, vp.Y - TopBar.bottom() - 20))
 		Popups.opened("SupportShop", function() panel.Visible = false end)
 	else
 		Popups.closed("SupportShop")

@@ -12,8 +12,7 @@
 --                            and message. One per server every 2 minutes
 --                            (a purchase during the wait starts when it ends).
 --   Supporter gifts          10 / 50 / 100 / 500 / 1,000 / 5,000 R$: the same
---                            banner, nothing else; totals kept for the
---                            supporter ranking (OrderedDataStore).
+--                            banner, nothing else (totals: RankingService).
 --
 -- Before buying, the client sends the table ("SetTable") and the message
 -- ("SetMessage"). Messages are filtered for everyone (TextService) and are
@@ -21,7 +20,6 @@
 
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
-local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TextService = game:GetService("TextService")
 local Debris = game:GetService("Debris")
@@ -49,7 +47,6 @@ local pendingTable: {[number]: BasePart} = {}
 local pendingMessage: {[number]: string} = {}
 local coldQueue: {{ player: Player, message: string }} = {}
 local coldRunning = false
-local supportStore: OrderedDataStore? = nil
 
 local function toast(player: Player, message: string)
 	if notify then notify:FireClient(player, "Toast", message) end
@@ -365,15 +362,7 @@ local function grantSupport(player: Player, amount: number): (boolean, string?)
 	local message = pendingMessage[player.UserId] or ""
 	pendingMessage[player.UserId] = nil
 	banner("support", player, message, amount)
-	local total = (player:GetAttribute("SupportTotal") or 0) + amount
-	player:SetAttribute("SupportTotal", total)
-	task.spawn(function()
-		if supportStore then
-			pcall(function()
-				(supportStore :: OrderedDataStore):IncrementAsync(tostring(player.UserId), amount)
-			end)
-		end
-	end)
+	-- (totals for the supporter ranking: RankingService, via MonetizationService.OnPurchase)
 	toast(player, "💝 후원 고마워요!")
 	return true, nil
 end
@@ -399,10 +388,6 @@ end
 
 function SparkleService.Start()
 	notify = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubNotify") :: RemoteEvent
-	local ok, store = pcall(function()
-		return DataStoreService:GetOrderedDataStore("SupportTotals")
-	end)
-	if ok then supportStore = store end
 	MonetizationService.RegisterProduct("Sparkler1", grantSparkler)
 	MonetizationService.RegisterProduct("SparklerBucket", grantBucket)
 	MonetizationService.RegisterProduct("SparklerBucket_VIP", grantBucket)

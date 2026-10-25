@@ -1552,3 +1552,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - Player2가 Player1의 병에서 컵 따르기(이번엔 Player2 프롬프트 정상), Player1 콜드 스파크 → Player2 화면 배너 + 분수 5곳, 쿨다운 중 Player2 구매 → '대기 1번째' 안내 → 2분 뒤 Player2 콜드 스파크가 터지고 Player1 화면에 배너, Player1 스파클러 버킷 → Player2 캔 마시기(18 → 17), Player2 후원 50 R$ → Player1 화면 배너.
 
 ![](images/2026-10-25/p2_banner_coldspark.jpg)
+
+### 구현 (D-277) — 후원·큰손·플레이 시간 순위 표시
+
+![](images/2026-10-25/rank_club_strip.jpg)
+![](images/2026-10-25/rank_today_led.jpg)
+![](images/2026-10-25/rank_park_boards.jpg)
