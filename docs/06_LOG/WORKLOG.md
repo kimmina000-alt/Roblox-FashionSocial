@@ -1483,3 +1483,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/club_passage_no_graffiti.jpg)
 ![](images/2026-10-25/club_graffiti_extended.jpg)
+
+### 복구 — D-262 로비 벽 목업 취소(사용자 요청), D-261 상태로 되돌림
