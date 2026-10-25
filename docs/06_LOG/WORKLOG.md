@@ -1224,3 +1224,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 바다 쪽 유리와 띄운 만큼(2.6) 북쪽 유리에서도 띄웠습니다. 의자에 앉기 확인.
 
 ![](images/2026-10-25/cafe_piano_gap.jpg)
+
+### 추가 (D-226) — 바다 고무오리 파스텔, 클럽 배치도
+- 고무오리 후보 12개 중 가장 가벼운 4번(덩어리 1개, 이미지 없음)을 골라 파스텔 분홍·노랑으로 번갈아 칠해 바다에 띄웠습니다(사용자 사진 참고). 원본은 ServerStorage.ArtAssets.PastelDuck(플레이스 저장 필요).
+- 클럽 1층·2층 배치도 그림: docs/01_SYSTEMS/images/club_plan_1F.png, club_plan_2F.png.
+
+![](images/2026-10-25/pastel_ducks.jpg)

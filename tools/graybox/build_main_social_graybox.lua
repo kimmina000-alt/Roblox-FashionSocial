@@ -686,6 +686,17 @@ local z=zone("04_Beach_Aquarium")
  for i,b in ipairs({Vector3.new(-285,0,-40),Vector3.new(-314,0,40),Vector3.new(-316,0,70),Vector3.new(-305,0,-110),Vector3.new(-283,0,130),Vector3.new(-310,0,10),Vector3.new(-290,0,-270),Vector3.new(-303,0,-390)}) do
   local m=M(z,"RubberDuck"..i,{"FloatDeco"},{Base=b,Drift=3+i%3,Period=55+i*7,Phase=i*0.9})
   local s=1+(i%2)*0.6
+  -- (user 2026-10-25) the Creator Store rubber duck (one union, no images,
+  -- ServerStorage.ArtAssets.PastelDuck) in soft pastel pink / yellow like the
+  -- user's pool photo; the old part ducks stay as the fallback
+  local src=game:GetService("ServerStorage"):FindFirstChild("ArtAssets") and game:GetService("ServerStorage").ArtAssets:FindFirstChild("PastelDuck")
+  if src then
+   local d=src:Clone() d.Name="Duck"
+   d.Size=d.Size*(1.15*s) d.CFrame=CFrame.new(b+Vector3.new(0,d.Size.Y*0.35,0))*CFrame.Angles(0,i*1.3,0)
+   d.Color=if i%2==0 then Color3.fromRGB(255,178,196) else Color3.fromRGB(255,238,128)
+   d.Material=Enum.Material.Plastic d.Reflectance=0 d.CastShadow=false d.Parent=m
+   m.WorldPivot=CFrame.new(b) continue
+  end
   P(m,"DuckBody",Vector3.new(2*s,1.5*s,2.6*s),CFrame.new(b+Vector3.new(0,0.4*s,0)),Color3.fromRGB(255,220,40),{shape=Enum.PartType.Ball,ghost=true})
   P(m,"DuckHead",Vector3.new(1.3*s,1.3*s,1.3*s),CFrame.new(b+Vector3.new(0,1.4*s,-0.8*s)),Color3.fromRGB(255,220,40),{shape=Enum.PartType.Ball,ghost=true})
   P(m,"DuckBeak",Vector3.new(0.7*s,0.3*s,0.6*s),CFrame.new(b+Vector3.new(0,1.3*s,-1.5*s)),Color3.fromRGB(255,140,40),{ghost=true})
