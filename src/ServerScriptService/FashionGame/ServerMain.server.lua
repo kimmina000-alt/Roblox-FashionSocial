@@ -105,6 +105,15 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 		end
 		return false, "지금 DJ 차례가 아니에요."
 	end
+	if action == "Vote" then
+		-- 좋아요 / 싫어요 on a bus ad or a "오늘의 큰손" card (D-281)
+		return require(script.Parent.Services.VoteService).Vote(player, payload)
+	elseif action == "VoteMine" then
+		if typeof(payload) ~= "table" then return false, nil end
+		if payload.kind == "busad" then return true, BusAdService.MyVote(player, payload.id) end
+		if payload.kind == "today" then return true, RankingService.MyVote(player, payload.user) end
+		return false, nil
+	end
 	if action == "RankHidden" then
 		-- "순위에 내 이름 숨기기" (the 💝 window)
 		RankingService.SetHidden(player, payload == true)

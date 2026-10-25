@@ -103,6 +103,16 @@ local function buildPanel(panel: BasePart)
 	free.TextScaled = true
 	free.Font = Enum.Font.GothamMedium
 	free.Parent = gui
+	-- hidden by 싫어요 (D-281): only the @username on a plain poster
+	local nameOnly = Instance.new("TextLabel")
+	nameOnly.Position = UDim2.fromScale(0.05, 0.35)
+	nameOnly.Size = UDim2.fromScale(0.9, 0.16)
+	nameOnly.BackgroundTransparency = 1
+	nameOnly.TextColor3 = Color3.fromRGB(60, 50, 80)
+	nameOnly.TextScaled = true
+	nameOnly.Font = Enum.Font.GothamBlack
+	nameOnly.Visible = false
+	nameOnly.Parent = adFrame
 	local shown = ""
 	return {
 		gui = gui,
@@ -115,7 +125,11 @@ local function buildPanel(panel: BasePart)
 				shown = ""
 				return
 			end
-			band.Text = "@" .. tostring(ad.n)
+			band.Text = string.format("@%s   👍%d 👎%d", tostring(ad.n), ad.likes or 0, ad.dislikes or 0)
+			viewport.Visible = not ad.hidden
+			nameOnly.Visible = ad.hidden == true
+			nameOnly.Text = "@" .. tostring(ad.n)
+			if ad.hidden then return end
 			local key = adKey(ad)
 			if key == shown then return end
 			shown = key
@@ -226,7 +240,7 @@ local function showSlotWindow(panel: BasePart)
 	local slotId = panel:GetAttribute("Slot") :: string
 	local ad = ads[slotId]
 	clear()
-	openWindow(330, 250)
+	openWindow(330, 300)
 	label({ Position = UDim2.fromOffset(16, 10), Size = UDim2.new(1, -60, 0, 26),
 		Text = "📰 " .. tostring(panel:GetAttribute("StopName") or "") .. " 광고판" })
 	button({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -10, 0, 10), Size = UDim2.fromOffset(30, 30),
@@ -239,6 +253,36 @@ local function showSlotWindow(panel: BasePart)
 	label({ Position = UDim2.fromOffset(16, 42), Size = UDim2.new(1, -32, 0, 40), TextWrapped = true, Font = Enum.Font.GothamMedium,
 		TextColor3 = Color3.fromRGB(200, 200, 215), Text = status .. (if ad and ad.u and not mine then "\n사면 대기열에 들어가요 (끝나면 바로 내 차례)." else "") })
 	local y = 92
+	if ad and ad.u and not mine then
+		-- 좋아요 / 싫어요 (D-281): 싫어요 5개 이상이고 좋아요보다 많으면 사진이 가려져요
+		local mineVote: string? = nil
+		local likeButton, dislikeButton
+		local function paint(likes: number, dislikes: number)
+			likeButton.Text = string.format("👍 %d", likes)
+			dislikeButton.Text = string.format("👎 %d", dislikes)
+			likeButton.BackgroundColor3 = if mineVote == "like" then Color3.fromRGB(0, 150, 255) else Color3.fromRGB(38, 38, 50)
+			dislikeButton.BackgroundColor3 = if mineVote == "dislike" then Color3.fromRGB(220, 60, 60) else Color3.fromRGB(38, 38, 50)
+		end
+		local function vote(value: string)
+			local ok, result = ClubShop:InvokeServer("Vote", { kind = "busad", id = slotId, value = if mineVote == value then nil else value })
+			if ok and typeof(result) == "table" then
+				mineVote = result.mine
+				paint(result.likes, result.dislikes)
+			elseif typeof(result) == "string" then
+				label({ Position = UDim2.fromOffset(16, y + 40), Size = UDim2.new(1, -32, 0, 16), Font = Enum.Font.GothamMedium,
+					TextColor3 = Color3.fromRGB(255, 170, 170), Text = result })
+			end
+		end
+		likeButton = button({ Position = UDim2.fromOffset(16, y), Size = UDim2.new(0.5, -20, 0, 34) }, function() vote("like") end)
+		dislikeButton = button({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, y), Size = UDim2.new(0.5, -20, 0, 34) },
+			function() vote("dislike") end)
+		paint(ad.likes or 0, ad.dislikes or 0)
+		task.spawn(function()
+			local ok, current = ClubShop:InvokeServer("VoteMine", { kind = "busad", id = slotId })
+			if ok then mineVote = current paint(ad.likes or 0, ad.dislikes or 0) end
+		end)
+		y += 60
+	end
 	if mine then
 		button({ Position = UDim2.fromOffset(16, y), Size = UDim2.new(1, -32, 0, 40), BackgroundColor3 = Color3.fromRGB(255, 80, 160),
 			Text = "📸 포즈 다시 찍기 (지금 코디로)" }, function() showPoseWindow(slotId) end)

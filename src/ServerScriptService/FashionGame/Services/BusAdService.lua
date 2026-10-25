@@ -26,6 +26,7 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local MonetizationService = require(script.Parent.MonetizationService)
 local AvatarService = require(script.Parent.AvatarService)
+local VoteService = require(script.Parent.VoteService)
 
 local BusAdService = {}
 
@@ -77,12 +78,19 @@ local function advance(all: {[string]: Slot}): boolean
 	return changed
 end
 
+-- the picture's version for 좋아요 / 싫어요 (a retaken photo starts at 0, D-281)
+local function adVersion(ad: Ad): string
+	return VoteService.Version({ ad.u, ad.o, ad.k, ad.t })
+end
+
 local function publish()
 	local shown = {}
 	for id, slot in pairs(slots) do
 		if slot.ad then
+			local votes = VoteService.State("busad", id, adVersion(slot.ad))
 			shown[id] = { u = slot.ad.u, n = slot.ad.n, o = slot.ad.o, k = slot.ad.k, t = slot.ad.t,
-				untilTime = slot.ad.untilTime, queue = #slot.q }
+				untilTime = slot.ad.untilTime, queue = #slot.q,
+				likes = votes.likes, dislikes = votes.dislikes, hidden = votes.hidden }
 		elseif #slot.q > 0 then
 			shown[id] = { queue = #slot.q }
 		end
@@ -165,6 +173,13 @@ local function isAdmin(player: Player): boolean
 	return RunService:IsStudio() or player.UserId == game.CreatorId
 end
 
+-- This player's vote on a slot's current ad ("like" / "dislike" / nil).
+function BusAdService.MyVote(player: Player, id: any): string?
+	local slot = typeof(id) == "string" and slots[id]
+	if not slot or not slot.ad then return nil end
+	return VoteService.MyVote(player, "busad", id, adVersion(slot.ad))
+end
+
 -- ClubShop actions. Returns ok, result, handled.
 function BusAdService.Handle(player: Player, action: string, payload: any): (boolean, any, boolean)
 	if action == "BusAdSelect" then
@@ -223,6 +238,12 @@ function BusAdService.Start()
 			return grant(player, days)
 		end)
 	end
+	VoteService.Register("busad", function(id)
+		local slot = slots[id]
+		if not slot or not slot.ad then return nil, nil end
+		return slot.ad.u, adVersion(slot.ad)
+	end, "📰 싫어요가 많아 광고 사진이 가려지고 아이디만 보여요. 광고판에서 포즈나 코디를 바꿔 다시 찍으면 표가 새로 시작돼요.")
+	VoteService.OnChange(publish)
 	Players.PlayerRemoving:Connect(function(player) pendingSlot[player.UserId] = nil end)
 	task.spawn(function()
 		while true do

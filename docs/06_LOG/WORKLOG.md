@@ -1574,3 +1574,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/today_block_oh24.jpg)
 ![](images/2026-10-25/today_block_card.jpg)
+
+### 구현 (D-281) — 오늘의 큰손 · 버스 광고 좋아요/싫어요
+- 규칙 확인(가짜 투표자 테스트): 싫어요 4 + 좋아요 1 → 보임, 싫어요 5 → 가려짐, 좋아요 5가 되면 다시 보임, 다시 찍으면 0부터, 내 사진 투표 불가.
+
+![](images/2026-10-25/today_vote_window.jpg)

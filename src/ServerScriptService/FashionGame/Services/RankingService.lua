@@ -20,6 +20,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local MonetizationService = require(script.Parent.MonetizationService)
 local AvatarService = require(script.Parent.AvatarService)
+local VoteService = require(script.Parent.VoteService)
 
 local RankingService = {}
 
@@ -184,6 +185,9 @@ local function top(board: Board): {{ name: string, value: number, id: number }}
 	return out
 end
 
+-- looks on the "오늘의 큰손" cards right now (userId → outfit), for votes
+local todayLooks: {[number]: any} = {}
+
 local function publish()
 	local data = {}
 	for _, board in ipairs(BOARDS) do
@@ -193,11 +197,17 @@ local function publish()
 	for _, board in ipairs({ "spend", "today" }) do
 		for _, row in ipairs(data[board]) do row.value = nil :: any end
 	end
-	-- today's top 3 also carry their look for the avatar screen
+	-- today's top 3 also carry their look for the avatar screen, and their
+	-- 좋아요 / 싫어요 (a hidden card shows the name only, D-281)
+	todayLooks = {}
 	for i, row in ipairs(data.today) do
 		if i <= 3 then
 			row.u = row.id
 			row.o = lookOf(row.id)
+			todayLooks[row.id] = row.o
+			local votes = VoteService.State("today", kstDay() .. ":" .. row.id, VoteService.Version(row.o))
+			row.likes, row.dislikes, row.hidden = votes.likes, votes.dislikes, votes.hidden
+			if votes.hidden then row.o = nil end
 		end
 	end
 	for _, board in ipairs(BOARDS) do
@@ -217,7 +227,21 @@ function RankingService.SetHidden(player: Player, hide: boolean)
 	task.spawn(publish)
 end
 
+-- This player's vote on a "오늘의 큰손" card (userId).
+function RankingService.MyVote(player: Player, userId: any): string?
+	if typeof(userId) ~= "number" or todayLooks[userId] == nil then return nil end
+	return VoteService.MyVote(player, "today", kstDay() .. ":" .. userId, VoteService.Version(todayLooks[userId]))
+end
+
 function RankingService.Start()
+	VoteService.Register("today", function(id)
+		local day, user = string.match(id, "^(%d+):(%d+)$")
+		local userId = tonumber(user)
+		if day ~= kstDay() or not userId or todayLooks[userId] == nil then return nil, nil end
+		return userId, VoteService.Version(todayLooks[userId])
+	end, "👑 싫어요가 많아 오늘의 큰손 전광판에서 내 아바타가 가려지고 이름만 보여요. 코디를 바꾸면 표가 새로 시작돼요.")
+	VoteService.SetPlayMinutes(function(userId) return live.playtime[userId] or 0 end)
+	VoteService.OnChange(function() task.spawn(publish) end)
 	MonetizationService.OnPurchase(function(player, key, robux)
 		if robux <= 0 then return end
 		saveLook(player)

@@ -118,6 +118,97 @@ end
 -- along it without end, like the club LED pillars. Each side shows its piece
 -- of the band; a card crossing a corner is split over two sides.
 local PhotoRender = require(script.Parent:WaitForChild("PhotoRender"))
+local Popups = require(script.Parent:WaitForChild("Popups"))
+local TopBar = require(script.Parent:WaitForChild("TopBar"))
+local ClubShop = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubShop") :: RemoteFunction
+
+-- Vote window for the "오늘의 큰손" cards: one row per card, 👍 / 👎 toggles.
+local voteGui = Instance.new("ScreenGui")
+voteGui.Name = "FashionTodayVoteGui"
+voteGui.ResetOnSpawn = false
+voteGui.IgnoreGuiInset = true
+voteGui.DisplayOrder = 32
+voteGui.Parent = player:WaitForChild("PlayerGui")
+local voteWindow = Instance.new("Frame")
+voteWindow.AnchorPoint = Vector2.new(0.5, 0)
+voteWindow.BackgroundColor3 = Color3.fromRGB(18, 18, 24)
+voteWindow.Visible = false
+voteWindow.Parent = voteGui
+Instance.new("UICorner", voteWindow).CornerRadius = UDim.new(0, 16)
+
+local function voteButton(parent: Instance, props: {[string]: any}, onClick: () -> ()): TextButton
+	local b = Instance.new("TextButton")
+	b.TextColor3 = Color3.new(1, 1, 1)
+	b.TextScaled = true
+	b.Font = Enum.Font.GothamBold
+	b.BackgroundColor3 = Color3.fromRGB(38, 38, 50)
+	for k, v in pairs(props) do (b :: any)[k] = v end
+	b.Parent = parent
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
+	Instance.new("UITextSizeConstraint", b).MaxTextSize = 15
+	b.MouseButton1Click:Connect(onClick)
+	return b
+end
+
+local function StarterGuiNotify(text: string)
+	game:GetService("StarterGui"):SetCore("SendNotification", { Title = "오늘의 큰손", Text = text, Duration = 3 })
+end
+
+local function openVoteWindow()
+	for _, child in ipairs(voteWindow:GetChildren()) do
+		if not child:IsA("UICorner") then child:Destroy() end
+	end
+	local list = rankings.today or {}
+	local rows = math.min(3, #list)
+	local vp = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1000, 700)
+	voteWindow.Position = UDim2.new(0.5, 0, 0, TopBar.bottom() + 8)
+	voteWindow.Size = UDim2.fromOffset(math.min(340, vp.X - 24), 96 + math.max(rows, 1) * 46)
+	voteWindow.Visible = true
+	Popups.opened("TodayVote", function() voteWindow.Visible = false end)
+	label(voteWindow, { Position = UDim2.fromOffset(16, 10), Size = UDim2.new(1, -60, 0, 24), Text = "👑 오늘의 큰손",
+		TextXAlignment = Enum.TextXAlignment.Left })
+	label(voteWindow, { Position = UDim2.fromOffset(16, 36), Size = UDim2.new(1, -32, 0, 32), TextWrapped = true,
+		Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(190, 190, 205), TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "싫어요가 5개 이상이고 좋아요보다 많으면 아바타 대신 이름만 보여요." })
+	voteButton(voteWindow, { AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -10, 0, 8), Size = UDim2.fromOffset(30, 30), Text = "X" },
+		function() voteWindow.Visible = false Popups.closed("TodayVote") end)
+	if rows == 0 then
+		label(voteWindow, { Position = UDim2.fromOffset(16, 76), Size = UDim2.new(1, -32, 0, 24), Font = Enum.Font.GothamMedium,
+			Text = "아직 오늘의 큰손이 없어요" })
+		return
+	end
+	for i = 1, rows do
+		local entry = list[i]
+		local y = 76 + (i - 1) * 46
+		label(voteWindow, { Position = UDim2.fromOffset(16, y + 6), Size = UDim2.new(0.5, -16, 0, 26), Text = string.format("%d위 %s", i, tostring(entry.name)),
+			TextXAlignment = Enum.TextXAlignment.Left })
+		local mine: string? = nil
+		local like, dislike
+		local function paint(likes: number, dislikes: number)
+			like.Text = string.format("👍 %d", likes)
+			dislike.Text = string.format("👎 %d", dislikes)
+			like.BackgroundColor3 = if mine == "like" then Color3.fromRGB(0, 150, 255) else Color3.fromRGB(38, 38, 50)
+			dislike.BackgroundColor3 = if mine == "dislike" then Color3.fromRGB(220, 60, 60) else Color3.fromRGB(38, 38, 50)
+		end
+		local function vote(value: string)
+			local id = os.date("!%Y%m%d", os.time() + 9 * 3600) .. ":" .. tostring(entry.u)
+			local ok, result = ClubShop:InvokeServer("Vote", { kind = "today", id = id, value = if mine == value then nil else value })
+			if ok and typeof(result) == "table" then
+				mine = result.mine
+				paint(result.likes, result.dislikes)
+			elseif typeof(result) == "string" then
+				StarterGuiNotify(result)
+			end
+		end
+		like = voteButton(voteWindow, { Position = UDim2.new(0.5, 0, 0, y), Size = UDim2.new(0.25, -8, 0, 36) }, function() vote("like") end)
+		dislike = voteButton(voteWindow, { Position = UDim2.new(0.75, -4, 0, y), Size = UDim2.new(0.25, -12, 0, 36) }, function() vote("dislike") end)
+		paint(entry.likes or 0, entry.dislikes or 0)
+		task.spawn(function()
+			local ok, current = ClubShop:InvokeServer("VoteMine", { kind = "today", user = entry.u })
+			if ok then mine = current paint(entry.likes or 0, entry.dislikes or 0) end
+		end)
+	end
+end
 local WRAP_SPEED = 2.5 -- studs per second
 local CARD = 13 -- studs per card
 local AVATAR_BACK = { 40, 26, 70 }
@@ -187,6 +278,16 @@ local function buildTodayWrap(part: BasePart)
 			TextColor3 = GOLD, TextXAlignment = Enum.TextXAlignment.Left })
 		label(card, { Position = UDim2.fromScale(0.04, 0.8), Size = UDim2.fromScale(0.92, 0.14), Text = tostring(entry.name),
 			Font = Enum.Font.GothamBlack })
+		label(card, { Position = UDim2.fromScale(0.5, 0.05), Size = UDim2.fromScale(0.46, 0.08),
+			Text = string.format("👍%d 👎%d", entry.likes or 0, entry.dislikes or 0), Font = Enum.Font.GothamMedium,
+			TextXAlignment = Enum.TextXAlignment.Right })
+		if entry.hidden then
+			-- hidden by 싫어요 (D-281): the name only
+			viewport.Visible = false
+			label(card, { Position = UDim2.fromScale(0.04, 0.35), Size = UDim2.fromScale(0.92, 0.16), Text = tostring(entry.name),
+				Font = Enum.Font.GothamBlack, TextColor3 = GOLD })
+			return card
+		end
 		if entry.u and entry.o then
 			task.spawn(function()
 				PhotoRender.renderShot(viewport, { people = { { u = entry.u, x = 0, y = -2.9, z = 0, r = 0, t = 0 } } },
@@ -195,6 +296,13 @@ local function buildTodayWrap(part: BasePart)
 		end
 		return card
 	end
+	-- tap the block: 좋아요 / 싫어요 for today's cards (D-281)
+	local click = Instance.new("ClickDetector")
+	click.MaxActivationDistance = 400
+	click.Parent = part
+	click.MouseClick:Connect(function()
+		openVoteWindow()
+	end)
 	local spacing = perimeter
 	local offset = 0
 	local last = os.clock()
