@@ -1767,3 +1767,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-26/2p_fix_piano_standup.jpg)
 ![](images/2026-10-26/2p_fix_busad.jpg)
 ![](images/2026-10-26/2p_fix_bottle_labels.jpg)
+
+### 피아노 "일어나기" 최종 확인 (2인, 둘 다 705×338)
+- 버튼을 누르면 일어나고 건반이 닫혀요. 이 화면 크기에서는 점프 버튼이 건반에 완전히 가려져서 이 버튼이 꼭 필요해요.
+- 콘솔에 게임 코드 오류는 없었어요.
+
+![](images/2026-10-26/2p_fix_piano_small_phone.jpg)

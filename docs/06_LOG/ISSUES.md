@@ -304,3 +304,4 @@ Every bottle label sat at the same height. Fix: each new bottle's label sits 0.9
 Fix: Banner ZIndex 5 (BannerController).
 
 Re-test 2026-10-26 (new 2P session, Player2 on a 705×338 phone): all 7 are verified fixed. ISSUE-2P-002 needed one more change: `Humanoid.Jump = true` from the button is reset by the control script in the same frame, so the button now sets `Humanoid.Sit = false`.
+ISSUE-2P-002 closed 2026-10-26 (third 2P session, 705×338 phones): pressing "일어나기" stands the player up and closes the keyboard. On this screen size the jump button is fully hidden under the keyboard, so the button is required.
