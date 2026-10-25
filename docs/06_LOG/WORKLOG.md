@@ -1656,3 +1656,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-298) — VIP·아이디에 네온처럼 번지는 빨간 빛 (외곽선 → 블룸)
 
 ![](images/2026-10-25/vip_sign_bloom.jpg)
+
+### 수정 (D-299) — 1층 양옆 벽 파도 조명, 계단 아래 복도 벽 그래피티
+
+![](images/2026-10-25/corridor_graffiti.jpg)
+![](images/2026-10-25/hall_1f_wallbars.jpg)

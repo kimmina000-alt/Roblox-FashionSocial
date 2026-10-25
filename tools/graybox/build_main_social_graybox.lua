@@ -300,6 +300,15 @@ for _,d in ipairs({{-211.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
  local g=box(z,"HallDoorGlow",-65.25,F,math.min(fz,fz+s*0.12),-63.75,F+DH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
  local sl=Instance.new("SurfaceLight") sl.Face=if s>0 then Enum.NormalId.Back else Enum.NormalId.Front sl.Color=pink sl.Range=10 sl.Brightness=1.5 sl.Angle=150 sl.Parent=g end
 label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,-218))
+-- graffiti on the corridor walls seen at the foot of the stairs (user 2026-10-25),
+-- the same pale pattern as the stair walls; none over the hall door opening
+do local function graffiti(x0,y0,z0,x1,y1,z1,face)
+  local p=box(z,"GraffitiWall",x0,y0,z0,x1,y1,z1,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
+  local tx=Instance.new("Texture") tx.Texture="rbxassetid://77520103793675" tx.Face=face tx.StudsPerTileU=34 tx.StudsPerTileV=17 tx.Transparency=0.15 tx.Parent=p end
+ graffiti(-80,F,-236,-79.95,V-1,-167.5,Enum.NormalId.Right) -- west wall
+ graffiti(-65.05,F,-236,-65,V-1,-225.25,Enum.NormalId.Left) -- east wall, north of the door
+ graffiti(-65.05,F,-210.75,-65,V-1,-167.5,Enum.NormalId.Left) -- east wall, south of the door
+ graffiti(-65.05,F+18,-225.25,-65,V-1,-210.75,Enum.NormalId.Left) end -- over the door
 -- VIP wall across the corridor
 local vipRed=Color3.fromRGB(255,40,70)
 -- (as high as the raised corridor ceiling; no "VIP" text on the glass, the
@@ -715,6 +724,15 @@ do local BC=Color3.fromRGB(255,250,175) local k=0
   b.CastShadow=false b:SetAttribute("Index",k) CS:AddTag(b,"ClubWallBar") end
  for xc=-76,78,4 do sideBar(xc,NZ+0.05,NZ+0.25) end
  for xc=78,-76,-4 do sideBar(xc,-167.75,-167.55) end
+ -- and on the 1F long walls below the balcony, between the table platforms
+ -- (their neon arches) and above the bar shelves (user 2026-10-25)
+ local function lowBar(xc,y0,z0,z1) k+=1
+  local b=box(z,"WallLEDBar",xc-0.2,y0,z0-HZ,xc+0.2,V-2,z1-HZ,BC,{mat=Enum.Material.Neon,ghost=true})
+  b.CastShadow=false b:SetAttribute("Index",k) CS:AddTag(b,"ClubWallBar") end
+ local function freeOf(xc,list) for _,cx in ipairs(list) do if math.abs(xc-cx)<10 then return false end end return true end
+ for xc=-62,56,4 do if freeOf(xc,{-41.7,-14.5,12.5,39}) then lowBar(xc,F+1,NZ+0.05,NZ+0.25) end end
+ for xc=56,-62,-4 do if freeOf(xc,{-41.7,-14.5}) then
+  lowBar(xc,if xc>=10 and xc<=54 then F+12.5 else F+1,-167.75,-167.55) end end
 end-- (the lasers moved to the stage-front truss, the moving heads to these trusses: user 2026-10-25)
 
 for _,c in ipairs(z:GetChildren()) do if not beforeDJ[c] then
