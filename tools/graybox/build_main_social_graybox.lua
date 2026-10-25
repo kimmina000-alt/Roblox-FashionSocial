@@ -692,7 +692,7 @@ local z=zone("04_Beach_Aquarium")
   local src=game:GetService("ServerStorage"):FindFirstChild("ArtAssets") and game:GetService("ServerStorage").ArtAssets:FindFirstChild("PastelDuck")
   if src then
    local d=src:Clone() d.Name="Duck"
-   d.Size=d.Size*(1.15*s/8) -- (1/8 of the first size, user 2026-10-25) d.CFrame=CFrame.new(b+Vector3.new(0,d.Size.Y*0.35,0))*CFrame.Angles(0,i*1.3,0)
+   d.Size=d.Size*(1.15*s/8) -- (1/8 of the first size, user 2026-10-25)
    d.Color=if i%2==0 then Color3.fromRGB(255,178,196) else Color3.fromRGB(255,238,128)
    d.Material=Enum.Material.Plastic d.Reflectance=0 d.CastShadow=false d.Parent=m d.CFrame=CFrame.new(b+Vector3.new(0,d.Size.Y*0.35,0))*CFrame.Angles(0,i*1.3,0) -- (again after parenting: a union this small lost its place when resized)
    m.WorldPivot=CFrame.new(b) continue

@@ -163,7 +163,110 @@ register("ParkSwing", addSwing)
 register("ParkSpring", addSpring)
 register("ParkSlide", function(model) table.insert(slides, model) end)
 register("FloatTube", addTube)
-register("FloatDeco", function(model) table.insert(floaters, model) end)
+
+-- Rubber ducks (tag "FloatDeco", user 2026-10-25): they sit on the real water
+-- surface, ride the waves along their drift path and get pushed by anyone
+-- swimming or walking into them. Each client moves its own copy from the
+-- characters it sees, so everyone sees about the same thing (no network).
+type Duck = { model: Model, waterY: number?, pos: Vector3, vel: Vector3, yaw: number, probeAt: number, inWater: boolean }
+local ducks: {Duck} = {}
+local DUCK_PUSH_RADIUS = 2.4
+local waterParams = RaycastParams.new()
+waterParams.FilterType = Enum.RaycastFilterType.Include
+waterParams.FilterDescendantsInstances = { workspace.Terrain }
+waterParams.IgnoreWater = false
+
+-- top of the sea at (x, z), or nil when there is no water there
+local function waterAt(x: number, z: number): number?
+	local hit = workspace:Raycast(Vector3.new(x, 40, z), Vector3.new(0, -80, 0), waterParams)
+	return if hit and hit.Material == Enum.Material.Water then hit.Position.Y else nil
+end
+
+local function addDuck(model: Model)
+	local base = model:GetAttribute("Base")
+	if typeof(base) ~= "Vector3" then return end
+	-- the pivot goes right under the duck itself (a tiny resized union can sit
+	-- a few studs off the model's pivot, and rocking would swing it up and down)
+	local body = model:FindFirstChildWhichIsA("BasePart")
+	if body then
+		local p = body.Position
+		model.WorldPivot = CFrame.new(p.X, p.Y - body.Size.Y * 0.35, p.Z)
+	end
+	local start = ParkConfig.floatCFrame(model, now())
+	local pos = if start then start.Position else base
+	table.insert(ducks, {
+		model = model, waterY = waterAt(base.X, base.Z), -- nil until the sea has streamed in
+		pos = Vector3.new(pos.X, 0, pos.Z), vel = Vector3.zero, yaw = 0, probeAt = 0, inWater = true,
+	})
+end
+register("FloatDeco", addDuck)
+
+local function moveDucks(t: number, dt: number)
+	local roots = {}
+	for _, other in ipairs(Players:GetPlayers()) do
+		local root = other.Character and other.Character:FindFirstChild("HumanoidRootPart")
+		if root and root:IsA("BasePart") then table.insert(roots, root) end
+	end
+	for _, duck in ipairs(ducks) do
+		local model = duck.model
+		if not model.Parent or not cameraNear(duck.pos) then continue end
+		local waterY = duck.waterY
+		if not waterY then
+			if t < duck.probeAt then continue end
+			duck.probeAt = t + 1
+			local base = model:GetAttribute("Base") :: Vector3
+			waterY = waterAt(base.X, base.Z)
+			if not waterY then continue end
+			duck.waterY = waterY
+		end
+		-- the waves pull it gently along its drift path
+		local path = ParkConfig.floatCFrame(model, t)
+		if path then
+			local toPath = Vector3.new(path.Position.X - duck.pos.X, 0, path.Position.Z - duck.pos.Z)
+			duck.vel += toPath * (0.08 * dt)
+		end
+		-- pushed by bodies (swimming or wading) that touch it
+		for _, root in ipairs(roots) do
+			local away = Vector3.new(duck.pos.X - root.Position.X, 0, duck.pos.Z - root.Position.Z)
+			local dist = away.Magnitude
+			if dist < DUCK_PUSH_RADIUS and math.abs(root.Position.Y - waterY) < 4 then
+				local dir = if dist > 0.05 then away / dist else Vector3.new(1, 0, 0)
+				local moving = Vector3.new(root.AssemblyLinearVelocity.X, 0, root.AssemblyLinearVelocity.Z)
+				-- out of the body, then carried along with a little of its speed
+				duck.pos = Vector3.new(root.Position.X, 0, root.Position.Z) + dir * DUCK_PUSH_RADIUS
+				local push = math.max(moving:Dot(dir), 0) * 0.9 + 1.5
+				if duck.vel:Dot(dir) < push then duck.vel += dir * (push - duck.vel:Dot(dir)) end
+			end
+		end
+		duck.vel *= math.exp(-0.7 * dt)
+		local nextPos = duck.pos + duck.vel * dt
+		-- stay on the sea: check the water a few times a second, bounce back off the sand
+		if t >= duck.probeAt then
+			duck.probeAt = t + 0.25
+			duck.inWater = waterAt(nextPos.X, nextPos.Z) ~= nil
+		end
+		if duck.inWater then
+			duck.pos = nextPos
+		else
+			local base = model:GetAttribute("Base") :: Vector3
+			local back = Vector3.new(base.X - duck.pos.X, 0, base.Z - duck.pos.Z)
+			duck.vel = if back.Magnitude > 0.1 then back.Unit * 2 else Vector3.zero
+			duck.inWater = true
+			duck.probeAt = t + 0.25
+		end
+		-- turn slowly to face where it floats
+		local flat = Vector3.new(duck.vel.X, 0, duck.vel.Z)
+		if flat.Magnitude > 0.3 then
+			local target = math.atan2(-flat.X, -flat.Z)
+			local diff = (target - duck.yaw + math.pi) % (2 * math.pi) - math.pi
+			duck.yaw += diff * math.min(1, dt * 3)
+		end
+		local phase = attrNumber(model, "Phase", 0)
+		local bob = 0.06 * math.sin((t % 1000) * 1.8 + phase * 3)
+		local rock = math.rad(6) * math.sin((t % 1000) * 1.3 + phase)
+		model:PivotTo(CFrame.new(duck.pos.X, waterY + bob, duck.pos.Z) * CFrame.Angles(0, duck.yaw, 0) * CFrame.Angles(rock, 0, rock * 0.5))
+	end
+end
 
 --------------------------------------------------
 -- Ride motion
@@ -211,6 +314,7 @@ local function animate(t: number, dt: number)
 		local cf = ParkConfig.floatCFrame(model, t)
 		if cf and model.Parent and cameraNear(cf.Position) then model:PivotTo(cf) end
 	end
+	moveDucks(t, dt)
 	for _, spring in ipairs(springs) do
 		if spring.rocker and cameraNear(spring.base.Position) then
 			local angle = 0

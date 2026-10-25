@@ -1236,3 +1236,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 해변 카페 현재 1층·2층 배치도 그림: docs/02_WORLDS/images/beach_cafe_1F_plan.png, beach_cafe_2F_plan.png.
 
 ![](images/2026-10-25/pastel_duck_small.jpg)
+
+### 추가 (D-228) — 고무오리가 바다 위에 떠서 밀림
+- 오리가 공중에 떠 있던 이유: 실제 바다 수면은 y -4인데 오리 기준 높이는 -2.4였고, 작게 줄인 오리가 기준점에서 3.2만큼 떨어져 있어서 흔들릴 때 위아래로 크게 출렁였습니다.
+- 이제 오리는 실제 수면(레이캐스트) 위에 앉고, 원래 떠다니던 길 쪽으로 파도처럼 천천히 끌려갑니다. 사람이 2.4 안으로 다가가면 밀려나고, 그 사람이 움직이던 속도만큼 같이 밀려 갑니다. 모래에 닿으면 바다 쪽으로 되돌아갑니다. 각 플레이어 화면에서 따로 계산합니다(통신 없음).
+- 테스트: 수면 높이 -3.8~-3.9로 물 위에 떠 있음, 캐릭터가 지나가자 앞으로 6 밀리고 계속 흘러감.
+
+| 전 | 후 |
+|---|---|
+| ![](images/2026-10-25/duck_hovering_before.png) | ![](images/2026-10-25/duck_on_water.jpg) |
