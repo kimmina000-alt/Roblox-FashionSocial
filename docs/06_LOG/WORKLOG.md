@@ -1503,3 +1503,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/club_laser_wave_a.jpg)
 ![](images/2026-10-25/club_laser_wave_b.jpg)
+
+### 기획 (D-267) — 클럽 밤 입장 세부: 밤 10분 유지, DJ 이용권은 클럽 안에서만 구매·예약, 낮에 차례가 오면 기존 차례 안내창으로 DJ 존에 데려옴(CLUB.md §20).
