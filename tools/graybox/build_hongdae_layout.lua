@@ -6121,11 +6121,16 @@ if spawn then
 	-- TEMPORARY (user 2026-10-25): while the beach cafe interior is being
 	-- built, spawn just inside its street door facing the room. Set
 	-- CAFE_WORK_SPAWN = false when the cafe is done.
-	local CAFE_WORK_SPAWN = true
+	local CAFE_WORK_SPAWN = false
 	if CAFE_WORK_SPAWN then
 		p = Vector3.new(-212, 0, 61)
 		sy = 0.6 - spawn.Size.Y / 2 -- the cafe floor top
 		look = Vector3.new(-260, sy, 61)
+	else
+		-- (user 2026-10-25) start on the sidewalk in front of the club door,
+		-- facing it (door gap z -197..-175 on the club front at x 48)
+		p = Vector3.new(38, 0, -186)
+		look = Vector3.new(48, sy, -186)
 	end
 	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, sy, p.Z), look)
 	-- hidden in the paving (user 2026-10-23): no pad or logo showing

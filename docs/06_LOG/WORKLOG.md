@@ -1385,3 +1385,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](../04_ART/references/club_moving_head_ref.jpg)
 ![](images/2026-10-25/club_moving_heads.jpg)
 ![](images/2026-10-25/club_moving_heads_side.jpg)
+
+### 추가 (D-244) — 스폰 클럽 앞, 클럽 VIP 바닥·조명·LED·봉 단상, 레이저 삭제
+- 시작 스폰: 클럽 입구 앞 인도.
+- VIP 바닥 반투명, 2층 부스 사이 조명 높게, 1층 바닥 테두리 선을 레몬빛 흰색으로, 입구 계단~복도 테두리에 같은 LED 선, 봉 단상 높게(2.2), 천장 레이저 조명 삭제.
+
+![](images/2026-10-25/club_hall_v4.jpg)
+![](images/2026-10-25/club_entry_led.jpg)

@@ -186,8 +186,9 @@ P(z,"DoormanNPC(placeholder)",Vector3.new(2,6,2),CFrame.new(10,3,-148),Color3.fr
 label(z,"CLUB · Idol Concert City",Vector3.new(0,TOP+16,-150),true)
 -- shell (F = hall floor, TOP = ceiling)
 box(z,"Floor",-80,F-1,NZ,80,F,-150,WALL_C,WALLO) -- (plain like the walls, user 2026-10-25)
--- red LED line where the hall floor meets the walls (floor and walls looked as one)
-do local RED=Color3.fromRGB(255,40,60) local NE={mat=Enum.Material.Neon,ghost=true}
+-- LED line where the hall floor meets the walls (floor and walls looked as one);
+-- lemon white like the balcony line (user 2026-10-25)
+do local RED=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
  box(z,"FloorLED",-64,F,NZ,-63.88,F+0.25,-167.5,RED,NE) box(z,"FloorLED",79.88,F,NZ,80,F+0.25,-167.5,RED,NE)
  box(z,"FloorLED",-64,F,NZ,80,F+0.25,NZ+0.12,RED,NE) box(z,"FloorLED",-64,F,-167.62,80,F+0.25,-167.5,RED,NE) end
 box(z,"Wall_W",-82,F,(NZ-1),-80,RT,-149,WALL_C,WALLO)
@@ -234,8 +235,17 @@ box(z,"Corridor_E_N",-65,F,NZ,-64,V-1,-225,WALL_C,WALLO)
 box(z,"Corridor_E_S",-65,F,-211,-64,V-1,-167.5,WALL_C,WALLO)
 box(z,"Corridor_DoorTop",-65,F+14,-225,-64,V-1,-211,WALL_C,WALLO)
 box(z,"Corridor_Ceiling",-80,F+14,-236,-65,F+15,-167.5,dark)
-box(z,"CorridorNeon_W",-79.6,F,-236,-79.3,F+0.4,-167.5,Color3.fromRGB(255,40,60),{mat=Enum.Material.Neon,ghost=true})
-box(z,"CorridorNeon_E",-65.7,F,-236,-65.4,F+0.4,-167.5,Color3.fromRGB(255,40,60),{mat=Enum.Material.Neon,ghost=true})
+box(z,"CorridorNeon_W",-79.6,F,-236,-79.3,F+0.4,-167.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+box(z,"CorridorNeon_E",-65.7,F,-236,-65.4,F+0.4,-167.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+-- (user 2026-10-25) the same lemon LED line from the street-level foyer down
+-- both sides of the entrance stairs to the corridor: flat along the foyer,
+-- sloping with the steps, flat across the bottom landing
+do local LC=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
+ for _,ez in ipairs({-166.35,-151.15}) do
+  box(z,"EntryLED",-24,0,ez-0.12,12,0.25,ez+0.12,LC,NE)
+  beam(z,"EntryLED",Vector3.new(-24,0.12,ez),Vector3.new(-61.5,-22.38,ez),0.25,LC,NE)
+  box(z,"EntryLED",-79.6,F,ez-0.12,-61.5,F+0.25,ez+0.12,LC,NE) end
+ box(z,"EntryLED",-79.85,F,-166.4,-79.6,F+0.25,-151.1,LC,NE) end
 P(z,"HallDoorFrame",Vector3.new(1.5,14,1.5),CFrame.new(-64.5,F+7,-211.5),pink,NEON)
 P(z,"HallDoorFrame",Vector3.new(1.5,14,1.5),CFrame.new(-64.5,F+7,-224.5),pink,NEON)
 label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,-218))
@@ -269,11 +279,13 @@ label(z,"VIP 2층 ↑ (VIP 패스)",Vector3.new(-72,F+17,-232))
 -- open up to the ceiling. Hole in the floor over the VIP stair (x -80..-64,
 -- z -263..-236); the stair arrives on the landing at the north-west corner.
 local vipFloor=Color3.fromRGB(150,120,60)
-box(z,"VIP_Floor_N",-64,V-1,NZ,58,V,(NZ+24),WALL_C,WALLO)
-box(z,"VIP_Floor_Landing",-80,V-1,NZ,-64,V,-263,WALL_C,WALLO)
-box(z,"VIP_Floor_W",-64,V-1,(NZ+24),-50,V,-190,WALL_C,WALLO)
-box(z,"VIP_Floor_W2",-80,V-1,-236,-64,V,-190,WALL_C,WALLO)
-box(z,"VIP_Floor_S",-80,V-1,-190,58,V,-167.5,WALL_C,WALLO)
+-- (user 2026-10-25) the VIP floors are see-through dark glass
+local VIPF=Color3.fromRGB(40,40,48) local VIPFO={t=0.5,mat=Enum.Material.Glass}
+box(z,"VIP_Floor_N",-64,V-1,NZ,58,V,(NZ+24),VIPF,VIPFO)
+box(z,"VIP_Floor_Landing",-80,V-1,NZ,-64,V,-263,VIPF,VIPFO)
+box(z,"VIP_Floor_W",-64,V-1,(NZ+24),-50,V,-190,VIPF,VIPFO)
+box(z,"VIP_Floor_W2",-80,V-1,-236,-64,V,-190,VIPF,VIPFO)
+box(z,"VIP_Floor_S",-80,V-1,-190,58,V,-167.5,VIPF,VIPFO)
 local glass=Color3.fromRGB(200,230,255)
 box(z,"VIP_Rail_N",-50,V,(NZ+23.5),58,V+4,(NZ+24),glass,{t=0.6})
 box(z,"VIP_Rail_S",-50,V,-190,58,V+4,-189.5,glass,{t=0.6})
@@ -339,7 +351,7 @@ for _,cx in ipairs(BOOTHS) do vipBooth(cx,NZ,1) vipBooth(cx,-167.5,-1) end
 -- small warm wall lights between the booths
 for k=1,#BOOTHS-1 do local lx=(BOOTHS[k]+BOOTHS[k+1])/2
  for _,w in ipairs({{NZ,1},{-167.5,-1}}) do
-  local wl=box(z,"VIP_WallLight",lx-0.35,V+4.8,w[1]+w[2]*0,lx+0.35,V+6.6,w[1]+w[2]*0.25,Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
+  local wl=box(z,"VIP_WallLight",lx-0.35,V+9,w[1]+w[2]*0,lx+0.35,V+10.8,w[1]+w[2]*0.25,Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
   local pl=Instance.new("PointLight") pl.Range=14 pl.Brightness=0.8 pl.Color=Color3.fromRGB(255,200,150) pl.Parent=wl end end
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,NZ+12),true)
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,-178),true)
@@ -376,12 +388,13 @@ end
 for _,cx in ipairs({-41.7,-14.5}) do platform(cx,-167.5,-1) end
 for _,cx in ipairs({-41.7,-14.5,12.5,39}) do platform(cx,NZ,1) end
 local function pole(px,pz)
- local b=cyl(z,"PoleBase",5,0.6,Vector3.new(px,F+0.3,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole")
- local PL=(V-1)-(F+0.6) -- up to the balcony floor (they stand where its columns were)
- local p=cyl(z,"DancePole",0.35,PL,Vector3.new(px,F+0.6+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
+ local BH=2.2 -- (a higher round stage, user 2026-10-25)
+ local b=cyl(z,"PoleBase",5,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole")
+ local PL=(V-1)-(F+BH) -- up to the balcony floor (they stand where its columns were)
+ local p=cyl(z,"DancePole",0.35,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
  p.Reflectance=0.3
  -- the prompt at chest height on the base (a prompt high on the pole did not show)
- local at=Instance.new("Attachment") at.Name="PoleGrip" at.Parent=b at.WorldPosition=Vector3.new(px,F+3.5,pz)
+ local at=Instance.new("Attachment") at.Name="PoleGrip" at.Parent=b at.WorldPosition=Vector3.new(px,F+BH+3,pz)
  local pr=Instance.new("ProximityPrompt") pr.Name="PolePrompt" pr.ActionText="봉 잡고 돌기" pr.ObjectText="댄스 봉"
  pr.MaxActivationDistance=7 pr.RequiresLineOfSight=false pr.Parent=at
 end
@@ -507,16 +520,7 @@ for _,pc in ipairs({{70,-262.5},{70,-174}}) do
   panel:SetAttribute("Slice",k) end
  P(m,"NameAnchor",Vector3.new(1,1,1),CFrame.new(pc[1]-R-4,F+14,pc[2]),W,{t=1,ghost=true})
 end
--- ceiling lasers: two trusses over the dance floor with 8 emitters (ClubLightsController)
-local metal=Color3.fromRGB(120,120,130)
-for _,tz in ipairs({-228,-208}) do
- box(z,"LaserTruss",-40,TOP-7,tz-0.6,50,TOP-6,tz+0.6,metal)
- for _,hx in ipairs({-38,5,48}) do box(z,"TrussRod",hx-0.2,TOP-6,tz-0.2,hx+0.2,TOP,tz+0.2,metal) end
- for _,ex in ipairs({-30,-5,20,45}) do
-  local e=box(z,"LaserEmitter",ex-0.8,TOP-8.2,tz-0.8,ex+0.8,TOP-7,tz+0.8,Color3.fromRGB(30,30,36))
-  e:SetAttribute("AimY",F) CS:AddTag(e,"ClubLaser")
-  box(z,"LaserLens",ex-0.4,TOP-8.35,tz-0.4,ex+0.4,TOP-8.2,tz+0.4,Color3.fromRGB(120,255,120),{mat=Enum.Material.Neon,ghost=true}) end
-end
+-- (no ceiling laser trusses any more: the moving heads light the hall, user 2026-10-25)
 
 for _,c in ipairs(z:GetChildren()) do if not beforeDJ[c] then
  local d=Vector3.new(0,0,HZ)
