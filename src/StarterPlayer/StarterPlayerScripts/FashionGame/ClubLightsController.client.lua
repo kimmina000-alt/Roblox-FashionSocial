@@ -93,7 +93,8 @@ CollectionService:GetInstanceAddedSignal("ClubLaser"):Connect(addEmitter)
 
 local function updateLasers(lightTime: number)
 	local t = lightTime * 2.2 -- fast sweeps (user video 2026-10-25)
-	local on = FashionGame:GetAttribute("ClubLights") ~= false
+	-- (the lasers have their own switch, user 2026-10-25)
+	local on = FashionGame:GetAttribute("ClubLasers") ~= false
 	-- DJ colour pick (ClubLightColor); rainbow / none = colour cycle
 	local picked = ClubConfig.findLightColor(FashionGame:GetAttribute("ClubLightColor"))
 	local fixed: Color3? = picked and picked.color

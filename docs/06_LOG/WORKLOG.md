@@ -1665,3 +1665,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 추가 (D-300) — 클럽 앞 웨이팅 줄 서는 곳 (울타리 두 줄)
 
 ![](images/2026-10-25/club_queue.jpg)
+
+### 수정 (D-301) — DJ 조명/레이저 따로 켜고 끄기, 레이저 옆 속도 버튼, 전광판 버튼은 시간 연장 옆
+
+![](images/2026-10-25/dj_panel_lasers.jpg)

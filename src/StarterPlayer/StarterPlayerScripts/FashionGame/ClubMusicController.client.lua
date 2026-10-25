@@ -155,7 +155,7 @@ local function djToolButton(name: string, text: string, enabled: boolean): TextB
 	local button = create("TextButton", {
 		Name = name,
 		LayoutOrder = djToolCount,
-		Size = UDim2.new(1 / 4, -5, 1, 0),
+		Size = UDim2.new(0.21, -5, 1, 0), -- (the laser group is wider)
 		BackgroundColor3 = if enabled then COLORS.dj else COLORS.card,
 		Text = text,
 		TextColor3 = if enabled then COLORS.text else COLORS.sub,
@@ -171,10 +171,60 @@ end
 local skipButton = djToolButton("Skip", "⏭ 건너뛰기", true)
 -- DJ zone guests (D-061): switches the list below between songs and people.
 local guestsButton = djToolButton("Guests", "👥 초대", true)
--- Club lights / lasers on-off (DjService.Actions.Lights, attribute ClubLights).
+-- Club lights on-off (DjService.Actions.Lights, attribute ClubLights): the
+-- moving heads and beat lights.
 local lightsButton = djToolButton("Lights", "💡 조명 ON", true)
--- DJ shown on the big LED screen (DjService.Actions.Screen, attribute ClubDJScreen).
-local screenButton = djToolButton("Screen", "📺 전광판 ON", true)
+-- Lasers on-off with their speed right next to it (user 2026-10-25: lights and
+-- lasers switch apart; the speed only changes the lasers, so it sits here).
+local laserGroup = create("Frame", {
+	Name = "LaserGroup",
+	LayoutOrder = djToolCount + 1,
+	Size = UDim2.new(0.37, -5, 1, 0),
+	BackgroundTransparency = 1,
+}, djTools)
+djToolCount += 1
+local laserButton = create("TextButton", {
+	Name = "Lasers",
+	Size = UDim2.new(0.62, -2, 1, 0),
+	BackgroundColor3 = COLORS.dj,
+	Text = "✳ 레이저 ON",
+	TextColor3 = COLORS.text,
+	TextScaled = true,
+	Font = Enum.Font.GothamBold,
+}, laserGroup)
+corner(laserButton, 8)
+create("UITextSizeConstraint", { MaxTextSize = 13 }, laserButton)
+create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, laserButton)
+-- laser speed (DJ only, DjService.Actions.LightSpeed): tap to cycle x0.5 → … → x5
+local LIGHT_SPEEDS = { 0.5, 1, 1.5, 2, 3, 4, 5 } -- (up to x5, user 2026-10-25)
+local speedButton = create("TextButton", {
+	Name = "LaserSpeed",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.fromScale(1, 0),
+	Size = UDim2.new(0.38, -2, 1, 0),
+	BackgroundColor3 = Color3.fromRGB(90, 60, 160),
+	Text = "⚡x1",
+	TextScaled = true,
+	Font = Enum.Font.GothamBold,
+	TextColor3 = COLORS.text,
+}, laserGroup)
+corner(speedButton, 8)
+create("UITextSizeConstraint", { MaxTextSize = 13 }, speedButton)
+-- DJ shown on the big LED screen (DjService.Actions.Screen, attribute
+-- ClubDJScreen): next to 시간 연장 in the DJ row (user 2026-10-25)
+local screenButton = create("TextButton", {
+	Name = "Screen",
+	AnchorPoint = Vector2.new(1, 0.5),
+	BackgroundColor3 = COLORS.dj,
+	Text = "📺 전광판 ON",
+	TextColor3 = COLORS.text,
+	TextScaled = true,
+	Font = Enum.Font.GothamBold,
+	Visible = false,
+}, djRow)
+corner(screenButton, 15)
+create("UITextSizeConstraint", { MaxTextSize = 13 }, screenButton)
+create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, screenButton)
 
 -- light colours (DJ only): ClubConfig.LightColors swatches
 local colorRow = create("Frame", {
@@ -199,20 +249,6 @@ for index, entry in ipairs(ClubConfig.LightColors) do
 	create("UIStroke", { Name = "Picked", Color = Color3.new(1, 1, 1), Thickness = 2, Enabled = false }, button)
 	colorButtons[entry.key] = button
 end
--- light sweep speed (DJ only, DjService.Actions.LightSpeed): one cell after
--- the colours, tap to cycle x0.5 → x1 → … → x5
-local LIGHT_SPEEDS = { 0.5, 1, 1.5, 2, 3, 4, 5 } -- (up to x5, user 2026-10-25)
-local speedButton = create("TextButton", {
-	Name = "LightSpeed",
-	LayoutOrder = #ClubConfig.LightColors + 1,
-	BackgroundColor3 = COLORS.dj,
-	Text = "⚡x1",
-	TextScaled = true,
-	Font = Enum.Font.GothamBold,
-	TextColor3 = COLORS.text,
-}, colorRow)
-corner(speedButton, 6)
-create("UITextSizeConstraint", { MaxTextSize = 13 }, speedButton)
 
 local listTitle = create("TextLabel", {
 	Name = "ListTitle",
@@ -356,20 +392,27 @@ local function layout()
 		djButton.AnchorPoint = Vector2.new(1, 1)
 		djButton.Position = UDim2.new(1, -4, 1, -4)
 		djButton.Size = UDim2.fromOffset(math.min(150, leftW - 8), 24)
+		screenButton.AnchorPoint = Vector2.new(1, 1)
+		screenButton.Position = UDim2.new(1, -math.min(150, leftW - 8) - 10, 1, -4)
+		screenButton.Size = UDim2.fromOffset(96, 24)
 	else
 		djLabel.Position = UDim2.fromOffset(10, 0)
-		djLabel.Size = UDim2.new(1, -120, 1, 0)
+		djLabel.Size = UDim2.new(1, if dj then -226 else -120, 1, 0)
 		djButton.AnchorPoint = Vector2.new(1, 0.5)
 		djButton.Position = UDim2.new(1, -6, 0.5, 0)
 		djButton.Size = UDim2.fromOffset(104, 30)
+		screenButton.AnchorPoint = Vector2.new(1, 0.5)
+		screenButton.Position = UDim2.new(1, -116, 0.5, 0)
+		screenButton.Size = UDim2.fromOffset(100, 30)
 	end
+	screenButton.Visible = dj
 	y += (if compact then 58 else 40) + 6
 	if dj then
 		djTools.Position = UDim2.fromOffset(0, y)
 		djTools.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
 		y += (if compact then 26 else 30) + 6
 		local perRow = if compact then 4 else 8
-		local rows = math.ceil((#ClubConfig.LightColors + 1) / perRow) -- (+ the speed cell)
+		local rows = math.ceil(#ClubConfig.LightColors / perRow)
 		local cellH = if compact then 22 else 24
 		colorGrid.CellSize = UDim2.fromOffset(math.floor((leftW - (perRow - 1) * 4) / perRow), cellH)
 		colorRow.Position = UDim2.fromOffset(0, y)
@@ -600,6 +643,9 @@ local function refresh()
 	local lightsOn = FashionGame:GetAttribute("ClubLights") ~= false
 	lightsButton.Text = if lightsOn then "💡 조명 ON" else "🌑 조명 OFF"
 	lightsButton.BackgroundColor3 = if lightsOn then COLORS.dj else COLORS.card
+	local lasersOn = FashionGame:GetAttribute("ClubLasers") ~= false
+	laserButton.Text = if lasersOn then "✳ 레이저 ON" else "✳ 레이저 OFF"
+	laserButton.BackgroundColor3 = if lasersOn then COLORS.dj else COLORS.card
 	local screenOn = FashionGame:GetAttribute("ClubDJScreen") ~= false
 	screenButton.Text = if screenOn then "📺 전광판 ON" else "📺 전광판 OFF"
 	screenButton.BackgroundColor3 = if screenOn then COLORS.dj else COLORS.card
@@ -643,7 +689,7 @@ local function refreshAll()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
@@ -667,6 +713,9 @@ screenButton.MouseButton1Click:Connect(function()
 end)
 lightsButton.MouseButton1Click:Connect(function()
 	call("Lights", FashionGame:GetAttribute("ClubLights") == false)
+end)
+laserButton.MouseButton1Click:Connect(function()
+	call("Lasers", FashionGame:GetAttribute("ClubLasers") == false)
 end)
 
 -- The DJ table (models tagged "DJConsole"): a local "디제잉하기" prompt (E)

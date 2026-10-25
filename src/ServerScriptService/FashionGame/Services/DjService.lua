@@ -68,6 +68,7 @@ local function startNext()
 	currentUntil = 0
 	table.clear(guests)
 	FashionGame:SetAttribute("ClubLights", true)
+	FashionGame:SetAttribute("ClubLasers", true)
 	FashionGame:SetAttribute("ClubLightColor", "rainbow")
 	FashionGame:SetAttribute("ClubLightSpeed", 1)
 	FashionGame:SetAttribute("ClubDJScreen", true)
@@ -189,6 +190,13 @@ DjService.Actions.Lights = function(_dj: Player, on: any): (boolean, any)
 	return true, if on == true then "조명을 켰어요." else "조명을 껐어요."
 end
 
+-- "Lasers" (payload = true/false): the lasers on their own (user 2026-10-25:
+-- lights and lasers switch separately). Attribute ClubLasers, on for each new DJ.
+DjService.Actions.Lasers = function(_dj: Player, on: any): (boolean, any)
+	FashionGame:SetAttribute("ClubLasers", on == true)
+	return true, if on == true then "레이저를 켰어요." else "레이저를 껐어요."
+end
+
 -- "Screen" (payload = true/false): show the DJ on the big LED screen behind
 -- the booth (DJScreenController). Attribute ClubDJScreen, on for each new DJ.
 DjService.Actions.Screen = function(_dj: Player, on: any): (boolean, any)
@@ -212,7 +220,7 @@ local LIGHT_SPEEDS = { 0.5, 1, 1.5, 2, 3, 4, 5 } -- (up to x5, user 2026-10-25)
 DjService.Actions.LightSpeed = function(_dj: Player, speed: any): (boolean, any)
 	if not table.find(LIGHT_SPEEDS, speed) then return false, "없는 조명 속도예요." end
 	FashionGame:SetAttribute("ClubLightSpeed", speed)
-	return true, string.format("조명 속도 x%s", tostring(speed))
+	return true, string.format("레이저 속도 x%s", tostring(speed))
 end
 
 -- "Djing" (payload = true): the DJ starts DJing at the turntable — moved to the
