@@ -1644,3 +1644,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/vip_sign_v3.jpg)
 ![](images/2026-10-25/vip_table_underglow.jpg)
 ![](images/2026-10-25/pole_steps.jpg)
+
+### 수정 (D-296) — VIP 글자·닉네임 흰색 + 뒤 빛, 로고 레몬색 + 노란 빛, 양 옆 벽 파도 조명 선
+
+![](images/2026-10-25/vip_sign_v4_wallbars.jpg)

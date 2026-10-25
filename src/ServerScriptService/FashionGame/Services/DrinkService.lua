@@ -246,6 +246,10 @@ local function refreshTableSign(tablePart: Instance)
 			local shown = {}
 			for _, name in ipairs(names) do table.insert(shown, "@" .. name) end
 			label.Text = table.concat(shown, " · ")
+			-- the glow copies behind the name (graybox "Halo" labels) follow it
+			for _, sibling in ipairs((label.Parent :: Instance):GetChildren()) do
+				if sibling.Name == "Halo" and sibling:IsA("TextLabel") and sibling.Position == label.Position then sibling.Text = label.Text end
+			end
 		end
 		return
 	end
