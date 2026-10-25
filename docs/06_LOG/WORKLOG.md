@@ -1648,3 +1648,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-296) — VIP 글자·닉네임 흰색 + 뒤 빛, 로고 레몬색 + 노란 빛, 양 옆 벽 파도 조명 선
 
 ![](images/2026-10-25/vip_sign_v4_wallbars.jpg)
+
+### 수정 (D-297) — VIP 간판 로고·VIP·아이디 빛을 빨강으로
+
+![](images/2026-10-25/vip_sign_red_glow.jpg)

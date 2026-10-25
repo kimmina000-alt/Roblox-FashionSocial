@@ -551,3 +551,5 @@ D-294 — (2026-10-25, user) The OH24 tower screen shows live supporters (last 6
 D-295 — (2026-10-25, user mock-up) VIP sign: smaller crown on a slightly lighter dark plate, "VIP" white on a small dark amber tag; a warm LED hidden under each VIP table top's edge shining down (faint strip + SurfaceLight + low PointLight) so only a soft glow shows. Dance pole stages are stepped (three 1-stud rings: Ø10, Ø8.5, Ø7 top) with 24 invisible wedge ramps all round; walked up from six directions.
 
 D-296 — (2026-10-25, user) VIP sign: "VIP" white letters with no tag behind and a soft white glow (faint halo copies of the label + a small SurfaceLight), the @nickname in the same style (DrinkService keeps the "Halo" copies in step); the crown (club logo) a white-ish lemon with a yellow PointLight. The chasing LED wall bars continue along both long walls above the VIP signs (V+14..TOP-1.5, every 4 studs).
+
+D-297 — (2026-10-25, user) VIP sign glows red for all three: the crown (red see-through neon outline behind it + red PointLight), "VIP" and the @nickname (red halo strokes, red SurfaceLight); the letters stay white, the crown lemon.

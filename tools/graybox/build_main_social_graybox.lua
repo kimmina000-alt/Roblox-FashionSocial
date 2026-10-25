@@ -420,11 +420,15 @@ local function vipBooth(cx,wallZ,dir)
   -- (the club logo crown: bright lemon mixed with white, giving off yellow light: user 2026-10-25)
   local CG=Color3.fromRGB(255,238,110) local CO={mat=Enum.Material.Neon,ghost=true} -- (Neon blooms lighter: this reads as a white-ish lemon)
   do local la=box(z,"VIP_CrownLight",cx-0.1,V+11.4,zz(0.25),cx+0.1,V+11.6,zz(0.3),CG,{t=1,ghost=true})
-   local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,220,80) pl.Range=6 pl.Brightness=1.6 pl.Parent=la end
+   local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,40,50) pl.Range=6 pl.Brightness=1.8 pl.Parent=la end -- (red glow, user 2026-10-25)
   local cy=V+10.9
   box(z,"VIP_Crown",cx-0.9,cy,zz(0.1),cx+0.9,cy+0.26,zz(0.2),CG,CO)
+  -- red glow round the crown: slightly bigger see-through red neon behind each piece (user 2026-10-25)
+  local RG=Color3.fromRGB(255,30,45) local RGO={mat=Enum.Material.Neon,ghost=true,t=0.55}
+  box(z,"VIP_CrownGlow",cx-1.05,cy-0.15,zz(0.1),cx+1.05,cy+0.41,zz(0.12),RG,RGO)
   for k=-2,2 do local h=if k==0 then 1.1 elseif math.abs(k)==1 then 0.85 else 0.98
    local x=cx+k*0.4
+   box(z,"VIP_CrownGlow",x-0.2,cy+0.26,zz(0.1),x+0.2,cy+h+0.3,zz(0.12),RG,RGO)
    box(z,"VIP_Crown",x-0.07,cy+0.26,zz(0.1),x+0.07,cy+h,zz(0.2),CG,CO)
    P(z,"VIP_CrownJewel",Vector3.new(0.2,0.2,0.2),CFrame.new(x,cy+h+0.08,zz(0.15)),CG,{shape=Enum.PartType.Ball,mat=Enum.Material.Neon,ghost=true}) end
   -- "VIP": white letters only, no tag behind, with a glow around them (user 2026-10-25)
@@ -435,9 +439,9 @@ local function vipBooth(cx,wallZ,dir)
   -- glow: two faint white halos behind the letters (no blur in Roblox) + light on the wall
   local function halo(label: TextLabel, sizes)
    for i,s in ipairs(sizes) do local h=label:Clone() h.Name="Halo" h.ZIndex=label.ZIndex-i h.TextTransparency=1 h.Parent=label.Parent
-    local st=Instance.new("UIStroke") st.Color=Color3.new(1,1,1) st.Thickness=s st.Transparency=0.82+0.06*i st.Parent=h end end
+    local st=Instance.new("UIStroke") st.Color=Color3.fromRGB(255,40,50) st.Thickness=s st.Transparency=0.6+0.15*i st.Parent=h end end -- (red glow, user 2026-10-25)
   halo(vip,{4,9})
-  local tl=Instance.new("SurfaceLight") tl.Face=face tl.Color=Color3.fromRGB(255,245,230) tl.Range=4 tl.Brightness=1 tl.Angle=170 tl.Parent=tag
+  local tl=Instance.new("SurfaceLight") tl.Face=face tl.Color=Color3.fromRGB(255,40,50) tl.Range=4 tl.Brightness=1.2 tl.Angle=170 tl.Parent=tag
   -- the nickname board below the plate
   local board=box(z,"VIP_Sign",x0+0.3,y0+0.3,zz(0.1),x1-0.3,V+10.5,zz(0.12),Color3.new(0,0,0),{t=1,ghost=true})
   local g=Instance.new("SurfaceGui") g.Face=face g.LightInfluence=0 g.Brightness=1.6 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=board
