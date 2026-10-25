@@ -516,7 +516,7 @@ function addWash(instance: Instance)
 	beam.Attachment0 = origin
 	beam.Attachment1 = target
 	beam.Width0 = 3
-	beam.Width1 = 22
+	beam.Width1 = 30
 	beam.Texture = SOFT_BEAM
 	beam.TextureMode = Enum.TextureMode.Stretch
 	beam.TextureLength = 1
@@ -529,7 +529,7 @@ function addWash(instance: Instance)
 	beam.Parent = lens
 	local light = Instance.new("SpotLight")
 	light.Face = Enum.NormalId.Right
-	light.Angle = 32
+	light.Angle = 42 -- (bigger pools, user 2026-10-25)
 	light.Range = 90
 	light.Brightness = 14 -- (the floor is near black: strong pools)
 	light.Shadows = false
@@ -562,11 +562,13 @@ local function updateWashes(t: number)
 			local baseReach = if typeof(reachAttr) == "number" then reachAttr else 34
 			local reach, side
 			if pattern == 0 then -- all sweep together, a wave across the floor
-				reach = baseReach * (1 + 0.35 * math.sin(t * 0.7 + i * 0.5))
-				side = 22 * math.sin(t * 0.55 + i * 0.35)
+				-- (wide sweeps: across the centre line of the stage and from wall to
+				-- wall, user 2026-10-25)
+				reach = baseReach + 24 * math.sin(t * 0.7 + i * 0.5)
+				side = 40 * math.sin(t * 0.55 + i * 0.35)
 			else -- fan out and cross
-				reach = baseReach * (0.9 + 0.4 * math.cos(t * 0.9 + i))
-				side = ((i % 4) - 1.5) * 9 + 14 * math.sin(t * 1.1 + i * 1.7)
+				reach = baseReach + 22 * math.cos(t * 0.9 + i)
+				side = ((i % 4) - 1.5) * 14 + 22 * math.sin(t * 1.1 + i * 1.7)
 			end
 			local p = home.Position + home.LookVector * reach + home.RightVector * side
 			local goal = Vector3.new(p.X, floorY, p.Z)
@@ -595,7 +597,8 @@ end
 --------------------------------------------------
 
 local accumulator = 0
--- The lasers and moving heads run on their own clock so the DJ's speed
+-- The lasers run on their own clock so the DJ's speed (lasers only, user
+-- 2026-10-25; the moving heads keep the normal pace)
 -- (attribute ClubLightSpeed, x0.5..x5, user 2026-10-25) changes them smoothly
 local lightClock = workspace:GetServerTimeNow()
 local lastNow = lightClock
@@ -609,7 +612,7 @@ RunService.RenderStepped:Connect(function(dt)
 	lightClock += (t - lastNow) * (if typeof(speed) == "number" then math.clamp(speed, 0.25, 5) else 1)
 	lastNow = t
 	updateLasers(lightClock)
-	updateWashes(lightClock)
+	updateWashes(t)
 	updatePillars(t)
 end)
 

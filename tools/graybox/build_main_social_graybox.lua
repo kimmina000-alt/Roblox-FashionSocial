@@ -491,7 +491,7 @@ do local TR=Color3.fromRGB(30,30,34)
   for _,hx in ipairs({-38,5,48}) do box(z,"WashTrussRod",hx-0.2,TY+0.5,tz-0.2,hx+0.2,TOP,tz+0.2,TR,{mat=Enum.Material.Metal}) end
   local face=if ti==1 then Vector3.new(0,0,-1) else Vector3.new(0,0,1)
   for k,hx in ipairs({-30,-5,20,45}) do
-   local m=M(z,"MovingHead",{"ClubWash"},{AimY=F,Index=(ti-1)*4+k-1,Reach=16})
+   local m=M(z,"MovingHead",{"ClubWash"},{AimY=F,Index=(ti-1)*4+k-1,Reach=6})
    local hp=Vector3.new(hx,TY-3,tz)
    box(m,"Yoke",hx-1.9,TY-3.2,tz-0.8,hx+1.9,TY-2.9,tz+0.8,TR,{nocol=true})
    for _,s in ipairs({-1,1}) do box(m,"YokeArm",hx+s*1.9-0.15,TY-3.2,tz-0.6,hx+s*1.9+0.15,TY-0.5,tz+0.6,TR,{nocol=true}) end
@@ -502,15 +502,17 @@ do local TR=Color3.fromRGB(30,30,34)
  end
 end
 -- LASERS (user video 2026-10-25: thin pale beams fanning fast from a row of
--- emitters): a row on the front edge of the DJ stage shooting UP over the
--- crowd to the ceiling (user 2026-10-25: "not at the floor, upwards");
+-- emitters): a close row high on the wall behind the DJ zone, above the LED
+-- wall, shooting up and out over the crowd to the ceiling (user 2026-10-25);
 -- attribute AimAt = the ceiling point they fan round, AimY = ceiling height
 -- (ClubLightsController). (The truss they hung on is gone.)
 do
- for _,ez in ipairs({-240,-230,-222,-214,-206,-196}) do
-  local e=box(z,"LaserEmitter",60.2,F+4,ez-0.7,61.6,F+5,ez+0.7,Color3.fromRGB(26,26,30))
-  e:SetAttribute("AimY",TOP-0.5) e:SetAttribute("AimAt",Vector3.new(-5,TOP-0.5,ez)) CS:AddTag(e,"ClubLaser")
-  box(z,"LaserLens",60.5,F+5,ez-0.35,61.3,F+5.15,ez+0.35,Color3.fromRGB(220,210,255),{mat=Enum.Material.Neon,ghost=true}) end
+ local LY=TOP-3.2
+ box(z,"LaserBar",77.4,LY-0.3,-225.5,80,LY,-210.5,Color3.fromRGB(26,26,30))
+ for k=0,5 do local ez=-224+k*2.4
+  local e=box(z,"LaserEmitter",77.4,LY,ez-0.6,80,LY+1,ez+0.6,Color3.fromRGB(26,26,30))
+  e:SetAttribute("AimY",TOP-0.3) e:SetAttribute("AimAt",Vector3.new(-20,TOP-0.3,-218+(ez+218)*3)) CS:AddTag(e,"ClubLaser")
+  box(z,"LaserLens",77.25,LY+0.2,ez-0.35,77.4,LY+0.8,ez+0.35,Color3.fromRGB(220,210,255),{mat=Enum.Material.Neon,ghost=true}) end
 end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
 for _,sz in ipairs({-243,-193}) do

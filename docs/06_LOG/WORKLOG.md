@@ -1420,3 +1420,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](../04_ART/references/club_beam_blur_wish.webp)
 ![](images/2026-10-25/club_soft_texture2.jpg)
+
+### 추가 (D-250) — 레이저 DJ존 뒤 벽 위, 속도는 레이저만, 무빙라이트 범위 넓게
+- 레이저 블록 6개를 촘촘하게 DJ존 뒤 벽 위쪽에. DJ 속도 버튼은 레이저만(색은 둘 다). 무빙라이트가 무대 가운데 줄·양쪽 벽까지 닿게 넓게 돌고 바닥 빛도 크게.
+
+![](images/2026-10-25/club_lasers_backwall.jpg)
