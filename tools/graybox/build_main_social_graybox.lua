@@ -714,7 +714,7 @@ local z=zone("04_Beach_Aquarium")
  -- window bar facing the sea, order counter (SnackShop "BeachCafe").
  -- The west part stands on piles over the shallow sea.
  -- (user 2026-10-24: higher storeys, 1F 16 clear under the mezzanine, 2F about 20)
- do local x0,x1,z0,z1=-296,-206,16,106 local FY=3 local H=38 local MY=FY+17 local mx=-234
+ do local x0,x1,z0,z1=-296,-206,16,106 local FY=3 local H=47 local MY=FY+21 local mx=-234 -- (both storeys 1/4 higher, user 2026-10-25: 1F 17 → 21, 2F 21 → 26)
   local cm=M(z,"BeachCafe",{},{})
   local floorC=Color3.fromRGB(240,232,214) local white=Color3.fromRGB(246,245,242) local woodC=Color3.fromRGB(196,150,98) -- (floors: ivory marble, user 2026-10-25)
   local glass=Color3.fromRGB(200,228,238) local frameC=Color3.fromRGB(238,238,235) local dark=Color3.fromRGB(38,38,42)
@@ -834,18 +834,18 @@ local z=zone("04_Beach_Aquarium")
   -- (no cross wall at z 91.4: the space behind the counter runs back to the work bench, user 2026-10-25)
   box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,z1-0.4,CW) -- the stairs' east side, on past the landing to the north wall (user 2026-10-25)
   local SZ=KZ0 -- (the header in line with the counter front and the stairs wall's end, user 2026-10-25)
-  box(cm,"StaffHeader",mx,FY+12.3,SZ,x1-0.6,MY-1,SZ+0.6,CW) -- (only as tall as the boards, user 2026-10-25)
-  box(cm,"StaffHeaderLeg",mx,FY,SZ,mx+3,FY+12.3,SZ+0.6,CW) -- down to the floor at the stairs end only (user 2026-10-25)
+  box(cm,"StaffHeader",mx,MY-4.7,SZ,x1-0.6,MY-1,SZ+0.6,CW) -- (only as tall as the boards, user 2026-10-25)
+  box(cm,"StaffHeaderLeg",mx,FY,SZ,mx+3,MY-4.7,SZ+0.6,CW) -- down to the floor at the stairs end only (user 2026-10-25)
   -- black menu boards on the header above the counter, facing the customers,
   -- ORDER & PICK UP sign at its west end
   local nB=5 local MB0,MB1=-224,-207.6 local bw=(MB1-MB0)/nB
   for k=0,nB-1 do
    local bx0=MB0+k*bw
-   local mb=box(cm,"MenuBoard",bx0+0.15,FY+12.6,SZ-0.15,bx0+bw-0.15,FY+15.7,SZ,Color3.fromRGB(26,26,28))
+   local mb=box(cm,"MenuBoard",bx0+0.15,MY-4.4,SZ-0.15,bx0+bw-0.15,MY-1.3,SZ,Color3.fromRGB(26,26,28))
    local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0 g.Brightness=1.2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=mb
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(0.9,0.9) l.Position=UDim2.fromScale(0.05,0.05) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.fromRGB(245,245,240) l.TextXAlignment=Enum.TextXAlignment.Left
    l.Text=({"ESPRESSO\n아메리카노  4.5\n카페라떼  5.0\n바닐라 라떼  5.5","SIGNATURE\n선셋 라떼  6.5\n흑임자 라떼  6.0\n크림 커피  6.0","NON-COFFEE\n블루 레몬에이드  6.0\n망고 스무디  6.5\n딸기 라떼  6.0","TEA\n얼그레이  5.0\n캐모마일  5.0\n유자차  5.5","BAKERY\n크루아상  4.0\n소금빵  3.5\n치즈케이크  6.5"})[k+1] l.Parent=g end
-  local op=box(cm,"OrderPickupSign",-231.5,FY+13.4,SZ-0.15,-226.1,FY+14.9,SZ,CW)
+  local op=box(cm,"OrderPickupSign",-231.5,MY-3.6,SZ-0.15,-226.1,MY-2.1,SZ,CW)
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=op
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Gotham l.TextColor3=Color3.fromRGB(120,120,124) l.Text="ORDER & PICK UP" l.Parent=g end
   -- WORK BENCH (the 알바 station, "BackCounter") along the north wall under

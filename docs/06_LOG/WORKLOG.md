@@ -1285,3 +1285,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 걸어서 확인: 입구 → 통로 → 작업대, 계단 → 계단참 → 메자닌.
 
 ![](images/2026-10-25/cafe_counter_v3d.jpg)
+
+### 추가 (D-233) — 해변 카페 층고 1/4씩 높임
+- 1층 17 → 21, 2층 21 → 26, 건물 전체 높이 38 → 47.
+- 계단은 한 칸 1 높이 그대로 20칸(조금 가파름). 카운터 위 띠·메뉴판은 메자닌 밑에 붙어 그대로.
+- 걸어서 확인: 계단 → 메자닌, 통로 → 작업대.
+
+![](images/2026-10-25/cafe_tall_inside.jpg)
+![](images/2026-10-25/cafe_tall_outside.jpg)
