@@ -278,13 +278,22 @@ do local LC=Color3.fromRGB(235,235,235) local NE={mat=Enum.Material.Neon,ghost=t
 -- climb the VIP stair north to the 2nd floor; others get the purchase window.
 box(z,"Corridor_E_N",-65,F,NZ,-64,V-1,-225,WALL_C,WALLO)
 box(z,"Corridor_E_S",-65,F,-211,-64,V-1,-167.5,WALL_C,WALLO)
-box(z,"Corridor_DoorTop",-65,F+14,-225,-64,V-1,-211,WALL_C,WALLO)
-box(z,"Corridor_Ceiling",-80,F+14,-236,-65,F+15,-167.5,dark)
+-- (corridor as high as the rest of the 1F, up to the 2F floor, and a taller
+-- hall door: user 2026-10-25)
+local DH=18 -- hall door height
+box(z,"Corridor_DoorTop",-65,F+DH,-225,-64,V-1,-211,WALL_C,WALLO)
+box(z,"Corridor_Ceiling",-80,V-1,-236,-65,V-0.6,-167.5,dark) -- (underside level with the balcony floor over the hall)
 box(z,"CorridorNeon_W",-79.6,F,-236,-79.3,F+0.4,-167.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
-box(z,"CorridorNeon_E",-65.7,F,-236,-65.4,F+0.4,-167.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+-- (not across the hall door: user 2026-10-25)
+box(z,"CorridorNeon_E",-65.7,F,-236,-65.4,F+0.4,-225.25,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+box(z,"CorridorNeon_E",-65.7,F,-210.75,-65.4,F+0.4,-167.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
 -- (the LED lines along the entrance stairs were tried and taken out again, user 2026-10-25)
-P(z,"HallDoorFrame",Vector3.new(1.5,14,1.5),CFrame.new(-64.5,F+7,-211.5),pink,NEON)
-P(z,"HallDoorFrame",Vector3.new(1.5,14,1.5),CFrame.new(-64.5,F+7,-224.5),pink,NEON)
+-- pink door posts: only the faces looking into the doorway glow (user 2026-10-25)
+for _,d in ipairs({{-211.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
+ P(z,"HallDoorFrame",Vector3.new(1.5,DH,1.5),CFrame.new(-64.5,F+DH/2,pz),Color3.fromRGB(200,60,170),{mat=Enum.Material.SmoothPlastic})
+ local fz=pz+s*0.75
+ local g=box(z,"HallDoorGlow",-65.25,F,math.min(fz,fz+s*0.12),-63.75,F+DH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
+ local sl=Instance.new("SurfaceLight") sl.Face=if s>0 then Enum.NormalId.Back else Enum.NormalId.Front sl.Color=pink sl.Range=10 sl.Brightness=1.5 sl.Angle=150 sl.Parent=g end
 label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,-218))
 -- VIP wall across the corridor
 local vipRed=Color3.fromRGB(255,40,70)
@@ -706,7 +715,7 @@ local function zoneBox(name,x0,y0,z0,x1,y1,z1,zoneName)
  local b=box(z,"ClubZone",x0,y0,z0,x1,y1,z1,W,{t=1,ghost=true}) b:SetAttribute("Zone",zoneName) CS:AddTag(b,"ClubZone") b.Name=name return b end
 zoneBox("ClubZone_Hall",-64,F,NZ,80,TOP,-167.5,"Hall")
 zoneBox("ClubZone_HallUpper",-80,V,NZ,-64,TOP,-167.5,"Hall")
-zoneBox("ClubZone_Corridor",-80,F,NZ,-64,F+14,-167.5,"Corridor")
+zoneBox("ClubZone_Corridor",-80,F,NZ,-64,V-1,-167.5,"Corridor")
 zoneBox("ClubZone_Stairs",-80,F,-166.5,12,12,-151,"Stairs")
 zoneBox("ClubZone_Rooftop",-80,RT,NZ,80,RT+24,-150,"Rooftop")
 for _,b in ipairs({{-80,F,NZ,80,TOP,-150},{-80,RT,NZ,80,RT+24,-150}}) do

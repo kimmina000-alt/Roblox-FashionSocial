@@ -1622,3 +1622,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-291) — 엘리베이터 복도 바닥 조명 이어서
 
 ![](images/2026-10-25/lift_corridor_led.jpg)
+
+### 수정 (D-292) — 클럽 복도 층고 통일, 댄스홀 문 높게, 문 바닥 조명 삭제, 문 기둥 안쪽 면만 빛
+
+![](images/2026-10-25/hall_door_tall.jpg)

@@ -541,3 +541,5 @@ D-289 — (2026-10-25, user marks on two screenshots) White light strips round t
 D-290 — (2026-10-25, user) Club lift corridor: no foyer LED line across its end, a plain floor in the foyer's colour (no marble), no graffiti on the street wall next to it.
 
 D-291 — (2026-10-25, user) The foyer's floor LED lines continue along both walls of the lift corridor up to the lift door.
+
+D-292 — (2026-10-25, user) Club corridor: ceiling raised to the underside of the 2F floor (same as the hall's 1F), the dance hall door 18 tall (was 14); the corridor floor LED stops at the door; the pink door posts are plain pink with only the faces looking into the doorway glowing (neon strip + SurfaceLight).
