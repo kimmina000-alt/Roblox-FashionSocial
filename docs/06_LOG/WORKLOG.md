@@ -1433,3 +1433,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](../04_ART/references/club_vip_sign_ref.webp)
 ![](images/2026-10-25/club_vip_neon_sign.jpg)
 ![](images/2026-10-25/club_hall_v6.jpg)
+
+### 추가 (D-252) — 클럽 LED 선·아치, 봉 단상 한 칸, 광택 타일 바닥, 레이저 2층 난간으로
+- 로비 바닥 테두리 LED, 2층 난간 아래 LED 한 줄 더, 1층 단상 테이블 선을 벽까지 아치로. 봉 단상 넓은 원 한 칸(2 높이). 바닥 광택 그레이 타일. 레이저 전광판 바로 위에서 2층 난간 쪽으로, 끝으로 갈수록 더 흐리게.
+
+![](images/2026-10-25/club_hall_v7.jpg)

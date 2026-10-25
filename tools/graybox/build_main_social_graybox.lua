@@ -185,7 +185,7 @@ P(z,"Marquee_Landmark",Vector3.new(60,8,2),CFrame.new(0,19,-148.5),pink,NEON)
 P(z,"DoormanNPC(placeholder)",Vector3.new(2,6,2),CFrame.new(10,3,-148),Color3.fromRGB(20,20,20))
 label(z,"CLUB · Idol Concert City",Vector3.new(0,TOP+16,-150),true)
 -- shell (F = hall floor, TOP = ceiling)
-box(z,"Floor",-80,F-1,NZ,80,F,-150,WALL_C,WALLO) -- (plain like the walls, user 2026-10-25)
+do local fl=box(z,"Floor",-80,F-1,NZ,80,F,-150,Color3.fromRGB(72,72,78),{mat=Enum.Material.CeramicTiles}) fl.Reflectance=0.12 end -- (slightly glossy grey tiles, user 2026-10-25)
 -- LED line where the hall floor meets the walls (floor and walls looked as one);
 -- lemon white like the balcony line (user 2026-10-25)
 do local RED=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
@@ -203,6 +203,12 @@ box(z,"Wall_S_Below",-8,F,-151,8,0,-149,WALL_C,WALLO)
 box(z,"Ceiling",-80,TOP,NZ,80,TOP+0.5,-150,navy)
 -- foyer at street level and the stairs down to the west
 box(z,"Foyer",-24,-1,-166.5,12,0,-151,WALL_C,WALLO)
+-- lemon LED where the street-level foyer floor meets its walls (user 2026-10-25:
+-- the foyer only, not down the stairs; the door gap in the street wall left out)
+do local LC=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
+ box(z,"FoyerLED",-24,0,-166.5,12,0.25,-166.3,LC,NE)
+ box(z,"FoyerLED",-24,0,-151.2,-8,0.25,-151,LC,NE) box(z,"FoyerLED",8,0,-151.2,12,0.25,-151,LC,NE)
+ box(z,"FoyerLED",11.8,0,-166.3,12,0.25,-151.2,LC,NE) end
 box(z,"Foyer_E",12,0,-166.5,13,12,-151,WALL_C,WALLO)
 box(z,"Foyer_E_Below",12,F,-166.5,13,0,-151,WALL_C,WALLO)
 box(z,"Entry_Ceiling",-80,12,-166.5,12,13,-151,dark)
@@ -293,6 +299,10 @@ local LEMON=Color3.fromRGB(255,250,175)
 box(z,"VIP_RailNeon_N",-50,V-0.65,(NZ+23.9),58,V-0.35,(NZ+24.05),LEMON,{mat=Enum.Material.Neon,ghost=true})
 box(z,"VIP_RailNeon_S",-50,V-0.65,-190.05,58,V-0.35,-189.9,LEMON,{mat=Enum.Material.Neon,ghost=true})
 box(z,"VIP_RailNeon_W",-50.05,V-0.65,(NZ+24),-49.9,V-0.35,-190,LEMON,{mat=Enum.Material.Neon,ghost=true})
+-- and a second line along the bottom edge of the balcony fronts (user 2026-10-25)
+box(z,"VIP_RailNeonLow",-50,V-1.05,(NZ+23.9),58,V-0.9,(NZ+24.05),LEMON,{mat=Enum.Material.Neon,ghost=true})
+box(z,"VIP_RailNeonLow",-50,V-1.05,-190.05,58,V-0.9,-189.9,LEMON,{mat=Enum.Material.Neon,ghost=true})
+box(z,"VIP_RailNeonLow",-50.05,V-1.05,(NZ+24),-49.9,V-0.9,-190,LEMON,{mat=Enum.Material.Neon,ghost=true})
 -- (no columns under the balconies, user 2026-10-25: the dance poles stand where
 -- the ones by the poles were)
 -- starry ceiling over the VIP lounges (user's VIP room reference): a low dark
@@ -403,6 +413,14 @@ local function platform(cx,wallZ,dir)
   box(z,"PlatformNeon",cx-r-0.06,top-0.32,math.min(wallZ,cc),cx+r+0.06,top-0.2,math.max(wallZ,cc),pink,NE)
   cyl(z,"PlatformNeon",2*r+0.12,0.12,Vector3.new(cx,top-0.26,cc),pink,NE)
  end
+ -- the stadium outline goes on up the wall as two neon arches (user 2026-10-25)
+ do local NE={mat=Enum.Material.Neon,ghost=true} local wz=wallZ+dir*0.1 local yc=F+8
+  for lv,r in ipairs({8.5,6.5}) do local y0=F+0.8*lv-0.26
+   for _,s in ipairs({-1,1}) do box(z,"PlatformArch",cx+s*r-0.08,y0,wz-0.08,cx+s*r+0.08,yc,wz+0.08,pink,NE) end
+   local N=14 local prev=Vector3.new(cx+r,yc,wz)
+   for k=1,N do local a=math.pi*k/N local p=Vector3.new(cx+math.cos(a)*r,yc+math.sin(a)*r,wz)
+    beam(z,"PlatformArch",prev,p,0.16,pink,NE) prev=p end
+  end end
  local cc=wallZ+dir*(L-8.5)
  local tp=Vector3.new(cx,F+1.6,cc+dir*1.5)
  cyl(z,"TableLeg",0.8,3.4,tp+Vector3.new(0,1.7,0),Color3.fromRGB(40,40,50))
@@ -416,9 +434,9 @@ local function pole(px,pz,ledPole)
  -- (user 2026-10-25) a wider round stage of two steps, a lemon LED line
  -- under each step edge
  local BH=2
- cyl(z,"PoleStep",10,1,Vector3.new(px,F+0.5,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) -- (metal like the base, user 2026-10-25)
- local b=cyl(z,"PoleBase",6.4,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole")
- for _,r in ipairs({{10.08,F+0.9},{6.48,F+1.9}}) do cyl(z,"PoleStepLED",r[1],0.12,Vector3.new(px,r[2],pz),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
+ -- (user 2026-10-25) one wide round stage, 2 high (no steps), LED round its top edge
+ local b=cyl(z,"PoleBase",10,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole")
+ cyl(z,"PoleStepLED",10.08,0.12,Vector3.new(px,F+BH-0.1,pz),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
  local PL=(V-1)-(F+BH) -- up to the balcony floor (they stand where its columns were)
  local p=cyl(z,"DancePole",0.35,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
  p.Reflectance=0.3
@@ -532,12 +550,13 @@ end
 -- attribute AimAt = the ceiling point they fan round, AimY = ceiling height
 -- (ClubLightsController). (The truss they hung on is gone.)
 do
- local LY=TOP-3.2
+ local LY=F+37.5 -- (just above the LED wall, user 2026-10-25)
  box(z,"LaserBar",77.4,LY-0.3,-225.5,80,LY,-210.5,Color3.fromRGB(26,26,30))
  for k=0,5 do local ez=-224+k*2.4
   local e=box(z,"LaserEmitter",77.4,LY,ez-0.6,80,LY+1,ez+0.6,Color3.fromRGB(26,26,30))
   -- (they shoot DOWN onto the dance floor from up here, user 2026-10-25)
-  e:SetAttribute("AimY",F) e:SetAttribute("AimAt",Vector3.new(10,F,-218+(ez+218)*3)) CS:AddTag(e,"ClubLaser")
+  -- the ends land on the 2F balcony rails across the hall (user 2026-10-25)
+  e:SetAttribute("AimY",V+2.5) e:SetAttribute("AimAt",Vector3.new(-40,V+2.5,-218+(ez+218)*4)) CS:AddTag(e,"ClubLaser")
   box(z,"LaserLens",77.25,LY+0.2,ez-0.35,77.4,LY+0.8,ez+0.35,Color3.fromRGB(220,210,255),{mat=Enum.Material.Neon,ghost=true}) end
 end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")

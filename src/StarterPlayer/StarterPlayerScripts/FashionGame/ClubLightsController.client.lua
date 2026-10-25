@@ -78,7 +78,7 @@ local function addEmitter(instance: Instance)
 		beam.LightEmission = 1
 		beam.LightInfluence = 0
 		beam.Segments = 1
-		beam.Transparency = NumberSequence.new(0.05, 0.35)
+		beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.5, 0.45), NumberSequenceKeypoint.new(1, 0.9) }) -- (stronger fade along the line, user 2026-10-25)
 		beam.Enabled = false
 		beam.Parent = instance
 		-- (a soft halo was tried and taken back, user 2026-10-25)
