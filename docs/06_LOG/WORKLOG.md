@@ -1496,3 +1496,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/club_door_no_bar.jpg)
 ![](images/2026-10-25/club_vip_sign_v2.jpg)
+
+### 기획 (D-264, D-265) — 클럽은 밤에만 입장(CLUB.md §20), DJ 이용권 가격 재계산(DJ_SYSTEM.md §6: 💰100 / 25 R$ 제안). VIP는 한 번 사면 영구(게임 패스 299 R$).

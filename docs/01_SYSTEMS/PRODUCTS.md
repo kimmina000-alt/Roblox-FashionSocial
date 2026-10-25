@@ -17,7 +17,7 @@
 |---|---|---|---|---|---|---|---|---|---|
 | CLUB-PASS-VIP | VIP | 게임 패스 | VIP 패스 | 클럽 2층 VIP 라운지에 언제든 들어갈 수 있어요. | 299 | 0 | planned | 미정 | D-045 |
 | PHOTO-PASS-FRAMEPACK1 | FramePack | 게임 패스 | 프레임 팩 (글로시·반짝이) | 인생네컷 특별 프레임을 영구로 써요. | 99 | 0 | planned | 미정 | D-064 |
-| CLUB-DP-DJ30 | DJ | 개발자 상품 | DJ 30분 | 클럽 DJ 부스를 30분 동안 써요. | 75 | 0 | planned | 미정 | D-052 |
+| CLUB-DP-DJ30 | DJ | 개발자 상품 | DJ 30분 | 클럽 DJ 부스를 30분 동안 써요. | 75 | 0 | planned | 미정 | D-052. 25 R$ + 코인 💰100으로 낮추는 안 검토 중 (D-265, DJ_SYSTEM.md §6) |
 | CLUB-DP-DRINK-FANTA | Drink_Fanta | 개발자 상품 | 환타 | 클럽 바 음료 한 병(6잔). | 6 | 0 | planned | 미정 | 출시 전 상표명 교체(오렌지 소다) |
 | PHOTO-DP-ALBUM10 | AlbumSlots | 개발자 상품 | 사진첩 +10장 | 사진첩 칸을 10장 늘려요. | 25 | 0 | planned | 미정 | 10장까지 무료 |
 | PHOTO-DP-COPY1 | Photo_ExtraCopy | 개발자 상품 | 인생네컷 추가 인화 1장 | (결정 필요) | ? | 0 | **결정 필요** | 미정 | 지금은 코인 💰20/장. Robux로 바꿀지 결정 |
