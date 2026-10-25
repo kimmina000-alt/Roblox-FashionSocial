@@ -477,3 +477,5 @@ D-257 — (2026-10-25) Graffiti only on the entrance stair walls (user: keep the
 D-258 — (2026-10-25) The foyer wall seen from the street through the club door has no scribbles any more (the hall-wall graffiti stops at the top of the stairs, x -24); instead a pink graffiti "OHU CLUB" with an arrow pointing left down the stairs (Decal rbxassetid://118161419410572, docs/04_ART/textures/club_arrow_sign.png) on a 17 x 8.5 see-through panel in the door view.
 
 D-259 — (2026-10-25) Stair graffiti fixed: no graffiti over the corridor passage at the foot of the stairs (the hall-wall panel covered the opening x -80..-64 below F+14; now x -64..-24 plus the wall above the passage only); a new graffiti image whose words all stay inside a margin (rbxassetid://124813811162354, docs/04_ART/textures/graffiti.png) and every panel fitted to whole tiles, so the graffiti ends cleanly instead of cutting letters (the arrow + OHU CLUB sign unchanged; the 4-wide foyer strip by the door dropped).
+
+D-260 — (2026-10-25) D-259 taken back at the user's request: stair graffiti as in D-258 (first graffiti image, the original panels).

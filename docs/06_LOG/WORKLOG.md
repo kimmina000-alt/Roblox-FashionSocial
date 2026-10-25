@@ -1475,3 +1475,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/club_stairs_passage_clear.jpg)
 ![](images/2026-10-25/club_graffiti_end_clean.jpg)
+
+### 추가 (D-260) — D-259 되돌림(그래피티 D-258 상태로)
