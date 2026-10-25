@@ -557,3 +557,5 @@ D-297 — (2026-10-25, user) VIP sign glows red for all three: the crown (red se
 D-298 — (2026-10-25, user) "VIP" and the @nickname glow like the neon frame: a red copy of the text in a second SurfaceGui with Brightness 12 behind the white text (ZOffset), so the Bloom effect spreads it; DrinkService keeps the nickname's GlowGui copy in step. (Outline strokes alone did not glow.)
 
 D-299 — (2026-10-25, user) The chasing LED wall bars also run on the 1F long walls below the balcony (every 4 studs, skipping the table platform arches; above the bar shelves on the bar side). The corridor at the foot of the stairs gets the same graffiti pattern on both walls (not over the hall door opening).
+
+D-300 — (2026-10-25, user) Club waiting line: south of the door the black iron fence runs on along the wall to z -130, and a second fence line 5 studs out along the sidewalk makes a 5-wide queue lane to the door, with end posts and a "WAITING LINE · 줄 서는 곳" stand at the far end. Walked from the far end to the door.

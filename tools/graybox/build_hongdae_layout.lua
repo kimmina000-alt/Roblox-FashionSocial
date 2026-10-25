@@ -3878,10 +3878,25 @@ do
 		box("WindowMullion", 47.2, 22, zz - 0.25, 47.8, 33.5, zz + 0.25, BLACK, { parent = K })
 	end
 	-- low black iron fence along the front (gaps at the door and the queue)
-	for _, r in ipairs({ { -256 + CDZ, DZ0 - 4 }, { DZ1 + 4, -158 + CDZ } }) do
-		box("FenceRail", 46.3, 3, r[1], 46.5, 3.2, r[2], BLACK, { parent = K })
-		box("FenceRail", 46.3, 0.8, r[1], 46.5, 1, r[2], BLACK, { parent = K })
-		for zz = r[1], r[2], 0.6 do box("FencePicket", 46.35, CURB, zz - 0.05, 46.45, 3.2, zz + 0.05, BLACK, { parent = K, nocol = true }) end
+	-- (south of the door it runs on along the wall, and a second line along the
+	-- sidewalk 5 studs out makes a waiting line to the door: user 2026-10-25)
+	local QUEUE_END = -122 + CDZ
+	local function fenceLine(x, z0, z1)
+		box("FenceRail", x - 0.1, 3, z0, x + 0.1, 3.2, z1, BLACK, { parent = K })
+		box("FenceRail", x - 0.1, 0.8, z0, x + 0.1, 1, z1, BLACK, { parent = K })
+		for zz = z0, z1, 0.6 do box("FencePicket", x - 0.05, CURB, zz - 0.05, x + 0.05, 3.2, zz + 0.05, BLACK, { parent = K, nocol = true }) end
+	end
+	fenceLine(46.4, -256 + CDZ, DZ0 - 4)
+	fenceLine(46.4, DZ1 + 4, QUEUE_END)
+	fenceLine(41.4, DZ1 + 4, QUEUE_END)
+	-- end posts and a small "WAITING LINE" stand at the far end of the line
+	for _, x in ipairs({ 41.4, 46.4 }) do
+		for _, zz in ipairs({ DZ1 + 4, QUEUE_END }) do box("FencePost", x - 0.2, CURB, zz - 0.2, x + 0.2, 3.6, zz + 0.2, BLACK, { parent = K }) end
+	end
+	do
+		local s = box("QueueSign", 43.9 - 1.6, 3.4, QUEUE_END + 0.6, 43.9 + 1.6, 5.4, QUEUE_END + 0.75, BLACK, { parent = K, nocol = true })
+		box("QueueSignPole", 43.85, CURB, QUEUE_END + 0.6, 43.95, 3.4, QUEUE_END + 0.7, BLACK, { parent = K, nocol = true })
+		surfaceText(s, Enum.NormalId.Back, "WAITING LINE · 줄 서는 곳", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold)
 	end
 	-- the pink graybox marquee would cover the band: hidden while the layout is on
 	local clubZone = root:FindFirstChild("02_Club")
