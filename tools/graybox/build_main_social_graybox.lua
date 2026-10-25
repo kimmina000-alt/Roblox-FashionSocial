@@ -786,7 +786,7 @@ local z=zone("04_Beach_Aquarium")
   local function slit(ax,ay,az,bx,by,bz)
    local p=box(cm,"WallSlit",ax,ay,az,bx,by,bz,SLIT,{mat=Enum.Material.Glass,nocol=true})
    p.CastShadow=false p.CanQuery=false p.CanTouch=false
-   p:SetAttribute("NightRange",5) p:SetAttribute("NightBrightness",0.8) p:SetAttribute("NightColor",Color3.fromRGB(255,232,205)) -- (a warmer Neon blooms yellow-green) CS:AddTag(p,"NightGlow") end
+   p:SetAttribute("NightRange",5) p:SetAttribute("NightBrightness",0.8) p:SetAttribute("NightColor",Color3.fromRGB(255,232,205)) CS:AddTag(p,"NightGlow") end -- (a warmer Neon bloomed yellow-green)
   local HL={FY+16,FY+32,FY+H-0.8}
   local EX0,EX1=x1-0.72,x1+0.02 -- the street wall and its lining
   for _,hy in ipairs(HL) do slit(EX0,hy,z0+0.4,EX1,hy+SW,z1-0.4) end
