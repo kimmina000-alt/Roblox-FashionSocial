@@ -1491,3 +1491,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/club_laser_low.jpg)
 ![](images/2026-10-25/club_laser_high.jpg)
 ![](images/2026-10-25/club_pole_thick.jpg)
+
+### 추가 (D-263) — 댄스홀 입구 LED 막대 삭제, VIP 간판 목업대로
+
+![](images/2026-10-25/club_door_no_bar.jpg)
+![](images/2026-10-25/club_vip_sign_v2.jpg)

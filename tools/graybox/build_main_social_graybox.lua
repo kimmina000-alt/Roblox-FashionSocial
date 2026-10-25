@@ -376,35 +376,34 @@ local function vipBooth(cx,wallZ,dir)
  box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(5),cx+3.5,V+2.53,zz(5.12),W2,EO) box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(7.88),cx+3.5,V+2.53,zz(8),W2,EO)
  box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(5),cx-3.38,V+2.53,zz(8),W2,EO) box(z,"VIP_TableEdge",cx+3.38,V+2.5,zz(5),cx+3.5,V+2.53,zz(8),W2,EO)
  for k=0,3 do slot(top,Vector3.new(cx-2.4+k*1.6,V+2.8,zz(6.5))) end
- -- NEON VIP SIGN on the wall above the booth (user photo 2026-10-25: a gold
- -- neon crown like the club sign's, a pink "VIP" in neon script, the table
- -- owner's nickname below; a red glow behind). DrinkService writes the
- -- nickname (ObjectValue WallSign in the table → the name label); blank when
- -- nobody has a bottle on the table.
+ -- VIP SIGN on the wall above the booth (user mock-up 2026-10-25): a black
+ -- board framed by a thin red neon line; a small gold crown, a small white
+ -- "VIP" under it, and the table owner's @nickname big in white with a red
+ -- glow. DrinkService writes the nickname (ObjectValue WallSign in the table
+ -- → the name label); blank when nobody has a bottle on the table.
  do local face=if dir==1 then Enum.NormalId.Back else Enum.NormalId.Front
-  local glow=box(z,"VIP_SignGlow",cx-8,V+4.6,zz(0.02),cx+8,V+15.4,zz(0.06),Color3.fromRGB(255,30,90),{mat=Enum.Material.Neon,t=0.82,ghost=true})
-  local sl=Instance.new("SurfaceLight") sl.Face=face sl.Color=Color3.fromRGB(255,40,110) sl.Range=12 sl.Brightness=2.5 sl.Angle=120 sl.Parent=glow
-  -- crown: neon gold outline pieces
-  local CG=Color3.fromRGB(255,214,150) local CO={mat=Enum.Material.Neon,ghost=true}
-  local cy=V+11.6
-  box(z,"VIP_Crown",cx-2.4,cy,zz(0.1),cx+2.4,cy+0.35,zz(0.3),CG,CO)
-  box(z,"VIP_Crown",cx-2.6,cy+0.9,zz(0.1),cx+2.6,cy+1.15,zz(0.3),CG,CO)
-  for k=-2,2 do local h=if k==0 then 2.6 elseif math.abs(k)==1 then 1.9 else 2.3
-   local x=cx+k*1.2
-   box(z,"VIP_Crown",x-0.13,cy+0.35,zz(0.1),x+0.13,cy+h,zz(0.3),CG,CO)
-   P(z,"VIP_CrownJewel",Vector3.new(0.45,0.45,0.45),CFrame.new(x,cy+h+0.2,zz(0.2)),CG,{shape=Enum.PartType.Ball,mat=Enum.Material.Neon,ghost=true}) end
+  local x0,x1,y0,y1=cx-7,cx+7,V+5,V+13
+  box(z,"VIP_SignBoard",x0,y0,zz(0.02),x1,y1,zz(0.08),Color3.fromRGB(16,9,12),{mat=Enum.Material.SmoothPlastic,ghost=true})
+  local RN=Color3.fromRGB(190,30,40) local RO={mat=Enum.Material.Neon,ghost=true} local L=0.1 -- (deep red: Neon blooms brighter)
+  box(z,"VIP_SignFrame",x0,y1-L,zz(0.08),x1,y1,zz(0.16),RN,RO) box(z,"VIP_SignFrame",x0,y0,zz(0.08),x1,y0+L,zz(0.16),RN,RO)
+  box(z,"VIP_SignFrame",x0,y0,zz(0.08),x0+L,y1,zz(0.16),RN,RO) box(z,"VIP_SignFrame",x1-L,y0,zz(0.08),x1,y1,zz(0.16),RN,RO)
+  -- small gold crown: a band and five prongs with round tips (the middle tallest)
+  local CG=Color3.fromRGB(230,140,40) local CO={mat=Enum.Material.Neon,ghost=true}
+  local cy=V+10.5
+  box(z,"VIP_Crown",cx-1.25,cy,zz(0.08),cx+1.25,cy+0.35,zz(0.2),CG,CO)
+  for k=-2,2 do local h=if k==0 then 1.5 elseif math.abs(k)==1 then 1.2 else 1.35
+   local x=cx+k*0.55
+   box(z,"VIP_Crown",x-0.09,cy+0.35,zz(0.08),x+0.09,cy+h,zz(0.2),CG,CO)
+   P(z,"VIP_CrownJewel",Vector3.new(0.26,0.26,0.26),CFrame.new(x,cy+h+0.1,zz(0.14)),CG,{shape=Enum.PartType.Ball,mat=Enum.Material.Neon,ghost=true}) end
   -- VIP + nickname on one board
-  local board=box(z,"VIP_Sign",cx-7,V+5.2,zz(0.08),cx+7,V+11.3,zz(0.12),Color3.new(0,0,0),{t=1,ghost=true})
-  local g=Instance.new("SurfaceGui") g.Face=face g.LightInfluence=0 g.Brightness=2.2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=board
-  -- (TextSize stops at 100 px: the VIP word gets its own coarse board so it can be big)
-  local vb=box(z,"VIP_SignWord",cx-7,V+7.4,zz(0.1),cx+7,V+11.4,zz(0.14),Color3.new(0,0,0),{t=1,ghost=true})
-  local vg=Instance.new("SurfaceGui") vg.Face=face vg.LightInfluence=0 vg.Brightness=2.2 vg.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud vg.PixelsPerStud=17 vg.Parent=vb
-  local vip=Instance.new("TextLabel") vip.Name="VIP" vip.BackgroundTransparency=1 vip.Size=UDim2.fromScale(1,1) vip.TextScaled=false vip.TextSize=100
-  vip.Font=Enum.Font.Kalam vip.Text="VIP" vip.TextColor3=Color3.fromRGB(255,215,235) vip.Parent=vg
-  local s1=Instance.new("UIStroke") s1.Color=Color3.fromRGB(255,40,150) s1.Thickness=3 s1.Transparency=0.15 s1.Parent=vip
-  local nick=Instance.new("TextLabel") nick.Name="Nickname" nick.BackgroundTransparency=1 nick.Position=UDim2.fromScale(0.1,0.66) nick.Size=UDim2.fromScale(0.8,0.3) nick.TextScaled=true
-  nick.Font=Enum.Font.GothamBold nick.Text="" nick.TextColor3=Color3.fromRGB(255,235,245) nick.Parent=g
-  local s2=Instance.new("UIStroke") s2.Color=Color3.fromRGB(255,40,150) s2.Thickness=3 s2.Transparency=0.2 s2.Parent=nick
+  local board=box(z,"VIP_Sign",x0+0.3,y0+0.3,zz(0.1),x1-0.3,cy-0.1,zz(0.12),Color3.new(0,0,0),{t=1,ghost=true})
+  local g=Instance.new("SurfaceGui") g.Face=face g.LightInfluence=0 g.Brightness=1.6 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=board
+  local vip=Instance.new("TextLabel") vip.Name="VIP" vip.BackgroundTransparency=1 vip.Position=UDim2.fromScale(0,0.03) vip.Size=UDim2.fromScale(1,0.17) vip.TextScaled=true
+  vip.Font=Enum.Font.GothamBold vip.Text="VIP" vip.TextColor3=Color3.fromRGB(255,240,240) vip.Parent=g
+  local s1=Instance.new("UIStroke") s1.Color=Color3.fromRGB(255,50,60) s1.Thickness=1.5 s1.Transparency=0.4 s1.Parent=vip
+  local nick=Instance.new("TextLabel") nick.Name="Nickname" nick.BackgroundTransparency=1 nick.Position=UDim2.fromScale(0.06,0.36) nick.Size=UDim2.fromScale(0.88,0.4) nick.TextScaled=true
+  nick.Font=Enum.Font.Gotham nick.Text="" nick.TextColor3=Color3.fromRGB(255,240,240) nick.Parent=g
+  local s2=Instance.new("UIStroke") s2.Color=Color3.fromRGB(255,50,60) s2.Thickness=2.5 s2.Transparency=0.5 s2.Parent=nick
   local ov=Instance.new("ObjectValue") ov.Name="WallSign" ov.Value=nick ov.Parent=top
  end
 end
@@ -632,6 +631,7 @@ end
 -- runs a chase across them in the DJ's colour (tag ClubWallBar, attribute Index)
 do local BC=Color3.fromRGB(255,250,175) local k=0
  local function bar(x0,x1,y0,y1,zc) k+=1
+  zc-=HZ -- (the pass below moves this block by HZ; the bars stay on the fixed walls, clear of the hall door: user 2026-10-25)
   local b=box(z,"WallLEDBar",x0,y0,zc-0.2,x1,y1,zc+0.2,BC,{mat=Enum.Material.Neon,ghost=true})
   b.CastShadow=false b:SetAttribute("Index",k) CS:AddTag(b,"ClubWallBar") end
  for zc=NZ+3,-170,4 do if zc<-226.5 or zc>-209.5 then bar(-63.95,-63.75,F+1,V-2,zc) end end
