@@ -210,7 +210,7 @@ local function openVoteWindow()
 	end
 end
 local WRAP_SPEED = 2.5 -- studs per second
-local CARD = 22 -- studs per card (the screen is 40 tall)
+local CARD = 30 -- studs per card (the screen is 56 tall)
 local AVATAR_BACK = { 40, 26, 70 }
 local AVATAR_CAM = { CFrame.lookAt(Vector3.new(0, -1.9, -8), Vector3.new(0, -2.6, 0)):GetComponents() }
 

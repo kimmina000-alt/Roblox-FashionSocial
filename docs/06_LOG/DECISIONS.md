@@ -531,3 +531,5 @@ D-284 — (2026-10-25, user) Dance poles run all the way up to the 2F ceiling (T
 D-285 — (2026-10-25, user) The tower over OH24 covers the whole store roof; its screen is taller (40) and wraps three sides in a ㄷ shape (east → north → west, two rounded corners); the 노래방 building next to it is lowered from 60 to 20 so the west screen shows from the beach.
 
 D-286 — (2026-10-25, user) The OH24 tower screen moves up to the top of the tower (y 46..86), well clear of the store; the window slits run below it.
+
+D-287 — (2026-10-25, user) The OH24 tower screen reaches down to half of the wall that was left below it: y 30..86 (56 tall); cards 30 studs wide.

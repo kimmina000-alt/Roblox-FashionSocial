@@ -4091,7 +4091,7 @@ do -- "오늘의 큰손" tower over the OH24 store (user mock-ups + reference ph
 	box("TowerTopGlass", X0 + 0.2, Y1 - 8, Z0 - 0.15, X1 - 0.2, Y1 - 1, Z0 + 0.1, Color3.fromRGB(70, 90, 110), { parent = L, material = Enum.Material.Glass })
 	-- screen zone (y 46..86, user 2026-10-25: up at the top of the tower, well
 	-- clear of the store): the slits run below it
-	local SY0, SY1 = 46, 86
+	local SY0, SY1 = 30, 86 -- (down to half of the wall below, user 2026-10-25)
 	local function slits(axis, fixed, a0, a1, outward, spans)
 		for a = a0 + 3, a1 - 3, 3.5 do
 			for _, span in ipairs(spans) do
