@@ -1414,3 +1414,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 레이저: DJ 무대 앞 가장자리에서 천장 쪽으로 쏨(레이저 트러스 삭제).
 
 ![](images/2026-10-25/club_soft_texture.jpg)
+
+### 추가 (D-249) — 그라데이션 방향 수정
+- 빔 텍스처는 이미지 가로가 빛의 폭, 세로가 길이 방향. 첫 이미지는 세로로 흐려서 길이 방향으로 흐려졌음 → 가로로 흐린 이미지로 바꿔 빛 양옆 경계가 흐리게. 밝기는 원래대로.
+
+![](../04_ART/references/club_beam_blur_wish.webp)
+![](images/2026-10-25/club_soft_texture2.jpg)

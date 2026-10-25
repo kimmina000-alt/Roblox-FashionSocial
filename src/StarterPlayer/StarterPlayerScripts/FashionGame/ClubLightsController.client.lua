@@ -33,7 +33,7 @@ end
 
 -- soft-edged beam texture: white, fading to clear across its width, so the
 -- beam edges look blurred (user 2026-10-25; Beams have no blur setting)
-local SOFT_BEAM = "rbxassetid://84224211906463"
+local SOFT_BEAM = "rbxassetid://124403541087602" -- (the fade runs along the image's X: that is across the beam; the first one faded along the length)
 local BEAMS_PER_EMITTER = 2 -- (thin pale beams fanning fast, user video 2026-10-25)
 local targetHolder = Instance.new("Part")
 targetHolder.Name = "ClubLaserTargets"
@@ -515,8 +515,8 @@ function addWash(instance: Instance)
 	local beam = Instance.new("Beam")
 	beam.Attachment0 = origin
 	beam.Attachment1 = target
-	beam.Width0 = 3.2
-	beam.Width1 = 24
+	beam.Width0 = 3
+	beam.Width1 = 22
 	beam.Texture = SOFT_BEAM
 	beam.TextureMode = Enum.TextureMode.Stretch
 	beam.TextureLength = 1
@@ -524,7 +524,7 @@ function addWash(instance: Instance)
 	beam.LightEmission = 1
 	beam.LightInfluence = 0
 	beam.Segments = 12
-	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(0.6, 0.72), NumberSequenceKeypoint.new(1, 0.92) })
+	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.45), NumberSequenceKeypoint.new(0.6, 0.82), NumberSequenceKeypoint.new(1, 0.95) })
 	beam.Enabled = false
 	beam.Parent = lens
 	local light = Instance.new("SpotLight")
