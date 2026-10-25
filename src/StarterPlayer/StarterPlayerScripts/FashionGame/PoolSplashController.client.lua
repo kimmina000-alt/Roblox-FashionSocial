@@ -56,7 +56,10 @@ RunService.Heartbeat:Connect(function(dt)
 				humanoid.Destroying:Connect(function() tracks[humanoid] = nil end)
 			end
 			local state = humanoid:GetState()
+			-- other players' humanoid states do not reach this client: their
+			-- vertical speed shows a jump (2P test 2026-10-25)
 			local air = state == Enum.HumanoidStateType.Freefall or state == Enum.HumanoidStateType.Jumping
+				or math.abs(root.AssemblyLinearVelocity.Y) > 4
 			if inZone(root.Position) then
 				if track.wasAir and not air then
 					play(SPLASH_ID, root, 0.9)

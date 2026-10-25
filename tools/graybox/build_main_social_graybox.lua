@@ -321,13 +321,14 @@ local function vipBooth(cx,wallZ,dir)
  for _,sx in ipairs({-5,0,5}) do local pos=Vector3.new(cx+sx,V+1.45,zz(2.4))
   seat(z,"VIP_Sofa",CFrame.lookAt(pos,pos+Vector3.new(0,0,dir)),Vector3.new(4,0.3,2.2),boothC,1) end
  -- black glass table with a thin white edge
- box(z,"VIP_TableBase",cx-3,V,zz(5.8),cx+3,V+2.2,zz(7.2),Color3.fromRGB(16,16,18))
- local top=box(z,"VIP_Table",cx-5.5,V+2.2,zz(4.4),cx+5.5,V+2.5,zz(8.6),Color3.fromRGB(10,10,12),{mat=Enum.Material.SmoothPlastic}) -- (glass picked up the lights and looked beige)
+ -- (smaller than first drawn, so there is a walkway past it to the back seats: user test 2026-10-25)
+ box(z,"VIP_TableBase",cx-2,V,zz(6),cx+2,V+2.2,zz(7),Color3.fromRGB(16,16,18))
+ local top=box(z,"VIP_Table",cx-3.5,V+2.2,zz(5),cx+3.5,V+2.5,zz(8),Color3.fromRGB(10,10,12),{mat=Enum.Material.SmoothPlastic}) -- (glass picked up the lights and looked beige)
  top.Reflectance=0.12 CS:AddTag(top,"DrinkTable")
  local W2=Color3.fromRGB(245,245,245) local EO={mat=Enum.Material.SmoothPlastic,ghost=true} -- (a thin white line, not a glow)
- box(z,"VIP_TableEdge",cx-5.5,V+2.5,zz(4.4),cx+5.5,V+2.53,zz(4.52),W2,EO) box(z,"VIP_TableEdge",cx-5.5,V+2.5,zz(8.48),cx+5.5,V+2.53,zz(8.6),W2,EO)
- box(z,"VIP_TableEdge",cx-5.5,V+2.5,zz(4.4),cx-5.38,V+2.53,zz(8.6),W2,EO) box(z,"VIP_TableEdge",cx+5.38,V+2.5,zz(4.4),cx+5.5,V+2.53,zz(8.6),W2,EO)
- for k=0,3 do slot(top,Vector3.new(cx-3.3+k*2.2,V+2.8,zz(6.5))) end
+ box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(5),cx+3.5,V+2.53,zz(5.12),W2,EO) box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(7.88),cx+3.5,V+2.53,zz(8),W2,EO)
+ box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(5),cx-3.38,V+2.53,zz(8),W2,EO) box(z,"VIP_TableEdge",cx+3.38,V+2.5,zz(5),cx+3.5,V+2.53,zz(8),W2,EO)
+ for k=0,3 do slot(top,Vector3.new(cx-2.4+k*1.6,V+2.8,zz(6.5))) end
 end
 local BOOTHS={-33.5,-9,15.5,39}
 for _,cx in ipairs(BOOTHS) do vipBooth(cx,NZ,1) vipBooth(cx,-167.5,-1) end
