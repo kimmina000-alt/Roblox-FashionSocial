@@ -1512,3 +1512,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 기획 (D-270) — 가격 테스트 값 확정, 음료 목록 교체, 코인 x2 패스·후원 순위 추가 (CLUB_SHOP_PRICING.md §4·§5·§10·§11)
 
 ### 기획 (D-271) — 음료 v2 이름·모양, 콜드 스파크·후원 전체 배너, 순위 3종과 바깥 위치, 버스 광고판 구매 제안 (CLUB_SHOP_PRICING.md §4, §13)
+
+### 기획 (D-272) — 💰5 음료, 1시간 코인 부스트 25 R$, 버스 광고 8자리, VIP 전용 음료 설명. 상품 전체 목록을 PRODUCTS.md §9에 정리, MONETIZATION.md에 연결.
