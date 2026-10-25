@@ -595,6 +595,37 @@ local function updateWashes(t: number)
 end
 
 --------------------------------------------------
+-- LED wall bars (tag "ClubWallBar", attribute Index, user 2026-10-25): a
+-- bright band chases along the bars, the rest glow dim; DJ colour or a slow
+-- rainbow, off with the DJ's 💡 switch.
+--------------------------------------------------
+
+local wallBars: {BasePart} = {}
+local function addWallBar(part: Instance)
+	if part:IsA("BasePart") and not table.find(wallBars, part) then table.insert(wallBars, part) end
+end
+for _, part in ipairs(CollectionService:GetTagged("ClubWallBar")) do addWallBar(part) end
+CollectionService:GetInstanceAddedSignal("ClubWallBar"):Connect(addWallBar)
+
+local DIM = Color3.fromRGB(30, 30, 36)
+local function updateWallBars(t: number)
+	local on = FashionGame:GetAttribute("ClubLights") ~= false
+	local picked = ClubConfig.findLightColor(FashionGame:GetAttribute("ClubLightColor"))
+	local fixed: Color3? = picked and picked.color
+	local head = t * 14 -- bars per second
+	for _, bar in ipairs(wallBars) do
+		if bar.Parent and inRange(bar.Position) then
+			local index = bar:GetAttribute("Index")
+			local i = if typeof(index) == "number" then index else 0
+			local d = (head - i) % 36 -- one band every 36 bars
+			local level = if not on then 0 elseif d < 6 then 1 - d / 6 else 0.12
+			local color = fixed or Color3.fromHSV((t * 0.05 + i * 0.01) % 1, 0.7, 1)
+			bar.Color = DIM:Lerp(color, level)
+		end
+	end
+end
+
+--------------------------------------------------
 
 local accumulator = 0
 -- The lasers run on their own clock so the DJ's speed (lasers only, user
@@ -613,6 +644,7 @@ RunService.RenderStepped:Connect(function(dt)
 	lastNow = t
 	updateLasers(lightClock)
 	updateWashes(t)
+	updateWallBars(t)
 	updatePillars(t)
 end)
 

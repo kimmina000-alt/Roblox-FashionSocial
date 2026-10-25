@@ -1438,3 +1438,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 로비 바닥 테두리 LED, 2층 난간 아래 LED 한 줄 더, 1층 단상 테이블 선을 벽까지 아치로. 봉 단상 넓은 원 한 칸(2 높이). 바닥 광택 그레이 타일. 레이저 전광판 바로 위에서 2층 난간 쪽으로, 끝으로 갈수록 더 흐리게.
 
 ![](images/2026-10-25/club_hall_v7.jpg)
+
+### 추가 (D-253) — 큰 타일, 아치+닉네임, 봉 단상, 벽 LED 바
+- 바닥 타일 3x3 크기(12칸)로. 1층 테이블 아치 높이고 안에 테이블 주인 닉네임 네온. 봉 단상 작게(7)·높게(3). 빈 벽에 세로 LED 바(차례로 켜지는 체이스, DJ 색 따라감).
+
+![](images/2026-10-25/club_arch_name.jpg)
+![](images/2026-10-25/club_wall_bars.jpg)

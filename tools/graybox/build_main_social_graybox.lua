@@ -185,7 +185,12 @@ P(z,"Marquee_Landmark",Vector3.new(60,8,2),CFrame.new(0,19,-148.5),pink,NEON)
 P(z,"DoormanNPC(placeholder)",Vector3.new(2,6,2),CFrame.new(10,3,-148),Color3.fromRGB(20,20,20))
 label(z,"CLUB · Idol Concert City",Vector3.new(0,TOP+16,-150),true)
 -- shell (F = hall floor, TOP = ceiling)
-do local fl=box(z,"Floor",-80,F-1,NZ,80,F,-150,Color3.fromRGB(72,72,78),{mat=Enum.Material.CeramicTiles}) fl.Reflectance=0.12 end -- (slightly glossy grey tiles, user 2026-10-25)
+-- slightly glossy grey floor in big tiles: 12-stud squares, 3x3 of the
+-- CeramicTiles tiles (user 2026-10-25), thin dark grout lines
+do local fl=box(z,"Floor",-80,F-1,NZ,80,F,-150,Color3.fromRGB(72,72,78),{mat=Enum.Material.SmoothPlastic}) fl.Reflectance=0.15
+ local GC=Color3.fromRGB(46,46,52)
+ for gx=-64+12,79,12 do local p=box(z,"FloorGrout",gx-0.05,F,NZ,gx+0.05,F+0.02,-167.5,GC,{nocol=true}) p.CastShadow=false p.CanQuery=false end
+ for gz=NZ+12,-168,12 do local p=box(z,"FloorGrout",-64,F,gz-0.05,80,F+0.02,gz+0.05,GC,{nocol=true}) p.CastShadow=false p.CanQuery=false end end
 -- LED line where the hall floor meets the walls (floor and walls looked as one);
 -- lemon white like the balcony line (user 2026-10-25)
 do local RED=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
@@ -414,7 +419,7 @@ local function platform(cx,wallZ,dir)
   cyl(z,"PlatformNeon",2*r+0.12,0.12,Vector3.new(cx,top-0.26,cc),pink,NE)
  end
  -- the stadium outline goes on up the wall as two neon arches (user 2026-10-25)
- do local NE={mat=Enum.Material.Neon,ghost=true} local wz=wallZ+dir*0.1 local yc=F+8
+ do local NE={mat=Enum.Material.Neon,ghost=true} local wz=wallZ+dir*0.1 local yc=F+12 -- (taller, user 2026-10-25)
   for lv,r in ipairs({8.5,6.5}) do local y0=F+0.8*lv-0.26
    for _,s in ipairs({-1,1}) do box(z,"PlatformArch",cx+s*r-0.08,y0,wz-0.08,cx+s*r+0.08,yc,wz+0.08,pink,NE) end
    local N=14 local prev=Vector3.new(cx+r,yc,wz)
@@ -427,16 +432,24 @@ local function platform(cx,wallZ,dir)
  local top=cyl(z,"RoundTable",4.4,0.3,tp+Vector3.new(0,3.55,0),Color3.fromRGB(240,240,245))
  CS:AddTag(top,"DrinkTable")
  for k=0,3 do local a=math.rad(45+k*90) slot(top,tp+Vector3.new(math.cos(a)*1.3,3.85,math.sin(a)*1.3)) end
+ -- the table owner's @username in pink neon on the wall inside the arch
+ -- (DrinkService writes it through WallSign, like the VIP signs; user 2026-10-25)
+ do local face=if dir==1 then Enum.NormalId.Back else Enum.NormalId.Front local wz=wallZ+dir*0.12
+  local nb=box(z,"PlatformName",cx-5,F+13,math.min(wz,wz+dir*0.04),cx+5,F+15.5,math.max(wz,wz+dir*0.04),Color3.new(0,0,0),{t=1,ghost=true})
+  local g=Instance.new("SurfaceGui") g.Face=face g.LightInfluence=0 g.Brightness=2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=nb
+  local l=Instance.new("TextLabel") l.BackgroundTransparency=1 l.Size=UDim2.fromScale(1,1) l.TextScaled=true l.Font=Enum.Font.GothamBold l.Text="" l.TextColor3=Color3.fromRGB(255,225,245) l.Parent=g
+  local s=Instance.new("UIStroke") s.Color=Color3.fromRGB(255,40,170) s.Thickness=3 s.Parent=l
+  local ov=Instance.new("ObjectValue") ov.Name="WallSign" ov.Value=l ov.Parent=top end
 end
 for _,cx in ipairs({-41.7,-14.5}) do platform(cx,-167.5,-1) end
 for _,cx in ipairs({-41.7,-14.5,12.5,39}) do platform(cx,NZ,1) end
 local function pole(px,pz,ledPole)
  -- (user 2026-10-25) a wider round stage of two steps, a lemon LED line
  -- under each step edge
- local BH=2
+ local BH=3
  -- (user 2026-10-25) one wide round stage, 2 high (no steps), LED round its top edge
- local b=cyl(z,"PoleBase",10,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole")
- cyl(z,"PoleStepLED",10.08,0.12,Vector3.new(px,F+BH-0.1,pz),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+ local b=cyl(z,"PoleBase",7,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole") -- (smaller and higher, user 2026-10-25)
+ cyl(z,"PoleStepLED",7.08,0.12,Vector3.new(px,F+BH-0.1,pz),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
  local PL=(V-1)-(F+BH) -- up to the balcony floor (they stand where its columns were)
  local p=cyl(z,"DancePole",0.35,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
  p.Reflectance=0.3
@@ -589,7 +602,17 @@ for _,pc in ipairs({{70,-262.5},{70,-174}}) do
   panel:SetAttribute("Slice",k) end
  P(m,"NameAnchor",Vector3.new(1,1,1),CFrame.new(pc[1]-R-4,F+14,pc[2]),W,{t=1,ghost=true})
 end
--- (the lasers moved to the stage-front truss, the moving heads to these trusses: user 2026-10-25)
+-- LED WALL BARS (user pick 2026-10-25, option 2): thin vertical LED bars at an
+-- even spacing on the bare west walls of the hall (below the balcony round
+-- the hall door, and the upper wall above the balcony); ClubLightsController
+-- runs a chase across them in the DJ's colour (tag ClubWallBar, attribute Index)
+do local BC=Color3.fromRGB(255,250,175) local k=0
+ local function bar(x0,x1,y0,y1,zc) k+=1
+  local b=box(z,"WallLEDBar",x0,y0,zc-0.2,x1,y1,zc+0.2,BC,{mat=Enum.Material.Neon,ghost=true})
+  b.CastShadow=false b:SetAttribute("Index",k) CS:AddTag(b,"ClubWallBar") end
+ for zc=NZ+3,-170,4 do if zc<-226.5 or zc>-209.5 then bar(-63.95,-63.75,F+1,V-2,zc) end end
+ for zc=NZ+3,-170,4 do bar(-79.95,-79.75,V+1.5,TOP-1.5,zc) end
+end-- (the lasers moved to the stage-front truss, the moving heads to these trusses: user 2026-10-25)
 
 for _,c in ipairs(z:GetChildren()) do if not beforeDJ[c] then
  local d=Vector3.new(0,0,HZ)
