@@ -722,6 +722,19 @@ local z=zone("04_Beach_Aquarium")
   local TILE={mat=Enum.Material.SmoothPlastic}
   local glass=Color3.fromRGB(200,228,238) local frameC=Color3.fromRGB(238,238,235) local dark=Color3.fromRGB(38,38,42)
   local sofaC=Color3.fromRGB(244,242,236)
+  -- ROUNDED SEATING (user 2026-10-25: "의자 조금 더 둥글둥글", plush lounge sofas):
+  -- made from plain parts (cylinders, no images): the Seat itself is an
+  -- invisible box (sitting works as before), the visible part is round
+  local FAB={mat=Enum.Material.Fabric,nocol=true}
+  local function roundStool(name,pos,d,legH,col) -- pos = the seat centre
+   seat(cm,name,CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(d,0.3,d),col,1)
+   cyl(cm,name.."Cushion",d+0.1,0.45,pos,col,FAB)
+   cyl(cm,"StoolLeg",0.3,legH,Vector3.new(pos.X,pos.Y-0.2-legH/2,pos.Z),dark) end
+  local function tubChair(cf,col) -- cf = the seat, looking where the sitter faces
+   seat(cm,"CafeChair",cf,Vector3.new(1.8,0.3,1.8),col,1)
+   cyl(cm,"ChairCushion",2,0.45,cf.Position,col,FAB)
+   P(cm,"ChairBack",Vector3.new(1.8,1,1),cf*CFrame.new(0,0.6,0.75),col,{shape=Enum.PartType.Cylinder,mat=Enum.Material.Fabric,nocol=true})
+   cyl(cm,"ChairLeg",0.35,1.4,cf.Position-Vector3.new(0,0.9,0),dark) end
   -- floor slab, base on the sand, piles in the sea
   -- the floor has a hole for the 물멍 channel (user 2026-10-25): its terrain
   -- water lies below the floor top, in a closed basin under the slab, so its
@@ -838,8 +851,7 @@ local z=zone("04_Beach_Aquarium")
   -- mezzanine window bar at the railing (view over the pool to the sea)
   box(cm,"MezzBar",mx+0.2,MY+3.2,z0+3,mx+1.8,MY+3.5,93,white)
   for sz=z0+5,91,5 do local pos=Vector3.new(mx+4,MY+2.3,sz)
-   seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),dark)
-   cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(mx+4,MY+1.05,sz),dark) end
+   roundStool("BarStool",pos,1.8,2.1,dark) end
   -- things left on the rail bar (user 2026-10-25): a laptop with a coffee, a
   -- receipt and a buzzer, a phone and a coffee, a book
   local function cup(x,z) cyl(cm,"CoffeeCup",0.4,0.5,Vector3.new(x,MY+3.75,z),Color3.fromRGB(250,250,248),{nocol=true})
@@ -866,8 +878,7 @@ local z=zone("04_Beach_Aquarium")
    local tt=box(cm,"CafeTable",tx0,MY+2.8,tz[1],tx1,MY+3.1,tz[2],Color3.fromRGB(240,238,234),{mat=Enum.Material.Marble}) CS:AddTag(tt,"CafeTable")
    for _,lz in ipairs({tz[1]+1.5,tz[2]-1.5}) do box(cm,"TableLeg",tx0+1.5,MY,lz-0.25,tx1-1.5,MY+2.8,lz+0.25,Color3.fromRGB(236,234,230)) end
    for k=0,5 do local sz=tz[1]+1.9+k*3.24 local pos=Vector3.new(-208.3,MY+1.6,sz)
-    seat(cm,"CafeStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.5,0.3,1.5),white)
-    cyl(cm,"StoolLeg",0.3,1.45,Vector3.new(-208.3,MY+0.73,sz),dark) end
+    roundStool("CafeStool",pos,1.6,1.4,white) end
   end
   -- plant at the end of the rail bar
   local function plant(x,z,y,d,h,par)
@@ -944,10 +955,9 @@ local z=zone("04_Beach_Aquarium")
   -- tables moved west, a lounge of benches and tables on four steps rising
   -- eastwards (1 → 4) in front of the stairs, the piano in the north-west corner
   -- WINDOW BAR along the sea-side glass (the south part)
-  box(cm,"WindowBar",x0+0.4,FY+3.2,19,x0+2.6,FY+3.5,63,white) -- (shorter: plants at its ends, user plan 2026-10-25)
-  for sz=21,61,5 do local pos=Vector3.new(x0+4.4,FY+2.3,sz)
-   seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),dark)
-   cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(x0+4.4,FY+1.05,sz),dark) end
+  box(cm,"WindowBar",x0+0.4,FY+3.2,23.6,x0+2.6,FY+3.5,63,white) -- (shorter: plants at its ends; the south end cut back past the corner pot, user 2026-10-25)
+  for sz=26,61,5 do local pos=Vector3.new(x0+4.4,FY+2.3,sz)
+   roundStool("BarStool",pos,1.8,2.1,dark) end
   -- WATER CHANNEL (물멍): black stone bottom, terrain water from
   -- build_hongdae_layout (POOL there), four low amber lamps in a row
   -- (the basin and the hole in the floor are made with the floor above)
@@ -977,8 +987,7 @@ local z=zone("04_Beach_Aquarium")
    for _,d in ipairs({{-1,-1},{1,-1},{-1,1},{1,1}}) do
     local pos=Vector3.new(tx+d[1]*2.3,FY+1.6,tz+d[2]*2.3)
     local cf=CFrame.lookAt(pos,Vector3.new(tx,pos.Y,tz))
-    seat(cm,"CafeChair",cf,Vector3.new(1.8,0.3,1.8),white)
-    P(cm,"ChairBack",Vector3.new(1.8,1.6,0.25),cf*CFrame.new(0,0.95,0.85),white,{nocol=true})
+    tubChair(cf,white)
    end
   end
   -- bakery: two long tables with wooden trays of bread where the counters were
@@ -1000,10 +1009,17 @@ local z=zone("04_Beach_Aquarium")
     -- a round table at the step's front, a white bench behind it facing west
     cyl(cm,"TableLeg",0.4,2.4,Vector3.new(xa+2,top+1.2,rz),dark)
     local tt=cyl(cm,"CafeTable",2.6,0.25,Vector3.new(xa+2,top+2.5,rz),woodC) CS:AddTag(tt,"CafeTable")
-    box(cm,"BenchBase",xa+4,top,rz-2.5,xa+6.2,top+1.4,rz+2.5,sofaC)
-    box(cm,"BenchBack",xa+6.2,top,rz-2.5,xa+6.75,top+3.2,rz+2.5,sofaC)
+    -- a plush two-seat sofa: low base, two thick cushions, a back with a
+    -- rolled top, round rolled arms (user 2026-10-25)
+    local SOFA=Color3.fromRGB(236,228,214)
+    box(cm,"SofaBase",xa+3.9,top,rz-2.5,xa+6.75,top+1,rz+2.5,SOFA,{mat=Enum.Material.Fabric})
+    for _,cz in ipairs({{rz-2.05,rz-0.03},{rz+0.03,rz+2.05}}) do box(cm,"SofaCushion",xa+4,top+1,cz[1],xa+6.1,top+1.5,cz[2],SOFA,FAB) end
+    box(cm,"SofaBack",xa+6.05,top+1,rz-2.1,xa+6.75,top+2.9,rz+2.1,SOFA,FAB)
+    P(cm,"SofaBackRoll",Vector3.new(4.2,0.8,0.8),CFrame.new(xa+6.4,top+2.9,rz)*CFrame.Angles(0,math.rad(90),0),SOFA,{shape=Enum.PartType.Cylinder,mat=Enum.Material.Fabric,nocol=true})
+    for _,az in ipairs({rz-2.3,rz+2.3}) do P(cm,"SofaArm",Vector3.new(2.85,1.6,0.4),CFrame.new(xa+5.325,top+1.15,az),SOFA,{mat=Enum.Material.Fabric,nocol=true})
+     P(cm,"SofaArmRoll",Vector3.new(2.85,0.7,0.7),CFrame.new(xa+5.325,top+1.95,az),SOFA,{shape=Enum.PartType.Cylinder,mat=Enum.Material.Fabric,nocol=true}) end
     for _,dz in ipairs({-1.25,1.25}) do local pos=Vector3.new(xa+5.1,top+1.6,rz+dz)
-     seat(cm,"Bench",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(2,0.3,2.3),sofaC) end
+     seat(cm,"Bench",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(2,0.3,2),sofaC,1) end
    end
   end
   label(cm,"라운지",Vector3.new(-255.5,FY+9,88))

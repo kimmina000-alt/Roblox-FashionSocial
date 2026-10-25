@@ -1324,3 +1324,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/cafe_top_v4.jpg)
 ![](images/2026-10-25/cafe_2f_rail.jpg)
+
+### 추가 (D-237) — 둥근 의자, 라운지 소파, 창가 바 끝 자르기
+- 에셋 대신 기본 파트로 직접 만듦(이미지 없음, 숨은 스크립트 걱정 없음).
+- 바 의자·2층 의자: 둥근 쿠션. 1인 테이블 의자: 둥근 쿠션 + 말린 등받이. 라운지: 푹신한 2인 소파(쿠션 2개, 둥근 등받이 윗부분, 둥근 팔걸이).
+- 창가 바 남쪽 끝을 구석 화분 뒤까지 자르고 첫 의자 삭제.
+- 확인: 걸어 들어가면 의자·소파에 앉음.
+
+![](images/2026-10-25/cafe_sofas.jpg)
+![](images/2026-10-25/cafe_round_chairs.jpg)
