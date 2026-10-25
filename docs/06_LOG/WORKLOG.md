@@ -1230,3 +1230,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 클럽 1층·2층 배치도 그림: docs/01_SYSTEMS/images/club_plan_1F.png, club_plan_2F.png.
 
 ![](images/2026-10-25/pastel_ducks.jpg)
+
+### 추가 (D-227) — 고무오리 1/8, 카페 1·2층 배치도
+- 바다 고무오리를 1/8 크기로 줄였습니다(작게 줄이면 위치가 원점으로 튀는 문제를 고침).
+- 해변 카페 현재 1층·2층 배치도 그림: docs/02_WORLDS/images/beach_cafe_1F_plan.png, beach_cafe_2F_plan.png.
+
+![](images/2026-10-25/pastel_duck_small.jpg)
