@@ -188,6 +188,23 @@ end
 -- looks on the "오늘의 큰손" cards right now (userId → outfit), for votes
 local todayLooks: {[number]: any} = {}
 
+-- Live supporters (user 2026-10-25, D-294): the screen on the tower over OH24
+-- shows the latest supporter gifts, newest first, shared by all servers.
+local RECENT_MAX = 6
+local recentStore: DataStore? = nil
+do
+	local ok, store = pcall(function() return DataStoreService:GetDataStore("RecentSupport") end)
+	if ok then recentStore = store end
+end
+local recent: {{ u: number, n: string, a: number, m: string, at: number }} = {}
+local recentLooks: {[number]: any} = {}
+
+local function readRecent()
+	if not recentStore then return end
+	local ok, value = pcall(function() return (recentStore :: DataStore):GetAsync("list") end)
+	if ok and typeof(value) == "table" then recent = value end
+end
+
 local function publish()
 	local data = {}
 	for _, board in ipairs(BOARDS) do
@@ -213,6 +230,18 @@ local function publish()
 	for _, board in ipairs(BOARDS) do
 		for _, row in ipairs(data[board]) do row.id = nil :: any end
 	end
+	-- live supporters with their look and 좋아요 / 싫어요
+	data.recent = {}
+	recentLooks = {}
+	for _, entry in ipairs(recent) do
+		if not hidden[entry.u] then
+			local look = lookOf(entry.u)
+			recentLooks[entry.u] = look
+			local votes = VoteService.State("supporter", tostring(entry.u), VoteService.Version(look))
+			table.insert(data.recent, { u = entry.u, name = entry.n, amount = entry.a, message = entry.m,
+				o = if votes.hidden then nil else look, likes = votes.likes, dislikes = votes.dislikes, hidden = votes.hidden })
+		end
+	end
 	FashionGame:SetAttribute("Rankings", HttpService:JSONEncode(data))
 end
 
@@ -227,10 +256,32 @@ function RankingService.SetHidden(player: Player, hide: boolean)
 	task.spawn(publish)
 end
 
--- This player's vote on a "오늘의 큰손" card (userId).
+-- This player's vote on a live supporter card (userId).
 function RankingService.MyVote(player: Player, userId: any): string?
-	if typeof(userId) ~= "number" or todayLooks[userId] == nil then return nil end
-	return VoteService.MyVote(player, "today", kstDay() .. ":" .. userId, VoteService.Version(todayLooks[userId]))
+	if typeof(userId) ~= "number" or recentLooks[userId] == nil then return nil end
+	return VoteService.MyVote(player, "supporter", tostring(userId), VoteService.Version(recentLooks[userId]))
+end
+
+-- A supporter gift (SparkleService): newest first on the live screen.
+function RankingService.NoteSupport(player: Player, amount: number, message: string)
+	saveLook(player)
+	local entry = { u = player.UserId, n = player.DisplayName, a = amount, m = message, at = os.time() }
+	local function push(list: any): any
+		list = if typeof(list) == "table" then list else {}
+		table.insert(list, 1, entry)
+		while #list > RECENT_MAX do table.remove(list) end
+		return list
+	end
+	recent = push(recent)
+	task.spawn(function()
+		if recentStore then
+			local ok, result = pcall(function()
+				return (recentStore :: DataStore):UpdateAsync("list", function(old) return push(old) end)
+			end)
+			if ok and typeof(result) == "table" then recent = result end
+		end
+		publish()
+	end)
 end
 
 function RankingService.Start()
@@ -240,6 +291,11 @@ function RankingService.Start()
 		if day ~= kstDay() or not userId or todayLooks[userId] == nil then return nil, nil end
 		return userId, VoteService.Version(todayLooks[userId])
 	end, "👑 싫어요가 많아 오늘의 큰손 전광판에서 내 아바타가 가려지고 이름만 보여요. 코디를 바꾸면 표가 새로 시작돼요.")
+	VoteService.Register("supporter", function(id)
+		local userId = tonumber(id)
+		if not userId or recentLooks[userId] == nil then return nil, nil end
+		return userId, VoteService.Version(recentLooks[userId])
+	end, "💝 싫어요가 많아 실시간 후원 전광판에서 내 아바타가 가려지고 이름만 보여요. 코디를 바꾸면 표가 새로 시작돼요.")
 	VoteService.SetPlayMinutes(function(userId) return live.playtime[userId] or 0 end)
 	VoteService.OnChange(function() task.spawn(publish) end)
 	MonetizationService.OnPurchase(function(player, key, robux)
@@ -275,6 +331,7 @@ function RankingService.Start()
 	end)
 	task.spawn(function()
 		while true do
+			readRecent()
 			publish()
 			task.wait(REFRESH_SECONDS)
 		end

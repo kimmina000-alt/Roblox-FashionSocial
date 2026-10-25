@@ -362,6 +362,8 @@ local function grantSupport(player: Player, amount: number): (boolean, string?)
 	local message = pendingMessage[player.UserId] or ""
 	pendingMessage[player.UserId] = nil
 	banner("support", player, message, amount)
+	-- the live supporter screen on the tower over OH24 (D-294)
+	require(script.Parent.RankingService).NoteSupport(player, amount, message)
 	-- (totals for the supporter ranking: RankingService, via MonetizationService.OnPurchase)
 	toast(player, "💝 후원 고마워요!")
 	return true, nil

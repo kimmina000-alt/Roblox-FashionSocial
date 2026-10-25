@@ -4,7 +4,7 @@
 -- "Rankings" (RankingService).
 --   clubStrip  the strip above the club LED wall: the supporter ranking
 --              scrolls by; a new gift shows "○○님 후원 감사합니다!" for a while
---   todayBand  the corner screen on the tower over OH24: today's top 3 avatars run along it
+--   todayBand  the corner screen on the tower over OH24: the latest supporters (avatar, amount, message) run along it (D-294)
 --   support / spend / playtime   the three boards in the pocket park: top 10
 
 local Players = game:GetService("Players")
@@ -151,21 +151,21 @@ local function voteButton(parent: Instance, props: {[string]: any}, onClick: () 
 end
 
 local function StarterGuiNotify(text: string)
-	game:GetService("StarterGui"):SetCore("SendNotification", { Title = "오늘의 큰손", Text = text, Duration = 3 })
+	game:GetService("StarterGui"):SetCore("SendNotification", { Title = "실시간 후원", Text = text, Duration = 3 })
 end
 
 local function openVoteWindow()
 	for _, child in ipairs(voteWindow:GetChildren()) do
 		if not child:IsA("UICorner") then child:Destroy() end
 	end
-	local list = rankings.today or {}
-	local rows = math.min(3, #list)
+	local list = rankings.recent or {}
+	local rows = math.min(4, #list)
 	local vp = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1000, 700)
 	voteWindow.Position = UDim2.new(0.5, 0, 0, TopBar.bottom() + 8)
 	voteWindow.Size = UDim2.fromOffset(math.min(340, vp.X - 24), 96 + math.max(rows, 1) * 46)
 	voteWindow.Visible = true
 	Popups.opened("TodayVote", function() voteWindow.Visible = false end)
-	label(voteWindow, { Position = UDim2.fromOffset(16, 10), Size = UDim2.new(1, -60, 0, 24), Text = "👑 오늘의 큰손",
+	label(voteWindow, { Position = UDim2.fromOffset(16, 10), Size = UDim2.new(1, -60, 0, 24), Text = "💝 실시간 후원",
 		TextXAlignment = Enum.TextXAlignment.Left })
 	label(voteWindow, { Position = UDim2.fromOffset(16, 36), Size = UDim2.new(1, -32, 0, 32), TextWrapped = true,
 		Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(190, 190, 205), TextXAlignment = Enum.TextXAlignment.Left,
@@ -174,13 +174,13 @@ local function openVoteWindow()
 		function() voteWindow.Visible = false Popups.closed("TodayVote") end)
 	if rows == 0 then
 		label(voteWindow, { Position = UDim2.fromOffset(16, 76), Size = UDim2.new(1, -32, 0, 24), Font = Enum.Font.GothamMedium,
-			Text = "아직 오늘의 큰손이 없어요" })
+			Text = "아직 후원이 없어요 · 상단 💝 버튼" })
 		return
 	end
 	for i = 1, rows do
 		local entry = list[i]
 		local y = 76 + (i - 1) * 46
-		label(voteWindow, { Position = UDim2.fromOffset(16, y + 6), Size = UDim2.new(0.5, -16, 0, 26), Text = string.format("%d위 %s", i, tostring(entry.name)),
+		label(voteWindow, { Position = UDim2.fromOffset(16, y + 6), Size = UDim2.new(0.5, -16, 0, 26), Text = string.format("%s · R$ %s", tostring(entry.name), tostring(entry.amount)),
 			TextXAlignment = Enum.TextXAlignment.Left })
 		local mine: string? = nil
 		local like, dislike
@@ -191,8 +191,7 @@ local function openVoteWindow()
 			dislike.BackgroundColor3 = if mine == "dislike" then Color3.fromRGB(220, 60, 60) else Color3.fromRGB(38, 38, 50)
 		end
 		local function vote(value: string)
-			local id = os.date("!%Y%m%d", os.time() + 9 * 3600) .. ":" .. tostring(entry.u)
-			local ok, result = ClubShop:InvokeServer("Vote", { kind = "today", id = id, value = if mine == value then nil else value })
+			local ok, result = ClubShop:InvokeServer("Vote", { kind = "supporter", id = tostring(entry.u), value = if mine == value then nil else value })
 			if ok and typeof(result) == "table" then
 				mine = result.mine
 				paint(result.likes, result.dislikes)
@@ -204,7 +203,7 @@ local function openVoteWindow()
 		dislike = voteButton(voteWindow, { Position = UDim2.new(0.75, -4, 0, y), Size = UDim2.new(0.25, -12, 0, 36) }, function() vote("dislike") end)
 		paint(entry.likes or 0, entry.dislikes or 0)
 		task.spawn(function()
-			local ok, current = ClubShop:InvokeServer("VoteMine", { kind = "today", user = entry.u })
+			local ok, current = ClubShop:InvokeServer("VoteMine", { kind = "supporter", user = entry.u })
 			if ok then mine = current paint(entry.likes or 0, entry.dislikes or 0) end
 		end)
 	end
@@ -250,7 +249,7 @@ local function buildBandPanel(part: BasePart)
 	-- a colour wave flowing along the whole band (continuous over the seams)
 	local wave = Instance.new("UIGradient")
 	wave.Parent = bg
-	-- tap the screen: 좋아요 / 싫어요 for today's cards (D-281)
+	-- tap the screen: 좋아요 / 싫어요 for the supporter cards (D-281)
 	local click = Instance.new("ClickDetector")
 	click.MaxActivationDistance = 400
 	click.Parent = part
@@ -264,9 +263,9 @@ local function buildBandPanel(part: BasePart)
 		card.built = true
 		local frame, entry, index = card.frame, card.entry, card.index
 		if entry == "title" then
-			label(frame, { Position = UDim2.fromScale(0.05, 0.28), Size = UDim2.fromScale(0.9, 0.2), Text = "👑 오늘의",
+			label(frame, { Position = UDim2.fromScale(0.05, 0.28), Size = UDim2.fromScale(0.9, 0.2), Text = "💝 실시간",
 				Font = Enum.Font.GothamBlack, TextColor3 = GOLD })
-			label(frame, { Position = UDim2.fromScale(0.05, 0.5), Size = UDim2.fromScale(0.9, 0.24), Text = "큰손",
+			label(frame, { Position = UDim2.fromScale(0.05, 0.5), Size = UDim2.fromScale(0.9, 0.24), Text = "후원",
 				Font = Enum.Font.GothamBlack, TextColor3 = GOLD })
 			return
 		end
@@ -276,14 +275,18 @@ local function buildBandPanel(part: BasePart)
 		viewport.BackgroundColor3 = Color3.fromRGB(AVATAR_BACK[1], AVATAR_BACK[2], AVATAR_BACK[3])
 		viewport.BackgroundTransparency = 0.3
 		viewport.Parent = frame
-		local crown = { "👑 1위", "🥈 2위", "🥉 3위" }
-		label(frame, { Position = UDim2.fromScale(0.04, 0.05), Size = UDim2.fromScale(0.5, 0.09), Text = crown[index] or "",
+		label(frame, { Position = UDim2.fromScale(0.04, 0.05), Size = UDim2.fromScale(0.5, 0.09), Text = "💝 R$ " .. tostring(entry.amount),
 			TextColor3 = GOLD, TextXAlignment = Enum.TextXAlignment.Left })
 		label(frame, { Position = UDim2.fromScale(0.5, 0.05), Size = UDim2.fromScale(0.46, 0.08),
 			Text = string.format("👍%d 👎%d", entry.likes or 0, entry.dislikes or 0), Font = Enum.Font.GothamMedium,
 			TextXAlignment = Enum.TextXAlignment.Right })
-		label(frame, { Position = UDim2.fromScale(0.04, 0.8), Size = UDim2.fromScale(0.92, 0.14), Text = tostring(entry.name),
+		label(frame, { Position = UDim2.fromScale(0.04, 0.79), Size = UDim2.fromScale(0.92, 0.11), Text = tostring(entry.name),
 			Font = Enum.Font.GothamBlack })
+		-- their message (filtered on the server)
+		if typeof(entry.message) == "string" and entry.message ~= "" then
+			label(frame, { Position = UDim2.fromScale(0.04, 0.9), Size = UDim2.fromScale(0.92, 0.08), Text = "“" .. entry.message .. "”",
+				Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(255, 220, 235) })
+		end
 		if entry.hidden then
 			-- hidden by 싫어요 (D-281): the name only
 			viewport.Visible = false
@@ -301,9 +304,9 @@ local function buildBandPanel(part: BasePart)
 	return {
 		gui = gui,
 		update = function()
-			local list = rankings.today or {}
+			local list = rankings.recent or {}
 			local entries: {any} = { "title" }
-			for i = 1, math.min(3, #list) do table.insert(entries, list[i]) end
+			for i = 1, math.min(5, #list) do table.insert(entries, list[i]) end
 			local key = HttpService:JSONEncode(entries)
 			if key == shownKey then return end
 			shownKey = key

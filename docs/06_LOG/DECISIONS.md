@@ -545,3 +545,5 @@ D-291 — (2026-10-25, user) The foyer's floor LED lines continue along both wal
 D-292 — (2026-10-25, user) Club corridor: ceiling raised to the underside of the 2F floor (same as the hall's 1F), the dance hall door 18 tall (was 14); the corridor floor LED stops at the door; the pink door posts are plain pink with only the faces looking into the doorway glowing (neon strip + SurfaceLight).
 
 D-293 — (2026-10-25, user) VIP gate glass and its red neon frame go up to the raised corridor ceiling (top fill removed); no "VIP" / "VIP 패스 · 2층 라운지" text on it (the purchase window still opens). The dance hall door posts are wall-coloured, only their doorway faces glow pink.
+
+D-294 — (2026-10-25, user) The OH24 tower screen shows live supporters (last 6 gifts across servers: avatar, amount, name, filtered message, votes) instead of today's big spenders. Foyer sign reads "HERE" with the arrow (rbxassetid://110791212768581, docs/04_ART/textures/here_arrow.png). The floor LED lines continue along the foot of the dance hall door posts on both sides.

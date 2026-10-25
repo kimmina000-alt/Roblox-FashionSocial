@@ -255,7 +255,8 @@ do local GRAFFITI="rbxassetid://77520103793675"
  -- (half size and further in, by the end of the graffiti, so it hardly shows
 -- from the street: user 2026-10-25)
 do local p=box(z,"GraffitiSign",-11,3,-166.5,-2.5,7.25,-166.45,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
-  local d=Instance.new("Decal") d.Texture="rbxassetid://118161419410572" d.Face=Enum.NormalId.Back d.Parent=p end
+  -- ("HERE" instead of "OHU CLUB", user 2026-10-25; docs/04_ART/textures/here_arrow.png)
+  local d=Instance.new("Decal") d.Texture="rbxassetid://110791212768581" d.Face=Enum.NormalId.Back d.Parent=p end
  graffiti(-80,F,-151.05,-24,12,-151,Enum.NormalId.Front)
  graffiti(-24,0,-151.05,-8,12,-151,Enum.NormalId.Front)
  -- (none on the street wall by the lift corridor, user 2026-10-25)
@@ -292,6 +293,9 @@ box(z,"CorridorNeon_E",-65.7,F,-210.75,-65.4,F+0.4,-167.5,Color3.fromRGB(255,250
 for _,d in ipairs({{-211.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
  -- (the rest of the post is wall: wall colour, user 2026-10-25)
  P(z,"HallDoorFrame",Vector3.new(1.5,DH,1.5),CFrame.new(-64.5,F+DH/2,pz),WALL_C,WALLO)
+ -- the floor light lines run on along the foot of the post on both sides (user 2026-10-25)
+ for _,xf in ipairs({{-63.75,-63.63},{-65.37,-65.25}}) do
+  box(z,"HallDoorFootLED",xf[1],F,pz-0.75,xf[2],F+0.25,pz+0.75,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
  local fz=pz+s*0.75
  local g=box(z,"HallDoorGlow",-65.25,F,math.min(fz,fz+s*0.12),-63.75,F+DH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
  local sl=Instance.new("SurfaceLight") sl.Face=if s>0 then Enum.NormalId.Back else Enum.NormalId.Front sl.Color=pink sl.Range=10 sl.Brightness=1.5 sl.Angle=150 sl.Parent=g end

@@ -1631,3 +1631,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/vip_gate_tall.jpg)
 ![](images/2026-10-25/hall_door_inner_glow.jpg)
+
+### 수정 (D-294) — 전광판 실시간 후원, 로비 간판 HERE, 댄스홀 문 기둥 아래 조명
+
+![](images/2026-10-25/live_support_screen.jpg)
+![](images/2026-10-25/foyer_here_sign.jpg)
+![](images/2026-10-25/hall_door_foot_led.jpg)
