@@ -1444,3 +1444,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/club_arch_name.jpg)
 ![](images/2026-10-25/club_wall_bars.jpg)
+
+### 추가 (D-254) — 바닥 타일 1/3(4칸)
+
+![](images/2026-10-25/club_tiles_4.jpg)

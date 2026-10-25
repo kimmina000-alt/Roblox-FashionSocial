@@ -185,12 +185,12 @@ P(z,"Marquee_Landmark",Vector3.new(60,8,2),CFrame.new(0,19,-148.5),pink,NEON)
 P(z,"DoormanNPC(placeholder)",Vector3.new(2,6,2),CFrame.new(10,3,-148),Color3.fromRGB(20,20,20))
 label(z,"CLUB · Idol Concert City",Vector3.new(0,TOP+16,-150),true)
 -- shell (F = hall floor, TOP = ceiling)
--- slightly glossy grey floor in big tiles: 12-stud squares, 3x3 of the
--- CeramicTiles tiles (user 2026-10-25), thin dark grout lines
+-- slightly glossy grey floor in 4-stud tiles (12 at first, a third of that:
+-- user 2026-10-25), thin dark grout lines
 do local fl=box(z,"Floor",-80,F-1,NZ,80,F,-150,Color3.fromRGB(72,72,78),{mat=Enum.Material.SmoothPlastic}) fl.Reflectance=0.15
  local GC=Color3.fromRGB(46,46,52)
- for gx=-64+12,79,12 do local p=box(z,"FloorGrout",gx-0.05,F,NZ,gx+0.05,F+0.02,-167.5,GC,{nocol=true}) p.CastShadow=false p.CanQuery=false end
- for gz=NZ+12,-168,12 do local p=box(z,"FloorGrout",-64,F,gz-0.05,80,F+0.02,gz+0.05,GC,{nocol=true}) p.CastShadow=false p.CanQuery=false end end
+ for gx=-64+4,79,4 do local p=box(z,"FloorGrout",gx-0.05,F,NZ,gx+0.05,F+0.02,-167.5,GC,{nocol=true}) p.CastShadow=false p.CanQuery=false end
+ for gz=NZ+4,-168,4 do local p=box(z,"FloorGrout",-64,F,gz-0.05,80,F+0.02,gz+0.05,GC,{nocol=true}) p.CastShadow=false p.CanQuery=false end end
 -- LED line where the hall floor meets the walls (floor and walls looked as one);
 -- lemon white like the balcony line (user 2026-10-25)
 do local RED=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
