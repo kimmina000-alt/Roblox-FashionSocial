@@ -121,6 +121,10 @@ local function buildPanel(panel: BasePart)
 			local active = ad ~= nil and ad.u ~= nil
 			adFrame.Visible = active
 			free.Visible = not active
+			-- the panel's own default poster draws on the same face: hide it under an
+			-- ad, or it flickers through the ad (2P phone test 2026-10-26)
+			local poster = panel:FindFirstChildOfClass("SurfaceGui")
+			if poster then poster.Enabled = not active end
 			if not active then
 				shown = ""
 				return

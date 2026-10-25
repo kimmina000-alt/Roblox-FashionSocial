@@ -111,7 +111,8 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 	elseif action == "VoteMine" then
 		if typeof(payload) ~= "table" then return false, nil end
 		if payload.kind == "busad" then return true, BusAdService.MyVote(player, payload.id) end
-		if payload.kind == "today" then return true, RankingService.MyVote(player, payload.user) end
+		-- (the live supporter cards ask with kind "supporter": 2P test 2026-10-26)
+		if payload.kind == "supporter" or payload.kind == "today" then return true, RankingService.MyVote(player, payload.user) end
 		return false, nil
 	end
 	if action == "RankHidden" then

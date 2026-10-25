@@ -286,7 +286,7 @@ end
 
 function RankingService.Start()
 	VoteService.Register("today", function(id)
-		local day, user = string.match(id, "^(%d+):(%d+)$")
+		local day, user = string.match(id, "^(%d+):(%-?%d+)$") -- (Studio test players have negative ids)
 		local userId = tonumber(user)
 		if day ~= kstDay() or not userId or todayLooks[userId] == nil then return nil, nil end
 		return userId, VoteService.Version(todayLooks[userId])

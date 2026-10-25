@@ -279,3 +279,26 @@ Not checked by tap (Studio cannot inject taps at the right place in phone emulat
 Re-test after restart (2026-10-22, phone emulation 735×413 / 801×413): menu fits, booth boxes larger, copies panel clean, name tags hidden while shooting, dance panel right of the thumbstick (thumbstick visible), ride button low with no [E]. Pillars swapped after 30 s with two players (ISSUE-CLUB-001 done).
 
 Real phone check by the user (2026-10-22): catalog C, 🖼 album and 📸 menu all work. ISSUE-MOBILE-001 closed.
+
+## Mobile 2P test — 2026-10-26 (fixed the same day, re-test pending)
+
+### ISSUE-2P-001 — DJ panel: 📺 전광판 button outside the panel on phones
+In the compact DJ panel the row held the extend button (150) plus the screen button (96), which is wider than the panel (220). The 📺 button started at x -14. Fix: as DJ, both buttons take half the row each (ClubMusicController).
+
+### ISSUE-2P-002 — Piano: no way to stand up on a phone
+The piano keyboard (DisplayOrder 20) covers the touch jump button. Fix: a "일어나기" button on the keyboard panel (PianoController).
+
+### ISSUE-2P-003 — Bus ad: the default poster flickers through the ad
+The panel's own SurfaceGui (the default poster) and the client ad SurfaceGui draw on the same face, and which one wins depends on the camera. Fix: the client turns the panel's poster off while an ad is up (BusAdController).
+
+### ISSUE-2P-004 — Live supporter vote window does not show my vote
+The client asks VoteMine with kind "supporter", but the server only answered "busad" and "today". Fix: ServerMain routes "supporter" to RankingService.MyVote.
+
+### ISSUE-2P-005 — 오늘의 큰손 votes fail in Studio
+The vote id pattern `%d+` did not match negative Studio test ids. Fix: `%-?%d+` (RankingService).
+
+### ISSUE-2P-006 — Bottle labels on one table overlap
+Every bottle label sat at the same height. Fix: each new bottle's label sits 0.9 higher (DrinkService). Also the "나만" toast read "'나만'로"; it now reads "(공개: 나만)".
+
+### ISSUE-2P-007 — A banner hides under the open 💝 window
+Fix: Banner ZIndex 5 (BannerController).

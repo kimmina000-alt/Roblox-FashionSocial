@@ -116,7 +116,7 @@ local function open()
 	size.MinSize = Vector2.new(280, 120)
 	local title = Instance.new("TextLabel")
 	title.BackgroundTransparency = 1
-	title.Size = UDim2.new(1, -20, 0, 22)
+	title.Size = UDim2.new(1, -110, 0, 22)
 	title.Position = UDim2.fromOffset(10, 4)
 	title.Font = Enum.Font.GothamBold
 	title.TextScaled = true
@@ -124,6 +124,25 @@ local function open()
 	title.TextColor3 = Color3.fromRGB(245, 240, 230)
 	title.Text = if UserInputService.KeyboardEnabled then "🎹 피아노  (Z~M · Q~U 흰 건반, S D G H J · 2 3 5 6 7 검은 건반, 점프 = 일어나기)" else "🎹 피아노  (점프 = 일어나기)"
 	title.Parent = frame
+	-- on phones the keyboard covers the jump button: stand up from here
+	-- (2P phone test 2026-10-26)
+	local standUp = Instance.new("TextButton")
+	standUp.Name = "StandUp"
+	standUp.AnchorPoint = Vector2.new(1, 0)
+	standUp.Position = UDim2.new(1, -8, 0, 3)
+	standUp.Size = UDim2.fromOffset(92, 24)
+	standUp.BackgroundColor3 = Color3.fromRGB(70, 70, 82)
+	standUp.Font = Enum.Font.GothamBold
+	standUp.TextColor3 = Color3.new(1, 1, 1)
+	standUp.TextSize = 13
+	standUp.Text = "일어나기"
+	standUp.Parent = frame
+	Instance.new("UICorner", standUp).CornerRadius = UDim.new(0, 8)
+	standUp.Activated:Connect(function()
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if humanoid then humanoid.Jump = true end
+	end)
 	local keys = Instance.new("Frame")
 	keys.BackgroundTransparency = 1
 	keys.Position = UDim2.new(0, 8, 0, 30)

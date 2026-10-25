@@ -370,7 +370,13 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	local info = Instance.new("BillboardGui")
 	info.Name = "Info"
 	info.Size = UDim2.fromOffset(170, 22)
-	info.StudsOffset = Vector3.new(0, 1.8, 0)
+	-- labels of bottles on the same table stack instead of covering each other
+	-- (2P phone test 2026-10-26)
+	local onTable = 0
+	for _, other in ipairs(tablePart:GetChildren()) do
+		if other.Name == "PlacedBottle" then onTable += 1 end
+	end
+	info.StudsOffset = Vector3.new(0, 1.8 + onTable * 0.9, 0)
 	info.MaxDistance = 30
 	info.Parent = bottle
 	local text = Instance.new("TextLabel")
@@ -394,7 +400,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	pour.Triggered:Connect(function(who)
 		if not bottle.Parent then return end
 		if not mayPour(who, bottle) then
-			toast(who, string.format("%s님이 '%s'로 놓은 병이에요.", tostring(bottle:GetAttribute("OwnerName")), visibilityName(bottle:GetAttribute("Visibility"))))
+			toast(who, string.format("%s님이 놓은 병이에요 (공개: %s).", tostring(bottle:GetAttribute("OwnerName")), visibilityName(bottle:GetAttribute("Visibility"))))
 			return
 		end
 		local ok, message = giveCup(who, drink.key, variantKey)

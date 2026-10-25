@@ -38,6 +38,7 @@ banner.Size = UDim2.fromOffset(420, 64)
 banner.BackgroundColor3 = Color3.fromRGB(28, 14, 36)
 banner.BackgroundTransparency = 0.08
 banner.Visible = false
+banner.ZIndex = 5 -- over the 💝 window when both are open (2P test 2026-10-26)
 banner.Parent = gui
 Instance.new("UICorner", banner).CornerRadius = UDim.new(0, 16)
 local stroke = Instance.new("UIStroke")
