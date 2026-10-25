@@ -218,22 +218,52 @@ box(z,"Foyer_E",12,0,-166.5,13,12,-151,WALL_C,WALLO)
 box(z,"Foyer_E_Below",12,F,-166.5,13,0,-151,WALL_C,WALLO)
 box(z,"Entry_Ceiling",-80,12,-166.5,12,13,-151,dark)
 box(z,"Entry_Fill",12,F,-166.5,80,TOP,-151,dark) -- closed block east of the foyer
--- Stair look (user reference 2026-10-22): dark steps, a white neon nose and
--- white "▼▼▼" chevrons glowing on every riser. riser(): thin plate whose
--- Front face (LookVector) faces the people climbing up.
-local stepC=Color3.fromRGB(28,26,34)
+-- ENTRANCE STAIRS (user video 2026-10-25, 홍대 hip-hop club): diamond-plate
+-- metal treads, the walls covered in pale graffiti over dark red, dim red
+-- light, purple neon strips down the wall edges, and at the bottom landing a
+-- red brick wall with a neon heart (no white nosings or ▼ chevrons any more)
+local stepC=Color3.fromRGB(120,118,122)
+local GRAFFITI="rbxassetid://77520103793675"
+-- riser(): thin plate with glowing "▼" chevrons (still used by the VIP stair)
 local function riser(par,center,facing,width,height)
- local r=P(par,"StairRiser",Vector3.new(width,height,0.08),CFrame.lookAt(center,center+facing),stepC,{ghost=true})
+ local r=P(par,"StairRiser",Vector3.new(width,height,0.08),CFrame.lookAt(center,center+facing),Color3.fromRGB(28,26,34),{ghost=true})
  local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0 g.Brightness=2
  g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=24 g.Parent=r
  local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true
  l.Font=Enum.Font.GothamBlack l.TextColor3=Color3.new(1,1,1) l.Text=string.rep("▼",math.max(4,math.floor(width/1.1))) l.Parent=g
  return r end
 for i=1,15 do local top=-1.5*i local x0=-24-2.5*(i-1)
- box(z,"Stair",x0-2.5,F,-166.5,x0,top,-151,stepC,{nocol=true})
- box(z,"StairNeon",x0-2.5,top,-166.3,x0-2.2,top+0.08,-151.2,Color3.fromRGB(170,170,170),{mat=Enum.Material.Neon,ghost=true}) -- (dimmer than white, a little brighter than half: user 2026-10-25)
- -- riser below this step's west edge (seen when walking back up, east)
- riser(z,Vector3.new(x0-2.54,top-0.75,-158.75),Vector3.new(-1,0,0),15.3,1.5) end
+ box(z,"Stair",x0-2.5,F,-166.5,x0,top,-151,stepC,{nocol=true,mat=Enum.Material.DiamondPlate}) end
+do local WR=Color3.fromRGB(70,18,26)
+ -- graffiti panels on the stair-side faces of the walls (foyer + stairs + landing)
+ local function panel(name,x0,y0,z0,x1,y1,z1,face,su,sv)
+  local p=box(z,name,x0,y0,z0,x1,y1,z1,WR,{nocol=true}) p.CastShadow=false p.CanQuery=false
+  local tx=Instance.new("Texture") tx.Texture=GRAFFITI tx.Face=face tx.StudsPerTileU=su or 34 tx.StudsPerTileV=sv or 17 tx.Parent=p
+  return p end
+ panel("GraffitiWall",-80,F,-166.5,12,12,-166.4,Enum.NormalId.Back)
+ panel("GraffitiWall",-80,F,-151.1,-24,12,-151,Enum.NormalId.Front)
+ panel("GraffitiWall",-24,0,-151.1,-8,12,-151,Enum.NormalId.Front)
+ panel("GraffitiWall",8,0,-151.1,12,12,-151,Enum.NormalId.Front)
+ panel("GraffitiWall",11.9,0,-166.4,12,12,-151.1,Enum.NormalId.Left,15,15)
+ -- red brick end wall at the bottom landing with a neon heart
+ box(z,"BrickWall",-80,F,-166.4,-79.85,12,-151.1,Color3.fromRGB(150,52,40),{nocol=true,mat=Enum.Material.Brick})
+ do local HC=Color3.fromRGB(255,190,60) local NE={mat=Enum.Material.Neon,ghost=true}
+  local c=Vector3.new(-79.75,F+7.5,-158.75) local prev=nil
+  for k=0,40 do local a=k/40*2*math.pi
+   local hx=16*math.sin(a)^3 local hy=13*math.cos(a)-5*math.cos(2*a)-2*math.cos(3*a)-math.cos(4*a)
+   local p=c+Vector3.new(0,hy*0.4,hx*0.4)
+   if prev then beam(z,"NeonHeart",prev,p,0.3,HC,NE) end prev=p end
+  local hl=box(z,"NeonHeartGlow",-79.8,F+6,-162,-79.78,F+12,-155.5,HC,{t=1,ghost=true})
+  local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Right sl.Color=Color3.fromRGB(255,120,60) sl.Range=14 sl.Brightness=1.5 sl.Parent=hl end
+ -- purple neon strips down the wall edges, along the slope of the stairs
+ do local PC=Color3.fromRGB(190,60,255) local NE={mat=Enum.Material.Neon,ghost=true}
+  for _,ez in ipairs({-166.25,-151.25}) do beam(z,"StairPurpleNeon",Vector3.new(-24,3.5,ez),Vector3.new(-61.5,F+3.5,ez),0.25,PC,NE) end
+  for _,ez in ipairs({-166.25,-151.25}) do box(z,"StairPurpleNeon",-79.6,F,ez-0.12,-79.35,F+10,ez+0.12,PC,NE) end end
+ -- dim red light hanging over the stairs and the landing
+ for _,lp in ipairs({{-10,9},{-32,0},{-50,-12},{-70,-16}}) do
+  local l=box(z,"StairRedLight",lp[1]-0.4,lp[2]+2.5,-159.15,lp[1]+0.4,lp[2]+2.7,-158.35,Color3.fromRGB(255,60,70),{mat=Enum.Material.Neon,ghost=true})
+  local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,40,60) pl.Range=22 pl.Brightness=1.6 pl.Parent=l end
+end
 do local c=Vector3.new(-44,F/2,-158.75) P(z,"StairRamp",Vector3.new(15.5,-F,40),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
 label(z,"↓ 계단 (지하 클럽)",Vector3.new(-40,6,-158))
 -- wall between the stairs/foyer strip and the hall (opening for the corridor)

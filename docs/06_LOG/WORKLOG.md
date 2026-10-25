@@ -1448,3 +1448,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 추가 (D-254) — 바닥 타일 1/3(4칸)
 
 ![](images/2026-10-25/club_tiles_4.jpg)
+
+### 추가 (D-255) — 클럽 입구 계단 복도(영상대로)
+- 철판(다이아몬드) 계단, 벽 전체 붉은 바탕+그래피티, 계단 끝 빨간 벽돌 벽에 큰 네온 하트, 벽 따라 보라 네온, 은은한 붉은 조명. 흰 계단 끝선·▼ 표시 삭제.
+
+![](../04_ART/references/club_stairs_ref.jpg)
+![](images/2026-10-25/club_stairs_graffiti.jpg)
+![](images/2026-10-25/club_stairs_heart.jpg)
