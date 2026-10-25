@@ -1701,3 +1701,13 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 카페 화분 후보를 줄 세워 찍어 두었어요.
 
 ![](images/2026-10-25/cafe_plant_candidates.jpg)
+
+### 수정 (D-308) — 카페 남쪽 외벽 확장, 사실적인 화분과 풀
+
+- 통창 한 칸과 그 프레임을 지우고, 돌벽을 빨간 선 위치까지 늘렸어요. 이제 계단이 밖에서 보이지 않아요.
+- 화분 3개를 6번 후보(검은 다리 위 흰 화분)로 바꿨어요.
+- 긴 화단은 흰 박스를 그대로 두고 흙을 깐 뒤 G1 풀 12덤불을 심었어요.
+
+![](images/2026-10-25/cafe_south_wall_extended.jpg)
+![](images/2026-10-25/cafe_planter_grass.jpg)
+![](images/2026-10-25/cafe_pot_plant.jpg)

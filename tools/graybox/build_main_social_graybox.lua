@@ -1063,10 +1063,14 @@ local z=zone("04_Beach_Aquarium")
   for _,mz in ipairs(evenly(z0,z1,12)) do
    if mz==z0 or mz==z1 then local zz=mz==z0 and z0 or z1-0.6 box(cm,"Mullion",x0,FY,zz,x0+0.6,FY+H,zz+0.6,frameC)
    else box(cm,"Mullion",x0,FY,mz-0.2,x0+0.5,FY+H,mz+0.2,frameC) end end
+  -- (user 2026-10-25) on the south side the stone wall comes one bay further
+  -- west (to the next mullion), so the stairs inside are not seen through the glass
+  local SOUTH_WALL_X=evenly(x0,mx,12)[#evenly(x0,mx,12)-1]
   for _,wz in ipairs({{z0,z0+0.4},{z1-0.4,z1}}) do
-   box(cm,"Glass_Side",x0,FY,wz[1],mx,FY+H,wz[2],glass,{t=0.82,mat=Enum.Material.Glass})
-   for _,mxx in ipairs(evenly(x0,mx,12)) do if mxx~=x0 then box(cm,"Mullion",mxx-0.2,FY,wz[1],mxx+0.2,FY+H,wz[2],frameC) end end
-   box(cm,"Wall_Side",mx,FY,wz[1],x1,FY+H,wz[2],STONE,STONEO)
+   local gx=wz[1]==z0 and mx or SOUTH_WALL_X
+   box(cm,"Glass_Side",x0,FY,wz[1],gx,FY+H,wz[2],glass,{t=0.82,mat=Enum.Material.Glass})
+   for _,mxx in ipairs(evenly(x0,mx,12)) do if mxx~=x0 and mxx<=gx then box(cm,"Mullion",mxx-0.2,FY,wz[1],mxx+0.2,FY+H,wz[2],frameC) end end
+   box(cm,"Wall_Side",gx,FY,wz[1],x1,FY+H,wz[2],STONE,STONEO)
   end
   box(cm,"Transom",x0-0.1,FY+H-1,z0,x0+0.5,FY+H,z1,frameC)
   -- the south part of the street wall has a walk-up coffee window (z 32..48, user photos 2026-10-24)
@@ -1080,7 +1084,7 @@ local z=zone("04_Beach_Aquarium")
   local LIN=Color3.fromRGB(244,243,240)
   box(cm,"WallLining",x1-0.7,FY,z0+0.4,x1-0.6,FY+H-1.4,56,LIN) box(cm,"WallLining",x1-0.7,FY,66,x1-0.6,FY+H-1.4,z1-0.4,LIN)
   box(cm,"WallLining",x1-0.7,FY+10,56,x1-0.6,FY+H-1.4,66,LIN)
-  box(cm,"WallLining",mx,FY,z0+0.4,x1-0.7,FY+H-1.4,z0+0.5,LIN) box(cm,"WallLining",mx,FY,z1-0.5,x1-0.7,FY+H-1.4,z1-0.4,LIN)
+  box(cm,"WallLining",mx,FY,z0+0.4,x1-0.7,FY+H-1.4,z0+0.5,LIN) box(cm,"WallLining",SOUTH_WALL_X,FY,z1-0.5,x1-0.7,FY+H-1.4,z1-0.4,LIN)
   -- GLOWING SLITS: very narrow glass slots through the stone in a staggered
   -- grid (three bands + one under the roof edge); warm glass by day, glowing
   -- Neon after dark (NightGlowController), so the inside light seems to shine out
@@ -1170,7 +1174,19 @@ local z=zone("04_Beach_Aquarium")
     roundStool("CafeStool",pos,1.6,1.4,white,true) end
   end
   -- plant at the end of the rail bar
+  -- realistic plants from ServerStorage.ArtAssets (Creator Store, scripts removed;
+  -- user picks 2026-10-25: CafePotPlant = white pot on black legs, CafeGrass = tall grass)
+  local ART=game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+  local function art(name,scale,x,y,z,rot,par)
+   local src=ART and ART:FindFirstChild(name) if not src then return nil end
+   local m=src:Clone() if scale~=1 then m:ScaleTo(scale) end
+   local cf,size=m:GetBoundingBox()
+   m:PivotTo(CFrame.new(x,y+size.Y/2,z)*CFrame.Angles(0,rot or 0,0)*cf:ToObjectSpace(m:GetPivot()))
+   for _,p in ipairs(m:GetDescendants()) do if p:IsA("BasePart") then p.Anchored=true p.CanCollide=false p.CanQuery=false p.CanTouch=false end end
+   m.Parent=par or cm return m end
   local function plant(x,z,y,d,h,par)
+   if art("CafePotPlant",(h+d*1.6)/8,x,y,z,(x+z)%6,par) then
+    cyl(par or cm,"PlantCollider",d*0.7,h,Vector3.new(x,y+h/2,z),Color3.new(1,1,1),{t=1}) return end
    cyl(par or cm,"PlantPot",d,h,Vector3.new(x,y+h/2,z),Color3.fromRGB(244,242,236))
    for k=0,2 do P(par or cm,"PlantLeaves",Vector3.new(d*0.95,d*0.95,d*0.95),CFrame.new(x+math.cos(k*2.1)*d*0.18,y+h+d*0.35+k*d*0.22,z+math.sin(k*2.1)*d*0.18),Color3.fromRGB(70,120,60),{shape=Enum.PartType.Ball,nocol=true,mat=Enum.Material.Grass}) end end
   plant(-232.3,94.3,MY,2,1.8)
@@ -1311,8 +1327,13 @@ local z=zone("04_Beach_Aquarium")
   plant(-293.8,17.9,FY,2.4,2)
   plant(-294,66.7,FY,2.8,3)
   box(cm,"Planter",-272.6,FY,86.8,-269.4,FY+1.6,104.9,Color3.fromRGB(244,242,236))
-  box(cm,"PlanterGreen",-272.3,FY+1.6,87.1,-269.7,FY+2.4,104.6,Color3.fromRGB(70,120,60),{mat=Enum.Material.Grass,nocol=true})
-  for k=0,4 do P(cm,"PlantLeaves",Vector3.new(2.4,2.4,2.4),CFrame.new(-271,FY+2.8+(k%2)*0.5,89+k*3.8),Color3.fromRGB(78,128,64),{shape=Enum.PartType.Ball,nocol=true,mat=Enum.Material.Grass}) end
+  if ART and ART:FindFirstChild("CafeGrass") then -- (user 2026-10-25: the white box stays, filled with tall grass clumps)
+   box(cm,"PlanterSoil",-272.3,FY+1.6,87.1,-269.7,FY+1.68,104.6,Color3.fromRGB(58,44,34),{mat=Enum.Material.Ground,nocol=true})
+   for k=0,11 do art("CafeGrass",0.85+(k%3)*0.1,-271+((k%2)*2-1)*0.6,FY+1.6,88.2+k*1.45,k*0.9) end
+  else
+   box(cm,"PlanterGreen",-272.3,FY+1.6,87.1,-269.7,FY+2.4,104.6,Color3.fromRGB(70,120,60),{mat=Enum.Material.Grass,nocol=true})
+   for k=0,4 do P(cm,"PlantLeaves",Vector3.new(2.4,2.4,2.4),CFrame.new(-271,FY+2.8+(k%2)*0.5,89+k*3.8),Color3.fromRGB(78,128,64),{shape=Enum.PartType.Ball,nocol=true,mat=Enum.Material.Grass}) end
+  end
   -- three small round tables, four single chairs each (corners, facing in)
   for _,tz in ipairs({28,42,57}) do
    local tx=-262 -- (next to the channel, user 2026-10-25)
