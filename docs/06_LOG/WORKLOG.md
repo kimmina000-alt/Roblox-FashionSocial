@@ -1392,3 +1392,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/club_hall_v4.jpg)
 ![](images/2026-10-25/club_entry_led.jpg)
+
+### 추가 (D-245) — 무빙라이트·레이저 자리 바꿈, 봉 2단 단상, LED 봉, 바 LED
+- VIP 바닥 불투명 복구. 봉 단상 2단(넓게) + 계단 테두리 LED, 봉 1개 LED(핑크). 바 하늘색 LED를 상판 바로 아래로, ㄱ자 꺾인 부분까지.
+- 무빙라이트를 옛 레이저 트러스 2개 자리로(4개씩), 레이저는 DJ 무대 앞 트러스로: 더 가늘고 빠르게, 영상처럼 흰 보랏빛.
+
+![](../04_ART/references/club_laser_ref.jpg)
+![](images/2026-10-25/club_hall_v5.jpg)

@@ -279,8 +279,8 @@ label(z,"VIP 2층 ↑ (VIP 패스)",Vector3.new(-72,F+17,-232))
 -- open up to the ceiling. Hole in the floor over the VIP stair (x -80..-64,
 -- z -263..-236); the stair arrives on the landing at the north-west corner.
 local vipFloor=Color3.fromRGB(150,120,60)
--- (user 2026-10-25) the VIP floors are see-through dark glass
-local VIPF=Color3.fromRGB(40,40,48) local VIPFO={t=0.5,mat=Enum.Material.Glass}
+-- the VIP floors (see-through for a moment, opaque again: user 2026-10-25)
+local VIPF,VIPFO=WALL_C,WALLO -- (opaque again, user 2026-10-25)
 box(z,"VIP_Floor_N",-64,V-1,NZ,58,V,(NZ+24),VIPF,VIPFO)
 box(z,"VIP_Floor_Landing",-80,V-1,NZ,-64,V,-263,VIPF,VIPFO)
 box(z,"VIP_Floor_W",-64,V-1,(NZ+24),-50,V,-190,VIPF,VIPFO)
@@ -387,18 +387,23 @@ local function platform(cx,wallZ,dir)
 end
 for _,cx in ipairs({-41.7,-14.5}) do platform(cx,-167.5,-1) end
 for _,cx in ipairs({-41.7,-14.5,12.5,39}) do platform(cx,NZ,1) end
-local function pole(px,pz)
- local BH=2.2 -- (a higher round stage, user 2026-10-25)
- local b=cyl(z,"PoleBase",5,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole")
+local function pole(px,pz,ledPole)
+ -- (user 2026-10-25) a wider round stage of two steps, a lemon LED line
+ -- under each step edge
+ local BH=2
+ cyl(z,"PoleStep",10,1,Vector3.new(px,F+0.5,pz),Color3.fromRGB(40,40,46),{mat=Enum.Material.Metal})
+ local b=cyl(z,"PoleBase",6.4,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole")
+ for _,r in ipairs({{10.08,F+0.9},{6.48,F+1.9}}) do cyl(z,"PoleStepLED",r[1],0.12,Vector3.new(px,r[2],pz),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
  local PL=(V-1)-(F+BH) -- up to the balcony floor (they stand where its columns were)
  local p=cyl(z,"DancePole",0.35,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
  p.Reflectance=0.3
+ if ledPole then p.Material=Enum.Material.Neon p.Color=Color3.fromRGB(255,120,210) p.Reflectance=0 end -- (one LED pole to try, user 2026-10-25)
  -- the prompt at chest height on the base (a prompt high on the pole did not show)
  local at=Instance.new("Attachment") at.Name="PoleGrip" at.Parent=b at.WorldPosition=Vector3.new(px,F+BH+3,pz)
  local pr=Instance.new("ProximityPrompt") pr.Name="PolePrompt" pr.ActionText="봉 잡고 돌기" pr.ObjectText="댄스 봉"
  pr.MaxActivationDistance=7 pr.RequiresLineOfSight=false pr.Parent=at
 end
-pole(-30,-189.25)
+pole(-30,-189.25,true)
 for _,px in ipairs({-30,0,30}) do pole(px,NZ+23.25) end
 
 -- BAR under the south VIP, east half (non-alcoholic)
@@ -407,7 +412,9 @@ box(z,"BarCounterTop",9.5,F+4.5,-184,54.5,F+5,-180,Color3.fromRGB(30,30,40))
 -- (user plan 2026-10-25) an L: the counter turns towards the back wall at its north end
 box(z,"BarCounter",10,F,-180.5,13,F+4.5,-171.8,Color3.fromRGB(245,245,250))
 box(z,"BarCounterTop",9.5,F+4.5,-180.5,13.5,F+5,-171.3,Color3.fromRGB(30,30,40))
-box(z,"BarNeon",10,F+3.6,-183.8,54,F+4,-183.5,cyan,{mat=Enum.Material.Neon,ghost=true})
+-- sky-blue LED right under the top's overhang, round the corner of the L too (user 2026-10-25)
+box(z,"BarNeon",10,F+4.2,-184,54,F+4.5,-183.5,cyan,{mat=Enum.Material.Neon,ghost=true})
+box(z,"BarNeon",9.5,F+4.2,-184,10,F+4.5,-171.3,cyan,{mat=Enum.Material.Neon,ghost=true})
 box(z,"BarBackShelf",10,F,-169,54,F+12,-167.5,Color3.fromRGB(45,35,60))
 for row=0,2 do box(z,"BarShelf",10,F+4+row*3,-170.5,54,F+4.3+row*3,-169,Color3.fromRGB(200,200,210))
  for k=0,10 do local bx=12+k*4 local hue=(k*0.09+row*0.21)%1
@@ -471,24 +478,41 @@ do
  if stand then stand.Size=Vector3.new(1.2,1.2,0.8) stand.CFrame=face end
  if screen then screen.Size=Vector3.new(2.3,1.5,0.1) screen.CFrame=face*CFrame.new(0,1.4,0.2)*CFrame.Angles(math.rad(-12),0,0) end
 end
--- MOVING-HEAD WASH LIGHTS over the DJ zone (user video 2026-10-25): a black
--- truss across the front of the stage near the ceiling, five round heads
--- hanging from it (yoke + head + lens); ClubLightsController turns them and
--- throws wide soft colour beams and pools onto the dance floor
-do local TR=Color3.fromRGB(30,30,34) local TY=TOP-2.2
- box(z,"WashTruss",57,TY-0.5,-246,59,TY+0.5,-190,TR,{mat=Enum.Material.Metal})
- box(z,"WashTruss",57,TY+0.9,-246,59,TY+1.3,-190,TR,{mat=Enum.Material.Metal,nocol=true})
- for _,tz in ipairs({-246,-190}) do box(z,"WashTrussHanger",57.8,TY+0.5,tz-0.2,58.2,TOP,tz+0.2,TR,{mat=Enum.Material.Metal}) end
- for k,hz in ipairs({-242,-230,-218,-206,-194}) do
-  local m=M(z,"MovingHead",{"ClubWash"},{AimY=F,Index=k-1})
-  local hp=Vector3.new(58,TY-3,hz)
-  box(m,"Yoke",57.2,TY-3.2,hz-1.9,58.8,TY-2.9,hz+1.9,TR,{nocol=true})
-  for _,s in ipairs({-1,1}) do box(m,"YokeArm",57.4,TY-3.2,hz+s*1.9-0.15,58.6,TY-0.5,hz+s*1.9+0.15,TR,{nocol=true}) end
-  box(m,"YokeMount",57.7,TY-0.5,hz-0.3,58.3,TY-0.2,hz+0.3,TR,{nocol=true})
-  P(m,"Head",Vector3.new(2.4,3,3),CFrame.new(hp+Vector3.new(0,-1.6,0))*CFrame.Angles(0,0,math.rad(-90)),Color3.fromRGB(22,22,26),{shape=Enum.PartType.Cylinder,nocol=true,mat=Enum.Material.Metal})
-  P(m,"Lens",Vector3.new(0.15,2.5,2.5),CFrame.new(hp+Vector3.new(0,-2.9,0))*CFrame.Angles(0,0,math.rad(-90)),Color3.fromRGB(40,230,255),{shape=Enum.PartType.Cylinder,nocol=true,mat=Enum.Material.Neon})
-  m.WorldPivot=CFrame.lookAt(hp,hp+Vector3.new(-1,0,0)) -- faces the dance floor
+-- MOVING-HEAD WASH LIGHTS (user video 2026-10-25), on the two trusses over
+-- the dance floor where the lasers used to hang (user 2026-10-25): four round
+-- heads on each (yoke + head + lens); ClubLightsController turns them and
+-- throws wide soft colour beams and pools onto the floor, each truss to its
+-- own half of the hall (attribute Reach = how far out it aims)
+do local TR=Color3.fromRGB(30,30,34)
+ for ti,tz in ipairs({-228,-208}) do
+  local TY=TOP-6.5
+  box(z,"WashTruss",-40,TY-0.5,tz-0.6,50,TY+0.5,tz+0.6,TR,{mat=Enum.Material.Metal})
+  box(z,"WashTruss",-40,TY+0.9,tz-0.2,50,TY+1.3,tz+0.2,TR,{mat=Enum.Material.Metal,nocol=true})
+  for _,hx in ipairs({-38,5,48}) do box(z,"WashTrussRod",hx-0.2,TY+0.5,tz-0.2,hx+0.2,TOP,tz+0.2,TR,{mat=Enum.Material.Metal}) end
+  local face=if ti==1 then Vector3.new(0,0,-1) else Vector3.new(0,0,1)
+  for k,hx in ipairs({-30,-5,20,45}) do
+   local m=M(z,"MovingHead",{"ClubWash"},{AimY=F,Index=(ti-1)*4+k-1,Reach=16})
+   local hp=Vector3.new(hx,TY-3,tz)
+   box(m,"Yoke",hx-1.9,TY-3.2,tz-0.8,hx+1.9,TY-2.9,tz+0.8,TR,{nocol=true})
+   for _,s in ipairs({-1,1}) do box(m,"YokeArm",hx+s*1.9-0.15,TY-3.2,tz-0.6,hx+s*1.9+0.15,TY-0.5,tz+0.6,TR,{nocol=true}) end
+   P(m,"Head",Vector3.new(2.4,3,3),CFrame.new(hp+Vector3.new(0,-1.6,0))*CFrame.Angles(0,0,math.rad(-90)),Color3.fromRGB(22,22,26),{shape=Enum.PartType.Cylinder,nocol=true,mat=Enum.Material.Metal})
+   P(m,"Lens",Vector3.new(0.15,2.5,2.5),CFrame.new(hp+Vector3.new(0,-2.9,0))*CFrame.Angles(0,0,math.rad(-90)),Color3.fromRGB(40,230,255),{shape=Enum.PartType.Cylinder,nocol=true,mat=Enum.Material.Neon})
+   m.WorldPivot=CFrame.lookAt(hp,hp+face)
+  end
  end
+end
+-- LASERS (user video 2026-10-25: thin pale beams fanning fast from a row of
+-- emitters) on the truss across the front of the DJ stage, where the moving
+-- heads hung first; attribute AimAt = the point on the dance floor they fan
+-- round (ClubLightsController)
+do local TR=Color3.fromRGB(30,30,34) local TY=TOP-2.2
+ box(z,"LaserTruss",57,TY-0.5,-246,59,TY+0.5,-190,TR,{mat=Enum.Material.Metal})
+ box(z,"LaserTruss",57,TY+0.9,-246,59,TY+1.3,-190,TR,{mat=Enum.Material.Metal,nocol=true})
+ for _,tz in ipairs({-246,-190}) do box(z,"LaserTrussHanger",57.8,TY+0.5,tz-0.2,58.2,TOP,tz+0.2,TR,{mat=Enum.Material.Metal}) end
+ for _,ez in ipairs({-238,-228,-223,-213,-208,-198}) do
+  local e=box(z,"LaserEmitter",57.3,TY-1.6,ez-0.7,58.7,TY-0.5,ez+0.7,Color3.fromRGB(26,26,30))
+  e:SetAttribute("AimY",F) e:SetAttribute("AimAt",Vector3.new(10,F,ez)) CS:AddTag(e,"ClubLaser")
+  box(z,"LaserLens",57.6,TY-1.75,ez-0.35,58.4,TY-1.6,ez+0.35,Color3.fromRGB(220,210,255),{mat=Enum.Material.Neon,ghost=true}) end
 end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
 for _,sz in ipairs({-243,-193}) do
@@ -520,7 +544,7 @@ for _,pc in ipairs({{70,-262.5},{70,-174}}) do
   panel:SetAttribute("Slice",k) end
  P(m,"NameAnchor",Vector3.new(1,1,1),CFrame.new(pc[1]-R-4,F+14,pc[2]),W,{t=1,ghost=true})
 end
--- (no ceiling laser trusses any more: the moving heads light the hall, user 2026-10-25)
+-- (the lasers moved to the stage-front truss, the moving heads to these trusses: user 2026-10-25)
 
 for _,c in ipairs(z:GetChildren()) do if not beforeDJ[c] then
  local d=Vector3.new(0,0,HZ)

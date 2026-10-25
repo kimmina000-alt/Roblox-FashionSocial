@@ -31,7 +31,7 @@ end
 -- Lasers
 --------------------------------------------------
 
-local BEAMS_PER_EMITTER = 4
+local BEAMS_PER_EMITTER = 2 -- (thin pale beams fanning fast, user video 2026-10-25)
 local targetHolder = Instance.new("Part")
 targetHolder.Name = "ClubLaserTargets"
 targetHolder.Anchored = true
@@ -63,8 +63,8 @@ local function addEmitter(instance: Instance)
 		local beam = Instance.new("Beam")
 		beam.Attachment0 = origin
 		beam.Attachment1 = target
-		beam.Width0 = 0.12
-		beam.Width1 = 0.4
+		beam.Width0 = 0.05
+		beam.Width1 = 0.16
 		beam.FaceCamera = true
 		beam.LightEmission = 1
 		beam.LightInfluence = 0
@@ -81,7 +81,8 @@ end
 for _, part in ipairs(CollectionService:GetTagged("ClubLaser")) do addEmitter(part) end
 CollectionService:GetInstanceAddedSignal("ClubLaser"):Connect(addEmitter)
 
-local function updateLasers(t: number)
+local function updateLasers(serverTime: number)
+	local t = serverTime * 2.2 -- fast sweeps (user video 2026-10-25)
 	local on = FashionGame:GetAttribute("ClubLights") ~= false
 	-- DJ colour pick (ClubLightColor); rainbow / none = colour cycle
 	local picked = ClubConfig.findLightColor(FashionGame:GetAttribute("ClubLightColor"))
@@ -93,7 +94,9 @@ local function updateLasers(t: number)
 		local visible = on and part.Parent ~= nil and inRange(part.Position)
 		local aimY = part:GetAttribute("AimY")
 		local floorY = if typeof(aimY) == "number" then aimY else part.Position.Y - 40
-		local base = Vector3.new(part.Position.X, floorY, part.Position.Z)
+		-- AimAt = the floor point the beams fan round (stage-front lasers); else under the emitter
+		local aimAt = part:GetAttribute("AimAt")
+		local base = if typeof(aimAt) == "Vector3" then Vector3.new(aimAt.X, floorY, aimAt.Z) else Vector3.new(part.Position.X, floorY, part.Position.Z)
 		for i, beam in ipairs(entry.beams) do
 			beam.Enabled = visible
 			if visible then
@@ -114,8 +117,9 @@ local function updateLasers(t: number)
 					-- one colour, beams shimmer slightly brighter / darker
 					color = fixed:Lerp(Color3.new(1, 1, 1), 0.15 * (0.5 + 0.5 * math.sin(t * 3 + i + entry.index)))
 				else
-					local hue = (t * 0.05 + entry.index * 0.13 + i * 0.07) % 1
-					color = Color3.fromHSV(hue, 0.85, 1)
+					-- pale white-violet with a slow hue drift (user video 2026-10-25)
+					local hue = (0.72 + 0.08 * math.sin(t * 0.05 + entry.index * 0.4)) % 1
+					color = Color3.fromHSV(hue, 0.3, 1)
 				end
 				beam.Color = ColorSequence.new(color)
 			end
@@ -541,13 +545,15 @@ local function updateWashes(t: number)
 			local aimY = w.model:GetAttribute("AimY")
 			local floorY = if typeof(aimY) == "number" then aimY else home.Position.Y - 40
 			local i = w.index
+			local reachAttr = w.model:GetAttribute("Reach")
+			local baseReach = if typeof(reachAttr) == "number" then reachAttr else 34
 			local reach, side
 			if pattern == 0 then -- all sweep together, a wave across the floor
-				reach = 34 + 12 * math.sin(t * 0.7 + i * 0.5)
+				reach = baseReach * (1 + 0.35 * math.sin(t * 0.7 + i * 0.5))
 				side = 22 * math.sin(t * 0.55 + i * 0.35)
 			else -- fan out and cross
-				reach = 30 + 14 * math.cos(t * 0.9 + i)
-				side = (i - 2) * 9 + 14 * math.sin(t * 1.1 + i * 1.7)
+				reach = baseReach * (0.9 + 0.4 * math.cos(t * 0.9 + i))
+				side = ((i % 4) - 1.5) * 9 + 14 * math.sin(t * 1.1 + i * 1.7)
 			end
 			local p = home.Position + home.LookVector * reach + home.RightVector * side
 			local goal = Vector3.new(p.X, floorY, p.Z)
