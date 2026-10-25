@@ -4076,17 +4076,74 @@ do -- "오늘의 큰손" screen block on the OH24 roof (user 2026-10-25, 2nd: no
 	-- band where the avatars of today's top 3 move round and round like the
 	-- club's LED pillars) (RankBoard "todayWrap", RankingBoards client).
 	-- The store ends up at x -130..-56, z 66..104, roof at y 14.
+	-- (2nd revision, user mock-up + reference photos 2026-10-25: a tall tower
+	-- of dark granite with narrow vertical window slits stands on the store,
+	-- and a big LED screen wraps its corner toward the crossing (north-east)
+	-- with a rounded corner, like the Seoul corner screens. The cards run along
+	-- the screen: east side → round corner → north side.)
 	local L = Instance.new("Model")
 	L.Name = "BigSpenderLED"
 	L.Parent = T
-	local FR = Color3.fromRGB(18, 18, 22)
-	box("LEDBlockBase", -87, 14, 75, -59, 16, 103, FR, { parent = L, material = Enum.Material.Metal })
-	local s = box("LEDBlock", -86, 16, 76, -60, 38, 102, Color3.fromRGB(8, 8, 14), { parent = L, material = Enum.Material.SmoothPlastic })
-	s:SetAttribute("Board", "todayWrap") CS:AddTag(s, "RankBoard")
-	box("LEDBlockCap", -86.6, 38, 75.4, -59.4, 39, 102.6, FR, { parent = L, material = Enum.Material.Metal })
-	for _, y in ipairs({ 16, 37.85 }) do -- thin lit lines round the top and bottom of the screen
-		box("LEDBlockLine", -86.15, y, 75.85, -59.85, y + 0.15, 102.15, Color3.fromRGB(255, 214, 110), { parent = L, material = Enum.Material.Neon, nocol = true })
+	local GRANITE = Color3.fromRGB(74, 70, 68)
+	local SLIT = Color3.fromRGB(28, 32, 38)
+	local FR = Color3.fromRGB(16, 16, 20)
+	local X0, X1, Z0, Z1, Y0, Y1 = -100, -58, 74, 102, 14, 96
+	box("TowerBody", X0, Y0, Z0, X1, Y1, Z1, GRANITE, { parent = L, material = Enum.Material.Slate })
+	box("TowerCrown", X0 - 0.4, Y1, Z0 - 0.4, X1 + 0.4, Y1 + 2, Z1 + 0.4, Color3.fromRGB(60, 58, 58), { parent = L, material = Enum.Material.Slate })
+	box("TowerTopGlass", X0 + 0.2, Y1 - 8, Z0 - 0.15, X1 - 0.2, Y1 - 1, Z0 + 0.1, Color3.fromRGB(70, 90, 110), { parent = L, material = Enum.Material.Glass })
+	-- screen zone (y 24..48): the slits stop above and below it on the two screen sides
+	local SY0, SY1 = 24, 48
+	local function slits(axis, fixed, a0, a1, outward)
+		for a = a0 + 3, a1 - 3, 3.5 do
+			for _, span in ipairs({ { Y0 + 2, SY0 - 1.5 }, { SY1 + 1.5, Y1 - 10 } }) do
+				if axis == "x" then
+					box("TowerSlit", a - 0.4, span[1], fixed - outward * 0.05, a + 0.4, span[2], fixed + outward * 0.1, SLIT, { parent = L, material = Enum.Material.Glass, nocol = true })
+				else
+					box("TowerSlit", fixed - outward * 0.05, span[1], a - 0.4, fixed + outward * 0.1, span[2], a + 0.4, SLIT, { parent = L, material = Enum.Material.Glass, nocol = true })
+				end
+			end
+		end
 	end
+	slits("x", Z0, X0, X1, -1) -- north
+	slits("x", Z1, X0, X1, 1) -- south
+	slits("z", X0, Z0, Z1, -1) -- west
+	slits("z", X1, Z0, Z1, 1) -- east
+	-- the corner screen: panels in the order the cards run (tag RankBoard
+	-- "todayBand", attribute BandStart = studs along the band)
+	local R = 5 -- radius of the rounded corner
+	local OUT = 0.9 -- how far the screen stands off the wall
+	local h = SY1 - SY0
+	local yc = (SY0 + SY1) / 2
+	local start = 0
+	local function panel(center: Vector3, outward: Vector3, width: number)
+		local p = part("LEDPanel", Vector3.new(width + 0.02, h, 0.3), CFrame.lookAt(center, center + outward), Color3.fromRGB(8, 8, 14), { parent = L, material = Enum.Material.SmoothPlastic })
+		p:SetAttribute("Board", "todayBand")
+		p:SetAttribute("BandStart", start)
+		CS:AddTag(p, "RankBoard")
+		-- black frame lines along the top and bottom edge
+		part("LEDFrame", Vector3.new(width + 0.02, 0.6, 0.6), CFrame.lookAt(center + Vector3.new(0, h / 2 + 0.3, 0), center + Vector3.new(0, h / 2 + 0.3, 0) + outward), FR, { parent = L })
+		part("LEDFrame", Vector3.new(width + 0.02, 0.6, 0.6), CFrame.lookAt(center - Vector3.new(0, h / 2 + 0.3, 0), center - Vector3.new(0, h / 2 + 0.3, 0) + outward), FR, { parent = L })
+		start += width
+	end
+	-- east side, from the back toward the corner (z 98 → 74 + R)
+	local eastFrom, eastTo = 98, Z0 + R
+	panel(Vector3.new(X1 + OUT, yc, (eastFrom + eastTo) / 2), Vector3.new(1, 0, 0), eastFrom - eastTo)
+	-- the round corner, 4 slices
+	local cx, cz = X1 + OUT - R, Z0 - OUT + R
+	local N = 4
+	for i = 0, N - 1 do
+		local a = math.rad(90 * (i + 0.5) / N) -- 0 = east, 90° = north
+		local outward = Vector3.new(math.cos(a), 0, -math.sin(a))
+		local width = 2 * R * math.sin(math.rad(90 / N / 2))
+		panel(Vector3.new(cx, yc, cz) + outward * R * math.cos(math.rad(90 / N / 2)), outward, width)
+	end
+	-- north side, from the corner westward (x -58 - R → -96)
+	local northFrom, northTo = X1 - R, -96
+	panel(Vector3.new((northFrom + northTo) / 2, yc, Z0 - OUT), Vector3.new(0, 0, -1), northFrom - northTo)
+	-- the screen's back box filling the gap to the wall
+	box("LEDBack", -96, SY0 - 0.6, Z0 - OUT + 0.15, X1 - R, SY1 + 0.6, Z0, FR, { parent = L })
+	box("LEDBack", X1, SY0 - 0.6, Z0 + R, X1 + OUT - 0.15, SY1 + 0.6, 98, FR, { parent = L })
+	vcyl("LEDBackCorner", Vector3.new(cx, SY0 - 0.6, cz), 2 * R - 0.3, h + 1.2, FR, { parent = L })
 end
 do -- three ranking boards in the pocket park in front of the park gate (user
 	-- 2026-10-25): 후원 / 큰손 / 플레이 시간, on the open paving on the east side,

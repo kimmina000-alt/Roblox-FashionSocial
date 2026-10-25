@@ -4,7 +4,7 @@
 -- "Rankings" (RankingService).
 --   clubStrip  the strip above the club LED wall: the supporter ranking
 --              scrolls by; a new gift shows "○○님 후원 감사합니다!" for a while
---   todayWrap  the block on the OH24 roof: today's top 3 avatars run round it
+--   todayBand  the corner screen on the tower over OH24: today's top 3 avatars run along it
 --   support / spend / playtime   the three boards in the pocket park: top 10
 
 local Players = game:GetService("Players")
@@ -210,83 +210,86 @@ local function openVoteWindow()
 	end
 end
 local WRAP_SPEED = 2.5 -- studs per second
-local CARD = 13 -- studs per card
+local CARD = 15 -- studs per card
 local AVATAR_BACK = { 40, 26, 70 }
 local AVATAR_CAM = { CFrame.lookAt(Vector3.new(0, -1.9, -8), Vector3.new(0, -2.6, 0)):GetComponents() }
 
-local function buildTodayWrap(part: BasePart)
-	local sx, sy, sz = part.Size.X, part.Size.Y, part.Size.Z
-	local perimeter = 2 * (sx + sz)
-	-- the band goes round: Front (-Z), Left (-X), Back (+Z), Right (+X)
-	local faces = {
-		{ face = Enum.NormalId.Front, start = 0, width = sx },
-		{ face = Enum.NormalId.Left, start = sx, width = sz },
-		{ face = Enum.NormalId.Back, start = sx + sz, width = sx },
-		{ face = Enum.NormalId.Right, start = 2 * sx + sz, width = sz },
-	}
-	local pps = 12
-	local sides = {}
-	local folder = Instance.new("Folder")
-	folder.Name = "TodayWrap"
-	folder.Parent = player:WaitForChild("PlayerGui")
-	for _, f in ipairs(faces) do
-		local gui = Instance.new("SurfaceGui")
-		gui.Name = "TodayWrapGui"
-		gui.Face = f.face
-		gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-		gui.PixelsPerStud = pps
-		gui.LightInfluence = 0
-		gui.Brightness = 1.4
-		gui.Adornee = part
-		gui.Parent = folder
-		local bg = Instance.new("Frame")
-		bg.Size = UDim2.fromScale(1, 1)
-		bg.BackgroundColor3 = Color3.new(1, 1, 1)
-		bg.ClipsDescendants = true
-		bg.Parent = gui
-		local gradient = Instance.new("UIGradient")
-		gradient.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.fromRGB(30, 16, 70)),
-			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(16, 60, 150)),
-			ColorSequenceKeypoint.new(1, Color3.fromRGB(110, 20, 90)),
-		})
-		gradient.Rotation = 90
-		gradient.Parent = bg
-		table.insert(sides, { info = f, bg = bg, cards = {} })
+-- The corner screen on the tower over OH24 (D-282): its panels (tag RankBoard,
+-- Board "todayBand", attribute BandStart) together make one band: east side →
+-- round corner → north side. The cards (title + today's top 3 avatars) run
+-- along it from left to right and start again; a card crossing a seam shows
+-- on both panels. All panels follow the same clock, so they stay in step.
+local function bandLength(): number
+	local total = 0
+	for _, p in ipairs(CollectionService:GetTagged("RankBoard")) do
+		if p:IsA("BasePart") and p:GetAttribute("Board") == "todayBand" and p:IsDescendantOf(workspace) then
+			total = math.max(total, (p:GetAttribute("BandStart") or 0) + p.Size.X)
+		end
 	end
-	-- one card on one side: a frame holding either the title or an avatar
-	local function makeCard(side: any, entry: any, index: number): Frame
-		local card = Instance.new("Frame")
-		card.Size = UDim2.new(0, CARD * pps, 1, 0)
-		card.BackgroundTransparency = 1
-		card.Parent = side.bg
+	return math.max(total, 1)
+end
+
+local function buildBandPanel(part: BasePart)
+	local pps = 12
+	local width = part.Size.X
+	local bandStart = part:GetAttribute("BandStart") or 0
+	local gui = Instance.new("SurfaceGui")
+	gui.Name = "TodayBandGui"
+	gui.Face = Enum.NormalId.Front
+	gui.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	gui.PixelsPerStud = pps
+	gui.LightInfluence = 0
+	gui.Brightness = 1.5
+	gui.Adornee = part
+	gui.Parent = player:WaitForChild("PlayerGui")
+	local bg = Instance.new("Frame")
+	bg.Size = UDim2.fromScale(1, 1)
+	bg.BackgroundColor3 = Color3.new(1, 1, 1)
+	bg.ClipsDescendants = true
+	bg.Parent = gui
+	-- a colour wave flowing along the whole band (continuous over the seams)
+	local wave = Instance.new("UIGradient")
+	wave.Parent = bg
+	-- tap the screen: 좋아요 / 싫어요 for today's cards (D-281)
+	local click = Instance.new("ClickDetector")
+	click.MaxActivationDistance = 400
+	click.Parent = part
+	click.MouseClick:Connect(function() openVoteWindow() end)
+
+	local cards: {{ frame: Frame, entry: any, index: number, built: boolean }} = {}
+	local spacing = 1
+	local shownKey = ""
+	-- the card's content is built the first time it shows on this panel
+	local function fill(card: any)
+		card.built = true
+		local frame, entry, index = card.frame, card.entry, card.index
 		if entry == "title" then
-			label(card, { Position = UDim2.fromScale(0.05, 0.3), Size = UDim2.fromScale(0.9, 0.18), Text = "👑 오늘의",
+			label(frame, { Position = UDim2.fromScale(0.05, 0.28), Size = UDim2.fromScale(0.9, 0.2), Text = "👑 오늘의",
 				Font = Enum.Font.GothamBlack, TextColor3 = GOLD })
-			label(card, { Position = UDim2.fromScale(0.05, 0.5), Size = UDim2.fromScale(0.9, 0.2), Text = "큰손",
+			label(frame, { Position = UDim2.fromScale(0.05, 0.5), Size = UDim2.fromScale(0.9, 0.24), Text = "큰손",
 				Font = Enum.Font.GothamBlack, TextColor3 = GOLD })
-			return card
+			return
 		end
 		local viewport = Instance.new("ViewportFrame")
 		viewport.Position = UDim2.fromScale(0.04, 0.04)
 		viewport.Size = UDim2.fromScale(0.92, 0.74)
 		viewport.BackgroundColor3 = Color3.fromRGB(AVATAR_BACK[1], AVATAR_BACK[2], AVATAR_BACK[3])
 		viewport.BackgroundTransparency = 0.3
-		viewport.Parent = card
+		viewport.Parent = frame
 		local crown = { "👑 1위", "🥈 2위", "🥉 3위" }
-		label(card, { Position = UDim2.fromScale(0.04, 0.05), Size = UDim2.fromScale(0.5, 0.09), Text = crown[index] or "",
+		label(frame, { Position = UDim2.fromScale(0.04, 0.05), Size = UDim2.fromScale(0.5, 0.09), Text = crown[index] or "",
 			TextColor3 = GOLD, TextXAlignment = Enum.TextXAlignment.Left })
-		label(card, { Position = UDim2.fromScale(0.04, 0.8), Size = UDim2.fromScale(0.92, 0.14), Text = tostring(entry.name),
-			Font = Enum.Font.GothamBlack })
-		label(card, { Position = UDim2.fromScale(0.5, 0.05), Size = UDim2.fromScale(0.46, 0.08),
+		label(frame, { Position = UDim2.fromScale(0.5, 0.05), Size = UDim2.fromScale(0.46, 0.08),
 			Text = string.format("👍%d 👎%d", entry.likes or 0, entry.dislikes or 0), Font = Enum.Font.GothamMedium,
 			TextXAlignment = Enum.TextXAlignment.Right })
+		label(frame, { Position = UDim2.fromScale(0.04, 0.8), Size = UDim2.fromScale(0.92, 0.14), Text = tostring(entry.name),
+			Font = Enum.Font.GothamBlack })
 		if entry.hidden then
 			-- hidden by 싫어요 (D-281): the name only
 			viewport.Visible = false
-			label(card, { Position = UDim2.fromScale(0.04, 0.35), Size = UDim2.fromScale(0.92, 0.16), Text = tostring(entry.name),
+			label(frame, { Position = UDim2.fromScale(0.04, 0.35), Size = UDim2.fromScale(0.92, 0.16), Text = tostring(entry.name),
 				Font = Enum.Font.GothamBlack, TextColor3 = GOLD })
-			return card
+			return
 		end
 		if entry.u and entry.o then
 			task.spawn(function()
@@ -294,21 +297,9 @@ local function buildTodayWrap(part: BasePart)
 					{ [entry.u] = { o = entry.o } }, { back = AVATAR_BACK, cam = AVATAR_CAM })
 			end)
 		end
-		return card
 	end
-	-- tap the block: 좋아요 / 싫어요 for today's cards (D-281)
-	local click = Instance.new("ClickDetector")
-	click.MaxActivationDistance = 400
-	click.Parent = part
-	click.MouseClick:Connect(function()
-		openVoteWindow()
-	end)
-	local spacing = perimeter
-	local offset = 0
-	local last = os.clock()
-	local shownKey = ""
 	return {
-		gui = folder,
+		gui = gui,
 		update = function()
 			local list = rankings.today or {}
 			local entries: {any} = { "title" }
@@ -316,36 +307,43 @@ local function buildTodayWrap(part: BasePart)
 			local key = HttpService:JSONEncode(entries)
 			if key == shownKey then return end
 			shownKey = key
-			for _, side in ipairs(sides) do
-				for _, card in ipairs(side.cards) do card:Destroy() end
-				side.cards = {}
+			for _, card in ipairs(cards) do card.frame:Destroy() end
+			cards = {}
+			local total = bandLength()
+			-- as many rounds of the cards as fit with a gap between them
+			local copies = math.max(1, math.floor(total / (#entries * CARD * 1.4)))
+			spacing = total / (#entries * copies)
+			for _ = 1, copies do
 				for index, entry in ipairs(entries) do
-					table.insert(side.cards, makeCard(side, entry, index - 1))
-				end
-			end
-			-- cards spread evenly round the band (twice round when there are few)
-			local count = #entries
-			local copies = if count * CARD * 2 <= perimeter then 2 else 1
-			spacing = perimeter / (count * copies)
-			if copies == 2 then
-				for _, side in ipairs(sides) do
-					for index, entry in ipairs(entries) do
-						table.insert(side.cards, makeCard(side, entry, index - 1))
-					end
+					local frame = Instance.new("Frame")
+					frame.Size = UDim2.new(0, CARD * pps, 1, 0)
+					frame.BackgroundTransparency = 1
+					frame.Visible = false
+					frame.Parent = bg
+					table.insert(cards, { frame = frame, entry = entry, index = index - 1, built = false })
 				end
 			end
 		end,
 		tick = function()
-			local now = os.clock()
-			local dt = math.min(now - last, 0.2)
-			last = now
-			offset = (offset + dt * WRAP_SPEED) % perimeter
-			for _, side in ipairs(sides) do
-				for i, card in ipairs(side.cards) do
-					local pos = ((i - 1) * spacing + offset - side.info.start) % perimeter
-					if pos > perimeter - CARD then pos -= perimeter end
-					card.Visible = pos < side.info.width and pos > -CARD
-					card.Position = UDim2.fromOffset(math.floor(pos * pps), 0)
+			local total = bandLength()
+			local offset = (os.clock() * WRAP_SPEED) % total
+			local function waveColor(x: number): Color3
+				local s = 0.5 + 0.5 * math.sin(2 * math.pi * (x / total - os.clock() * 0.05))
+				return Color3.fromHSV(0.62 + 0.3 * s, 0.75, 0.42 + 0.12 * s)
+			end
+			wave.Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, waveColor(bandStart)),
+				ColorSequenceKeypoint.new(0.5, waveColor(bandStart + width / 2)),
+				ColorSequenceKeypoint.new(1, waveColor(bandStart + width)),
+			})
+			for i, card in ipairs(cards) do
+				local pos = ((i - 1) * spacing + offset - bandStart) % total
+				if pos > total - CARD then pos -= total end
+				local visible = pos < width and pos > -CARD
+				card.frame.Visible = visible
+				if visible then
+					if not card.built then fill(card) end
+					card.frame.Position = UDim2.fromOffset(math.floor(pos * pps), 0)
 				end
 			end
 		end,
@@ -400,8 +398,8 @@ local function add(part: Instance)
 	local entry
 	if board == "clubStrip" then
 		entry = buildStrip(part)
-	elseif board == "todayWrap" then
-		entry = buildTodayWrap(part)
+	elseif board == "todayBand" then
+		entry = buildBandPanel(part)
 	elseif typeof(board) == "string" then
 		entry = buildList(part, board)
 	else
