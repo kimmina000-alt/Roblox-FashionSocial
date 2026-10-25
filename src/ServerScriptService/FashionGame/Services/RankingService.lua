@@ -19,6 +19,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local MonetizationService = require(script.Parent.MonetizationService)
+local AvatarService = require(script.Parent.AvatarService)
 
 local RankingService = {}
 
@@ -51,6 +52,38 @@ local prefs: DataStore? = nil
 do
 	local ok, store = pcall(function() return DataStoreService:GetDataStore("RankPrefs") end)
 	if ok then prefs = store end
+end
+-- Outfit snapshots of buyers (the "오늘의 큰손" screen on OH24 shows the top 3
+-- avatars, D-280): taken at each purchase, refreshed while they are online.
+local lookStore: DataStore? = nil
+do
+	local ok, store = pcall(function() return DataStoreService:GetDataStore("RankLooks") end)
+	if ok then lookStore = store end
+end
+local looks: {[number]: any} = {}
+
+local function lookOf(userId: number): any
+	local player = Players:GetPlayerByUserId(userId)
+	if player then
+		local ok, snapshot = AvatarService.CaptureSnapshot(player)
+		if ok then looks[userId] = snapshot end
+	end
+	if looks[userId] == nil and lookStore then
+		local ok, value = pcall(function() return (lookStore :: DataStore):GetAsync("look_" .. userId) end)
+		looks[userId] = if ok and value ~= nil then value else false
+	end
+	return if looks[userId] then looks[userId] else nil
+end
+
+local function saveLook(player: Player)
+	local ok, snapshot = AvatarService.CaptureSnapshot(player)
+	if not ok then return end
+	looks[player.UserId] = snapshot
+	if lookStore then
+		task.spawn(function()
+			pcall(function() (lookStore :: DataStore):SetAsync("look_" .. player.UserId, snapshot) end)
+		end)
+	end
 end
 
 -- live totals of players seen in this server: board → userId → value
@@ -122,7 +155,7 @@ local function loadTotals(player: Player)
 	player:SetAttribute("RankHidden", hidden[player.UserId] == true)
 end
 
-local function top(board: Board): {{ name: string, value: number }}
+local function top(board: Board): {{ name: string, value: number, id: number }}
 	local merged: {[number]: number} = {}
 	local store = ordered(board)
 	if store then
@@ -146,7 +179,7 @@ local function top(board: Board): {{ name: string, value: number }}
 	table.sort(list, function(a, b) return a.value > b.value end)
 	local out = {}
 	for i = 1, math.min(TOP, #list) do
-		table.insert(out, { name = nameOf(list[i].id), value = list[i].value })
+		table.insert(out, { name = nameOf(list[i].id), value = list[i].value, id = list[i].id })
 	end
 	return out
 end
@@ -159,6 +192,16 @@ local function publish()
 	-- amounts are only shown for support and play time
 	for _, board in ipairs({ "spend", "today" }) do
 		for _, row in ipairs(data[board]) do row.value = nil :: any end
+	end
+	-- today's top 3 also carry their look for the avatar screen
+	for i, row in ipairs(data.today) do
+		if i <= 3 then
+			row.u = row.id
+			row.o = lookOf(row.id)
+		end
+	end
+	for _, board in ipairs(BOARDS) do
+		for _, row in ipairs(data[board]) do row.id = nil :: any end
 	end
 	FashionGame:SetAttribute("Rankings", HttpService:JSONEncode(data))
 end
@@ -177,6 +220,7 @@ end
 function RankingService.Start()
 	MonetizationService.OnPurchase(function(player, key, robux)
 		if robux <= 0 then return end
+		saveLook(player)
 		add("spend", player.UserId, robux)
 		add("today", player.UserId, robux)
 		if string.sub(key, 1, 8) == "Support_" then add("support", player.UserId, robux) end

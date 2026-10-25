@@ -1569,3 +1569,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/busad_window.jpg)
 ![](images/2026-10-25/busad_pose_picker.jpg)
 ![](images/2026-10-25/busad_poster.jpg)
+
+### 수정 (D-280) — 오늘의 큰손 전광판을 OH24 지붕 블록으로, 아바타가 블록을 돌며 흘러감
+
+![](images/2026-10-25/today_block_oh24.jpg)
+![](images/2026-10-25/today_block_card.jpg)

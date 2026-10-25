@@ -4071,19 +4071,22 @@ tower(-76, 110, -48, 170, 120, "glass", "E", "카페")
 tower(-76, 180, -48, 250, 80, "concrete", "E", "약국")
 -- (6 narrower than before: a 6-stud gap to the OH24 store, user 2026-10-23)
 tower(-146, 60, -132, 104, 60, "concrete", "N", "노래방") -- (12 south, its back on the OH24 store's back line z 104, user 2026-10-25; the ground it left is paved below)
-do -- "오늘의 큰손" LED (user 2026-10-25: like the COEX corner screen): one
-	-- screen wrapping the north-west corner of the tower next to OH24, seen from
-	-- the crossing and from the beach road (RankBoard, RankingBoards client)
+do -- "오늘의 큰손" screen block on the OH24 roof (user 2026-10-25, 2nd: not on
+	-- the tower; a block on the store's back-left roof, its four sides one LED
+	-- band where the avatars of today's top 3 move round and round like the
+	-- club's LED pillars) (RankBoard "todayWrap", RankingBoards client).
+	-- The store ends up at x -130..-56, z 66..104, roof at y 14.
 	local L = Instance.new("Model")
 	L.Name = "BigSpenderLED"
 	L.Parent = T
 	local FR = Color3.fromRGB(18, 18, 22)
-	box("LEDFrame", -146.9, 17, 58.9, -131.6, 49, 59.6, FR, { parent = L })
-	box("LEDFrame", -147, 17, 59, -146.2, 49, 84.4, FR, { parent = L })
-	local n = box("LEDScreen_N", -146.6, 17.6, 58.75, -131.9, 48.4, 58.9, Color3.fromRGB(10, 10, 16), { parent = L, material = Enum.Material.SmoothPlastic })
-	n:SetAttribute("Board", "today") n:SetAttribute("Face", "Front") CS:AddTag(n, "RankBoard")
-	local w = box("LEDScreen_W", -147.15, 17.6, 59.3, -147, 48.4, 84.1, Color3.fromRGB(10, 10, 16), { parent = L, material = Enum.Material.SmoothPlastic })
-	w:SetAttribute("Board", "today") w:SetAttribute("Face", "Left") w:SetAttribute("Wide", true) CS:AddTag(w, "RankBoard")
+	box("LEDBlockBase", -87, 14, 75, -59, 16, 103, FR, { parent = L, material = Enum.Material.Metal })
+	local s = box("LEDBlock", -86, 16, 76, -60, 38, 102, Color3.fromRGB(8, 8, 14), { parent = L, material = Enum.Material.SmoothPlastic })
+	s:SetAttribute("Board", "todayWrap") CS:AddTag(s, "RankBoard")
+	box("LEDBlockCap", -86.6, 38, 75.4, -59.4, 39, 102.6, FR, { parent = L, material = Enum.Material.Metal })
+	for _, y in ipairs({ 16, 37.85 }) do -- thin lit lines round the top and bottom of the screen
+		box("LEDBlockLine", -86.15, y, 75.85, -59.85, y + 0.15, 102.15, Color3.fromRGB(255, 214, 110), { parent = L, material = Enum.Material.Neon, nocol = true })
+	end
 end
 do -- three ranking boards in the pocket park in front of the park gate (user
 	-- 2026-10-25): 후원 / 큰손 / 플레이 시간, on the open paving on the east side,
