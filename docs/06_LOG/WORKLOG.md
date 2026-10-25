@@ -1463,3 +1463,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 구조·색·조명 그대로, 계단 쪽 벽면에 그래피티 이미지만.
 
 ![](images/2026-10-25/club_stairs_graffiti_only.jpg)
+
+### 추가 (D-258) — 문 밖에서 보이는 벽: 화살표 + OHU CLUB 그래피티
+- 밖에서 보이는 로비 정면 벽 낙서 삭제, 왼쪽(계단 방향) 화살표와 OHU CLUB 그래피티 글씨만.
+
+![](images/2026-10-25/club_door_graffiti_sign.jpg)

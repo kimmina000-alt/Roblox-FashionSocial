@@ -243,7 +243,11 @@ do local GRAFFITI="rbxassetid://77520103793675"
  local function graffiti(x0,y0,z0,x1,y1,z1,face,su,sv)
   local p=box(z,"GraffitiWall",x0,y0,z0,x1,y1,z1,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
   local tx=Instance.new("Texture") tx.Texture=GRAFFITI tx.Face=face tx.StudsPerTileU=su or 34 tx.StudsPerTileV=sv or 17 tx.Transparency=0.15 tx.Parent=p end
- graffiti(-80,F,-166.5,12,12,-166.45,Enum.NormalId.Back)
+ graffiti(-80,F,-166.5,-24,12,-166.45,Enum.NormalId.Back) -- (stairs part only)
+ -- the foyer wall seen from the street through the door: no scribbles, just a
+ -- pink graffiti "OHU CLUB" with an arrow pointing left, down the stairs
+ do local p=box(z,"GraffitiSign",-9.5,1,-166.5,7.5,9.5,-166.45,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
+  local d=Instance.new("Decal") d.Texture="rbxassetid://118161419410572" d.Face=Enum.NormalId.Back d.Parent=p end
  graffiti(-80,F,-151.05,-24,12,-151,Enum.NormalId.Front)
  graffiti(-24,0,-151.05,-8,12,-151,Enum.NormalId.Front)
  graffiti(8,0,-151.05,12,12,-151,Enum.NormalId.Front)

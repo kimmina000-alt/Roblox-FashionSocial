@@ -473,3 +473,5 @@ D-255 — (2026-10-25) Club entrance stairs from the user's video (docs/04_ART/r
 D-256 — (2026-10-25) The D-255 stair design is taken back (stairs as in D-254: dark steps, grey neon nosings, ▼ risers). The graffiti texture is kept for later: docs/04_ART/textures/graffiti.png, uploaded as rbxassetid://77520103793675.
 
 D-257 — (2026-10-25) Graffiti only on the entrance stair walls (user: keep the structure): five see-through carrier panels on the stair-side faces (hall wall, street wall either side of the door, the landing end wall) with the graffiti Texture (rbxassetid://77520103793675, transparency 0.15); walls, steps, nosings, ▼ risers and lights unchanged.
+
+D-258 — (2026-10-25) The foyer wall seen from the street through the club door has no scribbles any more (the hall-wall graffiti stops at the top of the stairs, x -24); instead a pink graffiti "OHU CLUB" with an arrow pointing left down the stairs (Decal rbxassetid://118161419410572, docs/04_ART/textures/club_arrow_sign.png) on a 17 x 8.5 see-through panel in the door view.
