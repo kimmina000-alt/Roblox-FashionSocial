@@ -1468,3 +1468,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 밖에서 보이는 로비 정면 벽 낙서 삭제, 왼쪽(계단 방향) 화살표와 OHU CLUB 그래피티 글씨만.
 
 ![](images/2026-10-25/club_door_graffiti_sign.jpg)
+
+### 추가 (D-259) — 그래피티: 통로 비우기, 끊김 없이
+- 계단 아래 복도 통로(사람이 지나가는 빈 공간)에 그래피티가 떠 있던 것 삭제, 통로 위·옆 벽에만.
+- 글씨가 이미지 가장자리에 닿지 않게 새로 그리고 벽마다 이미지가 딱 맞게 반복돼 글씨가 잘리지 않음. 화살표+OHU CLUB은 그대로.
+
+![](images/2026-10-25/club_stairs_passage_clear.jpg)
+![](images/2026-10-25/club_graffiti_end_clean.jpg)

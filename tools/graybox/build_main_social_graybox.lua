@@ -239,19 +239,24 @@ label(z,"↓ 계단 (지하 클럽)",Vector3.new(-40,6,-158))
 -- graffiti on the stair-side wall faces only (user 2026-10-25: keep the stairs
 -- and walls as they are, just the graffiti): see-through carrier panels with
 -- the pale graffiti Texture (docs/04_ART/textures/graffiti.png)
-do local GRAFFITI="rbxassetid://77520103793675"
- local function graffiti(x0,y0,z0,x1,y1,z1,face,su,sv)
+do local GRAFFITI="rbxassetid://124813811162354" -- (no word touches the image edge: tiles join without cut-off letters)
+ -- tu, tv = whole tiles across and up, so every panel ends on a tile edge
+ local function graffiti(x0,y0,z0,x1,y1,z1,face,tu,tv)
   local p=box(z,"GraffitiWall",x0,y0,z0,x1,y1,z1,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
-  local tx=Instance.new("Texture") tx.Texture=GRAFFITI tx.Face=face tx.StudsPerTileU=su or 34 tx.StudsPerTileV=sv or 17 tx.Transparency=0.15 tx.Parent=p end
- graffiti(-80,F,-166.5,-24,12,-166.45,Enum.NormalId.Back) -- (stairs part only)
+  local along=math.max(math.abs(x1-x0),math.abs(z1-z0))
+  local tx=Instance.new("Texture") tx.Texture=GRAFFITI tx.Face=face tx.StudsPerTileU=along/tu tx.StudsPerTileV=math.abs(y1-y0)/tv tx.Transparency=0.15 tx.Parent=p end
+ -- hall-side wall: only real wall faces (user 2026-10-25: the corridor passage
+ -- at the foot of the stairs, x -80..-64 below F+14, is an opening people walk
+ -- through: no graffiti there, only on the wall above it)
+ graffiti(-64,F,-166.5,-24,12,-166.45,Enum.NormalId.Back,2,3)
+ graffiti(-80,F+14,-166.5,-64,12,-166.45,Enum.NormalId.Back,1,2)
  -- the foyer wall seen from the street through the door: no scribbles, just a
  -- pink graffiti "OHU CLUB" with an arrow pointing left, down the stairs
  do local p=box(z,"GraffitiSign",-9.5,1,-166.5,7.5,9.5,-166.45,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
   local d=Instance.new("Decal") d.Texture="rbxassetid://118161419410572" d.Face=Enum.NormalId.Back d.Parent=p end
- graffiti(-80,F,-151.05,-24,12,-151,Enum.NormalId.Front)
- graffiti(-24,0,-151.05,-8,12,-151,Enum.NormalId.Front)
- graffiti(8,0,-151.05,12,12,-151,Enum.NormalId.Front)
- graffiti(-80,F,-166.45,-79.95,12,-151.05,Enum.NormalId.Right,15,15)
+ graffiti(-80,F,-151.05,-24,12,-151,Enum.NormalId.Front,3,3)
+ graffiti(-24,0,-151.05,-8,12,-151,Enum.NormalId.Front,1,1)
+ graffiti(-80,F,-166.45,-79.95,12,-151.05,Enum.NormalId.Right,1,3)
 end
 -- wall between the stairs/foyer strip and the hall (opening for the corridor)
 box(z,"Wall_Entry_Hall",-64,F,-167.5,80,TOP,-166.5,WALL_C,WALLO)
