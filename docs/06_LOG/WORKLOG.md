@@ -1685,3 +1685,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-305) — 피아노를 빨간 선까지 옮김
 
 ![](images/2026-10-25/piano_moved_north.jpg)
+
+### 수정 (D-306) — 카페 둘레 나무 단상
+
+- 흰 단을 삭제하고, 동쪽 입구 데크와 남·북 테라스를 카페 바닥 높이(+0.6)로 올렸어요. 한 덩어리 나무 단상이 되었고 재질은 해변 계단과 같아요.
+- 걸어서 확인: 인도 → 데크 → 남 테라스 → 해변 계단, 북쪽도 모두 OK.
+
+![](images/2026-10-25/cafe_deck_raised.jpg)

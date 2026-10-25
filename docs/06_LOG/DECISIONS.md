@@ -569,3 +569,5 @@ D-303 — (2026-10-25, user mark) Beach cafe grand piano moves toward the middle
 D-304 — (2026-10-25, user) The slanted cafe piano turned 180°: the bench is now on the stage steps' side.
 
 D-305 — (2026-10-25, user mark) The slanted cafe piano moves up to the user's red line by the north glass (centre x -281.9, z 99.7).
+
+D-306 — (2026-10-25, user's red outline) The white step at the cafe door is removed. The east entrance deck and the south and north terraces are raised one step (0.6) to the cafe floor, flush with the promenade, as one wooden platform in the beach-stair wood (WoodPlanks 120,88,62). The terrace on the south looks darker only because it lies in the building's shadow (the sun is in the north).
