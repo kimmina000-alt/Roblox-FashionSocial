@@ -3949,6 +3949,10 @@ do
 		-- corridor: floor, ceiling, black walls
 		-- (plain, the same colour as the foyer floor: user 2026-10-25)
 		box("LiftCorridorFloor", CX0, -0.5, FOYER_END - 0.5, CX1, 0, CAR0, Color3.fromRGB(26, 26, 29), { parent = E, material = Enum.Material.SmoothPlastic })
+		-- the foyer's floor LED lines run on along both walls up to the lift (user 2026-10-25)
+		for _, x in ipairs({ { CX0, CX0 + 0.2 }, { CX1 - 0.2, CX1 } }) do
+			box("LiftCorridorLED", x[1], 0, FOYER_END - 0.5, x[2], 0.25, CAR0 - 0.7, Color3.fromRGB(255, 250, 175), { parent = E, material = Enum.Material.Neon, nocol = true })
+		end
 		box("LiftCorridorCeiling", CX0, 12, FOYER_END - 0.5, CX1, 13, CAR1 + 0.6, DARK, { parent = E })
 		-- the rest of the old fill behind the car stays solid
 		box("EntryFillRest", CX0 - 0.1, -24, CAR1 + 0.6, CX1 + 0.1, 36, FILL_END, Color3.fromRGB(40, 42, 46), { parent = E })

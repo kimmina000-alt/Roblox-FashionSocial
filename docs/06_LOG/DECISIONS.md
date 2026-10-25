@@ -539,3 +539,5 @@ D-288 — (2026-10-25, user) The foyer "OHU CLUB" arrow sign is half the size (8
 D-289 — (2026-10-25, user marks on two screenshots) White light strips round the passage at the foot of the club entry stairs: along its top edge (F+14) and down its east side, with a soft SurfaceLight into the opening.
 
 D-290 — (2026-10-25, user) Club lift corridor: no foyer LED line across its end, a plain floor in the foyer's colour (no marble), no graffiti on the street wall next to it.
+
+D-291 — (2026-10-25, user) The foyer's floor LED lines continue along both walls of the lift corridor up to the lift door.

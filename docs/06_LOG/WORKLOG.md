@@ -1618,3 +1618,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-290) — 엘리베이터 앞 조명 삭제, 바닥 민무늬 통일, 옆 벽 그래피티 삭제
 
 ![](images/2026-10-25/lift_front_clean.jpg)
+
+### 수정 (D-291) — 엘리베이터 복도 바닥 조명 이어서
+
+![](images/2026-10-25/lift_corridor_led.jpg)
