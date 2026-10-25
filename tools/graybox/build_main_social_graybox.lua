@@ -1367,6 +1367,7 @@ local z=zone("04_Beach_Aquarium")
    box(cm,"PianoStage",-288.6,FY,79.9,-286.9,FY+1.6,86.5,ST,SO)
    box(cm,"PianoStage",-286.9,FY,79.9,-285.4,FY+0.8,86.5,ST,SO) end
   local PY=FY+2.4 -- the stage top (the piano 3 closer to the sea glass, user 2026-10-25)
+  local beforePiano={} for _,c in ipairs(cm:GetChildren()) do beforePiano[c]=true end
   local piano=M(cm,"GrandPiano",{},{})
   box(piano,"PianoBody",-293,PY+2.2,96,-287,PY+3.6,103,dark) -- (in the corner, as far from the north glass as from the sea glass: 2.6, user 2026-10-25)
   P(piano,"PianoLid",Vector3.new(6,0.2,7),CFrame.new(-290,PY+5,99.5)*CFrame.Angles(math.rad(-30),0,0),dark,{nocol=true})
@@ -1383,6 +1384,11 @@ local z=zone("04_Beach_Aquarium")
     box(piano,"BlackKey",kc-kw*0.28,PY+3.45,95.7,kc+kw*0.28,PY+3.58,96,Color3.fromRGB(20,20,22),{nocol=true}) end end end
   do local pos=Vector3.new(-290,PY+1.6,93.6) seat(cm,"PianoBench",CFrame.lookAt(pos,pos+Vector3.new(0,0,1)),Vector3.new(3,0.4,1.4),dark)
    for _,c in ipairs({{-291.3,93.1},{-288.7,93.1},{-291.3,94.1},{-288.7,94.1}}) do box(cm,"PianoBenchLeg",c[1]-0.12,PY,c[2]-0.12,c[1]+0.12,PY+1.4,c[2]+0.12,dark) end end -- (four legs, user 2026-10-25)
+  -- (moved toward the middle of the stage and set at a slant, the keyboard
+  -- facing the lounge diagonally: user mark 2026-10-25) — piano and bench turn together
+  do local rot=CFrame.new(-284.6,0,94.6)*CFrame.Angles(0,math.rad(-135),0)*CFrame.new(290,0,-99.5)
+   for _,c in ipairs(cm:GetChildren()) do if not beforePiano[c] then
+    if c:IsA("Model") then c:PivotTo(rot*c:GetPivot()) elseif c:IsA("BasePart") then c.CFrame=rot*c.CFrame end end end end
   -- (no sofas, long marble table, wooden pool tiers or north planter: user plan 2026-10-25)
   -- LIGHT (user photos 2026-10-24, warm hotel-lobby mood): a long glowing
   -- stretch-ceiling panel over the pool between the wooden slats, warm spots

@@ -1673,3 +1673,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-302) — 해변 카페 입구 앞 단상 (바닥 색)
 
 ![](images/2026-10-25/cafe_entrance_step.jpg)
+
+### 수정 (D-303) — 카페 피아노 단상 가운데로, 사선 배치
+
+![](images/2026-10-25/piano_diagonal.jpg)

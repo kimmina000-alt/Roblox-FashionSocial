@@ -563,3 +563,5 @@ D-300 — (2026-10-25, user) Club waiting line: south of the door the black iron
 D-301 — (2026-10-25, user) DJ panel: lights and lasers switch apart (DjService.Actions.Lasers, attribute ClubLasers, on for each new DJ; ClubLightsController lasers follow ClubLasers, the moving heads ClubLights). The laser ON/OFF button takes the old 📺 전광판 slot with the ⚡ speed cell right next to it (the speed only changes the lasers); 📺 전광판 moves next to 시간 연장 in the DJ row.
 
 D-302 — (2026-10-25, user) Beach cafe: a 0.6-high step in front of the door (door width 10, the deck's depth 8) up to the cafe floor level, in the cafe floor's colour. Walked from the deck into the cafe.
+
+D-303 — (2026-10-25, user mark) Beach cafe grand piano moves toward the middle of its stage (centre x -284.6, z 94.6) and turns 45° so it stands at a slant, the keyboard and bench facing the lounge diagonally; piano and bench turn together.
