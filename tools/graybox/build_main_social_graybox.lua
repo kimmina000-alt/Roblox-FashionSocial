@@ -1385,8 +1385,9 @@ local z=zone("04_Beach_Aquarium")
   do local pos=Vector3.new(-290,PY+1.6,93.6) seat(cm,"PianoBench",CFrame.lookAt(pos,pos+Vector3.new(0,0,1)),Vector3.new(3,0.4,1.4),dark)
    for _,c in ipairs({{-291.3,93.1},{-288.7,93.1},{-291.3,94.1},{-288.7,94.1}}) do box(cm,"PianoBenchLeg",c[1]-0.12,PY,c[2]-0.12,c[1]+0.12,PY+1.4,c[2]+0.12,dark) end end -- (four legs, user 2026-10-25)
   -- (moved toward the middle of the stage and set at a slant, the keyboard
-  -- facing the lounge diagonally: user mark 2026-10-25) — piano and bench turn together
-  do local rot=CFrame.new(-284.6,0,94.6)*CFrame.Angles(0,math.rad(-135),0)*CFrame.new(290,0,-99.5)
+  -- facing diagonally, turned so the bench is on the stage steps' side: user 2026-10-25)
+  -- — piano and bench turn together
+  do local rot=CFrame.new(-284.6,0,94.6)*CFrame.Angles(0,math.rad(45),0)*CFrame.new(290,0,-99.5)
    for _,c in ipairs(cm:GetChildren()) do if not beforePiano[c] then
     if c:IsA("Model") then c:PivotTo(rot*c:GetPivot()) elseif c:IsA("BasePart") then c.CFrame=rot*c.CFrame end end end end
   -- (no sofas, long marble table, wooden pool tiers or north planter: user plan 2026-10-25)

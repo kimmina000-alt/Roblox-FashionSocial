@@ -565,3 +565,5 @@ D-301 — (2026-10-25, user) DJ panel: lights and lasers switch apart (DjService
 D-302 — (2026-10-25, user) Beach cafe: a 0.6-high step in front of the door (door width 10, the deck's depth 8) up to the cafe floor level, in the cafe floor's colour. Walked from the deck into the cafe.
 
 D-303 — (2026-10-25, user mark) Beach cafe grand piano moves toward the middle of its stage (centre x -284.6, z 94.6) and turns 45° so it stands at a slant, the keyboard and bench facing the lounge diagonally; piano and bench turn together.
+
+D-304 — (2026-10-25, user) The slanted cafe piano turned 180°: the bench is now on the stage steps' side.

@@ -1677,3 +1677,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-303) — 카페 피아노 단상 가운데로, 사선 배치
 
 ![](images/2026-10-25/piano_diagonal.jpg)
+
+### 수정 (D-304) — 피아노 180° 회전, 의자를 계단 쪽으로
+
+![](images/2026-10-25/piano_diagonal_steps.jpg)
