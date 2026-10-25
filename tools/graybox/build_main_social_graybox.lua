@@ -263,6 +263,13 @@ end
 -- wall between the stairs/foyer strip and the hall (opening for the corridor)
 box(z,"Wall_Entry_Hall",-64,F,-167.5,80,TOP,-166.5,WALL_C,WALLO)
 box(z,"Wall_Entry_Corridor_Top",-80,F+14,-167.5,-64,TOP,-166.5,WALL_C,WALLO)
+-- light strips round the passage at the foot of the stairs (user 2026-10-25,
+-- marked on two screenshots): along its top edge and down its east side,
+-- with a soft light into the opening
+do local LC=Color3.fromRGB(235,235,235) local NE={mat=Enum.Material.Neon,ghost=true}
+ local top=box(z,"PassageLight",-80,F+13.65,-166.5,-63.7,F+14,-166.2,LC,NE)
+ local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Color=Color3.fromRGB(255,245,225) sl.Range=10 sl.Brightness=0.8 sl.Angle=120 sl.Parent=top
+ box(z,"PassageLight",-64,F,-166.5,-63.7,F+13.65,-166.2,LC,NE) end
 -- corridor north along the west wall (x -80..-64), low ceiling. 1F plan
 -- (user, 2026-10-22): the hall door is in the MIDDLE of the corridor (on the
 -- right); the corridor ends at the VIP wall (z -236): see-through red glass

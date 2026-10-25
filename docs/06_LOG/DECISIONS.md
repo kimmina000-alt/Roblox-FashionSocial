@@ -535,3 +535,5 @@ D-286 — (2026-10-25, user) The OH24 tower screen moves up to the top of the to
 D-287 — (2026-10-25, user) The OH24 tower screen reaches down to half of the wall that was left below it: y 30..86 (56 tall); cards 30 studs wide.
 
 D-288 — (2026-10-25, user) The foyer "OHU CLUB" arrow sign is half the size (8.5 × 4.25) and moved in to the end of the graffiti (x -11..-2.5, y 3..7.25) so it hardly shows from the street.
+
+D-289 — (2026-10-25, user marks on two screenshots) White light strips round the passage at the foot of the club entry stairs: along its top edge (F+14) and down its east side, with a soft SurfaceLight into the opening.
