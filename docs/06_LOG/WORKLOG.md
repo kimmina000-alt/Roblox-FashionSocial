@@ -1526,3 +1526,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/drink_menu_tier3.jpg)
 ![](images/2026-10-25/drink_menu_vip.jpg)
 ![](images/2026-10-25/drink_menu_variant.jpg)
+
+### 배치도 (2026-10-25 저녁) — Studio 부품으로 다시 그림 (클럽 1층·2층, 해변 카페 1층·2층)
+
+![](images/2026-10-25/plan_club_1F.png)
+![](images/2026-10-25/plan_club_2F.png)
+![](images/2026-10-25/plan_cafe_1F.png)
+![](images/2026-10-25/plan_cafe_2F.png)
