@@ -218,6 +218,19 @@ local function refreshTableSign(tablePart: Instance)
 		local owner = child:IsA("Attachment") and child:GetAttribute("OwnerName")
 		if typeof(owner) == "string" and not table.find(names, owner) then table.insert(names, owner) end
 	end
+	-- VIP booth tables (user 2026-10-25): the owner's nickname glows on the
+	-- neon VIP sign on the wall above the booth (ObjectValue "WallSign" → its
+	-- name label), empty when nobody has a bottle there; no floating sign
+	local wallSign = tablePart:FindFirstChild("WallSign")
+	if wallSign and wallSign:IsA("ObjectValue") then
+		local label = wallSign.Value
+		if label and label:IsA("TextLabel") then
+			local shown = {}
+			for _, name in ipairs(names) do table.insert(shown, "@" .. name) end
+			label.Text = table.concat(shown, " · ")
+		end
+		return
+	end
 	local sign = tablePart:FindFirstChild("TableOwnerSign")
 	if #names == 0 then
 		if sign then sign:Destroy() end

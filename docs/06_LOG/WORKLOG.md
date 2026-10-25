@@ -1425,3 +1425,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 레이저 블록 6개를 촘촘하게 DJ존 뒤 벽 위쪽에. DJ 속도 버튼은 레이저만(색은 둘 다). 무빙라이트가 무대 가운데 줄·양쪽 벽까지 닿게 넓게 돌고 바닥 빛도 크게.
 
 ![](images/2026-10-25/club_lasers_backwall.jpg)
+
+### 추가 (D-251) — 레이저 아래로, 봉 메탈, LED 선 삭제, VIP 네온 사인
+- 레이저: 뒤 벽 위에서 댄스 플로어로 내려 쏨. 봉·단상 전부 메탈(LED 봉 원래대로). 입구 계단 양옆·로비·계단 아래 LED와 댄스홀 입구 바닥 LED 삭제.
+- VIP 부스 벽마다 네온 사인: 금색 왕관 + 핑크 VIP + 테이블에 병 놓은 사람 닉네임(없으면 빈칸), 뒤에 붉은 빛.
+
+![](../04_ART/references/club_vip_sign_ref.webp)
+![](images/2026-10-25/club_vip_neon_sign.jpg)
+![](images/2026-10-25/club_hall_v6.jpg)
