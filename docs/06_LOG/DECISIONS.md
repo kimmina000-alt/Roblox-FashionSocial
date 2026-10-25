@@ -469,3 +469,5 @@ D-253 — (2026-10-25) Club: hall floor plain glossy grey (SmoothPlastic, reflec
 D-254 — (2026-10-25) Club floor tiles a third of D-253: 4-stud squares (grout lines every 4).
 
 D-255 — (2026-10-25) Club entrance stairs from the user's video (docs/04_ART/references/club_stairs_ref.jpg, 홍대 hip-hop club): diamond-plate metal treads (no white nosings or ▼ chevrons; the riser helper stays for the VIP stair); dark-red panels on the stair-side wall faces with a pale graffiti Texture (docs/04_ART/textures/graffiti.png, rbxassetid://77520103793675, drawn by script); a red brick end wall at the bottom landing with a big yellow-gold neon heart (and a warm SurfaceLight); purple neon strips along the slope on both walls and up the landing corners; four dim red lights over the stairs. Walked down from the foyer to the landing.
+
+D-256 — (2026-10-25) The D-255 stair design is taken back (stairs as in D-254: dark steps, grey neon nosings, ▼ risers). The graffiti texture is kept for later: docs/04_ART/textures/graffiti.png, uploaded as rbxassetid://77520103793675.

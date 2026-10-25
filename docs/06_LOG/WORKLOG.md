@@ -1455,3 +1455,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](../04_ART/references/club_stairs_ref.jpg)
 ![](images/2026-10-25/club_stairs_graffiti.jpg)
 ![](images/2026-10-25/club_stairs_heart.jpg)
+
+### 추가 (D-256) — 입구 계단 원래대로
+- 계단 디자인은 D-254로 복구. 그래피티 이미지만 보관(docs/04_ART/textures/graffiti.png, rbxassetid://77520103793675).
