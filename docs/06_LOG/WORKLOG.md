@@ -1558,3 +1558,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/rank_club_strip.jpg)
 ![](images/2026-10-25/rank_today_led.jpg)
 ![](images/2026-10-25/rank_park_boards.jpg)
+
+### 구현 (D-278) — 코인 x2 패스 · 1시간 부스트
+
+![](images/2026-10-25/coin_shop.jpg)
+![](images/2026-10-25/coin_shop_pass.jpg)

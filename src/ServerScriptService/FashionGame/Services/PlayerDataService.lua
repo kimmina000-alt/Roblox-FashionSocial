@@ -53,7 +53,8 @@ PlayerDataService.MaxPhotos = PhotoConfig.MaxPhotos
 -- part-time job records (D-100): jobs[job] = { xp, served, cleaned }, never
 -- capped (only the coins are, per day), for job levels later.
 export type JobRecord = { xp: number, served: number, cleaned: number }
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord} }
+-- boost = seconds of the bought "1시간 코인 x2 부스트" left, counted while online (D-278)
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -128,8 +129,11 @@ local function sanitizePhotos(list: any): {any}
 end
 
 local function sanitizeWallet(raw: any): Wallet
-	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} }, jobs = {} }
+	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} }, jobs = {}, boost = 0 }
 	if typeof(raw) ~= "table" then return wallet end
+	if typeof(raw.boost) == "number" and raw.boost == raw.boost then
+		wallet.boost = math.clamp(math.floor(raw.boost), 0, 100 * 3600)
+	end
 	if typeof(raw.coins) == "number" and raw.coins == raw.coins then
 		wallet.coins = math.clamp(math.floor(raw.coins), 0, 99999)
 	end

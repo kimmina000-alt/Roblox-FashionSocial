@@ -39,9 +39,15 @@ MonetizationConfig.GamePasses = {
 	-- 인생네컷 glossy + glitter frames (D-064). Permanent.
 	FramePack = { sku = "PHOTO-PASS-FRAMEPACK1", id = 0, name = "프레임 팩 (글로시·반짝이)", price = 99, status = "planned",
 		description = "인생네컷 특별 프레임(글로시·반짝이)을 영구로 써요." },
+	-- Coin x2 for good (D-278): time online and the cafe job earn twice as much.
+	CoinX2 = { sku = "ECON-PASS-COINX2", id = 0, name = "코인 x2 패스", price = 199, status = "planned",
+		description = "접속 코인과 알바 코인을 영원히 2배로 받아요." },
 } :: {[string]: Item}
 
 MonetizationConfig.Products = {
+	-- 1 hour of coin x2 (counted while online; cannot be bought with the pass)
+	CoinBoost1h = { sku = "ECON-DP-BOOST1H", id = 0, name = "1시간 코인 x2 부스트", price = 25, status = "planned",
+		description = "접속해 있는 1시간 동안 코인을 2배로 받아요." },
 	-- DJ booth time (D-052). Consumable: each purchase adds DJMinutes.
 	-- (Robux only, test price 25 R$: D-268 / D-270)
 	DJ = { sku = "CLUB-DP-DJ30", id = 0, name = "DJ 30분", price = 25, status = "planned",

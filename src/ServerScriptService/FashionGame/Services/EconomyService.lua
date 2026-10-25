@@ -60,6 +60,29 @@ local function publish(player: Player)
 end
 EconomyService.Publish = publish
 
+-- Coin x2 (D-278): the permanent pass "CoinX2" or a running 1-hour boost.
+-- Both double what is earned (time online and the cafe job, cap included);
+-- they never stack (x2 at most).
+local function multiplier(player: Player): number
+	if player:GetAttribute("Pass_CoinX2") == true then return 2 end
+	if (playerData.Wallet(player).boost or 0) > 0 then return 2 end
+	return 1
+end
+EconomyService.Multiplier = multiplier
+
+local function publishBoost(player: Player)
+	player:SetAttribute("CoinBoostSeconds", playerData.Wallet(player).boost or 0)
+	player:SetAttribute("CoinMultiplier", multiplier(player))
+end
+
+-- 1 hour of boost per purchase (counted only while online).
+function EconomyService.AddBoost(player: Player, seconds: number)
+	local w = playerData.Wallet(player)
+	w.boost = math.min(100 * 3600, (w.boost or 0) + seconds)
+	playerData.MarkDirty(player)
+	publishBoost(player)
+end
+
 local function add(player: Player, amount: number)
 	if amount <= 0 then return end
 	local w = wallet(player)
@@ -91,6 +114,9 @@ end
 -- Pay for work (cafe job, D-099) with a daily cap shared under capKey.
 -- Returns the amount given (less, or 0, once the cap is reached).
 function EconomyService.Earn(player: Player, amount: number, capKey: string, cap: number, text: string): number
+	local m = multiplier(player)
+	amount *= m
+	cap *= m
 	local w = wallet(player)
 	local earned = w.daily.counts[capKey] or 0
 	local given = math.max(0, math.min(amount, cap - earned))
@@ -221,8 +247,17 @@ local function passiveTick()
 			local w = wallet(player)
 			local minutes = w.daily.counts.Passive or 0
 			w.daily.counts.Passive = minutes + 1
-			add(player, if minutes < EconomyConfig.PassiveFullMinutes then EconomyConfig.PassiveAmount else EconomyConfig.PassiveReducedAmount)
+			local amount = if minutes < EconomyConfig.PassiveFullMinutes then EconomyConfig.PassiveAmount else EconomyConfig.PassiveReducedAmount
+			add(player, amount * multiplier(player))
 		end
+		-- the boost runs down only while online
+		local w = playerData.Wallet(player)
+		if (w.boost or 0) > 0 then
+			w.boost = math.max(0, w.boost - EconomyConfig.PassiveSeconds)
+			playerData.MarkDirty(player)
+			if w.boost == 0 then toast(player, "⏱ 코인 x2 부스트가 끝났어요.") end
+		end
+		publishBoost(player)
 	end
 end
 
@@ -234,6 +269,8 @@ function EconomyService.Start(dataService: any)
 			EconomyService.Award(player, "DailyLogin")
 		end)
 		player:GetAttributeChangedSignal("Pass_FramePack"):Connect(function() publish(player) end)
+		player:GetAttributeChangedSignal("Pass_CoinX2"):Connect(function() publishBoost(player) end)
+		task.spawn(publishBoost, player)
 	end
 	Players.PlayerAdded:Connect(onPlayer)
 	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end

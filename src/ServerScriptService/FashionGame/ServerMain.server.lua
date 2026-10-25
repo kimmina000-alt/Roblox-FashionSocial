@@ -66,6 +66,14 @@ MonetizationService.RegisterProduct("DJ", function(player)
 	return ok, message
 end)
 
+-- 1 hour of coin x2 (D-278).
+MonetizationService.RegisterProduct("CoinBoost1h", function(player)
+	EconomyService.AddBoost(player, 3600)
+	ClubNotify:FireClient(player, "Toast", "⏱ 코인 x2 부스트 1시간이 시작됐어요!")
+	return true, nil
+end)
+-- (the CoinX2 pass needs no handler: EconomyService reads Pass_CoinX2)
+
 -- 인생네컷 album +10 slots.
 local PhotoConfig = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("PhotoConfig"))
 MonetizationService.RegisterProduct("AlbumSlots", function(player)
