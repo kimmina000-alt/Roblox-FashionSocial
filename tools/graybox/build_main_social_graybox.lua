@@ -1387,7 +1387,8 @@ local z=zone("04_Beach_Aquarium")
   -- (moved toward the middle of the stage and set at a slant, the keyboard
   -- facing diagonally, turned so the bench is on the stage steps' side: user 2026-10-25)
   -- — piano and bench turn together
-  do local rot=CFrame.new(-284.6,0,94.6)*CFrame.Angles(0,math.rad(45),0)*CFrame.new(290,0,-99.5)
+  -- (then moved toward the north glass up to the user's red line, 2026-10-25)
+  do local rot=CFrame.new(-281.9,0,99.7)*CFrame.Angles(0,math.rad(45),0)*CFrame.new(290,0,-99.5)
    for _,c in ipairs(cm:GetChildren()) do if not beforePiano[c] then
     if c:IsA("Model") then c:PivotTo(rot*c:GetPivot()) elseif c:IsA("BasePart") then c.CFrame=rot*c.CFrame end end end end
   -- (no sofas, long marble table, wooden pool tiers or north planter: user plan 2026-10-25)

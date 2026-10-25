@@ -1681,3 +1681,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-304) — 피아노 180° 회전, 의자를 계단 쪽으로
 
 ![](images/2026-10-25/piano_diagonal_steps.jpg)
+
+### 수정 (D-305) — 피아노를 빨간 선까지 옮김
+
+![](images/2026-10-25/piano_moved_north.jpg)
