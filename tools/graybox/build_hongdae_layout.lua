@@ -1228,7 +1228,7 @@ end
 busStop(1, "OHU CLUB 앞", Vector3.new(-31, 0, -130), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1))
 busStop(2, "고층 빌딩가", Vector3.new(130, 0, 31), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0))
 busStop(3, "한옥 마을 · 광화문", Vector3.new(31, 0, 230), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1))
-busStop(4, "해변", Vector3.new(-153, 0, 150), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1))
+busStop(4, "해변", Vector3.new(-153, 0, 84), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1)) -- (north, in front of the 노래방 tower, user 2026-10-25)
 
 ------------------------------------------------------- 광안리 seafront
 do

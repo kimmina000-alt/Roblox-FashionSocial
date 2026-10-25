@@ -185,7 +185,11 @@ P(z,"Marquee_Landmark",Vector3.new(60,8,2),CFrame.new(0,19,-148.5),pink,NEON)
 P(z,"DoormanNPC(placeholder)",Vector3.new(2,6,2),CFrame.new(10,3,-148),Color3.fromRGB(20,20,20))
 label(z,"CLUB · Idol Concert City",Vector3.new(0,TOP+16,-150),true)
 -- shell (F = hall floor, TOP = ceiling)
-box(z,"Floor",-80,F-1,NZ,80,F,-150,MARBLE_C,MARBLE)
+box(z,"Floor",-80,F-1,NZ,80,F,-150,WALL_C,WALLO) -- (plain like the walls, user 2026-10-25)
+-- red LED line where the hall floor meets the walls (floor and walls looked as one)
+do local RED=Color3.fromRGB(255,40,60) local NE={mat=Enum.Material.Neon,ghost=true}
+ box(z,"FloorLED",-64,F,NZ,-63.88,F+0.25,-167.5,RED,NE) box(z,"FloorLED",79.88,F,NZ,80,F+0.25,-167.5,RED,NE)
+ box(z,"FloorLED",-64,F,NZ,80,F+0.25,NZ+0.12,RED,NE) box(z,"FloorLED",-64,F,-167.62,80,F+0.25,-167.5,RED,NE) end
 box(z,"Wall_W",-82,F,(NZ-1),-80,RT,-149,WALL_C,WALLO)
 box(z,"Wall_E",80,F,(NZ-1),82,RT,-149,WALL_C,WALLO)
 box(z,"Wall_N",-80,F,(NZ-2),80,RT,NZ,WALL_C,WALLO)
@@ -195,7 +199,7 @@ box(z,"Wall_S_Top",-8,12,-151,8,RT,-149,WALL_C,WALLO)
 box(z,"Wall_S_Below",-8,F,-151,8,0,-149,WALL_C,WALLO)
 box(z,"Ceiling",-80,TOP,NZ,80,TOP+0.5,-150,navy)
 -- foyer at street level and the stairs down to the west
-box(z,"Foyer",-24,-1,-166.5,12,0,-151,MARBLE_C,MARBLE)
+box(z,"Foyer",-24,-1,-166.5,12,0,-151,WALL_C,WALLO)
 box(z,"Foyer_E",12,0,-166.5,13,12,-151,WALL_C,WALLO)
 box(z,"Foyer_E_Below",12,F,-166.5,13,0,-151,WALL_C,WALLO)
 box(z,"Entry_Ceiling",-80,12,-166.5,12,13,-151,dark)
@@ -206,14 +210,14 @@ box(z,"Entry_Fill",12,F,-166.5,80,TOP,-151,dark) -- closed block east of the foy
 local stepC=Color3.fromRGB(28,26,34)
 local function riser(par,center,facing,width,height)
  local r=P(par,"StairRiser",Vector3.new(width,height,0.08),CFrame.lookAt(center,center+facing),stepC,{ghost=true})
- local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0 g.Brightness=1.5
+ local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0 g.Brightness=2
  g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=24 g.Parent=r
  local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true
  l.Font=Enum.Font.GothamBlack l.TextColor3=Color3.new(1,1,1) l.Text=string.rep("▼",math.max(4,math.floor(width/1.1))) l.Parent=g
  return r end
 for i=1,15 do local top=-1.5*i local x0=-24-2.5*(i-1)
  box(z,"Stair",x0-2.5,F,-166.5,x0,top,-151,stepC,{nocol=true})
- box(z,"StairNeon",x0-2.5,top,-166.3,x0-2.2,top+0.08,-151.2,Color3.fromRGB(128,128,128),{mat=Enum.Material.Neon,ghost=true}) -- (half as bright, user 2026-10-25)
+ box(z,"StairNeon",x0-2.5,top,-166.3,x0-2.2,top+0.08,-151.2,Color3.fromRGB(170,170,170),{mat=Enum.Material.Neon,ghost=true}) -- (dimmer than white, a little brighter than half: user 2026-10-25)
  -- riser below this step's west edge (seen when walking back up, east)
  riser(z,Vector3.new(x0-2.54,top-0.75,-158.75),Vector3.new(-1,0,0),15.3,1.5) end
 do local c=Vector3.new(-44,F/2,-158.75) P(z,"StairRamp",Vector3.new(15.5,-F,40),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
@@ -230,8 +234,8 @@ box(z,"Corridor_E_N",-65,F,NZ,-64,V-1,-225,WALL_C,WALLO)
 box(z,"Corridor_E_S",-65,F,-211,-64,V-1,-167.5,WALL_C,WALLO)
 box(z,"Corridor_DoorTop",-65,F+14,-225,-64,V-1,-211,WALL_C,WALLO)
 box(z,"Corridor_Ceiling",-80,F+14,-236,-65,F+15,-167.5,dark)
-box(z,"CorridorNeon_W",-79.6,F,-236,-79.3,F+0.4,-167.5,cyan,{mat=Enum.Material.Neon,ghost=true})
-box(z,"CorridorNeon_E",-65.7,F,-236,-65.4,F+0.4,-167.5,pink,{mat=Enum.Material.Neon,ghost=true})
+box(z,"CorridorNeon_W",-79.6,F,-236,-79.3,F+0.4,-167.5,Color3.fromRGB(255,40,60),{mat=Enum.Material.Neon,ghost=true})
+box(z,"CorridorNeon_E",-65.7,F,-236,-65.4,F+0.4,-167.5,Color3.fromRGB(255,40,60),{mat=Enum.Material.Neon,ghost=true})
 P(z,"HallDoorFrame",Vector3.new(1.5,14,1.5),CFrame.new(-64.5,F+7,-211.5),pink,NEON)
 P(z,"HallDoorFrame",Vector3.new(1.5,14,1.5),CFrame.new(-64.5,F+7,-224.5),pink,NEON)
 label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,-218))
@@ -265,11 +269,11 @@ label(z,"VIP 2층 ↑ (VIP 패스)",Vector3.new(-72,F+17,-232))
 -- open up to the ceiling. Hole in the floor over the VIP stair (x -80..-64,
 -- z -263..-236); the stair arrives on the landing at the north-west corner.
 local vipFloor=Color3.fromRGB(150,120,60)
-box(z,"VIP_Floor_N",-64,V-1,NZ,58,V,(NZ+24),MARBLE_C,MARBLE)
-box(z,"VIP_Floor_Landing",-80,V-1,NZ,-64,V,-263,MARBLE_C,MARBLE)
-box(z,"VIP_Floor_W",-64,V-1,(NZ+24),-50,V,-190,MARBLE_C,MARBLE)
-box(z,"VIP_Floor_W2",-80,V-1,-236,-64,V,-190,MARBLE_C,MARBLE)
-box(z,"VIP_Floor_S",-80,V-1,-190,58,V,-167.5,MARBLE_C,MARBLE)
+box(z,"VIP_Floor_N",-64,V-1,NZ,58,V,(NZ+24),WALL_C,WALLO)
+box(z,"VIP_Floor_Landing",-80,V-1,NZ,-64,V,-263,WALL_C,WALLO)
+box(z,"VIP_Floor_W",-64,V-1,(NZ+24),-50,V,-190,WALL_C,WALLO)
+box(z,"VIP_Floor_W2",-80,V-1,-236,-64,V,-190,WALL_C,WALLO)
+box(z,"VIP_Floor_S",-80,V-1,-190,58,V,-167.5,WALL_C,WALLO)
 local glass=Color3.fromRGB(200,230,255)
 box(z,"VIP_Rail_N",-50,V,(NZ+23.5),58,V+4,(NZ+24),glass,{t=0.6})
 box(z,"VIP_Rail_S",-50,V,-190,58,V+4,-189.5,glass,{t=0.6})
@@ -278,13 +282,13 @@ box(z,"VIP_Rail_NE",57.5,V,NZ,58,V+4,(NZ+23.5),glass,{t=0.6})
 box(z,"VIP_Rail_SE",57.5,V,-189.5,58,V+4,-167.5,glass,{t=0.6})
 box(z,"VIP_Rail_StairE",-64.5,V,-263,-64,V+4,-236,glass,{t=0.6})
 box(z,"VIP_Rail_StairS",-80,V,-236.5,-64.5,V+4,-236,glass,{t=0.6})
-box(z,"VIP_RailNeon_N",-50,V+4,(NZ+23.5),58,V+4.3,(NZ+24),gold,{mat=Enum.Material.Neon,ghost=true})
-box(z,"VIP_RailNeon_S",-50,V+4,-190,58,V+4.3,-189.5,gold,{mat=Enum.Material.Neon,ghost=true})
-box(z,"VIP_RailNeon_W",-50.5,V+4,(NZ+24),-50,V+4.3,-190,gold,{mat=Enum.Material.Neon,ghost=true})
-for _,x in ipairs({-30,0,30}) do
- box(z,"BalconyColumn",x-0.75,F,(NZ+22.5),x+0.75,V-1,(NZ+24),dark)
- box(z,"BalconyColumn",x-0.75,F,-190,x+0.75,V-1,-188.5,dark) end
-for _,zc in ipairs({-232,-204}) do box(z,"BalconyColumn",-51.5,F,zc-0.75,-50,V-1,zc+0.75,dark) end
+-- the balcony light line along the floor edge below the rails, lemon white (user 2026-10-25)
+local LEMON=Color3.fromRGB(255,250,175)
+box(z,"VIP_RailNeon_N",-50,V-0.65,(NZ+23.9),58,V-0.35,(NZ+24.05),LEMON,{mat=Enum.Material.Neon,ghost=true})
+box(z,"VIP_RailNeon_S",-50,V-0.65,-190.05,58,V-0.35,-189.9,LEMON,{mat=Enum.Material.Neon,ghost=true})
+box(z,"VIP_RailNeon_W",-50.05,V-0.65,(NZ+24),-49.9,V-0.35,-190,LEMON,{mat=Enum.Material.Neon,ghost=true})
+-- (no columns under the balconies, user 2026-10-25: the dance poles stand where
+-- the ones by the poles were)
 -- starry ceiling over the VIP lounges (user's VIP room reference): a low dark
 -- canopy with little lights, open towards the hall (no closed rooms)
 local SOFFIT=V+16
@@ -373,16 +377,16 @@ for _,cx in ipairs({-41.7,-14.5}) do platform(cx,-167.5,-1) end
 for _,cx in ipairs({-41.7,-14.5,12.5,39}) do platform(cx,NZ,1) end
 local function pole(px,pz)
  local b=cyl(z,"PoleBase",5,0.6,Vector3.new(px,F+0.3,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole")
- local p=cyl(z,"DancePole",0.35,16,Vector3.new(px,F+0.6+8,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
+ local PL=(V-1)-(F+0.6) -- up to the balcony floor (they stand where its columns were)
+ local p=cyl(z,"DancePole",0.35,PL,Vector3.new(px,F+0.6+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
  p.Reflectance=0.3
- cyl(z,"PoleCap",1.2,0.3,Vector3.new(px,F+16.75,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal})
  -- the prompt at chest height on the base (a prompt high on the pole did not show)
  local at=Instance.new("Attachment") at.Name="PoleGrip" at.Parent=b at.WorldPosition=Vector3.new(px,F+3.5,pz)
  local pr=Instance.new("ProximityPrompt") pr.Name="PolePrompt" pr.ActionText="봉 잡고 돌기" pr.ObjectText="댄스 봉"
  pr.MaxActivationDistance=7 pr.RequiresLineOfSight=false pr.Parent=at
 end
-pole(-27.7,-185.3)
-for _,px in ipairs({-28,-1,25.75}) do pole(px,NZ+19.3) end
+pole(-30,-189.25)
+for _,px in ipairs({-30,0,30}) do pole(px,NZ+23.25) end
 
 -- BAR under the south VIP, east half (non-alcoholic)
 box(z,"BarCounter",10,F,-183.5,54,F+4.5,-180.5,Color3.fromRGB(245,245,250))
@@ -400,7 +404,7 @@ local spot=P(z,"BartenderSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(32,F
 CS:AddTag(spot,"BartenderSpot")
 for k=0,7 do local pos=Vector3.new(14+k*5.5,F+2.6,-186.5)
  local seat=Instance.new("Seat") seat.Name="BarStool" seat.Anchored=true seat.Size=Vector3.new(2.2,0.8,2.2)
- seat.CFrame=CFrame.lookAt(pos,pos+Vector3.new(0,0,1)) seat.Color=Color3.fromRGB(255,214,90) seat.TopSurface=Enum.SurfaceType.Smooth seat.Parent=z CS:AddTag(seat,"PromptSeat")
+ seat.CFrame=CFrame.lookAt(pos,pos+Vector3.new(0,0,1)) seat.Color=Color3.fromRGB(28,28,32) seat.TopSurface=Enum.SurfaceType.Smooth seat.Parent=z CS:AddTag(seat,"PromptSeat")
  box(z,"BarStoolLeg",pos.X-0.25,F,pos.Z-0.25,pos.X+0.25,F+2.2,pos.Z+0.25,Color3.fromRGB(180,180,190)) end
 label(z,"BAR · 음료 (무알코올)",Vector3.new(32,F+9,-178))
 
@@ -469,8 +473,8 @@ label(z,"DJ 존 (DJ 시간 구매)",Vector3.new(70,F+22,-218),true)
 -- round LED pillars (ClubScreenService + ClubLightsController): only two, on
 -- both sides of the DJ zone (north-east and south-east corners), floor to
 -- ceiling, twice as thick (user, 2026-10-22). Live avatar on the panels.
-local PANELS=12 local R=8 local PH=TOP-F-4
-for _,pc in ipairs({{70,-258},{70,-178}}) do
+local PANELS=12 local R=10 local PH=TOP-F-4 -- (R 8 → 10: they fill the corners by the DJ zone, user 2026-10-25)
+for _,pc in ipairs({{70,-262.5},{70,-174}}) do
  local m=M(z,"LEDPillar",{"LEDPillar"},{}) m.ModelStreamingMode=Enum.ModelStreamingMode.Atomic
  local c=Vector3.new(pc[1],F+PH/2+2,pc[2])
  P(m,"Core",Vector3.new(TOP-F,R*2-0.2,R*2-0.2),CFrame.new(pc[1],(F+TOP)/2,pc[2])*CFrame.Angles(0,0,math.rad(90)),Color3.fromRGB(15,12,25),{shape=Enum.PartType.Cylinder})
@@ -771,8 +775,10 @@ local z=zone("04_Beach_Aquarium")
   -- made from plain parts (cylinders, no images): the Seat itself is an
   -- invisible box (sitting works as before), the visible part is round
   local FAB={mat=Enum.Material.Fabric,nocol=true}
-  local function roundStool(name,pos,d,legH,col) -- pos = the seat centre
+  local function roundStool(name,pos,d,legH,col,solid) -- pos = the seat centre
    seat(cm,name,CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(d,0.3,d),col,1)
+   if solid then -- one round block from the floor to the seat (user 2026-10-25)
+    local h=legH+0.2+0.225 cyl(cm,name.."Cushion",d+0.1,h,Vector3.new(pos.X,pos.Y+0.225-h/2,pos.Z),col,FAB) return end
    cyl(cm,name.."Cushion",d+0.1,0.45,pos,col,FAB)
    cyl(cm,"StoolLeg",0.3,legH,Vector3.new(pos.X,pos.Y-0.2-legH/2,pos.Z),dark) end
   local function tubChair(cf,col) -- cf = the seat, looking where the sitter faces
@@ -923,7 +929,7 @@ local z=zone("04_Beach_Aquarium")
    local tt=box(cm,"CafeTable",tx0,MY+2.8,tz[1],tx1,MY+3.1,tz[2],Color3.fromRGB(240,238,234),{mat=Enum.Material.Marble}) CS:AddTag(tt,"CafeTable")
    for _,lz in ipairs({tz[1]+1.5,tz[2]-1.5}) do box(cm,"TableLeg",tx0+1.5,MY,lz-0.25,tx1-1.5,MY+2.8,lz+0.25,Color3.fromRGB(236,234,230)) end
    for k=0,5 do local sz=tz[1]+1.9+k*3.24 local pos=Vector3.new(-208.3,MY+1.6,sz)
-    roundStool("CafeStool",pos,1.6,1.4,white) end
+    roundStool("CafeStool",pos,1.6,1.4,white,true) end
   end
   -- plant at the end of the rail bar
   local function plant(x,z,y,d,h,par)
