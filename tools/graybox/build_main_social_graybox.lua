@@ -395,6 +395,14 @@ local function vipBooth(cx,wallZ,dir)
  box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(5),cx+3.5,V+2.53,zz(5.12),W2,EO) box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(7.88),cx+3.5,V+2.53,zz(8),W2,EO)
  box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(5),cx-3.38,V+2.53,zz(8),W2,EO) box(z,"VIP_TableEdge",cx+3.38,V+2.5,zz(5),cx+3.5,V+2.53,zz(8),W2,EO)
  for k=0,3 do slot(top,Vector3.new(cx-2.4+k*1.6,V+2.8,zz(6.5))) end
+ -- LED under the table top's edge, shining down: only a soft glow shows below
+ -- (user mock-up 2026-10-25)
+ do local u=box(z,"VIP_TableUnderLED",cx-3.25,V+2.12,zz(5.25),cx+3.25,V+2.2,zz(7.75),Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
+  u.Transparency=0.92 u.CastShadow=false -- (the strip itself hardly shows; its light does)
+  local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Color=Color3.fromRGB(255,200,150) sl.Range=8 sl.Brightness=3 sl.Angle=170 sl.Parent=u
+  -- (a surface light alone hardly lit the dark floor: a low point light under the top as well)
+  local at=Instance.new("Attachment") at.Position=Vector3.new(0,-0.8,0) at.Parent=u
+  local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,190,140) pl.Range=7 pl.Brightness=2 pl.Shadows=false pl.Parent=at end
  -- VIP SIGN on the wall above the booth (user mock-up 2026-10-25): a black
  -- board framed by a thin red neon line; a small gold crown, a small white
  -- "VIP" under it, and the table owner's @nickname big in white with a red
@@ -406,20 +414,23 @@ local function vipBooth(cx,wallZ,dir)
   local RN=Color3.fromRGB(190,30,40) local RO={mat=Enum.Material.Neon,ghost=true} local L=0.1 -- (deep red: Neon blooms brighter)
   box(z,"VIP_SignFrame",x0,y1-L,zz(0.08),x1,y1,zz(0.16),RN,RO) box(z,"VIP_SignFrame",x0,y0,zz(0.08),x1,y0+L,zz(0.16),RN,RO)
   box(z,"VIP_SignFrame",x0,y0,zz(0.08),x0+L,y1,zz(0.16),RN,RO) box(z,"VIP_SignFrame",x1-L,y0,zz(0.08),x1,y1,zz(0.16),RN,RO)
-  -- small gold crown: a band and five prongs with round tips (the middle tallest)
+  -- (user mock-up 2026-10-25, 2nd: a smaller crown on a slightly lighter dark
+  -- plate, "VIP" white on a small dark amber tag under it)
+  box(z,"VIP_CrownPlate",cx-2.2,V+9.2,zz(0.08),cx+2.2,V+12.6,zz(0.1),Color3.fromRGB(30,22,22),{mat=Enum.Material.SmoothPlastic,ghost=true})
   local CG=Color3.fromRGB(230,140,40) local CO={mat=Enum.Material.Neon,ghost=true}
-  local cy=V+10.5
-  box(z,"VIP_Crown",cx-1.25,cy,zz(0.08),cx+1.25,cy+0.35,zz(0.2),CG,CO)
-  for k=-2,2 do local h=if k==0 then 1.5 elseif math.abs(k)==1 then 1.2 else 1.35
-   local x=cx+k*0.55
-   box(z,"VIP_Crown",x-0.09,cy+0.35,zz(0.08),x+0.09,cy+h,zz(0.2),CG,CO)
-   P(z,"VIP_CrownJewel",Vector3.new(0.26,0.26,0.26),CFrame.new(x,cy+h+0.1,zz(0.14)),CG,{shape=Enum.PartType.Ball,mat=Enum.Material.Neon,ghost=true}) end
-  -- VIP + nickname on one board
-  local board=box(z,"VIP_Sign",x0+0.3,y0+0.3,zz(0.1),x1-0.3,cy-0.1,zz(0.12),Color3.new(0,0,0),{t=1,ghost=true})
+  local cy=V+10.9
+  box(z,"VIP_Crown",cx-0.9,cy,zz(0.1),cx+0.9,cy+0.26,zz(0.2),CG,CO)
+  for k=-2,2 do local h=if k==0 then 1.1 elseif math.abs(k)==1 then 0.85 else 0.98
+   local x=cx+k*0.4
+   box(z,"VIP_Crown",x-0.07,cy+0.26,zz(0.1),x+0.07,cy+h,zz(0.2),CG,CO)
+   P(z,"VIP_CrownJewel",Vector3.new(0.2,0.2,0.2),CFrame.new(x,cy+h+0.08,zz(0.15)),CG,{shape=Enum.PartType.Ball,mat=Enum.Material.Neon,ghost=true}) end
+  local tag=box(z,"VIP_Tag",cx-0.9,V+9.45,zz(0.1),cx+0.9,V+10.35,zz(0.13),Color3.fromRGB(110,45,18),{mat=Enum.Material.SmoothPlastic,ghost=true})
+  local tg=Instance.new("SurfaceGui") tg.Face=face tg.LightInfluence=0 tg.Brightness=1.6 tg.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud tg.PixelsPerStud=60 tg.Parent=tag
+  local vip=Instance.new("TextLabel") vip.Name="VIP" vip.BackgroundTransparency=1 vip.Position=UDim2.fromScale(0.08,0.1) vip.Size=UDim2.fromScale(0.84,0.8) vip.TextScaled=true
+  vip.Font=Enum.Font.GothamBold vip.Text="VIP" vip.TextColor3=Color3.fromRGB(255,240,235) vip.Parent=tg
+  -- the nickname board below the plate
+  local board=box(z,"VIP_Sign",x0+0.3,y0+0.3,zz(0.1),x1-0.3,V+10.5,zz(0.12),Color3.new(0,0,0),{t=1,ghost=true})
   local g=Instance.new("SurfaceGui") g.Face=face g.LightInfluence=0 g.Brightness=1.6 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=board
-  local vip=Instance.new("TextLabel") vip.Name="VIP" vip.BackgroundTransparency=1 vip.Position=UDim2.fromScale(0,0.03) vip.Size=UDim2.fromScale(1,0.17) vip.TextScaled=true
-  vip.Font=Enum.Font.GothamBold vip.Text="VIP" vip.TextColor3=Color3.fromRGB(255,240,240) vip.Parent=g
-  local s1=Instance.new("UIStroke") s1.Color=Color3.fromRGB(255,50,60) s1.Thickness=1.5 s1.Transparency=0.4 s1.Parent=vip
   local nick=Instance.new("TextLabel") nick.Name="Nickname" nick.BackgroundTransparency=1 nick.Position=UDim2.fromScale(0.06,0.36) nick.Size=UDim2.fromScale(0.88,0.4) nick.TextScaled=true
   nick.Font=Enum.Font.Gotham nick.Text="" nick.TextColor3=Color3.fromRGB(255,240,240) nick.Parent=g
   local s2=Instance.new("UIStroke") s2.Color=Color3.fromRGB(255,50,60) s2.Thickness=2.5 s2.Transparency=0.5 s2.Parent=nick
@@ -489,6 +500,13 @@ local function pole(px,pz,ledPole)
  local BH=3
  -- (user 2026-10-25) one wide round stage, 2 high (no steps), LED round its top edge
  local b=cyl(z,"PoleBase",7,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole") -- (smaller and higher, user 2026-10-25)
+ -- stepped: two wider rings below the top stage, 1 stud each, easy to walk up (user 2026-10-25)
+ cyl(z,"PoleStep",10,1,Vector3.new(px,F+0.5,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal,nocol=true})
+ cyl(z,"PoleStep",8.5,2,Vector3.new(px,F+1,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal,nocol=true})
+ -- (small avatars did not climb the 1-stud steps: invisible wedge ramps all round, user rule)
+ for k=0,23 do local a=math.rad(k*15) local out=Vector3.new(math.cos(a),0,math.sin(a))
+  local c=Vector3.new(px,F+BH/2,pz)+out*4.75
+  P(z,"PoleRamp",Vector3.new(1.75,BH,2.5),CFrame.lookAt(c,c+out),W,{class="WedgePart",t=1}) end
  -- (no LED line on the stage, user 2026-10-25)
  local PL=TOP-(F+BH) -- all the way up to the 2F ceiling (user 2026-10-25)
  local p=cyl(z,"DancePole",0.7,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})

@@ -1637,3 +1637,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/live_support_screen.jpg)
 ![](images/2026-10-25/foyer_here_sign.jpg)
 ![](images/2026-10-25/hall_door_foot_led.jpg)
+
+### 수정 (D-295) — VIP 간판 목업대로, VIP 테이블 아래 은은한 빛, 댄스봉 계단식 단상
+- 걷기 확인: 6방향에서 걸어 올라가 단상 위(발 높이 F+3) 도착.
+
+![](images/2026-10-25/vip_sign_v3.jpg)
+![](images/2026-10-25/vip_table_underglow.jpg)
+![](images/2026-10-25/pole_steps.jpg)

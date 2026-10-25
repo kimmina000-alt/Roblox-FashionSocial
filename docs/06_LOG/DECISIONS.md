@@ -547,3 +547,5 @@ D-292 — (2026-10-25, user) Club corridor: ceiling raised to the underside of t
 D-293 — (2026-10-25, user) VIP gate glass and its red neon frame go up to the raised corridor ceiling (top fill removed); no "VIP" / "VIP 패스 · 2층 라운지" text on it (the purchase window still opens). The dance hall door posts are wall-coloured, only their doorway faces glow pink.
 
 D-294 — (2026-10-25, user) The OH24 tower screen shows live supporters (last 6 gifts across servers: avatar, amount, name, filtered message, votes) instead of today's big spenders. Foyer sign reads "HERE" with the arrow (rbxassetid://110791212768581, docs/04_ART/textures/here_arrow.png). The floor LED lines continue along the foot of the dance hall door posts on both sides.
+
+D-295 — (2026-10-25, user mock-up) VIP sign: smaller crown on a slightly lighter dark plate, "VIP" white on a small dark amber tag; a warm LED hidden under each VIP table top's edge shining down (faint strip + SurfaceLight + low PointLight) so only a soft glow shows. Dance pole stages are stepped (three 1-stud rings: Ø10, Ø8.5, Ø7 top) with 24 invisible wedge ramps all round; walked up from six directions.
