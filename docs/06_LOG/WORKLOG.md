@@ -1593,3 +1593,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-284) — 댄스봉 기둥을 2층 천장까지
 
 ![](images/2026-10-25/club_poles_ceiling.jpg)
+
+### 수정 (D-285) — OH24 가건물 전체 크기, ㄷ자 전광판, 노래방 건물 낮춤
+
+![](images/2026-10-25/oh24_tower_v3_crossing.jpg)
+![](images/2026-10-25/oh24_tower_v3_beach.jpg)

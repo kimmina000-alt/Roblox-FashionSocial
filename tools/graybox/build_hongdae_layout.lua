@@ -4070,32 +4070,30 @@ tower(250, -142, 310, -48, 110, "glass", "S", "OHU 마트", "인생네컷 SALE")
 tower(-76, 110, -48, 170, 120, "glass", "E", "카페")
 tower(-76, 180, -48, 250, 80, "concrete", "E", "약국")
 -- (6 narrower than before: a 6-stud gap to the OH24 store, user 2026-10-23)
-tower(-146, 60, -132, 104, 60, "concrete", "N", "노래방") -- (12 south, its back on the OH24 store's back line z 104, user 2026-10-25; the ground it left is paved below)
-do -- "오늘의 큰손" screen block on the OH24 roof (user 2026-10-25, 2nd: not on
-	-- the tower; a block on the store's back-left roof, its four sides one LED
-	-- band where the avatars of today's top 3 move round and round like the
-	-- club's LED pillars) (RankBoard "todayWrap", RankingBoards client).
-	-- The store ends up at x -130..-56, z 66..104, roof at y 14.
-	-- (2nd revision, user mock-up + reference photos 2026-10-25: a tall tower
-	-- of dark granite with narrow vertical window slits stands on the store,
-	-- and a big LED screen wraps its corner toward the crossing (north-east)
-	-- with a rounded corner, like the Seoul corner screens. The cards run along
-	-- the screen: east side → round corner → north side.)
+-- (kept low, user 2026-10-25: from the beach the screen on the tower over OH24 shows above it)
+tower(-146, 60, -132, 104, 20, "concrete", "N", "노래방") -- (12 south, its back on the OH24 store's back line z 104, user 2026-10-25; the ground it left is paved below)
+do -- "오늘의 큰손" tower over the OH24 store (user mock-ups + reference photos
+	-- 2026-10-25): a tall tower of dark granite with narrow vertical window
+	-- slits covering the whole store roof (x -130..-56, z 66..104, roof y 14),
+	-- and a tall LED screen wrapping three sides in a ㄷ shape with rounded
+	-- corners: east (road) → north (crossing) → west (beach road). The cards
+	-- of today's big spenders run along it (RankBoard "todayBand", attribute
+	-- BandStart; RankingBoards client).
 	local L = Instance.new("Model")
 	L.Name = "BigSpenderLED"
 	L.Parent = T
 	local GRANITE = Color3.fromRGB(74, 70, 68)
 	local SLIT = Color3.fromRGB(28, 32, 38)
 	local FR = Color3.fromRGB(16, 16, 20)
-	local X0, X1, Z0, Z1, Y0, Y1 = -100, -58, 74, 102, 14, 96
+	local X0, X1, Z0, Z1, Y0, Y1 = -130, -56, 66, 104, 14, 96
 	box("TowerBody", X0, Y0, Z0, X1, Y1, Z1, GRANITE, { parent = L, material = Enum.Material.Slate })
 	box("TowerCrown", X0 - 0.4, Y1, Z0 - 0.4, X1 + 0.4, Y1 + 2, Z1 + 0.4, Color3.fromRGB(60, 58, 58), { parent = L, material = Enum.Material.Slate })
 	box("TowerTopGlass", X0 + 0.2, Y1 - 8, Z0 - 0.15, X1 - 0.2, Y1 - 1, Z0 + 0.1, Color3.fromRGB(70, 90, 110), { parent = L, material = Enum.Material.Glass })
-	-- screen zone (y 24..48): the slits stop above and below it on the two screen sides
-	local SY0, SY1 = 24, 48
-	local function slits(axis, fixed, a0, a1, outward)
+	-- screen zone (y 20..60, taller: user 2026-10-25): the slits stop above and below it
+	local SY0, SY1 = 20, 60
+	local function slits(axis, fixed, a0, a1, outward, spans)
 		for a = a0 + 3, a1 - 3, 3.5 do
-			for _, span in ipairs({ { Y0 + 2, SY0 - 1.5 }, { SY1 + 1.5, Y1 - 10 } }) do
+			for _, span in ipairs(spans) do
 				if axis == "x" then
 					box("TowerSlit", a - 0.4, span[1], fixed - outward * 0.05, a + 0.4, span[2], fixed + outward * 0.1, SLIT, { parent = L, material = Enum.Material.Glass, nocol = true })
 				else
@@ -4104,14 +4102,15 @@ do -- "오늘의 큰손" screen block on the OH24 roof (user 2026-10-25, 2nd: no
 			end
 		end
 	end
-	slits("x", Z0, X0, X1, -1) -- north
-	slits("x", Z1, X0, X1, 1) -- south
-	slits("z", X0, Z0, Z1, -1) -- west
-	slits("z", X1, Z0, Z1, 1) -- east
-	-- the corner screen: panels in the order the cards run (tag RankBoard
-	-- "todayBand", attribute BandStart = studs along the band)
-	local R = 5 -- radius of the rounded corner
+	local AROUND = { { SY1 + 1.5, Y1 - 10 } } -- the screen sides: above the screen only
+	slits("x", Z0, X0, X1, -1, AROUND) -- north
+	slits("x", Z1, X0, X1, 1, { { Y0 + 2, Y1 - 10 } }) -- south (no screen)
+	slits("z", X0, Z0, Z1, -1, AROUND) -- west
+	slits("z", X1, Z0, Z1, 1, AROUND) -- east
+	-- the screen: panels in the order the cards run
+	local R = 6 -- radius of the rounded corners
 	local OUT = 0.9 -- how far the screen stands off the wall
+	local BACK = Z1 - 2 -- the side screens end 2 studs before the back
 	local h = SY1 - SY0
 	local yc = (SY0 + SY1) / 2
 	local start = 0
@@ -4121,29 +4120,36 @@ do -- "오늘의 큰손" screen block on the OH24 roof (user 2026-10-25, 2nd: no
 		p:SetAttribute("BandStart", start)
 		CS:AddTag(p, "RankBoard")
 		-- black frame lines along the top and bottom edge
-		part("LEDFrame", Vector3.new(width + 0.02, 0.6, 0.6), CFrame.lookAt(center + Vector3.new(0, h / 2 + 0.3, 0), center + Vector3.new(0, h / 2 + 0.3, 0) + outward), FR, { parent = L })
-		part("LEDFrame", Vector3.new(width + 0.02, 0.6, 0.6), CFrame.lookAt(center - Vector3.new(0, h / 2 + 0.3, 0), center - Vector3.new(0, h / 2 + 0.3, 0) + outward), FR, { parent = L })
+		for _, dy in ipairs({ h / 2 + 0.3, -(h / 2 + 0.3) }) do
+			local c = center + Vector3.new(0, dy, 0)
+			part("LEDFrame", Vector3.new(width + 0.02, 0.6, 0.6), CFrame.lookAt(c, c + outward), FR, { parent = L })
+		end
 		start += width
 	end
-	-- east side, from the back toward the corner (z 98 → 74 + R)
-	local eastFrom, eastTo = 98, Z0 + R
-	panel(Vector3.new(X1 + OUT, yc, (eastFrom + eastTo) / 2), Vector3.new(1, 0, 0), eastFrom - eastTo)
-	-- the round corner, 4 slices
-	local cx, cz = X1 + OUT - R, Z0 - OUT + R
-	local N = 4
-	for i = 0, N - 1 do
-		local a = math.rad(90 * (i + 0.5) / N) -- 0 = east, 90° = north
-		local outward = Vector3.new(math.cos(a), 0, -math.sin(a))
-		local width = 2 * R * math.sin(math.rad(90 / N / 2))
-		panel(Vector3.new(cx, yc, cz) + outward * R * math.cos(math.rad(90 / N / 2)), outward, width)
+	-- a rounded corner from angle a0 to a1 (degrees; outward = (cos a, 0, -sin a): 0 east, 90 north, 180 west)
+	local function corner(cx, cz, a0, a1)
+		local N = 3
+		local step = (a1 - a0) / N
+		for i = 0, N - 1 do
+			local a = math.rad(a0 + step * (i + 0.5))
+			local outward = Vector3.new(math.cos(a), 0, -math.sin(a))
+			local width = 2 * R * math.sin(math.rad(math.abs(step) / 2))
+			panel(Vector3.new(cx, yc, cz) + outward * R * math.cos(math.rad(math.abs(step) / 2)), outward, width)
+		end
+		vcyl("LEDBackCorner", Vector3.new(cx, SY0 - 0.6, cz), 2 * R - 0.3, h + 1.2, FR, { parent = L })
 	end
-	-- north side, from the corner westward (x -58 - R → -96)
-	local northFrom, northTo = X1 - R, -96
-	panel(Vector3.new((northFrom + northTo) / 2, yc, Z0 - OUT), Vector3.new(0, 0, -1), northFrom - northTo)
-	-- the screen's back box filling the gap to the wall
-	box("LEDBack", -96, SY0 - 0.6, Z0 - OUT + 0.15, X1 - R, SY1 + 0.6, Z0, FR, { parent = L })
-	box("LEDBack", X1, SY0 - 0.6, Z0 + R, X1 + OUT - 0.15, SY1 + 0.6, 98, FR, { parent = L })
-	vcyl("LEDBackCorner", Vector3.new(cx, SY0 - 0.6, cz), 2 * R - 0.3, h + 1.2, FR, { parent = L })
+	-- east side, from the back toward the crossing
+	panel(Vector3.new(X1 + OUT, yc, (BACK + Z0 + R) / 2), Vector3.new(1, 0, 0), BACK - (Z0 + R))
+	corner(X1 + OUT - R, Z0 - OUT + R, 0, 90)
+	-- north side, east → west
+	panel(Vector3.new((X1 - R + X0 + R) / 2, yc, Z0 - OUT), Vector3.new(0, 0, -1), (X1 - R) - (X0 + R))
+	corner(X0 - OUT + R, Z0 - OUT + R, 90, 180)
+	-- west side (beach road), toward the back
+	panel(Vector3.new(X0 - OUT, yc, (Z0 + R + BACK) / 2), Vector3.new(-1, 0, 0), BACK - (Z0 + R))
+	-- the screen's back boxes filling the gap to the wall
+	box("LEDBack", X0 + R, SY0 - 0.6, Z0 - OUT + 0.15, X1 - R, SY1 + 0.6, Z0, FR, { parent = L })
+	box("LEDBack", X1, SY0 - 0.6, Z0 + R, X1 + OUT - 0.15, SY1 + 0.6, BACK, FR, { parent = L })
+	box("LEDBack", X0 - OUT + 0.15, SY0 - 0.6, Z0 + R, X0, SY1 + 0.6, BACK, FR, { parent = L })
 end
 do -- three ranking boards in the pocket park in front of the park gate (user
 	-- 2026-10-25): 후원 / 큰손 / 플레이 시간, on the open paving on the east side,

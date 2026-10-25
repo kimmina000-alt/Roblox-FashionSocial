@@ -527,3 +527,5 @@ D-282 — (2026-10-25, user mock-up + reference photos) A tall dark-granite towe
 D-283 — (2026-10-25, user plan) Club dance poles: five instead of four, in two rows moved in from the table platforms (two by the bar side, three by the table side incl. a new middle one); they stand in the open hall, so each pole has a metal cap on top.
 
 D-284 — (2026-10-25, user) Dance poles run all the way up to the 2F ceiling (TOP), with a round mount plate there instead of the top cap.
+
+D-285 — (2026-10-25, user) The tower over OH24 covers the whole store roof; its screen is taller (40) and wraps three sides in a ㄷ shape (east → north → west, two rounded corners); the 노래방 building next to it is lowered from 60 to 20 so the west screen shows from the beach.
