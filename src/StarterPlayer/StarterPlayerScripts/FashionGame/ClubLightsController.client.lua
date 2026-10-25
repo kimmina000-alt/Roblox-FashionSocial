@@ -514,7 +514,7 @@ function addWash(instance: Instance)
 	light.Face = Enum.NormalId.Right
 	light.Angle = 32
 	light.Range = 90
-	light.Brightness = 7
+	light.Brightness = 14 -- (the floor is near black: strong pools)
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = lens
