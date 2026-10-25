@@ -803,14 +803,14 @@ local z=zone("04_Beach_Aquarium")
   -- the lit pastry case in its west part, two tills in its east part;
   -- customers order from the north (the entrance side)
   local CW=Color3.fromRGB(244,243,240) local STEEL=Color3.fromRGB(176,178,182)
-  local KX0,KX1,KZ0,KZ1=mx+0.4,x1-0.6,72,75 -- (4 further out into the room, user 2026-10-25)
+  local KX0,KX1,KZ0,KZ1=-229,x1-0.6,72,75 -- (4 further out into the room; its west end cut back for a 5-stud way behind it, user 2026-10-25)
   box(cm,"Counter",KX0,FY,KZ0,KX1,FY+3.6,KZ1,CW)
   box(cm,"CounterKick",KX0,FY,KZ0-0.15,KX1,FY+0.4,KZ0,Color3.fromRGB(70,70,72))
   local top=box(cm,"CounterTop",KX0,FY+3.6,KZ0-0.3,KX1,FY+3.9,KZ1,Color3.fromRGB(238,238,236),{mat=Enum.Material.Marble})
   top:SetAttribute("Shop","BeachCafe") CS:AddTag(top,"SnackShop")
   -- pastry case of pale blue glass: the glass panel on the staff side, the lit
   -- open side towards the room
-  local CX0,CX1=-232,-218
+  local CX0,CX1=-227,-213 -- (moved east next to the one till, user 2026-10-25)
   local CASE={t=0.55,mat=Enum.Material.Glass}
   box(cm,"CaseBase",CX0,FY+3.9,KZ0,CX1,FY+4.1,KZ1,glass,{mat=Enum.Material.Glass,t=0.3})
   box(cm,"CaseGlass",CX0,FY+4.1,KZ1-0.2,CX1,FY+7,KZ1,glass,{t=0.75,mat=Enum.Material.Glass,nocol=true})
@@ -822,28 +822,28 @@ local z=zone("04_Beach_Aquarium")
    if s==3 then local pl=Instance.new("PointLight") pl.Range=8 pl.Brightness=1 pl.Color=Color3.fromRGB(255,232,200) pl.Parent=shelf end
    for k=0,5 do P(cm,"Pastry",Vector3.new(1.4,0.5,0.9),CFrame.new(CX0+1.3+k*2.2,sy+0.33,KZ0+1.4),BREAD[(k+s)%4+1],{nocol=true}) end end
   -- tills (screens turned to the customers) and a tip jar
-  for _,rx in ipairs({-215.5,-209.5}) do
+  for _,rx in ipairs({-209.5}) do -- (one till, user 2026-10-25)
    box(cm,"Register",rx-0.8,FY+3.9,KZ0+1.2,rx+0.8,FY+4.1,KZ0+2.4,dark)
    P(cm,"RegisterScreen",Vector3.new(1.5,1.1,0.12),CFrame.new(rx,FY+4.8,KZ0+1.8)*CFrame.Angles(math.rad(15),0,0),dark,{nocol=true}) end
-  cyl(cm,"TipJar",0.7,0.9,Vector3.new(-212.5,FY+4.35,KZ0+0.8),glass,{t=0.5,mat=Enum.Material.Glass,nocol=true})
-  label(cm,"☕ 음료 주문",Vector3.new(-220,FY+8,KZ0+1.5))
+  cyl(cm,"TipJar",0.7,0.9,Vector3.new(-211.8,FY+4.35,KZ0+0.8),glass,{t=0.5,mat=Enum.Material.Glass,nocol=true})
+  label(cm,"☕ 음료 주문",Vector3.new(-218,FY+8,KZ0+1.5))
   -- STAFF ZONE behind the counter: the wall along the stairs and the cross
   -- wall at z 91.4; (user 2026-10-25) its front wall and STAFF ONLY door are
   -- gone, only a header strip stays up top to carry the menu boards
-  box(cm,"StaffWall",mx,FY,91.4,x1-0.6,MY-1,92,CW)
+  -- (no cross wall at z 91.4: the space behind the counter runs back to the work bench, user 2026-10-25)
   box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,96.2,CW) -- the stairs' east side
-  local SZ=79
-  box(cm,"StaffHeader",mx,FY+10.2,SZ,x1-0.6,MY-1,SZ+0.6,CW)
+  local SZ=KZ0-0.3 -- (the header in line with the counter front, user 2026-10-25)
+  box(cm,"StaffHeader",mx,FY+12.3,SZ,x1-0.6,MY-1,SZ+0.6,CW) -- (only as tall as the boards, user 2026-10-25)
   -- black menu boards on the header above the counter, facing the customers,
   -- ORDER & PICK UP sign at its west end
   local nB=5 local MB0,MB1=-224,-207.6 local bw=(MB1-MB0)/nB
   for k=0,nB-1 do
    local bx0=MB0+k*bw
-   local mb=box(cm,"MenuBoard",bx0+0.15,FY+10.6,SZ-0.15,bx0+bw-0.15,FY+13.7,SZ,Color3.fromRGB(26,26,28))
+   local mb=box(cm,"MenuBoard",bx0+0.15,FY+12.6,SZ-0.15,bx0+bw-0.15,FY+15.7,SZ,Color3.fromRGB(26,26,28))
    local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0 g.Brightness=1.2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=mb
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(0.9,0.9) l.Position=UDim2.fromScale(0.05,0.05) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.fromRGB(245,245,240) l.TextXAlignment=Enum.TextXAlignment.Left
    l.Text=({"ESPRESSO\n아메리카노  4.5\n카페라떼  5.0\n바닐라 라떼  5.5","SIGNATURE\n선셋 라떼  6.5\n흑임자 라떼  6.0\n크림 커피  6.0","NON-COFFEE\n블루 레몬에이드  6.0\n망고 스무디  6.5\n딸기 라떼  6.0","TEA\n얼그레이  5.0\n캐모마일  5.0\n유자차  5.5","BAKERY\n크루아상  4.0\n소금빵  3.5\n치즈케이크  6.5"})[k+1] l.Parent=g end
-  local op=box(cm,"OrderPickupSign",-231.5,FY+11.4,SZ-0.15,-226.1,FY+12.9,SZ,CW)
+  local op=box(cm,"OrderPickupSign",-231.5,FY+13.4,SZ-0.15,-226.1,FY+14.9,SZ,CW)
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=op
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Gotham l.TextColor3=Color3.fromRGB(120,120,124) l.Text="ORDER & PICK UP" l.Parent=g end
   -- WORK BENCH (the 알바 station, "BackCounter") along the north wall under

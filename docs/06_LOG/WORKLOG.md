@@ -1269,3 +1269,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 임시: 카페 내부 작업 동안 스폰을 카페 입구 안쪽으로(build_hongdae_layout.lua `CAFE_WORK_SPAWN = true`, 작업 끝나면 false).
 
 ![](images/2026-10-25/cafe_counter_open.jpg)
+
+### 추가 (D-231) — 카운터 정리, 작업대까지 길 열기
+- 위쪽 띠는 메뉴판 높이만큼만 남기고(메뉴판·간판 2 올림), 카운터 앞면과 선을 맞춰 바깥으로.
+- 카운터 뒤 직원 공간 안쪽 벽 삭제: 카운터 뒤에서 알바 작업대까지 이어짐.
+- 계산대 1개만, 진열장을 계산대 옆으로 옮김. 카운터 계단 쪽 끝을 잘라 5칸 통로.
+- 걸어서 확인: 입구 → 통로 → 카운터 뒤 → 작업대.
+
+![](images/2026-10-25/cafe_counter_v3c.jpg)
