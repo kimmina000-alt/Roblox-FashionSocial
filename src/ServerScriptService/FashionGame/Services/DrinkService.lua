@@ -68,8 +68,21 @@ end
 -- Bottles (carried)
 --------------------------------------------------
 
+-- Name and colour of a drink with its flavour / can colour (variants).
+local function drinkLook(drink: ClubConfig.Drink, variantKey: any): (string, Color3, string?)
+	local variant = ClubConfig.findVariant(drink, variantKey)
+	if variant then
+		return drink.name .. " · " .. variant.name, variant.color, variant.key
+	end
+	return drink.name, drink.color, nil
+end
+
+local function isVip(player: Player): boolean
+	return MonetizationService.HasPass(player, "VIP")
+end
+
 -- `servings` = cups left (a bottle taken back from a table keeps its count).
-local function giveBottle(player: Player, drinkKey: string, servings: number?): (boolean, string?)
+local function giveBottle(player: Player, drinkKey: string, servings: number?, variantKey: any?): (boolean, string?)
 	local drink = ClubConfig.findDrink(drinkKey)
 	if not drink then return false, "없는 음료입니다." end
 	if countTools(player, "Bottle") >= ClubConfig.MaxBottlesCarried then
@@ -77,21 +90,23 @@ local function giveBottle(player: Player, drinkKey: string, servings: number?): 
 	end
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then return false, "잠시 후 다시 시도하세요." end
+	local name, color, variant = drinkLook(drink, variantKey)
 	local cups = math.clamp(servings or ClubConfig.BottleServings, 1, ClubConfig.BottleServings)
 	local tool = Instance.new("Tool")
 	tool.Name = if cups < ClubConfig.BottleServings
-		then string.format("병 · %s (%d잔)", drink.name, cups)
-		else "병 · " .. drink.name
+		then string.format("병 · %s (%d잔)", name, cups)
+		else "병 · " .. name
 	tool.ToolTip = string.format("%d잔 남음 · 테이블의 '병 놓기'로 올려놓으세요", cups)
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool:SetAttribute("Bottle", drink.key)
+	tool:SetAttribute("Variant", variant)
 	tool:SetAttribute("Servings", cups)
-	local handle = makeHandle(Vector3.new(0.7, 1.8, 0.7), drink.color)
+	local handle = makeHandle(Vector3.new(0.7, 1.8, 0.7), color)
 	handle.Parent = tool
 	tool.Grip = CFrame.new(0, -0.3, 0)
 	tool.Parent = backpack
-	return true, drink.name .. " 병을 받았어요! 테이블에 놓고 함께 마셔요."
+	return true, name .. " 병을 받았어요! 테이블에 놓고 함께 마셔요."
 end
 DrinkService.GiveBottle = giveBottle
 
@@ -133,7 +148,7 @@ local function drinkFrom(tool: Tool)
 	tool:Destroy()
 end
 
-local function giveCup(player: Player, drinkKey: string): (boolean, string?)
+local function giveCup(player: Player, drinkKey: string, variantKey: any?): (boolean, string?)
 	local drink = ClubConfig.findDrink(drinkKey)
 	if not drink then return false, nil end
 	if countTools(player, "Cup") >= ClubConfig.MaxCupsCarried then
@@ -141,12 +156,13 @@ local function giveCup(player: Player, drinkKey: string): (boolean, string?)
 	end
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then return false, nil end
+	local name, color = drinkLook(drink, variantKey)
 	local tool = Instance.new("Tool")
-	tool.Name = "컵 · " .. drink.name
+	tool.Name = "컵 · " .. name
 	tool.ToolTip = "클릭(터치)해서 마시기"
 	tool.CanBeDropped = false
 	tool:SetAttribute("Cup", drink.key)
-	local handle = makeHandle(Vector3.new(0.6, 0.8, 0.6), drink.color, 0.05)
+	local handle = makeHandle(Vector3.new(0.6, 0.8, 0.6), color, 0.05)
 	handle.Parent = tool
 	local gulp = Instance.new("Sound")
 	gulp.Name = "Gulp"
@@ -317,6 +333,8 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	if not drink then return false, nil end
 	local servings = bottleTool:GetAttribute("Servings")
 	servings = if typeof(servings) == "number" then math.clamp(servings, 1, ClubConfig.BottleServings) else ClubConfig.BottleServings
+	local variantKey = bottleTool:GetAttribute("Variant")
+	local drinkName, drinkColor = drinkLook(drink, variantKey)
 	bottleTool:Destroy()
 	slot:SetAttribute("Occupied", true)
 	slot:SetAttribute("OwnerName", player.Name)
@@ -325,7 +343,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	local bottle = Instance.new("Part")
 	bottle.Name = "PlacedBottle"
 	bottle.Size = Vector3.new(0.9, 2, 0.9)
-	bottle.Color = drink.color
+	bottle.Color = drinkColor
 	bottle.Material = Enum.Material.Glass
 	bottle.Transparency = 0.1
 	bottle.Anchored = true
@@ -335,7 +353,8 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	bottle:SetAttribute("OwnerName", player.DisplayName)
 	bottle:SetAttribute("Visibility", visibility)
 	bottle:SetAttribute("DrinkKey", drink.key)
-	bottle:SetAttribute("DrinkName", drink.name)
+	bottle:SetAttribute("Variant", variantKey)
+	bottle:SetAttribute("DrinkName", drinkName)
 	bottle:SetAttribute("Servings", servings)
 	local ref = Instance.new("ObjectValue")
 	ref.Name = "SlotRef"
@@ -362,7 +381,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	local pour = Instance.new("ProximityPrompt")
 	pour.Name = "PourPrompt"
 	pour.ActionText = "컵에 따르기"
-	pour.ObjectText = drink.name
+	pour.ObjectText = drinkName
 	pour.MaxActivationDistance = 9
 	pour.RequiresLineOfSight = false
 	pour.Parent = bottle
@@ -372,7 +391,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 			toast(who, string.format("%s님이 '%s'로 놓은 병이에요.", tostring(bottle:GetAttribute("OwnerName")), visibilityName(bottle:GetAttribute("Visibility"))))
 			return
 		end
-		local ok, message = giveCup(who, drink.key)
+		local ok, message = giveCup(who, drink.key, variantKey)
 		if not ok then
 			if message then toast(who, message) end
 			return
@@ -401,12 +420,12 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 		-- (user, 2026-10-20). If their hands are full it stays on the table.
 		local left = bottle:GetAttribute("Servings") or 0
 		if left > 0 then
-			local ok, message = giveBottle(who, drink.key, left)
+			local ok, message = giveBottle(who, drink.key, left, variantKey)
 			if not ok then
 				toast(who, message or "병을 받을 수 없어요.")
 				return
 			end
-			toast(who, string.format("%s 병을 다시 챙겼어요 (%d잔 남음).", drink.name, left))
+			toast(who, string.format("%s 병을 다시 챙겼어요 (%d잔 남음).", drinkName, left))
 		end
 		removeBottle(bottle)
 	end)
@@ -474,25 +493,54 @@ end
 
 --------------------------------------------------
 
+-- The flavour / can colour a player picked before a Robux purchase; the
+-- product handler only gets the player (userId → drink key → variant key).
+local pendingVariant: {[number]: {[string]: string}} = {}
+
+-- payload: a drink key, or { drink = key, variant = key }.
+local function readOrder(payload: any): (ClubConfig.Drink?, any)
+	if typeof(payload) == "table" then
+		return ClubConfig.findDrink(payload.drink), payload.variant
+	end
+	return ClubConfig.findDrink(payload), nil
+end
+
+-- Pays a coin price (VIP discount) and hands over the bottle.
+local function buyWithCoins(player: Player, drink: ClubConfig.Drink, variantKey: any): (boolean, string?)
+	local price = ClubConfig.coinPrice(drink, isVip(player))
+	if not price then return false, "코인으로 살 수 없는 음료예요." end
+	if EconomyService.Balance(player) < price then
+		return false, string.format("코인이 부족해요 (%d 필요, 지금 %d).", price, EconomyService.Balance(player))
+	end
+	local ok, message = giveBottle(player, drink.key, nil, variantKey)
+	if not ok then return false, message end
+	EconomyService.Spend(player, price)
+	return true, message
+end
+
 function DrinkService.Handle(player: Player, action: string, payload: any): (boolean, any)
 	if action == "Order" then
-		local drink = ClubConfig.findDrink(payload)
+		-- tier 1: free, or a few coins
+		local drink, variantKey = readOrder(payload)
 		if not drink then return false, "없는 음료입니다." end
 		if drink.product then
 			return false, "유료 음료는 구매 창에서 구매하세요."
 		end
-		return giveBottle(player, drink.key)
+		if drink.coins then return buyWithCoins(player, drink, variantKey) end
+		return giveBottle(player, drink.key, nil, variantKey)
 	elseif action == "OrderCoins" then
-		-- Paid drink bought with coins instead of Robux (ECONOMY.md §4).
-		local drink = ClubConfig.findDrink(payload)
+		-- tier 2 bought with coins instead of Robux (CLUB_SHOP_PRICING.md §3)
+		local drink, variantKey = readOrder(payload)
 		if not drink or not drink.coins then return false, "코인으로 살 수 없는 음료예요." end
-		if EconomyService.Balance(player) < drink.coins then
-			return false, string.format("코인이 부족해요 (%d 필요, 지금 %d).", drink.coins, EconomyService.Balance(player))
-		end
-		local ok, message = giveBottle(player, drink.key)
-		if not ok then return false, message end
-		EconomyService.Spend(player, drink.coins)
-		return true, message
+		return buyWithCoins(player, drink, variantKey)
+	elseif action == "SetVariant" then
+		-- picked before the Robux window opens
+		local drink, variantKey = readOrder(payload)
+		local variant = drink and ClubConfig.findVariant(drink, variantKey)
+		if not drink or not variant then return false, nil end
+		pendingVariant[player.UserId] = pendingVariant[player.UserId] or {}
+		pendingVariant[player.UserId][drink.key] = variant.key
+		return true, nil
 	elseif action == "Place" then
 		return placeBottle(player, payload)
 	end
@@ -501,19 +549,24 @@ end
 
 function DrinkService.Start()
 	notify = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubNotify") :: RemoteEvent
+	local function grant(player: Player, drink: ClubConfig.Drink): (boolean, string?)
+		-- (a VIP-only drink bought by someone who lost VIP is still given: it was paid)
+		local picked = pendingVariant[player.UserId] and pendingVariant[player.UserId][drink.key]
+		local ok, message = giveBottle(player, drink.key, nil, picked)
+		if ok then
+			toast(player, message or "")
+			return true, nil
+		end
+		-- Hands full: still grant (the purchase went through) by
+		-- clearing room is not possible, so tell the player and let
+		-- Roblox retry later.
+		toast(player, message or "병을 받을 수 없어요.")
+		return false, message
+	end
 	for _, drink in ipairs(ClubConfig.Drinks) do
-		if drink.product then
-			MonetizationService.RegisterProduct(drink.product, function(player)
-				local ok, message = giveBottle(player, drink.key)
-				if ok then
-					toast(player, message or "")
-					return true, nil
-				end
-				-- Hands full: still grant (the purchase went through) by
-				-- clearing room is not possible, so tell the player and let
-				-- Roblox retry later.
-				toast(player, message or "병을 받을 수 없어요.")
-				return false, message
+		for _, key in ipairs({ drink.product, drink.vipProduct }) do
+			MonetizationService.RegisterProduct(key, function(player)
+				return grant(player, drink)
 			end)
 		end
 	end
@@ -522,6 +575,7 @@ function DrinkService.Start()
 	for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do addTablePrompt(t) end
 	CollectionService:GetInstanceAddedSignal("DrinkTable"):Connect(addTablePrompt)
 	Players.PlayerRemoving:Connect(function(player)
+		pendingVariant[player.UserId] = nil
 		for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do
 			for _, child in ipairs(t:GetChildren()) do
 				if child.Name == "PlacedBottle" and child:GetAttribute("Owner") == player.UserId then

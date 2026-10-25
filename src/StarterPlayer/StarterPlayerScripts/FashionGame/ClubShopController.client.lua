@@ -134,6 +134,7 @@ local modalButtons = create("Frame", {
 create("UIListLayout", {
 	FillDirection = Enum.FillDirection.Horizontal,
 	HorizontalAlignment = Enum.HorizontalAlignment.Center,
+	SortOrder = Enum.SortOrder.LayoutOrder,
 	Padding = UDim.new(0, 8),
 }, modalButtons)
 
@@ -164,11 +165,14 @@ local function showModal(title: string, body: string, buttons: {ModalButton}, cl
 			BackgroundColor3 = spec.color or COLORS.card,
 			Text = spec.text,
 			TextColor3 = COLORS.text,
-			TextSize = 16,
+			TextScaled = true,
 			Font = Enum.Font.GothamBold,
 			ZIndex = 22,
 		}, modalButtons)
 		corner(button, 10)
+		-- long names (e.g. 오미자 히비스커스) shrink to fit the button
+		create("UITextSizeConstraint", { MaxTextSize = 16 }, button)
+		create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, button)
 		button.MouseButton1Click:Connect(function()
 			modal.Visible = false
 			Popups.closed("ClubShop")
@@ -316,13 +320,17 @@ local menu = create("Frame", {
 	Name = "DrinkMenu",
 	AnchorPoint = Vector2.new(0.5, 0.5),
 	Position = UDim2.fromScale(0.5, 0.52),
-	Size = UDim2.fromOffset(340, 300),
+	Size = UDim2.fromOffset(380, 420),
 	BackgroundColor3 = COLORS.panel,
 	BackgroundTransparency = 0.05,
 	Visible = false,
 	ZIndex = 10,
 }, gui)
 corner(menu, 16)
+-- fits small phone screens (keeps the 380 x 420 shape)
+create("UISizeConstraint", { MaxSize = Vector2.new(380, 420) }, menu)
+create("UIAspectRatioConstraint", { AspectRatio = 380 / 420 }, menu)
+menu.Size = UDim2.new(0.92, 0, 0.8, 0)
 create("TextLabel", {
 	Name = "Title",
 	Position = UDim2.fromOffset(16, 10),
@@ -362,6 +370,34 @@ local list = create("ScrollingFrame", {
 }, menu)
 create("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, list)
 
+local COIN = Color3.fromRGB(230, 170, 40)
+local VIP_GOLD = Color3.fromRGB(255, 200, 70)
+
+local function isVip(): boolean
+	return player:GetAttribute("Pass_VIP") == true
+end
+
+-- Robux price shown in the menu: the dashboard price once the product has an
+-- id (so Roblox price tests show the price this player really pays), else
+-- the planned price from MonetizationConfig.
+local livePrices: {[string]: number} = {}
+local function productPrice(key: string): number
+	local product = MonetizationConfig.Products[key]
+	if not product then return 0 end
+	if product.id ~= 0 and livePrices[key] == nil then
+		livePrices[key] = product.price
+		task.spawn(function()
+			local ok, info = pcall(function()
+				return MarketplaceService:GetProductInfo(product.id, Enum.InfoType.Product)
+			end)
+			if ok and info and typeof(info.PriceInRobux) == "number" then
+				livePrices[key] = info.PriceInRobux
+			end
+		end)
+	end
+	return livePrices[key] or product.price
+end
+
 local function sectionHeader(text: string, order: number)
 	create("TextLabel", {
 		Name = "Header_" .. order,
@@ -377,104 +413,183 @@ local function sectionHeader(text: string, order: number)
 	}, list)
 end
 
-local function order(drink: any)
+local function handsFull(): boolean
 	if carried("Bottle") >= ClubConfig.MaxBottlesCarried then
 		toast(string.format("병은 %d개까지 들 수 있어요. 테이블에 먼저 놓아 주세요.", ClubConfig.MaxBottlesCarried))
+		return true
+	end
+	return false
+end
+
+-- Picks a flavour / can colour first when the drink has them.
+local function withVariant(drink: any, after: (variantKey: string?) -> ())
+	if not drink.variants then
+		after(nil)
 		return
 	end
+	local buttons: {ModalButton} = {}
+	for _, variant in ipairs(drink.variants) do
+		table.insert(buttons, { name = "Var_" .. variant.key, text = variant.name, color = variant.color, onClick = function()
+			after(variant.key)
+		end })
+	end
+	showModal(drink.name, "맛(색)을 골라 주세요.", buttons)
+end
+
+-- method: "order" (free / tier-1 coins), "coins" (tier 2), "robux"
+local function purchase(drink: any, method: string)
+	if handsFull() then return end
 	menu.Visible = false
-	if drink.product then
-		buyProduct(drink.product)
+	if drink.vipOnly and not isVip() then
+		toast("VIP 전용 음료예요. VIP 패스로 열 수 있어요.")
+		buyPass("VIP")
 		return
 	end
-	local ok, message = ClubShop:InvokeServer("Order", drink.key)
-	toast(tostring(message or (if ok then "" else "주문하지 못했어요.")))
+	withVariant(drink, function(variantKey)
+		local payload = { drink = drink.key, variant = variantKey }
+		if method == "order" then
+			local ok, message = ClubShop:InvokeServer("Order", payload)
+			toast(tostring(message or (if ok then "" else "주문하지 못했어요.")))
+		elseif method == "coins" then
+			local price = ClubConfig.coinPrice(drink, isVip()) or 0
+			showModal(drink.name .. " · 코인으로 사기",
+				string.format("%d 코인을 써서 한 병(6잔)을 살까요?\n(지금 %d 코인)%s", price, player:GetAttribute("Coins") or 0,
+					if isVip() then "\n👑 VIP 20% 할인가예요." else ""),
+				{
+					{ name = "Cancel", text = "취소", onClick = function() end },
+					{ name = "Buy", text = "💰 " .. tostring(price), color = COIN, onClick = function()
+						local ok, message = ClubShop:InvokeServer("OrderCoins", payload)
+						toast(tostring(message or (if ok then "" else "살 수 없어요.")))
+					end },
+				})
+		else
+			if variantKey then ClubShop:InvokeServer("SetVariant", payload) end
+			local key = if isVip() and drink.vipProduct then drink.vipProduct else drink.product
+			if key then buyProduct(key) end
+		end
+	end)
+end
+
+local function pill(row: Instance, x: number, width: number, text: string, color: Color3, onClick: () -> ())
+	local button = create("TextButton", {
+		Name = "Price",
+		AnchorPoint = Vector2.new(1, 0.5),
+		Position = UDim2.new(1, -x, 0.5, 0),
+		Size = UDim2.fromOffset(width, 30),
+		BackgroundColor3 = color,
+		Text = text,
+		RichText = true,
+		TextColor3 = COLORS.text,
+		TextSize = 14,
+		Font = Enum.Font.GothamBold,
+		ZIndex = 14,
+	}, row)
+	corner(button, 15)
+	button.MouseButton1Click:Connect(onClick)
+	return button
 end
 
 local function buildMenu()
+	for _, child in ipairs(list:GetChildren()) do
+		if child:IsA("GuiObject") then child:Destroy() end
+	end
+	local vip = isVip()
 	local index = 0
-	sectionHeader("무료 음료", 0)
-	local paidStarted = false
+	local lastTier = 0
 	for _, drink in ipairs(ClubConfig.Drinks) do
-		index += 1
-		if drink.product and not paidStarted then
-			paidStarted = true
-			sectionHeader("유료 음료", index)
+		if drink.tier ~= lastTier then
+			lastTier = drink.tier
 			index += 1
+			sectionHeader(ClubConfig.TierNames[drink.tier] or "", index)
 		end
-		local product = drink.product and MonetizationConfig.Products[drink.product]
-		local row = create("TextButton", {
+		index += 1
+		local row = create("Frame", {
 			Name = "Drink_" .. drink.key,
 			LayoutOrder = index,
-			Size = UDim2.new(1, -6, 0, 48),
-			BackgroundColor3 = COLORS.card,
-			Text = "",
-			AutoButtonColor = true,
+			Size = UDim2.new(1, -6, 0, 52),
+			BackgroundColor3 = if drink.vipOnly then Color3.fromRGB(48, 38, 20) else COLORS.card,
 			ZIndex = 12,
 		}, list)
 		corner(row, 10)
 		local swatch = create("Frame", {
-			Position = UDim2.fromOffset(10, 9),
+			Position = UDim2.fromOffset(10, 11),
 			Size = UDim2.fromOffset(30, 30),
 			BackgroundColor3 = drink.color,
 			ZIndex = 13,
 		}, row)
 		corner(swatch, 15)
 		create("TextLabel", {
-			Position = UDim2.fromOffset(52, 0),
-			Size = UDim2.new(1, -150, 1, 0),
+			Position = UDim2.fromOffset(50, 5),
+			Size = UDim2.new(1, -216, 0, 24),
 			BackgroundTransparency = 1,
-			Text = drink.name,
-			TextColor3 = COLORS.text,
-			TextSize = 18,
+			Text = (if drink.vipOnly then "👑 " else "") .. drink.name,
+			TextColor3 = if drink.vipOnly then VIP_GOLD else COLORS.text,
+			TextScaled = true,
 			Font = Enum.Font.GothamBold,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = 13,
 		}, row)
-		local price = create("TextLabel", {
-			AnchorPoint = Vector2.new(1, 0.5),
-			Position = UDim2.new(1, -10, 0.5, 0),
-			Size = UDim2.fromOffset(84, 30),
-			BackgroundColor3 = if product then COLORS.robux else COLORS.accent,
-			Text = if product then ("R$ " .. tostring(product.price)) else "무료",
-			TextColor3 = COLORS.text,
-			TextSize = 15,
-			Font = Enum.Font.GothamBold,
+		create("TextLabel", {
+			Position = UDim2.fromOffset(50, 29),
+			Size = UDim2.new(1, -216, 0, 16),
+			BackgroundTransparency = 1,
+			Text = drink.look or "",
+			TextColor3 = COLORS.sub,
+			TextScaled = true,
+			Font = Enum.Font.GothamMedium,
+			TextXAlignment = Enum.TextXAlignment.Left,
 			ZIndex = 13,
 		}, row)
-		corner(price, 15)
-		row.MouseButton1Click:Connect(function() order(drink) end)
-		if drink.coins then
-			-- Same drink for coins (deliberately expensive, ECONOMY.md §4).
-			local coinButton = create("TextButton", {
-				Name = "Coins",
-				AnchorPoint = Vector2.new(1, 0.5),
-				Position = UDim2.new(1, -100, 0.5, 0),
-				Size = UDim2.fromOffset(84, 30),
-				BackgroundColor3 = Color3.fromRGB(230, 170, 40),
-				Text = "💰 " .. tostring(drink.coins),
-				TextColor3 = COLORS.text,
-				TextSize = 15,
-				Font = Enum.Font.GothamBold,
-				ZIndex = 14,
-			}, row)
-			corner(coinButton, 15)
-			coinButton.MouseButton1Click:Connect(function()
-				menu.Visible = false
-				showModal(drink.name .. " · 코인으로 사기",
-					string.format("%d 코인을 써서 %s 한 병을 살까요?\n(지금 %d 코인)", drink.coins, drink.name, player:GetAttribute("Coins") or 0),
-					{
-						{ name = "Cancel", text = "취소", onClick = function() end },
-						{ name = "Buy", text = "💰 " .. tostring(drink.coins), color = Color3.fromRGB(230, 170, 40), onClick = function()
-							local ok, message = ClubShop:InvokeServer("OrderCoins", drink.key)
-							toast(tostring(message or (if ok then "" else "살 수 없어요.")))
-						end },
-					})
+		if drink.tier == 1 then
+			local price = ClubConfig.coinPrice(drink, vip)
+			pill(row, 10, 74, if price then ("💰 " .. price) else "무료", if price then COIN else COLORS.accent, function()
+				purchase(drink, "order")
 			end)
+		else
+			if drink.product then
+				local text: string
+				if drink.vipOnly then
+					text = if vip then ("R$ " .. productPrice(drink.product)) else "🔒 VIP"
+				elseif vip and drink.vipProduct then
+					text = string.format("<s>%d</s> R$ %d", productPrice(drink.product), productPrice(drink.vipProduct))
+				else
+					text = "R$ " .. productPrice(drink.product)
+				end
+				pill(row, 10, if vip and drink.vipProduct then 96 else 74, text,
+					if drink.vipOnly and not vip then VIP_GOLD else COLORS.robux, function()
+						purchase(drink, "robux")
+					end)
+			end
+			if drink.coins then
+				local price = ClubConfig.coinPrice(drink, vip) or 0
+				pill(row, 90, 74, (if vip then "👑" else "💰 ") .. price, COIN, function()
+					purchase(drink, "coins")
+				end)
+			end
 		end
 	end
+	index += 1
+	create("TextLabel", {
+		Name = "VipNote",
+		LayoutOrder = index,
+		Size = UDim2.new(1, -6, 0, 34),
+		BackgroundTransparency = 1,
+		Text = if vip then "👑 VIP: 2단계 코인·3단계 Robux 20% 할인, 골목 공방 소다 구매 가능"
+			else "👑 VIP 패스: 2단계 코인·3단계 Robux 20% 할인 + VIP 전용 음료",
+		TextColor3 = VIP_GOLD,
+		TextScaled = true,
+		Font = Enum.Font.GothamMedium,
+		ZIndex = 12,
+	}, list)
 end
-buildMenu()
+
+local function openMenu()
+	buildMenu()
+	menu.Visible = true
+end
+player:GetAttributeChangedSignal("Pass_VIP"):Connect(function()
+	if menu.Visible then buildMenu() end
+end)
 
 --------------------------------------------------
 -- Prompts: bartender, table, own-bottle "치우기"
@@ -498,7 +613,7 @@ end
 ProximityPromptService.PromptTriggered:Connect(function(prompt)
 	if prompt.Name == "BartenderPrompt" then
 		closeModal()
-		menu.Visible = true
+		openMenu()
 	elseif prompt.Name == "PlacePrompt" then
 		if carried("Bottle") == 0 then
 			toast("들고 있는 병이 없어요. 바텐더에게 음료를 주문하세요.")

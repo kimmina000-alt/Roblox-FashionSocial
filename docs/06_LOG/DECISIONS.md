@@ -507,3 +507,5 @@ D-272 — (2026-10-25, user) Orange soda / lemonade / blue ade 💰5. Add a 1-ho
 D-273 — (2026-10-25, proposal) VIP-only drink: a Seoul craft soda in the style of On A Lark (small glass bottle, kraft label, gold crown sticker, 4 flavours) for 59 R$, VIP only; a Poppi-style bright can ("Bubble Pop") in tier 2 💰100 / 10 R$; skip the Olipop style (same kind as Poppi). Awaiting the user. CLUB_SHOP_PRICING.md §14.3.
 
 D-274 — (2026-10-25, user) VIP-only drink = "골목 공방 소다" (Golmok Craft Soda, On A Lark style: small brown glass bottle, kraft label, gold crown sticker, 4 flavours) 59 R$, VIP only. Tier 2 adds "쨍팝" (Zzang Pop, Poppi style bright can, apple-cider-vinegar soda) 💰100 / 10 R$. No Olipop style. CLUB_SHOP_PRICING.md §14.4, PRODUCTS.md §9.
+
+D-275 — (2026-10-25) Code: club drinks in 3 tiers with VIP discount (ClubConfig.Drinks tier/coins/product/vipProduct/vipOnly/variants, DrinkService coin orders + chosen variant for Robux grants, drink menu with tier sections, struck-through VIP prices, VIP lock). All product ids 0 (Studio test purchases). CLUB_SHOP_PRICING.md §15.

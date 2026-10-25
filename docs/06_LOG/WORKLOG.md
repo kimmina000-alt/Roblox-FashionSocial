@@ -1516,3 +1516,13 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 기획 (D-272) — 💰5 음료, 1시간 코인 부스트 25 R$, 버스 광고 8자리, VIP 전용 음료 설명. 상품 전체 목록을 PRODUCTS.md §9에 정리, MONETIZATION.md에 연결.
 
 ### 기획 (D-273, D-274) — VIP 전용 음료 조사(온어락소다·올리팝·팝피) → 골목 공방 소다 59 R$(VIP만), 2단계 쨍팝 추가
+
+### 구현 (D-275) — 클럽 음료 3단계 + VIP 할인 (코드)
+- 1단계 무료/💰1/💰5, 2단계 💰 또는 R$(VIP 코인 20% 할인), 3단계 R$(VIP가 별도 상품), VIP 전용 골목 공방 소다(비VIP 🔒), 맛·캔 색 고르기(쨍팝 3색, 골목 공방 소다 4맛).
+- Studio 1인 확인: 주문·코인 차감·VIP 할인·테스트 구매·맛 병·테이블 놓기 통과. 모바일 2인 테스트는 다음.
+
+![](images/2026-10-25/drink_menu_tier1.jpg)
+![](images/2026-10-25/drink_menu_tier2.jpg)
+![](images/2026-10-25/drink_menu_tier3.jpg)
+![](images/2026-10-25/drink_menu_vip.jpg)
+![](images/2026-10-25/drink_menu_variant.jpg)

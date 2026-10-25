@@ -256,3 +256,11 @@
 | 2 | **쨍팝** (ZZANG POP, 사과식초 소다) | 팝피 | 쨍한 원색 캔(핑크·라임·오렌지 3색 중 랜덤 아님 — 고르기), 둥글고 굵은 글씨, 장난스러운 과일 그림 | 💰100 / 10 R$ (VIP 💰80) |
 - 이름 뜻: "골목 공방" = 홍대 골목의 작은 수제 가게(조금씩 손으로 만든 한정 느낌), "쨍팝" = 쨍한 색 + 톡 터지는 소다.
 - 올리팝풍은 넣지 않는다(쨍팝과 같은 종류).
+
+## 15. 구현 1단계 — 음료 3단계 + VIP 할인 (2026-10-25, D-275)
+- `ClubConfig.Drinks`: tier, coins, product, vipProduct, vipOnly, variants(맛·캔 색), look(모양 설명). `ClubConfig.coinPrice`(VIP 코인 20% 할인, 💰10 이상만), `VipCoinRate = 0.8`.
+- `MonetizationConfig.Products`: 2단계 8종, 3단계 3종 + VIP가 3종, 골목 공방 소다(VIP 전용). 모두 id 0(Studio 테스트 구매). DJ 25 R$. Drink_Fanta는 retired.
+- `DrinkService`: 1단계 코인 음료는 "Order"에서 코인 차감, 2단계 코인은 "OrderCoins"(VIP 할인), "SetVariant"로 고른 맛을 기억했다가 Robux 지급 때 사용, 병·컵·테이블 병 이름과 색이 맛을 따른다. product와 vipProduct 둘 다 같은 음료를 준다.
+- `ClubShopController` 음료 메뉴: 단계별 제목, 이름 + 모양 설명, 1단계 무료/💰, 2단계 💰 + R$ 두 버튼, 3단계 R$(VIP는 ~~정가~~ VIP가), 골목 공방 소다는 비VIP에게 🔒 VIP(누르면 VIP 패스 구매 창). 맛이 있는 음료는 먼저 맛(색) 고르기. Robux 가격은 상품 id가 생기면 Roblox에서 실제 가격을 읽어 표시(가격 최적화 테스트 대비).
+- Studio 확인(1인): 메뉴 표시(비VIP / VIP), 물·사이다·오렌지 소다 주문(💰1·💰5 차감), VIP 쨍팝 라임 💰80·블루 윙 💰120, 골목 공방 소다 오미자 → 테스트 구매 → 오미자 병, 테이블에 놓기 → 맛 이름·색 그대로.
+- 아직: 병·캔 모양(지금은 같은 원통 병, 색만 다름), 모바일 2인 테스트.

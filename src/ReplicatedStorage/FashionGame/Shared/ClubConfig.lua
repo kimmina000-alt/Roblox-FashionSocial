@@ -105,12 +105,31 @@ ClubConfig.ZoneVolumes = { Hall = 1, Corridor = 0.45, Stairs = 0.12, Rooftop = 0
 -- replace brand names (환타) with generic ones (e.g. 오렌지 소다).
 --------------------------------------------------
 
+export type DrinkVariant = {
+	key: string,
+	name: string,
+	color: Color3,
+}
+
+-- tier 1 = free or a few coins, 2 = coins or Robux, 3 = Robux only
+-- (docs/01_SYSTEMS/CLUB_SHOP_PRICING.md §4, D-270..D-274).
+--   coins       coin price (VIP pays ClubConfig.VipCoinRate of it)
+--   product     MonetizationConfig.Products key (Robux)
+--   vipProduct  the same drink at the VIP price (a product of its own)
+--   vipOnly     only VIP pass owners can buy it
+--   variants    flavours / can colours picked before buying
+--   look        what the bottle or can looks like (shown in the menu)
 export type Drink = {
 	key: string,
 	name: string,
 	color: Color3,
+	tier: number,
 	product: string?,
+	vipProduct: string?,
+	vipOnly: boolean?,
 	coins: number?,
+	variants: {DrinkVariant}?,
+	look: string?,
 }
 
 -- Club light colours the DJ can pick (user, 2026-10-22: "보통 클럽에서 쓰는
@@ -132,13 +151,77 @@ function ClubConfig.findLightColor(key: any)
 	return nil
 end
 
+-- Names and looks follow real drinks without using their brand names
+-- (user list 2026-10-25; reference brand in the comment).
 ClubConfig.Drinks = {
-	{ key = "water", name = "물", color = Color3.fromRGB(190, 230, 255) },
-	{ key = "cider", name = "사이다", color = Color3.fromRGB(200, 255, 200) },
-	{ key = "cola", name = "콜라", color = Color3.fromRGB(70, 35, 20) },
-	-- Paid drink: Robux, or coins at a deliberately high price (ECONOMY.md §4).
-	{ key = "fanta", name = "환타", color = Color3.fromRGB(255, 140, 0), product = "Drink_Fanta", coins = 300 },
+	-- tier 1
+	{ key = "water", name = "물", tier = 1, color = Color3.fromRGB(190, 230, 255), look = "투명 페트병" },
+	{ key = "cider", name = "사이다", tier = 1, coins = 1, color = Color3.fromRGB(200, 255, 200), look = "초록 라벨 페트병" },
+	{ key = "cola", name = "콜라", tier = 1, coins = 1, color = Color3.fromRGB(70, 35, 20), look = "빨간 라벨 페트병" },
+	{ key = "orange", name = "오렌지 소다", tier = 1, coins = 5, color = Color3.fromRGB(255, 140, 0), look = "주황 투명 병" },
+	{ key = "lemonade", name = "레몬에이드", tier = 1, coins = 5, color = Color3.fromRGB(255, 232, 110), look = "노랑 투명 병" },
+	{ key = "blueade", name = "블루에이드", tier = 1, coins = 5, color = Color3.fromRGB(70, 160, 255), look = "파랑 투명 병" },
+	-- tier 2: 💰100 or 10 R$
+	{ key = "ginger_brew", name = "진저 브루", tier = 2, coins = 100, product = "Drink_GingerBrew", -- Bundaberg
+		color = Color3.fromRGB(150, 92, 40), look = "짧고 통통한 갈색 유리병" },
+	{ key = "monte", name = "몬테 스파클링", tier = 2, coins = 100, product = "Drink_Monte", -- San Pellegrino
+		color = Color3.fromRGB(40, 125, 65), look = "초록 유리병 · 빨간 별 라벨" },
+	{ key = "french_lemonade", name = "프렌치 레모네이드", tier = 2, coins = 100, product = "Drink_FrenchLemonade", -- Lorina
+		color = Color3.fromRGB(250, 238, 165), look = "철사 마개 유리병" },
+	{ key = "golden_apple", name = "골든 애플 스파클링", tier = 2, coins = 100, product = "Drink_GoldenApple", -- Martinelli's
+		color = Color3.fromRGB(232, 172, 48), look = "사과 모양 유리병" },
+	{ key = "zzang_pop", name = "쨍팝", tier = 2, coins = 100, product = "Drink_ZzangPop", -- Poppi
+		color = Color3.fromRGB(255, 90, 170), look = "쨍한 원색 캔",
+		variants = {
+			{ key = "pink", name = "핑크", color = Color3.fromRGB(255, 90, 170) },
+			{ key = "lime", name = "라임", color = Color3.fromRGB(170, 240, 60) },
+			{ key = "orange", name = "오렌지", color = Color3.fromRGB(255, 150, 40) },
+		} },
+	-- tier 2: 💰150 or 15 R$ (energy drinks)
+	{ key = "hot_boost", name = "핫부스트", tier = 2, coins = 150, product = "Drink_HotBoost", -- Hot6
+		color = Color3.fromRGB(255, 105, 30), look = "주황·빨강 불꽃 캔" },
+	{ key = "green_claw", name = "그린 클로", tier = 2, coins = 150, product = "Drink_GreenClaw", -- Monster
+		color = Color3.fromRGB(28, 30, 28), look = "검은 톨캔 · 초록 발톱" },
+	{ key = "blue_wing", name = "블루 윙", tier = 2, coins = 150, product = "Drink_BlueWing", -- Red Bull
+		color = Color3.fromRGB(60, 95, 200), look = "가늘고 긴 은색·파랑 캔" },
+	-- tier 3: Robux only (VIP price products: 20% off)
+	{ key = "stack_hydro", name = "스택 하이드로", tier = 3, product = "Drink_StackHydro", vipProduct = "Drink_StackHydro_VIP", -- Cadence
+		color = Color3.fromRGB(232, 232, 238), look = "미니멀 단색 캔" },
+	{ key = "pastel_splash", name = "파스텔 스플래시", tier = 3, product = "Drink_PastelSplash", vipProduct = "Drink_PastelSplash_VIP", -- La Croix
+		color = Color3.fromRGB(250, 190, 222), look = "파스텔 물감 무늬 캔" },
+	{ key = "skull_water", name = "스컬 캔 워터", tier = 3, product = "Drink_SkullWater", vipProduct = "Drink_SkullWater_VIP", -- Liquid Death
+		color = Color3.fromRGB(18, 18, 20), look = "검정 톨캔 · 흰 해골" },
+	-- VIP only (D-274)
+	{ key = "golmok", name = "골목 공방 소다", tier = 3, vipOnly = true, product = "Drink_Golmok", -- On A Lark
+		color = Color3.fromRGB(190, 160, 230), look = "작은 갈색 병 · 금색 왕관",
+		variants = {
+			{ key = "lavender", name = "레몬 라벤더", color = Color3.fromRGB(190, 160, 230) },
+			{ key = "rose", name = "생강 장미", color = Color3.fromRGB(230, 160, 120) },
+			{ key = "omija", name = "오미자 히비스커스", color = Color3.fromRGB(200, 40, 55) },
+			{ key = "mulberry", name = "오디", color = Color3.fromRGB(80, 30, 92) },
+		} },
 } :: {Drink}
+
+-- VIP pays this share of a coin price (20% off, D-270).
+ClubConfig.VipCoinRate = 0.8
+ClubConfig.TierNames = { "1단계 · 무료 / 코인", "2단계 · 코인 또는 Robux", "3단계 · 프리미엄 (Robux)" }
+
+function ClubConfig.findVariant(drink: Drink, key: any): DrinkVariant?
+	if not drink.variants then return nil end
+	for _, variant in ipairs(drink.variants) do
+		if variant.key == key then return variant end
+	end
+	return drink.variants[1]
+end
+
+-- Coin price for this player (VIP discount when vip is true).
+function ClubConfig.coinPrice(drink: Drink, vip: boolean): number?
+	if not drink.coins then return nil end
+	if vip and drink.coins >= 10 then
+		return math.floor(drink.coins * ClubConfig.VipCoinRate + 0.5)
+	end
+	return drink.coins
+end
 
 -- Bottles: carried as a tool, placed on a table, poured into cups.
 ClubConfig.MaxBottlesCarried = 3

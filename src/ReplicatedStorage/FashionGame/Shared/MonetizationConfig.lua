@@ -43,11 +43,47 @@ MonetizationConfig.GamePasses = {
 
 MonetizationConfig.Products = {
 	-- DJ booth time (D-052). Consumable: each purchase adds DJMinutes.
-	DJ = { sku = "CLUB-DP-DJ30", id = 0, name = "DJ 30분", price = 75, status = "planned",
+	-- (Robux only, test price 25 R$: D-268 / D-270)
+	DJ = { sku = "CLUB-DP-DJ30", id = 0, name = "DJ 30분", price = 25, status = "planned",
 		description = "클럽 DJ 부스를 30분 동안 써요. 곡 선택·조명." },
-	-- Paid drinks (DrinkService). key must match ClubConfig.Drinks[].product.
-	Drink_Fanta = { sku = "CLUB-DP-DRINK-FANTA", id = 0, name = "환타", price = 6, status = "planned",
+	-- Paid drinks (DrinkService). key must match ClubConfig.Drinks[].product
+	-- or .vipProduct. One bottle = 6 cups, placed on a table and shared.
+	-- (오렌지 소다 became a 💰5 tier-1 drink, D-271: kept only as a record)
+	Drink_Fanta = { sku = "CLUB-DP-DRINK-FANTA", id = 0, name = "환타", price = 6, status = "retired",
 		description = "클럽 바에서 환타 한 병(6잔). 테이블에 놓고 나눠 마셔요." },
+	-- tier 2 (also 💰100 / 💰150 in coins)
+	Drink_GingerBrew = { sku = "CLUB-DP-DRINK-GINGER", id = 0, name = "진저 브루", price = 10, status = "planned",
+		description = "클럽 바 진저 브루 한 병(6잔)." },
+	Drink_Monte = { sku = "CLUB-DP-DRINK-MONTE", id = 0, name = "몬테 스파클링", price = 10, status = "planned",
+		description = "클럽 바 몬테 스파클링 한 병(6잔)." },
+	Drink_FrenchLemonade = { sku = "CLUB-DP-DRINK-FRENCHLEMON", id = 0, name = "프렌치 레모네이드", price = 10, status = "planned",
+		description = "클럽 바 프렌치 레모네이드 한 병(6잔)." },
+	Drink_GoldenApple = { sku = "CLUB-DP-DRINK-GOLDENAPPLE", id = 0, name = "골든 애플 스파클링", price = 10, status = "planned",
+		description = "클럽 바 골든 애플 스파클링 한 병(6잔)." },
+	Drink_ZzangPop = { sku = "CLUB-DP-DRINK-ZZANGPOP", id = 0, name = "쨍팝", price = 10, status = "planned",
+		description = "클럽 바 쨍팝 한 캔(6잔). 핑크·라임·오렌지 중 골라요." },
+	Drink_HotBoost = { sku = "CLUB-DP-DRINK-HOTBOOST", id = 0, name = "핫부스트", price = 15, status = "planned",
+		description = "클럽 바 에너지 드링크 핫부스트(6잔)." },
+	Drink_GreenClaw = { sku = "CLUB-DP-DRINK-GREENCLAW", id = 0, name = "그린 클로", price = 15, status = "planned",
+		description = "클럽 바 에너지 드링크 그린 클로(6잔)." },
+	Drink_BlueWing = { sku = "CLUB-DP-DRINK-BLUEWING", id = 0, name = "블루 윙", price = 15, status = "planned",
+		description = "클럽 바 에너지 드링크 블루 윙(6잔)." },
+	-- tier 3 (Robux only) and their VIP prices (20% off, D-270)
+	Drink_StackHydro = { sku = "CLUB-DP-DRINK-STACK", id = 0, name = "스택 하이드로", price = 49, status = "planned",
+		description = "프리미엄 음료 스택 하이드로(6잔)." },
+	Drink_StackHydro_VIP = { sku = "CLUB-DP-DRINK-STACK-VIP", id = 0, name = "스택 하이드로 (VIP가)", price = 39, status = "planned",
+		description = "VIP 가격 스택 하이드로(6잔)." },
+	Drink_PastelSplash = { sku = "CLUB-DP-DRINK-PASTEL", id = 0, name = "파스텔 스플래시", price = 79, status = "planned",
+		description = "프리미엄 음료 파스텔 스플래시(6잔)." },
+	Drink_PastelSplash_VIP = { sku = "CLUB-DP-DRINK-PASTEL-VIP", id = 0, name = "파스텔 스플래시 (VIP가)", price = 63, status = "planned",
+		description = "VIP 가격 파스텔 스플래시(6잔)." },
+	Drink_SkullWater = { sku = "CLUB-DP-DRINK-SKULL", id = 0, name = "스컬 캔 워터", price = 99, status = "planned",
+		description = "프리미엄 음료 스컬 캔 워터(6잔)." },
+	Drink_SkullWater_VIP = { sku = "CLUB-DP-DRINK-SKULL-VIP", id = 0, name = "스컬 캔 워터 (VIP가)", price = 79, status = "planned",
+		description = "VIP 가격 스컬 캔 워터(6잔)." },
+	-- VIP only (D-274)
+	Drink_Golmok = { sku = "CLUB-DP-DRINK-GOLMOK", id = 0, name = "골목 공방 소다 (VIP 전용)", price = 59, status = "planned",
+		description = "VIP 전용 수제 소다(6잔). 레몬 라벤더·생강 장미·오미자 히비스커스·오디." },
 	-- 인생네컷 album +10 slots (first 10 are free, D-064).
 	AlbumSlots = { sku = "PHOTO-DP-ALBUM10", id = 0, name = "사진첩 +10장", price = 25, status = "planned",
 		description = "인생네컷 사진첩 칸을 10장 늘려요." },
