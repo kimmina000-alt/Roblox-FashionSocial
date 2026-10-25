@@ -1162,8 +1162,7 @@ local z=zone("04_Beach_Aquarium")
   do local pz=31 -- phone and a coffee
    P(cm,"Phone",Vector3.new(0.38,0.04,0.75),CFrame.new(mx+1.2,MY+3.52,pz)*CFrame.Angles(0,math.rad(-8),0),Color3.fromRGB(28,28,32),{nocol=true})
    cup(mx+1.1,pz+1.2) end
-  do local bz=86 -- a book
-   P(cm,"Book",Vector3.new(0.8,0.15,1.1),CFrame.new(mx+1.1,MY+3.575,bz)*CFrame.Angles(0,math.rad(6),0),Color3.fromRGB(150,60,55),{nocol=true}) end
+  -- (the red book on the bar removed, user 2026-10-26)
   -- LONG MARBLE TABLES by the street wall (user plan 2026-10-25), six stools
   -- each on the wall side, facing the room and the sea
   for _,tz in ipairs({{19.6,39.6},{44.5,64.6},{70.1,90.1}}) do

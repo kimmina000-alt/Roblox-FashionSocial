@@ -1711,3 +1711,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/cafe_south_wall_extended.jpg)
 ![](images/2026-10-25/cafe_planter_grass.jpg)
 ![](images/2026-10-25/cafe_pot_plant.jpg)
+
+## 2026-10-26
+
+### 수정 (D-309) — 카페 2층 바 위 빨간 책 삭제
+
+- 스크립트와 Studio 양쪽에서 삭제했어요.
