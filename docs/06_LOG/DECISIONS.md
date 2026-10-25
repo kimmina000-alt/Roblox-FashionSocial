@@ -529,3 +529,5 @@ D-283 — (2026-10-25, user plan) Club dance poles: five instead of four, in two
 D-284 — (2026-10-25, user) Dance poles run all the way up to the 2F ceiling (TOP), with a round mount plate there instead of the top cap.
 
 D-285 — (2026-10-25, user) The tower over OH24 covers the whole store roof; its screen is taller (40) and wraps three sides in a ㄷ shape (east → north → west, two rounded corners); the 노래방 building next to it is lowered from 60 to 20 so the west screen shows from the beach.
+
+D-286 — (2026-10-25, user) The OH24 tower screen moves up to the top of the tower (y 46..86), well clear of the store; the window slits run below it.

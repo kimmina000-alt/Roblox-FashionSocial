@@ -1598,3 +1598,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/oh24_tower_v3_crossing.jpg)
 ![](images/2026-10-25/oh24_tower_v3_beach.jpg)
+
+### 수정 (D-286) — 전광판을 가건물 상단으로 (편의점과 띄움)
+
+![](images/2026-10-25/oh24_tower_v4_top.jpg)
