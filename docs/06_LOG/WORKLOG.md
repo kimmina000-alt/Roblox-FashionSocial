@@ -1344,3 +1344,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/piano_keyboard.jpg)
 ![](images/2026-10-25/cafe_staff_wall_door.jpg)
 ![](images/2026-10-25/cafe_storeroom.jpg)
+
+### 추가 (D-239) — 카페 문·작업대 자리 바꿈, 의자 등받이 삭제, 클럽 확장·벽·계단 빛
+- 카페: STAFF ONLY 문을 계단 쪽으로, 알바 작업대는 오른쪽. 물멍 옆 의자 등받이 원통 삭제.
+- 클럽(다른 클럽 후기: 비좁음): 동쪽 골목길 삭제하고 그만큼(19) 건물 확장. DJ존·전광판·댄스플로어·LED 기둥·레이저를 넓어진 홀 가운데로, 북쪽 VIP 라운지·1층 테이블은 새 벽에 맞춤.
+- 클럽 내부 벽: 무늬 없는 거의 검정 그레이(바닥은 대리석 그대로). 입구 계단 흰 빛 반으로.
+
+![](images/2026-10-25/club_extended_top.jpg)
+![](images/2026-10-25/club_extended_outside.jpg)
+![](images/2026-10-25/cafe_door_stairs_side.jpg)

@@ -50,7 +50,7 @@ local MOVES = {
 local BEACH_DROP, SEA_DROP = 2.4, 3
 -- ground holes: club + the four subway stair pits (x0, z0, x1, z1)
 local HOLES = {
-	{ 49, -253 + CLUB_DZ, 170, -92 + CLUB_DZ }, -- the club: edges in the middle of its walls (at the inner faces the ground flickered on the corridor and back walls, user 2026-10-24)
+	{ 49, -253 + CLUB_DZ, 189, -92 + CLUB_DZ }, -- (19 longer east, user 2026-10-25) the club: edges in the middle of its walls (at the inner faces the ground flickered on the corridor and back walls, user 2026-10-24)
 	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -53, 41, -35, 47 }, -- exit 2 comes up southwards, 4 westwards in the corner square (toward the beach, user 2026-10-25)
 	{ 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
@@ -925,7 +925,12 @@ local function smallRoad(a: Vector2, b: Vector2, stopEnds)
 		end
 	end
 end
-smallRoad(Vector2.new(181, -34), Vector2.new(181, -470), { 0 }) -- east of the club
+-- (user 2026-10-25: the club grows east over it) no side street east of the
+-- club any more: paved over from the club to the background towers
+box("Sidewalk", 171, 0, -470, 192.5, CURB, -268.2 + CDZ, WALK, { material = Enum.Material.Brick })
+box("Sidewalk", 171, 0, -95.8 + CDZ, 192.5, CURB, -47, WALK, { material = Enum.Material.Brick })
+box("Sidewalk", 190.2, 0, -268.2 + CDZ, 192.5, CURB, -95.8 + CDZ, WALK, { material = Enum.Material.Brick })
+local _ = smallRoad
 -- (no south-west lane to the seafront at z 98: the OH24 store stands on it, user 2026-10-25)
 -- lane from the east road to the hanok main gate (east side, gate at x 225, z 126)
 local LANE = Color3.fromRGB(185, 160, 122)
@@ -3796,9 +3801,9 @@ do
 	box("Cladding", 47.8, 0, Z0, 48, TOPY, DZ0, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("Cladding", 47.8, 0, DZ1, 48, TOPY, Z1, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("Cladding", 47.8, 12, DZ0, 48, TOPY, DZ1, BLACK, { parent = K, material = Enum.Material.Metal })
-	box("Cladding", 48, 0, -260.2 + CDZ, 171.2, TOPY, -260 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
-	box("Cladding", 171, 0, -260.2 + CDZ, 171.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
-	box("Cladding", 48, 0, -96 + CDZ, 171.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
+	box("Cladding", 48, 0, -260.2 + CDZ, 190.2, TOPY, -260 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal }) -- (the club 19 longer east, user 2026-10-25)
+	box("Cladding", 190, 0, -260.2 + CDZ, 190.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
+	box("Cladding", 48, 0, -96 + CDZ, 190.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("CapBand", 47.3, TOPY - 0.8, Z0, 48, TOPY + 0.4, Z1 + 1, BLACK2, { parent = K, material = Enum.Material.Metal })
 	-- a clean black end column where the front meets the shop building to the
 	-- north: it covers the ends of the sign band, louvres and windows (user 2026-10-24)
