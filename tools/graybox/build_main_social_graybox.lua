@@ -764,7 +764,8 @@ local z=zone("04_Beach_Aquarium")
   local SX0,SX1,SZ0,SZL=-242,mx-0.6,70,96
   local SD=(SZL-SZ0)/(NS-1)
   for k=1,NS-1 do box(cm,"Stair",SX0,FY,SZ0+(k-1)*SD,SX1,FY+k,SZ0+k*SD,woodC) end
-  box(cm,"StairLanding",SX0,FY,SZL,mx,MY,z1-0.4,woodC)
+  box(cm,"StairLanding",SX0,FY,SZL,SX1,MY,z1-0.4,woodC)
+  box(cm,"StairLandingLip",SX1,MY-1,SZL,mx,MY,z1-0.4,woodC) -- over the wall top, to the mezzanine (the wall below runs on: no wooden face behind the counter, user 2026-10-25)
   do local run=SZL-SZ0 local c=Vector3.new((SX0+SX1)/2,FY+(NS-1)/2,SZ0+run/2) P(cm,"StairRamp",Vector3.new(SX1-SX0,NS-1,run),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),woodC,{class="WedgePart",t=1}) end
   -- glass rail on the open (lounge) side, 3.4 above the steps like the mezzanine rail
   do local RX=SX0+0.2 local a=Vector3.new(RX,FY+1.7+0.5,SZ0+0.8) local b=Vector3.new(RX,MY+1.7,SZL)
@@ -803,7 +804,7 @@ local z=zone("04_Beach_Aquarium")
   -- the lit pastry case in its west part, two tills in its east part;
   -- customers order from the north (the entrance side)
   local CW=Color3.fromRGB(244,243,240) local STEEL=Color3.fromRGB(176,178,182)
-  local KX0,KX1,KZ0,KZ1=-229,x1-0.6,72,75 -- (4 further out into the room; its west end cut back for a 5-stud way behind it, user 2026-10-25)
+  local KX0,KX1,KZ0,KZ1=-227,x1-0.6,70,73 -- (out to the front of the stairs wall; its west end flush with the pastry case, leaving a way behind it, user 2026-10-25)
   box(cm,"Counter",KX0,FY,KZ0,KX1,FY+3.6,KZ1,CW)
   box(cm,"CounterKick",KX0,FY,KZ0-0.15,KX1,FY+0.4,KZ0,Color3.fromRGB(70,70,72))
   local top=box(cm,"CounterTop",KX0,FY+3.6,KZ0-0.3,KX1,FY+3.9,KZ1,Color3.fromRGB(238,238,236),{mat=Enum.Material.Marble})
@@ -831,9 +832,10 @@ local z=zone("04_Beach_Aquarium")
   -- wall at z 91.4; (user 2026-10-25) its front wall and STAFF ONLY door are
   -- gone, only a header strip stays up top to carry the menu boards
   -- (no cross wall at z 91.4: the space behind the counter runs back to the work bench, user 2026-10-25)
-  box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,96.2,CW) -- the stairs' east side
-  local SZ=KZ0-0.3 -- (the header in line with the counter front, user 2026-10-25)
+  box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,z1-0.4,CW) -- the stairs' east side, on past the landing to the north wall (user 2026-10-25)
+  local SZ=KZ0 -- (the header in line with the counter front and the stairs wall's end, user 2026-10-25)
   box(cm,"StaffHeader",mx,FY+12.3,SZ,x1-0.6,MY-1,SZ+0.6,CW) -- (only as tall as the boards, user 2026-10-25)
+  box(cm,"StaffHeaderLeg",mx,FY,SZ,mx+3,FY+12.3,SZ+0.6,CW) -- down to the floor at the stairs end only (user 2026-10-25)
   -- black menu boards on the header above the counter, facing the customers,
   -- ORDER & PICK UP sign at its west end
   local nB=5 local MB0,MB1=-224,-207.6 local bw=(MB1-MB0)/nB
