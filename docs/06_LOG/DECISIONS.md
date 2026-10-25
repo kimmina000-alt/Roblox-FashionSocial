@@ -537,3 +537,5 @@ D-287 — (2026-10-25, user) The OH24 tower screen reaches down to half of the w
 D-288 — (2026-10-25, user) The foyer "OHU CLUB" arrow sign is half the size (8.5 × 4.25) and moved in to the end of the graffiti (x -11..-2.5, y 3..7.25) so it hardly shows from the street.
 
 D-289 — (2026-10-25, user marks on two screenshots) White light strips round the passage at the foot of the club entry stairs: along its top edge (F+14) and down its east side, with a soft SurfaceLight into the opening.
+
+D-290 — (2026-10-25, user) Club lift corridor: no foyer LED line across its end, a plain floor in the foyer's colour (no marble), no graffiti on the street wall next to it.

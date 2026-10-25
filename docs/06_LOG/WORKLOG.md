@@ -1614,3 +1614,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-289) — 계단 아래 복도 출입구 테두리 조명
 
 ![](images/2026-10-25/stair_passage_light.jpg)
+
+### 수정 (D-290) — 엘리베이터 앞 조명 삭제, 바닥 민무늬 통일, 옆 벽 그래피티 삭제
+
+![](images/2026-10-25/lift_front_clean.jpg)

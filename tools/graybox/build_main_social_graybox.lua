@@ -213,7 +213,8 @@ box(z,"Foyer",-24,-1,-166.5,12,0,-151,WALL_C,WALLO)
 do local LC=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
  box(z,"FoyerLED",-24,0,-166.5,12,0.25,-166.3,LC,NE)
  box(z,"FoyerLED",-24,0,-151.2,-8,0.25,-151,LC,NE) box(z,"FoyerLED",8,0,-151.2,12,0.25,-151,LC,NE)
- box(z,"FoyerLED",11.8,0,-166.3,12,0.25,-151.2,LC,NE) end
+ -- (no line across the end in front of the lift corridor, user 2026-10-25)
+ end
 box(z,"Foyer_E",12,0,-166.5,13,12,-151,WALL_C,WALLO)
 box(z,"Foyer_E_Below",12,F,-166.5,13,0,-151,WALL_C,WALLO)
 box(z,"Entry_Ceiling",-80,12,-166.5,12,13,-151,dark)
@@ -257,7 +258,7 @@ do local p=box(z,"GraffitiSign",-11,3,-166.5,-2.5,7.25,-166.45,Color3.new(0,0,0)
   local d=Instance.new("Decal") d.Texture="rbxassetid://118161419410572" d.Face=Enum.NormalId.Back d.Parent=p end
  graffiti(-80,F,-151.05,-24,12,-151,Enum.NormalId.Front)
  graffiti(-24,0,-151.05,-8,12,-151,Enum.NormalId.Front)
- graffiti(8,0,-151.05,12,12,-151,Enum.NormalId.Front)
+ -- (none on the street wall by the lift corridor, user 2026-10-25)
  graffiti(-80,F,-166.45,-79.95,12,-151.05,Enum.NormalId.Right,15,15)
 end
 -- wall between the stairs/foyer strip and the hall (opening for the corridor)

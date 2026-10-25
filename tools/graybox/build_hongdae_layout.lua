@@ -3947,7 +3947,8 @@ do
 		E.Name = "ClubLift"
 		E.Parent = T
 		-- corridor: floor, ceiling, black walls
-		box("LiftCorridorFloor", CX0, -0.5, FOYER_END - 0.5, CX1, 0, CAR0, Color3.fromRGB(34, 34, 40), { parent = E, material = Enum.Material.Marble })
+		-- (plain, the same colour as the foyer floor: user 2026-10-25)
+		box("LiftCorridorFloor", CX0, -0.5, FOYER_END - 0.5, CX1, 0, CAR0, Color3.fromRGB(26, 26, 29), { parent = E, material = Enum.Material.SmoothPlastic })
 		box("LiftCorridorCeiling", CX0, 12, FOYER_END - 0.5, CX1, 13, CAR1 + 0.6, DARK, { parent = E })
 		-- the rest of the old fill behind the car stays solid
 		box("EntryFillRest", CX0 - 0.1, -24, CAR1 + 0.6, CX1 + 0.1, 36, FILL_END, Color3.fromRGB(40, 42, 46), { parent = E })
