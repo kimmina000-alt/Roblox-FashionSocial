@@ -1,3 +1,12 @@
+## 2026-10-24 ~ 26 — Park wall, beach cafe, club shop and rankings (feat/park-wall-1024, merged into catalog-ui-redesign)
+- D-161..D-225: amusement park closed as a construction site, sea/bay/beach park wall, beach cafe rebuilt, pocket park, club black marble + lift, subway exits 3/4, OH24 moved south, performance passes.
+- D-226..D-261: cafe storeys and plants, club floor/stairs/graffiti, beam textures.
+- D-262..D-301: lasers (AimLow, criss-cross/wave), 5 dance poles to the ceiling on stepped stages, VIP sign glow (GlowGui bloom), wall LED chase bars, entry/corridor lights, waiting line, DJ lasers apart from lights.
+- New code: SparkleService, RankingService, VoteService, BusAdService, BannerController, MessagePrompt, RankingBoards, CoinShopController, BusAdController; ClubConfig drink tiers; MonetizationConfig products (ids 0); EconomyService coin x2 (pass + boost).
+- D-302..D-309: beach cafe piano, wooden platform round the cafe, south wall one bay longer, Creator Store plants, park_beach_hidden.lua.
+- 2P phone test fixes (ISSUE-2P-001..007): DJ row layout, piano "일어나기" button, bus ad poster hidden under ads, supporter VoteMine, negative test ids in votes, stacked bottle labels, banner above the 💝 window.
+- Report: docs/06_LOG/REPORT_2026-10-25_26.md.
+
 ## 2026-10-23 — Realistic street, boundary, official map (feat/art-realistic-1022)
 - Street v7c: wide sidewalks, set-back buildings, yellow box junction, planting beds with street trees and shrubs, bike lane against the beds, grid pavers, Korean signals, street lights, bus shelters + clickable bus stop signs (SubwayService), curved-roof subway entrances, beach steps, realistic fan palms, editable props (prop_save.lua).
 - Play-area boundary (invisible walls) with backdrop: hanok wall extended, fake shop buildings, continuing beach and south street.
