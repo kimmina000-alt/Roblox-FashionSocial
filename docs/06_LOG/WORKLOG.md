@@ -1510,3 +1510,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 다른 클럽 게임 상점(머니 팩, Guest/CREW/VIP/GUARD 패스, 야광봉·폭죽·머니건, VIP 할인가, 후원 단계)과 실제 클럽 스파클러 버킷 사진을 보고 `docs/01_SYSTEMS/CLUB_SHOP_PRICING.md` 작성. 레퍼런스는 `docs/04_ART/references/club_shop_refs_2026-10-25.webp`, `club_sparkler_bucket_2026-10-25.webp`.
 
 ### 기획 (D-270) — 가격 테스트 값 확정, 음료 목록 교체, 코인 x2 패스·후원 순위 추가 (CLUB_SHOP_PRICING.md §4·§5·§10·§11)
+
+### 기획 (D-271) — 음료 v2 이름·모양, 콜드 스파크·후원 전체 배너, 순위 3종과 바깥 위치, 버스 광고판 구매 제안 (CLUB_SHOP_PRICING.md §4, §13)
