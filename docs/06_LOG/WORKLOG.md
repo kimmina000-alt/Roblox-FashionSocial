@@ -1477,3 +1477,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/club_graffiti_end_clean.jpg)
 
 ### 추가 (D-260) — D-259 되돌림(그래피티 D-258 상태로)
+
+### 추가 (D-261) — 그래피티 한 칸 더, 통로 입구 비우기
+- 홀 쪽 벽 그래피티를 화살표 앞까지 한 칸 더. 계단 아래 복도로 들어가는 통로(사람이 지나가는 빈 곳)에는 그래피티 없이 위쪽 벽에만, 무늬는 이어지게.
+
+![](images/2026-10-25/club_passage_no_graffiti.jpg)
+![](images/2026-10-25/club_graffiti_extended.jpg)

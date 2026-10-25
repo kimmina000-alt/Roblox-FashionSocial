@@ -240,10 +240,15 @@ label(z,"↓ 계단 (지하 클럽)",Vector3.new(-40,6,-158))
 -- and walls as they are, just the graffiti): see-through carrier panels with
 -- the pale graffiti Texture (docs/04_ART/textures/graffiti.png)
 do local GRAFFITI="rbxassetid://77520103793675"
- local function graffiti(x0,y0,z0,x1,y1,z1,face,su,sv)
+ local function graffiti(x0,y0,z0,x1,y1,z1,face,su,sv,ou)
   local p=box(z,"GraffitiWall",x0,y0,z0,x1,y1,z1,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
-  local tx=Instance.new("Texture") tx.Texture=GRAFFITI tx.Face=face tx.StudsPerTileU=su or 34 tx.StudsPerTileV=sv or 17 tx.Transparency=0.15 tx.Parent=p end
- graffiti(-80,F,-166.5,-24,12,-166.45,Enum.NormalId.Back) -- (stairs part only)
+  local tx=Instance.new("Texture") tx.Texture=GRAFFITI tx.Face=face tx.StudsPerTileU=su or 34 tx.StudsPerTileV=sv or 17 tx.OffsetStudsU=ou or 0 tx.Transparency=0.15 tx.Parent=p end
+ -- hall-side wall, one more tile towards the foyer (to x -12, two whole tiles
+ -- from x -80, user 2026-10-25); none over the corridor passage at the foot of
+ -- the stairs (x -80..-64 below F+14 is an opening people walk through), only
+ -- on the wall above it; the lower part keeps the same pattern phase
+ graffiti(-80,F+14,-166.5,-64,12,-166.45,Enum.NormalId.Back)
+ graffiti(-64,F,-166.5,-12,12,-166.45,Enum.NormalId.Back,nil,nil,16)
  -- the foyer wall seen from the street through the door: no scribbles, just a
  -- pink graffiti "OHU CLUB" with an arrow pointing left, down the stairs
  do local p=box(z,"GraffitiSign",-9.5,1,-166.5,7.5,9.5,-166.45,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
