@@ -1606,3 +1606,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-287) — 전광판을 아래 남은 공간의 절반까지 내림
 
 ![](images/2026-10-25/oh24_tower_v5.jpg)
+
+### 수정 (D-288) — 로비 OHU CLUB 화살표 간판 반 크기, 안쪽으로
+
+![](images/2026-10-25/foyer_sign_small.jpg)
