@@ -502,17 +502,15 @@ do local TR=Color3.fromRGB(30,30,34)
  end
 end
 -- LASERS (user video 2026-10-25: thin pale beams fanning fast from a row of
--- emitters) on the truss across the front of the DJ stage, where the moving
--- heads hung first; attribute AimAt = the point on the dance floor they fan
--- round (ClubLightsController)
-do local TR=Color3.fromRGB(30,30,34) local TY=TOP-2.2
- box(z,"LaserTruss",57,TY-0.5,-246,59,TY+0.5,-190,TR,{mat=Enum.Material.Metal})
- box(z,"LaserTruss",57,TY+0.9,-246,59,TY+1.3,-190,TR,{mat=Enum.Material.Metal,nocol=true})
- for _,tz in ipairs({-246,-190}) do box(z,"LaserTrussHanger",57.8,TY+0.5,tz-0.2,58.2,TOP,tz+0.2,TR,{mat=Enum.Material.Metal}) end
- for _,ez in ipairs({-238,-228,-223,-213,-208,-198}) do
-  local e=box(z,"LaserEmitter",57.3,TY-1.6,ez-0.7,58.7,TY-0.5,ez+0.7,Color3.fromRGB(26,26,30))
-  e:SetAttribute("AimY",F) e:SetAttribute("AimAt",Vector3.new(10,F,ez)) CS:AddTag(e,"ClubLaser")
-  box(z,"LaserLens",57.6,TY-1.75,ez-0.35,58.4,TY-1.6,ez+0.35,Color3.fromRGB(220,210,255),{mat=Enum.Material.Neon,ghost=true}) end
+-- emitters): a row on the front edge of the DJ stage shooting UP over the
+-- crowd to the ceiling (user 2026-10-25: "not at the floor, upwards");
+-- attribute AimAt = the ceiling point they fan round, AimY = ceiling height
+-- (ClubLightsController). (The truss they hung on is gone.)
+do
+ for _,ez in ipairs({-240,-230,-222,-214,-206,-196}) do
+  local e=box(z,"LaserEmitter",60.2,F+4,ez-0.7,61.6,F+5,ez+0.7,Color3.fromRGB(26,26,30))
+  e:SetAttribute("AimY",TOP-0.5) e:SetAttribute("AimAt",Vector3.new(-5,TOP-0.5,ez)) CS:AddTag(e,"ClubLaser")
+  box(z,"LaserLens",60.5,F+5,ez-0.35,61.3,F+5.15,ez+0.35,Color3.fromRGB(220,210,255),{mat=Enum.Material.Neon,ghost=true}) end
 end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
 for _,sz in ipairs({-243,-193}) do

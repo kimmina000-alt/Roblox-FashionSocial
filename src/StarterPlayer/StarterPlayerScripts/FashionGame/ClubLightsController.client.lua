@@ -31,6 +31,9 @@ end
 -- Lasers
 --------------------------------------------------
 
+-- soft-edged beam texture: white, fading to clear across its width, so the
+-- beam edges look blurred (user 2026-10-25; Beams have no blur setting)
+local SOFT_BEAM = "rbxassetid://84224211906463"
 local BEAMS_PER_EMITTER = 2 -- (thin pale beams fanning fast, user video 2026-10-25)
 local targetHolder = Instance.new("Part")
 targetHolder.Name = "ClubLaserTargets"
@@ -53,7 +56,10 @@ local function addEmitter(instance: Instance)
 	end
 	local origin = Instance.new("Attachment")
 	origin.Name = "LaserOrigin"
-	origin.Position = Vector3.new(0, -instance.Size.Y / 2, 0)
+	-- the face the beams leave from: top for emitters that shoot up (AimY above them)
+	local aimY0 = instance:GetAttribute("AimY")
+	local up = typeof(aimY0) == "number" and aimY0 > instance.Position.Y
+	origin.Position = Vector3.new(0, (if up then 1 else -1) * instance.Size.Y / 2, 0)
 	origin.Parent = instance
 	local entry: Emitter = { part = instance, beams = {}, targets = {}, index = #emitters }
 	for i = 1, BEAMS_PER_EMITTER do
@@ -63,8 +69,11 @@ local function addEmitter(instance: Instance)
 		local beam = Instance.new("Beam")
 		beam.Attachment0 = origin
 		beam.Attachment1 = target
-		beam.Width0 = 0.05
-		beam.Width1 = 0.16
+		beam.Width0 = 0.18
+		beam.Width1 = 0.45
+		beam.Texture = SOFT_BEAM
+		beam.TextureMode = Enum.TextureMode.Stretch
+		beam.TextureLength = 1
 		beam.FaceCamera = true
 		beam.LightEmission = 1
 		beam.LightInfluence = 0
@@ -506,13 +515,16 @@ function addWash(instance: Instance)
 	local beam = Instance.new("Beam")
 	beam.Attachment0 = origin
 	beam.Attachment1 = target
-	beam.Width0 = 2.2
-	beam.Width1 = 16
+	beam.Width0 = 3.2
+	beam.Width1 = 24
+	beam.Texture = SOFT_BEAM
+	beam.TextureMode = Enum.TextureMode.Stretch
+	beam.TextureLength = 1
 	beam.FaceCamera = true
 	beam.LightEmission = 1
 	beam.LightInfluence = 0
 	beam.Segments = 12
-	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.45), NumberSequenceKeypoint.new(0.6, 0.82), NumberSequenceKeypoint.new(1, 0.95) })
+	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(0.6, 0.72), NumberSequenceKeypoint.new(1, 0.92) })
 	beam.Enabled = false
 	beam.Parent = lens
 	local light = Instance.new("SpotLight")

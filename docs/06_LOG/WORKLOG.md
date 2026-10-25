@@ -1408,3 +1408,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 추가 (D-247) — 블러 복구, 조명 속도 x5까지
 - 레이저·무빙라이트 흐린 빛 겹 삭제(D-245 모습으로). DJ ⚡ 버튼 x0.5 → x1 → x1.5 → x2 → x3 → x4 → x5.
+
+### 추가 (D-248) — 빛 경계 부드럽게(그라데이션 텍스처), 레이저 위로
+- 참고 게임처럼: 가운데 흰색 → 양옆 투명 그라데이션 이미지를 빔 텍스처로(무빙라이트·레이저). 이미지 docs/04_ART/textures/beam_soft.png.
+- 레이저: DJ 무대 앞 가장자리에서 천장 쪽으로 쏨(레이저 트러스 삭제).
+
+![](images/2026-10-25/club_soft_texture.jpg)
