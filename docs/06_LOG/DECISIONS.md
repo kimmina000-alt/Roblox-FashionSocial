@@ -505,3 +505,5 @@ D-271 — (2026-10-25, user) Drinks v2: water free; cider/cola 💰1; orange sod
 D-272 — (2026-10-25, user) Orange soda / lemonade / blue ade 💰5. Add a 1-hour coin x2 boost for 25 R$ next to the permanent x2 pass (pass owners cannot stack it). Bus-stop ads: the 4 stops × 2 boards = 8 slots, 49 R$ / 24 h, 99 R$ / 3 days. VIP-only drink explained as a new VIP-only drink (proposal: Royal Crown Sparkling 59 R$), awaiting the user. All shop plans: CLUB_SHOP_PRICING.md §14, PRODUCTS.md §9.
 
 D-273 — (2026-10-25, proposal) VIP-only drink: a Seoul craft soda in the style of On A Lark (small glass bottle, kraft label, gold crown sticker, 4 flavours) for 59 R$, VIP only; a Poppi-style bright can ("Bubble Pop") in tier 2 💰100 / 10 R$; skip the Olipop style (same kind as Poppi). Awaiting the user. CLUB_SHOP_PRICING.md §14.3.
+
+D-274 — (2026-10-25, user) VIP-only drink = "골목 공방 소다" (Golmok Craft Soda, On A Lark style: small brown glass bottle, kraft label, gold crown sticker, 4 flavours) 59 R$, VIP only. Tier 2 adds "쨍팝" (Zzang Pop, Poppi style bright can, apple-cider-vinegar soda) 💰100 / 10 R$. No Olipop style. CLUB_SHOP_PRICING.md §14.4, PRODUCTS.md §9.

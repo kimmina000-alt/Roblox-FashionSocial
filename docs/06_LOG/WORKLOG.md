@@ -1514,3 +1514,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 기획 (D-271) — 음료 v2 이름·모양, 콜드 스파크·후원 전체 배너, 순위 3종과 바깥 위치, 버스 광고판 구매 제안 (CLUB_SHOP_PRICING.md §4, §13)
 
 ### 기획 (D-272) — 💰5 음료, 1시간 코인 부스트 25 R$, 버스 광고 8자리, VIP 전용 음료 설명. 상품 전체 목록을 PRODUCTS.md §9에 정리, MONETIZATION.md에 연결.
+
+### 기획 (D-273, D-274) — VIP 전용 음료 조사(온어락소다·올리팝·팝피) → 골목 공방 소다 59 R$(VIP만), 2단계 쨍팝 추가
