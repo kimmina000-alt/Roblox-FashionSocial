@@ -757,14 +757,18 @@ local z=zone("04_Beach_Aquarium")
   box(cm,"Mezzanine",mx,MY-1,z0+0.4,x1-0.6,MY,z1-0.4,floorC,{mat=Enum.Material.Marble}) -- inside the walls (its ends flickered on the outer faces)
   box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+3.4,95.6,glass,{t=0.7,mat=Enum.Material.Glass})
   box(cm,"MezzHandrail",mx-0.4,MY+3.4,z0,mx+0.1,MY+3.7,95.9,frameC) -- runs to the stair rail's line
-  local NS=MY-FY -- one step per stud of height, 1.6 deep
-  for k=1,NS do box(cm,"Stair",-262+(k-1)*1.6,FY,96,-262+k*1.6,FY+k,104,woodC) end
-  do local run=NS*1.6 local c=Vector3.new(-262+run/2,FY+NS/2,100) P(cm,"StairRamp",Vector3.new(8,NS,run),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),woodC,{class="WedgePart",t=1}) end
-  -- glass rail along the stair slope, 3.4 above the steps like the mezzanine rail (user 2026-10-24)
-  do local a=Vector3.new(-261.2,FY+1.7+0.5,95.75) local b=Vector3.new(mx-0.4,MY+1.7,95.75) -- from the first step to the mezzanine raillocal d=(b-a).Unit
-   -- the glass is a parallelogram with vertical ends (a box cut square to the
-   -- slope poked past the posts and left a gap under them, user 2026-10-24):
-   -- two triangles, each made of two wedges
+  -- STAIRS (user plan 2026-10-25, 1F layout v3): one straight flight along the
+  -- staff wall from z 70 up to a landing at the north glass (z 96..105.2),
+  -- which steps east onto the mezzanine's open end
+  local NS=MY-FY -- one stud of height a step
+  local SX0,SX1,SZ0,SZL=-242,mx-0.6,70,96
+  local SD=(SZL-SZ0)/(NS-1)
+  for k=1,NS-1 do box(cm,"Stair",SX0,FY,SZ0+(k-1)*SD,SX1,FY+k,SZ0+k*SD,woodC) end
+  box(cm,"StairLanding",SX0,FY,SZL,mx,MY,z1-0.4,woodC)
+  do local run=SZL-SZ0 local c=Vector3.new((SX0+SX1)/2,FY+(NS-1)/2,SZ0+run/2) P(cm,"StairRamp",Vector3.new(SX1-SX0,NS-1,run),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),woodC,{class="WedgePart",t=1}) end
+  -- glass rail on the open (lounge) side, 3.4 above the steps like the mezzanine rail
+  do local RX=SX0+0.2 local a=Vector3.new(RX,FY+1.7+0.5,SZ0+0.8) local b=Vector3.new(RX,MY+1.7,SZL)
+   -- the glass is a parallelogram with vertical ends: two triangles, each made of two wedges
    local function tri(p1,p2,p3)
     local ab,ac,bc=p2-p1,p3-p1,p3-p2
     local abd,acd,bcd=ab:Dot(ab),ac:Dot(ac),bc:Dot(bc)
@@ -779,9 +783,11 @@ local z=zone("04_Beach_Aquarium")
    tri(a-lo,b-lo,b+hi) tri(a-lo,b+hi,a+hi)
    local ha,hb=a+Vector3.new(0,1.85,0),b+Vector3.new(0,1.85,0)
    P(cm,"StairHandrail",Vector3.new(0.5,0.3,(hb-ha).Magnitude),CFrame.lookAt((ha+hb)/2,hb),frameC,{nocol=true})
-   -- square end posts: on the floor at the bottom, against the mezzanine rail at the top
-   box(cm,"StairPost",a.X-0.25,FY,95.5,a.X+0.25,ha.Y+0.15,96,frameC)
-   box(cm,"StairPost",mx-0.4,MY,95.5,mx+0.1,MY+3.7,96,frameC) end
+   box(cm,"StairPost",RX-0.25,FY,a.Z-0.25,RX+0.25,ha.Y+0.15,a.Z+0.25,frameC)
+   box(cm,"StairPost",RX-0.25,MY,SZL-0.25,RX+0.25,MY+3.7,SZL+0.25,frameC)
+   -- the landing's open side
+   box(cm,"LandingRailGlass",RX-0.15,MY,SZL+0.25,RX+0.15,MY+3.4,z1-0.4,glass,{t=0.7,mat=Enum.Material.Glass})
+   box(cm,"LandingHandrail",RX-0.25,MY+3.4,SZL+0.25,RX+0.25,MY+3.7,z1-0.4,frameC) end
   -- mezzanine window bar at the railing (view over the pool to the sea)
   box(cm,"MezzBar",mx+0.2,MY+3.2,z0+3,mx+1.8,MY+3.5,93,white)
   for sz=z0+5,91,5 do local pos=Vector3.new(mx+4,MY+2.3,sz)
@@ -792,73 +798,42 @@ local z=zone("04_Beach_Aquarium")
    local tt=cyl(cm,"CafeTable",3.8,0.3,Vector3.new(tp[1],MY+3.1,tp[2]),woodC) CS:AddTag(tt,"CafeTable")
    for _,dz in ipairs({-2.7,2.7}) do local pos=Vector3.new(tp[1],MY+1.6,tp[2]+dz)
     seat(cm,"CafeChair",CFrame.lookAt(pos,Vector3.new(tp[1],MY+1.6,tp[2])),Vector3.new(1.8,0.3,1.8),white) end end
-  -- ORDER & PICK UP COUNTER (user photo 2026-10-24, docs/04_ART/references/cafe_counter_ref.webp):
-  -- a long white counter facing the pool, a lit pastry case in its middle,
-  -- two tills, queue posts, a white back counter with espresso machines and a
-  -- bottle shelf, and a row of black menu boards high on the back wall
+  -- ORDER & PICK UP COUNTER (user plan 2026-10-25, 1F layout v3): one long
+  -- white counter across the room (z 76..79) right in front of the staff zone,
+  -- the lit pastry case in its west part, two tills in its east part;
+  -- customers order from the north (the entrance side)
   local CW=Color3.fromRGB(244,243,240) local STEEL=Color3.fromRGB(176,178,182)
-  -- (user 2026-10-25) both counters run from the south wall (the top a hair off
-  -- its face) and stop at z 56, clear of the street door (z 56..66)
-  local CZ0,CZ1=16.72,55.7
-  box(cm,"Counter",-229,FY,CZ0,-226,FY+3.6,CZ1,CW)
-  box(cm,"CounterKick",-229.15,FY,CZ0,-229,FY+0.4,CZ1,Color3.fromRGB(70,70,72))
-  local top=box(cm,"CounterTop",-229.3,FY+3.6,CZ0-0.3,-225.7,FY+3.9,CZ1+0.3,Color3.fromRGB(238,238,236),{mat=Enum.Material.Marble})
+  local KX0,KX1,KZ0,KZ1=mx+0.4,x1-0.6,76,79
+  box(cm,"Counter",KX0,FY,KZ0,KX1,FY+3.6,KZ1,CW)
+  box(cm,"CounterKick",KX0,FY,KZ0-0.15,KX1,FY+0.4,KZ0,Color3.fromRGB(70,70,72))
+  local top=box(cm,"CounterTop",KX0,FY+3.6,KZ0-0.3,KX1,FY+3.9,KZ1,Color3.fromRGB(238,238,236),{mat=Enum.Material.Marble})
   top:SetAttribute("Shop","BeachCafe") CS:AddTag(top,"SnackShop")
-  -- pastry case: dark frame, glass, three lit shelves of cakes and bread
-  local PZ0,PZ1=40,54
-  -- (user 2026-10-25) the case turned round (its glass panel now on the staff
-  -- side, the open lit side towards the room) and its black frame, top and
-  -- base made of the same pale blue glass
+  -- pastry case of pale blue glass: the glass panel on the staff side, the lit
+  -- open side towards the room
+  local CX0,CX1=-232,-218
   local CASE={t=0.55,mat=Enum.Material.Glass}
-  box(cm,"CaseBase",-229,FY+3.9,PZ0,-226,FY+4.1,PZ1,glass,{mat=Enum.Material.Glass,t=0.3})
-  box(cm,"CaseGlass",-226.2,FY+4.1,PZ0,-226,FY+7,PZ1,glass,{t=0.75,mat=Enum.Material.Glass,nocol=true})
-  for _,cz in ipairs({PZ0,PZ1-0.15}) do box(cm,"CaseFrame",-229,FY+4.1,cz,-225.9,FY+7,cz+0.15,glass,CASE) end
-  box(cm,"CaseTop",-229,FY+7,PZ0,-225.9,FY+7.15,PZ1,glass,CASE)
+  box(cm,"CaseBase",CX0,FY+3.9,KZ0,CX1,FY+4.1,KZ1,glass,{mat=Enum.Material.Glass,t=0.3})
+  box(cm,"CaseGlass",CX0,FY+4.1,KZ1-0.2,CX1,FY+7,KZ1,glass,{t=0.75,mat=Enum.Material.Glass,nocol=true})
+  for _,cx in ipairs({CX0,CX1-0.15}) do box(cm,"CaseFrame",cx,FY+4.1,KZ0,cx+0.15,FY+7,KZ1,glass,CASE) end
+  box(cm,"CaseTop",CX0,FY+7,KZ0,CX1,FY+7.15,KZ1,glass,CASE)
   local BREAD={Color3.fromRGB(205,150,80),Color3.fromRGB(240,215,220),Color3.fromRGB(110,70,45),Color3.fromRGB(235,200,120)}
   for s,sy in ipairs({FY+4.1,FY+5.1,FY+6.1}) do
-   local shelf=box(cm,"CaseShelf",-228.9,sy,PZ0+0.2,-226.2,sy+0.08,PZ1-0.2,Color3.fromRGB(250,248,240),{mat=Enum.Material.Neon,ghost=true,t=0.2})
+   local shelf=box(cm,"CaseShelf",CX0+0.2,sy,KZ0+0.1,CX1-0.2,sy+0.08,KZ1-0.2,Color3.fromRGB(250,248,240),{mat=Enum.Material.Neon,ghost=true,t=0.2})
    if s==3 then local pl=Instance.new("PointLight") pl.Range=8 pl.Brightness=1 pl.Color=Color3.fromRGB(255,232,200) pl.Parent=shelf end
-   for k=0,5 do P(cm,"Pastry",Vector3.new(0.9,0.5,1.4),CFrame.new(-227.6,sy+0.33,PZ0+1.3+k*2.2),BREAD[(k+s)%4+1],{nocol=true}) end end
-  -- tills and a tip jar
-  for _,rz in ipairs({28,34}) do
-   box(cm,"Register",-228.6,FY+3.9,rz-0.8,-227.4,FY+4.1,rz+0.8,dark)
-   P(cm,"RegisterScreen",Vector3.new(0.12,1.1,1.5),CFrame.new(-227.9,FY+4.8,rz)*CFrame.Angles(0,0,math.rad(-15)),dark,{nocol=true}) end
-  cyl(cm,"TipJar",0.7,0.9,Vector3.new(-228.4,FY+4.35,37),glass,{t=0.5,mat=Enum.Material.Glass,nocol=true})
-  -- queue posts with a belt in front of the tills
-  for k,qz in ipairs({22,27,32}) do cyl(cm,"QueuePost",0.35,3,Vector3.new(-233,FY+1.5,qz),STEEL,{mat=Enum.Material.Metal})
-   if k>1 then box(cm,"QueueBelt",-233.05,FY+2.4,qz-5,-232.95,FY+2.7,qz,Color3.fromRGB(30,30,34),{nocol=true}) end end
-  -- back counter (the 알바 work station) with machines and a bottle shelf above
-  -- (from the south wall too: the staff door there is gone, user 2026-10-25)
-  local BZ0=CZ0
-  box(cm,"BackCounter",-212,FY,BZ0,-207,FY+3.6,CZ1,CW)
-  box(cm,"BackCounterTop",-212.2,FY+3.6,BZ0,-206.9,FY+3.8,CZ1,Color3.fromRGB(60,60,64),{mat=Enum.Material.Granite})
-  for _,ez in ipairs({26,46}) do
-   box(cm,"EspressoMachine",-211.6,FY+3.8,ez-1.6,-209,FY+5.8,ez+1.6,STEEL,{mat=Enum.Material.Metal})
-   box(cm,"Grinder",-211.2,FY+3.8,ez+2.2,-209.8,FY+6.2,ez+3.4,dark) end
-  box(cm,"BottleShelf",-208.6,FY+7.4,CZ1-9,-206.6,FY+7.6,CZ1-1,Color3.fromRGB(150,96,56))
-  for k=0,6 do for _,bz in ipairs({CZ1-8.4}) do
-   cyl(cm,"Bottle",0.45,1.3,Vector3.new(-207.6,FY+8.25,bz+k*1.1),k%2==0 and Color3.fromRGB(60,40,30) or Color3.fromRGB(230,225,215),{nocol=true}) end end
-  -- black menu boards high on the back (street) wall, ORDER & PICK UP sign at the left
-  local nB=5 local bw=(CZ1-CZ0-6)/nB
-  for k=0,nB-1 do
-   local bz0=CZ0+6+k*bw
-   local mb=box(cm,"MenuBoard",x1-0.75,FY+12.7,bz0+0.15,x1-0.6,FY+15.8,bz0+bw-0.15,Color3.fromRGB(26,26,28))
-   local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0 g.Brightness=1.2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=mb
-   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(0.9,0.9) l.Position=UDim2.fromScale(0.05,0.05) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.fromRGB(245,245,240) l.TextXAlignment=Enum.TextXAlignment.Left
-   l.Text=({"ESPRESSO\n아메리카노  4.5\n카페라떼  5.0\n바닐라 라떼  5.5","SIGNATURE\n선셋 라떼  6.5\n흑임자 라떼  6.0\n크림 커피  6.0","NON-COFFEE\n블루 레몬에이드  6.0\n망고 스무디  6.5\n딸기 라떼  6.0","TEA\n얼그레이  5.0\n캐모마일  5.0\n유자차  5.5","BAKERY\n크루아상  4.0\n소금빵  3.5\n치즈케이크  6.5"})[k+1] l.Parent=g end
-  local op=box(cm,"OrderPickupSign",x1-0.75,FY+13.5,CZ0+0.5,x1-0.6,FY+15,CZ0+5.5,CW) -- (above the window's cup shelf)
-  do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Left g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=op
-   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Gotham l.TextColor3=Color3.fromRGB(120,120,124) l.Text="ORDER & PICK UP" l.Parent=g end
-  label(cm,"☕ 음료 주문",Vector3.new(-227.5,FY+8,30))
-  -- STAFF ZONE behind the stairs (user 2026-10-24): the wall along the stair
-  -- side stays, the cross wall stands far back (z 91.4) and the staff door is
-  -- on the back wall behind the counter's south end; it stays shut (no way in)
+   for k=0,5 do P(cm,"Pastry",Vector3.new(1.4,0.5,0.9),CFrame.new(CX0+1.3+k*2.2,sy+0.33,KZ0+1.4),BREAD[(k+s)%4+1],{nocol=true}) end end
+  -- tills (screens turned to the customers) and a tip jar
+  for _,rx in ipairs({-215.5,-209.5}) do
+   box(cm,"Register",rx-0.8,FY+3.9,KZ0+1.2,rx+0.8,FY+4.1,KZ0+2.4,dark)
+   P(cm,"RegisterScreen",Vector3.new(1.5,1.1,0.12),CFrame.new(rx,FY+4.8,KZ0+1.8)*CFrame.Angles(math.rad(15),0,0),dark,{nocol=true}) end
+  cyl(cm,"TipJar",0.7,0.9,Vector3.new(-212.5,FY+4.35,KZ0+0.8),glass,{t=0.5,mat=Enum.Material.Glass,nocol=true})
+  label(cm,"☕ 음료 주문",Vector3.new(-220,FY+8,KZ0+1.5))
+  -- STAFF ZONE (no way in): the front wall right behind the counter with a
+  -- shut STAFF ONLY door at its west end, the wall along the stairs and the
+  -- cross wall at z 91.4
   box(cm,"StaffWall",mx,FY,91.4,x1-0.6,MY-1,92,CW)
-  box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,96.2,CW) -- to the stairs' side (a gap showed)
-  -- (no staff door or STAFF ONLY sign on the back wall any more, user 2026-10-25)
-  -- the staff zone gets a front wall at z 75.6 with a shut STAFF ONLY door at
-  -- its west end (user plan 2026-10-25)
-  do local SZ,DX0,DX1=75.6,-232,-225.6
+  box(cm,"StaffWall",mx-0.6,FY,70,mx,MY-1,96.2,CW) -- the stairs' east side
+  local SZ=KZ1
+  do local DX0,DX1=-232,-225.6
    box(cm,"StaffWall",mx,FY,SZ,DX0,MY-1,SZ+0.6,CW) box(cm,"StaffWall",DX1,FY,SZ,x1-0.6,MY-1,SZ+0.6,CW)
    box(cm,"StaffWall",DX0,FY+8,SZ,DX1,MY-1,SZ+0.6,CW)
    box(cm,"StaffDoor",DX0,FY,SZ+0.2,DX1,FY+8,SZ+0.4,Color3.fromRGB(210,208,204))
@@ -866,6 +841,29 @@ local z=zone("04_Beach_Aquarium")
    local ss=box(cm,"StaffSign",DX0+1.7,FY+8.6,SZ-0.1,DX1-1.7,FY+9.6,SZ,dark,{nocol=true})
    local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=ss
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1) l.Text="STAFF ONLY" l.Parent=g end
+  -- black menu boards high on the staff wall above the counter, facing the
+  -- customers, ORDER & PICK UP sign over the door
+  local nB=5 local MB0,MB1=-224,-207.6 local bw=(MB1-MB0)/nB
+  for k=0,nB-1 do
+   local bx0=MB0+k*bw
+   local mb=box(cm,"MenuBoard",bx0+0.15,FY+10.6,SZ-0.15,bx0+bw-0.15,FY+13.7,SZ,Color3.fromRGB(26,26,28))
+   local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0 g.Brightness=1.2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=mb
+   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(0.9,0.9) l.Position=UDim2.fromScale(0.05,0.05) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.fromRGB(245,245,240) l.TextXAlignment=Enum.TextXAlignment.Left
+   l.Text=({"ESPRESSO\n아메리카노  4.5\n카페라떼  5.0\n바닐라 라떼  5.5","SIGNATURE\n선셋 라떼  6.5\n흑임자 라떼  6.0\n크림 커피  6.0","NON-COFFEE\n블루 레몬에이드  6.0\n망고 스무디  6.5\n딸기 라떼  6.0","TEA\n얼그레이  5.0\n캐모마일  5.0\n유자차  5.5","BAKERY\n크루아상  4.0\n소금빵  3.5\n치즈케이크  6.5"})[k+1] l.Parent=g end
+  local op=box(cm,"OrderPickupSign",-231.5,FY+11.4,SZ-0.15,-226.1,FY+12.9,SZ,CW)
+  do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=op
+   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Gotham l.TextColor3=Color3.fromRGB(120,120,124) l.Text="ORDER & PICK UP" l.Parent=g end
+  -- WORK BENCH (the 알바 station, "BackCounter") along the north wall under
+  -- the mezzanine, machines and a bottle shelf above it
+  local BZ0,BZ1=100.4,z1-0.4
+  box(cm,"BackCounter",KX0,FY,BZ0,KX1,FY+3.6,BZ1,CW)
+  box(cm,"BackCounterTop",KX0,FY+3.6,BZ0-0.2,KX1,FY+3.8,BZ1,Color3.fromRGB(60,60,64),{mat=Enum.Material.Granite})
+  for _,ex in ipairs({-224,-216}) do
+   box(cm,"EspressoMachine",ex-1.6,FY+3.8,BZ1-2.6,ex+1.6,FY+5.8,BZ1-0.2,STEEL,{mat=Enum.Material.Metal})
+   box(cm,"Grinder",ex+2.2,FY+3.8,BZ1-1.6,ex+3.4,FY+6.2,BZ1-0.2,dark) end
+  box(cm,"BottleShelf",-215,FY+7.4,BZ1-2,-207,FY+7.6,BZ1,Color3.fromRGB(150,96,56))
+  for k=0,6 do
+   cyl(cm,"Bottle",0.45,1.3,Vector3.new(-214.4+k*1.1,FY+8.25,BZ1-1),k%2==0 and Color3.fromRGB(60,40,30) or Color3.fromRGB(230,225,215),{nocol=true}) end
   -- coffee bag wall (colourful packs) on the south wall behind the bakery
   for k=0,17 do local col=({Color3.fromRGB(200,40,50),Color3.fromRGB(30,30,30),Color3.fromRGB(230,200,60),Color3.fromRGB(60,110,180),Color3.fromRGB(240,240,240)})[k%5+1]
    box(cm,"CoffeeBag",mx+1+(k%9)*2.8,FY+5+math.floor(k/9)*2.4,z0+0.5,mx+3+(k%9)*2.8,FY+6.8+math.floor(k/9)*2.4,z0+1.3,col) end
@@ -905,35 +903,40 @@ local z=zone("04_Beach_Aquarium")
     P(cm,"ChairBack",Vector3.new(1.8,1.6,0.25),cf*CFrame.new(0,0.95,0.85),white,{nocol=true})
    end
   end
-  -- bakery tables with wooden trays of bread (moved west, user plan)
-  for _,bz in ipairs({{25,37},{43,55}}) do
-   box(cm,"BakeryTable",-250.8,FY,bz[1],-242.8,FY+3.4,bz[2],white)
-   for tz=bz[1]+0.5,bz[2]-2.5,2.6 do box(cm,"BreadTray",-250.3,FY+3.4,tz,-243.3,FY+3.9,tz+2.2,woodC)
-    for k=0,2 do P(cm,"Bread",Vector3.new(1.4,0.7,0.9),CFrame.new(-248.8+k*2.2,FY+4.2,tz+1.1),({Color3.fromRGB(205,150,80),Color3.fromRGB(225,180,110),Color3.fromRGB(170,110,60)})[k+1],{nocol=true}) end end end
-  label(cm,"🥐 베이커리",Vector3.new(-246.8,FY+7,40))
+  -- bakery: two long tables with wooden trays of bread where the counters were
+  -- (user plan 2026-10-25, 1F layout v3)
+  for _,bx in ipairs({-229.5,-214.7}) do
+   box(cm,"BakeryTable",bx,FY,20.6,bx+8,FY+3.4,53.6,white)
+   for tz=21.1,51.1,2.6 do box(cm,"BreadTray",bx+0.5,FY+3.4,tz,bx+7.5,FY+3.9,tz+2.2,woodC)
+    for k=0,2 do P(cm,"Bread",Vector3.new(1.4,0.7,0.9),CFrame.new(bx+1.8+k*2.2,FY+4.2,tz+1.1),({Color3.fromRGB(205,150,80),Color3.fromRGB(225,180,110),Color3.fromRGB(170,110,60)})[k+1],{nocol=true}) end end end
+  label(cm,"🥐 베이커리",Vector3.new(-218,FY+7,37))
   -- STEPPED LOUNGE (user plan: "계단식 4층, 1→2→3→4"): four wooden steps rising
-  -- eastwards to the stairs' side, each with a row of three bench + table sets
-  -- facing the sea (west); 1 stud a step so people walk up
-  local LX0,LW,LZ0,LZ1=-262,6.8,70,96
+  -- eastwards to the stairs, each with a row of four bench + table sets facing
+  -- the sea (west); 1 stud a step so people walk up (v3: moved west, down to
+  -- the north glass, a fourth row)
+  local LX0,LW,LZ0,LZ1=-269,6.75,71,z1-0.4
   for k=1,4 do
    local xa=LX0+(k-1)*LW local top=FY+k
    box(cm,"LoungeStep",xa,FY,LZ0,xa+LW,top,LZ1,woodC,{mat=Enum.Material.WoodPlanks})
-   for _,rz in ipairs({74,83,92}) do -- (4-stud aisles between the rows lead up the steps)
+   for _,rz in ipairs({75.2,83.4,92.5,101.4}) do -- (aisles between the rows lead up the steps)
     -- a round table at the step's front, a white bench behind it facing west
     cyl(cm,"TableLeg",0.4,2.4,Vector3.new(xa+2,top+1.2,rz),dark)
     local tt=cyl(cm,"CafeTable",2.6,0.25,Vector3.new(xa+2,top+2.5,rz),woodC) CS:AddTag(tt,"CafeTable")
     box(cm,"BenchBase",xa+4,top,rz-2.5,xa+6.2,top+1.4,rz+2.5,sofaC)
-    box(cm,"BenchBack",xa+6.2,top,rz-2.5,xa+6.8,top+3.2,rz+2.5,sofaC)
+    box(cm,"BenchBack",xa+6.2,top,rz-2.5,xa+6.75,top+3.2,rz+2.5,sofaC)
     for _,dz in ipairs({-1.25,1.25}) do local pos=Vector3.new(xa+5.1,top+1.6,rz+dz)
      seat(cm,"Bench",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(2,0.3,2.3),sofaC) end
    end
   end
-  label(cm,"라운지",Vector3.new(-248,FY+9,83))
-  -- GRAND PIANO in the north-west corner on a three-step stage in the glass
-  -- corner (user 2026-10-25: three nested squares, 0.8 a step)
-  for k,s in ipairs({{-276.5,83.25},{-278,84.75},{-280,86.5}}) do -- (steps half as deep, user 2026-10-25)
-   box(cm,"PianoStage",x0+0.4,FY,s[2],s[1],FY+0.8*k,z1-0.4,Color3.fromRGB(236,230,218),{mat=Enum.Material.Marble})
-  end
+  label(cm,"라운지",Vector3.new(-255.5,FY+9,88))
+  -- GRAND PIANO in the north-west glass corner on a stage (user plan v3): the
+  -- top level fills the corner from z 86.5, with a block reaching to z 79.9 by
+  -- the sea glass and two 0.8 steps up to it from the east
+  do local ST=Color3.fromRGB(236,230,218) local SO={mat=Enum.Material.Marble}
+   box(cm,"PianoStage",x0+0.4,FY,86.5,-273,FY+2.4,z1-0.4,ST,SO)
+   box(cm,"PianoStage",x0+0.4,FY,79.9,-288.6,FY+2.4,86.5,ST,SO)
+   box(cm,"PianoStage",-288.6,FY,79.9,-286.9,FY+1.6,86.5,ST,SO)
+   box(cm,"PianoStage",-286.9,FY,79.9,-285.4,FY+0.8,86.5,ST,SO) end
   local PY=FY+2.4 -- the stage top (the piano 3 closer to the sea glass, user 2026-10-25)
   local piano=M(cm,"GrandPiano",{},{})
   box(piano,"PianoBody",-293,PY+2.2,96,-287,PY+3.6,103,dark) -- (in the corner, as far from the north glass as from the sea glass: 2.6, user 2026-10-25)
