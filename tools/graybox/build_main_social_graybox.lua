@@ -726,9 +726,9 @@ local z=zone("04_Beach_Aquarium")
   -- the floor has a hole for the 물멍 channel (user 2026-10-25): its terrain
   -- water lies below the floor top, in a closed basin under the slab, so its
   -- ragged voxel edges stay hidden under the floor and the black frame
-  local PX0,PZ0,PX1,PZ1=-282.5,25,-272.5,69
+  local PX0,PZ0,PX1,PZ1=-278,25,-268,60 -- (4.5 east and shorter, user plan 2026-10-25)
   for _,r in ipairs({{x0,z0,x1,PZ0},{x0,PZ1,x1,z1},{x0,PZ0,PX0,PZ1},{PX1,PZ0,x1,PZ1}}) do box(cm,"CafeFloor",r[1],FY-1,r[2],r[3],FY,r[4],floorC,TILE) end
-  box(cm,"PoolBasin",-288,FY-5,20,-268,FY-1,72,Color3.fromRGB(22,24,26),{mat=Enum.Material.Granite}) -- whole 4-stud terrain cells (water fill in build_hongdae_layout)
+  box(cm,"PoolBasin",-280,FY-5,20,-264,FY-1,64,Color3.fromRGB(22,24,26),{mat=Enum.Material.Granite}) -- whole 4-stud terrain cells (water fill in build_hongdae_layout)
   for _,r in ipairs({{PX0,PZ0,PX0+0.1,PZ1},{PX1-0.1,PZ0,PX1,PZ1},{PX0,PZ0,PX1,PZ0+0.1},{PX0,PZ1-0.1,PX1,PZ1}}) do box(cm,"PoolLiner",r[1],FY-1,r[2],r[3],FY,r[4],Color3.fromRGB(24,24,26),{mat=Enum.Material.Slate}) end
   -- large pale floor tiles (user photo 2026-10-25): thin grout lines every 4,
   -- on the 1F floor (round the channel hole) and the mezzanine floor
@@ -803,17 +803,19 @@ local z=zone("04_Beach_Aquarium")
   -- (no round columns inside: user 2026-10-24)
   -- MEZZANINE (east third) with a glass railing; stairs along the north wall
   box(cm,"Mezzanine",mx,MY-1,z0+0.4,x1-0.6,MY,z1-0.4,floorC,TILE) -- inside the walls (its ends flickered on the outer faces)
-  box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+3.4,95.6,glass,{t=0.7,mat=Enum.Material.Glass})
-  box(cm,"MezzHandrail",mx-0.4,MY+3.4,z0,mx+0.1,MY+3.7,95.9,frameC) -- runs to the stair rail's line
+  -- (user 2026-10-25) the glass rails 1.8 higher, frameless (no white handrail on top)
+  local RAILH=5.2
+  box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+RAILH,95.6,glass,{t=0.7,mat=Enum.Material.Glass})
   -- STAIRS (user plan 2026-10-25, 1F layout v3): one straight flight along the
   -- staff wall from z 70 up to a landing at the north glass (z 96..105.2),
   -- which steps east onto the mezzanine's open end
   local NS=MY-FY -- one stud of height a step
   local SX0,SX1,SZ0,SZL=-242,mx-0.6,70,96
   local SD=(SZL-SZ0)/(NS-1)
-  for k=1,NS-1 do box(cm,"Stair",SX0,FY,SZ0+(k-1)*SD,SX1,FY+k,SZ0+k*SD,woodC) end
-  box(cm,"StairLanding",SX0,FY,SZL,SX1,MY,z1-0.4,woodC)
-  box(cm,"StairLandingLip",SX1,MY-1,SZL,mx,MY,z1-0.4,woodC) -- over the wall top, to the mezzanine (the wall below runs on: no wooden face behind the counter, user 2026-10-25)
+  local STAIRC=Color3.fromRGB(242,241,237) -- (white stairs, user 2026-10-25)
+  for k=1,NS-1 do box(cm,"Stair",SX0,FY,SZ0+(k-1)*SD,SX1,FY+k,SZ0+k*SD,STAIRC) end
+  box(cm,"StairLanding",SX0,FY,SZL,SX1,MY,z1-0.4,STAIRC)
+  box(cm,"StairLandingLip",SX1,MY-1,SZL,mx,MY,z1-0.4,STAIRC) -- over the wall top, to the mezzanine (the wall below runs on: no wooden face behind the counter, user 2026-10-25)
   do local run=SZL-SZ0 local c=Vector3.new((SX0+SX1)/2,FY+(NS-1)/2,SZ0+run/2) P(cm,"StairRamp",Vector3.new(SX1-SX0,NS-1,run),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),woodC,{class="WedgePart",t=1}) end
   -- glass rail on the open (lounge) side, 3.4 above the steps like the mezzanine rail
   do local RX=SX0+0.2 local a=Vector3.new(RX,FY+1.7+0.5,SZ0+0.8) local b=Vector3.new(RX,MY+1.7,SZL)
@@ -828,25 +830,50 @@ local z=zone("04_Beach_Aquarium")
     local o={t=0.7,mat=Enum.Material.Glass,nocol=true,class="WedgePart"}
     if d1>0.01 then P(cm,"StairRail",Vector3.new(0.3,h,d1),CFrame.fromMatrix((p1+p2)/2,right,up,back),glass,o) end
     if d2>0.01 then P(cm,"StairRail",Vector3.new(0.3,h,d2),CFrame.fromMatrix((p1+p3)/2,-right,up,-back),glass,o) end end
-   local lo,hi=Vector3.new(0,1.7,0),Vector3.new(0,1.7,0)
+   local lo,hi=Vector3.new(0,1.7,0),Vector3.new(0,RAILH-1.7,0)
    tri(a-lo,b-lo,b+hi) tri(a-lo,b+hi,a+hi)
-   local ha,hb=a+Vector3.new(0,1.85,0),b+Vector3.new(0,1.85,0)
-   P(cm,"StairHandrail",Vector3.new(0.5,0.3,(hb-ha).Magnitude),CFrame.lookAt((ha+hb)/2,hb),frameC,{nocol=true})
-   box(cm,"StairPost",RX-0.25,FY,a.Z-0.25,RX+0.25,ha.Y+0.15,a.Z+0.25,frameC)
-   box(cm,"StairPost",RX-0.25,MY,SZL-0.25,RX+0.25,MY+3.7,SZL+0.25,frameC)
+   -- (no handrail or posts: frameless glass, user 2026-10-25)
    -- the landing's open side
-   box(cm,"LandingRailGlass",RX-0.15,MY,SZL+0.25,RX+0.15,MY+3.4,z1-0.4,glass,{t=0.7,mat=Enum.Material.Glass})
-   box(cm,"LandingHandrail",RX-0.25,MY+3.4,SZL+0.25,RX+0.25,MY+3.7,z1-0.4,frameC) end
+   box(cm,"LandingRailGlass",RX-0.15,MY,SZL,RX+0.15,MY+RAILH,z1-0.4,glass,{t=0.7,mat=Enum.Material.Glass}) end
   -- mezzanine window bar at the railing (view over the pool to the sea)
   box(cm,"MezzBar",mx+0.2,MY+3.2,z0+3,mx+1.8,MY+3.5,93,white)
   for sz=z0+5,91,5 do local pos=Vector3.new(mx+4,MY+2.3,sz)
    seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),dark)
    cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(mx+4,MY+1.05,sz),dark) end
-  for _,tp in ipairs({{-220,30},{-220,50},{-220,70}}) do
-   cyl(cm,"TableLeg",0.4,3,Vector3.new(tp[1],MY+1.5,tp[2]),dark)
-   local tt=cyl(cm,"CafeTable",3.8,0.3,Vector3.new(tp[1],MY+3.1,tp[2]),woodC) CS:AddTag(tt,"CafeTable")
-   for _,dz in ipairs({-2.7,2.7}) do local pos=Vector3.new(tp[1],MY+1.6,tp[2]+dz)
-    seat(cm,"CafeChair",CFrame.lookAt(pos,Vector3.new(tp[1],MY+1.6,tp[2])),Vector3.new(1.8,0.3,1.8),white) end end
+  -- things left on the rail bar (user 2026-10-25): a laptop with a coffee, a
+  -- receipt and a buzzer, a phone and a coffee, a book
+  local function cup(x,z) cyl(cm,"CoffeeCup",0.4,0.5,Vector3.new(x,MY+3.75,z),Color3.fromRGB(250,250,248),{nocol=true})
+   cyl(cm,"CoffeeTop",0.34,0.02,Vector3.new(x,MY+4.0,z),Color3.fromRGB(110,70,45),{nocol=true}) end
+  do local lx,lz=mx+1.1,76 -- laptop: keyboard towards the stool, screen up at the glass
+   box(cm,"LaptopBase",lx-0.45,MY+3.5,lz-0.7,lx+0.45,MY+3.56,lz+0.7,Color3.fromRGB(170,172,176),{nocol=true,mat=Enum.Material.Metal})
+   P(cm,"LaptopScreen",Vector3.new(0.05,0.9,1.4),CFrame.new(lx-0.6,MY+3.98,lz)*CFrame.Angles(0,0,math.rad(-15)),Color3.fromRGB(170,172,176),{nocol=true,mat=Enum.Material.Metal})
+   P(cm,"LaptopDisplay",Vector3.new(0.02,0.78,1.3),CFrame.new(lx-0.565,MY+3.99,lz)*CFrame.Angles(0,0,math.rad(-15)),Color3.fromRGB(150,190,230),{nocol=true,mat=Enum.Material.Neon,t=0.3})
+   cup(mx+1.3,lz+1.4) end
+  do local rz=51 -- receipt and a buzzer
+   P(cm,"Receipt",Vector3.new(0.5,0.01,0.8),CFrame.new(mx+1.1,MY+3.505,rz)*CFrame.Angles(0,math.rad(12),0),Color3.fromRGB(252,252,250),{nocol=true})
+   box(cm,"Buzzer",mx+0.8,MY+3.5,rz+0.7,mx+1.3,MY+3.65,rz+1.2,Color3.fromRGB(30,30,34),{nocol=true})
+   box(cm,"BuzzerLight",mx+0.95,MY+3.65,rz+0.85,mx+1.15,MY+3.67,rz+1.05,Color3.fromRGB(255,80,80),{nocol=true,mat=Enum.Material.Neon})
+   cup(mx+1.3,rz-1) end
+  do local pz=31 -- phone and a coffee
+   P(cm,"Phone",Vector3.new(0.38,0.04,0.75),CFrame.new(mx+1.2,MY+3.52,pz)*CFrame.Angles(0,math.rad(-8),0),Color3.fromRGB(28,28,32),{nocol=true})
+   cup(mx+1.1,pz+1.2) end
+  do local bz=86 -- a book
+   P(cm,"Book",Vector3.new(0.8,0.15,1.1),CFrame.new(mx+1.1,MY+3.575,bz)*CFrame.Angles(0,math.rad(6),0),Color3.fromRGB(150,60,55),{nocol=true}) end
+  -- LONG MARBLE TABLES by the street wall (user plan 2026-10-25), six stools
+  -- each on the wall side, facing the room and the sea
+  for _,tz in ipairs({{19.6,39.6},{44.5,64.6},{70.1,90.1}}) do
+   local tx0,tx1=-216.1,-210.1
+   local tt=box(cm,"CafeTable",tx0,MY+2.8,tz[1],tx1,MY+3.1,tz[2],Color3.fromRGB(240,238,234),{mat=Enum.Material.Marble}) CS:AddTag(tt,"CafeTable")
+   for _,lz in ipairs({tz[1]+1.5,tz[2]-1.5}) do box(cm,"TableLeg",tx0+1.5,MY,lz-0.25,tx1-1.5,MY+2.8,lz+0.25,Color3.fromRGB(236,234,230)) end
+   for k=0,5 do local sz=tz[1]+1.9+k*3.24 local pos=Vector3.new(-208.3,MY+1.6,sz)
+    seat(cm,"CafeStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.5,0.3,1.5),white)
+    cyl(cm,"StoolLeg",0.3,1.45,Vector3.new(-208.3,MY+0.73,sz),dark) end
+  end
+  -- plant at the end of the rail bar
+  local function plant(x,z,y,d,h,par)
+   cyl(par or cm,"PlantPot",d,h,Vector3.new(x,y+h/2,z),Color3.fromRGB(244,242,236))
+   for k=0,2 do P(par or cm,"PlantLeaves",Vector3.new(d*0.95,d*0.95,d*0.95),CFrame.new(x+math.cos(k*2.1)*d*0.18,y+h+d*0.35+k*d*0.22,z+math.sin(k*2.1)*d*0.18),Color3.fromRGB(70,120,60),{shape=Enum.PartType.Ball,nocol=true,mat=Enum.Material.Grass}) end end
+  plant(-232.3,94.3,MY,2,1.8)
   -- ORDER & PICK UP COUNTER (user plan 2026-10-25, 1F layout v3): one long
   -- white counter across the room (z 76..79) right in front of the staff zone,
   -- the lit pastry case in its west part, two tills in its east part;
@@ -917,8 +944,8 @@ local z=zone("04_Beach_Aquarium")
   -- tables moved west, a lounge of benches and tables on four steps rising
   -- eastwards (1 → 4) in front of the stairs, the piano in the north-west corner
   -- WINDOW BAR along the sea-side glass (the south part)
-  box(cm,"WindowBar",x0+0.4,FY+3.2,19,x0+2.6,FY+3.5,79,white)
-  for sz=21,76,5 do local pos=Vector3.new(x0+4.4,FY+2.3,sz)
+  box(cm,"WindowBar",x0+0.4,FY+3.2,19,x0+2.6,FY+3.5,63,white) -- (shorter: plants at its ends, user plan 2026-10-25)
+  for sz=21,61,5 do local pos=Vector3.new(x0+4.4,FY+2.3,sz)
    seat(cm,"BarStool",CFrame.lookAt(pos,pos+Vector3.new(-1,0,0)),Vector3.new(1.8,0.4,1.8),dark)
    cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(x0+4.4,FY+1.05,sz),dark) end
   -- WATER CHANNEL (물멍): black stone bottom, terrain water from
@@ -929,15 +956,22 @@ local z=zone("04_Beach_Aquarium")
   -- ragged voxel edge never shows
   local RIM=Color3.fromRGB(24,24,26) local RI=0.3 local RW,RE,RZ=1.7,1.5,1.5
   for _,r in ipairs({{PX0-RW,PZ0-RZ,PX0+RI,PZ1+RZ},{PX1-RI,PZ0-RZ,PX1+RE,PZ1+RZ},{PX0+RI,PZ0-RZ,PX1-RI,PZ0+RI},{PX0+RI,PZ1-RI,PX1-RI,PZ1+RZ}}) do box(cm,"PoolRim",r[1],FY,r[2],r[3],FY+1,r[4],RIM,{mat=Enum.Material.Slate}) end
-  for _,jz in ipairs({33,42,52,61}) do
-   cyl(cm,"PoolLampBase",1.6,0.2,Vector3.new((PX0+PX1)/2,FY-0.9,jz),Color3.fromRGB(60,50,40),{ghost=true})
+  for _,jz in ipairs({33,42.5,52}) do -- (no base discs: they flickered on the basin floor, user 2026-10-25)
    local s=cyl(cm,"PoolLamp",1.8,1.4,Vector3.new((PX0+PX1)/2,FY-0.1,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true})
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=Color3.fromRGB(255,214,160) pl.Parent=s
   end
-  label(cm,"물멍 풀",Vector3.new((PX0+PX1)/2,FY+5,47))
+  label(cm,"물멍 풀",Vector3.new((PX0+PX1)/2,FY+5,(PZ0+PZ1)/2))
+  -- PLANTS (user plan 2026-10-25): a pot in the south-west glass corner, a tall
+  -- planter at the window bar's north end, a long planter between the piano
+  -- stage and the lounge
+  plant(-293.8,17.9,FY,2.4,2)
+  plant(-294,66.7,FY,2.8,3)
+  box(cm,"Planter",-272.6,FY,86.8,-269.4,FY+1.6,104.9,Color3.fromRGB(244,242,236))
+  box(cm,"PlanterGreen",-272.3,FY+1.6,87.1,-269.7,FY+2.4,104.6,Color3.fromRGB(70,120,60),{mat=Enum.Material.Grass,nocol=true})
+  for k=0,4 do P(cm,"PlantLeaves",Vector3.new(2.4,2.4,2.4),CFrame.new(-271,FY+2.8+(k%2)*0.5,89+k*3.8),Color3.fromRGB(78,128,64),{shape=Enum.PartType.Ball,nocol=true,mat=Enum.Material.Grass}) end
   -- three small round tables, four single chairs each (corners, facing in)
-  for _,tz in ipairs({29,43,58}) do
-   local tx=-265.6
+  for _,tz in ipairs({28,42,57}) do
+   local tx=-258 -- (moved east with the channel, user plan 2026-10-25)
    cyl(cm,"TableLeg",0.4,2.6,Vector3.new(tx,FY+1.3,tz),dark)
    local tt=cyl(cm,"CafeTable",2.8,0.25,Vector3.new(tx,FY+2.7,tz),woodC) CS:AddTag(tt,"CafeTable")
    for _,d in ipairs({{-1,-1},{1,-1},{-1,1},{1,1}}) do

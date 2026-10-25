@@ -151,6 +151,7 @@ local function revert()
 	workspace.Terrain:FillBlock(CFrame.new(-274, 1.02, 62), Vector3.new(24, 1.6, 28), Enum.Material.Air) -- the cafe pool's water
 	workspace.Terrain:FillBlock(CFrame.new(-277.5, 1.02, 47), Vector3.new(13.4, 2, 48), Enum.Material.Air) -- (the channel since 2026-10-25)
 	workspace.Terrain:FillBlock(CFrame.new(-278, -2, 46), Vector3.new(20, 4, 52), Enum.Material.Air) -- (its basin under the floor)
+	workspace.Terrain:FillBlock(CFrame.new(-272, -2, 42), Vector3.new(16, 4, 44), Enum.Material.Air) -- (the moved basin)
 	-- ride name signs switched off while the park was closed
 	for _, g in ipairs(root:GetDescendants()) do
 		if g:IsA("BillboardGui") and g:GetAttribute("ParkClosedHidden") then
@@ -1611,7 +1612,9 @@ do
 		-- (user 2026-10-25) lower (surface about 1.0, under the black frame's top at 1.6) and wider, in under the frame on every side so no ragged edge shows
 		workspace.Terrain:FillBlock(CFrame.new(-277.5, 1.02, 47), Vector3.new(13.4, 2, 48), Enum.Material.Air)
 		-- (later the same day) one whole 4-stud cell layer, y -4..0, in the closed basin under the cafe floor: surface at y 0, below the floor top (0.6)
-		workspace.Terrain:FillBlock(CFrame.new(-278, -2, 46), Vector3.new(20, 4, 52), Enum.Material.Water)
+		workspace.Terrain:FillBlock(CFrame.new(-278, -2, 46), Vector3.new(20, 4, 52), Enum.Material.Air) -- (the first basin's place)
+		-- (user plan 2026-10-25) the channel 4.5 east and shorter: basin x -280..-264, z 20..64
+		workspace.Terrain:FillBlock(CFrame.new(-272, -2, 42), Vector3.new(16, 4, 44), Enum.Material.Water)
 		for _, old in ipairs(beachZone:GetChildren()) do
 			if old:IsA("Model") and old.Name == "PalmTree" then
 				local cf, size = old:GetBoundingBox()
