@@ -1589,3 +1589,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/plan_club_1F_poles5.png)
 ![](images/2026-10-25/club_poles5.jpg)
+
+### 수정 (D-284) — 댄스봉 기둥을 2층 천장까지
+
+![](images/2026-10-25/club_poles_ceiling.jpg)
