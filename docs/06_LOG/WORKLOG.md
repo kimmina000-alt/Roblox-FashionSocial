@@ -1378,3 +1378,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/club_hall_v3.jpg)
 ![](images/2026-10-25/bus_beach_moved.jpg)
+
+### 추가 (D-243) — 클럽 무빙 라이트(영상 속 조명)
+- DJ존 앞 천장 트러스에 무빙헤드 5개: 둥근 헤드가 돌아가며 넓고 부드러운 컬러 빔을 댄스 홀에 쓸고, 바닥에 핑크·시안·초록·보라 빛 웅덩이. DJ 조명 색/끄기 따라감. 각 화면에서만 계산(서버 부담 없음).
+
+![](../04_ART/references/club_moving_head_ref.jpg)
+![](images/2026-10-25/club_moving_heads.jpg)
+![](images/2026-10-25/club_moving_heads_side.jpg)

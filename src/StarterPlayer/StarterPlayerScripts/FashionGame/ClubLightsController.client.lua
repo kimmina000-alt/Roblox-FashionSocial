@@ -6,6 +6,7 @@
 --     (circle sweep, fan sweep). The DJ switches them with 💡 조명
 --     (attribute ClubLights; nil/true = on). Attribute "AimY" on the emitter
 --     = height of the floor the beams land on.
+--   * Moving-head wash lights over the DJ zone (tag "ClubWash", below).
 --   * Round LED pillars (tag "LEDPillar"): the player chosen by
 --     ClubScreenService (ShowUserId / ShowName) is drawn live (current dance /
 --     movement) on the panels and turns slowly (360°). Idle: a rainbow.
@@ -464,6 +465,115 @@ local function updatePillars(t: number)
 end
 
 --------------------------------------------------
+-- Moving-head wash lights (user video 2026-10-25, "Midnight Plaza"): round
+-- heads on a truss over the DJ zone (tag "ClubWash", model with Head + Lens,
+-- attribute AimY = floor height, Index). Each head turns to follow a target
+-- that sweeps over the dance floor, throws a wide soft beam (Beam) and a
+-- coloured pool of light on the floor (SpotLight), colours pink / cyan /
+-- green / violet changing every few seconds (or the DJ's colour).
+--------------------------------------------------
+
+local WASH_COLORS = {
+	Color3.fromRGB(255, 70, 170), Color3.fromRGB(40, 230, 255),
+	Color3.fromRGB(70, 255, 120), Color3.fromRGB(160, 90, 255),
+}
+type Wash = { model: Model, head: BasePart, lens: BasePart, beam: Beam, light: SpotLight, target: Attachment, home: CFrame, index: number }
+local washes: {Wash} = {}
+
+local addWash: (Instance) -> ()
+function addWash(instance: Instance)
+	if not instance:IsA("Model") then return end
+	for _, entry in ipairs(washes) do if entry.model == instance then return end end
+	local head = instance:FindFirstChild("Head")
+	local lens = instance:FindFirstChild("Lens")
+	if not (head and head:IsA("BasePart") and lens and lens:IsA("BasePart")) then
+		-- streaming: the parts arrive after the model, try again a moment later
+		if instance.Parent then task.delay(1, addWash, instance) end
+		return
+	end
+	local origin = Instance.new("Attachment")
+	origin.Name = "WashOrigin"
+	origin.Position = Vector3.new(lens.Size.X / 2 + 0.05, 0, 0)
+	origin.Parent = lens
+	local target = Instance.new("Attachment")
+	target.Name = "WashTarget"
+	target.Parent = targetHolder
+	local beam = Instance.new("Beam")
+	beam.Attachment0 = origin
+	beam.Attachment1 = target
+	beam.Width0 = 2.2
+	beam.Width1 = 16
+	beam.FaceCamera = true
+	beam.LightEmission = 1
+	beam.LightInfluence = 0
+	beam.Segments = 12
+	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.45), NumberSequenceKeypoint.new(0.6, 0.82), NumberSequenceKeypoint.new(1, 0.95) })
+	beam.Enabled = false
+	beam.Parent = lens
+	local light = Instance.new("SpotLight")
+	light.Face = Enum.NormalId.Right
+	light.Angle = 32
+	light.Range = 90
+	light.Brightness = 7
+	light.Shadows = false
+	light.Enabled = false
+	light.Parent = lens
+	local index = instance:GetAttribute("Index")
+	table.insert(washes, {
+		model = instance, head = head, lens = lens, beam = beam, light = light, target = target,
+		home = instance:GetPivot(), index = if typeof(index) == "number" then index else #washes,
+	})
+end
+for _, model in ipairs(CollectionService:GetTagged("ClubWash")) do task.defer(addWash, model) end
+CollectionService:GetInstanceAddedSignal("ClubWash"):Connect(function(model) task.delay(1, addWash, model) end)
+
+local function updateWashes(t: number)
+	local on = FashionGame:GetAttribute("ClubLights") ~= false
+	local picked = ClubConfig.findLightColor(FashionGame:GetAttribute("ClubLightColor"))
+	local fixed: Color3? = picked and picked.color
+	local pattern = math.floor(t / 12) % 2
+	for _, w in ipairs(washes) do
+		local visible = on and w.model.Parent ~= nil and inRange(w.head.Position)
+		w.beam.Enabled = visible
+		w.light.Enabled = visible
+		if visible then
+			local home = w.model:GetPivot() -- LookVector = towards the dance floor
+			local aimY = w.model:GetAttribute("AimY")
+			local floorY = if typeof(aimY) == "number" then aimY else home.Position.Y - 40
+			local i = w.index
+			local reach, side
+			if pattern == 0 then -- all sweep together, a wave across the floor
+				reach = 34 + 12 * math.sin(t * 0.7 + i * 0.5)
+				side = 22 * math.sin(t * 0.55 + i * 0.35)
+			else -- fan out and cross
+				reach = 30 + 14 * math.cos(t * 0.9 + i)
+				side = (i - 2) * 9 + 14 * math.sin(t * 1.1 + i * 1.7)
+			end
+			local p = home.Position + home.LookVector * reach + home.RightVector * side
+			local goal = Vector3.new(p.X, floorY, p.Z)
+			w.target.WorldPosition = goal
+			local headPos = w.head.Position
+			local aim = CFrame.lookAt(headPos, goal) * CFrame.Angles(0, math.pi / 2, 0)
+			w.head.CFrame = aim
+			w.lens.CFrame = aim * CFrame.new(w.head.Size.X / 2 + w.lens.Size.X / 2, 0, 0)
+			local color: Color3
+			if fixed then
+				color = fixed
+			else
+				local step = t / 4 + i * 0.75
+				local a = WASH_COLORS[math.floor(step) % #WASH_COLORS + 1]
+				local b = WASH_COLORS[(math.floor(step) + 1) % #WASH_COLORS + 1]
+				local f = math.clamp((step % 1 - 0.75) * 4, 0, 1) -- hold, then fade to the next colour
+				color = a:Lerp(b, f)
+			end
+			w.beam.Color = ColorSequence.new(color)
+			w.light.Color = color
+			w.lens.Color = color
+		end
+	end
+end
+
+--------------------------------------------------
 
 local accumulator = 0
 RunService.RenderStepped:Connect(function(dt)
@@ -473,6 +583,7 @@ RunService.RenderStepped:Connect(function(dt)
 	accumulator = 0
 	local t = workspace:GetServerTimeNow()
 	updateLasers(t)
+	updateWashes(t)
 	updatePillars(t)
 end)
 

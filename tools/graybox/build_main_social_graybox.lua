@@ -458,6 +458,25 @@ do
  if stand then stand.Size=Vector3.new(1.2,1.2,0.8) stand.CFrame=face end
  if screen then screen.Size=Vector3.new(2.3,1.5,0.1) screen.CFrame=face*CFrame.new(0,1.4,0.2)*CFrame.Angles(math.rad(-12),0,0) end
 end
+-- MOVING-HEAD WASH LIGHTS over the DJ zone (user video 2026-10-25): a black
+-- truss across the front of the stage near the ceiling, five round heads
+-- hanging from it (yoke + head + lens); ClubLightsController turns them and
+-- throws wide soft colour beams and pools onto the dance floor
+do local TR=Color3.fromRGB(30,30,34) local TY=TOP-2.2
+ box(z,"WashTruss",57,TY-0.5,-246,59,TY+0.5,-190,TR,{mat=Enum.Material.Metal})
+ box(z,"WashTruss",57,TY+0.9,-246,59,TY+1.3,-190,TR,{mat=Enum.Material.Metal,nocol=true})
+ for _,tz in ipairs({-246,-190}) do box(z,"WashTrussHanger",57.8,TY+0.5,tz-0.2,58.2,TOP,tz+0.2,TR,{mat=Enum.Material.Metal}) end
+ for k,hz in ipairs({-242,-230,-218,-206,-194}) do
+  local m=M(z,"MovingHead",{"ClubWash"},{AimY=F,Index=k-1})
+  local hp=Vector3.new(58,TY-3,hz)
+  box(m,"Yoke",57.2,TY-3.2,hz-1.9,58.8,TY-2.9,hz+1.9,TR,{nocol=true})
+  for _,s in ipairs({-1,1}) do box(m,"YokeArm",57.4,TY-3.2,hz+s*1.9-0.15,58.6,TY-0.5,hz+s*1.9+0.15,TR,{nocol=true}) end
+  box(m,"YokeMount",57.7,TY-0.5,hz-0.3,58.3,TY-0.2,hz+0.3,TR,{nocol=true})
+  P(m,"Head",Vector3.new(2.4,3,3),CFrame.new(hp+Vector3.new(0,-1.6,0))*CFrame.Angles(0,0,math.rad(-90)),Color3.fromRGB(22,22,26),{shape=Enum.PartType.Cylinder,nocol=true,mat=Enum.Material.Metal})
+  P(m,"Lens",Vector3.new(0.15,2.5,2.5),CFrame.new(hp+Vector3.new(0,-2.9,0))*CFrame.Angles(0,0,math.rad(-90)),Color3.fromRGB(40,230,255),{shape=Enum.PartType.Cylinder,nocol=true,mat=Enum.Material.Neon})
+  m.WorldPivot=CFrame.lookAt(hp,hp+Vector3.new(-1,0,0)) -- faces the dance floor
+ end
+end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
 for _,sz in ipairs({-243,-193}) do
  box(z,"Speaker",70,F+4,sz-2.5,75,F+16,sz+2.5,Color3.fromRGB(20,20,24))
