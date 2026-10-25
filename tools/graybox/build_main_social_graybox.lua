@@ -471,9 +471,9 @@ local function pole(px,pz,ledPole)
  local BH=3
  -- (user 2026-10-25) one wide round stage, 2 high (no steps), LED round its top edge
  local b=cyl(z,"PoleBase",7,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole") -- (smaller and higher, user 2026-10-25)
- cyl(z,"PoleStepLED",7.08,0.12,Vector3.new(px,F+BH-0.1,pz),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+ -- (no LED line on the stage, user 2026-10-25)
  local PL=(V-1)-(F+BH) -- up to the balcony floor (they stand where its columns were)
- local p=cyl(z,"DancePole",0.35,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
+ local p=cyl(z,"DancePole",0.7,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
  p.Reflectance=0.3
  -- (the LED pole was tried; all poles metal, user 2026-10-25)
  -- the prompt at chest height on the base (a prompt high on the pole did not show)
@@ -592,6 +592,8 @@ do
   -- (they shoot DOWN onto the dance floor from up here, user 2026-10-25)
   -- the ends land on the 2F balcony rails across the hall (user 2026-10-25)
   e:SetAttribute("AimY",V+2.5) e:SetAttribute("AimAt",Vector3.new(-40,V+2.5,-218+(ez+218)*4)) CS:AddTag(e,"ClubLaser")
+  -- (they also sweep down to the floor's far end by the entrance and back up, user 2026-10-25)
+  e:SetAttribute("AimLow",Vector3.new(-72,F,-218+(ez+218)*3))
   box(z,"LaserLens",77.25,LY+0.2,ez-0.35,77.4,LY+0.8,ez+0.35,Color3.fromRGB(220,210,255),{mat=Enum.Material.Neon,ghost=true}) end
 end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")

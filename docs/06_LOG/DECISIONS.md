@@ -481,3 +481,5 @@ D-259 — (2026-10-25) Stair graffiti fixed: no graffiti over the corridor passa
 D-260 — (2026-10-25) D-259 taken back at the user's request: stair graffiti as in D-258 (first graffiti image, the original panels).
 
 D-261 — (2026-10-25) Stair graffiti (D-258 image): the hall-side graffiti runs one tile further, to x -12 (two whole 34-stud tiles from x -80), just short of the arrow sign; no graffiti over the corridor passage at the foot of the stairs (x -80..-64 below F+14 is an opening people walk through into the corridor) — the upper panel covers only the wall above it, and the lower panel starting at x -64 is shifted 16 studs (OffsetStudsU) so the pattern runs on without a seam.
+
+D-262 — (2026-10-25) Club lasers also travel down to the floor's far end by the entrance and back up to the balcony rails (attribute AimLow, ~8 s round trip, fan narrows near the floor). Dance pole stages lose their LED line; poles twice as thick (0.7).

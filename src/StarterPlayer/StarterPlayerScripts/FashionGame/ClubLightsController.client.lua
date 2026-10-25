@@ -107,6 +107,15 @@ local function updateLasers(lightTime: number)
 		-- AimAt = the floor point the beams fan round (stage-front lasers); else under the emitter
 		local aimAt = part:GetAttribute("AimAt")
 		local base = if typeof(aimAt) == "Vector3" then Vector3.new(aimAt.X, floorY, aimAt.Z) else Vector3.new(part.Position.X, floorY, part.Position.Z)
+		-- AimLow = a second point the fan travels to and back (user 2026-10-25:
+		-- down to the far end of the floor by the entrance, then up again)
+		local aimLow = part:GetAttribute("AimLow")
+		local spreadScale = 1
+		if typeof(aimLow) == "Vector3" then
+			local s = 0.5 - 0.5 * math.cos(t * 0.35)
+			base = base:Lerp(aimLow, s)
+			spreadScale = 1 - 0.4 * s
+		end
 		for i, beam in ipairs(entry.beams) do
 			beam.Enabled = visible
 			if visible then
@@ -121,7 +130,7 @@ local function updateLasers(lightTime: number)
 					local swing = math.sin(t * 1.6 + entry.index) * 14
 					offset = Vector3.new(spread + swing, 0, math.cos(t * 0.9 + entry.index) * 10)
 				end
-				entry.targets[i].WorldPosition = base + offset
+				entry.targets[i].WorldPosition = base + offset * spreadScale
 				local color: Color3
 				if fixed then
 					-- one colour, beams shimmer slightly brighter / darker

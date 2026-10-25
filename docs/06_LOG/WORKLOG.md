@@ -1485,3 +1485,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/club_graffiti_extended.jpg)
 
 ### 복구 — D-262 로비 벽 목업 취소(사용자 요청), D-261 상태로 되돌림
+
+### 추가 (D-262) — 레이저 입구 쪽 바닥까지 오르내림, 봉 단상 LED 삭제·봉 두껍게
+
+![](images/2026-10-25/club_laser_low.jpg)
+![](images/2026-10-25/club_laser_high.jpg)
+![](images/2026-10-25/club_pole_thick.jpg)
