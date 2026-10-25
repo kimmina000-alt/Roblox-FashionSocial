@@ -1669,3 +1669,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 수정 (D-301) — DJ 조명/레이저 따로 켜고 끄기, 레이저 옆 속도 버튼, 전광판 버튼은 시간 연장 옆
 
 ![](images/2026-10-25/dj_panel_lasers.jpg)
+
+### 수정 (D-302) — 해변 카페 입구 앞 단상 (바닥 색)
+
+![](images/2026-10-25/cafe_entrance_step.jpg)

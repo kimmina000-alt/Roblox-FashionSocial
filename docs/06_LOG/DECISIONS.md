@@ -561,3 +561,5 @@ D-299 — (2026-10-25, user) The chasing LED wall bars also run on the 1F long w
 D-300 — (2026-10-25, user) Club waiting line: south of the door the black iron fence runs on along the wall to z -130, and a second fence line 5 studs out along the sidewalk makes a 5-wide queue lane to the door, with end posts and a "WAITING LINE · 줄 서는 곳" stand at the far end. Walked from the far end to the door.
 
 D-301 — (2026-10-25, user) DJ panel: lights and lasers switch apart (DjService.Actions.Lasers, attribute ClubLasers, on for each new DJ; ClubLightsController lasers follow ClubLasers, the moving heads ClubLights). The laser ON/OFF button takes the old 📺 전광판 slot with the ⚡ speed cell right next to it (the speed only changes the lasers); 📺 전광판 moves next to 시간 연장 in the DJ row.
+
+D-302 — (2026-10-25, user) Beach cafe: a 0.6-high step in front of the door (door width 10, the deck's depth 8) up to the cafe floor level, in the cafe floor's colour. Walked from the deck into the cafe.

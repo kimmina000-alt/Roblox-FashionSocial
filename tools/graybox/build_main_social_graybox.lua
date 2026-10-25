@@ -1053,6 +1053,9 @@ local z=zone("04_Beach_Aquarium")
   for px=x0+4,-272,12 do for pz=z0+4,z1-4,15 do cyl(cm,"Pile",1.6,22,Vector3.new(px,FY-12,pz),Color3.fromRGB(180,175,168)) end end
   -- entrance deck at floor level the whole width of the front, out to the promenade (user 2026-10-24)
   box(cm,"EntranceDeck",x1,0,z0,-198,FY-0.6,z1,Color3.fromRGB(120,88,62),{mat=Enum.Material.WoodPlanks}) -- the same wood as the decks and steps (user 2026-10-24)
+  -- a step up in front of the door, the door's width, the height between the
+  -- deck and the cafe floor, in the floor's colour (user 2026-10-25)
+  box(cm,"EntranceStep",x1,FY-0.6,z0+40,-198,FY,z0+50,floorC,{mat=Enum.Material.SmoothPlastic})
   -- glass: west wall full, north/south glass on the west part, white walls east
   box(cm,"Glass_W",x0,FY,z0,x0+0.4,FY+H,z1,glass,{t=0.82,mat=Enum.Material.Glass})
   -- mullions about every 12, spaced evenly; one square post at each glass
