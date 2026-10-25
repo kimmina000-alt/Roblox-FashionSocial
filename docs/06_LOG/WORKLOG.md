@@ -1483,7 +1483,3 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/club_passage_no_graffiti.jpg)
 ![](images/2026-10-25/club_graffiti_extended.jpg)
-
-### 추가 (D-262) — 로비 벽 목업대로(화살표 위로·옆 선 이어짐)
-
-![](images/2026-10-25/club_foyer_graffiti_mockup.jpg)

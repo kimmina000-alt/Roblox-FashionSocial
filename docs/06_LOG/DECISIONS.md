@@ -481,5 +481,3 @@ D-259 — (2026-10-25) Stair graffiti fixed: no graffiti over the corridor passa
 D-260 — (2026-10-25) D-259 taken back at the user's request: stair graffiti as in D-258 (first graffiti image, the original panels).
 
 D-261 — (2026-10-25) Stair graffiti (D-258 image): the hall-side graffiti runs one tile further, to x -12 (two whole 34-stud tiles from x -80), just short of the arrow sign; no graffiti over the corridor passage at the foot of the stairs (x -80..-64 below F+14 is an opening people walk through into the corridor) — the upper panel covers only the wall above it, and the lower panel starting at x -64 is shifted 16 studs (OffsetStudsU) so the pattern runs on without a seam.
-
-D-262 — (2026-10-25) Foyer wall after the user's mock-up: one 24 x 12 decal from x -12 to the foyer corner (rbxassetid://86183077264893, docs/04_ART/textures/club_foyer_graffiti.png) with a few loose strokes carrying on from the graffiti (an arc over the top, an oval below) and the arrow + OHU CLUB a little smaller, higher and further left; the dense graffiti still ends at x -12.
