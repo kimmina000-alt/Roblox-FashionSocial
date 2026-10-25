@@ -716,7 +716,10 @@ local z=zone("04_Beach_Aquarium")
  -- (user 2026-10-24: higher storeys, 1F 16 clear under the mezzanine, 2F about 20)
  do local x0,x1,z0,z1=-296,-206,16,106 local FY=3 local H=47 local MY=FY+21 local mx=-234 -- (both storeys 1/4 higher, user 2026-10-25: 1F 17 → 21, 2F 21 → 26)
   local cm=M(z,"BeachCafe",{},{})
-  local floorC=Color3.fromRGB(240,232,214) local white=Color3.fromRGB(246,245,242) local woodC=Color3.fromRGB(196,150,98) -- (floors: ivory marble, user 2026-10-25)
+  local floorC=Color3.fromRGB(228,221,208) local white=Color3.fromRGB(246,245,242) local woodC=Color3.fromRGB(196,150,98) -- (floors: plain pale large tiles, no marble veins, user 2026-10-25)
+  -- (user 2026-10-25, reference: limestone museum building with glowing slits)
+  local STONE=Color3.fromRGB(214,200,176) local STONEO={mat=Enum.Material.Limestone}
+  local TILE={mat=Enum.Material.SmoothPlastic}
   local glass=Color3.fromRGB(200,228,238) local frameC=Color3.fromRGB(238,238,235) local dark=Color3.fromRGB(38,38,42)
   local sofaC=Color3.fromRGB(244,242,236)
   -- floor slab, base on the sand, piles in the sea
@@ -724,13 +727,29 @@ local z=zone("04_Beach_Aquarium")
   -- water lies below the floor top, in a closed basin under the slab, so its
   -- ragged voxel edges stay hidden under the floor and the black frame
   local PX0,PZ0,PX1,PZ1=-282.5,25,-272.5,69
-  for _,r in ipairs({{x0,z0,x1,PZ0},{x0,PZ1,x1,z1},{x0,PZ0,PX0,PZ1},{PX1,PZ0,x1,PZ1}}) do box(cm,"CafeFloor",r[1],FY-1,r[2],r[3],FY,r[4],floorC,{mat=Enum.Material.Marble}) end
+  for _,r in ipairs({{x0,z0,x1,PZ0},{x0,PZ1,x1,z1},{x0,PZ0,PX0,PZ1},{PX1,PZ0,x1,PZ1}}) do box(cm,"CafeFloor",r[1],FY-1,r[2],r[3],FY,r[4],floorC,TILE) end
   box(cm,"PoolBasin",-288,FY-5,20,-268,FY-1,72,Color3.fromRGB(22,24,26),{mat=Enum.Material.Granite}) -- whole 4-stud terrain cells (water fill in build_hongdae_layout)
   for _,r in ipairs({{PX0,PZ0,PX0+0.1,PZ1},{PX1-0.1,PZ0,PX1,PZ1},{PX0,PZ0,PX1,PZ0+0.1},{PX0,PZ1-0.1,PX1,PZ1}}) do box(cm,"PoolLiner",r[1],FY-1,r[2],r[3],FY,r[4],Color3.fromRGB(24,24,26),{mat=Enum.Material.Slate}) end
-  box(cm,"CafeBase",-268,0,z0,x1,FY-1,z1,white)
+  -- large pale floor tiles (user photo 2026-10-25): thin grout lines every 4,
+  -- on the 1F floor (round the channel hole) and the mezzanine floor
+  local GROUT=Color3.fromRGB(198,190,176)
+  local function grout(ax,az,bx,bz,y)
+   local p=box(cm,"TileGrout",ax,y,az,bx,y+0.03,bz,GROUT,{mat=Enum.Material.SmoothPlastic,nocol=true})
+   p.CastShadow=false p.CanQuery=false p.CanTouch=false end
+  local function groutGrid(gx0,gz0,gx1,gz1,y,hole)
+   for gx=gx0+4,gx1-0.5,4 do
+    if hole and gx>hole[1] and gx<hole[3] then grout(gx-0.04,gz0,gx+0.04,hole[2],y) grout(gx-0.04,hole[4],gx+0.04,gz1,y)
+    else grout(gx-0.04,gz0,gx+0.04,gz1,y) end end
+   for gz=gz0+4,gz1-0.5,4 do
+    if hole and gz>hole[2] and gz<hole[4] then grout(gx0,gz-0.04,hole[1],gz+0.04,y) grout(hole[3],gz-0.04,gx1,gz+0.04,y)
+    else grout(gx0,gz-0.04,gx1,gz+0.04,y) end end
+  end
+  groutGrid(x0+0.4,z0+0.4,x1-0.7,z1-0.4,FY,{PX0,PZ0,PX1,PZ1})
+  groutGrid(mx,z0+0.5,x1-0.7,z1-0.5,MY,nil)
+  box(cm,"CafeBase",-268,0,z0,x1,FY-1,z1,STONE,STONEO)
   -- a white plinth round the outside below the walls, the same colour as the building (user 2026-10-24)
-  box(cm,"CafePlinth",x1,0,z0,x1+0.05,FY,z1,white) box(cm,"CafePlinth",x0-0.05,FY-1,z0,x0,FY,z1,white)
-  box(cm,"CafePlinth",x0,0,z0-0.05,x1+0.05,FY,z0,white) box(cm,"CafePlinth",x0,0,z1,x1+0.05,FY,z1+0.05,white)
+  box(cm,"CafePlinth",x1,0,z0,x1+0.05,FY,z1,STONE,STONEO) box(cm,"CafePlinth",x0-0.05,FY-1,z0,x0,FY,z1,STONE,STONEO)
+  box(cm,"CafePlinth",x0,0,z0-0.05,x1+0.05,FY,z0,STONE,STONEO) box(cm,"CafePlinth",x0,0,z1,x1+0.05,FY,z1+0.05,STONE,STONEO)
   for px=x0+4,-272,12 do for pz=z0+4,z1-4,15 do cyl(cm,"Pile",1.6,22,Vector3.new(px,FY-12,pz),Color3.fromRGB(180,175,168)) end end
   -- entrance deck at floor level the whole width of the front, out to the promenade (user 2026-10-24)
   box(cm,"EntranceDeck",x1,0,z0,-198,FY-0.6,z1,Color3.fromRGB(120,88,62),{mat=Enum.Material.WoodPlanks}) -- the same wood as the decks and steps (user 2026-10-24)
@@ -745,22 +764,45 @@ local z=zone("04_Beach_Aquarium")
   for _,wz in ipairs({{z0,z0+0.4},{z1-0.4,z1}}) do
    box(cm,"Glass_Side",x0,FY,wz[1],mx,FY+H,wz[2],glass,{t=0.82,mat=Enum.Material.Glass})
    for _,mxx in ipairs(evenly(x0,mx,12)) do if mxx~=x0 then box(cm,"Mullion",mxx-0.2,FY,wz[1],mxx+0.2,FY+H,wz[2],frameC) end end
-   box(cm,"Wall_Side",mx,FY,wz[1],x1,FY+H,wz[2],white)
+   box(cm,"Wall_Side",mx,FY,wz[1],x1,FY+H,wz[2],STONE,STONEO)
   end
   box(cm,"Transom",x0-0.1,FY+H-1,z0,x0+0.5,FY+H,z1,frameC)
   -- the south part of the street wall has a walk-up coffee window (z 32..48, user photos 2026-10-24)
   local WZ0,WZ1,WY0,WY1=32,48,FY+3.6,FY+10
   -- (user 2026-10-25) the walk-up window is closed again: one plain wall south of the door
-  box(cm,"Wall_E_S",x1-0.6,FY,z0,x1,FY+H,56,white)
-  box(cm,"Wall_E_N",x1-0.6,FY,66,x1,FY+H,z1,white)
-  box(cm,"Wall_E_Top",x1-0.6,FY+10,56,x1,FY+H,66,white)
-  box(cm,"Roof",x0-2,FY+H,z0-2,x1+2,FY+H+1.2,z1+2,white)
+  box(cm,"Wall_E_S",x1-0.6,FY,z0,x1,FY+H,56,STONE,STONEO)
+  box(cm,"Wall_E_N",x1-0.6,FY,66,x1,FY+H,z1,STONE,STONEO)
+  box(cm,"Wall_E_Top",x1-0.6,FY+10,56,x1,FY+H,66,STONE,STONEO)
+  box(cm,"Roof",x0-2,FY+H,z0-2,x1+2,FY+H+1.2,z1+2,STONE,STONEO)
+  -- the stone walls stay plain cream inside (a thin lining)
+  local LIN=Color3.fromRGB(244,243,240)
+  box(cm,"WallLining",x1-0.7,FY,z0+0.4,x1-0.6,FY+H-1.4,56,LIN) box(cm,"WallLining",x1-0.7,FY,66,x1-0.6,FY+H-1.4,z1-0.4,LIN)
+  box(cm,"WallLining",x1-0.7,FY+10,56,x1-0.6,FY+H-1.4,66,LIN)
+  box(cm,"WallLining",mx,FY,z0+0.4,x1-0.7,FY+H-1.4,z0+0.5,LIN) box(cm,"WallLining",mx,FY,z1-0.5,x1-0.7,FY+H-1.4,z1-0.4,LIN)
+  -- GLOWING SLITS: very narrow glass slots through the stone in a staggered
+  -- grid (three bands + one under the roof edge); warm glass by day, glowing
+  -- Neon after dark (NightGlowController), so the inside light seems to shine out
+  local SLIT=Color3.fromRGB(236,230,218) local SW=0.25 -- pale glass by day; NightColor warm
+  local function slit(ax,ay,az,bx,by,bz)
+   local p=box(cm,"WallSlit",ax,ay,az,bx,by,bz,SLIT,{mat=Enum.Material.Glass,nocol=true})
+   p.CastShadow=false p.CanQuery=false p.CanTouch=false
+   p:SetAttribute("NightRange",5) p:SetAttribute("NightBrightness",0.8) p:SetAttribute("NightColor",Color3.fromRGB(255,232,205)) -- (a warmer Neon blooms yellow-green) CS:AddTag(p,"NightGlow") end
+  local HL={FY+16,FY+32,FY+H-0.8}
+  local EX0,EX1=x1-0.72,x1+0.02 -- the street wall and its lining
+  for _,hy in ipairs(HL) do slit(EX0,hy,z0+0.4,EX1,hy+SW,z1-0.4) end
+  for _,v in ipairs({{FY,FY+16,{36,84}},{FY+16+SW,FY+32,{30,61,92}},{FY+32+SW,FY+H-0.8,{46,76}}}) do
+   for _,vz in ipairs(v[3]) do slit(EX0,v[1],vz-SW/2,EX1,v[2],vz+SW/2) end end
+  for _,sd in ipairs({{z0-0.02,z0+0.52},{z1-0.52,z1+0.02}}) do
+   for _,hy in ipairs(HL) do slit(mx+0.3,hy,sd[1],x1-0.3,hy+SW,sd[2]) end
+   for _,v in ipairs({{FY,FY+16,{-220}},{FY+16+SW,FY+32,{-227,-213}},{FY+32+SW,FY+H-0.8,{-220}}}) do
+    for _,vx in ipairs(v[3]) do slit(vx-SW/2,v[1],sd[1],vx+SW/2,v[2],sd[2]) end end
+  end
   -- warm wooden slat ceiling
   for sz=z0+1,z1-1,2.4 do box(cm,"CeilingSlat",x0+0.6,FY+H-1.4,sz,x1-0.6,FY+H-0.4,sz+0.9,woodC,{ghost=true}) end
   -- white round columns
   -- (no round columns inside: user 2026-10-24)
   -- MEZZANINE (east third) with a glass railing; stairs along the north wall
-  box(cm,"Mezzanine",mx,MY-1,z0+0.4,x1-0.6,MY,z1-0.4,floorC,{mat=Enum.Material.Marble}) -- inside the walls (its ends flickered on the outer faces)
+  box(cm,"Mezzanine",mx,MY-1,z0+0.4,x1-0.6,MY,z1-0.4,floorC,TILE) -- inside the walls (its ends flickered on the outer faces)
   box(cm,"MezzRailGlass",mx-0.3,MY,z0,mx,MY+3.4,95.6,glass,{t=0.7,mat=Enum.Material.Glass})
   box(cm,"MezzHandrail",mx-0.4,MY+3.4,z0,mx+0.1,MY+3.7,95.9,frameC) -- runs to the stair rail's line
   -- STAIRS (user plan 2026-10-25, 1F layout v3): one straight flight along the
@@ -934,7 +976,7 @@ local z=zone("04_Beach_Aquarium")
   -- GRAND PIANO in the north-west glass corner on a stage (user plan v3): the
   -- top level fills the corner from z 86.5, with a block reaching to z 79.9 by
   -- the sea glass and two 0.8 steps up to it from the east
-  do local ST=Color3.fromRGB(236,230,218) local SO={mat=Enum.Material.Marble}
+  do local ST=Color3.fromRGB(232,226,214) local SO={mat=Enum.Material.SmoothPlastic} -- (no marble, user 2026-10-25)
    box(cm,"PianoStage",x0+0.4,FY,86.5,-273,FY+2.4,z1-0.4,ST,SO)
    box(cm,"PianoStage",x0+0.4,FY,79.9,-288.6,FY+2.4,86.5,ST,SO)
    box(cm,"PianoStage",-288.6,FY,79.9,-286.9,FY+1.6,86.5,ST,SO)

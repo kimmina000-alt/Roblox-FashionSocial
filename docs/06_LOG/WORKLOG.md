@@ -1301,3 +1301,14 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전 | 후 |
 |---|---|
 | ![](images/2026-10-25/pool_edge_before.jpg) | ![](images/2026-10-25/pool_edge_after.jpg) |
+
+### 추가 (D-235) — 카페 외관 석재 + 빛나는 좁은 유리창, 바닥 타일
+- 사용자 참고 사진: docs/04_ART/references/cafe_exterior_glow_slits.jpg, cafe_floor_tile.jpg.
+- 바깥 벽·지붕 테두리를 따뜻한 석회암 색으로(안쪽은 크림색 그대로). 아주 좁은 유리창 24줄을 엇갈린 격자로: 낮엔 옅은 유리, 밤엔 따뜻하게 빛남.
+- 바닥 대리석 삭제: 옅은 큰 타일(4칸마다 줄눈), 1층·메자닌·피아노 단상.
+
+| 전 | 밤 |
+|---|---|
+| ![](images/2026-10-25/cafe_stone_before.jpg) | ![](images/2026-10-25/cafe_stone_night.jpg) |
+
+![](images/2026-10-25/cafe_tile_floor.jpg)

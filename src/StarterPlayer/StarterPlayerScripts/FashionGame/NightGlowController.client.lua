@@ -18,6 +18,13 @@ local function apply(part: Instance, night: boolean)
 	if not part:IsA("BasePart") then return end
 	if part:GetAttribute("DayMaterial") == nil then part:SetAttribute("DayMaterial", part.Material.Name) end
 	part.Material = if night then Enum.Material.Neon else Enum.Material[part:GetAttribute("DayMaterial") :: string]
+	-- optional NightColor (Color3): a different colour after dark (cafe wall slits:
+	-- pale glass by day, warm glow at night)
+	local nightColor = part:GetAttribute("NightColor")
+	if typeof(nightColor) == "Color3" then
+		if part:GetAttribute("DayColor") == nil then part:SetAttribute("DayColor", part.Color) end
+		part.Color = if night then nightColor else part:GetAttribute("DayColor") :: Color3
+	end
 	local light = part:FindFirstChild("NightLight") :: SurfaceLight?
 	if not light then
 		local l = Instance.new("SurfaceLight")
@@ -31,6 +38,7 @@ local function apply(part: Instance, night: boolean)
 		l.Parent = part
 		light = l
 	end
+	if night then (light :: SurfaceLight).Color = part.Color end
 	(light :: SurfaceLight).Enabled = night
 end
 
