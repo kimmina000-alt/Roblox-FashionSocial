@@ -447,6 +447,8 @@ local function vipBooth(cx,wallZ,dir)
    main.ZOffset=1
    local r=label:Clone() for _,s in ipairs(r:GetChildren()) do s:Destroy() end
    r.Name="Glow" r.TextColor3=Color3.fromRGB(255,20,30) r.Parent=gg
+   -- (this stroke is only the light source the bloom spreads; without it the red
+   -- copy hides behind the white letters and nothing glows)
    local st=Instance.new("UIStroke") st.Color=Color3.fromRGB(255,20,30) st.Thickness=3 st.Parent=r end
   halo(vip)
   local tl=Instance.new("SurfaceLight") tl.Face=face tl.Color=Color3.fromRGB(255,40,50) tl.Range=4 tl.Brightness=1.2 tl.Angle=170 tl.Parent=tag
