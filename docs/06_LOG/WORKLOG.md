@@ -1584,3 +1584,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/oh24_tower_far.jpg)
 ![](images/2026-10-25/oh24_tower_screen.jpg)
+
+### 수정 (D-283) — 클럽 댄스봉 단상 위치 변경 + 1개 추가 (사용자 배치도대로)
+
+![](images/2026-10-25/plan_club_1F_poles5.png)
+![](images/2026-10-25/club_poles5.jpg)

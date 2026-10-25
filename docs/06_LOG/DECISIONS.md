@@ -523,3 +523,5 @@ D-280 — (2026-10-25, user) "오늘의 큰손" moves from the tower's L screen 
 D-281 — (2026-10-25, user) Likes / dislikes on the "오늘의 큰손" cards and the bus ads: a picture is replaced by the name when it has ≥ 5 dislikes and more dislikes than likes; one vote per person, not on your own, voters need 30 min of play time; votes belong to one picture version (retake / new outfit starts at 0); shared by all servers (LookVotes); the owner is told when hidden. VoteService. CLUB_SHOP_PRICING.md §21.
 
 D-282 — (2026-10-25, user mock-up + reference photos) A tall dark-granite tower with vertical window slits on the OH24 store, and a big corner screen wrapping its north-east corner with a rounded corner; today's big spender cards run along it (east → corner → north) on a continuous colour wave. Replaces the roof block of D-280. CLUB_SHOP_PRICING.md §22.
+
+D-283 — (2026-10-25, user plan) Club dance poles: five instead of four, in two rows moved in from the table platforms (two by the bar side, three by the table side incl. a new middle one); they stand in the open hall, so each pole has a metal cap on top.

@@ -471,17 +471,21 @@ local function pole(px,pz,ledPole)
  -- (user 2026-10-25) one wide round stage, 2 high (no steps), LED round its top edge
  local b=cyl(z,"PoleBase",7,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole") -- (smaller and higher, user 2026-10-25)
  -- (no LED line on the stage, user 2026-10-25)
- local PL=(V-1)-(F+BH) -- up to the balcony floor (they stand where its columns were)
+ local PL=(V-1)-(F+BH) -- as high as the balcony floor
  local p=cyl(z,"DancePole",0.7,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
  p.Reflectance=0.3
+ -- (they stand in the open hall now: a metal cap on top, user plan 2026-10-25)
+ cyl(z,"PoleCap",1.6,0.5,Vector3.new(px,F+BH+PL+0.25,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal})
  -- (the LED pole was tried; all poles metal, user 2026-10-25)
  -- the prompt at chest height on the base (a prompt high on the pole did not show)
  local at=Instance.new("Attachment") at.Name="PoleGrip" at.Parent=b at.WorldPosition=Vector3.new(px,F+BH+3,pz)
  local pr=Instance.new("ProximityPrompt") pr.Name="PolePrompt" pr.ActionText="봉 잡고 돌기" pr.ObjectText="댄스 봉"
  pr.MaxActivationDistance=7 pr.RequiresLineOfSight=false pr.Parent=at
 end
-pole(-30,-189.25)
-for _,px in ipairs({-30,0,30}) do pole(px,NZ+23.25) end
+-- five poles (user plan 2026-10-25): two rows moved in from the tables, a
+-- fifth one added in the middle of the row by the entrance side
+for _,px in ipairs({-30,0}) do pole(px,-201.5) end
+for _,px in ipairs({-30,0,30}) do pole(px,NZ+31.5) end
 
 -- BAR under the south VIP, east half (non-alcoholic)
 box(z,"BarCounter",10,F,-183.5,54,F+4.5,-180.5,Color3.fromRGB(245,245,250))
