@@ -327,10 +327,17 @@ local menu = create("Frame", {
 	ZIndex = 10,
 }, gui)
 corner(menu, 16)
--- fits small phone screens (keeps the 380 x 420 shape)
-create("UISizeConstraint", { MaxSize = Vector2.new(380, 420) }, menu)
-create("UIAspectRatioConstraint", { AspectRatio = 380 / 420 }, menu)
-menu.Size = UDim2.new(0.92, 0, 0.8, 0)
+-- Up to 380 x 420, below the top-bar buttons; on a phone in landscape it
+-- keeps its width and gets shorter (the list scrolls) (2P phone test 2026-10-25)
+local TopBar = require(script.Parent:WaitForChild("TopBar"))
+local function layoutMenu()
+	local camera = workspace.CurrentCamera
+	local vp = if camera then camera.ViewportSize else Vector2.new(1000, 700)
+	local top = TopBar.bottom() + 8
+	menu.AnchorPoint = Vector2.new(0.5, 0)
+	menu.Position = UDim2.new(0.5, 0, 0, top)
+	menu.Size = UDim2.fromOffset(math.min(380, vp.X - 24), math.clamp(vp.Y - top - 12, 180, 420))
+end
 create("TextLabel", {
 	Name = "Title",
 	Position = UDim2.fromOffset(16, 10),
@@ -370,6 +377,7 @@ local list = create("ScrollingFrame", {
 }, menu)
 create("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, list)
 
+local MessagePrompt = require(script.Parent:WaitForChild("MessagePrompt"))
 local COIN = Color3.fromRGB(230, 170, 40)
 local VIP_GOLD = Color3.fromRGB(255, 200, 70)
 
@@ -568,6 +576,53 @@ local function buildMenu()
 			end
 		end
 	end
+	-- 🎆 stage cold spark (99 R$, VIP 79): one per server every 2 minutes
+	index += 1
+	sectionHeader("🎆 무대", index)
+	index += 1
+	local sparkRow = create("Frame", {
+		Name = "ColdSpark",
+		LayoutOrder = index,
+		Size = UDim2.new(1, -6, 0, 52),
+		BackgroundColor3 = Color3.fromRGB(40, 30, 20),
+		ZIndex = 12,
+	}, list)
+	corner(sparkRow, 10)
+	create("TextLabel", {
+		Position = UDim2.fromOffset(12, 5),
+		Size = UDim2.new(1, -130, 0, 24),
+		BackgroundTransparency = 1,
+		Text = "무대 콜드 스파크",
+		TextColor3 = VIP_GOLD,
+		TextScaled = true,
+		Font = Enum.Font.GothamBold,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		ZIndex = 13,
+	}, sparkRow)
+	create("TextLabel", {
+		Position = UDim2.fromOffset(12, 29),
+		Size = UDim2.new(1, -130, 0, 16),
+		BackgroundTransparency = 1,
+		Text = "DJ 무대 앞 불꽃 10초 + 모두의 화면에 내 이름·한마디",
+		TextColor3 = COLORS.sub,
+		TextScaled = true,
+		Font = Enum.Font.GothamMedium,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		ZIndex = 13,
+	}, sparkRow)
+	local sparkKey = if vip then "ColdSpark_VIP" else "ColdSpark"
+	local cooldown = math.ceil((FashionGame:GetAttribute("ColdSparkReadyAt") or 0) - workspace:GetServerTimeNow())
+	local sparkText = if vip then string.format("<s>%d</s> R$ %d", productPrice("ColdSpark"), productPrice(sparkKey)) else ("R$ " .. productPrice(sparkKey))
+	pill(sparkRow, 10, if vip then 96 else 74, if cooldown > 0 then string.format("⏳ %d초", cooldown) else sparkText,
+		if cooldown > 0 then COLORS.card else COLORS.robux, function()
+			local left = math.ceil((FashionGame:GetAttribute("ColdSparkReadyAt") or 0) - workspace:GetServerTimeNow())
+			if left > 0 then
+				-- (buying now is allowed: it goes off right after the wait)
+				toast(string.format("지금 다른 콜드 스파크 대기 중이에요. 사면 %d초 뒤에 터져요.", left))
+			end
+			menu.Visible = false
+			MessagePrompt.buy(sparkKey, "🎆 무대 콜드 스파크")
+		end)
 	index += 1
 	create("TextLabel", {
 		Name = "VipNote",
@@ -584,6 +639,7 @@ local function buildMenu()
 end
 
 local function openMenu()
+	layoutMenu()
 	buildMenu()
 	menu.Visible = true
 end
@@ -614,6 +670,24 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt)
 	if prompt.Name == "BartenderPrompt" then
 		closeModal()
 		openMenu()
+	elseif prompt.Name == "SparklePrompt" then
+		-- 🎇 table sparklers (CLUB_SHOP_PRICING.md §5): the table is sent first,
+		-- the server lights the sparks on it when the purchase goes through
+		local tablePart = prompt.Parent :: Instance
+		local vip = isVip()
+		local bucketKey = if vip then "SparklerBucket_VIP" else "SparklerBucket"
+		local function buy(key: string)
+			ClubShop:InvokeServer("SetTable", tablePart)
+			buyProduct(key)
+		end
+		showModal("🎇 테이블 불꽃",
+			"스파클러: 내 병 위로 30초.\n버킷 세트: 얼음 버킷 + 캔 3개(모두 마실 수 있어요) + 스파클러 3개."
+				.. (if vip then "\n👑 VIP 가격이에요." else ""),
+			{
+				{ name = "Close", text = "닫기", onClick = function() end },
+				{ name = "Sparkler", text = "🎇 R$ " .. productPrice("Sparkler1"), color = COLORS.robux, onClick = function() buy("Sparkler1") end },
+				{ name = "Bucket", text = "🍾 R$ " .. productPrice(bucketKey), color = COLORS.accent, onClick = function() buy(bucketKey) end },
+			})
 	elseif prompt.Name == "PlacePrompt" then
 		if carried("Bottle") == 0 then
 			toast("들고 있는 병이 없어요. 바텐더에게 음료를 주문하세요.")

@@ -45,6 +45,8 @@ SnackService.Start(EconomyService)
 require(script.Parent.Services.CafeJobService).Start(EconomyService, SnackService)
 require(script.Parent.Services.SubwayService).Start()
 require(script.Parent.Services.PianoService).Start()
+local SparkleService = require(script.Parent.Services.SparkleService)
+SparkleService.Start()
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers
@@ -91,6 +93,9 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 		end
 		return false, "지금 DJ 차례가 아니에요."
 	end
+	-- sparklers / cold spark / supporter gifts: the table and message picked before buying
+	local ok, result, handled = SparkleService.Handle(player, action, payload)
+	if handled then return ok, result end
 	return DrinkService.Handle(player, action, payload)
 end
 

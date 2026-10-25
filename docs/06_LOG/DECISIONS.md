@@ -509,3 +509,5 @@ D-273 — (2026-10-25, proposal) VIP-only drink: a Seoul craft soda in the style
 D-274 — (2026-10-25, user) VIP-only drink = "골목 공방 소다" (Golmok Craft Soda, On A Lark style: small brown glass bottle, kraft label, gold crown sticker, 4 flavours) 59 R$, VIP only. Tier 2 adds "쨍팝" (Zzang Pop, Poppi style bright can, apple-cider-vinegar soda) 💰100 / 10 R$. No Olipop style. CLUB_SHOP_PRICING.md §14.4, PRODUCTS.md §9.
 
 D-275 — (2026-10-25) Code: club drinks in 3 tiers with VIP discount (ClubConfig.Drinks tier/coins/product/vipProduct/vipOnly/variants, DrinkService coin orders + chosen variant for Robux grants, drink menu with tier sections, struck-through VIP prices, VIP lock). All product ids 0 (Studio test purchases). CLUB_SHOP_PRICING.md §15.
+
+D-276 — (2026-10-25) Code: SparkleService (table sparkler 15 R$, sparkler bucket 49/39 R$ with 18 shared cans and 3 sparklers, stage cold spark 99/79 R$ with fountains + 2-minute server cooldown and a queue), supporter gifts 10..5,000 R$, server-filtered 30-character messages on a banner for everyone (BannerController, MessagePrompt), 💝 top-bar button. Drink menu fits under the top bar on phones. CLUB_SHOP_PRICING.md §16.

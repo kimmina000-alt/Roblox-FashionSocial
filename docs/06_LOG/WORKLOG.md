@@ -1533,3 +1533,17 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/plan_club_2F.png)
 ![](images/2026-10-25/plan_cafe_1F.png)
 ![](images/2026-10-25/plan_cafe_2F.png)
+
+### 구현 (D-276) — 불꽃·전체 배너·후원
+- 2인 테스트(휴대폰): 음료 구매·VIP 할인·맛 병·테이블 놓기 통과. 휴대폰에서 음료 메뉴가 좁아 이름이 안 보이고 상단 버튼에 가려짐 → 상단 버튼 아래 380 폭으로 수정. Player2 창에서 프롬프트가 하나도 안 떠서 "다른 사람 병에서 따르기"는 확인 못 함(Player1은 정상).
+- 테이블 스파클러(사진처럼 위로 솟는 불꽃), 스파클러 버킷(캔 3개 · 모두 마시기), 무대 콜드 스파크(분수 5곳 · 2분 쿨다운), 전체 배너(콜드 스파크 · 후원), 💝 후원 창, 한마디 입력(필터).
+
+![](images/2026-10-25/drink_menu_phone.jpg)
+![](images/2026-10-25/sparkle_table_window.jpg)
+![](images/2026-10-25/sparkler_table.jpg)
+![](images/2026-10-25/sparkler_bucket.jpg)
+![](images/2026-10-25/coldspark_stage.jpg)
+![](images/2026-10-25/banner_coldspark.jpg)
+![](images/2026-10-25/support_panel.jpg)
+![](images/2026-10-25/message_prompt.jpg)
+![](images/2026-10-25/banner_support.jpg)

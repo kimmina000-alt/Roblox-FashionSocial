@@ -181,6 +181,8 @@ local function giveCup(player: Player, drinkKey: string, variantKey: any?): (boo
 	return true, nil
 end
 
+DrinkService.GiveCup = giveCup -- (SparkleService: cans from a sparkler bucket)
+
 --------------------------------------------------
 -- Tables and placed bottles
 --------------------------------------------------
