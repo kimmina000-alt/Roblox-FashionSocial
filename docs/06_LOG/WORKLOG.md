@@ -1405,3 +1405,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - DJ 창 조명 색 옆 ⚡ 버튼: x0.5 → x1 → x1.5 → x2 조명 속도(DJ 바뀌면 x1).
 
 ![](images/2026-10-25/club_soft_beams.jpg)
+
+### 추가 (D-247) — 블러 복구, 조명 속도 x5까지
+- 레이저·무빙라이트 흐린 빛 겹 삭제(D-245 모습으로). DJ ⚡ 버튼 x0.5 → x1 → x1.5 → x2 → x3 → x4 → x5.

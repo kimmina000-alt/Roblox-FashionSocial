@@ -200,8 +200,8 @@ for index, entry in ipairs(ClubConfig.LightColors) do
 	colorButtons[entry.key] = button
 end
 -- light sweep speed (DJ only, DjService.Actions.LightSpeed): one cell after
--- the colours, tap to cycle x0.5 → x1 → x1.5 → x2
-local LIGHT_SPEEDS = { 0.5, 1, 1.5, 2 }
+-- the colours, tap to cycle x0.5 → x1 → … → x5
+local LIGHT_SPEEDS = { 0.5, 1, 1.5, 2, 3, 4, 5 } -- (up to x5, user 2026-10-25)
 local speedButton = create("TextButton", {
 	Name = "LightSpeed",
 	LayoutOrder = #ClubConfig.LightColors + 1,

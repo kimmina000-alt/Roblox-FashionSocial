@@ -208,7 +208,7 @@ end
 
 -- "LightSpeed" (payload = one of LIGHT_SPEEDS): how fast the lasers and
 -- moving heads sweep (user 2026-10-25). Attribute ClubLightSpeed, 1 for each new DJ.
-local LIGHT_SPEEDS = { 0.5, 1, 1.5, 2 }
+local LIGHT_SPEEDS = { 0.5, 1, 1.5, 2, 3, 4, 5 } -- (up to x5, user 2026-10-25)
 DjService.Actions.LightSpeed = function(_dj: Player, speed: any): (boolean, any)
 	if not table.find(LIGHT_SPEEDS, speed) then return false, "없는 조명 속도예요." end
 	FashionGame:SetAttribute("ClubLightSpeed", speed)
