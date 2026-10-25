@@ -1333,3 +1333,14 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/cafe_sofas.jpg)
 ![](images/2026-10-25/cafe_round_chairs.jpg)
+
+### 추가 (D-238) — 물멍 찰방 소리, 피아노 연주, 의자, 알바 작업대·STAFF ONLY 문·창고
+- 물멍 풀 안에서 점프 착지하면 첨벙, 걸으면 찰방찰방(모든 플레이어 소리 들림).
+- 피아노: 건반 섬세하게(흰 21·검은 15), 의자 다리 4개. 의자에 앉으면 건반 창이 뜨고 눌러서 연주, 다른 사람에게도 들림. PC는 Z~M·Q~U(흰), S D G H J·2 3 5 6 7(검은).
+- 물멍 옆 의자: 검은 다리 삭제, 둥근 원통 하나로 바닥까지. 테이블·의자를 물멍 쪽으로.
+- 알바 작업대를 카운터 뒤로 옮기고 뒤에 벽, 메뉴판은 그 벽 위쪽. 벽 오른쪽에 진짜 밀어서 여닫히는 STAFF ONLY 문, 안쪽은 선반 있는 창고.
+- 확인: 문 72°까지 열렸다 닫힘, 피아노 창·소리, 첨벙·찰방 소리.
+
+![](images/2026-10-25/piano_keyboard.jpg)
+![](images/2026-10-25/cafe_staff_wall_door.jpg)
+![](images/2026-10-25/cafe_storeroom.jpg)

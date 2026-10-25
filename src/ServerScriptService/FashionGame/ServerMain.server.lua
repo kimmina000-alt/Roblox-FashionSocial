@@ -44,6 +44,7 @@ local SnackService = require(script.Parent.Services.SnackService)
 SnackService.Start(EconomyService)
 require(script.Parent.Services.CafeJobService).Start(EconomyService, SnackService)
 require(script.Parent.Services.SubwayService).Start()
+require(script.Parent.Services.PianoService).Start()
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers

@@ -732,9 +732,9 @@ local z=zone("04_Beach_Aquarium")
    cyl(cm,"StoolLeg",0.3,legH,Vector3.new(pos.X,pos.Y-0.2-legH/2,pos.Z),dark) end
   local function tubChair(cf,col) -- cf = the seat, looking where the sitter faces
    seat(cm,"CafeChair",cf,Vector3.new(1.8,0.3,1.8),col,1)
-   cyl(cm,"ChairCushion",2,0.45,cf.Position,col,FAB)
+   cyl(cm,"ChairCushion",2,1.85,cf.Position-Vector3.new(0,0.7,0),col,FAB) -- one round block from the floor to the seat (no leg, user 2026-10-25)
    P(cm,"ChairBack",Vector3.new(1.8,1,1),cf*CFrame.new(0,0.6,0.75),col,{shape=Enum.PartType.Cylinder,mat=Enum.Material.Fabric,nocol=true})
-   cyl(cm,"ChairLeg",0.35,1.4,cf.Position-Vector3.new(0,0.9,0),dark) end
+  end
   -- floor slab, base on the sand, piles in the sea
   -- the floor has a hole for the 물멍 channel (user 2026-10-25): its terrain
   -- water lies below the floor top, in a closed basin under the slab, so its
@@ -922,29 +922,73 @@ local z=zone("04_Beach_Aquarium")
   local SZ=KZ0 -- (the header in line with the counter front and the stairs wall's end, user 2026-10-25)
   box(cm,"StaffHeader",mx,MY-4.7,SZ,x1-0.6,MY-1,SZ+0.6,CW) -- (only as tall as the boards, user 2026-10-25)
   box(cm,"StaffHeaderLeg",mx,FY,SZ,mx+3,MY-4.7,SZ+0.6,CW) -- down to the floor at the stairs end only (user 2026-10-25)
-  -- black menu boards on the header above the counter, facing the customers,
-  -- ORDER & PICK UP sign at its west end
-  local nB=5 local MB0,MB1=-224,-207.6 local bw=(MB1-MB0)/nB
-  for k=0,nB-1 do
-   local bx0=MB0+k*bw
-   local mb=box(cm,"MenuBoard",bx0+0.15,MY-4.4,SZ-0.15,bx0+bw-0.15,MY-1.3,SZ,Color3.fromRGB(26,26,28))
-   local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0 g.Brightness=1.2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=mb
-   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(0.9,0.9) l.Position=UDim2.fromScale(0.05,0.05) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.fromRGB(245,245,240) l.TextXAlignment=Enum.TextXAlignment.Left
-   l.Text=({"ESPRESSO\n아메리카노  4.5\n카페라떼  5.0\n바닐라 라떼  5.5","SIGNATURE\n선셋 라떼  6.5\n흑임자 라떼  6.0\n크림 커피  6.0","NON-COFFEE\n블루 레몬에이드  6.0\n망고 스무디  6.5\n딸기 라떼  6.0","TEA\n얼그레이  5.0\n캐모마일  5.0\n유자차  5.5","BAKERY\n크루아상  4.0\n소금빵  3.5\n치즈케이크  6.5"})[k+1] l.Parent=g end
+  -- ORDER & PICK UP sign at the header's west end
   local op=box(cm,"OrderPickupSign",-231.5,MY-3.6,SZ-0.15,-226.1,MY-2.1,SZ,CW)
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=op
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Gotham l.TextColor3=Color3.fromRGB(120,120,124) l.Text="ORDER & PICK UP" l.Parent=g end
-  -- WORK BENCH (the 알바 station, "BackCounter") along the north wall under
-  -- the mezzanine, machines and a bottle shelf above it
-  local BZ0,BZ1=100.4,z1-0.4
-  box(cm,"BackCounter",KX0,FY,BZ0,KX1,FY+3.6,BZ1,CW)
-  box(cm,"BackCounterTop",KX0,FY+3.6,BZ0-0.2,KX1,FY+3.8,BZ1,Color3.fromRGB(60,60,64),{mat=Enum.Material.Granite})
-  for _,ex in ipairs({-224,-216}) do
+  -- (user 2026-10-25) the WORK BENCH moved up behind the counter, against a
+  -- new staff wall at z 86; the menu boards hang high on that wall (seen under
+  -- the header from the room); a STAFF ONLY door at the wall's east end opens
+  -- into a storeroom with shelves
+  local SWZ=86 local DX0,DX1=-214.6,-209.6 local DH=8
+  box(cm,"StaffWall",mx,FY,SWZ,DX0,MY-1,SWZ+0.6,CW)
+  box(cm,"StaffWall",DX1,FY,SWZ,x1-0.7,MY-1,SWZ+0.6,CW)
+  box(cm,"StaffWall",DX0,FY+DH,SWZ,DX1,MY-1,SWZ+0.6,CW)
+  -- black menu boards high on the staff wall above the bench
+  local nB=5 local MB0,MB1=-232,-216 local bw=(MB1-MB0)/nB
+  for k=0,nB-1 do
+   local bx0=MB0+k*bw
+   local mb=box(cm,"MenuBoard",bx0+0.15,FY+11.8,SWZ-0.15,bx0+bw-0.15,FY+14.9,SWZ,Color3.fromRGB(26,26,28))
+   local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0 g.Brightness=1.2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=mb
+   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(0.9,0.9) l.Position=UDim2.fromScale(0.05,0.05) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.fromRGB(245,245,240) l.TextXAlignment=Enum.TextXAlignment.Left
+   l.Text=({"ESPRESSO\n아메리카노  4.5\n카페라떼  5.0\n바닐라 라떼  5.5","SIGNATURE\n선셋 라떼  6.5\n흑임자 라떼  6.0\n크림 커피  6.0","NON-COFFEE\n블루 레몬에이드  6.0\n망고 스무디  6.5\n딸기 라떼  6.0","TEA\n얼그레이  5.0\n캐모마일  5.0\n유자차  5.5","BAKERY\n크루아상  4.0\n소금빵  3.5\n치즈케이크  6.5"})[k+1] l.Parent=g end
+  -- WORK BENCH (the 알바 station, "BackCounter") against the staff wall,
+  -- machines on it and a bottle shelf above
+  local BX0,BX1,BZ0,BZ1=mx+0.4,-216,SWZ-4.8,SWZ
+  box(cm,"BackCounter",BX0,FY,BZ0,BX1,FY+3.6,BZ1,CW)
+  box(cm,"BackCounterTop",BX0,FY+3.6,BZ0-0.2,BX1,FY+3.8,BZ1,Color3.fromRGB(60,60,64),{mat=Enum.Material.Granite})
+  for _,ex in ipairs({-229,-221.5}) do
    box(cm,"EspressoMachine",ex-1.6,FY+3.8,BZ1-2.6,ex+1.6,FY+5.8,BZ1-0.2,STEEL,{mat=Enum.Material.Metal})
    box(cm,"Grinder",ex+2.2,FY+3.8,BZ1-1.6,ex+3.4,FY+6.2,BZ1-0.2,dark) end
-  box(cm,"BottleShelf",-215,FY+7.4,BZ1-2,-207,FY+7.6,BZ1,Color3.fromRGB(150,96,56))
+  box(cm,"BottleShelf",-224,FY+7.4,BZ1-2,-216.4,FY+7.6,BZ1,Color3.fromRGB(150,96,56))
   for k=0,6 do
-   cyl(cm,"Bottle",0.45,1.3,Vector3.new(-214.4+k*1.1,FY+8.25,BZ1-1),k%2==0 and Color3.fromRGB(60,40,30) or Color3.fromRGB(230,225,215),{nocol=true}) end
+   cyl(cm,"Bottle",0.45,1.3,Vector3.new(-223.4+k*1.1,FY+8.25,BZ1-1),k%2==0 and Color3.fromRGB(60,40,30) or Color3.fromRGB(230,225,215),{nocol=true}) end
+  -- STAFF ONLY door: a real hinged door (push it open, a soft servo swings it
+  -- shut again), sign above
+  do local ss=box(cm,"StaffSign",DX0+0.6,FY+DH+0.5,SWZ-0.1,DX1-0.6,FY+DH+1.5,SWZ,dark,{nocol=true})
+   local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0.4 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=ss
+   local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBold l.TextColor3=Color3.new(1,1,1) l.Text="STAFF ONLY" l.Parent=g
+   local post=box(cm,"DoorHingePost",DX1-0.12,FY,SWZ+0.18,DX1-0.02,FY+DH,SWZ+0.42,CW,{t=1})
+   local door=box(cm,"StaffDoor",DX0+0.1,FY+0.1,SWZ+0.15,DX1-0.12,FY+DH-0.1,SWZ+0.45,Color3.fromRGB(214,212,208))
+   door.Anchored=false door.CustomPhysicalProperties=PhysicalProperties.new(0.3,0.3,0,1,1)
+   box(cm,"StaffDoorHandle",DX0+0.4,FY+3.6,SWZ+0.02,DX0+0.6,FY+4.4,SWZ+0.15,STEEL,{nocol=true}).Anchored=false
+   local handle=cm:FindFirstChild("StaffDoorHandle") local w=Instance.new("WeldConstraint") w.Part0=door w.Part1=handle w.Parent=door
+   local a0=Instance.new("Attachment") a0.Name="Hinge" a0.Parent=post a0.Axis=Vector3.new(0,1,0) a0.SecondaryAxis=Vector3.new(1,0,0)
+   local a1=Instance.new("Attachment") a1.Name="Hinge" a1.Parent=door a1.Position=Vector3.new(door.Size.X/2+0.05,0,0) a1.Axis=Vector3.new(0,1,0) a1.SecondaryAxis=Vector3.new(1,0,0)
+   local hinge=Instance.new("HingeConstraint") hinge.Attachment0=a0 hinge.Attachment1=a1
+   hinge.ActuatorType=Enum.ActuatorType.Servo hinge.TargetAngle=0 hinge.ServoMaxTorque=600 hinge.AngularSpeed=2.5
+   hinge.LimitsEnabled=true hinge.LowerAngle=-100 hinge.UpperAngle=100 hinge.Parent=door
+   for _,wall in ipairs(cm:GetChildren()) do if wall.Name=="StaffWall" and wall:IsA("BasePart") then
+    local nc=Instance.new("NoCollisionConstraint") nc.Part0=door nc.Part1=wall nc.Parent=door end end
+  end
+  -- STOREROOM behind the staff wall: metal shelving with boxes and bean sacks
+  do local SH=Color3.fromRGB(150,152,156) local BOX=Color3.fromRGB(176,138,92) local SACK=Color3.fromRGB(196,176,140)
+   local function unit(ax,az,bx,bz)
+    for _,c in ipairs({{ax,az},{ax,bz-0.2},{bx-0.2,az},{bx-0.2,bz-0.2}}) do box(cm,"ShelfPost",c[1],FY,c[2],c[1]+0.2,FY+8,c[2]+0.2,SH,{mat=Enum.Material.Metal}) end
+    for k,ly in ipairs({FY+0.5,FY+2.8,FY+5.1,FY+7.4}) do
+     box(cm,"Shelf",ax,ly,az,bx,ly+0.15,bz,SH,{mat=Enum.Material.Metal})
+     local long=(bx-ax)>(bz-az)
+     for j=0,1 do local f=(j+0.5)/2
+      local cx=if long then ax+(bx-ax)*f else (ax+bx)/2 local cz=if long then (az+bz)/2 else az+(bz-az)*f
+      if (k+j)%3==0 then cyl(cm,"BeanSack",1.6,1.2,Vector3.new(cx,ly+0.75,cz),SACK,{mat=Enum.Material.Fabric,nocol=true})
+      else box(cm,"StockBox",cx-0.9,ly+0.15,cz-0.7,cx+0.9,ly+1.5,cz+0.7,BOX,{nocol=true}) end end
+    end end
+   unit(-232.8,z1-2.5,-223,z1-0.6)
+   unit(-221,z1-2.5,-211.2,z1-0.6)
+   unit(x1-2.7,90,x1-0.8,99.5)
+   local lamp=box(cm,"StoreLight",-224,MY-1.15,94,-218,MY-1.05,97,Color3.fromRGB(255,244,224),{mat=Enum.Material.Neon,ghost=true})
+   local pl=Instance.new("PointLight") pl.Range=18 pl.Brightness=0.9 pl.Color=Color3.fromRGB(255,236,206) pl.Parent=lamp
+  end
   -- coffee bag wall (colourful packs) on the south wall behind the bakery
   for k=0,17 do local col=({Color3.fromRGB(200,40,50),Color3.fromRGB(30,30,30),Color3.fromRGB(230,200,60),Color3.fromRGB(60,110,180),Color3.fromRGB(240,240,240)})[k%5+1]
    box(cm,"CoffeeBag",mx+1+(k%9)*2.8,FY+5+math.floor(k/9)*2.4,z0+0.5,mx+3+(k%9)*2.8,FY+6.8+math.floor(k/9)*2.4,z0+1.3,col) end
@@ -971,6 +1015,7 @@ local z=zone("04_Beach_Aquarium")
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=Color3.fromRGB(255,214,160) pl.Parent=s
   end
   label(cm,"물멍 풀",Vector3.new((PX0+PX1)/2,FY+5,(PZ0+PZ1)/2))
+  do local zone=box(cm,"SplashZone",PX0,FY-1.2,PZ0,PX1,FY+3,PZ1,glass,{t=1,nocol=true}) zone.CanQuery=false zone.CanTouch=false CS:AddTag(zone,"SplashZone") end -- (splash sounds in the water, PoolSplashController)
   -- PLANTS (user plan 2026-10-25): a pot in the south-west glass corner, a tall
   -- planter at the window bar's north end, a long planter between the piano
   -- stage and the lounge
@@ -981,7 +1026,7 @@ local z=zone("04_Beach_Aquarium")
   for k=0,4 do P(cm,"PlantLeaves",Vector3.new(2.4,2.4,2.4),CFrame.new(-271,FY+2.8+(k%2)*0.5,89+k*3.8),Color3.fromRGB(78,128,64),{shape=Enum.PartType.Ball,nocol=true,mat=Enum.Material.Grass}) end
   -- three small round tables, four single chairs each (corners, facing in)
   for _,tz in ipairs({28,42,57}) do
-   local tx=-258 -- (moved east with the channel, user plan 2026-10-25)
+   local tx=-262 -- (next to the channel, user 2026-10-25)
    cyl(cm,"TableLeg",0.4,2.6,Vector3.new(tx,FY+1.3,tz),dark)
    local tt=cyl(cm,"CafeTable",2.8,0.25,Vector3.new(tx,FY+2.7,tz),woodC) CS:AddTag(tt,"CafeTable")
    for _,d in ipairs({{-1,-1},{1,-1},{-1,1},{1,1}}) do
@@ -1036,8 +1081,18 @@ local z=zone("04_Beach_Aquarium")
   box(piano,"PianoBody",-293,PY+2.2,96,-287,PY+3.6,103,dark) -- (in the corner, as far from the north glass as from the sea glass: 2.6, user 2026-10-25)
   P(piano,"PianoLid",Vector3.new(6,0.2,7),CFrame.new(-290,PY+5,99.5)*CFrame.Angles(math.rad(-30),0,0),dark,{nocol=true})
   for _,lp in ipairs({{-292.5,96.5},{-287.5,96.5},{-290,102.5}}) do box(piano,"PianoLeg",lp[1]-0.3,PY,lp[2]-0.3,lp[1]+0.3,PY+2.2,lp[2]+0.3,dark) end
-  box(piano,"Keys",-293,PY+3.3,95.4,-287,PY+3.6,96,Color3.new(1,1,1))
-  do local pos=Vector3.new(-290,PY+1.6,93.6) seat(cm,"PianoBench",CFrame.lookAt(pos,pos+Vector3.new(0,0,1)),Vector3.new(3,0.4,1.4),dark) end
+  -- (user 2026-10-25) a real keyboard: key bed, end blocks, 21 white and 15
+  -- black keys, fallboard; tagged Piano (PianoController plays it)
+  CS:AddTag(piano,"Piano")
+  box(piano,"KeyBed",-293.25,PY+3.05,95.25,-286.75,PY+3.3,96.1,dark)
+  box(piano,"KeyCheek",-293.5,PY+3.05,95.25,-293.25,PY+3.7,96.1,dark) box(piano,"KeyCheek",-286.75,PY+3.05,95.25,-286.5,PY+3.7,96.1,dark)
+  box(piano,"Fallboard",-293.25,PY+3.45,96,-286.75,PY+3.95,96.15,dark)
+  do local kw=6.5/21
+   for i=0,20 do local ka=-293.25+i*kw box(piano,"WhiteKey",ka+0.015,PY+3.3,95.3,ka+kw-0.015,PY+3.45,96,Color3.fromRGB(250,250,246),{nocol=true}) end
+   for i=0,19 do if ({[0]=true,[1]=true,[3]=true,[4]=true,[5]=true})[i%7] then local kc=-293.25+(i+1)*kw
+    box(piano,"BlackKey",kc-kw*0.28,PY+3.45,95.7,kc+kw*0.28,PY+3.58,96,Color3.fromRGB(20,20,22),{nocol=true}) end end end
+  do local pos=Vector3.new(-290,PY+1.6,93.6) seat(cm,"PianoBench",CFrame.lookAt(pos,pos+Vector3.new(0,0,1)),Vector3.new(3,0.4,1.4),dark)
+   for _,c in ipairs({{-291.3,93.1},{-288.7,93.1},{-291.3,94.1},{-288.7,94.1}}) do box(cm,"PianoBenchLeg",c[1]-0.12,PY,c[2]-0.12,c[1]+0.12,PY+1.4,c[2]+0.12,dark) end end -- (four legs, user 2026-10-25)
   -- (no sofas, long marble table, wooden pool tiers or north planter: user plan 2026-10-25)
   -- LIGHT (user photos 2026-10-24, warm hotel-lobby mood): a long glowing
   -- stretch-ceiling panel over the pool between the wooden slats, warm spots
