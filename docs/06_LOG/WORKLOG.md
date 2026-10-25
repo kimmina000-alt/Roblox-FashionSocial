@@ -1692,3 +1692,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 걸어서 확인: 인도 → 데크 → 남 테라스 → 해변 계단, 북쪽도 모두 OK.
 
 ![](images/2026-10-25/cafe_deck_raised.jpg)
+
+### 수정 (D-307) — 각진 야자수가 다시 나타난 문제
+
+- 카페 때문에 해변 구역만 다시 지을 때, 그래이박스의 각진 야자수 14그루와 옛 아쿠아리움 돔이 함께 되살아났어요.
+- 원래 자리(숨김 폴더)로 다시 넣고, 중복 사본 20개를 지웠어요.
+- `tools/graybox/park_beach_hidden.lua`를 추가했어요. 해변 구역만 다시 지은 뒤 실행하면 같은 일이 생기지 않아요.
+- 카페 화분 후보를 줄 세워 찍어 두었어요.
+
+![](images/2026-10-25/cafe_plant_candidates.jpg)

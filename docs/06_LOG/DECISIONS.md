@@ -571,3 +571,5 @@ D-304 — (2026-10-25, user) The slanted cafe piano turned 180°: the bench is n
 D-305 — (2026-10-25, user mark) The slanted cafe piano moves up to the user's red line by the north glass (centre x -281.9, z 99.7).
 
 D-306 — (2026-10-25, user's red outline) The white step at the cafe door is removed. The east entrance deck and the south and north terraces are raised one step (0.6) to the cafe floor, flush with the promenade, as one wooden platform in the beach-stair wood (WoodPlanks 120,88,62). The terrace on the south looks darker only because it lies in the building's shadow (the sun is in the north).
+
+D-307 — (2026-10-25) Rebuilding only zone 04_Beach_Aquarium brings back the 14 blocky graybox palms and the old Dream Aquarium parts, because build_hongdae_layout normally parks them in ServerStorage.Hongdae_v1_HiddenParts. They were parked again and the stale duplicate copies removed. From now on, run tools/graybox/park_beach_hidden.lua after a zone-04-only rebuild; the scratchpad zone runner appends it automatically.
