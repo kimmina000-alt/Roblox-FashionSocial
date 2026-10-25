@@ -1353,3 +1353,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-25/club_extended_top.jpg)
 ![](images/2026-10-25/club_extended_outside.jpg)
 ![](images/2026-10-25/cafe_door_stairs_side.jpg)
+
+### 추가 (D-240) — 클럽 1층·2층 배치도대로
+- 1층: 둥근 테이블 삭제 → 벽에서 나온 계단식 단상 6개(2단, 핑크 라인) 위에 서서 쓰는 음료 테이블. 단상 사이 댄스 봉 4개(둥근 크롬 받침), "봉 잡고 돌기" 누르면 봉을 잡고 천천히 빙그르르 돎(점프하면 놓음). 바를 ㄱ자로. 댄스 플로어 형광 삭제.
+- 2층: 양쪽 벽에 VIP 부스 4개씩(짙은 그레이 U 소파, 검은 테이블에 흰 테두리), 부스 사이 벽 조명. VIP 계단 쪽 끝은 비워 둠.
+
+![](images/2026-10-25/club_1f_platforms_top.jpg)
+![](images/2026-10-25/club_pole_spin.jpg)
+![](images/2026-10-25/club_vip_booths.jpg)

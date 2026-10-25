@@ -298,34 +298,44 @@ local function starCanopy(name,x0,z0,x1,z1,count)
  end
 end
 -- (no starry canopies over the VIP lounges: removed, user 2026-10-24)
--- VIP sofas along the outer walls + tables in front (DrinkTable)
-local sofa=Color3.fromRGB(120,30,70)
-local function vipGroup(cx,wallZ,dir)
- -- dir = +1 seats face +z (north wall), -1 face -z (south wall)
- local backZ=wallZ+dir*0.8 local seatZ=wallZ+dir*3
- box(z,"VIP_SofaBack",cx-7,V,backZ-0.6,cx+7,V+4,backZ+0.6,sofa)
- for k=-1,1 do local pos=Vector3.new(cx+k*4.4,V+0.9,seatZ)
-  local seat=Instance.new("Seat") seat.Name="VIP_Sofa" seat.Anchored=true seat.Size=Vector3.new(4.2,1.4,3.4)
-  seat.CFrame=CFrame.lookAt(pos,pos+Vector3.new(0,0,dir)) seat.Color=Color3.fromRGB(170,50,100) seat.TopSurface=Enum.SurfaceType.Smooth seat.Parent=z CS:AddTag(seat,"PromptSeat") end
- local tz=wallZ+dir*8
- for _,lx in ipairs({-3,3}) do box(z,"VIP_TableLeg",cx+lx-0.3,V,tz-0.3,cx+lx+0.3,V+2.2,tz+0.3,gold) end
- local top=box(z,"VIP_Table",cx-4.5,V+2.2,tz-2,cx+4.5,V+2.7,tz+2,Color3.fromRGB(250,245,235))
- CS:AddTag(top,"DrinkTable")
- for k=0,3 do slot(top,Vector3.new(cx-3.3+k*2.2,V+3,tz)) end
+-- VIP BOOTHS (2F plan, user 2026-10-25, references: dark grey channel-tufted
+-- U sofas, black glass tables with a thin white edge, small wall lights between
+-- the booths): four booths along each long wall of the lounge, open towards
+-- the hall; the strip at the VIP stair end stays open floor
+local boothC=Color3.fromRGB(58,58,64) local FABR={mat=Enum.Material.Fabric}
+local function seat(par,name,cf,size,col,t)
+ local s=Instance.new("Seat") s.Name=name s.Anchored=true s.Size=size s.CFrame=cf s.Color=col s.Transparency=t or 0
+ s.TopSurface=Enum.SurfaceType.Smooth s.Parent=par CS:AddTag(s,"PromptSeat") return s end
+local function vipBooth(cx,wallZ,dir)
+ local function zz(d) return wallZ+dir*d end
+ box(z,"VIP_BoothBack",cx-10,V,zz(0),cx+10,V+4.2,zz(1.2),boothC,FABR)
+ for k=0,8 do cyl(z,"VIP_BoothTuft",0.9,3,Vector3.new(cx-8.8+k*2.2,V+2.5,zz(1.25)),boothC,{mat=Enum.Material.Fabric,nocol=true}) end
+ for _,sx in ipairs({-1,1}) do
+  box(z,"VIP_BoothArm",cx+sx*8.8,V,zz(1.2),cx+sx*10,V+3.4,zz(9),boothC,FABR)
+  for k=0,2 do cyl(z,"VIP_BoothTuft",0.9,2.2,Vector3.new(cx+sx*8.75,V+2.3,zz(2.6+k*2.6)),boothC,{mat=Enum.Material.Fabric,nocol=true}) end
+  box(z,"VIP_BoothSeat",cx+sx*6.4,V,zz(3.6),cx+sx*8.8,V+1.3,zz(9),boothC,FABR)
+  for _,d in ipairs({5,7.6}) do local pos=Vector3.new(cx+sx*7.6,V+1.45,zz(d))
+   local s=seat(z,"VIP_Sofa",CFrame.lookAt(pos,pos+Vector3.new(-sx,0,0)),Vector3.new(2.2,0.3,2.4),boothC,1) end
+ end
+ box(z,"VIP_BoothSeat",cx-8.8,V,zz(1.2),cx+8.8,V+1.3,zz(3.6),boothC,FABR)
+ for _,sx in ipairs({-5,0,5}) do local pos=Vector3.new(cx+sx,V+1.45,zz(2.4))
+  seat(z,"VIP_Sofa",CFrame.lookAt(pos,pos+Vector3.new(0,0,dir)),Vector3.new(4,0.3,2.2),boothC,1) end
+ -- black glass table with a thin white edge
+ box(z,"VIP_TableBase",cx-3,V,zz(5.8),cx+3,V+2.2,zz(7.2),Color3.fromRGB(16,16,18))
+ local top=box(z,"VIP_Table",cx-5.5,V+2.2,zz(4.4),cx+5.5,V+2.5,zz(8.6),Color3.fromRGB(10,10,12),{mat=Enum.Material.SmoothPlastic}) -- (glass picked up the lights and looked beige)
+ top.Reflectance=0.12 CS:AddTag(top,"DrinkTable")
+ local W2=Color3.fromRGB(245,245,245) local EO={mat=Enum.Material.SmoothPlastic,ghost=true} -- (a thin white line, not a glow)
+ box(z,"VIP_TableEdge",cx-5.5,V+2.5,zz(4.4),cx+5.5,V+2.53,zz(4.52),W2,EO) box(z,"VIP_TableEdge",cx-5.5,V+2.5,zz(8.48),cx+5.5,V+2.53,zz(8.6),W2,EO)
+ box(z,"VIP_TableEdge",cx-5.5,V+2.5,zz(4.4),cx-5.38,V+2.53,zz(8.6),W2,EO) box(z,"VIP_TableEdge",cx+5.38,V+2.5,zz(4.4),cx+5.5,V+2.53,zz(8.6),W2,EO)
+ for k=0,3 do slot(top,Vector3.new(cx-3.3+k*2.2,V+2.8,zz(6.5))) end
 end
-for _,cx in ipairs({-56,-32,-8,16,40}) do vipGroup(cx,NZ,1) end
-for _,cx in ipairs({-56,-32,-8,16,40}) do vipGroup(cx,-167.5,-1) end
--- west strip: sofas along the outer wall, facing the hall
-for _,zc in ipairs({-226,-200}) do
- box(z,"VIP_SofaBack",-79.6,V,zc-7,-78.4,V+4,zc+7,sofa)
- for k=-1,1 do local pos=Vector3.new(-76.8,V+0.9,zc+k*4.4)
-  local seat=Instance.new("Seat") seat.Name="VIP_Sofa" seat.Anchored=true seat.Size=Vector3.new(4.2,1.4,3.4)
-  seat.CFrame=CFrame.lookAt(pos,pos+Vector3.new(1,0,0)) seat.Color=Color3.fromRGB(170,50,100) seat.TopSurface=Enum.SurfaceType.Smooth seat.Parent=z CS:AddTag(seat,"PromptSeat") end
- for _,lz in ipairs({-3,3}) do box(z,"VIP_TableLeg",-72.3,V,zc+lz-0.3,-71.7,V+2.2,zc+lz+0.3,gold) end
- local top=box(z,"VIP_Table",-74,V+2.2,zc-4.5,-70,V+2.7,zc+4.5,Color3.fromRGB(250,245,235))
- CS:AddTag(top,"DrinkTable")
- for k=0,3 do slot(top,Vector3.new(-72,V+3,zc-3.3+k*2.2)) end end
--- (no west canopy either)
+local BOOTHS={-33.5,-9,15.5,39}
+for _,cx in ipairs(BOOTHS) do vipBooth(cx,NZ,1) vipBooth(cx,-167.5,-1) end
+-- small warm wall lights between the booths
+for k=1,#BOOTHS-1 do local lx=(BOOTHS[k]+BOOTHS[k+1])/2
+ for _,w in ipairs({{NZ,1},{-167.5,-1}}) do
+  local wl=box(z,"VIP_WallLight",lx-0.35,V+4.8,w[1]+w[2]*0,lx+0.35,V+6.6,w[1]+w[2]*0.25,Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
+  local pl=Instance.new("PointLight") pl.Range=14 pl.Brightness=0.8 pl.Color=Color3.fromRGB(255,200,150) pl.Parent=wl end end
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,NZ+12),true)
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,-178),true)
 local function vipRegion(name,x0,y0,z0,x1,y1,z1,exit)
@@ -336,27 +346,49 @@ vipRegion("VIP_Region_S",-80,V,-190,58,V+20,-167.5)
 vipRegion("VIP_Region_W",-80,V,(NZ+24),-50,V+20,-190)
 vipRegion("VIP_StairRegion",-79.6,F+1,-263,-65.4,V+4,-236.8,Vector3.new(-72,F+3,-226))
 
--- 1st floor TABLE ZONES: under the north VIP, and south-west next to the bar
--- (1F plan 2026-10-22; replaces the old lounge booths)
-local tableSpots={}
-for _,tx in ipairs({-46,-22,2,26,50}) do table.insert(tableSpots,{tx,NZ+12}) end
-for _,tx in ipairs({-44,-24,-4}) do table.insert(tableSpots,{tx,-178}) end
-for _,spot in ipairs(tableSpots) do local tx,tz=spot[1],spot[2]
- cyl(z,"TableLeg",1,4,Vector3.new(tx,F+2,tz),Color3.fromRGB(40,40,50))
- local top=cyl(z,"RoundTable",6,0.5,Vector3.new(tx,F+4.25,tz),Color3.fromRGB(240,240,245))
+-- 1st floor TABLES ON STEPPED PLATFORMS (1F plan, user 2026-10-25): stadium
+-- shaped two-step platforms out from the long walls with a standing drinks
+-- table on top (two on the bar side, four on the far side), pink light lines
+-- under the step edges; DANCE POLES on round chrome bases between them
+local platC=Color3.fromRGB(30,30,36)
+local function platform(cx,wallZ,dir)
+ local L=17.3
+ for lv,r in ipairs({8.5,6.5}) do
+  local top=F+0.8*lv local cc=wallZ+dir*(L-8.5)
+  box(z,"TablePlatform",cx-r,F,math.min(wallZ,cc),cx+r,top,math.max(wallZ,cc),platC)
+  cyl(z,"TablePlatform",2*r,top-F,Vector3.new(cx,(F+top)/2,cc),platC)
+  local NE={mat=Enum.Material.Neon,ghost=true}
+  box(z,"PlatformNeon",cx-r-0.06,top-0.32,math.min(wallZ,cc),cx+r+0.06,top-0.2,math.max(wallZ,cc),pink,NE)
+  cyl(z,"PlatformNeon",2*r+0.12,0.12,Vector3.new(cx,top-0.26,cc),pink,NE)
+ end
+ local cc=wallZ+dir*(L-8.5)
+ local tp=Vector3.new(cx,F+1.6,cc+dir*1.5)
+ cyl(z,"TableLeg",0.8,3.4,tp+Vector3.new(0,1.7,0),Color3.fromRGB(40,40,50))
+ local top=cyl(z,"RoundTable",4.4,0.3,tp+Vector3.new(0,3.55,0),Color3.fromRGB(240,240,245))
  CS:AddTag(top,"DrinkTable")
- for k=0,3 do local a=math.rad(45+k*90) slot(top,Vector3.new(tx+math.cos(a)*1.9,F+4.6,tz+math.sin(a)*1.9)) end
- for k=0,2 do local a=math.rad(90+k*120) local pos=Vector3.new(tx+math.cos(a)*4.6,F+1.4,tz+math.sin(a)*4.6)
-  local seat=Instance.new("Seat") seat.Name="TableStool" seat.Anchored=true seat.Size=Vector3.new(2.4,1,2.4)
-  seat.CFrame=CFrame.lookAt(pos,Vector3.new(tx,F+1.4,tz)) seat.Color=Color3.fromRGB(230,120,170) seat.TopSurface=Enum.SurfaceType.Smooth seat.Parent=z CS:AddTag(seat,"PromptSeat")
-  box(z,"StoolLeg",pos.X-0.3,F,pos.Z-0.3,pos.X+0.3,F+0.9,pos.Z+0.3,Color3.fromRGB(40,40,50)) end
+ for k=0,3 do local a=math.rad(45+k*90) slot(top,tp+Vector3.new(math.cos(a)*1.3,3.85,math.sin(a)*1.3)) end
 end
-label(z,"테이블석 (1층)",Vector3.new(2,F+9,NZ+12))
-label(z,"테이블석 (1층)",Vector3.new(-24,F+9,-178))
+for _,cx in ipairs({-41.7,-14.5}) do platform(cx,-167.5,-1) end
+for _,cx in ipairs({-41.7,-14.5,12.5,39}) do platform(cx,NZ,1) end
+local function pole(px,pz)
+ local b=cyl(z,"PoleBase",5,0.6,Vector3.new(px,F+0.3,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole")
+ local p=cyl(z,"DancePole",0.35,16,Vector3.new(px,F+0.6+8,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
+ p.Reflectance=0.3
+ cyl(z,"PoleCap",1.2,0.3,Vector3.new(px,F+16.75,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal})
+ -- the prompt at chest height on the base (a prompt high on the pole did not show)
+ local at=Instance.new("Attachment") at.Name="PoleGrip" at.Parent=b at.WorldPosition=Vector3.new(px,F+3.5,pz)
+ local pr=Instance.new("ProximityPrompt") pr.Name="PolePrompt" pr.ActionText="봉 잡고 돌기" pr.ObjectText="댄스 봉"
+ pr.MaxActivationDistance=7 pr.RequiresLineOfSight=false pr.Parent=at
+end
+pole(-27.7,-185.3)
+for _,px in ipairs({-28,-1,25.75}) do pole(px,NZ+19.3) end
 
 -- BAR under the south VIP, east half (non-alcoholic)
 box(z,"BarCounter",10,F,-183.5,54,F+4.5,-180.5,Color3.fromRGB(245,245,250))
 box(z,"BarCounterTop",9.5,F+4.5,-184,54.5,F+5,-180,Color3.fromRGB(30,30,40))
+-- (user plan 2026-10-25) an L: the counter turns towards the back wall at its north end
+box(z,"BarCounter",10,F,-180.5,13,F+4.5,-171.8,Color3.fromRGB(245,245,250))
+box(z,"BarCounterTop",9.5,F+4.5,-180.5,13.5,F+5,-171.3,Color3.fromRGB(30,30,40))
 box(z,"BarNeon",10,F+3.6,-183.8,54,F+4,-183.5,cyan,{mat=Enum.Material.Neon,ghost=true})
 box(z,"BarBackShelf",10,F,-169,54,F+12,-167.5,Color3.fromRGB(45,35,60))
 for row=0,2 do box(z,"BarShelf",10,F+4+row*3,-170.5,54,F+4.3+row*3,-169,Color3.fromRGB(200,200,210))
@@ -432,8 +464,7 @@ djRegion:SetAttribute("Gate","DJ") djRegion:SetAttribute("Exit",Vector3.new(46,F
 label(z,"DJ 존 (DJ 시간 구매)",Vector3.new(70,F+22,-218),true)
 
 -- main dance floor
-local floor=box(z,"DanceFloor",-36,F,-238,44,F+0.3,-198,Color3.fromRGB(120,90,200),{mat=Enum.Material.Neon}) CS:AddTag(floor,"ClubBeat")
-label(z,"Dance Floor",Vector3.new(4,F+6,-218))
+-- (no neon dance floor: just the marble floor, user 2026-10-25)
 -- round LED pillars (ClubScreenService + ClubLightsController): only two, on
 -- both sides of the DJ zone (north-east and south-east corners), floor to
 -- ceiling, twice as thick (user, 2026-10-22). Live avatar on the panels.
