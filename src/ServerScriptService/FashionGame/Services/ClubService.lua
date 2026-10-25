@@ -326,31 +326,26 @@ local function onDJChanged()
 end
 
 --------------------------------------------------
--- Seats: anything tagged "PromptSeat" gets a "앉기" prompt (MASS reference:
--- players could not find how to sit).
+-- Seats tagged "PromptSeat": (user 2026-10-25) no "앉기" prompt any more;
+-- walking into a seat sits you down (a plain Seat does that by itself).
+-- Sitting stops a dance, and nobody stays seated during a cafe shift.
 --------------------------------------------------
 
 local function addSeatPrompt(seat: Instance)
-	if not seat:IsA("Seat") or seat:FindFirstChild("SitPrompt") then return end
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "SitPrompt"
-	prompt.ActionText = "앉기"
-	prompt.ObjectText = ""
-	prompt.MaxActivationDistance = 8
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = seat
-	prompt.Triggered:Connect(function(player)
-		local character = characterOf(player)
-		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-		-- no sitting during a cafe shift (user, 2026-10-22: the sit prompt hid "서빙하기")
-		if character and character:GetAttribute("CafeJob") then return end
-		if humanoid and not seat.Occupant then
-			stopDance(player)
-			seat:Sit(humanoid)
-		end
-	end)
+	if not seat:IsA("Seat") or seat:GetAttribute("SeatWatched") then return end
+	seat:SetAttribute("SeatWatched", true)
+	local old = seat:FindFirstChild("SitPrompt")
+	if old then old:Destroy() end
 	seat:GetPropertyChangedSignal("Occupant"):Connect(function()
-		prompt.Enabled = seat.Occupant == nil
+		local humanoid = seat.Occupant
+		local character = humanoid and humanoid.Parent
+		local player = character and Players:GetPlayerFromCharacter(character)
+		if not player then return end
+		if character:GetAttribute("CafeJob") then
+			humanoid.Sit = false
+			return
+		end
+		stopDance(player)
 	end)
 end
 

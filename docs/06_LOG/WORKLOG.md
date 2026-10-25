@@ -1293,3 +1293,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](images/2026-10-25/cafe_tall_inside.jpg)
 ![](images/2026-10-25/cafe_tall_outside.jpg)
+
+### 추가 (D-234) — 물멍 풀 가장자리 정리, 의자 앉기 버튼 삭제
+- 물을 바닥보다 0.6 아래로 내리고 바닥 밑 막힌 수조 안에서 더 넓게 채움. 지형 물의 울퉁불퉁한 가장자리는 바닥과 검은 프레임 밑에 숨음. 테두리는 검은색, 물 쪽으로 0.3 덮음.
+- 모든 의자의 E 앉기 버튼 삭제. 걸어 들어가면 자동으로 앉음(카페 의자로 확인). 알바 중에는 앉지 않음.
+
+| 전 | 후 |
+|---|---|
+| ![](images/2026-10-25/pool_edge_before.jpg) | ![](images/2026-10-25/pool_edge_after.jpg) |

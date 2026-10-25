@@ -149,7 +149,8 @@ local function revert()
 		old:Destroy()
 	end
 	workspace.Terrain:FillBlock(CFrame.new(-274, 1.02, 62), Vector3.new(24, 1.6, 28), Enum.Material.Air) -- the cafe pool's water
-	workspace.Terrain:FillBlock(CFrame.new(-277.5, 1.02, 47), Vector3.new(10.4, 1.6, 44), Enum.Material.Air) -- (the channel since 2026-10-25)
+	workspace.Terrain:FillBlock(CFrame.new(-277.5, 1.02, 47), Vector3.new(13.4, 2, 48), Enum.Material.Air) -- (the channel since 2026-10-25)
+	workspace.Terrain:FillBlock(CFrame.new(-278, -2, 46), Vector3.new(20, 4, 52), Enum.Material.Air) -- (its basin under the floor)
 	-- ride name signs switched off while the park was closed
 	for _, g in ipairs(root:GetDescendants()) do
 		if g:IsA("BillboardGui") and g:GetAttribute("ParkClosedHidden") then
@@ -1607,7 +1608,10 @@ do
 		workspace.Terrain:FillBlock(CFrame.new(-368, -9.5, -150), Vector3.new(92, 13, 92), Enum.Material.Water)
 		-- the beach cafe's 물멍 pool holds the same terrain water as the sea (user 2026-10-24)
 		workspace.Terrain:FillBlock(CFrame.new(-274, 0.7, 62), Vector3.new(24.4, 1.4, 28), Enum.Material.Air) -- (the old pool's place, user plan 2026-10-25)
-		workspace.Terrain:FillBlock(CFrame.new(-277.5, 0.7, 47), Vector3.new(10.4, 1.4, 44), Enum.Material.Water) -- to the rim (wider leaked past it onto the floor) -- from y 0: terrain water shows its surface at the filled share of the 4-stud cell (about 1.3 here)
+		-- (user 2026-10-25) lower (surface about 1.0, under the black frame's top at 1.6) and wider, in under the frame on every side so no ragged edge shows
+		workspace.Terrain:FillBlock(CFrame.new(-277.5, 1.02, 47), Vector3.new(13.4, 2, 48), Enum.Material.Air)
+		-- (later the same day) one whole 4-stud cell layer, y -4..0, in the closed basin under the cafe floor: surface at y 0, below the floor top (0.6)
+		workspace.Terrain:FillBlock(CFrame.new(-278, -2, 46), Vector3.new(20, 4, 52), Enum.Material.Water)
 		for _, old in ipairs(beachZone:GetChildren()) do
 			if old:IsA("Model") and old.Name == "PalmTree" then
 				local cf, size = old:GetBoundingBox()

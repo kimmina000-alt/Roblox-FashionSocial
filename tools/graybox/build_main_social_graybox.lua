@@ -720,7 +720,13 @@ local z=zone("04_Beach_Aquarium")
   local glass=Color3.fromRGB(200,228,238) local frameC=Color3.fromRGB(238,238,235) local dark=Color3.fromRGB(38,38,42)
   local sofaC=Color3.fromRGB(244,242,236)
   -- floor slab, base on the sand, piles in the sea
-  box(cm,"CafeFloor",x0,FY-1,z0,x1,FY,z1,floorC,{mat=Enum.Material.Marble})
+  -- the floor has a hole for the 물멍 channel (user 2026-10-25): its terrain
+  -- water lies below the floor top, in a closed basin under the slab, so its
+  -- ragged voxel edges stay hidden under the floor and the black frame
+  local PX0,PZ0,PX1,PZ1=-282.5,25,-272.5,69
+  for _,r in ipairs({{x0,z0,x1,PZ0},{x0,PZ1,x1,z1},{x0,PZ0,PX0,PZ1},{PX1,PZ0,x1,PZ1}}) do box(cm,"CafeFloor",r[1],FY-1,r[2],r[3],FY,r[4],floorC,{mat=Enum.Material.Marble}) end
+  box(cm,"PoolBasin",-288,FY-5,20,-268,FY-1,72,Color3.fromRGB(22,24,26),{mat=Enum.Material.Granite}) -- whole 4-stud terrain cells (water fill in build_hongdae_layout)
+  for _,r in ipairs({{PX0,PZ0,PX0+0.1,PZ1},{PX1-0.1,PZ0,PX1,PZ1},{PX0,PZ0,PX1,PZ0+0.1},{PX0,PZ1-0.1,PX1,PZ1}}) do box(cm,"PoolLiner",r[1],FY-1,r[2],r[3],FY,r[4],Color3.fromRGB(24,24,26),{mat=Enum.Material.Slate}) end
   box(cm,"CafeBase",-268,0,z0,x1,FY-1,z1,white)
   -- a white plinth round the outside below the walls, the same colour as the building (user 2026-10-24)
   box(cm,"CafePlinth",x1,0,z0,x1+0.05,FY,z1,white) box(cm,"CafePlinth",x0-0.05,FY-1,z0,x0,FY,z1,white)
@@ -875,14 +881,15 @@ local z=zone("04_Beach_Aquarium")
    cyl(cm,"StoolLeg",0.3,2.1,Vector3.new(x0+4.4,FY+1.05,sz),dark) end
   -- WATER CHANNEL (물멍): black stone bottom, terrain water from
   -- build_hongdae_layout (POOL there), four low amber lamps in a row
-  local PX0,PZ0,PX1,PZ1=-282.5,25,-272.5,69
-  box(cm,"PoolBottom",PX0,FY,PZ0,PX1,FY+0.1,PZ1,Color3.fromRGB(22,24,26),{mat=Enum.Material.Granite})
-  local pool=box(cm,"WaterPool",PX0,FY+0.1,PZ0,PX1,FY+0.75,PZ1,Color3.fromRGB(30,40,46),{t=1,nocol=true})
-  pool.Reflectance=0.3
-  for _,r in ipairs({{PX0-1,PZ0,PX0,PZ1},{PX1,PZ0,PX1+1,PZ1},{PX0-1,PZ0-1,PX1+1,PZ0},{PX0-1,PZ1,PX1+1,PZ1+1}}) do box(cm,"PoolRim",r[1],FY,r[2],r[3],FY+0.9,r[4],Color3.fromRGB(70,70,72),{mat=Enum.Material.Slate}) end
+  -- (the basin and the hole in the floor are made with the floor above)
+  -- (user 2026-10-25) a black frame round the water, a little over its edge:
+  -- the terrain water (lower now, to FY+0.4) reaches in under it, so its
+  -- ragged voxel edge never shows
+  local RIM=Color3.fromRGB(24,24,26) local RI=0.3 local RW,RE,RZ=1.7,1.5,1.5
+  for _,r in ipairs({{PX0-RW,PZ0-RZ,PX0+RI,PZ1+RZ},{PX1-RI,PZ0-RZ,PX1+RE,PZ1+RZ},{PX0+RI,PZ0-RZ,PX1-RI,PZ0+RI},{PX0+RI,PZ1-RI,PX1-RI,PZ1+RZ}}) do box(cm,"PoolRim",r[1],FY,r[2],r[3],FY+1,r[4],RIM,{mat=Enum.Material.Slate}) end
   for _,jz in ipairs({33,42,52,61}) do
-   cyl(cm,"PoolLampBase",1.6,0.2,Vector3.new((PX0+PX1)/2,FY+0.1,jz),Color3.fromRGB(60,50,40),{ghost=true})
-   local s=cyl(cm,"PoolLamp",1.8,1.4,Vector3.new((PX0+PX1)/2,FY+0.9,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true})
+   cyl(cm,"PoolLampBase",1.6,0.2,Vector3.new((PX0+PX1)/2,FY-0.9,jz),Color3.fromRGB(60,50,40),{ghost=true})
+   local s=cyl(cm,"PoolLamp",1.8,1.4,Vector3.new((PX0+PX1)/2,FY-0.1,jz),Color3.fromRGB(205,160,110),{mat=Enum.Material.Neon,t=0.35,ghost=true})
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=Color3.fromRGB(255,214,160) pl.Parent=s
   end
   label(cm,"물멍 풀",Vector3.new((PX0+PX1)/2,FY+5,47))
