@@ -69,6 +69,7 @@ local function startNext()
 	table.clear(guests)
 	FashionGame:SetAttribute("ClubLights", true)
 	FashionGame:SetAttribute("ClubLightColor", "rainbow")
+	FashionGame:SetAttribute("ClubLightSpeed", 1)
 	FashionGame:SetAttribute("ClubDJScreen", true)
 	while #queue > 0 do
 		local slot = table.remove(queue, 1) :: Slot
@@ -203,6 +204,15 @@ DjService.Actions.LightColor = function(_dj: Player, key: any): (boolean, any)
 	FashionGame:SetAttribute("ClubLightColor", entry.key)
 	FashionGame:SetAttribute("ClubLights", true)
 	return true, "조명: " .. entry.name
+end
+
+-- "LightSpeed" (payload = one of LIGHT_SPEEDS): how fast the lasers and
+-- moving heads sweep (user 2026-10-25). Attribute ClubLightSpeed, 1 for each new DJ.
+local LIGHT_SPEEDS = { 0.5, 1, 1.5, 2 }
+DjService.Actions.LightSpeed = function(_dj: Player, speed: any): (boolean, any)
+	if not table.find(LIGHT_SPEEDS, speed) then return false, "없는 조명 속도예요." end
+	FashionGame:SetAttribute("ClubLightSpeed", speed)
+	return true, string.format("조명 속도 x%s", tostring(speed))
 end
 
 -- "Djing" (payload = true): the DJ starts DJing at the turntable — moved to the

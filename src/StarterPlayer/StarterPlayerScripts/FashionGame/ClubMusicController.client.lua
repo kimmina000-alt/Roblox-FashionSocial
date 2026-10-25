@@ -199,6 +199,20 @@ for index, entry in ipairs(ClubConfig.LightColors) do
 	create("UIStroke", { Name = "Picked", Color = Color3.new(1, 1, 1), Thickness = 2, Enabled = false }, button)
 	colorButtons[entry.key] = button
 end
+-- light sweep speed (DJ only, DjService.Actions.LightSpeed): one cell after
+-- the colours, tap to cycle x0.5 → x1 → x1.5 → x2
+local LIGHT_SPEEDS = { 0.5, 1, 1.5, 2 }
+local speedButton = create("TextButton", {
+	Name = "LightSpeed",
+	LayoutOrder = #ClubConfig.LightColors + 1,
+	BackgroundColor3 = COLORS.dj,
+	Text = "⚡x1",
+	TextScaled = true,
+	Font = Enum.Font.GothamBold,
+	TextColor3 = COLORS.text,
+}, colorRow)
+corner(speedButton, 6)
+create("UITextSizeConstraint", { MaxTextSize = 13 }, speedButton)
 
 local listTitle = create("TextLabel", {
 	Name = "ListTitle",
@@ -355,7 +369,7 @@ local function layout()
 		djTools.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
 		y += (if compact then 26 else 30) + 6
 		local perRow = if compact then 4 else 8
-		local rows = math.ceil(#ClubConfig.LightColors / perRow)
+		local rows = math.ceil((#ClubConfig.LightColors + 1) / perRow) -- (+ the speed cell)
 		local cellH = if compact then 22 else 24
 		colorGrid.CellSize = UDim2.fromOffset(math.floor((leftW - (perRow - 1) * 4) / perRow), cellH)
 		colorRow.Position = UDim2.fromOffset(0, y)
@@ -581,6 +595,8 @@ local function refresh()
 	listTitle.Text = if dj and showGuests then "DJ 존 초대 (초대한 사람만 올라올 수 있어요)"
 		elseif dj then "곡 고르기 (지금 / 다음)" elseif djId ~= 0 then "DJ가 곡을 고르는 중" else "곡 신청 (한 번에 한 곡)"
 	guestsButton.Text = if showGuests then "🎵 곡 목록" else "👥 초대"
+	local speed = FashionGame:GetAttribute("ClubLightSpeed")
+	speedButton.Text = "⚡x" .. tostring(if typeof(speed) == "number" then speed else 1)
 	local lightsOn = FashionGame:GetAttribute("ClubLights") ~= false
 	lightsButton.Text = if lightsOn then "💡 조명 ON" else "🌑 조명 OFF"
 	lightsButton.BackgroundColor3 = if lightsOn then COLORS.dj else COLORS.card
@@ -627,13 +643,18 @@ local function refreshAll()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLightColor", "ClubDJScreen" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
 for key, button in pairs(colorButtons) do
 	button.MouseButton1Click:Connect(function() call("LightColor", key) end)
 end
+speedButton.MouseButton1Click:Connect(function()
+	local speed = FashionGame:GetAttribute("ClubLightSpeed")
+	local i = table.find(LIGHT_SPEEDS, if typeof(speed) == "number" then speed else 1) or 2
+	call("LightSpeed", LIGHT_SPEEDS[i % #LIGHT_SPEEDS + 1])
+end)
 listClose.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
 end)

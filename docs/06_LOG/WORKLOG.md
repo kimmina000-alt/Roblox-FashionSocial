@@ -1399,3 +1399,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ![](../04_ART/references/club_laser_ref.jpg)
 ![](images/2026-10-25/club_hall_v5.jpg)
+
+### 추가 (D-246) — 조명 부드럽게, DJ 조명 속도
+- 빔은 블러가 안 돼서 레이저·무빙라이트마다 넓고 흐린 빛을 한 겹 더 씌워 가장자리를 흐리게, 가운데 선도 더 투명하게.
+- DJ 창 조명 색 옆 ⚡ 버튼: x0.5 → x1 → x1.5 → x2 조명 속도(DJ 바뀌면 x1).
+
+![](images/2026-10-25/club_soft_beams.jpg)

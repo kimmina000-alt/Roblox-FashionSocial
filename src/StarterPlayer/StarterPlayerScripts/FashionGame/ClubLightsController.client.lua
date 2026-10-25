@@ -43,7 +43,7 @@ targetHolder.Size = Vector3.new(0.2, 0.2, 0.2)
 targetHolder.CFrame = CFrame.new()
 targetHolder.Parent = workspace
 
-type Emitter = { part: BasePart, beams: {Beam}, targets: {Attachment}, index: number }
+type Emitter = { part: BasePart, beams: {Beam}, halos: {Beam}, targets: {Attachment}, index: number }
 local emitters: {Emitter} = {}
 
 local function addEmitter(instance: Instance)
@@ -55,7 +55,7 @@ local function addEmitter(instance: Instance)
 	origin.Name = "LaserOrigin"
 	origin.Position = Vector3.new(0, -instance.Size.Y / 2, 0)
 	origin.Parent = instance
-	local entry: Emitter = { part = instance, beams = {}, targets = {}, index = #emitters }
+	local entry: Emitter = { part = instance, beams = {}, halos = {}, targets = {}, index = #emitters }
 	for i = 1, BEAMS_PER_EMITTER do
 		local target = Instance.new("Attachment")
 		target.Name = "LaserTarget"
@@ -69,10 +69,19 @@ local function addEmitter(instance: Instance)
 		beam.LightEmission = 1
 		beam.LightInfluence = 0
 		beam.Segments = 1
-		beam.Transparency = NumberSequence.new(0.05, 0.35)
+		beam.Transparency = NumberSequence.new(0.3, 0.6) -- (softer core, user 2026-10-25)
 		beam.Enabled = false
 		beam.Parent = instance
+		-- Beams have no blur: a wide, faint halo on the same line softens the
+		-- edge (user 2026-10-25: "too sharp")
+		local halo = beam:Clone()
+		halo.Name = "LaserHalo"
+		halo.Width0 = 0.35
+		halo.Width1 = 0.9
+		halo.Transparency = NumberSequence.new(0.88, 0.96)
+		halo.Parent = instance
 		entry.beams[i] = beam
+		entry.halos[i] = halo
 		entry.targets[i] = target
 	end
 	table.insert(emitters, entry)
@@ -81,8 +90,8 @@ end
 for _, part in ipairs(CollectionService:GetTagged("ClubLaser")) do addEmitter(part) end
 CollectionService:GetInstanceAddedSignal("ClubLaser"):Connect(addEmitter)
 
-local function updateLasers(serverTime: number)
-	local t = serverTime * 2.2 -- fast sweeps (user video 2026-10-25)
+local function updateLasers(lightTime: number)
+	local t = lightTime * 2.2 -- fast sweeps (user video 2026-10-25)
 	local on = FashionGame:GetAttribute("ClubLights") ~= false
 	-- DJ colour pick (ClubLightColor); rainbow / none = colour cycle
 	local picked = ClubConfig.findLightColor(FashionGame:GetAttribute("ClubLightColor"))
@@ -99,6 +108,7 @@ local function updateLasers(serverTime: number)
 		local base = if typeof(aimAt) == "Vector3" then Vector3.new(aimAt.X, floorY, aimAt.Z) else Vector3.new(part.Position.X, floorY, part.Position.Z)
 		for i, beam in ipairs(entry.beams) do
 			beam.Enabled = visible
+			entry.halos[i].Enabled = visible
 			if visible then
 				local phase = entry.index * 0.9 + i * (math.pi * 2 / BEAMS_PER_EMITTER)
 				local offset: Vector3
@@ -122,6 +132,7 @@ local function updateLasers(serverTime: number)
 					color = Color3.fromHSV(hue, 0.3, 1)
 				end
 				beam.Color = ColorSequence.new(color)
+				entry.halos[i].Color = beam.Color
 			end
 		end
 	end
@@ -481,7 +492,7 @@ local WASH_COLORS = {
 	Color3.fromRGB(255, 70, 170), Color3.fromRGB(40, 230, 255),
 	Color3.fromRGB(70, 255, 120), Color3.fromRGB(160, 90, 255),
 }
-type Wash = { model: Model, head: BasePart, lens: BasePart, beam: Beam, light: SpotLight, target: Attachment, home: CFrame, index: number }
+type Wash = { model: Model, head: BasePart, lens: BasePart, beam: Beam, halo: Beam, light: SpotLight, target: Attachment, home: CFrame, index: number }
 local washes: {Wash} = {}
 
 local addWash: (Instance) -> ()
@@ -511,9 +522,16 @@ function addWash(instance: Instance)
 	beam.LightEmission = 1
 	beam.LightInfluence = 0
 	beam.Segments = 12
-	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.45), NumberSequenceKeypoint.new(0.6, 0.82), NumberSequenceKeypoint.new(1, 0.95) })
+	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.6), NumberSequenceKeypoint.new(0.6, 0.88), NumberSequenceKeypoint.new(1, 0.97) })
 	beam.Enabled = false
 	beam.Parent = lens
+	-- soft edge (no blur in Beams): a wider, fainter cone round the core
+	local halo = beam:Clone()
+	halo.Name = "WashHalo"
+	halo.Width0 = 4.5
+	halo.Width1 = 26
+	halo.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.85), NumberSequenceKeypoint.new(0.6, 0.94), NumberSequenceKeypoint.new(1, 0.99) })
+	halo.Parent = lens
 	local light = Instance.new("SpotLight")
 	light.Face = Enum.NormalId.Right
 	light.Angle = 32
@@ -524,7 +542,7 @@ function addWash(instance: Instance)
 	light.Parent = lens
 	local index = instance:GetAttribute("Index")
 	table.insert(washes, {
-		model = instance, head = head, lens = lens, beam = beam, light = light, target = target,
+		model = instance, head = head, lens = lens, beam = beam, halo = halo, light = light, target = target,
 		home = instance:GetPivot(), index = if typeof(index) == "number" then index else #washes,
 	})
 end
@@ -539,6 +557,7 @@ local function updateWashes(t: number)
 	for _, w in ipairs(washes) do
 		local visible = on and w.model.Parent ~= nil and inRange(w.head.Position)
 		w.beam.Enabled = visible
+		w.halo.Enabled = visible
 		w.light.Enabled = visible
 		if visible then
 			local home = w.model:GetPivot() -- LookVector = towards the dance floor
@@ -573,6 +592,7 @@ local function updateWashes(t: number)
 				color = a:Lerp(b, f)
 			end
 			w.beam.Color = ColorSequence.new(color)
+			w.halo.Color = w.beam.Color
 			w.light.Color = color
 			w.lens.Color = color
 		end
@@ -582,14 +602,21 @@ end
 --------------------------------------------------
 
 local accumulator = 0
+-- The lasers and moving heads run on their own clock so the DJ's speed
+-- (attribute ClubLightSpeed, x0.5..x2, user 2026-10-25) changes them smoothly
+local lightClock = workspace:GetServerTimeNow()
+local lastNow = lightClock
 RunService.RenderStepped:Connect(function(dt)
 	accumulator += dt
 	-- 30 updates a second is smooth enough for both.
 	if accumulator < 1 / 30 then return end
 	accumulator = 0
 	local t = workspace:GetServerTimeNow()
-	updateLasers(t)
-	updateWashes(t)
+	local speed = FashionGame:GetAttribute("ClubLightSpeed")
+	lightClock += (t - lastNow) * (if typeof(speed) == "number" then math.clamp(speed, 0.25, 3) else 1)
+	lastNow = t
+	updateLasers(lightClock)
+	updateWashes(lightClock)
 	updatePillars(t)
 end)
 
