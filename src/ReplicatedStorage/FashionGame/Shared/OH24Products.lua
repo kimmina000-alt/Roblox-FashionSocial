@@ -148,13 +148,19 @@ OH24Products.CATEGORIES = {
 }
 
 -- One picture per shelf row (user 2026-10-23: a whole row is one image, like
--- a shelf photo). Category → rbxassetid of a row image ("" = placeholder).
--- Size: 30 px per stud → a 16-stud gondola row ≈ 480 × 57 px; draw it wider
--- (e.g. 1600 × 190) for sharpness, products standing on the bottom edge.
+-- a shelf photo). Category → rbxassetid of a row tile ("" = placeholder).
+-- Each tile is 8 studs of shelf (512 × 128 px, drawn by tools/art/
+-- oh24_rows.ps1 from this list) and repeats along the row as a Texture
+-- (D-322: replaces 1,286 text labels; uploaded by Vantablack_Dev).
+OH24Products.ROW_TILE_STUDS = 8
 OH24Products.ROW_IMAGES = {
-	snack_bag = "", snack_tube = "", sweets_box = "", candy = "", noodle = "",
-	bread = "", drink_bottle = "", drink_can = "", milk = "", fresh = "",
-	lunch = "", goods = "",
+	snack_bag = "rbxassetid://138015671575686", snack_tube = "rbxassetid://70774058165736",
+	sweets_box = "rbxassetid://102228635631196", candy = "rbxassetid://96976052758436",
+	noodle = "rbxassetid://96074012892315", bread = "rbxassetid://108035993432413",
+	drink_bottle = "rbxassetid://72162737549191", drink_can = "rbxassetid://138654695456528",
+	milk = "rbxassetid://98890216643945", fresh = "rbxassetid://77216500412630",
+	lunch = "rbxassetid://137753517373763", icecream = "rbxassetid://93029430927100",
+	goods = "rbxassetid://124062055986850",
 }
 
 return OH24Products

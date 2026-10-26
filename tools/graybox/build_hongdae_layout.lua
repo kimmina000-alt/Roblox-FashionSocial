@@ -4336,9 +4336,13 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		face.CastShadow = false
 		local img = catalog.ROW_IMAGES and catalog.ROW_IMAGES[cat]
 		if typeof(img) == "string" and img ~= "" then
-			local d = Instance.new("Decal")
+			-- the tile repeats along the row (D-322), so rows of any length keep the pack shapes
+			local d = Instance.new("Texture")
+			d.Name = "RowImage"
 			d.Texture = img
 			d.Face = Enum.NormalId.Front
+			d.StudsPerTileU = catalog.ROW_TILE_STUDS or 8
+			d.StudsPerTileV = face.Size.Y
 			d.Parent = face
 			return
 		end

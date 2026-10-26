@@ -1891,3 +1891,18 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 서프보드: "바다 이용 수칙" 5줄과 다리 그림을 넣었어요.
 
 ![](images/2026-10-26/beach_signs.jpg)
+
+
+### 폰 메모리 줄이기 (D-322)
+
+- 스트리밍 설정(사용자가 해 둠)이 켜진 상태에서 무게를 쟀어요(PERFORMANCE.md 10절).
+- 실시간 화면(거울·LED 기둥·DJ 화면·버스 광고)은 이미 가까이 있을 때만 그려지고 있어서 그대로 뒀어요.
+- 편의점 진열대 99줄의 글자 1,286개를 상품 종류별 그림 13장(반복 무늬)으로 바꿨어요. 주차된 차 계기판 글자 152개도 지웠어요. 화면 글자 메모리 114 → 약 90MB.
+- 주차된 차 9대가 3D 모델 메모리 76MB 중 33MB였어요. 바깥에서 광선을 쏴서 한 번도 안 보이는 부품(차 한 종류에 35개 정도)만 지웠어요. 3D 모델 메모리 76 → 66MB. 원본은 ServerStorage.Cars_Full에 보관해요.
+
+![](images/2026-10-26/oh24_row_images.jpg)
+
+| | 전 | 후 |
+|---|---|---|
+| G80 | ![](images/2026-10-26/car_g80_before.jpg) | ![](images/2026-10-26/car_g80_after.jpg) |
+| G70 | ![](images/2026-10-26/car_g70_before.jpg) | ![](images/2026-10-26/car_g70_after.jpg) |
