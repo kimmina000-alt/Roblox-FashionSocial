@@ -1670,8 +1670,10 @@ boothEvent.OnClientEvent:Connect(function(kind: any, value: any)
 end)
 
 ProximityPromptService.PromptTriggered:Connect(function(prompt)
-	local booth = prompt.Parent and prompt.Parent.Parent
-	if not booth or not booth:IsA("Model") or not CollectionService:HasTag(booth, "PhotoBooth") then return end
+	-- (the prompts sit on the photo machine inside the booth, or on its Stand)
+	local booth: Instance? = prompt.Parent
+	while booth and not (booth:IsA("Model") and CollectionService:HasTag(booth, "PhotoBooth")) do booth = booth.Parent end
+	if not booth or not booth:IsA("Model") then return end
 	if prompt.Name == "PhotoPrompt" then
 		-- A finished result never blocks shooting again (user, 2026-10-20).
 		if state.stage == "result" then closeAllFlow() end

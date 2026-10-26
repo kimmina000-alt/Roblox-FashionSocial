@@ -95,6 +95,25 @@ local function part(booth: Model, name: string): BasePart?
 	return if found and found:IsA("BasePart") then found else nil
 end
 
+-- Where the booth's prompts sit: an attachment just in front of the photo
+-- machine's body inside the booth (layout script; in front, so the machine's
+-- face panels do not block the line of sight), else the Stand.
+local function promptHolder(booth: Model): (Instance?, boolean)
+	local machine = booth:FindFirstChild("PhotoMachine")
+	local body = machine and machine:FindFirstChild("MachineBody")
+	if body and body:IsA("BasePart") then
+		local at = body:FindFirstChild("PromptAttach")
+		if not at then
+			at = Instance.new("Attachment")
+			at.Name = "PromptAttach"
+			at.Position = Vector3.new(0, 0, -(body.Size.Z / 2 + 0.3)) -- (the body's -Z faces into the booth)
+			at.Parent = body
+		end
+		return at, true
+	end
+	return part(booth, "Stand"), false
+end
+
 local function rootOf(player: Player): BasePart?
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
@@ -199,7 +218,7 @@ local function publish(session: Session?, booth: Model)
 		booth:SetAttribute("Mode", session.mode)
 		booth:SetAttribute("People", HttpService:JSONEncode(ids))
 	end
-	local holder = part(booth, "PromptPoint") or part(booth, "Stand")
+	local holder = promptHolder(booth)
 	if holder then
 		local start = holder:FindFirstChild("PhotoPrompt") :: ProximityPrompt?
 		local join = holder:FindFirstChild("JoinPrompt") :: ProximityPrompt?
@@ -973,16 +992,12 @@ end
 
 local function setupBooth(booth: Instance)
 	if not booth:IsA("Model") then return end
-	-- the prompts sit on the booth's photo machine (PromptPoint, built by the
-	-- layout script) and reach only inside the booth; the Stand is the fallback
-	-- (on the Stand at 14 studs they showed in the next booth, user 2026-10-26)
-	-- (line of sight on: the next booth's machine is just behind the wall)
-	local holder = part(booth, "PromptPoint")
-	local distance, sight = 10, true
-	if not holder then
-		holder = part(booth, "Stand")
-		distance, sight = 14, false
-	end
+	-- the prompts sit on the booth's photo machine and reach only inside the
+	-- booth; the Stand is the fallback (on the Stand at 14 studs they showed in
+	-- the next booth, user 2026-10-26). Line of sight on: the next booth's
+	-- machine is just behind the wall.
+	local holder, onMachine = promptHolder(booth)
+	local distance, sight = if onMachine then 10 else 14, onMachine
 	if not holder or holder:FindFirstChild("PhotoPrompt") then return end
 	local start = Instance.new("ProximityPrompt")
 	start.Name = "PhotoPrompt"

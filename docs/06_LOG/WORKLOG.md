@@ -2009,3 +2009,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 부스 기계 | 포토월(PC 클릭) |
 |---|---|
 | ![](images/2026-10-26/booth_machine_prompt.jpg) | ![](images/2026-10-26/photowall_pc_click.jpg) |
+
+### 사진 찍기 버튼을 기계에 (D-332)
+
+- 세 부스 모두 '사진 찍기' 버튼이 부스 안 기계 앞면에 붙어요. 기계가 각 부스 소속이 됐고, 옆 부스 버튼은 벽에 가려 안 떠요.
+
+전(사용자 화면): ![](images/2026-10-26/booth_prompt_before_user.jpg)
