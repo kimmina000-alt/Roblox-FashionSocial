@@ -1918,3 +1918,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 1~3단계 | VIP · 공방 소다 |
 |---|---|
 | ![](images/2026-10-26/bucket_tier123.jpg) | ![](images/2026-10-26/bucket_vip_golmok.jpg) |
+
+### 임시 버켓 연결, 상품 ID, 클럽 대리석 미리보기 (D-324)
+
+- 버켓 디자인은 기획에 넣고(CLUB.md 21절), 지금 모양을 임시로 실제 주문에 연결했어요. 물 → 병, 진저 브루 → 은색 버켓, VIP → 금색 배.
+- 대시보드 상품 ID 40개를 코드에 넣었어요.
+- 받침대 무늬(어두운 대리석)를 클럽 바닥과 테이블에 입혀 봤어요(미리보기).
+
+![](images/2026-10-26/club_table_buckets_marble.jpg)

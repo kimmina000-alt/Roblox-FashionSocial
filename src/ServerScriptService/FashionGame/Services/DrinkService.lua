@@ -26,6 +26,7 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local MonetizationService = require(script.Parent.MonetizationService)
 local EconomyService = require(script.Parent.EconomyService)
+local DrinkBucket = require(script.Parent.DrinkBucket)
 
 local DrinkService = {}
 
@@ -366,6 +367,23 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	ref.Name = "SlotRef"
 	ref.Value = slot
 	ref.Parent = bottle
+
+	-- The look on the table follows the tier (D-323, temporary design until the
+	-- bucket art pass): the part above stays as the invisible holder of the
+	-- prompts and the label.
+	local kind: DrinkBucket.Kind = if isVip(player) then (if drink.key == "golmok" then "golmok" else "vip")
+		elseif drink.tier >= 3 then "acrylic"
+		elseif drink.tier == 2 then "steel"
+		else "bottle"
+	local bucket = DrinkBucket.build(kind, { drinkColor }, CFrame.new(slot.WorldPosition))
+	if kind == "vip" or kind == "golmok" then
+		bucket:ScaleTo(0.6) -- (a table slot is about 1.6 studs wide)
+	elseif kind ~= "bottle" then
+		bucket:ScaleTo(0.8)
+	end
+	bucket:PivotTo(bucket:GetPivot() + (slot.WorldPosition.Y - bucket:GetBoundingBox().Position.Y + bucket:GetExtentsSize().Y / 2) * Vector3.yAxis)
+	bucket.Parent = bottle
+	bottle.Transparency = 1
 
 	local info = Instance.new("BillboardGui")
 	info.Name = "Info"
