@@ -1926,3 +1926,17 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 받침대 무늬(어두운 대리석)를 클럽 바닥과 테이블에 입혀 봤어요(미리보기).
 
 ![](images/2026-10-26/club_table_buckets_marble.jpg)
+
+### 국밥집 의자, 클럽 1층 테이블 LED, 회색 타일 (D-325)
+
+- 국밥집 의자에 앉으면 누워 버리던 문제를 고쳤어요(의자 판이 옆으로 돌아가 있었음). 이제 똑바로 테이블을 보고 앉아요.
+- 클럽 1층 둥근 테이블에 2층 VIP 테이블처럼 흰 테두리와 아래 LED 빛을 넣었어요.
+- 클럽 바닥은 원래 회색 타일로 되돌렸어요(테이블은 대리석 그대로).
+
+| 전 | 후 |
+|---|---|
+| ![](images/2026-10-26/gukbap_lying_before.jpg) | ![](images/2026-10-26/gukbap_sit_fixed.jpg) |
+
+| 1층 테이블 | 회색 타일 바닥 |
+|---|---|
+| ![](images/2026-10-26/club1f_table_led.jpg) | ![](images/2026-10-26/club1f_floor_grey.jpg) |

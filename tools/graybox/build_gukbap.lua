@@ -330,8 +330,18 @@ local function gukbapTable(tx, tz)
 	box("SpoonBox", tx - 0.8, FY + 2.5, tz - 1.9, tx - 0.2, FY + 3.0, tz - 1.1, Color3.fromRGB(150, 110, 70), { material = Enum.Material.Wood, nocol = true })
 	box("NapkinBox", tx - 0.8, FY + 2.5, tz - 0.9, tx - 0.2, FY + 2.9, tz - 0.3, Color3.fromRGB(245, 245, 245), { nocol = true })
 	for _, s in ipairs({ { -2.1, -1.1 }, { -2.1, 1.1 }, { 2.1, -1.1 }, { 2.1, 1.1 } }) do
-		local seat = vcyl("Stool", Vector3.new(tx + s[1], FY + 1.35, tz + s[2]), 1.4, 0.3, RED, { class = "Seat" })
-		seat.CFrame = CFrame.lookAt(Vector3.new(tx + s[1], FY + 1.5, tz + s[2]), Vector3.new(tx, FY + 1.5, tz + s[2])) * CFrame.Angles(0, 0, math.rad(90))
+		-- the round top is a plain cylinder; the Seat is an invisible upright
+		-- block on it (a Seat takes the sitter's up from its own axes, so the
+		-- turned cylinder laid players flat, phone test 2026-10-26)
+		vcyl("Stool", Vector3.new(tx + s[1], FY + 1.35, tz + s[2]), 1.4, 0.3, RED)
+		local seat = Instance.new("Seat")
+		seat.Name = "StoolSeat"
+		seat.Anchored = true
+		seat.Transparency = 1
+		seat.CanCollide = false
+		seat.Size = Vector3.new(1.2, 0.2, 1.2)
+		seat.CFrame = CFrame.lookAt(Vector3.new(tx + s[1], FY + 1.6, tz + s[2]), Vector3.new(tx, FY + 1.6, tz + s[2]))
+		seat.Parent = M
 		vcyl("StoolLeg", Vector3.new(tx + s[1], FY, tz + s[2]), 0.3, 1.35, ALU, { nocol = true })
 	end
 end
