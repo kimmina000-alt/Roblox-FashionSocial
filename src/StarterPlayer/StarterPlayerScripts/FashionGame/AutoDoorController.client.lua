@@ -8,6 +8,19 @@
 local CollectionService = game:GetService("CollectionService")
 local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+
+-- Doors with the attribute NightOnly (the club entrance) stay shut by day,
+-- like the night-only club entry (D-320, ClubConfig.NightEntry).
+local Shared = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared")
+local ClubConfig = require(Shared:WaitForChild("ClubConfig"))
+local DayNightConfig = require(Shared:WaitForChild("DayNightConfig"))
+local function isNight(): boolean
+	local night = ClubConfig.NightEntry
+	if not night or not night.Enabled or not DayNightConfig.isFlowing() then return true end
+	local h = DayNightConfig.clockNow()
+	return h >= night.OpenHour or h < night.CloseHour
+end
 
 type Door = { model: Model, panels: { { part: BasePart, closed: CFrame, open: CFrame } }, isOpen: boolean }
 local doors: { [Model]: Door } = {}
@@ -67,8 +80,14 @@ while true do
 			local center = model:GetPivot().Position
 			local range = (model:GetAttribute("Range") :: number?) or 9
 			local near = false
+			-- by day a NightOnly door opens only for people coming out (on the far
+			-- side from the street exit point): leaving is always free
+			local dayShut = model:GetAttribute("NightOnly") == true and not isNight()
+			local exitPoint = ClubConfig.NightEntry and ClubConfig.NightEntry.ExitPosition
 			for _, pos in ipairs(roots) do
-				if (pos - center).Magnitude <= range then
+				local allowed = not dayShut
+					or (typeof(exitPoint) == "Vector3" and (pos - center):Dot(center - exitPoint) > 0)
+				if allowed and (pos - center).Magnitude <= range then
 					near = true
 					break
 				end

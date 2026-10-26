@@ -218,6 +218,7 @@ box(z,"Wall_S_Below",-8,F,-151,8,0,-149,WALL_C,WALLO)
 -- wall when someone comes near and close again behind them (AutoDoorController;
 -- SlideX = along the part's own X, so it turns with the zone)
 do local door=Instance.new("Model") door.Name="AutoDoor" door:SetAttribute("Range",10) door:SetAttribute("Panels",4)
+ door:SetAttribute("NightOnly",true) -- (shut by day: the club opens at night only, D-320/D-343)
  local BLK=Color3.fromRGB(14,14,16) local STL=Color3.fromRGB(190,190,196)
  for _,lf in ipairs({{-8,0,-1},{0,8,1}}) do
   box(door,"DoorPanel",lf[1],0,-150.2,lf[2],12,-149.8,BLK,{mat=Enum.Material.SmoothPlastic}):SetAttribute("SlideX",lf[3]*7.9)
