@@ -637,6 +637,29 @@ local function openItemShop()
 	modal.Size = UDim2.fromOffset(360, 250)
 end
 
+-- 공개 범위 (모든 사람 / 친구만 / 나만) before a bottle goes on a table
+-- (user 2026-10-26: kept with the touch tables; TableTapController asks)
+local function chooseVisibility(tablePart: Instance)
+	local buttons: {ModalButton} = {}
+	for _, entry in ipairs(ClubConfig.Visibility) do
+		table.insert(buttons, { name = "Vis_" .. entry.key, text = entry.name, color = COLORS.accent, onClick = function()
+			local ok, message = ClubShop:InvokeServer("Place", { table = tablePart, visibility = entry.key })
+			if ok then
+				toast(string.format("병을 놓았어요 · %s 마실 수 있어요", entry.name))
+			else
+				toast(tostring(message or "놓지 못했어요."))
+			end
+		end })
+	end
+	showModal("누가 마실 수 있게 할까요?", "고른 사람들이 테이블 위 병(버킷)을 눌러 마실 수 있어요.", buttons, true)
+end
+local visibilityAsk = Instance.new("BindableEvent")
+visibilityAsk.Name = "ClubChooseVisibility"
+visibilityAsk.Event:Connect(function(tablePart: any)
+	if typeof(tablePart) == "Instance" then chooseVisibility(tablePart) end
+end)
+visibilityAsk.Parent = script.Parent
+
 ProximityPromptService.PromptTriggered:Connect(function(prompt)
 	if prompt.Name == "BartenderPrompt" then
 		closeModal()

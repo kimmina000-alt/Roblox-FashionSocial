@@ -386,6 +386,11 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	if typeof(tablePart) ~= "Instance" or not tablePart:IsA("BasePart") or not CollectionService:HasTag(tablePart, "DrinkTable") then
 		return false, "테이블을 찾을 수 없습니다."
 	end
+	-- 공개 범위 is asked again (user 2026-10-26)
+	local visibility = payload.visibility
+	if visibility ~= "all" and visibility ~= "friends" and visibility ~= "me" then
+		return false, "공개 범위를 골라 주세요."
+	end
 	if not near(player, tablePart.Position, math.max(tablePart.Size.X, tablePart.Size.Z) / 2 + 14) then
 		return false, "테이블 가까이 가서 놓아 주세요."
 	end
@@ -418,7 +423,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	bottle.CFrame = CFrame.new(slot.WorldPosition + Vector3.new(0, 1, 0))
 	bottle:SetAttribute("Owner", player.UserId)
 	bottle:SetAttribute("OwnerName", player.DisplayName)
-	bottle:SetAttribute("Visibility", "all")
+	bottle:SetAttribute("Visibility", visibility)
 	bottle:SetAttribute("DrinkKey", drink.key)
 	bottle:SetAttribute("Variant", variantKey)
 	bottle:SetAttribute("DrinkName", drinkName)
@@ -474,7 +479,9 @@ local function tapPlaced(player: Player, target: any): (boolean, string?)
 		end
 		return true, nil
 	end
-	if not mayPour(player, bottle) then return false, nil end
+	if not mayPour(player, bottle) then
+		return false, string.format("%s님이 놓은 병이에요 (공개: %s).", tostring(bottle:GetAttribute("OwnerName")), visibilityName(bottle:GetAttribute("Visibility")))
+	end
 	local ok, message = giveCup(player, drink.key, variantKey)
 	if not ok then return false, message end
 	local left = (bottle:GetAttribute("Servings") or 1) - 1

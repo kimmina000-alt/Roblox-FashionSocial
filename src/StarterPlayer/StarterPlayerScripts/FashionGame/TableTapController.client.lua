@@ -1,7 +1,8 @@
 --!strict
 -- Club tables by touch (user 2026-10-26, CLUB.md §22): no buttons and no
 -- windows near the tables any more.
---   * bottle in hand + tap a table           → it goes on the table (tier 1 on
+--   * bottle in hand + tap a table           → 공개 범위 (모든 사람 / 친구만 / 나만),
+--                                              then it goes on the table (tier 1 on
 --                                              an edge slot, bucket drinks as
 --                                              one bucket in the middle)
 --   * tier-1 bottle in hand + tap elsewhere  → a drink straight from the bottle
@@ -23,6 +24,8 @@ local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("Club
 local ClubShop = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubShop") :: RemoteFunction
 -- (ClubShopController shows these like the server's toasts)
 local localToast = script.Parent:WaitForChild("ClubLocalToast") :: BindableEvent
+-- (ClubShopController asks 모든 사람 / 친구만 / 나만, then places the bottle)
+local askVisibility = script.Parent:WaitForChild("ClubChooseVisibility") :: BindableEvent
 
 local REACH = 14
 
@@ -81,7 +84,7 @@ local function onTap(screen: Vector2)
 	local tool = held()
 	if tool and tool:GetAttribute("Bottle") then
 		if tablePart then
-			call("Place", { table = tablePart })
+			askVisibility:Fire(tablePart)
 		elseif tierOneBottle(tool) and not tool:GetAttribute("Drinking") then
 			call("Swig", nil)
 		end

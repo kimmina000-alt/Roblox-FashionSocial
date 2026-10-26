@@ -2097,3 +2097,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 안내판 전 | 안내판 지도 v2 |
 |---|---|
 | ![](images/2026-10-26/beach_map_before_user.jpg) | ![](images/2026-10-26/beach_map_v2.png) |
+### 공개 범위 다시 (D-341)
+
+- 병을 들고 테이블을 누르면 '누가 마실 수 있게 할까요?' 창이 떠요(모든 사람 / 친구만 / 나만). 고른 사람만 버킷을 눌러 컵을 받을 수 있어요.
+
+![](images/2026-10-26/club_visibility_choice.jpg)
