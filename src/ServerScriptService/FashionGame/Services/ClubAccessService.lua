@@ -23,8 +23,59 @@ local Remotes = FashionGame:WaitForChild("Remotes")
 
 local MonetizationService = require(script.Parent.MonetizationService)
 local DjService = require(script.Parent.DjService)
+local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
+local DayNightConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("DayNightConfig"))
 
 local ClubAccessService = {}
+
+--------------------------------------------------------------------------
+-- Night-only entry (CLUB.md §20, D-320). No barrier at the door: a player
+-- who comes into the club area from outside while it is day is put back on
+-- the sidewalk with a notice. Whoever is inside may stay when the day comes
+-- (attribute ClubInside on the player, cleared when they leave the club), and
+-- leaving is always free. Teleports into the club (🏠, subway...) follow the
+-- same rule; the DJ's "your turn" move is the one exception (SendToDJBooth).
+local lastNightNotice: {[Player]: number} = {}
+
+local function nightEntryActive(): boolean
+	return ClubConfig.NightEntry.Enabled and DayNightConfig.isFlowing()
+end
+
+local function clubOpen(): boolean
+	return not nightEntryActive() or ClubConfig.isNightOpen(DayNightConfig.clockNow())
+end
+ClubAccessService.ClubOpen = clubOpen
+
+local function nightSweep()
+	for _, player in ipairs(Players:GetPlayers()) do
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if root and character then
+			local inside = ClubConfig.isInClub(root.Position)
+			if not inside then
+				if player:GetAttribute("ClubInside") then player:SetAttribute("ClubInside", nil) end
+			elseif not player:GetAttribute("ClubInside") then
+				if clubOpen() then
+					player:SetAttribute("ClubInside", true)
+				else
+					-- came in by day: back out to the sidewalk
+					local humanoid = character:FindFirstChildOfClass("Humanoid")
+					if humanoid and humanoid.SeatPart then humanoid.Sit = false end
+					character:PivotTo(CFrame.lookAt(ClubConfig.NightEntry.ExitPosition, ClubConfig.NightEntry.ExitPosition + Vector3.new(-1, 0, 0)))
+					local t = os.clock()
+					if not lastNightNotice[player] or t - lastNightNotice[player] > 4 then
+						lastNightNotice[player] = t
+						local minutes = math.max(1, math.ceil(DayNightConfig.secondsUntil(ClubConfig.NightEntry.OpenHour) / 60))
+						local notify = Remotes:FindFirstChild("ClubNotify") :: RemoteEvent?
+						if notify then
+							notify:FireClient(player, "Toast", string.format("🌙 클럽은 밤에 열려요 (18:00~06:00) · 오픈까지 약 %d분", minutes))
+						end
+					end
+				end
+			end
+		end
+	end
+end
 
 local GROUPS = { "Char_None", "Char_VIP", "Char_DJ", "Char_VIPDJ" }
 local lastPrompt: {[Player]: number} = {}
@@ -164,6 +215,8 @@ function ClubAccessService.SendToDJBooth(player: Player)
 		end
 	end
 	applyGroup(player)
+	-- (the DJ's turn may come by day: this move is the exception to night-only entry)
+	player:SetAttribute("ClubInside", true)
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if humanoid and humanoid.SeatPart then humanoid.Sit = false end
 	character:PivotTo(spot.CFrame + Vector3.new(0, 3, 0))
@@ -206,7 +259,12 @@ function ClubAccessService.Start()
 	end
 	Players.PlayerAdded:Connect(onPlayer)
 	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
-	Players.PlayerRemoving:Connect(function(player) lastPrompt[player] = nil end)
+	Players.PlayerRemoving:Connect(function(player)
+		lastPrompt[player] = nil
+		lastNightNotice[player] = nil
+	end)
+	-- (published for the door sign on the clients)
+	FashionGame:SetAttribute("ClubNightEntry", ClubConfig.NightEntry.Enabled)
 
 	-- A queued turn starting: ask the new DJ (OK = go, NO = pass, no refund).
 	local lastDJ = 0
@@ -223,6 +281,7 @@ function ClubAccessService.Start()
 		while true do
 			task.wait(0.5)
 			sweep()
+			nightSweep()
 		end
 	end)
 end

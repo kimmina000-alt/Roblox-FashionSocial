@@ -12,10 +12,6 @@ local DayNightConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):Wai
 
 if not DayNightConfig.Enabled then return end
 
-local dayLength = if RunService:IsStudio() and DayNightConfig.TestInStudio
-	then DayNightConfig.TestDayLengthSeconds
-	else DayNightConfig.DayLengthSeconds
-
 RunService.RenderStepped:Connect(function()
 	-- a fixed hour while comparing looks (Lighting attribute HoldClockTime,
 	-- set by tools/graybox/art_sample_street.lua)
@@ -24,11 +20,7 @@ RunService.RenderStepped:Connect(function()
 		Lighting.ClockTime = hold
 		return
 	end
-	if DayNightConfig.FixedClockTime then
-		Lighting.ClockTime = DayNightConfig.FixedClockTime
-		return
-	end
-	-- (t / period) % 1 keeps the value small before turning it into hours
-	local dayFraction = (workspace:GetServerTimeNow() / dayLength) % 1
-	Lighting.ClockTime = (DayNightConfig.StartClockTime + dayFraction * 24) % 24
+	-- (the shared clock: FixedClockTime, the Studio ClockOverride, or the
+	-- flowing day; (t / period) % 1 keeps the value small before turning it into hours)
+	Lighting.ClockTime = DayNightConfig.clockNow()
 end)

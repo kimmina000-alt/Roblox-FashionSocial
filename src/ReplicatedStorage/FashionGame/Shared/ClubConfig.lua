@@ -275,6 +275,23 @@ end
 
 -- Inside the club (hall or rooftop): boxes tagged "ClubInterior" by the
 -- graybox script. The 💃 button and tapping players only work in here.
+-- Club entry only at night (CLUB.md §20, D-264 / D-267, code D-320). It is on
+-- by itself once the game clock flows (DayNightConfig.FixedClockTime = nil);
+-- while the clock is pinned for building, the club stays open.
+ClubConfig.NightEntry = {
+	Enabled = true,
+	OpenHour = 18, -- 18:00 .. 06:00
+	CloseHour = 6,
+	-- where someone who walks in by day is put back: the sidewalk in front of the door
+	ExitPosition = Vector3.new(41, 3.6, -186),
+	DoorPosition = Vector3.new(46.5, 8, -186), -- the "opens in n min" sign
+}
+
+function ClubConfig.isNightOpen(clock: number): boolean
+	local n = ClubConfig.NightEntry
+	return clock >= n.OpenHour or clock < n.CloseHour
+end
+
 function ClubConfig.isInClub(position: Vector3): boolean
 	return insideTagged("ClubInterior", position)
 end

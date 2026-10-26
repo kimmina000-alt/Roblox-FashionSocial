@@ -1874,3 +1874,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-26/v_cake_whole.jpg)
 ![](images/2026-10-26/v_cake_cut.jpg)
 ![](images/2026-10-26/v_haetae_pair.jpg)
+
+### 클럽 밤 입장 (D-320)
+
+- 낮에 클럽에 들어오면 문 앞 인도로 돌려보내요. 입구로 걸어 들어와도, 텔레포트로 들어와도 똑같아요.
+- 밤(18~06시)에 들어온 사람은 해가 떠도 계속 있을 수 있고, 나가는 건 언제나 자유예요. DJ 차례로 이동할 때는 낮에도 들어갈 수 있어요.
+- 문 위 표지판: "🌙 클럽은 밤에 열려요 · 오픈까지 약 n분"
+- 지금은 시계가 14시로 고정돼 있어서 꺼져 있어요. 게임을 완성하고 고정을 풀면 자동으로 켜져요.
+
+![](images/2026-10-26/club_night_sign.jpg)

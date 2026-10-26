@@ -18,4 +18,42 @@ DayNightConfig.StartClockTime = 14.5
 -- Set to nil when the game is finished so the day flows again.
 DayNightConfig.FixedClockTime = 14 :: number?
 
+local RunService = game:GetService("RunService")
+
+-- Real seconds in one game day here (Studio tests run faster).
+function DayNightConfig.dayLength(): number
+	return if RunService:IsStudio() and DayNightConfig.TestInStudio
+		then DayNightConfig.TestDayLengthSeconds
+		else DayNightConfig.DayLengthSeconds
+end
+
+-- The game clock (0..24) now, the same on the server and every client.
+-- Studio only: ReplicatedStorage.FashionGame attribute ClockOverride (a
+-- number) pins it, to test the night-only club entry (D-320).
+function DayNightConfig.clockNow(): number
+	if RunService:IsStudio() then
+		local fg = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
+		local o = fg and fg:GetAttribute("ClockOverride")
+		if typeof(o) == "number" then return o % 24 end
+	end
+	if DayNightConfig.FixedClockTime then return DayNightConfig.FixedClockTime end
+	local dayFraction = (workspace:GetServerTimeNow() / DayNightConfig.dayLength()) % 1
+	return (DayNightConfig.StartClockTime + dayFraction * 24) % 24
+end
+
+-- Whether the clock is running (not pinned by FixedClockTime / an override).
+function DayNightConfig.isFlowing(): boolean
+	if RunService:IsStudio() then
+		local fg = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
+		if fg and typeof(fg:GetAttribute("ClockOverride")) == "number" then return true end
+	end
+	return DayNightConfig.FixedClockTime == nil
+end
+
+-- Real seconds until the clock reaches `hour` next.
+function DayNightConfig.secondsUntil(hour: number): number
+	local hours = (hour - DayNightConfig.clockNow()) % 24
+	return hours / 24 * DayNightConfig.dayLength()
+end
+
 return DayNightConfig
