@@ -550,8 +550,9 @@ function addWash(instance: Instance)
 	light.Angle = 42 -- (bigger pools, user 2026-10-25)
 	light.Range = 90
 	-- (was 14 for strong pools on the black floor, but anyone in the beam turned
-	-- glowing white: 5, user 2026-10-26)
-	light.Brightness = 5
+	-- glowing white: 5, user 2026-10-26; still glowing cyan in the 2P phone
+	-- test, 2.5)
+	light.Brightness = 2.5
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = lens

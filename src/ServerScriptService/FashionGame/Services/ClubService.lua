@@ -33,7 +33,6 @@ local ClubService = {}
 local MIN_INTERVAL = 0.15
 local MAX_CHAIN = 16
 local lastRequest: {[Player]: number} = {}
-local outsideSince: {[Player]: number} = {}
 
 local function characterOf(player: Player): Model?
 	local character = player.Character
@@ -41,12 +40,6 @@ local function characterOf(player: Player): Model?
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	if not humanoid or humanoid.Health <= 0 then return nil end
 	return character
-end
-
--- Where dancing is allowed: the club and photo booth stages (poses for photos).
-local function inClub(character: Model): boolean
-	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	return root ~= nil and ClubConfig.canDance(root.Position)
 end
 
 local function notify(player: Player, message: string)
@@ -120,10 +113,7 @@ local function onDance(player: Player, action: any, a: any, b: any)
 	if action == "Start" then
 		local dance = ClubConfig.findDance(a)
 		if not dance then return end
-		if not inClub(character) then
-			notify(player, "춤은 클럽 안에서 출 수 있어요.")
-			return
-		end
+		-- (dancing anywhere, user 2026-10-26: no club check)
 		setDance(character, dance.key, workspace:GetServerTimeNow(), ClubConfig.clampTempo(b))
 		character:SetAttribute("DanceJoined", nil)
 		syncFollowers(player)
@@ -168,8 +158,11 @@ local function onDance(player: Player, action: any, a: any, b: any)
 		if not target or target == player then return end
 		local targetCharacter = characterOf(target)
 		if not targetCharacter then return end
-		if not inClub(character) or not inClub(targetCharacter) then
-			notify(player, "같이 추기는 클럽 안에서만 할 수 있어요.")
+		-- anywhere, but near each other (user 2026-10-26)
+		local a0 = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		local b0 = targetCharacter:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if not a0 or not b0 or (a0.Position - b0.Position).Magnitude > ClubConfig.JoinRadius then
+			notify(player, "같이 추려면 가까이 가 주세요.")
 			return
 		end
 		if wouldLoop(player, target) then
@@ -186,24 +179,7 @@ local function onDance(player: Player, action: any, a: any, b: any)
 	end
 end
 
--- Dances and links end shortly after a player leaves the club.
-local function sweepOutside()
-	local now = os.clock()
-	for _, player in ipairs(Players:GetPlayers()) do
-		local character = player.Character
-		local active = character ~= nil
-			and (character:GetAttribute("DanceKey") ~= nil or character:GetAttribute("DanceJoined") ~= nil)
-		if active and character and not inClub(character) then
-			outsideSince[player] = outsideSince[player] or now
-			if now - outsideSince[player] >= ClubConfig.OutsideGrace then
-				outsideSince[player] = nil
-				stopDance(player)
-			end
-		else
-			outsideSince[player] = nil
-		end
-	end
-end
+-- (dances and links no longer end outside the club: dancing anywhere, user 2026-10-26)
 
 --------------------------------------------------
 -- Shared music clock + song requests + DJ control (D-050, D-053)
@@ -409,19 +385,12 @@ function ClubService.Start()
 	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
 	Players.PlayerRemoving:Connect(function(player)
 		lastRequest[player] = nil
-		outsideSince[player] = nil
 		-- Followers keep their current move as their own dance.
 		for _, other in ipairs(Players:GetPlayers()) do
 			local character = other.Character
 			if character and character:GetAttribute("DanceJoined") == player.UserId then
 				character:SetAttribute("DanceJoined", nil)
 			end
-		end
-	end)
-	task.spawn(function()
-		while true do
-			task.wait(0.5)
-			sweepOutside()
 		end
 	end)
 	for _, seat in ipairs(CollectionService:GetTagged("PromptSeat")) do
