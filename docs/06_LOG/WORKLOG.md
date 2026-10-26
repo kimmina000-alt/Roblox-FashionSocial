@@ -1802,3 +1802,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-26/gukbap_night.jpg)
 ![](images/2026-10-26/gukbap_inside_hall.jpg)
 ![](images/2026-10-26/gukbap_inside_menu.jpg)
+
+### 해태 다시 만들기 (진행 중)
+- 새 계정에서 AI 메시로 다시 만들기로 했어요(예전 계정 메시는 비공개). 참고 사진: docs/04_ART/references/haetae_ref_01..09.
+- 첫 시도 4번은 실패했어요: 글자 수 초과, 검토(모더레이션) 실패, 이미지 가져오기 실패, 그리고 Studio 연결 끊김으로 기다리다 중단.
