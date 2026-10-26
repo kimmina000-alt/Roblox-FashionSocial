@@ -183,8 +183,10 @@ local function layout()
 	pill.Position = UDim2.fromOffset(12, top)
 	-- on phones the panel ends above the move stick in the bottom-left corner
 	-- (user phone test 2026-10-26)
-	local UserInputService = game:GetService("UserInputService")
-	local bottom = if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then vp.Y * 0.6 else vp.Y - 50
+	-- (the move stick shows when the TouchGui is on)
+	local touchGui = player:WaitForChild("PlayerGui"):FindFirstChild("TouchGui")
+	local stick = touchGui ~= nil and touchGui:IsA("ScreenGui") and touchGui.Enabled
+	local bottom = if stick then vp.Y * 0.6 else vp.Y - 50
 	local height = math.min(300, bottom - top - 40)
 	panel.Position = UDim2.fromOffset(12, top + 40)
 	panel.Size = UDim2.fromOffset(math.min(250, vp.X * 0.4), math.max(130, height))

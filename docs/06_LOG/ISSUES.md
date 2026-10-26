@@ -312,3 +312,4 @@ ISSUE-2P-002 closed 2026-10-26 (third 2P session, 705×338 phones): pressing "�
 
 ## ISSUE-PHOTO-005 (2026-10-26, phone) 캡처 저장 사진이 검정
 - 결과 화면의 사진은 ViewportFrame(화면 속 3D 사진)인데, 기기 캡처(CaptureService)에는 이 부분이 거의 검게 찍힘. 배경 3D와 버튼은 찍힘. 방법 제안 중.
+- 2026-10-26 D-327: ISSUE-PHOTO-004 (포즈 패널 위 절반, 이동 버튼을 사진 화면 위로)와 005 (컷마다 실제 장면 캡처 → 캡처 저장 때 고른 컷 한꺼번에) 수정. 실제 휴대폰 확인 필요.

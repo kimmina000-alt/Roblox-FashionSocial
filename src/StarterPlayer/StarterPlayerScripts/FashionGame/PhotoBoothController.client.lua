@@ -673,6 +673,10 @@ local function layoutShoot()
 	windowFrame.Size = UDim2.fromOffset(w, h)
 	infoBar.Position = UDim2.fromOffset(vp.X / 2, top)
 	local panelH = math.min(h, 330)
+	-- phones: the pose list stays in the top half (it scrolls) so the move
+	-- stick in the bottom-left corner shows (user phone test 2026-10-26)
+	local touchGui = playerGui:FindFirstChild("TouchGui")
+	if touchGui and touchGui:IsA("ScreenGui") and touchGui.Enabled then panelH = math.max(110, math.min(panelH, vp.Y * 0.55 - y)) end
 	posePanel.Position = UDim2.fromOffset(x - panelW - 10, y)
 	posePanel.Size = UDim2.fromOffset(panelW, panelH)
 	propPanel.Position = UDim2.fromOffset(x + w + 10, y)
@@ -686,6 +690,60 @@ end
 local function flashShot()
 	flash.BackgroundTransparency = 0
 	TweenService:Create(flash, TweenInfo.new(0.45), { BackgroundTransparency = 1 }):Play()
+end
+
+-- The move stick draws over the shoot screen while shooting on a phone (the
+-- photo gui has DisplayOrder 40 and would cover it).
+local touchGuiOrder: number? = nil
+local function liftTouchGui(on: boolean)
+	local touchGui = playerGui:FindFirstChild("TouchGui")
+	if not touchGui or not touchGui:IsA("ScreenGui") then return end
+	if on and touchGuiOrder == nil then
+		touchGuiOrder = touchGui.DisplayOrder
+		touchGui.DisplayOrder = 41
+	elseif not on and touchGuiOrder ~= nil then
+		touchGui.DisplayOrder = touchGuiOrder
+		touchGuiOrder = nil
+	end
+end
+
+-- Each cut is also captured from the real scene the moment it is taken
+-- (device captures draw ViewportFrame photos almost black, ISSUE-PHOTO-005):
+-- only the black frame around the window stays on screen for that frame. The
+-- picked cuts are offered to the gallery by "📸 캡처 저장".
+local cutCaptures: {[number]: string} = {}
+local cutCount = 0
+local function captureCut(index: number)
+	local ok = pcall(function()
+		local CaptureService = game:GetService("CaptureService")
+		local hidden = {}
+		local function hide(item: Instance)
+			if item:IsA("GuiObject") and item.Visible then item.Visible = false table.insert(hidden, item) end
+			if item:IsA("ScreenGui") and item.Enabled then item.Enabled = false table.insert(hidden, item) end
+		end
+		for _, child in ipairs(shoot:GetChildren()) do
+			if child:IsA("GuiObject") and not string.find(child.Name, "Mask") and child ~= windowFrame then hide(child) end
+		end
+		for _, child in ipairs(windowFrame:GetChildren()) do hide(child) end
+		for _, other in ipairs(playerGui:GetChildren()) do
+			if other ~= gui then hide(other) end
+		end
+		local restored = false
+		local function restore()
+			if restored then return end
+			restored = true
+			for _, item in ipairs(hidden) do
+				if item:IsA("ScreenGui") then item.Enabled = true else (item :: GuiObject).Visible = true end
+			end
+		end
+		RunService.RenderStepped:Wait()
+		CaptureService:CaptureScreenshot(function(contentId)
+			cutCaptures[index] = contentId
+			restore()
+		end)
+		task.delay(1, restore)
+	end)
+	if not ok then cutCaptures[index] = nil end
 end
 
 --------------------------------------------------
@@ -1044,6 +1102,7 @@ local function closeAllFlow()
 	result.Visible = false
 	shoot.Visible = false
 	waitBar.Visible = false
+	liftTouchGui(false)
 	restoreCamera()
 	state.stage = "none"
 	state.shots = nil
@@ -1052,6 +1111,21 @@ local function closeAllFlow()
 end
 
 resultButton("📸 캡처 저장", COLORS.pink, 1, function()
+	-- the picked cuts as captured from the real scene (falls back to a
+	-- screenshot of this screen when the device made no captures)
+	local list = {}
+	for _, index in ipairs(state.picks or {}) do
+		if cutCaptures[index] then table.insert(list, cutCaptures[index]) end
+	end
+	if #list == 0 then
+		for i = 1, cutCount do if cutCaptures[i] then table.insert(list, cutCaptures[i]) end end
+	end
+	if #list > 0 then
+		local ok = pcall(function()
+			game:GetService("CaptureService"):PromptSaveCapturesToGallery(list, function() end)
+		end)
+		if ok then return end
+	end
 	captureToGallery({ resultButtons, resultTitle })
 end)
 resultButton("🖼 사진첩", COLORS.card, 2, function()
@@ -1394,8 +1468,11 @@ local function update()
 		waitBar.Visible = false
 		if state.stage ~= "shooting" then
 			state.stage = "shooting"
+			table.clear(cutCaptures)
+			cutCount = 0
 			layoutShoot()
 			shoot.Visible = true
+			liftTouchGui(true)
 			refreshProps()
 		end
 		applyShootCamera()
@@ -1410,6 +1487,7 @@ local function update()
 		waitBar.Visible = false
 		if state.stage == "shooting" then
 			shoot.Visible = false
+			liftTouchGui(false)
 			restoreCamera()
 		end
 		if state.stage == "picking" or state.stage == "frame" then
@@ -1455,6 +1533,8 @@ end)
 
 boothEvent.OnClientEvent:Connect(function(kind: any, value: any)
 	if kind == "Shot" then
+		cutCount += 1
+		if state.stage == "shooting" then task.spawn(captureCut, cutCount) end
 		flashShot()
 	elseif kind == "Shots" and typeof(value) == "table" then
 		openPick(value)

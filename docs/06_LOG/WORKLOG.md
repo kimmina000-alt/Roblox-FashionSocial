@@ -1957,3 +1957,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 오후네컷 간판 | 한옥 정류장·가짜 건물 | 음수대 | 먹기(두 번 먹은 뒤) |
 |---|---|---|---|
 | ![](images/2026-10-26/ohu4cuts_sign_left.jpg) | ![](images/2026-10-26/hanok_stop_buildings.jpg) | ![](images/2026-10-26/fountain_water.jpg) | ![](images/2026-10-26/eat_thirds.jpg) |
+
+### 오후네컷 휴대폰 촬영 (D-327)
+
+- 촬영 중에는 포즈 목록이 화면 위쪽 절반까지만 나오고(스크롤), 왼쪽 아래 이동 버튼이 사진 화면 위에 보여요.
+- 컷을 찍는 순간마다 실제 장면을 캡처해 두고, 결과 화면의 '📸 캡처 저장'을 누르면 고른 컷들을 한꺼번에 갤러리에 저장해요(검은 사진 문제 해결 방법).
+
+![](images/2026-10-26/booth_shoot_ui.jpg)
