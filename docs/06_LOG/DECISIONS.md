@@ -579,3 +579,5 @@ D-308 — (2026-10-25, user's red line + plant picks) The cafe's south stone wal
 D-309 — (2026-10-26, user) The red book prop on the cafe's 2F window bar is removed.
 
 D-310 — (2026-10-26, proposal, awaiting the user) Photo booth and cafe prices: extra photo copy 💰20 → 💰10, frames stay permanent unlocks (gray 💰120 → 💰50, pastels 💰200 → 💰100 each, Frame Pack 99 R$ = all 4 special frames); cafe menu in tiers — free (water, americano), 💰10 (latte, cappuccino, caramel macchiato, salt bread, bagel), 💰20 (tea, smoothie, frappuccino, ade, strawberry cream croissant, honey caramel bread), Robux (parfait 15 R$, whole cakes shared as 6 slices 25 R$ each). docs/01_SYSTEMS/CAFE_PHOTO_PRICING.md.
+
+D-311 — (2026-10-26, user) Photo booth prices from D-310 applied: extra copy 💰10, gray 💰50, pastels 💰100 each, Frame Pack 99 R$. Frames stay permanent unlocks, and only the host's ownership is checked: the host's chosen frame is on everyone's copy. Cafe menu as D-310. Proposals added: OH24 convenience store snacks (💰1–4, coins only) and a 국밥집 near the club (💰20 a bowl, shared 수육 plate 19 R$; no alcohol, an open dining hall). CAFE_PHOTO_PRICING.md §5–8.

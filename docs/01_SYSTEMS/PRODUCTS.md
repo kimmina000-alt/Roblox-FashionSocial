@@ -21,13 +21,13 @@
 | CLUB-DP-DRINK-FANTA | Drink_Fanta | 개발자 상품 | 환타 | 클럽 바 음료 한 병(6잔). | 6 | 0 | retired | — | 오렌지 소다는 💰5 코인 음료가 됨(D-271), 등록 안 함 |
 | (그 밖의 29개) | | | | | | | | | 전체 목록과 ID 칸: §7 |
 | PHOTO-DP-ALBUM10 | AlbumSlots | 개발자 상품 | 사진첩 +10장 | 사진첩 칸을 10장 늘려요. | 25 | 0 | planned | 미정 | 10장까지 무료 |
-| PHOTO-DP-COPY1 | Photo_ExtraCopy | 개발자 상품 | 인생네컷 추가 인화 1장 | (결정 필요) | ? | 0 | **결정 필요** | 미정 | 지금은 코인 💰20/장. Robux로 바꿀지 결정 |
+| PHOTO-DP-COPY1 | Photo_ExtraCopy | — | 인생네컷 추가 인화 | — | — | — | 안 만듦 | — | 코인 💰10/장으로 결정 (D-311) |
 
 ## 3. 코인 판매 (Robux 아님, 참고)
 | 무엇 | 가격 | 설정 위치 |
 |---|---|---|
-| 인생네컷 2장째부터 1장당 | 💰20 | PhotoConfig.ExtraCopyCoins |
-| 그레이 / 파스텔 프레임 | 💰120 / 💰200 | PhotoConfig.Frames |
+| 인생네컷 2장째부터 1장당 | 💰10 (D-311) | PhotoConfig.ExtraCopyCoins |
+| 그레이 / 파스텔 프레임 (영구 해금, 찍은 사람 모두에게 적용) | 💰50 / 각 💰100 (D-311) | PhotoConfig.Frames |
 | 환타(코인으로) | 💰300 | ClubConfig.Drinks |
 | 아이스크림 | 💰15 | SnackConfig.Shops.IceCream |
 

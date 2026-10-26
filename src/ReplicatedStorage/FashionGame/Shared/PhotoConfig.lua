@@ -34,7 +34,7 @@ PhotoConfig.PickSeconds = 120      -- time for the host to pick 4 + a frame
 -- how many prints to keep: 1 free, more cost coins each.
 PhotoConfig.CopySeconds = 30
 PhotoConfig.MaxCopies = 5
-PhotoConfig.ExtraCopyCoins = 20
+PhotoConfig.ExtraCopyCoins = 10 -- (was 20, D-311)
 PhotoConfig.MaxPhotos = 10         -- free album slots (user, 2026-10-20: 10장까지 무료)
 PhotoConfig.HardMaxPhotos = 60     -- stored maximum incl. bought slots (D-064)
 PhotoConfig.SlotsPerPurchase = 10  -- MonetizationConfig.Products.AlbumSlots
@@ -49,12 +49,12 @@ PhotoConfig.FrameTabs = { "색상", "파스텔", "특별한" }
 PhotoConfig.Frames = {
 	{ key = "black", name = "블랙", color = Color3.fromRGB(20, 20, 24), text = Color3.new(1, 1, 1), tab = "색상", price = "free", style = "solid" },
 	{ key = "white", name = "화이트", color = Color3.fromRGB(250, 250, 250), text = Color3.fromRGB(30, 30, 30), tab = "색상", price = "free", style = "solid" },
-	{ key = "gray", name = "그레이", color = Color3.fromRGB(150, 150, 158), text = Color3.new(1, 1, 1), tab = "색상", price = "coins", coins = 120, style = "solid" },
-	{ key = "pink", name = "핑크", color = Color3.fromRGB(255, 160, 200), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
-	{ key = "sky", name = "하늘", color = Color3.fromRGB(150, 205, 255), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
-	{ key = "mint", name = "민트", color = Color3.fromRGB(150, 230, 200), text = Color3.fromRGB(30, 60, 50), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
-	{ key = "lemon", name = "레몬", color = Color3.fromRGB(255, 235, 140), text = Color3.fromRGB(80, 60, 20), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
-	{ key = "lilac", name = "라일락", color = Color3.fromRGB(200, 170, 255), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 200, style = "solid" },
+	{ key = "gray", name = "그레이", color = Color3.fromRGB(150, 150, 158), text = Color3.new(1, 1, 1), tab = "색상", price = "coins", coins = 50, style = "solid" },
+	{ key = "pink", name = "핑크", color = Color3.fromRGB(255, 160, 200), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	{ key = "sky", name = "하늘", color = Color3.fromRGB(150, 205, 255), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	{ key = "mint", name = "민트", color = Color3.fromRGB(150, 230, 200), text = Color3.fromRGB(30, 60, 50), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	{ key = "lemon", name = "레몬", color = Color3.fromRGB(255, 235, 140), text = Color3.fromRGB(80, 60, 20), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	{ key = "lilac", name = "라일락", color = Color3.fromRGB(200, 170, 255), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "neon", name = "글로시 네온", color = Color3.fromRGB(40, 10, 60), text = Color3.fromRGB(255, 80, 200), tab = "특별한", price = "pass", style = "gloss" },
 	{ key = "gloss_pink", name = "글로시 핑크", color = Color3.fromRGB(255, 110, 175), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "gloss" },
 	{ key = "gold", name = "반짝이 골드", color = Color3.fromRGB(212, 175, 55), text = Color3.fromRGB(40, 30, 10), tab = "특별한", price = "pass", style = "glitter" },
