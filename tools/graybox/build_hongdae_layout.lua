@@ -57,7 +57,7 @@ local HOLES = {
 	{ 49, -253 + CLUB_DZ, 189, -92 + CLUB_DZ }, -- (19 longer east, user 2026-10-25) the club: edges in the middle of its walls (at the inner faces the ground flickered on the corridor and back walls, user 2026-10-24)
 	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -53, 41, -35, 47 }, -- exit 2 comes up southwards, 4 westwards in the corner square (toward the beach, user 2026-10-25)
-	{ 47, 47, 68, 83.4 }, { 47, 252.6, 68, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
+	{ 47, 47, 64, 83.4 }, { 47, 252.6, 64, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
 	{ -141, -197, -51, -83 }, -- the pocket park's sunken round plaza (user 2026-10-24)
 	{ -110, -92, -68, -53 }, -- its south walk + stair
 }
@@ -65,9 +65,9 @@ local HOLES = {
 -- the lawns are sunken beds: terrain heights snap to 4 studs, so terrain
 -- grass can only stand at about -1.6 (or 2.4, which bulged, user 2026-10-23);
 -- the ground and the yard paving are cut there and a stone kerb rims the bed
--- (layout v8: the gate three times as big, z 84..252, x 76..118: the beds
--- shrink to the corners, up to its yard x 68)
-local LAWN_TERRAIN = { { 47, 47, 68, 83.4 }, { 47, 252.6, 68, 289 } }
+-- (layout v8: the gate three times as big, z 84..252, x 72..114: the beds
+-- shrink to the corners, up to its yard x 64)
+local LAWN_TERRAIN = { { 47, 47, 64, 83.4 }, { 47, 252.6, 64, 289 } }
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
 	{ Vector3.new(400, -55, 60), 95 }, { Vector3.new(470, -60, 175), 110 }, { Vector3.new(420, -55, 295), 95 },
 	{ Vector3.new(290, -70, 370), 90 }, { Vector3.new(150, -75, 390), 90 },
@@ -2493,8 +2493,11 @@ do
 		local cx, cz = (gx0 + gx1) / 2, (gz0 + gz1) / 2
 		S.WorldPivot = CFrame.new(cx, 0, cz)
 		S:ScaleTo(GS)
+		-- 4 west, so its back (x 114) clears the village house eaves at x 117
+		local SHIFT_X = -4
+		S:PivotTo(S:GetPivot() + Vector3.new(SHIFT_X, 0, 0))
 		for _, c in ipairs(S:GetChildren()) do c.Parent = G end
-		gx0, gx1 = cx - (cx - gx0) * GS, cx + (gx1 - cx) * GS
+		gx0, gx1 = cx - (cx - gx0) * GS + SHIFT_X, cx + (gx1 - cx) * GS + SHIFT_X
 		gz0, gz1 = cz - (cz - gz0) * GS, cz + (gz1 - cz) * GS
 	end
 
@@ -2583,6 +2586,17 @@ do
 				c.CFrame = undo * c.CFrame
 				c:SetAttribute("HomeZone", zone.Name)
 				c.Parent = hidden
+			end
+		end
+		-- (layout v8) the cherry trees inside the bigger gate's footprint go
+		for _, c in ipairs(zone:GetChildren()) do
+			if c:IsA("Model") and c.Name == "CherryTree" then
+				local p = c:GetPivot().Position
+				if p.X > gx0 - 2 and p.X < gx1 + 4 and p.Z > gz0 - 4 and p.Z < gz1 + 4 then
+					c:PivotTo(undo * c:GetPivot())
+					c:SetAttribute("HomeZone", zone.Name)
+					c.Parent = hidden
+				end
 			end
 		end
 		-- the old back gate on the inside (graybox 후문) goes (user 2026-10-23)
