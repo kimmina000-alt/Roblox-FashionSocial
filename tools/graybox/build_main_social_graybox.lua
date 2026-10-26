@@ -65,8 +65,13 @@ local function P(par,name,size,cf,color,opt)
  if opt.ghost then p.CanCollide=false p.CanQuery=false p.CanTouch=false p.CastShadow=false end
  if opt.tag then CS:AddTag(p,opt.tag) end
  p.Parent=par return p end
+-- Floating place / function labels are gone from the map (user 2026-10-26:
+-- "현재 장소들나 기능 표시해 놓은 텍스트들 다 지워"): only the invisible
+-- anchor part stays (other steps find it by name). SHOW_LABELS brings them back.
+local SHOW_LABELS=false
 local function label(par,text,pos,big)
  local a=Instance.new("Part") a.Name="Label" a.Anchored=true a.CanCollide=false a.CanQuery=false a.Transparency=1 a.Size=Vector3.new(1,1,1) a.Position=pos a.Parent=par
+ if not SHOW_LABELS then return a end
  local g=Instance.new("BillboardGui") g.Size=UDim2.fromOffset(big and 260 or 180, big and 54 or 36) g.MaxDistance=big and 900 or 350 g.LightInfluence=0 g.Parent=a
  local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=0.35 l.BackgroundColor3=Color3.fromRGB(20,20,26) l.TextColor3=Color3.new(1,1,1) l.TextScaled=true l.Font=Enum.Font.GothamBold l.Text=text l.Parent=g
  return a end

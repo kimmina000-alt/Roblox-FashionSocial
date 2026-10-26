@@ -381,7 +381,11 @@ local function wedgeTri(name, a: Vector3, b: Vector3, c: Vector3, th, color, opt
 	if d1 > 0.01 then part(name, Vector3.new(th, h, d1), CFrame.fromMatrix((a + b) / 2, right, up, back), color, o) end
 	if d2 > 0.01 then part(name, Vector3.new(th, h, d2), CFrame.fromMatrix((a + c) / 2, -right, up, -back), color, o) end
 end
-local function label(adornee: BasePart, text, color, offsetY, scale)
+-- Floating place / function labels are off (user 2026-10-26: "현재 장소들나 기능
+-- 표시해 놓은 텍스트들 다 지워"); SHOW_LABELS brings them back.
+local SHOW_LABELS = false
+local function label(adornee: BasePart, text, color, offsetY, scale): BillboardGui?
+	if not SHOW_LABELS then return nil end
 	local g = Instance.new("BillboardGui")
 	g.Name = "Label"
 	g.Size = UDim2.fromOffset(260 * (scale or 1), 60 * (scale or 1))
