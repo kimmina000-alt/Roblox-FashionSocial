@@ -4777,7 +4777,7 @@ do
 	-- polygon (x, z), clockwise from the north-west corner in the sea
 	local P = {
 		-- 2026-10-23 (2): the beach road is closed further south (z -300)
-		{ -305, -300 }, { -151, -300 }, { -151, -479 }, { -35, -479 }, { -35, -374 }, { 59, -374 }, { 59, -265 },
+		{ -305, -300 }, { -151, -300 }, { -151, -479 }, { -35, -479 }, { -35, -374 }, { 59, -374 }, { 59, -301 }, { 78, -301 }, { 78, -265 }, -- (out round the 국밥집 lot, D-314: build_gukbap.lua)
 		-- the hanok village keeps its own walls; this keeps players next to it
 		{ 191, -265 }, { 191, 47 }, { 232, 47 }, { 232, 234 }, { 97, 234 }, { 97, 299 }, { -50, 299 }, { -50, 109 }, -- (east edge x 177 → 191, past the club that grew 19 east: user 2026-10-25)
 		{ -89, 109 }, { -89, 218 }, { -151, 218 }, { -151, 237 }, { -305, 237 },
@@ -4928,6 +4928,8 @@ do
 	local i2 = 0
 	for zz = -252 + CLUB_DZ - 17.5, -985, -35 do -- the club's north face is at -252 + CLUB_DZ
 		i2 += 1
+		-- (the first lot, next to the club, is the 국밥집 now: tools/graybox/build_gukbap.lua, D-314)
+		if zz > -300 then continue end
 		fakeBuilding(Vector3.new(56, 0, zz), 34, 16, hgt[(i2 + 3) % #hgt + 1], Vector3.new(-1, 0, 0))
 	end
 	-- the rest of the extended roads: shops on both sides past the boundary
