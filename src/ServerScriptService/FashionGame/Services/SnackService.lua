@@ -133,7 +133,7 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 end
 
 -- the cake slice mesh (whole cakes, D-318; see placePlate)
-local CAKE_R = 1.15 -- studs
+local CAKE_R = 0.95 -- studs (it fits the cafe's small round tables)
 local function sliceMesh(): MeshPart?
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local m = art and art:FindFirstChild("CakeSlice")
@@ -355,7 +355,9 @@ local function cakeSlice(r: number, texture: string, centre: CFrame, a: number):
 	p.CanCollide = false
 	p.CanQuery = false
 	p.CanTouch = false
-	p.CFrame = centre * CFrame.Angles(0, a, 0) * CFrame.new(p.Size.X / 2, p.Size.Y / 2, 0)
+	-- (the imported mesh is mirrored in X: its apex is at +X, so the slice is
+	-- turned half round to put the apex on the centre; checked in Play)
+	p.CFrame = centre * CFrame.Angles(0, a, 0) * CFrame.new(p.Size.X / 2, p.Size.Y / 2, 0) * CFrame.Angles(0, math.pi, 0)
 	return p
 end
 
@@ -376,20 +378,20 @@ local function cakeDeco(cake: SnackConfig.Cake, slice: BasePart, centre: CFrame,
 		b.CastShadow = false
 		b.Parent = slice
 	end
-	ball("Cream", 0.36, spot * CFrame.new(0, 0.1, 0), Color3.fromRGB(252, 248, 240))
+	ball("Cream", 0.24, spot * CFrame.new(0, 0.08, 0), Color3.fromRGB(252, 248, 240))
 	if cake.deco == "cherry" then
-		ball("Cherry", 0.24, spot * CFrame.new(0, 0.34, 0), Color3.fromRGB(205, 25, 40))
+		ball("Cherry", 0.17, spot * CFrame.new(0, 0.24, 0), Color3.fromRGB(205, 25, 40))
 		local stem = Instance.new("Part")
 		stem.Name = "Stem"
-		stem.Size = Vector3.new(0.03, 0.3, 0.03)
-		stem.CFrame = spot * CFrame.new(0.04, 0.55, 0) * CFrame.Angles(0, 0, math.rad(-20))
+		stem.Size = Vector3.new(0.025, 0.2, 0.025)
+		stem.CFrame = spot * CFrame.new(0.03, 0.38, 0) * CFrame.Angles(0, 0, math.rad(-20))
 		stem.Color = Color3.fromRGB(110, 60, 30)
 		stem.Anchored = true
 		stem.CanCollide = false
 		stem.CanQuery = false
 		stem.Parent = slice
 	elseif cake.deco == "strawberry" then
-		ball("Strawberry", 0.3, spot * CFrame.new(0, 0.32, 0), Color3.fromRGB(220, 30, 50))
+		ball("Strawberry", 0.2, spot * CFrame.new(0, 0.22, 0), Color3.fromRGB(220, 30, 50))
 	end
 end
 

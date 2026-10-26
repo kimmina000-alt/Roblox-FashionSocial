@@ -137,13 +137,13 @@ SnackConfig.Shops = {
 export type Cake = { textures: {string}, deco: string?, decoColor: Color3?, lettering: {string}? }
 SnackConfig.Cakes = {
 	vintage = {
-		textures = { "rbxassetid://0", "rbxassetid://0", "rbxassetid://0", "rbxassetid://0" }, -- pink / sky / teal / blue
+		textures = { "rbxassetid://95068034503217", "rbxassetid://120387985811537", "rbxassetid://100227617737506", "rbxassetid://130812046061618" }, -- pink / sky / teal / blue
 		deco = "cherry",
 		lettering = { "Happy Day", "HAPPY OHU DAY", "Sweet Day", "Thank you" },
 	},
-	strawberry = { textures = { "rbxassetid://0" }, deco = "strawberry" },
-	tiramisu = { textures = { "rbxassetid://0" } },
-	basque = { textures = { "rbxassetid://0" } },
+	strawberry = { textures = { "rbxassetid://121181319714899" }, deco = "strawberry" },
+	tiramisu = { textures = { "rbxassetid://98169544035030" } },
+	basque = { textures = { "rbxassetid://131113444910947" } },
 } :: {[string]: Cake}
 
 function SnackConfig.find(shopKey: any, itemKey: any): (Shop?, Item?)
