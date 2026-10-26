@@ -816,7 +816,11 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing
 			end
 			local function free(u) 
 				for _, b in ipairs(blocked) do if u > b[1] and u < b[2] then return false end end
-				return clear(at(u, side * 31.2))
+				-- the 광화문 stop moved north (user 2026-10-26): the lane stops only
+				-- under its shelter, not over its old keep-clear stretch
+				local p = at(u, side * 31.2)
+				if p.X > 22 and p.X < 40 and p.Z > 208.5 and p.Z < 250 then return p.Z > 227.5 end
+				return clear(p)
 			end
 			local runStart: number? = nil
 			local function lane(u0, u1)
@@ -4064,7 +4068,8 @@ tower(-76, 110, -48, 170, 120, "glass", "E", "카페")
 tower(-76, 180, -48, 250, 80, "concrete", "E", "약국")
 -- (6 narrower than before: a 6-stud gap to the OH24 store, user 2026-10-23)
 -- (kept low, user 2026-10-25: from the beach the screen on the tower over OH24 shows above it)
-tower(-146, 60, -132, 104, 20, "concrete", "N", "노래방") -- (12 south, its back on the OH24 store's back line z 104, user 2026-10-25; the ground it left is paved below)
+-- (front on the OH24 store's front line z 62.5, user 2026-10-26: it stood out on the sidewalk)
+tower(-146, 62.5, -132, 104, 20, "concrete", "N", "노래방") -- (12 south, its back on the OH24 store's back line z 104, user 2026-10-25; the ground it left is paved below)
 do -- "오늘의 큰손" tower over the OH24 store (user mock-ups + reference photos
 	-- 2026-10-25): a tall tower of dark granite with narrow vertical window
 	-- slits covering the whole store roof (x -130..-56, z 66..104, roof y 14),

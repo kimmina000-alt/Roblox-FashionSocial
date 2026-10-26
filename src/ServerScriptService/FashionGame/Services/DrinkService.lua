@@ -94,10 +94,10 @@ local function giveBottle(player: Player, drinkKey: string, servings: number?, v
 	local name, color, variant = drinkLook(drink, variantKey)
 	local cups = math.clamp(servings or ClubConfig.BottleServings, 1, ClubConfig.BottleServings)
 	local tool = Instance.new("Tool")
-	tool.Name = if cups < ClubConfig.BottleServings
-		then string.format("병 · %s (%d잔)", name, cups)
-		else "병 · " .. name
-	tool.ToolTip = string.format("%d잔 남음 · 테이블의 '병 놓기'로 올려놓으세요", cups)
+	tool.Name = string.format("병 · %s (%d/%d)", name, cups, ClubConfig.BottleServings)
+	tool.ToolTip = if drink.tier == 1 and not isVip(player)
+		then "테이블을 누르면 올려놓기 · 다른 곳을 누르면 병째 마시기"
+		else "손에 들고 테이블을 누르면 버킷으로 올라가요"
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool:SetAttribute("Bottle", drink.key)
@@ -222,9 +222,7 @@ local function refreshBottleLabel(bottle: BasePart)
 	local info = bottle:FindFirstChild("Info")
 	local label = info and info:FindFirstChild("Text")
 	if label and label:IsA("TextLabel") then
-		label.Text = string.format("%s · %s님 · %s · %d잔",
-			tostring(bottle:GetAttribute("DrinkName")), tostring(bottle:GetAttribute("OwnerName")),
-			visibilityName(bottle:GetAttribute("Visibility")), bottle:GetAttribute("Servings") or 0)
+		label.Text = string.format("%d/%d", bottle:GetAttribute("Servings") or 0, ClubConfig.BottleServings)
 	end
 end
 
@@ -306,38 +304,100 @@ local function freeSlot(tablePart: BasePart): Attachment?
 	return nil
 end
 
+-- What a bottle of this drink becomes on a table (D-323, temporary design
+-- until the bucket art pass): "bottle" = tier 1 (no VIP), else a bucket.
+local function kindFor(player: Player, drink: ClubConfig.Drink): DrinkBucket.Kind
+	return if isVip(player) then (if drink.key == "golmok" then "golmok" else "vip")
+		elseif drink.tier >= 3 then "acrylic"
+		elseif drink.tier == 2 then "steel"
+		else "bottle"
+end
+
+local function hasBucket(tablePart: BasePart): boolean
+	for _, child in ipairs(tablePart:GetChildren()) do
+		if (child.Name == "PlacedBottle" and child:GetAttribute("Bucket")) or child.Name == "SparklerBucket" then return true end
+	end
+	return false
+end
+DrinkService.HasBucket = hasBucket -- (SparkleService: sparkler bucket sets)
+
+-- The middle of a table top: where a bucket goes (an Attachment "CenterSlot",
+-- so the owner sign and removeBottle treat it like the edge slots).
+local function centerSlot(tablePart: BasePart): Attachment
+	local existing = tablePart:FindFirstChild("CenterSlot")
+	if existing and existing:IsA("Attachment") then return existing end
+	local top = tablePart.Size.Y / 2
+	for _, child in ipairs(tablePart:GetChildren()) do
+		if child:IsA("Attachment") and child.Name == "Slot" then top = child.Position.Y break end
+	end
+	local slot = Instance.new("Attachment")
+	slot.Name = "CenterSlot"
+	slot.Position = Vector3.new(0, top, 0)
+	slot.Parent = tablePart
+	return slot
+end
+DrinkService.CenterSlot = centerSlot
+
+local function equippedTool(player: Player, attribute: string): Tool?
+	local character = player.Character
+	local tool = character and character:FindFirstChildOfClass("Tool")
+	return if tool and tool:GetAttribute(attribute) ~= nil then tool else nil
+end
+
+local function near(player: Player, position: Vector3, distance: number): boolean
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	return root ~= nil and root:IsA("BasePart") and (root.Position - position).Magnitude <= distance
+end
+
+-- Small "4/6" over a bottle or bucket: cups left (no buttons, user 2026-10-26).
+local function countLabel(holder: BasePart, height: number)
+	local info = Instance.new("BillboardGui")
+	info.Name = "Info"
+	info.Size = UDim2.fromOffset(46, 20)
+	info.StudsOffset = Vector3.new(0, height, 0)
+	info.MaxDistance = 30
+	info.LightInfluence = 0
+	info.Parent = holder
+	local text = Instance.new("TextLabel")
+	text.Name = "Text"
+	text.Size = UDim2.fromScale(1, 1)
+	text.BackgroundTransparency = 0.35
+	text.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+	text.TextColor3 = Color3.new(1, 1, 1)
+	text.TextScaled = true
+	text.Font = Enum.Font.GothamBold
+	text.Parent = info
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0.5, 0)
+	corner.Parent = text
+	refreshBottleLabel(holder)
+end
+
+-- New table rules (user 2026-10-26, CLUB.md §22):
+--   * hold a bottle and tap a table to put it down; nothing to choose
+--   * a bucket drink (tier 2–3, any VIP drink) is one bucket in the middle of
+--     the table, it never comes back to the hand; nothing more goes on a
+--     table with a bucket
+--   * tier-1 bottles stand on the edge slots (as many as there are), the
+--     owner can tap one to take it back; no cups, drunk from the bottle
 local function placeBottle(player: Player, payload: any): (boolean, string?)
 	if typeof(payload) ~= "table" then return false, "잘못된 요청입니다." end
 	local tablePart = payload.table
-	local visibility = payload.visibility
 	if typeof(tablePart) ~= "Instance" or not tablePart:IsA("BasePart") or not CollectionService:HasTag(tablePart, "DrinkTable") then
 		return false, "테이블을 찾을 수 없습니다."
 	end
-	if visibility ~= "all" and visibility ~= "friends" and visibility ~= "me" then
-		return false, "공개 범위를 골라 주세요."
-	end
-	local character = player.Character
-	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	if not root or (root.Position - tablePart.Position).Magnitude > math.max(tablePart.Size.X, tablePart.Size.Z) / 2 + 14 then
+	if not near(player, tablePart.Position, math.max(tablePart.Size.X, tablePart.Size.Z) / 2 + 14) then
 		return false, "테이블 가까이 가서 놓아 주세요."
 	end
-	-- Use the equipped bottle first, otherwise any carried bottle.
-	local bottleTool: Tool? = nil
-	for _, container in ipairs({ character, player:FindFirstChildOfClass("Backpack") }) do
-		if container and not bottleTool then
-			for _, item in ipairs(container:GetChildren()) do
-				if item:IsA("Tool") and item:GetAttribute("Bottle") then
-					bottleTool = item
-					break
-				end
-			end
-		end
-	end
-	if not bottleTool then return false, "들고 있는 병이 없어요. 바텐더에게 주문하세요." end
-	local slot = freeSlot(tablePart)
-	if not slot then return false, "테이블이 가득 찼어요." end
+	local bottleTool = equippedTool(player, "Bottle")
+	if not bottleTool then return false, "병을 손에 들고 테이블을 눌러 주세요." end
 	local drink = ClubConfig.findDrink(bottleTool:GetAttribute("Bottle"))
 	if not drink then return false, nil end
+	if hasBucket(tablePart) then return false, "버킷이 놓인 테이블에는 더 올릴 수 없어요." end
+	local kind = kindFor(player, drink)
+	local isBucket = kind ~= "bottle"
+	local slot = if isBucket then centerSlot(tablePart) else freeSlot(tablePart)
+	if not slot then return false, "테이블이 가득 찼어요." end
 	local servings = bottleTool:GetAttribute("Servings")
 	servings = if typeof(servings) == "number" then math.clamp(servings, 1, ClubConfig.BottleServings) else ClubConfig.BottleServings
 	local variantKey = bottleTool:GetAttribute("Variant")
@@ -352,113 +412,33 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	bottle.Size = Vector3.new(0.9, 2, 0.9)
 	bottle.Color = drinkColor
 	bottle.Material = Enum.Material.Glass
-	bottle.Transparency = 0.1
+	bottle.Transparency = 1
 	bottle.Anchored = true
 	bottle.CanCollide = false
 	bottle.CFrame = CFrame.new(slot.WorldPosition + Vector3.new(0, 1, 0))
 	bottle:SetAttribute("Owner", player.UserId)
 	bottle:SetAttribute("OwnerName", player.DisplayName)
-	bottle:SetAttribute("Visibility", visibility)
+	bottle:SetAttribute("Visibility", "all")
 	bottle:SetAttribute("DrinkKey", drink.key)
 	bottle:SetAttribute("Variant", variantKey)
 	bottle:SetAttribute("DrinkName", drinkName)
 	bottle:SetAttribute("Servings", servings)
+	bottle:SetAttribute("Bucket", isBucket)
 	local ref = Instance.new("ObjectValue")
 	ref.Name = "SlotRef"
 	ref.Value = slot
 	ref.Parent = bottle
 
-	-- The look on the table follows the tier (D-323, temporary design until the
-	-- bucket art pass): the part above stays as the invisible holder of the
-	-- prompts and the label.
-	local kind: DrinkBucket.Kind = if isVip(player) then (if drink.key == "golmok" then "golmok" else "vip")
-		elseif drink.tier >= 3 then "acrylic"
-		elseif drink.tier == 2 then "steel"
-		else "bottle"
+	-- the look (the part above stays as the invisible holder of the label)
 	local bucket = DrinkBucket.build(kind, { drinkColor }, CFrame.new(slot.WorldPosition))
 	if kind == "vip" or kind == "golmok" then
-		bucket:ScaleTo(0.6) -- (a table slot is about 1.6 studs wide)
-	elseif kind ~= "bottle" then
 		bucket:ScaleTo(0.8)
+	elseif isBucket then
+		bucket:ScaleTo(0.9)
 	end
 	bucket:PivotTo(bucket:GetPivot() + (slot.WorldPosition.Y - bucket:GetBoundingBox().Position.Y + bucket:GetExtentsSize().Y / 2) * Vector3.yAxis)
 	bucket.Parent = bottle
-	bottle.Transparency = 1
-
-	local info = Instance.new("BillboardGui")
-	info.Name = "Info"
-	info.Size = UDim2.fromOffset(170, 22)
-	-- labels of bottles on the same table stack instead of covering each other
-	-- (2P phone test 2026-10-26)
-	local onTable = 0
-	for _, other in ipairs(tablePart:GetChildren()) do
-		if other.Name == "PlacedBottle" then onTable += 1 end
-	end
-	info.StudsOffset = Vector3.new(0, 1.8 + onTable * 0.9, 0)
-	info.MaxDistance = 30
-	info.Parent = bottle
-	local text = Instance.new("TextLabel")
-	text.Name = "Text"
-	text.Size = UDim2.fromScale(1, 1)
-	text.BackgroundTransparency = 0.35
-	text.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-	text.TextColor3 = Color3.new(1, 1, 1)
-	text.TextScaled = true
-	text.Font = Enum.Font.GothamBold
-	text.Parent = info
-	refreshBottleLabel(bottle)
-
-	local pour = Instance.new("ProximityPrompt")
-	pour.Name = "PourPrompt"
-	pour.ActionText = "컵에 따르기"
-	pour.ObjectText = drinkName
-	pour.MaxActivationDistance = 9
-	pour.RequiresLineOfSight = false
-	pour.Parent = bottle
-	pour.Triggered:Connect(function(who)
-		if not bottle.Parent then return end
-		if not mayPour(who, bottle) then
-			toast(who, string.format("%s님이 놓은 병이에요 (공개: %s).", tostring(bottle:GetAttribute("OwnerName")), visibilityName(bottle:GetAttribute("Visibility"))))
-			return
-		end
-		local ok, message = giveCup(who, drink.key, variantKey)
-		if not ok then
-			if message then toast(who, message) end
-			return
-		end
-		local left = (bottle:GetAttribute("Servings") or 1) - 1
-		bottle:SetAttribute("Servings", left)
-		if left <= 0 then
-			removeBottle(bottle)
-		else
-			refreshBottleLabel(bottle)
-		end
-	end)
-
-	local clear = Instance.new("ProximityPrompt")
-	clear.Name = "ClearPrompt"
-	clear.ActionText = "치우기"
-	clear.ObjectText = "내 병"
-	clear.KeyboardKeyCode = Enum.KeyCode.R
-	clear.UIOffset = Vector2.new(0, 70)
-	clear.MaxActivationDistance = 9
-	clear.RequiresLineOfSight = false
-	clear.Parent = bottle
-	clear.Triggered:Connect(function(who)
-		if who.UserId ~= bottle:GetAttribute("Owner") or not bottle.Parent then return end
-		-- Cups still left: the bottle goes back to the owner with that count
-		-- (user, 2026-10-20). If their hands are full it stays on the table.
-		local left = bottle:GetAttribute("Servings") or 0
-		if left > 0 then
-			local ok, message = giveBottle(who, drink.key, left, variantKey)
-			if not ok then
-				toast(who, message or "병을 받을 수 없어요.")
-				return
-			end
-			toast(who, string.format("%s 병을 다시 챙겼어요 (%d잔 남음).", drinkName, left))
-		end
-		removeBottle(bottle)
-	end)
+	countLabel(bottle, bucket:GetExtentsSize().Y - 0.5 + (if isBucket then 0 else 0.5))
 
 	bottle.Parent = tablePart
 	task.delay(ClubConfig.BottleLifetime, function()
@@ -467,16 +447,94 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	return true, nil
 end
 
+-- A tap on something on a table (bottle or bucket) with no sparkler in hand.
+local function tapPlaced(player: Player, target: any): (boolean, string?)
+	if typeof(target) ~= "Instance" then return false, nil end
+	local bottle = if target.Name == "PlacedBottle" then target else target:FindFirstAncestor("PlacedBottle")
+	if not bottle or not bottle:IsA("BasePart") or not bottle:IsDescendantOf(workspace) then return false, nil end
+	if not near(player, bottle.Position, 12) then return false, "조금 더 가까이 가 주세요." end
+	local drink = ClubConfig.findDrink(bottle:GetAttribute("DrinkKey"))
+	if not drink then return false, nil end
+	local variantKey = bottle:GetAttribute("Variant")
+	if not bottle:GetAttribute("Bucket") then
+		-- tier 1: only its owner takes it back (to drink from the bottle)
+		if bottle:GetAttribute("Owner") ~= player.UserId then
+			return false, string.format("%s님의 병이에요.", tostring(bottle:GetAttribute("OwnerName")))
+		end
+		local left = bottle:GetAttribute("Servings") or 0
+		local ok, message = giveBottle(player, drink.key, left, variantKey)
+		if not ok then return false, message end
+		removeBottle(bottle)
+		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		local backpack = player:FindFirstChildOfClass("Backpack")
+		if humanoid and backpack then
+			for _, item in ipairs(backpack:GetChildren()) do
+				if item:IsA("Tool") and item:GetAttribute("Bottle") == drink.key then humanoid:EquipTool(item) break end
+			end
+		end
+		return true, nil
+	end
+	if not mayPour(player, bottle) then return false, nil end
+	local ok, message = giveCup(player, drink.key, variantKey)
+	if not ok then return false, message end
+	local left = (bottle:GetAttribute("Servings") or 1) - 1
+	bottle:SetAttribute("Servings", left)
+	if left <= 0 then removeBottle(bottle) else refreshBottleLabel(bottle) end
+	return true, nil
+end
+
+-- Tier-1 bottle in hand: a drink straight from the bottle (no cups).
+local function swig(player: Player): (boolean, string?)
+	local tool = equippedTool(player, "Bottle")
+	if not tool or tool:GetAttribute("Drinking") then return false, nil end
+	local drink = ClubConfig.findDrink(tool:GetAttribute("Bottle"))
+	if not drink then return false, nil end
+	if kindFor(player, drink) ~= "bottle" then
+		return false, "버킷 음료예요. 테이블을 눌러 올려놓고 컵으로 마셔요."
+	end
+	local left = ((tool:GetAttribute("Servings") :: number?) or ClubConfig.BottleServings) - 1
+	local character = tool.Parent :: Model
+	tool:SetAttribute("Drinking", true)
+	local handle = tool:FindFirstChild("Handle")
+	if handle and not handle:FindFirstChild("Gulp") then
+		local gulp = Instance.new("Sound")
+		gulp.Name = "Gulp"
+		gulp.SoundId = "rbxassetid://" .. tostring(ClubConfig.GulpSoundId)
+		gulp.Volume = 0.8
+		gulp.RollOffMaxDistance = 40
+		gulp.Parent = handle
+	end
+	local sound = handle and handle:FindFirstChild("Gulp") :: Sound?
+	local original = tool.Grip
+	local up = mouthGrip(tool, character)
+	if up then TweenService:Create(tool, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { Grip = up }):Play() end
+	if sound then sound:Play() end
+	task.wait(ClubConfig.DrinkSeconds)
+	if tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
+	task.wait(0.3)
+	if left <= 0 then
+		tool:Destroy()
+		return true, "다 마셨어요!"
+	end
+	local name = drinkLook(drink, tool:GetAttribute("Variant"))
+	tool:SetAttribute("Servings", left)
+	tool:SetAttribute("Drinking", nil)
+	tool.Name = string.format("병 · %s (%d/%d)", name, left, ClubConfig.BottleServings)
+	return true, nil
+end
+
 --------------------------------------------------
 -- Bartender NPC
 --------------------------------------------------
 
-local function spawnBartender(spot: Instance)
-	if not spot:IsA("BasePart") or spot:FindFirstChild("Bartender") then return end
+-- Staff behind the bar: the bartender (drinks) and, next to them, the item
+-- seller (sparklers, sparkler bucket sets, stage cold spark; user 2026-10-26).
+local function spawnStaff(spot: BasePart, name: string, title: string, offset: CFrame, shirt: Color3, promptName: string, action: string)
+	if spot:FindFirstChild(name) then return end
 	local ok, model = pcall(function()
 		local description = Instance.new("HumanoidDescription")
 		description.HeadColor = Color3.fromRGB(234, 184, 146)
-		description.TorsoColor = Color3.fromRGB(30, 30, 36)
+		description.TorsoColor = shirt
 		description.LeftArmColor = Color3.fromRGB(234, 184, 146)
 		description.RightArmColor = Color3.fromRGB(234, 184, 146)
 		description.LeftLegColor = Color3.fromRGB(30, 30, 36)
@@ -484,41 +542,35 @@ local function spawnBartender(spot: Instance)
 		return Players:CreateHumanoidModelFromDescription(description, Enum.HumanoidRigType.R15)
 	end)
 	if not ok or not model then
-		warn("[DrinkService] Could not create bartender:", model)
+		warn("[DrinkService] Could not create " .. name .. ":", model)
 		return
 	end
-	model.Name = "Bartender"
+	model.Name = name
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	if humanoid then
-		humanoid.DisplayName = "바텐더"
+		humanoid.DisplayName = title
 		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
 	end
 	for _, part in ipairs(model:GetDescendants()) do
 		if part:IsA("BasePart") then part.Anchored = true end
 	end
-	model:PivotTo(spot.CFrame + Vector3.new(0, 3, 0))
+	model:PivotTo(spot.CFrame * offset + Vector3.new(0, 3, 0))
 	local root = model:FindFirstChild("HumanoidRootPart")
 	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "BartenderPrompt"
-	prompt.ActionText = "음료 주문"
-	prompt.ObjectText = "바텐더"
+	prompt.Name = promptName
+	prompt.ActionText = action
+	prompt.ObjectText = title
 	prompt.MaxActivationDistance = 12
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = root or model.PrimaryPart
 	model.Parent = spot
 end
 
-local function addTablePrompt(tablePart: Instance)
-	if not tablePart:IsA("BasePart") or tablePart:FindFirstChild("PlacePrompt") then return end
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "PlacePrompt"
-	prompt.ActionText = "병 놓기"
-	prompt.ObjectText = "테이블"
-	prompt.KeyboardKeyCode = Enum.KeyCode.F
-	prompt.MaxActivationDistance = math.max(tablePart.Size.X, tablePart.Size.Z) / 2 + 8
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = tablePart
-	-- The client opens the 공개 범위 dialog (it only shows when carrying a bottle).
+local function spawnBartender(spot: Instance)
+	if not spot:IsA("BasePart") then return end
+	spawnStaff(spot, "Bartender", "바텐더", CFrame.new(), Color3.fromRGB(30, 30, 36), "BartenderPrompt", "음료 주문")
+	-- (spot's +X runs along the bar)
+	spawnStaff(spot, "ItemSeller", "불꽃 판매원", CFrame.new(8, 0, 0), Color3.fromRGB(150, 40, 110), "ItemShopPrompt", "불꽃 · 아이템")
 end
 
 --------------------------------------------------
@@ -573,6 +625,10 @@ function DrinkService.Handle(player: Player, action: string, payload: any): (boo
 		return true, nil
 	elseif action == "Place" then
 		return placeBottle(player, payload)
+	elseif action == "Tap" then
+		return tapPlaced(player, payload)
+	elseif action == "Swig" then
+		return swig(player)
 	end
 	return false, "잘못된 요청입니다."
 end
@@ -602,8 +658,6 @@ function DrinkService.Start()
 	end
 	for _, spot in ipairs(CollectionService:GetTagged("BartenderSpot")) do spawnBartender(spot) end
 	CollectionService:GetInstanceAddedSignal("BartenderSpot"):Connect(spawnBartender)
-	for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do addTablePrompt(t) end
-	CollectionService:GetInstanceAddedSignal("DrinkTable"):Connect(addTablePrompt)
 	Players.PlayerRemoving:Connect(function(player)
 		pendingVariant[player.UserId] = nil
 		for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do

@@ -14,7 +14,8 @@
 -- tempo turns it into your own dance. The DJ also sees [DJ 존 초대] on cards.
 -- The panel's "같이 추기" tab lists nearby players for the same thing.
 --
--- The 💃 button only shows inside the club (ClubConfig.isInClub). Music is one
+-- The 💃 button shows everywhere (user 2026-10-26; outside the club only the
+-- dancers themselves hear the music). Music is one
 -- shared playlist clock (FashionGame attributes ClubTrack / ClubTrackStart),
 -- played locally with volume by distance to parts tagged "ClubZone".
 
@@ -698,7 +699,8 @@ local function renderGrid()
 	refreshButtons()
 end
 
--- 같이 추기 list: everyone nearby in the club (dancing or not).
+-- 같이 추기 list: everyone nearby in the club (dancing or not); outside the
+-- club, the people nearby who are dancing.
 local function renderJoinList()
 	for _, child in ipairs(joinList:GetChildren()) do
 		if child:IsA("Frame") then child:Destroy() end
@@ -709,7 +711,7 @@ local function renderJoinList()
 	if myRoot then
 		for _, other in ipairs(Players:GetPlayers()) do
 			local root = rootOf(other.Character)
-			if other ~= player and root and ClubConfig.isInClub(root.Position) then
+			if other ~= player and root and (ClubConfig.isInClub(root.Position) or other.Character:GetAttribute("DanceKey") ~= nil) then
 				local distance = (root.Position - myRoot.Position).Magnitude
 				if distance <= ClubConfig.JoinRadius then
 					table.insert(rows, { player = other, distance = distance })
@@ -995,6 +997,9 @@ end)
 -- Club presence: 💃 only inside the club
 --------------------------------------------------
 
+-- (user 2026-10-26: dancing works everywhere now, the 💃 button is always
+-- there; player cards and inviting stay a club thing)
+danceButton.Visible = true
 local wasInClub = false
 task.spawn(function()
 	while true do
@@ -1002,11 +1007,7 @@ task.spawn(function()
 		local here = inClub(player.Character)
 		if here ~= wasInClub then
 			wasInClub = here
-			danceButton.Visible = here
-			if not here then
-				setPanelOpen(false)
-				closeCard()
-			end
+			if not here then closeCard() end
 		end
 		if playerCard.Visible then refreshCard() end
 	end
@@ -1079,6 +1080,8 @@ local function musicLevel(position: Vector3): number
 	return inside or outside
 end
 
+local OUTSIDE_DANCE_LEVEL = 0.6
+
 -- Beat lights: parts tagged "ClubBeat" brighten with the music loudness.
 local beatBase: {[BasePart]: Color3} = {}
 local accumulator = 0
@@ -1090,6 +1093,9 @@ RunService.RenderStepped:Connect(function(dt)
 		local focus = rootOf(player.Character)
 		local position = if focus then focus.Position else camera.CFrame.Position
 		local level = musicLevel(position)
+		-- outside the club only the people dancing hear the music (their own
+		-- client plays it; user 2026-10-26)
+		if current.key ~= nil then level = math.max(level, OUTSIDE_DANCE_LEVEL) end
 		music.Volume = ClubConfig.MusicVolume * level
 		banner.Visible = level > 0 and banner.Text ~= ""
 	end

@@ -160,7 +160,15 @@ local function eatDownTo(handle: BasePart, lo: number, hi: number, left: number,
 			local y0, y1 = piece:GetAttribute("EatY0") :: number, piece:GetAttribute("EatY1") :: number
 			local c0 = piece:GetAttribute("EatC0") :: CFrame
 			local drop = piece:GetAttribute("EatDrop")
-			if typeof(drop) == "number" then
+			if piece:GetAttribute("EatShrink") then
+				-- bread is bitten off from its far end: it gets shorter each bite
+				-- and goes at the last one (user 2026-10-26)
+				local size = piece:GetAttribute("EatSize") :: Vector3
+				local z = size.Z * left / total
+				piece.Size = Vector3.new(size.X, size.Y, math.max(z, 0.05))
+				weld.C0 = c0 + Vector3.new(0, 0, (size.Z - z) / 2)
+				if left <= 0 then piece.Transparency = 1 end
+			elseif typeof(drop) == "number" then
 				-- the soup level goes down a third of the bowl each bite
 				weld.C0 = c0 - Vector3.new(0, drop * (total - left) / total, 0)
 				if left <= 0 then piece.Transparency = 1 end
@@ -255,6 +263,10 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		handle.Parent = tool
 		attach(handle, blob("Fill", Vector3.new(0.75, 0.42, 1.0), item.color), CFrame.new(0, 0.05, 0))
 		if item.topping then attach(handle, blob("Cream", Vector3.new(0.5, 0.18, 0.7), item.topping), CFrame.new(0, 0.22, 0)) end
+		for _, name in ipairs({ "Fill", "Cream" }) do
+			local piece = handle:FindFirstChild(name)
+			if piece then piece:SetAttribute("EatShrink", true) end
+		end
 		tool.Grip = CFrame.new(0, 0, 0)
 	elseif kind == "cake" then
 		-- a slice on a little paper plate: the slice mesh with the cake's
@@ -755,6 +767,63 @@ end
 -- player is; its owner picks it up again with "다시 들기" (bites left kept).
 local FOOD_TABLE_TAGS = { CafeTable = true, GukbapTable = true, SnackTable = true }
 local keptFolder: Folder? = nil
+local SOUP_SECONDS = 300
+
+local function itemByKey(key: any): SnackConfig.Item?
+	for _, shop in pairs(SnackConfig.Shops) do
+		for _, it in ipairs(shop.items) do
+			if it.key == key then return it end
+		end
+	end
+	return nil
+end
+
+-- One spoonful from a bowl on the table: a spoon with soup on it comes up to
+-- the mouth (the bowl's own spoon is gone meanwhile), the soup sinks a step;
+-- the empty bowl goes.
+local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool, item: SnackConfig.Item)
+	if model:GetAttribute("Busy") then return end
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not character or not humanoid then return end
+	model:SetAttribute("Busy", true)
+	local spoon = Instance.new("Tool")
+	spoon.Name = "숟가락"
+	spoon.CanBeDropped = false
+	local handle = part("Handle", Vector3.new(0.07, 0.75, 0.05), Color3.fromRGB(215, 218, 222), Enum.Material.Metal)
+	handle.Parent = spoon
+	attach(handle, part("Scoop", Vector3.new(0.24, 0.05, 0.3), Color3.fromRGB(215, 218, 222), Enum.Material.Metal), CFrame.new(0, 0.38, -0.1))
+	attach(handle, part("Soup", Vector3.new(0.2, 0.04, 0.24), item.color), CFrame.new(0, 0.42, -0.1))
+	spoon.Grip = CFrame.new(0, -0.3, 0)
+	local sound = Instance.new("Sound")
+	sound.SoundId = "rbxassetid://" .. tostring(EAT_SOUND[item.kind] or EAT_SOUND.bowl)
+	sound.Volume = 0.7
+	sound.RollOffMaxDistance = 40
+	sound.Parent = handle
+	local ownSpoon = copy:FindFirstChild("Spoon")
+	if ownSpoon and ownSpoon:IsA("BasePart") then ownSpoon.Transparency = 1 end
+	humanoid:UnequipTools()
+	spoon.Parent = character
+	local up = mouthGrip(character, 0)
+	if up then TweenService:Create(spoon, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { Grip = up }):Play() end
+	task.wait(0.35)
+	sound:Play()
+	task.wait(1.1)
+	if spoon.Parent then TweenService:Create(spoon, TweenInfo.new(0.3), { Grip = CFrame.new(0, -0.3, 0) }):Play() end
+	task.wait(0.3)
+	spoon:Destroy()
+	if ownSpoon and ownSpoon:IsA("BasePart") then ownSpoon.Transparency = 0 end
+	model:SetAttribute("Busy", nil)
+	local total = bitesOf(item)
+	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
+	tool:SetAttribute("Bites", left)
+	local fill = copy:FindFirstChild("Fill")
+	if fill and fill:IsA("BasePart") then
+		local drop = (fill:GetAttribute("EatDrop") :: number?) or 0.3
+		fill.CFrame -= Vector3.new(0, drop / total, 0)
+	end
+	if left <= 0 then model:Destroy() end
+end
 local function putDown(player: Player, tablePart: any): (boolean, string?)
 	if typeof(tablePart) ~= "Instance" or not tablePart:IsA("BasePart") or not tablePart:IsDescendantOf(workspace) then
 		return false, "테이블을 찾을 수 없어요."
@@ -821,21 +890,30 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 		keptFolder.Parent = game:GetService("ServerStorage")
 	end
 	tool.Parent = keptFolder
+	local item = itemByKey(tool:GetAttribute("Snack"))
+	local soup = item ~= nil and (item.kind == "bowl" or item.kind == "ricebowl")
 	local prompt = Instance.new("ProximityPrompt")
-	prompt.ActionText = "다시 들기"
+	prompt.ActionText = if soup then "떠먹기" else "다시 들기"
 	prompt.ObjectText = tool.Name
 	prompt.MaxActivationDistance = 8
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = copy
 	prompt.Triggered:Connect(function(who)
 		if who ~= player or not model.Parent then return end
-		if giveTool(player, tool) then model:Destroy() end
+		if soup and item then
+			-- 국밥 stays on the table (user 2026-10-26): eaten from there with a
+			-- spoon, never picked up again
+			spoonful(player, model, copy, tool, item)
+		elseif giveTool(player, tool) then
+			model:Destroy()
+		end
 	end)
 	model.Parent = tablePart
 	model.Destroying:Connect(function()
 		if tool.Parent == keptFolder then tool:Destroy() end
 	end)
-	Debris:AddItem(model, SnackConfig.PlateSeconds)
+	-- (a bowl left behind goes sooner: its owner may have walked off, user 2026-10-26)
+	Debris:AddItem(model, if soup then SOUP_SECONDS else SnackConfig.PlateSeconds)
 	return true, nil
 end
 

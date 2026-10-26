@@ -151,15 +151,34 @@ end
 -- Attributes: Base (Vector3, water level), Drift (radius), Period, Phase.
 --------------------------------------------------
 
-function ParkConfig.floatCFrame(model: Instance, t: number): CFrame?
-	local base = model:GetAttribute("Base")
-	if typeof(base) ~= "Vector3" then return nil end
+-- Tube speed while its rider paddles (user 2026-10-26: 타고 움직이기). The
+-- rider's client moves the tube and sends where it is; the server keeps it in
+-- the attributes Drive (Vector3, at water level) and DriveYaw.
+ParkConfig.TubeSpeed = 7
+
+-- Drift-path angle at t (the rider leaving re-centres Base on it, no jump).
+function ParkConfig.floatAngle(model: Instance, t: number): number
+	return ((t / attr(model, "Period", 90)) % 1) * 2 * math.pi + attr(model, "Phase", 0)
+end
+
+-- A tube held at `center` (water level) facing `yaw`, bobbing on the waves.
+function ParkConfig.floatAt(model: Instance, t: number, center: Vector3, yaw: number): CFrame
 	local phase = attr(model, "Phase", 0)
-	local a = ((t / attr(model, "Period", 90)) % 1) * 2 * math.pi + phase
-	local radius = attr(model, "Drift", 5)
 	local bob = 0.22 * math.sin((t % 1000) * 1.4 + phase * 3)
 	local rock = math.rad(4) * math.sin((t % 1000) * 0.9 + phase)
-	return CFrame.new(base + Vector3.new(math.cos(a) * radius, bob, math.sin(a) * radius)) * CFrame.Angles(rock, -a * 0.5, 0)
+	return CFrame.new(center + Vector3.new(0, bob, 0)) * CFrame.Angles(0, yaw, 0) * CFrame.Angles(rock, 0, 0)
+end
+
+function ParkConfig.floatCFrame(model: Instance, t: number): CFrame?
+	local drive = model:GetAttribute("Drive")
+	if typeof(drive) == "Vector3" then
+		return ParkConfig.floatAt(model, t, drive, attr(model, "DriveYaw", 0))
+	end
+	local base = model:GetAttribute("Base")
+	if typeof(base) ~= "Vector3" then return nil end
+	local a = ParkConfig.floatAngle(model, t)
+	local radius = attr(model, "Drift", 5)
+	return ParkConfig.floatAt(model, t, base + Vector3.new(math.cos(a) * radius, 0, math.sin(a) * radius), -a * 0.5)
 end
 
 --------------------------------------------------

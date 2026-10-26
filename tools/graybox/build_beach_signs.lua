@@ -10,7 +10,7 @@
 local T = workspace:FindFirstChild("Hongdae_Layout")
 assert(T, "Hongdae_Layout missing")
 
-local MAP_IMAGE = "rbxassetid://116491637433493"
+local MAP_IMAGE = "rbxassetid://86960782637506" -- v2: the real layout, north up (user 2026-10-26)
 local RULES_IMAGE = "rbxassetid://129295787028454"
 local SAND_Y = -1.8 -- the beach's sand top (CURB 0.6 - BEACH_DROP 2.4)
 local X = -212 -- the boards stand on the sand by the promenade steps, facing +X (the promenade)

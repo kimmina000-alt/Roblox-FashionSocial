@@ -50,6 +50,19 @@ local function clear(player: Player)
 		ride.slot:SetAttribute(ride.key, nil)
 	end
 	if ride.kind == "ParkSwing" then ride.slot:SetAttribute("Level", 0) end
+	if ride.kind == "FloatTube" then
+		-- the tube drifts on from where it was paddled to: its drift circle
+		-- moves there, so it does not jump back
+		local drive = ride.model:GetAttribute("Drive")
+		local base = ride.model:GetAttribute("Base")
+		if typeof(drive) == "Vector3" and typeof(base) == "Vector3" then
+			local a = ParkConfig.floatAngle(ride.model, now())
+			local radius = (ride.model:GetAttribute("Drift") :: number?) or 5
+			ride.model:SetAttribute("Base", Vector3.new(drive.X - math.cos(a) * radius, base.Y, drive.Z - math.sin(a) * radius))
+		end
+		ride.model:SetAttribute("Drive", nil)
+		ride.model:SetAttribute("DriveYaw", nil)
+	end
 end
 
 local function near(player: Player, position: Vector3, distance: number): boolean
@@ -174,6 +187,21 @@ function ParkRideService.Start()
 		end
 		return false, nil
 	end
+	-- "TubeDrive", position, yaw: the rider paddled the tube (10 times a second)
+	notify.OnServerEvent:Connect(function(player: Player, action: any, position: any, yaw: any)
+		if action ~= "TubeDrive" or typeof(position) ~= "Vector3" or typeof(yaw) ~= "number" then return end
+		local ride = riding[player]
+		if not ride or ride.kind ~= "FloatTube" then return end
+		if position.X ~= position.X or position.Z ~= position.Z or yaw ~= yaw then return end
+		local base = ride.model:GetAttribute("Base")
+		if typeof(base) ~= "Vector3" then return end
+		local last = ride.model:GetAttribute("Drive")
+		local from = if typeof(last) == "Vector3" then last else (ParkConfig.floatCFrame(ride.model, now()) :: CFrame).Position
+		-- no teleporting: a short step from where it was
+		if (Vector3.new(position.X, 0, position.Z) - Vector3.new(from.X, 0, from.Z)).Magnitude > 25 then return end
+		ride.model:SetAttribute("Drive", Vector3.new(position.X, base.Y, position.Z))
+		ride.model:SetAttribute("DriveYaw", yaw % (2 * math.pi))
+	end)
 	local function watch(player: Player)
 		player.CharacterRemoving:Connect(function() clear(player) end)
 	end

@@ -133,14 +133,46 @@ local function addSpring(model: Model)
 end
 
 -- Floating tubes (rideable) and decorations on the sea (beach).
+-- Each tube part is placed from where it sits in the server's pose (around
+-- Base). Moving the model by its pivot went wrong on phones: the model
+-- arrived before its parts (streaming), the pivot moved alone, and the ring
+-- then floated up to Drift studs away from where the rider sat (user phone
+-- test 2026-10-26).
+type TubePart = { part: BasePart, offset: CFrame }
 local floaters: {Model} = {}
+local tubeParts: {[Model]: {TubePart}} = {}
+local tubeShown: {[Model]: CFrame} = {} -- smoothed pose of tubes others paddle
+local myTube: Model? = nil
+local drivePos: Vector3? = nil
+local driveYaw = 0
+
+local function tubeCFrame(model: Model, t: number): CFrame?
+	if model == myTube and drivePos then return ParkConfig.floatAt(model, t, drivePos, driveYaw) end
+	return tubeShown[model] or ParkConfig.floatCFrame(model, t)
+end
+
 local function addTube(model: Model)
+	local base = model:GetAttribute("Base")
+	if typeof(base) ~= "Vector3" then return end
+	local origin = CFrame.new(base)
+	local list: {TubePart} = {}
+	tubeParts[model] = list
+	local function add(d: Instance)
+		if d:IsA("BasePart") then table.insert(list, { part = d, offset = origin:ToObjectSpace(d.CFrame) }) end
+	end
+	for _, d in ipairs(model:GetDescendants()) do add(d) end
+	model.DescendantAdded:Connect(add)
+	model.DescendantRemoving:Connect(function(d)
+		for i, entry in ipairs(list) do
+			if entry.part == d then table.remove(list, i) break end
+		end
+	end)
 	table.insert(floaters, model)
 	table.insert(slots, {
 		kind = "FloatTube", ride = model, slot = model, key = "Rider",
 		-- sitting low in the middle of the ring
 		seat = function(t: number): CFrame?
-			local cf = ParkConfig.floatCFrame(model, t)
+			local cf = tubeCFrame(model, t)
 			return cf and cf * CFrame.new(0, -0.6, 0)
 		end,
 	})
@@ -311,8 +343,29 @@ local function animate(t: number, dt: number)
 		end
 	end
 	for _, model in ipairs(floaters) do
-		local cf = ParkConfig.floatCFrame(model, t)
-		if cf and model.Parent and cameraNear(cf.Position) then model:PivotTo(cf) end
+		if not model.Parent then continue end
+		local cf: CFrame?
+		if model == myTube and drivePos then
+			cf = tubeCFrame(model, t)
+		else
+			-- a tube someone paddles is sent ~10 times a second: glide to it
+			local target = ParkConfig.floatCFrame(model, t)
+			local shown = tubeShown[model]
+			if target and shown and (shown.Position - target.Position).Magnitude < 25 then
+				target = shown:Lerp(target, math.min(1, dt * 10))
+			end
+			tubeShown[model] = target
+			cf = target
+		end
+		local list = tubeParts[model]
+		if cf and list and cameraNear(cf.Position) then
+			local parts, cframes = {}, {}
+			for _, entry in ipairs(list) do
+				table.insert(parts, entry.part)
+				table.insert(cframes, cf * entry.offset)
+			end
+			workspace:BulkMoveTo(parts, cframes, Enum.BulkMoveMode.FireCFrameChanged)
+		end
 	end
 	moveDucks(t, dt)
 	for _, spring in ipairs(springs) do
@@ -370,7 +423,38 @@ local function placeRiders(t: number)
 	end
 end
 
-RunService.PreSimulation:Connect(function()
+-- Paddling a tube: the move stick / WASD push it over the sea (never onto
+-- the sand); the server hears where it is 10 times a second. (A seated
+-- humanoid still gets MoveDirection from the controls, in world space.)
+local driveSentAt = 0
+local lastSent: Vector3? = nil
+
+local function paddle(dt: number)
+	local tube = myTube
+	local pos = drivePos
+	local humanoid = ownHumanoid()
+	if not tube or not pos or not humanoid then return end
+	local move = humanoid.MoveDirection
+	if move.Magnitude > 0.05 then
+		local dir = Vector3.new(move.X, 0, move.Z)
+		if dir.Magnitude > 1 then dir = dir.Unit end
+		local nextPos = pos + dir * (ParkConfig.TubeSpeed * dt)
+		if waterAt(nextPos.X, nextPos.Z) then drivePos = Vector3.new(nextPos.X, pos.Y, nextPos.Z) end
+		-- turn to face where it goes
+		local target = math.atan2(-dir.X, -dir.Z)
+		local diff = (target - driveYaw + math.pi) % (2 * math.pi) - math.pi
+		driveYaw += diff * math.min(1, dt * 4)
+	end
+	local current = drivePos :: Vector3
+	if os.clock() - driveSentAt > 0.1 and (lastSent == nil or (lastSent - current).Magnitude > 0.05) then
+		driveSentAt = os.clock()
+		lastSent = current
+		notify:FireServer("TubeDrive", current, driveYaw)
+	end
+end
+
+RunService.PreSimulation:Connect(function(dt)
+	paddle(dt)
 	if slideCFrame then
 		placeOwn(slideCFrame)
 		return
@@ -500,6 +584,9 @@ end
 
 local function stopRiding(exit: CFrame?)
 	mySlot = nil
+	myTube = nil
+	drivePos = nil
+	lastSent = nil
 	if firstPerson then setFirstPerson(false) end
 	local humanoid = ownHumanoid()
 	local root = ownRoot()
@@ -562,6 +649,17 @@ local function pressMain()
 		if ok and typeof(result) == "table" then
 			for _, entry in ipairs(slots) do
 				if entry.slot == result.slot and entry.key == result.key then mySlot = entry boardedAt = os.clock() end
+			end
+			local ride = offer.ride
+			if mySlot and mySlot.kind == "FloatTube" and ride then
+				-- from here on this client moves the tube
+				local cf = tubeCFrame(ride, now())
+				if cf then
+					myTube = ride
+					drivePos = Vector3.new(cf.X, (ride:GetAttribute("Base") :: Vector3).Y, cf.Z)
+					local look = cf.LookVector
+					driveYaw = math.atan2(-look.X, -look.Z)
+				end
 			end
 			setJump(false)
 		elseif typeof(result) == "string" then
@@ -745,6 +843,8 @@ end)
 player.CharacterAdded:Connect(function()
 	-- the server already cleared the seat (CharacterRemoving); a new character is never anchored
 	mySlot = nil
+	myTube = nil
+	drivePos = nil
 	slideCFrame = nil
 	if firstPerson then setFirstPerson(false) end
 end)

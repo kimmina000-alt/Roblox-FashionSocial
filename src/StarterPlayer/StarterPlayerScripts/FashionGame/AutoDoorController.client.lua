@@ -19,8 +19,15 @@ local function scan(door: Door)
 	door.panels = {}
 	for _, p in ipairs(door.model:GetDescendants()) do
 		local slide = p:GetAttribute("Slide")
+		-- SlideZ: studs along the panel's own Z axis (graybox doors: zones can be
+		-- moved and turned, and a world offset would not turn with them)
+		local slideX, slideZ = p:GetAttribute("SlideX"), p:GetAttribute("SlideZ")
 		if p:IsA("BasePart") and typeof(slide) == "Vector3" then
 			table.insert(door.panels, { part = p, closed = p.CFrame, open = p.CFrame + slide })
+		elseif p:IsA("BasePart") and (typeof(slideX) == "number" or typeof(slideZ) == "number") then
+			local x = if typeof(slideX) == "number" then slideX else 0
+			local z = if typeof(slideZ) == "number" then slideZ else 0
+			table.insert(door.panels, { part = p, closed = p.CFrame, open = p.CFrame * CFrame.new(x, 0, z) })
 		end
 	end
 end

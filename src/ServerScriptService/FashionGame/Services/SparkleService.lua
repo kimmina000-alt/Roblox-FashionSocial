@@ -196,23 +196,44 @@ local function ownBottle(player: Player, tablePart: BasePart): BasePart?
 	return nil
 end
 
-local function grantSparkler(player: Player): (boolean, string?)
-	local tablePart = tableFor(player)
-	if not tablePart then return false, "테이블 가까이에서 다시 시도해 주세요." end
-	local bottle = ownBottle(player, tablePart)
-	if bottle then
-		burn(bottle, Vector3.new(bottle.Position.X, topOf(bottle), bottle.Position.Z), SPARKLER_SECONDS)
-	else
-		-- no bottle of theirs: the sparkler stands in the middle of the table
-		burn(tablePart, Vector3.new(tablePart.Position.X, topOf(tablePart), tablePart.Position.Z), SPARKLER_SECONDS)
-	end
-	toast(player, "🎇 테이블 스파클러가 켜졌어요! (30초)")
+-- Sparklers and sparkler bucket sets are items now (user 2026-10-26): bought
+-- from the item seller next to the bartender, held, then a tap on a bottle /
+-- bucket (sparkler) or on a table (bucket set) uses them.
+local function giveItem(player: Player, attribute: string, name: string, tip: string, color: Color3): (boolean, string?)
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if not backpack then return false, "잠시 후 다시 시도하세요." end
+	local tool = Instance.new("Tool")
+	tool.Name = name
+	tool.ToolTip = tip
+	tool.CanBeDropped = false
+	tool:SetAttribute(attribute, true)
+	local handle = Instance.new("Part")
+	handle.Name = "Handle"
+	handle.Size = if attribute == "Sparkler" then Vector3.new(0.12, 1.4, 0.12) else Vector3.new(1, 1, 1)
+	handle.Color = color
+	handle.Material = Enum.Material.Metal
+	handle.CanCollide = false
+	handle.Massless = true
+	handle.Parent = tool
+	tool.Parent = backpack
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then humanoid:EquipTool(tool) end
 	return true, nil
 end
 
-local function grantBucket(player: Player): (boolean, string?)
-	local tablePart = tableFor(player)
-	if not tablePart then return false, "테이블 가까이에서 다시 시도해 주세요." end
+local function grantSparkler(player: Player): (boolean, string?)
+	local ok, message = giveItem(player, "Sparkler", "🎇 스파클러", "들고 테이블 위 병(버킷)을 누르면 불꽃 30초", Color3.fromRGB(200, 200, 205))
+	if ok then toast(player, "🎇 스파클러를 받았어요! 들고 테이블 위 병을 눌러 보세요.") end
+	return ok, message
+end
+
+local function grantBucketItem(player: Player): (boolean, string?)
+	local ok, message = giveItem(player, "SparklerSet", "🍾 스파클러 버킷", "들고 빈 테이블을 누르면 버킷 + 캔 3개 + 불꽃 3개", Color3.fromRGB(200, 200, 208))
+	if ok then toast(player, "🍾 스파클러 버킷을 받았어요! 들고 테이블을 눌러 올려놓으세요.") end
+	return ok, message
+end
+
+local function grantBucket(player: Player, tablePart: BasePart): (boolean, string?)
 	local top = topOf(tablePart)
 	local bucket = Instance.new("Part")
 	bucket.Name = "SparklerBucket"
@@ -252,25 +273,24 @@ local function grantBucket(player: Player): (boolean, string?)
 		can.CanCollide = false
 		can.Parent = bucket
 	end
-	local pour = Instance.new("ProximityPrompt")
-	pour.Name = "PourPrompt"
-	pour.ActionText = "캔 따서 마시기"
-	pour.ObjectText = player.DisplayName .. "님의 스파클러 버킷"
-	pour.MaxActivationDistance = 9
-	pour.RequiresLineOfSight = false
-	pour.Parent = bucket
-	pour.Triggered:Connect(function(who)
-		if not bucket.Parent then return end
-		local key = BUCKET_DRINKS[math.random(1, #BUCKET_DRINKS)]
-		local ok, message = DrinkService.GiveCup(who, key)
-		if not ok then
-			if message then toast(who, message) end
-			return
-		end
-		local left = (bucket:GetAttribute("Servings") or 1) - 1
-		bucket:SetAttribute("Servings", left)
-		if left <= 0 then bucket:Destroy() end
-	end)
+	-- cans left, small (a tap on the bucket gives one: tapBucket)
+	local info = Instance.new("BillboardGui")
+	info.Name = "Info"
+	info.Size = UDim2.fromOffset(46, 20)
+	info.StudsOffset = Vector3.new(0, 1.6, 0)
+	info.MaxDistance = 30
+	info.LightInfluence = 0
+	info.Parent = bucket
+	local label = Instance.new("TextLabel")
+	label.Name = "Text"
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundTransparency = 0.35
+	label.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.TextScaled = true
+	label.Font = Enum.Font.GothamBold
+	label.Text = string.format("%d/%d", BUCKET_CUPS, BUCKET_CUPS)
+	label.Parent = info
 	bucket.Parent = tablePart
 	-- 3 sparklers in the bucket, one after another
 	task.spawn(function()
@@ -284,8 +304,65 @@ local function grantBucket(player: Player): (boolean, string?)
 	task.delay(BUCKET_LIFETIME, function()
 		if bucket.Parent then bucket:Destroy() end
 	end)
-	toast(player, "🍾 스파클러 버킷이 나왔어요! 모두 캔을 따서 마실 수 있어요.")
+	toast(player, "🍾 스파클러 버킷이 나왔어요! 버킷을 누르면 누구나 캔을 마실 수 있어요.")
 	return true, nil
+end
+
+local function tapBucket(player: Player, bucket: BasePart): (boolean, string?)
+	local key = BUCKET_DRINKS[math.random(1, #BUCKET_DRINKS)]
+	local ok, message = DrinkService.GiveCup(player, key)
+	if not ok then return false, message end
+	local left = (bucket:GetAttribute("Servings") or 1) - 1
+	bucket:SetAttribute("Servings", left)
+	local label = bucket:FindFirstChild("Info") and (bucket :: any).Info:FindFirstChild("Text")
+	if label then label.Text = string.format("%d/%d", left, BUCKET_CUPS) end
+	if left <= 0 then bucket:Destroy() end
+	return true, nil
+end
+
+local function holding(player: Player, attribute: string): Tool?
+	local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+	return if tool and tool:GetAttribute(attribute) then tool else nil
+end
+
+-- A tap on a table or on what stands on it. Returns handled = false when
+-- DrinkService should take it (bottles, buckets without a sparkler in hand).
+local function tap(player: Player, target: any): (boolean, string?, boolean)
+	if typeof(target) ~= "Instance" or not target:IsDescendantOf(workspace) then return false, nil, false end
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then return false, nil, true end
+	local placed = if target.Name == "PlacedBottle" or target.Name == "SparklerBucket" then target
+		else (target:FindFirstAncestor("PlacedBottle") or target:FindFirstAncestor("SparklerBucket"))
+	local sparkler = holding(player, "Sparkler")
+	if sparkler then
+		if not placed or not placed:IsA("BasePart") then
+			return false, "테이블 위 병이나 버킷을 눌러 주세요.", true
+		end
+		if (placed.Position - root.Position).Magnitude > 12 then return false, "조금 더 가까이 가 주세요.", true end
+		if placed:FindFirstChild("SparklerStick", true) then return false, "벌써 불꽃이 타고 있어요.", true end
+		sparkler:Destroy()
+		burn(placed, Vector3.new(placed.Position.X, topOf(placed), placed.Position.Z), SPARKLER_SECONDS)
+		return true, "🎇 불꽃이 켜졌어요! (30초)", true
+	end
+	local set = holding(player, "SparklerSet")
+	if set then
+		local tablePart = if CollectionService:HasTag(target, "DrinkTable") then target else (placed and placed.Parent)
+		if not tablePart or not tablePart:IsA("BasePart") or not CollectionService:HasTag(tablePart, "DrinkTable") then
+			return false, "테이블을 눌러 주세요.", true
+		end
+		if (tablePart.Position - root.Position).Magnitude > math.max(tablePart.Size.X, tablePart.Size.Z) / 2 + 14 then
+			return false, "테이블 가까이 가서 눌러 주세요.", true
+		end
+		if DrinkService.HasBucket(tablePart) then return false, "버킷이 놓인 테이블에는 더 올릴 수 없어요.", true end
+		set:Destroy()
+		return grantBucket(player, tablePart), nil, true
+	end
+	if placed and placed.Name == "SparklerBucket" and placed:IsA("BasePart") then
+		if (placed.Position - root.Position).Magnitude > 12 then return false, "조금 더 가까이 가 주세요.", true end
+		local ok, message = tapBucket(player, placed)
+		return ok, message, true
+	end
+	return false, nil, false
 end
 
 --------------------------------------------------
@@ -384,6 +461,8 @@ function SparkleService.Handle(player: Player, action: string, payload: any): (b
 		end
 		pendingTable[player.UserId] = tablePart
 		return true, nil, true
+	elseif action == "Tap" then
+		return tap(player, payload)
 	end
 	return false, nil, false
 end
@@ -391,8 +470,8 @@ end
 function SparkleService.Start()
 	notify = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubNotify") :: RemoteEvent
 	MonetizationService.RegisterProduct("Sparkler1", grantSparkler)
-	MonetizationService.RegisterProduct("SparklerBucket", grantBucket)
-	MonetizationService.RegisterProduct("SparklerBucket_VIP", grantBucket)
+	MonetizationService.RegisterProduct("SparklerBucket", grantBucketItem)
+	MonetizationService.RegisterProduct("SparklerBucket_VIP", grantBucketItem)
 	MonetizationService.RegisterProduct("ColdSpark", grantColdSpark)
 	MonetizationService.RegisterProduct("ColdSpark_VIP", grantColdSpark)
 	for key, amount in pairs(SUPPORT) do
@@ -401,21 +480,6 @@ function SparkleService.Start()
 			return grantSupport(player, amount)
 		end)
 	end
-	-- the 불꽃 prompt on every drink table
-	local function addPrompt(tablePart: Instance)
-		if not tablePart:IsA("BasePart") or tablePart:FindFirstChild("SparklePrompt") then return end
-		local prompt = Instance.new("ProximityPrompt")
-		prompt.Name = "SparklePrompt"
-		prompt.ActionText = "불꽃"
-		prompt.ObjectText = "테이블"
-		prompt.KeyboardKeyCode = Enum.KeyCode.G
-		prompt.UIOffset = Vector2.new(0, -70)
-		prompt.MaxActivationDistance = math.max(tablePart.Size.X, tablePart.Size.Z) / 2 + 8
-		prompt.RequiresLineOfSight = false
-		prompt.Parent = tablePart
-	end
-	for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do addPrompt(t) end
-	CollectionService:GetInstanceAddedSignal("DrinkTable"):Connect(addPrompt)
 	Players.PlayerRemoving:Connect(function(player)
 		pendingTable[player.UserId] = nil
 		pendingMessage[player.UserId] = nil

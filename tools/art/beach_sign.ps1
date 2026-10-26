@@ -19,41 +19,70 @@ $g.Clear($BROWN)
 # the white map panel
 $g.FillRectangle((B $CREAM),40,30,$W-80,680)
 Txt $g '2026년 오후 해변 종합안내도' (F 52) (C 40 30 30) 40 46 ($W-80) 70 'Center'
-# map: sea on the left (west), sand, promenade, streets on the right
+# map (user 2026-10-26: the real layout, simplified): drawn from the world
+# coordinates like the Studio top view (north = -Z up, the sea on the left);
+# X is squeezed less than Z so the beach strip stays readable
 $mx=80; $my=130; $mw=$W-160; $mh=560
-$g.FillRectangle((B (C 236 236 232)),$mx,$my,$mw,$mh)
-for($i=0;$i -lt 7;$i++){ $g.DrawLine((P (C 200 200 196) 6),$mx+700+$i*110,$my,$mx+700+$i*110,$my+$mh) }
-for($i=0;$i -lt 5;$i++){ $g.DrawLine((P (C 200 200 196) 6),$mx+640,$my+$i*120+40,$mx+$mw,$my+$i*120+40) }
+$WX0=-330; $WX1=140; $WZ0=-260; $WZ1=170   # (PowerShell names ignore case: not $X0, Rect has $x0)
+function MX($x){ $mx+($x-$WX0)*$mw/($WX1-$WX0) }
+function MZ($z){ $my+($z-$WZ0)*$mh/($WZ1-$WZ0) }
+function Rect($c,$x0,$z0,$x1,$z1){ $a=MX $x0; $b=MZ $z0; $g.FillRectangle((B $c),$a,$b,(MX $x1)-$a,(MZ $z1)-$b) }
+$g.SetClip((New-Object System.Drawing.RectangleF $mx,$my,$mw,$mh))
+$g.FillRectangle((B (C 236 236 232)),$mx,$my,$mw,$mh) # blocks
+$ROAD=C 196 196 192
+Rect $ROAD -182 $WZ0 -158 $WZ1   # sea road
+Rect $ROAD -158 -24 -24 24     # west road
+Rect $ROAD -24 $WZ0 24 $WZ1      # north-south road
+Rect $ROAD 24 -24 $WX1 24       # east road
+Rect (C 168 210 150) -150 -229 -47 -47   # pocket park
+Rect (C 210 205 195) -210 $WZ0 -48 -229   # amusement park (closed)
+Rect (C 215 200 215) 41 $WZ0 $WX1 -100     # club
+Rect (C 220 215 205) 44 -99 115 -43      # 오후네컷
+Rect (C 215 220 230) -130 62 -52 104     # OH24
+# sea with a soft shoreline, sand, steps and promenade
+$shore=MX -266
 $sea=New-Object System.Drawing.Drawing2D.GraphicsPath
-$sea.AddBezier($mx+520,$my,$mx+420,$my+200,$mx+420,$my+360,$mx+520,$my+$mh)
-$sea.AddLine($mx+520,$my+$mh,$mx,$my+$mh); $sea.AddLine($mx,$my+$mh,$mx,$my); $sea.CloseFigure()
-$sand=New-Object System.Drawing.Drawing2D.GraphicsPath
-$sand.AddBezier($mx+520,$my,$mx+420,$my+200,$mx+420,$my+360,$mx+520,$my+$mh)
-$sand.AddLine($mx+520,$my+$mh,$mx+640,$my+$mh); $sand.AddLine($mx+640,$my+$mh,$mx+640,$my); $sand.CloseFigure()
-$g.FillPath((B (C 245 220 160)),$sand)
-$grad=New-Object System.Drawing.Drawing2D.LinearGradientBrush((New-Object System.Drawing.Point $mx,0),(New-Object System.Drawing.Point ($mx+520),0),(C 30 90 200),(C 80 170 235))
+$sea.AddBezier($shore,$my,$shore-30,$my+180,$shore+20,$my+380,$shore-10,$my+$mh)
+$sea.AddLine($shore-10,$my+$mh,$mx,$my+$mh); $sea.AddLine($mx,$my+$mh,$mx,$my); $sea.CloseFigure()
+Rect (C 245 220 160) -266 $WZ0 -200 $WZ1
+$grad=New-Object System.Drawing.Drawing2D.LinearGradientBrush((New-Object System.Drawing.Point $mx,0),(New-Object System.Drawing.Point ([int]$shore),0),(C 30 90 200),(C 80 170 235))
 $g.FillPath($grad,$sea)
-$g.FillRectangle((B (C 190 120 100)),$mx+640,$my,26,$mh) # promenade
+Rect (C 190 120 100) -200 $WZ0 -182 $WZ1   # steps + promenade
+Rect (C 244 242 236) -298 -4 -206 106    # beach cafe (over the water on piles)
+$g.ResetClip()
 # swimming zone buoys
-for($i=0;$i -lt 9;$i++){ $y=$my+40+$i*58; $x=$mx+330+[math]::Sin($i/2.0)*30; $g.FillEllipse((B (C 255 140 40)),$x,$y,22,22) }
-Txt $g '수영 구역' (F 30) $WHITE ($mx+150) ($my+250) 200 50
+for($i=0;$i -lt 9;$i++){ $y=$my+30+$i*62; $x=$mx+40+[math]::Sin($i/2.0)*10; $g.FillEllipse((B (C 255 140 40)),$x,$y,20,20) }
+Txt $g '수영 구역' (F 26) $WHITE ($mx+70) ($my+(MZ -120)-$my) 150 40
+# street names
+Txt $g '해변로' (F 22) (C 90 90 90) ((MX -182)-6) ((MZ 120)) 90 30
 # places (dot + label box)
-function Spot($g,$x,$y,$c,$label){ $g.FillEllipse((B $c),$x-14,$y-14,28,28); $g.DrawEllipse((P $WHITE 4),$x-14,$y-14,28,28)
-  $f=F 26; $sz=$g.MeasureString($label,$f); $g.FillRectangle((B (C 30 40 80)),$x+22,$y-20,$sz.Width+16,40); Txt $g $label $f $WHITE ($x+30) ($y-18) ($sz.Width+20) 40 }
-Spot $g ($mx+560) ($my+80)  (C 230 60 60) '해변 카페'
-Spot $g ($mx+560) ($my+190) (C 60 170 90) '튜브 대여'
-Spot $g ($mx+560) ($my+300) (C 240 180 40) '아이스크림 트럭'
-Spot $g ($mx+560) ($my+410) (C 60 130 220) '발 씻는 곳'
-Spot $g ($mx+700) ($my+500) (C 140 80 200) '지하철 4번 출구'
-Spot $g ($mx+820) ($my+90)  (C 230 120 160) '오후네컷'
+function Spot($x,$z,$c,$label,$left=$false){ $px=MX $x; $py=MZ $z
+  $g.FillEllipse((B $c),$px-13,$py-13,26,26); $g.DrawEllipse((P $WHITE 4),$px-13,$py-13,26,26)
+  $f=F 24; $sz=$g.MeasureString($label,$f); $bx=if($left){$px-22-$sz.Width-16}else{$px+20}
+  $g.FillRectangle((B (C 30 40 80)),$bx,$py-19,$sz.Width+16,38); Txt $g $label $f $WHITE ($bx+8) ($py-17) ($sz.Width+20) 38 }
+Spot -250 50 (C 230 60 60) '해변 카페'
+Spot -292 -70 (C 60 170 90) '튜브'
+Spot -214 -19 (C 240 180 40) '아이스크림 트럭'
+Spot -199 -190 (C 60 130 220) '발 씻는 곳'
+Spot -48 -51 (C 140 80 200) '지하철 3번 출구'
+Spot -48 44 (C 140 80 200) '지하철 4번 출구'
+Spot 80 -70 (C 230 120 160) '오후네컷'
+Spot -91 83 (C 120 120 130) 'OH24 편의점'
+Spot -98 -140 (C 70 150 80) '포켓 공원'
+Spot -129 -245 (C 150 140 120) '놀이공원 (공사 중)'
+Spot 90 -200 (C 160 60 170) '클럽'
+# you are here (the board itself)
+$hx=MX -212; $hz=MZ -152
+$g.FillEllipse((B (C 220 30 30)),$hx-17,$hz-17,34,34); $g.DrawEllipse((P $WHITE 5),$hx-17,$hz-17,34,34)
+$g.FillRectangle((B (C 220 30 30)),$hx-150,$hz+20,130,38); Txt $g '현재 위치' (F 24) $WHITE ($hx-146) ($hz+22) 130 38
 # legend
-$lx=$mx+1120; $ly=$my+300
-$g.FillRectangle((B $WHITE),$lx,$ly,300,230); $g.DrawRectangle((P (C 120 120 120) 3),$lx,$ly,300,230)
-Txt $g '범   례' (F 28) (C 40 30 30) $lx ($ly+8) 300 40 'Center'
-$items=@(@((C 230 60 60),'카페'),@((C 60 170 90),'튜브 대여소'),@((C 60 130 220),'샤워·발 씻는 곳'),@((C 255 140 40),'안전 부표'))
-for($i=0;$i -lt 4;$i++){ $g.FillEllipse((B $items[$i][0]),$lx+24,$ly+60+$i*40,22,22); Txt $g $items[$i][1] (F 24 $false) (C 40 30 30) ($lx+56) ($ly+54+$i*40) 240 36 }
+$lx=MX 50; $ly=$my+$mh-200
+$g.FillRectangle((B $WHITE),$lx,$ly,290,190); $g.DrawRectangle((P (C 120 120 120) 3),$lx,$ly,290,190)
+Txt $g '범   례' (F 26) (C 40 30 30) $lx ($ly+6) 290 36 'Center'
+$items=@(@((C 230 60 60),'카페'),@((C 60 130 220),'샤워·발 씻는 곳'),@((C 140 80 200),'지하철 출구'),@((C 255 140 40),'안전 부표'))
+for($i=0;$i -lt 4;$i++){ $g.FillEllipse((B $items[$i][0]),$lx+22,$ly+50+$i*34,20,20); Txt $g $items[$i][1] (F 22 $false) (C 40 30 30) ($lx+52) ($ly+45+$i*34) 230 32 }
 # compass
-$g.DrawLine((P (C 60 60 60) 5),$mx+$mw-60,$my+110,$mx+$mw-60,$my+30); Txt $g 'N' (F 30) (C 60 60 60) ($mx+$mw-74) ($my-6) 40 40
+$g.DrawLine((P (C 60 60 60) 5),$mx+$mw-40,$my+100,$mx+$mw-40,$my+30); Txt $g 'N' (F 30) (C 60 60 60) ($mx+$mw-54) ($my-6) 40 40
 # ----- lower part: three columns on brown
 Txt $g "개장기간`n2026. 7. 1. ~ 8. 31.`n`n개장시간`n10:00 ~ 19:00`n*8월 이후 해가 지는 시간에 따라 운영" (F 30) $CREAM 60 740 460 400
 Txt $g '피서객 준수사항' (F 34) $CREAM 560 735 520 50

@@ -209,6 +209,18 @@ box(z,"Wall_S_L",-80,F,-151,-8,RT,-149,WALL_C,WALLO)
 box(z,"Wall_S_R",8,F,-151,80,RT,-149,WALL_C,WALLO)
 box(z,"Wall_S_Top",-8,12,-151,8,RT,-149,WALL_C,WALLO)
 box(z,"Wall_S_Below",-8,F,-151,8,0,-149,WALL_C,WALLO)
+-- ENTRANCE DOOR (user 2026-10-26): two black leaves that slide apart into the
+-- wall when someone comes near and close again behind them (AutoDoorController;
+-- SlideX = along the part's own X, so it turns with the zone)
+do local door=Instance.new("Model") door.Name="AutoDoor" door:SetAttribute("Range",10) door:SetAttribute("Panels",4)
+ local BLK=Color3.fromRGB(14,14,16) local STL=Color3.fromRGB(190,190,196)
+ for _,lf in ipairs({{-8,0,-1},{0,8,1}}) do
+  box(door,"DoorPanel",lf[1],0,-150.2,lf[2],12,-149.8,BLK,{mat=Enum.Material.SmoothPlastic}):SetAttribute("SlideX",lf[3]*7.9)
+  local hx=if lf[3]<0 then lf[2]-0.8 else lf[1]+0.6
+  box(door,"DoorHandle",hx,4,-150.45,hx+0.2,8,-149.55,STL,{mat=Enum.Material.Metal,nocol=true}):SetAttribute("SlideX",lf[3]*7.9)
+ end
+ door.PrimaryPart=box(door,"DoorCentre",-0.1,3.9,-150.1,0.1,4.1,-149.9,BLK,{t=1,ghost=true})
+ door.Parent=z CS:AddTag(door,"AutoDoor") end
 box(z,"Ceiling",-80,TOP,NZ,80,TOP+0.5,-150,navy)
 -- foyer at street level and the stairs down to the west
 box(z,"Foyer",-24,-1,-166.5,12,0,-151,MARBLE_C,MARBLE)
@@ -260,7 +272,7 @@ do local GRAFFITI="rbxassetid://93792464281347"
 -- from the street: user 2026-10-25)
 do local p=box(z,"GraffitiSign",-11,3,-166.5,-2.5,7.25,-166.45,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
   -- ("HERE" instead of "OHU CLUB", user 2026-10-25; docs/04_ART/textures/here_arrow.png)
-  local d=Instance.new("Decal") d.Texture="rbxassetid://101741924682334" d.Face=Enum.NormalId.Back d.Parent=p end
+  local d=Instance.new("Decal") d.Texture="rbxassetid://101741924682334" d.Face=Enum.NormalId.Back d.Transparency=0.45 d.Parent=p end -- (paler, user 2026-10-26)
  graffiti(-80,F,-151.05,-24,12,-151,Enum.NormalId.Front)
  graffiti(-24,0,-151.05,-8,12,-151,Enum.NormalId.Front)
  -- (none on the street wall by the lift corridor, user 2026-10-25)
@@ -559,10 +571,11 @@ local function pole(px,pz,ledPole)
   P(z,"PoleRamp",Vector3.new(1.75,BH,2.5),CFrame.lookAt(c,c+out),W,{class="WedgePart",t=1}) end
  -- (no LED line on the stage, user 2026-10-25)
  local PL=TOP-(F+BH) -- all the way up to the 2F ceiling (user 2026-10-25)
- local p=cyl(z,"DancePole",0.7,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(215,215,222),{mat=Enum.Material.Metal})
- p.Reflectance=0.3
+ -- (black pole, user 2026-10-26)
+ local p=cyl(z,"DancePole",0.7,PL,Vector3.new(px,F+BH+PL/2,pz),Color3.fromRGB(18,18,20),{mat=Enum.Material.Metal})
+ p.Reflectance=0.15
  -- a round mount plate where it meets the ceiling
- cyl(z,"PoleMount",1.8,0.4,Vector3.new(px,TOP-0.2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal})
+ cyl(z,"PoleMount",1.8,0.4,Vector3.new(px,TOP-0.2,pz),Color3.fromRGB(18,18,20),{mat=Enum.Material.Metal})
  -- (the LED pole was tried; all poles metal, user 2026-10-25)
  -- the prompt at chest height on the base (a prompt high on the pole did not show)
  local at=Instance.new("Attachment") at.Name="PoleGrip" at.Parent=b at.WorldPosition=Vector3.new(px,F+BH+3,pz)
@@ -1104,25 +1117,48 @@ local z=zone("04_Beach_Aquarium")
   -- mullions about every 12, spaced evenly; one square post at each glass
   -- corner, flush with the floor edge (user 2026-10-24: two posts overlapped there)
   local function evenly(a,b,step) local n=math.max(1,math.floor((b-a)/step+0.5)) local r={} for i=0,n do table.insert(r,a+(b-a)*i/n) end return r end
+  -- (thinner frames, user 2026-10-26: corner posts 0.6 → 0.4, mullions 0.4 → 0.16)
   for _,mz in ipairs(evenly(z0,z1,12)) do
-   if mz==z0 or mz==z1 then local zz=mz==z0 and z0 or z1-0.6 box(cm,"Mullion",x0,FY,zz,x0+0.6,FY+H,zz+0.6,frameC)
-   else box(cm,"Mullion",x0,FY,mz-0.2,x0+0.5,FY+H,mz+0.2,frameC) end end
+   if mz==z0 or mz==z1 then local zz=mz==z0 and z0 or z1-0.4 box(cm,"Mullion",x0,FY,zz,x0+0.4,FY+H,zz+0.4,frameC)
+   else box(cm,"Mullion",x0,FY,mz-0.08,x0+0.45,FY+H,mz+0.08,frameC) end end
   -- (user 2026-10-25) on the south side the stone wall comes one bay further
   -- west (to the next mullion), so the stairs inside are not seen through the glass
   local SOUTH_WALL_X=evenly(x0,mx,12)[#evenly(x0,mx,12)-1]
   for _,wz in ipairs({{z0,z0+0.4},{z1-0.4,z1}}) do
    local gx=wz[1]==z0 and mx or SOUTH_WALL_X
    box(cm,"Glass_Side",x0,FY,wz[1],gx,FY+H,wz[2],glass,{t=0.82,mat=Enum.Material.Glass})
-   for _,mxx in ipairs(evenly(x0,mx,12)) do if mxx~=x0 and mxx<=gx then box(cm,"Mullion",mxx-0.2,FY,wz[1],mxx+0.2,FY+H,wz[2],frameC) end end
+   for _,mxx in ipairs(evenly(x0,mx,12)) do if mxx~=x0 and mxx<=gx then box(cm,"Mullion",mxx-0.08,FY,wz[1]-0.02,mxx+0.08,FY+H,wz[2]+0.02,frameC) end end
    box(cm,"Wall_Side",gx,FY,wz[1],x1,FY+H,wz[2],STONE,STONEO)
   end
-  box(cm,"Transom",x0-0.1,FY+H-1,z0,x0+0.5,FY+H,z1,frameC)
+  box(cm,"Transom",x0-0.05,FY+H-0.4,z0,x0+0.45,FY+H,z1,frameC)
   -- the south part of the street wall has a walk-up coffee window (z 32..48, user photos 2026-10-24)
   local WZ0,WZ1,WY0,WY1=32,48,FY+3.6,FY+10
   -- (user 2026-10-25) the walk-up window is closed again: one plain wall south of the door
   box(cm,"Wall_E_S",x1-0.6,FY,z0,x1,FY+H,56,STONE,STONEO)
   box(cm,"Wall_E_N",x1-0.6,FY,66,x1,FY+H,z1,STONE,STONEO)
   box(cm,"Wall_E_Top",x1-0.6,FY+10,56,x1,FY+H,66,STONE,STONEO)
+  -- AUTOMATIC DOOR in the street-side doorway (user 2026-10-26): two glass
+  -- leaves in thin dark frames that slide into the wall (AutoDoorController),
+  -- a PUSH / 눌러주세요 button beside it inside and out (looks only, like 오후네컷)
+  do local door=Instance.new("Model") door.Name="AutoDoor" door:SetAttribute("Range",9) door:SetAttribute("Panels",8)
+   local DG=Color3.fromRGB(205,222,232) local DF=Color3.fromRGB(46,46,50)
+   for _,lf in ipairs({{56,61,-5},{61,66,5}}) do
+    local slide=lf[3]*0.98 -- (SlideZ: along the part's own Z, so it survives zone moves)
+    box(door,"DoorPanel",x1-0.45,FY,lf[1],x1-0.15,FY+10,lf[2],DG,{t=0.45,mat=Enum.Material.Glass}):SetAttribute("SlideZ",slide)
+    for _,fz in ipairs({lf[1],lf[2]-0.2}) do box(door,"DoorFrame",x1-0.5,FY,fz,x1-0.1,FY+10,fz+0.2,DF,{nocol=true}):SetAttribute("SlideZ",slide) end
+    box(door,"DoorFrame",x1-0.5,FY+9.8,lf[1],x1-0.1,FY+10,lf[2],DF,{nocol=true}):SetAttribute("SlideZ",slide)
+   end
+   -- the pivot follows an invisible centre part (a zone move carries it along)
+   door.PrimaryPart=box(door,"DoorCentre",x1-0.4,FY+3.9,60.9,x1-0.2,FY+4.1,61.1,DG,{t=1,ghost=true})
+   door.Parent=cm CS:AddTag(door,"AutoDoor")
+   for _,side in ipairs({{x1+0.05,Enum.NormalId.Right},{x1-0.75,Enum.NormalId.Left}}) do
+    local btn=box(cm,"PushButton",side[1]-0.05,FY+3.6,54.6,side[1]+0.05,FY+5.1,55.0,Color3.fromRGB(236,238,240),{nocol=true,mat=Enum.Material.Metal})
+    local g=Instance.new("SurfaceGui") g.Face=side[2] g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=160 g.LightInfluence=0.6 g.Parent=btn
+    local top=Instance.new("Frame") top.Size=UDim2.fromScale(1,0.24) top.BackgroundColor3=Color3.fromRGB(22,22,24) top.BorderSizePixel=0 top.Parent=g
+    local push=Instance.new("TextLabel") push.Size=UDim2.fromScale(0.9,0.5) push.Position=UDim2.fromScale(0.05,0.4) push.BackgroundTransparency=1 push.Font=Enum.Font.Merriweather push.TextScaled=true push.TextColor3=Color3.new(1,1,1) push.Text="PUSH" push.Parent=top
+    local ko=Instance.new("TextLabel") ko.Size=UDim2.fromScale(0.7,0.68) ko.Position=UDim2.fromScale(0.15,0.28) ko.BackgroundTransparency=1 ko.Font=Enum.Font.GothamMedium ko.TextScaled=true ko.TextColor3=Color3.fromRGB(30,30,32) ko.Text="눌\n러\n주\n세\n요" ko.Parent=g
+   end
+  end
   box(cm,"Roof",x0-2,FY+H,z0-2,x1+2,FY+H+1.2,z1+2,STONE,STONEO)
   -- the stone walls stay plain cream inside (a thin lining)
   local LIN=Color3.fromRGB(244,243,240)
@@ -1399,10 +1435,16 @@ local z=zone("04_Beach_Aquarium")
   -- eastwards to the stairs, each with a row of four bench + table sets facing
   -- the sea (west); 1 stud a step so people walk up (v3: moved west, down to
   -- the north glass, a fourth row)
-  local LX0,LW,LZ0,LZ1=-269,6.75,71,z1-0.4
+  -- (user 2026-10-26: higher tiers, 2 studs each, like the reference photo;
+  -- a 1-stud half step in each aisle so people still walk up)
+  local LX0,LW,LZ0,LZ1=-269,6.75,71,z1-0.4 local TIER=2
+  local AISLES={{LZ0,72.6},{77.8,80.8},{86,89.9},{95.1,98.8},{103.9,LZ1}}
   for k=1,4 do
-   local xa=LX0+(k-1)*LW local top=FY+k
+   local xa=LX0+(k-1)*LW local top=FY+k*TIER
    box(cm,"LoungeStep",xa,FY,LZ0,xa+LW,top,LZ1,woodC,{mat=Enum.Material.WoodPlanks})
+   for _,a in ipairs(AISLES) do
+    if not (k==1 and a[1]>=86) then -- (the planter stands in front of the first tier there)
+     box(cm,"LoungeHalfStep",xa-1.2,top-TIER,a[1],xa,top-1,a[2],woodC,{mat=Enum.Material.WoodPlanks}) end end
    for _,rz in ipairs({75.2,83.4,92.5,101.4}) do -- (aisles between the rows lead up the steps)
     -- a round table at the step's front, a white bench behind it facing west
     cyl(cm,"TableLeg",0.4,2.4,Vector3.new(xa+2,top+1.2,rz),dark)

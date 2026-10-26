@@ -549,7 +549,9 @@ function addWash(instance: Instance)
 	light.Face = Enum.NormalId.Right
 	light.Angle = 42 -- (bigger pools, user 2026-10-25)
 	light.Range = 90
-	light.Brightness = 14 -- (the floor is near black: strong pools)
+	-- (was 14 for strong pools on the black floor, but anyone in the beam turned
+	-- glowing white: 5, user 2026-10-26)
+	light.Brightness = 5
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = lens
