@@ -2160,3 +2160,13 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | ![](images/2026-10-27/oh24_h21.jpg) | ![](images/2026-10-27/gukbap_h21.jpg) | ![](images/2026-10-27/fourcuts_h21.jpg) |
 
 전체 지도: ![](images/2026-10-27/full_map.png)
+
+### 문 높이·카페 층고·지하철 입구 확인 (D-348)
+
+- 키 11.1(보통의 약 2배) 캐릭터로 편의점·국밥집·오후네컷·해변 카페 문 통과, 지하철 1번 입구 계단 내려갔다 올라오기 통과.
+- 카페 2층 계단 걸어서 올라가기 통과.
+- Studio가 한 번에 빌드하다 멈춰서 반쯤 지어진 채 저장됐지만, 빌드를 단계별로 다시 돌려 복구.
+
+| 지하철 입구 | 해변 카페 |
+|---|---|
+| ![](images/2026-10-27/subway_tall_avatar.jpg) | ![](images/2026-10-27/cafe_taller.jpg) |
