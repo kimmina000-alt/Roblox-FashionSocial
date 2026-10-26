@@ -469,7 +469,8 @@ local hiddenGuis: {ScreenGui} = {}
 shoot:GetPropertyChangedSignal("Visible"):Connect(function()
 	if shoot.Visible then
 		for _, other in ipairs(playerGui:GetChildren()) do
-			if other:IsA("ScreenGui") and other ~= gui and other.Enabled and other.Name ~= "PhotoRenderHolder" then
+			-- (the phone move stick stays: players walk into place, user 2026-10-26)
+			if other:IsA("ScreenGui") and other ~= gui and other.Enabled and other.Name ~= "PhotoRenderHolder" and other.Name ~= "TouchGui" then
 				other.Enabled = false
 				table.insert(hiddenGuis, other)
 			end
@@ -491,7 +492,9 @@ end)
 
 local masks: {Frame} = {}
 for i = 1, 4 do
-	masks[i] = create("Frame", { Name = "Mask" .. i, BackgroundColor3 = Color3.fromRGB(0, 0, 0), BorderSizePixel = 0, Active = true }, shoot)
+	-- (no black background any more, user 2026-10-26: the booth shows around
+	-- the window; the masks stay as empty layout frames that let touches through)
+	masks[i] = create("Frame", { Name = "Mask" .. i, BackgroundTransparency = 1, BorderSizePixel = 0, Active = false }, shoot)
 end
 local windowFrame = create("Frame", {
 	Name = "Window",
@@ -529,23 +532,25 @@ local infoBar = text({
 	ZIndex = 3,
 }, shoot)
 corner(infoBar, 17)
+-- the tip sits inside the bottom of the photo window (user mock-up 2026-10-26)
 local tip = text({
 	Name = "Tip",
-	Size = UDim2.fromOffset(180, 40),
+	Size = UDim2.fromOffset(180, 20),
 	Text = "팁: 캐릭터를 움직여 자리를 잡을 수 있어요",
-	TextColor3 = COLORS.sub,
+	TextColor3 = Color3.new(1, 1, 1),
+	TextStrokeTransparency = 0.4,
 	TextSize = 12,
 	TextWrapped = true,
-	TextXAlignment = Enum.TextXAlignment.Left,
 	ZIndex = 3,
 }, shoot)
+-- leaving is an X next to the shot counter at the top (user mock-up 2026-10-26)
 local shootLeave = button({
 	Name = "Leave",
-	Size = UDim2.fromOffset(84, 32),
-	Text = "나가기",
-	TextSize = 14,
+	Size = UDim2.fromOffset(34, 34),
+	Text = "X",
+	TextSize = 18,
 	ZIndex = 3,
-}, shoot, 16)
+}, shoot, 17)
 
 local function sidePanel(name: string, title: string): (Frame, ScrollingFrame)
 	local frame = create("Frame", {
@@ -672,19 +677,18 @@ local function layoutShoot()
 	windowFrame.Position = UDim2.fromOffset(x, y)
 	windowFrame.Size = UDim2.fromOffset(w, h)
 	infoBar.Position = UDim2.fromOffset(vp.X / 2, top)
-	local panelH = math.min(h, 330)
-	-- phones: the pose list stays in the top half (it scrolls) so the move
-	-- stick in the bottom-left corner shows (user phone test 2026-10-26)
-	local touchGui = playerGui:FindFirstChild("TouchGui")
-	if touchGui and touchGui:IsA("ScreenGui") and touchGui.Enabled then panelH = math.max(110, math.min(panelH, vp.Y * 0.55 - y)) end
+	-- pose and prop panels are short separate popups at the top beside the
+	-- window (they scroll), so the bottom corners stay free for the move stick
+	-- and the jump button (user mock-up 2026-10-26)
+	local panelH = math.min(h, 34 * 3 + 4 * 2 + 40)
 	posePanel.Position = UDim2.fromOffset(x - panelW - 10, y)
 	posePanel.Size = UDim2.fromOffset(panelW, panelH)
 	propPanel.Position = UDim2.fromOffset(x + w + 10, y)
-	propPanel.Size = UDim2.fromOffset(panelW, math.min(panelH, 34 * 3 + 50))
-	tip.Position = UDim2.fromOffset(x + w + 10, y + math.min(panelH, 34 * 3 + 50) + 6)
-	tip.Size = UDim2.fromOffset(panelW, 40)
-	shootLeave.Position = UDim2.fromOffset(x + w + 10, y + h - 32)
-	shootLeave.Size = UDim2.fromOffset(math.min(panelW, 100), 32)
+	propPanel.Size = UDim2.fromOffset(panelW, panelH)
+	tip.Position = UDim2.fromOffset(x, y + h - 24)
+	tip.Size = UDim2.fromOffset(w, 20)
+	shootLeave.Position = UDim2.fromOffset(vp.X / 2 + infoBar.Size.X.Offset / 2 + 10, top)
+	shootLeave.Size = UDim2.fromOffset(34, 34)
 end
 
 local function flashShot()

@@ -1964,3 +1964,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 컷을 찍는 순간마다 실제 장면을 캡처해 두고, 결과 화면의 '📸 캡처 저장'을 누르면 고른 컷들을 한꺼번에 갤러리에 저장해요(검은 사진 문제 해결 방법).
 
 ![](images/2026-10-26/booth_shoot_ui.jpg)
+
+### 오후네컷 촬영 화면 v2 (D-328)
+
+- 이동 버튼이 안 보이던 원인: 촬영 화면이 다른 화면을 모두 끄면서 이동 버튼 화면도 같이 껐음. 이제 이동 버튼은 그대로 둬요.
+- 검은 배경 삭제, 나가기는 위쪽 촬영 표시 옆 X 버튼, 포즈·소품 창은 위쪽 양옆의 작은 창, 팁은 사진 틀 안 아래쪽. 아래 양쪽 모서리가 비어서 이동·점프 버튼이 보여요.
+
+| 사용자 시안 | 적용 |
+|---|---|
+| ![](../04_ART/references/booth_shoot_mockup_user.webp) | ![](images/2026-10-26/booth_shoot_v2.jpg) |
