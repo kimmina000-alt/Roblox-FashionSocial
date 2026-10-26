@@ -117,8 +117,11 @@ MonetizationConfig.Products = {
 	-- the cakes and the 수육 plate go on a table and everyone takes a piece
 	Cafe_Parfait = { sku = "CAFE-DP-PARFAIT", id = 0, name = "딸기 파르페", price = 15, status = "planned",
 		description = "카페의 큰 딸기 파르페 한 잔." },
-	Cafe_CakeStrawberry = { sku = "CAFE-DP-CAKE-STRAWBERRY", id = 0, name = "딸기생크림 케이크", price = 25, status = "planned",
+	-- (also 💰100 in coins, like the club's tier-2 bottles)
+	Cafe_CakeStrawberry = { sku = "CAFE-DP-CAKE-STRAWBERRY", id = 0, name = "딸기생크림 케이크", price = 10, status = "planned",
 		description = "테이블에 놓는 홀케이크. 6조각을 모두 함께 나눠 먹어요." },
+	Cafe_CakeVintage = { sku = "CAFE-DP-CAKE-VINTAGE", id = 0, name = "빈티지 레터링 케이크", price = 25, status = "planned",
+		description = "체리와 크림, 레터링이 올라간 빈티지 홀케이크(색은 랜덤 4가지). 6조각을 모두 함께 나눠 먹어요." },
 	Cafe_CakeTiramisu = { sku = "CAFE-DP-CAKE-TIRAMISU", id = 0, name = "티라미수 케이크", price = 25, status = "planned",
 		description = "테이블에 놓는 홀케이크. 6조각을 모두 함께 나눠 먹어요." },
 	Cafe_CakeBasque = { sku = "CAFE-DP-CAKE-BASQUE", id = 0, name = "바스크 치즈케이크", price = 25, status = "planned",

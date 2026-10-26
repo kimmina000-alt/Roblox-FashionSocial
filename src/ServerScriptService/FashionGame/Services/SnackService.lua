@@ -132,6 +132,13 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	end
 end
 
+-- the cake slice mesh (whole cakes, D-318; see placePlate)
+local CAKE_R = 1.15 -- studs
+local function sliceMesh(): MeshPart?
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local m = art and art:FindFirstChild("CakeSlice")
+	return if m and m:IsA("MeshPart") then m else nil
+end
 -- The hand-held model of each kind of item. The main edible piece is "Fill"
 -- (it shrinks with every bite).
 local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
@@ -170,11 +177,27 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		if item.topping then attach(handle, blob("Cream", Vector3.new(0.5, 0.18, 0.7), item.topping), CFrame.new(0, 0.22, 0)) end
 		tool.Grip = CFrame.new(0, 0, 0)
 	elseif kind == "cake" then
-		-- a slice on a little paper plate
+		-- a slice on a little paper plate: the slice mesh with the cake's
+		-- texture when this piece came off a whole cake, else simple blocks
 		handle = part("Handle", Vector3.new(0.9, 0.05, 0.9), Color3.fromRGB(250, 250, 250))
 		handle.Parent = tool
-		attach(handle, part("Fill", Vector3.new(0.45, 0.45, 0.7), item.color), CFrame.new(0, 0.25, 0))
-		if item.topping then attach(handle, part("Top", Vector3.new(0.47, 0.08, 0.72), item.topping), CFrame.new(0, 0.5, 0)) end
+		local tex = (item :: any).sliceTexture
+		local src = if tex then sliceMesh() else nil
+		if src then
+			local p = src:Clone()
+			p.Name = "Fill"
+			p.Size = src.MeshSize * (0.85 / src.MeshSize.X)
+			p.TextureID = tex
+			p.CanCollide = false
+			p.CanQuery = false
+			p.CanTouch = false
+			p.Massless = true
+			p.Anchored = false
+			attach(handle, p, CFrame.new(0, p.Size.Y / 2 + 0.03, 0) * CFrame.Angles(0, math.rad(90), 0))
+		else
+			attach(handle, part("Fill", Vector3.new(0.45, 0.45, 0.7), item.color), CFrame.new(0, 0.25, 0))
+			if item.topping then attach(handle, part("Top", Vector3.new(0.47, 0.08, 0.72), item.topping), CFrame.new(0, 0.5, 0)) end
+		end
 		tool.Grip = CFrame.new(0, -0.05, 0)
 	elseif kind == "bowl" or kind == "ricebowl" then
 		-- a 뚝배기 (or a steel rice bowl) with a spoon. Round items hang from an
@@ -314,11 +337,74 @@ local function nearestTable(player: Player): BasePart?
 	return best
 end
 
+-- Whole cakes (item.cake): 6 slices of the slice mesh with the cake's texture,
+-- set round the centre; each slice carries its rim decoration, so taking one
+-- leaves a gap that shows the layers (user photo 2026-10-26).
+
+
+-- one slice MeshPart, radius r; its apex (the cake centre) at `centre`, pointing along angle a
+local function cakeSlice(r: number, texture: string, centre: CFrame, a: number): MeshPart?
+	local src = sliceMesh()
+	if not src then return nil end
+	local p = src:Clone()
+	p.Name = "Piece"
+	local s = r / src.MeshSize.X -- the mesh runs 0..1 along X (apex .. rim)
+	p.Size = src.MeshSize * s
+	p.TextureID = texture
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.CFrame = centre * CFrame.Angles(0, a, 0) * CFrame.new(p.Size.X / 2, p.Size.Y / 2, 0)
+	return p
+end
+
+local function cakeDeco(cake: SnackConfig.Cake, slice: BasePart, centre: CFrame, a: number, r: number)
+	if not cake.deco then return end
+	local topY = slice.Size.Y
+	local spot = centre * CFrame.Angles(0, a, 0) * CFrame.new(r * 0.78, topY, 0)
+	local function ball(name: string, d: number, at: CFrame, color: Color3)
+		local b = Instance.new("Part")
+		b.Name = name
+		b.Shape = Enum.PartType.Ball
+		b.Size = Vector3.new(d, d, d)
+		b.CFrame = at
+		b.Color = color
+		b.Anchored = true
+		b.CanCollide = false
+		b.CanQuery = false
+		b.CastShadow = false
+		b.Parent = slice
+	end
+	ball("Cream", 0.36, spot * CFrame.new(0, 0.1, 0), Color3.fromRGB(252, 248, 240))
+	if cake.deco == "cherry" then
+		ball("Cherry", 0.24, spot * CFrame.new(0, 0.34, 0), Color3.fromRGB(205, 25, 40))
+		local stem = Instance.new("Part")
+		stem.Name = "Stem"
+		stem.Size = Vector3.new(0.03, 0.3, 0.03)
+		stem.CFrame = spot * CFrame.new(0.04, 0.55, 0) * CFrame.Angles(0, 0, math.rad(-20))
+		stem.Color = Color3.fromRGB(110, 60, 30)
+		stem.Anchored = true
+		stem.CanCollide = false
+		stem.CanQuery = false
+		stem.Parent = slice
+	elseif cake.deco == "strawberry" then
+		ball("Strawberry", 0.3, spot * CFrame.new(0, 0.32, 0), Color3.fromRGB(220, 30, 50))
+	end
+end
+
 local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item)
 	local servings = item.share or 6
 	local top = tablePart.Position + Vector3.new(0, tablePart.Size.Y / 2, 0)
 	local plate = Instance.new("Model")
 	plate.Name = "SharedPlate"
+	local cake = item.cake and SnackConfig.Cakes[item.cake]
+	local texture = if cake then cake.textures[math.random(1, #cake.textures)] else nil
+	if cake and texture and sliceMesh() then
+		plate:SetAttribute("CakeTexture", texture)
+	else
+		cake = nil
+	end
 	local dish = Instance.new("Part")
 	dish.Name = "Dish"
 	dish.Shape = Enum.PartType.Cylinder
@@ -329,7 +415,52 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 	dish.CanCollide = false
 	dish.Parent = plate
 	local pieces: {BasePart} = {}
-	for i = 1, servings do
+	local lettering: BasePart? = nil
+	if cake and texture then
+		dish.Size = Vector3.new(0.12, CAKE_R * 2 + 0.4, CAKE_R * 2 + 0.4)
+		local centre = CFrame.new(top + Vector3.new(0, 0.12, 0))
+		for i = 1, servings do
+			local a = (i - 1) / servings * math.pi * 2
+			local slice = cakeSlice(CAKE_R, texture, centre, a)
+			if slice then
+				cakeDeco(cake, slice, centre, a, CAKE_R)
+				slice.Parent = plate
+				table.insert(pieces, slice)
+			end
+		end
+		-- the lettering across the top while the cake is whole
+		if cake.lettering then
+			local h = (pieces[1] and pieces[1].Size.Y) or 0.69
+			local board = Instance.new("Part")
+			board.Name = "Lettering"
+			board.Size = Vector3.new(CAKE_R * 1.3, 0.02, CAKE_R * 0.8)
+			board.CFrame = centre * CFrame.new(0, h + 0.02, 0)
+			board.Transparency = 1
+			board.Anchored = true
+			board.CanCollide = false
+			board.CanQuery = false
+			board.Parent = plate
+			local g = Instance.new("SurfaceGui")
+			g.Face = Enum.NormalId.Top
+			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			g.PixelsPerStud = 120
+			g.Parent = board
+			local t = Instance.new("TextLabel")
+			t.Size = UDim2.fromScale(1, 1)
+			t.BackgroundTransparency = 1
+			t.Font = Enum.Font.FredokaOne
+			t.TextScaled = true
+			t.TextColor3 = Color3.fromRGB(250, 215, 90)
+			t.Text = cake.lettering[math.random(1, #cake.lettering)]
+			local st = Instance.new("UIStroke")
+			st.Color = Color3.fromRGB(200, 60, 90)
+			st.Thickness = 3
+			st.Parent = t
+			t.Parent = g
+			lettering = board
+		end
+	end
+	for i = 1, (if cake then 0 else servings) do
 		local a = (i - 1) / servings * math.pi * 2
 		local p = Instance.new("Part")
 		p.Name = "Piece"
@@ -401,9 +532,15 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		plate:SetAttribute("Servings", left)
 		local piece = table.remove(pieces)
 		if piece then piece:Destroy() end
-		-- a piece is eaten in two bites
+		-- the lettering goes with the first cut
+		if lettering then
+			lettering:Destroy()
+			lettering = nil
+		end
+		-- a piece is eaten in two bites (a cake slice keeps the cake's texture)
 		local pieceItem = table.clone(item)
 		pieceItem.bites = 2
+		(pieceItem :: any).sliceTexture = plate:GetAttribute("CakeTexture")
 		giveTool(who, makeTool(pieceItem, baseName .. " 한 " .. pieceWord))
 		if left <= 0 then plate:Destroy() else refresh() end
 	end)
@@ -459,8 +596,18 @@ end
 local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string?)
 	local shop, item = SnackConfig.find(shopKey, itemKey)
 	if not shop or not item then return false, "없는 메뉴예요." end
-	if item.product then return false, "Robux 결제로 주문해요." end
+	if item.product and not item.coins then return false, "Robux 결제로 주문해요." end
 	if not nearShop(player, shop.key) then return false, "카운터 가까이에서 주문해 주세요." end
+	-- a shared cake bought with coins (the strawberry cake: 💰 or R$)
+	if item.share then
+		local price = item.coins or 0
+		if not economy or not economy.Spend(player, price) then
+			local balance = if economy then economy.Balance(player) else 0
+			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
+		end
+		grantProduct(player, item)
+		return true, nil
+	end
 	if countSnacks(player) >= SnackConfig.MaxCarried then
 		return false, string.format("손에 %d개까지 들 수 있어요. 먼저 드세요!", SnackConfig.MaxCarried)
 	end

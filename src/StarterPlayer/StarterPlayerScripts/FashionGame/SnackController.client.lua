@@ -160,7 +160,8 @@ local function show(shopKey: string)
 		}, button).Name = "Swatch"
 		make("TextLabel", {
 			Position = UDim2.fromOffset(40, 0),
-			Size = UDim2.new(1, -120, 1, 0),
+			Size = UDim2.new(1, if item.coins and item.product then -170 else -120, 1, 0),
+			TextScaled = item.coins ~= nil and item.product ~= nil,
 			BackgroundTransparency = 1,
 			Font = Enum.Font.GothamBold,
 			TextSize = 15,
@@ -168,36 +169,67 @@ local function show(shopKey: string)
 			TextColor3 = Color3.fromRGB(60, 40, 50),
 			Text = item.name,
 		}, button)
-		make("TextLabel", {
-			AnchorPoint = Vector2.new(1, 0),
-			Position = UDim2.new(1, -12, 0, 0),
-			Size = UDim2.fromOffset(80, 40),
-			BackgroundTransparency = 1,
-			Font = Enum.Font.GothamBold,
-			TextSize = 14,
-			TextXAlignment = Enum.TextXAlignment.Right,
-			TextColor3 = Color3.fromRGB(200, 90, 130),
-			Text = price,
-		}, button)
-		button.MouseButton1Click:Connect(function()
-			if product and item.product then
-				-- Robux: the purchase window ([Studio 테스트] while the id is 0)
-				if product.id ~= 0 then
-					MarketplaceService:PromptProductPurchase(player, product.id)
-				elseif RunService:IsStudio() then
-					local ok, message = ClubShop:InvokeServer("StudioTestBuy", { kind = "product", key = item.product })
-					status.Text = if ok then "[Studio 테스트] 구매했어요." else tostring(message or "구매하지 못했어요.")
-				else
-					status.Text = "준비 중인 상품이에요."
-					return
-				end
-				hide()
+		local both = product ~= nil and item.coins ~= nil
+		local function buyRobux()
+			if not (product and item.product) then return end
+			-- Robux: the purchase window ([Studio 테스트] while the id is 0)
+			if product.id ~= 0 then
+				MarketplaceService:PromptProductPurchase(player, product.id)
+			elseif RunService:IsStudio() then
+				local ok, message = ClubShop:InvokeServer("StudioTestBuy", { kind = "product", key = item.product })
+				status.Text = if ok then "[Studio 테스트] 구매했어요." else tostring(message or "구매하지 못했어요.")
+			else
+				status.Text = "준비 중인 상품이에요."
 				return
 			end
+			hide()
+		end
+		local function buyCoins()
 			status.Text = "준비 중…"
 			local ok, message = remote:InvokeServer("Buy", shopKey, item.key)
 			status.Text = if typeof(message) == "string" then message else (if ok then "나왔어요!" else "주문하지 못했어요.")
 			if ok then task.delay(1.2, function() if openShop == shopKey then hide() end end) end
+		end
+		if both then
+			-- coins or Robux (the strawberry cake): two small price buttons
+			for k, spec in ipairs({ { string.format("%s %d", EconomyConfig.Icon, item.coins :: number), buyCoins }, { string.format("R$ %d", (product :: any).price), buyRobux } }) do
+				local b = make("TextButton", {
+					Name = if k == 1 then "PayCoins" else "PayRobux",
+					AnchorPoint = Vector2.new(1, 0.5),
+					Position = UDim2.new(1, if k == 1 then -66 else -6, 0.5, 0),
+					Size = UDim2.fromOffset(56, 28),
+					BackgroundColor3 = if k == 1 then Color3.fromRGB(255, 220, 120) else Color3.fromRGB(120, 200, 120),
+					Font = Enum.Font.GothamBold,
+					TextSize = 12,
+					TextColor3 = Color3.fromRGB(50, 40, 40),
+					Text = spec[1],
+				}, button)
+				round(b, 8)
+				b.MouseButton1Click:Connect(spec[2])
+			end
+		else
+			make("TextLabel", {
+				AnchorPoint = Vector2.new(1, 0),
+				Position = UDim2.new(1, -12, 0, 0),
+				Size = UDim2.fromOffset(80, 40),
+				BackgroundTransparency = 1,
+				Font = Enum.Font.GothamBold,
+				TextSize = 14,
+				TextXAlignment = Enum.TextXAlignment.Right,
+				TextColor3 = Color3.fromRGB(200, 90, 130),
+				Text = price,
+			}, button)
+		end
+		button.MouseButton1Click:Connect(function()
+			if both then
+				status.Text = "💰 코인 또는 R$ 버튼을 눌러 주세요."
+				return
+			end
+			if product and item.product then
+				buyRobux()
+				return
+			end
+			buyCoins()
 		end)
 	end
 	local height = 100 + rows * 46 + headers * 26
