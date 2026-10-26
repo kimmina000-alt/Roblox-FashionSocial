@@ -1906,3 +1906,15 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 |---|---|---|
 | G80 | ![](images/2026-10-26/car_g80_before.jpg) | ![](images/2026-10-26/car_g80_after.jpg) |
 | G70 | ![](images/2026-10-26/car_g70_before.jpg) | ![](images/2026-10-26/car_g70_after.jpg) |
+
+### 클럽 테이블 버켓 예시 (D-323)
+
+- 사용자 사진을 보고 단계별 버켓 예시 5개를 클럽 1층 받침대에 놓았어요(왼쪽부터 1단계 병, 2단계 은색 얼음 버켓, 3단계 빛나는 버켓, VIP 금색 LED 배, 골목 공방 소다 전용).
+- 병은 술병 모양이 아니라 탄산음료 병으로 만들었어요.
+- 아직 실제 주문에는 연결하지 않았어요(사용자 확인 후).
+
+![](images/2026-10-26/bucket_lineup.jpg)
+
+| 1~3단계 | VIP · 공방 소다 |
+|---|---|
+| ![](images/2026-10-26/bucket_tier123.jpg) | ![](images/2026-10-26/bucket_vip_golmok.jpg) |
