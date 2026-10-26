@@ -775,14 +775,42 @@ game:GetService("ScriptEditorService"):UpdateSourceAsync(sc,function() return st
 -- Graybox only: rooftop elevator placeholder (replace with a real lift in the art pass).
 local up, down = script.Parent:WaitForChild("ElevatorPadUp"), script.Parent:WaitForChild("ElevatorPadDown")
 local busy = {}
+-- sounds (user 2026-10-26): the doors close when the ride starts, a "ding"
+-- and the doors opening on arrival
+local function sound(pad, name, id, volume)
+	local s = pad:FindFirstChild(name)
+	if not s then
+		s = Instance.new("Sound")
+		s.Name = name
+		s.SoundId = "rbxassetid://" .. id
+		s.Volume = volume
+		s.RollOffMaxDistance = 40
+		s.Parent = pad
+	end
+	return s
+end
+for _, pad in ipairs({ up, down }) do
+	sound(pad, "DoorClose", "131248980151017", 0.6) -- "Hyundai 2012 doors closing"
+	sound(pad, "Ding", "91728968749666", 0.8) -- "Mitsubishi Elevator Chime - Up"
+	sound(pad, "DoorOpen", "78753128620247", 0.5) -- "Elevator Door Opening"
+end
 -- targets are relative to the other pad, so they follow when the club is moved
 local function hook(pad, other, offset)
 	pad.Touched:Connect(function(hit)
 		local character = hit.Parent
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-		if not humanoid or busy[humanoid] then return end
+		local root = character and character:FindFirstChild("HumanoidRootPart")
+		if not humanoid or not root or busy[humanoid] then return end
 		busy[humanoid] = true
-		character:PivotTo(CFrame.new(other.CFrame:PointToWorldSpace(offset)))
+		pad.DoorClose:Play()
+		task.wait(1.2)
+		-- still in the car (on the pad)? then up / down
+		if character.Parent and (root.Position - pad.Position).Magnitude < 7 then
+			character:PivotTo(CFrame.new(other.CFrame:PointToWorldSpace(offset)))
+			other.Ding:Play()
+			task.wait(0.4)
+			other.DoorOpen:Play()
+		end
 		task.wait(1.5)
 		busy[humanoid] = nil
 	end)

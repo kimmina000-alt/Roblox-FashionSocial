@@ -2015,3 +2015,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 세 부스 모두 '사진 찍기' 버튼이 부스 안 기계 앞면에 붙어요. 기계가 각 부스 소속이 됐고, 옆 부스 버튼은 벽에 가려 안 떠요.
 
 전(사용자 화면): ![](images/2026-10-26/booth_prompt_before_user.jpg)
+
+### 클럽 엘리베이터 소리 (D-333)
+
+- 발판을 밟으면 문 닫히는 소리 → 1.2초 뒤 이동 → 도착하면 '띵' + 문 열리는 소리. 중간에 내리면 이동 취소.
