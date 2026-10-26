@@ -2112,3 +2112,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | P2가 본 P1 튜브 | 폰 공개 범위 창 | P1이 본 P2 불꽃 | 조명 전 | 조명 후 |
 |---|---|---|---|---|
 | ![](images/2026-10-26/2p_tube_seen_by_p2.jpg) | ![](images/2026-10-26/2p_visibility_phone.jpg) | ![](images/2026-10-26/2p_sparkler_seen_by_p1.jpg) | ![](images/2026-10-26/2p_club_glow_before.jpg) | ![](images/2026-10-26/2p_club_glow_after.jpg) |
+
+### 모바일 2인 재테스트: 클럽 밖 춤 (D-342)
+
+- 통과: OH24 앞에서 P1이 춤 → 계속 춤(끊기지 않음), P1 음악 0.33, 바로 옆(5.8칸) P2는 0. P2가 '같이 추기' 하자 둘이 같이 추고 P2에게도 음악 0.33.
+
+![](images/2026-10-26/2p_dance_outside.jpg)
