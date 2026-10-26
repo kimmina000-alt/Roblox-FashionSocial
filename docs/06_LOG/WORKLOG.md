@@ -1773,3 +1773,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 콘솔에 게임 코드 오류는 없었어요.
 
 ![](images/2026-10-26/2p_fix_piano_small_phone.jpg)
+
+## 2026-10-26 (2) — 크리에이터 계정으로 이전
+
+- 새 계정 kr_ohu, 경험 10773060623, 플레이스 121328617525011에 저장한 .rbxl을 게시했어요.
+- 맵(Graybox 5,247 / Hongdae 22,180개), 스크립트 71개, ArtAssets 27개가 모두 정상이에요.
+- 에셋 1,100여 개의 주인을 확인했어요. 예전 계정(cortis_ian)이 올린 이미지 6개가 새 게임에서 안 불러와졌어요. 원본 파일로 다시 올리고, 코드와 플레이스의 138곳을 새 ID로 바꿨어요(D-313). 새 이미지 6개는 모두 불러와지는 걸 확인했어요.
+- 남은 것: AI 해태(메시와 텍스처)는 예전 계정이 새 경험에 공유해 줘야 해요.
+- 포토부스 가격(PhotoConfig)과 빔 텍스처(ClubLightsController)를 Studio에 반영했어요. 스크립트 68개가 저장소와 모두 같아요.

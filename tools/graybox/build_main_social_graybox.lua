@@ -240,7 +240,7 @@ label(z,"↓ 계단 (지하 클럽)",Vector3.new(-40,6,-158))
 -- graffiti on the stair-side wall faces only (user 2026-10-25: keep the stairs
 -- and walls as they are, just the graffiti): see-through carrier panels with
 -- the pale graffiti Texture (docs/04_ART/textures/graffiti.png)
-do local GRAFFITI="rbxassetid://77520103793675"
+do local GRAFFITI="rbxassetid://70403975708044"
  local function graffiti(x0,y0,z0,x1,y1,z1,face,su,sv,ou)
   local p=box(z,"GraffitiWall",x0,y0,z0,x1,y1,z1,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
   local tx=Instance.new("Texture") tx.Texture=GRAFFITI tx.Face=face tx.StudsPerTileU=su or 34 tx.StudsPerTileV=sv or 17 tx.OffsetStudsU=ou or 0 tx.Transparency=0.15 tx.Parent=p end
@@ -256,7 +256,7 @@ do local GRAFFITI="rbxassetid://77520103793675"
 -- from the street: user 2026-10-25)
 do local p=box(z,"GraffitiSign",-11,3,-166.5,-2.5,7.25,-166.45,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
   -- ("HERE" instead of "OHU CLUB", user 2026-10-25; docs/04_ART/textures/here_arrow.png)
-  local d=Instance.new("Decal") d.Texture="rbxassetid://110791212768581" d.Face=Enum.NormalId.Back d.Parent=p end
+  local d=Instance.new("Decal") d.Texture="rbxassetid://116851359357557" d.Face=Enum.NormalId.Back d.Parent=p end
  graffiti(-80,F,-151.05,-24,12,-151,Enum.NormalId.Front)
  graffiti(-24,0,-151.05,-8,12,-151,Enum.NormalId.Front)
  -- (none on the street wall by the lift corridor, user 2026-10-25)
@@ -304,7 +304,7 @@ label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,-218))
 -- the same pale pattern as the stair walls; none over the hall door opening
 do local function graffiti(x0,y0,z0,x1,y1,z1,face)
   local p=box(z,"GraffitiWall",x0,y0,z0,x1,y1,z1,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
-  local tx=Instance.new("Texture") tx.Texture="rbxassetid://77520103793675" tx.Face=face tx.StudsPerTileU=34 tx.StudsPerTileV=17 tx.Transparency=0.15 tx.Parent=p end
+  local tx=Instance.new("Texture") tx.Texture="rbxassetid://70403975708044" tx.Face=face tx.StudsPerTileU=34 tx.StudsPerTileV=17 tx.Transparency=0.15 tx.Parent=p end
  graffiti(-80,F,-236,-79.95,V-1,-167.5,Enum.NormalId.Right) -- west wall
  graffiti(-65.05,F,-236,-65,V-1,-225.25,Enum.NormalId.Left) -- east wall, north of the door
  graffiti(-65.05,F,-210.75,-65,V-1,-167.5,Enum.NormalId.Left) -- east wall, south of the door
