@@ -245,11 +245,52 @@ local function statue(top: Vector3, inward: Vector3)
 	return M
 end
 
+------------------------------------------------------------------ Meshy statue
+-- (D-316, user 2026-10-26) The user's own Meshy model "Stone Guardian Lion"
+-- (CC0, 181,606 triangles) reduced to 18,000 and a mirrored copy
+-- (docs/04_ART/models/haetae_meshy_18k*.obj), imported by the user into
+-- ServerStorage.ArtAssets as HaetaeMeshy / HaetaeMeshyMirror. As imported, the
+-- body runs along the part's X axis and the bottom 16% is a stone base slab. The original serves a statue whose forward
+-- (local -X) x up gives the street side; the mirror the other one.
+-- The carved statue above stays as the fallback when the meshes are missing.
+local ART = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+local MESHY_BASE_LEN = 58.9 -- the mesh's base slab length (mesh units)
+local function meshyStatue(top: Vector3, inward: Vector3): Model?
+	-- the original needs its +X on -inward (head end forward); its face (+Z)
+	-- then lands on (-inward) x up: the street side or not
+	local useMirror = (-inward):Cross(Vector3.yAxis):Dot(FACING) < 0
+	local src = ART and ART:FindFirstChild(if useMirror then "HaetaeMeshyMirror" else "HaetaeMeshy")
+	if not (src and src:IsA("MeshPart")) then return nil end
+	local M = Instance.new("Model")
+	M.Name = "Haetae"
+	local p = src:Clone()
+	p.Name = "HaetaeStatue"
+	local s = 7.6 / MESHY_BASE_LEN -- the base slab a little shorter than the pedestal top (8)
+	p.Size = src.MeshSize * s
+	p.Material = Enum.Material.Granite
+	p.Color = STONE
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	-- the mirror's body runs the other way, so its X axis points along inward
+	-- (checked in Play: the mesh's head is at its +X end and the face at -Z)
+	local xAxis = if useMirror then -inward else inward
+	p.CFrame = CFrame.fromMatrix(top + Vector3.new(0, p.Size.Y / 2, 0), xAxis, Vector3.yAxis)
+	p.Parent = M
+	local c = newPart(M, "HaetaeCollision", Vector3.new(3.6, 5.5, 7.4), CFrame.lookAt(top + Vector3.new(0, 2.75, 0), top + Vector3.new(0, 2.75, 0) + inward), STONE, { t = 1 })
+	M.PrimaryPart = c
+	M:SetAttribute("Source", "Meshy")
+	M.Parent = G
+	return M
+end
+
 local n = 0
 for _, pos in ipairs(spots) do
 	local inward = Vector3.new(0, 0, if PATH_Z > pos.Z then 1 else -1)
 	pedestal(pos, inward)
-	local m = statue(pos + Vector3.new(0, 5.4, 0), inward)
+	local top = pos + Vector3.new(0, 5.4, 0)
+	local m = meshyStatue(top, inward) or statue(top, inward)
 	for _, d in ipairs(m:GetDescendants()) do if d:IsA("BasePart") then n += 1 end end
 end
 _ = CS

@@ -1818,3 +1818,13 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-26/haetae_carved_pair.jpg)
 ![](images/2026-10-26/haetae_carved_side.jpg)
 ![](images/2026-10-26/haetae_carved_back.jpg)
+
+### 해태를 Meshy 모델로 교체 (D-316)
+
+- 사용자가 Meshy로 만든 모델(CC0)이 원본 삼각형 181,606개라 18,000개로 줄였어요. 좌우 반전본도 함께 만들었어요.
+- 받침 판 포함 길이를 우리 받침대에 맞추고, 머리는 가운데 길 쪽, 얼굴은 거리 쪽을 보게 놓았어요. 재질은 화강암이에요.
+- 무게: 한 쌍이 MeshPart 2개(삼각형 3.6만)예요. 조각 버전(파트 260개)보다 가벼워요.
+
+![](images/2026-10-26/haetae_meshy_pair.jpg)
+![](images/2026-10-26/haetae_meshy_south.jpg)
+![](images/2026-10-26/haetae_meshy_north.jpg)
