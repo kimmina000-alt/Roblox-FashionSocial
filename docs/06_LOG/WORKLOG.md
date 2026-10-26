@@ -2136,3 +2136,14 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전(사용자 화면) | 후 |
 |---|---|
 | ![](images/2026-10-26/club_front_reverted_user.png) | ![](images/2026-10-26/club_front_restored.jpg) |
+
+## 2026-10-27
+
+### NPC 부하 시험 (D-346)
+
+- 레이어드 옷을 입은 NPC 50명, 90명을 클럽 홀에서 춤추게 하고 한 프레임 시간을 쟀어요(PERFORMANCE.md §11).
+- 결과: 한 방 50명은 중급 폰 약 30fps 선, 90명은 약 20fps로 끊길 것으로 예상. 서버는 여유.
+
+| 50명 | 90명 |
+|---|---|
+| ![](images/2026-10-27/load_test_50.jpg) | ![](images/2026-10-27/load_test_90.jpg) |
