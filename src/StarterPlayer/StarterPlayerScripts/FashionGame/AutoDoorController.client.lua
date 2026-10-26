@@ -79,10 +79,12 @@ while true do
 			if #door.panels < ((model:GetAttribute("Panels") :: number?) or 2) and not door.isOpen then scan(door) end
 			local center = model:GetPivot().Position
 			local range = (model:GetAttribute("Range") :: number?) or 9
-			local near = false
 			-- by day a NightOnly door opens only for people coming out (on the far
 			-- side from the street exit point): leaving is always free
-			local dayShut = model:GetAttribute("NightOnly") == true and not isNight()
+			local nightOnly = model:GetAttribute("NightOnly") == true
+			local dayShut = nightOnly and not isNight()
+			-- (and at night it simply stands open, user 2026-10-27)
+			local near = nightOnly and not dayShut
 			local exitPoint = ClubConfig.NightEntry and ClubConfig.NightEntry.ExitPosition
 			for _, pos in ipairs(roots) do
 				local allowed = not dayShut

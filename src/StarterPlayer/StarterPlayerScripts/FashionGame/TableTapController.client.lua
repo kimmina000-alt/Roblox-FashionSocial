@@ -66,21 +66,20 @@ local function tierOneBottle(tool: Tool): boolean
 	return drink ~= nil and drink.tier == 1 and player:GetAttribute("Pass_VIP") ~= true
 end
 
-local function onTap(screen: Vector2)
-	local camera = workspace.CurrentCamera
+-- What a hit means for the thing in hand. One tap can arrive twice (the
+-- screen tap and the held item's Activated): the second within 0.4 s is dropped.
+local lastHandled = 0
+local function handle(hit: Instance?, hitPosition: Vector3?)
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart")
-	if not camera or not character or not root or not root:IsA("BasePart") then return end
-	local ray = camera:ScreenPointToRay(screen.X, screen.Y)
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = { character }
-	local result = workspace:Raycast(ray.Origin, ray.Direction * 120, params)
+	if not character or not root or not root:IsA("BasePart") then return end
 	local placed, tablePart = nil, nil
-	if result then placed, tablePart = classify(result.Instance) end
-	if result and (placed or tablePart) and (result.Position - root.Position).Magnitude > REACH then
+	if hit then placed, tablePart = classify(hit) end
+	if hitPosition and (placed or tablePart) and (hitPosition - root.Position).Magnitude > REACH then
 		placed, tablePart = nil, nil
 	end
+	if os.clock() - lastHandled < 0.4 then return end
+	lastHandled = os.clock()
 	local tool = held()
 	if tool and tool:GetAttribute("Bottle") then
 		if tablePart then
@@ -92,12 +91,60 @@ local function onTap(screen: Vector2)
 		if placed or tablePart then call("Tap", placed or tablePart) end
 	elseif placed then
 		call("Tap", placed)
+	else
+		lastHandled = 0 -- (nothing to do: let the other path try)
 	end
+end
+
+local function rayHit(ray: Ray): RaycastResult?
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { player.Character :: Instance }
+	return workspace:Raycast(ray.Origin, ray.Direction * 120, params)
+end
+
+local function onTap(screen: Vector2)
+	local camera = workspace.CurrentCamera
+	if not camera or not player.Character then return end
+	-- touch positions may or may not include the top bar inset (phone test
+	-- 2026-10-27: placing did not work on a phone): try both, keep the one
+	-- that lands on a table or on something on it
+	local best: RaycastResult? = nil
+	for _, ray in ipairs({ camera:ScreenPointToRay(screen.X, screen.Y), camera:ViewportPointToRay(screen.X, screen.Y) }) do
+		local result = rayHit(ray)
+		if result then
+			local placed, tablePart = classify(result.Instance)
+			if placed or tablePart then best = result break end
+			best = best or result
+		end
+	end
+	handle(best and best.Instance, best and best.Position)
 end
 
 UserInputService.TouchTapInWorld:Connect(function(position: Vector2, processed: boolean)
 	if not processed then onTap(position) end
 end)
+
+-- The held bottle / sparkler itself: on phones a tap with a tool in hand
+-- activates the tool; the mouse target then is where the finger was.
+local mouse = player:GetMouse()
+local function watchTool(tool: Instance)
+	if not tool:IsA("Tool") then return end
+	if not (tool:GetAttribute("Bottle") or tool:GetAttribute("Sparkler") or tool:GetAttribute("SparklerSet")) then return end
+	if tool:GetAttribute("TapWatched") then return end
+	tool:SetAttribute("TapWatched", true)
+	tool.Activated:Connect(function()
+		if tool.Parent ~= player.Character then return end
+		local target = mouse.Target
+		handle(target, if target then mouse.Hit.Position else nil)
+	end)
+end
+local function watchCharacter(character: Model)
+	for _, c in ipairs(character:GetChildren()) do watchTool(c) end
+	character.ChildAdded:Connect(watchTool)
+end
+if player.Character then watchCharacter(player.Character) end
+player.CharacterAdded:Connect(watchCharacter)
 
 -- mouse: a short click without dragging
 local downAt: Vector2? = nil

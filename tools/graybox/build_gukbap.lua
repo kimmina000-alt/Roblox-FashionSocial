@@ -18,7 +18,7 @@ assert(T, "Hongdae_Layout missing: run build_hongdae_layout first")
 -- the lot (world): front (street side) at x 48, back x 78; z -300 .. -269
 local X0, X1, Z0, Z1 = 48, 78, -300, -269
 local FY = 0.6 -- floor top = sidewalk top (no step at the door)
-local H1 = 12 -- 1F floor to ceiling
+local H1 = 21 -- 1F floor to ceiling (12 → 21: as high as the club 1F, user 2026-10-27)
 local H2 = 10 -- 2F (outside only)
 local WT = 0.6 -- wall thickness
 local DOOR_Z0, DOOR_Z1 = -287, -281
@@ -165,8 +165,8 @@ local GLASS = Color3.fromRGB(170, 200, 210)
 for _, seg in ipairs({ { Z0, DOOR_Z0 }, { DOOR_Z1, Z1 } }) do
 	local a, b = seg[1], seg[2]
 	box("Wainscot", X0, FY, a, X0 + WT, FY + 2.6, b, Color3.fromRGB(210, 205, 196), { material = Enum.Material.Slate })
-	local g = box("FrontGlass", X0 + 0.2, FY + 2.6, a, X0 + 0.4, FY + 8.2, b, GLASS, { material = Enum.Material.Glass, t = 0.55 })
-	box("GlassTopRail", X0, FY + 8.2, a, X0 + WT, FY + 8.6, b, ALU)
+	local g = box("FrontGlass", X0 + 0.2, FY + 2.6, a, X0 + 0.4, top1 - 3.8, b, GLASS, { material = Enum.Material.Glass, t = 0.55 })
+	box("GlassTopRail", X0, top1 - 3.8, a, X0 + WT, top1 - 3.4, b, ALU) -- (the glass runs up under the sign band)
 	box("GlassBottomRail", X0, FY + 2.5, a, X0 + WT, FY + 2.7, b, ALU)
 	-- red vinyl menu letters on the glass, read from the street (face -X = Left)
 	local vinyl = box("GlassLetters", X0 + 0.05, FY + 4.6, a + 0.8, X0 + 0.1, FY + 7.4, b - 0.8, Color3.new(1, 1, 1), { t = 1, nocol = true, noshadow = true })
@@ -177,7 +177,9 @@ end
 for _, pz in ipairs({ Z0 + 0.3, DOOR_Z0, DOOR_Z1, Z1 - 0.3 }) do
 	box("AluPost", X0 - 0.1, FY, pz - 0.3, X0 + WT, top1, pz + 0.3, ALU)
 end
-box("DoorHeader", X0, FY + 8.2, DOOR_Z0, X0 + WT, top1, DOOR_Z1, ALU)
+box("DoorHeader", X0, FY + 8.2, DOOR_Z0, X0 + WT, FY + 8.6, DOOR_Z1, ALU)
+box("DoorTransom", X0 + 0.2, FY + 8.6, DOOR_Z0, X0 + 0.4, top1 - 3.8, DOOR_Z1, GLASS, { material = Enum.Material.Glass, t = 0.55 })
+box("DoorTransomRail", X0, top1 - 3.8, DOOR_Z0, X0 + WT, top1 - 3.4, DOOR_Z1, ALU)
 -- the sliding door stands open: both glass leaves pushed to the north side
 for k = 0, 1 do
 	local x = X0 + 0.9 + k * 0.25
@@ -185,15 +187,15 @@ for k = 0, 1 do
 	box("DoorLeafFrame", x - 0.02, FY, DOOR_Z0 - 2.95, x + 0.14, FY + 8.15, DOOR_Z0 - 2.75, ALU, { nocol = true })
 end
 -- a short 1F wall stub above the glass so the sign has a backing
-box("SignBacking", X0, FY + 8.6, Z0, X0 + WT, top1, Z1, WALL, { material = Enum.Material.Plaster })
+box("SignBacking", X0, top1 - 3.4, Z0, X0 + WT, top1, Z1, WALL, { material = Enum.Material.Plaster })
 
 -- the big sign band: a lit white box with big red letters. The faces are
 -- SurfaceGuis that ignore the light (LightInfluence 0), so the box looks lit
 -- at night and the letters stay readable; Neon washed the letters out in the
 -- bloom (first try 2026-10-26). A SurfaceLight throws its light on the sidewalk.
 local SIGN_WHITE = Color3.fromRGB(250, 250, 246)
-local band = box("SignBand", X0 - 1.1, FY + 8.8, Z0 + 0.2, X0, top1 + 0.2, Z1 - 0.2, SIGN_WHITE)
-local bandText = box("SignBandText", X0 - 1.15, FY + 8.8, Z0 + 0.2, X0 - 1.1, top1 + 0.2, Z1 - 0.2, SIGN_WHITE, { t = 1, nocol = true, noshadow = true })
+local band = box("SignBand", X0 - 1.1, top1 - 3.2, Z0 + 0.2, X0, top1 + 0.2, Z1 - 0.2, SIGN_WHITE)
+local bandText = box("SignBandText", X0 - 1.15, top1 - 3.2, Z0 + 0.2, X0 - 1.1, top1 + 0.2, Z1 - 0.2, SIGN_WHITE, { t = 1, nocol = true, noshadow = true })
 local bandLabel = label(bandText, Enum.NormalId.Left, "오후 돼지국밥", RED, { pps = 24, bg = SIGN_WHITE, pad = 0.2 })
 -- "24시" in a red box at the club end (the viewer's right is +z) of the same
 -- surface (a separate part in front of it hid behind the band text)
@@ -311,7 +313,7 @@ for _, bz in ipairs({ -292, -289.5, -279, -276.5 }) do
 	end
 end
 -- the menu board over the kitchen (seen from the hall: face -X = Left)
-local menu = box("MenuBoard", X1 - WT - 0.2, FY + 6.2, Z0 + 4, X1 - WT, top1 - 0.6, Z1 - 4, Color3.fromRGB(60, 44, 32), { material = Enum.Material.Wood })
+local menu = box("MenuBoard", X1 - WT - 0.2, FY + 6.2, Z0 + 4, X1 - WT, FY + 11.4, Z1 - 4, Color3.fromRGB(60, 44, 32), { material = Enum.Material.Wood })
 label(menu, Enum.NormalId.Left, "메 뉴\n돼지국밥 💰20   순대국밥 💰20\n소고기국밥 💰20   수육 한 접시 R$19\n공깃밥 · 김치 · 깍두기 무료", Color3.fromRGB(255, 244, 214), { pps = 30, font = Enum.Font.GothamBold, lh = 1.1 })
 -- water purifier + cups by the north wall near the door
 box("WaterPurifier", X0 + 1.2, FY, Z0 + WT, X0 + 3, FY + 4.2, Z0 + WT + 1.6, Color3.fromRGB(240, 240, 244))

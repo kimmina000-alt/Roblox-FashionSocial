@@ -98,7 +98,10 @@ local function alreadyGranted(purchaseId: string): boolean?
 	local ok, value = pcall(function()
 		return (purchaseStore :: DataStore):GetAsync("p_" .. purchaseId)
 	end)
-	if not ok then return nil end
+	-- Studio test purchases of real products: Studio has no DataStore access
+	-- here, so the receipt was left "not processed" and nothing was given
+	-- (user 2026-10-27: a sparkler bought, no item). In Studio grant anyway.
+	if not ok then return if RunService:IsStudio() then false else nil end
 	return value ~= nil
 end
 

@@ -4087,7 +4087,7 @@ do -- "오늘의 큰손" tower over the OH24 store (user mock-ups + reference ph
 	local GRANITE = Color3.fromRGB(74, 70, 68)
 	local SLIT = Color3.fromRGB(28, 32, 38)
 	local FR = Color3.fromRGB(16, 16, 20)
-	local X0, X1, Z0, Z1, Y0, Y1 = -130, -56, 66, 104, 14, 96
+	local X0, X1, Z0, Z1, Y0, Y1 = -130, -56, 66, 104, 21, 103 -- (on the raised store roof, H 21: user 2026-10-27)
 	box("TowerBody", X0, Y0, Z0, X1, Y1, Z1, GRANITE, { parent = L, material = Enum.Material.Slate })
 	box("TowerCrown", X0 - 0.4, Y1, Z0 - 0.4, X1 + 0.4, Y1 + 2, Z1 + 0.4, Color3.fromRGB(60, 58, 58), { parent = L, material = Enum.Material.Slate })
 	box("TowerTopGlass", X0 + 0.2, Y1 - 8, Z0 - 0.15, X1 - 0.2, Y1 - 1, Z0 + 0.1, Color3.fromRGB(70, 90, 110), { parent = L, material = Enum.Material.Glass })
@@ -4261,7 +4261,8 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	-- grown into the empty land around it (user 2026-10-23): x -126..-52, z 48..86
 	-- (the 노래방 tower stands west of it); glass fronts with the OH24 sign on
 	-- the north and east street sides, a solid wall on the tower side
-	local x0, z0, x1, z1, H = -126, 48, -52, 86, 14
+	local x0, z0, x1, z1, H = -126, 48, -52, 86, 21 -- (14 → 21: as high as the club 1F, user 2026-10-27)
+	local RISE = H - 14 -- the front, signs and stripes were drawn for H 14; they move up with the ceiling
 	local OH24_SHIFT = Vector3.new(-4, 0, 18) -- (applied to the finished model below)
 	local S = Instance.new("Model")
 	S.Name = "OH24Store"
@@ -4464,14 +4465,14 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		local led = box("LEDStrip", x - 0.35, H - 0.45, z0 + 3, x + 0.35, H - 0.34, z1 - 3, Color3.fromRGB(255, 255, 252), opt({ nocol = true }))
 		local l = Instance.new("SurfaceLight")
 		l.Face = Enum.NormalId.Bottom
-		l.Range, l.Brightness, l.Angle = 16, 0.9, 120
+		l.Range, l.Brightness, l.Angle = 16 + RISE, 0.9, 120
 		l.Parent = led
 	end
 	-- teal stripe band on the back wall with the slogan
-	box("StripeTeal", x0, 11.6, z1 - 0.65, x1, 12.4, z1 - 0.6, TEAL, opt({ nocol = true }))
-	box("StripeLight", x0, 11.1, z1 - 0.65, x1, 11.5, z1 - 0.6, TEAL2, opt({ nocol = true }))
+	box("StripeTeal", x0, 11.6 + RISE, z1 - 0.65, x1, 12.4 + RISE, z1 - 0.6, TEAL, opt({ nocol = true }))
+	box("StripeLight", x0, 11.1 + RISE, z1 - 0.65, x1, 11.5 + RISE, z1 - 0.6, TEAL2, opt({ nocol = true }))
 	do
-		local slogan = box("Slogan", -110, 11.65, z1 - 0.7, -88, 12.35, z1 - 0.66, TEAL, opt({ nocol = true }))
+		local slogan = box("Slogan", -110, 11.65 + RISE, z1 - 0.7, -88, 12.35 + RISE, z1 - 0.66, TEAL, opt({ nocol = true }))
 		text(gui(slogan, Enum.NormalId.Front, 30, 120), "OH24  Fresh &amp; Friendly", Color3.new(1, 1, 1), Enum.Font.GothamMedium)
 	end
 
@@ -4486,9 +4487,9 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		end
 		fp("FacadePier", -0.3, 1.6, 0, H + 6, 0, 0.4, STONE, opt({ material = Enum.Material.Slate }))
 		fp("FacadePier", L - 1.6, L + 0.3, 0, H + 6, 0, 0.4, STONE, opt({ material = Enum.Material.Slate }))
-		fp("Fascia", -0.3, L + 0.3, 13, H + 6, 0, 0.6, Color3.fromRGB(26, 26, 30), opt({ material = Enum.Material.Slate }))
+		fp("Fascia", -0.3, L + 0.3, 13 + RISE, H + 6, 0, 0.6, Color3.fromRGB(26, 26, 30), opt({ material = Enum.Material.Slate }))
 		-- logo plaque in the middle, light bars either side
-		local logo = fp("Logo", L / 2 - 7, L / 2 + 7, 14.6, 18.8, 0.6, 0.75, Color3.fromRGB(26, 26, 30), opt({ nocol = true }))
+		local logo = fp("Logo", L / 2 - 7, L / 2 + 7, 14.6 + RISE, 18.8 + RISE, 0.6, 0.75, Color3.fromRGB(26, 26, 30), opt({ nocol = true }))
 		local g = gui(logo, Enum.NormalId.Front, 30, 400)
 		g.LightInfluence = 0
 		g.Brightness = 1.4
@@ -4499,7 +4500,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 			local u0, u1 = b[1], b[2]
 			if b[4] then u0 = L / 2 + 7.3 else u1 = L / 2 - 7.3 end
 			local k = barW / (u1 - u0)
-			local bar = fp("LightBar", u0, u1, 16, 17.6, 0.6, 0.8, CYAN, opt({ nocol = true }))
+			local bar = fp("LightBar", u0, u1, 16 + RISE, 17.6 + RISE, 0.6, 0.8, CYAN, opt({ nocol = true }))
 			local bg = gui(bar, Enum.NormalId.Front, 30, 200)
 			bg.LightInfluence = 0
 			local bgf = Instance.new("Frame") bgf.Size = UDim2.fromScale(1, 1) bgf.BackgroundColor3 = CYAN bgf.BorderSizePixel = 0 bgf.Parent = bg
@@ -4507,16 +4508,16 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 			l.TextXAlignment = if b[4] then Enum.TextXAlignment.Left else Enum.TextXAlignment.Right
 			l.Size = UDim2.fromScale(0.94 * k, 0.7)
 			l.Position = UDim2.fromScale(if b[4] then 0.03 * k else 1 - 0.97 * k, 0.15)
-			fp("LightBarBase", u0, u1, 15.4, 15.8, 0.6, 0.8, Color3.fromRGB(245, 245, 245), opt({ nocol = true }))
+			fp("LightBarBase", u0, u1, 15.4 + RISE, 15.8 + RISE, 0.6, 0.8, Color3.fromRGB(245, 245, 245), opt({ nocol = true }))
 		end
 		-- awning sloping out, small text on its edge
-		local a = p0 + along * (L / 2) + out * 0.6 + Vector3.new(0, 13.4, 0)
-		local bpt = p0 + along * (L / 2) + out * 3.4 + Vector3.new(0, 12.4, 0)
+		local a = p0 + along * (L / 2) + out * 0.6 + Vector3.new(0, 13.4 + RISE, 0)
+		local bpt = p0 + along * (L / 2) + out * 3.4 + Vector3.new(0, 12.4 + RISE, 0)
 		local slope = (bpt - a).Unit
 		local nrm = along:Cross(slope)
 		if nrm.Y < 0 then nrm = -nrm end
 		part("Awning", Vector3.new(L - 2, 0.2, (bpt - a).Magnitude), CFrame.fromMatrix((a + bpt) / 2, along, nrm), Color3.fromRGB(58, 40, 36), opt({ material = Enum.Material.Fabric, nocol = true }))
-		local valance = fp("AwningEdge", 1, L - 1, 11.8, 12.5, 3.3, 3.5, Color3.fromRGB(58, 40, 36), opt({ material = Enum.Material.Fabric, nocol = true }))
+		local valance = fp("AwningEdge", 1, L - 1, 11.8 + RISE, 12.5 + RISE, 3.3, 3.5, Color3.fromRGB(58, 40, 36), opt({ material = Enum.Material.Fabric, nocol = true }))
 		local vl = text(gui(valance, Enum.NormalId.Front, 30, 120), "Lifestyle Platform   OH24", Color3.fromRGB(230, 230, 230), Enum.Font.GothamMedium)
 		vl.TextXAlignment = Enum.TextXAlignment.Left
 		vl.Size = UDim2.fromScale(0.97, 0.6)
@@ -4525,20 +4526,20 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		local DOOR = 8
 		local runs = if doorU then { { 1.6, doorU - DOOR / 2 - 0.4 }, { doorU + DOOR / 2 + 0.4, L - 1.6 } } else { { 1.6, L - 1.6 } }
 		for _, r in ipairs(runs) do
-			fp("FrontGlass", r[1], r[2], CURB + 0.6, 12.8, 0, 0.2, Color3.fromRGB(215, 230, 235), opt({ material = Enum.Material.Glass, transparency = 0.6 }))
+			fp("FrontGlass", r[1], r[2], CURB + 0.6, 12.8 + RISE, 0, 0.2, Color3.fromRGB(215, 230, 235), opt({ material = Enum.Material.Glass, transparency = 0.6 }))
 			fp("Kickplate", r[1], r[2], CURB, CURB + 0.6, 0, 0.25, Color3.fromRGB(150, 150, 155), opt({ material = Enum.Material.Metal }))
 			local n = math.max(1, math.floor((r[2] - r[1]) / 7))
 			for k = 0, n do
 				local u = r[1] + (r[2] - r[1]) * k / n
-				fp("Mullion", u - 0.12, u + 0.12, CURB, 12.8, 0, 0.3, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
+				fp("Mullion", u - 0.12, u + 0.12, CURB, 12.8 + RISE, 0, 0.3, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
 			end
 			local mu = (r[1] + r[2]) / 2
-			local mark = fp("GlassMark", mu - 1.2, mu + 1.2, 10.4, 11, 0.21, 0.22, Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+			local mark = fp("GlassMark", mu - 1.2, mu + 1.2, 10.4 + RISE, 11 + RISE, 0.21, 0.22, Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
 			text(gui(mark, Enum.NormalId.Front, 40, 80), '<font color="#FFFFFF">OH</font><font color="#1EC8F0">24</font>', Color3.new(1, 1, 1), Enum.Font.GothamBlack)
 		end
-		fp("GlassHead", 1.6, L - 1.6, 12.8, 13, 0, 0.3, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
+		fp("GlassHead", 1.6, L - 1.6, 12.8 + RISE, 13 + RISE, 0, 0.3, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
 		if doorU then
-			fp("DoorHead", doorU - DOOR / 2 - 0.4, doorU + DOOR / 2 + 0.4, 11.4, 12.8, 0, 0.3, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
+			fp("DoorHead", doorU - DOOR / 2 - 0.4, doorU + DOOR / 2 + 0.4, 11.4, 12.8 + RISE, 0, 0.3, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
 			local door = Instance.new("Model")
 			door.Name = "AutoDoor"
 			door:SetAttribute("Range", 9)
@@ -5227,7 +5228,7 @@ do
 	B.Name = "OhuFourCuts"
 	B.Parent = T
 	local F = 1.6 -- shop floor top (graybox 0.4 + 1.2 lift)
-	local GF = F + 19 -- top of the ground floor / underside of the fascia (high ceiling, user)
+	local GF = F + 21 -- top of the ground floor / underside of the fascia (high ceiling, user; 19 → 21 like the club 1F, user 2026-10-27)
 	-- (east face 109.5 → 115.5, user 2026-10-26: wider booths so the wider photo
 	-- view shows no side walls; the 소품샵 site moved east to make room)
 	local W0, W1, N0, S0 = 48.5, 115.5, -98.5, -47.5 -- outer faces: west, east, north, south
