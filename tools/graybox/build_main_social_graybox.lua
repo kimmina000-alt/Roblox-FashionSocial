@@ -969,7 +969,7 @@ local z=zone("04_Beach_Aquarium")
  -- parasol groups: varied (closed / mat+box / mat / 2 chairs / chair+mat / 2 chairs+box)
  local kinds={"closed","matbox","mat","chairs2","chairmat","chairs2box"}
  local spots={}
- for zc=-470,236,26 do if not (zc>2 and zc<132) and not (zc>-36 and zc<=-2) then table.insert(spots,zc) end end -- (no parasol right by the cafe deck, user 2026-10-24)
+ for zc=-470,236,26 do if zc<168 and not (zc>-36 and zc<=-2) then table.insert(spots,zc) end end -- (no parasol right by the cafe deck, user 2026-10-24; the cafe stands at z 175..377 since layout v8)
  for i,zc in ipairs(spots) do
   local x=-250+((i%3)-1)*9+math.random(-2,2) local g=Vector3.new(x,SAND,zc+math.random(-3,3))
   local kind=kinds[(i-1)%#kinds+1] local cols=stripeSets[(i-1)%#stripeSets+1]
@@ -992,7 +992,8 @@ local z=zone("04_Beach_Aquarium")
    beam(m,"PalmFrond",mid,tip,0.3,Color3.fromRGB(60,145,60),{nocol=true}).Size=Vector3.new(1.4,0.2,(tip-mid).Magnitude) end
   for k=0,2 do local a=k*2.1 P(m,"Coconut",Vector3.new(0.8,0.8,0.8),CFrame.new(p+Vector3.new(math.cos(a)*0.6,-0.7,math.sin(a)*0.6)),Color3.fromRGB(110,75,40),{shape=Enum.PartType.Ball}) end
  end
- for i,pz in ipairs({-450,-390,-330,-262,-200,-140,-84,-44,140,172,214,240}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
+ -- (layout v8: palms where the cafe stood, none past z 160)
+ for i,pz in ipairs({-450,-390,-330,-262,-200,-140,-84,-44,30,74,118,150}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
  palm(Vector3.new(-262,SAND,-8),15,math.rad(200)) palm(Vector3.new(-262,SAND,138),17,math.rad(160))
 
  -- ICE CREAM TRUCK (pink, striped awning, giant cone) at the beach entrance
@@ -1550,6 +1551,99 @@ local z=zone("04_Beach_Aquarium")
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Michroma l.TextColor3=Color3.fromRGB(255,225,170) l.Text="OHU CAFE · SUNSET" l.Parent=g end
   label(cm,"OHU CAFE · Sunset (오션뷰)",Vector3.new(-250,FY+H+6,61),true)
   -- (no walk-up coffee window, its counter shelf, stools, ORDER HERE board or cup shelf: user 2026-10-25)
+  -- LAYOUT v8 (user map 2026-10-27, "해변 카페 전체적으로 건물 2배로 키우고 남쪽으로
+  -- 이동"): everything above is laid out for the 90×90 box; here the ground plan
+  -- is stretched K times (heights unchanged) and moved SHIFT south. The shell
+  -- (floors, walls, glass, ceiling, stairs, steps, lounge tiers) stretches;
+  -- furniture keeps its size and moves with its spot (things that touch move
+  -- together, things by a wall keep their distance to it). The street door
+  -- (z 56..66) and the STAFF ONLY door (x DX0..DX1) keep their widths; the
+  -- decks outside keep their depth and stay over the sand (x -268 on).
+  do local K,SHIFT=1.9,215
+   local function fx(x)
+    if x>=x1 then return x end
+    if x>=DX1 then return x1+(x-x1)*K end
+    local a=x1+(DX1-x1)*K
+    if x>=DX0 then return a+(x-DX1) end
+    return a+(DX0-DX1)+(x-DX0)*K end
+   local function fz(z)
+    local r=z
+    if z>66 and z<=z1 then r=66+(z-66)*K
+    elseif z>z1 then r=66+(z1-66)*K+(z-z1)
+    elseif z<56 and z>=z0 then r=56-(56-z)*K
+    elseif z<z0 then r=56-(56-z0)*K-(z0-z) end
+    return r+SHIFT end
+   local SHELL={} for _,n in ipairs({"CafeFloor","PoolBasin","PoolLiner","TileGrout","CafeBase","CafePlinth","EntranceDeck","Glass_W","Mullion","Glass_Side","Wall_Side","Transom","Wall_E_S","Wall_E_N","Wall_E_Top","Roof","WallLining","WallSlit","CeilingSlat","Mezzanine","MezzRailGlass","Stair","StairLanding","StairLandingLip","StairRamp","LandingRailGlass","MezzBar","StaffWall","StaffHeader","StaffHeaderLeg","PoolRim","SplashZone","LoungeStep","LoungeHalfStep","LightCeiling","Terrace","BeachStep","BeachStepEdge"}) do SHELL[n]=true end
+   -- stretched end to end even where thin (they must meet their neighbours)
+   local FULL={Stair=true,StairRamp=true,StairLanding=true,StairLandingLip=true,LoungeHalfStep=true,PoolRim=true,PoolLiner=true,SplashZone=true,CafeFloor=true,PoolBasin=true}
+   local KEEPX={Terrace=true,CafeBase=true} -- (over the sand only, user 2026-10-24)
+   local AX,AZ={x0,x1,mx,DX0,DX1},{z0,z1,SWZ} -- (not the counter line KZ0: the street door group next to it went 3.6 off its opening)
+   -- a span lo..hi of the given axis: stretched, or kept in size and placed by
+   -- the nearest wall line (within 6) or by its middle
+   local function span(lo,hi,f,lines,stretch)
+    if stretch then return f(lo),f(hi) end
+    local best,bd=nil,6
+    for _,L in ipairs(lines) do local d=math.min(math.abs(lo-L),math.abs(hi-L)) if d<bd then best,bd=L,d end end
+    local nlo=if best then f(best)+(lo-best) else f((lo+hi)/2)-(hi-lo)/2
+    return nlo,nlo+(hi-lo) end
+   local function aabb(cf,size)
+    local h=Vector3.new(math.abs(cf.XVector.X)*size.X+math.abs(cf.YVector.X)*size.Y+math.abs(cf.ZVector.X)*size.Z,
+     math.abs(cf.XVector.Y)*size.X+math.abs(cf.YVector.Y)*size.Y+math.abs(cf.ZVector.Y)*size.Z,
+     math.abs(cf.XVector.Z)*size.X+math.abs(cf.YVector.Z)*size.Y+math.abs(cf.ZVector.Z)*size.Z)/2
+    return cf.Position-h,cf.Position+h end
+   local function aligned(cf) for _,v in ipairs({cf.XVector,cf.YVector,cf.ZVector}) do
+    if math.abs(math.abs(v.X)+math.abs(v.Y)+math.abs(v.Z)-1)>1e-3 then return false end end return true end
+   -- the slanted stair glass and the piles are made again afterwards
+   for _,c in ipairs(cm:GetChildren()) do if c.Name=="StairRail" or c.Name=="Pile" then c:Destroy() end end
+   local units={}
+   for _,c in ipairs(cm:GetChildren()) do
+    if c:IsA("BasePart") and SHELL[c.Name] and aligned(c.CFrame) then
+     local lo,hi=aabb(c.CFrame,c.Size)
+     local ax0,ax1
+     if KEEPX[c.Name] then ax0,ax1=lo.X,hi.X else ax0,ax1=span(lo.X,hi.X,fx,AX,FULL[c.Name] or hi.X-lo.X>=4) end
+     local az0,az1=span(lo.Z,hi.Z,fz,AZ,FULL[c.Name] or hi.Z-lo.Z>=4)
+     local w=Vector3.new(ax1-ax0,hi.Y-lo.Y,az1-az0)
+     local r=c.CFrame-c.CFrame.Position
+     c.Size=Vector3.new(math.abs((r:Inverse()*w).X),math.abs((r:Inverse()*w).Y),math.abs((r:Inverse()*w).Z))
+     c.CFrame=CFrame.new((ax0+ax1)/2,c.Position.Y,(az0+az1)/2)*r
+    elseif c:IsA("BasePart") or c:IsA("Model") then
+     local lo,hi
+     if c:IsA("Model") then local cf,s=c:GetBoundingBox() lo,hi=aabb(cf,s) else lo,hi=aabb(c.CFrame,c.Size) end
+     local mid=(lo+hi)/2
+     if mid.X>x1-2 and mid.Z>=50 and mid.Z<=74 then
+      -- on the street wall at the door (door, push buttons, sign): the door's
+      -- stretch is kept as it is, so these only move south with it
+      if c:IsA("Model") then c:PivotTo(c:GetPivot()+Vector3.new(0,0,SHIFT)) else c.CFrame=c.CFrame+Vector3.new(0,0,SHIFT) end
+     else
+      table.insert(units,{inst=c,lo=lo,hi=hi})
+     end
+    end
+   end
+   -- groups of touching furniture (union-find, 1.05 apart at most)
+   local parent={} for i=1,#units do parent[i]=i end
+   local function root_(i) while parent[i]~=i do parent[i]=parent[parent[i]] i=parent[i] end return i end
+   local T=1.05
+   for i=1,#units do local a=units[i] for j=i+1,#units do local b=units[j]
+    if a.lo.X-T<=b.hi.X and b.lo.X-T<=a.hi.X and a.lo.Z-T<=b.hi.Z and b.lo.Z-T<=a.hi.Z and a.lo.Y-T<=b.hi.Y and b.lo.Y-T<=a.hi.Y then
+     local ra,rb=root_(i),root_(j) if ra~=rb then parent[ra]=rb end end end end
+   local groups={}
+   for i,u in ipairs(units) do local r=root_(i) local g=groups[r]
+    if not g then g={lo=u.lo,hi=u.hi,list={}} groups[r]=g end
+    g.lo=g.lo:Min(u.lo) g.hi=g.hi:Max(u.hi) table.insert(g.list,u.inst) end
+   for _,g in pairs(groups) do
+    local nx=span(g.lo.X,g.hi.X,fx,AX,false) local nz=span(g.lo.Z,g.hi.Z,fz,AZ,false)
+    local d=Vector3.new(nx-g.lo.X,0,nz-g.lo.Z)
+    for _,inst in ipairs(g.list) do
+     if inst:IsA("Model") then inst:PivotTo(inst:GetPivot()+d) else inst.CFrame=inst.CFrame+d end end
+   end
+   -- the stair glass: one slanted pane along the flight
+   do local RX=fx(SX0)+0.2 local a=Vector3.new(RX,FY+2.2,fz(SZ0+0.8)) local b=Vector3.new(RX,MY+1.7,fz(SZL))
+    local dir=(b-a).Unit local cosT=math.sqrt(dir.X^2+dir.Z^2)
+    local mid=(a+b)/2+Vector3.new(0,(RAILH-3.4)/2,0)
+    P(cm,"StairRail",Vector3.new(0.3,RAILH*cosT,(b-a).Magnitude),CFrame.lookAt(mid,mid+dir),glass,{t=0.7,mat=Enum.Material.Glass,nocol=true}) end
+   -- piles under the part over the sea (west of the stone base)
+   for px=fx(x0)+4,-272,12 do for pz=fz(z0)+4,fz(z1)-4,15 do cyl(cm,"Pile",1.6,22,Vector3.new(px,FY-12,pz),Color3.fromRGB(180,175,168)) end end
+  end
  end
  -- (the sunset pier and its photo spot are gone, user 2026-10-24)
  -- (pier moved north of the cafe deck, its floating label removed: user 2026-10-24)

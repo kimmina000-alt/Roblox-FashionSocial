@@ -2,9 +2,8 @@
 -- 국밥집 (D-314, user 2026-10-26): an old-style 노포 gukbap restaurant on the
 -- first lot north of the club, on the same sidewalk (club door → walk north).
 -- Run in Edit mode AFTER build_hongdae_layout + street_dress (tools/graybox/LAYOUT.md).
--- Idempotent: removes the fake shop building that stood on the lot, moves the
--- play-area boundary back for this lot (build_hongdae_layout has the same
--- polygon), and rebuilds Workspace.Hongdae_Layout.Gukbap.
+-- Idempotent: rebuilds Workspace.Hongdae_Layout.Gukbap (since layout v8 the
+-- lot is clear and the boundary goes round it in build_hongdae_layout).
 -- Reference photos: docs/04_ART/references/gukbap_ref_classic.jpg (white sign
 -- band with big red letters, aluminium sliding doors, red vinyl menu letters on
 -- the glass, a cauldron by the door; inside stainless tables, round stools,
@@ -15,56 +14,20 @@ local CS = game:GetService("CollectionService")
 local T = workspace:FindFirstChild("Hongdae_Layout")
 assert(T, "Hongdae_Layout missing: run build_hongdae_layout first")
 
--- the lot (world): front (street side) at x 48, back x 78; z -300 .. -269
-local X0, X1, Z0, Z1 = 48, 78, -300, -269
+-- the lot (world): front (street side) at x 48. Layout v8 (user map 2026-10-27:
+-- "국밥집 대확장 ... 클럽 가로 길이에 맞춰서 확장"): as deep as the club is wide
+-- (x 48..193), z -375..-293 between the long shop block and the club (which
+-- moved 24 north); the play-area boundary is in build_hongdae_layout now
+local X0, X1, Z0, Z1 = 48, 193, -375, -293
 local FY = 0.6 -- floor top = sidewalk top (no step at the door)
 local H1 = 21 -- 1F floor to ceiling (12 → 21: as high as the club 1F, user 2026-10-27)
 local H2 = 10 -- 2F (outside only)
 local WT = 0.6 -- wall thickness
-local DOOR_Z0, DOOR_Z1 = -287, -281
+local DOOR_Z0, DOOR_Z1 = -338, -330 -- (in the middle of the long front, 8 wide)
 
 -- old pieces ------------------------------------------------------------
 local old = T:FindFirstChild("Gukbap")
 if old then old:Destroy() end
-for _, m in ipairs(T:GetChildren()) do
-	if m.Name == "BG_Facade(진입불가)" and m:IsA("Model") then
-		local b = m:FindFirstChild("Body")
-		if b and math.abs(b.Position.X - 56) < 1 and b.Position.Z > -301 and b.Position.Z < -266 then m:Destroy() end
-	end
-end
--- boundary: x 59 (z -374..-265) and z -265 (x 59..191) become
--- x 59 (to z -301), z -301 (to x 78), x 78 (to z -265), z -265 (to x 191)
-local B = T:FindFirstChild("MapBoundary")
-if B then
-	for _, w in ipairs(B:GetChildren()) do
-		if w.Name == "BoundaryWall" then
-			local p = w.Position
-			local alongZ = w.Size.Z > 4 and math.abs(w.CFrame.LookVector.Z) > 0.9
-			local alongX = w.Size.Z > 4 and math.abs(w.CFrame.LookVector.X) > 0.9
-			-- (also the lot's own walls from an earlier run: x 78 and z -301)
-			if (alongZ and (math.abs(p.X - 59) < 1.5 or math.abs(p.X - 78) < 1.5) and p.Z > -380 and p.Z < -260)
-				or (alongX and (math.abs(p.Z + 265) < 1.5 or math.abs(p.Z + 301) < 1.5) and p.X > 55 and p.X < 195) then
-				w:Destroy()
-			end
-		end
-	end
-	local P = { { 59, -374 }, { 59, -301 }, { 78, -301 }, { 78, -265 }, { 191, -265 } }
-	for i = 1, #P - 1 do
-		local pa, pb = Vector3.new(P[i][1], 0, P[i][2]), Vector3.new(P[i + 1][1], 0, P[i + 1][2])
-		local mid = (pa + pb) / 2 + Vector3.new(0, 55, 0)
-		local w = Instance.new("Part")
-		w.Name = "BoundaryWall"
-		w.Anchored = true
-		w.Size = Vector3.new(2, 150, (pb - pa).Magnitude + 2)
-		w.CFrame = CFrame.lookAt(mid, mid + (pb - pa))
-		w.Transparency = 1
-		w.CanQuery = false
-		w.CanTouch = false
-		w.CastShadow = false
-		w.Parent = B
-	end
-end
-
 local M = Instance.new("Model")
 M.Name = "Gukbap"
 
@@ -154,7 +117,7 @@ box("Wall_N", X0, 0, Z0, X1, top2, Z0 + WT, WALL, { material = Enum.Material.Pla
 box("Wall_S", X0, 0, Z1 - WT, X1, top2, Z1, WALL, { material = Enum.Material.Plaster })
 box("Front2F", X0, top1, Z0, X0 + WT, top2, Z1, TILE2F, { material = Enum.Material.Brick })
 -- 2F windows (old aluminium frames, dark glass), outside only
-for _, wz in ipairs({ -296, -288.5, -281, -273.5 }) do
+for wz = Z0 + 5, Z1 - 4, 7.5 do
 	box("Window2F", X0 - 0.15, top1 + 2.5, wz - 2.6, X0, top1 + 7.5, wz + 2.6, Color3.fromRGB(60, 70, 80), { material = Enum.Material.Glass, t = 0.15, nocol = true })
 	box("Window2FFrame", X0 - 0.25, top1 + 2.3, wz - 2.8, X0 - 0.1, top1 + 2.5, wz + 2.8, ALU, { nocol = true })
 	box("Window2FMullion", X0 - 0.25, top1 + 2.5, wz - 0.1, X0 - 0.1, top1 + 7.5, wz + 0.1, ALU, { nocol = true })
@@ -267,12 +230,12 @@ end
 for _, w in ipairs({ { X0 + WT, Z0 + WT, X1 - WT, Z0 + WT + 0.1 }, { X0 + WT, Z1 - WT - 0.1, X1 - WT, Z1 - WT } }) do
 	box("WallPanel", w[1], FY, w[2], w[3], FY + 4, w[4], Color3.fromRGB(196, 160, 116), { material = Enum.Material.WoodPlanks, nocol = true })
 end
-for _, lz in ipairs({ -294, -284, -274 }) do
-	for _, lx in ipairs({ 53, 60, 67 }) do
+for lz = Z0 + 8, Z1 - 5, 16 do -- (5 × 7 tubes over the big hall; their range grows with the 21-stud ceiling)
+	for lx = X0 + 8, X1 - 18, 18 do
 		local tube = box("TubeLight", lx - 2.2, top1 - 0.25, lz - 0.25, lx + 2.2, top1, lz + 0.25, Color3.fromRGB(248, 250, 255), { material = Enum.Material.Neon, nocol = true, noshadow = true })
 		local l = Instance.new("SurfaceLight")
 		l.Face = Enum.NormalId.Bottom
-		l.Range = 14
+		l.Range = 26
 		l.Brightness = 0.9
 		l.Angle = 120
 		l.Color = Color3.fromRGB(245, 248, 255)
@@ -281,7 +244,7 @@ for _, lz in ipairs({ -294, -284, -274 }) do
 end
 
 -- kitchen along the back wall: steel counter with a pass, stock pots, bowls
-local KX = 69 -- counter front
+local KX = X1 - 14 -- counter front
 box("KitchenFloor", KX, FY, Z0 + WT, X1 - WT, FY + 0.05, Z1 - WT, Color3.fromRGB(120, 118, 114), { material = Enum.Material.Slate, nocol = true })
 local counter = box("KitchenCounter", KX, FY, Z0 + 4, KX + 1.6, FY + 3.6, Z1 - 4, STEEL, { material = Enum.Material.DiamondPlate })
 CS:AddTag(counter, "GukbapCounter")
@@ -292,7 +255,7 @@ box("CounterTop", KX - 0.3, FY + 3.6, Z0 + 3.8, KX + 1.9, FY + 3.8, Z1 - 3.8, Co
 box("KitchenSideWall_N", KX, FY, Z0 + WT, KX + 0.4, FY + 3.6, Z0 + 4, STEEL, { material = Enum.Material.Metal })
 box("KitchenSideWall_S", KX, FY, Z1 - 4, KX + 0.4, FY + 3.6, Z1 - WT, STEEL, { material = Enum.Material.Metal })
 box("Range", X1 - WT - 3, FY, Z0 + 6, X1 - WT, FY + 3, Z1 - 6, Color3.fromRGB(70, 70, 74), { material = Enum.Material.Metal })
-for _, pz in ipairs({ -293, -287.5, -281.5, -276 }) do
+for pz = Z0 + 9, Z1 - 8, 6 do
 	local pot = vcyl("StockPot", Vector3.new(X1 - WT - 1.5, FY + 3, pz), 2.6, 2.6, Color3.fromRGB(205, 208, 212), { material = Enum.Material.Metal })
 	local st = Instance.new("ParticleEmitter")
 	st.Texture = "rbxasset://textures/particles/smoke_main.dds"
@@ -307,7 +270,7 @@ for _, pz in ipairs({ -293, -287.5, -281.5, -276 }) do
 	st.Parent = pot
 end
 -- stacks of earthenware bowls (뚝배기) on the counter
-for _, bz in ipairs({ -292, -289.5, -279, -276.5 }) do
+for bz = Z0 + 6, Z1 - 6, 5 do
 	for k = 0, 2 do
 		vcyl("Ttukbaegi", Vector3.new(KX + 0.9, FY + 3.8 + k * 0.55, bz), 1.2, 0.5, Color3.fromRGB(70, 46, 38), { material = Enum.Material.Slate, nocol = true })
 	end
@@ -347,8 +310,9 @@ local function gukbapTable(tx, tz)
 		vcyl("StoolLeg", Vector3.new(tx + s[1], FY, tz + s[2]), 0.3, 1.35, ALU, { nocol = true })
 	end
 end
-for _, tz in ipairs({ -295, -273 }) do
-	for _, tx in ipairs({ 53, 58.5, 64 }) do
+-- (layout v8) 32 tables in four rows, an aisle from the door to the kitchen
+for _, tz in ipairs({ -366, -352, -316, -302 }) do
+	for _, tx in ipairs({ 56, 72, 88, 104, 120, 136, 152, 168 }) do
 		gukbapTable(tx, tz)
 	end
 end

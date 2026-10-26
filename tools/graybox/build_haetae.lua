@@ -40,7 +40,9 @@ for _, c in ipairs(G:GetChildren()) do
 		table.insert(spots, Vector3.new(c.Position.X, c.Position.Y + c.Size.Y / 2, c.Position.Z))
 	end
 end
-if #spots == 0 then spots = { Vector3.new(52.5, 0.45, 135), Vector3.new(52.5, 0.45, 201) } end
+-- (layout v8, 2026-10-27: the gate three times as big, its path z 84..252 →
+-- the pair 5 outside the railings, at the lawns' street end as before)
+if #spots == 0 then spots = { Vector3.new(52.5, 0.45, 79), Vector3.new(52.5, 0.45, 257) } end
 table.sort(spots, function(a, b) return a.Z < b.Z end)
 local PATH_Z = (spots[1].Z + spots[#spots].Z) / 2 -- the approach path runs between them
 local FACING = Vector3.new(-1, 0, 0) -- out to the street

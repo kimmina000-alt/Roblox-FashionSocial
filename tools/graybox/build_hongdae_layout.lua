@@ -34,7 +34,8 @@ local function R(deg) return CFrame.Angles(0, math.rad(deg), 0) end
 -- the east-road sidewalk), the hanok village 12 south. The beach goes 2.4
 -- down (and the sea 3) so the promenade steps down to the sand (광안리 photo).
 -- -14 (was -6): an alley between the club and the 오후네컷 building (user 2026-10-23)
-local CLUB_DZ = -14
+-- -38 (layout v8, user map 2026-10-27): 24 more north, the 오후네컷 building grew north
+local CLUB_DZ = -38
 local CDZ = CLUB_DZ + 6 -- shift for positions measured when CLUB_DZ was -6
 local MOVES = {
 	["02_Club"] = CFrame.new(0, 0, CLUB_DZ) * CFrame.new(109, 0, -172) * R(-90) * CFrame.new(0, 0, 210), -- entrance faces west (club street)
@@ -48,12 +49,15 @@ local MOVES = {
 	["04_Beach_Aquarium"] = CFrame.new(0, -2.4, 0), -- sand below the promenade
 }
 local BEACH_DROP, SEA_DROP = 2.4, 3
+-- the beach cafe (graybox 04, layout v8 2026-10-27: twice as big, moved south):
+-- its street front z CAFE_Z0..CAFE_Z1, its corner decks and steps CAFE_ZS..CAFE_ZN
+local CAFE_Z0, CAFE_Z1, CAFE_ZS, CAFE_ZN = 195, 357, 174.8, 377.2
 -- ground holes: club + the four subway stair pits (x0, z0, x1, z1)
 local HOLES = {
 	{ 49, -253 + CLUB_DZ, 189, -92 + CLUB_DZ }, -- (19 longer east, user 2026-10-25) the club: edges in the middle of its walls (at the inner faces the ground flickered on the corridor and back walls, user 2026-10-24)
 	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -53, 41, -35, 47 }, -- exit 2 comes up southwards, 4 westwards in the corner square (toward the beach, user 2026-10-25)
-	{ 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
+	{ 47, 47, 68, 83.4 }, { 47, 252.6, 68, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
 	{ -141, -197, -51, -83 }, -- the pocket park's sunken round plaza (user 2026-10-24)
 	{ -110, -92, -68, -53 }, -- its south walk + stair
 }
@@ -61,7 +65,9 @@ local HOLES = {
 -- the lawns are sunken beds: terrain heights snap to 4 studs, so terrain
 -- grass can only stand at about -1.6 (or 2.4, which bulged, user 2026-10-23);
 -- the ground and the yard paving are cut there and a stone kerb rims the bed
-local LAWN_TERRAIN = { { 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 } }
+-- (layout v8: the gate three times as big, z 84..252, x 76..118: the beds
+-- shrink to the corners, up to its yard x 68)
+local LAWN_TERRAIN = { { 47, 47, 68, 83.4 }, { 47, 252.6, 68, 289 } }
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
 	{ Vector3.new(400, -55, 60), 95 }, { Vector3.new(470, -60, 175), 110 }, { Vector3.new(420, -55, 295), 95 },
 	{ Vector3.new(290, -70, 370), 90 }, { Vector3.new(150, -75, 390), 90 },
@@ -135,7 +141,8 @@ local function revert()
 	local old = workspace:FindFirstChild("Hongdae_Layout") or workspace:FindFirstChild("Hongdae_v1_Temp")
 	if old then
 		if old:GetAttribute("LawnTerrain") then
-			for _, l in ipairs(LAWN_TERRAIN) do
+			-- (with the beds before layout v8, so their grass goes too)
+			for _, l in ipairs({ LAWN_TERRAIN[1], LAWN_TERRAIN[2], { 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 } }) do
 				workspace.Terrain:FillBlock(CFrame.new((l[1] + l[3]) / 2, -2, (l[2] + l[4]) / 2), Vector3.new(l[3] - l[1] + 8, 12, l[4] - l[2] + 8), Enum.Material.Air)
 			end
 		end
@@ -152,6 +159,8 @@ local function revert()
 	workspace.Terrain:FillBlock(CFrame.new(-277.5, 1.02, 47), Vector3.new(13.4, 2, 48), Enum.Material.Air) -- (the channel since 2026-10-25)
 	workspace.Terrain:FillBlock(CFrame.new(-278, -2, 46), Vector3.new(20, 4, 52), Enum.Material.Air) -- (its basin under the floor)
 	workspace.Terrain:FillBlock(CFrame.new(-272, -2, 42), Vector3.new(16, 4, 44), Enum.Material.Air) -- (the moved basin)
+	-- (layout v8) the cafe left that place: the sea there back to its lowered level (y -3)
+	workspace.Terrain:FillBlock(CFrame.new(-282, -3.5, 44), Vector3.new(28, 1, 60), Enum.Material.Water)
 	-- ride name signs switched off while the park was closed
 	for _, g in ipairs(root:GetDescendants()) do
 		if g:IsA("BillboardGui") and g:GetAttribute("ParkClosedHidden") then
@@ -181,6 +190,22 @@ end
 local hidden = Instance.new("Folder")
 hidden.Name = HIDE
 hidden.Parent = SS
+-- layout v8 (user map 2026-10-27): the runway / backstage behind the club is
+-- gone under the big 국밥집 and the long shop block, the Glasshouse cafe under
+-- the bigger OH24 store and the south shop block; parked like the rest
+for _, zn in ipairs({ "03_Rooftop_Backstage", "05_Cafe" }) do
+	local z3 = root:FindFirstChild(zn)
+	if z3 then
+		local undo = MOVES[zn]:Inverse()
+		for _, c in ipairs(z3:GetChildren()) do
+			if c:IsA("BasePart") or c:IsA("Model") then
+				if c:IsA("Model") then c:PivotTo(undo * c:GetPivot()) else c.CFrame = undo * c.CFrame end
+				c:SetAttribute("HomeZone", z3.Name)
+				c.Parent = hidden
+			end
+		end
+	end
+end
 local groundTemplate: BasePart? = nil
 for _, zn in ipairs({ "00_Ground", "01_Plaza_Street", "09_Paths" }) do
 	for _, p in ipairs(root[zn]:GetChildren()) do
@@ -653,11 +678,29 @@ end
 -- a big road from the crossroads; dir = ±X/±Z; u along, v across (+v = right of dir)
 -- pits = sidewalk cut-outs for stair pits {u0, u1, v0, v1}; cars = {u, v}
 -- sidewalk areas kept free of lamps / planters (entrances)
+-- bus stops (number, name, centre, toward the road, along the street). The
+-- shelters are twice their old size since layout v8 (user 2026-10-27): about
+-- 30 along the street; nothing is planted there and the bike lane breaks
+local BUS_STOPS = {
+	{ 1, "OHU CLUB 앞", Vector3.new(-31, 0, -183 - 24), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1) }, -- (24 north with the club, v8)
+	{ 2, "고층 빌딩가", Vector3.new(130, 0, 31), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0) },
+	{ 3, "한옥 마을 · 광화문", Vector3.new(31, 0, 217.5), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1) },
+	{ 4, "해변", Vector3.new(-153, 0, 84), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1) },
+}
+local BUS_HALF = 17 -- half the shelter + sign length along the street
+local function busFootprint(s): (number, number, number, number)
+	local c, along, road = s[3], s[5], s[4]
+	local a, b = c - along * BUS_HALF - road * 5, c + along * (BUS_HALF + 3) + road * 9
+	return math.min(a.X, b.X), math.min(a.Z, b.Z), math.max(a.X, b.X), math.max(a.Z, b.Z)
+end
 local KEEP_CLEAR = {
 	{ -196, -40, -104, -20 }, -- park gate
-	-- bus stops: no planting bed between the shelter / sign and the curb
-	{ -40, -148, -22, -112 }, { 112, 22, 150, 40 }, { 22, 212, 40, 250 }, { -162, 132, -144, 168 },
 }
+-- bus stops: no planting bed between the shelter / sign and the curb
+for _, s in ipairs(BUS_STOPS) do
+	local x0, z0, x1, z1 = busFootprint(s)
+	table.insert(KEEP_CLEAR, { x0, z0, x1, z1 })
+end
 local function clear(p: Vector3)
 	for _, k in ipairs(KEEP_CLEAR) do if p.X > k[1] and p.X < k[3] and p.Z > k[2] and p.Z < k[4] then return false end end
 	return true
@@ -820,10 +863,17 @@ local function bigRoad(dir: Vector3, len: number, pits, cars, outer, endCrossing
 			end
 			local function free(u) 
 				for _, b in ipairs(blocked) do if u > b[1] and u < b[2] then return false end end
-				-- the 광화문 stop moved north (user 2026-10-26): the lane stops only
-				-- under its shelter, not over its old keep-clear stretch
+				-- the lane stops only under a bus shelter (user 2026-10-26), not over
+				-- the whole keep-clear stretch round it
 				local p = at(u, side * 31.2)
-				if p.X > 22 and p.X < 40 and p.Z > 208.5 and p.Z < 250 then return p.Z > 227.5 end
+				for _, s in ipairs(BUS_STOPS) do
+					local c, along = s[3], s[5]
+					local d = p - c
+					if math.abs(d:Dot(s[4])) < 4 and math.abs(d:Dot(along)) < 16 then return false end
+				end
+				for i, k in ipairs(KEEP_CLEAR) do
+					if i > 1 and p.X > k[1] and p.X < k[3] and p.Z > k[2] and p.Z < k[4] then return true end -- (a bus stop box: only the shelter counts)
+				end
 				return clear(p)
 			end
 			local runStart: number? = nil
@@ -935,7 +985,7 @@ local function smallRoad(a: Vector2, b: Vector2, stopEnds)
 end
 -- (user 2026-10-25: the club grows east over it) no side street east of the
 -- club any more: paved over from the club to the background towers
-box("Sidewalk", 171, 0, -470, 192.5, CURB, -268.2 + CDZ, WALK, { material = Enum.Material.Brick })
+box("Sidewalk", 171, 0, -470, 192.5, CURB, -375, WALK, { material = Enum.Material.Brick }) -- (layout v8: up to the big 국밥집, z -375; was -268.2 + CDZ)
 box("Sidewalk", 171, 0, -95.8 + CDZ, 192.5, CURB, -47, WALK, { material = Enum.Material.Brick })
 box("Sidewalk", 190.2, 0, -268.2 + CDZ, 192.5, CURB, -95.8 + CDZ, WALK, { material = Enum.Material.Brick })
 local _ = smallRoad
@@ -1182,14 +1232,20 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 	local map = part("RouteMap", Vector3.new(4.6, 3.4, 0.15), cf * CFrame.new(0, 6, 1.8), Color3.fromRGB(240, 242, 240), { parent = m })
 	surfaceText(map, Enum.NormalId.Front, "OHU 01 ─●─●─●─\nOHU 02 ─●─●─●─\nOHU 03 ─●─●─●─", Color3.fromRGB(40, 120, 60), Enum.Font.GothamBold)
 	part("BackGlass", Vector3.new(4.6, 3.4, 0.1), cf * CFrame.new(0, 2.6, 1.8), Color3.fromRGB(200, 220, 228), { parent = m, material = Enum.Material.Glass, transparency = 0.6 })
-	for _, x in ipairs({ -1.9, 1.9 }) do part("BenchLeg", Vector3.new(0.3, 1.6, 1), cf * CFrame.new(x, 0.8, 1), steel, { parent = m, material = Enum.Material.Metal }) end
-	seat("BusBench", cf * CFrame.new(0, 1.75, 1), Vector3.new(4.4, 0.3, 1.2), Color3.fromRGB(150, 175, 180), m)
 	local plate = part("StopNumber", Vector3.new(1.2, 0.8, 0.1), cf * CFrame.new(W / 2 - 1, H - 1.5, 1.55), Color3.fromRGB(40, 90, 200), { parent = m })
 	surfaceText(plate, Enum.NormalId.Front, string.format("%02d-%03d", 13, 100 + n), Color3.new(1, 1, 1), Enum.Font.GothamBold)
+	-- (layout v8, user 2026-10-27) the shelter twice as big; the benches stay
+	-- human sized, two of them under the bigger roof
+	m.WorldPivot = cf
+	m:ScaleTo(2)
+	for _, bx in ipairs({ -4.5, 4.5 }) do
+		for _, x in ipairs({ -1.9, 1.9 }) do part("BenchLeg", Vector3.new(0.3, 1.6, 1), cf * CFrame.new(bx + x, 0.8, 2.2), steel, { parent = m, material = Enum.Material.Metal }) end
+		seat("BusBench", cf * CFrame.new(bx, 1.75, 2.2), Vector3.new(4.4, 0.3, 1.2), Color3.fromRGB(150, 175, 180), m)
+	end
 	-- bus stop sign pole at the curb (user photo, 노원구청): green bus disc on
 	-- top, black name panel + white route board, small 금연 plate. Clicking the
 	-- sign opens the stop picker (SubwayService, tag BusStop)
-	local signBase = base + roadDir * 5.4 + along * 9 -- at the curb, road side (user)
+	local signBase = base + roadDir * 5.4 + along * 18 -- at the curb, road side (user), past the bigger shelter
 	local scf = CFrame.lookAt(signBase, signBase + along) -- the sign faces along the street
 	-- half the size it was (user 2026-10-22)
 	-- thin pole that ends inside the sign (it must not show in front of the
@@ -1248,10 +1304,7 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 end
 -- (1: moved north to where the ranking boards stood, 3: moved north to the
 -- street light, user phone test 2026-10-26)
-busStop(1, "OHU CLUB 앞", Vector3.new(-31, 0, -183), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1))
-busStop(2, "고층 빌딩가", Vector3.new(130, 0, 31), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0))
-busStop(3, "한옥 마을 · 광화문", Vector3.new(31, 0, 217.5), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1))
-busStop(4, "해변", Vector3.new(-153, 0, 84), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1)) -- (north, in front of the 노래방 tower, user 2026-10-25)
+for _, s in ipairs(BUS_STOPS) do busStop(s[1], s[2], s[3], s[4], s[5]) end
 
 ------------------------------------------------------- 광안리 seafront
 do
@@ -1391,8 +1444,9 @@ do
 		end
 		for zs = STEP_N, z1 - 1, 20 do
 			local ze = math.min(zs + 20, z1)
-			if zs < -4.2 and ze > -4.2 then ze = -4.2 end -- the beach cafe's corner steps take over from here (graybox 04)
-			if zs < 126.2 and ze > 126.2 then zs = 126.2 end -- and hand back after its north corner
+			-- (layout v8, 2026-10-27: the cafe moved south, its decks z 174.8..377.2)
+			if zs < CAFE_ZS and ze > CAFE_ZS then ze = CAFE_ZS end -- the beach cafe's corner steps take over from here (graybox 04)
+			if zs < CAFE_ZN and ze > CAFE_ZN then zs = CAFE_ZN end -- and hand back after its south corner
 			local free = true
 			local probe = CFrame.new(-201, (sandTop + CURB) / 2 + 0.2, (zs + ze) / 2)
 			for _, p in ipairs(workspace:GetPartBoundsInBox(probe, Vector3.new(6, CURB - sandTop - 0.6, ze - zs - 1), params)) do
@@ -1408,9 +1462,9 @@ do
 				box("BeachStep", -206.2, sandTop, zs, -203.7, CURB - 1.8, ze, wood, { material = Enum.Material.WoodPlanks })
 			else
 				-- the granite edge along the promenade runs on past the beach cafe too (user 2026-10-24);
-				-- by the cafe only along its front (z 16..106): the corners have the cafe's own edge
+				-- by the cafe only along its front: the corners have the cafe's own edge
 				local ea, eb = zs, ze
-				if ze > -4.2 and zs < 126.2 then ea, eb = math.max(zs, 16), math.min(ze, 106) end
+				if ze > CAFE_ZS and zs < CAFE_ZN then ea, eb = math.max(zs, CAFE_Z0), math.min(ze, CAFE_Z1) end
 				if eb > ea then box("BeachStepEdge", -198.7, sandTop, ea, -198, CURB + 0.1, eb, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite }) end
 			end
 		end
@@ -1662,13 +1716,18 @@ do
 		end
 		workspace.Terrain:FillBlock(CFrame.new(-368, -9.5, -150), Vector3.new(92, 13, 92), Enum.Material.Water)
 		-- the beach cafe's 물멍 pool holds the same terrain water as the sea (user 2026-10-24)
-		workspace.Terrain:FillBlock(CFrame.new(-274, 0.7, 62), Vector3.new(24.4, 1.4, 28), Enum.Material.Air) -- (the old pool's place, user plan 2026-10-25)
-		-- (user 2026-10-25) lower (surface about 1.0, under the black frame's top at 1.6) and wider, in under the frame on every side so no ragged edge shows
-		workspace.Terrain:FillBlock(CFrame.new(-277.5, 1.02, 47), Vector3.new(13.4, 2, 48), Enum.Material.Air)
-		-- (later the same day) one whole 4-stud cell layer, y -4..0, in the closed basin under the cafe floor: surface at y 0, below the floor top (0.6)
-		workspace.Terrain:FillBlock(CFrame.new(-278, -2, 46), Vector3.new(20, 4, 52), Enum.Material.Air) -- (the first basin's place)
-		-- (user plan 2026-10-25) the channel 4.5 east and shorter: basin x -280..-264, z 20..64
-		workspace.Terrain:FillBlock(CFrame.new(-272, -2, 42), Vector3.new(16, 4, 44), Enum.Material.Water)
+		-- one whole 4-stud cell layer, y -4..0, in the closed basin under the cafe
+		-- floor: surface at y 0, below the floor top (0.6). Since layout v8 the
+		-- cafe moved, so the water goes where its channel (SplashZone) is now,
+		-- in whole cells round the opening
+		local cafe = beachZone:FindFirstChild("BeachCafe")
+		local splash = cafe and cafe:FindFirstChild("SplashZone")
+		if splash then
+			local lo, hi = splash.Position - splash.Size / 2, splash.Position + splash.Size / 2
+			local ax0, ax1 = math.floor(lo.X / 4) * 4, math.ceil(hi.X / 4) * 4
+			local az0, az1 = math.floor(lo.Z / 4) * 4, math.ceil(hi.Z / 4) * 4
+			workspace.Terrain:FillBlock(CFrame.new((ax0 + ax1) / 2, -2, (az0 + az1) / 2), Vector3.new(ax1 - ax0, 4, az1 - az0), Enum.Material.Water)
+		end
 		for _, old in ipairs(beachZone:GetChildren()) do
 			if old:IsA("Model") and old.Name == "PalmTree" then
 				local cf, size = old:GetBoundingBox()
@@ -1703,11 +1762,11 @@ do
 		local near = false
 		for _, cz in ipairs(CROSS) do if math.abs(zz - cz) < 14 then near = true end end
 		local onBench = (zz - (z0 + 28)) % 60 < 8 or (zz - (z0 + 28)) % 60 > 58
-		local atCafe = zz > 8 and zz < 114 -- the beach cafe front (user 2026-10-24: no lamp or bench there)
+		local atCafe = zz > CAFE_ZS - 8 and zz < CAFE_ZN + 8 -- the beach cafe front (user 2026-10-24: no lamp or bench there)
 		if not near and not onBench and not atCafe then streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
 	end
 	for zz = z0 + 28, z1, 60 do
-		if zz + 6 > 8 and zz < 114 then continue end -- not along the beach cafe (user 2026-10-24)
+		if zz + 6 > CAFE_ZS - 8 and zz < CAFE_ZN + 8 then continue end -- not along the beach cafe (user 2026-10-24)
 		box("BenchBase", -197.5, CURB, zz, -195.5, CURB + 1.6, zz + 6, Color3.fromRGB(110, 110, 115))
 		-- wooden top along the bench, two seats side by side (user 2026-10-23)
 		for _, dz in ipairs({ 1.5, 4.5 }) do
@@ -2424,6 +2483,20 @@ do
 		top:SetAttribute("NightAngle", 120)
 		CS:AddTag(top, "NightGlow")
 	end
+	-- (layout v8, user 2026-10-27: "광화문 크기 3배로 키우기") the whole gate three
+	-- times as big about the middle of its foot (still on the wall line x 97);
+	-- the yard, lawns, balustrades and 해태 in front follow its new size below
+	do
+		local GS = 3
+		local S = Instance.new("Model")
+		for _, c in ipairs(G:GetChildren()) do c.Parent = S end
+		local cx, cz = (gx0 + gx1) / 2, (gz0 + gz1) / 2
+		S.WorldPivot = CFrame.new(cx, 0, cz)
+		S:ScaleTo(GS)
+		for _, c in ipairs(S:GetChildren()) do c.Parent = G end
+		gx0, gx1 = cx - (cx - gx0) * GS, cx + (gx1 - cx) * GS
+		gz0, gz1 = cz - (cz - gz0) * GS, cz + (gz1 - cz) * GS
+	end
 
 	-- in front, sidewalk (x WIDE) to the gate: stone ground, a path between
 	-- two stone balustrades, lawns either side, 해태 at the street end
@@ -2675,6 +2748,12 @@ do
 	pillar(BW + 0.5, z0 + 0.5, 6, 15)
 	for zz = z0 - 105, BZ_END + 50, -105 do pillar(BW + 0.5, zz, 6, 15) end
 	box("ParkGround", BW + 1, -2.6, BZ_END, x0, 0.25, z0, Color3.fromRGB(110, 175, 95), { parent = E, material = Enum.Material.Grass })
+	-- (layout v8, user map 2026-10-27: "북쪽 도로 따라서 놀이공원 담벼락 이어지게")
+	-- the east wall runs on north along the north road's west sidewalk to the
+	-- end of the map, where the shop buildings stood; park land behind it
+	wallSeg(x1 - 1, BZ_END, x1, z0)
+	for zz = z0 - 105, BZ_END + 50, -105 do pillar(x1 - 0.5, zz, 6, 15) end
+	box("ParkGround", x0, 0, BZ_END, x1 - 1, 0.25, z0, Color3.fromRGB(110, 175, 95), { parent = E, material = Enum.Material.Grass })
 	-- main gate (user photo 2026-10-23, an ADVENTURELAND-style arch): two tall
 	-- sandstone towers with carved panels, domes and spires carry a big
 	-- arched sign band "OHU LAND"; lower outer towers with half arches on
@@ -4072,17 +4151,9 @@ local function tower(x0, z0, x1, z1, h, kind, face, shop, screen)
 	end
 	m.Parent = T
 end
-tower(193, -470, 243, -380, 150, "glass", "W", "OHU 타워", "OHU FASHION WEEK")
-tower(193, -370, 243, -262, 96, "concrete", "W", "PC방")
-tower(193, -252, 243, -170, 128, "glass", "W", "HOMME", "NEW SEASON")
-tower(193, -160, 243, -48, 70, "concrete", "W", "뷰티 & 샵")
-tower(250, -142, 310, -48, 110, "glass", "S", "OHU 마트", "인생네컷 SALE")
-tower(-76, 110, -48, 170, 120, "glass", "E", "카페")
-tower(-76, 180, -48, 250, 80, "concrete", "E", "약국")
--- (6 narrower than before: a 6-stud gap to the OH24 store, user 2026-10-23)
--- (kept low, user 2026-10-25: from the beach the screen on the tower over OH24 shows above it)
--- (front on the OH24 store's front line z 62.5, user 2026-10-26: it stood out on the sidewalk)
-tower(-146, 62.5, -132, 104, 20, "concrete", "N", "노래방") -- (12 south, its back on the OH24 store's back line z 104, user 2026-10-25; the ground it left is paved below)
+-- (layout v8, user map 2026-10-27: the towers east of the club and 오후네컷, the two
+-- beside the old Glasshouse cafe and the 노래방 tower by OH24 are gone: long
+-- shop blocks with sign images instead, see SHOP_BLOCKS below)
 do -- "오늘의 큰손" tower over the OH24 store (user mock-ups + reference photos
 	-- 2026-10-25): a tall tower of dark granite with narrow vertical window
 	-- slits covering the whole store roof (x -130..-56, z 66..104, roof y 14),
@@ -4096,7 +4167,8 @@ do -- "오늘의 큰손" tower over the OH24 store (user mock-ups + reference ph
 	local GRANITE = Color3.fromRGB(74, 70, 68)
 	local SLIT = Color3.fromRGB(28, 32, 38)
 	local FR = Color3.fromRGB(16, 16, 20)
-	local X0, X1, Z0, Z1, Y0, Y1 = -130, -56, 66, 104, 21, 103 -- (on the raised store roof, H 21: user 2026-10-27)
+	-- (layout v8: the store grew west to x -148; the tower keeps to its north part)
+	local X0, X1, Z0, Z1, Y0, Y1 = -148, -56, 66, 104, 21, 103 -- (on the raised store roof, H 21: user 2026-10-27)
 	box("TowerBody", X0, Y0, Z0, X1, Y1, Z1, GRANITE, { parent = L, material = Enum.Material.Slate })
 	box("TowerCrown", X0 - 0.4, Y1, Z0 - 0.4, X1 + 0.4, Y1 + 2, Z1 + 0.4, Color3.fromRGB(60, 58, 58), { parent = L, material = Enum.Material.Slate })
 	box("TowerTopGlass", X0 + 0.2, Y1 - 8, Z0 - 0.15, X1 - 0.2, Y1 - 1, Z0 + 0.1, Color3.fromRGB(70, 90, 110), { parent = L, material = Enum.Material.Glass })
@@ -4186,74 +4258,8 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	end
 end
 
-do -- alley between two towers: dumpsters, bags, fire barrel, purple neon shutter
-	local A = Instance.new("Model")
-	A.Name = "Alley"
-	A.Parent = T
-	box("AlleyFloor", 193, 0, -380, 243, 0.1, -370, Color3.fromRGB(60, 58, 60), { parent = A, material = Enum.Material.Asphalt })
-	for _, dx in ipairs({ 198, 206 }) do
-		box("Dumpster", dx, 0, -379, dx + 6, 3.4, -375, Color3.fromRGB(40, 90, 55), { parent = A })
-		box("DumpsterLid", dx - 0.1, 3.4, -379.2, dx + 6.1, 3.7, -374.8, Color3.fromRGB(30, 70, 45), { parent = A })
-	end
-	for k = 0, 4 do part("TrashBag", Vector3.new(1.8, 1.5, 1.8), CFrame.new(214 + k * 1.6, 0.75, -376 + (k % 2)), Color3.fromRGB(25, 25, 28), { parent = A, shape = Enum.PartType.Ball }) end
-	vcyl("FireBarrel", Vector3.new(232, 0.1, -376), 2.4, 3.2, Color3.fromRGB(90, 60, 40), { parent = A })
-	local fire = part("FireGlow", Vector3.new(1.6, 1.6, 1.6), CFrame.new(232, 3.9, -376), Color3.fromRGB(255, 140, 40), { parent = A, material = Enum.Material.Neon, shape = Enum.PartType.Ball, nocol = true })
-	local fl = Instance.new("PointLight") fl.Color = Color3.fromRGB(255, 150, 60) fl.Range = 16 fl.Brightness = 1.5 fl.Parent = fire
-	local sh = box("NeonShutter", 210, 0.1, -370.6, 228, 9, -370.1, Color3.fromRGB(150, 60, 230), { parent = A, material = Enum.Material.Neon, transparency = 0.15, nocol = true })
-	local pl = Instance.new("PointLight") pl.Color = Color3.fromRGB(170, 80, 255) pl.Range = 18 pl.Brightness = 1.2 pl.Parent = sh
-end
-
-do -- construction site (future prop shop)
-	-- the empty lot east of the 오후네컷 building, along the east road (user
-	-- 2026-10-23), with an alley to the photo booth building
-	local x0, z0, x1, z1, title = 122, -96, 156, -58, "소품샵 예정" -- (west edge 116 → 122: 오후네컷 grew east, 2026-10-26)
-	local m = Instance.new("Model")
-	m.Name = "ConstructionSite(" .. title .. ")"
-	m.Parent = T
-	box("Dirt", x0, 0, z0, x1, 0.2, z1, Color3.fromRGB(150, 120, 90), { parent = m, material = Enum.Material.Ground })
-	local walls = {
-		box("Hoarding", x0, 0, z0, x1, 9, z0 + 0.4, Color3.fromRGB(245, 245, 245), { parent = m }),
-		box("Hoarding", x0, 0, z1 - 0.4, x1, 9, z1, Color3.fromRGB(245, 245, 245), { parent = m }),
-		box("Hoarding", x0, 0, z0, x0 + 0.4, 9, z1, Color3.fromRGB(245, 245, 245), { parent = m }),
-		box("Hoarding", x1 - 0.4, 0, z0, x1, 9, z1, Color3.fromRGB(245, 245, 245), { parent = m }),
-	}
-	for _, w in ipairs(walls) do
-		for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do
-			if (face == Enum.NormalId.Front or face == Enum.NormalId.Back) == (w.Size.X > w.Size.Z) then
-				local g = Instance.new("SurfaceGui")
-				g.Face = face
-				g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-				g.PixelsPerStud = 20
-				g.Parent = w
-				for k = 0, 5 do
-					local line = Instance.new("Frame")
-					line.BackgroundColor3 = Color3.fromRGB(70, 90, 190)
-					line.BorderSizePixel = 0
-					line.AnchorPoint = Vector2.new(0.5, 0.5)
-					line.Position = UDim2.fromScale(0.12 + k * 0.16, 0.45 + ((k % 2) - 0.5) * 0.25)
-					line.Size = UDim2.new(0.14, 0, 0, 6)
-					line.Rotation = (k % 2) * 30 - 15
-					line.Parent = g
-				end
-				local t = Instance.new("TextLabel")
-				t.BackgroundTransparency = 1
-				t.Size = UDim2.fromScale(1, 0.22)
-				t.Position = UDim2.fromScale(0, 0.72)
-				t.Font = Enum.Font.GothamBold
-				t.TextScaled = true
-				t.TextColor3 = Color3.fromRGB(70, 90, 190)
-				t.Text = title .. " · 공사 중"
-				t.Parent = g
-			end
-		end
-	end
-	label(walls[1], title .. " (공사 중)", Color3.fromRGB(70, 90, 190), 8, 0.7)
-	local cx, cz = x1 - 4, z1 - 4
-	box("CraneMast", cx - 1, 0, cz - 1, cx + 1, 46, cz + 1, Color3.fromRGB(240, 180, 30), { parent = m })
-	part("CraneJib", Vector3.new(1.4, 1.4, 34), CFrame.new(cx, 46.7, cz) * CFrame.Angles(0, math.rad(35), 0) * CFrame.new(0, 0, -11), Color3.fromRGB(240, 180, 30), { parent = m, nocol = true })
-	box("CraneCab", cx - 1.5, 43, cz - 1.5, cx + 1.5, 46, cz + 1.5, Color3.fromRGB(60, 60, 60), { parent = m })
-	for x = x0 + 3, x1 - 3, 6 do part("Cone", Vector3.new(1.2, 2, 1.2), CFrame.new(x, 1, z0 - 2), Color3.fromRGB(255, 110, 30), { parent = m, nocol = true }) end
-end
+-- (layout v8: the alley between the east towers and the construction site east of
+-- 오후네컷 are gone, the bigger 오후네컷 building stands there)
 
 do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_STORE.md)
 	-- Front = north (z 48, toward the west road). Outside like the GS25
@@ -4270,7 +4276,10 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	-- grown into the empty land around it (user 2026-10-23): x -126..-52, z 48..86
 	-- (the 노래방 tower stands west of it); glass fronts with the OH24 sign on
 	-- the north and east street sides, a solid wall on the tower side
-	local x0, z0, x1, z1, H = -126, 48, -52, 86, 21 -- (14 → 21: as high as the club 1F, user 2026-10-27)
+	-- (layout v8, user map 2026-10-27: "옆에 노래방 건물 삭제하고 거기까지 사이즈 확장한
+	-- 후 남쪽으로도 확장") x0 -126 → -144 over the 노래방 tower's place, z1 86 → 192
+	-- over the old Glasshouse cafe: world x -148..-56, z 66..210
+	local x0, z0, x1, z1, H = -144, 48, -52, 192, 21 -- (14 → 21: as high as the club 1F, user 2026-10-27)
 	local RISE = H - 14 -- the front, signs and stripes were drawn for H 14; they move up with the ceiling
 	local OH24_SHIFT = Vector3.new(-4, 0, 18) -- (applied to the finished model below)
 	local S = Instance.new("Model")
@@ -4590,7 +4599,8 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		end
 	end
 	windowBar(Vector3.new(-110, 0, z0 + 0.3), Vector3.new(-86, 0, z0 + 0.3), Vector3.new(0, 0, 1)) -- north, between the counter and the door
-	windowBar(Vector3.new(x1 - 0.3, 0, 70), Vector3.new(x1 - 0.3, 0, z1 - 3), Vector3.new(-1, 0, 0)) -- east, south part
+	windowBar(Vector3.new(x1 - 0.3, 0, 70), Vector3.new(x1 - 0.3, 0, 112), Vector3.new(-1, 0, 0)) -- east, by the shelves
+	windowBar(Vector3.new(x1 - 0.3, 0, 126), Vector3.new(x1 - 0.3, 0, z1 - 6), Vector3.new(-1, 0, 0)) -- east, along the eating corner
 
 	---------------------------------------------------------------- back wall: glass-door drink fridges (west part)
 	do
@@ -4683,16 +4693,46 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		{ { "sweets_box", "candy", "sweets_box", "bread" }, { "bread", "snack_bag", "bread", "sweets_box" }, "과자 · 디저트", "베이커리" },
 		{ { "goods", "goods", "candy", "goods" }, { "noodle", "snack_bag", "noodle", "sweets_box" }, "생활용품", "라면 · 과자" },
 	}
-	for i, gx in ipairs({ -104, -92, -80, -68 }) do
-		local c = GCATS[i]
-		shelfUnit("Gondola" .. i .. "W", CFrame.lookAt(Vector3.new(gx - 1.4, CURB, 76), Vector3.new(gx - 10, CURB, 76)), 16, 4, 6.2, 1.4, c[1], c[3])
-		shelfUnit("Gondola" .. i .. "E", CFrame.lookAt(Vector3.new(gx + 1.4, CURB, 60), Vector3.new(gx + 10, CURB, 60)), 16, 4, 6.2, 1.4, c[2], c[4])
-		shelfUnit("EndCap" .. i, CFrame.lookAt(Vector3.new(gx - 1.4, CURB, 58.8), Vector3.new(gx - 1.4, CURB, 50)), 2.8, 5, 6.6, 1.2, { "snack_bag" }, nil)
+	-- (layout v8, the bigger store) two rows of five, 14 apart: the north row by
+	-- the doors (z 60..76), the second behind it (z 92..108)
+	local gi = 0
+	for _, zb in ipairs({ 60, 92 }) do
+		for _, gx in ipairs({ -118, -104, -90, -76, -64 }) do
+			gi += 1
+			local c = GCATS[(gi - 1) % #GCATS + 1]
+			shelfUnit("Gondola" .. gi .. "W", CFrame.lookAt(Vector3.new(gx - 1.4, CURB, zb + 16), Vector3.new(gx - 10, CURB, zb + 16)), 16, 4, 6.2, 1.4, c[1], c[3])
+			shelfUnit("Gondola" .. gi .. "E", CFrame.lookAt(Vector3.new(gx + 1.4, CURB, zb), Vector3.new(gx + 10, CURB, zb)), 16, 4, 6.2, 1.4, c[2], c[4])
+			shelfUnit("EndCap" .. gi, CFrame.lookAt(Vector3.new(gx - 1.4, CURB, zb - 1.2), Vector3.new(gx - 1.4, CURB, zb - 10)), 2.8, 5, 6.6, 1.2, { "snack_bag" }, nil)
+		end
+	end
+	-- EATING CORNER in the south part (z 122..180): white tables for four
+	-- (tagged SnackTable, so bought snacks and 라면 can be shared on them) with
+	-- round stools, a few tall plants; the drinks and chilled cases on the back wall
+	do
+		local TOPC, LEG = Color3.fromRGB(248, 248, 246), Color3.fromRGB(190, 190, 195)
+		for _, tz in ipairs({ 128, 144, 160, 176 }) do
+			for _, tx in ipairs({ -132, -118, -104, -90, -76 }) do
+				local t = box("EatTable", tx - 2.2, CURB + 3, tz - 1.6, tx + 2.2, CURB + 3.2, tz + 1.6, TOPC, o)
+				CS:AddTag(t, "SnackTable")
+				box("EatTableLeg", tx - 0.2, CURB, tz - 0.2, tx + 0.2, CURB + 3, tz + 0.2, LEG, opt({ material = Enum.Material.Metal }))
+				for _, d in ipairs({ { -3.4, 0 }, { 3.4, 0 } }) do
+					for _, dz in ipairs({ -0.9, 0.9 }) do
+						local p = Vector3.new(tx + d[1], CURB, tz + dz)
+						vcyl("StoolLeg", p, 0.3, 1.9, LEG, opt({ material = Enum.Material.Metal }))
+						seat("EatStool", CFrame.lookAt(Vector3.new(p.X, CURB + 2.05, p.Z), Vector3.new(tx, CURB + 2.05, p.Z)), Vector3.new(1.4, 0.3, 1.4), Color3.fromRGB(0, 160, 160), S)
+					end
+				end
+			end
+		end
+		local sign = box("EatSign", -112, 12 + RISE, 118.9, -96, 14 + RISE, 119.1, TEAL, opt({ nocol = true }))
+		text(gui(sign, Enum.NormalId.Back, 30, 120), "취식 공간 · Eat-in", Color3.new(1, 1, 1), Enum.Font.GothamBold)
+		local hang = box("EatSignHanger", -104.1, 14 + RISE, 118.95, -103.9, H - 0.3, 119.05, LEG, opt({ nocol = true }))
+		local _ = hang
 	end
 
 	---------------------------------------------------------------- counter on the west wall (user 2026-10-23); staff between it and the wall
 	do
-		local cx0, cx1, cz0, cz1 = -119, -115.5, 51, 64 -- cx0 = staff side (west), cx1 = customer side (east)
+		local cx0, cx1, cz0, cz1 = x0 + 7, x0 + 10.5, 51, 64 -- cx0 = staff side (west), cx1 = customer side (east)
 		local TEALTOP = Color3.fromRGB(0, 150, 150)
 		box("CounterBody", cx0, CURB, cz0, cx1, CURB + 3.4, cz1, Color3.fromRGB(245, 245, 245), o)
 		local counterTop = box("CounterTop", cx0 - 0.2, CURB + 3.4, cz0 - 0.2, cx1 + 0.3, CURB + 3.7, cz1 + 0.2, TEALTOP, o)
@@ -4764,9 +4804,8 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	local sx0, sz0, sx1, sz1 = x0 + OH24_SHIFT.X, z0 + OH24_SHIFT.Z, x1 + OH24_SHIFT.X, z1 + OH24_SHIFT.Z
 	walk(sx0, WIDE, sx1, sz0) -- in front
 	walk(sx1, WIDE, -47, sz1) -- east side, up to the south road's sidewalk
-	walk(-150, 86, sx0, 108) -- west (the lane's old place by the 노래방 tower)
-	walk(-150, WIDE, -146, 86) walk(-146, WIDE, sx0, 60) walk(-132, 60, sx0, 86) -- where the 노래방 tower stood before it moved south, and the strip on its west side
-	walk(sx0, sz1, -47, 108) -- south, up to the cafe terrace
+	walk(-150, WIDE, sx0, sz1 + 4) -- west, the strip to the beach road's sidewalk (layout v8: the store reaches the 노래방 tower's old place)
+	walk(-150, sz1, -47, 214) -- south, up to the shop block (the old Glasshouse cafe's place)
 end
 
 -- (the sunset photo frame went with the pier, user 2026-10-24)
@@ -4783,10 +4822,14 @@ do
 	-- polygon (x, z), clockwise from the north-west corner in the sea
 	local P = {
 		-- 2026-10-23 (2): the beach road is closed further south (z -300)
-		{ -305, -300 }, { -151, -300 }, { -151, -479 }, { -35, -479 }, { -35, -374 }, { 59, -374 }, { 59, -301 }, { 78, -301 }, { 78, -265 }, -- (out round the 국밥집 lot, D-314: build_gukbap.lua)
+		-- (layout v8, user map 2026-10-27): north edge on the big 국밥집's back
+		-- (z -380), east edge past the bigger 오후네컷 (x 194), south-west round
+		-- the bigger OH24 store (z 214) and down past the moved beach cafe (z 380),
+		-- west out in the sea beyond it (x -380)
+		{ -380, -300 }, { -151, -300 }, { -151, -479 }, { -35, -479 }, { -35, -380 }, { 194, -380 },
 		-- the hanok village keeps its own walls; this keeps players next to it
-		{ 191, -265 }, { 191, 47 }, { 232, 47 }, { 232, 234 }, { 97, 234 }, { 97, 299 }, { -50, 299 }, { -50, 109 }, -- (east edge x 177 → 191, past the club that grew 19 east: user 2026-10-25)
-		{ -89, 109 }, { -89, 218 }, { -151, 218 }, { -151, 237 }, { -305, 237 },
+		{ 194, 47 }, { 232, 47 }, { 232, 234 }, { 97, 234 }, { 97, 299 }, { -50, 299 }, { -50, 214 },
+		{ -152, 214 }, { -152, 380 }, { -380, 380 },
 	}
 	for i = 1, #P do
 		local a, b = P[i], P[(i % #P) + 1]
@@ -4918,38 +4961,51 @@ do
 		end
 		part("Roof", Vector3.new(width + 1, 1, depth + 1), cf * CFrame.new(0, height + 0.5, 0), Color3.fromRGB(90, 90, 95), { parent = M })
 	end
-	-- south road (it runs on to z 640 with trees, sidewalks and bike lane,
-	-- bigRoad): the beach side gets a row of shops set back from the
-	-- sidewalk; the hanok side stays an empty lot up to the 돌담길
 	local hgt = { 44, 58, 38, 66, 50, 42, 60, 48 }
-	for i, zz in ipairs({ 316, 352, 388, 424, 460, 496, 532, 568 }) do
-		fakeBuilding(Vector3.new(-72, 0, zz), 34, 22, hgt[i], Vector3.new(1, 0, 0))
-	end
-	-- beach road, south of the Glasshouse cafe: shops facing the sea
-	for i, zz in ipairs({ 262, 298, 334, 370, 406, 442, 478, 514, 550, 586, 622 }) do
-		fakeBuilding(Vector3.new(-134, 0, zz), 34, 22, hgt[(i % #hgt) + 1], Vector3.new(-1, 0, 0))
-	end
-	-- next to the club, along the north road: fronts on the club line (x 48)
-	-- right against the sidewalk (user 2026-10-23), on to the map edge
 	local i2 = 0
-	for zz = -252 + CLUB_DZ - 17.5, -985, -35 do -- the club's north face is at -252 + CLUB_DZ
-		i2 += 1
-		-- (the first lot, next to the club, is the 국밥집 now: tools/graybox/build_gukbap.lua, D-314)
-		if zz > -300 then continue end
-		fakeBuilding(Vector3.new(56, 0, zz), 34, 16, hgt[(i2 + 3) % #hgt + 1], Vector3.new(-1, 0, 0))
+	-- LONG SHOP BLOCKS (layout v8, user map 2026-10-27: "가짜 건물 블록 하나로 길게
+	-- 배치 ... 이미지 간판으로 처리"): one long block each, its street faces
+	-- covered with building-front images (tools/art/shop_facades.ps1: stacked
+	-- shop signs on every floor, a lit shop front below), one image every ~40.
+	-- They replace the separate fake buildings along the club side, the north
+	-- road's west side, both sides of the south lot and the towers east of 오후네컷.
+	local FACADES = { 119555605786938, 100153499316339, 131791880332218, 81296451318379, 76461462810783, 86941239410625, 104806131921624, 134862143501130 }
+	local facadeN = 0
+	local function shopBlock(name, x0, z0, x1, z1, h, faces)
+		local M = Instance.new("Model")
+		M.Name = "BG_ShopBlock_" .. name .. "(진입불가)"
+		M.Parent = T
+		box("Body", x0, 0, z0, x1, h, z1, Color3.fromRGB(150, 148, 146), { parent = M, material = Enum.Material.Concrete })
+		box("Roof", x0 - 0.5, h, z0 - 0.5, x1 + 0.5, h + 1.5, z1 + 0.5, Color3.fromRGB(90, 90, 95), { parent = M })
+		for _, f in ipairs(faces) do
+			-- the face runs from a to b (the viewer's left to right), out = its normal
+			local a, b, out
+			if f == "W" then a, b, out = Vector3.new(x0, 0, z1), Vector3.new(x0, 0, z0), Vector3.new(-1, 0, 0)
+			elseif f == "E" then a, b, out = Vector3.new(x1, 0, z0), Vector3.new(x1, 0, z1), Vector3.new(1, 0, 0)
+			elseif f == "N" then a, b, out = Vector3.new(x0, 0, z0), Vector3.new(x1, 0, z0), Vector3.new(0, 0, -1)
+			else a, b, out = Vector3.new(x1, 0, z1), Vector3.new(x0, 0, z1), Vector3.new(0, 0, 1) end
+			local len = (b - a).Magnitude
+			local n = math.max(1, math.floor(len / 40 + 0.5))
+			local w = len / n
+			local dir = (b - a).Unit
+			for k = 0, n - 1 do
+				facadeN += 1
+				local c = a + dir * (w * (k + 0.5)) + out * 0.08 + Vector3.new(0, h / 2, 0)
+				local p = part("FacadePanel", Vector3.new(w - 0.1, h, 0.05), CFrame.lookAt(c, c + out), Color3.fromRGB(150, 148, 146), { parent = M, nocol = true })
+				p.CanQuery = false
+				p.CanTouch = false
+				p.CastShadow = false
+				p.Transparency = 1
+				local d = Instance.new("Decal")
+				d.Face = Enum.NormalId.Front
+				d.Texture = "rbxassetid://" .. FACADES[((facadeN * 3) % #FACADES) + 1]
+				d.Parent = p
+			end
+		end
 	end
-	-- the rest of the extended roads: shops on both sides past the boundary
-	i2 = 0
-	for zz = -505, -985, -35 do -- north road, west side (front +x at x -34)
-		i2 += 1
-		fakeBuilding(Vector3.new(-45, 0, zz), 34, 22, hgt[(i2 + 1) % #hgt + 1], Vector3.new(1, 0, 0))
-	end
-	i2 = 0
-	for zz = 604, 985, 36 do -- south road, west side (after the existing row)
-		i2 += 1
-		fakeBuilding(Vector3.new(-72, 0, zz), 34, 22, hgt[(i2 + 5) % #hgt + 1], Vector3.new(1, 0, 0))
-	end
-	i2 = 0
+	shopBlock("N", 48, -1000, 130, -385, 60, { "W", "S" }) -- north of the 국밥집, on the club line
+	shopBlock("E", 195, -100, 310, -48, 50, { "S", "W" }) -- east of 오후네컷, along the east road
+	shopBlock("S", -150, 215, -56, 985, 60, { "E", "W", "N" }) -- south of OH24, between the south road and the beach road
 	for xx = 330, 985, 35 do -- east road, north side (front +z at z -47)
 		i2 += 1
 		fakeBuilding(Vector3.new(xx, 0, -58), 34, 22, hgt[(i2 + 2) % #hgt + 1], Vector3.new(0, 0, 1))
@@ -4969,12 +5025,16 @@ do
 	-- (north of the park the road is closed: the park wall runs across it, user 2026-10-24)
 	for _, seg in ipairs({ { 300, 800 } }) do
 		box("Promenade", -198, 0, seg[1], -182, CURB, seg[2], Color3.fromRGB(175, 135, 120), { material = Enum.Material.Brick })
-		-- the steps down to the sand go on to the end (user 2026-10-23)
+		-- the steps down to the sand go on to the end (user 2026-10-23); by the
+		-- beach cafe (layout v8) only the granite edge along its front
 		local wood = Color3.fromRGB(120, 88, 62)
-		box("BeachStepEdge", -198.7, sandY, seg[1], -198, CURB + 0.1, seg[2], Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
-		box("BeachStep", -201.2, sandY, seg[1], -198.7, CURB - 0.6, seg[2], wood, { material = Enum.Material.WoodPlanks })
-		box("BeachStep", -203.7, sandY, seg[1], -201.2, CURB - 1.2, seg[2], wood, { material = Enum.Material.WoodPlanks })
-		box("BeachStep", -206.2, sandY, seg[1], -203.7, CURB - 1.8, seg[2], wood, { material = Enum.Material.WoodPlanks })
+		local ea, eb = seg[1], math.min(seg[2], CAFE_Z1)
+		if eb > ea then box("BeachStepEdge", -198.7, sandY, ea, -198, CURB + 0.1, eb, Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite }) end
+		local sa = math.max(seg[1], CAFE_ZN)
+		box("BeachStepEdge", -198.7, sandY, sa, -198, CURB + 0.1, seg[2], Color3.fromRGB(196, 194, 188), { material = Enum.Material.Granite })
+		box("BeachStep", -201.2, sandY, sa, -198.7, CURB - 0.6, seg[2], wood, { material = Enum.Material.WoodPlanks })
+		box("BeachStep", -203.7, sandY, sa, -201.2, CURB - 1.2, seg[2], wood, { material = Enum.Material.WoodPlanks })
+		box("BeachStep", -206.2, sandY, sa, -203.7, CURB - 1.8, seg[2], wood, { material = Enum.Material.WoodPlanks })
 		box("SeaRoad", -182, 0, seg[1], -158, 0.12, seg[2], ASPHALT, { material = Enum.Material.Asphalt })
 		-- (no red bike lane here: the lane inside is road coloured, user 2026-10-26)
 		box("Sidewalk", -158, 0, seg[1], -150, CURB, seg[2], WALK, { material = Enum.Material.Brick })
@@ -5241,7 +5301,14 @@ do
 	local SC = (GF - F) / 19 -- the entrance frame, door and glass bays were drawn for a 19 floor: they grow with it (user 2026-10-27)
 	-- (east face 109.5 → 115.5, user 2026-10-26: wider booths so the wider photo
 	-- view shows no side walls; the 소품샵 site moved east to make room)
-	local W0, W1, N0, S0 = 48.5, 115.5, -98.5, -47.5 -- outer faces: west, east, north, south
+	-- (layout v8, user map 2026-10-27: "옆에 공사 중이었던 곳 삭제하고 거기까지 건물
+	-- 확장하고 기존 건물 비율에 맞춰 북쪽으로도 커져도 됨") east face 115.5 → 180 over
+	-- the construction site, north face -98.5 → -115 (the club moved 24 north).
+	-- The three booths keep their size and place (x FX..BW1, z BNIN..S0); a
+	-- partition at BW1 closes them off from the new east hall (its own door on
+	-- the east road), the lobby reaches north to the new north wall
+	local W0, W1, N0, S0 = 48.5, 180, -115, -47.5 -- outer faces: west, east, north, south
+	local BW1, BNIN = 115.5, -95.8 -- the booths' east wall (the old east face) and their north end
 	local CH = 11 -- cut corner
 	local P1, P2 = Vector3.new(W0, 0, S0 - CH), Vector3.new(W0 + CH, 0, S0) -- ends of the cut corner
 	local tC = (P2 - P1).Unit -- along the cut corner (north-west → south-east)
@@ -5312,7 +5379,9 @@ do
 	box("Ceiling", W0 + CH, GF - 0.4, S0 - CH, W1, GF, S0, Color3.fromRGB(252, 238, 238), o)
 	-- and over the cut corner (the brick showed through the gap above the door)
 	cutPart("Ceiling", CH * math.sqrt(2), GF - 0.4, GF, depthIn, -depthIn / 2, Color3.fromRGB(252, 238, 238), o)
-	for _, p in ipairs({ { 58, -88 }, { 58, -70 }, { 72, -88 }, { 72, -70 }, { 72, -56 }, { 84, -88 }, { 84, -70 }, { 84, -56 }, { 98, -85 }, { 98, -61 } }) do
+	local LAMPS = { { 58, -88 }, { 58, -70 }, { 72, -88 }, { 72, -70 }, { 72, -56 }, { 84, -88 }, { 84, -70 }, { 84, -56 }, { 98, -85 }, { 98, -61 }, { 58, -104 }, { 72, -104 }, { 84, -104 } }
+	for _, hx in ipairs({ 126, 140, 154, 168 }) do for _, hz in ipairs({ -104, -88, -72, -58 }) do table.insert(LAMPS, { hx, hz }) end end -- (the east hall, layout v8)
+	for _, p in ipairs(LAMPS) do
 		-- plain white panels (Neon panels made the bloom wash the room out)
 		local lamp = box("CeilingLight", p[1] - 1.5, GF - 0.55, p[2] - 1.5, p[1] + 1.5, GF - 0.4, p[2] + 1.5, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		local l = Instance.new("PointLight")
@@ -5467,7 +5536,12 @@ do
 		end
 		return ps
 	end
-	local holes = { part("BayHole", Vector3.new(SBAY - (W0 + CH) + 0.2, 11.4 * SC + 0.1, 3), CFrame.new((SBAY + W0 + CH) / 2, F + (11.4 * SC - 0.1) / 2, S0 - 0.5), WHITE_WALL, o) }
+	-- (layout v8) the east hall: two more pill windows and its own doorway
+	-- (HALL_X0..HALL_X1) facing the east road
+	table.insert(PILL_X, 126) table.insert(PILL_X, 172)
+	local HALL_X0, HALL_X1 = 145, 153
+	local holes = { part("BayHole", Vector3.new(SBAY - (W0 + CH) + 0.2, 11.4 * SC + 0.1, 3), CFrame.new((SBAY + W0 + CH) / 2, F + (11.4 * SC - 0.1) / 2, S0 - 0.5), WHITE_WALL, o),
+		part("HallDoorHole", Vector3.new(HALL_X1 - HALL_X0, 11.4 * SC + 0.1, 3), CFrame.new((HALL_X0 + HALL_X1) / 2, F + (11.4 * SC - 0.1) / 2, S0 - 0.5), WHITE_WALL, o) }
 	for _, x in ipairs(PILL_X) do
 		for _, p in ipairs(pill("PillHole", x, PILL_W, PILL_H, S0 - 0.5, 3, WHITE_WALL, o)) do table.insert(holes, p) end
 	end
@@ -5483,6 +5557,16 @@ do
 		cutWall.Anchored = true
 		cutWall.Parent = B
 		wallS:Destroy()
+		-- (layout v8) a cut union collides as a hull that fills the top of the
+		-- hall doorway (tall avatars stuck): the wall itself does not collide,
+		-- invisible boxes in its real shape do (the bay and pill windows have
+		-- their own glass)
+		cutWall.CanCollide = false
+		local HH = 11.4 * SC
+		for _, r in ipairs({ { W0 + CH, F, HALL_X0 }, { HALL_X1, F, W1 } }) do
+			box("WallSCollider", r[1], r[2], S0 - 1, r[3], GF, S0, WHITE_WALL, opt({ transparency = 1 }))
+		end
+		box("WallSCollider", HALL_X0, F + HH, S0 - 1, HALL_X1, GF, S0, WHITE_WALL, opt({ transparency = 1 }))
 	end
 	for _, x in ipairs(PILL_X) do
 		-- rim: a pill ring standing 0.3 proud of the tiles
@@ -5506,6 +5590,81 @@ do
 		for _, p in ipairs(inner) do p:Destroy() end
 		-- clear glass in the middle of the wall: see in, can't walk through
 		pill("PillGlass", x, PILL_W, PILL_H, S0 - 0.5, 0.1, Color3.fromRGB(225, 235, 240), opt({ material = Enum.Material.Glass, transparency = 0.75 }))
+	end
+	do -- (layout v8, user map 2026-10-27) the EAST HALL over the old construction
+		-- site: a partition on the booths' east wall, a sliding glass door on the
+		-- east road like the main one, and a photo lounge: a gallery wall of
+		-- four-cut strips, sofas along the north wall, round tables with stools
+		local DHH = 11.4 * SC
+		box("WallMid", BW1 - 1, F, N0 + 1, BW1, GF - 0.4, S0 - 1, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
+		for _, px in ipairs({ HALL_X0 - 0.6, HALL_X1 + 0.6 }) do
+			box("HallDoorPost", px - 0.6, F, S0 - 1.2, px + 0.6, F + DHH, S0 + 0.2, ENTRY, o)
+		end
+		box("HallDoorHead", HALL_X0 - 1.2, F + DHH - 1, S0 - 1.2, HALL_X1 + 1.2, F + DHH, S0 + 0.2, ENTRY, o)
+		local door = Instance.new("Model")
+		door.Name = "AutoDoor"
+		door:SetAttribute("Range", 9)
+		local half = (HALL_X1 - HALL_X0) / 2
+		for _, s2 in ipairs({ -1, 1 }) do
+			local cx = (HALL_X0 + HALL_X1) / 2 + s2 * half / 2
+			local p = box("DoorPanel", cx - half / 2, F, S0 - 0.75, cx + half / 2, F + DHH - 1, S0 - 0.45, GLASS, { parent = door, material = Enum.Material.Glass, transparency = 0.45 })
+			p:SetAttribute("Slide", Vector3.new(s2 * (half - 0.2), 0, 0))
+		end
+		door.WorldPivot = CFrame.new((HALL_X0 + HALL_X1) / 2, F + 4, S0 - 0.6)
+		door:SetAttribute("Panels", 2)
+		door.Parent = B
+		CS:AddTag(door, "AutoDoor")
+		do -- invisible ramp from the sidewalk up the deck at the door
+			local ramp = Instance.new("WedgePart")
+			ramp.Name = "StepRamp"
+			ramp.Anchored = true
+			ramp.Transparency = 1
+			ramp.Size = Vector3.new(HALL_X1 - HALL_X0 + 2, F - CURB, 2.4)
+			local rc = Vector3.new((HALL_X0 + HALL_X1) / 2, (F + CURB) / 2, S0 + DECK + 1.2)
+			ramp.CFrame = CFrame.lookAt(rc, rc + Vector3.new(0, 0, 1))
+			ramp.Parent = B
+		end
+		local HP = Color3.fromRGB(255, 214, 228)
+		box("HallLiner", BW1, F, N0 + 1, BW1 + 0.1, GF - 0.4, S0 - 1, HP, opt({ material = Enum.Material.SmoothPlastic }))
+		box("HallLiner", BW1, F, N0 + 1, W1 - 1, GF - 0.4, N0 + 1.1, HP, opt({ material = Enum.Material.SmoothPlastic }))
+		box("HallLiner", W1 - 1.1, F, N0 + 1, W1 - 1, GF - 0.4, S0 - 1, HP, opt({ material = Enum.Material.SmoothPlastic }))
+		-- gallery wall on the partition: rows of four-cut strips in white frames
+		local STRIPS = { Color3.fromRGB(255, 190, 210), Color3.fromRGB(190, 220, 255), Color3.fromRGB(255, 240, 190), Color3.fromRGB(210, 200, 255), Color3.fromRGB(200, 240, 220) }
+		local k = 0
+		for _, gz in ipairs({ -104, -96, -88, -80, -72, -64, -56 }) do
+			for _, gy in ipairs({ F + 4, F + 11 }) do
+				k += 1
+				box("GalleryFrame", BW1 + 0.1, gy, gz - 1.6, BW1 + 0.3, gy + 5.6, gz + 1.6, Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
+				for c = 0, 3 do
+					box("GalleryCut", BW1 + 0.3, gy + 0.3 + c * 1.3, gz - 1.3, BW1 + 0.35, gy + 1.4 + c * 1.3, gz + 1.3, STRIPS[(k + c) % #STRIPS + 1], opt({ nocol = true }))
+				end
+			end
+		end
+		local gs = box("GallerySign", BW1 + 0.1, F + 17.4, -96, BW1 + 0.3, F + 19.4, -64, Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
+		surfaceText(gs, Enum.NormalId.Right, "OHU 4cuts GALLERY · 오늘의 네컷", Color3.fromRGB(230, 110, 150), Enum.Font.FredokaOne)
+		-- sofas along the north wall, facing the room
+		local SOFA = Color3.fromRGB(250, 236, 240)
+		for _, sx in ipairs({ 128, 146, 164 }) do
+			box("HallSofaBase", sx - 6, F, N0 + 1.2, sx + 6, F + 1.4, N0 + 4.4, SOFA, opt({ material = Enum.Material.Fabric }))
+			box("HallSofaBack", sx - 6, F + 1.4, N0 + 1.2, sx + 6, F + 4, N0 + 2.2, SOFA, opt({ material = Enum.Material.Fabric }))
+			for _, dx in ipairs({ -4, 0, 4 }) do
+				local p = Vector3.new(sx + dx, F + 1.6, N0 + 3.2)
+				seat("HallSofaSeat", CFrame.lookAt(p, p + Vector3.new(0, 0, 1)), Vector3.new(2.4, 0.3, 2), SOFA, B).Transparency = 1
+			end
+		end
+		-- round tables with four stools, clear of the aisle from the door (x 145..153)
+		for _, tx in ipairs({ 125, 137, 161, 173 }) do
+			for _, tz in ipairs({ -88, -68 }) do
+				vcyl("HallTableLeg", Vector3.new(tx, F, tz), 0.5, 3, Color3.fromRGB(214, 172, 92), opt({ material = Enum.Material.Metal }))
+				vcyl("HallTable", Vector3.new(tx, F + 3, tz), 4.4, 0.25, Color3.fromRGB(252, 252, 250), o)
+				for a = 0, 3 do
+					local ang = a * math.pi / 2 + math.pi / 4
+					local p = Vector3.new(tx + math.cos(ang) * 3.4, F, tz + math.sin(ang) * 3.4)
+					vcyl("HallStool", p, 1.6, 1.9, Color3.fromRGB(246, 150, 186), opt({ material = Enum.Material.Fabric }))
+					seat("HallStoolSeat", CFrame.lookAt(Vector3.new(p.X, F + 2, p.Z), Vector3.new(tx, F + 2, tz)), Vector3.new(1.4, 0.2, 1.4), Color3.fromRGB(246, 150, 186), B).Transparency = 1
+				end
+			end
+		end
 	end
 
 	-- fascia band over the ground floor with the signs (인생네컷-style: white
@@ -5648,8 +5807,8 @@ do
 	end
 	for f = 0, 1 do
 		local y = U0 + f * FLOOR + FLOOR / 2
-		for _, z in ipairs({ -90, -78, -66 }) do window(CFrame.lookAt(Vector3.new(W0, y, z), Vector3.new(W0 - 1, y, z)), 5, 6) end
-		for _, x in ipairs({ 68, 81, 94 }) do window(CFrame.lookAt(Vector3.new(x, y, S0), Vector3.new(x, y, S0 + 1)), 5, 6) end
+		for _, z in ipairs({ -102, -90, -78, -66 }) do window(CFrame.lookAt(Vector3.new(W0, y, z), Vector3.new(W0 - 1, y, z)), 5, 6) end
+		for _, x in ipairs({ 68, 81, 94, 107, 122, 136, 150, 164 }) do window(CFrame.lookAt(Vector3.new(x, y, S0), Vector3.new(x, y, S0 + 1)), 5, 6) end
 		local c = MC + nC * 0
 		window(CFrame.lookAt(Vector3.new(c.X, y, c.Z), Vector3.new(c.X, y, c.Z) + nC), 4.5, 6)
 		if f == 1 then -- band between 2F and 3F
@@ -5769,8 +5928,11 @@ do
 
 	-- the club south wall reaches z -96 (inside this shop since the shop moved
 	-- north, D-104): the north liner stands in front of it, the photo wall too
-	local NIN = -95.8
-	box("WallPink", W0 + 1, F, NIN - 0.1, W1 - 1, GF - 0.4, NIN, PINK_WALL, PLASTER)
+	-- (layout v8) the lobby's north liner moved up to the new north wall; the
+	-- booths keep their north end (BNIN), closed there by its own liner
+	local NIN = N0 + 2.7
+	box("WallPink", W0 + 1, F, NIN - 0.1, 91.9, GF - 0.4, NIN, PINK_WALL, PLASTER)
+	box("WallPink", 91.9, F, BNIN - 0.1, BW1 - 1, GF - 0.4, BNIN, PINK_WALL, PLASTER)
 	local zoneP = root:FindFirstChild("08_PhotoBooth")
 	do
 		local p = zoneP and zoneP:FindFirstChild("PhotoWall")
@@ -5843,7 +6005,7 @@ do
 			p:SetAttribute("OrigSize", p.Size)
 		end
 	end
-	local SPAN0, SPAN1 = NIN, S0 - 1
+	local SPAN0, SPAN1 = BNIN, S0 - 1
 	local DEPTH = (SPAN1 - SPAN0) / 3
 	local function fitBooth(m: Model, zc: number)
 		local dz = zc - m.StudioFloor.Position.Z
@@ -5864,7 +6026,7 @@ do
 		end
 		local fl = m.StudioFloor
 		-- the booth fills the width from the booth wall to the east wall (2026-10-26)
-		local bx0, bx1 = FX + 1, W1 - 1.1
+		local bx0, bx1 = FX + 1, BW1 - 1.1
 		local bcx, bw = (bx0 + bx1) / 2, bx1 - bx0
 		local function widen(p: BasePart, _: boolean)
 			-- the part's local axis that runs along world X (the zone is turned)
@@ -5946,7 +6108,7 @@ do
 			local p = m:FindFirstChild(nm)
 			if p and p:IsA("BasePart") then p.Color = boothColor end
 		end
-		local lining = part("BoothLining", Vector3.new(0.1, 12, half * 2), CFrame.new(W1 - 1.05, F + 6, bz), boothColor, { parent = m, material = Enum.Material.SmoothPlastic })
+		local lining = part("BoothLining", Vector3.new(0.1, 12, half * 2), CFrame.new(BW1 - 1.05, F + 6, bz), boothColor, { parent = m, material = Enum.Material.SmoothPlastic })
 		lining:SetAttribute("LayoutAdded", true)
 		-- the west side inside is the pink booth wall: lined in the booth colour
 		-- too, with the arch cut out (user 2026-10-26: one colour all round)

@@ -283,8 +283,9 @@ ClubConfig.NightEntry = {
 	OpenHour = 18, -- 18:00 .. 06:00
 	CloseHour = 6,
 	-- where someone who walks in by day is put back: the sidewalk in front of the door
-	ExitPosition = Vector3.new(41, 3.6, -186),
-	DoorPosition = Vector3.new(46.5, 8, -186), -- the "opens in n min" sign
+	-- (layout v8, 2026-10-27: the club moved 24 north, door z -186 → -210)
+	ExitPosition = Vector3.new(41, 3.6, -210),
+	DoorPosition = Vector3.new(46.5, 8, -210), -- the "opens in n min" sign
 }
 
 function ClubConfig.isNightOpen(clock: number): boolean
