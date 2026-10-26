@@ -187,7 +187,9 @@ label(z,"CLUB · Idol Concert City",Vector3.new(0,TOP+16,-150),true)
 -- shell (F = hall floor, TOP = ceiling)
 -- slightly glossy grey floor in 4-stud tiles (12 at first, a third of that:
 -- user 2026-10-25), thin dark grout lines
-do local fl=box(z,"Floor",-80,F-1,NZ,80,F,-150,Color3.fromRGB(72,72,78),{mat=Enum.Material.SmoothPlastic}) fl.Reflectance=0.15
+-- dark marble floors, platforms and table tops (user 2026-10-26: the look of the bucket preview bench)
+local MARBLE_C,MARBLE=Color3.fromRGB(20,20,24),{mat=Enum.Material.Marble}
+do local fl=box(z,"Floor",-80,F-1,NZ,80,F,-150,MARBLE_C,MARBLE) fl.Reflectance=0.15
  local GC=Color3.fromRGB(46,46,52)
  for gx=-64+4,79,4 do local p=box(z,"FloorGrout",gx-0.05,F,NZ,gx+0.05,F+0.02,-167.5,GC,{nocol=true}) p.CastShadow=false p.CanQuery=false end
  for gz=NZ+4,-168,4 do local p=box(z,"FloorGrout",-64,F,gz-0.05,80,F+0.02,gz+0.05,GC,{nocol=true}) p.CastShadow=false p.CanQuery=false end end
@@ -207,7 +209,7 @@ box(z,"Wall_S_Top",-8,12,-151,8,RT,-149,WALL_C,WALLO)
 box(z,"Wall_S_Below",-8,F,-151,8,0,-149,WALL_C,WALLO)
 box(z,"Ceiling",-80,TOP,NZ,80,TOP+0.5,-150,navy)
 -- foyer at street level and the stairs down to the west
-box(z,"Foyer",-24,-1,-166.5,12,0,-151,WALL_C,WALLO)
+box(z,"Foyer",-24,-1,-166.5,12,0,-151,MARBLE_C,MARBLE)
 -- lemon LED where the street-level foyer floor meets its walls (user 2026-10-25:
 -- the foyer only, not down the stairs; the door gap in the street wall left out)
 do local LC=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
@@ -335,7 +337,7 @@ label(z,"VIP 2층 ↑ (VIP 패스)",Vector3.new(-72,F+17,-232))
 -- z -263..-236); the stair arrives on the landing at the north-west corner.
 local vipFloor=Color3.fromRGB(150,120,60)
 -- the VIP floors (see-through for a moment, opaque again: user 2026-10-25)
-local VIPF,VIPFO=WALL_C,WALLO -- (opaque again, user 2026-10-25)
+local VIPF,VIPFO=MARBLE_C,MARBLE -- (opaque again, user 2026-10-25; marble 2026-10-26)
 box(z,"VIP_Floor_N",-64,V-1,NZ,58,V,(NZ+24),VIPF,VIPFO)
 box(z,"VIP_Floor_Landing",-80,V-1,NZ,-64,V,-263,VIPF,VIPFO)
 box(z,"VIP_Floor_W",-64,V-1,(NZ+24),-50,V,-190,VIPF,VIPFO)
@@ -398,8 +400,8 @@ local function vipBooth(cx,wallZ,dir)
  -- black glass table with a thin white edge
  -- (smaller than first drawn, so there is a walkway past it to the back seats: user test 2026-10-25)
  box(z,"VIP_TableBase",cx-2,V,zz(6),cx+2,V+2.2,zz(7),Color3.fromRGB(16,16,18))
- local top=box(z,"VIP_Table",cx-3.5,V+2.2,zz(5),cx+3.5,V+2.5,zz(8),Color3.fromRGB(10,10,12),{mat=Enum.Material.SmoothPlastic}) -- (glass picked up the lights and looked beige)
- top.Reflectance=0.12 CS:AddTag(top,"DrinkTable")
+ local top=box(z,"VIP_Table",cx-3.5,V+2.2,zz(5),cx+3.5,V+2.5,zz(8),MARBLE_C,MARBLE) -- (glass picked up the lights and looked beige; marble 2026-10-26)
+ CS:AddTag(top,"DrinkTable")
  local W2=Color3.fromRGB(245,245,245) local EO={mat=Enum.Material.SmoothPlastic,ghost=true} -- (a thin white line, not a glow)
  box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(5),cx+3.5,V+2.53,zz(5.12),W2,EO) box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(7.88),cx+3.5,V+2.53,zz(8),W2,EO)
  box(z,"VIP_TableEdge",cx-3.5,V+2.5,zz(5),cx-3.38,V+2.53,zz(8),W2,EO) box(z,"VIP_TableEdge",cx+3.38,V+2.5,zz(5),cx+3.5,V+2.53,zz(8),W2,EO)
@@ -492,13 +494,13 @@ vipRegion("VIP_StairRegion",-79.6,F+1,-263,-65.4,V+4,-236.8,Vector3.new(-72,F+3,
 -- shaped two-step platforms out from the long walls with a standing drinks
 -- table on top (two on the bar side, four on the far side), pink light lines
 -- under the step edges; DANCE POLES on round chrome bases between them
-local platC=Color3.fromRGB(30,30,36)
+local platC=MARBLE_C
 local function platform(cx,wallZ,dir)
  local L=17.3
  for lv,r in ipairs({8.5,6.5}) do
   local top=F+0.8*lv local cc=wallZ+dir*(L-8.5)
-  box(z,"TablePlatform",cx-r,F,math.min(wallZ,cc),cx+r,top,math.max(wallZ,cc),platC)
-  cyl(z,"TablePlatform",2*r,top-F,Vector3.new(cx,(F+top)/2,cc),platC)
+  box(z,"TablePlatform",cx-r,F,math.min(wallZ,cc),cx+r,top,math.max(wallZ,cc),platC,MARBLE)
+  cyl(z,"TablePlatform",2*r,top-F,Vector3.new(cx,(F+top)/2,cc),platC,MARBLE)
   local NE={mat=Enum.Material.Neon,ghost=true}
   box(z,"PlatformNeon",cx-r-0.06,top-0.32,math.min(wallZ,cc),cx+r+0.06,top-0.2,math.max(wallZ,cc),pink,NE)
   cyl(z,"PlatformNeon",2*r+0.12,0.12,Vector3.new(cx,top-0.26,cc),pink,NE)
@@ -510,11 +512,16 @@ local function platform(cx,wallZ,dir)
    local N=14 local prev=Vector3.new(cx+r,yc,wz)
    for k=1,N do local a=math.pi*k/N local p=Vector3.new(cx+math.cos(a)*r,yc+math.sin(a)*r,wz)
     beam(z,"PlatformArch",prev,p,0.16,pink,NE) prev=p end
-  end end
+  end
+  -- the wall inside the outer arch is dark marble too (user 2026-10-26)
+  local R=8.5 local mz=wallZ+dir*0.02
+  box(z,"ArchMarble",cx-R,F+0.8,mz-0.015,cx+R,yc,mz+0.015,MARBLE_C,{mat=Enum.Material.Marble,ghost=true})
+  P(z,"ArchMarble",Vector3.new(0.03,2*R,2*R),CFrame.new(cx,yc,mz)*CFrame.Angles(0,math.rad(90),0),MARBLE_C,{mat=Enum.Material.Marble,shape=Enum.PartType.Cylinder,ghost=true})
+ end
  local cc=wallZ+dir*(L-8.5)
  local tp=Vector3.new(cx,F+1.6,cc+dir*1.5)
  cyl(z,"TableLeg",0.8,3.4,tp+Vector3.new(0,1.7,0),Color3.fromRGB(40,40,50))
- local top=cyl(z,"RoundTable",4.4,0.3,tp+Vector3.new(0,3.55,0),Color3.fromRGB(240,240,245))
+ local top=cyl(z,"RoundTable",4.4,0.3,tp+Vector3.new(0,3.55,0),MARBLE_C,MARBLE)
  CS:AddTag(top,"DrinkTable")
  -- like the VIP tables (user 2026-10-26): a thin white rim and a warm LED glow under the top
  cyl(z,"RoundTableEdge",4.5,0.26,tp+Vector3.new(0,3.55,0),Color3.fromRGB(245,245,245),{mat=Enum.Material.SmoothPlastic,ghost=true})
@@ -1326,7 +1333,7 @@ local z=zone("04_Beach_Aquarium")
    local pl=Instance.new("PointLight") pl.Range=10 pl.Brightness=0.6 pl.Color=Color3.fromRGB(255,214,160) pl.Parent=s
   end
   label(cm,"물멍 풀",Vector3.new((PX0+PX1)/2,FY+5,(PZ0+PZ1)/2))
-  do local zone=box(cm,"SplashZone",PX0,FY-1.2,PZ0,PX1,FY+3,PZ1,glass,{t=1,nocol=true}) zone.CanQuery=false zone.CanTouch=false CS:AddTag(zone,"SplashZone") end -- (splash sounds in the water, PoolSplashController)
+  do local zone=box(cm,"SplashZone",PX0,FY-1.2,PZ0,PX1,FY+5,PZ1,glass,{t=1,nocol=true}) zone.CanQuery=false zone.CanTouch=false CS:AddTag(zone,"SplashZone") end -- (splash sounds in the water, PoolSplashController)
   -- PLANTS (user plan 2026-10-25): a pot in the south-west glass corner, a tall
   -- planter at the window bar's north end, a long planter between the piano
   -- stage and the lounge

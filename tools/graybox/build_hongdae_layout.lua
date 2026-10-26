@@ -1229,9 +1229,11 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 	CS:AddTag(sign, "BusStop")
 	label(sign, "🚌 " .. name .. " 정류장", Color3.fromRGB(60, 140, 230), 4, 0.7)
 end
-busStop(1, "OHU CLUB 앞", Vector3.new(-31, 0, -130), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1))
+-- (1: moved north to where the ranking boards stood, 3: moved north to the
+-- street light, user phone test 2026-10-26)
+busStop(1, "OHU CLUB 앞", Vector3.new(-31, 0, -183), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1))
 busStop(2, "고층 빌딩가", Vector3.new(130, 0, 31), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0))
-busStop(3, "한옥 마을 · 광화문", Vector3.new(31, 0, 230), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1))
+busStop(3, "한옥 마을 · 광화문", Vector3.new(31, 0, 217.5), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1))
 busStop(4, "해변", Vector3.new(-153, 0, 84), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1)) -- (north, in front of the 노래방 tower, user 2026-10-25)
 
 ------------------------------------------------------- 광안리 seafront
@@ -1264,10 +1266,11 @@ do
 			local xs = { { -201.2, -198.7 }, { -203.7, -201.2 }, { -206.2, -203.7 } }
 			for k = 1, 3 do
 				box("FootWashStep", xs[k][1], sandTop, zs, xs[k][2], tops[k], ze, G, { material = Enum.Material.Granite })
-				-- taps on the riser below each tread, every 3.5
+				-- taps on the riser below each tread, every 3.5 (none on the
+				-- lowest riser, user 2026-10-26)
 				local riserX = xs[k][1]
 				local y = tops[k] - 0.3
-				for z = zs + 2, ze - 1.5, 3.5 do
+				for z = zs + 2, if k < 3 then ze - 1.5 else zs, 3.5 do
 					local base = Vector3.new(riserX - 0.05, y, z)
 					part("TapBody", Vector3.new(0.3, 0.25, 0.25), CFrame.new(base + Vector3.new(-0.15, 0, 0)), Color3.fromRGB(200, 202, 206), { material = Enum.Material.Metal, nocol = true })
 					part("TapSpout", Vector3.new(0.12, 0.3, 0.12), CFrame.new(base + Vector3.new(-0.3, -0.12, 0)), Color3.fromRGB(200, 202, 206), { material = Enum.Material.Metal, nocol = true })
@@ -1275,6 +1278,11 @@ do
 					part("WetStain", Vector3.new(0.9, 0.02, 0.7), CFrame.new(riserX - 0.45, (if k < 3 then tops[k + 1] else sandTop) + 0.01, z), Color3.fromRGB(110, 106, 100), { material = Enum.Material.Slate, nocol = true })
 				end
 			end
+			-- walking on the steps plays a foot-washing swish (PoolSplashController)
+			local wash = box("FootWashZone", -206.2, sandTop, zs, -198.7, CURB + 4, ze, Color3.new(1, 1, 1), { nocol = true })
+			wash.Transparency = 1
+			wash.CanTouch = false
+			CS:AddTag(wash, "FootWashZone")
 			-- sticker on the top riser
 			local st = part("FootWashSticker", Vector3.new(0.05, 0.45, 3.4), CFrame.new(-198.75, CURB - 0.1, (zs + ze) / 2), Color3.new(1, 1, 1), { nocol = true })
 			do
@@ -1325,11 +1333,31 @@ do
 			-- 음수대 (drinking fountain): granite block with a basin and a tap,
 			-- standing on the sand beside the steps
 			local dx, dz = -209, ze + 2.5
-			box("FountainBase", dx - 1.1, sandTop, dz - 0.9, dx + 1.1, sandTop + 3.4, dz + 0.9, Color3.fromRGB(196, 160, 140), { material = Enum.Material.Granite })
-			box("FountainTop", dx - 1.3, sandTop + 3.4, dz - 1.1, dx + 1.3, sandTop + 3.7, dz + 1.1, Color3.fromRGB(196, 160, 140), { material = Enum.Material.Granite })
+			-- (taller, the sign higher above the tap with room over it: user 2026-10-26)
+			box("FountainBase", dx - 1.1, sandTop, dz - 0.9, dx + 1.1, sandTop + 4.6, dz + 0.9, Color3.fromRGB(196, 160, 140), { material = Enum.Material.Granite })
+			box("FountainTop", dx - 1.3, sandTop + 4.6, dz - 1.1, dx + 1.3, sandTop + 4.9, dz + 1.1, Color3.fromRGB(196, 160, 140), { material = Enum.Material.Granite })
 			box("FountainBasin", dx - 1.6, sandTop + 1.6, dz - 0.7, dx - 1.1, sandTop + 2, dz + 0.7, Color3.fromRGB(180, 145, 125), { material = Enum.Material.Granite })
-			part("FountainTap", Vector3.new(0.4, 0.15, 0.15), CFrame.new(dx - 1.3, sandTop + 2.8, dz), Color3.fromRGB(200, 202, 206), { material = Enum.Material.Metal, nocol = true })
-			local plate = part("FountainSign", Vector3.new(0.05, 0.9, 1.4), CFrame.new(dx - 1.13, sandTop + 3.05, dz), Color3.fromRGB(120, 190, 240), { nocol = true })
+			-- the tap: press it and water runs into the basin (FountainService)
+			local tap = part("FountainTap", Vector3.new(0.4, 0.15, 0.15), CFrame.new(dx - 1.3, sandTop + 2.8, dz), Color3.fromRGB(200, 202, 206), { material = Enum.Material.Metal, nocol = true })
+			do
+				local stream = part("WaterStream", Vector3.new(0.09, 0.8, 0.09), CFrame.new(dx - 1.45, sandTop + 2.35, dz), Color3.fromRGB(170, 215, 255), { material = Enum.Material.Glass, nocol = true })
+				stream.Transparency = 1
+				stream.CastShadow = false
+				stream.Parent = tap
+				local prompt = Instance.new("ProximityPrompt")
+				prompt.ActionText = "물 틀기"
+				prompt.ObjectText = "음수대"
+				prompt.MaxActivationDistance = 7
+				prompt.RequiresLineOfSight = false
+				prompt.Parent = tap
+				local sound = Instance.new("Sound")
+				sound.SoundId = "rbxassetid://9119158299" -- "Sink Sprayer Spray Into Kitchen Sink 13" (Pro Sound Effects)
+				sound.Volume = 0.6
+				sound.RollOffMaxDistance = 40
+				sound.Parent = tap
+				CS:AddTag(tap, "FountainTap")
+			end
+			local plate = part("FountainSign", Vector3.new(0.05, 0.9, 1.4), CFrame.new(dx - 1.13, sandTop + 3.6, dz), Color3.fromRGB(120, 190, 240), { nocol = true })
 			local g = Instance.new("SurfaceGui")
 			g.Face = Enum.NormalId.Left
 			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
@@ -4124,13 +4152,19 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	B.Name = "RankingBoards"
 	B.Parent = T
 	local POST = Color3.fromRGB(60, 62, 70)
-	for _, spec in ipairs({ { "support", -190 }, { "spend", -172 }, { "playtime", -154 } }) do
+	-- (moved in a row up from subway exit 3 toward the park, readable from both
+	-- sides, user 2026-10-26; the club bus stop took their old place)
+	local X = -51
+	for _, spec in ipairs({ { "support", -97 }, { "spend", -83.5 }, { "playtime", -70 } }) do
 		local z = spec[2]
-		box("BoardPost", -51.4, 0, z - 5.6, -50.6, 12.4, z - 4.8, POST, { parent = B, material = Enum.Material.Metal })
-		box("BoardPost", -51.4, 0, z + 4.8, -50.6, 12.4, z + 5.6, POST, { parent = B, material = Enum.Material.Metal })
-		box("BoardFrame", -51.6, 2.6, z - 5.8, -50.4, 12.6, z + 5.8, POST, { parent = B, material = Enum.Material.Metal })
-		local s = box("BoardScreen", -51.75, 2.9, z - 5.5, -51.6, 12.3, z + 5.5, Color3.fromRGB(14, 16, 24), { parent = B, material = Enum.Material.SmoothPlastic })
-		s:SetAttribute("Board", spec[1]) s:SetAttribute("Face", "Left") CS:AddTag(s, "RankBoard")
+		box("BoardPost", X - 0.4, 0, z - 5.6, X + 0.4, 12.4, z - 4.8, POST, { parent = B, material = Enum.Material.Metal })
+		box("BoardPost", X - 0.4, 0, z + 4.8, X + 0.4, 12.4, z + 5.6, POST, { parent = B, material = Enum.Material.Metal })
+		box("BoardFrame", X - 0.6, 2.6, z - 5.8, X + 0.6, 12.6, z + 5.8, POST, { parent = B, material = Enum.Material.Metal })
+		for _, side in ipairs({ { -1, "Left" }, { 1, "Right" } }) do
+			local x0 = X + side[1] * 0.6
+			local s = box("BoardScreen", math.min(x0, x0 + side[1] * 0.15), 2.9, z - 5.5, math.max(x0, x0 + side[1] * 0.15), 12.3, z + 5.5, Color3.fromRGB(14, 16, 24), { parent = B, material = Enum.Material.SmoothPlastic })
+			s:SetAttribute("Board", spec[1]) s:SetAttribute("Face", side[2]) CS:AddTag(s, "RankBoard")
+		end
 	end
 end
 
@@ -4901,6 +4935,13 @@ do
 		i2 += 1
 		fakeBuilding(Vector3.new(xx, 0, -58), 34, 22, hgt[(i2 + 2) % #hgt + 1], Vector3.new(0, 0, 1))
 	end
+	-- the empty land south of the hanok village, seen over its wall from the
+	-- street (user 2026-10-26): a row facing the village (front -z at z 265)
+	i2 = 0
+	for xx = 120, 300, 35 do
+		i2 += 1
+		fakeBuilding(Vector3.new(xx, 0, 276), 34, 22, hgt[(i2 + 3) % #hgt + 1], Vector3.new(0, 0, -1))
+	end
 
 	-- the beach goes on north and south past the boundary
 	local sandY = -BEACH_DROP + 0.6
@@ -4916,7 +4957,7 @@ do
 		box("BeachStep", -203.7, sandY, seg[1], -201.2, CURB - 1.2, seg[2], wood, { material = Enum.Material.WoodPlanks })
 		box("BeachStep", -206.2, sandY, seg[1], -203.7, CURB - 1.8, seg[2], wood, { material = Enum.Material.WoodPlanks })
 		box("SeaRoad", -182, 0, seg[1], -158, 0.12, seg[2], ASPHALT, { material = Enum.Material.Asphalt })
-		paint("RedLane", -182, seg[1], -174, seg[2], Color3.fromRGB(190, 85, 75))
+		-- (no red bike lane here: the lane inside is road coloured, user 2026-10-26)
 		box("Sidewalk", -158, 0, seg[1], -150, CURB, seg[2], WALK, { material = Enum.Material.Brick })
 		paint("EdgeLine", -174.2, seg[1], -173.8, seg[2], WHITE)
 		paint("CenterLine", -166.2, seg[1], -165.8, seg[2], YELLOW)
@@ -5562,7 +5603,8 @@ do
 	-- the fascia, so players see it from the street (user 2026-10-23)
 	local fasMid = (FAS0 + FAS1) / 2
 	sign3d("Sign_OhuNeCut", { "◎", "오", "후", "네", "컷" }, Vector3.new(MC.X, fasMid, MC.Z) + nC * 1.2, tC, nC, 1.33) -- 2/3 size
-	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, -74), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.33)
+	-- (left-aligned with the poster frame's left edge, user 2026-10-26)
+	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, -90.2), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.33)
 	-- and on the south band over the capsule windows (user 2026-10-23)
 	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new((W0 + CH + W1 - 2) / 2, fasMid, S0 + 1.2), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), 1.33)
 

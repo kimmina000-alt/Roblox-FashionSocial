@@ -181,9 +181,13 @@ local function layout()
 	local vp = if camera then camera.ViewportSize else Vector2.new(1000, 700)
 	local top = TopBar.bottom() + 8
 	pill.Position = UDim2.fromOffset(12, top)
-	local height = math.min(300, vp.Y - top - 50)
+	-- on phones the panel ends above the move stick in the bottom-left corner
+	-- (user phone test 2026-10-26)
+	local UserInputService = game:GetService("UserInputService")
+	local bottom = if UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled then vp.Y * 0.6 else vp.Y - 50
+	local height = math.min(300, bottom - top - 40)
 	panel.Position = UDim2.fromOffset(12, top + 40)
-	panel.Size = UDim2.fromOffset(math.min(250, vp.X * 0.4), math.max(150, height))
+	panel.Size = UDim2.fromOffset(math.min(250, vp.X * 0.4), math.max(130, height))
 end
 
 local function setPanel(open: boolean)

@@ -98,8 +98,84 @@ local function mouthGrip(character: Model, lift: number): CFrame?
 	return target:Inverse() * attachment.WorldCFrame
 end
 
-local function bitesOf(item: SnackConfig.Item): number
-	return item.bites or SnackConfig.Bites
+-- Every hand-held item is eaten in three bites, from the top down: the edible
+-- pieces are cut in three bands of their height and one band goes per bite
+-- (user 2026-10-26). Soup and noodles drop their level instead.
+local EAT_STEPS = 3
+local function bitesOf(_item: SnackConfig.Item): number
+	return EAT_STEPS
+end
+
+-- containers and tools that stay in the hand
+local NOT_EDIBLE = {
+	Handle = true, Cup = true, Band = true, Glass = true, Bowl = true, Spoon = true,
+	Chopsticks = true, Straw = true, Cap = true,
+}
+
+-- a bite sound per kind of item (ProSoundEffects / public eating clips, 2026-10-26)
+local EAT_SOUND = {
+	cup = 9114171855, bottle = 9114171855, parfait = 9114171855, -- gulp
+	bowl = 134676631229165, noodle = 134676631229165, ricebowl = 134676631229165, -- spoon in soup
+	bag = 137096768206416, bread = 137096768206416, rice = 137096768206416, -- crunchy / bready
+	cake = 95249450082163, cone = 95249450082163, bar = 95249450082163, -- soft
+	plate = 128581689642546, -- meat
+}
+
+-- Remembers each edible piece's place in the handle's height (call once the
+-- tool is built): which local axis is up, its bottom and top, and its weld.
+local function markEdible(tool: Tool, handle: BasePart)
+	local lo, hi = math.huge, -math.huge
+	for _, piece in ipairs(handle:GetChildren()) do
+		local weld = piece:IsA("BasePart") and piece:FindFirstChildOfClass("Weld")
+		if weld and not NOT_EDIBLE[piece.Name] and piece.Transparency < 1 then
+			local up = weld.C0:VectorToObjectSpace(Vector3.yAxis)
+			local axis = if math.abs(up.X) > 0.9 then "X" elseif math.abs(up.Z) > 0.9 then "Z" elseif math.abs(up.Y) > 0.9 then "Y" else nil
+			if axis then
+				local half = (piece.Size :: any)[axis] / 2
+				local y0, y1 = weld.C0.Y - half, weld.C0.Y + half
+				piece:SetAttribute("EatAxis", axis)
+				piece:SetAttribute("EatY0", y0)
+				piece:SetAttribute("EatY1", y1)
+				piece:SetAttribute("EatSize", piece.Size)
+				piece:SetAttribute("EatC0", weld.C0)
+				lo, hi = math.min(lo, y0), math.max(hi, y1)
+			end
+		end
+	end
+	if lo < hi then
+		tool:SetAttribute("EatLo", lo)
+		tool:SetAttribute("EatHi", hi)
+	end
+end
+
+-- Shows what is left after a bite: everything above the cut line is gone.
+-- Pieces flagged EatDrop (a soup surface) sink instead of being cut.
+local function eatDownTo(handle: BasePart, lo: number, hi: number, left: number, total: number)
+	local cut = lo + (hi - lo) * left / total
+	for _, piece in ipairs(handle:GetChildren()) do
+		local axis = piece:IsA("BasePart") and piece:GetAttribute("EatAxis")
+		local weld = axis and piece:FindFirstChildOfClass("Weld")
+		if weld and piece:IsA("BasePart") then
+			local y0, y1 = piece:GetAttribute("EatY0") :: number, piece:GetAttribute("EatY1") :: number
+			local c0 = piece:GetAttribute("EatC0") :: CFrame
+			local drop = piece:GetAttribute("EatDrop")
+			if typeof(drop) == "number" then
+				-- the soup level goes down a third of the bowl each bite
+				weld.C0 = c0 - Vector3.new(0, drop * (total - left) / total, 0)
+				if left <= 0 then piece.Transparency = 1 end
+			elseif y0 >= cut - 0.01 or (piece:IsA("Part") and piece.Shape == Enum.PartType.Ball and (y0 + y1) / 2 > cut) then
+				piece.Transparency = 1
+				for _, d in ipairs(piece:GetDescendants()) do
+					if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end
+				end
+			elseif y1 > cut and not (piece:IsA("Part") and piece.Shape == Enum.PartType.Ball) then
+				local h = cut - y0
+				local size = piece:GetAttribute("EatSize") :: Vector3
+				piece.Size = if axis == "X" then Vector3.new(h, size.Y, size.Z) elseif axis == "Z" then Vector3.new(size.X, size.Y, h) else Vector3.new(size.X, h, size.Z)
+				weld.C0 = c0 + Vector3.new(0, (y0 + h / 2) - c0.Y, 0)
+			end
+		end
+	end
 end
 
 local function bite(tool: Tool, item: SnackConfig.Item)
@@ -115,14 +191,17 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	local sound = handle and handle:FindFirstChild("Sip") :: Sound?
 	if sound then sound:Play() end
 	task.wait(1.4)
+	if sound then sound:Stop() end -- (some eating clips run longer than a bite)
 	if tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
 	task.wait(0.3)
 	local total = bitesOf(item)
 	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
 	tool:SetAttribute("Bites", left)
-	-- the drink / food gets smaller with every bite
-	local fill = handle and handle:FindFirstChild("Fill", true) :: BasePart?
-	if fill and left > 0 then fill.Size *= (0.4 + 0.6 * left / total) / (0.4 + 0.6 * (left + 1) / total) end
+	-- a third of it is gone, from the top
+	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
+	if handle and handle:IsA("BasePart") and typeof(lo) == "number" and typeof(hi) == "number" and left > 0 then
+		eatDownTo(handle, lo, hi, left, total)
+	end
 	tool:SetAttribute("Busy", nil)
 	if left <= 0 then
 		if finishedHandler and item.kind == "cup" and tool.Parent and tool.Parent:IsA("Model") then
@@ -280,14 +359,17 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		attach(handle, part("Straw", Vector3.new(0.08, 0.7, 0.08), Color3.fromRGB(255, 255, 255)), CFrame.new(0.1, 0.5, 0) * CFrame.Angles(0, 0, math.rad(-10)))
 		tool.Grip = CFrame.new(0, -0.2, 0)
 	end
-	if drink then
-		local sip = Instance.new("Sound")
-		sip.Name = "Sip"
-		sip.SoundId = "rbxassetid://" .. tostring(ClubConfig.GulpSoundId)
-		sip.Volume = 0.7
-		sip.RollOffMaxDistance = 40
-		sip.Parent = handle
-	end
+	-- the sound of a bite for this kind of food (drinks gulp)
+	local sip = Instance.new("Sound")
+	sip.Name = "Sip"
+	sip.SoundId = "rbxassetid://" .. tostring(EAT_SOUND[kind] or ClubConfig.GulpSoundId)
+	sip.Volume = 0.7
+	sip.RollOffMaxDistance = 40
+	sip.Parent = handle
+	markEdible(tool, handle)
+	-- soup and noodles: the surface sinks a third of the bowl per bite
+	local surface = (kind == "bowl" or kind == "ricebowl" or kind == "noodle") and handle:FindFirstChild("Fill")
+	if surface then surface:SetAttribute("EatDrop", if kind == "noodle" then 0.5 else 0.3) end
 	tool.Activated:Connect(function() bite(tool, item) end)
 	return tool
 end
@@ -539,10 +621,9 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 			lettering:Destroy()
 			lettering = nil
 		end
-		-- a piece is eaten in two bites (a cake slice keeps the cake's texture)
-		local pieceItem = table.clone(item)
-		pieceItem.bites = 2
-		(pieceItem :: any).sliceTexture = plate:GetAttribute("CakeTexture")
+		-- a piece is eaten in three bites like everything in the hand (a cake slice keeps the cake's texture)
+		local pieceItem: any = table.clone(item)
+		pieceItem.sliceTexture = plate:GetAttribute("CakeTexture")
 		giveTool(who, makeTool(pieceItem, baseName .. " 한 " .. pieceWord))
 		if left <= 0 then plate:Destroy() else refresh() end
 	end)

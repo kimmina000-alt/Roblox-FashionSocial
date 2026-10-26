@@ -305,3 +305,10 @@ Fix: Banner ZIndex 5 (BannerController).
 
 Re-test 2026-10-26 (new 2P session, Player2 on a 705×338 phone): all 7 are verified fixed. ISSUE-2P-002 needed one more change: `Humanoid.Jump = true` from the button is reset by the control script in the same frame, so the button now sets `Humanoid.Sit = false`.
 ISSUE-2P-002 closed 2026-10-26 (third 2P session, 705×338 phones): pressing "일어나기" stands the player up and closes the keyboard. On this screen size the jump button is fully hidden under the keyboard, so the button is required.
+
+
+## ISSUE-PHOTO-004 (2026-10-26, phone) 촬영 중 이동 버튼 가림
+- 촬영 화면의 왼쪽 포즈 패널이 휴대폰 왼쪽 아래 이동 버튼을 덮어서 자리를 잡을 수 없음. 해결 방법 제안 중(사용자 선택 대기).
+
+## ISSUE-PHOTO-005 (2026-10-26, phone) 캡처 저장 사진이 검정
+- 결과 화면의 사진은 ViewportFrame(화면 속 3D 사진)인데, 기기 캡처(CaptureService)에는 이 부분이 거의 검게 찍힘. 배경 3D와 버튼은 찍힘. 방법 제안 중.
