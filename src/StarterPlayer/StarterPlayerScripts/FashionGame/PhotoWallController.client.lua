@@ -130,9 +130,28 @@ local function wallKey(wall: BasePart): string
 	return tostring(wall:GetAttribute("WallKey") or wall:GetFullName())
 end
 
+-- With streaming the wall part comes and goes (a new instance each time): its
+-- surface and photos go with it and are drawn again when it is back (the
+-- photos vanished after walking away and back, user 2026-10-26).
+local drawnWall: {[string]: BasePart} = {}
+local function forgetWall(wall: BasePart)
+	local holder = surfaces[wall]
+	surfaces[wall] = nil
+	if holder and holder.Parent then holder.Parent:Destroy() end
+	for id, w in pairs(drawnWall) do
+		if w == wall then
+			drawn[id] = nil
+			drawnWall[id] = nil
+		end
+	end
+end
+
 local function surfaceFor(wall: BasePart): Frame
 	local existing = surfaces[wall]
 	if existing then return existing end
+	wall.AncestryChanged:Connect(function()
+		if not wall:IsDescendantOf(workspace) then forgetWall(wall) end
+	end)
 	local face = faceOf(wall)
 	-- In PlayerGui with Adornee = wall: the photos are ViewportFrames, and a
 	-- ViewportFrame in a SurfaceGui parented to a Workspace part is not drawn
@@ -154,7 +173,7 @@ end
 
 local function findWall(key: string): BasePart?
 	for _, wall in ipairs(CollectionService:GetTagged("PhotoWall")) do
-		if wall:IsA("BasePart") and wallKey(wall) == key then return wall end
+		if wall:IsA("BasePart") and wall:IsDescendantOf(workspace) and wallKey(wall) == key then return wall end
 	end
 	return nil
 end
@@ -177,6 +196,7 @@ local function drawEntry(entry: Entry, order: number)
 	}, holder)
 	PhotoRender.drawPhoto(frame, entry.photo)
 	drawn[entry.id] = frame
+	drawnWall[entry.id] = wall
 end
 
 local function redrawAll()
@@ -186,6 +206,7 @@ local function redrawAll()
 		local frame = drawn[old.id]
 		if frame then frame:Destroy() end
 		drawn[old.id] = nil
+		drawnWall[old.id] = nil
 	end
 	for index, entry in ipairs(entries) do drawEntry(entry, index) end
 end
@@ -203,6 +224,10 @@ boothEvent.OnClientEvent:Connect(function(kind: any, value: any)
 		table.insert(entries, value)
 		redrawAll()
 	end
+end)
+-- a wall streaming in (again): draw its photos
+CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(function()
+	task.defer(redrawAll)
 end)
 
 --------------------------------------------------

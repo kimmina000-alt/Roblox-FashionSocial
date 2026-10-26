@@ -6048,6 +6048,16 @@ do
 		K.Parent = B
 		local D = 1.4
 		local lensY = camP.Position.Y - F
+		-- the "사진 찍기" / "같이 찍기" prompts sit on this machine (user 2026-10-26:
+		-- on the Stand they reached into the next booth); PhotoBoothService uses PromptPoint
+		do
+			local old = m:FindFirstChild("PromptPoint")
+			if old then old:Destroy() end
+			local pp = part("PromptPoint", Vector3.new(1, 1, 1), base * CFrame.new(0, 3.6, -0.6), Color3.new(1, 1, 1), { parent = m, nocol = true, transparency = 1 })
+			pp.CanQuery = false
+			pp.CanTouch = false
+			pp:SetAttribute("LayoutAdded", true)
+		end
 		local RED, KWHITE = Color3.fromRGB(196, 54, 58), Color3.fromRGB(242, 242, 244)
 		local function kbox(name, y0, y1, w, color, depth)
 			local dd = depth or D

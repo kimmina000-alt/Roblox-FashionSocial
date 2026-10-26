@@ -2000,3 +2000,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | ![](images/2026-10-26/booth_v4_pick_before.jpg) | ![](images/2026-10-26/booth_v4_pick_after.jpg) |
 
 ![](images/2026-10-26/booth_v4_shoot_white.jpg)
+
+### 부스 버튼 위치, 포토월 (D-331)
+
+- '사진 찍기' 버튼이 발판에 붙어 있고 거리가 길어서 옆 부스 버튼이 보였어요. 이제 각 부스 안 기계 화면에 붙어 있고, 벽 너머 부스 버튼은 안 보여요.
+- 포토월: PC에서 E → 사진 고르기 → 클릭까지 해서 클릭한 자리에 붙는 것 확인. 멀리 갔다 오면 사진이 사라지던 문제(스트리밍)와, 서버가 바뀌면 사진이 없어지던 문제(데이터 저장)를 고쳤어요. 저장은 실제 게임에서만 확인 가능.
+
+| 부스 기계 | 포토월(PC 클릭) |
+|---|---|
+| ![](images/2026-10-26/booth_machine_prompt.jpg) | ![](images/2026-10-26/photowall_pc_click.jpg) |

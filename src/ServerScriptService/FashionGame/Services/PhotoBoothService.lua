@@ -199,10 +199,10 @@ local function publish(session: Session?, booth: Model)
 		booth:SetAttribute("Mode", session.mode)
 		booth:SetAttribute("People", HttpService:JSONEncode(ids))
 	end
-	local stand = part(booth, "Stand")
-	if stand then
-		local start = stand:FindFirstChild("PhotoPrompt") :: ProximityPrompt?
-		local join = stand:FindFirstChild("JoinPrompt") :: ProximityPrompt?
+	local holder = part(booth, "PromptPoint") or part(booth, "Stand")
+	if holder then
+		local start = holder:FindFirstChild("PhotoPrompt") :: ProximityPrompt?
+		local join = holder:FindFirstChild("JoinPrompt") :: ProximityPrompt?
 		if start then start.Enabled = session == nil end
 		if join then
 			join.Enabled = session ~= nil and session.phase == "waiting" and session.mode ~= "solo"
@@ -804,6 +804,55 @@ end
 type WallEntry = { id: string, wall: string, u: number, v: number, by: string, at: number, photo: any }
 local wallEntries: {WallEntry} = {}
 
+-- The wall keeps its photos across servers (user 2026-10-26: what was put up
+-- before stays): one DataStore key, saved a little after each post and when
+-- the server closes. Studio without API access keeps them for the session.
+local wallStore: DataStore? = nil
+pcall(function() wallStore = game:GetService("DataStoreService"):GetDataStore("PhotoWall_v1") end)
+local WALL_KEY = "entries"
+local wallDirty = false
+local function saveWall()
+	if not wallStore or not wallDirty then return end
+	wallDirty = false
+	local list = wallEntries
+	local ok, err = pcall(function()
+		(wallStore :: DataStore):UpdateAsync(WALL_KEY, function(old)
+			-- merge photos put up on other servers meanwhile, newest last
+			local byId, merged = {}, {}
+			for _, source in ipairs({ if typeof(old) == "table" then old else {}, list }) do
+				for _, entry in ipairs(source) do
+					if typeof(entry) == "table" and typeof(entry.id) == "string" and not byId[entry.id] then
+						byId[entry.id] = true
+						table.insert(merged, entry)
+					end
+				end
+			end
+			table.sort(merged, function(a, b) return (a.at or 0) < (b.at or 0) end)
+			while #merged > PhotoConfig.MaxWallPhotos do table.remove(merged, 1) end
+			return merged
+		end)
+	end)
+	if not ok then
+		wallDirty = true
+		warn("[PhotoBoothService] wall save failed", err)
+	end
+end
+local function loadWall()
+	if not wallStore then return end
+	local ok, data = pcall(function() return (wallStore :: DataStore):GetAsync(WALL_KEY) end)
+	if ok and typeof(data) == "table" then
+		local have = {}
+		for _, entry in ipairs(wallEntries) do have[entry.id] = true end
+		for _, entry in ipairs(data) do
+			if typeof(entry) == "table" and typeof(entry.id) == "string" and not have[entry.id] then
+				table.insert(wallEntries, entry)
+			end
+		end
+		table.sort(wallEntries, function(a, b) return (a.at or 0) < (b.at or 0) end)
+		while #wallEntries > PhotoConfig.MaxWallPhotos do table.remove(wallEntries, 1) end
+	end
+end
+
 local function wallFrom(value: any): BasePart?
 	if typeof(value) == "Instance" and value:IsA("BasePart") and CollectionService:HasTag(value, "PhotoWall") then
 		return value
@@ -845,6 +894,10 @@ local function wallPost(player: Player, payload: any): (boolean, string?)
 	table.insert(wallEntries, entry)
 	while #wallEntries > PhotoConfig.MaxWallPhotos do table.remove(wallEntries, 1) end
 	if event then event:FireAllClients("WallAdd", entry) end
+	if not wallDirty then
+		wallDirty = true
+		task.delay(8, saveWall)
+	end
 	EconomyService.Award(player, "WallPost")
 	return true, "포토월에 붙였어요!"
 end
@@ -920,24 +973,33 @@ end
 
 local function setupBooth(booth: Instance)
 	if not booth:IsA("Model") then return end
-	local stand = part(booth, "Stand")
-	if not stand or stand:FindFirstChild("PhotoPrompt") then return end
+	-- the prompts sit on the booth's photo machine (PromptPoint, built by the
+	-- layout script) and reach only inside the booth; the Stand is the fallback
+	-- (on the Stand at 14 studs they showed in the next booth, user 2026-10-26)
+	-- (line of sight on: the next booth's machine is just behind the wall)
+	local holder = part(booth, "PromptPoint")
+	local distance, sight = 10, true
+	if not holder then
+		holder = part(booth, "Stand")
+		distance, sight = 14, false
+	end
+	if not holder or holder:FindFirstChild("PhotoPrompt") then return end
 	local start = Instance.new("ProximityPrompt")
 	start.Name = "PhotoPrompt"
 	start.ActionText = "사진 찍기"
 	start.ObjectText = tostring(booth:GetAttribute("BoothName") or "인생네컷")
-	start.MaxActivationDistance = 14
-	start.RequiresLineOfSight = false
-	start.Parent = stand
+	start.MaxActivationDistance = distance
+	start.RequiresLineOfSight = sight
+	start.Parent = holder
 	local joinPrompt = Instance.new("ProximityPrompt")
 	joinPrompt.Name = "JoinPrompt"
 	joinPrompt.ActionText = "같이 찍기"
 	joinPrompt.ObjectText = tostring(booth:GetAttribute("BoothName") or "인생네컷")
 	joinPrompt.KeyboardKeyCode = Enum.KeyCode.F
-	joinPrompt.MaxActivationDistance = 14
-	joinPrompt.RequiresLineOfSight = false
+	joinPrompt.MaxActivationDistance = distance
+	joinPrompt.RequiresLineOfSight = sight
 	joinPrompt.Enabled = false
-	joinPrompt.Parent = stand
+	joinPrompt.Parent = holder
 	-- Both prompts are handled by the client (setup window / join request).
 	publish(nil, booth)
 end
@@ -959,6 +1021,10 @@ function PhotoBoothService.Start(dataService: any)
 	CollectionService:GetInstanceAddedSignal("PhotoBooth"):Connect(setupBooth)
 	for _, wall in ipairs(CollectionService:GetTagged("PhotoWall")) do setupWall(wall) end
 	CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(setupWall)
+	task.spawn(loadWall)
+	game:BindToClose(function()
+		saveWall()
+	end)
 	Players.PlayerRemoving:Connect(function(player)
 		local session = byPlayer[player]
 		if session then removePerson(session, player, nil) end
