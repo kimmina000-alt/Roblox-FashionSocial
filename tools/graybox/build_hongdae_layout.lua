@@ -5127,36 +5127,9 @@ do
 	local beachZone = root:FindFirstChild("04_Beach_Aquarium")
 	-- (straw parasol spots tried and removed: the user keeps the original
 	-- striped parasol / chair groups, 2026-10-23)
-	-- beach signs (second photo); the boards are blank for now, the user
-	-- designs the content later (parts named SignContent)
-	local BROWN, BROWN2 = Color3.fromRGB(92, 48, 36), Color3.fromRGB(122, 66, 48)
-	do -- tall rounded "surfboard" rules board, facing the promenade (+X)
-		local x, z = -212, -166
-		local board = Instance.new("Model")
-		board.Name = "BeachRulesSign"
-		board.Parent = T
-		local W, H, bottom = 3.2, 7.2, SAND_Y + 1.6
-		part("SignBoard", Vector3.new(0.3, H, W), CFrame.new(x, bottom + W / 2 + H / 2, z), BROWN, { parent = board })
-		for _, y in ipairs({ bottom + W / 2, bottom + W / 2 + H }) do
-			part("SignBoardEnd", Vector3.new(0.3, W, W), CFrame.new(x, y, z), BROWN, { parent = board, shape = Enum.PartType.Cylinder })
-		end
-		part("SignContent", Vector3.new(0.05, H - 0.6, W - 0.6), CFrame.new(x + 0.18, bottom + W / 2 + H / 2, z), BROWN2, { parent = board, nocol = true })
-		for _, dz in ipairs({ -0.8, 0.8 }) do
-			part("SignLeg", Vector3.new(0.25, 1.9, 0.25), CFrame.new(x, SAND_Y + 0.95, z + dz), Color3.fromRGB(60, 34, 26), { parent = board })
-		end
-	end
-	do -- map board on two posts
-		local x, z = -212, -154
-		local board = Instance.new("Model")
-		board.Name = "BeachMapSign"
-		board.Parent = T
-		local W, H, y0 = 8.4, 5.4, SAND_Y + 1.8
-		for _, dz in ipairs({ -W / 2 + 0.3, W / 2 - 0.3 }) do
-			part("SignPost", Vector3.new(0.45, y0 + H - SAND_Y + 0.3, 0.45), CFrame.new(x - 0.2, (SAND_Y + y0 + H + 0.3) / 2, z + dz), Color3.fromRGB(70, 44, 32), { parent = board, material = Enum.Material.Wood })
-		end
-		part("SignFrame", Vector3.new(0.35, H, W), CFrame.new(x, y0 + H / 2, z), Color3.fromRGB(100, 62, 42), { parent = board, material = Enum.Material.Wood })
-		part("SignContent", Vector3.new(0.05, H - 0.7, W - 0.7), CFrame.new(x + 0.2, y0 + H / 2, z), Color3.fromRGB(242, 238, 228), { parent = board, nocol = true })
-	end
+	-- beach signs (광안리 photos): built by tools/graybox/build_beach_signs.lua
+	-- (guide map board + surfboard rules board with drawn faces, D-321; LAYOUT.md step 3-3)
+	local _ = SAND_Y
 end
 
 ------------------------------------------------------- 오후네컷 building
