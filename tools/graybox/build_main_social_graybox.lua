@@ -1064,7 +1064,7 @@ local z=zone("04_Beach_Aquarium")
  -- window bar facing the sea, order counter (SnackShop "BeachCafe").
  -- The west part stands on piles over the shallow sea.
  -- (user 2026-10-24: higher storeys, 1F 16 clear under the mezzanine, 2F about 20)
- do local x0,x1,z0,z1=-296,-206,16,106 local FY=3 local H=47 local MY=FY+21 local mx=-234 -- (both storeys 1/4 higher, user 2026-10-25: 1F 17 → 21, 2F 21 → 26)
+ do local x0,x1,z0,z1=-296,-206,16,106 local FY=3 local H=63 local MY=FY+28 local mx=-234 local CDH=13.3 -- (a third higher again, user 2026-10-27: 47 → 63, 1F 21 → 28, door 10 → 13.3) -- (both storeys 1/4 higher, user 2026-10-25: 1F 17 → 21, 2F 21 → 26)
   local cm=M(z,"BeachCafe",{},{})
   local floorC=Color3.fromRGB(228,221,208) local white=Color3.fromRGB(246,245,242) local woodC=Color3.fromRGB(196,150,98) -- (floors: plain pale large tiles, no marble veins, user 2026-10-25)
   -- (user 2026-10-25, reference: limestone museum building with glowing slits)
@@ -1144,7 +1144,7 @@ local z=zone("04_Beach_Aquarium")
   -- (user 2026-10-25) the walk-up window is closed again: one plain wall south of the door
   box(cm,"Wall_E_S",x1-0.6,FY,z0,x1,FY+H,56,STONE,STONEO)
   box(cm,"Wall_E_N",x1-0.6,FY,66,x1,FY+H,z1,STONE,STONEO)
-  box(cm,"Wall_E_Top",x1-0.6,FY+10,56,x1,FY+H,66,STONE,STONEO)
+  box(cm,"Wall_E_Top",x1-0.6,FY+CDH,56,x1,FY+H,66,STONE,STONEO)
   -- AUTOMATIC DOOR in the street-side doorway (user 2026-10-26): two glass
   -- leaves in thin dark frames that slide into the wall (AutoDoorController),
   -- a PUSH / 눌러주세요 button beside it inside and out (looks only, like 오후네컷)
@@ -1152,9 +1152,9 @@ local z=zone("04_Beach_Aquarium")
    local DG=Color3.fromRGB(205,222,232) local DF=Color3.fromRGB(46,46,50)
    for _,lf in ipairs({{56,61,-5},{61,66,5}}) do
     local slide=lf[3]*0.98 -- (SlideZ: along the part's own Z, so it survives zone moves)
-    box(door,"DoorPanel",x1-0.45,FY,lf[1],x1-0.15,FY+10,lf[2],DG,{t=0.45,mat=Enum.Material.Glass}):SetAttribute("SlideZ",slide)
-    for _,fz in ipairs({lf[1],lf[2]-0.2}) do box(door,"DoorFrame",x1-0.5,FY,fz,x1-0.1,FY+10,fz+0.2,DF,{nocol=true}):SetAttribute("SlideZ",slide) end
-    box(door,"DoorFrame",x1-0.5,FY+9.8,lf[1],x1-0.1,FY+10,lf[2],DF,{nocol=true}):SetAttribute("SlideZ",slide)
+    box(door,"DoorPanel",x1-0.45,FY,lf[1],x1-0.15,FY+CDH,lf[2],DG,{t=0.45,mat=Enum.Material.Glass}):SetAttribute("SlideZ",slide)
+    for _,fz in ipairs({lf[1],lf[2]-0.2}) do box(door,"DoorFrame",x1-0.5,FY,fz,x1-0.1,FY+CDH,fz+0.2,DF,{nocol=true}):SetAttribute("SlideZ",slide) end
+    box(door,"DoorFrame",x1-0.5,FY+CDH-0.2,lf[1],x1-0.1,FY+CDH,lf[2],DF,{nocol=true}):SetAttribute("SlideZ",slide)
    end
    -- the pivot follows an invisible centre part (a zone move carries it along)
    door.PrimaryPart=box(door,"DoorCentre",x1-0.4,FY+3.9,60.9,x1-0.2,FY+4.1,61.1,DG,{t=1,ghost=true})
@@ -1171,7 +1171,7 @@ local z=zone("04_Beach_Aquarium")
   -- the stone walls stay plain cream inside (a thin lining)
   local LIN=Color3.fromRGB(244,243,240)
   box(cm,"WallLining",x1-0.7,FY,z0+0.4,x1-0.6,FY+H-1.4,56,LIN) box(cm,"WallLining",x1-0.7,FY,66,x1-0.6,FY+H-1.4,z1-0.4,LIN)
-  box(cm,"WallLining",x1-0.7,FY+10,56,x1-0.6,FY+H-1.4,66,LIN)
+  box(cm,"WallLining",x1-0.7,FY+CDH,56,x1-0.6,FY+H-1.4,66,LIN)
   box(cm,"WallLining",mx,FY,z0+0.4,x1-0.7,FY+H-1.4,z0+0.5,LIN) box(cm,"WallLining",SOUTH_WALL_X,FY,z1-0.5,x1-0.7,FY+H-1.4,z1-0.4,LIN)
   -- GLOWING SLITS: very narrow glass slots through the stone in a staggered
   -- grid (three bands + one under the roof edge); warm glass by day, glowing
@@ -1181,14 +1181,14 @@ local z=zone("04_Beach_Aquarium")
    local p=box(cm,"WallSlit",ax,ay,az,bx,by,bz,SLIT,{mat=Enum.Material.Glass,nocol=true})
    p.CastShadow=false p.CanQuery=false p.CanTouch=false
    p:SetAttribute("NightRange",5) p:SetAttribute("NightBrightness",0.8) p:SetAttribute("NightColor",Color3.fromRGB(255,232,205)) CS:AddTag(p,"NightGlow") end -- (a warmer Neon bloomed yellow-green)
-  local HL={FY+16,FY+32,FY+H-0.8}
+  local HL={FY+21.3,FY+42.7,FY+H-0.8} -- (bands at a third and two thirds, kept with the taller walls)
   local EX0,EX1=x1-0.72,x1+0.02 -- the street wall and its lining
   for _,hy in ipairs(HL) do slit(EX0,hy,z0+0.4,EX1,hy+SW,z1-0.4) end
-  for _,v in ipairs({{FY,FY+16,{36,84}},{FY+16+SW,FY+32,{30,61,92}},{FY+32+SW,FY+H-0.8,{46,76}}}) do
+  for _,v in ipairs({{FY,FY+21.3,{36,84}},{FY+21.3+SW,FY+42.7,{30,61,92}},{FY+42.7+SW,FY+H-0.8,{46,76}}}) do
    for _,vz in ipairs(v[3]) do slit(EX0,v[1],vz-SW/2,EX1,v[2],vz+SW/2) end end
   for _,sd in ipairs({{z0-0.02,z0+0.52},{z1-0.52,z1+0.02}}) do
    for _,hy in ipairs(HL) do slit(mx+0.3,hy,sd[1],x1-0.3,hy+SW,sd[2]) end
-   for _,v in ipairs({{FY,FY+16,{-220}},{FY+16+SW,FY+32,{-227,-213}},{FY+32+SW,FY+H-0.8,{-220}}}) do
+   for _,v in ipairs({{FY,FY+21.3,{-220}},{FY+21.3+SW,FY+42.7,{-227,-213}},{FY+42.7+SW,FY+H-0.8,{-220}}}) do
     for _,vx in ipairs(v[3]) do slit(vx-SW/2,v[1],sd[1],vx+SW/2,v[2],sd[2]) end end
   end
   -- warm wooden slat ceiling
@@ -1515,11 +1515,11 @@ local z=zone("04_Beach_Aquarium")
   -- even rows either side of it
   local CZ=(z0+z1)/2
   local panel=box(cm,"LightCeiling",x0+6,FY+H-1.5,CZ-7,x1-6,FY+H-1.3,CZ+7,Color3.fromRGB(255,240,215),{mat=Enum.Material.Neon,ghost=true,t=0.15})
-  do local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Angle=80 sl.Range=40 sl.Brightness=1.6 sl.Color=WARM sl.Parent=panel end
+  do local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Angle=80 sl.Range=60 sl.Brightness=1.8 sl.Color=WARM sl.Parent=panel end -- (range 60: the taller ceiling, 2026-10-27)
   local SPOTS={} for k=0,5 do local sx=x0+7+k*(x1-x0-14)/5 table.insert(SPOTS,{sx,CZ-33}) table.insert(SPOTS,{sx,CZ+33}) end
   for _,lp in ipairs(SPOTS) do
    local l=P(cm,"CeilingLight",Vector3.new(1.4,0.3,1.4),CFrame.new(lp[1],FY+H-1.6,lp[2]),Color3.fromRGB(255,230,180),{mat=Enum.Material.Neon,ghost=true})
-   local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Bottom sl.Angle=60 sl.Range=42 sl.Brightness=1.4 sl.Color=WARM sl.Parent=l end
+   local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Bottom sl.Angle=60 sl.Range=60 sl.Brightness=1.6 sl.Color=WARM sl.Parent=l end
   for _,dx in ipairs({mx+6,mx+16,mx+24}) do for _,dz in ipairs({28,44,60,76,90}) do
    local l=P(cm,"Downlight",Vector3.new(1,0.12,1),CFrame.new(dx,MY-1.06,dz),Color3.fromRGB(255,236,200),{mat=Enum.Material.Neon,ghost=true})
    local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Bottom sl.Angle=70 sl.Range=20 sl.Brightness=1.3 sl.Color=WARM sl.Parent=l end end
@@ -1545,7 +1545,7 @@ local z=zone("04_Beach_Aquarium")
    box(cm,"BeachStepEdge",XR,sandY,ZS,-198,FY+0.1,z0,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
    box(cm,"BeachStepEdge",XR,sandY,z1,-198,FY+0.1,ZN,Color3.fromRGB(196,194,188),{mat=Enum.Material.Granite})
   end  -- (no parasols or tables on the deck, user 2026-10-24)
-  local sign=box(cm,"CafeSign",x1+0.05,FY+11,51,x1+0.4,FY+15,73,dark) -- down over the door (user 2026-10-24)
+  local sign=box(cm,"CafeSign",x1+0.05,FY+CDH+0.6,51,x1+0.4,FY+CDH+4.6,73,dark) -- down over the door (user 2026-10-24)
   do local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Brightness=2 g.Parent=sign
    local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.Michroma l.TextColor3=Color3.fromRGB(255,225,170) l.Text="OHU CAFE · SUNSET" l.Parent=g end
   label(cm,"OHU CAFE · Sunset (오션뷰)",Vector3.new(-250,FY+H+6,61),true)

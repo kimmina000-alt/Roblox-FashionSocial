@@ -139,7 +139,7 @@ local RED = Color3.fromRGB(205, 30, 36)
 local FLOOR = Color3.fromRGB(150, 146, 140)
 local DARK = Color3.fromRGB(40, 40, 44)
 
-local top1 = FY + H1
+local top1 = FY + H1 local DOOR_H = 8.1 * H1 / 12 -- (the door grows with the 1F, 8.1 → 14.2: tall avatars, user 2026-10-27)
 local top2 = top1 + H2
 
 -- floor, ceiling, roof ---------------------------------------------------
@@ -177,14 +177,14 @@ end
 for _, pz in ipairs({ Z0 + 0.3, DOOR_Z0, DOOR_Z1, Z1 - 0.3 }) do
 	box("AluPost", X0 - 0.1, FY, pz - 0.3, X0 + WT, top1, pz + 0.3, ALU)
 end
-box("DoorHeader", X0, FY + 8.2, DOOR_Z0, X0 + WT, FY + 8.6, DOOR_Z1, ALU)
-box("DoorTransom", X0 + 0.2, FY + 8.6, DOOR_Z0, X0 + 0.4, top1 - 3.8, DOOR_Z1, GLASS, { material = Enum.Material.Glass, t = 0.55 })
+box("DoorHeader", X0, FY + DOOR_H + 0.1, DOOR_Z0, X0 + WT, FY + DOOR_H + 0.5, DOOR_Z1, ALU)
+box("DoorTransom", X0 + 0.2, FY + DOOR_H + 0.5, DOOR_Z0, X0 + 0.4, top1 - 3.8, DOOR_Z1, GLASS, { material = Enum.Material.Glass, t = 0.55 })
 box("DoorTransomRail", X0, top1 - 3.8, DOOR_Z0, X0 + WT, top1 - 3.4, DOOR_Z1, ALU)
 -- the sliding door stands open: both glass leaves pushed to the north side
 for k = 0, 1 do
 	local x = X0 + 0.9 + k * 0.25
-	box("DoorLeaf", x, FY, DOOR_Z0 - 2.9, x + 0.12, FY + 8.1, DOOR_Z0 + 0.1, GLASS, { material = Enum.Material.Glass, t = 0.5, nocol = true })
-	box("DoorLeafFrame", x - 0.02, FY, DOOR_Z0 - 2.95, x + 0.14, FY + 8.15, DOOR_Z0 - 2.75, ALU, { nocol = true })
+	box("DoorLeaf", x, FY, DOOR_Z0 - 2.9, x + 0.12, FY + DOOR_H, DOOR_Z0 + 0.1, GLASS, { material = Enum.Material.Glass, t = 0.5, nocol = true })
+	box("DoorLeafFrame", x - 0.02, FY, DOOR_Z0 - 2.95, x + 0.14, FY + DOOR_H + 0.05, DOOR_Z0 - 2.75, ALU, { nocol = true })
 end
 -- a short 1F wall stub above the glass so the sign has a backing
 box("SignBacking", X0, top1 - 3.4, Z0, X0 + WT, top1, Z1, WALL, { material = Enum.Material.Plaster })

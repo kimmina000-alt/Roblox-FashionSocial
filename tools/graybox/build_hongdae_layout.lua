@@ -967,10 +967,18 @@ for _, e in ipairs(EXITS) do
 	local c = Vector3.new(e[4], 0, e[5]) -- pit centre: 6 wide, 18 long (u -9..9 along out)
 	local side = Vector3.new(math.abs(out.Z), 0, math.abs(out.X)) -- across the pit
 	local function at(u) return c + out * u end
-	local bottom = TOPY - 10 * 0.86
+	-- (user 2026-10-27: tall avatars could not get down) a shallower pit, 6
+	-- deep instead of 8.6: ten 0.6 steps over the same 12, about 27° instead
+	-- of 36°, with an invisible ramp over the steps
+	local DEPTH = 6
+	local bottom = TOPY - DEPTH
 	for k = 1, 10 do -- stairs from the mouth (u 9) down to u -3
 		local a, b = at(9 - (k - 1) * 1.2) - side * 3, at(9 - k * 1.2) + side * 3
-		box("Step", a.X, -9, a.Z, b.X, TOPY - k * 0.86, b.Z, Color3.fromRGB(150, 150, 155), { parent = m, material = Enum.Material.Concrete })
+		box("Step", a.X, -9, a.Z, b.X, TOPY - k * DEPTH / 10, b.Z, Color3.fromRGB(150, 150, 155), { parent = m, material = Enum.Material.Concrete })
+	end
+	do
+		local rc = at(3) + Vector3.new(0, TOPY - DEPTH / 2, 0)
+		part("StairRamp", Vector3.new(6, DEPTH, 12), CFrame.lookAt(rc, rc - out), Color3.new(1, 1, 1), { parent = m, transparency = 1, class = "WedgePart" })
 	end
 	local l0, l1 = at(-3) - side * 3, at(-9) + side * 3
 	box("Landing", l0.X, -9, l0.Z, l1.X, bottom, l1.Z, Color3.fromRGB(120, 120, 128), { parent = m, material = Enum.Material.Concrete })
@@ -994,10 +1002,11 @@ for _, e in ipairs(EXITS) do
 	local roofC = Color3.fromRGB(150, 153, 157)
 	local BASE = TOPY + 2.6 -- top of the granite base
 	local U0, U1 = -9.6, 9.4 -- back, mouth
+	local RAISE = 4 -- (the canopy 4 higher, about half again over the stairs: tall avatars, user 2026-10-27)
 	local function roofY(u: number): number
-		if u >= -3 then return TOPY + 6.2 + (u + 3) / (U1 + 3) * 1.4 end -- straight, rising to the mouth
+		if u >= -3 then return TOPY + 6.2 + RAISE + (u + 3) / (U1 + 3) * 1.4 end -- straight, rising to the mouth
 		local t = math.clamp((u + 3) / (U0 + 3), 0, 1) -- 0 at -3, 1 at the back
-		return BASE + 3.6 * math.sqrt(math.max(0, 1 - t * t)) -- elliptic curve down to the base
+		return BASE + (3.6 + RAISE) * math.sqrt(math.max(0, 1 - t * t)) -- elliptic curve down to the base
 	end
 	for _, sx in ipairs({ -1, 1 }) do
 		-- the side bases stop where the back block and the front frame begin (they overlapped it face to face)
@@ -4523,7 +4532,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		vl.Size = UDim2.fromScale(0.97, 0.6)
 		vl.Position = UDim2.fromScale(0.02, 0.2)
 		-- glass with slim mullions (a gap for the door)
-		local DOOR = 8
+		local DOOR = 8 local DOOR_H = 11.4 * H / 14 -- (doors grow with the ceiling, 11.4 → 17.1: tall avatars, user 2026-10-27)
 		local runs = if doorU then { { 1.6, doorU - DOOR / 2 - 0.4 }, { doorU + DOOR / 2 + 0.4, L - 1.6 } } else { { 1.6, L - 1.6 } }
 		for _, r in ipairs(runs) do
 			fp("FrontGlass", r[1], r[2], CURB + 0.6, 12.8 + RISE, 0, 0.2, Color3.fromRGB(215, 230, 235), opt({ material = Enum.Material.Glass, transparency = 0.6 }))
@@ -4539,12 +4548,12 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		end
 		fp("GlassHead", 1.6, L - 1.6, 12.8 + RISE, 13 + RISE, 0, 0.3, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
 		if doorU then
-			fp("DoorHead", doorU - DOOR / 2 - 0.4, doorU + DOOR / 2 + 0.4, 11.4, 12.8 + RISE, 0, 0.3, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
+			fp("DoorHead", doorU - DOOR / 2 - 0.4, doorU + DOOR / 2 + 0.4, DOOR_H, 12.8 + RISE, 0, 0.3, Color3.fromRGB(70, 70, 75), opt({ material = Enum.Material.Metal }))
 			local door = Instance.new("Model")
 			door.Name = "AutoDoor"
 			door:SetAttribute("Range", 9)
 			for _, s2 in ipairs({ -1, 1 }) do
-				local panel = fp("DoorPanel", doorU, doorU + s2 * DOOR / 2, CURB, 11.4, 0.05, 0.2, Color3.fromRGB(215, 230, 235), { parent = door, material = Enum.Material.Glass, transparency = 0.55 })
+				local panel = fp("DoorPanel", doorU, doorU + s2 * DOOR / 2, CURB, DOOR_H, 0.05, 0.2, Color3.fromRGB(215, 230, 235), { parent = door, material = Enum.Material.Glass, transparency = 0.55 })
 				panel:SetAttribute("Slide", along * (s2 * (DOOR / 2 - 0.2)))
 				local handle = fp("DoorHandle", doorU + s2 * 0.5 - 0.06, doorU + s2 * 0.5 + 0.06, 4, 7.5, 0.25, 0.35, Color3.fromRGB(200, 200, 205), { parent = door, material = Enum.Material.Metal, nocol = true })
 				handle:SetAttribute("Slide", along * (s2 * (DOOR / 2 - 0.2)))
@@ -5229,6 +5238,7 @@ do
 	B.Parent = T
 	local F = 1.6 -- shop floor top (graybox 0.4 + 1.2 lift)
 	local GF = F + 21 -- top of the ground floor / underside of the fascia (high ceiling, user; 19 → 21 like the club 1F, user 2026-10-27)
+	local SC = (GF - F) / 19 -- the entrance frame, door and glass bays were drawn for a 19 floor: they grow with it (user 2026-10-27)
 	-- (east face 109.5 → 115.5, user 2026-10-26: wider booths so the wider photo
 	-- view shows no side walls; the 소품샵 site moved east to make room)
 	local W0, W1, N0, S0 = 48.5, 115.5, -98.5, -47.5 -- outer faces: west, east, north, south
@@ -5294,7 +5304,7 @@ do
 	-- cut corner, south x the cut corner..SBAY; white frames like the entrance
 	local WBAY, SBAY = -67, 68
 	box("WallW", W0, F, N0, W0 + 1, GF, WBAY, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
-	box("WallW", W0, F + 11.4, WBAY, W0 + 1, GF, S0 - CH, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
+	box("WallW", W0, F + 11.4 * SC, WBAY, W0 + 1, GF, S0 - CH, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	local wallS = box("WallS", W0 + CH, F, S0 - 1, W1, GF, S0, WHITE_WALL, opt({ material = Enum.Material.CeramicTiles }))
 	box("WallN", W0, F, N0, W1, GF + 26, N0 + 1, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	box("WallE", W1 - 1, F, N0, W1, GF + 26, S0, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
@@ -5315,17 +5325,17 @@ do
 	local cutLen = CH * math.sqrt(2)
 	local DOOR = 7
 	local ENTRY = Color3.fromRGB(248, 248, 246) -- the entrance frame is white (user 2026-10-23, was pink)
-	cutPart("CornerHead", cutLen, F + 11.4, GF, 1, -0.5, WHITE_WALL, opt({ material = Enum.Material.Plaster })) -- above the frame head (they overlapped and flickered)
+	cutPart("CornerHead", cutLen, F + 11.4 * SC, GF, 1, -0.5, WHITE_WALL, opt({ material = Enum.Material.Plaster })) -- above the frame head (they overlapped and flickered)
 	for _, s in ipairs({ -1, 1 }) do
 		-- the outer posts stand on the corners where the glass bays meet (user)
-		cutAt("PinkPost", s * (cutLen / 2), Vector3.new(1.2, 11.4, 1.4), F + 5.7, -0.3, ENTRY) -- up to the sign band (user)
+		cutAt("PinkPost", s * (cutLen / 2), Vector3.new(1.2, 11.4 * SC, 1.4), F + 5.7 * SC, -0.3, ENTRY) -- up to the sign band (user)
 		-- light panel inside the outer post: lights up at night (NightGlow)
-		local gp = cutAt("FrameGlow", s * (cutLen / 2), Vector3.new(0.5, 10, 0.1), F + 5.3, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
+		local gp = cutAt("FrameGlow", s * (cutLen / 2), Vector3.new(0.5, 10 * SC, 0.1), F + 5.3 * SC, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		CS:AddTag(gp, "NightGlow")
 	end
-	cutAt("PinkHead", 0, Vector3.new(cutLen, 1.2, 1.4), F + 10.8, -0.3, ENTRY)
+	cutAt("PinkHead", 0, Vector3.new(cutLen, 1.2, 1.4), F + 10.8 * SC, -0.3, ENTRY)
 	do
-		local gh = cutAt("FrameGlow", 0, Vector3.new(cutLen - 1, 0.5, 0.1), F + 10.8, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
+		local gh = cutAt("FrameGlow", 0, Vector3.new(cutLen - 1, 0.5, 0.1), F + 10.8 * SC, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		CS:AddTag(gh, "NightGlow")
 	end
 	-- one sliding door (user sketch 2026-10-23): the doorway is on the left
@@ -5334,7 +5344,7 @@ do
 	-- glass reaches the frame head (F + 10.2). A PUSH button on the left post
 	-- (looks only).
 	local GLASS = Color3.fromRGB(205, 220, 232)
-	local DH = 10.2
+	local DH = 10.2 * SC -- (the door grows with the floor, user 2026-10-27: tall avatars)
 	local L0, L1 = -cutLen / 2 + 0.6, -1.45 -- doorway (s along the cut corner)
 	local P = -1.25 -- the white post between door and fixed glass
 	cutAt("DoorPost", P, Vector3.new(0.4, DH, 1), F + DH / 2, -0.3, ENTRY)
@@ -5393,10 +5403,10 @@ do
 		local function at(s, y) return CFrame.fromMatrix(p0 + along * s + Vector3.new(0, y, 0), along, Vector3.yAxis) end
 		-- one pane: no middle post; thin white frames top and bottom (user)
 		local FR = 0.45
-		part(name .. "Post", Vector3.new(1, 11.4, 1.2), at(0.5, 5.7), ENTRY, o)
-		part(name .. "Head", Vector3.new(len, FR, 1), at(len / 2, 11.4 - FR / 2), ENTRY, o)
+		part(name .. "Post", Vector3.new(1, 11.4 * SC, 1.2), at(0.5, 5.7 * SC), ENTRY, o)
+		part(name .. "Head", Vector3.new(len, FR, 1), at(len / 2, 11.4 * SC - FR / 2), ENTRY, o)
 		part(name .. "Sill", Vector3.new(len, FR, 1), at(len / 2, FR / 2), ENTRY, o)
-		part(name .. "Glass", Vector3.new(len - 1, 11.4 - 2 * FR, 0.3), at((len + 1) / 2, 5.7), Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
+		part(name .. "Glass", Vector3.new(len - 1, 11.4 * SC - 2 * FR, 0.3), at((len + 1) / 2, 5.7 * SC), Color3.fromRGB(200, 215, 225), opt({ material = Enum.Material.Glass, transparency = 0.45 }))
 	end
 	-- the wooden step runs in under the bays up to the glass, like at the doors (user)
 	box("Deck", W0, F - 0.3, WBAY, W0 + 0.5, F + 0.02, S0 - CH, WOOD, woodOpt) -- to the glass, none inside (user)
@@ -5457,7 +5467,7 @@ do
 		end
 		return ps
 	end
-	local holes = { part("BayHole", Vector3.new(SBAY - (W0 + CH) + 0.2, 11.5, 3), CFrame.new((SBAY + W0 + CH) / 2, F + 11.4 - 5.75, S0 - 0.5), WHITE_WALL, o) }
+	local holes = { part("BayHole", Vector3.new(SBAY - (W0 + CH) + 0.2, 11.4 * SC + 0.1, 3), CFrame.new((SBAY + W0 + CH) / 2, F + (11.4 * SC - 0.1) / 2, S0 - 0.5), WHITE_WALL, o) }
 	for _, x in ipairs(PILL_X) do
 		for _, p in ipairs(pill("PillHole", x, PILL_W, PILL_H, S0 - 0.5, 3, WHITE_WALL, o)) do table.insert(holes, p) end
 	end
@@ -5503,7 +5513,7 @@ do
 	-- the sign band sits just above the doors (user 2026-10-23: lower the box
 	-- with the letters, so it shows on screen); a thin cornice marks the floor
 	-- line under the upper floors
-	local FAS0, FAS1 = F + 11.4, F + 17.6 -- taller white band (user 2026-10-23)
+	local FAS0, FAS1 = F + 11.4 * SC, F + 17.6 -- taller white band (user 2026-10-23)
 
 	local FASCIA = Color3.fromRGB(232, 231, 228) -- a touch darker than the white letters
 	box("Fascia", W0 - 1.2, FAS0, N0, W0 + 1, FAS1, S0 - CH, FASCIA, o) -- to the building's north edge (user)
@@ -5773,7 +5783,7 @@ do
 		end
 	end
 	-- the entrance (cut corner) wall is pink above the doors too
-	cutPart("WallPink", CH * math.sqrt(2), F + 11.4, GF - 0.4, 0.1, -1.05, PINK_WALL, PLASTER)
+	cutPart("WallPink", CH * math.sqrt(2), F + 11.4 * SC, GF - 0.4, 0.1, -1.05, PINK_WALL, PLASTER)
 	-- south wall: a thick pink wall like the west one (user 2026-10-23), cut
 	-- through in the shape of each capsule window and with an arched recess
 	-- for each make-up vanity; it ends at the booth wall
@@ -5796,8 +5806,8 @@ do
 		wedgeTri("PinkWallEnd", Vector3.new(W0 + 1, 0, WBAY), Vector3.new(W0 + 1, 0, WBAY - 1.6), Vector3.new(W0 + 2.6, 0, WBAY - 1.6))
 		local wall = box("PinkWallS", SBAY + 1.6, F, SZ0, 91.9, GF - 0.4, SZ1, PINK_WALL, PLASTER)
 		-- pink above the glass bays inside
-		box("WallPink", W0 + CH, F + 11.4, S0 - 1.1, SBAY, GF - 0.4, S0 - 1, PINK_WALL, PLASTER)
-		box("WallPink", W0 + 1, F + 11.4, WBAY, W0 + 1.1, GF - 0.4, S0 - CH, PINK_WALL, PLASTER)
+		box("WallPink", W0 + CH, F + 11.4 * SC, S0 - 1.1, SBAY, GF - 0.4, S0 - 1, PINK_WALL, PLASTER)
+		box("WallPink", W0 + 1, F + 11.4 * SC, WBAY, W0 + 1.1, GF - 0.4, S0 - CH, PINK_WALL, PLASTER)
 		local holes = {}
 		for _, cx in ipairs(PILL_X) do
 			local w, h, cy = PILL_W, PILL_H, PILL_Y
