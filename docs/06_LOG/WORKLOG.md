@@ -1828,3 +1828,18 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-26/haetae_meshy_pair.jpg)
 ![](images/2026-10-26/haetae_meshy_south.jpg)
 ![](images/2026-10-26/haetae_meshy_north.jpg)
+
+### 카페·편의점·국밥집 주문하고 먹기 (D-317)
+
+- 카페: 무료 / 💰10 / 💰20 / Robux(파르페, 홀케이크 3종)예요.
+- 편의점: "계산하기"로 생수, 아이스크림 바, 과자, 우유, 캔음료, 삼각김밥, 컵라면을 사요.
+- 국밥집: 물·공깃밥 무료, 국밥 3종 💰20, 수육 R$19예요.
+- 손에 드는 모양을 종류마다 만들었어요. 클릭(터치)하면 한 입씩 먹고, 다 먹으면 사라져요. 국밥은 6입, 컵라면은 5입이에요.
+- 케이크와 수육은 같은 층의 가까운 테이블에 놓여요. 누구나 "한 조각/점 먹기"로 가져가고, 남은 개수가 표시돼요. 10분 뒤 사라져요.
+- 확인(Play): 코인 차감, 손에 2개 제한, Robux 상품 거절(결제창으로), 먹기 3번에 사라짐, 수육 6 → 5, 케이크가 2층이 아닌 같은 층 테이블에 놓임, 메뉴 구간 표시와 스크롤.
+- 고친 것: 둥근 음식(뚝배기)이 손에서 옆으로 누워 있던 것, 케이크가 바로 위 2층 테이블에 놓이던 것.
+
+![](images/2026-10-26/food_cafe_menu.jpg)
+![](images/2026-10-26/food_cafe_cake.jpg)
+![](images/2026-10-26/food_gukbap_suyuk.jpg)
+![](images/2026-10-26/food_gukbap_bowl.jpg)

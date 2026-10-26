@@ -4520,7 +4520,8 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		local len = d.Magnitude
 		local dir = d.Unit
 		local c = (a + b) / 2 + inward * 0.9
-		part("WindowBar", Vector3.new(len, 0.2, 1.6), CFrame.fromMatrix(Vector3.new(c.X, CURB + 3.5, c.Z), dir, Vector3.yAxis), Color3.fromRGB(245, 245, 245), o)
+		local bar = part("WindowBar", Vector3.new(len, 0.2, 1.6), CFrame.fromMatrix(Vector3.new(c.X, CURB + 3.5, c.Z), dir, Vector3.yAxis), Color3.fromRGB(245, 245, 245), o)
+		CS:AddTag(bar, "SnackTable") -- (a table for shared plates, SnackService)
 		for s = 1, len - 1, 4 do
 			local p = a + dir * s + inward * 1.5
 			box("BarLeg", p.X - 0.1, CURB, p.Z - 0.1, p.X + 0.1, CURB + 3.4, p.Z + 0.1, Color3.fromRGB(190, 190, 195), opt({ material = Enum.Material.Metal }))
@@ -4637,7 +4638,10 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 		local cx0, cx1, cz0, cz1 = -119, -115.5, 51, 64 -- cx0 = staff side (west), cx1 = customer side (east)
 		local TEALTOP = Color3.fromRGB(0, 150, 150)
 		box("CounterBody", cx0, CURB, cz0, cx1, CURB + 3.4, cz1, Color3.fromRGB(245, 245, 245), o)
-		box("CounterTop", cx0 - 0.2, CURB + 3.4, cz0 - 0.2, cx1 + 0.3, CURB + 3.7, cz1 + 0.2, TEALTOP, o)
+		local counterTop = box("CounterTop", cx0 - 0.2, CURB + 3.4, cz0 - 0.2, cx1 + 0.3, CURB + 3.7, cz1 + 0.2, TEALTOP, o)
+		-- the till: "계산하기" opens the snack menu (SnackService, D-317)
+		counterTop:SetAttribute("Shop", "OH24")
+		CS:AddTag(counterTop, "SnackShop")
 		-- candy racks on the customer face (looks +x)
 		for lv = 0, 2 do
 			local y = CURB + 0.5 + lv * 0.95

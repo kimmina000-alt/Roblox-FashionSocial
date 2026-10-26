@@ -519,7 +519,14 @@ local function spawnNpc(shopKey: string)
 		return Players:CreateHumanoidModelFromDescription(description :: HumanoidDescription, Enum.HumanoidRigType.R15)
 	end)
 	if not ok or not npc then return end
-	local item = shop.items[math.random(1, #shop.items)]
+	-- NPCs order the drinks the staff can make: free cups (the menu also has
+	-- coin / Robux food since D-317)
+	local drinks = {}
+	for _, it in ipairs(shop.items) do
+		if it.kind == "cup" and not it.coins and not it.product then table.insert(drinks, it) end
+	end
+	if #drinks == 0 then return end
+	local item = drinks[math.random(1, #drinks)]
 	nextId += 1
 	npc.Name = "CafeNPC_" .. nextId
 	if friend then npc:SetAttribute("FriendId", friend.id) end

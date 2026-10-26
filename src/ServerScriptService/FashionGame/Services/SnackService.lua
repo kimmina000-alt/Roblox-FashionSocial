@@ -1,23 +1,28 @@
 --!strict
--- Cafes and snack stands (SnackConfig, CAFE.md §8): the order → item → sit
--- and eat/drink loop shared by every cafe and the beach ice cream truck.
+-- Cafes, snack stands, the OH24 convenience store and the 국밥집 (SnackConfig,
+-- CAFE.md §8, D-317): the order → item → sit and eat/drink loop.
 --
---   * Parts tagged "SnackShop" (attribute Shop) get an "주문하기" prompt (E).
+--   * Parts tagged "SnackShop" (attribute Shop) get an order prompt (E).
 --     Triggering it tells the client (SnackNotify "Open") to show the menu.
 --   * Remote Snack (RemoteFunction) "Buy", shopKey, itemKey: checks distance
---     and coins, then gives a hand-held cup / ice cream cone tool.
---   * Clicking (tapping) the tool takes a sip / lick (SnackConfig.Bites).
---     Works standing or sitting at a table (seats are "PromptSeat").
+--     and coins, then gives a hand-held tool shaped like the item.
+--   * Robux items (item.product) are bought with a developer product; the
+--     grant gives the item, or for a shared one (item.share) puts a plate on
+--     the nearest table where everyone takes a piece ("한 조각 먹기").
+--   * Clicking (tapping) the tool takes a bite (item.bites or SnackConfig.Bites).
+--     Works standing or sitting at a table.
 
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
+local Debris = game:GetService("Debris")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Remotes = FashionGame:WaitForChild("Remotes")
 local SnackConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("SnackConfig"))
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local EconomyConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("EconomyConfig"))
+local MonetizationService = require(script.Parent.MonetizationService)
 
 local SnackService = {}
 local economy: any = nil
@@ -25,6 +30,9 @@ local economy: any = nil
 -- about finished drinks (empty cup on the table)
 local orderHandler: ((Player, SnackConfig.Shop, SnackConfig.Item) -> (boolean, string?))? = nil
 local finishedHandler: ((Model, SnackConfig.Item) -> ())? = nil
+
+-- tables a shared plate can be put on
+local TABLE_TAGS = { "CafeTable", "GukbapTable", "DrinkTable", "SnackTable" }
 
 local function part(name: string, size: Vector3, color: Color3, material: Enum.Material?, shape: Enum.PartType?): Part
 	local p = Instance.new("Part")
@@ -40,6 +48,21 @@ local function part(name: string, size: Vector3, color: Color3, material: Enum.M
 	p.TopSurface = Enum.SurfaceType.Smooth
 	p.BottomSurface = Enum.SurfaceType.Smooth
 	return p
+end
+
+-- a part drawn as an ellipsoid (no texture, so a SpecialMesh sphere is fine)
+local function blob(name: string, size: Vector3, color: Color3): Part
+	local p = part(name, size, color)
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.Sphere
+	mesh.Parent = p
+	return p
+end
+
+-- an upright cylinder (Part cylinders run along X: turned at attach time)
+local UPRIGHT = CFrame.Angles(0, 0, math.rad(90))
+local function cyl(name: string, d: number, h: number, color: Color3, material: Enum.Material?): Part
+	return part(name, Vector3.new(h, d, d), color, material, Enum.PartType.Cylinder)
 end
 
 -- Extra piece fixed to the handle with a Weld (C0 offset; works before the
@@ -75,6 +98,10 @@ local function mouthGrip(character: Model, lift: number): CFrame?
 	return target:Inverse() * attachment.WorldCFrame
 end
 
+local function bitesOf(item: SnackConfig.Item): number
+	return item.bites or SnackConfig.Bites
+end
+
 local function bite(tool: Tool, item: SnackConfig.Item)
 	-- a cup the cafe staff is carrying to a customer is not theirs to drink
 	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return end
@@ -82,7 +109,7 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	if not character or not character:IsA("Model") then return end
 	tool:SetAttribute("Busy", true)
 	local original = tool.Grip
-	local up = mouthGrip(character, if item.kind == "cone" then -0.2 else 0)
+	local up = mouthGrip(character, if item.kind == "cone" or item.kind == "bar" then -0.2 else 0)
 	if up then TweenService:Create(tool, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Grip = up }):Play() end
 	local handle = tool:FindFirstChild("Handle")
 	local sound = handle and handle:FindFirstChild("Sip") :: Sound?
@@ -90,58 +117,168 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	task.wait(1.4)
 	if tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
 	task.wait(0.3)
-	local left = ((tool:GetAttribute("Bites") :: number?) or SnackConfig.Bites) - 1
+	local total = bitesOf(item)
+	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
 	tool:SetAttribute("Bites", left)
-	-- the drink / scoop gets smaller with every bite
-	local fill = handle and handle:FindFirstChild("Fill") :: BasePart?
-	if fill and left > 0 then fill.Size *= (0.4 + 0.6 * left / SnackConfig.Bites) / (0.4 + 0.6 * (left + 1) / SnackConfig.Bites) end
+	-- the drink / food gets smaller with every bite
+	local fill = handle and handle:FindFirstChild("Fill", true) :: BasePart?
+	if fill and left > 0 then fill.Size *= (0.4 + 0.6 * left / total) / (0.4 + 0.6 * (left + 1) / total) end
 	tool:SetAttribute("Busy", nil)
 	if left <= 0 then
-		if finishedHandler and tool.Parent and tool.Parent:IsA("Model") then
+		if finishedHandler and item.kind == "cup" and tool.Parent and tool.Parent:IsA("Model") then
 			task.spawn(finishedHandler, tool.Parent :: Model, item)
 		end
 		tool:Destroy()
 	end
 end
 
-local function makeTool(item: SnackConfig.Item): Tool
+-- The hand-held model of each kind of item. The main edible piece is "Fill"
+-- (it shrinks with every bite).
+local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	local tool = Instance.new("Tool")
-	tool.Name = item.name
-	tool.ToolTip = "클릭(터치)해서 " .. (if item.kind == "cone" then "먹기" else "마시기")
+	tool.Name = nameOverride or item.name
+	local drink = item.kind == "cup" or item.kind == "bottle" or item.kind == "parfait"
+	tool.ToolTip = "클릭(터치)해서 " .. (if drink then "마시기" else "먹기")
 	tool.CanBeDropped = false
 	tool:SetAttribute("Snack", item.key)
-	tool:SetAttribute("Bites", SnackConfig.Bites)
-	if item.kind == "cone" then
+	tool:SetAttribute("Bites", bitesOf(item))
+	local kind = item.kind
+	local handle: Part
+	if kind == "cone" then
 		-- waffle cone (pointing down) with a scoop on top
-		local handle = part("Handle", Vector3.new(0.45, 0.9, 0.45), Color3.fromRGB(215, 160, 90), Enum.Material.SmoothPlastic)
+		handle = part("Handle", Vector3.new(0.45, 0.9, 0.45), Color3.fromRGB(215, 160, 90))
 		handle.Parent = tool
-		local scoop = part("Fill", Vector3.new(0.75, 0.75, 0.75), item.color, Enum.Material.SmoothPlastic, Enum.PartType.Ball)
-		attach(handle, scoop, CFrame.new(0, 0.62, 0))
+		attach(handle, part("Fill", Vector3.new(0.75, 0.75, 0.75), item.color, nil, Enum.PartType.Ball), CFrame.new(0, 0.62, 0))
 		if item.topping then
 			for k = 0, 2 do
-				local chip = part("Chip", Vector3.new(0.12, 0.12, 0.12), item.topping)
-				attach(handle, chip, CFrame.new(math.cos(k * 2.1) * 0.3, 0.8, math.sin(k * 2.1) * 0.3))
+				attach(handle, part("Chip", Vector3.new(0.12, 0.12, 0.12), item.topping), CFrame.new(math.cos(k * 2.1) * 0.3, 0.8, math.sin(k * 2.1) * 0.3))
 			end
 		end
 		tool.Grip = CFrame.new(0, -0.1, 0)
+	elseif kind == "bar" then
+		-- ice cream bar on a wooden stick, a chocolate dip on top
+		handle = part("Handle", Vector3.new(0.12, 0.6, 0.06), Color3.fromRGB(225, 195, 140), Enum.Material.Wood)
+		handle.Parent = tool
+		attach(handle, part("Fill", Vector3.new(0.38, 0.7, 0.2), item.color), CFrame.new(0, 0.6, 0))
+		if item.topping then attach(handle, part("Dip", Vector3.new(0.4, 0.22, 0.22), item.topping), CFrame.new(0, 0.87, 0)) end
+		tool.Grip = CFrame.new(0, -0.15, 0)
+	elseif kind == "bread" then
+		handle = part("Handle", Vector3.new(0.5, 0.3, 0.8), item.color)
+		handle.Transparency = 1
+		handle.Parent = tool
+		attach(handle, blob("Fill", Vector3.new(0.75, 0.42, 1.0), item.color), CFrame.new(0, 0.05, 0))
+		if item.topping then attach(handle, blob("Cream", Vector3.new(0.5, 0.18, 0.7), item.topping), CFrame.new(0, 0.22, 0)) end
+		tool.Grip = CFrame.new(0, 0, 0)
+	elseif kind == "cake" then
+		-- a slice on a little paper plate
+		handle = part("Handle", Vector3.new(0.9, 0.05, 0.9), Color3.fromRGB(250, 250, 250))
+		handle.Parent = tool
+		attach(handle, part("Fill", Vector3.new(0.45, 0.45, 0.7), item.color), CFrame.new(0, 0.25, 0))
+		if item.topping then attach(handle, part("Top", Vector3.new(0.47, 0.08, 0.72), item.topping), CFrame.new(0, 0.5, 0)) end
+		tool.Grip = CFrame.new(0, -0.05, 0)
+	elseif kind == "bowl" or kind == "ricebowl" then
+		-- a 뚝배기 (or a steel rice bowl) with a spoon. Round items hang from an
+		-- invisible block handle (held upright like the cups); the cylinders
+		-- are turned up at attach time
+		local stone = kind == "bowl"
+		handle = part("Handle", Vector3.new(0.5, 0.4, 0.5), Color3.new(1, 1, 1))
+		handle.Transparency = 1
+		handle.Parent = tool
+		attach(handle, cyl("Bowl", if stone then 0.85 else 0.65, if stone then 0.42 else 0.38, if stone then Color3.fromRGB(70, 46, 38) else Color3.fromRGB(205, 208, 212), if stone then Enum.Material.Slate else Enum.Material.Metal), UPRIGHT)
+		attach(handle, cyl("Fill", if stone then 0.72 else 0.55, 0.06, item.color), CFrame.new(0, 0.2, 0) * UPRIGHT)
+		attach(handle, part("Spoon", Vector3.new(0.07, 0.75, 0.05), Color3.fromRGB(215, 218, 222), Enum.Material.Metal), CFrame.new(0.12, 0.38, 0) * CFrame.Angles(0, 0, math.rad(-20)))
+		tool.Grip = CFrame.new(0, -0.1, 0)
+	elseif kind == "noodle" then
+		handle = part("Handle", Vector3.new(0.5, 0.5, 0.5), Color3.new(1, 1, 1))
+		handle.Transparency = 1
+		handle.Parent = tool
+		attach(handle, cyl("Cup", 0.75, 0.75, Color3.fromRGB(250, 248, 240)), UPRIGHT)
+		attach(handle, cyl("Band", 0.77, 0.3, item.color), UPRIGHT)
+		attach(handle, cyl("Fill", 0.62, 0.05, Color3.fromRGB(230, 120, 60)), CFrame.new(0, 0.36, 0) * UPRIGHT)
+		attach(handle, part("Chopsticks", Vector3.new(0.05, 0.9, 0.05), Color3.fromRGB(200, 170, 120), Enum.Material.Wood), CFrame.new(0.1, 0.65, 0) * CFrame.Angles(0, 0, math.rad(-25)))
+		tool.Grip = CFrame.new(0, -0.15, 0)
+	elseif kind == "bottle" then
+		handle = part("Handle", Vector3.new(0.4, 0.8, 0.4), Color3.new(1, 1, 1))
+		handle.Transparency = 1
+		handle.Parent = tool
+		local glass = cyl("Glass", 0.42, 0.9, Color3.fromRGB(240, 245, 250), Enum.Material.Glass)
+		glass.Transparency = 0.3
+		attach(handle, glass, UPRIGHT)
+		attach(handle, cyl("Fill", 0.36, 0.7, item.color), CFrame.new(0, -0.05, 0) * UPRIGHT)
+		attach(handle, cyl("Cap", 0.25, 0.12, Color3.fromRGB(250, 250, 250)), CFrame.new(0, 0.5, 0) * UPRIGHT)
+		tool.Grip = CFrame.new(0, -0.15, 0)
+	elseif kind == "bag" then
+		handle = part("Handle", Vector3.new(0.75, 0.95, 0.25), item.color)
+		handle.Parent = tool
+		attach(handle, part("Fill", Vector3.new(0.5, 0.35, 0.27), Color3.fromRGB(250, 250, 250)), CFrame.new(0, 0.05, 0))
+		tool.Grip = CFrame.new(0, -0.2, 0)
+	elseif kind == "rice" then
+		-- 삼각김밥: a white triangle with a strip of laver
+		handle = part("Handle", Vector3.new(0.2, 0.7, 0.75), item.color)
+		handle.Transparency = 1
+		handle.Parent = tool
+		local w = Instance.new("WedgePart")
+		w.Name = "Fill"
+		w.Size = Vector3.new(0.25, 0.7, 0.4)
+		w.Color = item.color
+		w.CanCollide = false w.CanQuery = false w.CanTouch = false w.Massless = true
+		attach(handle, w, CFrame.new(0, 0, -0.19))
+		local w2 = w:Clone()
+		attach(handle, w2, CFrame.new(0, 0, 0.19) * CFrame.Angles(0, math.rad(180), 0))
+		attach(handle, part("Laver", Vector3.new(0.27, 0.3, 0.3), Color3.fromRGB(30, 40, 30)), CFrame.new(0, -0.22, 0))
+		tool.Grip = CFrame.new(0, -0.1, 0)
+	elseif kind == "parfait" then
+		-- a tall glass of layers with cream and a strawberry on top
+		handle = part("Handle", Vector3.new(0.5, 0.6, 0.5), Color3.new(1, 1, 1))
+		handle.Transparency = 1
+		handle.Parent = tool
+		local glass = cyl("Glass", 0.55, 1.3, Color3.fromRGB(245, 250, 255), Enum.Material.Glass)
+		glass.Transparency = 0.45
+		attach(handle, glass, UPRIGHT)
+		attach(handle, cyl("Fill", 0.48, 0.5, item.color), CFrame.new(0, -0.3, 0) * UPRIGHT)
+		attach(handle, cyl("Layer", 0.48, 0.35, item.topping or Color3.new(1, 1, 1)), CFrame.new(0, 0.12, 0) * UPRIGHT)
+		attach(handle, part("Cream", Vector3.new(0.55, 0.55, 0.55), Color3.fromRGB(252, 250, 246), nil, Enum.PartType.Ball), CFrame.new(0, 0.7, 0))
+		attach(handle, part("Berry", Vector3.new(0.28, 0.28, 0.28), Color3.fromRGB(220, 30, 50), nil, Enum.PartType.Ball), CFrame.new(0, 1.0, 0))
+		tool.Grip = CFrame.new(0, -0.2, 0)
+	elseif kind == "plate" then
+		-- one piece of 수육 on chopsticks
+		handle = part("Handle", Vector3.new(0.05, 0.05, 1.0), Color3.fromRGB(200, 170, 120), Enum.Material.Wood)
+		handle.Parent = tool
+		attach(handle, part("Fill", Vector3.new(0.45, 0.18, 0.35), item.color), CFrame.new(0, 0.05, -0.45))
+		if item.topping then attach(handle, part("Rind", Vector3.new(0.45, 0.06, 0.35), item.topping), CFrame.new(0, 0.17, -0.45)) end
+		tool.Grip = CFrame.new(0, 0, 0.3)
 	else
-		local handle = part("Handle", Vector3.new(0.6, 0.85, 0.6), Color3.fromRGB(250, 250, 255), Enum.Material.Glass)
+		-- "cup": glass with a straw (the original drink)
+		handle = part("Handle", Vector3.new(0.6, 0.85, 0.6), Color3.fromRGB(250, 250, 255), Enum.Material.Glass)
 		handle.Transparency = 0.35
 		handle.Parent = tool
-		local fill = part("Fill", Vector3.new(0.5, 0.65, 0.5), item.color)
-		attach(handle, fill, CFrame.new(0, -0.05, 0))
-		local straw = part("Straw", Vector3.new(0.08, 0.7, 0.08), Color3.fromRGB(255, 255, 255))
-		attach(handle, straw, CFrame.new(0.1, 0.5, 0) * CFrame.Angles(0, 0, math.rad(-10)))
+		attach(handle, part("Fill", Vector3.new(0.5, 0.65, 0.5), item.color), CFrame.new(0, -0.05, 0))
+		if item.topping then attach(handle, part("Topping", Vector3.new(0.52, 0.12, 0.52), item.topping), CFrame.new(0, 0.32, 0)) end
+		attach(handle, part("Straw", Vector3.new(0.08, 0.7, 0.08), Color3.fromRGB(255, 255, 255)), CFrame.new(0.1, 0.5, 0) * CFrame.Angles(0, 0, math.rad(-10)))
+		tool.Grip = CFrame.new(0, -0.2, 0)
+	end
+	if drink then
 		local sip = Instance.new("Sound")
 		sip.Name = "Sip"
 		sip.SoundId = "rbxassetid://" .. tostring(ClubConfig.GulpSoundId)
 		sip.Volume = 0.7
 		sip.RollOffMaxDistance = 40
 		sip.Parent = handle
-		tool.Grip = CFrame.new(0, -0.2, 0)
 	end
 	tool.Activated:Connect(function() bite(tool, item) end)
 	return tool
+end
+
+local function giveTool(player: Player, tool: Tool): boolean
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if not backpack then
+		tool:Destroy()
+		return false
+	end
+	tool.Parent = backpack
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then humanoid:EquipTool(tool) end
+	return true
 end
 
 local function nearShop(player: Player, shopKey: string): boolean
@@ -149,7 +286,7 @@ local function nearShop(player: Player, shopKey: string): boolean
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if not root or not root:IsA("BasePart") then return false end
 	for _, shopPart in ipairs(CollectionService:GetTagged("SnackShop")) do
-		if shopPart:IsA("BasePart") and shopPart:GetAttribute("Shop") == shopKey
+		if shopPart:IsA("BasePart") and shopPart:IsDescendantOf(workspace) and shopPart:GetAttribute("Shop") == shopKey
 			and (shopPart.Position - root.Position).Magnitude <= SnackConfig.ShopDistance then
 			return true
 		end
@@ -157,16 +294,179 @@ local function nearShop(player: Player, shopKey: string): boolean
 	return false
 end
 
+--------------------------------------------------
+-- Shared plates (cakes, 수육): on a table, a piece for everyone
+--------------------------------------------------
+
+local function nearestTable(player: Player): BasePart?
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not root then return nil end
+	local best, bestDistance = nil, SnackConfig.PlateDistance
+	for _, tag in ipairs(TABLE_TAGS) do
+		for _, t in ipairs(CollectionService:GetTagged(tag)) do
+			-- (same floor only: the cafe's mezzanine tables are right overhead)
+			if t:IsA("BasePart") and t:IsDescendantOf(workspace) and math.abs(t.Position.Y - root.Position.Y) < 6 then
+				local d = (t.Position - root.Position).Magnitude
+				if d < bestDistance and not t:FindFirstChild("SharedPlate") then best, bestDistance = t, d end
+			end
+		end
+	end
+	return best
+end
+
+local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item)
+	local servings = item.share or 6
+	local top = tablePart.Position + Vector3.new(0, tablePart.Size.Y / 2, 0)
+	local plate = Instance.new("Model")
+	plate.Name = "SharedPlate"
+	local dish = Instance.new("Part")
+	dish.Name = "Dish"
+	dish.Shape = Enum.PartType.Cylinder
+	dish.Size = Vector3.new(0.12, 2.2, 2.2)
+	dish.CFrame = CFrame.new(top + Vector3.new(0, 0.06, 0)) * UPRIGHT
+	dish.Color = if item.kind == "plate" then Color3.fromRGB(235, 235, 232) else Color3.fromRGB(250, 248, 244)
+	dish.Anchored = true
+	dish.CanCollide = false
+	dish.Parent = plate
+	local pieces: {BasePart} = {}
+	for i = 1, servings do
+		local a = (i - 1) / servings * math.pi * 2
+		local p = Instance.new("Part")
+		p.Name = "Piece"
+		p.Anchored = true
+		p.CanCollide = false
+		p.CanQuery = false
+		if item.kind == "cake" then
+			-- wedges of a round cake: blocks round the centre, a ring of topping
+			p.Size = Vector3.new(0.55, 0.6, 0.75)
+			p.CFrame = CFrame.new(top + Vector3.new(0, 0.42, 0)) * CFrame.Angles(0, a, 0) * CFrame.new(0, 0, -0.42)
+		else
+			-- slices of 수육 fanned out on the plate
+			p.Size = Vector3.new(0.65, 0.16, 0.42)
+			p.CFrame = CFrame.new(top + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, a, 0) * CFrame.new(0, 0, -0.62) * CFrame.Angles(math.rad(8), 0, 0)
+		end
+		p.Color = item.color
+		p.Parent = plate
+		if item.topping then
+			local t = p:Clone()
+			t.Name = "PieceTop"
+			t.Size = Vector3.new(p.Size.X, 0.08, p.Size.Z * 0.9)
+			t.CFrame = p.CFrame * CFrame.new(0, p.Size.Y / 2 + 0.04, 0)
+			t.Color = item.topping
+			t.Parent = p
+		end
+		table.insert(pieces, p)
+	end
+	plate:SetAttribute("Servings", servings)
+	plate:SetAttribute("Owner", player.UserId)
+	-- label
+	local info = Instance.new("BillboardGui")
+	info.Name = "Info"
+	info.Size = UDim2.fromOffset(190, 24)
+	info.StudsOffset = Vector3.new(0, 2.2, 0)
+	info.MaxDistance = 30
+	info.Adornee = dish
+	info.Parent = plate
+	local text = Instance.new("TextLabel")
+	text.Size = UDim2.fromScale(1, 1)
+	text.BackgroundTransparency = 0.35
+	text.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+	text.TextColor3 = Color3.new(1, 1, 1)
+	text.TextScaled = true
+	text.Font = Enum.Font.GothamBold
+	text.Parent = info
+	local pieceWord = if item.kind == "cake" then "조각" else "점"
+	local baseName = string.gsub(item.name, "%s*%(.*%)", "")
+	local function refresh()
+		text.Text = string.format("%s · %s님 · 남은 %d%s", baseName, player.DisplayName, plate:GetAttribute("Servings") :: number, pieceWord)
+	end
+	refresh()
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "TakePiecePrompt"
+	prompt.ActionText = "한 " .. pieceWord .. " 먹기"
+	prompt.ObjectText = baseName
+	prompt.KeyboardKeyCode = Enum.KeyCode.E
+	prompt.HoldDuration = 0
+	prompt.MaxActivationDistance = 9
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = dish
+	prompt.Triggered:Connect(function(who)
+		if countSnacks(who) >= SnackConfig.MaxCarried then
+			local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
+			if notify then notify:FireClient(who, "Toast", string.format("손에 %d개까지 들 수 있어요. 먼저 드세요!", SnackConfig.MaxCarried)) end
+			return
+		end
+		local left = (plate:GetAttribute("Servings") :: number) - 1
+		if left < 0 then return end
+		plate:SetAttribute("Servings", left)
+		local piece = table.remove(pieces)
+		if piece then piece:Destroy() end
+		-- a piece is eaten in two bites
+		local pieceItem = table.clone(item)
+		pieceItem.bites = 2
+		giveTool(who, makeTool(pieceItem, baseName .. " 한 " .. pieceWord))
+		if left <= 0 then plate:Destroy() else refresh() end
+	end)
+	plate.Parent = tablePart
+	Debris:AddItem(plate, SnackConfig.PlateSeconds)
+end
+
+-- a plate held in the hand when no table was near: click next to a table to put it down
+local function plateTool(player: Player, item: SnackConfig.Item): Tool
+	local tool = Instance.new("Tool")
+	tool.Name = item.name
+	tool.ToolTip = "테이블 가까이에서 클릭(터치)하면 테이블에 놓아요"
+	tool.CanBeDropped = false
+	local handle = part("Handle", Vector3.new(1.4, 0.4, 1.4), item.color)
+	handle.Parent = tool
+	tool.Activated:Connect(function()
+		local t = nearestTable(player)
+		if not t then
+			local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
+			if notify then notify:FireClient(player, "Toast", "가까운 테이블이 없어요. 테이블 옆에서 눌러 주세요.") end
+			return
+		end
+		placePlate(player, t, item)
+		tool:Destroy()
+	end)
+	return tool
+end
+
+-- the developer product of a Robux item was paid
+local function grantProduct(player: Player, item: SnackConfig.Item): (boolean, string?)
+	local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
+	if item.share then
+		local t = nearestTable(player)
+		if t then
+			placePlate(player, t, item)
+			if notify then notify:FireClient(player, "Toast", "🍰 테이블에 놓았어요! 모두 한 조각씩 가져갈 수 있어요.") end
+		else
+			local backpack = player:FindFirstChildOfClass("Backpack")
+			if not backpack then return false, nil end
+			plateTool(player, item).Parent = backpack
+			if notify then notify:FireClient(player, "Toast", "테이블 옆에서 클릭하면 접시를 놓아요.") end
+		end
+		return true, nil
+	end
+	-- a single serving (the parfait): it may go over the hand limit, it is paid
+	if not giveTool(player, makeTool(item)) then return false, nil end
+	if notify then notify:FireClient(player, "Toast", item.name .. " 나왔어요!") end
+	return true, nil
+end
+
+--------------------------------------------------
+
 local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string?)
 	local shop, item = SnackConfig.find(shopKey, itemKey)
 	if not shop or not item then return false, "없는 메뉴예요." end
+	if item.product then return false, "Robux 결제로 주문해요." end
 	if not nearShop(player, shop.key) then return false, "카운터 가까이에서 주문해 주세요." end
 	if countSnacks(player) >= SnackConfig.MaxCarried then
 		return false, string.format("손에 %d개까지 들 수 있어요. 먼저 드세요!", SnackConfig.MaxCarried)
 	end
-	local backpack = player:FindFirstChildOfClass("Backpack")
-	if not backpack then return false, "잠시 후 다시 시도해 주세요." end
-	if orderHandler and not item.coins then
+	if not player:FindFirstChildOfClass("Backpack") then return false, "잠시 후 다시 시도해 주세요." end
+	-- the cafe staff makes the free drinks (their job only knows cups)
+	if orderHandler and not item.coins and item.kind == "cup" then
 		local handled, message = orderHandler(player, shop, item)
 		if handled then return true, message end
 	end
@@ -177,21 +477,18 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
 		end
 	end
-	local tool = makeTool(item)
-	tool.Parent = backpack
-	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-	if humanoid then humanoid:EquipTool(tool) end
-	local verb = if item.kind == "cone" then "먹어요" else "마셔요"
-	return true, string.format("%s 나왔어요! 클릭(터치)해서 %s. 자리에 앉아서 즐겨도 돼요.", item.name, verb)
+	giveTool(player, makeTool(item))
+	local drink = item.kind == "cup" or item.kind == "bottle"
+	return true, string.format("%s 나왔어요! 클릭(터치)해서 %s. 자리에 앉아서 즐겨도 돼요.", item.name, if drink then "마셔요" else "먹어요")
 end
 
 local function addPrompt(shopPart: Instance)
-	if not shopPart:IsA("BasePart") or shopPart:FindFirstChild("SnackPrompt") then return end
+	if not shopPart:IsA("BasePart") or shopPart:FindFirstChild("SnackPrompt") or not shopPart:IsDescendantOf(workspace) then return end
 	local shop = SnackConfig.Shops[shopPart:GetAttribute("Shop") :: any]
 	if not shop then return end
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "SnackPrompt"
-	prompt.ActionText = if shop.key == "IceCream" then "아이스크림 사기" else "음료 주문하기"
+	prompt.ActionText = shop.prompt
 	prompt.ObjectText = shop.title
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
 	prompt.HoldDuration = 0
@@ -206,12 +503,8 @@ end
 
 -- Gives a ready drink / snack (cafe job: the staff hands it over).
 function SnackService.Give(player: Player, item: SnackConfig.Item): Tool?
-	local backpack = player:FindFirstChildOfClass("Backpack")
-	if not backpack then return nil end
 	local tool = makeTool(item)
-	tool.Parent = backpack
-	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-	if humanoid then humanoid:EquipTool(tool) end
+	if not giveTool(player, tool) then return nil end
 	return tool
 end
 
@@ -232,6 +525,19 @@ function SnackService.Start(economyService: any)
 	remote.OnServerInvoke = function(player: Player, action: any, shopKey: any, itemKey: any)
 		if action == "Buy" then return buy(player, shopKey, itemKey) end
 		return false, nil
+	end
+	-- Robux menu items
+	local registered: {[string]: boolean} = {}
+	for _, shop in pairs(SnackConfig.Shops) do
+		for _, item in ipairs(shop.items) do
+			local key = item.product
+			if key and not registered[key] then
+				registered[key] = true
+				MonetizationService.RegisterProduct(key, function(player: Player)
+					return grantProduct(player, item)
+				end)
+			end
+		end
 	end
 	for _, shopPart in ipairs(CollectionService:GetTagged("SnackShop")) do addPrompt(shopPart) end
 	CollectionService:GetInstanceAddedSignal("SnackShop"):Connect(addPrompt)

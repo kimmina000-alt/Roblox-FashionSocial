@@ -5,13 +5,18 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local RunService = game:GetService("RunService")
+local MarketplaceService = game:GetService("MarketplaceService")
+local StarterGui = game:GetService("StarterGui")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Remotes = FashionGame:WaitForChild("Remotes")
 local SnackConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("SnackConfig"))
 local EconomyConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("EconomyConfig"))
+local MonetizationConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("MonetizationConfig"))
 local remote = Remotes:WaitForChild("Snack") :: RemoteFunction
 local notify = Remotes:WaitForChild("SnackNotify") :: RemoteEvent
+local ClubShop = Remotes:WaitForChild("ClubShop") :: RemoteFunction
 
 local player = Players.LocalPlayer
 
@@ -57,12 +62,18 @@ local close = make("TextButton", {
 	TextColor3 = Color3.fromRGB(80, 60, 70),
 }, panel)
 round(close, 16)
-local list = make("Frame", {
+-- (scrolls when the menu is longer than the screen: the cafe has 17 items)
+local list = make("ScrollingFrame", {
 	Position = UDim2.fromOffset(12, 50),
 	Size = UDim2.new(1, -24, 1, -92),
 	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 5,
+	ScrollBarImageColor3 = Color3.fromRGB(220, 150, 180),
+	AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	CanvasSize = UDim2.new(),
 }, panel)
-make("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, list)
+make("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, list)
 local status = make("TextLabel", {
 	AnchorPoint = Vector2.new(0, 1),
 	Position = UDim2.new(0, 14, 1, -8),
@@ -94,7 +105,7 @@ local function show(shopKey: string)
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 	openedAt = if root and root:IsA("BasePart") then root.Position else nil
 	title.Text = shop.title
-	status.Text = "메뉴를 고르면 손에 들려 줘요. 자리에 앉아서 드세요!"
+	status.Text = shop.hint or "메뉴를 고르면 손에 들려 줘요. 자리에 앉아서 드세요!"
 	-- cafe job (D-099): with staff on duty the drink is brought to the customer
 	for _, other in ipairs(Players:GetPlayers()) do
 		if other ~= player and other.Character and other.Character:GetAttribute("CafeJob") == shopKey then
@@ -103,13 +114,39 @@ local function show(shopKey: string)
 		end
 	end
 	for _, child in ipairs(list:GetChildren()) do
-		if child:IsA("TextButton") then child:Destroy() end
+		if child:IsA("GuiObject") then child:Destroy() end
 	end
-	for index, item in ipairs(shop.items) do
-		local price = if item.coins then string.format("%s %d", EconomyConfig.Icon, item.coins) else "무료"
+	local order = 0
+	local lastSection: string? = nil
+	local rows = 0
+	local headers = 0
+	for _, item in ipairs(shop.items) do
+		-- a small heading where the price tier changes
+		if item.section and item.section ~= lastSection then
+			lastSection = item.section
+			order += 1
+			headers += 1
+			make("TextLabel", {
+				Name = "Section",
+				LayoutOrder = order,
+				Size = UDim2.new(1, 0, 0, 20),
+				BackgroundTransparency = 1,
+				Font = Enum.Font.GothamBold,
+				TextSize = 13,
+				TextXAlignment = Enum.TextXAlignment.Left,
+				TextColor3 = Color3.fromRGB(170, 110, 140),
+				Text = item.section,
+			}, list)
+		end
+		order += 1
+		rows += 1
+		local product = item.product and MonetizationConfig.Products[item.product]
+		local price = if product then string.format("R$ %d", product.price)
+			elseif item.coins then string.format("%s %d", EconomyConfig.Icon, item.coins)
+			else "무료"
 		local button = make("TextButton", {
 			Name = "Item_" .. item.key,
-			LayoutOrder = index,
+			LayoutOrder = order,
 			Size = UDim2.new(1, 0, 0, 40),
 			BackgroundColor3 = Color3.fromRGB(255, 235, 242),
 			AutoButtonColor = true,
@@ -143,25 +180,44 @@ local function show(shopKey: string)
 			Text = price,
 		}, button)
 		button.MouseButton1Click:Connect(function()
+			if product and item.product then
+				-- Robux: the purchase window ([Studio 테스트] while the id is 0)
+				if product.id ~= 0 then
+					MarketplaceService:PromptProductPurchase(player, product.id)
+				elseif RunService:IsStudio() then
+					local ok, message = ClubShop:InvokeServer("StudioTestBuy", { kind = "product", key = item.product })
+					status.Text = if ok then "[Studio 테스트] 구매했어요." else tostring(message or "구매하지 못했어요.")
+				else
+					status.Text = "준비 중인 상품이에요."
+					return
+				end
+				hide()
+				return
+			end
 			status.Text = "준비 중…"
 			local ok, message = remote:InvokeServer("Buy", shopKey, item.key)
 			status.Text = if typeof(message) == "string" then message else (if ok then "나왔어요!" else "주문하지 못했어요.")
 			if ok then task.delay(1.2, function() if openShop == shopKey then hide() end end) end
 		end)
 	end
-	local height = 100 + #shop.items * 48
-	panel.Size = UDim2.fromOffset(320, height)
-	-- Phones: scale the whole menu down to fit the screen height (user mobile
-	-- test 2026-10-22: the bottom was cut off).
+	local height = 100 + rows * 46 + headers * 26
+	-- Phones (user mobile test 2026-10-22: the bottom was cut off): long menus
+	-- scroll inside a panel no taller than the screen below the top bar
 	local camera = workspace.CurrentCamera
 	local vp = if camera then camera.ViewportSize else Vector2.new(1000, 800)
+	local maxHeight = math.max(220, vp.Y - 90)
+	panel.Size = UDim2.fromOffset(320, math.min(height, maxHeight))
 	local scale = panel:FindFirstChildOfClass("UIScale") or make("UIScale", {}, panel)
-	scale.Scale = math.clamp(math.min((vp.Y - 24) / height, (vp.X - 24) / 320), 0.5, 1)
+	scale.Scale = math.clamp((vp.X - 24) / 320, 0.6, 1)
+	list.CanvasPosition = Vector2.zero
 	panel.Visible = true
 end
 
 notify.OnClientEvent:Connect(function(kind: any, shopKey: any)
 	if kind == "Open" and typeof(shopKey) == "string" then show(shopKey) end
+	if kind == "Toast" and typeof(shopKey) == "string" then
+		StarterGui:SetCore("SendNotification", { Title = "🍽", Text = shopKey, Duration = 4 })
+	end
 end)
 
 -- Close when the player walks away from the counter.

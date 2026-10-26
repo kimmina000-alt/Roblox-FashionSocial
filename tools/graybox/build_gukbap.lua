@@ -282,7 +282,10 @@ end
 local KX = 69 -- counter front
 box("KitchenFloor", KX, FY, Z0 + WT, X1 - WT, FY + 0.05, Z1 - WT, Color3.fromRGB(120, 118, 114), { material = Enum.Material.Slate, nocol = true })
 local counter = box("KitchenCounter", KX, FY, Z0 + 4, KX + 1.6, FY + 3.6, Z1 - 4, STEEL, { material = Enum.Material.DiamondPlate })
-CS:AddTag(counter, "GukbapCounter") -- the order point (food code later)
+CS:AddTag(counter, "GukbapCounter")
+-- the order point: "주문하기" opens the 국밥집 menu (SnackService, D-317)
+counter:SetAttribute("Shop", "Gukbap")
+CS:AddTag(counter, "SnackShop")
 box("CounterTop", KX - 0.3, FY + 3.6, Z0 + 3.8, KX + 1.9, FY + 3.8, Z1 - 3.8, Color3.fromRGB(214, 218, 222), { material = Enum.Material.Metal })
 box("KitchenSideWall_N", KX, FY, Z0 + WT, KX + 0.4, FY + 3.6, Z0 + 4, STEEL, { material = Enum.Material.Metal })
 box("KitchenSideWall_S", KX, FY, Z1 - 4, KX + 0.4, FY + 3.6, Z1 - WT, STEEL, { material = Enum.Material.Metal })
