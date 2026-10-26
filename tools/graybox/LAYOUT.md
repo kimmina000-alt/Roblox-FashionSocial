@@ -35,6 +35,7 @@
 2. `build_hongdae_layout.lua` (MODE `apply` / `revert`) — 강남 사거리 도로·인도·화단·자전거 도로, 지하철 출구·버스 정류장, 광안리 해변도로·계단, 광화문, 놀이공원 정문, 편의점, 구역 위치 이동(MOVES), 이동 경계(투명 벽)와 경계 밖 전경(한옥 담 연장, 가건물, 이어지는 해변). Workspace.Hongdae_Layout.
 3. `street_dress.lua` (MODE `apply` / `revert`) — 실사 에셋(ServerStorage.ArtAssets): 아스팔트·보도블록 재질, 연석, 가로등, 신호등, 빌딩 외벽.
 3-1. `build_gukbap.lua` — 클럽 북쪽 첫 필지의 국밥집(Workspace.Hongdae_Layout.Gukbap, D-314). 그 자리 가건물이 있으면 지우고, 그 필지만 이동 경계를 x 78까지 밀어요. 여러 번 실행해도 결과가 같아요(2단계를 다시 돌린 뒤에는 꼭 다시 실행).
+3-2. `build_haetae.lua` — 광화문 해태 한 쌍(받침대 + 조각상, D-315). 2단계 뒤에 꼭 실행해요(2단계는 해태를 만들지 않아요).
 4. 손 편집 기록(`ServerStorage.PropOverrides`, git `prop_overrides.json`)은 2·3단계에서 자동 적용. 다시 빌드하기 전에 항상 `prop_save.lua`로 먼저 저장.
 - 필요한 Studio 자산: ServerStorage.ArtAssets(나무·관목·야자수·가로등·신호등 등, 스크립트 제거됨), ServerStorage.Cars(G70·G80), MaterialService(OHU_Asphalt, OHU_Concrete). 장소 파일에만 있으므로 Studio 저장 필수.
 - 예전 이름: hongdae_v1_temp.lua / Workspace.Hongdae_v1_Temp (임시 단계). 새 스크립트의 revert가 예전 폴더도 지운다.
