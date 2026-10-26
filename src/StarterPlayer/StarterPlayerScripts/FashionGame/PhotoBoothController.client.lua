@@ -592,22 +592,27 @@ local tip = text({
 	ZIndex = 3,
 }, shoot)
 -- leaving is an X next to the shot counter at the top (user mock-up 2026-10-26)
+-- (no background: a white X of two rounded strokes like the viewfinder corners)
 local shootLeave = button({
 	Name = "Leave",
 	Size = UDim2.fromOffset(34, 34),
-	Text = "X",
-	TextSize = 18,
+	BackgroundTransparency = 1,
+	Text = "",
 	ZIndex = 3,
 }, shoot, 17)
--- the album button moves next to the X while shooting (user 2026-10-26); the
--- top-bar one hides meanwhile
-local shootAlbum = button({
-	Name = "Album",
-	Size = UDim2.fromOffset(34, 34),
-	Text = "🖼",
-	TextSize = 16,
-	ZIndex = 3,
-}, shoot, 17)
+for _, angle in ipairs({ 45, -45 }) do
+	local bar = create("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(30, 5),
+		Rotation = angle,
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		BackgroundTransparency = 0.05,
+		BorderSizePixel = 0,
+		ZIndex = 4,
+	}, shootLeave)
+	corner(bar, 3)
+end
 -- turns the character to face the camera where it stands (user 2026-10-26)
 local faceFront = button({
 	Name = "FaceFront",
@@ -657,6 +662,9 @@ end
 local posePanel, poseList = sidePanel("Poses", "포즈")
 local propPanel, propList = sidePanel("Props", "소품")
 
+-- light sky-blue buttons with dark text on the pink popups (user 2026-10-26);
+-- the chosen one is pink with white text
+local SKY_BUTTON, SKY_TEXT = Color3.fromRGB(205, 235, 250), Color3.fromRGB(30, 46, 66)
 local pauseButton: TextButton
 do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 	local order = 0
@@ -664,6 +672,8 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 		order += 1
 		local b = button({
 			LayoutOrder = order,
+			BackgroundColor3 = SKY_BUTTON,
+			TextColor3 = SKY_TEXT,
 			Text = label,
 			TextSize = 12,
 			TextWrapped = true,
@@ -683,6 +693,7 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 		danceRemote:FireServer(if typeof(character:GetAttribute("DancePause")) == "number" then "Resume" else "Pause")
 	end)
 	pauseButton.BackgroundColor3 = COLORS.pink
+	pauseButton.TextColor3 = Color3.new(1, 1, 1)
 	add("■ 기본", function() danceRemote:FireServer("Stop") end)
 	for _, category in ipairs(PhotoConfig.PoseCategoryOrder) do
 		for _, dance in ipairs(ClubConfig.Dances) do
@@ -703,12 +714,15 @@ local function refreshProps()
 				if child:IsA("Accessory") and child:GetAttribute("PhotoProp") == key then worn = true end
 			end
 		end
-		b.BackgroundColor3 = if worn then COLORS.pink else COLORS.card
+		b.BackgroundColor3 = if worn then COLORS.pink else SKY_BUTTON
+		b.TextColor3 = if worn then Color3.new(1, 1, 1) else SKY_TEXT
 	end
 end
 for index, prop in ipairs(PhotoConfig.Props) do
 	local b = button({
 		LayoutOrder = index,
+		BackgroundColor3 = SKY_BUTTON,
+		TextColor3 = SKY_TEXT,
 		Text = prop.name,
 		TextSize = 12,
 		TextWrapped = true,
@@ -758,7 +772,6 @@ local function layoutShoot()
 	faceFront.Position = UDim2.fromOffset(x + w / 2 - 60, y + h - 58)
 	shootLeave.Position = UDim2.fromOffset(vp.X / 2 + infoBar.Size.X.Offset / 2 + 10, top)
 	shootLeave.Size = UDim2.fromOffset(34, 34)
-	shootAlbum.Position = UDim2.fromOffset(vp.X / 2 + infoBar.Size.X.Offset / 2 + 52, top)
 	local bracket = math.floor(math.clamp(math.min(w, h) * 0.12, 22, 48))
 	for _, c in ipairs(corners) do c.Size = UDim2.fromOffset(bracket, bracket) end
 end
@@ -785,33 +798,30 @@ end
 
 -- Each cut is also captured from the real scene the moment it is taken
 -- (device captures draw ViewportFrame photos almost black, ISSUE-PHOTO-005):
--- only the black frame around the window stays on screen for that frame. The
--- picked cuts are offered to the gallery by "📸 캡처 저장".
+-- for that frame every screen gui is off and the camera is the booth camera.
+-- The last cut used to catch the pick screen that opens right after it (a
+-- black capture, user phone test 2026-10-26): the whole photo gui is off now
+-- too. The picked cuts are offered to the gallery by "📸 캡처 저장".
 local cutCaptures: {[number]: string} = {}
 local cutCount = 0
 local function captureCut(index: number)
 	local ok = pcall(function()
 		local CaptureService = game:GetService("CaptureService")
 		local hidden = {}
-		local function hide(item: Instance)
-			if item:IsA("GuiObject") and item.Visible then item.Visible = false table.insert(hidden, item) end
-			if item:IsA("ScreenGui") and item.Enabled then item.Enabled = false table.insert(hidden, item) end
-		end
-		for _, child in ipairs(shoot:GetChildren()) do
-			if child:IsA("GuiObject") and not string.find(child.Name, "Mask") and child ~= windowFrame then hide(child) end
-		end
-		for _, child in ipairs(windowFrame:GetChildren()) do hide(child) end
 		for _, other in ipairs(playerGui:GetChildren()) do
-			if other ~= gui then hide(other) end
+			if other:IsA("ScreenGui") and other.Enabled then
+				other.Enabled = false
+				table.insert(hidden, other)
+			end
 		end
 		local restored = false
 		local function restore()
 			if restored then return end
 			restored = true
-			for _, item in ipairs(hidden) do
-				if item:IsA("ScreenGui") then item.Enabled = true else (item :: GuiObject).Visible = true end
-			end
+			for _, item in ipairs(hidden) do item.Enabled = true end
+			if state.stage ~= "shooting" then restoreCamera() end
 		end
+		applyShootCamera()
 		RunService.RenderStepped:Wait()
 		CaptureService:CaptureScreenshot(function(contentId)
 			cutCaptures[index] = contentId
@@ -1467,9 +1477,7 @@ end
 albumButton.MouseButton1Click:Connect(function()
 	if album.Visible then closeAlbum() elseif openAlbum then openAlbum() end
 end)
-shootAlbum.MouseButton1Click:Connect(function()
-	if album.Visible then closeAlbum() elseif openAlbum then openAlbum() end
-end)
+-- no album while shooting (user 2026-10-26)
 shoot:GetPropertyChangedSignal("Visible"):Connect(function()
 	albumButton.Visible = not shoot.Visible
 end)

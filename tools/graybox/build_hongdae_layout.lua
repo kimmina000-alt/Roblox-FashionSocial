@@ -4188,7 +4188,7 @@ end
 do -- construction site (future prop shop)
 	-- the empty lot east of the 오후네컷 building, along the east road (user
 	-- 2026-10-23), with an alley to the photo booth building
-	local x0, z0, x1, z1, title = 116, -96, 156, -58, "소품샵 예정"
+	local x0, z0, x1, z1, title = 122, -96, 156, -58, "소품샵 예정" -- (west edge 116 → 122: 오후네컷 grew east, 2026-10-26)
 	local m = Instance.new("Model")
 	m.Name = "ConstructionSite(" .. title .. ")"
 	m.Parent = T
@@ -5219,7 +5219,9 @@ do
 	B.Parent = T
 	local F = 1.6 -- shop floor top (graybox 0.4 + 1.2 lift)
 	local GF = F + 19 -- top of the ground floor / underside of the fascia (high ceiling, user)
-	local W0, W1, N0, S0 = 48.5, 109.5, -98.5, -47.5 -- outer faces: west, east, north, south
+	-- (east face 109.5 → 115.5, user 2026-10-26: wider booths so the wider photo
+	-- view shows no side walls; the 소품샵 site moved east to make room)
+	local W0, W1, N0, S0 = 48.5, 115.5, -98.5, -47.5 -- outer faces: west, east, north, south
 	local CH = 11 -- cut corner
 	local P1, P2 = Vector3.new(W0, 0, S0 - CH), Vector3.new(W0 + CH, 0, S0) -- ends of the cut corner
 	local tC = (P2 - P1).Unit -- along the cut corner (north-west → south-east)
@@ -5841,13 +5843,24 @@ do
 			p.CFrame = p.CFrame.Rotation + pos
 		end
 		local fl = m.StudioFloor
+		-- the booth fills the width from the booth wall to the east wall (2026-10-26)
+		local bx0, bx1 = FX + 1, W1 - 1.1
+		local bcx, bw = (bx0 + bx1) / 2, bx1 - bx0
+		local function widen(p: BasePart, _: boolean)
+			-- the part's local axis that runs along world X (the zone is turned)
+			local cf = p.CFrame
+			if math.abs(cf.XVector.X) > 0.9 then p.Size = Vector3.new(bw, p.Size.Y, p.Size.Z)
+			elseif math.abs(cf.ZVector.X) > 0.9 then p.Size = Vector3.new(p.Size.X, p.Size.Y, bw)
+			elseif math.abs(cf.YVector.X) > 0.9 then p.Size = Vector3.new(p.Size.X, bw, p.Size.Z) end
+		end
 		-- the booth floor is flush with the lobby floor (it stood proud, user)
-		set(fl, DEPTH - 2, Vector3.new(fl.Position.X, F - fl.Size.Y / 2 + 0.005, zc))
+		set(fl, DEPTH - 2, Vector3.new(bcx, F - fl.Size.Y / 2 + 0.005, zc))
+		widen(fl, false)
 		local ce = m:FindFirstChild("Ceiling") :: BasePart?
-		if ce then set(ce, DEPTH - 1, Vector3.new(ce.Position.X, ce.Position.Y, zc)) end
+		if ce then set(ce, DEPTH - 1, Vector3.new(bcx, ce.Position.Y, zc)) widen(ce, false) end
 		for _, w in ipairs({ { "Wall_N", -1 }, { "Wall_S", 1 } }) do
 			local p = m:FindFirstChild(w[1]) :: BasePart?
-			if p then set(p, nil, Vector3.new(p.Position.X, p.Position.Y, zc + w[2] * (DEPTH / 2 - 0.5))) end
+			if p then set(p, nil, Vector3.new(bcx, p.Position.Y, zc + w[2] * (DEPTH / 2 - 0.5))) widen(p, true) end
 		end
 	end
 	for i, m in ipairs(booths) do fitBooth(m, SPAN0 + DEPTH * (i - 0.5)) end
@@ -5890,10 +5903,12 @@ do
 		camP.CFrame = CFrame.lookAt(camPos, camPos + Vector3.new(0, 0, 1))
 		-- people stand south of it, facing it (Stand -Z = toward the camera)
 		local sp = Vector3.new(bx, stand.Position.Y, bz + half - 3.6)
-		stand.Size = Vector3.new(13, stand.Size.Y, 7)
+		local boothW = floorP.Size.X
+		stand.Size = Vector3.new(boothW - 3, stand.Size.Y, 7)
 		stand.CFrame = CFrame.lookAt(sp, sp + Vector3.new(0, 0, -1))
-		-- backdrop on the south wall of the booth
+		-- backdrop on the south wall of the booth, as wide as the booth
 		back.CFrame = CFrame.new(bx, back.Position.Y, bz + half + 0.1) * CFrame.Angles(0, math.rad(90), 0)
+		back.Size = Vector3.new(back.Size.X, back.Size.Y, boothW)
 		-- the old camera prop stays hidden
 		local camProp = m:FindFirstChild("CameraProp")
 		if camProp and camProp:IsA("BasePart") then
@@ -5903,8 +5918,39 @@ do
 		local az = bz - half + 3.5
 		-- the shop's east wall is each booth's east side: painted in the booth colour (user)
 		local wn = m:FindFirstChild("Wall_N")
-		local lining = part("BoothLining", Vector3.new(0.1, 12, half * 2), CFrame.new(108.45, F + 6, bz), if wn and wn:IsA("BasePart") then wn.Color else WHITE_WALL, { parent = m, material = Enum.Material.SmoothPlastic })
+		local boothColor = if wn and wn:IsA("BasePart") then wn.Color else WHITE_WALL
+		-- every face of a booth in its one colour (user 2026-10-26), the floor too
+		floorP:SetAttribute("OrigColor", floorP:GetAttribute("OrigColor") or floorP.Color)
+		floorP.Color = boothColor
+		for _, nm in ipairs({ "Ceiling", "Backdrop", "Wall_S" }) do
+			local p = m:FindFirstChild(nm)
+			if p and p:IsA("BasePart") then p.Color = boothColor end
+		end
+		local lining = part("BoothLining", Vector3.new(0.1, 12, half * 2), CFrame.new(W1 - 1.05, F + 6, bz), boothColor, { parent = m, material = Enum.Material.SmoothPlastic })
 		lining:SetAttribute("LayoutAdded", true)
+		-- the west side inside is the pink booth wall: lined in the booth colour
+		-- too, with the arch cut out (user 2026-10-26: one colour all round)
+		do
+			-- (no collision: a cut union collides as its hull, the booth wall behind is solid)
+			local west = part("BoothLiningW", Vector3.new(0.1, 12, half * 2), CFrame.new(FX + 1.05, F + 6, bz), boothColor, { parent = m, material = Enum.Material.SmoothPlastic, nocol = true })
+			local holes = archHole(Vector3.new(FX + 1.05, F - 0.1, az), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH + 0.1, 1)
+			west.Parent = workspace
+			for _, h in ipairs(holes) do h.Parent = workspace end
+			local ok, res = pcall(function() return west:SubtractAsync(holes) end)
+			for _, h in ipairs(holes) do h:Destroy() end
+			if ok and res then
+				res.Name = "BoothLiningW"
+				res.UsePartColor = true
+				res.Anchored = true
+				res.CanCollide = false
+				res.Parent = m
+				west:Destroy()
+				west = res
+			else
+				west.Parent = m
+			end
+			west:SetAttribute("LayoutAdded", true)
+		end
 		table.insert(archZ, az)
 		-- leaving the booth: out through its arch (PhotoBoothService uses ExitPoint)
 		local ex = Vector3.new(FX - 3, F + 3, az)
@@ -6219,10 +6265,10 @@ if spawn then
 		sy = 0.6 - spawn.Size.Y / 2 -- the cafe floor top
 		look = Vector3.new(-260, sy, 61)
 	else
-		-- (user 2026-10-25) start on the sidewalk in front of the club door,
-		-- facing it (door gap z -197..-175 on the club front at x 48)
-		p = Vector3.new(38, 0, -186)
-		look = Vector3.new(48, sy, -186)
+		-- (user 2026-10-26) start on the sidewalk in front of 오후네컷, facing its
+		-- poster window (west face at x 48.5; was the club door at z -186)
+		p = Vector3.new(38, 0, -82)
+		look = Vector3.new(48, sy, -82)
 	end
 	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, sy, p.Z), look)
 	-- hidden in the paving (user 2026-10-23): no pad or logo showing

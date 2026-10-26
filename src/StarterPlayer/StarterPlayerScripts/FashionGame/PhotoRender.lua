@@ -140,10 +140,10 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 		then CFrame.new(table.unpack(cam))
 		else CFrame.lookAt(Vector3.new(0, -0.6, -11), Vector3.new(0, -2.6, 0))
 	-- Booth set in stand space (the stand looks at the camera along -Z).
-	setPart(world, Vector3.new(16, 12, 0.5), CFrame.new(0, 0, 6.25), back)
-	setPart(world, Vector3.new(16, 0.3, 15), CFrame.new(0, -5.85, 0), back:Lerp(Color3.new(1, 1, 1), 0.4))
-	setPart(world, Vector3.new(0.5, 12, 15), CFrame.new(8, 0, 0), back:Lerp(Color3.new(0, 0, 0), 0.08))
-	setPart(world, Vector3.new(0.5, 12, 15), CFrame.new(-8, 0, 0), back:Lerp(Color3.new(0, 0, 0), 0.08))
+	-- (no side walls and a wide backdrop and floor: the wider view showed the
+	-- darker walls at both edges of every cut, user 2026-10-26)
+	setPart(world, Vector3.new(44, 16, 0.5), CFrame.new(0, 2, 6.25), back)
+	setPart(world, Vector3.new(44, 0.3, 15), CFrame.new(0, -5.85, 0), back:Lerp(Color3.new(1, 1, 1), 0.4))
 	for _, entry in ipairs(shot.people or {}) do
 		local info = people[entry.u]
 		local base = info and info.o and template(info.o)

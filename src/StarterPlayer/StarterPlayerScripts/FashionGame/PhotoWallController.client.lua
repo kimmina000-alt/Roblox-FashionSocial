@@ -316,11 +316,14 @@ end
 cancelButton.MouseButton1Click:Connect(stopPlacing)
 
 -- Where the pointer hits the wall (u, v clamped so the photo stays on it).
-local function pointerUV(screen: Vector2): (number?, number?)
+-- A touch position is in GUI space (below the top bar inset) and goes through
+-- ScreenPointToRay; the mouse location is in viewport space (phones put the
+-- photo a top-bar height away from the tap before, user 2026-10-26).
+local function pointerUV(screen: Vector2, touch: boolean?): (number?, number?)
 	local state = placing
 	local camera = workspace.CurrentCamera
 	if not state or not camera then return nil, nil end
-	local ray = camera:ViewportPointToRay(screen.X, screen.Y)
+	local ray = if touch then camera:ScreenPointToRay(screen.X, screen.Y) else camera:ViewportPointToRay(screen.X, screen.Y)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
 	params.FilterDescendantsInstances = { state.wall }
@@ -345,10 +348,11 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	local state = placing
 	if not state or processed or posting then return end
 	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
-	local position = if input.UserInputType == Enum.UserInputType.Touch
+	local touch = input.UserInputType == Enum.UserInputType.Touch
+	local position = if touch
 		then Vector2.new(input.Position.X, input.Position.Y)
 		else UserInputService:GetMouseLocation()
-	local u, v = pointerUV(position)
+	local u, v = pointerUV(position, touch)
 	if not u or not v then return end
 	posting = true
 	local ok, message = invoke("WallPost", { wall = state.wall, id = state.photo.id, u = u, v = v })
