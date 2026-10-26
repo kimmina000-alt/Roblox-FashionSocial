@@ -199,7 +199,9 @@ do local RED=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=
  -- (the west line leaves out the hall door from the corridor, user 2026-10-25)
  box(z,"FloorLED",-64,F,NZ,-63.88,F+0.25,-225.25,RED,NE) box(z,"FloorLED",-64,F,-210.75,-63.88,F+0.25,-167.5,RED,NE)
  box(z,"FloorLED",79.88,F,NZ,80,F+0.25,-167.5,RED,NE)
- box(z,"FloorLED",-64,F,NZ,80,F+0.25,NZ+0.12,RED,NE) box(z,"FloorLED",-64,F,-167.62,80,F+0.25,-167.5,RED,NE) end
+ box(z,"FloorLED",-64,F,NZ,80,F+0.25,NZ+0.12,RED,NE) box(z,"FloorLED",-64,F,-167.62,80,F+0.25,-167.5,RED,NE)
+ -- the floor at the foot of the entry stairs: its end wall and its side wall only (user 2026-10-26)
+ box(z,"FloorLED",-80,F,-166.5,-79.88,F+0.25,-151.12,RED,NE) box(z,"FloorLED",-79.88,F,-151.12,-61.5,F+0.25,-151,RED,NE) end
 box(z,"Wall_W",-82,F,(NZ-1),-80,RT,-149,WALL_C,WALLO)
 box(z,"Wall_E",80,F,(NZ-1),82,RT,-149,WALL_C,WALLO)
 box(z,"Wall_N",-80,F,(NZ-2),80,RT,NZ,WALL_C,WALLO)

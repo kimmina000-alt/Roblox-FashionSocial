@@ -378,6 +378,10 @@ RunService.PreSimulation:Connect(function()
 	local entry = mySlot
 	local root = ownRoot()
 	if entry and root then
+		-- in the water the swimming body drifted out of the ring between frames
+		-- (it showed the rider beside the tube, user phone test 2026-10-26):
+		-- on a tube the rider is held anchored at the seat
+		if entry.kind == "FloatTube" and not root.Anchored then root.Anchored = true end
 		local cf = riderCFrame(entry, root, now())
 		if cf then placeOwn(cf) end
 	end
@@ -499,6 +503,7 @@ local function stopRiding(exit: CFrame?)
 	if firstPerson then setFirstPerson(false) end
 	local humanoid = ownHumanoid()
 	local root = ownRoot()
+	if root and root.Anchored then root.Anchored = false end -- (tubes hold the rider anchored)
 	if humanoid then humanoid.Sit = false end
 	setJump(true)
 	if root and exit then
@@ -738,7 +743,7 @@ end)
 --------------------------------------------------
 
 player.CharacterAdded:Connect(function()
-	-- the server already cleared the seat (CharacterRemoving)
+	-- the server already cleared the seat (CharacterRemoving); a new character is never anchored
 	mySlot = nil
 	slideCFrame = nil
 	if firstPerson then setFirstPerson(false) end

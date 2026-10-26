@@ -12,6 +12,7 @@
 --   * Clicking (tapping) the tool takes a bite (item.bites or SnackConfig.Bites).
 --     Works standing or sitting at a table.
 
+local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local TweenService = game:GetService("TweenService")
@@ -749,13 +750,113 @@ function SnackService.SetFinishedHandler(handler: (Model, SnackConfig.Item) -> (
 	finishedHandler = handler
 end
 
+-- Putting the food in hand down on a table (user 2026-10-26: 국밥 too): the
+-- tool is kept aside and a still copy of it stands on the table where the
+-- player is; its owner picks it up again with "다시 들기" (bites left kept).
+local FOOD_TABLE_TAGS = { CafeTable = true, GukbapTable = true, SnackTable = true }
+local keptFolder: Folder? = nil
+local function putDown(player: Player, tablePart: any): (boolean, string?)
+	if typeof(tablePart) ~= "Instance" or not tablePart:IsA("BasePart") or not tablePart:IsDescendantOf(workspace) then
+		return false, "테이블을 찾을 수 없어요."
+	end
+	local tagged = false
+	for tag in pairs(FOOD_TABLE_TAGS) do
+		if CollectionService:HasTag(tablePart, tag) then tagged = true end
+	end
+	if not tagged then return false, "여기에는 놓을 수 없어요." end
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local tool = character and character:FindFirstChildOfClass("Tool")
+	if not root or not tool or not tool:GetAttribute("Snack") then return false, "손에 든 음식이 없어요." end
+	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return false, "먹는 중이에요." end
+	local handle = tool:FindFirstChild("Handle")
+	if not handle or not handle:IsA("BasePart") then return false, nil end
+	local reach = math.max(tablePart.Size.X, tablePart.Size.Y, tablePart.Size.Z) / 2 + 8
+	if (root.Position - tablePart.Position).Magnitude > reach then return false, "테이블 가까이 가 주세요." end
+	-- the spot: on the table top, toward the player, a little in from the edge
+	local cf = tablePart.CFrame
+	local halfX = (math.abs(cf.XVector.X) * tablePart.Size.X + math.abs(cf.YVector.X) * tablePart.Size.Y + math.abs(cf.ZVector.X) * tablePart.Size.Z) / 2
+	local halfZ = (math.abs(cf.XVector.Z) * tablePart.Size.X + math.abs(cf.YVector.Z) * tablePart.Size.Y + math.abs(cf.ZVector.Z) * tablePart.Size.Z) / 2
+	local inner = math.max(0, math.min(halfX, halfZ) - 0.7)
+	local flat = Vector3.new(root.Position.X - cf.X, 0, root.Position.Z - cf.Z)
+	local offset = if flat.Magnitude > 0.01 then flat.Unit * math.min(flat.Magnitude, inner) else Vector3.zero
+	local spot = Vector3.new(cf.X, 0, cf.Z) + offset
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { tablePart }
+	local hit = workspace:Raycast(Vector3.new(spot.X, cf.Y + 20, spot.Z), Vector3.new(0, -40, 0), params)
+	if not hit then return false, "테이블 위에 놓을 자리가 없어요." end
+	-- a still copy of what is in the hand, upright, facing the player
+	local copy = handle:Clone()
+	local originals, copies = handle:GetDescendants(), copy:GetDescendants()
+	local place = CFrame.lookAt(hit.Position, hit.Position + Vector3.new(flat.X, 0, flat.Z) + Vector3.new(0, 0, 0.001))
+	local parts: {BasePart} = {}
+	local function fix(original: Instance, clone: Instance)
+		if clone:IsA("BasePart") and original:IsA("BasePart") then
+			clone.CFrame = place * handle.CFrame:ToObjectSpace(original.CFrame)
+			clone.Anchored = true
+			clone.CanCollide = false
+			clone.CanTouch = false
+			table.insert(parts, clone)
+		elseif clone:IsA("JointInstance") or clone:IsA("Sound") then
+			clone:Destroy()
+		end
+	end
+	fix(handle, copy)
+	for i, original in ipairs(originals) do
+		if copies[i] then fix(original, copies[i]) end
+	end
+	local model = Instance.new("Model")
+	model.Name = "PlacedFood"
+	copy.Parent = model
+	-- rest its lowest point on the table top
+	local box, size = model:GetBoundingBox()
+	local lift = hit.Position.Y + 0.02 - (box.Y - size.Y / 2)
+	for _, p in ipairs(parts) do p.CFrame += Vector3.new(0, lift, 0) end
+	model:SetAttribute("Owner", player.UserId)
+	-- the tool waits aside with its bites left
+	if not keptFolder then
+		keptFolder = Instance.new("Folder")
+		keptFolder.Name = "PutDownFood"
+		keptFolder.Parent = game:GetService("ServerStorage")
+	end
+	tool.Parent = keptFolder
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.ActionText = "다시 들기"
+	prompt.ObjectText = tool.Name
+	prompt.MaxActivationDistance = 8
+	prompt.RequiresLineOfSight = false
+	prompt.Parent = copy
+	prompt.Triggered:Connect(function(who)
+		if who ~= player or not model.Parent then return end
+		if giveTool(player, tool) then model:Destroy() end
+	end)
+	model.Parent = tablePart
+	model.Destroying:Connect(function()
+		if tool.Parent == keptFolder then tool:Destroy() end
+	end)
+	Debris:AddItem(model, SnackConfig.PlateSeconds)
+	return true, nil
+end
+
 function SnackService.Start(economyService: any)
 	economy = economyService
 	local remote = Remotes:WaitForChild("Snack") :: RemoteFunction
 	remote.OnServerInvoke = function(player: Player, action: any, shopKey: any, itemKey: any)
 		if action == "Buy" then return buy(player, shopKey, itemKey) end
+		if action == "PutDown" then return putDown(player, shopKey) end
 		return false, nil
 	end
+	-- food left on a table goes when its owner leaves
+	Players.PlayerRemoving:Connect(function(player)
+		for _, tag in ipairs(TABLE_TAGS) do
+			for _, t in ipairs(CollectionService:GetTagged(tag)) do
+				for _, m in ipairs(t:GetChildren()) do
+					if m.Name == "PlacedFood" and m:GetAttribute("Owner") == player.UserId then m:Destroy() end
+				end
+			end
+		end
+	end)
 	-- Robux menu items
 	local registered: {[string]: boolean} = {}
 	for _, shop in pairs(SnackConfig.Shops) do

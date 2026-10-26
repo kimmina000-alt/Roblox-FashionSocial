@@ -252,6 +252,53 @@ notify.OnClientEvent:Connect(function(kind: any, shopKey: any)
 	end
 end)
 
+-- "테이블에 놓기" on the food tables, only while food is in hand (user
+-- 2026-10-26: 국밥 too). Local prompts: other players do not see them.
+do
+	local CollectionService = game:GetService("CollectionService")
+	local prompts: {[BasePart]: ProximityPrompt} = {}
+	local holding = false
+	local function heldFood(): Tool?
+		local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
+		return if tool and tool:GetAttribute("Snack") and not tool:GetAttribute("CafeOrder") then tool else nil
+	end
+	local function refresh()
+		holding = heldFood() ~= nil
+		for tablePart, prompt in pairs(prompts) do
+			if tablePart.Parent then prompt.Enabled = holding else prompts[tablePart] = nil end
+		end
+	end
+	local function add(tablePart: Instance)
+		if not tablePart:IsA("BasePart") or prompts[tablePart] then return end
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "PutDownPrompt"
+		prompt.ActionText = "테이블에 놓기"
+		prompt.ObjectText = "들고 있는 음식"
+		prompt.MaxActivationDistance = 8
+		prompt.RequiresLineOfSight = false
+		prompt.Enabled = holding
+		prompt.Parent = tablePart
+		prompt.Triggered:Connect(function()
+			local ok, message = remote:InvokeServer("PutDown", tablePart)
+			if not ok and typeof(message) == "string" then
+				StarterGui:SetCore("SendNotification", { Title = "🍽", Text = message, Duration = 3 })
+			end
+		end)
+		prompts[tablePart] = prompt
+	end
+	for _, tag in ipairs({ "CafeTable", "GukbapTable", "SnackTable" }) do
+		for _, t in ipairs(CollectionService:GetTagged(tag)) do add(t) end
+		CollectionService:GetInstanceAddedSignal(tag):Connect(add)
+	end
+	local function watch(character: Model)
+		refresh()
+		character.ChildAdded:Connect(refresh)
+		character.ChildRemoved:Connect(refresh)
+	end
+	if player.Character then watch(player.Character) end
+	player.CharacterAdded:Connect(watch)
+end
+
 -- Close when the player walks away from the counter.
 task.spawn(function()
 	while true do

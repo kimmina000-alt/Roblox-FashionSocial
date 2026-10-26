@@ -418,15 +418,15 @@ local function layoutPanel()
 	local viewport = camera.ViewportSize
 	local top = topY()
 	local width = math.clamp(math.floor(viewport.X * 0.36), 240, 330)
-	-- Tall screens: leave the bottom-left free for the touch thumbstick.
-	-- Phones in landscape (~340 px tall) need the full height for the list;
-	-- the panel is closed with X to walk.
-	local bottomFree = if UserInputService.TouchEnabled and viewport.Y >= 520 then 150 else 10
-	local height = math.clamp(viewport.Y - top - bottomFree, 200, 560)
-	-- Phones in landscape: the panel needs the full height, so it moves right
-	-- of the thumbstick instead (user mobile test 2026-10-22: the panel hid
-	-- the thumbstick, so you could not walk while it was open).
-	local leftX = if UserInputService.TouchEnabled and viewport.Y < 520 then 170 else 10
+	-- On the left edge (user 2026-10-26: it sat oddly in the middle). With the
+	-- move stick on screen the panel ends above it (bottom 40 % free) and its
+	-- list scrolls, so players can still walk while it is open.
+	local touchGui = player:WaitForChild("PlayerGui"):FindFirstChild("TouchGui")
+	local stick = touchGui ~= nil and touchGui:IsA("ScreenGui") and touchGui.Enabled
+	local height = if stick
+		then math.clamp(viewport.Y * 0.6 - top, 160, 560)
+		else math.clamp(viewport.Y - top - 10, 200, 560)
+	local leftX = 10
 	panel.Position = UDim2.fromOffset(leftX, top)
 	panel.Size = UDim2.fromOffset(width, height)
 	-- Short screens: slightly smaller dance buttons so more fit.
