@@ -500,7 +500,55 @@ local windowFrame = create("Frame", {
 	Name = "Window",
 	BackgroundTransparency = 1,
 }, shoot)
-create("UIStroke", { Color = Color3.fromRGB(255, 255, 255), Thickness = 2, Transparency = 0.3 }, windowFrame)
+-- camera viewfinder look (user reference 2026-10-26): rounded white corner
+-- brackets (one image turned for each corner, tools/art/viewfinder_corner.ps1),
+-- a small centre cross and a blinking ● REC
+local VIEWFINDER_CORNER = "rbxassetid://115103629010894"
+local corners: {ImageLabel} = {}
+for i, spec in ipairs({ { 0, 0, 0 }, { 1, 0, 90 }, { 1, 1, 180 }, { 0, 1, 270 } }) do
+	corners[i] = create("ImageLabel", {
+		Name = "Corner" .. i,
+		AnchorPoint = Vector2.new(spec[1], spec[2]),
+		Position = UDim2.fromScale(spec[1], spec[2]),
+		BackgroundTransparency = 1,
+		Image = VIEWFINDER_CORNER,
+		ImageTransparency = 0.05,
+		Rotation = spec[3],
+		ZIndex = 3,
+	}, windowFrame)
+end
+for _, size in ipairs({ Vector2.new(18, 2), Vector2.new(2, 18) }) do
+	create("Frame", {
+		Name = "Cross",
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromOffset(size.X, size.Y),
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		BackgroundTransparency = 0.25,
+		BorderSizePixel = 0,
+		ZIndex = 3,
+	}, windowFrame)
+end
+local recLabel = create("TextLabel", {
+	Name = "Rec",
+	Position = UDim2.fromOffset(16, 10),
+	Size = UDim2.fromOffset(70, 20),
+	BackgroundTransparency = 1,
+	Font = Enum.Font.GothamBold,
+	TextSize = 15,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextColor3 = Color3.new(1, 1, 1),
+	TextStrokeTransparency = 0.6,
+	RichText = true,
+	Text = '<font color="#FF3B3B">●</font> REC',
+	ZIndex = 3,
+}, windowFrame)
+task.spawn(function()
+	while true do
+		task.wait(0.6)
+		recLabel.TextTransparency = if recLabel.TextTransparency == 0 then 0.5 else 0
+	end
+end)
 local flash = create("Frame", {
 	Name = "Flash",
 	Size = UDim2.fromScale(1, 1),
@@ -551,11 +599,30 @@ local shootLeave = button({
 	TextSize = 18,
 	ZIndex = 3,
 }, shoot, 17)
+-- the album button moves next to the X while shooting (user 2026-10-26); the
+-- top-bar one hides meanwhile
+local shootAlbum = button({
+	Name = "Album",
+	Size = UDim2.fromOffset(34, 34),
+	Text = "🖼",
+	TextSize = 16,
+	ZIndex = 3,
+}, shoot, 17)
+-- turns the character to face the camera where it stands (user 2026-10-26)
+local faceFront = button({
+	Name = "FaceFront",
+	Size = UDim2.fromOffset(120, 30),
+	BackgroundColor3 = COLORS.pink,
+	Text = "🙂 정면 보기",
+	TextSize = 13,
+	ZIndex = 3,
+}, shoot, 15)
 
 local function sidePanel(name: string, title: string): (Frame, ScrollingFrame)
+	-- (the same light pink as the shot counter, user 2026-10-26)
 	local frame = create("Frame", {
 		Name = name,
-		BackgroundColor3 = COLORS.panel,
+		BackgroundColor3 = Color3.fromRGB(255, 240, 246),
 		ZIndex = 3,
 	}, shoot)
 	corner(frame, 12)
@@ -563,6 +630,7 @@ local function sidePanel(name: string, title: string): (Frame, ScrollingFrame)
 		Position = UDim2.fromOffset(8, 4),
 		Size = UDim2.new(1, -16, 0, 22),
 		Text = title,
+		TextColor3 = Color3.fromRGB(60, 30, 50),
 		TextSize = 15,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 4,
@@ -687,8 +755,12 @@ local function layoutShoot()
 	propPanel.Size = UDim2.fromOffset(panelW, panelH)
 	tip.Position = UDim2.fromOffset(x, y + h - 24)
 	tip.Size = UDim2.fromOffset(w, 20)
+	faceFront.Position = UDim2.fromOffset(x + w / 2 - 60, y + h - 58)
 	shootLeave.Position = UDim2.fromOffset(vp.X / 2 + infoBar.Size.X.Offset / 2 + 10, top)
 	shootLeave.Size = UDim2.fromOffset(34, 34)
+	shootAlbum.Position = UDim2.fromOffset(vp.X / 2 + infoBar.Size.X.Offset / 2 + 52, top)
+	local bracket = math.floor(math.clamp(math.min(w, h) * 0.12, 22, 48))
+	for _, c in ipairs(corners) do c.Size = UDim2.fromOffset(bracket, bracket) end
 end
 
 local function flashShot()
@@ -1395,6 +1467,12 @@ end
 albumButton.MouseButton1Click:Connect(function()
 	if album.Visible then closeAlbum() elseif openAlbum then openAlbum() end
 end)
+shootAlbum.MouseButton1Click:Connect(function()
+	if album.Visible then closeAlbum() elseif openAlbum then openAlbum() end
+end)
+shoot:GetPropertyChangedSignal("Visible"):Connect(function()
+	albumButton.Visible = not shoot.Visible
+end)
 albumClose.MouseButton1Click:Connect(closeAlbum)
 viewerClose.MouseButton1Click:Connect(function() viewer.Visible = false end)
 viewerCapture.MouseButton1Click:Connect(function()
@@ -1533,6 +1611,15 @@ end)
 shootLeave.MouseButton1Click:Connect(function()
 	invoke("Leave", nil)
 	closeAllFlow()
+end)
+faceFront.MouseButton1Click:Connect(function()
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	local cam = boothCameraCFrame()
+	if not character or not root or not root:IsA("BasePart") or not cam then return end
+	-- (the client owns its character, so turning it here reaches everyone)
+	local at = root.Position
+	character:PivotTo(CFrame.lookAt(at, Vector3.new(cam.Position.X, at.Y, cam.Position.Z)) * root.CFrame:ToObjectSpace(character:GetPivot()))
 end)
 
 boothEvent.OnClientEvent:Connect(function(kind: any, value: any)

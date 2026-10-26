@@ -1973,3 +1973,13 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 사용자 시안 | 적용 |
 |---|---|
 | ![](../04_ART/references/booth_shoot_mockup_user.webp) | ![](images/2026-10-26/booth_shoot_v2.jpg) |
+
+### 오후네컷 촬영 화면 v3 (D-329)
+
+- 사진 틀을 카메라 뷰파인더처럼: 둥근 흰 모서리 4개, 가운데 십자, 깜빡이는 ● REC.
+- 포즈·소품 창 배경을 촬영 안내창과 같은 연분홍으로.
+- 팁 위에 '🙂 정면 보기' 버튼: 누르면 그 자리에서 카메라 쪽으로 돌아섬(뒤돌아 있어도).
+- 키 큰 캐릭터 머리 잘림: 화각 40→48, 카메라 0.8 높임.
+- 촬영 중 사진첩 버튼은 X 옆으로.
+
+![](images/2026-10-26/booth_shoot_v3.jpg)

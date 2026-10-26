@@ -24,8 +24,10 @@ local PhotoProps = require(Shared:WaitForChild("PhotoProps"))
 local PhotoRender = {}
 
 -- 40 with the level booth camera (2026-10-22): people fill more of the cut;
--- four people side by side (2.8 studs apart) still fit.
-local FOV = 40
+-- four people side by side (2.8 studs apart) still fit. 48 with the camera
+-- 0.8 higher (2026-10-26): tall avatars kept their heads cut off; small ones
+-- still fill the lower two thirds.
+local FOV = 48
 PhotoRender.FieldOfView = FOV
 
 -- Hidden place where dressed templates are built (ApplyDescription needs the
