@@ -567,10 +567,12 @@ local function pole(px,pz,ledPole)
  -- under each step edge
  local BH=3
  -- (user 2026-10-25) one wide round stage, 2 high (no steps), LED round its top edge
- local b=cyl(z,"PoleBase",7,BH,Vector3.new(px,F+BH/2,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole") -- (smaller and higher, user 2026-10-25)
+ -- (the stepped base black too, user 2026-10-26)
+ local POLEB=Color3.fromRGB(18,18,20)
+ local b=cyl(z,"PoleBase",7,BH,Vector3.new(px,F+BH/2,pz),POLEB,{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole") -- (smaller and higher, user 2026-10-25)
  -- stepped: two wider rings below the top stage, 1 stud each, easy to walk up (user 2026-10-25)
- cyl(z,"PoleStep",10,1,Vector3.new(px,F+0.5,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal,nocol=true})
- cyl(z,"PoleStep",8.5,2,Vector3.new(px,F+1,pz),Color3.fromRGB(150,150,158),{mat=Enum.Material.Metal,nocol=true})
+ cyl(z,"PoleStep",10,1,Vector3.new(px,F+0.5,pz),POLEB,{mat=Enum.Material.Metal,nocol=true})
+ cyl(z,"PoleStep",8.5,2,Vector3.new(px,F+1,pz),POLEB,{mat=Enum.Material.Metal,nocol=true})
  -- (small avatars did not climb the 1-stud steps: invisible wedge ramps all round, user rule)
  for k=0,23 do local a=math.rad(k*15) local out=Vector3.new(math.cos(a),0,math.sin(a))
   local c=Vector3.new(px,F+BH/2,pz)+out*4.75

@@ -2126,3 +2126,13 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 맵에 떠 있던 장소·기능 안내 글자를 모두 지웠어요(다시 지어도 안 생겨요).
 
 ![](images/2026-10-26/club_closed_by_day.jpg)
+
+### 클럽 앞 되돌아간 것 복구 (D-345)
+
+- 원인: 클럽 구역만 다시 지어서, 거리 레이아웃 단계가 고쳐 둔 것(레드카펫·로프·포토월 치움, 엘리베이터 안으로, 입구 오른쪽 벽 열기)이 사라졌어요. 맵 빌드 전체를 순서대로 다시 돌려서 복구.
+- 댄스봉 계단식 받침대도 검정.
+- 확인: 클럽에서 계단 올라 거리까지 걸어 나가기 됨 / VIP 계단 막은 VIP 패스 없는 사람을 막고 결제창을 띄움(사용자 계정은 패스를 갖고 있어서 그냥 지나감).
+
+| 전(사용자 화면) | 후 |
+|---|---|
+| ![](images/2026-10-26/club_front_reverted_user.png) | ![](images/2026-10-26/club_front_restored.jpg) |
