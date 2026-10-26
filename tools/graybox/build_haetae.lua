@@ -24,7 +24,7 @@ assert(T, "Hongdae_Layout missing")
 local G = T:FindFirstChild("Gwanghwamun")
 assert(G, "Gwanghwamun missing")
 
-local SCALES = "rbxassetid://75270171413664" -- docs/04_ART/textures/haetae_scales.png (kr_ohu)
+local SCALES = "rbxassetid://73375039852921" -- docs/04_ART/textures/haetae_scales.png (kr_ohu)
 -- the round shapes are MeshParts of the classic sphere mesh (stretched to any
 -- size): a SpecialMesh Sphere loses its shape when it has a texture (it turns
 -- into an empty FileMesh = a box when the game runs)

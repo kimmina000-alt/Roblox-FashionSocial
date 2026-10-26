@@ -33,7 +33,7 @@ end
 
 -- soft-edged beam texture: white, fading to clear across its width, so the
 -- beam edges look blurred (user 2026-10-25; Beams have no blur setting)
-local SOFT_BEAM = "rbxassetid://85294214717504" -- (the fade runs along the image's X: that is across the beam; the first one faded along the length)
+local SOFT_BEAM = "rbxassetid://129498465489506" -- (the fade runs along the image's X: that is across the beam; the first one faded along the length)
 local BEAMS_PER_EMITTER = 2 -- (thin pale beams fanning fast, user video 2026-10-25)
 local targetHolder = Instance.new("Part")
 targetHolder.Name = "ClubLaserTargets"

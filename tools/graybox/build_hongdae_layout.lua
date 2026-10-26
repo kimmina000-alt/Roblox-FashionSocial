@@ -1099,7 +1099,7 @@ for _, e in ipairs(EXITS) do
 		icon.Position = UDim2.fromScale(0.5, 0.5)
 		icon.Size = UDim2.fromScale(0.78, 0.78)
 		icon.BackgroundTransparency = 1
-		icon.Image = "rbxassetid://97602054536796"
+		icon.Image = "rbxassetid://134705833671914"
 		icon.ScaleType = Enum.ScaleType.Fit
 		icon.Parent = tile
 		gap(6)
@@ -2179,7 +2179,7 @@ do
 		end
 	end
 	local box1 = box("PavilionBox", gx0 + 2.5, TOP, gz0 + 5, gx1 - 2.5, H + 7.6 + LIFT, gz1 - 5, GREEN, { parent = G })
-	patterned(box1, "rbxassetid://75033296375109", (box1.Size.Y) * 272 / 31) -- brighter band (user 2026-10-24)
+	patterned(box1, "rbxassetid://88257154059913", (box1.Size.Y) * 272 / 31) -- brighter band (user 2026-10-24)
 	-- roof pieces: cover tiles down each long slope (same idea as the wall
 	-- giwa), rows of rafters under the eaves, white ridges, 잡상
 	local TILE_C = Color3.fromRGB(70, 74, 80)
@@ -2339,7 +2339,7 @@ do
 	-- a plain green body under it reaches down into the lower roof, so nothing floats over the hip (user)
 	box("UpperBody", gx0 + 2.05, H + 8 + LIFT, gz0 + 10.05, gx1 - 2.05, H + 12 + LIFT, gz1 - 10.05, GREEN, { parent = G })
 	local box2 = box("UpperFloor", gx0 + 2, H + 12 + LIFT, gz0 + 10, gx1 - 2, H + 15 + LIFT, gz1 - 10, GREEN, { parent = G })
-	patterned(box2, "rbxassetid://75033296375109", (box2.Size.Y) * 272 / 31)	palaceRoof(H + 15 + LIFT, gx0 - 1, gx1 + 1, gz0 + 6, gz1 - 6, 5)
+	patterned(box2, "rbxassetid://88257154059913", (box2.Size.Y) * 272 / 31)	palaceRoof(H + 15 + LIFT, gx0 - 1, gx1 + 1, gz0 + 6, gz1 - 6, 5)
 	box("PlaqueFrame", gx0 + 1.55, H + 12.2 + LIFT, 163.6, gx0 + 1.75, H + 14.6 + LIFT, 172.4, Color3.fromRGB(188, 64, 52), { parent = G, nocol = true })
 	local plaque = box("NamePlaque", gx0 + 1.4, H + 12.4 + LIFT, 164, gx0 + 1.6, H + 14.4 + LIFT, 172, Color3.fromRGB(28, 28, 32), { parent = G, nocol = true })
 	do -- 門化光 (read right to left, like the real plaque), big gold letters
@@ -2581,7 +2581,7 @@ do
 	-- sandstone blocks (a joint texture, docs/04_ART/references/park_gate_tower_wall.jpg),
 	-- a moulded cornice and a stepped cap; corner pillars the same, taller
 	local STONE, CARVE = Color3.fromRGB(214, 194, 156), Color3.fromRGB(176, 152, 112)
-	local BLOCKS = "rbxassetid://114128984500161"
+	local BLOCKS = "rbxassetid://105570894168490"
 	local sopt = { parent = E, material = Enum.Material.Sandstone }
 	local function blocks(p: BasePart)
 		for _, fce in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do
