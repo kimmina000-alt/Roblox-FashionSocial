@@ -24,6 +24,7 @@ local SnackConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("Sna
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local EconomyConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("EconomyConfig"))
 local MonetizationService = require(script.Parent.MonetizationService)
+local FoodShapes = require(script.Parent.FoodShapes)
 
 local SnackService = {}
 local economy: any = nil
@@ -112,6 +113,7 @@ local NOT_EDIBLE = {
 	Handle = true, Cup = true, Band = true, Glass = true, Bowl = true, Spoon = true,
 	Chopsticks = true, Straw = true, Cap = true,
 }
+for name in pairs(FoodShapes.NotEdible) do NOT_EDIBLE[name] = true end
 
 -- a bite sound per kind of item (ProSoundEffects / public eating clips, 2026-10-26)
 local EAT_SOUND = {
@@ -126,9 +128,21 @@ local EAT_SOUND = {
 -- tool is built): which local axis is up, its bottom and top, and its weld.
 local function markEdible(tool: Tool, handle: BasePart)
 	local lo, hi = math.huge, -math.huge
+	local zlo, zhi = math.huge, -math.huge
 	for _, piece in ipairs(handle:GetChildren()) do
 		local weld = piece:IsA("BasePart") and piece:FindFirstChildOfClass("Weld")
 		if weld and not NOT_EDIBLE[piece.Name] and piece.Transparency < 1 then
+			-- (front-to-back eating, EatAlong = "Z": where the piece lies along
+			-- the handle's Z, and which of its own axes runs that way)
+			local along = weld.C0:VectorToObjectSpace(Vector3.zAxis)
+			local zAxis = if math.abs(along.X) > 0.9 then "X" elseif math.abs(along.Z) > 0.9 then "Z" elseif math.abs(along.Y) > 0.9 then "Y" else nil
+			local zHalf = if zAxis then (piece.Size :: any)[zAxis] / 2 else 0
+			piece:SetAttribute("EatZAxis", zAxis)
+			piece:SetAttribute("EatZ0", weld.C0.Z - zHalf)
+			piece:SetAttribute("EatZ1", weld.C0.Z + zHalf)
+			piece:SetAttribute("EatSizeZ", piece.Size)
+			piece:SetAttribute("EatC0Z", weld.C0)
+			zlo, zhi = math.min(zlo, weld.C0.Z - zHalf), math.max(zhi, weld.C0.Z + zHalf)
 			local up = weld.C0:VectorToObjectSpace(Vector3.yAxis)
 			local axis = if math.abs(up.X) > 0.9 then "X" elseif math.abs(up.Z) > 0.9 then "Z" elseif math.abs(up.Y) > 0.9 then "Y" else nil
 			if axis then
@@ -146,6 +160,32 @@ local function markEdible(tool: Tool, handle: BasePart)
 	if lo < hi then
 		tool:SetAttribute("EatLo", lo)
 		tool:SetAttribute("EatHi", hi)
+	end
+	if zlo < zhi then
+		tool:SetAttribute("EatZLo", zlo)
+		tool:SetAttribute("EatZHi", zhi)
+	end
+end
+
+-- Breads (FoodShapes, EatAlong = "Z") lose a band from the front (-Z) end
+-- each bite: pieces in front of the cut go, a piece across it gets shorter.
+local function eatFromFront(handle: BasePart, lo: number, hi: number, left: number, total: number)
+	local cut = lo + (hi - lo) * (total - left) / total
+	for _, piece in ipairs(handle:GetChildren()) do
+		local weld = piece:IsA("BasePart") and piece:FindFirstChildOfClass("Weld")
+		local z0, z1 = piece:GetAttribute("EatZ0"), piece:GetAttribute("EatZ1")
+		if weld and piece:IsA("BasePart") and typeof(z0) == "number" and typeof(z1) == "number" then
+			local axis = piece:GetAttribute("EatZAxis")
+			if z1 <= cut + 0.01 or (axis == nil and (z0 + z1) / 2 < cut) then
+				piece.Transparency = 1
+			elseif axis and z0 < cut then
+				local size = piece:GetAttribute("EatSizeZ") :: Vector3
+				local c0 = piece:GetAttribute("EatC0Z") :: CFrame
+				local len = z1 - cut
+				piece.Size = if axis == "X" then Vector3.new(len, size.Y, size.Z) elseif axis == "Y" then Vector3.new(size.X, len, size.Z) else Vector3.new(size.X, size.Y, len)
+				weld.C0 = c0 + Vector3.new(0, 0, (cut - z0) / 2)
+			end
+		end
 	end
 end
 
@@ -214,7 +254,10 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	tool:SetAttribute("Bites", left)
 	-- a third of it is gone, from the top
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
-	if handle and handle:IsA("BasePart") and typeof(lo) == "number" and typeof(hi) == "number" and left > 0 then
+	local zlo, zhi = tool:GetAttribute("EatZLo"), tool:GetAttribute("EatZHi")
+	if handle and handle:IsA("BasePart") and tool:GetAttribute("EatAlong") == "Z" and typeof(zlo) == "number" and typeof(zhi) == "number" and left > 0 then
+		eatFromFront(handle, zlo, zhi, left, total)
+	elseif handle and handle:IsA("BasePart") and typeof(lo) == "number" and typeof(hi) == "number" and left > 0 then
 		eatDownTo(handle, lo, hi, left, total)
 	end
 	tool:SetAttribute("Busy", nil)
@@ -245,7 +288,14 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	tool:SetAttribute("Bites", bitesOf(item))
 	local kind = item.kind
 	local handle: Part
-	if kind == "cone" then
+	local custom, customGrip = FoodShapes.build(item)
+	if custom then
+		-- detailed models of the cafe foods and the OH24 goods (FoodShapes, 2026-10-27)
+		handle = custom
+		handle.Parent = tool
+		tool.Grip = customGrip or CFrame.new()
+		if FoodShapes.alongZ(item) then tool:SetAttribute("EatAlong", "Z") end
+	elseif kind == "cone" then
 		-- waffle cone (pointing down) with a scoop on top
 		handle = part("Handle", Vector3.new(0.45, 0.9, 0.45), Color3.fromRGB(215, 160, 90))
 		handle.Parent = tool
