@@ -26,7 +26,7 @@ anchor.Parent = workspace
 
 local sign = Instance.new("BillboardGui")
 sign.Name = "ClubClosedSign"
-sign.Size = UDim2.fromOffset(240, 56)
+sign.Size = UDim2.fromOffset(120, 28) -- (half the size, white text: user 2026-10-27)
 sign.MaxDistance = 60
 sign.LightInfluence = 0
 sign.Adornee = anchor
@@ -36,16 +36,16 @@ local label = Instance.new("TextLabel")
 label.Size = UDim2.fromScale(1, 1)
 label.BackgroundColor3 = Color3.fromRGB(20, 18, 34)
 label.BackgroundTransparency = 0.15
-label.TextColor3 = Color3.fromRGB(255, 225, 140)
+label.TextColor3 = Color3.new(1, 1, 1)
 label.Font = Enum.Font.GothamBold
 label.TextScaled = true
 label.Parent = sign
 local corner = Instance.new("UICorner")
-corner.CornerRadius = UDim.new(0, 12)
+corner.CornerRadius = UDim.new(0, 6)
 corner.Parent = label
 local pad = Instance.new("UIPadding")
-pad.PaddingLeft = UDim.new(0, 8)
-pad.PaddingRight = UDim.new(0, 8)
+pad.PaddingLeft = UDim.new(0, 4)
+pad.PaddingRight = UDim.new(0, 4)
 pad.Parent = label
 
 while true do

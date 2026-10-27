@@ -728,3 +728,10 @@ D-383 — (2026-10-27, user) Sounds: bus door opening at the stop you get off at
 D-384 — (2026-10-27, user) Cafe staff show "☕ 알바생" over the head (above the name tag) instead of the apron.
 
 D-385 — (2026-10-27, user: "달리기 기능") SprintController: walk 16, run 26. Phone: the 🏃 button by the jump button switches running on/off (🚶 while on); PC: hold Ctrl (Shift is Roblox's shift lock here). FootstepsController counts 20+ as a run.
+D-386 — (2026-10-27, user) Bus stops: a new stop "해변" on the beach road by the pocket park (-153, -128); the old 해변 stop by OH24 is now "카페", moved south onto the promenade in front of the beach cafe (-187.5, 276); the club stop moved north in front of the 국밥집 on the east sidewalk (31, -334), "OHU CLUB · 국밥집". Five stops now (BusAdService takes any number).
+
+D-387 — (2026-10-27, user) Street lights on the south part of the beach road, both sides (cafe promenade and shop-block sidewalk), every 40 from z 232, clear of the bus stops.
+
+D-388 — (2026-10-27, user) Beach cafe: piles only along the edges of the part over the sea (99 → 25), tops 2 under the floor (at FY-1 they met the pool's floor face and flickered in the 물멍 pool's corners); ceiling slats laid again at one even spacing after the stretch; the warm spots in two rows each side of the light panel (32, every other one with a SpotLight); a dark frame (GlassSill, 0.7 high) along the foot of the glass walls.
+
+D-389 — (2026-10-27, user) The club's "밤에 열려요" sign: white text, half the size. The club logo (lemon neon crown + "OHU CLUB" with the red bloom halo, like the VIP signs) on the 2F west wall over the hall, on a dark plate in front of the LED bars.

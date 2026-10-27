@@ -906,6 +906,32 @@ for _,c in ipairs(z:GetChildren()) do if not beforeDJ[c] then
  local all=c:GetDescendants() table.insert(all,c)
  for _,x in ipairs(all) do for k,v in pairs(x:GetAttributes()) do if typeof(v)=="Vector3" then x:SetAttribute(k,v+d) end end end
 end end
+-- CLUB LOGO on the 2F west wall over the hall (user 2026-10-27): the VIP
+-- signs' logo made big for the wall: the lemon neon crown, "OHU CLUB" in
+-- white with the red bloom halo. A dark plate in front of the LED bars there
+do local WX=-79.7 local ZC,YC=-228,V+24 local GS=5
+ box(z,"ClubLogoPlate",WX,YC-11,ZC-20,WX+0.15,YC+11,ZC+20,Color3.fromRGB(12,8,10),{mat=Enum.Material.SmoothPlastic,ghost=true})
+ local CG=Color3.fromRGB(255,238,110) local CO={mat=Enum.Material.Neon,ghost=true}
+ local X1,X2=WX+0.2,WX+0.45
+ local cy=YC+1.5
+ -- the crown: a band and five spikes with a jewel each (the VIP crown × GS)
+ box(z,"ClubLogoCrown",X1,cy,ZC-0.9*GS,X2,cy+0.26*GS,ZC+0.9*GS,CG,CO)
+ for k=-2,2 do local h=(if k==0 then 1.1 elseif math.abs(k)==1 then 0.85 else 0.98)*GS
+  local zc=ZC+k*0.4*GS
+  box(z,"ClubLogoCrown",X1,cy+0.26*GS,zc-0.07*GS,X2,cy+h,zc+0.07*GS,CG,CO)
+  P(z,"ClubLogoJewel",Vector3.new(0.2,0.2,0.2)*GS,CFrame.new((X1+X2)/2,cy+h+0.08*GS,zc),CG,{shape=Enum.PartType.Ball,mat=Enum.Material.Neon,ghost=true}) end
+ do local la=box(z,"ClubLogoLight",X2,cy+2,ZC-0.2,X2+0.1,cy+2.2,ZC+0.2,CG,{t=1,ghost=true})
+  local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,40,50) pl.Range=16 pl.Brightness=1.8 pl.Parent=la end
+ -- "OHU CLUB": white letters over a red copy in a very bright gui (the bloom halo of the VIP signs)
+ local tag=box(z,"ClubLogoText",X1,YC-8.5,ZC-17,X1+0.05,YC+0.5,ZC+17,Color3.new(0,0,0),{t=1,ghost=true})
+ local function gui(name,bright,zo) local g=Instance.new("SurfaceGui") g.Name=name g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Brightness=bright
+  g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=30 g.ZOffset=zo g.Parent=tag return g end
+ local function text(g,col,stroke) local l=Instance.new("TextLabel") l.BackgroundTransparency=1 l.Size=UDim2.fromScale(1,1) l.TextScaled=true
+  l.Font=Enum.Font.GothamBold l.Text="OHU CLUB" l.TextColor3=col l.Parent=g
+  if stroke then local st=Instance.new("UIStroke") st.Color=col st.Thickness=6 st.Parent=l end end
+ text(gui("GlowGui",12,0),Color3.fromRGB(255,20,30),true)
+ text(gui("LogoGui",2,1),Color3.new(1,1,1),false)
+end
 -- ROOFTOP (H37) on top of the building, elevator from the street
 box(z,"RooftopDeck",-80,TOP+0.5,NZ,80,RT,-150,Color3.fromRGB(50,50,70))
 for _,r in ipairs({{-80,-150.5,80,-150},{-80,NZ,80,(NZ+0.5)},{79.5,NZ,80,-150},{-80,NZ,-79.5,-150}}) do
@@ -1774,8 +1800,37 @@ local z=zone("04_Beach_Aquarium")
     local dir=(b-a).Unit local cosT=math.sqrt(dir.X^2+dir.Z^2)
     local mid=(a+b)/2+Vector3.new(0,(RAILH-3.4)/2,0)
     P(cm,"StairRail",Vector3.new(0.3,RAILH*cosT,(b-a).Magnitude),CFrame.lookAt(mid,mid+dir),glass,{t=0.7,mat=Enum.Material.Glass,nocol=true}) end
-   -- piles under the part over the sea (west of the stone base)
-   for px=fx(x0)+4,-272,12 do for pz=fz(z0)+4,fz(z1)-4,15 do cyl(cm,"Pile",1.6,22,Vector3.new(px,FY-12,pz),Color3.fromRGB(180,175,168)) end end
+   -- piles under the part over the sea (west of the stone base): only round
+   -- its edges, where they show (user 2026-10-27: a forest of them under the
+   -- floor), and their tops 2 under the floor (at FY-1 they met the pool
+   -- liner's bottom face and flickered in the pool's corners)
+   do local xa,xb,za,zb=fx(x0)+4,-272,fz(z0)+4,fz(z1)-4
+    local function pile(px,pz) cyl(cm,"Pile",1.6,21,Vector3.new(px,FY-12.5,pz),Color3.fromRGB(180,175,168)) end
+    local nx=math.max(1,math.floor((xb-xa)/14+0.5)) local nz=math.max(1,math.floor((zb-za)/16+0.5))
+    for i=0,nx do local px=xa+(xb-xa)*i/nx pile(px,za) pile(px,zb) end
+    for k=1,nz-1 do local pz=za+(zb-za)*k/nz pile(xa,pz) end end
+   -- (user 2026-10-27) the ceiling slats again at one even spacing over the
+   -- stretched ceiling (stretched one by one they came out 4.6 apart, and 2.4
+   -- at the street door's unstretched band)
+   local SZ0_,SZ1_=fz(z0),fz(z1)
+   for _,c in ipairs(cm:GetChildren()) do if c.Name=="CeilingSlat" or c.Name=="CeilingLight" then c:Destroy() end end
+   do local n=math.floor((SZ1_-SZ0_-2)/2.4) local step=(SZ1_-SZ0_-2-0.9)/n
+    for k=0,n do local sz=SZ0_+1+k*step box(cm,"CeilingSlat",fx(x0)+0.6,FY+H-1.4,sz,x1-0.6,FY+H-0.4,sz+0.9,woodC,{ghost=true}) end end
+   -- the warm spots beside the light panel: two even rows each side (was one)
+   do local CZ2=(SZ0_+SZ1_)/2 local half=(SZ1_-SZ0_)/2
+    local rows={CZ2-half*0.45,CZ2-half*0.72,CZ2+half*0.45,CZ2+half*0.72}
+    local xa,xb=fx(x0)+10,x1-10
+    for _,rz in ipairs(rows) do for k=0,7 do local sx=xa+k*(xb-xa)/7
+     local l=P(cm,"CeilingLight",Vector3.new(1.4,0.3,1.4),CFrame.new(sx,FY+H-1.6,rz),Color3.fromRGB(255,230,180),{mat=Enum.Material.Neon,ghost=true})
+     if k%2==0 then local sl=Instance.new("SpotLight") sl.Face=Enum.NormalId.Bottom sl.Angle=60 sl.Range=50 sl.Brightness=1.6 sl.Color=WARM sl.Parent=l end end end end
+   -- a frame along the foot of the glass walls (user 2026-10-27: the glass
+   -- stood straight on the floor edge), dark like the mullions
+   for _,c in ipairs(cm:GetChildren()) do if c:IsA("BasePart") and (c.Name=="Glass_W" or c.Name=="Glass_Side") then
+    local lo,hi=aabb(c.CFrame,c.Size)
+    local thinX=hi.X-lo.X<hi.Z-lo.Z
+    local ax0,ax1=if thinX then lo.X-0.15 else lo.X,if thinX then hi.X+0.15 else hi.X
+    local az0,az1=if thinX then lo.Z else lo.Z-0.15,if thinX then hi.Z else hi.Z+0.15
+    box(cm,"GlassSill",ax0,FY,az0,ax1,FY+0.7,az1,frameC) end end
   end
  end
  -- (the sunset pier and its photo spot are gone, user 2026-10-24)

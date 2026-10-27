@@ -758,10 +758,15 @@ end
 -- shelters are twice their old size since layout v8 (user 2026-10-27): about
 -- 30 along the street; nothing is planted there and the bike lane breaks
 local BUS_STOPS = {
-	{ 1, "OHU CLUB 앞", Vector3.new(-31, 0, -183 - 24), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1) }, -- (24 north with the club, v8)
+	-- (user 2026-10-27) north, in front of the 국밥집 on the east sidewalk
+	{ 1, "OHU CLUB · 국밥집", Vector3.new(31, 0, -334), Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1) },
 	{ 2, "고층 빌딩가", Vector3.new(130, 0, 31), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0) },
 	{ 3, "한옥 마을 · 광화문", Vector3.new(31, 0, 217.5), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1) },
-	{ 4, "해변", Vector3.new(-153, 0, 84), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1) },
+	-- (user 2026-10-27) "해변" is now the stop by the pocket park on the beach
+	-- road; the old one by OH24 became "카페", moved south to the beach cafe's
+	-- front on the promenade
+	{ 4, "카페", Vector3.new(-187.5, 0, 276), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1) },
+	{ 5, "해변", Vector3.new(-153, 0, -128), Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1) },
 }
 local BUS_HALF = 17 -- half the shelter + sign length along the street
 local function busFootprint(s): (number, number, number, number)
@@ -1388,6 +1393,13 @@ end
 -- (1: moved north to where the ranking boards stood, 3: moved north to the
 -- street light, user phone test 2026-10-26)
 for _, s in ipairs(BUS_STOPS) do busStop(s[1], s[2], s[3], s[4], s[5]) end
+-- street lights on the south part of the beach road (user 2026-10-27, it was
+-- dark there): both sides, the beach cafe's promenade and the shop block's
+-- sidewalk, every 40, clear of the bus stops (street_dress puts the real lamp in)
+for zz = 232, 380, 40 do
+	if clear(Vector3.new(-196.5, 0, zz)) then streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
+	if clear(Vector3.new(-151, 0, zz + 20)) then streetLamp(Vector3.new(-151, CURB, zz + 20), Vector3.new(-1, 0, 0)) end
+end
 
 ------------------------------------------------------- 광안리 seafront
 do
