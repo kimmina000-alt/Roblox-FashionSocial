@@ -2329,3 +2329,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 지하철 출구 4곳 계단·이동 | 통과 | 통과 |
 | 의자 앉기, 주문 메뉴 열림 | – | 통과 |
 | 맵 경계벽, 해변 계단, 바닥 구멍 검사 | – | 통과 |
+### 사용자 가짜 건물 이미지 적용 (D-367)
+
+- facade_4, facade_7을 사용자 이미지로 교체. 클럽 줄 수정도 맵에 적용.
+
+![](images/2026-10-27/v8p_blockN_user_facades.jpg)

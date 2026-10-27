@@ -5064,7 +5064,8 @@ do
 	-- shop signs on every floor, a lit shop front below), one image every ~40.
 	-- They replace the separate fake buildings along the club side, the north
 	-- road's west side, both sides of the south lot and the towers east of 오후네컷.
-	local FACADES = { 119555605786938, 100153499316339, 131791880332218, 81296451318379, 76461462810783, 86941239410625, 104806131921624, 134862143501130 }
+	-- (user 2026-10-27: their own pictures for slots 4 and 7, docs/04_ART/facades/facade_4_user.png / facade_7_user.png)
+	local FACADES = { 119555605786938, 100153499316339, 131791880332218, 72400340486961, 76461462810783, 86941239410625, 133905773347734, 134862143501130 }
 	local facadeN = 0
 	local function shopBlock(name, x0, z0, x1, z1, h, faces)
 		local M = Instance.new("Model")
