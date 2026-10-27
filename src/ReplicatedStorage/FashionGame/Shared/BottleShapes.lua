@@ -425,10 +425,71 @@ local USER_MESH = {
 	green_claw = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
 	blue_wing = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
 	stack_hydro = { "bottle_stack_hydro", 2.16, "band", 0.2, 0.42 },
-	pastel_splash = { "bottle_pastel_splash", 2.16, "band", 0.25, 0.5 },
-	skull_water = { "bottle_skull_water", 2.16, "band", 0.22, 0.45 },
-	golmok = { "bottle_vip_golmok", 2.52, "vip", 0, 0 },
+	pastel_splash = { "bottle_pastel_splash", 2.16, "pastel", 0.13, 0.47 },
+	skull_water = { "bottle_skull_water", 2.16, "swing", 0.12, 0.52 },
+	-- (1.3x the other bottles, user 2026-10-27, D-419; BottleShapes.Height keeps
+	-- 2.52 so the hand tool is 1.3x too)
+	golmok = { "bottle_vip_golmok", 3.28, "vip", 0, 0 },
 }
+-- front labels in the can designs the user sent (D-420)
+local FRONT_LABEL = { pastel_splash = "rbxassetid://114648019526845", skull_water = "rbxassetid://117082924870599" }
+
+-- a label on the front arc only (arcDeg wide), bent round the body
+local function arcLabel(c: Ctx, name: string, y0: number, y1: number, r0: number, r1: number, arcDeg: number, tex: string, bg: Color3)
+	local s = c.s
+	local n = 24
+	local step = 2 * math.pi / n
+	local count = math.max(1, math.floor(arcDeg / 15 + 0.5))
+	local h = y1 - y0
+	local slant = math.sqrt(h * h + (r1 - r0) ^ 2)
+	local rm = (r0 + r1) / 2
+	local wn = 2 * rm * math.tan(math.pi / n)
+	local grow = wn * 0.06
+	local tilt = math.atan2(r1 - r0, h)
+	for j = 0, count - 1 do
+		local a = math.pi - count * step / 2 + (j + 0.5) * step
+		local out = Vector3.new(math.sin(a), 0, math.cos(a))
+		local p0 = (Vector3.new(0, (y0 + y1) / 2, 0) + out * rm) * s
+		local p = make(c, name, Vector3.new((wn + 2 * grow) * s, slant * s, 0.02 * s), c.base * CFrame.lookAt(p0, p0 + out) * CFrame.Angles(-tilt, 0, 0), bg)
+		local t = Instance.new("Texture")
+		t.Texture = tex
+		t.Face = Enum.NormalId.Front
+		t.StudsPerTileU = wn * count * s
+		t.OffsetStudsU = (j * wn - grow) * s
+		t.StudsPerTileV = slant * s
+		t.Parent = p
+	end
+end
+
+-- 파스텔 스플래시: the mouth of the user's frosted bottle photo (a clear glass
+-- collar under a flat orange cap), a frosted body (D-420)
+local function pastelDress(c: Ctx, body: BasePart, H: number)
+	body.Material = Enum.Material.Glass
+	body.Transparency = 0.2
+	body.Reflectance = 0.15
+	-- (Glass material drew the collar dark grey: plastic, half see-through)
+	cyl(c, "Collar", 0.86 * H, 0.925 * H, 0.15 * H, { color = Color3.fromRGB(240, 244, 248), transparency = 0.35, reflectance = 0.25 })
+	cyl(c, "BottleCap", 0.925 * H, 1.0 * H + 0.01, 0.14 * H, { color = Color3.fromRGB(245, 120, 40) })
+end
+
+-- 스컬 앤 워터: the swing-top of the user's dark bottle photo: a white ceramic
+-- stopper under a red seal, and a wire bail from a neck ring over the top
+local function swingDress(c: Ctx, body: BasePart, H: number)
+	local s = c.s
+	-- (Glass material showed the sky blue through the foot: glossy plastic reads as dark glass)
+	body.Material = Enum.Material.SmoothPlastic
+	body.Reflectance = 0.04 -- (more mirrored the sky blue at the foot)
+	local wire = { color = Color3.fromRGB(190, 194, 200), material = Enum.Material.Metal, reflectance = 0.3 }
+	cyl(c, "Seal", 0.93 * H, 1.035 * H, 0.128 * H, { color = Color3.fromRGB(200, 30, 40) })
+	cyl(c, "Stopper", 1.035 * H, 1.075 * H, 0.105 * H, { color = WHITE })
+	cyl(c, "SealDot", 1.075 * H, 1.082 * H, 0.06 * H, { color = Color3.fromRGB(200, 30, 40) })
+	cyl(c, "WireRing", 0.86 * H, 0.875 * H, 0.135 * H, wire)
+	local t = 0.008 * H -- (thin, hugging the seal: a wider one read as a box frame)
+	for _, x in ipairs({ -1, 1 }) do -- the two legs of the bail
+		make(c, "Wire", Vector3.new(t * s, 0.215 * H * s, t * s), c.base * CFrame.new(x * 0.068 * H * s, 0.975 * H * s, 0), wire.color, wire.material, nil, 0, wire.reflectance)
+	end
+	make(c, "Wire", Vector3.new(0.144 * H * s, t * s, t * s), c.base * CFrame.new(0, 1.084 * H * s, 0), wire.color, wire.material, nil, 0, wire.reflectance)
+end
 local VIP_SPADE, VIP_PLATE = "rbxassetid://100981037328421", "rbxassetid://75444167233842"
 
 -- 골목 공방 (VIP), like the user's photo of the metallic champagne set: a
@@ -506,6 +567,11 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	local y0, y1 = spec[4] * H, spec[5] * H
 	if spec[3] == "vip" then
 		vipDress(c, p, color, H, r * 0.93)
+	elseif spec[3] == "pastel" or spec[3] == "swing" then
+		-- (radius at the label's bottom and top, from the mesh's profile)
+		local r0, r1 = if key == "pastel_splash" then 0.114 * H else 0.141 * H, if key == "pastel_splash" then 0.096 * H else 0.142 * H
+		arcLabel(c, "Label", y0, y1, r0 + 0.006, r1 + 0.006, 150, FRONT_LABEL[key], if key == "pastel_splash" then Color3.fromRGB(252, 196, 186) else BLACK)
+		if spec[3] == "pastel" then pastelDress(c, p, H) else swingDress(c, p, H) end
 	elseif spec[3] == "front" then
 		local lw, lh = r * 1.2, (y1 - y0)
 		local label = make(c, "Label", Vector3.new(lw * s, lh * s, 0.01 * s), c.base * CFrame.new(0, (y0 + y1) / 2 * s, -(r + 0.006) * s), WHITE)

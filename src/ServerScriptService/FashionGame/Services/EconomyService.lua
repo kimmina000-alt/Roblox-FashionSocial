@@ -265,6 +265,11 @@ function EconomyService.Start(dataService: any)
 	playerData = dataService
 	local function onPlayer(player: Player)
 		task.spawn(function()
+			local start = EconomyConfig.TestStartCoins
+			if start and wallet(player).coins < start then
+				wallet(player).coins = start
+				playerData.MarkDirty(player)
+			end
 			publish(player)
 			-- the saved XP on the name tag from the start (it grows once a minute)
 			if EconomyConfig.XPEnabled then player:SetAttribute("XP", playerData.Wallet(player).xp or 0) end

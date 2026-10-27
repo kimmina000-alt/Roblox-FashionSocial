@@ -13,6 +13,9 @@ local EconomyConfig = {}
 EconomyConfig.CurrencyName = "코인"
 EconomyConfig.Icon = "💰" -- 🪙 is not in the Roblox font (shows a box)
 EconomyConfig.MaxBalance = 99999
+-- TEMPORARY while testing (user 2026-10-27, D-418): a player with fewer coins
+-- starts the session with this many. Set to nil when the game is finished.
+EconomyConfig.TestStartCoins = 100
 
 -- Economy v2, first test (user, 2026-10-22; ECONOMY.md, D-074/D-083):
 -- 1 coin per minute online, whether the player moves or not, no daily cap,

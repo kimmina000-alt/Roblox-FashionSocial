@@ -912,6 +912,10 @@ end
 -- A drink tool for anyone (an NPC customer, the cup the staff carries).
 SnackService.MakeTool = function(item: SnackConfig.Item): Tool return makeTool(item) end
 
+-- A shared plate on a table as if `owner` put it down (the food showcase:
+-- owner can be a stand-in { UserId, DisplayName }).
+SnackService.PlacePlate = function(owner: any, tablePart: BasePart, item: SnackConfig.Item) placePlate(owner, tablePart, item) end
+
 function SnackService.SetOrderHandler(handler: (Player, SnackConfig.Shop, SnackConfig.Item) -> (boolean, string?))
 	orderHandler = handler
 end

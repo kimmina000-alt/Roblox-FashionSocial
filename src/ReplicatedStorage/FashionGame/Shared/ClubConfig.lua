@@ -189,9 +189,9 @@ ClubConfig.Drinks = {
 	{ key = "stack_hydro", name = "스택 하이드로", tier = 3, product = "Drink_StackHydro", vipProduct = "Drink_StackHydro_VIP", -- Cadence
 		color = Color3.fromRGB(40, 190, 70), look = "목이 긴 초록 유리병" },
 	{ key = "pastel_splash", name = "파스텔 스플래시", tier = 3, product = "Drink_PastelSplash", vipProduct = "Drink_PastelSplash_VIP", -- La Croix
-		color = Color3.fromRGB(250, 190, 222), look = "분홍 불투명 원통 병 · X" },
+		color = Color3.fromRGB(250, 190, 222), look = "반투명 분홍 병 · 주황 캡 · 파스텔 라벨" },
 	{ key = "skull_water", name = "스컬 캔 워터", tier = 3, product = "Drink_SkullWater", vipProduct = "Drink_SkullWater_VIP", -- Liquid Death
-		color = Color3.fromRGB(18, 18, 20), look = "물방울 모양 검정 광택 병 · 흰 해골" },
+		color = Color3.fromRGB(18, 18, 20), look = "검정 유리 스윙탑 병 · 금색 해골 라벨" },
 	-- VIP only (D-274)
 	{ key = "golmok", name = "골목 공방 소다", tier = 3, vipOnly = true, product = "Drink_Golmok", -- On A Lark
 		-- (user photo 2026-10-27: the metallic champagne set's colours)

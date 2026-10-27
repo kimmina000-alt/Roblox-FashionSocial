@@ -789,3 +789,13 @@ D-416 — (2026-10-27, user photo of the metallic champagne set) 골목 공방 (
 D-416a — (2026-10-27) The user imported the five *_smooth bottle meshes into ServerStorage.ArtAssets.Bottles; the club bottles now use them (round shading, no facets). Shot: docs/06_LOG/images/2026-10-27/club_bottles_smooth.png.
 
 D-417 — (2026-10-27, user, TEMPORARY) Club open all day for testing: ClubConfig.NightEntry.Enabled = false. Set it back to true when testing is done.
+
+D-418 — (2026-10-27, user, TEMPORARY) Players start each session with at least 100 coins while testing: EconomyConfig.TestStartCoins = 100 (EconomyService tops the wallet up at join). Set it to nil when the game is finished.
+
+D-419 — (2026-10-27, user) The 골목 공방 (VIP) bottle is 1.3x the size it was (USER_MESH height 2.52 → 3.28; BottleShapes.Height stays 2.52, so the bottle in the hand is 1.3x too). Shot: docs/06_LOG/images/2026-10-27/bottles_vip_13x.jpg.
+
+D-420 — (2026-10-27, user photos, files named by drink) 파스텔 스플래시 and 스컬 캔 워터 bottles: the mouth and cap copy the user's bottle photos, the front label copies the user's can photos, with our own names (no brand names). 파스텔 스플래시 = frosted see-through body, a clear collar ring under a flat orange cap, a pastel coral label with colour splashes and a navy script "Pastel Splash" (docs/04_ART/textures/drinks/front_pastel_splash.png, 114648019526845). 스컬 캔 워터 = dark glossy bottle with a swing top (white stopper under a red seal, a wire bail from a neck ring over the top), a black label with a gold "SKULL & WATER" title and a gold skull (front_skull_water.png, 117082924870599). The labels wrap the front 150° only (BottleShapes arcLabel). No blackletter font on this PC: the title uses a heavy serif. Shot: bottles_pastel_skull.jpg.
+
+D-421 — (2026-10-27, user) 수육 on the food showcase shows the shared plate with six slices (as it looks on a table) instead of the single slice held on chopsticks; SnackService.PlacePlate exported for that. The one slice in the hand is still how one piece is eaten. Shot: suyuk_plate_showcase.jpg.
+
+D-422 — (2026-10-27, user photo of stage cold-spark fountains) Sparkler search: Creator Store "sparkler / cold spark / spark fountain / stage sparks" gave only hand sparklers, star sparkles or scripted fireworks (6 tried, scripts stripped, none spray upward like the photo). Two fountains were built from particles instead (a dark box with a nozzle: dense white-gold streaks going up 12–15 studs, glitter falling back; 7 = narrow column, 8 = wider fan). Test stage at y 400 in Workspace.SparkTEMP (place only). Shots: sparkler_candidates_all.jpg, sparkler_fountain_78.jpg. Waiting for the user's pick before it replaces the cold-spark fountains (SparkleService sparks()).
