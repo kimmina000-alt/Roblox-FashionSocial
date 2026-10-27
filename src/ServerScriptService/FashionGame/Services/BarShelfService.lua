@@ -17,7 +17,7 @@ local GAP = 3.6 -- studs between bottles along a shelf
 -- the light puck under each bottle (D-433)
 local PUCK_SIZE, PUCK_HEIGHT = 1.3, 0.12
 local UPLIGHT_COLOR = Color3.fromRGB(255, 226, 185)
-local SHELF_BOTTLE_TRANSPARENCY = 0.35
+local SHELF_BOTTLE_TRANSPARENCY = 0.1
 
 -- every flavour of the drinks on one shelf row, as { key, colour }
 local function row(match: (any) -> boolean): { { any } }
@@ -61,6 +61,10 @@ function BarShelfService.Start()
 			row(function(d) return d.tier == 3 and not d.vipOnly end),
 			row(function(d) return d.vipOnly == true end),
 		}
+		-- glowing copies of the bottle pictures (Edit-made SurfaceAppearances with
+		-- an emissive mask on the glass; place only)
+		local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+		local glowSkins = art and art:FindFirstChild("BottleSkinsGlow")
 		local holder = Instance.new("Model")
 		holder.Name = "BarShelfBottles"
 		holder.Parent = club
@@ -75,6 +79,20 @@ function BarShelfService.Start()
 			local front = if toBar.Magnitude > 0.01 then toBar.Unit else Vector3.new(1, 0, 0)
 			local count = math.floor((length - 2) / GAP)
 			local y = topOf(shelf)
+			-- the board above this row (the top row gets a slim canopy board at the
+			-- same spacing): the down light sits on its underside (D-435)
+			local above = shelves[i + 1]
+			if not above then
+				local below = shelves[i - 1]
+				local step = if below then shelf.Position.Y - below.Position.Y else 6
+				local canopy = shelf:Clone()
+				canopy.Name = "BarShelfCanopy"
+				canopy:ClearAllChildren()
+				canopy.CFrame = shelf.CFrame + Vector3.new(0, step, 0)
+				canopy.Parent = holder
+				above = canopy
+			end
+			local underside = 2 * above.Position.Y - topOf(above)
 			for k = 1, count do
 				local e = drinks[(k - 1) % #drinks + 1]
 				local at = Vector3.new(shelf.Position.X, y, shelf.Position.Z) + along * (-(count - 1) / 2 + (k - 1)) * GAP
@@ -102,15 +120,17 @@ function BarShelfService.Start()
 				beam.Parent = puck
 				local base = at + Vector3.new(0, PUCK_HEIGHT, 0)
 				local parts = BottleShapes.add(holder, CFrame.lookAt(base, base + front), e[1], e[2], 1)
-				-- see-through display bottles (shelf only, D-434), and the same light
-				-- just above each one, shining down
-				local topY = base.Y
+				-- display bottles only (D-434/D-435): a little see-through, and the
+				-- glass glows (the emissive copy of the bottle's picture)
 				for _, p in ipairs(parts) do
 					p.Transparency = math.max(p.Transparency, SHELF_BOTTLE_TRANSPARENCY)
-					topY = math.max(topY, p.Position.Y + p.Size.Y / 2)
+					local skin = p:FindFirstChildOfClass("SurfaceAppearance")
+					local glowing = glowSkins and glowSkins:FindFirstChild(e[1])
+					if skin and glowing then skin:Destroy() glowing:Clone().Parent = p end
 				end
+				-- the same light on the underside of the board above, shining down
 				local over = puck:Clone()
-				over.CFrame = CFrame.new(at.X, topY + 0.4, at.Z) * CFrame.Angles(0, 0, math.rad(-90))
+				over.CFrame = CFrame.new(at.X, underside - PUCK_HEIGHT / 2, at.Z) * CFrame.Angles(0, 0, math.rad(-90))
 				over.Parent = holder
 			end
 		end
