@@ -5880,13 +5880,13 @@ do
 	local VW, VH = 8, 12.5 -- make-up vanity arches (wider, user 2026-10-27: was 5.6 x 11.5)
 	-- the south glass bay took the first window and vanity (user); from the
 	-- slanted wall end by the bay (x SBAY + PW) to the booth wall (x FX): window,
-	-- vanity, window, vanity, window, vanity, window with equal gaps (user 2026-10-27)
+	-- vanity, window, vanity, window with equal gaps (user 2026-10-27, second pass)
 	local PILL_X, VANITY_X = {}, {}
 	do
 		local x0, x1 = SBAY + PW, FX
-		local gap = (x1 - x0 - 4 * PILL_W - 3 * VW) / 8
+		local gap = (x1 - x0 - 3 * PILL_W - 2 * VW) / 6
 		local x = x0 + gap
-		for k = 1, 7 do
+		for k = 1, 5 do
 			local w = if k % 2 == 1 then PILL_W else VW
 			table.insert(if k % 2 == 1 then PILL_X else VANITY_X, x + w / 2)
 			x += w + gap
@@ -6221,7 +6221,7 @@ do
 			-- centred on the wall as seen inside: pink west wall face (W0 + 1 + PW) to the fin
 			p.CFrame = p.CFrame.Rotation + Vector3.new((W0 + 1 + PW + FIN - 0.5) / 2, p.Position.Y, NIN + p.Size.Z / 2 + 0.05)
 			-- the shop name over the photo wall (user)
-			sign3d("Sign_PhotoWall", { "◎", "오", "후", "네", "컷" }, Vector3.new(p.Position.X, p.Position.Y + p.Size.Y / 2 + 2.2, NIN), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), 2)
+			-- (the chunky 3D "◎오후네컷" letters are gone, user 2026-10-27: a light-weight sign comes instead)
 			-- the second one between the fin and the booth wall (its own pinned photos)
 			local p2 = p:Clone()
 			p2:SetAttribute("OrigCFrame", nil)
@@ -6259,9 +6259,10 @@ do
 		local holes = {}
 		for _, cx in ipairs(PILL_X) do
 			local w, h, cy = PILL_W, PILL_H, PILL_Y
-			table.insert(holes, part("PillCut", Vector3.new(w, h - w, 3), CFrame.new(cx, cy, (SZ0 + SZ1) / 2), WHITE_WALL, o))
+			-- (through the whole thick wall: a 3 deep cut left the 3.2 wall shut, 2026-10-27)
+			table.insert(holes, part("PillCut", Vector3.new(w, h - w, PW + 0.6), CFrame.new(cx, cy, (SZ0 + SZ1) / 2), WHITE_WALL, o))
 			for _, s in ipairs({ -1, 1 }) do
-				table.insert(holes, part("PillCut", Vector3.new(3, w, w), CFrame.new(cx, cy + s * (h - w) / 2, (SZ0 + SZ1) / 2) * CFrame.Angles(0, math.rad(90), 0), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder })))
+				table.insert(holes, part("PillCut", Vector3.new(PW + 0.6, w, w), CFrame.new(cx, cy + s * (h - w) / 2, (SZ0 + SZ1) / 2) * CFrame.Angles(0, math.rad(90), 0), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder })))
 			end
 		end
 		for _, vx in ipairs(VANITY_X) do
@@ -6395,7 +6396,7 @@ do
 			camProp:SetAttribute("OrigTransparency", camProp.Transparency)
 			camProp.Transparency = 1
 		end
-		local az = bz - half + 3.5
+		local az = bz - half + 6 -- (3.5 left the PINK arch hugging the lobby's north wall, 2026-10-27)
 		-- the shop's east wall is each booth's east side: painted in the booth colour (user)
 		local wn = m:FindFirstChild("Wall_N")
 		local boothColor = if wn and wn:IsA("BasePart") then wn.Color else WHITE_WALL
@@ -6608,8 +6609,15 @@ do
 	do
 		local WX0, WX1 = W0 + 1, W0 + 1 + PW -- the thick pink wall: the niches are recessed (deeper since 2026-10-27)
 		local wAlong, wOut = Vector3.new(0, 0, 1), Vector3.new(1, 0, 0)
-		local NICHES = { -91, -74.5 } -- north a little: the glass bay starts at z -67, its slanted wall end at -68.6
 		local NW, NH = 9, 13.5
+		-- niche, mirror, niche spread over the whole wall (north liner NIN to the
+		-- slanted end by the glass bay) with equal gaps (user 2026-10-27)
+		local NICHES
+		do
+			local z0, z1, MWID = NIN, WBAY - PW, 4.4
+			local gap = (z1 - z0 - 2 * NW - MWID) / 4
+			NICHES = { z0 + gap + NW / 2, z1 - gap - NW / 2 }
+		end
 		local wall = box("PinkWallW", WX0, F, NIN, WX1, GF - 0.4, WBAY - PW, PINK_WALL, PLASTER)
 		local holes = {}
 		for _, zc in ipairs(NICHES) do
@@ -6746,16 +6754,7 @@ do
 		part("Brush", Vector3.new(0.2, 0.2, 0.9), CFrame.new(vx - CW + 1.2, F + 4.3, zi - 0.8), Color3.fromRGB(240, 160, 180), opt({ nocol = true }))
 	end
 
-	---------------------------------------------------------------- white oval table in the middle (user plan)
-	do
-		local tx, tz, len, w = 72.5, -75.5, 16, 6
-		local y = F + 2.6
-		box("OvalTableTop", tx - w / 2, y, tz - (len - w) / 2, tx + w / 2, y + 0.3, tz + (len - w) / 2, Color3.fromRGB(252, 252, 250), o)
-		for _, s in ipairs({ -1, 1 }) do
-			vcyl("OvalTableEnd", Vector3.new(tx, y, tz + s * (len - w) / 2), w, 0.3, Color3.fromRGB(252, 252, 250), o)
-			vcyl("OvalTableLeg", Vector3.new(tx, F, tz + s * (len - w) / 2), 0.5, 2.6, GOLDT, opt({ material = Enum.Material.Foil }))
-		end
-	end
+	-- (the white oval table is gone, user 2026-10-27)
 
 	---------------------------------------------------------------- round table + ring bench in the lobby's middle
 	-- (user plan + photo 2026-10-27: a light pink drum table with the cafe pot
@@ -6772,7 +6771,7 @@ do
 		if pot then
 			local m = pot:Clone()
 			if m:IsA("Model") then
-				m:ScaleTo(1.3)
+				m:ScaleTo(1.3 / 5) -- (1/5 of the first size, user 2026-10-27)
 				local cf, size = m:GetBoundingBox()
 				m:PivotTo(m:GetPivot() + (c + Vector3.new(0, 3.6 + size.Y / 2, 0) - cf.Position))
 			end
