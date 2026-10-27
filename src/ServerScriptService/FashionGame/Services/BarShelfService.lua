@@ -14,7 +14,9 @@ local BottleShapes = require(Shared:WaitForChild("BottleShapes"))
 local BarShelfService = {}
 
 local GAP = 3.6 -- studs between bottles along a shelf
-local GLOW_HEIGHT = 4.6 -- the neon panel behind each row (user 2026-10-27, D-429)
+-- the light puck under each bottle (D-433)
+local PUCK_SIZE, PUCK_HEIGHT = 1.3, 0.12
+local UPLIGHT_COLOR = Color3.fromRGB(255, 226, 185)
 
 -- every flavour of the drinks on one shelf row, as { key, colour }
 local function row(match: (any) -> boolean): { { any } }
@@ -72,33 +74,33 @@ function BarShelfService.Start()
 			local front = if toBar.Magnitude > 0.01 then toBar.Unit else Vector3.new(1, 0, 0)
 			local count = math.floor((length - 2) / GAP)
 			local y = topOf(shelf)
-			-- a neon panel on the wall behind the bottles: they glow against it
-			local depth = math.min(shelf.Size.X, shelf.Size.Z)
-			local glow = Instance.new("Part")
-			glow.Name = "BarBackGlow"
-			glow.Anchored = true
-			glow.CanCollide = false
-			glow.CanQuery = false
-			glow.CastShadow = false
-			glow.Material = Enum.Material.Neon
-			-- (violet, half bright: white washed the bottles out)
-			glow.Color = Color3.fromRGB(110, 70, 160)
-			glow.Transparency = 0.25
-			glow.Size = Vector3.new(length - 0.4, GLOW_HEIGHT, 0.1)
-			local at = Vector3.new(shelf.Position.X, y + GLOW_HEIGHT / 2 + 0.1, shelf.Position.Z) - front * (depth / 2 - 0.08)
-			glow.CFrame = CFrame.lookAt(at, at + front)
-			glow.Parent = holder
-			local light = Instance.new("SurfaceLight")
-			light.Face = Enum.NormalId.Front
-			light.Color = Color3.fromRGB(200, 150, 255)
-			light.Brightness = 1.2
-			light.Range = 8
-			light.Angle = 120
-			light.Parent = glow
 			for k = 1, count do
 				local e = drinks[(k - 1) % #drinks + 1]
 				local at = Vector3.new(shelf.Position.X, y, shelf.Position.Z) + along * (-(count - 1) / 2 + (k - 1)) * GAP
-				BottleShapes.add(holder, CFrame.lookAt(at, at + front), e[1], e[2], 1)
+				-- uplight (user 2026-10-27, D-433, instead of the violet wall panel):
+				-- a glowing puck under each bottle, its light shining up through it
+				local puck = Instance.new("Part")
+				puck.Name = "BarUplight"
+				puck.Shape = Enum.PartType.Cylinder
+				puck.Anchored = true
+				puck.CanCollide = false
+				puck.CanQuery = false
+				puck.CastShadow = false
+				puck.Material = Enum.Material.Neon
+				puck.Color = UPLIGHT_COLOR
+				puck.Size = Vector3.new(PUCK_HEIGHT, PUCK_SIZE, PUCK_SIZE)
+				puck.CFrame = CFrame.new(at + Vector3.new(0, PUCK_HEIGHT / 2, 0)) * CFrame.Angles(0, 0, math.rad(90))
+				puck.Parent = holder
+				local beam = Instance.new("SpotLight")
+				beam.Face = Enum.NormalId.Right -- (the cylinder's axis: up after the turn)
+				beam.Color = UPLIGHT_COLOR
+				beam.Brightness = 5
+				beam.Range = 7
+				beam.Angle = 50
+				beam.Shadows = false
+				beam.Parent = puck
+				local base = at + Vector3.new(0, PUCK_HEIGHT, 0)
+				BottleShapes.add(holder, CFrame.lookAt(base, base + front), e[1], e[2], 1)
 			end
 		end
 	end)
