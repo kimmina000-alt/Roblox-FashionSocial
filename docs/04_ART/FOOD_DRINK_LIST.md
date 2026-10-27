@@ -1,8 +1,8 @@
 # 음식 · 음료 총 리스트 (2026-10-27)
 
 가게마다 파는 음식과 음료, 각각 어떻게 만들었는지, 고른 에셋이에요. 빈칸 = 아직 못 고른 것.
-그림으로 보기: [FOOD_DRINK_LIST.png](FOOD_DRINK_LIST.png). 이 표가 바뀌면 그림도 다시 만들어요
-(scratchpad `food_list2.ps1`).
+그림으로 보기: [FOOD_DRINK_LIST.png](FOOD_DRINK_LIST.png) (2026-10-27 갱신: Studio Play에서 실제 모델을 줄 세워
+찍은 사진, scratchpad `food_sheet.ps1`). 이 표가 바뀌면 그림도 다시 찍어요.
 
 에셋은 Studio 장소 안에만 있어요: `ServerStorage.ArtAssets.Foods` (음식), `ServerStorage.ArtAssets.Bottles` (병).
 코드: `Services/FoodShapes.lua` (음식), `Shared/BottleShapes.lua` (병). 결정: D-406..D-411.
@@ -64,11 +64,12 @@
 |---|---|---|---|
 | 1 | 물 (무료) | 삼다수 | 91166335357414 |
 | 1 | 사이다 · 콜라 · 오렌지 소다 · 레몬에이드 · 블루에이드 | 캔 + 우리 라벨 (음료마다 색 · 이름) | 435241125 |
-| 2 | 진저 브루 · 몬테 스파클링 · 프렌치 레모네이드 · 골든 애플 · 쨍팝 (3맛) · 핫부스트 · 그린 클로 · 블루 윙 | 납작한 병 (#11 모양을 파트로 재현) + 종이 라벨 | — |
-| 3 | 스택 하이드로 · 파스텔 스플래시 · 스컬 캔 워터 | 목 긴 병 (#6 모양 재현) + 라벨 띠 | — |
-| VIP | 골목 공방 소다 (레몬 라벤더 · 생강 장미 · 오미자 히비스커스 · 오디) | #13 모양, 밑둘레 좁게 (재현) | — |
+| 2 | 진저 브루 · 몬테 스파클링 · 프렌치 레모네이드 · 골든 애플 · 쨍팝 (3맛) · 핫부스트 · 그린 클로 · 블루 윙 | 사용자 3D 병 (앱솔루트형, 1.5배) + 병 표면에 그린 라벨 | bottle_absolut_tier2_fixed |
+| 3 | 스택 하이드로 · 파스텔 스플래시 · 스컬 캔 워터 | 사용자 3D 병 각각 (1.5배) + 병 표면에 그린 라벨 · 뚜껑 | bottle_stack_hydro / pastel_splash / skull_water _fixed |
+| VIP | 골목 공방 소다 (레몬 라벤더 · 생강 장미 · 오미자 히비스커스 · 오디) | 사용자 VIP 병 (1.3배), 금속 광택 · 호일 · 양각 스페이드 · 청동 명판 그림 | bottle_vip_golmok_fixed |
 
-라벨 그림: `docs/04_ART/textures/drinks/`.
+병 메시: `docs/04_ART/models/bottles/*_fixed.obj` (D-425). 병 그림: `docs/04_ART/textures/drinks/skins/` → Studio `ServerStorage.ArtAssets.BottleSkins` (SurfaceAppearance, 맛 색이 비침, 광택 맵, D-423a · D-427).
+클럽 바 뒷벽 선반 3단에 모든 맛이 진열돼요 (아래 2단계 · 가운데 3단계 · 맨 위 VIP, `Services/BarShelfService.lua`).
 
 ## 소품
 
@@ -78,7 +79,8 @@
 | 국밥집 티슈 박스 | 10407678849 + AI 나무 무늬 (TissueBoxWood) |
 | 해변 파라솔 | #24 136460383039148 |
 | 해변 비치 의자 | #27 83384617372863 |
-| 불꽃놀이 | #6 87997382978849 후보 (ArtAssets.FireworkCandidate6, 연속 사진 references/firework6_sequence.png) |
+| 불꽃놀이 (놀이공원용) | #6 87997382978849 (ArtAssets.FireworkCandidate6, 연속 사진 references/firework6_sequence.png) |
+| 무대 콜드 스파크 | 직접 제작 분수 7번 기둥형 · 8번 부채형 (사용 중: 8번), ArtAssets.SparkFountains |
 
 ## 아직 고르는 중 (후보 시트)
 
