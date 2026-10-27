@@ -8,7 +8,10 @@
 --   four thin metal legs splayed out to the floor; a ring for the feet.
 
 local BLACK, SHELL = Color3.fromRGB(28, 28, 30), Color3.fromRGB(22, 22, 24)
-local PAD_H, GAP, SHELL_H = 0.16, 0.06, 0.12
+local PAD_H, GAP, SHELL_H = 0.16, 0.14, 0.12 -- (gap 0.06 → 0.14, user 2026-10-27, D-443)
+-- the cafe stools (window bar and 2F rail bar) stand this tall: half the
+-- first window bar stools (5.15 → 2.57), user 2026-10-27
+local CAFE_SEAT_H = 2.57
 
 -- the stool with its seat top at `top` (world), floor at `floorY`, seat d wide
 local function build(parent: Instance, x: number, z: number, floorY: number, top: number, d: number): Model
@@ -85,28 +88,58 @@ do
 	end
 end
 
--- the beach cafe's window bar (1F, along the sea glass): invisible seats with
--- a round cushion and a leg under each
+-- the beach cafe: the 1F window bar (along the sea glass) and the 2F rail
+-- bar, invisible seats with a round cushion and a leg under each (or our
+-- stool from a first run); every stool rebuilt CAFE_SEAT_H tall, the seat moved
 do
 	local cafe = workspace.Graybox_MainSocial["04_Beach_Aquarium"].BeachCafe
-	if not cafe:GetAttribute("StoolSwapV1") then
+	if not cafe:GetAttribute("StoolSwapV2") then
+		for _, m in ipairs(cafe:GetChildren()) do if m:IsA("Model") and m.Name == "BarStoolOHU" then m:Destroy() end end
 		local n = 0
 		for _, s in ipairs(cafe:GetChildren()) do
-			if s:IsA("Seat") and s.Name == "BarStool" and s.Position.Y < 10 and s.Position.X < -360 then
+			if not (s:IsA("Seat") and s.Name == "BarStool") then continue end
+			local floorY = if s.Position.Y < 10 then 0.6 else 28.6
+			local window = s.Position.Y < 10 and s.Position.X < -360
+			local rail = s.Position.Y > 28.6 and s.Position.X > -255 and s.Position.X < -240
+			if window or rail then
 				local d = 1.8
 				for _, p in ipairs(cafe:GetChildren()) do
-					if (p.Name == "BarStoolCushion" or p.Name == "StoolLeg") and p.Position.Y < 10
+					if (p.Name == "BarStoolCushion" or p.Name == "StoolLeg") and math.abs(p.Position.Y - s.Position.Y) < 6
 						and math.abs(p.Position.X - s.Position.X) < 0.4 and math.abs(p.Position.Z - s.Position.Z) < 0.4 then
 						if p.Name == "BarStoolCushion" then d = math.max(p.Size.Y, p.Size.Z) end
 						p:Destroy()
 					end
 				end
-				build(cafe, s.Position.X, s.Position.Z, 0.6, s.Position.Y + s.Size.Y / 2, d)
+				local top = floorY + CAFE_SEAT_H
+				s.CFrame = s.CFrame + Vector3.new(0, top - (s.Position.Y + s.Size.Y / 2), 0)
+				build(cafe, s.Position.X, s.Position.Z, floorY, top, d)
 				n += 1
 			end
 		end
 		cafe:SetAttribute("StoolSwapV1", true)
+		cafe:SetAttribute("StoolSwapV2", true)
 		table.insert(log, "cafe " .. n)
+	end
+end
+-- (club stools rebuilt with the wider gap)
+do
+	local club = workspace.Graybox_MainSocial["02_Club"]
+	if not club:GetAttribute("StoolSwapV2") then
+		local n = 0
+		for _, m in ipairs(club:GetDescendants()) do
+			if m:IsA("Model") and m.Name == "BarStoolOHU" then
+				local pad = m:FindFirstChild("SeatPad")
+				local pv = m:GetPivot().Position
+				local top = pad.Position.Y + pad.Size.X / 2
+				local d = pad.Size.Y
+				local parent = m.Parent
+				m:Destroy()
+				build(parent, pv.X, pv.Z, pv.Y, top, d)
+				n += 1
+			end
+		end
+		club:SetAttribute("StoolSwapV2", true)
+		table.insert(log, "club regap " .. n)
 	end
 end
 
