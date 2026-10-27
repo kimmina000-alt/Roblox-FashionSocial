@@ -736,7 +736,7 @@ end
 -- SUPPORTER STRIP above the LED wall and the lasers (user 2026-10-25): the
 -- supporter ranking scrolls along it, "○○님 후원 감사합니다!" when a gift
 -- comes in (RankBoard, RankingBoards client)
-do local SY=(LEDT+TOP)/2-2 -- (centred between the LED wall and the ceiling, user 2026-10-27)
+do local SY=(3*LEDT+TOP)/4-2 -- (half way between the LED wall and where it was, centred under the ceiling: user 2026-10-27)
  local s=box(z,"SupportStrip",78.9,SY,-246,79.6,SY+4,-190,Color3.fromRGB(8,8,12),{mat=Enum.Material.SmoothPlastic,nocol=true})
  s:SetAttribute("Board","clubStrip") s:SetAttribute("Face","Left") CS:AddTag(s,"RankBoard")
  box(z,"SupportStripFrame",78.8,SY-0.4,-246.4,79.7,SY,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true})
@@ -749,6 +749,7 @@ local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,DS+0.5
 do local SW,SH,SD=7.5,15,6.5 -- width, height, depth
  local CAB=Color3.fromRGB(28,28,30) local RIM=Color3.fromRGB(16,16,18) local CONE=Color3.fromRGB(46,46,50)
  local MATTE={mat=Enum.Material.SmoothPlastic}
+ local LEDC=Color3.fromRGB(80,230,255) -- the stage edge cyan
  for i,sz in ipairs({-242,-194}) do
   local m=M(z,"DJSpeaker",{},{})
   local c=Vector3.new(71.5,DS+SH/2,sz)
@@ -764,12 +765,14 @@ do local SW,SH,SD=7.5,15,6.5 -- width, height, depth
   -- woofer (lower)
   local wy=-SH/2+5.6
   disc("WooferBezel",6.2,0.2,wy,0.05,RIM)
+  disc("WooferLED",6.5,0.12,wy,0.02,LEDC,Enum.Material.Neon) -- (a thin LED line round the rim, user 2026-10-27)
   disc("WooferSurround",5.5,0.2,wy,0.15,Color3.fromRGB(24,24,26),Enum.Material.Rubber)
   disc("WooferCone",4.4,0.2,wy,0.12,CONE,Enum.Material.Fabric)
   P(m,"WooferCap",Vector3.new(1.6,1.6,0.9),cf*CFrame.new(0,wy,front-0.25),Color3.fromRGB(34,34,36),{shape=Enum.PartType.Ball,nocol=true})
   -- tweeter (upper)
   local ty=SH/2-3.4
   disc("TweeterFlange",3.2,0.2,ty,0.05,RIM)
+  disc("TweeterLED",3.45,0.12,ty,0.02,LEDC,Enum.Material.Neon)
   disc("TweeterRing",2.4,0.2,ty,0.12,Color3.fromRGB(38,38,40))
   P(m,"TweeterDome",Vector3.new(1.3,1.3,0.7),cf*CFrame.new(0,ty,front-0.2),Color3.fromRGB(20,20,22),{shape=Enum.PartType.Ball,nocol=true})
   -- bass port slot along the bottom

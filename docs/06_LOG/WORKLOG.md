@@ -2248,3 +2248,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전체 | 스피커 |
 |---|---|
 | ![](images/2026-10-27/v8f_dj_led_speakers.jpg) | ![](images/2026-10-27/v8f_dj_speaker_close.jpg) |
+
+### 노란 칸 내리기·스피커 LED 링 (D-359)
+
+- 노란 후원자 칸을 원래 자리와 LED 벽 사이 가운데로, 스피커 우퍼·트위터 테두리에 하늘색 LED 링.
+
+| 전체 | 스피커 |
+|---|---|
+| ![](images/2026-10-27/v8g_dj_strip.jpg) | ![](images/2026-10-27/v8g_speaker_led.jpg) |
