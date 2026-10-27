@@ -288,45 +288,48 @@ label(poster, Enum.NormalId.Back, "SINCE 1985\n가마솥 24시간", Color3.fromR
 
 -- tables: stainless tops, four round stools each, kimchi jars on top ------
 local function gukbapTable(tx, tz)
+	-- (user 2026-10-27: bigger tops, the stools further out; the kimchi jars are
+	-- gone, the wooden block is the tissue box. scale_furniture then grows the
+	-- whole group 1.5x)
+	local HX, HZ = 1.9, 2.9 -- half the top
 	box("TableLeg", tx - 0.2, FY, tz - 0.2, tx + 0.2, FY + 2.3, tz + 0.2, DARK)
-	local top = box("TableTop", tx - 1.4, FY + 2.3, tz - 2.3, tx + 1.4, FY + 2.5, tz + 2.3, STEEL, { material = Enum.Material.Metal })
+	local top = box("TableTop", tx - HX, FY + 2.3, tz - HZ, tx + HX, FY + 2.5, tz + HZ, STEEL, { material = Enum.Material.Metal })
 	CS:AddTag(top, "GukbapTable")
-	vcyl("KkakdugiJar", Vector3.new(tx + 0.6, FY + 2.5, tz - 1.6), 0.7, 0.6, Color3.fromRGB(200, 70, 50), { nocol = true })
-	vcyl("KimchiJar", Vector3.new(tx + 0.6, FY + 2.5, tz - 0.8), 0.7, 0.6, Color3.fromRGB(180, 40, 30), { nocol = true })
-	box("SpoonBox", tx - 0.8, FY + 2.5, tz - 1.9, tx - 0.2, FY + 3.0, tz - 1.1, Color3.fromRGB(150, 110, 70), { material = Enum.Material.Wood, nocol = true })
 	-- tissue box: the user's pick (#3 of the restaurant sheet) retextured as
-	-- wood (ServerStorage.ArtAssets.TissueBoxWood), else a plain white box
+	-- wood (ServerStorage.ArtAssets.TissueBoxWood), else a plain wooden box
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local tissue = art and art:FindFirstChild("TissueBoxWood")
 	if tissue then
 		local m = tissue:Clone()
-		m.Name = "NapkinBox"
+		m.Name = "TissueBox"
 		local _, sz = m:GetBoundingBox()
-		m:ScaleTo(m:GetScale() * 0.75 / sz.Y)
+		m:ScaleTo(m:GetScale() * 0.6 / sz.Y)
 		local _, sz2 = m:GetBoundingBox()
-		m:PivotTo(CFrame.new(tx - 0.5, FY + 2.5 + sz2.Y / 2, tz - 0.6) * CFrame.Angles(0, math.rad(90), 0))
-		for _, p in ipairs(m:GetDescendants()) do if p:IsA("BasePart") then p.Anchored = true p.CanCollide = false end end
+		m:PivotTo(CFrame.new(tx - HX + 0.5, FY + 2.5 + sz2.Y / 2, tz - HZ + 0.6) * CFrame.Angles(0, math.rad(90), 0))
+		for _, p in ipairs(m:GetDescendants()) do
+			if p:IsA("BasePart") then p.Anchored = true p.CanCollide = false p.Name = "TissueBox" end
+		end
 		m.Parent = M
 	else
-		box("NapkinBox", tx - 0.8, FY + 2.5, tz - 0.9, tx - 0.2, FY + 2.9, tz - 0.3, Color3.fromRGB(245, 245, 245), { nocol = true })
+		box("TissueBox", tx - HX + 0.2, FY + 2.5, tz - HZ + 0.3, tx - HX + 0.8, FY + 3.0, tz - HZ + 0.9, Color3.fromRGB(150, 110, 70), { material = Enum.Material.Wood, nocol = true })
 	end
-	for _, s in ipairs({ { -2.1, -1.1 }, { -2.1, 1.1 }, { 2.1, -1.1 }, { 2.1, 1.1 } }) do
+	for _, s in ipairs({ { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } }) do
+		local sx, sz = s[1] * (HX + 1.2), s[2] * 1.4
 		-- the round top is a plain cylinder; the Seat is an invisible upright
 		-- block on it (a Seat takes the sitter's up from its own axes, so the
 		-- turned cylinder laid players flat, phone test 2026-10-26)
-		vcyl("Stool", Vector3.new(tx + s[1], FY + 1.35, tz + s[2]), 1.4, 0.3, RED)
+		vcyl("Stool", Vector3.new(tx + sx, FY + 1.35, tz + sz), 1.4, 0.3, RED)
 		local seat = Instance.new("Seat")
 		seat.Name = "StoolSeat"
 		seat.Anchored = true
 		seat.Transparency = 1
 		seat.CanCollide = false
 		seat.Size = Vector3.new(1.2, 0.2, 1.2)
-		seat.CFrame = CFrame.lookAt(Vector3.new(tx + s[1], FY + 1.6, tz + s[2]), Vector3.new(tx, FY + 1.6, tz + s[2]))
+		seat.CFrame = CFrame.lookAt(Vector3.new(tx + sx, FY + 1.6, tz + sz), Vector3.new(tx, FY + 1.6, tz + sz))
 		seat.Parent = M
-		vcyl("StoolLeg", Vector3.new(tx + s[1], FY, tz + s[2]), 0.3, 1.35, ALU, { nocol = true })
+		vcyl("StoolLeg", Vector3.new(tx + sx, FY, tz + sz), 0.3, 1.35, ALU, { nocol = true })
 	end
-end
--- (layout v8) 32 tables in four rows, an aisle from the door to the kitchen
+end-- (layout v8) 32 tables in four rows, an aisle from the door to the kitchen
 for _, tz in ipairs({ -366, -352, -316, -302 }) do
 	for _, tx in ipairs({ 56, 69, 82, 95, 108, 121, 134 }) do -- (seven a row in the narrower hall)
 		gukbapTable(tx, tz)

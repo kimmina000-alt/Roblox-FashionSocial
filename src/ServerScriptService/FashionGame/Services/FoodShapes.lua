@@ -480,15 +480,57 @@ local function fromAsset(item: any): (Part?, CFrame?)
 	return h, CFrame.new(0, 0, 0)
 end
 
--- the builder for a menu item (item keys are unique across the shops except
--- "water": a cup in the cafes and the 국밥집, the bottle only at OH24)
+-- Cafe and 국밥집 cups (user pick 2026-10-27, "Water in glass" by Toffyxaza_TH):
+-- the glass stays, the drink inside is the Fill (in the drink colour) and
+-- goes down a step with every sip (SnackService cuts edible pieces top-down)
+local function glassCup(item: any): (Part?, CFrame?)
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local src = art and art:FindFirstChild("Foods") and art.Foods:FindFirstChild("WaterGlass")
+	if not src then return nil, nil end
+	local m = src:Clone()
+	local _, size = m:GetBoundingBox()
+	m:ScaleTo(m:GetScale() * 0.85 / size.Y)
+	local cf = m:GetBoundingBox()
+	local h = newHandle(Vector3.new(0.4, 0.4, 0.4))
+	h.CFrame = CFrame.new(cf.Position)
+	local parts = {}
+	for _, p in ipairs(m:GetDescendants()) do if p:IsA("BasePart") then table.insert(parts, p) end end
+	for _, p in ipairs(parts) do
+		p.Anchored = false
+		p.CanCollide, p.CanQuery, p.CanTouch, p.Massless, p.CastShadow = false, false, false, true, false
+		if p.Transparency > 0.2 then
+			p.Name = "Glass"
+		else
+			p.Name = "Fill"
+			p.Color = item.color
+		end
+		attach(h, p, h.CFrame:ToObjectSpace(p.CFrame))
+	end
+	if item.topping then -- whipped cream on top (자바칩)
+		local fill = h:FindFirstChild("Fill") :: BasePart?
+		if fill then
+			local top = (h.CFrame:ToObjectSpace(fill.CFrame)).Y + fill.Size.Y / 2
+			attach(h, blob("Cream", Vector3.new(0.5, 0.22, 0.5), item.topping), CFrame.new(0, top + 0.06, 0))
+		end
+	end
+	attach(h, part("Straw", Vector3.new(0.06, 0.75, 0.06), WHITE), CFrame.new(0.08, 0.35, 0) * CFrame.Angles(0, 0, math.rad(-10)))
+	m:Destroy()
+	h.CFrame = CFrame.new()
+	return h, CFrame.new(0, -0.15, 0)
+end
+
+-- the builder for a menu item
 local function builderFor(item: any): Builder?
-	if item.key == "water" and item.kind ~= "bottle" then return nil end
 	return B[item.key]
 end
 
 function FoodShapes.build(item: any): (Part?, CFrame?, string?)
-	if not (item.key == "water" and item.kind ~= "bottle") and ASSET_FOODS[item.key] then -- (cafe water is a cup)
+	-- (user 2026-10-27: water is the 삼다수 bottle everywhere, cafes and 국밥집 too)
+	if item.kind == "cup" and item.key ~= "water" then
+		local h, grip = glassCup(item)
+		if h then return h, grip, nil end
+	end
+	if ASSET_FOODS[item.key] then
 		local h, grip = fromAsset(item)
 		if h then return h, grip, "Scale" end -- (falls back to the part model when the asset is missing)
 	end

@@ -319,6 +319,9 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	end
 end
 
+-- 수육 slice picture (docs/04_ART/textures/suyuk_slice.png, 2026-10-27)
+local SUYUK_TEX = "rbxassetid://134931402271404"
+
 -- the cake slice mesh (whole cakes, D-318; see placePlate)
 local CAKE_R = 0.95 -- studs (it fits the cafe's small round tables)
 local function sliceMesh(): MeshPart?
@@ -466,8 +469,14 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		-- one piece of 수육 on chopsticks
 		handle = part("Handle", Vector3.new(0.05, 0.05, 1.0), Color3.fromRGB(200, 170, 120), Enum.Material.Wood)
 		handle.Parent = tool
-		attach(handle, part("Fill", Vector3.new(0.45, 0.18, 0.35), item.color), CFrame.new(0, 0.05, -0.45))
-		if item.topping then attach(handle, part("Rind", Vector3.new(0.45, 0.06, 0.35), item.topping), CFrame.new(0, 0.17, -0.45)) end
+		local slice = part("Fill", Vector3.new(0.5, 0.07, 0.32), item.color)
+		local stex = Instance.new("Texture")
+		stex.Texture = SUYUK_TEX
+		stex.Face = Enum.NormalId.Top
+		stex.StudsPerTileU = 0.5
+		stex.StudsPerTileV = 0.32
+		stex.Parent = slice
+		attach(handle, slice, CFrame.new(0, 0.05, -0.45))
 		tool.Grip = CFrame.new(0, 0, 0.3)
 	else
 		-- "cup": glass with a straw (the original drink)
@@ -614,7 +623,8 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 	dish.Shape = Enum.PartType.Cylinder
 	dish.Size = Vector3.new(0.12, 2.2, 2.2)
 	dish.CFrame = CFrame.new(top + Vector3.new(0, 0.06, 0)) * UPRIGHT
-	dish.Color = if item.kind == "plate" then Color3.fromRGB(235, 235, 232) else Color3.fromRGB(250, 248, 244)
+	dish.Color = if item.kind == "plate" then Color3.fromRGB(88, 82, 78) else Color3.fromRGB(250, 248, 244) -- (수육: dark stoneware, user photo)
+	if item.kind == "plate" then dish.Material = Enum.Material.Slate end
 	dish.Anchored = true
 	dish.CanCollide = false
 	dish.Parent = plate
@@ -676,13 +686,21 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 			p.Size = Vector3.new(0.55, 0.6, 0.75)
 			p.CFrame = CFrame.new(top + Vector3.new(0, 0.42, 0)) * CFrame.Angles(0, a, 0) * CFrame.new(0, 0, -0.42)
 		else
-			-- slices of 수육 fanned out on the plate
-			p.Size = Vector3.new(0.65, 0.16, 0.42)
-			p.CFrame = CFrame.new(top + Vector3.new(0, 0.2, 0)) * CFrame.Angles(0, a, 0) * CFrame.new(0, 0, -0.62) * CFrame.Angles(math.rad(8), 0, 0)
+			-- (user 2026-10-27, photo) flat, uneven 수육 slices with the meat
+			-- picture on top, fanned round a dark stoneware plate; one goes per bite
+			local r = Random.new(i * 7)
+			p.Size = Vector3.new(0.7 + r:NextNumber(-0.08, 0.1), 0.07, 0.42 + r:NextNumber(-0.06, 0.06))
+			p.CFrame = CFrame.new(top + Vector3.new(0, 0.16 + i * 0.012, 0)) * CFrame.Angles(0, a, 0) * CFrame.new(0, 0, -0.55) * CFrame.Angles(math.rad(r:NextNumber(-6, 6)), math.rad(r:NextNumber(-15, 15)), math.rad(r:NextNumber(-4, 4)))
+			local tex = Instance.new("Texture")
+			tex.Texture = SUYUK_TEX
+			tex.Face = Enum.NormalId.Top
+			tex.StudsPerTileU = p.Size.X
+			tex.StudsPerTileV = p.Size.Z
+			tex.Parent = p
 		end
 		p.Color = item.color
 		p.Parent = plate
-		if item.topping then
+		if item.topping and item.kind ~= "plate" then
 			local t = p:Clone()
 			t.Name = "PieceTop"
 			t.Size = Vector3.new(p.Size.X, 0.08, p.Size.Z * 0.9)
@@ -1053,7 +1071,8 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 		end
 		local t = tray:Clone()
 		local _, tsize = t:GetBoundingBox()
-		t:ScaleTo(t:GetScale() * 2.4 / math.max(tsize.X, tsize.Z))
+		-- (its bowl as big as the one in the hand, user 2026-10-27: was smaller)
+		t:ScaleTo(t:GetScale() * 3.4 / math.max(tsize.X, tsize.Z))
 		local tb, ts = t:GetBoundingBox()
 		t:PivotTo(t:GetPivot() + (Vector3.new(hit.Position.X, hit.Position.Y + 0.02 + ts.Y / 2, hit.Position.Z) - tb.Position))
 		for _, p in ipairs(t:GetDescendants()) do
