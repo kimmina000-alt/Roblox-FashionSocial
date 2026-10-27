@@ -2644,22 +2644,30 @@ do
 		for k, e in ipairs({ GATE_E1, GATE_E2 }) do
 			local away = if k == 1 then GATE_ALONG else -GATE_ALONG
 			local a = e + GATE_OUT * GATE_HD -- the gate's front corner
-			local len = math.min(RAIL_MAX, streetEnd(a) - 1)
+			local len = streetEnd(a) - 0.6 -- (to the sidewalk, user 2026-10-27)
+			local _ = RAIL_MAX
+			-- a granite kerb under the balustrade, the lawn's clean edge along the path
+			do
+				local kc = a + GATE_OUT * (len / 2) + away * 2.5
+				local kerb = part("LawnKerb", Vector3.new(6, 1.1, len), CFrame.lookAt(Vector3.new(kc.X, 0.55, kc.Z), Vector3.new(kc.X, 0.55, kc.Z) + GATE_OUT), Color3.fromRGB(200, 196, 186), { parent = G, material = Enum.Material.Granite })
+				kerb.CastShadow = false
+			end
 			local n = math.max(1, math.floor(len / BAY + 0.5))
 			local seg = len / n
 			for i = 0, n - 1 do
 				local c = a + GATE_OUT * (seg * (i + 0.5))
-				local bay = placeTemplate(railT, railOff, CFrame.fromMatrix(Vector3.new(c.X, 0.3, c.Z), -GATE_OUT, Vector3.yAxis), seg / BAY, 1)
+				local bay = placeTemplate(railT, railOff, CFrame.fromMatrix(Vector3.new(c.X, 1.1, c.Z), -GATE_OUT, Vector3.yAxis), seg / BAY, 1)
 				bay.CanCollide = true
 				bay.Material = Enum.Material.Granite
 			end
 			for _, endP in ipairs({ a, a + GATE_OUT * len }) do
-				part("RailPost", Vector3.new(0.8, 2.3, 0.8), CFrame.new(endP.X, 1.45, endP.Z) * CFrame.Angles(0, GATE_ROT, 0), RAIL, { parent = G, material = Enum.Material.Granite })
-				part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(endP.X, 3.15, endP.Z), RAIL, { parent = G, shape = Enum.PartType.Ball })
+				part("RailPost", Vector3.new(0.8, 2.3, 0.8), CFrame.new(endP.X, 2.25, endP.Z) * CFrame.Angles(0, GATE_ROT, 0), RAIL, { parent = G, material = Enum.Material.Granite })
+				part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(endP.X, 3.95, endP.Z), RAIL, { parent = G, shape = Enum.PartType.Ball })
 			end
 			-- the 해태 beside the balustrade's street end, outside it
-			local s = a + GATE_OUT * (len - 4) + away * 5
-			local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 0.45, s.Z), Vector3.new(s.X, 0.45, s.Z) - away), RAIL, { parent = G, nocol = true })
+			-- (user 2026-10-27) at the street end, standing on the lawn
+			local s = a + GATE_OUT * (len - 6) + away * 7
+			local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 1.0, s.Z), Vector3.new(s.X, 1.0, s.Z) - away), RAIL, { parent = G, nocol = true })
 			spot.Transparency = 1
 			spot.CanQuery = false
 			spot:SetAttribute("Facing", GATE_OUT)
@@ -2690,15 +2698,15 @@ do
 		for _, s in ipairs(G:GetChildren()) do if s.Name == "GuardianSpot" then table.insert(spots, s.Position) end end
 		local T2 = workspace.Terrain
 		local CELL = 2
-		for x = 48.5 + CELL / 2, 277 - CELL / 2, CELL do
-			for z = 48.5 + CELL / 2, 387 - CELL / 2, CELL do
+		for x = 47 + CELL / 2, 277 - CELL / 2, CELL do -- (from the sidewalk edge: the sidewalks are the planned 23, user 2026-10-27)
+			for z = 47 + CELL / 2, 387 - CELL / 2, CELL do
 				if inside(x, z) then
 					local rel = Vector3.new(x, 0, z) - GATE_C
 					local al, ou = rel:Dot(GATE_ALONG), rel:Dot(GATE_OUT)
-					local inPath = math.abs(al) < GATE_HL + 1.5 and ou > -GATE_HD - 1
+					local inPath = math.abs(al) < GATE_HL + 3 and ou > -GATE_HD - 1 -- (the 6-wide kerb covers the ragged terrain edge)
 					local nearSpot = false
 					for _, sp in ipairs(spots) do if (Vector3.new(sp.X, 0, sp.Z) - Vector3.new(x, 0, z)).Magnitude < 7 then nearSpot = true end end
-					if not inPath and not nearSpot then
+					if not inPath then -- (the 해태 stand on the lawn, user 2026-10-27)
 						T2:FillBlock(CFrame.new(x, 0.5, z), Vector3.new(CELL, 1, CELL), Enum.Material.Grass)
 					end
 				end
