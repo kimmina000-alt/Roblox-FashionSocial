@@ -14,9 +14,6 @@ local BottleShapes = require(Shared:WaitForChild("BottleShapes"))
 local BarShelfService = {}
 
 local GAP = 3.6 -- studs between bottles along a shelf
--- the light puck under each bottle (D-433)
-local PUCK_SIZE, PUCK_HEIGHT = 1.3, 0.12
-local UPLIGHT_COLOR = Color3.fromRGB(255, 226, 185)
 local SHELF_BOTTLE_TRANSPARENCY = 0.1
 
 -- every flavour of the drinks on one shelf row, as { key, colour }
@@ -68,6 +65,22 @@ function BarShelfService.Start()
 		local holder = Instance.new("Model")
 		holder.Name = "BarShelfBottles"
 		holder.Parent = club
+		-- one more board on top at the same spacing, with every club bottle on it
+		-- (user 2026-10-27, D-436)
+		do
+			local top, below = shelves[#shelves], shelves[#shelves - 1]
+			local canopy = top:Clone()
+			canopy.Name = "BarShelfCanopy"
+			canopy:ClearAllChildren()
+			canopy.CFrame = top.CFrame + Vector3.new(0, if below then top.Position.Y - below.Position.Y else 6, 0)
+			canopy.Parent = holder
+			table.insert(shelves, canopy)
+			-- (every third one, so tier 2, tier 3 and VIP bottles mix along the board)
+			local all = row(function(d) return (d.tier or 1) >= 2 end)
+			local mixed = {}
+			for k = 0, #all - 1 do table.insert(mixed, all[(k * 3) % #all + 1]) end
+			table.insert(rows, mixed)
+		end
 		for i, shelf in ipairs(shelves) do
 			local drinks = rows[math.min(i, #rows)]
 			if #drinks == 0 then continue end
@@ -79,46 +92,10 @@ function BarShelfService.Start()
 			local front = if toBar.Magnitude > 0.01 then toBar.Unit else Vector3.new(1, 0, 0)
 			local count = math.floor((length - 2) / GAP)
 			local y = topOf(shelf)
-			-- the board above this row (the top row gets a slim canopy board at the
-			-- same spacing): the down light sits on its underside (D-435)
-			local above = shelves[i + 1]
-			if not above then
-				local below = shelves[i - 1]
-				local step = if below then shelf.Position.Y - below.Position.Y else 6
-				local canopy = shelf:Clone()
-				canopy.Name = "BarShelfCanopy"
-				canopy:ClearAllChildren()
-				canopy.CFrame = shelf.CFrame + Vector3.new(0, step, 0)
-				canopy.Parent = holder
-				above = canopy
-			end
-			local underside = 2 * above.Position.Y - topOf(above)
 			for k = 1, count do
 				local e = drinks[(k - 1) % #drinks + 1]
-				local at = Vector3.new(shelf.Position.X, y, shelf.Position.Z) + along * (-(count - 1) / 2 + (k - 1)) * GAP
-				-- uplight (user 2026-10-27, D-433, instead of the violet wall panel):
-				-- a glowing puck under each bottle, its light shining up through it
-				local puck = Instance.new("Part")
-				puck.Name = "BarUplight"
-				puck.Shape = Enum.PartType.Cylinder
-				puck.Anchored = true
-				puck.CanCollide = false
-				puck.CanQuery = false
-				puck.CastShadow = false
-				puck.Material = Enum.Material.Neon
-				puck.Color = UPLIGHT_COLOR
-				puck.Size = Vector3.new(PUCK_HEIGHT, PUCK_SIZE, PUCK_SIZE)
-				puck.CFrame = CFrame.new(at + Vector3.new(0, PUCK_HEIGHT / 2, 0)) * CFrame.Angles(0, 0, math.rad(90))
-				puck.Parent = holder
-				local beam = Instance.new("SpotLight")
-				beam.Face = Enum.NormalId.Right -- (the cylinder's axis: up after the turn)
-				beam.Color = UPLIGHT_COLOR
-				beam.Brightness = 5
-				beam.Range = 7
-				beam.Angle = 50
-				beam.Shadows = false
-				beam.Parent = puck
-				local base = at + Vector3.new(0, PUCK_HEIGHT, 0)
+				local base = Vector3.new(shelf.Position.X, y, shelf.Position.Z) + along * (-(count - 1) / 2 + (k - 1)) * GAP
+				-- (no light pucks above / below any more, user 2026-10-27: the glass glows)
 				local parts = BottleShapes.add(holder, CFrame.lookAt(base, base + front), e[1], e[2], 1)
 				-- display bottles only (D-434/D-435): a little see-through, and the
 				-- glass glows (the emissive copy of the bottle's picture)
@@ -128,10 +105,6 @@ function BarShelfService.Start()
 					local glowing = glowSkins and glowSkins:FindFirstChild(e[1])
 					if skin and glowing then skin:Destroy() glowing:Clone().Parent = p end
 				end
-				-- the same light on the underside of the board above, shining down
-				local over = puck:Clone()
-				over.CFrame = CFrame.new(at.X, underside - PUCK_HEIGHT / 2, at.Z) * CFrame.Angles(0, 0, math.rad(-90))
-				over.Parent = holder
 			end
 		end
 	end)

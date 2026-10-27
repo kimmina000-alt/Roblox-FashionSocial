@@ -37,7 +37,8 @@
 3-1. `build_gukbap.lua` — 클럽 북쪽 첫 필지의 국밥집(Workspace.Hongdae_Layout.Gukbap, D-314). 그 자리 가건물이 있으면 지우고, 그 필지만 이동 경계를 x 78까지 밀어요. 여러 번 실행해도 결과가 같아요(2단계를 다시 돌린 뒤에는 꼭 다시 실행).
 3-2. `build_haetae.lua` — 광화문 해태 한 쌍(받침대 + 조각상, D-315). 2단계 뒤에 꼭 실행해요(2단계는 해태를 만들지 않아요).
 3-3. `build_beach_signs.lua` — 해변 종합안내도와 서프보드 수칙 표지판(D-321). 2단계 뒤에 실행해요.
-3-4. `scale_furniture.lua` (MODE `apply` / `check`) — 편의점·국밥집·오후네컷·해변 카페의 테이블·의자·진열대를 1.5배로 키워요(D-401, 클럽 제외). 맨 마지막에 실행해요. 키운 파트에는 FurnScaled 속성이 붙어서 다시 실행해도 또 커지지 않아요.
+3-4. `scale_furniture.lua` (MODE `apply` / `check`) — 편의점·국밥집·오후네컷·해변 카페의 테이블·의자·진열대를 1.5배로 키워요(D-401, 클럽 제외). 키운 파트에는 FurnScaled 속성이 붙어서 다시 실행해도 또 커지지 않아요.
+3-5. `cafe_layout_v3.lua` — 해변 카페 내부 배치 v3(D-437: 창가 바, 원형 테이블, 피아노 무대, 라운지, 베이커리, 카운터, 직원 문, 입구, 2층, 계단 벽). scale_furniture 다음, 맨 마지막에 실행해요. CafeLayoutV3 속성이 붙어서 한 번만 적용돼요. 되돌리기: ServerStorage.BeachCafe_pre_v3(태그는 BackupTags 속성에 보관).
 4. 손 편집 기록(`ServerStorage.PropOverrides`, git `prop_overrides.json`)은 2·3단계에서 자동 적용. 다시 빌드하기 전에 항상 `prop_save.lua`로 먼저 저장.
 - 필요한 Studio 자산: ServerStorage.ArtAssets(나무·관목·야자수·가로등·신호등 등, 스크립트 제거됨), ServerStorage.Cars(G70·G80), MaterialService(OHU_Asphalt, OHU_Concrete). 장소 파일에만 있으므로 Studio 저장 필수.
 - 예전 이름: hongdae_v1_temp.lua / Workspace.Hongdae_v1_Temp (임시 단계). 새 스크립트의 revert가 예전 폴더도 지운다.
