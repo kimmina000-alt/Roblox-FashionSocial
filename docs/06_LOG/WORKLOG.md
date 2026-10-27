@@ -2373,3 +2373,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 사용자 가짜 건물 이미지 2장 더 (D-375)
 
 - facade_2(보드게임카페), facade_5(PC방·PLAY HERO)를 사용자 이미지로 교체. 맵 데칼 16장 교체, 이미지 로드 확인.
+
+- 2인 테스트(D-374): Player2 화면에서 Player1 잔디 발소리 들림(기본 Running 0), OH24 결제 띵동 Player2 쪽 재생 범위 안, 포토부스 PINK 혼자 촬영 2컷 = 삑 6번 + 찰칵 2번. 콘솔 오류 없음(DataStore Studio 경고만).
