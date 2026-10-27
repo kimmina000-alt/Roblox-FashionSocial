@@ -3426,8 +3426,13 @@ do
 				local dz = zm - C.Z
 				local wo = math.sqrt(math.max(0, ro * ro - dz * dz))
 				local spans
-				if math.abs(dz) < ri then
-					local wi = math.sqrt(ri * ri - dz * dz)
+				-- the inner edge from the row's outer side (not its middle): the
+				-- inner ring's own rows sit on another grid, and a middle-based
+				-- edge left slivers open where they did not meet (a 6 × 1.5 hole
+				-- at the south rim, mobile 2P test 2026-10-27)
+				local dzFar = math.max(math.abs(z - C.Z), math.abs(z1 - C.Z))
+				if dzFar < ri then
+					local wi = math.sqrt(ri * ri - dzFar * dzFar)
 					spans = { { C.X - wo, C.X - wi }, { C.X + wi, C.X + wo } }
 				else
 					spans = { { C.X - wo, C.X + wo } }
@@ -6246,7 +6251,24 @@ do
 		for _, z in ipairs(archZ) do
 			for _, h in ipairs(archHole(Vector3.new(FX + 0.5, F - 0.1, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH + 0.1, 4)) do table.insert(holes, h) end
 		end
-		subtract(wall, holes, "BoothWall", Enum.Material.SmoothPlastic)
+		local cut = subtract(wall, holes, "BoothWall", Enum.Material.SmoothPlastic)
+		-- (2026-10-27, mobile 2P test: all three booth arches were shut) a cut
+		-- union collides as one block with its holes filled: the wall itself
+		-- does not collide, invisible boxes in its real shape do (an arch is
+		-- AW wide, open up to the top of its round head)
+		if cut:IsA("UnionOperation") then
+			cut.CanCollide = false
+			local edges = { NIN }
+			for _, z in ipairs(archZ) do table.insert(edges, z - AW / 2) table.insert(edges, z + AW / 2) end
+			table.insert(edges, S0 - 1.1)
+			table.sort(edges)
+			for i = 1, #edges - 1, 2 do
+				box("BoothWallCollider", FX, F, edges[i], FX + 1, GF - 0.4, edges[i + 1], PINK_WALL, opt({ transparency = 1 }))
+			end
+			for _, z in ipairs(archZ) do
+				box("BoothWallCollider", FX, F + AH, z - AW / 2, FX + 1, GF - 0.4, z + AW / 2, PINK_WALL, opt({ transparency = 1 }))
+			end
+		end
 	end
 	-- LED light box (user photo): a white rounded sign lit from inside, black
 	-- letters, a faint glow on the wall around it. c = centre of the face,

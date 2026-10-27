@@ -39,7 +39,12 @@ local function rememberMoves(old)
   local b=c:GetAttribute("BuiltPivot")
   if typeof(b)=="CFrame" then savedMoves[modelKey(old,c)]=Z:Inverse()*c:GetPivot()*b:Inverse() end end end
 end
-local function zone(name) local f=root:FindFirstChild(name) if f then rememberMoves(f) f:Destroy() end
+-- (2026-10-27) off: zones are placed by build_hongdae_layout and never dragged
+-- (CLAUDE.md); a remembered "move" taken from a laid-out zone drifted the club
+-- 10.6 sideways and 3 up after a rebuild, so its street-level foyer no longer
+-- met the floors (players fell through). A fresh rebuild is always unmoved.
+local KEEP_HAND_MOVES=false
+local function zone(name) local f=root:FindFirstChild(name) if f then if KEEP_HAND_MOVES then rememberMoves(f) end f:Destroy() end
  -- the pieces build_hongdae_layout parked from the old zone belong to it: they
  -- go too (they piled up, one more copy each rebuild, 2026-10-27)
  local hid=game:GetService("ServerStorage"):FindFirstChild("Hongdae_v1_HiddenParts")
