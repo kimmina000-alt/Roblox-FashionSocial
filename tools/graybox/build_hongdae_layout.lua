@@ -2647,23 +2647,18 @@ do
 			local a = e + GATE_OUT * GATE_HD -- the gate's front corner
 			local len = streetEnd(a) - 0.6 -- (to the sidewalk, user 2026-10-27)
 			local _ = RAIL_MAX
-			-- a granite kerb under the balustrade, the lawn's clean edge along the path
-			do
-				local kc = a + GATE_OUT * (len / 2) + away * 2.5
-				local kerb = part("LawnKerb", Vector3.new(6, 1.1, len), CFrame.lookAt(Vector3.new(kc.X, 0.55, kc.Z), Vector3.new(kc.X, 0.55, kc.Z) + GATE_OUT), Color3.fromRGB(200, 196, 186), { parent = G, material = Enum.Material.Granite })
-				kerb.CastShadow = false
-			end
+			-- (no granite kerb: the lawn is planted below the paving now, user 2026-10-27)
 			local n = math.max(1, math.floor(len / BAY + 0.5))
 			local seg = len / n
 			for i = 0, n - 1 do
 				local c = a + GATE_OUT * (seg * (i + 0.5))
-				local bay = placeTemplate(railT, railOff, CFrame.fromMatrix(Vector3.new(c.X, 1.1, c.Z), -GATE_OUT, Vector3.yAxis), seg / BAY, 1)
+				local bay = placeTemplate(railT, railOff, CFrame.fromMatrix(Vector3.new(c.X, 0.3, c.Z), -GATE_OUT, Vector3.yAxis), seg / BAY, 1)
 				bay.CanCollide = true
 				bay.Material = Enum.Material.Granite
 			end
 			for _, endP in ipairs({ a, a + GATE_OUT * len }) do
-				part("RailPost", Vector3.new(0.8, 2.3, 0.8), CFrame.new(endP.X, 2.25, endP.Z) * CFrame.Angles(0, GATE_ROT, 0), RAIL, { parent = G, material = Enum.Material.Granite })
-				part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(endP.X, 3.95, endP.Z), RAIL, { parent = G, shape = Enum.PartType.Ball })
+				part("RailPost", Vector3.new(0.8, 2.3, 0.8), CFrame.new(endP.X, 1.45, endP.Z) * CFrame.Angles(0, GATE_ROT, 0), RAIL, { parent = G, material = Enum.Material.Granite })
+				part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(endP.X, 3.15, endP.Z), RAIL, { parent = G, shape = Enum.PartType.Ball })
 			end
 			-- the 해태 beside the balustrade's street end, outside it
 			-- (user 2026-10-27) at the street end, standing on the lawn
@@ -2722,7 +2717,7 @@ do
 				if inside(x, zc) then
 					local rel = Vector3.new(x, 0, zc) - GATE_C
 					local al, ou = rel:Dot(GATE_ALONG), rel:Dot(GATE_OUT)
-					lawn = not (math.abs(al) < GATE_HL + 3 and ou > -GATE_HD - 1)
+					lawn = not (math.abs(al) < GATE_HL + 0.5 and ou > -GATE_HD - 1)
 				end
 				if runStart == nil or lawn ~= runLawn then close(z) runStart, runLawn = z, lawn end
 			end

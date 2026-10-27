@@ -702,3 +702,5 @@ D-370 — (2026-10-27, user) The south wall leaves the gate in a gentle bend to 
 D-371 — (2026-10-27, user) The sidewalks there are the planned 23 (the lawn stopped 1.5 short of their edge): the lawn now starts right at the sidewalk edge (x / z 47). The balustrades run all the way to the sidewalk on a 6-wide granite kerb that covers the terrain grass's ragged edge along the path; the 해태 stand on the lawn beside the balustrades' street ends (the lawn no longer goes round them).
 
 D-372 — (2026-10-27, user: the grass floated above the paving) The 광화문 yard lawn is planted below the walking level: the ground is cut over the yard (HOLES 47..277 × 47..387), the lawn is one terrain grass layer -4..0 (only the blades show), and the paving (0..0.3) is laid in 2-stud column runs on the cells that are not lawn (154 parts). The 해태 footings stand on the lawn.
+
+D-373 — (2026-10-27, user) The granite kerb strip along the balustrades is gone on both sides (with the lawn below the paving it only showed as a grey band); the balustrades stand on the ground again and the lawn reaches them.
