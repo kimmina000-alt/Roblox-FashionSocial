@@ -2348,3 +2348,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 광화문 앞 잔디·난간·해치 (D-369)
 
 ![](images/2026-10-27/v8r_gate_front.jpg)
+
+### 광화문 남쪽 돌담·마당 잔디 (D-370)
+
+- 오른쪽(남쪽) 돌담: 완만하게 휘어 남쪽 도로 인도 따라 직선. 녹색 빗금 전체 지형 잔디(파트 0개), 광화문 앞 통로만 비움.
+
+![](images/2026-10-27/v8s_gate_lawn.jpg)

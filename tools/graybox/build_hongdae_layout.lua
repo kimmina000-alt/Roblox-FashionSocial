@@ -86,7 +86,10 @@ local DOLDAM_J = DOLDAM_B + DOLDAM_U * 92.5 -- where the curve joins it (z 420)
 local WALL_N = { GATE_E1, GATE_E1 + GATE_ALONG * 40, Vector3.new(260, 0, 49), Vector3.new(300, 0, 49) }
 -- (user map 2026-10-27) south of the gate the wall bends back east in one gentle
 -- arc to the play area's south edge (the straight 돌담길 run is gone)
-local WALL_S = { GATE_E2, GATE_E2 - GATE_ALONG * 50, Vector3.new(140, 0, 370), Vector3.new(200, 0, 400) }
+-- (user 2026-10-27, red line) from the gate's south end a gentle bend to the
+-- south road's sidewalk, then straight along it (x 52) to the end
+local WALL_S = { GATE_E2, GATE_E2 - GATE_ALONG * 40, Vector3.new(52, 0, 292), Vector3.new(52, 0, 340) }
+local WALL_S_END = Vector3.new(52, 0, 700)
 -- the lawns sit outside the two balustrades (beds stay axis-aligned: terrain grass)
 -- (no square lawn beds since the user map 2026-10-27: a lawn band follows the wall curve)
 local LAWN_TERRAIN = {}
@@ -178,6 +181,9 @@ local function revert()
 			for _, l in ipairs(OLD_LAWNS) do
 				workspace.Terrain:FillBlock(CFrame.new((l[1] + l[3]) / 2, -2, (l[2] + l[4]) / 2), Vector3.new(l[3] - l[1] + 8, 12, l[4] - l[2] + 8), Enum.Material.Air)
 			end
+		end
+		if old:GetAttribute("YardLawn") then -- the 광화문 yard lawn (terrain, 0..4)
+			workspace.Terrain:FillBlock(CFrame.new((47 + 277) / 2, 2, (47 + 387) / 2), Vector3.new(232, 4, 342), Enum.Material.Air)
 		end
 		if old:GetAttribute("Mountains") then
 			for _, m in ipairs(MOUNTAINS) do workspace.Terrain:FillBall(m[1], m[2] + 1, Enum.Material.Air) end
@@ -2621,33 +2627,6 @@ do
 			add(Vector3.new(0.42, 0.2, 0.42), CFrame.new(bx, 1.75, 0), RAIL) -- neck under the rail
 		end
 	end)
-	-- (user map 2026-10-27) along the wall curves on the street side: a lime
-	-- lawn band, a stone balustrade on its outer edge, the 해태 pair beside the
-	-- balustrades at the gate's two ends. Right in front of the gate nothing:
-	-- people walk through it
-	do
-		local LIME = Color3.fromRGB(150, 200, 92)
-		local LAWN0, LAWN1, RAILD = 1.4, 15, 16.2 -- offsets from the wall line toward the street
-		for k, c in ipairs({ WALL_N, WALL_S }) do
-			local N = 24
-			local prev = bezier(c, 0)
-			for i = 1, N do
-				local p = bezier(c, i / N)
-				local d = (p - prev).Unit
-				local len = (p - prev).Magnitude
-				local mid = (p + prev) / 2
-				local out = Vector3.yAxis:Cross(d)
-				if out:Dot(Vector3.new(0, 0, 0) - mid) < 0 then out = -out end
-				if math.abs(mid.X) < 277 and math.abs(mid.Z) < 387 then
-					local lc = mid + out * ((LAWN0 + LAWN1) / 2)
-					local lawn = part("YardLawn", Vector3.new(LAWN1 - LAWN0, 0.18, len + 0.6), CFrame.lookAt(Vector3.new(lc.X, 0.39, lc.Z), Vector3.new(lc.X, 0.39, lc.Z) + d), LIME, { parent = G, material = Enum.Material.Grass })
-					lawn.CastShadow = false
-
-				end
-				prev = p
-			end
-		end
-	end
 	-- (user 2026-10-27, marked on a screenshot) in front of the gate: a path
 	-- as wide as the gate between two balustrades running from its front
 	-- corners toward the streets (yellow lines), a lawn outside each
@@ -2678,18 +2657,6 @@ do
 				part("RailPost", Vector3.new(0.8, 2.3, 0.8), CFrame.new(endP.X, 1.45, endP.Z) * CFrame.Angles(0, GATE_ROT, 0), RAIL, { parent = G, material = Enum.Material.Granite })
 				part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(endP.X, 3.15, endP.Z), RAIL, { parent = G, shape = Enum.PartType.Ball })
 			end
-			-- the lawn: strips along OUT, from the gate line out to the
-			-- balustrade's end (or the sidewalk), 0.7 .. 34 away from the path
-			local STRIP = 3
-			for w = 0.7, 34 - STRIP, STRIP do
-				local s0 = e + away * (w + STRIP / 2) + GATE_OUT * 2
-				local l = math.min(len + GATE_HD - 2, streetEnd(s0) - 1)
-				if l > 1 then
-					local c = s0 + GATE_OUT * (l / 2)
-					local lawn = part("YardLawn", Vector3.new(STRIP + 0.05, 0.18, l), CFrame.lookAt(Vector3.new(c.X, 0.39, c.Z), Vector3.new(c.X, 0.39, c.Z) + GATE_OUT), LIME, { parent = G, material = Enum.Material.Grass })
-					lawn.CastShadow = false
-				end
-			end
 			-- the 해태 beside the balustrade's street end, outside it
 			local s = a + GATE_OUT * (len - 4) + away * 5
 			local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 0.45, s.Z), Vector3.new(s.X, 0.45, s.Z) - away), RAIL, { parent = G, nocol = true })
@@ -2697,6 +2664,49 @@ do
 			spot.CanQuery = false
 			spot:SetAttribute("Facing", GATE_OUT)
 		end
+	end
+	-- (user 2026-10-27, green hatching) the whole yard on the street side of
+	-- the wall is lawn, except the path in front of the gate, the sidewalks'
+	-- edge and the 해태 pedestals: terrain grass (no parts, waving blades),
+	-- a thin layer on the paving so it stands 0.7 proud like a lawn bed. The
+	-- yard is the polygon sidewalk corner → along the east road → the north
+	-- wall curve back to the gate → the south wall curve → along the south road
+	do
+		local poly = { Vector3.new(47, 0, 47), Vector3.new(320, 0, 47) }
+		for i = 40, 0, -1 do table.insert(poly, bezier(WALL_N, i / 40)) end
+		for i = 0, 40 do table.insert(poly, bezier(WALL_S, i / 40)) end
+		table.insert(poly, Vector3.new(52, 0, 420)) table.insert(poly, Vector3.new(47, 0, 420))
+		local function inside(x, z)
+			local c = false
+			local j = #poly
+			for i = 1, #poly do
+				local a, b = poly[i], poly[j]
+				if (a.Z > z) ~= (b.Z > z) and x < (b.X - a.X) * (z - a.Z) / (b.Z - a.Z) + a.X then c = not c end
+				j = i
+			end
+			return c
+		end
+		local spots = {}
+		for _, s in ipairs(G:GetChildren()) do if s.Name == "GuardianSpot" then table.insert(spots, s.Position) end end
+		local T2 = workspace.Terrain
+		local CELL = 2
+		for x = 48.5 + CELL / 2, 277 - CELL / 2, CELL do
+			for z = 48.5 + CELL / 2, 387 - CELL / 2, CELL do
+				if inside(x, z) then
+					local rel = Vector3.new(x, 0, z) - GATE_C
+					local al, ou = rel:Dot(GATE_ALONG), rel:Dot(GATE_OUT)
+					local inPath = math.abs(al) < GATE_HL + 1.5 and ou > -GATE_HD - 1
+					local nearSpot = false
+					for _, sp in ipairs(spots) do if (Vector3.new(sp.X, 0, sp.Z) - Vector3.new(x, 0, z)).Magnitude < 7 then nearSpot = true end end
+					if not inPath and not nearSpot then
+						T2:FillBlock(CFrame.new(x, 0.5, z), Vector3.new(CELL, 1, CELL), Enum.Material.Grass)
+					end
+				end
+			end
+			if (x // CELL) % 20 == 0 then task.wait() end
+		end
+		pcall(function() T2.Decoration = true end)
+		T:SetAttribute("YardLawn", true)
 	end
 	-- the village (graybox 07) is emptied for now (user 2026-10-27, after v8):
 	-- every piece parked; its stone walls are drawn again along the user's red
@@ -5006,6 +5016,7 @@ do
 	box("Sidewalk", 96.4, 0, WIDE - 0.05, 700, CURB - 0.01, 48.2, WALK, { parent = T, material = Enum.Material.Brick })
 	-- south-west: the 돌담길 (user photo) along the south road, a stone path on its street side
 	curveWall(WALL_S, function(o) return o.X < 0 end, false) -- (no path: the yard paving reaches it)
+	hanokWall(WALL_S[4], WALL_S_END, Vector3.new(-1, 0, 0))
 	-- fake shop buildings (photos: stacked shop signs on every floor, glass
 	-- and stone facade, ground-floor shops). Walls only, nobody goes in.
 	local SHOPS = {
