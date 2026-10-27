@@ -2321,13 +2321,16 @@ do
 
 	-- storeys: plain green boxes (no columns, user 2026-10-23) wearing the
 	-- bracket / dancheong pattern cut from the user's 광화문 photo
-	local function patterned(p: BasePart, image: string, tileW: number)
+	-- (user 2026-10-27) the long faces (front to the street and the back, ±X)
+	-- show the picture twice side by side, the short end faces once
+	local function patterned(p: BasePart, image: string, _tileW: number)
 		for _, fce in ipairs({ Enum.NormalId.Left, Enum.NormalId.Right, Enum.NormalId.Front, Enum.NormalId.Back }) do
 			local tx = Instance.new("Texture")
 			tx.Texture = image
 			tx.Face = fce
 			tx.StudsPerTileV = p.Size.Y
-			tx.StudsPerTileU = tileW
+			local long = fce == Enum.NormalId.Left or fce == Enum.NormalId.Right
+			tx.StudsPerTileU = if long then p.Size.Z / 2 else p.Size.X
 			tx.Parent = p
 		end
 	end
@@ -3208,7 +3211,7 @@ do
 	local C = Vector3.new(-96, 0, -128) -- centre of the round mound
 	local PAVE, PAVE2 = Color3.fromRGB(222, 216, 204), Color3.fromRGB(206, 200, 188)
 	local STONE = Color3.fromRGB(232, 228, 220)
-	local WOOD = Color3.fromRGB(150, 98, 60)
+	local WOOD = Color3.fromRGB(120, 88, 62) -- (one deck wood for the whole map, user 2026-10-27: was 150, 98, 60)
 	local CUSH = Color3.fromRGB(240, 236, 226)
 	local function o(mat, extra)
 		local r = { parent = P, material = mat }
@@ -3990,7 +3993,7 @@ do
 	-- it to the north, the waiting line between the rope and the wall under a
 	-- row of white pop-up tents against the wall (the old iron fences are gone)
 	do
-		local QX = 42.5 -- the rope line, 5.5 out from the wall
+		local QX = 34 -- the rope line, out to the bike lane's edge (x 33.2; was 42.5, user 2026-10-27)
 		local QZ0, QZ1 = DZ0 - 37, (DZ0 + DZ1) / 2 -- north end of the line, the door's middle
 		local RED = Color3.fromRGB(196, 24, 36)
 		local function post(x, zz)
@@ -4017,27 +4020,7 @@ do
 		-- invisible wall along the rope so the line holds (7 high: a lower one was stepped over)
 		box("QueueBlock", QX - 0.2, CURB, QZ0, QX + 0.2, CURB + 7, QZ1, BLACK, { parent = K, transparency = 1 })
 		box("QueueBlock", QX, CURB, QZ1 - 0.2, 47, CURB + 7, QZ1 + 0.2, BLACK, { parent = K, transparency = 1 })
-		-- white pop-up tents over the line, against the wall
-		local WHITE_T = Color3.fromRGB(246, 246, 244)
-		local TL = (QZ1 - 2 - QZ0) / 3
-		for k = 0, 2 do
-			local t0, t1 = QZ0 + k * TL, QZ0 + (k + 1) * TL
-			local x0, x1, th = QX - 0.6, 47.6, 9.5
-			for _, c in ipairs({ { x0, t0 }, { x0, t1 }, { x1, t0 }, { x1, t1 } }) do
-				box("TentLeg", c[1] - 0.15, CURB, c[2] - 0.15, c[1] + 0.15, CURB + th, c[2] + 0.15, Color3.fromRGB(200, 200, 204), { parent = K, material = Enum.Material.Metal })
-			end
-			box("TentValance", x0 - 0.1, CURB + th - 1, t0, x0, CURB + th, t1, WHITE_T, { parent = K, material = Enum.Material.Fabric, nocol = true })
-			-- a low peaked roof: two slopes meeting over the middle of the tent
-			local cx, cz = (x0 + x1) / 2, (t0 + t1) / 2
-			local half = (x1 - x0) / 2
-			local rise = 1.6
-			for _, s in ipairs({ -1, 1 }) do
-				local a = Vector3.new(cx + s * half, CURB + th, cz)
-				local top = Vector3.new(cx, CURB + th + rise, cz)
-				local mid = (a + top) / 2
-				part("TentRoof", Vector3.new((top - a).Magnitude + 0.3, 0.2, t1 - t0 + 0.4), CFrame.fromMatrix(mid, (top - a).Unit, Vector3.zAxis:Cross((top - a).Unit) * -s), WHITE_T, { parent = K, material = Enum.Material.Fabric, nocol = true })
-			end
-		end
+		-- (the white tents over the line are gone, user 2026-10-27)
 	end	-- the pink graybox marquee would cover the band: hidden while the layout is on
 	local clubZone = root:FindFirstChild("02_Club")
 	local marquee = clubZone and clubZone:FindFirstChild("Marquee_Landmark")
@@ -4242,13 +4225,13 @@ do -- "오늘의 큰손" tower over the OH24 store (user mock-ups + reference ph
 	local SLIT = Color3.fromRGB(28, 32, 38)
 	local FR = Color3.fromRGB(16, 16, 20)
 	-- (user 2026-10-27: the tower covers the whole store roof, x -135..-56, z 66..210)
-	local X0, X1, Z0, Z1, Y0, Y1 = -135, -56, 66, 210, 21, 103 -- (on the raised store roof, H 21: user 2026-10-27)
+	local X0, X1, Z0, Z1, Y0, Y1 = -135, -56, 66, 210, 21, 115 -- (top 103 → 115 with the screen, user 2026-10-27) -- (on the raised store roof, H 21: user 2026-10-27)
 	box("TowerBody", X0, Y0, Z0, X1, Y1, Z1, GRANITE, { parent = L, material = Enum.Material.Slate })
 	box("TowerCrown", X0 - 0.4, Y1, Z0 - 0.4, X1 + 0.4, Y1 + 2, Z1 + 0.4, Color3.fromRGB(60, 58, 58), { parent = L, material = Enum.Material.Slate })
 	box("TowerTopGlass", X0 + 0.2, Y1 - 8, Z0 - 0.15, X1 - 0.2, Y1 - 1, Z0 + 0.1, Color3.fromRGB(70, 90, 110), { parent = L, material = Enum.Material.Glass })
 	-- screen zone (y 46..86, user 2026-10-25: up at the top of the tower, well
 	-- clear of the store): the slits run below it
-	local SY0, SY1 = 30, 86 -- (down to half of the wall below, user 2026-10-25)
+	local SY0, SY1 = 42, 98 -- (12 higher, a gap of 21 above the store roof, user 2026-10-27) -- (down to half of the wall below, user 2026-10-25)
 	local function slits(axis, fixed, a0, a1, outward, spans)
 		for a = a0 + 3, a1 - 3, 3.5 do
 			for _, span in ipairs(spans) do
@@ -4315,15 +4298,15 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	local B = Instance.new("Model")
 	B.Name = "RankingBoards"
 	B.Parent = T
-	local POST = Color3.fromRGB(60, 62, 70)
+	local POST = Color3.fromRGB(120, 88, 62) -- (the deck wood of the park steps, user 2026-10-27)
 	-- (moved in a row up from subway exit 3 toward the park, readable from both
 	-- sides, user 2026-10-26; the club bus stop took their old place)
-	local X = -51
+	local X = -68 -- (on the paving by the sunken plaza's rim, user 2026-10-27)
 	for _, spec in ipairs({ { "support", -97 }, { "spend", -83.5 }, { "playtime", -70 } }) do
 		local z = spec[2]
-		box("BoardPost", X - 0.4, 0, z - 5.6, X + 0.4, 12.4, z - 4.8, POST, { parent = B, material = Enum.Material.Metal })
-		box("BoardPost", X - 0.4, 0, z + 4.8, X + 0.4, 12.4, z + 5.6, POST, { parent = B, material = Enum.Material.Metal })
-		box("BoardFrame", X - 0.6, 2.6, z - 5.8, X + 0.6, 12.6, z + 5.8, POST, { parent = B, material = Enum.Material.Metal })
+		box("BoardPost", X - 0.4, 0, z - 5.6, X + 0.4, 12.4, z - 4.8, POST, { parent = B, material = Enum.Material.WoodPlanks })
+		box("BoardPost", X - 0.4, 0, z + 4.8, X + 0.4, 12.4, z + 5.6, POST, { parent = B, material = Enum.Material.WoodPlanks })
+		box("BoardFrame", X - 0.6, 2.6, z - 5.8, X + 0.6, 12.6, z + 5.8, POST, { parent = B, material = Enum.Material.WoodPlanks })
 		for _, side in ipairs({ { -1, "Left" }, { 1, "Right" } }) do
 			local x0 = X + side[1] * 0.6
 			local s = box("BoardScreen", math.min(x0, x0 + side[1] * 0.15), 2.9, z - 5.5, math.max(x0, x0 + side[1] * 0.15), 12.3, z + 5.5, Color3.fromRGB(14, 16, 24), { parent = B, material = Enum.Material.SmoothPlastic })
@@ -5447,7 +5430,7 @@ do
 	-- one wooden deck step at floor height along all three street faces
 	-- (user 2026-10-23: the wood of the old right-hand deck everywhere, one step
 	-- instead of two in front of the door), an invisible ramp at the door
-	local WOOD = Color3.fromRGB(150, 112, 78)
+	local WOOD = Color3.fromRGB(120, 88, 62) -- (one deck wood for the whole map, user 2026-10-27: was 150, 112, 78)
 	local DECK = 2.6
 	local woodOpt = opt({ material = Enum.Material.WoodPlanks })
 	box("Deck", W0 - DECK, 0, N0, W0, F, S0 - CH + 1.1, WOOD, woodOpt) -- ends on the building line (user)

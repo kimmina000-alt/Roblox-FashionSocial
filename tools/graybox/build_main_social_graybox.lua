@@ -1534,14 +1534,14 @@ local z=zone("04_Beach_Aquarium")
   -- the north glass, a fourth row)
   -- (user 2026-10-26: higher tiers, 2 studs each, like the reference photo;
   -- a 1-stud half step in each aisle so people still walk up)
-  local LX0,LW,LZ0,LZ1=-269,6.75,71,z1-0.4 local TIER=2
+  local LX0,LW,LZ0,LZ1=-269,6.75,71,z1-0.4 local TIER=2 local DECKW=Color3.fromRGB(120,88,62)
   local AISLES={{LZ0,72.6},{77.8,80.8},{86,89.9},{95.1,98.8},{103.9,LZ1}}
   for k=1,4 do
    local xa=LX0+(k-1)*LW local top=FY+k*TIER
-   box(cm,"LoungeStep",xa,FY,LZ0,xa+LW,top,LZ1,woodC,{mat=Enum.Material.WoodPlanks})
+   box(cm,"LoungeStep",xa,FY,LZ0,xa+LW,top,LZ1,DECKW,{mat=Enum.Material.WoodPlanks}) -- (the one deck wood of the map, user 2026-10-27)
    for _,a in ipairs(AISLES) do
     if not (k==1 and a[1]>=86) then -- (the planter stands in front of the first tier there)
-     box(cm,"LoungeHalfStep",xa-1.2,top-TIER,a[1],xa,top-1,a[2],woodC,{mat=Enum.Material.WoodPlanks}) end end
+     box(cm,"LoungeHalfStep",xa-1.2,top-TIER,a[1],xa,top-1,a[2],DECKW,{mat=Enum.Material.WoodPlanks}) end end
    for _,rz in ipairs({75.2,83.4,92.5,101.4}) do -- (aisles between the rows lead up the steps)
     -- a round table at the step's front, a white bench behind it facing west
     cyl(cm,"TableLeg",0.4,2.4,Vector3.new(xa+2,top+1.2,rz),dark)
