@@ -72,7 +72,7 @@ local HOLES = {
 -- to its north-east end, OUT is its front (to the street)
 local GATE_C = Vector3.new(158, 0, 195)
 local GATE_ROT = math.rad(-30)
-local GATE_HL, GATE_HD = 84, 21 -- half its length and depth (3 × 56 / 2, 3 × 14 / 2)
+local GATE_HL, GATE_HD = 56, 14 -- half its length and depth (2 × 56 / 2, 2 × 14 / 2; 3× → 2×, user 2026-10-27)
 local GATE_ALONG = CFrame.Angles(0, GATE_ROT, 0):VectorToWorldSpace(Vector3.new(0, 0, -1))
 local GATE_OUT = CFrame.Angles(0, GATE_ROT, 0):VectorToWorldSpace(Vector3.new(-1, 0, 0))
 local GATE_E1, GATE_E2 = GATE_C + GATE_ALONG * GATE_HL, GATE_C - GATE_ALONG * GATE_HL -- north-east / south-west end
@@ -2541,7 +2541,7 @@ do
 	-- times as big about the middle of its foot (still on the wall line x 97);
 	-- the yard, lawns, balustrades and 해태 in front follow its new size below
 	do
-		local GS = 3
+		local GS = 2 -- (3 → 2: two thirds of the 3× gate, user 2026-10-27)
 		local S = Instance.new("Model")
 		for _, c in ipairs(G:GetChildren()) do c.Parent = S end
 		local cx, cz = (gx0 + gx1) / 2, (gz0 + gz1) / 2
@@ -3995,7 +3995,7 @@ do
 	-- it to the north, the waiting line between the rope and the wall under a
 	-- row of white pop-up tents against the wall (the old iron fences are gone)
 	do
-		local QX = 41 -- the rope line half way back toward the wall (x 34 → 41, user 2026-10-27)
+		local QX = 40 -- the rope line (x 34 → 41 → 40, user 2026-10-27)
 		local QZ0, QZ1 = DZ0 - 37, (DZ0 + DZ1) / 2 -- north end of the line, the door's middle
 		local RED = Color3.fromRGB(196, 24, 36)
 		local function post(x, zz)

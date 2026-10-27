@@ -2295,3 +2295,17 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | DJ·바·테이블 | VIP 계단 입구 |
 |---|---|
 | ![](images/2026-10-27/v8k_dj_bar_tables.jpg) | ![](images/2026-10-27/v8k_vip_gate.jpg) |
+
+### VIP 계단 입구·안내·댄스봉 LED·광화문 2/3·배치도 (D-364)
+
+- 펜스 1 이동. VIP 계단 입구 빨간 테두리를 계단 부분만, 분홍 입구 높이로. 옆은 막고 그래피티. 층계참 바닥 빨간 LED, 벽에 VIP 화살표. 댄스봉 단상 LED. 광화문 2/3.
+
+| VIP 입구 | 층계참 안내 |
+|---|---|
+| ![](images/2026-10-27/v8l_vip_gate.jpg) | ![](images/2026-10-27/v8l_vip_landing_sign.jpg) |
+
+| 댄스봉 | 광화문 |
+|---|---|
+| ![](images/2026-10-27/v8l_pole_leds.jpg) | ![](images/2026-10-27/v8l_gate_2x.jpg) |
+
+배치도: ![](images/2026-10-27/v8l_map_plan.png)

@@ -345,15 +345,20 @@ do local function graffiti(x0,y0,z0,x1,y1,z1,face)
 local vipRed=Color3.fromRGB(255,40,70)
 -- (as high as the raised corridor ceiling; no "VIP" text on the glass, the
 -- purchase window still opens: user 2026-10-25)
--- (user 2026-10-27) the gate is a portal 20 high in a red neon frame; wall above it
-local GH=20
-box(z,"VIP_GateWall",-80,F+GH+0.4,-236.4,-65,V-1,-235.6,WALL_C,WALLO)
-local vipGate=box(z,"VIP_Gate",-80,F,-236.4,-65,F+GH,-235.6,vipRed,{t=0.55,mat=Enum.Material.Glass})
+-- (user 2026-10-27) the gate is a portal over the stair only (the first,
+-- west flight, x -80..-72.5), as high as the pink hall door (DH), in a red neon
+-- frame; wall above it and a solid graffiti wall beside it in front of the
+-- second flight's foot (people walked into it)
+local GH=DH local GX1=-72.5
+box(z,"VIP_GateWall",-80,F+GH+0.4,-236.4,GX1,V-1,-235.6,WALL_C,WALLO)
+box(z,"VIP_GateWall",GX1,F,-236.4,-65,V-1,-235.6,WALL_C,WALLO)
+do local p=box(z,"GraffitiWall",-80,F,-235.6,-65,V-1,-235.55,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
+ local tx=Instance.new("Texture") tx.Texture="rbxassetid://93792464281347" tx.Face=Enum.NormalId.Back tx.StudsPerTileU=34 tx.StudsPerTileV=17 tx.Transparency=0.15 tx.Parent=p end
+local vipGate=box(z,"VIP_Gate",-80,F,-236.4,GX1,F+GH,-235.6,vipRed,{t=0.55,mat=Enum.Material.Glass})
 vipGate:SetAttribute("Gate","VIP") CS:AddTag(vipGate,"ClubGate")
 local glow=Instance.new("SurfaceLight") glow.Color=vipRed glow.Brightness=3 glow.Range=14 glow.Face=Enum.NormalId.Back glow.Parent=vipGate
-for _,e in ipairs({{-80,F,-79,F+GH},{-65,F,-64.6,F+GH}}) do box(z,"VIP_GateNeon",e[1],e[2],-236.6,e[3],e[4],-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true}) end
-box(z,"VIP_GateNeon",-80,F+GH,-236.6,-64.6,F+GH+0.4,-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true})
--- VIP stair: north from the wall up to the 2nd floor landing (z -263..-270)
+for _,e in ipairs({{-80,F,-79,F+GH},{GX1-0.4,F,GX1,F+GH}}) do box(z,"VIP_GateNeon",e[1],e[2],-235.6,e[3],e[4],-235.2,vipRed,{mat=Enum.Material.Neon,ghost=true}) end
+box(z,"VIP_GateNeon",-80,F+GH,-235.6,GX1,F+GH+0.4,-235.2,vipRed,{mat=Enum.Material.Neon,ghost=true})-- VIP stair: north from the wall up to the 2nd floor landing (z -263..-270)
 -- (user 2026-10-27: the 2F is twice as high) two flights side by side: the
 -- west one north up to the landing at VMID (the old 2F level), the east one
 -- back south up to the 2F floor over the corridor (VIP_Floor_W2), a divider
@@ -372,6 +377,20 @@ for j=1,22 do local zs=LAND0+RUN*(j-1)
  riser(z,Vector3.new((BX0+BX1)/2,VMID+j-0.5,zs-0.04),Vector3.new(0,0,-1),BX1-BX0,1,vipRed) end
 -- a red LED line on the half-way landing's edge, where the flights meet it (user 2026-10-27)
 box(z,"VIP_LandingNeon",AX0,VMID,LAND0-0.3,BX1,VMID+0.08,LAND0,vipRed,{mat=Enum.Material.Neon,ghost=true})
+-- (user 2026-10-27: it did not show) red floor lines round the landing along its walls
+box(z,"VIP_LandingNeon",-80,VMID,NZ,-79.88,VMID+0.25,LAND0,vipRed,{mat=Enum.Material.Neon,ghost=true})
+box(z,"VIP_LandingNeon",-80,VMID,NZ,-65,VMID+0.25,NZ+0.12,vipRed,{mat=Enum.Material.Neon,ghost=true})
+box(z,"VIP_LandingNeon",-65.12,VMID,NZ,-65,VMID+0.25,LAND0,vipRed,{mat=Enum.Material.Neon,ghost=true})
+-- the way on: "VIP →" in red neon on the end wall, pointing to the second flight
+do local s=box(z,"VIP_WaySign",-79,VMID+5,NZ+0.06,-66,VMID+11,NZ+0.12,Color3.new(0,0,0),{t=1,ghost=true})
+ local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Back g.LightInfluence=0 g.Brightness=2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=s
+ local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBlack l.TextColor3=Color3.fromRGB(255,60,80) l.Text="VIP" l.Size=UDim2.fromScale(0.5,1) l.Parent=g
+ local st=Instance.new("UIStroke") st.Color=Color3.fromRGB(255,20,40) st.Thickness=2 st.Parent=l
+ local pl=Instance.new("SurfaceLight") pl.Face=Enum.NormalId.Back pl.Color=vipRed pl.Range=10 pl.Brightness=1.5 pl.Parent=s end
+-- a neon arrow beside the word, pointing to the second flight (+x)
+do local y=VMID+8 local zf=NZ+0.2 local NE={mat=Enum.Material.Neon,ghost=true}
+ box(z,"VIP_WayArrow",-72,y-0.3,zf-0.1,-67.5,y+0.3,zf+0.1,vipRed,NE)
+ for _,s2 in ipairs({1,-1}) do local c=Vector3.new(-68.2,y+s2*0.85,zf) P(z,"VIP_WayArrow",Vector3.new(2.6,0.6,0.2),CFrame.new(c)*CFrame.Angles(0,0,math.rad(-s2*45)),vipRed,NE) end end
 do local c=Vector3.new((BX0+BX1)/2,VMID+11,LAND0+RUN*11) P(z,"VIP_StairRamp",Vector3.new(BX1-BX0,22,RUN*22),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),W,{class="WedgePart",t=1}) end
 box(z,"VIP_StairDivider",AX1,F,LAND0,BX0,V+4,-236.5,WALL_C,WALLO)
 label(z,"VIP 2층 ↑ (VIP 패스)",Vector3.new(-72,F+17,-232))
@@ -615,6 +634,8 @@ local function pole(px,pz,ledPole)
  -- stepped: two wider rings below the top stage, 1 stud each, easy to walk up (user 2026-10-25)
  cyl(z,"PoleStep",10,1,Vector3.new(px,F+0.5,pz),POLEB,{mat=Enum.Material.Metal,nocol=true})
  cyl(z,"PoleStep",8.5,2,Vector3.new(px,F+1,pz),POLEB,{mat=Enum.Material.Metal,nocol=true})
+ -- (user 2026-10-27: the black stage did not show) a thin LED line round each edge
+ for _,r in ipairs({{10,F+1},{8.5,F+2},{7,F+BH}}) do cyl(z,"PoleEdgeLED",r[1]+0.2,0.15,Vector3.new(px,r[2]-0.12,pz),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
  -- (small avatars did not climb the 1-stud steps: invisible wedge ramps all round, user rule)
  for k=0,23 do local a=math.rad(k*15) local out=Vector3.new(math.cos(a),0,math.sin(a))
   local c=Vector3.new(px,F+BH/2,pz)+out*4.75
