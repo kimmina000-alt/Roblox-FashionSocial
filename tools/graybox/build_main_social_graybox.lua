@@ -1081,7 +1081,18 @@ local z=zone("04_Beach_Aquarium")
   local s=Instance.new("Seat") s.Name=name s.Anchored=true s.Size=size s.CFrame=cf s.Color=col or wood s.Transparency=t or 0
   s.TopSurface=Enum.SurfaceType.Smooth s.Parent=par CS:AddTag(s,"PromptSeat") return s end
  -- PARASOL (open or closed) at ground point g
+ -- store models the user picked (2026-10-27, props sheet #24 parasol, #27
+ -- wooden deck chair; scripts stripped, ServerStorage.ArtAssets)
+ local ART=game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+ local function artCopy(name,par,cf,height)
+  local src=ART and ART:FindFirstChild(name) if not src then return nil end
+  local m=src:Clone() local _,sz=m:GetBoundingBox() m:ScaleTo(m:GetScale()*height/sz.Y)
+  local box,sz2=m:GetBoundingBox() m:PivotTo(m:GetPivot()+(cf.Position+Vector3.new(0,sz2.Y/2,0)-box.Position))
+  m:PivotTo(CFrame.new(m:GetPivot().Position)*cf.Rotation*m:GetPivot().Rotation)
+  for _,p in ipairs(m:GetDescendants()) do if p:IsA("BasePart") then p.Anchored=true p.CanCollide=false end end
+  m.Parent=par return m end
  local function parasol(par,g,open,cols)
+  if open and artCopy("BeachParasol",par,CFrame.new(g),13) then return end
   cyl(par,"ParasolPole",0.3,9.5,g+Vector3.new(0,4.75,0),Color3.fromRGB(240,240,240))
   if open then
    for k=0,7 do local a=k/8*2*math.pi -- 8 coloured slices (wedges) tilted down
@@ -1102,6 +1113,9 @@ local z=zone("04_Beach_Aquarium")
  end
  local function chair(par,g,cols)
   local base=CFrame.lookAt(g,g+Vector3.new(-1,0,0)) -- faces the sea
+  if artCopy("BeachChairWood",par,base,4) then
+   -- the store chair is only a look: an invisible seat to sit on
+   seat(par,"BeachChair",base*CFrame.new(0,1.1,0),Vector3.new(2.4,0.25,2.2),cols[1],1) return end
   for _,sx in ipairs({-1.1,1.1}) do
    P(par,"ChairLeg",Vector3.new(0.2,1.6,0.2),base*CFrame.new(sx,0.8,-1),wood)
    P(par,"ChairLeg",Vector3.new(0.2,2.8,0.2),base*CFrame.new(sx,1.4,1.1),wood) end
@@ -1117,8 +1131,11 @@ local z=zone("04_Beach_Aquarium")
  local kinds={"closed","matbox","mat","chairs2","chairmat","chairs2box"}
  local spots={}
  for zc=-470,236,26 do if zc<168 and not (zc>-36 and zc<=-2) then table.insert(spots,zc) end end -- (no parasol right by the cafe deck, user 2026-10-24; the cafe stands at z 175..377 since layout v8)
+ -- (user 2026-10-27: 12 parasol spots removed, marked on two screenshots)
+ local REMOVED={[154]=true,[102]=true,[24]=true,[-80]=true,[-106]=true,[-184]=true,[-236]=true,[-262]=true,[-340]=true,[-392]=true,[-418]=true,[-444]=true}
  for i,zc in ipairs(spots) do
   local x=-250+((i%3)-1)*9+math.random(-2,2) local g=Vector3.new(x,SAND,zc+math.random(-3,3))
+  if REMOVED[zc] then continue end
   local kind=kinds[(i-1)%#kinds+1] local cols=stripeSets[(i-1)%#stripeSets+1]
   local grp=M(z,"BeachSpot_"..kind,{},{})
   parasol(grp,g,kind~="closed",cols)

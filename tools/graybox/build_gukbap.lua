@@ -294,7 +294,22 @@ local function gukbapTable(tx, tz)
 	vcyl("KkakdugiJar", Vector3.new(tx + 0.6, FY + 2.5, tz - 1.6), 0.7, 0.6, Color3.fromRGB(200, 70, 50), { nocol = true })
 	vcyl("KimchiJar", Vector3.new(tx + 0.6, FY + 2.5, tz - 0.8), 0.7, 0.6, Color3.fromRGB(180, 40, 30), { nocol = true })
 	box("SpoonBox", tx - 0.8, FY + 2.5, tz - 1.9, tx - 0.2, FY + 3.0, tz - 1.1, Color3.fromRGB(150, 110, 70), { material = Enum.Material.Wood, nocol = true })
-	box("NapkinBox", tx - 0.8, FY + 2.5, tz - 0.9, tx - 0.2, FY + 2.9, tz - 0.3, Color3.fromRGB(245, 245, 245), { nocol = true })
+	-- tissue box: the user's pick (#3 of the restaurant sheet) retextured as
+	-- wood (ServerStorage.ArtAssets.TissueBoxWood), else a plain white box
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local tissue = art and art:FindFirstChild("TissueBoxWood")
+	if tissue then
+		local m = tissue:Clone()
+		m.Name = "NapkinBox"
+		local _, sz = m:GetBoundingBox()
+		m:ScaleTo(m:GetScale() * 0.75 / sz.Y)
+		local _, sz2 = m:GetBoundingBox()
+		m:PivotTo(CFrame.new(tx - 0.5, FY + 2.5 + sz2.Y / 2, tz - 0.6) * CFrame.Angles(0, math.rad(90), 0))
+		for _, p in ipairs(m:GetDescendants()) do if p:IsA("BasePart") then p.Anchored = true p.CanCollide = false end end
+		m.Parent = M
+	else
+		box("NapkinBox", tx - 0.8, FY + 2.5, tz - 0.9, tx - 0.2, FY + 2.9, tz - 0.3, Color3.fromRGB(245, 245, 245), { nocol = true })
+	end
 	for _, s in ipairs({ { -2.1, -1.1 }, { -2.1, 1.1 }, { 2.1, -1.1 }, { 2.1, 1.1 } }) do
 		-- the round top is a plain cylinder; the Seat is an invisible upright
 		-- block on it (a Seat takes the sitter's up from its own axes, so the

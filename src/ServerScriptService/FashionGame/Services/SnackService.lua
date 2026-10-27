@@ -1040,6 +1040,28 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 	local box, size = model:GetBoundingBox()
 	local lift = hit.Position.Y + 0.02 - (box.Y - size.Y / 2)
 	for _, p in ipairs(parts) do p.CFrame += Vector3.new(0, lift, 0) end
+	-- 국밥 on the table is the tray set (user 2026-10-27: store #2, rice and
+	-- side dishes round the bowl); the copy stays as the invisible holder of
+	-- the prompt
+	local placedItem = itemByKey(tool:GetAttribute("Snack"))
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local tray = placedItem and placedItem.kind == "bowl" and art and art:FindFirstChild("Foods") and art.Foods:FindFirstChild("GukbapTray")
+	if tray then
+		for _, p in ipairs(parts) do
+			p.Transparency = 1
+			for _, d in ipairs(p:GetDescendants()) do if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end end
+		end
+		local t = tray:Clone()
+		local _, tsize = t:GetBoundingBox()
+		t:ScaleTo(t:GetScale() * 2.4 / math.max(tsize.X, tsize.Z))
+		local tb, ts = t:GetBoundingBox()
+		t:PivotTo(t:GetPivot() + (Vector3.new(hit.Position.X, hit.Position.Y + 0.02 + ts.Y / 2, hit.Position.Z) - tb.Position))
+		for _, p in ipairs(t:GetDescendants()) do
+			if p:IsA("BasePart") then p.Anchored = true p.CanCollide = false p.CanTouch = false end
+		end
+		t.Name = "Tray"
+		t.Parent = model
+	end
 	model:SetAttribute("Owner", player.UserId)
 	-- the tool waits aside with its bites left
 	if not keptFolder then

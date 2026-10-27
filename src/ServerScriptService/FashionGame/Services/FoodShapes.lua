@@ -432,6 +432,11 @@ end
 -- scaled so its longest side is the given size. A mesh cannot be cut, so these
 -- shrink a little with every bite (EatMode = "Scale").
 local ASSET_FOODS: {[string]: {any}} = {
+	-- 국밥 (user picks 2026-10-27: #1 / #3 / #4, one per kind; on a table the
+	-- tray set #2, GukbapTray, see SnackService.putDown)
+	pork = { "GukbapPork", 1.0 },
+	sundae = { "GukbapSundae", 1.0 },
+	beef = { "GukbapBeef", 1.0 },
 	saltbread = { "SaltBread", 0.8 }, -- AI mesh from the user's photo (2026-10-27)
 	water = { "Samdasu", 0.95 },      -- user's pick (삼다수 by thuxjibuy)
 	bagel = { "Bagel", 0.75 },       -- #7

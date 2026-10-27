@@ -714,15 +714,56 @@ local function giveGlowstick(player: Player)
 	-- (a Cylinder's axis is X: turned so it stands upright in the hand, held
 	-- near its lower end; measured in Play 2026-10-27, the old grip held it level)
 	tool.Grip = CFrame.new(0.6, 0, 0) * CFrame.Angles(0, 0, math.rad(90))
+	-- the user's pick (2026-10-27, "Lightsaber RP Tool" by VentusWind78, scripts
+	-- stripped, ServerStorage.ArtAssets.GlowstickSaber): a black grip with a
+	-- glowing tube; its grip becomes the handle, the tube takes the colour
+	local glowing: {BasePart} = { handle }
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local saber = art and art:FindFirstChild("GlowstickSaber")
+	if saber and saber:IsA("Model") then
+		local m = saber:Clone()
+		local _, size = m:GetBoundingBox()
+		m:ScaleTo(m:GetScale() * 2.2 / size.Y)
+		local grip = m:FindFirstChild("Handle") :: BasePart?
+		if grip then
+			handle:Destroy()
+			glowing = {}
+			grip.CanCollide = false
+			grip.Massless = true
+			grip.Anchored = false
+			for _, p in ipairs(m:GetDescendants()) do
+				if p:IsA("BasePart") and p ~= grip then
+					p.Anchored = false
+					p.CanCollide = false
+					p.Massless = true
+					local w = Instance.new("WeldConstraint")
+					w.Part0 = grip
+					w.Part1 = p
+					w.Parent = p
+					if p.Color.G > 0.3 then -- the tube (the dark parts are the grip)
+						p.Material = Enum.Material.Neon
+						p.Color = GLOW_COLORS[1]
+						p.Transparency = 0.15
+						table.insert(glowing, p)
+					end
+					p.Parent = grip
+				end
+			end
+			grip.Parent = tool
+			m:Destroy()
+			handle = grip
+			tool.Grip = CFrame.new(0, -0.1, 0) -- (the grip stands upright, the tube above the hand)
+		end
+	end
 	local light = Instance.new("PointLight")
 	light.Color = GLOW_COLORS[1]
 	light.Range = 9
 	light.Brightness = 1.5
-	light.Parent = handle
+	light.Parent = glowing[1] or handle
 	local index = 1
 	tool.Activated:Connect(function()
 		index = index % #GLOW_COLORS + 1
-		handle.Color = GLOW_COLORS[index]
+		for _, p in ipairs(glowing) do p.Color = GLOW_COLORS[index] end
 		light.Color = GLOW_COLORS[index]
 	end)
 	tool.Parent = backpack
