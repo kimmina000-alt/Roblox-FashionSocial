@@ -427,14 +427,54 @@ local USER_MESH = {
 	stack_hydro = { "bottle_stack_hydro", 2.16, "band", 0.2, 0.42 },
 	pastel_splash = { "bottle_pastel_splash", 2.16, "band", 0.25, 0.5 },
 	skull_water = { "bottle_skull_water", 2.16, "band", 0.22, 0.45 },
-	golmok = { "bottle_vip_golmok", 2.52, "band", 0.2, 0.4 },
+	golmok = { "bottle_vip_golmok", 2.52, "vip", 0, 0 },
 }
+local VIP_SPADE, VIP_PLATE = "rbxassetid://100981037328421", "rbxassetid://75444167233842"
+
+-- 골목 공방 (VIP), like the user's photo of the metallic champagne set: a
+-- mirror-metal body in the flavour colour, a black foil over the neck, a
+-- metal collar with a small spade, a raised spade emblem on the front with a
+-- monogram (ours: O for OHU) and a bronze plate under it. No label band.
+local function vipDress(c: Ctx, body: BasePart, color: Color3, H: number, r: number)
+	local s = c.s
+	body.Material = Enum.Material.Metal
+	body.Reflectance = 0.35
+	-- foil: black, from the top down over the shoulder start
+	cyl(c, "Foil", 0.8 * H, 1.0 * H + 0.01, 0.105 * H, { color = Color3.fromRGB(18, 18, 20), material = Enum.Material.Fabric })
+	cyl(c, "Foil", 0.765 * H, 0.81 * H, 0.125 * H, { color = Color3.fromRGB(18, 18, 20), material = Enum.Material.Fabric })
+	-- metal collar under the foil, a small spade on its front
+	local collar = cyl(c, "Collar", 0.735 * H, 0.77 * H, 0.13 * H, { color = color:Lerp(Color3.new(0, 0, 0), 0.15), material = Enum.Material.Metal, reflectance = 0.35 })
+	local sm = make(c, "CollarSpade", Vector3.new(0.05 * H * s, 0.06 * H * s, 0.01 * s), c.base * CFrame.new(0, 0.752 * H * s, -(0.066 * H + 0.006) * s), color, nil, nil, 1)
+	local d0 = Instance.new("Decal") d0.Texture = VIP_SPADE d0.Color3 = color:Lerp(Color3.new(0, 0, 0), 0.35) d0.Parent = sm
+	_ = collar
+	-- the raised spade: a thin metal plate in the spade's outline (two lobes,
+	-- a pointed top, a stem) standing proud of the glass, the picture on it
+	local ey, eh, ew = 0.36 * H, 0.2 * H, 0.17 * H
+	local z = -(r + 0.012)
+	local relief = color:Lerp(Color3.new(0, 0, 0), 0.12)
+	local function rel(name, size: Vector3, cf: CFrame, shape)
+		return make(c, name, size * s, c.base * CFrame.new(cf.X * s, cf.Y * s, cf.Z * s) * cf.Rotation, relief, Enum.Material.Metal, shape, 0, 0.3)
+	end
+	for _, side in ipairs({ -1, 1 }) do -- the two lobes
+		local lobe = rel("Spade", Vector3.new(ew * 0.55, ew * 0.55, 0.025), CFrame.new(side * ew * 0.24, ey - eh * 0.05, z), nil)
+		local m = Instance.new("SpecialMesh") m.MeshType = Enum.MeshType.Sphere m.Parent = lobe
+	end
+	rel("Spade", Vector3.new(ew * 0.5, ew * 0.5, 0.025), CFrame.new(0, ey + eh * 0.12, z) * CFrame.Angles(0, 0, math.rad(45)), nil) -- the point
+	rel("Spade", Vector3.new(ew * 0.1, eh * 0.32, 0.025), CFrame.new(0, ey - eh * 0.32, z), nil) -- the stem
+	rel("Spade", Vector3.new(ew * 0.34, eh * 0.05, 0.025), CFrame.new(0, ey - eh * 0.47, z), nil) -- the foot
+	local face = make(c, "SpadeFace", Vector3.new(ew * s, eh * s, 0.005 * s), c.base * CFrame.new(0, ey * s, (z - 0.016) * s), color, nil, nil, 1)
+	local d1 = Instance.new("Decal") d1.Texture = VIP_SPADE d1.Color3 = color:Lerp(Color3.new(1, 1, 1), 0.25) d1.Parent = face
+	-- the bronze plate under it
+	local plate = make(c, "Plate", Vector3.new(0.17 * H * s, 0.05 * H * s, 0.02 * s), c.base * CFrame.new(0, 0.2 * H * s, -(r + 0.006) * s), Color3.fromRGB(92, 62, 40), Enum.Material.Metal, nil, 0, 0.2)
+	local d2 = Instance.new("Decal") d2.Texture = VIP_PLATE d2.Parent = plate
+end
 local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	local spec = USER_MESH[key]
 	if not spec or not game:GetService("RunService"):IsServer() then return false end
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local folder = art and art:FindFirstChild("Bottles")
-	local src = folder and folder:FindFirstChild(spec[1])
+	-- (the "_smooth" imports carry vertex normals: metal shades round, not faceted)
+	local src = folder and (folder:FindFirstChild(spec[1] .. "_smooth") or folder:FindFirstChild(spec[1]))
 	local mesh = src and (if src:IsA("MeshPart") then src else src:FindFirstChildWhichIsA("MeshPart", true))
 	if not mesh then return false end
 	local s, H = c.s, spec[2]
@@ -464,7 +504,9 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	-- the label (body radius from the mesh's width)
 	local r = mesh.Size.X * k / 2
 	local y0, y1 = spec[4] * H, spec[5] * H
-	if spec[3] == "front" then
+	if spec[3] == "vip" then
+		vipDress(c, p, color, H, r * 0.93)
+	elseif spec[3] == "front" then
 		local lw, lh = r * 1.2, (y1 - y0)
 		local label = make(c, "Label", Vector3.new(lw * s, lh * s, 0.01 * s), c.base * CFrame.new(0, (y0 + y1) / 2 * s, -(r + 0.006) * s), WHITE)
 		label.Transparency = 1

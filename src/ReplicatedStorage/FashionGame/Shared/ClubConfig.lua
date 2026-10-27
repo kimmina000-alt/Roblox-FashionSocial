@@ -194,12 +194,13 @@ ClubConfig.Drinks = {
 		color = Color3.fromRGB(18, 18, 20), look = "물방울 모양 검정 광택 병 · 흰 해골" },
 	-- VIP only (D-274)
 	{ key = "golmok", name = "골목 공방 소다", tier = 3, vipOnly = true, product = "Drink_Golmok", -- On A Lark
-		color = Color3.fromRGB(190, 160, 230), look = "메탈릭 병 · 금색 왕관",
+		-- (user photo 2026-10-27: the metallic champagne set's colours)
+		color = Color3.fromRGB(212, 168, 70), look = "메탈 병 · 스페이드 엠블럼",
 		variants = {
-			{ key = "lavender", name = "레몬 라벤더", color = Color3.fromRGB(190, 160, 230) },
-			{ key = "rose", name = "생강 장미", color = Color3.fromRGB(230, 160, 120) },
-			{ key = "omija", name = "오미자 히비스커스", color = Color3.fromRGB(200, 40, 55) },
-			{ key = "mulberry", name = "오디", color = Color3.fromRGB(80, 30, 92) },
+			{ key = "lavender", name = "레몬 라벤더", color = Color3.fromRGB(212, 168, 70) }, -- gold
+			{ key = "rose", name = "생강 장미", color = Color3.fromRGB(232, 150, 185) }, -- pink
+			{ key = "omija", name = "오미자 히비스커스", color = Color3.fromRGB(165, 35, 85) }, -- rose red
+			{ key = "mulberry", name = "오디", color = Color3.fromRGB(95, 100, 112) }, -- dark silver
 		} },
 } :: {Drink}
 
