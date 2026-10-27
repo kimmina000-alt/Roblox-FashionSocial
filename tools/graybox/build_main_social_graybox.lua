@@ -165,7 +165,12 @@ do
 -- silent outside (ClubZone boxes + ClubConfig.ZoneVolumes).
 local z=zone("02_Club")
 local W=C.club
-local F=-24 local V=-2 local TOP=36 local RT=TOP+1
+-- (user 2026-10-27) three storeys outside, taller than the 오후네컷 building:
+-- ceiling 36 → 64, and the whole height from the hall floor split evenly into
+-- the two storeys inside (1F 44, VIP 2F 44: V -2 → 20). VMID = the old VIP
+-- floor level, now the landing half way up the VIP stair
+local F=-24 local TOP=64 local V=F+(TOP-F)/2 local RT=TOP+1
+local VMID=F+22
 -- (user 2026-10-25: the club was cramped) the hall runs 19 further north
 -- (world east, over the old side street); the DJ zone, LED wall, dance floor,
 -- pillars and lasers move to the middle of the longer hall (HZ)
@@ -212,7 +217,8 @@ box(z,"Wall_E",80,F,(NZ-1),82,RT,-149,WALL_C,WALLO)
 box(z,"Wall_N",-80,F,(NZ-2),80,RT,NZ,WALL_C,WALLO)
 box(z,"Wall_S_L",-80,F,-151,-8,RT,-149,WALL_C,WALLO)
 box(z,"Wall_S_R",8,F,-151,80,RT,-149,WALL_C,WALLO)
-box(z,"Wall_S_Top",-8,12,-151,8,RT,-149,WALL_C,WALLO)
+local EDH=18 -- street door height (12 → 18 with the taller storeys, user 2026-10-27)
+box(z,"Wall_S_Top",-8,EDH,-151,8,RT,-149,WALL_C,WALLO)
 box(z,"Wall_S_Below",-8,F,-151,8,0,-149,WALL_C,WALLO)
 -- ENTRANCE DOOR (user 2026-10-26): two black leaves that slide apart into the
 -- wall when someone comes near and close again behind them (AutoDoorController;
@@ -221,7 +227,7 @@ do local door=Instance.new("Model") door.Name="AutoDoor" door:SetAttribute("Rang
  door:SetAttribute("NightOnly",true) -- (shut by day: the club opens at night only, D-320/D-343)
  local BLK=Color3.fromRGB(14,14,16) local STL=Color3.fromRGB(190,190,196)
  for _,lf in ipairs({{-8,0,-1},{0,8,1}}) do
-  box(door,"DoorPanel",lf[1],0,-150.2,lf[2],12,-149.8,BLK,{mat=Enum.Material.SmoothPlastic}):SetAttribute("SlideX",lf[3]*7.9)
+  box(door,"DoorPanel",lf[1],0,-150.2,lf[2],EDH,-149.8,BLK,{mat=Enum.Material.SmoothPlastic}):SetAttribute("SlideX",lf[3]*7.9)
   local hx=if lf[3]<0 then lf[2]-0.8 else lf[1]+0.6
   box(door,"DoorHandle",hx,4,-150.45,hx+0.2,8,-149.55,STL,{mat=Enum.Material.Metal,nocol=true}):SetAttribute("SlideX",lf[3]*7.9)
  end
@@ -237,9 +243,9 @@ do local LC=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=t
  box(z,"FoyerLED",-24,0,-151.2,-8,0.25,-151,LC,NE) box(z,"FoyerLED",8,0,-151.2,12,0.25,-151,LC,NE)
  -- (no line across the end in front of the lift corridor, user 2026-10-25)
  end
-box(z,"Foyer_E",12,0,-166.5,13,12,-151,WALL_C,WALLO)
+box(z,"Foyer_E",12,0,-166.5,13,EDH,-151,WALL_C,WALLO)
 box(z,"Foyer_E_Below",12,F,-166.5,13,0,-151,WALL_C,WALLO)
-box(z,"Entry_Ceiling",-80,12,-166.5,12,13,-151,dark)
+box(z,"Entry_Ceiling",-80,EDH,-166.5,12,EDH+1,-151,dark)
 box(z,"Entry_Fill",12,F,-166.5,80,TOP,-151,dark) -- closed block east of the foyer
 -- Stair look (user reference 2026-10-22): dark steps, a white neon nose and
 -- white "▼▼▼" chevrons glowing on every riser. riser(): thin plate whose
@@ -342,12 +348,24 @@ local glow=Instance.new("SurfaceLight") glow.Color=vipRed glow.Brightness=3 glow
 for _,e in ipairs({{-80,F,-79,F+GH},{-65,F,-64.6,F+GH}}) do box(z,"VIP_GateNeon",e[1],e[2],-236.6,e[3],e[4],-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true}) end
 box(z,"VIP_GateNeon",-80,F+GH,-236.6,-64.6,F+GH+0.4,-235.4,vipRed,{mat=Enum.Material.Neon,ghost=true})
 -- VIP stair: north from the wall up to the 2nd floor landing (z -263..-270)
+-- (user 2026-10-27: the 2F is twice as high) two flights side by side: the
+-- west one north up to the landing at VMID (the old 2F level), the east one
+-- back south up to the 2F floor over the corridor (VIP_Floor_W2), a divider
+-- between them
 local RUN=1.2
+local AX0,AX1,BX0,BX1=-79.6,-72.5,-72,-65.4
 for j=1,22 do local zs=-236.5-RUN*(j-1)
- box(z,"VIP_Stair",-79.6,F,zs-RUN,-65.4,F+j,zs,stepC,{nocol=true})
- box(z,"VIP_StairNeon",-79.6,F+j,zs-0.3,-65.4,F+j+0.08,zs,Color3.new(1,1,1),{mat=Enum.Material.Neon,ghost=true})
- riser(z,Vector3.new(-72.5,F+j-0.5,zs+0.04),Vector3.new(0,0,1),14.2,1) end
-do local c=Vector3.new(-72.5,F+11,-236.5-RUN*11) P(z,"VIP_StairRamp",Vector3.new(14.2,22,RUN*22),CFrame.lookAt(c,c+Vector3.new(0,0,1)),W,{class="WedgePart",t=1}) end
+ box(z,"VIP_Stair",AX0,F,zs-RUN,AX1,F+j,zs,stepC,{nocol=true})
+ box(z,"VIP_StairNeon",AX0,F+j,zs-0.3,AX1,F+j+0.08,zs,Color3.new(1,1,1),{mat=Enum.Material.Neon,ghost=true})
+ riser(z,Vector3.new((AX0+AX1)/2,F+j-0.5,zs+0.04),Vector3.new(0,0,1),AX1-AX0,1) end
+do local c=Vector3.new((AX0+AX1)/2,F+11,-236.5-RUN*11) P(z,"VIP_StairRamp",Vector3.new(AX1-AX0,22,RUN*22),CFrame.lookAt(c,c+Vector3.new(0,0,1)),W,{class="WedgePart",t=1}) end
+local LAND0=-236.5-RUN*22 -- the landing's south edge (-262.9)
+for j=1,22 do local zs=LAND0+RUN*(j-1)
+ box(z,"VIP_Stair",BX0,F,zs,BX1,VMID+j,zs+RUN,stepC,{nocol=true})
+ box(z,"VIP_StairNeon",BX0,VMID+j,zs,BX1,VMID+j+0.08,zs+0.3,Color3.new(1,1,1),{mat=Enum.Material.Neon,ghost=true})
+ riser(z,Vector3.new((BX0+BX1)/2,VMID+j-0.5,zs-0.04),Vector3.new(0,0,-1),BX1-BX0,1) end
+do local c=Vector3.new((BX0+BX1)/2,VMID+11,LAND0+RUN*11) P(z,"VIP_StairRamp",Vector3.new(BX1-BX0,22,RUN*22),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),W,{class="WedgePart",t=1}) end
+box(z,"VIP_StairDivider",AX1,F,LAND0,BX0,V+4,-236.5,WALL_C,WALLO)
 label(z,"VIP 2층 ↑ (VIP 패스)",Vector3.new(-72,F+17,-232))
 
 -- 2nd floor = VIP only (2F plan, user 2026-10-22): a U of lounges around the
@@ -359,7 +377,7 @@ local vipFloor=Color3.fromRGB(150,120,60)
 -- the VIP floors (see-through for a moment, opaque again: user 2026-10-25)
 local VIPF,VIPFO=MARBLE_C,MARBLE -- (opaque again, user 2026-10-25; marble 2026-10-26)
 box(z,"VIP_Floor_N",-64,V-1,NZ,58,V,(NZ+24),VIPF,VIPFO)
-box(z,"VIP_Floor_Landing",-80,V-1,NZ,-64,V,-263,VIPF,VIPFO)
+box(z,"VIP_Floor_Landing",-80,VMID-1,NZ,-64,VMID,-263,VIPF,VIPFO) -- (the stair's half-way landing now)
 box(z,"VIP_Floor_W",-64,V-1,(NZ+24),-50,V,-190,VIPF,VIPFO)
 box(z,"VIP_Floor_W2",-80,V-1,-236,-64,V,-190,VIPF,VIPFO)
 box(z,"VIP_Floor_S",-80,V-1,-190,58,V,-167.5,VIPF,VIPFO)
@@ -370,7 +388,7 @@ box(z,"VIP_Rail_W",-50.5,V,(NZ+24),-50,V+4,-190,glass,{t=0.6})
 box(z,"VIP_Rail_NE",57.5,V,NZ,58,V+4,(NZ+23.5),glass,{t=0.6})
 box(z,"VIP_Rail_SE",57.5,V,-189.5,58,V+4,-167.5,glass,{t=0.6})
 box(z,"VIP_Rail_StairE",-64.5,V,-263,-64,V+4,-236,glass,{t=0.6})
-box(z,"VIP_Rail_StairS",-80,V,-236.5,-64.5,V+4,-236,glass,{t=0.6})
+box(z,"VIP_Rail_StairS",-80,V,-236.5,AX1,V+4,-236,glass,{t=0.6}) -- (over the west flight only: the east one arrives here)
 -- the balcony light line along the floor edge below the rails, lemon white (user 2026-10-25)
 local LEMON=Color3.fromRGB(255,250,175)
 box(z,"VIP_RailNeon_N",-50,V-0.65,(NZ+23.9),58,V-0.35,(NZ+24.05),LEMON,{mat=Enum.Material.Neon,ghost=true})
@@ -508,7 +526,7 @@ local function vipRegion(name,x0,y0,z0,x1,y1,z1,exit)
 vipRegion("VIP_Region_N",-80,V,NZ,58,V+20,(NZ+24))
 vipRegion("VIP_Region_S",-80,V,-190,58,V+20,-167.5)
 vipRegion("VIP_Region_W",-80,V,(NZ+24),-50,V+20,-190)
-vipRegion("VIP_StairRegion",-79.6,F+1,-263,-65.4,V+4,-236.8,Vector3.new(-72,F+3,-226))
+vipRegion("VIP_StairRegion",-79.6,F+1,NZ,-65.4,V+4,-236.8,Vector3.new(-72,F+3,-226))
 
 -- 1st floor TABLES ON STEPPED PLATFORMS (1F plan, user 2026-10-25): stadium
 -- shaped two-step platforms out from the long walls with a standing drinks
@@ -848,7 +866,7 @@ local function zoneBox(name,x0,y0,z0,x1,y1,z1,zoneName)
 zoneBox("ClubZone_Hall",-64,F,NZ,80,TOP,-167.5,"Hall")
 zoneBox("ClubZone_HallUpper",-80,V,NZ,-64,TOP,-167.5,"Hall")
 zoneBox("ClubZone_Corridor",-80,F,NZ,-64,V-1,-167.5,"Corridor")
-zoneBox("ClubZone_Stairs",-80,F,-166.5,12,12,-151,"Stairs")
+zoneBox("ClubZone_Stairs",-80,F,-166.5,12,EDH+1,-151,"Stairs")
 zoneBox("ClubZone_Rooftop",-80,RT,NZ,80,RT+24,-150,"Rooftop")
 for _,b in ipairs({{-80,F,NZ,80,TOP,-150},{-80,RT,NZ,80,RT+24,-150}}) do
  local i=box(z,"ClubInterior",b[1],b[2],b[3],b[4],b[5],b[6],W,{t=1,ghost=true}) CS:AddTag(i,"ClubInterior") end

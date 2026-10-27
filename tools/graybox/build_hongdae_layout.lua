@@ -3895,7 +3895,11 @@ do
 	local BLACK, BLACK2 = Color3.fromRGB(26, 27, 30), Color3.fromRGB(40, 42, 46)
 	local GOLD = Color3.fromRGB(214, 172, 92)
 	local DZ0, DZ1 = -189 + CDZ, -167 + CDZ -- door gap (with its gold frame)
-	local Z0, Z1, TOPY = -260.2 + CDZ, -95.8 + CDZ, 37 -- to the outer faces of the lilac side walls
+	-- (user 2026-10-27) three storeys outside, taller than 오후네컷: the walls
+	-- run up to the roof (65); the street door 18 high (graybox EDH)
+	local Z0, Z1, TOPY = -260.2 + CDZ, -95.8 + CDZ, 65 -- to the outer faces of the lilac side walls
+	local FL = TOPY / 3 -- one storey on the front
+	local EDH = 18
 	local function gold(name, x0, y0, z0, x1, y1, z1)
 		local p = box(name, x0, y0, z0, x1, y1, z1, GOLD, { parent = K, material = Enum.Material.Foil })
 		p.Reflectance = 0.25
@@ -3904,23 +3908,24 @@ do
 	-- backing (hides the lilac) on the west face and the other outside faces
 	box("Cladding", 47.8, 0, Z0, 48, TOPY, DZ0, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("Cladding", 47.8, 0, DZ1, 48, TOPY, Z1, BLACK, { parent = K, material = Enum.Material.Metal })
-	box("Cladding", 47.8, 12, DZ0, 48, TOPY, DZ1, BLACK, { parent = K, material = Enum.Material.Metal })
+	box("Cladding", 47.8, EDH, DZ0, 48, TOPY, DZ1, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("Cladding", 48, 0, -260.2 + CDZ, 190.2, TOPY, -260 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal }) -- (the club 19 longer east, user 2026-10-25)
 	box("Cladding", 190, 0, -260.2 + CDZ, 190.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("Cladding", 48, 0, -96 + CDZ, 190.2, TOPY, -95.8 + CDZ, BLACK, { parent = K, material = Enum.Material.Metal })
 	box("CapBand", 47.3, TOPY - 0.8, Z0, 48, TOPY + 0.4, Z1 + 1, BLACK2, { parent = K, material = Enum.Material.Metal })
+	-- floor bands between the storeys, so the front reads as three floors
+	for f = 1, 2 do box("FloorBand", 47.3, FL * f - 0.5, Z0, 47.8, FL * f + 0.5, Z1 + 0.5, BLACK2, { parent = K, material = Enum.Material.Metal }) end
 	-- a clean black end column where the front meets the shop building to the
 	-- north: it covers the ends of the sign band, louvres and windows (user 2026-10-24)
 	box("ClubEndColumn", 46.2, 0, Z0, 48, TOPY + 0.4, Z0 + 0.9, BLACK, { parent = K, material = Enum.Material.Metal })
-	-- ground floor: gold strips, gold portal around the door
-	-- (the gold strips along the ground floor are gone: the louvres come down
-	-- to their height instead, user 2026-10-24)
-	gold("GoldJamb", 45.8, 0, DZ0 - 3, 47.8, 15, DZ0)
-	gold("GoldJamb", 45.8, 0, DZ1, 47.8, 15, DZ1 + 3)
-	gold("GoldLintel", 45.8, 12, DZ0, 47.8, 15, DZ1)
-	for _, zz in ipairs({ DZ0 + 0.2, DZ1 - 0.2 }) do gold("GoldDoorFrame", 46.6, 0.1, zz - 0.2, 47.8, 12, zz + 0.2) end
-	-- sign band with spaced white letters and the crown
-	local band = box("ClubSign", 46.4, 15, Z0, 47.8, 20.6, Z1, BLACK, { parent = K, material = Enum.Material.Metal }) -- end to end of the front (user 2026-10-24)
+	-- ground floor: gold portal round the (taller) door
+	gold("GoldJamb", 45.8, 0, DZ0 - 3, 47.8, EDH + 3, DZ0)
+	gold("GoldJamb", 45.8, 0, DZ1, 47.8, EDH + 3, DZ1 + 3)
+	gold("GoldLintel", 45.8, EDH, DZ0, 47.8, EDH + 3, DZ1)
+	for _, zz in ipairs({ DZ0 + 0.2, DZ1 - 0.2 }) do gold("GoldDoorFrame", 46.6, 0.1, zz - 0.2, 47.8, EDH, zz + 0.2) end
+	-- sign band with spaced white letters and the crown, up above the taller door
+	local SB0, SB1 = EDH + 3.6, EDH + 3.6 + 6.8
+	local band = box("ClubSign", 46.4, SB0, Z0, 47.8, SB1, Z1, BLACK, { parent = K, material = Enum.Material.Metal }) -- end to end of the front (user 2026-10-24)
 	do
 		local g = Instance.new("SurfaceGui")
 		g.Face = Enum.NormalId.Left
@@ -3941,7 +3946,7 @@ do
 	end
 	-- gold crown above the portal
 	do
-		local cz, cy = (DZ0 + DZ1) / 2, 15.6
+		local cz, cy = (DZ0 + DZ1) / 2, SB0 + 0.8
 		gold("CrownBase", 45.4, cy, cz - 2.6, 45.9, cy + 0.9, cz + 2.6)
 		for k = -2, 2 do
 			local h = if k == 0 then 2.6 elseif math.abs(k) == 1 then 1.8 else 2.2
@@ -3950,55 +3955,90 @@ do
 			b.Reflectance = 0.25
 		end
 	end
-	-- (user 2026-10-24) the louvres come down between the ground floor and the
-	-- sign band, as real slats: each one 0.9 deep, tilted down 30 degrees, on
-	-- black fins; they run to the end of the front and round the corner by the
-	-- photo booth building. The top floor is one run of tall black-framed
-	-- windows from end to end.
+	-- (user 2026-10-24) the louvres on the ground floor beside the portal, as
+	-- real slats: each one 0.9 deep, tilted down 30 degrees, on black fins; they
+	-- run to the end of the front and round the corner by the photo booth
+	-- building. The two upper floors are runs of tall black-framed windows.
+	local LY0, LY1 = 9, EDH + 2.6
 	local function slats(z0s, z1s)
-		for y = 7.4, 14.2, 0.85 do
+		for y = LY0 + 0.4, LY1 - 0.6, 0.85 do
 			part("Louvre", Vector3.new(0.9, 0.16, z1s - z0s), CFrame.new(47.35, y, (z0s + z1s) / 2) * CFrame.Angles(0, 0, math.rad(30)), BLACK2, { parent = K, material = Enum.Material.Metal, nocol = true })
 		end
-		for zz = z0s, z1s, 8 do box("LouvreFin", 46.8, 7, zz - 0.12, 47.8, 14.8, zz + 0.12, BLACK, { parent = K, material = Enum.Material.Metal }) end
-		box("LouvreFin", 46.8, 7, z1s - 0.24, 47.8, 14.8, z1s, BLACK, { parent = K, material = Enum.Material.Metal })
+		for zz = z0s, z1s, 8 do box("LouvreFin", 46.8, LY0, zz - 0.12, 47.8, LY1, zz + 0.12, BLACK, { parent = K, material = Enum.Material.Metal }) end
+		box("LouvreFin", 46.8, LY0, z1s - 0.24, 47.8, LY1, z1s, BLACK, { parent = K, material = Enum.Material.Metal })
 	end
 	slats(Z0, DZ0 - 3)
 	slats(DZ1 + 3, Z1)
 	-- round the corner: the club's south face in the gap to the photo booth building
-	for y = 7.4, 14.2, 0.85 do
+	for y = LY0 + 0.4, LY1 - 0.6, 0.85 do
 		part("Louvre", Vector3.new(10, 0.16, 0.9), CFrame.new(53, y, Z1 + 0.45) * CFrame.Angles(math.rad(30), 0, 0), BLACK2, { parent = K, material = Enum.Material.Metal, nocol = true })
 	end
 	local WZ0, WZ1 = Z0 + 1, Z1 - 1
-	box("WindowGlass", 47.6, 22, WZ0, 47.8, 33.5, WZ1, Color3.fromRGB(38, 46, 54), { parent = K, material = Enum.Material.Glass })
-	box("WindowFrame", 47.2, 21.4, WZ0, 47.8, 22, WZ1, BLACK, { parent = K })
-	box("WindowFrame", 47.2, 33.5, WZ0, 47.8, 34.1, WZ1, BLACK, { parent = K })
-	local nW = math.floor((WZ1 - WZ0) / 5.5 + 0.5)
-	for i = 0, nW do
-		local zz = WZ0 + (WZ1 - WZ0) * i / nW
-		box("WindowMullion", 47.2, 22, zz - 0.25, 47.8, 33.5, zz + 0.25, BLACK, { parent = K })
+	for f = 1, 2 do -- 2F and 3F windows
+		local y0, y1 = FL * f + (if f == 1 then SB1 - FL + 1 else 3), FL * (f + 1) - 3
+		box("WindowGlass", 47.6, y0, WZ0, 47.8, y1, WZ1, Color3.fromRGB(38, 46, 54), { parent = K, material = Enum.Material.Glass })
+		box("WindowFrame", 47.2, y0 - 0.6, WZ0, 47.8, y0, WZ1, BLACK, { parent = K })
+		box("WindowFrame", 47.2, y1, WZ0, 47.8, y1 + 0.6, WZ1, BLACK, { parent = K })
+		local nW = math.floor((WZ1 - WZ0) / 5.5 + 0.5)
+		for i = 0, nW do
+			local zz = WZ0 + (WZ1 - WZ0) * i / nW
+			box("WindowMullion", 47.2, y0, zz - 0.25, 47.8, y1, zz + 0.25, BLACK, { parent = K })
+		end
 	end
-	-- low black iron fence along the front (gaps at the door and the queue)
-	-- (south of the door it runs on along the wall, and a second line along the
-	-- sidewalk 5 studs out makes a waiting line to the door: user 2026-10-25)
-	local QUEUE_END = -122 + CDZ
-	local function fenceLine(x, z0, z1)
-		box("FenceRail", x - 0.1, 3, z0, x + 0.1, 3.2, z1, BLACK, { parent = K })
-		box("FenceRail", x - 0.1, 0.8, z0, x + 0.1, 1, z1, BLACK, { parent = K })
-		for zz = z0, z1, 0.6 do box("FencePicket", x - 0.05, CURB, zz - 0.05, x + 0.05, 3.2, zz + 0.05, BLACK, { parent = K, nocol = true }) end
-	end
-	fenceLine(46.4, -256 + CDZ, DZ0 - 4)
-	fenceLine(46.4, DZ1 + 4, QUEUE_END)
-	fenceLine(41.4, DZ1 + 4, QUEUE_END)
-	-- end posts and a small "WAITING LINE" stand at the far end of the line
-	for _, x in ipairs({ 41.4, 46.4 }) do
-		for _, zz in ipairs({ DZ1 + 4, QUEUE_END }) do box("FencePost", x - 0.2, CURB, zz - 0.2, x + 0.2, 3.6, zz + 0.2, BLACK, { parent = K }) end
-	end
+	-- QUEUE (user sketch 2026-10-27, photos of 홍대 club lines): black stanchions
+	-- with a red rope from the middle of the door out to the sidewalk and along
+	-- it to the north, the waiting line between the rope and the wall under a
+	-- row of white pop-up tents against the wall (the old iron fences are gone)
 	do
-		local s = box("QueueSign", 43.9 - 1.6, 3.4, QUEUE_END + 0.6, 43.9 + 1.6, 5.4, QUEUE_END + 0.75, BLACK, { parent = K, nocol = true })
-		box("QueueSignPole", 43.85, CURB, QUEUE_END + 0.6, 43.95, 3.4, QUEUE_END + 0.7, BLACK, { parent = K, nocol = true })
-		surfaceText(s, Enum.NormalId.Back, "WAITING LINE · 줄 서는 곳", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold)
-	end
-	-- the pink graybox marquee would cover the band: hidden while the layout is on
+		local QX = 42.5 -- the rope line, 5.5 out from the wall
+		local QZ0, QZ1 = DZ0 - 37, (DZ0 + DZ1) / 2 -- north end of the line, the door's middle
+		local RED = Color3.fromRGB(196, 24, 36)
+		local function post(x, zz)
+			vcyl("StanchionBase", Vector3.new(x, CURB, zz), 1.3, 0.2, BLACK, { parent = K, material = Enum.Material.Metal })
+			vcyl("StanchionPole", Vector3.new(x, CURB, zz), 0.3, 3.2, BLACK, { parent = K, material = Enum.Material.Metal })
+			part("StanchionCap", Vector3.new(0.45, 0.45, 0.45), CFrame.new(x, CURB + 3.3, zz), BLACK, { parent = K, shape = Enum.PartType.Ball, material = Enum.Material.Metal })
+		end
+		local function rope(a: Vector3, b: Vector3)
+			local mid = (a + b) / 2
+			part("QueueRope", Vector3.new(0.3, 0.3, (b - a).Magnitude), CFrame.lookAt(mid, b), RED, { parent = K, material = Enum.Material.Fabric })
+		end
+		local Y = CURB + 2.9
+		-- out from the door's middle to the rope line
+		local corner = Vector3.new(QX, Y, QZ1)
+		post(47, QZ1) post(QX, QZ1)
+		rope(Vector3.new(47, Y, QZ1), corner)
+		-- along the sidewalk to the north end (posts every ~5)
+		local n = math.max(1, math.floor((QZ1 - QZ0) / 5 + 0.5))
+		for i = 1, n do
+			local zz = QZ1 - (QZ1 - QZ0) * i / n
+			post(QX, zz)
+			rope(Vector3.new(QX, Y, QZ1 - (QZ1 - QZ0) * (i - 1) / n), Vector3.new(QX, Y, zz))
+		end
+		-- invisible wall along the rope so the line holds (7 high: a lower one was stepped over)
+		box("QueueBlock", QX - 0.2, CURB, QZ0, QX + 0.2, CURB + 7, QZ1, BLACK, { parent = K, transparency = 1 })
+		box("QueueBlock", QX, CURB, QZ1 - 0.2, 47, CURB + 7, QZ1 + 0.2, BLACK, { parent = K, transparency = 1 })
+		-- white pop-up tents over the line, against the wall
+		local WHITE_T = Color3.fromRGB(246, 246, 244)
+		local TL = (QZ1 - 2 - QZ0) / 3
+		for k = 0, 2 do
+			local t0, t1 = QZ0 + k * TL, QZ0 + (k + 1) * TL
+			local x0, x1, th = QX - 0.6, 47.6, 9.5
+			for _, c in ipairs({ { x0, t0 }, { x0, t1 }, { x1, t0 }, { x1, t1 } }) do
+				box("TentLeg", c[1] - 0.15, CURB, c[2] - 0.15, c[1] + 0.15, CURB + th, c[2] + 0.15, Color3.fromRGB(200, 200, 204), { parent = K, material = Enum.Material.Metal })
+			end
+			box("TentValance", x0 - 0.1, CURB + th - 1, t0, x0, CURB + th, t1, WHITE_T, { parent = K, material = Enum.Material.Fabric, nocol = true })
+			-- a low peaked roof: two slopes meeting over the middle of the tent
+			local cx, cz = (x0 + x1) / 2, (t0 + t1) / 2
+			local half = (x1 - x0) / 2
+			local rise = 1.6
+			for _, s in ipairs({ -1, 1 }) do
+				local a = Vector3.new(cx + s * half, CURB + th, cz)
+				local top = Vector3.new(cx, CURB + th + rise, cz)
+				local mid = (a + top) / 2
+				part("TentRoof", Vector3.new((top - a).Magnitude + 0.3, 0.2, t1 - t0 + 0.4), CFrame.fromMatrix(mid, (top - a).Unit, Vector3.zAxis:Cross((top - a).Unit) * -s), WHITE_T, { parent = K, material = Enum.Material.Fabric, nocol = true })
+			end
+		end
+	end	-- the pink graybox marquee would cover the band: hidden while the layout is on
 	local clubZone = root:FindFirstChild("02_Club")
 	local marquee = clubZone and clubZone:FindFirstChild("Marquee_Landmark")
 	if marquee and marquee:IsA("BasePart") then
@@ -4070,7 +4110,7 @@ do
 		end
 		box("LiftCorridorCeiling", CX0, 12, FOYER_END - 0.5, CX1, 13, CAR1 + 0.6, DARK, { parent = E })
 		-- the rest of the old fill behind the car stays solid
-		box("EntryFillRest", CX0 - 0.1, -24, CAR1 + 0.6, CX1 + 0.1, 36, FILL_END, Color3.fromRGB(40, 42, 46), { parent = E })
+		box("EntryFillRest", CX0 - 0.1, -24, CAR1 + 0.6, CX1 + 0.1, 64, FILL_END, Color3.fromRGB(40, 42, 46), { parent = E }) -- (up to the raised ceiling, 2026-10-27)
 		-- strip lights along the corridor ceiling
 		for z = FOYER_END + 2, CAR0 - 2, 4 do
 			local l = box("LiftCorridorLight", 56.6, 11.8, z - 0.8, 58.9, 12, z + 0.8, Color3.fromRGB(255, 240, 220), { parent = E, nocol = true })
@@ -4612,7 +4652,8 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	end
 	local DOOR_X = -78
 	storeFront(Vector3.new(x0, 0, z0), Vector3.new(x1, 0, z0), Vector3.new(0, 0, -1), DOOR_X - x0, "홍대점") -- north (west road)
-	storeFront(Vector3.new(x1, 0, z0), Vector3.new(x1, 0, z1), Vector3.new(1, 0, 0), nil, "남부대로점") -- east (south road)
+	-- (user 2026-10-27) a second door in the middle of the long east front, between the two window bars
+	storeFront(Vector3.new(x1, 0, z0), Vector3.new(x1, 0, z1), Vector3.new(1, 0, 0), 119 - z0, "남부대로점") -- east (south road)
 
 	---------------------------------------------------------------- window bars inside the glass
 	local function windowBar(a: Vector3, b: Vector3, inward: Vector3)
