@@ -146,7 +146,9 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame): Model
 		part(m, "FrameBottom", Vector3.new(L + 0.3, 0.12, 0.14), at * CFrame.new(0, lift - 0.06, W / 2 + 0.05), GOLD, Enum.Material.Metal)
 		part(m, "FrameBottom", Vector3.new(L + 0.3, 0.12, 0.14), at * CFrame.new(0, lift - 0.06, -W / 2 - 0.05), GOLD, Enum.Material.Metal)
 		light(floor, if golmok then RAINBOW[2] else Color3.fromRGB(170, 140, 255), if golmok then 10 else 8, 1.8)
-		local bottleColors = if golmok then RAINBOW else colors
+		-- (user 2026-10-27) the 골목 공방 boat's bottles in the flavour that was
+		-- bought (레몬 라벤더 / 생강 장미 / 오미자 히비스커스 / 오디), on the rainbow ice
+		local bottleColors = colors
 		bottlesInIce(m, at * CFrame.new(0, lift + H, 0), bottleColors, if golmok then 6 else 4, L / 2 - 0.4, if golmok then 1 else 0.9)
 		if golmok then
 			-- gold arch over the boat with a glowing crest, and sparkles

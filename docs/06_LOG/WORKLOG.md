@@ -2422,3 +2422,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 음료·버킷 진열 사진: images/2026-10-27/drinks_buckets_showcase.png
 
 ![](images/2026-10-27/drinks_buckets_showcase.png)
+### 배지 글꼴, 맛별 색, 편의점 배치도 (D-398)
+
+- VIP/DJ 배지 글꼴 Jura Bold. 골목 공방 보트 버킷 병 = 고른 맛 색. 편의점 실내 배치도 이미지.
+
+![](images/2026-10-27/drink_variants.png)
+
+![](../02_WORLDS/images/oh24_interior_plan_2026-10-27.png)

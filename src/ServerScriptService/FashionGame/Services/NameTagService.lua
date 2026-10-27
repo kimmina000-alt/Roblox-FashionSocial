@@ -117,7 +117,8 @@ local function refreshRoles(player: Player)
 			l.LayoutOrder = i
 			l.BackgroundTransparency = 1
 			l.Size = UDim2.new(0, 46, 1, 0)
-			l.Font = Enum.Font.GothamBlack
+			-- Jura Bold (user's pick, sample 11, 2026-10-27)
+			l.FontFace = Font.new("rbxasset://fonts/families/Jura.json", Enum.FontWeight.Bold)
 			l.TextScaled = true
 			l.Text = spec[1]
 			l.TextColor3 = Color3.new(1, 1, 1)
