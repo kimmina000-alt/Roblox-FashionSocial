@@ -74,6 +74,36 @@ local function attach(handle: BasePart, piece: BasePart, offset: CFrame): BasePa
 	return piece
 end
 
+-- A printed label wrapped round a (tapered) band: n thin panels on the cone
+-- from (y0, radius r0) to (y1, r1), each showing its slice of `tex` (the
+-- whole image goes once round). v0 / vTotal: when one picture spans several
+-- bands, this band shows the slice of it starting v0 down (slant lengths).
+-- A Part cylinder cannot take a wrapped image; Texture slices can.
+local function wrap(h: BasePart, y0: number, y1: number, r0: number, r1: number, n: number, tex: string, v0: number?, vTotal: number?)
+	local height = y1 - y0
+	local slant = math.sqrt(height * height + (r1 - r0) ^ 2)
+	local rm = (r0 + r1) / 2
+	local wn = 2 * rm * math.tan(math.pi / n) -- the polygon side
+	local grow = wn * 0.06 -- panels overlap a little: no light seams between them
+	local tilt = math.atan2(r1 - r0, height)
+	for i = 0, n - 1 do
+		local a = (i + 0.5) * 2 * math.pi / n
+		local out = Vector3.new(math.sin(a), 0, math.cos(a))
+		local c = Vector3.new(0, (y0 + y1) / 2, 0) + out * rm
+		local p = part("Wrap", Vector3.new(wn + 2 * grow, slant, 0.02), Color3.fromRGB(250, 250, 250))
+		attach(h, p, CFrame.lookAt(c, c + out) * CFrame.Angles(-tilt, 0, 0))
+		local t = Instance.new("Texture")
+		t.Texture = tex
+		t.Face = Enum.NormalId.Front
+		t.StudsPerTileU = wn * n
+		t.OffsetStudsU = i * wn - grow
+		t.StudsPerTileV = vTotal or slant
+		t.OffsetStudsV = v0 or 0
+		t.Parent = p
+	end
+	return slant
+end
+
 local function newHandle(size: Vector3): Part
 	local h = part("Handle", size, Color3.new(1, 1, 1))
 	h.Transparency = 1
@@ -260,22 +290,33 @@ B.water = function(item)
 	return h, CFrame.new(0, -0.15, 0)
 end
 
+-- 바나나맛우유 (user photo 2026-10-27, docs/04_ART/textures/bananamilk_label.png):
+-- a pale yellow cup-shaped lower half, a lip, the round printed shoulder
+-- narrowing to the neck, a green cap
+local MILK_LABEL = "rbxassetid://136037579727377"
 B.bananamilk = function(item)
 	local h = newHandle(Vector3.new(0.45, 0.7, 0.45))
-	local jar = item.color :: Color3
-	local belly = attach(h, blob("Cup", Vector3.new(0.58, 0.6, 0.58), jar), CFrame.new(0, -0.06, 0)) :: BasePart
-	belly.Transparency = 0.08
-	attach(h, cyl("Cup", 0.42, 0.1, jar), CFrame.new(0, -0.33, 0) * UP)
-	attach(h, cyl("Cup", 0.3, 0.16, jar), CFrame.new(0, 0.28, 0) * UP)
-	attach(h, cyl("Cap", 0.34, 0.04, jar:Lerp(WHITE, 0.3)), CFrame.new(0, 0.37, 0) * UP)
-	attach(h, cyl("Lid", 0.33, 0.02, C(245, 245, 240), Enum.Material.Foil), CFrame.new(0, 0.395, 0) * UP)
-	-- the printed name: a red band with a blue line under it, on the front
-	attach(h, part("Label", Vector3.new(0.26, 0.09, 0.02), C(215, 35, 45)), CFrame.new(0, 0, -0.29))
-	attach(h, part("Label", Vector3.new(0.22, 0.03, 0.02), C(40, 80, 170)), CFrame.new(0, -0.07, -0.285))
-	attach(h, part("Straw", Vector3.new(0.05, 0.42, 0.05), C(250, 250, 250)), CFrame.new(0.06, 0.55, 0) * CFrame.Angles(0, 0, math.rad(-12)))
+	local jar = C(252, 236, 150)
+	attach(h, cyl("Cup", 0.5, 0.04, jar:Lerp(C(230, 200, 100), 0.3)), CFrame.new(0, -0.36, 0) * UP)
+	-- the lower cup, widening a little to the lip (two cylinders)
+	attach(h, cyl("Cup", 0.52, 0.18, jar), CFrame.new(0, -0.26, 0) * UP)
+	attach(h, cyl("Cup", 0.55, 0.16, jar), CFrame.new(0, -0.1, 0) * UP)
+	attach(h, cyl("Cup", 0.6, 0.04, jar:Lerp(WHITE, 0.35)), CFrame.new(0, 0, 0) * UP) -- the lip
+	-- the printed shoulder in three bands, one picture across them
+	-- (top band first: the picture's top row goes on the top band)
+	local bands = { { 0.25, 0.32, 0.21, 0.15 }, { 0.14, 0.25, 0.27, 0.21 }, { 0.02, 0.14, 0.29, 0.27 } }
+	local total = 0
+	for _, b in ipairs(bands) do total += math.sqrt((b[2] - b[1]) ^ 2 + (b[4] - b[3]) ^ 2) end
+	local v = 0
+	for _, b in ipairs(bands) do
+		v += wrap(h, b[1], b[2], b[3], b[4], 16, MILK_LABEL, v, total)
+	end
+	attach(h, cyl("Cap", 0.28, 0.06, jar), CFrame.new(0, 0.34, 0) * UP) -- the neck
+	attach(h, cyl("Cap", 0.32, 0.06, C(30, 110, 55)), CFrame.new(0, 0.39, 0) * UP) -- green cap
+	attach(h, cyl("Lid", 0.3, 0.01, C(45, 130, 70), Enum.Material.Foil), CFrame.new(0, 0.425, 0) * UP)
+	attach(h, part("Straw", Vector3.new(0.05, 0.42, 0.05), C(250, 250, 250)), CFrame.new(0.06, 0.58, 0) * CFrame.Angles(0, 0, math.rad(-12)))
 	return h, CFrame.new(0, -0.1, 0)
 end
-
 B.soda = function(item)
 	local h = newHandle(Vector3.new(0.42, 0.8, 0.42))
 	local SILVER = C(205, 208, 214)
@@ -356,26 +397,79 @@ B.samgak = function(item)
 	return h, CFrame.new(0, -0.1, 0)
 end
 
+-- 육개장 큰사발 style cup (user photo 2026-10-27, docs/04_ART/textures/
+-- cupnoodle_wrap.png / _lid.png): the printed wrap round a tapered cup, the
+-- lid peeled back standing behind, broth, noodles, chopsticks
+local CUP_WRAP, CUP_LID = "rbxassetid://78201129469644", "rbxassetid://81588830533447"
 B.cupnoodle = function(item)
 	local h = newHandle(Vector3.new(0.5, 0.5, 0.5))
-	local cup = C(250, 248, 240)
-	attach(h, cyl("Cup", 0.62, 0.42, cup), CFrame.new(0, -0.18, 0) * UP)
-	attach(h, cyl("Cup", 0.72, 0.36, cup), CFrame.new(0, 0.2, 0) * UP)
-	attach(h, cyl("Band", 0.725, 0.24, item.color), CFrame.new(0, 0.16, 0) * UP)
-	attach(h, cyl("Band", 0.73, 0.04, C(30, 30, 30)), CFrame.new(0, 0.02, 0) * UP)
-	attach(h, cyl("Cup", 0.76, 0.03, cup), CFrame.new(0, 0.38, 0) * UP) -- the rim
-	attach(h, part("Lid", Vector3.new(0.62, 0.015, 0.4), C(238, 238, 242), Enum.Material.SmoothPlastic), CFrame.new(0, 0.52, 0.42) * CFrame.Angles(math.rad(-70), 0, 0))
-	attach(h, cyl("Fill", 0.66, 0.04, C(215, 90, 35)), CFrame.new(0, 0.33, 0) * UP) -- the broth
-	for _, v in ipairs(scatter(7, 21)) do -- noodles and green onion
-		attach(h, blob("Noodle", Vector3.new(0.2, 0.035, 0.12), C(245, 215, 130)), CFrame.new(v.X * 0.2, 0.36, v.Y * 0.2) * CFrame.Angles(0, v.X * 3, 0))
+	wrap(h, -0.3, 0.26, 0.3, 0.39, 16, CUP_WRAP)
+	attach(h, cyl("Cup", 0.58, 0.54, C(240, 238, 232)), CFrame.new(0, -0.03, 0) * UP) -- inside / behind the panels
+	attach(h, cyl("Cup", 0.6, 0.02, C(250, 250, 248)), CFrame.new(0, -0.3, 0) * UP)
+	attach(h, cyl("Cup", 0.8, 0.035, C(250, 250, 248)), CFrame.new(0, 0.27, 0) * UP) -- the rim
+	-- the lid, peeled back and standing up at the back, its print to the front
+	local lid = part("Lid", Vector3.new(0.015, 0.74, 0.74), C(250, 250, 250), nil, Enum.PartType.Cylinder)
+	attach(h, lid, CFrame.new(0, 0.6, 0.42) * CFrame.Angles(math.rad(-20), math.rad(90), 0))
+	local d = Instance.new("Decal")
+	d.Texture = CUP_LID
+	d.Face = Enum.NormalId.Right -- (the print faces the cup)
+	d.Parent = lid
+	attach(h, cyl("Fill", 0.7, 0.03, C(215, 90, 35)), CFrame.new(0, 0.22, 0) * UP) -- the broth
+	for _, v in ipairs(scatter(8, 21)) do -- noodles and green onion
+		attach(h, blob("Noodle", Vector3.new(0.2, 0.035, 0.12), C(245, 215, 130)), CFrame.new(v.X * 0.22, 0.245, v.Y * 0.22) * CFrame.Angles(0, v.X * 3, 0))
 	end
 	for _, v in ipairs(scatter(5, 22)) do
-		attach(h, part("Onion", Vector3.new(0.05, 0.02, 0.05), C(90, 170, 70)), CFrame.new(v.X * 0.22, 0.37, v.Y * 0.22))
+		attach(h, part("Onion", Vector3.new(0.05, 0.02, 0.05), C(90, 170, 70)), CFrame.new(v.X * 0.24, 0.255, v.Y * 0.24))
 	end
 	for _, dz in ipairs({ -0.03, 0.03 }) do
-		attach(h, part("Chopsticks", Vector3.new(0.035, 0.9, 0.035), C(205, 175, 125), Enum.Material.Wood), CFrame.new(0.12, 0.6, dz) * CFrame.Angles(0, 0, math.rad(-25)))
+		attach(h, part("Chopsticks", Vector3.new(0.035, 0.9, 0.035), C(205, 175, 125), Enum.Material.Wood), CFrame.new(0.12, 0.5, dz) * CFrame.Angles(0, 0, math.rad(-25)))
 	end
 	return h, CFrame.new(0, -0.15, 0)
+end
+-- Creator Store models the user picked (2026-10-27, candidate sheet
+-- docs/04_ART/references/food_store_candidates_2026-10-27.png; scripts
+-- stripped; kept in ServerStorage.ArtAssets.Foods, so save the place). Each is
+-- scaled so its longest side is the given size. A mesh cannot be cut, so these
+-- shrink a little with every bite (EatMode = "Scale").
+local ASSET_FOODS: {[string]: { string | number }} = {
+	bagel = { "Bagel", 0.75 },       -- #7
+	croissant = { "Croissant", 1.0 }, -- #8
+	injeolmi = { "Toast", 0.8 },      -- #17
+	yakgwa = { "Cookie", 0.7 },       -- #20
+	samgak = { "Onigiri", 0.75 },     -- #23
+	chips = { "Chips", 0.95 },        -- #32
+	soda = { "Can", 0.8 },            -- #36
+	icebar = { "IceBar", 1.1 },       -- #42
+	chocosnack = { "Pepero", 0.9 },   -- #51
+}
+local function fromAsset(item: any): (Part?, CFrame?)
+	local spec = ASSET_FOODS[item.key]
+	local art = spec and game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local folder = art and art:FindFirstChild("Foods")
+	local src = folder and folder:FindFirstChild(spec[1] :: string)
+	if not src then return nil, nil end
+	local m = src:Clone()
+	local holder = Instance.new("Model")
+	if m:IsA("Model") then holder = m else m.Parent = holder end
+	local _, size = holder:GetBoundingBox()
+	holder:ScaleTo(holder:GetScale() * (spec[2] :: number) / math.max(size.X, size.Y, size.Z))
+	local cf = holder:GetBoundingBox()
+	local h = newHandle(Vector3.new(0.3, 0.3, 0.3))
+	h.CFrame = CFrame.new(cf.Position)
+	for _, p in ipairs(holder:GetDescendants()) do
+		if p:IsA("BasePart") then
+			p.Anchored = false
+			p.CanCollide, p.CanQuery, p.CanTouch, p.Massless, p.CastShadow = false, false, false, true, false
+			for _, j in ipairs(p:GetChildren()) do if j:IsA("JointInstance") or j:IsA("WeldConstraint") then j:Destroy() end end
+			local offset = h.CFrame:ToObjectSpace(p.CFrame)
+			attach(h, p, offset)
+			p:SetAttribute("EatSize0", p.Size)
+			p:SetAttribute("EatC00", offset)
+		end
+	end
+	holder:Destroy()
+	h.CFrame = CFrame.new()
+	return h, CFrame.new(0, 0, 0)
 end
 
 -- the builder for a menu item (item keys are unique across the shops except
@@ -385,15 +479,15 @@ local function builderFor(item: any): Builder?
 	return B[item.key]
 end
 
-function FoodShapes.build(item: any): (Part?, CFrame?)
+function FoodShapes.build(item: any): (Part?, CFrame?, string?)
+	if not (item.key == "water" and item.kind ~= "bottle") and ASSET_FOODS[item.key] then
+		local h, grip = fromAsset(item)
+		if h then return h, grip, "Scale" end -- (falls back to the part model when the asset is missing)
+	end
 	local builder = builderFor(item)
-	if not builder then return nil, nil end
+	if not builder then return nil, nil, nil end
 	local handle, grip = builder(item)
-	return handle, grip
-end
-
-function FoodShapes.alongZ(item: any): boolean
-	return builderFor(item) ~= nil and FoodShapes.AlongZ[item.key] == true
+	return handle, grip, if FoodShapes.AlongZ[item.key] then "Z" else nil
 end
 
 return FoodShapes

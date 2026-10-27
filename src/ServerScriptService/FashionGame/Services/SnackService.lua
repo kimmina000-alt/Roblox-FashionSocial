@@ -255,7 +255,18 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	-- a third of it is gone, from the top
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
 	local zlo, zhi = tool:GetAttribute("EatZLo"), tool:GetAttribute("EatZHi")
-	if handle and handle:IsA("BasePart") and tool:GetAttribute("EatAlong") == "Z" and typeof(zlo) == "number" and typeof(zhi) == "number" and left > 0 then
+	if handle and handle:IsA("BasePart") and tool:GetAttribute("EatMode") == "Scale" and left > 0 then
+		-- a store mesh cannot be cut: the whole thing gets smaller each bite
+		local k = 0.45 + 0.55 * left / total
+		for _, piece in ipairs(handle:GetChildren()) do
+			local weld = piece:IsA("BasePart") and piece:FindFirstChildOfClass("Weld")
+			local size, c0 = piece:GetAttribute("EatSize0"), piece:GetAttribute("EatC00")
+			if weld and piece:IsA("BasePart") and typeof(size) == "Vector3" and typeof(c0) == "CFrame" then
+				piece.Size = size * k
+				weld.C0 = CFrame.new(c0.Position * k) * c0.Rotation
+			end
+		end
+	elseif handle and handle:IsA("BasePart") and tool:GetAttribute("EatAlong") == "Z" and typeof(zlo) == "number" and typeof(zhi) == "number" and left > 0 then
 		eatFromFront(handle, zlo, zhi, left, total)
 	elseif handle and handle:IsA("BasePart") and typeof(lo) == "number" and typeof(hi) == "number" and left > 0 then
 		eatDownTo(handle, lo, hi, left, total)
@@ -288,13 +299,14 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	tool:SetAttribute("Bites", bitesOf(item))
 	local kind = item.kind
 	local handle: Part
-	local custom, customGrip = FoodShapes.build(item)
+	local custom, customGrip, eatMode = FoodShapes.build(item)
 	if custom then
 		-- detailed models of the cafe foods and the OH24 goods (FoodShapes, 2026-10-27)
 		handle = custom
 		handle.Parent = tool
 		tool.Grip = customGrip or CFrame.new()
-		if FoodShapes.alongZ(item) then tool:SetAttribute("EatAlong", "Z") end
+		if eatMode == "Z" then tool:SetAttribute("EatAlong", "Z")
+		elseif eatMode == "Scale" then tool:SetAttribute("EatMode", "Scale") end
 	elseif kind == "cone" then
 		-- waffle cone (pointing down) with a scoop on top
 		handle = part("Handle", Vector3.new(0.45, 0.9, 0.45), Color3.fromRGB(215, 160, 90))
