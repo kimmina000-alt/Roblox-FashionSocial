@@ -2369,3 +2369,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 포토부스 찰칵 + 카운트다운 삑, 편의점·카페 결제 띵동(계산대).
 - Play 확인: 잔디·돌·나무·모래 발소리, 기본 Running 볼륨 0, OH24 생수 구매 시 계산대 PayBeep 재생(0.68초). 포토부스 찰칵은 ID 로드만 확인(사진 촬영 흐름은 사용자 확인 필요).
 - 목록: docs/04_ART/SOUNDS.md.
+
+### 사용자 가짜 건물 이미지 2장 더 (D-375)
+
+- facade_2(보드게임카페), facade_5(PC방·PLAY HERO)를 사용자 이미지로 교체. 맵 데칼 16장 교체, 이미지 로드 확인.
