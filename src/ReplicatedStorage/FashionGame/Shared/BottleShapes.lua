@@ -1,7 +1,7 @@
 --!strict
 -- Club drink bottles (user's reference sheet 2026-10-27,
 -- docs/04_ART/references/club_bottles_*.webp): each drink copies the
--- silhouette of a real bottle, built from stacked cylinder slices. No brand
+-- silhouette of a real bottle: cylinders, and ellipsoids for the curves. No brand
 -- names, logos or text: our own emblems (star, leaf, crown, skull, X). The
 -- drinks stay sodas (D-043); the user asked for these shapes on 2026-10-27.
 --
@@ -65,13 +65,17 @@ local function cyl(c: Ctx, name: string, y0: number, y1: number, d: number, look
 	return make(c, name, Vector3.new((y1 - y0) * s, d * s, d * s), c.base * CFrame.new(0, (y0 + y1) / 2 * s, 0) * CFrame.Angles(0, 0, math.rad(90)), look.color, look.material, Enum.PartType.Cylinder, look.transparency, look.reflectance)
 end
 
--- a smooth change of diameter: `ds` = the diameters of the slices, evenly
--- from y0 to y1 (one slice each)
-local function slices(c: Ctx, name: string, y0: number, y1: number, ds: {number}, look: Look)
-	local h = (y1 - y0) / #ds
-	for i, d in ipairs(ds) do
-		cyl(c, name, y0 + (i - 1) * h, y0 + i * h + 0.004, d, look)
-	end
+-- a smooth ellipsoid (a block with a sphere mesh stretched to its size):
+-- centre at height y, d wide, h tall. Shoulders are the top half of one sat
+-- on the body, so the outline curves instead of stepping (user 2026-10-27:
+-- the stacked slices looked like stairs).
+local function ell(c: Ctx, name: string, y: number, d: number, h: number, look: Look): Part
+	local s = c.s
+	local p = make(c, name, Vector3.new(d * s, h * s, d * s), c.base * CFrame.new(0, y * s, 0), look.color, look.material, nil, look.transparency, look.reflectance)
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.Sphere
+	mesh.Parent = p
+	return p
 end
 
 -- a flat piece on the bottle's front face at height y (bottle units), r = the
@@ -102,7 +106,7 @@ local function pet(c: Ctx, color: Color3, label: Color3, cap: Color3, ridged: bo
 	cyl(c, "BottleWaist", 0.62, 0.78, 0.55, body)
 	cyl(c, "BottleLabel", 0.78, 1.18, 0.64, { color = label })
 	cyl(c, "BottleBody", 1.18, 1.34, 0.62, body)
-	slices(c, "BottleShoulder", 1.34, 1.74, { 0.58, 0.48, 0.36 }, body)
+	ell(c, "BottleShoulder", 1.34, 0.62, 0.84, body)
 	cyl(c, "BottleRing", 1.74, 1.78, 0.36, { color = cap })
 	cyl(c, "BottleCap", 1.78, 1.98, 0.32, { color = cap })
 	if ridged then -- 삼다수: rings in the plastic
@@ -114,8 +118,8 @@ end
 local function roundShoulder(c: Ctx, color: Color3, band: Color3, cap: Color3)
 	local body = glass(color, 0.15)
 	cyl(c, "BottleBody", 0, 1.25, 0.76, body)
-	slices(c, "BottleShoulder", 1.25, 1.47, { 0.74, 0.66, 0.52, 0.34 }, body)
-	cyl(c, "BottleNeck", 1.47, 1.7, 0.24, body) -- (a short neck like the reference)
+	ell(c, "BottleShoulder", 1.25, 0.76, 0.5, body)
+	cyl(c, "BottleNeck", 1.4, 1.7, 0.24, body) -- (a short neck like the reference)
 	cyl(c, "BottleLip", 1.7, 1.75, 0.3, body)
 	cyl(c, "BottleCap", 1.75, 1.9, 0.28, { color = cap, material = Enum.Material.Metal })
 	-- the printed band (no paper label on this bottle)
@@ -126,22 +130,21 @@ end
 local function slim(c: Ctx, color: Color3)
 	local body = { color = color:Lerp(WHITE, 0.25), material = Enum.Material.SmoothPlastic, transparency = 0 }
 	cyl(c, "BottleBody", 0, 1.42, 0.5, body)
-	slices(c, "BottleShoulder", 1.42, 1.72, { 0.46, 0.36, 0.27 }, body)
-	cyl(c, "BottleNeck", 1.72, 2.08, 0.22, body)
+	ell(c, "BottleShoulder", 1.42, 0.5, 0.64, body)
+	cyl(c, "BottleNeck", 1.62, 2.08, 0.22, body)
 	cyl(c, "BottleCap", 2.08, 2.24, 0.25, { color = SILVER, material = Enum.Material.Metal })
 	cyl(c, "BottleLabel", 0.62, 1.02, 0.51, { color = color:Lerp(WHITE, 0.65) })
 	front(c, "Leaf", 0.82, 0.255, 0.12, 0.22, color:Lerp(BLACK, 0.3), nil, 35)
 	front(c, "Leaf", 0.82, 0.255, 0.12, 0.22, color:Lerp(BLACK, 0.3), nil, -35)
 end
 
--- 잭다니엘 허니: a square body, a stepped square shoulder, a long neck, a tall black cap
+-- 잭다니엘 허니: a square body, a rounded shoulder, a long neck, a tall black cap
 local function square(c: Ctx, color: Color3, label: Color3, labelEdge: Color3)
 	local s = c.s
 	local body = glass(color, 0.15)
 	make(c, "BottleBody", Vector3.new(0.66 * s, 1.1 * s, 0.66 * s), c.base * CFrame.new(0, 0.55 * s, 0), body.color, body.material, nil, body.transparency, body.reflectance)
-	make(c, "BottleShoulder", Vector3.new(0.56 * s, 0.1 * s, 0.56 * s), c.base * CFrame.new(0, 1.15 * s, 0), body.color, body.material, nil, body.transparency, body.reflectance)
-	make(c, "BottleShoulder", Vector3.new(0.42 * s, 0.1 * s, 0.42 * s), c.base * CFrame.new(0, 1.25 * s, 0), body.color, body.material, nil, body.transparency, body.reflectance)
-	cyl(c, "BottleNeck", 1.3, 1.72, 0.22, body)
+	ell(c, "BottleShoulder", 1.1, 0.66, 0.44, body)
+	cyl(c, "BottleNeck", 1.25, 1.72, 0.22, body)
 	cyl(c, "BottleCap", 1.72, 1.98, 0.27, { color = BLACK })
 	-- the label on the front face (and a small one on the neck)
 	front(c, "LabelEdge", 0.55, 0.33, 0.54, 0.5, labelEdge)
@@ -152,10 +155,10 @@ end
 -- 아그와: a slightly barrel body, a long tapered shoulder, a long neck with a band
 local function barrel(c: Ctx, color: Color3)
 	local body = glass(color, 0.12)
-	slices(c, "BottleFoot", 0, 0.12, { 0.52, 0.58 }, body)
+	cyl(c, "BottleFoot", 0, 0.12, 0.56, body)
 	cyl(c, "BottleBody", 0.12, 1.07, 0.6, body)
-	slices(c, "BottleShoulder", 1.07, 1.5, { 0.56, 0.46, 0.34, 0.24 }, body)
-	cyl(c, "BottleNeck", 1.5, 2, 0.2, body)
+	ell(c, "BottleShoulder", 1.07, 0.6, 0.9, body)
+	cyl(c, "BottleNeck", 1.4, 2, 0.2, body)
 	cyl(c, "NeckBand", 1.6, 1.7, 0.23, { color = Color3.fromRGB(200, 30, 40) })
 	cyl(c, "BottleCap", 2, 2.22, 0.22, { color = BLACK })
 	cyl(c, "BottleLabel", 0.42, 0.74, 0.61, { color = BLACK })
@@ -168,8 +171,8 @@ end
 local function frostedCylinder(c: Ctx, color: Color3)
 	local body = { color = color, material = Enum.Material.SmoothPlastic, transparency = 0 }
 	cyl(c, "BottleBody", 0, 1.45, 0.62, body)
-	slices(c, "BottleShoulder", 1.45, 1.65, { 0.58, 0.48, 0.34 }, body)
-	cyl(c, "BottleNeck", 1.65, 1.84, 0.26, body)
+	ell(c, "BottleShoulder", 1.45, 0.62, 0.42, body)
+	cyl(c, "BottleNeck", 1.58, 1.84, 0.26, body)
 	cyl(c, "BottleCap", 1.84, 1.98, 0.3, { color = SILVER, material = Enum.Material.Metal })
 	local x = color:Lerp(WHITE, 0.55)
 	front(c, "X", 0.85, 0.31, 0.07, 0.75, x, nil, 28)
@@ -178,8 +181,12 @@ end
 
 -- 타이쿠: a glossy teardrop, widest low down, narrowing all the way up
 local function teardrop(c: Ctx, color: Color3)
-	local body = { color = color, material = Enum.Material.SmoothPlastic, transparency = 0, reflectance = 0.1 }
-	slices(c, "BottleBody", 0, 1.95, { 0.5, 0.6, 0.62, 0.6, 0.56, 0.5, 0.44, 0.37, 0.31, 0.26 }, body)
+	local body = { color = color, material = Enum.Material.SmoothPlastic, transparency = 0, reflectance = 0.03 } -- (0.1 mirrored the whole sky on black)
+	-- a round low bulge and a long narrow ellipsoid: the outline is the larger of the two
+	cyl(c, "BottleFoot", 0, 0.06, 0.48, body)
+	ell(c, "BottleBody", 0.55, 0.62, 1.1, body)
+	ell(c, "BottleBody", 1, 0.56, 2, body)
+	cyl(c, "BottleNeck", 1.72, 1.98, 0.26, body)
 	cyl(c, "BottleCap", 1.95, 2.28, 0.26, { color = SILVER, material = Enum.Material.Metal, reflectance = 0.2 })
 	-- small white skull: head, jaw, two eyes
 	frontBall(c, "Skull", 0, 0.78, 0.29, 0.2, WHITE)
@@ -194,8 +201,9 @@ local function champagne(c: Ctx, color: Color3)
 	local body = { color = color, material = Enum.Material.Metal, transparency = 0, reflectance = 0.15 }
 	cyl(c, "BottlePunt", 0, 0.06, 0.6, body)
 	cyl(c, "BottleBody", 0.06, 1.2, 0.64, body)
-	slices(c, "BottleShoulder", 1.2, 1.76, { 0.62, 0.56, 0.46, 0.36, 0.28 }, body)
-	cyl(c, "BottleNeck", 1.76, 1.96, 0.25, body)
+	ell(c, "BottleShoulder", 1.2, 0.64, 1.1, body)
+	ell(c, "NeckFlare", 1.68, 0.34, 0.44, body)
+	cyl(c, "BottleNeck", 1.6, 1.96, 0.25, body)
 	cyl(c, "Foil", 1.94, 2.42, 0.28, { color = BLACK, material = Enum.Material.Fabric })
 	make(c, "FoilTop", Vector3.new(0.28 * c.s, 0.28 * c.s, 0.28 * c.s), c.base * CFrame.new(0, 2.42 * c.s, 0), BLACK, Enum.Material.Fabric, Enum.PartType.Ball)
 	cyl(c, "NeckCrest", 1.78, 1.86, 0.27, { color = GOLD, material = Enum.Material.Foil })
