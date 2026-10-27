@@ -1308,10 +1308,12 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
 		g.PixelsPerStud = 60
 		g.Parent = header
-		local function cell(text, x, w, size, align)
+		-- (user 2026-10-27, 2nd: far too small) the name fills the board's height,
+		-- the arrows half of it
+		local function cell(text, x, w, h, align)
 			local l = Instance.new("TextLabel")
-			l.Position = UDim2.fromScale(x, 0.12)
-			l.Size = UDim2.fromScale(w, 0.76)
+			l.Position = UDim2.fromScale(x, (1 - h) / 2)
+			l.Size = UDim2.fromScale(w, h)
 			l.BackgroundTransparency = 1
 			l.Font = Enum.Font.GothamBold
 			l.TextScaled = true
@@ -1319,12 +1321,11 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 			l.TextXAlignment = align
 			l.TextColor3 = Color3.fromRGB(240, 240, 240)
 			l.Text = text
-			local c = Instance.new("UITextSizeConstraint") c.MaxTextSize = size c.Parent = l
 			l.Parent = g
 		end
-		cell("◀ 이전", 0.03, 0.2, 28, Enum.TextXAlignment.Left)
-		cell(name, 0.22, 0.56, 44, Enum.TextXAlignment.Center)
-		cell("다음 ▶", 0.77, 0.2, 28, Enum.TextXAlignment.Right)
+		cell("◀ 이전", 0.03, 0.16, 0.45, Enum.TextXAlignment.Left)
+		cell(name, 0.2, 0.6, 0.8, Enum.TextXAlignment.Center)
+		cell("다음 ▶", 0.81, 0.16, 0.45, Enum.TextXAlignment.Right)
 	end
 	-- back: ad panels (lit lightboxes) left and right, route map in the middle
 	local ads = { { "OHU\nFASHION WEEK\n신상 런웨이", Color3.fromRGB(235, 60, 70) }, { "만나서\n반가워요\nOHU 오후!", Color3.fromRGB(245, 120, 40) } }
@@ -1348,9 +1349,13 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 	-- human sized, two of them under the bigger roof
 	m.WorldPivot = cf
 	m:ScaleTo(2)
-	for _, bx in ipairs({ -4.5, 4.5 }) do
-		for _, x in ipairs({ -1.9, 1.9 }) do part("BenchLeg", Vector3.new(0.3, 1.6, 1), cf * CFrame.new(bx + x, 0.8, 2.2), steel, { parent = m, material = Enum.Material.Metal }) end
-		seat("BusBench", cf * CFrame.new(bx, 1.75, 2.2), Vector3.new(4.4, 0.3, 1.2), Color3.fromRGB(150, 175, 180), m)
+	-- (user 2026-10-27) one long bench instead of two short ones; seats every
+	-- 2.6 along it (one Seat part seats one person)
+	for _, x in ipairs({ -6.2, 0, 6.2 }) do part("BenchLeg", Vector3.new(0.3, 1.6, 1), cf * CFrame.new(x, 0.8, 2.2), steel, { parent = m, material = Enum.Material.Metal }) end
+	part("BusBenchTop", Vector3.new(13.4, 0.3, 1.2), cf * CFrame.new(0, 1.75, 2.2), Color3.fromRGB(150, 175, 180), { parent = m })
+	for k = -2, 2 do
+		local s = seat("BusBench", cf * CFrame.new(k * 2.6, 1.76, 2.2), Vector3.new(2.4, 0.3, 1.2), Color3.fromRGB(150, 175, 180), m)
+		s.Transparency = 1
 	end
 	-- bus stop sign pole at the curb (user photo, 노원구청): green bus disc on
 	-- top, black name panel + white route board, small 금연 plate. Clicking the

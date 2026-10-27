@@ -286,8 +286,8 @@ do local GRAFFITI="rbxassetid://93792464281347"
  -- from x -80, user 2026-10-25); none over the corridor passage at the foot of
  -- the stairs (x -80..-64 below F+14 is an opening people walk through), only
  -- on the wall above it; the lower part keeps the same pattern phase
- graffiti(-80,F+14,-166.5,-64,12,-166.45,Enum.NormalId.Back)
- graffiti(-64,F,-166.5,-12,12,-166.45,Enum.NormalId.Back,nil,nil,16)
+ -- (the passage is open up to the corridor ceiling now, over the stair hall's own ceiling: nothing over it)
+ -- (user 2026-10-27: up to the raised ceiling EDH, the top was bare black)
  -- the foyer wall seen from the street through the door: no scribbles, just a
  -- pink graffiti "OHU CLUB" with an arrow pointing left, down the stairs
  -- (half size and further in, by the end of the graffiti, so it hardly shows
@@ -295,10 +295,10 @@ do local GRAFFITI="rbxassetid://93792464281347"
 do local p=box(z,"GraffitiSign",-11,3,-166.5,-2.5,7.25,-166.45,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
   -- ("HERE" instead of "OHU CLUB", user 2026-10-25; docs/04_ART/textures/here_arrow.png)
   local d=Instance.new("Decal") d.Texture="rbxassetid://101741924682334" d.Face=Enum.NormalId.Back d.Transparency=0.45 d.Parent=p end -- (paler, user 2026-10-26)
- graffiti(-80,F,-151.05,-24,12,-151,Enum.NormalId.Front)
- graffiti(-24,0,-151.05,-8,12,-151,Enum.NormalId.Front)
+ graffiti(-80,F,-151.05,-24,EDH,-151,Enum.NormalId.Front)
+ graffiti(-24,0,-151.05,-8,EDH,-151,Enum.NormalId.Front)
  -- (none on the street wall by the lift corridor, user 2026-10-25)
- graffiti(-80,F,-166.45,-79.95,12,-151.05,Enum.NormalId.Right,15,15)
+ graffiti(-80,F,-166.45,-79.95,EDH,-151.05,Enum.NormalId.Right,15,15)
 end
 -- wall between the stairs/foyer strip and the hall (opening for the corridor)
 box(z,"Wall_Entry_Hall",-64,F,-167.5,80,TOP,-166.5,WALL_C,WALLO)
@@ -383,14 +383,15 @@ do local c=Vector3.new((AX0+AX1)/2,F+NSTEP/2,(-236.5+LAND0)/2) P(z,"VIP_StairRam
 -- a red LED line on the top landing's edge, where the flight meets it
 box(z,"VIP_LandingNeon",AX0,V,LAND0-0.3,AX1,V+0.08,LAND0,vipRed,{mat=Enum.Material.Neon,ghost=true})
 -- the way on at the top: "VIP →" in red neon on the end wall, pointing east to the lounge
-do local s=box(z,"VIP_WaySign",-79,V+5,NZ+0.06,-66,V+11,NZ+0.12,Color3.new(0,0,0),{t=1,ghost=true})
+-- (user 2026-10-27, 2nd) "VIP" on top, the arrow under it at half the size
+do local s=box(z,"VIP_WaySign",-79,V+8,NZ+0.06,-66,V+12,NZ+0.12,Color3.new(0,0,0),{t=1,ghost=true})
  local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Back g.LightInfluence=0 g.Brightness=2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=s
- local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBlack l.TextColor3=Color3.fromRGB(255,60,80) l.Text="VIP" l.Size=UDim2.fromScale(0.5,1) l.Parent=g
+ local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.GothamBlack l.TextColor3=Color3.fromRGB(255,60,80) l.Text="VIP" l.Parent=g
  local st=Instance.new("UIStroke") st.Color=Color3.fromRGB(255,20,40) st.Thickness=2 st.Parent=l
  local pl=Instance.new("SurfaceLight") pl.Face=Enum.NormalId.Back pl.Color=vipRed pl.Range=10 pl.Brightness=1.5 pl.Parent=s end
-do local y=V+8 local zf=NZ+0.2 local NE={mat=Enum.Material.Neon,ghost=true}
- box(z,"VIP_WayArrow",-72,y-0.3,zf-0.1,-67.5,y+0.3,zf+0.1,vipRed,NE)
- for _,s2 in ipairs({1,-1}) do local c=Vector3.new(-68.2,y+s2*0.85,zf) P(z,"VIP_WayArrow",Vector3.new(2.6,0.6,0.2),CFrame.new(c)*CFrame.Angles(0,0,math.rad(-s2*45)),vipRed,NE) end end
+do local y=V+6.2 local zf=NZ+0.2 local NE={mat=Enum.Material.Neon,ghost=true} local cx=-72.5
+ box(z,"VIP_WayArrow",cx-1.4,y-0.15,zf-0.1,cx+0.85,y+0.15,zf+0.1,vipRed,NE)
+ for _,s2 in ipairs({1,-1}) do local c=Vector3.new(cx+0.5,y+s2*0.42,zf) P(z,"VIP_WayArrow",Vector3.new(1.3,0.3,0.2),CFrame.new(c)*CFrame.Angles(0,0,math.rad(-s2*45)),vipRed,NE) end end
 label(z,"VIP 2층 ↑ (VIP 패스)",Vector3.new(-72,F+17,-232))
 
 -- 2nd floor = VIP only (2F plan, user 2026-10-22): a U of lounges around the
@@ -881,7 +882,7 @@ do local BC=Color3.fromRGB(255,250,175) local k=0
  -- (behind the club logo crown, z -228 at V+25..V+33, the bars break off so
  -- the crown shows on the bare dark wall: user 2026-10-27, no plate)
  for zc=NZ+3,-170,4 do
-  if math.abs(zc+228)<7 then bar(-79.95,-79.75,V+1.5,V+23,zc) bar(-79.95,-79.75,V+35,TOP-1.5,zc)
+  if math.abs(zc+228)<14 then bar(-79.95,-79.75,V+1.5,V+16,zc) bar(-79.95,-79.75,V+38,TOP-1.5,zc) -- (the bigger crown, 2026-10-27 2nd)
   else bar(-79.95,-79.75,V+1.5,TOP-1.5,zc) end end
  -- the chase goes on along both long walls above the VIP signs (user 2026-10-25)
  local function sideBar(xc,z0,z1) k+=1
@@ -909,7 +910,7 @@ end end
 -- CLUB LOGO on the 2F west wall over the hall (user 2026-10-27): the VIP
 -- signs' crown made big for the wall, lemon neon with a red glow; no text and
 -- no plate (user, 2nd): the LED bars break off round it
-do local WX=-79.7 local ZC,YC=-228,V+24 local GS=5
+do local WX=-79.7 local ZC,YC=-228,V+18 local GS=12 -- (as big as the user's box: 5 → 12, user 2026-10-27)
  local CG=Color3.fromRGB(255,238,110) local CO={mat=Enum.Material.Neon,ghost=true}
  local X1,X2=WX+0.2,WX+0.45
  local cy=YC+1.5
@@ -920,7 +921,7 @@ do local WX=-79.7 local ZC,YC=-228,V+24 local GS=5
   box(z,"ClubLogoCrown",X1,cy+0.26*GS,zc-0.07*GS,X2,cy+h,zc+0.07*GS,CG,CO)
   P(z,"ClubLogoJewel",Vector3.new(0.2,0.2,0.2)*GS,CFrame.new((X1+X2)/2,cy+h+0.08*GS,zc),CG,{shape=Enum.PartType.Ball,mat=Enum.Material.Neon,ghost=true}) end
  do local la=box(z,"ClubLogoLight",X2,cy+2,ZC-0.2,X2+0.1,cy+2.2,ZC+0.2,CG,{t=1,ghost=true})
-  local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,40,50) pl.Range=16 pl.Brightness=1.8 pl.Parent=la end
+  local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,40,50) pl.Range=28 pl.Brightness=1.8 pl.Parent=la end
 end
 -- ROOFTOP (H37) on top of the building, elevator from the street
 box(z,"RooftopDeck",-80,TOP+0.5,NZ,80,RT,-150,Color3.fromRGB(50,50,70))

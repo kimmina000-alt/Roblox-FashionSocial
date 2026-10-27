@@ -436,7 +436,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 
 	-- the look (the part above stays as the invisible holder of the label)
 	local bucket = DrinkBucket.build(kind, { drinkColor }, CFrame.new(slot.WorldPosition))
-	if kind == "vip" or kind == "golmok" then
+	if kind == "vip" or kind == "golmok" or kind == "bottle" then -- (tier 1 is a small pail now, on an edge slot: 2026-10-27)
 		bucket:ScaleTo(0.8)
 	elseif isBucket then
 		bucket:ScaleTo(0.9)

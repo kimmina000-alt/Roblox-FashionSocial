@@ -144,6 +144,7 @@ create("UIListLayout", {
 	HorizontalAlignment = Enum.HorizontalAlignment.Center,
 	SortOrder = Enum.SortOrder.LayoutOrder,
 	Padding = UDim.new(0, 8),
+	Wraps = true, -- (more than four buttons go on a second row)
 }, modalButtons)
 
 type ModalButton = { name: string, text: string, color: Color3?, onClick: () -> () }
@@ -165,7 +166,13 @@ local function showModal(title: string, body: string, buttons: {ModalButton}, cl
 	for _, child in ipairs(modalButtons:GetChildren()) do
 		if child:IsA("TextButton") then child:Destroy() end
 	end
-	local width = math.floor((328 - 8 * (#buttons - 1)) / #buttons)
+	-- (more than four buttons: rows of four, user 2026-10-27's item shop)
+	local perRow = math.min(#buttons, 4)
+	local rows = math.ceil(#buttons / perRow)
+	modalButtons.Size = UDim2.new(1, -32, 0, rows * 40 + (rows - 1) * 8)
+	modalBody.Size = UDim2.new(1, -32, 1, -(70 + rows * 48))
+	modal.Size = UDim2.fromOffset(360, 200 + (rows - 1) * 48)
+	local width = math.floor((328 - 8 * (perRow - 1)) / perRow)
 	for index, spec in ipairs(buttons) do
 		local button = create("TextButton", {
 			Name = spec.name,
@@ -623,18 +630,23 @@ local function openItemShop()
 	local sparkKey = if vip then "ColdSpark_VIP" else "ColdSpark"
 	local cooldown = math.ceil((FashionGame:GetAttribute("ColdSparkReadyAt") or 0) - workspace:GetServerTimeNow())
 	showModal("🎇 불꽃 · 아이템",
-		"🎇 스파클러: 들고 테이블 위 병을 누르면 30초.\n🍾 버킷 세트: 들고 테이블을 누르면 얼음 버킷 + 캔 3개 + 불꽃 3개.\n🎆 콜드 스파크: DJ 무대 앞 10초 + 모두의 화면에 내 이름·한마디"
-			.. (if cooldown > 0 then string.format(" (⏳ %d초 뒤)", cooldown) else "")
+		"🎇 스파클러 1개 / ×5: 들고 테이블 위 병(버킷)을 누르면 30초. 한 버킷에 5개까지.\n🍾 버킷 세트: 얼음 버킷 + 캔 3개 + 불꽃 3개.\n✨ 손 스파클러: 손에 들고 60초 동안 춤춰요.\n🪄 야광봉: 영구 아이템, 누르면 색이 바뀌어요.\n🎆 콜드 스파크: DJ 무대 불꽃 쇼 + 모두의 화면에 내 이름·한마디"
+			.. (if cooldown > 0 then string.format(" (지금 쇼 중 · ⏳ %d초 뒤 바로)", cooldown) else "")
 			.. (if vip then "\n👑 VIP 가격이에요." else ""),
 		{
 			{ name = "Close", text = "닫기", onClick = function() end },
 			{ name = "Sparkler", text = "🎇 R$" .. productPrice("Sparkler1"), color = COLORS.robux, onClick = function() buyProduct("Sparkler1") end },
+			{ name = "Sparkler5", text = "🎇×5 R$" .. productPrice("Sparkler5"), color = COLORS.robux, onClick = function() buyProduct("Sparkler5") end },
 			{ name = "Bucket", text = "🍾 R$" .. productPrice(bucketKey), color = COLORS.accent, onClick = function() buyProduct(bucketKey) end },
+			{ name = "HandSparkler", text = "✨ R$" .. productPrice("HandSparkler"), color = COLORS.robux, onClick = function() buyProduct("HandSparkler") end },
+			{ name = "Glowstick", text = if player:GetAttribute("Pass_Glowstick") then "🪄 보유" else ("🪄 R$" .. tostring(MonetizationConfig.GamePasses.Glowstick.price)), color = COLORS.accent, onClick = function()
+				if not player:GetAttribute("Pass_Glowstick") then buyPass("Glowstick") end
+			end },
 			{ name = "ColdSpark", text = "🎆 R$" .. productPrice(sparkKey), color = VIP_GOLD, onClick = function()
 				MessagePrompt.buy(sparkKey, "🎆 무대 콜드 스파크")
 			end },
 		})
-	modal.Size = UDim2.fromOffset(360, 250)
+	modal.Size = UDim2.fromOffset(360, 400)
 end
 
 -- 공개 범위 (모든 사람 / 친구만 / 나만) before a bottle goes on a table

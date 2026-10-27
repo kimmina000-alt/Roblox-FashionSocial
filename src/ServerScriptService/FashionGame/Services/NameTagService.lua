@@ -78,4 +78,75 @@ function NameTagService.Start()
 	Players.PlayerAdded:Connect(watch)
 end
 
+-- Role badges over the head (user 2026-10-27), on their own billboard so they
+-- show whether the XP name tags are on or not: "VIP" white with a red neon
+-- outline for a VIP pass owner, "DJ" white with a sky-blue one at the decks
+-- (character attribute Djing). Above the cafe staff tag's place.
+local ROLE_TAG = "OHURoleTag"
+local function refreshRoles(player: Player)
+	local character = player.Character
+	local head = character and character:FindFirstChild("Head")
+	if not character or not head or not head:IsA("BasePart") then return end
+	local vip = player:GetAttribute("Pass_VIP") == true
+	local djing = character:GetAttribute("Djing")
+	local dj = djing ~= nil and djing ~= false
+	local tag = head:FindFirstChild(ROLE_TAG)
+	if not vip and not dj then
+		if tag then tag:Destroy() end
+		return
+	end
+	if not tag then
+		local g = Instance.new("BillboardGui")
+		g.Name = ROLE_TAG
+		g.Size = UDim2.fromOffset(110, 26)
+		g.StudsOffset = Vector3.new(0, 2.4, 0)
+		g.SizeOffset = Vector2.new(0, 3.4)
+		g.MaxDistance = 90
+		g.LightInfluence = 0
+		g.Adornee = head
+		local list = Instance.new("UIListLayout")
+		list.FillDirection = Enum.FillDirection.Horizontal
+		list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+		list.Padding = UDim.new(0, 8)
+		list.Parent = g
+		for i, spec in ipairs({ { "VIP", Color3.fromRGB(255, 30, 50) }, { "DJ", Color3.fromRGB(70, 200, 255) } }) do
+			local l = Instance.new("TextLabel")
+			l.Name = spec[1]
+			l.LayoutOrder = i
+			l.BackgroundTransparency = 1
+			l.Size = UDim2.new(0, 46, 1, 0)
+			l.Font = Enum.Font.GothamBlack
+			l.TextScaled = true
+			l.Text = spec[1]
+			l.TextColor3 = Color3.new(1, 1, 1)
+			l.Parent = g
+			local stroke = Instance.new("UIStroke") -- the neon: a thick coloured outline
+			stroke.Color = spec[2]
+			stroke.Thickness = 3
+			stroke.Parent = l
+		end
+		g.Parent = head
+		tag = g
+	end
+	for name, on in pairs({ VIP = vip, DJ = dj }) do
+		local l = (tag :: Instance):FindFirstChild(name)
+		if l and l:IsA("TextLabel") then l.Visible = on end
+	end
+end
+
+function NameTagService.StartRoles()
+	local function watch(player: Player)
+		local function onCharacter(character: Model)
+			character:WaitForChild("Head", 10)
+			refreshRoles(player)
+			character:GetAttributeChangedSignal("Djing"):Connect(function() refreshRoles(player) end)
+		end
+		player.CharacterAdded:Connect(function(character) task.spawn(onCharacter, character) end)
+		if player.Character then task.spawn(onCharacter, player.Character) end
+		player:GetAttributeChangedSignal("Pass_VIP"):Connect(function() refreshRoles(player) end)
+	end
+	for _, player in ipairs(Players:GetPlayers()) do watch(player) end
+	Players.PlayerAdded:Connect(watch)
+end
+
 return NameTagService

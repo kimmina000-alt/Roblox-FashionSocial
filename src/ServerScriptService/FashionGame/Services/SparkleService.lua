@@ -34,7 +34,13 @@ local SparkleService = {}
 local SPARKLE_TEXTURE = "rbxasset://textures/particles/sparkles_main.dds"
 local SPARKLER_SECONDS = 30
 local COLD_SPARK_SECONDS = 10
-local COLD_SPARK_COOLDOWN = 120
+local COLD_SPARK_COOLDOWN = 120 -- (no longer a wait for buyers: only the DJ's free one, 2026-10-27)
+local SPARKLER_MAX = 5 -- sparklers burning in one bottle / bucket at once (user 2026-10-27)
+local HAND_SPARKLER_SECONDS = 60
+local DJ_SPARK_COOLDOWN = 90 -- the DJ fires the stage fireworks for free (user 2026-10-27)
+local BURST_SOUND = "rbxassetid://75191072171555" -- "fireworks explosion sfx" (Creator Store)
+local CRACKLE_SOUND = "rbxassetid://85890781320627" -- "feu d'artifice crépitation" (Creator Store)
+local FUSE_SOUND = "rbxassetid://71438605239854" -- "FireworkFuseNEW" (Creator Store): a hand sparkler fizzing
 local BUCKET_CUPS = 18
 local BUCKET_LIFETIME = 600
 local BUCKET_DRINKS = { "zzang_pop", "golden_apple", "monte" }
@@ -45,7 +51,7 @@ local SUPPORT = { Support_10 = 10, Support_50 = 50, Support_100 = 100, Support_5
 local notify: RemoteEvent? = nil
 local pendingTable: {[number]: BasePart} = {}
 local pendingMessage: {[number]: string} = {}
-local coldQueue: {{ player: Player, message: string }} = {}
+local coldQueue: {{ player: Player, message: string, byDj: boolean? }} = {}
 local coldRunning = false
 
 local function toast(player: Player, message: string)
@@ -199,7 +205,7 @@ end
 -- Sparklers and sparkler bucket sets are items now (user 2026-10-26): bought
 -- from the item seller next to the bartender, held, then a tap on a bottle /
 -- bucket (sparkler) or on a table (bucket set) uses them.
-local function giveItem(player: Player, attribute: string, name: string, tip: string, color: Color3): (boolean, string?)
+local function giveItem(player: Player, attribute: string, name: string, tip: string, color: Color3, count: number?): (boolean, string?)
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then return false, "잠시 후 다시 시도하세요." end
 	local tool = Instance.new("Tool")
@@ -207,6 +213,7 @@ local function giveItem(player: Player, attribute: string, name: string, tip: st
 	tool.ToolTip = tip
 	tool.CanBeDropped = false
 	tool:SetAttribute(attribute, true)
+	if count then tool:SetAttribute("Count", count) end
 	local handle = Instance.new("Part")
 	handle.Name = "Handle"
 	handle.Size = if attribute == "Sparkler" then Vector3.new(0.12, 1.4, 0.12) else Vector3.new(1, 1, 1)
@@ -224,6 +231,13 @@ end
 local function grantSparkler(player: Player): (boolean, string?)
 	local ok, message = giveItem(player, "Sparkler", "🎇 스파클러", "들고 테이블 위 병(버킷)을 누르면 불꽃 30초", Color3.fromRGB(200, 200, 205))
 	if ok then toast(player, "🎇 스파클러를 받았어요! 들고 테이블 위 병을 눌러 보세요.") end
+	return ok, message
+end
+
+-- five sparklers in one item (user 2026-10-27): up to five burn in one bucket
+local function grantSparkler5(player: Player): (boolean, string?)
+	local ok, message = giveItem(player, "Sparkler", "🎇 스파클러 ×5", "들고 테이블 위 병(버킷)을 누를 때마다 하나씩, 한 버킷에 5개까지", Color3.fromRGB(200, 200, 205), 5)
+	if ok then toast(player, "🎇 스파클러 5개를 받았어요! 들고 버킷을 누를 때마다 하나씩 꽂혀요.") end
 	return ok, message
 end
 
@@ -339,10 +353,23 @@ local function tap(player: Player, target: any): (boolean, string?, boolean)
 			return false, "테이블 위 병이나 버킷을 눌러 주세요.", true
 		end
 		if (placed.Position - root.Position).Magnitude > 12 then return false, "조금 더 가까이 가 주세요.", true end
-		if placed:FindFirstChild("SparklerStick", true) then return false, "벌써 불꽃이 타고 있어요.", true end
-		sparkler:Destroy()
-		burn(placed, Vector3.new(placed.Position.X, topOf(placed), placed.Position.Z), SPARKLER_SECONDS)
-		return true, "🎇 불꽃이 켜졌어요! (30초)", true
+		local burning = 0
+		for _, d in ipairs(placed:GetChildren()) do if d.Name == "SparklerStick" then burning += 1 end end
+		if burning >= SPARKLER_MAX then return false, string.format("한 버킷에 %d개까지 꽂을 수 있어요.", SPARKLER_MAX), true end
+		local left = ((sparkler:GetAttribute("Count") :: number?) or 1) - 1
+		if left <= 0 then sparkler:Destroy() else
+			sparkler:SetAttribute("Count", left)
+			sparkler.Name = string.format("🎇 스파클러 ×%d", left)
+		end
+		-- the first in the middle, the next ones in a ring round the rim
+		local look = placed:FindFirstChildWhichIsA("Model")
+		local size = if look then look:GetExtentsSize() else placed.Size
+		local r = math.min(size.X, size.Z) * 0.28
+		local angle = burning * math.pi * 2 / 4
+		local offset = if burning == 0 then Vector3.zero else Vector3.new(math.cos(angle) * r, 0, math.sin(angle) * r)
+		local topY = if look then look:GetBoundingBox().Position.Y - size.Y / 2 + math.min(size.Y, 1.1) else topOf(placed)
+		burn(placed, Vector3.new(placed.Position.X, topY, placed.Position.Z) + offset, SPARKLER_SECONDS)
+		return true, string.format("🎇 불꽃이 켜졌어요! (30초 · 이 버킷 %d/%d)", burning + 1, SPARKLER_MAX), true
 	end
 	local set = holding(player, "SparklerSet")
 	if set then
@@ -384,13 +411,93 @@ local function fountainPoints(): {Vector3}
 	return points
 end
 
-local function runColdSpark(player: Player, message: string)
+-- a sound at a point, gone after it played
+local function soundAt(parent: Instance, id: string, volume: number, range: number)
+	local s = Instance.new("Sound")
+	s.SoundId = id
+	s.Volume = volume
+	s.RollOffMinDistance = 20
+	s.RollOffMaxDistance = range
+	s.Parent = parent
+	s:Play()
+	Debris:AddItem(s, 6)
+end
+
+-- One aerial shell (user 2026-10-27: the stage show was thin): a glowing
+-- trail rises from the stage front and bursts into a ball of coloured stars
+-- with a bang, then a crackle.
+local SHELL_COLORS = {
+	{ Color3.fromRGB(255, 70, 120), Color3.fromRGB(255, 200, 230) },
+	{ Color3.fromRGB(80, 200, 255), Color3.fromRGB(220, 250, 255) },
+	{ Color3.fromRGB(255, 210, 80), Color3.fromRGB(255, 250, 210) },
+	{ Color3.fromRGB(170, 90, 255), Color3.fromRGB(240, 210, 255) },
+	{ Color3.fromRGB(90, 255, 150), Color3.fromRGB(220, 255, 230) },
+}
+local function shell(holder: Instance, from: Vector3, height: number, colors: {Color3})
+	local p = Instance.new("Part")
+	p.Name = "Shell"
+	p.Shape = Enum.PartType.Ball
+	p.Size = Vector3.new(0.5, 0.5, 0.5)
+	p.Material = Enum.Material.Neon
+	p.Color = colors[2]
+	p.Anchored = true
+	p.CanCollide = false
+	p.CanQuery = false
+	p.CanTouch = false
+	p.CastShadow = false
+	p.CFrame = CFrame.new(from)
+	p.Parent = holder
+	local trail = Instance.new("ParticleEmitter")
+	trail.Texture = SPARKLE_TEXTURE
+	trail.Rate = 120
+	trail.Lifetime = NumberRange.new(0.3, 0.5)
+	trail.Speed = NumberRange.new(0.5, 1.5)
+	trail.Size = NumberSequence.new(0.35, 0)
+	trail.LightEmission = 1
+	trail.Brightness = 3
+	trail.Color = ColorSequence.new(colors[2])
+	trail.Parent = p
+	local rise = 0.7
+	game:GetService("TweenService"):Create(p, TweenInfo.new(rise, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { CFrame = CFrame.new(from + Vector3.new(0, height, 0)) }):Play()
+	task.delay(rise, function()
+		if not p.Parent then return end
+		trail.Enabled = false
+		p.Transparency = 1
+		local burst = Instance.new("ParticleEmitter")
+		burst.Texture = SPARKLE_TEXTURE
+		burst.Rate = 0
+		burst.Lifetime = NumberRange.new(1.2, 1.8)
+		burst.Speed = NumberRange.new(16, 24)
+		burst.SpreadAngle = Vector2.new(180, 180)
+		burst.Acceleration = Vector3.new(0, -9, 0)
+		burst.Drag = 1.5
+		burst.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.9), NumberSequenceKeypoint.new(1, 0) })
+		burst.Transparency = NumberSequence.new(0, 0.4)
+		burst.LightEmission = 1
+		burst.Brightness = 4
+		burst.Color = ColorSequence.new(colors[1], colors[2])
+		burst.Parent = p
+		burst:Emit(160)
+		local flash = Instance.new("PointLight")
+		flash.Color = colors[1]
+		flash.Range = 40
+		flash.Brightness = 6
+		flash.Parent = p
+		soundAt(p, BURST_SOUND, 0.8, 220)
+		task.delay(0.35, function() if p.Parent then soundAt(p, CRACKLE_SOUND, 0.5, 160) end end)
+		task.delay(0.4, function() flash.Enabled = false end)
+		Debris:AddItem(p, 2.5)
+	end)
+end
+
+local function runColdSpark(player: Player, message: string, byDj: boolean?)
 	coldRunning = true
-	banner("coldspark", player, message, nil)
+	banner(if byDj then "djspark" else "coldspark", player, message, nil)
 	local holder = Instance.new("Folder")
 	holder.Name = "ColdSpark"
 	holder.Parent = workspace
-	for _, point in ipairs(fountainPoints()) do
+	local points = fountainPoints()
+	for _, point in ipairs(points) do
 		local base = Instance.new("Part")
 		base.Name = "ColdSparkBase"
 		base.Size = Vector3.new(0.6, 0.3, 0.6)
@@ -402,35 +509,185 @@ local function runColdSpark(player: Player, message: string)
 		base.Parent = holder
 		sparks(base, Vector3.new(0, 0.2, 0), true)
 	end
+	-- the fountains' hiss and a shell from a random spot every 0.7 s
+	if points[1] then soundAt(holder:FindFirstChildWhichIsA("BasePart") :: BasePart, CRACKLE_SOUND, 0.6, 160) end
+	task.spawn(function()
+		local t0 = os.clock()
+		local k = 0
+		while os.clock() - t0 < COLD_SPARK_SECONDS - 1 and holder.Parent and #points > 0 do
+			k += 1
+			local from = points[math.random(1, #points)] + Vector3.new(math.random(-20, 20) / 10, 0, math.random(-20, 20) / 10)
+			shell(holder, from, math.random(26, 38), SHELL_COLORS[(k - 1) % #SHELL_COLORS + 1])
+			task.wait(0.7)
+		end
+	end)
+	-- the finale: five shells at once
+	task.delay(COLD_SPARK_SECONDS - 1, function()
+		for i, point in ipairs(points) do shell(holder, point, 40, SHELL_COLORS[i % #SHELL_COLORS + 1]) end
+	end)
+	local endsAt = workspace:GetServerTimeNow() + COLD_SPARK_SECONDS + 1
+	FashionGame:SetAttribute("ColdSparkReadyAt", endsAt)
 	task.delay(COLD_SPARK_SECONDS, function()
 		for _, emitter in ipairs(holder:GetDescendants()) do
-			if emitter:IsA("ParticleEmitter") then emitter.Enabled = false end
+			if emitter:IsA("ParticleEmitter") and emitter.Name ~= "" and emitter.Parent and emitter.Parent.Name == "Sparkler" then emitter.Enabled = false end
 		end
-		Debris:AddItem(holder, 2)
+		Debris:AddItem(holder, 4)
 	end)
-	FashionGame:SetAttribute("ColdSparkReadyAt", workspace:GetServerTimeNow() + COLD_SPARK_COOLDOWN)
-	task.delay(COLD_SPARK_COOLDOWN, function()
+	-- (user 2026-10-27) no 2-minute wait any more: the next one in line goes
+	-- off as soon as this show is over
+	task.delay(COLD_SPARK_SECONDS + 1, function()
 		coldRunning = false
 		local nextOne = table.remove(coldQueue, 1)
 		if nextOne and nextOne.player.Parent then
-			runColdSpark(nextOne.player, nextOne.message)
+			runColdSpark(nextOne.player, nextOne.message, nextOne.byDj)
 		end
 	end)
+end
+
+-- seconds until a show bought now would start
+local function waitFor(position: number): number
+	local endsAt = (FashionGame:GetAttribute("ColdSparkReadyAt") :: number?) or 0
+	local left = math.max(0, endsAt - workspace:GetServerTimeNow())
+	return math.ceil(left + (position - 1) * (COLD_SPARK_SECONDS + 1))
+end
+
+local function startOrQueue(player: Player, message: string, byDj: boolean?)
+	if coldRunning then
+		table.insert(coldQueue, { player = player, message = message, byDj = byDj })
+		-- a big white countdown on the buyer's screen (ClubShopController)
+		if notify then notify:FireClient(player, "ColdSparkWait", workspace:GetServerTimeNow() + waitFor(#coldQueue)) end
+	else
+		runColdSpark(player, message, byDj)
+	end
 end
 
 local function grantColdSpark(player: Player): (boolean, string?)
 	local message = pendingMessage[player.UserId] or ""
 	pendingMessage[player.UserId] = nil
-	if coldRunning then
-		-- (bought during the wait: it goes off when the 2 minutes are over)
-		table.insert(coldQueue, { player = player, message = message })
-		toast(player, string.format("🎆 다른 콜드 스파크가 끝나면 바로 터져요 (대기 %d번째).", #coldQueue))
-	else
-		runColdSpark(player, message)
-	end
+	startOrQueue(player, message, false)
 	return true, nil
 end
 
+-- the DJ's free shot (user 2026-10-27): only while DJing, once every DJ_SPARK_COOLDOWN
+local djSparkAt: {[number]: number} = {}
+local function djColdSpark(player: Player): (boolean, string?)
+	local character = player.Character
+	if not character or not character:GetAttribute("Djing") then return false, "DJ 중일 때만 쏠 수 있어요." end
+	local last = djSparkAt[player.UserId] or -math.huge
+	local left = math.ceil(last + DJ_SPARK_COOLDOWN - os.clock())
+	if left > 0 then return false, string.format("🎆 %d초 뒤에 다시 쏠 수 있어요.", left) end
+	djSparkAt[player.UserId] = os.clock()
+	startOrQueue(player, "", true)
+	return true, nil
+end
+
+--------------------------------------------------
+-- Hand sparkler (one use) and glowstick (pass)
+--------------------------------------------------
+
+-- (user 2026-10-27) a sparkler held in the hand, to dance with: it burns for
+-- HAND_SPARKLER_SECONDS from the moment it is taken out, then it is gone
+local function lightHandSparkler(tool: Tool)
+	if tool:GetAttribute("Lit") then return end
+	tool:SetAttribute("Lit", true)
+	local handle = tool:FindFirstChild("Handle") :: BasePart?
+	if not handle then return end
+	local tip = Instance.new("Part")
+	tip.Name = "Tip"
+	tip.Shape = Enum.PartType.Ball
+	tip.Size = Vector3.new(0.22, 0.22, 0.22)
+	tip.Color = Color3.fromRGB(255, 245, 220)
+	tip.Material = Enum.Material.Neon
+	tip.CanCollide = false
+	tip.Massless = true
+	tip.CFrame = handle.CFrame * CFrame.new(0, handle.Size.Y / 2, 0)
+	local weld = Instance.new("WeldConstraint")
+	weld.Part0 = handle
+	weld.Part1 = tip
+	weld.Parent = tip
+	tip.Parent = tool
+	local at = sparks(tip, Vector3.zero, false)
+	local emitter = at:FindFirstChildOfClass("ParticleEmitter")
+	if emitter then
+		emitter.Rate = 160
+		emitter.SpreadAngle = Vector2.new(180, 180)
+		emitter.Speed = NumberRange.new(3, 6)
+		emitter.Lifetime = NumberRange.new(0.3, 0.6)
+	end
+	local fizz = Instance.new("Sound")
+	fizz.SoundId = FUSE_SOUND
+	fizz.Looped = true
+	fizz.Volume = 0.35
+	fizz.RollOffMaxDistance = 30
+	fizz.Parent = handle
+	fizz:Play()
+	task.delay(HAND_SPARKLER_SECONDS, function()
+		if tool.Parent then tool:Destroy() end
+	end)
+end
+
+local function grantHandSparkler(player: Player): (boolean, string?)
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if not backpack then return false, "잠시 후 다시 시도하세요." end
+	local tool = Instance.new("Tool")
+	tool.Name = "✨ 손 스파클러"
+	tool.ToolTip = string.format("손에 들면 %d초 동안 타요. 들고 춤춰 보세요!", HAND_SPARKLER_SECONDS)
+	tool.CanBeDropped = false
+	tool.Grip = CFrame.new(0, -0.5, 0) * CFrame.Angles(math.rad(-30), 0, 0)
+	local handle = Instance.new("Part")
+	handle.Name = "Handle"
+	handle.Size = Vector3.new(0.08, 1.6, 0.08)
+	handle.Color = Color3.fromRGB(70, 70, 74)
+	handle.Material = Enum.Material.Metal
+	handle.CanCollide = false
+	handle.Massless = true
+	handle.Parent = tool
+	tool.Equipped:Connect(function() lightHandSparkler(tool) end)
+	tool.Parent = backpack
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then humanoid:EquipTool(tool) end
+	toast(player, string.format("✨ 손 스파클러에 불이 붙었어요! %d초 동안 들고 춤춰 보세요.", HAND_SPARKLER_SECONDS))
+	return true, nil
+end
+
+-- the glowstick (Game Pass, permanent): always in the backpack, a tap changes its colour
+local GLOW_COLORS = { Color3.fromRGB(0, 255, 140), Color3.fromRGB(255, 60, 200), Color3.fromRGB(60, 180, 255), Color3.fromRGB(255, 230, 60), Color3.fromRGB(255, 120, 40) }
+local function giveGlowstick(player: Player)
+	if player:GetAttribute("Pass_Glowstick") ~= true then return end
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if not backpack then return end
+	for _, where in ipairs({ backpack, player.Character }) do
+		if where and where:FindFirstChild("🪄 야광봉") then return end
+	end
+	local tool = Instance.new("Tool")
+	tool.Name = "🪄 야광봉"
+	tool.ToolTip = "누르면 색이 바뀌어요"
+	tool.CanBeDropped = false
+	tool.Grip = CFrame.new(0, -0.6, 0) * CFrame.Angles(math.rad(-25), 0, 0)
+	local handle = Instance.new("Part")
+	handle.Name = "Handle"
+	handle.Shape = Enum.PartType.Cylinder
+	handle.Size = Vector3.new(1.8, 0.22, 0.22)
+	handle.Material = Enum.Material.Neon
+	handle.Color = GLOW_COLORS[1]
+	handle.CanCollide = false
+	handle.Massless = true
+	handle.Parent = tool
+	-- (a Cylinder's axis is X: turn the grip so it stands up in the hand)
+	tool.Grip = CFrame.new(0, 0, -0.6) * CFrame.Angles(0, math.rad(90), math.rad(65))
+	local light = Instance.new("PointLight")
+	light.Color = GLOW_COLORS[1]
+	light.Range = 9
+	light.Brightness = 1.5
+	light.Parent = handle
+	local index = 1
+	tool.Activated:Connect(function()
+		index = index % #GLOW_COLORS + 1
+		handle.Color = GLOW_COLORS[index]
+		light.Color = GLOW_COLORS[index]
+	end)
+	tool.Parent = backpack
+end
 --------------------------------------------------
 -- Supporter gifts
 --------------------------------------------------
@@ -463,6 +720,9 @@ function SparkleService.Handle(player: Player, action: string, payload: any): (b
 		return true, nil, true
 	elseif action == "Tap" then
 		return tap(player, payload)
+	elseif action == "DJColdSpark" then
+		local ok, message = djColdSpark(player)
+		return ok, message, true
 	end
 	return false, nil, false
 end
@@ -470,6 +730,8 @@ end
 function SparkleService.Start()
 	notify = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubNotify") :: RemoteEvent
 	MonetizationService.RegisterProduct("Sparkler1", grantSparkler)
+	MonetizationService.RegisterProduct("Sparkler5", grantSparkler5)
+	MonetizationService.RegisterProduct("HandSparkler", grantHandSparkler)
 	MonetizationService.RegisterProduct("SparklerBucket", grantBucketItem)
 	MonetizationService.RegisterProduct("SparklerBucket_VIP", grantBucketItem)
 	MonetizationService.RegisterProduct("ColdSpark", grantColdSpark)
@@ -480,7 +742,16 @@ function SparkleService.Start()
 			return grantSupport(player, amount)
 		end)
 	end
+	-- the glowstick pass: in the backpack on every spawn and right after buying
+	local function watchGlow(player: Player)
+		player.CharacterAdded:Connect(function() task.wait(1) giveGlowstick(player) end)
+		player:GetAttributeChangedSignal("Pass_Glowstick"):Connect(function() giveGlowstick(player) end)
+		if player.Character then task.defer(giveGlowstick, player) end
+	end
+	for _, p in ipairs(Players:GetPlayers()) do watchGlow(p) end
+	Players.PlayerAdded:Connect(watchGlow)
 	Players.PlayerRemoving:Connect(function(player)
+		djSparkAt[player.UserId] = nil
 		pendingTable[player.UserId] = nil
 		pendingMessage[player.UserId] = nil
 		for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do

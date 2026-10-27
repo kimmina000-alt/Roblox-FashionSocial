@@ -40,6 +40,7 @@ require(script.Parent.Services.ParkRideService).Start()
 if require(game:GetService("ReplicatedStorage").FashionGame.Shared.EconomyConfig).XPEnabled then
 	require(script.Parent.Services.NameTagService).Start()
 end
+require(script.Parent.Services.NameTagService).StartRoles() -- (VIP / DJ badges always, 2026-10-27)
 local SnackService = require(script.Parent.Services.SnackService)
 SnackService.Start(EconomyService)
 require(script.Parent.Services.CafeJobService).Start(EconomyService, SnackService)

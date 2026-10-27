@@ -85,7 +85,17 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame): Model
 	m:SetAttribute("BucketKind", kind)
 	local c = colors[1]
 	if kind == "bottle" then
-		bottle(m, at, c, 1)
+		-- (user 2026-10-27) tier 1 is the sparkler bucket's look: a shiny pale
+		-- pail, ice on top, three cans in the drink colour standing in it
+		local h = 1.2
+		local pail = cyl(m, "Pail", 1.5, h, at * CFrame.new(0, h / 2, 0), Color3.fromRGB(200, 200, 208), Enum.Material.Metal)
+		pail.Reflectance = 0.25
+		cyl(m, "Ice", 1.35, 0.1, at * CFrame.new(0, h - 0.02, 0), Color3.fromRGB(225, 240, 250), Enum.Material.Glass, 0.2)
+		local shades = { c, c:Lerp(Color3.new(1, 1, 1), 0.35), c:Lerp(Color3.new(0, 0, 0), 0.25) }
+		for i = 1, 3 do
+			local angle = (i - 1) * math.pi * 2 / 3
+			part(m, "Can", Vector3.new(0.9, 0.36, 0.36), at * CFrame.new(math.cos(angle) * 0.38, h + 0.55 - 0.6, math.sin(angle) * 0.38) * CFrame.Angles(0, 0, math.rad(80)), shades[i], Enum.Material.Metal, Enum.PartType.Cylinder)
+		end
 	elseif kind == "steel" then
 		-- brushed steel pail, ice heaped to the rim, ring handles
 		local h = 1.3

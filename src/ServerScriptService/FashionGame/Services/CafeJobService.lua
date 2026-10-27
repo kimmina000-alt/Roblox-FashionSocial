@@ -571,8 +571,9 @@ end
 -- shift at the worker, the drink being made at the station, the NPC
 -- customer's "감사합니다" when served (not for player customers)
 local SOUNDS = {
-	start = { "rbxassetid://77433517511280", 0.6 }, -- "confirm" (Creator Store)
-	stop = { "rbxassetid://96659579913194", 0.6 }, -- "PathComplete" (Creator Store)
+	-- (user 2026-10-27, 2nd: like a computer switching on / off)
+	start = { "rbxassetid://79812542038049", 0.6 }, -- "Windows 10 Startup Sound" (Creator Store)
+	stop = { "rbxassetid://6858975342", 0.6 }, -- "Microsoft Windows XP Shutdown Sound" (Creator Store)
 	make = { "rbxassetid://9113846434", 0.7 }, -- "Coffee Pot 2" (Pro Sound Effects)
 	thanks = { "rbxassetid://132794698600617", 0.9 }, -- "감사합니다 new" (Creator Store)
 }
@@ -604,28 +605,26 @@ local function setStaffTag(character: Model?, shopKey: string?)
 	gui.Name = "CafeStaffTag"
 	gui.Adornee = head
 	gui.Size = UDim2.fromOffset(110, 30)
-	-- just above the name tag (NameTagService: 46 px tall at 2.4 studs) at any
+	-- just above the name tag (NameTagService: 70 px tall at 2.4 studs) at any
 	-- distance: the same anchor, lifted by its own height in pixels
 	gui.StudsOffset = Vector3.new(0, 2.4, 0)
-	gui.SizeOffset = Vector2.new(0, 1.45)
+	gui.SizeOffset = Vector2.new(0, 2.05) -- (over the name tag's role row since 2026-10-27)
 	gui.LightInfluence = 0
 	gui.AlwaysOnTop = false
 	gui.MaxDistance = 80
+	-- (user 2026-10-27, 2nd) white letters with a green outline, no box, no cup
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundColor3 = if shopKey == "HanokCafe" then Color3.fromRGB(120, 80, 50) else Color3.fromRGB(35, 90, 70)
-	label.BackgroundTransparency = 0.1
-	label.Text = "☕ 알바생"
+	label.BackgroundTransparency = 1
+	label.Text = "알바생"
 	label.TextColor3 = Color3.new(1, 1, 1)
 	label.TextScaled = true
-	label.Font = Enum.Font.GothamBold
+	label.Font = Enum.Font.GothamBlack
 	label.Parent = gui
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0.5, 0)
-	corner.Parent = label
-	local pad = Instance.new("UIPadding")
-	pad.PaddingTop = UDim.new(0, 4) pad.PaddingBottom = UDim.new(0, 4)
-	pad.Parent = label
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.fromRGB(30, 150, 80)
+	stroke.Thickness = 2.5
+	stroke.Parent = label
 	gui.Parent = character
 end
 

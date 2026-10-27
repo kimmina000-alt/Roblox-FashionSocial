@@ -37,8 +37,11 @@
 | 11j | 튜브 타고 움직이는 동안 수영 소리 (반복) | 106239090346339 | swimminglp (Creator Store) | `src/StarterPlayer/StarterPlayerScripts/FashionGame/ParkRidesController.client.lua` `paddleSound` | |
 | 11k | 카페 알바: 음료 만들 때 (작업대에서) | 9113846434 | Coffee Pot 2 (Pro Sound Effects) | `src/ServerScriptService/FashionGame/Services/CafeJobService.lua` `SOUNDS.make` | |
 | 11l | 카페 알바: NPC 손님이 음료 받으면 "감사합니다" (다른 플레이어에게 줄 때는 안 남) | 132794698600617 | 감사합니다 new (Creator Store) | 같은 파일 `SOUNDS.thanks` | |
-| 11m | 카페 알바 시작 | 77433517511280 | confirm (Creator Store) | 같은 파일 `SOUNDS.start` | |
-| 11n | 카페 알바 끝 | 96659579913194 | PathComplete (Creator Store) | 같은 파일 `SOUNDS.stop` | |
+| 11m | 카페 알바 시작 (컴퓨터 켜는 소리) | 79812542038049 | Windows 10 Startup Sound (Creator Store, 일반 사용자 업로드) | 같은 파일 `SOUNDS.start` | |
+| 11n | 카페 알바 끝 (컴퓨터 끄는 소리) | 6858975342 | Microsoft Windows XP Shutdown Sound (Creator Store, 일반 사용자 업로드) | 같은 파일 `SOUNDS.stop` | |
+| 11p | 콜드 스파크·DJ 불꽃 쇼: 불꽃 터지는 소리 | 75191072171555 | fireworks explosion sfx (Creator Store) | `src/ServerScriptService/FashionGame/Services/SparkleService.lua` `BURST_SOUND` | |
+| 11q | 불꽃 쇼: 타닥타닥 | 85890781320627 | feu d'artifice crépitation (Creator Store) | 같은 파일 `CRACKLE_SOUND` | |
+| 11r | 손 스파클러 타는 소리 (반복) | 71438605239854 | FireworkFuseNEW (Creator Store) | 같은 파일 `FUSE_SOUND` | |
 | 11o | 포켓 공원 분수 물소리 (반복) | 9120552550 | Waterfall Steady Stream 1 (Pro Sound Effects) | `tools/graybox/build_hongdae_layout.lua` (FountainSound) | |
 | 12 | 클럽 엘리베이터 문 닫힘 | 131248980151017 | Hyundai 2012 doors closing | `tools/graybox/build_main_social_graybox.lua` (GrayboxElevator, `DoorClose`) | |
 | 13 | 클럽 엘리베이터 도착 "띵-" | 91728968749666 | Mitsubishi Elevator Chime - Up | 같은 곳 `Ding` | |

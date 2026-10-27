@@ -34,36 +34,41 @@ gui.Parent = player:WaitForChild("PlayerGui")
 local banner = Instance.new("Frame")
 banner.Name = "Banner"
 banner.AnchorPoint = Vector2.new(0.5, 0)
-banner.Size = UDim2.fromOffset(420, 64)
-banner.BackgroundColor3 = Color3.fromRGB(28, 14, 36)
-banner.BackgroundTransparency = 0.08
+-- (user 2026-10-27: it was hard to see) bigger, solid, a thick gold frame
+banner.Size = UDim2.fromOffset(560, 100)
+banner.BackgroundColor3 = Color3.fromRGB(20, 8, 30)
+banner.BackgroundTransparency = 0
 banner.Visible = false
 banner.ZIndex = 5 -- over the 💝 window when both are open (2P test 2026-10-26)
 banner.Parent = gui
 Instance.new("UICorner", banner).CornerRadius = UDim.new(0, 16)
 local stroke = Instance.new("UIStroke")
-stroke.Thickness = 2
+stroke.Thickness = 4
 stroke.Parent = banner
 local headline = Instance.new("TextLabel")
 headline.Name = "Headline"
-headline.Position = UDim2.fromOffset(14, 6)
-headline.Size = UDim2.new(1, -28, 0, 26)
+headline.Position = UDim2.fromOffset(14, 8)
+headline.Size = UDim2.new(1, -28, 0, 44)
 headline.BackgroundTransparency = 1
-headline.TextColor3 = Color3.fromRGB(255, 230, 150)
+headline.TextColor3 = Color3.new(1, 1, 1)
 headline.TextScaled = true
-headline.Font = Enum.Font.GothamBold
+headline.Font = Enum.Font.GothamBlack
 headline.Parent = banner
-Instance.new("UITextSizeConstraint", headline).MaxTextSize = 20
+Instance.new("UITextSizeConstraint", headline).MaxTextSize = 34
+local headStroke = Instance.new("UIStroke")
+headStroke.Thickness = 2.5
+headStroke.Color = Color3.fromRGB(255, 120, 40)
+headStroke.Parent = headline
 local line = Instance.new("TextLabel")
 line.Name = "Message"
-line.Position = UDim2.fromOffset(14, 34)
-line.Size = UDim2.new(1, -28, 0, 22)
+line.Position = UDim2.fromOffset(14, 56)
+line.Size = UDim2.new(1, -28, 0, 34)
 line.BackgroundTransparency = 1
 line.TextColor3 = Color3.new(1, 1, 1)
 line.TextScaled = true
 line.Font = Enum.Font.GothamMedium
 line.Parent = banner
-Instance.new("UITextSizeConstraint", line).MaxTextSize = 17
+Instance.new("UITextSizeConstraint", line).MaxTextSize = 26
 
 local queue: {any} = {}
 local showing = false
@@ -74,22 +79,36 @@ local function showNext()
 	if not data then return end
 	showing = true
 	local vp = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1000, 700)
-	banner.Size = UDim2.fromOffset(math.min(420, vp.X - 24), 64)
+	banner.Size = UDim2.fromOffset(math.min(560, vp.X - 24), 100)
 	local top = TopBar.bottom() + 8
 	if data.kind == "support" then
 		headline.Text = string.format("💝 %s님 후원 감사합니다! (%s R$)", tostring(data.name), tostring(data.amount))
 		stroke.Color = Color3.fromRGB(255, 110, 170)
+		headStroke.Color = Color3.fromRGB(230, 60, 130)
+	elseif data.kind == "djspark" then
+		headline.Text = string.format("🎧🎆 DJ %s님의 불꽃 쇼!", tostring(data.name))
+		stroke.Color = Color3.fromRGB(110, 210, 255)
+		headStroke.Color = Color3.fromRGB(40, 140, 230)
 	else
 		headline.Text = string.format("🎆 %s님이 콜드 스파크를 쏘아 올렸어요!", tostring(data.name))
 		stroke.Color = Color3.fromRGB(255, 210, 110)
+		headStroke.Color = Color3.fromRGB(255, 120, 40)
 	end
 	local message = if typeof(data.message) == "string" then data.message else ""
 	line.Text = if message ~= "" then ("“" .. message .. "”") else ("@" .. tostring(data.user))
-	banner.Position = UDim2.new(0.5, 0, 0, top - 80)
+	banner.Position = UDim2.new(0.5, 0, 0, top - 120)
 	banner.Visible = true
+	-- the frame pulses while it shows
+	task.spawn(function()
+		local t0 = os.clock()
+		while banner.Visible and os.clock() - t0 < BANNER_SECONDS do
+			stroke.Thickness = 4 + 2 * math.abs(math.sin((os.clock() - t0) * 5))
+			task.wait(0.03)
+		end
+	end)
 	TweenService:Create(banner, TweenInfo.new(0.35, Enum.EasingStyle.Back), { Position = UDim2.new(0.5, 0, 0, top) }):Play()
 	task.delay(BANNER_SECONDS, function()
-		local out = TweenService:Create(banner, TweenInfo.new(0.25), { Position = UDim2.new(0.5, 0, 0, top - 80) })
+		local out = TweenService:Create(banner, TweenInfo.new(0.25), { Position = UDim2.new(0.5, 0, 0, top - 120) })
 		out:Play()
 		out.Completed:Wait()
 		banner.Visible = false
@@ -98,10 +117,39 @@ local function showNext()
 	end)
 end
 
+-- A cold spark bought while another show is on (user 2026-10-27): a big white
+-- countdown in the middle of the buyer's screen until theirs goes off
+local wait = Instance.new("TextLabel")
+wait.Name = "ColdSparkWait"
+wait.AnchorPoint = Vector2.new(0.5, 0.5)
+wait.Position = UDim2.fromScale(0.5, 0.36)
+wait.Size = UDim2.fromOffset(520, 70)
+wait.BackgroundTransparency = 1
+wait.TextColor3 = Color3.new(1, 1, 1)
+wait.TextScaled = true
+wait.Font = Enum.Font.GothamBlack
+wait.Visible = false
+wait.Parent = gui
+do local s = Instance.new("UIStroke") s.Thickness = 3 s.Color = Color3.fromRGB(255, 120, 40) s.Parent = wait end
+local waitUntil = 0
+
 ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 	if kind == "Banner" and typeof(value) == "table" then
 		table.insert(queue, value)
 		showNext()
+	elseif kind == "ColdSparkWait" and typeof(value) == "number" then
+		waitUntil = value
+		if wait.Visible then return end
+		wait.Visible = true
+		task.spawn(function()
+			while true do
+				local left = math.ceil(waitUntil - workspace:GetServerTimeNow())
+				if left <= 0 then break end
+				wait.Text = string.format("🎆 %d초 뒤에 내 불꽃이 터져요!", left)
+				task.wait(0.2)
+			end
+			wait.Visible = false
+		end)
 	end
 end)
 

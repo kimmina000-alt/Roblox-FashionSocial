@@ -249,6 +249,18 @@ for index, entry in ipairs(ClubConfig.LightColors) do
 	create("UIStroke", { Name = "Picked", Color = Color3.new(1, 1, 1), Thickness = 2, Enabled = false }, button)
 	colorButtons[entry.key] = button
 end
+-- 🎆 the stage fireworks, free for the DJ (user 2026-10-27; SparkleService
+-- "DJColdSpark", once every 90 s), the last cell of the colour row
+local djSparkButton = create("TextButton", {
+	Name = "DJSpark",
+	LayoutOrder = #ClubConfig.LightColors + 1,
+	BackgroundColor3 = Color3.fromRGB(255, 150, 40),
+	Text = "🎆",
+	TextScaled = true,
+	Font = Enum.Font.GothamBold,
+	TextColor3 = COLORS.text,
+}, colorRow)
+corner(djSparkButton, 6)
 
 local listTitle = create("TextLabel", {
 	Name = "ListTitle",
@@ -346,6 +358,10 @@ local function toast(message: any)
 		if toastToken == token then toastLabel.Visible = false end
 	end)
 end
+djSparkButton.MouseButton1Click:Connect(function()
+	local ok, okServer, message = pcall(function() return ClubShop:InvokeServer("DJColdSpark", nil) end)
+	if ok and okServer then toast("🎆 불꽃 쇼 발사!") elseif ok then toast(message) end
+end)
 
 local function layout()
 	local camera = workspace.CurrentCamera

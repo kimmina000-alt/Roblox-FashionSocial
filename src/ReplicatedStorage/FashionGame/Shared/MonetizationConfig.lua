@@ -42,6 +42,9 @@ MonetizationConfig.GamePasses = {
 	-- Coin x2 for good (D-278): time online and the cafe job earn twice as much.
 	CoinX2 = { sku = "ECON-PASS-COINX2", id = 2054100489, name = "코인 x2 패스", price = 199, status = "live",
 		description = "접속 코인과 알바 코인을 영원히 2배로 받아요." },
+	-- Glowstick (user 2026-10-27): a permanent hand item, tap to change colour. Create on the dashboard, paste the id.
+	Glowstick = { sku = "CLUB-PASS-GLOWSTICK", id = 0, name = "야광봉", price = 99, status = "planned",
+		description = "언제 어디서나 들 수 있는 야광봉. 누르면 색이 바뀌어요." },
 } :: {[string]: Item}
 
 MonetizationConfig.Products = {
@@ -95,6 +98,11 @@ MonetizationConfig.Products = {
 	-- Sparklers and the stage cold spark (SparkleService, D-270..D-272)
 	Sparkler1 = { sku = "CLUB-DP-SPARKLER1", id = 3722465414, name = "테이블 스파클러", price = 15, status = "live",
 		description = "테이블의 내 병 위로 스파클러가 30초 동안 타올라요." },
+	-- (user 2026-10-27) five sparklers in one item, up to five burn in one bucket; and a hand sparkler (60 s)
+	Sparkler5 = { sku = "CLUB-DP-SPARKLER5", id = 0, name = "테이블 스파클러 5개", price = 59, status = "planned",
+		description = "테이블 스파클러 5개 묶음. 한 버킷에 5개까지 함께 꽂혀요." },
+	HandSparkler = { sku = "CLUB-DP-HANDSPARKLER", id = 0, name = "손 스파클러", price = 19, status = "planned",
+		description = "손에 들고 60초 동안 타오르는 스파클러. 들고 춤출 수 있어요." },
 	SparklerBucket = { sku = "CLUB-DP-SPARKLER-BUCKET", id = 3722465439, name = "스파클러 버킷 세트", price = 49, status = "live",
 		description = "얼음 버킷 + 캔 3개(모두 마실 수 있어요) + 스파클러 3개." },
 	SparklerBucket_VIP = { sku = "CLUB-DP-SPARKLER-BUCKET-VIP", id = 3722465476, name = "스파클러 버킷 세트 (VIP가)", price = 39, status = "live",
