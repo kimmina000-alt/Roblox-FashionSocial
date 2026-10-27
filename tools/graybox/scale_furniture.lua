@@ -24,7 +24,7 @@ local SETS = {
 	{ path = { "Hongdae_Layout", "OH24Store" }, names = { "DeckTable", "DeckTableLeg", "DeckStool", "StoolLeg", "WindowBar", "BarLeg", "WindowStool",
 		"GondolaSpine", "GondolaBase", "GondolaEnd", "GondolaShelf", "GondolaTop" } },
 	{ path = { "Hongdae_Layout", "Gukbap" }, names = { "TableLeg", "TableTop", "KkakdugiJar", "KimchiJar", "SpoonBox", "NapkinBox", "Stool", "StoolSeat", "StoolLeg" } },
-	{ path = { "Hongdae_Layout", "OhuFourCuts" }, names = { "HallTable", "HallTableLeg", "HallStool", "HallStoolSeat", "OvalTableTop", "OvalTableEnd", "OvalTableLeg" } },
+	{ path = { "Hongdae_Layout", "OhuFourCuts" }, names = { "OvalTableTop", "OvalTableEnd", "OvalTableLeg" } }, -- (the round table + ring bench are built big)
 	{ path = { "Graybox_MainSocial", "04_Beach_Aquarium", "BeachCafe" }, names = { "CafeTable", "TableLeg", "ChairCushion", "CafeChair", "Leg", "CafeStool", "CafeStoolCushion", "BarStool", "BarStoolCushion", "StoolLeg", "WindowBar" } },
 }
 

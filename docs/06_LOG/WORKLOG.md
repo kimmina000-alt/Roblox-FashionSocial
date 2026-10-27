@@ -2437,3 +2437,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](../02_WORLDS/images/fourcuts_interior_plan_2026-10-27.png)
 
 ![](../02_WORLDS/images/beach_cafe_1F_plan_2026-10-27.png)
+
+### 오후네컷 실내 v3 (D-402)
+사용자 배치도대로: 동쪽 홀 삭제, 로비를 가운데까지 넓히고 포토월 2개, 부스 3개는 동쪽으로 옮겨 남북 전체 길이로 크게(천장도 로비 높이), 화각 넓힘(FOV 56, 카메라 0.6 위), 분홍 벽 두께 3.2, 메이크업존 창·화장대 균등 배치, 가운데 연핑크 원통 테이블 + 화분 + 연하늘 원형 의자. Play: 세 부스 아치 걸어서 통과, 원형 의자 앉기 확인.
+
+![](../02_WORLDS/images/fourcuts_interior_plan_v2_2026-10-27.png)
+
+![](images/2026-10-27/fourcuts_lobby_v2.png)
