@@ -433,17 +433,18 @@ local USER_MESH = {
 }
 -- The whole-bottle pictures (user 2026-10-27, D-423): labels, caps and foil
 -- painted on the bottle mesh itself (the "_uv" imports carry cylindrical UVs,
--- front at the middle of the picture). See-through pixels show the part
--- colour, so one picture serves every flavour colour. Pictures:
+-- front at the middle of the picture, flipped left-right). They are
+-- SurfaceAppearances in ServerStorage.ArtAssets.BottleSkins (AlphaMode
+-- Overlay: see-through pixels show the part colour, so one picture serves
+-- every flavour; a plain TextureID drew them black). Scripts cannot set a
+-- ColorMap, so they are made in Edit mode (place only). Pictures:
 -- docs/04_ART/textures/drinks/skins/, made by the bottle_skins script.
-local SKIN = {
-	ginger_brew = "rbxassetid://130540103874661", monte = "rbxassetid://118191006326697",
-	french_lemonade = "rbxassetid://94713344256198", golden_apple = "rbxassetid://124629136985603",
-	zzang_pop = "rbxassetid://134094123522096", hot_boost = "rbxassetid://99548340361442",
-	green_claw = "rbxassetid://92974676398045", blue_wing = "rbxassetid://72780943931244",
-	stack_hydro = "rbxassetid://99121303799889", pastel_splash = "rbxassetid://84338255538652",
-	skull_water = "rbxassetid://95136725349970", golmok = "rbxassetid://124457975063786",
-}
+local function skinOf(key: string): SurfaceAppearance?
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local skins = art and art:FindFirstChild("BottleSkins")
+	local sa = skins and skins:FindFirstChild(key)
+	return if sa and sa:IsA("SurfaceAppearance") then sa else nil
+end
 local VIP_SPADE, VIP_PLATE = "rbxassetid://100981037328421", "rbxassetid://75444167233842"
 
 -- 골목 공방 (VIP), like the user's photo of the metallic champagne set: a
@@ -493,7 +494,8 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local folder = art and art:FindFirstChild("Bottles")
 	-- ("_uv" imports carry UVs for the painted picture, "_smooth" vertex normals)
-	local uv = folder and SKIN[key] and folder:FindFirstChild(spec[1] .. "_uv")
+	local skin = skinOf(key)
+	local uv = folder and skin and folder:FindFirstChild(spec[1] .. "_uv")
 	local src = uv or (folder and (folder:FindFirstChild(spec[1] .. "_smooth") or folder:FindFirstChild(spec[1])))
 	local mesh = src and (if src:IsA("MeshPart") then src else src:FindFirstChildWhichIsA("MeshPart", true))
 	if not mesh then return false end
@@ -526,7 +528,7 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	local y0, y1 = spec[4] * H, spec[5] * H
 	if uv then
 		-- painted: the picture on the mesh, no label parts (D-423)
-		p.TextureID = SKIN[key]
+		(skin :: SurfaceAppearance):Clone().Parent = p
 		if spec[3] == "vip" then vipDress(c, p, color, H, r * 0.93, true) end
 	elseif spec[3] == "vip" then
 		vipDress(c, p, color, H, r * 0.93)
