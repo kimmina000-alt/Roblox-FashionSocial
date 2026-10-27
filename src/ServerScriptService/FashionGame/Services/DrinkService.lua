@@ -27,6 +27,7 @@ local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("Club
 local MonetizationService = require(script.Parent.MonetizationService)
 local EconomyService = require(script.Parent.EconomyService)
 local DrinkBucket = require(script.Parent.DrinkBucket)
+local BottleShapes = require(FashionGame:WaitForChild("Shared"):WaitForChild("BottleShapes"))
 
 local DrinkService = {}
 
@@ -105,6 +106,10 @@ local function giveBottle(player: Player, drinkKey: string, servings: number?, v
 	tool:SetAttribute("Servings", cups)
 	local handle = makeHandle(Vector3.new(0.7, 1.8, 0.7), color)
 	handle.Parent = tool
+	-- the drink's own bottle shape on the (invisible) handle (BottleShapes, 2026-10-27)
+	handle.Transparency = 1
+	local scale = 1.9 / BottleShapes.height(drink.key)
+	BottleShapes.add(tool, handle.CFrame * CFrame.new(0, -0.9, 0), drink.key, color, scale, handle)
 	tool.Grip = CFrame.new(0, -0.3, 0)
 	tool.Parent = backpack
 	return true, name .. " 병을 받았어요! 테이블에 놓고 함께 마셔요."
@@ -435,7 +440,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	ref.Parent = bottle
 
 	-- the look (the part above stays as the invisible holder of the label)
-	local bucket = DrinkBucket.build(kind, { drinkColor }, CFrame.new(slot.WorldPosition))
+	local bucket = DrinkBucket.build(kind, { drinkColor }, CFrame.new(slot.WorldPosition), drink.key)
 	if kind == "vip" or kind == "golmok" or kind == "bottle" then -- (tier 1 is a small pail now, on an edge slot: 2026-10-27)
 		bucket:ScaleTo(0.8)
 	elseif isBucket then

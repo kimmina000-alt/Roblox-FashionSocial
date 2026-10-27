@@ -3,9 +3,11 @@
 -- 2026-10-26): tier 1 a bottle alone, tier 2 a steel ice bucket, tier 3 a
 -- glowing acrylic tub in the drink colour, VIP (any drink a VIP pass owner
 -- buys) a gold-framed LED boat, and 골목 공방 소다 (VIP only) a bigger boat
--- with six bottles, a gold arch and sparkles. Bottles are soda bottles
--- (never wine / champagne shapes: no alcohol, D-043). Plain parts, about
+-- with six bottles, a gold arch and sparkles. Bottles: BottleShapes (the
+-- drinks stay sodas, D-043; shapes from the user's sheet). Plain parts, about
 -- 10–40 per bucket, one light each (phones).
+
+local BottleShapes = require(game:GetService("ReplicatedStorage").FashionGame.Shared.BottleShapes)
 
 local DrinkBucket = {}
 
@@ -48,23 +50,18 @@ local function cyl(model: Model, name: string, d: number, h: number, cf: CFrame,
 	return part(model, name, Vector3.new(h, d, d), cf * CFrame.Angles(0, 0, math.rad(90)), color, material, Enum.PartType.Cylinder, transparency)
 end
 
--- A soda bottle standing at `base` (bottom centre, its up axis = the bottle
--- axis): glass body in the drink colour, white label band, neck, gold cap.
-local function bottle(model: Model, base: CFrame, color: Color3, scale: number)
-	local s = scale
-	cyl(model, "BottleBody", 0.55 * s, 1.3 * s, base * CFrame.new(0, 0.65 * s, 0), color, Enum.Material.Glass, 0.15)
-	cyl(model, "BottleLabel", 0.57 * s, 0.45 * s, base * CFrame.new(0, 0.6 * s, 0), Color3.fromRGB(250, 250, 248))
-	cyl(model, "BottleShoulder", 0.42 * s, 0.25 * s, base * CFrame.new(0, 1.42 * s, 0), color, Enum.Material.Glass, 0.15)
-	cyl(model, "BottleNeck", 0.26 * s, 0.45 * s, base * CFrame.new(0, 1.75 * s, 0), color, Enum.Material.Glass, 0.15)
-	cyl(model, "BottleCap", 0.3 * s, 0.12 * s, base * CFrame.new(0, 2.02 * s, 0), GOLD, Enum.Material.Metal)
+-- The drink's own bottle (BottleShapes: the silhouettes from the user's
+-- reference sheet, 2026-10-27) standing at `base` (bottom centre).
+local function bottle(model: Model, base: CFrame, key: string, color: Color3, scale: number)
+	BottleShapes.add(model, base, key, color, scale * 0.95)
 end
 
 -- bottles leaning out of the ice, spread along the bucket's X axis
-local function bottlesInIce(model: Model, top: CFrame, colors: {Color3}, count: number, spread: number, scale: number)
+local function bottlesInIce(model: Model, top: CFrame, key: string, colors: {Color3}, count: number, spread: number, scale: number)
 	for i = 1, count do
 		local u = if count == 1 then 0 else (i - 1) / (count - 1) * 2 - 1
 		local lean = CFrame.Angles(math.rad(10 * ((i % 2) * 2 - 1)), 0, math.rad(-22 * u))
-		bottle(model, top * CFrame.new(u * spread, -0.7 * scale, ((i % 2) - 0.5) * 0.25) * lean, colors[(i - 1) % #colors + 1], scale)
+		bottle(model, top * CFrame.new(u * spread, -0.7 * scale, ((i % 2) - 0.5) * 0.25) * lean, key, colors[(i - 1) % #colors + 1], scale)
 	end
 end
 
@@ -79,7 +76,8 @@ end
 
 -- Builds the bucket for `kind` with its bottom centre at `at` (on the table
 -- top). colors = the drink colour(s); returns the model (not parented).
-function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame): Model
+function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame, key: string?): Model
+	local drinkKey = key or "cider"
 	local m = Instance.new("Model")
 	m.Name = "DrinkBucket_" .. kind
 	m:SetAttribute("BucketKind", kind)
@@ -91,10 +89,10 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame): Model
 		local pail = cyl(m, "Pail", 1.5, h, at * CFrame.new(0, h / 2, 0), Color3.fromRGB(200, 200, 208), Enum.Material.Metal)
 		pail.Reflectance = 0.25
 		cyl(m, "Ice", 1.35, 0.1, at * CFrame.new(0, h - 0.02, 0), Color3.fromRGB(225, 240, 250), Enum.Material.Glass, 0.2)
-		local shades = { c, c:Lerp(Color3.new(1, 1, 1), 0.35), c:Lerp(Color3.new(0, 0, 0), 0.25) }
+		-- (2026-10-27) three of the drink's own PET bottles standing in the ice
 		for i = 1, 3 do
 			local angle = (i - 1) * math.pi * 2 / 3
-			part(m, "Can", Vector3.new(0.9, 0.36, 0.36), at * CFrame.new(math.cos(angle) * 0.38, h + 0.55 - 0.6, math.sin(angle) * 0.38) * CFrame.Angles(0, 0, math.rad(80)), shades[i], Enum.Material.Metal, Enum.PartType.Cylinder)
+			bottle(m, at * CFrame.new(math.cos(angle) * 0.36, h - 0.55, math.sin(angle) * 0.36) * CFrame.Angles(0, -angle - math.pi / 2, 0), drinkKey, c, 0.62)
 		end
 	elseif kind == "steel" then
 		-- brushed steel pail, ice heaped to the rim, ring handles
@@ -106,7 +104,7 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame): Model
 		for _, side in ipairs({ -1, 1 }) do
 			part(m, "RingHandle", Vector3.new(0.08, 0.4, 0.4), at * CFrame.new(side * 0.86, h * 0.7, 0), Color3.fromRGB(200, 160, 80), Enum.Material.Metal, Enum.PartType.Cylinder)
 		end
-		bottlesInIce(m, at * CFrame.new(0, h, 0), colors, 2, 0.35, 0.85)
+		bottlesInIce(m, at * CFrame.new(0, h, 0), drinkKey, colors, 2, 0.35, 0.85)
 	elseif kind == "acrylic" then
 		-- frosted acrylic tub lit from inside in the drink colour, black base
 		local h = 1.25
@@ -119,7 +117,7 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame): Model
 		part(m, "BackLip", Vector3.new(1.4, 0.55, 0.1), at * CFrame.new(0, 0.18 + h + 0.2, 0.86) * CFrame.Angles(math.rad(-12), 0, 0), c, Enum.Material.SmoothPlastic, 0.5)
 		cyl(m, "Ice", 1.75, 0.22, at * CFrame.new(0, 0.18 + h - 0.05, 0), c:Lerp(ICE, 0.5), Enum.Material.Ice, 0)
 		light(glow, c, 7, 1.6)
-		bottlesInIce(m, at * CFrame.new(0, 0.18 + h, 0), colors, 3, 0.45, 0.85)
+		bottlesInIce(m, at * CFrame.new(0, 0.18 + h, 0), drinkKey, colors, 3, 0.45, 0.85)
 	else
 		-- gold-framed LED boat: clear acrylic box on a U frame, rainbow ice
 		local golmok = kind == "golmok"
@@ -149,7 +147,7 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame): Model
 		-- (user 2026-10-27) the 골목 공방 boat's bottles in the flavour that was
 		-- bought (레몬 라벤더 / 생강 장미 / 오미자 히비스커스 / 오디), on the rainbow ice
 		local bottleColors = colors
-		bottlesInIce(m, at * CFrame.new(0, lift + H, 0), bottleColors, if golmok then 6 else 4, L / 2 - 0.4, if golmok then 1 else 0.9)
+		bottlesInIce(m, at * CFrame.new(0, lift + H, 0), drinkKey, bottleColors, if golmok then 6 else 4, L / 2 - 0.4, if golmok then 1 else 0.9)
 		if golmok then
 			-- gold arch over the boat with a glowing crest, and sparkles
 			local archH = H + lift + 1.6
