@@ -416,19 +416,19 @@ end
 -- ServerStorage.ArtAssets.Bottles). One mesh, 1 stud tall, upright.
 -- [key] = { model, height in bottle units, label: "front" (a paper label) or "band" (wrapped), label y0, y1 (0..1 of the height) }
 local USER_MESH = {
-	ginger_brew = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
-	monte = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
-	french_lemonade = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
-	golden_apple = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
-	zzang_pop = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
-	hot_boost = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
-	green_claw = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
-	blue_wing = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
-	stack_hydro = { "bottle_stack_hydro", 2.16, "band", 0.2, 0.42 },
-	pastel_splash = { "bottle_pastel_splash", 2.16, "pastel", 0.13, 0.47 },
-	skull_water = { "bottle_skull_water", 2.16, "swing", 0.12, 0.52 },
-	-- (1.3x the other bottles, user 2026-10-27, D-419; BottleShapes.Height keeps
-	-- 2.52 so the hand tool is 1.3x too)
+	ginger_brew = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
+	monte = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
+	french_lemonade = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
+	golden_apple = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
+	zzang_pop = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
+	hot_boost = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
+	green_claw = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
+	blue_wing = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
+	stack_hydro = { "bottle_stack_hydro", 3.24, "band", 0.2, 0.42 },
+	pastel_splash = { "bottle_pastel_splash", 3.24, "pastel", 0.13, 0.47 },
+	skull_water = { "bottle_skull_water", 3.24, "swing", 0.12, 0.52 },
+	-- (VIP 1.3x, D-419; the others 1.5x, D-426. BottleShapes.Height keeps the
+	-- old heights, so the bottles in the hand grow by the same amount)
 	golmok = { "bottle_vip_golmok", 3.28, "vip", 0, 0 },
 }
 -- The whole-bottle pictures (user 2026-10-27, D-423): labels, caps and foil
@@ -495,7 +495,9 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	local folder = art and art:FindFirstChild("Bottles")
 	-- ("_uv" imports carry UVs for the painted picture, "_smooth" vertex normals)
 	local skin = skinOf(key)
-	local uv = folder and skin and folder:FindFirstChild(spec[1] .. "_uv")
+	-- ("_fixed": faces turned outward and the front where Roblox puts it, D-425;
+	-- the first "_uv" imports were inside out: the back showed through)
+	local uv = folder and skin and (folder:FindFirstChild(spec[1] .. "_fixed") or folder:FindFirstChild(spec[1] .. "_uv"))
 	local src = uv or (folder and (folder:FindFirstChild(spec[1] .. "_smooth") or folder:FindFirstChild(spec[1])))
 	local mesh = src and (if src:IsA("MeshPart") then src else src:FindFirstChildWhichIsA("MeshPart", true))
 	if not mesh then return false end
@@ -528,8 +530,8 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	local y0, y1 = spec[4] * H, spec[5] * H
 	if uv then
 		-- painted: the picture on the mesh, no label parts (D-423)
+		-- (the VIP spade, monogram and plate are painted in relief too: no parts)
 		(skin :: SurfaceAppearance):Clone().Parent = p
-		if spec[3] == "vip" then vipDress(c, p, color, H, r * 0.93, true) end
 	elseif spec[3] == "vip" then
 		vipDress(c, p, color, H, r * 0.93)
 	elseif spec[3] == "front" then
