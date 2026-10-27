@@ -186,6 +186,9 @@ local function revert()
 		if old:GetAttribute("YardLawn") then -- the 광화문 yard lawn (terrain, 0..4)
 			workspace.Terrain:FillBlock(CFrame.new((47 + 277) / 2, 0, (47 + 387) / 2), Vector3.new(232, 8, 342), Enum.Material.Air)
 		end
+		if old:GetAttribute("PitWater") then -- the pocket park fountain pit (terrain water)
+			workspace.Terrain:FillCylinder(CFrame.new(-96, -5.5, -128), 4, 21, Enum.Material.Air)
+		end
 		if old:GetAttribute("Mountains") then
 			for _, m in ipairs(MOUNTAINS) do workspace.Terrain:FillBall(m[1], m[2] + 1, Enum.Material.Air) end
 		end
@@ -295,19 +298,36 @@ do
 					end
 				end
 			end
-			-- (user 2026-10-27) the ferris wheel twice as big, standing on the
-			-- same ground spot; its turning radius goes with it (revert scales it back)
-			local W = park:FindFirstChild("FerrisWheel")
-			local hub = W and W:FindFirstChild("Hub")
-			if W and hub and W:GetScale() == 1 then
-				local cf0, s0 = W:GetBoundingBox()
-				local groundY = cf0.Y - s0.Y / 2
-				local hx, hz = hub.Position.X, hub.Position.Z
-				W:ScaleTo(2)
-				local cf1, s1 = W:GetBoundingBox()
-				W:PivotTo(W:GetPivot() + Vector3.new(hx - hub.Position.X, groundY - (cf1.Y - s1.Y / 2), hz - hub.Position.Z))
-				W:SetAttribute("Radius", 52)
+		end
+		-- (user 2026-10-27) the ferris wheel twice as big, standing on the
+		-- same ground spot; its turning radius goes with it (revert scales it back)
+		local W = park:FindFirstChild("FerrisWheel")
+		local hub = W and W:FindFirstChild("Hub")
+		if W and hub and W:GetScale() == 1 then
+			local hx, hz = hub.Position.X, hub.Position.Z
+			W:ScaleTo(2)
+			W:PivotTo(W:GetPivot() + Vector3.new(hx - hub.Position.X, 0, hz - hub.Position.Z))
+			W:SetAttribute("Radius", 52)
+		end
+		-- feet on the ground: the lowest world point of its parts onto the
+		-- ground under the hub (its pivot is tilted, so the bounding box is
+		-- not level; the old box sum lifted it a little more on every run,
+		-- up to y 835 by 2026-10-27)
+		if W and hub then
+			local low = math.huge
+			for _, x in ipairs(W:GetDescendants()) do
+				if x:IsA("BasePart") then
+					local r, e = x.CFrame, x.Size / 2
+					local up = math.abs(r.RightVector.Y) * e.X + math.abs(r.UpVector.Y) * e.Y + math.abs(r.LookVector.Y) * e.Z
+					low = math.min(low, x.Position.Y - up)
+				end
 			end
+			local params = RaycastParams.new()
+			params.FilterType = Enum.RaycastFilterType.Exclude
+			params.FilterDescendantsInstances = { W }
+			local hit = workspace:Raycast(Vector3.new(hub.Position.X, 400, hub.Position.Z), Vector3.new(0, -800, 0), params)
+			local groundY = if hit and hit.Position.Y < 40 then hit.Position.Y else 0
+			if low < math.huge and math.abs(low - groundY) > 0.01 then W:PivotTo(W:GetPivot() + Vector3.new(0, groundY - low, 0)) end
 		end
 	end
 end
@@ -1867,7 +1887,9 @@ end
 -- plinth, dressed beige stone blocks above, a small tiled roof on top (eave,
 -- two tile slopes, dark ridge). `out` = the side facing the street: a strip
 -- at its foot lights the wall at night (NightGlow, photo of the lit wall).
-local PALACE_H = 8.4 -- top of the stone, the roof sits on it
+-- top of the stone, the roof sits on it; 12 so nobody jumps over (user
+-- 2026-10-27; a jump lifts the feet 7.2, the old 8.4 felt climbable)
+local PALACE_H = 12
 -- warm light washing up a wall at night (a gradient on a thin sheet in front
 -- of it, NightWash: NightGlowController shows it after dark). cf = centre of
 -- the sheet, looking out of the wall
@@ -2071,12 +2093,27 @@ do
 			base:Destroy()
 		end
 		G.Parent = was
-		-- red doors standing open against the sides of each arch
+		-- red doors shut in the middle of each arch (user 2026-10-27: closed, the
+		-- village is not open): two leaves meeting at a dark seam, the round
+		-- head of the arch filled with a red panel, rows of gold studs
+		local xm = (gx0 + gx1) / 2
 		for _, a in ipairs(ARCHES) do
 			local r = a[2] / 2
+			local hLeaf = a[3] - r
 			for _, s in ipairs({ -1, 1 }) do
-				part("GateDoorLeaf", Vector3.new(r, a[3] - r, 0.3), CFrame.new((gx0 + gx1) / 2 + r / 2, (a[3] - r) / 2, a[1] + s * (r - 0.15)), wood, { parent = G })
+				part("GateDoorLeaf", Vector3.new(0.5, hLeaf, r - 0.05), CFrame.new(xm, hLeaf / 2, a[1] + s * (r / 2 + 0.025)), wood, { parent = G })
+				for row = 1, 4 do
+					for col = 1, 2 do
+						for _, f in ipairs({ -1, 1 }) do
+							local stud = part("GateDoorStud", Vector3.new(0.28, 0.28, 0.28), CFrame.new(xm + f * 0.3, hLeaf * row / 5, a[1] + s * (r * col / 3)), Color3.fromRGB(200, 160, 70), { parent = G, nocol = true, shape = Enum.PartType.Ball })
+							stud.CastShadow = false
+							stud.CanQuery = false
+						end
+					end
+				end
 			end
+			part("GateDoorHead", Vector3.new(0.5, a[2], a[2]), CFrame.new(xm, hLeaf, a[1]), wood, { parent = G, shape = Enum.PartType.Cylinder })
+			part("GateDoorSeam", Vector3.new(0.6, hLeaf, 0.1), CFrame.new(xm, hLeaf / 2, a[1]), Color3.fromRGB(70, 22, 18), { parent = G, nocol = true })
 		end
 	end
 	-- 광화문 details (user photos 2026-10-23): dressed granite blocks with
@@ -3780,7 +3817,53 @@ do
 		local dz = EAST_ZL - C.Z
 		infill(Vector2.new(C.X + math.sqrt(34.6 ^ 2 - dz * dz), EAST_ZL), Vector2.new(C.X + math.sqrt(44.1 ^ 2 - dz * dz), EAST_ZL),
 			Vector2.new(WALK_X1, C.Z + math.sqrt(44.1 ^ 2 - (WALK_X1 - C.X) ^ 2)))
-	end	arc("ParkDeckWalk", C, 22, 27, 52, 110, 0, 0.6, WOOD, Enum.Material.WoodPlanks)
+	end
+	-- (user 2026-10-27: the wooden board by the pit, ParkDeckWalk, is gone; the
+	-- pit round the mound holds water like a fountain basin) terrain water 3
+	-- deep in the ring between the mound plinth (r 15) and the pit wall (r 20),
+	-- its rough voxel edge hidden inside them; jets from nozzles on the outer
+	-- rim arc onto the mound plinth
+	do
+		local floorY = LEVELS[2][2]
+		workspace.Terrain:FillCylinder(CFrame.new(C.X, floorY + 1.5, C.Z), 3, 20, Enum.Material.Water)
+		T:SetAttribute("PitWater", true)
+		local N = 12
+		for i = 0, N - 1 do
+			local a = math.rad(i * 360 / N + 15)
+			local out = Vector3.new(math.cos(a), 0, math.sin(a))
+			local p = Vector3.new(C.X, floorY + 3.2, C.Z) + out * 19.2
+			local nozzle = part("FountainNozzle", Vector3.new(0.5, 0.5, 0.5), CFrame.lookAt(p, p - out + Vector3.new(0, 1.6, 0)), Color3.fromRGB(150, 152, 156), o(Enum.Material.Metal, { nocol = true }))
+			nozzle.CastShadow = false
+			nozzle.CanQuery = false
+			local att = Instance.new("Attachment")
+			att.Parent = nozzle
+			local jet = Instance.new("ParticleEmitter")
+			jet.Name = "FountainJet"
+			jet.EmissionDirection = Enum.NormalId.Front
+			jet.Speed = NumberRange.new(14, 15)
+			jet.SpreadAngle = Vector2.new(2, 2)
+			jet.Acceleration = Vector3.new(0, -32, 0)
+			jet.Lifetime = NumberRange.new(0.75, 0.85)
+			jet.Rate = 45
+			jet.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 0.5) })
+			jet.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 0.7) })
+			jet.Color = ColorSequence.new(Color3.fromRGB(210, 235, 255))
+			jet.LightEmission = 0.3
+			jet.Parent = att
+		end
+		-- the sound of falling water, heard round the plaza
+		local hum = Instance.new("Sound")
+		hum.Name = "FountainSound"
+		hum.SoundId = "rbxassetid://9120552550" -- "Waterfall Steady Stream 1" (Pro Sound Effects), docs/04_ART/SOUNDS.md
+		hum.Looped = true
+		hum.Volume = 0.5
+		hum.RollOffMinDistance = 10
+		hum.RollOffMaxDistance = 60
+		hum.Playing = true
+		local holder = vcyl("FountainSoundSource", Vector3.new(C.X, floorY, C.Z), 1, 0.2, STONE, o(Enum.Material.Limestone, { nocol = true, transparency = 1 }))
+		holder.CanQuery = false
+		hum.Parent = holder
+	end
 	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
 	-- a raised wooden deck (one step, the tiers' wood) between the west tree bed,
 	-- the gate walk and the sunken circle (user 2026-10-24, red outline + sketch):
@@ -5173,7 +5256,10 @@ do
 	end
 	shopBlock("N", 48, -1000, 130, -385, 60, { "W", "S" }) -- north of the 국밥집, on the club line
 	shopBlock("E", 195, -100, 310, -48, 50, { "S", "W" }) -- east of 오후네컷, along the east road
-	shopBlock("S", -150, 215, -56, 985, 60, { "E", "W", "N" }) -- south of OH24, between the south road and the beach road
+	-- (user 2026-10-27: its beach-road face on the OH24 store's line, x -135, so
+	-- the 23-wide sidewalk runs on past the store; 15 narrower)
+	shopBlock("S", -135, 215, -56, 985, 60, { "E", "W", "N" }) -- south of OH24, between the south road and the beach road
+	walk(-150, 214, -135, 985) -- (the strip it left: sidewalk like the store's)
 	for xx = 330, 985, 35 do -- east road, north side (front +z at z -47)
 		i2 += 1
 		fakeBuilding(Vector3.new(xx, 0, -58), 34, 22, hgt[(i2 + 2) % #hgt + 1], Vector3.new(0, 0, 1))

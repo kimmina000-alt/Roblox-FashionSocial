@@ -1096,6 +1096,8 @@ RunService.RenderStepped:Connect(function(dt)
 		-- outside the club only the people dancing hear the music (their own
 		-- client plays it; user 2026-10-26)
 		if current.key ~= nil then level = math.max(level, OUTSIDE_DANCE_LEVEL) end
+		-- poses in the photo booth are dances too, but silent there (user 2026-10-27)
+		if player.Character and player.Character:GetAttribute("PhotoBooth") ~= nil then level = 0 end
 		music.Volume = ClubConfig.MusicVolume * level
 		banner.Visible = level > 0 and banner.Text ~= ""
 	end

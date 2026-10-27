@@ -611,6 +611,11 @@ local expandButton = create("TextButton", {
 })
 expandButton.Parent = mainFrame
 create("UICorner", { CornerRadius = UDim.new(0, 8) }).Parent = expandButton
+-- < > : back to the look before the last change / forward again (UndoBar)
+local undoBar = require(script.Parent:WaitForChild("UndoBar")).new(mainFrame, TryOnItem, function()
+	refreshWornItems()
+	refreshAvatarPreview()
+end, function(message) showToast(message) end)
 
 --------------------------------------------------
 -- SEARCH BOX
@@ -1419,7 +1424,7 @@ updateCatalogLayout = function()
 	expandButton.Visible = true
 	expandButton.Text = if expandedPanel then "↙" else "↗"
 	expandButton.TextSize = if phoneCompact then 16 else 20
-	local controlsLeft = contentRight - controlSize * 2 - 6
+	local controlsLeft = undoBar.layout(contentRight - controlSize * 2 - 12, headerY, controlSize, if phoneCompact then 16 else 20)
 	titleLabel.Visible = not phoneCompact
 	titleLabel.Position = UDim2.fromOffset(x, headerY + 1)
 	titleLabel.Size = UDim2.fromOffset(math.min(132, math.max(72, math.floor(rightWidth * 0.22))), 30)

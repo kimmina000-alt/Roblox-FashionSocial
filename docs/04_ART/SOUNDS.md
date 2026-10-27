@@ -32,6 +32,14 @@
 | 11e | 포토부스 사진 찍을 때 찰칵 (새로 넣음) | 17208312548 | Roblox GUI - Camera Shutter | `src/StarterPlayer/StarterPlayerScripts/FashionGame/PhotoBoothController.client.lua` `boothSound.shutter` | |
 | 11f | 포토부스 카운트다운 3·2·1 삑 (새로 넣음) | 9118777239 | Scanner Beeps 5 (Pro Sound Effects) | 같은 파일 `boothSound.tick` | |
 | 11g | 편의점·카페·노점 결제할 때 띵동 (계산대에서 나요, 새로 넣음) | 9118777437 | Scanner Beeps 10 (Pro Sound Effects) | `src/ServerScriptService/FashionGame/Services/SnackService.lua` `PAY_SOUND` | |
+| 11h | 자동문 열림·닫힘 (OH24, 오후네컷, 해변 카페, 클럽 입구) | 4496280365 | Automatic Sliding Door (Creator Store) — 닫힐 때는 조금 낮게 | `src/StarterPlayer/StarterPlayerScripts/FashionGame/AutoDoorController.client.lua` `DOOR_SOUND` | |
+| 11i | 버스 타고 도착해서 내릴 때 버스 문 열림 | 103836825296838 | Bs계열 앞문 오픈소리 (Creator Store) | `src/ServerScriptService/FashionGame/Services/SubwayService.lua` (BusDoorSound) | |
+| 11j | 튜브 타고 움직이는 동안 수영 소리 (반복) | 106239090346339 | swimminglp (Creator Store) | `src/StarterPlayer/StarterPlayerScripts/FashionGame/ParkRidesController.client.lua` `paddleSound` | |
+| 11k | 카페 알바: 음료 만들 때 (작업대에서) | 9113846434 | Coffee Pot 2 (Pro Sound Effects) | `src/ServerScriptService/FashionGame/Services/CafeJobService.lua` `SOUNDS.make` | |
+| 11l | 카페 알바: NPC 손님이 음료 받으면 "감사합니다" (다른 플레이어에게 줄 때는 안 남) | 132794698600617 | 감사합니다 new (Creator Store) | 같은 파일 `SOUNDS.thanks` | |
+| 11m | 카페 알바 시작 | 77433517511280 | confirm (Creator Store) | 같은 파일 `SOUNDS.start` | |
+| 11n | 카페 알바 끝 | 96659579913194 | PathComplete (Creator Store) | 같은 파일 `SOUNDS.stop` | |
+| 11o | 포켓 공원 분수 물소리 (반복) | 9120552550 | Waterfall Steady Stream 1 (Pro Sound Effects) | `tools/graybox/build_hongdae_layout.lua` (FountainSound) | |
 | 12 | 클럽 엘리베이터 문 닫힘 | 131248980151017 | Hyundai 2012 doors closing | `tools/graybox/build_main_social_graybox.lua` (GrayboxElevator, `DoorClose`) | |
 | 13 | 클럽 엘리베이터 도착 "띵-" | 91728968749666 | Mitsubishi Elevator Chime - Up | 같은 곳 `Ding` | |
 | 14 | 클럽 엘리베이터 문 열림 | 78753128620247 | Elevator Door Opening | 같은 곳 `DoorOpen` | |
@@ -39,7 +47,7 @@
 | 16 | 미끄럼틀 끝 "야호!" | 130278670102424 | 야호 목소리 | 같은 파일 `YahooSoundId` | |
 | 17 | 해변 카페 그랜드 피아노 건반 | 121396137137027 | GrandPianoC4 (한 음을 높낮이 바꿔 씀) | `src/StarterPlayer/StarterPlayerScripts/FashionGame/PianoController.client.lua` `SAMPLE_ID` | |
 | 18 | 클럽 음악 (11곡, DJ 채널 EDM / POP / HIP-HOP) | 136689162723802 외 10곡 | 곡 목록은 파일 참고 | `src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua` `Playlist` | |
-| 19 | 클럽 밖에서 춤출 때 음악 (새로 넣음) | 18번과 같은 곡 | 춤추는 사람 본인에게만 들려요 | (18번과 같음) | |
+| 19 | 클럽 밖에서 춤출 때 음악 | 18번과 같은 곡 | 춤추는 사람 본인에게만 들려요. 포토부스 안에서 포즈를 누를 때는 안 나요 (2026-10-27) | (18번과 같음) | |
 
 ### Roblox 기본 캐릭터 소리 (2026-10-27 확인)
 
@@ -61,15 +69,15 @@ Roblox는 캐릭터마다 `RbxCharacterSounds`로 기본 소리를 붙여요. �
 
 | # | 언제 나요 | 바꿀 ID |
 |---|---|---|
-| A | 자동문 열릴 때 (OH24, 오후네컷, 해변 카페, 클럽 입구) | |
+| A | ~~자동문 열릴 때~~ → 넣음 (11h) | |
 | B | ~~포토부스 사진 찍을 때 찰칵 / 카운트다운 삑~~ → 넣음 (11e, 11f) | |
 | C | 클럽 테이블에 병·버킷 놓을 때 쨍 (유리) | |
 | D | 스파클러 불꽃 타는 소리 | |
 | E | 무대 콜드 스파크 소리 | |
-| F | 튜브 타고 물 위에서 움직일 때 물 가르는 소리 | |
+| F | ~~튜브 타고 물 위에서 움직일 때~~ → 넣음 (11j) | |
 | G | 바닷가 파도 소리 (해변 배경) | |
 | H | 코인 받을 때 짤랑 | |
-| I | 카페 알바 서빙 완료 띵 | |
-| J | 지하철·버스 이동할 때 | |
+| I | 카페 알바 서빙 완료 띵 (지금은 NPC "감사합니다" 11l) | |
+| J | 지하철 이동할 때 (버스는 넣음, 11i) | |
 
 빈칸에 ID를 적어 주면 그대로 넣을게요. 2번 표의 소리는 원하면 Claude가 임시 소리를 먼저 찾아 넣을 수도 있어요.

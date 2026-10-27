@@ -429,10 +429,21 @@ end
 local driveSentAt = 0
 local lastSent: Vector3? = nil
 
+-- swimming strokes while the tube moves (user 2026-10-27; docs/04_ART/SOUNDS.md)
+local paddleSound = Instance.new("Sound")
+paddleSound.Name = "TubePaddle"
+paddleSound.SoundId = "rbxassetid://106239090346339" -- "swimminglp" (Creator Store)
+paddleSound.Looped = true
+paddleSound.Volume = 0.6
+paddleSound.Parent = game:GetService("SoundService")
+
 local function paddle(dt: number)
 	local tube = myTube
 	local pos = drivePos
 	local humanoid = ownHumanoid()
+	local moving = tube ~= nil and pos ~= nil and humanoid ~= nil and humanoid.MoveDirection.Magnitude > 0.05
+	if moving and not paddleSound.IsPlaying then paddleSound:Play()
+	elseif not moving and paddleSound.IsPlaying then paddleSound:Stop() end
 	if not tube or not pos or not humanoid then return end
 	local move = humanoid.MoveDirection
 	if move.Magnitude > 0.05 then

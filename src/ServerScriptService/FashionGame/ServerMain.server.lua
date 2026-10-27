@@ -153,6 +153,73 @@ local function runExclusive(player: Player, fn: () -> (boolean, any)): (boolean,
 	return result, message
 end
 
+-- Undo / redo of avatar changes (user 2026-10-27: a body or a bundle replaces
+-- the whole look, so there must be a way back): every change that went
+-- through keeps the look from before it (an OutfitSnapshot) on the player's
+-- undo list; "Undo" puts that look back (the current one goes on the redo
+-- list), "Redo" the other way. Player attributes AvatarUndo / AvatarRedo
+-- (list lengths) switch the catalog's < > buttons on and off.
+local HttpService = game:GetService("HttpService")
+local Players = game:GetService("Players")
+local HISTORY_MAX = 30
+local history: {[Player]: { undo: {any}, redo: {any} }} = {}
+local function historyOf(player: Player)
+	local h = history[player]
+	if not h then
+		h = { undo = {}, redo = {} }
+		history[player] = h
+	end
+	return h
+end
+local function publishHistory(player: Player)
+	local h = historyOf(player)
+	player:SetAttribute("AvatarUndo", #h.undo)
+	player:SetAttribute("AvatarRedo", #h.redo)
+end
+Players.PlayerRemoving:Connect(function(player) history[player] = nil end)
+local function sameLook(a: any, b: any): boolean
+	local okA, ja = pcall(HttpService.JSONEncode, HttpService, a)
+	local okB, jb = pcall(HttpService.JSONEncode, HttpService, b)
+	return okA and okB and ja == jb
+end
+-- runs a change like runExclusive and records the look from before it
+local function runTracked(player: Player, fn: () -> (boolean, any)): (boolean, any)
+	return runExclusive(player, function()
+		local okBefore, before = AvatarService.CaptureSnapshot(player)
+		local ok, result = fn()
+		if ok and okBefore then
+			local okAfter, after = AvatarService.CaptureSnapshot(player)
+			if okAfter and not sameLook(before, after) then
+				local h = historyOf(player)
+				table.insert(h.undo, before)
+				if #h.undo > HISTORY_MAX then table.remove(h.undo, 1) end
+				table.clear(h.redo)
+				publishHistory(player)
+			end
+		end
+		return ok, result
+	end)
+end
+-- one step back ("Undo") or forward ("Redo")
+local function stepHistory(player: Player, back: boolean): (boolean, any)
+	return runExclusive(player, function()
+		local h = historyOf(player)
+		local from, to = if back then h.undo else h.redo, if back then h.redo else h.undo
+		local snapshot = from[#from]
+		if not snapshot then
+			return false, if back then "되돌릴 단계가 없어요." else "다시 할 단계가 없어요."
+		end
+		local okNow, now = AvatarService.CaptureSnapshot(player)
+		local ok, result = AvatarService.RestoreSnapshot(player, snapshot)
+		if ok then
+			table.remove(from)
+			if okNow then table.insert(to, now) end
+		end
+		publishHistory(player)
+		return ok, result
+	end)
+end
+
 -- Typed item identity (ISSUE-AUDIT-001): Wear/Remove take {id, itemType}.
 -- A bare number is still accepted and means an Asset.
 local function typedItem(payload: any): (number?, string?)
@@ -180,7 +247,7 @@ TryOnItem.OnServerInvoke = function(
 		if not id then
 			return false, "Invalid item."
 		end
-		return runExclusive(player, function()
+		return runTracked(player, function()
 			if itemType == "Bundle" then
 				return AvatarService.WearBundle(player, id)
 			end
@@ -189,7 +256,7 @@ TryOnItem.OnServerInvoke = function(
 	end
 
 	if action == "WearBundle" or action == "WearShoeBundle" then
-		return runExclusive(player, function()
+		return runTracked(player, function()
 			return AvatarService.WearBundle(player, payload)
 		end)
 	end
@@ -199,15 +266,19 @@ TryOnItem.OnServerInvoke = function(
 		if not id or itemType ~= "Asset" then
 			return false, "Invalid item."
 		end
-		return runExclusive(player, function()
+		return runTracked(player, function()
 			return AvatarService.RemoveItem(player, id)
 		end)
 	end
 
 	if action == "RemoveMany" then
-		return runExclusive(player, function()
+		return runTracked(player, function()
 			return AvatarService.RemoveItems(player, payload)
 		end)
+	end
+
+	if action == "Undo" or action == "Redo" then
+		return stepHistory(player, action == "Undo")
 	end
 
 	if action == "GetEditState" then
@@ -215,7 +286,7 @@ TryOnItem.OnServerInvoke = function(
 	end
 
 	if action == "ApplyEdit" then
-		return runExclusive(player, function()
+		return runTracked(player, function()
 			return AvatarService.ApplyEdit(player, payload)
 		end)
 	end
@@ -227,7 +298,7 @@ TryOnItem.OnServerInvoke = function(
 		if not snapshot then
 			return false, "저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다."
 		end
-		return runExclusive(player, function()
+		return runTracked(player, function()
 			return AvatarService.RestoreSnapshot(player, snapshot)
 		end)
 	end
@@ -237,7 +308,7 @@ TryOnItem.OnServerInvoke = function(
 	end
 
 	if action == "SetLayerOrder" then
-		return runExclusive(player, function()
+		return runTracked(player, function()
 			return AvatarService.SetLayerOrder(player, payload)
 		end)
 	end

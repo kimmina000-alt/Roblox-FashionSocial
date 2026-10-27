@@ -81,6 +81,24 @@ local function go(player: Player, tag: any, number: any): (boolean, string?)
 	lastPad[player] = target
 	lastOpen[player] = os.clock() + 2
 	character:PivotTo(CFrame.lookAt(spot, spot + out))
+	if tag == "BusStop" then
+		-- the bus door opening as you get off (user 2026-10-27; docs/04_ART/SOUNDS.md)
+		local sound = target:FindFirstChild("BusDoorSound") :: Sound?
+		if not sound then
+			local made = Instance.new("Sound")
+			made.Name = "BusDoorSound"
+			made.SoundId = "rbxassetid://103836825296838" -- "Bs계열 앞문 오픈소리" (Creator Store)
+			made.Volume = 0.7
+			made.RollOffMinDistance = 8
+			made.RollOffMaxDistance = 50
+			made.Parent = target
+			sound = made
+		end
+		if sound then
+			sound.TimePosition = 0
+			sound:Play()
+		end
+	end
 	local name = target:GetAttribute("ExitName")
 	return true, if tag == "BusStop" then string.format("%s 정류장에 내렸어요.", tostring(name or number)) else string.format("%d번 출구로 나왔어요.", number)
 end

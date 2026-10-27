@@ -194,14 +194,20 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	if not character or not character:IsA("Model") then return end
 	tool:SetAttribute("Busy", true)
 	local original = tool.Grip
-	local up = mouthGrip(character, if item.kind == "cone" or item.kind == "bar" then -0.2 else 0)
+	-- R15: the arm bends and the hand brings it up (EatMotionController, IK on
+	-- every client, user 2026-10-27: the food floated up with a straight arm);
+	-- R6 has no IK chain, there the item still moves up in the hand
+	local ik = character:FindFirstChild("RightUpperArm") ~= nil
+	character:SetAttribute("Eating", true)
+	local up = if ik then nil else mouthGrip(character, if item.kind == "cone" or item.kind == "bar" then -0.2 else 0)
 	if up then TweenService:Create(tool, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Grip = up }):Play() end
 	local handle = tool:FindFirstChild("Handle")
 	local sound = handle and handle:FindFirstChild("Sip") :: Sound?
 	if sound then sound:Play() end
 	task.wait(1.4)
 	if sound then sound:Stop() end -- (some eating clips run longer than a bite)
-	if tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
+	character:SetAttribute("Eating", nil)
+	if up and tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
 	task.wait(0.3)
 	local total = bitesOf(item)
 	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
@@ -834,13 +840,19 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	if ownSpoon and ownSpoon:IsA("BasePart") then ownSpoon.Transparency = 1 end
 	humanoid:UnequipTools()
 	spoon.Parent = character
-	local up = mouthGrip(character, 0)
+	-- the hand takes the spoon up to the mouth (IK, see bite); R6: the spoon moves
+	local ik = character:FindFirstChild("RightUpperArm") ~= nil
+	local up = if ik then nil else mouthGrip(character, 0)
 	if up then TweenService:Create(spoon, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { Grip = up }):Play() end
+	-- (a moment in the hand first, so the spoon is seen coming from the bowl)
+	task.wait(0.25)
+	character:SetAttribute("Eating", true)
 	task.wait(0.35)
 	sound:Play()
 	task.wait(1.1)
-	if spoon.Parent then TweenService:Create(spoon, TweenInfo.new(0.3), { Grip = CFrame.new(0, -0.3, 0) }):Play() end
-	task.wait(0.3)
+	character:SetAttribute("Eating", nil)
+	if up and spoon.Parent then TweenService:Create(spoon, TweenInfo.new(0.3), { Grip = CFrame.new(0, -0.3, 0) }):Play() end
+	task.wait(0.4)
 	spoon:Destroy()
 	if ownSpoon and ownSpoon:IsA("BasePart") then ownSpoon.Transparency = 0 end
 	model:SetAttribute("Busy", nil)

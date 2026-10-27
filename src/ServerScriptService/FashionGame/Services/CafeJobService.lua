@@ -2,7 +2,7 @@
 -- Cafe part-time job (알바, CAFE.md §9, D-099). Config: CafeJobConfig.
 --
 --   * Start / stop work at the counter (client prompt → remote CafeJob
---     "Start"/"Stop"). Staff wear an apron (character attribute CafeJob = shop).
+--     "Start"/"Stop"). Staff show "알바생" over the head (character attribute CafeJob = shop).
 --   * Orders: a player ordering a free drink at a cafe where someone works
 --     becomes an order (SnackService order handler) instead of getting the cup
 --     straight away; NPC customers also sit down at free seats and order.
@@ -567,30 +567,66 @@ end
 -- Work
 --------------------------------------------------
 
-local function setApron(character: Model?, shopKey: string?)
+-- Job sounds (user 2026-10-27; docs/04_ART/SOUNDS.md): start / end of a
+-- shift at the worker, the drink being made at the station, the NPC
+-- customer's "감사합니다" when served (not for player customers)
+local SOUNDS = {
+	start = { "rbxassetid://77433517511280", 0.6 }, -- "confirm" (Creator Store)
+	stop = { "rbxassetid://96659579913194", 0.6 }, -- "PathComplete" (Creator Store)
+	make = { "rbxassetid://9113846434", 0.7 }, -- "Coffee Pot 2" (Pro Sound Effects)
+	thanks = { "rbxassetid://132794698600617", 0.9 }, -- "감사합니다 new" (Creator Store)
+}
+local function playAt(parent: Instance?, key: string)
+	if not parent then return end
+	local def = SOUNDS[key]
+	local s = Instance.new("Sound")
+	s.Name = "CafeJob_" .. key
+	s.SoundId = def[1]
+	s.Volume = def[2]
+	s.RollOffMinDistance = 6
+	s.RollOffMaxDistance = 40
+	s.Parent = parent
+	s:Play()
+	task.delay(8, function() s:Destroy() end)
+end
+
+-- "알바생" over the head while working (user 2026-10-27: no apron any more)
+local function setStaffTag(character: Model?, shopKey: string?)
 	if not character then return end
-	local old = character:FindFirstChild("CafeApron")
+	local old = character:FindFirstChild("CafeStaffTag")
 	if old then old:Destroy() end
+	local apron = character:FindFirstChild("CafeApron") -- (from before 2026-10-27)
+	if apron then apron:Destroy() end
 	if not shopKey then return end
-	local torso = character:FindFirstChild("UpperTorso") or character:FindFirstChild("Torso")
-	if not torso or not torso:IsA("BasePart") then return end
-	local apron = Instance.new("Part")
-	apron.Name = "CafeApron"
-	apron.Size = Vector3.new(torso.Size.X * 0.85, torso.Size.Y * 1.5, 0.12)
-	apron.Color = if shopKey == "HanokCafe" then Color3.fromRGB(120, 80, 50) else Color3.fromRGB(35, 90, 70)
-	apron.Material = Enum.Material.Fabric
-	apron.CanCollide = false
-	apron.CanQuery = false
-	apron.CanTouch = false
-	apron.Massless = true
-	local offset = CFrame.new(0, -torso.Size.Y * 0.35, -torso.Size.Z / 2 - 0.07)
-	apron.CFrame = torso.CFrame * offset
-	local weld = Instance.new("Weld")
-	weld.Part0 = torso
-	weld.Part1 = apron
-	weld.C0 = offset
-	weld.Parent = apron
-	apron.Parent = character
+	local head = character:FindFirstChild("Head")
+	if not head or not head:IsA("BasePart") then return end
+	local gui = Instance.new("BillboardGui")
+	gui.Name = "CafeStaffTag"
+	gui.Adornee = head
+	gui.Size = UDim2.fromOffset(110, 30)
+	-- just above the name tag (NameTagService: 46 px tall at 2.4 studs) at any
+	-- distance: the same anchor, lifted by its own height in pixels
+	gui.StudsOffset = Vector3.new(0, 2.4, 0)
+	gui.SizeOffset = Vector2.new(0, 1.45)
+	gui.LightInfluence = 0
+	gui.AlwaysOnTop = false
+	gui.MaxDistance = 80
+	local label = Instance.new("TextLabel")
+	label.Size = UDim2.fromScale(1, 1)
+	label.BackgroundColor3 = if shopKey == "HanokCafe" then Color3.fromRGB(120, 80, 50) else Color3.fromRGB(35, 90, 70)
+	label.BackgroundTransparency = 0.1
+	label.Text = "☕ 알바생"
+	label.TextColor3 = Color3.new(1, 1, 1)
+	label.TextScaled = true
+	label.Font = Enum.Font.GothamBold
+	label.Parent = gui
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0.5, 0)
+	corner.Parent = label
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 4) pad.PaddingBottom = UDim.new(0, 4)
+	pad.Parent = label
+	gui.Parent = character
 end
 
 local function stopWork(player: Player, message: string?)
@@ -599,7 +635,8 @@ local function stopWork(player: Player, message: string?)
 	staff[player] = nil
 	if player.Character then
 		player.Character:SetAttribute("CafeJob", nil)
-		setApron(player.Character, nil)
+		setStaffTag(player.Character, nil)
+		playAt(player.Character:FindFirstChild("HumanoidRootPart"), "stop")
 	end
 	-- cups this person was making / carrying go back to the list
 	for _, order in pairs(orders) do
@@ -645,7 +682,8 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 	lastNpcAt[shopKey] = os.clock() - CafeJobConfig.NpcEverySeconds + 4 -- first NPC soon
 	if player.Character then
 		player.Character:SetAttribute("CafeJob", shopKey)
-		setApron(player.Character, shopKey)
+		setStaffTag(player.Character, shopKey)
+		playAt(player.Character:FindFirstChild("HumanoidRootPart"), "start")
 	end
 	player:SetAttribute("CafeJobEarned", economy.Earned(player, "CafeJob"))
 	publish()
@@ -672,6 +710,7 @@ local function make(player: Player, id: any): (boolean, string?)
 	end
 	order.maker = player.UserId
 	publish()
+	playAt(stationOf(shopKey), "make")
 	task.wait(CafeJobConfig.MakeSeconds)
 	if orders[order.id] ~= order or order.maker ~= player.UserId or staff[player] ~= shopKey then
 		return false, nil
@@ -731,6 +770,7 @@ local function serve(player: Player, id: any): (boolean, string?)
 		if npc and humanoid then
 			local cup = snack.MakeTool(item)
 			cup.Parent = npc
+			playAt(npc:FindFirstChild("Head") or rootOf(npc), "thanks")
 		end
 		npcLeave(order, true)
 	else
@@ -766,9 +806,9 @@ local function tick()
 		elseif not playerInCafe(player, shopKey, CafeJobConfig.WorkArea) then
 			stopWork(player, "카페에서 멀어져서 알바를 마쳤어요.")
 		elseif player.Character:GetAttribute("CafeJob") ~= shopKey then
-			-- new character (respawn): put the apron back on
+			-- new character (respawn): the tag back on
 			player.Character:SetAttribute("CafeJob", shopKey)
-			setApron(player.Character, shopKey)
+			setStaffTag(player.Character, shopKey)
 		end
 	end
 	-- orders that waited too long, customers who left

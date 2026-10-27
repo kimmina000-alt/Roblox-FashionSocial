@@ -6,8 +6,8 @@
 -- muted, and every character near the camera makes one step sound per stride
 -- instead, picked by the floor under it: grass rustles on grass and ground,
 -- sand, wood on decks and stairs, hard soles on stone, tiles, asphalt and the
--- rest. Slow (phone stick half tilted) = soft walk steps, full speed = a
--- heavier, quicker run. Landing from a jump plays a firmer step. Jumping,
+-- rest. Walking (16, or slower with the phone stick half tilted) = soft
+-- steps, running (SprintController, 26) = heavier, quicker steps. Landing from a jump plays a firmer step. Jumping,
 -- falling, climbing and swimming keep Roblox's own sounds.
 -- Sound list: docs/04_ART/SOUNDS.md.
 
@@ -30,7 +30,7 @@ local SURFACE: {[Enum.Material]: string} = {
 }
 local NEAR = 60
 local STRIDE = 5.2 -- studs a step (full speed 16 → about 3 steps a second)
-local RUN_SPEED = 11 -- at or above this the steps are a run
+local RUN_SPEED = 20 -- at or above this the steps are a run (SprintController: walk 16, run 26)
 
 type Walker = { nextAt: number, turn: number, sounds: {[string]: Sound}, running: Sound?, wasAir: boolean }
 local walkers: {[Model]: Walker} = {}

@@ -52,9 +52,32 @@ local function add(model: Instance)
 	doors[model] = door
 end
 
+-- the slide whoosh, at the door (user 2026-10-27; docs/04_ART/SOUNDS.md)
+local DOOR_SOUND = "rbxassetid://4496280365" -- "Automatic Sliding Door" (Creator Store)
+local function whoosh(door: Door, open: boolean)
+	local panel = door.panels[1]
+	if not panel then return end
+	local s = panel.part:FindFirstChild("AutoDoorSound")
+	if not s then
+		local made = Instance.new("Sound")
+		made.Name = "AutoDoorSound"
+		made.SoundId = DOOR_SOUND
+		made.Volume = 0.45
+		made.RollOffMinDistance = 6
+		made.RollOffMaxDistance = 40
+		made.Parent = panel.part
+		s = made
+	end
+	local sound = s :: Sound
+	sound.PlaybackSpeed = if open then 1.05 else 0.95 -- (closing a touch lower)
+	sound.TimePosition = 0
+	sound:Play()
+end
+
 local function setOpen(door: Door, open: boolean)
 	if door.isOpen == open then return end
 	door.isOpen = open
+	whoosh(door, open)
 	for _, panel in ipairs(door.panels) do
 		panel.part.CanCollide = not open
 		TweenService:Create(panel.part, TWEEN, { CFrame = if open then panel.open else panel.closed }):Play()

@@ -708,3 +708,23 @@ D-373 — (2026-10-27, user) The granite kerb strip along the balustrades is gon
 D-374 — (2026-10-27, user: walking/running sounded odd) Roblox's default footstep (RbxCharacterSounds "Running") is one plastic loop for every floor whose speed follows the walk speed. It is muted; FootstepsController (replaces SandStepsController) plays one Creator Store step per stride, picked by Humanoid.FloorMaterial: grass/ground/mud = grass rustle (4 takes), sand, wood/planks = wood, everything else = hard soles. Below speed 11 it is a softer walk, above a louder run; landing plays a 1.5× step. Jump, landing, falling, climbing and swimming keep Roblox's sounds. Photo booth: camera shutter on each shot + a beep on 3·2·1. Shops (OH24, cafes, stands): a scanner beep at the shop counter after a buy (SnackService PAY_SOUND). All ids and where to change them: docs/04_ART/SOUNDS.md.
 
 D-375 — (2026-10-27, user) The user's facade pictures for slots 2 and 5 too (docs/04_ART/facades/facade_2_user.png, facade_5_user.png; webp → PNG, uploaded as 108505166753199 / 98845538068616). Applied in the place by swapping the 16 decals; build_hongdae_layout FACADES updated.
+
+D-376 — (2026-10-27, user: people jump over it) The 광화문 / village stone wall is 12 high (was 8.4; a jump lifts the feet 7.2). PALACE_H in build_hongdae_layout.lua.
+
+D-377 — (2026-10-27, user) The ferris wheel is back: the 2× scaling put its "ground" from a tilted bounding box and lifted it a little more on every rebuild (it stood at y 835). Now its lowest world point is put on the ground under the hub after every build (idempotent).
+
+D-378 — (2026-10-27, user) 광화문's three doors are shut: two red leaves meeting at a dark seam in the middle of each arch, the round head filled with a red panel, gold studs (the village behind is empty).
+
+D-379 — (2026-10-27, user) Pocket park: the wooden board by the pit (ParkDeckWalk) is gone; the pit round the mound holds terrain water 3 deep (r 15..20) with 12 jets from the rim arcing onto the mound plinth and a looped water sound (9120552550). Revert clears the water (attribute PitWater).
+
+D-380 — (2026-10-27, user) The south shop block's beach-road face is on the OH24 store's line (x -150 → -135, 15 narrower); the strip is sidewalk like the store's (23 wide from the road edge).
+
+D-381 — (2026-10-27, user) Catalog < > buttons (UndoBar.lua, beside expand/close): every avatar change that went through (wear, remove, bundle, body edit, wardrobe restore, layer order) keeps the look before it on the server (ServerMain runTracked, 30 steps); "Undo" puts it back, "Redo" forward. Player attributes AvatarUndo / AvatarRedo switch the buttons.
+
+D-382 — (2026-10-27, user: the food / 국밥 spoon floated to the mouth with a straight arm) EatMotionController: while SnackService sets the character attribute Eating, every client bends the right arm with an IKControl so the hand brings the item to the mouth (R15; R6 keeps the old grip move). Driven from Heartbeat (RenderStepped and tweens stop while a Studio test window is in the background). The 국밥 spoon shows in the hand first, then goes up.
+
+D-383 — (2026-10-27, user) Sounds: bus door opening at the stop you get off at, swimming strokes while a tube moves, auto doors opening / closing, cafe job start / end, drink making at the station, "감사합니다" from NPC customers (not player customers). Photo booth poses no longer play the dance music (DanceController mutes it while the character has the PhotoBooth attribute). IDs: docs/04_ART/SOUNDS.md 11h..11o.
+
+D-384 — (2026-10-27, user) Cafe staff show "☕ 알바생" over the head (above the name tag) instead of the apron.
+
+D-385 — (2026-10-27, user: "달리기 기능") SprintController: walk 16, run 26. Phone: the 🏃 button by the jump button switches running on/off (🚶 while on); PC: hold Ctrl (Shift is Roblox's shift lock here). FootstepsController counts 20+ as a run.
