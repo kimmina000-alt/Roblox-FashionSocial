@@ -14,6 +14,8 @@ local BottleShapes = require(Shared:WaitForChild("BottleShapes"))
 local BarShelfService = {}
 
 local GAP = 3.6 -- studs between bottles along a shelf
+local PUCK_SIZE, PUCK_HEIGHT = 1.3, 0.12
+local UPLIGHT_COLOR = Color3.fromRGB(255, 226, 185)
 local SHELF_BOTTLE_TRANSPARENCY = 0.1
 
 -- every flavour of the drinks on one shelf row, as { key, colour }
@@ -81,6 +83,42 @@ function BarShelfService.Start()
 			for k = 0, #all - 1 do table.insert(mixed, all[(k * 3) % #all + 1]) end
 			table.insert(rows, mixed)
 		end
+		-- a slim light rail over the top board (it only carries the down lights)
+		local rail
+		do
+			local top, below = shelves[#shelves], shelves[#shelves - 1]
+			rail = top:Clone()
+			rail.Name = "BarLightRail"
+			rail:ClearAllChildren()
+			rail.Size = Vector3.new(rail.Size.X, rail.Size.Y * 0.5, rail.Size.Z)
+			rail.CFrame = top.CFrame + Vector3.new(0, top.Position.Y - below.Position.Y, 0)
+			rail.Parent = holder
+		end
+		-- the glowing puck under each bottle and the same one on the underside of
+		-- the board above (user 2026-10-27: back again, D-438)
+		local function puck(at: Vector3, down: boolean)
+			local p = Instance.new("Part")
+			p.Name = "BarUplight"
+			p.Shape = Enum.PartType.Cylinder
+			p.Anchored = true
+			p.CanCollide = false
+			p.CanQuery = false
+			p.CastShadow = false
+			p.Material = Enum.Material.Neon
+			p.Color = UPLIGHT_COLOR
+			p.Size = Vector3.new(PUCK_HEIGHT, PUCK_SIZE, PUCK_SIZE)
+			-- (the cylinder's axis is its X: turned to point up, or down for the top one)
+			p.CFrame = CFrame.new(at) * CFrame.Angles(0, 0, math.rad(if down then -90 else 90))
+			p.Parent = holder
+			local beam = Instance.new("SpotLight")
+			beam.Face = Enum.NormalId.Right
+			beam.Color = UPLIGHT_COLOR
+			beam.Brightness = 5
+			beam.Range = 7
+			beam.Angle = 50
+			beam.Shadows = false
+			beam.Parent = p
+		end
 		for i, shelf in ipairs(shelves) do
 			local drinks = rows[math.min(i, #rows)]
 			if #drinks == 0 then continue end
@@ -92,10 +130,14 @@ function BarShelfService.Start()
 			local front = if toBar.Magnitude > 0.01 then toBar.Unit else Vector3.new(1, 0, 0)
 			local count = math.floor((length - 2) / GAP)
 			local y = topOf(shelf)
+			local above = shelves[i + 1] or rail
+			local underside = 2 * above.Position.Y - topOf(above)
 			for k = 1, count do
 				local e = drinks[(k - 1) % #drinks + 1]
-				local base = Vector3.new(shelf.Position.X, y, shelf.Position.Z) + along * (-(count - 1) / 2 + (k - 1)) * GAP
-				-- (no light pucks above / below any more, user 2026-10-27: the glass glows)
+				local at = Vector3.new(shelf.Position.X, y, shelf.Position.Z) + along * (-(count - 1) / 2 + (k - 1)) * GAP
+				puck(at + Vector3.new(0, PUCK_HEIGHT / 2, 0), false)
+				puck(Vector3.new(at.X, underside - PUCK_HEIGHT / 2, at.Z), true)
+				local base = at + Vector3.new(0, PUCK_HEIGHT, 0)
 				local parts = BottleShapes.add(holder, CFrame.lookAt(base, base + front), e[1], e[2], 1)
 				-- display bottles only (D-434/D-435): a little see-through, and the
 				-- glass glows (the emissive copy of the bottle's picture)
