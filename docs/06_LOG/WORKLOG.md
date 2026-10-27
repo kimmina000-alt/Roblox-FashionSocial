@@ -2429,3 +2429,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-10-27/drink_variants.png)
 
 ![](../02_WORLDS/images/oh24_interior_plan_2026-10-27.png)
+
+### 편의점 배치 변경, 실내 배치도 (D-400)
+
+![](../02_WORLDS/images/oh24_interior_plan_v2_2026-10-27.png)
+
+![](../02_WORLDS/images/fourcuts_interior_plan_2026-10-27.png)
+
+![](../02_WORLDS/images/beach_cafe_1F_plan_2026-10-27.png)
