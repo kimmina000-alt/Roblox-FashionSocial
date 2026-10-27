@@ -711,8 +711,9 @@ local function giveGlowstick(player: Player)
 	handle.CanCollide = false
 	handle.Massless = true
 	handle.Parent = tool
-	-- (a Cylinder's axis is X: turn the grip so it stands up in the hand)
-	tool.Grip = CFrame.new(0, 0, -0.6) * CFrame.Angles(0, math.rad(90), math.rad(65))
+	-- (a Cylinder's axis is X: turned so it stands upright in the hand, held
+	-- near its lower end; measured in Play 2026-10-27, the old grip held it level)
+	tool.Grip = CFrame.new(0.6, 0, 0) * CFrame.Angles(0, 0, math.rad(90))
 	local light = Instance.new("PointLight")
 	light.Color = GLOW_COLORS[1]
 	light.Range = 9
