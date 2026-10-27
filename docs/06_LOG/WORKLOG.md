@@ -2344,3 +2344,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | ![](images/2026-10-27/v8q_gate_yard.jpg) | ![](images/2026-10-27/v8q_park_rides.jpg) |
 
 배치도: ![](images/2026-10-27/v8q_map_plan.png)
+
+### 광화문 앞 잔디·난간·해치 (D-369)
+
+![](images/2026-10-27/v8r_gate_front.jpg)

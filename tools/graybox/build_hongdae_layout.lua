@@ -2642,22 +2642,60 @@ do
 					local lc = mid + out * ((LAWN0 + LAWN1) / 2)
 					local lawn = part("YardLawn", Vector3.new(LAWN1 - LAWN0, 0.18, len + 0.6), CFrame.lookAt(Vector3.new(lc.X, 0.39, lc.Z), Vector3.new(lc.X, 0.39, lc.Z) + d), LIME, { parent = G, material = Enum.Material.Grass })
 					lawn.CastShadow = false
-					local rc = mid + out * RAILD
-					local bay = placeTemplate(railT, railOff, CFrame.fromMatrix(Vector3.new(rc.X, 0.3, rc.Z), d, Vector3.yAxis), (len + 0.2) / BAY, 1)
-					bay.CanCollide = true
-					bay.Material = Enum.Material.Granite
-				end
-				if i == 2 then
-					-- the 해태 beside the balustrade's gate end, its body along the
-					-- balustrade toward the gate, its head turned to the street
-					local s = prev + out * (RAILD + 5)
-					local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 0.45, s.Z), Vector3.new(s.X, 0.45, s.Z) - d), RAIL, { parent = G, nocol = true })
-					spot.Transparency = 1
-					spot.CanQuery = false
-					spot:SetAttribute("Facing", out)
+
 				end
 				prev = p
 			end
+		end
+	end
+	-- (user 2026-10-27, marked on a screenshot) in front of the gate: a path
+	-- as wide as the gate between two balustrades running from its front
+	-- corners toward the streets (yellow lines), a lawn outside each
+	-- balustrade up to the wall (red areas), the 해태 beside the street end
+	-- of each balustrade (yellow box)
+	do
+		local LIME = Color3.fromRGB(150, 200, 92)
+		local function streetEnd(p: Vector3): number
+			local t = math.huge
+			if GATE_OUT.X < 0 then t = math.min(t, (p.X - (WIDE + 1)) / -GATE_OUT.X) end
+			if GATE_OUT.Z < 0 then t = math.min(t, (p.Z - (WIDE + 1)) / -GATE_OUT.Z) end
+			return t
+		end
+		local RAIL_MAX = 60 -- the balustrades stop 60 out, or at the sidewalk
+		for k, e in ipairs({ GATE_E1, GATE_E2 }) do
+			local away = if k == 1 then GATE_ALONG else -GATE_ALONG
+			local a = e + GATE_OUT * GATE_HD -- the gate's front corner
+			local len = math.min(RAIL_MAX, streetEnd(a) - 1)
+			local n = math.max(1, math.floor(len / BAY + 0.5))
+			local seg = len / n
+			for i = 0, n - 1 do
+				local c = a + GATE_OUT * (seg * (i + 0.5))
+				local bay = placeTemplate(railT, railOff, CFrame.fromMatrix(Vector3.new(c.X, 0.3, c.Z), -GATE_OUT, Vector3.yAxis), seg / BAY, 1)
+				bay.CanCollide = true
+				bay.Material = Enum.Material.Granite
+			end
+			for _, endP in ipairs({ a, a + GATE_OUT * len }) do
+				part("RailPost", Vector3.new(0.8, 2.3, 0.8), CFrame.new(endP.X, 1.45, endP.Z) * CFrame.Angles(0, GATE_ROT, 0), RAIL, { parent = G, material = Enum.Material.Granite })
+				part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(endP.X, 3.15, endP.Z), RAIL, { parent = G, shape = Enum.PartType.Ball })
+			end
+			-- the lawn: strips along OUT, from the gate line out to the
+			-- balustrade's end (or the sidewalk), 0.7 .. 34 away from the path
+			local STRIP = 3
+			for w = 0.7, 34 - STRIP, STRIP do
+				local s0 = e + away * (w + STRIP / 2) + GATE_OUT * 2
+				local l = math.min(len + GATE_HD - 2, streetEnd(s0) - 1)
+				if l > 1 then
+					local c = s0 + GATE_OUT * (l / 2)
+					local lawn = part("YardLawn", Vector3.new(STRIP + 0.05, 0.18, l), CFrame.lookAt(Vector3.new(c.X, 0.39, c.Z), Vector3.new(c.X, 0.39, c.Z) + GATE_OUT), LIME, { parent = G, material = Enum.Material.Grass })
+					lawn.CastShadow = false
+				end
+			end
+			-- the 해태 beside the balustrade's street end, outside it
+			local s = a + GATE_OUT * (len - 4) + away * 5
+			local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 0.45, s.Z), Vector3.new(s.X, 0.45, s.Z) - away), RAIL, { parent = G, nocol = true })
+			spot.Transparency = 1
+			spot.CanQuery = false
+			spot:SetAttribute("Facing", GATE_OUT)
 		end
 	end
 	-- the village (graybox 07) is emptied for now (user 2026-10-27, after v8):
