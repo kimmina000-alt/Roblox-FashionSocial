@@ -787,3 +787,5 @@ D-415 — (2026-10-27) The user imported the five simplified bottle OBJs into Se
 D-416 — (2026-10-27, user photo of the metallic champagne set) 골목 공방 (VIP) bottle: no label band; a mirror-metal body in the flavour colour (레몬 라벤더 gold, 생강 장미 pink, 오미자 히비스커스 rose red, 오디 dark silver), a black foil over the neck, a metal collar with a small spade, a raised spade emblem on the front (metal relief parts + a picture with our "O" monogram, not their "A") and a bronze plate "Golmok Atelier · OHU RESERVE" (docs/04_ART/textures/drinks/vip_spade.png / vip_plate.png). Smoother bottle meshes with vertex normals were made (docs/04_ART/models/bottles/*_smooth.obj; VIP 4,000 triangles, others ~2,500); once imported as <name>_smooth they are used first.
 
 D-416a — (2026-10-27) The user imported the five *_smooth bottle meshes into ServerStorage.ArtAssets.Bottles; the club bottles now use them (round shading, no facets). Shot: docs/06_LOG/images/2026-10-27/club_bottles_smooth.png.
+
+D-417 — (2026-10-27, user, TEMPORARY) Club open all day for testing: ClubConfig.NightEntry.Enabled = false. Set it back to true when testing is done.
