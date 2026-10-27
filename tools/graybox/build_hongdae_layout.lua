@@ -6228,6 +6228,19 @@ do
 			p2:SetAttribute("WallKey", "SHOP2")
 			p2.CFrame = p.CFrame.Rotation + Vector3.new((FIN + 0.5 + FX) / 2, p.Position.Y, p.Position.Z)
 			p2.Parent = B
+			-- "오후네컷" in the lightest weight over both photo walls (user 2026-10-27:
+			-- font 11, 강원교육모두 Light, white; Roblox draws Hangul in one fallback
+			-- font, so it is an image: docs/04_ART/signs/ohu4cuts_sign_gangwon_light.png)
+			for _, w in ipairs({ p, p2 }) do
+				local SW = 12
+				local c = Vector3.new(w.Position.X, w.Position.Y + w.Size.Y / 2 + 0.6 + SW / 2.5 / 2, NIN + 0.06)
+				local sp = part("Sign_PhotoWall", Vector3.new(SW, SW / 2.5, 0.05), CFrame.lookAt(c, c + Vector3.new(0, 0, 1)), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+				sp.CanQuery = false
+				local dc = Instance.new("Decal")
+				dc.Face = Enum.NormalId.Front
+				dc.Texture = "rbxassetid://130799628772055"
+				dc.Parent = sp
+			end
 		end
 	end
 	-- the entrance (cut corner) wall is pink above the doors too
