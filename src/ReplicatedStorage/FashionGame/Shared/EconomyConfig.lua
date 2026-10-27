@@ -16,9 +16,9 @@ EconomyConfig.MaxBalance = 99999
 
 -- Economy v2, first test (user, 2026-10-22; ECONOMY.md, D-074/D-083):
 -- 1 coin per minute online, whether the player moves or not, no daily cap,
--- activity bonuses off. XP is locked (on hold): no XP, no number above the
--- avatar (NameTagService stays off).
-EconomyConfig.XPEnabled = false
+-- activity bonuses off. XP back on (user 2026-10-27): 1 XP per minute online,
+-- shown under the player's id above the avatar (NameTagService).
+EconomyConfig.XPEnabled = true
 EconomyConfig.BonusesEnabled = false
 EconomyConfig.PassiveNeedsActivity = false
 

@@ -266,6 +266,8 @@ function EconomyService.Start(dataService: any)
 	local function onPlayer(player: Player)
 		task.spawn(function()
 			publish(player)
+			-- the saved XP on the name tag from the start (it grows once a minute)
+			if EconomyConfig.XPEnabled then player:SetAttribute("XP", playerData.Wallet(player).xp or 0) end
 			EconomyService.Award(player, "DailyLogin")
 		end)
 		player:GetAttributeChangedSignal("Pass_FramePack"):Connect(function() publish(player) end)

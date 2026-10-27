@@ -45,7 +45,7 @@ local function build(player: Player, character: Model)
 	name.TextScaled = true
 	name.TextColor3 = Color3.new(1, 1, 1)
 	name.TextStrokeTransparency = 0.4
-	name.Text = player.DisplayName
+	name.Text = player.Name -- the player's id (user 2026-10-27), the VIP / DJ badge sits on top
 	name.Parent = billboard
 
 	local xp = Instance.new("TextLabel")
@@ -100,8 +100,8 @@ local function refreshRoles(player: Player)
 		g.Name = ROLE_TAG
 		g.Size = UDim2.fromOffset(110, 26)
 		g.StudsOffset = Vector3.new(0, 2.4, 0)
-		-- right over Roblox's own name display (user 2026-10-27): the same anchor
-		-- as before, one badge height up; the cafe staff tag sits above it
+		-- right over the name tag (id + XP, 46 px tall on the same anchor): one
+		-- badge height and a half up; the cafe staff tag sits above it
 		g.SizeOffset = Vector2.new(0, 1.5)
 		g.MaxDistance = 90
 		g.LightInfluence = 0

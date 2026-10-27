@@ -608,7 +608,7 @@ local function setStaffTag(character: Model?, shopKey: string?)
 	-- just above the name tag (NameTagService: 70 px tall at 2.4 studs) at any
 	-- distance: the same anchor, lifted by its own height in pixels
 	gui.StudsOffset = Vector3.new(0, 2.4, 0)
-	gui.SizeOffset = Vector2.new(0, 2.05) -- (over the name tag's role row since 2026-10-27)
+	gui.SizeOffset = Vector2.new(0, 2.6) -- (over the VIP / DJ row, which sits on the id + XP tag, 2026-10-27)
 	gui.LightInfluence = 0
 	gui.AlwaysOnTop = false
 	gui.MaxDistance = 80
