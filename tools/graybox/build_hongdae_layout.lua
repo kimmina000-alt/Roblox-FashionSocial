@@ -4010,7 +4010,7 @@ do
 		end
 		local function rope(a: Vector3, b: Vector3)
 			local mid = (a + b) / 2
-			part("QueueRope", Vector3.new(0.3, 0.3, (b - a).Magnitude), CFrame.lookAt(mid, b), RED, { parent = K, material = Enum.Material.Fabric })
+			part("QueueRope", Vector3.new(0.3, 0.3, (b - a).Magnitude), CFrame.lookAt(mid, b), RED, { parent = K, material = Enum.Material.Fabric, nocol = true }) -- (tall avatars stood on it: the invisible block does the holding)
 		end
 		local Y = CURB + 2.9
 		-- out from the door's middle to the rope line
