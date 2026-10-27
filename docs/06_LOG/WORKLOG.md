@@ -2234,3 +2234,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | LED 벽 | 카페 화단 |
 |---|---|
 | ![](images/2026-10-27/v8d_club_led_wall.jpg) | ![](images/2026-10-27/v8d_cafe_planter_shrub.jpg) |
+### DJ 단상·LED 벽 줄이기 (D-357)
+
+- DJ 존을 3단 계단식 단상으로 8 올림, LED 벽은 빨간 선 높이(F+54)에서 자름, 후원자 띠는 LED와 천장 사이 가운데.
+- 확인(Play): 계단 걸어서 맨 위 칸까지.
+
+![](images/2026-10-27/v8e_dj_stage.jpg)

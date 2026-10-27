@@ -638,17 +638,24 @@ label(z,"BAR · 음료 (무알코올)",Vector3.new(32,F+9,-178))
 local beforeDJ={} for _,c in ipairs(z:GetChildren()) do beforeDJ[c]=true end
 -- DJ ZONE (east, full height): stage, turntable console, speakers, LED wall
 local stageC=Color3.fromRGB(60,60,80)
-box(z,"DJ_Stage",60,F,-246,80,F+4,-190,stageC)
-box(z,"DJ_StageEdge",59.8,F+3.7,-246,60.2,F+4,-190,cyan,{mat=Enum.Material.Neon,ghost=true})
-box(z,"DJ_Step",58,F,-225,60,F+2,-211,stageC,{nocol=true})
-do local c=Vector3.new(58,F+2,-218) P(z,"DJ_StepRamp",Vector3.new(14,4,4),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
-local LEDT=F+68 -- (user 2026-10-27: the wall behind the DJ fills the taller hall, F+36 → F+68)
-local led=box(z,"LED_Wall",78.5,F+6,-246,79.5,LEDT,-190,cyan,{mat=Enum.Material.Neon}) CS:AddTag(led,"ClubBeat")
+-- (user 2026-10-27) the DJ zone on a raised stage (top DS) with three steps
+-- across its whole front, each with a cyan edge line; an invisible ramp over
+-- the middle steps so everyone walks up
+local DS=F+8
+box(z,"DJ_Stage",60,F,-246,80,DS,-190,stageC)
+box(z,"DJ_StageEdge",59.8,DS-0.3,-246,60.2,DS,-190,cyan,{mat=Enum.Material.Neon,ghost=true})
+for k=1,3 do local x0=60-2*(4-k) local top=F+2*k
+ box(z,"DJ_Step",x0,F,-246,x0+2,top,-190,stageC)
+ box(z,"DJ_StepEdge",x0-0.2,top-0.3,-246,x0+0.2,top,-190,cyan,{mat=Enum.Material.Neon,ghost=true}) end
+do local c=Vector3.new(56,(F+DS)/2,-218) P(z,"DJ_StepRamp",Vector3.new(14,DS-F,8),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
+-- the LED wall cut down (user 2026-10-27: it filled the whole wall), from the stage up to LEDT
+local LEDT=F+54
+local led=box(z,"LED_Wall",78.5,DS+2,-246,79.5,LEDT,-190,cyan,{mat=Enum.Material.Neon}) CS:AddTag(led,"ClubBeat")
 -- turntable console (reference: two decks + mixer + laptop, glowing front)
 do
  local m=M(z,"DJ_Console",{"DJConsole"},{}) m.ModelStreamingMode=Enum.ModelStreamingMode.Atomic
  local cd=Instance.new("ClickDetector") cd.MaxActivationDistance=32 cd.Parent=m
- local S0=F+4
+ local S0=DS
  box(m,"DeskBody",64.5,S0,-227,68,S0+3.4,-209,Color3.fromRGB(18,18,24))
  box(m,"DeskTop",64.2,S0+3.4,-227.3,68.3,S0+3.7,-208.7,Color3.fromRGB(40,40,52))
  box(m,"DeskFrontNeon_Top",64.1,S0+2.6,-226.5,64.3,S0+2.9,-209.5,pink,{mat=Enum.Material.Neon,ghost=true})
@@ -729,19 +736,20 @@ end
 -- SUPPORTER STRIP above the LED wall and the lasers (user 2026-10-25): the
 -- supporter ranking scrolls along it, "○○님 후원 감사합니다!" when a gift
 -- comes in (RankBoard, RankingBoards client)
-do local s=box(z,"SupportStrip",78.9,LEDT+4,-246,79.6,LEDT+8,-190,Color3.fromRGB(8,8,12),{mat=Enum.Material.SmoothPlastic,nocol=true})
+do local SY=(LEDT+TOP)/2-2 -- (centred between the LED wall and the ceiling, user 2026-10-27)
+ local s=box(z,"SupportStrip",78.9,SY,-246,79.6,SY+4,-190,Color3.fromRGB(8,8,12),{mat=Enum.Material.SmoothPlastic,nocol=true})
  s:SetAttribute("Board","clubStrip") s:SetAttribute("Face","Left") CS:AddTag(s,"RankBoard")
- box(z,"SupportStripFrame",78.8,LEDT+3.6,-246.4,79.7,LEDT+4,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true})
- box(z,"SupportStripFrame",78.8,LEDT+8,-246.4,79.7,LEDT+8.4,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true}) end
-local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
+ box(z,"SupportStripFrame",78.8,SY-0.4,-246.4,79.7,SY,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true})
+ box(z,"SupportStripFrame",78.8,SY+4,-246.4,79.7,SY+4.4,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true}) end
+local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,DS+0.5,-218),Vector3.new(40,DS+0.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
 for _,sz in ipairs({-243,-193}) do
- box(z,"Speaker",70,F+4,sz-2.5,75,F+16,sz+2.5,Color3.fromRGB(20,20,24))
- for k=0,2 do P(z,"SpeakerCone",Vector3.new(0.3,3,3),CFrame.new(69.9,F+6.5+k*3.6,sz)*CFrame.Angles(0,0,0),Color3.fromRGB(60,60,70),{shape=Enum.PartType.Cylinder}) end end
-local djGate=box(z,"DJ_Gate",55,F,-246,56,F+16,-190,cyan,{t=0.85})
+ box(z,"Speaker",70,DS,sz-2.5,75,DS+12,sz+2.5,Color3.fromRGB(20,20,24))
+ for k=0,2 do P(z,"SpeakerCone",Vector3.new(0.3,3,3),CFrame.new(69.9,DS+2.5+k*3.6,sz)*CFrame.Angles(0,0,0),Color3.fromRGB(60,60,70),{shape=Enum.PartType.Cylinder}) end end
+local djGate=box(z,"DJ_Gate",59.6,F,-246,60.4,DS+16,-190,cyan,{t=0.85}) -- (at the stage edge, over the steps)
 djGate:SetAttribute("Gate","DJ") CS:AddTag(djGate,"ClubGate")
-local djRegion=box(z,"DJ_Region",56,F,-246,80,F+20,-190,W,{t=1,ghost=true})
+local djRegion=box(z,"DJ_Region",60.4,F,-246,80,DS+20,-190,W,{t=1,ghost=true})
 djRegion:SetAttribute("Gate","DJ") djRegion:SetAttribute("Exit",Vector3.new(46,F+3,-218)) CS:AddTag(djRegion,"ClubRegion")
-label(z,"DJ 존 (DJ 시간 구매)",Vector3.new(70,F+22,-218),true)
+label(z,"DJ 존 (DJ 시간 구매)",Vector3.new(70,DS+22,-218),true)
 
 -- main dance floor
 -- (no neon dance floor: just the marble floor, user 2026-10-25)
