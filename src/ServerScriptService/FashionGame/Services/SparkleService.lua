@@ -585,13 +585,23 @@ end
 -- Hand sparkler (one use) and glowstick (pass)
 --------------------------------------------------
 
--- (user 2026-10-27) a sparkler held in the hand, to dance with: it burns for
--- HAND_SPARKLER_SECONDS from the moment it is taken out, then it is gone
-local function lightHandSparkler(tool: Tool)
-	if tool:GetAttribute("Lit") then return end
+-- (user 2026-10-27) a sparkler held in the hand, to dance with. It comes
+-- unlit; holding it shows a "🔥 불 붙이기" button (HandSparklerController),
+-- which lights it ("LightHandSparkler"). It burns down over
+-- HAND_SPARKLER_SECONDS: the stick gets shorter and the sparks go down with
+-- its tip, and when the time is up nothing is left in the hand.
+local STICK = 1.6 -- burning length at the start
+local GRIP = 0.4 -- the bare wire held in the hand (Handle)
+local function lightHandSparkler(player: Player): (boolean, string?)
+	local character = player.Character
+	local tool = character and character:FindFirstChildOfClass("Tool")
+	if not tool or not tool:GetAttribute("HandSparkler") then return false, "손 스파클러를 손에 들어 주세요." end
+	if tool:GetAttribute("Lit") then return false, nil end
 	tool:SetAttribute("Lit", true)
 	local handle = tool:FindFirstChild("Handle") :: BasePart?
-	if not handle then return end
+	local stick = tool:FindFirstChild("Stick") :: BasePart?
+	local stickWeld = stick and stick:FindFirstChild("Weld") :: Weld?
+	if not handle or not stick or not stickWeld then return false, nil end
 	local tip = Instance.new("Part")
 	tip.Name = "Tip"
 	tip.Shape = Enum.PartType.Ball
@@ -599,12 +609,13 @@ local function lightHandSparkler(tool: Tool)
 	tip.Color = Color3.fromRGB(255, 245, 220)
 	tip.Material = Enum.Material.Neon
 	tip.CanCollide = false
+	tip.CanQuery = false
 	tip.Massless = true
-	tip.CFrame = handle.CFrame * CFrame.new(0, handle.Size.Y / 2, 0)
-	local weld = Instance.new("WeldConstraint")
-	weld.Part0 = handle
-	weld.Part1 = tip
-	weld.Parent = tip
+	local tipWeld = Instance.new("Weld")
+	tipWeld.Part0 = handle
+	tipWeld.Part1 = tip
+	tipWeld.C0 = CFrame.new(0, GRIP / 2 + STICK, 0)
+	tipWeld.Parent = tip
 	tip.Parent = tool
 	local at = sparks(tip, Vector3.zero, false)
 	local emitter = at:FindFirstChildOfClass("ParticleEmitter")
@@ -621,9 +632,21 @@ local function lightHandSparkler(tool: Tool)
 	fizz.RollOffMaxDistance = 30
 	fizz.Parent = handle
 	fizz:Play()
-	task.delay(HAND_SPARKLER_SECONDS, function()
+	-- burn down: the stick shortens from the top, the tip follows it
+	task.spawn(function()
+		local t0 = os.clock()
+		while tool.Parent do
+			local k = math.clamp((os.clock() - t0) / HAND_SPARKLER_SECONDS, 0, 1)
+			local length = math.max(0.02, STICK * (1 - k))
+			stick.Size = Vector3.new(stick.Size.X, length, stick.Size.Z)
+			stickWeld.C0 = CFrame.new(0, GRIP / 2 + length / 2, 0)
+			tipWeld.C0 = CFrame.new(0, GRIP / 2 + length, 0)
+			if k >= 1 then break end
+			task.wait(0.2)
+		end
 		if tool.Parent then tool:Destroy() end
 	end)
+	return true, string.format("✨ 불이 붙었어요! %d초 동안 타요.", HAND_SPARKLER_SECONDS)
 end
 
 local function grantHandSparkler(player: Player): (boolean, string?)
@@ -631,25 +654,40 @@ local function grantHandSparkler(player: Player): (boolean, string?)
 	if not backpack then return false, "잠시 후 다시 시도하세요." end
 	local tool = Instance.new("Tool")
 	tool.Name = "✨ 손 스파클러"
-	tool.ToolTip = string.format("손에 들면 %d초 동안 타요. 들고 춤춰 보세요!", HAND_SPARKLER_SECONDS)
+	tool.ToolTip = "손에 들고 [불 붙이기]를 누르세요"
 	tool.CanBeDropped = false
-	tool.Grip = CFrame.new(0, -0.5, 0) * CFrame.Angles(math.rad(-30), 0, 0)
+	tool:SetAttribute("HandSparkler", true)
+	tool.Grip = CFrame.new(0, -GRIP / 2, 0) * CFrame.Angles(math.rad(-30), 0, 0)
 	local handle = Instance.new("Part")
 	handle.Name = "Handle"
-	handle.Size = Vector3.new(0.08, 1.6, 0.08)
+	handle.Size = Vector3.new(0.08, GRIP, 0.08)
 	handle.Color = Color3.fromRGB(70, 70, 74)
 	handle.Material = Enum.Material.Metal
 	handle.CanCollide = false
 	handle.Massless = true
 	handle.Parent = tool
-	tool.Equipped:Connect(function() lightHandSparkler(tool) end)
+	-- the coated part that burns (grey), on top of the wire
+	local stick = Instance.new("Part")
+	stick.Name = "Stick"
+	stick.Size = Vector3.new(0.12, STICK, 0.12)
+	stick.Color = Color3.fromRGB(120, 116, 110)
+	stick.Material = Enum.Material.Concrete
+	stick.CanCollide = false
+	stick.CanQuery = false
+	stick.Massless = true
+	local weld = Instance.new("Weld")
+	weld.Name = "Weld"
+	weld.Part0 = handle
+	weld.Part1 = stick
+	weld.C0 = CFrame.new(0, GRIP / 2 + STICK / 2, 0)
+	weld.Parent = stick
+	stick.Parent = tool
 	tool.Parent = backpack
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if humanoid then humanoid:EquipTool(tool) end
-	toast(player, string.format("✨ 손 스파클러에 불이 붙었어요! %d초 동안 들고 춤춰 보세요.", HAND_SPARKLER_SECONDS))
+	toast(player, "✨ 손 스파클러를 받았어요! 손에 들고 [불 붙이기]를 누르세요.")
 	return true, nil
 end
-
 -- the glowstick (Game Pass, permanent): always in the backpack, a tap changes its colour
 local GLOW_COLORS = { Color3.fromRGB(0, 255, 140), Color3.fromRGB(255, 60, 200), Color3.fromRGB(60, 180, 255), Color3.fromRGB(255, 230, 60), Color3.fromRGB(255, 120, 40) }
 local function giveGlowstick(player: Player)
@@ -720,6 +758,9 @@ function SparkleService.Handle(player: Player, action: string, payload: any): (b
 		return true, nil, true
 	elseif action == "Tap" then
 		return tap(player, payload)
+	elseif action == "LightHandSparkler" then
+		local ok, message = lightHandSparkler(player)
+		return ok, message, true
 	elseif action == "DJColdSpark" then
 		local ok, message = djColdSpark(player)
 		return ok, message, true

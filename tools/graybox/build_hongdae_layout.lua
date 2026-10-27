@@ -768,6 +768,8 @@ local BUS_STOPS = {
 	-- front on the promenade
 	{ 4, "카페", Vector3.new(-153, 0, 276), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1) }, -- (across the road from the cafe, on the shop-block side: user 2026-10-27)
 	{ 5, "해변", Vector3.new(-153, 0, -128), Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1) },
+	-- (user 2026-10-27) by the pocket park's east side, north of subway exit 3
+	{ 6, "오후역", Vector3.new(-31, 0, -82), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1) },
 }
 local BUS_HALF = 17 -- half the shelter + sign length along the street
 local function busFootprint(s): (number, number, number, number)
@@ -1310,13 +1312,17 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 		g.Parent = header
 		-- (user 2026-10-27, 2nd: far too small) the name fills the board's height,
 		-- the arrows half of it
+		-- (user 2026-10-27, 3rd: still tiny: TextScaled stayed at its 8 px start
+		-- on this board) fixed sizes on the 66 px tall canvas: the name ×3, the
+		-- arrows ×2 of what showed
 		local function cell(text, x, w, h, align)
 			local l = Instance.new("TextLabel")
 			l.Position = UDim2.fromScale(x, (1 - h) / 2)
 			l.Size = UDim2.fromScale(w, h)
 			l.BackgroundTransparency = 1
 			l.Font = Enum.Font.GothamBold
-			l.TextScaled = true
+			l.TextScaled = false
+			l.TextSize = if h > 0.6 then 24 else 16 -- (was drawn at 8)
 			l.TextWrapped = false
 			l.TextXAlignment = align
 			l.TextColor3 = Color3.fromRGB(240, 240, 240)
@@ -3661,15 +3667,8 @@ do
 	-- the curved wooden deck with the white sofa: out of the circle, on the
 	-- paving by the west tree bed in the south-west (user 2026-10-24), curving
 	-- round a centre to its east so the sofa faces into the park
-	local SC = Vector3.new(-110, 0, -72)
-	arc("ParkDeck", SC, 23, 30, 145, 215, 0.08, 0.98, WOOD, Enum.Material.WoodPlanks)
-	arc("CurvedSofa", SC, 27.4, 29.4, 150, 210, 0.98, 2.38, CUSH, Enum.Material.Fabric)
-	arc("CurvedSofaBack", SC, 29.4, 30, 150, 210, 0.98, 3.68, CUSH, Enum.Material.Fabric)
-	for a = 154, 206, 7.5 do
-		local r = math.rad(a)
-		local p = Vector3.new(SC.X + 28.3 * math.cos(r), 2.68, SC.Z + 28.3 * math.sin(r))
-		seat("ParkSofa", CFrame.lookAt(p, Vector3.new(SC.X, 2.68, SC.Z)), Vector3.new(2.2, 0.3, 1.8), CUSH, P)
-	end
+	-- (user 2026-10-27: the curved sofa deck is gone; the three ranking boards
+	-- stand in its place, RankingBoards below)
 	-- tiered wooden seats in an arc facing the mound, east and west (user
 	-- 2026-10-24: plain wood, no cushions and no E prompt; walking onto a seat
 	-- still sits you down, so the seat parts are invisible and untagged).
@@ -4244,8 +4243,9 @@ do
 		local corner = Vector3.new(QX, Y, QZ1)
 		post(47, QZ1) post(QX, QZ1)
 		rope(Vector3.new(47, Y, QZ1), corner)
-		-- along the sidewalk to the north end (posts every ~5)
-		local n = math.max(1, math.floor((QZ1 - QZ0) / 5 + 0.5))
+		-- along the sidewalk to the north end (posts every ~10: every other one
+		-- of the first ~5 spacing taken out, user 2026-10-27)
+		local n = math.max(1, math.floor((QZ1 - QZ0) / 10 + 0.5))
 		for i = 1, n do
 			local zz = QZ1 - (QZ1 - QZ0) * i / n
 			post(QX, zz)
@@ -4535,8 +4535,9 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	local POST = Color3.fromRGB(120, 88, 62) -- (the deck wood of the park steps, user 2026-10-27)
 	-- (moved in a row up from subway exit 3 toward the park, readable from both
 	-- sides, user 2026-10-26; the club bus stop took their old place)
-	local X = -68 -- (on the paving by the sunken plaza's rim, user 2026-10-27)
-	for _, spec in ipairs({ { "support", -97 }, { "spend", -83.5 }, { "playtime", -70 } }) do
+	-- (user 2026-10-27, 2nd) on the beach side, where the curved sofa deck stood
+	local X = -134
+	for _, spec in ipairs({ { "support", -86 }, { "spend", -72.5 }, { "playtime", -59 } }) do
 		local z = spec[2]
 		box("BoardPost", X - 0.4, 0, z - 5.6, X + 0.4, 12.4, z - 4.8, POST, { parent = B, material = Enum.Material.WoodPlanks })
 		box("BoardPost", X - 0.4, 0, z + 4.8, X + 0.4, 12.4, z + 5.6, POST, { parent = B, material = Enum.Material.WoodPlanks })

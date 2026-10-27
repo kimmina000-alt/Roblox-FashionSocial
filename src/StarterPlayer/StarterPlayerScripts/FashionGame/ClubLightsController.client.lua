@@ -632,8 +632,8 @@ end
 --------------------------------------------------
 
 local accumulator = 0
--- The lasers run on their own clock so the DJ's speed (lasers only, user
--- 2026-10-25; the moving heads keep the normal pace)
+-- The lasers (and since 2026-10-27 the moving heads and wall bars) run on
+-- their own clock so the DJ's speed
 -- (attribute ClubLightSpeed, x0.5..x5, user 2026-10-25) changes them smoothly
 local lightClock = workspace:GetServerTimeNow()
 local lastNow = lightClock
@@ -647,8 +647,10 @@ RunService.RenderStepped:Connect(function(dt)
 	lightClock += (t - lastNow) * (if typeof(speed) == "number" then math.clamp(speed, 0.25, 5) else 1)
 	lastNow = t
 	updateLasers(lightClock)
-	updateWashes(t)
-	updateWallBars(t)
+	-- (user 2026-10-27: the speed button drives the lights too) the moving heads
+	-- and the LED wall bar chase run on the same sped-up clock
+	updateWashes(lightClock)
+	updateWallBars(lightClock)
 	updatePillars(t)
 end)
 

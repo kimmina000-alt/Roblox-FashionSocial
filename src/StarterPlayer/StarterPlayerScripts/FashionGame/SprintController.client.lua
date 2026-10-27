@@ -13,14 +13,21 @@ local Players = game:GetService("Players")
 
 local WALK_SPEED = 16
 local RUN_SPEED = 26
+-- at a cafe shift (character attribute CafeJob) everyone moves quicker, so the
+-- coffee gets to the table (user 2026-10-27: 서빙하는데 세월아 네월아)
+local JOB_WALK, JOB_RUN = 22, 32
 local ACTION = "FashionSprint"
 
 local player = Players.LocalPlayer
 local running = false
 
 local function apply()
-	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-	if humanoid then humanoid.WalkSpeed = if running then RUN_SPEED else WALK_SPEED end
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local job = character ~= nil and character:GetAttribute("CafeJob") ~= nil
+	if humanoid then
+		humanoid.WalkSpeed = if running then (if job then JOB_RUN else RUN_SPEED) else (if job then JOB_WALK else WALK_SPEED)
+	end
 	ContextActionService:SetTitle(ACTION, if running then "🚶" else "🏃")
 end
 
@@ -46,8 +53,10 @@ end
 ContextActionService:BindAction(ACTION, onAction, true, Enum.KeyCode.LeftControl, Enum.KeyCode.RightControl, Enum.KeyCode.ButtonL3)
 ContextActionService:SetTitle(ACTION, "🏃")
 
-player.CharacterAdded:Connect(function(character)
+player.CharacterAdded:Connect(function(character: Model)
 	character:WaitForChild("Humanoid", 10)
+	character:GetAttributeChangedSignal("CafeJob"):Connect(apply)
 	apply()
 end)
+if player.Character then player.Character:GetAttributeChangedSignal("CafeJob"):Connect(apply) end
 apply()

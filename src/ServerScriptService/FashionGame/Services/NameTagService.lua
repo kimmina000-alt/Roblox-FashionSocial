@@ -100,7 +100,9 @@ local function refreshRoles(player: Player)
 		g.Name = ROLE_TAG
 		g.Size = UDim2.fromOffset(110, 26)
 		g.StudsOffset = Vector3.new(0, 2.4, 0)
-		g.SizeOffset = Vector2.new(0, 3.4)
+		-- right over Roblox's own name display (user 2026-10-27): the same anchor
+		-- as before, one badge height up; the cafe staff tag sits above it
+		g.SizeOffset = Vector2.new(0, 1.5)
 		g.MaxDistance = 90
 		g.LightInfluence = 0
 		g.Adornee = head
