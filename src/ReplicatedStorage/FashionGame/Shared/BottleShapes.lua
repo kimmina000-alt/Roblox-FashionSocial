@@ -411,9 +411,78 @@ local function fromTemplate(c: Ctx, key: string, color: Color3): boolean
 	return true
 end
 
+-- The user's own bottle models (STL files 2026-10-27, simplified to ~2,000
+-- triangles: docs/04_ART/models/bottles/*.obj, imported into
+-- ServerStorage.ArtAssets.Bottles). One mesh, 1 stud tall, upright.
+-- [key] = { model, height in bottle units, label: "front" (a paper label) or "band" (wrapped), label y0, y1 (0..1 of the height) }
+local USER_MESH = {
+	ginger_brew = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
+	monte = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
+	french_lemonade = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
+	golden_apple = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
+	zzang_pop = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
+	hot_boost = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
+	green_claw = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
+	blue_wing = { "bottle_absolut_tier2", 1.75, "front", 0.25, 0.6 },
+	stack_hydro = { "bottle_stack_hydro", 2.16, "band", 0.2, 0.42 },
+	pastel_splash = { "bottle_pastel_splash", 2.16, "band", 0.25, 0.5 },
+	skull_water = { "bottle_skull_water", 2.16, "band", 0.22, 0.45 },
+	golmok = { "bottle_vip_golmok", 2.52, "band", 0.2, 0.4 },
+}
+local function userMesh(c: Ctx, key: string, color: Color3): boolean
+	local spec = USER_MESH[key]
+	if not spec or not game:GetService("RunService"):IsServer() then return false end
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local folder = art and art:FindFirstChild("Bottles")
+	local src = folder and folder:FindFirstChild(spec[1])
+	local mesh = src and (if src:IsA("MeshPart") then src else src:FindFirstChildWhichIsA("MeshPart", true))
+	if not mesh then return false end
+	local s, H = c.s, spec[2]
+	local p = mesh:Clone()
+	for _, d in ipairs(p:GetChildren()) do d:Destroy() end
+	local k = H / mesh.Size.Y
+	p.Size = mesh.Size * k * s
+	p.Name = "BottleBody"
+	p.Color = color
+	p.Material = Enum.Material.SmoothPlastic
+	p.Reflectance = 0.1
+	p.CanCollide, p.CanTouch, p.CastShadow = false, false, false
+	if c.weld then
+		p.Anchored = false
+		p.Massless = true
+		local w = Instance.new("WeldConstraint")
+		w.Part0 = c.weld
+		w.Part1 = p
+		p.CFrame = c.base * CFrame.new(0, H * s / 2, 0)
+		w.Parent = p
+	else
+		p.Anchored = true
+		p.CFrame = c.base * CFrame.new(0, H * s / 2, 0)
+	end
+	p.Parent = c.parent
+	table.insert(c.parts, p)
+	-- the label (body radius from the mesh's width)
+	local r = mesh.Size.X * k / 2
+	local y0, y1 = spec[4] * H, spec[5] * H
+	if spec[3] == "front" then
+		local lw, lh = r * 1.2, (y1 - y0)
+		local label = make(c, "Label", Vector3.new(lw * s, lh * s, 0.01 * s), c.base * CFrame.new(0, (y0 + y1) / 2 * s, -(r + 0.006) * s), WHITE)
+		label.Transparency = 1
+		local d = Instance.new("Decal")
+		d.Texture = LABEL[key] or ""
+		d.Face = Enum.NormalId.Front
+		d.Parent = label
+	else
+		band(c, "Label", y0, y1, r + 0.006, r + 0.006, 12, { color = WHITE }, LABEL[key])
+	end
+	return true
+end
+
 function BottleShapes.add(parent: Instance, base: CFrame, key: string, color: Color3, scale: number, weldTo: BasePart?): {BasePart}
 	local c: Ctx = { parent = parent, base = base, s = scale, weld = weldTo, parts = {} }
-	if key == "golmok" then
+	if userMesh(c, key, color) then
+		return c.parts
+	elseif key == "golmok" then
 		vipBottle(c, color)
 	elseif DRAWN[key] == "flask" then
 		flask(c, color, key)
