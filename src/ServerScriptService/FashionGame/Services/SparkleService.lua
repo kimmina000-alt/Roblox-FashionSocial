@@ -34,6 +34,12 @@ local SparkleService = {}
 local SPARKLE_TEXTURE = "rbxasset://textures/particles/sparkles_main.dds"
 local SPARKLER_SECONDS = 30
 local COLD_SPARK_SECONDS = 10
+-- the two fountains the user liked (D-422): 7 = narrow column, 8 = wider fan
+local FOUNTAIN_STYLES = {
+	column = { spread = 6, speed = 26 },
+	fan = { spread = 14, speed = 22 },
+}
+local COLD_SPARK_STYLE = "fan" -- (user 2026-10-27: 8 first)
 local COLD_SPARK_COOLDOWN = 120 -- (no longer a wait for buyers: only the DJ's free one, 2026-10-27)
 local SPARKLER_MAX = 5 -- sparklers burning in one bottle / bucket at once (user 2026-10-27)
 local HAND_SPARKLER_SECONDS = 60
@@ -104,12 +110,44 @@ local function sparks(parent: Instance, offset: Vector3, big: boolean): Attachme
 	emitter.Transparency = NumberSequence.new(0, 0.3)
 	emitter.EmissionDirection = Enum.NormalId.Top
 	if big then
-		-- cold spark fountain: a tall column of sparks falling back down
-		emitter.Rate = 360
-		emitter.Lifetime = NumberRange.new(1.2, 1.7)
-		emitter.Speed = NumberRange.new(28, 36)
-		emitter.SpreadAngle = Vector2.new(8, 8)
-		emitter.Acceleration = Vector3.new(0, -18, 0)
+		-- cold spark fountain (user photo of stage machines, 2026-10-27, D-422):
+		-- streaks stretched along their flight, white-hot to gold, and glitter
+		-- drifting back down round the column
+		local style = FOUNTAIN_STYLES[COLD_SPARK_STYLE]
+		emitter.Name = "Core"
+		emitter.Rate = 700
+		emitter.Lifetime = NumberRange.new(0.9, 1.4)
+		emitter.Speed = NumberRange.new(style.speed * 0.8, style.speed)
+		emitter.SpreadAngle = Vector2.new(style.spread, style.spread)
+		emitter.Acceleration = Vector3.new(0, -14, 0)
+		emitter.Drag = 0.6
+		emitter.Orientation = Enum.ParticleOrientation.VelocityParallel
+		emitter.Squash = NumberSequence.new(-1.6)
+		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.7), NumberSequenceKeypoint.new(0.6, 0.5), NumberSequenceKeypoint.new(1, 0.1) })
+		emitter.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.75, 0.2), NumberSequenceKeypoint.new(1, 1) })
+		emitter.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 240)),
+			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 215, 130)),
+			ColorSequenceKeypoint.new(1, Color3.fromRGB(255, 150, 60)),
+		})
+		emitter.Brightness = 8
+		local glitter = emitter:Clone()
+		glitter.Name = "Glitter"
+		glitter.Rate = 250
+		glitter.Speed = NumberRange.new(style.speed * 0.5, style.speed * 0.75)
+		glitter.SpreadAngle = Vector2.new(style.spread + 10, style.spread + 10)
+		glitter.Lifetime = NumberRange.new(1.6, 2.4)
+		glitter.Drag = 2
+		glitter.Acceleration = Vector3.new(0, -6, 0)
+		glitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.35), NumberSequenceKeypoint.new(1, 0.1) })
+		glitter.Parent = at
+		emitter.Parent = at
+		local light = Instance.new("PointLight")
+		light.Color = Color3.fromRGB(255, 210, 140)
+		light.Range = 18
+		light.Brightness = 3
+		light.Parent = at
+		return at
 	else
 		-- bottle sparkler (user photo 2026-10-25): a dense white fountain
 		-- shooting up about a bottle's height, sparks raining back down

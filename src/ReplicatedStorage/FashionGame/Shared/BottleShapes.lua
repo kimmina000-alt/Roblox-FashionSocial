@@ -431,83 +431,40 @@ local USER_MESH = {
 	-- 2.52 so the hand tool is 1.3x too)
 	golmok = { "bottle_vip_golmok", 3.28, "vip", 0, 0 },
 }
--- front labels in the can designs the user sent (D-420)
-local FRONT_LABEL = { pastel_splash = "rbxassetid://114648019526845", skull_water = "rbxassetid://117082924870599" }
-
--- a label on the front arc only (arcDeg wide), bent round the body
-local function arcLabel(c: Ctx, name: string, y0: number, y1: number, r0: number, r1: number, arcDeg: number, tex: string, bg: Color3)
-	local s = c.s
-	local n = 24
-	local step = 2 * math.pi / n
-	local count = math.max(1, math.floor(arcDeg / 15 + 0.5))
-	local h = y1 - y0
-	local slant = math.sqrt(h * h + (r1 - r0) ^ 2)
-	local rm = (r0 + r1) / 2
-	local wn = 2 * rm * math.tan(math.pi / n)
-	local grow = wn * 0.06
-	local tilt = math.atan2(r1 - r0, h)
-	for j = 0, count - 1 do
-		local a = math.pi - count * step / 2 + (j + 0.5) * step
-		local out = Vector3.new(math.sin(a), 0, math.cos(a))
-		local p0 = (Vector3.new(0, (y0 + y1) / 2, 0) + out * rm) * s
-		local p = make(c, name, Vector3.new((wn + 2 * grow) * s, slant * s, 0.02 * s), c.base * CFrame.lookAt(p0, p0 + out) * CFrame.Angles(-tilt, 0, 0), bg)
-		local t = Instance.new("Texture")
-		t.Texture = tex
-		t.Face = Enum.NormalId.Front
-		t.StudsPerTileU = wn * count * s
-		t.OffsetStudsU = (j * wn - grow) * s
-		t.StudsPerTileV = slant * s
-		t.Parent = p
-	end
-end
-
--- 파스텔 스플래시: the mouth of the user's frosted bottle photo (a clear glass
--- collar under a flat orange cap), a frosted body (D-420)
-local function pastelDress(c: Ctx, body: BasePart, H: number)
-	body.Material = Enum.Material.Glass
-	body.Transparency = 0.2
-	body.Reflectance = 0.15
-	-- (Glass material drew the collar dark grey: plastic, half see-through)
-	cyl(c, "Collar", 0.86 * H, 0.925 * H, 0.15 * H, { color = Color3.fromRGB(240, 244, 248), transparency = 0.35, reflectance = 0.25 })
-	cyl(c, "BottleCap", 0.925 * H, 1.0 * H + 0.01, 0.14 * H, { color = Color3.fromRGB(245, 120, 40) })
-end
-
--- 스컬 앤 워터: the swing-top of the user's dark bottle photo: a white ceramic
--- stopper under a red seal, and a wire bail from a neck ring over the top
-local function swingDress(c: Ctx, body: BasePart, H: number)
-	local s = c.s
-	-- (Glass material showed the sky blue through the foot: glossy plastic reads as dark glass)
-	body.Material = Enum.Material.SmoothPlastic
-	body.Reflectance = 0.04 -- (more mirrored the sky blue at the foot)
-	local wire = { color = Color3.fromRGB(190, 194, 200), material = Enum.Material.Metal, reflectance = 0.3 }
-	cyl(c, "Seal", 0.93 * H, 1.035 * H, 0.128 * H, { color = Color3.fromRGB(200, 30, 40) })
-	cyl(c, "Stopper", 1.035 * H, 1.075 * H, 0.105 * H, { color = WHITE })
-	cyl(c, "SealDot", 1.075 * H, 1.082 * H, 0.06 * H, { color = Color3.fromRGB(200, 30, 40) })
-	cyl(c, "WireRing", 0.86 * H, 0.875 * H, 0.135 * H, wire)
-	local t = 0.008 * H -- (thin, hugging the seal: a wider one read as a box frame)
-	for _, x in ipairs({ -1, 1 }) do -- the two legs of the bail
-		make(c, "Wire", Vector3.new(t * s, 0.215 * H * s, t * s), c.base * CFrame.new(x * 0.068 * H * s, 0.975 * H * s, 0), wire.color, wire.material, nil, 0, wire.reflectance)
-	end
-	make(c, "Wire", Vector3.new(0.144 * H * s, t * s, t * s), c.base * CFrame.new(0, 1.084 * H * s, 0), wire.color, wire.material, nil, 0, wire.reflectance)
-end
+-- The whole-bottle pictures (user 2026-10-27, D-423): labels, caps and foil
+-- painted on the bottle mesh itself (the "_uv" imports carry cylindrical UVs,
+-- front at the middle of the picture). See-through pixels show the part
+-- colour, so one picture serves every flavour colour. Pictures:
+-- docs/04_ART/textures/drinks/skins/, made by the bottle_skins script.
+local SKIN = {
+	ginger_brew = "rbxassetid://130540103874661", monte = "rbxassetid://118191006326697",
+	french_lemonade = "rbxassetid://94713344256198", golden_apple = "rbxassetid://124629136985603",
+	zzang_pop = "rbxassetid://134094123522096", hot_boost = "rbxassetid://99548340361442",
+	green_claw = "rbxassetid://92974676398045", blue_wing = "rbxassetid://72780943931244",
+	stack_hydro = "rbxassetid://99121303799889", pastel_splash = "rbxassetid://84338255538652",
+	skull_water = "rbxassetid://95136725349970", golmok = "rbxassetid://124457975063786",
+}
 local VIP_SPADE, VIP_PLATE = "rbxassetid://100981037328421", "rbxassetid://75444167233842"
 
 -- 골목 공방 (VIP), like the user's photo of the metallic champagne set: a
 -- mirror-metal body in the flavour colour, a black foil over the neck, a
 -- metal collar with a small spade, a raised spade emblem on the front with a
 -- monogram (ours: O for OHU) and a bronze plate under it. No label band.
-local function vipDress(c: Ctx, body: BasePart, color: Color3, H: number, r: number)
+-- `painted`: the foil, the spade picture and the plate are in the bottle's
+-- picture (D-423); only the raised spade is added.
+local function vipDress(c: Ctx, body: BasePart, color: Color3, H: number, r: number, painted: boolean?)
 	local s = c.s
 	body.Material = Enum.Material.Metal
 	body.Reflectance = 0.35
-	-- foil: black, from the top down over the shoulder start
-	cyl(c, "Foil", 0.8 * H, 1.0 * H + 0.01, 0.105 * H, { color = Color3.fromRGB(18, 18, 20), material = Enum.Material.Fabric })
-	cyl(c, "Foil", 0.765 * H, 0.81 * H, 0.125 * H, { color = Color3.fromRGB(18, 18, 20), material = Enum.Material.Fabric })
-	-- metal collar under the foil, a small spade on its front
-	local collar = cyl(c, "Collar", 0.735 * H, 0.77 * H, 0.13 * H, { color = color:Lerp(Color3.new(0, 0, 0), 0.15), material = Enum.Material.Metal, reflectance = 0.35 })
-	local sm = make(c, "CollarSpade", Vector3.new(0.05 * H * s, 0.06 * H * s, 0.01 * s), c.base * CFrame.new(0, 0.752 * H * s, -(0.066 * H + 0.006) * s), color, nil, nil, 1)
-	local d0 = Instance.new("Decal") d0.Texture = VIP_SPADE d0.Color3 = color:Lerp(Color3.new(0, 0, 0), 0.35) d0.Parent = sm
-	_ = collar
+	if not painted then
+		-- foil: black, from the top down over the shoulder start
+		cyl(c, "Foil", 0.8 * H, 1.0 * H + 0.01, 0.105 * H, { color = Color3.fromRGB(18, 18, 20), material = Enum.Material.Fabric })
+		cyl(c, "Foil", 0.765 * H, 0.81 * H, 0.125 * H, { color = Color3.fromRGB(18, 18, 20), material = Enum.Material.Fabric })
+		-- metal collar under the foil, a small spade on its front
+		cyl(c, "Collar", 0.735 * H, 0.77 * H, 0.13 * H, { color = color:Lerp(Color3.new(0, 0, 0), 0.15), material = Enum.Material.Metal, reflectance = 0.35 })
+		local sm = make(c, "CollarSpade", Vector3.new(0.05 * H * s, 0.06 * H * s, 0.01 * s), c.base * CFrame.new(0, 0.752 * H * s, -(0.066 * H + 0.006) * s), color, nil, nil, 1)
+		local d0 = Instance.new("Decal") d0.Texture = VIP_SPADE d0.Color3 = color:Lerp(Color3.new(0, 0, 0), 0.35) d0.Parent = sm
+	end
 	-- the raised spade: a thin metal plate in the spade's outline (two lobes,
 	-- a pointed top, a stem) standing proud of the glass, the picture on it
 	local ey, eh, ew = 0.36 * H, 0.2 * H, 0.17 * H
@@ -523,6 +480,7 @@ local function vipDress(c: Ctx, body: BasePart, color: Color3, H: number, r: num
 	rel("Spade", Vector3.new(ew * 0.5, ew * 0.5, 0.025), CFrame.new(0, ey + eh * 0.12, z) * CFrame.Angles(0, 0, math.rad(45)), nil) -- the point
 	rel("Spade", Vector3.new(ew * 0.1, eh * 0.32, 0.025), CFrame.new(0, ey - eh * 0.32, z), nil) -- the stem
 	rel("Spade", Vector3.new(ew * 0.34, eh * 0.05, 0.025), CFrame.new(0, ey - eh * 0.47, z), nil) -- the foot
+	if painted then return end
 	local face = make(c, "SpadeFace", Vector3.new(ew * s, eh * s, 0.005 * s), c.base * CFrame.new(0, ey * s, (z - 0.016) * s), color, nil, nil, 1)
 	local d1 = Instance.new("Decal") d1.Texture = VIP_SPADE d1.Color3 = color:Lerp(Color3.new(1, 1, 1), 0.25) d1.Parent = face
 	-- the bronze plate under it
@@ -534,8 +492,9 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	if not spec or not game:GetService("RunService"):IsServer() then return false end
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local folder = art and art:FindFirstChild("Bottles")
-	-- (the "_smooth" imports carry vertex normals: metal shades round, not faceted)
-	local src = folder and (folder:FindFirstChild(spec[1] .. "_smooth") or folder:FindFirstChild(spec[1]))
+	-- ("_uv" imports carry UVs for the painted picture, "_smooth" vertex normals)
+	local uv = folder and SKIN[key] and folder:FindFirstChild(spec[1] .. "_uv")
+	local src = uv or (folder and (folder:FindFirstChild(spec[1] .. "_smooth") or folder:FindFirstChild(spec[1])))
 	local mesh = src and (if src:IsA("MeshPart") then src else src:FindFirstChildWhichIsA("MeshPart", true))
 	if not mesh then return false end
 	local s, H = c.s, spec[2]
@@ -565,13 +524,12 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	-- the label (body radius from the mesh's width)
 	local r = mesh.Size.X * k / 2
 	local y0, y1 = spec[4] * H, spec[5] * H
-	if spec[3] == "vip" then
+	if uv then
+		-- painted: the picture on the mesh, no label parts (D-423)
+		p.TextureID = SKIN[key]
+		if spec[3] == "vip" then vipDress(c, p, color, H, r * 0.93, true) end
+	elseif spec[3] == "vip" then
 		vipDress(c, p, color, H, r * 0.93)
-	elseif spec[3] == "pastel" or spec[3] == "swing" then
-		-- (radius at the label's bottom and top, from the mesh's profile)
-		local r0, r1 = if key == "pastel_splash" then 0.114 * H else 0.141 * H, if key == "pastel_splash" then 0.096 * H else 0.142 * H
-		arcLabel(c, "Label", y0, y1, r0 + 0.006, r1 + 0.006, 150, FRONT_LABEL[key], if key == "pastel_splash" then Color3.fromRGB(252, 196, 186) else BLACK)
-		if spec[3] == "pastel" then pastelDress(c, p, H) else swingDress(c, p, H) end
 	elseif spec[3] == "front" then
 		local lw, lh = r * 1.2, (y1 - y0)
 		local label = make(c, "Label", Vector3.new(lw * s, lh * s, 0.01 * s), c.base * CFrame.new(0, (y0 + y1) / 2 * s, -(r + 0.006) * s), WHITE)
