@@ -249,16 +249,187 @@ local BUILDERS: {[string]: (Ctx, Color3) -> ()} = {
 	golmok = champagne,
 }
 
+--------------------------------------------------------------------------------
+-- The user's bottle sheet, second pass (2026-10-27): one shape per tier, every
+-- drink its own colour and printed label (docs/04_ART/textures/drinks/*.png).
+--   물 = the 삼다수 model, tier 1 = the can (store 435241125, its body label
+--   is our picture), tier 2 = the flat flask (#11), tier 3 = the tall bottle
+--   (#6, a label band round it), VIP 골목 공방 = #13's silhouette rebuilt with a
+--   slightly narrower bottom (a store mesh cannot be reshaped).
+-- Store models live in ServerStorage.ArtAssets.Bottles (scripts stripped),
+-- so this runs on the server; the drawn shapes above stay as the fallback.
+local ASSET_SHAPE = {
+	water = "Samdasu", cider = "Can", cola = "Can", orange = "Can", lemonade = "Can", blueade = "Can",
+}
+local DRAWN = { ginger_brew = "flask", monte = "flask", french_lemonade = "flask", golden_apple = "flask", zzang_pop = "flask",
+	hot_boost = "flask", green_claw = "flask", blue_wing = "flask", stack_hydro = "tall", pastel_splash = "tall", skull_water = "tall" }
+local LABEL = {
+	cider = "rbxassetid://76090799332033", cola = "rbxassetid://105988564393014", orange = "rbxassetid://75731418965949",
+	lemonade = "rbxassetid://92359712170086", blueade = "rbxassetid://72357102515026",
+	ginger_brew = "rbxassetid://78161382486926", monte = "rbxassetid://111978227065988", french_lemonade = "rbxassetid://82834417286890",
+	golden_apple = "rbxassetid://138757272545670", zzang_pop = "rbxassetid://113640294515835", hot_boost = "rbxassetid://89899401494100",
+	green_claw = "rbxassetid://134976093090518", blue_wing = "rbxassetid://129850818133473",
+	stack_hydro = "rbxassetid://81399516557820", pastel_splash = "rbxassetid://77895910978282", skull_water = "rbxassetid://97598937201249",
+	golmok = "rbxassetid://104726293253378",
+}
+local ASSET_HEIGHT = { Samdasu = 2.1, Can = 1.3 }
+
+local function template(shape: string): Instance?
+	if not game:GetService("RunService"):IsServer() then return nil end
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local folder = art and art:FindFirstChild(if shape == "Samdasu" then "Foods" else "Bottles")
+	return folder and folder:FindFirstChild(shape)
+end
+
+-- a band of flat panels round a (tapered) ring: plain colour, or a printed
+-- label wrapped once round it
+local function band(c: Ctx, name: string, y0: number, y1: number, r0: number, r1: number, n: number, look: Look, tex: string?)
+	local s = c.s
+	local h = y1 - y0
+	local slant = math.sqrt(h * h + (r1 - r0) ^ 2)
+	local rm = (r0 + r1) / 2
+	local wn = 2 * rm * math.tan(math.pi / n)
+	local grow = wn * 0.06
+	local tilt = math.atan2(r1 - r0, h)
+	for i = 0, n - 1 do
+		local a = (i + 0.5) * 2 * math.pi / n
+		local out = Vector3.new(math.sin(a), 0, math.cos(a))
+		local p0 = (Vector3.new(0, (y0 + y1) / 2, 0) + out * rm) * s
+		local p = make(c, name, Vector3.new((wn + 2 * grow) * s, slant * s, 0.02 * s), c.base * CFrame.lookAt(p0, p0 + out) * CFrame.Angles(-tilt, 0, 0), look.color, look.material, nil, look.transparency, look.reflectance)
+		if tex then
+			local t = Instance.new("Texture")
+			t.Texture = tex
+			t.Face = Enum.NormalId.Front
+			t.StudsPerTileU = wn * n * s
+			t.OffsetStudsU = (i * wn - grow) * s
+			t.StudsPerTileV = slant * s
+			t.Parent = p
+		end
+	end
+end
+
+-- (#11, #6 and #13 are re-uploads by a deleted account: their meshes no
+-- longer load, so these three shapes are rebuilt from the user's pictures)
+
+-- tier 2: #11's flat flask, rounded sides, a short neck with a cork, a paper label
+local function flask(c: Ctx, color: Color3, key: string)
+	local s = c.s
+	local glass = { color = color, material = Enum.Material.SmoothPlastic, transparency = 0, reflectance = 0.12 }
+	make(c, "BottleBody", Vector3.new(0.5 * s, 1.15 * s, 0.3 * s), c.base * CFrame.new(0, 0.575 * s, 0), color, glass.material, nil, 0, glass.reflectance)
+	for _, x in ipairs({ -0.25, 0.25 }) do -- the round sides
+		make(c, "BottleBody", Vector3.new(1.15 * s, 0.3 * s, 0.3 * s), c.base * CFrame.new(x * s, 0.575 * s, 0) * CFrame.Angles(0, 0, math.rad(90)), color, glass.material, Enum.PartType.Cylinder, 0, glass.reflectance)
+	end
+	local sh = make(c, "BottleShoulder", Vector3.new(0.8 * s, 0.5 * s, 0.3 * s), c.base * CFrame.new(0, 1.15 * s, 0), color, glass.material, nil, 0, glass.reflectance)
+	local mesh = Instance.new("SpecialMesh") mesh.MeshType = Enum.MeshType.Sphere mesh.Parent = sh
+	cyl(c, "BottleNeck", 1.3, 1.6, 0.2, glass)
+	cyl(c, "Cork", 1.58, 1.75, 0.18, { color = Color3.fromRGB(205, 175, 110), material = Enum.Material.Wood })
+	local label = make(c, "Label", Vector3.new(0.46 * s, 0.56 * s, 0.01 * s), c.base * CFrame.new(0, 0.58 * s, -0.156 * s), WHITE)
+	local d = Instance.new("Decal")
+	d.Texture = LABEL[key] or ""
+	d.Face = Enum.NormalId.Front
+	d.Parent = label
+end
+
+-- tier 3: #6's tall bottle, a round shoulder, a long neck, a label band
+local function tall(c: Ctx, color: Color3, key: string)
+	local glass = { color = color, material = Enum.Material.SmoothPlastic, transparency = 0, reflectance = 0.12 }
+	cyl(c, "BottleBody", 0, 1.2, 0.64, glass)
+	ell(c, "BottleShoulder", 1.2, 0.64, 0.72, glass)
+	cyl(c, "BottleNeck", 1.4, 2.1, 0.22, glass)
+	cyl(c, "BottleLip", 2.06, 2.16, 0.26, glass)
+	band(c, "Label", 0.35, 0.85, 0.326, 0.326, 12, { color = WHITE }, LABEL[key])
+end
+
+-- 골목 공방 (VIP): #13's long bottle, the body a touch narrower at the foot (user sketch)
+local function vipBottle(c: Ctx, color: Color3)
+	local glass = { color = color, material = Enum.Material.SmoothPlastic, transparency = 0, reflectance = 0.12 }
+	-- (stepped cylinders, not panels: a boat holds six of these, phones)
+	cyl(c, "BottleFoot", 0, 0.25, 0.565, glass)
+	cyl(c, "BottleBody", 0.24, 0.55, 0.585, glass)
+	cyl(c, "BottleBody", 0.54, 1.36, 0.62, glass)
+	ell(c, "BottleShoulder", 1.35, 0.62, 1.3, glass)
+	cyl(c, "BottleNeck", 1.85, 2.45, 0.2, glass)
+	cyl(c, "BottleLip", 2.42, 2.5, 0.24, glass)
+	cyl(c, "Foil", 2.2, 2.52, 0.215, { color = Color3.fromRGB(214, 172, 70), material = Enum.Material.Foil })
+	band(c, "Label", 0.6, 1.05, 0.316, 0.316, 12, { color = WHITE }, LABEL.golmok)
+end
+
+local function fromTemplate(c: Ctx, key: string, color: Color3): boolean
+	local shape = ASSET_SHAPE[key]
+	local src = shape and template(shape)
+	if not src then return false end
+	local m = src:Clone()
+	local holder = if m:IsA("Model") then m else Instance.new("Model")
+	if holder ~= m then m.Parent = holder end
+	if shape == "Can" then -- (the printed name to the front)
+		local pv = holder:GetPivot()
+		holder:PivotTo(CFrame.new(pv.Position) * CFrame.Angles(0, math.rad(-15), 0) * pv.Rotation)
+	end
+	local _, size = holder:GetBoundingBox()
+	holder:ScaleTo(holder:GetScale() * ASSET_HEIGHT[shape] * c.s / size.Y)
+	local box, size2 = holder:GetBoundingBox()
+	-- stand it on `base`, upright as modelled
+	local lift = c.base * CFrame.new(0, size2.Y / 2, 0)
+	local move = lift * CFrame.new(box.Position):Inverse()
+	local glassColor = color
+	for _, p in ipairs(holder:GetDescendants()) do
+		if p:IsA("BasePart") then
+			p.CFrame = move * p.CFrame -- (base's tilt too: bottles lean in the buckets)
+			p.CanCollide, p.CanTouch, p.CastShadow = false, false, false
+			for _, j in ipairs(p:GetChildren()) do if j:IsA("JointInstance") or j:IsA("WeldConstraint") then j:Destroy() end end
+			if shape == "Can" and p:IsA("MeshPart") then
+				p.TextureID = LABEL[key] or p.TextureID
+			elseif shape == "Flask" and p:IsA("MeshPart") and p.Name:find("vile") and not p.Name:find("cork") then
+				-- the outer glass takes the drink colour, the inner shape a darker one (the drink inside)
+				p.Color = if p.Size.X > 0.2 * c.s then glassColor else glassColor:Lerp(Color3.new(0, 0, 0), 0.45)
+			elseif shape == "Tall" and p:IsA("MeshPart") then
+				p.Color = glassColor
+			end
+			for _, d in ipairs(p:GetChildren()) do
+				if d:IsA("Decal") and shape == "Flask" then d.Texture = LABEL[key] or d.Texture end
+			end
+			if c.weld then
+				p.Anchored = false
+				p.Massless = true
+				local w = Instance.new("WeldConstraint")
+				w.Part0 = c.weld
+				w.Part1 = p
+				w.Parent = p
+			else
+				p.Anchored = true
+			end
+			p.Parent = c.parent
+			table.insert(c.parts, p)
+		end
+	end
+	if shape == "Tall" then
+		-- a printed label band round the lower body
+		local r = size2.X / 2 / c.s + 0.006
+		band(c, "Label", 0.55, 1.05, r, r, 20, { color = WHITE }, LABEL[key])
+	end
+	holder:Destroy()
+	return true
+end
+
 function BottleShapes.add(parent: Instance, base: CFrame, key: string, color: Color3, scale: number, weldTo: BasePart?): {BasePart}
 	local c: Ctx = { parent = parent, base = base, s = scale, weld = weldTo, parts = {} }
-	local builder = BUILDERS[key] or BUILDERS.cider
-	builder(c, color)
+	if key == "golmok" then
+		vipBottle(c, color)
+	elseif DRAWN[key] == "flask" then
+		flask(c, color, key)
+	elseif DRAWN[key] == "tall" then
+		tall(c, color, key)
+	elseif not fromTemplate(c, key, color) then
+		local builder = BUILDERS[key] or BUILDERS.cider
+		builder(c, color)
+	end
 	return c.parts
 end
 
 -- bottle heights at scale 1 (to fit a holder or a tool)
-BottleShapes.Height = { ginger_brew = 1.9, monte = 1.9, french_lemonade = 1.9, golden_apple = 1.9, zzang_pop = 2.24, hot_boost = 1.98,
-	green_claw = 1.98, blue_wing = 1.98, stack_hydro = 2.22, pastel_splash = 1.98, skull_water = 2.28, golmok = 2.56 }
+BottleShapes.Height = { water = 2.1, cider = 1.3, cola = 1.3, orange = 1.3, lemonade = 1.3, blueade = 1.3,
+	ginger_brew = 1.75, monte = 1.75, french_lemonade = 1.75, golden_apple = 1.75, zzang_pop = 1.75, hot_boost = 1.75,
+	green_claw = 1.75, blue_wing = 1.75, stack_hydro = 2.16, pastel_splash = 2.16, skull_water = 2.16, golmok = 2.52 }
 function BottleShapes.height(key: string): number
 	return BottleShapes.Height[key] or 1.98
 end
