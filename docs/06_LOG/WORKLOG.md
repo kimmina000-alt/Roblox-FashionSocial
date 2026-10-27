@@ -2334,3 +2334,13 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - facade_4, facade_7을 사용자 이미지로 교체. 클럽 줄 수정도 맵에 적용.
 
 ![](images/2026-10-27/v8p_blockN_user_facades.jpg)
+
+### 사용자 배치도 메모 반영 (D-368)
+
+- 빨간 선대로 플레이 영역 경계, 국밥집 가로 축소(x 48..158), 놀이공원 안 놀이기구 블록 전체로 배치, 광화문 옆면 가운데에 돌담 연결·완만한 곡선, 담 앞 잔디 띠+난간, 해치는 난간 옆, 광화문 바로 앞은 비워 통행.
+
+| 광화문 앞 | 놀이공원 |
+|---|---|
+| ![](images/2026-10-27/v8q_gate_yard.jpg) | ![](images/2026-10-27/v8q_park_rides.jpg) |
+
+배치도: ![](images/2026-10-27/v8q_map_plan.png)

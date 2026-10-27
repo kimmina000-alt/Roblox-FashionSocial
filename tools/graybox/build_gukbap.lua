@@ -18,7 +18,7 @@ assert(T, "Hongdae_Layout missing: run build_hongdae_layout first")
 -- "국밥집 대확장 ... 클럽 가로 길이에 맞춰서 확장"): as deep as the club is wide
 -- (x 48..193), z -375..-293 between the long shop block and the club (which
 -- moved 24 north); the play-area boundary is in build_hongdae_layout now
-local X0, X1, Z0, Z1 = 48, 193, -375, -293
+local X0, X1, Z0, Z1 = 48, 158, -375, -293 -- (east end 193 → 158, user map 2026-10-27)
 local FY = 0.6 -- floor top = sidewalk top (no step at the door)
 local H1 = 21 -- 1F floor to ceiling (12 → 21: as high as the club 1F, user 2026-10-27)
 local H2 = 10 * H1 / 12 -- 2F (outside only); (it grows like the 1F did, 10 → 17.5, user 2026-10-27)
@@ -313,7 +313,7 @@ local function gukbapTable(tx, tz)
 end
 -- (layout v8) 32 tables in four rows, an aisle from the door to the kitchen
 for _, tz in ipairs({ -366, -352, -316, -302 }) do
-	for _, tx in ipairs({ 56, 72, 88, 104, 120, 136, 152, 168 }) do
+	for _, tx in ipairs({ 56, 69, 82, 95, 108, 121, 134 }) do -- (seven a row in the narrower hall)
 		gukbapTable(tx, tz)
 	end
 end

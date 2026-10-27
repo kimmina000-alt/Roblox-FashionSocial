@@ -19,8 +19,12 @@ $bmp = New-Object System.Drawing.Bitmap ($x1 - $x0), ($y1 - $y0 + $top)
 $g = [System.Drawing.Graphics]::FromImage($bmp); $g.SmoothingMode = 'AntiAlias'; $g.TextRenderingHint = 'AntiAliasGridFit'
 $g.Clear([System.Drawing.Color]::FromArgb(250, 246, 236))
 $g.DrawImage($src, (New-Object System.Drawing.Rectangle 0, $top, ($x1 - $x0), ($y1 - $y0)), (New-Object System.Drawing.Rectangle $x0, $y0, ($x1 - $x0), ($y1 - $y0)), [System.Drawing.GraphicsUnit]::Pixel)
-$fontT = New-Object System.Drawing.Font 'Malgun Gothic', 24, ([System.Drawing.FontStyle]::Bold), ([System.Drawing.GraphicsUnit]::Pixel)
-$g.DrawString('오후 맵 배치도 (레이아웃 v8, 2026-10-27)', $fontT, (New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(40, 30, 30))), 14, 18)
+# the play area (build_hongdae_layout MapBoundary), red
+$PB = @(@(-415,-385),@(-148,-385),@(-148,-229),@(-51.3,-229),@(-51.3,-455),@(47,-455),@(47,-385),@(160,-385),@(160,-316),@(194,-316),@(194,-50),@(277,-50),@(277,387),@(-415,387))
+$rp = New-Object System.Drawing.Pen ([System.Drawing.Color]::FromArgb(220, 230, 30, 30)), 3
+for ($i = 0; $i -lt $PB.Count; $i++) { $a = $PB[$i]; $b = $PB[($i + 1) % $PB.Count]
+  $g.DrawLine($rp, [float]((U $a[0]) - $x0), [float]((V $a[1]) - $y0 + $top), [float]((U $b[0]) - $x0), [float]((V $b[1]) - $y0 + $top)) }$fontT = New-Object System.Drawing.Font 'Malgun Gothic', 24, ([System.Drawing.FontStyle]::Bold), ([System.Drawing.GraphicsUnit]::Pixel)
+$g.DrawString('오후 맵 배치도 v8 (빨간 선: 플레이 영역)', $fontT, (New-Object System.Drawing.SolidBrush ([System.Drawing.Color]::FromArgb(40, 30, 30))), 14, 18)
 $font = New-Object System.Drawing.Font 'Malgun Gothic', 13, ([System.Drawing.FontStyle]::Bold), ([System.Drawing.GraphicsUnit]::Pixel)
 function Tag([double]$x, [double]$z, [string]$label, [int]$r, [int]$gg, [int]$b) {
   $px = (U $x) - $x0; $py = (V $z) - $y0 + $top
@@ -31,10 +35,10 @@ function Tag([double]$x, [double]$z, [string]$label, [int]$r, [int]$gg, [int]$b)
 }
 $P = @(150, 40, 150); $B = @(30, 60, 120); $Gn = @(40, 120, 60); $S = @(110, 70, 160); $Sea = @(30, 110, 200); $Gy = @(90, 90, 90)
 Tag 120 -178 'OHU 클럽 (3층)' @P
-Tag 120 -334 '국밥집' @B
+Tag 103 -334 '국밥집' @B
 Tag 114 -80 '오후네컷' @B
 Tag 158 195 '광화문' @B
-Tag 250 140 '한옥 마을 (비움)' @Gy
+Tag 230 180 '한옥 마을 (비움)' @Gy
 Tag -95 138 'OH24 편의점' @B
 Tag -98 -138 '포켓 공원' @Gn
 Tag -100 -350 '놀이공원 (공사 중)' @Gn

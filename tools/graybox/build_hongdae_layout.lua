@@ -57,7 +57,7 @@ local HOLES = {
 	{ 49, -253 + CLUB_DZ, 189, -92 + CLUB_DZ }, -- (19 longer east, user 2026-10-25) the club: edges in the middle of its walls (at the inner faces the ground flickered on the corridor and back walls, user 2026-10-24)
 	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -53, 41, -35, 47 }, -- exit 2 comes up southwards, 4 westwards in the corner square (toward the beach, user 2026-10-25)
-	{ 110, 50, 170, 68 }, { 48, 262, 90, 292 }, -- 광화문 lawn beds (LAWN_TERRAIN)
+
 	{ -141, -197, -51, -83 }, -- the pocket park's sunken round plaza (user 2026-10-24)
 	{ -110, -92, -68, -53 }, -- its south walk + stair
 }
@@ -84,9 +84,13 @@ local DOLDAM_B, DOLDAM_C = Vector3.new(97, 0, 330), Vector3.new(185, 0, 700) -- 
 local DOLDAM_U = (DOLDAM_C - DOLDAM_B).Unit
 local DOLDAM_J = DOLDAM_B + DOLDAM_U * 92.5 -- where the curve joins it (z 420)
 local WALL_N = { GATE_E1, GATE_E1 + GATE_ALONG * 40, Vector3.new(260, 0, 49), Vector3.new(300, 0, 49) }
-local WALL_S = { GATE_E2, GATE_E2 - GATE_ALONG * 35, DOLDAM_J - DOLDAM_U * 45, DOLDAM_J }
+-- (user map 2026-10-27) south of the gate the wall bends back east in one gentle
+-- arc to the play area's south edge (the straight 돌담길 run is gone)
+local WALL_S = { GATE_E2, GATE_E2 - GATE_ALONG * 50, Vector3.new(140, 0, 370), Vector3.new(200, 0, 400) }
 -- the lawns sit outside the two balustrades (beds stay axis-aligned: terrain grass)
-local LAWN_TERRAIN = { { 110, 50, 170, 68 }, { 48, 262, 90, 292 } }
+-- (no square lawn beds since the user map 2026-10-27: a lawn band follows the wall curve)
+local LAWN_TERRAIN = {}
+local OLD_LAWNS = { { 110, 50, 170, 68 }, { 48, 262, 90, 292 }, { 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 } } -- (their terrain grass is cleared on revert)
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
 	{ Vector3.new(400, -55, 60), 95 }, { Vector3.new(470, -60, 175), 110 }, { Vector3.new(420, -55, 295), 95 },
 	{ Vector3.new(290, -70, 370), 90 }, { Vector3.new(150, -75, 390), 90 },
@@ -171,7 +175,7 @@ local function revert()
 	if old then
 		if old:GetAttribute("LawnTerrain") then
 			-- (with the beds before layout v8, so their grass goes too)
-			for _, l in ipairs({ LAWN_TERRAIN[1], LAWN_TERRAIN[2], { 47, 47, 82, 139.4 }, { 47, 196.6, 82, 289 } }) do
+			for _, l in ipairs(OLD_LAWNS) do
 				workspace.Terrain:FillBlock(CFrame.new((l[1] + l[3]) / 2, -2, (l[2] + l[4]) / 2), Vector3.new(l[3] - l[1] + 8, 12, l[4] - l[2] + 8), Enum.Material.Air)
 			end
 		end
@@ -251,11 +255,12 @@ end
 do
 	local park = root:FindFirstChild("06_Park_Playground")
 	local GROUPS = { -- source box (x0, z0, x1, z1) → move
-		{ { -125, -145, -85, -105 }, Vector3.new(-10, 0, -184) }, -- carousel → (-115, -310)
-		{ { -215, -145, -160, -90 }, Vector3.new(113, 0, -193) }, -- playground → (-76, -312) (10 west: the east wall moved in, 2026-10-24)
-		{ { -120, -262, -90, -190 }, Vector3.new(5, 0, -173) }, -- ferris wheel → (-100, -400)
-		{ { -220, -245, -200, -178 }, Vector3.new(148, 0, -188) }, -- flower tunnel → (-62, -400)
-		{ { -155, -176, -145, -166 }, Vector3.new(57, 0, -129) }, -- park name label → (-93, -300)
+		-- (user map 2026-10-27: spread over the whole park block, not bunched at the gate)
+		{ { -125, -145, -85, -105 }, Vector3.new(-13, 0, -150) }, -- carousel → (-118, -275)
+		{ { -215, -145, -160, -90 }, Vector3.new(113, 0, -213) }, -- playground → (-76, -332)
+		{ { -120, -262, -90, -190 }, Vector3.new(5, 0, -188) }, -- ferris wheel → (-100, -414) (2×: rim z -466..-362)
+		{ { -220, -245, -200, -178 }, Vector3.new(146, 0, -153) }, -- flower tunnel → (-64, -365)
+		{ { -155, -176, -145, -166 }, Vector3.new(57, 0, -84) }, -- park name label → (-93, -255)
 	}
 	if park then
 		for _, c in ipairs(park:GetChildren()) do
@@ -1036,8 +1041,8 @@ local _ = smallRoad
 -- (no south-west lane to the seafront at z 98: the OH24 store stands on it, user 2026-10-25)
 -- lane from the east road to the hanok main gate (east side, gate at x 225, z 126)
 local LANE = Color3.fromRGB(185, 160, 122)
-box("HanokLane", 232, 0, WIDE, 240, 0.3, 142, LANE, { material = Enum.Material.Slate })
-box("HanokLane2", 225, 0, 134, 240, 0.3, 142, LANE, { material = Enum.Material.Slate })
+-- (gone with the emptied village, user map 2026-10-27: the yard paving covers it)
+local _ = LANE
 
 ------------------------------------------------------- subway exits (stairs)
 -- stairs come up in the arrow direction under a glass canopy that slopes
@@ -2560,7 +2565,7 @@ do
 	local PAVE = Color3.fromRGB(226, 216, 190)
 	-- paving everywhere from the sidewalks to x 240 / z 299, round the lawn beds
 	do
-		local X0, Z0, X1, Z1 = WIDE, WIDE, 240, 299
+		local X0, Z0, X1, Z1 = WIDE, WIDE, 277, 387 -- (out to the play area's edges, user map 2026-10-27)
 		local xs = { X0, X1 }
 		for _, l in ipairs(LAWN_TERRAIN) do table.insert(xs, l[1]) table.insert(xs, l[3]) end
 		table.sort(xs)
@@ -2616,37 +2621,45 @@ do
 			add(Vector3.new(0.42, 0.2, 0.42), CFrame.new(bx, 1.75, 0), RAIL) -- neck under the rail
 		end
 	end)
-	-- a balustrade from a gate front corner out along OUT, 1 short of the sidewalk
-	local function streetEnd(p: Vector3): number
-		local t = math.huge
-		if GATE_OUT.X < 0 then t = math.min(t, (p.X - (WIDE + 1)) / -GATE_OUT.X) end
-		if GATE_OUT.Z < 0 then t = math.min(t, (p.Z - (WIDE + 1)) / -GATE_OUT.Z) end
-		return t
-	end
-	for k, e in ipairs({ GATE_E1, GATE_E2 }) do
-		local a = e + GATE_OUT * GATE_HD -- the front corner
-		local len = streetEnd(a)
-		local n = math.max(1, math.floor(len / BAY + 0.5))
-		local seg = len / n
-		for i = 0, n - 1 do
-			local c = a + GATE_OUT * (seg * (i + 0.5))
-			local bay = placeTemplate(railT, railOff, CFrame.fromMatrix(Vector3.new(c.X, 0.3, c.Z), -GATE_OUT, Vector3.yAxis), seg / BAY, 1)
-			bay.CanCollide = true
-			bay.Material = Enum.Material.Granite -- carved stone, not plastic (user)
+	-- (user map 2026-10-27) along the wall curves on the street side: a lime
+	-- lawn band, a stone balustrade on its outer edge, the 해태 pair beside the
+	-- balustrades at the gate's two ends. Right in front of the gate nothing:
+	-- people walk through it
+	do
+		local LIME = Color3.fromRGB(150, 200, 92)
+		local LAWN0, LAWN1, RAILD = 1.4, 15, 16.2 -- offsets from the wall line toward the street
+		for k, c in ipairs({ WALL_N, WALL_S }) do
+			local N = 24
+			local prev = bezier(c, 0)
+			for i = 1, N do
+				local p = bezier(c, i / N)
+				local d = (p - prev).Unit
+				local len = (p - prev).Magnitude
+				local mid = (p + prev) / 2
+				local out = Vector3.yAxis:Cross(d)
+				if out:Dot(Vector3.new(0, 0, 0) - mid) < 0 then out = -out end
+				if math.abs(mid.X) < 277 and math.abs(mid.Z) < 387 then
+					local lc = mid + out * ((LAWN0 + LAWN1) / 2)
+					local lawn = part("YardLawn", Vector3.new(LAWN1 - LAWN0, 0.18, len + 0.6), CFrame.lookAt(Vector3.new(lc.X, 0.39, lc.Z), Vector3.new(lc.X, 0.39, lc.Z) + d), LIME, { parent = G, material = Enum.Material.Grass })
+					lawn.CastShadow = false
+					local rc = mid + out * RAILD
+					local bay = placeTemplate(railT, railOff, CFrame.fromMatrix(Vector3.new(rc.X, 0.3, rc.Z), d, Vector3.yAxis), (len + 0.2) / BAY, 1)
+					bay.CanCollide = true
+					bay.Material = Enum.Material.Granite
+				end
+				if i == 2 then
+					-- the 해태 beside the balustrade's gate end, its body along the
+					-- balustrade toward the gate, its head turned to the street
+					local s = prev + out * (RAILD + 5)
+					local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 0.45, s.Z), Vector3.new(s.X, 0.45, s.Z) - d), RAIL, { parent = G, nocol = true })
+					spot.Transparency = 1
+					spot.CanQuery = false
+					spot:SetAttribute("Facing", out)
+				end
+				prev = p
+			end
 		end
-		-- the last post at the gate end
-		part("RailPost", Vector3.new(0.8, 2.3, 0.8), CFrame.new(a.X, 1.45, a.Z) * CFrame.Angles(0, GATE_ROT, 0), RAIL, { parent = G, material = Enum.Material.Granite })
-		part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(a.X, 3.15, a.Z), RAIL, { parent = G, shape = Enum.PartType.Ball })
-		-- the 해태 spot: 20 back from the street end, 5 outside the balustrade,
-		-- the body along it toward the path, the head turned to the street
-		local away = if k == 1 then GATE_ALONG else -GATE_ALONG
-		local s = a + GATE_OUT * (len - 20) + away * 5
-		local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 0.45, s.Z), Vector3.new(s.X, 0.45, s.Z) - away), RAIL, { parent = G, nocol = true })
-		spot.Transparency = 1
-		spot.CanQuery = false
-		spot:SetAttribute("Facing", GATE_OUT)
 	end
-
 	-- the village (graybox 07) is emptied for now (user 2026-10-27, after v8):
 	-- every piece parked; its stone walls are drawn again along the user's red
 	-- line in the boundary block below (curves from the gate's two ends)
@@ -4900,12 +4913,13 @@ do
 		-- (z -380), east edge past the bigger 오후네컷 (x 194), south-west round
 		-- the bigger OH24 store (z 214) and down past the moved beach cafe (z 380),
 		-- west out in the sea beyond it (x -380)
-		{ -380, -300 }, { -151, -300 }, { -151, -479 }, { -35, -479 }, { -35, -380 }, { 194, -380 },
-		-- (user 2026-10-27) the turned 광화문: the yard up to the gate (the line
-		-- through its middle closes the arches; the village behind is empty)
-		{ 194, 47 }, { GATE_E1.X, GATE_E1.Z }, { GATE_E2.X, GATE_E2.Z }, { swX, 299 }, { -50, 299 }, { -50, 214 },
-		{ -152, 214 }, { -152, 380 }, { -380, 380 },
-	}
+		-- (user map 2026-10-27, red line "플레이어가 돌아다닐 수 있는 공간"): the sea
+		-- out to x -415, the beach up to z -385, round the amusement park's walls,
+		-- the north road up to z -455 by the shop block N, round the smaller 국밥집,
+		-- the east edge at x 194 to the east road, then out to x 277 over the
+		-- 광화문 yard and the (empty) village, the south edge at z 387
+		{ -415, -385 }, { -148, -385 }, { -148, -229 }, { -51.3, -229 }, { -51.3, -455 }, { 47, -455 }, { 47, -385 },
+		{ 160, -385 }, { 160, -316 }, { 194, -316 }, { 194, -50 }, { 277, -50 }, { 277, 387 }, { -415, 387 },	}
 	for i = 1, #P do
 		local a, b = P[i], P[(i % #P) + 1]
 		local pa, pb = Vector3.new(a[1], 0, a[2]), Vector3.new(b[1], 0, b[2])
@@ -4953,17 +4967,7 @@ do
 	-- the strip between the sidewalk edge and the wall foot was empty (user): paved
 	box("Sidewalk", 96.4, 0, WIDE - 0.05, 700, CURB - 0.01, 48.2, WALK, { parent = T, material = Enum.Material.Brick })
 	-- south-west: the 돌담길 (user photo) along the south road, a stone path on its street side
-	curveWall(WALL_S, function(o) return o.X < 0 end, true)
-	do
-		local d = DOLDAM_U
-		local out = Vector3.yAxis:Cross(d)
-		if out.X > 0 then out = -out end
-		hanokWall(DOLDAM_J - d * 0.6, DOLDAM_C, out)
-		local PAVE = Color3.fromRGB(226, 216, 190)
-		local len = (DOLDAM_C - DOLDAM_J).Magnitude
-		local mid = (DOLDAM_J + DOLDAM_C) / 2 + out * 4.8
-		part("DoldamPath", Vector3.new(8, 0.3, len + 4), CFrame.lookAt(Vector3.new(mid.X, 0.15, mid.Z), Vector3.new(mid.X, 0.15, mid.Z) + d), PAVE, { material = Enum.Material.Slate })
-	end
+	curveWall(WALL_S, function(o) return o.X < 0 end, false) -- (no path: the yard paving reaches it)
 	-- fake shop buildings (photos: stacked shop signs on every floor, glass
 	-- and stone facade, ground-floor shops). Walls only, nobody goes in.
 	local SHOPS = {
