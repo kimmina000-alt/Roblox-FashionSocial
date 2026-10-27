@@ -642,7 +642,8 @@ box(z,"DJ_Stage",60,F,-246,80,F+4,-190,stageC)
 box(z,"DJ_StageEdge",59.8,F+3.7,-246,60.2,F+4,-190,cyan,{mat=Enum.Material.Neon,ghost=true})
 box(z,"DJ_Step",58,F,-225,60,F+2,-211,stageC,{nocol=true})
 do local c=Vector3.new(58,F+2,-218) P(z,"DJ_StepRamp",Vector3.new(14,4,4),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
-local led=box(z,"LED_Wall",78.5,F+6,-246,79.5,F+36,-190,cyan,{mat=Enum.Material.Neon}) CS:AddTag(led,"ClubBeat")
+local LEDT=F+68 -- (user 2026-10-27: the wall behind the DJ fills the taller hall, F+36 → F+68)
+local led=box(z,"LED_Wall",78.5,F+6,-246,79.5,LEDT,-190,cyan,{mat=Enum.Material.Neon}) CS:AddTag(led,"ClubBeat")
 -- turntable console (reference: two decks + mixer + laptop, glowing front)
 do
  local m=M(z,"DJ_Console",{"DJConsole"},{}) m.ModelStreamingMode=Enum.ModelStreamingMode.Atomic
@@ -714,7 +715,7 @@ end
 -- attribute AimAt = the ceiling point they fan round, AimY = ceiling height
 -- (ClubLightsController). (The truss they hung on is gone.)
 do
- local LY=F+37.5 -- (just above the LED wall, user 2026-10-25)
+ local LY=LEDT+1.5 -- (just above the LED wall, user 2026-10-25)
  box(z,"LaserBar",77.4,LY-0.3,-225.5,80,LY,-210.5,Color3.fromRGB(26,26,30))
  for k=0,5 do local ez=-224+k*2.4
   local e=box(z,"LaserEmitter",77.4,LY,ez-0.6,80,LY+1,ez+0.6,Color3.fromRGB(26,26,30))
@@ -728,10 +729,10 @@ end
 -- SUPPORTER STRIP above the LED wall and the lasers (user 2026-10-25): the
 -- supporter ranking scrolls along it, "○○님 후원 감사합니다!" when a gift
 -- comes in (RankBoard, RankingBoards client)
-do local s=box(z,"SupportStrip",78.9,F+40,-246,79.6,F+44,-190,Color3.fromRGB(8,8,12),{mat=Enum.Material.SmoothPlastic,nocol=true})
+do local s=box(z,"SupportStrip",78.9,LEDT+4,-246,79.6,LEDT+8,-190,Color3.fromRGB(8,8,12),{mat=Enum.Material.SmoothPlastic,nocol=true})
  s:SetAttribute("Board","clubStrip") s:SetAttribute("Face","Left") CS:AddTag(s,"RankBoard")
- box(z,"SupportStripFrame",78.8,F+39.6,-246.4,79.7,F+40,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true})
- box(z,"SupportStripFrame",78.8,F+44,-246.4,79.7,F+44.4,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true}) end
+ box(z,"SupportStripFrame",78.8,LEDT+3.6,-246.4,79.7,LEDT+4,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true})
+ box(z,"SupportStripFrame",78.8,LEDT+8,-246.4,79.7,LEDT+8.4,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true}) end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,F+4.5,-218),Vector3.new(40,F+4.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
 for _,sz in ipairs({-243,-193}) do
  box(z,"Speaker",70,F+4,sz-2.5,75,F+16,sz+2.5,Color3.fromRGB(20,20,24))
@@ -1433,7 +1434,10 @@ local z=zone("04_Beach_Aquarium")
   plant(-293.8,17.9,FY,2.4,2)
   plant(-294,66.7,FY,2.8,3)
   box(cm,"Planter",-272.6,FY,86.8,-269.4,FY+1.6,104.9,Color3.fromRGB(244,242,236))
-  if ART and ART:FindFirstChild("CafeGrass") then -- (user 2026-10-25: the white box stays, filled with tall grass clumps)
+  if ART and ART:FindFirstChild("Shrub") then -- (user 2026-10-27: the same shrub as the street planters, sunk so the stems go into the soil)
+   box(cm,"PlanterSoil",-272.3,FY+1.6,87.1,-269.7,FY+1.68,104.6,Color3.fromRGB(58,44,34),{mat=Enum.Material.Ground,nocol=true})
+   for k=0,5 do art("Shrub",0.44+(k%3)*0.02,-271,FY+1.6-1.1,88.6+k*3.2,k*1.7) end
+  elseif ART and ART:FindFirstChild("CafeGrass") then -- (user 2026-10-25: the white box stays, filled with tall grass clumps)
    box(cm,"PlanterSoil",-272.3,FY+1.6,87.1,-269.7,FY+1.68,104.6,Color3.fromRGB(58,44,34),{mat=Enum.Material.Ground,nocol=true})
    for k=0,11 do art("CafeGrass",0.85+(k%3)*0.1,-271+((k%2)*2-1)*0.6,FY+1.6,88.2+k*1.45,k*0.9) end
   else

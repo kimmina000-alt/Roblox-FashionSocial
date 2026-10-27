@@ -2226,3 +2226,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 클럽 3층 + 줄·천막 | 편의점 새 문 |
 |---|---|
 | ![](images/2026-10-27/v8c_club_3floors_queue.jpg) | ![](images/2026-10-27/v8c_oh24_east_door.jpg) |
+### DJ 뒤 LED 벽·카페 화단 풀 (D-356)
+
+- DJ 뒤 LED 벽을 높아진 홀에 맞춰 키움(높이 30 → 62), 레이저·후원 띠는 그 위로.
+- 카페 피아노 옆 화단: 도로 화단과 같은 덤불 6개.
+
+| LED 벽 | 카페 화단 |
+|---|---|
+| ![](images/2026-10-27/v8d_club_led_wall.jpg) | ![](images/2026-10-27/v8d_cafe_planter_shrub.jpg) |
