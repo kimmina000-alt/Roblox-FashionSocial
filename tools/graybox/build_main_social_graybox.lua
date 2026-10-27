@@ -239,8 +239,8 @@ box(z,"Foyer",-24,-1,-166.5,12,0,-151,MARBLE_C,MARBLE)
 -- lemon LED where the street-level foyer floor meets its walls (user 2026-10-25:
 -- the foyer only, not down the stairs; the door gap in the street wall left out)
 do local LC=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
- box(z,"FoyerLED",-24,0,-166.5,12,0.25,-166.3,LC,NE)
- box(z,"FoyerLED",-24,0,-151.2,-8,0.25,-151,LC,NE) box(z,"FoyerLED",8,0,-151.2,12,0.25,-151,LC,NE)
+ box(z,"FoyerLED",-24,0,-166.5,12,0.25,-166.38,LC,NE) -- (all floor lines 0.12 thin, user 2026-10-27)
+ box(z,"FoyerLED",-24,0,-151.12,-8,0.25,-151,LC,NE) box(z,"FoyerLED",8,0,-151.12,12,0.25,-151,LC,NE)
  -- (no line across the end in front of the lift corridor, user 2026-10-25)
  end
 box(z,"Foyer_E",12,0,-166.5,13,EDH,-151,WALL_C,WALLO)
@@ -251,12 +251,12 @@ box(z,"Entry_Fill",12,F,-166.5,80,TOP,-151,dark) -- closed block east of the foy
 -- white "▼▼▼" chevrons glowing on every riser. riser(): thin plate whose
 -- Front face (LookVector) faces the people climbing up.
 local stepC=Color3.fromRGB(28,26,34)
-local function riser(par,center,facing,width,height)
+local function riser(par,center,facing,width,height,col)
  local r=P(par,"StairRiser",Vector3.new(width,height,0.08),CFrame.lookAt(center,center+facing),stepC,{ghost=true})
  local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Front g.LightInfluence=0 g.Brightness=2
  g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=24 g.Parent=r
  local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true
- l.Font=Enum.Font.GothamBlack l.TextColor3=Color3.new(1,1,1) l.Text=string.rep("▼",math.max(4,math.floor(width/1.1))) l.Parent=g
+ l.Font=Enum.Font.GothamBlack l.TextColor3=col or Color3.new(1,1,1) l.Text=string.rep("▼",math.max(4,math.floor(width/1.1))) l.Parent=g
  return r end
 for i=1,15 do local top=-1.5*i local x0=-24-2.5*(i-1)
  box(z,"Stair",x0-2.5,F,-166.5,x0,top,-151,stepC,{nocol=true})
@@ -309,13 +309,13 @@ box(z,"Corridor_E_N",-65,F,NZ,-64,V-1,-225,WALL_C,WALLO)
 box(z,"Corridor_E_S",-65,F,-211,-64,V-1,-167.5,WALL_C,WALLO)
 -- (corridor as high as the rest of the 1F, up to the 2F floor, and a taller
 -- hall door: user 2026-10-25)
-local DH=18 -- hall door height
+local DH=21 -- hall door height (18 → 21, user 2026-10-27)
 box(z,"Corridor_DoorTop",-65,F+DH,-225,-64,V-1,-211,WALL_C,WALLO)
 box(z,"Corridor_Ceiling",-80,V-1,-236,-65,V-0.6,-167.5,dark) -- (underside level with the balcony floor over the hall)
-box(z,"CorridorNeon_W",-79.6,F,-236,-79.3,F+0.4,-167.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+box(z,"CorridorNeon_W",-80,F,NZ,-79.88,F+0.25,-167.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
 -- (not across the hall door: user 2026-10-25)
-box(z,"CorridorNeon_E",-65.7,F,-236,-65.4,F+0.4,-225.25,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
-box(z,"CorridorNeon_E",-65.7,F,-210.75,-65.4,F+0.4,-167.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+box(z,"CorridorNeon_E",-65.12,F,NZ,-65,F+0.25,-225.25,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+box(z,"CorridorNeon_E",-65.12,F,-210.75,-65,F+0.25,-167.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
 -- (the LED lines along the entrance stairs were tried and taken out again, user 2026-10-25)
 -- pink door posts: only the faces looking into the doorway glow (user 2026-10-25)
 for _,d in ipairs({{-211.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
@@ -327,21 +327,27 @@ for _,d in ipairs({{-211.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
  local fz=pz+s*0.75
  local g=box(z,"HallDoorGlow",-65.25,F,math.min(fz,fz+s*0.12),-63.75,F+DH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
  local sl=Instance.new("SurfaceLight") sl.Face=if s>0 then Enum.NormalId.Back else Enum.NormalId.Front sl.Color=pink sl.Range=10 sl.Brightness=1.5 sl.Angle=150 sl.Parent=g end
+-- and along the top of the doorway, pink like the posts (user 2026-10-27)
+do local g=box(z,"HallDoorGlow",-65.25,F+DH-0.12,-223.75,-63.75,F+DH,-212.25,pink,{mat=Enum.Material.Neon,ghost=true})
+ local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Color=pink sl.Range=10 sl.Brightness=1.5 sl.Angle=150 sl.Parent=g end
 label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,-218))
 -- graffiti on the corridor walls seen at the foot of the stairs (user 2026-10-25),
 -- the same pale pattern as the stair walls; none over the hall door opening
 do local function graffiti(x0,y0,z0,x1,y1,z1,face)
   local p=box(z,"GraffitiWall",x0,y0,z0,x1,y1,z1,Color3.new(0,0,0),{t=1,nocol=true}) p.CastShadow=false p.CanQuery=false p.CanTouch=false
   local tx=Instance.new("Texture") tx.Texture="rbxassetid://93792464281347" tx.Face=face tx.StudsPerTileU=34 tx.StudsPerTileV=17 tx.Transparency=0.15 tx.Parent=p end
- graffiti(-80,F,-236,-79.95,V-1,-167.5,Enum.NormalId.Right) -- west wall
- graffiti(-65.05,F,-236,-65,V-1,-225.25,Enum.NormalId.Left) -- east wall, north of the door
+ graffiti(-80,F,NZ,-79.95,V-1,-167.5,Enum.NormalId.Right) -- west wall (on round the VIP stair and its landing, user 2026-10-27)
+ graffiti(-80,F,NZ,-65,V-1,NZ+0.05,Enum.NormalId.Back) -- the end wall behind the landing
+ graffiti(-65.05,F,NZ,-65,V-1,-225.25,Enum.NormalId.Left) -- east wall, north of the door
  graffiti(-65.05,F,-210.75,-65,V-1,-167.5,Enum.NormalId.Left) -- east wall, south of the door
- graffiti(-65.05,F+18,-225.25,-65,V-1,-210.75,Enum.NormalId.Left) end -- over the door
+ graffiti(-65.05,F+DH,-225.25,-65,V-1,-210.75,Enum.NormalId.Left) end -- over the door
 -- VIP wall across the corridor
 local vipRed=Color3.fromRGB(255,40,70)
 -- (as high as the raised corridor ceiling; no "VIP" text on the glass, the
 -- purchase window still opens: user 2026-10-25)
-local GH=V-1-F-0.4 -- gate height up to the ceiling, under the top neon
+-- (user 2026-10-27) the gate is a portal 20 high in a red neon frame; wall above it
+local GH=20
+box(z,"VIP_GateWall",-80,F+GH+0.4,-236.4,-65,V-1,-235.6,WALL_C,WALLO)
 local vipGate=box(z,"VIP_Gate",-80,F,-236.4,-65,F+GH,-235.6,vipRed,{t=0.55,mat=Enum.Material.Glass})
 vipGate:SetAttribute("Gate","VIP") CS:AddTag(vipGate,"ClubGate")
 local glow=Instance.new("SurfaceLight") glow.Color=vipRed glow.Brightness=3 glow.Range=14 glow.Face=Enum.NormalId.Back glow.Parent=vipGate
@@ -356,14 +362,16 @@ local RUN=1.2
 local AX0,AX1,BX0,BX1=-79.6,-72.5,-72,-65.4
 for j=1,22 do local zs=-236.5-RUN*(j-1)
  box(z,"VIP_Stair",AX0,F,zs-RUN,AX1,F+j,zs,stepC,{nocol=true})
- box(z,"VIP_StairNeon",AX0,F+j,zs-0.3,AX1,F+j+0.08,zs,Color3.new(1,1,1),{mat=Enum.Material.Neon,ghost=true})
- riser(z,Vector3.new((AX0+AX1)/2,F+j-0.5,zs+0.04),Vector3.new(0,0,1),AX1-AX0,1) end
+ box(z,"VIP_StairNeon",AX0,F+j,zs-0.3,AX1,F+j+0.08,zs,vipRed,{mat=Enum.Material.Neon,ghost=true}) -- (red on the VIP stair, user 2026-10-27)
+ riser(z,Vector3.new((AX0+AX1)/2,F+j-0.5,zs+0.04),Vector3.new(0,0,1),AX1-AX0,1,vipRed) end
 do local c=Vector3.new((AX0+AX1)/2,F+11,-236.5-RUN*11) P(z,"VIP_StairRamp",Vector3.new(AX1-AX0,22,RUN*22),CFrame.lookAt(c,c+Vector3.new(0,0,1)),W,{class="WedgePart",t=1}) end
 local LAND0=-236.5-RUN*22 -- the landing's south edge (-262.9)
 for j=1,22 do local zs=LAND0+RUN*(j-1)
  box(z,"VIP_Stair",BX0,F,zs,BX1,VMID+j,zs+RUN,stepC,{nocol=true})
- box(z,"VIP_StairNeon",BX0,VMID+j,zs,BX1,VMID+j+0.08,zs+0.3,Color3.new(1,1,1),{mat=Enum.Material.Neon,ghost=true})
- riser(z,Vector3.new((BX0+BX1)/2,VMID+j-0.5,zs-0.04),Vector3.new(0,0,-1),BX1-BX0,1) end
+ box(z,"VIP_StairNeon",BX0,VMID+j,zs,BX1,VMID+j+0.08,zs+0.3,vipRed,{mat=Enum.Material.Neon,ghost=true})
+ riser(z,Vector3.new((BX0+BX1)/2,VMID+j-0.5,zs-0.04),Vector3.new(0,0,-1),BX1-BX0,1,vipRed) end
+-- a red LED line on the half-way landing's edge, where the flights meet it (user 2026-10-27)
+box(z,"VIP_LandingNeon",AX0,VMID,LAND0-0.3,BX1,VMID+0.08,LAND0,vipRed,{mat=Enum.Material.Neon,ghost=true})
 do local c=Vector3.new((BX0+BX1)/2,VMID+11,LAND0+RUN*11) P(z,"VIP_StairRamp",Vector3.new(BX1-BX0,22,RUN*22),CFrame.lookAt(c,c+Vector3.new(0,0,-1)),W,{class="WedgePart",t=1}) end
 box(z,"VIP_StairDivider",AX1,F,LAND0,BX0,V+4,-236.5,WALL_C,WALLO)
 label(z,"VIP 2층 ↑ (VIP 패스)",Vector3.new(-72,F+17,-232))
@@ -484,10 +492,10 @@ local function vipBooth1(cx,wallZ,dir)
   box(z,"VIP_Crown",cx-0.9,cy,zz(0.1),cx+0.9,cy+0.26,zz(0.2),CG,CO)
   -- red glow round the crown: slightly bigger see-through red neon behind each piece (user 2026-10-25)
   local RG=Color3.fromRGB(255,30,45) local RGO={mat=Enum.Material.Neon,ghost=true,t=0.55}
-  box(z,"VIP_CrownGlow",cx-1.05,cy-0.15,zz(0.1),cx+1.05,cy+0.41,zz(0.12),RG,RGO)
+  -- (no red glow round the crown, user 2026-10-27)
   for k=-2,2 do local h=if k==0 then 1.1 elseif math.abs(k)==1 then 0.85 else 0.98
    local x=cx+k*0.4
-   box(z,"VIP_CrownGlow",x-0.2,cy+0.26,zz(0.1),x+0.2,cy+h+0.3,zz(0.12),RG,RGO)
+
    box(z,"VIP_Crown",x-0.07,cy+0.26,zz(0.1),x+0.07,cy+h,zz(0.2),CG,CO)
    P(z,"VIP_CrownJewel",Vector3.new(0.2,0.2,0.2),CFrame.new(x,cy+h+0.08,zz(0.15)),CG,{shape=Enum.PartType.Ball,mat=Enum.Material.Neon,ghost=true}) end
   -- "VIP": white letters only, no tag behind, with a glow around them (user 2026-10-25)
@@ -522,22 +530,22 @@ local function vipBooth1(cx,wallZ,dir)
  end
 end
 -- (twice as big, user 2026-10-27: three booths of 40 per long wall, x -64..58)
-local function vipBooth(cx,wallZ,dir) grown(2,CFrame.new(cx,V,wallZ),function() vipBooth1(cx,wallZ,dir) end) end
-local BOOTHS={-44,-3,38}
+local function vipBooth(cx,wallZ,dir) grown(4/3,CFrame.new(cx,V,wallZ),function() vipBooth1(cx,wallZ,dir) end) end -- (2 → 4/3: two thirds of the doubled size, user 2026-10-27)
+local BOOTHS={-50.6,-19,12.6,44.3} -- (four again at 4/3 size, 26.7 wide)
 for _,cx in ipairs(BOOTHS) do vipBooth(cx,NZ,1) vipBooth(cx,-167.5,-1) end
 -- small warm wall lights between the booths
 for k=1,#BOOTHS-1 do local lx=(BOOTHS[k]+BOOTHS[k+1])/2
  for _,w in ipairs({{NZ,1},{-167.5,-1}}) do
-  local wl=box(z,"VIP_WallLight",lx-0.35,V+18,w[1]+w[2]*0,lx+0.35,V+21.6,w[1]+w[2]*0.25,Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
+  local wl=box(z,"VIP_WallLight",lx-0.35,V+12,w[1]+w[2]*0,lx+0.35,V+14.4,w[1]+w[2]*0.25,Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
   local pl=Instance.new("PointLight") pl.Range=14 pl.Brightness=0.8 pl.Color=Color3.fromRGB(255,200,150) pl.Parent=wl end end
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,NZ+12),true)
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,-178),true)
 local function vipRegion(name,x0,y0,z0,x1,y1,z1,exit)
  local r=box(z,name,x0,y0,z0,x1,y1,z1,W,{t=1,ghost=true})
  r:SetAttribute("Gate","VIP") r:SetAttribute("Exit",exit or Vector3.new(-44,F+3,-218)) CS:AddTag(r,"ClubRegion") return r end
-vipRegion("VIP_Region_N",-80,V,NZ,58,V+30,(NZ+24))
-vipRegion("VIP_Region_S",-80,V,-190,58,V+30,-167.5)
-vipRegion("VIP_Region_W",-80,V,(NZ+24),-50,V+30,-190)
+vipRegion("VIP_Region_N",-80,V,NZ,58,V+24,(NZ+24))
+vipRegion("VIP_Region_S",-80,V,-190,58,V+24,-167.5)
+vipRegion("VIP_Region_W",-80,V,(NZ+24),-50,V+24,-190)
 vipRegion("VIP_StairRegion",-79.6,F+1,NZ,-65.4,V+4,-236.8,Vector3.new(-72,F+3,-226))
 
 -- 1st floor TABLES ON STEPPED PLATFORMS (1F plan, user 2026-10-25): stadium
@@ -572,7 +580,7 @@ local function platform(cx,wallZ,dir)
  local tp=Vector3.new(cx,F+1.6,cc+dir*1.5)
  -- (twice as big, user 2026-10-27)
  local top
- grown(2,CFrame.new(tp),function()
+ grown(1,CFrame.new(tp),function() -- (back to the first size, user 2026-10-27)
  cyl(z,"TableLeg",0.8,3.4,tp+Vector3.new(0,1.7,0),Color3.fromRGB(40,40,50))
  top=cyl(z,"RoundTable",4.4,0.3,tp+Vector3.new(0,3.55,0),MARBLE_C,MARBLE)
  CS:AddTag(top,"DrinkTable")
@@ -630,30 +638,30 @@ for _,px in ipairs({-30,0}) do pole(px,-201.5) end
 for _,px in ipairs({-30,0,30}) do pole(px,NZ+31.5) end
 
 -- BAR under the south VIP, east half (non-alcoholic)
--- (user 2026-10-27, the taller club: twice as big. Heights and depths are
--- doubled from the back wall (z -167.5); its length stays x 10..52, between
--- the table platforms and the LED pillar / DJ stage)
+-- (user 2026-10-27: the counter, stools and bartender spot at their first
+-- size again; only the bottle shelves on the back wall stay twice as big)
+
 local function bz(d) return -167.5-d end -- depth out from the back wall
-box(z,"BarCounter",10,F,bz(32),52,F+9,bz(26),Color3.fromRGB(245,245,250))
-box(z,"BarCounterTop",9.5,F+9,bz(33),52.5,F+10,bz(25),Color3.fromRGB(30,30,40))
+box(z,"BarCounter",10,F,-183.5,54,F+4.5,-180.5,Color3.fromRGB(245,245,250))
+box(z,"BarCounterTop",9.5,F+4.5,-184,54.5,F+5,-180,Color3.fromRGB(30,30,40))
 -- (user plan 2026-10-25) an L: the counter turns towards the back wall at its north end
-box(z,"BarCounter",10,F,bz(26),16,F+9,bz(8.6),Color3.fromRGB(245,245,250))
-box(z,"BarCounterTop",9.5,F+9,bz(26),17,F+10,bz(7.6),Color3.fromRGB(30,30,40))
+box(z,"BarCounter",10,F,-180.5,13,F+4.5,-174,Color3.fromRGB(245,245,250)) -- (the L stops short of the bigger shelves)
+box(z,"BarCounterTop",9.5,F+4.5,-180.5,13.5,F+5,-174,Color3.fromRGB(30,30,40))
 -- sky-blue LED right under the top's overhang, round the corner of the L too (user 2026-10-25)
-box(z,"BarNeon",10,F+8.4,bz(33),52,F+9,bz(32),cyan,{mat=Enum.Material.Neon,ghost=true})
-box(z,"BarNeon",9.5,F+8.4,bz(33),10.5,F+9,bz(7.6),cyan,{mat=Enum.Material.Neon,ghost=true})
+box(z,"BarNeon",10,F+4.2,-184,54,F+4.5,-183.5,cyan,{mat=Enum.Material.Neon,ghost=true})
+box(z,"BarNeon",9.5,F+4.2,-184,10,F+4.5,-174,cyan,{mat=Enum.Material.Neon,ghost=true})
 box(z,"BarBackShelf",10,F,bz(3),52,F+24,bz(0),Color3.fromRGB(45,35,60))
 for row=0,2 do box(z,"BarShelf",10,F+8+row*6,bz(6),52,F+8.6+row*6,bz(3),Color3.fromRGB(200,200,210))
  for k=0,9 do local bx=12+k*4.3 local hue=(k*0.09+row*0.21)%1
   cyl(z,"BarBottle",1.6,3.6,Vector3.new(bx,F+10.4+row*6,bz(4.6)),Color3.fromHSV(hue,0.7,1),{mat=Enum.Material.Neon,ghost=true}) end end
 P(z,"BarSign",Vector3.new(28,5,0.8),CFrame.new(31,F+28,bz(1)),pink,NEON)
-local spot=P(z,"BartenderSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(31,F+0.5,bz(17)),Vector3.new(31,F+0.5,-220)),W,{t=1,ghost=true})
+local spot=P(z,"BartenderSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(32,F+0.5,-177),Vector3.new(32,F+0.5,-200)),W,{t=1,ghost=true})
 CS:AddTag(spot,"BartenderSpot")
-for k=0,5 do local pos=Vector3.new(14+k*7,F+5.2,bz(36))
- local seat=Instance.new("Seat") seat.Name="BarStool" seat.Anchored=true seat.Size=Vector3.new(4.4,1.6,4.4)
+for k=0,7 do local pos=Vector3.new(14+k*5.5,F+2.6,-186.5)
+ local seat=Instance.new("Seat") seat.Name="BarStool" seat.Anchored=true seat.Size=Vector3.new(2.2,0.8,2.2)
  seat.CFrame=CFrame.lookAt(pos,pos+Vector3.new(0,0,1)) seat.Color=Color3.fromRGB(28,28,32) seat.TopSurface=Enum.SurfaceType.Smooth seat.Parent=z CS:AddTag(seat,"PromptSeat")
- box(z,"BarStoolLeg",pos.X-0.5,F,pos.Z-0.5,pos.X+0.5,F+4.4,pos.Z+0.5,Color3.fromRGB(180,180,190)) end
-label(z,"BAR · 음료 (무알코올)",Vector3.new(31,F+18,bz(12)))
+ box(z,"BarStoolLeg",pos.X-0.25,F,pos.Z-0.25,pos.X+0.25,F+2.2,pos.Z+0.25,Color3.fromRGB(180,180,190)) end
+label(z,"BAR · 음료 (무알코올)",Vector3.new(32,F+9,-178))
 local beforeDJ={} for _,c in ipairs(z:GetChildren()) do beforeDJ[c]=true end
 -- DJ ZONE (east, full height): stage, turntable console, speakers, LED wall
 local stageC=Color3.fromRGB(60,60,80)
@@ -663,10 +671,14 @@ local stageC=Color3.fromRGB(60,60,80)
 local DS=F+8
 box(z,"DJ_Stage",60,F,-246,80,DS,-190,stageC)
 box(z,"DJ_StageEdge",59.8,DS-0.3,-246,60.2,DS,-190,cyan,{mat=Enum.Material.Neon,ghost=true})
-for k=1,3 do local x0=60-2*(4-k) local top=F+2*k
- box(z,"DJ_Step",x0,F,-246,x0+2,top,-190,stageC)
- box(z,"DJ_StepEdge",x0-0.2,top-0.3,-246,x0+0.2,top,-190,cyan,{mat=Enum.Material.Neon,ghost=true}) end
-do local c=Vector3.new(56,(F+DS)/2,-218) P(z,"DJ_StepRamp",Vector3.new(14,DS-F,8),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
+-- (user 2026-10-27) the steps run on round both ends of the stage too
+for k=1,3 do local o=2*(4-k) local x0=60-o local top=F+2*k
+ box(z,"DJ_Step",x0,F,-246-o,x0+2,top,-190+o,stageC)
+ box(z,"DJ_StepEdge",x0-0.2,top-0.3,-246-o,x0+0.2,top,-190+o,cyan,{mat=Enum.Material.Neon,ghost=true})
+ for _,e in ipairs({{-246-o,-246-o+2,-246-o-0.2,-246-o+0.2},{-190+o-2,-190+o,-190+o-0.2,-190+o+0.2}}) do
+  box(z,"DJ_Step",x0+2,F,e[1],80,top,e[2],stageC)
+  box(z,"DJ_StepEdge",x0,top-0.3,e[3],80,top,e[4],cyan,{mat=Enum.Material.Neon,ghost=true}) end end
+do local c=Vector3.new(57,(F+DS)/2,-218) P(z,"DJ_StepRamp",Vector3.new(14,DS-F,6),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
 -- the LED wall cut down (user 2026-10-27: it filled the whole wall), from the stage up to LEDT
 local LEDT=F+46 -- (a little lower again, user 2026-10-27: F+54 → F+46)
 local led=box(z,"LED_Wall",78.5,DS+2,-246,79.5,LEDT,-190,cyan,{mat=Enum.Material.Neon}) CS:AddTag(led,"ClubBeat")
@@ -801,9 +813,11 @@ do local SW,SH,SD=7.5,15,6.5 -- width, height, depth
   for _,p in ipairs(m:GetChildren()) do if p.Name~="SpeakerStand" then p.CFrame=p.CFrame+Vector3.new(0,0.6,0) end end
  end
 end
-local djGate=box(z,"DJ_Gate",59.6,F,-246,60.4,DS+16,-190,cyan,{t=0.85}) -- (at the stage edge, over the steps)
+-- (user 2026-10-27) nobody but the DJ even on the steps: the gate at their foot, front and both ends
+local djGate=box(z,"DJ_Gate",53.6,F,-252,54.4,DS+16,-184,cyan,{t=0.85})
+for _,gz in ipairs({-252,-184}) do local g2=box(z,"DJ_Gate",54.4,F,gz-0.4,80,DS+16,gz+0.4,cyan,{t=0.85}) g2:SetAttribute("Gate","DJ") CS:AddTag(g2,"ClubGate") end
 djGate:SetAttribute("Gate","DJ") CS:AddTag(djGate,"ClubGate")
-local djRegion=box(z,"DJ_Region",60.4,F,-246,80,DS+20,-190,W,{t=1,ghost=true})
+local djRegion=box(z,"DJ_Region",54.4,F,-252,80,DS+20,-184,W,{t=1,ghost=true})
 djRegion:SetAttribute("Gate","DJ") djRegion:SetAttribute("Exit",Vector3.new(46,F+3,-218)) CS:AddTag(djRegion,"ClubRegion")
 label(z,"DJ 존 (DJ 시간 구매)",Vector3.new(70,DS+22,-218),true)
 
@@ -840,7 +854,7 @@ do local BC=Color3.fromRGB(255,250,175) local k=0
  for zc=NZ+3,-170,4 do bar(-79.95,-79.75,V+1.5,TOP-1.5,zc) end
  -- the chase goes on along both long walls above the VIP signs (user 2026-10-25)
  local function sideBar(xc,z0,z1) k+=1
-  local b=box(z,"WallLEDBar",xc-0.2,V+28,z0-HZ,xc+0.2,TOP-1.5,z1-HZ,BC,{mat=Enum.Material.Neon,ghost=true})
+  local b=box(z,"WallLEDBar",xc-0.2,V+20,z0-HZ,xc+0.2,TOP-1.5,z1-HZ,BC,{mat=Enum.Material.Neon,ghost=true})
   b.CastShadow=false b:SetAttribute("Index",k) CS:AddTag(b,"ClubWallBar") end
  for xc=-76,78,4 do sideBar(xc,NZ+0.05,NZ+0.25) end
  for xc=78,-76,-4 do sideBar(xc,-167.75,-167.55) end

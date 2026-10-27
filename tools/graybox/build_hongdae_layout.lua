@@ -643,7 +643,9 @@ for _, c in ipairs((SS:FindFirstChild("Cars") and SS.Cars:GetChildren()) or {}) 
 	if c.Name == "Car_G70" or c.Name == "Car_G80" then table.insert(carDesigns, c) end
 end
 table.sort(carDesigns, function(a, b) return a.Name < b.Name end)
+local NO_CARS = true -- (user 2026-10-27: no cars on the roads)
 local function car(pos: Vector3, along: Vector3)
+	if NO_CARS then return end
 	carCount += 1
 	if #carDesigns > 0 then -- Creator Store cars picked by the user (anchored, scripts removed, 15 long)
 		local c = carDesigns[((carCount - 1) % #carDesigns) + 1]:Clone()
@@ -3993,7 +3995,7 @@ do
 	-- it to the north, the waiting line between the rope and the wall under a
 	-- row of white pop-up tents against the wall (the old iron fences are gone)
 	do
-		local QX = 34 -- the rope line, out to the bike lane's edge (x 33.2; was 42.5, user 2026-10-27)
+		local QX = 41 -- the rope line half way back toward the wall (x 34 → 41, user 2026-10-27)
 		local QZ0, QZ1 = DZ0 - 37, (DZ0 + DZ1) / 2 -- north end of the line, the door's middle
 		local RED = Color3.fromRGB(196, 24, 36)
 		local function post(x, zz)
@@ -4091,7 +4093,7 @@ do
 		-- (plain, the same colour as the foyer floor: user 2026-10-25)
 		box("LiftCorridorFloor", CX0, -0.5, FOYER_END - 0.5, CX1, 0, CAR0, Color3.fromRGB(26, 26, 29), { parent = E, material = Enum.Material.SmoothPlastic })
 		-- the foyer's floor LED lines run on along both walls up to the lift (user 2026-10-25)
-		for _, x in ipairs({ { CX0, CX0 + 0.2 }, { CX1 - 0.2, CX1 } }) do
+		for _, x in ipairs({ { CX0, CX0 + 0.12 }, { CX1 - 0.12, CX1 } }) do -- (thin like every floor line, user 2026-10-27)
 			box("LiftCorridorLED", x[1], 0, FOYER_END - 0.5, x[2], 0.25, CAR0 - 0.7, Color3.fromRGB(255, 250, 175), { parent = E, material = Enum.Material.Neon, nocol = true })
 		end
 		box("LiftCorridorCeiling", CX0, LH, FOYER_END - 0.5, CX1, LH + 1, CAR1 + 0.6, DARK, { parent = E })

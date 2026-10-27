@@ -2286,3 +2286,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 클럽 줄 | 공원 표지판 |
 |---|---|
 | ![](images/2026-10-27/v8j_club_queue.jpg) | ![](images/2026-10-27/v8j_park_boards.jpg) |
+
+### 클럽 다듬기 (D-363)
+
+- 줄 펜스 x 41, 바닥 LED 가늘게 통일, VIP 계단 빨간 선·세모, 계단 입구 빨간 테두리 문, 층계참 LED, 계단 주변 벽 그래피티, VIP 왕관 빨간 테두리 삭제, VIP 자리 2/3, 1층 테이블 원래 크기, DJ 계단 옆면까지·계단 아래부터 막기, 바 카운터 원래 크기(진열장 유지), 댄스홀 문 21·윗부분 분홍 LED, 도로 차 삭제.
+- 남은 것: 공원 표지판 위치(빨간 선 위치 다시 확인), VIP 계단 '오른쪽 벽'(찾지 못함).
+
+| DJ·바·테이블 | VIP 계단 입구 |
+|---|---|
+| ![](images/2026-10-27/v8k_dj_bar_tables.jpg) | ![](images/2026-10-27/v8k_vip_gate.jpg) |
