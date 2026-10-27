@@ -776,7 +776,27 @@ local function layoutShoot()
 	for _, c in ipairs(corners) do c.Size = UDim2.fromOffset(bracket, bracket) end
 end
 
+-- (user 2026-10-27) a shutter click with every shot, a short tick on 3 · 2 · 1
+-- (docs/04_ART/SOUNDS.md B)
+-- (one table, not four locals: this script is near the 200-local limit)
+local boothSound = (function()
+	local SoundService = game:GetService("SoundService")
+	local function make(id: string, volume: number): Sound
+		local s = Instance.new("Sound")
+		s.SoundId = id
+		s.Volume = volume
+		s.Parent = SoundService
+		return s
+	end
+	return {
+		shutter = make("rbxassetid://17208312548", 0.9), -- "Roblox GUI - Camera Shutter" (Roblox)
+		tick = make("rbxassetid://9118777239", 0.35), -- "Scanner Beeps 5" (Pro Sound Effects)
+		lastTick = 0,
+	}
+end)()
 local function flashShot()
+	boothSound.shutter.TimePosition = 0
+	boothSound.shutter:Play()
 	flash.BackgroundTransparency = 0
 	TweenService:Create(flash, TweenInfo.new(0.45), { BackgroundTransparency = 1 }):Play()
 end
@@ -1573,6 +1593,12 @@ local function update()
 		local paused = character and typeof(character:GetAttribute("DancePause")) == "number"
 		pauseButton.Text = if paused then "▶ 계속" else "⏸ 멈춤"
 		countdown.Text = if left > 0 and left <= 3 then tostring(math.ceil(left)) else ""
+		local sec = if left > 0 and left <= 3 then math.ceil(left) else 0
+		if sec > 0 and sec ~= boothSound.lastTick then
+			boothSound.tick.TimePosition = 0
+			boothSound.tick:Play()
+		end
+		boothSound.lastTick = sec
 	elseif phase == "picking" then
 		waitBar.Visible = false
 		if state.stage == "shooting" then

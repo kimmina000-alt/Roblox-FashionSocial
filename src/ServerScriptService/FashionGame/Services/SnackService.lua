@@ -689,6 +689,34 @@ end
 
 --------------------------------------------------
 
+-- (user 2026-10-27) the till beeps when an order is paid: a POS scanner beep
+-- at the shop's counter, heard by the people around (docs/04_ART/SOUNDS.md 20)
+local PAY_SOUND = "rbxassetid://9118777437" -- "Scanner Beeps 10" (Pro Sound Effects)
+local function payBeep(player: Player, shopKey: string)
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then return end
+	local best: BasePart? = nil
+	for _, shopPart in ipairs(CollectionService:GetTagged("SnackShop")) do
+		if shopPart:IsA("BasePart") and shopPart:IsDescendantOf(workspace) and shopPart:GetAttribute("Shop") == shopKey then
+			if not best or (shopPart.Position - root.Position).Magnitude < (best.Position - root.Position).Magnitude then best = shopPart end
+		end
+	end
+	if not best then return end
+	local s = best:FindFirstChild("PayBeep") :: Sound?
+	if not s then
+		local made = Instance.new("Sound")
+		made.Name = "PayBeep"
+		made.SoundId = PAY_SOUND
+		made.Volume = 0.7
+		made.RollOffMinDistance = 6
+		made.RollOffMaxDistance = 40
+		made.Parent = best
+		s = made
+	end
+	(s :: Sound):Play()
+end
+
 local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string?)
 	local shop, item = SnackConfig.find(shopKey, itemKey)
 	if not shop or not item then return false, "없는 메뉴예요." end
@@ -702,6 +730,7 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
 		end
 		grantProduct(player, item)
+		payBeep(player, shop.key)
 		return true, nil
 	end
 	if countSnacks(player) >= SnackConfig.MaxCarried then
@@ -721,6 +750,7 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 		end
 	end
 	giveTool(player, makeTool(item))
+	payBeep(player, shop.key)
 	local drink = item.kind == "cup" or item.kind == "bottle"
 	return true, string.format("%s 나왔어요! 클릭(터치)해서 %s. 자리에 앉아서 즐겨도 돼요.", item.name, if drink then "마셔요" else "먹어요")
 end

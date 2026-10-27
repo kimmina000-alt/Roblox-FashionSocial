@@ -2362,3 +2362,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 광화문 잔디 바닥 아래로 (D-372)
 
 ![](images/2026-10-27/v8u_gate_lawn_planted.jpg)
+
+### 발소리·사진·결제 소리 (D-374)
+
+- Roblox 기본 걷기 소리는 바닥 상관없이 플라스틱 소리 하나를 속도에 맞춰 늘였다 줄였다 해서 어색했음 → 끄고 바닥별 발소리로 교체 (잔디 풀 스침 / 모래 / 나무 / 돌·타일). 걷기는 작게, 뛰기는 크고 빠르게, 착지 한 번 더.
+- 포토부스 찰칵 + 카운트다운 삑, 편의점·카페 결제 띵동(계산대).
+- Play 확인: 잔디·돌·나무·모래 발소리, 기본 Running 볼륨 0, OH24 생수 구매 시 계산대 PayBeep 재생(0.68초). 포토부스 찰칵은 ID 로드만 확인(사진 촬영 흐름은 사용자 확인 필요).
+- 목록: docs/04_ART/SOUNDS.md.
