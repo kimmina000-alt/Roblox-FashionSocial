@@ -108,6 +108,10 @@ do
 				n += parts
 			end
 		end
+		-- the sitting seats up to the new cushions (0.5 lower than them: sank in)
+		for _, p in ipairs(club:GetDescendants()) do
+			if p:IsA("Seat") and p.Name == "VIP_Sofa" then p.CFrame = p.CFrame + Vector3.new(0, 0.5, 0) end
+		end
 		for _, p in ipairs(club:GetDescendants()) do
 			if p:IsA("BasePart") and (p.Name == "VIP_BoothSeat" or p.Name == "VIP_BoothBack" or p.Name == "VIP_BoothArm" or p.Name == "VIP_BoothTuft") then p:Destroy() end
 		end
