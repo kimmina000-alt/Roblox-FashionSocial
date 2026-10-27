@@ -383,27 +383,10 @@ local function buildPillar(model: Model): Pillar
 	end
 	local core = model:FindFirstChild("Core")
 	pillar.center = if core and core:IsA("BasePart") then core.Position elseif list[1] then list[1].part.Position else model:GetPivot().Position
+	-- (user 2026-10-27) only the character on the pillars: no name board under them
 	local anchor = model:FindFirstChild("NameAnchor")
-	if anchor and anchor:IsA("BasePart") then
-		local oldBillboard = anchor:FindFirstChild("PillarName")
-		if oldBillboard then oldBillboard:Destroy() end
-		local billboard = Instance.new("BillboardGui")
-		billboard.Name = "PillarName"
-		billboard.Size = UDim2.fromOffset(220, 36)
-		billboard.MaxDistance = 220
-		billboard.LightInfluence = 0
-		billboard.Parent = anchor
-		local label = Instance.new("TextLabel")
-		label.Size = UDim2.fromScale(1, 1)
-		label.BackgroundColor3 = Color3.fromRGB(20, 10, 40)
-		label.BackgroundTransparency = 0.25
-		label.TextColor3 = Color3.new(1, 1, 1)
-		label.TextScaled = true
-		label.Font = Enum.Font.GothamBold
-		label.Text = "CLUB"
-		label.Parent = billboard
-		pillar.nameLabel = label
-	end
+	local oldBillboard = anchor and anchor:FindFirstChild("PillarName")
+	if oldBillboard then oldBillboard:Destroy() end
 	return pillar
 end
 

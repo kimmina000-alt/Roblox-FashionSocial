@@ -911,7 +911,9 @@ local function hook(pad, other, offset)
 		pad.DoorClose:Play()
 		task.wait(1.2)
 		-- still in the car (on the pad)? then up / down
-		if character.Parent and (root.Position - pad.Position).Magnitude < 7 then
+		-- (along the ground: a tall avatar's root is high above the pad, 2026-10-27)
+		local flat = Vector3.new(root.Position.X - pad.Position.X, 0, root.Position.Z - pad.Position.Z)
+		if character.Parent and flat.Magnitude < 7 and math.abs(root.Position.Y - pad.Position.Y) < 20 then
 			character:PivotTo(CFrame.new(other.CFrame:PointToWorldSpace(offset)))
 			other.Ding:Play()
 			task.wait(0.4)

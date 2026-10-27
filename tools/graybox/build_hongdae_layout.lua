@@ -4101,6 +4101,9 @@ do
 		local E = Instance.new("Model")
 		E.Name = "ClubLift"
 		E.Parent = T
+		-- (user 2026-10-27) the lift and its corridor as high as the raised entrance:
+		-- ceiling 12 → 18 (LH), door 9 → 14 (LDH), 7 → 10 wide (tall avatars are 8 across)
+		local LH, LDH = 18, 14
 		-- corridor: floor, ceiling, black walls
 		-- (plain, the same colour as the foyer floor: user 2026-10-25)
 		box("LiftCorridorFloor", CX0, -0.5, FOYER_END - 0.5, CX1, 0, CAR0, Color3.fromRGB(26, 26, 29), { parent = E, material = Enum.Material.SmoothPlastic })
@@ -4108,31 +4111,31 @@ do
 		for _, x in ipairs({ { CX0, CX0 + 0.2 }, { CX1 - 0.2, CX1 } }) do
 			box("LiftCorridorLED", x[1], 0, FOYER_END - 0.5, x[2], 0.25, CAR0 - 0.7, Color3.fromRGB(255, 250, 175), { parent = E, material = Enum.Material.Neon, nocol = true })
 		end
-		box("LiftCorridorCeiling", CX0, 12, FOYER_END - 0.5, CX1, 13, CAR1 + 0.6, DARK, { parent = E })
+		box("LiftCorridorCeiling", CX0, LH, FOYER_END - 0.5, CX1, LH + 1, CAR1 + 0.6, DARK, { parent = E })
 		-- the rest of the old fill behind the car stays solid
 		box("EntryFillRest", CX0 - 0.1, -24, CAR1 + 0.6, CX1 + 0.1, 64, FILL_END, Color3.fromRGB(40, 42, 46), { parent = E }) -- (up to the raised ceiling, 2026-10-27)
 		-- strip lights along the corridor ceiling
 		for z = FOYER_END + 2, CAR0 - 2, 4 do
-			local l = box("LiftCorridorLight", 56.6, 11.8, z - 0.8, 58.9, 12, z + 0.8, Color3.fromRGB(255, 240, 220), { parent = E, nocol = true })
+			local l = box("LiftCorridorLight", 56.6, LH - 0.2, z - 0.8, 58.9, LH, z + 0.8, Color3.fromRGB(255, 240, 220), { parent = E, nocol = true })
 			local pl = Instance.new("PointLight") pl.Range = 10 pl.Brightness = 0.7 pl.Color = Color3.fromRGB(255, 225, 200) pl.Parent = l
 		end
 		-- lift car: brushed steel walls, gold frame, floor pad
 		local STEEL = Color3.fromRGB(150, 152, 158)
 		box("LiftCarFloor", CX0, -0.5, CAR0, CX1, 0, CAR1, Color3.fromRGB(60, 60, 66), { parent = E, material = Enum.Material.Metal })
-		box("LiftCarBack", CX0, 0, CAR1, CX1, 12, CAR1 + 0.6, STEEL, { parent = E, material = Enum.Material.Metal })
-		box("LiftCarCeiling", CX0, 11.4, CAR0, CX1, 12, CAR1, STEEL, { parent = E, material = Enum.Material.Metal })
-		local cl = box("LiftCarLight", 55, 11.3, CAR0 + 2, 60.5, 11.4, CAR1 - 2, Color3.fromRGB(255, 250, 240), { parent = E, nocol = true })
+		box("LiftCarBack", CX0, 0, CAR1, CX1, LH, CAR1 + 0.6, STEEL, { parent = E, material = Enum.Material.Metal })
+		box("LiftCarCeiling", CX0, LH - 0.6, CAR0, CX1, LH, CAR1, STEEL, { parent = E, material = Enum.Material.Metal })
+		local cl = box("LiftCarLight", 55, LH - 0.7, CAR0 + 2, 60.5, LH - 0.6, CAR1 - 2, Color3.fromRGB(255, 250, 240), { parent = E, nocol = true })
 		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 12 sl.Brightness = 1 sl.Parent = cl
 		-- (user 2026-10-24) the car's sides showed the club's marble walls: plain
 		-- brushed-steel lining (built-in Metal, no images), a handrail, the
 		-- inside of the front wall in steel and a small button panel by the door
 		local mopt = { parent = E, material = Enum.Material.Metal, nocol = true }
-		local mid, DOOR = (CX0 + CX1) / 2, 7 -- (the door below: 7 wide in the middle)
-		box("LiftCarSide", CX0 + 0.02, 0, CAR0, CX0 + 0.2, 11.4, CAR1, STEEL, mopt)
-		box("LiftCarSide", CX1 - 0.2, 0, CAR0, CX1 - 0.02, 11.4, CAR1, STEEL, mopt)
-		box("LiftCarInner", CX0 + 0.2, 0, CAR0, mid - DOOR / 2 - 0.6, 11.4, CAR0 + 0.15, STEEL, mopt)
-		box("LiftCarInner", mid + DOOR / 2 + 0.6, 0, CAR0, CX1 - 0.2, 11.4, CAR0 + 0.15, STEEL, mopt)
-		box("LiftCarInner", mid - DOOR / 2 - 0.6, 9.4, CAR0, mid + DOOR / 2 + 0.6, 11.4, CAR0 + 0.15, STEEL, mopt)
+		local mid, DOOR = (CX0 + CX1) / 2, 10 -- (the door below: 7 wide in the middle)
+		box("LiftCarSide", CX0 + 0.02, 0, CAR0, CX0 + 0.2, LH - 0.6, CAR1, STEEL, mopt)
+		box("LiftCarSide", CX1 - 0.2, 0, CAR0, CX1 - 0.02, LH - 0.6, CAR1, STEEL, mopt)
+		box("LiftCarInner", CX0 + 0.2, 0, CAR0, mid - DOOR / 2 - 0.6, LH - 0.6, CAR0 + 0.15, STEEL, mopt)
+		box("LiftCarInner", mid + DOOR / 2 + 0.6, 0, CAR0, CX1 - 0.2, LH - 0.6, CAR0 + 0.15, STEEL, mopt)
+		box("LiftCarInner", mid - DOOR / 2 - 0.6, LDH + 0.4, CAR0, mid + DOOR / 2 + 0.6, LH - 0.6, CAR0 + 0.15, STEEL, mopt)
 		box("LiftHandrail", CX0 + 1, 3.2, CAR1 - 0.45, CX1 - 1, 3.4, CAR1 - 0.25, Color3.fromRGB(200, 202, 206), mopt)
 		local px = mid + DOOR / 2 + 1.6 -- button panel beside the door, inside
 		box("LiftButtonPanel", px - 0.6, 3.6, CAR0 + 0.15, px + 0.6, 6.4, CAR0 + 0.25, Color3.fromRGB(40, 42, 46), mopt)
@@ -4141,19 +4144,19 @@ do
 			b.CastShadow = false
 		end
 		-- front wall with the door opening (door 7 wide in the middle)
-		local mid, DOOR = (CX0 + CX1) / 2, 7
-		box("LiftFront", CX0, 0, CAR0 - 0.5, mid - DOOR / 2, 12, CAR0, DARK, { parent = E })
-		box("LiftFront", mid + DOOR / 2, 0, CAR0 - 0.5, CX1, 12, CAR0, DARK, { parent = E })
-		box("LiftFront", mid - DOOR / 2, 9, CAR0 - 0.5, mid + DOOR / 2, 12, CAR0, DARK, { parent = E })
+		local mid, DOOR = (CX0 + CX1) / 2, 10
+		box("LiftFront", CX0, 0, CAR0 - 0.5, mid - DOOR / 2, LH, CAR0, DARK, { parent = E })
+		box("LiftFront", mid + DOOR / 2, 0, CAR0 - 0.5, CX1, LH, CAR0, DARK, { parent = E })
+		box("LiftFront", mid - DOOR / 2, LDH, CAR0 - 0.5, mid + DOOR / 2, LH, CAR0, DARK, { parent = E })
 		for _, s in ipairs({ -1, 1 }) do
-			box("LiftFrameGold", mid + s * (DOOR / 2 + 0.3) - 0.3, 0, CAR0 - 0.7, mid + s * (DOOR / 2 + 0.3) + 0.3, 9.3, CAR0 - 0.4, Color3.fromRGB(214, 172, 92), { parent = E, material = Enum.Material.Foil, nocol = true })
+			box("LiftFrameGold", mid + s * (DOOR / 2 + 0.3) - 0.3, 0, CAR0 - 0.7, mid + s * (DOOR / 2 + 0.3) + 0.3, LDH + 0.3, CAR0 - 0.4, Color3.fromRGB(214, 172, 92), { parent = E, material = Enum.Material.Foil, nocol = true })
 		end
-		box("LiftFrameGold", mid - DOOR / 2 - 0.6, 9, CAR0 - 0.7, mid + DOOR / 2 + 0.6, 9.4, CAR0 - 0.4, Color3.fromRGB(214, 172, 92), { parent = E, material = Enum.Material.Foil, nocol = true })
+		box("LiftFrameGold", mid - DOOR / 2 - 0.6, LDH, CAR0 - 0.7, mid + DOOR / 2 + 0.6, LDH + 0.4, CAR0 - 0.4, Color3.fromRGB(214, 172, 92), { parent = E, material = Enum.Material.Foil, nocol = true })
 		local door = Instance.new("Model")
 		door.Name = "AutoDoor"
 		door:SetAttribute("Range", 8)
 		for _, s in ipairs({ -1, 1 }) do
-			local panel = box("LiftDoorPanel", mid + s * DOOR / 2, 0, CAR0 - 0.35, mid, 9, CAR0 - 0.15, Color3.fromRGB(175, 178, 184), { parent = door, material = Enum.Material.Metal })
+			local panel = box("LiftDoorPanel", mid + s * DOOR / 2, 0, CAR0 - 0.35, mid, LDH, CAR0 - 0.15, Color3.fromRGB(175, 178, 184), { parent = door, material = Enum.Material.Metal })
 			panel:SetAttribute("Slide", Vector3.new(s * (DOOR / 2 - 0.1), 0, 0))
 		end
 		door.WorldPivot = CFrame.new(mid, 4, CAR0)

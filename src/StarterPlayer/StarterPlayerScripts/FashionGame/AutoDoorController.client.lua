@@ -76,7 +76,14 @@ while true do
 	end
 	for model, door in pairs(doors) do
 		if model.Parent then
-			if #door.panels < ((model:GetAttribute("Panels") :: number?) or 2) and not door.isOpen then scan(door) end
+			-- (re)collect late panels; a door already marked open is marked shut
+			-- again so the open state is applied to them too (a night door opened
+			-- before its panels streamed in stayed shut for good, 2026-10-27)
+			if #door.panels < ((model:GetAttribute("Panels") :: number?) or 2) then
+				local had = #door.panels
+				scan(door)
+				if #door.panels ~= had then door.isOpen = false end
+			end
 			local center = model:GetPivot().Position
 			local range = (model:GetAttribute("Range") :: number?) or 9
 			-- by day a NightOnly door opens only for people coming out (on the far
@@ -89,7 +96,10 @@ while true do
 			for _, pos in ipairs(roots) do
 				local allowed = not dayShut
 					or (typeof(exitPoint) == "Vector3" and (pos - center):Dot(center - exitPoint) > 0)
-				if allowed and (pos - center).Magnitude <= range then
+				-- distance along the ground (tall avatars carry their root high:
+				-- a 3D distance left them outside the range, 2026-10-27)
+				local flat = Vector3.new(pos.X - center.X, 0, pos.Z - center.Z).Magnitude
+				if allowed and flat <= range and math.abs(pos.Y - center.Y) < 16 then
 					near = true
 					break
 				end
