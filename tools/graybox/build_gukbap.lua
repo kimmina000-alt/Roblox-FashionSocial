@@ -21,7 +21,8 @@ assert(T, "Hongdae_Layout missing: run build_hongdae_layout first")
 local X0, X1, Z0, Z1 = 48, 193, -375, -293
 local FY = 0.6 -- floor top = sidewalk top (no step at the door)
 local H1 = 21 -- 1F floor to ceiling (12 → 21: as high as the club 1F, user 2026-10-27)
-local H2 = 10 -- 2F (outside only)
+local H2 = 10 * H1 / 12 -- 2F (outside only); (it grows like the 1F did, 10 → 17.5, user 2026-10-27)
+local K2 = H2 / 10 -- the 2F windows grow with it
 local WT = 0.6 -- wall thickness
 local DOOR_Z0, DOOR_Z1 = -338, -330 -- (in the middle of the long front, 8 wide)
 
@@ -118,9 +119,9 @@ box("Wall_S", X0, 0, Z1 - WT, X1, top2, Z1, WALL, { material = Enum.Material.Pla
 box("Front2F", X0, top1, Z0, X0 + WT, top2, Z1, TILE2F, { material = Enum.Material.Brick })
 -- 2F windows (old aluminium frames, dark glass), outside only
 for wz = Z0 + 5, Z1 - 4, 7.5 do
-	box("Window2F", X0 - 0.15, top1 + 2.5, wz - 2.6, X0, top1 + 7.5, wz + 2.6, Color3.fromRGB(60, 70, 80), { material = Enum.Material.Glass, t = 0.15, nocol = true })
-	box("Window2FFrame", X0 - 0.25, top1 + 2.3, wz - 2.8, X0 - 0.1, top1 + 2.5, wz + 2.8, ALU, { nocol = true })
-	box("Window2FMullion", X0 - 0.25, top1 + 2.5, wz - 0.1, X0 - 0.1, top1 + 7.5, wz + 0.1, ALU, { nocol = true })
+	box("Window2F", X0 - 0.15, top1 + 2.5 * K2, wz - 2.6, X0, top1 + 7.5 * K2, wz + 2.6, Color3.fromRGB(60, 70, 80), { material = Enum.Material.Glass, t = 0.15, nocol = true })
+	box("Window2FFrame", X0 - 0.25, top1 + 2.5 * K2 - 0.2, wz - 2.8, X0 - 0.1, top1 + 2.5 * K2, wz + 2.8, ALU, { nocol = true })
+	box("Window2FMullion", X0 - 0.25, top1 + 2.5 * K2, wz - 0.1, X0 - 0.1, top1 + 7.5 * K2, wz + 0.1, ALU, { nocol = true })
 end
 
 -- 1F front: wainscot, glass, aluminium posts, open sliding door -----------

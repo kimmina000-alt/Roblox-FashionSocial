@@ -57,7 +57,7 @@ local HOLES = {
 	{ 49, -253 + CLUB_DZ, 189, -92 + CLUB_DZ }, -- (19 longer east, user 2026-10-25) the club: edges in the middle of its walls (at the inner faces the ground flickered on the corridor and back walls, user 2026-10-24)
 	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -53, 41, -35, 47 }, -- exit 2 comes up southwards, 4 westwards in the corner square (toward the beach, user 2026-10-25)
-	{ 47, 47, 64, 83.4 }, { 47, 252.6, 64, 289 }, -- 광화문 lawn beds (LAWN_TERRAIN)
+	{ 110, 50, 170, 68 }, { 48, 262, 90, 292 }, -- 광화문 lawn beds (LAWN_TERRAIN)
 	{ -141, -197, -51, -83 }, -- the pocket park's sunken round plaza (user 2026-10-24)
 	{ -110, -92, -68, -53 }, -- its south walk + stair
 }
@@ -65,9 +65,28 @@ local HOLES = {
 -- the lawns are sunken beds: terrain heights snap to 4 studs, so terrain
 -- grass can only stand at about -1.6 (or 2.4, which bulged, user 2026-10-23);
 -- the ground and the yard paving are cut there and a stone kerb rims the bed
--- (layout v8: the gate three times as big, z 84..252, x 72..114: the beds
--- shrink to the corners, up to its yard x 64)
-local LAWN_TERRAIN = { { 47, 47, 64, 83.4 }, { 47, 252.6, 64, 289 } }
+-- 광화문 (user map 2026-10-27, after v8): three times as big, turned 30° so it
+-- faces the 강남 crossing diagonally at the village's north-west corner; the
+-- stone walls leave its two ends in gentle curves (cubic Béziers) to the north
+-- wall line (z 49) and the 돌담길 along the south road. Gate frame: ALONG runs
+-- to its north-east end, OUT is its front (to the street)
+local GATE_C = Vector3.new(158, 0, 195)
+local GATE_ROT = math.rad(-30)
+local GATE_HL, GATE_HD = 84, 21 -- half its length and depth (3 × 56 / 2, 3 × 14 / 2)
+local GATE_ALONG = CFrame.Angles(0, GATE_ROT, 0):VectorToWorldSpace(Vector3.new(0, 0, -1))
+local GATE_OUT = CFrame.Angles(0, GATE_ROT, 0):VectorToWorldSpace(Vector3.new(-1, 0, 0))
+local GATE_E1, GATE_E2 = GATE_C + GATE_ALONG * GATE_HL, GATE_C - GATE_ALONG * GATE_HL -- north-east / south-west end
+local function bezier(c: { Vector3 }, t: number): Vector3
+	local u = 1 - t
+	return c[1] * (u * u * u) + c[2] * (3 * u * u * t) + c[3] * (3 * u * t * t) + c[4] * (t * t * t)
+end
+local DOLDAM_B, DOLDAM_C = Vector3.new(97, 0, 330), Vector3.new(185, 0, 700) -- the 돌담길's straight run
+local DOLDAM_U = (DOLDAM_C - DOLDAM_B).Unit
+local DOLDAM_J = DOLDAM_B + DOLDAM_U * 92.5 -- where the curve joins it (z 420)
+local WALL_N = { GATE_E1, GATE_E1 + GATE_ALONG * 40, Vector3.new(260, 0, 49), Vector3.new(300, 0, 49) }
+local WALL_S = { GATE_E2, GATE_E2 - GATE_ALONG * 35, DOLDAM_J - DOLDAM_U * 45, DOLDAM_J }
+-- the lawns sit outside the two balustrades (beds stay axis-aligned: terrain grass)
+local LAWN_TERRAIN = { { 110, 50, 170, 68 }, { 48, 262, 90, 292 } }
 local MOUNTAINS = { -- terrain hills behind the hanok village (centre, radius)
 	{ Vector3.new(400, -55, 60), 95 }, { Vector3.new(470, -60, 175), 110 }, { Vector3.new(420, -55, 295), 95 },
 	{ Vector3.new(290, -70, 370), 90 }, { Vector3.new(150, -75, 390), 90 },
@@ -106,6 +125,16 @@ local function revert()
 		local t, cf = x:GetAttribute("OrigText"), x:GetAttribute("OrigCFrame")
 		if typeof(t) == "string" and x:IsA("TextLabel") then x.Text = t x:SetAttribute("OrigText", nil) end
 		if typeof(cf) == "CFrame" and x:IsA("BasePart") then x.CFrame = cf x:SetAttribute("OrigCFrame", nil) end
+	end
+	-- the ferris wheel back to its built size first (the pivot stays, so the
+	-- move back below lands it where it was)
+	do
+		local park = root:FindFirstChild("06_Park_Playground")
+		local W = park and park:FindFirstChild("FerrisWheel")
+		if W and W:GetScale() ~= 1 then
+			W:ScaleTo(1)
+			W:SetAttribute("Radius", 26)
+		end
 	end
 	-- groups moved inside a zone (park rides): back to where they were
 	for _, z in ipairs(root:GetChildren()) do
@@ -253,6 +282,19 @@ do
 						break
 					end
 				end
+			end
+			-- (user 2026-10-27) the ferris wheel twice as big, standing on the
+			-- same ground spot; its turning radius goes with it (revert scales it back)
+			local W = park:FindFirstChild("FerrisWheel")
+			local hub = W and W:FindFirstChild("Hub")
+			if W and hub and W:GetScale() == 1 then
+				local cf0, s0 = W:GetBoundingBox()
+				local groundY = cf0.Y - s0.Y / 2
+				local hx, hz = hub.Position.X, hub.Position.Z
+				W:ScaleTo(2)
+				local cf1, s1 = W:GetBoundingBox()
+				W:PivotTo(W:GetPivot() + Vector3.new(hx - hub.Position.X, groundY - (cf1.Y - s1.Y / 2), hz - hub.Position.Z))
+				W:SetAttribute("Radius", 52)
 			end
 		end
 	end
@@ -1300,6 +1342,13 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 	sign:SetAttribute("ExitName", name)
 	sign:SetAttribute("Out", along) -- arrivals stand next to the sign, along the street
 	CS:AddTag(sign, "BusStop")
+	do -- (user 2026-10-27) the sign pole twice as big too, like the shelter
+		local S = Instance.new("Model")
+		for _, p in ipairs({ m:FindFirstChild("BusSignPole"), disc, sign }) do if p then p.Parent = S end end
+		S.WorldPivot = CFrame.new(signBase)
+		S:ScaleTo(2)
+		for _, p in ipairs(S:GetChildren()) do p.Parent = m end
+	end
 	label(sign, "🚌 " .. name .. " 정류장", Color3.fromRGB(60, 140, 230), 4, 0.7)
 end
 -- (1: moved north to where the ranking boards stood, 3: moved north to the
@@ -2493,27 +2542,41 @@ do
 		local cx, cz = (gx0 + gx1) / 2, (gz0 + gz1) / 2
 		S.WorldPivot = CFrame.new(cx, 0, cz)
 		S:ScaleTo(GS)
-		-- 4 west, so its back (x 114) clears the village house eaves at x 117
-		local SHIFT_X = -4
-		S:PivotTo(S:GetPivot() + Vector3.new(SHIFT_X, 0, 0))
+		-- turned to face the crossing at the village's north-west corner (GATE_*)
+		S:PivotTo(CFrame.new(GATE_C) * CFrame.Angles(0, GATE_ROT, 0))
 		for _, c in ipairs(S:GetChildren()) do c.Parent = G end
-		gx0, gx1 = cx - (cx - gx0) * GS + SHIFT_X, cx + (gx1 - cx) * GS + SHIFT_X
-		gz0, gz1 = cz - (cz - gz0) * GS, cz + (gz1 - cz) * GS
 	end
 
-	-- in front, sidewalk (x WIDE) to the gate: stone ground, a path between
-	-- two stone balustrades, lawns either side, 해태 at the street end
-	-- front yard (user plan 2026-10-23): a stone yard along the whole wall
-	-- line (x 68 to the wall), the path to the gate as wide as the gate
-	-- (between the railings), two big lawns from the yard to the sidewalk
-	local PATH0, PATH1 = gz0, gz1 -- railings on the gate's outer edges (user 2026-10-23)
-	local YARD = gx0 - 8 -- lawns reach toward the gate (user 2026-10-23)
+	-- in front, from the sidewalks to the gate (layout v8, the gate turned):
+	-- stone paving, a path as wide as the gate between two stone balustrades
+	-- running out from its front corners along OUT to the sidewalk, a lawn
+	-- outside each balustrade, the 해태 pair at the street end (build_haetae
+	-- reads the GuardianSpot parts). The village inside the walls is empty for now
 	local PAVE = Color3.fromRGB(226, 216, 190)
-	-- paving everywhere except the two lawn beds
-	local L1, L2 = LAWN_TERRAIN[1], LAWN_TERRAIN[2]
-	box("PlazaStone", L1[3], 0, WIDE, 96.4, 0.3, 299, PAVE, { parent = G, material = Enum.Material.Slate })
-	box("PlazaStone", WIDE, 0, L1[4], L1[3], 0.3, L2[2], PAVE, { parent = G, material = Enum.Material.Slate })
-	box("PlazaStone", WIDE, 0, L2[4], L1[3], 0.3, 299, PAVE, { parent = G, material = Enum.Material.Slate })
+	-- paving everywhere from the sidewalks to x 240 / z 299, round the lawn beds
+	do
+		local X0, Z0, X1, Z1 = WIDE, WIDE, 240, 299
+		local xs = { X0, X1 }
+		for _, l in ipairs(LAWN_TERRAIN) do table.insert(xs, l[1]) table.insert(xs, l[3]) end
+		table.sort(xs)
+		for i = 1, #xs - 1 do
+			local xa, xb = xs[i], xs[i + 1]
+			if xb - xa > 0.01 then
+				local zs = { Z0, Z1 }
+				local cut = {}
+				for _, l in ipairs(LAWN_TERRAIN) do
+					if l[1] < xb - 0.01 and l[3] > xa + 0.01 then table.insert(cut, l) table.insert(zs, l[2]) table.insert(zs, l[4]) end
+				end
+				table.sort(zs)
+				for j = 1, #zs - 1 do
+					local za, zb = zs[j], zs[j + 1]
+					local inLawn = false
+					for _, l in ipairs(cut) do if za >= l[2] - 0.01 and zb <= l[4] + 0.01 then inLawn = true end end
+					if zb - za > 0.01 and not inLawn then box("PlazaStone", xa, 0, za, xb, 0.3, zb, PAVE, { parent = G, material = Enum.Material.Slate }) end
+				end
+			end
+		end
+	end
 	-- stone kerb round each bed, reaching down to the grass so no hole shows
 	for _, l in ipairs(LAWN_TERRAIN) do
 		local K, KC = 0.6, Color3.fromRGB(200, 196, 186)
@@ -2533,7 +2596,6 @@ do
 	-- round knob, a thick round top rail held by two vase-shaped balusters
 	-- per bay. One 5-stud bay is one merged part, cloned along the line (the
 	-- lighter way: a toolbox asset would bring its own meshes and scripts).
-	-- The railings follow the gate's outer edges from the sidewalk to the gate.
 	local RAIL = Color3.fromRGB(214, 206, 188)
 	local BAY = 5
 	local railT, railOff = unionTemplate("StoneRailBay", false, function(add)
@@ -2549,96 +2611,51 @@ do
 			add(Vector3.new(0.42, 0.2, 0.42), CFrame.new(bx, 1.75, 0), RAIL) -- neck under the rail
 		end
 	end)
-	for _, z in ipairs({ PATH0, PATH1 }) do
-		local x0, x1 = WIDE + 0.6, YARD -- the part across the stone yard is gone (user)
-		local n = math.max(1, math.floor((x1 - x0) / BAY + 0.5))
-		local seg = (x1 - x0) / n
-		for k = 0, n - 1 do
-			local xc = x0 + seg * (k + 0.5)
-			local bay = placeTemplate(railT, railOff, CFrame.new(xc, 0.3, z), seg / BAY, 1)
+	-- a balustrade from a gate front corner out along OUT, 1 short of the sidewalk
+	local function streetEnd(p: Vector3): number
+		local t = math.huge
+		if GATE_OUT.X < 0 then t = math.min(t, (p.X - (WIDE + 1)) / -GATE_OUT.X) end
+		if GATE_OUT.Z < 0 then t = math.min(t, (p.Z - (WIDE + 1)) / -GATE_OUT.Z) end
+		return t
+	end
+	for k, e in ipairs({ GATE_E1, GATE_E2 }) do
+		local a = e + GATE_OUT * GATE_HD -- the front corner
+		local len = streetEnd(a)
+		local n = math.max(1, math.floor(len / BAY + 0.5))
+		local seg = len / n
+		for i = 0, n - 1 do
+			local c = a + GATE_OUT * (seg * (i + 0.5))
+			local bay = placeTemplate(railT, railOff, CFrame.fromMatrix(Vector3.new(c.X, 0.3, c.Z), -GATE_OUT, Vector3.yAxis), seg / BAY, 1)
 			bay.CanCollide = true
 			bay.Material = Enum.Material.Granite -- carved stone, not plastic (user)
 		end
 		-- the last post at the gate end
-		box("RailPost", x1 - 0.8, 0.3, z - 0.4, x1, 2.6, z + 0.4, RAIL, { parent = G, material = Enum.Material.Granite })
-		part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(x1 - 0.4, 3.15, z), RAIL, { parent = G, shape = Enum.PartType.Ball })
-	end	-- 해태 pair (pedestals + statues at x 52.5, z PATH0 - 5 / PATH1 + 5): built by
-	-- tools/graybox/build_haetae.lua (carved from parts, D-315; LAYOUT.md step 3-2)
+		part("RailPost", Vector3.new(0.8, 2.3, 0.8), CFrame.new(a.X, 1.45, a.Z) * CFrame.Angles(0, GATE_ROT, 0), RAIL, { parent = G, material = Enum.Material.Granite })
+		part("RailPostCap", Vector3.new(0.75, 0.75, 0.75), CFrame.new(a.X, 3.15, a.Z), RAIL, { parent = G, shape = Enum.PartType.Ball })
+		-- the 해태 spot: 20 back from the street end, 5 outside the balustrade,
+		-- the body along it toward the path, the head turned to the street
+		local away = if k == 1 then GATE_ALONG else -GATE_ALONG
+		local s = a + GATE_OUT * (len - 20) + away * 5
+		local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 0.45, s.Z), Vector3.new(s.X, 0.45, s.Z) - away), RAIL, { parent = G, nocol = true })
+		spot.Transparency = 1
+		spot.CanQuery = false
+		spot:SetAttribute("Facing", GATE_OUT)
+	end
 
-	-- the village wall: the graybox wall runs (granite / brick / coping) give
-	-- way to the palace wall along the same lines
+	-- the village (graybox 07) is emptied for now (user 2026-10-27, after v8):
+	-- every piece parked; its stone walls are drawn again along the user's red
+	-- line in the boundary block below (curves from the gate's two ends)
 	local zone = root:FindFirstChild("07_Hanok_Village")
 	if zone then
 		local undo = MOVES["07_Hanok_Village"]:Inverse()
-		local centre = Vector3.new(161, 0, 138)
-		local runs = {}
 		for _, c in ipairs(zone:GetChildren()) do
-			if c:IsA("BasePart") and c.Name == "WallGranite" then
-				local s = c.Size
-				local axis = if s.X > s.Z then c.CFrame.RightVector else c.CFrame.LookVector
-				local len = math.max(s.X, s.Z)
-				local p = Vector3.new(c.Position.X, 0, c.Position.Z)
-				table.insert(runs, { p - axis * len / 2, p + axis * len / 2 })
-			end
-		end
-		for _, c in ipairs(zone:GetChildren()) do
-			if c:IsA("BasePart") and (c.Name == "WallGranite" or c.Name == "WallBrick" or c.Name == "WallCoping" or c.Name == "WallCopingRidge") then
-				c.CFrame = undo * c.CFrame
+			if c:IsA("BasePart") or c:IsA("Model") then
+				if c:IsA("Model") then c:PivotTo(undo * c:GetPivot()) else c.CFrame = undo * c.CFrame end
 				c:SetAttribute("HomeZone", zone.Name)
 				c.Parent = hidden
 			end
 		end
-		-- (layout v8) the cherry trees inside the bigger gate's footprint go
-		for _, c in ipairs(zone:GetChildren()) do
-			if c:IsA("Model") and c.Name == "CherryTree" then
-				local p = c:GetPivot().Position
-				if p.X > gx0 - 2 and p.X < gx1 + 4 and p.Z > gz0 - 4 and p.Z < gz1 + 4 then
-					c:PivotTo(undo * c:GetPivot())
-					c:SetAttribute("HomeZone", zone.Name)
-					c.Parent = hidden
-				end
-			end
-		end
-		-- the old back gate on the inside (graybox 후문) goes (user 2026-10-23)
-		for _, c in ipairs(zone:GetChildren()) do
-			if c:IsA("BasePart") then
-				local p = c.Position
-				local isGate = (c.Name == "GatePillar" or c.Name == "GateBeam" or c.Name == "GateDoor" or c.Name == "GiwaRoof" or c.Name == "EaveTip"
-					or c.Name == "Ridge" or c.Name == "RidgeEnd" or c.Name == "BackGateStone") and p.X > 94 and p.X < 118 and p.Z > 155 and p.Z < 181
-				local gui = c:FindFirstChildOfClass("BillboardGui")
-				local lbl = gui and gui:FindFirstChildOfClass("TextLabel")
-				local isLabel = lbl ~= nil and lbl.Text:find("후문") ~= nil
-				if isGate or isLabel then
-					c.CFrame = undo * c.CFrame
-					c:SetAttribute("HomeZone", zone.Name)
-					c.Parent = hidden
-				end
-			end
-		end
-		-- the wall stops at the gate's sides (it would run through the arches)
-		local clipped = {}
-		for _, r in ipairs(runs) do
-			local a, b = r[1], r[2]
-			if math.abs(a.X - b.X) < 0.5 and a.X > gx0 and a.X < gx1 then
-				local lo, hi = math.min(a.Z, b.Z), math.max(a.Z, b.Z)
-				if lo < gz0 then table.insert(clipped, { Vector3.new(a.X, 0, lo), Vector3.new(a.X, 0, math.min(hi, gz0)) }) end
-				if hi > gz1 then table.insert(clipped, { Vector3.new(a.X, 0, math.max(lo, gz1)), Vector3.new(a.X, 0, hi) }) end
-			else
-				table.insert(clipped, r)
-			end
-		end
-		runs = clipped
-		local W = Instance.new("Model")
-		W.Name = "HanokPalaceWall"
-		W.Parent = T
-		for _, r in ipairs(runs) do
-			local mid = (r[1] + r[2]) / 2
-			local side = Vector3.yAxis:Cross((r[2] - r[1]).Unit)
-			local out = if (mid + side - centre).Magnitude > (mid - side - centre).Magnitude then side else -side
-			palaceWall(r[1], r[2], W, out)
-		end
 	end
-
 	-- (user 2026-10-24, performance) the stone joint lines and the roof tile
 	-- rows are merged into a few solids each (neighbours together, so far ones
 	-- still drop out of view): 368 + 268 parts → about 15
@@ -4181,8 +4198,8 @@ do -- "오늘의 큰손" tower over the OH24 store (user mock-ups + reference ph
 	local GRANITE = Color3.fromRGB(74, 70, 68)
 	local SLIT = Color3.fromRGB(28, 32, 38)
 	local FR = Color3.fromRGB(16, 16, 20)
-	-- (layout v8: the store grew west to x -148; the tower keeps to its north part)
-	local X0, X1, Z0, Z1, Y0, Y1 = -148, -56, 66, 104, 21, 103 -- (on the raised store roof, H 21: user 2026-10-27)
+	-- (user 2026-10-27: the tower covers the whole store roof, x -135..-56, z 66..210)
+	local X0, X1, Z0, Z1, Y0, Y1 = -135, -56, 66, 210, 21, 103 -- (on the raised store roof, H 21: user 2026-10-27)
 	box("TowerBody", X0, Y0, Z0, X1, Y1, Z1, GRANITE, { parent = L, material = Enum.Material.Slate })
 	box("TowerCrown", X0 - 0.4, Y1, Z0 - 0.4, X1 + 0.4, Y1 + 2, Z1 + 0.4, Color3.fromRGB(60, 58, 58), { parent = L, material = Enum.Material.Slate })
 	box("TowerTopGlass", X0 + 0.2, Y1 - 8, Z0 - 0.15, X1 - 0.2, Y1 - 1, Z0 + 0.1, Color3.fromRGB(70, 90, 110), { parent = L, material = Enum.Material.Glass })
@@ -4293,7 +4310,10 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	-- (layout v8, user map 2026-10-27: "옆에 노래방 건물 삭제하고 거기까지 사이즈 확장한
 	-- 후 남쪽으로도 확장") x0 -126 → -144 over the 노래방 tower's place, z1 86 → 192
 	-- over the old Glasshouse cafe: world x -148..-56, z 66..210
-	local x0, z0, x1, z1, H = -144, 48, -52, 192, 21 -- (14 → 21: as high as the club 1F, user 2026-10-27)
+	-- (user 2026-10-27, after v8: the beach-road sidewalk got narrow) x0 -144 →
+	-- -131 (world -135): the sidewalk from the road edge (-158) is 23 wide like
+	-- the big roads' (24 → 47); the store is that much narrower, as high as before
+	local x0, z0, x1, z1, H = -131, 48, -52, 192, 21 -- (14 → 21: as high as the club 1F, user 2026-10-27)
 	local RISE = H - 14 -- the front, signs and stripes were drawn for H 14; they move up with the ceiling
 	local OH24_SHIFT = Vector3.new(-4, 0, 18) -- (applied to the finished model below)
 	local S = Instance.new("Model")
@@ -4711,7 +4731,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	-- the doors (z 60..76), the second behind it (z 92..108)
 	local gi = 0
 	for _, zb in ipairs({ 60, 92 }) do
-		for _, gx in ipairs({ -118, -104, -90, -76, -64 }) do
+		for _, gx in ipairs({ -112, -100, -88, -76, -64 }) do
 			gi += 1
 			local c = GCATS[(gi - 1) % #GCATS + 1]
 			shelfUnit("Gondola" .. gi .. "W", CFrame.lookAt(Vector3.new(gx - 1.4, CURB, zb + 16), Vector3.new(gx - 10, CURB, zb + 16)), 16, 4, 6.2, 1.4, c[1], c[3])
@@ -4725,7 +4745,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	do
 		local TOPC, LEG = Color3.fromRGB(248, 248, 246), Color3.fromRGB(190, 190, 195)
 		for _, tz in ipairs({ 128, 144, 160, 176 }) do
-			for _, tx in ipairs({ -132, -118, -104, -90, -76 }) do
+			for _, tx in ipairs({ -120, -106, -92, -78 }) do
 				local t = box("EatTable", tx - 2.2, CURB + 3, tz - 1.6, tx + 2.2, CURB + 3.2, tz + 1.6, TOPC, o)
 				CS:AddTag(t, "SnackTable")
 				box("EatTableLeg", tx - 0.2, CURB, tz - 0.2, tx + 0.2, CURB + 3, tz + 0.2, LEG, opt({ material = Enum.Material.Metal }))
@@ -4818,7 +4838,7 @@ do -- OH24 convenience store (user references 2026-10-23, docs/02_WORLDS/OH24_ST
 	local sx0, sz0, sx1, sz1 = x0 + OH24_SHIFT.X, z0 + OH24_SHIFT.Z, x1 + OH24_SHIFT.X, z1 + OH24_SHIFT.Z
 	walk(sx0, WIDE, sx1, sz0) -- in front
 	walk(sx1, WIDE, -47, sz1) -- east side, up to the south road's sidewalk
-	walk(-150, WIDE, sx0, sz1 + 4) -- west, the strip to the beach road's sidewalk (layout v8: the store reaches the 노래방 tower's old place)
+	walk(-150, WIDE, sx0, sz1 + 4) -- west: with the beach road's sidewalk (-158..-150) 23 wide up to the store
 	walk(-150, sz1, -47, 214) -- south, up to the shop block (the old Glasshouse cafe's place)
 end
 
@@ -4833,6 +4853,12 @@ do
 	local B = Instance.new("Folder")
 	B.Name = "MapBoundary"
 	B.Parent = T
+	-- where the 광화문 south-west wall curve crosses z 299 (the boundary's south edge)
+	local swX = GATE_E2.X
+	for k = 1, 200 do
+		local p = bezier(WALL_S, k / 200)
+		if p.Z >= 299 then swX = p.X break end
+	end
 	-- polygon (x, z), clockwise from the north-west corner in the sea
 	local P = {
 		-- 2026-10-23 (2): the beach road is closed further south (z -300)
@@ -4841,8 +4867,9 @@ do
 		-- the bigger OH24 store (z 214) and down past the moved beach cafe (z 380),
 		-- west out in the sea beyond it (x -380)
 		{ -380, -300 }, { -151, -300 }, { -151, -479 }, { -35, -479 }, { -35, -380 }, { 194, -380 },
-		-- the hanok village keeps its own walls; this keeps players next to it
-		{ 194, 47 }, { 232, 47 }, { 232, 234 }, { 97, 234 }, { 97, 299 }, { -50, 299 }, { -50, 214 },
+		-- (user 2026-10-27) the turned 광화문: the yard up to the gate (the line
+		-- through its middle closes the arches; the village behind is empty)
+		{ 194, 47 }, { GATE_E1.X, GATE_E1.Z }, { GATE_E2.X, GATE_E2.Z }, { swX, 299 }, { -50, 299 }, { -50, 214 },
 		{ -152, 214 }, { -152, 380 }, { -380, 380 },
 	}
 	for i = 1, #P do
@@ -4865,22 +4892,42 @@ do
 		W.Parent = T
 		palaceWall(a, b, W, out) -- the same palace wall as the village (user photos)
 	end
-	hanokWall(Vector3.new(225.7, 0, 49), Vector3.new(700, 0, 49), Vector3.new(0, 0, -1))
+	-- (user 2026-10-27, red line) from the 광화문's ends the wall leaves in
+	-- gentle curves: north-east to the north wall line (z 49) at x 300, then
+	-- straight on east; south-west down to the 돌담길's straight run toward
+	-- (185, 700). A curve is short straight pieces of the same wall, each a
+	-- hair longer so the joints close; `outSign` picks the street side
+	local function curveWall(c: { Vector3 }, outPick: (Vector3) -> boolean, pathSide: boolean)
+		local N = 14
+		local PAVE = Color3.fromRGB(226, 216, 190)
+		local prev = bezier(c, 0)
+		for k = 1, N do
+			local p = bezier(c, k / N)
+			local d = (p - prev).Unit
+			local out = Vector3.yAxis:Cross(d)
+			if not outPick(out) then out = -out end
+			hanokWall(prev - d * 0.6, p + d * 0.6, out)
+			if pathSide then -- the stone path along its street side
+				local mid = (prev + p) / 2 + out * 4.8
+				part("DoldamPath", Vector3.new(8, 0.3, (p - prev).Magnitude + 1.2), CFrame.lookAt(Vector3.new(mid.X, 0.15, mid.Z), Vector3.new(mid.X, 0.15, mid.Z) + d), PAVE, { material = Enum.Material.Slate })
+			end
+			prev = p
+		end
+	end
+	curveWall(WALL_N, function(o) return o.Z < 0 end, false)
+	hanokWall(WALL_N[4], Vector3.new(700, 0, 49), Vector3.new(0, 0, -1))
 	-- the strip between the sidewalk edge and the wall foot was empty (user): paved
 	box("Sidewalk", 96.4, 0, WIDE - 0.05, 700, CURB - 0.01, 48.2, WALK, { parent = T, material = Enum.Material.Brick })
-	-- south of the village the wall runs on and bends once (user photo of a
-	-- 돌담길), with a stone path along its street side
+	-- south-west: the 돌담길 (user photo) along the south road, a stone path on its street side
+	curveWall(WALL_S, function(o) return o.X < 0 end, true)
 	do
-		local A, Bn, C = Vector3.new(97, 0, 227.7), Vector3.new(97, 0, 330), Vector3.new(185, 0, 700)
-		hanokWall(A, Bn + Vector3.new(0, 0, 1.1), Vector3.new(-1, 0, 0))
-		local d = (C - Bn).Unit
+		local d = DOLDAM_U
 		local out = Vector3.yAxis:Cross(d)
 		if out.X > 0 then out = -out end
-		hanokWall(Bn - d * 1.1, C, out)
+		hanokWall(DOLDAM_J - d * 0.6, DOLDAM_C, out)
 		local PAVE = Color3.fromRGB(226, 216, 190)
-		box("DoldamPath", 89, 0, 299, 96.4, 0.3, 331, PAVE, { material = Enum.Material.Slate })
-		local len = (C - Bn).Magnitude
-		local mid = (Bn + C) / 2 + out * 4.8
+		local len = (DOLDAM_C - DOLDAM_J).Magnitude
+		local mid = (DOLDAM_J + DOLDAM_C) / 2 + out * 4.8
 		part("DoldamPath", Vector3.new(8, 0.3, len + 4), CFrame.lookAt(Vector3.new(mid.X, 0.15, mid.Z), Vector3.new(mid.X, 0.15, mid.Z) + d), PAVE, { material = Enum.Material.Slate })
 	end
 	-- fake shop buildings (photos: stacked shop signs on every floor, glass
@@ -5026,11 +5073,7 @@ do
 	end
 	-- the empty land south of the hanok village, seen over its wall from the
 	-- street (user 2026-10-26): a row facing the village (front -z at z 265)
-	i2 = 0
-	for xx = 120, 300, 35 do
-		i2 += 1
-		fakeBuilding(Vector3.new(xx, 0, 276), 34, 22, hgt[(i2 + 3) % #hgt + 1], Vector3.new(0, 0, -1))
-	end
+	-- (gone 2026-10-27: the turned 광화문 reaches there and the village is emptied)
 
 	-- the beach goes on north and south past the boundary
 	local sandY = -BEACH_DROP + 0.6

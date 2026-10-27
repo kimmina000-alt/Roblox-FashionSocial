@@ -33,20 +33,23 @@ local STONE = Color3.fromRGB(206, 200, 186)
 local GROOVE = Color3.fromRGB(150, 144, 132)
 local DARK = Color3.fromRGB(96, 92, 84)
 
--- where the old monuments stood (footing centres), or the layout defaults
+-- where to build: the GuardianSpot parts build_hongdae_layout leaves (since the
+-- turned 광화문, 2026-10-27: LookVector = along the body toward the path,
+-- attribute Facing = the street side the head turns to), else the old pair
 local spots = {}
 for _, c in ipairs(G:GetChildren()) do
-	if c.Name == "HaetaeFooting" and c:IsA("BasePart") then
-		table.insert(spots, Vector3.new(c.Position.X, c.Position.Y + c.Size.Y / 2, c.Position.Z))
+	if c.Name == "GuardianSpot" and c:IsA("BasePart") then
+		local f = c:GetAttribute("Facing")
+		table.insert(spots, { pos = c.Position, inward = c.CFrame.LookVector, facing = if typeof(f) == "Vector3" then f else Vector3.new(-1, 0, 0) })
 	end
 end
--- (layout v8, 2026-10-27: the gate three times as big, its path z 84..252 →
--- the pair 5 outside the railings, at the lawns' street end as before)
-if #spots == 0 then spots = { Vector3.new(52.5, 0.45, 79), Vector3.new(52.5, 0.45, 257) } end
-table.sort(spots, function(a, b) return a.Z < b.Z end)
-local PATH_Z = (spots[1].Z + spots[#spots].Z) / 2 -- the approach path runs between them
-local FACING = Vector3.new(-1, 0, 0) -- out to the street
-
+if #spots == 0 then
+	spots = {
+		{ pos = Vector3.new(52.5, 0.45, 135), inward = Vector3.new(0, 0, 1), facing = Vector3.new(-1, 0, 0) },
+		{ pos = Vector3.new(52.5, 0.45, 201), inward = Vector3.new(0, 0, -1), facing = Vector3.new(-1, 0, 0) },
+	}
+end
+local FACING = Vector3.new(-1, 0, 0) -- out to the street (set per statue below)
 for _, c in ipairs(G:GetChildren()) do
 	if string.sub(c.Name, 1, 6) == "Haetae" then c:Destroy() end
 end
@@ -288,8 +291,9 @@ local function meshyStatue(top: Vector3, inward: Vector3): Model?
 end
 
 local n = 0
-for _, pos in ipairs(spots) do
-	local inward = Vector3.new(0, 0, if PATH_Z > pos.Z then 1 else -1)
+for _, spot in ipairs(spots) do
+	local pos, inward = spot.pos, spot.inward
+	FACING = spot.facing
 	pedestal(pos, inward)
 	local top = pos + Vector3.new(0, 5.4, 0)
 	local m = meshyStatue(top, inward) or statue(top, inward)
