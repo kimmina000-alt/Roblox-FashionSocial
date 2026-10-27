@@ -682,7 +682,8 @@ box(z,"BarBackShelf",10,F,bz(3),52,F+24,bz(0),Color3.fromRGB(45,35,60))
 for row=0,2 do box(z,"BarShelf",10,F+8+row*6,bz(6),52,F+8.6+row*6,bz(3),Color3.fromRGB(200,200,210))
  for k=0,9 do local bx=12+k*4.3 local hue=(k*0.09+row*0.21)%1
   cyl(z,"BarBottle",1.6,3.6,Vector3.new(bx,F+10.4+row*6,bz(4.6)),Color3.fromHSV(hue,0.7,1),{mat=Enum.Material.Neon,ghost=true}) end end
-P(z,"BarSign",Vector3.new(28,5,0.8),CFrame.new(31,F+28,bz(1)),pink,NEON)
+-- (BarSign, the pink neon box over the shelves, removed: user 2026-10-27, D-429;
+-- BarShelfService puts the bottles and a neon panel behind them)
 local spot=P(z,"BartenderSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(32,F+0.5,-177),Vector3.new(32,F+0.5,-200)),W,{t=1,ghost=true})
 CS:AddTag(spot,"BartenderSpot")
 for k=0,7 do local pos=Vector3.new(14+k*5.5,F+2.6,-186.5)

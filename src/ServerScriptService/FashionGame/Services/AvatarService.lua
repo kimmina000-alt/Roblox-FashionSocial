@@ -199,6 +199,22 @@ local function getHumanoid(player: Player): Humanoid?
 	return humanoid
 end
 
+-- ApplyDescriptionResetAsync rebuilds the body parts, which drops the tool in
+-- the hand (a drink vanished on a body change, user 2026-10-27, D-431): put
+-- the held tool in the backpack first and hand it back after.
+local function applyKeepingTool(humanoid: Humanoid, description: HumanoidDescription)
+	local character = humanoid.Parent
+	local held = character and character:FindFirstChildOfClass("Tool")
+	if held then humanoid:UnequipTools() end
+	local ok, err = pcall(function()
+		humanoid:ApplyDescriptionResetAsync(description, Enum.AssetTypeVerification.Default)
+	end)
+	if held and held.Parent and humanoid.Parent and humanoid.Health > 0 then
+		humanoid:EquipTool(held)
+	end
+	if not ok then error(err, 0) end
+end
+
 function AvatarService.RememberSpawnLook(player: Player)
 	getHumanoid(player)
 end
@@ -316,10 +332,7 @@ local function applyDescription(
 	--------------------------------------------------
 
 	local success, err = pcall(function()
-		humanoid:ApplyDescriptionResetAsync(
-			description,
-			Enum.AssetTypeVerification.Default
-		)
+		applyKeepingTool(humanoid, description)
 	end)
 
 	if not success then
@@ -1513,12 +1526,12 @@ function AvatarService.RestoreSnapshot(player: Player, snapshot: any): (boolean,
 	end
 	local baseline = humanoid:GetAppliedDescription()
 	local ok, err = pcall(function()
-		humanoid:ApplyDescriptionResetAsync(description, Enum.AssetTypeVerification.Default)
+		applyKeepingTool(humanoid, description)
 	end)
 	if not ok then
 		warn("[AvatarService] Outfit restore failed, restoring baseline:", err)
 		local recovered = pcall(function()
-			humanoid:ApplyDescriptionResetAsync(baseline, Enum.AssetTypeVerification.Default)
+			applyKeepingTool(humanoid, baseline)
 		end)
 		return false, if recovered
 			then "코디를 복원하지 못했습니다. 이전 모습은 그대로입니다."

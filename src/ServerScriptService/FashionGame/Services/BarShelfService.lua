@@ -14,6 +14,7 @@ local BottleShapes = require(Shared:WaitForChild("BottleShapes"))
 local BarShelfService = {}
 
 local GAP = 3.6 -- studs between bottles along a shelf
+local GLOW_HEIGHT = 4.6 -- the neon panel behind each row (user 2026-10-27, D-429)
 
 -- every flavour of the drinks on one shelf row, as { key, colour }
 local function row(match: (any) -> boolean): { { any } }
@@ -46,6 +47,7 @@ function BarShelfService.Start()
 			if p:IsA("BasePart") then
 				if p.Name == "BarShelf" then table.insert(shelves, p)
 				elseif p.Name == "BarBottle" then p:Destroy() -- (graybox stand-ins)
+				elseif p.Name == "BarSign" then p:Destroy() -- (the pink box above the shelves: gone, D-429)
 				elseif p.Name == "BarCounterTop" and (not counter or p.Size.Magnitude > counter.Size.Magnitude) then counter = p end
 			end
 		end
@@ -70,6 +72,29 @@ function BarShelfService.Start()
 			local front = if toBar.Magnitude > 0.01 then toBar.Unit else Vector3.new(1, 0, 0)
 			local count = math.floor((length - 2) / GAP)
 			local y = topOf(shelf)
+			-- a neon panel on the wall behind the bottles: they glow against it
+			local depth = math.min(shelf.Size.X, shelf.Size.Z)
+			local glow = Instance.new("Part")
+			glow.Name = "BarBackGlow"
+			glow.Anchored = true
+			glow.CanCollide = false
+			glow.CanQuery = false
+			glow.CastShadow = false
+			glow.Material = Enum.Material.Neon
+			-- (violet, half bright: white washed the bottles out)
+			glow.Color = Color3.fromRGB(110, 70, 160)
+			glow.Transparency = 0.25
+			glow.Size = Vector3.new(length - 0.4, GLOW_HEIGHT, 0.1)
+			local at = Vector3.new(shelf.Position.X, y + GLOW_HEIGHT / 2 + 0.1, shelf.Position.Z) - front * (depth / 2 - 0.08)
+			glow.CFrame = CFrame.lookAt(at, at + front)
+			glow.Parent = holder
+			local light = Instance.new("SurfaceLight")
+			light.Face = Enum.NormalId.Front
+			light.Color = Color3.fromRGB(200, 150, 255)
+			light.Brightness = 1.2
+			light.Range = 8
+			light.Angle = 120
+			light.Parent = glow
 			for k = 1, count do
 				local e = drinks[(k - 1) % #drinks + 1]
 				local at = Vector3.new(shelf.Position.X, y, shelf.Position.Z) + along * (-(count - 1) / 2 + (k - 1)) * GAP

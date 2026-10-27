@@ -226,10 +226,12 @@ function ClubConfig.coinPrice(drink: Drink, vip: boolean): number?
 end
 
 -- Bottles: carried as a tool, placed on a table, poured into cups.
-ClubConfig.MaxBottlesCarried = 3
+-- (no real carry limit for guests, user 2026-10-27, D-430: extra items wait
+-- in the backpack; only cafe staff on shift keep a two-in-hand limit)
+ClubConfig.MaxBottlesCarried = 99
 ClubConfig.BottleServings = 6        -- cups per bottle
 ClubConfig.BottleLifetime = 600      -- seconds on a table before it is cleared
-ClubConfig.MaxCupsCarried = 2
+ClubConfig.MaxCupsCarried = 99
 ClubConfig.DrinkSeconds = 2.6
 ClubConfig.GulpSoundId = 9114172296   -- "Drinking Cu Gulping 9 (SFX)", Pro Sound Effects (Roblox licensed)
 

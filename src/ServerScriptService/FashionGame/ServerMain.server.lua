@@ -54,6 +54,7 @@ RankingService.Start()
 local BusAdService = require(script.Parent.Services.BusAdService)
 BusAdService.Start()
 require(script.Parent.Services.BarShelfService).Start()
+require(script.Parent.Services.BakeryDisplayService).Start()
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers

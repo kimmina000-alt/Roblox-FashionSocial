@@ -91,6 +91,15 @@ local function countSnacks(player: Player): number
 	return count
 end
 
+-- The two-in-hand limit is for the cafe part-time staff on shift only (their
+-- tray job); everyone else can carry more, extra food waits in the backpack
+-- (user 2026-10-27).
+local function handsFull(player: Player): boolean
+	local character = player.Character
+	if not (character and character:GetAttribute("CafeJob")) then return false end
+	return countSnacks(player) >= SnackConfig.MaxCarried
+end
+
 local function mouthGrip(character: Model, lift: number): CFrame?
 	local head = character:FindFirstChild("Head") :: BasePart?
 	local hand = character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm")
@@ -104,8 +113,8 @@ end
 -- pieces are cut in three bands of their height and one band goes per bite
 -- (user 2026-10-26). Soup and noodles drop their level instead.
 local EAT_STEPS = 3
-local function bitesOf(_item: SnackConfig.Item): number
-	return EAT_STEPS
+local function bitesOf(item: SnackConfig.Item): number
+	return (item :: any).oneBite and 1 or EAT_STEPS
 end
 
 -- containers and tools that stay in the hand
@@ -608,7 +617,10 @@ end
 
 local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item)
 	local servings = item.share or 6
-	local top = tablePart.Position + Vector3.new(0, tablePart.Size.Y / 2, 0)
+	-- (the real top: round tables are turned cylinders, whose Size.Y is the
+	-- diameter, so a cake floated above them, user 2026-10-27)
+	local c, s = tablePart.CFrame, tablePart.Size
+	local top = tablePart.Position + Vector3.new(0, math.abs(c.RightVector.Y) * s.X / 2 + math.abs(c.UpVector.Y) * s.Y / 2 + math.abs(c.LookVector.Y) * s.Z / 2, 0)
 	local plate = Instance.new("Model")
 	plate.Name = "SharedPlate"
 	local cake = item.cake and SnackConfig.Cakes[item.cake]
@@ -747,7 +759,7 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = dish
 	prompt.Triggered:Connect(function(who)
-		if countSnacks(who) >= SnackConfig.MaxCarried then
+		if handsFull(who) then
 			local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
 			if notify then notify:FireClient(who, "Toast", string.format("손에 %d개까지 들 수 있어요. 먼저 드세요!", SnackConfig.MaxCarried)) end
 			return
@@ -765,6 +777,8 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		-- a piece is eaten in three bites like everything in the hand (a cake slice keeps the cake's texture)
 		local pieceItem: any = table.clone(item)
 		pieceItem.sliceTexture = plate:GetAttribute("CakeTexture")
+		-- (a 수육 slice is one bite: six bites a plate, user 2026-10-27)
+		if item.kind == "plate" then pieceItem.oneBite = true end
 		giveTool(who, makeTool(pieceItem, baseName .. " 한 " .. pieceWord))
 		if left <= 0 then plate:Destroy() else refresh() end
 	end)
@@ -861,7 +875,7 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 		payBeep(player, shop.key)
 		return true, nil
 	end
-	if countSnacks(player) >= SnackConfig.MaxCarried then
+	if handsFull(player) then
 		return false, string.format("손에 %d개까지 들 수 있어요. 먼저 드세요!", SnackConfig.MaxCarried)
 	end
 	if not player:FindFirstChildOfClass("Backpack") then return false, "잠시 후 다시 시도해 주세요." end
