@@ -187,7 +187,7 @@ local function revert()
 			workspace.Terrain:FillBlock(CFrame.new((47 + 277) / 2, 0, (47 + 387) / 2), Vector3.new(232, 8, 342), Enum.Material.Air)
 		end
 		if old:GetAttribute("PitWater") then -- the pocket park fountain pit (terrain water)
-			workspace.Terrain:FillCylinder(CFrame.new(-96, -5.5, -128), 4, 21, Enum.Material.Air)
+			workspace.Terrain:FillCylinder(CFrame.new(-96, -4.5, -128), 6, 21, Enum.Material.Air)
 		end
 		if old:GetAttribute("Mountains") then
 			for _, m in ipairs(MOUNTAINS) do workspace.Terrain:FillBall(m[1], m[2] + 1, Enum.Material.Air) end
@@ -758,20 +758,22 @@ end
 -- shelters are twice their old size since layout v8 (user 2026-10-27): about
 -- 30 along the street; nothing is planted there and the bike lane breaks
 local BUS_STOPS = {
-	-- (user 2026-10-27) north, in front of the 국밥집 on the east sidewalk
-	{ 1, "OHU CLUB · 국밥집", Vector3.new(31, 0, -334), Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1) },
+	-- (user 2026-10-27) north, by the 국밥집 — on the sidewalk across the road from
+	-- it (the park side), not in front of its windows
+	{ 1, "OHU CLUB · 국밥집", Vector3.new(-31, 0, -334), Vector3.new(1, 0, 0), Vector3.new(0, 0, -1) },
 	{ 2, "고층 빌딩가", Vector3.new(130, 0, 31), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0) },
 	{ 3, "한옥 마을 · 광화문", Vector3.new(31, 0, 217.5), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1) },
 	-- (user 2026-10-27) "해변" is now the stop by the pocket park on the beach
 	-- road; the old one by OH24 became "카페", moved south to the beach cafe's
 	-- front on the promenade
-	{ 4, "카페", Vector3.new(-187.5, 0, 276), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1) },
+	{ 4, "카페", Vector3.new(-153, 0, 276), Vector3.new(-1, 0, 0), Vector3.new(0, 0, 1) }, -- (across the road from the cafe, on the shop-block side: user 2026-10-27)
 	{ 5, "해변", Vector3.new(-153, 0, -128), Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1) },
 }
 local BUS_HALF = 17 -- half the shelter + sign length along the street
 local function busFootprint(s): (number, number, number, number)
 	local c, along, road = s[3], s[5], s[4]
-	local a, b = c - along * BUS_HALF - road * 5, c + along * (BUS_HALF + 3) + road * 9
+	-- (+13 along past the sign: no planting bed or tree right at the sign pole, user 2026-10-27)
+	local a, b = c - along * (BUS_HALF + 3) - road * 5, c + along * (BUS_HALF + 13) + road * 9 -- (+3 behind: a bed end stood under the roof, 2026-10-27)
 	return math.min(a.X, b.X), math.min(a.Z, b.Z), math.max(a.X, b.X), math.max(a.Z, b.Z)
 end
 local KEEP_CLEAR = {
@@ -1296,7 +1298,34 @@ local function busStop(n, name, center: Vector3, roadDir: Vector3, along: Vector
 		part("RoofLouver", Vector3.new(W, 0.25, 0.12), cf * CFrame.new(0, H - 0.05, z) * CFrame.Angles(math.rad(-3), 0, 0), Color3.fromRGB(35, 37, 40), { parent = m, material = Enum.Material.Metal, nocol = true })
 	end
 	local header = part("StationHeader", Vector3.new(9, 1.1, 0.35), cf * CFrame.new(0, H - 1, -1.6), Color3.fromRGB(32, 33, 36), { parent = m, material = Enum.Material.Metal })
-	surfaceText(header, Enum.NormalId.Front, "◀ 이전 정류장     " .. name .. "     다음 정류장 ▶", Color3.fromRGB(240, 240, 240), Enum.Font.GothamBold)
+	-- (user 2026-10-27: the text broke up: the default 800×600 canvas on a
+	-- 9 × 1.1 board squashed it into three lines) one line, sized by studs
+	do
+		local g = Instance.new("SurfaceGui")
+		g.Face = Enum.NormalId.Front
+		g.LightInfluence = 0
+		g.Brightness = 1.5
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+		g.PixelsPerStud = 60
+		g.Parent = header
+		local function cell(text, x, w, size, align)
+			local l = Instance.new("TextLabel")
+			l.Position = UDim2.fromScale(x, 0.12)
+			l.Size = UDim2.fromScale(w, 0.76)
+			l.BackgroundTransparency = 1
+			l.Font = Enum.Font.GothamBold
+			l.TextScaled = true
+			l.TextWrapped = false
+			l.TextXAlignment = align
+			l.TextColor3 = Color3.fromRGB(240, 240, 240)
+			l.Text = text
+			local c = Instance.new("UITextSizeConstraint") c.MaxTextSize = size c.Parent = l
+			l.Parent = g
+		end
+		cell("◀ 이전", 0.03, 0.2, 28, Enum.TextXAlignment.Left)
+		cell(name, 0.22, 0.56, 44, Enum.TextXAlignment.Center)
+		cell("다음 ▶", 0.77, 0.2, 28, Enum.TextXAlignment.Right)
+	end
 	-- back: ad panels (lit lightboxes) left and right, route map in the middle
 	local ads = { { "OHU\nFASHION WEEK\n신상 런웨이", Color3.fromRGB(235, 60, 70) }, { "만나서\n반가워요\nOHU 오후!", Color3.fromRGB(245, 120, 40) } }
 	for i, x in ipairs({ -5, 5 }) do
@@ -1396,9 +1425,14 @@ for _, s in ipairs(BUS_STOPS) do busStop(s[1], s[2], s[3], s[4], s[5]) end
 -- street lights on the south part of the beach road (user 2026-10-27, it was
 -- dark there): both sides, the beach cafe's promenade and the shop block's
 -- sidewalk, every 40, clear of the bus stops (street_dress puts the real lamp in)
-for zz = 232, 380, 40 do
+-- (user 2026-10-27, 2nd: too many and out of step) on the promenade's own
+-- rhythm instead, every 70 (the seafront lamps' z -434 + 70k) along the cafe,
+-- and on the shop side half a step off (staggered)
+for zz = 196, 380, 70 do
 	if clear(Vector3.new(-196.5, 0, zz)) then streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
-	if clear(Vector3.new(-151, 0, zz + 20)) then streetLamp(Vector3.new(-151, CURB, zz + 20), Vector3.new(-1, 0, 0)) end
+end
+for zz = 161, 380, 70 do
+	if clear(Vector3.new(-151, 0, zz)) then streetLamp(Vector3.new(-151, CURB, zz), Vector3.new(-1, 0, 0)) end
 end
 
 ------------------------------------------------------- 광안리 seafront
@@ -2030,6 +2064,10 @@ local function palaceWall(a: Vector3, b: Vector3, parent: Instance, out: Vector3
 	local TILE = Color3.fromRGB(64, 66, 72)
 	-- the stone pattern runs down to the ground (user 2026-10-23: no plain base)
 	part("PalaceWallStone", Vector3.new(2.2, PALACE_H, len), cf * CFrame.new(0, PALACE_H / 2, 0), STONE, { parent = parent, material = Enum.Material.Cobblestone })
+	-- an invisible wall on top, up to 40, so nobody gets over (user 2026-10-27)
+	local block = part("PalaceWallBlock", Vector3.new(2.2, 40 - PALACE_H, len), cf * CFrame.new(0, (40 + PALACE_H) / 2, 0), STONE, { parent = parent, transparency = 1 })
+	block.CastShadow = false
+	block.CanQuery = false
 	-- tiled roof: the 8-stud giwa module repeated, stretched a little so a
 	-- whole number of modules fills the run
 	local n = math.max(1, math.floor(len / GIWA_LEN + 0.5))
@@ -2106,6 +2144,7 @@ do
 		end
 		G.Parent = was
 		-- red doors shut in the middle of each arch (user 2026-10-27: closed, the
+		-- planks like the wooden stairs (WoodPlanks, user 2026-10-27 2nd); the
 		-- village is not open): two leaves meeting at a dark seam, the round
 		-- head of the arch filled with a red panel, rows of gold studs
 		local xm = (gx0 + gx1) / 2
@@ -2113,7 +2152,7 @@ do
 			local r = a[2] / 2
 			local hLeaf = a[3] - r
 			for _, s in ipairs({ -1, 1 }) do
-				part("GateDoorLeaf", Vector3.new(0.5, hLeaf, r - 0.05), CFrame.new(xm, hLeaf / 2, a[1] + s * (r / 2 + 0.025)), wood, { parent = G })
+				part("GateDoorLeaf", Vector3.new(0.5, hLeaf, r - 0.05), CFrame.new(xm, hLeaf / 2, a[1] + s * (r / 2 + 0.025)), wood, { parent = G, material = Enum.Material.WoodPlanks })
 				for row = 1, 4 do
 					for col = 1, 2 do
 						for _, f in ipairs({ -1, 1 }) do
@@ -2124,7 +2163,7 @@ do
 					end
 				end
 			end
-			part("GateDoorHead", Vector3.new(0.5, a[2], a[2]), CFrame.new(xm, hLeaf, a[1]), wood, { parent = G, shape = Enum.PartType.Cylinder })
+			part("GateDoorHead", Vector3.new(0.5, a[2], a[2]), CFrame.new(xm, hLeaf, a[1]), wood, { parent = G, shape = Enum.PartType.Cylinder, material = Enum.Material.WoodPlanks })
 			part("GateDoorSeam", Vector3.new(0.6, hLeaf, 0.1), CFrame.new(xm, hLeaf / 2, a[1]), Color3.fromRGB(70, 22, 18), { parent = G, nocol = true })
 		end
 	end
@@ -3837,13 +3876,21 @@ do
 	-- rim arc onto the mound plinth
 	do
 		local floorY = LEVELS[2][2]
-		workspace.Terrain:FillCylinder(CFrame.new(C.X, floorY + 1.5, C.Z), 3, 20, Enum.Material.Water)
+		-- (user 2026-10-27, 2nd: up to just under the rim) the park is raised by
+		-- CURB - 0.08 at the end and the pit floor ends at -6.48, the rim at -1.98:
+		-- the water (terrain, not moved by that) goes up to -2.4
+		local RAISED = CURB - 0.08
+		local waterTop = LEVELS[1][2] + RAISED - 0.4
+		local waterBottom = floorY + RAISED
+		workspace.Terrain:FillCylinder(CFrame.new(C.X, (waterTop + waterBottom) / 2, C.Z), waterTop - waterBottom, 20, Enum.Material.Water)
 		T:SetAttribute("PitWater", true)
 		local N = 12
 		for i = 0, N - 1 do
 			local a = math.rad(i * 360 / N + 15)
 			local out = Vector3.new(math.cos(a), 0, math.sin(a))
-			local p = Vector3.new(C.X, floorY + 3.2, C.Z) + out * 19.2
+			-- (the plaza pass below adds the pit's depth again and the raise: built so
+			-- they end just over the water at the rim; they sat under the floor before)
+			local p = Vector3.new(C.X, waterTop + 0.2 - floorY - RAISED, C.Z) + out * 19.2
 			local nozzle = part("FountainNozzle", Vector3.new(0.5, 0.5, 0.5), CFrame.lookAt(p, p - out + Vector3.new(0, 1.6, 0)), Color3.fromRGB(150, 152, 156), o(Enum.Material.Metal, { nocol = true }))
 			nozzle.CastShadow = false
 			nozzle.CanQuery = false
@@ -3872,7 +3919,7 @@ do
 		hum.RollOffMinDistance = 10
 		hum.RollOffMaxDistance = 60
 		hum.Playing = true
-		local holder = vcyl("FountainSoundSource", Vector3.new(C.X, floorY, C.Z), 1, 0.2, STONE, o(Enum.Material.Limestone, { nocol = true, transparency = 1 }))
+		local holder = vcyl("FountainSoundSource", Vector3.new(C.X, 0, C.Z), 1, 0.2, STONE, o(Enum.Material.Limestone, { nocol = true, transparency = 1 }))
 		holder.CanQuery = false
 		hum.Parent = holder
 	end
@@ -5234,7 +5281,7 @@ do
 	-- (user 2026-10-27: their own pictures for slots 2, 4, 5 and 7, docs/04_ART/facades/facade_<n>_user.png)
 	local FACADES = { 119555605786938, 108505166753199, 131791880332218, 72400340486961, 98845538068616, 86941239410625, 133905773347734, 134862143501130 }
 	local facadeN = 0
-	local function shopBlock(name, x0, z0, x1, z1, h, faces)
+	local function shopBlock(name, x0, z0, x1, z1, h, faces, faceTex: {[string]: number}?)
 		local M = Instance.new("Model")
 		M.Name = "BG_ShopBlock_" .. name .. "(진입불가)"
 		M.Parent = T
@@ -5261,12 +5308,14 @@ do
 				p.Transparency = 1
 				local d = Instance.new("Decal")
 				d.Face = Enum.NormalId.Front
-				d.Texture = "rbxassetid://" .. FACADES[((facadeN * 3) % #FACADES) + 1]
+				d.Texture = "rbxassetid://" .. ((faceTex and faceTex[f]) or FACADES[((facadeN * 3) % #FACADES) + 1])
 				d.Parent = p
 			end
 		end
 	end
-	shopBlock("N", 48, -1000, 130, -385, 60, { "W", "S" }) -- north of the 국밥집, on the club line
+	-- (user 2026-10-27) its south face beside the 국밥집 is a plain building side:
+	-- grey tiles with windows over a brick base (docs/04_ART/facades/side_2_user.png)
+	shopBlock("N", 48, -1000, 130, -385, 60, { "W", "S" }, { S = 74889615901732 }) -- north of the 국밥집, on the club line
 	shopBlock("E", 195, -100, 310, -48, 50, { "S", "W" }) -- east of 오후네컷, along the east road
 	-- (user 2026-10-27: its beach-road face on the OH24 store's line, x -135, so
 	-- the 23-wide sidewalk runs on past the store; 15 narrower)

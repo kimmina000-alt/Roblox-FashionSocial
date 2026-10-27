@@ -302,14 +302,14 @@ do local p=box(z,"GraffitiSign",-11,3,-166.5,-2.5,7.25,-166.45,Color3.new(0,0,0)
 end
 -- wall between the stairs/foyer strip and the hall (opening for the corridor)
 box(z,"Wall_Entry_Hall",-64,F,-167.5,80,TOP,-166.5,WALL_C,WALLO)
-box(z,"Wall_Entry_Corridor_Top",-80,F+14,-167.5,-64,TOP,-166.5,WALL_C,WALLO)
+box(z,"Wall_Entry_Corridor_Top",-80,V-1,-167.5,-64,TOP,-166.5,WALL_C,WALLO) -- (from the corridor ceiling up: the old F+14 top left a wall piece showing, user 2026-10-27)
 -- light strips round the passage at the foot of the stairs (user 2026-10-25,
 -- marked on two screenshots): along its top edge and down its east side,
 -- with a soft light into the opening
 do local LC=Color3.fromRGB(235,235,235) local NE={mat=Enum.Material.Neon,ghost=true}
- local top=box(z,"PassageLight",-80,F+13.65,-166.5,-63.7,F+14,-166.2,LC,NE)
+ local top=box(z,"PassageLight",-80,V-1.35,-166.5,-63.7,V-1,-166.2,LC,NE) -- (up at the corridor ceiling, 2026-10-27)
  local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Color=Color3.fromRGB(255,245,225) sl.Range=10 sl.Brightness=0.8 sl.Angle=120 sl.Parent=top
- box(z,"PassageLight",-64,F,-166.5,-63.7,F+13.65,-166.2,LC,NE) end
+ box(z,"PassageLight",-64,F,-166.5,-63.7,V-1.35,-166.2,LC,NE) end
 -- corridor north along the west wall (x -80..-64), low ceiling. 1F plan
 -- (user, 2026-10-22): the hall door is in the MIDDLE of the corridor (on the
 -- right); the corridor ends at the VIP wall (z -236): see-through red glass
@@ -407,13 +407,19 @@ box(z,"VIP_Floor_W",-64,V-1,(NZ+24),-50,V,-190,VIPF,VIPFO)
 box(z,"VIP_Floor_W2",-80,V-1,-236,-64,V,-190,VIPF,VIPFO)
 box(z,"VIP_Floor_S",-80,V-1,-190,58,V,-167.5,VIPF,VIPFO)
 local glass=Color3.fromRGB(200,230,255)
-box(z,"VIP_Rail_N",-50,V,(NZ+23.5),58,V+4,(NZ+24),glass,{t=0.6})
-box(z,"VIP_Rail_S",-50,V,-190,58,V+4,-189.5,glass,{t=0.6})
-box(z,"VIP_Rail_W",-50.5,V,(NZ+24),-50,V+4,-190,glass,{t=0.6})
-box(z,"VIP_Rail_NE",57.5,V,NZ,58,V+4,(NZ+23.5),glass,{t=0.6})
-box(z,"VIP_Rail_SE",57.5,V,-189.5,58,V+4,-167.5,glass,{t=0.6})
-box(z,"VIP_Rail_StairE",-64.5,V,LAND0,-64,V+4,-236,glass,{t=0.6})
-box(z,"VIP_Rail_StairS",-80,V,-236.5,-64.5,V+4,-236,glass,{t=0.6}) -- (along the 2F edge over the gate)
+box(z,"VIP_Rail_N",-50,V,(NZ+23.5),58,V+6,(NZ+24),glass,{t=0.6})
+box(z,"VIP_Rail_S",-50,V,-190,58,V+6,-189.5,glass,{t=0.6})
+box(z,"VIP_Rail_W",-50.5,V,(NZ+24),-50,V+6,-190,glass,{t=0.6})
+box(z,"VIP_Rail_NE",57.5,V,NZ,58,V+6,(NZ+23.5),glass,{t=0.6})
+box(z,"VIP_Rail_SE",57.5,V,-189.5,58,V+6,-167.5,glass,{t=0.6})
+box(z,"VIP_Rail_StairE",-64.5,V,LAND0,-64,V+6,-236,glass,{t=0.6})
+box(z,"VIP_Rail_StairS",-80,V,-236.5,-64.5,V+6,-236,glass,{t=0.6}) -- (along the 2F edge over the gate)
+-- (user 2026-10-27) the glass rails half as high again (4 → 6), and an
+-- invisible wall over each up to V+12: a tall avatar's root rides above a low
+-- rail (its legs do not collide) and walked straight over it
+for _,c in ipairs(z:GetChildren()) do if c:IsA("BasePart") and c.Name:match("^VIP_Rail_") then
+ local b=c:Clone() b.Name="VIP_RailBlock" b.Transparency=1 b.CastShadow=false b.CanQuery=false
+ b.Size=Vector3.new(c.Size.X,12,c.Size.Z) b.CFrame=c.CFrame+Vector3.new(0,(12-c.Size.Y)/2,0) b.Parent=z end end
 -- the balcony light line along the floor edge below the rails, lemon white (user 2026-10-25)
 local LEMON=Color3.fromRGB(255,250,175)
 box(z,"VIP_RailNeon_N",-50,V-0.65,(NZ+23.9),58,V-0.35,(NZ+24.05),LEMON,{mat=Enum.Material.Neon,ghost=true})
@@ -549,10 +555,12 @@ end
 -- (twice as big, user 2026-10-27: three booths of 40 per long wall, x -64..58)
 local function vipBooth(cx,wallZ,dir) grown(4/3,CFrame.new(cx,V,wallZ),function() vipBooth1(cx,wallZ,dir) end) end -- (2 → 4/3: two thirds of the doubled size, user 2026-10-27)
 local BOOTHS={-50.6,-19,12.6,44.3} -- (four again at 4/3 size, 26.7 wide)
-for _,cx in ipairs(BOOTHS) do vipBooth(cx,NZ,1) vipBooth(cx,-167.5,-1) end
+-- (user 2026-10-27) none on the north wall's first place: the straight VIP
+-- stair arrives there, the booth stood in the way
+for _,cx in ipairs(BOOTHS) do if cx~=BOOTHS[1] then vipBooth(cx,NZ,1) end vipBooth(cx,-167.5,-1) end
 -- small warm wall lights between the booths
 for k=1,#BOOTHS-1 do local lx=(BOOTHS[k]+BOOTHS[k+1])/2
- for _,w in ipairs({{NZ,1},{-167.5,-1}}) do
+ for _,w in ipairs(if k==1 then {{-167.5,-1}} else {{NZ,1},{-167.5,-1}}) do
   local wl=box(z,"VIP_WallLight",lx-0.35,V+12,w[1]+w[2]*0,lx+0.35,V+14.4,w[1]+w[2]*0.25,Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
   local pl=Instance.new("PointLight") pl.Range=14 pl.Brightness=0.8 pl.Color=Color3.fromRGB(255,200,150) pl.Parent=wl end end
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,NZ+12),true)
@@ -870,7 +878,11 @@ do local BC=Color3.fromRGB(255,250,175) local k=0
   local b=box(z,"WallLEDBar",x0,y0,zc-0.2,x1,y1,zc+0.2,BC,{mat=Enum.Material.Neon,ghost=true})
   b.CastShadow=false b:SetAttribute("Index",k) CS:AddTag(b,"ClubWallBar") end
  for zc=NZ+3,-170,4 do if zc<-226.5 or zc>-209.5 then bar(-63.95,-63.75,F+1,V-2,zc) end end
- for zc=NZ+3,-170,4 do bar(-79.95,-79.75,V+1.5,TOP-1.5,zc) end
+ -- (behind the club logo crown, z -228 at V+25..V+33, the bars break off so
+ -- the crown shows on the bare dark wall: user 2026-10-27, no plate)
+ for zc=NZ+3,-170,4 do
+  if math.abs(zc+228)<7 then bar(-79.95,-79.75,V+1.5,V+23,zc) bar(-79.95,-79.75,V+35,TOP-1.5,zc)
+  else bar(-79.95,-79.75,V+1.5,TOP-1.5,zc) end end
  -- the chase goes on along both long walls above the VIP signs (user 2026-10-25)
  local function sideBar(xc,z0,z1) k+=1
   local b=box(z,"WallLEDBar",xc-0.2,V+20,z0-HZ,xc+0.2,TOP-1.5,z1-HZ,BC,{mat=Enum.Material.Neon,ghost=true})
@@ -895,10 +907,9 @@ for _,c in ipairs(z:GetChildren()) do if not beforeDJ[c] then
  for _,x in ipairs(all) do for k,v in pairs(x:GetAttributes()) do if typeof(v)=="Vector3" then x:SetAttribute(k,v+d) end end end
 end end
 -- CLUB LOGO on the 2F west wall over the hall (user 2026-10-27): the VIP
--- signs' logo made big for the wall: the lemon neon crown, "OHU CLUB" in
--- white with the red bloom halo. A dark plate in front of the LED bars there
+-- signs' crown made big for the wall, lemon neon with a red glow; no text and
+-- no plate (user, 2nd): the LED bars break off round it
 do local WX=-79.7 local ZC,YC=-228,V+24 local GS=5
- box(z,"ClubLogoPlate",WX,YC-11,ZC-20,WX+0.15,YC+11,ZC+20,Color3.fromRGB(12,8,10),{mat=Enum.Material.SmoothPlastic,ghost=true})
  local CG=Color3.fromRGB(255,238,110) local CO={mat=Enum.Material.Neon,ghost=true}
  local X1,X2=WX+0.2,WX+0.45
  local cy=YC+1.5
@@ -910,15 +921,6 @@ do local WX=-79.7 local ZC,YC=-228,V+24 local GS=5
   P(z,"ClubLogoJewel",Vector3.new(0.2,0.2,0.2)*GS,CFrame.new((X1+X2)/2,cy+h+0.08*GS,zc),CG,{shape=Enum.PartType.Ball,mat=Enum.Material.Neon,ghost=true}) end
  do local la=box(z,"ClubLogoLight",X2,cy+2,ZC-0.2,X2+0.1,cy+2.2,ZC+0.2,CG,{t=1,ghost=true})
   local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,40,50) pl.Range=16 pl.Brightness=1.8 pl.Parent=la end
- -- "OHU CLUB": white letters over a red copy in a very bright gui (the bloom halo of the VIP signs)
- local tag=box(z,"ClubLogoText",X1,YC-8.5,ZC-17,X1+0.05,YC+0.5,ZC+17,Color3.new(0,0,0),{t=1,ghost=true})
- local function gui(name,bright,zo) local g=Instance.new("SurfaceGui") g.Name=name g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Brightness=bright
-  g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=30 g.ZOffset=zo g.Parent=tag return g end
- local function text(g,col,stroke) local l=Instance.new("TextLabel") l.BackgroundTransparency=1 l.Size=UDim2.fromScale(1,1) l.TextScaled=true
-  l.Font=Enum.Font.GothamBold l.Text="OHU CLUB" l.TextColor3=col l.Parent=g
-  if stroke then local st=Instance.new("UIStroke") st.Color=col st.Thickness=6 st.Parent=l end end
- text(gui("GlowGui",12,0),Color3.fromRGB(255,20,30),true)
- text(gui("LogoGui",2,1),Color3.new(1,1,1),false)
 end
 -- ROOFTOP (H37) on top of the building, elevator from the street
 box(z,"RooftopDeck",-80,TOP+0.5,NZ,80,RT,-150,Color3.fromRGB(50,50,70))
