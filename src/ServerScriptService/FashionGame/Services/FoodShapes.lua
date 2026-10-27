@@ -30,7 +30,7 @@ local FoodShapes = {}
 -- containers and parts that stay in the hand
 FoodShapes.NotEdible = { Bag = true, Box = true, Label = true, Seam = true, Plate = true, Lid = true, Wrap = true, Stick = true }
 -- breads are bitten from the front end (user 2026-10-26); the rest top-down
-FoodShapes.AlongZ = { saltbread = true, bagel = true, croissant = true, yakgwa = true, injeolmi = true }
+FoodShapes.AlongZ = { bagel = true, croissant = true, yakgwa = true, injeolmi = true }
 
 local UP = CFrame.Angles(0, 0, math.rad(90)) -- a Part cylinder runs along X: this stands it up
 
@@ -297,10 +297,10 @@ local MILK_LABEL = "rbxassetid://136037579727377"
 B.bananamilk = function(item)
 	local h = newHandle(Vector3.new(0.45, 0.7, 0.45))
 	local jar = C(252, 236, 150)
-	attach(h, cyl("Cup", 0.5, 0.04, jar:Lerp(C(230, 200, 100), 0.3)), CFrame.new(0, -0.36, 0) * UP)
-	-- the lower cup, widening a little to the lip (two cylinders)
-	attach(h, cyl("Cup", 0.52, 0.18, jar), CFrame.new(0, -0.26, 0) * UP)
-	attach(h, cyl("Cup", 0.55, 0.16, jar), CFrame.new(0, -0.1, 0) * UP)
+	-- the lower cup, widening a little to the lip (short, user 2026-10-27)
+	attach(h, cyl("Cup", 0.5, 0.03, jar:Lerp(C(230, 200, 100), 0.3)), CFrame.new(0, -0.215, 0) * UP)
+	attach(h, cyl("Cup", 0.52, 0.11, jar), CFrame.new(0, -0.15, 0) * UP)
+	attach(h, cyl("Cup", 0.55, 0.1, jar), CFrame.new(0, -0.05, 0) * UP)
 	attach(h, cyl("Cup", 0.6, 0.04, jar:Lerp(WHITE, 0.35)), CFrame.new(0, 0, 0) * UP) -- the lip
 	-- the printed shoulder in three bands, one picture across them
 	-- (top band first: the picture's top row goes on the top band)
@@ -431,10 +431,12 @@ end
 -- stripped; kept in ServerStorage.ArtAssets.Foods, so save the place). Each is
 -- scaled so its longest side is the given size. A mesh cannot be cut, so these
 -- shrink a little with every bite (EatMode = "Scale").
-local ASSET_FOODS: {[string]: { string | number }} = {
+local ASSET_FOODS: {[string]: {any}} = {
+	saltbread = { "SaltBread", 0.8 }, -- AI mesh from the user's photo (2026-10-27)
+	water = { "Samdasu", 0.95 },      -- user's pick (삼다수 by thuxjibuy)
 	bagel = { "Bagel", 0.75 },       -- #7
 	croissant = { "Croissant", 1.0 }, -- #8
-	injeolmi = { "Toast", 0.8 },      -- #17
+	injeolmi = { "Toast", 0.8, CFrame.Angles(0, 0, math.rad(90)) }, -- #17, laid flat in the hand
 	yakgwa = { "Cookie", 0.7 },       -- #20
 	samgak = { "Onigiri", 0.75 },     -- #23
 	chips = { "Chips", 0.95 },        -- #32
@@ -451,6 +453,7 @@ local function fromAsset(item: any): (Part?, CFrame?)
 	local m = src:Clone()
 	local holder = Instance.new("Model")
 	if m:IsA("Model") then holder = m else m.Parent = holder end
+	if spec[3] then holder:PivotTo(holder:GetPivot() * spec[3]) end -- (turned to how it is held)
 	local _, size = holder:GetBoundingBox()
 	holder:ScaleTo(holder:GetScale() * (spec[2] :: number) / math.max(size.X, size.Y, size.Z))
 	local cf = holder:GetBoundingBox()
@@ -480,7 +483,7 @@ local function builderFor(item: any): Builder?
 end
 
 function FoodShapes.build(item: any): (Part?, CFrame?, string?)
-	if not (item.key == "water" and item.kind ~= "bottle") and ASSET_FOODS[item.key] then
+	if not (item.key == "water" and item.kind ~= "bottle") and ASSET_FOODS[item.key] then -- (cafe water is a cup)
 		local h, grip = fromAsset(item)
 		if h then return h, grip, "Scale" end -- (falls back to the part model when the asset is missing)
 	end

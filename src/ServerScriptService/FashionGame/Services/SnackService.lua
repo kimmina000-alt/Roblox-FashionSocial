@@ -238,15 +238,54 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	-- every client, user 2026-10-27: the food floated up with a straight arm);
 	-- R6 has no IK chain, there the item still moves up in the hand
 	local ik = character:FindFirstChild("RightUpperArm") ~= nil
+	local handle = tool:FindFirstChild("Handle")
+	-- 컵라면 (user 2026-10-27: only the chopsticks go up): the cup moves to the
+	-- left hand for the bite, the right hand takes the chopsticks with noodles
+	local restore: (() -> ())? = nil
+	local leftGrip = character:FindFirstChild("LeftHand") and (character :: any).LeftHand:FindFirstChild("LeftGripAttachment") :: Attachment?
+	if item.kind == "noodle" and ik and leftGrip and handle and handle:IsA("BasePart") then
+		local cup = handle:Clone()
+		for _, d in ipairs(cup:GetDescendants()) do
+			if d:IsA("BasePart") then
+				d.Anchored = false
+				if d.Name == "Chopsticks" then d:Destroy() end
+			elseif d:IsA("Sound") then d:Destroy() end
+		end
+		cup.Anchored = false
+		cup.CFrame = leftGrip.WorldCFrame * tool.Grip:Inverse()
+		local w = Instance.new("WeldConstraint")
+		w.Part0 = leftGrip.Parent :: BasePart
+		w.Part1 = cup
+		w.Parent = cup
+		cup.Name = "CupInLeftHand"
+		cup.Parent = character
+		local hidden = {}
+		for _, d in ipairs(handle:GetChildren()) do
+			if d:IsA("BasePart") and d.Name ~= "Chopsticks" and d.Transparency < 1 then
+				hidden[d] = d.Transparency
+				d.Transparency = 1
+				for _, t in ipairs(d:GetChildren()) do if t:IsA("Decal") or t:IsA("Texture") then hidden[t] = t.Transparency t.Transparency = 1 end end
+			end
+		end
+		-- a bundle of noodles at the chopstick tips
+		local bundle = part("NoodleBite", Vector3.new(0.16, 0.3, 0.12), Color3.fromRGB(245, 215, 130))
+		local mesh = Instance.new("SpecialMesh") mesh.MeshType = Enum.MeshType.Sphere mesh.Parent = bundle
+		attach(handle, bundle, CFrame.new(0.3, 0.05, 0))
+		restore = function()
+			cup:Destroy()
+			bundle:Destroy()
+			for d, t in pairs(hidden) do (d :: any).Transparency = t end
+		end
+	end
 	character:SetAttribute("Eating", true)
 	local up = if ik then nil else mouthGrip(character, if item.kind == "cone" or item.kind == "bar" then -0.2 else 0)
 	if up then TweenService:Create(tool, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Grip = up }):Play() end
-	local handle = tool:FindFirstChild("Handle")
 	local sound = handle and handle:FindFirstChild("Sip") :: Sound?
 	if sound then sound:Play() end
 	task.wait(1.4)
 	if sound then sound:Stop() end -- (some eating clips run longer than a bite)
 	character:SetAttribute("Eating", nil)
+	if restore then restore() end -- (before the bite is cut below)
 	if up and tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
 	task.wait(0.3)
 	local total = bitesOf(item)
@@ -886,20 +925,35 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	if not character or not humanoid then return end
 	model:SetAttribute("Busy", true)
 	local spoon = Instance.new("Tool")
-	spoon.Name = "숟가락"
 	spoon.CanBeDropped = false
-	local handle = part("Handle", Vector3.new(0.07, 0.75, 0.05), Color3.fromRGB(215, 218, 222), Enum.Material.Metal)
-	handle.Parent = spoon
-	attach(handle, part("Scoop", Vector3.new(0.24, 0.05, 0.3), Color3.fromRGB(215, 218, 222), Enum.Material.Metal), CFrame.new(0, 0.38, -0.1))
-	attach(handle, part("Soup", Vector3.new(0.2, 0.04, 0.24), item.color), CFrame.new(0, 0.42, -0.1))
+	local handle: Part
+	if item.kind == "noodle" then
+		-- 컵라면: chopsticks with a bundle of noodles (user 2026-10-27)
+		spoon.Name = "젓가락"
+		handle = part("Handle", Vector3.new(0.035, 0.9, 0.035), Color3.fromRGB(205, 175, 125), Enum.Material.Wood)
+		handle.Parent = spoon
+		attach(handle, part("Stick", Vector3.new(0.035, 0.9, 0.035), Color3.fromRGB(205, 175, 125), Enum.Material.Wood), CFrame.new(0.05, 0, 0) * CFrame.Angles(0, 0, math.rad(-4)))
+		local bundle = part("Noodles", Vector3.new(0.16, 0.3, 0.12), Color3.fromRGB(245, 215, 130))
+		local mesh = Instance.new("SpecialMesh") mesh.MeshType = Enum.MeshType.Sphere mesh.Parent = bundle
+		attach(handle, bundle, CFrame.new(0.03, 0.42, -0.02))
+	else
+		spoon.Name = "숟가락"
+		handle = part("Handle", Vector3.new(0.07, 0.75, 0.05), Color3.fromRGB(215, 218, 222), Enum.Material.Metal)
+		handle.Parent = spoon
+		attach(handle, part("Scoop", Vector3.new(0.24, 0.05, 0.3), Color3.fromRGB(215, 218, 222), Enum.Material.Metal), CFrame.new(0, 0.38, -0.1))
+		attach(handle, part("Soup", Vector3.new(0.2, 0.04, 0.24), item.color), CFrame.new(0, 0.42, -0.1))
+	end
 	spoon.Grip = CFrame.new(0, -0.3, 0)
 	local sound = Instance.new("Sound")
 	sound.SoundId = "rbxassetid://" .. tostring(EAT_SOUND[item.kind] or EAT_SOUND.bowl)
 	sound.Volume = 0.7
 	sound.RollOffMaxDistance = 40
 	sound.Parent = handle
-	local ownSpoon = copy:FindFirstChild("Spoon")
-	if ownSpoon and ownSpoon:IsA("BasePart") then ownSpoon.Transparency = 1 end
+	-- the bowl's own spoon (or the cup's chopsticks) is gone while it is used
+	local own = {}
+	for _, d in ipairs(copy:GetChildren()) do
+		if d:IsA("BasePart") and (d.Name == "Spoon" or d.Name == "Chopsticks") then table.insert(own, d) d.Transparency = 1 end
+	end
 	humanoid:UnequipTools()
 	spoon.Parent = character
 	-- the hand takes the spoon up to the mouth (IK, see bite); R6: the spoon moves
@@ -916,7 +970,7 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	if up and spoon.Parent then TweenService:Create(spoon, TweenInfo.new(0.3), { Grip = CFrame.new(0, -0.3, 0) }):Play() end
 	task.wait(0.4)
 	spoon:Destroy()
-	if ownSpoon and ownSpoon:IsA("BasePart") then ownSpoon.Transparency = 0 end
+	for _, d in ipairs(own) do d.Transparency = 0 end
 	model:SetAttribute("Busy", nil)
 	local total = bitesOf(item)
 	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
@@ -995,9 +1049,9 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 	end
 	tool.Parent = keptFolder
 	local item = itemByKey(tool:GetAttribute("Snack"))
-	local soup = item ~= nil and (item.kind == "bowl" or item.kind == "ricebowl")
+	local soup = item ~= nil and (item.kind == "bowl" or item.kind == "ricebowl" or item.kind == "noodle") -- (컵라면 too: chopsticks, 2026-10-27)
 	local prompt = Instance.new("ProximityPrompt")
-	prompt.ActionText = if soup then "떠먹기" else "다시 들기"
+	prompt.ActionText = if soup then (if item and item.kind == "noodle" then "먹기" else "떠먹기") else "다시 들기"
 	prompt.ObjectText = tool.Name
 	prompt.MaxActivationDistance = 8
 	prompt.RequiresLineOfSight = false
