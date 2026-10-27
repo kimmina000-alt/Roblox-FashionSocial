@@ -2358,3 +2358,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 광화문 잔디 가장자리·난간·해치 (D-371)
 
 ![](images/2026-10-27/v8t_gate_lawn_kerb.jpg)
+
+### 광화문 잔디 바닥 아래로 (D-372)
+
+![](images/2026-10-27/v8u_gate_lawn_planted.jpg)

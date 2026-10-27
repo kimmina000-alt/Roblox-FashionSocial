@@ -55,6 +55,7 @@ local CAFE_Z0, CAFE_Z1, CAFE_ZS, CAFE_ZN = 195, 357, 174.8, 377.2
 -- ground holes: club + the four subway stair pits (x0, z0, x1, z1)
 local HOLES = {
 	{ 49, -253 + CLUB_DZ, 189, -92 + CLUB_DZ }, -- (19 longer east, user 2026-10-25) the club: edges in the middle of its walls (at the inner faces the ground flickered on the corridor and back walls, user 2026-10-24)
+	{ 47, 47, 277, 387 }, -- the 광화문 yard: its lawn is terrain grass below the paving level, the paving is laid round it (user 2026-10-27)
 	{ 26, -68, 32, -50 }, { -53, -54.2, -35, -48.2 }, -- exit 1 comes up northwards, 3 westwards in the corner square (toward the beach)
 	{ 26, 50, 32, 68 }, { -53, 41, -35, 47 }, -- exit 2 comes up southwards, 4 westwards in the corner square (toward the beach, user 2026-10-25)
 
@@ -183,7 +184,7 @@ local function revert()
 			end
 		end
 		if old:GetAttribute("YardLawn") then -- the 광화문 yard lawn (terrain, 0..4)
-			workspace.Terrain:FillBlock(CFrame.new((47 + 277) / 2, 2, (47 + 387) / 2), Vector3.new(232, 4, 342), Enum.Material.Air)
+			workspace.Terrain:FillBlock(CFrame.new((47 + 277) / 2, 0, (47 + 387) / 2), Vector3.new(232, 8, 342), Enum.Material.Air)
 		end
 		if old:GetAttribute("Mountains") then
 			for _, m in ipairs(MOUNTAINS) do workspace.Terrain:FillBall(m[1], m[2] + 1, Enum.Material.Air) end
@@ -2588,7 +2589,7 @@ do
 					local za, zb = zs[j], zs[j + 1]
 					local inLawn = false
 					for _, l in ipairs(cut) do if za >= l[2] - 0.01 and zb <= l[4] + 0.01 then inLawn = true end end
-					if zb - za > 0.01 and not inLawn then box("PlazaStone", xa, 0, za, xb, 0.3, zb, PAVE, { parent = G, material = Enum.Material.Slate }) end
+					if false and zb - za > 0.01 and not inLawn then box("PlazaStone", xa, 0, za, xb, 0.3, zb, PAVE, { parent = G, material = Enum.Material.Slate }) end -- (the yard lawn block lays the paving now)
 				end
 			end
 		end
@@ -2667,7 +2668,7 @@ do
 			-- the 해태 beside the balustrade's street end, outside it
 			-- (user 2026-10-27) at the street end, standing on the lawn
 			local s = a + GATE_OUT * (len - 6) + away * 7
-			local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 1.0, s.Z), Vector3.new(s.X, 1.0, s.Z) - away), RAIL, { parent = G, nocol = true })
+			local spot = part("GuardianSpot", Vector3.new(1, 0.2, 1), CFrame.lookAt(Vector3.new(s.X, 0.2, s.Z), Vector3.new(s.X, 0.2, s.Z) - away), RAIL, { parent = G, nocol = true }) -- (footing on the planted lawn)
 			spot.Transparency = 1
 			spot.CanQuery = false
 			spot:SetAttribute("Facing", GATE_OUT)
@@ -2697,20 +2698,35 @@ do
 		local spots = {}
 		for _, s in ipairs(G:GetChildren()) do if s.Name == "GuardianSpot" then table.insert(spots, s.Position) end end
 		local T2 = workspace.Terrain
+		local _ = spots
+		-- (user 2026-10-27: the grass stood on top of the paving) the lawn is
+		-- planted below it: one terrain layer -4..0 (the ground is cut here,
+		-- HOLES), so only the blades show above; the paving (0..0.3) is laid in
+		-- runs on the cells that are not lawn
 		local CELL = 2
-		for x = 47 + CELL / 2, 277 - CELL / 2, CELL do -- (from the sidewalk edge: the sidewalks are the planned 23, user 2026-10-27)
-			for z = 47 + CELL / 2, 387 - CELL / 2, CELL do
-				if inside(x, z) then
-					local rel = Vector3.new(x, 0, z) - GATE_C
-					local al, ou = rel:Dot(GATE_ALONG), rel:Dot(GATE_OUT)
-					local inPath = math.abs(al) < GATE_HL + 3 and ou > -GATE_HD - 1 -- (the 6-wide kerb covers the ragged terrain edge)
-					local nearSpot = false
-					for _, sp in ipairs(spots) do if (Vector3.new(sp.X, 0, sp.Z) - Vector3.new(x, 0, z)).Magnitude < 7 then nearSpot = true end end
-					if not inPath then -- (the 해태 stand on the lawn, user 2026-10-27)
-						T2:FillBlock(CFrame.new(x, 0.5, z), Vector3.new(CELL, 1, CELL), Enum.Material.Grass)
-					end
+		local PAVE2 = Color3.fromRGB(226, 216, 190)
+		for x = 47 + CELL / 2, 277 - CELL / 2, CELL do
+			local runStart, runLawn = nil, nil
+			local function close(zEnd)
+				if runStart == nil then return end
+				if runLawn then
+					T2:FillBlock(CFrame.new(x, -2, (runStart + zEnd) / 2), Vector3.new(CELL, 4, zEnd - runStart), Enum.Material.Grass)
+				else
+					local p = box("PlazaStone", x - CELL / 2, 0, runStart, x + CELL / 2, 0.3, zEnd, PAVE2, { parent = G, material = Enum.Material.Slate })
+					p.CastShadow = false
 				end
 			end
+			for z = 47, 387 - CELL, CELL do
+				local zc = z + CELL / 2
+				local lawn = false
+				if inside(x, zc) then
+					local rel = Vector3.new(x, 0, zc) - GATE_C
+					local al, ou = rel:Dot(GATE_ALONG), rel:Dot(GATE_OUT)
+					lawn = not (math.abs(al) < GATE_HL + 3 and ou > -GATE_HD - 1)
+				end
+				if runStart == nil or lawn ~= runLawn then close(z) runStart, runLawn = z, lawn end
+			end
+			close(387)
 			if (x // CELL) % 20 == 0 then task.wait() end
 		end
 		pcall(function() T2.Decoration = true end)
