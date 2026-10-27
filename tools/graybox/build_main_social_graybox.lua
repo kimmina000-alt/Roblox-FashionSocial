@@ -649,7 +649,7 @@ for k=1,3 do local x0=60-2*(4-k) local top=F+2*k
  box(z,"DJ_StepEdge",x0-0.2,top-0.3,-246,x0+0.2,top,-190,cyan,{mat=Enum.Material.Neon,ghost=true}) end
 do local c=Vector3.new(56,(F+DS)/2,-218) P(z,"DJ_StepRamp",Vector3.new(14,DS-F,8),CFrame.lookAt(c,c+Vector3.new(-1,0,0)),W,{class="WedgePart",t=1}) end
 -- the LED wall cut down (user 2026-10-27: it filled the whole wall), from the stage up to LEDT
-local LEDT=F+54
+local LEDT=F+46 -- (a little lower again, user 2026-10-27: F+54 → F+46)
 local led=box(z,"LED_Wall",78.5,DS+2,-246,79.5,LEDT,-190,cyan,{mat=Enum.Material.Neon}) CS:AddTag(led,"ClubBeat")
 -- turntable console (reference: two decks + mixer + laptop, glowing front)
 do
@@ -742,9 +742,43 @@ do local SY=(LEDT+TOP)/2-2 -- (centred between the LED wall and the ceiling, use
  box(z,"SupportStripFrame",78.8,SY-0.4,-246.4,79.7,SY,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true})
  box(z,"SupportStripFrame",78.8,SY+4,-246.4,79.7,SY+4.4,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true}) end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,DS+0.5,-218),Vector3.new(40,DS+0.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
-for _,sz in ipairs({-243,-193}) do
- box(z,"Speaker",70,DS,sz-2.5,75,DS+12,sz+2.5,Color3.fromRGB(20,20,24))
- for k=0,2 do P(z,"SpeakerCone",Vector3.new(0.3,3,3),CFrame.new(69.9,DS+2.5+k*3.6,sz)*CFrame.Angles(0,0,0),Color3.fromRGB(60,60,70),{shape=Enum.PartType.Cylinder}) end end
+-- STUDIO MONITORS (user photo 2026-10-27): bigger, matte black cabinets with
+-- rounded vertical edges, a tweeter in a round flange near the top, a woofer
+-- with a bezel, rubber surround, woven cone and dome cap below, and a bass
+-- port slot along the bottom of the front; turned a little toward the floor
+do local SW,SH,SD=7.5,15,6.5 -- width, height, depth
+ local CAB=Color3.fromRGB(28,28,30) local RIM=Color3.fromRGB(16,16,18) local CONE=Color3.fromRGB(46,46,50)
+ local MATTE={mat=Enum.Material.SmoothPlastic}
+ for i,sz in ipairs({-242,-194}) do
+  local m=M(z,"DJSpeaker",{},{})
+  local c=Vector3.new(71.5,DS+SH/2,sz)
+  local cf=CFrame.lookAt(c,c+Vector3.new(-1,0,0))*CFrame.Angles(0,math.rad(if i==1 then -8 else 8),0) -- (-Z local = front)
+  local R=0.6
+  P(m,"SpeakerCabinet",Vector3.new(SW-2*R,SH,SD),cf,CAB,MATTE)
+  P(m,"SpeakerCabinet",Vector3.new(SW,SH,SD-2*R),cf,CAB,MATTE)
+  for _,e in ipairs({{-1,-1},{1,-1},{-1,1},{1,1}}) do
+   P(m,"SpeakerEdge",Vector3.new(SH,2*R,2*R),cf*CFrame.new(e[1]*(SW/2-R),0,e[2]*(SD/2-R))*CFrame.Angles(0,0,math.rad(90)),CAB,{shape=Enum.PartType.Cylinder,mat=Enum.Material.SmoothPlastic}) end
+  local front=-SD/2
+  local function disc(name,d,th,y,dz,col,mat) -- a round piece on the front, its face looking out
+   return P(m,name,Vector3.new(th,d,d),cf*CFrame.new(0,y,front-dz)*CFrame.Angles(0,math.rad(90),0),col,{shape=Enum.PartType.Cylinder,mat=mat or Enum.Material.SmoothPlastic,nocol=true}) end
+  -- woofer (lower)
+  local wy=-SH/2+5.6
+  disc("WooferBezel",6.2,0.2,wy,0.05,RIM)
+  disc("WooferSurround",5.5,0.2,wy,0.15,Color3.fromRGB(24,24,26),Enum.Material.Rubber)
+  disc("WooferCone",4.4,0.2,wy,0.12,CONE,Enum.Material.Fabric)
+  P(m,"WooferCap",Vector3.new(1.6,1.6,0.9),cf*CFrame.new(0,wy,front-0.25),Color3.fromRGB(34,34,36),{shape=Enum.PartType.Ball,nocol=true})
+  -- tweeter (upper)
+  local ty=SH/2-3.4
+  disc("TweeterFlange",3.2,0.2,ty,0.05,RIM)
+  disc("TweeterRing",2.4,0.2,ty,0.12,Color3.fromRGB(38,38,40))
+  P(m,"TweeterDome",Vector3.new(1.3,1.3,0.7),cf*CFrame.new(0,ty,front-0.2),Color3.fromRGB(20,20,22),{shape=Enum.PartType.Ball,nocol=true})
+  -- bass port slot along the bottom
+  P(m,"SpeakerPort",Vector3.new(SW-2.2,0.35,0.12),cf*CFrame.new(0,-SH/2+1.1,front-0.03),Color3.fromRGB(6,6,7),{nocol=true})
+  -- a low black stand under it
+  P(m,"SpeakerStand",Vector3.new(SW-1,0.6,SD-1),cf*CFrame.new(0,-SH/2+0.3,0),RIM,{nocol=true})
+  for _,p in ipairs(m:GetChildren()) do if p.Name~="SpeakerStand" then p.CFrame=p.CFrame+Vector3.new(0,0.6,0) end end
+ end
+end
 local djGate=box(z,"DJ_Gate",59.6,F,-246,60.4,DS+16,-190,cyan,{t=0.85}) -- (at the stage edge, over the steps)
 djGate:SetAttribute("Gate","DJ") CS:AddTag(djGate,"ClubGate")
 local djRegion=box(z,"DJ_Region",60.4,F,-246,80,DS+20,-190,W,{t=1,ghost=true})

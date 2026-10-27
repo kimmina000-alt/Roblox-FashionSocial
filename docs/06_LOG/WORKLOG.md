@@ -2240,3 +2240,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 확인(Play): 계단 걸어서 맨 위 칸까지.
 
 ![](images/2026-10-27/v8e_dj_stage.jpg)
+
+### DJ 스피커·LED 벽 한 번 더 (D-358)
+
+- 스피커 크게, 사진처럼 무광 검정·둥근 모서리·트위터·우퍼·하단 슬롯. LED 벽 F+54 → F+46, 노란 칸 다시 가운데.
+
+| 전체 | 스피커 |
+|---|---|
+| ![](images/2026-10-27/v8f_dj_led_speakers.jpg) | ![](images/2026-10-27/v8f_dj_speaker_close.jpg) |
