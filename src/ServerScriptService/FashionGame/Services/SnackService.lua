@@ -320,7 +320,7 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 end
 
 -- 수육 slice picture (docs/04_ART/textures/suyuk_slice.png, 2026-10-27)
-local SUYUK_TEX = "rbxassetid://134931402271404"
+local SUYUK_TEX = "rbxassetid://119654785802449"
 
 -- the cake slice mesh (whole cakes, D-318; see placePlate)
 local CAKE_R = 0.95 -- studs (it fits the cafe's small round tables)
@@ -688,9 +688,12 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		else
 			-- (user 2026-10-27, photo) flat, uneven 수육 slices with the meat
 			-- picture on top, fanned round a dark stoneware plate; one goes per bite
+			-- two rows of three, each slice leaning on the one before like dominoes
 			local r = Random.new(i * 7)
-			p.Size = Vector3.new(0.7 + r:NextNumber(-0.08, 0.1), 0.07, 0.42 + r:NextNumber(-0.06, 0.06))
-			p.CFrame = CFrame.new(top + Vector3.new(0, 0.16 + i * 0.012, 0)) * CFrame.Angles(0, a, 0) * CFrame.new(0, 0, -0.55) * CFrame.Angles(math.rad(r:NextNumber(-6, 6)), math.rad(r:NextNumber(-15, 15)), math.rad(r:NextNumber(-4, 4)))
+			local row, k = (i - 1) // 3, (i - 1) % 3
+			p.Size = Vector3.new(0.62 + r:NextNumber(-0.06, 0.08), 0.06, 0.38 + r:NextNumber(-0.05, 0.05))
+			p.CFrame = CFrame.new(top + Vector3.new((row - 0.5) * 0.85, 0.17 + k * 0.03, (k - 1) * 0.3))
+				* CFrame.Angles(math.rad(-22 + r:NextNumber(-4, 4)), math.rad(r:NextNumber(-12, 12) + (row - 0.5) * 20), math.rad(r:NextNumber(-3, 3)))
 			local tex = Instance.new("Texture")
 			tex.Texture = SUYUK_TEX
 			tex.Face = Enum.NormalId.Top

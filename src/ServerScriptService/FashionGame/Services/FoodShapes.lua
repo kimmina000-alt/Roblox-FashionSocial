@@ -434,6 +434,12 @@ end
 local ASSET_FOODS: {[string]: {any}} = {
 	-- 국밥 (user picks 2026-10-27: #1 / #3 / #4, one per kind; on a table the
 	-- tray set #2, GukbapTray, see SnackService.putDown)
+	rice = { "RiceBowl", 0.7 }, -- (user pick "rice" by Erulalikescat_alt, bowl retextured grey steel)
+	-- ice cream truck cones (user pick 2026-10-27): the scoop takes the flavour colour
+	strawberry = { "IceCreamCone", 1.1 },
+	vanilla = { "IceCreamCone", 1.1 },
+	mintchoco = { "IceCreamCone", 1.1 },
+	chocolate = { "IceCreamCone", 1.1 },
 	pork = { "GukbapPork", 1.0 },
 	sundae = { "GukbapSundae", 1.0 },
 	beef = { "GukbapBeef", 1.0 },
@@ -476,6 +482,20 @@ local function fromAsset(item: any): (Part?, CFrame?)
 		end
 	end
 	holder:Destroy()
+	if item.kind == "cone" then
+		local top: BasePart? = nil
+		for _, p in ipairs(h:GetChildren()) do
+			if p:IsA("BasePart") and p.Name == "Ice_Cream_Top" then p.Color = item.color top = p end
+			if p:IsA("BasePart") and p.Name == "Handle" then p.Transparency = 1 end
+		end
+		if top and item.topping then -- 민트초코 chips on the scoop
+			for k = 0, 5 do
+				local a = k * math.pi / 3
+				attach(h, part("Chip", Vector3.new(0.05, 0.04, 0.05), item.topping),
+					h.CFrame:ToObjectSpace(top.CFrame) * CFrame.new(math.cos(a) * top.Size.X * 0.3, math.sin(a) * top.Size.Z * 0.3, top.Size.Y * 0.15))
+			end
+		end
+	end
 	h.CFrame = CFrame.new()
 	return h, CFrame.new(0, 0, 0)
 end
