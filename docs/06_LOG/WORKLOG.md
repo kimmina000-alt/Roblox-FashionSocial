@@ -2256,3 +2256,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 | 전체 | 스피커 |
 |---|---|
 | ![](images/2026-10-27/v8g_dj_strip.jpg) | ![](images/2026-10-27/v8g_speaker_led.jpg) |
+
+### 클럽 1층 아치·테이블·바·VIP 2배 (D-360)
+
+- 1층 분홍 아치 높임, 테이블 2배, 바 높이·깊이 2배(길이는 그대로), VIP 자리 2배(벽마다 3개). 층고는 1층·2층 모두 44 맞음(광각 때문에 달라 보임).
+
+| 1층 | VIP |
+|---|---|
+| ![](images/2026-10-27/v8h_club_hall_2x.jpg) | ![](images/2026-10-27/v8h_club_vip_2x.jpg) |

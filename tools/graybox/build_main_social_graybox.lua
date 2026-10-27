@@ -421,7 +421,17 @@ local boothC=Color3.fromRGB(58,58,64) local FABR={mat=Enum.Material.Fabric}
 local function seat(par,name,cf,size,col,t)
  local s=Instance.new("Seat") s.Name=name s.Anchored=true s.Size=size s.CFrame=cf s.Color=col s.Transparency=t or 0
  s.TopSurface=Enum.SurfaceType.Smooth s.Parent=par CS:AddTag(s,"PromptSeat") return s end
-local function vipBooth(cx,wallZ,dir)
+-- (user 2026-10-27, the taller club) things built at their first size and then
+-- made GS times bigger about `pivot`: everything a builder adds to the zone
+local function grown(GS,pivot,build)
+ local before={} for _,c in ipairs(z:GetChildren()) do before[c]=true end
+ build()
+ local S=Instance.new("Model")
+ for _,c in ipairs(z:GetChildren()) do if not before[c] then c.Parent=S end end
+ S.WorldPivot=pivot S:ScaleTo(GS)
+ for _,c in ipairs(S:GetChildren()) do c.Parent=z end
+end
+local function vipBooth1(cx,wallZ,dir)
  local function zz(d) return wallZ+dir*d end
  box(z,"VIP_BoothBack",cx-10,V,zz(0),cx+10,V+4.2,zz(1.2),boothC,FABR)
  for k=0,8 do cyl(z,"VIP_BoothTuft",0.9,3,Vector3.new(cx-8.8+k*2.2,V+2.5,zz(1.25)),boothC,{mat=Enum.Material.Fabric,nocol=true}) end
@@ -511,21 +521,23 @@ local function vipBooth(cx,wallZ,dir)
   local ov=Instance.new("ObjectValue") ov.Name="WallSign" ov.Value=nick ov.Parent=top
  end
 end
-local BOOTHS={-33.5,-9,15.5,39}
+-- (twice as big, user 2026-10-27: three booths of 40 per long wall, x -64..58)
+local function vipBooth(cx,wallZ,dir) grown(2,CFrame.new(cx,V,wallZ),function() vipBooth1(cx,wallZ,dir) end) end
+local BOOTHS={-44,-3,38}
 for _,cx in ipairs(BOOTHS) do vipBooth(cx,NZ,1) vipBooth(cx,-167.5,-1) end
 -- small warm wall lights between the booths
 for k=1,#BOOTHS-1 do local lx=(BOOTHS[k]+BOOTHS[k+1])/2
  for _,w in ipairs({{NZ,1},{-167.5,-1}}) do
-  local wl=box(z,"VIP_WallLight",lx-0.35,V+9,w[1]+w[2]*0,lx+0.35,V+10.8,w[1]+w[2]*0.25,Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
+  local wl=box(z,"VIP_WallLight",lx-0.35,V+18,w[1]+w[2]*0,lx+0.35,V+21.6,w[1]+w[2]*0.25,Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
   local pl=Instance.new("PointLight") pl.Range=14 pl.Brightness=0.8 pl.Color=Color3.fromRGB(255,200,150) pl.Parent=wl end end
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,NZ+12),true)
 label(z,"VIP 라운지 · 2층 (VIP 패스)",Vector3.new(-8,V+12,-178),true)
 local function vipRegion(name,x0,y0,z0,x1,y1,z1,exit)
  local r=box(z,name,x0,y0,z0,x1,y1,z1,W,{t=1,ghost=true})
  r:SetAttribute("Gate","VIP") r:SetAttribute("Exit",exit or Vector3.new(-44,F+3,-218)) CS:AddTag(r,"ClubRegion") return r end
-vipRegion("VIP_Region_N",-80,V,NZ,58,V+20,(NZ+24))
-vipRegion("VIP_Region_S",-80,V,-190,58,V+20,-167.5)
-vipRegion("VIP_Region_W",-80,V,(NZ+24),-50,V+20,-190)
+vipRegion("VIP_Region_N",-80,V,NZ,58,V+30,(NZ+24))
+vipRegion("VIP_Region_S",-80,V,-190,58,V+30,-167.5)
+vipRegion("VIP_Region_W",-80,V,(NZ+24),-50,V+30,-190)
 vipRegion("VIP_StairRegion",-79.6,F+1,NZ,-65.4,V+4,-236.8,Vector3.new(-72,F+3,-226))
 
 -- 1st floor TABLES ON STEPPED PLATFORMS (1F plan, user 2026-10-25): stadium
@@ -544,7 +556,7 @@ local function platform(cx,wallZ,dir)
   cyl(z,"PlatformNeon",2*r+0.12,0.12,Vector3.new(cx,top-0.26,cc),pink,NE)
  end
  -- the stadium outline goes on up the wall as two neon arches (user 2026-10-25)
- do local NE={mat=Enum.Material.Neon,ghost=true} local wz=wallZ+dir*0.1 local yc=F+12 -- (taller, user 2026-10-25)
+ do local NE={mat=Enum.Material.Neon,ghost=true} local wz=wallZ+dir*0.1 local yc=F+18 -- (taller, user 2026-10-25; F+12 → F+18 with the taller club, 2026-10-27)
   for lv,r in ipairs({8.5,6.5}) do local y0=F+0.8*lv-0.26
    for _,s in ipairs({-1,1}) do box(z,"PlatformArch",cx+s*r-0.08,y0,wz-0.08,cx+s*r+0.08,yc,wz+0.08,pink,NE) end
    local N=14 local prev=Vector3.new(cx+r,yc,wz)
@@ -558,8 +570,11 @@ local function platform(cx,wallZ,dir)
  end
  local cc=wallZ+dir*(L-8.5)
  local tp=Vector3.new(cx,F+1.6,cc+dir*1.5)
+ -- (twice as big, user 2026-10-27)
+ local top
+ grown(2,CFrame.new(tp),function()
  cyl(z,"TableLeg",0.8,3.4,tp+Vector3.new(0,1.7,0),Color3.fromRGB(40,40,50))
- local top=cyl(z,"RoundTable",4.4,0.3,tp+Vector3.new(0,3.55,0),MARBLE_C,MARBLE)
+ top=cyl(z,"RoundTable",4.4,0.3,tp+Vector3.new(0,3.55,0),MARBLE_C,MARBLE)
  CS:AddTag(top,"DrinkTable")
  -- like the VIP tables (user 2026-10-26): a thin white rim and a warm LED glow under the top
  cyl(z,"RoundTableEdge",4.5,0.26,tp+Vector3.new(0,3.55,0),Color3.fromRGB(245,245,245),{mat=Enum.Material.SmoothPlastic,ghost=true})
@@ -569,10 +584,11 @@ local function platform(cx,wallZ,dir)
   local at=Instance.new("Attachment") at.Position=Vector3.new(-0.8,0,0) at.Parent=u
   local pl=Instance.new("PointLight") pl.Color=Color3.fromRGB(255,190,140) pl.Range=7 pl.Brightness=2 pl.Shadows=false pl.Parent=at end
  for k=0,3 do local a=math.rad(45+k*90) slot(top,tp+Vector3.new(math.cos(a)*1.3,3.85,math.sin(a)*1.3)) end
+ end)
  -- the table owner's @username in pink neon on the wall inside the arch
  -- (DrinkService writes it through WallSign, like the VIP signs; user 2026-10-25)
  do local face=if dir==1 then Enum.NormalId.Back else Enum.NormalId.Front local wz=wallZ+dir*0.12
-  local nb=box(z,"PlatformName",cx-5,F+13,math.min(wz,wz+dir*0.04),cx+5,F+15.5,math.max(wz,wz+dir*0.04),Color3.new(0,0,0),{t=1,ghost=true})
+  local nb=box(z,"PlatformName",cx-5,F+19,math.min(wz,wz+dir*0.04),cx+5,F+21.5,math.max(wz,wz+dir*0.04),Color3.new(0,0,0),{t=1,ghost=true})
   local g=Instance.new("SurfaceGui") g.Face=face g.LightInfluence=0 g.Brightness=2 g.SizingMode=Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud=40 g.Parent=nb
   local l=Instance.new("TextLabel") l.BackgroundTransparency=1 l.Size=UDim2.fromScale(1,1) l.TextScaled=true l.Font=Enum.Font.GothamBold l.Text="" l.TextColor3=Color3.fromRGB(255,225,245) l.Parent=g
   local s=Instance.new("UIStroke") s.Color=Color3.fromRGB(255,40,170) s.Thickness=3 s.Parent=l
@@ -614,27 +630,30 @@ for _,px in ipairs({-30,0}) do pole(px,-201.5) end
 for _,px in ipairs({-30,0,30}) do pole(px,NZ+31.5) end
 
 -- BAR under the south VIP, east half (non-alcoholic)
-box(z,"BarCounter",10,F,-183.5,54,F+4.5,-180.5,Color3.fromRGB(245,245,250))
-box(z,"BarCounterTop",9.5,F+4.5,-184,54.5,F+5,-180,Color3.fromRGB(30,30,40))
+-- (user 2026-10-27, the taller club: twice as big. Heights and depths are
+-- doubled from the back wall (z -167.5); its length stays x 10..52, between
+-- the table platforms and the LED pillar / DJ stage)
+local function bz(d) return -167.5-d end -- depth out from the back wall
+box(z,"BarCounter",10,F,bz(32),52,F+9,bz(26),Color3.fromRGB(245,245,250))
+box(z,"BarCounterTop",9.5,F+9,bz(33),52.5,F+10,bz(25),Color3.fromRGB(30,30,40))
 -- (user plan 2026-10-25) an L: the counter turns towards the back wall at its north end
-box(z,"BarCounter",10,F,-180.5,13,F+4.5,-171.8,Color3.fromRGB(245,245,250))
-box(z,"BarCounterTop",9.5,F+4.5,-180.5,13.5,F+5,-171.3,Color3.fromRGB(30,30,40))
+box(z,"BarCounter",10,F,bz(26),16,F+9,bz(8.6),Color3.fromRGB(245,245,250))
+box(z,"BarCounterTop",9.5,F+9,bz(26),17,F+10,bz(7.6),Color3.fromRGB(30,30,40))
 -- sky-blue LED right under the top's overhang, round the corner of the L too (user 2026-10-25)
-box(z,"BarNeon",10,F+4.2,-184,54,F+4.5,-183.5,cyan,{mat=Enum.Material.Neon,ghost=true})
-box(z,"BarNeon",9.5,F+4.2,-184,10,F+4.5,-171.3,cyan,{mat=Enum.Material.Neon,ghost=true})
-box(z,"BarBackShelf",10,F,-169,54,F+12,-167.5,Color3.fromRGB(45,35,60))
-for row=0,2 do box(z,"BarShelf",10,F+4+row*3,-170.5,54,F+4.3+row*3,-169,Color3.fromRGB(200,200,210))
- for k=0,10 do local bx=12+k*4 local hue=(k*0.09+row*0.21)%1
-  cyl(z,"BarBottle",0.8,1.8,Vector3.new(bx,F+5.2+row*3,-169.8),Color3.fromHSV(hue,0.7,1),{mat=Enum.Material.Neon,ghost=true}) end end
-P(z,"BarSign",Vector3.new(14,2.5,0.4),CFrame.new(32,F+14,-168.5),pink,NEON)
-local spot=P(z,"BartenderSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(32,F+0.5,-176),Vector3.new(32,F+0.5,-200)),W,{t=1,ghost=true})
+box(z,"BarNeon",10,F+8.4,bz(33),52,F+9,bz(32),cyan,{mat=Enum.Material.Neon,ghost=true})
+box(z,"BarNeon",9.5,F+8.4,bz(33),10.5,F+9,bz(7.6),cyan,{mat=Enum.Material.Neon,ghost=true})
+box(z,"BarBackShelf",10,F,bz(3),52,F+24,bz(0),Color3.fromRGB(45,35,60))
+for row=0,2 do box(z,"BarShelf",10,F+8+row*6,bz(6),52,F+8.6+row*6,bz(3),Color3.fromRGB(200,200,210))
+ for k=0,9 do local bx=12+k*4.3 local hue=(k*0.09+row*0.21)%1
+  cyl(z,"BarBottle",1.6,3.6,Vector3.new(bx,F+10.4+row*6,bz(4.6)),Color3.fromHSV(hue,0.7,1),{mat=Enum.Material.Neon,ghost=true}) end end
+P(z,"BarSign",Vector3.new(28,5,0.8),CFrame.new(31,F+28,bz(1)),pink,NEON)
+local spot=P(z,"BartenderSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(31,F+0.5,bz(17)),Vector3.new(31,F+0.5,-220)),W,{t=1,ghost=true})
 CS:AddTag(spot,"BartenderSpot")
-for k=0,7 do local pos=Vector3.new(14+k*5.5,F+2.6,-186.5)
- local seat=Instance.new("Seat") seat.Name="BarStool" seat.Anchored=true seat.Size=Vector3.new(2.2,0.8,2.2)
+for k=0,5 do local pos=Vector3.new(14+k*7,F+5.2,bz(36))
+ local seat=Instance.new("Seat") seat.Name="BarStool" seat.Anchored=true seat.Size=Vector3.new(4.4,1.6,4.4)
  seat.CFrame=CFrame.lookAt(pos,pos+Vector3.new(0,0,1)) seat.Color=Color3.fromRGB(28,28,32) seat.TopSurface=Enum.SurfaceType.Smooth seat.Parent=z CS:AddTag(seat,"PromptSeat")
- box(z,"BarStoolLeg",pos.X-0.25,F,pos.Z-0.25,pos.X+0.25,F+2.2,pos.Z+0.25,Color3.fromRGB(180,180,190)) end
-label(z,"BAR · 음료 (무알코올)",Vector3.new(32,F+9,-178))
-
+ box(z,"BarStoolLeg",pos.X-0.5,F,pos.Z-0.5,pos.X+0.5,F+4.4,pos.Z+0.5,Color3.fromRGB(180,180,190)) end
+label(z,"BAR · 음료 (무알코올)",Vector3.new(31,F+18,bz(12)))
 local beforeDJ={} for _,c in ipairs(z:GetChildren()) do beforeDJ[c]=true end
 -- DJ ZONE (east, full height): stage, turntable console, speakers, LED wall
 local stageC=Color3.fromRGB(60,60,80)
@@ -821,7 +840,7 @@ do local BC=Color3.fromRGB(255,250,175) local k=0
  for zc=NZ+3,-170,4 do bar(-79.95,-79.75,V+1.5,TOP-1.5,zc) end
  -- the chase goes on along both long walls above the VIP signs (user 2026-10-25)
  local function sideBar(xc,z0,z1) k+=1
-  local b=box(z,"WallLEDBar",xc-0.2,V+14,z0-HZ,xc+0.2,TOP-1.5,z1-HZ,BC,{mat=Enum.Material.Neon,ghost=true})
+  local b=box(z,"WallLEDBar",xc-0.2,V+28,z0-HZ,xc+0.2,TOP-1.5,z1-HZ,BC,{mat=Enum.Material.Neon,ghost=true})
   b.CastShadow=false b:SetAttribute("Index",k) CS:AddTag(b,"ClubWallBar") end
  for xc=-76,78,4 do sideBar(xc,NZ+0.05,NZ+0.25) end
  for xc=78,-76,-4 do sideBar(xc,-167.75,-167.55) end
@@ -833,7 +852,7 @@ do local BC=Color3.fromRGB(255,250,175) local k=0
  local function freeOf(xc,list) for _,cx in ipairs(list) do if math.abs(xc-cx)<10 then return false end end return true end
  for xc=-62,56,4 do if freeOf(xc,{-41.7,-14.5,12.5,39}) then lowBar(xc,F+1,NZ+0.05,NZ+0.25) end end
  for xc=56,-62,-4 do if freeOf(xc,{-41.7,-14.5}) then
-  lowBar(xc,if xc>=10 and xc<=54 then F+12.5 else F+1,-167.75,-167.55) end end
+  lowBar(xc,if xc>=9 and xc<=54 then F+25 else F+1,-167.75,-167.55) end end
 end-- (the lasers moved to the stage-front truss, the moving heads to these trusses: user 2026-10-25)
 
 for _,c in ipairs(z:GetChildren()) do if not beforeDJ[c] then
