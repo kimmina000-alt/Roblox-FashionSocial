@@ -39,7 +39,12 @@ local function rememberMoves(old)
   local b=c:GetAttribute("BuiltPivot")
   if typeof(b)=="CFrame" then savedMoves[modelKey(old,c)]=Z:Inverse()*c:GetPivot()*b:Inverse() end end end
 end
-local function zone(name) local f=root:FindFirstChild(name) if f then rememberMoves(f) f:Destroy() end f=Instance.new("Model") f.Name=name return f end
+local function zone(name) local f=root:FindFirstChild(name) if f then rememberMoves(f) f:Destroy() end
+ -- the pieces build_hongdae_layout parked from the old zone belong to it: they
+ -- go too (they piled up, one more copy each rebuild, 2026-10-27)
+ local hid=game:GetService("ServerStorage"):FindFirstChild("Hongdae_v1_HiddenParts")
+ if hid then for _,c in ipairs(hid:GetChildren()) do if c:GetAttribute("HomeZone")==name then c:Destroy() end end end
+ f=Instance.new("Model") f.Name=name return f end
 local function applyMove(m,d)
  if d==CFrame.new() then return end
  m:PivotTo(d*m:GetPivot())
