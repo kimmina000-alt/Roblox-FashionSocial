@@ -2489,3 +2489,16 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![skirt](images/2026-10-28/cafe_sea_skirt.jpg)
 ![booth live](images/2026-10-28/booth_kneel_step_live.jpg)
 ![booth photo](images/2026-10-28/booth_kneel_step_photo.jpg)
+
+## 2026-10-29 — 모바일 2인 테스트 (서버 + 휴대폰 화면 2개)
+- 통과
+  - VIP 버킷 2: Player1이 골목 공방(레몬 라벤더)을 클럽 원형 테이블에 놓음 → 얼음 박스로 나옴. Player2 화면에도 같은 버킷이 보이고, 탭해서 컵을 받음(6 → 5잔).
+  - 카페 허니카라멜브레드 구매(코인) → 새 모델(빵·크림·접시)이 손에 들림, 한 입 먹기(3 → 2).
+  - 국밥집 새 주문 카운터에서 돼지국밥 구매.
+  - 해변 튜브(새 메쉬) 타기·내리기.
+  - 편의점 흰 클럽 의자, 카페 바 의자 앉기.
+  - 클럽 엘리베이터: 문이 열리지 않음(문 앞에서 멈춤).
+- 수치: 클라이언트 CPU 프레임 5.5ms / 7.9ms, 메모리 1.5~1.6GB(Studio 창), 서버 하트비트 0.14ms. 클라이언트 오류 0. 서버 오류는 Studio의 DataStore 접근 제한뿐.
+- 사진: images/2026-10-29/mobile2p_vip_bucket2.jpg
+
+![](images/2026-10-29/mobile2p_vip_bucket2.jpg)
