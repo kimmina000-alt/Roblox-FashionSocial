@@ -87,6 +87,19 @@ local function iceSkin(cube: BasePart, transparency: number)
 	end
 end
 
+-- One square ice cube, the same in every bucket (the VIP tray cube, user
+-- 2026-10-29 (13)): 0.21–0.28 wide, pale, 20 % see-through, the ice picture
+-- on every face. cf = its centre (it is turned at random here).
+local ICE_RND = Random.new()
+local function iceCube(model: Instance, cf: CFrame): (BasePart, number)
+	local s = ICE_RND:NextNumber(0.21, 0.28)
+	local cube = part(model :: Model, "IceCube", Vector3.new(s, s, s),
+		cf * CFrame.Angles(ICE_RND:NextNumber(-0.5, 0.5), ICE_RND:NextNumber(0, 1.5), ICE_RND:NextNumber(-0.5, 0.5)),
+		Color3.fromRGB(225, 238, 255), Enum.Material.SmoothPlastic, nil, 0.2)
+	iceSkin(cube, 0.2)
+	return cube, s
+end
+
 -- The ice bucket (user 2026-10-28 (4)): a smooth pail that opens up toward the
 -- top (the store mesh ServerStorage.ArtAssets.IceBucket when it is there, else
 -- stepped rings), heaped with see-through ice cubes, three bottles leaning
@@ -153,12 +166,11 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		if glowIce then Color3.fromRGB(220, 240, 255) else ICE, if glowIce then Enum.Material.Neon else Enum.Material.Glass, if glowIce then 0.45 else 0.35)
 	if glowIce then light(block, Color3.fromRGB(200, 230, 255), 7, 1.6) end
 	-- clear square ice cubes on top, in the gaps between the drinks (user 2026-10-28 (13))
-	for i = 1, 3 do
-		local a = (i - 0.5) * math.pi * 2 / 3
-		local s = 0.41 -- (2/3, user 2026-10-28 (15))
-		local cube = part(m :: Model, "IceCube", Vector3.new(s, s, s), at * CFrame.new(math.cos(a) * 0.5, fill + s * 0.45, math.sin(a) * 0.5) * CFrame.Angles(0.25, a, 0.15),
-			Color3.fromRGB(205, 232, 255), Enum.Material.SmoothPlastic, nil, 0.5) -- (see-through square cubes; the transparency had gone into the shape argument and made balls, user 2026-10-28 (14))
-		iceSkin(cube, 0.3)
+	-- (the shared VIP-size cube since 2026-10-29 (13): six of them, two in each gap)
+	for i = 1, 6 do
+		local a = (math.floor((i - 1) / 2) + 0.5) * math.pi * 2 / 3 + (if i % 2 == 0 then 0.35 else -0.35)
+		local r = if i % 2 == 0 then 0.62 else 0.42
+		iceCube(m, at * CFrame.new(math.cos(a) * r, fill + 0.12, math.sin(a) * r))
 	end
 	-- three bottles leaning out (cans at their full table size)
 	for i, b in ipairs(bottles) do
@@ -445,10 +457,13 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 				local prev: Vector3? = nil
 				for j = 0, 8 do
 					local t = j / 8
-					local pnt = Vector3.new(side * (BD / 2 - 0.05 + k * 0.16 + 0.4 * math.sin(math.pi * t)), 0.6 + LIFT + 1.9 * t, -0.2 + k * 0.12)
+					-- (C: bigger, user 2026-10-29 (13): taller, bowing further out, wider apart, thicker)
+					local WH, WB, WS = if style == "C" then 2.7 else 1.9, if style == "C" then 0.6 else 0.4, if style == "C" then 0.22 else 0.16
+					local pnt = Vector3.new(side * (BD / 2 - 0.05 + k * WS + WB * math.sin(math.pi * t)), 0.6 + LIFT + WH * t, -0.2 + k * 0.12)
 					if prev then
 						local mid, dir = (prev + pnt) / 2, pnt - prev
-						part(m, "Wing", Vector3.new(0.035, dir.Magnitude + 0.02, 0.035), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, 1), dir.Unit), -- (thinner, user 2026-10-29 (6))
+						local WT = if style == "C" then 0.055 else 0.035
+						part(m, "Wing", Vector3.new(WT, dir.Magnitude + 0.02, WT), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, 1), dir.Unit), -- (thinner, user 2026-10-29 (6))
 							Color3.fromRGB(110, 170, 255), Enum.Material.Neon, nil, 0)
 					end
 					prev = pnt
@@ -494,17 +509,35 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 	if style == "C" then
 		-- textured ice cubes on the lit top: a row in front of the bottles, some
 		-- behind (half size, 20 % see-through, user 2026-10-29 (12))
+		-- (more ice, user 2026-10-29 (13)): two rows in front, a row behind, a few between the bottles
 		local rnd = Random.new()
 		local spots = {}
-		for i = 0, 7 do table.insert(spots, { -1.4 + i * 0.4, -0.95 }) end
-		for i = 0, 4 do table.insert(spots, { -1.0 + i * 0.5, 0.85 }) end
+		for i = 0, 9 do table.insert(spots, { -1.45 + i * 0.32, -0.95, 0 }) end
+		for i = 0, 7 do table.insert(spots, { -1.2 + i * 0.34, -0.7, 0 }) end
+		for i = 0, 6 do table.insert(spots, { -1.2 + i * 0.4, 0.85, 0 }) end
+		for i = 0, 3 do table.insert(spots, { -1.8 + (i + 0.5) * 0.9, -0.95, 0.24 }) end -- (a second layer on the front row)
 		for _, xz in ipairs(spots) do
-			local s = rnd:NextNumber(0.21, 0.28)
-			local cube = part(m, "IceCube", Vector3.new(s, s, s),
-				at * CFrame.new(xz[1] + rnd:NextNumber(-0.12, 0.12), 0.6 + LIFT + s * 0.42, xz[2] + rnd:NextNumber(-0.08, 0.08)) * CFrame.Angles(rnd:NextNumber(-0.4, 0.4), rnd:NextNumber(0, 1.5), rnd:NextNumber(-0.4, 0.4)),
-				Color3.fromRGB(225, 238, 255), Enum.Material.SmoothPlastic, nil, 0.2)
-			iceSkin(cube, 0.2)
+			iceCube(m, at * CFrame.new(xz[1] + rnd:NextNumber(-0.08, 0.08), 0.6 + LIFT + 0.12 + xz[3], xz[2] + rnd:NextNumber(-0.06, 0.06)))
 		end
+		-- a soft aura rising from the podium (user 2026-10-29 (13)): faint glowing
+		-- haze drifting up off the lit top, pale blue-white, never thick
+		local src = part(m, "AuraSource", Vector3.new(BD - 0.4, 0.1, BD - 0.4), at * CFrame.new(0, 0.62 + LIFT, 0), Color3.new(1, 1, 1), nil, nil, 1)
+		local aura = Instance.new("ParticleEmitter")
+		aura.Name = "Aura"
+		aura.Texture = "rbxasset://textures/particles/smoke_main.dds"
+		aura.Color = ColorSequence.new(Color3.fromRGB(200, 225, 255), Color3.fromRGB(255, 235, 200))
+		aura.LightEmission = 1
+		aura.LightInfluence = 0
+		aura.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.6), NumberSequenceKeypoint.new(1, 1) })
+		aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(1, 2.4) })
+		aura.Lifetime = NumberRange.new(2.2, 3.2)
+		aura.Rate = 10
+		aura.Speed = NumberRange.new(0.5, 0.9)
+		aura.SpreadAngle = Vector2.new(12, 12)
+		aura.Rotation = NumberRange.new(0, 360)
+		aura.RotSpeed = NumberRange.new(-20, 20)
+		aura.EmissionDirection = Enum.NormalId.Top
+		aura.Parent = src
 	end
 	if style == "C" then
 		-- a white neon "VIP" floating over the bottles (user 2026-10-29 (4))
@@ -575,14 +608,9 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame, key: string
 		if tier3 then
 			-- clear ice cubes (80 % see-through) at any angle on the low glow
 			local rnd = Random.new(31)
-			for _ = 1, 14 do
-				local s = rnd:NextNumber(0.32, 0.5)
-				local cube = part(m, "IceCube", Vector3.new(s, s, s),
-					at * CFrame.new(rnd:NextNumber(-L / 2 + 0.3, L / 2 - 0.3), lift + 0.1 + H * 0.28 + rnd:NextNumber(0.1, 0.55), rnd:NextNumber(-W / 2 + 0.3, W / 2 - 0.3))
-						* CFrame.Angles(rnd:NextNumber(0, math.pi), rnd:NextNumber(0, math.pi), rnd:NextNumber(0, math.pi)),
-					-- (faint neon: plain see-through cubes vanish behind the clear box)
-					Color3.fromRGB(200, 230, 255), Enum.Material.Neon, nil, 0.8)
-				iceSkin(cube, 0.35)
+			-- (the shared VIP-size cube since 2026-10-29 (13), heaped two deep)
+			for _ = 1, 30 do
+				iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.2, L / 2 - 0.2), lift + 0.1 + H * 0.28 + rnd:NextNumber(0.12, 0.45), rnd:NextNumber(-W / 2 + 0.2, W / 2 - 0.2)))
 			end
 		end
 		-- U frame ends: two legs flaring out, a foot bar and a top rail
