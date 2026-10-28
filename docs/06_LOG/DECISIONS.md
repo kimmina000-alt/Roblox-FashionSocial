@@ -968,3 +968,5 @@ D-507 — (2026-10-29 (25), user photo docs/04_ART/references/icebox_bucket_ref.
 D-508 — (2026-10-29 (26), user) Ice box sample v2: 4.8 x 2.2 (bigger than the tier-3 boat at its placed size), five bottles stood loosely like the other buckets (spread along the box, off the line, turned, leaning 3-9°, the middle one a little bigger), 60 ice cubes in two layers, a soft aura rising out of the box (like the VIP tray). 83 parts. Still a sample, not wired to purchases. Shot: 2026-10-29/icebox_sample_v2.jpg (tier-3 boat beside it for size).
 
 D-509 — (2026-10-29 (27), user) Ice box sample v3: a white neon block at the bottom (0.28 of the box height, like the tier-3 boat's glow), 110 ice cubes in three layers over it up to near the rim, the bottles standing on the glow. 133 parts. Lineup shot with the tier-3 boat (placed 0.9) and the VIP tray C: 2026-10-29/bucket_lineup_t3_vip_icebox.jpg.
+
+D-510 — (2026-10-29 (28), user) Ice box sample v4: bottles 1.5x like the VIP tray's; 55 ice cubes (was 110) 1.3x bigger (iceCube takes a size factor now), three layers. 78 parts. Lineup: 2026-10-29/bucket_lineup_v2.jpg.

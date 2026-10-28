@@ -91,8 +91,8 @@ end
 -- 2026-10-29 (13)): 0.21–0.28 wide, pale, 20 % see-through, the ice picture
 -- on every face. cf = its centre (it is turned at random here).
 local ICE_RND = Random.new()
-local function iceCube(model: Instance, cf: CFrame): (BasePart, number)
-	local s = ICE_RND:NextNumber(0.21, 0.28)
+local function iceCube(model: Instance, cf: CFrame, scale: number?): (BasePart, number)
+	local s = ICE_RND:NextNumber(0.21, 0.28) * (scale or 1)
 	local cube = part(model :: Model, "IceCube", Vector3.new(s, s, s),
 		cf * CFrame.Angles(ICE_RND:NextNumber(-0.5, 0.5), ICE_RND:NextNumber(0, 1.5), ICE_RND:NextNumber(-0.5, 0.5)),
 		Color3.fromRGB(225, 238, 255), Enum.Material.SmoothPlastic, nil, 0.2)
@@ -466,9 +466,10 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	-- ice heaped on the glowing floor (more of it, two layers, user 2026-10-29 (26))
 	local rnd = Random.new()
 	-- (filled up to near the rim: three layers over the glow block)
-	for i = 1, 110 do
-		local layer = math.floor((i - 1) / 37) * 0.28
-		iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.3, L / 2 - 0.3), floorY + GH + 0.12 + layer + rnd:NextNumber(0, 0.15), rnd:NextNumber(-W / 2 + 0.28, W / 2 - 0.28)))
+	-- (half as many, 1.3x bigger, user 2026-10-29 (28))
+	for i = 1, 55 do
+		local layer = math.floor((i - 1) / 19) * 0.36
+		iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.32, L / 2 - 0.32), floorY + GH + 0.16 + layer + rnd:NextNumber(0, 0.15), rnd:NextNumber(-W / 2 + 0.3, W / 2 - 0.3)), 1.3)
 	end
 	-- five bottles stood loosely in the ice like the other buckets: spread
 	-- along the box, each a little off the line, turned and leaning
@@ -477,7 +478,8 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 		local z = rnd:NextNumber(-0.35, 0.35)
 		local lean = CFrame.fromAxisAngle(Vector3.new(rnd:NextNumber(-1, 1), 0, rnd:NextNumber(-1, 1)).Unit, math.rad(rnd:NextNumber(3, 9)))
 		local base2 = at * CFrame.new(x, floorY + GH, z) * lean * CFrame.Angles(0, rnd:NextNumber(-0.7, 0.7), 0)
-		BottleShapes.add(m, base2, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
+		-- (as big as the VIP tray's bottles, 1.5x, user 2026-10-29 (28))
+		BottleShapes.add(m, base2, key, colors[(i - 1) % #colors + 1], (if i == 3 then 0.66 else 0.6) * 1.5)
 	end
 	-- a soft aura rising out of the box (like the VIP tray's)
 	local src = part(m, "AuraSource", Vector3.new(L - 0.4, 0.1, W - 0.4), at * CFrame.new(0, floorY + 0.3, 0), Color3.new(1, 1, 1), nil, nil, 1)
