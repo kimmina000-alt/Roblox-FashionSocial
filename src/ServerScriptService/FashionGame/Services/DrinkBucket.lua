@@ -367,12 +367,15 @@ local function vipTrayC(m: Model, at: CFrame, key: string, colors: {Color3}): nu
 end
 
 function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, colors: {Color3}): number
-	if style == "C" then return vipTrayC(m, at, key, colors) end
+	-- ("C2" = the glass case version, D-490..D-492; the user went back to C, 2026-10-29 (11))
+	if style == "C2" then return vipTrayC(m, at, key, colors) end
 	local DARK = Color3.fromRGB(18, 18, 24)
+	-- (C: the podium 0.35 higher, user 2026-10-29 (11); everything on it moves up)
+	local LIFT = if style == "C" then 0.35 else 0
 	-- "C" (the user's mix, 2026-10-29 (3)): A's ring, lit top and wings on a dark
 	-- round base dressed like B (yellow light bricks on the front corners, warm window)
 	if style == "A" or style == "C" then
-		cyl(m, "TrayBase", 3.2, 0.55, at * CFrame.new(0, 0.275, 0), DARK, Enum.Material.SmoothPlastic)
+		cyl(m, "TrayBase", 3.2, 0.55 + LIFT, at * CFrame.new(0, (0.55 + LIFT) / 2, 0), DARK, Enum.Material.SmoothPlastic)
 		-- RGB ring: coloured neon segments round the top edge (not on C, user 2026-10-29 (4))
 		for i = 0, (if style == "C" then -1 else 11) do
 			local a = i * math.pi * 2 / 12
@@ -380,14 +383,14 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 				RAINBOW[i % #RAINBOW + 1], Enum.Material.Neon, nil, 0)
 			if i % 3 == 0 then light(seg, RAINBOW[i % #RAINBOW + 1], 5, 1) end
 		end
-		cyl(m, "LitTop", 2.7, 0.05, at * CFrame.new(0, 0.58, 0), Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
+		cyl(m, "LitTop", 2.7, 0.05, at * CFrame.new(0, 0.58 + LIFT, 0), Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
 		if style == "C" then
 			for row = 0, 3 do
 				for _, range in ipairs({ { 206, 240 }, { 300, 334 } }) do
 					for k = 0, 3 do
 						local a = math.rad(range[1] + (k + (row % 2) * 0.5) * (range[2] - range[1]) / 4)
 						part(m, "LightBrick", Vector3.new(0.3, 0.035, 0.03), -- (thinner, user 2026-10-29 (6))
-							at * CFrame.new(math.cos(a) * 1.62, 0.1 + row * 0.11, math.sin(a) * 1.62) * CFrame.Angles(0, -a + math.pi / 2, 0),
+							at * CFrame.new(math.cos(a) * 1.62, 0.1 + row * (0.11 + LIFT / 3), math.sin(a) * 1.62) * CFrame.Angles(0, -a + math.pi / 2, 0),
 							Color3.fromRGB(255, 200, 90), Enum.Material.Neon, nil, 0)
 					end
 				end
@@ -409,7 +412,7 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 				local prev: Vector3? = nil
 				for j = 0, 8 do
 					local t = j / 8
-					local pnt = Vector3.new(side * (1.55 + k * 0.16 + 0.4 * math.sin(math.pi * t)), 0.6 + 1.9 * t, -0.2 + k * 0.12)
+					local pnt = Vector3.new(side * (1.55 + k * 0.16 + 0.4 * math.sin(math.pi * t)), 0.6 + LIFT + 1.9 * t, -0.2 + k * 0.12)
 					if prev then
 						local mid, dir = (prev + pnt) / 2, pnt - prev
 						part(m, "Wing", Vector3.new(0.035, dir.Magnitude + 0.02, 0.035), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, 1), dir.Unit), -- (thinner, user 2026-10-29 (6))
@@ -419,7 +422,10 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 				end
 			end
 		end
-		for _, p in ipairs({ { -1.2, 0.9 }, { 1.2, 0.9 }, { -1.3, -0.5 }, { 1.3, -0.5 } }) do laser(m, at, p[1], p[2], -p[1] * 2) end
+		-- (no lasers on C, user 2026-10-29 (11))
+		if style ~= "C" then
+			for _, p in ipairs({ { -1.2, 0.9 }, { 1.2, 0.9 }, { -1.3, -0.5 }, { 1.3, -0.5 } }) do laser(m, at, p[1], p[2], -p[1] * 2) end
+		end
 	else
 		-- horseshoe: a dark arc of blocks open at the back, a floor disc
 		cyl(m, "TrayFloor", 2.6, 0.3, at * CFrame.new(0, 0.15, 0), Color3.fromRGB(34, 32, 40), Enum.Material.SmoothPlastic)
@@ -449,15 +455,26 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 	-- five bottles in an arc, the middle one tallest and furthest back
 	for i = 1, 5 do
 		local u = (i - 3) / 2
-		local base = at * CFrame.new(u * 0.95, 0.6, 0.15 + math.abs(u) * -0.35) * CFrame.Angles(0, 0, math.rad(-u * 8))
+		local base = at * CFrame.new(u * 0.95, 0.6 + LIFT, 0.15 + math.abs(u) * -0.35) * CFrame.Angles(0, 0, math.rad(-u * 8))
 		BottleShapes.add(m, base, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
+	end
+	if style == "C" then
+		-- textured ice cubes on the lit top: a row in front of the bottles, two behind
+		local rnd = Random.new()
+		for _, xz in ipairs({ { -1.0, -0.75 }, { -0.5, -0.85 }, { 0, -0.8 }, { 0.5, -0.85 }, { 1.0, -0.75 }, { -0.55, 0.75 }, { 0.55, 0.75 } }) do
+			local s = rnd:NextNumber(0.42, 0.55)
+			local cube = part(m, "IceCube", Vector3.new(s, s, s),
+				at * CFrame.new(xz[1] + rnd:NextNumber(-0.12, 0.12), 0.6 + LIFT + s * 0.42, xz[2] + rnd:NextNumber(-0.08, 0.08)) * CFrame.Angles(rnd:NextNumber(-0.4, 0.4), rnd:NextNumber(0, 1.5), rnd:NextNumber(-0.4, 0.4)),
+				Color3.fromRGB(225, 238, 255), Enum.Material.SmoothPlastic, nil, 0.12)
+			iceSkin(cube, 0.12)
+		end
 	end
 	if style == "C" then
 		-- a white neon "VIP" floating over the bottles (user 2026-10-29 (4))
 		-- (neon bars, no border, user 2026-10-29 (5)): letters 0.9 high in the
 		-- plane facing the front (-Z), each stroke a thin white neon block
 		local WHITE_NEON = Color3.fromRGB(255, 255, 255)
-		local cy, h, w = 4.3, 0.9, 0.11
+		local cy, h, w = 4.3 + LIFT, 0.9, 0.11
 		local function bar(name: string, x0: number, y0: number, x1: number, y1: number)
 			-- x is mirrored: the tray front faces -Z, so the viewer's right is -X
 			local a, b = Vector3.new(-x0, cy + y0, -0.2), Vector3.new(-x1, cy + y1, -0.2)
