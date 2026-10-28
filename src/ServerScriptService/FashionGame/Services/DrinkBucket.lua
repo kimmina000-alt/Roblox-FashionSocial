@@ -416,7 +416,7 @@ end
 -- (-Z), a white neon floor inside, ice cubes, and ten bottles standing in two
 -- rows, their necks above the rim. Returns the height.
 function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3}): number
-	local L, W, H, BH = 4.8, 2.2, 1.8, 0.42 -- (bigger than the tier-3 boat, user 2026-10-29 (26); walls 1.3 -> 1.8, 2026-10-29 (30)) -- box length / depth / height, base height
+	local L, W, H, BH = 4.8, 2.2, 1.8, 0.8 -- (base 0.42 -> 0.8, 2026-10-29 (32)) -- (bigger than the tier-3 boat, user 2026-10-29 (26); walls 1.3 -> 1.8, 2026-10-29 (30)) -- box length / depth / height, base height
 	local BLACK = Color3.fromRGB(14, 14, 18)
 	local WHITE = Color3.fromRGB(255, 255, 255)
 	-- (a light set under the base so it glows out onto the table round it, user 2026-10-29 (29))
@@ -460,13 +460,14 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	local glowFloor = part(m, "IceBoxGlow", Vector3.new(L - 0.3, GH, W - 0.3), at * CFrame.new(0, floorY + GH / 2, 0), Color3.fromRGB(235, 242, 255), Enum.Material.Neon)
 	light(glowFloor, Color3.fromRGB(255, 230, 245), 10, 2.6) -- (brighter: it lights the ice through the walls)
 	-- the clear box of the tier-3 boat (one see-through block, user 2026-10-29 (31))
-	part(m, "Box", Vector3.new(L, H, W), at * CFrame.new(0, floorY + H / 2, 0), Color3.fromRGB(200, 215, 255), Enum.Material.SmoothPlastic, nil, 0.7)	-- ice heaped on the glowing floor (more of it, two layers, user 2026-10-29 (26))
+	-- (as wide as the base, out to its edge, 2026-10-29 (32))
+	part(m, "Box", Vector3.new(L + 0.3, H, W + 0.3), at * CFrame.new(0, floorY + H / 2, 0), Color3.fromRGB(200, 215, 255), Enum.Material.SmoothPlastic, nil, 0.7)	-- ice heaped on the glowing floor (more of it, two layers, user 2026-10-29 (26))
 	local rnd = Random.new()
 	-- (filled up to near the rim: three layers over the glow block)
 	-- (half as many, 1.3x bigger, user 2026-10-29 (28))
-	for i = 1, 55 do
-		local layer = math.floor((i - 1) / 19) * 0.36
-		iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.32, L / 2 - 0.32), floorY + GH + 0.16 + layer + rnd:NextNumber(0, 0.15), rnd:NextNumber(-W / 2 + 0.3, W / 2 - 0.3)), 1.3)
+	-- (one layer lying on the floor, not wedged between the bottles, 2026-10-29 (32))
+	for _ = 1, 34 do
+		iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.3, L / 2 - 0.3), floorY + GH + 0.15, rnd:NextNumber(-W / 2 + 0.28, W / 2 - 0.28)), 1.3)
 	end
 	-- five bottles stood loosely in the ice like the other buckets: spread
 	-- along the box, each a little off the line, turned and leaning
@@ -497,7 +498,7 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	aura.EmissionDirection = Enum.NormalId.Top
 	aura.Parent = src
 	-- the gold neon "VIP" over the bottles, like the VIP tray's (2026-10-29 (31))
-	local cy = floorY + GH + 4.9
+	local cy = floorY + GH + 5.9 -- (clear of the bottle tops, 2026-10-29 (32))
 	local function vbar(x0: number, y0: number, x1: number, y1: number)
 		local a, b = Vector3.new(-x0, cy + y0, 0), Vector3.new(-x1, cy + y1, 0)
 		local mid, dir = (a + b) / 2, b - a

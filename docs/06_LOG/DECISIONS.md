@@ -976,3 +976,5 @@ D-511 — (2026-10-29 (29), user: why does the tier-3 boat glow and the ice box 
 D-512 — (2026-10-29 (30), user) Ice box: walls 1.3 -> 1.8 high, the glow block 0.42 of that (0.76, was 0.36), the ice and the bottles start on top of it so they rise with it; wall colour lightness 80 % (HSV value 0.8, 70 % see-through). Lineup: 2026-10-29/bucket_lineup_v4.jpg.
 
 D-513 — (2026-10-29 (31), user) Ice box: the textured ice walls replaced by the tier-3 boat's clear box (one SmoothPlastic block, (200,215,255), 70 % see-through); the light under the base thinner (0.04); a thin white neon line round the top edge of the black base; a gold neon 'VIP' over the bottles like the VIP tray's. Lineup: 2026-10-29/bucket_lineup_v5.jpg.
+
+D-514 — (2026-10-29 (32), user) Ice box: black base 0.42 -> 0.8 high; the clear box as wide as the base (out to its edge); the ice one layer lying on the glow block (34 cubes) instead of heaped between the bottles; the VIP sign 1 higher, clear of the bottle tops. Shot: 2026-10-29/icebox_sample_v7.jpg.
