@@ -537,7 +537,8 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 		-- painted: the picture on the mesh, no label parts (D-423)
 		-- (the VIP spade, monogram and plate are painted in relief too: no parts)
 		(skin :: SurfaceAppearance):Clone().Parent = p
-		if spec[1] == "bottle_absolut_tier2" then
+		-- (파스텔 스플래시 the same way, user 2026-10-28 (21))
+		if spec[1] == "bottle_absolut_tier2" or key == "pastel_splash" then
 			-- tier 2 (user 2026-10-28 (17)/(20)): a clear glass bottle with a clear
 			-- drink inside. The glass shell is see-through and carries no picture;
 			-- the picture sits on a second shell just outside it whose empty
@@ -575,8 +576,9 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 			p.Color = Color3.fromRGB(235, 245, 240)
 			p.Transparency = 0.72
 			p.Reflectance = 0
-			local lr = r * 0.84
-			local top = 0.56 * H
+			-- (the pastel bottle narrows at the waist: a thinner, lower drink)
+			local lr = r * (if key == "pastel_splash" then 0.7 else 0.84)
+			local top = (if key == "pastel_splash" then 0.42 else 0.56) * H
 			local liquid = cyl(c, "Liquid", 0.04 * H, top, 2 * lr, { color = color, material = Enum.Material.Glass, transparency = 0.35 })
 			cyl(c, "LiquidTop", top - 0.01, top + 0.01, 2 * lr * 0.98, { color = color:Lerp(Color3.new(1, 1, 1), 0.6), material = Enum.Material.Neon, transparency = 0.35 })
 			local light = Instance.new("PointLight")
@@ -586,7 +588,7 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 			light.Shadows = false
 			light.Parent = liquid
 		end
-		if key == "pastel_splash" then
+		if key == "pastel_splash" and not p.Parent:FindFirstChild("BottlePrint") then
 			-- frosted and glowing (user 2026-10-28 (3)): a little see-through, a warm light inside
 			p.Transparency = 0.18
 			local light = Instance.new("PointLight")

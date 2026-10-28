@@ -184,7 +184,7 @@ ClubConfig.Drinks = {
 	{ key = "green_claw", name = "그린 클로", tier = 2, coins = 150, product = "Drink_GreenClaw", -- Monster
 		color = Color3.fromRGB(120, 175, 55), look = "페어 초록 병 · 연두 글씨" },
 	{ key = "blue_wing", name = "블루 윙", tier = 2, coins = 150, product = "Drink_BlueWing", -- Red Bull
-		color = Color3.fromRGB(226, 234, 244), look = "투명 병 · 파란 글씨" },
+		color = Color3.fromRGB(120, 185, 245), look = "투명 병 · 연한 파랑 · 파란 글씨" },
 	-- tier 3: Robux only (VIP price products: 20% off)
 	{ key = "stack_hydro", name = "스택 하이드로", tier = 3, product = "Drink_StackHydro", vipProduct = "Drink_StackHydro_VIP", -- Cadence
 		color = Color3.fromRGB(196, 120, 40), look = "호박색 병 · 크림 라벨 · 꿀벌" },
