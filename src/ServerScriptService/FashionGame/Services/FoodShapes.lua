@@ -457,7 +457,7 @@ local ASSET_FOODS: {[string]: {any}} = {
 	-- the user's own models (STL 2026-10-29, reduced to ~5,400 triangles each by
 	-- tools/art/StlTool.cs, docs/04_ART/models/*.obj; one MeshPart per colour)
 	honeybread = { "HoneyBread", 1.1 },
-	parfait = { "StrawberryParfait", 1.25 },
+	parfait = { "StrawberryParfait", 1.875 }, -- (1.5x, user 2026-10-29 (37))
 	-- cafe drinks (user 2026-10-29 (16)): the hot coffees in one take-away cup
 	-- ("Coffee Cup" by LittleWorlds, one mesh: the lightest of the look-alikes of
 	-- the user's pick), the cold drinks in one iced glass ("LIMEONADE" by

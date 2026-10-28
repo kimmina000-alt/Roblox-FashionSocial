@@ -986,3 +986,5 @@ D-516 — (2026-10-29 (34), user) Ice box VIP sign white neon (was gold). Lineup
 D-517 — (2026-10-29 (35), user: try it in game) The ice box is live for one drink only: 골목 공방 · 생강 장미 (golmok variant 'rose') is placed as DrinkBucket kind 'icebox' (full size, centred, facing the club centre); the other three flavours keep the VIP tray C. Checked in Play through ClubShop 'Place' on a 1F round table. Known: the box (5.1 wide) is wider than the round table top (4.4). Shot: 2026-10-29/icebox_on_table.jpg.
 
 D-518 — (2026-10-29 (36), user) Names: VIP bucket 1 = the gold tray (vipTray 'C', kinds 'vip'/'golmok', kept in the code); VIP bucket 2 = the ice box ('icebox'). Every VIP-only drink (all four 골목 공방 flavours) now comes in VIP bucket 2 (DrinkService kindFor), the rose-only try-out removed. The ice box aura a third less (15 a second, was 22; 57 % see-through at its thickest, was 35 %). Checked in Play with 오미자 히비스커스 on a round table. Shot: 2026-10-29/vip_bucket2_omija.jpg.
+
+D-519 — (2026-10-29 (37), user) Strawberry parfait 1.5x in the hand (FoodShapes ASSET_FOODS parfait 1.25 -> 1.875 studs tall).
