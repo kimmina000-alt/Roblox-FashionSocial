@@ -82,7 +82,7 @@ end
 DrinkBucket.Glow = "ice" -- (the user's pick, 2026-10-28 (5))
 -- (bigger pail, same cans: the cans stood out through the sides, user 2026-10-28 (5))
 local H_PAIL, D_TOP = 1.9, 2.4
-function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string, color: Color3 }}, glow: string?): number
+function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string, color: Color3 }}, glow: string?, glass: boolean?): number
 	glow = glow or DrinkBucket.Glow
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local mesh = art and art:FindFirstChild("IceBucket")
@@ -92,10 +92,17 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		p.Size = Vector3.new(D_TOP, H_PAIL, D_TOP)
 		p.CFrame = at * CFrame.new(0, H_PAIL / 2, 0) * mesh.CFrame.Rotation
 		p.Name = "Pail"
-		-- brushed aluminium (user 2026-10-28 (6))
-		p.Material = Enum.Material.Metal
-		p.Color = Color3.fromRGB(150, 155, 163)
-		p.Reflectance = 0.6
+		-- brushed aluminium (user 2026-10-28 (6)); tier 2 the same pail in clear glass (2026-10-29)
+		if glass then
+			p.Material = Enum.Material.Glass
+			p.Color = Color3.fromRGB(215, 235, 250)
+			p.Transparency = 0.45
+			p.Reflectance = 0.25
+		else
+			p.Material = Enum.Material.Metal
+			p.Color = Color3.fromRGB(150, 155, 163)
+			p.Reflectance = 0.6
+		end
 		p.Anchored, p.CanCollide, p.CanTouch, p.CastShadow = true, false, false, false
 		p.Parent = m
 	else
@@ -154,34 +161,16 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame, key: string
 		-- (2026-10-28 (4)) the ice bucket with three of the drink's cans
 		DrinkBucket.iceBucket(m, at, { { key = drinkKey, color = c }, { key = drinkKey, color = c }, { key = drinkKey, color = c } })
 	elseif kind == "steel" then
-		-- brushed steel pail, ice heaped to the rim, ring handles
-		local h = 1.3
-		cyl(m, "Pail", 1.6, h, at * CFrame.new(0, h / 2, 0), STEEL, Enum.Material.Metal)
-		cyl(m, "Rim", 1.7, 0.1, at * CFrame.new(0, h, 0), Color3.fromRGB(220, 224, 230), Enum.Material.Metal)
-		cyl(m, "Band", 1.64, 0.08, at * CFrame.new(0, 0.25, 0), Color3.fromRGB(170, 174, 180), Enum.Material.Metal)
-		cyl(m, "Ice", 1.5, 0.22, at * CFrame.new(0, h + 0.02, 0), ICE, Enum.Material.Ice)
-		for _, side in ipairs({ -1, 1 }) do
-			part(m, "RingHandle", Vector3.new(0.08, 0.4, 0.4), at * CFrame.new(side * 0.86, h * 0.7, 0), Color3.fromRGB(200, 160, 80), Enum.Material.Metal, Enum.PartType.Cylinder)
-		end
-		bottlesInIce(m, at * CFrame.new(0, h, 0), drinkKey, colors, 2, 0.35, 0.85)
-	elseif kind == "acrylic" then
-		-- frosted acrylic tub lit from inside in the drink colour, black base
-		local h = 1.25
-		cyl(m, "Base", 1.5, 0.18, at * CFrame.new(0, 0.09, 0), Color3.fromRGB(25, 25, 30), Enum.Material.SmoothPlastic)
-		-- (Glass reads as almost nothing on phones: tinted plastic over a strong neon core)
-		local glow = cyl(m, "Glow", 1.5, h - 0.15, at * CFrame.new(0, 0.18 + (h - 0.15) / 2, 0), deep(c), Enum.Material.Neon, 0)
-		cyl(m, "Tub", 1.9, h, at * CFrame.new(0, 0.18 + h / 2, 0), c, Enum.Material.SmoothPlastic, 0.55)
-		cyl(m, "TubRim", 1.95, 0.08, at * CFrame.new(0, 0.18 + h, 0), c:Lerp(Color3.new(1, 1, 1), 0.6), Enum.Material.Neon, 0.2)
-		-- the raised back lip of the tub
-		part(m, "BackLip", Vector3.new(1.4, 0.55, 0.1), at * CFrame.new(0, 0.18 + h + 0.2, 0.86) * CFrame.Angles(math.rad(-12), 0, 0), c, Enum.Material.SmoothPlastic, 0.5)
-		cyl(m, "Ice", 1.75, 0.22, at * CFrame.new(0, 0.18 + h - 0.05, 0), c:Lerp(ICE, 0.5), Enum.Material.Ice, 0)
-		light(glow, c, 7, 1.6)
-		bottlesInIce(m, at * CFrame.new(0, 0.18 + h, 0), drinkKey, colors, 3, 0.45, 0.85)
+		-- tier 2 (user 2026-10-29): the tier-1 ice bucket in clear glass, three of the drink's bottles
+		DrinkBucket.iceBucket(m, at, { { key = drinkKey, color = c }, { key = drinkKey, color = c }, { key = drinkKey, color = c } }, nil, true)
 	else
 		-- gold-framed LED boat: clear acrylic box on a U frame, rainbow ice
+		-- (tier 3 "acrylic" since 2026-10-29: bigger, the rainbow blocks low,
+		-- clear ice cubes heaped on them)
 		local golmok = kind == "golmok"
-		local L = if golmok then 3.6 else 2.6
-		local W, H = if golmok then 1.6 else 1.3, if golmok then 1.4 else 1.2
+		local tier3 = kind == "acrylic"
+		local L = if golmok then 3.6 elseif tier3 then 3.4 else 2.6
+		local W, H = if golmok or tier3 then 1.6 else 1.3, if golmok or tier3 then 1.4 else 1.2
 		local lift = 0.45
 		local mid = at * CFrame.new(0, lift + H / 2, 0)
 		part(m, "Box", Vector3.new(L, H, W), mid, Color3.fromRGB(200, 215, 255), Enum.Material.SmoothPlastic, nil, 0.7)
@@ -189,7 +178,20 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame, key: string
 		local n = if golmok then 6 else 3
 		for i = 1, n do
 			local x = -L / 2 + (i - 0.5) * L / n
-			part(m, "IceGlow", Vector3.new(L / n - 0.02, H * 0.55, W - 0.15), at * CFrame.new(x, lift + 0.1 + H * 0.275, 0), RAINBOW[(i - 1) % #RAINBOW + 1], Enum.Material.Neon, nil, 0)
+			local gh = if tier3 then H * 0.28 else H * 0.55
+			part(m, "IceGlow", Vector3.new(L / n - 0.02, gh, W - 0.15), at * CFrame.new(x, lift + 0.1 + gh / 2, 0), RAINBOW[(i - 1) % #RAINBOW + 1], Enum.Material.Neon, nil, 0)
+		end
+		if tier3 then
+			-- clear ice cubes (80 % see-through) at any angle on the low glow
+			local rnd = Random.new(31)
+			for _ = 1, 14 do
+				local s = rnd:NextNumber(0.32, 0.5)
+				part(m, "IceCube", Vector3.new(s, s, s),
+					at * CFrame.new(rnd:NextNumber(-L / 2 + 0.3, L / 2 - 0.3), lift + 0.1 + H * 0.28 + rnd:NextNumber(0.1, 0.55), rnd:NextNumber(-W / 2 + 0.3, W / 2 - 0.3))
+						* CFrame.Angles(rnd:NextNumber(0, math.pi), rnd:NextNumber(0, math.pi), rnd:NextNumber(0, math.pi)),
+					-- (faint neon: plain see-through cubes vanish behind the clear box)
+					Color3.fromRGB(200, 230, 255), Enum.Material.Neon, nil, 0.8)
+			end
 		end
 		-- U frame ends: two legs flaring out, a foot bar and a top rail
 		for _, side in ipairs({ -1, 1 }) do
