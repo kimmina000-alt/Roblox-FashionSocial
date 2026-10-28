@@ -1,0 +1,6 @@
+newmtl Bread
+Kd 0.87 0.63 0.31
+newmtl Cream
+Kd 0.99 0.97 0.94
+newmtl Plate
+Kd 0.96 0.94 0.90

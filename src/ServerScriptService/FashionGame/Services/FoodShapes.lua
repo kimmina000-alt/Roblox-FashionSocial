@@ -454,6 +454,10 @@ local ASSET_FOODS: {[string]: {any}} = {
 	soda = { "Can", 0.8 },            -- #36
 	icebar = { "IceBar", 1.1 },       -- #42
 	chocosnack = { "Pepero", 0.9 },   -- #51
+	-- the user's own models (STL 2026-10-29, reduced to ~5,400 triangles each by
+	-- tools/art/StlTool.cs, docs/04_ART/models/*.obj; one MeshPart per colour)
+	honeybread = { "HoneyBread", 1.1 },
+	parfait = { "StrawberryParfait", 1.25 },
 }
 local function fromAsset(item: any): (Part?, CFrame?)
 	local spec = ASSET_FOODS[item.key]

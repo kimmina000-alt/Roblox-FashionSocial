@@ -1,0 +1,12 @@
+newmtl Berry
+Kd 0.88 0.14 0.22
+newmtl Cream
+Kd 0.99 0.97 0.94
+newmtl Layer
+Kd 0.98 0.88 0.90
+newmtl Sauce
+Kd 0.84 0.16 0.24
+newmtl Stem
+Kd 0.92 0.96 1.0
+newmtl Wafer
+Kd 0.88 0.65 0.31
