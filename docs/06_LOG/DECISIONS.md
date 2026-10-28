@@ -978,3 +978,5 @@ D-512 — (2026-10-29 (30), user) Ice box: walls 1.3 -> 1.8 high, the glow block
 D-513 — (2026-10-29 (31), user) Ice box: the textured ice walls replaced by the tier-3 boat's clear box (one SmoothPlastic block, (200,215,255), 70 % see-through); the light under the base thinner (0.04); a thin white neon line round the top edge of the black base; a gold neon 'VIP' over the bottles like the VIP tray's. Lineup: 2026-10-29/bucket_lineup_v5.jpg.
 
 D-514 — (2026-10-29 (32), user) Ice box: black base 0.42 -> 0.8 high; the clear box as wide as the base (out to its edge); the ice one layer lying on the glow block (34 cubes) instead of heaped between the bottles; the VIP sign 1 higher, clear of the bottle tops. Shot: 2026-10-29/icebox_sample_v7.jpg.
+
+D-515 — (2026-10-29 (33), user) Ice box: the glow block fills the widened clear box (L + 0.2 x W + 0.2) and is a little lower (0.36 of the box height, was 0.42); the aura stronger and pink-lilac (35 % see-through at its thickest, 22 a second, 1.2 -> 3.4 big, lives 3-4.2 s), starting from the top of the glow block. Shot: 2026-10-29/icebox_sample_v8.jpg.

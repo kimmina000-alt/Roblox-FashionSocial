@@ -456,8 +456,9 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	-- white neon floor inside, lighting the ice from below
 	local floorY = BH
 	-- (a white neon block at the bottom like the tier-3 boat's glow, user 2026-10-29 (27))
-	local GH = H * 0.42 -- (a taller glow block, the ice and bottles on top of it, 2026-10-29 (30))
-	local glowFloor = part(m, "IceBoxGlow", Vector3.new(L - 0.3, GH, W - 0.3), at * CFrame.new(0, floorY + GH / 2, 0), Color3.fromRGB(235, 242, 255), Enum.Material.Neon)
+	local GH = H * 0.36 -- (a taller glow block, the ice and bottles on top of it, 2026-10-29 (30); a little lower, (33))
+	-- (filling the widened clear box, 2026-10-29 (33))
+	local glowFloor = part(m, "IceBoxGlow", Vector3.new(L + 0.2, GH, W + 0.2), at * CFrame.new(0, floorY + GH / 2, 0), Color3.fromRGB(235, 242, 255), Enum.Material.Neon)
 	light(glowFloor, Color3.fromRGB(255, 230, 245), 10, 2.6) -- (brighter: it lights the ice through the walls)
 	-- the clear box of the tier-3 boat (one see-through block, user 2026-10-29 (31))
 	-- (as wide as the base, out to its edge, 2026-10-29 (32))
@@ -480,17 +481,18 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 		BottleShapes.add(m, base2, key, colors[(i - 1) % #colors + 1], (if i == 3 then 0.66 else 0.6) * 1.5)
 	end
 	-- a soft aura rising out of the box (like the VIP tray's)
-	local src = part(m, "AuraSource", Vector3.new(L - 0.4, 0.1, W - 0.4), at * CFrame.new(0, floorY + 0.3, 0), Color3.new(1, 1, 1), nil, nil, 1)
+	local src = part(m, "AuraSource", Vector3.new(L - 0.4, 0.1, W - 0.4), at * CFrame.new(0, floorY + GH + 0.4, 0), Color3.new(1, 1, 1), nil, nil, 1)
 	local aura = Instance.new("ParticleEmitter")
 	aura.Name = "Aura"
 	aura.Texture = "rbxasset://textures/particles/smoke_main.dds"
-	aura.Color = ColorSequence.new(Color3.fromRGB(255, 225, 245), Color3.fromRGB(235, 240, 255))
+	aura.Color = ColorSequence.new(Color3.fromRGB(255, 170, 215), Color3.fromRGB(190, 170, 255))
 	aura.LightEmission = 1
 	aura.LightInfluence = 0
-	aura.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.6), NumberSequenceKeypoint.new(1, 1) })
-	aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(1, 2.4) })
-	aura.Lifetime = NumberRange.new(2.2, 3.2)
-	aura.Rate = 12
+	-- (stronger and taller so it shows over the bright box, 2026-10-29 (33))
+	aura.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.25, 0.35), NumberSequenceKeypoint.new(1, 1) })
+	aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 3.4) })
+	aura.Lifetime = NumberRange.new(3, 4.2)
+	aura.Rate = 22
 	aura.Speed = NumberRange.new(0.5, 0.9)
 	aura.SpreadAngle = Vector2.new(12, 12)
 	aura.Rotation = NumberRange.new(0, 360)
