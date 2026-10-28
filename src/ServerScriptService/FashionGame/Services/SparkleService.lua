@@ -183,7 +183,7 @@ local function burn(parent: BasePart, base: Vector3, seconds: number)
 	local s = Instance.new("Part")
 	s.Name = "SparklerStick"
 	s.Size = Vector3.new(0.04, 1.1, 0.04) -- (thinner, user 2026-10-28 (3))
-	s.Color = Color3.fromRGB(200, 200, 205)
+	s.Color = Color3.fromRGB(25, 25, 28) -- (black sticks, user 2026-10-28 (5))
 	s.Material = Enum.Material.Metal
 	s.Anchored = true
 	s.CanCollide = false
@@ -294,14 +294,14 @@ local function giveItem(player: Player, attribute: string, name: string, tip: st
 end
 
 local function grantSparkler(player: Player): (boolean, string?)
-	local ok, message = giveItem(player, "Sparkler", "🎇 스파클러", "들고 테이블 위 병(버킷)을 누르면 불꽃 30초", Color3.fromRGB(200, 200, 205))
+	local ok, message = giveItem(player, "Sparkler", "🎇 스파클러", "들고 테이블 위 병(버킷)을 누르면 불꽃 30초", Color3.fromRGB(25, 25, 28))
 	if ok then toast(player, "🎇 스파클러를 받았어요! 들고 테이블 위 병을 눌러 보세요.") end
 	return ok, message
 end
 
 -- five sparklers in one item (user 2026-10-27): up to five burn in one bucket
 local function grantSparkler5(player: Player): (boolean, string?)
-	local ok, message = giveItem(player, "Sparkler", "🎇 스파클러 ×5", "들고 테이블 위 병(버킷)을 누를 때마다 하나씩, 한 버킷에 5개까지", Color3.fromRGB(200, 200, 205), 5)
+	local ok, message = giveItem(player, "Sparkler", "🎇 스파클러 ×5", "들고 테이블 위 병(버킷)을 누를 때마다 하나씩, 한 버킷에 5개까지", Color3.fromRGB(25, 25, 28), 5)
 	if ok then toast(player, "🎇 스파클러 5개를 받았어요! 들고 버킷을 누를 때마다 하나씩 꽂혀요.") end
 	return ok, message
 end
@@ -317,8 +317,8 @@ local function grantBucket(player: Player, tablePart: BasePart): (boolean, strin
 	local bucket = Instance.new("Part")
 	bucket.Name = "SparklerBucket"
 	bucket.Shape = Enum.PartType.Cylinder
-	bucket.Size = Vector3.new(1.2, 1.3, 1.3) -- (narrow foot; wider rings above: user 2026-10-28 (3))
-	bucket.CFrame = CFrame.new(tablePart.Position.X, top + 0.6, tablePart.Position.Z) * CFrame.Angles(0, 0, math.rad(90))
+	bucket.Size = Vector3.new(1.9, 1.6, 1.6) -- (the ice bucket's height, so the sparklers stand on its rim)
+	bucket.CFrame = CFrame.new(tablePart.Position.X, top + 0.95, tablePart.Position.Z) * CFrame.Angles(0, 0, math.rad(90))
 	-- (the ice bucket since 2026-10-28 (4): this part only holds the sparklers,
 	-- the count and the tap; DrinkBucket draws the pail, ice and bottles)
 	bucket.Transparency = 1
@@ -717,7 +717,7 @@ local function grantHandSparkler(player: Player): (boolean, string?)
 	local stick = Instance.new("Part")
 	stick.Name = "Stick"
 	stick.Size = Vector3.new(0.05, STICK, 0.05)
-	stick.Color = Color3.fromRGB(120, 116, 110)
+	stick.Color = Color3.fromRGB(25, 25, 28)
 	stick.Material = Enum.Material.Concrete
 	stick.CanCollide = false
 	stick.CanQuery = false

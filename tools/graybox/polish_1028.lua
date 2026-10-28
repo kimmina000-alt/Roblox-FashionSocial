@@ -380,27 +380,31 @@ do
 	end
 end
 
----------------------------------------------------------------- 9. club entrance: graffiti on the right wall too
--- (user 2026-10-28 (3), D-457: the foyer's east wall was bare and dark) a turned
--- copy of the west wall's graffiti panel, just inside the east wall (x 65.5)
+---------------------------------------------------------------- 9. club entrance: graffiti by the stairs, HERE on the east wall
+-- (user 2026-10-28 (3)/(5), D-457/D-460) the stair corridor's east wall (x 65.5,
+-- z -290..-234) gets a turned copy of the west wall's big graffiti; the foyer's
+-- east wall keeps only its "HERE ←" sign (GraffitiSign), no graffiti behind it
 do
 	local club = G:FindFirstChild("02_Club")
 	if club then
-		local old = club:FindFirstChild("GraffitiWallEast")
-		if old then old:Destroy() end
-		local src
+		for _, n in ipairs({ "GraffitiWallEast", "GraffitiStairEast", "HereSign" }) do
+			local old = club:FindFirstChild(n)
+			if old then old:Destroy() end
+		end
+		local big
 		for _, d in ipairs(club:GetChildren()) do
-			if d:IsA("BasePart") and d.Name == "GraffitiWall" and math.abs(d.Position.X - 50) < 1 and math.abs(d.Position.Z + 226) < 1 then src = d break end
+			if d:IsA("BasePart") and d.Name == "GraffitiWall" and math.abs(d.Position.X - 50) < 1 and math.abs(d.Position.Z + 262) < 1 then big = d break end
 		end
-		if src then
-			local copy = src:Clone()
-			copy.Name = "GraffitiWallEast"
-			local p = src.Position
-			copy.CFrame = CFrame.new(65.35, p.Y, p.Z + 4) * CFrame.Angles(0, math.pi, 0) * src.CFrame.Rotation
+		if big then
+			local copy = big:Clone()
+			copy.Name = "GraffitiStairEast"
+			local p = big.Position
+			copy.CFrame = CFrame.new(65.35, p.Y, p.Z) * CFrame.Angles(0, math.pi, 0) * big.CFrame.Rotation
 			copy.Parent = club
-			note("graffiti east wall")
 		end
+		-- (the HERE sign is the existing GraffitiSign decal at z -216.8)
+
+		note("graffiti stair wall + HERE")
 	end
 end
-
 return table.concat(report, "\n")
