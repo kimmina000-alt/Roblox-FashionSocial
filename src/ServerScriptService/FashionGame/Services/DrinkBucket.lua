@@ -107,8 +107,8 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 	-- one big glowing ice block filling the pail up near the rim (user 2026-10-28 (10))
 	local glowIce = glow == "ice"
 	local fill = H_PAIL * 0.8
-	local block = part(m :: Model, "IceBlock", Vector3.new(D_TOP * 0.74, fill - 0.15, D_TOP * 0.74),
-		at * CFrame.new(0, 0.15 + (fill - 0.15) / 2, 0),
+	-- (a round block that fits the round pail: a square one stood out through its sides)
+	local block = cyl(m :: Model, "IceBlock", D_TOP * 0.66, fill - 0.15, at * CFrame.new(0, 0.15 + (fill - 0.15) / 2, 0),
 		if glowIce then Color3.fromRGB(220, 240, 255) else ICE, if glowIce then Enum.Material.Neon else Enum.Material.Glass, if glowIce then 0.45 else 0.35)
 	if glowIce then light(block, Color3.fromRGB(200, 230, 255), 7, 1.6) end
 	-- clear square ice cubes on top, in the gaps between the drinks (user 2026-10-28 (13))
@@ -116,7 +116,7 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		local a = (i - 0.5) * math.pi * 2 / 3
 		local s = 0.62
 		part(m :: Model, "IceCube", Vector3.new(s, s, s), at * CFrame.new(math.cos(a) * 0.5, fill + s * 0.45, math.sin(a) * 0.5) * CFrame.Angles(0.25, a, 0.15),
-			Color3.fromRGB(235, 248, 255), Enum.Material.Glass, 0.25)
+			Color3.fromRGB(205, 232, 255), Enum.Material.SmoothPlastic, nil, 0.45) -- (see-through square cubes; the transparency had gone into the shape argument and made balls, user 2026-10-28 (14))
 	end
 	-- three bottles leaning out (cans at their full table size)
 	for i, b in ipairs(bottles) do
