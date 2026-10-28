@@ -420,12 +420,21 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	local BLACK = Color3.fromRGB(14, 14, 18)
 	local WHITE = Color3.fromRGB(255, 255, 255)
 	-- (a light set under the base so it glows out onto the table round it, user 2026-10-29 (29))
-	local LIFT = 0.1
+	local LIFT = 0.04 -- (thinner, 2026-10-29 (31))
 	local under = part(m, "IceBoxUnderGlow", Vector3.new(L + 0.24, LIFT, W + 0.24), at * CFrame.new(0, LIFT / 2, 0), Color3.fromRGB(255, 235, 250), Enum.Material.Neon, nil, 0.1)
 	light(under, Color3.fromRGB(255, 225, 245), 7, 2)
 	at = at * CFrame.new(0, LIFT, 0)
 	local base = part(m, "IceBoxBase", Vector3.new(L + 0.3, BH, W + 0.3), at * CFrame.new(0, BH / 2, 0), BLACK, Enum.Material.Glass)
 	base.Reflectance = 0.25
+	-- a thin white light line round the top edge of the base (user 2026-10-29 (31))
+	for _, e in ipairs({
+		{ Vector3.new(L + 0.34, 0.035, 0.035), CFrame.new(0, BH, -(W + 0.3) / 2) },
+		{ Vector3.new(L + 0.34, 0.035, 0.035), CFrame.new(0, BH, (W + 0.3) / 2) },
+		{ Vector3.new(0.035, 0.035, W + 0.34), CFrame.new(-(L + 0.3) / 2, BH, 0) },
+		{ Vector3.new(0.035, 0.035, W + 0.34), CFrame.new((L + 0.3) / 2, BH, 0) },
+	}) do
+		part(m, "BaseEdgeLight", e[1], at * e[2], WHITE, Enum.Material.Neon)
+	end
 	-- "OHU" in white neon bars on the base front
 	do
 		local cy, h, w, z = BH / 2, 0.26, 0.045, -(W + 0.3) / 2 - 0.02
@@ -450,25 +459,8 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	local GH = H * 0.42 -- (a taller glow block, the ice and bottles on top of it, 2026-10-29 (30))
 	local glowFloor = part(m, "IceBoxGlow", Vector3.new(L - 0.3, GH, W - 0.3), at * CFrame.new(0, floorY + GH / 2, 0), Color3.fromRGB(235, 242, 255), Enum.Material.Neon)
 	light(glowFloor, Color3.fromRGB(255, 230, 245), 10, 2.6) -- (brighter: it lights the ice through the walls)
-	-- the rippled ice walls: four clear slabs with the ice picture tiled on them
-	local T = 0.16
-	local function wall(size: Vector3, cf: CFrame)
-		local p = part(m, "IceWall", size, at * cf, Color3.fromHSV(0.75, 0.04, 0.8), Enum.Material.SmoothPlastic, nil, 0.7) -- (lightness 80 %, 2026-10-29 (30))
-		p.Reflectance = 0.15
-		for _, face in ipairs(Enum.NormalId:GetEnumItems()) do
-			local t = Instance.new("Texture")
-			t.Face = face
-			t.Texture = ICE_TEXTURE
-			t.StudsPerTileU, t.StudsPerTileV = 0.9, 0.9
-			t.Transparency = 0.55
-			t.Parent = p
-		end
-	end
-	wall(Vector3.new(L, H, T), CFrame.new(0, floorY + H / 2, -W / 2 + T / 2))
-	wall(Vector3.new(L, H, T), CFrame.new(0, floorY + H / 2, W / 2 - T / 2))
-	wall(Vector3.new(T, H, W - 2 * T), CFrame.new(-L / 2 + T / 2, floorY + H / 2, 0))
-	wall(Vector3.new(T, H, W - 2 * T), CFrame.new(L / 2 - T / 2, floorY + H / 2, 0))
-	-- ice heaped on the glowing floor (more of it, two layers, user 2026-10-29 (26))
+	-- the clear box of the tier-3 boat (one see-through block, user 2026-10-29 (31))
+	part(m, "Box", Vector3.new(L, H, W), at * CFrame.new(0, floorY + H / 2, 0), Color3.fromRGB(200, 215, 255), Enum.Material.SmoothPlastic, nil, 0.7)	-- ice heaped on the glowing floor (more of it, two layers, user 2026-10-29 (26))
 	local rnd = Random.new()
 	-- (filled up to near the rim: three layers over the glow block)
 	-- (half as many, 1.3x bigger, user 2026-10-29 (28))
@@ -503,7 +495,20 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	aura.Rotation = NumberRange.new(0, 360)
 	aura.RotSpeed = NumberRange.new(-20, 20)
 	aura.EmissionDirection = Enum.NormalId.Top
-	aura.Parent = src	return floorY + H + LIFT
+	aura.Parent = src
+	-- the gold neon "VIP" over the bottles, like the VIP tray's (2026-10-29 (31))
+	local cy = floorY + GH + 4.9
+	local function vbar(x0: number, y0: number, x1: number, y1: number)
+		local a, b = Vector3.new(-x0, cy + y0, 0), Vector3.new(-x1, cy + y1, 0)
+		local mid, dir = (a + b) / 2, b - a
+		part(m, "VIPLetter", Vector3.new(0.11, dir.Magnitude + 0.11, 0.11), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, -1), dir.Unit), GOLD, Enum.Material.Neon)
+	end
+	local hh = 0.45
+	vbar(-0.95, hh, -0.65, -hh) vbar(-0.35, hh, -0.65, -hh) -- V
+	vbar(0, hh, 0, -hh) -- I
+	vbar(0.4, hh, 0.4, -hh) vbar(0.4, hh, 0.85, hh) vbar(0.85, hh, 0.85, 0) vbar(0.4, 0, 0.85, 0) -- P
+	light(part(m, "VIPSignLight", Vector3.new(0.2, 0.2, 0.2), at * CFrame.new(0, cy, 0), GOLD, nil, nil, 1), Color3.fromRGB(255, 220, 150), 6, 1.2)
+	return cy + hh + LIFT
 end
 
 function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, colors: {Color3}): number
