@@ -264,9 +264,8 @@ local ASSET_SHAPE = {
 local DRAWN = { ginger_brew = "flask", monte = "flask", french_lemonade = "flask", golden_apple = "flask", zzang_pop = "flask",
 	hot_boost = "flask", green_claw = "flask", blue_wing = "flask", stack_hydro = "tall", pastel_splash = "tall", skull_water = "tall" }
 local LABEL = {
-	-- (cans: the user's own pictures, applied unchanged, D-465)
-	cider = "rbxassetid://130458611002819", cola = "rbxassetid://116474080865575", orange = "rbxassetid://95826488283368",
-	lemonade = "rbxassetid://102931817238693", blueade = "rbxassetid://112669399242284",
+	-- (cans: no printed design for now, plain metal in the drink colour; the user
+	-- will send new pictures, 2026-10-28 (11), D-466)
 	ginger_brew = "rbxassetid://78161382486926", monte = "rbxassetid://111978227065988", french_lemonade = "rbxassetid://82834417286890",
 	golden_apple = "rbxassetid://138757272545670", zzang_pop = "rbxassetid://113640294515835", hot_boost = "rbxassetid://89899401494100",
 	green_claw = "rbxassetid://134976093090518", blue_wing = "rbxassetid://129850818133473",
@@ -379,7 +378,9 @@ local function fromTemplate(c: Ctx, key: string, color: Color3): boolean
 			p.CanCollide, p.CanTouch, p.CastShadow = false, false, false
 			for _, j in ipairs(p:GetChildren()) do if j:IsA("JointInstance") or j:IsA("WeldConstraint") then j:Destroy() end end
 			if shape == "Can" and p:IsA("MeshPart") then
-				p.TextureID = LABEL[key] or p.TextureID
+				-- (no design picture: the can's own print is cleared, plain metal in the drink colour)
+				p.TextureID = LABEL[key] or ""
+				if not LABEL[key] then p.Color = color end
 			elseif shape == "Flask" and p:IsA("MeshPart") and p.Name:find("vile") and not p.Name:find("cork") then
 				-- the outer glass takes the drink colour, the inner shape a darker one (the drink inside)
 				p.Color = if p.Size.X > 0.2 * c.s then glassColor else glassColor:Lerp(Color3.new(0, 0, 0), 0.45)
