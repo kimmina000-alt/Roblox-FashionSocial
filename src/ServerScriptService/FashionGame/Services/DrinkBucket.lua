@@ -419,6 +419,11 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	local L, W, H, BH = 4.8, 2.2, 1.3, 0.42 -- (bigger than the tier-3 boat, user 2026-10-29 (26)) -- box length / depth / height, base height
 	local BLACK = Color3.fromRGB(14, 14, 18)
 	local WHITE = Color3.fromRGB(255, 255, 255)
+	-- (a light set under the base so it glows out onto the table round it, user 2026-10-29 (29))
+	local LIFT = 0.1
+	local under = part(m, "IceBoxUnderGlow", Vector3.new(L + 0.24, LIFT, W + 0.24), at * CFrame.new(0, LIFT / 2, 0), Color3.fromRGB(255, 235, 250), Enum.Material.Neon, nil, 0.1)
+	light(under, Color3.fromRGB(255, 225, 245), 7, 2)
+	at = at * CFrame.new(0, LIFT, 0)
 	local base = part(m, "IceBoxBase", Vector3.new(L + 0.3, BH, W + 0.3), at * CFrame.new(0, BH / 2, 0), BLACK, Enum.Material.Glass)
 	base.Reflectance = 0.25
 	-- "OHU" in white neon bars on the base front
@@ -444,18 +449,18 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	-- (a white neon block at the bottom like the tier-3 boat's glow, user 2026-10-29 (27))
 	local GH = H * 0.28
 	local glowFloor = part(m, "IceBoxGlow", Vector3.new(L - 0.3, GH, W - 0.3), at * CFrame.new(0, floorY + GH / 2, 0), Color3.fromRGB(235, 242, 255), Enum.Material.Neon)
-	light(glowFloor, Color3.fromRGB(255, 225, 245), 7, 1.6)
+	light(glowFloor, Color3.fromRGB(255, 230, 245), 10, 2.6) -- (brighter: it lights the ice through the walls)
 	-- the rippled ice walls: four clear slabs with the ice picture tiled on them
 	local T = 0.16
 	local function wall(size: Vector3, cf: CFrame)
-		local p = part(m, "IceWall", size, at * cf, Color3.fromRGB(240, 235, 250), Enum.Material.SmoothPlastic, nil, 0.55)
+		local p = part(m, "IceWall", size, at * cf, Color3.fromRGB(240, 235, 250), Enum.Material.SmoothPlastic, nil, 0.7)
 		p.Reflectance = 0.15
 		for _, face in ipairs(Enum.NormalId:GetEnumItems()) do
 			local t = Instance.new("Texture")
 			t.Face = face
 			t.Texture = ICE_TEXTURE
 			t.StudsPerTileU, t.StudsPerTileV = 0.9, 0.9
-			t.Transparency = 0.4
+			t.Transparency = 0.55
 			t.Parent = p
 		end
 	end
@@ -498,7 +503,7 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	aura.Rotation = NumberRange.new(0, 360)
 	aura.RotSpeed = NumberRange.new(-20, 20)
 	aura.EmissionDirection = Enum.NormalId.Top
-	aura.Parent = src	return floorY + H
+	aura.Parent = src	return floorY + H + LIFT
 end
 
 function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, colors: {Color3}): number

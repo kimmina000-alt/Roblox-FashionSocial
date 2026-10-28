@@ -970,3 +970,5 @@ D-508 — (2026-10-29 (26), user) Ice box sample v2: 4.8 x 2.2 (bigger than the 
 D-509 — (2026-10-29 (27), user) Ice box sample v3: a white neon block at the bottom (0.28 of the box height, like the tier-3 boat's glow), 110 ice cubes in three layers over it up to near the rim, the bottles standing on the glow. 133 parts. Lineup shot with the tier-3 boat (placed 0.9) and the VIP tray C: 2026-10-29/bucket_lineup_t3_vip_icebox.jpg.
 
 D-510 — (2026-10-29 (28), user) Ice box sample v4: bottles 1.5x like the VIP tray's; 55 ice cubes (was 110) 1.3x bigger (iceCube takes a size factor now), three layers. 78 parts. Lineup: 2026-10-29/bucket_lineup_v2.jpg.
+
+D-511 — (2026-10-29 (29), user: why does the tier-3 boat glow and the ice box not?) The ice box's glow block was behind 55 %-see-through walls with the ice picture at 40 % and under the ice: the walls are now 70 % see-through (picture 55 %), the glow block's light 10 / 2.6 (was 7 / 1.6), and a light is set under the base: the box sits 0.1 up on a neon plate a little bigger than the base with a light, so it glows out onto the table. Lineup: 2026-10-29/bucket_lineup_v3.jpg.
