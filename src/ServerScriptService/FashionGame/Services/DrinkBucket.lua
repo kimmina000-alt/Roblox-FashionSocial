@@ -441,7 +441,9 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	end
 	-- white neon floor inside, lighting the ice from below
 	local floorY = BH
-	local glowFloor = part(m, "IceBoxGlow", Vector3.new(L - 0.3, 0.06, W - 0.3), at * CFrame.new(0, floorY + 0.03, 0), WHITE, Enum.Material.Neon)
+	-- (a white neon block at the bottom like the tier-3 boat's glow, user 2026-10-29 (27))
+	local GH = H * 0.28
+	local glowFloor = part(m, "IceBoxGlow", Vector3.new(L - 0.3, GH, W - 0.3), at * CFrame.new(0, floorY + GH / 2, 0), Color3.fromRGB(235, 242, 255), Enum.Material.Neon)
 	light(glowFloor, Color3.fromRGB(255, 225, 245), 7, 1.6)
 	-- the rippled ice walls: four clear slabs with the ice picture tiled on them
 	local T = 0.16
@@ -463,9 +465,10 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	wall(Vector3.new(T, H, W - 2 * T), CFrame.new(L / 2 - T / 2, floorY + H / 2, 0))
 	-- ice heaped on the glowing floor (more of it, two layers, user 2026-10-29 (26))
 	local rnd = Random.new()
-	for i = 1, 60 do
-		local layer = if i > 36 then 0.32 else 0
-		iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.3, L / 2 - 0.3), floorY + 0.15 + layer + rnd:NextNumber(0, 0.2), rnd:NextNumber(-W / 2 + 0.28, W / 2 - 0.28)))
+	-- (filled up to near the rim: three layers over the glow block)
+	for i = 1, 110 do
+		local layer = math.floor((i - 1) / 37) * 0.28
+		iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.3, L / 2 - 0.3), floorY + GH + 0.12 + layer + rnd:NextNumber(0, 0.15), rnd:NextNumber(-W / 2 + 0.28, W / 2 - 0.28)))
 	end
 	-- five bottles stood loosely in the ice like the other buckets: spread
 	-- along the box, each a little off the line, turned and leaning
@@ -473,7 +476,7 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 		local x = -L / 2 + 0.75 + (i - 1) * (L - 1.5) / 4 + rnd:NextNumber(-0.15, 0.15)
 		local z = rnd:NextNumber(-0.35, 0.35)
 		local lean = CFrame.fromAxisAngle(Vector3.new(rnd:NextNumber(-1, 1), 0, rnd:NextNumber(-1, 1)).Unit, math.rad(rnd:NextNumber(3, 9)))
-		local base2 = at * CFrame.new(x, floorY + 0.25, z) * lean * CFrame.Angles(0, rnd:NextNumber(-0.7, 0.7), 0)
+		local base2 = at * CFrame.new(x, floorY + GH, z) * lean * CFrame.Angles(0, rnd:NextNumber(-0.7, 0.7), 0)
 		BottleShapes.add(m, base2, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
 	end
 	-- a soft aura rising out of the box (like the VIP tray's)
