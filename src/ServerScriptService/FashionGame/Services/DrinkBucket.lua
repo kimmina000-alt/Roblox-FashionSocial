@@ -187,8 +187,8 @@ local function laser(m: Model, at: CFrame, x: number, z: number, lean: number)
 	local beam = Instance.new("Beam")
 	beam.Attachment0 = a0
 	beam.Attachment1 = a1
-	beam.Width0 = 0.18
-	beam.Width1 = 0.45
+	beam.Width0 = 0.08 -- (thinner and a little fainter than the club's, user 2026-10-29 (4))
+	beam.Width1 = 0.22
 	beam.Texture = SOFT_BEAM
 	beam.TextureMode = Enum.TextureMode.Stretch
 	beam.TextureLength = 1
@@ -197,7 +197,7 @@ local function laser(m: Model, at: CFrame, x: number, z: number, lean: number)
 	beam.LightInfluence = 0
 	beam.Segments = 1
 	beam.Color = ColorSequence.new(LASER)
-	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.5, 0.45), NumberSequenceKeypoint.new(1, 0.9) })
+	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(0.5, 0.6), NumberSequenceKeypoint.new(1, 0.95) })
 	beam.Parent = dot
 end
 function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, colors: {Color3}): number
@@ -206,8 +206,8 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 	-- round base dressed like B (yellow light bricks on the front corners, warm window)
 	if style == "A" or style == "C" then
 		cyl(m, "TrayBase", 3.2, 0.55, at * CFrame.new(0, 0.275, 0), DARK, Enum.Material.SmoothPlastic)
-		-- RGB ring: coloured neon segments round the top edge
-		for i = 0, 11 do
+		-- RGB ring: coloured neon segments round the top edge (not on C, user 2026-10-29 (4))
+		for i = 0, (if style == "C" then -1 else 11) do
 			local a = i * math.pi * 2 / 12
 			local seg = part(m, "RGBRing", Vector3.new(0.85, 0.1, 0.18), at * CFrame.new(math.cos(a) * 1.52, 0.6, math.sin(a) * 1.52) * CFrame.Angles(0, -a + math.pi / 2, 0),
 				RAINBOW[i % #RAINBOW + 1], Enum.Material.Neon, nil, 0)
@@ -225,8 +225,7 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 					end
 				end
 			end
-			local win = part(m, "FrontWindow", Vector3.new(0.95, 0.24, 0.05), at * CFrame.new(0, 0.27, -1.62), Color3.fromRGB(255, 245, 225), Enum.Material.Neon, nil, 0)
-			light(win, Color3.fromRGB(255, 190, 90), 6, 1.2)
+			-- (no front window on C, user 2026-10-29 (4))
 		else
 			-- light slats round the side and a front window
 			for i = 0, 17 do
@@ -285,6 +284,30 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 		local u = (i - 3) / 2
 		local base = at * CFrame.new(u * 0.95, 0.6, 0.15 + math.abs(u) * -0.35) * CFrame.Angles(0, 0, math.rad(-u * 8))
 		BottleShapes.add(m, base, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
+	end
+	if style == "C" then
+		-- a white neon "VIP" floating over the bottles (user 2026-10-29 (4))
+		local holder = part(m, "VIPSignHolder", Vector3.new(0.2, 0.2, 0.2), at * CFrame.new(0, 4.3, 0), Color3.new(1, 1, 1), nil, nil, 1)
+		local bb = Instance.new("BillboardGui")
+		bb.Name = "VIPSign"
+		bb.Size = UDim2.fromScale(2.6, 1.1)
+		bb.LightInfluence = 0
+		bb.MaxDistance = 80
+		bb.Parent = holder
+		local text = Instance.new("TextLabel")
+		text.Size = UDim2.fromScale(1, 1)
+		text.BackgroundTransparency = 1
+		text.Text = "VIP"
+		text.TextScaled = true
+		text.Font = Enum.Font.GothamBlack
+		text.TextColor3 = Color3.fromRGB(255, 255, 255)
+		text.Parent = bb
+		local glow = Instance.new("UIStroke")
+		glow.Color = Color3.fromRGB(150, 200, 255)
+		glow.Thickness = 4
+		glow.Transparency = 0.15
+		glow.Parent = text
+		light(holder, Color3.fromRGB(230, 240, 255), 6, 1.2)
 	end
 	return 3.4
 end
