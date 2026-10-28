@@ -238,28 +238,37 @@ end
 -- LED line round each step, the bottles standing loosely (not in a row) in a
 -- clear round glass case with a few square ice cubes, cyan LED rings all the
 -- way round the case (the two side "wings" joined up), no lasers.
+local ICE_TEXTURE = "rbxassetid://123768039122634"
 local function vipTrayC(m: Model, at: CFrame, key: string, colors: {Color3}): number
 	local DARK = Color3.fromRGB(18, 18, 24)
 	local YELLOW = Color3.fromRGB(255, 200, 70)
 	local CYAN = Color3.fromRGB(110, 200, 255)
 	local S1D, S2D, SH = 3.3, 2.85, 0.55 -- step diameters, step height
 	cyl(m, "TrayBase", S1D, SH, at * CFrame.new(0, SH / 2, 0), DARK, Enum.Material.SmoothPlastic)
-	cyl(m, "TrayStep", S2D, SH, at * CFrame.new(0, SH * 1.5, 0), DARK, Enum.Material.SmoothPlastic)
-	-- the LED lines: a thin neon disc a hair wider than the step shows only as a ring
-	for _, y in ipairs({ 0.18, 0.4 }) do
-		cyl(m, "LEDLine", S1D + 0.04, 0.035, at * CFrame.new(0, y, 0), YELLOW, Enum.Material.Neon)
-		cyl(m, "LEDLine", S2D + 0.04, 0.035, at * CFrame.new(0, SH + y, 0), YELLOW, Enum.Material.Neon)
+	-- the top step is sunk in the middle: a lower body, a rim ring round the
+	-- edge, and the lit disc in the dip (user 2026-10-29 (9))
+	local DIP = 0.08
+	cyl(m, "TrayStep", S2D, SH - DIP, at * CFrame.new(0, SH + (SH - DIP) / 2, 0), DARK, Enum.Material.SmoothPlastic)
+	local RIM_W = 0.16
+	for i = 0, 17 do
+		local a = i * math.pi * 2 / 18
+		local r = S2D / 2 - RIM_W / 2
+		part(m, "TrayRim", Vector3.new(2 * math.pi * r / 18 + 0.04, DIP, RIM_W), at * CFrame.new(math.cos(a) * r, SH * 2 - DIP / 2, math.sin(a) * r) * CFrame.Angles(0, -a + math.pi / 2, 0), DARK)
 	end
-	local floorY = SH * 2
-	local top = cyl(m, "LitTop", S2D - 0.25, 0.05, at * CFrame.new(0, floorY, 0), Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
+	-- one LED line per step: a thin neon disc a hair wider than the step shows only as a ring
+	cyl(m, "LEDLine", S1D + 0.04, 0.035, at * CFrame.new(0, SH * 0.6, 0), YELLOW, Enum.Material.Neon)
+	cyl(m, "LEDLine", S2D + 0.04, 0.035, at * CFrame.new(0, SH * 1.6, 0), YELLOW, Enum.Material.Neon)
+	local floorY = SH * 2 - DIP
+	local top = cyl(m, "LitTop", S2D - 2 * RIM_W, 0.04, at * CFrame.new(0, floorY + 0.02, 0), Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
 	light(top, Color3.fromRGB(200, 225, 255), 7, 1.2)
-	-- the glass case (see-through plastic: Glass hides the see-through ice behind it)
-	local GR, GH = 1.35, 2.1
-	local glass = cyl(m, "GlassCase", GR * 2, GH, at * CFrame.new(0, floorY + GH / 2, 0), Color3.fromRGB(215, 235, 255), Enum.Material.SmoothPlastic, 0.82)
+	-- the glass case round the whole podium, from the table up (see-through
+	-- plastic: Glass hides the see-through ice behind it)
+	local GR, GTOP = S1D / 2 + 0.12, SH * 2 + 2.1
+	local glass = cyl(m, "GlassCase", GR * 2, GTOP, at * CFrame.new(0, GTOP / 2, 0), Color3.fromRGB(215, 235, 255), Enum.Material.SmoothPlastic, 0.85)
 	glass.Reflectance = 0.15
-	beamRing(glass, at * CFrame.new(0, floorY + GH, 0), GR, Color3.fromRGB(235, 245, 255), 0.04, 0.3) -- the rim
-	for _, y in ipairs({ 0.4, 1.05, 1.7 }) do
-		beamRing(glass, at * CFrame.new(0, floorY + y, 0), GR + 0.1, CYAN, 0.05)
+	beamRing(glass, at * CFrame.new(0, GTOP, 0), GR, Color3.fromRGB(235, 245, 255), 0.04, 0.3) -- the rim
+	for _, y in ipairs({ 0.55, 1.2, 1.85 }) do
+		beamRing(glass, at * CFrame.new(0, SH * 2 + y, 0), GR + 0.08, CYAN, 0.05)
 	end
 	-- bottles stood loosely: one near the middle, four round it, each turned and leaning a little
 	local rnd = Random.new()
@@ -278,13 +287,22 @@ local function vipTrayC(m: Model, at: CFrame, key: string, colors: {Color3}): nu
 		local base = at * CFrame.new(pos + Vector3.new(0, floorY, 0)) * lean * CFrame.Angles(0, rnd:NextNumber(-0.6, 0.6), 0)
 		BottleShapes.add(m, base, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
 	end
-	-- a few square ice cubes, only a little see-through
-	for _ = 1, 7 do
-		local s = rnd:NextNumber(0.36, 0.5)
-		local a, r = rnd:NextNumber(0, math.pi * 2), rnd:NextNumber(0.3, 1.05)
-		part(m, "IceCube", Vector3.new(s, s, s),
+	-- a few square ice cubes, barely see-through, with the user's ice picture
+	-- on every face (2026-10-29 (9), docs/04_ART/textures/drinks/ice_texture.png)
+	-- (in the gaps between the outer bottles, near the edge, so they show)
+	for i = 1, 8 do
+		local s = rnd:NextNumber(0.45, 0.6)
+		local a, r = math.rad((i - 1) * 45 + rnd:NextNumber(-12, 12)), rnd:NextNumber(0.85, 1.0)
+		local cube = part(m, "IceCube", Vector3.new(s, s, s),
 			at * CFrame.new(math.cos(a) * r, floorY + s / 2 + rnd:NextNumber(0, 0.25), math.sin(a) * r) * CFrame.Angles(rnd:NextNumber(0, 1.5), rnd:NextNumber(0, 1.5), rnd:NextNumber(0, 1.5)),
-			Color3.fromRGB(215, 235, 255), Enum.Material.SmoothPlastic, nil, 0.35)
+			Color3.fromRGB(225, 238, 255), Enum.Material.SmoothPlastic, nil, 0.12)
+		for _, face in ipairs(Enum.NormalId:GetEnumItems()) do
+			local d = Instance.new("Decal")
+			d.Face = face
+			d.Texture = ICE_TEXTURE
+			d.Transparency = 0.12
+			d.Parent = cube
+		end
 	end
 	-- the white neon "VIP" over the case (bars, read from the front = -Z)
 	local WHITE_NEON = Color3.fromRGB(255, 255, 255)
