@@ -104,7 +104,7 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 			p.Reflectance = 0.25
 		end
 	end
-	-- glowing ice up to about two thirds of the pail (user 2026-10-28 (6))
+	-- glowing ice heaped up near the rim, the cans standing well out of it (user 2026-10-28 (6)/(8))
 	local rnd = Random.new(7)
 	local glowIce = glow == "ice"
 	for i = 1, 18 do
@@ -112,7 +112,7 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		local r = rnd:NextNumber(0, 0.6)
 		local s = rnd:NextNumber(0.24, 0.34)
 		local cube = part(m :: Model, "IceCube", Vector3.new(s, s, s),
-			at * CFrame.new(math.cos(a) * r, H_PAIL * 0.45 + rnd:NextNumber(0, H_PAIL * 0.22), math.sin(a) * r)
+			at * CFrame.new(math.cos(a) * r, H_PAIL * 0.66 + rnd:NextNumber(0, H_PAIL * 0.22), math.sin(a) * r)
 				* CFrame.Angles(rnd:NextNumber(0, 1), rnd:NextNumber(0, 3), rnd:NextNumber(0, 1)),
 			if glowIce then Color3.fromRGB(220, 240, 255) else ICE, if glowIce then Enum.Material.Neon else Enum.Material.Glass, if glowIce then 0.45 else 0.35)
 		if glowIce and i == 1 then light(cube, Color3.fromRGB(200, 230, 255), 7, 1.6) end
@@ -124,7 +124,7 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		local tangent = Vector3.new(-out.Z, 0, out.X)
 		local scale = if BottleShapes.isCan(b.key) then 0.85 / BottleShapes.CanScale else 0.7
 		-- (in the ice, leaning out of the open top, not through the sides)
-		local base = CFrame.new((at * CFrame.new(out * 0.3 + Vector3.new(0, H_PAIL * 0.55, 0))).Position)
+		local base = CFrame.new((at * CFrame.new(out * 0.3 + Vector3.new(0, H_PAIL * 0.75, 0))).Position)
 			* CFrame.fromAxisAngle(tangent, math.rad(-18)) * CFrame.Angles(0, -angle - math.pi / 2, 0)
 		local parts = BottleShapes.add(m, base, b.key, b.color, scale)
 		if glow == "bottles" then
