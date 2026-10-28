@@ -504,13 +504,13 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	local function vbar(x0: number, y0: number, x1: number, y1: number)
 		local a, b = Vector3.new(-x0, cy + y0, 0), Vector3.new(-x1, cy + y1, 0)
 		local mid, dir = (a + b) / 2, b - a
-		part(m, "VIPLetter", Vector3.new(0.11, dir.Magnitude + 0.11, 0.11), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, -1), dir.Unit), GOLD, Enum.Material.Neon)
+		part(m, "VIPLetter", Vector3.new(0.11, dir.Magnitude + 0.11, 0.11), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, -1), dir.Unit), WHITE, Enum.Material.Neon) -- (white, 2026-10-29 (34))
 	end
 	local hh = 0.45
 	vbar(-0.95, hh, -0.65, -hh) vbar(-0.35, hh, -0.65, -hh) -- V
 	vbar(0, hh, 0, -hh) -- I
 	vbar(0.4, hh, 0.4, -hh) vbar(0.4, hh, 0.85, hh) vbar(0.85, hh, 0.85, 0) vbar(0.4, 0, 0.85, 0) -- P
-	light(part(m, "VIPSignLight", Vector3.new(0.2, 0.2, 0.2), at * CFrame.new(0, cy, 0), GOLD, nil, nil, 1), Color3.fromRGB(255, 220, 150), 6, 1.2)
+	light(part(m, "VIPSignLight", Vector3.new(0.2, 0.2, 0.2), at * CFrame.new(0, cy, 0), WHITE, nil, nil, 1), Color3.fromRGB(235, 240, 255), 6, 1.2)
 	return cy + hh + LIFT
 end
 
