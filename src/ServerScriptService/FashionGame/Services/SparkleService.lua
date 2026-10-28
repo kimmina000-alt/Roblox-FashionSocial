@@ -268,10 +268,10 @@ local function giveItem(player: Player, attribute: string, name: string, tip: st
 		local look = Instance.new("Model")
 		look.Name = "BucketLook"
 		DrinkBucket.iceBucket(look, handle.CFrame * CFrame.new(0, -0.5, 0) * CFrame.new(0, 0, 0), {
-			{ key = "cola", color = Color3.fromRGB(200, 20, 30) },
-			{ key = "cider", color = Color3.fromRGB(30, 150, 70) },
-			{ key = "blueade", color = Color3.fromRGB(40, 120, 220) },
-		}, "none")
+			{ key = "zzang_pop", color = Color3.fromRGB(200, 30, 95) },
+			{ key = "golden_apple", color = Color3.fromRGB(238, 160, 40) },
+			{ key = "monte", color = Color3.fromRGB(105, 165, 40) },
+		}, "none", true) -- (the tier-2 glass bucket, user 2026-10-29 (5))
 		look:ScaleTo(0.7)
 		for _, p in ipairs(look:GetDescendants()) do
 			if p:IsA("BasePart") then
@@ -307,7 +307,7 @@ local function grantSparkler5(player: Player): (boolean, string?)
 end
 
 local function grantBucketItem(player: Player): (boolean, string?)
-	local ok, message = giveItem(player, "SparklerSet", "🍾 스파클러 버킷", "들고 빈 테이블을 누르면 버킷 + 캔 3개 + 불꽃 3개", Color3.fromRGB(200, 200, 208))
+	local ok, message = giveItem(player, "SparklerSet", "🍾 스파클러 버킷", "들고 빈 테이블을 누르면 유리 버킷 + 병 3개 + 불꽃 3개", Color3.fromRGB(200, 200, 208))
 	if ok then toast(player, "🍾 스파클러 버킷을 받았어요! 들고 테이블을 눌러 올려놓으세요.") end
 	return ok, message
 end
@@ -329,10 +329,10 @@ local function grantBucket(player: Player, tablePart: BasePart): (boolean, strin
 	local look = Instance.new("Model")
 	look.Name = "BucketLook"
 	DrinkBucket.iceBucket(look, CFrame.new(tablePart.Position.X, top, tablePart.Position.Z), {
-		{ key = "cola", color = Color3.fromRGB(200, 20, 30) },
-		{ key = "cider", color = Color3.fromRGB(30, 150, 70) },
-		{ key = "blueade", color = Color3.fromRGB(40, 120, 220) },
-	})
+		{ key = "zzang_pop", color = Color3.fromRGB(200, 30, 95) },
+		{ key = "golden_apple", color = Color3.fromRGB(238, 160, 40) },
+		{ key = "monte", color = Color3.fromRGB(105, 165, 40) },
+	}, nil, true) -- (the tier-2 glass bucket with the three tier-2 drinks it pours, user 2026-10-29 (5))
 	look.Parent = bucket
 	-- cans left, small (a tap on the bucket gives one: tapBucket)
 	local info = Instance.new("BillboardGui")

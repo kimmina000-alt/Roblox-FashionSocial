@@ -176,8 +176,8 @@ local LASER = Color3.fromRGB(60, 255, 90)
 -- texture, thin at the dot, fading out along its length; ClubLightsController)
 local SOFT_BEAM = "rbxassetid://129498465489506"
 local function laser(m: Model, at: CFrame, x: number, z: number, lean: number)
-	local dot = part(m, "LaserDot", Vector3.new(0.16, 0.16, 0.16), at * CFrame.new(x, 0.62, z), LASER, Enum.Material.Neon, Enum.PartType.Ball)
-	light(dot, LASER, 5, 1.2)
+	-- (an invisible holder: the dot itself was taken away, user 2026-10-29 (5))
+	local dot = part(m, "LaserDot", Vector3.new(0.16, 0.16, 0.16), at * CFrame.new(x, 0.62, z), LASER, Enum.Material.Neon, Enum.PartType.Ball, 1)
 	local len = 16
 	local a0 = Instance.new("Attachment")
 	a0.Parent = dot
@@ -287,27 +287,28 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 	end
 	if style == "C" then
 		-- a white neon "VIP" floating over the bottles (user 2026-10-29 (4))
-		local holder = part(m, "VIPSignHolder", Vector3.new(0.2, 0.2, 0.2), at * CFrame.new(0, 4.3, 0), Color3.new(1, 1, 1), nil, nil, 1)
-		local bb = Instance.new("BillboardGui")
-		bb.Name = "VIPSign"
-		bb.Size = UDim2.fromScale(2.6, 1.1)
-		bb.LightInfluence = 0
-		bb.MaxDistance = 80
-		bb.Parent = holder
-		local text = Instance.new("TextLabel")
-		text.Size = UDim2.fromScale(1, 1)
-		text.BackgroundTransparency = 1
-		text.Text = "VIP"
-		text.TextScaled = true
-		text.Font = Enum.Font.GothamBlack
-		text.TextColor3 = Color3.fromRGB(255, 255, 255)
-		text.Parent = bb
-		local glow = Instance.new("UIStroke")
-		glow.Color = Color3.fromRGB(150, 200, 255)
-		glow.Thickness = 4
-		glow.Transparency = 0.15
-		glow.Parent = text
-		light(holder, Color3.fromRGB(230, 240, 255), 6, 1.2)
+		-- (neon bars, no border, user 2026-10-29 (5)): letters 0.9 high in the
+		-- plane facing the front (-Z), each stroke a thin white neon block
+		local WHITE_NEON = Color3.fromRGB(255, 255, 255)
+		local cy, h, w = 4.3, 0.9, 0.11
+		local function bar(name: string, x0: number, y0: number, x1: number, y1: number)
+			-- x is mirrored: the tray front faces -Z, so the viewer's right is -X
+			local a, b = Vector3.new(-x0, cy + y0, -0.2), Vector3.new(-x1, cy + y1, -0.2)
+			local mid, dir = (a + b) / 2, b - a
+			part(m, name, Vector3.new(w, dir.Magnitude + w, w), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, -1), dir.Unit), WHITE_NEON, Enum.Material.Neon)
+		end
+		local hh = h / 2
+		-- V (x -0.95 .. -0.35)
+		bar("VIPLetter", -0.95, hh, -0.65, -hh)
+		bar("VIPLetter", -0.35, hh, -0.65, -hh)
+		-- I
+		bar("VIPLetter", 0, hh, 0, -hh)
+		-- P (stem, top, right, middle)
+		bar("VIPLetter", 0.4, hh, 0.4, -hh)
+		bar("VIPLetter", 0.4, hh, 0.85, hh)
+		bar("VIPLetter", 0.85, hh, 0.85, 0)
+		bar("VIPLetter", 0.4, 0, 0.85, 0)
+		light(part(m, "VIPSignLight", Vector3.new(0.2, 0.2, 0.2), at * CFrame.new(0, cy, 0), WHITE_NEON, nil, nil, 1), Color3.fromRGB(230, 240, 255), 6, 1.2)
 	end
 	return 3.4
 end

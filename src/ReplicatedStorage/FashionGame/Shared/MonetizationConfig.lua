@@ -104,7 +104,7 @@ MonetizationConfig.Products = {
 	HandSparkler = { sku = "CLUB-DP-HANDSPARKLER", id = 3722845563, name = "손 스파클러", price = 19, status = "live",
 		description = "손에 들고 60초 동안 타오르는 스파클러. 들고 춤출 수 있어요." },
 	SparklerBucket = { sku = "CLUB-DP-SPARKLER-BUCKET", id = 3722465439, name = "스파클러 버킷 세트", price = 49, status = "live",
-		description = "얼음 버킷 + 캔 3개(모두 마실 수 있어요) + 스파클러 3개." },
+		description = "유리 얼음 버킷 + 2단계 음료 3병(모두 마실 수 있어요) + 스파클러 3개." },
 	SparklerBucket_VIP = { sku = "CLUB-DP-SPARKLER-BUCKET-VIP", id = 3722465476, name = "스파클러 버킷 세트 (VIP가)", price = 39, status = "live",
 		description = "VIP 가격 스파클러 버킷 세트." },
 	ColdSpark = { sku = "CLUB-DP-COLDSPARK", id = 3722465515, name = "무대 콜드 스파크", price = 99, status = "live",
