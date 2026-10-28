@@ -167,12 +167,15 @@ public static class StlTool
     // model units): split by height and distance from the middle
     public static string HoneyBreadGroup(double[] c)
     {
+        // (user 2026-10-29 (24): the loaf starts low, right on the plate: under
+        // z 10.3 only what lies outside the loaf's square is plate; the dome
+        // over the loaf is the cream)
         double r = Math.Sqrt(c[0] * c[0] + c[1] * c[1]);
-        if (c[2] < 10.3) return "Plate";
-        if (c[2] > 34 && r <= 19.5) return "Cream"; // (the round part over the loaf up to z 34 is bread too, user 2026-10-29 (23))
+        double sq = Math.Max(Math.Abs(c[0]), Math.Abs(c[1]));
+        if (c[2] < 10.3 && sq > 28.3) return "Plate";
+        if (c[2] > 25.8 && r <= 19.5) return "Cream";
         return "Bread";
-    }
-    public static string ParfaitGroup(double[] c)
+    }    public static string ParfaitGroup(double[] c)
     {
         double r = Math.Sqrt(c[0] * c[0] + c[1] * c[1]), z = c[2];
         if (z < 12) return "Stem";        // foot and stem: clear glass

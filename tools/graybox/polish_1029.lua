@@ -407,9 +407,9 @@ do
 	if lift and not lift:FindFirstChild("LiftClosedSign") then
 		local m = Instance.new("Model")
 		m.Name = "LiftClosedSign"
-		local x, z = 57.75, -188.5 -- 4 in front of the door, in the corridor
+		local x, z = 57.75, -187.5 -- in front of the door, in the corridor
 		local lean = math.rad(12)
-		local W, H = 4.4, 7.2
+		local W, H = 4.4 * 0.7, 7.2 * 0.7 -- (70 %, user 2026-10-29 (24))
 		local dz = H / 2 * math.sin(lean)
 		for k, s in ipairs({ -1, 1 }) do
 			local b = Instance.new("Part")
@@ -429,6 +429,41 @@ do
 		m.Parent = lift
 	end
 	table.insert(log, "club lift closed")
+end
+
+---------------------------------------------------------------- 7. beach tubes
+-- (user 2026-10-29 (24): candidate #10, "Pool float" by Acoldness2,
+-- ServerStorage.ArtAssets.TubeMint, one mesh): each FloatTube's 10 ring
+-- segments become the one mesh, the same size (4.4 across), at the pivot
+do
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local src = art and art:FindFirstChild("TubeMint")
+	local mesh = src and src:FindFirstChildWhichIsA("BasePart", true)
+	local n = 0
+	if mesh then
+		for _, m in ipairs(game:GetService("CollectionService"):GetTagged("FloatTube")) do
+			if m:IsA("Model") and m:IsDescendantOf(workspace) and not m:FindFirstChild("TubeMesh") then
+				local pivot = m:GetPivot()
+				for _, d in ipairs(m:GetChildren()) do if d.Name == "TubeSeg" then d:Destroy() end end
+				local p = mesh:Clone()
+				p:ClearAllChildren()
+				p.Name = "TubeMesh"
+				p.Anchored, p.CanCollide, p.CanTouch, p.CastShadow = true, false, false, false
+				local s = p.Size
+				local thin = math.min(s.X, s.Y, s.Z)
+				local k = 4.4 / math.max(s.X, s.Y, s.Z)
+				p.Size = s * k
+				-- lie flat: the thin axis up
+				local rot = if thin == s.X then CFrame.Angles(0, 0, math.rad(90)) elseif thin == s.Z then CFrame.Angles(math.rad(90), 0, 0) else CFrame.identity
+				p.CFrame = CFrame.new(pivot.Position) * rot
+				p.Parent = m
+				m.PrimaryPart = nil
+				m.WorldPivot = pivot
+				n += 1
+			end
+		end
+	end
+	table.insert(log, "tubes " .. n)
 end
 
 return table.concat(log, " | ")
