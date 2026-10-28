@@ -1085,6 +1085,23 @@ local OUTSIDE_DANCE_LEVEL = 0.6
 -- Beat lights: parts tagged "ClubBeat" brighten with the music loudness.
 local beatBase: {[BasePart]: Color3} = {}
 local accumulator = 0
+-- (user 2026-10-28 (4): a pose in the photo booth still played the song) the
+-- booth mutes at once, not only on the next 0.2 s update, and the level is
+-- worked out on Heartbeat too (RenderStepped stops in a background window and
+-- left the last volume playing)
+local function boothMute()
+	if player.Character and player.Character:GetAttribute("PhotoBooth") ~= nil then
+		music.Volume = 0
+		banner.Visible = false
+	end
+end
+local function watchBooth(character: Model)
+	character:GetAttributeChangedSignal("PhotoBooth"):Connect(boothMute)
+	character:GetAttributeChangedSignal("DanceKey"):Connect(boothMute)
+end
+if player.Character then watchBooth(player.Character) end
+player.CharacterAdded:Connect(watchBooth)
+RunService.Heartbeat:Connect(boothMute)
 RunService.RenderStepped:Connect(function(dt)
 	accumulator += dt
 	local camera = workspace.CurrentCamera

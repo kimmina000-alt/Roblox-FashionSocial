@@ -27,6 +27,7 @@ local Debris = game:GetService("Debris")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local MonetizationConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("MonetizationConfig"))
 local MonetizationService = require(script.Parent.MonetizationService)
+local DrinkBucket = require(script.Parent.DrinkBucket)
 local DrinkService = require(script.Parent.DrinkService)
 
 local SparkleService = {}
@@ -260,6 +261,32 @@ local function giveItem(player: Player, attribute: string, name: string, tip: st
 	handle.CanCollide = false
 	handle.Massless = true
 	handle.Parent = tool
+	if attribute == "SparklerSet" then
+		-- held as the ice bucket itself (user 2026-10-28 (4)), not a box
+		handle.Transparency = 1
+		handle.Size = Vector3.new(0.6, 0.6, 0.6)
+		local look = Instance.new("Model")
+		look.Name = "BucketLook"
+		DrinkBucket.iceBucket(look, handle.CFrame * CFrame.new(0, -0.5, 0) * CFrame.new(0, 0, 0), {
+			{ key = "cola", color = Color3.fromRGB(200, 20, 30) },
+			{ key = "cider", color = Color3.fromRGB(30, 150, 70) },
+			{ key = "blueade", color = Color3.fromRGB(40, 120, 220) },
+		}, "none")
+		look:ScaleTo(0.7)
+		for _, p in ipairs(look:GetDescendants()) do
+			if p:IsA("BasePart") then
+				p.Anchored = false
+				p.Massless = true
+				p.CanCollide, p.CanQuery, p.CanTouch = false, false, false
+				local w = Instance.new("WeldConstraint")
+				w.Part0 = handle
+				w.Part1 = p
+				w.Parent = p
+			end
+		end
+		look.Parent = tool
+		tool.Grip = CFrame.new(0, -0.1, 0.3)
+	end
 	tool.Parent = backpack
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if humanoid then humanoid:EquipTool(tool) end
@@ -292,57 +319,21 @@ local function grantBucket(player: Player, tablePart: BasePart): (boolean, strin
 	bucket.Shape = Enum.PartType.Cylinder
 	bucket.Size = Vector3.new(1.2, 1.3, 1.3) -- (narrow foot; wider rings above: user 2026-10-28 (3))
 	bucket.CFrame = CFrame.new(tablePart.Position.X, top + 0.6, tablePart.Position.Z) * CFrame.Angles(0, 0, math.rad(90))
-	bucket.Color = Color3.fromRGB(200, 200, 208)
-	bucket.Material = Enum.Material.Metal
-	bucket.Reflectance = 0.25
+	-- (the ice bucket since 2026-10-28 (4): this part only holds the sparklers,
+	-- the count and the tap; DrinkBucket draws the pail, ice and bottles)
+	bucket.Transparency = 1
 	bucket.Anchored = true
 	bucket.CanCollide = false
 	bucket:SetAttribute("Owner", player.UserId)
 	bucket:SetAttribute("Servings", BUCKET_CUPS)
-	local ice = Instance.new("Part")
-	ice.Name = "Ice"
-	ice.Shape = Enum.PartType.Cylinder
-	ice.Size = Vector3.new(0.1, 1.45, 1.45)
-	ice.CFrame = bucket.CFrame * CFrame.new(0.4, 0, 0) -- (below the rim)
-	ice.Color = Color3.fromRGB(225, 240, 250)
-	ice.Material = Enum.Material.Glass
-	ice.Transparency = 0.2
-	ice.Anchored = true
-	ice.CanCollide = false
-	ice.Parent = bucket
-	-- the bucket opens up: wider rings toward the top (a stepped taper)
-	for i, ring in ipairs({ { -0.2, 0.1, 1.42 }, { 0.1, 0.35, 1.54 }, { 0.35, 0.6, 1.66 } }) do
-		local flare = Instance.new("Part")
-		flare.Name = "BucketFlare" .. i
-		flare.Shape = Enum.PartType.Cylinder
-		flare.Size = Vector3.new(ring[2] - ring[1], ring[3], ring[3])
-		flare.CFrame = bucket.CFrame * CFrame.new((ring[1] + ring[2]) / 2, 0, 0)
-		flare.Color = bucket.Color
-		flare.Material = bucket.Material
-		flare.Reflectance = bucket.Reflectance
-		flare.Anchored = true
-		flare.CanCollide = false
-		flare.CanQuery = false
-		flare.Parent = bucket
-	end
-	local canColors = { Color3.fromRGB(255, 90, 170), Color3.fromRGB(232, 172, 48), Color3.fromRGB(40, 125, 65) }
-	for i, color in ipairs(canColors) do
-		local angle = (i - 1) * math.pi * 2 / 3
-		local can = Instance.new("Part")
-		can.Name = "Can"
-		can.Shape = Enum.PartType.Cylinder
-		can.Size = Vector3.new(1.05, 0.3, 0.3)
-		-- the bottles lean out of the ice, away from the middle
-		local out = Vector3.new(math.cos(angle), 0, math.sin(angle))
-		local tangent = Vector3.new(-out.Z, 0, out.X)
-		can.CFrame = CFrame.new(bucket.Position + out * 0.42 + Vector3.new(0, 0.62, 0))
-			* CFrame.fromAxisAngle(tangent, math.rad(-28)) * CFrame.Angles(0, 0, math.rad(90))
-		can.Color = color
-		can.Material = Enum.Material.Metal
-		can.Anchored = true
-		can.CanCollide = false
-		can.Parent = bucket
-	end
+	local look = Instance.new("Model")
+	look.Name = "BucketLook"
+	DrinkBucket.iceBucket(look, CFrame.new(tablePart.Position.X, top, tablePart.Position.Z), {
+		{ key = "cola", color = Color3.fromRGB(200, 20, 30) },
+		{ key = "cider", color = Color3.fromRGB(30, 150, 70) },
+		{ key = "blueade", color = Color3.fromRGB(40, 120, 220) },
+	})
+	look.Parent = bucket
 	-- cans left, small (a tap on the bucket gives one: tapBucket)
 	local info = Instance.new("BillboardGui")
 	info.Name = "Info"

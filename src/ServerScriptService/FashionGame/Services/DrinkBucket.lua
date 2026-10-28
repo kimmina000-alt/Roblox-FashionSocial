@@ -74,6 +74,65 @@ local function light(p: BasePart, color: Color3, range: number, brightness: numb
 	l.Parent = p
 end
 
+-- The ice bucket (user 2026-10-28 (4)): a smooth pail that opens up toward the
+-- top (the store mesh ServerStorage.ArtAssets.IceBucket when it is there, else
+-- stepped rings), heaped with see-through ice cubes, three bottles leaning
+-- out of the ice. Used by tier-1 drinks and the sparkler bucket set.
+-- glow: "bottles" = the bottles glow in their colour, "ice" = the ice glows.
+DrinkBucket.Glow = "bottles"
+local H_PAIL, D_TOP = 1.3, 1.7
+function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string, color: Color3 }}, glow: string?): number
+	glow = glow or DrinkBucket.Glow
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local mesh = art and art:FindFirstChild("IceBucket")
+	if mesh and mesh:IsA("BasePart") then
+		-- (the plain store cup 3478283525 stretched into a pail: smooth, wide at the top)
+		local p = mesh:Clone()
+		p.Size = Vector3.new(D_TOP, H_PAIL, D_TOP)
+		p.CFrame = at * CFrame.new(0, H_PAIL / 2, 0) * mesh.CFrame.Rotation
+		p.Name = "Pail"
+		p.Anchored, p.CanCollide, p.CanTouch, p.CastShadow = true, false, false, false
+		p.Parent = m
+	else
+		for i, ring in ipairs({ { 0, 0.45, 1.25 }, { 0.43, 0.8, 1.42 }, { 0.78, 1.1, 1.56 }, { 1.08, H_PAIL, D_TOP } }) do
+			local p = cyl(m :: Model, "Pail" .. i, ring[3], ring[2] - ring[1], at * CFrame.new(0, (ring[1] + ring[2]) / 2, 0), Color3.fromRGB(205, 205, 212), Enum.Material.Metal)
+			p.Reflectance = 0.25
+		end
+	end
+	-- ice cubes heaped just under the rim
+	local rnd = Random.new(7)
+	local glowIce = glow == "ice"
+	for i = 1, 18 do
+		local a = rnd:NextNumber(0, math.pi * 2)
+		local r = rnd:NextNumber(0, 0.55)
+		local s = rnd:NextNumber(0.24, 0.34)
+		local cube = part(m :: Model, "IceCube", Vector3.new(s, s, s),
+			at * CFrame.new(math.cos(a) * r, H_PAIL - 0.22 + rnd:NextNumber(0, 0.18), math.sin(a) * r)
+				* CFrame.Angles(rnd:NextNumber(0, 1), rnd:NextNumber(0, 3), rnd:NextNumber(0, 1)),
+			if glowIce then Color3.fromRGB(220, 240, 255) else ICE, if glowIce then Enum.Material.Neon else Enum.Material.Glass, if glowIce then 0.45 else 0.35)
+		if glowIce and i == 1 then light(cube, Color3.fromRGB(200, 230, 255), 7, 1.6) end
+	end
+	-- three bottles leaning out (cans at their full table size)
+	for i, b in ipairs(bottles) do
+		local angle = (i - 1) * math.pi * 2 / #bottles
+		local out = Vector3.new(math.cos(angle), 0, math.sin(angle))
+		local tangent = Vector3.new(-out.Z, 0, out.X)
+		local scale = if BottleShapes.isCan(b.key) then 0.85 / BottleShapes.CanScale else 0.7
+		local base = CFrame.new((at * CFrame.new(out * 0.32 + Vector3.new(0, H_PAIL - 0.42, 0))).Position)
+			* CFrame.fromAxisAngle(tangent, math.rad(-28)) * CFrame.Angles(0, -angle - math.pi / 2, 0)
+		local parts = BottleShapes.add(m, base, b.key, b.color, scale)
+		if glow == "bottles" then
+			for _, p in ipairs(parts) do
+				if p.Name == "BottleBody" or p:IsA("MeshPart") then
+					light(p, b.color, 5, 1.4)
+					break
+				end
+			end
+		end
+	end
+	return H_PAIL
+end
+
 -- Builds the bucket for `kind` with its bottom centre at `at` (on the table
 -- top). colors = the drink colour(s); returns the model (not parented).
 function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame, key: string?): Model
@@ -85,15 +144,8 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame, key: string
 	if kind == "bottle" then
 		-- (user 2026-10-27) tier 1 is the sparkler bucket's look: a shiny pale
 		-- pail, ice on top, three cans in the drink colour standing in it
-		local h = 1.2
-		local pail = cyl(m, "Pail", 1.5, h, at * CFrame.new(0, h / 2, 0), Color3.fromRGB(200, 200, 208), Enum.Material.Metal)
-		pail.Reflectance = 0.25
-		cyl(m, "Ice", 1.35, 0.1, at * CFrame.new(0, h - 0.02, 0), Color3.fromRGB(225, 240, 250), Enum.Material.Glass, 0.2)
-		-- (2026-10-27) three of the drink's own PET bottles standing in the ice
-		for i = 1, 3 do
-			local angle = (i - 1) * math.pi * 2 / 3
-			bottle(m, at * CFrame.new(math.cos(angle) * 0.36, h - 0.55, math.sin(angle) * 0.36) * CFrame.Angles(0, -angle - math.pi / 2, 0), drinkKey, c, 0.62)
-		end
+		-- (2026-10-28 (4)) the ice bucket with three of the drink's cans
+		DrinkBucket.iceBucket(m, at, { { key = drinkKey, color = c }, { key = drinkKey, color = c }, { key = drinkKey, color = c } })
 	elseif kind == "steel" then
 		-- brushed steel pail, ice heaped to the rim, ring handles
 		local h = 1.3

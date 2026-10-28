@@ -31,13 +31,14 @@ local Remotes = FashionGame:WaitForChild("Remotes")
 local Music = Remotes:WaitForChild("Music") :: RemoteFunction
 local ClubShop = Remotes:WaitForChild("ClubShop") :: RemoteFunction
 
+-- (the neon club shop palette, user 2026-10-28 (4), D-459: NeonShopUI)
 local COLORS = {
-	panel = Color3.fromRGB(18, 18, 24),
-	card = Color3.fromRGB(38, 38, 50),
+	panel = Color3.fromRGB(10, 14, 32),
+	card = Color3.fromRGB(20, 27, 56),
 	text = Color3.fromRGB(255, 255, 255),
-	sub = Color3.fromRGB(190, 190, 205),
-	accent = Color3.fromRGB(255, 80, 200),
-	dj = Color3.fromRGB(80, 200, 255),
+	sub = Color3.fromRGB(170, 182, 214),
+	accent = Color3.fromRGB(255, 70, 210),
+	dj = Color3.fromRGB(0, 190, 230),
 	robux = Color3.fromRGB(0, 176, 111),
 }
 
@@ -59,6 +60,16 @@ local gui = create("ScreenGui", {
 	IgnoreGuiInset = true,
 	DisplayOrder = 19,
 }, playerGui)
+-- buttons and cards: the shop's thin edge (D-459)
+gui.DescendantAdded:Connect(function(d)
+	if (d:IsA("TextButton") or (d:IsA("Frame") and d.BackgroundTransparency < 0.5 and d.Name ~= "MusicPanel")) and not d:FindFirstChildOfClass("UIStroke") then
+		task.defer(function()
+			if d.Parent and not d:FindFirstChildOfClass("UIStroke") then
+				create("UIStroke", { Color = Color3.fromRGB(90, 120, 200), Thickness = 1, Transparency = 0.45, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, d)
+			end
+		end)
+	end
+end)
 
 
 local panel = create("Frame", {
@@ -68,6 +79,7 @@ local panel = create("Frame", {
 	Visible = false,
 }, gui)
 corner(panel, 15)
+create("UIStroke", { Color = Color3.fromRGB(40, 225, 255), Thickness = 2.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, panel)
 create("UIPadding", {
 	PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10),
 	PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10),
@@ -77,7 +89,7 @@ create("TextLabel", {
 	Name = "Header",
 	Size = UDim2.new(1, -40, 0, 26),
 	BackgroundTransparency = 1,
-	Text = "음악",
+	Text = "🎧 음악 · DJ",
 	TextXAlignment = Enum.TextXAlignment.Left,
 	TextColor3 = COLORS.text,
 	TextSize = 22,

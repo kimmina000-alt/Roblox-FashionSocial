@@ -298,6 +298,12 @@ do
 					{ material = Enum.Material.Neon, shadow = false, collide = false })
 			end
 		end
+		-- the landing at the top of the VIP stairs (x 179.6..188, z -290..-274):
+		-- light along both wall feet and up the corner you face (user 2026-10-28 (4))
+		local LIGHT = Color3.fromRGB(255, 240, 250)
+		part("VIP_LandingEdgeLight", Vector3.new(0.25, 0.2, 16), CFrame.new(187.7, FLOOR + 0.1, -282), LIGHT, f, { material = Enum.Material.Neon, shadow = false, collide = false })
+		part("VIP_LandingEdgeLight", Vector3.new(8.4, 0.2, 0.25), CFrame.new(183.8, FLOOR + 0.1, -289.7), LIGHT, f, { material = Enum.Material.Neon, shadow = false, collide = false })
+		part("VIP_LandingCornerLight", Vector3.new(0.25, CEIL - FLOOR, 0.25), CFrame.new(187.7, (FLOOR + CEIL) / 2, -289.7), LIGHT, f, { material = Enum.Material.Neon, shadow = false, collide = false })
 		note(("VIP: %d side sofas, %d seats removed, %d partitions"):format(wings, seats, n))
 	end
 end

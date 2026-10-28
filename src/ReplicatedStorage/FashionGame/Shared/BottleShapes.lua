@@ -562,6 +562,11 @@ end
 -- BottleShapes.Height keeps the old height, so holders and hands only see a
 -- smaller can
 local CAN_SCALE = 1 / 3
+BottleShapes.CanScale = CAN_SCALE
+-- (on a table they keep the old size: callers divide by CanScale, user 2026-10-28 (4))
+function BottleShapes.isCan(key: string): boolean
+	return ASSET_SHAPE[key] == "Can"
+end
 
 function BottleShapes.add(parent: Instance, base: CFrame, key: string, color: Color3, scale: number, weldTo: BasePart?): {BasePart}
 	if ASSET_SHAPE[key] == "Can" then scale *= CAN_SCALE end

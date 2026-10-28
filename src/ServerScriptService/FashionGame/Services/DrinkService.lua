@@ -207,15 +207,43 @@ local function giveCup(player: Player, drinkKey: string, variantKey: any?): (boo
 		return p
 	end
 	local CLEAR = Color3.fromRGB(235, 245, 255)
-	local steps = 4
+	-- (2026-10-28 (4)) the plain store cup mesh (ServerStorage.ArtAssets.ClubCup,
+	-- 3478283525) when it is there: one clear cup and a smaller copy as the drink
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local cupMesh = art and art:FindFirstChild("ClubCup")
+	if cupMesh and cupMesh:IsA("BasePart") then
+		local function shell(name: string, size: Vector3, y: number, c: Color3, transparency: number, material: Enum.Material)
+			local p = cupMesh:Clone()
+			p.Name = name
+			p.Size = size
+			p.Color = c
+			p.Transparency = transparency
+			p.Material = material
+			p.Anchored = false
+			p.CanCollide, p.CanQuery, p.CanTouch = false, false, false
+			p.Massless = true
+			p.CFrame = handle.CFrame * CFrame.new(0, y, 0)
+			local weld = Instance.new("WeldConstraint")
+			weld.Part0 = handle
+			weld.Part1 = p
+			weld.Parent = p
+			p.Parent = handle
+		end
+		shell("CupWall", Vector3.new(0.58, 0.85, 0.58), 0, CLEAR, 0.5, Enum.Material.Glass)
+		shell("CupDrink", Vector3.new(0.5, 0.66, 0.5), -0.08, color, 0.08, Enum.Material.Glass)
+		ring("CupIce", 0.62, 0.68, 0.46, Color3.fromRGB(245, 250, 255), Enum.Material.Ice, 0.25)
+	end
+	local steps = if cupMesh then 0 else 4
 	for i = 1, steps do
 		local y0, y1 = (i - 1) * 0.85 / steps, i * 0.85 / steps
 		local d = 0.42 + 0.16 * (i - 0.5) / steps
 		ring("CupWall" .. i, y0, y1, d, CLEAR, Enum.Material.Glass, 0.55)
 		if y1 <= 0.7 then ring("CupDrink" .. i, math.max(y0, 0.04), y1, d - 0.06, color, Enum.Material.Glass, 0.1) end
 	end
-	ring("CupRim", 0.82, 0.86, 0.6, CLEAR, Enum.Material.SmoothPlastic, 0.2)
-	ring("CupIce", 0.66, 0.72, 0.46, Color3.fromRGB(245, 250, 255), Enum.Material.Ice, 0.25)
+	if not cupMesh then
+		ring("CupRim", 0.82, 0.86, 0.6, CLEAR, Enum.Material.SmoothPlastic, 0.2)
+		ring("CupIce", 0.66, 0.72, 0.46, Color3.fromRGB(245, 250, 255), Enum.Material.Ice, 0.25)
+	end
 	local gulp = Instance.new("Sound")
 	gulp.Name = "Gulp"
 	gulp.SoundId = "rbxassetid://" .. tostring(ClubConfig.GulpSoundId)
@@ -358,6 +386,8 @@ end
 -- What a bottle of this drink becomes on a table (D-323, temporary design
 -- until the bucket art pass): "bottle" = tier 1 (no VIP), else a bucket.
 local function kindFor(player: Player, drink: ClubConfig.Drink): DrinkBucket.Kind
+	-- (tier-1 cans always get the ice bucket, VIP or not: user 2026-10-28 (4))
+	if drink.tier == 1 then return "bottle" end
 	return if isVip(player) then (if drink.key == "golmok" then "golmok" else "vip")
 		elseif drink.tier >= 3 then "acrylic"
 		elseif drink.tier == 2 then "steel"
