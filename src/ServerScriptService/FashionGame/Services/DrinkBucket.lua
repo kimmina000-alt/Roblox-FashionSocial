@@ -94,10 +94,29 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		p.Name = "Pail"
 		-- brushed aluminium (user 2026-10-28 (6)); tier 2 the same pail in clear glass (2026-10-29)
 		if glass then
+			-- (like the clear bottles, 2026-10-29 (2)): a very clear outer shell and
+			-- a slightly smaller inner shell whose rim sits lower and whose floor is
+			-- raised, so the wall and the thick base read as glass
 			p.Material = Enum.Material.Glass
-			p.Color = Color3.fromRGB(215, 235, 250)
-			p.Transparency = 0.45
-			p.Reflectance = 0.25
+			p.Color = Color3.fromRGB(225, 240, 252)
+			p.Transparency = 0.62
+			p.Reflectance = 0.3
+			-- a bright lip round the rim (small segments: a ring cannot be hollow)
+			for i = 0, 15 do
+				local a = i * math.pi * 2 / 16
+				part(m :: Model, "PailRim", Vector3.new(0.5, 0.06, 0.08), at * CFrame.new(math.cos(a) * D_TOP * 0.49, H_PAIL - 0.03, math.sin(a) * D_TOP * 0.49) * CFrame.Angles(0, -a + math.pi / 2, 0),
+					Color3.fromRGB(240, 250, 255), Enum.Material.Glass, nil, 0.15)
+			end
+			local inner = mesh:Clone()
+			inner.Name = "PailInner"
+			inner.Size = Vector3.new(D_TOP * 0.9, H_PAIL * 0.86, D_TOP * 0.9)
+			inner.CFrame = at * CFrame.new(0, H_PAIL * 0.12 + H_PAIL * 0.43, 0) * mesh.CFrame.Rotation
+			inner.Material = Enum.Material.Glass
+			inner.Color = Color3.fromRGB(205, 228, 248)
+			inner.Transparency = 0.55
+			inner.Reflectance = 0.2
+			inner.Anchored, inner.CanCollide, inner.CanTouch, inner.CanQuery, inner.CastShadow = true, false, false, false, false
+			inner.Parent = m
 		else
 			p.Material = Enum.Material.Metal
 			p.Color = Color3.fromRGB(150, 155, 163)
@@ -145,6 +164,91 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		end
 	end
 	return H_PAIL
+end
+
+-- VIP trays (user concepts 2026-10-29, docs/04_ART/references/vip_bucket_concepts.png):
+-- "A" a round tray with an RGB ring, a lit top, neon wing guards and a light
+-- window; "B" a horseshoe tray with rows of light bricks. Both: five bottles
+-- standing in an arc and four green lasers shooting up from the sides.
+-- Returns the model's height.
+local LASER = Color3.fromRGB(60, 255, 90)
+local function laser(m: Model, at: CFrame, x: number, z: number, lean: number)
+	part(m, "LaserDot", Vector3.new(0.16, 0.16, 0.16), at * CFrame.new(x, 0.62, z), LASER, Enum.Material.Neon, Enum.PartType.Ball)
+	local len = 14
+	local beam = part(m, "Laser", Vector3.new(0.05, len, 0.05),
+		at * CFrame.new(x, 0.62, z) * CFrame.Angles(0, 0, math.rad(lean)) * CFrame.new(0, len / 2, 0), LASER, Enum.Material.Neon, nil, 0.15)
+	light(beam, LASER, 6, 1.2)
+end
+function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, colors: {Color3}): number
+	local DARK = Color3.fromRGB(18, 18, 24)
+	if style == "A" then
+		cyl(m, "TrayBase", 3.2, 0.55, at * CFrame.new(0, 0.275, 0), DARK, Enum.Material.SmoothPlastic)
+		-- RGB ring: coloured neon segments round the top edge
+		for i = 0, 11 do
+			local a = i * math.pi * 2 / 12
+			local seg = part(m, "RGBRing", Vector3.new(0.85, 0.1, 0.18), at * CFrame.new(math.cos(a) * 1.52, 0.6, math.sin(a) * 1.52) * CFrame.Angles(0, -a + math.pi / 2, 0),
+				RAINBOW[i % #RAINBOW + 1], Enum.Material.Neon, nil, 0)
+			if i % 3 == 0 then light(seg, RAINBOW[i % #RAINBOW + 1], 5, 1) end
+		end
+		cyl(m, "LitTop", 2.7, 0.05, at * CFrame.new(0, 0.58, 0), Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
+		-- light slats round the side and a front window
+		for i = 0, 17 do
+			local a = i * math.pi * 2 / 18
+			part(m, "Slat", Vector3.new(0.06, 0.32, 0.05), at * CFrame.new(math.cos(a) * 1.61, 0.27, math.sin(a) * 1.61) * CFrame.Angles(0, -a + math.pi / 2, 0),
+				Color3.fromRGB(200, 225, 255), Enum.Material.Neon, nil, 0)
+		end
+		part(m, "FrontWindow", Vector3.new(0.9, 0.24, 0.05), at * CFrame.new(0, 0.27, -1.62), Color3.fromRGB(235, 245, 255), Enum.Material.Neon, nil, 0)
+		-- wing guards: three bent neon strips on each side
+		-- (each wing: three ")"-shaped neon strips standing at the side, bowing outward)
+		for _, side in ipairs({ -1, 1 }) do
+			for k = 0, 2 do
+				local prev: Vector3? = nil
+				for j = 0, 8 do
+					local t = j / 8
+					local pnt = Vector3.new(side * (1.55 + k * 0.16 + 0.4 * math.sin(math.pi * t)), 0.6 + 1.9 * t, -0.2 + k * 0.12)
+					if prev then
+						local mid, dir = (prev + pnt) / 2, pnt - prev
+						part(m, "Wing", Vector3.new(0.07, dir.Magnitude + 0.02, 0.07), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, 1), dir.Unit) ,
+							Color3.fromRGB(110, 170, 255), Enum.Material.Neon, nil, 0)
+					end
+					prev = pnt
+				end
+			end
+		end
+		for _, p in ipairs({ { -1.2, 0.9 }, { 1.2, 0.9 }, { -1.3, -0.5 }, { 1.3, -0.5 } }) do laser(m, at, p[1], p[2], -p[1] * 2) end
+	else
+		-- horseshoe: a dark arc of blocks open at the back, a floor disc
+		cyl(m, "TrayFloor", 2.6, 0.3, at * CFrame.new(0, 0.15, 0), Color3.fromRGB(34, 32, 40), Enum.Material.SmoothPlastic)
+		for i = 0, 13 do
+			local a = math.rad(200 + i * (140 / 13)) -- front half (screen front is -Z)
+			local cf = at * CFrame.new(math.cos(a) * 1.55, 0.3, math.sin(a) * 1.55) * CFrame.Angles(0, -a + math.pi / 2, 0)
+			part(m, "Horseshoe", Vector3.new(0.42, 0.6, 0.55), cf, DARK, Enum.Material.SmoothPlastic)
+		end
+		-- the two arms, and rows of light bricks on the curved front corners
+		for _, side in ipairs({ -1, 1 }) do
+			part(m, "Arm", Vector3.new(0.55, 0.6, 1.6), at * CFrame.new(side * 1.55, 0.3, 0.6), DARK, Enum.Material.SmoothPlastic)
+		end
+		for row = 0, 3 do
+			for _, range in ipairs({ { 202, 238 }, { 302, 338 } }) do
+				for k = 0, 3 do
+					local a = math.rad(range[1] + (k + (row % 2) * 0.5) * (range[2] - range[1]) / 4)
+					part(m, "LightBrick", Vector3.new(0.3, 0.08, 0.04),
+						at * CFrame.new(math.cos(a) * 1.86, 0.12 + row * 0.13, math.sin(a) * 1.86) * CFrame.Angles(0, -a + math.pi / 2, 0),
+						Color3.fromRGB(255, 200, 90), Enum.Material.Neon, nil, 0)
+				end
+			end
+		end
+		local win = part(m, "FrontWindow", Vector3.new(1.0, 0.26, 0.05), at * CFrame.new(0, 0.3, -1.84), Color3.fromRGB(255, 240, 210), Enum.Material.Neon, nil, 0)
+		light(win, Color3.fromRGB(255, 190, 90), 7, 1.4)
+		for _, p in ipairs({ { -1.55, 1.2 }, { 1.55, 1.2 }, { -1.55, 0.1 }, { 1.55, 0.1 } }) do laser(m, at, p[1], p[2], -p[1]) end
+	end
+	-- five bottles in an arc, the middle one tallest and furthest back
+	for i = 1, 5 do
+		local u = (i - 3) / 2
+		local base = at * CFrame.new(u * 0.95, 0.6, 0.15 + math.abs(u) * -0.35) * CFrame.Angles(0, 0, math.rad(-u * 8))
+		BottleShapes.add(m, base, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
+	end
+	return 3.4
 end
 
 -- Builds the bucket for `kind` with its bottom centre at `at` (on the table
