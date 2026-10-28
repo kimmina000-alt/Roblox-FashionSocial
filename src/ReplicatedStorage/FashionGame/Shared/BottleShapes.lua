@@ -538,28 +538,53 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 		-- (the VIP spade, monogram and plate are painted in relief too: no parts)
 		(skin :: SurfaceAppearance):Clone().Parent = p
 		if spec[1] == "bottle_absolut_tier2" then
-			-- tier 2 (user 2026-10-28 (17)): a very pale tint of the drink colour,
-			-- 30 % see-through and a soft glow of its own
-			p.Color = color:Lerp(Color3.new(1, 1, 1), 0.65)
-			p.Transparency = 0.3
+			-- tier 2 (user 2026-10-28 (17)/(20)): a clear glass bottle with a clear
+			-- drink inside. The glass shell is see-through and carries no picture;
+			-- the picture sits on a second shell just outside it whose empty
+			-- pixels are cut out (ArtAssets.BottleSkinsCutout, AlphaMode
+			-- Transparency), so the printing stays solid. The drink: one cylinder
+			-- up to the shoulder, a bright surface disc, a soft light.
+			local cuts = art and art:FindFirstChild("BottleSkinsCutout")
+			local cut = cuts and cuts:FindFirstChild(key)
+			if cut and cut:IsA("SurfaceAppearance") then
+				local sa = p:FindFirstChildOfClass("SurfaceAppearance")
+				if sa then sa:Destroy() end
+				local printed = mesh:Clone()
+				for _, d in ipairs(printed:GetChildren()) do d:Destroy() end
+				printed.Name = "BottlePrint"
+				printed.Size = p.Size * 1.01
+				printed.Color = Color3.new(1, 1, 1)
+				printed.Material = Enum.Material.SmoothPlastic
+				printed.Transparency = 0
+				printed.CanCollide, printed.CanTouch, printed.CanQuery, printed.CastShadow = false, false, false, false
+				printed.CFrame = p.CFrame
+				if c.weld then
+					printed.Anchored = false
+					printed.Massless = true
+					local w = Instance.new("WeldConstraint")
+					w.Part0 = c.weld
+					w.Part1 = printed
+					w.Parent = printed
+				else
+					printed.Anchored = true
+				end
+				cut:Clone().Parent = printed
+				printed.Parent = c.parent
+				table.insert(c.parts, printed)
+			end
+			p.Color = Color3.fromRGB(235, 245, 240)
+			p.Transparency = 0.72
 			p.Reflectance = 0
+			local lr = r * 0.84
+			local top = 0.56 * H
+			local liquid = cyl(c, "Liquid", 0.04 * H, top, 2 * lr, { color = color, material = Enum.Material.Glass, transparency = 0.35 })
+			cyl(c, "LiquidTop", top - 0.01, top + 0.01, 2 * lr * 0.98, { color = color:Lerp(Color3.new(1, 1, 1), 0.6), material = Enum.Material.Neon, transparency = 0.35 })
 			local light = Instance.new("PointLight")
 			light.Color = color
 			light.Brightness = 0.8
 			light.Range = 3 * s + 1
 			light.Shadows = false
-			light.Parent = p
-			if key == "green_claw" then
-				-- sample (user 2026-10-28 (19)): a clear glass bottle with a clear
-				-- drink inside: the glass mostly see-through, one cylinder of drink
-				-- up to the shoulder, a bright surface disc on top of it
-				p.Color = Color3.fromRGB(235, 245, 240)
-				p.Transparency = 0.72
-				local lr = r * 0.84
-				local top = 0.56 * H
-				cyl(c, "Liquid", 0.04 * H, top, 2 * lr, { color = color, material = Enum.Material.Glass, transparency = 0.35 })
-				cyl(c, "LiquidTop", top - 0.01, top + 0.01, 2 * lr * 0.98, { color = color:Lerp(Color3.new(1, 1, 1), 0.6), material = Enum.Material.Neon, transparency = 0.35 })
-			end
+			light.Parent = liquid
 		end
 		if key == "pastel_splash" then
 			-- frosted and glowing (user 2026-10-28 (3)): a little see-through, a warm light inside
