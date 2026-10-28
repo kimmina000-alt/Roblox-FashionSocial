@@ -219,7 +219,7 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 				for _, range in ipairs({ { 206, 240 }, { 300, 334 } }) do
 					for k = 0, 3 do
 						local a = math.rad(range[1] + (k + (row % 2) * 0.5) * (range[2] - range[1]) / 4)
-						part(m, "LightBrick", Vector3.new(0.3, 0.07, 0.04),
+						part(m, "LightBrick", Vector3.new(0.3, 0.035, 0.03), -- (thinner, user 2026-10-29 (6))
 							at * CFrame.new(math.cos(a) * 1.62, 0.1 + row * 0.11, math.sin(a) * 1.62) * CFrame.Angles(0, -a + math.pi / 2, 0),
 							Color3.fromRGB(255, 200, 90), Enum.Material.Neon, nil, 0)
 					end
@@ -245,7 +245,7 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 					local pnt = Vector3.new(side * (1.55 + k * 0.16 + 0.4 * math.sin(math.pi * t)), 0.6 + 1.9 * t, -0.2 + k * 0.12)
 					if prev then
 						local mid, dir = (prev + pnt) / 2, pnt - prev
-						part(m, "Wing", Vector3.new(0.07, dir.Magnitude + 0.02, 0.07), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, 1), dir.Unit) ,
+						part(m, "Wing", Vector3.new(0.035, dir.Magnitude + 0.02, 0.035), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, 1), dir.Unit), -- (thinner, user 2026-10-29 (6))
 							Color3.fromRGB(110, 170, 255), Enum.Material.Neon, nil, 0)
 					end
 					prev = pnt
@@ -329,6 +329,9 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame, key: string
 	elseif kind == "steel" then
 		-- tier 2 (user 2026-10-29): the tier-1 ice bucket in clear glass, three of the drink's bottles
 		DrinkBucket.iceBucket(m, at, { { key = drinkKey, color = c }, { key = drinkKey, color = c }, { key = drinkKey, color = c } }, nil, true)
+	elseif kind == "vip" or kind == "golmok" then
+		-- VIP pass drinks and 골목 공방 (user 2026-10-29 (6)): tray C with five of the drink's bottles
+		DrinkBucket.vipTray(m, at, "C", drinkKey, colors)
 	else
 		-- gold-framed LED boat: clear acrylic box on a U frame, rainbow ice
 		-- (tier 3 "acrylic" since 2026-10-29: bigger, the rainbow blocks low,
