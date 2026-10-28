@@ -267,7 +267,7 @@ local LABEL = {
 	-- (cans: no printed design for now, plain metal in the drink colour; the user
 	-- will send new pictures, 2026-10-28 (11), D-466)
 	-- the user's generic pictures (no brand marks), D-467:
-	lemonade = "rbxassetid://140148508020865", blueade = "rbxassetid://98521454520397", cider = "rbxassetid://107514929048340", orange = "rbxassetid://101148624831861", cola = "rbxassetid://80320709245537",
+	lemonade = "rbxassetid://128320810253643", blueade = "rbxassetid://118878708066695", cider = "rbxassetid://82757680393557", orange = "rbxassetid://90617449326115", cola = "rbxassetid://87045400958961",
 	ginger_brew = "rbxassetid://78161382486926", monte = "rbxassetid://111978227065988", french_lemonade = "rbxassetid://82834417286890",
 	golden_apple = "rbxassetid://138757272545670", zzang_pop = "rbxassetid://113640294515835", hot_boost = "rbxassetid://89899401494100",
 	green_claw = "rbxassetid://134976093090518", blue_wing = "rbxassetid://129850818133473",

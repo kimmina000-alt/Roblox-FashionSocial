@@ -305,7 +305,28 @@ end
 function NeonShopUI.drinkCard(parent: Instance, order: number, name: string, color: Color3, priceText: string, priceColor: Color3, buttons: {{any}}, gold: boolean?, preview: Model?)
 	local card = create("Frame", { Name = "Card_" .. order, LayoutOrder = order, BackgroundColor3 = CARD, ZIndex = 12 }, parent)
 	corner(card, 14)
-	stroke(card, if gold then NeonShopUI.GOLD else Color3.fromRGB(70, 90, 150), 1.2, if gold then 0.1 else 0.4)
+	if gold then
+		-- VIP drinks (user 2026-10-28 (25)): a thick glowing edge in the flavour's
+		-- own colour, running from bright to gold and back, slowly turning
+		local edge = stroke(card, Color3.new(1, 1, 1), 3, 0)
+		local bright = color:Lerp(Color3.new(1, 1, 1), 0.35)
+		local grad = create("UIGradient", {
+			Color = ColorSequence.new({
+				ColorSequenceKeypoint.new(0, bright),
+				ColorSequenceKeypoint.new(0.35, NeonShopUI.GOLD),
+				ColorSequenceKeypoint.new(0.65, color),
+				ColorSequenceKeypoint.new(1, bright),
+			}),
+		}, edge)
+		task.spawn(function()
+			while card.Parent do
+				grad.Rotation = (grad.Rotation + 3) % 360
+				task.wait(0.03)
+			end
+		end)
+	else
+		stroke(card, Color3.fromRGB(70, 90, 150), 1.2, 0.4)
+	end
 	if preview then
 		bottleView(card, preview, color, UDim2.fromOffset(8, 8), UDim2.new(0.42, -8, 1, -16))
 	else
