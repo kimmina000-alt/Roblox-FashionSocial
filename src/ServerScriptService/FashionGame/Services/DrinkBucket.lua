@@ -411,6 +411,73 @@ local function vipTrayC(m: Model, at: CFrame, key: string, colors: {Color3}): nu
 	return cy + hh
 end
 
+-- Ice-block box (user photo 2026-10-29 (25), sample only): a long box of
+-- clear rippled ice on a black base with "OHU" in white neon on its front
+-- (-Z), a white neon floor inside, ice cubes, and ten bottles standing in two
+-- rows, their necks above the rim. Returns the height.
+function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3}): number
+	local L, W, H, BH = 4.4, 2.0, 1.3, 0.42 -- box length / depth / height, base height
+	local BLACK = Color3.fromRGB(14, 14, 18)
+	local WHITE = Color3.fromRGB(255, 255, 255)
+	local base = part(m, "IceBoxBase", Vector3.new(L + 0.3, BH, W + 0.3), at * CFrame.new(0, BH / 2, 0), BLACK, Enum.Material.Glass)
+	base.Reflectance = 0.25
+	-- "OHU" in white neon bars on the base front
+	do
+		local cy, h, w, z = BH / 2, 0.26, 0.045, -(W + 0.3) / 2 - 0.02
+		local function bar(x0: number, y0: number, x1: number, y1: number)
+			local a, b = Vector3.new(-x0, cy + y0, z), Vector3.new(-x1, cy + y1, z)
+			local mid, dir = (a + b) / 2, b - a
+			part(m, "OHULetter", Vector3.new(w, dir.Magnitude + w, 0.03), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, -1), dir.Unit), WHITE, Enum.Material.Neon)
+		end
+		local hh = h / 2
+		-- O
+		bar(-0.62, hh, -0.38, hh) bar(-0.62, -hh, -0.38, -hh) bar(-0.62, hh, -0.62, -hh) bar(-0.38, hh, -0.38, -hh)
+		-- H
+		bar(-0.13, hh, -0.13, -hh) bar(0.13, hh, 0.13, -hh) bar(-0.13, 0, 0.13, 0)
+		-- U
+		bar(0.38, hh, 0.38, -hh) bar(0.62, hh, 0.62, -hh) bar(0.38, -hh, 0.62, -hh)
+		local glow = part(m, "OHUGlow", Vector3.new(0.2, 0.2, 0.2), at * CFrame.new(0, cy, z - 0.1), WHITE, nil, nil, 1)
+		light(glow, Color3.fromRGB(235, 240, 255), 4, 0.8)
+	end
+	-- white neon floor inside, lighting the ice from below
+	local floorY = BH
+	local glowFloor = part(m, "IceBoxGlow", Vector3.new(L - 0.3, 0.06, W - 0.3), at * CFrame.new(0, floorY + 0.03, 0), WHITE, Enum.Material.Neon)
+	light(glowFloor, Color3.fromRGB(255, 225, 245), 7, 1.6)
+	-- the rippled ice walls: four clear slabs with the ice picture tiled on them
+	local T = 0.16
+	local function wall(size: Vector3, cf: CFrame)
+		local p = part(m, "IceWall", size, at * cf, Color3.fromRGB(240, 235, 250), Enum.Material.SmoothPlastic, nil, 0.55)
+		p.Reflectance = 0.15
+		for _, face in ipairs(Enum.NormalId:GetEnumItems()) do
+			local t = Instance.new("Texture")
+			t.Face = face
+			t.Texture = ICE_TEXTURE
+			t.StudsPerTileU, t.StudsPerTileV = 0.9, 0.9
+			t.Transparency = 0.4
+			t.Parent = p
+		end
+	end
+	wall(Vector3.new(L, H, T), CFrame.new(0, floorY + H / 2, -W / 2 + T / 2))
+	wall(Vector3.new(L, H, T), CFrame.new(0, floorY + H / 2, W / 2 - T / 2))
+	wall(Vector3.new(T, H, W - 2 * T), CFrame.new(-L / 2 + T / 2, floorY + H / 2, 0))
+	wall(Vector3.new(T, H, W - 2 * T), CFrame.new(L / 2 - T / 2, floorY + H / 2, 0))
+	-- ice heaped on the glowing floor
+	local rnd = Random.new()
+	for _ = 1, 26 do
+		iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.35, L / 2 - 0.35), floorY + 0.15 + rnd:NextNumber(0, 0.35), rnd:NextNumber(-W / 2 + 0.3, W / 2 - 0.3)))
+	end
+	-- ten bottles in two rows, the back row a touch higher
+	for row = 0, 1 do
+		for i = 0, 4 do
+			local x = -L / 2 + 0.55 + i * (L - 1.1) / 4 + (if row == 1 then 0.18 else 0)
+			local z = if row == 0 then -0.42 else 0.42
+			local base2 = at * CFrame.new(x, floorY + 0.05 + row * 0.12, z) * CFrame.Angles(rnd:NextNumber(-0.04, 0.04), rnd:NextNumber(-0.6, 0.6), rnd:NextNumber(-0.04, 0.04))
+			BottleShapes.add(m, base2, key, colors[(row * 5 + i) % #colors + 1], 0.6)
+		end
+	end
+	return floorY + H
+end
+
 function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, colors: {Color3}): number
 	-- ("C2" = the glass case version, D-490..D-492; the user went back to C, 2026-10-29 (11))
 	if style == "C2" then return vipTrayC(m, at, key, colors) end
