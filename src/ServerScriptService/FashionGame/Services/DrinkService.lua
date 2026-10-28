@@ -133,6 +133,27 @@ local function mouthGrip(tool: Tool, character: Model): CFrame?
 	return target:Inverse() * attachment.WorldCFrame
 end
 
+-- A sip: on R15 the arm bends and brings the cup up to the mouth
+-- (EatMotionController IK on every client, attribute "Eating"; user
+-- 2026-10-28: hold the cup and bend the arm to drink) and the cup tilts in the
+-- hand; R6 has no IK chain, there the cup still moves up in the hand.
+-- Returns the call that lowers it again.
+local SIP_TILT = CFrame.Angles(math.rad(-35), 0, 0)
+local function sipUp(tool: Tool, character: Model): () -> ()
+	local original = tool.Grip
+	if character:FindFirstChild("RightUpperArm") then
+		character:SetAttribute("Eating", true)
+		TweenService:Create(tool, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { Grip = original * SIP_TILT }):Play()
+	else
+		local up = mouthGrip(tool, character)
+		if up then TweenService:Create(tool, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { Grip = up }):Play() end
+	end
+	return function()
+		character:SetAttribute("Eating", nil)
+		if tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
+	end
+end
+
 local function drinkFrom(tool: Tool)
 	if tool:GetAttribute("Drinking") then return end
 	local character = tool.Parent
@@ -140,16 +161,10 @@ local function drinkFrom(tool: Tool)
 	tool:SetAttribute("Drinking", true)
 	local handle = tool:FindFirstChild("Handle")
 	local sound = handle and handle:FindFirstChild("Gulp") :: Sound?
-	local original = tool.Grip
-	local up = mouthGrip(tool, character)
-	if up then
-		TweenService:Create(tool, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { Grip = up }):Play()
-	end
+	local down = sipUp(tool, character)
 	if sound then sound:Play() end
 	task.wait(ClubConfig.DrinkSeconds)
-	if tool.Parent then
-		TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play()
-	end
+	down()
 	task.wait(0.3)
 	tool:Destroy()
 end
@@ -517,12 +532,10 @@ local function swig(player: Player): (boolean, string?)
 		gulp.Parent = handle
 	end
 	local sound = handle and handle:FindFirstChild("Gulp") :: Sound?
-	local original = tool.Grip
-	local up = mouthGrip(tool, character)
-	if up then TweenService:Create(tool, TweenInfo.new(0.35, Enum.EasingStyle.Quad), { Grip = up }):Play() end
+	local down = sipUp(tool, character)
 	if sound then sound:Play() end
 	task.wait(ClubConfig.DrinkSeconds)
-	if tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
+	down()
 	task.wait(0.3)
 	if left <= 0 then
 		tool:Destroy()

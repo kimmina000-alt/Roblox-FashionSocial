@@ -252,55 +252,112 @@ end
 --------------------------------------------------
 
 local setup = overlay("Setup")
+local SETUP_PANEL, SETUP_CARD = Color3.fromRGB(32, 30, 42), Color3.fromRGB(50, 47, 62)
+local MODE_ICONS = { solo = "👤 ", friends = "👥 ", all = "🎉 " }
 setup.BackgroundTransparency = 0.4
 local setupBox = create("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5),
 	Position = UDim2.fromScale(0.5, 0.52),
-	Size = UDim2.fromOffset(420, 290),
-	BackgroundColor3 = Color3.fromRGB(255, 240, 246),
+	Size = UDim2.fromOffset(420, 320),
+	BackgroundColor3 = SETUP_PANEL, -- (dark with a pink edge, user mock-up 2026-10-28, D-456)
 	ZIndex = 11,
 }, setup)
 corner(setupBox, 18)
-create("UIStroke", { Color = COLORS.pink, Thickness = 3 }, setupBox)
-create("UISizeConstraint", { MaxSize = Vector2.new(420, 290) }, setupBox)
-text({
-	Position = UDim2.fromOffset(16, 10),
-	Size = UDim2.new(1, -60, 0, 30),
-	Text = "사진 유형을 선택하세요",
-	TextColor3 = Color3.fromRGB(60, 30, 50),
-	TextSize = 20,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	ZIndex = 12,
-}, setupBox)
+create("UIStroke", { Color = COLORS.pink, Thickness = 2.5 }, setupBox)
+create("UISizeConstraint", { MaxSize = Vector2.new(420, 320) }, setupBox)
+do -- head: pink camera tile, title, one line
+	local tile = text({
+		Position = UDim2.fromOffset(14, 12),
+		Size = UDim2.fromOffset(38, 38),
+		BackgroundTransparency = 0,
+		BackgroundColor3 = COLORS.pink,
+		Text = "📷",
+		TextSize = 20,
+		ZIndex = 12,
+	}, setupBox)
+	corner(tile, 10)
+	text({
+		Position = UDim2.fromOffset(62, 10),
+		Size = UDim2.new(1, -110, 0, 24),
+		Text = "촬영 방식을 선택해주세요",
+		TextSize = 19,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		ZIndex = 12,
+	}, setupBox)
+	text({
+		Position = UDim2.fromOffset(62, 34),
+		Size = UDim2.new(1, -110, 0, 16),
+		Text = "원하는 사진 구성을 고르고, 함께 촬영할 대상을 선택할 수 있어요.",
+		TextColor3 = COLORS.sub,
+		TextScaled = true,
+		Font = Enum.Font.GothamMedium,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		ZIndex = 12,
+	}, setupBox)
+	text({
+		Position = UDim2.fromOffset(18, 200),
+		Size = UDim2.new(1, -36, 0, 18),
+		Text = "함께 촬영하기",
+		TextSize = 14,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		ZIndex = 12,
+	}, setupBox)
+end
 local setupClose = button({
 	AnchorPoint = Vector2.new(1, 0),
 	Position = UDim2.new(1, -10, 0, 10),
 	Size = UDim2.fromOffset(30, 30),
-	BackgroundColor3 = COLORS.pink,
-	Text = "X",
+	BackgroundColor3 = SETUP_CARD,
+	Text = "✕",
 	TextSize = 15,
 	ZIndex = 12,
 }, setupBox, 15)
 local layoutRow = create("Frame", {
-	Position = UDim2.fromOffset(16, 48),
-	Size = UDim2.new(1, -32, 0, 130),
+	Position = UDim2.fromOffset(16, 60),
+	Size = UDim2.new(1, -32, 0, 132),
 	BackgroundTransparency = 1,
 	ZIndex = 12,
 }, setupBox)
 create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 12), SortOrder = Enum.SortOrder.LayoutOrder }, layoutRow)
 local layoutCards: {[string]: TextButton} = {}
 local chosenLayout = PhotoConfig.Layouts[1].key
+local function paintLayouts()
+	for key, other in pairs(layoutCards) do
+		local on = key == chosenLayout
+		local s = other:FindFirstChildOfClass("UIStroke")
+		if s then
+			s.Thickness = if on then 2.5 else 1
+			s.Transparency = if on then 0 else 0.6
+		end
+		local check = other:FindFirstChild("Check")
+		if check and check:IsA("GuiObject") then check.Visible = on end
+	end
+end
 local chosenMode = "solo"
 for index, layout in ipairs(PhotoConfig.Layouts) do
 	local card = button({
 		Name = "Layout_" .. layout.key,
 		LayoutOrder = index,
 		Size = UDim2.new(0.5, -6, 1, 0),
-		BackgroundColor3 = Color3.fromRGB(255, 255, 255),
+		BackgroundColor3 = SETUP_CARD,
 		Text = "",
 		ZIndex = 12,
 	}, layoutRow, 12)
-	create("UIStroke", { Color = COLORS.pink, Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, card)
+	create("UIStroke", { Color = COLORS.pink, Thickness = 1, Transparency = 0.6, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, card)
+	-- ✓ badge on the chosen one
+	local check = text({
+		Name = "Check",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -6, 0, 6),
+		Size = UDim2.fromOffset(22, 22),
+		BackgroundTransparency = 0,
+		BackgroundColor3 = COLORS.pink,
+		Text = "✓",
+		TextSize = 14,
+		Visible = false,
+		ZIndex = 14,
+	}, card)
+	corner(check, 11)
 	-- Little drawing of the layout.
 	local sketch = create("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0),
@@ -325,23 +382,21 @@ for index, layout in ipairs(PhotoConfig.Layouts) do
 		Position = UDim2.new(0.5, 0, 1, -6),
 		Size = UDim2.new(1, -8, 0, 22),
 		Text = layout.name .. " · 무료",
-		TextColor3 = Color3.fromRGB(60, 30, 50),
+		TextColor3 = COLORS.text,
 		TextSize = 15,
 		ZIndex = 13,
 	}, card)
 	layoutCards[layout.key] = card
 	card.MouseButton1Click:Connect(function()
 		chosenLayout = layout.key
-		for key, other in pairs(layoutCards) do
-			other.BackgroundColor3 = if key == chosenLayout then Color3.fromRGB(255, 220, 235) else Color3.fromRGB(255, 255, 255)
-		end
+		paintLayouts()
 	end)
 end
-layoutCards[chosenLayout].BackgroundColor3 = Color3.fromRGB(255, 220, 235)
+paintLayouts()
 
 local modeRow = create("Frame", {
-	Position = UDim2.fromOffset(16, 188),
-	Size = UDim2.new(1, -32, 0, 34),
+	Position = UDim2.fromOffset(16, 222),
+	Size = UDim2.new(1, -32, 0, 36),
 	BackgroundTransparency = 1,
 	ZIndex = 12,
 }, setupBox)
@@ -352,9 +407,9 @@ for index, mode in ipairs(PhotoConfig.Modes) do
 		Name = "Mode_" .. mode.key,
 		LayoutOrder = index,
 		Size = UDim2.new(1 / 3, -6, 1, 0),
-		BackgroundColor3 = Color3.fromRGB(230, 220, 228),
-		TextColor3 = Color3.fromRGB(60, 30, 50),
-		Text = mode.name,
+		BackgroundColor3 = SETUP_CARD,
+		TextColor3 = COLORS.text,
+		Text = (MODE_ICONS[mode.key] or "") .. mode.name,
 		TextSize = 15,
 		ZIndex = 12,
 	}, modeRow, 17)
@@ -362,8 +417,7 @@ for index, mode in ipairs(PhotoConfig.Modes) do
 	modeButton.MouseButton1Click:Connect(function()
 		chosenMode = mode.key
 		for key, other in pairs(modeButtons) do
-			other.BackgroundColor3 = if key == chosenMode then COLORS.pink else Color3.fromRGB(230, 220, 228)
-			other.TextColor3 = if key == chosenMode then COLORS.text else Color3.fromRGB(60, 30, 50)
+			other.BackgroundColor3 = if key == chosenMode then COLORS.pink else SETUP_CARD
 		end
 	end)
 end
@@ -376,14 +430,14 @@ local enterButton = button({
 	Size = UDim2.new(1, -32, 0, 44),
 	BackgroundColor3 = COLORS.yellow,
 	TextColor3 = Color3.fromRGB(60, 40, 10),
-	Text = "들어가기",
+	Text = "다음으로",
 	TextSize = 18,
 	ZIndex = 12,
 }, setupBox, 14)
 
 local function layoutSetup()
 	local vp = viewport()
-	local scale = math.min(1, (vp.X - 20) / 420, (vp.Y - 20) / 290)
+	local scale = math.min(1, (vp.X - 20) / 420, (vp.Y - 20) / 320)
 	local uiScale = setupBox:FindFirstChildOfClass("UIScale") or create("UIScale", {}, setupBox)
 	uiScale.Scale = scale
 end
@@ -411,7 +465,7 @@ enterButton.MouseButton1Click:Connect(function()
 	if not booth then return end
 	enterButton.Text = "..."
 	local ok, message = invoke("Open", { booth = booth, layout = chosenLayout, mode = chosenMode })
-	enterButton.Text = "들어가기"
+	enterButton.Text = "다음으로"
 	closeSetup()
 	if not ok then toast(message) end
 end)

@@ -101,12 +101,15 @@ local modal = create("Frame", {
 	AnchorPoint = Vector2.new(0.5, 0.5),
 	Position = UDim2.fromScale(0.5, 0.5),
 	Size = UDim2.fromOffset(360, 200),
-	BackgroundColor3 = COLORS.panel,
+	BackgroundColor3 = Color3.new(1, 1, 1), -- (the gradient gives the colour)
 	BackgroundTransparency = 0.05,
 	Visible = false,
 	ZIndex = 20,
 }, gui)
 corner(modal, 16)
+-- (the same neon edge as the shop windows, D-455)
+create("UIStroke", { Color = Color3.fromRGB(40, 225, 255), Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, modal)
+create("UIGradient", { Color = ColorSequence.new(Color3.fromRGB(26, 22, 58), Color3.fromRGB(10, 14, 32)), Rotation = 90 }, modal)
 local modalTitle = create("TextLabel", {
 	Name = "Title",
 	Position = UDim2.fromOffset(16, 12),
@@ -332,70 +335,46 @@ local function carried(attribute: string): number
 	return count
 end
 
-local menu = create("Frame", {
-	Name = "DrinkMenu",
-	AnchorPoint = Vector2.new(0.5, 0.5),
-	Position = UDim2.fromScale(0.5, 0.52),
-	Size = UDim2.fromOffset(380, 420),
-	BackgroundColor3 = COLORS.panel,
-	BackgroundTransparency = 0.05,
-	Visible = false,
-	ZIndex = 10,
-}, gui)
-corner(menu, 16)
--- Up to 380 x 420, below the top-bar buttons; on a phone in landscape it
+-- Neon windows from the user's mock-up (2026-10-28, D-455): NeonShopUI draws,
+-- this script fills. The drink menu has a tab per tier and two cards a row.
+local NeonShopUI = require(script.Parent:WaitForChild("NeonShopUI"))
+local drinkWindow = NeonShopUI.window(gui, "DrinkMenu", NeonShopUI.CYAN, "🥤", "음료 주문",
+	"원하는 음료를 골라 테이블에 놓아 보세요", { "기본 음료", "⭐ 스페셜", "💎 프리미엄" })
+drinkWindow.setGrid(2, 118)
+local menu = drinkWindow.frame
+local list = drinkWindow.content
+local drinkNote = NeonShopUI.create("TextLabel", {
+	Name = "VipNote",
+	AnchorPoint = Vector2.new(0.5, 1),
+	Position = UDim2.new(0.5, 0, 1, -10),
+	Size = UDim2.new(1, -28, 0, 30),
+	BackgroundColor3 = Color3.fromRGB(20, 27, 56),
+	TextColor3 = NeonShopUI.MAGENTA,
+	TextScaled = true,
+	Font = Enum.Font.GothamBold,
+	ZIndex = 13,
+}, menu)
+corner(drinkNote, 10)
+NeonShopUI.create("UIPadding", { PaddingTop = UDim.new(0, 7), PaddingBottom = UDim.new(0, 7) }, drinkNote)
+list.Size = UDim2.new(1, -28, 1, -164)
+local itemWindow = NeonShopUI.window(gui, "ItemShop", NeonShopUI.MAGENTA, "🛍️", "클럽 아이템 상점",
+	"테이블 연출 · 무대 효과 · 이용권", { "✨ 불꽃 아이템", "👑 VIP", "🎧 DJ" })
+itemWindow.setGrid(1, 0)
+-- Up to 420 x 460, below the top-bar buttons; on a phone in landscape it
 -- keeps its width and gets shorter (the list scrolls) (2P phone test 2026-10-25)
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
-local function layoutMenu()
+local function layoutWindow(frame: Frame)
 	local camera = workspace.CurrentCamera
 	local vp = if camera then camera.ViewportSize else Vector2.new(1000, 700)
 	local top = TopBar.bottom() + 8
-	menu.AnchorPoint = Vector2.new(0.5, 0)
-	menu.Position = UDim2.new(0.5, 0, 0, top)
-	menu.Size = UDim2.fromOffset(math.min(380, vp.X - 24), math.clamp(vp.Y - top - 12, 180, 420))
+	frame.AnchorPoint = Vector2.new(0.5, 0)
+	frame.Position = UDim2.new(0.5, 0, 0, top)
+	frame.Size = UDim2.fromOffset(math.min(420, vp.X - 24), math.clamp(vp.Y - top - 12, 220, 460))
 end
-create("TextLabel", {
-	Name = "Title",
-	Position = UDim2.fromOffset(16, 10),
-	Size = UDim2.new(1, -60, 0, 30),
-	BackgroundTransparency = 1,
-	Text = "🍹 음료 주문",
-	TextColor3 = COLORS.text,
-	TextSize = 20,
-	Font = Enum.Font.GothamBold,
-	TextXAlignment = Enum.TextXAlignment.Left,
-	ZIndex = 11,
-}, menu)
-local menuClose = create("TextButton", {
-	Name = "CloseButton",
-	AnchorPoint = Vector2.new(1, 0),
-	Position = UDim2.new(1, -10, 0, 10),
-	Size = UDim2.fromOffset(30, 30),
-	BackgroundColor3 = COLORS.card,
-	Text = "X",
-	TextColor3 = COLORS.text,
-	TextSize = 15,
-	Font = Enum.Font.GothamBold,
-	ZIndex = 11,
-}, menu)
-corner(menuClose, 15)
-menuClose.MouseButton1Click:Connect(function() menu.Visible = false end)
-local list = create("ScrollingFrame", {
-	Name = "List",
-	Position = UDim2.fromOffset(12, 48),
-	Size = UDim2.new(1, -24, 1, -60),
-	BackgroundTransparency = 1,
-	BorderSizePixel = 0,
-	ScrollBarThickness = 5,
-	AutomaticCanvasSize = Enum.AutomaticSize.Y,
-	CanvasSize = UDim2.new(),
-	ZIndex = 11,
-}, menu)
-create("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, list)
+local function layoutMenu() layoutWindow(menu) end
 
 local MessagePrompt = require(script.Parent:WaitForChild("MessagePrompt"))
 local COIN = Color3.fromRGB(230, 170, 40)
-local VIP_GOLD = Color3.fromRGB(255, 200, 70)
 
 local function isVip(): boolean
 	return player:GetAttribute("Pass_VIP") == true
@@ -420,21 +399,6 @@ local function productPrice(key: string): number
 		end)
 	end
 	return livePrices[key] or product.price
-end
-
-local function sectionHeader(text: string, order: number)
-	create("TextLabel", {
-		Name = "Header_" .. order,
-		LayoutOrder = order,
-		Size = UDim2.new(1, -6, 0, 24),
-		BackgroundTransparency = 1,
-		Text = text,
-		TextColor3 = COLORS.sub,
-		TextSize = 15,
-		Font = Enum.Font.GothamBold,
-		TextXAlignment = Enum.TextXAlignment.Left,
-		ZIndex = 12,
-	}, list)
 end
 
 local function handsFull(): boolean
@@ -494,119 +458,51 @@ local function purchase(drink: any, method: string)
 	end)
 end
 
-local function pill(row: Instance, x: number, width: number, text: string, color: Color3, onClick: () -> ())
-	local button = create("TextButton", {
-		Name = "Price",
-		AnchorPoint = Vector2.new(1, 0.5),
-		Position = UDim2.new(1, -x, 0.5, 0),
-		Size = UDim2.fromOffset(width, 30),
-		BackgroundColor3 = color,
-		Text = text,
-		RichText = true,
-		TextColor3 = COLORS.text,
-		TextSize = 14,
-		Font = Enum.Font.GothamBold,
-		ZIndex = 14,
-	}, row)
-	corner(button, 15)
-	button.MouseButton1Click:Connect(onClick)
-	return button
-end
-
+local drinkTab = 1
 local function buildMenu()
-	for _, child in ipairs(list:GetChildren()) do
-		if child:IsA("GuiObject") then child:Destroy() end
-	end
+	drinkWindow.clear()
+	drinkWindow.setGrid(2, 118)
 	local vip = isVip()
 	local index = 0
-	local lastTier = 0
 	for _, drink in ipairs(ClubConfig.Drinks) do
-		if drink.tier ~= lastTier then
-			lastTier = drink.tier
-			index += 1
-			sectionHeader(ClubConfig.TierNames[drink.tier] or "", index)
-		end
+		if drink.tier ~= drinkTab then continue end
 		index += 1
-		local row = create("Frame", {
-			Name = "Drink_" .. drink.key,
-			LayoutOrder = index,
-			Size = UDim2.new(1, -6, 0, 52),
-			BackgroundColor3 = if drink.vipOnly then Color3.fromRGB(48, 38, 20) else COLORS.card,
-			ZIndex = 12,
-		}, list)
-		corner(row, 10)
-		local swatch = create("Frame", {
-			Position = UDim2.fromOffset(10, 11),
-			Size = UDim2.fromOffset(30, 30),
-			BackgroundColor3 = drink.color,
-			ZIndex = 13,
-		}, row)
-		corner(swatch, 15)
-		create("TextLabel", {
-			Position = UDim2.fromOffset(50, 5),
-			Size = UDim2.new(1, -216, 0, 24),
-			BackgroundTransparency = 1,
-			Text = (if drink.vipOnly then "👑 " else "") .. drink.name,
-			TextColor3 = if drink.vipOnly then VIP_GOLD else COLORS.text,
-			TextScaled = true,
-			Font = Enum.Font.GothamBold,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			ZIndex = 13,
-		}, row)
-		create("TextLabel", {
-			Position = UDim2.fromOffset(50, 29),
-			Size = UDim2.new(1, -216, 0, 16),
-			BackgroundTransparency = 1,
-			Text = drink.look or "",
-			TextColor3 = COLORS.sub,
-			TextScaled = true,
-			Font = Enum.Font.GothamMedium,
-			TextXAlignment = Enum.TextXAlignment.Left,
-			ZIndex = 13,
-		}, row)
+		local name = (if drink.vipOnly then "👑 " else "") .. drink.name
 		if drink.tier == 1 then
 			local price = ClubConfig.coinPrice(drink, vip)
-			pill(row, 10, 74, if price then ("💰 " .. price) else "무료", if price then COIN else COLORS.accent, function()
-				purchase(drink, "order")
-			end)
+			NeonShopUI.drinkCard(list, index, name, drink.color,
+				if price then ("🪙 " .. price .. " 코인") else "🪙 무료", NeonShopUI.COIN,
+				{ { "🛒 주문", NeonShopUI.CYAN, function() purchase(drink, "order") end } })
 		else
+			local buttons = {}
+			local priceText = ""
+			if drink.coins then
+				local price = ClubConfig.coinPrice(drink, vip) or 0
+				priceText = "🪙 " .. price
+				table.insert(buttons, { "🪙 " .. price, NeonShopUI.COIN, function() purchase(drink, "coins") end })
+			end
 			if drink.product then
 				local text: string
 				if drink.vipOnly then
-					text = if vip then ("R$ " .. productPrice(drink.product)) else "🔒 VIP"
+					text = if vip then ("R$" .. productPrice(drink.product)) else "🔒 VIP"
 				elseif vip and drink.vipProduct then
-					text = string.format("<s>%d</s> R$ %d", productPrice(drink.product), productPrice(drink.vipProduct))
+					text = "R$" .. productPrice(drink.vipProduct)
 				else
-					text = "R$ " .. productPrice(drink.product)
+					text = "R$" .. productPrice(drink.product)
 				end
-				pill(row, 10, if vip and drink.vipProduct then 96 else 74, text,
-					if drink.vipOnly and not vip then VIP_GOLD else COLORS.robux, function()
-						purchase(drink, "robux")
-					end)
+				priceText = (if priceText ~= "" then priceText .. " · " else "") .. text
+				table.insert(buttons, { text, if drink.vipOnly and not vip then NeonShopUI.GOLD else NeonShopUI.CYAN, function() purchase(drink, "robux") end })
 			end
-			if drink.coins then
-				local price = ClubConfig.coinPrice(drink, vip) or 0
-				pill(row, 90, 74, (if vip then "👑" else "💰 ") .. price, COIN, function()
-					purchase(drink, "coins")
-				end)
-			end
+			NeonShopUI.drinkCard(list, index, name, drink.color, priceText, if drink.vipOnly then NeonShopUI.GOLD else NeonShopUI.CYAN, buttons, drink.vipOnly)
 		end
 	end
-	-- (sparklers and the stage cold spark: the item seller next to the bartender)
-	index += 1
-	create("TextLabel", {
-		Name = "VipNote",
-		LayoutOrder = index,
-		Size = UDim2.new(1, -6, 0, 34),
-		BackgroundTransparency = 1,
-		Text = if vip then "👑 VIP: 2단계 코인·3단계 Robux 20% 할인, 골목 공방 소다 구매 가능"
-			else "👑 VIP 패스: 2단계 코인·3단계 Robux 20% 할인 + VIP 전용 음료",
-		TextColor3 = VIP_GOLD,
-		TextScaled = true,
-		Font = Enum.Font.GothamMedium,
-		ZIndex = 12,
-	}, list)
+	drinkNote.Text = if vip then "👑 VIP: 2단계 코인·3단계 Robux 20% 할인 · 골목 공방 소다"
+		else "✦ 👑 VIP는 일부 음료 20% 할인 + VIP 전용 음료 ✦"
 end
+drinkWindow.onTab(function(i)
+	drinkTab = i
+	buildMenu()
+end)
 
 local function openMenu()
 	layoutMenu()
@@ -624,29 +520,67 @@ end)
 -- 🎇 the item seller (user 2026-10-26): sparklers and sparkler bucket sets
 -- come as items (hold one and tap a bottle / a table, TableTapController),
 -- and the stage cold spark (99 R$, VIP 79, one per server every 2 minutes).
-local function openItemShop()
+-- (neon item shop from the user's mock-up 2026-10-28, D-455: tabs 불꽃 아이템 /
+-- VIP / DJ, picture cards with 구매하기, pass rows at the bottom)
+local itemTab = 1
+local function buildItemShop()
+	itemWindow.clear()
+	itemWindow.setGrid(1, 0)
 	local vip = isVip()
-	local bucketKey = if vip then "SparklerBucket_VIP" else "SparklerBucket"
-	local sparkKey = if vip then "ColdSpark_VIP" else "ColdSpark"
-	local cooldown = math.ceil((FashionGame:GetAttribute("ColdSparkReadyAt") or 0) - workspace:GetServerTimeNow())
-	showModal("🎇 불꽃 · 아이템",
-		"🎇 스파클러 1개 / ×5: 들고 테이블 위 병(버킷)을 누르면 30초. 한 버킷에 5개까지.\n🍾 버킷 세트: 얼음 버킷 + 캔 3개 + 불꽃 3개.\n✨ 손 스파클러: 손에 들고 60초 동안 춤춰요.\n🪄 야광봉: 영구 아이템, 누르면 색이 바뀌어요.\n🎆 콜드 스파크: DJ 무대 불꽃 쇼 + 모두의 화면에 내 이름·한마디"
-			.. (if cooldown > 0 then string.format(" (지금 쇼 중 · ⏳ %d초 뒤 바로)", cooldown) else "")
-			.. (if vip then "\n👑 VIP 가격이에요." else ""),
-		{
-			{ name = "Close", text = "닫기", onClick = function() end },
-			{ name = "Sparkler", text = "🎇 R$" .. productPrice("Sparkler1"), color = COLORS.robux, onClick = function() buyProduct("Sparkler1") end },
-			{ name = "Sparkler5", text = "🎇×5 R$" .. productPrice("Sparkler5"), color = COLORS.robux, onClick = function() buyProduct("Sparkler5") end },
-			{ name = "Bucket", text = "🍾 R$" .. productPrice(bucketKey), color = COLORS.accent, onClick = function() buyProduct(bucketKey) end },
-			{ name = "HandSparkler", text = "✨ R$" .. productPrice("HandSparkler"), color = COLORS.robux, onClick = function() buyProduct("HandSparkler") end },
-			{ name = "Glowstick", text = if player:GetAttribute("Pass_Glowstick") then "🪄 보유" else ("🪄 R$" .. tostring(MonetizationConfig.GamePasses.Glowstick.price)), color = COLORS.accent, onClick = function()
-				if not player:GetAttribute("Pass_Glowstick") then buyPass("Glowstick") end
-			end },
-			{ name = "ColdSpark", text = "🎆 R$" .. productPrice(sparkKey), color = VIP_GOLD, onClick = function()
+	local list2 = itemWindow.content
+	local M, C = NeonShopUI.MAGENTA, NeonShopUI.CYAN
+	local function rs(key: string): string return "R$" .. productPrice(key) end
+	local order = 0
+	local function nextOrder() order += 1 return order end
+	local function passRows()
+		NeonShopUI.wideRow(list2, nextOrder(), "🎧", string.format("DJ %d분 이용권", MonetizationConfig.DJMinutes),
+			"클럽 DJ 부스를 쓸 수 있어요 · " .. djStatusLine(), "R$" .. productPrice("DJ"), C, function() buyProduct("DJ") end)
+		local pass = MonetizationConfig.GamePasses.VIP
+		NeonShopUI.wideRow(list2, nextOrder(), "👑", "VIP 패스", "클럽 2층 VIP 라운지에 언제든 들어갈 수 있어요.",
+			if vip then "보유 중" else ("R$" .. pass.price), M, function()
+				if not vip then buyPass("VIP") end
+			end)
+	end
+	if itemTab == 1 then
+		local bucketKey = if vip then "SparklerBucket_VIP" else "SparklerBucket"
+		local sparkKey = if vip then "ColdSpark_VIP" else "ColdSpark"
+		local cooldown = math.ceil((FashionGame:GetAttribute("ColdSparkReadyAt") or 0) - workspace:GetServerTimeNow())
+		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(120, 60, 200), "테이블 스파클러",
+			"들고 테이블 위 병(버킷)을 누르면 30초 연출", rs("Sparkler1"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler1") end)
+		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(150, 50, 190), "스파클러 ×5",
+			"한 버킷에 5개까지 꽂아요", rs("Sparkler5"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler5") end)
+		NeonShopUI.itemCard(list2, nextOrder(), "🍾", Color3.fromRGB(40, 120, 200), "스파클러 버킷 세트",
+			"얼음 버킷 + 음료 3개 + 스파클러 3개", rs("SparklerBucket"), if vip then nil else rs("SparklerBucket_VIP"), "🛒 구매하기", C, function() buyProduct(bucketKey) end)
+		NeonShopUI.itemCard(list2, nextOrder(), "✨", Color3.fromRGB(200, 140, 40), "손 스파클러",
+			"손에 들고 60초 동안 춤춰요", rs("HandSparkler"), nil, "🛒 구매하기", C, function() buyProduct("HandSparkler") end)
+		local hasGlow = player:GetAttribute("Pass_Glowstick") == true
+		NeonShopUI.itemCard(list2, nextOrder(), "🪄", Color3.fromRGB(40, 170, 120), "야광봉",
+			"영구 아이템 · 누르면 색이 바뀌어요", if hasGlow then "보유 중" else ("R$" .. MonetizationConfig.GamePasses.Glowstick.price), nil,
+			if hasGlow then "✓ 보유" else "🛒 구매하기", C, function()
+				if not hasGlow then buyPass("Glowstick") end
+			end)
+		NeonShopUI.itemCard(list2, nextOrder(), "🎆", Color3.fromRGB(30, 90, 190), "무대 콜드 스파크",
+			"서버 전체 무대 효과 + 이름 배너" .. (if cooldown > 0 then string.format(" · ⏳ %d초 뒤", cooldown) else ""),
+			rs("ColdSpark"), if vip then nil else rs("ColdSpark_VIP"), "🛒 구매하기", C, function()
 				MessagePrompt.buy(sparkKey, "🎆 무대 콜드 스파크")
-			end },
-		})
-	modal.Size = UDim2.fromOffset(360, 400)
+			end)
+		passRows()
+	elseif itemTab == 2 then
+		NeonShopUI.note(list2, nextOrder(), "👑 VIP: 2층 VIP 라운지 · 음료 20% 할인 · VIP 전용 음료 · 버킷/콜드 스파크 VIP가", NeonShopUI.GOLD)
+		passRows()
+	else
+		NeonShopUI.note(list2, nextOrder(), "🎧 " .. djStatusLine(), C)
+		passRows()
+	end
+end
+itemWindow.onTab(function(i)
+	itemTab = i
+	buildItemShop()
+end)
+local function openItemShop()
+	layoutWindow(itemWindow.frame)
+	buildItemShop()
+	itemWindow.frame.Visible = true
 end
 
 -- 공개 범위 (모든 사람 / 친구만 / 나만) before a bottle goes on a table
@@ -675,8 +609,10 @@ visibilityAsk.Parent = script.Parent
 ProximityPromptService.PromptTriggered:Connect(function(prompt)
 	if prompt.Name == "BartenderPrompt" then
 		closeModal()
+		itemWindow.frame.Visible = false
 		openMenu()
 	elseif prompt.Name == "ItemShopPrompt" then
+		closeModal()
 		menu.Visible = false
 		openItemShop()
 	end
@@ -686,7 +622,7 @@ end)
 task.spawn(function()
 	while true do
 		task.wait(0.5)
-		if menu.Visible then
+		if menu.Visible or itemWindow.frame.Visible then
 			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
 			local nearest = math.huge
 			for _, spot in ipairs(game:GetService("CollectionService"):GetTagged("BartenderSpot")) do
@@ -694,7 +630,10 @@ task.spawn(function()
 					nearest = math.min(nearest, (spot.Position - root.Position).Magnitude)
 				end
 			end
-			if nearest > 22 then menu.Visible = false end
+			if nearest > 22 then
+				menu.Visible = false
+				itemWindow.frame.Visible = false
+			end
 		end
 	end
 end)

@@ -75,14 +75,31 @@ do
 	end
 end
 
----------------------------------------------------------------- 2. park hoarding
+---------------------------------------------------------------- 2. park netting
+-- Construction netting like the user's photo (2026-10-28, D-453, replaces the
+-- picture boards of D-447/D-448): an opaque teal mesh sheet on scaffold pipes
+-- (drawn in the tile) and a blue sheet above and behind it. One straight run:
+-- `mid` on the line, `along` its direction, `offset` toward `inside`.
+local NET_TEAL, NET_BLUE = "rbxassetid://70770114906607", "rbxassetid://97449992010330" -- net_teal.png / net_blue.png, 8 x 8 studs
+local function netting(f, mid, along, len, inside, offset, y0, tealH, top)
+	local normal = Vector3.new(-along.Z, 0, along.X)
+	if (inside - mid):Dot(normal) < 0 then normal = -normal end
+	local function sheet(name, color, id, yA, yB, back)
+		local c = Vector3.new(mid.X, (yA + yB) / 2, mid.Z) + normal * (offset + back)
+		local p = part(name, Vector3.new(len, yB - yA, 0.3), CFrame.lookAt(c, c + normal), color, f, { material = Enum.Material.Fabric, shadow = false })
+		local ts = { texture(p, Enum.NormalId.Back, id, 8, 8), texture(p, Enum.NormalId.Front, id, 8, 8) }
+		return p, ts
+	end
+	local teal, ts = sheet("NetTeal", Color3.fromRGB(40, 150, 142), NET_TEAL, y0, y0 + tealH, 0)
+	sheet("NetBlue", Color3.fromRGB(36, 86, 196), NET_BLUE, y0 + tealH - 2, top, 1.6)
+	return teal, ts
+end
+
 do
 	local gate = L:FindFirstChild("AmusementParkGate")
 	if gate then
 		local f = folder(gate, "ParkHoarding")
-		local ID = "rbxassetid://103972831630543" -- hoarding_park.png (1024 x 512)
-		local NAVY = Color3.fromRGB(28, 42, 78)
-		local Y0, H = 2.4, 28 -- wall foot, height (two picture rows of 14)
+		local Y0 = 2.4 -- wall foot
 		local inside = Vector3.new(-100, Y0, -350)
 		local runs = { -- {x0, z0, x1, z1} 1.2 studs inside the walls
 			{ -146.3, -473.3, -146.3, -230.7 }, -- west
@@ -93,41 +110,27 @@ do
 			{ -127.0, -235.6, -67.0, -235.6 }, -- behind the low entrance boards
 		}
 		for _, r in ipairs(runs) do
-			local a, b = Vector3.new(r[1], Y0 + H / 2, r[2]), Vector3.new(r[3], Y0 + H / 2, r[4])
-			local mid = (a + b) / 2
-			local len = (b - a).Magnitude + 0.4
-			local along = (b - a).Unit
-			local normal = Vector3.new(-along.Z, 0, along.X)
-			if (inside - mid):Dot(normal) < 0 then normal = -normal end
-			-- LookVector = into the park: Back = the street side
-			local p = part("ParkHoarding", Vector3.new(len, H, 0.4), CFrame.lookAt(mid, mid + normal), NAVY, f, { shadow = false })
-			texture(p, Enum.NormalId.Back, ID, H, H / 2)
-			texture(p, Enum.NormalId.Front, ID, H, H / 2)
+			local a, b = Vector3.new(r[1], 0, r[2]), Vector3.new(r[3], 0, r[4])
+			netting(f, (a + b) / 2, (b - a).Unit, (b - a).Magnitude + 0.4, inside, 0, Y0, 16, 30.4)
 		end
-		note("park hoarding " .. #runs)
+		note("park netting " .. #runs)
 	end
 end
 
 ---------------------------------------------------------------- 3. hanok hoarding
 do
 	local f = folder(L, "HanokHoarding")
-	local ID = "rbxassetid://83802572583834" -- hoarding_hanok.png (2048 x 512)
-	local WHITE = Color3.fromRGB(238, 240, 241)
-	local H = 24
 	local inside = Vector3.new(300, 0, 300)
 	local n = 0
-	local TILE = H * 2 -- two rows of 12: the top row is the part seen over the 12-stud wall
+	local TILE = 8
 	local function board(mid, along, len, offset)
-		local normal = Vector3.new(-along.Z, 0, along.X)
-		if (inside - mid):Dot(normal) < 0 then normal = -normal end
-		local c = Vector3.new(mid.X, H / 2, mid.Z) + normal * offset
-		local p = part("HanokHoarding", Vector3.new(len, H, 0.4), CFrame.lookAt(c, c + normal), WHITE, f, { shadow = false })
 		n += 1
-		return p, texture(p, Enum.NormalId.Back, ID, TILE, H / 2)
+		local p, ts = netting(f, mid, along, len, inside, offset, 0, 18, 26)
+		return p, ts[1]
 	end
 	-- the walls run out from the gate in two bent lines of short stones: build
-	-- each line in order and carry the picture on, so the slogan does not
-	-- restart on every stone
+	-- each line in order and carry the pipes on, so they do not restart on
+	-- every stone
 	local gw = L:FindFirstChild("Gwanghwamun")
 	local gs = gw and gw:FindFirstChild("GateStone", true)
 	local gate = gs and Vector3.new(gs.Position.X, 0, gs.Position.Z) or Vector3.new(158, 0, 195)
@@ -157,7 +160,7 @@ do
 	if gs then
 		board(gs.Position, gs.CFrame.LookVector, gs.Size.Z + 2, gs.Size.X / 2 + 3)
 	end
-	note("hanok hoarding " .. n)
+	note("hanok netting " .. n)
 end
 
 ---------------------------------------------------------------- 4. OH24 appliances
@@ -271,7 +274,8 @@ do
 			if d.Name == "VIP_Table" and d:IsA("BasePart") then table.insert(tables, d.Position) end
 		end
 		local n = 0
-		for _, side in ipairs({ { xTable = 75.2, xWall = 66.6, xOpen = 80.5 }, { xTable = 179.3, xWall = 187.9, xOpen = 174.0 } }) do
+		-- (wall to the table line only, user 2026-10-28 (2), D-453)
+		for _, side in ipairs({ { xTable = 75.2, xWall = 66.6, xOpen = 75.2 }, { xTable = 179.3, xWall = 187.9, xOpen = 179.3 } }) do
 			local zs = {}
 			for _, p in ipairs(tables) do if math.abs(p.X - side.xTable) < 1 then table.insert(zs, p.Z) end end
 			table.sort(zs)
@@ -309,6 +313,50 @@ do
 			end
 		end
 		note("오후네컷 table r1.1, bench parts cut " .. cut)
+	end
+end
+
+---------------------------------------------------------------- 8. cafe lounge sofas 1.2x, tables closer
+do
+	local cafe = G["04_Beach_Aquarium"]:FindFirstChild("BeachCafe")
+	if cafe and not cafe:GetAttribute("LoungeSofa12") then
+		local S, MOVE = 1.2, 1.2 -- sofa scale; tables move this far toward their sofa (+x)
+		local sofas, tables = {}, {}
+		for _, d in ipairs(cafe:GetChildren()) do
+			if d:IsA("MeshPart") and d.Name == "Sofa" and d.Position.Z > 300 then table.insert(sofas, d) end
+			if d:IsA("BasePart") and d.Name == "CafeTable" and d.Position.Z > 300 and d.Position.X > -332 and d.Position.Y < 14 then table.insert(tables, d) end
+		end
+		for _, sofa in ipairs(sofas) do
+			-- the back (east) edge and the bottom stay; seats follow
+			local old = sofa.Size
+			local bottom = sofa.Position.Y - old.Y / 2
+			local east = sofa.Position.X + old.Z / 2 -- turned 90°: depth runs along x
+			-- (height and depth only: 1.2x longer sofas close the 2-stud aisles
+			-- with the tier ramps between them)
+			local new = Vector3.new(old.X, old.Y * S, old.Z * S)
+			local c = Vector3.new(east - new.Z / 2, bottom + new.Y / 2, sofa.Position.Z)
+			local oldC = sofa.Position
+			sofa.Size = new
+			sofa.CFrame = CFrame.new(c) * sofa.CFrame.Rotation
+			for _, seat in ipairs(cafe:GetChildren()) do
+				if seat:IsA("Seat") and seat.Name == "Bench" and math.abs(seat.Position.X - oldC.X) < 2 and math.abs(seat.Position.Z - oldC.Z) < 4 then
+					local rel = seat.Position - oldC
+					local h = seat.Position.Y - bottom
+					seat.CFrame = CFrame.new(c.X + rel.X * S, bottom + h * S, c.Z + rel.Z) * seat.CFrame.Rotation
+				end
+			end
+		end
+		for _, top in ipairs(tables) do
+			local t = top.Position
+			for _, d in ipairs(cafe:GetChildren()) do
+				if d:IsA("BasePart") and not d:IsA("Seat") and d.Name ~= "Sofa" and not d.Name:match("^Lounge")
+					and math.abs(d.Position.X - t.X) < 2.6 and math.abs(d.Position.Z - t.Z) < 2.6 and d.Position.Y < t.Y + 1 and d.Position.Y > t.Y - 4.5 then
+					d.CFrame += Vector3.new(MOVE, 0, 0)
+				end
+			end
+		end
+		cafe:SetAttribute("LoungeSofa12", true)
+		note(("lounge: %d sofas x%.1f, %d tables +%.1f"):format(#sofas, S, #tables, MOVE))
 	end
 end
 
