@@ -982,3 +982,5 @@ D-514 — (2026-10-29 (32), user) Ice box: black base 0.42 -> 0.8 high; the clea
 D-515 — (2026-10-29 (33), user) Ice box: the glow block fills the widened clear box (L + 0.2 x W + 0.2) and is a little lower (0.36 of the box height, was 0.42); the aura stronger and pink-lilac (35 % see-through at its thickest, 22 a second, 1.2 -> 3.4 big, lives 3-4.2 s), starting from the top of the glow block. Shot: 2026-10-29/icebox_sample_v8.jpg.
 
 D-516 — (2026-10-29 (34), user) Ice box VIP sign white neon (was gold). Lineup tier-3 / VIP tray / ice box: 2026-10-29/bucket_lineup_v6.jpg.
+
+D-517 — (2026-10-29 (35), user: try it in game) The ice box is live for one drink only: 골목 공방 · 생강 장미 (golmok variant 'rose') is placed as DrinkBucket kind 'icebox' (full size, centred, facing the club centre); the other three flavours keep the VIP tray C. Checked in Play through ClubShop 'Place' on a 1F round table. Known: the box (5.1 wide) is wider than the round table top (4.4). Shot: 2026-10-29/icebox_on_table.jpg.

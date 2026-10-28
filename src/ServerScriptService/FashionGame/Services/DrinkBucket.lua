@@ -11,7 +11,7 @@ local BottleShapes = require(game:GetService("ReplicatedStorage").FashionGame.Sh
 
 local DrinkBucket = {}
 
-export type Kind = "bottle" | "steel" | "acrylic" | "vip" | "golmok"
+export type Kind = "bottle" | "steel" | "acrylic" | "vip" | "golmok" | "icebox"
 
 local GOLD = Color3.fromRGB(214, 172, 70)
 local STEEL = Color3.fromRGB(196, 200, 206)
@@ -695,6 +695,8 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame, key: string
 	elseif kind == "steel" then
 		-- tier 2 (user 2026-10-29): the tier-1 ice bucket in clear glass, three of the drink's bottles
 		DrinkBucket.iceBucket(m, at, { { key = drinkKey, color = c }, { key = drinkKey, color = c }, { key = drinkKey, color = c } }, nil, true)
+	elseif kind == "icebox" then
+		DrinkBucket.iceBox(m, at, drinkKey, colors)
 	elseif kind == "vip" or kind == "golmok" then
 		-- VIP pass drinks and 골목 공방 (user 2026-10-29 (6)): tray C with five of the drink's bottles
 		DrinkBucket.vipTray(m, at, "C", drinkKey, colors)

@@ -511,6 +511,9 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	local servings = bottleTool:GetAttribute("Servings")
 	servings = if typeof(servings) == "number" then math.clamp(servings, 1, ClubConfig.BottleServings) else ClubConfig.BottleServings
 	local variantKey = bottleTool:GetAttribute("Variant")
+	-- (try-out, user 2026-10-29 (35)): 골목 공방 · 생강 장미 comes in the new
+	-- ice box; the other flavours keep the VIP tray
+	if drink.key == "golmok" and variantKey == "rose" then kind = "icebox" end
 	local drinkName, drinkColor = drinkLook(drink, variantKey)
 	bottleTool:Destroy()
 	slot:SetAttribute("Occupied", true)
@@ -554,7 +557,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	-- sank the tray into the table and pushed it off the middle
 	bucket.PrimaryPart = nil
 	bucket.WorldPivot = at
-	if kind == "vip" or kind == "golmok" then
+	if kind == "vip" or kind == "golmok" or kind == "icebox" then
 		-- (full size: the VIP bucket must be the biggest one, user 2026-10-29 (12))
 	elseif kind == "bottle" then -- (tier 1 is a small pail now, on an edge slot: 2026-10-27)
 		bucket:ScaleTo(0.8)
