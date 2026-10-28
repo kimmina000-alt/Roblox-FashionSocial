@@ -169,7 +169,7 @@ public static class StlTool
     {
         double r = Math.Sqrt(c[0] * c[0] + c[1] * c[1]);
         if (c[2] < 10.3) return "Plate";
-        if (c[2] > 25.8 && r <= 19.5) return "Cream";
+        if (c[2] > 34 && r <= 19.5) return "Cream"; // (the round part over the loaf up to z 34 is bread too, user 2026-10-29 (23))
         return "Bread";
     }
     public static string ParfaitGroup(double[] c)
@@ -186,4 +186,19 @@ public static class StlTool
     {
         Func<double[], string> g = which == "parfait" ? (Func<double[], string>)ParfaitGroup : HoneyBreadGroup;
         return Export(path, jsonPath, cell, g, scale, true, n => n == "Plate" ? 1.6 : n == "Stem" ? 1.6 : 1.0);
-    }}
+    }    public static string ZHist(string path, double z0, double z1, double step, double rmax)
+    {
+        var m = Load(path); var sb = new StringBuilder();
+        int n = (int)((z1 - z0) / step); var cnt = new int[n]; var up = new int[n];
+        foreach (var t in m.T)
+        {
+            double x = 0, y = 0, z = 0; foreach (int vi in t) { x += m.V[vi][0] / 3; y += m.V[vi][1] / 3; z += m.V[vi][2] / 3; }
+            if (Math.Sqrt(x * x + y * y) > rmax || z < z0 || z >= z1) continue;
+            var a = m.V[t[0]]; var b = m.V[t[1]]; var c = m.V[t[2]];
+            double nx = (b[1]-a[1])*(c[2]-a[2])-(b[2]-a[2])*(c[1]-a[1]), ny = (b[2]-a[2])*(c[0]-a[0])-(b[0]-a[0])*(c[2]-a[2]), nz = (b[0]-a[0])*(c[1]-a[1])-(b[1]-a[1])*(c[0]-a[0]);
+            double l = Math.Sqrt(nx*nx+ny*ny+nz*nz); int i = (int)((z - z0) / step); cnt[i]++; if (l > 0 && nz / l > 0.9) up[i]++;
+        }
+        for (int i = 0; i < n; i++) sb.AppendFormat(CultureInfo.InvariantCulture, "z {0:F2}: {1} (flat up {2})\n", z0 + i * step, cnt[i], up[i]);
+        return sb.ToString();
+    }
+}

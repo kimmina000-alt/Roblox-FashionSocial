@@ -393,4 +393,42 @@ if oh24 then
 	table.insert(log, "OH24 stools " .. n)
 end
 
+---------------------------------------------------------------- 6. club lift
+-- (user 2026-10-29 (23)) closed for now: the door stays shut (its AutoDoor
+-- tag goes; put it back to open it again) and a big A-frame stand sign
+-- (2x the 국밥집 one) with the user's 작업중 · 접근금지 picture stands before it
+do
+	local lift = L and L:FindFirstChild("ClubLift")
+	local door = lift and lift:FindFirstChild("AutoDoor")
+	if door then
+		game:GetService("CollectionService"):RemoveTag(door, "AutoDoor")
+		door:SetAttribute("ClosedTemp", true)
+	end
+	if lift and not lift:FindFirstChild("LiftClosedSign") then
+		local m = Instance.new("Model")
+		m.Name = "LiftClosedSign"
+		local x, z = 57.75, -188.5 -- 4 in front of the door, in the corridor
+		local lean = math.rad(12)
+		local W, H = 4.4, 7.2
+		local dz = H / 2 * math.sin(lean)
+		for k, s in ipairs({ -1, 1 }) do
+			local b = Instance.new("Part")
+			b.Name = "SignBoard"
+			b.Anchored = true
+			b.Size = Vector3.new(W, H, 0.2)
+			b.Color = Color3.fromRGB(240, 240, 236)
+			b.CFrame = CFrame.new(x, H / 2 * math.cos(lean), z + s * dz) * CFrame.Angles(-s * lean, 0, 0)
+			b.Parent = m
+			if k == 1 then -- the corridor side (-z): the picture
+				local d = Instance.new("Decal")
+				d.Face = Enum.NormalId.Front
+				d.Texture = "rbxassetid://124812779262419"
+				d.Parent = b
+			end
+		end
+		m.Parent = lift
+	end
+	table.insert(log, "club lift closed")
+end
+
 return table.concat(log, " | ")

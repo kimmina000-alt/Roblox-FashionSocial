@@ -49,11 +49,7 @@ for ($i = 0; $i -lt 9; $i++) {                                                  
 $g.FillRectangle((Br (C 255 246 241 230)), 0, 512, 512, 512)
 $path = New-Object System.Drawing.Drawing2D.GraphicsPath; $path.AddEllipse(0, 512, 512, 512)
 $pg = New-Object System.Drawing.Drawing2D.PathGradientBrush $path; $pg.CenterColor = (C 255 250 247 238); $pg.SurroundColors = @((C 255 222 214 198)); $g.FillPath($pg, $path)
-for ($s = 0; $s -lt 6; $s++) {                                                    # caramel squiggles round the loaf
-  $a0 = $s * 60 + $rnd.Next(-15, 15); $pts = @()
-  for ($a = $a0; $a -le $a0 + 40; $a += 8) { $rr = 175 + $rnd.Next(-14, 14); $pts += P (256 + $rr * [Math]::Cos($a * [Math]::PI / 180)) (768 + $rr * [Math]::Sin($a * [Math]::PI / 180)) }
-  Caramel ([System.Drawing.PointF[]]$pts) 13
-}
+# (plain plate, no caramel: user 2026-10-29 (23))
 
 # ---- cream (512..1024, 512..1024) ----
 $g.FillRectangle((Br (C 255 250 248 242)), 512, 512, 512, 512)
