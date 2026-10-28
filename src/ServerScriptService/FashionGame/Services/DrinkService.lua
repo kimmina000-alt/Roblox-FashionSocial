@@ -392,7 +392,9 @@ end
 local function kindFor(player: Player, drink: ClubConfig.Drink): DrinkBucket.Kind
 	-- (tier-1 cans always get the ice bucket, VIP or not: user 2026-10-28 (4))
 	if drink.tier == 1 then return "bottle" end
-	return if isVip(player) then (if drink.key == "golmok" then "golmok" else "vip")
+	-- (the VIP tray only for the VIP-only drinks; a VIP buying any other drink
+	-- gets that drink's own bucket, user 2026-10-29 (8))
+	return if drink.vipOnly then (if drink.key == "golmok" then "golmok" else "vip")
 		elseif drink.tier >= 3 then "acrylic"
 		elseif drink.tier == 2 then "steel"
 		else "bottle"
@@ -408,18 +410,34 @@ DrinkService.HasBucket = hasBucket -- (SparkleService: sparkler bucket sets)
 
 -- The middle of a table top: where a bucket goes (an Attachment "CenterSlot",
 -- so the owner sign and removeBottle treat it like the edge slots).
+-- (2026-10-29 (8): placed in world terms. The round tables are cylinders whose
+-- local Y is sideways, so (0, slot Y, 0) put the bucket off the middle.)
 local function centerSlot(tablePart: BasePart): Attachment
 	local existing = tablePart:FindFirstChild("CenterSlot")
-	if existing and existing:IsA("Attachment") then return existing end
-	local top = tablePart.Size.Y / 2
+	local slot = if existing and existing:IsA("Attachment") then existing else Instance.new("Attachment")
+	local topY = tablePart.Position.Y + tablePart.Size.Y / 2
 	for _, child in ipairs(tablePart:GetChildren()) do
-		if child:IsA("Attachment") and child.Name == "Slot" then top = child.Position.Y break end
+		if child:IsA("Attachment") and child.Name == "Slot" then topY = child.WorldPosition.Y break end
 	end
-	local slot = Instance.new("Attachment")
 	slot.Name = "CenterSlot"
-	slot.Position = Vector3.new(0, top, 0)
 	slot.Parent = tablePart
+	slot.WorldPosition = Vector3.new(tablePart.Position.X, topY, tablePart.Position.Z)
 	return slot
+end
+
+-- The middle of the club: the middle of the box round its drink tables (both
+-- rows and the VIP floor), so every bucket turns its front to the room (user
+-- 2026-10-29 (8)).
+local function clubCentre(tablePart: BasePart): Vector3?
+	local zone = tablePart.Parent
+	local lo, hi, n = Vector3.one * math.huge, -Vector3.one * math.huge, 0
+	for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do
+		if t:IsA("BasePart") and t:IsDescendantOf(workspace) and t.Parent == zone then
+			lo, hi = lo:Min(t.Position), hi:Max(t.Position)
+			n += 1
+		end
+	end
+	return if n > 1 then (lo + hi) / 2 else nil
 end
 DrinkService.CenterSlot = centerSlot
 
@@ -522,15 +540,36 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	ref.Parent = bottle
 
 	-- the look (the part above stays as the invisible holder of the label)
-	local bucket = DrinkBucket.build(kind, { drinkColor }, CFrame.new(slot.WorldPosition), drink.key)
+	-- the bucket's front (-Z) faces the middle of the club
+	local at = CFrame.new(slot.WorldPosition)
+	local centre = clubCentre(tablePart)
+	if centre then
+		local flat = Vector3.new(centre.X, slot.WorldPosition.Y, centre.Z)
+		if (flat - slot.WorldPosition).Magnitude > 1 then at = CFrame.lookAt(slot.WorldPosition, flat) end
+	end
+	local bucket = DrinkBucket.build(kind, { drinkColor }, at, drink.key)
+	-- (2026-10-29 (8)) scale about the table centre and sit it on the top by
+	-- its lowest part in world terms: the bounding box takes the PrimaryPart's
+	-- axes, and a tray's PrimaryPart is a cylinder lying on its side, so it
+	-- sank the tray into the table and pushed it off the middle
+	bucket.PrimaryPart = nil
+	bucket.WorldPivot = at
 	if kind == "vip" or kind == "golmok" or kind == "bottle" then -- (tier 1 is a small pail now, on an edge slot: 2026-10-27)
 		bucket:ScaleTo(0.8)
 	elseif isBucket then
 		bucket:ScaleTo(0.9)
 	end
-	bucket:PivotTo(bucket:GetPivot() + (slot.WorldPosition.Y - bucket:GetBoundingBox().Position.Y + bucket:GetExtentsSize().Y / 2) * Vector3.yAxis)
+	local minY, maxY = math.huge, -math.huge
+	for _, p in ipairs(bucket:GetDescendants()) do
+		if p:IsA("BasePart") then
+			local c, h = p.CFrame, p.Size / 2
+			local ey = math.abs(c.XVector.Y) * h.X + math.abs(c.YVector.Y) * h.Y + math.abs(c.ZVector.Y) * h.Z
+			minY, maxY = math.min(minY, p.Position.Y - ey), math.max(maxY, p.Position.Y + ey)
+		end
+	end
+	bucket:PivotTo(bucket:GetPivot() + (slot.WorldPosition.Y - minY) * Vector3.yAxis)
 	bucket.Parent = bottle
-	countLabel(bottle, bucket:GetExtentsSize().Y - 0.5 + (if isBucket then 0 else 0.5))
+	countLabel(bottle, maxY - minY - 0.5 + (if isBucket then 0 else 0.5))
 
 	bottle.Parent = tablePart
 	task.delay(ClubConfig.BottleLifetime, function()

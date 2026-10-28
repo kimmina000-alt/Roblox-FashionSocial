@@ -200,7 +200,110 @@ local function laser(m: Model, at: CFrame, x: number, z: number, lean: number)
 	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.3), NumberSequenceKeypoint.new(0.5, 0.6), NumberSequenceKeypoint.new(1, 0.95) })
 	beam.Parent = dot
 end
+-- A round neon line of four curved beams (a beam bends between two attachments
+-- along their X axes; 0.5523 r makes each quarter a circle arc). centre's Y
+-- axis is the ring's axis.
+local function beamRing(holder: BasePart, centre: CFrame, r: number, color: Color3, width: number, transparency: number?)
+	local atts = {}
+	for i = 0, 3 do
+		local a = i * math.pi / 2
+		local att = Instance.new("Attachment")
+		att.Name = "RingPoint"
+		att.Parent = holder
+		local pos = Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)
+		local tangent = Vector3.new(-math.sin(a), 0, math.cos(a))
+		att.WorldCFrame = centre * CFrame.fromMatrix(pos, tangent, Vector3.yAxis)
+		atts[i] = att
+	end
+	for i = 0, 3 do
+		local b = Instance.new("Beam")
+		b.Name = "LEDRing"
+		b.Attachment0 = atts[i]
+		b.Attachment1 = atts[(i + 1) % 4]
+		b.CurveSize0 = 0.5523 * r
+		b.CurveSize1 = 0.5523 * r
+		b.Width0 = width
+		b.Width1 = width
+		b.Segments = 12
+		b.FaceCamera = true
+		b.LightEmission = 1
+		b.LightInfluence = 0
+		b.Color = ColorSequence.new(color)
+		b.Transparency = NumberSequence.new(transparency or 0)
+		b.Parent = holder
+	end
+end
+
+-- VIP tray C v2 (user 2026-10-29 (8)): a two-step lit podium with a full yellow
+-- LED line round each step, the bottles standing loosely (not in a row) in a
+-- clear round glass case with a few square ice cubes, cyan LED rings all the
+-- way round the case (the two side "wings" joined up), no lasers.
+local function vipTrayC(m: Model, at: CFrame, key: string, colors: {Color3}): number
+	local DARK = Color3.fromRGB(18, 18, 24)
+	local YELLOW = Color3.fromRGB(255, 200, 70)
+	local CYAN = Color3.fromRGB(110, 200, 255)
+	local S1D, S2D, SH = 3.3, 2.85, 0.55 -- step diameters, step height
+	cyl(m, "TrayBase", S1D, SH, at * CFrame.new(0, SH / 2, 0), DARK, Enum.Material.SmoothPlastic)
+	cyl(m, "TrayStep", S2D, SH, at * CFrame.new(0, SH * 1.5, 0), DARK, Enum.Material.SmoothPlastic)
+	-- the LED lines: a thin neon disc a hair wider than the step shows only as a ring
+	for _, y in ipairs({ 0.18, 0.4 }) do
+		cyl(m, "LEDLine", S1D + 0.04, 0.035, at * CFrame.new(0, y, 0), YELLOW, Enum.Material.Neon)
+		cyl(m, "LEDLine", S2D + 0.04, 0.035, at * CFrame.new(0, SH + y, 0), YELLOW, Enum.Material.Neon)
+	end
+	local floorY = SH * 2
+	local top = cyl(m, "LitTop", S2D - 0.25, 0.05, at * CFrame.new(0, floorY, 0), Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
+	light(top, Color3.fromRGB(200, 225, 255), 7, 1.2)
+	-- the glass case (see-through plastic: Glass hides the see-through ice behind it)
+	local GR, GH = 1.35, 2.1
+	local glass = cyl(m, "GlassCase", GR * 2, GH, at * CFrame.new(0, floorY + GH / 2, 0), Color3.fromRGB(215, 235, 255), Enum.Material.SmoothPlastic, 0.82)
+	glass.Reflectance = 0.15
+	beamRing(glass, at * CFrame.new(0, floorY + GH, 0), GR, Color3.fromRGB(235, 245, 255), 0.04, 0.3) -- the rim
+	for _, y in ipairs({ 0.4, 1.05, 1.7 }) do
+		beamRing(glass, at * CFrame.new(0, floorY + y, 0), GR + 0.1, CYAN, 0.05)
+	end
+	-- bottles stood loosely: one near the middle, four round it, each turned and leaning a little
+	local rnd = Random.new()
+	for i = 1, 5 do
+		local pos
+		if i == 3 then
+			pos = Vector3.new(rnd:NextNumber(-0.15, 0.15), 0, rnd:NextNumber(-0.1, 0.2))
+		else
+			local k = if i < 3 then i - 1 else i - 2 -- 0..3
+			local a = math.rad(45 + k * 90 + rnd:NextNumber(-20, 20))
+			local r = rnd:NextNumber(0.62, 0.78)
+			pos = Vector3.new(math.cos(a) * r, 0, math.sin(a) * r)
+		end
+		local outward = if pos.Magnitude > 0.01 then pos.Unit else Vector3.zAxis
+		local lean = CFrame.fromAxisAngle(Vector3.yAxis:Cross(outward).Unit, math.rad(rnd:NextNumber(3, 9)))
+		local base = at * CFrame.new(pos + Vector3.new(0, floorY, 0)) * lean * CFrame.Angles(0, rnd:NextNumber(-0.6, 0.6), 0)
+		BottleShapes.add(m, base, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
+	end
+	-- a few square ice cubes, only a little see-through
+	for _ = 1, 7 do
+		local s = rnd:NextNumber(0.36, 0.5)
+		local a, r = rnd:NextNumber(0, math.pi * 2), rnd:NextNumber(0.3, 1.05)
+		part(m, "IceCube", Vector3.new(s, s, s),
+			at * CFrame.new(math.cos(a) * r, floorY + s / 2 + rnd:NextNumber(0, 0.25), math.sin(a) * r) * CFrame.Angles(rnd:NextNumber(0, 1.5), rnd:NextNumber(0, 1.5), rnd:NextNumber(0, 1.5)),
+			Color3.fromRGB(215, 235, 255), Enum.Material.SmoothPlastic, nil, 0.35)
+	end
+	-- the white neon "VIP" over the case (bars, read from the front = -Z)
+	local WHITE_NEON = Color3.fromRGB(255, 255, 255)
+	local cy, h, w = 5.0, 0.9, 0.11
+	local function bar(x0: number, y0: number, x1: number, y1: number)
+		local a, b = Vector3.new(-x0, cy + y0, -0.2), Vector3.new(-x1, cy + y1, -0.2)
+		local mid, dir = (a + b) / 2, b - a
+		part(m, "VIPLetter", Vector3.new(w, dir.Magnitude + w, w), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, -1), dir.Unit), WHITE_NEON, Enum.Material.Neon)
+	end
+	local hh = h / 2
+	bar(-0.95, hh, -0.65, -hh) bar(-0.35, hh, -0.65, -hh) -- V
+	bar(0, hh, 0, -hh) -- I
+	bar(0.4, hh, 0.4, -hh) bar(0.4, hh, 0.85, hh) bar(0.85, hh, 0.85, 0) bar(0.4, 0, 0.85, 0) -- P
+	light(part(m, "VIPSignLight", Vector3.new(0.2, 0.2, 0.2), at * CFrame.new(0, cy, 0), WHITE_NEON, nil, nil, 1), Color3.fromRGB(230, 240, 255), 6, 1.2)
+	return cy + hh
+end
+
 function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, colors: {Color3}): number
+	if style == "C" then return vipTrayC(m, at, key, colors) end
 	local DARK = Color3.fromRGB(18, 18, 24)
 	-- "C" (the user's mix, 2026-10-29 (3)): A's ring, lit top and wings on a dark
 	-- round base dressed like B (yellow light bricks on the front corners, warm window)
