@@ -108,7 +108,11 @@ local function giveBottle(player: Player, drinkKey: string, servings: number?, v
 	handle.Parent = tool
 	-- the drink's own bottle shape on the (invisible) handle (BottleShapes, 2026-10-27)
 	handle.Transparency = 1
-	local scale = 1.9 / BottleShapes.height(drink.key)
+	-- size in the hand per drink (user 2026-10-28 (15)): tier 2 half, 스택 하이드로
+	-- half, 스컬 앤 워터 85 %, VIP 골목 공방 110 %
+	local handScale = if drink.key == "stack_hydro" then 0.5 elseif drink.key == "skull_water" then 0.85
+		elseif drink.key == "golmok" then 1.1 elseif drink.tier == 2 then 0.5 else 1
+	local scale = 1.9 / BottleShapes.height(drink.key) * handScale
 	BottleShapes.add(tool, handle.CFrame * CFrame.new(0, -0.9, 0), drink.key, color, scale, handle)
 	tool.Grip = CFrame.new(0, -0.3, 0)
 	tool.Parent = backpack

@@ -114,9 +114,9 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 	-- clear square ice cubes on top, in the gaps between the drinks (user 2026-10-28 (13))
 	for i = 1, 3 do
 		local a = (i - 0.5) * math.pi * 2 / 3
-		local s = 0.62
+		local s = 0.41 -- (2/3, user 2026-10-28 (15))
 		part(m :: Model, "IceCube", Vector3.new(s, s, s), at * CFrame.new(math.cos(a) * 0.5, fill + s * 0.45, math.sin(a) * 0.5) * CFrame.Angles(0.25, a, 0.15),
-			Color3.fromRGB(205, 232, 255), Enum.Material.SmoothPlastic, nil, 0.45) -- (see-through square cubes; the transparency had gone into the shape argument and made balls, user 2026-10-28 (14))
+			Color3.fromRGB(205, 232, 255), Enum.Material.SmoothPlastic, nil, 0.5) -- (see-through square cubes; the transparency had gone into the shape argument and made balls, user 2026-10-28 (14))
 	end
 	-- three bottles leaning out (cans at their full table size)
 	for i, b in ipairs(bottles) do
