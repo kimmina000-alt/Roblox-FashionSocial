@@ -725,8 +725,48 @@ function DrinkService.Handle(player: Player, action: string, payload: any): (boo
 	return false, "잘못된 요청입니다."
 end
 
+-- The real bottles for the drink menu (user 2026-10-28 (24)): one model per
+-- drink and flavour ("key" or "key_variant"), built here because the bottle
+-- meshes and pictures are in ServerStorage; clients show them in the cards.
+local function buildPreviews()
+	local old = FashionGame:FindFirstChild("DrinkPreviews")
+	if old then old:Destroy() end
+	local folder = Instance.new("Folder")
+	folder.Name = "DrinkPreviews"
+	for _, drink in ipairs(ClubConfig.Drinks) do
+		local flavours: {any} = drink.variants or { false }
+		for _, variant in ipairs(flavours) do
+			local m = Instance.new("Model")
+			m.Name = if variant then drink.key .. "_" .. variant.key else drink.key
+			local scale = if BottleShapes.isCan(drink.key) then 1 / BottleShapes.CanScale else 1
+			BottleShapes.add(m, CFrame.new(0, 0, 0), drink.key, if variant then variant.color else drink.color, scale)
+			for _, d in ipairs(m:GetDescendants()) do
+				if d:IsA("Light") then d:Destroy() end
+			end
+			-- (ViewportFrames draw see-through glass and cut-out pictures as
+			-- nothing: the clear bottles show as one shell in the drink colour
+			-- with the ordinary picture on it)
+			local printed = m:FindFirstChild("BottlePrint")
+			if printed and printed:IsA("BasePart") then
+				local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+				local skins = art and art:FindFirstChild("BottleSkins")
+				local skin = skins and skins:FindFirstChild(drink.key)
+				for _, d in ipairs(printed:GetChildren()) do d:Destroy() end
+				if skin then skin:Clone().Parent = printed end
+				printed.Color = (if variant then variant.color else drink.color):Lerp(Color3.new(1, 1, 1), 0.25)
+				for _, d in ipairs(m:GetChildren()) do
+					if d ~= printed and (d.Name == "BottleBody" or d.Name:match("^Liquid")) then d:Destroy() end
+				end
+			end
+			m.Parent = folder
+		end
+	end
+	folder.Parent = FashionGame
+end
+
 function DrinkService.Start()
 	notify = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubNotify") :: RemoteEvent
+	task.spawn(buildPreviews)
 	local function grant(player: Player, drink: ClubConfig.Drink): (boolean, string?)
 		-- (a VIP-only drink bought by someone who lost VIP is still given: it was paid)
 		local picked = pendingVariant[player.UserId] and pendingVariant[player.UserId][drink.key]

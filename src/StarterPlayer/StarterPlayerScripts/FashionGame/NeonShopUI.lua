@@ -271,11 +271,46 @@ local function drinkIcon(parent: Instance, color: Color3, position: UDim2, size:
 end
 
 -- One drink card (grid cell). buttons: {{text, color, onClick}}
-function NeonShopUI.drinkCard(parent: Instance, order: number, name: string, color: Color3, priceText: string, priceColor: Color3, buttons: {{any}}, gold: boolean?)
+-- The real bottle in a little 3D window (user 2026-10-28 (24)): `preview` is
+-- a model the server built with the drink's own bottle (FashionGame.DrinkPreviews).
+local function bottleView(parent: Instance, preview: Model, color: Color3, position: UDim2, size: UDim2)
+	local holder = create("Frame", { Name = "Drink", Position = position, Size = size, BackgroundColor3 = Color3.new(1, 1, 1), ZIndex = 13 }, parent)
+	corner(holder, 12)
+	create("UIGradient", { Color = ColorSequence.new(color:Lerp(NAVY, 0.55), Color3.fromRGB(14, 20, 44)), Rotation = 90 }, holder)
+	local vp = create("ViewportFrame", {
+		Name = "Bottle",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Ambient = Color3.fromRGB(200, 200, 210),
+		LightColor = Color3.new(1, 1, 1),
+		LightDirection = Vector3.new(-0.4, -0.6, -1),
+		ZIndex = 14,
+	}, holder)
+	local world = Instance.new("WorldModel")
+	world.Parent = vp
+	local m = preview:Clone()
+	m.Parent = world
+	local cf, sz = m:GetBoundingBox()
+	local cam = Instance.new("Camera")
+	cam.FieldOfView = 30
+	-- (fit the taller of the height and the width: the window is narrow, cans are wide)
+	local dist = math.max(sz.Y, math.max(sz.X, sz.Z) * 1.5) / 2 / math.tan(math.rad(15)) * 1.15
+	-- (bottles face -Z: the camera in front of the printed side)
+	cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(0, sz.Y * 0.05, -dist), cf.Position)
+	cam.Parent = vp
+	vp.CurrentCamera = cam
+	return holder
+end
+
+function NeonShopUI.drinkCard(parent: Instance, order: number, name: string, color: Color3, priceText: string, priceColor: Color3, buttons: {{any}}, gold: boolean?, preview: Model?)
 	local card = create("Frame", { Name = "Card_" .. order, LayoutOrder = order, BackgroundColor3 = CARD, ZIndex = 12 }, parent)
 	corner(card, 14)
 	stroke(card, if gold then NeonShopUI.GOLD else Color3.fromRGB(70, 90, 150), 1.2, if gold then 0.1 else 0.4)
-	drinkIcon(card, color, UDim2.fromOffset(8, 8), UDim2.new(0.42, -8, 1, -16))
+	if preview then
+		bottleView(card, preview, color, UDim2.fromOffset(8, 8), UDim2.new(0.42, -8, 1, -16))
+	else
+		drinkIcon(card, color, UDim2.fromOffset(8, 8), UDim2.new(0.42, -8, 1, -16))
+	end
 	label(card, { Name = "Name", Position = UDim2.new(0.42, 6, 0, 10), Size = UDim2.new(0.58, -14, 0, 20), Text = name, TextColor3 = if gold then NeonShopUI.GOLD else TEXT })
 	label(card, { Name = "Price", Position = UDim2.new(0.42, 6, 0, 34), Size = UDim2.new(0.58, -14, 0, 16), Text = priceText, TextColor3 = priceColor, Font = Enum.Font.GothamMedium, RichText = true })
 	local row = create("Frame", { Name = "Buttons", Position = UDim2.new(0.42, 6, 1, -42), Size = UDim2.new(0.58, -14, 0, 34), BackgroundTransparency = 1, ZIndex = 13 }, card)

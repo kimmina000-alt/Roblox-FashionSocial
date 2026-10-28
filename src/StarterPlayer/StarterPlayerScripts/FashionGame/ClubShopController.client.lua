@@ -496,11 +496,14 @@ local function buildMenu()
 			local chosen = if variant then variant.key else nil
 			local color = if variant then variant.color else drink.color
 			local name = (if drink.vipOnly then "👑 " else "") .. drink.name .. (if variant then " " .. variant.name .. "맛" else "")
+			-- the real bottle (server-built, FashionGame.DrinkPreviews, user 2026-10-28 (24))
+			local previews = FashionGame:FindFirstChild("DrinkPreviews")
+			local preview = previews and previews:FindFirstChild(if variant then drink.key .. "_" .. variant.key else drink.key)
 			if drink.tier == 1 then
 				local price = ClubConfig.coinPrice(drink, vip)
 				NeonShopUI.drinkCard(list, index, name, color,
 					if price then ("💰 " .. price .. " 코인") else "💰 무료", NeonShopUI.COIN,
-					{ { "🛒 주문", NeonShopUI.CYAN, function() purchase(drink, "order", chosen) end } })
+					{ { "🛒 주문", NeonShopUI.CYAN, function() purchase(drink, "order", chosen) end } }, nil, preview)
 			else
 				local buttons = {}
 				local parts = {}
@@ -515,7 +518,7 @@ local function buildMenu()
 					table.insert(parts, robuxText(drink, vip))
 					table.insert(buttons, { text, if drink.vipOnly and not vip then NeonShopUI.GOLD else NeonShopUI.CYAN, function() purchase(drink, "robux", chosen) end })
 				end
-				NeonShopUI.drinkCard(list, index, name, color, table.concat(parts, " · "), if drink.vipOnly then NeonShopUI.GOLD else NeonShopUI.CYAN, buttons, drink.vipOnly)
+				NeonShopUI.drinkCard(list, index, name, color, table.concat(parts, " · "), if drink.vipOnly then NeonShopUI.GOLD else NeonShopUI.CYAN, buttons, drink.vipOnly, preview)
 			end
 		end
 	end
