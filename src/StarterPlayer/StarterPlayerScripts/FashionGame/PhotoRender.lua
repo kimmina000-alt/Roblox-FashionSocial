@@ -20,8 +20,19 @@ local OutfitSnapshot = require(Shared:WaitForChild("OutfitSnapshot"))
 local ClubConfig = require(Shared:WaitForChild("ClubConfig"))
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
 local PhotoProps = require(Shared:WaitForChild("PhotoProps"))
+local BoothPose = require(Shared:WaitForChild("BoothPose"))
+local RunService = game:GetService("RunService")
 
 local PhotoRender = {}
+
+-- Kneeling rigs (entry.kn): the pose is set after the animator every step
+-- while the rig is shown.
+local kneeling: {[Model]: boolean} = {}
+RunService.Stepped:Connect(function()
+	for rig in pairs(kneeling) do
+		if rig.Parent then BoothPose.kneel(rig) else kneeling[rig] = nil end
+	end
+end)
 
 -- 40 with the level booth camera (2026-10-22): people fill more of the cut;
 -- four people side by side (2.8 studs apart) still fit. 48 with the camera
@@ -147,12 +158,22 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 	setPart(world, Vector3.new(44, 16, 0.5), CFrame.new(0, 2, 6.25), back)
 	setPart(world, Vector3.new(44, 0.3, 15), CFrame.new(0, -5.85, 0), back:Lerp(Color3.new(1, 1, 1), 0.4))
 	for _, entry in ipairs(shot.people or {}) do
+		local s = entry.s -- 키높이 발판: { x, y, z, width, height } in stand space
+		if typeof(s) == "table" and #s == 5 then
+			setPart(world, Vector3.new(s[4], s[5], s[4]), CFrame.new(s[1], s[2], s[3]), back:Lerp(Color3.new(0, 0, 0), 0.12))
+		end
+	end
+	for _, entry in ipairs(shot.people or {}) do
 		local info = people[entry.u]
 		local base = info and info.o and template(info.o)
 		if base and viewport.Parent then
 			local rig = base:Clone()
 			rig.Parent = world
 			rig:PivotTo(CFrame.new(entry.x or 0, entry.y or -2.9, entry.z or 0) * CFrame.Angles(0, entry.r or 0, 0))
+			if entry.kn then
+				kneeling[rig] = true
+				BoothPose.kneel(rig)
+			end
 			local humanoid = rig:FindFirstChildOfClass("Humanoid")
 			if humanoid then
 				local lift = PhotoProps.liftFor(rig)

@@ -6775,7 +6775,8 @@ do
 	-- north and the south). Drawn for tall avatars (not in scale_furniture).
 	do
 		local c = Vector3.new(100, F, -80)
-		local TR, R0, R1, SH = 4.5, 10.5, 14, 2.4 -- table radius, bench inner / outer radius, seat height
+		-- (table down to the pot size, benches 15° shorter at each end: user 2026-10-28, D-451)
+		local TR, R0, R1, SH = 1.1, 10.5, 14, 2.4 -- table radius, bench inner / outer radius, seat height
 		local PINK_T = Color3.fromRGB(255, 205, 214)
 		local SKY_B = Color3.fromRGB(186, 226, 240)
 		vcyl("RoundTable", c, TR * 2, 3.6, PINK_T, opt({ material = Enum.Material.SmoothPlastic }))
@@ -6793,7 +6794,7 @@ do
 			m.Parent = B
 		end
 		local RM = (R0 + R1) / 2
-		for _, arc in ipairs({ { -75, 75 }, { 105, 255 } }) do -- degrees from +x (east) toward +z (south)
+		for _, arc in ipairs({ { -60, 60 }, { 120, 240 } }) do -- degrees from +x (east) toward +z (south)
 			local STEP = 7.5
 			for a = arc[1], arc[2] - STEP, STEP do
 				local am = math.rad(a + STEP / 2)

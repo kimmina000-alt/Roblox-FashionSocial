@@ -2465,3 +2465,27 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 고친 것: VIP 소파 9번 쿠션이 앉는 자리보다 0.5 높아서 VIP_Sofa 좌석 49개를 0.5 올림 (furniture_swap.lua에도 반영, place에서 적용).
 못 한 것: 손 스파클러 · 수육 · 케이크는 실제 상품 ID가 있어 Studio 테스트 구매가 막힘 (앞서 1인 Play에서 기능 확인함). 2인 테스트는 수정 전 코드로 시작된 창이라 VIP 좌석 높이는 다음 테스트에서 확인.
 사진: images/2026-10-27/2p_coldspark_seen_by_p1.jpg, 2p_p2_on_lounge_sofa.jpg
+
+## 2026-10-28 — 소금빵 이미지, 가림막, 편의점 기기, VIP 칸막이, 포토부스 도우미
+
+사용자 요청 9가지를 처리했어요. 지도 쪽은 새 후처리 `tools/graybox/polish_1028.lua` 한 개(furniture_swap 다음)로 모았어요.
+
+| 항목 | 결과 | D |
+|---|---|---|
+| 소금빵 표면 | 직접 그린 색 + 거칠기 이미지(소금 알갱이, 버터 광택) | D-445 |
+| 케이크 진열장 | 1.2 높임, 받침대 추가 | D-446 |
+| 놀이공원 | 벽 안쪽 둘레 28 높이 가림막, 관람차만 보임 | D-447 |
+| 한옥 마을 | 돌담 안쪽 24 높이 흰 가림막 + 문 뒤, 문구 이어짐 | D-448 |
+| 전자레인지·온수기 | 박스 1개 + 앞면 이미지(숫자 표시 포함), 에셋보다 가벼움 | D-449 |
+| 카페 바다 쪽 | 바닥과 물 사이 빈 틈을 마감판으로 막음 | D-450 |
+| 클럽 VIP | 옆 소파 14개·좌석 28개 삭제, 부스 사이 유리벽 5개(천장까지) | D-451 |
+| 오후네컷 | 테이블 반지름 4.5 → 1.1, 벤치 양끝 15°씩 짧게 | D-451 |
+| 포토부스 | 🧎 허리 숙이기 / 👟 키높이 발판, 사진에도 남음 | D-452 |
+
+![park](images/2026-10-28/park_hoarding_top.jpg)
+![hanok](images/2026-10-28/hanok_hoarding.jpg)
+![vip](images/2026-10-28/vip_partitions.jpg)
+![oh24](images/2026-10-28/oh24_microwave_hotwater_v1.jpg)
+![skirt](images/2026-10-28/cafe_sea_skirt.jpg)
+![booth live](images/2026-10-28/booth_kneel_step_live.jpg)
+![booth photo](images/2026-10-28/booth_kneel_step_photo.jpg)

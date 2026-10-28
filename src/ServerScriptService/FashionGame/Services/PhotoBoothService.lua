@@ -47,6 +47,7 @@ local Shared = FashionGame:WaitForChild("Shared")
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
 local PhotoProps = require(Shared:WaitForChild("PhotoProps"))
 local OutfitSnapshot = require(Shared:WaitForChild("OutfitSnapshot"))
+local BoothPose = require(Shared:WaitForChild("BoothPose"))
 local EconomyService = require(script.Parent.EconomyService)
 local ClubService = require(script.Parent.ClubService)
 
@@ -230,9 +231,20 @@ local function publish(session: Session?, booth: Model)
 	end
 end
 
+-- 키높이 발판 (user 2026-10-28, D-452): one block per person, in the booth's
+-- colour, under their feet.
+local steps: {[Player]: BasePart} = {}
+
 local function clearProps(player: Player)
+	local step = steps[player]
+	if step then
+		steps[player] = nil
+		step:Destroy()
+	end
 	local character = player.Character
 	if not character then return end
+	character:SetAttribute("BoothKneel", nil)
+	character:SetAttribute("BoothStep", nil)
 	for _, child in ipairs(character:GetChildren()) do
 		if child:IsA("Accessory") and child:GetAttribute("PhotoProp") then child:Destroy() end
 	end
@@ -330,6 +342,13 @@ local function captureShot(session: Session, stand: BasePart, at: number): any
 				r = math.floor(math.atan2(-look.X, -look.Z) * 1000 + 0.5) / 1000,
 				p = PhotoProps.worn(character),
 			}
+			if character:GetAttribute("BoothKneel") then entry.kn = 1 end
+			local step = steps[person]
+			if step then
+				local s = stand.CFrame:PointToObjectSpace(step.Position)
+				local function r2(v: number): number return math.floor(v * 100 + 0.5) / 100 end
+				entry.s = { r2(s.X), r2(s.Y), r2(s.Z), r2(step.Size.X), r2(step.Size.Y) }
+			end
 			local key = character:GetAttribute("DanceKey")
 			local start = character:GetAttribute("DanceStart")
 			local speed = character:GetAttribute("DanceSpeed")
@@ -698,6 +717,49 @@ local function toggleProp(player: Player, key: any): (boolean, string?)
 	return true, nil
 end
 
+-- 🧎 허리 숙이기 / 🪜 키높이 발판 (user 2026-10-28, D-452): helpers for tall and
+-- short avatars while shooting. Kneeling is a character attribute every
+-- client draws (BoothPoseController) and the photo keeps (entry.kn); the step
+-- is a block in the backdrop's colour under the feet (entry.s).
+local function toggleHelper(player: Player, which: string): (boolean, any)
+	local session = byPlayer[player]
+	if not session or (session.phase ~= "shooting" and session.phase ~= "waiting") then return false, nil end
+	local character = player.Character
+	local root = rootOf(player)
+	local stand = part(session.booth, "Stand")
+	if not character or not root or not stand then return false, nil end
+	if which == "Kneel" then
+		local on = not character:GetAttribute("BoothKneel")
+		character:SetAttribute("BoothKneel", if on then true else nil)
+		return true, on
+	end
+	local old = steps[player]
+	if old then
+		steps[player] = nil
+		old:Destroy()
+		character:SetAttribute("BoothStep", nil)
+		return true, false
+	end
+	local h = BoothPose.StepHeight
+	local rel = stand.CFrame:PointToObjectSpace(root.Position)
+	local backdrop = part(session.booth, "Backdrop")
+	local color = if backdrop then backdrop.Color else Color3.fromRGB(255, 205, 220)
+	local step = Instance.new("Part")
+	step.Name = "BoothStep"
+	step.Size = Vector3.new(2.6, h, 2.6)
+	step.CFrame = stand.CFrame * CFrame.new(rel.X, -stand.Size.Y / 2 + h / 2, rel.Z)
+	step.Color = color:Lerp(Color3.new(0, 0, 0), 0.12)
+	step.Material = Enum.Material.SmoothPlastic
+	step.TopSurface = Enum.SurfaceType.Smooth
+	step.Anchored = true
+	step.Parent = session.booth
+	steps[player] = step
+	character:SetAttribute("BoothStep", true)
+	sitUp(character)
+	character:PivotTo(root.CFrame + Vector3.new(0, h, 0))
+	return true, true
+end
+
 -- The picker's choice so far: picks (≤ PickCount distinct shot numbers, in
 -- photo order), frame key, stage ("picking" | "frame"). Shown live to the
 -- others (user, 2026-10-22).
@@ -958,6 +1020,8 @@ local function handle(player: Player, action: any, payload: any): (boolean, any)
 		return true, nil
 	elseif action == "Prop" then
 		return toggleProp(player, payload)
+	elseif action == "Kneel" or action == "Step" then
+		return toggleHelper(player, action)
 	elseif action == "PickUpdate" then
 		return pickUpdate(player, payload)
 	elseif action == "Confirm" then

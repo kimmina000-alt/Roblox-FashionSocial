@@ -695,6 +695,27 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 	pauseButton.BackgroundColor3 = COLORS.pink
 	pauseButton.TextColor3 = Color3.new(1, 1, 1)
 	add("■ 기본", function() danceRemote:FireServer("Stop") end)
+	-- helpers for tall / short avatars (user 2026-10-28, D-452): pink while on
+	-- (the server keeps the state on the character: BoothKneel / BoothStep)
+	for _, helper in ipairs({ { "Kneel", "🧎 허리 숙이기" }, { "Step", "👟 키높이 발판" } }) do
+		local attribute = "Booth" .. helper[1]
+		local b = add(helper[2], function()
+			local ok, message = invoke(helper[1])
+			if not ok and typeof(message) == "string" then toast(message) end
+		end)
+		local function paint()
+			local character = player.Character
+			local on = character ~= nil and character:GetAttribute(attribute) == true
+			b.BackgroundColor3 = if on then COLORS.pink else SKY_BUTTON
+			b.TextColor3 = if on then Color3.new(1, 1, 1) else SKY_TEXT
+		end
+		local function watch(character: Model)
+			character:GetAttributeChangedSignal(attribute):Connect(paint)
+			paint()
+		end
+		if player.Character then watch(player.Character) end
+		player.CharacterAdded:Connect(watch)
+	end
 	for _, category in ipairs(PhotoConfig.PoseCategoryOrder) do
 		for _, dance in ipairs(ClubConfig.Dances) do
 			if dance.category == category then
