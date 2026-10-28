@@ -265,7 +265,7 @@ local DRAWN = { ginger_brew = "flask", monte = "flask", french_lemonade = "flask
 	hot_boost = "flask", green_claw = "flask", blue_wing = "flask", stack_hydro = "tall", pastel_splash = "tall", skull_water = "tall" }
 local LABEL = {
 	-- (cans v2 from the user's can photos, our own names: D-458)
-	cider = "rbxassetid://72459622959612", cola = "rbxassetid://130123035156472", orange = "rbxassetid://70964999671049",
+	cider = "rbxassetid://72459622959612", cola = "rbxassetid://131566950772099", orange = "rbxassetid://70964999671049",
 	lemonade = "rbxassetid://128064945367488", blueade = "rbxassetid://80978940776446",
 	ginger_brew = "rbxassetid://78161382486926", monte = "rbxassetid://111978227065988", french_lemonade = "rbxassetid://82834417286890",
 	golden_apple = "rbxassetid://138757272545670", zzang_pop = "rbxassetid://113640294515835", hot_boost = "rbxassetid://89899401494100",

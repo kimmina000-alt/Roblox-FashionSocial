@@ -399,7 +399,9 @@ do
 			local copy = big:Clone()
 			copy.Name = "GraffitiStairEast"
 			local p = big.Position
-			copy.CFrame = CFrame.new(65.35, p.Y, p.Z) * CFrame.Angles(0, math.pi, 0) * big.CFrame.Rotation
+			-- (only where there is wall behind it: z -274..-234; the corridor south of it is open, user 2026-10-28 (7))
+			copy.Size = Vector3.new(40, big.Size.Y, big.Size.Z)
+			copy.CFrame = CFrame.new(65.35, p.Y, -254) * CFrame.Angles(0, math.pi, 0) * big.CFrame.Rotation
 			copy.Parent = club
 		end
 		-- (the HERE sign is the existing GraffitiSign decal at z -216.8)
