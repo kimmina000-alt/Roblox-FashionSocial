@@ -584,6 +584,12 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 			local top = (if pastel then 0.58 else 0.58) * H
 			local drink = if pastel then color:Lerp(Color3.new(0.6, 0.15, 0), 0.25) else color
 			local liquid = cyl(c, "Liquid", 0.03 * H, top, 2 * lr, { color = drink, material = Enum.Material.Glass, transparency = if pastel then 0.12 else 0.3 })
+			if pastel then
+				-- higher still (user 2026-10-28 (23)): a narrower piece above the waist
+				local top2 = 0.72 * H
+				cyl(c, "Liquid", top - 0.005, top2, 2 * r * 0.6, { color = drink, material = Enum.Material.Glass, transparency = 0.12 })
+				top, lr = top2, r * 0.6
+			end
 			cyl(c, "LiquidTop", top - 0.01, top + 0.01, 2 * lr * 0.98, { color = color:Lerp(Color3.new(1, 1, 1), 0.6), material = Enum.Material.Neon, transparency = 0.35 })
 			local light = Instance.new("PointLight")
 			light.Color = color
