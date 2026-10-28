@@ -172,16 +172,39 @@ end
 -- standing in an arc and four green lasers shooting up from the sides.
 -- Returns the model's height.
 local LASER = Color3.fromRGB(60, 255, 90)
+-- (the club's DJ laser look, user 2026-10-29 (3): a Beam with the soft-edge
+-- texture, thin at the dot, fading out along its length; ClubLightsController)
+local SOFT_BEAM = "rbxassetid://129498465489506"
 local function laser(m: Model, at: CFrame, x: number, z: number, lean: number)
-	part(m, "LaserDot", Vector3.new(0.16, 0.16, 0.16), at * CFrame.new(x, 0.62, z), LASER, Enum.Material.Neon, Enum.PartType.Ball)
-	local len = 14
-	local beam = part(m, "Laser", Vector3.new(0.05, len, 0.05),
-		at * CFrame.new(x, 0.62, z) * CFrame.Angles(0, 0, math.rad(lean)) * CFrame.new(0, len / 2, 0), LASER, Enum.Material.Neon, nil, 0.15)
-	light(beam, LASER, 6, 1.2)
+	local dot = part(m, "LaserDot", Vector3.new(0.16, 0.16, 0.16), at * CFrame.new(x, 0.62, z), LASER, Enum.Material.Neon, Enum.PartType.Ball)
+	light(dot, LASER, 5, 1.2)
+	local len = 16
+	local a0 = Instance.new("Attachment")
+	a0.Parent = dot
+	local a1 = Instance.new("Attachment")
+	a1.Position = (CFrame.Angles(0, 0, math.rad(lean)) * CFrame.new(0, len, 0)).Position
+	a1.Parent = dot
+	local beam = Instance.new("Beam")
+	beam.Attachment0 = a0
+	beam.Attachment1 = a1
+	beam.Width0 = 0.18
+	beam.Width1 = 0.45
+	beam.Texture = SOFT_BEAM
+	beam.TextureMode = Enum.TextureMode.Stretch
+	beam.TextureLength = 1
+	beam.FaceCamera = true
+	beam.LightEmission = 1
+	beam.LightInfluence = 0
+	beam.Segments = 1
+	beam.Color = ColorSequence.new(LASER)
+	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.5, 0.45), NumberSequenceKeypoint.new(1, 0.9) })
+	beam.Parent = dot
 end
 function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, colors: {Color3}): number
 	local DARK = Color3.fromRGB(18, 18, 24)
-	if style == "A" then
+	-- "C" (the user's mix, 2026-10-29 (3)): A's ring, lit top and wings on a dark
+	-- round base dressed like B (yellow light bricks on the front corners, warm window)
+	if style == "A" or style == "C" then
 		cyl(m, "TrayBase", 3.2, 0.55, at * CFrame.new(0, 0.275, 0), DARK, Enum.Material.SmoothPlastic)
 		-- RGB ring: coloured neon segments round the top edge
 		for i = 0, 11 do
@@ -191,13 +214,28 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 			if i % 3 == 0 then light(seg, RAINBOW[i % #RAINBOW + 1], 5, 1) end
 		end
 		cyl(m, "LitTop", 2.7, 0.05, at * CFrame.new(0, 0.58, 0), Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
-		-- light slats round the side and a front window
-		for i = 0, 17 do
-			local a = i * math.pi * 2 / 18
-			part(m, "Slat", Vector3.new(0.06, 0.32, 0.05), at * CFrame.new(math.cos(a) * 1.61, 0.27, math.sin(a) * 1.61) * CFrame.Angles(0, -a + math.pi / 2, 0),
-				Color3.fromRGB(200, 225, 255), Enum.Material.Neon, nil, 0)
+		if style == "C" then
+			for row = 0, 3 do
+				for _, range in ipairs({ { 206, 240 }, { 300, 334 } }) do
+					for k = 0, 3 do
+						local a = math.rad(range[1] + (k + (row % 2) * 0.5) * (range[2] - range[1]) / 4)
+						part(m, "LightBrick", Vector3.new(0.3, 0.07, 0.04),
+							at * CFrame.new(math.cos(a) * 1.62, 0.1 + row * 0.11, math.sin(a) * 1.62) * CFrame.Angles(0, -a + math.pi / 2, 0),
+							Color3.fromRGB(255, 200, 90), Enum.Material.Neon, nil, 0)
+					end
+				end
+			end
+			local win = part(m, "FrontWindow", Vector3.new(0.95, 0.24, 0.05), at * CFrame.new(0, 0.27, -1.62), Color3.fromRGB(255, 245, 225), Enum.Material.Neon, nil, 0)
+			light(win, Color3.fromRGB(255, 190, 90), 6, 1.2)
+		else
+			-- light slats round the side and a front window
+			for i = 0, 17 do
+				local a = i * math.pi * 2 / 18
+				part(m, "Slat", Vector3.new(0.06, 0.32, 0.05), at * CFrame.new(math.cos(a) * 1.61, 0.27, math.sin(a) * 1.61) * CFrame.Angles(0, -a + math.pi / 2, 0),
+					Color3.fromRGB(200, 225, 255), Enum.Material.Neon, nil, 0)
+			end
+			part(m, "FrontWindow", Vector3.new(0.9, 0.24, 0.05), at * CFrame.new(0, 0.27, -1.62), Color3.fromRGB(235, 245, 255), Enum.Material.Neon, nil, 0)
 		end
-		part(m, "FrontWindow", Vector3.new(0.9, 0.24, 0.05), at * CFrame.new(0, 0.27, -1.62), Color3.fromRGB(235, 245, 255), Enum.Material.Neon, nil, 0)
 		-- wing guards: three bent neon strips on each side
 		-- (each wing: three ")"-shaped neon strips standing at the side, bowing outward)
 		for _, side in ipairs({ -1, 1 }) do
