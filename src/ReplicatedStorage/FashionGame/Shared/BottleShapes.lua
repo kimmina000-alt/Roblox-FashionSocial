@@ -267,7 +267,7 @@ local LABEL = {
 	-- (cans: no printed design for now, plain metal in the drink colour; the user
 	-- will send new pictures, 2026-10-28 (11), D-466)
 	-- the user's generic pictures (no brand marks), D-467:
-	lemonade = "rbxassetid://140148508020865", blueade = "rbxassetid://98521454520397", cider = "rbxassetid://107514929048340", orange = "rbxassetid://101148624831861", cola = "rbxassetid://72164413902397",
+	lemonade = "rbxassetid://140148508020865", blueade = "rbxassetid://98521454520397", cider = "rbxassetid://107514929048340", orange = "rbxassetid://101148624831861", cola = "rbxassetid://80320709245537",
 	ginger_brew = "rbxassetid://78161382486926", monte = "rbxassetid://111978227065988", french_lemonade = "rbxassetid://82834417286890",
 	golden_apple = "rbxassetid://138757272545670", zzang_pop = "rbxassetid://113640294515835", hot_boost = "rbxassetid://89899401494100",
 	green_claw = "rbxassetid://134976093090518", blue_wing = "rbxassetid://129850818133473",
@@ -549,7 +549,19 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 			light.Range = 3 * s + 1
 			light.Shadows = false
 			light.Parent = p
-		end		if key == "pastel_splash" then
+			if key == "green_claw" then
+				-- sample (user 2026-10-28 (19)): a clear glass bottle with a clear
+				-- drink inside: the glass mostly see-through, one cylinder of drink
+				-- up to the shoulder, a bright surface disc on top of it
+				p.Color = Color3.fromRGB(235, 245, 240)
+				p.Transparency = 0.72
+				local lr = r * 0.84
+				local top = 0.56 * H
+				cyl(c, "Liquid", 0.04 * H, top, 2 * lr, { color = color, material = Enum.Material.Glass, transparency = 0.35 })
+				cyl(c, "LiquidTop", top - 0.01, top + 0.01, 2 * lr * 0.98, { color = color:Lerp(Color3.new(1, 1, 1), 0.6), material = Enum.Material.Neon, transparency = 0.35 })
+			end
+		end
+		if key == "pastel_splash" then
 			-- frosted and glowing (user 2026-10-28 (3)): a little see-through, a warm light inside
 			p.Transparency = 0.18
 			local light = Instance.new("PointLight")
