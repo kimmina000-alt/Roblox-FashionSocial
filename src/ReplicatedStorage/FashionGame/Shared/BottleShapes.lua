@@ -553,7 +553,7 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 				local printed = mesh:Clone()
 				for _, d in ipairs(printed:GetChildren()) do d:Destroy() end
 				printed.Name = "BottlePrint"
-				printed.Size = p.Size * 1.01
+				printed.Size = p.Size * 1.004 -- (tight on the glass: a thin wall)
 				printed.Color = Color3.new(1, 1, 1)
 				printed.Material = Enum.Material.SmoothPlastic
 				printed.Transparency = 0
@@ -574,12 +574,16 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 				table.insert(c.parts, printed)
 			end
 			p.Color = Color3.fromRGB(235, 245, 240)
-			p.Transparency = 0.72
+			p.Transparency = 0.82
 			p.Reflectance = 0
-			-- (the pastel bottle narrows at the waist: a thinner, lower drink)
-			local lr = r * (if key == "pastel_splash" then 0.7 else 0.84)
-			local top = (if key == "pastel_splash" then 0.42 else 0.56) * H
-			local liquid = cyl(c, "Liquid", 0.04 * H, top, 2 * lr, { color = color, material = Enum.Material.Glass, transparency = 0.35 })
+			-- (the pastel bottle narrows at the waist: a thinner drink, but filled
+			-- higher and deeper in colour, user 2026-10-28 (22)); the drink close
+			-- to the glass so the glass reads thin
+			local pastel = key == "pastel_splash"
+			local lr = r * (if pastel then 0.74 else 0.93)
+			local top = (if pastel then 0.58 else 0.58) * H
+			local drink = if pastel then color:Lerp(Color3.new(0.6, 0.15, 0), 0.25) else color
+			local liquid = cyl(c, "Liquid", 0.03 * H, top, 2 * lr, { color = drink, material = Enum.Material.Glass, transparency = if pastel then 0.12 else 0.3 })
 			cyl(c, "LiquidTop", top - 0.01, top + 0.01, 2 * lr * 0.98, { color = color:Lerp(Color3.new(1, 1, 1), 0.6), material = Enum.Material.Neon, transparency = 0.35 })
 			local light = Instance.new("PointLight")
 			light.Color = color
