@@ -613,7 +613,8 @@ local function platform(cx,wallZ,dir)
  top=cyl(z,"RoundTable",4.4,0.3,tp+Vector3.new(0,3.55,0),MARBLE_C,MARBLE)
  CS:AddTag(top,"DrinkTable")
  -- like the VIP tables (user 2026-10-26): a thin white rim and a warm LED glow under the top
- cyl(z,"RoundTableEdge",4.5,0.26,tp+Vector3.new(0,3.55,0),Color3.fromRGB(245,245,245),{mat=Enum.Material.SmoothPlastic,ghost=true})
+ -- (a thin white light line round the edge, user 2026-10-29 (16); was a 0.26 white band)
+ cyl(z,"RoundTableEdge",4.46,0.06,tp+Vector3.new(0,3.55,0),Color3.fromRGB(255,255,255),{mat=Enum.Material.Neon,ghost=true})
  do local u=cyl(z,"RoundTableUnderLED",4,0.08,tp+Vector3.new(0,3.36,0),Color3.fromRGB(255,214,160),{mat=Enum.Material.Neon,ghost=true})
   u.Transparency=0.92 u.CastShadow=false
   local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Left sl.Color=Color3.fromRGB(255,200,150) sl.Range=8 sl.Brightness=3 sl.Angle=170 sl.Parent=u -- (a cylinder's -X face points down)

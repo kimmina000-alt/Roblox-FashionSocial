@@ -458,6 +458,18 @@ local ASSET_FOODS: {[string]: {any}} = {
 	-- tools/art/StlTool.cs, docs/04_ART/models/*.obj; one MeshPart per colour)
 	honeybread = { "HoneyBread", 1.1 },
 	parfait = { "StrawberryParfait", 1.25 },
+	-- cafe drinks (user 2026-10-29 (16)): the hot coffees in one take-away cup
+	-- ("Coffee Cup" by LittleWorlds, one mesh: the lightest of the look-alikes of
+	-- the user's pick), the cold drinks in one iced glass ("LIMEONADE" by
+	-- R0bbie44321, the user's pick); its "Liquid" parts take the drink colour
+	iceamericano = { "CoffeeCupToGo", 0.85 },
+	latte = { "CoffeeCupToGo", 0.85 },
+	caramel = { "CoffeeCupToGo", 0.85 },
+	cappuccino = { "CoffeeCupToGo", 0.85 },
+	tea = { "IcedGlass", 0.95 },
+	smoothie = { "IcedGlass", 0.95 },
+	bluelemonade = { "IcedGlass", 0.95 },
+	frappe = { "IcedGlass", 0.95 },
 }
 local function fromAsset(item: any): (Part?, CFrame?)
 	local spec = ASSET_FOODS[item.key]
@@ -483,6 +495,7 @@ local function fromAsset(item: any): (Part?, CFrame?)
 			attach(h, p, offset)
 			p:SetAttribute("EatSize0", p.Size)
 			p:SetAttribute("EatC00", offset)
+			if p.Name == "Liquid" then p.Color = item.color end -- (the iced glass: the drink colour)
 		end
 	end
 	holder:Destroy()
@@ -550,7 +563,7 @@ end
 
 function FoodShapes.build(item: any): (Part?, CFrame?, string?)
 	-- (user 2026-10-27: water is the 삼다수 bottle everywhere, cafes and 국밥집 too)
-	if item.kind == "cup" and item.key ~= "water" then
+	if item.kind == "cup" and item.key ~= "water" and not ASSET_FOODS[item.key] then
 		local h, grip = glassCup(item)
 		if h then return h, grip, nil end
 	end

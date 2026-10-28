@@ -168,11 +168,14 @@ local SIGN_YELLOW = Color3.fromRGB(248, 219, 1)
 local IMG_SIGN = "rbxassetid://129224182582173"
 local IMG_SIGN_V = "rbxassetid://83197994918392"
 local BAND_Y0, BAND_Y1 = top1 - 3.4, top1 + 3.2
-local band = box("SignBand", X0 - 1.1, BAND_Y0, Z0 + 0.2, X0, BAND_Y1, Z1 - 0.2, SIGN_YELLOW)
+-- (only over the hall glass, HZ0..Z1, user 2026-10-29 (16): 56.8 x 6.6 studs;
+-- the user makes a picture of that shape, until then the old one in the middle)
+local band = box("SignBand", X0 - 1.1, BAND_Y0, HZ0, X0, BAND_Y1, Z1 - 0.2, SIGN_YELLOW)
 do
 	local h = BAND_Y1 - BAND_Y0 - 0.2
 	local w = h * 1000 / 253 -- the picture's shape
-	local img = box("SignBandImage", X0 - 1.15, BAND_Y0 + 0.1, -334 - w / 2, X0 - 1.1, BAND_Y1 - 0.1, -334 + w / 2, SIGN_YELLOW, { nocol = true, noshadow = true })
+	local mid = (HZ0 + Z1 - 0.2) / 2
+	local img = box("SignBandImage", X0 - 1.15, BAND_Y0 + 0.1, mid - w / 2, X0 - 1.1, BAND_Y1 - 0.1, mid + w / 2, SIGN_YELLOW, { nocol = true, noshadow = true })
 	local d = Instance.new("Decal")
 	d.Face = Enum.NormalId.Left
 	d.Texture = IMG_SIGN
@@ -199,10 +202,11 @@ vsLight.Brightness = 0.8
 vsLight.Color = Color3.fromRGB(255, 240, 230)
 vsLight.Parent = vs
 box("VerticalSignArm", X0 - 0.6, top1 + 7.4, Z1 - 0.8, X0, top1 + 7.8, Z1 - 0.6, DARK, { nocol = true })
--- outside: two big cauldrons on brick stoves with steam (2.5 times bigger, one
--- on a higher stove, user 2026-10-29 (14)), AC unit, standing sign -----------
+-- outside: two big cauldrons on brick stoves with steam (2.5 times bigger,
+-- user 2026-10-29 (14); 80 % of that and both stoves the same height again,
+-- 2026-10-29 (16): K 2.0), AC unit, standing sign -----------
 local function cauldron(cx, cz, stoveH)
-	local K = 2.5
+	local K = 2.0
 	box("Stove", cx - 1.6 * K, FY, cz - 1.6 * K, cx + 1.6 * K, FY + stoveH, cz + 1.6 * K, Color3.fromRGB(150, 80, 60), { material = Enum.Material.Brick })
 	local y = FY + stoveH
 	vcyl("Gamasot", Vector3.new(cx, y, cz), 3.4 * K, 1.6 * K, Color3.fromRGB(30, 30, 32), { material = Enum.Material.Metal })
@@ -224,8 +228,9 @@ local function cauldron(cx, cz, stoveH)
 end
 do
 	-- on the sidewalk in front of the hall glass, north of the door, 14 apart
-	cauldron(X0 - 5.2, -345, 2.2 * 2.5)
-	cauldron(X0 - 5.2, -331, 2.2 * 2.5 * 1.4) -- (the higher one)	-- AC outdoor unit against the 1F glass wainscot, south of the door
+	cauldron(X0 - 4.4, -345, 2.2 * 2.0)
+	cauldron(X0 - 4.4, -331, 2.2 * 2.0)
+	-- AC outdoor unit against the 1F glass wainscot, south of the door
 	box("ACUnit", X0 - 1.4, FY, Z1 - 6.5, X0 - 0.1, FY + 2.4, Z1 - 3.3, Color3.fromRGB(232, 232, 228))
 	local fan = vcyl("ACFan", Vector3.new(X0 - 1.42, FY + 1.2, Z1 - 4.9), 1.8, 0.05, Color3.fromRGB(70, 70, 74), { nocol = true })
 	fan.CFrame = CFrame.new(X0 - 1.42, FY + 1.2, Z1 - 4.9)
@@ -436,17 +441,36 @@ end
 -- the 국밥집 menu (SnackService, D-317)
 do
 	local CZ0, CZ1 = -333, -317.4
-	local counter = box("OrderCounter", 64.4, FY, CZ0, 68, FY + 3.6, CZ1, WOOD_DARK, { material = Enum.Material.Wood })
-	CS:AddTag(counter, "GukbapCounter")
-	counter:SetAttribute("Shop", "Gukbap")
-	CS:AddTag(counter, "SnackShop")
-	box("OrderCounterArm", 51.6, FY, -321, 64.4, FY + 3.6, CZ1, WOOD_DARK, { material = Enum.Material.Wood })
+	box("OrderCounter", 64.4, FY, CZ0, 68, FY + 3.6, CZ1, WOOD_DARK, { material = Enum.Material.Wood })
+	-- (the short arm runs right up to the front glass, user 2026-10-29 (16);
+	-- the order point, the till and the sign are on it, seen straight from the door)
+	local arm = box("OrderCounterArm", X0 + WT, FY, -321, 64.4, FY + 3.6, CZ1, WOOD_DARK, { material = Enum.Material.Wood })
+	CS:AddTag(arm, "GukbapCounter")
+	arm:SetAttribute("Shop", "Gukbap")
+	CS:AddTag(arm, "SnackShop")
 	box("CounterTop", 64.1, FY + 3.6, CZ0 - 0.3, 68.3, FY + 3.85, CZ1 + 0.3, Color3.fromRGB(214, 218, 222), { material = Enum.Material.Marble })
-	box("CounterTop", 51.6, FY + 3.6, -321.3, 64.1, FY + 3.85, CZ1 + 0.3, Color3.fromRGB(214, 218, 222), { material = Enum.Material.Marble })
-	-- a till and a small sign on it
-	box("CashRegister", 65.4, FY + 3.85, -322, 67.2, FY + 4.9, -320, Color3.fromRGB(40, 40, 44))
-	local s = box("OrderSign", 66, FY + 3.85, -327, 66.2, FY + 5.9, -323.6, Color3.fromRGB(250, 250, 246), { nocol = true })
-	label(s, Enum.NormalId.Right, "주문하는 곳", RED, { pps = 40, font = Enum.Font.GothamBold })
+	box("CounterTop", X0 + WT, FY + 3.6, -321.3, 64.1, FY + 3.85, CZ1 + 0.3, Color3.fromRGB(214, 218, 222), { material = Enum.Material.Marble })
+	-- the till: the OH24 one (ServerStorage.ArtAssets.Register37), keys to the
+	-- staff side (north), else a dark block
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local reg = art and art:FindFirstChild("Register37")
+	local RX, RZ = 56, -319.2
+	if reg then
+		local r = reg:Clone()
+		local cf, size = r:GetBoundingBox()
+		r:PivotTo(CFrame.new(RX, FY + 3.85 + size.Y / 2, RZ) * CFrame.Angles(0, math.pi, 0) * cf:ToObjectSpace(r:GetPivot()))
+		for _, p in ipairs(r:GetDescendants()) do
+			if p:IsA("BasePart") then p.Anchored = true end
+			if p:IsA("LuaSourceContainer") then p:Destroy() end
+		end
+		r.Name = "Register37"
+		r.Parent = M
+	else
+		box("CashRegister", RX - 0.9, FY + 3.85, RZ - 1, RX + 0.9, FY + 4.9, RZ + 1, Color3.fromRGB(40, 40, 44))
+	end
+	-- "주문하는 곳" standing next to the till, its face to the door (south)
+	local s = box("OrderSign", RX + 2, FY + 3.85, -318.6, RX + 5.4, FY + 5.9, -318.4, Color3.fromRGB(250, 250, 246), { nocol = true })
+	label(s, Enum.NormalId.Back, "주문하는 곳", RED, { pps = 40, font = Enum.Font.GothamBold })
 end
 -- water purifier + cups at the west end of the inner north wall
 box("WaterPurifier", X0 + 1.2, FY, HZ0 + WT, X0 + 3, FY + 4.2, HZ0 + WT + 1.6, Color3.fromRGB(240, 240, 244))
