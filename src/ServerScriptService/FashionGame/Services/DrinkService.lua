@@ -394,7 +394,9 @@ local function kindFor(player: Player, drink: ClubConfig.Drink): DrinkBucket.Kin
 	if drink.tier == 1 then return "bottle" end
 	-- (the VIP tray only for the VIP-only drinks; a VIP buying any other drink
 	-- gets that drink's own bucket, user 2026-10-29 (8))
-	return if drink.vipOnly then (if drink.key == "golmok" then "golmok" else "vip")
+	-- (VIP bucket 1 = the gold tray "vip"/"golmok", kept in DrinkBucket; VIP
+	-- bucket 2 = the ice box, used for every VIP drink since 2026-10-29 (36))
+	return if drink.vipOnly then "icebox"
 		elseif drink.tier >= 3 then "acrylic"
 		elseif drink.tier == 2 then "steel"
 		else "bottle"
@@ -511,9 +513,6 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	local servings = bottleTool:GetAttribute("Servings")
 	servings = if typeof(servings) == "number" then math.clamp(servings, 1, ClubConfig.BottleServings) else ClubConfig.BottleServings
 	local variantKey = bottleTool:GetAttribute("Variant")
-	-- (try-out, user 2026-10-29 (35)): 골목 공방 · 생강 장미 comes in the new
-	-- ice box; the other flavours keep the VIP tray
-	if drink.key == "golmok" and variantKey == "rose" then kind = "icebox" end
 	local drinkName, drinkColor = drinkLook(drink, variantKey)
 	bottleTool:Destroy()
 	slot:SetAttribute("Occupied", true)

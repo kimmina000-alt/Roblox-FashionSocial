@@ -411,7 +411,7 @@ local function vipTrayC(m: Model, at: CFrame, key: string, colors: {Color3}): nu
 	return cy + hh
 end
 
--- Ice-block box (user photo 2026-10-29 (25), sample only): a long box of
+-- VIP bucket 2 (VIP bucket 1 = vipTray "C"). Ice-block box (user photo 2026-10-29 (25)): a long box of
 -- clear rippled ice on a black base with "OHU" in white neon on its front
 -- (-Z), a white neon floor inside, ice cubes, and ten bottles standing in two
 -- rows, their necks above the rim. Returns the height.
@@ -489,10 +489,10 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	aura.LightEmission = 1
 	aura.LightInfluence = 0
 	-- (stronger and taller so it shows over the bright box, 2026-10-29 (33))
-	aura.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.25, 0.35), NumberSequenceKeypoint.new(1, 1) })
+	aura.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.25, 0.57), NumberSequenceKeypoint.new(1, 1) }) -- (a third less, 2026-10-29 (36))
 	aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.2), NumberSequenceKeypoint.new(1, 3.4) })
 	aura.Lifetime = NumberRange.new(3, 4.2)
-	aura.Rate = 22
+	aura.Rate = 15
 	aura.Speed = NumberRange.new(0.5, 0.9)
 	aura.SpreadAngle = Vector2.new(12, 12)
 	aura.Rotation = NumberRange.new(0, 360)
