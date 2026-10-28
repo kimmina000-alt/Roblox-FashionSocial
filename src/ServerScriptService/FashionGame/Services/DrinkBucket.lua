@@ -107,10 +107,10 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 	-- glowing ice heaped up near the rim, the cans standing well out of it (user 2026-10-28 (6)/(8))
 	local rnd = Random.new(7)
 	local glowIce = glow == "ice"
-	for i = 1, 18 do
+	for i = 1, 12 do
 		local a = rnd:NextNumber(0, math.pi * 2)
 		local r = rnd:NextNumber(0, 0.6)
-		local s = rnd:NextNumber(0.24, 0.34)
+		local s = rnd:NextNumber(0.4, 0.55) -- (bigger cubes, user 2026-10-28 (9))
 		local cube = part(m :: Model, "IceCube", Vector3.new(s, s, s),
 			at * CFrame.new(math.cos(a) * r, H_PAIL * 0.66 + rnd:NextNumber(0, H_PAIL * 0.22), math.sin(a) * r)
 				* CFrame.Angles(rnd:NextNumber(0, 1), rnd:NextNumber(0, 3), rnd:NextNumber(0, 1)),
@@ -127,6 +127,16 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		local base = CFrame.new((at * CFrame.new(out * 0.3 + Vector3.new(0, H_PAIL * 0.75, 0))).Position)
 			* CFrame.fromAxisAngle(tangent, math.rad(-18)) * CFrame.Angles(0, -angle - math.pi / 2, 0)
 		local parts = BottleShapes.add(m, base, b.key, b.color, scale)
+		if glow ~= "none" and BottleShapes.isCan(b.key) then
+			-- the can glows too (user 2026-10-28 (9)): a neon ring at its rim and foot
+			-- in the drink's colour and a light
+			local h = 1.3 * scale * BottleShapes.CanScale
+			local d = 0.62 * h
+			for _, y in ipairs({ 0.03, h - 0.03 }) do
+				local ring = part(m :: Model, "CanNeon", Vector3.new(0.05, d, d), base * CFrame.new(0, y, 0) * CFrame.Angles(0, 0, math.rad(90)), b.color, Enum.Material.Neon, Enum.PartType.Cylinder, 0.1)
+				if y > 0.1 then light(ring, b.color, 4, 1.5) end
+			end
+		end
 		if glow == "bottles" then
 			for _, p in ipairs(parts) do
 				if p.Name == "BottleBody" or p:IsA("MeshPart") then
