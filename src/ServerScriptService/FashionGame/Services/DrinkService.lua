@@ -481,7 +481,9 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	if not drink then return false, nil end
 	if hasBucket(tablePart) then return false, "버킷이 놓인 테이블에는 더 올릴 수 없어요." end
 	local kind = kindFor(player, drink)
-	local isBucket = kind ~= "bottle"
+	-- (every placed drink is an ice bucket now, tier 1 too: a tap pours a cup,
+	-- it is not taken back, user 2026-10-28 (13))
+	local isBucket = true
 	local slot = if isBucket then centerSlot(tablePart) else freeSlot(tablePart)
 	if not slot then return false, "테이블이 가득 찼어요." end
 	local servings = bottleTool:GetAttribute("Servings")
