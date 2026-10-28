@@ -416,7 +416,7 @@ end
 -- (-Z), a white neon floor inside, ice cubes, and ten bottles standing in two
 -- rows, their necks above the rim. Returns the height.
 function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3}): number
-	local L, W, H, BH = 4.4, 2.0, 1.3, 0.42 -- box length / depth / height, base height
+	local L, W, H, BH = 4.8, 2.2, 1.3, 0.42 -- (bigger than the tier-3 boat, user 2026-10-29 (26)) -- box length / depth / height, base height
 	local BLACK = Color3.fromRGB(14, 14, 18)
 	local WHITE = Color3.fromRGB(255, 255, 255)
 	local base = part(m, "IceBoxBase", Vector3.new(L + 0.3, BH, W + 0.3), at * CFrame.new(0, BH / 2, 0), BLACK, Enum.Material.Glass)
@@ -461,21 +461,39 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	wall(Vector3.new(L, H, T), CFrame.new(0, floorY + H / 2, W / 2 - T / 2))
 	wall(Vector3.new(T, H, W - 2 * T), CFrame.new(-L / 2 + T / 2, floorY + H / 2, 0))
 	wall(Vector3.new(T, H, W - 2 * T), CFrame.new(L / 2 - T / 2, floorY + H / 2, 0))
-	-- ice heaped on the glowing floor
+	-- ice heaped on the glowing floor (more of it, two layers, user 2026-10-29 (26))
 	local rnd = Random.new()
-	for _ = 1, 26 do
-		iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.35, L / 2 - 0.35), floorY + 0.15 + rnd:NextNumber(0, 0.35), rnd:NextNumber(-W / 2 + 0.3, W / 2 - 0.3)))
+	for i = 1, 60 do
+		local layer = if i > 36 then 0.32 else 0
+		iceCube(m, at * CFrame.new(rnd:NextNumber(-L / 2 + 0.3, L / 2 - 0.3), floorY + 0.15 + layer + rnd:NextNumber(0, 0.2), rnd:NextNumber(-W / 2 + 0.28, W / 2 - 0.28)))
 	end
-	-- ten bottles in two rows, the back row a touch higher
-	for row = 0, 1 do
-		for i = 0, 4 do
-			local x = -L / 2 + 0.55 + i * (L - 1.1) / 4 + (if row == 1 then 0.18 else 0)
-			local z = if row == 0 then -0.42 else 0.42
-			local base2 = at * CFrame.new(x, floorY + 0.05 + row * 0.12, z) * CFrame.Angles(rnd:NextNumber(-0.04, 0.04), rnd:NextNumber(-0.6, 0.6), rnd:NextNumber(-0.04, 0.04))
-			BottleShapes.add(m, base2, key, colors[(row * 5 + i) % #colors + 1], 0.6)
-		end
+	-- five bottles stood loosely in the ice like the other buckets: spread
+	-- along the box, each a little off the line, turned and leaning
+	for i = 1, 5 do
+		local x = -L / 2 + 0.75 + (i - 1) * (L - 1.5) / 4 + rnd:NextNumber(-0.15, 0.15)
+		local z = rnd:NextNumber(-0.35, 0.35)
+		local lean = CFrame.fromAxisAngle(Vector3.new(rnd:NextNumber(-1, 1), 0, rnd:NextNumber(-1, 1)).Unit, math.rad(rnd:NextNumber(3, 9)))
+		local base2 = at * CFrame.new(x, floorY + 0.25, z) * lean * CFrame.Angles(0, rnd:NextNumber(-0.7, 0.7), 0)
+		BottleShapes.add(m, base2, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
 	end
-	return floorY + H
+	-- a soft aura rising out of the box (like the VIP tray's)
+	local src = part(m, "AuraSource", Vector3.new(L - 0.4, 0.1, W - 0.4), at * CFrame.new(0, floorY + 0.3, 0), Color3.new(1, 1, 1), nil, nil, 1)
+	local aura = Instance.new("ParticleEmitter")
+	aura.Name = "Aura"
+	aura.Texture = "rbxasset://textures/particles/smoke_main.dds"
+	aura.Color = ColorSequence.new(Color3.fromRGB(255, 225, 245), Color3.fromRGB(235, 240, 255))
+	aura.LightEmission = 1
+	aura.LightInfluence = 0
+	aura.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.3, 0.6), NumberSequenceKeypoint.new(1, 1) })
+	aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(1, 2.4) })
+	aura.Lifetime = NumberRange.new(2.2, 3.2)
+	aura.Rate = 12
+	aura.Speed = NumberRange.new(0.5, 0.9)
+	aura.SpreadAngle = Vector2.new(12, 12)
+	aura.Rotation = NumberRange.new(0, 360)
+	aura.RotSpeed = NumberRange.new(-20, 20)
+	aura.EmissionDirection = Enum.NormalId.Top
+	aura.Parent = src	return floorY + H
 end
 
 function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, colors: {Color3}): number
