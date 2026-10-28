@@ -529,9 +529,12 @@ local function nearShop(player: Player, shopKey: string): boolean
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if not root or not root:IsA("BasePart") then return false end
 	for _, shopPart in ipairs(CollectionService:GetTagged("SnackShop")) do
-		if shopPart:IsA("BasePart") and shopPart:IsDescendantOf(workspace) and shopPart:GetAttribute("Shop") == shopKey
-			and (shopPart.Position - root.Position).Magnitude <= SnackConfig.ShopDistance then
-			return true
+		if shopPart:IsA("BasePart") and shopPart:IsDescendantOf(workspace) and shopPart:GetAttribute("Shop") == shopKey then
+			-- distance to the nearest point of the counter, not its centre (long counters)
+			local p = shopPart.CFrame:PointToObjectSpace(root.Position)
+			local h = shopPart.Size / 2
+			local nearest = shopPart.CFrame:PointToWorldSpace(Vector3.new(math.clamp(p.X, -h.X, h.X), math.clamp(p.Y, -h.Y, h.Y), math.clamp(p.Z, -h.Z, h.Z)))
+			if (nearest - root.Position).Magnitude <= SnackConfig.ShopDistance then return true end
 		end
 	end
 	return false
@@ -901,19 +904,36 @@ local function addPrompt(shopPart: Instance)
 	if not shopPart:IsA("BasePart") or shopPart:FindFirstChild("SnackPrompt") or not shopPart:IsDescendantOf(workspace) then return end
 	local shop = SnackConfig.Shops[shopPart:GetAttribute("Shop") :: any]
 	if not shop then return end
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "SnackPrompt"
-	prompt.ActionText = shop.prompt
-	prompt.ObjectText = shop.title
-	prompt.KeyboardKeyCode = Enum.KeyCode.E
-	prompt.HoldDuration = 0
-	prompt.MaxActivationDistance = 12
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = shopPart
-	prompt.Triggered:Connect(function(player)
-		local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
-		if notify then notify:FireClient(player, "Open", shop.key) end
-	end)
+	-- a long counter gets a prompt every ~12 studs along it (a prompt only
+	-- shows near its own spot: on the 34-long beach cafe counter the one in the
+	-- middle could not be reached from the till, user 2026-10-28)
+	local size = shopPart.Size
+	local long = math.max(size.X, size.Z)
+	local axis = if size.X >= size.Z then Vector3.xAxis else Vector3.zAxis
+	local count = math.max(1, math.ceil(long / 12))
+	for i = 1, count do
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.Name = "SnackPrompt"
+		prompt.ActionText = shop.prompt
+		prompt.ObjectText = shop.title
+		prompt.KeyboardKeyCode = Enum.KeyCode.E
+		prompt.HoldDuration = 0
+		prompt.MaxActivationDistance = 12
+		prompt.RequiresLineOfSight = false
+		if count == 1 then
+			prompt.Parent = shopPart
+		else
+			local at = Instance.new("Attachment")
+			at.Name = "SnackPromptSpot"
+			at.Position = axis * (-long / 2 + long * (i - 0.5) / count)
+			at.Parent = shopPart
+			prompt.Parent = at
+		end
+		prompt.Triggered:Connect(function(player)
+			local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
+			if notify then notify:FireClient(player, "Open", shop.key) end
+		end)
+	end
 end
 
 -- Gives a ready drink / snack (cafe job: the staff hands it over).
