@@ -554,7 +554,9 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	-- sank the tray into the table and pushed it off the middle
 	bucket.PrimaryPart = nil
 	bucket.WorldPivot = at
-	if kind == "vip" or kind == "golmok" or kind == "bottle" then -- (tier 1 is a small pail now, on an edge slot: 2026-10-27)
+	if kind == "vip" or kind == "golmok" then
+		-- (full size: the VIP bucket must be the biggest one, user 2026-10-29 (12))
+	elseif kind == "bottle" then -- (tier 1 is a small pail now, on an edge slot: 2026-10-27)
 		bucket:ScaleTo(0.8)
 	elseif isBucket then
 		bucket:ScaleTo(0.9)

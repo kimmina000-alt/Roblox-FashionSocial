@@ -110,23 +110,25 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 			-- (like the clear bottles, 2026-10-29 (2)): a very clear outer shell and
 			-- a slightly smaller inner shell whose rim sits lower and whose floor is
 			-- raised, so the wall and the thick base read as glass
-			p.Material = Enum.Material.Glass
+			-- (see-through plastic, not Glass: Glass showed the wall behind but hid
+			-- the neon ice, the cubes and the bottles inside, user 2026-10-29 (12))
+			p.Material = Enum.Material.SmoothPlastic
 			p.Color = Color3.fromRGB(225, 240, 252)
-			p.Transparency = 0.62
+			p.Transparency = 0.7
 			p.Reflectance = 0.3
 			-- a bright lip round the rim (small segments: a ring cannot be hollow)
 			for i = 0, 15 do
 				local a = i * math.pi * 2 / 16
 				part(m :: Model, "PailRim", Vector3.new(0.5, 0.06, 0.08), at * CFrame.new(math.cos(a) * D_TOP * 0.49, H_PAIL - 0.03, math.sin(a) * D_TOP * 0.49) * CFrame.Angles(0, -a + math.pi / 2, 0),
-					Color3.fromRGB(240, 250, 255), Enum.Material.Glass, nil, 0.15)
+					Color3.fromRGB(240, 250, 255), Enum.Material.SmoothPlastic, nil, 0.15)
 			end
 			local inner = mesh:Clone()
 			inner.Name = "PailInner"
 			inner.Size = Vector3.new(D_TOP * 0.9, H_PAIL * 0.86, D_TOP * 0.9)
 			inner.CFrame = at * CFrame.new(0, H_PAIL * 0.12 + H_PAIL * 0.43, 0) * mesh.CFrame.Rotation
-			inner.Material = Enum.Material.Glass
+			inner.Material = Enum.Material.SmoothPlastic
 			inner.Color = Color3.fromRGB(205, 228, 248)
-			inner.Transparency = 0.55
+			inner.Transparency = 0.75
 			inner.Reflectance = 0.2
 			inner.Anchored, inner.CanCollide, inner.CanTouch, inner.CanQuery, inner.CastShadow = true, false, false, false, false
 			inner.Parent = m
@@ -244,6 +246,37 @@ local function beamRing(holder: BasePart, centre: CFrame, r: number, color: Colo
 		b.LightInfluence = 0
 		b.Color = ColorSequence.new(color)
 		b.Transparency = NumberSequence.new(transparency or 0)
+		b.Parent = holder
+	end
+end
+
+-- A neon arc of curved beams round the axis of centre (Y), from angle a0 to
+-- a1 in degrees (x = cos, z = sin), cut into pieces of at most 90 degrees.
+local function arcBeam(holder: BasePart, centre: CFrame, r: number, a0: number, a1: number, color: Color3, width: number)
+	local n = math.ceil((a1 - a0) / 90)
+	local step = math.rad((a1 - a0) / n)
+	local atts = {}
+	for i = 0, n do
+		local a = math.rad(a0) + i * step
+		local att = Instance.new("Attachment")
+		att.Name = "ArcPoint"
+		att.Parent = holder
+		att.WorldCFrame = centre * CFrame.fromMatrix(Vector3.new(math.cos(a) * r, 0, math.sin(a) * r), Vector3.new(-math.sin(a), 0, math.cos(a)), Vector3.yAxis)
+		atts[i] = att
+	end
+	local handle = 4 / 3 * math.tan(step / 4) * r
+	for i = 0, n - 1 do
+		local b = Instance.new("Beam")
+		b.Name = "LEDArc"
+		b.Attachment0, b.Attachment1 = atts[i], atts[i + 1]
+		b.CurveSize0, b.CurveSize1 = handle, handle
+		b.Width0, b.Width1 = width, width
+		b.Segments = 12
+		b.FaceCamera = true
+		b.LightEmission = 1
+		b.LightInfluence = 0
+		b.Brightness = 6
+		b.Color = ColorSequence.new(color)
 		b.Parent = holder
 	end
 end
@@ -372,10 +405,13 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 	local DARK = Color3.fromRGB(18, 18, 24)
 	-- (C: the podium 0.35 higher, user 2026-10-29 (11); everything on it moves up)
 	local LIFT = if style == "C" then 0.35 else 0
+	-- (C wider, the bottles further apart, user 2026-10-29 (12))
+	local BD = if style == "C" then 3.9 else 3.2 -- base diameter
+	local SPREAD = if style == "C" then 1.2 else 0.95
 	-- "C" (the user's mix, 2026-10-29 (3)): A's ring, lit top and wings on a dark
 	-- round base dressed like B (yellow light bricks on the front corners, warm window)
 	if style == "A" or style == "C" then
-		cyl(m, "TrayBase", 3.2, 0.55 + LIFT, at * CFrame.new(0, (0.55 + LIFT) / 2, 0), DARK, Enum.Material.SmoothPlastic)
+		local trayBase = cyl(m, "TrayBase", BD, 0.55 + LIFT, at * CFrame.new(0, (0.55 + LIFT) / 2, 0), DARK, Enum.Material.SmoothPlastic)
 		-- RGB ring: coloured neon segments round the top edge (not on C, user 2026-10-29 (4))
 		for i = 0, (if style == "C" then -1 else 11) do
 			local a = i * math.pi * 2 / 12
@@ -383,17 +419,14 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 				RAINBOW[i % #RAINBOW + 1], Enum.Material.Neon, nil, 0)
 			if i % 3 == 0 then light(seg, RAINBOW[i % #RAINBOW + 1], 5, 1) end
 		end
-		cyl(m, "LitTop", 2.7, 0.05, at * CFrame.new(0, 0.58 + LIFT, 0), Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
+		cyl(m, "LitTop", BD - 0.5, 0.05, at * CFrame.new(0, 0.58 + LIFT, 0), Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
 		if style == "C" then
+			-- yellow LED lines all the way round the back, open at the front; the
+			-- open ends step back row by row so the cut reads as a slant from the
+			-- front (user 2026-10-29 (12)). Front = -Z = 270 degrees.
 			for row = 0, 3 do
-				for _, range in ipairs({ { 206, 240 }, { 300, 334 } }) do
-					for k = 0, 3 do
-						local a = math.rad(range[1] + (k + (row % 2) * 0.5) * (range[2] - range[1]) / 4)
-						part(m, "LightBrick", Vector3.new(0.3, 0.035, 0.03), -- (thinner, user 2026-10-29 (6))
-							at * CFrame.new(math.cos(a) * 1.62, 0.1 + row * (0.11 + LIFT / 3), math.sin(a) * 1.62) * CFrame.Angles(0, -a + math.pi / 2, 0),
-							Color3.fromRGB(255, 200, 90), Enum.Material.Neon, nil, 0)
-					end
-				end
+				local gap = 46 - row * 8 -- the top row reaches furthest round to the front
+				arcBeam(trayBase, at * CFrame.new(0, 0.15 + row * 0.22, 0), BD / 2 + 0.02, 270 + gap, 630 - gap, Color3.fromRGB(255, 225, 60), 0.05)
 			end
 			-- (no front window on C, user 2026-10-29 (4))
 		else
@@ -412,7 +445,7 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 				local prev: Vector3? = nil
 				for j = 0, 8 do
 					local t = j / 8
-					local pnt = Vector3.new(side * (1.55 + k * 0.16 + 0.4 * math.sin(math.pi * t)), 0.6 + LIFT + 1.9 * t, -0.2 + k * 0.12)
+					local pnt = Vector3.new(side * (BD / 2 - 0.05 + k * 0.16 + 0.4 * math.sin(math.pi * t)), 0.6 + LIFT + 1.9 * t, -0.2 + k * 0.12)
 					if prev then
 						local mid, dir = (prev + pnt) / 2, pnt - prev
 						part(m, "Wing", Vector3.new(0.035, dir.Magnitude + 0.02, 0.035), at * CFrame.lookAt(mid, mid + Vector3.new(0, 0, 1), dir.Unit), -- (thinner, user 2026-10-29 (6))
@@ -455,18 +488,22 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 	-- five bottles in an arc, the middle one tallest and furthest back
 	for i = 1, 5 do
 		local u = (i - 3) / 2
-		local base = at * CFrame.new(u * 0.95, 0.6 + LIFT, 0.15 + math.abs(u) * -0.35) * CFrame.Angles(0, 0, math.rad(-u * 8))
+		local base = at * CFrame.new(u * SPREAD, 0.6 + LIFT, 0.15 + math.abs(u) * -0.35) * CFrame.Angles(0, 0, math.rad(-u * 8))
 		BottleShapes.add(m, base, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
 	end
 	if style == "C" then
-		-- textured ice cubes on the lit top: a row in front of the bottles, two behind
+		-- textured ice cubes on the lit top: a row in front of the bottles, some
+		-- behind (half size, 20 % see-through, user 2026-10-29 (12))
 		local rnd = Random.new()
-		for _, xz in ipairs({ { -1.0, -0.75 }, { -0.5, -0.85 }, { 0, -0.8 }, { 0.5, -0.85 }, { 1.0, -0.75 }, { -0.55, 0.75 }, { 0.55, 0.75 } }) do
-			local s = rnd:NextNumber(0.42, 0.55)
+		local spots = {}
+		for i = 0, 7 do table.insert(spots, { -1.4 + i * 0.4, -0.95 }) end
+		for i = 0, 4 do table.insert(spots, { -1.0 + i * 0.5, 0.85 }) end
+		for _, xz in ipairs(spots) do
+			local s = rnd:NextNumber(0.21, 0.28)
 			local cube = part(m, "IceCube", Vector3.new(s, s, s),
 				at * CFrame.new(xz[1] + rnd:NextNumber(-0.12, 0.12), 0.6 + LIFT + s * 0.42, xz[2] + rnd:NextNumber(-0.08, 0.08)) * CFrame.Angles(rnd:NextNumber(-0.4, 0.4), rnd:NextNumber(0, 1.5), rnd:NextNumber(-0.4, 0.4)),
-				Color3.fromRGB(225, 238, 255), Enum.Material.SmoothPlastic, nil, 0.12)
-			iceSkin(cube, 0.12)
+				Color3.fromRGB(225, 238, 255), Enum.Material.SmoothPlastic, nil, 0.2)
+			iceSkin(cube, 0.2)
 		end
 	end
 	if style == "C" then
@@ -532,7 +569,8 @@ function DrinkBucket.build(kind: Kind, colors: {Color3}, at: CFrame, key: string
 		for i = 1, n do
 			local x = -L / 2 + (i - 0.5) * L / n
 			local gh = if tier3 then H * 0.28 else H * 0.55
-			part(m, "IceGlow", Vector3.new(L / n - 0.02, gh, W - 0.15), at * CFrame.new(x, lift + 0.1 + gh / 2, 0), RAINBOW[(i - 1) % #RAINBOW + 1], Enum.Material.Neon, nil, 0)
+			-- (tier 3: white neon only, no colours, user 2026-10-29 (12))
+			part(m, "IceGlow", Vector3.new(L / n - 0.02, gh, W - 0.15), at * CFrame.new(x, lift + 0.1 + gh / 2, 0), if tier3 then Color3.fromRGB(235, 242, 255) else RAINBOW[(i - 1) % #RAINBOW + 1], Enum.Material.Neon, nil, 0)
 		end
 		if tier3 then
 			-- clear ice cubes (80 % see-through) at any angle on the low glow
