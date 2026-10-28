@@ -895,3 +895,5 @@ D-470 — (2026-10-28 (15), user) Tier-3 bottle pictures from the user applied u
 D-471 — (2026-10-28 (16), user) Bottle pictures revised by the user, applied unchanged: 그린 클로 124687666310365 (brushed metal cap band; white lettering on see-through, so the bottle colour shows), 스컬 앤 워터 134431123189380 (metal band over the foil), 스택 하이드로 102362527511706 (side columns of small print). 파스텔 스플래시 in the hand ×2/3 (DrinkService handScale). Shot: bottles_v10.jpg.
 
 D-472 — (2026-10-28 (17), user) Tier-2 bottles (the bottle_absolut_tier2 mesh): body colour a very pale tint of the drink colour (65 % toward white), 30 % see-through, no reflectance, and a soft PointLight in the drink colour (brightness 0.8, range 3·scale+1) as the glow; the Neon material is not used because it would hide the printed picture. Shot: tier2_pale_glow.jpg.
+
+D-473 — (2026-10-28 (18), user) Strong gloss on every drink: all 24 bottle SurfaceAppearances (BottleSkins + BottleSkinsGlow, place only) got a flat low-roughness map (gloss_rough.png, roughness ≈ 0.05: 124391310249668); cans Reflectance 0.35. Shot: bottles_gloss.jpg.

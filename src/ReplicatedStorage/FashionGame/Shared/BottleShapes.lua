@@ -383,6 +383,7 @@ local function fromTemplate(c: Ctx, key: string, color: Color3): boolean
 				-- (no design picture: the can's own print is cleared, plain metal in the drink colour)
 				p.TextureID = LABEL[key] or ""
 				if not LABEL[key] then p.Color = color end
+				p.Reflectance = 0.35 -- (strong gloss on every drink, user 2026-10-28 (18))
 			elseif shape == "Flask" and p:IsA("MeshPart") and p.Name:find("vile") and not p.Name:find("cork") then
 				-- the outer glass takes the drink colour, the inner shape a darker one (the drink inside)
 				p.Color = if p.Size.X > 0.2 * c.s then glassColor else glassColor:Lerp(Color3.new(0, 0, 0), 0.45)
