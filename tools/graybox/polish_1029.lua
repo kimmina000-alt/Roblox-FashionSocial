@@ -227,7 +227,8 @@ if oh24 then
 		if d:IsA("BasePart") and d.Position.X < -105 and d.Position.Z < 66 and (d.Name == "GlassBanner" or d.Name == "GlassPoster" or d.Name == "GlassSticker") and once(d) then
 			local to = spots[d.Name]
 			if d.Name == "GlassPoster" then to = { -87.5, d.Position.Y }
-			elseif d.Name == "GlassSticker" then to = { if d.Position.X > -108.5 then -83.5 else -81.2, d.Position.Y } end
+			-- (ATM and 택배 side by side over the 신상품 도시락 poster, user 2026-10-29 (20))
+			elseif d.Name == "GlassSticker" then to = { if d.Position.X > -108.5 then -93.0 else -95.2, 9.4 } end
 			d.CFrame = CFrame.new(to[1], to[2], d.Position.Z) * d.CFrame.Rotation
 		end
 	end
@@ -242,6 +243,9 @@ if oh24 then
 				p.CFrame = CFrame.new(base + (p.Position - base) * 2) * p.CFrame.Rotation
 			end
 		end
+		-- the 전자레인지 · 온수 sign over it goes up clear of the bigger dispenser
+		local sign = oh24:FindFirstChild("StationSign")
+		if sign then sign.CFrame += Vector3.new(0, (hw.Position.Y + hw.Size.Y / 2 + 0.9) - sign.Position.Y, 0) end
 		table.insert(log, "hot water 2x")
 	end
 	-- window stools: white club stools at the seat height, the old look hidden
