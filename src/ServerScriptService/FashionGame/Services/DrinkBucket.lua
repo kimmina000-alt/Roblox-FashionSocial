@@ -416,7 +416,7 @@ end
 -- (-Z), a white neon floor inside, ice cubes, and ten bottles standing in two
 -- rows, their necks above the rim. Returns the height.
 function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3}): number
-	local L, W, H, BH = 4.8, 2.2, 1.3, 0.42 -- (bigger than the tier-3 boat, user 2026-10-29 (26)) -- box length / depth / height, base height
+	local L, W, H, BH = 4.8, 2.2, 1.8, 0.42 -- (bigger than the tier-3 boat, user 2026-10-29 (26); walls 1.3 -> 1.8, 2026-10-29 (30)) -- box length / depth / height, base height
 	local BLACK = Color3.fromRGB(14, 14, 18)
 	local WHITE = Color3.fromRGB(255, 255, 255)
 	-- (a light set under the base so it glows out onto the table round it, user 2026-10-29 (29))
@@ -447,13 +447,13 @@ function DrinkBucket.iceBox(m: Model, at: CFrame, key: string, colors: {Color3})
 	-- white neon floor inside, lighting the ice from below
 	local floorY = BH
 	-- (a white neon block at the bottom like the tier-3 boat's glow, user 2026-10-29 (27))
-	local GH = H * 0.28
+	local GH = H * 0.42 -- (a taller glow block, the ice and bottles on top of it, 2026-10-29 (30))
 	local glowFloor = part(m, "IceBoxGlow", Vector3.new(L - 0.3, GH, W - 0.3), at * CFrame.new(0, floorY + GH / 2, 0), Color3.fromRGB(235, 242, 255), Enum.Material.Neon)
 	light(glowFloor, Color3.fromRGB(255, 230, 245), 10, 2.6) -- (brighter: it lights the ice through the walls)
 	-- the rippled ice walls: four clear slabs with the ice picture tiled on them
 	local T = 0.16
 	local function wall(size: Vector3, cf: CFrame)
-		local p = part(m, "IceWall", size, at * cf, Color3.fromRGB(240, 235, 250), Enum.Material.SmoothPlastic, nil, 0.7)
+		local p = part(m, "IceWall", size, at * cf, Color3.fromHSV(0.75, 0.04, 0.8), Enum.Material.SmoothPlastic, nil, 0.7) -- (lightness 80 %, 2026-10-29 (30))
 		p.Reflectance = 0.15
 		for _, face in ipairs(Enum.NormalId:GetEnumItems()) do
 			local t = Instance.new("Texture")
