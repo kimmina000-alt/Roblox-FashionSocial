@@ -536,7 +536,19 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 		-- painted: the picture on the mesh, no label parts (D-423)
 		-- (the VIP spade, monogram and plate are painted in relief too: no parts)
 		(skin :: SurfaceAppearance):Clone().Parent = p
-		if key == "pastel_splash" then
+		if spec[1] == "bottle_absolut_tier2" then
+			-- tier 2 (user 2026-10-28 (17)): a very pale tint of the drink colour,
+			-- 30 % see-through and a soft glow of its own
+			p.Color = color:Lerp(Color3.new(1, 1, 1), 0.65)
+			p.Transparency = 0.3
+			p.Reflectance = 0
+			local light = Instance.new("PointLight")
+			light.Color = color
+			light.Brightness = 0.8
+			light.Range = 3 * s + 1
+			light.Shadows = false
+			light.Parent = p
+		end		if key == "pastel_splash" then
 			-- frosted and glowing (user 2026-10-28 (3)): a little see-through, a warm light inside
 			p.Transparency = 0.18
 			local light = Instance.new("PointLight")
