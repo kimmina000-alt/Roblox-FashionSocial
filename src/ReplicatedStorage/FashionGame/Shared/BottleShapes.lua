@@ -429,12 +429,13 @@ local USER_MESH = {
 	hot_boost = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
 	green_claw = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
 	blue_wing = { "bottle_absolut_tier2", 2.63, "front", 0.25, 0.6 },
-	stack_hydro = { "bottle_stack_hydro", 3.24, "band", 0.2, 0.42 },
-	pastel_splash = { "bottle_pastel_splash", 3.24, "pastel", 0.13, 0.47 },
-	skull_water = { "bottle_skull_water", 3.24, "swing", 0.12, 0.52 },
+	stack_hydro = { "bottle_stack_hydro", 2.88, "band", 0.2, 0.42 },
+	pastel_splash = { "bottle_pastel_splash", 3.47, "pastel", 0.13, 0.47 },
+	skull_water = { "bottle_skull_water", 3.95, "swing", 0.12, 0.52 },
 	-- (VIP 1.3x, D-419; the others 1.5x, D-426. BottleShapes.Height keeps the
 	-- old heights, so the bottles in the hand grow by the same amount)
-	golmok = { "bottle_vip_golmok", 3.28, "vip", 0, 0 },
+	-- (sizes next to the cans, user sheet 2026-10-28 (26): 스택 ×0.89, 파스텔 ×1.07, 스컬 ×1.22, VIP ×1.45)
+	golmok = { "bottle_vip_golmok", 4.76, "vip", 0, 0 },
 }
 -- The whole-bottle pictures (user 2026-10-27, D-423): labels, caps and foil
 -- painted on the bottle mesh itself (the "_uv" imports carry cylindrical UVs,
