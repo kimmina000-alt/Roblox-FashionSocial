@@ -180,6 +180,106 @@ if cafe then
 		end
 	end
 	table.insert(log, "pool seats " .. poolSeats)
+
+	------------------------------------------------ 3b. (user 2026-10-29 (22))
+	-- the mezzanine tables' round seats -> the same white stools
+	local mezz = 0
+	for _, s in ipairs(cafe:GetDescendants()) do
+		if s:IsA("Seat") and s.Name == "CafeStool" and once(s) then
+			local top = s.Position.Y + s.Size.Y / 2
+			for _, k in ipairs(cafe:GetDescendants()) do
+				if k:IsA("BasePart") and k.Name == "CafeStoolCushion" and math.abs(k.Position.X - s.Position.X) < 0.5 and math.abs(k.Position.Z - s.Position.Z) < 0.5 then
+					top = math.max(top, select(2, bounds(k)).Y)
+					k.Transparency = 1
+				end
+			end
+			s.Transparency = 1
+			clubStool(s.Parent, s.Position.X, top, s.Position.Z, true)
+			mezz += 1
+		end
+	end
+	-- the coffee bag shelf on the wall goes
+	for _, d in ipairs(cafe:GetDescendants()) do
+		if d:IsA("BasePart") and (d.Name == "BagShelf" or d.Name == "CoffeeBag") then d:Destroy() end
+	end
+	-- the floor light lines by the planters go; a soft light set under every
+	-- planter instead (a glowing strip just round its foot)
+	for _, d in ipairs(cafe:GetDescendants()) do
+		if d:IsA("BasePart") and d.Name == "FloorLightLine" then d:Destroy() end
+	end
+	for _, pl in ipairs(cafe:GetDescendants()) do
+		if pl:IsA("BasePart") and pl.Name == "Planter" and not pl:GetAttribute("Polish1029Glow") then
+			pl:SetAttribute("Polish1029Glow", true)
+			local lo, hi = bounds(pl)
+			local glow = Instance.new("Part")
+			glow.Name = "PlanterUnderGlow"
+			glow.Anchored, glow.CanCollide, glow.CanQuery, glow.CanTouch, glow.CastShadow = true, false, false, false, false
+			glow.Material = Enum.Material.Neon
+			glow.Color = Color3.fromRGB(255, 220, 160)
+			glow.Transparency = 0.35
+			glow.Size = Vector3.new(hi.X - lo.X + 0.16, 0.03, hi.Z - lo.Z + 0.16)
+			glow.CFrame = CFrame.new((lo.X + hi.X) / 2, lo.Y + 0.015, (lo.Z + hi.Z) / 2)
+			local l = Instance.new("SurfaceLight")
+			l.Face = Enum.NormalId.Top
+			l.Color = Color3.fromRGB(255, 210, 150)
+			l.Range = 4
+			l.Brightness = 1.2
+			l.Angle = 160
+			l.Parent = glow
+			glow.Parent = pl.Parent
+			-- lift the planter a hair so the glow shows under its edge
+			pl.CFrame += Vector3.new(0, 0.06, 0)
+		end
+	end
+	-- the stair: the tall side wall goes, a clear glass railing follows the
+	-- steps and the landing instead
+	local wall = cafe:FindFirstChild("StairSideWall", true)
+	if wall and wall:IsA("BasePart") then
+		local x = wall.Position.X
+		local oldGlass = cafe:FindFirstChild("StairSideGlass", true)
+		if oldGlass then oldGlass:Destroy() end
+		wall:Destroy()
+		local steps = {}
+		for _, d in ipairs(cafe:GetDescendants()) do if d:IsA("BasePart") and d.Name == "Stair" then table.insert(steps, d) end end
+		table.sort(steps, function(a, b) return a.Position.Y < b.Position.Y end)
+		local first, last = steps[1], steps[#steps]
+		local landing = cafe:FindFirstChild("StairLanding", true)
+		local GLASS = Color3.fromRGB(220, 238, 255)
+		local function pane(name, a: Vector3, b: Vector3, h: number)
+			-- a sloped (or flat) glass panel from a to b on the railing line, h high
+			local mid, dir = (a + b) / 2, b - a
+			local flat = Vector3.new(0, 0, dir.Z).Unit
+			local cf = CFrame.lookAt(mid + Vector3.new(0, h / 2, 0), mid + Vector3.new(0, h / 2, 0) + flat)
+			local slope = math.atan2(dir.Y, math.abs(dir.Z))
+			local p = Instance.new("Part")
+			p.Name = name
+			p.Anchored = true
+			p.Material = Enum.Material.Glass
+			p.Color = GLASS
+			p.Transparency = 0.6
+			p.CastShadow = false
+			p.Size = Vector3.new(0.12, h, dir.Magnitude)
+			p.CFrame = cf * CFrame.Angles(slope, 0, 0)
+			p.Parent = cafe
+			local rail = Instance.new("Part")
+			rail.Name = name .. "Rail"
+			rail.Anchored, rail.CanCollide, rail.CastShadow = true, false, false
+			rail.Material = Enum.Material.Metal
+			rail.Color = Color3.fromRGB(200, 202, 206)
+			rail.Size = Vector3.new(0.18, 0.12, dir.Magnitude)
+			rail.CFrame = p.CFrame * CFrame.new(0, h / 2 + 0.06, 0)
+			rail.Parent = cafe
+		end
+		local function stepTop(s: BasePart) return s.Position.Y + s.Size.Y / 2 end
+		local z0 = first.Position.Z - first.Size.Z / 2
+		local z1 = last.Position.Z + last.Size.Z / 2
+		pane("StairRailGlass", Vector3.new(x, stepTop(first) - 0.5, z0), Vector3.new(x, stepTop(last), z1), 3.6)
+		if landing then
+			local lz1 = landing.Position.Z + landing.Size.Z / 2
+			pane("StairRailGlass", Vector3.new(x, stepTop(landing), z1), Vector3.new(x, stepTop(landing), lz1), 3.6)
+		end
+	end
+	table.insert(log, "mezz stools " .. mezz)
 end
 
 ---------------------------------------------------------------- 4. club DJ
