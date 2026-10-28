@@ -185,5 +185,5 @@ public static class StlTool
     public static string ExportNamed(string path, string jsonPath, double cell, string which, double scale)
     {
         Func<double[], string> g = which == "parfait" ? (Func<double[], string>)ParfaitGroup : HoneyBreadGroup;
-        return Export(path, jsonPath, cell, g, scale, true, n => n == "Plate" ? 2.6 : n == "Stem" ? 1.6 : 1.0);
+        return Export(path, jsonPath, cell, g, scale, true, n => n == "Plate" ? 1.6 : n == "Stem" ? 1.6 : 1.0);
     }}
