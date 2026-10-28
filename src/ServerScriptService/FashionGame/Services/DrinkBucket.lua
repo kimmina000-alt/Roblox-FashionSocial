@@ -423,7 +423,8 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 	-- "C" (the user's mix, 2026-10-29 (3)): A's ring, lit top and wings on a dark
 	-- round base dressed like B (yellow light bricks on the front corners, warm window)
 	if style == "A" or style == "C" then
-		local trayBase = cyl(m, "TrayBase", BD, 0.55 + LIFT, at * CFrame.new(0, (0.55 + LIFT) / 2, 0), DARK, Enum.Material.SmoothPlastic)
+		-- (C: the tier-3 boat's gold metal, user 2026-10-29 (14))
+		local trayBase = cyl(m, "TrayBase", BD, 0.55 + LIFT, at * CFrame.new(0, (0.55 + LIFT) / 2, 0), if style == "C" then GOLD else DARK, if style == "C" then Enum.Material.Metal else Enum.Material.SmoothPlastic)
 		-- RGB ring: coloured neon segments round the top edge (not on C, user 2026-10-29 (4))
 		for i = 0, (if style == "C" then -1 else 11) do
 			local a = i * math.pi * 2 / 12
@@ -501,10 +502,15 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 		for _, p in ipairs({ { -1.55, 1.2 }, { 1.55, 1.2 }, { -1.55, 0.1 }, { 1.55, 0.1 } }) do laser(m, at, p[1], p[2], -p[1]) end
 	end
 	-- five bottles in an arc, the middle one tallest and furthest back
+	-- (C: 1.5 times bigger, user 2026-10-29 (14); staggered front / back so the
+	-- bigger bottles fit the podium: the middle at the back, its neighbours in
+	-- front, the ends between)
+	local BS = if style == "C" then 1.5 else 1
 	for i = 1, 5 do
 		local u = (i - 3) / 2
-		local base = at * CFrame.new(u * SPREAD, 0.6 + LIFT, 0.15 + math.abs(u) * -0.35) * CFrame.Angles(0, 0, math.rad(-u * 8))
-		BottleShapes.add(m, base, key, colors[(i - 1) % #colors + 1], if i == 3 then 0.66 else 0.6)
+		local z = if style == "C" then (if i == 3 then 0.45 elseif i == 2 or i == 4 then -0.3 else 0.1) else 0.15 + math.abs(u) * -0.35
+		local base = at * CFrame.new(u * (if style == "C" then 1.3 else SPREAD), 0.6 + LIFT, z) * CFrame.Angles(0, 0, math.rad(-u * 8))
+		BottleShapes.add(m, base, key, colors[(i - 1) % #colors + 1], (if i == 3 then 0.66 else 0.6) * BS)
 	end
 	if style == "C" then
 		-- textured ice cubes on the lit top: a row in front of the bottles, some
@@ -512,10 +518,11 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 		-- (more ice, user 2026-10-29 (13)): two rows in front, a row behind, a few between the bottles
 		local rnd = Random.new()
 		local spots = {}
-		for i = 0, 9 do table.insert(spots, { -1.45 + i * 0.32, -0.95, 0 }) end
-		for i = 0, 7 do table.insert(spots, { -1.2 + i * 0.34, -0.7, 0 }) end
-		for i = 0, 6 do table.insert(spots, { -1.2 + i * 0.4, 0.85, 0 }) end
-		for i = 0, 3 do table.insert(spots, { -1.8 + (i + 0.5) * 0.9, -0.95, 0.24 }) end -- (a second layer on the front row)
+		-- (in front of the bigger bottles since 2026-10-29 (14); the lit top is 1.7 round)
+		for i = 0, 6 do table.insert(spots, { -0.95 + i * 0.32, -1.38, 0 }) end
+		for i = 0, 7 do table.insert(spots, { -1.2 + i * 0.34, -1.12, 0 }) end
+		for i = 0, 6 do table.insert(spots, { -1.0 + i * 0.33, 1.25, 0 }) end
+		for i = 0, 3 do table.insert(spots, { -0.9 + i * 0.6, -1.25, 0.24 }) end -- (a second layer on the front rows)
 		for _, xz in ipairs(spots) do
 			iceCube(m, at * CFrame.new(xz[1] + rnd:NextNumber(-0.08, 0.08), 0.6 + LIFT + 0.12 + xz[3], xz[2] + rnd:NextNumber(-0.06, 0.06)))
 		end
@@ -543,8 +550,10 @@ function DrinkBucket.vipTray(m: Model, at: CFrame, style: string, key: string, c
 		-- a white neon "VIP" floating over the bottles (user 2026-10-29 (4))
 		-- (neon bars, no border, user 2026-10-29 (5)): letters 0.9 high in the
 		-- plane facing the front (-Z), each stroke a thin white neon block
-		local WHITE_NEON = Color3.fromRGB(255, 255, 255)
-		local cy, h, w = 4.3 + LIFT, 0.9, 0.11
+		-- (gold like the podium, user 2026-10-29 (14); neon so it still glows; over
+		-- the 1.5x bottles)
+		local WHITE_NEON = GOLD
+		local cy, h, w = 4.3 + LIFT + 1.6, 0.9, 0.11
 		local function bar(name: string, x0: number, y0: number, x1: number, y1: number)
 			-- x is mirrored: the tray front faces -Z, so the viewer's right is -X
 			local a, b = Vector3.new(-x0, cy + y0, -0.2), Vector3.new(-x1, cy + y1, -0.2)

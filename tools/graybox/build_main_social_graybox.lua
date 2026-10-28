@@ -335,11 +335,13 @@ for _,d in ipairs({{-211.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
  for _,xf in ipairs({{-63.75,-63.63},{-65.37,-65.25}}) do
   box(z,"HallDoorFootLED",xf[1],F,pz-0.75,xf[2],F+0.25,pz+0.75,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
  local fz=pz+s*0.75
- local g=box(z,"HallDoorGlow",-65.25,F,math.min(fz,fz+s*0.12),-63.75,F+DH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
- local sl=Instance.new("SurfaceLight") sl.Face=if s>0 then Enum.NormalId.Back else Enum.NormalId.Front sl.Color=pink sl.Range=10 sl.Brightness=1.5 sl.Angle=150 sl.Parent=g end
--- and along the top of the doorway, pink like the posts (user 2026-10-27)
-do local g=box(z,"HallDoorGlow",-65.25,F+DH-0.12,-223.75,-63.75,F+DH,-212.25,pink,{mat=Enum.Material.Neon,ghost=true})
- local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Color=pink sl.Range=10 sl.Brightness=1.5 sl.Angle=150 sl.Parent=g end
+ -- (two thin neon lines instead of the whole face, user 2026-10-29 (14))
+ for i,xs in ipairs({{-64.95,-64.8},{-64.2,-64.05}}) do
+  local g=box(z,"HallDoorGlow",xs[1],F,math.min(fz,fz+s*0.12),xs[2],F+DH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
+  if i==1 then local sl=Instance.new("SurfaceLight") sl.Face=if s>0 then Enum.NormalId.Back else Enum.NormalId.Front sl.Color=pink sl.Range=10 sl.Brightness=1.2 sl.Angle=150 sl.Parent=g end end end
+-- and along the top of the doorway, pink like the posts (user 2026-10-27), two thin lines too
+for i,xs in ipairs({{-64.95,-64.8},{-64.2,-64.05}}) do local g=box(z,"HallDoorGlow",xs[1],F+DH-0.12,-223.75,xs[2],F+DH,-212.25,pink,{mat=Enum.Material.Neon,ghost=true})
+ if i==1 then local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Color=pink sl.Range=10 sl.Brightness=1.2 sl.Angle=150 sl.Parent=g end end
 label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,-218))
 -- graffiti on the corridor walls seen at the foot of the stairs (user 2026-10-25),
 -- the same pale pattern as the stair walls; none over the hall door opening
@@ -746,10 +748,11 @@ do
  for _,p in ipairs(m:GetChildren()) do if p:IsA("BasePart") and onTop[p.Name] then p.CFrame=turn*p.CFrame end end
  -- The laptop in the middle hid the DJ's body (user, 2026-10-22): it moves to
  -- a small side table at the crowd's left end, screen angled toward the DJ.
- box(m,"LaptopTable",64.8,S0,-230.5,67.8,S0+3.7,-227,Color3.fromRGB(28,28,36))
+ -- (user 2026-10-29 (14): back onto the desk, between the end deck and the
+ -- desk end, screen turned square to the DJ side; the side table is gone)
  local stand,screen=m:FindFirstChild("LaptopStand"),m:FindFirstChild("LaptopScreen")
- local lp=Vector3.new(66.3,deckY+0.6,-228.8)
- local face=CFrame.lookAt(lp,Vector3.new(71,lp.Y,-218))
+ local lp=Vector3.new(66.3,deckY+0.6,-226.2)
+ local face=CFrame.lookAt(lp,lp+Vector3.new(1,0,0))
  if stand then stand.Size=Vector3.new(1.2,1.2,0.8) stand.CFrame=face end
  if screen then screen.Size=Vector3.new(2.3,1.5,0.1) screen.CFrame=face*CFrame.new(0,1.4,0.2)*CFrame.Angles(math.rad(-12),0,0) end
 end
