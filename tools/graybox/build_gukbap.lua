@@ -107,8 +107,10 @@ local top1 = FY + H1 local DOOR_H = 8.1 * H1 / 12 -- (the door grows with the 1F
 local top2 = top1 + H2
 
 -- floor, ceiling, roof ---------------------------------------------------
-box("Floor", X0, 0, Z0, X1, FY, Z1, FLOOR, { material = Enum.Material.Slate })
-box("Ceiling", X0, top1, Z0, X1, top1 + 0.6, Z1, Color3.fromRGB(244, 244, 240))
+-- (interior 2026-10-29: beige stone-look tiles and a cream ceiling, like the
+-- old Busan 돼지국밥 halls in the user's reference)
+box("Floor", X0, 0, Z0, X1, FY, Z1, Color3.fromRGB(214, 200, 176), { material = Enum.Material.CeramicTiles })
+box("Ceiling", X0, top1, Z0, X1, top1 + 0.6, Z1, Color3.fromRGB(236, 226, 204))
 box("Roof", X0 - 0.3, top2, Z0 - 0.3, X1 + 0.3, top2 + 0.8, Z1 + 0.3, Color3.fromRGB(120, 120, 124), { material = Enum.Material.Concrete })
 box("Parapet", X0 - 0.3, top2 + 0.8, Z0 - 0.3, X0 + 0.3, top2 + 2, Z1 + 0.3, Color3.fromRGB(120, 120, 124), { material = Enum.Material.Concrete })
 
@@ -227,25 +229,108 @@ do
 end
 
 -- inside ---------------------------------------------------------------------
--- lower walls: light wood panels; tube lights on the ceiling
-for _, w in ipairs({ { X0 + WT, Z0 + WT, X1 - WT, Z0 + WT + 0.1 }, { X0 + WT, Z1 - WT - 0.1, X1 - WT, Z1 - WT } }) do
-	box("WallPanel", w[1], FY, w[2], w[3], FY + 4, w[4], Color3.fromRGB(196, 160, 116), { material = Enum.Material.WoodPlanks, nocol = true })
+-- (user 2026-10-29: the hall like an old Busan 돼지국밥 restaurant, reference
+-- photos seen on DiningCode: hangul-pattern wallpaper over a dark wood
+-- wainscot, handwritten guest notes stuck all along the walls, a white menu
+-- board with a bowl picture, wall fans, a TV, a standing aircon, a big plant
+-- by the kitchen, round downlights in a cream ceiling, light wood tables with
+-- black legs and wooden chairs with cream cushions. No private room, no
+-- alcohol. Images: tools/art/gukbap_interior_textures.ps1)
+local IMG_WALLPAPER = "rbxassetid://116206010315485"
+local IMG_NOTES = "rbxassetid://73936729248802"
+local IMG_MENU = "rbxassetid://134161469059836"
+local WOOD_DARK = Color3.fromRGB(112, 72, 44)
+local WOOD_RAIL = Color3.fromRGB(150, 100, 60)
+local RAIL_Y = FY + 6 -- wainscot top
+local function tex(p, face, id, u, v)
+	local t = Instance.new("Texture")
+	t.Face = face
+	t.Texture = id
+	t.StudsPerTileU = u
+	t.StudsPerTileV = v
+	t.Parent = p
+	return t
 end
-for lz = Z0 + 8, Z1 - 5, 16 do -- (5 × 7 tubes over the big hall; their range grows with the 21-stud ceiling)
-	for lx = X0 + 8, X1 - 18, 18 do
-		local tube = box("TubeLight", lx - 2.2, top1 - 0.25, lz - 0.25, lx + 2.2, top1, lz + 0.25, Color3.fromRGB(248, 250, 255), { material = Enum.Material.Neon, nocol = true, noshadow = true })
-		local l = Instance.new("SurfaceLight")
-		l.Face = Enum.NormalId.Bottom
-		l.Range = 26
-		l.Brightness = 0.9
-		l.Angle = 120
-		l.Color = Color3.fromRGB(245, 248, 255)
-		l.Parent = tube
+-- walls: each run = {x0, z0, x1, z1, face into the hall, outward normal}
+local KX = X1 - 14 -- kitchen counter front (the kitchen keeps its steel walls)
+local runs = {
+	{ X0 + WT, Z0 + WT, X1 - WT, Z0 + WT, Enum.NormalId.Back, Vector3.new(0, 0, -1) }, -- north wall, faces +z
+	{ X0 + WT, Z1 - WT, X1 - WT, Z1 - WT, Enum.NormalId.Front, Vector3.new(0, 0, 1) }, -- south wall, faces -z
+}
+for _, r in ipairs(runs) do
+	local x0, z0, x1, z1, face, out = r[1], r[2], r[3], r[4], r[5], r[6]
+	local zin = z0 - out.Z * 0.15 -- 0.15 in front of the wall
+	box("Wainscot_In", x0, FY, z0, x1, RAIL_Y, zin, WOOD_DARK, { material = Enum.Material.WoodPlanks, nocol = true })
+	box("ChairRail", x0, RAIL_Y, z0, x1, RAIL_Y + 0.35, z0 - out.Z * 0.4, WOOD_RAIL, { material = Enum.Material.Wood, nocol = true })
+	local wp = box("Wallpaper", x0, RAIL_Y + 0.35, z0, x1, top1, z0 - out.Z * 0.05, Color3.fromRGB(226, 216, 192), { nocol = true, noshadow = true })
+	tex(wp, face, IMG_WALLPAPER, 6, 6)
+	-- two rows of guest notes over the rail (the hall side only, not the kitchen)
+	for row = 0, 1 do
+		local y0 = RAIL_Y + 0.6 + row * 3.4
+		local n = box("GuestNotes", x0 + 1, y0, z0 - out.Z * 0.06, KX - 2, y0 + 3, z0 - out.Z * 0.08, Color3.new(1, 1, 1), { t = 1, nocol = true, noshadow = true })
+		n.CanQuery = false
+		local t = tex(n, face, IMG_NOTES, 12, 3)
+		t.OffsetStudsU = row * 5.5
 	end
+	-- a cornice pipe along the top, as in the photo
+	local pipe = part("CornicePipe", Vector3.new(x1 - x0, 0.4, 0.4), CFrame.new((x0 + x1) / 2, top1 - 0.5, z0 - out.Z * 0.35) , Color3.fromRGB(230, 222, 204), { shape = Enum.PartType.Cylinder, nocol = true, noshadow = true })
+	_ = pipe
+end
+-- the back wall behind the kitchen: wallpaper over the steel
+do
+	local wp = box("Wallpaper", X1 - WT - 0.05, FY + 3, Z0 + WT, X1 - WT, top1, Z1 - WT, Color3.fromRGB(226, 216, 192), { nocol = true, noshadow = true })
+	tex(wp, Enum.NormalId.Left, IMG_WALLPAPER, 6, 6)
+end
+-- round downlights in rows over the hall (one in three carries a light)
+local nLight = 0
+for lz = Z0 + 6, Z1 - 5, 10 do
+	for lx = X0 + 6, KX - 3, 11 do
+		local d = part("Downlight", Vector3.new(0.1, 1.3, 1.3), CFrame.new(lx, top1 - 0.04, lz) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromRGB(255, 250, 238), { shape = Enum.PartType.Cylinder, material = Enum.Material.Neon, nocol = true, noshadow = true })
+		nLight += 1
+		if nLight % 3 == 1 then
+			local l = Instance.new("SpotLight")
+			l.Face = Enum.NormalId.Left -- the cylinder's axis (local X) is turned to point down
+			l.Range = 28
+			l.Brightness = 1.4
+			l.Angle = 120
+			l.Color = Color3.fromRGB(255, 244, 222)
+			l.Parent = d
+		end
+	end
+end
+-- wall fans: a white motor and a grey cage, high on both long walls
+for _, r in ipairs(runs) do
+	local out = r[6]
+	for fx = X0 + 16, KX - 8, 24 do
+		local zw = r[2] - out.Z * 0.4
+		box("FanMount", fx - 0.4, FY + 12.4, zw, fx + 0.4, FY + 13.6, zw - out.Z * 0.5, Color3.fromRGB(240, 240, 236), { nocol = true })
+		part("FanMotor", Vector3.new(1.2, 1, 1), CFrame.new(fx, FY + 13, zw - out.Z * 1.2) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(245, 245, 242), { shape = Enum.PartType.Cylinder, nocol = true })
+		part("FanCage", Vector3.new(0.5, 3.2, 3.2), CFrame.new(fx, FY + 13, zw - out.Z * 2) * CFrame.Angles(0, math.rad(90), 0) * CFrame.Angles(math.rad(-15), 0, 0), Color3.fromRGB(150, 152, 156), { shape = Enum.PartType.Cylinder, t = 0.45, nocol = true, noshadow = true })
+	end
+end
+-- a TV high on the south wall near the kitchen, facing the hall
+do
+	local zw = Z1 - WT - 0.2
+	box("TVFrame", KX - 13, FY + 11, zw - 0.4, KX - 4, FY + 16, zw, Color3.fromRGB(20, 20, 22), { nocol = true })
+	local s = box("TVScreen", KX - 12.7, FY + 11.3, zw - 0.45, KX - 4.3, FY + 15.7, zw - 0.4, Color3.fromRGB(70, 120, 170), { material = Enum.Material.Neon, nocol = true, noshadow = true })
+	s.Transparency = 0.35
+end
+-- standing aircon by the kitchen on the north side, a big potted plant
+box("StandAC", KX - 4.5, FY, Z0 + WT + 0.2, KX - 1.5, FY + 9, Z0 + WT + 2.6, Color3.fromRGB(242, 242, 240))
+for gy = FY + 5, FY + 8.2, 0.5 do
+	box("StandACGrille", KX - 4.3, gy, Z0 + WT + 2.6, KX - 1.7, gy + 0.2, Z0 + WT + 2.65, Color3.fromRGB(190, 192, 196), { nocol = true })
+end
+do
+	local px, pz = KX - 3, Z1 - WT - 3
+	vcyl("PlantPot", Vector3.new(px, FY, pz), 2.4, 2, Color3.fromRGB(70, 60, 54), { material = Enum.Material.Slate })
+	local rnd = Random.new(5)
+	for _ = 1, 9 do
+		part("PlantLeaves", Vector3.new(2.4, 2.4, 2.4), CFrame.new(px + rnd:NextNumber(-1.2, 1.2), FY + rnd:NextNumber(3.5, 7.5), pz + rnd:NextNumber(-1.2, 1.2)), Color3.fromRGB(60 + rnd:NextInteger(0, 30), 120 + rnd:NextInteger(0, 30), 50), { shape = Enum.PartType.Ball, material = Enum.Material.Grass, nocol = true })
+	end
+	vcyl("PlantTrunk", Vector3.new(px, FY + 2, pz), 0.35, 3, Color3.fromRGB(100, 80, 60), { nocol = true })
 end
 
 -- kitchen along the back wall: steel counter with a pass, stock pots, bowls
-local KX = X1 - 14 -- counter front
 box("KitchenFloor", KX, FY, Z0 + WT, X1 - WT, FY + 0.05, Z1 - WT, Color3.fromRGB(120, 118, 114), { material = Enum.Material.Slate, nocol = true })
 local counter = box("KitchenCounter", KX, FY, Z0 + 4, KX + 1.6, FY + 3.6, Z1 - 4, STEEL, { material = Enum.Material.DiamondPlate })
 CS:AddTag(counter, "GukbapCounter")
@@ -277,8 +362,14 @@ for bz = Z0 + 6, Z1 - 6, 5 do
 	end
 end
 -- the menu board over the kitchen (seen from the hall: face -X = Left)
-local menu = box("MenuBoard", X1 - WT - 0.2, FY + 6.2, Z0 + 4, X1 - WT, FY + 11.4, Z1 - 4, Color3.fromRGB(60, 44, 32), { material = Enum.Material.Wood })
-label(menu, Enum.NormalId.Left, "메 뉴\n돼지국밥 💰20   순대국밥 💰20\n소고기국밥 💰20   수육 한 접시 R$19\n공깃밥 · 김치 · 깍두기 무료", Color3.fromRGB(255, 244, 214), { pps = 30, font = Enum.Font.GothamBold, lh = 1.1 })
+-- (2026-10-29) a white board with the bowl picture and red prices, 3.2 : 1 like the image
+local MENU_H = 12
+local menu = box("MenuBoard", X1 - WT - 0.3, FY + 7, -334 - MENU_H * 1.6, X1 - WT - 0.1, FY + 7 + MENU_H, -334 + MENU_H * 1.6, Color3.fromRGB(250, 250, 248))
+local menuImg = Instance.new("Decal")
+menuImg.Face = Enum.NormalId.Left
+menuImg.Texture = IMG_MENU
+menuImg.Parent = menu
+box("MenuFrame", X1 - WT - 0.25, FY + 6.8, -334 - MENU_H * 1.6 - 0.2, X1 - WT - 0.12, FY + 7.2 + MENU_H, -334 + MENU_H * 1.6 + 0.2, Color3.fromRGB(150, 150, 150), { nocol = true })
 -- water purifier + cups by the north wall near the door
 box("WaterPurifier", X0 + 1.2, FY, Z0 + WT, X0 + 3, FY + 4.2, Z0 + WT + 1.6, Color3.fromRGB(240, 240, 244))
 box("PurifierPanel", X0 + 1.4, FY + 3.2, Z0 + WT + 1.6, X0 + 2.8, FY + 3.8, Z0 + WT + 1.65, Color3.fromRGB(60, 140, 220), { material = Enum.Material.Neon, nocol = true })
@@ -292,8 +383,12 @@ local function gukbapTable(tx, tz)
 	-- gone, the wooden block is the tissue box. scale_furniture then grows the
 	-- whole group 1.5x)
 	local HX, HZ = 1.9, 2.9 -- half the top
-	box("TableLeg", tx - 0.2, FY, tz - 0.2, tx + 0.2, FY + 2.3, tz + 0.2, DARK)
-	local top = box("TableTop", tx - HX, FY + 2.3, tz - HZ, tx + HX, FY + 2.5, tz + HZ, STEEL, { material = Enum.Material.Metal })
+	-- (2026-10-29) light wood top on four black legs, as in the reference hall
+	for _, c in ipairs({ { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } }) do
+		local lx, lz = tx + c[1] * (HX - 0.25), tz + c[2] * (HZ - 0.25)
+		box("TableLeg", lx - 0.1, FY, lz - 0.1, lx + 0.1, FY + 2.3, lz + 0.1, Color3.fromRGB(28, 28, 30))
+	end
+	local top = box("TableTop", tx - HX, FY + 2.3, tz - HZ, tx + HX, FY + 2.5, tz + HZ, Color3.fromRGB(226, 198, 150), { material = Enum.Material.Wood })
 	CS:AddTag(top, "GukbapTable")
 	-- tissue box: the user's pick (#3 of the restaurant sheet) retextured as
 	-- wood (ServerStorage.ArtAssets.TissueBoxWood), else a plain wooden box
@@ -314,11 +409,24 @@ local function gukbapTable(tx, tz)
 		box("TissueBox", tx - HX + 0.2, FY + 2.5, tz - HZ + 0.3, tx - HX + 0.8, FY + 3.0, tz - HZ + 0.9, Color3.fromRGB(150, 110, 70), { material = Enum.Material.Wood, nocol = true })
 	end
 	for _, s in ipairs({ { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } }) do
-		local sx, sz = s[1] * (HX + 1.2), s[2] * 1.4
-		-- the round top is a plain cylinder; the Seat is an invisible upright
-		-- block on it (a Seat takes the sitter's up from its own axes, so the
-		-- turned cylinder laid players flat, phone test 2026-10-26)
-		vcyl("Stool", Vector3.new(tx + sx, FY + 1.35, tz + sz), 1.4, 0.3, RED)
+		-- (HX + 1.0: the chair frame must come within 0.6 of a table leg, or
+		-- scale_furniture grows each chair alone and it ends up under the top)
+		local sx, sz = s[1] * (HX + 1.0), s[2] * 1.4
+		-- (2026-10-29) a wooden chair with a cream cushion and a bent-wood back
+		-- on the side away from the table (was a red round stool). The Seat is
+		-- an invisible upright block on it (a Seat takes the sitter's up from
+		-- its own axes, phone test 2026-10-26)
+		local cx, cz = tx + sx, tz + sz
+		local CHAIR = Color3.fromRGB(128, 84, 50)
+		box("Chair", cx - 0.68, FY + 1.18, cz - 0.68, cx + 0.68, FY + 1.3, cz + 0.68, CHAIR, { material = Enum.Material.Wood })
+		box("Chair", cx - 0.62, FY + 1.3, cz - 0.62, cx + 0.62, FY + 1.5, cz + 0.62, Color3.fromRGB(236, 228, 210), { material = Enum.Material.Fabric })
+		for _, l in ipairs({ { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } }) do
+			local lx, lz = cx + l[1] * 0.55, cz + l[2] * 0.55
+			box("Chair", lx - 0.07, FY, lz - 0.07, lx + 0.07, FY + 1.18, lz + 0.07, CHAIR, { material = Enum.Material.Wood, nocol = true })
+		end
+		local bx = cx + s[1] * 0.6 -- the back, on the far side from the table
+		-- one wooden back panel (posts + rails as one part: the zone stays under 1,500 parts)
+		box("Chair", bx - 0.08, FY + 1.5, cz - 0.6, bx + 0.08, FY + 3.5, cz + 0.6, CHAIR, { material = Enum.Material.Wood, nocol = true })
 		local seat = Instance.new("Seat")
 		seat.Name = "StoolSeat"
 		seat.Anchored = true
@@ -327,7 +435,6 @@ local function gukbapTable(tx, tz)
 		seat.Size = Vector3.new(1.2, 0.2, 1.2)
 		seat.CFrame = CFrame.lookAt(Vector3.new(tx + sx, FY + 1.6, tz + sz), Vector3.new(tx, FY + 1.6, tz + sz))
 		seat.Parent = M
-		vcyl("StoolLeg", Vector3.new(tx + sx, FY, tz + sz), 0.3, 1.35, ALU, { nocol = true })
 	end
 end-- (layout v8) 32 tables in four rows, an aisle from the door to the kitchen
 for _, tz in ipairs({ -366, -352, -316, -302 }) do
