@@ -90,8 +90,9 @@ if cafe then
 			led.Anchored, led.CanCollide, led.CanQuery, led.CanTouch, led.CastShadow = true, false, false, false, false
 			led.Material = Enum.Material.Neon
 			led.Color = Color3.fromRGB(255, 214, 150)
-			led.Size = Vector3.new(0.08, 0.14, hi.Z - lo.Z - 0.2)
-			led.CFrame = CFrame.new(lo.X - 0.04, footY + 0.07, (lo.Z + hi.Z) / 2)
+			-- (thin and set into the riser like a recessed strip, user 2026-10-29 (21))
+			led.Size = Vector3.new(0.06, 0.05, hi.Z - lo.Z - 0.2)
+			led.CFrame = CFrame.new(lo.X + 0.02, footY + 0.06, (lo.Z + hi.Z) / 2)
 			led.Parent = cafe
 		end
 		prevTop = hi.Y
@@ -115,6 +116,26 @@ if cafe then
 		end
 	end
 	table.insert(log, "lounge LEDs " .. #steps .. ", tables moved " .. moved)
+	-- the planters closer: the long one along the lounge's south side up to
+	-- it, the short one between the piano stage and the lounge up to the stage
+	-- (user 2026-10-29 (21)); their soil, bushes and shrubs go with them
+	local plants = {}
+	for _, d in ipairs(cafe:GetDescendants()) do
+		if d.Name == "Bush" or d.Name == "Shrub" or d.Name == "PlanterSoil" or d.Name == "PlantCollider" then table.insert(plants, d) end
+	end
+	for _, pl in ipairs(cafe:GetDescendants()) do
+		if pl:IsA("BasePart") and pl.Name == "Planter" and once(pl) then
+			local lo, hi = bounds(pl)
+			local shift = if pl.Size.X > pl.Size.Z then Vector3.new(0, 0, 1.2) else Vector3.new(-0.56, 0, 0)
+			for _, d in ipairs(plants) do
+				local pos = if d:IsA("Model") then d:GetPivot().Position else (d :: BasePart).Position
+				if pos.X > lo.X - 0.5 and pos.X < hi.X + 0.5 and pos.Z > lo.Z - 0.5 and pos.Z < hi.Z + 0.5 then
+					if d:IsA("Model") then d:PivotTo(d:GetPivot() + shift) else (d :: BasePart).CFrame += shift end
+				end
+			end
+			pl.CFrame += shift
+		end
+	end
 
 	------------------------------------------------------------ 2. bars + stools
 	for _, n in ipairs({ "WindowBar", "MezzBar" }) do
@@ -220,11 +241,16 @@ if oh24 then
 		end
 	end
 	-- the right window's stickers onto the left window (door at x -102)
-	local spots = {
-		GlassBanner = { -80, 12.4 }, -- 호빵 · 어묵 (raised clear of the station sign)
-	}
+	local spots = {}
 	for _, d in ipairs(oh24:GetChildren()) do
-		if d:IsA("BasePart") and d.Position.X < -105 and d.Position.Z < 66 and (d.Name == "GlassBanner" or d.Name == "GlassPoster" or d.Name == "GlassSticker") and once(d) then
+		if d:IsA("BasePart") and d.Name == "GlassBanner" and once(d) then
+			-- 호빵 · 어묵: inside the east glass (the side facing 광화문), read
+			-- from outside (user 2026-10-29 (21))
+			-- (on the outer face of the glass: a SurfaceGui behind Glass does not draw)
+			d.CFrame = CFrame.new(-55.75, 12.4, 99) * CFrame.Angles(0, -math.pi / 2, 0)
+			local g = d:FindFirstChildOfClass("SurfaceGui")
+			if g then g.Face = Enum.NormalId.Front end
+		elseif d:IsA("BasePart") and d.Position.X < -105 and d.Position.Z < 66 and (d.Name == "GlassPoster" or d.Name == "GlassSticker") and once(d) then
 			local to = spots[d.Name]
 			if d.Name == "GlassPoster" then to = { -87.5, d.Position.Y }
 			-- (ATM and 택배 side by side over the 신상품 도시락 poster, user 2026-10-29 (20))

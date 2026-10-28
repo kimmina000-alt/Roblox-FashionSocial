@@ -954,3 +954,5 @@ D-500 — (2026-10-29 (18), user) tools/graybox/polish_1029.lua (run last in the
 D-501 — (2026-10-29 (19), user) OH24 front: the two folded round tables (FoldedTableTop) deleted; the stacked chairs and the crates moved 22 to the right of the door (as seen from the street, -x), the standing sign past them at x -121 (polish_1029). Shot: 2026-10-29/oh24_front_v3.jpg.
 
 D-502 — (2026-10-29 (20), user) OH24: the ATM and 택배 접수 stickers side by side over the 신상품 도시락 poster (x -93 / -95.2, y 9.4); the 전자레인지 · 온수 sign raised to 0.9 over the bigger hot water dispenser (y 12.9). polish_1029. Shots: 2026-10-29/oh24_stickers.jpg, oh24_hotwater_sign.jpg.
+
+D-503 — (2026-10-29 (21), user) OH24 호빵·어묵 banner moved to the east glass (the 광화문 side, x -55.75, z 99), text facing the street (on the glass's outer face: a SurfaceGui behind Glass material does not draw). Cafe: the lounge step LEDs thinner (0.06 x 0.05) and set into the risers; the long planter 1.2 nearer the lounge, the short planter 0.56 nearer the piano stage, with their soil, bushes and shrubs (polish_1029). Shots: 2026-10-29/oh24_banner_east.jpg, cafe_lounge_planters.jpg.
