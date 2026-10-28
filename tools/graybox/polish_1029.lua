@@ -196,9 +196,21 @@ if oh24 then
 			if p then table.insert(parts, p) end
 		end
 		if #parts > 0 and once(parts[1]) then
-			local dx = -110 - parts[1].Position.X
+			local dx = -121 - parts[1].Position.X -- (past the chairs and crates, which moved there too)
 			for _, p in ipairs(parts) do p.CFrame += Vector3.new(dx, 0, 0) end
 			table.insert(log, "OH24 sign moved")
+		end
+		-- (user 2026-10-29 (19)) the folded round tables go; the stacked chairs
+		-- and the crates move 22 to the right of the door with the sign
+		for _, d in ipairs(stack:GetDescendants()) do
+			if d:IsA("BasePart") and d.Name == "FoldedTableTop" then d:Destroy() end
+		end
+		for _, d in ipairs(stack:GetDescendants()) do
+			if d:IsA("BasePart") and (d.Name == "StackChair" or d.Name == "StackCollide" or d.Name == "Crate" or d.Name == "CrateRim")
+				and d.Position.X > -100 and not d:GetAttribute("Polish1029Moved") then
+				d:SetAttribute("Polish1029Moved", true)
+				d.CFrame += Vector3.new(-22, 0, 0)
+			end
 		end
 		-- the stacked chairs face the street (turned round each column)
 		for _, c in ipairs(stack:GetDescendants()) do
