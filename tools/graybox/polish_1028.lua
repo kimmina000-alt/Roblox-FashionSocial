@@ -265,9 +265,9 @@ do
 			local cx = (x0 + x1) / 2
 			part("VIP_Partition", Vector3.new(x1 - x0, CEIL - FLOOR, 0.3), CFrame.new(cx, (FLOOR + CEIL) / 2, z), GLASS, f,
 				{ material = Enum.Material.Glass, transparency = 0.55, shadow = false })
-			-- a slim dark post on the open edge
-			part("VIP_PartitionPost", Vector3.new(0.3, CEIL - FLOOR, 0.5), CFrame.new(xOpen, (FLOOR + CEIL) / 2, z), Color3.fromRGB(24, 22, 28), f,
-				{ material = Enum.Material.Metal, shadow = false })
+			-- a light strip on the open edge (user 2026-10-28 (3), D-457)
+			part("VIP_PartitionLight", Vector3.new(0.2, CEIL - FLOOR, 0.4), CFrame.new(xOpen, (FLOOR + CEIL) / 2, z), Color3.fromRGB(255, 240, 250), f,
+				{ material = Enum.Material.Neon, shadow = false, collide = false })
 		end
 		local tables = {}
 		for _, d in ipairs(club:GetDescendants()) do
@@ -282,6 +282,20 @@ do
 			for i = 1, #zs - 1 do
 				wall(side.xWall, side.xOpen, (zs[i] + zs[i + 1]) / 2)
 				n += 1
+			end
+			-- the east row also gets one before its first booth (the user's
+			-- "leftmost" zone, 2026-10-28 (3))
+			if side.xWall > 100 and #zs >= 2 then
+				wall(side.xWall, side.xOpen, zs[1] - (zs[2] - zs[1]) / 2)
+				n += 1
+			end
+			-- light along the floor edge at the wall (z over the booths)
+			if #zs > 0 then
+				local span = if #zs >= 2 then zs[2] - zs[1] else 31.6
+				local z0, z1 = zs[1] - span / 2, zs[#zs] + span / 2
+				local x = side.xWall + (if side.xWall < side.xTable then 0.3 else -0.3)
+				part("VIP_FloorEdgeLight", Vector3.new(0.25, 0.2, z1 - z0), CFrame.new(x, FLOOR + 0.1, (z0 + z1) / 2), Color3.fromRGB(255, 240, 250), f,
+					{ material = Enum.Material.Neon, shadow = false, collide = false })
 			end
 		end
 		note(("VIP: %d side sofas, %d seats removed, %d partitions"):format(wings, seats, n))
@@ -357,6 +371,29 @@ do
 		end
 		cafe:SetAttribute("LoungeSofa12", true)
 		note(("lounge: %d sofas x%.1f, %d tables +%.1f"):format(#sofas, S, #tables, MOVE))
+	end
+end
+
+---------------------------------------------------------------- 9. club entrance: graffiti on the right wall too
+-- (user 2026-10-28 (3), D-457: the foyer's east wall was bare and dark) a turned
+-- copy of the west wall's graffiti panel, just inside the east wall (x 65.5)
+do
+	local club = G:FindFirstChild("02_Club")
+	if club then
+		local old = club:FindFirstChild("GraffitiWallEast")
+		if old then old:Destroy() end
+		local src
+		for _, d in ipairs(club:GetChildren()) do
+			if d:IsA("BasePart") and d.Name == "GraffitiWall" and math.abs(d.Position.X - 50) < 1 and math.abs(d.Position.Z + 226) < 1 then src = d break end
+		end
+		if src then
+			local copy = src:Clone()
+			copy.Name = "GraffitiWallEast"
+			local p = src.Position
+			copy.CFrame = CFrame.new(65.35, p.Y, p.Z + 4) * CFrame.Angles(0, math.pi, 0) * src.CFrame.Rotation
+			copy.Parent = club
+			note("graffiti east wall")
+		end
 	end
 end
 

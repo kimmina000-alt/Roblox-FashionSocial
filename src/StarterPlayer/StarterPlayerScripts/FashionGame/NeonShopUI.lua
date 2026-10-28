@@ -131,7 +131,7 @@ function NeonShopUI.window(gui: Instance, name: string, accent: Color3, icon: st
 		Position = UDim2.new(1, -14, 0, 16),
 		Size = UDim2.fromOffset(34, 34),
 		BackgroundColor3 = CARD,
-		Text = "✕",
+		Text = "X",
 		TextColor3 = TEXT,
 		TextSize = 16,
 		Font = Enum.Font.GothamBold,

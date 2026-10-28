@@ -358,7 +358,7 @@ corner(drinkNote, 10)
 NeonShopUI.create("UIPadding", { PaddingTop = UDim.new(0, 7), PaddingBottom = UDim.new(0, 7) }, drinkNote)
 list.Size = UDim2.new(1, -28, 1, -164)
 local itemWindow = NeonShopUI.window(gui, "ItemShop", NeonShopUI.MAGENTA, "🛍️", "클럽 아이템 상점",
-	"테이블 연출 · 무대 효과 · 이용권", { "✨ 불꽃 아이템", "👑 VIP", "🎧 DJ" })
+	"테이블 연출 · 무대 효과 · 이용권", { "✨ 불꽃 아이템", "🎫 VIP · DJ 패스권" })
 itemWindow.setGrid(1, 0)
 -- Up to 420 x 460, below the top-bar buttons; on a phone in landscape it
 -- keeps its width and gets shorter (the list scrolls) (2P phone test 2026-10-25)
@@ -409,10 +409,11 @@ local function handsFull(): boolean
 	return false
 end
 
--- Picks a flavour / can colour first when the drink has them.
-local function withVariant(drink: any, after: (variantKey: string?) -> ())
-	if not drink.variants then
-		after(nil)
+-- (each flavour is its own card since 2026-10-28 (3), so the variant comes
+-- with the purchase; the old flavour window is only a fallback)
+local function withVariant(drink: any, chosen: string?, after: (variantKey: string?) -> ())
+	if not drink.variants or chosen then
+		after(chosen)
 		return
 	end
 	local buttons: {ModalButton} = {}
@@ -425,7 +426,7 @@ local function withVariant(drink: any, after: (variantKey: string?) -> ())
 end
 
 -- method: "order" (free / tier-1 coins), "coins" (tier 2), "robux"
-local function purchase(drink: any, method: string)
+local function purchase(drink: any, method: string, chosen: string?)
 	if handsFull() then return end
 	menu.Visible = false
 	if drink.vipOnly and not isVip() then
@@ -433,7 +434,7 @@ local function purchase(drink: any, method: string)
 		buyPass("VIP")
 		return
 	end
-	withVariant(drink, function(variantKey)
+	withVariant(drink, chosen, function(variantKey)
 		local payload = { drink = drink.key, variant = variantKey }
 		if method == "order" then
 			local ok, message = ClubShop:InvokeServer("Order", payload)
@@ -458,6 +459,28 @@ local function purchase(drink: any, method: string)
 	end)
 end
 
+-- One price, the player's own (user 2026-10-28 (3): no separate VIP button):
+-- everyone sees the normal price; a VIP sees it struck through and the 20%
+-- off price next to it. 골목 공방 소다 (VIP only) always shows the normal price
+-- struck through.
+local function strike(before: number, after: number, unit: string): string
+	return string.format("<s>%s%d</s> %s%d", unit, before, unit, after)
+end
+local function robuxText(drink: any, vip: boolean): string
+	if drink.vipOnly then
+		local now = productPrice(drink.product)
+		return strike(math.floor(now / ClubConfig.VipCoinRate + 0.5), now, "R$")
+	elseif vip and drink.vipProduct then
+		return strike(productPrice(drink.product), productPrice(drink.vipProduct), "R$")
+	end
+	return "R$" .. productPrice(drink.product)
+end
+local function coinText(drink: any, vip: boolean): string
+	local now = ClubConfig.coinPrice(drink, vip) or 0
+	if vip and drink.coins and now ~= drink.coins then return strike(drink.coins, now, "💰") end
+	return "💰" .. now
+end
+
 local drinkTab = 1
 local function buildMenu()
 	drinkWindow.clear()
@@ -466,38 +489,38 @@ local function buildMenu()
 	local index = 0
 	for _, drink in ipairs(ClubConfig.Drinks) do
 		if drink.tier ~= drinkTab then continue end
-		index += 1
-		local name = (if drink.vipOnly then "👑 " else "") .. drink.name
-		if drink.tier == 1 then
-			local price = ClubConfig.coinPrice(drink, vip)
-			NeonShopUI.drinkCard(list, index, name, drink.color,
-				if price then ("🪙 " .. price .. " 코인") else "🪙 무료", NeonShopUI.COIN,
-				{ { "🛒 주문", NeonShopUI.CYAN, function() purchase(drink, "order") end } })
-		else
-			local buttons = {}
-			local priceText = ""
-			if drink.coins then
-				local price = ClubConfig.coinPrice(drink, vip) or 0
-				priceText = "🪙 " .. price
-				table.insert(buttons, { "🪙 " .. price, NeonShopUI.COIN, function() purchase(drink, "coins") end })
-			end
-			if drink.product then
-				local text: string
-				if drink.vipOnly then
-					text = if vip then ("R$" .. productPrice(drink.product)) else "🔒 VIP"
-				elseif vip and drink.vipProduct then
-					text = "R$" .. productPrice(drink.vipProduct)
-				else
-					text = "R$" .. productPrice(drink.product)
+		-- flavours listed one by one ("쨍팝 라임맛")
+		local flavours: {any} = drink.variants or { false }
+		for _, variant in ipairs(flavours) do
+			index += 1
+			local chosen = if variant then variant.key else nil
+			local color = if variant then variant.color else drink.color
+			local name = (if drink.vipOnly then "👑 " else "") .. drink.name .. (if variant then " " .. variant.name .. "맛" else "")
+			if drink.tier == 1 then
+				local price = ClubConfig.coinPrice(drink, vip)
+				NeonShopUI.drinkCard(list, index, name, color,
+					if price then ("💰 " .. price .. " 코인") else "💰 무료", NeonShopUI.COIN,
+					{ { "🛒 주문", NeonShopUI.CYAN, function() purchase(drink, "order", chosen) end } })
+			else
+				local buttons = {}
+				local parts = {}
+				if drink.coins then
+					table.insert(parts, coinText(drink, vip))
+					-- (the struck-through price is on the line above; the button shows what is paid)
+					table.insert(buttons, { "💰" .. (ClubConfig.coinPrice(drink, vip) or 0), NeonShopUI.COIN, function() purchase(drink, "coins", chosen) end })
 				end
-				priceText = (if priceText ~= "" then priceText .. " · " else "") .. text
-				table.insert(buttons, { text, if drink.vipOnly and not vip then NeonShopUI.GOLD else NeonShopUI.CYAN, function() purchase(drink, "robux") end })
+				if drink.product then
+					local paid = if drink.vipOnly or not (vip and drink.vipProduct) then drink.product else drink.vipProduct
+					local text = if drink.vipOnly and not vip then "🔒 VIP" else "R$" .. productPrice(paid)
+					table.insert(parts, robuxText(drink, vip))
+					table.insert(buttons, { text, if drink.vipOnly and not vip then NeonShopUI.GOLD else NeonShopUI.CYAN, function() purchase(drink, "robux", chosen) end })
+				end
+				NeonShopUI.drinkCard(list, index, name, color, table.concat(parts, " · "), if drink.vipOnly then NeonShopUI.GOLD else NeonShopUI.CYAN, buttons, drink.vipOnly)
 			end
-			NeonShopUI.drinkCard(list, index, name, drink.color, priceText, if drink.vipOnly then NeonShopUI.GOLD else NeonShopUI.CYAN, buttons, drink.vipOnly)
 		end
 	end
-	drinkNote.Text = if vip then "👑 VIP: 2단계 코인·3단계 Robux 20% 할인 · 골목 공방 소다"
-		else "✦ 👑 VIP는 일부 음료 20% 할인 + VIP 전용 음료 ✦"
+	drinkNote.Text = if vip then "👑 VIP 할인가로 보여요 · 2단계 코인·3단계 Robux 20% 할인"
+		else "✦ 👑 VIP는 2·3단계 음료 20% 할인 + VIP 전용 음료 ✦"
 end
 drinkWindow.onTab(function(i)
 	drinkTab = i
@@ -534,7 +557,7 @@ local function buildItemShop()
 	local function nextOrder() order += 1 return order end
 	local function passRows()
 		NeonShopUI.wideRow(list2, nextOrder(), "🎧", string.format("DJ %d분 이용권", MonetizationConfig.DJMinutes),
-			"클럽 DJ 부스를 쓸 수 있어요 · " .. djStatusLine(), "R$" .. productPrice("DJ"), C, function() buyProduct("DJ") end)
+			string.format("클럽 DJ 부스를 %d분 동안 쓸 수 있어요.", MonetizationConfig.DJMinutes), "R$" .. productPrice("DJ"), C, function() buyProduct("DJ") end)
 		local pass = MonetizationConfig.GamePasses.VIP
 		NeonShopUI.wideRow(list2, nextOrder(), "👑", "VIP 패스", "클럽 2층 VIP 라운지에 언제든 들어갈 수 있어요.",
 			if vip then "보유 중" else ("R$" .. pass.price), M, function()
@@ -564,12 +587,9 @@ local function buildItemShop()
 			rs("ColdSpark"), if vip then nil else rs("ColdSpark_VIP"), "🛒 구매하기", C, function()
 				MessagePrompt.buy(sparkKey, "🎆 무대 콜드 스파크")
 			end)
-		passRows()
-	elseif itemTab == 2 then
-		NeonShopUI.note(list2, nextOrder(), "👑 VIP: 2층 VIP 라운지 · 음료 20% 할인 · VIP 전용 음료 · 버킷/콜드 스파크 VIP가", NeonShopUI.GOLD)
-		passRows()
 	else
-		NeonShopUI.note(list2, nextOrder(), "🎧 " .. djStatusLine(), C)
+		-- (VIP and DJ in one tab, two rows: user 2026-10-28 (3))
+		NeonShopUI.note(list2, nextOrder(), "👑 VIP: 2층 VIP 라운지 · 음료 20% 할인 · VIP 전용 음료 · 버킷/콜드 스파크 VIP가", NeonShopUI.GOLD)
 		passRows()
 	end
 end

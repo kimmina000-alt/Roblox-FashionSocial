@@ -264,8 +264,9 @@ local ASSET_SHAPE = {
 local DRAWN = { ginger_brew = "flask", monte = "flask", french_lemonade = "flask", golden_apple = "flask", zzang_pop = "flask",
 	hot_boost = "flask", green_claw = "flask", blue_wing = "flask", stack_hydro = "tall", pastel_splash = "tall", skull_water = "tall" }
 local LABEL = {
-	cider = "rbxassetid://76090799332033", cola = "rbxassetid://105988564393014", orange = "rbxassetid://75731418965949",
-	lemonade = "rbxassetid://92359712170086", blueade = "rbxassetid://72357102515026",
+	-- (cans v2 from the user's can photos, our own names: D-458)
+	cider = "rbxassetid://72459622959612", cola = "rbxassetid://130650620847806", orange = "rbxassetid://70964999671049",
+	lemonade = "rbxassetid://117252216706966", blueade = "rbxassetid://80978940776446",
 	ginger_brew = "rbxassetid://78161382486926", monte = "rbxassetid://111978227065988", french_lemonade = "rbxassetid://82834417286890",
 	golden_apple = "rbxassetid://138757272545670", zzang_pop = "rbxassetid://113640294515835", hot_boost = "rbxassetid://89899401494100",
 	green_claw = "rbxassetid://134976093090518", blue_wing = "rbxassetid://129850818133473",
@@ -532,6 +533,15 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 		-- painted: the picture on the mesh, no label parts (D-423)
 		-- (the VIP spade, monogram and plate are painted in relief too: no parts)
 		(skin :: SurfaceAppearance):Clone().Parent = p
+		if key == "pastel_splash" then
+			-- frosted and glowing (user 2026-10-28 (3)): a little see-through, a warm light inside
+			p.Transparency = 0.18
+			local light = Instance.new("PointLight")
+			light.Color = color
+			light.Brightness = 2
+			light.Range = 5 * s + 2
+			light.Parent = p
+		end
 	elseif spec[3] == "vip" then
 		vipDress(c, p, color, H, r * 0.93)
 	elseif spec[3] == "front" then
@@ -548,7 +558,13 @@ local function userMesh(c: Ctx, key: string, color: Color3): boolean
 	return true
 end
 
+-- tier-1 cans are drawn at a third of their old size (user 2026-10-28 (3)):
+-- BottleShapes.Height keeps the old height, so holders and hands only see a
+-- smaller can
+local CAN_SCALE = 1 / 3
+
 function BottleShapes.add(parent: Instance, base: CFrame, key: string, color: Color3, scale: number, weldTo: BasePart?): {BasePart}
+	if ASSET_SHAPE[key] == "Can" then scale *= CAN_SCALE end
 	local c: Ctx = { parent = parent, base = base, s = scale, weld = weldTo, parts = {} }
 	if userMesh(c, key, color) then
 		return c.parts

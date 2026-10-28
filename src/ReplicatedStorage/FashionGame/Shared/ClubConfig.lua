@@ -164,34 +164,34 @@ ClubConfig.Drinks = {
 	{ key = "blueade", name = "블루에이드", tier = 1, coins = 5, color = Color3.fromRGB(70, 160, 255), look = "사이다 페트병 · 파랑" },
 	-- tier 2: 💰100 or 10 R$
 	{ key = "ginger_brew", name = "진저 브루", tier = 2, coins = 100, product = "Drink_GingerBrew", -- Bundaberg
-		color = Color3.fromRGB(150, 92, 40), look = "둥근 어깨 호박색 유리병" },
+		color = Color3.fromRGB(240, 135, 75), look = "피치 오렌지 병 · 흰 글씨" }, -- (D-458: colours from the user's bottle photos)
 	{ key = "monte", name = "몬테 스파클링", tier = 2, coins = 100, product = "Drink_Monte", -- San Pellegrino
-		color = Color3.fromRGB(40, 125, 65), look = "둥근 어깨 초록 유리병 · 빨간 별" },
+		color = Color3.fromRGB(105, 165, 40), look = "라임 초록 병 · 연두 글씨" },
 	{ key = "french_lemonade", name = "프렌치 레모네이드", tier = 2, coins = 100, product = "Drink_FrenchLemonade", -- Lorina
-		color = Color3.fromRGB(250, 238, 165), look = "둥근 어깨 유리병 · 철사 마개" },
+		color = Color3.fromRGB(242, 214, 70), look = "시트론 노랑 병 · 흰 글씨" },
 	{ key = "golden_apple", name = "골든 애플 스파클링", tier = 2, coins = 100, product = "Drink_GoldenApple", -- Martinelli's
-		color = Color3.fromRGB(232, 172, 48), look = "둥근 어깨 황금색 유리병" },
+		color = Color3.fromRGB(238, 160, 40), look = "만다린 황금 병 · 흰 글씨" },
 	{ key = "zzang_pop", name = "쨍팝", tier = 2, coins = 100, product = "Drink_ZzangPop", -- Poppi
 		color = Color3.fromRGB(255, 90, 170), look = "가늘고 긴 반투명 병",
 		variants = {
-			{ key = "pink", name = "핑크", color = Color3.fromRGB(255, 90, 170) },
+			{ key = "pink", name = "딸기", color = Color3.fromRGB(200, 30, 95) },
 			{ key = "lime", name = "라임", color = Color3.fromRGB(170, 240, 60) },
 			{ key = "orange", name = "오렌지", color = Color3.fromRGB(255, 150, 40) },
 		} },
 	-- tier 2: 💰150 or 15 R$ (energy drinks)
 	{ key = "hot_boost", name = "핫부스트", tier = 2, coins = 150, product = "Drink_HotBoost", -- Hot6
-		color = Color3.fromRGB(255, 105, 30), look = "각진 사각 병 · 검은 라벨" },
+		color = Color3.fromRGB(225, 45, 60), look = "워터멜론 빨강 병 · 노랑 글씨" },
 	{ key = "green_claw", name = "그린 클로", tier = 2, coins = 150, product = "Drink_GreenClaw", -- Monster
-		color = Color3.fromRGB(28, 30, 28), look = "각진 사각 병 · 초록 라벨" },
+		color = Color3.fromRGB(120, 175, 55), look = "페어 초록 병 · 연두 글씨" },
 	{ key = "blue_wing", name = "블루 윙", tier = 2, coins = 150, product = "Drink_BlueWing", -- Red Bull
-		color = Color3.fromRGB(60, 95, 200), look = "각진 사각 병 · 은색 라벨" },
+		color = Color3.fromRGB(226, 234, 244), look = "투명 병 · 파란 글씨" },
 	-- tier 3: Robux only (VIP price products: 20% off)
 	{ key = "stack_hydro", name = "스택 하이드로", tier = 3, product = "Drink_StackHydro", vipProduct = "Drink_StackHydro_VIP", -- Cadence
-		color = Color3.fromRGB(40, 190, 70), look = "목이 긴 초록 유리병" },
+		color = Color3.fromRGB(196, 120, 40), look = "호박색 병 · 크림 라벨 · 꿀벌" },
 	{ key = "pastel_splash", name = "파스텔 스플래시", tier = 3, product = "Drink_PastelSplash", vipProduct = "Drink_PastelSplash_VIP", -- La Croix
-		color = Color3.fromRGB(250, 190, 222), look = "반투명 분홍 병 · 주황 캡 · 파스텔 라벨" },
+		color = Color3.fromRGB(245, 125, 60), look = "반투명 오렌지 병 · 흰 P · 은은한 빛" },
 	{ key = "skull_water", name = "스컬 캔 워터", tier = 3, product = "Drink_SkullWater", vipProduct = "Drink_SkullWater_VIP", -- Liquid Death
-		color = Color3.fromRGB(18, 18, 20), look = "검정 유리 스윙탑 병 · 금색 해골 라벨" },
+		color = Color3.fromRGB(18, 18, 20), look = "검정 스윙탑 병 · 은박 · 금색 해골 라벨" },
 	-- VIP only (D-274)
 	{ key = "golmok", name = "골목 공방 소다", tier = 3, vipOnly = true, product = "Drink_Golmok", -- On A Lark
 		-- (user photo 2026-10-27: the metallic champagne set's colours)

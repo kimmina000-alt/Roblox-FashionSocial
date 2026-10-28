@@ -181,7 +181,7 @@ end
 local function burn(parent: BasePart, base: Vector3, seconds: number)
 	local s = Instance.new("Part")
 	s.Name = "SparklerStick"
-	s.Size = Vector3.new(0.08, 1.1, 0.08)
+	s.Size = Vector3.new(0.04, 1.1, 0.04) -- (thinner, user 2026-10-28 (3))
 	s.Color = Color3.fromRGB(200, 200, 205)
 	s.Material = Enum.Material.Metal
 	s.Anchored = true
@@ -254,7 +254,7 @@ local function giveItem(player: Player, attribute: string, name: string, tip: st
 	if count then tool:SetAttribute("Count", count) end
 	local handle = Instance.new("Part")
 	handle.Name = "Handle"
-	handle.Size = if attribute == "Sparkler" then Vector3.new(0.12, 1.4, 0.12) else Vector3.new(1, 1, 1)
+	handle.Size = if attribute == "Sparkler" then Vector3.new(0.05, 1.4, 0.05) else Vector3.new(1, 1, 1)
 	handle.Color = color
 	handle.Material = Enum.Material.Metal
 	handle.CanCollide = false
@@ -290,7 +290,7 @@ local function grantBucket(player: Player, tablePart: BasePart): (boolean, strin
 	local bucket = Instance.new("Part")
 	bucket.Name = "SparklerBucket"
 	bucket.Shape = Enum.PartType.Cylinder
-	bucket.Size = Vector3.new(1.2, 1.5, 1.5)
+	bucket.Size = Vector3.new(1.2, 1.3, 1.3) -- (narrow foot; wider rings above: user 2026-10-28 (3))
 	bucket.CFrame = CFrame.new(tablePart.Position.X, top + 0.6, tablePart.Position.Z) * CFrame.Angles(0, 0, math.rad(90))
 	bucket.Color = Color3.fromRGB(200, 200, 208)
 	bucket.Material = Enum.Material.Metal
@@ -302,23 +302,41 @@ local function grantBucket(player: Player, tablePart: BasePart): (boolean, strin
 	local ice = Instance.new("Part")
 	ice.Name = "Ice"
 	ice.Shape = Enum.PartType.Cylinder
-	ice.Size = Vector3.new(0.1, 1.35, 1.35)
-	ice.CFrame = bucket.CFrame * CFrame.new(0.58, 0, 0)
+	ice.Size = Vector3.new(0.1, 1.45, 1.45)
+	ice.CFrame = bucket.CFrame * CFrame.new(0.4, 0, 0) -- (below the rim)
 	ice.Color = Color3.fromRGB(225, 240, 250)
 	ice.Material = Enum.Material.Glass
 	ice.Transparency = 0.2
 	ice.Anchored = true
 	ice.CanCollide = false
 	ice.Parent = bucket
+	-- the bucket opens up: wider rings toward the top (a stepped taper)
+	for i, ring in ipairs({ { -0.2, 0.1, 1.42 }, { 0.1, 0.35, 1.54 }, { 0.35, 0.6, 1.66 } }) do
+		local flare = Instance.new("Part")
+		flare.Name = "BucketFlare" .. i
+		flare.Shape = Enum.PartType.Cylinder
+		flare.Size = Vector3.new(ring[2] - ring[1], ring[3], ring[3])
+		flare.CFrame = bucket.CFrame * CFrame.new((ring[1] + ring[2]) / 2, 0, 0)
+		flare.Color = bucket.Color
+		flare.Material = bucket.Material
+		flare.Reflectance = bucket.Reflectance
+		flare.Anchored = true
+		flare.CanCollide = false
+		flare.CanQuery = false
+		flare.Parent = bucket
+	end
 	local canColors = { Color3.fromRGB(255, 90, 170), Color3.fromRGB(232, 172, 48), Color3.fromRGB(40, 125, 65) }
 	for i, color in ipairs(canColors) do
 		local angle = (i - 1) * math.pi * 2 / 3
 		local can = Instance.new("Part")
 		can.Name = "Can"
 		can.Shape = Enum.PartType.Cylinder
-		can.Size = Vector3.new(0.9, 0.36, 0.36)
-		can.CFrame = CFrame.new(bucket.Position + Vector3.new(math.cos(angle) * 0.38, 0.55, math.sin(angle) * 0.38))
-			* CFrame.Angles(0, 0, math.rad(80))
+		can.Size = Vector3.new(1.05, 0.3, 0.3)
+		-- the bottles lean out of the ice, away from the middle
+		local out = Vector3.new(math.cos(angle), 0, math.sin(angle))
+		local tangent = Vector3.new(-out.Z, 0, out.X)
+		can.CFrame = CFrame.new(bucket.Position + out * 0.42 + Vector3.new(0, 0.62, 0))
+			* CFrame.fromAxisAngle(tangent, math.rad(-28)) * CFrame.Angles(0, 0, math.rad(90))
 		can.Color = color
 		can.Material = Enum.Material.Metal
 		can.Anchored = true
@@ -707,7 +725,7 @@ local function grantHandSparkler(player: Player): (boolean, string?)
 	-- the coated part that burns (grey), on top of the wire
 	local stick = Instance.new("Part")
 	stick.Name = "Stick"
-	stick.Size = Vector3.new(0.12, STICK, 0.12)
+	stick.Size = Vector3.new(0.05, STICK, 0.05)
 	stick.Color = Color3.fromRGB(120, 116, 110)
 	stick.Material = Enum.Material.Concrete
 	stick.CanCollide = false

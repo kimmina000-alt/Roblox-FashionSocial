@@ -183,8 +183,39 @@ local function giveCup(player: Player, drinkKey: string, variantKey: any?): (boo
 	tool.ToolTip = "클릭(터치)해서 마시기"
 	tool.CanBeDropped = false
 	tool:SetAttribute("Cup", drink.key)
-	local handle = makeHandle(Vector3.new(0.6, 0.8, 0.6), color, 0.05)
+	-- a clear plastic club tumbler (user 2026-10-28 (3)): wide at the top,
+	-- narrow at the foot (stacked rings), the drink inside, ice on top
+	local handle = makeHandle(Vector3.new(0.5, 0.85, 0.5), color, 1)
 	handle.Parent = tool
+	local function ring(name: string, y0: number, y1: number, d: number, c: Color3, material: Enum.Material, transparency: number)
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Shape = Enum.PartType.Cylinder
+		p.Size = Vector3.new(y1 - y0, d, d)
+		p.Color = c
+		p.Material = material
+		p.Transparency = transparency
+		p.CanCollide = false
+		p.CanQuery = false
+		p.Massless = true
+		p.CFrame = handle.CFrame * CFrame.new(0, (y0 + y1) / 2 - 0.425, 0) * CFrame.Angles(0, 0, math.rad(90))
+		local weld = Instance.new("WeldConstraint")
+		weld.Part0 = handle
+		weld.Part1 = p
+		weld.Parent = p
+		p.Parent = handle
+		return p
+	end
+	local CLEAR = Color3.fromRGB(235, 245, 255)
+	local steps = 4
+	for i = 1, steps do
+		local y0, y1 = (i - 1) * 0.85 / steps, i * 0.85 / steps
+		local d = 0.42 + 0.16 * (i - 0.5) / steps
+		ring("CupWall" .. i, y0, y1, d, CLEAR, Enum.Material.Glass, 0.55)
+		if y1 <= 0.7 then ring("CupDrink" .. i, math.max(y0, 0.04), y1, d - 0.06, color, Enum.Material.Glass, 0.1) end
+	end
+	ring("CupRim", 0.82, 0.86, 0.6, CLEAR, Enum.Material.SmoothPlastic, 0.2)
+	ring("CupIce", 0.66, 0.72, 0.46, Color3.fromRGB(245, 250, 255), Enum.Material.Ice, 0.25)
 	local gulp = Instance.new("Sound")
 	gulp.Name = "Gulp"
 	gulp.SoundId = "rbxassetid://" .. tostring(ClubConfig.GulpSoundId)

@@ -837,7 +837,10 @@ local function layoutShoot()
 	-- pose and prop panels are short separate popups at the top beside the
 	-- window (they scroll), so the bottom corners stay free for the move stick
 	-- and the jump button (user mock-up 2026-10-26)
-	local panelH = math.min(h, 34 * 3 + 4 * 2 + 40)
+	-- (on a PC, without the touch controls, they run the window's full height:
+	-- user 2026-10-28 (3))
+	local touch = game:GetService("UserInputService").TouchEnabled
+	local panelH = if touch then math.min(h, 34 * 3 + 4 * 2 + 40) else h
 	posePanel.Position = UDim2.fromOffset(x - panelW - 10, y)
 	posePanel.Size = UDim2.fromOffset(panelW, panelH)
 	propPanel.Position = UDim2.fromOffset(x + w + 10, y)
