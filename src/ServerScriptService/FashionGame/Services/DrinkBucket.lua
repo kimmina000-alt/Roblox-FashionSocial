@@ -92,6 +92,10 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		p.Size = Vector3.new(D_TOP, H_PAIL, D_TOP)
 		p.CFrame = at * CFrame.new(0, H_PAIL / 2, 0) * mesh.CFrame.Rotation
 		p.Name = "Pail"
+		-- brushed aluminium (user 2026-10-28 (6))
+		p.Material = Enum.Material.Metal
+		p.Color = Color3.fromRGB(150, 155, 163)
+		p.Reflectance = 0.6
 		p.Anchored, p.CanCollide, p.CanTouch, p.CastShadow = true, false, false, false
 		p.Parent = m
 	else
@@ -100,7 +104,7 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 			p.Reflectance = 0.25
 		end
 	end
-	-- glowing ice down in the lower half of the pail (user 2026-10-28 (5))
+	-- glowing ice up to about two thirds of the pail (user 2026-10-28 (6))
 	local rnd = Random.new(7)
 	local glowIce = glow == "ice"
 	for i = 1, 18 do
@@ -108,7 +112,7 @@ function DrinkBucket.iceBucket(m: Instance, at: CFrame, bottles: {{ key: string,
 		local r = rnd:NextNumber(0, 0.6)
 		local s = rnd:NextNumber(0.24, 0.34)
 		local cube = part(m :: Model, "IceCube", Vector3.new(s, s, s),
-			at * CFrame.new(math.cos(a) * r, H_PAIL * 0.3 + rnd:NextNumber(0, H_PAIL * 0.3), math.sin(a) * r)
+			at * CFrame.new(math.cos(a) * r, H_PAIL * 0.45 + rnd:NextNumber(0, H_PAIL * 0.22), math.sin(a) * r)
 				* CFrame.Angles(rnd:NextNumber(0, 1), rnd:NextNumber(0, 3), rnd:NextNumber(0, 1)),
 			if glowIce then Color3.fromRGB(220, 240, 255) else ICE, if glowIce then Enum.Material.Neon else Enum.Material.Glass, if glowIce then 0.45 else 0.35)
 		if glowIce and i == 1 then light(cube, Color3.fromRGB(200, 230, 255), 7, 1.6) end

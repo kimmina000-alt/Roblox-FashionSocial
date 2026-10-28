@@ -32,17 +32,31 @@ function Can($name, $draw) {
   $up.RotateFlip([System.Drawing.RotateFlipType]::Rotate90FlipNone); $g2.DrawImage($up, 0, 328, 435, 696)
   $g2.Dispose(); $up.Dispose(); $canBmp.Save((Join-Path $Out "$name.png")); $canBmp.Dispose()
 }
-# 콜라: red, a white ribbon wave, white script name, small print
-Can 'can_cola' { param($g)
-  $g.Clear((C 255 205 18 30))
-  $pts = @(); for ($x = -20; $x -le $RW + 20; $x += 10) { $pts += New-Object System.Drawing.PointF $x, (300 + 26 * [math]::Sin($x / $RW * 3 * [math]::PI)) }
-  $g.DrawCurve((Pn (C 255 255 255 255) 26), [System.Drawing.PointF[]]$pts)
-  $g.FillRectangle((Br (C 255 255 255 255)), 0, 395, $RW, 40)
-  Txt $g '콜라' 'Nanum Brush Script' 0 210 ($RW / 2) 170 300 (C 255 255 255 255) $null 0
-  Txt $g 'ORIGINAL TASTE' 'Segoe UI Black' 0 30 ($RW / 2) 360 260 (C 255 255 255 255) $null 0
-  Txt $g 'OHU · 355ml' 'Malgun Gothic' 1 20 ($RW / 2) 415 200 (C 255 205 18 30) $null 0
+# 콜라 v3 (user layout 2026-10-28 (6), our words): deep red with cold drops,
+# a big white script name tilted up with a swoosh under it, a round badge
+function Drops($g, $seed) {
+  $rnd = New-Object System.Random $seed
+  for ($i = 0; $i -lt 260; $i++) {
+    $x = $rnd.Next(0, $RW); $y = $rnd.Next(0, $RH); $s = $rnd.Next(5, 15)
+    $g.FillEllipse((Br (C 60 255 255 255)), $x, $y, $s, $s * 1.2)
+    $g.FillEllipse((Br (C 90 0 0 0)), $x + $s * 0.15, $y + $s * 0.7, $s * 0.7, $s * 0.4)
+    $g.FillEllipse((Br (C 200 255 255 255)), $x + $s * 0.25, $y + $s * 0.2, $s * 0.3, $s * 0.3)
+  }
 }
-# 사이다: green, a pale diagonal band, a dark stripe, white name (sparkles, no star logo)
+Can 'can_cola' { param($g)
+  $bg = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.Rectangle 0, 0, $RW, $RH), (C 255 150 10 25), (C 255 205 25 40), 0
+  $bg.SetSigmaBellShape(0.5); $g.FillRectangle($bg, 0, 0, $RW, $RH)
+  Drops $g 11
+  $st = $g.Save(); $g.TranslateTransform($RW / 2, 150); $g.RotateTransform(-12)
+  Txt $g '콜라' 'Nanum Brush Script' 0 230 0 -10 330 (C 255 255 255 255) (C 120 90 0 10) 6
+  $g.Restore($st)
+  $pts = [System.Drawing.PointF[]]@((New-Object System.Drawing.PointF 140, 285), (New-Object System.Drawing.PointF 330, 250), (New-Object System.Drawing.PointF 560, 140))
+  $g.DrawCurve((Pn (C 255 255 255 255) 7), $pts)
+  Txt $g 'OHU · since 2026' 'Segoe UI Black' 0 22 470 210 180 (C 255 255 255 255) $null 0
+  $g.DrawEllipse((Pn (C 255 255 255 255) 6), 230, 300, 120, 120); $g.DrawEllipse((Pn (C 255 255 255 255) 3), 245, 315, 90, 90)
+  Txt $g 'OHU' 'Georgia' 1 40 290 360 70 (C 255 255 255 255) $null 0
+  Txt $g '355ml' 'Segoe UI Black' 0 18 620 410 90 (C 255 255 255 255) $null 0
+}# 사이다: green, a pale diagonal band, a dark stripe, white name (sparkles, no star logo)
 Can 'can_cider' { param($g)
   $g.Clear((C 255 22 120 60))
   $g.FillPolygon((Br (C 255 210 225 215)), [System.Drawing.PointF[]]@((New-Object System.Drawing.PointF 380, 0), (New-Object System.Drawing.PointF 520, 0), (New-Object System.Drawing.PointF 300, 435), (New-Object System.Drawing.PointF 160, 435)))
@@ -63,20 +77,28 @@ Can 'can_orange' { param($g)
   $g.FillEllipse((Br (C 160 255 255 255)), 470, 240, 40, 22); $g.FillEllipse((Br (C 160 255 255 255)), 290, 360, 30, 16)
   Txt $g '오렌지' 'NanumSquare ExtraBold' 0 44 210 300 160 (C 255 255 255 255) $null 0
 }
-# 레몬에이드: yellow, lemons and leaves, a green-edged oval with a script name
+# 레몬에이드 v3 (user layout 2026-10-28 (6), our words): yellow with cold
+# drops, a tilted lemon-shaped label with a green edge and a script name, two
+# lemons with leaves under it
 Can 'can_lemonade' { param($g)
-  $g.Clear((C 255 250 220 40))
-  $rnd = New-Object System.Random 5
-  for ($i = 0; $i -lt 7; $i++) {
-    $x = $rnd.Next(0, 640); $y = $rnd.Next(230, 400)
-    $g.FillEllipse((Br (C 255 245 200 20)), $x, $y, 90, 64); $g.DrawEllipse((Pn (C 255 200 150 10) 3), $x, $y, 90, 64)
-    $g.FillEllipse((Br (C 255 90 150 40)), $x + 60, $y - 20, 46, 22)
+  $bg = New-Object System.Drawing.Drawing2D.LinearGradientBrush (New-Object System.Drawing.Rectangle 0, 0, $RW, $RH), (C 255 225 190 0), (C 255 255 235 40), 0
+  $bg.SetSigmaBellShape(0.5); $g.FillRectangle($bg, 0, 0, $RW, $RH)
+  Drops $g 23
+  $leaf = { param($x, $y, $rot) $st = $g.Save(); $g.TranslateTransform($x, $y); $g.RotateTransform($rot); $g.FillEllipse((Br (C 255 60 150 60)), -34, -14, 68, 28); $g.DrawEllipse((Pn (C 255 20 60 20) 4), -34, -14, 68, 28); $g.DrawLine((Pn (C 255 20 60 20) 2), -30, 0, 30, 0); $g.Restore($st) }
+  foreach ($l in @(@(250, 90, -30), @(470, 120, 20), @(300, 330, -10), @(420, 300, 30), @(250, 400, 40))) { & $leaf $l[0] $l[1] $l[2] }
+  foreach ($lm in @(@(270, 300), @(400, 330))) {
+    $g.FillEllipse((Br (C 255 255 240 30)), $lm[0], $lm[1], 150, 100); $g.DrawEllipse((Pn (C 255 30 30 20) 4), $lm[0], $lm[1], 150, 100)
+    $g.FillEllipse((Br (C 200 255 255 255)), $lm[0] + 30, $lm[1] + 15, 40, 18)
   }
-  $g.FillEllipse((Br (C 255 255 250 210)), 150, 40, 400, 200); $g.DrawEllipse((Pn (C 255 70 140 40) 10), 150, 40, 400, 200)
-  Txt $g 'Lemonade' 'Segoe Script' 1 90 350 135 340 (C 255 50 120 40) $null 0
-  Txt $g '레몬에이드' 'NanumSquare ExtraBold' 0 30 350 200 200 (C 255 70 140 40) $null 0
-}
-# 블루에이드: blue, big yellow Korean name, lemon slices round it
+  $st = $g.Save(); $g.TranslateTransform($RW / 2, 175); $g.RotateTransform(-18)
+  $g.FillEllipse((Br (C 255 70 175 50)), -175, -95, 350, 190)
+  $g.FillEllipse((Br (C 255 255 245 120)), -160, -82, 320, 164)
+  Txt $g 'Hongdae' 'Segoe Script' 1 40 -20 -40 200 (C 255 120 80 20) $null 0
+  Txt $g 'Lemonade' 'Segoe Script' 1 80 0 15 300 (C 255 255 255 255) (C 255 30 30 20) 9
+  Txt $g 'lemon sparkling · 레몬에이드' 'Malgun Gothic' 1 18 10 62 220 (C 255 60 130 30) $null 0
+  $g.Restore($st)
+  Txt $g 'OHU · 355ml' 'Segoe UI Black' 0 20 ($RW / 2) 418 160 (C 255 40 40 30) $null 0
+}# 블루에이드: blue, big yellow Korean name, lemon slices round it
 Can 'can_blueade' { param($g)
   $g.Clear((C 255 30 95 200))
   $rnd = New-Object System.Random 9
