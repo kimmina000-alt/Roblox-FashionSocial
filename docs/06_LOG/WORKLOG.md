@@ -2566,3 +2566,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-557: ![](images/2026-10-30/ohu4cut_mirror_thinner.jpg)
 - D-558: ![](images/2026-10-30/ohu4cut_mirror_thinner2.jpg)
 - D-559: ![](images/2026-10-30/ohu4cut_mirror_smooth.jpg)
+- D-560: ![](images/2026-10-30/ohu4cut_booth_floor_clean.jpg)

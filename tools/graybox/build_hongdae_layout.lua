@@ -5708,8 +5708,14 @@ do
 	box("Plinth", W0 + CH, 0, S0 - CH, W1, F - 0.4, S0, GRANITE, opt({ material = Enum.Material.Granite }))
 	cutPart("Plinth", CH * math.sqrt(2), 0, F - 0.4, depthIn, -depthIn / 2, GRANITE, opt({ material = Enum.Material.Granite }))
 	local tileOpt = opt({ material = Enum.Material.CeramicTiles })
-	box("ShopFloor", W0, F - 0.4, N0, W1, F, S0 - CH, FLOOR_COL, tileOpt)
-	box("ShopFloor", W0 + CH, F - 0.4, S0 - CH, W1, F, S0, FLOOR_COL, tileOpt)
+	-- (not under the SKY / PINK rooms, east of the booth wall FX and south of
+	-- their front wall at z -79: the rooms' own floor sat 0.03 over it and
+	-- flickered, user 2026-10-30)
+	local ROOMS_N = -79
+	box("ShopFloor", W0, F - 0.4, N0, W1, F, ROOMS_N, FLOOR_COL, tileOpt)
+	box("ShopFloor", W0, F - 0.4, ROOMS_N, FX + 1, F, S0 - CH, FLOOR_COL, tileOpt)
+	box("ShopFloor", W0 + CH, F - 0.4, S0 - CH, FX + 1, F, S0, FLOOR_COL, tileOpt)
+	box("RoomsFloorBase", FX + 1, F - 0.4, ROOMS_N, W1, F - 0.2, S0, FLOOR_COL, opt({})) -- (solid ground under the rooms' floors, no texture)
 	cutPart("ShopFloor", CH * math.sqrt(2), F - 0.4, F, depthIn, -depthIn / 2, FLOOR_COL, tileOpt)
 	-- white octagon tiles with navy dots on a 45° grid (user photo 2026-10-30,
 	-- docs/04_ART/references/ohu4cut_floor_octagon_tile.jpg): one image texture
