@@ -25,7 +25,7 @@
 | 9 | 발 씻는 곳 물 | 9117941569 | Puddle Impact Big Puddle Splash Footsteps 12 (Pro Sound Effects) | 같은 파일 `WASH_ID` | |
 | 10 | 발 씻는 곳 수도꼭지 물줄기 | 9119158299 | Sink Sprayer Spray Into Kitchen Sink 13 (Pro Sound Effects) | `tools/graybox/build_hongdae_layout.lua` (발 씻는 곳 부분) | |
 | 11 | 모래 위 발소리 사각사각 | 98912102275037 | Sand Footstep (Creator Store) | `src/StarterPlayer/StarterPlayerScripts/FashionGame/FootstepsController.client.lua` `SETS.sand` | |
-| 11a | 모래·물을 뺀 모든 바닥 발소리 (잔디·흙·나무·돌·타일·아스팔트·대리석) | 132221529613537 | 사용자 지정 (2026-10-29) | 같은 파일 `SETS.ground` | 11b·11c 대신 |
+| 11a | 모래·물을 뺀 모든 바닥 발소리 (잔디·흙·나무·돌·타일·아스팔트·대리석) | 로블록스 기본 rbxasset://sounds/action_footsteps_plastic.mp3 | 사용자 지정 (2026-10-30, D-521; 이전 132221529613537) | RbxCharacterSounds "Running" (모래에서만 끔) | 11b·11c 대신 |
 | 11d | 점프 후 착지 (그 바닥 발소리를 1.5배 크게) | 11·11a와 같음 | | 같은 파일 | |
 | 11e | 포토부스 사진 찍을 때 찰칵 (새로 넣음) | 17208312548 | Roblox GUI - Camera Shutter | `src/StarterPlayer/StarterPlayerScripts/FashionGame/PhotoBoothController.client.lua` `boothSound.shutter` | |
 | 11f | 포토부스 카운트다운 3·2·1 삑 (새로 넣음) | 9118777239 | Scanner Beeps 5 (Pro Sound Effects) | 같은 파일 `boothSound.tick` | |

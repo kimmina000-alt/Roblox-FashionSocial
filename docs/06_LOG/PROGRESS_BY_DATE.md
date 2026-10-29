@@ -258,3 +258,4 @@
 ## 2026-10-30
 - 모바일 2인 테스트 통과(10-29 작업 전체: 버킷·카페 음식·국밥·의자·계단·튜브·엘리베이터·발소리).
 - feat/night-entry-1026 → catalog-ui-redesign 병합(fast-forward, D-520까지).
+- 모래·물 외 바닥 발소리를 로블록스 기본 소리로 되돌림(D-521, feat/footstep-default-1030).

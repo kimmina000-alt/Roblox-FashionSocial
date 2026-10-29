@@ -2,11 +2,9 @@
 -- Footsteps by floor material (user 2026-10-27, replaces the sand-only
 -- SandStepsController of 2026-10-26). Roblox's own footstep (RbxCharacterSounds
 -- "Running") is one plastic loop for every floor, sped up and slowed down
--- with the walk speed, which is why walking and running sounded odd: it is
--- muted, and every character near the camera makes one step sound per stride
--- instead, picked by the floor under it: grass rustles on grass and ground,
--- sand, wood on decks and stairs, hard soles on stone, tiles, asphalt and the
--- rest. Walking (16, or slower with the phone stick half tilted) = soft
+-- with the walk speed. Since 2026-10-30 it plays on every floor except sand;
+-- on sand it is muted and every character near the camera makes one sand
+-- step per stride instead. Walking (16, or slower with the phone stick half tilted) = soft
 -- steps, running (SprintController, 26) = heavier, quicker steps. Landing from a jump plays a firmer step. Jumping,
 -- falling, climbing and swimming keep Roblox's own sounds.
 -- Sound list: docs/04_ART/SOUNDS.md.
@@ -15,19 +13,20 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 -- several takes per surface, picked in turn so the steps do not repeat
--- (user 2026-10-29: one step sound for every floor except sand and water,
--- 132221529613537; sand keeps its own)
+-- (user 2026-10-30: every floor except sand and water uses Roblox's own
+-- footstep again, rbxasset://sounds/action_footsteps_plastic.mp3, so only
+-- sand is played here and the "Running" loop is muted on sand only)
 local SETS: {[string]: { ids: {string}, volume: number }} = {
 	sand = { volume = 0.55, ids = { "rbxassetid://98912102275037" } }, -- "Sand Footstep" (Creator Store)
-	ground = { volume = 0.5, ids = { "rbxassetid://132221529613537" } }, -- the user's footstep
 }
 local SURFACE: {[Enum.Material]: string} = {
 	[Enum.Material.Sand] = "sand",
-}local NEAR = 60
+}
+local NEAR = 60
 local STRIDE = 5.2 -- studs a step (full speed 16 → about 3 steps a second)
 local RUN_SPEED = 20 -- at or above this the steps are a run (SprintController: walk 16, run 26)
 
-type Walker = { nextAt: number, turn: number, sounds: {[string]: Sound}, running: Sound?, wasAir: boolean }
+type Walker = { nextAt: number, turn: number, sounds: {[string]: Sound}, running: Sound?, runVolume: number, wasAir: boolean }
 local walkers: {[Model]: Walker} = {}
 
 local function soundFor(w: Walker, root: BasePart, key: string): Sound
@@ -66,20 +65,27 @@ RunService.Heartbeat:Connect(function()
 		if not character or not humanoid or not root or not root:IsA("BasePart") then continue end
 		local w = walkers[character]
 		if not w then
-			w = { nextAt = 0, turn = math.random(1, 4), sounds = {}, wasAir = false }
+			w = { nextAt = 0, turn = math.random(1, 4), sounds = {}, runVolume = 0, wasAir = false }
 			walkers[character] = w
 			character.Destroying:Connect(function() walkers[character] = nil end)
 		end
-		-- Roblox's one-for-all footstep loop stays silent
-		local running = w.running or root:FindFirstChild("Running")
-		if running and running:IsA("Sound") then
-			w.running = running
-			if running.Volume ~= 0 then running.Volume = 0 end
-		end
-		if (root.Position - camera.CFrame.Position).Magnitude > NEAR then continue end
 		local floor = humanoid.FloorMaterial
 		local inAir = floor == Enum.Material.Air
-		local surface = SURFACE[floor] or "ground"
+		local surface = SURFACE[floor]
+		-- Roblox's own footstep loop plays everywhere except on sand
+		local running = w.running or root:FindFirstChild("Running")
+		if running and running:IsA("Sound") then
+			if not w.running then
+				w.running = running
+				w.runVolume = running.Volume
+			end
+			local want = if surface then 0 else w.runVolume
+			if running.Volume ~= want then running.Volume = want end
+		end
+		if not surface or (root.Position - camera.CFrame.Position).Magnitude > NEAR then
+			w.wasAir = inAir
+			continue
+		end
 		-- landing: one firm step on whatever is underneath
 		if w.wasAir and not inAir and humanoid:GetState() ~= Enum.HumanoidStateType.Swimming and floor ~= Enum.Material.Water then
 			step(w, root, surface, 1.5)

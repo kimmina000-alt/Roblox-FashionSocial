@@ -990,3 +990,5 @@ D-518 — (2026-10-29 (36), user) Names: VIP bucket 1 = the gold tray (vipTray '
 D-519 — (2026-10-29 (37), user) Strawberry parfait 1.5x in the hand (FoodShapes ASSET_FOODS parfait 1.25 -> 1.875 studs tall).
 
 D-520 — (2026-10-29 (38), user) Footsteps on every floor except sand and water use the user's sound 132221529613537 (FootstepsController SETS.ground; the grass / wood / hard sets are gone); sand keeps 98912102275037, water keeps Roblox's swim sounds. SOUNDS.md 11a.
+
+D-521 — (2026-10-30, user) Footsteps on every floor except sand and water go back to Roblox's own sound (RbxCharacterSounds "Running", rbxasset://sounds/action_footsteps_plastic.mp3); FootstepsController now mutes that loop only on sand and plays the sand steps there. 132221529613537 is no longer used (replaces D-520). SOUNDS.md 11a.
