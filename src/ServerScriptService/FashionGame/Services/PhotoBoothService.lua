@@ -1020,16 +1020,14 @@ local function wallPost(player: Player, payload: any): (boolean, string?)
 	return true, "포토월에 붙였어요!"
 end
 
--- Studio only (user 2026-10-30: "포토월 테스트하게 사진 세 개 정도"): three
--- sample photos on the walls, made from the first player's outfit standing on
--- a booth's stand, so the walls can be checked without shooting first. Marked
--- test: never saved.
-local seeded = false
-local function seedWall(player: Player)
-	if seeded or #wallEntries > 0 then return end
+-- Studio only (user 2026-10-30: "포토월에 사진 붙여 놓지 말고 사진 아이템을
+-- 인벤토리에 3개"): three sample photos made from the player's outfit on a
+-- booth's stand, in the album (so 사진 붙이기 finds them) and in the backpack.
+-- Marked test; topped up to three per player, never more.
+local function seedPhotos(player: Player)
 	local character = player.Character or player.CharacterAdded:Wait()
 	local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid?
-	if not humanoid or seeded or #wallEntries > 0 then return end
+	if not humanoid then return end
 	local booth, stand
 	for _, b in ipairs(CollectionService:GetTagged("PhotoBooth")) do
 		if b:IsA("Model") and b:IsDescendantOf(workspace) and part(b, "Stand") then booth, stand = b, part(b, "Stand") break end
@@ -1037,14 +1035,15 @@ local function seedWall(player: Player)
 	if not booth or not stand then return end
 	local ok, outfit = pcall(function() return OutfitSnapshot.encode(humanoid:GetAppliedDescription()) end)
 	if not ok then return end
-	seeded = true
+	local have = {}
+	local _, album = playerData.GetPhotos(player)
+	for _, photo in ipairs(if typeof(album) == "table" then album else {}) do
+		if typeof(photo) == "table" and photo.test then table.insert(have, photo) end
+	end
 	local y = -stand.Size.Y / 2 + 3.1
-	local samples = {
-		{ wall = "SHOP", u = 0.3, v = 0.5, layout = "1x4", frame = "black" },
-		{ wall = "SHOP", u = 0.7, v = 0.45, layout = "2x2", frame = "white" },
-		{ wall = "SHOP2", u = 0.5, v = 0.5, layout = "1x4", frame = "gray" },
-	}
-	for i, s in ipairs(samples) do
+	local samples = { { layout = "1x4", frame = "black" }, { layout = "2x2", frame = "white" }, { layout = "1x4", frame = "gray" } }
+	for i = #have + 1, #samples do
+		local s = samples[i]
 		local shots = {}
 		for k = 1, 4 do
 			table.insert(shots, { people = { { u = player.UserId, x = (k - 2.5) * 0.6, y = y, z = 0, r = (k - 2.5) * 0.25, p = {} } } })
@@ -1052,6 +1051,7 @@ local function seedWall(player: Player)
 		local photo = {
 			id = HttpService:GenerateGUID(false),
 			v = 1,
+			test = true,
 			createdAt = os.time(),
 			layout = s.layout,
 			frame = s.frame,
@@ -1059,12 +1059,23 @@ local function seedWall(player: Player)
 			people = { { u = player.UserId, n = player.DisplayName, o = outfit } },
 			shots = shots,
 		}
-		local entry: WallEntry = { id = photo.id, wall = s.wall, u = s.u, v = s.v, by = "테스트", at = now() + i * 0.001, photo = photo, test = true }
-		table.insert(wallEntries, entry)
-		if event then event:FireAllClients("WallAdd", entry) end
+		-- (one save at a time: wait for the previous one)
+		for _ = 1, 20 do
+			local saved = playerData.SavePhoto(player, photo)
+			if saved then table.insert(have, photo) break end
+			task.wait(1)
+		end
+	end
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if not backpack then return end
+	for _, photo in ipairs(have) do
+		local inBag = false
+		for _, tool in ipairs(photoTools(player)) do
+			if tool:GetAttribute("PhotoId") == photo.id then inBag = true end
+		end
+		if not inBag and #photoTools(player) < 3 then buildPhotoTool(photo).Parent = backpack end
 	end
 end
-
 local function setupWall(wall: Instance)
 	if not wall:IsA("BasePart") or wall:FindFirstChild("WallPrompt") then return end
 	local prompt = Instance.new("ProximityPrompt")
@@ -1188,9 +1199,9 @@ function PhotoBoothService.Start(dataService: any)
 	CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(setupWall)
 	task.spawn(loadWall)
 	if game:GetService("RunService"):IsStudio() then
-		task.delay(3, function() -- (after the saved wall has loaded)
-			for _, p in ipairs(Players:GetPlayers()) do task.spawn(seedWall, p) end
-			Players.PlayerAdded:Connect(function(p) task.spawn(seedWall, p) end)
+		task.delay(3, function() -- (sample photos for testing, Studio only)
+			for _, p in ipairs(Players:GetPlayers()) do task.spawn(seedPhotos, p) end
+			Players.PlayerAdded:Connect(function(p) task.spawn(seedPhotos, p) end)
 		end)
 	end
 	game:BindToClose(function()

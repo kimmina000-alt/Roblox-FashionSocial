@@ -6298,7 +6298,7 @@ do
 
 	---------------------------------------------------------------- north wall: photo wall + props niches
 	local PHOTO_X = (FIN1 + FIN2) / 2
-	local NW, NH = 9, 13.5 -- props niches
+	local NW, NH = 7.5, 13.5 -- props niches (four since 2026-10-30: 9 → 7.5 wide)
 	-- the photo wall's recess: as tall as the props niches, a rounded rectangle
 	-- (user photo 2026-10-30: was a tall arch)
 	local PHW, PHH, PHR = 28.5, NH, 3
@@ -6332,12 +6332,25 @@ do
 		end
 		part("NicheRim", Vector3.new(w - 2 * r + 0.05, th, depth), CFrame.fromMatrix(c + Vector3.new(0, h - th / 2, 0), along, Vector3.yAxis), color, op)
 	end
+	-- props: two niches either side of the pill mirror, one even gap between
+	-- them all and at the east end; the first niche stands as far from the
+	-- white pillar as the photo wall's recess does (user 2026-10-30)
 	local NICHES, MIRROR_X
 	do
-		local x0, x1, MWID = FIN2 + 0.5, IN_E, 4.4
-		local gap = (x1 - x0 - 2 * NW - MWID) / 4
-		NICHES = { x0 + gap + NW / 2, x1 - gap - NW / 2 }
-		MIRROR_X = (NICHES[1] + NICHES[2]) / 2
+		local MWID = 4.4
+		local pillarGap = (FIN2 - 1.5) - (PHOTO_X + PHW / 2)
+		local x0, x1 = FIN2 + 1.5 + pillarGap, IN_E
+		local g = (x1 - x0 - 4 * NW - MWID) / 5
+		NICHES = {}
+		local x = x0
+		for i = 1, 4 do
+			table.insert(NICHES, x + NW / 2)
+			x += NW + g
+			if i == 2 then
+				MIRROR_X = x + MWID / 2
+				x += MWID + g
+			end
+		end
 	end
 	do
 		local wall = box("PinkWallN", FIN1 + 0.5, F, IN_N, IN_E, GF - 0.4, NFACE, PINK_WALL, PLASTER)
@@ -6429,16 +6442,16 @@ do
 			spot.Parent = lamp
 			for _, s in ipairs({ -1, 1 }) do
 				for _, zz in ipairs({ s0 + 0.1, s1 - 0.1 }) do
-					part("ShelfPost", Vector3.new(0.12, 8.6, 0.12), CFrame.new(xc + s * 3.6, F + 4.3, zz), Color3.fromRGB(215, 215, 220), opt({ material = Enum.Material.Metal }))
+					part("ShelfPost", Vector3.new(0.12, 8.6, 0.12), CFrame.new(xc + s * (NW / 2 - 0.35), F + 4.3, zz), Color3.fromRGB(215, 215, 220), opt({ material = Enum.Material.Metal }))
 				end
 			end
 			for lv = 0, 3 do
 				local y = F + 1.4 + lv * 2.2
-				box("GlassShelf", xc - 3.8, y, s0, xc + 3.8, y + 0.1, s1, Color3.fromRGB(220, 240, 245), opt({ material = Enum.Material.Glass, transparency = 0.5 }))
-				for k = 0, 3 do
+				box("GlassShelf", xc - (NW / 2 - 0.15), y, s0, xc + (NW / 2 - 0.15), y + 0.1, s1, Color3.fromRGB(220, 240, 245), opt({ material = Enum.Material.Glass, transparency = 0.5 }))
+				for k = 0, 2 do -- (three a shelf in the narrower niches)
 					hatN += 1
 					local c = HAT[(hatN % #HAT) + 1]
-					local p = Vector3.new(xc - 2.7 + k * 1.8, y + 0.1, s1 - 1.2)
+					local p = Vector3.new(xc - 1.9 + k * 1.9, y + 0.1, s1 - 1.2)
 					if (k + lv) % 3 ~= 2 then
 						part("HatDome", Vector3.new(1.3, 1.3, 1.3), CFrame.new(p + Vector3.new(0, 0.1, 0)), c, opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
 						part("HatBrim", Vector3.new(0.12, 1.6, 1.6), CFrame.new(p + Vector3.new(0, 0.12, 0.35)) * CFrame.Angles(0, 0, math.rad(90)), c, opt({ shape = Enum.PartType.Cylinder, material = Enum.Material.Fabric, nocol = true }))
@@ -6892,7 +6905,7 @@ do
 	-- 2026-10-30), the room's LED sign, a pink neon arch, the neon camera +
 	-- PHOTO BOOTH sign, a neon heart, a pot plant, and the "사진 찍기" prompt.
 	local NEON_PINK = Color3.fromRGB(255, 50, 160) -- (a strong pink: a pale one washed out on the pink wall by day)
-	local ROOM_NAMES = { PINK = "PINK ROOM", WHITE = "WHITE ROOM 2F", SKY = "SKY ROOM" }
+	local ROOM_NAMES = { PINK = "PINK ROOM", WHITE = "WHITE ROOM", SKY = "SKY ROOM" }
 	local function doorway(booth: Model, key: string, c: Vector3, out: Vector3, half: number, lining: Color3)
 		local along = out:Cross(Vector3.yAxis)
 		local face = c + out * half
@@ -6905,7 +6918,7 @@ do
 				local dcl = Instance.new("Decal") dcl.Texture = "rbxassetid://83669025652747" dcl.Face = f dcl.Parent = p
 			end
 		end
-		ledSign("RoomSign", Vector3.new(face.X, F + AH + 1.6, face.Z) + out * 0.35, out, if key == "WHITE" then 5.6 else 4.85, 1.35, ROOM_NAMES[key] or key)
+		ledSign("RoomSign", Vector3.new(face.X, F + AH + 1.6, face.Z) + out * 0.35, out, 4.85, 1.35, ROOM_NAMES[key] or key)
 		for _, p in ipairs(archRim(face + out * 0.12, along, out, AW + 1, AH + 0.5, 0.24, 0.16, NEON_PINK, B, Enum.Material.Neon)) do
 			p.Name = "EntranceNeon"
 			p.CanCollide = false
@@ -6942,48 +6955,7 @@ do
 			s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 			s.Parent = ob
 		end
-		do -- camera outline + PHOTO BOOTH
-			local f = glowGui("EntranceSign", Vector3.new(face.X, F + AH + 4.4, face.Z) + out * 0.08, 5.6, 3.2)
-			local body = Instance.new("Frame")
-			body.AnchorPoint = Vector2.new(0.5, 0)
-			body.Position = UDim2.fromScale(0.5, 0.06)
-			body.Size = UDim2.fromScale(0.3, 0.42)
-			body.BackgroundTransparency = 1
-			body.Parent = f
-			Instance.new("UICorner", body).CornerRadius = UDim.new(0.22, 0)
-			stroke(body, 8)
-			local lens = Instance.new("Frame")
-			lens.AnchorPoint = Vector2.new(0.5, 0.5)
-			lens.Position = UDim2.fromScale(0.5, 0.55)
-			lens.Size = UDim2.fromScale(0.42, 0.42)
-			lens.SizeConstraint = Enum.SizeConstraint.RelativeYY
-			lens.BackgroundTransparency = 1
-			lens.Parent = body
-			Instance.new("UICorner", lens).CornerRadius = UDim.new(0.5, 0)
-			stroke(lens, 8)
-			local bump = Instance.new("Frame")
-			bump.AnchorPoint = Vector2.new(0.5, 1)
-			bump.Position = UDim2.fromScale(0.5, 0.07)
-			bump.Size = UDim2.fromScale(0.1, 0.06)
-			bump.BackgroundTransparency = 1
-			bump.Parent = f
-			Instance.new("UICorner", bump).CornerRadius = UDim.new(0.3, 0)
-			stroke(bump, 6)
-			local t = Instance.new("TextLabel")
-			t.AnchorPoint = Vector2.new(0.5, 1)
-			t.Position = UDim2.fromScale(0.5, 0.97)
-			t.Size = UDim2.fromScale(0.96, 0.36)
-			t.BackgroundTransparency = 1
-			t.Font = Enum.Font.GothamBlack
-			t.TextScaled = true
-			t.TextColor3 = NEON_PINK
-			t.Text = "PHOTO BOOTH"
-			t.Parent = f
-			local ts = Instance.new("UIStroke")
-			ts.Color = Color3.fromRGB(255, 200, 230)
-			ts.Thickness = 2
-			ts.Parent = t
-		end
+		-- (no neon camera + PHOTO BOOTH over the doors any more, user 2026-10-30)
 		do -- neon heart beside the arch
 			local f = glowGui("EntranceHeart", Vector3.new(face.X, F + 10, face.Z) + out * 0.08 - along * 4.8, 3.4, 3.4)
 			local t = Instance.new("TextLabel")
@@ -7111,7 +7083,7 @@ do
 		local PX1, PZ1 = FIN1 - 1.5 - RIM_W / 2 - 0.4, -88.1 -- its open sides (east, south): up to the white pillar, clear of it (user 2026-10-30)
 		local R = 13.9 -- the rounded corner between them
 		local CX, CZ = PX1 - R, PZ1 - R
-		local TOP = F + RIM_H - 0.6 -- the balls' surface (just under the rim)
+		local TOP = F + RIM_H - 1.6 -- the balls' surface (a step under the rim, user 2026-10-30)
 		-- the rim: a chunky ledge in small pink mosaic tiles (user photo 2026-10-30)
 		local MOSAIC = "rbxassetid://139383694604230" -- docs/04_ART/textures/ohu4cut_pink_mosaic.png
 		local MINT = Color3.fromRGB(150, 214, 200)
@@ -7408,7 +7380,7 @@ do
 		for _, sx in ipairs({ -1, 1 }) do
 			for _, y in ipairs({ -0.6, 0.6 }) do bulb(sx * (MW / 2 - 0.3), y) end
 		end
-		ledSign("MakeupSign", Vector3.new(vx, my + MH / 2 + 1.3, zi - 0.42), Vector3.new(0, 0, -1), 2.8, 0.8, "MAKE UP")
+		ledSign("MakeupSign", Vector3.new(vx, F + VH + 1.1, SZ0 - 0.35), Vector3.new(0, 0, -1), 2.8, 0.8, "MAKE UP") -- (on the wall over the arch, user 2026-10-30)
 		-- floating white counter with a drawer line
 		local CW = VW / 2 - 0.4
 		box("VanityCounter", vx - CW, F + 3.8, zi - 1.8, vx + CW, F + 4.2, zi, Color3.fromRGB(252, 252, 250), o)

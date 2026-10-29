@@ -2544,3 +2544,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 볼풀 턱 높이·너비·모자이크 타일, 카페 화분(D-536): ![](images/2026-10-30/ohu4cut_ballpit_v2.jpg)
 - 볼풀 정리 + 물결 거울(D-537): ![](images/2026-10-30/ohu4cut_wavy_mirror.jpg)
 - 네온 PhOTO + 테스트 사진(D-538): ![](images/2026-10-30/ohu4cut_photo_neon_test.jpg) 복도 끝 연하늘색: ![](images/2026-10-30/ohu4cut_corridor_sky.jpg)
+- 소지품 칸 4개(D-539): ![](images/2026-10-30/ohu4cut_niches4.jpg) MAKE UP 간판: ![](images/2026-10-30/ohu4cut_makeup_sign.jpg) Meshy 거울 미리보기: ![](images/2026-10-30/meshy_ripple_mirror_preview.png)
