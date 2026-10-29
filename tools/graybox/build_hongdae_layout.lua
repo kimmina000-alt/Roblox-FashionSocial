@@ -6508,6 +6508,34 @@ do
 			prev = q
 		end
 	end
+	-- a second photo wall on the curved wall's middle (user 2026-10-30): no
+	-- panel, the photos stick straight on the pink wall. The S curve is nearly
+	-- straight round its middle (its bend changes side there): a flat wall 14
+	-- wide stays within 0.1 of it. WallKey SHOP2 brings back the photos of the
+	-- old second photo wall.
+	do
+		local src = zoneP and zoneP:FindFirstChild("PhotoWall")
+		if src and src:IsA("BasePart") then
+			local pc = curveAt(0.5)
+			local t = (curveAt(0.51) - curveAt(0.49)).Unit
+			local n = Vector3.new(-t.Z, 0, t.X)
+			if n:Dot(Vector3.new(-1, 0, -1)) < 0 then n = -n end -- toward the lobby (north-west)
+			local w = src:Clone()
+			for k in pairs(w:GetAttributes()) do
+				if k:sub(1, 4) == "Orig" then w:SetAttribute(k, nil) end
+			end
+			w:SetAttribute("WallKey", "SHOP2")
+			w:SetAttribute("Face", "Back")
+			w:SetAttribute("LayoutAdded", true)
+			w.Size = Vector3.new(14, 8, 0.5)
+			w.Transparency = 1
+			w.CanCollide = false
+			local face = Vector3.new(pc.X, F + 9, pc.Z) + n * 0.52 -- just off the wall's lobby face
+			local c = face - n * (w.Size.Z / 2)
+			w.CFrame = CFrame.lookAt(c, c - n) -- +Z (Back, the photo face) toward the lobby
+			w.Parent = B
+		end
+	end
 
 	---------------------------------------------------------------- booth rooms: walls
 	-- the front wall with two arched doors (the CSG wall does not collide: boxes

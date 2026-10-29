@@ -230,11 +230,17 @@ local function publish(session: Session?, booth: Model)
 	if holder then
 		local start = holder:FindFirstChild("PhotoPrompt") :: ProximityPrompt?
 		local join = holder:FindFirstChild("JoinPrompt") :: ProximityPrompt?
-		if start then start.Enabled = session == nil end
-		if join then
-			join.Enabled = session ~= nil and session.phase == "waiting" and session.mode ~= "solo"
-				and #session.people < PhotoConfig.MaxPeople
+		local joinable = session ~= nil and session.phase == "waiting" and session.mode ~= "solo"
+			and #session.people < PhotoConfig.MaxPeople
+		if start then
+			-- (user 2026-10-30) a booth in use keeps its button: "사용 중", and
+			-- pressing it says who is shooting (the client shows the message);
+			-- while others may join, "같이 찍기" shows instead
+			start.Enabled = not joinable
+			start.ActionText = if session then "사용 중" else "사진 찍기"
+			start.ObjectText = if session then session.host.Name .. " 님 촬영 중" else tostring(booth:GetAttribute("BoothName") or "인생네컷")
 		end
+		if join then join.Enabled = joinable end
 	end
 end
 
@@ -322,7 +328,7 @@ local function guardBooths()
 				local t = os.clock()
 				if not lastPush[other] or t - lastPush[other] > 4 then
 					lastPush[other] = t
-					toast(other, "지금 촬영 중인 부스예요. 잠시 기다려 주세요.")
+					toast(other, session.host.Name .. " 님이 사진을 찍고 있어요. 기다려 주세요.")
 				end
 			end
 		end
@@ -646,7 +652,7 @@ local function open(player: Player, payload: any): (boolean, string?)
 			return false, "이미 촬영 중이에요."
 		end
 	end
-	if sessions[booth] then return false, "다른 사람이 쓰고 있는 부스예요. 잠시 기다려 주세요." end
+	if sessions[booth] then return false, sessions[booth].host.Name .. " 님이 사진을 찍고 있어요. 기다려 주세요." end
 	if not PhotoConfig.findLayout(payload.layout) or not PhotoConfig.isMode(payload.mode) then
 		return false, "사진 유형을 골라 주세요."
 	end
@@ -699,6 +705,27 @@ local function join(player: Player, payload: any): (boolean, string?)
 	enter(session, player)
 	publish(session, booth)
 	toast(session.host, player.DisplayName .. "님이 함께 찍어요!")
+	return true, nil
+end
+
+-- The host sends someone out (user 2026-10-30: a stranger who joined), while
+-- waiting or during the shooting; joining mid-shoot is not possible (join()).
+-- Their figure leaves the shots already taken too.
+local function kick(player: Player, payload: any): (boolean, string?)
+	local session = byPlayer[player]
+	if not session or session.host ~= player then return false, "촬영을 시작한 사람만 내보낼 수 있어요." end
+	if session.phase ~= "waiting" and session.phase ~= "shooting" then return false, "지금은 내보낼 수 없어요." end
+	local target = if typeof(payload) == "number" then Players:GetPlayerByUserId(payload) else nil
+	if not target or target == player or not table.find(session.people, target) then return false, "내보낼 사람을 찾을 수 없어요." end
+	for _, shot in ipairs(session.shots) do
+		if typeof(shot) == "table" and typeof(shot.people) == "table" then
+			for i = #shot.people, 1, -1 do
+				if shot.people[i].u == target.UserId then table.remove(shot.people, i) end
+			end
+		end
+	end
+	removePerson(session, target, player.Name .. " 님이 촬영에서 내보냈어요.")
+	toast(player, target.Name .. " 님을 내보냈어요.")
 	return true, nil
 end
 
@@ -1025,6 +1052,8 @@ local function handle(player: Player, action: any, payload: any): (boolean, any)
 		local session = byPlayer[player]
 		if session then removePerson(session, player, nil) end
 		return true, nil
+	elseif action == "Kick" then
+		return kick(player, payload)
 	elseif action == "Prop" then
 		return toggleProp(player, payload)
 	elseif action == "Kneel" or action == "Step" then

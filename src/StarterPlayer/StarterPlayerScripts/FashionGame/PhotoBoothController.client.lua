@@ -1779,6 +1779,13 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt)
 	while booth and not (booth:IsA("Model") and CollectionService:HasTag(booth, "PhotoBooth")) do booth = booth.Parent end
 	if not booth or not booth:IsA("Model") then return end
 	if prompt.Name == "PhotoPrompt" then
+		-- someone is in the booth: say who (user 2026-10-30)
+		local phase = booth:GetAttribute("Phase")
+		if phase ~= nil and phase ~= "idle" and not myBooth() then
+			local host = Players:GetPlayerByUserId(booth:GetAttribute("Host") or 0)
+			toast((if host then host.Name else "다른 사람") .. " 님이 사진을 찍고 있어요. 기다려 주세요.")
+			return
+		end
 		-- A finished result never blocks shooting again (user, 2026-10-20).
 		if state.stage == "result" then closeAllFlow() end
 		if album.Visible then closeAlbum() end
