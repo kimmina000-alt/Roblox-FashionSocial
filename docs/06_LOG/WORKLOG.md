@@ -2516,3 +2516,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 수치: 클라이언트 CPU 프레임 4.8ms / 3.2ms, 클라이언트 오류 0, 서버 오류 0(DataStore 제한 경고 제외).
 
 ![](images/2026-10-30/mobile2p_buckets.jpg)
+
+## 2026-10-30 — 포토부스 입구 (D-524)
+- 입구 아치를 각 부스 가운데로 옮기고 네온으로 꾸밈, 입구에서 바로 '사진 찍기'.
+- 전: ![](images/2026-10-30/photobooth_entrance_before.jpg) 후: ![](images/2026-10-30/photobooth_entrance_after.jpg)
+- 촬영 화면(문 안 보임): ![](images/2026-10-30/photobooth_shoot_view.jpg)

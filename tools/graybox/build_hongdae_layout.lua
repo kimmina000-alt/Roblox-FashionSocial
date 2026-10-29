@@ -6409,7 +6409,9 @@ do
 			camProp:SetAttribute("OrigTransparency", camProp.Transparency)
 			camProp.Transparency = 1
 		end
-		local az = bz - half + 6 -- (3.5 left the PINK arch hugging the lobby's north wall, 2026-10-27)
+		-- (3.5 left the PINK arch hugging the lobby's north wall, 2026-10-27; then 6;
+		-- user 2026-10-30: the entrance in the middle of the booth)
+		local az = bz
 		-- the shop's east wall is each booth's east side: painted in the booth colour (user)
 		local wn = m:FindFirstChild("Wall_N")
 		local boothColor = if wn and wn:IsA("BasePart") then wn.Color else WHITE_WALL
@@ -6545,6 +6547,126 @@ do
 		archRim(Vector3.new(FX + 0.5, F, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH, 0.15, 1.02, lining, B, Enum.Material.SmoothPlastic)
 		local name = ROOMS[booths[i]:GetAttribute("BoothKey") or ""] or string.format("PHOTO %02d", i)
 		ledSign("RoomSign", Vector3.new(FX - 0.35, F + AH + 1.6, z), Vector3.new(-1, 0, 0), 4.85, 1.35, name)
+		-- (user 2026-10-30, mock-up "1. 포토부스 진입") a glowing entrance: a pink
+		-- neon tube round the arch, a neon camera + PHOTO BOOTH sign above the
+		-- room sign, a neon heart and a pot plant beside the arch
+		-- (a strong pink: a pale one washed out on the pink wall by day)
+		local NEON_PINK = Color3.fromRGB(255, 50, 160)
+		archRim(Vector3.new(FX - 0.12, F, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW + 1, AH + 0.5, 0.24, 0.16, NEON_PINK, B, Enum.Material.Neon)
+		for _, p in ipairs(B:GetChildren()) do
+			if p.Name == "ArchRim" and p:IsA("BasePart") and p.Material == Enum.Material.Neon and math.abs(p.Position.Z - z) < AW then
+				p.Name = "EntranceNeon"
+				p.CanCollide = false
+				p.CastShadow = false
+			end
+		end
+		do
+			local glow = Instance.new("PointLight")
+			glow.Color, glow.Range, glow.Brightness = NEON_PINK, 12, 0.9
+			local holder = part("EntranceGlow", Vector3.new(0.2, 0.2, 0.2), CFrame.new(FX - 1.2, F + AH - 0.5, z), NEON_PINK, opt({ nocol = true, transparency = 1 }))
+			holder.CanQuery = false
+			glow.Parent = holder
+		end
+		local function glowGui(pname: string, c: Vector3, w: number, h: number): Frame
+			local p = part(pname, Vector3.new(0.05, h, w), CFrame.new(c), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+			p.CanQuery = false
+			p.CastShadow = false
+			local g = Instance.new("SurfaceGui")
+			g.Face = Enum.NormalId.Left -- toward the lobby (-x)
+			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			g.PixelsPerStud = 60
+			g.LightInfluence = 0
+			g.Brightness = 1.4
+			g.Parent = p
+			local f = Instance.new("Frame")
+			f.Size = UDim2.fromScale(1, 1)
+			f.BackgroundTransparency = 1
+			f.Parent = g
+			return f
+		end
+		local function stroke(o: Instance, th: number)
+			local s = Instance.new("UIStroke")
+			s.Color = NEON_PINK
+			s.Thickness = th
+			s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			s.Parent = o
+		end
+		do -- camera outline + PHOTO BOOTH
+			local f = glowGui("EntranceSign", Vector3.new(FX - 0.08, F + AH + 4.4, z), 5.6, 3.2)
+			local body = Instance.new("Frame")
+			body.AnchorPoint = Vector2.new(0.5, 0)
+			body.Position = UDim2.fromScale(0.5, 0.06)
+			body.Size = UDim2.fromScale(0.3, 0.42)
+			body.BackgroundTransparency = 1
+			body.Parent = f
+			Instance.new("UICorner", body).CornerRadius = UDim.new(0.22, 0)
+			stroke(body, 8)
+			local lens = Instance.new("Frame")
+			lens.AnchorPoint = Vector2.new(0.5, 0.5)
+			lens.Position = UDim2.fromScale(0.5, 0.55)
+			lens.Size = UDim2.fromScale(0.42, 0.42)
+			lens.SizeConstraint = Enum.SizeConstraint.RelativeYY
+			lens.BackgroundTransparency = 1
+			lens.Parent = body
+			Instance.new("UICorner", lens).CornerRadius = UDim.new(0.5, 0)
+			stroke(lens, 8)
+			local bump = Instance.new("Frame")
+			bump.AnchorPoint = Vector2.new(0.5, 1)
+			bump.Position = UDim2.fromScale(0.5, 0.07)
+			bump.Size = UDim2.fromScale(0.1, 0.06)
+			bump.BackgroundTransparency = 1
+			bump.Parent = f
+			Instance.new("UICorner", bump).CornerRadius = UDim.new(0.3, 0)
+			stroke(bump, 6)
+			local t = Instance.new("TextLabel")
+			t.AnchorPoint = Vector2.new(0.5, 1)
+			t.Position = UDim2.fromScale(0.5, 0.97)
+			t.Size = UDim2.fromScale(0.96, 0.36)
+			t.BackgroundTransparency = 1
+			t.Font = Enum.Font.GothamBlack
+			t.TextScaled = true
+			t.TextColor3 = NEON_PINK
+			t.Text = "PHOTO BOOTH"
+			t.Parent = f
+			local ts = Instance.new("UIStroke")
+			ts.Color = Color3.fromRGB(255, 200, 230)
+			ts.Thickness = 2
+			ts.Parent = t
+		end
+		do -- neon heart beside the arch
+			local f = glowGui("EntranceHeart", Vector3.new(FX - 0.08, F + 10, z - 4.8), 3.4, 3.4)
+			local t = Instance.new("TextLabel")
+			t.Size = UDim2.fromScale(1, 1)
+			t.BackgroundTransparency = 1
+			t.Font = Enum.Font.GothamBold
+			t.TextScaled = true
+			t.TextColor3 = NEON_PINK
+			t.Text = "♥"
+			t.Parent = f
+			local ts = Instance.new("UIStroke")
+			ts.Color = Color3.fromRGB(255, 200, 230)
+			ts.Thickness = 3
+			ts.Parent = t
+		end
+		do -- pot plant on the lobby floor, under the heart
+			local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+			local src = art and art:FindFirstChild("CafePotPlant")
+			if src and src:IsA("Model") then
+				local plant = src:Clone()
+				plant.Name = "EntrancePlant"
+				plant:ScaleTo(plant:GetScale() * 0.85)
+				local cf, size = plant:GetBoundingBox()
+				local at = Vector3.new(FX - 2.6, F + size.Y / 2, z - 4.6)
+				plant:PivotTo(plant:GetPivot() + (at - cf.Position))
+				plant.Parent = B
+			end
+		end
+		-- the "사진 찍기" prompt at the entrance (PhotoBoothService: a second
+		-- PhotoPrompt on this part, so the flow can start from the lobby)
+		local ep = part("EntrancePrompt", Vector3.new(1, 1, 1), CFrame.new(FX - 1.2, F + 3.5, z), Color3.new(1, 1, 1), { parent = booths[i], nocol = true, transparency = 1 })
+		ep.CanQuery = false
+		ep.CanTouch = false
+		ep:SetAttribute("LayoutAdded", true)
 	end
 
 	-- photo machine (user photo "Pick") on each booth's north wall; its front

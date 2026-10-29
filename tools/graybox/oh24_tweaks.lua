@@ -253,7 +253,8 @@ do
 	-- a red banner across the west glass
 	onGlass("GlassBanner", -129, -111, 9.2, 11.2, "호빵 · 어묵 판매중", Color3.fromRGB(255, 240, 200), Color3.fromRGB(200, 40, 40), Enum.Font.GothamBlack)
 	-- posters and stickers
-	onGlass("GlassPoster", -115.0, -112.0, 4.5, 9.0, -- (on the glass west of the door, not in the doorway) "<b>이달의 행사</b>\n1+1 · 2+1\nOH24", Color3.fromRGB(20, 60, 80), Color3.fromRGB(235, 248, 250))
+	-- (on the glass west of the door, not in the doorway)
+	onGlass("GlassPoster", -115.0, -112.0, 4.5, 9.0, "<b>이달의 행사</b>\n1+1 · 2+1\nOH24", Color3.fromRGB(20, 60, 80), Color3.fromRGB(235, 248, 250))
 	onGlass("GlassPoster", -95.6, -92.4, 4.5, 8.5, "<b>신상품</b>\n도시락\n출시!", Color3.fromRGB(255, 255, 255), Color3.fromRGB(0, 160, 160))
 	onGlass("GlassSticker", -110.8, -108.6, 3.0, 4.6, "택배\n접수", Color3.fromRGB(255, 255, 255), Color3.fromRGB(40, 90, 170))
 	onGlass("GlassSticker", -108.2, -106.8, 3.0, 4.6, "ATM", Color3.fromRGB(255, 255, 255), Color3.fromRGB(230, 140, 30))

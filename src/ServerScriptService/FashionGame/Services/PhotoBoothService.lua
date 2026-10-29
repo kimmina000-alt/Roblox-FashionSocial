@@ -122,9 +122,13 @@ local function rootOf(player: Player): BasePart?
 	return character:FindFirstChild("HumanoidRootPart") :: BasePart?
 end
 
+local ENTRANCE_DISTANCE = 12
 local function near(player: Player, booth: Model, distance: number): boolean
 	local root = rootOf(player)
 	local stand = part(booth, "Stand")
+	-- (or at the booth's entrance in the lobby, where its second prompt is, 2026-10-30)
+	local entrance = part(booth, "EntrancePrompt")
+	if root and entrance and (root.Position - entrance.Position).Magnitude <= ENTRANCE_DISTANCE then return true end
 	return root ~= nil and stand ~= nil and (root.Position - stand.Position).Magnitude <= distance
 end
 
@@ -224,6 +228,9 @@ local function publish(session: Session?, booth: Model)
 		local start = holder:FindFirstChild("PhotoPrompt") :: ProximityPrompt?
 		local join = holder:FindFirstChild("JoinPrompt") :: ProximityPrompt?
 		if start then start.Enabled = session == nil end
+		local entrance = part(booth, "EntrancePrompt")
+		local outside = entrance and entrance:FindFirstChild("PhotoPrompt") :: ProximityPrompt?
+		if outside then outside.Enabled = session == nil end
 		if join then
 			join.Enabled = session ~= nil and session.phase == "waiting" and session.mode ~= "solo"
 				and #session.people < PhotoConfig.MaxPeople
@@ -1079,7 +1086,18 @@ local function setupBooth(booth: Instance)
 	joinPrompt.RequiresLineOfSight = sight
 	joinPrompt.Enabled = false
 	joinPrompt.Parent = holder
-	-- Both prompts are handled by the client (setup window / join request).
+	-- (user 2026-10-30) the same "사진 찍기" at the booth's entrance in the lobby
+	local entrance = part(booth, "EntrancePrompt")
+	if entrance and not entrance:FindFirstChild("PhotoPrompt") then
+		local outside = Instance.new("ProximityPrompt")
+		outside.Name = "PhotoPrompt"
+		outside.ActionText = "사진 찍기"
+		outside.ObjectText = tostring(booth:GetAttribute("BoothName") or "인생네컷")
+		outside.MaxActivationDistance = ENTRANCE_DISTANCE - 2
+		outside.RequiresLineOfSight = false
+		outside.Parent = entrance
+	end
+	-- All prompts are handled by the client (setup window / join request).
 	publish(nil, booth)
 end
 
