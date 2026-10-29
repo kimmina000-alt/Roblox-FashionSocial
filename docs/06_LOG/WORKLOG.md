@@ -2579,3 +2579,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-570: ![](images/2026-10-30/d570_facades_136_east.jpg)
 - D-571: 카페 카운터 ![](images/2026-10-30/d571_cafe_counter.jpg) 작업대 ![](images/2026-10-30/d571_cafe_bench.jpg) 돗자리·쿨러 ![](images/2026-10-30/d571_beach_mat_cooler.jpg) 해변 도로 건물 ![](images/2026-10-30/d571_facades_beach_road.jpg) 편의점 옆 틈 ![](images/2026-10-30/d571_facade11_gap.jpg)
 - D-572: 카페 간판(밤) ![](images/2026-10-30/d572_cafe_sign_night.jpg) 피자 가게 ![](images/2026-10-30/d572_pizza_front.jpg) 편의점 외출중 ![](images/2026-10-30/d572_oh24_closed_note.jpg) 가로등·정류장 ![](images/2026-10-30/d572_lamp_busstop.jpg)
+- D-573: 카페 간판·입간판 ![](images/2026-10-30/d573_cafe_sign_spaced.jpg) 편의점 평면도 ![](images/2026-10-30/d573_oh24_plan.png)

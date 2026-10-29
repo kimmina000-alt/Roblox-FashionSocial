@@ -365,8 +365,15 @@ end
 
 -- 8. an A-frame stand on the promenade in front of the beach cafe door
 -- (where the street light stood): wood, O / H / U in white down the board
+-- (user 2026-10-30, 3rd: on the deck by the wall, left of the door as seen
+-- from the road; the black CafeSign box over the door is gone, the 3D letters
+-- replace it)
+do
+	local old = cafe and cafe:FindFirstChild("CafeSign")
+	if old then old:Destroy() end
+end
 if L then
-	local x, z, y = -189.5, 266, 0.6
+	local x, z, y = -203.4, 288, 0.6
 	local WOOD = Color3.fromRGB(196, 110, 50)
 	local lean = math.rad(11)
 	local W, H = 2.6, 4.4

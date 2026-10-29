@@ -5454,6 +5454,7 @@ do
 	shopBlock("S", -135, 215, -56, 985, 60, { "E", "W", "N" }) -- south of OH24, between the south road and the beach road
 	walk(-150, 214, -135, 985) -- (the strip it left: sidewalk like the store's)
 	walk(-56, 214, -47, 1000) -- (and its east side, between the block and the sidewalk: bare ground, user 2026-10-30)
+	walk(-135, 214, -56, 215) -- (the 1-stud strip left under the block's north face, by OH24, user 2026-10-30)
 	for xx = 330, 985, 35 do -- east road, north side (front +z at z -47)
 		i2 += 1
 		if xx == 330 then
@@ -6163,7 +6164,7 @@ do
 	-- style (optional): sw = stroke weight per height, side / face / halo colours
 	local function sign3d(name, chars, origin: Vector3, right: Vector3, out: Vector3, H, style: any?)
 		local st = style or {}
-		local SW, DEPTH, GAP = (st.sw or 0.17) * H, st.depth or 0.8, 0.16
+		local SW, DEPTH, GAP = (st.sw or 0.17) * H, st.depth or 0.8, st.gap or 0.16
 		local up = Vector3.yAxis
 		local total = 0
 		for i, ch in ipairs(chars) do total += GLYPHS[ch][1] + (if i > 1 then GAP else 0) end
@@ -6264,7 +6265,7 @@ do
 	-- road): big 3D OHU CAFE letters over the door, a warm halo round every
 	-- stroke, the letters turning to light at night
 	sign3d("Sign_OhuCafe", { "O", "H", "U", " ", "C", "A", "F", "E" }, Vector3.new(-206.0, 23.4, 276), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0), 4.6,
-		{ sw = 0.13, depth = 0.6, side = Color3.fromRGB(214, 206, 190), face = Color3.fromRGB(255, 252, 244), halo = Color3.fromRGB(255, 205, 140), nightGlow = true, parent = T })
+		{ sw = 0.13, depth = 0.6, gap = 0.36, side = Color3.fromRGB(214, 206, 190), face = Color3.fromRGB(255, 252, 244), halo = Color3.fromRGB(255, 205, 140), nightGlow = true, parent = T }) -- (letters spaced wider, user 2026-10-30)
 
 	-- upper floors (2F, 3F): white brick mass with the cut corner, dark-framed
 	-- windows, floor bands, then a parapet with a steel railing (roof terrace)
