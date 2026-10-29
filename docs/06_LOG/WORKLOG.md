@@ -2558,3 +2558,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-549: 촬영 중 UI 통일 ![](images/2026-10-30/photo_ui_shoot_dark.jpg)
 - D-550: 파스텔 10종 ![](images/2026-10-30/photo_frames_pastel10.jpg) 특별한 프레임 반짝임 ![](images/2026-10-30/photo_frames_special_shine.jpg)
 - D-551: 특별한 프레임 테스트 사진 ![](images/2026-10-30/photo_special_samples.jpg)
+- D-552: 특별한 프레임 9종 ![](images/2026-10-30/photo_frames_special9.jpg) 곡선 벽 포토월 양끝 ![](images/2026-10-30/curve_photowall_edges.jpg)

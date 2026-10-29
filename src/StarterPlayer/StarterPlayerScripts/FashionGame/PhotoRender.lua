@@ -247,69 +247,126 @@ local SPARKLES = {
 	{0.78, 0.015}, {0.02, 0.48}, {0.98, 0.18}, {0.6, 0.995},
 }
 -- Glossy / glitter frames (user 2026-10-30: no pattern, the plain frame colour
--- with a real shimmer): a soft band of light sweeps across the frame (behind
--- the photos: ZIndex 0 among the strip's children); glitter frames add tiny
--- dots that twinkle. One Heartbeat drives every shimmer on screen.
-local shines: {[UIGradient]: number} = setmetatable({}, { __mode = "k" }) :: any
-local twinkles: {[Frame]: {number}} = setmetatable({}, { __mode = "k" }) :: any
+-- with a real shimmer; second pass: it could not be seen). A gradient on the
+-- strip itself carries a bright band that keeps sweeping across (a gradient
+-- colours only the strip, never the photos on it); glitter frames add
+-- twinkling sparkles placed only on the frame's own border (clear of the
+-- photos). Sticker frames (dog, cat, heart, star, flower) get emoji stickers
+-- on the border and the photo corners. One Heartbeat drives every shimmer.
+-- (plain tables, cleaned when the strip is gone: weak keys let Roblox drop the
+-- wrappers while the GUI was still alive, so nothing moved)
+local shines: {[UIGradient]: number} = {}
+local twinkles: {[GuiObject]: {number}} = {}
 game:GetService("RunService").Heartbeat:Connect(function()
 	local t = os.clock()
 	for g, phase in pairs(shines) do
-		if g.Parent then g.Offset = Vector2.new(((t * 0.45 + phase) % 2.6) - 1.3, 0) end
+		if not g:IsDescendantOf(game) then shines[g] = nil
+		else g.Offset = Vector2.new(((t * 0.7 + phase) % 3) - 1.5, 0) end
 	end
 	for dot, spec in pairs(twinkles) do
-		if dot.Parent then dot.BackgroundTransparency = 0.15 + 0.85 * math.abs(math.sin(t * spec[1] + spec[2])) ^ 3 end
+		if not dot:IsDescendantOf(game) then twinkles[dot] = nil
+		else
+			local v = math.abs(math.sin(t * spec[1] + spec[2])) ^ 4
+			dot.BackgroundTransparency = 1 - v
+			dot.Rotation = (t * 40 * spec[1]) % 90
+		end
 	end
 end)
 local function applyStyle(strip: Frame, info: any)
-	local old = strip:FindFirstChild("Deco")
-	if old then old:Destroy() end
+	for _, name in ipairs({ "Deco", "Stickers", "Gloss" }) do
+		local old = strip:FindFirstChild(name)
+		if old then old:Destroy() end
+	end
 	if not info or info.style == "solid" or info.style == nil then return end
-	local deco = Instance.new("Frame")
-	deco.Name = "Deco"
-	deco.Size = UDim2.fromScale(1, 1)
-	deco.BackgroundTransparency = 1
-	deco.ClipsDescendants = true
-	deco.ZIndex = 1
-	deco.Parent = strip
-	-- the light sweep
-	local band = Instance.new("Frame")
-	band.Name = "Shine"
-	band.Size = UDim2.fromScale(1, 1)
-	band.BackgroundColor3 = Color3.new(1, 1, 1)
-	band.BackgroundTransparency = 0
-	band.BorderSizePixel = 0
-	band.ZIndex = 0
-	band.Parent = deco
-	local g = Instance.new("UIGradient")
-	g.Rotation = 25
-	g.Transparency = NumberSequence.new({
-		NumberSequenceKeypoint.new(0, 1),
-		NumberSequenceKeypoint.new(0.4, 1),
-		NumberSequenceKeypoint.new(0.5, if info.style == "gloss" then 0.35 else 0.5),
-		NumberSequenceKeypoint.new(0.6, 1),
-		NumberSequenceKeypoint.new(1, 1),
-	})
-	g.Parent = band
-	shines[g] = math.random() * 2.6
+	if info.style == "gloss" or info.style == "glitter" then
+		local base = info.color
+		local lite = base:Lerp(Color3.new(1, 1, 1), if info.style == "gloss" then 0.85 else 0.65)
+		local g = Instance.new("UIGradient")
+		g.Name = "Gloss"
+		g.Rotation = 30
+		g.Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, base),
+			ColorSequenceKeypoint.new(0.36, base),
+			ColorSequenceKeypoint.new(0.47, lite),
+			ColorSequenceKeypoint.new(0.5, Color3.new(1, 1, 1)),
+			ColorSequenceKeypoint.new(0.53, lite),
+			ColorSequenceKeypoint.new(0.64, base),
+			ColorSequenceKeypoint.new(1, base),
+		})
+		g.Parent = strip
+		shines[g] = math.random() * 3
+	end
+	-- the frame's border: points that do not fall on a photo cell
+	local cells = {}
+	for _, c in ipairs(strip:GetChildren()) do
+		if c:IsA("ViewportFrame") then table.insert(cells, { c.Position.X.Scale, c.Position.Y.Scale, c.Size.X.Scale, c.Size.Y.Scale }) end
+	end
+	local aspect = PhotoRender.stripAspect(if #cells == 4 and cells[2][1] > cells[1][1] then "2x2" else "1x4")
+	local function onBorder(x: number, y: number, rx: number): boolean
+		local ry = rx * aspect
+		for _, c in ipairs(cells) do
+			if x + rx > c[1] and x - rx < c[1] + c[3] and y + ry > c[2] and y - ry < c[2] + c[4] then return false end
+		end
+		return x > rx and x < 1 - rx and y > ry and y < 1 - ry
+	end
+	local top = Instance.new("Frame")
+	top.Name = "Stickers"
+	top.Size = UDim2.fromScale(1, 1)
+	top.BackgroundTransparency = 1
+	top.ZIndex = 3
+	top.Parent = strip
+	local rng = Random.new(#info.key * 7919)
 	if info.style == "glitter" then
-		local rng = Random.new(#strip:GetFullName())
-		for _ = 1, 28 do
-			local dot = Instance.new("Frame")
-			dot.Name = "Glint"
-			dot.AnchorPoint = Vector2.new(0.5, 0.5)
-			dot.Position = UDim2.fromScale(rng:NextNumber(0.02, 0.98), rng:NextNumber(0.01, 0.99))
-			local size = rng:NextNumber(0.025, 0.05)
-			dot.Size = UDim2.fromScale(size, size)
-			dot.SizeConstraint = Enum.SizeConstraint.RelativeXX
-			dot.BackgroundColor3 = Color3.new(1, 1, 1)
-			dot.BorderSizePixel = 0
-			dot.ZIndex = 0
-			dot.Parent = deco
-			local c = Instance.new("UICorner")
-			c.CornerRadius = UDim.new(1, 0)
-			c.Parent = dot
-			twinkles[dot] = { rng:NextNumber(1.5, 3.5), rng:NextNumber(0, 6.3) }
+		local placed = 0
+		for _ = 1, 600 do
+			if placed >= 26 then break end
+			local size = rng:NextNumber(0.035, 0.06)
+			local x, y = rng:NextNumber(0, 1), rng:NextNumber(0, 1)
+			if onBorder(x, y, size * 0.5) then
+				placed += 1
+				local dot = Instance.new("Frame")
+				dot.Name = "Glint"
+				dot.AnchorPoint = Vector2.new(0.5, 0.5)
+				dot.Position = UDim2.fromScale(x, y)
+				dot.Size = UDim2.fromScale(size, size)
+				dot.SizeConstraint = Enum.SizeConstraint.RelativeXX
+				dot.BackgroundColor3 = Color3.new(1, 1, 1)
+				dot.BorderSizePixel = 0
+				dot.ZIndex = 3
+				dot.Parent = top
+				twinkles[dot] = { rng:NextNumber(1.6, 3.6), rng:NextNumber(0, 6.3) }
+			end
+		end
+	elseif info.style == "sticker" and typeof(info.stickers) == "table" then
+		-- a sticker on a corner of every photo (alternating), two by the footer
+		local list = info.stickers
+		for i, c in ipairs(cells) do
+			local right = i % 2 == 0
+			local s = Instance.new("TextLabel")
+			s.Name = "Sticker"
+			s.AnchorPoint = Vector2.new(0.5, 0.5)
+			s.Position = UDim2.fromScale(c[1] + (if right then c[3] - 0.02 else 0.02), c[2] + (if right then c[4] - 0.01 else 0.01))
+			s.Size = UDim2.fromScale(0.26, 0.26)
+			s.SizeConstraint = Enum.SizeConstraint.RelativeXX
+			s.BackgroundTransparency = 1
+			s.Text = list[(i - 1) % #list + 1]
+			s.TextScaled = true
+			s.Rotation = if right then 12 else -12
+			s.ZIndex = 3
+			s.Parent = top
+		end
+		for _, x in ipairs({ 0.13, 0.87 }) do
+			local s = Instance.new("TextLabel")
+			s.Name = "Sticker"
+			s.AnchorPoint = Vector2.new(0.5, 0.5)
+			s.Position = UDim2.fromScale(x, 0.955) -- (either side of OHU)
+			s.Size = UDim2.fromScale(0.2, 0.2)
+			s.SizeConstraint = Enum.SizeConstraint.RelativeXX
+			s.BackgroundTransparency = 1
+			s.Text = list[#list]
+			s.TextScaled = true
+			s.ZIndex = 3
+			s.Parent = top
 		end
 	end
 end

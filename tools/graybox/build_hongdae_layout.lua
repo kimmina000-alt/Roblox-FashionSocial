@@ -6601,14 +6601,43 @@ do
 			w:SetAttribute("WallKey", "SHOP2")
 			w:SetAttribute("Face", "Back")
 			w:SetAttribute("LayoutAdded", true)
-			w.Size = Vector3.new(14, 8, 0.5)
+			-- only where the curved wall stays behind the flat photo plane (user
+			-- 2026-10-30: photos past one end sank into the wall): sample the curve,
+			-- keep the stretch round the middle within 0.05 of the plane
+			local s0, s1, dMax = 0, 0, -math.huge
+			do
+				local pts = {}
+				for k = 0, 400 do
+					local q = curveAt(k / 400)
+					table.insert(pts, { s = (q - pc):Dot(t), d = (q - pc):Dot(n) })
+				end
+				table.sort(pts, function(a, b) return a.s < b.s end)
+				local LIMIT = 0.05
+				for _, sign in ipairs({ 1, -1 }) do
+					local edge = 0
+					for _, p in ipairs(pts) do
+						if p.s * sign >= 0 then
+							local far = math.abs(p.s)
+							if p.d > LIMIT or p.d < -0.4 then -- (in front: hidden; far behind: floating)
+								if far < math.abs(edge) or edge == 0 then edge = sign * far end
+							end
+						end
+					end
+					if edge == 0 then edge = sign * 7 end
+					if sign == 1 then s1 = math.min(edge, 7) else s0 = math.max(edge, -7) end
+				end
+				for _, p in ipairs(pts) do if p.s > s0 and p.s < s1 then dMax = math.max(dMax, p.d) end end
+				s0 += 0.4 -- (a margin: whole photos stay clear of the bend)
+				s1 -= 0.4
+			end
+			w.Size = Vector3.new(s1 - s0, 8, 0.5)
 			w.Transparency = 1
 			w.CanCollide = false
-			local face = Vector3.new(pc.X, F + 9, pc.Z) + n * 0.52 -- just off the wall's lobby face
+			local face = Vector3.new(pc.X, F + 9, pc.Z) + t * ((s0 + s1) / 2) + n * (math.max(dMax, 0) + 0.52) -- just off the wall's lobby face
 			local c = face - n * (w.Size.Z / 2)
 			w.CFrame = CFrame.lookAt(c, c - n) -- +Z (Back, the photo face) toward the lobby
 			w.Parent = B
-			ledSign("PhotoSign", Vector3.new(pc.X, F + 14.4, pc.Z) + n * 0.85, n, 5.6, 1.5, "PHOTO") -- (over it, like the north photo wall)
+			ledSign("PhotoSign", Vector3.new(pc.X, F + 14.4, pc.Z) + t * ((s0 + s1) / 2) + n * 0.85, n, 5.6, 1.5, "PHOTO") -- (over it, like the north photo wall)
 		end
 	end
 

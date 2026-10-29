@@ -65,6 +65,12 @@ PhotoConfig.Frames = {
 	{ key = "gloss_pink", name = "글로시 핑크", color = Color3.fromRGB(255, 110, 175), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "gloss" },
 	{ key = "gold", name = "반짝이 골드", color = Color3.fromRGB(212, 175, 55), text = Color3.fromRGB(40, 30, 10), tab = "특별한", price = "pass", style = "glitter" },
 	{ key = "glitter_silver", name = "반짝이 실버", color = Color3.fromRGB(196, 200, 212), text = Color3.fromRGB(40, 40, 50), tab = "특별한", price = "pass", style = "glitter" },
+	-- sticker frames (user 2026-10-30): a pastel frame with emoji stickers on the photo corners
+	{ key = "puppy", name = "강아지", color = Color3.fromRGB(240, 214, 180), text = Color3.fromRGB(110, 70, 40), tab = "특별한", price = "pass", style = "sticker", stickers = { "🐶", "🦴", "🐾" } },
+	{ key = "kitty", name = "고양이", color = Color3.fromRGB(255, 214, 226), text = Color3.fromRGB(150, 70, 100), tab = "특별한", price = "pass", style = "sticker", stickers = { "🐱", "🐟", "🐾" } },
+	{ key = "hearts", name = "하트", color = Color3.fromRGB(255, 182, 206), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "sticker", stickers = { "💖", "💕", "💗" } },
+	{ key = "stars", name = "별", color = Color3.fromRGB(180, 200, 255), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "sticker", stickers = { "⭐", "🌟", "✨" } },
+	{ key = "flowers", name = "꽃", color = Color3.fromRGB(214, 240, 200), text = Color3.fromRGB(70, 110, 60), tab = "특별한", price = "pass", style = "sticker", stickers = { "🌸", "🌼", "🌷" } },
 } :: {Frame}
 
 function PhotoConfig.priceText(frame: Frame): string
