@@ -6278,6 +6278,7 @@ do
 	-- (SKY and PINK the same size, user 2026-10-30: 23.5 wide each)
 	local ROOM_W, ROOM_MID = FX, (FX + 1 + IN_E - 1) / 2 -- SKY's west wall x 130 .. 131, SKY | PINK x 154.5 .. 155.5
 	local DOOR_X = { SKY = ROOM_W + 7.5, PINK = ROOM_MID + 7.5 } -- each door at the same place in its room
+	local DOOR_LINING = Color3.fromRGB(200, 232, 245) -- the arched doors' inside faces (light sky blue)
 	local WHITE_DOOR_Z = -96 -- the WHITE room's door on the corridor's east wall
 	local AW, AH = 6, 13.5 -- doors (13.5 tall: tall avatars are ~10.5)
 	local BH = GF - 0.4 - F -- room height
@@ -6295,6 +6296,53 @@ do
 	-- wall) and its slanted end are gone, user 2026-10-30; only the outer wall,
 	-- painted pink inside
 	box("WallPink", IN_W, F, NIN, IN_W + 0.1, GF - 0.4, WBAY, PINK_WALL, PLASTER)
+
+	-- LED light box (user photo): a white rounded sign lit from inside, black
+	-- letters, a faint glow on the wall around it. c = centre of the face,
+	-- out = the way it faces
+	local function ledSign(name: string, c: Vector3, out: Vector3, w: number, h: number, text: string)
+		local cf = CFrame.lookAt(c, c + out) -- local +Z points back into the wall
+		part(name .. "Box", Vector3.new(w - 0.2, h - 0.2, 0.3), cf * CFrame.new(0, 0, 0.17), Color3.fromRGB(236, 236, 236), opt({ nocol = true }))
+		local function layer(partName, size, back, color, alpha, brightness)
+			local p = part(partName, Vector3.new(size.X, size.Y, 0.02), cf * CFrame.new(0, 0, back), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+			p.CastShadow = false
+			local g = Instance.new("SurfaceGui")
+			g.Face = Enum.NormalId.Front
+			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			g.PixelsPerStud = 80
+			g.LightInfluence = 0
+			g.Brightness = brightness
+			g.Parent = p
+			local bg = Instance.new("Frame")
+			bg.Size = UDim2.fromScale(1, 1)
+			bg.BackgroundColor3 = color
+			bg.BackgroundTransparency = alpha
+			bg.BorderSizePixel = 0
+			bg.Parent = g
+			local corner = Instance.new("UICorner")
+			corner.CornerRadius = UDim.new(0, math.floor(math.min(size.X, size.Y) * 80 * 0.3))
+			corner.Parent = bg
+			return p, bg
+		end
+		-- soft halo on the wall (two faint rounded layers), then the face
+		layer(name .. "Halo", Vector2.new(w + 0.5, h + 0.5), 0.33, Color3.fromRGB(255, 252, 240), 0.82, 1)
+		layer(name .. "Halo", Vector2.new(w + 0.22, h + 0.22), 0.32, Color3.fromRGB(255, 252, 240), 0.6, 1)
+		local face, bg = layer(name, Vector2.new(w, h), 0, Color3.fromRGB(255, 255, 253), 0, 1.25)
+		local l = Instance.new("TextLabel")
+		l.AnchorPoint = Vector2.new(0.5, 0.5)
+		l.Position = UDim2.fromScale(0.5, 0.5)
+		l.Size = UDim2.fromScale(0.84, 0.56)
+		l.BackgroundTransparency = 1
+		l.Font = Enum.Font.GothamMedium
+		l.TextScaled = true
+		l.TextColor3 = Color3.fromRGB(28, 28, 30)
+		l.Text = text
+		l.Parent = bg
+		local glow = Instance.new("SurfaceLight")
+		glow.Face = Enum.NormalId.Front
+		glow.Range, glow.Brightness, glow.Angle, glow.Color = 5, 0.45, 150, Color3.fromRGB(255, 250, 240)
+		glow.Parent = face
+	end
 
 	---------------------------------------------------------------- north wall: photo wall + props niches
 	local PHOTO_X = (FIN1 + FIN2) / 2
@@ -6386,41 +6434,8 @@ do
 			-- its photo face (+z, attribute Face "Back") just off the sky-blue back
 			p.CFrame = p.CFrame.Rotation + Vector3.new(PHOTO_X, F + 6, IN_N + 0.4 - p.Size.Z / 2)
 			p.Transparency = 1
-			-- "PhOTO" in neon tube letters over the recess (user photo 2026-10-30:
-			-- white-pink core with a violet-pink glow), in place of the 오후네컷 sign
-			local c = Vector3.new(PHOTO_X, F + PHH + 2.6, NFACE + 0.06)
-			local sp = part("PhotoNeonSign", Vector3.new(12, 3.6, 0.05), CFrame.lookAt(c, c + nOut), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
-			sp.CanQuery = false
-			sp.CastShadow = false
-			local g = Instance.new("SurfaceGui")
-			g.Face = Enum.NormalId.Front
-			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-			g.PixelsPerStud = 50
-			g.LightInfluence = 0
-			g.Brightness = 2.2
-			g.Parent = sp
-			for _, layer in ipairs({
-				{ color = Color3.fromRGB(255, 120, 230), alpha = 0.45, stroke = Color3.fromRGB(225, 80, 215), th = 10, sa = 0.6 }, -- the glow
-				{ color = Color3.fromRGB(255, 238, 252), alpha = 0, stroke = Color3.fromRGB(255, 110, 235), th = 3, sa = 0 }, -- the tube
-			}) do
-				local t = Instance.new("TextLabel")
-				t.Size = UDim2.fromScale(1, 1)
-				t.BackgroundTransparency = 1
-				t.Font = Enum.Font.Bodoni
-				t.TextScaled = true
-				t.Text = "PhOTO"
-				t.TextColor3 = layer.color
-				t.TextTransparency = layer.alpha
-				t.Parent = g
-				local s = Instance.new("UIStroke")
-				s.Color = layer.stroke
-				s.Thickness = layer.th
-				s.Transparency = layer.sa
-				s.Parent = t
-			end
-			local l = Instance.new("PointLight")
-			l.Color, l.Range, l.Brightness = Color3.fromRGB(255, 120, 230), 10, 0.8
-			l.Parent = sp
+			-- the same LED light box as over the booth doors, reading PHOTO (user 2026-10-30)
+			ledSign("PhotoSign", Vector3.new(PHOTO_X, F + PHH + 1.8, NFACE + 0.35), nOut, 5.6, 1.5, "PHOTO")
 		end
 	end
 	-- props niches (moved from the west wall, user 2026-10-30): sky-blue backs,
@@ -6578,6 +6593,7 @@ do
 			local c = face - n * (w.Size.Z / 2)
 			w.CFrame = CFrame.lookAt(c, c - n) -- +Z (Back, the photo face) toward the lobby
 			w.Parent = B
+			ledSign("PhotoSign", Vector3.new(pc.X, F + 14.4, pc.Z) + n * 0.85, n, 5.6, 1.5, "PHOTO") -- (over it, like the north photo wall)
 		end
 	end
 
@@ -6720,7 +6736,7 @@ do
 			wall.Parent = m
 		end
 		added(wall)
-		for _, p in ipairs(archRim(c + out * 0.6, along, out, AW, AH, 0.15, 1.22, color, m, Enum.Material.SmoothPlastic)) do added(p) end
+		for _, p in ipairs(archRim(c + out * 0.6, along, out, AW, AH, 0.15, 1.22, DOOR_LINING, m, Enum.Material.SmoothPlastic)) do added(p) end
 		local cw, ch = AW + 1.2, AH + 0.6
 		local cp = part("Curtain", Vector3.new(cw, ch, 0.08), CFrame.fromMatrix(c + out * 0.6 + Vector3.new(0, ch / 2, 0), along, Vector3.yAxis), Color3.fromRGB(236, 238, 240), { parent = m, nocol = true })
 		cp.CanQuery, cp.CanTouch, cp.CastShadow = false, false, false
@@ -6820,26 +6836,27 @@ do
 			l.Parent = ce
 			added(l)
 		end
-		-- the photo's details: tiled band all round (split at the door), domes, stools, notice
-		local dx = DOOR_X[key]
-		if dx then
-			wainscot(m, Vector3.new(x0, 0, z0), Vector3.new(dx - AW / 2 - 0.2, 0, z0), nOut, yF)
-			wainscot(m, Vector3.new(dx + AW / 2 + 0.2, 0, z0), Vector3.new(x1, 0, z0), nOut, yF)
-			wainscot(m, Vector3.new(x0, 0, z0), Vector3.new(x0, 0, z1), Vector3.new(1, 0, 0), yF)
-		else
-			wainscot(m, Vector3.new(x0, 0, z0), Vector3.new(x1, 0, z0), nOut, yF)
-			wainscot(m, Vector3.new(x0, 0, z0), Vector3.new(x0, 0, z0 + 2.4), Vector3.new(1, 0, 0), yF)
-			wainscot(m, Vector3.new(x0, 0, z0 + 2.4 + AW + 4), Vector3.new(x0, 0, z1), Vector3.new(1, 0, 0), yF)
-		end
-		wainscot(m, Vector3.new(x1, 0, z0), Vector3.new(x1, 0, z1), Vector3.new(-1, 0, 0), yF)
-		-- (none on the back wall: its trim ran across the live photo view)
+		-- the inside (user plan 2026-10-30, the same in all three rooms): plain
+		-- walls in the room's colour (no tiled band: fewer parts), two step stools
+		-- along the west side, a small table for bags by the east wall at the
+		-- back, a "don't forget your things" notice low on the west wall at the
+		-- back, two dome cameras up in the corners
 		domeCam(m, Vector3.new(x0 + 1.2, yF + BH - 0.2, z0 + 1.2))
 		domeCam(m, Vector3.new(x1 - 1.2, yF + BH - 0.2, z1 - 1.2))
-		stepStool(m, Vector3.new(x1 - 2.2, yF, z1 - 7.5), math.rad(8))
-		stepStool(m, Vector3.new(x0 + 2.2, yF, z1 - 12), math.rad(-10))
-		local notice = part("BoothNotice", Vector3.new(0.06, 1.4, 1.9), CFrame.new(x0 + 0.14, yF + 7.5, z1 - 9), Color3.fromRGB(255, 240, 246), { parent = m, nocol = true })
+		stepStool(m, Vector3.new(x0 + 4, yF, z0 + 10.8), math.rad(-8))
+		stepStool(m, Vector3.new(x0 + 4, yF, z0 + 23), math.rad(6))
+		do -- the bag table: a white top on a slim black frame
+			local tc = Vector3.new(x1 - 2.2, yF, z1 - 4)
+			added(part("BagTable", Vector3.new(3, 0.2, 3.2), CFrame.new(tc + Vector3.new(0, 3, 0)), Color3.fromRGB(250, 250, 250), { parent = m }))
+			for _, sx in ipairs({ -1, 1 }) do
+				for _, sz in ipairs({ -1, 1 }) do
+					added(part("BagTableLeg", Vector3.new(0.15, 2.9, 0.15), CFrame.new(tc + Vector3.new(sx * 1.3, 1.45, sz * 1.4)), Color3.fromRGB(30, 30, 32), { parent = m, nocol = true, material = Enum.Material.Metal }))
+				end
+			end
+		end
+		local notice = part("BoothNotice", Vector3.new(0.06, 1.6, 2.4), CFrame.new(x0 + 0.14, yF + 5, z1 - 3), Color3.fromRGB(255, 240, 246), { parent = m, nocol = true })
 		added(notice)
-		txt(notice, Enum.NormalId.Right, "사용하신 소품은\n항상 제자리에\n정리해 주세요", Color3.fromRGB(200, 70, 110), Enum.Font.GothamMedium, nil, 60)
+		txt(notice, Enum.NormalId.Right, "소지품을\n잊지 말고\n꼭 챙겨 가세요!", Color3.fromRGB(200, 70, 110), Enum.Font.GothamMedium, nil, 60)
 		-- the WHITE room's way out: an arched door on its west wall (upstairs)
 		if key == "WHITE" then innerDoor(m, Vector3.new(x0, yF, z0 + 2.4 + (AW + 4) / 2), Vector3.new(0, 0, 1), Vector3.new(1, 0, 0), boothColor) end
 		return boothColor
@@ -6848,53 +6865,6 @@ do
 	for _, m in ipairs(booths) do
 		local key = m:GetAttribute("BoothKey")
 		if typeof(key) == "string" and RECT[key] then boothColors[key] = fitBooth(m, key) end
-	end
-
-	-- LED light box (user photo): a white rounded sign lit from inside, black
-	-- letters, a faint glow on the wall around it. c = centre of the face,
-	-- out = the way it faces
-	local function ledSign(name: string, c: Vector3, out: Vector3, w: number, h: number, text: string)
-		local cf = CFrame.lookAt(c, c + out) -- local +Z points back into the wall
-		part(name .. "Box", Vector3.new(w - 0.2, h - 0.2, 0.3), cf * CFrame.new(0, 0, 0.17), Color3.fromRGB(236, 236, 236), opt({ nocol = true }))
-		local function layer(partName, size, back, color, alpha, brightness)
-			local p = part(partName, Vector3.new(size.X, size.Y, 0.02), cf * CFrame.new(0, 0, back), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
-			p.CastShadow = false
-			local g = Instance.new("SurfaceGui")
-			g.Face = Enum.NormalId.Front
-			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-			g.PixelsPerStud = 80
-			g.LightInfluence = 0
-			g.Brightness = brightness
-			g.Parent = p
-			local bg = Instance.new("Frame")
-			bg.Size = UDim2.fromScale(1, 1)
-			bg.BackgroundColor3 = color
-			bg.BackgroundTransparency = alpha
-			bg.BorderSizePixel = 0
-			bg.Parent = g
-			local corner = Instance.new("UICorner")
-			corner.CornerRadius = UDim.new(0, math.floor(math.min(size.X, size.Y) * 80 * 0.3))
-			corner.Parent = bg
-			return p, bg
-		end
-		-- soft halo on the wall (two faint rounded layers), then the face
-		layer(name .. "Halo", Vector2.new(w + 0.5, h + 0.5), 0.33, Color3.fromRGB(255, 252, 240), 0.82, 1)
-		layer(name .. "Halo", Vector2.new(w + 0.22, h + 0.22), 0.32, Color3.fromRGB(255, 252, 240), 0.6, 1)
-		local face, bg = layer(name, Vector2.new(w, h), 0, Color3.fromRGB(255, 255, 253), 0, 1.25)
-		local l = Instance.new("TextLabel")
-		l.AnchorPoint = Vector2.new(0.5, 0.5)
-		l.Position = UDim2.fromScale(0.5, 0.5)
-		l.Size = UDim2.fromScale(0.84, 0.56)
-		l.BackgroundTransparency = 1
-		l.Font = Enum.Font.GothamMedium
-		l.TextScaled = true
-		l.TextColor3 = Color3.fromRGB(28, 28, 30)
-		l.Text = text
-		l.Parent = bg
-		local glow = Instance.new("SurfaceLight")
-		glow.Face = Enum.NormalId.Front
-		glow.Range, glow.Brightness, glow.Angle, glow.Color = 5, 0.45, 150, Color3.fromRGB(255, 250, 240)
-		glow.Parent = face
 	end
 
 	---------------------------------------------------------------- booth doors in the lobby
@@ -6909,7 +6879,8 @@ do
 	local function doorway(booth: Model, key: string, c: Vector3, out: Vector3, half: number, lining: Color3)
 		local along = out:Cross(Vector3.yAxis)
 		local face = c + out * half
-		archRim(c, along, out, AW, AH, 0.15, half * 2 + 0.02, lining, B, Enum.Material.SmoothPlastic)
+		-- the opening's inside faces in light sky blue (user 2026-10-30)
+		archRim(c, along, out, AW, AH, 0.15, half * 2 + 0.02, DOOR_LINING, B, Enum.Material.SmoothPlastic)
 		do
 			local cw, ch = AW + 1.2, AH + 0.6
 			local p = part("Curtain", Vector3.new(cw, ch, 0.08), CFrame.fromMatrix(c + Vector3.new(0, ch / 2, 0), along, Vector3.yAxis), Color3.fromRGB(236, 238, 240), { parent = B, nocol = true })
@@ -6919,18 +6890,7 @@ do
 			end
 		end
 		ledSign("RoomSign", Vector3.new(face.X, F + AH + 1.6, face.Z) + out * 0.35, out, 4.85, 1.35, ROOM_NAMES[key] or key)
-		for _, p in ipairs(archRim(face + out * 0.12, along, out, AW + 1, AH + 0.5, 0.24, 0.16, NEON_PINK, B, Enum.Material.Neon)) do
-			p.Name = "EntranceNeon"
-			p.CanCollide = false
-			p.CastShadow = false
-		end
-		do
-			local glow = Instance.new("PointLight")
-			glow.Color, glow.Range, glow.Brightness = NEON_PINK, 12, 0.9
-			local holder = part("EntranceGlow", Vector3.new(0.2, 0.2, 0.2), CFrame.new(face + out * 1.2 + Vector3.new(0, AH - 0.5, 0)), NEON_PINK, opt({ nocol = true, transparency = 1 }))
-			holder.CanQuery = false
-			glow.Parent = holder
-		end
+		-- (no pink neon tube round the arch any more, user 2026-10-30)
 		local function glowGui(pname: string, at: Vector3, w: number, h: number): Frame
 			local p = part(pname, Vector3.new(w, h, 0.05), CFrame.lookAt(at, at + out), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
 			p.CanQuery = false
@@ -7034,7 +6994,7 @@ do
 		local base = CFrame.lookAt(Vector3.new(front.X, fy, front.Z), Vector3.new(front.X, fy, front.Z) + Vector3.new(look.X, 0, look.Z))
 		local K = Instance.new("Model")
 		K.Name = "PhotoMachine"
-		local D = 1.4
+		local D = 2.4 -- (thicker, user 2026-10-30: was 1.4)
 		local lensY = camP.Position.Y - fy
 		do
 			local old = m:FindFirstChild("PromptPoint")
