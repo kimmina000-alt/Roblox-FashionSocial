@@ -6275,8 +6275,9 @@ do
 	local NMID = (IN_N + NFACE) / 2
 	local FIN1, FIN2 = 92, 128 -- short pink fins either side of the photo wall
 	local ROOM_N = -80 -- the booth rooms' front wall, z -80 .. -79
-	local ROOM_W, ROOM_MID = FX, 158.5 -- SKY's west wall x 130 .. 131, SKY | PINK x 158.5 .. 159.5
-	local DOOR_X = { SKY = 137.5, PINK = 165.5 }
+	-- (SKY and PINK the same size, user 2026-10-30: 23.5 wide each)
+	local ROOM_W, ROOM_MID = FX, (FX + 1 + IN_E - 1) / 2 -- SKY's west wall x 130 .. 131, SKY | PINK x 154.5 .. 155.5
+	local DOOR_X = { SKY = ROOM_W + 7.5, PINK = ROOM_MID + 7.5 } -- each door at the same place in its room
 	local WHITE_DOOR_Z = -96 -- the WHITE room's door on the corridor's east wall
 	local AW, AH = 6, 13.5 -- doors (13.5 tall: tall avatars are ~10.5)
 	local BH = GF - 0.4 - F -- room height
@@ -6285,8 +6286,10 @@ do
 	local NEON_WHITE = Color3.fromRGB(255, 250, 240)
 
 	box("WallPink", IN_W, F, NIN - 0.1, FIN1 - 0.5, GF - 0.4, NIN, PINK_WALL, PLASTER)
+	-- white pillars either side of the photo wall, standing a little proud of
+	-- the north wall (user plan 2026-10-30: the white boxes there)
 	for _, fx in ipairs({ FIN1, FIN2 }) do
-		box("PhotoFin", fx - 0.5, F, NIN, fx + 0.5, GF - 0.4, NFACE + 4.5, PINK_WALL, PLASTER)
+		box("PhotoFin", fx - 1.5, F, NIN, fx + 1.5, GF - 0.4, NFACE + 2.5, WHITE_WALL, PLASTER)
 	end
 	-- the west wall is plain now (its niches moved to the north wall)
 	box("PinkWallW", IN_W, F, NIN, IN_W + PW, GF - 0.4, WBAY - PW, PINK_WALL, PLASTER)
@@ -6934,7 +6937,7 @@ do
 	end
 	-- between the SKY and PINK doors: blue light boxes with neon tubes + notices
 	do
-		local x = 147
+		local x = 145
 		for _, b in ipairs({ { F + 9, F + 13.2 }, { F + 2.5, F + 8 } }) do
 			local box3 = box("LightBox", x - 2.4, b[1], ROOM_N - 1.2, x + 2.4, b[2], ROOM_N, Color3.fromRGB(28, 60, 200), opt({ material = Enum.Material.Glass, transparency = 0.15 }))
 			for k = -1, 1 do
@@ -6945,7 +6948,7 @@ do
 		local notes = { "파우더룸\n이용방법", "예방수칙", "이용 시\n유의사항", "안내" }
 		for i, s in ipairs(notes) do
 			local col, row = (i - 1) % 2, math.floor((i - 1) / 2)
-			local poster = part("NoticePoster", Vector3.new(2.3, 3, 0.1), CFrame.new(153.2 + col * 2.6, F + 10 - row * 3.4, ROOM_N - 0.06), Color3.fromRGB(255, 240, 242), opt({ nocol = true }))
+			local poster = part("NoticePoster", Vector3.new(2.3, 3, 0.1), CFrame.new(149.8 + col * 2.6, F + 10 - row * 3.4, ROOM_N - 0.06), Color3.fromRGB(255, 240, 242), opt({ nocol = true }))
 			txt(poster, Enum.NormalId.Front, s, Color3.fromRGB(200, 70, 90), Enum.Font.GothamBold, nil, 50)
 		end
 	end
