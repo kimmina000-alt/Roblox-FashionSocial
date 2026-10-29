@@ -2546,3 +2546,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 네온 PhOTO + 테스트 사진(D-538): ![](images/2026-10-30/ohu4cut_photo_neon_test.jpg) 복도 끝 연하늘색: ![](images/2026-10-30/ohu4cut_corridor_sky.jpg)
 - 소지품 칸 4개(D-539): ![](images/2026-10-30/ohu4cut_niches4.jpg) MAKE UP 간판: ![](images/2026-10-30/ohu4cut_makeup_sign.jpg) Meshy 거울 미리보기: ![](images/2026-10-30/meshy_ripple_mirror_preview.png)
 - D-540: 문 ![](images/2026-10-30/ohu4cut_doors_v4.jpg) 부스 안 ![](images/2026-10-30/ohu4cut_booth_v4.jpg) PHOTO 박스 ![](images/2026-10-30/ohu4cut_photo_box.jpg) 줄인 거울 메시 ![](images/2026-10-30/meshy_mirror_decimated_preview.png)
+- D-541: 의자 ![](images/2026-10-30/ohu4cut_bench_v2.jpg) 부스 ![](images/2026-10-30/ohu4cut_booth_v5.jpg) 촬영 화면 ![](images/2026-10-30/ohu4cut_shoot_v5.jpg) 거울 메시 비교 ![](images/2026-10-30/meshy_mirror_compare.png)

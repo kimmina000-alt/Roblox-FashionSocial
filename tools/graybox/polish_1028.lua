@@ -315,7 +315,8 @@ do
 		local c = Vector3.new(100, 0, -80)
 		local tbl = shop:FindFirstChild("RoundTable")
 		if tbl then
-			local TR = 1.1 -- the pot is ~1 stud wide
+			-- (the layout sets the table's size since 2026-10-30: TableRadius)
+			local TR = shop:GetAttribute("TableRadius") or 1.1
 			tbl.Size = Vector3.new(tbl.Size.X, TR * 2, TR * 2)
 			c = Vector3.new(tbl.Position.X, 0, tbl.Position.Z)
 		end

@@ -5812,12 +5812,12 @@ do
 		-- the outer posts stand on the corners where the glass bays meet (user)
 		cutAt("PinkPost", s * (cutLen / 2), Vector3.new(1.2, 11.4 * SC, 1.4), F + 5.7 * SC, -0.3, ENTRY) -- up to the sign band (user)
 		-- light panel inside the outer post: lights up at night (NightGlow)
-		local gp = cutAt("FrameGlow", s * (cutLen / 2), Vector3.new(0.5, 10 * SC, 0.1), F + 5.3 * SC, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
+		local gp = cutAt("FrameGlow", s * (cutLen / 2), Vector3.new(0.2, 10 * SC, 0.1), F + 5.3 * SC, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		CS:AddTag(gp, "NightGlow")
 	end
 	cutAt("PinkHead", 0, Vector3.new(cutLen, 1.2, 1.4), F + 10.8 * SC, -0.3, ENTRY)
 	do
-		local gh = cutAt("FrameGlow", 0, Vector3.new(cutLen - 1, 0.5, 0.1), F + 10.8 * SC, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
+		local gh = cutAt("FrameGlow", 0, Vector3.new(cutLen - 1, 0.2, 0.1), F + 10.8 * SC, 0.45, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 		CS:AddTag(gh, "NightGlow")
 	end
 	-- one sliding door (user sketch 2026-10-23): the doorway is on the left
@@ -6029,6 +6029,10 @@ do
 		["t"] = { 0.46, { seg(0.2, 0.92, 0.2, 0.16), ell(0.36, 0.16, 0.16, 0.16, 180, 290), seg(0.02, 0.66, 0.42, 0.66) } },
 		["s"] = { 0.54, { ell(0.27, 0.51, 0.22, 0.17, 20, 270), ell(0.27, 0.17, 0.22, 0.17, 90, -160) } },
 		["◎"] = { 1, { ell(0.5, 0.5, 0.48, 0.48) } },
+		["S"] = { 0.6, { ell(0.3, 0.75, 0.26, 0.24, 20, 270), ell(0.3, 0.25, 0.26, 0.24, 90, -160) } },
+		["T"] = { 0.62, { seg(0.02, 1, 0.6, 1), seg(0.31, 1, 0.31, 0) } },
+		["D"] = { 0.62, { seg(0.06, 0, 0.06, 1), seg(0.06, 1, 0.3, 1), seg(0.06, 0, 0.3, 0), ell(0.3, 0.5, 0.28, 0.5, -90, 90) } },
+		["I"] = { 0.2, { seg(0.1, 0, 0.1, 1) } },
 	}
 	-- aperture logo blades (inside the ◎ ring)
 	for k = 0, 5 do
@@ -6038,8 +6042,10 @@ do
 		table.insert(GLYPHS["◎"][2], seg(cx - 0.27 * math.cos(d), cy - 0.27 * math.sin(d), cx + 0.27 * math.cos(d), cy + 0.27 * math.sin(d)))
 	end
 	-- origin = centre of the sign on the fascia face, right / out = unit vectors
-	local function sign3d(name, chars, origin: Vector3, right: Vector3, out: Vector3, H)
-		local SW, DEPTH, GAP = 0.17 * H, 0.8, 0.16
+	-- style (optional): sw = stroke weight per height, side / face / halo colours
+	local function sign3d(name, chars, origin: Vector3, right: Vector3, out: Vector3, H, style: any?)
+		local st = style or {}
+		local SW, DEPTH, GAP = (st.sw or 0.17) * H, st.depth or 0.8, 0.16
 		local up = Vector3.yAxis
 		local total = 0
 		for i, ch in ipairs(chars) do total += GLYPHS[ch][1] + (if i > 1 then GAP else 0) end
@@ -6052,10 +6058,10 @@ do
 			-- channel letter: light grey sides, pure white face (reads on the
 			-- white fascia even head-on)
 			local cf = CFrame.fromMatrix((a + b) / 2, (b - a).Unit, out)
-			part("Letter", Vector3.new(len + SW * 0.9, DEPTH - 0.06, SW), cf * CFrame.new(0, -0.03, 0), Color3.fromRGB(196, 196, 204), { parent = m, nocol = true })
-			part("LetterFace", Vector3.new(len + SW * 0.9, 0.06, SW), cf * CFrame.new(0, DEPTH / 2 - 0.03, 0), SIGN_WHITE, { parent = m, nocol = true, material = Enum.Material.SmoothPlastic })
+			part("Letter", Vector3.new(len + SW * 0.9, DEPTH - 0.06, SW), cf * CFrame.new(0, -0.03, 0), st.side or Color3.fromRGB(196, 196, 204), { parent = m, nocol = true })
+			part("LetterFace", Vector3.new(len + SW * 0.9, 0.06, SW), cf * CFrame.new(0, DEPTH / 2 - 0.03, 0), st.face or SIGN_WHITE, { parent = m, nocol = true, material = Enum.Material.SmoothPlastic })
 			-- halo: a soft lavender neon behind each stroke, on the band (user 2026-10-23)
-			local halo = part("LetterHalo", Vector3.new(len + SW * 0.9 + 0.35, 0.04, SW + 0.35), cf * CFrame.new(0, -DEPTH / 2 - 0.01, 0), Color3.fromRGB(170, 125, 255), { parent = m, nocol = true, material = Enum.Material.Neon, transparency = 0.25 })
+			local halo = part("LetterHalo", Vector3.new(len + SW * 0.9 + 0.35, 0.04, SW + 0.35), cf * CFrame.new(0, -DEPTH / 2 - 0.01, 0), st.halo or Color3.fromRGB(170, 125, 255), { parent = m, nocol = true, material = Enum.Material.Neon, transparency = 0.25 })
 			halo.CastShadow = false
 		end
 		local x = -total / 2
@@ -6113,11 +6119,14 @@ do
 	-- the shop name sits one band lower, on the wall between the door frame and
 	-- the fascia, so players see it from the street (user 2026-10-23)
 	local fasMid = (FAS0 + FAS1) / 2
-	sign3d("Sign_OhuNeCut", { "◎", "오", "후", "네", "컷" }, Vector3.new(MC.X, fasMid, MC.Z) + nC * 1.2, tC, nC, 1.33) -- 2/3 size
+	-- (user photo 2026-10-30: strokes half as thick, pink letters with a warm
+	-- light behind them like the 인생네컷 storefront)
+	local STORE_SIGN = { sw = 0.085, side = Color3.fromRGB(214, 70, 128), face = Color3.fromRGB(246, 104, 160), halo = Color3.fromRGB(255, 214, 130) }
+	sign3d("Sign_OhuNeCut", { "◎", "오", "후", "네", "컷" }, Vector3.new(MC.X, fasMid, MC.Z) + nC * 1.2, tC, nC, 1.33, STORE_SIGN) -- 2/3 size
 	-- (left-aligned with the poster frame's left edge, user 2026-10-26)
-	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, -90.2), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.33)
+	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, -90.2), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.33, STORE_SIGN)
 	-- and on the south band over the capsule windows (user 2026-10-23)
-	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new((W0 + CH + W1 - 2) / 2, fasMid, S0 + 1.2), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), 1.33)
+	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new((W0 + CH + W1 - 2) / 2, fasMid, S0 + 1.2), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), 1.33, STORE_SIGN)
 
 	-- upper floors (2F, 3F): white brick mass with the cut corner, dark-framed
 	-- windows, floor bands, then a parapet with a steel railing (roof terrace)
@@ -6684,7 +6693,7 @@ do
 	local RECT = {
 		SKY = { ROOM_W + 1, ROOM_MID, ROOM_N + 1, S0 - 1, F },
 		PINK = { ROOM_MID + 1, IN_E, ROOM_N + 1, S0 - 1, F },
-		WHITE = { 151.5, IN_E, IN_N, -81, GF + 0.4 }, -- upstairs, over the corridor's east end
+		WHITE = { IN_E - 23.5, IN_E, IN_N, -81, GF + 0.4 }, -- upstairs, over the corridor's east end (as wide as the others)
 	}
 	local TERRAZZO = "rbxassetid://89400480701314" -- docs/04_ART/textures/ohu4cut_terrazzo.png
 	local BEIGE_TILE = Color3.fromRGB(226, 214, 192)
@@ -6805,22 +6814,24 @@ do
 			end
 		end
 		added(front)
-		-- photo set-up: camera 20.75 from the back wall looking at it (south),
-		-- people 3.6 in front of the backdrop (as before, D-451 framing)
+		-- photo set-up (user plan 2026-10-30): the machine against the east wall
+		-- looking west, the backdrop on the west wall; the camera ~20.6 from the
+		-- backdrop and the people 3.6 in front of it (the D-451 framing)
 		local camP, stand, back = m:FindFirstChild("CameraPoint"), m:FindFirstChild("Stand"), m:FindFirstChild("Backdrop")
 		remember(camP) remember(stand) remember(back)
+		local camX = x1 - 2.75 -- (the 2.4 deep machine's back on the wall)
 		if camP and camP:IsA("BasePart") then
-			local camPos = Vector3.new(cx, yF + 5.2, z1 - 20.75)
-			camP.CFrame = CFrame.lookAt(camPos, camPos + Vector3.new(0, 0, 1))
+			local camPos = Vector3.new(camX, yF + 5.2, cz)
+			camP.CFrame = CFrame.lookAt(camPos, camPos + Vector3.new(-1, 0, 0))
 		end
 		if stand and stand:IsA("BasePart") then
-			local sp = Vector3.new(cx, stand.Position.Y, z1 - 3.6)
-			stand.Size = Vector3.new(w - 3, stand.Size.Y, 7)
-			stand.CFrame = CFrame.lookAt(sp, sp + Vector3.new(0, 0, -1))
+			local sp = Vector3.new(x0 + 3.7, stand.Position.Y, cz)
+			stand.Size = Vector3.new(dz - 3, stand.Size.Y, 7)
+			stand.CFrame = CFrame.lookAt(sp, sp + Vector3.new(1, 0, 0))
 		end
 		if back and back:IsA("BasePart") then
-			back.CFrame = CFrame.new(cx, yF + BH / 2, z1 - 0.12) * CFrame.Angles(0, math.rad(90), 0)
-			back.Size = Vector3.new(back.Size.X, BH, w)
+			back.CFrame = CFrame.new(x0 + 0.12, yF + BH / 2, cz)
+			back.Size = Vector3.new(back.Size.X, BH, dz)
 			recolor(back, boothColor)
 		end
 		local camProp = m:FindFirstChild("CameraProp")
@@ -6836,17 +6847,15 @@ do
 			l.Parent = ce
 			added(l)
 		end
-		-- the inside (user plan 2026-10-30, the same in all three rooms): plain
-		-- walls in the room's colour (no tiled band: fewer parts), two step stools
-		-- along the west side, a small table for bags by the east wall at the
-		-- back, a "don't forget your things" notice low on the west wall at the
-		-- back, two dome cameras up in the corners
+		-- the inside, the same in all three rooms: plain walls in the room's
+		-- colour, two dome cameras; by the machine on the east wall a small table
+		-- for bags against the wall, a "don't forget your things" paper on the wall
+		-- over it, and the two step stools in front of it (out of the photo)
 		domeCam(m, Vector3.new(x0 + 1.2, yF + BH - 0.2, z0 + 1.2))
 		domeCam(m, Vector3.new(x1 - 1.2, yF + BH - 0.2, z1 - 1.2))
-		stepStool(m, Vector3.new(x0 + 4, yF, z0 + 10.8), math.rad(-8))
-		stepStool(m, Vector3.new(x0 + 4, yF, z0 + 23), math.rad(6))
-		do -- the bag table: a white top on a slim black frame
-			local tc = Vector3.new(x1 - 2.2, yF, z1 - 4)
+		local tz = cz + 4.6
+		do -- the bag table: a white top on a slim black frame, against the wall
+			local tc = Vector3.new(x1 - 1.6, yF, tz)
 			added(part("BagTable", Vector3.new(3, 0.2, 3.2), CFrame.new(tc + Vector3.new(0, 3, 0)), Color3.fromRGB(250, 250, 250), { parent = m }))
 			for _, sx in ipairs({ -1, 1 }) do
 				for _, sz in ipairs({ -1, 1 }) do
@@ -6854,12 +6863,14 @@ do
 				end
 			end
 		end
-		local notice = part("BoothNotice", Vector3.new(0.06, 1.6, 2.4), CFrame.new(x0 + 0.14, yF + 5, z1 - 3), Color3.fromRGB(255, 240, 246), { parent = m, nocol = true })
+		local notice = part("BoothNotice", Vector3.new(0.06, 1.6, 2.4), CFrame.new(x1 - 0.14, yF + 7, tz), Color3.fromRGB(255, 240, 246), { parent = m, nocol = true })
 		added(notice)
-		txt(notice, Enum.NormalId.Right, "소지품을\n잊지 말고\n꼭 챙겨 가세요!", Color3.fromRGB(200, 70, 110), Enum.Font.GothamMedium, nil, 60)
-		-- the WHITE room's way out: an arched door on its west wall (upstairs)
-		if key == "WHITE" then innerDoor(m, Vector3.new(x0, yF, z0 + 2.4 + (AW + 4) / 2), Vector3.new(0, 0, 1), Vector3.new(1, 0, 0), boothColor) end
-		return boothColor
+		txt(notice, Enum.NormalId.Left, "소지품을\n잊지 말고\n꼭 챙겨 가세요!", Color3.fromRGB(200, 70, 110), Enum.Font.GothamMedium, nil, 60)
+		stepStool(m, Vector3.new(x1 - 4.8, yF, tz - 0.6), math.rad(4))
+		stepStool(m, Vector3.new(x1 - 4.8, yF, tz + 2.4), math.rad(-6))
+		-- the WHITE room's way out: an arched door on its north wall (upstairs),
+		-- where the other rooms have theirs
+		if key == "WHITE" then innerDoor(m, Vector3.new(x0 + 7.5, yF, z0), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), boothColor) end		return boothColor
 	end
 	local boothColors = {}
 	for _, m in ipairs(booths) do
@@ -7126,29 +7137,12 @@ do
 		end
 		vcyl("PitRimJoint", Vector3.new(pts[#pts - 1].X, F, pts[#pts - 1].Z), RIM_W, RIM_H, RIM, opt({ nocol = true }))
 		-- STUDIO in warm bulb letters on the north wall
-		do
-			local c = Vector3.new((PX0 + PX1) / 2, F + 13.5, PZ0 + 0.1)
-			local sp = part("StudioSign", Vector3.new(15, 4, 0.05), CFrame.lookAt(c, c + nOut), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+		do -- (raised 3D letters, user 2026-10-30: the flat text read as a sticker)
+			local c = Vector3.new((PX0 + PX1) / 2, F + 13.5, PZ0)
+			sign3d("Sign_Studio", { "S", "T", "U", "D", "I", "O" }, c, Vector3.new(1, 0, 0), nOut, 3.2,
+				{ sw = 0.13, depth = 0.6, side = Color3.fromRGB(196, 150, 70), face = Color3.fromRGB(246, 206, 120), halo = Color3.fromRGB(255, 230, 170) })
+			local sp = part("StudioSignLight", Vector3.new(0.2, 0.2, 0.2), CFrame.new(c + nOut * 2), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
 			sp.CanQuery = false
-			local g = Instance.new("SurfaceGui")
-			g.Face = Enum.NormalId.Front
-			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-			g.PixelsPerStud = 40
-			g.LightInfluence = 0.2
-			g.Brightness = 1.6
-			g.Parent = sp
-			local t = Instance.new("TextLabel")
-			t.Size = UDim2.fromScale(1, 1)
-			t.BackgroundTransparency = 1
-			t.Font = Enum.Font.LuckiestGuy
-			t.TextScaled = true
-			t.TextColor3 = Color3.fromRGB(240, 196, 110)
-			t.Text = "STUDIO"
-			t.Parent = g
-			local ts = Instance.new("UIStroke")
-			ts.Color = Color3.fromRGB(150, 100, 40)
-			ts.Thickness = 3
-			ts.Parent = t
 			local l = Instance.new("PointLight")
 			l.Color, l.Range, l.Brightness = Color3.fromRGB(255, 220, 160), 12, 0.8
 			l.Parent = sp
@@ -7183,17 +7177,19 @@ do
 		end
 		-- towel ladder leaning on the north wall, a pink towel over a rung
 		do
-			local lx, top, foot = PX0 + 7, PZ0 + 0.5, PZ0 + 1.8
+			-- (twice the size, user 2026-10-30)
+			local LH, LW = 19, 2.4 -- height, half width
+			local lx, top, foot = PX0 + 8, PZ0 + 0.6, PZ0 + 3.2
 			for _, s in ipairs({ -1, 1 }) do
-				local a0, a1 = Vector3.new(lx + s * 1.2, F, foot), Vector3.new(lx + s * 1.2, F + 9.5, top)
+				local a0, a1 = Vector3.new(lx + s * LW, F, foot), Vector3.new(lx + s * LW, F + LH, top)
 				local mid = (a0 + a1) / 2
-				part("LadderRail", Vector3.new(0.25, 0.25, (a1 - a0).Magnitude), CFrame.lookAt(mid, a1), Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
+				part("LadderRail", Vector3.new(0.4, 0.4, (a1 - a0).Magnitude), CFrame.lookAt(mid, a1), Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
 			end
-			for k = 1, 5 do
-				local t = k / 6
-				part("LadderRung", Vector3.new(2.4, 0.18, 0.18), CFrame.new(lx, F + 9.5 * t, foot + (top - foot) * t), Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
+			for k = 1, 9 do
+				local t = k / 10
+				part("LadderRung", Vector3.new(2 * LW, 0.3, 0.3), CFrame.new(lx, F + LH * t, foot + (top - foot) * t), Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
 			end
-			part("Towel", Vector3.new(1.8, 3.2, 0.12), CFrame.new(lx, F + 9.5 * 4 / 6 - 1.5, foot + (top - foot) * 4 / 6 + 0.15), Color3.fromRGB(255, 196, 206), opt({ material = Enum.Material.Fabric, nocol = true }))
+			part("Towel", Vector3.new(3.6, 6.4, 0.16), CFrame.new(lx, F + LH * 0.6 - 3, foot + (top - foot) * 0.6 + 0.25), Color3.fromRGB(255, 196, 206), opt({ material = Enum.Material.Fabric, nocol = true }))
 		end
 		-- the cafe's pot plant on the balls (user 2026-10-30: was a stool with owls)
 		do
@@ -7354,26 +7350,32 @@ do
 	-- plant on top, a light sky-blue bench round it in two arcs.) Turned 30°
 	-- (user 2026-10-30: "사선으로 살짝 회전"); polish_1028 reads BenchTurn.
 	do
-		local c = Vector3.new(100, F, -80)
+		-- (user 2026-10-30: 80% of the size at the same seat height, moved toward
+		-- the curved wall; a wider table, two pots sunk to hide their legs)
+		local c = Vector3.new(106, F, -75)
 		local TURN = 30
 		B:SetAttribute("BenchTurn", TURN)
 		-- (table down to the pot size, benches 15° shorter at each end: user 2026-10-28, D-451)
-		local TR, R0, R1, SH = 1.1, 10.5, 14, 2.4 -- table radius, bench inner / outer radius, seat height
+		local TR, R0, R1, SH = 1.5, 8.4, 11.2, 2.4 -- table radius, bench inner / outer radius, seat height
 		local PINK_T = Color3.fromRGB(255, 205, 214)
 		local SKY_B = Color3.fromRGB(186, 226, 240)
 		vcyl("RoundTable", c, TR * 2, 3.6, PINK_T, opt({ material = Enum.Material.SmoothPlastic }))
+		B:SetAttribute("TableRadius", TR)
 		local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 		local pot = art and art:FindFirstChild("CafePotPlant")
-		if pot then
-			local m = pot:Clone()
-			if m:IsA("Model") then
-				m:ScaleTo(1.3 / 5) -- (1/5 of the first size, user 2026-10-27)
-				local cf, size = m:GetBoundingBox()
-				m:PivotTo(m:GetPivot() + (c + Vector3.new(0, 3.6 + size.Y / 2, 0) - cf.Position))
+		for i, spot in ipairs({ { Vector3.new(-0.55, 0, -0.1), 1 }, { Vector3.new(0.6, 0, 0.15), 1.3 } }) do
+			if pot then
+				local m = pot:Clone()
+				if m:IsA("Model") then
+					m:ScaleTo(1.3 / 5 * spot[2]) -- (1/5 of the first size, user 2026-10-27; the second 1.3x)
+					local cf, size = m:GetBoundingBox()
+					-- sunk into the table so the planter's black legs do not show
+					m:PivotTo(m:GetPivot() + (c + spot[1] + Vector3.new(0, 3.6 + size.Y / 2 - size.Y * 0.38, 0) - cf.Position))
+				end
+				for _, d in ipairs(m:GetDescendants()) do if d:IsA("BasePart") then d.Anchored = true d.CanCollide = false end end
+				m.Name = if i == 1 then "TablePlant" else "TablePlant2"
+				m.Parent = B
 			end
-			for _, d in ipairs(m:GetDescendants()) do if d:IsA("BasePart") then d.Anchored = true d.CanCollide = false end end
-			m.Name = "TablePlant"
-			m.Parent = B
 		end
 		local RM = (R0 + R1) / 2
 		for _, arc in ipairs({ { -60 + TURN, 60 + TURN }, { 120 + TURN, 240 + TURN } }) do -- degrees from +x (east) toward +z (south)
