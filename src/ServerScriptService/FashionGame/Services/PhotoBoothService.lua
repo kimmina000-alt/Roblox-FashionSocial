@@ -1038,10 +1038,11 @@ local function seedPhotos(player: Player)
 	local have = {}
 	local _, album = playerData.GetPhotos(player)
 	for _, photo in ipairs(if typeof(album) == "table" then album else {}) do
-		if typeof(photo) == "table" and photo.test then table.insert(have, photo) end
+		if typeof(photo) == "table" and photo.test and (photo.frame == "neon" or photo.frame == "gloss_pink" or photo.frame == "gold" or photo.frame == "glitter_silver") then table.insert(have, photo) end
 	end
 	local y = -stand.Size.Y / 2 + 3.1
-	local samples = { { layout = "1x4", frame = "black" }, { layout = "2x2", frame = "white" }, { layout = "1x4", frame = "gray" } }
+	-- (the four 특별한 frames, user 2026-10-30)
+	local samples = { { layout = "1x4", frame = "neon" }, { layout = "1x4", frame = "gloss_pink" }, { layout = "1x4", frame = "gold" }, { layout = "1x4", frame = "glitter_silver" } }
 	for i = #have + 1, #samples do
 		local s = samples[i]
 		local shots = {}
@@ -1073,7 +1074,7 @@ local function seedPhotos(player: Player)
 		for _, tool in ipairs(photoTools(player)) do
 			if tool:GetAttribute("PhotoId") == photo.id then inBag = true end
 		end
-		if not inBag and #photoTools(player) < 3 then buildPhotoTool(photo).Parent = backpack end
+		if not inBag and #photoTools(player) < #samples then buildPhotoTool(photo).Parent = backpack end
 	end
 end
 local function setupWall(wall: Instance)
