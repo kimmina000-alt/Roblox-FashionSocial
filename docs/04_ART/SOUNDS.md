@@ -98,7 +98,7 @@ Roblox는 캐릭터마다 `RbxCharacterSounds`로 기본 소리를 붙여요. �
 | 29 | 🏠·버스로 순간이동할 때 슉 (지하철은 안 남) | 15675046931 | Roblox_UI_Sweep (Roblox) | `Body.teleport` | |
 | 30 | 지하철 타고 도착했을 때 열차 소리 3초 (띵동, 보류 중) | 9117092623 | New York City Subway 2 (Pro Sound Effects) | `Subway` | |
 | 31 | 클럽 테이블에 병·버킷 놓일 때 쨍 | 9114076521 | Dinner Plates 3, 유리 (Pro Sound Effects) | `Clink` | |
-| 32 | 바닷가 파도 (가까울수록 크게, 최대 0.165 = 처음의 30 %) | 9119677305 | Surf Ocean Wave Impact On Zuma Beach 4 (Pro Sound Effects) | `Ambience.waves` | |
+| 32 | 바닷가 파도 (가까울수록 크게, 최대 0.0825 = 처음의 15 %, D-525) | 9119677305 | Surf Ocean Wave Impact On Zuma Beach 4 (Pro Sound Effects) | `Ambience.waves` | |
 | 33 | 거리 배경 소리 (최대 0.09, 클럽 안에서는 꺼짐) | 9112819963 | Las Vegas Night Traffic 1 (Pro Sound Effects) | `Ambience.city` | |
 | 34 | 새소리 (포켓 공원, 놀이터, 광화문·한옥 마을, 최대 0.175) | 9112831284 | Morning Birds 1 (Pro Sound Effects) | `Ambience.birds` | |
 

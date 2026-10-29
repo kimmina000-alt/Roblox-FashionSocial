@@ -505,7 +505,7 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	local sip = Instance.new("Sound")
 	sip.Name = "Sip"
 	sip.SoundId = "rbxassetid://" .. tostring(if COFFEE[item.key] then COFFEE_SIP else EAT_SOUND[kind] or ClubConfig.GulpSoundId)
-	sip.Volume = 0.7
+	sip.Volume = if COFFEE[item.key] then 1.4 else 0.7 -- coffee twice as loud (user 2026-10-30)
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
 	markEdible(tool, handle)

@@ -179,7 +179,7 @@ for name, id in pairs(SoundConfig.Ambience :: {[string]: number}) do
 	loops[name] = s
 end
 
-local MAX = { waves = 0.165, birds = 0.175, city = 0.09 }
+local MAX = { waves = 0.0825, birds = 0.175, city = 0.09 }
 local current = { waves = 0, birds = 0, city = 0 }
 local nextAt = 0
 RunService.Heartbeat:Connect(function()
