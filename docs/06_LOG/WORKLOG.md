@@ -2563,3 +2563,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-554: 네온 외곽선 ![](images/2026-10-30/photo_frames_neon_edge.jpg)
 - D-555: ![](images/2026-10-30/photo_special_all.jpg)
 - D-556: 거울 위치 ![](images/2026-10-30/ohu4cut_mirror_moved.jpg), 프레임 목록 docs/01_SYSTEMS/PHOTO_FRAMES.md
+- D-557: ![](images/2026-10-30/ohu4cut_mirror_thinner.jpg)

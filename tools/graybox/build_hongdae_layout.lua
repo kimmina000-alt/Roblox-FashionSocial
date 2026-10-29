@@ -7305,7 +7305,7 @@ do
 	do
 		local MS = 1.3 -- (1.3x, user 2026-10-30)
 		local C, AMP, LAM, HALF = 1.75 * MS, 0.3 * MS, 2.1 * MS, 4.5 * MS -- the tube's centre line: half width, wave, wavelength, half height
-		local D = 1.5 * MS -- the tube's thickness
+		local D = 1.5 * MS * 0.82 -- the tube's thickness (a little thinner, user 2026-10-30)
 		local COL = Color3.fromRGB(246, 238, 226) -- ivory
 		local TILT = math.rad(8)
 		local function hw(v: number): number
