@@ -1220,7 +1220,7 @@ function PhotoBoothService.Start(dataService: any)
 	for _, wall in ipairs(CollectionService:GetTagged("PhotoWall")) do setupWall(wall) end
 	CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(setupWall)
 	task.spawn(loadWall)
-	if game:GetService("RunService"):IsStudio() then
+	if false and game:GetService("RunService"):IsStudio() then -- (sample photos off: the frames are settled, user 2026-10-30)
 		task.delay(3, function() -- (sample photos for testing, Studio only)
 			for _, p in ipairs(Players:GetPlayers()) do task.spawn(seedPhotos, p) end
 			Players.PlayerAdded:Connect(function(p) task.spawn(seedPhotos, p) end)

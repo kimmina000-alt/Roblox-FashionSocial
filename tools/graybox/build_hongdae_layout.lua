@@ -7312,7 +7312,7 @@ do
 			local t = math.abs(v) / HALF
 			return (C + AMP * math.cos(2 * math.pi * v / LAM)) * math.max(0, 1 - t ^ 10) ^ 0.25
 		end
-		local wallX, zc = IN_W + 0.1, -83.2 -- the pink liner's face, south of the ball pit (clear of its ledge at 1.3x)
+		local wallX, zc = IN_W + 0.1, -78.2 -- the pink liner's face, south of the ball pit (5 further south, user 2026-10-30)
 		local H = 2 * HALF + D
 		local up = Vector3.new(-math.sin(TILT), math.cos(TILT), 0) -- leaning back onto the wall (-x)
 		local right = Vector3.new(0, 0, 1)

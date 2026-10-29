@@ -37,7 +37,7 @@ MonetizationConfig.GamePasses = {
 	VIP = { sku = "CLUB-PASS-VIP", id = 2053896389, name = "VIP 패스", price = 299, status = "live",
 		description = "클럽 2층 VIP 라운지에 언제든 들어갈 수 있어요." },
 	-- 인생네컷 glossy + glitter frames (D-064). Permanent.
-	FramePack = { sku = "PHOTO-PASS-FRAMEPACK1", id = 2052036510, name = "프레임 팩 (글로시·반짝이)", price = 99, status = "live",
+	FramePack = { sku = "PHOTO-PASS-FRAMEPACK1", id = 2052036510, name = "프레임 팩 (특별한 프레임 12종)", price = 99, status = "live",
 		description = "인생네컷 특별 프레임(글로시·반짝이)을 영구로 써요." },
 	-- Coin x2 for good (D-278): time online and the cafe job earn twice as much.
 	CoinX2 = { sku = "ECON-PASS-COINX2", id = 2054100489, name = "코인 x2 패스", price = 199, status = "live",
