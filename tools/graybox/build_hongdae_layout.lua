@@ -6373,15 +6373,41 @@ do
 			-- its photo face (+z, attribute Face "Back") just off the sky-blue back
 			p.CFrame = p.CFrame.Rotation + Vector3.new(PHOTO_X, F + 6, IN_N + 0.4 - p.Size.Z / 2)
 			p.Transparency = 1
-			-- "오후네컷" (image, 강원교육모두 Light) on the pink wall over the recess
-			local SW = 10
-			local c = Vector3.new(PHOTO_X, F + PHH + 0.8 + SW / 2.5 / 2, NFACE + 0.06)
-			local sp = part("Sign_PhotoWall", Vector3.new(SW, SW / 2.5, 0.05), CFrame.lookAt(c, c + nOut), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+			-- "PhOTO" in neon tube letters over the recess (user photo 2026-10-30:
+			-- white-pink core with a violet-pink glow), in place of the 오후네컷 sign
+			local c = Vector3.new(PHOTO_X, F + PHH + 2.6, NFACE + 0.06)
+			local sp = part("PhotoNeonSign", Vector3.new(12, 3.6, 0.05), CFrame.lookAt(c, c + nOut), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
 			sp.CanQuery = false
-			local dc = Instance.new("Decal")
-			dc.Face = Enum.NormalId.Front
-			dc.Texture = "rbxassetid://130799628772055"
-			dc.Parent = sp
+			sp.CastShadow = false
+			local g = Instance.new("SurfaceGui")
+			g.Face = Enum.NormalId.Front
+			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+			g.PixelsPerStud = 50
+			g.LightInfluence = 0
+			g.Brightness = 2.2
+			g.Parent = sp
+			for _, layer in ipairs({
+				{ color = Color3.fromRGB(255, 120, 230), alpha = 0.45, stroke = Color3.fromRGB(225, 80, 215), th = 10, sa = 0.6 }, -- the glow
+				{ color = Color3.fromRGB(255, 238, 252), alpha = 0, stroke = Color3.fromRGB(255, 110, 235), th = 3, sa = 0 }, -- the tube
+			}) do
+				local t = Instance.new("TextLabel")
+				t.Size = UDim2.fromScale(1, 1)
+				t.BackgroundTransparency = 1
+				t.Font = Enum.Font.Bodoni
+				t.TextScaled = true
+				t.Text = "PhOTO"
+				t.TextColor3 = layer.color
+				t.TextTransparency = layer.alpha
+				t.Parent = g
+				local s = Instance.new("UIStroke")
+				s.Color = layer.stroke
+				s.Thickness = layer.th
+				s.Transparency = layer.sa
+				s.Parent = t
+			end
+			local l = Instance.new("PointLight")
+			l.Color, l.Range, l.Brightness = Color3.fromRGB(255, 120, 230), 10, 0.8
+			l.Parent = sp
 		end
 	end
 	-- props niches (moved from the west wall, user 2026-10-30): sky-blue backs,
@@ -6394,8 +6420,13 @@ do
 			local back = archPanel(Vector3.new(xc, F, IN_N + 0.15), nAlong, nOut, NW, NH, 0.2, SKY, B, Enum.Material.SmoothPlastic)
 			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 6 sl.Brightness = 0.5 sl.Color = SKY_LIGHT sl.Parent = back
 			archRim(Vector3.new(xc, F, NFACE + 0.05), nAlong, nOut, NW + 0.16, NH + 0.08, 0.08, 0.3, NEON_WHITE, B, Enum.Material.Neon)
-			local sign = part("NicheSign", Vector3.new(3.4, 0.9, 0.05), CFrame.new(xc, F + NH - 2.4, IN_N + 0.3), SKY, opt({ nocol = true, transparency = 1 }))
-			txt(sign, Enum.NormalId.Back, "OHU 4 CUT\nPLAYGROUND", Color3.fromRGB(40, 60, 80), Enum.Font.GothamMedium, nil, 60)
+			-- (no text; a round ceiling light at the arch's top, user 2026-10-30)
+			local lamp = vcyl("NicheLight", Vector3.new(xc, F + NH - 0.14, NMID + 0.3), 1.1, 0.12, Color3.fromRGB(255, 252, 240), opt({ nocol = true, material = Enum.Material.Neon }))
+			lamp.CastShadow = false
+			local spot = Instance.new("SpotLight")
+			spot.Face = Enum.NormalId.Left -- (the disc's underside)
+			spot.Angle, spot.Range, spot.Brightness, spot.Color = 80, 14, 1.2, Color3.fromRGB(255, 244, 228)
+			spot.Parent = lamp
 			for _, s in ipairs({ -1, 1 }) do
 				for _, zz in ipairs({ s0 + 0.1, s1 - 0.1 }) do
 					part("ShelfPost", Vector3.new(0.12, 8.6, 0.12), CFrame.new(xc + s * 3.6, F + 4.3, zz), Color3.fromRGB(215, 215, 220), opt({ material = Enum.Material.Metal }))
@@ -6570,6 +6601,8 @@ do
 		local wall = box("WhitePortal", PORTAL_X0, F, WHITE_DOOR_Z - 7.5, IN_E, GF - 0.4, WHITE_DOOR_Z + 7.5, PINK_WALL, PLASTER)
 		subtract(wall, archHole(Vector3.new((PORTAL_X0 + IN_E) / 2, F - 0.1, WHITE_DOOR_Z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH + 0.1, 3), "WhitePortal", Enum.Material.SmoothPlastic)
 	end
+	-- the corridor's end wall either side of the WHITE door: light sky blue (user 2026-10-30)
+	box("CorridorEndWall", IN_E - 0.05, F, NFACE, IN_E, GF - 0.4, ROOM_N, Color3.fromRGB(200, 232, 245), PLASTER)
 
 	---------------------------------------------------------------- booths
 	local booths = {}

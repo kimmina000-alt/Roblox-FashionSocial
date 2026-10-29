@@ -2543,3 +2543,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 곡선 벽 포토월(SHOP2, 보이는 판 없음), 사용 중 문구('아이디 님이 사진을 찍고 있어요'), 호스트 내보내기(대기·촬영 중, 두 번 누르기)(D-535). 내보내기는 2인 테스트 필요.
 - 볼풀 턱 높이·너비·모자이크 타일, 카페 화분(D-536): ![](images/2026-10-30/ohu4cut_ballpit_v2.jpg)
 - 볼풀 정리 + 물결 거울(D-537): ![](images/2026-10-30/ohu4cut_wavy_mirror.jpg)
+- 네온 PhOTO + 테스트 사진(D-538): ![](images/2026-10-30/ohu4cut_photo_neon_test.jpg) 복도 끝 연하늘색: ![](images/2026-10-30/ohu4cut_corridor_sky.jpg)

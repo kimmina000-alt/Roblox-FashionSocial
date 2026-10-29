@@ -916,7 +916,7 @@ local function takeOut(player: Player, id: any): (boolean, string?)
 	return true, "사진을 가방에 넣었어요! 아래 아이템 칸에서 꺼내 들 수 있어요."
 end
 
-type WallEntry = { id: string, wall: string, u: number, v: number, by: string, at: number, photo: any }
+type WallEntry = { id: string, wall: string, u: number, v: number, by: string, at: number, photo: any, test: boolean? }
 local wallEntries: {WallEntry} = {}
 
 -- The wall keeps its photos across servers (user 2026-10-26: what was put up
@@ -929,7 +929,10 @@ local wallDirty = false
 local function saveWall()
 	if not wallStore or not wallDirty then return end
 	wallDirty = false
-	local list = wallEntries
+	local list = {}
+	for _, entry in ipairs(wallEntries) do
+		if not entry.test then table.insert(list, entry) end -- (Studio sample photos are never saved)
+	end
 	local ok, err = pcall(function()
 		(wallStore :: DataStore):UpdateAsync(WALL_KEY, function(old)
 			-- merge photos put up on other servers meanwhile, newest last
@@ -1015,6 +1018,51 @@ local function wallPost(player: Player, payload: any): (boolean, string?)
 	end
 	EconomyService.Award(player, "WallPost")
 	return true, "포토월에 붙였어요!"
+end
+
+-- Studio only (user 2026-10-30: "포토월 테스트하게 사진 세 개 정도"): three
+-- sample photos on the walls, made from the first player's outfit standing on
+-- a booth's stand, so the walls can be checked without shooting first. Marked
+-- test: never saved.
+local seeded = false
+local function seedWall(player: Player)
+	if seeded or #wallEntries > 0 then return end
+	local character = player.Character or player.CharacterAdded:Wait()
+	local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid?
+	if not humanoid or seeded or #wallEntries > 0 then return end
+	local booth, stand
+	for _, b in ipairs(CollectionService:GetTagged("PhotoBooth")) do
+		if b:IsA("Model") and b:IsDescendantOf(workspace) and part(b, "Stand") then booth, stand = b, part(b, "Stand") break end
+	end
+	if not booth or not stand then return end
+	local ok, outfit = pcall(function() return OutfitSnapshot.encode(humanoid:GetAppliedDescription()) end)
+	if not ok then return end
+	seeded = true
+	local y = -stand.Size.Y / 2 + 3.1
+	local samples = {
+		{ wall = "SHOP", u = 0.3, v = 0.5, layout = "1x4", frame = "black" },
+		{ wall = "SHOP", u = 0.7, v = 0.45, layout = "2x2", frame = "white" },
+		{ wall = "SHOP2", u = 0.5, v = 0.5, layout = "1x4", frame = "gray" },
+	}
+	for i, s in ipairs(samples) do
+		local shots = {}
+		for k = 1, 4 do
+			table.insert(shots, { people = { { u = player.UserId, x = (k - 2.5) * 0.6, y = y, z = 0, r = (k - 2.5) * 0.25, p = {} } } })
+		end
+		local photo = {
+			id = HttpService:GenerateGUID(false),
+			v = 1,
+			createdAt = os.time(),
+			layout = s.layout,
+			frame = s.frame,
+			booth = boothInfo(booth, stand),
+			people = { { u = player.UserId, n = player.DisplayName, o = outfit } },
+			shots = shots,
+		}
+		local entry: WallEntry = { id = photo.id, wall = s.wall, u = s.u, v = s.v, by = "테스트", at = now() + i * 0.001, photo = photo, test = true }
+		table.insert(wallEntries, entry)
+		if event then event:FireAllClients("WallAdd", entry) end
+	end
 end
 
 local function setupWall(wall: Instance)
@@ -1139,6 +1187,12 @@ function PhotoBoothService.Start(dataService: any)
 	for _, wall in ipairs(CollectionService:GetTagged("PhotoWall")) do setupWall(wall) end
 	CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(setupWall)
 	task.spawn(loadWall)
+	if game:GetService("RunService"):IsStudio() then
+		task.delay(3, function() -- (after the saved wall has loaded)
+			for _, p in ipairs(Players:GetPlayers()) do task.spawn(seedWall, p) end
+			Players.PlayerAdded:Connect(function(p) task.spawn(seedWall, p) end)
+		end)
+	end
 	game:BindToClose(function()
 		saveWall()
 	end)
