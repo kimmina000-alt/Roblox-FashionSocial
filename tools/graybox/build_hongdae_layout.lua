@@ -4545,21 +4545,23 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	-- longer over the freed room; no wooden frame: a see-through LED pane with a
 	-- neon edge on a slim dark foot, like a glass screen with a message on it
 	local NEON = Color3.fromRGB(255, 70, 110)
-	local HALF, Y0, Y1 = 8.6, 1.6, 12.6
+	-- (user 2026-10-30, 2nd) no foot: the panes float a little higher, a
+	-- thinner neon edge
+	local HALF, Y0, Y1 = 8.6, 3.4, 14.4
+	local E = 0.035 -- half the neon edge's thickness
 	for _, spec in ipairs({ { "level", -82.6 }, { "support", -62.4 } }) do
 		local z = spec[2]
-		box("BoardFoot", X - 0.5, 0, z - HALF, X + 0.5, Y0, z + HALF, Color3.fromRGB(24, 22, 28), { parent = B, material = Enum.Material.SmoothPlastic })
-		local pane = box("BoardPane", X - 0.08, Y0, z - HALF, X + 0.08, Y1, z + HALF, Color3.fromRGB(20, 10, 24), { parent = B, material = Enum.Material.Glass })
-		pane.Transparency = 0.55
+		local pane = box("BoardPane", X - 0.06, Y0, z - HALF, X + 0.06, Y1, z + HALF, Color3.fromRGB(20, 10, 24), { parent = B, material = Enum.Material.Glass })
+		pane.Transparency = 0.7
 		pane.CastShadow = false
 		-- the neon edge round the pane
-		for _, e in ipairs({ { Y1 - 0.07, Y1 + 0.07, z - HALF, z + HALF }, { Y0 + 0.05, Y0 + 0.19, z - HALF, z + HALF },
-			{ Y0, Y1, z - HALF - 0.07, z - HALF + 0.07 }, { Y0, Y1, z + HALF - 0.07, z + HALF + 0.07 } }) do
-			local n = box("BoardNeon", X - 0.12, e[1], e[3], X + 0.12, e[2], e[4], NEON, { parent = B, material = Enum.Material.Neon })
+		for _, e in ipairs({ { Y1 - E, Y1 + E, z - HALF, z + HALF }, { Y0 - E, Y0 + E, z - HALF, z + HALF },
+			{ Y0, Y1, z - HALF - E, z - HALF + E }, { Y0, Y1, z + HALF - E, z + HALF + E } }) do
+			local n = box("BoardNeon", X - 0.08, e[1], e[3], X + 0.08, e[2], e[4], NEON, { parent = B, material = Enum.Material.Neon })
 			n.CastShadow = false
 		end
 		for _, side in ipairs({ { -1, "Left" }, { 1, "Right" } }) do
-			local x0 = X + side[1] * 0.1
+			local x0 = X + side[1] * 0.09
 			local s = box("BoardScreen", math.min(x0, x0 + side[1] * 0.02), Y0 + 0.25, z - HALF + 0.15, math.max(x0, x0 + side[1] * 0.02), Y1 - 0.15, z + HALF - 0.15, Color3.new(0, 0, 0), { parent = B, material = Enum.Material.SmoothPlastic })
 			s.Transparency = 1
 			s.CastShadow = false
@@ -6086,8 +6088,10 @@ do
 			part("Letter", Vector3.new(len + SW * 0.9, DEPTH - 0.06, SW), cf * CFrame.new(0, -0.03, 0), st.side or Color3.fromRGB(196, 196, 204), { parent = m, nocol = true })
 			part("LetterFace", Vector3.new(len + SW * 0.9, 0.06, SW), cf * CFrame.new(0, DEPTH / 2 - 0.03, 0), st.face or SIGN_WHITE, { parent = m, nocol = true, material = Enum.Material.SmoothPlastic })
 			-- halo: a soft lavender neon behind each stroke, on the band (user 2026-10-23)
-			local halo = part("LetterHalo", Vector3.new(len + SW * 0.9 + 0.35, 0.04, SW + 0.35), cf * CFrame.new(0, -DEPTH / 2 - 0.01, 0), st.halo or Color3.fromRGB(170, 125, 255), { parent = m, nocol = true, material = Enum.Material.Neon, transparency = 0.25 })
-			halo.CastShadow = false
+			if st.halo ~= false then -- (halo = false: no light behind)
+				local halo = part("LetterHalo", Vector3.new(len + SW * 0.9 + 0.35, 0.04, SW + 0.35), cf * CFrame.new(0, -DEPTH / 2 - 0.01, 0), st.halo or Color3.fromRGB(170, 125, 255), { parent = m, nocol = true, material = Enum.Material.Neon, transparency = 0.25 })
+				halo.CastShadow = false
+			end
 		end
 		local x = -total / 2
 		for i, ch in ipairs(chars) do
@@ -6146,7 +6150,8 @@ do
 	local fasMid = (FAS0 + FAS1) / 2
 	-- (user photo 2026-10-30: strokes half as thick, pink letters with a warm
 	-- light behind them like the 인생네컷 storefront)
-	local STORE_SIGN = { sw = 0.085, side = Color3.fromRGB(214, 70, 128), face = Color3.fromRGB(246, 104, 160), halo = Color3.fromRGB(255, 214, 130) }
+	-- (user 2026-10-30, 2nd) half as deep (0.8 → 0.4), no yellow light behind
+	local STORE_SIGN = { sw = 0.085, depth = 0.4, side = Color3.fromRGB(214, 70, 128), face = Color3.fromRGB(246, 104, 160), halo = false }
 	sign3d("Sign_OhuNeCut", { "◎", "오", "후", "네", "컷" }, Vector3.new(MC.X, fasMid, MC.Z) + nC * 1.2, tC, nC, 1.33, STORE_SIGN) -- 2/3 size
 	-- (left-aligned with the poster frame's left edge, user 2026-10-26)
 	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, -90.2), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.33, STORE_SIGN)
@@ -7481,6 +7486,126 @@ do
 	label(box("ShopLabel", 78, U1 + 10, -74, 80, U1 + 11, -72, WHITE, opt({ transparency = 1, nocol = true })), "📸 오후네컷 포토 부스", Color3.fromRGB(255, 160, 200), 3)
 end
 
+-- The back alley between 오후네컷 (east face x 180) and shop block E (west face
+-- x 194), user 2026-10-30: it was bare paving. Seoul back-alley look from the
+-- reference (docs/04_ART/REFERENCES.md, "뒷골목"): worn concrete with a drain
+-- down the middle and puddles, outdoor AC units on brackets with their pipes,
+-- a yellow gas pipe with meters, a meter cabinet, drain pipes, warm wall lamps,
+-- a tangle of wires overhead from a concrete pole at the mouth, a vertical
+-- shop sign, recycling bins, rubbish bags, stacked crates, styrofoam planters.
+do
+	local A = Instance.new("Model")
+	A.Name = "BackAlley"
+	A.Parent = T
+	local X0, X1, ZS, ZN = 180, 194, -50, -100 -- (ZS = the street end)
+	local FY = CURB
+	local function o(t) local r = { parent = A } for k, v in pairs(t or {}) do r[k] = v end return r end
+	local function rod(name, a: Vector3, b: Vector3, d, color, mat)
+		local p = part(name, Vector3.new((b - a).Magnitude, d, d), CFrame.lookAt((a + b) / 2, b) * CFrame.Angles(0, math.rad(90), 0), color,
+			o({ shape = Enum.PartType.Cylinder, nocol = true, material = mat or Enum.Material.SmoothPlastic }))
+		p.CastShadow = false
+		return p
+	end
+	local CONCRETE, METAL = Color3.fromRGB(112, 110, 106), Color3.fromRGB(70, 72, 76)
+	local WHITE_AC, YELLOW = Color3.fromRGB(226, 224, 216), Color3.fromRGB(236, 190, 30)
+	-- ground
+	box("AlleyFloor", X0, FY, ZN, X1, FY + 0.03, ZS, CONCRETE, o({ material = Enum.Material.Concrete, nocol = true }))
+	box("AlleyDrain", 186.5, FY + 0.03, ZN, 187.5, FY + 0.05, ZS + 1, Color3.fromRGB(46, 46, 50), o({ material = Enum.Material.DiamondPlate, nocol = true }))
+	for _, pd in ipairs({ { 183, -63, 3.2, 2 }, { 190, -84, 2.4, 3.4 } }) do
+		local p = box("AlleyPuddle", pd[1] - pd[3] / 2, FY + 0.035, pd[2] - pd[4] / 2, pd[1] + pd[3] / 2, FY + 0.045, pd[2] + pd[4] / 2,
+			Color3.fromRGB(40, 48, 60), o({ nocol = true, material = Enum.Material.Glass, transparency = 0.25 }))
+		p.Reflectance = 0.35
+	end
+	-- outdoor AC units on brackets: sx = -1 on the east wall (facing west), +1 on the west wall
+	local function ac(wx, sx, y, z)
+		local face = wx + sx * 1.1
+		box("ACUnit", wx, y, z - 1.4, wx + sx * 1.1, y + 2.1, z + 1.4, WHITE_AC, o({ nocol = true }))
+		local fan = part("ACFan", Vector3.new(0.06, 1.5, 1.5), CFrame.new(face + sx * 0.02, y + 1.05, z - 0.35), Color3.fromRGB(60, 62, 66),
+			o({ shape = Enum.PartType.Cylinder, nocol = true, material = Enum.Material.DiamondPlate }))
+		fan.CastShadow = false
+		for _, dz in ipairs({ -1.1, 1.1 }) do
+			box("ACBracket", wx, y - 0.12, z + dz - 0.06, wx + sx * 1.3, y, z + dz + 0.06, METAL, o({ nocol = true }))
+		end
+		-- its pipes run up the wall in a white cover
+		box("ACPipeCover", wx, y + 1.6, z + 1.5, wx + sx * 0.3, y + 9, z + 1.9, Color3.fromRGB(238, 236, 230), o({ nocol = true }))
+	end
+	ac(X1, -1, 7.5, -60) ac(X1, -1, 13.5, -60) ac(X1, -1, 7.5, -78) ac(X1, -1, FY + 0.4, -93)
+	ac(X0, 1, 11, -70) ac(X0, 1, FY + 0.4, -88)
+	-- the yellow gas pipe along the east wall, risers to the meters
+	rod("GasPipe", Vector3.new(X1 - 0.3, 3.2, ZS - 3), Vector3.new(X1 - 0.3, 3.2, ZN + 4), 0.28, YELLOW)
+	for _, z in ipairs({ -56, -70, -86 }) do
+		rod("GasPipe", Vector3.new(X1 - 0.3, 3.2, z), Vector3.new(X1 - 0.3, 5.4, z), 0.24, YELLOW)
+		box("GasMeter", X1, 5.4, z - 0.5, X1 - 0.7, 6.6, z + 0.5, Color3.fromRGB(190, 192, 196), o({ nocol = true }))
+	end
+	-- the meter cabinet and a CCTV notice on the west wall
+	local cab = box("MeterCabinet", X0, FY, -79, X0 + 0.8, FY + 4.4, -76, Color3.fromRGB(150, 156, 160), o({ material = Enum.Material.Metal }))
+	surfaceText(cab, Enum.NormalId.Right, "⚡ 전기", Color3.fromRGB(40, 40, 40), Enum.Font.GothamBold, nil)
+	local cctv = box("CCTVNotice", X0, 7, -55.5, X0 + 0.06, 8.6, -53.5, Color3.fromRGB(250, 220, 40), o({ nocol = true }))
+	surfaceText(cctv, Enum.NormalId.Right, "CCTV\n촬영중", Color3.fromRGB(20, 20, 20), Enum.Font.GothamBlack, nil)
+	-- drain pipes down the 오후네컷 wall
+	for _, z in ipairs({ -58, -96 }) do
+		vcyl("DrainPipe", Vector3.new(X0 + 0.3, FY, z), 0.45, 30, Color3.fromRGB(168, 168, 164), o({ nocol = true }))
+	end
+	-- warm wall lamps
+	for _, l in ipairs({ { X0, 1, -66 }, { X1, -1, -88 }, { X1, -1, -54 } }) do
+		local lamp = box("AlleyLamp", l[1], 10, l[3] - 0.4, l[1] + l[2] * 0.7, 10.6, l[3] + 0.4, Color3.fromRGB(255, 214, 150), o({ nocol = true, material = Enum.Material.Neon }))
+		local light = Instance.new("PointLight")
+		light.Color = Color3.fromRGB(255, 196, 130)
+		light.Range = 20
+		light.Brightness = 1.3
+		light.Parent = lamp
+	end
+	-- a vertical sign on the east wall, seen from the street (a clothes repair shop, in keeping with fashion)
+	local sign = box("AlleySign", X1 - 0.3, 12, -55, X1 - 1.6, 20, -54.4, Color3.fromRGB(250, 250, 246), o({ nocol = true }))
+	surfaceText(sign, Enum.NormalId.Front, "옷\n수\n선", Color3.fromRGB(210, 30, 40), Enum.Font.GothamBlack, nil)
+	surfaceText(sign, Enum.NormalId.Back, "옷\n수\n선", Color3.fromRGB(210, 30, 40), Enum.Font.GothamBlack, nil)
+	-- the concrete pole at the mouth and the wires overhead
+	local pole = Vector3.new(X1 - 1, FY, ZS + 1.5)
+	vcyl("UtilityPole", pole, 1.1, 30, Color3.fromRGB(150, 148, 142), o({ material = Enum.Material.Concrete }))
+	box("PoleArm", pole.X - 3, FY + 27, pole.Z - 0.2, pole.X + 0.6, FY + 27.4, pole.Z + 0.2, METAL, o({ nocol = true }))
+	vcyl("Transformer", pole + Vector3.new(-0.9, 21, 0), 1.3, 2.6, Color3.fromRGB(120, 124, 120), o({ nocol = true }))
+	local top = pole + Vector3.new(0, 26.8, 0)
+	local seed = 7
+	local function rnd() seed = (seed * 1103515245 + 12345) % 2147483648 return seed / 2147483648 end
+	for i = 1, 9 do
+		-- each wire sags in the middle: two segments
+		local z1 = ZS - 6 - rnd() * 44
+		local y1 = 15 + rnd() * 8
+		local side = if i % 2 == 0 then X0 + 0.2 else X1 - 0.2
+		local a = top + Vector3.new(-2.6 * rnd(), -rnd() * 1.5, 0)
+		local b = Vector3.new(side, y1, z1)
+		local mid = (a + b) / 2 - Vector3.new(0, 1.2 + rnd() * 1.2, 0)
+		rod("Wire", a, mid, 0.07, Color3.fromRGB(20, 20, 22))
+		rod("Wire", mid, b, 0.07, Color3.fromRGB(20, 20, 22))
+	end
+	for i = 1, 5 do
+		-- wires strung across from wall to wall
+		local z = ZS - 8 - i * 8
+		local a = Vector3.new(X0 + 0.2, 17 + rnd() * 5, z + rnd() * 3)
+		local b = Vector3.new(X1 - 0.2, 17 + rnd() * 5, z - rnd() * 3)
+		local mid = (a + b) / 2 - Vector3.new(0, 0.8 + rnd(), 0)
+		rod("Wire", a, mid, 0.06, Color3.fromRGB(26, 26, 28))
+		rod("Wire", mid, b, 0.06, Color3.fromRGB(26, 26, 28))
+	end
+	-- on the ground: recycling bins, rubbish bags, crates, planters, a cone
+	box("RecycleBin", X1 - 2.4, FY, -66, X1 - 0.2, FY + 3.4, -63.8, Color3.fromRGB(40, 110, 190), o({ material = Enum.Material.Plastic }))
+	box("RecycleBin", X1 - 2.4, FY, -63.6, X1 - 0.2, FY + 3.4, -61.4, Color3.fromRGB(50, 140, 70), o({ material = Enum.Material.Plastic }))
+	for _, b in ipairs({ { 191.4, -68.4, 1.6 }, { 192.6, -69.2, 1.3 }, { 191.8, -70.2, 1.4 }, { 182, -92, 1.5 } }) do
+		part("TrashBag", Vector3.new(b[3], b[3] * 0.85, b[3]), CFrame.new(b[1], FY + b[3] * 0.4, b[2]), Color3.fromRGB(236, 232, 214),
+			o({ shape = Enum.PartType.Ball, material = Enum.Material.Plastic }))
+	end
+	for k, c in ipairs({ { 181.6, -74, Color3.fromRGB(230, 190, 40) }, { 181.6, -74, Color3.fromRGB(200, 50, 50) }, { 181.6, -74, Color3.fromRGB(230, 190, 40) }, { 183.8, -74, Color3.fromRGB(60, 120, 200) } }) do
+		local y = FY + (if k <= 3 then (k - 1) * 1.05 else 0)
+		box("PlasticCrate", c[1] - 1, y, c[2] - 0.7, c[1] + 1, y + 1, c[2] + 0.7, c[3], o({ material = Enum.Material.Plastic }))
+	end
+	for _, pz in ipairs({ -52.5, -56 }) do
+		box("FoamPlanter", X0 + 0.2, FY, pz - 1, X0 + 1.6, FY + 1.1, pz + 1, Color3.fromRGB(246, 246, 242), o({}))
+		part("PlanterGreens", Vector3.new(1.5, 1.2, 2), CFrame.new(X0 + 0.9, FY + 1.5, pz), Color3.fromRGB(70, 120, 50),
+			o({ shape = Enum.PartType.Ball, material = Enum.Material.LeafyGrass, nocol = true }))
+	end
+	vcyl("TrafficCone", Vector3.new(188.5, FY, -96), 0.9, 1.6, Color3.fromRGB(255, 110, 20), o({}))
+end
+
 -- first spawn: in front of exit 1 (players come up facing north)
 if spawn then
 	if not spawn:GetAttribute("OldPosition") then spawn:SetAttribute("OldPosition", spawn.Position) end
@@ -7503,6 +7628,10 @@ if spawn then
 		-- poster window (west face at x 48.5; was the club door at z -186)
 		p = Vector3.new(38, 0, -82)
 		look = Vector3.new(48, sy, -82)
+		-- (user 2026-10-30, screenshot) the corner square in front of subway
+		-- exit 3's canopy, looking up toward the pocket park and the park gate
+		p = Vector3.new(-30, 0, -36)
+		look = Vector3.new(-60, sy, -110)
 	end
 	spawn.CFrame = CFrame.lookAt(Vector3.new(p.X, sy, p.Z), look)
 	-- hidden in the paving (user 2026-10-23): no pad or logo showing

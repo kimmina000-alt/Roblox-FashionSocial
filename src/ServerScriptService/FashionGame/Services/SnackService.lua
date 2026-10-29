@@ -128,7 +128,8 @@ for name in pairs(FoodShapes.NotEdible) do NOT_EDIBLE[name] = true end
 -- (user 2026-10-30: soup without the spoon scraping the bowl, other meat chewing)
 local EAT_SOUND = {
 	cup = 9114171855, bottle = 9114171855, parfait = 9114171855, -- gulp
-	bowl = 140514526743537, noodle = 140514526743537, ricebowl = 140514526743537, -- "Sipping" (blixxitry)
+	bowl = 140514526743537, noodle = 140514526743537, -- "Sipping" (blixxitry)
+	ricebowl = 113253562957164, -- 공깃밥: its own clip (user 2026-10-30)
 	bag = 137096768206416, bread = 137096768206416, rice = 137096768206416, -- crunchy / bready
 	cake = 95249450082163, cone = 95249450082163, bar = 95249450082163, -- soft
 	plate = 135174197196705, -- "Chewing" (GIANT EATERS)

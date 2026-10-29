@@ -111,29 +111,15 @@ local function buildList(part: BasePart, board: string)
 	local donate = board == "support"
 	local bg = Instance.new("Frame")
 	bg.Size = UDim2.fromScale(1, 1)
+	-- (user 2026-10-30, 2nd) a plain square, more see-through, no inner rounded
+	-- line (the neon edge is the pane's own), titles as text only
 	bg.BackgroundColor3 = Color3.fromRGB(10, 6, 16)
-	bg.BackgroundTransparency = 0.3
+	bg.BackgroundTransparency = 0.5
+	bg.BorderSizePixel = 0
 	bg.Parent = gui
-	Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 26)
-	-- the neon edge: a wide soft halo under a thin bright core
-	for _, layer in ipairs({ { 14, 0.75 }, { 7, 0.45 }, { 3, 0 } }) do
-		local s = Instance.new("UIStroke")
-		s.Color = if layer[1] == 3 then NEON:Lerp(Color3.new(1, 1, 1), 0.35) else NEON
-		s.Thickness = layer[1]
-		s.Transparency = layer[2]
-		s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		local holder = Instance.new("Frame")
-		holder.Size = UDim2.new(1, -16, 1, -16)
-		holder.Position = UDim2.fromOffset(8, 8)
-		holder.BackgroundTransparency = 1
-		holder.Parent = bg
-		Instance.new("UICorner", holder).CornerRadius = UDim.new(0, 22)
-		s.Parent = holder
-	end
-	local title = TITLES[board] or { "🏆", board, "" }
-	label(bg, { Position = UDim2.fromOffset(34, 22), Size = UDim2.fromOffset(52, 52), Text = title[1] })
-	label(bg, { Position = UDim2.fromOffset(96, 20), Size = UDim2.new(0.6, -96, 0, 34), Text = title[2], TextXAlignment = Enum.TextXAlignment.Left })
-	label(bg, { Position = UDim2.fromOffset(96, 54), Size = UDim2.new(0.6, -96, 0, 20), Text = title[3], Font = Enum.Font.GothamMedium,
+	local title = TITLES[board] or { "", board, "" }
+	label(bg, { Position = UDim2.fromOffset(30, 20), Size = UDim2.new(0.6, -30, 0, 34), Text = title[2], TextXAlignment = Enum.TextXAlignment.Left })
+	label(bg, { Position = UDim2.fromOffset(30, 54), Size = UDim2.new(0.6, -30, 0, 20), Text = title[3], Font = Enum.Font.GothamMedium,
 		TextColor3 = Color3.fromRGB(200, 190, 215), TextXAlignment = Enum.TextXAlignment.Left })
 	local listWidth = if donate then 0.66 else 1
 	local scroll = Instance.new("ScrollingFrame")
@@ -183,7 +169,7 @@ local function buildList(part: BasePart, board: string)
 		side.BackgroundTransparency = 1
 		side.Parent = bg
 		label(side, { Size = UDim2.new(1, 0, 0, 34), Text = "기부하기" })
-		label(side, { Position = UDim2.fromOffset(0, 36), Size = UDim2.new(1, 0, 0, 20), Text = "어떤 금액이든 감사드립니다 💗",
+		label(side, { Position = UDim2.fromOffset(0, 36), Size = UDim2.new(1, 0, 0, 20), Text = "어떤 금액이든 감사드립니다",
 			Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(200, 190, 215) })
 		local keys = { "Support_10", "Support_50", "Support_100", "Support_500", "Support_1000", "Support_5000" }
 		local MonetizationConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("MonetizationConfig"))
@@ -365,6 +351,8 @@ local SPARK_SHOW = 30 -- (as long as the show, SparkleService COLD_SPARK_SECONDS
 
 local WRAP_SPEED = 2.5 -- studs per second
 local CARD = 30 -- studs per card (the screen is 56 tall)
+local SPARK_CARD = 96 -- a cold spark card: wide, fireworks over the message (user 2026-10-30)
+local FIREWORK = "rbxassetid://111289615885616" -- the user's pink firework on a clear ground (docs/04_ART/textures/firework_pink.png)
 local AVATAR_BACK = { 40, 26, 70 }
 local AVATAR_CAM = { CFrame.lookAt(Vector3.new(0, -1.9, -8), Vector3.new(0, -2.6, 0)):GetComponents() }
 
@@ -412,6 +400,7 @@ local function buildBandPanel(part: BasePart)
 
 	local cards: {{ frame: Frame, entry: any, index: number, built: boolean }} = {}
 	local dark = false
+	local cardW = CARD
 	local spacing = 1
 	local shownKey = ""
 	-- the card's content is built the first time it shows on this panel
@@ -435,18 +424,51 @@ local function buildBandPanel(part: BasePart)
 			return
 		end
 		if typeof(entry) == "table" and entry.spark then
-			-- a stage cold spark: the buyer's name and message while the show is on
-			label(frame, { Position = UDim2.fromScale(0.05, 0.08), Size = UDim2.fromScale(0.9, 0.16), Text = "🎆" })
-			neonText(frame, { Position = UDim2.fromScale(0.04, 0.27), Size = UDim2.fromScale(0.92, 0.08), Text = if entry.dj then "DJ FIREWORKS" else "COLD SPARK",
-				Font = Enum.Font.GothamBlack }, Color3.fromRGB(255, 190, 80))
-			neonText(frame, { Position = UDim2.fromScale(0.04, 0.38), Size = UDim2.fromScale(0.92, 0.15), Text = tostring(entry.name), Font = Enum.Font.GothamBlack },
-				Color3.fromRGB(255, 70, 160))
-			label(frame, { Position = UDim2.fromScale(0.04, 0.54), Size = UDim2.fromScale(0.92, 0.06), Text = "@" .. tostring(entry.user),
-				Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(220, 220, 235) })
-			if entry.message ~= "" then
-				neonText(frame, { Position = UDim2.fromScale(0.04, 0.64), Size = UDim2.fromScale(0.92, 0.2), Text = "“" .. entry.message .. "”",
-					Font = Enum.Font.GothamBold, TextWrapped = true }, Color3.fromRGB(80, 200, 255))
+			-- a stage cold spark (user 2026-10-30, their mock-up): fireworks burst
+			-- over the card, then the message rises into place in white with a
+			-- red glow, the @id under it; again every few seconds
+			local bursts = {}
+			for k, spot in ipairs({ { 0.5, 0.3, 0.42 }, { 0.2, 0.22, 0.26 }, { 0.8, 0.24, 0.3 } }) do
+				local img = Instance.new("ImageLabel")
+				img.AnchorPoint = Vector2.new(0.5, 0.5)
+				img.Position = UDim2.fromScale(spot[1], spot[2])
+				img.Size = UDim2.fromScale(0, 0)
+				img.SizeConstraint = Enum.SizeConstraint.RelativeYY
+				img.BackgroundTransparency = 1
+				img.Image = FIREWORK
+				img.ImageColor3 = if k == 1 then Color3.new(1, 1, 1) elseif k == 2 then Color3.fromRGB(255, 220, 120) else Color3.fromRGB(150, 220, 255)
+				img.Parent = frame
+				bursts[k] = { img = img, size = spot[3], delay = (k - 1) * 0.35 }
 			end
+			local main = if entry.message ~= "" then ("“" .. entry.message .. "”")
+				else string.format(if entry.dj then "DJ %s님의 불꽃 쇼!" else "%s님의 콜드 스파크!", tostring(entry.name))
+			local textBox = Instance.new("Frame")
+			textBox.BackgroundTransparency = 1
+			textBox.Size = UDim2.fromScale(1, 0.34)
+			textBox.Position = UDim2.fromScale(0, 0.56)
+			textBox.Parent = frame
+			neonText(textBox, { Position = UDim2.fromScale(0.03, 0), Size = UDim2.fromScale(0.94, 0.55), Text = main, Font = Enum.Font.GothamBlack },
+				Color3.fromRGB(255, 40, 60))
+			label(textBox, { Position = UDim2.fromScale(0.1, 0.66), Size = UDim2.fromScale(0.8, 0.28), Text = "@" .. tostring(entry.user),
+				Font = Enum.Font.GothamBold })
+			task.spawn(function()
+				while frame.Parent do
+					local t0 = os.clock()
+					while frame.Parent and os.clock() - t0 < 4.5 do
+						local t = os.clock() - t0
+						for _, b in ipairs(bursts) do
+							local k = math.clamp((t - b.delay) / 0.7, 0, 1)
+							local grow = 1 - (1 - k) ^ 3
+							b.img.Size = UDim2.fromScale(b.size * 2 * grow, b.size * 2 * grow)
+							b.img.ImageTransparency = math.clamp((t - b.delay - 0.9) / 1.4, 0, 1)
+						end
+						-- the text rises up as the first burst opens
+						local r = math.clamp((t - 0.3) / 0.6, 0, 1)
+						textBox.Position = UDim2.fromScale(0, 0.56 + 0.12 * (1 - r) ^ 2)
+						task.wait(0.03)
+					end
+				end
+			end)
 			return
 		end
 		if entry == "title" then
@@ -511,12 +533,13 @@ local function buildBandPanel(part: BasePart)
 			cards = {}
 			local total = bandLength()
 			-- as many rounds of the cards as fit with a gap between them
-			local copies = math.max(1, math.floor(total / (#entries * CARD * 1.4)))
+			cardW = if dark and entries[1] == spark then SPARK_CARD else CARD
+			local copies = math.max(1, math.floor(total / (#entries * cardW * 1.4)))
 			spacing = total / (#entries * copies)
 			for _ = 1, copies do
 				for index, entry in ipairs(entries) do
 					local frame = Instance.new("Frame")
-					frame.Size = UDim2.new(0, CARD * pps, 1, 0)
+					frame.Size = UDim2.new(0, cardW * pps, 1, 0)
 					frame.BackgroundTransparency = 1
 					frame.Visible = false
 					frame.Parent = bg
@@ -539,8 +562,8 @@ local function buildBandPanel(part: BasePart)
 			})
 			for i, card in ipairs(cards) do
 				local pos = ((i - 1) * spacing + offset - bandStart) % total
-				if pos > total - CARD then pos -= total end
-				local visible = pos < width and pos > -CARD
+				if pos > total - cardW then pos -= total end
+				local visible = pos < width and pos > -cardW
 				card.frame.Visible = visible
 				if visible then
 					if not card.built then fill(card) end
@@ -650,7 +673,7 @@ ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 		end)
 	elseif kind == "Banner" and typeof(value) == "table" and value.kind == "support" then
 		local message = if typeof(value.message) == "string" and value.message ~= "" then ("  “" .. value.message .. "”") else ""
-		stripMessage = string.format("💝 %s님 후원 감사합니다! (R$ %s)%s", tostring(value.name), tostring(value.amount), message)
+		stripMessage = string.format("💝 %s님이 %s R$ 기부하셨습니다%s", tostring(value.name), tostring(value.amount), message)
 		stripMessageUntil = os.clock() + 12
 		refresh()
 		task.delay(12.2, refresh)

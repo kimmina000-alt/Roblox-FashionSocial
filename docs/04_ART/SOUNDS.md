@@ -16,7 +16,8 @@
 |---|---|---|---|---|---|
 | 1 | 클럽 음료(컵·병) 마실 때 꿀꺽 | 9114172296 | Drinking Cu Gulping 9 (Pro Sound Effects) | `src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua` `GulpSoundId` | |
 | 2 | 카페 음료·병음료·파르페 마실 때 | 9114171855 | 꿀꺽 (Pro Sound Effects) | `src/ServerScriptService/FashionGame/Services/SnackService.lua` `EAT_SOUND.cup / bottle / parfait` | |
-| 3 | 국밥·라면·공깃밥 먹을 때, 국밥 떠먹기 | 134676631229165 | 숟가락으로 국물 뜨는 소리 | 같은 파일 `EAT_SOUND.bowl / noodle / ricebowl` | |
+| 3 | 국밥·라면 먹을 때, 국밥 떠먹기 | 134676631229165 | 숟가락으로 국물 뜨는 소리 | 같은 파일 `EAT_SOUND.bowl / noodle` | |
+| 3a | 공깃밥 먹을 때 (2026-10-30, D-564) | 113253562957164 | 사용자 지정 | 같은 파일 `EAT_SOUND.ricebowl` | |
 | 4 | 빵·과자·삼각김밥 먹을 때 | 137096768206416 | 바삭·빵 씹는 소리 | 같은 파일 `EAT_SOUND.bread / bag / rice` | |
 | 5 | 케이크·아이스크림 먹을 때 | 95249450082163 | 부드러운 것 먹는 소리 | 같은 파일 `EAT_SOUND.cake / cone / bar` | |
 | 6 | 수육(고기) 먹을 때 | 128581689642546 | 고기 씹는 소리 | 같은 파일 `EAT_SOUND.plate` | |

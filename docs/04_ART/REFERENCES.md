@@ -70,3 +70,5 @@ hongdae_v1_temp.lua 다음에 실행(MODE apply / revert). 결과: `street_dress
 - 남은 것: 클럽 외관(검은 외벽·네온 간판), 편의점·포토부스 외관, 광안리·한옥 쪽 디테일, 하늘(실사 스카이박스).
 ## 오후네컷 건물 (2026-10-23, D-115)
 - `references/photobooth_building_yeonnam.webp`: 사용자가 보낸 연남동 노벨길 인생네컷 모퉁이 건물(좌측·정면·우측)과 상호명(오후네컷 / OHU4cuts, 조리개 로고), 간판 디자인(인생네컷처럼). 구현: `PHOTO_BOOTH_BUILDING.md`.
+| (웹) [Unsplash, Clark Gu: 성북구 좁은 골목](https://unsplash.com/photos/a-narrow-alley-with-buildings-in-the-background-JAYhkBZUnOU) | 뒷골목 (오후네컷 동쪽) | 2026-10-30 D-564: 머리 위로 얽힌 전선과 전봇대, 세로 간판, 벽의 실외기·배관, 화분·잡동사니. 저장 안 함(링크만). |
+| `candidates_beach_mat_icebox.png` | 해변 | 2026-10-30 돗자리(M1~M6)·아이스박스(B1~B10) Creator Store 후보, 사용자 선택 대기. |

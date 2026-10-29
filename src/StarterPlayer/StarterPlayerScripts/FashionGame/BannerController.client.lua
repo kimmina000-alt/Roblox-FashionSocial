@@ -6,7 +6,6 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local TweenService = game:GetService("TweenService")
 
 local player = Players.LocalPlayer
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
@@ -18,7 +17,6 @@ local Popups = require(script.Parent:WaitForChild("Popups"))
 local MessagePrompt = require(script.Parent:WaitForChild("MessagePrompt"))
 local Sfx = require(script.Parent:WaitForChild("Sfx"))
 
-local BANNER_SECONDS = 7
 local SUPPORT_KEYS = { "Support_10", "Support_50", "Support_100", "Support_500", "Support_1000", "Support_5000" }
 
 local gui = Instance.new("ScreenGui")
@@ -32,62 +30,82 @@ gui.Parent = player:WaitForChild("PlayerGui")
 -- Banner
 --------------------------------------------------
 
+-- (user 2026-10-30, 2nd, from their mock-ups) a strip across the screen: black
+-- at 40 % see-through, a thin red LED line above and below, the text in white
+-- with a red outer glow. The text flows from right to left for the whole
+-- show (a cold spark: 30 s) and stays on screen all that time: its speed is
+-- worked out from the screen width, the text width and the time.
+--   cold spark   “message” / @id   (no message: "○○님의 콜드 스파크!")
+--   gift         ○○님이 N R$ 기부하셨습니다. / “message”
+local SPARK_SECONDS, GIFT_SECONDS = 30, 15
+local RED = Color3.fromRGB(255, 40, 60)
+local STRIP_H = 96
+
 local banner = Instance.new("Frame")
 banner.Name = "Banner"
-banner.AnchorPoint = Vector2.new(0.5, 0)
--- (user 2026-10-27: it was hard to see) bigger, solid, a thick gold frame
-banner.Size = UDim2.fromOffset(560, 100)
-banner.BackgroundColor3 = Color3.fromRGB(20, 8, 30)
-banner.BackgroundTransparency = 0
+banner.Size = UDim2.new(1, 0, 0, STRIP_H)
+banner.BackgroundColor3 = Color3.new(0, 0, 0)
+banner.BackgroundTransparency = 0.4
+banner.BorderSizePixel = 0
+banner.ClipsDescendants = true
 banner.Visible = false
 banner.ZIndex = 5 -- over the 💝 window when both are open (2P test 2026-10-26)
 banner.Parent = gui
-Instance.new("UICorner", banner).CornerRadius = UDim.new(0, 16)
-local stroke = Instance.new("UIStroke")
-stroke.Thickness = 4
-stroke.Parent = banner
-local headline = Instance.new("TextLabel")
-headline.Name = "Headline"
-headline.Position = UDim2.fromOffset(14, 8)
-headline.Size = UDim2.new(1, -28, 0, 44)
-headline.BackgroundTransparency = 1
-headline.TextColor3 = Color3.new(1, 1, 1)
-headline.TextScaled = true
-headline.Font = Enum.Font.GothamBlack
--- (above the banner's own ZIndex 5: the gui draws by global ZIndex, and at 1
--- the texts were under the dark fill, the message unseen, user 2026-10-30)
-headline.ZIndex = 7
-headline.Parent = banner
-Instance.new("UITextSizeConstraint", headline).MaxTextSize = 34
-local headStroke = Instance.new("UIStroke")
-headStroke.Thickness = 2.5
-headStroke.Color = Color3.fromRGB(255, 120, 40)
-headStroke.Parent = headline
--- the message (user 2026-10-30: it was hard to see): white neon letters, a
--- wide soft glow (the label behind) under a tight bright edge
-local function messageLabel(name: string, z: number): (TextLabel, UIStroke)
-	local l = Instance.new("TextLabel")
-	l.Name = name
-	l.Position = UDim2.fromOffset(14, 56)
-	l.Size = UDim2.new(1, -28, 0, 36)
-	l.BackgroundTransparency = 1
-	l.TextColor3 = Color3.new(1, 1, 1)
-	l.TextScaled = true
-	l.Font = Enum.Font.GothamBlack
-	l.ZIndex = z
-	l.Parent = banner
-	Instance.new("UITextSizeConstraint", l).MaxTextSize = 28
-	local s = Instance.new("UIStroke")
-	s.Parent = l
-	return l, s
+-- the LED lines: a bright core with a soft glow round it
+for _, at in ipairs({ 0, 1 }) do
+	local glowLine = Instance.new("Frame")
+	glowLine.AnchorPoint = Vector2.new(0, at)
+	glowLine.Position = UDim2.fromScale(0, at)
+	glowLine.Size = UDim2.new(1, 0, 0, 6)
+	glowLine.BackgroundColor3 = RED
+	glowLine.BackgroundTransparency = 0.65
+	glowLine.BorderSizePixel = 0
+	glowLine.ZIndex = 6
+	glowLine.Parent = banner
+	local core = Instance.new("Frame")
+	core.AnchorPoint = Vector2.new(0, 0.5)
+	core.Position = UDim2.fromScale(0, 0.5)
+	core.Size = UDim2.new(1, 0, 0, 2)
+	core.BackgroundColor3 = Color3.fromRGB(255, 120, 130)
+	core.BorderSizePixel = 0
+	core.ZIndex = 7
+	core.Parent = glowLine
 end
-local glow, glowStroke = messageLabel("MessageGlow", 6)
-glow.TextTransparency = 0.35
-glowStroke.Thickness = 4
-glowStroke.Transparency = 0.6
-local line, lineStroke = messageLabel("Message", 7)
-lineStroke.Thickness = 1.6
-lineStroke.Transparency = 0.1
+
+-- the moving block: two lines, centred on each other
+local block = Instance.new("Frame")
+block.Name = "Block"
+block.BackgroundTransparency = 1
+block.Size = UDim2.new(0, 10, 1, 0)
+block.ZIndex = 6
+block.Parent = banner
+
+-- white text with a red outer glow: a wide soft red copy behind a white one
+-- with a thin red edge
+local function glowText(y: number, height: number, size: number, font: Enum.Font): (TextLabel, TextLabel)
+	local function one(z: number): TextLabel
+		local l = Instance.new("TextLabel")
+		l.BackgroundTransparency = 1
+		l.AnchorPoint = Vector2.new(0.5, 0)
+		l.Position = UDim2.new(0.5, 0, 0, y)
+		l.Size = UDim2.new(1, 0, 0, height)
+		l.TextSize = size
+		l.Font = font
+		l.TextColor3 = Color3.new(1, 1, 1)
+		l.ZIndex = z
+		l.Parent = block
+		return l
+	end
+	local back = one(7)
+	back.TextTransparency = 0.45
+	back.TextColor3 = Color3.fromRGB(255, 150, 160)
+	local bs = Instance.new("UIStroke") bs.Color = RED bs.Thickness = 5 bs.Transparency = 0.55 bs.Parent = back
+	local front = one(8)
+	local fs = Instance.new("UIStroke") fs.Color = RED fs.Thickness = 1.4 fs.Transparency = 0.15 fs.Parent = front
+	return front, back
+end
+local mainText, mainGlow = glowText(14, 40, 32, Enum.Font.GothamBlack)
+local subText, subGlow = glowText(58, 26, 20, Enum.Font.GothamBold)
 
 local queue: {any} = {}
 local showing = false
@@ -97,48 +115,42 @@ local function showNext()
 	local data = table.remove(queue, 1)
 	if not data then return end
 	showing = true
-	local vp = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1000, 700)
-	banner.Size = UDim2.fromOffset(math.min(560, vp.X - 24), 100)
-	local top = TopBar.bottom() + 8
-	if data.kind == "support" then
-		headline.Text = string.format("💝 %s님 후원 감사합니다! (%s R$)", tostring(data.name), tostring(data.amount))
-		stroke.Color = Color3.fromRGB(255, 110, 170)
-		headStroke.Color = Color3.fromRGB(230, 60, 130)
-	elseif data.kind == "djspark" then
-		headline.Text = string.format("🎧🎆 DJ %s님의 불꽃 쇼!", tostring(data.name))
-		stroke.Color = Color3.fromRGB(110, 210, 255)
-		headStroke.Color = Color3.fromRGB(40, 140, 230)
-	else
-		headline.Text = string.format("🎆 %s님이 콜드 스파크를 쏘아 올렸어요!", tostring(data.name))
-		stroke.Color = Color3.fromRGB(255, 210, 110)
-		headStroke.Color = Color3.fromRGB(255, 120, 40)
-	end
 	local message = if typeof(data.message) == "string" then data.message else ""
-	line.Text = if message ~= "" then ("“" .. message .. "”") else ("@" .. tostring(data.user))
-	glow.Text = line.Text
-	-- the neon glow takes the banner's colour
-	glowStroke.Color = stroke.Color
-	lineStroke.Color = stroke.Color:Lerp(Color3.new(1, 1, 1), 0.35)
-	banner.Position = UDim2.new(0.5, 0, 0, top - 120)
+	local main, sub
+	if data.kind == "support" then
+		main = string.format("%s님이 %s R$ 기부하셨습니다.", tostring(data.name), tostring(data.amount))
+		sub = if message ~= "" then ("“" .. message .. "”") else ("@" .. tostring(data.user))
+	elseif message ~= "" then
+		main, sub = "“" .. message .. "”", "@" .. tostring(data.user)
+	elseif data.kind == "djspark" then
+		main, sub = string.format("DJ %s님의 불꽃 쇼!", tostring(data.name)), "@" .. tostring(data.user)
+	else
+		main, sub = string.format("%s님의 콜드 스파크!", tostring(data.name)), "@" .. tostring(data.user)
+	end
+	mainText.Text, mainGlow.Text = main, main
+	subText.Text, subGlow.Text = sub, sub
+	local seconds = if data.kind == "support" then GIFT_SECONDS else SPARK_SECONDS
+	banner.Position = UDim2.fromOffset(0, TopBar.bottom() + 8)
 	banner.Visible = true
 	Sfx.play("success")
-	-- the frame pulses while it shows
-	task.spawn(function()
-		local t0 = os.clock()
-		while banner.Visible and os.clock() - t0 < BANNER_SECONDS do
-			stroke.Thickness = 4 + 2 * math.abs(math.sin((os.clock() - t0) * 5))
-			task.wait(0.03)
-		end
-	end)
-	TweenService:Create(banner, TweenInfo.new(0.35, Enum.EasingStyle.Back), { Position = UDim2.new(0.5, 0, 0, top) }):Play()
-	task.delay(BANNER_SECONDS, function()
-		local out = TweenService:Create(banner, TweenInfo.new(0.25), { Position = UDim2.new(0.5, 0, 0, top - 120) })
-		out:Play()
-		out.Completed:Wait()
-		banner.Visible = false
-		showing = false
-		showNext()
-	end)
+	task.wait() -- (TextBounds are measured once the labels are on screen)
+	local textW = math.max(mainText.TextBounds.X, subText.TextBounds.X) + 40
+	block.Size = UDim2.new(0, textW, 1, 0)
+	-- from just inside the right edge to just inside the left edge, all the
+	-- time on screen (a text wider than the screen runs its own length)
+	local screenW = banner.AbsoluteSize.X
+	local x0 = math.max(screenW - textW, 0)
+	local x1 = math.min(0, screenW - textW)
+	if x0 == 0 and x1 == 0 then x0 = screenW - textW end
+	local t0 = os.clock()
+	while os.clock() - t0 < seconds do
+		local k = (os.clock() - t0) / seconds
+		block.Position = UDim2.fromOffset(math.floor(x0 + (x1 - x0) * k), 0)
+		task.wait()
+	end
+	banner.Visible = false
+	showing = false
+	showNext()
 end
 
 -- A cold spark bought while another show is on (user 2026-10-27): a big white
@@ -160,7 +172,7 @@ local waitUntil = 0
 ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 	if kind == "Banner" and typeof(value) == "table" then
 		table.insert(queue, value)
-		showNext()
+		task.spawn(showNext)
 	elseif kind == "ColdSparkWait" and typeof(value) == "number" then
 		waitUntil = value
 		if wait.Visible then return end
