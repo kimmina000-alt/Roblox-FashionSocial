@@ -188,7 +188,21 @@ local function sweep()
 					and not hasAccess(player, gate) then
 					local exit = region:GetAttribute("Exit")
 					if typeof(exit) == "Vector3" and character then
+						-- (user 2026-10-30: guests stayed on the DJ stage after the DJ's
+						-- time) stand up first: a seated character does not move
+						local humanoid = character:FindFirstChildOfClass("Humanoid")
+						if humanoid and humanoid.SeatPart then
+							humanoid.Sit = false
+							local weld = humanoid.SeatPart:FindFirstChild("SeatWeld")
+							if weld then weld:Destroy() end
+						end
 						character:PivotTo(CFrame.new(exit))
+					end
+					if gate == "DJ" and DjService.CurrentDJ() == 0 then
+						-- the DJ's time is over: say so instead of a purchase prompt
+						local notify = Remotes:FindFirstChild("ClubNotify") :: RemoteEvent?
+						if notify then notify:FireClient(player, "Toast", "🎧 DJ 시간이 끝나서 DJ 존에서 내려왔어요.") end
+						continue
 					end
 					promptPurchase(player, gate)
 				end

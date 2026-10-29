@@ -312,5 +312,5 @@ openButton.Font = Enum.Font.GothamBold
 openButton.TextColor3 = Color3.new(1, 1, 1)
 openButton.Parent = gui
 Instance.new("UICorner", openButton).CornerRadius = UDim.new(1, 0)
-TopBar.add(openButton, 6)
+TopBar.add(openButton, 5)
 openButton.MouseButton1Click:Connect(function() setPanel(not panel.Visible) end)

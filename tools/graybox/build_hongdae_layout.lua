@@ -309,6 +309,17 @@ do
 			W:PivotTo(W:GetPivot() + Vector3.new(hx - hub.Position.X, 0, hz - hub.Position.Z))
 			W:SetAttribute("Radius", 52)
 		end
+		-- (user 2026-10-30) turned round its hub so its face looks at the first
+		-- spawn (-30, -36): it showed edge-on from there. The wheel turns about
+		-- the hub's X axis, so that axis points at the spawn. (revert puts the
+		-- old pivot back, so this happens once per build.)
+		if W and hub then
+			local axis = Vector3.new(hub.CFrame.RightVector.X, 0, hub.CFrame.RightVector.Z).Unit
+			local want = (Vector3.new(-30, 0, -36) - Vector3.new(hub.Position.X, 0, hub.Position.Z)).Unit
+			local turn = math.atan2(axis.Z, axis.X) - math.atan2(want.Z, want.X)
+			local hp = hub.Position
+			W:PivotTo(CFrame.new(hp) * CFrame.Angles(0, turn, 0) * CFrame.new(-hp) * W:GetPivot())
+		end
 		-- feet on the ground: the lowest world point of its parts onto the
 		-- ground under the hub (its pivot is tilted, so the bounding box is
 		-- not level; the old box sum lifted it a little more on every run,
@@ -4547,7 +4558,7 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	local NEON = Color3.fromRGB(255, 255, 255) -- (pink → white, user 2026-10-30)
 	-- (user 2026-10-30, 2nd) no foot: the panes float a little higher, a
 	-- thinner neon edge
-	local HALF, Y0, Y1 = 8.6, 3.4, 14.4
+	local HALF, Y0, Y1 = 8.6, 6.2, 17.2 -- (higher again, user 2026-10-30: was 3.4)
 	local E = 0.035 -- half the neon edge's thickness
 	for _, spec in ipairs({ { "level", -82.6 }, { "support", -62.4 } }) do
 		local z = spec[2]
@@ -5797,7 +5808,10 @@ do
 	box("WallW", W0, F + 11.4 * SC, WBAY, W0 + 1, GF, S0 - CH, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	local wallS = box("WallS", W0 + CH, F, S0 - 1, W1, GF, S0, WHITE_WALL, opt({ material = Enum.Material.CeramicTiles }))
 	box("WallN", W0, F, N0, W1, GF + 26, N0 + 1, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
-	box("WallE", W1 - 1, F, N0, W1, GF + 26, S0, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
+	-- (user 2026-10-30: the corner flickered) the east wall stops behind the
+	-- south wall: their outer faces met in one plane at the corner. Above the
+	-- south wall the brick UpperS covers the corner.
+	box("WallE", W1 - 1, F, N0, W1, GF + 26, S0 - 1, WHITE_WALL, opt({ material = Enum.Material.Plaster }))
 	box("Ceiling", W0, GF - 0.4, N0, W1, GF, S0 - CH, Color3.fromRGB(252, 238, 238), o)
 	box("Ceiling", W0 + CH, GF - 0.4, S0 - CH, W1, GF, S0, Color3.fromRGB(252, 238, 238), o)
 	-- and over the cut corner (the brick showed through the gap above the door)
@@ -6033,7 +6047,9 @@ do
 
 	local FASCIA = Color3.fromRGB(232, 231, 228) -- a touch darker than the white letters
 	box("Fascia", W0 - 1.2, FAS0, N0, W0 + 1, FAS1, S0 - CH, FASCIA, o) -- to the building's north edge (user)
-	box("Fascia", W0 + CH, FAS0, S0 - 1, W1 - 2, FAS1, S0 + 1.2, FASCIA, o)
+	-- (user 2026-10-30) to the building's east line (was 2 short), a hair past
+	-- it so its end does not share a plane with the wall
+	box("Fascia", W0 + CH, FAS0, S0 - 1, W1 + 0.05, FAS1, S0 + 1.2, FASCIA, o)
 	cutPart("Fascia", cutLen, FAS0 - 0.03, FAS1 + 0.03, 2.2, 0.1, FASCIA) -- a hair past the side bands (no flicker where they overlap)
 	-- 3D sign letters (user 2026-10-23: white, thick, real shadows from the sun
 	-- instead of the lavender shadow): every stroke is a white part 0.35 deep on
@@ -6154,9 +6170,12 @@ do
 	local STORE_SIGN = { sw = 0.085, depth = 0.4, side = Color3.fromRGB(214, 70, 128), face = Color3.fromRGB(246, 104, 160), halo = false }
 	sign3d("Sign_OhuNeCut", { "◎", "오", "후", "네", "컷" }, Vector3.new(MC.X, fasMid, MC.Z) + nC * 1.2, tC, nC, 1.33, STORE_SIGN) -- 2/3 size
 	-- (left-aligned with the poster frame's left edge, user 2026-10-26)
-	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, -90.2), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.33, STORE_SIGN)
+	-- (user 2026-10-30) both side signs at the far end of their band, 3 in from
+	-- its edge (the sign is about 9.4 long): north end on the west face, the
+	-- corner end on the south face (were mid-band)
+	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, N0 + 3 + 4.7), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.33, STORE_SIGN)
 	-- and on the south band over the capsule windows (user 2026-10-23)
-	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new((W0 + CH + W1 - 2) / 2, fasMid, S0 + 1.2), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), 1.33, STORE_SIGN)
+	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 + CH + 3 + 4.7, fasMid, S0 + 1.2), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), 1.33, STORE_SIGN)
 
 	-- upper floors (2F, 3F): white brick mass with the cut corner, dark-framed
 	-- windows, floor bands, then a parapet with a steel railing (roof terrace)
@@ -6480,7 +6499,9 @@ do
 	end
 	-- props niches (moved from the west wall, user 2026-10-30): sky-blue backs,
 	-- glass shelves of hats and plush, the pill mirror between them
-	local HAT = { Color3.fromRGB(30, 30, 34), Color3.fromRGB(240, 120, 150), Color3.fromRGB(250, 210, 80), Color3.fromRGB(120, 190, 120), Color3.fromRGB(220, 60, 60), Color3.fromRGB(160, 120, 90), Color3.fromRGB(250, 250, 250), Color3.fromRGB(120, 160, 230) }
+	-- (pastels, user 2026-10-30: pink, butter, mint, lilac, peach, sky, cream, coral)
+	local HAT = { Color3.fromRGB(255, 196, 214), Color3.fromRGB(255, 236, 160), Color3.fromRGB(184, 232, 206), Color3.fromRGB(214, 196, 240),
+		Color3.fromRGB(255, 212, 180), Color3.fromRGB(184, 216, 245), Color3.fromRGB(250, 244, 230), Color3.fromRGB(255, 176, 170) }
 	do
 		local hatN = 0
 		local s0, s1 = IN_N + 0.3, NFACE + 0.2 -- shelf depth: the recess back to just past the face

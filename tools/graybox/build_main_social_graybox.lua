@@ -803,8 +803,9 @@ end
 do local SY=(3*LEDT+TOP)/4-2 -- (half way between the LED wall and where it was, centred under the ceiling: user 2026-10-27)
  local s=box(z,"SupportStrip",78.9,SY,-246,79.6,SY+4,-190,Color3.fromRGB(8,8,12),{mat=Enum.Material.SmoothPlastic,nocol=true})
  s:SetAttribute("Board","clubStrip") s:SetAttribute("Face","Left") CS:AddTag(s,"RankBoard")
- box(z,"SupportStripFrame",78.8,SY-0.4,-246.4,79.7,SY,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true})
- box(z,"SupportStripFrame",78.8,SY+4,-246.4,79.7,SY+4.4,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true}) end
+ -- (thin lines, 0.4 → 0.12, user 2026-10-30)
+ box(z,"SupportStripFrame",78.8,SY-0.12,-246.4,79.7,SY,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true})
+ box(z,"SupportStripFrame",78.8,SY+4,-246.4,79.7,SY+4.12,-189.6,Color3.fromRGB(255,200,90),{mat=Enum.Material.Neon,ghost=true}) end
 local djSpot=P(z,"DJSpot",Vector3.new(2,1,2),CFrame.lookAt(Vector3.new(71,DS+0.5,-218),Vector3.new(40,DS+0.5,-218)),W,{t=1,ghost=true}) CS:AddTag(djSpot,"DJSpot")
 -- STUDIO MONITORS (user photo 2026-10-27): bigger, matte black cabinets with
 -- rounded vertical edges, a tweeter in a round flange near the top, a woofer

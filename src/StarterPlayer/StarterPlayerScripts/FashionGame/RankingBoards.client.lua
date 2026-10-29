@@ -114,7 +114,7 @@ local function buildList(part: BasePart, board: string)
 	-- (user 2026-10-30, 2nd) a plain square, more see-through, no inner rounded
 	-- line (the neon edge is the pane's own), titles as text only
 	bg.BackgroundColor3 = Color3.fromRGB(10, 6, 16)
-	bg.BackgroundTransparency = 0.5
+	bg.BackgroundTransparency = 0.68 -- (more see-through again, user 2026-10-30)
 	bg.BorderSizePixel = 0
 	bg.Parent = gui
 	local title = TITLES[board] or { "", board, "" }
@@ -178,9 +178,15 @@ local function buildList(part: BasePart, board: string)
 			local b = Instance.new("TextButton")
 			b.Position = UDim2.new(0.06, 0, 0, 66 + (i - 1) * 48)
 			b.Size = UDim2.new(0.88, 0, 0, 40)
-			b.BackgroundColor3 = Color3.fromRGB(255, 205, 215)
+			-- (black and white, user 2026-10-30: was pink)
+			b.BackgroundColor3 = Color3.fromRGB(14, 14, 16)
 			b.Text = "R$ " .. valueText("level", product.price):gsub(" XP", "")
-			b.TextColor3 = Color3.fromRGB(150, 20, 60)
+			b.TextColor3 = Color3.new(1, 1, 1)
+			local edge = Instance.new("UIStroke")
+			edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			edge.Color = Color3.new(1, 1, 1)
+			edge.Thickness = 2
+			edge.Parent = b
 			b.TextScaled = true
 			b.Font = Enum.Font.GothamBlack
 			b.Parent = side

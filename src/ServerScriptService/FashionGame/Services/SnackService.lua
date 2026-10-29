@@ -127,7 +127,8 @@ for name in pairs(FoodShapes.NotEdible) do NOT_EDIBLE[name] = true end
 -- a bite sound per kind of item (ProSoundEffects / public eating clips, 2026-10-26)
 -- (user 2026-10-30: soup without the spoon scraping the bowl, other meat chewing)
 local EAT_SOUND = {
-	cup = 9114171855, bottle = 9114171855, parfait = 9114171855, -- gulp
+	cup = 9114171855, bottle = 9114171855, -- gulp
+	parfait = 137096768206416, -- crunchy, like the bread (user 2026-10-30: was the gulp)
 	bowl = 140514526743537, noodle = 140514526743537, -- "Sipping" (blixxitry)
 	ricebowl = 113253562957164, -- 공깃밥: its own clip (user 2026-10-30)
 	bag = 137096768206416, bread = 137096768206416, rice = 137096768206416, -- crunchy / bready
@@ -137,6 +138,7 @@ local EAT_SOUND = {
 -- coffee is sipped, not gulped (user 2026-10-30): "Tea Cup Up And Down 10" (Pro Sound Effects)
 local COFFEE_SIP = 9119949556
 local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true }
+local QUIET = { bagel = true, saltbread = true } -- their bite at half volume
 
 -- Remembers each edible piece's place in the handle's height (call once the
 -- tool is built): which local axis is up, its bottom and top, and its weld.
@@ -506,7 +508,8 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	local sip = Instance.new("Sound")
 	sip.Name = "Sip"
 	sip.SoundId = "rbxassetid://" .. tostring(if COFFEE[item.key] then COFFEE_SIP else EAT_SOUND[kind] or ClubConfig.GulpSoundId)
-	sip.Volume = if COFFEE[item.key] then 1.4 else 0.7 -- coffee twice as loud (user 2026-10-30)
+	-- coffee twice as loud, bagel and 소금빵 half (user 2026-10-30)
+	sip.Volume = if COFFEE[item.key] then 1.4 elseif QUIET[item.key] then 0.35 else 0.7
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
 	markEdible(tool, handle)

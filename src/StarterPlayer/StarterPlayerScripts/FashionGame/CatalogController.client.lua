@@ -236,27 +236,9 @@ create("UICorner", {
 	CornerRadius = UDim.new(1, 0),
 }).Parent = openButton
 
--- Anchor the catalog button to the RIGHT end of the Roblox top bar area.
--- Left-side top bar items (menu, chat, voice chat mic) grow to the right and
--- previously covered a left-anchored button.
-local function positionOpenButton()
-	local inset = GuiService.TopbarInset
-	local centerY = 34
-	local rightX = -16
-	local size = 44
-	if inset.Height > 0 then
-		centerY = inset.Min.Y + inset.Height / 2
-		size = math.clamp(inset.Height - 12, 32, 44)
-		local camera = workspace.CurrentCamera
-		if camera and inset.Width > 0 then
-			rightX = -(camera.ViewportSize.X - inset.Max.X) - 8
-		end
-	end
-	openButton.Size = UDim2.fromOffset(size, size)
-	openButton.Position = UDim2.new(1, rightX, 0, centerY)
-end
-positionOpenButton()
-GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(positionOpenButton)
+-- In the top bar row with the other round buttons (user 2026-10-30: between
+-- 💝 and 🎒, TopBar.lua has the order)
+require(script.Parent:WaitForChild("TopBar")).add(openButton, 4)
 
 --------------------------------------------------
 -- CURRENT AVATAR PREVIEW WINDOW

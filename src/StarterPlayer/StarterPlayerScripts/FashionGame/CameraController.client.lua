@@ -54,7 +54,9 @@ local captureButton = create("TextButton", {
 	TextColor3 = Color3.new(1, 1, 1),
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, captureButton)
-TopBar.add(captureButton, 4)
+-- (user 2026-10-30: the 📸 button is off the top bar; the code stays for later)
+captureButton.Visible = false
+local _ = TopBar
 
 -- Menu under the button
 local menu = create("Frame", {

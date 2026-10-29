@@ -580,7 +580,7 @@ local function buildItemShop()
 		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(120, 60, 200), "테이블 스파클러",
 			"들고 테이블 위 병(버킷)을 누르면 30초 연출", rs("Sparkler1"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler1") end, look("Sparkler1"))
 		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(150, 50, 190), "스파클러 ×5",
-			"한 버킷에 5개까지 꽂아요", rs("Sparkler5"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler5") end, look("Sparkler5"))
+			"한 버킷에 5개까지 꽂아요", rs("Sparkler5"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler5") end, look("Sparkler1")) -- (the same picture as one, user 2026-10-30)
 		NeonShopUI.itemCard(list2, nextOrder(), "🍾", Color3.fromRGB(40, 120, 200), "스파클러 버킷 세트",
 			"얼음 버킷 + 음료 3개 + 스파클러 3개", rs("SparklerBucket"), if vip then nil else rs("SparklerBucket_VIP"), "🛒 구매하기", C, function() buyProduct(bucketKey) end, look("SparklerBucket"))
 		NeonShopUI.itemCard(list2, nextOrder(), "✨", Color3.fromRGB(200, 140, 40), "손 스파클러",

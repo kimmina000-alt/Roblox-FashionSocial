@@ -1514,7 +1514,7 @@ local albumButton = create("TextButton", {
 	TextColor3 = COLORS.text,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, albumButton)
-TopBar.add(albumButton, 3)
+TopBar.add(albumButton, 2)
 
 local album = overlay("Album")
 boxify(album)

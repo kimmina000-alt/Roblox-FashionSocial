@@ -38,7 +38,9 @@ local COLD_SPARK_SECONDS = 30 -- (10 → 30, user 2026-10-30: it felt too short)
 -- the two fountains the user liked (D-422): 7 = narrow column, 8 = wider fan
 local FOUNTAIN_STYLES = {
 	column = { spread = 6, speed = 26 },
-	fan = { spread = 14, speed = 22 },
+	-- (user 2026-10-30: up to the top of the LED wall, 38 studs over the stage
+	-- front: speed 22 → 42 with a longer life, see sparks(); checked in Play)
+	fan = { spread = 10, speed = 42 },
 }
 local COLD_SPARK_STYLE = "fan" -- (user 2026-10-27: 8 first)
 local COLD_SPARK_COOLDOWN = 120 -- (no longer a wait for buyers: only the DJ's free one, 2026-10-27)
@@ -116,15 +118,15 @@ local function sparks(parent: Instance, offset: Vector3, big: boolean): Attachme
 		-- drifting back down round the column
 		local style = FOUNTAIN_STYLES[COLD_SPARK_STYLE]
 		emitter.Name = "Core"
-		emitter.Rate = 700
-		emitter.Lifetime = NumberRange.new(0.9, 1.4)
-		emitter.Speed = NumberRange.new(style.speed * 0.8, style.speed)
+		emitter.Rate = 600
+		emitter.Lifetime = NumberRange.new(1.5, 2.1)
+		emitter.Speed = NumberRange.new(style.speed * 0.85, style.speed)
 		emitter.SpreadAngle = Vector2.new(style.spread, style.spread)
 		emitter.Acceleration = Vector3.new(0, -14, 0)
 		emitter.Drag = 0.6
 		emitter.Orientation = Enum.ParticleOrientation.VelocityParallel
 		emitter.Squash = NumberSequence.new(-1.6)
-		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.7), NumberSequenceKeypoint.new(0.6, 0.5), NumberSequenceKeypoint.new(1, 0.1) })
+		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(0.6, 0.6), NumberSequenceKeypoint.new(1, 0.15) })
 		emitter.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.75, 0.2), NumberSequenceKeypoint.new(1, 1) })
 		emitter.Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 240)),

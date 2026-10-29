@@ -65,8 +65,16 @@ end
 
 function NameTagService.Start()
 	local function watch(player: Player)
-		player.CharacterAdded:Connect(function(character) task.spawn(build, player, character) end)
-		if player.Character then task.spawn(build, player, player.Character) end
+		-- (user 2026-10-30: id + XP gone, only VIP left) a new outfit can swap the
+		-- Head part, and the tag went with the old one: build again on a new Head
+		local function onCharacter(character: Model)
+			build(player, character)
+			character.ChildAdded:Connect(function(child)
+				if child.Name == "Head" then task.defer(build, player, character) end
+			end)
+		end
+		player.CharacterAdded:Connect(function(character) task.spawn(onCharacter, character) end)
+		if player.Character then task.spawn(onCharacter, player.Character) end
 		player:GetAttributeChangedSignal("XP"):Connect(function()
 			local head = player.Character and player.Character:FindFirstChild("Head")
 			local tag = head and head:FindFirstChild(TAG_NAME)
@@ -98,25 +106,26 @@ local function refreshRoles(player: Player)
 	if not tag then
 		local g = Instance.new("BillboardGui")
 		g.Name = ROLE_TAG
-		g.Size = UDim2.fromOffset(110, 26)
+		-- (half size, user 2026-10-30: was 110 x 26)
+		g.Size = UDim2.fromOffset(56, 13)
 		g.StudsOffset = Vector3.new(0, 2.4, 0)
 		-- right over the name tag (id + XP, 46 px tall on the same anchor): one
-		-- badge height and a half up; the cafe staff tag sits above it
-		g.SizeOffset = Vector2.new(0, 1.5)
+		-- badge height and a half up, so 23 px over its middle like before
+		g.SizeOffset = Vector2.new(0, 2.27)
 		g.MaxDistance = 90
 		g.LightInfluence = 0
 		g.Adornee = head
 		local list = Instance.new("UIListLayout")
 		list.FillDirection = Enum.FillDirection.Horizontal
 		list.HorizontalAlignment = Enum.HorizontalAlignment.Center
-		list.Padding = UDim.new(0, 8)
+		list.Padding = UDim.new(0, 4)
 		list.Parent = g
 		for i, spec in ipairs({ { "VIP", Color3.fromRGB(255, 30, 50) }, { "DJ", Color3.fromRGB(70, 200, 255) } }) do
 			local l = Instance.new("TextLabel")
 			l.Name = spec[1]
 			l.LayoutOrder = i
 			l.BackgroundTransparency = 1
-			l.Size = UDim2.new(0, 46, 1, 0)
+			l.Size = UDim2.new(0, 23, 1, 0)
 			-- Jura Bold (user's pick, sample 11, 2026-10-27)
 			l.FontFace = Font.new("rbxasset://fonts/families/Jura.json", Enum.FontWeight.Bold)
 			l.TextScaled = true
@@ -125,7 +134,7 @@ local function refreshRoles(player: Player)
 			l.Parent = g
 			local stroke = Instance.new("UIStroke") -- the neon: a thick coloured outline
 			stroke.Color = spec[2]
-			stroke.Thickness = 3
+			stroke.Thickness = 1.5
 			stroke.Parent = l
 		end
 		g.Parent = head
@@ -143,6 +152,9 @@ function NameTagService.StartRoles()
 			character:WaitForChild("Head", 10)
 			refreshRoles(player)
 			character:GetAttributeChangedSignal("Djing"):Connect(function() refreshRoles(player) end)
+			character.ChildAdded:Connect(function(child)
+				if child.Name == "Head" then task.defer(refreshRoles, player) end
+			end)
 		end
 		player.CharacterAdded:Connect(function(character) task.spawn(onCharacter, character) end)
 		if player.Character then task.spawn(onCharacter, player.Character) end

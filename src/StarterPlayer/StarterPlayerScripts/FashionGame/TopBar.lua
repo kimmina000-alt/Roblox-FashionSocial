@@ -1,7 +1,8 @@
 --!strict
--- Round buttons in the top bar, left of the catalog "C" button. Each script
--- adds its button with an order (1 = right next to C); hidden buttons leave
--- no gap. Order: 🏠 0 (spawn), 💃 1, 🎵 2, 📷 3, 🪙 coins 10.
+-- Round buttons in the top bar, from the right end. Each script adds its
+-- button with an order (0 = the right end); hidden buttons leave no gap.
+-- (user 2026-10-30) left to right: 💰 coins 10, 💝 5, C catalog 4, 🎒 3,
+-- 🖼 album 2, 💃 1, 🏠 0. The 📸 capture button is gone.
 -- A button with attribute Width (number, px at full size) is that wide.
 
 local GuiService = game:GetService("GuiService")
@@ -22,7 +23,7 @@ local function layout()
 		end
 	end
 	table.sort(entries, function(a, b) return a.order < b.order end)
-	local x = rightX - size - 8
+	local x = rightX
 	for _, entry in ipairs(entries) do
 		if entry.button.Visible then
 			local wide = entry.button:GetAttribute("Width")

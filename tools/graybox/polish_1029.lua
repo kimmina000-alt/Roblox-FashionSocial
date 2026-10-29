@@ -454,7 +454,43 @@ do
 		end
 		m.Parent = lift
 	end
+	-- (user 2026-10-30: people still got in) an invisible wall across the
+	-- doorway, and the car's side walls solid
+	if lift and not lift:FindFirstChild("LiftBlocker") then
+		local b = Instance.new("Part")
+		b.Name = "LiftBlocker"
+		b.Anchored, b.CanCollide, b.CanTouch, b.CastShadow = true, true, false, false
+		b.Transparency = 1
+		b.Size = Vector3.new(16, 18, 0.6)
+		b.CFrame = CFrame.new(57.75, 9, -184.9)
+		b.Parent = lift
+	end
+	for _, d in ipairs(lift and lift:GetChildren() or {}) do
+		if d:IsA("BasePart") and (d.Name == "LiftCarSide" or d.Name == "LiftCarInner") then d.CanCollide = true end
+	end
 	table.insert(log, "club lift closed")
+end
+
+-------------------------------------------------- 6b. club strip lines thin
+-- (user 2026-10-30) the yellow lines over and under the supporter strip above
+-- the DJ zone: 0.4 → 0.12 thick, each kept against the strip (the graybox
+-- builder makes them thin too)
+do
+	local strip = club and club:FindFirstChild("SupportStrip")
+	local n = 0
+	if strip then
+		local mid = strip.Position.Y
+		for _, f in ipairs(club:GetChildren()) do
+			if f:IsA("BasePart") and f.Name == "SupportStripFrame" and f.Size.Y > 0.2 then
+				local below = f.Position.Y < mid
+				local edge = if below then f.Position.Y + f.Size.Y / 2 else f.Position.Y - f.Size.Y / 2
+				f.Size = Vector3.new(f.Size.X, 0.12, f.Size.Z)
+				f.CFrame = f.CFrame.Rotation + Vector3.new(f.Position.X, if below then edge - 0.06 else edge + 0.06, f.Position.Z)
+				n += 1
+			end
+		end
+	end
+	table.insert(log, "strip lines " .. n)
 end
 
 ---------------------------------------------------------------- 7. beach tubes
