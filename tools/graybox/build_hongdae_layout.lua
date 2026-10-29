@@ -7578,12 +7578,20 @@ do
 	-- wall of a building, so the open space behind the club does not show
 	local stop = box("AlleyStop", X0, 0, -78.6, X1, 30, -78, Color3.new(1, 1, 1), o({ transparency = 1 }))
 	stop.CastShadow, stop.CanQuery, stop.CanTouch = false, false, false
-	local back = box("AlleyBackWall", X0 - 0.5, 0, ZN - 1.2, X1 + 1, 56, ZN, Color3.fromRGB(196, 194, 188), o({ material = Enum.Material.Concrete }))
-	back.CastShadow = false
-	-- a few windows, a drain pipe and an AC on it, like the back of a building
-	for _, w in ipairs({ { 183.5, 14 }, { 190.5, 14 }, { 183.5, 26 }, { 190.5, 26 }, { 183.5, 38 }, { 190.5, 38 } }) do
-		box("AlleyBackWindow", w[1] - 1.6, w[2], ZN + 0.02, w[1] + 1.6, w[2] + 3.2, ZN + 0.12, Color3.fromRGB(70, 110, 150), o({ material = Enum.Material.Glass, nocol = true }))
-	end
+	-- (user 2026-10-30 (2): the free-standing wall across the far end showed its
+	-- bare back in the gap by the club; gone) instead the open land east of the
+	-- club is closed on the club's east line, x 190, from the club's corner
+	-- (z -128) to block E's corner (x 195, z -100): the back alley and the gap
+	-- between 오후네컷 and the club both end at a building side
+	local SIDE = Color3.fromRGB(150, 148, 146)
+	box("GapEndWall", 190, 0, -128.5, 191.2, 56, -100, SIDE, o({ material = Enum.Material.Concrete }))
+	box("GapEndWall", 191.2, 0, -101.2, 195, 56, -100, SIDE, o({ material = Enum.Material.Concrete }))
+	-- the gap between 오후네컷 and the club paved like the sidewalks (it was bare ground)
+	walk(49, -127.9, 190, -116) -- (walk(): street_dress gives it the sidewalk pattern)
+	-- the same between the 국밥집 and the north shop block, closed at its far end
+	-- by a wall in the 국밥집's brick
+	walk(49, -385, 130, -375)
+	box("GapEndWall", 128.8, 0, -385, 130, 40, -375, Color3.fromRGB(150, 92, 72), o({ material = Enum.Material.Brick }))
 	local function rod(name, a: Vector3, b: Vector3, d, color, mat)
 		local p = part(name, Vector3.new((b - a).Magnitude, d, d), CFrame.lookAt((a + b) / 2, b) * CFrame.Angles(0, math.rad(90), 0), color,
 			o({ shape = Enum.PartType.Cylinder, nocol = true, material = mat or Enum.Material.SmoothPlastic }))
