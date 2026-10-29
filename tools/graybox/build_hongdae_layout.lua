@@ -5707,6 +5707,22 @@ do
 	box("ShopFloor", W0, F - 0.4, N0, W1, F, S0 - CH, FLOOR_COL, tileOpt)
 	box("ShopFloor", W0 + CH, F - 0.4, S0 - CH, W1, F, S0, FLOOR_COL, tileOpt)
 	cutPart("ShopFloor", CH * math.sqrt(2), F - 0.4, F, depthIn, -depthIn / 2, FLOOR_COL, tileOpt)
+	-- white octagon tiles with navy dots on a 45° grid (user photo 2026-10-30,
+	-- docs/04_ART/references/ohu4cut_floor_octagon_tile.jpg): one image texture
+	-- (docs/04_ART/textures/ohu4cut_octagon_tile.png; one image = 2 tiles across)
+	for _, p in ipairs(B:GetChildren()) do
+		if p.Name == "ShopFloor" and p:IsA("BasePart") then
+			p.Material = Enum.Material.SmoothPlastic
+			p.Color = Color3.new(1, 1, 1)
+			p.Reflectance = 0.05
+			local tx = Instance.new("Texture")
+			tx.Name = "OctagonTiles"
+			tx.Face = Enum.NormalId.Top
+			tx.Texture = "rbxassetid://89770610218248"
+			tx.StudsPerTileU, tx.StudsPerTileV = 7, 7
+			tx.Parent = p
+		end
+	end
 	-- one wooden deck step at floor height along all three street faces
 	-- (user 2026-10-23: the wood of the old right-hand deck everywhere, one step
 	-- instead of two in front of the door), an invisible ramp at the door
@@ -6545,6 +6561,25 @@ do
 		local wn = booths[i]:FindFirstChild("Wall_N")
 		local lining = if wn and wn:IsA("BasePart") then wn.Color else SKY
 		archRim(Vector3.new(FX + 0.5, F, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH, 0.15, 1.02, lining, B, Enum.Material.SmoothPlastic)
+		-- a white pleated curtain filling the arch (user photo 2026-10-30,
+		-- docs/04_ART/references/ohu4cut_room_arch_curtain.jpg): white columns side
+		-- by side, each cut to the arch line; walk-through, no shadow or queries
+		do
+			local ri = AW / 2 - 0.15 -- inside the lining
+			local COLS = 11
+			local d = 2 * ri / COLS
+			for k = 0, COLS - 1 do
+				local s = -ri + d * (k + 0.5)
+				local h = (AH - AW / 2) + math.sqrt(math.max(0, ri * ri - (math.abs(s) + d / 2) ^ 2))
+				local pleat = part("CurtainPleat", Vector3.new(h, d * 1.15, d * 1.15),
+					CFrame.new(FX + 0.5, F + h / 2, z + s) * CFrame.Angles(0, 0, math.rad(90)),
+					Color3.fromRGB(244, 242, 236), { parent = B, material = Enum.Material.Fabric, shape = Enum.PartType.Cylinder })
+				pleat.CanCollide = false
+				pleat.CanQuery = false
+				pleat.CanTouch = false
+				pleat.CastShadow = false
+			end
+		end
 		local name = ROOMS[booths[i]:GetAttribute("BoothKey") or ""] or string.format("PHOTO %02d", i)
 		ledSign("RoomSign", Vector3.new(FX - 0.35, F + AH + 1.6, z), Vector3.new(-1, 0, 0), 4.85, 1.35, name)
 		-- (user 2026-10-30, mock-up "1. 포토부스 진입") a glowing entrance: a pink
