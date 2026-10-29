@@ -988,3 +988,5 @@ D-517 — (2026-10-29 (35), user: try it in game) The ice box is live for one dr
 D-518 — (2026-10-29 (36), user) Names: VIP bucket 1 = the gold tray (vipTray 'C', kinds 'vip'/'golmok', kept in the code); VIP bucket 2 = the ice box ('icebox'). Every VIP-only drink (all four 골목 공방 flavours) now comes in VIP bucket 2 (DrinkService kindFor), the rose-only try-out removed. The ice box aura a third less (15 a second, was 22; 57 % see-through at its thickest, was 35 %). Checked in Play with 오미자 히비스커스 on a round table. Shot: 2026-10-29/vip_bucket2_omija.jpg.
 
 D-519 — (2026-10-29 (37), user) Strawberry parfait 1.5x in the hand (FoodShapes ASSET_FOODS parfait 1.25 -> 1.875 studs tall).
+
+D-520 — (2026-10-29 (38), user) Footsteps on every floor except sand and water use the user's sound 132221529613537 (FootstepsController SETS.ground; the grass / wood / hard sets are gone); sand keeps 98912102275037, water keeps Roblox's swim sounds. SOUNDS.md 11a.

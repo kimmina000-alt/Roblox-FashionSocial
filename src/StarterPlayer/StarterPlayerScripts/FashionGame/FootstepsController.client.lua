@@ -15,20 +15,15 @@ local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
 -- several takes per surface, picked in turn so the steps do not repeat
+-- (user 2026-10-29: one step sound for every floor except sand and water,
+-- 132221529613537; sand keeps its own)
 local SETS: {[string]: { ids: {string}, volume: number }} = {
-	grass = { volume = 0.55, ids = { -- "footstep grass 1..4" (Creator Store)
-		"rbxassetid://129956418693357", "rbxassetid://78534941650081", "rbxassetid://110522236020035", "rbxassetid://135037154891351",
-	} },
 	sand = { volume = 0.55, ids = { "rbxassetid://98912102275037" } }, -- "Sand Footstep" (Creator Store)
-	wood = { volume = 0.5, ids = { "rbxassetid://92705710431057", "rbxassetid://76286399907074" } }, -- "footstep wood 3 / 4" (Creator Store)
-	hard = { volume = 0.45, ids = { "rbxassetid://87061775498714", "rbxassetid://140594308250996" } }, -- "Concrete Footstep", "Stone Footstep 5" (Creator Store)
+	ground = { volume = 0.5, ids = { "rbxassetid://132221529613537" } }, -- the user's footstep
 }
 local SURFACE: {[Enum.Material]: string} = {
-	[Enum.Material.Grass] = "grass", [Enum.Material.LeafyGrass] = "grass", [Enum.Material.Ground] = "grass", [Enum.Material.Mud] = "grass",
 	[Enum.Material.Sand] = "sand",
-	[Enum.Material.Wood] = "wood", [Enum.Material.WoodPlanks] = "wood",
-}
-local NEAR = 60
+}local NEAR = 60
 local STRIDE = 5.2 -- studs a step (full speed 16 → about 3 steps a second)
 local RUN_SPEED = 20 -- at or above this the steps are a run (SprintController: walk 16, run 26)
 
@@ -84,7 +79,7 @@ RunService.Heartbeat:Connect(function()
 		if (root.Position - camera.CFrame.Position).Magnitude > NEAR then continue end
 		local floor = humanoid.FloorMaterial
 		local inAir = floor == Enum.Material.Air
-		local surface = SURFACE[floor] or "hard"
+		local surface = SURFACE[floor] or "ground"
 		-- landing: one firm step on whatever is underneath
 		if w.wasAir and not inAir and humanoid:GetState() ~= Enum.HumanoidStateType.Swimming and floor ~= Enum.Material.Water then
 			step(w, root, surface, 1.5)

@@ -25,10 +25,8 @@
 | 9 | 발 씻는 곳 물 | 9117941569 | Puddle Impact Big Puddle Splash Footsteps 12 (Pro Sound Effects) | 같은 파일 `WASH_ID` | |
 | 10 | 발 씻는 곳 수도꼭지 물줄기 | 9119158299 | Sink Sprayer Spray Into Kitchen Sink 13 (Pro Sound Effects) | `tools/graybox/build_hongdae_layout.lua` (발 씻는 곳 부분) | |
 | 11 | 모래 위 발소리 사각사각 | 98912102275037 | Sand Footstep (Creator Store) | `src/StarterPlayer/StarterPlayerScripts/FashionGame/FootstepsController.client.lua` `SETS.sand` | |
-| 11a | 잔디·흙 위 발소리 (풀 스치는 소리, 4가지 번갈아) | 129956418693357, 78534941650081, 110522236020035, 135037154891351 | footstep grass 1~4 (Creator Store) | 같은 파일 `SETS.grass` | |
-| 11b | 나무 데크·나무 계단 발소리 | 92705710431057, 76286399907074 | footstep wood 3 / 4 (Creator Store) | 같은 파일 `SETS.wood` | |
-| 11c | 돌·타일·아스팔트·대리석 등 나머지 바닥 발소리 | 87061775498714, 140594308250996 | Concrete Footstep / Stone Footstep 5 (Creator Store) | 같은 파일 `SETS.hard` | |
-| 11d | 점프 후 착지 (그 바닥 발소리를 1.5배 크게) | 11~11c와 같음 | | 같은 파일 | |
+| 11a | 모래·물을 뺀 모든 바닥 발소리 (잔디·흙·나무·돌·타일·아스팔트·대리석) | 132221529613537 | 사용자 지정 (2026-10-29) | 같은 파일 `SETS.ground` | 11b·11c 대신 |
+| 11d | 점프 후 착지 (그 바닥 발소리를 1.5배 크게) | 11·11a와 같음 | | 같은 파일 | |
 | 11e | 포토부스 사진 찍을 때 찰칵 (새로 넣음) | 17208312548 | Roblox GUI - Camera Shutter | `src/StarterPlayer/StarterPlayerScripts/FashionGame/PhotoBoothController.client.lua` `boothSound.shutter` | |
 | 11f | 포토부스 카운트다운 3·2·1 삑 (새로 넣음) | 9118777239 | Scanner Beeps 5 (Pro Sound Effects) | 같은 파일 `boothSound.tick` | |
 | 11g | 편의점·카페·노점 결제할 때 띵동 (계산대에서 나요, 새로 넣음) | 9118777437 | Scanner Beeps 10 (Pro Sound Effects) | `src/ServerScriptService/FashionGame/Services/SnackService.lua` `PAY_SOUND` | |
@@ -61,7 +59,7 @@ Roblox는 캐릭터마다 `RbxCharacterSounds`로 기본 소리를 붙여요. �
 
 | 행동 | 소리 | 상태 |
 |---|---|---|
-| 걷기·뛰기 | Roblox 기본 Running | **끔** → 바닥별 발소리(11~11c) |
+| 걷기·뛰기 | Roblox 기본 Running | **끔** → 바닥별 발소리(11 모래 · 11a 그 외) |
 | 점프 | Roblox 기본 Jumping | 그대로 |
 | 착지 | Roblox 기본 Landing + 바닥 발소리(11d) | 그대로 + 추가 |
 | 떨어지는 바람 소리 | Roblox 기본 FreeFalling | 그대로 |
