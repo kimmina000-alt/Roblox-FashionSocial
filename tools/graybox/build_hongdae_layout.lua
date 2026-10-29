@@ -7221,48 +7221,52 @@ do
 				plant.Parent = B
 			end
 		end
-		-- four plush toys from the Creator Store (user picks 2026-10-30; scripts
-		-- stripped, ServerStorage.ArtAssets.PitPlush*) sunk a little into the balls
+		-- plush toys from the Creator Store (user picks 2026-10-30; scripts
+		-- stripped, ServerStorage.ArtAssets.PitPlush*) sunk a little into the balls.
+		-- (user 2026-10-30 late) the brown teddy and the monkey are gone; the
+		-- purple teddy and the seal look toward the room, and a pink copy of the
+		-- teddy (lying on its back) and a blue copy of the seal take the freed spots.
+		-- face = the way the toy's face looks; turn = the mesh's face relative to
+		-- its pivot (the seal's face is a quarter turn round)
 		do
 			local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
-			math.randomseed(20261031)
-			local spots = {}
-			for _, name in ipairs({ "PitPlushTeddy", "PitPlushMonkey", "PitPlushPurple", "PitPlushSeal" }) do
+			local TOWARD = Vector3.new(-0.3, 0, 1).Unit -- (the room, south)
+			for _, p in ipairs({
+				{ "PitPlushPurple", Vector3.new(78, 0, -103), 0, false },
+				{ "PitPlushSeal", Vector3.new(85.4, 0, -97.3), -90, false },
+				{ "PitPlushPurple", Vector3.new(61.6, 0, -92.9), 0, true, Color3.fromRGB(250, 170, 200) },
+				{ "PitPlushSeal", Vector3.new(64.8, 0, -103.3), -90, false, Color3.fromRGB(170, 210, 245) },
+			}) do
+				local name, at, turn, lying, tint = p[1], p[2], p[3], p[4], p[5]
 				local src = art and art:FindFirstChild(name)
-				if src then
-					local at
-					for _ = 1, 60 do
-						local x, z = PX0 + 3 + math.random() * (PX1 - PX0 - 6), PZ0 + 4 + math.random() * (PZ1 - PZ0 - 7)
-						local ok = inPit(x, z, 2.5) and x > PX0 + 11 -- (clear of the ladder and the plant by the wall)
-						for _, s in ipairs(spots) do if (s - Vector3.new(x, 0, z)).Magnitude < 7 then ok = false end end
-						if ok then at = Vector3.new(x, 0, z) break end
-					end
-					if at then
-						table.insert(spots, at)
-						local m = src:Clone()
-						m.Name = "PitPlush"
-						if m:IsA("Model") then
-							local _, size = m:GetBoundingBox()
-							m:ScaleTo(m:GetScale() * (if name == "PitPlushSeal" then 2.2 else 3) / size.Y)
-							local cf, s2 = m:GetBoundingBox()
-							local rot = CFrame.Angles(0, math.rad(math.random(-50, 50)) + math.atan2(-1, 1), 0) -- (roughly toward the room)
-							m:PivotTo(CFrame.new(at.X, TOP - 0.3 + s2.Y / 2, at.Z) * rot * (cf:Inverse() * m:GetPivot()))
-						end
-						local TINT = { PitPlushTeddy = Color3.fromRGB(214, 168, 120), PitPlushMonkey = Color3.fromRGB(170, 120, 84) }
-						for _, d in ipairs(m:GetDescendants()) do
-							if d:IsA("BasePart") then
-								d.Anchored = true d.CanCollide = false d.CanQuery = false
-								-- (these two meshes come without a texture: plain plush colours)
-								if TINT[name] and d:IsA("MeshPart") and d.TextureID == "" then d.Color = TINT[name] d.Material = Enum.Material.Fabric end
+				if src and src:IsA("Model") then
+					local m = src:Clone()
+					m.Name = "PitPlush"
+					local _, size = m:GetBoundingBox()
+					m:ScaleTo(m:GetScale() * (if name == "PitPlushSeal" then 2.2 else 3) / size.Y)
+					local cf = m:GetBoundingBox()
+					local rel = cf:Inverse() * m:GetPivot()
+					local look = (CFrame.Angles(0, math.rad(turn), 0) * CFrame.new(Vector3.zero, TOWARD)).LookVector
+					local o = CFrame.lookAt(Vector3.zero, look) * (if lying then CFrame.Angles(math.rad(90), 0, 0) else CFrame.identity)
+					m:PivotTo(o * rel)
+					local cf2, s2 = m:GetBoundingBox()
+					m:PivotTo(m:GetPivot() + (Vector3.new(at.X, TOP - 0.3 + s2.Y / 2, at.Z) - cf2.Position))
+					for _, d in ipairs(m:GetDescendants()) do
+						if d:IsA("BasePart") then
+							d.Anchored = true d.CanCollide = false d.CanQuery = false
+							-- (the seal's eyes and nose keep their colour: only its white body is tinted)
+							if tint and (name ~= "PitPlushSeal" or (d.Color.R > 0.9 and d.Color.G > 0.9)) then
+								if d:IsA("MeshPart") then d.TextureID = "" end
+								d.Color = tint
+								d.Material = Enum.Material.Fabric
 							end
 						end
-						m.Parent = B
 					end
+					m.Parent = B
 				end
 			end
 		end
-	end
-	---------------------------------------------------------------- wavy floor mirror leaning on the west wall
+	end	---------------------------------------------------------------- wavy floor mirror leaning on the west wall
 	-- (user photo 2026-10-30, docs/04_ART/references/ohu4cut_wavy_mirror_ref.webp;
 	-- 2026-10-30 late: the Meshy mesh read angular, the user asked for a soft,
 	-- very plump wavy frame with a plain rectangular glass hidden behind it)

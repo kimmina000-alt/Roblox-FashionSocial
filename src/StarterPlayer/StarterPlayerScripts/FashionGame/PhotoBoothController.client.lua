@@ -146,6 +146,7 @@ local state = {
 	pickerName = "",
 }
 local PhotoCopiesPanel = require(script.Parent:WaitForChild("PhotoCopiesPanel"))
+local PhotoFlowUI = require(script.Parent:WaitForChild("PhotoFlowUI"))
 
 -- Centred box for pick / frame / result / album (user, 2026-10-20: not full
 -- screen; about the size of the minimized catalog, clear of the hotbar).
@@ -968,25 +969,65 @@ local frameArea = create("Frame", { Name = "Frames", BackgroundTransparency = 1,
 local result = overlay("Result")
 boxify(pick)
 boxify(result)
+PhotoFlowUI.icon(pick, "📷", 12)
 
 local pickCells: {ViewportFrame} = {}
 local pickBadges: {TextLabel} = {}
 local previewStrip: any = nil
 
+-- (user mock-up 2026-10-30, docs/04_ART/references/photo_ui_redesign_2026-10-30.png)
+-- picking: header top-left, the 8 shots left, a divider, the strip right with
+-- 선택 완료 under it; frame: tabs and frame previews across, the button
+-- centred below; copies: the finished strip left, the copies panel right
 local function layoutPick()
 	local bw, bh = placeBox(pick, "flow")
-	pickTitle.Position = UDim2.fromOffset(0, 8)
-	pickTimer.Position = UDim2.fromOffset(0, 36)
-	local areaTop = 58
-	local areaH = bh - areaTop - 56
-	local previewW = math.floor(math.min(bw * 0.3, areaH * PhotoRender.stripAspect(state.shots and state.shots.layout or "1x4") * 1.02))
+	PhotoFlowUI.placeHeader(pickTitle, pickTimer, bw)
+	local headerIcon = pick:FindFirstChild("HeaderIcon") :: TextLabel?
+	if headerIcon then headerIcon.Text = if state.stage == "frame" then "🖼" elseif state.stage == "copies" then "✨" else "📷" end
+	local divider = PhotoFlowUI.divider(pick, 11)
+	local areaTop = 56
+	local stage = state.stage
+	if stage == "frame" then
+		divider.Visible = false
+		pickPreview.Visible = false
+		frameArea.Position = UDim2.fromOffset(12, areaTop)
+		frameArea.Size = UDim2.fromOffset(bw - 24, bh - areaTop - 62)
+		pickDone.AnchorPoint = Vector2.new(0.5, 1)
+		pickDone.Size = UDim2.fromOffset(220, 40)
+		pickDone.Position = UDim2.new(0.5, 0, 1, -12)
+		-- five frame previews to a row, one row in view (more rows scroll)
+		local list = frameArea:FindFirstChild("Swatches")
+		local grid = list and list:FindFirstChildOfClass("UIGridLayout")
+		if grid then
+			local w, h = bw - 24, bh - areaTop - 62 - 40
+			grid.CellSize = UDim2.fromOffset(math.floor((w - 6 - 4 * 8) / 5), math.max(60, h - 4))
+		end
+		return
+	end
+	local areaH = bh - areaTop - 12
+	local previewW = math.floor(math.min(bw * 0.3, (areaH - 50) * PhotoRender.stripAspect(state.shots and state.shots.layout or "1x4") * 1.02))
+	pickPreview.Visible = true
+	if stage == "copies" then
+		divider.Visible = false
+		local leftW = math.floor(bw * 0.36)
+		pickPreview.Position = UDim2.fromOffset(12 + math.floor((leftW - previewW) / 2), areaTop)
+		pickPreview.Size = UDim2.fromOffset(previewW, areaH)
+		frameArea.Position = UDim2.fromOffset(12 + leftW + 12, areaTop)
+		frameArea.Size = UDim2.fromOffset(bw - leftW - 36, areaH)
+		return
+	end
+	divider.Visible = true
+	divider.Position = UDim2.fromOffset(bw - previewW - 24, areaTop)
+	divider.Size = UDim2.fromOffset(1, areaH)
 	pickGrid.Position = UDim2.fromOffset(12, areaTop)
-	pickGrid.Size = UDim2.fromOffset(bw - previewW - 36, areaH)
+	pickGrid.Size = UDim2.fromOffset(bw - previewW - 48, areaH)
 	frameArea.Position = pickGrid.Position
 	frameArea.Size = pickGrid.Size
 	pickPreview.Position = UDim2.fromOffset(bw - previewW - 12, areaTop)
-	pickPreview.Size = UDim2.fromOffset(previewW, areaH)
-	pickDone.Position = UDim2.new(0.5, 0, 1, -10)
+	pickPreview.Size = UDim2.fromOffset(previewW, areaH - 50)
+	pickDone.AnchorPoint = Vector2.new(0, 1)
+	pickDone.Size = UDim2.fromOffset(previewW, 38)
+	pickDone.Position = UDim2.new(0, bw - previewW - 12, 1, -12)
 	-- 4 × 2 grid of 4:3 cells
 	local gw = pickGrid.Size.X.Offset
 	local cellW = math.min((gw - 3 * 8) / 4, (areaH - 8) / 2 * 4 / 3)
@@ -1041,7 +1082,7 @@ local function newPreview()
 	for _, child in ipairs(pickPreview:GetChildren()) do child:Destroy() end
 	local shots = state.shots
 	if not shots then return end
-	previewStrip = PhotoRender.newStrip(pickPreview, shots.layout, state.frame, "FASHION SOCIAL · " .. os.date("%Y.%m.%d"))
+	previewStrip = PhotoRender.newStrip(pickPreview, shots.layout, state.frame, "OHU")
 end
 
 -- Who picks (booth attribute "Picker"). Returns true when my role changed.
@@ -1130,16 +1171,21 @@ end
 local frameTabRow = create("Frame", { Size = UDim2.new(1, 0, 0, 30), BackgroundTransparency = 1, ZIndex = 12 }, frameArea)
 create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, frameTabRow)
 local swatches = create("ScrollingFrame", {
-	Position = UDim2.fromOffset(0, 38),
-	Size = UDim2.new(1, 0, 1, -38),
+	Name = "Swatches",
+	Position = UDim2.fromOffset(0, 40),
+	Size = UDim2.new(1, 0, 1, -40),
 	BackgroundTransparency = 1,
 	BorderSizePixel = 0,
-	ScrollBarThickness = 3,
+	ScrollBarThickness = 4,
+	ScrollingDirection = Enum.ScrollingDirection.Y,
 	AutomaticCanvasSize = Enum.AutomaticSize.Y,
 	CanvasSize = UDim2.new(),
 	ZIndex = 12,
 }, frameArea)
 create("UIGridLayout", { CellSize = UDim2.fromOffset(84, 70), CellPadding = UDim2.fromOffset(8, 8), SortOrder = Enum.SortOrder.LayoutOrder }, swatches)
+-- frame previews built for the open tab (key → its stroke), so picking one
+-- only moves the highlight
+local frameCards: {[string]: UIStroke} = {}
 local frameTab = PhotoConfig.FrameTabs[1]
 local tabButtons: {[string]: TextButton} = {}
 
@@ -1167,46 +1213,68 @@ local function refreshSaveButton()
 	end
 end
 
+-- Each frame of the open tab as a card with the picked shots already in it
+-- (user 2026-10-30: see the photo in the frame), its name / price under it.
 local function renderSwatches()
 	for _, child in ipairs(swatches:GetChildren()) do
-		if child:IsA("TextButton") then child:Destroy() end
+		if child:IsA("GuiObject") then child:Destroy() end
 	end
+	table.clear(frameCards)
+	local shots = state.shots
+	local chosen = {}
+	if shots then for _, index in ipairs(state.picks) do table.insert(chosen, shots.shots[index]) end end
 	for index, info in ipairs(PhotoConfig.Frames) do
 		if info.tab == frameTab then
-			local swatch = button({
+			local card = button({
+				Name = "Frame_" .. info.key,
 				LayoutOrder = index,
-				BackgroundColor3 = info.color,
-				Text = (if ownsFrame(info) then "" else "🔒 ") .. info.name .. "\n"
-					.. (if ownsFrame(info) and info.price ~= "free" then "✓ 보유" else PhotoConfig.priceText(info)),
-				TextColor3 = info.text,
-				TextSize = 13,
+				BackgroundColor3 = Color3.fromRGB(34, 32, 44),
+				AutoButtonColor = false,
+				Text = "",
 				ZIndex = 13,
-			}, swatches, 10)
-			create("UIStroke", {
-				Color = COLORS.yellow,
+			}, swatches, 12)
+			frameCards[info.key] = create("UIStroke", {
+				Color = COLORS.pink,
 				Thickness = 3,
 				Transparency = if state.frame == info.key then 0 else 1,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
-			}, swatch)
-			swatch.MouseButton1Click:Connect(function()
+			}, card)
+			local holder = create("Frame", { Position = UDim2.fromOffset(6, 6), Size = UDim2.new(1, -12, 1, -30), BackgroundTransparency = 1, ZIndex = 13 }, card)
+			if shots then
+				local strip = PhotoRender.newStrip(holder, shots.layout, info.key, "OHU")
+				strip.frame.ZIndex = 14
+				PhotoRender.fillStrip(strip, chosen, peopleOf(shots), shots.booth)
+			end
+			text({
+				AnchorPoint = Vector2.new(0.5, 1),
+				Position = UDim2.new(0.5, 0, 1, -4),
+				Size = UDim2.new(1, -6, 0, 18),
+				Text = (if ownsFrame(info) then "" else "🔒 ") .. info.name
+					.. (if ownsFrame(info) then "" else " · " .. PhotoConfig.priceText(info)),
+				TextColor3 = COLORS.sub,
+				TextSize = 11,
+				TextScaled = false,
+				ZIndex = 14,
+			}, card)
+			card.MouseButton1Click:Connect(function()
 				if not state.isPicker then return end
 				state.frame = info.key
 				if previewStrip then previewStrip.setColor(info.key) end
-				renderSwatches()
+				for key, stroke in pairs(frameCards) do stroke.Transparency = if key == info.key then 0 else 1 end
 				refreshSaveButton()
 				sendPick()
 			end)
 		end
 	end
 	for name, tab in pairs(tabButtons) do
-		tab.BackgroundColor3 = if name == frameTab then COLORS.pink else COLORS.card
+		tab.BackgroundColor3 = if name == frameTab then COLORS.pink else Color3.fromRGB(44, 42, 54)
 	end
 end
 for index, name in ipairs(PhotoConfig.FrameTabs) do
 	local tab = button({
 		LayoutOrder = index,
-		Size = UDim2.fromOffset(86, 30),
-		Text = name .. " 프레임",
+		Size = UDim2.new(1 / #PhotoConfig.FrameTabs, -4, 1, 0),
+		Text = name,
 		TextSize = 13,
 		ZIndex = 13,
 	}, frameTabRow, 15)
@@ -1223,6 +1291,8 @@ local function openFrameStep()
 	frameArea.Visible = true
 	pickTitle.Text = if state.isPicker then "프레임을 선택하세요!" else state.pickerName .. "님이 프레임을 고르는 중…"
 	pickDone.Visible = state.isPicker
+	pickTimer.Text = "마음에 드는 프레임을 골라 보세요"
+	layoutPick()
 	renderSwatches()
 	refreshSaveButton()
 end
@@ -1238,7 +1308,7 @@ end
 -- Result: big photo + 캡처 저장 / 사진첩 / 닫기
 local resultHolder = create("Frame", { BackgroundTransparency = 1, ZIndex = 11 }, result)
 local resultButtons = create("Frame", { BackgroundTransparency = 1, ZIndex = 11 }, result)
-create("UIListLayout", { FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, resultButtons)
+create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, resultButtons)
 local resultTitle = text({
 	Size = UDim2.new(1, 0, 0, 28),
 	Text = "사진첩에 저장했어요!",
@@ -1271,12 +1341,12 @@ end
 local function resultButton(label: string, color: Color3, order: number, onClick: () -> ()): TextButton
 	local b = button({
 		LayoutOrder = order,
-		Size = UDim2.new(1, 0, 0, 40),
+		Size = UDim2.new(1 / 3, -6, 1, 0),
 		BackgroundColor3 = color,
 		Text = label,
-		TextSize = 15,
+		TextSize = 14,
 		ZIndex = 12,
-	}, resultButtons, 12)
+	}, resultButtons, 10)
 	b.MouseButton1Click:Connect(onClick)
 	return b
 end
@@ -1312,36 +1382,37 @@ resultButton("📸 캡처 저장", COLORS.pink, 1, function()
 	end
 	captureToGallery({ resultButtons, resultTitle })
 end)
-resultButton("🖼 사진첩", COLORS.card, 2, function()
+resultButton("🖼 내 앨범", COLORS.card, 2, function()
 	closeAllFlow()
 	if openAlbum then openAlbum() end
 end)
 resultButton("닫기", COLORS.card, 3, closeAllFlow)
 
+-- (user mock-up 2026-10-30) a soft card with a pink check in the middle,
+-- "사진이 저장되었어요!", and the three buttons in a row under it
 local function layoutResult()
 	local bw, bh = placeBox(result, "flow")
-	resultTitle.Position = UDim2.fromOffset(0, 8)
-	local buttonsW = math.floor(math.min(170, bw * 0.32))
-	resultHolder.Position = UDim2.fromOffset(12, 42)
-	resultHolder.Size = UDim2.fromOffset(bw - buttonsW - 36, bh - 54)
-	resultButtons.Position = UDim2.fromOffset(bw - buttonsW - 12, 60)
-	resultButtons.Size = UDim2.fromOffset(buttonsW, 140)
+	resultTitle.Visible = false
+	local rowW = math.floor(math.min(bw - 48, 460))
+	-- the card (150 high) and the button row as one block, centred
+	local top = math.max(16, math.floor((bh - 150 - 20 - 40) / 2))
+	resultHolder.Position = UDim2.fromOffset(24, top)
+	resultHolder.Size = UDim2.fromOffset(bw - 48, 150)
+	resultButtons.Position = UDim2.fromOffset(math.floor((bw - rowW) / 2), top + 170)
+	resultButtons.Size = UDim2.fromOffset(rowW, 40)
 end
 
 local function showResult(saved: any)
 	state.stage = "result"
 	pick.Visible = false
-	for _, child in ipairs(resultHolder:GetChildren()) do child:Destroy() end
-	-- The preview strip already shows the 4 shots: move it over.
-	if previewStrip then
-		previewStrip.frame.Parent = resultHolder
-	end
+	if previewStrip then previewStrip.frame:Destroy() end
 	previewStrip = nil
 	layoutResult()
+	local _, _, savedSub = PhotoFlowUI.savedPanel(resultHolder, 12)
 	result.Visible = true
 	Popups.opened("PhotoResult", closeAllFlow)
 	local count = if typeof(saved) == "table" then saved.count else nil
-	resultTitle.Text = if count then string.format("사진첩에 저장했어요! (%d/%d)", count, saved.max or PhotoConfig.MaxPhotos) else "사진첩에 저장했어요!"
+	savedSub.Text = if count then string.format("내 앨범에서 확인할 수 있어요 (%d/%d)", count, saved.max or PhotoConfig.MaxPhotos) else "내 앨범에서 확인할 수 있어요"
 	if typeof(saved) == "table" and not saved.persistent and saved.note then toast("사진첩: " .. tostring(saved.note)) end
 end
 
@@ -1399,6 +1470,7 @@ local function openCopies(info: any)
 	frameArea.Visible = true
 	pickDone.Visible = false
 	pickTitle.Text = "사진 완성!"
+	layoutPick() -- (the strip moves left, the copies panel goes right)
 	for _, child in ipairs(frameArea:GetChildren()) do
 		if child:IsA("GuiObject") and child.Name ~= "CopiesPanel" then child.Visible = false end
 	end
@@ -1439,13 +1511,31 @@ TopBar.add(albumButton, 3)
 
 local album = overlay("Album")
 boxify(album)
+-- 내 앨범 (user mock-up 2026-10-30): header with the pink icon, 전체 삭제 at
+-- the top right, a card per photo with its date / time and a trash button
 local albumTitle = text({
 	Size = UDim2.new(1, -120, 0, 30),
-	Text = "사진첩",
+	Text = "내 앨범",
+	TextColor3 = COLORS.yellow,
 	TextSize = 20,
 	TextXAlignment = Enum.TextXAlignment.Left,
 	ZIndex = 11,
 }, album)
+local albumSub = text({
+	Text = "",
+	TextColor3 = COLORS.sub,
+	Font = Enum.Font.GothamMedium,
+	ZIndex = 11,
+}, album)
+PhotoFlowUI.icon(album, "🖼", 12)
+local albumDeleteAll = button({
+	AnchorPoint = Vector2.new(1, 0),
+	Size = UDim2.fromOffset(96, 32),
+	BackgroundColor3 = Color3.fromRGB(44, 42, 54),
+	Text = "🗑 전체 삭제",
+	TextSize = 13,
+	ZIndex = 12,
+}, album, 10)
 local albumClose = button({
 	AnchorPoint = Vector2.new(1, 0),
 	Size = UDim2.fromOffset(32, 32),
@@ -1497,13 +1587,16 @@ local viewerClose = viewerButton("닫기", COLORS.card, 3)
 local function layoutAlbum()
 	local bw, bh = placeBox(album, "album")
 	placeBox(viewer, "album")
-	albumTitle.Position = UDim2.fromOffset(14, 8)
-	albumClose.Position = UDim2.new(1, -10, 0, 8)
-	albumList.Position = UDim2.fromOffset(12, 46)
-	albumList.Size = UDim2.fromOffset(bw - 24, bh - 56)
-	albumEmpty.Position = UDim2.fromOffset(0, 70)
-	local cellH = math.clamp(math.floor((bh - 66) / 1.6), 110, 240)
-	albumGrid.CellSize = UDim2.fromOffset(math.floor(cellH * 0.55), cellH)
+	PhotoFlowUI.placeHeader(albumTitle, albumSub, bw - 150)
+	albumClose.Position = UDim2.new(1, -10, 0, 10)
+	albumDeleteAll.Position = UDim2.new(1, -50, 0, 10)
+	albumList.Position = UDim2.fromOffset(12, 56)
+	albumList.Size = UDim2.fromOffset(bw - 24, bh - 66)
+	albumEmpty.Position = UDim2.fromOffset(0, 80)
+	-- four cards to a row; a card = the strip + date / time + trash
+	local cellW = math.floor((bw - 24 - 6 - 3 * 10) / 4)
+	local cellH = math.clamp(math.floor(bh - 76), 170, 320)
+	albumGrid.CellSize = UDim2.fromOffset(cellW, cellH)
 	local buttonsW = math.floor(math.min(160, bw * 0.34))
 	viewerHolder.Position = UDim2.fromOffset(12, 12)
 	viewerHolder.Size = UDim2.fromOffset(bw - buttonsW - 36, bh - 24)
@@ -1518,27 +1611,28 @@ local function renderAlbum()
 	for _, child in ipairs(albumList:GetChildren()) do
 		if child:IsA("GuiObject") then child:Destroy() end
 	end
-	albumTitle.Text = "사진첩 · 불러오는 중..."
+	albumSub.Text = "불러오는 중..."
 	local ok, data = invoke("GetAlbum", nil)
 	if generation ~= albumGeneration then return end
 	if not ok or typeof(data) ~= "table" then
-		albumTitle.Text = "사진첩"
-		toast(if typeof(data) == "string" then data else "사진첩을 불러오지 못했어요.")
+		albumSub.Text = ""
+		toast(if typeof(data) == "string" then data else "내 앨범을 불러오지 못했어요.")
 		return
 	end
 	local photos = data.photos or {}
-	albumTitle.Text = string.format("사진첩 %d/%d", #photos, data.max or PhotoConfig.MaxPhotos)
+	albumSub.Text = string.format("%d/%d장 · 사진을 누르면 가방에 넣을 수 있어요", #photos, data.max or PhotoConfig.MaxPhotos)
 	albumEmpty.Visible = #photos == 0
+	albumDeleteAll.Visible = #photos > 0
 	for index, photo in ipairs(photos) do
-		local cell = button({
-			Name = "Photo" .. index,
-			LayoutOrder = index,
-			BackgroundTransparency = 1,
-			Text = "",
-			ZIndex = 12,
-		}, albumList, 6)
-		local holder = create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 12 }, cell)
+		local cell, holder, trash = PhotoFlowUI.albumCard(albumList, index, photo.createdAt, 12)
 		PhotoRender.drawPhoto(holder, photo)
+		trash.MouseButton1Click:Connect(function()
+			PhotoFlowUI.confirm(gui, "사진을 삭제할까요?", "삭제한 사진은 복구할 수 없어요.", "삭제", function()
+				local deleted, message = invoke("DeletePhoto", photo.id)
+				toast(if deleted then "사진을 삭제했어요." else message)
+				if deleted then task.spawn(renderAlbum) end
+			end)
+		end)
 		cell.MouseButton1Click:Connect(function()
 			viewerPhoto = photo
 			for _, child in ipairs(viewerHolder:GetChildren()) do child:Destroy() end
@@ -1584,24 +1678,26 @@ viewerClose.MouseButton1Click:Connect(function() viewer.Visible = false end)
 viewerCapture.MouseButton1Click:Connect(function()
 	captureToGallery({ viewerButtons })
 end)
-local deleteArmed = 0
 viewerDelete.MouseButton1Click:Connect(function()
 	local photo = viewerPhoto
 	if not photo then return end
-	if os.clock() - deleteArmed > 3 then
-		deleteArmed = os.clock()
-		viewerDelete.Text = "한 번 더 누르면 삭제"
-		return
-	end
-	deleteArmed = 0
-	local ok, message = invoke("DeletePhoto", photo.id)
-	if ok then
-		viewer.Visible = false
-		toast("사진을 지웠어요.")
-		task.spawn(renderAlbum)
-	else
-		toast(message)
-	end
+	PhotoFlowUI.confirm(gui, "사진을 삭제할까요?", "삭제한 사진은 복구할 수 없어요.", "삭제", function()
+		local ok, message = invoke("DeletePhoto", photo.id)
+		if ok then
+			viewer.Visible = false
+			toast("사진을 삭제했어요.")
+			task.spawn(renderAlbum)
+		else
+			toast(message)
+		end
+	end)
+end)
+albumDeleteAll.MouseButton1Click:Connect(function()
+	PhotoFlowUI.confirm(gui, "모든 사진을 삭제할까요?", "내 앨범의 사진이 모두 지워지고 복구할 수 없어요.", "전체 삭제", function()
+		local ok, message = invoke("DeleteAllPhotos", nil)
+		toast(if ok then "모든 사진을 삭제했어요." else message)
+		if ok then task.spawn(renderAlbum) end
+	end)
 end)
 
 --------------------------------------------------
@@ -1756,8 +1852,11 @@ boothEvent.OnClientEvent:Connect(function(kind: any, value: any)
 			state.stage = "picking"
 			pickGrid.Visible = true
 			frameArea.Visible = false
+			layoutPick()
 		end
-		if state.stage == "frame" then renderSwatches() end
+		if state.stage == "frame" then
+			for key, stroke in pairs(frameCards) do stroke.Transparency = if key == state.frame then 0 else 1 end
+		end
 		refreshPickBadges()
 		refreshPreview()
 	elseif kind == "Copies" and typeof(value) == "table" then

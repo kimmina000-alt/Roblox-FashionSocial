@@ -323,7 +323,7 @@ function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: st
 	label.BackgroundTransparency = 1
 	label.Position = UDim2.fromScale(0, (totalH - 1.3) / totalH)
 	label.Size = UDim2.fromScale(1, 1.1 / totalH)
-	label.Text = footer or "FASHION SOCIAL · 인생네컷"
+	label.Text = footer or "OHU" -- (only OHU under the photos, user 2026-10-30)
 	label.TextScaled = true
 	label.Font = Enum.Font.GothamBlack
 	label.TextColor3 = frameInfo.text
@@ -378,8 +378,7 @@ end
 
 -- A whole saved photo in `parent`.
 function PhotoRender.drawPhoto(parent: GuiObject, photo: any): Strip
-	local date = if typeof(photo.createdAt) == "number" then os.date("%Y.%m.%d", photo.createdAt) else ""
-	local strip = PhotoRender.newStrip(parent, photo.layout, photo.frame, "FASHION SOCIAL · " .. tostring(date))
+	local strip = PhotoRender.newStrip(parent, photo.layout, photo.frame, "OHU")
 	PhotoRender.fillStrip(strip, photo.shots or {}, PhotoRender.peopleMap(photo.people), photo.booth)
 	return strip
 end

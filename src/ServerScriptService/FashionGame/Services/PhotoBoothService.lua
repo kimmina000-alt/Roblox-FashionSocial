@@ -1092,7 +1092,8 @@ local function handle(player: Player, action: any, payload: any): (boolean, any)
 	local t = os.clock()
 	-- PickUpdate carries the whole choice each time, so it is not throttled
 	-- (a dropped one would leave the watchers out of date).
-	if action ~= "Leave" and action ~= "GetWall" and action ~= "PickUpdate" and lastCall[player] and t - lastCall[player] < 0.2 then
+	-- (GetAlbum is a read: the album reloads right after a delete, 2026-10-30)
+	if action ~= "Leave" and action ~= "GetWall" and action ~= "GetAlbum" and action ~= "PickUpdate" and lastCall[player] and t - lastCall[player] < 0.2 then
 		return false, "잠시 후 다시 시도하세요."
 	end
 	lastCall[player] = t
@@ -1133,6 +1134,13 @@ local function handle(player: Player, action: any, payload: any): (boolean, any)
 			for _, tool in ipairs(photoTools(player)) do
 				if tool:GetAttribute("PhotoId") == payload then tool:Destroy() end
 			end
+		end
+		return ok, result
+	elseif action == "DeleteAllPhotos" then
+		-- 내 앨범 "전체 삭제" (user 2026-10-30): the prints in the backpack go too
+		local ok, result = playerData.DeleteAllPhotos(player)
+		if ok then
+			for _, tool in ipairs(photoTools(player)) do tool:Destroy() end
 		end
 		return ok, result
 	elseif action == "TakeOut" then

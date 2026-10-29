@@ -607,6 +607,26 @@ function PlayerDataService.DeletePhoto(player: Player, id: any): (boolean, any)
 	return true, publicPhotos(session)
 end
 
+-- 내 앨범 "전체 삭제" (user 2026-10-30): every photo at once, one write.
+function PlayerDataService.DeleteAllPhotos(player: Player): (boolean, any)
+	local session = load(player)
+	if session.writing then
+		return false, "이전 저장이 아직 진행 중이에요."
+	end
+	if #session.photos == 0 then return true, publicPhotos(session) end
+	session.writing = true
+	local removed = session.photos
+	session.photos = {}
+	session.dirty = true
+	local ok, message = writeNow(player, session, function(data)
+		return typeof(data) == "table" and typeof(data.photos) == "table" and #data.photos == 0
+	end)
+	if not ok then session.photos = removed end
+	session.writing = false
+	if not ok then return false, message end
+	return true, publicPhotos(session)
+end
+
 function PlayerDataService.Handle(player: Player, action: string, payload: any)
 	if action == "GetFavorites" then
 		return PlayerDataService.GetFavorites(player)
