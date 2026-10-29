@@ -2538,3 +2538,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 테스트(Play): 문·볼풀·복도 걸어 들어감, 곡선 벽은 막힘, 화이트 문 앞 → 2층 촬영 자리, 나가기 → 1층 문 앞.
 - 스카이·핑크 룸 같은 크기 + 포토월 양옆 흰 기둥(D-531): ![](images/2026-10-30/ohu4cut_v3b_plan.jpg)
 - 서쪽 두꺼운 벽 삭제, 볼풀 외벽까지(D-532): ![](images/2026-10-30/ohu4cut_v3c_plan.jpg)
+- 포토월 둥근 사각형 + 흰 판 숨김(D-533): ![](images/2026-10-30/ohu4cut_photowall_roundrect.jpg)

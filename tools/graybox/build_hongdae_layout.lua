@@ -6298,8 +6298,40 @@ do
 
 	---------------------------------------------------------------- north wall: photo wall + props niches
 	local PHOTO_X = (FIN1 + FIN2) / 2
-	local PHW, PHH = 28.5, 19.8 -- the photo wall's arched recess (26 wide wall inside)
 	local NW, NH = 9, 13.5 -- props niches
+	-- the photo wall's recess: as tall as the props niches, a rounded rectangle
+	-- (user photo 2026-10-30: was a tall arch)
+	local PHW, PHH, PHR = 28.5, NH, 3
+	-- a rounded rectangle in a vertical plane (bottom centre c, top corners
+	-- rounded r): two boxes + two cylinders, for CSG holes and the recess back
+	local function roundRect(name, c: Vector3, along: Vector3, out: Vector3, w, h, r, depth, color, op): {BasePart}
+		local list = {
+			part(name, Vector3.new(w, h - r, depth), CFrame.fromMatrix(c + Vector3.new(0, (h - r) / 2, 0), along, Vector3.yAxis), color, op),
+			part(name, Vector3.new(w - 2 * r, h, depth), CFrame.fromMatrix(c + Vector3.new(0, h / 2, 0), along, Vector3.yAxis), color, op),
+		}
+		local cop = table.clone(op)
+		cop.shape = Enum.PartType.Cylinder
+		for _, s in ipairs({ -1, 1 }) do
+			table.insert(list, part(name, Vector3.new(depth, 2 * r, 2 * r), CFrame.fromMatrix(c + along * (s * (w / 2 - r)) + Vector3.new(0, h - r, 0), out, Vector3.yAxis), color, cop))
+		end
+		return list
+	end
+	-- its glowing outline on the wall face: sides, rounded corners, top
+	local function roundRim(c: Vector3, along: Vector3, out: Vector3, w, h, r, th, depth, color)
+		local op = opt({ material = Enum.Material.Neon, nocol = true })
+		for _, s in ipairs({ -1, 1 }) do
+			part("NicheRim", Vector3.new(th, h - r, depth), CFrame.fromMatrix(c + along * (s * (w / 2 - th / 2)) + Vector3.new(0, (h - r) / 2, 0), along, Vector3.yAxis), color, op)
+			local cc = c + along * (s * (w / 2 - r)) + Vector3.new(0, h - r, 0)
+			local N = 5
+			for k = 0, N - 1 do
+				local function at(a) return cc + along * (s * math.cos(a) * (r - th / 2)) + Vector3.yAxis * (math.sin(a) * (r - th / 2)) end
+				local p0, p1 = at(math.pi / 2 * k / N), at(math.pi / 2 * (k + 1) / N)
+				local d = p1 - p0
+				part("NicheRim", Vector3.new(d.Magnitude + th * 0.6, th, depth), CFrame.fromMatrix((p0 + p1) / 2, d.Unit, out:Cross(d.Unit)), color, op)
+			end
+		end
+		part("NicheRim", Vector3.new(w - 2 * r + 0.05, th, depth), CFrame.fromMatrix(c + Vector3.new(0, h - th / 2, 0), along, Vector3.yAxis), color, op)
+	end
 	local NICHES, MIRROR_X
 	do
 		local x0, x1, MWID = FIN2 + 0.5, IN_E, 4.4
@@ -6310,7 +6342,7 @@ do
 	do
 		local wall = box("PinkWallN", FIN1 + 0.5, F, IN_N, IN_E, GF - 0.4, NFACE, PINK_WALL, PLASTER)
 		local holes = {}
-		for _, h in ipairs(archHole(Vector3.new(PHOTO_X, F - 0.1, NMID), nAlong, nOut, PHW, PHH + 0.1, PW + 0.6)) do table.insert(holes, h) end
+		for _, h in ipairs(roundRect("PhotoHole", Vector3.new(PHOTO_X, F - 0.1, NMID), nAlong, nOut, PHW, PHH + 0.1, PHR, PW + 0.6, WHITE_WALL, o)) do table.insert(holes, h) end
 		for _, xc in ipairs(NICHES) do
 			for _, h in ipairs(archHole(Vector3.new(xc, F - 0.1, NMID), nAlong, nOut, NW, NH + 0.1, PW + 0.6)) do table.insert(holes, h) end
 		end
@@ -6323,23 +6355,27 @@ do
 		end
 		subtract(wall, holes, "PinkWallN", Enum.Material.SmoothPlastic)
 	end
-	-- the photo wall (user 2026-10-30: in an arched recess like the props
-	-- niches); one wall now (the second one, SHOP2, is gone), 26 wide to fit
-	-- the arch (wall photos are stored as fractions of the wall)
+	-- the photo wall (user 2026-10-30: in a recess like the props niches); one
+	-- wall now (the second one, SHOP2, is gone), 26 wide to fit (wall photos
+	-- are stored as fractions of the wall). The wall part itself is invisible:
+	-- the photos sit straight on the sky-blue back (user 2026-10-30)
 	local zoneP = root:FindFirstChild("08_PhotoBooth")
 	do
-		local back = archPanel(Vector3.new(PHOTO_X, F, IN_N + 0.15), nAlong, nOut, PHW, PHH, 0.2, SKY, B, Enum.Material.SmoothPlastic)
-		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 8 sl.Brightness = 0.4 sl.Color = SKY_LIGHT sl.Parent = back
-		archRim(Vector3.new(PHOTO_X, F, NFACE + 0.05), nAlong, nOut, PHW + 0.3, PHH + 0.15, 0.18, 0.3, NEON_WHITE, B, Enum.Material.Neon)
+		local backs = roundRect("PhotoNicheBack", Vector3.new(PHOTO_X, F, IN_N + 0.15), nAlong, nOut, PHW, PHH, PHR, 0.2, SKY, opt({ material = Enum.Material.SmoothPlastic }))
+		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 8 sl.Brightness = 0.4 sl.Color = SKY_LIGHT sl.Parent = backs[1]
+		roundRim(Vector3.new(PHOTO_X, F, NFACE + 0.05), nAlong, nOut, PHW + 0.3, PHH + 0.15, PHR + 0.15, 0.18, 0.3, NEON_WHITE)
 		local p = zoneP and zoneP:FindFirstChild("PhotoWall")
 		if p and p:IsA("BasePart") then
 			p:SetAttribute("OrigCFrame", p.CFrame)
 			p:SetAttribute("OrigSize", p.Size)
+			p:SetAttribute("OrigTransparency", p.Transparency)
 			p.Size = Vector3.new(26, 10, p.Size.Z)
-			p.CFrame = p.CFrame.Rotation + Vector3.new(PHOTO_X, F + 5.6, IN_N + 0.35 + p.Size.Z / 2)
-			-- "오후네컷" (image, 강원교육모두 Light) over it, inside the arch
+			-- its photo face (+z, attribute Face "Back") just off the sky-blue back
+			p.CFrame = p.CFrame.Rotation + Vector3.new(PHOTO_X, F + 6, IN_N + 0.4 - p.Size.Z / 2)
+			p.Transparency = 1
+			-- "오후네컷" (image, 강원교육모두 Light) on the pink wall over the recess
 			local SW = 10
-			local c = Vector3.new(PHOTO_X, F + 11.3 + SW / 2.5 / 2, IN_N + 0.32)
+			local c = Vector3.new(PHOTO_X, F + PHH + 0.8 + SW / 2.5 / 2, NFACE + 0.06)
 			local sp = part("Sign_PhotoWall", Vector3.new(SW, SW / 2.5, 0.05), CFrame.lookAt(c, c + nOut), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
 			sp.CanQuery = false
 			local dc = Instance.new("Decal")
