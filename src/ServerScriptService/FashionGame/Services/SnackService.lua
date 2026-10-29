@@ -135,6 +135,21 @@ local EAT_SOUND = {
 	cake = 95249450082163, cone = 95249450082163, bar = 95249450082163, -- soft
 	plate = 135174197196705, -- "Chewing" (GIANT EATERS)
 }
+-- 국밥 (kind "bowl"): the user's own three clips, picked at random each
+-- spoonful, never the same twice in a row (user 2026-10-30;
+-- docs/04_ART/sounds/gukbap_eat_1..3.mp3). 0 = not uploaded yet: the old clip.
+local GUKBAP_CLIPS = { 0, 0, 0 }
+local lastGukbap = 0
+local function gukbapClip(): number?
+	local ready = {}
+	for i, id in ipairs(GUKBAP_CLIPS) do if id ~= 0 and i ~= lastGukbap then table.insert(ready, i) end end
+	if #ready == 0 then
+		for i, id in ipairs(GUKBAP_CLIPS) do if id ~= 0 then table.insert(ready, i) end end
+	end
+	if #ready == 0 then return nil end
+	lastGukbap = ready[math.random(1, #ready)]
+	return GUKBAP_CLIPS[lastGukbap]
+end
 -- coffee is sipped, not gulped (user 2026-10-30): "Tea Cup Up And Down 10" (Pro Sound Effects)
 local COFFEE_SIP = 9119949556
 local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true }
@@ -297,6 +312,10 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	local up = if ik then nil else mouthGrip(character, if item.kind == "cone" or item.kind == "bar" then -0.2 else 0)
 	if up then TweenService:Create(tool, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Grip = up }):Play() end
 	local sound = handle and handle:FindFirstChild("Sip") :: Sound?
+	if sound and item.kind == "bowl" then
+		local id = gukbapClip()
+		if id then sound.SoundId = "rbxassetid://" .. id end
+	end
 	if sound then sound:Play() end
 	task.wait(1.4)
 	if sound then sound:Stop() end -- (some eating clips run longer than a bite)
@@ -1031,7 +1050,7 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	end
 	spoon.Grip = CFrame.new(0, -0.3, 0)
 	local sound = Instance.new("Sound")
-	sound.SoundId = "rbxassetid://" .. tostring(EAT_SOUND[item.kind] or EAT_SOUND.bowl)
+	sound.SoundId = "rbxassetid://" .. tostring((if item.kind == "bowl" then gukbapClip() else nil) or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
 	sound.Volume = 0.7
 	sound.RollOffMaxDistance = 40
 	sound.Parent = handle
