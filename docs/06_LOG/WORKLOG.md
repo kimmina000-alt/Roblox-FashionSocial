@@ -2567,3 +2567,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-558: ![](images/2026-10-30/ohu4cut_mirror_thinner2.jpg)
 - D-559: ![](images/2026-10-30/ohu4cut_mirror_smooth.jpg)
 - D-560: ![](images/2026-10-30/ohu4cut_booth_floor_clean.jpg)
+
+- D-562: 편의점 동쪽 문 ![](images/2026-10-30/d562_oh24_east_door.jpg) 세족장 깃발 ![](images/2026-10-30/d562_footwash_flag.jpg)

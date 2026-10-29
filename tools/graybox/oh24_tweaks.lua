@@ -203,8 +203,12 @@ end
 ----------------------------------------------------------------------------
 -- 5. a second door in the east front, z 127..135 (centre 131)
 do
-	local ZC, DOOR = 131, 8
-	local G0, G1 = ZC - DOOR / 2 - 0.4, ZC + DOOR / 2 + 0.4
+	-- (user 2026-10-30) the door fills exactly one bay of the glass, between the
+	-- mullions at z 123.92 and 130.96 (they stand every 7.04): it was 8 wide and
+	-- cut across the grid
+	local ZC, DOOR = 127.44, 7.04
+	local G0, G1 = ZC - DOOR / 2, ZC + DOOR / 2
+	local K = DOOR / 8 -- the north door's leaves are made for an 8 wide opening
 	local function split(p)
 		local a, b, c, d, e, f = bounds(p)
 		if c < G0 and f > G1 then
@@ -214,16 +218,20 @@ do
 		end
 	end
 	for _, p in ipairs(all(function(p) return (p.Name == "FrontGlass" or p.Name == "Kickplate") and p.Position.X > -57 end)) do split(p) end
-	for _, p in ipairs(all(function(p) return p.Name == "Mullion" and p.Position.X > -57 and p.Position.Z > G0 and p.Position.Z < G1 end)) do p:Destroy() end
+	for _, p in ipairs(all(function(p) return p.Name == "Mullion" and p.Position.X > -57 and p.Position.Z > G0 + 0.3 and p.Position.Z < G1 - 0.3 end)) do p:Destroy() end
 	local northDoor = S:FindFirstChild("AutoDoor")
 	local oldC = northDoor:GetPivot().Position
 	local T = CFrame.new(-56, oldC.Y, ZC) * CFrame.Angles(0, math.rad(-90), 0) * CFrame.new(oldC):Inverse()
 	local d2 = northDoor:Clone()
 	for _, p in ipairs(d2:GetDescendants()) do
 		if p:IsA("BasePart") then
+			-- squeeze the leaves along the opening (K) before turning them over
+			local rel = p.Position - oldC
+			if p.Name == "DoorPanel" then p.Size = Vector3.new(p.Size.X * K, p.Size.Y, p.Size.Z) end
+			p.CFrame = p.CFrame - rel + Vector3.new(rel.X * K, rel.Y, rel.Z)
 			p.CFrame = T * p.CFrame
 			local s = p:GetAttribute("Slide")
-			if typeof(s) == "Vector3" then p:SetAttribute("Slide", T.Rotation * s) end
+			if typeof(s) == "Vector3" then p:SetAttribute("Slide", T.Rotation * (s * K)) end
 		end
 	end
 	d2.WorldPivot = T * northDoor.WorldPivot
@@ -232,6 +240,7 @@ do
 	CS:AddTag(d2, "AutoDoor")
 	local head = all(function(p) return p.Name == "DoorHead" end)[1]
 	local h2 = head:Clone()
+	h2.Size = Vector3.new(DOOR + 0.5, h2.Size.Y, h2.Size.Z) -- (mullion to mullion)
 	h2.CFrame = T * head.CFrame
 	h2.Parent = S
 	table.insert(log, "5 door")

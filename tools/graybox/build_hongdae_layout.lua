@@ -1515,7 +1515,7 @@ do
 				l.Parent = g
 			end
 			-- 세족장 banner (blue feather flag) on the sand
-			local fx, fz = -209, ze - 4
+			local fx, fz = -209, zs - 3.5 -- (beside the steps' other end, user 2026-10-30: was ze - 4, in front of them)
 			vcyl("FlagPole", Vector3.new(fx, sandTop, fz), 0.18, 11, Color3.fromRGB(190, 190, 195), { material = Enum.Material.Metal, nocol = true })
 			local flag = part("FootWashFlag", Vector3.new(0.08, 7.5, 2), CFrame.new(fx, sandTop + 7, fz + 1.05), Color3.fromRGB(32, 60, 160), { nocol = true, material = Enum.Material.Fabric })
 			do
