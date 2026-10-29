@@ -2550,3 +2550,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-541: 간판 ![](images/2026-10-30/ohu4cut_storefront_v2.jpg) STUDIO·사다리 ![](images/2026-10-30/ohu4cut_studio_3d.jpg)
 - D-542: 위에서 본 부스 ![](images/2026-10-30/ohu4cut_booth_plan_topdown.jpg) 촬영 화면 ![](images/2026-10-30/ohu4cut_shoot_plan.jpg)
 - D-543: 로비 조명 ![](images/2026-10-30/ohu4cut_lobby_lamps.jpg) 부스 안내문 ![](images/2026-10-30/ohu4cut_booth_notices.jpg) 홈 연하늘색 ![](images/2026-10-30/ohu4cut_recess_lightsky.jpg)
+- D-544: 안내문 벽 ![](images/2026-10-30/ohu4cut_notice_wall.jpg) 부스 ![](images/2026-10-30/ohu4cut_pink_booth_v6.jpg) 촬영 ![](images/2026-10-30/ohu4cut_pink_shoot.jpg)

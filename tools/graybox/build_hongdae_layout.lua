@@ -6824,7 +6824,7 @@ do
 		local camP, stand, back = m:FindFirstChild("CameraPoint"), m:FindFirstChild("Stand"), m:FindFirstChild("Backdrop")
 		remember(camP) remember(stand) remember(back)
 		local camX = x1 - 2.75 -- (the 2.4 deep machine's back on the wall)
-		local camZ = z0 + dz * 0.65
+		local camZ = z0 + dz * 0.62 -- (0.65 → 0.62: room for the twice-as-big machine and table, 2026-10-30)
 		if camP and camP:IsA("BasePart") then
 			local camPos = Vector3.new(camX, yF + 5.2, camZ)
 			camP.CFrame = CFrame.lookAt(camPos, camPos + Vector3.new(-1, 0, 0))
@@ -6858,20 +6858,22 @@ do
 		-- the two step stools that show in the photos, on the west side (38% / 78%)
 		stepStool(m, Vector3.new(x0 + 3, yF, z0 + dz * 0.38), math.rad(-8))
 		stepStool(m, Vector3.new(x0 + 3, yF, z0 + dz * 0.78), math.rad(6))
-		-- the bag table south of the machine, against the east wall
-		local tz = z0 + dz * 0.85
+		-- the bag table south of the machine against the east wall, twice the
+		-- size (user 2026-10-30)
+		local tz = camZ + 4.6 + 0.3 + 3.2
 		do -- a white top on a slim black frame
-			local tc = Vector3.new(x1 - 1.6, yF, tz)
-			added(part("BagTable", Vector3.new(3, 0.2, 3.2), CFrame.new(tc + Vector3.new(0, 3, 0)), Color3.fromRGB(250, 250, 250), { parent = m }))
+			local tc = Vector3.new(x1 - 3.1, yF, tz)
+			added(part("BagTable", Vector3.new(6, 0.3, 6.4), CFrame.new(tc + Vector3.new(0, 5.6, 0)), Color3.fromRGB(250, 250, 250), { parent = m }))
 			for _, sx in ipairs({ -1, 1 }) do
 				for _, sz in ipairs({ -1, 1 }) do
-					added(part("BagTableLeg", Vector3.new(0.15, 2.9, 0.15), CFrame.new(tc + Vector3.new(sx * 1.3, 1.45, sz * 1.4)), Color3.fromRGB(30, 30, 32), { parent = m, nocol = true, material = Enum.Material.Metal }))
+					added(part("BagTableLeg", Vector3.new(0.25, 5.5, 0.25), CFrame.new(tc + Vector3.new(sx * 2.7, 2.75, sz * 2.9)), Color3.fromRGB(30, 30, 32), { parent = m, nocol = true, material = Enum.Material.Metal }))
 				end
 			end
 		end
-		-- notices (the user's images, docs/04_ART/signs/booth_notice_*.png): lost
-		-- property low on the south wall's west part (the plan), no food on the
-		-- north wall by the door, props back in place over the bag table
+		-- notices (the user's images, docs/04_ART/signs/booth_notice_*.png), as in
+		-- the user's mock-up: the rules sheet on the east wall north of the
+		-- machine; over the bag table 소품 정리 with the lost-property notice
+		-- under it; 섭취금지 on the south wall near the east corner
 		local function notice(name: string, c: Vector3, out: Vector3, w: number, h: number, image: string)
 			local np = part(name, Vector3.new(w, h, 0.04), CFrame.lookAt(c, c + out), Color3.new(1, 1, 1), { parent = m, nocol = true })
 			np.CanQuery = false
@@ -6882,19 +6884,12 @@ do
 			dcl.Parent = np
 			added(np)
 		end
-		-- (user 2026-10-30) the three notices side by side on the east wall south
-		-- of the machine, over the bag table; the rules sheet north of the machine
 		local west = Vector3.new(-1, 0, 0)
-		local NY = yF + 7.6
-		for i, n in ipairs({
-			{ "BoothNotice", 1.7, "rbxassetid://138883528902216" }, -- lost property
-			{ "BoothNoticeFood", 1.95, "rbxassetid://78018379686965" }, -- no food
-			{ "BoothNoticeProps", 1.95, "rbxassetid://139036991327491" }, -- props back in place
-		}) do
-			notice(n[1], Vector3.new(x1 - 0.1, NY, camZ + 3.75 + (i - 1) * 2.65), west, 2.4, n[2], n[3])
-		end
-		notice("BoothNoticeRules", Vector3.new(x1 - 0.1, NY, camZ - 4.3), west, 2.2, 3.2, "rbxassetid://93525306527293") -- 오후네컷 이용 유의사항		-- the WHITE room's way out: an arched door on its north wall (upstairs),
-		-- where the other rooms have theirs
+		notice("BoothNoticeRules", Vector3.new(x1 - 0.1, yF + 9.8, camZ - 10.5), west, 6.2, 9, "rbxassetid://93525306527293") -- 오후네컷 이용 유의사항
+		notice("BoothNoticeProps", Vector3.new(x1 - 0.1, yF + 12.8, tz + 0.6), west, 4.6, 3.83, "rbxassetid://139036991327491")
+		notice("BoothNotice", Vector3.new(x1 - 0.1, yF + 8.6, tz + 0.2), west, 3.4, 2.4, "rbxassetid://138883528902216") -- lost property
+		notice("BoothNoticeFood", Vector3.new(x1 - 4.8, yF + 7.5, z1 - 0.1), Vector3.new(0, 0, -1), 4.6, 3.83, "rbxassetid://78018379686965")
+		-- the WHITE room's way out: an arched door on its north wall (upstairs),		-- where the other rooms have theirs
 		if key == "WHITE" then innerDoor(m, Vector3.new(x0 + 7.5, yF, z0), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), boothColor) end		return boothColor
 	end
 	local boothColors = {}
@@ -6952,7 +6947,8 @@ do
 			s.Parent = ob
 		end
 		-- (no neon camera + PHOTO BOOTH over the doors any more, user 2026-10-30)
-		do -- neon heart beside the arch
+		local decor = key ~= "PINK" -- (the PINK door's side is the notice wall, user 2026-10-30)
+		if decor then -- neon heart beside the arch
 			local f = glowGui("EntranceHeart", Vector3.new(face.X, F + 10, face.Z) + out * 0.08 - along * 4.8, 3.4, 3.4)
 			local t = Instance.new("TextLabel")
 			t.Size = UDim2.fromScale(1, 1)
@@ -6967,7 +6963,7 @@ do
 			ts.Thickness = 3
 			ts.Parent = t
 		end
-		do -- pot plant on the lobby floor, under the heart
+		if decor then -- pot plant on the lobby floor, under the heart
 			local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 			local src = art and art:FindFirstChild("CafePotPlant")
 			if src and src:IsA("Model") then
@@ -7001,24 +6997,27 @@ do
 			doorway(m, key, Vector3.new((PORTAL_X0 + IN_E) / 2, F, WHITE_DOOR_Z), Vector3.new(-1, 0, 0), (IN_E - PORTAL_X0) / 2, lining)
 		end
 	end
-	-- between the SKY and PINK doors: blue light boxes with neon tubes + notices
+	-- the notice wall between and beside the SKY / PINK doors (user mock-up
+	-- 2026-10-30; the blue light boxes and paper notes are gone): 이용 방법
+	-- east of the PINK door; between the doors the big 이용 유의사항 by the
+	-- PINK door, then 소품 정리 over 섭취금지 by the SKY door
+	-- (docs/04_ART/signs/lobby_notice_*.png, booth_notice_*.png)
 	do
-		local x = 145
-		for _, b in ipairs({ { F + 9, F + 13.2 }, { F + 2.5, F + 8 } }) do
-			local box3 = box("LightBox", x - 2.4, b[1], ROOM_N - 1.2, x + 2.4, b[2], ROOM_N, Color3.fromRGB(28, 60, 200), opt({ material = Enum.Material.Glass, transparency = 0.15 }))
-			for k = -1, 1 do
-				part("NeonTube", Vector3.new(0.2, b[2] - b[1] - 1, 0.2), CFrame.new(x + k * 1.2, (b[1] + b[2]) / 2, ROOM_N - 0.6), Color3.fromRGB(80, 170, 255), opt({ material = Enum.Material.Neon, nocol = true }))
-			end
-			txt(box3, Enum.NormalId.Front, "OHU 4 CUT", Color3.fromRGB(110, 150, 255), Enum.Font.GothamMedium, nil, 40)
+		local function poster(name: string, x: number, y: number, w: number, h: number, image: string)
+			local c = Vector3.new(x, F + y, ROOM_N - 0.06)
+			local np = part(name, Vector3.new(w, h, 0.04), CFrame.lookAt(c, c + Vector3.new(0, 0, -1)), Color3.new(1, 1, 1), opt({ nocol = true, transparency = 1 }))
+			np.CanQuery = false
+			np.CastShadow = false
+			local dcl = Instance.new("Decal")
+			dcl.Face = Enum.NormalId.Front
+			dcl.Texture = image
+			dcl.Parent = np
 		end
-		local notes = { "파우더룸\n이용방법", "예방수칙", "이용 시\n유의사항", "안내" }
-		for i, s in ipairs(notes) do
-			local col, row = (i - 1) % 2, math.floor((i - 1) / 2)
-			local poster = part("NoticePoster", Vector3.new(2.3, 3, 0.1), CFrame.new(149.8 + col * 2.6, F + 10 - row * 3.4, ROOM_N - 0.06), Color3.fromRGB(255, 240, 242), opt({ nocol = true }))
-			txt(poster, Enum.NormalId.Front, s, Color3.fromRGB(200, 70, 90), Enum.Font.GothamBold, nil, 50)
-		end
+		poster("LobbyNoticeHowTo", DOOR_X.PINK + 8.3, 10, 6.2, 8.9, "rbxassetid://112162136769164")
+		poster("LobbyNoticeRules", DOOR_X.PINK - 8.8, 10, 8, 9.5, "rbxassetid://118073148133977")
+		poster("LobbyNoticeProps", DOOR_X.SKY + 8.3, 12.3, 5.1, 4.25, "rbxassetid://139036991327491")
+		poster("LobbyNoticeFood", DOOR_X.SKY + 8.3, 7.6, 5.1, 4.25, "rbxassetid://78018379686965")
 	end
-
 	-- photo machine (user photo "Pick") in each room, its front face just behind
 	-- CameraPoint so it never shows in the photos
 	for _, m in ipairs(booths) do
@@ -7031,6 +7030,7 @@ do
 		local K = Instance.new("Model")
 		K.Name = "PhotoMachine"
 		local D = 2.4 -- (thicker, user 2026-10-30: was 1.4)
+		local S = 2 -- twice as wide and tall (user 2026-10-30); the camera stays at the lens height it had
 		local lensY = camP.Position.Y - fy
 		do
 			local old = m:FindFirstChild("PromptPoint")
@@ -7043,10 +7043,10 @@ do
 		local RED, KWHITE = Color3.fromRGB(196, 54, 58), Color3.fromRGB(242, 242, 244)
 		local function kbox(name, y0, y1, w, color, depth)
 			local dd = depth or D
-			return part(name, Vector3.new(w, y1 - y0, dd), base * CFrame.new(0, (y0 + y1) / 2, dd / 2), color, { parent = K })
+			return part(name, Vector3.new(w * S, (y1 - y0) * S, dd), base * CFrame.new(0, (y0 + y1) / 2 * S, dd / 2), color, { parent = K })
 		end
 		local function face(name, y, w, h, color, mat) -- a thin panel on the front face
-			return part(name, Vector3.new(w, h, 0.05), base * CFrame.new(0, y, -0.03), color, { parent = K, nocol = true, material = mat })
+			return part(name, Vector3.new(w * S, h * S, 0.05), base * CFrame.new(0, y * S, -0.03), color, { parent = K, nocol = true, material = mat })
 		end
 		local baseTop = lensY - 2.2
 		kbox("MachineBase", 0, baseTop, 4.6, RED)
@@ -7057,15 +7057,15 @@ do
 		txt(band, Enum.NormalId.Front, "OHU", Color3.fromRGB(255, 225, 200), Enum.Font.FredokaOne, nil, 50)
 		face("MachineLight", lensY + 1.85, 4, 0.9, Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
 		for _, s in ipairs({ -1, 1 }) do
-			part("MachineBar", Vector3.new(0.45, 2.4, 0.05), base * CFrame.new(s * 1.95, lensY - 0.4, -0.03), Color3.fromRGB(225, 238, 255), { parent = K, nocol = true, material = Enum.Material.Neon })
+			part("MachineBar", Vector3.new(0.45 * S, 2.4 * S, 0.05), base * CFrame.new(s * 1.95 * S, (lensY - 0.4) * S, -0.03), Color3.fromRGB(225, 238, 255), { parent = K, nocol = true, material = Enum.Material.Neon })
 		end
 		local screen = face("MachineScreen", lensY - 1.1, 2.6, 1.1, Color3.fromRGB(250, 240, 245))
 		txt(screen, Enum.NormalId.Front, "OHU4cuts  ×  FRAME", Color3.fromRGB(200, 70, 110), Enum.Font.GothamBold, Color3.fromRGB(255, 236, 244), 60)
-		part("MachineLens", Vector3.new(0.05, 0.75, 0.75), base * CFrame.new(0, lensY, -0.04) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(15, 15, 18), { parent = K, nocol = true, shape = Enum.PartType.Cylinder })
+		part("MachineLens", Vector3.new(0.05, 0.75 * S, 0.75 * S), base * CFrame.new(0, lensY * S, -0.04) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(15, 15, 18), { parent = K, nocol = true, shape = Enum.PartType.Cylinder })
 		local lk = face("MachineLook", lensY, 3.4, 0.4, KWHITE)
 		lk.Transparency = 1
 		txt(lk, Enum.NormalId.Front, "LOOK       HERE", Color3.fromRGB(200, 50, 50), Enum.Font.GothamBold, nil, 60)
-		part("PhotoOutlet", Vector3.new(1.1, 0.6, 0.05), base * CFrame.new(1.1, baseTop - 1.3, -0.03), Color3.fromRGB(205, 225, 255), { parent = K, nocol = true, material = Enum.Material.Neon })
+		part("PhotoOutlet", Vector3.new(1.1 * S, 0.6 * S, 0.05), base * CFrame.new(1.1 * S, (baseTop - 1.3) * S, -0.03), Color3.fromRGB(205, 225, 255), { parent = K, nocol = true, material = Enum.Material.Neon })
 	end
 
 	---------------------------------------------------------------- ball-pit studio (north-west corner)
@@ -7372,7 +7372,7 @@ do
 
 	-- three round pendant lamps over the lobby round the bench, like the
 	-- studio's (user screenshot 2026-10-30)
-	for _, at in ipairs({ { 112, -70 }, { 99, -63 }, { 85, -68 } }) do
+	for _, at in ipairs({ { 110, -56.5 }, { 97, -56.5 }, { 84, -56.5 } }) do -- (nearer the south wall, user 2026-10-30)
 		local y = GF - 5
 		vcyl("LobbyLampCord", Vector3.new(at[1], y, at[2]), 0.08, GF - 0.4 - y, Color3.fromRGB(40, 40, 40), opt({ nocol = true }))
 		local lamp = vcyl("LobbyLamp", Vector3.new(at[1], y - 0.6, at[2]), 4.2, 0.6, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
