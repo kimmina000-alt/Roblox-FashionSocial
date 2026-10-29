@@ -63,7 +63,7 @@ local function whoosh(door: Door, open: boolean)
 		local made = Instance.new("Sound")
 		made.Name = "AutoDoorSound"
 		made.SoundId = DOOR_SOUND
-		made.Volume = 0.45
+		made.Volume = 0.15 -- (a third, user 2026-10-30)
 		made.RollOffMinDistance = 6
 		made.RollOffMaxDistance = 40
 		made.Parent = panel.part
@@ -72,7 +72,7 @@ local function whoosh(door: Door, open: boolean)
 	local sound = s :: Sound
 	sound.PlaybackSpeed = if open then 1.05 else 0.95 -- (closing a touch lower)
 	sound.TimePosition = 0
-	sound.Volume = 0.45
+	sound.Volume = 0.15
 	sound:Play()
 	-- only the first beat of the clip (user 2026-10-30): cut it with a short fade
 	local played = os.clock()
@@ -80,7 +80,7 @@ local function whoosh(door: Door, open: boolean)
 	task.delay(DOOR_CUT, function()
 		for i = 1, 5 do
 			if sound:GetAttribute("PlayedAt") ~= played then return end
-			sound.Volume = 0.45 * (1 - i / 5)
+			sound.Volume = 0.15 * (1 - i / 5)
 			task.wait(0.02)
 		end
 		if sound:GetAttribute("PlayedAt") == played then sound:Stop() end

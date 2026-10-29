@@ -81,7 +81,7 @@ function PhotoFlowUI.savedPanel(parent: GuiObject, zIndex: number): (Frame, Text
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.new(0.62, 0, 0, 150),
-		BackgroundColor3 = C.cardDark,
+		BackgroundTransparency = 1, -- (no card colour behind it, user 2026-10-30)
 		ZIndex = zIndex,
 	}, parent)
 	round(card, 14)

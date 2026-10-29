@@ -33,7 +33,9 @@ local function asset(id: number): string return "rbxassetid://" .. id end
 --------------------------------------------------
 local NO_CLICK_GUIS = { PianoKeyboard = true, SnackGui = true } -- (the keys play notes; the counter has its till ding)
 local hooked: {[Instance]: boolean} = setmetatable({}, { __mode = "k" }) :: any
+local BUTTON_CLICKS = false -- (no click on buttons, user 2026-10-30)
 local function hookButton(b: Instance)
+	if not BUTTON_CLICKS then return end
 	if hooked[b] or not b:IsA("GuiButton") then return end
 	local screen = b:FindFirstAncestorWhichIsA("LayerCollector")
 	if screen and NO_CLICK_GUIS[screen.Name] then return end

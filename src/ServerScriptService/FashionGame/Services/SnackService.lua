@@ -801,7 +801,24 @@ local function plateTool(player: Player, item: SnackConfig.Item): Tool
 	tool.CanBeDropped = false
 	local handle = part("Handle", Vector3.new(1.4, 0.4, 1.4), item.color)
 	handle.Parent = tool
-	tool.Activated:Connect(function()
+	if item.kind == "plate" then
+		-- (user 2026-10-30: in the hand it looks like the dish itself) a dark
+		-- stoneware plate with the 수육 slices fanned on it
+		handle.Transparency = 1
+		attach(handle, cyl("Dish", 1.6, 0.1, Color3.fromRGB(88, 82, 78), Enum.Material.Slate), CFrame.new(0, -0.1, 0) * UPRIGHT)
+		for i = 1, 6 do
+			local r = Random.new(i * 7)
+			local row, k = (i - 1) // 3, (i - 1) % 3
+			local p = part("Slice", Vector3.new(0.46, 0.05, 0.28), item.color)
+			local tex = Instance.new("Texture")
+			tex.Texture = SUYUK_TEX
+			tex.Face = Enum.NormalId.Top
+			tex.StudsPerTileU, tex.StudsPerTileV = p.Size.X, p.Size.Z
+			tex.Parent = p
+			attach(handle, p, CFrame.new((row - 0.5) * 0.62, -0.02 + k * 0.025, (k - 1) * 0.22)
+				* CFrame.Angles(math.rad(-22 + r:NextNumber(-4, 4)), math.rad((row - 0.5) * 20), 0))
+		end
+	end	tool.Activated:Connect(function()
 		local t = nearestTable(player)
 		if not t then
 			local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?

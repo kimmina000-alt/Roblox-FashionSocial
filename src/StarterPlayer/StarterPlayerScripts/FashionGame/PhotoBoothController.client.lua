@@ -1405,7 +1405,7 @@ local function layoutResult()
 	local top = math.max(16, math.floor((bh - 150 - 20 - 40) / 2))
 	resultHolder.Position = UDim2.fromOffset(24, top)
 	resultHolder.Size = UDim2.fromOffset(bw - 48, 150)
-	resultButtons.Position = UDim2.fromOffset(math.floor((bw - rowW) / 2), top + 170)
+	resultButtons.Position = UDim2.fromOffset(math.floor((bw - rowW) / 2), top + 170 + math.floor((bh - (top + 210)) / 2)) -- (half of the gap under them, user 2026-10-30)
 	resultButtons.Size = UDim2.fromOffset(rowW, 40)
 end
 
