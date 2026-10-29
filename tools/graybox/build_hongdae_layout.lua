@@ -5360,7 +5360,17 @@ do
 	-- road's west side, both sides of the south lot and the towers east of 오후네컷.
 	-- (user 2026-10-27: their own pictures for slots 2, 4, 5 and 7, docs/04_ART/facades/facade_<n>_user.png)
 	local FACADES = { 119555605786938, 108505166753199, 131791880332218, 72400340486961, 98845538068616, 86941239410625, 133905773347734, 134862143501130 }
+	-- (user 2026-10-30) new pictures: 9 / 10 = the two halves of a bhc + 설농탕
+	-- building, 11 = its plain glass side, 12 = a grey tiled side with windows
+	local F9, F10, F11, F12 = 115092286598069, 110896225910943, 103277497995975, 72442433508204
 	local facadeN = 0
+	-- panelTex[face][k] (k from 1 at the face's start) picks a panel's picture;
+	-- false leaves that panel out (a taller building stands in front of it)
+	local panelTex: {[string]: {[string]: {[number]: any}}} = {
+		-- the north block's road face, from the 국밥집 northward: 노리터 (7 | 4),
+		-- bhc (9 | 10, a taller building of its own), PLAY HERO (5 | 2)
+		N = { W = { [1] = FACADES[4], [2] = FACADES[7], [3] = false, [4] = false, [5] = FACADES[2], [6] = FACADES[5] } },
+	}
 	local function shopBlock(name, x0, z0, x1, z1, h, faces, faceTex: {[string]: number}?)
 		local M = Instance.new("Model")
 		M.Name = "BG_ShopBlock_" .. name .. "(진입불가)"
@@ -5380,6 +5390,8 @@ do
 			local dir = (b - a).Unit
 			for k = 0, n - 1 do
 				facadeN += 1
+				local pick = panelTex[name] and panelTex[name][f] and panelTex[name][f][k + 1]
+				if pick == false then continue end
 				local c = a + dir * (w * (k + 0.5)) + out * 0.08 + Vector3.new(0, h / 2, 0)
 				local p = part("FacadePanel", Vector3.new(w - 0.1, h, 0.05), CFrame.lookAt(c, c + out), Color3.fromRGB(150, 148, 146), { parent = M, nocol = true })
 				p.CanQuery = false
@@ -5388,7 +5400,7 @@ do
 				p.Transparency = 1
 				local d = Instance.new("Decal")
 				d.Face = Enum.NormalId.Front
-				d.Texture = "rbxassetid://" .. ((faceTex and faceTex[f]) or FACADES[((facadeN * 3) % #FACADES) + 1])
+				d.Texture = "rbxassetid://" .. (pick or (faceTex and faceTex[f]) or FACADES[((facadeN * 3) % #FACADES) + 1])
 				d.Parent = p
 			end
 		end
@@ -5396,6 +5408,31 @@ do
 	-- (user 2026-10-27) its south face beside the 국밥집 is a plain building side:
 	-- grey tiles with windows over a brick base (docs/04_ART/facades/side_2_user.png)
 	shopBlock("N", 48, -1000, 130, -385, 60, { "W", "S" }, { S = 74889615901732 }) -- north of the 국밥집, on the club line
+	-- (user 2026-10-30) the bhc building: taller than the block, in front of its
+	-- panels 3 and 4 (z -467..-549), the two halves on the road face, the plain
+	-- glass side (11) to the south, the grey tiled side (12) to the north
+	do
+		local M = Instance.new("Model")
+		M.Name = "BG_ShopTower_bhc(진입불가)"
+		M.Parent = T
+		local X0, X1, ZS, ZN, H = 47.6, 89, -467, -549, 84
+		box("Body", X0, 0, ZN, X1, H, ZS, Color3.fromRGB(70, 72, 78), { parent = M, material = Enum.Material.Concrete })
+		box("Roof", X0 - 0.5, H, ZN - 0.5, X1 + 0.5, H + 1.5, ZS + 0.5, Color3.fromRGB(90, 90, 95), { parent = M })
+		local function panel(c: Vector3, out: Vector3, w: number, tex: number)
+			local p = part("FacadePanel", Vector3.new(w - 0.1, H, 0.05), CFrame.lookAt(c, c + out), Color3.new(1, 1, 1), { parent = M, nocol = true })
+			p.CanQuery, p.CanTouch, p.CastShadow, p.Transparency = false, false, false, 1
+			local d = Instance.new("Decal")
+			d.Face = Enum.NormalId.Front
+			d.Texture = "rbxassetid://" .. tex
+			d.Parent = p
+		end
+		local half = (ZS - ZN) / 2
+		-- (a viewer facing the road face has north on their left: 9 north, 10 south)
+		panel(Vector3.new(X0 - 0.08, H / 2, ZN + half / 2), Vector3.new(-1, 0, 0), half, F9)
+		panel(Vector3.new(X0 - 0.08, H / 2, ZS - half / 2), Vector3.new(-1, 0, 0), half, F10)
+		panel(Vector3.new((X0 + X1) / 2, H / 2, ZS + 0.08), Vector3.new(0, 0, 1), X1 - X0, F11)
+		panel(Vector3.new((X0 + X1) / 2, H / 2, ZN - 0.08), Vector3.new(0, 0, -1), X1 - X0, F12)
+	end
 	shopBlock("E", 195, -100, 310, -48, 50, { "S", "W" }) -- east of 오후네컷, along the east road
 	-- (user 2026-10-27: its beach-road face on the OH24 store's line, x -135, so
 	-- the 23-wide sidewalk runs on past the store; 15 narrower)
@@ -5403,6 +5440,22 @@ do
 	walk(-150, 214, -135, 985) -- (the strip it left: sidewalk like the store's)
 	for xx = 330, 985, 35 do -- east road, north side (front +z at z -47)
 		i2 += 1
+		if xx == 330 then
+			-- (user 2026-10-30) the first one is the other half of the 노리터 picture
+			-- on block E's last panel: facade 4, as high as block E (no tower over it)
+			local M = Instance.new("Model")
+			M.Name = "BG_Facade(진입불가)"
+			M.Parent = T
+			box("Body", 313, 0, -69, 347, 50, -47, Color3.fromRGB(150, 148, 146), { parent = M, material = Enum.Material.Concrete })
+			box("Roof", 312.5, 50, -69.5, 347.5, 51.5, -46.5, Color3.fromRGB(90, 90, 95), { parent = M })
+			local p = part("FacadePanel", Vector3.new(33.9, 50, 0.05), CFrame.lookAt(Vector3.new(330, 25, -46.92), Vector3.new(330, 25, 0)), Color3.new(1, 1, 1), { parent = M, nocol = true })
+			p.CanQuery, p.CanTouch, p.CastShadow, p.Transparency = false, false, false, 1
+			local d = Instance.new("Decal")
+			d.Face = Enum.NormalId.Front
+			d.Texture = "rbxassetid://" .. FACADES[4]
+			d.Parent = p
+			continue
+		end
 		fakeBuilding(Vector3.new(xx, 0, -58), 34, 22, hgt[(i2 + 2) % #hgt + 1], Vector3.new(0, 0, 1))
 	end
 	-- the empty land south of the hanok village, seen over its wall from the
@@ -5784,7 +5837,7 @@ do
 	local DECK = 2.6
 	local woodOpt = opt({ material = Enum.Material.WoodPlanks })
 	box("Deck", W0 - DECK, 0, N0, W0, F, S0 - CH + 1.1, WOOD, woodOpt) -- ends on the building line (user)
-	box("Deck", W0 + CH - 1.1, 0, S0, W1 - 1, F, S0 + DECK, WOOD, woodOpt)
+	box("Deck", W0 + CH - 1.1, 0, S0, W1, F, S0 + DECK, WOOD, woodOpt) -- (to the building line, user 2026-10-30: was 1 short)
 	cutPart("Deck", CH * math.sqrt(2) + 2.2, 0, F + 0.02, DECK + 0.5, (DECK - 0.5) / 2, WOOD, woodOpt) -- up to the door glass, none inside (user)
 	-- pavement in the rest of the corner (named Sidewalk: street_dress gives it
 	-- the paver texture), a hair lower than the sidewalks it overlaps
@@ -6185,7 +6238,7 @@ do
 	local U0, U1 = FAS1, GF + 22.8
 	local FLOOR = (U1 - U0) / 2
 	box("UpperW", W0 - 0.05, U0, N0, W0 + 1, U1, S0 - CH, BRICK, opt({ material = Enum.Material.Brick }))
-	box("UpperS", W0 + CH, U0, S0 - 1, W1, U1, S0 + 0.05, BRICK, opt({ material = Enum.Material.Brick }))
+	box("UpperS", W0 + CH, U0, S0 - 1, W1 + 0.03, U1, S0 + 0.05, BRICK, opt({ material = Enum.Material.Brick }))
 	cutPart("UpperCut", cutLen, U0, U1, 1, -0.45, BRICK, opt({ material = Enum.Material.Brick }))
 	local function window(cf: CFrame, w, h) -- cf at the window centre on the wall face, looking out
 		part("WindowFrame", Vector3.new(w + 0.6, h + 0.6, 0.3), cf * CFrame.new(0, 0, -0.15), FRAME, o)
@@ -6201,7 +6254,7 @@ do
 		window(CFrame.lookAt(Vector3.new(c.X, y, c.Z), Vector3.new(c.X, y, c.Z) + nC), 4.5, 6)
 		if f == 1 then -- band between 2F and 3F
 			box("FloorBand", W0 - 0.4, U0 + FLOOR - 0.3, N0, W0, U0 + FLOOR + 0.3, S0 - CH, WHITE_WALL, o)
-			box("FloorBand", W0 + CH, U0 + FLOOR - 0.3, S0, W1, U0 + FLOOR + 0.3, S0 + 0.4, WHITE_WALL, o)
+			box("FloorBand", W0 + CH, U0 + FLOOR - 0.3, S0, W1 + 0.06, U0 + FLOOR + 0.3, S0 + 0.4, WHITE_WALL, o)
 			cutPart("FloorBand", cutLen, U0 + FLOOR - 0.3, U0 + FLOOR + 0.3, 0.4, 0.2, WHITE_WALL)
 		end
 	end
@@ -6214,7 +6267,7 @@ do
 	-- the north side (the gap to the club) gets the same white brick, a parapet and the railing (user 2026-10-24)
 	box("UpperN", W0 - 0.05, 0, N0 - 0.6, W1, U1, N0, BRICK, opt({ material = Enum.Material.Brick }))
 	box("Parapet", W0 + 0.8, U1, N0, W1, U1 + 2.6, N0 + 0.8, WHITE_WALL, o)
-	box("Parapet", W0 + CH, U1, S0 - 0.8, W1, U1 + 2.6, S0, WHITE_WALL, o)
+	box("Parapet", W0 + CH, U1, S0 - 0.8, W1 + 0.03, U1 + 2.6, S0, WHITE_WALL, o) -- (+0.03 at the east end: past the ceiling / roof ends, flicker, user 2026-10-30)
 	cutPart("Parapet", cutLen, U1, U1 + 2.6, 0.8, -0.4, WHITE_WALL)
 	local function rail(a: Vector3, b: Vector3)
 		local y = U1 + 2.6
@@ -7521,6 +7574,16 @@ do
 	local X0, X1, ZS, ZN = 180, 194, -50, -100 -- (ZS = the street end)
 	local FY = CURB
 	local function o(t) local r = { parent = A } for k, v in pairs(t or {}) do r[k] = v end return r end
+	-- (user 2026-10-30) walkable only to z -78; the far end closed by the back
+	-- wall of a building, so the open space behind the club does not show
+	local stop = box("AlleyStop", X0, 0, -78.6, X1, 30, -78, Color3.new(1, 1, 1), o({ transparency = 1 }))
+	stop.CastShadow, stop.CanQuery, stop.CanTouch = false, false, false
+	local back = box("AlleyBackWall", X0 - 0.5, 0, ZN - 1.2, X1 + 1, 56, ZN, Color3.fromRGB(196, 194, 188), o({ material = Enum.Material.Concrete }))
+	back.CastShadow = false
+	-- a few windows, a drain pipe and an AC on it, like the back of a building
+	for _, w in ipairs({ { 183.5, 14 }, { 190.5, 14 }, { 183.5, 26 }, { 190.5, 26 }, { 183.5, 38 }, { 190.5, 38 } }) do
+		box("AlleyBackWindow", w[1] - 1.6, w[2], ZN + 0.02, w[1] + 1.6, w[2] + 3.2, ZN + 0.12, Color3.fromRGB(70, 110, 150), o({ material = Enum.Material.Glass, nocol = true }))
+	end
 	local function rod(name, a: Vector3, b: Vector3, d, color, mat)
 		local p = part(name, Vector3.new((b - a).Magnitude, d, d), CFrame.lookAt((a + b) / 2, b) * CFrame.Angles(0, math.rad(90), 0), color,
 			o({ shape = Enum.PartType.Cylinder, nocol = true, material = mat or Enum.Material.SmoothPlastic }))
@@ -7529,11 +7592,11 @@ do
 	end
 	local CONCRETE, METAL = Color3.fromRGB(112, 110, 106), Color3.fromRGB(70, 72, 76)
 	local WHITE_AC, YELLOW = Color3.fromRGB(226, 224, 216), Color3.fromRGB(236, 190, 30)
-	-- ground
-	box("AlleyFloor", X0, FY, ZN, X1, FY + 0.03, ZS, CONCRETE, o({ material = Enum.Material.Concrete, nocol = true }))
-	box("AlleyDrain", 186.5, FY + 0.03, ZN, 187.5, FY + 0.05, ZS + 1, Color3.fromRGB(46, 46, 50), o({ material = Enum.Material.DiamondPlate, nocol = true }))
+	-- ground: the street paving runs on into it (the separate concrete floor
+	-- was taken out, user 2026-10-30); a drain down the middle
+	box("AlleyDrain", 186.5, FY + 0.01, ZN, 187.5, FY + 0.04, ZS + 1, Color3.fromRGB(46, 46, 50), o({ material = Enum.Material.DiamondPlate, nocol = true }))
 	for _, pd in ipairs({ { 183, -63, 3.2, 2 }, { 190, -84, 2.4, 3.4 } }) do
-		local p = box("AlleyPuddle", pd[1] - pd[3] / 2, FY + 0.035, pd[2] - pd[4] / 2, pd[1] + pd[3] / 2, FY + 0.045, pd[2] + pd[4] / 2,
+		local p = box("AlleyPuddle", pd[1] - pd[3] / 2, FY + 0.01, pd[2] - pd[4] / 2, pd[1] + pd[3] / 2, FY + 0.03, pd[2] + pd[4] / 2,
 			Color3.fromRGB(40, 48, 60), o({ nocol = true, material = Enum.Material.Glass, transparency = 0.25 }))
 		p.Reflectance = 0.35
 	end

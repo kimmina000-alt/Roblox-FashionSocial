@@ -40,7 +40,8 @@ local FOUNTAIN_STYLES = {
 	column = { spread = 6, speed = 26 },
 	-- (user 2026-10-30: up to the top of the LED wall, 38 studs over the stage
 	-- front: speed 22 → 42 with a longer life, see sparks(); checked in Play)
-	fan = { spread = 10, speed = 42 },
+	-- (wider toward the top, fading as it rises: spread 10 → 20, user 2026-10-30)
+	fan = { spread = 20, speed = 42 },
 }
 local COLD_SPARK_STYLE = "fan" -- (user 2026-10-27: 8 first)
 local COLD_SPARK_COOLDOWN = 120 -- (no longer a wait for buyers: only the DJ's free one, 2026-10-27)
@@ -127,7 +128,8 @@ local function sparks(parent: Instance, offset: Vector3, big: boolean): Attachme
 		emitter.Orientation = Enum.ParticleOrientation.VelocityParallel
 		emitter.Squash = NumberSequence.new(-1.6)
 		emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.8), NumberSequenceKeypoint.new(0.6, 0.6), NumberSequenceKeypoint.new(1, 0.15) })
-		emitter.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.75, 0.2), NumberSequenceKeypoint.new(1, 1) })
+		-- (fading out as the sparks climb: bright at the nozzle, half gone halfway up)
+		emitter.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.3, 0.15), NumberSequenceKeypoint.new(0.6, 0.55), NumberSequenceKeypoint.new(1, 1) })
 		emitter.Color = ColorSequence.new({
 			ColorSequenceKeypoint.new(0, Color3.fromRGB(255, 255, 240)),
 			ColorSequenceKeypoint.new(0.5, Color3.fromRGB(255, 215, 130)),
@@ -455,7 +457,10 @@ local function fountainPoints(): {Vector3}
 	local axis = if edge.Size.X > edge.Size.Z then edge.CFrame.RightVector * edge.Size.X else edge.CFrame.LookVector * edge.Size.Z
 	local points = {}
 	for k = 0, 4 do
-		table.insert(points, edge.Position + axis * ((k / 4 - 0.5) * 0.9) + Vector3.new(0, 0.3, 0))
+		-- (user 2026-10-30: the middle one goes, the other four stay where they were)
+		if k ~= 2 then
+			table.insert(points, edge.Position + axis * ((k / 4 - 0.5) * 0.9) + Vector3.new(0, 0.3, 0))
+		end
 	end
 	return points
 end

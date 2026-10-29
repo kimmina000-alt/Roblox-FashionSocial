@@ -113,12 +113,14 @@ local top2 = top1 + H2
 -- (interior 2026-10-29: beige stone-look tiles and a cream ceiling, like the
 -- old Busan 돼지국밥 halls in the user's reference)
 box("Floor", X0, 0, Z0, X1, FY, Z1, Color3.fromRGB(214, 200, 176), { material = Enum.Material.CeramicTiles })
-box("Ceiling", X0, top1, Z0, X1, top1 + 0.6, Z1, Color3.fromRGB(236, 226, 204))
+-- (inside the walls: its ends shared the planes of the front and side walls
+-- and flickered as a line across the front, user 2026-10-30)
+box("Ceiling", X0 + 0.05, top1, Z0 + 0.05, X1 - 0.05, top1 + 0.6, Z1 - 0.05, Color3.fromRGB(236, 226, 204))
 box("Roof", X0 - 0.3, top2, Z0 - 0.3, X1 + 0.3, top2 + 0.8, Z1 + 0.3, Color3.fromRGB(120, 120, 124), { material = Enum.Material.Concrete })
 box("Parapet", X0 - 0.3, top2 + 0.8, Z0 - 0.3, X0 + 0.3, top2 + 2, Z1 + 0.3, Color3.fromRGB(120, 120, 124), { material = Enum.Material.Concrete })
 
 -- walls: back, both sides (1F + 2F), 2F front ------------------------------
-box("Wall_Back", X1 - WT, 0, Z0, X1, top2, Z1, WALL, { material = Enum.Material.Plaster })
+box("Wall_Back", X1 - WT, 0, Z0 + 0.03, X1, top2, Z1 - 0.03, WALL, { material = Enum.Material.Plaster }) -- (inside the side walls' ends)
 -- (the side walls start behind the front walls: their faces met the front
 -- walls' faces at the corner and flickered, user 2026-10-29 (17); the north
 -- wall seen over the lower neighbour is brick like the 2F front)
@@ -135,7 +137,8 @@ end
 -- 1F front: wainscot, glass, aluminium posts, open sliding door -----------
 local GLASS = Color3.fromRGB(170, 200, 210)
 -- (the front of the empty north strip is plain wall; glass only on the hall)
-box("FrontWall_N", X0, FY, Z0, X0 + WT, top1 - 3.4, HZ0, TILE2F, { material = Enum.Material.Brick })
+-- (one piece up to the 2F wall: the seam with the sign backing showed as a line, user 2026-10-30)
+box("FrontWall_N", X0, FY, Z0, X0 + WT, top1, HZ0 - 0.3, TILE2F, { material = Enum.Material.Brick })
 -- a fake back door in it (closed, nothing behind), user 2026-10-29 (17)
 do
 	local dz, DW, DHh = -362.5, 5, 9.5
@@ -170,7 +173,7 @@ for k = 0, 1 do
 	box("DoorLeafFrame", x - 0.02, FY, DOOR_Z0 - 2.95, x + 0.14, FY + DOOR_H + 0.05, DOOR_Z0 - 2.75, ALU, { nocol = true })
 end
 -- a short 1F wall stub above the glass so the sign has a backing
-box("SignBacking", X0, top1 - 3.4, Z0, X0 + WT, top1, Z1, TILE2F, { material = Enum.Material.Brick }) -- (brick: it shows over the north strip now, 2026-10-29 (17))
+box("SignBacking", X0, top1 - 3.4, HZ0 - 0.3, X0 + WT, top1, Z1, TILE2F, { material = Enum.Material.Brick }) -- (brick: it shows over the north strip now, 2026-10-29 (17))
 
 -- the sign band: the user's yellow "오후할매 돼지국밥" sign (2026-10-29 (14),
 -- docs/04_ART/textures/gukbap/sign_band.png) in the middle of a yellow band as
@@ -554,15 +557,34 @@ local function gukbapTable(tx, tz)
 		-- its own axes, phone test 2026-10-26)
 		local cx, cz = tx + sx, tz + sz
 		local CHAIR = Color3.fromRGB(128, 84, 50)
-		box("Chair", cx - 0.68, FY + 1.18, cz - 0.68, cx + 0.68, FY + 1.3, cz + 0.68, CHAIR, { material = Enum.Material.Wood })
-		box("Chair", cx - 0.62, FY + 1.3, cz - 0.62, cx + 0.62, FY + 1.5, cz + 0.62, Color3.fromRGB(236, 228, 210), { material = Enum.Material.Fabric })
-		for _, l in ipairs({ { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } }) do
-			local lx, lz = cx + l[1] * 0.55, cz + l[2] * 0.55
-			box("Chair", lx - 0.07, FY, lz - 0.07, lx + 0.07, FY + 1.18, lz + 0.07, CHAIR, { material = Enum.Material.Wood, nocol = true })
+		-- (user pick 2026-10-30, candidate C4 "Стул" by TimaYT_2022: a bent-wood
+		-- chair, 2 meshes, ServerStorage.ArtAssets.GukbapChairC4, pivot on the
+		-- floor, its back on -X). The old box chair stays as the fallback.
+		local c4 = art and art:FindFirstChild("GukbapChairC4")
+		if c4 then
+			local m = c4:Clone()
+			m.Name = "Chair"
+			-- scaled so the seat stands like the old one (3.27 tall → 3.5); the back
+			-- away from the table: -X points out along s[1]
+			local _, sz0 = m:GetBoundingBox()
+			m:ScaleTo(m:GetScale() * 3.5 / sz0.Y)
+			m:PivotTo(CFrame.new(cx, FY, cz) * CFrame.Angles(0, if s[1] < 0 then 0 else math.pi, 0))
+			for _, p in ipairs(m:GetDescendants()) do
+				if p:IsA("BasePart") then p.Anchored = true p.CanCollide = false p.Name = "Chair" end
+			end
+			-- an invisible block for the seat's collision (the mesh hull is the whole chair)
+			box("Chair", cx - 0.68, FY, cz - 0.68, cx + 0.68, FY + 1.5, cz + 0.68, CHAIR, { t = 1, noshadow = true })
+			m.Parent = M
+		else
+			box("Chair", cx - 0.68, FY + 1.18, cz - 0.68, cx + 0.68, FY + 1.3, cz + 0.68, CHAIR, { material = Enum.Material.Wood })
+			box("Chair", cx - 0.62, FY + 1.3, cz - 0.62, cx + 0.62, FY + 1.5, cz + 0.62, Color3.fromRGB(236, 228, 210), { material = Enum.Material.Fabric })
+			for _, l in ipairs({ { -1, -1 }, { -1, 1 }, { 1, -1 }, { 1, 1 } }) do
+				local lx, lz = cx + l[1] * 0.55, cz + l[2] * 0.55
+				box("Chair", lx - 0.07, FY, lz - 0.07, lx + 0.07, FY + 1.18, lz + 0.07, CHAIR, { material = Enum.Material.Wood, nocol = true })
+			end
+			local bx = cx + s[1] * 0.6 -- the back, on the far side from the table
+			box("Chair", bx - 0.08, FY + 1.5, cz - 0.6, bx + 0.08, FY + 3.5, cz + 0.6, CHAIR, { material = Enum.Material.Wood, nocol = true })
 		end
-		local bx = cx + s[1] * 0.6 -- the back, on the far side from the table
-		-- one wooden back panel (posts + rails as one part: the zone stays under 1,500 parts)
-		box("Chair", bx - 0.08, FY + 1.5, cz - 0.6, bx + 0.08, FY + 3.5, cz + 0.6, CHAIR, { material = Enum.Material.Wood, nocol = true })
 		local seat = Instance.new("Seat")
 		seat.Name = "StoolSeat"
 		seat.Anchored = true
