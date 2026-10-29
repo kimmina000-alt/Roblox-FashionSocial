@@ -6356,6 +6356,7 @@ do
 	---------------------------------------------------------------- north wall: photo wall + props niches
 	local PHOTO_X = (FIN1 + FIN2) / 2
 	local NW, NH = 7.5, 13.5 -- props niches (four since 2026-10-30: 9 → 7.5 wide)
+	local RECESS_SKY = Color3.fromRGB(200, 232, 245) -- the recess backs, like the corridor end wall (user 2026-10-30)
 	-- the photo wall's recess: as tall as the props niches, a rounded rectangle
 	-- (user photo 2026-10-30: was a tall arch)
 	local PHW, PHH, PHR = 28.5, NH, 3
@@ -6431,7 +6432,7 @@ do
 	-- the photos sit straight on the sky-blue back (user 2026-10-30)
 	local zoneP = root:FindFirstChild("08_PhotoBooth")
 	do
-		local backs = roundRect("PhotoNicheBack", Vector3.new(PHOTO_X, F, IN_N + 0.15), nAlong, nOut, PHW, PHH, PHR, 0.2, SKY, opt({ material = Enum.Material.SmoothPlastic }))
+		local backs = roundRect("PhotoNicheBack", Vector3.new(PHOTO_X, F, IN_N + 0.15), nAlong, nOut, PHW, PHH, PHR, 0.2, RECESS_SKY, opt({ material = Enum.Material.SmoothPlastic }))
 		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 8 sl.Brightness = 0.4 sl.Color = SKY_LIGHT sl.Parent = backs[1]
 		roundRim(Vector3.new(PHOTO_X, F, NFACE + 0.05), nAlong, nOut, PHW + 0.16, PHH + 0.08, PHR + 0.08, 0.08, 0.3, NEON_WHITE) -- (thin lines, user 2026-10-30: 0.18 → 0.08)
 		local p = zoneP and zoneP:FindFirstChild("PhotoWall")
@@ -6454,7 +6455,7 @@ do
 		local hatN = 0
 		local s0, s1 = IN_N + 0.3, NFACE + 0.2 -- shelf depth: the recess back to just past the face
 		for _, xc in ipairs(NICHES) do
-			local back = archPanel(Vector3.new(xc, F, IN_N + 0.15), nAlong, nOut, NW, NH, 0.2, SKY, B, Enum.Material.SmoothPlastic)
+			local back = archPanel(Vector3.new(xc, F, IN_N + 0.15), nAlong, nOut, NW, NH, 0.2, RECESS_SKY, B, Enum.Material.SmoothPlastic)
 			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 6 sl.Brightness = 0.5 sl.Color = SKY_LIGHT sl.Parent = back
 			archRim(Vector3.new(xc, F, NFACE + 0.05), nAlong, nOut, NW + 0.16, NH + 0.08, 0.08, 0.3, NEON_WHITE, B, Enum.Material.Neon)
 			-- (no text; a round ceiling light at the arch's top, user 2026-10-30)
@@ -6881,9 +6882,18 @@ do
 			dcl.Parent = np
 			added(np)
 		end
-		notice("BoothNotice", Vector3.new(x0 + 6.5, yF + 4.6, z1 - 0.1), Vector3.new(0, 0, -1), 3, 2.1, "rbxassetid://138883528902216")
-		notice("BoothNoticeFood", Vector3.new(x0 + 15, yF + 6.5, z0 + 0.1), Vector3.new(0, 0, 1), 2.6, 2.1, "rbxassetid://78018379686965")
-		notice("BoothNoticeProps", Vector3.new(x1 - 0.1, yF + 7, tz), Vector3.new(-1, 0, 0), 2.6, 2.1, "rbxassetid://139036991327491")		-- the WHITE room's way out: an arched door on its north wall (upstairs),
+		-- (user 2026-10-30) the three notices side by side on the east wall south
+		-- of the machine, over the bag table; the rules sheet north of the machine
+		local west = Vector3.new(-1, 0, 0)
+		local NY = yF + 7.6
+		for i, n in ipairs({
+			{ "BoothNotice", 1.7, "rbxassetid://138883528902216" }, -- lost property
+			{ "BoothNoticeFood", 1.95, "rbxassetid://78018379686965" }, -- no food
+			{ "BoothNoticeProps", 1.95, "rbxassetid://139036991327491" }, -- props back in place
+		}) do
+			notice(n[1], Vector3.new(x1 - 0.1, NY, camZ + 3.75 + (i - 1) * 2.65), west, 2.4, n[2], n[3])
+		end
+		notice("BoothNoticeRules", Vector3.new(x1 - 0.1, NY, camZ - 4.3), west, 2.2, 3.2, "rbxassetid://93525306527293") -- 오후네컷 이용 유의사항		-- the WHITE room's way out: an arched door on its north wall (upstairs),
 		-- where the other rooms have theirs
 		if key == "WHITE" then innerDoor(m, Vector3.new(x0 + 7.5, yF, z0), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), boothColor) end		return boothColor
 	end
@@ -7360,6 +7370,16 @@ do
 		part("Brush", Vector3.new(0.2, 0.2, 0.9), CFrame.new(vx - CW + 1.2, F + 4.3, zi - 0.8), Color3.fromRGB(240, 160, 180), opt({ nocol = true }))
 	end
 
+	-- three round pendant lamps over the lobby round the bench, like the
+	-- studio's (user screenshot 2026-10-30)
+	for _, at in ipairs({ { 112, -70 }, { 99, -63 }, { 85, -68 } }) do
+		local y = GF - 5
+		vcyl("LobbyLampCord", Vector3.new(at[1], y, at[2]), 0.08, GF - 0.4 - y, Color3.fromRGB(40, 40, 40), opt({ nocol = true }))
+		local lamp = vcyl("LobbyLamp", Vector3.new(at[1], y - 0.6, at[2]), 4.2, 0.6, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
+		lamp.CastShadow = false
+		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Left sl.Range = 16 sl.Brightness = 0.5 sl.Color = Color3.fromRGB(255, 240, 225) sl.Parent = lamp
+	end
+
 	---------------------------------------------------------------- round table + ring bench in the lobby's middle
 	-- (user plan + photo 2026-10-27: a light pink drum table with the cafe pot
 	-- plant on top, a light sky-blue bench round it in two arcs.) Turned 30°
@@ -7367,7 +7387,7 @@ do
 	do
 		-- (user 2026-10-30: 80% of the size at the same seat height, moved toward
 		-- the curved wall; a wider table, two pots sunk to hide their legs)
-		local c = Vector3.new(106, F, -75)
+		local c = Vector3.new(98, F, -78) -- (back toward the room's middle, user 2026-10-30)
 		local TURN = 30
 		B:SetAttribute("BenchTurn", TURN)
 		-- (table down to the pot size, benches 15° shorter at each end: user 2026-10-28, D-451)
@@ -7378,14 +7398,15 @@ do
 		B:SetAttribute("TableRadius", TR)
 		local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 		local pot = art and art:FindFirstChild("CafePotPlant")
-		for i, spot in ipairs({ { Vector3.new(-0.55, 0, -0.1), 1 }, { Vector3.new(0.6, 0, 0.15), 1.3 } }) do
+		for i, spot in ipairs({ { Vector3.new(-0.55, 0, -0.1), 1 }, { Vector3.new(0.6, 0, 0.15), 1.6 } }) do
 			if pot then
 				local m = pot:Clone()
 				if m:IsA("Model") then
-					m:ScaleTo(1.3 / 5 * spot[2]) -- (1/5 of the first size, user 2026-10-27; the second 1.3x)
+					m:ScaleTo(1.3 / 5 * spot[2]) -- (1/5 of the first size, user 2026-10-27; the second 1.6x, user 2026-10-30)
 					local cf, size = m:GetBoundingBox()
-					-- sunk into the table so the planter's black legs do not show
-					m:PivotTo(m:GetPivot() + (c + spot[1] + Vector3.new(0, 3.6 + size.Y / 2 - size.Y * 0.38, 0) - cf.Position))
+					-- sunk into the table just by the planter's black legs (they reach 0.14
+					-- of its height, the pot starts at 0.21; 0.38 buried the pot, user)
+					m:PivotTo(m:GetPivot() + (c + spot[1] + Vector3.new(0, 3.6 + size.Y / 2 - size.Y * 0.21, 0) - cf.Position))
 				end
 				for _, d in ipairs(m:GetDescendants()) do if d:IsA("BasePart") then d.Anchored = true d.CanCollide = false end end
 				m.Name = if i == 1 then "TablePlant" else "TablePlant2"
