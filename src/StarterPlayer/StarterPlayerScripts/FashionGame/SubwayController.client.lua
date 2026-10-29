@@ -96,7 +96,7 @@ local function exits(tag: string): {{ number: number, name: string, color: Color
 	return found
 end
 
-local function show(tag: string, current: number)
+local function show(tag: string, current: number, sent: any)
 	local bus = tag == "BusStop"
 	Popups.opened("Subway", hide)
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -106,7 +106,8 @@ local function show(tag: string, current: number)
 	for _, child in ipairs(list:GetChildren()) do
 		if child:IsA("TextButton") then child:Destroy() end
 	end
-	local all = exits(tag)
+	-- the server's list (all pads); the local scan misses far pads that are not streamed in
+	local all = if typeof(sent) == "table" and #sent > 0 then sent else exits(tag)
 	for index, exit in ipairs(all) do
 		local here = exit.number == current
 		local button = make("TextButton", {
@@ -157,8 +158,8 @@ local function show(tag: string, current: number)
 	panel.Visible = true
 end
 
-notify.OnClientEvent:Connect(function(kind: any, tag: any, number: any)
-	if kind == "Open" and typeof(tag) == "string" and typeof(number) == "number" then show(tag, number) end
+notify.OnClientEvent:Connect(function(kind: any, tag: any, number: any, list: any)
+	if kind == "Open" and typeof(tag) == "string" and typeof(number) == "number" then show(tag, number, list) end
 end)
 
 -- close when the player walks away from the pad

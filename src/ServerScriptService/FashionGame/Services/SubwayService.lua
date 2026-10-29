@@ -28,11 +28,27 @@ local REOPEN = 3 -- seconds before the same pad asks again
 local lastPad: {[Player]: BasePart} = {}
 local lastOpen: {[Player]: number} = {}
 
+-- (only pads in Workspace: map backups in ServerStorage keep their tags)
 local function findPad(tag: string, number: number): BasePart?
 	for _, pad in ipairs(CollectionService:GetTagged(tag)) do
-		if pad:IsA("BasePart") and pad:GetAttribute("ExitNumber") == number then return pad end
+		if pad:IsA("BasePart") and pad:IsDescendantOf(workspace) and pad:GetAttribute("ExitNumber") == number then return pad end
 	end
 	return nil
+end
+
+-- Every pad of the network, sent with "Open": with streaming the client does
+-- not have the far ones (the beach cafe stop was missing at the club, 2026-10-30).
+local function listPads(tag: string): {{ number: number, name: string, color: Color3 }}
+	local found, seen = {}, {}
+	for _, pad in ipairs(CollectionService:GetTagged(tag)) do
+		local number = pad:GetAttribute("ExitNumber")
+		if pad:IsA("BasePart") and pad:IsDescendantOf(workspace) and typeof(number) == "number" and not seen[number] then
+			seen[number] = true
+			table.insert(found, { number = number, name = tostring(pad:GetAttribute("ExitName") or ""), color = pad.Color })
+		end
+	end
+	table.sort(found, function(a, b) return a.number < b.number end)
+	return found
 end
 
 local function outOf(pad: BasePart): Vector3
@@ -46,7 +62,7 @@ local function open(tag: string, pad: BasePart, player: Player)
 	lastPad[player] = pad
 	lastOpen[player] = now
 	local notify = Remotes:FindFirstChild("SubwayNotify") :: RemoteEvent?
-	if notify then notify:FireClient(player, "Open", tag, pad:GetAttribute("ExitNumber")) end
+	if notify then notify:FireClient(player, "Open", tag, pad:GetAttribute("ExitNumber"), listPads(tag)) end
 end
 
 local function onTouched(tag: string, pad: BasePart, hit: BasePart)
