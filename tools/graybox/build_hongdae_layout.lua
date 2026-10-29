@@ -1273,6 +1273,10 @@ for _, e in ipairs(EXITS) do
 	-- the landing pad (exit picker)
 	local padPos = at(-6) + Vector3.new(0, bottom + 0.2, 0)
 	local pad = part("SubwayExitPad", Vector3.new(6, 0.4, 6), CFrame.lookAt(padPos, padPos + out), e[3], { parent = m, material = Enum.Material.Neon })
+	-- invisible (the neon glared, user 2026-10-30); it still works when stepped on
+	-- and keeps its colour for the picker's number badge
+	pad.Transparency = 1
+	pad.CastShadow = false
 	pad:SetAttribute("ExitNumber", e[1])
 	pad:SetAttribute("ExitName", e[2])
 	pad:SetAttribute("Out", out) -- arrivals step off toward the stairs (up)
@@ -7184,27 +7188,7 @@ do
 			local lamp = vcyl("StudioLamp", Vector3.new(lx, y - 0.6, PZ0 + 7), 4.2, 0.6, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
 			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Left sl.Range = 16 sl.Brightness = 0.6 sl.Color = Color3.fromRGB(255, 240, 225) sl.Parent = lamp
 		end
-		-- bathtub (white, gold feet) with a bear in it
-		do
-			local tc = Vector3.new(PX0 + 13, TOP - 1.3, PZ0 + 13) -- (sunk in the balls)
-			local outer = part("Bathtub", Vector3.new(6.6, 3.4, 3.4), CFrame.new(tc + Vector3.new(0, 1.9, 0)), Color3.fromRGB(250, 250, 250), opt({ shape = Enum.PartType.Cylinder, nocol = true }))
-			local top = part("TubCut", Vector3.new(8, 3, 5), CFrame.new(tc + Vector3.new(0, 1.9 + 0.75 + 1.5, 0)), WHITE_WALL, o)
-			local inner = part("TubCut", Vector3.new(6, 2.8, 2.8), CFrame.new(tc + Vector3.new(0, 2.2, 0)), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder }))
-			local tub = subtract(outer, { top, inner }, "Bathtub", Enum.Material.SmoothPlastic)
-			tub.CanCollide = false
-			for _, sx in ipairs({ -1, 1 }) do
-				for _, sz in ipairs({ -1, 1 }) do
-					part("TubFoot", Vector3.new(0.5, 0.5, 0.5), CFrame.new(tc + Vector3.new(sx * 2.4, 0.3, sz * 1)), GOLDT, opt({ shape = Enum.PartType.Ball, nocol = true, material = Enum.Material.Metal }))
-				end
-			end
-			local BEAR = Color3.fromRGB(196, 150, 100)
-			part("Bear", Vector3.new(1.9, 1.9, 1.9), CFrame.new(tc + Vector3.new(0.8, 2.7, 0)), BEAR, opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
-			part("Bear", Vector3.new(1.5, 1.5, 1.5), CFrame.new(tc + Vector3.new(0.8, 4.1, 0)), BEAR, opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
-			for _, sz in ipairs({ -1, 1 }) do
-				part("BearEar", Vector3.new(0.55, 0.55, 0.55), CFrame.new(tc + Vector3.new(0.8, 4.8, sz * 0.55)), BEAR, opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
-			end
-			part("BearMuzzle", Vector3.new(0.6, 0.6, 0.6), CFrame.new(tc + Vector3.new(0.8, 4, 0.65)), Color3.fromRGB(245, 225, 200), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
-		end
+		-- (the bathtub with the bear and the two face cushions are gone, user 2026-10-30)
 		-- towel ladder leaning on the north wall, a pink towel over a rung
 		do
 			-- (twice the size, user 2026-10-30)
@@ -7237,100 +7221,94 @@ do
 				plant.Parent = B
 			end
 		end
-		-- two big plush cushions with faces, lying on the balls
-		for i, cpos in ipairs({ Vector3.new(PX0 + 22, TOP, PZ0 + 18), Vector3.new(PX1 - 6, TOP, PZ0 + 9) }) do
-			local cu = part("PlushCushion", Vector3.new(1.1, 3.6, 3.6), CFrame.new(cpos + Vector3.new(0, 0.6, 0)) * CFrame.Angles(0, math.rad(20 * i), math.rad(75)), Color3.fromRGB(252, 248, 248), opt({ shape = Enum.PartType.Cylinder, material = Enum.Material.Fabric, nocol = true }))
-			local g = Instance.new("SurfaceGui")
-			g.Face = Enum.NormalId.Right
-			g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
-			g.PixelsPerStud = 50
-			g.LightInfluence = 0.6
-			g.Parent = cu
-			local t = Instance.new("TextLabel")
-			t.Size = UDim2.fromScale(1, 1)
-			t.BackgroundTransparency = 1
-			t.Font = Enum.Font.GothamBold
-			t.TextScaled = true
-			t.TextColor3 = Color3.fromRGB(60, 50, 50)
-			t.Text = if i == 1 then "^  ^" else "•  •" -- (simple marks: the Roblox fonts lack ᴗ / ◡)
-			t.Parent = g
+		-- four plush toys from the Creator Store (user picks 2026-10-30; scripts
+		-- stripped, ServerStorage.ArtAssets.PitPlush*) sunk a little into the balls
+		do
+			local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+			math.randomseed(20261031)
+			local spots = {}
+			for _, name in ipairs({ "PitPlushTeddy", "PitPlushMonkey", "PitPlushPurple", "PitPlushSeal" }) do
+				local src = art and art:FindFirstChild(name)
+				if src then
+					local at
+					for _ = 1, 60 do
+						local x, z = PX0 + 3 + math.random() * (PX1 - PX0 - 6), PZ0 + 4 + math.random() * (PZ1 - PZ0 - 7)
+						local ok = inPit(x, z, 2.5) and x > PX0 + 11 -- (clear of the ladder and the plant by the wall)
+						for _, s in ipairs(spots) do if (s - Vector3.new(x, 0, z)).Magnitude < 7 then ok = false end end
+						if ok then at = Vector3.new(x, 0, z) break end
+					end
+					if at then
+						table.insert(spots, at)
+						local m = src:Clone()
+						m.Name = "PitPlush"
+						if m:IsA("Model") then
+							local _, size = m:GetBoundingBox()
+							m:ScaleTo(m:GetScale() * (if name == "PitPlushSeal" then 2.2 else 3) / size.Y)
+							local cf, s2 = m:GetBoundingBox()
+							local rot = CFrame.Angles(0, math.rad(math.random(-50, 50)) + math.atan2(-1, 1), 0) -- (roughly toward the room)
+							m:PivotTo(CFrame.new(at.X, TOP - 0.3 + s2.Y / 2, at.Z) * rot * (cf:Inverse() * m:GetPivot()))
+						end
+						local TINT = { PitPlushTeddy = Color3.fromRGB(214, 168, 120), PitPlushMonkey = Color3.fromRGB(170, 120, 84) }
+						for _, d in ipairs(m:GetDescendants()) do
+							if d:IsA("BasePart") then
+								d.Anchored = true d.CanCollide = false d.CanQuery = false
+								-- (these two meshes come without a texture: plain plush colours)
+								if TINT[name] and d:IsA("MeshPart") and d.TextureID == "" then d.Color = TINT[name] d.Material = Enum.Material.Fabric end
+							end
+						end
+						m.Parent = B
+					end
+				end
+			end
 		end
 	end
-
 	---------------------------------------------------------------- wavy floor mirror leaning on the west wall
-	-- (user photo 2026-10-30, docs/04_ART/references/ohu4cut_wavy_mirror_ref.webp)
-	-- A plush wavy frame: a flat board in the outer wave (strips, one union) with
-	-- round tubes along the outer and inner waves; the glass is a live mirror
-	-- (MirrorController) whose square edges hide under an image mask in the
-	-- frame's colour (docs/04_ART/textures/ohu4cut_wavy_mirror_mask.png, drawn
-	-- from the same wave: inner half width (1.5 + 0.22 cos(2πv / 2.1)) taper,
-	-- half height 4.2). Leans back 8° with its top on the wall.
+	-- (user photo 2026-10-30, docs/04_ART/references/ohu4cut_wavy_mirror_ref.webp;
+	-- 2026-10-30 late: the Meshy mesh read angular, the user asked for a soft,
+	-- very plump wavy frame with a plain rectangular glass hidden behind it)
+	-- The frame is one fat round tube along a wavy outline, made of balls an
+	-- eighth of their size apart (balls shade perfectly round); a flat back board,
+	-- and the live mirror (MirrorController) as a rectangle inside the tube.
 	do
-		local C_OUT, C_IN, AMP, LAM = 2.0, 1.5, 0.22, 2.1
-		local HALF_OUT, HALF_IN = 4.7, 4.2
-		local FRAME_COL = Color3.fromRGB(176, 222, 242) -- sky blue on the pink wall
+		local C, AMP, LAM, HALF = 1.75, 0.3, 2.1, 4.5 -- the tube's centre line: half width, wave, wavelength, half height
+		local D = 1.5 -- the tube's thickness
+		local COL = Color3.fromRGB(246, 238, 226) -- ivory
 		local TILT = math.rad(8)
-		local function hw(v: number, c: number, half: number): number
-			local t = math.abs(v) / half
-			return (c + AMP * math.cos(2 * math.pi * v / LAM)) * math.max(0, 1 - t ^ 10) ^ 0.25
+		local function hw(v: number): number
+			local t = math.abs(v) / HALF
+			return (C + AMP * math.cos(2 * math.pi * v / LAM)) * math.max(0, 1 - t ^ 10) ^ 0.25
 		end
 		local wallX, zc = IN_W + 0.1, -83.8 -- the pink liner's face, south of the ball pit
-		local H = 2 * HALF_OUT
+		local H = 2 * HALF + D
 		local up = Vector3.new(-math.sin(TILT), math.cos(TILT), 0) -- leaning back onto the wall (-x)
 		local right = Vector3.new(0, 0, 1)
-		local foot = Vector3.new(wallX + H * math.sin(TILT) + 0.35, F, zc)
-		local base = CFrame.fromMatrix(foot + up * HALF_OUT, right, up) -- LookVector: out of the wall, a little up
+		local foot = Vector3.new(wallX + H * math.sin(TILT) + D / 2 + 0.1, F, zc)
+		local base = CFrame.fromMatrix(foot + up * (H / 2), right, up) -- LookVector: out of the wall
 		local M = Instance.new("Model")
 		M.Name = "WavyMirror"
 		M.Parent = B
-		-- the frame: the user's Meshy mirror (docs/04_ART/models/ohu4cut_wavy_mirror_frame_5k.obj,
-		-- 5,150 triangles, imported once: ServerStorage.ArtAssets.WavyMirrorFrame,
-		-- user 2026-10-30); the strip / tube frame below is only the fallback
-		local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
-		local mesh = art and art:FindFirstChild("WavyMirrorFrame")
-		local view
-		if mesh and mesh:IsA("MeshPart") then
-			local fr = mesh:Clone()
-			fr.Name = "MirrorFrame"
-			fr.Anchored = true
-			fr.CanCollide = false
-			fr.CFrame = base
-			fr.Parent = M
-			-- the live mirror behind the frame's hole (the hole's box from the mesh,
-			-- the mask: docs/04_ART/textures/ohu4cut_wavy_mirror_hole_mask.png)
-			view = part("MirrorView", Vector3.new(2.983, 8.417, 0.05), base * CFrame.new(-0.02, 0.033, 0.05), Color3.new(1, 1, 1), { parent = M, nocol = true, transparency = 1 })
-			view:SetAttribute("MaskImage", "rbxassetid://113926684920607")
-			view:SetAttribute("MaskColor", fr.Color)
-		else
-			local mo = { parent = M, nocol = true, material = Enum.Material.Fabric }
-			local strips = {}
-			local STEP = 0.25
-			for v = -HALF_OUT + STEP / 2, HALF_OUT - STEP / 2, STEP do
-				local w = 2 * hw(v, C_OUT, HALF_OUT)
-				if w > 0.05 then table.insert(strips, part("MirrorBoard", Vector3.new(w, STEP + 0.02, 0.35), base * CFrame.new(0, v, 0), FRAME_COL, mo)) end
+		-- the outline, then balls along it every D / 3
+		local pts = {}
+		local N = 400
+		for k = 0, N do table.insert(pts, Vector2.new(hw(-HALF + 2 * HALF * k / N), -HALF + 2 * HALF * k / N)) end
+		for k = 1, N do table.insert(pts, Vector2.new(-hw(HALF - 2 * HALF * k / N), HALF - 2 * HALF * k / N)) end
+		local STEP, run = D / 8, math.huge -- (D / 3 read as beads; this close they merge into one smooth tube)
+		for i = 2, #pts do
+			run += (pts[i] - pts[i - 1]).Magnitude
+			if run >= STEP then
+				run = 0
+				local ball = part("MirrorTube", Vector3.new(D, D, D), base * CFrame.new(pts[i].X, pts[i].Y, 0), COL, { parent = M, nocol = true, shape = Enum.PartType.Ball, material = Enum.Material.SmoothPlastic })
+				ball.CanQuery = false
+				ball.CanTouch = false
 			end
-			for _, p in ipairs(strips) do p.Parent = workspace end
-			local first = table.remove(strips, 1)
-			local ok, u = pcall(function() return first:UnionAsync(strips) end)
-			if ok and u then
-				u.Name = "MirrorBoard"
-				u.UsePartColor = true
-				u.Anchored = true
-				u.CanCollide = false
-				u.Parent = M
-				first:Destroy()
-				for _, p in ipairs(strips) do p:Destroy() end
-			else
-				first.Parent = M
-				for _, p in ipairs(strips) do p.Parent = M end
-			end
-			view = part("MirrorView", Vector3.new(2 * (C_IN + AMP), 2 * HALF_IN, 0.05), base * CFrame.new(0, 0, -0.2), Color3.new(1, 1, 1), { parent = M, nocol = true, transparency = 1 })
-			view:SetAttribute("MaskImage", "rbxassetid://71592937226897")
-			view:SetAttribute("MaskColor", FRAME_COL)
 		end
-		view.CanQuery = false		CS:AddTag(view, "Mirror")
+		part("MirrorBack", Vector3.new(2 * C, 2 * HALF, 0.2), base * CFrame.new(0, 0, 0.45), COL, { parent = M, nocol = true })
+		-- the plain rectangular glass, its edges inside the tube
+		local view = part("MirrorView", Vector3.new(2 * (C - 0.15), 2 * (HALF - 0.5), 0.05), base * CFrame.new(0, 0, 0.1), Color3.fromRGB(205, 215, 222), { parent = M, nocol = true, material = Enum.Material.Glass })
+		view.Reflectance = 0.3
+		view.CanQuery = false
+		CS:AddTag(view, "Mirror")
 	end
-
 	---------------------------------------------------------------- south wall: arched make-up vanity between the capsule windows
 	for _, vx in ipairs(VANITY_X) do
 		-- each vanity stands in its arched recess in the thick pink wall

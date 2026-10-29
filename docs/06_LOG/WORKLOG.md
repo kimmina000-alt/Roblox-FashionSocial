@@ -2553,3 +2553,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-544: 안내문 벽 ![](images/2026-10-30/ohu4cut_notice_wall.jpg) 부스 ![](images/2026-10-30/ohu4cut_pink_booth_v6.jpg) 촬영 ![](images/2026-10-30/ohu4cut_pink_shoot.jpg)
 - D-545: 부스 ![](images/2026-10-30/ohu4cut_booth_v7.jpg) 장수 선택 ![](images/2026-10-30/photo_copies_print.jpg) 안내문 벽 ![](images/2026-10-30/ohu4cut_notice_wall_v2.jpg)
 - D-546: 3D 거울 ![](images/2026-10-30/ohu4cut_mesh_mirror.jpg) 부스 ![](images/2026-10-30/ohu4cut_booth_v8.jpg) 찍힌 사진 ![](images/2026-10-30/photo_shots_clean.jpg) 장수 선택 ![](images/2026-10-30/photo_copies_print_v2.jpg)
+- D-547: 거울 ![](images/2026-10-30/ohu4cut_soft_mirror.jpg) 볼풀 인형 ![](images/2026-10-30/ohu4cut_pit_plush.jpg)
