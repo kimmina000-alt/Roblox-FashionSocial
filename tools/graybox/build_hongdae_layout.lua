@@ -4544,7 +4544,7 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	-- (user 2026-10-30) two boards (레벨 / 기부, 50 each) instead of three, each
 	-- longer over the freed room; no wooden frame: a see-through LED pane with a
 	-- neon edge on a slim dark foot, like a glass screen with a message on it
-	local NEON = Color3.fromRGB(255, 70, 110)
+	local NEON = Color3.fromRGB(255, 255, 255) -- (pink → white, user 2026-10-30)
 	-- (user 2026-10-30, 2nd) no foot: the panes float a little higher, a
 	-- thinner neon edge
 	local HALF, Y0, Y1 = 8.6, 3.4, 14.4
