@@ -7074,17 +7074,18 @@ do
 	-- lamps. Its open sides follow a gentle curve: a tiled ledge (walk-in).
 	do
 		local PX0, PZ0 = IN_W + 0.1, NIN -- the studio's walls: the outer west wall (pink inside), the north liner
-		local PX1, PZ1 = FIN1 - 1.5, -88.1 -- its open sides (east, south): out to the white pillar (user 2026-10-30)
+		local RIM_H, RIM_W = 4.5, 1.6 -- the tiled ledge: as high as the mint band (user 2026-10-30)
+		local PX1, PZ1 = FIN1 - 1.5 - RIM_W / 2 - 0.4, -88.1 -- its open sides (east, south): up to the white pillar, clear of it (user 2026-10-30)
 		local R = 13.9 -- the rounded corner between them
 		local CX, CZ = PX1 - R, PZ1 - R
-		local TOP = F + 2.2 -- the balls' surface (just under the rim)
+		local TOP = F + RIM_H - 0.6 -- the balls' surface (just under the rim)
 		-- the rim: a chunky ledge in small pink mosaic tiles (user photo 2026-10-30)
-		local RIM_H, RIM_W = 2.8, 1.6
 		local MOSAIC = "rbxassetid://139383694604230" -- docs/04_ART/textures/ohu4cut_pink_mosaic.png
 		local MINT = Color3.fromRGB(150, 214, 200)
 		local BALL_IMG = "rbxassetid://118880934009851" -- docs/04_ART/textures/ohu4cut_ballpit.png
-		box("StudioWainscot", PX0, F, PZ0, FIN1 - 0.5, F + 4.5, PZ0 + 0.15, MINT, o)
-		box("StudioWainscot", PX0, F, PZ0, PX0 + 0.15, F + 4.5, PZ1 + 2, MINT, o)
+		-- (the mint ends where the ledge ends, user 2026-10-30)
+		box("StudioWainscot", PX0, F, PZ0, PX1 + RIM_W / 2, F + RIM_H, PZ0 + 0.15, MINT, o)
+		box("StudioWainscot", PX0, F, PZ0, PX0 + 0.15, F + RIM_H, PZ1 + RIM_W / 2, MINT, o)
 		-- the balls: one solid (two boxes + a quarter disc), the ball image on top
 		local a = box("BallPit", PX0, F, PZ0, PX1, TOP, CZ, Color3.fromRGB(240, 200, 212), o)
 		local b = box("BallPit", PX0, F, CZ, CX, TOP, PZ1, Color3.fromRGB(240, 200, 212), o)
@@ -7153,7 +7154,7 @@ do
 				local tx = Instance.new("Texture")
 				tx.Face = face
 				tx.Texture = MOSAIC
-				tx.StudsPerTileU, tx.StudsPerTileV = 3, 3
+				tx.StudsPerTileU, tx.StudsPerTileV = 3.75, 3.75 -- (tiles 1.25x, user 2026-10-30)
 				tx.Parent = rim
 			end
 			if i > 1 and i < #pts - 1 then vcyl("PitRimJoint", Vector3.new(p0.X, F, p0.Z), RIM_W, RIM_H, RIM, opt({ nocol = true })) end
@@ -7262,6 +7263,86 @@ do
 			t.Text = if i == 1 then "^  ^" else "•  •" -- (simple marks: the Roblox fonts lack ᴗ / ◡)
 			t.Parent = g
 		end
+	end
+
+	---------------------------------------------------------------- wavy floor mirror leaning on the west wall
+	-- (user photo 2026-10-30, docs/04_ART/references/ohu4cut_wavy_mirror_ref.webp)
+	-- A plush wavy frame: a flat board in the outer wave (strips, one union) with
+	-- round tubes along the outer and inner waves; the glass is a live mirror
+	-- (MirrorController) whose square edges hide under an image mask in the
+	-- frame's colour (docs/04_ART/textures/ohu4cut_wavy_mirror_mask.png, drawn
+	-- from the same wave: inner half width (1.5 + 0.22 cos(2πv / 2.1)) taper,
+	-- half height 4.2). Leans back 8° with its top on the wall.
+	do
+		local C_OUT, C_IN, AMP, LAM = 2.0, 1.5, 0.22, 2.1
+		local HALF_OUT, HALF_IN = 4.7, 4.2
+		local FRAME_COL = Color3.fromRGB(176, 222, 242) -- sky blue on the pink wall
+		local TILT = math.rad(8)
+		local function hw(v: number, c: number, half: number): number
+			local t = math.abs(v) / half
+			return (c + AMP * math.cos(2 * math.pi * v / LAM)) * math.max(0, 1 - t ^ 10) ^ 0.25
+		end
+		local wallX, zc = IN_W + 0.1, -83.8 -- the pink liner's face, south of the ball pit
+		local H = 2 * HALF_OUT
+		local up = Vector3.new(-math.sin(TILT), math.cos(TILT), 0) -- leaning back onto the wall (-x)
+		local right = Vector3.new(0, 0, 1)
+		local foot = Vector3.new(wallX + H * math.sin(TILT) + 0.35, F, zc)
+		local base = CFrame.fromMatrix(foot + up * HALF_OUT, right, up) -- LookVector: out of the wall, a little up
+		local M = Instance.new("Model")
+		M.Name = "WavyMirror"
+		M.Parent = B
+		local mo = { parent = M, nocol = true, material = Enum.Material.Fabric }
+		-- the board: horizontal strips, merged
+		local strips = {}
+		local STEP = 0.25
+		for v = -HALF_OUT + STEP / 2, HALF_OUT - STEP / 2, STEP do
+			local w = 2 * hw(v, C_OUT, HALF_OUT)
+			if w > 0.05 then table.insert(strips, part("MirrorBoard", Vector3.new(w, STEP + 0.02, 0.35), base * CFrame.new(0, v, 0), FRAME_COL, mo)) end
+		end
+		local function merge(list: {BasePart}, name: string): BasePart?
+			for _, p in ipairs(list) do p.Parent = workspace end
+			local first = table.remove(list, 1)
+			local ok, u = pcall(function() return first:UnionAsync(list) end)
+			if ok and u then
+				u.Name = name
+				u.UsePartColor = true
+				u.Anchored = true
+				u.CanCollide = false
+				u.Parent = M
+				first:Destroy()
+				for _, p in ipairs(list) do p:Destroy() end
+				return u
+			end
+			first.Parent = M
+			for _, p in ipairs(list) do p.Parent = M end
+			return nil
+		end
+		merge(strips, "MirrorBoard")
+		-- the plush tubes along both waves (in front of the board)
+		local function tube(c: number, half: number, d: number, name: string)
+			local pts = {}
+			local N = 60 -- (26 read as a zigzag: ~12 points per wave now)
+			for k = 0, N do table.insert(pts, Vector3.new(hw(-half + 2 * half * k / N, c, half), -half + 2 * half * k / N, -0.2)) end
+			for k = 1, N - 1 do table.insert(pts, Vector3.new(-hw(half - 2 * half * k / N, c, half), half - 2 * half * k / N, -0.2)) end
+			table.insert(pts, pts[1])
+			local segs = {}
+			for i = 1, #pts - 1 do
+				local a, b = base * pts[i], base * pts[i + 1]
+				local len = (b - a).Magnitude
+				if len > 0.01 then
+					table.insert(segs, part(name, Vector3.new(len + d * 0.5, d, d), CFrame.lookAt((a + b) / 2, b) * CFrame.Angles(0, math.rad(90), 0), FRAME_COL, { parent = M, nocol = true, material = Enum.Material.Fabric, shape = Enum.PartType.Cylinder }))
+				end
+			end
+			merge(segs, name)
+		end
+		tube(C_OUT - 0.1, HALF_OUT - 0.1, 0.5, "MirrorTubeOuter")
+		tube(C_IN + 0.05, HALF_IN + 0.05, 0.36, "MirrorTubeInner")
+		-- the live mirror: the inner wave's bounding box, masked to the wave
+		local view = part("MirrorView", Vector3.new(2 * (C_IN + AMP), 2 * HALF_IN, 0.05), base * CFrame.new(0, 0, -0.2), Color3.new(1, 1, 1), { parent = M, nocol = true, transparency = 1 })
+		view.CanQuery = false
+		view:SetAttribute("MaskImage", "rbxassetid://71592937226897")
+		view:SetAttribute("MaskColor", FRAME_COL)
+		CS:AddTag(view, "Mirror")
 	end
 
 	---------------------------------------------------------------- south wall: arched make-up vanity between the capsule windows

@@ -90,6 +90,18 @@ local function make(part: BasePart): MirrorState
 		s.Parent = mask
 		mask.Parent = holder
 	end
+	local maskImage = part:GetAttribute("MaskImage")
+	if typeof(maskImage) == "string" then
+		-- any outline (the wavy mirror, user 2026-10-30): an image that is solid
+		-- outside the glass, tinted in the frame's colour
+		local mask = Instance.new("ImageLabel")
+		mask.Size = UDim2.fromScale(1, 1)
+		mask.BackgroundTransparency = 1
+		mask.Image = maskImage
+		mask.ImageColor3 = (part:GetAttribute("MaskColor") :: Color3?) or Color3.fromRGB(255, 250, 242)
+		mask.ZIndex = 5
+		mask.Parent = holder
+	end
 	local frame = Instance.new("ViewportFrame")
 	frame.AnchorPoint = Vector2.new(0.5, 0.5)
 	frame.BackgroundColor3 = Color3.fromRGB(240, 220, 220)
