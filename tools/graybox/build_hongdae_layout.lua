@@ -7305,7 +7305,7 @@ do
 	do
 		local MS = 1.3 -- (1.3x, user 2026-10-30)
 		local C, AMP, LAM, HALF = 1.75 * MS, 0.3 * MS, 2.1 * MS, 4.5 * MS -- the tube's centre line: half width, wave, wavelength, half height
-		local D = 1.5 * MS * 0.68 -- the tube's thickness (thinner twice, user 2026-10-30)
+		local D = 1.5 * MS * 0.55 -- the tube's thickness (thinner three times, user 2026-10-30)
 		local COL = Color3.fromRGB(246, 238, 226) -- ivory
 		local TILT = math.rad(8)
 		local function hw(v: number): number
@@ -7321,24 +7321,38 @@ do
 		local M = Instance.new("Model")
 		M.Name = "WavyMirror"
 		M.Parent = B
-		-- the outline, then balls along it every D / 3
-		local pts = {}
-		local N = 400
-		for k = 0, N do table.insert(pts, Vector2.new(hw(-HALF + 2 * HALF * k / N), -HALF + 2 * HALF * k / N)) end
-		for k = 1, N do table.insert(pts, Vector2.new(-hw(HALF - 2 * HALF * k / N), HALF - 2 * HALF * k / N)) end
-		local STEP, run = D / 8, math.huge -- (D / 3 read as beads; this close they merge into one smooth tube)
-		for i = 2, #pts do
-			run += (pts[i] - pts[i - 1]).Magnitude
-			if run >= STEP then
-				run = 0
-				local ball = part("MirrorTube", Vector3.new(D, D, D), base * CFrame.new(pts[i].X, pts[i].Y, 0), COL, { parent = M, nocol = true, shape = Enum.PartType.Ball, material = Enum.Material.SmoothPlastic })
-				ball.CanQuery = false
-				ball.CanTouch = false
-			end
+		-- (user 2026-10-30: thinner, no knobs) the centre line is a stadium: wavy
+		-- sides whose wave fades out where they meet round half-circle ends, so the
+		-- ends have no bumps; the tube is short cylinders along it with a ball in
+		-- every joint (same diameter: one smooth tube, no bead ridges)
+		local R = C -- the end arcs' radius
+		local SIDE = HALF - R
+		local function sideX(v: number): number
+			local fade = math.clamp((SIDE - math.abs(v)) / (LAM * 0.5), 0, 1)
+			fade = fade * fade * (3 - 2 * fade)
+			return C + AMP * math.cos(2 * math.pi * v / LAM) * fade
 		end
-		part("MirrorBack", Vector3.new(2 * C, 2 * HALF, 0.2), base * CFrame.new(0, 0, 0.45), COL, { parent = M, nocol = true })
+		local pts = {}
+		local NS, NA = 48, 14
+		for k = 0, NS do local v = -SIDE + 2 * SIDE * k / NS table.insert(pts, Vector2.new(sideX(v), v)) end
+		for k = 1, NA - 1 do local a = math.pi * k / NA table.insert(pts, Vector2.new(R * math.cos(a), SIDE + R * math.sin(a))) end
+		for k = 0, NS do local v = SIDE - 2 * SIDE * k / NS table.insert(pts, Vector2.new(-sideX(v), v)) end
+		for k = 1, NA - 1 do local a = math.pi + math.pi * k / NA table.insert(pts, Vector2.new(R * math.cos(a), -SIDE + R * math.sin(a))) end
+		local tubeOpt = { parent = M, nocol = true, material = Enum.Material.SmoothPlastic }
+		for i = 1, #pts do
+			local a, b = pts[i], pts[i % #pts + 1]
+			local pa, pb = (base * CFrame.new(a.X, a.Y, 0)).Position, (base * CFrame.new(b.X, b.Y, 0)).Position
+			local len = (pb - pa).Magnitude
+			local seg = part("MirrorTube", Vector3.new(len, D, D), CFrame.lookAt((pa + pb) / 2, pb) * CFrame.Angles(0, math.rad(90), 0), COL, (function() local o = table.clone(tubeOpt) o.shape = Enum.PartType.Cylinder return o end)())
+			local ball = part("MirrorTube", Vector3.new(D, D, D), CFrame.new(pa), COL, (function() local o = table.clone(tubeOpt) o.shape = Enum.PartType.Ball return o end)())
+			for _, p in ipairs({ seg, ball }) do p.CanQuery = false p.CanTouch = false end
+		end		-- the back board in the same stadium shape (a box + two discs: no corners past the round ends)
+		part("MirrorBack", Vector3.new(2 * C, 2 * SIDE, 0.2), base * CFrame.new(0, 0, 0.45), COL, { parent = M, nocol = true })
+		for _, sy in ipairs({ -1, 1 }) do
+			part("MirrorBack", Vector3.new(0.2, 2 * C, 2 * C), base * CFrame.new(0, sy * SIDE, 0.45) * CFrame.Angles(0, math.rad(90), 0), COL, { parent = M, nocol = true, shape = Enum.PartType.Cylinder })
+		end
 		-- the plain rectangular glass, its edges inside the tube
-		local view = part("MirrorView", Vector3.new(2 * (C - 0.15), 2 * (HALF - 0.5), 0.05), base * CFrame.new(0, 0, 0.1), Color3.fromRGB(205, 215, 222), { parent = M, nocol = true, material = Enum.Material.Glass })
+		local view = part("MirrorView", Vector3.new(2 * (C - 0.15), 2 * (SIDE + R * 0.55), 0.05), base * CFrame.new(0, 0, 0.1), Color3.fromRGB(205, 215, 222), { parent = M, nocol = true, material = Enum.Material.Glass })
 		view.Reflectance = 0.3
 		view.CanQuery = false
 		CS:AddTag(view, "Mirror")
