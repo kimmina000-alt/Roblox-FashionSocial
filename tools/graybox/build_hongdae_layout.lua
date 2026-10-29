@@ -7070,14 +7070,17 @@ do
 	---------------------------------------------------------------- ball-pit studio (north-west corner)
 	-- (user photo 2026-10-30, left of ohu4cut_plan_v3_2026-10-30.webp) pink walls with a
 	-- mint band, a STUDIO bulb sign, pink and white balls, a bathtub with a
-	-- bear, a towel ladder, a stool with owls, plush cushions, two round lamps.
-	-- Its open sides follow a gentle curve (a low padded rim, walk-in).
+	-- bear, a towel ladder, the cafe's pot plant, plush cushions, two round
+	-- lamps. Its open sides follow a gentle curve: a tiled ledge (walk-in).
 	do
 		local PX0, PZ0 = IN_W + 0.1, NIN -- the studio's walls: the outer west wall (pink inside), the north liner
-		local PX1, PZ1 = 85.6, -88.1 -- its open sides (east, south)
+		local PX1, PZ1 = FIN1 - 1.5, -88.1 -- its open sides (east, south): out to the white pillar (user 2026-10-30)
 		local R = 13.9 -- the rounded corner between them
 		local CX, CZ = PX1 - R, PZ1 - R
-		local TOP = F + 0.9 -- the balls' surface
+		local TOP = F + 2.2 -- the balls' surface (just under the rim)
+		-- the rim: a chunky ledge in small pink mosaic tiles (user photo 2026-10-30)
+		local RIM_H, RIM_W = 2.8, 1.6
+		local MOSAIC = "rbxassetid://139383694604230" -- docs/04_ART/textures/ohu4cut_pink_mosaic.png
 		local MINT = Color3.fromRGB(150, 214, 200)
 		local BALL_IMG = "rbxassetid://118880934009851" -- docs/04_ART/textures/ohu4cut_ballpit.png
 		box("StudioWainscot", PX0, F, PZ0, FIN1 - 0.5, F + 4.5, PZ0 + 0.15, MINT, o)
@@ -7133,8 +7136,8 @@ do
 				s.CanQuery = false
 			end
 		end
-		-- the low padded rim along the open sides: straight, quarter curve, straight
-		local RIM = Color3.fromRGB(255, 214, 226)
+		-- the tiled rim along the open sides: straight, quarter curve, straight
+		local RIM = Color3.fromRGB(246, 196, 208) -- (the round joints between the tiled pieces)
 		local pts = { Vector3.new(PX1, 0, PZ0) }
 		for k = 0, 6 do
 			local ang = math.rad(90 * k / 6)
@@ -7144,11 +7147,18 @@ do
 		for i = 1, #pts - 1 do
 			local p0, p1 = pts[i], pts[i + 1]
 			local mid = (p0 + p1) / 2
-			local rim = part("PitRim", Vector3.new(0.8, 1.5, (p1 - p0).Magnitude), CFrame.lookAt(Vector3.new(mid.X, F + 0.75, mid.Z), Vector3.new(p1.X, F + 0.75, p1.Z)), RIM, opt({ material = Enum.Material.Fabric, nocol = true }))
+			local rim = part("PitRim", Vector3.new(RIM_W, RIM_H, (p1 - p0).Magnitude), CFrame.lookAt(Vector3.new(mid.X, F + RIM_H / 2, mid.Z), Vector3.new(p1.X, F + RIM_H / 2, p1.Z)), RIM, opt({ nocol = true }))
 			rim.CanQuery = false
-			if i > 1 and i < #pts - 1 then vcyl("PitRimJoint", Vector3.new(p0.X, F, p0.Z), 0.8, 1.5, RIM, opt({ material = Enum.Material.Fabric, nocol = true })) end
+			for _, face in ipairs({ Enum.NormalId.Left, Enum.NormalId.Right, Enum.NormalId.Top }) do
+				local tx = Instance.new("Texture")
+				tx.Face = face
+				tx.Texture = MOSAIC
+				tx.StudsPerTileU, tx.StudsPerTileV = 3, 3
+				tx.Parent = rim
+			end
+			if i > 1 and i < #pts - 1 then vcyl("PitRimJoint", Vector3.new(p0.X, F, p0.Z), RIM_W, RIM_H, RIM, opt({ nocol = true })) end
 		end
-		vcyl("PitRimJoint", Vector3.new(pts[#pts - 1].X, F, pts[#pts - 1].Z), 0.8, 1.5, RIM, opt({ material = Enum.Material.Fabric, nocol = true }))
+		vcyl("PitRimJoint", Vector3.new(pts[#pts - 1].X, F, pts[#pts - 1].Z), RIM_W, RIM_H, RIM, opt({ nocol = true }))
 		-- STUDIO in warm bulb letters on the north wall
 		do
 			local c = Vector3.new((PX0 + PX1) / 2, F + 13.5, PZ0 + 0.1)
@@ -7186,7 +7196,7 @@ do
 		end
 		-- bathtub (white, gold feet) with a bear in it
 		do
-			local tc = Vector3.new(PX0 + 13, F, PZ0 + 13)
+			local tc = Vector3.new(PX0 + 13, TOP - 1.3, PZ0 + 13) -- (sunk in the balls)
 			local outer = part("Bathtub", Vector3.new(6.6, 3.4, 3.4), CFrame.new(tc + Vector3.new(0, 1.9, 0)), Color3.fromRGB(250, 250, 250), opt({ shape = Enum.PartType.Cylinder, nocol = true }))
 			local top = part("TubCut", Vector3.new(8, 3, 5), CFrame.new(tc + Vector3.new(0, 1.9 + 0.75 + 1.5, 0)), WHITE_WALL, o)
 			local inner = part("TubCut", Vector3.new(6, 2.8, 2.8), CFrame.new(tc + Vector3.new(0, 2.2, 0)), WHITE_WALL, opt({ shape = Enum.PartType.Cylinder }))
@@ -7219,17 +7229,19 @@ do
 			end
 			part("Towel", Vector3.new(1.8, 3.2, 0.12), CFrame.new(lx, F + 9.5 * 4 / 6 - 1.5, foot + (top - foot) * 4 / 6 + 0.15), Color3.fromRGB(255, 196, 206), opt({ material = Enum.Material.Fabric, nocol = true }))
 		end
-		-- wooden stool with two owls
+		-- the cafe's pot plant on the balls (user 2026-10-30: was a stool with owls)
 		do
-			local sc = Vector3.new(PX0 + 3.5, F, PZ0 + 9)
-			vcyl("StoolSeat", sc + Vector3.new(0, 2.4, 0), 1.8, 0.3, Color3.fromRGB(196, 150, 100), opt({ material = Enum.Material.Wood, nocol = true }))
-			for k = 0, 2 do
-				local ang = math.rad(k * 120)
-				part("StoolLeg", Vector3.new(0.2, 2.5, 0.2), CFrame.new(sc + Vector3.new(math.cos(ang) * 0.6, 1.2, math.sin(ang) * 0.6)), Color3.fromRGB(180, 136, 90), opt({ material = Enum.Material.Wood, nocol = true }))
-			end
-			for _, dx in ipairs({ -0.4, 0.45 }) do
-				part("Owl", Vector3.new(0.9, 0.9, 0.9), CFrame.new(sc + Vector3.new(dx, 3.15, 0)), Color3.fromRGB(110, 80, 56), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
-				part("Owl", Vector3.new(0.7, 0.7, 0.7), CFrame.new(sc + Vector3.new(dx, 3.85, 0)), Color3.fromRGB(130, 96, 66), opt({ shape = Enum.PartType.Ball, material = Enum.Material.Fabric, nocol = true }))
+			local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+			local src = art and art:FindFirstChild("CafePotPlant")
+			if src and src:IsA("Model") then
+				local plant = src:Clone()
+				plant.Name = "StudioPlant"
+				plant:ScaleTo(plant:GetScale() * 0.7)
+				local cf, size = plant:GetBoundingBox()
+				local at = Vector3.new(PX0 + 3.5, TOP - 0.4 + size.Y / 2, PZ0 + 9)
+				plant:PivotTo(plant:GetPivot() + (at - cf.Position))
+				for _, d in ipairs(plant:GetDescendants()) do if d:IsA("BasePart") then d.Anchored = true d.CanCollide = false end end
+				plant.Parent = B
 			end
 		end
 		-- two big plush cushions with faces, lying on the balls

@@ -2541,3 +2541,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 포토월 둥근 사각형 + 흰 판 숨김(D-533): ![](images/2026-10-30/ohu4cut_photowall_roundrect.jpg)
 - 흰 조명 선 0.18 → 0.08(D-534): ![](images/2026-10-30/ohu4cut_thin_rims.jpg)
 - 곡선 벽 포토월(SHOP2, 보이는 판 없음), 사용 중 문구('아이디 님이 사진을 찍고 있어요'), 호스트 내보내기(대기·촬영 중, 두 번 누르기)(D-535). 내보내기는 2인 테스트 필요.
+- 볼풀 턱 높이·너비·모자이크 타일, 카페 화분(D-536): ![](images/2026-10-30/ohu4cut_ballpit_v2.jpg)
