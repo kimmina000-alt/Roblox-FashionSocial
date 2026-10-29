@@ -6814,19 +6814,23 @@ do
 			end
 		end
 		added(front)
-		-- photo set-up (user plan 2026-10-30): the machine against the east wall
-		-- looking west, the backdrop on the west wall; the camera ~20.6 from the
-		-- backdrop and the people 3.6 in front of it (the D-451 framing)
+		-- photo set-up (user plan docs/04_ART/references/ohu4cut_booth_plan_v4b.png,
+		-- 2026-10-30; the same in all three rooms, the door on the north wall near
+		-- the west side): the machine against the east wall a little south of the
+		-- middle (65% of the depth) looking west at the backdrop on the west wall;
+		-- the camera ~20.6 from the backdrop, the people 3.7 in front of it (the
+		-- D-451 framing)
 		local camP, stand, back = m:FindFirstChild("CameraPoint"), m:FindFirstChild("Stand"), m:FindFirstChild("Backdrop")
 		remember(camP) remember(stand) remember(back)
 		local camX = x1 - 2.75 -- (the 2.4 deep machine's back on the wall)
+		local camZ = z0 + dz * 0.65
 		if camP and camP:IsA("BasePart") then
-			local camPos = Vector3.new(camX, yF + 5.2, cz)
+			local camPos = Vector3.new(camX, yF + 5.2, camZ)
 			camP.CFrame = CFrame.lookAt(camPos, camPos + Vector3.new(-1, 0, 0))
 		end
 		if stand and stand:IsA("BasePart") then
-			local sp = Vector3.new(x0 + 3.7, stand.Position.Y, cz)
-			stand.Size = Vector3.new(dz - 3, stand.Size.Y, 7)
+			local sp = Vector3.new(x0 + 3.7, stand.Position.Y, camZ)
+			stand.Size = Vector3.new(12, stand.Size.Y, 7)
 			stand.CFrame = CFrame.lookAt(sp, sp + Vector3.new(1, 0, 0))
 		end
 		if back and back:IsA("BasePart") then
@@ -6847,14 +6851,15 @@ do
 			l.Parent = ce
 			added(l)
 		end
-		-- the inside, the same in all three rooms: plain walls in the room's
-		-- colour, two dome cameras; by the machine on the east wall a small table
-		-- for bags against the wall, a "don't forget your things" paper on the wall
-		-- over it, and the two step stools in front of it (out of the photo)
+		-- plain walls in the room's colour, two dome cameras
 		domeCam(m, Vector3.new(x0 + 1.2, yF + BH - 0.2, z0 + 1.2))
 		domeCam(m, Vector3.new(x1 - 1.2, yF + BH - 0.2, z1 - 1.2))
-		local tz = cz + 4.6
-		do -- the bag table: a white top on a slim black frame, against the wall
+		-- the two step stools that show in the photos, on the west side (38% / 78%)
+		stepStool(m, Vector3.new(x0 + 3, yF, z0 + dz * 0.38), math.rad(-8))
+		stepStool(m, Vector3.new(x0 + 3, yF, z0 + dz * 0.78), math.rad(6))
+		-- the bag table south of the machine, against the east wall
+		local tz = z0 + dz * 0.85
+		do -- a white top on a slim black frame
 			local tc = Vector3.new(x1 - 1.6, yF, tz)
 			added(part("BagTable", Vector3.new(3, 0.2, 3.2), CFrame.new(tc + Vector3.new(0, 3, 0)), Color3.fromRGB(250, 250, 250), { parent = m }))
 			for _, sx in ipairs({ -1, 1 }) do
@@ -6863,12 +6868,22 @@ do
 				end
 			end
 		end
-		local notice = part("BoothNotice", Vector3.new(0.06, 1.6, 2.4), CFrame.new(x1 - 0.14, yF + 7, tz), Color3.fromRGB(255, 240, 246), { parent = m, nocol = true })
-		added(notice)
-		txt(notice, Enum.NormalId.Left, "소지품을\n잊지 말고\n꼭 챙겨 가세요!", Color3.fromRGB(200, 70, 110), Enum.Font.GothamMedium, nil, 60)
-		stepStool(m, Vector3.new(x1 - 4.8, yF, tz - 0.6), math.rad(4))
-		stepStool(m, Vector3.new(x1 - 4.8, yF, tz + 2.4), math.rad(-6))
-		-- the WHITE room's way out: an arched door on its north wall (upstairs),
+		-- notices (the user's images, docs/04_ART/signs/booth_notice_*.png): lost
+		-- property low on the south wall's west part (the plan), no food on the
+		-- north wall by the door, props back in place over the bag table
+		local function notice(name: string, c: Vector3, out: Vector3, w: number, h: number, image: string)
+			local np = part(name, Vector3.new(w, h, 0.04), CFrame.lookAt(c, c + out), Color3.new(1, 1, 1), { parent = m, nocol = true })
+			np.CanQuery = false
+			np.CastShadow = false
+			local dcl = Instance.new("Decal")
+			dcl.Face = Enum.NormalId.Front
+			dcl.Texture = image
+			dcl.Parent = np
+			added(np)
+		end
+		notice("BoothNotice", Vector3.new(x0 + 6.5, yF + 4.6, z1 - 0.1), Vector3.new(0, 0, -1), 3, 2.1, "rbxassetid://138883528902216")
+		notice("BoothNoticeFood", Vector3.new(x0 + 15, yF + 6.5, z0 + 0.1), Vector3.new(0, 0, 1), 2.6, 2.1, "rbxassetid://78018379686965")
+		notice("BoothNoticeProps", Vector3.new(x1 - 0.1, yF + 7, tz), Vector3.new(-1, 0, 0), 2.6, 2.1, "rbxassetid://139036991327491")		-- the WHITE room's way out: an arched door on its north wall (upstairs),
 		-- where the other rooms have theirs
 		if key == "WHITE" then innerDoor(m, Vector3.new(x0 + 7.5, yF, z0), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), boothColor) end		return boothColor
 	end
