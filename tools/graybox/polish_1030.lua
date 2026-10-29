@@ -455,4 +455,90 @@ if store then
 	table.insert(log, "pizza front")
 end
 
+-- 10. OH24 made smaller (user plan 2026-10-30, docs/02_WORLDS/images/
+-- oh24_plan_user_1030.webp): the building stays, the store is only its
+-- north-east part, x -104.7..-56, z 66..145.7, closed off by two inner walls;
+-- the rest is unused (its outside will carry pictures). Inside, from the plan:
+-- the wall fridges along the new west wall, three gondolas, the counter as an
+-- L south of the east door, the window bar / deck in the north-east corner as
+-- before. The north door is gone (glass), the east door is the store's door.
+if store then
+	local WX, SZ = -104.7, 145.7 -- the store's new west and south inner faces
+	local WHITE_IN = Color3.fromRGB(246, 246, 244)
+	local function inStore(p: Vector3): boolean return p.X > WX and p.Z < SZ end
+	-- inner walls (to the ceiling)
+	part("InnerWall", Vector3.new(0.6, 20.1, SZ - 66 + 0.6), CFrame.new(WX - 0.3, 0.6 + 10.05, (66 + SZ + 0.6) / 2), WHITE_IN, store, { collide = true })
+	part("InnerWall", Vector3.new(-56.2 - (WX - 0.6), 20.1, 0.6), CFrame.new((WX - 0.6 - 56.2) / 2, 0.6 + 10.05, SZ + 0.3), WHITE_IN, store, { collide = true })
+	-- wall fridges: the west wall's run moved onto the new wall, z 80..128 only
+	local CDX = WX - (-134.4)
+	local CZ1 = 128
+	for _, d in ipairs(store:GetChildren()) do
+		if d:IsA("BasePart") and (d.Name:match("^Cold") or (d.Name == "ShelfRow" and d.Position.X < -130)) then
+			local long = d.Size.Z > 50
+			if long then
+				local z0 = d.Position.Z - d.Size.Z / 2
+				d.Size = Vector3.new(d.Size.X, d.Size.Y, CZ1 - z0 - (if d.Name == "ColdInner" then 0.3 else 0))
+				d.CFrame = d.CFrame.Rotation + Vector3.new(d.Position.X + CDX, d.Position.Y, z0 + d.Size.Z / 2)
+			elseif d.Position.Z > CZ1 - 0.5 then
+				d:Destroy()
+			else
+				d.CFrame = d.CFrame + Vector3.new(CDX, 0, 0)
+			end
+		end
+	end
+	-- gondolas: three moved in (with the goods standing on them), the fourth gone
+	local GO = { Gondola1 = Vector3.new(-93.6, 0, 89), Gondola2 = Vector3.new(-93.6, 0, 111.5), Gondola3 = Vector3.new(-76.5, 0, 112) }
+	for i = 1, 4 do
+		local g = store:FindFirstChild("Gondola" .. i)
+		if g then
+			local c, s = g:GetBoundingBox()
+			local goods = {}
+			for _, d in ipairs(store:GetChildren()) do
+				if d:IsA("BasePart") and d.Name == "ShelfRow" and math.abs(d.Position.X - c.X) < s.X / 2 + 0.6 and math.abs(d.Position.Z - c.Z) < s.Z / 2 + 0.6 then table.insert(goods, d) end
+			end
+			local to = GO[g.Name]
+			if to then
+				local delta = Vector3.new(to.X - c.X, 0, to.Z - c.Z)
+				g:PivotTo(g:GetPivot() + delta)
+				for _, d in ipairs(goods) do d.CFrame = d.CFrame + delta end
+			else
+				g:Destroy()
+				for _, d in ipairs(goods) do d:Destroy() end
+			end
+		end
+	end
+	-- the counter: its L moved to just south of the east door, the bar cut at
+	-- the new west wall (east end -76 → -64.8, front z 190 → 131)
+	local CD = Vector3.new(11.2, 0, -59)
+	local reg = store:FindFirstChild("Register37")
+	if reg then reg:PivotTo(reg:GetPivot() + CD) end
+	for _, d in ipairs(store:GetChildren()) do
+		if d:IsA("BasePart") and (d.Name:match("^Counter") or d.Name == "PosBase" or d.Name == "Scanner" or d.Name == "CardTerminal" or d.Name == "CustomerScreen") and d.Position.Z > 185 then
+			d.CFrame = d.CFrame + CD
+			local x0, x1 = d.Position.X - d.Size.X / 2, d.Position.X + d.Size.X / 2
+			if x0 < WX then
+				d.Size = Vector3.new(x1 - WX, d.Size.Y, d.Size.Z)
+				d.CFrame = d.CFrame.Rotation + Vector3.new((WX + x1) / 2, d.Position.Y, d.Position.Z)
+			end
+		end
+	end
+	-- the north door: closed off with glass like the rest of the front
+	for _, d in ipairs(store:GetChildren()) do
+		local p = if d:IsA("Model") then d:GetPivot().Position elseif d:IsA("BasePart") then d.Position else nil
+		if p and p.Z < 70 and (d.Name == "AutoDoor" or d.Name == "DoorHead" or d.Name == "ClosedNote") then d:Destroy() end
+	end
+	part("FrontGlass", Vector3.new(8.8, 18.6, 0.2), CFrame.new(-102, 10.5, 65.9), Color3.fromRGB(200, 225, 230), store, { material = Enum.Material.Glass, t = 0.6, collide = true })
+	part("Kickplate", Vector3.new(8.8, 0.6, 0.25), CFrame.new(-102, 0.9, 65.875), Color3.fromRGB(150, 150, 155), store, { material = Enum.Material.Metal, collide = true })
+	-- everything else left in the unused part goes (it is behind the walls)
+	local n = 0
+	for _, d in ipairs(store:GetChildren()) do
+		local p = if d:IsA("Model") then d:GetPivot().Position elseif d:IsA("BasePart") then d.Position else nil
+		local keep = { StoreFloor = true, Ceiling = true, Roof = true, WallW = true, WallBack = true, InnerWall = true, PizzaFront = true, OH24FrontStack = true, CeilingGrid = true, LEDStrip = true,
+			FrontGlass = true, Kickplate = true, Mullion = true, GlassHead = true, FacadePier = true, OuterBack = true, LightBar = true, LightBarBase = true, Fascia = true, Awning = true,
+			AwningEdge = true, Logo = true, FrontStep = true, GlassMark = true, GlassLettering = true, GlassPoster = true, GlassSticker = true, GlassBanner = true, StoreLabelAnchor = true, DoorHead = true, AutoDoor = true, ClosedNote = true }
+		if p and not keep[d.Name] and not inStore(p) and p.Y < 21 then d:Destroy() n += 1 end
+	end
+	table.insert(log, "OH24 smaller, removed " .. n)
+end
+
 return table.concat(log, " | ")
