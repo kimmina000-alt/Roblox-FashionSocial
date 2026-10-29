@@ -7274,15 +7274,16 @@ do
 	-- eighth of their size apart (balls shade perfectly round); a flat back board,
 	-- and the live mirror (MirrorController) as a rectangle inside the tube.
 	do
-		local C, AMP, LAM, HALF = 1.75, 0.3, 2.1, 4.5 -- the tube's centre line: half width, wave, wavelength, half height
-		local D = 1.5 -- the tube's thickness
+		local MS = 1.3 -- (1.3x, user 2026-10-30)
+		local C, AMP, LAM, HALF = 1.75 * MS, 0.3 * MS, 2.1 * MS, 4.5 * MS -- the tube's centre line: half width, wave, wavelength, half height
+		local D = 1.5 * MS -- the tube's thickness
 		local COL = Color3.fromRGB(246, 238, 226) -- ivory
 		local TILT = math.rad(8)
 		local function hw(v: number): number
 			local t = math.abs(v) / HALF
 			return (C + AMP * math.cos(2 * math.pi * v / LAM)) * math.max(0, 1 - t ^ 10) ^ 0.25
 		end
-		local wallX, zc = IN_W + 0.1, -83.8 -- the pink liner's face, south of the ball pit
+		local wallX, zc = IN_W + 0.1, -83.2 -- the pink liner's face, south of the ball pit (clear of its ledge at 1.3x)
 		local H = 2 * HALF + D
 		local up = Vector3.new(-math.sin(TILT), math.cos(TILT), 0) -- leaning back onto the wall (-x)
 		local right = Vector3.new(0, 0, 1)

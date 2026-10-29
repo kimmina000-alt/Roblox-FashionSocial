@@ -55,6 +55,12 @@ PhotoConfig.Frames = {
 	{ key = "mint", name = "민트", color = Color3.fromRGB(150, 230, 200), text = Color3.fromRGB(30, 60, 50), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "lemon", name = "레몬", color = Color3.fromRGB(255, 235, 140), text = Color3.fromRGB(80, 60, 20), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "lilac", name = "라일락", color = Color3.fromRGB(200, 170, 255), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	-- (ten pastels, user 2026-10-30)
+	{ key = "peach", name = "피치", color = Color3.fromRGB(255, 200, 170), text = Color3.fromRGB(110, 60, 40), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	{ key = "coral", name = "코랄", color = Color3.fromRGB(255, 165, 160), text = Color3.new(1, 1, 1), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	{ key = "sage", name = "세이지", color = Color3.fromRGB(185, 215, 175), text = Color3.fromRGB(50, 70, 45), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	{ key = "aqua", name = "아쿠아", color = Color3.fromRGB(160, 228, 235), text = Color3.fromRGB(30, 70, 80), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	{ key = "cream", name = "크림", color = Color3.fromRGB(248, 236, 210), text = Color3.fromRGB(110, 90, 60), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "neon", name = "글로시 네온", color = Color3.fromRGB(40, 10, 60), text = Color3.fromRGB(255, 80, 200), tab = "특별한", price = "pass", style = "gloss" },
 	{ key = "gloss_pink", name = "글로시 핑크", color = Color3.fromRGB(255, 110, 175), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "gloss" },
 	{ key = "gold", name = "반짝이 골드", color = Color3.fromRGB(212, 175, 55), text = Color3.fromRGB(40, 30, 10), tab = "특별한", price = "pass", style = "glitter" },

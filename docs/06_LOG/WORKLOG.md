@@ -2556,3 +2556,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-547: 거울 ![](images/2026-10-30/ohu4cut_soft_mirror.jpg) 볼풀 인형 ![](images/2026-10-30/ohu4cut_pit_plush.jpg)
 - D-548: 인형 ![](images/2026-10-30/ohu4cut_pit_plush_v2.jpg) 사진 고르기 ![](images/2026-10-30/photo_ui_pick.jpg) 프레임 ![](images/2026-10-30/photo_ui_frame.jpg) 장수 ![](images/2026-10-30/photo_ui_copies.jpg) 저장 완료 ![](images/2026-10-30/photo_ui_saved.jpg) 내 앨범 ![](images/2026-10-30/photo_ui_album.jpg) 삭제 확인 ![](images/2026-10-30/photo_ui_confirm.jpg)
 - D-549: 촬영 중 UI 통일 ![](images/2026-10-30/photo_ui_shoot_dark.jpg)
+- D-550: 파스텔 10종 ![](images/2026-10-30/photo_frames_pastel10.jpg) 특별한 프레임 반짝임 ![](images/2026-10-30/photo_frames_special_shine.jpg)

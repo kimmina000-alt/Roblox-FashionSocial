@@ -1005,7 +1005,7 @@ local function layoutPick()
 		local grid = list and list:FindFirstChildOfClass("UIGridLayout")
 		if grid then
 			local w, h = bw - 24, bh - areaTop - 62 - 40
-			grid.CellSize = UDim2.fromOffset(math.floor((w - 6 - 4 * 8) / 5), math.max(60, h - 4))
+			grid.CellSize = UDim2.fromOffset(math.floor((w - 6 - 8 - 4 * 8) / 5), math.max(60, h - 18))
 		end
 		return
 	end
@@ -1188,6 +1188,8 @@ local swatches = create("ScrollingFrame", {
 	ZIndex = 12,
 }, frameArea)
 create("UIGridLayout", { CellSize = UDim2.fromOffset(84, 70), CellPadding = UDim2.fromOffset(8, 8), SortOrder = Enum.SortOrder.LayoutOrder }, swatches)
+-- (room round the cards so the chosen one's pink edge clears the tabs, user 2026-10-30)
+create("UIPadding", { PaddingTop = UDim.new(0, 6), PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4), PaddingBottom = UDim.new(0, 4) }, swatches)
 -- frame previews built for the open tab (key → its stroke), so picking one
 -- only moves the highlight
 local frameCards: {[string]: UIStroke} = {}

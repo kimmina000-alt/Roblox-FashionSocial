@@ -246,47 +246,73 @@ local SPARKLES = {
 	{0.96, 0.7}, {0.08, 0.95}, {0.35, 0.985}, {0.7, 0.975}, {0.95, 0.93}, {0.22, 0.02},
 	{0.78, 0.015}, {0.02, 0.48}, {0.98, 0.18}, {0.6, 0.995},
 }
+-- Glossy / glitter frames (user 2026-10-30: no pattern, the plain frame colour
+-- with a real shimmer): a soft band of light sweeps across the frame (behind
+-- the photos: ZIndex 0 among the strip's children); glitter frames add tiny
+-- dots that twinkle. One Heartbeat drives every shimmer on screen.
+local shines: {[UIGradient]: number} = setmetatable({}, { __mode = "k" }) :: any
+local twinkles: {[Frame]: {number}} = setmetatable({}, { __mode = "k" }) :: any
+game:GetService("RunService").Heartbeat:Connect(function()
+	local t = os.clock()
+	for g, phase in pairs(shines) do
+		if g.Parent then g.Offset = Vector2.new(((t * 0.45 + phase) % 2.6) - 1.3, 0) end
+	end
+	for dot, spec in pairs(twinkles) do
+		if dot.Parent then dot.BackgroundTransparency = 0.15 + 0.85 * math.abs(math.sin(t * spec[1] + spec[2])) ^ 3 end
+	end
+end)
 local function applyStyle(strip: Frame, info: any)
 	local old = strip:FindFirstChild("Deco")
 	if old then old:Destroy() end
-	local gradient = strip:FindFirstChild("Gloss")
-	if gradient then gradient:Destroy() end
 	if not info or info.style == "solid" or info.style == nil then return end
-	local deco = Instance.new("Folder")
+	local deco = Instance.new("Frame")
 	deco.Name = "Deco"
+	deco.Size = UDim2.fromScale(1, 1)
+	deco.BackgroundTransparency = 1
+	deco.ClipsDescendants = true
+	deco.ZIndex = 1
 	deco.Parent = strip
-	if info.style == "gloss" then
-		local shine = Instance.new("UIGradient")
-		shine.Name = "Gloss"
-		shine.Rotation = 35
-		shine.Color = ColorSequence.new({
-			ColorSequenceKeypoint.new(0, Color3.new(1, 1, 1)),
-			ColorSequenceKeypoint.new(0.18, Color3.new(1, 1, 1):Lerp(info.color, 0.55)),
-			ColorSequenceKeypoint.new(0.5, info.color),
-			ColorSequenceKeypoint.new(0.82, Color3.new(1, 1, 1):Lerp(info.color, 0.6)),
-			ColorSequenceKeypoint.new(1, info.color),
-		})
-		shine.Parent = strip
-	elseif info.style == "glitter" then
-		for index, at in ipairs(SPARKLES) do
-			local star = Instance.new("TextLabel")
-			star.Name = "Sparkle"
-			star.BackgroundTransparency = 1
-			star.AnchorPoint = Vector2.new(0.5, 0.5)
-			star.Position = UDim2.fromScale(at[1], at[2])
-			star.Size = UDim2.fromScale(0.09, 0.09)
-			star.SizeConstraint = Enum.SizeConstraint.RelativeXX
-			star.Text = if index % 3 == 0 then "✧" else "✦"
-			star.TextScaled = true
-			star.TextColor3 = Color3.new(1, 1, 1)
-			star.TextTransparency = (index % 4) * 0.12
-			star.Font = Enum.Font.GothamBlack
-			star.ZIndex = strip.ZIndex + 2
-			star.Parent = deco
+	-- the light sweep
+	local band = Instance.new("Frame")
+	band.Name = "Shine"
+	band.Size = UDim2.fromScale(1, 1)
+	band.BackgroundColor3 = Color3.new(1, 1, 1)
+	band.BackgroundTransparency = 0
+	band.BorderSizePixel = 0
+	band.ZIndex = 0
+	band.Parent = deco
+	local g = Instance.new("UIGradient")
+	g.Rotation = 25
+	g.Transparency = NumberSequence.new({
+		NumberSequenceKeypoint.new(0, 1),
+		NumberSequenceKeypoint.new(0.4, 1),
+		NumberSequenceKeypoint.new(0.5, if info.style == "gloss" then 0.35 else 0.5),
+		NumberSequenceKeypoint.new(0.6, 1),
+		NumberSequenceKeypoint.new(1, 1),
+	})
+	g.Parent = band
+	shines[g] = math.random() * 2.6
+	if info.style == "glitter" then
+		local rng = Random.new(#strip:GetFullName())
+		for _ = 1, 28 do
+			local dot = Instance.new("Frame")
+			dot.Name = "Glint"
+			dot.AnchorPoint = Vector2.new(0.5, 0.5)
+			dot.Position = UDim2.fromScale(rng:NextNumber(0.02, 0.98), rng:NextNumber(0.01, 0.99))
+			local size = rng:NextNumber(0.025, 0.05)
+			dot.Size = UDim2.fromScale(size, size)
+			dot.SizeConstraint = Enum.SizeConstraint.RelativeXX
+			dot.BackgroundColor3 = Color3.new(1, 1, 1)
+			dot.BorderSizePixel = 0
+			dot.ZIndex = 0
+			dot.Parent = deco
+			local c = Instance.new("UICorner")
+			c.CornerRadius = UDim.new(1, 0)
+			c.Parent = dot
+			twinkles[dot] = { rng:NextNumber(1.5, 3.5), rng:NextNumber(0, 6.3) }
 		end
 	end
 end
-
 -- Builds an empty strip (frame colour, cells, footer) inside `parent`,
 -- sized by the parent's height. Cells are filled with fillStrip.
 function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: string, footer: string?): Strip
@@ -314,6 +340,7 @@ function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: st
 			cell.BackgroundColor3 = Color3.fromRGB(60, 60, 66)
 			cell.Position = UDim2.fromScale((gap + col * (cellW + gap)) / totalW, (gap + row * (cellH + gap)) / totalH)
 			cell.Size = UDim2.fromScale(cellW / totalW, cellH / totalH)
+			cell.ZIndex = 2 -- (over the frame's shimmer)
 			cell.Parent = strip
 			table.insert(cells, cell)
 		end
@@ -327,6 +354,7 @@ function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: st
 	label.TextScaled = true
 	label.Font = Enum.Font.GothamBlack
 	label.TextColor3 = frameInfo.text
+	label.ZIndex = 2
 	label.Parent = strip
 	local sizeLimit = Instance.new("UITextSizeConstraint")
 	sizeLimit.MaxTextSize = 22
