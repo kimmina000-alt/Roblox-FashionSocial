@@ -6291,8 +6291,10 @@ do
 	for _, fx in ipairs({ FIN1, FIN2 }) do
 		box("PhotoFin", fx - 1.5, F, NIN, fx + 1.5, GF - 0.4, NFACE + 2.5, WHITE_WALL, PLASTER)
 	end
-	-- the west wall is plain now (its niches moved to the north wall)
-	box("PinkWallW", IN_W, F, NIN, IN_W + PW, GF - 0.4, WBAY - PW, PINK_WALL, PLASTER)
+	-- the west wall: the thick pink wall (built for the niches, now on the north
+	-- wall) and its slanted end are gone, user 2026-10-30; only the outer wall,
+	-- painted pink inside
+	box("WallPink", IN_W, F, NIN, IN_W + 0.1, GF - 0.4, WBAY, PINK_WALL, PLASTER)
 
 	---------------------------------------------------------------- north wall: photo wall + props niches
 	local PHOTO_X = (FIN1 + FIN2) / 2
@@ -6438,7 +6440,6 @@ do
 			w.Parent = B
 		end
 		wedgeTri("PinkWallEnd", Vector3.new(SBAY, 0, SZ1), Vector3.new(SBAY + PW, 0, SZ1), Vector3.new(SBAY + PW, 0, SZ0))
-		wedgeTri("PinkWallEnd", Vector3.new(W0 + 1, 0, WBAY), Vector3.new(W0 + 1, 0, WBAY - PW), Vector3.new(W0 + 1 + PW, 0, WBAY - PW))
 		local wall = box("PinkWallS", SBAY + PW, F, SZ0, CURVE_A.X, GF - 0.4, SZ1, PINK_WALL, PLASTER)
 		-- pink above the glass bays inside
 		box("WallPink", W0 + CH, F + 11.4 * SC, S0 - 1.1, SBAY, GF - 0.4, S0 - 1, PINK_WALL, PLASTER)
@@ -7008,7 +7009,7 @@ do
 	-- bear, a towel ladder, a stool with owls, plush cushions, two round lamps.
 	-- Its open sides follow a gentle curve (a low padded rim, walk-in).
 	do
-		local PX0, PZ0 = IN_W + PW, NIN -- the studio's walls: the west wall's face, the north liner
+		local PX0, PZ0 = IN_W + 0.1, NIN -- the studio's walls: the outer west wall (pink inside), the north liner
 		local PX1, PZ1 = 85.6, -88.1 -- its open sides (east, south)
 		local R = 13.9 -- the rounded corner between them
 		local CX, CZ = PX1 - R, PZ1 - R
