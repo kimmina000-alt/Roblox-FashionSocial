@@ -1774,7 +1774,7 @@ boothEvent.OnClientEvent:Connect(function(kind: any, value: any)
 end)
 
 ProximityPromptService.PromptTriggered:Connect(function(prompt)
-	-- (the prompts sit on the photo machine inside the booth, or on its Stand)
+	-- (the prompts sit at the booth's door in the lobby, on its photo machine, or on its Stand)
 	local booth: Instance? = prompt.Parent
 	while booth and not (booth:IsA("Model") and CollectionService:HasTag(booth, "PhotoBooth")) do booth = booth.Parent end
 	if not booth or not booth:IsA("Model") then return end

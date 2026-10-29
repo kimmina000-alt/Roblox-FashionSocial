@@ -319,9 +319,12 @@ do
 			tbl.Size = Vector3.new(tbl.Size.X, TR * 2, TR * 2)
 			c = Vector3.new(tbl.Position.X, 0, tbl.Position.Z)
 		end
-		-- keep -60..60 and 120..240 degrees (was -75..75 / 105..255)
+		-- keep -60..60 and 120..240 degrees (was -75..75 / 105..255), measured
+		-- from the bench's turn (BenchTurn, user 2026-10-30: turned 30°)
+		local turn = shop:GetAttribute("BenchTurn") or 0
 		local function keep(p)
-			local a = math.deg(math.atan2(p.Z - c.Z, p.X - c.X))
+			local a = math.deg(math.atan2(p.Z - c.Z, p.X - c.X)) - turn
+			if a < -180 then a += 360 end
 			if a < -90 then a += 360 end
 			return (a > -60 and a < 60) or (a > 120 and a < 240)
 		end

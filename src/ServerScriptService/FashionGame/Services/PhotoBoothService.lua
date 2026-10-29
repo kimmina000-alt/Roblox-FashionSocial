@@ -96,10 +96,13 @@ local function part(booth: Model, name: string): BasePart?
 	return if found and found:IsA("BasePart") then found else nil
 end
 
--- Where the booth's prompts sit: an attachment just in front of the photo
--- machine's body inside the booth (layout script; in front, so the machine's
--- face panels do not block the line of sight), else the Stand.
+-- Where the booth's prompts sit: at the booth's door in the lobby (user
+-- 2026-10-30: "사진 찍기" in front of each door, starting takes you inside;
+-- layout script part EntrancePrompt), else an attachment just in front of the
+-- photo machine's body inside the booth, else the Stand.
 local function promptHolder(booth: Model): (Instance?, boolean)
+	local entrance = booth:FindFirstChild("EntrancePrompt")
+	if entrance and entrance:IsA("BasePart") then return entrance, false end
 	local machine = booth:FindFirstChild("PhotoMachine")
 	local body = machine and machine:FindFirstChild("MachineBody")
 	if body and body:IsA("BasePart") then
@@ -228,9 +231,6 @@ local function publish(session: Session?, booth: Model)
 		local start = holder:FindFirstChild("PhotoPrompt") :: ProximityPrompt?
 		local join = holder:FindFirstChild("JoinPrompt") :: ProximityPrompt?
 		if start then start.Enabled = session == nil end
-		local entrance = part(booth, "EntrancePrompt")
-		local outside = entrance and entrance:FindFirstChild("PhotoPrompt") :: ProximityPrompt?
-		if outside then outside.Enabled = session == nil end
 		if join then
 			join.Enabled = session ~= nil and session.phase == "waiting" and session.mode ~= "solo"
 				and #session.people < PhotoConfig.MaxPeople
@@ -1069,6 +1069,8 @@ local function setupBooth(booth: Instance)
 	-- machine is just behind the wall.
 	local holder, onMachine = promptHolder(booth)
 	local distance, sight = if onMachine then 10 else 14, onMachine
+	-- (at the door in the lobby: a little shorter reach, no line of sight)
+	if holder and holder.Name == "EntrancePrompt" then distance = ENTRANCE_DISTANCE - 2 end
 	if not holder or holder:FindFirstChild("PhotoPrompt") then return end
 	local start = Instance.new("ProximityPrompt")
 	start.Name = "PhotoPrompt"
@@ -1086,17 +1088,6 @@ local function setupBooth(booth: Instance)
 	joinPrompt.RequiresLineOfSight = sight
 	joinPrompt.Enabled = false
 	joinPrompt.Parent = holder
-	-- (user 2026-10-30) the same "사진 찍기" at the booth's entrance in the lobby
-	local entrance = part(booth, "EntrancePrompt")
-	if entrance and not entrance:FindFirstChild("PhotoPrompt") then
-		local outside = Instance.new("ProximityPrompt")
-		outside.Name = "PhotoPrompt"
-		outside.ActionText = "사진 찍기"
-		outside.ObjectText = tostring(booth:GetAttribute("BoothName") or "인생네컷")
-		outside.MaxActivationDistance = ENTRANCE_DISTANCE - 2
-		outside.RequiresLineOfSight = false
-		outside.Parent = entrance
-	end
 	-- All prompts are handled by the client (setup window / join request).
 	publish(nil, booth)
 end

@@ -2528,3 +2528,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 해변 접이식 의자가 옆을 보고 있던 것을 바다 쪽으로 돌림(D-527): ![](images/2026-10-30/beach_chair_faces_sea.jpg)
 - 오후네컷 바닥 팔각 타일 + 아치 문 흰 주름 커튼(D-528): ![](images/2026-10-30/ohu4cut_tiles_curtains.jpg)
 - 아치 커튼 = 주름 그림 한 장(파츠 33 → 3), 바닥 이음매 맞춤(D-529): ![](images/2026-10-30/ohu4cut_curtain_image.jpg) 위에서 본 배치도: ![](images/2026-10-30/ohu4cut_plan_topdown.jpg)
+
+## 2026-10-30 — 오후네컷 실내 v3 (D-530)
+- 사용자 배치도대로: 볼풀 스튜디오, 아치형 포토월, 소지품 칸 이동, 의자 회전, S자 곡선 벽, 스카이·핑크 룸 + 화이트 룸 2층, 부스 내부는 사진처럼.
+- 위에서 본 배치: ![](images/2026-10-30/ohu4cut_v3_plan.jpg)
+- 부스 문(사진 찍기는 문 앞에서): ![](images/2026-10-30/ohu4cut_v3_doors.jpg)
+- 스카이 룸 안: ![](images/2026-10-30/ohu4cut_v3_sky_inside.jpg) 화이트 룸(2층): ![](images/2026-10-30/ohu4cut_v3_white_2f.jpg)
+- 볼풀 스튜디오: ![](images/2026-10-30/ohu4cut_v3_ballpit.jpg) 포토월·소지품 칸: ![](images/2026-10-30/ohu4cut_v3_north_wall.jpg)
+- 테스트(Play): 문·볼풀·복도 걸어 들어감, 곡선 벽은 막힘, 화이트 문 앞 → 2층 촬영 자리, 나가기 → 1층 문 앞.
