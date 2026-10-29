@@ -4,7 +4,7 @@
 -- "Running") is one plastic loop for every floor, sped up and slowed down
 -- with the walk speed. Since 2026-10-30 it plays on every floor except sand;
 -- on sand it is muted and every character near the camera makes one sand
--- step per stride instead. Walking (16, or slower with the phone stick half tilted) = soft
+-- step per stride instead (and on grass since 2026-10-30). Walking (16, or slower with the phone stick half tilted) = soft
 -- steps, running (SprintController, 26) = heavier, quicker steps. Landing from a jump plays a firmer step. Jumping,
 -- falling, climbing and swimming keep Roblox's own sounds.
 -- Sound list: docs/04_ART/SOUNDS.md.
@@ -18,9 +18,14 @@ local RunService = game:GetService("RunService")
 -- sand is played here and the "Running" loop is muted on sand only)
 local SETS: {[string]: { ids: {string}, volume: number }} = {
 	sand = { volume = 0.55, ids = { "rbxassetid://98912102275037" } }, -- "Sand Footstep" (Creator Store)
+	-- (user 2026-10-30: walking on the lawns brushes through the grass)
+	-- "footstep grass 1..4" (Creator Store, Robloxmastermanyay)
+	grass = { volume = 0.6, ids = { "rbxassetid://129956418693357", "rbxassetid://78534941650081", "rbxassetid://110522236020035", "rbxassetid://135037154891351" } },
 }
 local SURFACE: {[Enum.Material]: string} = {
 	[Enum.Material.Sand] = "sand",
+	[Enum.Material.Grass] = "grass",
+	[Enum.Material.LeafyGrass] = "grass",
 }
 local NEAR = 60
 local STRIDE = 5.2 -- studs a step (full speed 16 → about 3 steps a second)

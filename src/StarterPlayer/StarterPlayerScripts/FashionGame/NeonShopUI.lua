@@ -344,7 +344,9 @@ function NeonShopUI.drinkCard(parent: Instance, order: number, name: string, col
 end
 
 -- One item card (list): picture tile, name, one line, prices, 구매하기.
-function NeonShopUI.itemCard(parent: Instance, order: number, emoji: string, tint: Color3, name: string, line: string, price: string, vipPrice: string?, buttonText: string, accent: Color3, onClick: () -> ())
+-- `preview` (user 2026-10-30): the real item (FashionGame.ItemPreviews) in a
+-- 3D window instead of the emoji.
+function NeonShopUI.itemCard(parent: Instance, order: number, emoji: string, tint: Color3, name: string, line: string, price: string, vipPrice: string?, buttonText: string, accent: Color3, onClick: () -> (), preview: Model?)
 	local card = create("Frame", { Name = "Item_" .. order, LayoutOrder = order, Size = UDim2.new(1, -4, 0, 104), BackgroundColor3 = CARD, ZIndex = 12 }, parent)
 	corner(card, 14)
 	stroke(card, Color3.fromRGB(70, 90, 150), 1.2, 0.4)
@@ -362,6 +364,30 @@ function NeonShopUI.itemCard(parent: Instance, order: number, emoji: string, tin
 	stroke(tile, tint:Lerp(Color3.new(1, 1, 1), 0.3), 1.2, 0.2)
 	create("UIGradient", { Color = ColorSequence.new(tint:Lerp(Color3.new(1, 1, 1), 0.25), tint:Lerp(NAVY, 0.6)), Rotation = 90 }, tile)
 	create("UIPadding", { PaddingTop = UDim.new(0, 16), PaddingBottom = UDim.new(0, 16) }, tile)
+	if preview then
+		tile.Text = ""
+		local vp = create("ViewportFrame", {
+			Name = "Item",
+			Position = UDim2.fromOffset(8, 8),
+			Size = UDim2.fromOffset(88, 88),
+			BackgroundTransparency = 1,
+			Ambient = Color3.fromRGB(190, 190, 205),
+			LightColor = Color3.new(1, 1, 1),
+			LightDirection = Vector3.new(-0.4, -0.6, -1),
+			ZIndex = 14,
+		}, card)
+		local world = Instance.new("WorldModel")
+		world.Parent = vp
+		local m = preview:Clone()
+		m.Parent = world
+		local cf, sz = m:GetBoundingBox()
+		local cam = Instance.new("Camera")
+		cam.FieldOfView = 30
+		local dist = math.max(sz.X, sz.Y, sz.Z) / 2 / math.tan(math.rad(15)) * 1.2
+		cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(dist * 0.25, dist * 0.2, -dist), cf.Position)
+		cam.Parent = vp
+		vp.CurrentCamera = cam
+	end
 	label(card, { Name = "Name", Position = UDim2.fromOffset(106, 10), Size = UDim2.new(1, -230, 0, 22), Text = name })
 	label(card, { Name = "Line", Position = UDim2.fromOffset(106, 36), Size = UDim2.new(1, -230, 0, 30), Text = line, TextColor3 = SUB, Font = Enum.Font.GothamMedium, TextWrapped = true })
 	label(card, { Name = "Price", Position = UDim2.fromOffset(106, 72), Size = UDim2.fromOffset(76, 22), Text = price, TextColor3 = accent })

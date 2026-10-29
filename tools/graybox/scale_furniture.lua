@@ -54,7 +54,10 @@ for _, set in ipairs(SETS) do
 	for _, n in ipairs(set.names) do wanted[n] = true end
 	local parts = {}
 	for _, d in ipairs(root:GetDescendants()) do
-		if d:IsA("BasePart") and wanted[d.Name] and not d:GetAttribute("FurnScaled") then
+		-- (not the club bar stool copies of polish_1029: they are made at their
+		-- size, and their legs are also called "Leg", user 2026-10-30)
+		if d:IsA("BasePart") and wanted[d.Name] and not d:GetAttribute("FurnScaled")
+			and not d:FindFirstAncestor("ClubStool") and not d:FindFirstAncestor("BarStoolOHU") then
 			local lo, hi = aabb(d)
 			table.insert(parts, { p = d, lo = lo, hi = hi })
 		end

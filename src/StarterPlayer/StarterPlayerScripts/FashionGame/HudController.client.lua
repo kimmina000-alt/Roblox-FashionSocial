@@ -95,6 +95,8 @@ home.MouseButton1Click:Connect(function()
 		task.wait(0.15)
 		humanoid.Sit = false
 	end
+	-- (no sweep sound for 🏠, user 2026-10-30: SfxController skips this jump)
+	player:SetAttribute("QuietJumpAt", os.clock())
 	character:PivotTo(target)
 	toast("처음 장소로 돌아왔어요.")
 end)

@@ -5,7 +5,9 @@
 --   clubStrip  the strip above the club LED wall: the supporter ranking
 --              scrolls by; a new gift shows "○○님 후원 감사합니다!" for a while
 --   todayBand  the corner screen on the tower over OH24: the latest supporters (avatar, amount, message) run along it (D-294)
---   support / spend / playtime   the three boards in the pocket park: top 10
+--   support / level   the two boards in the park (user 2026-10-30): 기부 순위표
+--              and 레벨 순위표, top 50 each, on a see-through LED pane with a
+--              neon edge; the list scrolls by itself (and by hand)
 
 local Players = game:GetService("Players")
 local CollectionService = game:GetService("CollectionService")
@@ -18,10 +20,8 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubNotify = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubNotify") :: RemoteEvent
 
 local TITLES = {
-	support = "💝 후원 순위",
-	spend = "👑 큰손 순위",
-	playtime = "⏱ 플레이 시간 순위",
-	today = "오늘의 큰손",
+	support = { "💝", "기부 순위표", "상위 50 플레이어" },
+	level = { "⭐", "레벨 순위표", "상위 50 플레이어" },
 }
 local GOLD = Color3.fromRGB(255, 214, 110)
 local PINK = Color3.fromRGB(255, 110, 180)
@@ -40,11 +40,14 @@ end
 
 local function valueText(board: string, value: any): string
 	if typeof(value) ~= "number" then return "" end
+	-- 1234567 → "1,234,567"
+	local digits = tostring(math.floor(value))
+	local grouped = string.reverse((string.gsub(string.reverse(digits), "(%d%d%d)", "%1,")))
+	if string.sub(grouped, 1, 1) == "," then grouped = string.sub(grouped, 2) end
 	if board == "support" then
-		return string.format("R$ %d", value)
-	elseif board == "playtime" then
-		if value >= 60 then return string.format("%d시간 %d분", value // 60, value % 60) end
-		return string.format("%d분", value)
+		return "R$ " .. grouped
+	elseif board == "level" then
+		return grouped .. " XP"
 	end
 	return ""
 end
@@ -77,38 +80,177 @@ end
 -- Board kinds
 --------------------------------------------------
 
+-- The park boards (user 2026-10-30, after another game's boards): a dark
+-- see-through LED pane with a neon pink edge, icon + title + "상위 50
+-- 플레이어", then the rows (rank, avatar, name, value; 1-3 gold / silver /
+-- bronze). The list scrolls slowly by itself and stops a while when someone
+-- drags it. The 기부 board has the 기부하기 buttons on its right.
+local NEON = Color3.fromRGB(255, 70, 110)
+local MEDALS = { Color3.fromRGB(255, 214, 90), Color3.fromRGB(225, 225, 235), Color3.fromRGB(240, 140, 70) }
+local ROW_H = 46
+local SCROLL_SPEED = 22 -- px a second
+local MessagePromptLazy: any = nil
+local thumbs: {[number]: string} = {}
+
+local function headshot(userId: number, image: ImageLabel)
+	if thumbs[userId] then image.Image = thumbs[userId] return end
+	task.spawn(function()
+		local ok, url = pcall(function()
+			return Players:GetUserThumbnailAsync(userId, Enum.ThumbnailType.HeadShot, Enum.ThumbnailSize.Size48x48)
+		end)
+		if ok and typeof(url) == "string" then
+			thumbs[userId] = url
+			image.Image = url
+		end
+	end)
+end
+
 local function buildList(part: BasePart, board: string)
 	local gui = surface(part, 40)
+	gui.Brightness = 1.4
+	local donate = board == "support"
 	local bg = Instance.new("Frame")
 	bg.Size = UDim2.fromScale(1, 1)
-	bg.BackgroundColor3 = Color3.fromRGB(14, 16, 26)
+	bg.BackgroundColor3 = Color3.fromRGB(10, 6, 16)
+	bg.BackgroundTransparency = 0.3
 	bg.Parent = gui
-	label(bg, { Position = UDim2.fromScale(0.04, 0.03), Size = UDim2.fromScale(0.92, 0.15), Text = TITLES[board] or board, TextColor3 = GOLD })
-	-- top 5, big enough to read from the plaza (2026-10-25)
-	local rows = {}
-	for i = 1, 5 do
-		local y = 0.22 + (i - 1) * 0.15
-		local rank = label(bg, { Position = UDim2.fromScale(0.04, y), Size = UDim2.fromScale(0.1, 0.12), Text = tostring(i),
-			TextColor3 = if i <= 3 then GOLD else Color3.fromRGB(180, 180, 200), TextXAlignment = Enum.TextXAlignment.Left })
-		local name = label(bg, { Position = UDim2.fromScale(0.15, y), Size = UDim2.fromScale(0.5, 0.12), Text = "",
-			Font = Enum.Font.GothamMedium, TextXAlignment = Enum.TextXAlignment.Left })
-		local value = label(bg, { Position = UDim2.fromScale(0.62, y), Size = UDim2.fromScale(0.34, 0.12), Text = "",
-			Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(200, 220, 255), TextXAlignment = Enum.TextXAlignment.Right })
-		rows[i] = { rank = rank, name = name, value = value }
+	Instance.new("UICorner", bg).CornerRadius = UDim.new(0, 26)
+	-- the neon edge: a wide soft halo under a thin bright core
+	for _, layer in ipairs({ { 14, 0.75 }, { 7, 0.45 }, { 3, 0 } }) do
+		local s = Instance.new("UIStroke")
+		s.Color = if layer[1] == 3 then NEON:Lerp(Color3.new(1, 1, 1), 0.35) else NEON
+		s.Thickness = layer[1]
+		s.Transparency = layer[2]
+		s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		local holder = Instance.new("Frame")
+		holder.Size = UDim2.new(1, -16, 1, -16)
+		holder.Position = UDim2.fromOffset(8, 8)
+		holder.BackgroundTransparency = 1
+		holder.Parent = bg
+		Instance.new("UICorner", holder).CornerRadius = UDim.new(0, 22)
+		s.Parent = holder
 	end
-	local empty = label(bg, { Position = UDim2.fromScale(0.1, 0.45), Size = UDim2.fromScale(0.8, 0.1), Text = "",
-		Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(160, 160, 180) })
+	local title = TITLES[board] or { "🏆", board, "" }
+	label(bg, { Position = UDim2.fromOffset(34, 22), Size = UDim2.fromOffset(52, 52), Text = title[1] })
+	label(bg, { Position = UDim2.fromOffset(96, 20), Size = UDim2.new(0.6, -96, 0, 34), Text = title[2], TextXAlignment = Enum.TextXAlignment.Left })
+	label(bg, { Position = UDim2.fromOffset(96, 54), Size = UDim2.new(0.6, -96, 0, 20), Text = title[3], Font = Enum.Font.GothamMedium,
+		TextColor3 = Color3.fromRGB(200, 190, 215), TextXAlignment = Enum.TextXAlignment.Left })
+	local listWidth = if donate then 0.66 else 1
+	local scroll = Instance.new("ScrollingFrame")
+	scroll.Position = UDim2.fromOffset(28, 88)
+	scroll.Size = UDim2.new(listWidth, -48, 1, -112)
+	scroll.BackgroundTransparency = 1
+	scroll.BorderSizePixel = 0
+	scroll.ScrollBarThickness = 6
+	scroll.ScrollBarImageColor3 = NEON
+	scroll.CanvasSize = UDim2.new()
+	scroll.Parent = bg
+	local rows = {}
+	for i = 1, 50 do
+		local row = Instance.new("Frame")
+		row.Position = UDim2.fromOffset(0, (i - 1) * ROW_H)
+		row.Size = UDim2.new(1, -14, 0, ROW_H - 4)
+		row.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+		row.BackgroundTransparency = if i % 2 == 1 then 0.94 else 1
+		row.Visible = false
+		row.Parent = scroll
+		Instance.new("UICorner", row).CornerRadius = UDim.new(0, 8)
+		local medal = MEDALS[i]
+		local rank = label(row, { Position = UDim2.fromOffset(4, 6), Size = UDim2.fromOffset(40, 30), Text = tostring(i),
+			TextColor3 = medal or Color3.fromRGB(190, 190, 210) })
+		local face = Instance.new("ImageLabel")
+		face.Position = UDim2.fromOffset(50, 3)
+		face.Size = UDim2.fromOffset(36, 36)
+		face.BackgroundColor3 = Color3.fromRGB(60, 50, 80)
+		face.Parent = row
+		Instance.new("UICorner", face).CornerRadius = UDim.new(1, 0)
+		if medal then
+			local s = Instance.new("UIStroke") s.Color = medal s.Thickness = 2 s.Parent = face
+		end
+		local name = label(row, { Position = UDim2.fromOffset(96, 6), Size = UDim2.new(0.58, -96, 0, 30), Text = "",
+			Font = Enum.Font.GothamMedium, TextColor3 = medal or Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left })
+		local value = label(row, { Position = UDim2.new(0.58, 0, 0, 6), Size = UDim2.new(0.42, -10, 0, 30), Text = "",
+			TextColor3 = medal or Color3.fromRGB(235, 235, 245), TextXAlignment = Enum.TextXAlignment.Right })
+		rows[i] = { frame = row, rank = rank, face = face, name = name, value = value, user = 0 }
+	end
+	local empty = label(bg, { Position = UDim2.new(0, 28, 0.5, -16), Size = UDim2.new(listWidth, -48, 0, 32), Text = "",
+		Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(190, 180, 205) })
+	if donate then
+		-- 기부하기: the same products as the top bar 💝 window
+		local side = Instance.new("Frame")
+		side.Position = UDim2.new(0.66, 0, 0, 22)
+		side.Size = UDim2.new(0.34, -30, 1, -46)
+		side.BackgroundTransparency = 1
+		side.Parent = bg
+		label(side, { Size = UDim2.new(1, 0, 0, 34), Text = "기부하기" })
+		label(side, { Position = UDim2.fromOffset(0, 36), Size = UDim2.new(1, 0, 0, 20), Text = "어떤 금액이든 감사드립니다 💗",
+			Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(200, 190, 215) })
+		local keys = { "Support_10", "Support_50", "Support_100", "Support_500", "Support_1000", "Support_5000" }
+		local MonetizationConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("MonetizationConfig"))
+		for i, key in ipairs(keys) do
+			local product = MonetizationConfig.Products[key]
+			local b = Instance.new("TextButton")
+			b.Position = UDim2.new(0.06, 0, 0, 66 + (i - 1) * 48)
+			b.Size = UDim2.new(0.88, 0, 0, 40)
+			b.BackgroundColor3 = Color3.fromRGB(255, 205, 215)
+			b.Text = "R$ " .. valueText("level", product.price):gsub(" XP", "")
+			b.TextColor3 = Color3.fromRGB(150, 20, 60)
+			b.TextScaled = true
+			b.Font = Enum.Font.GothamBlack
+			b.Parent = side
+			Instance.new("UICorner", b).CornerRadius = UDim.new(1, 0)
+			Instance.new("UIPadding", b).PaddingTop = UDim.new(0, 6)
+			b.MouseButton1Click:Connect(function()
+				MessagePromptLazy = MessagePromptLazy or require(script.Parent:WaitForChild("MessagePrompt"))
+				MessagePromptLazy.buy(key, string.format("💝 %d R$ 기부", product.price))
+			end)
+		end
+		label(side, { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, 36), TextWrapped = true,
+			Text = "기부금은 새로운 공간과 기능을 만드는 데 쓰여요!", Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(200, 190, 215) })
+	end
+	-- scrolling by itself; a touch / drag pauses it for 6 s
+	local holdUntil = 0
+	scroll:GetPropertyChangedSignal("CanvasPosition"):Connect(function()
+		if not scroll:GetAttribute("Auto") then holdUntil = os.clock() + 6 end
+	end)
+	local pos, last, pauseUntil = 0, os.clock(), os.clock() + 3
 	return {
 		gui = gui,
 		update = function()
 			local list = rankings[board] or {}
 			for i, row in ipairs(rows) do
 				local entry = list[i]
-				row.rank.Visible = entry ~= nil
-				row.name.Text = if entry then tostring(entry.name) else ""
-				row.value.Text = if entry then valueText(board, entry.value) else ""
+				row.frame.Visible = entry ~= nil
+				if entry then
+					row.name.Text = tostring(entry.name)
+					row.value.Text = valueText(board, entry.value)
+					local u = tonumber(entry.u) or 0
+					if u ~= row.user then
+						row.user = u
+						row.face.Image = ""
+						if u > 0 then headshot(u, row.face) end
+					end
+				end
 			end
+			scroll.CanvasSize = UDim2.fromOffset(0, #list * ROW_H)
 			empty.Text = if #list == 0 then "아직 순위가 없어요" else ""
+		end,
+		tick = function()
+			local now = os.clock()
+			local dt = math.min(now - last, 0.5)
+			last = now
+			if now < holdUntil then pos = scroll.CanvasPosition.Y return end
+			local room = scroll.CanvasSize.Y.Offset - scroll.AbsoluteWindowSize.Y
+			if room <= 0 or now < pauseUntil then return end
+			pos += dt * SCROLL_SPEED
+			if pos >= room then
+				pos = room
+				pauseUntil = now + 3
+				task.delay(3, function() pos = 0 pauseUntil = os.clock() + 3 end)
+			end
+			scroll:SetAttribute("Auto", true)
+			scroll.CanvasPosition = Vector2.new(0, pos)
+			scroll:SetAttribute("Auto", nil)
 		end,
 	}
 end
@@ -208,6 +350,19 @@ local function openVoteWindow()
 		end)
 	end
 end
+-- (user 2026-10-30) the corner screen before anyone has given: OHU ads
+local PROMOS: {any} = {
+	{ promo = true, icon = "🧡", big = "OHU", sub = "오후 · 홍대 패션 소셜", color = Color3.fromRGB(255, 140, 60) },
+	{ promo = true, icon = "🎧", big = "OHU CLUB", sub = "오늘 밤 라이브 DJ", color = Color3.fromRGB(200, 80, 255) },
+	{ promo = true, icon = "📸", big = "오후네컷", sub = "친구와 네 컷 찍기", color = Color3.fromRGB(255, 90, 170) },
+	{ promo = true, icon = "🏖", big = "BEACH CAFE", sub = "바다 보며 쉬어 가요", color = Color3.fromRGB(60, 200, 255) },
+	{ promo = true, icon = "👗", big = "TODAY'S LOOK", sub = "C 카탈로그로 코디 바꾸기", color = Color3.fromRGB(255, 220, 90) },
+	{ promo = true, icon = "💝", big = "실시간 후원", sub = "상단 💝 버튼", color = Color3.fromRGB(255, 70, 110) },
+}
+-- a stage cold spark showing on the corner screen (ClubNotify "Banner")
+local spark: any = nil
+local SPARK_SHOW = 30 -- (as long as the show, SparkleService COLD_SPARK_SECONDS)
+
 local WRAP_SPEED = 2.5 -- studs per second
 local CARD = 30 -- studs per card (the screen is 56 tall)
 local AVATAR_BACK = { 40, 26, 70 }
@@ -256,12 +411,44 @@ local function buildBandPanel(part: BasePart)
 	click.MouseClick:Connect(function() openVoteWindow() end)
 
 	local cards: {{ frame: Frame, entry: any, index: number, built: boolean }} = {}
+	local dark = false
 	local spacing = 1
 	local shownKey = ""
 	-- the card's content is built the first time it shows on this panel
+	local function neonText(frame: Instance, props: {[string]: any}, glowColor: Color3)
+		local glowLabel = label(frame, props)
+		glowLabel.TextTransparency = 0.4
+		local s = Instance.new("UIStroke") s.Color = glowColor s.Thickness = 5 s.Transparency = 0.5 s.Parent = glowLabel
+		local core = label(frame, props)
+		local c = Instance.new("UIStroke") c.Color = glowColor:Lerp(Color3.new(1, 1, 1), 0.4) c.Thickness = 1.5 c.Parent = core
+		return core
+	end
 	local function fill(card: any)
 		card.built = true
 		local frame, entry, index = card.frame, card.entry, card.index
+		if typeof(entry) == "table" and entry.promo then
+			-- (user 2026-10-30) nobody has given yet: OHU ads on a dark screen
+			label(frame, { Position = UDim2.fromScale(0.05, 0.2), Size = UDim2.fromScale(0.9, 0.22), Text = entry.icon })
+			neonText(frame, { Position = UDim2.fromScale(0.04, 0.45), Size = UDim2.fromScale(0.92, 0.16), Text = entry.big, Font = Enum.Font.GothamBlack }, entry.color)
+			label(frame, { Position = UDim2.fromScale(0.06, 0.64), Size = UDim2.fromScale(0.88, 0.08), Text = entry.sub, Font = Enum.Font.GothamMedium,
+				TextColor3 = Color3.fromRGB(225, 225, 235) })
+			return
+		end
+		if typeof(entry) == "table" and entry.spark then
+			-- a stage cold spark: the buyer's name and message while the show is on
+			label(frame, { Position = UDim2.fromScale(0.05, 0.08), Size = UDim2.fromScale(0.9, 0.16), Text = "🎆" })
+			neonText(frame, { Position = UDim2.fromScale(0.04, 0.27), Size = UDim2.fromScale(0.92, 0.08), Text = if entry.dj then "DJ FIREWORKS" else "COLD SPARK",
+				Font = Enum.Font.GothamBlack }, Color3.fromRGB(255, 190, 80))
+			neonText(frame, { Position = UDim2.fromScale(0.04, 0.38), Size = UDim2.fromScale(0.92, 0.15), Text = tostring(entry.name), Font = Enum.Font.GothamBlack },
+				Color3.fromRGB(255, 70, 160))
+			label(frame, { Position = UDim2.fromScale(0.04, 0.54), Size = UDim2.fromScale(0.92, 0.06), Text = "@" .. tostring(entry.user),
+				Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(220, 220, 235) })
+			if entry.message ~= "" then
+				neonText(frame, { Position = UDim2.fromScale(0.04, 0.64), Size = UDim2.fromScale(0.92, 0.2), Text = "“" .. entry.message .. "”",
+					Font = Enum.Font.GothamBold, TextWrapped = true }, Color3.fromRGB(80, 200, 255))
+			end
+			return
+		end
 		if entry == "title" then
 			label(frame, { Position = UDim2.fromScale(0.05, 0.28), Size = UDim2.fromScale(0.9, 0.2), Text = "💝 실시간",
 				Font = Enum.Font.GothamBlack, TextColor3 = GOLD })
@@ -306,8 +493,18 @@ local function buildBandPanel(part: BasePart)
 		update = function()
 			local list = rankings.recent or {}
 			local entries: {any} = { "title" }
-			for i = 1, math.min(5, #list) do table.insert(entries, list[i]) end
-			local key = HttpService:JSONEncode(entries)
+			if spark and os.clock() < spark.untilAt then
+				entries = { spark }
+			elseif #list == 0 then
+				entries = PROMOS
+			else
+				for i = 1, math.min(5, #list) do table.insert(entries, list[i]) end
+			end
+			dark = entries ~= nil and entries[1] ~= "title"
+			-- (the ads and the spark hold colours / tables JSON cannot encode)
+			local key = if entries == PROMOS then "promos"
+				elseif entries[1] == spark then "spark" .. tostring(spark.untilAt)
+				else HttpService:JSONEncode(entries)
 			if key == shownKey then return end
 			shownKey = key
 			for _, card in ipairs(cards) do card.frame:Destroy() end
@@ -332,7 +529,8 @@ local function buildBandPanel(part: BasePart)
 			local offset = (os.clock() * WRAP_SPEED) % total
 			local function waveColor(x: number): Color3
 				local s = 0.5 + 0.5 * math.sin(2 * math.pi * (x / total - os.clock() * 0.05))
-				return Color3.fromHSV(0.62 + 0.3 * s, 0.75, 0.42 + 0.12 * s)
+				-- (ads and the cold spark on a nearly black screen, so the neon reads)
+				return Color3.fromHSV(0.62 + 0.3 * s, 0.75, if dark then 0.06 + 0.05 * s else 0.42 + 0.12 * s)
 			end
 			wave.Color = ColorSequence.new({
 				ColorSequenceKeypoint.new(0, waveColor(bandStart)),
@@ -383,11 +581,21 @@ local function buildStrip(part: BasePart)
 				text.Text = stripMessage
 				return
 			end
-			local parts = { "💝 후원 순위" }
-			for i, entry in ipairs(rankings.support or {}) do
+			-- (user 2026-10-30) before anyone has given: the club's welcome lines
+			local support = rankings.support or {}
+			if #support == 0 then
+				text.Text = table.concat({
+					"✦ WELCOME TO OHU CLUB ✦", "OHU CLUB에 오신 것을 환영합니다", "🎧 TONIGHT · LIVE DJ",
+					"MAKE SOME NOISE!", "음악에 몸을 맡기세요", "🎆 무대 콜드 스파크로 오늘 밤을 밝혀 주세요",
+				}, "     ·     ")
+				return
+			end
+			local parts = { "💝 기부 순위" }
+			for i, entry in ipairs(support) do
+				if i > 10 then break end
 				table.insert(parts, string.format("%d위 %s %s", i, tostring(entry.name), valueText("support", entry.value)))
 			end
-			if #parts == 1 then table.insert(parts, "첫 후원을 기다려요 · 상단 💝 버튼") end
+			table.insert(parts, "✦ WELCOME TO OHU CLUB ✦")
 			text.Text = table.concat(parts, "     ·     ")
 		end,
 	}
@@ -430,7 +638,17 @@ FashionGame:GetAttributeChangedSignal("Rankings"):Connect(refresh)
 
 -- a new gift: the club strip says thank you for 12 s
 ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
-	if kind == "Banner" and typeof(value) == "table" and value.kind == "support" then
+	if kind == "Banner" and typeof(value) == "table" and (value.kind == "coldspark" or value.kind == "djspark") then
+		-- the buyer's name and message on the corner screen of the tower (user 2026-10-30)
+		local token = {}
+		spark = { spark = true, dj = value.kind == "djspark", name = tostring(value.name), user = tostring(value.user),
+			message = if typeof(value.message) == "string" then value.message else "", untilAt = os.clock() + SPARK_SHOW, token = token }
+		refresh()
+		task.delay(SPARK_SHOW + 0.2, function()
+			if spark and spark.token == token then spark = nil end
+			refresh()
+		end)
+	elseif kind == "Banner" and typeof(value) == "table" and value.kind == "support" then
 		local message = if typeof(value.message) == "string" and value.message ~= "" then ("  “" .. value.message .. "”") else ""
 		stripMessage = string.format("💝 %s님 후원 감사합니다! (R$ %s)%s", tostring(value.name), tostring(value.amount), message)
 		stripMessageUntil = os.clock() + 12

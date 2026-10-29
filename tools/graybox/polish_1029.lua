@@ -73,6 +73,32 @@ local function clubStool(parent: Instance, x: number, topY: number, z: number, w
 	return m
 end
 
+-- (user 2026-10-30) scale_furniture had grown the legs of the cafe's stool
+-- copies 1.5x (they poked up through the seats): copies with a grown part are
+-- made again from the club stool, same place, seat top and colour
+if cafe and stoolSrc then
+	local fixed = 0
+	for _, m in ipairs(cafe:GetDescendants()) do
+		if m:IsA("Model") and m.Name == "ClubStool" then
+			local grown = false
+			for _, d in ipairs(m:GetDescendants()) do
+				if d:IsA("BasePart") and d:GetAttribute("FurnScaled") then grown = true break end
+			end
+			if grown then
+				local pad = m:FindFirstChild("SeatPad")
+				local pos = m:GetPivot().Position
+				local top = select(2, bounds(pad)).Y
+				local white = pad.Color == WHITE
+				local parent = m.Parent
+				m:Destroy()
+				clubStool(parent, pos.X, top, pos.Z, white)
+				fixed += 1
+			end
+		end
+	end
+	table.insert(log, "stools fixed " .. fixed)
+end
+
 ---------------------------------------------------------------- 1. cafe lounge
 if cafe then
 	local steps = {}

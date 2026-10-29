@@ -7,7 +7,7 @@
 --                            picked, 30 s.
 --   Sparkler bucket (49 R$)  an ice bucket with 3 cans on that table (18 cups
 --                            for everyone) and 3 sparklers one after another.
---   Stage cold spark (99 R$) fountains along the DJ stage front for 10 s;
+--   Stage cold spark (99 R$) fountains along the DJ stage front for 30 s;
 --                            every player sees a banner with the buyer's name
 --                            and message. One per server every 2 minutes
 --                            (a purchase during the wait starts when it ends).
@@ -34,7 +34,7 @@ local SparkleService = {}
 
 local SPARKLE_TEXTURE = "rbxasset://textures/particles/sparkles_main.dds"
 local SPARKLER_SECONDS = 30
-local COLD_SPARK_SECONDS = 10
+local COLD_SPARK_SECONDS = 30 -- (10 → 30, user 2026-10-30: it felt too short)
 -- the two fountains the user liked (D-422): 7 = narrow column, 8 = wider fan
 local FOUNTAIN_STYLES = {
 	column = { spread = 6, speed = 26 },
@@ -742,10 +742,10 @@ local function giveGlowstick(player: Player)
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then return end
 	for _, where in ipairs({ backpack, player.Character }) do
-		if where and where:FindFirstChild("🪄 야광봉") then return end
+		if where and (where:FindFirstChild("🌟 야광봉") or where:FindFirstChild("🪄 야광봉")) then return end
 	end
 	local tool = Instance.new("Tool")
-	tool.Name = "🪄 야광봉"
+	tool.Name = "🌟 야광봉" -- (🪄 is not in the Roblox font: an empty box, user 2026-10-30)
 	tool.ToolTip = "누르면 색이 바뀌어요"
 	tool.CanBeDropped = false
 	tool.Grip = CFrame.new(0, -0.6, 0) * CFrame.Angles(math.rad(-25), 0, 0)
@@ -857,8 +857,110 @@ function SparkleService.Handle(player: Player, action: string, payload: any): (b
 	return false, nil, false
 end
 
+-- The real items for the item shop cards (user 2026-10-30): models the
+-- clients show in a little 3D window (FashionGame.ItemPreviews), like the
+-- drink bottles. ViewportFrames draw no particles and no glass, so the lit
+-- tips are neon balls and the glass bucket is drawn frosted.
+local function buildItemPreviews()
+	local old = FashionGame:FindFirstChild("ItemPreviews")
+	if old then old:Destroy() end
+	local folder = Instance.new("Folder")
+	folder.Name = "ItemPreviews"
+	local function part(m: Instance, name: string, size: Vector3, cf: CFrame, color: Color3, material: Enum.Material, ball: boolean?): BasePart
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Shape = if ball then Enum.PartType.Ball else Enum.PartType.Block
+		p.Size = size
+		p.CFrame = cf
+		p.Color = color
+		p.Material = material
+		p.Anchored = true
+		p.Parent = m
+		return p
+	end
+	-- one sparkler: grey wire, the dark coated stick, a white-hot tip with a few sparks
+	local function stick(m: Instance, at: CFrame, length: number, lit: boolean)
+		part(m, "Wire", Vector3.new(0.05, 0.4, 0.05), at * CFrame.new(0, 0.2, 0), Color3.fromRGB(150, 150, 156), Enum.Material.Metal)
+		part(m, "Stick", Vector3.new(0.08, length, 0.08), at * CFrame.new(0, 0.4 + length / 2, 0), Color3.fromRGB(40, 40, 44), Enum.Material.Concrete)
+		if lit then
+			local tip = at * CFrame.new(0, 0.4 + length, 0)
+			part(m, "Tip", Vector3.new(0.2, 0.2, 0.2), tip, Color3.fromRGB(255, 250, 225), Enum.Material.Neon, true)
+			for k = 1, 7 do
+				local a = k / 7 * math.pi * 2
+				local dir = Vector3.new(math.cos(a), 0.6 + 0.4 * math.sin(a * 3), math.sin(a)).Unit
+				part(m, "Spark", Vector3.new(0.035, 0.035, 0.3), CFrame.lookAt(tip.Position + dir * 0.28, tip.Position + dir), Color3.fromRGB(255, 205, 110), Enum.Material.Neon)
+			end
+		end
+	end
+	-- 🎇 table sparkler
+	do
+		local m = Instance.new("Model")
+		m.Name = "Sparkler1"
+		stick(m, CFrame.Angles(0, 0, math.rad(-8)), 1.4, true)
+		m.Parent = folder
+	end
+	-- 🎇 ×5: a fan of five
+	do
+		local m = Instance.new("Model")
+		m.Name = "Sparkler5"
+		for k = -2, 2 do
+			stick(m, CFrame.new(k * 0.08, 0, 0) * CFrame.Angles(0, 0, math.rad(k * 11)), 1.4, k == 0)
+		end
+		m.Parent = folder
+	end
+	-- ✨ hand sparkler: longer, lit, held at a slant
+	do
+		local m = Instance.new("Model")
+		m.Name = "HandSparkler"
+		stick(m, CFrame.Angles(0, 0, math.rad(-20)), 1.6, true)
+		m.Parent = folder
+	end
+	-- 🍾 bucket set: the glass ice bucket with its three bottles and three sparklers
+	do
+		local m = Instance.new("Model")
+		m.Name = "SparklerBucket"
+		DrinkBucket.iceBucket(m, CFrame.new(), {
+			{ key = "zzang_pop", color = Color3.fromRGB(200, 30, 95) },
+			{ key = "golden_apple", color = Color3.fromRGB(238, 160, 40) },
+			{ key = "monte", color = Color3.fromRGB(105, 165, 40) },
+		}, "none", true)
+		local _, size = m:GetBoundingBox()
+		for k = -1, 1 do
+			stick(m, CFrame.new(k * size.X * 0.18, size.Y * 0.55, 0) * CFrame.Angles(0, 0, math.rad(k * 12)), 1.2, true)
+		end
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("Light") or d:IsA("ParticleEmitter") or d:IsA("Script") then d:Destroy()
+			elseif d:IsA("BasePart") then
+				d.Anchored = true
+				if d.Material == Enum.Material.Glass then
+					d.Material = Enum.Material.SmoothPlastic
+					d.Transparency = math.min(d.Transparency, 0.45)
+				end
+			end
+		end
+		m.Parent = folder
+	end
+	-- 🌟 glowstick: the saber model with its tube lit green
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local saber = art and art:FindFirstChild("GlowstickSaber")
+	if saber and saber:IsA("Model") then
+		local m = saber:Clone()
+		m.Name = "Glowstick"
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("LuaSourceContainer") or d:IsA("Light") or d:IsA("ParticleEmitter") or d:IsA("Sound") then d:Destroy()
+			elseif d:IsA("BasePart") then
+				d.Anchored = true
+				if d.Color.G > 0.3 then d.Material = Enum.Material.Neon d.Color = Color3.fromRGB(0, 255, 140) end
+			end
+		end
+		m.Parent = folder
+	end
+	folder.Parent = FashionGame
+end
+
 function SparkleService.Start()
 	notify = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubNotify") :: RemoteEvent
+	task.spawn(buildItemPreviews)
 	MonetizationService.RegisterProduct("Sparkler1", grantSparkler)
 	MonetizationService.RegisterProduct("Sparkler5", grantSparkler5)
 	MonetizationService.RegisterProduct("HandSparkler", grantHandSparkler)

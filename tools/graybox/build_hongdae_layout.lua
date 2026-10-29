@@ -4541,14 +4541,28 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	-- sides, user 2026-10-26; the club bus stop took their old place)
 	-- (user 2026-10-27, 2nd) on the beach side, where the curved sofa deck stood
 	local X = -134
-	for _, spec in ipairs({ { "support", -86 }, { "spend", -72.5 }, { "playtime", -59 } }) do
+	-- (user 2026-10-30) two boards (레벨 / 기부, 50 each) instead of three, each
+	-- longer over the freed room; no wooden frame: a see-through LED pane with a
+	-- neon edge on a slim dark foot, like a glass screen with a message on it
+	local NEON = Color3.fromRGB(255, 70, 110)
+	local HALF, Y0, Y1 = 8.6, 1.6, 12.6
+	for _, spec in ipairs({ { "level", -82.6 }, { "support", -62.4 } }) do
 		local z = spec[2]
-		box("BoardPost", X - 0.4, 0, z - 5.6, X + 0.4, 12.4, z - 4.8, POST, { parent = B, material = Enum.Material.WoodPlanks })
-		box("BoardPost", X - 0.4, 0, z + 4.8, X + 0.4, 12.4, z + 5.6, POST, { parent = B, material = Enum.Material.WoodPlanks })
-		box("BoardFrame", X - 0.6, 2.6, z - 5.8, X + 0.6, 12.6, z + 5.8, POST, { parent = B, material = Enum.Material.WoodPlanks })
+		box("BoardFoot", X - 0.5, 0, z - HALF, X + 0.5, Y0, z + HALF, Color3.fromRGB(24, 22, 28), { parent = B, material = Enum.Material.SmoothPlastic })
+		local pane = box("BoardPane", X - 0.08, Y0, z - HALF, X + 0.08, Y1, z + HALF, Color3.fromRGB(20, 10, 24), { parent = B, material = Enum.Material.Glass })
+		pane.Transparency = 0.55
+		pane.CastShadow = false
+		-- the neon edge round the pane
+		for _, e in ipairs({ { Y1 - 0.07, Y1 + 0.07, z - HALF, z + HALF }, { Y0 + 0.05, Y0 + 0.19, z - HALF, z + HALF },
+			{ Y0, Y1, z - HALF - 0.07, z - HALF + 0.07 }, { Y0, Y1, z + HALF - 0.07, z + HALF + 0.07 } }) do
+			local n = box("BoardNeon", X - 0.12, e[1], e[3], X + 0.12, e[2], e[4], NEON, { parent = B, material = Enum.Material.Neon })
+			n.CastShadow = false
+		end
 		for _, side in ipairs({ { -1, "Left" }, { 1, "Right" } }) do
-			local x0 = X + side[1] * 0.6
-			local s = box("BoardScreen", math.min(x0, x0 + side[1] * 0.15), 2.9, z - 5.5, math.max(x0, x0 + side[1] * 0.15), 12.3, z + 5.5, Color3.fromRGB(14, 16, 24), { parent = B, material = Enum.Material.SmoothPlastic })
+			local x0 = X + side[1] * 0.1
+			local s = box("BoardScreen", math.min(x0, x0 + side[1] * 0.02), Y0 + 0.25, z - HALF + 0.15, math.max(x0, x0 + side[1] * 0.02), Y1 - 0.15, z + HALF - 0.15, Color3.new(0, 0, 0), { parent = B, material = Enum.Material.SmoothPlastic })
+			s.Transparency = 1
+			s.CastShadow = false
 			s:SetAttribute("Board", spec[1]) s:SetAttribute("Face", side[2]) CS:AddTag(s, "RankBoard")
 		end
 	end

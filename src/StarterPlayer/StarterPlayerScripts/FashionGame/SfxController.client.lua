@@ -137,7 +137,9 @@ RunService.Heartbeat:Connect(function()
 	if not root or not root:IsA("BasePart") then lastPos = nil return end
 	local pos = root.Position
 	if lastPos and (pos - lastPos).Magnitude > 30 then
-		if nearSubway(lastPos) then playSubway() else Sfx.play("teleport") end
+		local quietAt = player:GetAttribute("QuietJumpAt") -- (the 🏠 button: no sound, user 2026-10-30)
+		if nearSubway(lastPos) then playSubway()
+		elseif not (typeof(quietAt) == "number" and os.clock() - quietAt < 1.5) then Sfx.play("teleport") end
 	end
 	lastPos = pos
 end)

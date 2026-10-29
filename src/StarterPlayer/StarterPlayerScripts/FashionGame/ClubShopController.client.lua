@@ -571,22 +571,28 @@ local function buildItemShop()
 		local bucketKey = if vip then "SparklerBucket_VIP" else "SparklerBucket"
 		local sparkKey = if vip then "ColdSpark_VIP" else "ColdSpark"
 		local cooldown = math.ceil((FashionGame:GetAttribute("ColdSparkReadyAt") or 0) - workspace:GetServerTimeNow())
+		-- the real items in the pictures (user 2026-10-30, SparkleService buildItemPreviews)
+		local previews = FashionGame:FindFirstChild("ItemPreviews")
+		local function look(name: string): Model?
+			local m = previews and previews:FindFirstChild(name)
+			return if m and m:IsA("Model") then m else nil
+		end
 		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(120, 60, 200), "테이블 스파클러",
-			"들고 테이블 위 병(버킷)을 누르면 30초 연출", rs("Sparkler1"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler1") end)
+			"들고 테이블 위 병(버킷)을 누르면 30초 연출", rs("Sparkler1"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler1") end, look("Sparkler1"))
 		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(150, 50, 190), "스파클러 ×5",
-			"한 버킷에 5개까지 꽂아요", rs("Sparkler5"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler5") end)
+			"한 버킷에 5개까지 꽂아요", rs("Sparkler5"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler5") end, look("Sparkler5"))
 		NeonShopUI.itemCard(list2, nextOrder(), "🍾", Color3.fromRGB(40, 120, 200), "스파클러 버킷 세트",
-			"얼음 버킷 + 음료 3개 + 스파클러 3개", rs("SparklerBucket"), if vip then nil else rs("SparklerBucket_VIP"), "🛒 구매하기", C, function() buyProduct(bucketKey) end)
+			"얼음 버킷 + 음료 3개 + 스파클러 3개", rs("SparklerBucket"), if vip then nil else rs("SparklerBucket_VIP"), "🛒 구매하기", C, function() buyProduct(bucketKey) end, look("SparklerBucket"))
 		NeonShopUI.itemCard(list2, nextOrder(), "✨", Color3.fromRGB(200, 140, 40), "손 스파클러",
-			"손에 들고 60초 동안 춤춰요", rs("HandSparkler"), nil, "🛒 구매하기", C, function() buyProduct("HandSparkler") end)
+			"손에 들고 60초 동안 춤춰요", rs("HandSparkler"), nil, "🛒 구매하기", C, function() buyProduct("HandSparkler") end, look("HandSparkler"))
 		local hasGlow = player:GetAttribute("Pass_Glowstick") == true
-		NeonShopUI.itemCard(list2, nextOrder(), "🪄", Color3.fromRGB(40, 170, 120), "야광봉",
+		NeonShopUI.itemCard(list2, nextOrder(), "🌟", Color3.fromRGB(40, 170, 120), "야광봉",
 			"영구 아이템 · 누르면 색이 바뀌어요", if hasGlow then "보유 중" else ("R$" .. MonetizationConfig.GamePasses.Glowstick.price), nil,
 			if hasGlow then "✓ 보유" else "🛒 구매하기", C, function()
 				if not hasGlow then buyPass("Glowstick") end
-			end)
+			end, look("Glowstick"))
 		NeonShopUI.itemCard(list2, nextOrder(), "🎆", Color3.fromRGB(30, 90, 190), "무대 콜드 스파크",
-			"서버 전체 무대 효과 + 이름 배너" .. (if cooldown > 0 then string.format(" · ⏳ %d초 뒤", cooldown) else ""),
+			"무대 불꽃 30초 + 이름·한마디 배너·건물 전광판" .. (if cooldown > 0 then string.format(" · ⏳ %d초 뒤", cooldown) else ""),
 			rs("ColdSpark"), if vip then nil else rs("ColdSpark_VIP"), "🛒 구매하기", C, function()
 				MessagePrompt.buy(sparkKey, "🎆 무대 콜드 스파크")
 			end)

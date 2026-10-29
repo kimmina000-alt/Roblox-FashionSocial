@@ -24,12 +24,16 @@ local VoteService = require(script.Parent.VoteService)
 
 local RankingService = {}
 
-local TOP = 10
+-- (user 2026-10-30) the park boards are 레벨 순위표 (XP) and 기부 순위표
+-- (supporter gifts), top 50 each; 큰손 and play time are no longer shown
+-- (still counted: play time gates voting)
+local TOP = 50
 local REFRESH_SECONDS = 60
 local PLAY_FLUSH_MINUTES = 5
 
-type Board = "support" | "spend" | "today" | "playtime"
-local BOARDS: {Board} = { "support", "spend", "today", "playtime" }
+type Board = "support" | "spend" | "today" | "playtime" | "level"
+local BOARDS: {Board} = { "support", "spend", "today", "playtime", "level" }
+local PUBLISHED: {Board} = { "support", "today", "level" }
 
 local function kstDay(): string
 	return os.date("!%Y%m%d", os.time() + 9 * 3600) :: string
@@ -39,6 +43,7 @@ local function storeName(board: Board): string
 	if board == "support" then return "RankSupport" end
 	if board == "spend" then return "RankSpend" end
 	if board == "today" then return "RankSpend_" .. kstDay() end
+	if board == "level" then return "RankXP" end
 	return "RankPlayMinutes"
 end
 
@@ -88,7 +93,7 @@ local function saveLook(player: Player)
 end
 
 -- live totals of players seen in this server: board → userId → value
-local live: {[string]: {[number]: number}} = { support = {}, spend = {}, today = {}, playtime = {} }
+local live: {[string]: {[number]: number}} = { support = {}, spend = {}, today = {}, playtime = {}, level = {} }
 local liveDay = kstDay()
 local names: {[number]: string} = {}
 local hidden: {[number]: boolean} = {}
@@ -205,14 +210,32 @@ local function readRecent()
 	if ok and typeof(value) == "table" then recent = value end
 end
 
+-- XP is a total, not a sum of gifts (EconomyService keeps it on the player
+-- attribute "XP"): the board keeps the latest value and saves it now and then
+local function saveLevel(player: Player)
+	local xp = player:GetAttribute("XP")
+	if typeof(xp) ~= "number" or xp <= 0 then return end
+	local store = ordered("level")
+	if not store then return end
+	task.spawn(function()
+		pcall(function() (store :: OrderedDataStore):SetAsync(tostring(player.UserId), math.floor(xp)) end)
+	end)
+end
+local function noteLevel(player: Player)
+	local xp = player:GetAttribute("XP")
+	if typeof(xp) == "number" then live.level[player.UserId] = math.floor(xp) end
+end
+
 local function publish()
 	local data = {}
-	for _, board in ipairs(BOARDS) do
+	for _, board in ipairs(PUBLISHED) do
 		data[board] = top(board)
 	end
-	-- amounts are only shown for support and play time
-	for _, board in ipairs({ "spend", "today" }) do
-		for _, row in ipairs(data[board]) do row.value = nil :: any end
+	-- amounts are not shown for today's spending
+	for _, row in ipairs(data.today) do row.value = nil :: any end
+	-- the boards show each player's avatar picture
+	for _, board in ipairs({ "support", "level" }) do
+		for _, row in ipairs(data[board]) do row.u = row.id end
 	end
 	-- today's top 3 also carry their look for the avatar screen, and their
 	-- 좋아요 / 싫어요 (a hidden card shows the name only, D-281)
@@ -227,7 +250,7 @@ local function publish()
 			if votes.hidden then row.o = nil end
 		end
 	end
-	for _, board in ipairs(BOARDS) do
+	for _, board in ipairs(PUBLISHED) do
 		for _, row in ipairs(data[board]) do row.id = nil :: any end
 	end
 	-- live supporters with their look and 좋아요 / 싫어요
@@ -309,6 +332,7 @@ function RankingService.Start()
 	Players.PlayerAdded:Connect(loadTotals)
 	for _, player in ipairs(Players:GetPlayers()) do task.spawn(loadTotals, player) end
 	Players.PlayerRemoving:Connect(function(player)
+		saveLevel(player)
 		local minutes = pendingMinutes[player.UserId] or 0
 		pendingMinutes[player.UserId] = 0
 		if minutes > 0 then
@@ -320,15 +344,27 @@ function RankingService.Start()
 			end
 		end
 	end)
-	-- play time: one minute per minute online
+	-- play time: one minute per minute online; XP read at the same time and
+	-- saved every PLAY_FLUSH_MINUTES
 	task.spawn(function()
+		local minute = 0
 		while true do
 			task.wait(60)
+			minute += 1
 			for _, player in ipairs(Players:GetPlayers()) do
 				add("playtime", player.UserId, 1)
+				noteLevel(player)
+				if minute % PLAY_FLUSH_MINUTES == 0 then saveLevel(player) end
 			end
 		end
 	end)
+	-- (the XP shows on the board right away, also in Studio)
+	local function watchXP(player: Player)
+		noteLevel(player)
+		player:GetAttributeChangedSignal("XP"):Connect(function() noteLevel(player) end)
+	end
+	Players.PlayerAdded:Connect(watchXP)
+	for _, player in ipairs(Players:GetPlayers()) do watchXP(player) end
 	task.spawn(function()
 		while true do
 			readRecent()

@@ -108,9 +108,9 @@ MonetizationConfig.Products = {
 	SparklerBucket_VIP = { sku = "CLUB-DP-SPARKLER-BUCKET-VIP", id = 3722465476, name = "스파클러 버킷 세트 (VIP가)", price = 39, status = "live",
 		description = "VIP 가격 스파클러 버킷 세트." },
 	ColdSpark = { sku = "CLUB-DP-COLDSPARK", id = 3722465515, name = "무대 콜드 스파크", price = 99, status = "live",
-		description = "DJ 무대 앞 불꽃 분수 10초 + 모두의 화면에 내 이름과 한마디." },
+		description = "DJ 무대 앞 불꽃 분수와 불꽃놀이 30초 + 모두의 화면과 건물 전광판에 내 이름과 한마디." },
 	ColdSpark_VIP = { sku = "CLUB-DP-COLDSPARK-VIP", id = 3722465534, name = "무대 콜드 스파크 (VIP가)", price = 79, status = "live",
-		description = "VIP 가격 무대 콜드 스파크." },
+		description = "VIP 가격 무대 콜드 스파크 (불꽃 30초 + 이름·한마디 배너와 건물 전광판)." },
 	-- Supporter gifts: a banner with the name and message for everyone (D-271)
 	Support_10 = { sku = "GAME-DP-SUPPORT-10", id = 3722465568, name = "후원 10", price = 10, status = "live", description = "게임 후원 10 R$." },
 	Support_50 = { sku = "GAME-DP-SUPPORT-50", id = 3722465600, name = "후원 50", price = 50, status = "live", description = "게임 후원 50 R$." },

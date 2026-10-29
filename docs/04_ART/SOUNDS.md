@@ -25,7 +25,8 @@
 | 9 | 발 씻는 곳 물 | 9117941569 | Puddle Impact Big Puddle Splash Footsteps 12 (Pro Sound Effects) | 같은 파일 `WASH_ID` | |
 | 10 | 발 씻는 곳 수도꼭지 물줄기 | 9119158299 | Sink Sprayer Spray Into Kitchen Sink 13 (Pro Sound Effects) | `tools/graybox/build_hongdae_layout.lua` (발 씻는 곳 부분) | |
 | 11 | 모래 위 발소리 사각사각 | 98912102275037 | Sand Footstep (Creator Store) | `src/StarterPlayer/StarterPlayerScripts/FashionGame/FootstepsController.client.lua` `SETS.sand` | |
-| 11a | 모래·물을 뺀 모든 바닥 발소리 (잔디·흙·나무·돌·타일·아스팔트·대리석) | 로블록스 기본 rbxasset://sounds/action_footsteps_plastic.mp3 | 사용자 지정 (2026-10-30, D-521; 이전 132221529613537) | RbxCharacterSounds "Running" (모래에서만 끔) | 11b·11c 대신 |
+| 11h | 잔디 위 발소리 풀 헤치는 소리 (2026-10-30, D-563) | 129956418693357 · 78534941650081 · 110522236020035 · 135037154891351 | footstep grass 1~4 (Creator Store, Robloxmastermanyay) | `FootstepsController.client.lua` `SETS.grass` | |
+| 11a | 모래·물·잔디를 뺀 모든 바닥 발소리 (흙·나무·돌·타일·아스팔트·대리석) | 로블록스 기본 rbxasset://sounds/action_footsteps_plastic.mp3 | 사용자 지정 (2026-10-30, D-521; 이전 132221529613537) | RbxCharacterSounds "Running" (모래에서만 끔) | 11b·11c 대신 |
 | 11d | 점프 후 착지 (그 바닥 발소리를 1.5배 크게) | 11·11a와 같음 | | 같은 파일 | |
 | 11e | 포토부스 사진 찍을 때 찰칵 (새로 넣음) | 17208312548 | Roblox GUI - Camera Shutter | `src/StarterPlayer/StarterPlayerScripts/FashionGame/PhotoBoothController.client.lua` `boothSound.shutter` | |
 | 11f | 포토부스 카운트다운 3·2·1 삑 (새로 넣음) | 9118777239 | Scanner Beeps 5 (Pro Sound Effects) | 같은 파일 `boothSound.tick` | |
@@ -95,7 +96,7 @@ Roblox는 캐릭터마다 `RbxCharacterSounds`로 기본 소리를 붙여요. �
 | 24 | 로벅스 결제 성공, 후원·불꽃 배너 뜰 때 | 15675043410 | Roblox_UI_Tonal_Stinger (Roblox) | `Ui.success` | |
 | 27 | 누구든 의자·벤치에 앉을 때 (근처에서 들림) | 9116248517 | Leather Bench 4 (Pro Sound Effects) | `Body.sit` | |
 | 28 | 누구든 옷·액세서리 바꿀 때 사락 (근처에서 들림) | 9119138453 | Silk Shirt 3 (Pro Sound Effects) | `Body.outfit` | |
-| 29 | 🏠·버스로 순간이동할 때 슉 (지하철은 안 남) | 15675046931 | Roblox_UI_Sweep (Roblox) | `Body.teleport` | |
+| 29 | 버스로 순간이동할 때 슉 (🏠·지하철은 안 남, 🏠은 2026-10-30 D-563에 뺌) | 15675046931 | Roblox_UI_Sweep (Roblox) | `Body.teleport` | |
 | 30 | 지하철 타고 도착했을 때 열차 소리 3초 (띵동, 보류 중) | 9117092623 | New York City Subway 2 (Pro Sound Effects) | `Subway` | |
 | 31 | 클럽 테이블에 병·버킷 놓일 때 쨍 | 9114076521 | Dinner Plates 3, 유리 (Pro Sound Effects) | `Clink` | |
 | 32 | 바닷가 파도 (가까울수록 크게, 최대 0.0825 = 처음의 15 %, D-525) | 9119677305 | Surf Ocean Wave Impact On Zuma Beach 4 (Pro Sound Effects) | `Ambience.waves` | |

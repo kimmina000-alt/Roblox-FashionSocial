@@ -54,22 +54,40 @@ headline.BackgroundTransparency = 1
 headline.TextColor3 = Color3.new(1, 1, 1)
 headline.TextScaled = true
 headline.Font = Enum.Font.GothamBlack
+-- (above the banner's own ZIndex 5: the gui draws by global ZIndex, and at 1
+-- the texts were under the dark fill, the message unseen, user 2026-10-30)
+headline.ZIndex = 7
 headline.Parent = banner
 Instance.new("UITextSizeConstraint", headline).MaxTextSize = 34
 local headStroke = Instance.new("UIStroke")
 headStroke.Thickness = 2.5
 headStroke.Color = Color3.fromRGB(255, 120, 40)
 headStroke.Parent = headline
-local line = Instance.new("TextLabel")
-line.Name = "Message"
-line.Position = UDim2.fromOffset(14, 56)
-line.Size = UDim2.new(1, -28, 0, 34)
-line.BackgroundTransparency = 1
-line.TextColor3 = Color3.new(1, 1, 1)
-line.TextScaled = true
-line.Font = Enum.Font.GothamMedium
-line.Parent = banner
-Instance.new("UITextSizeConstraint", line).MaxTextSize = 26
+-- the message (user 2026-10-30: it was hard to see): white neon letters, a
+-- wide soft glow (the label behind) under a tight bright edge
+local function messageLabel(name: string, z: number): (TextLabel, UIStroke)
+	local l = Instance.new("TextLabel")
+	l.Name = name
+	l.Position = UDim2.fromOffset(14, 56)
+	l.Size = UDim2.new(1, -28, 0, 36)
+	l.BackgroundTransparency = 1
+	l.TextColor3 = Color3.new(1, 1, 1)
+	l.TextScaled = true
+	l.Font = Enum.Font.GothamBlack
+	l.ZIndex = z
+	l.Parent = banner
+	Instance.new("UITextSizeConstraint", l).MaxTextSize = 28
+	local s = Instance.new("UIStroke")
+	s.Parent = l
+	return l, s
+end
+local glow, glowStroke = messageLabel("MessageGlow", 6)
+glow.TextTransparency = 0.35
+glowStroke.Thickness = 4
+glowStroke.Transparency = 0.6
+local line, lineStroke = messageLabel("Message", 7)
+lineStroke.Thickness = 1.6
+lineStroke.Transparency = 0.1
 
 local queue: {any} = {}
 local showing = false
@@ -97,6 +115,10 @@ local function showNext()
 	end
 	local message = if typeof(data.message) == "string" then data.message else ""
 	line.Text = if message ~= "" then ("“" .. message .. "”") else ("@" .. tostring(data.user))
+	glow.Text = line.Text
+	-- the neon glow takes the banner's colour
+	glowStroke.Color = stroke.Color
+	lineStroke.Color = stroke.Color:Lerp(Color3.new(1, 1, 1), 0.35)
 	banner.Position = UDim2.new(0.5, 0, 0, top - 120)
 	banner.Visible = true
 	Sfx.play("success")
@@ -218,7 +240,7 @@ Instance.new("UITextSizeConstraint", hideButton).MaxTextSize = 14
 local function hideText()
 	hideButton.Text = if player:GetAttribute("RankHidden") == true
 		then "☑ 순위에 내 이름 숨기는 중 (누르면 다시 보이기)"
-		else "☐ 순위(후원·큰손·플레이 시간)에 내 이름 숨기기"
+		else "☐ 순위(기부·레벨)에 내 이름 숨기기"
 end
 hideText()
 player:GetAttributeChangedSignal("RankHidden"):Connect(hideText)
