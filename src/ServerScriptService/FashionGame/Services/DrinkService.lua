@@ -28,6 +28,7 @@ local MonetizationService = require(script.Parent.MonetizationService)
 local EconomyService = require(script.Parent.EconomyService)
 local DrinkBucket = require(script.Parent.DrinkBucket)
 local BottleShapes = require(FashionGame:WaitForChild("Shared"):WaitForChild("BottleShapes"))
+local SoundConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("SoundConfig"))
 
 local DrinkService = {}
 
@@ -576,6 +577,15 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	countLabel(bottle, maxY - minY - 0.5 + (if isBucket then 0 else 0.5))
 
 	bottle.Parent = tablePart
+	-- glass clink as it lands on the table (SoundConfig.Clink, 2026-10-30)
+	local clink = Instance.new("Sound")
+	clink.SoundId = "rbxassetid://" .. tostring(SoundConfig.Clink)
+	clink.Volume = 0.7
+	clink.RollOffMinDistance = 6
+	clink.RollOffMaxDistance = 50
+	clink.Parent = tablePart
+	clink:Play()
+	game:GetService("Debris"):AddItem(clink, 4)
 	task.delay(ClubConfig.BottleLifetime, function()
 		if bottle.Parent then removeBottle(bottle) end
 	end)

@@ -16,7 +16,11 @@ local FRIENDLY_ERRORS: {[string]: string} = {
 	["This bundle has nothing that can be worn here."] = "이 번들에는 착용할 수 있는 아이템이 없습니다.",
 	["Avatar change failed."] = "아바타를 바꾸지 못했습니다. 다시 시도하세요.",
 }
+local Sfx = require(script.Parent:WaitForChild("Sfx"))
+
+-- (called when an error is about to be shown, so it also plays the error sound)
 local function friendlyError(message: any, fallback: string): string
+	Sfx.play("error")
 	if typeof(message) == "string" then
 		local known = FRIENDLY_ERRORS[message]
 		if known then return known end

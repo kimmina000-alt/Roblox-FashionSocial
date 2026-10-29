@@ -16,6 +16,7 @@ local ClubNotify = Remotes:WaitForChild("ClubNotify") :: RemoteEvent
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
 local Popups = require(script.Parent:WaitForChild("Popups"))
 local MessagePrompt = require(script.Parent:WaitForChild("MessagePrompt"))
+local Sfx = require(script.Parent:WaitForChild("Sfx"))
 
 local BANNER_SECONDS = 7
 local SUPPORT_KEYS = { "Support_10", "Support_50", "Support_100", "Support_500", "Support_1000", "Support_5000" }
@@ -98,6 +99,7 @@ local function showNext()
 	line.Text = if message ~= "" then ("“" .. message .. "”") else ("@" .. tostring(data.user))
 	banner.Position = UDim2.new(0.5, 0, 0, top - 120)
 	banner.Visible = true
+	Sfx.play("success")
 	-- the frame pulses while it shows
 	task.spawn(function()
 		local t0 = os.clock()
