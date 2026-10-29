@@ -49,6 +49,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-10-29: moving to a laptop: docs/00_PROJECT/LAPTOP_SETUP.md. The sync server and zone splitter now live in the repo (tools/dev/serve.ps1 serving tools/dev/serve/, tools/dev/zones.ps1); use those instead of the old desktop scratchpad path. Layout chain now ends with polish_1029. VIP bucket 1 = gold tray, VIP bucket 2 = ice box (all VIP drinks, D-518).
 
+- 2026-10-30: `feat/night-entry-1026` merged into `catalog-ui-redesign` (fast-forward, user approved after the mobile 2P test, up to D-520, 174 commits). New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
 - `docs/06_LOG/DECISIONS.md`: D-001 to D-309. Shop/pricing: `docs/01_SYSTEMS/CLUB_SHOP_PRICING.md`.
