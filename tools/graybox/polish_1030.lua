@@ -304,4 +304,148 @@ if cafe and once(cafe) then
 	end
 end
 
+---------------------------------------------------------------- 7..9 (user 2026-10-30, 2nd)
+-- (these live in Hongdae_Layout, rebuilt by build_hongdae_layout on every
+-- chain run, so they are made fresh each time)
+local L = workspace:FindFirstChild("Hongdae_Layout")
+local CS = game:GetService("CollectionService")
+local function gui(p: BasePart, face, ppStud)
+	local g = Instance.new("SurfaceGui")
+	g.Face = face
+	g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud
+	g.PixelsPerStud = ppStud or 40
+	g.LightInfluence = 0.6
+	g.Parent = p
+	return g
+end
+local function text(g, t, color, font, rich)
+	local l = Instance.new("TextLabel")
+	l.Size = UDim2.fromScale(1, 1)
+	l.BackgroundTransparency = 1
+	l.TextScaled = true
+	l.Font = font or Enum.Font.GothamBlack
+	l.TextColor3 = color
+	l.RichText = rich or false
+	l.Text = t
+	l.Parent = g
+	return l
+end
+
+-- 7. OH24 closed for now: the doors stay shut and carry a paper note
+local store = L and L:FindFirstChild("OH24Store")
+if store then
+	local scf = store:GetBoundingBox()
+	local n = 0
+	for _, door in ipairs(store:GetChildren()) do
+		if door:IsA("Model") and door.Name == "AutoDoor" then
+			CS:RemoveTag(door, "AutoDoor")
+			door:SetAttribute("ClosedTemp", true)
+			local panels = {}
+			for _, p in ipairs(door:GetDescendants()) do
+				if p:IsA("BasePart") and p.Name == "DoorPanel" then p.CanCollide = true table.insert(panels, p) end
+			end
+			-- the note on the first leaf, on its street side
+			local leaf = panels[1]
+			if leaf then
+				local d = leaf.Position - scf.Position
+				local out = if math.abs(d.X) > math.abs(d.Z) then Vector3.new(math.sign(d.X), 0, 0) else Vector3.new(0, 0, math.sign(d.Z))
+				local thin = math.min(leaf.Size.X, leaf.Size.Z)
+				local c = leaf.Position + out * (thin / 2 + 0.03) + Vector3.new(0, 0.6, 0)
+				local paper = part("ClosedNote", Vector3.new(2.2, 1.6, 0.02), CFrame.lookAt(c, c + out), Color3.fromRGB(246, 244, 236), store, { noshadow = true })
+				local g = gui(paper, Enum.NormalId.Front, 120)
+				local l = text(g, '죄송합니다.\n잠시\n<font color="#D8262E">"외출중"</font>입니다.', Color3.fromRGB(30, 30, 30), Enum.Font.GothamMedium, true)
+				l.Size = UDim2.fromScale(0.86, 0.86)
+				l.Position = UDim2.fromScale(0.07, 0.07)
+				n += 1
+			end
+		end
+	end
+	table.insert(log, "OH24 closed, notes " .. n)
+end
+
+-- 8. an A-frame stand on the promenade in front of the beach cafe door
+-- (where the street light stood): wood, O / H / U in white down the board
+if L then
+	local x, z, y = -189.5, 266, 0.6
+	local WOOD = Color3.fromRGB(196, 110, 50)
+	local lean = math.rad(11)
+	local W, H = 2.6, 4.4
+	local dz = H / 2 * math.sin(lean)
+	for k, s in ipairs({ -1, 1 }) do
+		-- the boards face along x (the road and the cafe door)
+		local b = part("CafeStandBoard", Vector3.new(0.14, H, W), CFrame.new(x + s * dz, y + H / 2 * math.cos(lean), z) * CFrame.Angles(0, 0, s * lean), WOOD, L, { material = Enum.Material.WoodPlanks, collide = true })
+		local g = gui(b, if s < 0 then Enum.NormalId.Left else Enum.NormalId.Right, 60)
+		local l = text(g, "O\nH\nU", Color3.new(1, 1, 1), Enum.Font.GothamBlack)
+		l.Size = UDim2.fromScale(0.6, 0.8)
+		l.Position = UDim2.fromScale(0.2, 0.1)
+		l.TextYAlignment = Enum.TextYAlignment.Center
+		local st = Instance.new("UIStroke") st.Color = Color3.fromRGB(120, 60, 25) st.Thickness = 1 st.Parent = l
+		_ = k
+	end
+	part("CafeStandHinge", Vector3.new(2 * dz + 0.3, 0.2, W), CFrame.new(x, y + H * math.cos(lean), z), Color3.fromRGB(150, 85, 40), L, { material = Enum.Material.Wood })
+	table.insert(log, "cafe stand")
+end
+
+-- 9. a pizza shop front on OH24's plain west wall (the beach road side),
+-- from the user's beach-front photo but our own shop: OHU PIZZA. Only the
+-- outside: a stepped entrance with a dark glass door and a TAKE OUT banner, a
+-- red awning over a glass front, a white sign band, and a tiled base with big
+-- red PIZZA letters.
+if store then
+	local X = -135.02 -- the wall's outer face (it faces -x)
+	local Z0, Z1 = 84, 200
+	local RED, WHITE, DARK = Color3.fromRGB(222, 40, 50), Color3.fromRGB(246, 246, 244), Color3.fromRGB(32, 34, 38)
+	local F = Instance.new("Model")
+	F.Name = "PizzaFront"
+	F.Parent = store
+	local function slab(name, x0, y0, z0, x1, y1, z1, color, opt)
+		local lo, hi = Vector3.new(math.min(x0, x1), y0, math.min(z0, z1)), Vector3.new(math.max(x0, x1), y1, math.max(z0, z1))
+		return part(name, hi - lo, CFrame.new((lo + hi) / 2), color, F, opt)
+	end
+	local ENT = Z0 + 16 -- the entrance bay z Z0..ENT, the shop front ENT..Z1
+	-- upper white band across all of it, the shop name in red
+	local band = slab("PizzaBand", X - 0.5, 14.6, Z0, X, 20.6, Z1, WHITE)
+	local g = gui(band, Enum.NormalId.Left, 20)
+	local frame = Instance.new("Frame") frame.Size = UDim2.fromScale(1, 1) frame.BackgroundTransparency = 1 frame.Parent = g
+	local name = text(frame, "OHU PIZZA", RED, Enum.Font.GothamBlack)
+	name.Size = UDim2.fromScale(0.26, 0.62) name.Position = UDim2.fromScale(0.04, 0.19)
+	local slogan = text(frame, "SLICE BY THE SEA.", RED, Enum.Font.GothamBold)
+	slogan.Size = UDim2.fromScale(0.5, 0.36) slogan.Position = UDim2.fromScale(0.42, 0.32)
+	-- entrance bay: dark recess, glass doors, three steps
+	slab("PizzaEntryBack", X - 0.3, 0.6, Z0, X, 14.6, ENT, DARK, { material = Enum.Material.Slate })
+	slab("PizzaDoorGlass", X - 0.45, 3.0, Z0 + 4, X - 0.35, 12.4, Z0 + 12, Color3.fromRGB(40, 60, 70), { material = Enum.Material.Glass, t = 0.25 })
+	slab("PizzaDoorFrame", X - 0.5, 12.4, Z0 + 3.8, X - 0.3, 12.8, Z0 + 12.2, Color3.fromRGB(190, 160, 80), { material = Enum.Material.Metal })
+	slab("PizzaDoorFrame", X - 0.5, 3.0, Z0 + 7.9, X - 0.3, 12.4, Z0 + 8.1, Color3.fromRGB(190, 160, 80), { material = Enum.Material.Metal })
+	for k = 0, 2 do
+		slab("PizzaStep", X - 1.2 - (2 - k) * 1.1, 0.6, Z0 + 1, X, 0.6 + (k + 1) * 0.8, ENT - 1, Color3.fromRGB(70, 72, 76), { material = Enum.Material.Granite, collide = true })
+	end
+	local take = slab("PizzaTakeOut", X - 0.7, 4, ENT - 2.6, X - 0.5, 13, ENT - 0.6, WHITE)
+	local tg = gui(take, Enum.NormalId.Left, 30)
+	local tl = text(tg, "T\nA\nK\nE\n\nO\nU\nT", RED, Enum.Font.GothamBlack)
+	tl.Size = UDim2.fromScale(0.7, 0.9) tl.Position = UDim2.fromScale(0.15, 0.05)
+	-- shop front: tiled base with the big letters, glass above, the awning
+	local base = slab("PizzaBase", X - 0.4, 0.6, ENT, X, 6.4, Z1, Color3.fromRGB(226, 226, 222), { material = Enum.Material.Marble })
+	local bg = gui(base, Enum.NormalId.Left, 16)
+	local big = text(bg, "PIZZA", RED, Enum.Font.GothamBlack)
+	big.Size = UDim2.fromScale(0.5, 0.92) big.Position = UDim2.fromScale(0.48, 0.04)
+	local line = text(bg, "TAKE A SLICE. FEEL THE BEACH.", RED, Enum.Font.GothamBold)
+	line.Size = UDim2.fromScale(0.4, 0.3) line.Position = UDim2.fromScale(0.04, 0.35)
+	slab("PizzaGlass", X - 0.3, 6.4, ENT, X - 0.2, 12.6, Z1, Color3.fromRGB(70, 100, 120), { material = Enum.Material.Glass, t = 0.3 })
+	for zz = ENT, Z1, 8 do
+		slab("PizzaMullion", X - 0.45, 6.4, zz - 0.15, X - 0.25, 12.6, zz + 0.15, Color3.fromRGB(200, 200, 204), { material = Enum.Material.Metal })
+	end
+	slab("PizzaSill", X - 0.6, 6.3, ENT, X, 6.5, Z1, Color3.fromRGB(200, 200, 204), { material = Enum.Material.Metal })
+	-- the red awning, sloping out and down from the band
+	local AW = 3
+	local aw = part("PizzaAwning", Vector3.new(0.15, AW, Z1 - ENT), CFrame.new(X - AW / 2 * math.sin(math.rad(55)) - 0.1, 13.4, (ENT + Z1) / 2) * CFrame.Angles(0, 0, math.rad(-55)), RED, F, { material = Enum.Material.Fabric })
+	local ag = gui(aw, Enum.NormalId.Left, 24)
+	local al = text(ag, "OHU PIZZA  ·  SLICES & SODA", WHITE, Enum.Font.GothamBold)
+	al.Size = UDim2.fromScale(0.5, 0.5) al.Position = UDim2.fromScale(0.25, 0.25)
+	-- a pot of flowers on a post, like the photo's
+	local pz = ENT + 2
+	part("PizzaFlowerPost", Vector3.new(0.3, 9, 0.3), CFrame.new(X - 7, 0.6 + 4.5, pz), Color3.fromRGB(110, 90, 70), F, { material = Enum.Material.Wood })
+	part("PizzaFlowers", Vector3.new(2.2, 1.6, 2.2), CFrame.new(X - 7, 0.6 + 9, pz), Color3.fromRGB(235, 120, 200), F, { shape = Enum.PartType.Ball, material = Enum.Material.Grass })
+	table.insert(log, "pizza front")
+end
+
 return table.concat(log, " | ")

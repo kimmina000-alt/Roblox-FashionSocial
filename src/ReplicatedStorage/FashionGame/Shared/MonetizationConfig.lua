@@ -119,8 +119,8 @@ MonetizationConfig.Products = {
 	Support_1000 = { sku = "GAME-DP-SUPPORT-1000", id = 3722468275, name = "후원 1,000", price = 1000, status = "live", description = "게임 후원 1,000 R$." },
 	Support_5000 = { sku = "GAME-DP-SUPPORT-5000", id = 3722468330, name = "후원 5,000", price = 5000, status = "live", description = "게임 후원 5,000 R$." },
 	-- VIP only (D-274)
-	Drink_Golmok = { sku = "CLUB-DP-DRINK-GOLMOK", id = 3722465394, name = "골목 공방 소다 (VIP 전용)", price = 59, status = "live",
-		description = "VIP 전용 수제 소다(6잔). 레몬 라벤더·생강 장미·오미자 히비스커스·오디." },
+	Drink_Golmok = { sku = "CLUB-DP-DRINK-GOLMOK", id = 3722465394, name = "메종 드 루미에르 (VIP 전용)", price = 59, status = "live",
+		description = "VIP 전용 골드 보틀 스파클링(무알콜, 6잔). 레몬 라벤더·생강 장미·오미자 히비스커스·오디." },
 	-- Cafe and 국밥집 (SnackService, D-310..D-312): the parfait is one serving,
 	-- the cakes and the 수육 plate go on a table and everyone takes a piece
 	Cafe_Parfait = { sku = "CAFE-DP-PARFAIT", id = 3722468372, name = "딸기 파르페", price = 15, status = "live",

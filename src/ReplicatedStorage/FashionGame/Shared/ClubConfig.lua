@@ -193,7 +193,9 @@ ClubConfig.Drinks = {
 	{ key = "skull_water", name = "스컬 캔 워터", tier = 3, product = "Drink_SkullWater", vipProduct = "Drink_SkullWater_VIP", -- Liquid Death
 		color = Color3.fromRGB(18, 18, 20), look = "검정 스윙탑 병 · 은박 · 금색 해골 라벨" },
 	-- VIP only (D-274)
-	{ key = "golmok", name = "골목 공방 소다", tier = 3, vipOnly = true, product = "Drink_Golmok", -- On A Lark
+	-- (user 2026-10-30: renamed in the spirit of the metallic champagne it was
+	-- drawn from, a name of our own; non-alcoholic sparkling)
+	{ key = "golmok", name = "메종 드 루미에르", tier = 3, vipOnly = true, product = "Drink_Golmok",
 		-- (user photo 2026-10-27: the metallic champagne set's colours)
 		color = Color3.fromRGB(212, 168, 70), look = "메탈 병 · 스페이드 엠블럼",
 		variants = {

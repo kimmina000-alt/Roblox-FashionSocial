@@ -5453,6 +5453,7 @@ do
 	-- the 23-wide sidewalk runs on past the store; 15 narrower)
 	shopBlock("S", -135, 215, -56, 985, 60, { "E", "W", "N" }) -- south of OH24, between the south road and the beach road
 	walk(-150, 214, -135, 985) -- (the strip it left: sidewalk like the store's)
+	walk(-56, 214, -47, 1000) -- (and its east side, between the block and the sidewalk: bare ground, user 2026-10-30)
 	for xx = 330, 985, 35 do -- east road, north side (front +z at z -47)
 		i2 += 1
 		if xx == 330 then
@@ -6144,6 +6145,12 @@ do
 		["T"] = { 0.62, { seg(0.02, 1, 0.6, 1), seg(0.31, 1, 0.31, 0) } },
 		["D"] = { 0.62, { seg(0.06, 0, 0.06, 1), seg(0.06, 1, 0.3, 1), seg(0.06, 0, 0.3, 0), ell(0.3, 0.5, 0.28, 0.5, -90, 90) } },
 		["I"] = { 0.2, { seg(0.1, 0, 0.1, 1) } },
+		-- (OHU CAFE on the beach cafe, user 2026-10-30)
+		["C"] = { 0.62, { ell(0.33, 0.5, 0.3, 0.48, 45, 315) } },
+		["A"] = { 0.64, { seg(0.02, 0, 0.32, 1), seg(0.32, 1, 0.62, 0), seg(0.14, 0.36, 0.5, 0.36) } },
+		["F"] = { 0.52, { seg(0.06, 0, 0.06, 1), seg(0.06, 1, 0.5, 1), seg(0.06, 0.52, 0.42, 0.52) } },
+		["E"] = { 0.54, { seg(0.06, 0, 0.06, 1), seg(0.06, 1, 0.52, 1), seg(0.06, 0.52, 0.44, 0.52), seg(0.06, 0, 0.52, 0) } },
+		[" "] = { 0.34, {} },
 	}
 	-- aperture logo blades (inside the ◎ ring)
 	for k = 0, 5 do
@@ -6162,7 +6169,7 @@ do
 		for i, ch in ipairs(chars) do total += GLYPHS[ch][1] + (if i > 1 then GAP else 0) end
 		local m = Instance.new("Model")
 		m.Name = name
-		m.Parent = B
+		m.Parent = st.parent or B
 		local function stroke(a: Vector3, b: Vector3)
 			local len = (b - a).Magnitude
 			if len < 0.01 then return end
@@ -6227,6 +6234,15 @@ do
 		end
 		merge("Letters", { Letter = true, LetterFace = true }, 0)
 		merge("LetterHalo", { LetterHalo = true }, 0.25)
+		-- (st.nightGlow) the letters themselves light up after dark (NightGlow)
+		if st.nightGlow then
+			local u = m:FindFirstChild("Letters")
+			if u then
+				u:SetAttribute("NightRange", 16)
+				u:SetAttribute("NightBrightness", 2)
+				CS:AddTag(u, "NightGlow")
+			end
+		end
 		m.Parent = home
 	end
 	-- the shop name sits one band lower, on the wall between the door frame and
@@ -6244,6 +6260,11 @@ do
 	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 - 1.2, fasMid, N0 + 3 + 4.7), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), 1.33, STORE_SIGN)
 	-- and on the south band over the capsule windows (user 2026-10-23)
 	sign3d("Sign_OHU4cuts", { "◎", "O", "H", "U", "4", "c", "u", "t", "s" }, Vector3.new(W0 + CH + 3 + 4.7, fasMid, S0 + 1.2), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), 1.33, STORE_SIGN)
+	-- (user 2026-10-30) the beach cafe's street wall (x -206, facing the beach
+	-- road): big 3D OHU CAFE letters over the door, a warm halo round every
+	-- stroke, the letters turning to light at night
+	sign3d("Sign_OhuCafe", { "O", "H", "U", " ", "C", "A", "F", "E" }, Vector3.new(-206.0, 23.4, 276), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0), 4.6,
+		{ sw = 0.13, depth = 0.6, side = Color3.fromRGB(214, 206, 190), face = Color3.fromRGB(255, 252, 244), halo = Color3.fromRGB(255, 205, 140), nightGlow = true, parent = T })
 
 	-- upper floors (2F, 3F): white brick mass with the cut corner, dark-framed
 	-- windows, floor bands, then a parapet with a steel railing (roof terrace)
