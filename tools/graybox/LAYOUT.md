@@ -43,7 +43,9 @@
 3-7. `oh24_tweaks.lua` — 편의점(D-440: 냉장·냉동 천장까지, 다른 진열장 1.25배, 창가 바 4.7폭, 전자레인지·온수 바 위, 나무 단상 z 100에서 자름, 테이블·화분 이동, 동쪽 두 번째 문, 유리 포스터, 밖 의자·박스·배너). 되돌리기: ServerStorage.OH24Store_pre_tweaks.
 3-8. `stool_swap.lua` — 클럽 바·카페 1층 창가 바 의자를 등받이 없는 OHU 바 스툴로(D-442, D-443: 카페 창가·2층 난간 바는 높이 2.57).
 3-9. `furniture_swap.lua` — 카페 라운지·클럽 VIP 소파를 소파 9번 에셋으로, 편의점 전자레인지 32·계산대 37(D-443).
-3-10. `polish_1028.lua` — 케이크 진열장 높이, 놀이공원·한옥 가림막, 편의점 전자레인지·온수기(직접 제작), 카페 바다 쪽 마감판, VIP 옆 소파 삭제 + 유리 칸막이, 오후네컷 테이블·벤치(D-446..D-451). 맨 마지막.
+3-10. `polish_1028.lua` — 케이크 진열장 높이, 놀이공원·한옥 가림막, 편의점 전자레인지·온수기(직접 제작), 카페 바다 쪽 마감판, VIP 옆 소파 삭제 + 유리 칸막이, 오후네컷 테이블·벤치(D-446..D-451).
+3-11. `polish_1029.lua` — 카페 라운지·바 의자, DJ 무대, 편의점 다듬기, 클럽 엘리베이터 폐쇄, 클럽 띠 선 두께(D-500..D-566).
+3-12. `polish_1030.lua` — 해변 돗자리·아이스박스 에셋, 카페 진열장·헤더·메뉴판·계산기·커피 머신·메뉴 스탠드(D-571). 에셋 원본: ServerStorage.NewAssets1030. 맨 마지막.
 4. 손 편집 기록(`ServerStorage.PropOverrides`, git `prop_overrides.json`)은 2·3단계에서 자동 적용. 다시 빌드하기 전에 항상 `prop_save.lua`로 먼저 저장.
 - 필요한 Studio 자산: ServerStorage.ArtAssets(나무·관목·야자수·가로등·신호등 등, 스크립트 제거됨), ServerStorage.Cars(G70·G80), MaterialService(OHU_Asphalt, OHU_Concrete). 장소 파일에만 있으므로 Studio 저장 필수.
 - 예전 이름: hongdae_v1_temp.lua / Workspace.Hongdae_v1_Temp (임시 단계). 새 스크립트의 revert가 예전 폴더도 지운다.

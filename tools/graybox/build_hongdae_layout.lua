@@ -5379,8 +5379,12 @@ do
 		-- store is on the left). (user 2026-10-30, 2nd) also on its east face, on
 		-- the road beside the store's east front: there the store is on the right,
 		-- so left to right 3 | 1 | 6 = panels 3, 2, 1 (the face runs from z 215)
-		S = { W = { [19] = FACADES[3], [18] = FACADES[1], [17] = FACADES[6] },
-			E = { [3] = FACADES[3], [2] = FACADES[1], [1] = FACADES[6] } },
+		-- (user 2026-10-30, 3rd) on the beach-road face, across from the beach
+		-- cafe, the next four after 3 | 1 | 6 read 7 | 4 | 9 | 10 (panels 16..13);
+		-- the narrow north face in the gap by the store: the plain glass side (11)
+		S = { W = { [19] = FACADES[3], [18] = FACADES[1], [17] = FACADES[6], [16] = FACADES[7], [15] = FACADES[4], [14] = F9, [13] = F10 },
+			E = { [3] = FACADES[3], [2] = FACADES[1], [1] = FACADES[6] },
+			N = { [1] = F11, [2] = F11 } },
 	}
 	local function shopBlock(name, x0, z0, x1, z1, h, faces, faceTex: {[string]: number}?)
 		local M = Instance.new("Model")

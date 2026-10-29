@@ -2577,3 +2577,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-568: 오후네컷-클럽 사이 ![](images/2026-10-30/d568_ohu_club_gap.jpg) 국밥집 옆 ![](images/2026-10-30/d568_gukbap_gap.jpg)
 - D-569: ![](images/2026-10-30/d569_facades_136.jpg)
 - D-570: ![](images/2026-10-30/d570_facades_136_east.jpg)
+- D-571: 카페 카운터 ![](images/2026-10-30/d571_cafe_counter.jpg) 작업대 ![](images/2026-10-30/d571_cafe_bench.jpg) 돗자리·쿨러 ![](images/2026-10-30/d571_beach_mat_cooler.jpg) 해변 도로 건물 ![](images/2026-10-30/d571_facades_beach_road.jpg) 편의점 옆 틈 ![](images/2026-10-30/d571_facade11_gap.jpg)
