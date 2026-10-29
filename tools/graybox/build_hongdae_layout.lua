@@ -5794,6 +5794,7 @@ do
 	end
 	for i = #LAMPS, 1, -1 do if behindCurve(LAMPS[i][1], LAMPS[i][2]) then table.remove(LAMPS, i) end end
 	for _, hx in ipairs({ 140, 155, 170 }) do for _, hz in ipairs({ -103, -89 }) do table.insert(LAMPS, { hx, hz }) end end -- the corridor to the booths
+	table.insert(LAMPS, { 176, -105 }) table.insert(LAMPS, { 176, -86 }) -- over the light sky walls by the WHITE door (dark, user 2026-10-30)
 	for _, p in ipairs(LAMPS) do
 		-- plain white panels (Neon panels made the bloom wash the room out)
 		local lamp = box("CeilingLight", p[1] - 1.5, GF - 0.55, p[2] - 1.5, p[1] + 1.5, GF - 0.4, p[2] + 1.5, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))
@@ -6858,20 +6859,21 @@ do
 		-- the two step stools that show in the photos, on the west side (38% / 78%)
 		stepStool(m, Vector3.new(x0 + 3, yF, z0 + dz * 0.38), math.rad(-8))
 		stepStool(m, Vector3.new(x0 + 3, yF, z0 + dz * 0.78), math.rad(6))
-		-- the bag table south of the machine against the east wall, twice the
-		-- size (user 2026-10-30)
-		local TS = 2 / 3 -- (2x, then 2/3 of that, user 2026-10-30)
-		local tz = camZ + 4.6 * 4 / 6 + 0.3 + 3.2 * TS
+		-- the bag table beside the machine: as deep as the machine (its front
+		-- lined up with the machine's), running to the south wall (user 2026-10-30)
+		local TS = 2 / 3
+		local t0, t1 = camZ + 3.3, z1 -- (the machine is 6.4 wide round camZ)
+		local tz = (t0 + t1) / 2
 		do -- a white top on a slim black frame
-			local tc = Vector3.new(x1 - 3 * TS - 0.1, yF, tz)
-			added(part("BagTable", Vector3.new(6 * TS, 0.3, 6.4 * TS), CFrame.new(tc + Vector3.new(0, 5.6 * TS, 0)), Color3.fromRGB(250, 250, 250), { parent = m }))
+			local tw, tl, th = 2.65, t1 - t0, 5.6 * TS
+			local tc = Vector3.new(x1 - tw / 2, yF, tz)
+			added(part("BagTable", Vector3.new(tw, 0.3, tl), CFrame.new(tc + Vector3.new(0, th, 0)), Color3.fromRGB(250, 250, 250), { parent = m }))
 			for _, sx in ipairs({ -1, 1 }) do
 				for _, sz in ipairs({ -1, 1 }) do
-					added(part("BagTableLeg", Vector3.new(0.2, 5.5 * TS, 0.2), CFrame.new(tc + Vector3.new(sx * 2.7 * TS, 2.75 * TS, sz * 2.9 * TS)), Color3.fromRGB(30, 30, 32), { parent = m, nocol = true, material = Enum.Material.Metal }))
+					added(part("BagTableLeg", Vector3.new(0.2, th - 0.1, 0.2), CFrame.new(tc + Vector3.new(sx * (tw / 2 - 0.2), (th - 0.1) / 2, sz * (tl / 2 - 0.2))), Color3.fromRGB(30, 30, 32), { parent = m, nocol = true, material = Enum.Material.Metal }))
 				end
 			end
-		end
-		-- notices (the user's images, docs/04_ART/signs/booth_notice_*.png), as in
+		end		-- notices (the user's images, docs/04_ART/signs/booth_notice_*.png), as in
 		-- the user's mock-up: the rules sheet on the east wall north of the
 		-- machine; over the bag table 소품 정리 with the lost-property notice
 		-- under it; 섭취금지 on the south wall near the east corner
@@ -6888,9 +6890,9 @@ do
 		local west = Vector3.new(-1, 0, 0)
 		-- (rules 2/3; 소품 / 섭취금지 as big as the lost-property notice, user 2026-10-30)
 		notice("BoothNoticeRules", Vector3.new(x1 - 0.1, yF + 8.4, camZ - 7.6), west, 6.2 * 2 / 3, 9 * 2 / 3, "rbxassetid://93525306527293") -- 오후네컷 이용 유의사항
-		notice("BoothNoticeProps", Vector3.new(x1 - 0.1, yF + 10.8, tz), west, 3.4, 2.83, "rbxassetid://139036991327491")
-		notice("BoothNotice", Vector3.new(x1 - 0.1, yF + 7.6, tz), west, 3.4, 2.4, "rbxassetid://138883528902216") -- lost property
-		notice("BoothNoticeFood", Vector3.new(x1 - 4.8, yF + 7.6, z1 - 0.1), Vector3.new(0, 0, -1), 3.4, 2.83, "rbxassetid://78018379686965")
+		notice("BoothNoticeProps", Vector3.new(x1 - 0.1, yF + 10.8, t0 + 1.9), west, 3.4, 2.83, "rbxassetid://139036991327491")
+		notice("BoothNotice", Vector3.new(x1 - 0.1, yF + 7.6, t0 + 1.9), west, 3.4, 2.4, "rbxassetid://138883528902216") -- lost property
+		notice("BoothNoticeFood", Vector3.new(x1 - 0.1, yF + 8, t0 + 5.8), west, 3.4, 2.83, "rbxassetid://78018379686965")
 		-- the WHITE room's way out: an arched door on its north wall (upstairs),		-- where the other rooms have theirs
 		if key == "WHITE" then innerDoor(m, Vector3.new(x0 + 7.5, yF, z0), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), boothColor) end		return boothColor
 	end
@@ -7016,10 +7018,10 @@ do
 			dcl.Parent = np
 		end
 		-- (2/3 size, user 2026-10-30)
-		poster("LobbyNoticeHowTo", DOOR_X.PINK + 8.3, 10, 6.2 * 2 / 3, 8.9 * 2 / 3, "rbxassetid://112162136769164")
-		poster("LobbyNoticeRules", DOOR_X.PINK - 8.8, 10, 8 * 2 / 3, 9.5 * 2 / 3, "rbxassetid://118073148133977")
-		poster("LobbyNoticeProps", DOOR_X.SKY + 8.3, 11.6, 5.1 * 2 / 3, 4.25 * 2 / 3, "rbxassetid://139036991327491")
-		poster("LobbyNoticeFood", DOOR_X.SKY + 8.3, 8.4, 5.1 * 2 / 3, 4.25 * 2 / 3, "rbxassetid://78018379686965")
+		poster("LobbyNoticeHowTo", DOOR_X.PINK + 8.3, 4.8 + 8.9 / 3, 6.2 * 2 / 3, 8.9 * 2 / 3, "rbxassetid://112162136769164")
+		poster("LobbyNoticeRules", DOOR_X.PINK - 8.6, 4.8 + 9.5 / 3, 8 * 2 / 3, 9.5 * 2 / 3, "rbxassetid://118073148133977")
+		poster("LobbyNoticeProps", DOOR_X.SKY + 10.3, 4.8 + 4.25 * 2 / 3 * 1.5 + 0.4, 5.1 * 2 / 3, 4.25 * 2 / 3, "rbxassetid://139036991327491")
+		poster("LobbyNoticeFood", DOOR_X.SKY + 10.3, 4.8 + 4.25 / 3, 5.1 * 2 / 3, 4.25 * 2 / 3, "rbxassetid://78018379686965")
 	end
 	-- photo machine (user photo "Pick") in each room, its front face just behind
 	-- CameraPoint so it never shows in the photos
@@ -7043,7 +7045,7 @@ do
 			K.Parent = m
 			K:SetAttribute("LayoutAdded", true)
 		end
-		local RED, KWHITE = Color3.fromRGB(196, 54, 58), Color3.fromRGB(242, 242, 244)
+		local RED, KWHITE = Color3.fromRGB(150, 150, 156), Color3.fromRGB(242, 242, 244) -- (grey top and bottom, user 2026-10-30: was red)
 		local function kbox(name, y0, y1, w, color, depth)
 			local dd = depth or D
 			return part(name, Vector3.new(w * S, (y1 - y0) * S, dd), base * CFrame.new(0, (y0 + y1) / 2 * S, dd / 2), color, { parent = K })
@@ -7065,10 +7067,10 @@ do
 		local screen = face("MachineScreen", lensY - 1.1, 2.6, 1.1, Color3.fromRGB(250, 240, 245))
 		txt(screen, Enum.NormalId.Front, "OHU4cuts  ×  FRAME", Color3.fromRGB(200, 70, 110), Enum.Font.GothamBold, Color3.fromRGB(255, 236, 244), 60)
 		part("MachineLens", Vector3.new(0.05, 0.75 * S, 0.75 * S), base * CFrame.new(0, lensY * S, -0.04) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(15, 15, 18), { parent = K, nocol = true, shape = Enum.PartType.Cylinder })
-		local lk = face("MachineLook", lensY, 3.4, 0.4, KWHITE)
+		local lk = face("MachineLook", lensY + 0.95, 3.4, 0.4, KWHITE) -- (over the lens, user 2026-10-30)
 		lk.Transparency = 1
-		txt(lk, Enum.NormalId.Front, "LOOK       HERE", Color3.fromRGB(200, 50, 50), Enum.Font.GothamBold, nil, 60)
-		part("PhotoOutlet", Vector3.new(1.1 * S, 0.6 * S, 0.05), base * CFrame.new(1.1 * S, (baseTop - 1.3) * S, -0.03), Color3.fromRGB(205, 225, 255), { parent = K, nocol = true, material = Enum.Material.Neon })
+		txt(lk, Enum.NormalId.Front, "LOOK HERE", Color3.fromRGB(200, 50, 50), Enum.Font.GothamBold, nil, 60)
+		part("PhotoOutlet", Vector3.new(1.1 * S, 0.6 * S, 0.05), base * CFrame.new(1.1 * S, (baseTop - 1.3) * S, -0.03), Color3.fromRGB(235, 236, 240), { parent = K, nocol = true, material = Enum.Material.SmoothPlastic }) -- (no neon, user 2026-10-30)
 	end
 
 	---------------------------------------------------------------- ball-pit studio (north-west corner)
@@ -7281,58 +7283,52 @@ do
 		local M = Instance.new("Model")
 		M.Name = "WavyMirror"
 		M.Parent = B
-		local mo = { parent = M, nocol = true, material = Enum.Material.Fabric }
-		-- the board: horizontal strips, merged
-		local strips = {}
-		local STEP = 0.25
-		for v = -HALF_OUT + STEP / 2, HALF_OUT - STEP / 2, STEP do
-			local w = 2 * hw(v, C_OUT, HALF_OUT)
-			if w > 0.05 then table.insert(strips, part("MirrorBoard", Vector3.new(w, STEP + 0.02, 0.35), base * CFrame.new(0, v, 0), FRAME_COL, mo)) end
-		end
-		local function merge(list: {BasePart}, name: string): BasePart?
-			for _, p in ipairs(list) do p.Parent = workspace end
-			local first = table.remove(list, 1)
-			local ok, u = pcall(function() return first:UnionAsync(list) end)
+		-- the frame: the user's Meshy mirror (docs/04_ART/models/ohu4cut_wavy_mirror_frame_5k.obj,
+		-- 5,150 triangles, imported once: ServerStorage.ArtAssets.WavyMirrorFrame,
+		-- user 2026-10-30); the strip / tube frame below is only the fallback
+		local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+		local mesh = art and art:FindFirstChild("WavyMirrorFrame")
+		local view
+		if mesh and mesh:IsA("MeshPart") then
+			local fr = mesh:Clone()
+			fr.Name = "MirrorFrame"
+			fr.Anchored = true
+			fr.CanCollide = false
+			fr.CFrame = base
+			fr.Parent = M
+			-- the live mirror behind the frame's hole (the hole's box from the mesh,
+			-- the mask: docs/04_ART/textures/ohu4cut_wavy_mirror_hole_mask.png)
+			view = part("MirrorView", Vector3.new(2.983, 8.417, 0.05), base * CFrame.new(-0.02, 0.033, 0.05), Color3.new(1, 1, 1), { parent = M, nocol = true, transparency = 1 })
+			view:SetAttribute("MaskImage", "rbxassetid://113926684920607")
+			view:SetAttribute("MaskColor", fr.Color)
+		else
+			local mo = { parent = M, nocol = true, material = Enum.Material.Fabric }
+			local strips = {}
+			local STEP = 0.25
+			for v = -HALF_OUT + STEP / 2, HALF_OUT - STEP / 2, STEP do
+				local w = 2 * hw(v, C_OUT, HALF_OUT)
+				if w > 0.05 then table.insert(strips, part("MirrorBoard", Vector3.new(w, STEP + 0.02, 0.35), base * CFrame.new(0, v, 0), FRAME_COL, mo)) end
+			end
+			for _, p in ipairs(strips) do p.Parent = workspace end
+			local first = table.remove(strips, 1)
+			local ok, u = pcall(function() return first:UnionAsync(strips) end)
 			if ok and u then
-				u.Name = name
+				u.Name = "MirrorBoard"
 				u.UsePartColor = true
 				u.Anchored = true
 				u.CanCollide = false
 				u.Parent = M
 				first:Destroy()
-				for _, p in ipairs(list) do p:Destroy() end
-				return u
+				for _, p in ipairs(strips) do p:Destroy() end
+			else
+				first.Parent = M
+				for _, p in ipairs(strips) do p.Parent = M end
 			end
-			first.Parent = M
-			for _, p in ipairs(list) do p.Parent = M end
-			return nil
+			view = part("MirrorView", Vector3.new(2 * (C_IN + AMP), 2 * HALF_IN, 0.05), base * CFrame.new(0, 0, -0.2), Color3.new(1, 1, 1), { parent = M, nocol = true, transparency = 1 })
+			view:SetAttribute("MaskImage", "rbxassetid://71592937226897")
+			view:SetAttribute("MaskColor", FRAME_COL)
 		end
-		merge(strips, "MirrorBoard")
-		-- the plush tubes along both waves (in front of the board)
-		local function tube(c: number, half: number, d: number, name: string)
-			local pts = {}
-			local N = 60 -- (26 read as a zigzag: ~12 points per wave now)
-			for k = 0, N do table.insert(pts, Vector3.new(hw(-half + 2 * half * k / N, c, half), -half + 2 * half * k / N, -0.2)) end
-			for k = 1, N - 1 do table.insert(pts, Vector3.new(-hw(half - 2 * half * k / N, c, half), half - 2 * half * k / N, -0.2)) end
-			table.insert(pts, pts[1])
-			local segs = {}
-			for i = 1, #pts - 1 do
-				local a, b = base * pts[i], base * pts[i + 1]
-				local len = (b - a).Magnitude
-				if len > 0.01 then
-					table.insert(segs, part(name, Vector3.new(len + d * 0.5, d, d), CFrame.lookAt((a + b) / 2, b) * CFrame.Angles(0, math.rad(90), 0), FRAME_COL, { parent = M, nocol = true, material = Enum.Material.Fabric, shape = Enum.PartType.Cylinder }))
-				end
-			end
-			merge(segs, name)
-		end
-		tube(C_OUT - 0.1, HALF_OUT - 0.1, 0.5, "MirrorTubeOuter")
-		tube(C_IN + 0.05, HALF_IN + 0.05, 0.36, "MirrorTubeInner")
-		-- the live mirror: the inner wave's bounding box, masked to the wave
-		local view = part("MirrorView", Vector3.new(2 * (C_IN + AMP), 2 * HALF_IN, 0.05), base * CFrame.new(0, 0, -0.2), Color3.new(1, 1, 1), { parent = M, nocol = true, transparency = 1 })
-		view.CanQuery = false
-		view:SetAttribute("MaskImage", "rbxassetid://71592937226897")
-		view:SetAttribute("MaskColor", FRAME_COL)
-		CS:AddTag(view, "Mirror")
+		view.CanQuery = false		CS:AddTag(view, "Mirror")
 	end
 
 	---------------------------------------------------------------- south wall: arched make-up vanity between the capsule windows

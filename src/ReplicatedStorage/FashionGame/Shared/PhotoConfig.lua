@@ -33,7 +33,7 @@ PhotoConfig.PickSeconds = 120      -- time for the host to pick 4 + a frame
 -- Copies (user, 2026-10-22): after the host chose the frame, each person picks
 -- how many prints to keep: 1 free, more cost coins each.
 PhotoConfig.CopySeconds = 30
-PhotoConfig.MaxCopies = 2 -- (1장 or 2장, user 2026-10-30: was 5)
+PhotoConfig.MaxCopies = 5
 PhotoConfig.ExtraCopyCoins = 10 -- (was 20, D-311)
 PhotoConfig.MaxPhotos = 10         -- free album slots (user, 2026-10-20: 10장까지 무료)
 PhotoConfig.HardMaxPhotos = 60     -- stored maximum incl. bought slots (D-064)
