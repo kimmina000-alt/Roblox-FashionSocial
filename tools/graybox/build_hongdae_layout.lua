@@ -6860,13 +6860,14 @@ do
 		stepStool(m, Vector3.new(x0 + 3, yF, z0 + dz * 0.78), math.rad(6))
 		-- the bag table south of the machine against the east wall, twice the
 		-- size (user 2026-10-30)
-		local tz = camZ + 4.6 + 0.3 + 3.2
+		local TS = 2 / 3 -- (2x, then 2/3 of that, user 2026-10-30)
+		local tz = camZ + 4.6 * 4 / 6 + 0.3 + 3.2 * TS
 		do -- a white top on a slim black frame
-			local tc = Vector3.new(x1 - 3.1, yF, tz)
-			added(part("BagTable", Vector3.new(6, 0.3, 6.4), CFrame.new(tc + Vector3.new(0, 5.6, 0)), Color3.fromRGB(250, 250, 250), { parent = m }))
+			local tc = Vector3.new(x1 - 3 * TS - 0.1, yF, tz)
+			added(part("BagTable", Vector3.new(6 * TS, 0.3, 6.4 * TS), CFrame.new(tc + Vector3.new(0, 5.6 * TS, 0)), Color3.fromRGB(250, 250, 250), { parent = m }))
 			for _, sx in ipairs({ -1, 1 }) do
 				for _, sz in ipairs({ -1, 1 }) do
-					added(part("BagTableLeg", Vector3.new(0.25, 5.5, 0.25), CFrame.new(tc + Vector3.new(sx * 2.7, 2.75, sz * 2.9)), Color3.fromRGB(30, 30, 32), { parent = m, nocol = true, material = Enum.Material.Metal }))
+					added(part("BagTableLeg", Vector3.new(0.2, 5.5 * TS, 0.2), CFrame.new(tc + Vector3.new(sx * 2.7 * TS, 2.75 * TS, sz * 2.9 * TS)), Color3.fromRGB(30, 30, 32), { parent = m, nocol = true, material = Enum.Material.Metal }))
 				end
 			end
 		end
@@ -6885,10 +6886,11 @@ do
 			added(np)
 		end
 		local west = Vector3.new(-1, 0, 0)
-		notice("BoothNoticeRules", Vector3.new(x1 - 0.1, yF + 9.8, camZ - 10.5), west, 6.2, 9, "rbxassetid://93525306527293") -- 오후네컷 이용 유의사항
-		notice("BoothNoticeProps", Vector3.new(x1 - 0.1, yF + 12.8, tz + 0.6), west, 4.6, 3.83, "rbxassetid://139036991327491")
-		notice("BoothNotice", Vector3.new(x1 - 0.1, yF + 8.6, tz + 0.2), west, 3.4, 2.4, "rbxassetid://138883528902216") -- lost property
-		notice("BoothNoticeFood", Vector3.new(x1 - 4.8, yF + 7.5, z1 - 0.1), Vector3.new(0, 0, -1), 4.6, 3.83, "rbxassetid://78018379686965")
+		-- (rules 2/3; 소품 / 섭취금지 as big as the lost-property notice, user 2026-10-30)
+		notice("BoothNoticeRules", Vector3.new(x1 - 0.1, yF + 8.4, camZ - 7.6), west, 6.2 * 2 / 3, 9 * 2 / 3, "rbxassetid://93525306527293") -- 오후네컷 이용 유의사항
+		notice("BoothNoticeProps", Vector3.new(x1 - 0.1, yF + 10.8, tz), west, 3.4, 2.83, "rbxassetid://139036991327491")
+		notice("BoothNotice", Vector3.new(x1 - 0.1, yF + 7.6, tz), west, 3.4, 2.4, "rbxassetid://138883528902216") -- lost property
+		notice("BoothNoticeFood", Vector3.new(x1 - 4.8, yF + 7.6, z1 - 0.1), Vector3.new(0, 0, -1), 3.4, 2.83, "rbxassetid://78018379686965")
 		-- the WHITE room's way out: an arched door on its north wall (upstairs),		-- where the other rooms have theirs
 		if key == "WHITE" then innerDoor(m, Vector3.new(x0 + 7.5, yF, z0), Vector3.new(1, 0, 0), Vector3.new(0, 0, 1), boothColor) end		return boothColor
 	end
@@ -6948,7 +6950,7 @@ do
 		end
 		-- (no neon camera + PHOTO BOOTH over the doors any more, user 2026-10-30)
 		local decor = key ~= "PINK" -- (the PINK door's side is the notice wall, user 2026-10-30)
-		if decor then -- neon heart beside the arch
+		if false then -- neon heart beside the arch (gone, user 2026-10-30)
 			local f = glowGui("EntranceHeart", Vector3.new(face.X, F + 10, face.Z) + out * 0.08 - along * 4.8, 3.4, 3.4)
 			local t = Instance.new("TextLabel")
 			t.Size = UDim2.fromScale(1, 1)
@@ -7013,10 +7015,11 @@ do
 			dcl.Texture = image
 			dcl.Parent = np
 		end
-		poster("LobbyNoticeHowTo", DOOR_X.PINK + 8.3, 10, 6.2, 8.9, "rbxassetid://112162136769164")
-		poster("LobbyNoticeRules", DOOR_X.PINK - 8.8, 10, 8, 9.5, "rbxassetid://118073148133977")
-		poster("LobbyNoticeProps", DOOR_X.SKY + 8.3, 12.3, 5.1, 4.25, "rbxassetid://139036991327491")
-		poster("LobbyNoticeFood", DOOR_X.SKY + 8.3, 7.6, 5.1, 4.25, "rbxassetid://78018379686965")
+		-- (2/3 size, user 2026-10-30)
+		poster("LobbyNoticeHowTo", DOOR_X.PINK + 8.3, 10, 6.2 * 2 / 3, 8.9 * 2 / 3, "rbxassetid://112162136769164")
+		poster("LobbyNoticeRules", DOOR_X.PINK - 8.8, 10, 8 * 2 / 3, 9.5 * 2 / 3, "rbxassetid://118073148133977")
+		poster("LobbyNoticeProps", DOOR_X.SKY + 8.3, 11.6, 5.1 * 2 / 3, 4.25 * 2 / 3, "rbxassetid://139036991327491")
+		poster("LobbyNoticeFood", DOOR_X.SKY + 8.3, 8.4, 5.1 * 2 / 3, 4.25 * 2 / 3, "rbxassetid://78018379686965")
 	end
 	-- photo machine (user photo "Pick") in each room, its front face just behind
 	-- CameraPoint so it never shows in the photos
@@ -7030,7 +7033,7 @@ do
 		local K = Instance.new("Model")
 		K.Name = "PhotoMachine"
 		local D = 2.4 -- (thicker, user 2026-10-30: was 1.4)
-		local S = 2 -- twice as wide and tall (user 2026-10-30); the camera stays at the lens height it had
+		local S = 4 / 3 -- (2x, then 2/3 of that, user 2026-10-30); the camera stays at the lens height it had
 		local lensY = camP.Position.Y - fy
 		do
 			local old = m:FindFirstChild("PromptPoint")
@@ -7203,18 +7206,19 @@ do
 		-- towel ladder leaning on the north wall, a pink towel over a rung
 		do
 			-- (twice the size, user 2026-10-30)
-			local LH, LW = 19, 2.4 -- height, half width
+			local LS = 2 / 3 -- (2/3 of the doubled size, user 2026-10-30)
+			local LH, LW = 19 * LS, 2.4 * LS -- height, half width
 			local lx, top, foot = PX0 + 8, PZ0 + 0.6, PZ0 + 3.2
 			for _, s in ipairs({ -1, 1 }) do
 				local a0, a1 = Vector3.new(lx + s * LW, F, foot), Vector3.new(lx + s * LW, F + LH, top)
 				local mid = (a0 + a1) / 2
-				part("LadderRail", Vector3.new(0.4, 0.4, (a1 - a0).Magnitude), CFrame.lookAt(mid, a1), Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
+				part("LadderRail", Vector3.new(0.4 * LS, 0.4 * LS, (a1 - a0).Magnitude), CFrame.lookAt(mid, a1), Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
 			end
 			for k = 1, 9 do
 				local t = k / 10
-				part("LadderRung", Vector3.new(2 * LW, 0.3, 0.3), CFrame.new(lx, F + LH * t, foot + (top - foot) * t), Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
+				part("LadderRung", Vector3.new(2 * LW, 0.3 * LS, 0.3 * LS), CFrame.new(lx, F + LH * t, foot + (top - foot) * t), Color3.fromRGB(250, 250, 250), opt({ nocol = true }))
 			end
-			part("Towel", Vector3.new(3.6, 6.4, 0.16), CFrame.new(lx, F + LH * 0.6 - 3, foot + (top - foot) * 0.6 + 0.25), Color3.fromRGB(255, 196, 206), opt({ material = Enum.Material.Fabric, nocol = true }))
+			part("Towel", Vector3.new(3.6 * LS, 6.4 * LS, 0.16), CFrame.new(lx, F + LH * 0.6 - 3 * LS, foot + (top - foot) * 0.6 + 0.25), Color3.fromRGB(255, 196, 206), opt({ material = Enum.Material.Fabric, nocol = true }))
 		end
 		-- the cafe's pot plant on the balls (user 2026-10-30: was a stool with owls)
 		do
@@ -7372,7 +7376,7 @@ do
 
 	-- three round pendant lamps over the lobby round the bench, like the
 	-- studio's (user screenshot 2026-10-30)
-	for _, at in ipairs({ { 110, -56.5 }, { 97, -56.5 }, { 84, -56.5 } }) do -- (nearer the south wall, user 2026-10-30)
+	for _, at in ipairs({}) do -- (the three lobby pendants are gone again, user 2026-10-30)
 		local y = GF - 5
 		vcyl("LobbyLampCord", Vector3.new(at[1], y, at[2]), 0.08, GF - 0.4 - y, Color3.fromRGB(40, 40, 40), opt({ nocol = true }))
 		local lamp = vcyl("LobbyLamp", Vector3.new(at[1], y - 0.6, at[2]), 4.2, 0.6, Color3.fromRGB(255, 252, 246), opt({ nocol = true }))

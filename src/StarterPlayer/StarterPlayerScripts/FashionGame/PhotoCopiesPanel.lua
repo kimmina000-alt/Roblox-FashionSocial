@@ -1,6 +1,6 @@
 --!strict
--- 인생네컷 "몇 장 저장할까요?" step (user, 2026-10-22): after the host chose
--- the frame, each person picks how many prints to keep with  < 1 >  (minimum
+-- 인생네컷 "몇 장 뽑을까요?" step (user, 2026-10-22): after the host chose
+-- the frame, each person picks 1장 or 2장 and presses 프린트하기 (2026-10-30; was < 1 >, minimum
 -- 1). The first print is free, every extra one costs PhotoConfig coins.
 -- Kept out of PhotoBoothController (local register limit).
 
@@ -57,7 +57,7 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		Font = Enum.Font.GothamBlack,
 		TextSize = 20,
 		TextColor3 = Color3.new(1, 1, 1),
-		Text = "몇 장 저장할까요?",
+		Text = "몇 장 뽑을까요?",
 		ZIndex = zIndex,
 	}, panel)
 	make("TextLabel", {
@@ -70,45 +70,33 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		Text = string.format("각자 %d장은 무료 · 2장부터 1장마다 %s %d", info.free, EconomyConfig.Icon, info.price),
 		ZIndex = zIndex,
 	}, panel)
-	-- <  1  >
+	-- [ 1장 ] [ 2장 ] to choose, then 프린트하기 to finish (user 2026-10-30:
+	-- the print only happens when that button is pressed)
 	local row = make("Frame", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 60),
-		Size = UDim2.fromOffset(220, 64),
-		BackgroundColor3 = Color3.fromRGB(40, 38, 50),
+		Size = UDim2.fromOffset(240, 64),
+		BackgroundTransparency = 1,
 		ZIndex = zIndex,
 	}, panel)
-	round(row, 32)
-	local function arrow(text: string, x: number): TextButton
+	local choices: {TextButton} = {}
+	for n = 1, math.min(2, maxCount) do
 		local b = make("TextButton", {
+			Name = "Copies" .. n,
 			AnchorPoint = Vector2.new(0.5, 0.5),
-			Position = UDim2.new(x, 0, 0.5, 0),
-			Size = UDim2.fromOffset(48, 48),
-			BackgroundColor3 = Color3.fromRGB(255, 120, 180),
+			Position = UDim2.new(if math.min(2, maxCount) == 1 then 0.5 else (n == 1 and 0.25 or 0.75), 0, 0.5, 0),
+			Size = UDim2.fromOffset(104, 58),
+			BackgroundColor3 = Color3.fromRGB(40, 38, 50),
 			Font = Enum.Font.GothamBlack,
-			TextSize = 26,
+			TextSize = 22,
 			TextColor3 = Color3.new(1, 1, 1),
-			Text = text,
+			Text = n .. "장",
 			ZIndex = zIndex + 1,
 		}, row)
-		round(b, 24)
-		return b
+		round(b, 16)
+		make("UIStroke", { Color = Color3.fromRGB(255, 120, 180), Thickness = 0, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
+		choices[n] = b
 	end
-	local minus = arrow("<", 0.16)
-	minus.Name = "Less"
-	local plus = arrow(">", 0.84)
-	plus.Name = "More"
-	local number = make("TextLabel", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.5),
-		Size = UDim2.fromOffset(80, 48),
-		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBlack,
-		TextSize = 34,
-		TextColor3 = Color3.new(1, 1, 1),
-		Text = "1",
-		ZIndex = zIndex + 1,
-	}, row)
 	local cost = make("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 130),
@@ -125,38 +113,40 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 160),
 		Size = UDim2.fromOffset(220, 44),
-		BackgroundColor3 = Color3.fromRGB(255, 214, 90),
-		Font = Enum.Font.GothamBold,
-		TextSize = 17,
-		TextColor3 = Color3.fromRGB(60, 40, 10),
-		Text = "",
+		BackgroundColor3 = Color3.fromRGB(255, 120, 180),
+		Font = Enum.Font.GothamBlack,
+		TextSize = 18,
+		TextColor3 = Color3.new(1, 1, 1),
+		Text = "🖨 프린트하기",
 		ZIndex = zIndex,
 	}, panel)
 	round(save, 14)
 	local function refresh()
-		number.Text = tostring(count)
+		for n, b in ipairs(choices) do
+			local on = n == count
+			b.BackgroundColor3 = if on then Color3.fromRGB(255, 120, 180) else Color3.fromRGB(40, 38, 50)
+			local s = b:FindFirstChildOfClass("UIStroke")
+			if s then s.Thickness = if on then 0 else 2 end
+		end
 		local price = (count - 1) * info.price
-		cost.Text = if price > 0 then string.format("추가 %d장 · %s %d", count - 1, EconomyConfig.Icon, price) else "무료"
-		save.Text = string.format("%d장 저장", count)
-		minus.BackgroundTransparency = if count <= 1 then 0.6 else 0
-		plus.BackgroundTransparency = if count >= maxCount then 0.6 else 0
+		cost.Text = if price > 0 then string.format("%d장 · 추가 %s %d", count, EconomyConfig.Icon, price) else string.format("%d장 · 무료", count)
+		save.Text = "🖨 프린트하기"
 	end
-	minus.MouseButton1Click:Connect(function()
-		if count > 1 then count -= 1 refresh() end
-	end)
-	plus.MouseButton1Click:Connect(function()
-		if count < maxCount then count += 1 refresh() end
-	end)
+	for n, b in ipairs(choices) do
+		b.MouseButton1Click:Connect(function()
+			count = n
+			refresh()
+		end)
+	end
 	local busy = false
 	save.MouseButton1Click:Connect(function()
 		if busy then return end
 		busy = true
-		save.Text = "저장 중..."
+		save.Text = "프린트 중..."
 		onSave(count)
 		busy = false
 		if outer.Parent then refresh() end
-	end)
-	refresh()
+	end)	refresh()
 	return outer
 end
 
