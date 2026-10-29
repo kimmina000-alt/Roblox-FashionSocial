@@ -1035,48 +1035,61 @@ local function seedPhotos(player: Player)
 	if not booth or not stand then return end
 	local ok, outfit = pcall(function() return OutfitSnapshot.encode(humanoid:GetAppliedDescription()) end)
 	if not ok then return end
-	local have = {}
+	-- every 특별한 frame (user 2026-10-30): one sample each, all in the backpack;
+	-- the album keeps as many as it has room for
+	local have: {[string]: any} = {}
 	local _, album = playerData.GetPhotos(player)
 	for _, photo in ipairs(if typeof(album) == "table" then album else {}) do
-		if typeof(photo) == "table" and photo.test and (photo.frame == "neon" or photo.frame == "gloss_pink" or photo.frame == "gold" or photo.frame == "glitter_silver") then table.insert(have, photo) end
+		if typeof(photo) == "table" and photo.test then have[photo.frame] = photo end
 	end
 	local y = -stand.Size.Y / 2 + 3.1
-	-- (the four 특별한 frames, user 2026-10-30)
-	local samples = { { layout = "1x4", frame = "neon" }, { layout = "1x4", frame = "gloss_pink" }, { layout = "1x4", frame = "gold" }, { layout = "1x4", frame = "glitter_silver" } }
-	for i = #have + 1, #samples do
-		local s = samples[i]
-		local shots = {}
-		for k = 1, 4 do
-			table.insert(shots, { people = { { u = player.UserId, x = (k - 2.5) * 0.6, y = y, z = 0, r = (k - 2.5) * 0.25, p = {} } } })
-		end
-		local photo = {
-			id = HttpService:GenerateGUID(false),
-			v = 1,
-			test = true,
-			createdAt = os.time(),
-			layout = s.layout,
-			frame = s.frame,
-			booth = boothInfo(booth, stand),
-			people = { { u = player.UserId, n = player.DisplayName, o = outfit } },
-			shots = shots,
-		}
-		-- (one save at a time: wait for the previous one)
-		for _ = 1, 20 do
-			local saved = playerData.SavePhoto(player, photo)
-			if saved then table.insert(have, photo) break end
-			task.wait(1)
+	local list = {}
+	for _, frame in ipairs(PhotoConfig.Frames) do
+		if frame.tab == "특별한" then
+			local photo = have[frame.key]
+			if not photo then
+				local shots = {}
+				for k = 1, 4 do
+					table.insert(shots, { people = { { u = player.UserId, x = (k - 2.5) * 0.6, y = y, z = 0, r = (k - 2.5) * 0.25, p = {} } } })
+				end
+				photo = {
+					id = HttpService:GenerateGUID(false),
+					v = 1,
+					test = true,
+					createdAt = os.time(),
+					layout = "1x4",
+					frame = frame.key,
+					booth = boothInfo(booth, stand),
+					people = { { u = player.UserId, n = player.DisplayName, o = outfit } },
+					shots = shots,
+				}
+				local count, max = playerData.PhotoCapacity(player)
+				if count < max then
+					for _ = 1, 20 do -- (one save at a time: wait for the previous one)
+						if playerData.SavePhoto(player, photo) then break end
+						task.wait(1)
+					end
+				end
+			end
+			table.insert(list, photo)
 		end
 	end
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then return end
-	for _, photo in ipairs(have) do
+	for _, photo in ipairs(list) do
 		local inBag = false
 		for _, tool in ipairs(photoTools(player)) do
 			if tool:GetAttribute("PhotoId") == photo.id then inBag = true end
 		end
-		if not inBag and #photoTools(player) < #samples then buildPhotoTool(photo).Parent = backpack end
+		if not inBag then
+			local tool = buildPhotoTool(photo)
+			local info = PhotoConfig.findFrame(photo.frame)
+			if info then tool.Name = info.name end -- (the frame's name on the hotbar)
+			tool.Parent = backpack
+		end
 	end
 end
+
 local function setupWall(wall: Instance)
 	if not wall:IsA("BasePart") or wall:FindFirstChild("WallPrompt") then return end
 	local prompt = Instance.new("ProximityPrompt")
