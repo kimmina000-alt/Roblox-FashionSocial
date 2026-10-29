@@ -315,6 +315,21 @@ local function applyStyle(strip: Frame, info: any)
 	top.BackgroundTransparency = 1
 	top.ZIndex = 3
 	top.Parent = strip
+	-- a sticker: an emoji, or an image when it is an rbxassetid (the 몽이 mascot)
+	local function sticker(value: string): GuiObject
+		if string.sub(value, 1, 13) == "rbxassetid://" then
+			local img = Instance.new("ImageLabel")
+			img.Image = value
+			img.BackgroundTransparency = 1
+			img.ScaleType = Enum.ScaleType.Fit
+			return img
+		end
+		local s = Instance.new("TextLabel")
+		s.BackgroundTransparency = 1
+		s.Text = value
+		s.TextScaled = true
+		return s
+	end
 	local rng = Random.new(#info.key * 7919)
 	if info.style == "glitter" then
 		local placed = 0
@@ -342,29 +357,23 @@ local function applyStyle(strip: Frame, info: any)
 		local list = info.stickers
 		for i, c in ipairs(cells) do
 			local right = i % 2 == 0
-			local s = Instance.new("TextLabel")
+			local s = sticker(list[(i - 1) % #list + 1])
 			s.Name = "Sticker"
 			s.AnchorPoint = Vector2.new(0.5, 0.5)
 			s.Position = UDim2.fromScale(c[1] + (if right then c[3] - 0.02 else 0.02), c[2] + (if right then c[4] - 0.01 else 0.01))
-			s.Size = UDim2.fromScale(0.26, 0.26)
+			s.Size = UDim2.fromScale(c[3] * 0.3, c[3] * 0.3) -- (by the photo's width: 2x2 cells are half as wide)
 			s.SizeConstraint = Enum.SizeConstraint.RelativeXX
-			s.BackgroundTransparency = 1
-			s.Text = list[(i - 1) % #list + 1]
-			s.TextScaled = true
 			s.Rotation = if right then 12 else -12
 			s.ZIndex = 3
 			s.Parent = top
 		end
 		for _, x in ipairs({ 0.13, 0.87 }) do
-			local s = Instance.new("TextLabel")
+			local s = sticker(list[#list])
 			s.Name = "Sticker"
 			s.AnchorPoint = Vector2.new(0.5, 0.5)
 			s.Position = UDim2.fromScale(x, 0.955) -- (either side of OHU)
-			s.Size = UDim2.fromScale(0.2, 0.2)
+			s.Size = UDim2.fromScale(cells[1][3] * 0.22, cells[1][3] * 0.22)
 			s.SizeConstraint = Enum.SizeConstraint.RelativeXX
-			s.BackgroundTransparency = 1
-			s.Text = list[#list]
-			s.TextScaled = true
 			s.ZIndex = 3
 			s.Parent = top
 		end
