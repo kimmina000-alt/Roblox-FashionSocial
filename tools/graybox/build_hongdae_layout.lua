@@ -5360,6 +5360,8 @@ do
 	-- road's west side, both sides of the south lot and the towers east of 오후네컷.
 	-- (user 2026-10-27: their own pictures for slots 2, 4, 5 and 7, docs/04_ART/facades/facade_<n>_user.png)
 	local FACADES = { 119555605786938, 108505166753199, 131791880332218, 72400340486961, 98845538068616, 86941239410625, 133905773347734, 134862143501130 }
+	-- (user 2026-10-30: their own pictures for slots 1, 3 and 6 too, facade_<n>_user.png)
+	FACADES[1], FACADES[3], FACADES[6] = 82874826300770, 100132644185665, 88158426718188
 	-- (user 2026-10-30) new pictures: 9 / 10 = the two halves of a bhc + 설농탕
 	-- building, 11 = its plain glass side, 12 = a grey tiled side with windows
 	local F9, F10, F11, F12 = 115092286598069, 110896225910943, 103277497995975, 72442433508204
@@ -5370,6 +5372,11 @@ do
 		-- the north block's road face, from the 국밥집 northward: 노리터 (7 | 4),
 		-- bhc (9 | 10, a taller building of its own), PLAY HERO (5 | 2)
 		N = { W = { [1] = FACADES[4], [2] = FACADES[7], [3] = false, [4] = false, [5] = FACADES[2], [6] = FACADES[5] } },
+		-- the block beside the OH24 store, on the beach road, its first three
+		-- panels from the store: 3 | 1 | 6 (their signs run on from one to the
+		-- next: 휴대|폰성지, 부대찌개 … 있|습니다). The face runs from z 985 to
+		-- 215, so the store end is panels 19, 18, 17
+		S = { W = { [19] = FACADES[3], [18] = FACADES[1], [17] = FACADES[6] } },
 	}
 	local function shopBlock(name, x0, z0, x1, z1, h, faces, faceTex: {[string]: number}?)
 		local M = Instance.new("Model")
