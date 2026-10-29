@@ -1,0 +1,5 @@
+- [Asset candidates first](asset-candidates-first.md) — show a shortlist of Toolbox assets and let the user pick before placing
+- [Test as mobile 2P](testing-mobile-2p.md) — default test = Studio 2-player in phone emulation
+- [Art direction from references](art-direction-references.md) — build realistically from the user's photos/videos; refs in docs/04_ART/references
+- [Verify walkable changes](verify-walkable.md) — fix collision/scraps when moving stairs or paths, then walk them in Play before reporting
+- [Always Korean](always-korean.md) — every chat reply in Korean, no exceptions

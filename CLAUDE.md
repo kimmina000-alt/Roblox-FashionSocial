@@ -47,6 +47,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-10-27, layout v8 on `feat/night-entry-1026` (D-349..D-353): club 24 north (CLUB_DZ -38), bigger 오후네컷 / 국밥집 / OH24, three long shop blocks with facade images, 광화문 3×, beach cafe 2× and moved south (graybox post-pass stretches it), bus stops 2×. Way back: `tools/graybox/map_backup.lua` "restore" (ServerStorage.MapBackup_pre_layout_v8, saved in the place) or git tag `backup/pre-layout-v8`. Still to do: mobile 2P test by the user.
 - After rebuilding only zone 04_Beach_Aquarium, run tools/graybox/park_beach_hidden.lua (the scratchpad zones.ps1 appends it), or the blocky palms and the old dome come back (D-307).
 
+- 2026-10-29: moving to a laptop: docs/00_PROJECT/LAPTOP_SETUP.md. The sync server and zone splitter now live in the repo (tools/dev/serve.ps1 serving tools/dev/serve/, tools/dev/zones.ps1); use those instead of the old desktop scratchpad path. Layout chain now ends with polish_1029. VIP bucket 1 = gold tray, VIP bucket 2 = ice box (all VIP drinks, D-518).
+
 ## Key docs
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
 - `docs/06_LOG/DECISIONS.md`: D-001 to D-309. Shop/pricing: `docs/01_SYSTEMS/CLUB_SHOP_PRICING.md`.
