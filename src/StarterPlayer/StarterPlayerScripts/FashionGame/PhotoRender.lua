@@ -257,13 +257,23 @@ local SPARKLES = {
 -- wrappers while the GUI was still alive, so nothing moved)
 local shines: {[UIGradient]: number} = {}
 local twinkles: {[GuiObject]: {number}} = {}
+local pulses: {[Frame]: {any}} = {} -- neon outlines: the halo layers breathe
 game:GetService("RunService").Heartbeat:Connect(function()
 	local t = os.clock()
 	for g, phase in pairs(shines) do
 		if not g:IsDescendantOf(game) then shines[g] = nil
 		else g.Offset = Vector2.new(((t * 0.7 + phase) % 3) - 1.5, 0) end
 	end
-	for dot, spec in pairs(twinkles) do
+	local breathe = 0.5 + 0.5 * math.sin(t * 2.2)
+	for edge, layers in pairs(pulses) do
+		if not edge:IsDescendantOf(game) then pulses[edge] = nil
+		else
+			for i = 1, 3 do
+				local l = layers[i]
+				l[1].Transparency = math.clamp(l[3] + (1 - breathe) * 0.12, 0, 1)
+			end
+		end
+	end	for dot, spec in pairs(twinkles) do
 		if not dot:IsDescendantOf(game) then twinkles[dot] = nil
 		else
 			local v = math.abs(math.sin(t * spec[1] + spec[2])) ^ 4
@@ -273,11 +283,46 @@ game:GetService("RunService").Heartbeat:Connect(function()
 	end
 end)
 local function applyStyle(strip: Frame, info: any)
-	for _, name in ipairs({ "Deco", "Stickers", "Gloss" }) do
+	for _, name in ipairs({ "Deco", "Stickers", "Gloss", "NeonEdge" }) do
 		local old = strip:FindFirstChild(name)
 		if old then old:Destroy() end
 	end
-	if not info or info.style == "solid" or info.style == nil then return end
+	-- 특별한 frames: a glowing neon outline (user 2026-10-30): a wide soft halo,
+	-- a mid glow and a thin bright core, sized from the strip's width and
+	-- breathing slowly
+	if info and info.tab == "특별한" then
+		local h, s, _ = (info.neon or info.color):ToHSV()
+		local neon = info.neon or Color3.fromHSV(h, math.clamp(s, 0.45, 0.8), 1)
+		local edge = Instance.new("Frame")
+		edge.Name = "NeonEdge"
+		edge.Size = UDim2.fromScale(1, 1)
+		edge.BackgroundTransparency = 1
+		edge.ZIndex = 4
+		edge.Parent = strip
+		local layers = {}
+		for i, spec in ipairs({ { 0.16, 0.86, neon }, { 0.1, 0.72, neon }, { 0.055, 0.45, neon }, { 0.022, 0, neon:Lerp(Color3.new(1, 1, 1), 0.6) } }) do
+			local f = Instance.new("Frame")
+			f.Name = "Glow" .. i
+			f.Size = UDim2.fromScale(1, 1)
+			f.BackgroundTransparency = 1
+			f.ZIndex = 4
+			f.Parent = edge
+			local st = Instance.new("UIStroke")
+			st.Color = spec[3]
+			st.Transparency = spec[2]
+			st.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+			st.LineJoinMode = Enum.LineJoinMode.Round
+			st.Parent = f
+			table.insert(layers, { st, spec[1], spec[2] })
+		end
+		local function fit()
+			local w = strip.AbsoluteSize.X
+			for _, l in ipairs(layers) do l[1].Thickness = math.max(1, w * l[2]) end
+		end
+		strip:GetPropertyChangedSignal("AbsoluteSize"):Connect(fit)
+		fit()
+		pulses[edge] = layers
+	end	if not info or info.style == "solid" or info.style == nil then return end
 	if info.style == "gloss" or info.style == "glitter" then
 		local base = info.color
 		local lite = base:Lerp(Color3.new(1, 1, 1), if info.style == "gloss" then 0.85 else 0.65)

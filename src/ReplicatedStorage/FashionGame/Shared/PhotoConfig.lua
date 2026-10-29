@@ -61,6 +61,7 @@ PhotoConfig.Frames = {
 	{ key = "sage", name = "세이지", color = Color3.fromRGB(185, 215, 175), text = Color3.fromRGB(50, 70, 45), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "aqua", name = "아쿠아", color = Color3.fromRGB(160, 228, 235), text = Color3.fromRGB(30, 70, 80), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
 	{ key = "cream", name = "크림", color = Color3.fromRGB(248, 236, 210), text = Color3.fromRGB(110, 90, 60), tab = "파스텔", price = "coins", coins = 100, style = "solid" },
+	{ key = "neon_black", name = "블랙 네온", color = Color3.fromRGB(14, 12, 18), text = Color3.fromRGB(255, 120, 220), tab = "특별한", price = "pass", style = "solid", neon = Color3.fromRGB(255, 70, 200) }, -- (black with a neon outline, user 2026-10-30)
 	{ key = "neon", name = "글로시 네온", color = Color3.fromRGB(40, 10, 60), text = Color3.fromRGB(255, 80, 200), tab = "특별한", price = "pass", style = "gloss" },
 	{ key = "gloss_pink", name = "글로시 핑크", color = Color3.fromRGB(255, 110, 175), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "gloss" },
 	{ key = "gold", name = "반짝이 골드", color = Color3.fromRGB(212, 175, 55), text = Color3.fromRGB(40, 30, 10), tab = "특별한", price = "pass", style = "glitter" },

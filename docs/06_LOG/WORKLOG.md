@@ -2560,3 +2560,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-551: 특별한 프레임 테스트 사진 ![](images/2026-10-30/photo_special_samples.jpg)
 - D-552: 특별한 프레임 9종 ![](images/2026-10-30/photo_frames_special9.jpg) 곡선 벽 포토월 양끝 ![](images/2026-10-30/curve_photowall_edges.jpg)
 - D-553: 몽이 ![](images/2026-10-30/mascot_mongi_preview.png) 프레임 ![](images/2026-10-30/photo_frames_mongi.jpg)
+- D-554: 네온 외곽선 ![](images/2026-10-30/photo_frames_neon_edge.jpg)
