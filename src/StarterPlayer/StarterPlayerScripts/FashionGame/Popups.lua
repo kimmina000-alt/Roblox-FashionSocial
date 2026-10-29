@@ -4,8 +4,6 @@
 -- shows its window; the window that was open before is closed with its own
 -- close function. Popups.closed(name) when the window closes by itself.
 
-local Sfx = require(script.Parent:WaitForChild("Sfx"))
-
 local Popups = {}
 
 type Entry = { name: string, close: () -> () }
@@ -13,7 +11,6 @@ local current: Entry? = nil
 
 function Popups.opened(name: string, close: () -> ())
 	local previous = current
-	if not previous or previous.name ~= name then Sfx.play("open") end
 	current = { name = name, close = close }
 	if previous and previous.name ~= name then
 		local ok, err = pcall(previous.close)

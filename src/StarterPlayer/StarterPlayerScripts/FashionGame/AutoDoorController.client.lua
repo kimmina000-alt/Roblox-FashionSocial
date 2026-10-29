@@ -54,6 +54,7 @@ end
 
 -- the slide whoosh, at the door (user 2026-10-27; docs/04_ART/SOUNDS.md)
 local DOOR_SOUND = "rbxassetid://4496280365" -- "Automatic Sliding Door" (Creator Store)
+local DOOR_CUT = 0.45 -- seconds of it that play
 local function whoosh(door: Door, open: boolean)
 	local panel = door.panels[1]
 	if not panel then return end
@@ -71,7 +72,19 @@ local function whoosh(door: Door, open: boolean)
 	local sound = s :: Sound
 	sound.PlaybackSpeed = if open then 1.05 else 0.95 -- (closing a touch lower)
 	sound.TimePosition = 0
+	sound.Volume = 0.45
 	sound:Play()
+	-- only the first beat of the clip (user 2026-10-30): cut it with a short fade
+	local played = os.clock()
+	sound:SetAttribute("PlayedAt", played)
+	task.delay(DOOR_CUT, function()
+		for i = 1, 5 do
+			if sound:GetAttribute("PlayedAt") ~= played then return end
+			sound.Volume = 0.45 * (1 - i / 5)
+			task.wait(0.02)
+		end
+		if sound:GetAttribute("PlayedAt") == played then sound:Stop() end
+	end)
 end
 
 local function setOpen(door: Door, open: boolean)

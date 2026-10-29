@@ -125,13 +125,17 @@ local NOT_EDIBLE = {
 for name in pairs(FoodShapes.NotEdible) do NOT_EDIBLE[name] = true end
 
 -- a bite sound per kind of item (ProSoundEffects / public eating clips, 2026-10-26)
+-- (user 2026-10-30: soup without the spoon scraping the bowl, other meat chewing)
 local EAT_SOUND = {
 	cup = 9114171855, bottle = 9114171855, parfait = 9114171855, -- gulp
-	bowl = 134676631229165, noodle = 134676631229165, ricebowl = 134676631229165, -- spoon in soup
+	bowl = 140514526743537, noodle = 140514526743537, ricebowl = 140514526743537, -- "Sipping" (blixxitry)
 	bag = 137096768206416, bread = 137096768206416, rice = 137096768206416, -- crunchy / bready
 	cake = 95249450082163, cone = 95249450082163, bar = 95249450082163, -- soft
-	plate = 128581689642546, -- meat
+	plate = 135174197196705, -- "Chewing" (GIANT EATERS)
 }
+-- coffee is sipped, not gulped (user 2026-10-30): "Tea Cup Up And Down 10" (Pro Sound Effects)
+local COFFEE_SIP = 9119949556
+local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true }
 
 -- Remembers each edible piece's place in the handle's height (call once the
 -- tool is built): which local axis is up, its bottom and top, and its weld.
@@ -500,7 +504,7 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	-- the sound of a bite for this kind of food (drinks gulp)
 	local sip = Instance.new("Sound")
 	sip.Name = "Sip"
-	sip.SoundId = "rbxassetid://" .. tostring(EAT_SOUND[kind] or ClubConfig.GulpSoundId)
+	sip.SoundId = "rbxassetid://" .. tostring(if COFFEE[item.key] then COFFEE_SIP else EAT_SOUND[kind] or ClubConfig.GulpSoundId)
 	sip.Volume = 0.7
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
@@ -814,7 +818,9 @@ end
 local function grantProduct(player: Player, item: SnackConfig.Item): (boolean, string?)
 	local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
 	if item.share then
-		local t = nearestTable(player)
+		-- 수육 goes to the backpack first; the buyer puts it on a table by
+		-- clicking next to one (user 2026-10-30: "why is it on the table at once")
+		local t = if item.kind == "plate" then nil else nearestTable(player)
 		if t then
 			placePlate(player, t, item)
 			if notify then notify:FireClient(player, "Toast", "🍰 테이블에 놓았어요! 모두 한 조각씩 가져갈 수 있어요.") end
@@ -822,7 +828,7 @@ local function grantProduct(player: Player, item: SnackConfig.Item): (boolean, s
 			local backpack = player:FindFirstChildOfClass("Backpack")
 			if not backpack then return false, nil end
 			plateTool(player, item).Parent = backpack
-			if notify then notify:FireClient(player, "Toast", "테이블 옆에서 클릭하면 접시를 놓아요.") end
+			if notify then notify:FireClient(player, "Toast", item.name .. " 인벤토리에 넣었어요! 테이블 옆에서 클릭하면 접시를 놓아요.") end
 		end
 		return true, nil
 	end

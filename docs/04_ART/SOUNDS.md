@@ -83,28 +83,37 @@ Roblox는 캐릭터마다 `RbxCharacterSounds`로 기본 소리를 붙여요. �
 
 빈칸에 ID를 적어 주면 그대로 넣을게요. 2번 표의 소리는 원하면 Claude가 임시 소리를 먼저 찾아 넣을 수도 있어요.
 
-## 3. 세세한 행동 효과음 + 배경 소리 (2026-10-30, D-522)
+## 3. 세세한 행동 효과음 + 배경 소리 (2026-10-30, D-522 → D-523에서 정리)
 
 모두 `src/ReplicatedStorage/FashionGame/Shared/SoundConfig.lua` 한 파일에서 숫자만 바꾸면 돼요.
 재생은 `SfxController.client.lua`(행동·배경), `Sfx.lua`(화면 효과음)가 맡아요.
 
 | # | 언제 나요 | 지금 ID | 지금 소리 | SoundConfig 이름 | 바꿀 ID |
 |---|---|---|---|---|---|
-| 20 | 화면 버튼 누를 때 딸깍 (피아노 건반은 빼요) | 15675032796 | Roblox_UI_Small_Click (Roblox) | `Ui.click` | |
-| 21 | 창(팝업) 열릴 때 휙 | 15675024286 | Roblox_UI_Whoosh_01 (Roblox) | `Ui.open` | |
-| 22 | E / 터치 프롬프트 쓸 때 뽁 | 15675055424 | Roblox_UI_Cute_Pop (Roblox) | `Ui.prompt` | |
+| 20 | 화면 버튼 누를 때 딸깍 (피아노 건반, 가게 카운터 메뉴는 빼요) | 15675032796 | Roblox_UI_Small_Click (Roblox) | `Ui.click` | |
 | 23 | 빨간 오류 메시지 뜰 때 | 87047730068459 | Access Denied (SodaBreadle) | `Ui.error` | |
 | 24 | 로벅스 결제 성공, 후원·불꽃 배너 뜰 때 | 15675043410 | Roblox_UI_Tonal_Stinger (Roblox) | `Ui.success` | |
-| 25 | 코인 오를 때 짤랑 (1분 코인 포함) (2번 표 H) | 1169806635 | Coin Collect 2 (Everyedit, 무료 사용 허락) | `Coin.earn` | |
-| 26 | 코인 쓸 때 계산대 | 101396758527961 | Cash Register Cha Ching (maxjay_jay) | `Coin.spend` | |
 | 27 | 누구든 의자·벤치에 앉을 때 (근처에서 들림) | 9116248517 | Leather Bench 4 (Pro Sound Effects) | `Body.sit` | |
 | 28 | 누구든 옷·액세서리 바꿀 때 사락 (근처에서 들림) | 9119138453 | Silk Shirt 3 (Pro Sound Effects) | `Body.outfit` | |
-| 29 | 🏠·버스·지하철로 순간이동할 때 슉 | 15675046931 | Roblox_UI_Sweep (Roblox) | `Body.teleport` | |
-| 30 | 지하철 타고 도착했을 때 열차 소리 3초 (2번 표 J) | 9117092623 | New York City Subway 2 (Pro Sound Effects) | `Subway` | |
-| 31 | 클럽 테이블에 병·버킷 놓일 때 쨍 (2번 표 C) | 9114076521 | Dinner Plates 3, 유리 (Pro Sound Effects) | `Clink` | |
-| 32 | 바닷가 파도 (바다에 가까울수록 크게) (2번 표 G) | 9119677305 | Surf Ocean Wave Impact On Zuma Beach 4 (Pro Sound Effects) | `Ambience.waves` | |
-| 33 | 거리 배경 웅성임·차 소리 (작게, 클럽 안에서는 꺼짐) | 9112819963 | Las Vegas Night Traffic 1 (Pro Sound Effects) | `Ambience.city` | |
-| 34 | 새소리 (포켓 공원, 놀이터, 광화문·한옥 마을) | 9112831284 | Morning Birds 1 (Pro Sound Effects) | `Ambience.birds` | |
-| 35 | 실내 사람들 소리 (해변 카페, 국밥집, OH24, 오후네컷) | 9112746245 | Bar Walla Clinking Glasses Silverware 2 (Pro Sound Effects) | `Ambience.indoor` | |
+| 29 | 🏠·버스로 순간이동할 때 슉 (지하철은 안 남) | 15675046931 | Roblox_UI_Sweep (Roblox) | `Body.teleport` | |
+| 30 | 지하철 타고 도착했을 때 열차 소리 3초 (띵동, 보류 중) | 9117092623 | New York City Subway 2 (Pro Sound Effects) | `Subway` | |
+| 31 | 클럽 테이블에 병·버킷 놓일 때 쨍 | 9114076521 | Dinner Plates 3, 유리 (Pro Sound Effects) | `Clink` | |
+| 32 | 바닷가 파도 (가까울수록 크게, 최대 0.165 = 처음의 30 %) | 9119677305 | Surf Ocean Wave Impact On Zuma Beach 4 (Pro Sound Effects) | `Ambience.waves` | |
+| 33 | 거리 배경 소리 (최대 0.09, 클럽 안에서는 꺼짐) | 9112819963 | Las Vegas Night Traffic 1 (Pro Sound Effects) | `Ambience.city` | |
+| 34 | 새소리 (포켓 공원, 놀이터, 광화문·한옥 마을, 최대 0.175) | 9112831284 | Morning Birds 1 (Pro Sound Effects) | `Ambience.birds` | |
 
-배경 소리 구역은 `SfxController.client.lua`의 `BIRD_BOXES` / `INDOOR_BOXES` / `CLUB_BOX` / `SHORE_X` 좌표예요 (맵 v8 기준). 건물을 옮기면 같이 고쳐야 해요.
+뺀 소리 (사용자 2026-10-30 (2), D-523): 프롬프트 뽁(21·22: 카운터·포토부스 사진 찍기·포토월 붙이기·국밥 놓기),
+창 열릴 때 휙(사진 다 찍은 뒤 "지이잉", 지하철 패드 포함), 코인 오를 때·쓸 때(25·26), 실내 사람들 소리(35).
+
+배경 소리 구역은 `SfxController.client.lua`의 `BIRD_BOXES` / `CLUB_BOX` / `SHORE_X` 좌표예요 (맵 v8 기준).
+
+### 같이 바뀐 소리 (D-523)
+
+| 언제 | 전 | 지금 | 파일 |
+|---|---|---|---|
+| 국밥·라면·공깃밥 먹을 때 (그릇 긁는 소리 뺌) | 134676631229165 eat_noodlesspoon2 | 140514526743537 "Sipping" (blixxitry) | SnackService `EAT_SOUND.bowl` |
+| 수육 먹을 때 | 128581689642546 eat_meat8 | 135174197196705 "Chewing" (GIANT EATERS) | SnackService `EAT_SOUND.plate` |
+| 커피(아메리카노·라테·카라멜·카푸치노) 마실 때 (새로) | 꿀꺽 9114171855 | 9119949556 Tea Cup Up And Down 10 (Pro Sound Effects) | SnackService `COFFEE_SIP` |
+| 버스에서 내릴 때 | 103836825296838 버스 앞문 | 109083794861112 Bus Air Brake 5 | SubwayService |
+| 자동문 | 소리 전체 3.8초 | 앞 0.45초만 (`DOOR_CUT`) | AutoDoorController |
+| 수영·물에서 점프·모래 발소리 | 이미 있음 (로블록스 Swimming / Splash, 11 모래) | 그대로 | |

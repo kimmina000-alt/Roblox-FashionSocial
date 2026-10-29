@@ -2,22 +2,21 @@
 -- Sound effects for small actions everywhere, and the background ambience
 -- (user 2026-10-30: "a sound for every feature and every small action").
 -- Ids: Shared/SoundConfig. List: docs/04_ART/SOUNDS.md §3.
---   - any button on screen: a soft click (not the piano keys)
---   - an E / tap prompt used: a pop
---   - coins up: a coin ding; coins down: a till
+--   - any button on screen: a soft click (not the piano keys, not the shop
+--     counter menu, where only the till's ding plays)
 --   - a Robux purchase that goes through: a short chime
 --   - anyone sitting down: a cushion; anyone's clothes changing: a rustle
---   - the own character jumping far at once (🏠, bus, subway): a sweep, and
---     after a subway trip the first seconds of a train
+--   - the own character jumping far at once (🏠, bus): a sweep; after a
+--     subway trip only the first seconds of a train
 --   - ambience by where the camera is: waves near the sea, birds in the
---     parks and the hanok village, people talking inside cafes / 국밥집 /
---     OH24 / 오후네컷, and a soft street hum everywhere else (off in the club,
---     which has its own music)
+--     parks and the hanok village, and a soft street hum everywhere else (off
+--     in the club, which has its own music)
+-- (user 2026-10-30 (2): no prompt pop, no window whoosh, no coin sounds, no
+-- indoor crowd; waves 70 % quieter, birds and street at half)
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 local SoundService = game:GetService("SoundService")
-local ProximityPromptService = game:GetService("ProximityPromptService")
 local MarketplaceService = game:GetService("MarketplaceService")
 local CollectionService = game:GetService("CollectionService")
 local Debris = game:GetService("Debris")
@@ -32,7 +31,7 @@ local function asset(id: number): string return "rbxassetid://" .. id end
 --------------------------------------------------
 -- buttons
 --------------------------------------------------
-local NO_CLICK_GUIS = { PianoKeyboard = true } -- (the keys play notes)
+local NO_CLICK_GUIS = { PianoKeyboard = true, SnackGui = true } -- (the keys play notes; the counter has its till ding)
 local hooked: {[Instance]: boolean} = setmetatable({}, { __mode = "k" }) :: any
 local function hookButton(b: Instance)
 	if hooked[b] or not b:IsA("GuiButton") then return end
@@ -49,22 +48,8 @@ playerGui.DescendantAdded:Connect(function(d)
 end)
 
 --------------------------------------------------
--- prompts, coins, purchases
+-- purchases
 --------------------------------------------------
-ProximityPromptService.PromptTriggered:Connect(function() Sfx.play("prompt") end)
-
-local lastCoins: number? = nil
-local function onCoins()
-	local now = player:GetAttribute("Coins")
-	if typeof(now) ~= "number" then return end
-	if lastCoins then
-		if now > lastCoins then Sfx.play("earn") elseif now < lastCoins then Sfx.play("spend") end
-	end
-	lastCoins = now
-end
-onCoins()
-player:GetAttributeChangedSignal("Coins"):Connect(onCoins)
-
 MarketplaceService.PromptProductPurchaseFinished:Connect(function(userId: number, _id: number, bought: boolean)
 	if bought and userId == player.UserId then Sfx.play("success") end
 end)
@@ -150,8 +135,7 @@ RunService.Heartbeat:Connect(function()
 	if not root or not root:IsA("BasePart") then lastPos = nil return end
 	local pos = root.Position
 	if lastPos and (pos - lastPos).Magnitude > 30 then
-		Sfx.play("teleport")
-		if nearSubway(lastPos) then playSubway() end
+		if nearSubway(lastPos) then playSubway() else Sfx.play("teleport") end
 	end
 	lastPos = pos
 end)
@@ -166,12 +150,6 @@ local BIRD_BOXES: {Box} = {
 	{ -150, -46, -229, -47 }, -- pocket park
 	{ -135, -53, -496, -254 }, -- park playground
 	{ -15, 345, 21, 423 }, -- 광화문 and the hanok village
-}
-local INDOOR_BOXES: {Box} = {
-	{ 40, 158, -376, -292 }, -- 국밥집
-	{ -136, -52, 60, 210 }, -- OH24
-	{ -376, -198, 175, 377 }, -- beach cafe
-	{ 44, 180, -115, -43 }, -- 오후네컷
 }
 local CLUB_BOX: Box = { 29, 193, -289, -131 }
 
@@ -201,8 +179,8 @@ for name, id in pairs(SoundConfig.Ambience :: {[string]: number}) do
 	loops[name] = s
 end
 
-local MAX = { waves = 0.55, birds = 0.35, indoor = 0.2, city = 0.18 }
-local current = { waves = 0, birds = 0, indoor = 0, city = 0 }
+local MAX = { waves = 0.165, birds = 0.175, city = 0.09 }
+local current = { waves = 0, birds = 0, city = 0 }
 local nextAt = 0
 RunService.Heartbeat:Connect(function()
 	local camera = workspace.CurrentCamera
@@ -213,13 +191,11 @@ RunService.Heartbeat:Connect(function()
 	local pos = camera.CFrame.Position
 	local inClub = weight(CLUB_BOX, pos, 1) > 0 and pos.Y < 120
 	local waves = math.clamp(1 - math.max(0, pos.X - SHORE_X) / 220, 0, 1)
-	local indoor = most(INDOOR_BOXES, pos, 6)
-	local birds = most(BIRD_BOXES, pos, 50) * (1 - indoor)
+	local birds = most(BIRD_BOXES, pos, 50)
 	local target = {
-		waves = waves * (1 - 0.5 * indoor),
+		waves = waves,
 		birds = birds,
-		indoor = indoor,
-		city = if inClub then 0 else (1 - waves) * (1 - 0.6 * indoor) * (1 - 0.5 * birds),
+		city = if inClub then 0 else (1 - waves) * (1 - 0.5 * birds),
 	}
 	for name, s in pairs(loops) do
 		local goal = (target :: any)[name] * (MAX :: any)[name]

@@ -9,14 +9,9 @@ local SoundConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitFo
 
 local Sfx = {}
 
-local VOLUME: {[string]: number} = {
-	click = 0.35, open = 0.3, prompt = 0.35, error = 0.4, success = 0.45,
-	earn = 0.3, spend = 0.45, teleport = 0.4,
-}
+local VOLUME: {[string]: number} = { click = 0.35, error = 0.4, success = 0.45, teleport = 0.4 }
 local IDS: {[string]: number} = {
-	click = SoundConfig.Ui.click, open = SoundConfig.Ui.open, prompt = SoundConfig.Ui.prompt,
-	error = SoundConfig.Ui.error, success = SoundConfig.Ui.success,
-	earn = SoundConfig.Coin.earn, spend = SoundConfig.Coin.spend,
+	click = SoundConfig.Ui.click, error = SoundConfig.Ui.error, success = SoundConfig.Ui.success,
 	teleport = SoundConfig.Body.teleport,
 }
 

@@ -87,7 +87,7 @@ local function go(player: Player, tag: any, number: any): (boolean, string?)
 		if not sound then
 			local made = Instance.new("Sound")
 			made.Name = "BusDoorSound"
-			made.SoundId = "rbxassetid://103836825296838" -- "Bs계열 앞문 오픈소리" (Creator Store)
+			made.SoundId = "rbxassetid://109083794861112" -- "Bus Air Brake 5" (Creator Store; user 2026-10-30 asked for another bus sound)
 			made.Volume = 0.7
 			made.RollOffMinDistance = 8
 			made.RollOffMaxDistance = 50
