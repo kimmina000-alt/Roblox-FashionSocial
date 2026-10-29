@@ -26,12 +26,12 @@ local panel = make("Frame", {
 	Position = UDim2.new(0.5, 0, 0, 52), -- (under the top bar and the shooting info bar)
 	Size = UDim2.fromOffset(250, 0),
 	AutomaticSize = Enum.AutomaticSize.Y,
-	BackgroundColor3 = Color3.fromRGB(255, 244, 248),
+	BackgroundColor3 = Color3.fromRGB(24, 20, 32), -- (black + pink edge like the photo windows)
 	BackgroundTransparency = 0.08,
 	Visible = false,
 }, gui)
 make("UICorner", { CornerRadius = UDim.new(0, 12) }, panel)
-make("UIStroke", { Color = Color3.fromRGB(240, 150, 185), Thickness = 1.5 }, panel)
+make("UIStroke", { Color = Color3.fromRGB(255, 110, 170), Thickness = 2 }, panel)
 make("UIPadding", { PaddingTop = UDim.new(0, 6), PaddingBottom = UDim.new(0, 6), PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, panel)
 make("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, panel)
 make("TextLabel", {
@@ -41,7 +41,7 @@ make("TextLabel", {
 	Font = Enum.Font.GothamBold,
 	TextSize = 13,
 	TextXAlignment = Enum.TextXAlignment.Left,
-	TextColor3 = Color3.fromRGB(150, 60, 95),
+	TextColor3 = Color3.fromRGB(255, 214, 90),
 	Text = "함께 찍는 사람",
 }, panel)
 
@@ -71,7 +71,7 @@ local function row(userId: number): Frame
 		TextSize = 13,
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		TextXAlignment = Enum.TextXAlignment.Left,
-		TextColor3 = Color3.fromRGB(60, 40, 50),
+		TextColor3 = Color3.fromRGB(255, 255, 255),
 		Text = if other then other.Name else tostring(userId),
 	}, frame)
 	local button = make("TextButton", {

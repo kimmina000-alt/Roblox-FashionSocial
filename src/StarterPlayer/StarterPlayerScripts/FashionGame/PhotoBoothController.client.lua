@@ -627,14 +627,16 @@ local infoBar = text({
 	Name = "Info",
 	AnchorPoint = Vector2.new(0.5, 0),
 	Size = UDim2.fromOffset(300, 34),
-	BackgroundColor3 = Color3.fromRGB(255, 240, 246),
-	BackgroundTransparency = 0,
-	TextColor3 = Color3.fromRGB(60, 30, 50),
+	-- (black with a pink edge like the other photo windows, user 2026-10-30)
+	BackgroundColor3 = Color3.fromRGB(24, 20, 32),
+	BackgroundTransparency = 0.03,
+	TextColor3 = COLORS.text,
 	Text = "",
 	TextSize = 16,
 	ZIndex = 3,
 }, shoot)
 corner(infoBar, 17)
+create("UIStroke", { Color = COLORS.pink, Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, infoBar)
 -- the tip sits inside the bottom of the photo window (user mock-up 2026-10-26)
 local tip = text({
 	Name = "Tip",
@@ -679,18 +681,21 @@ local faceFront = button({
 }, shoot, 15)
 
 local function sidePanel(name: string, title: string): (Frame, ScrollingFrame)
-	-- (the same light pink as the shot counter, user 2026-10-26)
+	-- (black with a pink edge like the other photo windows, user 2026-10-30;
+	-- was light pink)
 	local frame = create("Frame", {
 		Name = name,
-		BackgroundColor3 = Color3.fromRGB(255, 240, 246),
+		BackgroundColor3 = Color3.fromRGB(24, 20, 32),
+		BackgroundTransparency = 0.03,
 		ZIndex = 3,
 	}, shoot)
 	corner(frame, 12)
+	create("UIStroke", { Color = COLORS.pink, Thickness = 2 }, frame)
 	text({
 		Position = UDim2.fromOffset(8, 4),
 		Size = UDim2.new(1, -16, 0, 22),
 		Text = title,
-		TextColor3 = Color3.fromRGB(60, 30, 50),
+		TextColor3 = COLORS.yellow,
 		TextSize = 15,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		ZIndex = 4,
@@ -717,9 +722,9 @@ end
 local posePanel, poseList = sidePanel("Poses", "포즈")
 local propPanel, propList = sidePanel("Props", "소품")
 
--- light sky-blue buttons with dark text on the pink popups (user 2026-10-26);
--- the chosen one is pink with white text
-local SKY_BUTTON, SKY_TEXT = Color3.fromRGB(205, 235, 250), Color3.fromRGB(30, 46, 66)
+-- dark card buttons with white text, like the other photo windows (user
+-- 2026-10-30; were light sky blue); the chosen one is pink
+local SKY_BUTTON, SKY_TEXT = Color3.fromRGB(44, 42, 54), Color3.fromRGB(255, 255, 255)
 local pauseButton: TextButton
 do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 	local order = 0

@@ -2555,3 +2555,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-546: 3D 거울 ![](images/2026-10-30/ohu4cut_mesh_mirror.jpg) 부스 ![](images/2026-10-30/ohu4cut_booth_v8.jpg) 찍힌 사진 ![](images/2026-10-30/photo_shots_clean.jpg) 장수 선택 ![](images/2026-10-30/photo_copies_print_v2.jpg)
 - D-547: 거울 ![](images/2026-10-30/ohu4cut_soft_mirror.jpg) 볼풀 인형 ![](images/2026-10-30/ohu4cut_pit_plush.jpg)
 - D-548: 인형 ![](images/2026-10-30/ohu4cut_pit_plush_v2.jpg) 사진 고르기 ![](images/2026-10-30/photo_ui_pick.jpg) 프레임 ![](images/2026-10-30/photo_ui_frame.jpg) 장수 ![](images/2026-10-30/photo_ui_copies.jpg) 저장 완료 ![](images/2026-10-30/photo_ui_saved.jpg) 내 앨범 ![](images/2026-10-30/photo_ui_album.jpg) 삭제 확인 ![](images/2026-10-30/photo_ui_confirm.jpg)
+- D-549: 촬영 중 UI 통일 ![](images/2026-10-30/photo_ui_shoot_dark.jpg)
