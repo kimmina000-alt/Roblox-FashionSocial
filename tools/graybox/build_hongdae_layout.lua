@@ -6363,7 +6363,7 @@ do
 	do
 		local backs = roundRect("PhotoNicheBack", Vector3.new(PHOTO_X, F, IN_N + 0.15), nAlong, nOut, PHW, PHH, PHR, 0.2, SKY, opt({ material = Enum.Material.SmoothPlastic }))
 		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 8 sl.Brightness = 0.4 sl.Color = SKY_LIGHT sl.Parent = backs[1]
-		roundRim(Vector3.new(PHOTO_X, F, NFACE + 0.05), nAlong, nOut, PHW + 0.3, PHH + 0.15, PHR + 0.15, 0.18, 0.3, NEON_WHITE)
+		roundRim(Vector3.new(PHOTO_X, F, NFACE + 0.05), nAlong, nOut, PHW + 0.16, PHH + 0.08, PHR + 0.08, 0.08, 0.3, NEON_WHITE) -- (thin lines, user 2026-10-30: 0.18 → 0.08)
 		local p = zoneP and zoneP:FindFirstChild("PhotoWall")
 		if p and p:IsA("BasePart") then
 			p:SetAttribute("OrigCFrame", p.CFrame)
@@ -6393,7 +6393,7 @@ do
 		for _, xc in ipairs(NICHES) do
 			local back = archPanel(Vector3.new(xc, F, IN_N + 0.15), nAlong, nOut, NW, NH, 0.2, SKY, B, Enum.Material.SmoothPlastic)
 			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Back sl.Range = 6 sl.Brightness = 0.5 sl.Color = SKY_LIGHT sl.Parent = back
-			archRim(Vector3.new(xc, F, NFACE + 0.05), nAlong, nOut, NW + 0.3, NH + 0.15, 0.18, 0.3, NEON_WHITE, B, Enum.Material.Neon)
+			archRim(Vector3.new(xc, F, NFACE + 0.05), nAlong, nOut, NW + 0.16, NH + 0.08, 0.08, 0.3, NEON_WHITE, B, Enum.Material.Neon)
 			local sign = part("NicheSign", Vector3.new(3.4, 0.9, 0.05), CFrame.new(xc, F + NH - 2.4, IN_N + 0.3), SKY, opt({ nocol = true, transparency = 1 }))
 			txt(sign, Enum.NormalId.Back, "OHU 4 CUT\nPLAYGROUND", Color3.fromRGB(40, 60, 80), Enum.Font.GothamMedium, nil, 60)
 			for _, s in ipairs({ -1, 1 }) do
@@ -6434,7 +6434,7 @@ do
 			CS:AddTag(view, "Mirror")
 		end
 		do -- the glowing frame on the wall face around the recess
-			local w, h, th, depth = 4.4 + 0.3, 8.4 + 0.3, 0.18, 0.3
+			local w, h, th, depth = 4.4 + 0.16, 8.4 + 0.16, 0.08, 0.3
 			local r, straight = w / 2, h - w
 			local c = Vector3.new(MIRROR_X, F + 7.2, NFACE + 0.05)
 			for _, s in ipairs({ -1, 1 }) do
