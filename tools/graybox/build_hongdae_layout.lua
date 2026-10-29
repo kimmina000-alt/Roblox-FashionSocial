@@ -5375,8 +5375,12 @@ do
 		-- the block beside the OH24 store, on the beach road, its first three
 		-- panels from the store: 3 | 1 | 6 (their signs run on from one to the
 		-- next: 휴대|폰성지, 부대찌개 … 있|습니다). The face runs from z 985 to
-		-- 215, so the store end is panels 19, 18, 17
-		S = { W = { [19] = FACADES[3], [18] = FACADES[1], [17] = FACADES[6] } },
+		-- 215, so the store end is panels 19, 18, 17 (seen from the beach road the
+		-- store is on the left). (user 2026-10-30, 2nd) also on its east face, on
+		-- the road beside the store's east front: there the store is on the right,
+		-- so left to right 3 | 1 | 6 = panels 3, 2, 1 (the face runs from z 215)
+		S = { W = { [19] = FACADES[3], [18] = FACADES[1], [17] = FACADES[6] },
+			E = { [3] = FACADES[3], [2] = FACADES[1], [1] = FACADES[6] } },
 	}
 	local function shopBlock(name, x0, z0, x1, z1, h, faces, faceTex: {[string]: number}?)
 		local M = Instance.new("Model")
