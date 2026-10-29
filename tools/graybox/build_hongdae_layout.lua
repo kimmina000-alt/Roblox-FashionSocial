@@ -5720,6 +5720,23 @@ do
 			tx.Face = Enum.NormalId.Top
 			tx.Texture = "rbxassetid://89770610218248"
 			tx.StudsPerTileU, tx.StudsPerTileV = 7, 7
+			-- the cut-corner piece is turned 45°: the same tiles drawn square to
+			-- the image (ohu4cut_octagon_tile_axis.png) come out on the 45° grid
+			-- Offsets anchor every piece's pattern to world coordinates so the joints
+			-- between the pieces line up (the 45° piece: half a tile on V and 0.37 on
+			-- U were measured in Studio, 2026-10-30)
+			if math.abs(p.CFrame.XVector.X) < 0.9 then
+				local P = 7 / math.sqrt(2)
+				local X, Z = p.CFrame.XVector, p.CFrame.ZVector
+				local dot = Vector3.new(3.5, 0, 0) -- a navy dot of the main pattern
+				tx.Texture = "rbxassetid://105871181301997"
+				tx.StudsPerTileU, tx.StudsPerTileV = P, P
+				tx.OffsetStudsU = (-(p.Position:Dot(X) - p.Size.X / 2) + dot:Dot(X)) % P + 0.37
+				tx.OffsetStudsV = (-(p.Position:Dot(Z) - p.Size.Z / 2) + dot:Dot(Z) + P / 2) % P
+			else
+				tx.OffsetStudsU = (-(p.Position.X - p.Size.X / 2)) % 7
+				tx.OffsetStudsV = (-(p.Position.Z - p.Size.Z / 2)) % 7
+			end
 			tx.Parent = p
 		end
 	end
@@ -6361,7 +6378,8 @@ do
 			elseif math.abs(cf.YVector.X) > 0.9 then p.Size = Vector3.new(p.Size.X, bw, p.Size.Z) end
 		end
 		-- the booth floor is flush with the lobby floor (it stood proud, user)
-		set(fl, DEPTH - 2, Vector3.new(bcx, F - fl.Size.Y / 2 + 0.005, zc))
+		-- (+0.03, not +0.005: the tiled lobby floor under it flickered through, 2026-10-30)
+		set(fl, DEPTH - 2, Vector3.new(bcx, F - fl.Size.Y / 2 + 0.03, zc))
 		widen(fl, false)
 		local ce = m:FindFirstChild("Ceiling") :: BasePart?
 		if ce then set(ce, DEPTH - 1, Vector3.new(bcx, GF - 0.66, zc)) widen(ce, false) end -- just under the lobby ceiling
@@ -6563,21 +6581,24 @@ do
 		archRim(Vector3.new(FX + 0.5, F, z), Vector3.new(0, 0, 1), Vector3.new(-1, 0, 0), AW, AH, 0.15, 1.02, lining, B, Enum.Material.SmoothPlastic)
 		-- a white pleated curtain filling the arch (user photo 2026-10-30,
 		-- docs/04_ART/references/ohu4cut_room_arch_curtain.jpg): white columns side
-		-- by side, each cut to the arch line; walk-through, no shadow or queries
+		-- by side (D-528), now one pleat image on one thin panel (user picked it
+		-- and sent the image, 2026-10-30: docs/04_ART/textures/ohu4cut_curtain_pleats.jpg).
+		-- The panel stands in the middle of the wall's thickness and runs up to
+		-- the arch top: the wall hides its square top corners on both sides, so a
+		-- single box looks arched (a box + half disc showed seams). Walk-through.
 		do
-			local ri = AW / 2 - 0.15 -- inside the lining
-			local COLS = 11
-			local d = 2 * ri / COLS
-			for k = 0, COLS - 1 do
-				local s = -ri + d * (k + 0.5)
-				local h = (AH - AW / 2) + math.sqrt(math.max(0, ri * ri - (math.abs(s) + d / 2) ^ 2))
-				local pleat = part("CurtainPleat", Vector3.new(h, d * 1.15, d * 1.15),
-					CFrame.new(FX + 0.5, F + h / 2, z + s) * CFrame.Angles(0, 0, math.rad(90)),
-					Color3.fromRGB(244, 242, 236), { parent = B, material = Enum.Material.Fabric, shape = Enum.PartType.Cylinder })
-				pleat.CanCollide = false
-				pleat.CanQuery = false
-				pleat.CanTouch = false
-				pleat.CastShadow = false
+			local wi, hi = AW - 0.3, AH - 0.15 -- inside the lining
+			local p = part("Curtain", Vector3.new(wi, hi, 0.08), CFrame.fromMatrix(Vector3.new(FX + 0.5, F + hi / 2, z), Vector3.new(0, 0, 1), Vector3.yAxis),
+				Color3.fromRGB(236, 238, 240), { parent = B, material = Enum.Material.SmoothPlastic })
+			p.CanCollide = false
+			p.CanQuery = false
+			p.CanTouch = false
+			p.CastShadow = false
+			for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+				local dcl = Instance.new("Decal")
+				dcl.Texture = "rbxassetid://83669025652747"
+				dcl.Face = face
+				dcl.Parent = p
 			end
 		end
 		local name = ROOMS[booths[i]:GetAttribute("BoothKey") or ""] or string.format("PHOTO %02d", i)
