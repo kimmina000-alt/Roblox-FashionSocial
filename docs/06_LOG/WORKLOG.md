@@ -2521,3 +2521,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 입구 아치를 각 부스 가운데로 옮기고 네온으로 꾸밈, 입구에서 바로 '사진 찍기'.
 - 전: ![](images/2026-10-30/photobooth_entrance_before.jpg) 후: ![](images/2026-10-30/photobooth_entrance_after.jpg)
 - 촬영 화면(문 안 보임): ![](images/2026-10-30/photobooth_shoot_view.jpg)
+
+## 2026-10-30 — 소리·정류장·해변 의자 (D-525..D-527)
+- 커피 마시는 소리 2배, 해변 파도 소리 절반(D-525).
+- 클럽·국밥집 정류장에서 카페 정류장이 안 뜸: 멀리 있는 정류장은 화면 쪽에 아직 안 불러와져 빠졌음. 서버가 전체 목록을 보내도록 수정, 클럽→카페 이동 확인(D-526).
+- 해변 접이식 의자가 옆을 보고 있던 것을 바다 쪽으로 돌림(D-527): ![](images/2026-10-30/beach_chair_faces_sea.jpg)

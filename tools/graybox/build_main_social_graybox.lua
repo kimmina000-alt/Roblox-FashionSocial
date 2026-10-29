@@ -1118,7 +1118,8 @@ local z=zone("04_Beach_Aquarium")
  end
  local function chair(par,g,cols)
   local base=CFrame.lookAt(g,g+Vector3.new(-1,0,0)) -- faces the sea
-  if artCopy("BeachChairWood",par,base,4) then
+  -- (the store chair's front is its -Z: turned 90° more so it looks at the sea too, user 2026-10-30)
+  if artCopy("BeachChairWood",par,base*CFrame.Angles(0,math.rad(90),0),4) then
    -- the store chair is only a look: an invisible seat to sit on
    seat(par,"BeachChair",base*CFrame.new(0,1.1,0),Vector3.new(2.4,0.25,2.2),cols[1],1) return end
   for _,sx in ipairs({-1.1,1.1}) do
