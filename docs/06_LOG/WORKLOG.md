@@ -2622,3 +2622,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 접힌 파라솔 후보: ![](../04_ART/references/candidates_parasol_folded.png)
 ### 2026-10-30 돗자리 M6, 접힌 파라솔 삭제 (D-597)
 - M6 에셋에 악성 스크립트(Runtime/ScreenBuilder)가 있어 부품과 이미지만 남김. 돗자리 6개를 얇은 천 부품 + 깅엄 이미지(158549481)로 교체. 접힌 파라솔 자리 4곳 삭제. (Studio 화면 캡처가 하얗게 나와 그림 확인은 못 하고 속성만 확인)
+
+### 2026-10-30 상단 버튼 좌우 정렬 (D-598)
+- 왼쪽 묶음은 로블록스 버튼 끝(TopbarInset)부터 시작해서 음성 채팅 버튼이 생기고 사라질 때 같이 움직임. 카탈로그 C → 흰 옷걸이 그림.
+  ![](images/2026-10-30/topbar_left_right_d598.jpg)

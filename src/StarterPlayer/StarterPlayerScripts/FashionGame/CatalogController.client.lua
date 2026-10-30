@@ -225,19 +225,27 @@ local openButton = create("TextButton", {
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 	BackgroundTransparency = 0.2,
 	TextColor3 = Color3.fromRGB(255, 255, 255),
-	Text = "C",
+	Text = "",
 	TextSize = 18,
 	Font = Enum.Font.GothamBold,
 	AutoButtonColor = true,
 })
 openButton.Parent = screenGui
+-- a white clothes hanger instead of "C" (user 2026-10-30; docs/04_ART/references/icon_hanger.png)
+create("ImageLabel", {
+	Name = "Icon",
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.fromScale(0.5, 0.52),
+	Size = UDim2.fromScale(0.68, 0.68),
+	BackgroundTransparency = 1,
+	Image = "rbxassetid://101447482547271",
+}).Parent = openButton
 
 create("UICorner", {
 	CornerRadius = UDim.new(1, 0),
 }).Parent = openButton
 
--- In the top bar row with the other round buttons (user 2026-10-30: between
--- 💝 and 🎒, TopBar.lua has the order)
+-- In the top bar row with the other round buttons (TopBar.lua has the order)
 require(script.Parent:WaitForChild("TopBar")).add(openButton, 4)
 
 --------------------------------------------------
