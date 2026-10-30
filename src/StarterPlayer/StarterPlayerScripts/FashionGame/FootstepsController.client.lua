@@ -19,8 +19,10 @@ local RunService = game:GetService("RunService")
 local SETS: {[string]: { ids: {string}, volume: number }} = {
 	sand = { volume = 0.55, ids = { "rbxassetid://98912102275037" } }, -- "Sand Footstep" (Creator Store)
 	-- (user 2026-10-30: walking on the lawns brushes through the grass)
-	-- "footstep grass 1..4" (Creator Store, Robloxmastermanyay)
-	grass = { volume = 0.6, ids = { "rbxassetid://129956418693357", "rbxassetid://78534941650081", "rbxassetid://110522236020035", "rbxassetid://135037154891351" } },
+	-- "footstep grass 2..4" (Creator Store, Robloxmastermanyay). Take 1
+	-- (129956418693357) is left out: about twice as loud with a sharp tone, it
+	-- squeaked on every 4th step (user 2026-10-30)
+	grass = { volume = 0.6, ids = { "rbxassetid://78534941650081", "rbxassetid://110522236020035", "rbxassetid://135037154891351" } },
 }
 local SURFACE: {[Enum.Material]: string} = {
 	[Enum.Material.Sand] = "sand",
