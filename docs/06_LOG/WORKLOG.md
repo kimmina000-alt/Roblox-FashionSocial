@@ -2649,3 +2649,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
   ![](images/2026-10-30/coinshop_coin_icon_d602.jpg) ![](images/2026-10-30/menu_coin_icons_d602.jpg)
 ### 2026-10-30 상단 버튼 높이·VIP 테두리 (D-603)
 - 로블록스 버튼은 막대 위에서 12px 아래에 붙어 있음 → 우리 버튼도 같은 줄(12~56px). 코인 금액 빨간 테두리는 VIP 패스 있을 때만.
+
+### 2026-10-30 임대문의 위치 (D-604)
+- 동쪽 면 남쪽 빈 가게(유리 z 147~208)로 이동, 안쪽 어둡게. 북서쪽 칸은 불만 꺼 둠.
+  ![](images/2026-10-30/rent_east_face_d604.jpg)

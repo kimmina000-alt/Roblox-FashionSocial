@@ -883,8 +883,9 @@ end
 --      north glass move to the east face, between the door and the south pier
 --   b. "호빵 · 어묵 판매중" moves from the east glass to the north glass, east end
 --   c. the empty shop west of the store (north face x -134..-106): lights off
---      (a dark lining inside) and 임대문의 papers on its glass, like the
---      user's photo (docs/04_ART/references: news photo of a Seoul shop front)
+--      (a dark lining inside); the empty room south of the store on the east
+--      face: dark too, with 임대문의 papers on its glass, like the user's
+--      photo (a news photo of a Seoul shop front)
 --   d. the pizza shop: the flower post goes; the plain white wall between the
 --      corner and the pizza entrance (z 66..84) gets the pizza front's look
 local store15 = L and L:FindFirstChild("OH24Store")
@@ -940,12 +941,23 @@ if store15 and not store15:GetAttribute("Polish1030_15") then
 	for _, p in ipairs(store15:GetChildren()) do
 		if p:IsA("BasePart") and (p.Name == "GlassLettering" or p.Name == "GlassMark") and p.Position.Z < 66 and p.Position.X < -106 then p:Destroy() end
 	end
-	-- the papers: white sheets taped on the glass, facing out (on its outer
-	-- face: behind Glass the writing did not show)
+	-- (user 2026-10-30, later) the 임대문의 papers are on the east face's
+	-- unused part instead (south of the store's pier, glass z 147..208, the
+	-- beach side): that room dark as well; the north-west room keeps only its
+	-- lights off
+	local EX0, EX1, EZ0, EZ1 = -80, -56.2, 146.4, 208.6
+	part("VacantFloor", Vector3.new(EX1 - EX0, 0.04, EZ1 - EZ0), CFrame.new((EX0 + EX1) / 2, 0.62, (EZ0 + EZ1) / 2), Color3.fromRGB(70, 70, 74), store15, { noshadow = true, material = Enum.Material.Concrete })
+	part("VacantCeiling", Vector3.new(EX1 - EX0, 0.1, EZ1 - EZ0), CFrame.new((EX0 + EX1) / 2, 20.6, (EZ0 + EZ1) / 2), DIM, store15, { noshadow = true })
+	part("VacantBack", Vector3.new(0.2, 20, EZ1 - EZ0), CFrame.new(EX0, 10.6, (EZ0 + EZ1) / 2), DIM, store15, { noshadow = true })
+	for _, z in ipairs({ EZ0 + 0.05, EZ1 - 0.05 }) do
+		part("VacantSide", Vector3.new(EX1 - EX0, 20, 0.1), CFrame.new((EX0 + EX1) / 2, 10.6, z), DIM, store15, { noshadow = true })
+	end
+	-- the papers: white sheets taped on the east glass, facing out (on its
+	-- outer face: behind Glass the writing did not show); u = z along the glass
 	local PAPER, RED = Color3.fromRGB(248, 247, 242), Color3.fromRGB(226, 36, 40)
-	local function sheet(x: number, y: number, w: number, h: number, tilt: number, body: string, size: number?, color: Color3?)
-		local c = Vector3.new(x, y, 65.77)
-		local p = part("RentPaper", Vector3.new(w, h, 0.02), CFrame.lookAt(c, c - Vector3.new(0, 0, 1)) * CFrame.Angles(0, 0, math.rad(tilt)), PAPER, store15, { noshadow = true })
+	local function sheet(u: number, y: number, w: number, h: number, tilt: number, body: string, size: number?, color: Color3?)
+		local c = Vector3.new(-55.77, y, u)
+		local p = part("RentPaper", Vector3.new(w, h, 0.02), CFrame.lookAt(c, c + Vector3.new(1, 0, 0)) * CFrame.Angles(0, 0, math.rad(tilt)), PAPER, store15, { noshadow = true })
 		local g = gui(p, Enum.NormalId.Front, 60)
 		local l = text(g, body, color or RED, Enum.Font.GothamBlack)
 		l.Size = UDim2.fromScale(size or 0.86, size or 0.86)
@@ -956,19 +968,20 @@ if store15 and not store15:GetAttribute("Polish1030_15") then
 		end
 		return l
 	end
-	-- 임 · 대 · 문 · 의, one big sheet each over the first two panes (x -133.4..-115.4);
-	-- seen from the street east (+x) is on the left, so 임 is the east one
-	sheet(-117.8, 10.2, 3.6, 5.0, 2, "임", 0.96)
-	sheet(-122.0, 10.4, 3.6, 5.0, -1, "대", 0.96)
-	sheet(-126.7, 10.1, 3.6, 5.0, 1.5, "문", 0.96, Color3.fromRGB(30, 30, 30))
-	sheet(-130.9, 10.5, 3.8, 5.2, -2, "의", 0.96, Color3.fromRGB(30, 30, 30))
+	-- 임 · 대 · 문 · 의, one big sheet in each pane (mullions every 7.04 from
+	-- z 145.04); seen from the street south (+z) is on the left, so 임 is the
+	-- south one
+	sheet(176.72, 10.2, 3.6, 5.0, 2, "임", 0.96)
+	sheet(169.68, 10.4, 3.6, 5.0, -1, "대", 0.96)
+	sheet(162.64, 10.1, 3.6, 5.0, 1.5, "문", 0.96, Color3.fromRGB(30, 30, 30))
+	sheet(155.60, 10.5, 3.8, 5.2, -2, "의", 0.96, Color3.fromRGB(30, 30, 30))
 	-- the agent's notes, small, lower down (our own, made-up agency)
-	for _, x in ipairs({ -126.7, -110.9 }) do
-		local l = sheet(x, 5.6, 2.6, 1.9, 0, "임대문의\n오후부동산", 0.8, Color3.fromRGB(30, 30, 30))
+	for _, u in ipairs({ 169.68, 149.5 }) do
+		local l = sheet(u, 5.6, 2.6, 1.9, 0, "임대문의\n오후부동산", 0.8, Color3.fromRGB(30, 30, 30))
 		local edge = Instance.new("UIStroke") edge.Color = Color3.fromRGB(40, 90, 200) edge.Thickness = 3 edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 		edge.Parent = l
 	end
-	sheet(-110.9, 10.4, 3.8, 5.2, -1.5, "임대\n문의", 0.8)
+	sheet(149.5, 10.4, 3.8, 5.2, -1.5, "임대\n문의", 0.8)
 	-- d. the pizza shop
 	local F = store15:FindFirstChild("PizzaFront")
 	if F then
