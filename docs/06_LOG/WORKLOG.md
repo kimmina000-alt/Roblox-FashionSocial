@@ -2699,3 +2699,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
   ![](../04_ART/textures/cakes/vintage_groups_full.png)
   ![](../04_ART/textures/cakes/vintage_groups_20k.png)
 - docs/04_ART/models/VintageLetteringCake.gltf → 사용자가 3D 가져오기로 ServerStorage.ArtAssets.Foods에.
+### 2026-10-30 케이크 가져오기 (D-617)
+- 가져오기가 Workspace에 들어오고 색이 빠져서, 부위 이름대로 색을 넣고 ArtAssets.Foods로 옮김.
+  ![](images/2026-10-30/vintage_cake_studio_d617.jpg)
