@@ -6272,7 +6272,9 @@ do
 	do
 		local CAFE_SIGN = { sw = 0.13, depth = 0.6, side = Color3.fromRGB(214, 206, 190), face = Color3.fromRGB(255, 252, 244), halo = Color3.fromRGB(255, 205, 140), nightGlow = true, parent = T }
 		-- (half size, 4.6 → 2.3, and wider apart: 1.6 between letters, user 2026-10-30)
-		local y = 50
+		-- (raised by half the room over the O: the wall top is 63.6, the O's top
+		-- was 51.15, so +6.2, user 2026-10-30)
+		local y = 56.2
 		for _, ch in ipairs({ "O", "H", "U", " ", "C", "A", "F", "E" }) do
 			if ch ~= " " then
 				sign3d("Sign_OhuCafeSide", { ch }, Vector3.new(-212, y, 195.0), Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1), 2.3, CAFE_SIGN)
