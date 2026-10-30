@@ -672,7 +672,21 @@ if ohu then
 	part("BrickDoorMullion", Vector3.new(0.24, dh, 0.3), CFrame.new(dx, 1.6 + dh / 2, -47.05), FRAME, ohu)
 	part("BrickDoorHandle", Vector3.new(0.15, 1.6, 0.15), CFrame.new(dx - 0.6, 1.6 + 5, -46.9), Color3.fromRGB(200, 200, 205), ohu, { material = Enum.Material.Metal })
 	part("BrickDoorHandle", Vector3.new(0.15, 1.6, 0.15), CFrame.new(dx + 0.6, 1.6 + 5, -46.9), Color3.fromRGB(200, 200, 205), ohu, { material = Enum.Material.Metal })
-	table.insert(log, "ohu south brick + door")
+	-- (user 2026-10-30) the corner at x 180 flickered: the tiled wall's end, its
+	-- collider and the alley wall met in one plane there. A thin brick strip
+	-- wraps the corner, just proud of both faces.
+	part("CornerBrick", Vector3.new(0.09, 48, 1.18), CFrame.new(180.015, 0.6 + 24, -48.01), brickColor, ohu, { material = Enum.Material.Brick })
+	-- where the wooden deck was (x 115..180): the same step, in the sidewalk's
+	-- paving (street_dress paveLook: this colour + the paver tile 7 x 7)
+	local step = part("PavedStep", Vector3.new(180.06 - LINE, 1.6, 2.6), CFrame.new((LINE + 180.06) / 2, 0.8, -47.5 + 1.3), Color3.fromRGB(176, 172, 166), ohu, { collide = true })
+	for _, face in ipairs({ Enum.NormalId.Top, Enum.NormalId.Back, Enum.NormalId.Right }) do
+		local t = Instance.new("Texture")
+		t.Texture = "rbxassetid://133933193561069"
+		t.Face = face
+		t.StudsPerTileU, t.StudsPerTileV = 7, 7
+		t.Parent = step
+	end
+	table.insert(log, "ohu south brick + door + paved step")
 end
 
 return table.concat(log, " | ")
