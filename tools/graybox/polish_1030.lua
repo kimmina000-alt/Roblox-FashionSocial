@@ -844,33 +844,38 @@ do
 			end
 		end
 	end
+	-- (user 2026-10-30, later) M6 instead: the red gingham picnic blanket
+	-- (Creator Store 123301850001093, one part; it hid a malicious script, all
+	-- removed: ServerStorage.NewAssets1030.BeachMatM6 is the clean part). Its
+	-- gingham picture rbxassetid://158549481 on the top of one thin part.
 	for _, spot in ipairs(workspace:GetDescendants()) do
-		if not (spot:IsA("Model") and spot.Name:match("^BeachSpot_")) or spot:FindFirstChild("BeachMatM4") then continue end
+		if not (spot:IsA("Model") and spot.Name:match("^BeachSpot_")) or spot:FindFirstChild("BeachMatM6") then continue end
 		local slab
 		for _, d in ipairs(spot:GetChildren()) do if d.Name == "Mat" and d:IsA("BasePart") then slab = d end end
 		if not slab then continue end
-		local old = spot:FindFirstChild("BeachMat")
-		if old then old:Destroy() end
+		for _, name in ipairs({ "BeachMat", "BeachMatM4" }) do
+			local old = spot:FindFirstChild(name)
+			if old then old:Destroy() end
+		end
 		for _, d in ipairs(spot:GetChildren()) do
 			if d:IsA("BasePart") and (d.Name == "Mat" or d.Name == "MatStripe") then d.Transparency = 1 end
 		end
 		local mat = Instance.new("Part")
-		mat.Name = "BeachMatM4"
+		mat.Name = "BeachMatM6"
 		mat.Size = Vector3.new(slab.Size.X, 0.08, slab.Size.Z)
 		mat.CFrame = slab.CFrame * CFrame.new(0, -slab.Size.Y / 2 + 0.06, 0)
 		mat.Color = Color3.new(1, 1, 1)
 		mat.Material = Enum.Material.SmoothPlastic
 		mat.Anchored, mat.CanCollide, mat.CanTouch, mat.CanQuery, mat.CastShadow = true, false, false, false, false
-		local t = Instance.new("Texture")
-		t.Texture = "rbxassetid://95227698695436"
+		mat.Material = Enum.Material.Fabric
+		local t = Instance.new("Decal")
+		t.Texture = "rbxassetid://158549481"
 		t.Face = Enum.NormalId.Top
-		t.StudsPerTileU = slab.Size.X / 4 -- (one tile = 2 squares: 8 across)
-		t.StudsPerTileV = slab.Size.X / 4
 		t.Parent = mat
 		mat.Parent = spot
 		n.mats += 1
 	end
-	table.insert(log, string.format("ducks %d, tubes %d, mats M4 %d", n.ducks, n.tubes, n.mats))
+	table.insert(log, string.format("ducks %d, tubes %d, mats M6 %d", n.ducks, n.tubes, n.mats))
 end
 
 return table.concat(log, " | ")

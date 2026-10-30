@@ -2620,3 +2620,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 돗자리: 후보 M4(분홍·흰 체크)는 부품 144개라 그대로 쓰지 않고, 같은 무늬 텍스처를 얇은 부품 1개에 입힘.
   ![](images/2026-10-30/beach_mat_m4_d596.jpg)
 - 접힌 파라솔 후보: ![](../04_ART/references/candidates_parasol_folded.png)
+### 2026-10-30 돗자리 M6, 접힌 파라솔 삭제 (D-597)
+- M6 에셋에 악성 스크립트(Runtime/ScreenBuilder)가 있어 부품과 이미지만 남김. 돗자리 6개를 얇은 천 부품 + 깅엄 이미지(158549481)로 교체. 접힌 파라솔 자리 4곳 삭제. (Studio 화면 캡처가 하얗게 나와 그림 확인은 못 하고 속성만 확인)

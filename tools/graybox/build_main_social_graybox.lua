@@ -1145,7 +1145,7 @@ local z=zone("04_Beach_Aquarium")
   if REMOVED[zc] then continue end
   local kind=kinds[(i-1)%#kinds+1] local cols=stripeSets[(i-1)%#stripeSets+1]
   local grp=M(z,"BeachSpot_"..kind,{},{})
-  parasol(grp,g,kind~="closed",cols)
+  if kind~="closed" then parasol(grp,g,true,cols) end -- (no folded parasols, user 2026-10-30: the "closed" spots stay empty)
   if kind=="matbox" then mat(grp,g+Vector3.new(-1,0,3),0,cols) icebox(grp,g+Vector3.new(1.5,0,-3))
   elseif kind=="mat" then mat(grp,g+Vector3.new(-1,0,2.5),0,cols)
   elseif kind=="chairs2" then chair(grp,g+Vector3.new(-2,0,-2),cols) chair(grp,g+Vector3.new(-2,0,2.4),cols)
