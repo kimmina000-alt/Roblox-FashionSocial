@@ -627,4 +627,52 @@ if store then
 	table.insert(log, "OH24 smaller, removed " .. n)
 end
 
+-- 11. (user 2026-10-30) the back alley opened again (the invisible stop goes)
+-- and cleared of the clutter on the ground: drain strip, puddles, bins, bags,
+-- crates, planters, cone, the two ACs standing on the ground. The wall ACs,
+-- lamps, gas pipe, meters, signs and wires stay.
+local alley = L and L:FindFirstChild("BackAlley")
+if alley then
+	local GONE = { AlleyStop = true, AlleyDrain = true, AlleyPuddle = true, RecycleBin = true, TrashBag = true, PlasticCrate = true, FoamPlanter = true, PlanterGreens = true, TrafficCone = true }
+	local AC = { ACUnit = true, ACFan = true, ACBracket = true, ACPipeCover = true }
+	local n = 0
+	for _, d in ipairs(alley:GetChildren()) do
+		if d:IsA("BasePart") and (GONE[d.Name] or (AC[d.Name] and d.Position.Y < 7)) then d:Destroy() n += 1 end
+	end
+	table.insert(log, "alley cleared " .. n)
+end
+
+-- 12. 오후네컷 (user 2026-10-30): east of x 115 on the south face the ground
+-- floor takes the 2F brick, with a door like a big 2F window; the deck and the
+-- white sign band end at x 115. Its alley wall (east face) is brick too.
+local ohu = L and L:FindFirstChild("OhuFourCuts")
+if ohu then
+	local LINE = 115
+	local upper = ohu:FindFirstChild("UpperS")
+	local brickColor = if upper then upper.Color else Color3.new(1, 1, 1)
+	for _, d in ipairs(ohu:GetChildren()) do
+		if d:IsA("BasePart") and ((d.Name == "Deck" and d.Position.Z > -47.6 and d.Size.X > 50) or (d.Name == "Fascia" and d.Position.Z > -48.6 and d.Position.Z < -46 and d.Size.X > 50)) then
+			local x0 = d.Position.X - d.Size.X / 2
+			d.Size = Vector3.new(LINE - x0, d.Size.Y, d.Size.Z)
+			d.CFrame = d.CFrame.Rotation + Vector3.new((x0 + LINE) / 2, d.Position.Y, d.Position.Z)
+		end
+		if d:IsA("BasePart") and d.Name == "WallE" then
+			d.Material = Enum.Material.Brick
+			d.Color = brickColor
+		end
+	end
+	-- the brick skin over the ground floor east of the line (just proud of the tiles)
+	local skin = part("GroundBrick", Vector3.new(180.03 - LINE, 19.2 - 1.6, 0.1), CFrame.new((LINE + 180.03) / 2, (1.6 + 19.2) / 2, -47.5), brickColor, ohu, { material = Enum.Material.Brick })
+	skin.CastShadow = false
+	-- the door: a 2F window made big (dark frame, glass, a mullion)
+	local FRAME, GLASS = Color3.fromRGB(58, 46, 42), Color3.fromRGB(205, 220, 232)
+	local dx, dw, dh = 147.5, 7, 12
+	part("BrickDoorFrame", Vector3.new(dw + 0.6, dh + 0.3, 0.3), CFrame.new(dx, 1.6 + (dh + 0.3) / 2, -47.3), FRAME, ohu, { collide = true })
+	part("BrickDoorGlass", Vector3.new(dw, dh, 0.2), CFrame.new(dx, 1.6 + dh / 2, -47.15), GLASS, ohu, { material = Enum.Material.Glass, t = 0.1 })
+	part("BrickDoorMullion", Vector3.new(0.24, dh, 0.3), CFrame.new(dx, 1.6 + dh / 2, -47.05), FRAME, ohu)
+	part("BrickDoorHandle", Vector3.new(0.15, 1.6, 0.15), CFrame.new(dx - 0.6, 1.6 + 5, -46.9), Color3.fromRGB(200, 200, 205), ohu, { material = Enum.Material.Metal })
+	part("BrickDoorHandle", Vector3.new(0.15, 1.6, 0.15), CFrame.new(dx + 0.6, 1.6 + 5, -46.9), Color3.fromRGB(200, 200, 205), ohu, { material = Enum.Material.Metal })
+	table.insert(log, "ohu south brick + door")
+end
+
 return table.concat(log, " | ")
