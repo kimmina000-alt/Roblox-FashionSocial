@@ -1235,4 +1235,36 @@ if cafe and not cafe:GetAttribute("Polish1030_19") then
 	table.insert(log, "cafe rail stools up, long tables: sofas")
 end
 
+---------------------------------------------------------------- 20. vintage cake in the case (user 2026-10-30)
+-- the user's vintage lettering cake (ServerStorage.ArtAssets.Foods.
+-- VintageLetteringCake, D-617) in the pastry case: the first column of
+-- cakes (one per tier, nearest the till) becomes it, the same 1.25 across
+local vintage = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+vintage = vintage and vintage:FindFirstChild("Foods") and vintage.Foods:FindFirstChild("VintageLetteringCake")
+if cafe and vintage and not cafe:FindFirstChild("CaseVintageCake") then
+	local col = {}
+	local xMax = -math.huge
+	for _, d in ipairs(cafe:GetChildren()) do
+		if d:IsA("BasePart") and d.Name == "CakeDisplay" then xMax = math.max(xMax, d.Position.X) end
+	end
+	for _, d in ipairs(cafe:GetChildren()) do
+		if d:IsA("BasePart") and d.Name == "CakeDisplay" and math.abs(d.Position.X - xMax) < 0.1 then table.insert(col, d) end
+	end
+	for _, d in ipairs(col) do
+		local m = vintage:Clone()
+		local _, s0 = m:GetBoundingBox()
+		m:ScaleTo(m:GetScale() * d.Size.X / math.max(s0.X, s0.Z))
+		local cf, s = m:GetBoundingBox()
+		local bottom = d.Position.Y - d.Size.Y / 2
+		m:PivotTo(m:GetPivot() + Vector3.new(d.Position.X - cf.X, bottom + s.Y / 2 - cf.Y, d.Position.Z - cf.Z))
+		for _, p in ipairs(m:GetDescendants()) do
+			if p:IsA("BasePart") then p.Anchored, p.CanCollide, p.CanQuery, p.CanTouch = true, false, false, false end
+		end
+		m.Name = "CaseVintageCake"
+		m.Parent = cafe
+		d:Destroy()
+	end
+	table.insert(log, "case vintage cakes " .. #col)
+end
+
 return table.concat(log, " | ")

@@ -2702,3 +2702,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 케이크 가져오기 (D-617)
 - 가져오기가 Workspace에 들어오고 색이 빠져서, 부위 이름대로 색을 넣고 ArtAssets.Foods로 옮김.
   ![](images/2026-10-30/vintage_cake_studio_d617.jpg)
+
+### 2026-10-30 빈티지 케이크 조각·단면 (D-618)
+- 6조각으로 자르고 단면(시트, 크림, 잼, 파란 아이싱) 채움. 받침판은 따로. 팔레트 텍스처로 색(가져오기가 단색을 버려서).
+  ![](../04_ART/textures/cakes/vintage_sliced_preview.png)
+- 테이블: 한 조각 먹을 때마다 그 조각이 빠지고 옆 조각 단면이 보임. 손: 그 조각 그대로. 산 케이크를 들 때: 상자 대신 케이크. 진열장: 계산대 쪽 한 줄(3개)을 빈티지 케이크로.
+- 사용자: docs/04_ART/models/VintageLetteringCakeSliced.gltf 가져오기 필요.

@@ -370,6 +370,47 @@ local function sliceMesh(): MeshPart?
 	local m = art and art:FindFirstChild("CakeSlice")
 	return if m and m:IsA("MeshPart") then m else nil
 end
+-- the user's own cake models (user 2026-10-30, STL → docs/04_ART/models/
+-- <Name>Sliced.gltf, tools/art/CakeCut.cs): a whole cake cut in six, each
+-- slice "Slice1".."Slice6" a MeshPart closed by its cut faces (the layers
+-- inside), the board "Board" apart. Imported into ServerStorage.ArtAssets.Foods.
+local CAKE_MODELS = { vintage = "VintageLetteringCakeSliced" }
+local function cakeModel(key: string?): Model?
+	local name = key and CAKE_MODELS[key]
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local foods = art and art:FindFirstChild("Foods")
+	local m = name and foods and foods:FindFirstChild(name)
+	return if m and m:IsA("Model") and m:FindFirstChild("Slice1", true) then m else nil
+end
+-- a copy `width` studs across (the board's width), no collisions
+local function cakeCopy(src: Model, width: number): Model
+	local m = src:Clone()
+	local _, size = m:GetBoundingBox()
+	m:ScaleTo(m:GetScale() * width / math.max(size.X, size.Z))
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("LuaSourceContainer") then d:Destroy()
+		elseif d:IsA("BasePart") then
+			d.CanCollide, d.CanQuery, d.CanTouch, d.Massless = false, false, false, true
+		end
+	end
+	return m
+end
+-- weld every part of `m` to `handle`, keeping where they are now
+local function weldAll(handle: BasePart, m: Instance)
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("BasePart") then
+			local offset = handle.CFrame:ToObjectSpace(d.CFrame)
+			d.Anchored = false
+			d.Parent = handle
+			local weld = Instance.new("Weld")
+			weld.Part0 = handle
+			weld.Part1 = d
+			weld.C0 = offset
+			weld.Parent = d
+		end
+	end
+end
+
 -- The hand-held model of each kind of item. The main edible piece is "Fill"
 -- (it shrinks with every bite).
 local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
@@ -426,7 +467,23 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		handle.Parent = tool
 		local tex = (item :: any).sliceTexture
 		local src = if tex then sliceMesh() else nil
-		if src then
+		-- a slice of one of the user's cake models: that very slice, its cut faces showing
+		local model = cakeModel((item :: any).cakeModel)
+		local mine = model and model:FindFirstChild((item :: any).sliceName or "Slice1", true)
+		if mine and mine:IsA("BasePart") then
+			local whole = cakeCopy(model, 2.0)
+			local p = whole:FindFirstChild(mine.Name, true) :: BasePart
+			p.Name = "Fill"
+			-- (stood on the plate: its bottom on the handle's top, its middle over the plate)
+			p.CFrame = handle.CFrame * CFrame.new(0, 0.03 + p.Size.Y / 2, 0) * p.CFrame.Rotation
+			local offset = handle.CFrame:ToObjectSpace(p.CFrame)
+			p.Anchored = false
+			p.Parent = handle
+			local weld = Instance.new("Weld")
+			weld.Part0, weld.Part1, weld.C0 = handle, p, offset
+			weld.Parent = p
+			whole:Destroy()
+		elseif src then
 			local p = src:Clone()
 			p.Name = "Fill"
 			p.Size = src.MeshSize * (0.85 / src.MeshSize.X)
@@ -678,6 +735,26 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 	dish.Parent = plate
 	local pieces: {BasePart} = {}
 	local lettering: BasePart? = nil
+	local model = cakeModel(item.cake)
+	if model then
+		-- the user's own cake (user 2026-10-30): the model on its board, six
+		-- slices that go one by one, each leaving the cut faces of its
+		-- neighbours to see
+		local copy = cakeCopy(model, CAKE_R * 2 + 0.7)
+		local cf, size = copy:GetBoundingBox()
+		copy:PivotTo(copy:GetPivot() + (top + Vector3.new(0, size.Y / 2 + 0.01, 0) - cf.Position))
+		for _, d in ipairs(copy:GetDescendants()) do if d:IsA("BasePart") then d.Anchored = true end end
+		copy.Name = "Cake"
+		copy.Parent = plate
+		dish.Transparency = 1 -- (the board is the plate; the dish stays for the prompt)
+		for i = 1, servings do
+			local s = copy:FindFirstChild("Slice" .. i, true)
+			if s and s:IsA("BasePart") then table.insert(pieces, s) end
+		end
+		cake = nil
+		texture = nil
+		plate:SetAttribute("CakeModel", item.cake)
+	end
 	if cake and texture then
 		dish.Size = Vector3.new(0.12, CAKE_R * 2 + 0.4, CAKE_R * 2 + 0.4)
 		local centre = CFrame.new(top + Vector3.new(0, 0.12, 0))
@@ -722,7 +799,7 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 			lettering = board
 		end
 	end
-	for i = 1, (if cake then 0 else servings) do
+	for i = 1, (if cake or model then 0 else servings) do
 		local a = (i - 1) / servings * math.pi * 2
 		local p = Instance.new("Part")
 		p.Name = "Piece"
@@ -804,6 +881,7 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		if left < 0 then return end
 		plate:SetAttribute("Servings", left)
 		local piece = table.remove(pieces)
+		local pieceName = piece and piece.Name
 		if piece then piece:Destroy() end
 		-- the lettering goes with the first cut
 		if lettering then
@@ -813,6 +891,10 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		-- a piece is eaten in three bites like everything in the hand (a cake slice keeps the cake's texture)
 		local pieceItem: any = table.clone(item)
 		pieceItem.sliceTexture = plate:GetAttribute("CakeTexture")
+		if plate:GetAttribute("CakeModel") then
+			pieceItem.cakeModel = plate:GetAttribute("CakeModel")
+			pieceItem.sliceName = pieceName
+		end
 		-- (a 수육 slice is one bite: six bites a plate, user 2026-10-27)
 		if item.kind == "plate" then pieceItem.oneBite = true end
 		giveTool(who, makeTool(pieceItem, baseName .. " 한 " .. pieceWord))
@@ -830,7 +912,18 @@ local function plateTool(player: Player, item: SnackConfig.Item): Tool
 	tool.CanBeDropped = false
 	local handle = part("Handle", Vector3.new(1.4, 0.4, 1.4), item.color)
 	handle.Parent = tool
-	if item.kind == "plate" then
+	local model = cakeModel(item.cake)
+	if model then
+		-- (user 2026-10-30) the cake itself in the hands, not a box
+		handle.Transparency = 1
+		handle.Size = Vector3.new(1.4, 0.1, 1.4)
+		local copy = cakeCopy(model, 1.7)
+		local cf, size = copy:GetBoundingBox()
+		copy:PivotTo(copy:GetPivot() + (handle.CFrame * CFrame.new(0, size.Y / 2 - 0.05, 0)).Position - cf.Position)
+		weldAll(handle, copy)
+		copy:Destroy()
+		tool.Grip = CFrame.new(0, 0, -0.35)
+	elseif item.kind == "plate" then
 		-- (user 2026-10-30: in the hand it looks like the dish itself) a dark
 		-- stoneware plate with the 수육 slices fanned on it
 		handle.Transparency = 1
