@@ -5362,6 +5362,8 @@ do
 	local FACADES = { 119555605786938, 108505166753199, 131791880332218, 72400340486961, 98845538068616, 86941239410625, 133905773347734, 134862143501130 }
 	-- (user 2026-10-30: their own pictures for slots 1, 3 and 6 too, facade_<n>_user.png)
 	FACADES[1], FACADES[3], FACADES[6] = 82874826300770, 100132644185665, 88158426718188
+	-- (and slot 8: the grey tiled side with windows, the same picture as facade_12)
+	FACADES[8] = 72442433508204
 	-- (user 2026-10-30) new pictures: 9 / 10 = the two halves of a bhc + 설농탕
 	-- building, 11 = its plain glass side, 12 = a grey tiled side with windows
 	local F9, F10, F11, F12 = 115092286598069, 110896225910943, 103277497995975, 72442433508204
