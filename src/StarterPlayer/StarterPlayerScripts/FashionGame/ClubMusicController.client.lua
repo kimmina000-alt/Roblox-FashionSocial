@@ -238,9 +238,8 @@ corner(screenButton, 15)
 create("UITextSizeConstraint", { MaxTextSize = 13 }, screenButton)
 create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, screenButton)
 
--- the DJ's sound row (user 2026-10-30): pitch down / up (x0.5..x2, the
--- down button shows it) and the playback speed x0.5..x2 (tap to cycle, like
--- the laser speed)
+-- the DJ's sound row (user 2026-10-30): pitch − / + (x0.5..x2 by 0.1) and
+-- speed − / + (x0.25..x2 by 0.05); each − button shows the value
 local djSound = create("Frame", {
 	Name = "DJSound",
 	BackgroundTransparency = 1,
@@ -248,11 +247,11 @@ local djSound = create("Frame", {
 }, panel)
 create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, djSound)
 local soundButtons: {[string]: TextButton} = {}
-for i, spec in ipairs({ { "PitchDown", "🔽 피치 x1" }, { "PitchUp", "🔼 피치" }, { "Speed", "⏩ 속도 x1" } }) do
+for i, spec in ipairs({ { "PitchDown", "− 피치 x1.0", 0.31 }, { "PitchUp", "+", 0.19 }, { "SpeedDown", "− 속도 x1.00", 0.31 }, { "SpeedUp", "+", 0.19 } }) do
 	local b = create("TextButton", {
 		Name = spec[1],
 		LayoutOrder = i,
-		Size = UDim2.new(1 / 3, -4, 1, 0),
+		Size = UDim2.new(spec[3], -5, 1, 0),
 		BackgroundColor3 = COLORS.card,
 		Text = spec[2],
 		TextColor3 = COLORS.text,
@@ -697,11 +696,14 @@ local function refresh()
 		local mpitch = FashionGame:GetAttribute("ClubMusicPitch")
 		local mspeed = FashionGame:GetAttribute("ClubMusicSpeed")
 		mpitch = if typeof(mpitch) == "number" then mpitch else 1
-		soundButtons.PitchDown.Text = "🔽 피치 x" .. tostring(mpitch)
+		mspeed = if typeof(mspeed) == "number" then mspeed else 1
+		soundButtons.PitchDown.Text = string.format("− 피치 x%.1f", mpitch)
 		soundButtons.PitchDown.BackgroundColor3 = if mpitch < 1 then COLORS.dj else COLORS.card
 		soundButtons.PitchUp.BackgroundColor3 = if mpitch > 1 then COLORS.dj else COLORS.card
-		soundButtons.Speed.Text = "⏩ 속도 x" .. tostring(if typeof(mspeed) == "number" then mspeed else 1)
-		soundButtons.Speed.BackgroundColor3 = if typeof(mspeed) == "number" and mspeed ~= 1 then Color3.fromRGB(90, 60, 160) else COLORS.card
+		local SPEED = Color3.fromRGB(90, 60, 160)
+		soundButtons.SpeedDown.Text = string.format("− 속도 x%.2f", mspeed)
+		soundButtons.SpeedDown.BackgroundColor3 = if mspeed < 1 then SPEED else COLORS.card
+		soundButtons.SpeedUp.BackgroundColor3 = if mspeed > 1 then SPEED else COLORS.card
 	end
 	local pickedColor = FashionGame:GetAttribute("ClubLightColor") or "rainbow"
 	for key, button in pairs(colorButtons) do
@@ -781,20 +783,17 @@ closeButton.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
 end)
 skipButton.MouseButton1Click:Connect(function() call("Skip", nil) end)
-for name, step in pairs({ PitchDown = -1, PitchUp = 1 }) do
+for name, spec in pairs({
+	PitchDown = { "Pitch", -1 }, PitchUp = { "Pitch", 1 },
+	SpeedDown = { "Speed", -1 }, SpeedUp = { "Speed", 1 },
+}) do
 	soundButtons[name].MouseButton1Click:Connect(function()
-		local p = FashionGame:GetAttribute("ClubMusicPitch")
-		local list = ClubConfig.MusicPitches
-		local i = table.find(list, if typeof(p) == "number" then p else 1) or 3
-		local to = list[math.clamp(i + step, 1, #list)]
-		if to ~= list[i] then call("MusicPitch", to) end
+		local list = if spec[1] == "Pitch" then ClubConfig.MusicPitches else ClubConfig.MusicSpeeds
+		local i = ClubConfig.nearestStep(list, FashionGame:GetAttribute("ClubMusic" .. spec[1]))
+		local to = list[math.clamp(i + spec[2], 1, #list)]
+		if to ~= list[i] then call("Music" .. spec[1], to) end
 	end)
 end
-soundButtons.Speed.MouseButton1Click:Connect(function()
-	local s = FashionGame:GetAttribute("ClubMusicSpeed")
-	local i = table.find(ClubConfig.MusicSpeeds, if typeof(s) == "number" then s else 1) or 3
-	call("MusicSpeed", ClubConfig.MusicSpeeds[i % #ClubConfig.MusicSpeeds + 1])
-end)
 screenButton.MouseButton1Click:Connect(function()
 	call("Screen", FashionGame:GetAttribute("ClubDJScreen") == false)
 end)

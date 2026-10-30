@@ -1059,17 +1059,25 @@ local music = create("Sound", {
 }, script)
 local currentTrack = 0
 -- the DJ's pitch (ClubMusicPitch, user 2026-10-30): the speed (PlaybackSpeed)
--- moves the pitch too, so the shift is pitch / speed, in the effect's 0.5..2
+-- moves the pitch too, so the shift is pitch / speed. One effect reaches
+-- 0.5..2; pitch x2 at speed x0.25 needs x8, so three in a row (0.125..8)
 do
-	local shift = create("PitchShiftSoundEffect", { Name = "DJPitch", Octave = 1, Enabled = false }, music)
+	local shifts = {}
+	for i = 1, 3 do
+		shifts[i] = create("PitchShiftSoundEffect", { Name = "DJPitch" .. i, Octave = 1, Enabled = false, Priority = 4 - i }, music)
+	end
 	local function syncPitch()
 		local pitch = FashionGame:GetAttribute("ClubMusicPitch")
 		local speed = FashionGame:GetAttribute("ClubMusicSpeed")
 		pitch = if typeof(pitch) == "number" then pitch else 1
 		speed = if typeof(speed) == "number" then speed else 1
-		local octave = math.clamp(pitch / speed, 0.5, 2)
-		shift.Octave = octave
-		shift.Enabled = math.abs(octave - 1) > 0.001 -- (off at 1: the effect smears the sound a little)
+		local rest = math.clamp(pitch / speed, 0.125, 8)
+		for _, shift in ipairs(shifts) do
+			local part = math.clamp(rest, 0.5, 2)
+			rest /= part
+			shift.Octave = part
+			shift.Enabled = math.abs(part - 1) > 0.001 -- (off at 1: the effect smears the sound a little)
+		end
 	end
 	FashionGame:GetAttributeChangedSignal("ClubMusicPitch"):Connect(syncPitch)
 	FashionGame:GetAttributeChangedSignal("ClubMusicSpeed"):Connect(syncPitch)

@@ -256,9 +256,28 @@ ClubConfig.GulpSoundId = 9114172296   -- "Drinking Cu Gulping 9 (SFX)", Pro Soun
 -- button like the laser speed, and the pitch, up / down in the same steps
 -- (user 2026-10-30, in place of the treble / bass boosts). The pitch is the
 -- one heard: a PitchShiftSoundEffect makes up for what the speed does to it
--- (its octave = pitch / speed, kept to 0.5..2, the effect's range).
-ClubConfig.MusicSpeeds = { 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2 }
-ClubConfig.MusicPitches = { 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2 }
+-- (its octave = pitch / speed, 0.25..4 with two effects in a row).
+-- (user 2026-10-30, later) finer steps: speed x0.25..x2 by 0.05, pitch
+-- x0.5..x2 by 0.1, both with − / + buttons.
+local function steps(from: number, to: number, step: number): {number}
+	local list = {}
+	for i = 0, math.floor((to - from) / step + 0.5) do
+		table.insert(list, math.floor((from + i * step) * 100 + 0.5) / 100)
+	end
+	return list
+end
+ClubConfig.MusicSpeeds = steps(0.25, 2, 0.05)
+ClubConfig.MusicPitches = steps(0.5, 2, 0.1)
+
+-- the place in a list nearest to a value (an old setting between two steps)
+function ClubConfig.nearestStep(list: {number}, value: any): number
+	local v = if typeof(value) == "number" then value else 1
+	local best, bestDiff = 1, math.huge
+	for i, x in ipairs(list) do
+		if math.abs(x - v) < bestDiff then best, bestDiff = i, math.abs(x - v) end
+	end
+	return best
+end
 
 -- Who may pour from a placed bottle.
 ClubConfig.Visibility = {
