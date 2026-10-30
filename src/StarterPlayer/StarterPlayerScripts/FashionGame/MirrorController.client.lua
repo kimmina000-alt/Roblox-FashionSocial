@@ -32,7 +32,7 @@ type MirrorState = {
 	camera: Camera,
 	world: WorldModel,
 	room: boolean,
-	chars: { [Model]: { model: Model, pairs: { { BasePart } }, count: number } },
+	chars: { [Model]: { model: Model, root: { BasePart }, motors: { { Motor6D } }, count: number } },
 }
 
 local mirrors: { [BasePart]: MirrorState } = {}
@@ -49,8 +49,21 @@ local function reflect(cf: CFrame, m: Vector3, n: Vector3): CFrame
 	return CFrame.fromMatrix(p2, look2:Cross(up2), up2)
 end
 
-local function strip(x: Instance)
+-- a joint pose seen in a mirror across the body's own left / right plane
+-- (local x → −x)
+local function mirrorPose(t: CFrame): CFrame
+	local x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 = t:GetComponents()
+	return CFrame.new(-x, y, z, r00, -r01, -r02, -r10, r11, r12, -r20, r21, r22)
+end
+local function otherSide(name: string): string
+	if name:find("Left") then return (name:gsub("Left", "Right")) end
+	if name:find("Right") then return (name:gsub("Right", "Left")) end
+	return name
+end
+
+local function strip(x: Instance, keepJoints: boolean?)
 	for _, d in ipairs(x:GetDescendants()) do
+		if keepJoints and (d:IsA("JointInstance") or d:IsA("Constraint")) then continue end
 		if d:IsA("LuaSourceContainer") or d:IsA("JointInstance") or d:IsA("Constraint") or d:IsA("Light")
 			or d:IsA("LayerCollector") or d:IsA("ProximityPrompt") or d:IsA("Sound") or d:IsA("ParticleEmitter") then
 			d:Destroy()
@@ -181,25 +194,32 @@ local function charCopy(state: MirrorState, character: Model)
 	local ok, copy = pcall(function() return character:Clone() end)
 	character.Archivable = was
 	if not ok or not copy then state.chars[character] = nil return end
-	local originals, copies = {}, {}
-	for _, d in ipairs(character:GetDescendants()) do
-		if d:IsA("BasePart") then table.insert(originals, d) end
-	end
+	-- (user 2026-10-30) the copy keeps its joints, like the photo booth's
+	-- copies: layered clothes are only wrapped onto a jointed body (with every
+	-- part placed on its own the reflection showed the bare avatar). Its root
+	-- goes to the mirror image of the real root and every joint takes the pose
+	-- of the joint on the other side, mirrored, so a raised right hand shows on
+	-- the reflection's right like in a real mirror.
+	strip(copy, true)
 	for _, d in ipairs(copy:GetDescendants()) do
-		if d:IsA("BasePart") then table.insert(copies, d) end
+		if d:IsA("BasePart") then d.Anchored = false d.CanCollide = false d.LocalTransparencyModifier = 0 end
 	end
-	strip(copy)
-	for _, d in ipairs(copy:GetDescendants()) do
-		if d:IsA("BasePart") then d.Anchored = true d.CanCollide = false end
-	end
-	local list = {}
-	if #originals == #copies then
-		for i, o in ipairs(originals) do table.insert(list, { o, copies[i] }) end
+	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local copyRoot = copy:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not root or not copyRoot then copy:Destroy() state.chars[character] = nil return end
+	copyRoot.Anchored = true
+	local motors = {}
+	for _, m in ipairs(copy:GetDescendants()) do
+		if m:IsA("Motor6D") and m.Parent then
+			local part = character:FindFirstChild(otherSide(m.Parent.Name))
+			local src = part and part:FindFirstChild(otherSide(m.Name))
+			if src and src:IsA("Motor6D") then table.insert(motors, { m, src }) end
+		end
 	end
 	local hum = copy:FindFirstChildOfClass("Humanoid")
 	if hum then hum.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end
 	copy.Parent = state.world
-	state.chars[character] = { model = copy, pairs = list, count = #character:GetDescendants() }
+	state.chars[character] = { model = copy, root = { root, copyRoot }, motors = motors, count = #character:GetDescendants() }
 end
 
 local function nearbyCharacters(state: MirrorState): { Model }
@@ -254,10 +274,9 @@ local function update(state: MirrorState, cam: Camera, now: number)
 		end
 	end
 	for _, entry in pairs(state.chars) do
-		for _, pr in ipairs(entry.pairs) do
-			local o, c = pr[1], pr[2]
-			c.CFrame = reflect(o.CFrame, m, n)
-			c.LocalTransparencyModifier = 0
+		entry.root[2].CFrame = reflect(entry.root[1].CFrame, m, n)
+		for _, pr in ipairs(entry.motors) do
+			pr[1].Transform = mirrorPose(pr[2].Transform)
 		end
 	end
 	-- off-axis view: a symmetric frustum around the eye's foot point on the

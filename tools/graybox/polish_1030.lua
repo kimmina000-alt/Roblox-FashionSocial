@@ -234,7 +234,7 @@ if cafe and once(cafe) then
 		end
 		-- two machines facing the staff (−z), where the boxes stood
 		for _, x in ipairs({ -222, -214 }) do
-			place(machine, cafe, Vector3.new(x, y, zb - 1.9), math.pi / 2, 1.45).Name = "CoffeeMachine" -- (its front to the staff, checked in Play)
+			place(machine, cafe, Vector3.new(x, y, zb - 1.9), math.pi / 2, 1.45).Name = "CoffeeMachine" -- (this turn showed the side to the staff: step 13 sets them straight)
 		end
 		-- cup towers and lids (like the photo's bar): white paper cups, black lids
 		local WHITE, BLACK = Color3.fromRGB(246, 246, 242), Color3.fromRGB(28, 28, 30)
@@ -703,6 +703,110 @@ if ohu then
 	-- alley wall in one plane): the same thin brick strip round it
 	part("CornerBrick", Vector3.new(0.09, 48, 1.32), CFrame.new(180.015, 0.6 + 24, -115.0), brickColor, ohu, { material = Enum.Material.Brick })
 	table.insert(log, "ohu south brick + door + paved step")
+end
+
+---------------------------------------------------------------- 13. phone test fixes (user 2026-10-30, 3rd)
+-- Each sets the final pose outright, so running it again changes nothing.
+if cafe then
+	-- the till 1.5x (its bottom stays on the counter)
+	for _, r in ipairs(cafe:GetChildren()) do
+		if r:IsA("Model") and r.Name == "Register37" then
+			local cf, size = r:GetBoundingBox()
+			if size.Y < 1.6 then
+				local bottom = Vector3.new(cf.X, cf.Y - size.Y / 2, cf.Z)
+				r:ScaleTo(r:GetScale() * 1.5)
+				local cf2, size2 = r:GetBoundingBox()
+				r:PivotTo(CFrame.new(bottom + Vector3.new(0, size2.Y / 2, 0)) * cf2.Rotation * cf2:ToObjectSpace(r:GetPivot()))
+			end
+		end
+	end
+	-- the coffee machines face the staff (−z): their front (handles, cups) is
+	-- the model's −z, so no turn; set back toward the wall so they stay on the bench
+	local benchTop = cafe:FindFirstChild("BackCounterTop")
+	if benchTop then
+		local y = benchTop.Position.Y + benchTop.Size.Y / 2
+		local zb = benchTop.Position.Z + benchTop.Size.Z / 2
+		for _, m in ipairs(cafe:GetChildren()) do
+			if m:IsA("Model") and m.Name == "CoffeeMachine" then
+				local cf, size = m:GetBoundingBox()
+				m:PivotTo(CFrame.new(cf.X, y + size.Y / 2, zb - size.Z / 2 - 0.1) * cf:ToObjectSpace(m:GetPivot()))
+			end
+		end
+	end
+	-- the window bar stools higher: seat top 1.2 under the bar top (it was 2.6),
+	-- legs longer, the foot ring up with them, the sit seat too
+	local bar = cafe:FindFirstChild("WindowBar")
+	if bar then
+		local target = bar.Position.Y + bar.Size.Y / 2 - 1.2
+		local seats = {}
+		for _, d in ipairs(cafe:GetChildren()) do if d:IsA("Seat") and d.Name == "BarStool" then table.insert(seats, d) end end
+		local raised = 0
+		for _, m in ipairs(cafe:GetChildren()) do
+			local pad = m:IsA("Model") and m.Name == "ClubStool" and m:FindFirstChild("SeatPad")
+			if not pad or math.abs(pad.Position.X - bar.Position.X) > 8 then continue end
+			-- (the pad is turned: its thin side is x, so take its world height)
+			local c, s = pad.CFrame, pad.Size / 2
+			local halfY = math.abs(c.XVector.Y) * s.X + math.abs(c.YVector.Y) * s.Y + math.abs(c.ZVector.Y) * s.Z
+			local D = target - (pad.Position.Y + halfY)
+			if math.abs(D) < 0.05 then continue end
+			local floor = math.huge
+			for _, d in ipairs(m:GetChildren()) do
+				if d:IsA("BasePart") and d.Name == "Leg" then floor = math.min(floor, d.Position.Y - d.Size.X / 2) end
+			end
+			for _, d in ipairs(m:GetChildren()) do
+				if not d:IsA("BasePart") then continue end
+				if d.Name == "SeatPad" or d.Name == "SeatShell" then
+					d.CFrame = d.CFrame + Vector3.new(0, D, 0)
+				elseif d.Name == "Leg" then -- (upright, their length along x)
+					local len = d.Size.X
+					d.Size = Vector3.new(len + D, d.Size.Y, d.Size.Z)
+					d.CFrame = d.CFrame + Vector3.new(0, D / 2, 0)
+				elseif d.Name == "FootRing" then
+					local legLen = target - D - floor
+					d.CFrame = d.CFrame + Vector3.new(0, (d.Position.Y - floor) / legLen * D, 0)
+				end
+			end
+			for _, s in ipairs(seats) do
+				if Vector2.new(s.Position.X - pad.Position.X, s.Position.Z - pad.Position.Z).Magnitude < 1 then
+					s.CFrame = s.CFrame + Vector3.new(0, D, 0)
+				end
+			end
+			raised += 1
+		end
+		table.insert(log, "till 1.5x, machines face staff, window stools " .. raised)
+	end
+end
+-- two planting beds by the club door (no trees: the user had taken out the
+-- beds and trees there), copies of the bare bed north of them with its shrubs,
+-- set either side of the door (gold frame z -220.8..-199.2), each touching
+-- the next bed so the strip runs on
+if L and not L:FindFirstChild("ClubBedFill") then
+	local src
+	for _, m in ipairs(L:GetChildren()) do
+		if m:IsA("Model") and m:GetAttribute("PropId") == "Bed@27,-173" then src = m end
+	end
+	if src then
+		local c = src:GetPivot().Position
+		local group = { src }
+		for _, m in ipairs(L:GetChildren()) do
+			if m ~= src and m:IsA("Model") and m.Name == "Shrub" then
+				local p = m:GetPivot().Position
+				if math.abs(p.X - c.X) < 2.2 and math.abs(p.Z - c.Z) < 7.5 then table.insert(group, m) end
+			end
+		end
+		local fill = Instance.new("Folder")
+		fill.Name = "ClubBedFill"
+		fill.Parent = L
+		for _, z in ipairs({ -190, -229 }) do
+			for _, m in ipairs(group) do
+				local copy = m:Clone()
+				copy:SetAttribute("PropId", nil) -- (not a prop of its own: prop_save skips it)
+				copy:PivotTo(m:GetPivot() + Vector3.new(0, 0, z - c.Z))
+				copy.Parent = fill
+			end
+		end
+		table.insert(log, "club beds 2 (" .. #group .. " pieces each)")
+	end
 end
 
 return table.concat(log, " | ")

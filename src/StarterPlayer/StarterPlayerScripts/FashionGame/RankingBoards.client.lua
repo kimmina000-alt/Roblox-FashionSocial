@@ -176,8 +176,9 @@ local function buildList(part: BasePart, board: string)
 		for i, key in ipairs(keys) do
 			local product = MonetizationConfig.Products[key]
 			local b = Instance.new("TextButton")
-			b.Position = UDim2.new(0.06, 0, 0, 66 + (i - 1) * 48)
-			b.Size = UDim2.new(0.88, 0, 0, 40)
+			-- (44 apart, 36 tall: the last one ended under the note at the bottom, user 2026-10-30)
+			b.Position = UDim2.new(0.06, 0, 0, 64 + (i - 1) * 44)
+			b.Size = UDim2.new(0.88, 0, 0, 36)
 			-- (black and white, user 2026-10-30: was pink)
 			b.BackgroundColor3 = Color3.fromRGB(14, 14, 16)
 			b.Text = "R$ " .. valueText("level", product.price):gsub(" XP", "")

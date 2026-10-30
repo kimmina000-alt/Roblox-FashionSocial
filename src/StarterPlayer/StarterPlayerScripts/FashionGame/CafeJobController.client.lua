@@ -441,10 +441,11 @@ local function watchCounter(part: Instance)
 		MaxActivationDistance = 10,
 		RequiresLineOfSight = false,
 	})
-	local station = part.Parent and part.Parent:FindFirstChild("BackCounter")
-	local stationPart: BasePart = if station and station:IsA("BasePart") then station else part
-	local anchor = make("Attachment", { Name = "CafeJobAnchor" }, stationPart)
-	anchors[anchor] = stationPart
+	-- (on the counter, moved over the bench each frame from the bench box the
+	-- server writes on the counter: the bench part itself may not be streamed
+	-- in yet, user 2026-10-30)
+	local anchor = make("Attachment", { Name = "CafeJobAnchor" }, part)
+	anchors[anchor] = part
 	prompt.Parent = anchor
 	prompt.Triggered:Connect(function()
 		if myShop() == key then
@@ -526,9 +527,11 @@ local function updateAnchors()
 	if not root or not root:IsA("BasePart") then return end
 	for anchor, part in pairs(anchors) do
 		if anchor.Parent then
-			local here = part.CFrame:PointToObjectSpace(root.Position)
-			local half = part.Size / 2
-			anchor.Position = Vector3.new(math.clamp(here.X, -half.X + 0.5, half.X - 0.5), half.Y + 0.5, math.clamp(here.Z, -half.Z + 0.5, half.Z - 0.5))
+			local cf, size = part:GetAttribute("StationCF"), part:GetAttribute("StationSize")
+			if typeof(cf) ~= "CFrame" or typeof(size) ~= "Vector3" then cf, size = part.CFrame, part.Size end
+			local here = cf:PointToObjectSpace(root.Position)
+			local half = size / 2
+			anchor.WorldPosition = cf:PointToWorldSpace(Vector3.new(math.clamp(here.X, -half.X + 0.5, half.X - 0.5), half.Y + 0.5, math.clamp(here.Z, -half.Z + 0.5, half.Z - 0.5)))
 		end
 	end
 end

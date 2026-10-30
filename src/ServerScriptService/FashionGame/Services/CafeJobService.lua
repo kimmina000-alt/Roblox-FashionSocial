@@ -868,6 +868,19 @@ function CafeJobService.Start(economyService: any, snackService: any)
 	economy = economyService
 	snack = snackService
 	snack.SetOrderHandler(playerOrder)
+	-- the work bench's box on each counter (attributes StationCF / StationSize):
+	-- with streaming a phone may not have the bench part yet when it makes the
+	-- 알바 prompt, and then hung it on the order counter (user 2026-10-30)
+	local function noteStation(part: Instance)
+		if not part:IsA("BasePart") or not part:IsDescendantOf(workspace) then return end
+		local back = part.Parent and part.Parent:FindFirstChild("BackCounter")
+		if back and back:IsA("BasePart") then
+			part:SetAttribute("StationCF", back.CFrame)
+			part:SetAttribute("StationSize", back.Size)
+		end
+	end
+	for _, part in ipairs(CollectionService:GetTagged("SnackShop")) do noteStation(part) end
+	CollectionService:GetInstanceAddedSignal("SnackShop"):Connect(noteStation)
 	snack.SetFinishedHandler(function(character: Model, _item)
 		-- an empty cup on the table when a customer finishes a cafe drink
 		local root = rootOf(character)

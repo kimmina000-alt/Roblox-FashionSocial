@@ -4558,7 +4558,9 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	local NEON = Color3.fromRGB(255, 255, 255) -- (pink → white, user 2026-10-30)
 	-- (user 2026-10-30, 2nd) no foot: the panes float a little higher, a
 	-- thinner neon edge
-	local HALF, Y0, Y1 = 8.6, 6.2, 17.2 -- (higher again, user 2026-10-30: was 3.4)
+	-- (user 2026-10-30, 3rd) down by half the room under them: the paving is
+	-- at 0.6, so 6.2 → 3.4 and the top 17.2 → 14.4
+	local HALF, Y0, Y1 = 8.6, 3.4, 14.4
 	local E = 0.035 -- half the neon edge's thickness
 	for _, spec in ipairs({ { "level", -82.6 }, { "support", -62.4 } }) do
 		local z = spec[2]

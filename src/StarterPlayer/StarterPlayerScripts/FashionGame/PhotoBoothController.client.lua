@@ -743,8 +743,18 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 		return b
 	end
 	-- ⏸ stops the pose animation at this frame so the photo catches it
-	-- (user, 2026-10-20); ▶ continues.
-	pauseButton = add("⏸ 멈춤", function()
+	-- (user, 2026-10-20); ▶ continues. It sits beside 🙂 정면 보기 under the
+	-- picture, not in the pose list (user 2026-10-30)
+	pauseButton = button({
+		Name = "PausePose",
+		Size = UDim2.fromOffset(120, 30),
+		BackgroundColor3 = COLORS.pink,
+		TextColor3 = Color3.new(1, 1, 1),
+		Text = "⏸ 멈춤",
+		TextSize = 13,
+		ZIndex = 3,
+	}, shoot, 15)
+	pauseButton.MouseButton1Click:Connect(function()
 		local character = player.Character
 		if not character or character:GetAttribute("DanceKey") == nil then
 			toast("먼저 포즈를 고른 뒤 원하는 순간에 ⏸를 누르세요.")
@@ -752,8 +762,6 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 		end
 		danceRemote:FireServer(if typeof(character:GetAttribute("DancePause")) == "number" then "Resume" else "Pause")
 	end)
-	pauseButton.BackgroundColor3 = COLORS.pink
-	pauseButton.TextColor3 = Color3.new(1, 1, 1)
 	add("■ 기본", function() danceRemote:FireServer("Stop") end)
 	-- helpers for tall / short avatars (user 2026-10-28, D-452): pink while on
 	-- (the server keeps the state on the character: BoothKneel / BoothStep)
@@ -853,7 +861,8 @@ local function layoutShoot()
 	propPanel.Size = UDim2.fromOffset(panelW, panelH)
 	tip.Position = UDim2.fromOffset(x, y + h - 24)
 	tip.Size = UDim2.fromOffset(w, 20)
-	faceFront.Position = UDim2.fromOffset(x + w / 2 - 60, y + h - 58)
+	faceFront.Position = UDim2.fromOffset(x + w / 2 - 126, y + h - 58)
+	pauseButton.Position = UDim2.fromOffset(x + w / 2 + 6, y + h - 58)
 	shootLeave.Position = UDim2.fromOffset(vp.X / 2 + infoBar.Size.X.Offset / 2 + 10, top)
 	shootLeave.Size = UDim2.fromOffset(34, 34)
 	local bracket = math.floor(math.clamp(math.min(w, h) * 0.12, 22, 48))
