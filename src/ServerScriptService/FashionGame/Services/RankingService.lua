@@ -236,6 +236,9 @@ local function publish()
 	-- the boards show each player's avatar picture
 	for _, board in ipairs({ "support", "level" }) do
 		for _, row in ipairs(data[board]) do row.u = row.id end
+		-- the 1st place stands on the left of the board in their look (user 2026-10-30)
+		local first = data[board][1]
+		if first and not hidden[first.id] then first.o = lookOf(first.id) end
 	end
 	-- today's top 3 also carry their look for the avatar screen, and their
 	-- 좋아요 / 싫어요 (a hidden card shows the name only, D-281)

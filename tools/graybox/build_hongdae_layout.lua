@@ -4029,7 +4029,8 @@ do
 	-- (the row of tree pits along the east sidewalk is gone, user 2026-10-24)
 
 	-- (the long bed along the west edge is gone too, user 2026-10-24)	-- low park lamps along the edges; they glow at night
-	for _, lp in ipairs({ { -118, -186 }, { -76, -186 }, { -60, -162 }, { -70, -110 }, { -112, -66 }, { -138, -150 }, { -138, -100 } }) do
+	-- (the one at -112, -66 is gone: the ranking boards stand on that line, user 2026-10-30)
+	for _, lp in ipairs({ { -118, -186 }, { -76, -186 }, { -60, -162 }, { -70, -110 }, { -138, -150 }, { -138, -100 } }) do
 		local b = Vector3.new(lp[1], if onDeck(lp[1], lp[2]) then DECK_TOP - 0.08 else 0, lp[2])
 		vcyl("ParkLampPost", b, 0.35, 8, Color3.fromRGB(40, 42, 46), o(Enum.Material.Metal))
 		local g = part("ParkLampGlobe", Vector3.new(1.4, 1.4, 1.4), CFrame.new(b + Vector3.new(0, 8.6, 0)), Color3.fromRGB(255, 244, 220), o(Enum.Material.SmoothPlastic, { shape = Enum.PartType.Ball, nocol = true }))
@@ -4551,7 +4552,10 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	-- (moved in a row up from subway exit 3 toward the park, readable from both
 	-- sides, user 2026-10-26; the club bus stop took their old place)
 	-- (user 2026-10-27, 2nd) on the beach side, where the curved sofa deck stood
-	local X = -134
+	-- (user 2026-10-30, 4th) into the plaza, on the line of the park lamp that
+	-- stood at x -112 (removed); wider (17.2 → 24) with the 1st place's
+	-- avatar on the left of each, the pair inside the paving (z -95.5..-45.5)
+	local X = -112
 	-- (user 2026-10-30) two boards (레벨 / 기부, 50 each) instead of three, each
 	-- longer over the freed room; no wooden frame: a see-through LED pane with a
 	-- neon edge on a slim dark foot, like a glass screen with a message on it
@@ -4560,9 +4564,9 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	-- thinner neon edge
 	-- (user 2026-10-30, 3rd) down by half the room under them: the paving is
 	-- at 0.6, so 6.2 → 3.4 and the top 17.2 → 14.4
-	local HALF, Y0, Y1 = 8.6, 3.4, 14.4
+	local HALF, Y0, Y1 = 12, 3.4, 14.4
 	local E = 0.035 -- half the neon edge's thickness
-	for _, spec in ipairs({ { "level", -82.6 }, { "support", -62.4 } }) do
+	for _, spec in ipairs({ { "level", -83.5 }, { "support", -57.5 } }) do
 		local z = spec[2]
 		local pane = box("BoardPane", X - 0.06, Y0, z - HALF, X + 0.06, Y1, z + HALF, Color3.fromRGB(20, 10, 24), { parent = B, material = Enum.Material.Glass })
 		pane.Transparency = 0.7

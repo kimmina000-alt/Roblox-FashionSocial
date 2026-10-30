@@ -90,6 +90,12 @@ local MEDALS = { Color3.fromRGB(255, 214, 90), Color3.fromRGB(225, 225, 235), Co
 local ROW_H = 46
 local SCROLL_SPEED = 22 -- px a second
 local MessagePromptLazy: any = nil
+local PhotoRenderLazy: any = nil
+local PORTRAIT = 0.27 -- the 1st place's avatar takes this much of the board's width, on the left (user 2026-10-30)
+local PORTRAIT_BACK = { 26, 18, 40 }
+-- closer than the photo booth's camera: it sees y -6.2..3.4 (feet at -5.9), so a
+-- default avatar fills most of the frame and a tall one still fits
+local PORTRAIT_CAM = { CFrame.lookAt(Vector3.new(0, -1.4, -9), Vector3.new(0, -1.6, 0)):GetComponents() }
 local thumbs: {[number]: string} = {}
 
 local function headshot(userId: number, image: ImageLabel)
@@ -117,9 +123,35 @@ local function buildList(part: BasePart, board: string)
 	bg.BackgroundTransparency = 0.68 -- (more see-through again, user 2026-10-30)
 	bg.BorderSizePixel = 0
 	bg.Parent = gui
+	-- the 1st place on the left: their avatar (their look in this game, else
+	-- their Roblox avatar picture), 👑 1위 over it, the name under it
+	local portrait = Instance.new("Frame")
+	portrait.Size = UDim2.fromScale(PORTRAIT, 1)
+	portrait.BackgroundTransparency = 1
+	portrait.Parent = bg
+	local crown = label(portrait, { Position = UDim2.fromOffset(24, 18), Size = UDim2.new(1, -36, 0, 34), Text = "", TextColor3 = GOLD })
+	local stage = Instance.new("ViewportFrame")
+	stage.Position = UDim2.fromOffset(24, 58)
+	stage.Size = UDim2.new(1, -36, 1, -112)
+	stage.BackgroundColor3 = Color3.fromRGB(PORTRAIT_BACK[1], PORTRAIT_BACK[2], PORTRAIT_BACK[3])
+	stage.BackgroundTransparency = 0.2
+	stage.Parent = portrait
+	Instance.new("UICorner", stage).CornerRadius = UDim.new(0, 10)
+	local picture = Instance.new("ImageLabel")
+	picture.Size = UDim2.fromScale(1, 1)
+	picture.BackgroundTransparency = 1
+	picture.ScaleType = Enum.ScaleType.Fit
+	picture.Parent = stage
+	local firstName = label(portrait, { Position = UDim2.new(0, 24, 1, -50), Size = UDim2.new(1, -36, 0, 30), Text = "", TextColor3 = GOLD })
+	local shownFirst = "-" -- (not "": the empty board's key, so its first update writes the texts)
+	local main = Instance.new("Frame")
+	main.Position = UDim2.fromScale(PORTRAIT, 0)
+	main.Size = UDim2.fromScale(1 - PORTRAIT, 1)
+	main.BackgroundTransparency = 1
+	main.Parent = bg
 	local title = TITLES[board] or { "", board, "" }
-	label(bg, { Position = UDim2.fromOffset(30, 20), Size = UDim2.new(0.6, -30, 0, 34), Text = title[2], TextXAlignment = Enum.TextXAlignment.Left })
-	label(bg, { Position = UDim2.fromOffset(30, 54), Size = UDim2.new(0.6, -30, 0, 20), Text = title[3], Font = Enum.Font.GothamMedium,
+	label(main, { Position = UDim2.fromOffset(30, 20), Size = UDim2.new(0.6, -30, 0, 34), Text = title[2], TextXAlignment = Enum.TextXAlignment.Left })
+	label(main, { Position = UDim2.fromOffset(30, 54), Size = UDim2.new(0.6, -30, 0, 20), Text = title[3], Font = Enum.Font.GothamMedium,
 		TextColor3 = Color3.fromRGB(200, 190, 215), TextXAlignment = Enum.TextXAlignment.Left })
 	local listWidth = if donate then 0.66 else 1
 	local scroll = Instance.new("ScrollingFrame")
@@ -130,7 +162,7 @@ local function buildList(part: BasePart, board: string)
 	scroll.ScrollBarThickness = 6
 	scroll.ScrollBarImageColor3 = NEON
 	scroll.CanvasSize = UDim2.new()
-	scroll.Parent = bg
+	scroll.Parent = main
 	local rows = {}
 	for i = 1, 50 do
 		local row = Instance.new("Frame")
@@ -159,7 +191,7 @@ local function buildList(part: BasePart, board: string)
 			TextColor3 = medal or Color3.fromRGB(235, 235, 245), TextXAlignment = Enum.TextXAlignment.Right })
 		rows[i] = { frame = row, rank = rank, face = face, name = name, value = value, user = 0 }
 	end
-	local empty = label(bg, { Position = UDim2.new(0, 28, 0.5, -16), Size = UDim2.new(listWidth, -48, 0, 32), Text = "",
+	local empty = label(main, { Position = UDim2.new(0, 28, 0.5, -16), Size = UDim2.new(listWidth, -48, 0, 32), Text = "",
 		Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(190, 180, 205) })
 	if donate then
 		-- 기부하기: the same products as the top bar 💝 window
@@ -167,7 +199,7 @@ local function buildList(part: BasePart, board: string)
 		side.Position = UDim2.new(0.66, 0, 0, 22)
 		side.Size = UDim2.new(0.34, -30, 1, -46)
 		side.BackgroundTransparency = 1
-		side.Parent = bg
+		side.Parent = main
 		label(side, { Size = UDim2.new(1, 0, 0, 34), Text = "기부하기" })
 		label(side, { Position = UDim2.fromOffset(0, 36), Size = UDim2.new(1, 0, 0, 20), Text = "어떤 금액이든 감사드립니다",
 			Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(200, 190, 215) })
@@ -227,6 +259,33 @@ local function buildList(part: BasePart, board: string)
 			end
 			scroll.CanvasSize = UDim2.fromOffset(0, #list * ROW_H)
 			empty.Text = if #list == 0 then "아직 순위가 없어요" else ""
+			-- the 1st place (drawn again only when they or their look change)
+			local first = list[1]
+			local u = first and tonumber(first.u) or 0
+			local key = if first then tostring(u) .. (if first.o then HttpService:JSONEncode(first.o) else "") else ""
+			if key ~= shownFirst then
+				shownFirst = key
+				crown.Text = if first then "👑 1위" else "👑 1위 자리"
+				firstName.Text = if first then tostring(first.name) else "비어 있어요"
+				for _, child in ipairs(stage:GetChildren()) do
+					if child:IsA("WorldModel") or child:IsA("Camera") then child:Destroy() end
+				end
+				picture.Image = ""
+				if first and first.o and u ~= 0 then
+					PhotoRenderLazy = PhotoRenderLazy or require(script.Parent:WaitForChild("PhotoRender"))
+					task.spawn(function()
+						PhotoRenderLazy.renderShot(stage, { people = { { u = u, x = 0, y = -2.9, z = 0, r = 0, t = 0 } } },
+							{ [u] = { o = first.o } }, { back = PORTRAIT_BACK, cam = PORTRAIT_CAM })
+					end)
+				elseif u > 0 then
+					task.spawn(function()
+						local ok, url = pcall(function()
+							return Players:GetUserThumbnailAsync(u, Enum.ThumbnailType.AvatarThumbnail, Enum.ThumbnailSize.Size420x420)
+						end)
+						if ok and typeof(url) == "string" and shownFirst == key then picture.Image = url end
+					end)
+				end
+			end
 		end,
 		tick = function()
 			local now = os.clock()

@@ -138,7 +138,9 @@ local EAT_SOUND = {
 -- 국밥 (kind "bowl"): the user's own three clips, picked at random each
 -- spoonful, never the same twice in a row (user 2026-10-30;
 -- docs/04_ART/sounds/gukbap_eat_1..3.mp3, uploaded on Vantablack_Dev). 0 = the old clip.
-local GUKBAP_CLIPS = { 98804537108952, 105506248237925, 115770485617090 }
+-- (user 2026-10-30, later) one Creator Store clip instead: "Sipping"
+-- (140514526743537, 3.1 s); the own clips were 98804537108952, 105506248237925, 115770485617090
+local GUKBAP_CLIPS = { 140514526743537 }
 local lastGukbap = 0
 local function gukbapClip(): number?
 	local ready = {}
@@ -152,8 +154,9 @@ local function gukbapClip(): number?
 end
 -- coffee is sipped, not gulped (user 2026-10-30): "Tea Cup Up And Down 10" (Pro Sound Effects)
 -- (user 2026-10-30) the cafe's coffees and water: the user's own clip "마시다"
--- (was 9119949556 "Tea Cup Up And Down 10")
-local COFFEE_SIP = 77555451916623
+-- (was 9119949556 "Tea Cup Up And Down 10"); (user 2026-10-30, later) the
+-- Creator Store "Water Gulp/Drink Sound" (1481574895, 1.6 s), was 77555451916623
+local COFFEE_SIP = 1481574895
 local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true, water = true }
 local QUIET = { bagel = true, saltbread = true } -- their bite at half volume
 

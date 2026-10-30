@@ -2611,3 +2611,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 거울: 복사본의 관절/RigidConstraint를 지워서 레이어드 재킷이 안 입혀졌음. 관절을 남기고 좌우 반대쪽 관절 자세를 뒤집어 적용(실제 거울처럼). 재킷 입힌 테스트 캐릭터로 확인.
   ![](images/2026-10-30/mirror_before_d592.jpg) ![](images/2026-10-30/mirror_after_d592.jpg)
 - 포토부스: ⏸ 멈춤 버튼을 포즈 목록에서 빼서 🙂 정면 보기 옆으로.
+### 2026-10-30 순위표 1등 캐릭터 (D-594, D-595)
+- 공원 가로등(-112, -66) 삭제, 순위표를 그 줄(x -112)로 옮김. 각 순위표 폭 17.2 → 24, 왼쪽에 👑 1위 + 게임 속 옷차림 캐릭터 + 이름. 옷차림 기록이 없으면 로블록스 전신 사진.
+  ![](images/2026-10-30/ranking_portrait_d594.jpg) ![](images/2026-10-30/ranking_portrait_close_d594.jpg)
+- 소리: 커피·물 1481574895, 국밥 140514526743537.
