@@ -2692,3 +2692,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 승강장·카페 2층·상단 막대 (D-615)
 - 승강장 표지: 아이콘 삭제, 흰 글씨 + 화살표. 카페 2층: 난간 바 의자 17개 높임, 긴 테이블 3개에 라운지 소파 2개씩(의자 12개 삭제), 테이블 높이 라운지와 같게. 코인 칸 2/3, 버튼 배경 투명도 50%.
   ![](images/2026-10-30/cafe_upstairs_sofas_d615.jpg)
+
+### 2026-10-30 빈티지 레터링 케이크 (D-616)
+- 사용자 STL(466,560 삼각형, 한 덩어리, 면 방향 정상) → 22개 색 부위(받침판, 스티커, 파란 케이크, 생크림 꽃, 흰·파란 파이핑, 체리·꼭지, 펄, 꽃 2개, 글씨(윗면 흰/노랑, 옆면 빨강), 스프링클 5색).
+- 격자 줄이기는 얇은 판·벽이 뒤집히고 색 사이가 갈라져서 QEM(면 뒤집힘 금지, 경계 유지)으로 새로 만듦. 2만 삼각형, 면 방향 재확인.
+  ![](../04_ART/textures/cakes/vintage_groups_full.png)
+  ![](../04_ART/textures/cakes/vintage_groups_20k.png)
+- docs/04_ART/models/VintageLetteringCake.gltf → 사용자가 3D 가져오기로 ServerStorage.ArtAssets.Foods에.
