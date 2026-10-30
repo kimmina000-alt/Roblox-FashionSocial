@@ -2626,3 +2626,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 상단 버튼 좌우 정렬 (D-598)
 - 왼쪽 묶음은 로블록스 버튼 끝(TopbarInset)부터 시작해서 음성 채팅 버튼이 생기고 사라질 때 같이 움직임. 카탈로그 C → 흰 옷걸이 그림.
   ![](images/2026-10-30/topbar_left_right_d598.jpg)
+
+### 2026-10-30 가방에 사진 탭 (D-599)
+- 🏠 버튼 삭제, 💃 → 🎵, 🖼 내 앨범 버튼 삭제. 가방에 [소지품 | 사진] 탭: 사진 카드(날짜·삭제), 누르면 크게 보기 + 🤚 손에 들기 / 📸 캡처 저장 / 삭제. 촬영 후 '🎒 가방에서 보기'.
+  ![](images/2026-10-30/bag_photos_tab_d599.jpg)

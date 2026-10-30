@@ -3,10 +3,9 @@
 -- number; this file decides the side and the place (hidden buttons leave no
 -- gap).
 -- (user 2026-10-30, later) left group, right after Roblox's own buttons and
--- moving with them (the voice chat button comes and goes): 🏠 home 0,
--- catalog (hanger) 4, 🎒 3, 🖼 album 2, then 💃 1 (not in the user's list:
--- kept at the end of the left group). Right group, ending at the right edge:
--- 💰 coins 10, 💝 5.
+-- moving with them (the voice chat button comes and goes): catalog (hanger)
+-- 4, 🎒 3 (photos inside), 🎵 dance 1. (🏠 0 and the 🖼 album 2 are gone.)
+-- Right group, ending at the right edge: 💰 coins 10, 💝 5.
 -- A button with attribute Width (number, px at full size) is that wide.
 
 local GuiService = game:GetService("GuiService")

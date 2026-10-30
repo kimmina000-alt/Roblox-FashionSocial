@@ -101,7 +101,7 @@ local danceButton = create("TextButton", {
 	Size = UDim2.fromOffset(44, 44),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 	BackgroundTransparency = 0.2,
-	Text = "💃",
+	Text = "🎵", -- (a note instead of 💃, user 2026-10-30)
 	TextSize = 22,
 	Font = Enum.Font.GothamBold,
 	TextColor3 = COLORS.text,
@@ -109,7 +109,7 @@ local danceButton = create("TextButton", {
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, danceButton)
 
--- Sits just left of the catalog "C" button at the right end of the top bar.
+-- In the top bar's left group (TopBar.lua has the order).
 require(script.Parent:WaitForChild("TopBar")).add(danceButton, 1)
 
 local panel = create("Frame", {

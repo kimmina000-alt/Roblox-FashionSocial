@@ -3,12 +3,21 @@
 -- item in the backpack and the one in hand. Tap an item to hold it, tap the
 -- held one to put it away. (Roblox's own full inventory has no button on
 -- phones, and no script can open it.)
+-- (user 2026-10-30, later) 내 앨범 is gone: the bag has two tabs, 소지품 and
+-- 사진 (the saved photos; tap one to see it big, hold it or delete it — the
+-- viewer is PhotoBoothController's, through BagSignals).
 
 local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local player = Players.LocalPlayer
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
 local Popups = require(script.Parent:WaitForChild("Popups"))
+local BagSignals = require(script.Parent:WaitForChild("BagSignals"))
+local PhotoFlowUI = require(script.Parent:WaitForChild("PhotoFlowUI"))
+local PhotoRender = require(script.Parent:WaitForChild("PhotoRender"))
+local PhotoConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("PhotoConfig"))
+local boothRemote = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Remotes"):WaitForChild("PhotoBooth") :: RemoteFunction
 
 local PINK = Color3.fromRGB(255, 110, 180)
 
@@ -50,17 +59,6 @@ title.Font = Enum.Font.GothamBold
 title.TextXAlignment = Enum.TextXAlignment.Left
 title.Parent = panel
 
-local hint = Instance.new("TextLabel")
-hint.Position = UDim2.fromOffset(16, 38)
-hint.Size = UDim2.new(1, -32, 0, 18)
-hint.BackgroundTransparency = 1
-hint.Text = "누르면 손에 들어요 · 든 것을 다시 누르면 넣어요"
-hint.TextColor3 = Color3.fromRGB(190, 190, 205)
-hint.TextSize = 13
-hint.Font = Enum.Font.GothamMedium
-hint.TextXAlignment = Enum.TextXAlignment.Left
-hint.Parent = panel
-
 local close = Instance.new("TextButton")
 close.AnchorPoint = Vector2.new(1, 0)
 close.Position = UDim2.new(1, -10, 0, 10)
@@ -73,29 +71,78 @@ close.TextSize = 15
 close.Parent = panel
 corner(close, 15)
 
-local list = Instance.new("ScrollingFrame")
-list.Position = UDim2.fromOffset(12, 64)
-list.Size = UDim2.new(1, -24, 1, -76)
-list.BackgroundTransparency = 1
-list.BorderSizePixel = 0
-list.ScrollBarThickness = 4
-list.ScrollBarImageColor3 = PINK
-list.AutomaticCanvasSize = Enum.AutomaticSize.Y
-list.CanvasSize = UDim2.new()
-list.Parent = panel
-local grid = Instance.new("UIGridLayout")
-grid.CellSize = UDim2.fromOffset(88, 100)
-grid.CellPadding = UDim2.fromOffset(8, 8)
-grid.SortOrder = Enum.SortOrder.LayoutOrder
-grid.Parent = list
+-- tabs: 소지품 | 사진
+local tab = "items"
+local function tabButton(label: string, x: number): TextButton
+	local b = Instance.new("TextButton")
+	b.Position = UDim2.fromOffset(x, 44)
+	b.Size = UDim2.fromOffset(92, 28)
+	b.Text = label
+	b.TextColor3 = Color3.new(1, 1, 1)
+	b.TextSize = 14
+	b.Font = Enum.Font.GothamBold
+	b.AutoButtonColor = true
+	b.Parent = panel
+	corner(b, 14)
+	return b
+end
+local itemsTab = tabButton("소지품", 16)
+local photosTab = tabButton("사진", 114)
+
+local hint = Instance.new("TextLabel")
+hint.Position = UDim2.fromOffset(16, 76)
+hint.Size = UDim2.new(1, -32, 0, 18)
+hint.BackgroundTransparency = 1
+hint.Text = "누르면 손에 들어요 · 든 것을 다시 누르면 넣어요"
+hint.TextColor3 = Color3.fromRGB(190, 190, 205)
+hint.TextSize = 13
+hint.Font = Enum.Font.GothamMedium
+hint.TextXAlignment = Enum.TextXAlignment.Left
+hint.TextTruncate = Enum.TextTruncate.AtEnd
+hint.Parent = panel
+
+local deleteAll = Instance.new("TextButton")
+deleteAll.AnchorPoint = Vector2.new(1, 0)
+deleteAll.Position = UDim2.new(1, -16, 0, 44)
+deleteAll.Size = UDim2.fromOffset(96, 28)
+deleteAll.BackgroundColor3 = Color3.fromRGB(44, 42, 54)
+deleteAll.Text = "🗑 전체 삭제"
+deleteAll.TextColor3 = Color3.new(1, 1, 1)
+deleteAll.TextSize = 13
+deleteAll.Font = Enum.Font.GothamBold
+deleteAll.Visible = false
+deleteAll.Parent = panel
+corner(deleteAll, 10)
+
+local function scroller(cell: Vector2): ScrollingFrame
+	local list = Instance.new("ScrollingFrame")
+	list.Position = UDim2.fromOffset(12, 100)
+	list.Size = UDim2.new(1, -24, 1, -112)
+	list.BackgroundTransparency = 1
+	list.BorderSizePixel = 0
+	list.ScrollBarThickness = 4
+	list.ScrollBarImageColor3 = PINK
+	list.AutomaticCanvasSize = Enum.AutomaticSize.Y
+	list.CanvasSize = UDim2.new()
+	list.Parent = panel
+	local grid = Instance.new("UIGridLayout")
+	grid.CellSize = UDim2.fromOffset(cell.X, cell.Y)
+	grid.CellPadding = UDim2.fromOffset(8, 8)
+	grid.SortOrder = Enum.SortOrder.LayoutOrder
+	grid.Parent = list
+	return list
+end
+local list = scroller(Vector2.new(88, 100))
+local photoList = scroller(Vector2.new(88, 190))
 
 local empty = Instance.new("TextLabel")
-empty.Position = UDim2.fromOffset(16, 90)
-empty.Size = UDim2.new(1, -32, 0, 24)
+empty.Position = UDim2.fromOffset(16, 124)
+empty.Size = UDim2.new(1, -32, 0, 48)
 empty.BackgroundTransparency = 1
 empty.Text = "가방이 비어 있어요"
 empty.TextColor3 = Color3.fromRGB(160, 160, 180)
 empty.TextSize = 15
+empty.TextWrapped = true
 empty.Font = Enum.Font.GothamMedium
 empty.Visible = false
 empty.Parent = panel
@@ -125,12 +172,12 @@ local function tools(): {Tool}
 	return out
 end
 
-local function refresh()
-	if not panel.Visible then return end
+local function refreshItems()
 	for _, c in ipairs(list:GetChildren()) do
 		if c:IsA("GuiObject") then c:Destroy() end
 	end
 	local items = tools()
+	empty.Text = "가방이 비어 있어요"
 	empty.Visible = #items == 0
 	for i, tool in ipairs(items) do
 		local held = tool.Parent == player.Character
@@ -220,24 +267,100 @@ local function refresh()
 			elseif tool.Parent then
 				humanoid:EquipTool(tool)
 			end
-			task.defer(refresh)
+			task.defer(function() if tab == "items" then refreshItems() end end)
 		end)
 	end
 end
 
-local function setOpen(open: boolean)
+-- the saved photos (they were 내 앨범): a card each with the date and a trash
+-- button; tapping a card shows it big
+local photoGeneration = 0
+local function invoke(action: string, payload: any): (boolean, any)
+	local ok, success, result = pcall(function() return boothRemote:InvokeServer(action, payload) end)
+	if not ok then return false, "잠시 후 다시 시도하세요." end
+	return success, result
+end
+local function refreshPhotos()
+	photoGeneration += 1
+	local generation = photoGeneration
+	for _, c in ipairs(photoList:GetChildren()) do
+		if c:IsA("GuiObject") then c:Destroy() end
+	end
+	hint.Text = "불러오는 중..."
+	empty.Visible = false
+	local ok, data = invoke("GetAlbum", nil)
+	if generation ~= photoGeneration or tab ~= "photos" then return end
+	if not ok or typeof(data) ~= "table" then
+		hint.Text = if typeof(data) == "string" then data else "사진을 불러오지 못했어요."
+		return
+	end
+	local photos = data.photos or {}
+	hint.Text = string.format("%d/%d장 · 누르면 크게 보고 손에 들 수 있어요", #photos, data.max or PhotoConfig.MaxPhotos)
+	empty.Text = "아직 사진이 없어요. 오후네컷(클럽과 공원 사이)에서 찍어 보세요!"
+	empty.Visible = #photos == 0
+	deleteAll.Visible = #photos > 0
+	for index, photo in ipairs(photos) do
+		local cell, holder, trash = PhotoFlowUI.albumCard(photoList, index, photo.createdAt, 2)
+		PhotoRender.drawPhoto(holder, photo)
+		trash.MouseButton1Click:Connect(function()
+			PhotoFlowUI.confirm(gui, "사진을 삭제할까요?", "삭제한 사진은 복구할 수 없어요.", "삭제", function()
+				local deleted, message = invoke("DeletePhoto", photo.id)
+				if not deleted and typeof(message) == "string" then hint.Text = message end
+				if deleted then task.spawn(refreshPhotos) end
+			end)
+		end)
+		cell.MouseButton1Click:Connect(function() BagSignals.viewPhoto:Fire(photo) end)
+	end
+end
+
+local function showTab(which: string)
+	tab = which
+	local photosOn = which == "photos"
+	itemsTab.BackgroundColor3 = if photosOn then Color3.fromRGB(38, 38, 50) else PINK
+	photosTab.BackgroundColor3 = if photosOn then PINK else Color3.fromRGB(38, 38, 50)
+	list.Visible = not photosOn
+	photoList.Visible = photosOn
+	deleteAll.Visible = false
+	if photosOn then
+		task.spawn(refreshPhotos)
+	else
+		hint.Text = "누르면 손에 들어요 · 든 것을 다시 누르면 넣어요"
+		refreshItems()
+	end
+end
+
+local function refresh()
+	if panel.Visible and tab == "items" then refreshItems() end
+end
+
+local function setOpen(open: boolean, which: string?)
 	panel.Visible = open
 	if open then
 		local vp = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1000, 700)
 		panel.Position = UDim2.new(0.5, 0, 0, TopBar.bottom() + 8)
-		panel.Size = UDim2.fromOffset(math.min(408, vp.X - 24), math.min(340, vp.Y - TopBar.bottom() - 20))
+		panel.Size = UDim2.fromOffset(math.min(408, vp.X - 24), math.min(400, vp.Y - TopBar.bottom() - 20))
 		Popups.opened("Bag", function() panel.Visible = false end)
-		refresh()
+		showTab(which or tab)
 	else
 		Popups.closed("Bag")
 	end
 end
 close.MouseButton1Click:Connect(function() setOpen(false) end)
+itemsTab.MouseButton1Click:Connect(function() showTab("items") end)
+photosTab.MouseButton1Click:Connect(function() showTab("photos") end)
+deleteAll.MouseButton1Click:Connect(function()
+	PhotoFlowUI.confirm(gui, "모든 사진을 삭제할까요?", "가방의 사진이 모두 지워지고 복구할 수 없어요.", "전체 삭제", function()
+		local ok, message = invoke("DeleteAllPhotos", nil)
+		if not ok and typeof(message) == "string" then hint.Text = message end
+		if ok then task.spawn(refreshPhotos) end
+	end)
+end)
+BagSignals.openBag.Event:Connect(function(which: any)
+	setOpen(true, if which == "photos" then "photos" else "items")
+end)
+BagSignals.photosChanged.Event:Connect(function()
+	if panel.Visible and tab == "photos" then task.spawn(refreshPhotos) end
+end)
 
 -- keep the window current while it is open
 local function watch(container: Instance?)

@@ -130,7 +130,7 @@ function PhotoFlowUI.savedPanel(parent: GuiObject, zIndex: number): (Frame, Text
 		Font = Enum.Font.GothamMedium,
 		TextSize = 13,
 		TextColor3 = C.sub,
-		Text = "내 앨범에서 확인할 수 있어요",
+		Text = "🎒 가방의 사진 칸에서 볼 수 있어요",
 		ZIndex = zIndex + 1,
 	}, card)
 	return card, title, sub

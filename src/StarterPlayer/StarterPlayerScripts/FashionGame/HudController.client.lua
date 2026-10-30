@@ -1,6 +1,6 @@
 --!strict
 -- Small HUD pieces in the top bar (user, 2026-10-20):
---   🏠  back to the first spawn point of the main map (next to the catalog C)
+--   (🏠 back to the first spawn point: removed 2026-10-30)
 --   🪙  coin balance (EconomyService, player attribute "Coins")
 
 local Players = game:GetService("Players")
@@ -47,59 +47,7 @@ local function toast(message: string)
 	end)
 end
 
---------------------------------------------------
--- 🏠 spawn
---------------------------------------------------
-
-local home = Instance.new("TextButton")
-home.Name = "SpawnButton"
-home.BackgroundColor3 = Color3.new(0, 0, 0)
-home.BackgroundTransparency = 0.2
-home.Text = "🏠"
-home.TextSize = 22
-home.Font = Enum.Font.GothamBold
-home.TextColor3 = Color3.new(1, 1, 1)
-home.Parent = gui
-corner(home, UDim.new(1, 0))
-TopBar.add(home, 0)
-
-local function spawnCFrame(): CFrame?
-	local spawn = workspace:FindFirstChild("SpawnLocation")
-	if spawn and spawn:IsA("BasePart") then
-		return spawn.CFrame * CFrame.new(math.random(-3, 3), spawn.Size.Y / 2 + 3, math.random(-3, 3))
-	end
-	for _, item in ipairs(workspace:GetDescendants()) do
-		if item:IsA("SpawnLocation") then return item.CFrame + Vector3.new(0, 4, 0) end
-	end
-	return nil
-end
-
-local lastHome = 0
-home.MouseButton1Click:Connect(function()
-	local character = player.Character
-	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not character or not humanoid or humanoid.Health <= 0 then return end
-	if character:GetAttribute("PhotoBooth") then
-		toast("촬영 중에는 이동할 수 없어요. 부스의 나가기를 눌러 주세요.")
-		return
-	end
-	if os.clock() - lastHome < 2 then return end
-	lastHome = os.clock()
-	local target = spawnCFrame()
-	if not target then return end
-	if humanoid.SeatPart then humanoid.Sit = false task.wait(0.1) end
-	-- Off any park ride / tube first (allowed anywhere, even on the wheel).
-	local parkRide = game:GetService("ReplicatedStorage").FashionGame.Remotes:FindFirstChild("ParkRide")
-	if parkRide and parkRide:IsA("RemoteFunction") then
-		pcall(function() parkRide:InvokeServer("Leave", "home") end)
-		task.wait(0.15)
-		humanoid.Sit = false
-	end
-	-- (no sweep sound for 🏠, user 2026-10-30: SfxController skips this jump)
-	player:SetAttribute("QuietJumpAt", os.clock())
-	character:PivotTo(target)
-	toast("처음 장소로 돌아왔어요.")
-end)
+-- (the 🏠 back-to-spawn button is gone, user 2026-10-30)
 
 --------------------------------------------------
 -- 🪙 coins

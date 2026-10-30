@@ -1398,9 +1398,9 @@ resultButton("📸 캡처 저장", COLORS.pink, 1, function()
 	end
 	captureToGallery({ resultButtons, resultTitle })
 end)
-resultButton("🖼 내 앨범", COLORS.card, 2, function()
+resultButton("🎒 가방에서 보기", COLORS.card, 2, function()
 	closeAllFlow()
-	if openAlbum then openAlbum() end
+	require(script.Parent:WaitForChild("BagSignals")).openBag:Fire("photos")
 end)
 resultButton("닫기", COLORS.card, 3, closeAllFlow)
 
@@ -1428,7 +1428,8 @@ local function showResult(saved: any)
 	result.Visible = true
 	Popups.opened("PhotoResult", closeAllFlow)
 	local count = if typeof(saved) == "table" then saved.count else nil
-	savedSub.Text = if count then string.format("내 앨범에서 확인할 수 있어요 (%d/%d)", count, saved.max or PhotoConfig.MaxPhotos) else "내 앨범에서 확인할 수 있어요"
+	savedSub.Text = if count then string.format("🎒 가방의 사진 칸에서 볼 수 있어요 (%d/%d)", count, saved.max or PhotoConfig.MaxPhotos) else "🎒 가방의 사진 칸에서 볼 수 있어요"
+	require(script.Parent:WaitForChild("BagSignals")).photosChanged:Fire()
 	if typeof(saved) == "table" and not saved.persistent and saved.note then toast("사진첩: " .. tostring(saved.note)) end
 end
 
@@ -1523,7 +1524,10 @@ local albumButton = create("TextButton", {
 	TextColor3 = COLORS.text,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, albumButton)
-TopBar.add(albumButton, 2)
+-- (user 2026-10-30, later) no 내 앨범 button: the photos are in the 🎒 bag's
+-- 사진 tab (InventoryController); the album window stays only for the code
+-- that still opens it, and its viewer shows the bag's photos
+albumButton.Parent = nil
 
 local album = overlay("Album")
 boxify(album)
@@ -1599,6 +1603,23 @@ end
 local viewerCapture = viewerButton("📸 캡처 저장", COLORS.pink, 1)
 local viewerDelete = viewerButton("삭제", COLORS.danger, 2)
 local viewerClose = viewerButton("닫기", COLORS.card, 3)
+-- 🤚 손에 들기: the photo as an item in the hand (it was taken out on every tap in 내 앨범)
+viewerButton("🤚 손에 들기", COLORS.card, 0).MouseButton1Click:Connect(function()
+	local photo = viewerPhoto
+	if not photo then return end
+	local ok, message = invoke("TakeOut", photo.id)
+	toast(message)
+	if not ok then return end
+	task.wait(0.3)
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if humanoid and backpack then
+		for _, tool in ipairs(backpack:GetChildren()) do
+			if tool:IsA("Tool") and tool:GetAttribute("PhotoId") == photo.id then humanoid:EquipTool(tool) end
+		end
+	end
+	viewer.Visible = false
+end)
 
 local function layoutAlbum()
 	local bw, bh = placeBox(album, "album")
@@ -1702,7 +1723,8 @@ viewerDelete.MouseButton1Click:Connect(function()
 		if ok then
 			viewer.Visible = false
 			toast("사진을 삭제했어요.")
-			task.spawn(renderAlbum)
+			require(script.Parent:WaitForChild("BagSignals")).photosChanged:Fire()
+			if album.Visible then task.spawn(renderAlbum) end
 		else
 			toast(message)
 		end
@@ -1714,6 +1736,15 @@ albumDeleteAll.MouseButton1Click:Connect(function()
 		toast(if ok then "모든 사진을 삭제했어요." else message)
 		if ok then task.spawn(renderAlbum) end
 	end)
+end)
+-- the bag's 사진 tab shows a photo in the viewer (user 2026-10-30, later)
+require(script.Parent:WaitForChild("BagSignals")).viewPhoto.Event:Connect(function(photo: any)
+	if typeof(photo) ~= "table" then return end
+	layoutAlbum()
+	viewerPhoto = photo
+	for _, child in ipairs(viewerHolder:GetChildren()) do child:Destroy() end
+	PhotoRender.drawPhoto(viewerHolder, photo)
+	viewer.Visible = true
 end)
 
 --------------------------------------------------
