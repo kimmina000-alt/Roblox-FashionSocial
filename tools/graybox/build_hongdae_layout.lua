@@ -6271,13 +6271,14 @@ do
 	-- its street end, a space between the words
 	do
 		local CAFE_SIGN = { sw = 0.13, depth = 0.6, side = Color3.fromRGB(214, 206, 190), face = Color3.fromRGB(255, 252, 244), halo = Color3.fromRGB(255, 205, 140), nightGlow = true, parent = T }
-		local y = 56
+		-- (half size, 4.6 → 2.3, and wider apart: 1.6 between letters, user 2026-10-30)
+		local y = 50
 		for _, ch in ipairs({ "O", "H", "U", " ", "C", "A", "F", "E" }) do
 			if ch ~= " " then
-				sign3d("Sign_OhuCafeSide", { ch }, Vector3.new(-213.5, y, 195.0), Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1), 4.6, CAFE_SIGN)
-				y -= 5.6
+				sign3d("Sign_OhuCafeSide", { ch }, Vector3.new(-212, y, 195.0), Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1), 2.3, CAFE_SIGN)
+				y -= 3.9
 			else
-				y -= 3
+				y -= 2.4
 			end
 		end
 	end

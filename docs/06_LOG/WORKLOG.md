@@ -2582,3 +2582,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-573: 카페 간판·입간판 ![](images/2026-10-30/d573_cafe_sign_spaced.jpg) 편의점 평면도 ![](images/2026-10-30/d573_oh24_plan.png)
 - D-574: ![](images/2026-10-30/d574_oh24_smaller_topdown.jpg)
 - D-578: ![](images/2026-10-30/d578_cafe_side_sign.jpg)
+- D-579: ![](images/2026-10-30/d579_cafe_side_sign_small.jpg)
