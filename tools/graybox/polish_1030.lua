@@ -1059,4 +1059,40 @@ if store15 and not store15:GetAttribute("Polish1030_16") then
 	end
 end
 
+---------------------------------------------------------------- 17. pizza wall on the north face (user 2026-10-30)
+-- Under the north band (x -135.4..-106.4) the store's black frame and glass go
+-- (the corner pier, the mullions, the glass, the kickplate) and the pizza
+-- shop's wall comes instead, as on its west front: marble base with red
+-- letters, tall glass with light mullions about every 8.6, a sill. The
+-- store's own pier at x -105.45 stays.
+if store15 and not store15:GetAttribute("Polish1030_17") then
+	store15:SetAttribute("Polish1030_17", true)
+	local F = store15:FindFirstChild("PizzaFront")
+	local NX0, NX1 = -135.42, -106.4
+	for _, d in ipairs(store15:GetChildren()) do
+		if d:IsA("BasePart") and d.Position.Z > 65 and d.Position.Z < 66.2 and d.Position.Y < 20
+			and d.Position.X > NX0 - 1 and d.Position.X < NX1 + 0.1
+			and (d.Name == "FacadePier" or d.Name == "Mullion" or d.Name == "FrontGlass" or d.Name == "Kickplate") then
+			d:Destroy()
+		end
+	end
+	if F then
+		local RED = Color3.fromRGB(222, 40, 50)
+		local base = part("PizzaBaseNorth", Vector3.new(NX1 - NX0, 5.8, 0.4), CFrame.new((NX0 + NX1) / 2, 0.6 + 2.9, 65.6), Color3.fromRGB(226, 226, 222), F, { material = Enum.Material.Marble, collide = true })
+		local bg = gui(base, Enum.NormalId.Front, 16)
+		local big = text(bg, "PIZZA", RED, Enum.Font.GothamBlack)
+		big.Size = UDim2.fromScale(0.3, 0.92) big.Position = UDim2.fromScale(0.66, 0.04)
+		local line = text(bg, "FRESH · HOT · BY THE SLICE", RED, Enum.Font.GothamBold)
+		line.Size = UDim2.fromScale(0.56, 0.34) line.Position = UDim2.fromScale(0.05, 0.33)
+		part("PizzaGlassNorth", Vector3.new(NX1 - NX0, 20 - 6.4, 0.1), CFrame.new((NX0 + NX1) / 2, (6.4 + 20) / 2, 65.75), Color3.fromRGB(70, 100, 120), F, { material = Enum.Material.Glass, t = 0.3, collide = true })
+		local n = 4
+		for i = 0, n do
+			local x = NX0 + 0.15 + i * (NX1 - NX0 - 0.3) / n
+			part("PizzaMullion", Vector3.new(0.3, 20 - 6.4, 0.2), CFrame.new(x, (6.4 + 20) / 2, 65.6), Color3.fromRGB(200, 200, 204), F, { material = Enum.Material.Metal })
+		end
+		part("PizzaSill", Vector3.new(NX1 - NX0, 0.2, 0.6), CFrame.new((NX0 + NX1) / 2, 6.4, 65.5), Color3.fromRGB(200, 200, 204), F, { material = Enum.Material.Metal })
+	end
+	table.insert(log, "pizza wall on the north face")
+end
+
 return table.concat(log, " | ")

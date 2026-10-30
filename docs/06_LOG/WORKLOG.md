@@ -2667,3 +2667,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 피자집 간판 높이 (D-608)
 - 흰 간판 20~27(편의점 간판과 같은 높이), 차양 +5.4, 창문·입구를 20까지 늘림. 북쪽 면 빈 칸 위에도 피자 간판과 차양.
   ![](images/2026-10-30/pizza_sign_up_d608.jpg)
+
+### 2026-10-30 피자집 북쪽 벽 (D-609)
+- 검은 프레임·창 삭제, 피자집 벽(대리석 아래판·유리·창틀) 복사.
+  ![](images/2026-10-30/pizza_north_wall_d609.jpg)
