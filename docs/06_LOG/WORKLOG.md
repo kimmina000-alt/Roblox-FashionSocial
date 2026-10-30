@@ -2590,3 +2590,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-584: ![](images/2026-10-30/d584_alley_facade8.jpg)
 - D-585: ![](images/2026-10-30/d585_ohu_corner_paved_step.jpg)
 - D-586: 골목 단 ![](images/2026-10-30/d586_alley_step.jpg) 안쪽 모서리 ![](images/2026-10-30/d586_ne_corner.jpg)
+
+### 2026-10-30 모바일 2인 테스트 (병합 전)
+- Studio 2인 테스트(서버 + Player1/Player2, 둘 다 휴대폰 화면 터치 모드, 801x413 / 705x338): 스크립트 오류 없음(DataStore Studio 접근 오류만).
+- 상단 버튼 순서 💰 💝 C 🎒 🖼 💃 🏠, 다른 플레이어 이름표(아이디 + XP), 상점 실제 아이템 그림 5종, 순위표 14면 확인.
+- 콜드 스파크 배너가 두 휴대폰 화면 모두에 떠서 상단 버튼 아래로 흐름, 🎒 가방 휴대폰에서 열림.
+- 못 한 것: DJ 초대 손님 내려보내기는 DJ 상품에 실제 ID가 있어 Studio 테스트 구매가 막혀 확인 못 함(권한 없는 사람 내려보내기는 동작).
