@@ -24,6 +24,7 @@ export type Track = {
 	title: string,
 	soundId: number,
 	length: number,
+	studioOnly: boolean?, -- (left out on live servers)
 }
 
 local ClubConfig = {}
@@ -85,7 +86,15 @@ ClubConfig.Playlist = {
 	{ channel = "HIP-HOP", title = "Gomood", soundId = 92774322259700, length = 121 },
 	{ channel = "EDM", title = "Midnight Frequency", soundId = 75257760347020, length = 156 },
 	{ channel = "POP", title = "Under the Starlight", soundId = 101328005557095, length = 217 },
+	-- (user 2026-10-30) Studio only, for the user's own listening: a commercial
+	-- song the game has no licence for, so it is taken out below on live servers
+	{ channel = "EDM", title = "Gangnam Style (Studio 전용)", soundId = 118684794101503, length = 110, studioOnly = true },
 } :: {Track}
+if not game:GetService("RunService"):IsStudio() then
+	for i = #ClubConfig.Playlist, 1, -1 do
+		if ClubConfig.Playlist[i].studioOnly then table.remove(ClubConfig.Playlist, i) end
+	end
+end
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
 -- the club zone (parts tagged "ClubZone").
