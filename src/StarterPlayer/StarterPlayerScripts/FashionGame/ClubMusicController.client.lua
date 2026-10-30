@@ -238,6 +238,32 @@ corner(screenButton, 15)
 create("UITextSizeConstraint", { MaxTextSize = 13 }, screenButton)
 create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, screenButton)
 
+-- the DJ's sound row (user 2026-10-30): treble x2, bass x2 (toggles) and the
+-- playback speed x0.5..x2 (tap to cycle, like the laser speed)
+local djSound = create("Frame", {
+	Name = "DJSound",
+	BackgroundTransparency = 1,
+	Visible = false,
+}, panel)
+create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, djSound)
+local soundButtons: {[string]: TextButton} = {}
+for i, spec in ipairs({ { "Treble", "🔊 고음 x2" }, { "Bass", "🔈 저음 x2" }, { "Speed", "⏩ 속도 x1" } }) do
+	local b = create("TextButton", {
+		Name = spec[1],
+		LayoutOrder = i,
+		Size = UDim2.new(1 / 3, -4, 1, 0),
+		BackgroundColor3 = COLORS.card,
+		Text = spec[2],
+		TextColor3 = COLORS.text,
+		TextScaled = true,
+		Font = Enum.Font.GothamBold,
+	}, djSound)
+	corner(b, 8)
+	create("UITextSizeConstraint", { MaxTextSize = 13 }, b)
+	create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, b)
+	soundButtons[spec[1]] = b
+end
+
 -- light colours (DJ only): ClubConfig.LightColors swatches
 local colorRow = create("Frame", {
 	Name = "LightColors",
@@ -443,8 +469,11 @@ local function layout()
 		djTools.Position = UDim2.fromOffset(0, y)
 		djTools.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
 		y += (if compact then 26 else 30) + 6
+		djSound.Position = UDim2.fromOffset(0, y)
+		djSound.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
+		y += (if compact then 26 else 30) + 6
 		local perRow = if compact then 4 else 8
-		local rows = math.ceil(#ClubConfig.LightColors / perRow)
+		local rows = math.ceil((#ClubConfig.LightColors + 1) / perRow) -- (+1: the 🎆 cell)
 		local cellH = if compact then 22 else 24
 		colorGrid.CellSize = UDim2.fromOffset(math.floor((leftW - (perRow - 1) * 4) / perRow), cellH)
 		colorRow.Position = UDim2.fromOffset(0, y)
@@ -661,7 +690,17 @@ local function refresh()
 		djButton.Text = string.format("DJ %d분 · R$%d", MonetizationConfig.DJMinutes, MonetizationConfig.Products.DJ.price)
 	end
 	djTools.Visible = dj
+	djSound.Visible = dj
 	colorRow.Visible = dj
+	do -- the sound row: pink while a boost is on, the speed on its button
+		local treble = FashionGame:GetAttribute("ClubMusicTreble") == true
+		local bass = FashionGame:GetAttribute("ClubMusicBass") == true
+		local mspeed = FashionGame:GetAttribute("ClubMusicSpeed")
+		soundButtons.Treble.BackgroundColor3 = if treble then COLORS.dj else COLORS.card
+		soundButtons.Bass.BackgroundColor3 = if bass then COLORS.dj else COLORS.card
+		soundButtons.Speed.Text = "⏩ 속도 x" .. tostring(if typeof(mspeed) == "number" then mspeed else 1)
+		soundButtons.Speed.BackgroundColor3 = if typeof(mspeed) == "number" and mspeed ~= 1 then Color3.fromRGB(90, 60, 160) else COLORS.card
+	end
 	local pickedColor = FashionGame:GetAttribute("ClubLightColor") or "rainbow"
 	for key, button in pairs(colorButtons) do
 		(button:FindFirstChild("Picked") :: UIStroke).Enabled = key == pickedColor
@@ -721,7 +760,7 @@ local function refreshAll()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen", "ClubMusicSpeed", "ClubMusicTreble", "ClubMusicBass" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
@@ -740,6 +779,13 @@ closeButton.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
 end)
 skipButton.MouseButton1Click:Connect(function() call("Skip", nil) end)
+soundButtons.Treble.MouseButton1Click:Connect(function() call("MusicTreble", FashionGame:GetAttribute("ClubMusicTreble") ~= true) end)
+soundButtons.Bass.MouseButton1Click:Connect(function() call("MusicBass", FashionGame:GetAttribute("ClubMusicBass") ~= true) end)
+soundButtons.Speed.MouseButton1Click:Connect(function()
+	local s = FashionGame:GetAttribute("ClubMusicSpeed")
+	local i = table.find(ClubConfig.MusicSpeeds, if typeof(s) == "number" then s else 1) or 3
+	call("MusicSpeed", ClubConfig.MusicSpeeds[i % #ClubConfig.MusicSpeeds + 1])
+end)
 screenButton.MouseButton1Click:Connect(function()
 	call("Screen", FashionGame:GetAttribute("ClubDJScreen") == false)
 end)

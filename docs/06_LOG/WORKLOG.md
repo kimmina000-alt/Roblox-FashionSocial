@@ -2653,3 +2653,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 임대문의 위치 (D-604)
 - 동쪽 면 남쪽 빈 가게(유리 z 147~208)로 이동, 안쪽 어둡게. 북서쪽 칸은 불만 꺼 둠.
   ![](images/2026-10-30/rent_east_face_d604.jpg)
+
+### 2026-10-30 DJ 고음·저음·속도 (D-605)
+- DJ 창에 🔊 고음 x2 / 🔈 저음 x2 / ⏩ 속도(x0.5~x2) 줄. 모든 사람의 클럽 음악에 같이 적용. Studio: 속도 x1.5에서 재생 위치 9.9초 = 계산값 9.9초, 고음·저음 +6dB 확인. DJ 구매가 Studio에서 막혀서 서버 버튼 경로는 실제 DJ로 확인 필요.
+  ![](images/2026-10-30/dj_sound_row_d605.jpg)

@@ -1032,6 +1032,17 @@ local music = create("Sound", {
 	Looped = false,
 }, script)
 local currentTrack = 0
+-- the DJ's treble / bass boosts (ClubMusicTreble / ClubMusicBass, user 2026-10-30)
+do
+	local musicEq = create("EqualizerSoundEffect", { Name = "DJBoost", HighGain = 0, MidGain = 0, LowGain = 0 }, music)
+	local function syncBoosts()
+		musicEq.HighGain = if FashionGame:GetAttribute("ClubMusicTreble") == true then ClubConfig.BoostDb else 0
+		musicEq.LowGain = if FashionGame:GetAttribute("ClubMusicBass") == true then ClubConfig.BoostDb else 0
+	end
+	FashionGame:GetAttributeChangedSignal("ClubMusicTreble"):Connect(syncBoosts)
+	FashionGame:GetAttributeChangedSignal("ClubMusicBass"):Connect(syncBoosts)
+	syncBoosts()
+end
 
 local function syncMusic()
 	local index = FashionGame:GetAttribute("ClubTrack")
@@ -1048,12 +1059,17 @@ local function syncMusic()
 		music.Loaded:Wait()
 	end
 	if currentTrack ~= index then return end
-	music.TimePosition = math.clamp(workspace:GetServerTimeNow() - start, 0, math.max(music.TimeLength - 0.5, 0))
+	-- (the DJ's playback speed, ClubMusicSpeed: the place in the song runs that much faster)
+	local speed = FashionGame:GetAttribute("ClubMusicSpeed")
+	speed = if typeof(speed) == "number" then speed else 1
+	music.PlaybackSpeed = speed
+	music.TimePosition = math.clamp((workspace:GetServerTimeNow() - start) * speed, 0, math.max(music.TimeLength - 0.5, 0))
 	if not music.IsPlaying then music:Play() end
 	banner.Text = "♪ NOW PLAYING · " .. track.channel .. " · " .. track.title
 end
 FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubTrackStart"):Connect(function() task.spawn(syncMusic) end)
+FashionGame:GetAttributeChangedSignal("ClubMusicSpeed"):Connect(function() task.spawn(syncMusic) end)
 task.spawn(syncMusic)
 
 -- 0..1 music level at a position: inside a zone that zone's volume (the

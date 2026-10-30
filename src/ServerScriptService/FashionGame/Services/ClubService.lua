@@ -186,7 +186,9 @@ end
 -- ReplicatedStorage.FashionGame attributes:
 --   ClubTrack (index into ClubConfig.Playlist), ClubTrackStart (server time),
 --   ClubTrackBy (userId who chose it, 0 = automatic),
---   ClubRequests (JSON list of {i = track index, u = userId}).
+--   ClubRequests (JSON list of {i = track index, u = userId}),
+--   ClubMusicSpeed (DJ playback speed), ClubMusicTreble / ClubMusicBass (DJ
+--   boosts, true / false; user 2026-10-30).
 -- Without a DJ anyone may queue one song at a time. With a DJ, only the DJ
 -- picks: "Play" (now), "Queue" (next), "Skip"; requests are closed.
 --------------------------------------------------
@@ -203,11 +205,30 @@ local function publishRequests()
 	FashionGame:SetAttribute("ClubRequests", HttpService:JSONEncode(requests))
 end
 
+-- DJ playback speed (attribute ClubMusicSpeed, 1 = normal): the song plays
+-- (now - ClubTrackStart) * speed seconds in, so a change moves the start to
+-- keep the place in the song, and the song ends sooner or later
+local function musicSpeed(): number
+	local s = FashionGame:GetAttribute("ClubMusicSpeed")
+	return if typeof(s) == "number" then s else 1
+end
+local function setMusicSpeed(new: number)
+	local old = musicSpeed()
+	if new == old then return end
+	local now = workspace:GetServerTimeNow()
+	local start = FashionGame:GetAttribute("ClubTrackStart")
+	local elapsed = if typeof(start) == "number" then (now - start) * old else 0
+	FashionGame:SetAttribute("ClubMusicSpeed", new)
+	FashionGame:SetAttribute("ClubTrackStart", now - elapsed / new)
+	local track = ClubConfig.Playlist[trackIndex]
+	if track then trackEnds = now + math.max(0, track.length - elapsed) / new + 1 end
+end
+
 local function playTrack(index: number, by: number)
 	local track = ClubConfig.Playlist[index]
 	if not track then return end
 	trackIndex = index
-	trackEnds = workspace:GetServerTimeNow() + track.length + 1
+	trackEnds = workspace:GetServerTimeNow() + track.length / musicSpeed() + 1
 	FashionGame:SetAttribute("ClubTrackStart", workspace:GetServerTimeNow())
 	FashionGame:SetAttribute("ClubTrackBy", by)
 	FashionGame:SetAttribute("ClubTrack", index)
@@ -280,6 +301,15 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	elseif action == "Skip" then
 		playNext()
 		return true, nil
+	elseif action == "MusicSpeed" then
+		if not table.find(ClubConfig.MusicSpeeds, payload) then return false, "없는 재생 속도예요." end
+		setMusicSpeed(payload)
+		return true, string.format("재생 속도 x%s", tostring(payload))
+	elseif action == "MusicTreble" or action == "MusicBass" then
+		local on = payload == true
+		FashionGame:SetAttribute(if action == "MusicTreble" then "ClubMusicTreble" else "ClubMusicBass", on)
+		local what = if action == "MusicTreble" then "고음" else "저음"
+		return true, if on then what .. " 2배!" else what .. " 원래대로"
 	end
 	-- Future DJ abilities (lights, effects, announcements): DjService.Actions.
 	local handler = typeof(action) == "string" and DjService.Actions[action]
@@ -297,6 +327,12 @@ local function onDJChanged()
 	if dj ~= 0 and dj ~= lastDJ then
 		table.clear(requests)
 		publishRequests()
+	end
+	-- each DJ starts with the song as it is; it goes back when the DJ ends
+	if dj ~= lastDJ then
+		setMusicSpeed(1)
+		FashionGame:SetAttribute("ClubMusicTreble", false)
+		FashionGame:SetAttribute("ClubMusicBass", false)
 	end
 	lastDJ = dj
 end
