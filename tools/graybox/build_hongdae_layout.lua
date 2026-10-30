@@ -6266,6 +6266,21 @@ do
 	-- stroke, the letters turning to light at night
 	sign3d("Sign_OhuCafe", { "O", "H", "U", " ", "C", "A", "F", "E" }, Vector3.new(-206.0, 23.4, 276), Vector3.new(0, 0, -1), Vector3.new(1, 0, 0), 4.6,
 		{ sw = 0.13, depth = 0.6, gap = 0.36, side = Color3.fromRGB(214, 206, 190), face = Color3.fromRGB(255, 252, 244), halo = Color3.fromRGB(255, 205, 140), nightGlow = true, parent = T }) -- (letters spaced wider, user 2026-10-30)
+	-- (user 2026-10-30) the same letters down the cafe's south side wall (z 195,
+	-- facing -z, seen coming along the beach road), one under the other near
+	-- its street end, a space between the words
+	do
+		local CAFE_SIGN = { sw = 0.13, depth = 0.6, side = Color3.fromRGB(214, 206, 190), face = Color3.fromRGB(255, 252, 244), halo = Color3.fromRGB(255, 205, 140), nightGlow = true, parent = T }
+		local y = 56
+		for _, ch in ipairs({ "O", "H", "U", " ", "C", "A", "F", "E" }) do
+			if ch ~= " " then
+				sign3d("Sign_OhuCafeSide", { ch }, Vector3.new(-213.5, y, 195.0), Vector3.new(-1, 0, 0), Vector3.new(0, 0, -1), 4.6, CAFE_SIGN)
+				y -= 5.6
+			else
+				y -= 3
+			end
+		end
+	end
 
 	-- upper floors (2F, 3F): white brick mass with the cut corner, dark-framed
 	-- windows, floor bands, then a parapet with a steel railing (roof terrace)
