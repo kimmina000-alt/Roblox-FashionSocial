@@ -48,8 +48,8 @@ local COLD_SPARK_COOLDOWN = 120 -- (no longer a wait for buyers: only the DJ's f
 local SPARKLER_MAX = 5 -- sparklers burning in one bottle / bucket at once (user 2026-10-27)
 local HAND_SPARKLER_SECONDS = 60
 local DJ_SPARK_COOLDOWN = 90 -- the DJ fires the stage fireworks for free (user 2026-10-27)
-local BURST_SOUND = "rbxassetid://75191072171555" -- "fireworks explosion sfx" (Creator Store)
-local CRACKLE_SOUND = "rbxassetid://85890781320627" -- "feu d'artifice crépitation" (Creator Store)
+-- (the cold spark's bang 75191072171555 and crackle 85890781320627 are gone:
+-- it uses FUSE_SOUND, user 2026-10-30)
 -- a sparkler fizzing: the user's own clip "거품 이는 것" (47 s, looped while one
 -- burns; table sparklers and the hand sparkler), user 2026-10-30
 -- (was 71438605239854 "FireworkFuseNEW")
@@ -481,17 +481,6 @@ local function fountainPoints(): {Vector3}
 	return points
 end
 
--- a sound at a point, gone after it played
-local function soundAt(parent: Instance, id: string, volume: number, range: number)
-	local s = Instance.new("Sound")
-	s.SoundId = id
-	s.Volume = volume
-	s.RollOffMinDistance = 20
-	s.RollOffMaxDistance = range
-	s.Parent = parent
-	s:Play()
-	Debris:AddItem(s, 6)
-end
 
 -- One aerial shell (user 2026-10-27: the stage show was thin): a glowing
 -- trail rises from the stage front and bursts into a ball of coloured stars
@@ -553,8 +542,8 @@ local function shell(holder: Instance, from: Vector3, height: number, colors: {C
 		flash.Range = 40
 		flash.Brightness = 6
 		flash.Parent = p
-		soundAt(p, BURST_SOUND, 0.8, 220)
-		task.delay(0.35, function() if p.Parent then soundAt(p, CRACKLE_SOUND, 0.5, 160) end end)
+		-- (no bang / crackle of its own: the show is heard as the user's sparkler
+		-- fizz, see runColdSpark, user 2026-10-30)
 		task.delay(0.4, function() flash.Enabled = false end)
 		Debris:AddItem(p, 2.5)
 	end)
@@ -580,7 +569,21 @@ local function runColdSpark(player: Player, message: string, byDj: boolean?)
 		sparks(base, Vector3.new(0, 0.2, 0), true)
 	end
 	-- the fountains' hiss and a shell from a random spot every 0.7 s
-	if points[1] then soundAt(holder:FindFirstChildWhichIsA("BasePart") :: BasePart, CRACKLE_SOUND, 0.6, 160) end
+	-- the user's sparkler fizz for the whole show, loud over the stage (was a
+	-- crackle plus a bang per shell, user 2026-10-30)
+	local base1 = holder:FindFirstChildWhichIsA("BasePart")
+	if base1 then
+		local fizz = Instance.new("Sound")
+		fizz.Name = "ColdSparkFizz"
+		fizz.SoundId = FUSE_SOUND
+		fizz.Looped = true
+		fizz.Volume = 1
+		fizz.RollOffMinDistance = 25
+		fizz.RollOffMaxDistance = 180
+		fizz.Parent = base1
+		fizz:Play()
+		task.delay(COLD_SPARK_SECONDS, function() fizz:Stop() end)
+	end
 	task.spawn(function()
 		local t0 = os.clock()
 		local k = 0
