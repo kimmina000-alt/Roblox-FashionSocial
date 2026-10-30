@@ -7644,6 +7644,7 @@ do
 	box("GapEndWall", 190, 0, -128.5, 191.2, 56, -100, SIDE, o({ material = Enum.Material.Concrete }))
 	box("GapEndWall", 191.2, 0, -101.2, 195, 56, -100, SIDE, o({ material = Enum.Material.Concrete }))
 	-- the gap between 오후네컷 and the club paved like the sidewalks (it was bare ground)
+	walk(192.5, -100, 195, -47) -- (the strip along block E's wall in the back alley was bare ground, user 2026-10-30)
 	walk(49, -127.9, 190, -115.6) -- (walk(): street_dress gives it the sidewalk pattern; up to the 오후네컷 north wall, a 0.4 strip was left, user 2026-10-30)
 	-- the same between the 국밥집 and the north shop block, closed at its far end
 	-- by a wall in the 국밥집's brick

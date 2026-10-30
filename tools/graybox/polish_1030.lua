@@ -686,6 +686,22 @@ if ohu then
 		t.StudsPerTileU, t.StudsPerTileV = 7, 7
 		t.Parent = step
 	end
+	-- (user 2026-10-30, 2nd) the step goes on round the corner along the alley
+	-- wall (x 180.06..182.66) and ends at the alley's inner end (the building's
+	-- north-east corner, z -115); the meter cabinet stands on it
+	local side = part("PavedStep", Vector3.new(2.6, 1.6, 115 - 44.9), CFrame.new(180.06 + 1.3, 0.8, (-115 - 44.9) / 2), Color3.fromRGB(176, 172, 166), ohu, { collide = true })
+	for _, face in ipairs({ Enum.NormalId.Top, Enum.NormalId.Right, Enum.NormalId.Back, Enum.NormalId.Front }) do
+		local t = Instance.new("Texture")
+		t.Texture = "rbxassetid://133933193561069"
+		t.Face = face
+		t.StudsPerTileU, t.StudsPerTileV = 7, 7
+		t.Parent = side
+	end
+	local cab = L:FindFirstChild("BackAlley") and L.BackAlley:FindFirstChild("MeterCabinet")
+	if cab then cab.CFrame = cab.CFrame + Vector3.new(0, 1.6 - (cab.Position.Y - cab.Size.Y / 2), 0) end
+	-- the north-east corner flickered too (the plaster north wall's end and the
+	-- alley wall in one plane): the same thin brick strip round it
+	part("CornerBrick", Vector3.new(0.09, 48, 1.32), CFrame.new(180.015, 0.6 + 24, -115.0), brickColor, ohu, { material = Enum.Material.Brick })
 	table.insert(log, "ohu south brick + door + paved step")
 end
 

@@ -2589,3 +2589,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-583: 오후네컷 남쪽 ![](images/2026-10-30/d583_ohu_south_brick_door.jpg) 골목 ![](images/2026-10-30/d583_alley_open.jpg)
 - D-584: ![](images/2026-10-30/d584_alley_facade8.jpg)
 - D-585: ![](images/2026-10-30/d585_ohu_corner_paved_step.jpg)
+- D-586: 골목 단 ![](images/2026-10-30/d586_alley_step.jpg) 안쪽 모서리 ![](images/2026-10-30/d586_ne_corner.jpg)
