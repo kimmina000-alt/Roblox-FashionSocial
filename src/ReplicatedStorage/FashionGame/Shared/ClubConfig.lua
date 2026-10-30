@@ -23,10 +23,17 @@ export type Track = {
 	channel: string,
 	title: string,
 	soundId: number,
-	length: number,
+	length: number, -- seconds of audio at x1
+	baseSpeed: number?, -- its normal playback speed (default 1)
 }
 
 local ClubConfig = {}
+
+-- how fast a track's audio runs: its own base speed times the DJ's speed
+function ClubConfig.trackRate(track: Track?, djSpeed: any): number
+	local base = if track and track.baseSpeed then track.baseSpeed else 1
+	return base * (if typeof(djSpeed) == "number" then djSpeed else 1)
+end
 
 ClubConfig.Categories = { "댄스", "포즈·응원" }
 
@@ -90,9 +97,12 @@ ClubConfig.Playlist = {
 	-- "Asset is not approved for the requester", so it does not play until then)
 	{ channel = "EDM", title = "Gangnam Style", soundId = 118684794101503, length = 110 },
 	-- (user 2026-10-30, later: their own uploads)
-	{ channel = "POP", title = "454", soundId = 106212382564790, length = 62 },
-	{ channel = "POP", title = "MY MIND", soundId = 73122606824515, length = 61 },
-	{ channel = "POP", title = "빨강빨강", soundId = 140226618879694, length = 186 },
+	-- (user 2026-10-30, later) these three play at x0.5 as their normal speed
+	-- (baseSpeed: tempo and pitch both, like the real record slowed down; the
+	-- DJ's speed / pitch steps work on top, shown as x1 at this speed)
+	{ channel = "POP", title = "454", soundId = 106212382564790, length = 62, baseSpeed = 0.5 },
+	{ channel = "POP", title = "MY MIND", soundId = 73122606824515, length = 61, baseSpeed = 0.5 },
+	{ channel = "POP", title = "빨강빨강", soundId = 140226618879694, length = 186, baseSpeed = 0.5 },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside

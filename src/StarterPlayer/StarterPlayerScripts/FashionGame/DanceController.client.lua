@@ -1100,8 +1100,8 @@ local function syncMusic()
 	end
 	if currentTrack ~= index then return end
 	-- (the DJ's playback speed, ClubMusicSpeed: the place in the song runs that much faster)
-	local speed = FashionGame:GetAttribute("ClubMusicSpeed")
-	speed = if typeof(speed) == "number" then speed else 1
+	-- (times the track's own base speed: three songs play at x0.5, ClubConfig.trackRate)
+	local speed = ClubConfig.trackRate(track, FashionGame:GetAttribute("ClubMusicSpeed"))
 	music.PlaybackSpeed = speed
 	music.TimePosition = math.clamp((workspace:GetServerTimeNow() - start) * speed, 0, math.max(music.TimeLength - 0.5, 0))
 	if not music.IsPlaying then music:Play() end

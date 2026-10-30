@@ -211,23 +211,25 @@ local function musicSpeed(): number
 	local s = FashionGame:GetAttribute("ClubMusicSpeed")
 	return if typeof(s) == "number" then s else 1
 end
+-- (a track's own baseSpeed multiplies in: ClubConfig.trackRate)
 local function setMusicSpeed(new: number)
 	local old = musicSpeed()
 	if new == old then return end
+	local track = ClubConfig.Playlist[trackIndex]
+	local oldRate, newRate = ClubConfig.trackRate(track, old), ClubConfig.trackRate(track, new)
 	local now = workspace:GetServerTimeNow()
 	local start = FashionGame:GetAttribute("ClubTrackStart")
-	local elapsed = if typeof(start) == "number" then (now - start) * old else 0
+	local elapsed = if typeof(start) == "number" then (now - start) * oldRate else 0
 	FashionGame:SetAttribute("ClubMusicSpeed", new)
-	FashionGame:SetAttribute("ClubTrackStart", now - elapsed / new)
-	local track = ClubConfig.Playlist[trackIndex]
-	if track then trackEnds = now + math.max(0, track.length - elapsed) / new + 1 end
+	FashionGame:SetAttribute("ClubTrackStart", now - elapsed / newRate)
+	if track then trackEnds = now + math.max(0, track.length - elapsed) / newRate + 1 end
 end
 
 local function playTrack(index: number, by: number)
 	local track = ClubConfig.Playlist[index]
 	if not track then return end
 	trackIndex = index
-	trackEnds = workspace:GetServerTimeNow() + track.length / musicSpeed() + 1
+	trackEnds = workspace:GetServerTimeNow() + track.length / ClubConfig.trackRate(track, musicSpeed()) + 1
 	FashionGame:SetAttribute("ClubTrackStart", workspace:GetServerTimeNow())
 	FashionGame:SetAttribute("ClubTrackBy", by)
 	FashionGame:SetAttribute("ClubTrack", index)
