@@ -7,7 +7,7 @@ local DayNightConfig = {}
 
 DayNightConfig.Enabled = true
 -- One full day (24 h) in real seconds on live servers.
-DayNightConfig.DayLengthSeconds = 20 * 60
+DayNightConfig.DayLengthSeconds = 30 * 60 -- (30 minutes, user 2026-10-30; was 20)
 -- Studio play tests: one day = 1 minute, to see sunset/sunrise quickly
 -- (user, 2026-10-22). Off since the clock flows for real (2026-10-26): with a
 -- 1-minute day the night-only club opened and shut every 30 s in tests.

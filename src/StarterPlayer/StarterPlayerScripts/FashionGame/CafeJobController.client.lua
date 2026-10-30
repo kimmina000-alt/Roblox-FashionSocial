@@ -397,6 +397,19 @@ local function updateCups()
 			-- empty cups always; a drink with some left only once its owner left the cafe
 			local clearable = cup:GetAttribute("Owner") == nil or cup:GetAttribute("Clearable") == true
 			prompt.Enabled = shop ~= nil and cup:GetAttribute("Shop") == shop and clearable
+			-- (user 2026-10-30) a cup to clear has the same outline as a waiting customer
+			local mark = cup:FindFirstChild("ClearMark")
+			if prompt.Enabled and not mark then
+				make("Highlight", {
+					Name = "ClearMark",
+					FillTransparency = 1,
+					OutlineColor = COLORS.serve,
+					OutlineTransparency = 0,
+					DepthMode = Enum.HighlightDepthMode.AlwaysOnTop,
+				}, cup)
+			elseif not prompt.Enabled and mark then
+				mark:Destroy()
+			end
 		end
 		-- my own drink on the table: pick it up again
 		local pick = cup:FindFirstChild("PickPrompt")

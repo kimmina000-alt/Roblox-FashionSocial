@@ -2710,3 +2710,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 사용자: docs/04_ART/models/VintageLetteringCakeSliced.gltf 가져오기 필요.
 ### 2026-10-30 조각 케이크 확인 (D-619)
 ![](images/2026-10-30/vintage_sliced_table_d619.jpg) ![](images/2026-10-30/vintage_case_d619.jpg)
+
+### 2026-10-30 알바·버킷·밤 클럽 (D-620)
+- 빈컵 외곽선, NPC 인사 소리 교체, 만들기 소리 삭제, 2단계 버킷 1.5배 + 아우라 반, 하루 30분, 클럽 밤 18~06시만(낮엔 문 앞으로 내보냄, Play 확인). 숟가락 후보: ../04_ART/references/candidates_spoon.png

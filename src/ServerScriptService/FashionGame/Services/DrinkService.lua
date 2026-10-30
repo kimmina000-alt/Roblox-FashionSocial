@@ -561,8 +561,38 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 		-- (full size: the VIP bucket must be the biggest one, user 2026-10-29 (12))
 	elseif kind == "bottle" then -- (tier 1 is a small pail now, on an edge slot: 2026-10-27)
 		bucket:ScaleTo(0.8)
+	elseif kind == "steel" then
+		bucket:ScaleTo(0.9 * 1.5) -- (tier 2: 1.5x, user 2026-10-30)
 	elseif isBucket then
 		bucket:ScaleTo(0.9)
+	end
+	if kind == "steel" then
+		-- (user 2026-10-30) the VIP ice box's aura at half strength: half the
+		-- particles, each half as bright, a little smaller
+		local cf, size = bucket:GetBoundingBox()
+		local src = Instance.new("Part")
+		src.Name = "AuraSource"
+		src.Size = Vector3.new(math.max(size.X - 0.4, 0.4), 0.1, math.max(size.Z - 0.4, 0.4))
+		src.CFrame = CFrame.new(cf.Position + Vector3.new(0, size.Y * 0.2, 0))
+		src.Transparency = 1
+		src.Anchored, src.CanCollide, src.CanQuery, src.CanTouch = true, false, false, false
+		src.Parent = bucket
+		local aura = Instance.new("ParticleEmitter")
+		aura.Name = "Aura"
+		aura.Texture = "rbxasset://textures/particles/smoke_main.dds"
+		aura.Color = ColorSequence.new(Color3.fromRGB(255, 170, 215), Color3.fromRGB(190, 170, 255))
+		aura.LightEmission = 1
+		aura.LightInfluence = 0
+		aura.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.25, 0.785), NumberSequenceKeypoint.new(1, 1) })
+		aura.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1.0), NumberSequenceKeypoint.new(1, 2.8) })
+		aura.Lifetime = NumberRange.new(3, 4.2)
+		aura.Rate = 7.5
+		aura.Speed = NumberRange.new(0.5, 0.9)
+		aura.SpreadAngle = Vector2.new(12, 12)
+		aura.Rotation = NumberRange.new(0, 360)
+		aura.RotSpeed = NumberRange.new(-20, 20)
+		aura.EmissionDirection = Enum.NormalId.Top
+		aura.Parent = src
 	end
 	local minY, maxY = math.huge, -math.huge
 	for _, p in ipairs(bucket:GetDescendants()) do

@@ -575,8 +575,9 @@ local SOUNDS = {
 	-- Windows 10 startup 79812542038049 / XP shutdown 6858975342 sounds)
 	start = { "rbxassetid://106268193751411", 0.3 }, -- "Bell Ding" (Creator Store, DaWaterNinja)
 	stop = { "rbxassetid://106268193751411", 0.3 },
-	make = { "rbxassetid://9113846434", 0.7 }, -- "Coffee Pot 2" (Pro Sound Effects)
-	thanks = { "rbxassetid://132794698600617", 0.9 }, -- "감사합니다 new" (Creator Store)
+	-- (no sound while the drink is made any more, user 2026-10-30; was "Coffee Pot 2" 9113846434)
+	-- (user 2026-10-30: a bright, quiet, glad "오~" for now; was "감사합니다 new" 132794698600617)
+	thanks = { "rbxassetid://104374771321764", 0.45 }, -- Creator Store, a short voice found under "ooh"
 }
 local function playAt(parent: Instance?, key: string)
 	if not parent then return end
@@ -710,7 +711,6 @@ local function make(player: Player, id: any): (boolean, string?)
 	end
 	order.maker = player.UserId
 	publish()
-	playAt(stationOf(shopKey), "make")
 	task.wait(CafeJobConfig.MakeSeconds)
 	if orders[order.id] ~= order or order.maker ~= player.UserId or staff[player] ~= shopKey then
 		return false, nil

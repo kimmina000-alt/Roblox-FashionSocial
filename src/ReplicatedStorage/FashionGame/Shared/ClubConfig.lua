@@ -297,8 +297,8 @@ end
 -- by itself once the game clock flows (DayNightConfig.FixedClockTime = nil);
 -- while the clock is pinned for building, the club stays open.
 ClubConfig.NightEntry = {
-	-- TEMPORARY (user 2026-10-27): open all day for testing; set back to true after
-	Enabled = false,
+	-- (on again, user 2026-10-30: the club opens only at night; was off for testing since 2026-10-27)
+	Enabled = true,
 	OpenHour = 18, -- 18:00 .. 06:00
 	CloseHour = 6,
 	-- where someone who walks in by day is put back: the sidewalk in front of the door
