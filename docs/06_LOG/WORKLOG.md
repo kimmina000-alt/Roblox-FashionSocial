@@ -2671,3 +2671,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 피자집 북쪽 벽 (D-609)
 - 검은 프레임·창 삭제, 피자집 벽(대리석 아래판·유리·창틀) 복사.
   ![](images/2026-10-30/pizza_north_wall_d609.jpg)
+
+### 2026-10-30 벤치·트럭 삭제, 피자 모서리 (D-610)
+- 해변 산책로 벤치 11개와 아이스크림 트럭 삭제. 피자집 모서리 간판·아래판·유리·차양 이음.
+  ![](images/2026-10-30/pizza_corner_joined_d610.jpg)

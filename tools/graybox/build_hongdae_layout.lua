@@ -1920,14 +1920,8 @@ do
 		local atCafe = zz > CAFE_ZS - 8 and zz < CAFE_ZN + 8 -- the beach cafe front (user 2026-10-24: no lamp or bench there)
 		if not near and not onBench and not atCafe then streetLamp(Vector3.new(-196.5, CURB, zz), Vector3.new(1, 0, 0)) end
 	end
-	for zz = z0 + 28, z1, 60 do
-		if zz + 6 > CAFE_ZS - 8 and zz < CAFE_ZN + 8 then continue end -- not along the beach cafe (user 2026-10-24)
-		box("BenchBase", -197.5, CURB, zz, -195.5, CURB + 1.6, zz + 6, Color3.fromRGB(110, 110, 115))
-		-- wooden top along the bench, two seats side by side (user 2026-10-23)
-		for _, dz in ipairs({ 1.5, 4.5 }) do
-			seat("PromenadeBench", CFrame.lookAt(Vector3.new(-196.5, CURB + 1.8, zz + dz), Vector3.new(-260, CURB + 1.8, zz + dz)), Vector3.new(3, 0.4, 2), Color3.fromRGB(160, 110, 70))
-		end
-	end
+	-- (no promenade benches any more, user 2026-10-30; they stood every 60 from
+	-- z0 + 28: BenchBase -197.5..-195.5 with two PromenadeBench seats)
 	-- 광안대교 (suspension bridge) out in the sea, lit purple at night
 	local bx, deckY = -820, 34
 	local purple = Color3.fromRGB(190, 90, 255)

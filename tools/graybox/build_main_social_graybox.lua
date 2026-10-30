@@ -1167,32 +1167,7 @@ local z=zone("04_Beach_Aquarium")
  for i,pz in ipairs({-450,-390,-330,-262,-200,-140,-84,-44,30,74,118,150}) do palm(Vector3.new(-206+((i%2)*-6),SAND,pz),16+(i%3)*2,math.rad(150+(i%4)*25)) end
  palm(Vector3.new(-262,SAND,-8),15,math.rad(200)) palm(Vector3.new(-262,SAND,138),17,math.rad(160))
 
- -- ICE CREAM TRUCK (pink, striped awning, giant cone) at the beach entrance
- do local tc=Vector3.new(-214,SAND,-19) local pink=Color3.fromRGB(255,170,200)
-  local tr=M(z,"IceCreamTruck",{},{})
-  local base=CFrame.lookAt(tc,tc+Vector3.new(0,0,1)) -- long side faces east (-X side is the beach)
-  P(tr,"TruckBody",Vector3.new(7,6.5,13),base*CFrame.new(0,4.25,0),pink)
-  P(tr,"TruckCab",Vector3.new(7,4.5,4),base*CFrame.new(0,3.25,8.5),pink)
-  P(tr,"Windshield",Vector3.new(6.4,2,0.2),base*CFrame.new(0,4.2,10.55),Color3.fromRGB(170,220,255),{t=0.3})
-  P(tr,"TruckStripe",Vector3.new(7.05,0.6,13.05),base*CFrame.new(0,2.2,0),Color3.new(1,1,1))
-  for _,w in ipairs({{-3.6,-4},{3.6,-4},{-3.6,7.5},{3.6,7.5}}) do P(tr,"Wheel",Vector3.new(0.8,2.2,2.2),base*CFrame.new(w[1],1.1,w[2])*CFrame.Angles(0,0,math.rad(90)),Color3.fromRGB(40,40,45),{shape=Enum.PartType.Cylinder}) end
-  -- serving window on the east side (+X of the truck = local -X after lookAt? use world)
-  P(tr,"ServingWindow",Vector3.new(0.2,2.6,7),CFrame.new(tc+Vector3.new(3.55,4.6,0)),Color3.fromRGB(60,40,50))
-  local counter=P(tr,"Counter",Vector3.new(1.4,0.3,7.4),CFrame.new(tc+Vector3.new(4.2,3.3,0)),Color3.new(1,1,1))
-  counter:SetAttribute("Shop","IceCream") CS:AddTag(counter,"SnackShop")
-  for k=0,5 do local col=({Color3.fromRGB(255,160,190),Color3.fromRGB(255,245,215),Color3.fromRGB(160,235,210),Color3.fromRGB(120,75,50)})[k%4+1]
-   P(tr,"DisplayCone",Vector3.new(0.4,0.8,0.4),CFrame.new(tc+Vector3.new(4.2,3.85,-2.5+k)),Color3.fromRGB(215,160,90),{nocol=true})
-   P(tr,"DisplayScoop",Vector3.new(0.6,0.6,0.6),CFrame.new(tc+Vector3.new(4.2,4.45,-2.5+k)),col,{shape=Enum.PartType.Ball,nocol=true}) end
-  for k=0,7 do P(tr,"Awning",Vector3.new(2.6,0.15,0.95),CFrame.new(tc+Vector3.new(4.6,7.2,-3.3+k*0.95))*CFrame.Angles(0,0,math.rad(-20)),if k%2==0 then Color3.fromRGB(255,120,150) else Color3.new(1,1,1),{nocol=true}) end
-  -- giant cone on the roof (landmark)
-  P(tr,"RoofCone",Vector3.new(1.6,3.2,1.6),CFrame.new(tc+Vector3.new(0,9.1,-2))*CFrame.Angles(math.rad(180),0,0),Color3.fromRGB(215,160,90),{class="WedgePart",nocol=true})
-  P(tr,"RoofScoop",Vector3.new(2.6,2.6,2.6),CFrame.new(tc+Vector3.new(0,11.2,-2)),Color3.fromRGB(255,160,190),{shape=Enum.PartType.Ball,nocol=true})
-  P(tr,"RoofScoop2",Vector3.new(2.2,2.2,2.2),CFrame.new(tc+Vector3.new(0,12.8,-2)),Color3.fromRGB(160,235,210),{shape=Enum.PartType.Ball,nocol=true})
-  local board=P(tr,"MenuBoard",Vector3.new(0.2,2.4,3.4),CFrame.new(tc+Vector3.new(3.62,4.6,5)),Color3.fromRGB(255,250,240))
-  local g=Instance.new("SurfaceGui") g.Face=Enum.NormalId.Right g.LightInfluence=0 g.Parent=board
-  local l=Instance.new("TextLabel") l.Size=UDim2.fromScale(1,1) l.BackgroundTransparency=1 l.TextScaled=true l.Font=Enum.Font.FredokaOne l.TextColor3=Color3.fromRGB(230,90,140) l.Text="ICE CREAM\n딸기·바닐라\n민트초코·초코\n💰 15" l.Parent=g
-  label(tr,"🍦 아이스크림 트럭",tc+Vector3.new(0,16,0))
- end
+ -- (the ice cream truck at the beach entrance is gone, user 2026-10-30)
 
  -- FLOATING TUBES (rideable, E) and RUBBER DUCKS on the water near the shore
  local function ring(par,center,radius,thick,cols,n)

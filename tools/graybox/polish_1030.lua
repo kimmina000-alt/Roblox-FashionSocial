@@ -1095,4 +1095,41 @@ if store15 and not store15:GetAttribute("Polish1030_17") then
 	table.insert(log, "pizza wall on the north face")
 end
 
+---------------------------------------------------------------- 18. pizza corner joined (user 2026-10-30)
+-- The north wall and the west corner bay met with a visible split at the
+-- corner (x -135.5, z 66): the west bay's band, base, glass and sill run on
+-- north to the north wall's outer face, and the two awnings run past the
+-- corner to each other's outer edge, so the corner reads as one piece.
+if store15 and not store15:GetAttribute("Polish1030_18") then
+	store15:SetAttribute("Polish1030_18", true)
+	local F = store15:FindFirstChild("PizzaFront")
+	if F then
+		local function toZ(p: BasePart, z0: number)
+			local z1 = p.Position.Z + p.Size.Z / 2
+			p.Size = Vector3.new(p.Size.X, p.Size.Y, z1 - z0)
+			p.CFrame = p.CFrame.Rotation + Vector3.new(p.Position.X, p.Position.Y, (z0 + z1) / 2)
+		end
+		local OUT = { PizzaBand = 64.9, PizzaBase = 65.4, PizzaGlass = 65.7, PizzaSill = 65.2 }
+		for _, p in ipairs(F:GetChildren()) do
+			-- (the corner bay's parts: on the west wall, starting at z 66.4)
+			if p:IsA("BasePart") and p.Position.X < -135 and math.abs(p.Position.Z - p.Size.Z / 2 - 66.4) < 0.05 then
+				if OUT[p.Name] then toZ(p, OUT[p.Name])
+				elseif p.Name == "PizzaAwning" then
+					-- (turned about z: its length is size z) out to the north awning's outer edge
+					toZ(p, 63.2)
+				end
+			end
+		end
+		local aw = F:FindFirstChild("PizzaAwningNorth")
+		if aw and aw:IsA("BasePart") then
+			-- (its length is size x) west to the west awning's outer edge
+			local x1 = aw.Position.X + aw.Size.X / 2
+			local x0 = -137.6
+			aw.Size = Vector3.new(x1 - x0, aw.Size.Y, aw.Size.Z)
+			aw.CFrame = aw.CFrame.Rotation + Vector3.new((x0 + x1) / 2, aw.Position.Y, aw.Position.Z)
+		end
+	end
+	table.insert(log, "pizza corner joined")
+end
+
 return table.concat(log, " | ")
