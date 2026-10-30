@@ -1218,7 +1218,8 @@ if cafe and not cafe:GetAttribute("Polish1030_19") then
 			end
 			-- two sofas on the east side, facing the table (-x), like the lounge's
 			local x = t.Position.X + t.Size.X / 2 + 1 + sofa.Size.Z / 2
-			for _, dz in ipairs({ -t.Size.Z / 4, t.Size.Z / 4 }) do
+			-- (three a table, user 2026-10-30, later: was two)
+			for _, dz in ipairs({ -t.Size.Z / 3, 0, t.Size.Z / 3 }) do
 				local at = CFrame.new(x, FLOOR + (sofa.Position.Y - sofaFloor), t.Position.Z + dz) * sofa.CFrame.Rotation
 				local copy = sofa:Clone()
 				copy.CFrame = at
@@ -1265,6 +1266,24 @@ if cafe and vintage and not cafe:FindFirstChild("CaseVintageCake") then
 		d:Destroy()
 	end
 	table.insert(log, "case vintage cakes " .. #col)
+end
+
+---------------------------------------------------------------- 21. ducks bigger again (user 2026-10-30, later)
+if beach then
+	local n = 0
+	for _, m in ipairs(beach:GetChildren()) do
+		local duck = m:IsA("Model") and m.Name:match("^RubberDuck") and m:FindFirstChild("Duck")
+		if duck and not duck:GetAttribute("Big2") then
+			local base = m:GetAttribute("Base")
+			local rot, at = duck.CFrame.Rotation, duck.Position
+			duck.Size = duck.Size * 1.6
+			local y = if typeof(base) == "Vector3" then base.Y + duck.Size.Y * 0.35 else at.Y
+			duck.CFrame = CFrame.new(at.X, y, at.Z) * rot
+			duck:SetAttribute("Big2", true)
+			n += 1
+		end
+	end
+	table.insert(log, "ducks x1.6 " .. n)
 end
 
 return table.concat(log, " | ")

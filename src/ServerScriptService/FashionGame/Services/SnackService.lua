@@ -1144,8 +1144,24 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 		spoon.Name = "숟가락"
 		handle = part("Handle", Vector3.new(0.07, 0.75, 0.05), Color3.fromRGB(215, 218, 222), Enum.Material.Metal)
 		handle.Parent = spoon
-		attach(handle, part("Scoop", Vector3.new(0.24, 0.05, 0.3), Color3.fromRGB(215, 218, 222), Enum.Material.Metal), CFrame.new(0, 0.38, -0.1))
-		attach(handle, part("Soup", Vector3.new(0.2, 0.04, 0.24), item.color), CFrame.new(0, 0.42, -0.1))
+		-- (user pick 2026-10-30: Creator Store spoon 14841373331, its mesh as
+		-- ServerStorage.ArtAssets.SpoonS4Mesh; it lies along Z, the bowl at +Z)
+		local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+		local src = art and art:FindFirstChild("SpoonS4Mesh")
+		if src and src:IsA("MeshPart") then
+			handle.Transparency = 1
+			local m = src:Clone()
+			m.Name = "SpoonMesh"
+			m.Size = src.MeshSize * (0.9 / src.MeshSize.Z)
+			m.Anchored, m.CanCollide, m.CanQuery, m.CanTouch, m.Massless = false, false, false, false, true
+			attach(handle, m, CFrame.new(0, 0.05, 0) * CFrame.Angles(math.rad(-90), 0, 0))
+			-- (the bowl stands up, its hollow toward +Z: the soup a thin oval in it; checked in Play)
+			local soup = part("Soup", Vector3.new(0.02, 0.2, 0.13), item.color, nil, Enum.PartType.Cylinder)
+			attach(handle, soup, CFrame.new(0, 0.38, 0.03) * CFrame.Angles(0, math.rad(90), 0))
+		else
+			attach(handle, part("Scoop", Vector3.new(0.24, 0.05, 0.3), Color3.fromRGB(215, 218, 222), Enum.Material.Metal), CFrame.new(0, 0.38, -0.1))
+			attach(handle, part("Soup", Vector3.new(0.2, 0.04, 0.24), item.color), CFrame.new(0, 0.42, -0.1))
+		end
 	end
 	spoon.Grip = CFrame.new(0, -0.3, 0)
 	local sound = Instance.new("Sound")

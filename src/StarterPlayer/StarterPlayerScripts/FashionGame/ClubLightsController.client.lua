@@ -525,7 +525,8 @@ function addWash(instance: Instance)
 	beam.LightEmission = 1
 	beam.LightInfluence = 0
 	beam.Segments = 12
-	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.45), NumberSequenceKeypoint.new(0.6, 0.82), NumberSequenceKeypoint.new(1, 0.95) })
+	-- (50 % stronger, user 2026-10-30: opacity 0.55 / 0.18 / 0.05 → x1.5)
+	beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.175), NumberSequenceKeypoint.new(0.6, 0.73), NumberSequenceKeypoint.new(1, 0.925) })
 	beam.Enabled = false
 	beam.Parent = lens
 	local light = Instance.new("SpotLight")
@@ -535,7 +536,7 @@ function addWash(instance: Instance)
 	-- (was 14 for strong pools on the black floor, but anyone in the beam turned
 	-- glowing white: 5, user 2026-10-26; still glowing cyan in the 2P phone
 	-- test, 2.5)
-	light.Brightness = 2.5
+	light.Brightness = 3.75 -- (x1.5, user 2026-10-30)
 	light.Shadows = false
 	light.Enabled = false
 	light.Parent = lens

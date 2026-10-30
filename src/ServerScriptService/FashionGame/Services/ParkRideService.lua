@@ -202,6 +202,53 @@ function ParkRideService.Start()
 		ride.model:SetAttribute("Drive", Vector3.new(position.X, base.Y, position.Z))
 		ride.model:SetAttribute("DriveYaw", yaw % (2 * math.pi))
 	end)
+	-- tubes bump (user 2026-10-30): a drifting tube that touches another is
+	-- pushed off (BumpVel / BumpAt, read by ParkConfig.floatCFrame); a paddled
+	-- tube bounces on its rider's side (ParkRidesController)
+	task.spawn(function()
+		local k = ParkConfig.BumpDrag
+		local function fold(m: Instance, t: number)
+			-- the bump so far becomes part of the drift centre
+			local v, at, base = m:GetAttribute("BumpVel"), m:GetAttribute("BumpAt"), m:GetAttribute("Base")
+			if typeof(v) == "Vector3" and typeof(at) == "number" and typeof(base) == "Vector3" then
+				m:SetAttribute("Base", base + v * (1 - math.exp(-k * (t - at))) / k)
+			end
+			m:SetAttribute("BumpVel", nil)
+			m:SetAttribute("BumpAt", nil)
+		end
+		while true do
+			task.wait(0.1)
+			local t = now()
+			local tubes = {}
+			for _, m in ipairs(CollectionService:GetTagged("FloatTube")) do
+				if m:IsDescendantOf(workspace) then
+					local cf = ParkConfig.floatCFrame(m, t)
+					if cf then table.insert(tubes, { m = m, p = cf.Position }) end
+				end
+			end
+			for i, a in ipairs(tubes) do
+				-- (a bump that has run its course is folded in)
+				local at = a.m:GetAttribute("BumpAt")
+				if typeof(at) == "number" and t - at > 3 then fold(a.m, t) end
+				if typeof(a.m:GetAttribute("Drive")) == "Vector3" then continue end -- (its rider moves it)
+				for j, b in ipairs(tubes) do
+					if i ~= j then
+						local d = Vector3.new(a.p.X - b.p.X, 0, a.p.Z - b.p.Z)
+						if d.Magnitude < ParkConfig.TubeTouch and d.Magnitude > 0.01 then
+							local cur = a.m:GetAttribute("BumpVel")
+							-- (not again while it is already moving away from this one)
+							if not (typeof(cur) == "Vector3" and cur:Dot(d) > 0 and t - (a.m:GetAttribute("BumpAt") :: number) < 0.6) then
+								fold(a.m, t)
+								a.m:SetAttribute("BumpVel", d.Unit * ParkConfig.BumpSpeed)
+								a.m:SetAttribute("BumpAt", t)
+							end
+							break
+						end
+					end
+				end
+			end
+		end
+	end)
 	local function watch(player: Player)
 		player.CharacterRemoving:Connect(function() clear(player) end)
 	end

@@ -191,21 +191,21 @@ local function setBubble(model: Model?, text: string?, shopKey: string?, custome
 	gui.Enabled = false
 	gui:SetAttribute("Shop", shopKey or "")
 	gui:SetAttribute("Customer", customerId or 0)
+	-- (user 2026-10-30) a little smaller, no box: black letters with a white edge
 	local label = Instance.new("TextLabel")
 	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-	label.BackgroundTransparency = 0.1
-	label.TextColor3 = Color3.fromRGB(40, 30, 25)
+	label.BackgroundTransparency = 1
+	label.TextColor3 = Color3.fromRGB(15, 15, 18)
 	label.Font = Enum.Font.GothamBold
 	label.TextScaled = true
 	label.Text = text
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(0, 12)
-	corner.Parent = label
-	local pad = Instance.new("UIPadding")
-	pad.PaddingLeft = UDim.new(0, 8)
-	pad.PaddingRight = UDim.new(0, 8)
-	pad.Parent = label
+	local edge = Instance.new("UIStroke")
+	edge.Color = Color3.new(1, 1, 1)
+	edge.Thickness = 2
+	edge.Parent = label
+	local limit = Instance.new("UITextSizeConstraint")
+	limit.MaxTextSize = 15
+	limit.Parent = label
 	label.Parent = gui
 	gui.Parent = head
 end

@@ -155,6 +155,12 @@ end
 -- rider's client moves the tube and sends where it is; the server keeps it in
 -- the attributes Drive (Vector3, at water level) and DriveYaw.
 ParkConfig.TubeSpeed = 7
+-- tubes bump into each other (user 2026-10-30): they touch closer than
+-- TubeTouch (the tube is 4.4 across), are pushed apart at BumpSpeed and slow
+-- down with BumpDrag (about 3 studs of travel)
+ParkConfig.TubeTouch = 4.3
+ParkConfig.BumpSpeed = 9
+ParkConfig.BumpDrag = 3
 
 -- Drift-path angle at t (the rider leaving re-centres Base on it, no jump).
 function ParkConfig.floatAngle(model: Instance, t: number): number
@@ -176,6 +182,13 @@ function ParkConfig.floatCFrame(model: Instance, t: number): CFrame?
 	end
 	local base = model:GetAttribute("Base")
 	if typeof(base) ~= "Vector3" then return nil end
+	-- a bump from another tube (user 2026-10-30): pushed off at BumpVel at
+	-- server time BumpAt, slowing down (ParkRideService folds it into Base later)
+	local bumpVel, bumpAt = model:GetAttribute("BumpVel"), model:GetAttribute("BumpAt")
+	if typeof(bumpVel) == "Vector3" and typeof(bumpAt) == "number" then
+		local k = ParkConfig.BumpDrag
+		base += bumpVel * (1 - math.exp(-k * math.max(0, t - bumpAt))) / k
+	end
 	local a = ParkConfig.floatAngle(model, t)
 	local radius = attr(model, "Drift", 5)
 	return ParkConfig.floatAt(model, t, base + Vector3.new(math.cos(a) * radius, 0, math.sin(a) * radius), -a * 0.5)

@@ -428,6 +428,7 @@ end
 -- humanoid still gets MoveDirection from the controls, in world space.)
 local driveSentAt = 0
 local lastSent: Vector3? = nil
+local tubeBump = Vector3.zero
 
 -- swimming strokes while the tube moves (user 2026-10-27; docs/04_ART/SOUNDS.md)
 local paddleSound = Instance.new("Sound")
@@ -455,6 +456,26 @@ local function paddle(dt: number)
 		local target = math.atan2(-dir.X, -dir.Z)
 		local diff = (target - driveYaw + math.pi) % (2 * math.pi) - math.pi
 		driveYaw += diff * math.min(1, dt * 4)
+	end
+	-- bumping another tube (user 2026-10-30): pushed off, slowing down
+	do
+		local p = drivePos :: Vector3
+		for _, other in ipairs(CollectionService:GetTagged("FloatTube")) do
+			if other ~= tube and other:IsDescendantOf(workspace) then
+				local cf = ParkConfig.floatCFrame(other, now())
+				if cf then
+					local d = Vector3.new(p.X - cf.X, 0, p.Z - cf.Z)
+					if d.Magnitude < ParkConfig.TubeTouch and d.Magnitude > 0.01 and tubeBump:Dot(d) <= 0 then
+						tubeBump = d.Unit * ParkConfig.BumpSpeed
+					end
+				end
+			end
+		end
+		if tubeBump.Magnitude > 0.05 then
+			local nextPos = p + tubeBump * dt
+			if waterAt(nextPos.X, nextPos.Z) then drivePos = Vector3.new(nextPos.X, p.Y, nextPos.Z) else tubeBump = Vector3.zero end
+			tubeBump *= math.exp(-ParkConfig.BumpDrag * dt)
+		end
 	end
 	local current = drivePos :: Vector3
 	if os.clock() - driveSentAt > 0.1 and (lastSent == nil or (lastSent - current).Magnitude > 0.05) then
