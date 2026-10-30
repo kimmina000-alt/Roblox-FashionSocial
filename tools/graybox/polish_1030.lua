@@ -463,7 +463,10 @@ end
 -- L south of the east door, the window bar / deck in the north-east corner as
 -- before. The north door is gone (glass), the east door is the store's door.
 if store then
-	local WX, SZ = -104.7, 145.7 -- the store's new west and south inner faces
+	-- (user 2026-10-30, 2nd) a black pier like the corner one on the store's west
+	-- end of the north front (x -106.4..-104.5, on the old door mullion line);
+	-- the inner wall sits inside it
+	local WX, SZ = -105.5, 145.7 -- the store's new west and south inner faces
 	local WHITE_IN = Color3.fromRGB(246, 246, 244)
 	local function inStore(p: Vector3): boolean return p.X > WX and p.Z < SZ end
 	-- inner walls (to the ceiling)
@@ -537,6 +540,42 @@ if store then
 			FrontGlass = true, Kickplate = true, Mullion = true, GlassHead = true, FacadePier = true, OuterBack = true, LightBar = true, LightBarBase = true, Fascia = true, Awning = true,
 			AwningEdge = true, Logo = true, FrontStep = true, GlassMark = true, GlassLettering = true, GlassPoster = true, GlassSticker = true, GlassBanner = true, StoreLabelAnchor = true, DoorHead = true, AutoDoor = true, ClosedNote = true }
 		if p and not keep[d.Name] and not inStore(p) and p.Y < 21 then d:Destroy() n += 1 end
+	end
+	-- the second pier, the same as the corner one
+	local corner
+	for _, d in ipairs(store:GetChildren()) do
+		if d:IsA("BasePart") and d.Name == "FacadePier" and d.Position.Z < 66.2 and d.Position.X > -60 then corner = d end
+	end
+	if corner then
+		local p = corner:Clone()
+		p.CFrame = corner.CFrame + Vector3.new(-105.45 - corner.Position.X, 0, 0)
+		p.Parent = store
+	end
+	-- the sign over the store front, laid out again between the two piers and
+	-- centred (x -104.5..-57.6): logo in the middle, a light bar each side;
+	-- the bar over the unused part goes; 홍대점 → 오후점
+	local A, B = -104.5, -57.6
+	local mid = (A + B) / 2
+	local logo
+	local bars = {}
+	for _, d in ipairs(store:GetChildren()) do
+		if d:IsA("BasePart") and d.Position.Z < 66 and d.Position.Y > 21 and d.Position.Y < 26 then
+			if d.Name == "Logo" then logo = d
+			elseif d.Name == "LightBar" or d.Name == "LightBarBase" then table.insert(bars, d) end
+		end
+	end
+	if logo then
+		logo.CFrame = logo.CFrame + Vector3.new(mid - logo.Position.X, 0, 0)
+		local lx0, lx1 = mid - logo.Size.X / 2 - 0.3, mid + logo.Size.X / 2 + 0.3
+		for _, b in ipairs(bars) do
+			local west = b.Position.X < -100
+			local x0, x1 = if west then A else lx1, if west then lx0 else B
+			b.Size = Vector3.new(x1 - x0, b.Size.Y, b.Size.Z)
+			b.CFrame = b.CFrame.Rotation + Vector3.new((x0 + x1) / 2, b.Position.Y, b.Position.Z)
+			for _, l in ipairs(b:GetDescendants()) do
+				if l:IsA("TextLabel") and l.Text:find("홍대점") then l.Text = string.gsub(l.Text, "홍대점", "오후점") end
+			end
+		end
 	end
 	table.insert(log, "OH24 smaller, removed " .. n)
 end

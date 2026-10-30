@@ -2584,3 +2584,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - D-578: ![](images/2026-10-30/d578_cafe_side_sign.jpg)
 - D-579: ![](images/2026-10-30/d579_cafe_side_sign_small.jpg)
 - D-580: ![](images/2026-10-30/d580_cafe_side_sign_raised.jpg)
+- D-581: ![](images/2026-10-30/d581_oh24_front_pier_sign.jpg)
