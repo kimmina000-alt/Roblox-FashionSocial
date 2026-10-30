@@ -89,6 +89,10 @@ ClubConfig.Playlist = {
 	-- original song. Roblox had not approved the asset yet on 2026-10-30:
 	-- "Asset is not approved for the requester", so it does not play until then)
 	{ channel = "EDM", title = "Gangnam Style", soundId = 118684794101503, length = 110 },
+	-- (user 2026-10-30, later: their own uploads)
+	{ channel = "POP", title = "454", soundId = 106212382564790, length = 62 },
+	{ channel = "POP", title = "MY MIND", soundId = 73122606824515, length = 61 },
+	{ channel = "POP", title = "빨강빨강", soundId = 140226618879694, length = 186 },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
@@ -236,7 +240,14 @@ end
 -- in the backpack; only cafe staff on shift keep a two-in-hand limit)
 ClubConfig.MaxBottlesCarried = 99
 ClubConfig.BottleServings = 6        -- cups per bottle
-ClubConfig.BottleLifetime = 600      -- seconds on a table before it is cleared
+ClubConfig.BottleLifetime = 600      -- seconds on a table before it is cleared (tier 1)
+-- (user 2026-10-30) the dearer the drink, the longer it stays: tier 1 10 min,
+-- tier 2 20, tier 3 30, VIP drinks 1 hour (still gone when the owner leaves)
+function ClubConfig.bottleLifetime(drink: any): number
+	if drink and drink.vipOnly then return 60 * 60 end
+	local tier = drink and drink.tier or 1
+	return if tier >= 3 then 30 * 60 elseif tier == 2 then 20 * 60 else ClubConfig.BottleLifetime
+end
 ClubConfig.MaxCupsCarried = 99
 ClubConfig.DrinkSeconds = 2.6
 ClubConfig.GulpSoundId = 9114172296   -- "Drinking Cu Gulping 9 (SFX)", Pro Sound Effects (Roblox licensed)

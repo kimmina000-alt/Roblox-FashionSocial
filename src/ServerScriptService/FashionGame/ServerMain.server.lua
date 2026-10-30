@@ -55,6 +55,7 @@ local BusAdService = require(script.Parent.Services.BusAdService)
 BusAdService.Start()
 require(script.Parent.Services.BarShelfService).Start()
 require(script.Parent.Services.BakeryDisplayService).Start()
+require(script.Parent.Services.GuardService).Start()
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers
@@ -97,6 +98,9 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 	elseif action == "StudioGrantCoins" then
 		-- Studio play tests only (EconomyService refuses on live servers).
 		return EconomyService.StudioGrant(player, payload)
+	elseif action == "GuardOut" then
+		-- a guard shows a player out of the club (GuardService, D-623)
+		return require(script.Parent.Services.GuardService).ShowOut(player, payload)
 	end
 	if typeof(action) ~= "string" then return false, "잘못된 요청입니다." end
 	-- DJ 차례 window: OK → go to the booth, NO → pass the turn (no refund).

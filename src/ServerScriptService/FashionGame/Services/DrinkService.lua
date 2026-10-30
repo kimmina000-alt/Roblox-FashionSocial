@@ -616,7 +616,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	clink.Parent = tablePart
 	clink:Play()
 	game:GetService("Debris"):AddItem(clink, 4)
-	task.delay(ClubConfig.BottleLifetime, function()
+	task.delay(ClubConfig.bottleLifetime(drink), function()
 		if bottle.Parent then removeBottle(bottle) end
 	end)
 	return true, nil

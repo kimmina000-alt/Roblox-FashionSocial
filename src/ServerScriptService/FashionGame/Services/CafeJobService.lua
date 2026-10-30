@@ -573,8 +573,9 @@ end
 local SOUNDS = {
 	-- (user 2026-10-30: one clean "ding" for both, at half volume; were the
 	-- Windows 10 startup 79812542038049 / XP shutdown 6858975342 sounds)
-	start = { "rbxassetid://106268193751411", 0.3 }, -- "Bell Ding" (Creator Store, DaWaterNinja)
-	stop = { "rbxassetid://106268193751411", 0.3 },
+	-- (user 2026-10-30, later: their own clip 96559812135664; was "Bell Ding" 106268193751411)
+	start = { "rbxassetid://96559812135664", 0.4 },
+	stop = { "rbxassetid://96559812135664", 0.4 },
 	-- (no sound while the drink is made any more, user 2026-10-30; was "Coffee Pot 2" 9113846434)
 	-- (user 2026-10-30: a bright, quiet, glad "오~" for now; was "감사합니다 new" 132794698600617)
 	thanks = { "rbxassetid://104374771321764", 0.45 }, -- Creator Store, a short voice found under "ooh"

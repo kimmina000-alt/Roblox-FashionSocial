@@ -1,7 +1,8 @@
 --!strict
 -- Big LED screen behind the DJ (the club's "LED_Wall", user 2026-10-22).
 --   * No DJ: club visuals — a moving colour gradient (DJ light colour or a
---     rainbow), an equalizer bouncing to the music, the OHU CLUB logo.
+--     rainbow), three neon shows taking turns (LEDVisuals: equalizer, lasers,
+--     strobe frames with flashes), the OHU CLUB logo.
 --   * DJ time: the DJ is shown live from the waist up on top of the visuals
 --     (current pose, DJing motion included), the whole DJ time, also when they
 --     are not at the turntable. The DJ can switch this off (attribute
@@ -22,7 +23,6 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 
 local DRAW_DISTANCE = 320
-local BARS = 24
 
 local function create(className: string, props: {[string]: any}, parent: Instance?): any
 	local instance = Instance.new(className)
@@ -48,6 +48,7 @@ type Screen = {
 	dirtyAt: number?,
 }
 local screen: Screen? = nil
+local visuals: any = nil
 
 -- the face of the wall that looks at the dance floor (toward the DJ spot)
 local function faceToward(part: BasePart, point: Vector3): Enum.NormalId
@@ -78,19 +79,9 @@ local function build(part: BasePart, spot: BasePart)
 	local gradient = create("UIGradient", {}, bg)
 	local shade = create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.35, BorderSizePixel = 0 }, gui)
 	shade.ZIndex = 2
+	-- the three neon shows (LEDVisuals, user 2026-10-30) in place of the plain bars
+	visuals = require(script.Parent:WaitForChild("LEDVisuals")).new(gui, 3)
 	local bars = {}
-	for i = 1, BARS do
-		local bar = create("Frame", {
-			AnchorPoint = Vector2.new(0, 1),
-			Position = UDim2.new((i - 1) / BARS + 0.004, 0, 1, 0),
-			Size = UDim2.new(1 / BARS - 0.008, 0, 0.2, 0),
-			BackgroundColor3 = Color3.new(1, 1, 1),
-			BackgroundTransparency = 0.25,
-			BorderSizePixel = 0,
-			ZIndex = 3,
-		}, gui)
-		bars[i] = bar
-	end
 	local logo = create("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
 		Position = UDim2.fromScale(0.5, 0.42),
@@ -240,12 +231,7 @@ RunService.RenderStepped:Connect(function()
 	s.gradient.Color = ColorSequence.new({ ColorSequenceKeypoint.new(0, c1), ColorSequenceKeypoint.new(0.5, c2), ColorSequenceKeypoint.new(1, c3) })
 	s.gradient.Rotation = (t * 25) % 360
 	local loud = musicLoudness()
-	for i, bar in ipairs(s.bars) do
-		local wave = 0.5 + 0.5 * math.sin(t * 6 + i * 0.7)
-		local h = 0.06 + (0.15 + 0.55 * loud) * wave * (0.6 + 0.4 * math.sin(t * 2.3 + i))
-		bar.Size = UDim2.new(1 / BARS - 0.008, 0, math.max(h, 0.04), 0)
-		bar.BackgroundColor3 = c3
-	end
+	if visuals then visuals:update(t, loud, { c1, c2, c3 }) end
 	-- DJ on the screen
 	local id = djUserId()
 	local dj = if id ~= 0 then Players:GetPlayerByUserId(id) else nil

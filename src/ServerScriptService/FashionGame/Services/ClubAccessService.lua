@@ -54,6 +54,19 @@ local function nightSweep()
 			local inside = ClubConfig.isInClub(root.Position)
 			if not inside then
 				if player:GetAttribute("ClubInside") then player:SetAttribute("ClubInside", nil) end
+			elseif typeof(player:GetAttribute("GuardOutUntil")) == "number" and (player:GetAttribute("GuardOutUntil") :: number) > workspace:GetServerTimeNow() then
+				-- shown out by a guard a moment ago (GuardService): not back in yet
+				player:SetAttribute("ClubInside", nil)
+				local humanoid = character:FindFirstChildOfClass("Humanoid")
+				if humanoid and humanoid.SeatPart then humanoid.Sit = false end
+				character:PivotTo(CFrame.lookAt(ClubConfig.NightEntry.ExitPosition, ClubConfig.NightEntry.ExitPosition + Vector3.new(-1, 0, 0)))
+				local t = os.clock()
+				if not lastNightNotice[player] or t - lastNightNotice[player] > 4 then
+					lastNightNotice[player] = t
+					local left = math.ceil((player:GetAttribute("GuardOutUntil") :: number) - workspace:GetServerTimeNow())
+					local notify = Remotes:FindFirstChild("ClubNotify") :: RemoteEvent?
+					if notify then notify:FireClient(player, "Toast", string.format("🛡 가드 안내로 %d초 뒤에 들어갈 수 있어요.", left)) end
+				end
 			elseif not player:GetAttribute("ClubInside") then
 				if clubOpen() then
 					player:SetAttribute("ClubInside", true)

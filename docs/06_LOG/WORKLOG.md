@@ -2716,3 +2716,11 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 2026-10-30 숟가락·튜브 튕김·조명 (D-621)
 ![](images/2026-10-30/spoon_s4_d621.jpg)
+
+### 2026-10-30 알바 소리·노래 3곡·음료 시간 (D-622)
+- 알바 시작/끝 96559812135664, POP 3곡 추가, 테이블 음료 단계별 10/20/30분, VIP 1시간.
+
+### 2026-10-30 가드 이용권·LED 전광판 (D-623)
+- 가드: 테스트 구매 → 머리 위 GUARD 표시 확인. 클럽 밖 안내는 2인 테스트 필요. 기획: ../01_SYSTEMS/GUARD.md
+- LED 전광판 쇼 3종 (20초마다 바뀜): 네온 이퀄라이저 / 레이저 / 스트로브
+![](images/2026-10-30/led_show1_eq.jpg) ![](images/2026-10-30/led_show2_lasers.jpg) ![](images/2026-10-30/led_show3_strobe.jpg)

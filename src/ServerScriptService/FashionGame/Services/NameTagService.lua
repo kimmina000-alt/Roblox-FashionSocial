@@ -146,19 +146,67 @@ local function refreshRoles(player: Player)
 	end
 end
 
+-- GUARD badge (user 2026-10-30, D-623): a bodyguard look, bigger than the
+-- VIP / DJ letters, over them: a black plate, heavy white letters, a red edge
+local GUARD_TAG = "OHUGuardTag"
+local function refreshGuard(player: Player)
+	local character = player.Character
+	local head = character and character:FindFirstChild("Head")
+	if not character or not head or not head:IsA("BasePart") then return end
+	local on = player:GetAttribute("Pass_Guard") == true
+	local tag = head:FindFirstChild(GUARD_TAG)
+	if not on then
+		if tag then tag:Destroy() end
+		return
+	end
+	if tag then return end
+	local g = Instance.new("BillboardGui")
+	g.Name = GUARD_TAG
+	g.Size = UDim2.fromOffset(78, 22)
+	g.StudsOffset = Vector3.new(0, 2.4, 0)
+	g.SizeOffset = Vector2.new(0, 2.45) -- (over the VIP / DJ badge)
+	g.MaxDistance = 90
+	g.LightInfluence = 0
+	g.Adornee = head
+	local plate = Instance.new("TextLabel")
+	plate.Size = UDim2.fromScale(1, 1)
+	plate.BackgroundColor3 = Color3.fromRGB(10, 10, 12)
+	plate.BackgroundTransparency = 0.05
+	plate.Text = "GUARD"
+	plate.TextColor3 = Color3.new(1, 1, 1)
+	plate.TextScaled = true
+	plate.FontFace = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Heavy)
+	plate.Parent = g
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(0, 4)
+	corner.Parent = plate
+	local edge = Instance.new("UIStroke")
+	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	edge.Color = Color3.fromRGB(220, 20, 35)
+	edge.Thickness = 2
+	edge.Parent = plate
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop, pad.PaddingBottom = UDim.new(0, 2), UDim.new(0, 2)
+	pad.PaddingLeft, pad.PaddingRight = UDim.new(0, 5), UDim.new(0, 5)
+	pad.Parent = plate
+	g.Parent = head
+end
+
 function NameTagService.StartRoles()
 	local function watch(player: Player)
 		local function onCharacter(character: Model)
 			character:WaitForChild("Head", 10)
 			refreshRoles(player)
+			refreshGuard(player)
 			character:GetAttributeChangedSignal("Djing"):Connect(function() refreshRoles(player) end)
 			character.ChildAdded:Connect(function(child)
-				if child.Name == "Head" then task.defer(refreshRoles, player) end
+				if child.Name == "Head" then task.defer(refreshRoles, player) task.defer(refreshGuard, player) end
 			end)
 		end
 		player.CharacterAdded:Connect(function(character) task.spawn(onCharacter, character) end)
 		if player.Character then task.spawn(onCharacter, player.Character) end
 		player:GetAttributeChangedSignal("Pass_VIP"):Connect(function() refreshRoles(player) end)
+		player:GetAttributeChangedSignal("Pass_Guard"):Connect(function() refreshGuard(player) end)
 	end
 	for _, player in ipairs(Players:GetPlayers()) do watch(player) end
 	Players.PlayerAdded:Connect(watch)

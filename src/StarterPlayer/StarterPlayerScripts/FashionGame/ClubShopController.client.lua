@@ -566,6 +566,13 @@ local function buildItemShop()
 			if vip then "보유 중" else ("R$" .. pass.price), M, function()
 				if not vip then buyPass("VIP") end
 			end)
+		-- (D-623) the club guard pass
+		local guard = MonetizationConfig.GamePasses.Guard
+		local isGuard = player:GetAttribute("Pass_Guard") == true
+		NeonShopUI.wideRow(list2, nextOrder(), "🛡", guard.name, "머리 위 GUARD 표시 · 방해하는 사람을 1분 동안 클럽 밖으로 안내",
+			if isGuard then "보유 중" else ("R$" .. guard.price), M, function()
+				if not isGuard then buyPass("Guard") end
+			end)
 	end
 	if itemTab == 1 then
 		local bucketKey = if vip then "SparklerBucket_VIP" else "SparklerBucket"

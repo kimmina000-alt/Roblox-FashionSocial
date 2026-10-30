@@ -410,6 +410,18 @@ local cardInvite = button({
 	Visible = false,
 }, playerCard, 10)
 
+-- Only a guard sees this (D-623): show the player out of the club for a minute.
+local cardGuard = button({
+	Name = "GuardOutButton",
+	Size = UDim2.new(1, -20, 0, 34),
+	BackgroundColor3 = Color3.fromRGB(20, 20, 24),
+	Text = "🛡 클럽 밖으로 안내",
+	TextSize = 15,
+	ZIndex = 6,
+	Visible = false,
+}, playerCard, 10)
+create("UIStroke", { Color = Color3.fromRGB(220, 20, 35), Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cardGuard)
+
 local function topY(): number
 	return require(script.Parent:WaitForChild("TopBar")).bottom() + 6
 end
@@ -882,7 +894,10 @@ local function refreshCard()
 	cardJoin.BackgroundColor3 = if together then COLORS.accent else COLORS.join
 	local amDJ = FashionGame:GetAttribute("ClubDJ") == player.UserId
 	cardInvite.Visible = amDJ
-	playerCard.Size = UDim2.fromOffset(playerCard.Size.X.Offset, if amDJ then 164 else 124)
+	local amGuard = player:GetAttribute("Pass_Guard") == true and target:GetAttribute("Pass_Guard") ~= true
+	cardGuard.Visible = amGuard
+	cardGuard.Position = UDim2.fromOffset(10, if amDJ then 160 else 120)
+	playerCard.Size = UDim2.fromOffset(playerCard.Size.X.Offset, 124 + (if amDJ then 40 else 0) + (if amGuard then 40 else 0))
 	if amDJ then
 		local invited = isGuest(target.UserId)
 		cardInvite.Text = if invited then "DJ 존 초대 취소" else "🎧 DJ 존 초대"
@@ -917,6 +932,17 @@ cardInvite.MouseButton1Click:Connect(function()
 	task.spawn(function()
 		pcall(function() musicRemote:InvokeServer(action, target.UserId) end)
 		refreshCard()
+	end)
+end)
+cardGuard.MouseButton1Click:Connect(function()
+	local target = cardTarget
+	if not target then return end
+	-- (the server tells both sides how it went, as a toast)
+	task.spawn(function()
+		local ok, okServer = pcall(function()
+			return FashionGame:WaitForChild("Remotes"):WaitForChild("ClubShop"):InvokeServer("GuardOut", target.UserId)
+		end)
+		if ok and okServer then closeCard() end
 	end)
 end)
 cardJoin.MouseButton1Click:Connect(function()
