@@ -2660,3 +2660,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 2026-10-30 Studio 전용 곡 (D-606)
 - 사용자가 혼자 듣기용으로 요청: 강남스타일(118684794101503)을 studioOnly 곡으로 추가. 게시된 서버에서는 목록에서 자동으로 빠짐. Studio 플레이에서 12곡 확인.
+
+### 2026-10-30 12번 곡 (D-607)
+- Studio 전용 막기 삭제. Studio에서 안 들린 원인은 출력 창의 'Asset is not approved for the requester': 로블록스가 아직 이 오디오를 승인하지 않음(검토 중 또는 거절).
