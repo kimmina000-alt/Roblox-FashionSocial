@@ -238,8 +238,9 @@ corner(screenButton, 15)
 create("UITextSizeConstraint", { MaxTextSize = 13 }, screenButton)
 create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, screenButton)
 
--- the DJ's sound row (user 2026-10-30): treble x2, bass x2 (toggles) and the
--- playback speed x0.5..x2 (tap to cycle, like the laser speed)
+-- the DJ's sound row (user 2026-10-30): pitch down / up (x0.5..x2, the
+-- down button shows it) and the playback speed x0.5..x2 (tap to cycle, like
+-- the laser speed)
 local djSound = create("Frame", {
 	Name = "DJSound",
 	BackgroundTransparency = 1,
@@ -247,7 +248,7 @@ local djSound = create("Frame", {
 }, panel)
 create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, djSound)
 local soundButtons: {[string]: TextButton} = {}
-for i, spec in ipairs({ { "Treble", "🔊 고음 x2" }, { "Bass", "🔈 저음 x2" }, { "Speed", "⏩ 속도 x1" } }) do
+for i, spec in ipairs({ { "PitchDown", "🔽 피치 x1" }, { "PitchUp", "🔼 피치" }, { "Speed", "⏩ 속도 x1" } }) do
 	local b = create("TextButton", {
 		Name = spec[1],
 		LayoutOrder = i,
@@ -692,12 +693,13 @@ local function refresh()
 	djTools.Visible = dj
 	djSound.Visible = dj
 	colorRow.Visible = dj
-	do -- the sound row: pink while a boost is on, the speed on its button
-		local treble = FashionGame:GetAttribute("ClubMusicTreble") == true
-		local bass = FashionGame:GetAttribute("ClubMusicBass") == true
+	do -- the sound row: the pitch and the speed on their buttons, coloured when not x1
+		local mpitch = FashionGame:GetAttribute("ClubMusicPitch")
 		local mspeed = FashionGame:GetAttribute("ClubMusicSpeed")
-		soundButtons.Treble.BackgroundColor3 = if treble then COLORS.dj else COLORS.card
-		soundButtons.Bass.BackgroundColor3 = if bass then COLORS.dj else COLORS.card
+		mpitch = if typeof(mpitch) == "number" then mpitch else 1
+		soundButtons.PitchDown.Text = "🔽 피치 x" .. tostring(mpitch)
+		soundButtons.PitchDown.BackgroundColor3 = if mpitch < 1 then COLORS.dj else COLORS.card
+		soundButtons.PitchUp.BackgroundColor3 = if mpitch > 1 then COLORS.dj else COLORS.card
 		soundButtons.Speed.Text = "⏩ 속도 x" .. tostring(if typeof(mspeed) == "number" then mspeed else 1)
 		soundButtons.Speed.BackgroundColor3 = if typeof(mspeed) == "number" and mspeed ~= 1 then Color3.fromRGB(90, 60, 160) else COLORS.card
 	end
@@ -760,7 +762,7 @@ local function refreshAll()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen", "ClubMusicSpeed", "ClubMusicTreble", "ClubMusicBass" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen", "ClubMusicSpeed", "ClubMusicPitch" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
@@ -779,8 +781,15 @@ closeButton.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
 end)
 skipButton.MouseButton1Click:Connect(function() call("Skip", nil) end)
-soundButtons.Treble.MouseButton1Click:Connect(function() call("MusicTreble", FashionGame:GetAttribute("ClubMusicTreble") ~= true) end)
-soundButtons.Bass.MouseButton1Click:Connect(function() call("MusicBass", FashionGame:GetAttribute("ClubMusicBass") ~= true) end)
+for name, step in pairs({ PitchDown = -1, PitchUp = 1 }) do
+	soundButtons[name].MouseButton1Click:Connect(function()
+		local p = FashionGame:GetAttribute("ClubMusicPitch")
+		local list = ClubConfig.MusicPitches
+		local i = table.find(list, if typeof(p) == "number" then p else 1) or 3
+		local to = list[math.clamp(i + step, 1, #list)]
+		if to ~= list[i] then call("MusicPitch", to) end
+	end)
+end
 soundButtons.Speed.MouseButton1Click:Connect(function()
 	local s = FashionGame:GetAttribute("ClubMusicSpeed")
 	local i = table.find(ClubConfig.MusicSpeeds, if typeof(s) == "number" then s else 1) or 3

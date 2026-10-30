@@ -187,8 +187,7 @@ end
 --   ClubTrack (index into ClubConfig.Playlist), ClubTrackStart (server time),
 --   ClubTrackBy (userId who chose it, 0 = automatic),
 --   ClubRequests (JSON list of {i = track index, u = userId}),
---   ClubMusicSpeed (DJ playback speed), ClubMusicTreble / ClubMusicBass (DJ
---   boosts, true / false; user 2026-10-30).
+--   ClubMusicSpeed (DJ playback speed), ClubMusicPitch (DJ pitch; user 2026-10-30).
 -- Without a DJ anyone may queue one song at a time. With a DJ, only the DJ
 -- picks: "Play" (now), "Queue" (next), "Skip"; requests are closed.
 --------------------------------------------------
@@ -305,11 +304,10 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		if not table.find(ClubConfig.MusicSpeeds, payload) then return false, "없는 재생 속도예요." end
 		setMusicSpeed(payload)
 		return true, string.format("재생 속도 x%s", tostring(payload))
-	elseif action == "MusicTreble" or action == "MusicBass" then
-		local on = payload == true
-		FashionGame:SetAttribute(if action == "MusicTreble" then "ClubMusicTreble" else "ClubMusicBass", on)
-		local what = if action == "MusicTreble" then "고음" else "저음"
-		return true, if on then what .. " 2배!" else what .. " 원래대로"
+	elseif action == "MusicPitch" then
+		if not table.find(ClubConfig.MusicPitches, payload) then return false, "없는 피치예요." end
+		FashionGame:SetAttribute("ClubMusicPitch", payload)
+		return true, string.format("피치 x%s", tostring(payload))
 	end
 	-- Future DJ abilities (lights, effects, announcements): DjService.Actions.
 	local handler = typeof(action) == "string" and DjService.Actions[action]
@@ -331,8 +329,7 @@ local function onDJChanged()
 	-- each DJ starts with the song as it is; it goes back when the DJ ends
 	if dj ~= lastDJ then
 		setMusicSpeed(1)
-		FashionGame:SetAttribute("ClubMusicTreble", false)
-		FashionGame:SetAttribute("ClubMusicBass", false)
+		FashionGame:SetAttribute("ClubMusicPitch", 1)
 	end
 	lastDJ = dj
 end

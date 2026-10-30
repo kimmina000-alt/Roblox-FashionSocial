@@ -1032,21 +1032,22 @@ local music = create("Sound", {
 	Looped = false,
 }, script)
 local currentTrack = 0
--- the DJ's treble / bass boosts (ClubMusicTreble / ClubMusicBass, user 2026-10-30)
+-- the DJ's pitch (ClubMusicPitch, user 2026-10-30): the speed (PlaybackSpeed)
+-- moves the pitch too, so the shift is pitch / speed, in the effect's 0.5..2
 do
-	local musicEq = create("EqualizerSoundEffect", { Name = "DJBoost", HighGain = 0, MidGain = 0, LowGain = 0 }, music)
-	-- (user 2026-10-30: +6 dB on one band was not heard) the boosted band at the
-	-- most the effect allows, the other one turned down, so the change is clear
-	local function syncBoosts()
-		local treble = FashionGame:GetAttribute("ClubMusicTreble") == true
-		local bass = FashionGame:GetAttribute("ClubMusicBass") == true
-		musicEq.HighGain = if treble then ClubConfig.BoostDb elseif bass then -ClubConfig.CutDb else 0
-		musicEq.LowGain = if bass then ClubConfig.BoostDb elseif treble then -ClubConfig.CutDb else 0
-		musicEq.MidGain = if treble and bass then -ClubConfig.CutDb else 0
+	local shift = create("PitchShiftSoundEffect", { Name = "DJPitch", Octave = 1, Enabled = false }, music)
+	local function syncPitch()
+		local pitch = FashionGame:GetAttribute("ClubMusicPitch")
+		local speed = FashionGame:GetAttribute("ClubMusicSpeed")
+		pitch = if typeof(pitch) == "number" then pitch else 1
+		speed = if typeof(speed) == "number" then speed else 1
+		local octave = math.clamp(pitch / speed, 0.5, 2)
+		shift.Octave = octave
+		shift.Enabled = math.abs(octave - 1) > 0.001 -- (off at 1: the effect smears the sound a little)
 	end
-	FashionGame:GetAttributeChangedSignal("ClubMusicTreble"):Connect(syncBoosts)
-	FashionGame:GetAttributeChangedSignal("ClubMusicBass"):Connect(syncBoosts)
-	syncBoosts()
+	FashionGame:GetAttributeChangedSignal("ClubMusicPitch"):Connect(syncPitch)
+	FashionGame:GetAttributeChangedSignal("ClubMusicSpeed"):Connect(syncPitch)
+	syncPitch()
 end
 
 local function syncMusic()

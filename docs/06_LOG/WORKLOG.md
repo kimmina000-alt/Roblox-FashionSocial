@@ -2678,3 +2678,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 2026-10-30 고음·저음 세기 (D-611)
 - +6dB는 거의 안 들림 → 켠 쪽 +10dB(최대), 반대쪽 -8dB. Studio에서 값 확인(고음: high 10 / low -8, 저음: low 10 / high -8).
+
+### 2026-10-30 DJ 피치 (D-612)
+- 고음·저음 대신 🔽/🔼 피치 x0.5~x2. 속도를 바꿔도 피치는 버튼 값 그대로(피치 효과 = 피치 ÷ 속도).
+  ![](images/2026-10-30/dj_pitch_row_d612.jpg)
