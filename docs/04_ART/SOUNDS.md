@@ -119,3 +119,11 @@ Roblox는 캐릭터마다 `RbxCharacterSounds`로 기본 소리를 붙여요. �
 | 버스에서 내릴 때 | 103836825296838 버스 앞문 | 109083794861112 Bus Air Brake 5 | SubwayService |
 | 자동문 | 소리 전체 3.8초 | 앞 0.45초만 (`DOOR_CUT`) | AutoDoorController |
 | 수영·물에서 점프·모래 발소리 | 이미 있음 (로블록스 Swimming / Splash, 11 모래) | 그대로 | |
+
+## 사용자 업로드 효과음 (2026-10-30, D-576)
+| 쓰임 | ID | 파일 | 코드 |
+|-|-|-|-|
+| 국밥 먹기 (랜덤 3개) | 98804537108952 · 105506248237925 · 115770485617090 | gukbap_eat_1~3.mp3 | SnackService `GUKBAP_CLIPS` |
+| 카페 커피·물 마시기 | 77555451916623 | drink_sip.mp3 | SnackService `COFFEE_SIP` |
+| 스파클러 타는 소리 (반복) | 130757939540849 | sparkler.mp3 | SparkleService `FUSE_SOUND` |
+| 버스 도착 | 115752329348560 | bus_arrive.mp3 | SubwayService `BusDoorSound` |

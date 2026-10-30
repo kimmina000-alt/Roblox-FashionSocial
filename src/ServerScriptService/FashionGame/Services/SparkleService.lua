@@ -50,7 +50,10 @@ local HAND_SPARKLER_SECONDS = 60
 local DJ_SPARK_COOLDOWN = 90 -- the DJ fires the stage fireworks for free (user 2026-10-27)
 local BURST_SOUND = "rbxassetid://75191072171555" -- "fireworks explosion sfx" (Creator Store)
 local CRACKLE_SOUND = "rbxassetid://85890781320627" -- "feu d'artifice crépitation" (Creator Store)
-local FUSE_SOUND = "rbxassetid://71438605239854" -- "FireworkFuseNEW" (Creator Store): a hand sparkler fizzing
+-- a sparkler fizzing: the user's own clip "거품 이는 것" (47 s, looped while one
+-- burns; table sparklers and the hand sparkler), user 2026-10-30
+-- (was 71438605239854 "FireworkFuseNEW")
+local FUSE_SOUND = "rbxassetid://130757939540849"
 local BUCKET_CUPS = 18
 local BUCKET_LIFETIME = 600
 local BUCKET_DRINKS = { "zzang_pop", "golden_apple", "monte" }
@@ -209,9 +212,22 @@ local function burn(parent: BasePart, base: Vector3, seconds: number)
 	tip.CFrame = s.CFrame * CFrame.new(0, 0.55, 0)
 	tip.Parent = s
 	local at = sparks(s, Vector3.new(0, 0.55, 0), false)
+	-- its fizz while it burns (a start point picked at random so several sticks
+	-- in one bucket do not sound in step)
+	local fizz = Instance.new("Sound")
+	fizz.Name = "Fizz"
+	fizz.SoundId = FUSE_SOUND
+	fizz.Looped = true
+	fizz.Volume = 0.3
+	fizz.RollOffMinDistance = 6
+	fizz.RollOffMaxDistance = 40
+	fizz.Parent = tip
+	fizz.TimePosition = math.random() * 30
+	fizz:Play()
 	task.delay(seconds, function()
 		local emitter = at:FindFirstChildOfClass("ParticleEmitter")
 		if emitter then emitter.Enabled = false end
+		fizz:Stop()
 		Debris:AddItem(s, 1)
 	end)
 end

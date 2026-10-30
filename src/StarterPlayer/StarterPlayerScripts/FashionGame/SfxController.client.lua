@@ -130,6 +130,18 @@ local function playSubway()
 	end)
 end
 
+-- arriving by bus (user 2026-10-30): no sweep; the server plays the user's
+-- "버스가 도착합니다" clip at the stop (SubwayService)
+local function nearBusStop(pos: Vector3): boolean
+	for _, stop in ipairs(CollectionService:GetTagged("BusStop")) do
+		if stop:IsDescendantOf(workspace) then
+			local at = if stop:IsA("BasePart") then stop.Position elseif stop:IsA("Model") then stop:GetPivot().Position else nil
+			if at and (Vector3.new(at.X, pos.Y, at.Z) - pos).Magnitude < 40 then return true end
+		end
+	end
+	return false
+end
+
 local lastPos: Vector3? = nil
 RunService.Heartbeat:Connect(function()
 	local character = player.Character
@@ -139,6 +151,7 @@ RunService.Heartbeat:Connect(function()
 	if lastPos and (pos - lastPos).Magnitude > 30 then
 		local quietAt = player:GetAttribute("QuietJumpAt") -- (the 🏠 button: no sound, user 2026-10-30)
 		if nearSubway(lastPos) then playSubway()
+		elseif nearBusStop(lastPos) and nearBusStop(pos) then -- (bus: its own sound, from the server)
 		elseif not (typeof(quietAt) == "number" and os.clock() - quietAt < 1.5) then Sfx.play("teleport") end
 	end
 	lastPos = pos

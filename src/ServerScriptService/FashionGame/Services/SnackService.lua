@@ -137,8 +137,8 @@ local EAT_SOUND = {
 }
 -- 국밥 (kind "bowl"): the user's own three clips, picked at random each
 -- spoonful, never the same twice in a row (user 2026-10-30;
--- docs/04_ART/sounds/gukbap_eat_1..3.mp3). 0 = not uploaded yet: the old clip.
-local GUKBAP_CLIPS = { 0, 0, 0 }
+-- docs/04_ART/sounds/gukbap_eat_1..3.mp3, uploaded on Vantablack_Dev). 0 = the old clip.
+local GUKBAP_CLIPS = { 98804537108952, 105506248237925, 115770485617090 }
 local lastGukbap = 0
 local function gukbapClip(): number?
 	local ready = {}
@@ -151,8 +151,10 @@ local function gukbapClip(): number?
 	return GUKBAP_CLIPS[lastGukbap]
 end
 -- coffee is sipped, not gulped (user 2026-10-30): "Tea Cup Up And Down 10" (Pro Sound Effects)
-local COFFEE_SIP = 9119949556
-local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true }
+-- (user 2026-10-30) the cafe's coffees and water: the user's own clip "마시다"
+-- (was 9119949556 "Tea Cup Up And Down 10")
+local COFFEE_SIP = 77555451916623
+local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true, water = true }
 local QUIET = { bagel = true, saltbread = true } -- their bite at half volume
 
 -- Remembers each edible piece's place in the handle's height (call once the
@@ -318,7 +320,8 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	end
 	if sound then sound:Play() end
 	task.wait(1.4)
-	if sound then sound:Stop() end -- (some eating clips run longer than a bite)
+	-- (some eating clips run longer than a bite; the 국밥 clips are short, let them end)
+	if sound and item.kind ~= "bowl" then sound:Stop() end
 	character:SetAttribute("Eating", nil)
 	if restore then restore() end -- (before the bite is cut below)
 	if up and tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
@@ -528,7 +531,7 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	sip.Name = "Sip"
 	sip.SoundId = "rbxassetid://" .. tostring(if COFFEE[item.key] then COFFEE_SIP else EAT_SOUND[kind] or ClubConfig.GulpSoundId)
 	-- coffee twice as loud, bagel and 소금빵 half (user 2026-10-30)
-	sip.Volume = if COFFEE[item.key] then 1.4 elseif QUIET[item.key] then 0.35 else 0.7
+	sip.Volume = if COFFEE[item.key] then 0.9 elseif QUIET[item.key] then 0.35 else 0.7
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
 	markEdible(tool, handle)
@@ -1053,7 +1056,10 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	sound.SoundId = "rbxassetid://" .. tostring((if item.kind == "bowl" then gukbapClip() else nil) or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
 	sound.Volume = 0.7
 	sound.RollOffMaxDistance = 40
-	sound.Parent = handle
+	-- (on the character, not the spoon: the spoon goes 1.5 s after the bite and
+	-- would cut a longer clip, user 2026-10-30)
+	sound.Parent = character:FindFirstChild("Head") or handle
+	Debris:AddItem(sound, 4)
 	-- the bowl's own spoon (or the cup's chopsticks) is gone while it is used
 	local own = {}
 	for _, d in ipairs(copy:GetChildren()) do

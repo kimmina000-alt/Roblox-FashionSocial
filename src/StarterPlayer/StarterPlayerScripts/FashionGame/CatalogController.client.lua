@@ -1583,7 +1583,7 @@ updateCatalogLayout = function()
 	else
 		resultsFrame.Visible = true
 	end
-	positionOpenButton()
+	-- (the C button is placed by TopBar now, 2026-10-30)
 end
 
 local function bindViewport(camera: Camera?)
