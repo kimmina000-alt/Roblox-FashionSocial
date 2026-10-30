@@ -233,15 +233,45 @@ local function playTrack(index: number, by: number)
 	FashionGame:SetAttribute("ClubTrack", index)
 end
 
+-- Can the track's audio play? (user 2026-10-30: a song Roblox had not approved
+-- yet played as minutes of silence.) The server loads it once; a failure is
+-- tried again after 10 minutes.
+local playableAt: {[number]: number} = {} -- soundId → os.clock() when it last failed
+local playableOk: {[number]: boolean} = {}
+local function playable(index: number): boolean
+	local track = ClubConfig.Playlist[index]
+	if not track then return false end
+	local id = track.soundId
+	if playableOk[id] then return true end
+	if playableAt[id] and os.clock() - playableAt[id] < 600 then return false end
+	local probe = Instance.new("Sound")
+	probe.SoundId = "rbxassetid://" .. tostring(id)
+	probe.Volume = 0
+	probe.Parent = game:GetService("SoundService")
+	local t = os.clock()
+	while not probe.IsLoaded and os.clock() - t < 4 do task.wait(0.1) end
+	local ok = probe.IsLoaded and probe.TimeLength > 0
+	probe:Destroy()
+	if ok then playableOk[id] = true else playableAt[id] = os.clock() end
+	return ok
+end
+
 local function playNext()
 	local count = #ClubConfig.Playlist
 	if count == 0 then return end
 	local nextRequest = table.remove(requests, 1)
 	publishRequests()
-	if nextRequest then
+	if nextRequest and playable(nextRequest.i) then
 		playTrack(nextRequest.i, nextRequest.u)
-	else
-		playTrack(if trackIndex == 0 then math.random(1, count) else trackIndex % count + 1, 0)
+		return
+	end
+	-- (user 2026-10-30) a random song each time, not the one just played,
+	-- skipping songs that cannot play
+	local order = {}
+	for i = 1, count do if i ~= trackIndex then table.insert(order, math.random(1, #order + 1), i) end end
+	if #order == 0 then order = { trackIndex } end
+	for _, i in ipairs(order) do
+		if playable(i) then playTrack(i, 0) return end
 	end
 end
 
@@ -289,6 +319,7 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	if action == "Play" then
 		local index = validTrack(payload)
 		if not index then return false, "없는 곡입니다." end
+		if not playable(index) then return false, "이 곡은 아직 재생할 수 없어요. (로블록스 승인 전)" end
 		playTrack(index, player.UserId)
 		return true, nil
 	elseif action == "Queue" then
