@@ -312,6 +312,6 @@ openButton.Font = Enum.Font.GothamBold
 openButton.TextColor3 = Color3.new(1, 1, 1)
 openButton.Parent = gui
 Instance.new("UICorner", openButton).CornerRadius = UDim.new(1, 0)
-TopBar.icon(openButton, require(script.Parent:WaitForChild("Icons")).give, 0.66) -- (hands holding a heart, user mock-up 2026-10-30)
+TopBar.icon(openButton, require(script.Parent:WaitForChild("Icons")).heart, 0.5) -- (a white heart, user mock-up 2026-10-30 rev 2)
 TopBar.add(openButton, 5)
 openButton.MouseButton1Click:Connect(function() setPanel(not panel.Visible) end)

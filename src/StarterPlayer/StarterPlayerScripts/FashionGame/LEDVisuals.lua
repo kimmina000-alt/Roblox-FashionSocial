@@ -12,7 +12,7 @@
 local LEDVisuals = {}
 LEDVisuals.__index = LEDVisuals
 
-local SHOW_SECONDS = 20
+local SHOW_SECONDS = 12 -- (was 20; user 2026-10-30: take turns more often)
 local FADE = 1.2
 local EQ_BARS = 28
 local LASERS = 14

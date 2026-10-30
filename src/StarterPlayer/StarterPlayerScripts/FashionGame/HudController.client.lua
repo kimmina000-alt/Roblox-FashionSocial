@@ -61,11 +61,12 @@ coins.Name = "CoinPill"
 coins.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
 coins.BackgroundTransparency = 0.5 -- (50 %, user 2026-10-30)
 coins.TextColor3 = COIN_TEXT
-coins.TextSize = 13
+coins.TextSize = 11
 coins.Font = Enum.Font.GothamBold
 coins.Text = "0"
-coins:SetAttribute("Width", 120)
-coins:SetAttribute("Scale", 2 / 3) -- (2/3 of the size, user 2026-10-30)
+-- (user mock-up 2026-10-30 rev 2: 45 x 18, about half of the old 80 x 29)
+coins:SetAttribute("Width", 45)
+coins:SetAttribute("Height", 18)
 coins.Parent = gui
 corner(coins, UDim.new(1, 0))
 do

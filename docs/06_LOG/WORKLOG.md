@@ -2724,3 +2724,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 가드: 테스트 구매 → 머리 위 GUARD 표시 확인. 클럽 밖 안내는 2인 테스트 필요. 기획: ../01_SYSTEMS/GUARD.md
 - LED 전광판 쇼 3종 (20초마다 바뀜): 네온 이퀄라이저 / 레이저 / 스트로브
 ![](images/2026-10-30/led_show1_eq.jpg) ![](images/2026-10-30/led_show2_lasers.jpg) ![](images/2026-10-30/led_show3_strobe.jpg)
+
+### 2026-10-30 상단 버튼 v2 (D-624)
+- 시안 기준 크기: 둥근 버튼 44→25px, 코인 칸 80×29→45×18, 메뉴 칸 24×81. ⋯ 누르면 아래로 옷걸이·가방·음표.
+![](images/2026-10-30/topbar_v2_menu_open.jpg)
+
+### 2026-10-30 로딩 화면 (D-625)
+![](images/2026-10-30/loading_1_cafe.jpg) ![](images/2026-10-30/loading_2_club.jpg) ![](images/2026-10-30/loading_3_booth.jpg)
