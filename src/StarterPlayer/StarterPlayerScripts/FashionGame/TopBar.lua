@@ -50,8 +50,10 @@ local function layout()
 	-- Roblox logo + menu / chat pill)
 	local centerY, leftX, rightX, size = 34, 170, -16, 44
 	if inset.Height > 0 then
-		centerY = inset.Min.Y + inset.Height / 2
+		-- Roblox's own buttons hang 12 px from the top of the bar (not in its
+		-- middle): the same line (user 2026-10-30: ours sat higher)
 		size = math.clamp(inset.Height - 12, 32, 44)
+		centerY = inset.Min.Y + 12 + size / 2
 		local camera = workspace.CurrentCamera
 		if camera and inset.Width > 0 then
 			leftX = inset.Min.X + 8
@@ -95,7 +97,7 @@ function TopBar.bottom(): number
 	local inset = GuiService.TopbarInset
 	if inset.Height > 0 then
 		local size = math.clamp(inset.Height - 12, 32, 44)
-		return math.max(inset.Min.Y + inset.Height / 2 + size / 2, inset.Max.Y)
+		return math.max(inset.Min.Y + 12 + size, inset.Max.Y)
 	end
 	return 34 + 44 / 2
 end

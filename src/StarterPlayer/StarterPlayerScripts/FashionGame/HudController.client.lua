@@ -70,9 +70,13 @@ corner(coins, UDim.new(1, 0))
 do
 	local edge = Instance.new("UIStroke")
 	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	edge.Color = Color3.fromRGB(110, 24, 34)
+	edge.Color = Color3.fromRGB(205, 30, 45)
 	edge.Thickness = 1.5
 	edge.Parent = coins
+	-- (the red edge only for VIP, user 2026-10-30)
+	local function vipEdge() edge.Enabled = player:GetAttribute("Pass_VIP") == true end
+	player:GetAttributeChangedSignal("Pass_VIP"):Connect(vipEdge)
+	vipEdge()
 	local icon = Instance.new("ImageLabel")
 	icon.Name = "CoinIcon"
 	icon.AnchorPoint = Vector2.new(1, 0.5)

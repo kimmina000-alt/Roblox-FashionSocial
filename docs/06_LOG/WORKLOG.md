@@ -2647,3 +2647,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
   ![](images/2026-10-30/topbar_v2_d602.jpg)
 - 💰가 들어간 모든 글자(화면·월드 간판)에 ₩ 코인 그림이 대신 들어감(CoinIcons).
   ![](images/2026-10-30/coinshop_coin_icon_d602.jpg) ![](images/2026-10-30/menu_coin_icons_d602.jpg)
+### 2026-10-30 상단 버튼 높이·VIP 테두리 (D-603)
+- 로블록스 버튼은 막대 위에서 12px 아래에 붙어 있음 → 우리 버튼도 같은 줄(12~56px). 코인 금액 빨간 테두리는 VIP 패스 있을 때만.
