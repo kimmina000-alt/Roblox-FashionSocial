@@ -2641,3 +2641,9 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 순위표 x -126, 1위 칸 왕관 삭제.
 ### 2026-10-30 알바 띵 소리 (D-601)
 - 알바 시작·종료: Bell Ding 106268193751411, 볼륨 0.3. 클럽 노래 74296429076880(AUDIO_REMIX_BOY_GROUP_ATEEZ_BAD): 로블록스 이용약관 위반으로 삭제됨(재생 길이 0) → 추가 안 함.
+
+### 2026-10-30 상단 막대·코인 아이콘 (D-602)
+- 시안 그림은 스톡 사이트 워터마크가 있어서 아이콘을 직접 그림(tools/dev/icons/draw_icons.ps1).
+  ![](images/2026-10-30/topbar_v2_d602.jpg)
+- 💰가 들어간 모든 글자(화면·월드 간판)에 ₩ 코인 그림이 대신 들어감(CoinIcons).
+  ![](images/2026-10-30/coinshop_coin_icon_d602.jpg) ![](images/2026-10-30/menu_coin_icons_d602.jpg)

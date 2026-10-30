@@ -53,27 +53,49 @@ end
 -- 🪙 coins
 --------------------------------------------------
 
+-- (user mock-up 2026-10-30) the gold ₩ coin just left of a dark pill with
+-- the amount in white, 100,000 style
+local COIN_TEXT = Color3.new(1, 1, 1)
 local coins = Instance.new("TextLabel")
 coins.Name = "CoinPill"
-coins.BackgroundColor3 = Color3.new(0, 0, 0)
-coins.BackgroundTransparency = 0.2
-coins.TextColor3 = Color3.fromRGB(255, 220, 110)
-coins.TextSize = 16
+coins.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
+coins.BackgroundTransparency = 0.15
+coins.TextColor3 = COIN_TEXT
+coins.TextSize = 17
 coins.Font = Enum.Font.GothamBold
-coins.Text = "💰 0"
-coins:SetAttribute("Width", 92)
+coins.Text = "0"
+coins:SetAttribute("Width", 120)
 coins.Parent = gui
 corner(coins, UDim.new(1, 0))
+do
+	local edge = Instance.new("UIStroke")
+	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	edge.Color = Color3.fromRGB(110, 24, 34)
+	edge.Thickness = 1.5
+	edge.Parent = coins
+	local icon = Instance.new("ImageLabel")
+	icon.Name = "CoinIcon"
+	icon.AnchorPoint = Vector2.new(1, 0.5)
+	icon.Position = UDim2.new(0, -6, 0.5, 0)
+	icon.Size = UDim2.fromScale(0.78, 0.78)
+	icon.SizeConstraint = Enum.SizeConstraint.RelativeYY
+	icon.BackgroundTransparency = 1
+	icon.Image = require(script.Parent:WaitForChild("Icons")).coin
+	icon.Parent = coins
+end
 TopBar.add(coins, 10)
 
 local shown = -1
 local function refreshCoins()
 	local value = player:GetAttribute("Coins")
-	local amount = if typeof(value) == "number" then value else 0
-	coins.Text = "💰 " .. tostring(amount)
+	local amount = if typeof(value) == "number" then math.floor(value) else 0
+	-- 1234567 → "1,234,567"
+	local grouped = string.reverse((string.gsub(string.reverse(tostring(amount)), "(%d%d%d)", "%1,")))
+	if string.sub(grouped, 1, 1) == "," then grouped = string.sub(grouped, 2) end
+	coins.Text = grouped
 	if shown >= 0 and amount > shown then
 		coins.TextColor3 = Color3.fromRGB(140, 255, 160)
-		TweenService:Create(coins, TweenInfo.new(0.8), { TextColor3 = Color3.fromRGB(255, 220, 110) }):Play()
+		TweenService:Create(coins, TweenInfo.new(0.8), { TextColor3 = COIN_TEXT }):Play()
 	end
 	shown = amount
 end

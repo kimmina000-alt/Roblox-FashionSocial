@@ -231,15 +231,8 @@ local openButton = create("TextButton", {
 	AutoButtonColor = true,
 })
 openButton.Parent = screenGui
--- a white clothes hanger instead of "C" (user 2026-10-30; docs/04_ART/references/icon_hanger.png)
-create("ImageLabel", {
-	Name = "Icon",
-	AnchorPoint = Vector2.new(0.5, 0.5),
-	Position = UDim2.fromScale(0.5, 0.52),
-	Size = UDim2.fromScale(0.68, 0.68),
-	BackgroundTransparency = 1,
-	Image = "rbxassetid://101447482547271",
-}).Parent = openButton
+-- a white clothes hanger instead of "C" (user 2026-10-30; docs/04_ART/icons)
+require(script.Parent:WaitForChild("TopBar")).icon(openButton, require(script.Parent:WaitForChild("Icons")).hanger, 0.66)
 
 create("UICorner", {
 	CornerRadius = UDim.new(1, 0),

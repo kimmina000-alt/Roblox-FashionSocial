@@ -6,9 +6,12 @@
 -- moving with them (the voice chat button comes and goes): catalog (hanger)
 -- 4, 🎒 3 (photos inside), 🎵 dance 1. (🏠 0 and the 🖼 album 2 are gone.)
 -- Right group, ending at the right edge: 💰 coins 10, 💝 5.
+-- (user mock-up 2026-10-30) the left group sits in one dark pill like
+-- Roblox's own, its buttons are white icons without their own circles.
 -- A button with attribute Width (number, px at full size) is that wide.
 
 local GuiService = game:GetService("GuiService")
+local Players = game:GetService("Players")
 
 local TopBar = {}
 
@@ -24,6 +27,22 @@ local SLOTS: {[number]: { side: string, place: number }} = {
 }
 
 local entries: {{ button: GuiObject, order: number }} = {}
+
+-- the pill behind the left group (its own ScreenGui, under every button's)
+local pillGui = Instance.new("ScreenGui")
+pillGui.Name = "FashionTopBarPill"
+pillGui.ResetOnSpawn = false
+pillGui.IgnoreGuiInset = true
+pillGui.DisplayOrder = 5
+pillGui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
+local pill = Instance.new("Frame")
+pill.Name = "LeftPill"
+pill.AnchorPoint = Vector2.new(0, 0.5)
+pill.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
+pill.BackgroundTransparency = 0.25
+pill.Visible = false
+pill.Parent = pillGui
+Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
 
 local function layout()
 	local inset = GuiService.TopbarInset
@@ -43,6 +62,9 @@ local function layout()
 		return SLOTS[entry.order] or { side = "right", place = 100 + entry.order }
 	end
 	table.sort(entries, function(a, b) return slot(a).place < slot(b).place end)
+	local pillStart, PAD, GAP = leftX, 6, 2
+	leftX += PAD
+	local anyLeft = false
 	for _, entry in ipairs(entries) do
 		if entry.button.Visible then
 			local wide = entry.button:GetAttribute("Width")
@@ -51,7 +73,9 @@ local function layout()
 			if slot(entry).side == "left" then
 				entry.button.AnchorPoint = Vector2.new(0, 0.5)
 				entry.button.Position = UDim2.new(0, leftX, 0, centerY)
-				leftX += width + 8
+				entry.button.BackgroundTransparency = 1
+				leftX += width + GAP
+				anyLeft = true
 			else
 				entry.button.AnchorPoint = Vector2.new(1, 0.5)
 				entry.button.Position = UDim2.new(1, rightX, 0, centerY)
@@ -59,6 +83,9 @@ local function layout()
 			end
 		end
 	end
+	pill.Visible = anyLeft
+	pill.Position = UDim2.new(0, pillStart, 0, centerY)
+	pill.Size = UDim2.fromOffset(leftX - GAP + PAD - pillStart, size)
 end
 
 -- Bottom edge (px, IgnoreGuiInset space) of the button row. Popups start
@@ -77,6 +104,23 @@ function TopBar.add(button: GuiObject, order: number)
 	table.insert(entries, { button = button, order = order })
 	button:GetPropertyChangedSignal("Visible"):Connect(layout)
 	layout()
+end
+
+-- a white icon in the middle of a top bar button (its text cleared)
+function TopBar.icon(button: GuiObject, image: string, scale: number?)
+	if button:IsA("TextButton") or button:IsA("TextLabel") then (button :: any).Text = "" end
+	local old = button:FindFirstChild("Icon")
+	if old then old:Destroy() end
+	local icon = Instance.new("ImageLabel")
+	icon.Name = "Icon"
+	icon.AnchorPoint = Vector2.new(0.5, 0.5)
+	icon.Position = UDim2.fromScale(0.5, 0.5)
+	icon.Size = UDim2.fromScale(scale or 0.6, scale or 0.6)
+	icon.BackgroundTransparency = 1
+	icon.Image = image
+	icon.ScaleType = Enum.ScaleType.Fit
+	icon.Parent = button
+	return icon
 end
 
 GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(layout)

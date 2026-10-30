@@ -383,5 +383,6 @@ button.Font = Enum.Font.GothamBold
 button.TextColor3 = Color3.new(1, 1, 1)
 button.Parent = gui
 corner(button, 22)
+TopBar.icon(button, require(script.Parent:WaitForChild("Icons")).bag) -- (user mock-up 2026-10-30: a white shopping bag)
 TopBar.add(button, 3)
 button.MouseButton1Click:Connect(function() setOpen(not panel.Visible) end)

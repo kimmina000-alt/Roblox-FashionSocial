@@ -109,7 +109,8 @@ local danceButton = create("TextButton", {
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, danceButton)
 
--- In the top bar's left group (TopBar.lua has the order).
+-- In the top bar's left group (TopBar.lua has the order), a white note icon (user mock-up 2026-10-30).
+require(script.Parent:WaitForChild("TopBar")).icon(danceButton, require(script.Parent:WaitForChild("Icons")).note, 0.56)
 require(script.Parent:WaitForChild("TopBar")).add(danceButton, 1)
 
 local panel = create("Frame", {
