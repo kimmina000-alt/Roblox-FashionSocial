@@ -242,10 +242,12 @@ ClubConfig.DrinkSeconds = 2.6
 ClubConfig.GulpSoundId = 9114172296   -- "Drinking Cu Gulping 9 (SFX)", Pro Sound Effects (Roblox licensed)
 
 -- DJ sound controls (user 2026-10-30): the playback speed, cycled by a
--- button like the laser speed, and treble / bass boosts. "2배" = +6 dB (twice
--- the amplitude) on the EqualizerSoundEffect's high / low band.
+-- button like the laser speed, and treble / bass boosts on the
+-- EqualizerSoundEffect's high / low band. (+6 dB was too little to hear, user
+-- 2026-10-30: now the most the effect takes, +10 dB, and the other band -8 dB)
 ClubConfig.MusicSpeeds = { 0.5, 0.75, 1, 1.25, 1.5, 1.75, 2 }
-ClubConfig.BoostDb = 6
+ClubConfig.BoostDb = 10
+ClubConfig.CutDb = 8
 
 -- Who may pour from a placed bottle.
 ClubConfig.Visibility = {

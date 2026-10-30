@@ -1035,9 +1035,14 @@ local currentTrack = 0
 -- the DJ's treble / bass boosts (ClubMusicTreble / ClubMusicBass, user 2026-10-30)
 do
 	local musicEq = create("EqualizerSoundEffect", { Name = "DJBoost", HighGain = 0, MidGain = 0, LowGain = 0 }, music)
+	-- (user 2026-10-30: +6 dB on one band was not heard) the boosted band at the
+	-- most the effect allows, the other one turned down, so the change is clear
 	local function syncBoosts()
-		musicEq.HighGain = if FashionGame:GetAttribute("ClubMusicTreble") == true then ClubConfig.BoostDb else 0
-		musicEq.LowGain = if FashionGame:GetAttribute("ClubMusicBass") == true then ClubConfig.BoostDb else 0
+		local treble = FashionGame:GetAttribute("ClubMusicTreble") == true
+		local bass = FashionGame:GetAttribute("ClubMusicBass") == true
+		musicEq.HighGain = if treble then ClubConfig.BoostDb elseif bass then -ClubConfig.CutDb else 0
+		musicEq.LowGain = if bass then ClubConfig.BoostDb elseif treble then -ClubConfig.CutDb else 0
+		musicEq.MidGain = if treble and bass then -ClubConfig.CutDb else 0
 	end
 	FashionGame:GetAttributeChangedSignal("ClubMusicTreble"):Connect(syncBoosts)
 	FashionGame:GetAttributeChangedSignal("ClubMusicBass"):Connect(syncBoosts)

@@ -2675,3 +2675,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 벤치·트럭 삭제, 피자 모서리 (D-610)
 - 해변 산책로 벤치 11개와 아이스크림 트럭 삭제. 피자집 모서리 간판·아래판·유리·차양 이음.
   ![](images/2026-10-30/pizza_corner_joined_d610.jpg)
+
+### 2026-10-30 고음·저음 세기 (D-611)
+- +6dB는 거의 안 들림 → 켠 쪽 +10dB(최대), 반대쪽 -8dB. Studio에서 값 확인(고음: high 10 / low -8, 저음: low 10 / high -8).
