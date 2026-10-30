@@ -571,9 +571,10 @@ end
 -- shift at the worker, the drink being made at the station, the NPC
 -- customer's "감사합니다" when served (not for player customers)
 local SOUNDS = {
-	-- (user 2026-10-27, 2nd: like a computer switching on / off)
-	start = { "rbxassetid://79812542038049", 0.6 }, -- "Windows 10 Startup Sound" (Creator Store)
-	stop = { "rbxassetid://6858975342", 0.6 }, -- "Microsoft Windows XP Shutdown Sound" (Creator Store)
+	-- (user 2026-10-30: one clean "ding" for both, at half volume; were the
+	-- Windows 10 startup 79812542038049 / XP shutdown 6858975342 sounds)
+	start = { "rbxassetid://106268193751411", 0.3 }, -- "Bell Ding" (Creator Store, DaWaterNinja)
+	stop = { "rbxassetid://106268193751411", 0.3 },
 	make = { "rbxassetid://9113846434", 0.7 }, -- "Coffee Pot 2" (Pro Sound Effects)
 	thanks = { "rbxassetid://132794698600617", 0.9 }, -- "감사합니다 new" (Creator Store)
 }

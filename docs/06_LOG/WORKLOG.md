@@ -2639,3 +2639,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 피자집: 분홍 꽃 기둥 삭제, 입구 왼쪽 흰 벽에 같은 디자인의 창·차양·띠.
   ![](images/2026-10-30/pizza_corner_bay_d600.jpg)
 - 순위표 x -126, 1위 칸 왕관 삭제.
+### 2026-10-30 알바 띵 소리 (D-601)
+- 알바 시작·종료: Bell Ding 106268193751411, 볼륨 0.3. 클럽 노래 74296429076880(AUDIO_REMIX_BOY_GROUP_ATEEZ_BAD): 로블록스 이용약관 위반으로 삭제됨(재생 길이 0) → 추가 안 함.
