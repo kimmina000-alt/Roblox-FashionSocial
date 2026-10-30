@@ -5362,12 +5362,15 @@ do
 	-- (user 2026-10-27: their own pictures for slots 2, 4, 5 and 7, docs/04_ART/facades/facade_<n>_user.png)
 	local FACADES = { 119555605786938, 108505166753199, 131791880332218, 72400340486961, 98845538068616, 86941239410625, 133905773347734, 134862143501130 }
 	-- (user 2026-10-30: their own pictures for slots 1, 3 and 6 too, facade_<n>_user.png)
-	FACADES[1], FACADES[3], FACADES[6] = 82874826300770, 100132644185665, 88158426718188
+	-- (user 2026-10-30, later: the same pictures cleaned up, phone numbers
+	-- blurred, the window papers plain; were 82874826300770, 100132644185665, 88158426718188)
+	FACADES[1], FACADES[3], FACADES[6] = 76291257130037, 139940847407607, 74544890923170
 	-- (and slot 8: the grey tiled side with windows, the same picture as facade_12)
 	FACADES[8] = 72442433508204
 	-- (user 2026-10-30) new pictures: 9 / 10 = the two halves of a bhc + 설농탕
 	-- building, 11 = its plain glass side, 12 = a grey tiled side with windows
-	local F9, F10, F11, F12 = 115092286598069, 110896225910943, 103277497995975, 72442433508204
+	-- (F9 cleaned up too, user 2026-10-30, later; was 115092286598069)
+	local F9, F10, F11, F12 = 129957945484608, 110896225910943, 103277497995975, 72442433508204
 	local facadeN = 0
 	-- panelTex[face][k] (k from 1 at the face's start) picks a panel's picture;
 	-- false leaves that panel out (a taller building stands in front of it)
