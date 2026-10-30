@@ -577,6 +577,53 @@ if store then
 			end
 		end
 	end
+	-- (user 2026-10-30, 3rd) the awnings end at the new piers; the east face
+	-- gets the same: a pier at the store's south end (z 146, the inner wall's
+	-- line), its sign laid out between that pier and the north corner and
+	-- centred, 남부대로점 → 오후점. East-face parts are turned 90°: their size X
+	-- runs along world z.
+	local EA, EB = 66.85, 145.05 -- east face: north corner .. new pier
+	local emid = (EA + EB) / 2
+	for _, d in ipairs(store:GetChildren()) do
+		if d:IsA("BasePart") and (d.Name == "Awning" or d.Name == "AwningEdge") then
+			if d.Position.Z < 66 then -- north: keep x -104.5 ..
+				local x1 = d.Position.X + d.Size.X / 2
+				d.Size = Vector3.new(x1 - A, d.Size.Y, d.Size.Z)
+				d.CFrame = d.CFrame.Rotation + Vector3.new((A + x1) / 2, d.Position.Y, d.Position.Z)
+			else -- east (turned): keep z .. EB
+				local z0 = d.Position.Z - d.Size.X / 2
+				d.Size = Vector3.new(EB - z0, d.Size.Y, d.Size.Z)
+				d.CFrame = d.CFrame.Rotation + Vector3.new(d.Position.X, d.Position.Y, (z0 + EB) / 2)
+			end
+		end
+	end
+	if corner then
+		local p = corner:Clone()
+		p.Size = Vector3.new(0.4, corner.Size.Y, corner.Size.X)
+		p.CFrame = CFrame.new(-55.8, corner.Position.Y, (EB + EB + 1.9) / 2)
+		p.Parent = store
+	end
+	local elogo
+	local ebars = {}
+	for _, d in ipairs(store:GetChildren()) do
+		if d:IsA("BasePart") and d.Position.Z > 66.5 and d.Position.Y > 21 and d.Position.Y < 26 and math.abs(d.CFrame.RightVector.Z) > 0.9 then
+			if d.Name == "Logo" then elogo = d
+			elseif d.Name == "LightBar" or d.Name == "LightBarBase" then table.insert(ebars, d) end
+		end
+	end
+	if elogo then
+		elogo.CFrame = elogo.CFrame + Vector3.new(0, 0, emid - elogo.Position.Z)
+		local lz0, lz1 = emid - elogo.Size.X / 2 - 0.3, emid + elogo.Size.X / 2 + 0.3
+		for _, b in ipairs(ebars) do
+			local north = b.Position.Z < 138
+			local z0, z1 = if north then EA else lz1, if north then lz0 else EB
+			b.Size = Vector3.new(z1 - z0, b.Size.Y, b.Size.Z)
+			b.CFrame = b.CFrame.Rotation + Vector3.new(b.Position.X, b.Position.Y, (z0 + z1) / 2)
+			for _, l in ipairs(b:GetDescendants()) do
+				if l:IsA("TextLabel") and l.Text:find("남부대로점") then l.Text = string.gsub(l.Text, "남부대로점", "오후점") end
+			end
+		end
+	end
 	table.insert(log, "OH24 smaller, removed " .. n)
 end
 
