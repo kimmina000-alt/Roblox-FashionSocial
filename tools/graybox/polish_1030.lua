@@ -811,10 +811,8 @@ end
 
 ---------------------------------------------------------------- 14. beach (user 2026-10-30, phone shots)
 -- rubber ducks 1.5x (still floating on their base line), the float tubes in
--- different colours, the mats → candidate M4 (Creator Store 8757577421, a
--- pink / white checker of 144 parts, ServerStorage.NewAssets1030.BeachMatM4
--- kept as the reference): here one thin part with the same checker as a
--- texture (docs/04_ART/references/beach_mat_m4_checker.png), 8 squares across
+-- different colours, the mats → candidate M6 (below; M4, a 144-part checker,
+-- was tried first: ServerStorage.NewAssets1030.BeachMatM4)
 do
 	local zone = beach
 	local n = { ducks = 0, tubes = 0, mats = 0 }
