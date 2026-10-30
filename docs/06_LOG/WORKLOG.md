@@ -2615,3 +2615,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 공원 가로등(-112, -66) 삭제, 순위표를 그 줄(x -112)로 옮김. 각 순위표 폭 17.2 → 24, 왼쪽에 👑 1위 + 게임 속 옷차림 캐릭터 + 이름. 옷차림 기록이 없으면 로블록스 전신 사진.
   ![](images/2026-10-30/ranking_portrait_d594.jpg) ![](images/2026-10-30/ranking_portrait_close_d594.jpg)
 - 소리: 커피·물 1481574895, 국밥 140514526743537.
+### 2026-10-30 해변 오리·튜브·돗자리 (D-596)
+- 고무 오리 1.5배. 바다 위 납작한 고리는 탈 수 있는 튜브(7개): 색을 하나씩 다르게.
+- 돗자리: 후보 M4(분홍·흰 체크)는 부품 144개라 그대로 쓰지 않고, 같은 무늬 텍스처를 얇은 부품 1개에 입힘.
+  ![](images/2026-10-30/beach_mat_m4_d596.jpg)
+- 접힌 파라솔 후보: ![](../04_ART/references/candidates_parasol_folded.png)

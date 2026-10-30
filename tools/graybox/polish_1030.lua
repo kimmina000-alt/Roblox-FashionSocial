@@ -809,4 +809,68 @@ if L and not L:FindFirstChild("ClubBedFill") then
 	end
 end
 
+---------------------------------------------------------------- 14. beach (user 2026-10-30, phone shots)
+-- rubber ducks 1.5x (still floating on their base line), the float tubes in
+-- different colours, the mats → candidate M4 (Creator Store 8757577421, a
+-- pink / white checker of 144 parts, ServerStorage.NewAssets1030.BeachMatM4
+-- kept as the reference): here one thin part with the same checker as a
+-- texture (docs/04_ART/references/beach_mat_m4_checker.png), 8 squares across
+do
+	local zone = beach
+	local n = { ducks = 0, tubes = 0, mats = 0 }
+	if zone then
+		for _, m in ipairs(zone:GetChildren()) do
+			local duck = m:IsA("Model") and m.Name:match("^RubberDuck") and m:FindFirstChild("Duck")
+			if duck and not duck:GetAttribute("Big15") then
+				local base = m:GetAttribute("Base")
+				local rot = duck.CFrame.Rotation
+				local at = duck.Position
+				duck.Size = duck.Size * 1.5
+				local y = if typeof(base) == "Vector3" then base.Y + duck.Size.Y * 0.35 else at.Y
+				duck.CFrame = CFrame.new(at.X, y, at.Z) * rot
+				duck:SetAttribute("Big15", true)
+				n.ducks += 1
+			end
+		end
+		local TUBE = { Color3.fromRGB(255, 150, 190), Color3.fromRGB(255, 220, 90), Color3.fromRGB(120, 230, 190), Color3.fromRGB(255, 160, 90),
+			Color3.fromRGB(190, 160, 255), Color3.fromRGB(110, 200, 255), Color3.fromRGB(255, 120, 120) }
+		for _, m in ipairs(zone:GetChildren()) do
+			local i = m:IsA("Model") and tonumber(m.Name:match("^Tube(%d+)$"))
+			local mesh = i and m:FindFirstChild("TubeMesh")
+			if mesh then
+				mesh.Color = TUBE[(i - 1) % #TUBE + 1]
+				mesh.Material = Enum.Material.SmoothPlastic
+				n.tubes += 1
+			end
+		end
+	end
+	for _, spot in ipairs(workspace:GetDescendants()) do
+		if not (spot:IsA("Model") and spot.Name:match("^BeachSpot_")) or spot:FindFirstChild("BeachMatM4") then continue end
+		local slab
+		for _, d in ipairs(spot:GetChildren()) do if d.Name == "Mat" and d:IsA("BasePart") then slab = d end end
+		if not slab then continue end
+		local old = spot:FindFirstChild("BeachMat")
+		if old then old:Destroy() end
+		for _, d in ipairs(spot:GetChildren()) do
+			if d:IsA("BasePart") and (d.Name == "Mat" or d.Name == "MatStripe") then d.Transparency = 1 end
+		end
+		local mat = Instance.new("Part")
+		mat.Name = "BeachMatM4"
+		mat.Size = Vector3.new(slab.Size.X, 0.08, slab.Size.Z)
+		mat.CFrame = slab.CFrame * CFrame.new(0, -slab.Size.Y / 2 + 0.06, 0)
+		mat.Color = Color3.new(1, 1, 1)
+		mat.Material = Enum.Material.SmoothPlastic
+		mat.Anchored, mat.CanCollide, mat.CanTouch, mat.CanQuery, mat.CastShadow = true, false, false, false, false
+		local t = Instance.new("Texture")
+		t.Texture = "rbxassetid://95227698695436"
+		t.Face = Enum.NormalId.Top
+		t.StudsPerTileU = slab.Size.X / 4 -- (one tile = 2 squares: 8 across)
+		t.StudsPerTileV = slab.Size.X / 4
+		t.Parent = mat
+		mat.Parent = spot
+		n.mats += 1
+	end
+	table.insert(log, string.format("ducks %d, tubes %d, mats M4 %d", n.ducks, n.tubes, n.mats))
+end
+
 return table.concat(log, " | ")
