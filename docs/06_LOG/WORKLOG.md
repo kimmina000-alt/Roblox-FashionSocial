@@ -2663,3 +2663,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 2026-10-30 12번 곡 (D-607)
 - Studio 전용 막기 삭제. Studio에서 안 들린 원인은 출력 창의 'Asset is not approved for the requester': 로블록스가 아직 이 오디오를 승인하지 않음(검토 중 또는 거절).
+
+### 2026-10-30 피자집 간판 높이 (D-608)
+- 흰 간판 20~27(편의점 간판과 같은 높이), 차양 +5.4, 창문·입구를 20까지 늘림. 북쪽 면 빈 칸 위에도 피자 간판과 차양.
+  ![](images/2026-10-30/pizza_sign_up_d608.jpg)

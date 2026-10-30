@@ -1017,4 +1017,46 @@ if store15 and not store15:GetAttribute("Polish1030_15") then
 	table.insert(log, "OH24 corner: stack + papers east, 호빵 north, vacant shop, pizza corner bay")
 end
 
+---------------------------------------------------------------- 16. pizza sign up (user 2026-10-30, screenshot)
+-- The white band and the awnings up to the OH24 sign's height (its fascia is
+-- y 20..27): band 14.6..20.6 → 20..27, awnings up 5.4; the windows and the
+-- entrance recess grow up to 20 to fill the gap (a transom over the door).
+-- The band and an awning carry on round the corner along the north face to
+-- the store's pier (x -135.5..-106.4), in front of the black fascia there.
+if store15 and not store15:GetAttribute("Polish1030_16") then
+	store15:SetAttribute("Polish1030_16", true)
+	local F = store15:FindFirstChild("PizzaFront")
+	if F then
+		local TOP = 20 -- the new underside of the band
+		local function span(p: BasePart, y0: number, y1: number)
+			p.Size = Vector3.new(p.Size.X, y1 - y0, p.Size.Z)
+			p.CFrame = p.CFrame.Rotation + Vector3.new(p.Position.X, (y0 + y1) / 2, p.Position.Z)
+		end
+		for _, p in ipairs(F:GetChildren()) do
+			if not p:IsA("BasePart") then continue end
+			if p.Name == "PizzaBand" then span(p, TOP, 27)
+			elseif p.Name == "PizzaAwning" then p.CFrame = p.CFrame + Vector3.new(0, 5.4, 0)
+			elseif p.Name == "PizzaGlass" or p.Name == "PizzaMullion" then span(p, 6.4, TOP)
+			elseif p.Name == "PizzaEntryBack" then span(p, 0.6, TOP) end
+		end
+		local X = -135.02
+		local RED, WHITE = Color3.fromRGB(222, 40, 50), Color3.fromRGB(246, 246, 244)
+		-- a dark glass transom over the door, its frame on the door's head
+		part("PizzaTransom", Vector3.new(0.1, TOP - 0.4 - 12.8, 8), CFrame.new(X - 0.4, (12.8 + TOP - 0.4) / 2, 92), Color3.fromRGB(40, 60, 70), F, { material = Enum.Material.Glass, t = 0.25 })
+		-- north face: the band (its face to -z) and the awning over the glass
+		local NX0, NX1, NZ = -135.52, -106.4, 65.4
+		local band = part("PizzaBandNorth", Vector3.new(NX1 - NX0, 27 - TOP, 0.5), CFrame.new((NX0 + NX1) / 2, (TOP + 27) / 2, NZ - 0.25), WHITE, F)
+		local frame = Instance.new("Frame") frame.Size = UDim2.fromScale(1, 1) frame.BackgroundTransparency = 1 frame.Parent = gui(band, Enum.NormalId.Front, 20)
+		local name = text(frame, "OHU PIZZA", RED, Enum.Font.GothamBlack)
+		name.Size = UDim2.fromScale(0.42, 0.62) name.Position = UDim2.fromScale(0.05, 0.19)
+		local slogan = text(frame, "SLICE BY THE SEA.", RED, Enum.Font.GothamBold)
+		slogan.Size = UDim2.fromScale(0.42, 0.34) slogan.Position = UDim2.fromScale(0.53, 0.33)
+		local AW = 3
+		local aw = part("PizzaAwningNorth", Vector3.new(NX1 - NX0 - 1, AW, 0.15), CFrame.new((NX0 + NX1) / 2 + 0.5, TOP - 1.2, 65.8 - AW / 2 * math.sin(math.rad(55)) - 0.1) * CFrame.Angles(math.rad(55), 0, 0), RED, F, { material = Enum.Material.Fabric })
+		local al = text(gui(aw, Enum.NormalId.Front, 24), "OHU PIZZA  ·  SLICES & SODA", WHITE, Enum.Font.GothamBold)
+		al.Size = UDim2.fromScale(0.5, 0.5) al.Position = UDim2.fromScale(0.25, 0.25)
+		table.insert(log, "pizza sign up to the OH24 sign, north band + awning")
+	end
+end
+
 return table.concat(log, " | ")
