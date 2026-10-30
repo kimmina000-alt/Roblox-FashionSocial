@@ -124,7 +124,7 @@ local function buildList(part: BasePart, board: string)
 	bg.BorderSizePixel = 0
 	bg.Parent = gui
 	-- the 1st place on the left: their avatar (their look in this game, else
-	-- their Roblox avatar picture), 👑 1위 over it, the name under it
+	-- their Roblox avatar picture), 1위 over it, the name under it
 	local portrait = Instance.new("Frame")
 	portrait.Size = UDim2.fromScale(PORTRAIT, 1)
 	portrait.BackgroundTransparency = 1
@@ -265,7 +265,7 @@ local function buildList(part: BasePart, board: string)
 			local key = if first then tostring(u) .. (if first.o then HttpService:JSONEncode(first.o) else "") else ""
 			if key ~= shownFirst then
 				shownFirst = key
-				crown.Text = if first then "👑 1위" else "👑 1위 자리"
+				crown.Text = if first then "1위" else "1위 자리" -- (no 👑, user 2026-10-30)
 				firstName.Text = if first then tostring(first.name) else "비어 있어요"
 				for _, child in ipairs(stage:GetChildren()) do
 					if child:IsA("WorldModel") or child:IsA("Camera") then child:Destroy() end

@@ -4555,7 +4555,8 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	-- (user 2026-10-30, 4th) into the plaza, on the line of the park lamp that
 	-- stood at x -112 (removed); wider (17.2 → 24) with the 1st place's
 	-- avatar on the left of each, the pair inside the paving (z -95.5..-45.5)
-	local X = -112
+	-- (user 2026-10-30, 5th: back toward the road by about half the way, x -126)
+	local X = -126
 	-- (user 2026-10-30) two boards (레벨 / 기부, 50 each) instead of three, each
 	-- longer over the freed room; no wooden frame: a see-through LED pane with a
 	-- neon edge on a slim dark foot, like a glass screen with a message on it

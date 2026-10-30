@@ -876,4 +876,132 @@ do
 	table.insert(log, string.format("ducks %d, tubes %d, mats M6 %d", n.ducks, n.tubes, n.mats))
 end
 
+---------------------------------------------------------------- 15. OH24 corner (user 2026-10-30, screenshots)
+-- (Hongdae_Layout is rebuilt on every chain run; the store carries a mark so a
+-- second run on the same build does nothing)
+--   a. the stacked chairs, crates, OH24 stand banner and the papers on the
+--      north glass move to the east face, between the door and the south pier
+--   b. "호빵 · 어묵 판매중" moves from the east glass to the north glass, east end
+--   c. the empty shop west of the store (north face x -134..-106): lights off
+--      (a dark lining inside) and 임대문의 papers on its glass, like the
+--      user's photo (docs/04_ART/references: news photo of a Seoul shop front)
+--   d. the pizza shop: the flower post goes; the plain white wall between the
+--      corner and the pizza entrance (z 66..84) gets the pizza front's look
+local store15 = L and L:FindFirstChild("OH24Store")
+if store15 and not store15:GetAttribute("Polish1030_15") then
+	store15:SetAttribute("Polish1030_15", true)
+	-- north face (outward -z, along x) → east face (outward +x, along z): a
+	-- quarter turn; x - C on the north face becomes z - T on the east face
+	local TURN = CFrame.Angles(0, -math.pi / 2, 0)
+	local function toEast(p: BasePart, C: number, T: number)
+		local w = 65.8 - p.Position.Z -- out from the north glass
+		p.CFrame = CFrame.new(-55.8 + w, p.Position.Y, T + (p.Position.X - C)) * TURN * p.CFrame.Rotation
+	end
+	local stack = store15:FindFirstChild("OH24FrontStack")
+	if stack then
+		local collides = {}
+		for _, p in ipairs(stack:GetChildren()) do
+			if not p:IsA("BasePart") then continue end
+			local x = p.Position.X
+			if p.Name == "StackCollide" then table.insert(collides, p)
+			elseif x > -100 then toEast(p, -94, 134) -- the two chair stacks
+			elseif x > -113 then toEast(p, -110.1, 142) -- the crates
+			else toEast(p, -120.4, 137.4) end -- the stand banner
+		end
+		-- the invisible stops: one on each new stack
+		if collides[1] then collides[1].CFrame = CFrame.new(-52.6, collides[1].Position.Y, 142) end
+		if collides[2] then collides[2].CFrame = CFrame.new(-52.6, collides[2].Position.Y, 134) end
+	end
+	for _, p in ipairs(store15:GetChildren()) do
+		if p:IsA("BasePart") and (p.Name == "GlassPoster" or p.Name == "GlassSticker") and p.Position.Z < 66 and p.Position.X < -80 then
+			toEast(p, -91, 136.5)
+		end
+	end
+	-- b. east → north, at x -79..-61
+	for _, p in ipairs(store15:GetChildren()) do
+		if p:IsA("BasePart") and p.Name == "GlassBanner" and p.Position.X > -56.5 then
+			local w = p.Position.X + 55.8
+			p.CFrame = CFrame.new(-70, p.Position.Y, 65.8 - w) * CFrame.Angles(0, math.pi / 2, 0) * p.CFrame.Rotation
+		end
+	end
+	-- c. the empty shop: lights out, a dark lining, 임대문의 on the glass
+	for _, l in ipairs(store15:GetDescendants()) do
+		if l:IsA("Light") and l.Parent and l.Parent:IsA("BasePart") and (l.Parent :: BasePart).Position.X < -106 then l.Enabled = false end
+	end
+	local DIM = Color3.fromRGB(38, 38, 42)
+	local X0, X1, Z0, Z1 = -134.3, -106.2, 66.1, 90
+	part("VacantFloor", Vector3.new(X1 - X0, 0.04, Z1 - Z0), CFrame.new((X0 + X1) / 2, 0.62, (Z0 + Z1) / 2), Color3.fromRGB(70, 70, 74), store15, { noshadow = true, material = Enum.Material.Concrete })
+	part("VacantCeiling", Vector3.new(X1 - X0, 0.1, Z1 - Z0), CFrame.new((X0 + X1) / 2, 20.6, (Z0 + Z1) / 2), DIM, store15, { noshadow = true })
+	part("VacantBack", Vector3.new(X1 - X0, 20, 0.2), CFrame.new((X0 + X1) / 2, 10.6, Z1), DIM, store15, { noshadow = true })
+	for _, x in ipairs({ X0 + 0.05, X1 - 0.05 }) do
+		part("VacantSide", Vector3.new(0.1, 20, Z1 - Z0), CFrame.new(x, 10.6, (Z0 + Z1) / 2), DIM, store15, { noshadow = true })
+	end
+	-- the store's lettering on that glass goes
+	for _, p in ipairs(store15:GetChildren()) do
+		if p:IsA("BasePart") and (p.Name == "GlassLettering" or p.Name == "GlassMark") and p.Position.Z < 66 and p.Position.X < -106 then p:Destroy() end
+	end
+	-- the papers: white sheets taped on the glass, facing out (on its outer
+	-- face: behind Glass the writing did not show)
+	local PAPER, RED = Color3.fromRGB(248, 247, 242), Color3.fromRGB(226, 36, 40)
+	local function sheet(x: number, y: number, w: number, h: number, tilt: number, body: string, size: number?, color: Color3?)
+		local c = Vector3.new(x, y, 65.77)
+		local p = part("RentPaper", Vector3.new(w, h, 0.02), CFrame.lookAt(c, c - Vector3.new(0, 0, 1)) * CFrame.Angles(0, 0, math.rad(tilt)), PAPER, store15, { noshadow = true })
+		local g = gui(p, Enum.NormalId.Front, 60)
+		local l = text(g, body, color or RED, Enum.Font.GothamBlack)
+		l.Size = UDim2.fromScale(size or 0.86, size or 0.86)
+		l.Position = UDim2.fromScale((1 - (size or 0.86)) / 2, (1 - (size or 0.86)) / 2)
+		-- tape at the top corners
+		for _, s in ipairs({ -1, 1 }) do
+			part("RentTape", Vector3.new(0.9, 0.3, 0.01), p.CFrame * CFrame.new(s * (w / 2 - 0.2), h / 2 - 0.05, -0.02) * CFrame.Angles(0, 0, math.rad(s * 35)), Color3.fromRGB(225, 225, 215), store15, { noshadow = true, t = 0.35 })
+		end
+		return l
+	end
+	-- 임 · 대 · 문 · 의, one big sheet each over the first two panes (x -133.4..-115.4);
+	-- seen from the street east (+x) is on the left, so 임 is the east one
+	sheet(-117.8, 10.2, 3.6, 5.0, 2, "임", 0.96)
+	sheet(-122.0, 10.4, 3.6, 5.0, -1, "대", 0.96)
+	sheet(-126.7, 10.1, 3.6, 5.0, 1.5, "문", 0.96, Color3.fromRGB(30, 30, 30))
+	sheet(-130.9, 10.5, 3.8, 5.2, -2, "의", 0.96, Color3.fromRGB(30, 30, 30))
+	-- the agent's notes, small, lower down (our own, made-up agency)
+	for _, x in ipairs({ -126.7, -110.9 }) do
+		local l = sheet(x, 5.6, 2.6, 1.9, 0, "임대문의\n오후부동산", 0.8, Color3.fromRGB(30, 30, 30))
+		local edge = Instance.new("UIStroke") edge.Color = Color3.fromRGB(40, 90, 200) edge.Thickness = 3 edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		edge.Parent = l
+	end
+	sheet(-110.9, 10.4, 3.8, 5.2, -1.5, "임대\n문의", 0.8)
+	-- d. the pizza shop
+	local F = store15:FindFirstChild("PizzaFront")
+	if F then
+		for _, n in ipairs({ "PizzaFlowerPost", "PizzaFlowers" }) do
+			local p = F:FindFirstChild(n)
+			if p then p:Destroy() end
+		end
+		-- the corner wall (z 66.3..83.6) as a second window bay: tiled base,
+		-- glass with mullions, a sill, the red awning, the white band with the name
+		local X = -135.02
+		local Z0, Z1 = 66.4, 83.6
+		local WHITE = Color3.fromRGB(246, 246, 244)
+		local function slab(name, x0, y0, z0, x1, y1, z1, color, opt)
+			local lo, hi = Vector3.new(math.min(x0, x1), y0, math.min(z0, z1)), Vector3.new(math.max(x0, x1), y1, math.max(z0, z1))
+			return part(name, hi - lo, CFrame.new((lo + hi) / 2), color, F, opt)
+		end
+		local band = slab("PizzaBand", X - 0.5, 14.6, Z0, X, 20.6, Z1, WHITE)
+		local bl = text(gui(band, Enum.NormalId.Left, 20), "OHU PIZZA", RED, Enum.Font.GothamBlack)
+		bl.Size = UDim2.fromScale(0.8, 0.62) bl.Position = UDim2.fromScale(0.1, 0.19)
+		local base = slab("PizzaBase", X - 0.4, 0.6, Z0, X, 6.4, Z1, Color3.fromRGB(226, 226, 222), { material = Enum.Material.Marble })
+		local tl = text(gui(base, Enum.NormalId.Left, 16), "FRESH · HOT · BY THE SLICE", RED, Enum.Font.GothamBold)
+		tl.Size = UDim2.fromScale(0.86, 0.34) tl.Position = UDim2.fromScale(0.07, 0.33)
+		slab("PizzaGlass", X - 0.3, 6.4, Z0, X - 0.2, 12.6, Z1, Color3.fromRGB(70, 100, 120), { material = Enum.Material.Glass, t = 0.3 })
+		for _, zz in ipairs({ Z0 + 0.15, (Z0 + Z1) / 2, Z1 - 0.15 }) do
+			slab("PizzaMullion", X - 0.45, 6.4, zz - 0.15, X - 0.25, 12.6, zz + 0.15, Color3.fromRGB(200, 200, 204), { material = Enum.Material.Metal })
+		end
+		slab("PizzaSill", X - 0.6, 6.3, Z0, X, 6.5, Z1, Color3.fromRGB(200, 200, 204), { material = Enum.Material.Metal })
+		local AW = 3
+		local aw = part("PizzaAwning", Vector3.new(0.15, AW, Z1 - Z0), CFrame.new(X - AW / 2 * math.sin(math.rad(55)) - 0.1, 13.4, (Z0 + Z1) / 2) * CFrame.Angles(0, 0, math.rad(-55)), RED, F, { material = Enum.Material.Fabric })
+		local al = text(gui(aw, Enum.NormalId.Left, 24), "OHU PIZZA", WHITE, Enum.Font.GothamBold)
+		al.Size = UDim2.fromScale(0.5, 0.5) al.Position = UDim2.fromScale(0.25, 0.25)
+	end
+	table.insert(log, "OH24 corner: stack + papers east, 호빵 north, vacant shop, pizza corner bay")
+end
+
 return table.concat(log, " | ")
