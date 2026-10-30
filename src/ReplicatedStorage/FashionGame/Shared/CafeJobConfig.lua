@@ -34,6 +34,18 @@ CafeJobConfig.WorkArea = 25
 CafeJobConfig.NpcMax = 3
 CafeJobConfig.NpcEverySeconds = 18
 CafeJobConfig.NpcStaySeconds = 20 -- drinking after being served, then leaves
+-- opening hours by the game clock (user 2026-10-30): customers come
+-- 10:00-15:00, half as often 15:00-21:00, none 21:00-10:00
+CafeJobConfig.NpcHours = {
+	{ from = 10, to = 15, rate = 1 },
+	{ from = 15, to = 21, rate = 0.5 },
+}
+function CafeJobConfig.npcRate(clock: number): number
+	for _, span in ipairs(CafeJobConfig.NpcHours) do
+		if clock >= span.from and clock < span.to then return span.rate end
+	end
+	return 0
+end
 
 -- orders
 CafeJobConfig.OrderTimeout = 150 -- a player customer then gets the drink anyway; an NPC leaves

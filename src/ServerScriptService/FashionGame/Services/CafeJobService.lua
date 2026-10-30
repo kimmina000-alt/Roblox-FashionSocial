@@ -26,6 +26,7 @@ local Remotes = FashionGame:WaitForChild("Remotes")
 local Shared = FashionGame:WaitForChild("Shared")
 local CafeJobConfig = require(Shared:WaitForChild("CafeJobConfig"))
 local SnackConfig = require(Shared:WaitForChild("SnackConfig"))
+local DayNightConfig = require(Shared:WaitForChild("DayNightConfig"))
 
 local CafeJobService = {}
 
@@ -698,6 +699,9 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 	end
 	player:SetAttribute("CafeJobEarned", economy.Earned(player, "CafeJob"))
 	publish()
+	if CafeJobConfig.npcRate(DayNightConfig.clockNow()) == 0 then
+		toast(player, "🌙 지금은 손님이 오지 않는 시간이에요 (손님은 10시~21시).")
+	end
 	return true, string.format("☕ 알바 시작! 주문 목록에서 [만들기] → 음료를 손님에게 가져다 주세요. (오늘 %d/%d %s)",
 		economy.Earned(player, "CafeJob"), CafeJobConfig.DailyCap * ((player:GetAttribute("CoinMultiplier") :: number?) or 1), "코인")
 end
@@ -843,14 +847,16 @@ local function tick()
 			end
 		end
 	end
-	-- NPC customers for cafes with staff
+	-- NPC customers for cafes with staff, by the opening hours (CafeJobConfig.npcRate:
+	-- 10-15 all, 15-21 half as often, none at night)
+	local rate = CafeJobConfig.npcRate(DayNightConfig.clockNow())
 	for _, shopKey in ipairs(CafeJobConfig.Shops) do
-		if staffCount(shopKey) > 0 then
+		if staffCount(shopKey) > 0 and rate > 0 then
 			local npcs = 0
 			for _, order in pairs(orders) do
 				if order.shop == shopKey and order.kind == "npc" then npcs += 1 end
 			end
-			if npcs < CafeJobConfig.NpcMax and now - (lastNpcAt[shopKey] or 0) >= CafeJobConfig.NpcEverySeconds then
+			if npcs < CafeJobConfig.NpcMax and now - (lastNpcAt[shopKey] or 0) >= CafeJobConfig.NpcEverySeconds / rate then
 				lastNpcAt[shopKey] = now
 				task.spawn(spawnNpc, shopKey)
 			end

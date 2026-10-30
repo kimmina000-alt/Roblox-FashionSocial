@@ -1103,6 +1103,14 @@ local function syncMusic()
 	-- (times the track's own base speed: three songs play at x0.5, ClubConfig.trackRate)
 	local speed = ClubConfig.trackRate(track, FashionGame:GetAttribute("ClubMusicSpeed"))
 	music.PlaybackSpeed = speed
+	-- the DJ's pause (ClubMusicPaused): stopped where the server says
+	if FashionGame:GetAttribute("ClubMusicPaused") == true then
+		local at = FashionGame:GetAttribute("ClubMusicPausedAt")
+		music:Pause()
+		if typeof(at) == "number" then music.TimePosition = math.clamp(at, 0, math.max(music.TimeLength - 0.5, 0)) end
+		banner.Text = "⏸ PAUSED · " .. track.channel .. " · " .. track.title
+		return
+	end
 	music.TimePosition = math.clamp((workspace:GetServerTimeNow() - start) * speed, 0, math.max(music.TimeLength - 0.5, 0))
 	if not music.IsPlaying then music:Play() end
 	banner.Text = "♪ NOW PLAYING · " .. track.channel .. " · " .. track.title
@@ -1110,6 +1118,7 @@ end
 FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubTrackStart"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubMusicSpeed"):Connect(function() task.spawn(syncMusic) end)
+FashionGame:GetAttributeChangedSignal("ClubMusicPaused"):Connect(function() task.spawn(syncMusic) end)
 task.spawn(syncMusic)
 
 -- 0..1 music level at a position: inside a zone that zone's volume (the

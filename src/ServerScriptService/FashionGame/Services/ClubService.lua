@@ -211,10 +211,40 @@ local function musicSpeed(): number
 	local s = FashionGame:GetAttribute("ClubMusicSpeed")
 	return if typeof(s) == "number" then s else 1
 end
+-- DJ pause (user 2026-10-30): attribute ClubMusicPaused, and ClubMusicPausedAt
+-- = seconds into the song's audio where it stopped; the song clock stands
+-- still (trackEnds far away) until it plays on from there
+local pausedAt = 0
+local function isPaused(): boolean
+	return FashionGame:GetAttribute("ClubMusicPaused") == true
+end
+local function setPaused(on: boolean)
+	if on == isPaused() then return end
+	local track = ClubConfig.Playlist[trackIndex]
+	local rate = ClubConfig.trackRate(track, musicSpeed())
+	local now = workspace:GetServerTimeNow()
+	if on then
+		local start = FashionGame:GetAttribute("ClubTrackStart")
+		pausedAt = if typeof(start) == "number" then (now - start) * rate else 0
+		trackEnds = math.huge
+		FashionGame:SetAttribute("ClubMusicPausedAt", pausedAt)
+		FashionGame:SetAttribute("ClubMusicPaused", true)
+	else
+		FashionGame:SetAttribute("ClubMusicPaused", false)
+		FashionGame:SetAttribute("ClubTrackStart", now - pausedAt / rate)
+		if track then trackEnds = now + math.max(0, track.length - pausedAt) / rate + 1 end
+	end
+end
+
 -- (a track's own baseSpeed multiplies in: ClubConfig.trackRate)
 local function setMusicSpeed(new: number)
 	local old = musicSpeed()
 	if new == old then return end
+	if isPaused() then
+		-- (stopped: the new speed counts from where it plays on)
+		FashionGame:SetAttribute("ClubMusicSpeed", new)
+		return
+	end
 	local track = ClubConfig.Playlist[trackIndex]
 	local oldRate, newRate = ClubConfig.trackRate(track, old), ClubConfig.trackRate(track, new)
 	local now = workspace:GetServerTimeNow()
@@ -229,6 +259,7 @@ local function playTrack(index: number, by: number)
 	local track = ClubConfig.Playlist[index]
 	if not track then return end
 	trackIndex = index
+	FashionGame:SetAttribute("ClubMusicPaused", false) -- (a new song always plays)
 	trackEnds = workspace:GetServerTimeNow() + track.length / ClubConfig.trackRate(track, musicSpeed()) + 1
 	FashionGame:SetAttribute("ClubTrackStart", workspace:GetServerTimeNow())
 	FashionGame:SetAttribute("ClubTrackBy", by)
@@ -314,7 +345,9 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		return true, string.format("신청 완료! %d번째로 나와요.", #requests)
 	end
 	if not isDJ then
-		if action == "Play" or action == "Skip" or action == "Queue" then
+		-- (speed / pitch were open to anyone until 2026-10-30)
+		if action == "Play" or action == "Skip" or action == "Queue" or action == "Pause"
+			or action == "MusicSpeed" or action == "MusicPitch" then
 			return false, "DJ만 할 수 있어요."
 		end
 	end
@@ -333,6 +366,9 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	elseif action == "Skip" then
 		playNext()
 		return true, nil
+	elseif action == "Pause" then
+		setPaused(payload == true)
+		return true, if payload == true then "⏸ 일시정지" else "▶ 다시 재생"
 	elseif action == "MusicSpeed" then
 		if not table.find(ClubConfig.MusicSpeeds, payload) then return false, "없는 재생 속도예요." end
 		setMusicSpeed(payload)
@@ -361,6 +397,7 @@ local function onDJChanged()
 	end
 	-- each DJ starts with the song as it is; it goes back when the DJ ends
 	if dj ~= lastDJ then
+		setPaused(false) -- (a stopped song plays on when the DJ ends)
 		setMusicSpeed(1)
 		FashionGame:SetAttribute("ClubMusicPitch", 1)
 	end
