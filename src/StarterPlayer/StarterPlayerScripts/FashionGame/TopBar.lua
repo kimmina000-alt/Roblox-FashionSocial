@@ -8,7 +8,8 @@
 -- Right group, ending at the right edge: 💰 coins 10, 💝 5.
 -- (user mock-up 2026-10-30) the left group sits in one dark pill like
 -- Roblox's own, its buttons are white icons without their own circles.
--- A button with attribute Width (number, px at full size) is that wide.
+-- A button with attribute Width (number, px at full size) is that wide;
+-- attribute Scale shrinks it (width and height) on the same centre line.
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
@@ -39,7 +40,7 @@ local pill = Instance.new("Frame")
 pill.Name = "LeftPill"
 pill.AnchorPoint = Vector2.new(0, 0.5)
 pill.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
-pill.BackgroundTransparency = 0.25
+pill.BackgroundTransparency = 0.5 -- (50 %, user 2026-10-30)
 pill.Visible = false
 pill.Parent = pillGui
 Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
@@ -71,7 +72,11 @@ local function layout()
 		if entry.button.Visible then
 			local wide = entry.button:GetAttribute("Width")
 			local width = if typeof(wide) == "number" then math.floor(wide * size / 44) else size
-			entry.button.Size = UDim2.fromOffset(width, size)
+			-- attribute Scale: a smaller button on the same centre line (the coin pill, 2/3)
+			local k = entry.button:GetAttribute("Scale")
+			local height = size
+			if typeof(k) == "number" then width, height = math.floor(width * k), math.floor(size * k) end
+			entry.button.Size = UDim2.fromOffset(width, height)
 			if slot(entry).side == "left" then
 				entry.button.AnchorPoint = Vector2.new(0, 0.5)
 				entry.button.Position = UDim2.new(0, leftX, 0, centerY)

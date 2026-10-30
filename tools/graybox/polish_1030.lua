@@ -1132,4 +1132,107 @@ if store15 and not store15:GetAttribute("Polish1030_18") then
 	table.insert(log, "pizza corner joined")
 end
 
+---------------------------------------------------------------- 19. cafe upstairs seats (user 2026-10-30, phone shots)
+-- a. the stools at the rail bar (MezzBar) higher, as at the window bar:
+--    seat top 1.2 under the bar top, legs longer, foot ring and sit seat up
+-- b. the long tables (x -219) get the lounge's sofas instead of stools: two
+--    per table, each a copy of a lounge Sofa with its two sit seats, facing
+--    the table; the tables come down to the lounge tables' height (3.9 over
+--    the floor) to go with the low seats
+if cafe and not cafe:GetAttribute("Polish1030_19") then
+	cafe:SetAttribute("Polish1030_19", true)
+	local function halfY(p: BasePart): number
+		local c, s = p.CFrame, p.Size / 2
+		return math.abs(c.XVector.Y) * s.X + math.abs(c.YVector.Y) * s.Y + math.abs(c.ZVector.Y) * s.Z
+	end
+	-- a.
+	local bar = cafe:FindFirstChild("MezzBar")
+	if bar and bar:IsA("BasePart") then
+		local target = bar.Position.Y + bar.Size.Y / 2 - 1.2
+		local seats = {}
+		for _, d in ipairs(cafe:GetChildren()) do if d:IsA("Seat") and d.Name == "BarStool" then table.insert(seats, d) end end
+		for _, m in ipairs(cafe:GetChildren()) do
+			local pad = m:IsA("Model") and m.Name == "ClubStool" and m:FindFirstChild("SeatPad")
+			if not pad or math.abs(pad.Position.X - bar.Position.X) > 8 or pad.Position.Y < 28 then continue end
+			local D = target - (pad.Position.Y + halfY(pad))
+			if math.abs(D) < 0.05 then continue end
+			local floor = math.huge
+			for _, d in ipairs(m:GetChildren()) do
+				if d:IsA("BasePart") and d.Name == "Leg" then floor = math.min(floor, d.Position.Y - d.Size.X / 2) end
+			end
+			local legLen = target - D - floor
+			for _, d in ipairs(m:GetChildren()) do
+				if not d:IsA("BasePart") then continue end
+				if d.Name == "SeatPad" or d.Name == "SeatShell" then
+					d.CFrame = d.CFrame + Vector3.new(0, D, 0)
+				elseif d.Name == "Leg" then
+					d.Size = Vector3.new(d.Size.X + D, d.Size.Y, d.Size.Z)
+					d.CFrame = d.CFrame + Vector3.new(0, D / 2, 0)
+				elseif d.Name == "FootRing" then
+					d.CFrame = d.CFrame + Vector3.new(0, (d.Position.Y - floor) / legLen * D, 0)
+				end
+			end
+			for _, s in ipairs(seats) do
+				if Vector2.new(s.Position.X - pad.Position.X, s.Position.Z - pad.Position.Z).Magnitude < 1 then
+					s.CFrame = s.CFrame + Vector3.new(0, D, 0)
+				end
+			end
+		end
+	end
+	-- b.
+	local FLOOR = 28.6
+	local sofa, benches = nil, {}
+	for _, d in ipairs(cafe:GetChildren()) do
+		if d.Name == "Sofa" and d:IsA("BasePart") and d.Position.Y < 20 then sofa = d break end
+	end
+	if sofa then
+		for _, d in ipairs(cafe:GetChildren()) do
+			if d:IsA("Seat") and d.Name == "Bench" and (d.Position - sofa.Position).Magnitude < 4 then table.insert(benches, d) end
+		end
+	end
+	local tables = {}
+	for _, d in ipairs(cafe:GetChildren()) do
+		if d:IsA("BasePart") and d.Name == "CafeTable" and d.Position.Y > 28 and d.Size.Z > 20 then table.insert(tables, d) end
+	end
+	if sofa and #tables > 0 then
+		-- the stools go
+		for _, d in ipairs(cafe:GetChildren()) do
+			local p = if d:IsA("Model") then d:GetPivot().Position elseif d:IsA("BasePart") then d.Position else nil
+			if p and p.Y > 28 and math.abs(p.X + 211) < 1.5 and (d.Name == "ClubStool" or d.Name == "CafeStool" or d.Name == "CafeStoolCushion") then d:Destroy() end
+		end
+		local sofaFloor = sofa.Position.Y - halfY(sofa)
+		for _, t in ipairs(tables) do
+			-- the table down to 3.9 over the floor, its legs shorter
+			local drop = (t.Position.Y + t.Size.Y / 2) - (FLOOR + 3.9)
+			if drop > 0.05 then
+				t.CFrame = t.CFrame - Vector3.new(0, drop, 0)
+				for _, l in ipairs(cafe:GetChildren()) do
+					if l:IsA("BasePart") and l.Name == "TableLeg" and l.Position.Y > 28 and math.abs(l.Position.X - t.Position.X) < t.Size.X / 2 and math.abs(l.Position.Z - t.Position.Z) < t.Size.Z / 2 then
+						local h = halfY(l) * 2
+						local nh = h - drop
+						local axis = if math.abs(l.CFrame.XVector.Y) > 0.9 then "X" elseif math.abs(l.CFrame.ZVector.Y) > 0.9 then "Z" else "Y"
+						l.Size = Vector3.new(if axis == "X" then nh else l.Size.X, if axis == "Y" then nh else l.Size.Y, if axis == "Z" then nh else l.Size.Z)
+						l.CFrame = l.CFrame - Vector3.new(0, drop / 2, 0)
+					end
+				end
+			end
+			-- two sofas on the east side, facing the table (-x), like the lounge's
+			local x = t.Position.X + t.Size.X / 2 + 1 + sofa.Size.Z / 2
+			for _, dz in ipairs({ -t.Size.Z / 4, t.Size.Z / 4 }) do
+				local at = CFrame.new(x, FLOOR + (sofa.Position.Y - sofaFloor), t.Position.Z + dz) * sofa.CFrame.Rotation
+				local copy = sofa:Clone()
+				copy.CFrame = at
+				copy.Parent = cafe
+				for _, b in ipairs(benches) do
+					local rel = sofa.CFrame:ToObjectSpace(b.CFrame)
+					local nb = b:Clone()
+					nb.CFrame = at * rel
+					nb.Parent = cafe
+				end
+			end
+		end
+	end
+	table.insert(log, "cafe rail stools up, long tables: sofas")
+end
+
 return table.concat(log, " | ")

@@ -59,12 +59,13 @@ local COIN_TEXT = Color3.new(1, 1, 1)
 local coins = Instance.new("TextLabel")
 coins.Name = "CoinPill"
 coins.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
-coins.BackgroundTransparency = 0.15
+coins.BackgroundTransparency = 0.5 -- (50 %, user 2026-10-30)
 coins.TextColor3 = COIN_TEXT
-coins.TextSize = 17
+coins.TextSize = 13
 coins.Font = Enum.Font.GothamBold
 coins.Text = "0"
 coins:SetAttribute("Width", 120)
+coins:SetAttribute("Scale", 2 / 3) -- (2/3 of the size, user 2026-10-30)
 coins.Parent = gui
 corner(coins, UDim.new(1, 0))
 do

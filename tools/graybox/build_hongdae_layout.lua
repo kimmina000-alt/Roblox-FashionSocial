@@ -1139,7 +1139,7 @@ for _, e in ipairs(EXITS) do
 	end
 	local ba, bb = at(-9.2) - side * 3, at(-8.8) + side * 3
 	local bw = box("PitBack", ba.X, -9, ba.Z, bb.X, TOPY + 2.6, bb.Z, Color3.fromRGB(40, 40, 45), { parent = m })
-	surfaceText(bw, if out.Z < -0.5 then Enum.NormalId.Front elseif out.Z > 0.5 then Enum.NormalId.Back elseif out.X > 0 then Enum.NormalId.Right else Enum.NormalId.Left, "🚇 승강장\n⬇", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold)
+	surfaceText(bw, if out.Z < -0.5 then Enum.NormalId.Front elseif out.Z > 0.5 then Enum.NormalId.Back elseif out.X > 0 then Enum.NormalId.Right else Enum.NormalId.Left, "승강장\n↓", Color3.fromRGB(255, 255, 255), Enum.Font.GothamBold) -- (white text only: the 🚇 icon and the blue ⬇ emoji box went, user 2026-10-30)
 	-- entrance building (user photo 2026-10-22): granite base, glass sides with
 	-- dark frames, a grey roof high at the open end that sweeps down in a curve
 	-- to the base at the back

@@ -304,8 +304,8 @@ end
 
 local openButton = Instance.new("TextButton")
 openButton.Name = "SupportButton"
-openButton.BackgroundColor3 = Color3.new(0, 0, 0)
-openButton.BackgroundTransparency = 0.2
+openButton.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
+openButton.BackgroundTransparency = 0.5 -- (50 %, user 2026-10-30)
 openButton.Text = "💝"
 openButton.TextSize = 22
 openButton.Font = Enum.Font.GothamBold
