@@ -141,7 +141,7 @@
 
 |코드 키|종류|SKU|이름|설명|가격 R$|ID|
 |-|-|-|-|-|-|-|
-|Guard|게임 패스|CLUB-PASS-GUARD|클럽 가드 이용권|머리 위 GUARD 표시와 함께, 클럽 안에서 게임을 방해하는 사람을 1분 동안 밖으로 안내할 수 있어요.|199|(대기)|
+|Guard|게임 패스|CLUB-PASS-GUARD|가드 패스|머리 위 GUARD 표시와 함께, 클럽 안에서 게임을 방해하는 사람을 1분 동안 밖으로 안내할 수 있어요.|199|2062319135|
 
 * 아이콘: `docs/04_ART/icons/pass_guard.png` (512×512, 검은 판 · 빨간 테두리 · 방패 · GUARD).
 * 대시보드: Creator Dashboard → 경험 10773076711 → Monetization → Passes → Create a Pass → 이미지·이름·설명 넣고 만들기 → 만든 패스의 Sales에서 판매 켜기 + 가격 199.

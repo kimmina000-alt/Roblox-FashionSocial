@@ -36,7 +36,8 @@ MonetizationConfig.GamePasses = {
 	-- Club guard (D-623, docs/01_SYSTEMS/GUARD.md): GUARD badge + show a player
 	-- who spoils the game out of the club for a minute. Permanent. id 0 until the
 	-- user makes the pass on the Creator Dashboard (Studio test buys work till then).
-	Guard = { sku = "CLUB-PASS-GUARD", id = 0, name = "클럽 가드 이용권", price = 199, status = "draft",
+	-- (named like "VIP 패스" on the dashboard, user 2026-10-30)
+	Guard = { sku = "CLUB-PASS-GUARD", id = 2062319135, name = "가드 패스", price = 199, status = "live",
 		description = "머리 위 GUARD 표시와 함께, 클럽 안에서 게임을 방해하는 사람을 1분 동안 밖으로 안내할 수 있어요." },
 	-- Club VIP balcony access (D-045). Permanent.
 	VIP = { sku = "CLUB-PASS-VIP", id = 2053896389, name = "VIP 패스", price = 299, status = "live",

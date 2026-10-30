@@ -57,7 +57,7 @@ function GuardService.ShowOut(guard: Player, targetId: any): (boolean, string?)
 end
 
 showOut = function(guard: Player, targetId: any): (boolean, string?)
-	if not GuardService.IsGuard(guard) then return false, "가드 이용권이 있어야 해요." end
+	if not GuardService.IsGuard(guard) then return false, "가드 패스가 있어야 해요." end
 	local target = typeof(targetId) == "number" and Players:GetPlayerByUserId(targetId) or nil
 	if not target or target == guard then return false, "내보낼 수 없는 사람이에요." end
 	local mine, theirs = rootOf(guard), rootOf(target)

@@ -583,7 +583,9 @@ local SOUNDS = {
 	-- (user 2026-10-30, later: their own clip 96559812135664; was "Bell Ding" 106268193751411)
 	start = { "rbxassetid://96559812135664", 0.4 },
 	stop = { "rbxassetid://96559812135664", 0.4 },
-	-- (no sound while the drink is made any more, user 2026-10-30; was "Coffee Pot 2" 9113846434)
+	-- (taken out 2026-10-30 by mistake — the user meant the sound when a drink is handed over —
+	-- and back the same day: "주문 들어온 거 만들 때 만드는 소리 안 들려")
+	make = { "rbxassetid://9113846434", 0.7 }, -- "Coffee Pot 2" (Pro Sound Effects)
 	-- (user 2026-10-30: a bright, quiet, glad "오~" for now; was "감사합니다 new" 132794698600617)
 	thanks = { "rbxassetid://104374771321764", 0.45 }, -- Creator Store, a short voice found under "ooh"
 }
@@ -719,6 +721,7 @@ local function make(player: Player, id: any): (boolean, string?)
 	end
 	order.maker = player.UserId
 	publish()
+	playAt(stationOf(shopKey), "make")
 	task.wait(CafeJobConfig.MakeSeconds)
 	if orders[order.id] ~= order or order.maker ~= player.UserId or staff[player] ~= shopKey then
 		return false, nil

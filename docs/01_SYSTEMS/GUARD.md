@@ -9,10 +9,10 @@
 |---|---|
 | 종류 | 게임 패스 (영구) |
 | 키 | `Guard` (MonetizationConfig.GamePasses) |
-| 이름 | 클럽 가드 이용권 |
+| 이름 | 가드 패스 (VIP 패스와 같은 이름 꼴, 처음 기획 이름은 "클럽 가드 이용권") |
 | 가격 | 199 R$ (VIP 299, 코인 x2 199와 같은 급) |
 | 판매 위치 | 클럽 아이템 상점 아래 패스 줄 (DJ 이용권, VIP 패스 다음) |
-| 상태 | id 0 (사용자가 Creator Dashboard에서 패스를 만들고 id를 넣으면 판매 시작). id 0이면 Studio에서만 테스트 구매 |
+| 상태 | live, id 2062319135 (2026-10-30) |
 
 ## 가드가 받는 것
 1. **머리 위 GUARD 표시**: 검은 판, 굵은 흰 글씨 "GUARD", 빨간 테두리. VIP / DJ 표시보다 위, 조금 크게. 보디가드 느낌.
@@ -43,6 +43,6 @@
 - `ClubShopController`: 판매 줄
 
 ## 다음에 할 일
-- 사용자: Creator Dashboard(경험 10773076711)에서 게임 패스 "클럽 가드 이용권" 199 R$를 만들고 id 전달 → MonetizationConfig.GamePasses.Guard.id
+- ~~사용자: 대시보드에 패스 만들기~~ → 2026-10-30 "가드 패스" 199 R$, id 2062319135 (MonetizationConfig, live)
 - 실제 서버에서 2인 테스트 (가드 / 대상)
 - 입뺀(드레스 코드) 기능을 만들 때 가드가 입구를 맡는 역할로 넓히기 (CLUB_DRESS_CODE.md)
