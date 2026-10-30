@@ -2754,3 +2754,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 DJ 일시정지·카페 영업시간 (D-631)
 - ⏸ 일시정지 / ▶ 다시 재생 (모두의 음악이 그 자리에서 멈춤). Play에서 멈춤·재개 확인.
 - 카페 손님: 10~15시 18초마다, 15~21시 36초마다, 21~10시 없음.
+
+### 2026-10-30 클럽 바닥 원형 파동 (D-632)
+- DJ 무대 앞 바닥 타일에 원이 퍼지며 지나가는 타일이 네온색으로 반짝임. 모두에게 같은 박자로 보임.
+![](images/2026-10-30/club_floor_rings.jpg) ![](images/2026-10-30/club_floor_rings_top.jpg)
