@@ -1,0 +1,284 @@
+<!doctype html>
+<!-- Creator Dashboard icons (user 2026-10-30): one 512x512 icon per product,
+     chosen by the URL hash (#VIP, #Drink_Monte, ...). Rendered to PNG by
+     render_icons.ps1 with headless Chrome. Our own drawings, no brand marks.
+     Game passes show as circles on Roblox: keep the subject in the middle. -->
+<html><head><meta charset="utf-8"><style>
+html,body{margin:0;width:512px;height:512px;overflow:hidden;background:#000}
+svg{display:block}
+text{font-family:"Malgun Gothic","Segoe UI",sans-serif;font-weight:900}
+</style></head><body><div id="out"></div><script>
+const W=512;
+const THEMES={
+  club:["#4a1d86","#120a2c"], vip:["#5a4310","#0d0a05"], cafe:["#fff3f6","#f4b5c6"],
+  gukbap:["#fff4e2","#e8b479"], coin:["#3a2481","#120b2a"], support:["#ff8db5","#b0124f"],
+  city:["#14697d","#06262f"], photo:["#ffe0ef","#b996ff"], guard:["#2a2a30","#0b0b0d"],
+  glow:["#123a2c","#04110c"], dj:["#3d1470","#0a0518"]
+};
+let uid=0; const id=p=>p+(++uid);
+function bg(theme){
+  const [a,b]=THEMES[theme]; const g=id("bg");
+  let s=`<defs><radialGradient id="${g}" cx="50%" cy="42%" r="70%"><stop offset="0" stop-color="${a}"/><stop offset="1" stop-color="${b}"/></radialGradient></defs>`;
+  s+=`<rect width="512" height="512" fill="url(#${g})"/>`;
+  // soft dots of light
+  const dots=[[70,80,3],[440,110,2.5],[400,420,3],[96,400,2],[250,60,2],[470,300,2],[40,250,2.5]];
+  const dc=(theme==="cafe"||theme==="gukbap"||theme==="photo")?"#ffffff":"#ffffff";
+  for(const [x,y,r] of dots) s+=`<circle cx="${x}" cy="${y}" r="${r}" fill="${dc}" opacity=".55"/>`;
+  return s;
+}
+function glowFilter(name,dev,col){return `<filter id="${name}" x="-50%" y="-50%" width="200%" height="200%"><feGaussianBlur stdDeviation="${dev}" result="b"/><feFlood flood-color="${col}"/><feComposite in2="b" operator="in"/><feMerge><feMergeNode/><feMergeNode in="SourceGraphic"/></feMerge></filter>`}
+function badge(text,fill="#ffffff",color="#1a1030",y=432){
+  const w=Math.max(90,text.length*30+40);
+  return `<g><rect x="${256-w/2}" y="${y}" width="${w}" height="54" rx="27" fill="${fill}" stroke="rgba(0,0,0,.15)" stroke-width="2"/><text x="256" y="${y+39}" font-size="34" text-anchor="middle" fill="${color}">${text}</text></g>`;
+}
+function vip(){return `<g transform="translate(372,40)"><rect width="110" height="48" rx="24" fill="#f5c542" stroke="#7a5200" stroke-width="3"/><text x="55" y="35" font-size="30" text-anchor="middle" fill="#3a2500">VIP</text></g>`}
+function shadow(cx,cy,rx,ry,op=.35){return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#000" opacity="${op}"/>`}
+
+// ---------- bottles ----------
+function flask(x,y,s,col,label,cap,mark=""){
+  // round-shouldered bottle, bottom centre at (x,y), height ~ 300*s
+  const g=id("fg");
+  const p=`M${-62},0 Q${-62},14 ${-48},14 L48,14 Q62,14 62,0 L62,-150 Q62,-196 22,-206 L22,-262 L-22,-262 L-22,-206 Q-62,-196 -62,-150 Z`;
+  return `<g transform="translate(${x},${y}) scale(${s})">
+   <defs><linearGradient id="${g}" x1="0" x2="1"><stop offset="0" stop-color="${col}" stop-opacity=".95"/><stop offset=".5" stop-color="${col}"/><stop offset="1" stop-color="#000" stop-opacity=".35"/></linearGradient></defs>
+   <path d="${p}" fill="url(#${g})" stroke="rgba(255,255,255,.55)" stroke-width="4"/>
+   <path d="${p}" fill="${col}" opacity=".35"/>
+   <rect x="-48" y="-120" width="96" height="62" rx="6" fill="${label}"/>
+   ${mark}
+   <rect x="-26" y="-286" width="52" height="30" rx="7" fill="${cap}"/>
+   <path d="M-44,-150 Q-46,-60 -40,-8" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".45" fill="none"/>
+  </g>`;
+}
+function slimBottle(x,y,s,col){
+  return `<g transform="translate(${x},${y}) scale(${s})">
+   <rect x="-30" y="-250" width="60" height="250" rx="22" fill="${col}" opacity=".9" stroke="rgba(255,255,255,.6)" stroke-width="4"/>
+   <rect x="-16" y="-290" width="32" height="44" rx="8" fill="#f2f2f2"/>
+   <rect x="-30" y="-150" width="60" height="50" fill="#fff" opacity=".85"/>
+   <circle cx="0" cy="-125" r="15" fill="${col}"/>
+   <path d="M-18,-230 L-18,-20" stroke="#fff" stroke-width="8" stroke-linecap="round" opacity=".4"/>
+  </g>`;
+}
+function barrel(x,y,s){
+  return `<g transform="translate(${x},${y}) scale(${s})">
+   <path d="M-80,0 Q-96,-110 -80,-210 Q-60,-232 -26,-236 L-26,-262 L26,-262 L26,-236 Q60,-232 80,-210 Q96,-110 80,0 Q0,14 -80,0Z" fill="#c4782a" stroke="#ffe0a8" stroke-width="4"/>
+   <rect x="-86" y="-160" width="172" height="90" rx="8" fill="#f6ead0"/>
+   <g transform="translate(0,-115)"><ellipse cx="-14" cy="-14" rx="14" ry="9" fill="#fff" opacity=".9"/><ellipse cx="14" cy="-14" rx="14" ry="9" fill="#fff" opacity=".9"/>
+   <ellipse cx="0" cy="4" rx="22" ry="15" fill="#f5c400"/><rect x="-6" y="-10" width="5" height="28" fill="#2a1a00"/><rect x="5" y="-10" width="5" height="28" fill="#2a1a00"/></g>
+   <rect x="-30" y="-290" width="60" height="32" rx="8" fill="#2a1a00"/>
+   <path d="M-62,-196 Q-74,-110 -62,-20" stroke="#fff" stroke-width="10" stroke-linecap="round" opacity=".35" fill="none"/>
+  </g>`;
+}
+function pastel(x,y,s){
+  const g=id("pg");
+  return `<g transform="translate(${x},${y}) scale(${s})" filter="url(#softglow)">
+   <defs><linearGradient id="${g}" x1="0" x2="1"><stop offset="0" stop-color="#ffd0a8"/><stop offset=".5" stop-color="#f57d3c"/><stop offset="1" stop-color="#c2531c"/></linearGradient></defs>
+   <rect x="-70" y="-280" width="140" height="280" rx="60" fill="url(#${g})" opacity=".95" stroke="#ffe4cc" stroke-width="4"/>
+   <rect x="-26" y="-312" width="52" height="40" rx="10" fill="#fff"/>
+   <text x="0" y="-100" font-size="120" text-anchor="middle" fill="#fff">P</text>
+  </g>`;
+}
+function skullBottle(x,y,s){
+  return `<g transform="translate(${x},${y}) scale(${s})">
+   <path d="M-78,0 Q-100,-120 -60,-200 Q-34,-246 -24,-262 L24,-262 Q34,-246 60,-200 Q100,-120 78,0 Q0,14 -78,0Z" fill="#141416" stroke="#9a9aa6" stroke-width="4"/>
+   <rect x="-24" y="-296" width="48" height="36" rx="6" fill="#c9c9d2"/>
+   <path d="M-30,-300 L30,-270" stroke="#d8d8de" stroke-width="7"/>
+   <g transform="translate(0,-110)" fill="#e2b13c"><circle cx="0" cy="-12" r="38"/><rect x="-22" y="14" width="44" height="26" rx="6"/>
+   <circle cx="-14" cy="-12" r="11" fill="#141416"/><circle cx="14" cy="-12" r="11" fill="#141416"/><path d="M0,4 L-6,16 L6,16Z" fill="#141416"/></g>
+   <path d="M-56,-180 Q-74,-100 -60,-20" stroke="#fff" stroke-width="9" stroke-linecap="round" opacity=".25" fill="none"/>
+  </g>`;
+}
+function champagne(x,y,s,col){
+  const g=id("cg");
+  return `<g transform="translate(${x},${y}) scale(${s})">
+   <defs><linearGradient id="${g}" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".7"/><stop offset=".25" stop-color="${col}"/><stop offset=".7" stop-color="${col}"/><stop offset="1" stop-color="#000" stop-opacity=".5"/></linearGradient></defs>
+   <path d="M-58,0 L-58,-160 Q-58,-200 -18,-232 L-18,-300 L18,-300 L18,-232 Q58,-200 58,-160 L58,0 Q0,10 -58,0Z" fill="url(#${g})" stroke="rgba(255,255,255,.6)" stroke-width="3"/>
+   <path d="M-20,-300 L20,-300 L22,-250 L-22,-250Z" fill="${col}" stroke="#fff" stroke-width="2" opacity=".9"/>
+   <g transform="translate(0,-100)" fill="#fff"><path d="M0,-30 C-30,0 -28,22 -8,18 L-14,34 L14,34 L8,18 C28,22 30,0 0,-30Z"/></g>
+  </g>`;
+}
+
+// ---------- sparklers ----------
+function sparks(x,y,r,n=14){
+  let s=`<g filter="url(#sparkglow)">`;
+  for(let i=0;i<n;i++){const a=i/n*Math.PI*2+0.2;const r1=r*(.25+((i*37)%10)/40), r2=r*(.75+((i*53)%10)/30);
+    s+=`<line x1="${x+Math.cos(a)*r1}" y1="${y+Math.sin(a)*r1}" x2="${x+Math.cos(a)*r2}" y2="${y+Math.sin(a)*r2}" stroke="${i%3?"#ffe680":"#ffffff"}" stroke-width="${i%2?4:6}" stroke-linecap="round"/>`;}
+  s+=`<circle cx="${x}" cy="${y}" r="${r*.22}" fill="#fff"/></g>`; return s;
+}
+function sparkler(x1,y1,x2,y2,r){return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="#8a8a96" stroke-width="10" stroke-linecap="round"/><line x1="${x1}" y1="${y1}" x2="${x1+(x2-x1)*.35}" y2="${y1+(y2-y1)*.35}" stroke="#3a3a44" stroke-width="12" stroke-linecap="round"/>`+sparks(x2,y2,r)}
+function bucket(x,y,s){
+  return `<g transform="translate(${x},${y}) scale(${s})">
+   ${flask(-40,-90,.55,"#3a7d2a","#fff","#ddd")}${flask(40,-90,.55,"#c4782a","#f6ead0","#2a1a00")}
+   <path d="M-120,-120 L120,-120 L96,40 L-96,40Z" fill="#c9ced8" stroke="#fff" stroke-width="5"/>
+   <path d="M-100,-100 L-82,24" stroke="#fff" stroke-width="12" opacity=".5"/>
+   <rect x="-128" y="-132" width="256" height="22" rx="10" fill="#e7ebf2"/>
+   <g fill="#dff4ff" opacity=".85"><rect x="-90" y="-150" width="34" height="30" rx="6" transform="rotate(-12 -73 -135)"/><rect x="60" y="-148" width="30" height="28" rx="6" transform="rotate(14 75 -134)"/></g>
+  </g>`;
+}
+
+// ---------- food ----------
+function cakeBase(cx,cy,rx,h,side,top,rim){
+  return `${shadow(cx,cy+h+10,rx*1.05,22)}
+  <path d="M${cx-rx},${cy} L${cx-rx},${cy+h} A${rx},${rx*.32} 0 0 0 ${cx+rx},${cy+h} L${cx+rx},${cy}Z" fill="${side}"/>
+  <ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${rx*.32}" fill="${top}"/>
+  ${rim?`<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${rx*.32}" fill="none" stroke="${rim}" stroke-width="10"/>`:""}`;
+}
+function strawberry(x,y,s=1){return `<g transform="translate(${x},${y}) scale(${s})"><path d="M0,26 C-24,8 -22,-16 0,-14 C22,-16 24,8 0,26Z" fill="#e3283c"/><path d="M-12,-14 L0,-24 L12,-14 L0,-10Z" fill="#3fa043"/><g fill="#ffe08a"><circle cx="-7" cy="-2" r="2"/><circle cx="6" cy="2" r="2"/><circle cx="0" cy="12" r="2"/></g></g>`}
+function cherry(x,y){return `<g><path d="M${x},${y-14} Q${x+10},${y-40} ${x+26},${y-46}" stroke="#4a7a2a" stroke-width="4" fill="none"/><circle cx="${x}" cy="${y}" r="15" fill="#c8102e"/><circle cx="${x-5}" cy="${y-5}" r="4" fill="#fff" opacity=".6"/></g>`}
+function cakeStrawberry(){
+  let s=cakeBase(256,250,170,120,"#fbf6ee","#ffffff","#f3e6dc");
+  s+=`<path d="M86,330 Q256,390 426,330" stroke="#f1d6d6" stroke-width="6" fill="none"/>`;
+  for(let i=0;i<9;i++){const a=i/9*Math.PI*2;s+=strawberry(256+Math.cos(a)*120,250+Math.sin(a)*38-6,1.15);}
+  s+=strawberry(256,244,1.6);
+  return s;
+}
+function cakeVintage(){
+  let s=cakeBase(256,236,165,140,"#f6aabb","#fbc4d0",null);
+  for(let i=0;i<22;i++){const t=i/21;const x=91+t*330;const yy=236+Math.sqrt(Math.max(0,1-((x-256)/165)**2))*165*.32;s+=`<circle cx="${x}" cy="${yy}" r="12" fill="#fff8f2"/>`;}
+  for(let i=0;i<22;i++){const t=i/21;const x=91+t*330;const yy=376+Math.sqrt(Math.max(0,1-((x-256)/165)**2))*165*.32;s+=`<circle cx="${x}" cy="${yy-4}" r="10" fill="#fff8f2"/>`;}
+  s+=`<path d="M120,310 q20,-26 40,0 t40,0 t40,0 t40,0 t40,0 t40,0 t40,0" stroke="#fff8f2" stroke-width="7" fill="none"/>`;
+  s+=`<path d="M190,236 q14,-18 26,-2 q10,14 22,-4 q12,-18 26,2 q10,12 26,-6 q12,-12 24,4" stroke="#c93a63" stroke-width="7" fill="none" stroke-linecap="round"/>`;
+  s+=cherry(170,212)+cherry(340,212)+cherry(256,196);
+  return s;
+}
+function cakeTiramisu(){
+  // a cake with a slice out: layers on the cut
+  let s=cakeBase(256,240,165,120,"#e9dcc4","#7a4a2a",null);
+  for(let i=0;i<220;i++){const x=110+((i*73)%292),y=212+((i*41)%56);if(((x-256)/165)**2+((y-240)/53)**2<1)s+=`<circle cx="${x}" cy="${y}" r="2.4" fill="#4a2a14" opacity=".7"/>`;}
+  s+=`<path d="M256,240 L380,280 L380,400 L256,360Z" fill="#f2e6cf"/>`;
+  for(const [y,c] of [[262,"#8a5a32"],[302,"#8a5a32"],[342,"#8a5a32"]]) s+=`<path d="M256,${y} L380,${y+40} L380,${y+58} L256,${y+18}Z" fill="${c}"/>`;
+  s+=`<path d="M256,240 L380,280" stroke="#5a3418" stroke-width="10"/>`;
+  return s;
+}
+function cakeBasque(){
+  let s=`${shadow(256,392,190,24)}<path d="M70,250 L90,390 L422,390 L442,250Z" fill="#f4ead8" stroke="#d9cdb6" stroke-width="3"/>`;
+  s+=cakeBase(256,250,160,120,"#e7b867","#3a1c0c",null);
+  s+=`<ellipse cx="256" cy="250" rx="160" ry="51" fill="url(#burn)"/>`;
+  s+=`<path d="M96,260 Q256,330 416,260" stroke="#7a3d14" stroke-width="16" fill="none" opacity=".8"/>`;
+  return `<defs><radialGradient id="burn" cx="45%" cy="40%" r="60%"><stop offset="0" stop-color="#6a3414"/><stop offset=".7" stop-color="#2a1206"/><stop offset="1" stop-color="#8a4a1a"/></radialGradient></defs>`+s;
+}
+function parfait(){
+  return `${shadow(256,450,90,16)}
+  <path d="M166,120 L346,120 L320,330 Q256,360 192,330Z" fill="#fff" opacity=".35" stroke="#fff" stroke-width="5"/>
+  <clipPath id="glass"><path d="M170,124 L342,124 L318,326 Q256,354 194,326Z"/></clipPath>
+  <g clip-path="url(#glass)"><rect x="160" y="250" width="200" height="110" fill="#f2879e"/><rect x="160" y="210" width="200" height="44" fill="#fff6ee"/>
+  <rect x="160" y="178" width="200" height="34" fill="#e65a78"/><rect x="160" y="140" width="200" height="40" fill="#fff6ee"/></g>
+  <rect x="236" y="350" width="40" height="70" fill="#fff" opacity=".55"/><ellipse cx="256" cy="430" rx="70" ry="16" fill="#fff" opacity=".6"/>
+  <ellipse cx="256" cy="116" rx="96" ry="42" fill="#fffaf4"/><ellipse cx="236" cy="96" rx="50" ry="28" fill="#fffaf4"/>
+  ${strawberry(256,74,2.1)}${strawberry(200,110,1.3)}${strawberry(312,110,1.3)}
+  <path d="M290,40 L330,-10" stroke="#e3b04b" stroke-width="10" stroke-linecap="round"/>`;
+}
+function suyuk(){
+  let s=`${shadow(256,350,200,40)}<ellipse cx="256" cy="320" rx="200" ry="80" fill="#f7f7f4" stroke="#d8d8d0" stroke-width="5"/><ellipse cx="256" cy="316" rx="160" ry="58" fill="#ececE6"/>`;
+  for(let i=0;i<6;i++){const x=150+i*42,y=306-Math.sin(i/5*Math.PI)*16;
+    s+=`<g transform="translate(${x},${y}) rotate(-18)"><rect x="-22" y="-46" width="44" height="92" rx="12" fill="#f1d3c2"/><rect x="-22" y="-46" width="44" height="18" rx="9" fill="#a8603c"/><rect x="-22" y="-10" width="44" height="10" fill="#fbeee6"/><rect x="-22" y="28" width="44" height="18" rx="9" fill="#e6b8a0"/></g>`;}
+  s+=`<g fill="#5aa848"><ellipse cx="400" cy="300" rx="26" ry="12" transform="rotate(-30 400 300)"/><ellipse cx="410" cy="320" rx="22" ry="10" transform="rotate(10 410 320)"/></g><circle cx="110" cy="320" r="14" fill="#f0f0e6"/><circle cx="96" cy="312" r="10" fill="#e8c94a"/>`;
+  return s;
+}
+
+// ---------- other items ----------
+function coin(cx,cy,r){
+  return `<g><circle cx="${cx}" cy="${cy+8}" r="${r}" fill="#a86a00"/><circle cx="${cx}" cy="${cy}" r="${r}" fill="#ffc83a" stroke="#ffe48a" stroke-width="6"/><circle cx="${cx}" cy="${cy}" r="${r*.78}" fill="none" stroke="#c98a00" stroke-width="6"/>
+  <text x="${cx}" y="${cy+r*.36}" font-size="${r*1.05}" text-anchor="middle" fill="#a86000">₩</text></g>`;
+}
+function crown(){return `<g filter="url(#goldglow)"><path d="M126,330 L104,170 L188,240 L256,130 L324,240 L408,170 L386,330Z" fill="#f5c542" stroke="#fff1b8" stroke-width="6"/>
+  <rect x="122" y="330" width="268" height="40" rx="10" fill="#e0a91e"/><circle cx="256" cy="128" r="16" fill="#fff"/><circle cx="104" cy="168" r="13" fill="#fff"/><circle cx="408" cy="168" r="13" fill="#fff"/>
+  <circle cx="256" cy="290" r="18" fill="#c8102e"/><circle cx="186" cy="296" r="13" fill="#2a7de1"/><circle cx="326" cy="296" r="13" fill="#2a7de1"/></g>`}
+function shield(){return `<path d="M256,92 L386,138 Q388,290 256,372 Q124,290 126,138Z" fill="#fff"/><path d="M256,124 L356,160 Q356,280 256,340 Q156,280 156,160Z" fill="#141416"/><path d="M256,152 L330,180 Q330,268 256,312 Q182,268 182,180Z" fill="#e0242f"/>`}
+function heartHands(cx,cy,s,col="#fff"){
+  return `<g transform="translate(${cx},${cy}) scale(${s})" fill="none" stroke="${col}" stroke-width="13" stroke-linecap="round" stroke-linejoin="round">
+   <path d="M-62,116 L-62,78 L-98,22 L-104,-16 L-88,-24 L-74,-10 L-44,40 L-32,18 L-16,24 L-20,78 L-20,116"/>
+   <path d="M62,116 L62,78 L98,22 L104,-16 L88,-24 L74,-10 L44,40 L32,18 L16,24 L20,78 L20,116"/>
+   <path d="M0,-6 C-40,-40 -52,-80 -26,-96 C-10,-106 0,-92 0,-82 C0,-92 10,-106 26,-96 C52,-80 40,-40 0,-6Z" fill="${col}" stroke="none"/></g>`;
+}
+function photoStrip(x,y,rot,frame,cols){
+  let s=`<g transform="translate(${x},${y}) rotate(${rot})"><rect x="-60" y="-170" width="120" height="340" rx="8" fill="${frame}" stroke="rgba(0,0,0,.15)" stroke-width="3"/>`;
+  cols.forEach((c,i)=>{s+=`<rect x="-48" y="${-158+i*78}" width="96" height="68" rx="4" fill="${c}"/><circle cx="0" cy="${-130+i*78}" r="14" fill="#fff" opacity=".8"/><rect x="-18" y="${-114+i*78}" width="36" height="22" rx="10" fill="#fff" opacity=".8"/>`});
+  return s+`</g>`;
+}
+function star(x,y,r,col="#fff"){return `<path d="M${x},${y-r} L${x+r*.28},${y-r*.28} L${x+r},${y} L${x+r*.28},${y+r*.28} L${x},${y+r} L${x-r*.28},${y+r*.28} L${x-r},${y} L${x-r*.28},${y-r*.28}Z" fill="${col}"/>`}
+function turntable(){return `<rect x="96" y="150" width="320" height="230" rx="22" fill="#1b1b22" stroke="#6a5aff" stroke-width="5"/><circle cx="226" cy="265" r="92" fill="#0a0a0e"/>
+  <circle cx="226" cy="265" r="70" fill="none" stroke="#2a2a33" stroke-width="3"/><circle cx="226" cy="265" r="50" fill="none" stroke="#2a2a33" stroke-width="3"/><circle cx="226" cy="265" r="28" fill="#ff3da0"/><circle cx="226" cy="265" r="6" fill="#fff"/>
+  <path d="M370,170 L370,300 L292,300" stroke="#c9c9d2" stroke-width="10" fill="none" stroke-linecap="round"/><circle cx="370" cy="172" r="14" fill="#c9c9d2"/>
+  <rect x="340" y="320" width="56" height="12" rx="6" fill="#3ee8ff"/><rect x="340" y="344" width="40" height="12" rx="6" fill="#ff3da0"/>`}
+function headphones(){return `<path d="M120,250 Q120,120 256,120 Q392,120 392,250" stroke="#fff" stroke-width="22" fill="none"/><rect x="92" y="230" width="62" height="110" rx="26" fill="#ff3da0"/><rect x="358" y="230" width="62" height="110" rx="26" fill="#3ee8ff"/>`}
+function busStop(label){return `<rect x="150" y="96" width="212" height="250" rx="18" fill="#fff" stroke="#9fe7f5" stroke-width="6"/>
+  <rect x="166" y="112" width="180" height="218" rx="10" fill="#ff5fa2"/><text x="256" y="236" font-size="76" text-anchor="middle" fill="#fff">AD</text>
+  ${star(320,150,18)}${star(196,290,12)}
+  <rect x="246" y="346" width="20" height="80" fill="#cfd8dc"/><rect x="196" y="420" width="120" height="14" rx="7" fill="#cfd8dc"/>
+  <circle cx="390" cy="140" r="34" fill="#2bb673"/><rect x="374" y="124" width="32" height="24" rx="5" fill="#fff"/><rect x="378" y="150" width="8" height="8" rx="4" fill="#fff"/><rect x="394" y="150" width="8" height="8" rx="4" fill="#fff"/>`}
+function album(){return `<g transform="rotate(-6 256 260)"><rect x="120" y="110" width="272" height="300" rx="18" fill="#7a4fe0" stroke="#fff" stroke-width="6"/>
+  <rect x="150" y="140" width="96" height="110" rx="6" fill="#fff"/><rect x="158" y="148" width="80" height="78" fill="#ffb3d1"/>
+  <rect x="266" y="140" width="96" height="110" rx="6" fill="#fff"/><rect x="274" y="148" width="80" height="78" fill="#b3e5ff"/>
+  <rect x="150" y="270" width="96" height="110" rx="6" fill="#fff"/><rect x="158" y="278" width="80" height="78" fill="#fff2a8"/>
+  <rect x="266" y="270" width="96" height="110" rx="6" fill="#fff" opacity=".35" stroke="#fff" stroke-dasharray="8 6" stroke-width="3"/></g>
+  <circle cx="380" cy="380" r="64" fill="#ff3da0" stroke="#fff" stroke-width="6"/><text x="380" y="402" font-size="58" text-anchor="middle" fill="#fff">+10</text>`}
+function glowstick(){return `<g transform="rotate(28 256 270)"><rect x="236" y="60" width="40" height="300" rx="20" fill="#3cff9a" filter="url(#neon)"/><rect x="246" y="76" width="12" height="260" rx="6" fill="#eafff3" opacity=".8"/>
+  <rect x="228" y="350" width="56" height="110" rx="12" fill="#1a1a1e" stroke="#555" stroke-width="3"/><rect x="228" y="376" width="56" height="8" fill="#555"/><rect x="228" y="404" width="56" height="8" fill="#555"/></g>`}
+function coldSpark(){
+  let s=`<rect x="120" y="380" width="80" height="60" rx="8" fill="#26262e" stroke="#555" stroke-width="3"/><rect x="312" y="380" width="80" height="60" rx="8" fill="#26262e" stroke="#555" stroke-width="3"/><g filter="url(#sparkglow)">`;
+  // two fountains of bright streaks, spreading as they rise, sparks falling off the top
+  for(const bx of [160,352]){
+    for(let i=0;i<34;i++){const a=((i*37)%21-10)*Math.PI/180,len=170+((i*53)%150),y0=376;
+      const x2=bx+Math.sin(a)*len,y2=y0-Math.cos(a)*len;
+      s+=`<line x1="${bx}" y1="${y0}" x2="${x2}" y2="${y2}" stroke="${i%3?"#ffe9a8":"#ffffff"}" stroke-width="${i%4?3:5}" stroke-linecap="round" opacity="${.55+((i*11)%5)/11}"/>`;}
+    for(let i=0;i<26;i++){const x=bx+((i*41)%120)-60,y=60+((i*67)%110);s+=`<circle cx="${x}" cy="${y}" r="${i%3?3:4.5}" fill="#fff6d0" opacity=".9"/>`;}
+    s+=`<ellipse cx="${bx}" cy="372" rx="22" ry="10" fill="#fff"/>`;
+  }
+  return s+`</g>`;
+}
+
+// ---------- the list ----------
+const D=(t,body,extra="")=>({t,body,extra});
+const ICONS={
+  VIP:D("vip",()=>crown()+`<text x="256" y="452" font-size="88" text-anchor="middle" fill="#f5c542" stroke="#5a3a00" stroke-width="4">VIP</text>`),
+  Guard:D("guard",()=>shield()+`<text x="256" y="450" font-size="80" text-anchor="middle" fill="#fff">GUARD</text>`),
+  FramePack:D("photo",()=>photoStrip(196,250,-10,"#fff",["#ffb3d1","#b3e5ff","#fff2a8","#c8f0c0"])+photoStrip(316,250,10,"#ffd23f",["#ff9fc5","#9fd8ff","#ffe27a","#d6b8ff"])+star(120,110,26)+star(410,120,20)+star(420,400,16), badge("12종","#ff3da0","#fff")),
+  CoinX2:D("coin",()=>coin(226,246,150)+`<text x="380" y="420" font-size="130" text-anchor="middle" fill="#fff" stroke="#ff3da0" stroke-width="8" paint-order="stroke">x2</text>`),
+  Glowstick:D("glow",()=>glowstick()),
+  BusAd1D:D("city",()=>busStop(),badge("24시간")),
+  BusAd3D:D("city",()=>busStop(),badge("3일")),
+  CoinBoost1h:D("coin",()=>coin(220,240,130)+`<circle cx="372" cy="150" r="64" fill="#fff" stroke="#3ee8ff" stroke-width="8"/><path d="M372,150 L372,108 M372,150 L404,166" stroke="#1a1030" stroke-width="10" stroke-linecap="round"/><text x="390" y="360" font-size="96" text-anchor="middle" fill="#fff" stroke="#ff3da0" stroke-width="7" paint-order="stroke">x2</text>`,badge("1시간")),
+  DJ:D("dj",()=>`<g transform="translate(0,-30)">${headphones()}</g><g transform="translate(62,118) scale(.76)">${turntable()}</g>`,badge("30분","#3ee8ff")),
+  Drink_GingerBrew:D("club",()=>shadow(256,452,90,14)+flask(256,440,1.3,"#f0874b","#fae6be","#e2b13c")),
+  Drink_Monte:D("club",()=>shadow(256,452,90,14)+flask(256,440,1.3,"#69a528","#fff","#c8102e",`<path d="M0,-108 L6,-94 L20,-94 L9,-85 L13,-71 L0,-79 L-13,-71 L-9,-85 L-20,-94 L-6,-94Z" fill="#c8102e"/>`)),
+  Drink_FrenchLemonade:D("club",()=>shadow(256,452,90,14)+flask(256,440,1.3,"#f2d646","#fff","#9aa0a8")),
+  Drink_GoldenApple:D("club",()=>shadow(256,452,90,14)+flask(256,440,1.3,"#eea028","#961e1e","#e2b13c")),
+  Drink_ZzangPop:D("club",()=>shadow(256,452,150,14)+slimBottle(166,440,1.15,"#ff5aaa")+slimBottle(346,440,1.15,"#aaf03c")+slimBottle(256,452,1.25,"#ff9628")),
+  Drink_HotBoost:D("club",()=>shadow(256,452,90,14)+flask(256,440,1.3,"#e12d3c","#111","#ffc83c")),
+  Drink_GreenClaw:D("club",()=>shadow(256,452,90,14)+flask(256,440,1.3,"#78af37","#3cdc50","#111",`<path d="M-24,-112 L-14,-66 M0,-114 L4,-66 M24,-112 L18,-66" stroke="#111" stroke-width="9" stroke-linecap="round"/>`)),
+  Drink_BlueWing:D("club",()=>shadow(256,452,90,14)+flask(256,440,1.3,"#78b9f5","#d8dde6","#e62832",`<path d="M-30,-90 Q0,-120 30,-90 Q0,-100 -30,-90Z" fill="#e62832"/>`)),
+  Drink_StackHydro:D("club",()=>shadow(256,452,110,14)+barrel(256,440,1.25)),
+  Drink_StackHydro_VIP:D("club",()=>shadow(256,452,110,14)+barrel(256,440,1.25),vip()),
+  Drink_PastelSplash:D("club",()=>shadow(256,452,100,14)+pastel(256,440,1.15)),
+  Drink_PastelSplash_VIP:D("club",()=>shadow(256,452,100,14)+pastel(256,440,1.15),vip()),
+  Drink_SkullWater:D("club",()=>shadow(256,452,110,14)+skullBottle(256,440,1.25)),
+  Drink_SkullWater_VIP:D("club",()=>shadow(256,452,110,14)+skullBottle(256,440,1.25),vip()),
+  Drink_Golmok:D("vip",()=>shadow(256,456,170,16)+champagne(150,430,.95,"#a52355")+champagne(362,430,.95,"#5f6470")+champagne(206,450,1.05,"#e896b9")+champagne(306,450,1.05,"#d4a846"),vip()),
+  Sparkler1:D("club",()=>sparkler(200,440,300,170,110)),
+  Sparkler5:D("club",()=>[[256,170],[170,190],[342,190],[110,250],[402,250]].map(([x,y])=>sparkler(256,450,x,y,58)).join(""),badge("x5","#ffe680","#3a2500",20)),
+  HandSparkler:D("club",()=>sparkler(230,420,320,160,100)+`<g><rect x="186" y="346" width="96" height="70" rx="30" fill="#f2c4a0"/><rect x="176" y="356" width="40" height="70" rx="18" fill="#e8b48e"/><rect x="200" y="410" width="80" height="80" rx="16" fill="#f2c4a0"/></g>`),
+  SparklerBucket:D("club",()=>sparkler(200,300,150,120,60)+sparkler(310,300,360,110,60)+bucket(256,420,1.05)),
+  SparklerBucket_VIP:D("club",()=>sparkler(200,300,150,120,60)+sparkler(310,300,360,110,60)+bucket(256,420,1.05),vip()),
+  ColdSpark:D("club",()=>coldSpark()),
+  ColdSpark_VIP:D("club",()=>coldSpark(),vip()),
+  Support_10:D("support",()=>heartHands(256,210,1.2),badge("10","#fff","#b0124f")),
+  Support_50:D("support",()=>heartHands(256,210,1.2),badge("50","#fff","#b0124f")),
+  Support_100:D("support",()=>heartHands(256,210,1.2)+star(110,110,18)+star(410,120,14),badge("100","#fff","#b0124f")),
+  Support_500:D("support",()=>heartHands(256,210,1.2,"#fff4c2")+star(110,110,22,"#fff4c2")+star(410,120,18,"#fff4c2")+star(420,330,14,"#fff4c2"),badge("500","#ffd23f","#6a2a00")),
+  Support_1000:D("vip",()=>heartHands(256,210,1.2,"#f5c542")+star(110,110,24,"#f5c542")+star(410,120,20,"#f5c542")+star(420,330,16,"#f5c542")+star(92,320,14,"#f5c542"),badge("1,000","#f5c542","#3a2500")),
+  Support_5000:D("vip",()=>`<circle cx="256" cy="230" r="190" fill="none" stroke="#f5c542" stroke-width="6" opacity=".6"/>`+heartHands(256,210,1.25,"#ffe48a")+star(100,100,28,"#fff")+star(420,110,24,"#fff")+star(430,330,18,"#fff")+star(84,330,16,"#fff")+crown().replace(/<g filter="url\(#goldglow\)">/,'<g transform="translate(205,8) scale(.2)">'),badge("5,000","#f5c542","#3a2500")),
+  Cafe_Parfait:D("cafe",()=>`<g transform="translate(0,40)">${parfait()}</g>`),
+  Cafe_CakeStrawberry:D("cafe",()=>cakeStrawberry()),
+  Cafe_CakeVintage:D("cafe",()=>cakeVintage()),
+  Cafe_CakeTiramisu:D("cafe",()=>cakeTiramisu()),
+  Cafe_CakeBasque:D("cafe",()=>cakeBasque()),
+  Gukbap_Suyuk:D("gukbap",()=>suyuk()),
+  AlbumSlots:D("photo",()=>album()),
+};
+const defs=`<defs>${glowFilter("sparkglow",6,"#ffd75a")}${glowFilter("neon",14,"#3cff9a")}${glowFilter("goldglow",10,"#ffcf4a")}${glowFilter("softglow",10,"#ffb07a")}</defs>`;
+const key=decodeURIComponent(location.hash.slice(1));
+const icon=ICONS[key];
+if(icon){document.getElementById("out").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">${defs}${bg(icon.t)}${icon.body()}${icon.extra}</svg>`;}
+else{document.body.style.background="#fff";document.getElementById("out").innerText=Object.keys(ICONS).join("\n");}
+window.ICON_KEYS=Object.keys(ICONS);
+</script></body></html>

@@ -2758,3 +2758,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 클럽 바닥 원형 파동 (D-632)
 - DJ 무대 앞 바닥 타일에 원이 퍼지며 지나가는 타일이 네온색으로 반짝임. 모두에게 같은 박자로 보임.
 ![](images/2026-10-30/club_floor_rings.jpg) ![](images/2026-10-30/club_floor_rings_top.jpg)
+
+### 2026-10-30 대시보드 아이콘 (D-633)
+- 등록한 상품 44개 아이콘(512×512). 목록·파일: docs/04_ART/dashboard_icons/README.md
+![](../04_ART/dashboard_icons/_sheet.jpg)
