@@ -9,21 +9,25 @@
 -- round buttons 25 px (0.57), the coin pill 18 px high and 45 wide, the
 -- menu pill 24 px wide with 24 px rows and 13 px icons; the row's top is
 -- 4 px below the top of Roblox's buttons, 19 px from the right edge.
+-- (user 2026-10-31) everything 1.5x (too small on phones), ⋯ became a ☰
+-- of three bars, and a clock (HudController, order 11) left of the coins.
 -- A button with attribute Width (number, px) is that wide; attribute Height
--- (px) makes it lower than the round buttons, on the same centre line.
+-- (px) makes it lower than the round buttons, on the same centre line;
+-- attribute GapLeft (px) is the space left of it (the coin pill's ₩ hangs there).
 
 local GuiService = game:GetService("GuiService")
 local Players = game:GetService("Players")
 
 local TopBar = {}
 
-local SMALL = 25 -- round button (was 44)
-local ROW_GAP = 6 -- between ♥ and ⋯
-local PILL_GAP = 12 -- between the coin pill and ♥
-local MENU_W, MENU_ROW, MENU_PAD = 24, 24, 4
+local SMALL = 38 -- round button (25 x 1.5)
+local ROW_GAP = 9 -- between ♥ and ☰
+local PILL_GAP = 18 -- between the coin pill and ♥
+local MENU_W, MENU_ROW, MENU_PAD = 36, 36, 6
+TopBar.Scale = 1.5 -- (for the pieces other scripts size: coin pill, clock)
 
 -- order → right row place (1 = nearest the edge); menu orders → menu row
-local RIGHT: {[number]: number} = { [20] = 1, [5] = 2, [10] = 3 }
+local RIGHT: {[number]: number} = { [20] = 1, [5] = 2, [10] = 3, [11] = 4 }
 local MENU: {[number]: number} = { [4] = 1, [3] = 2, [1] = 3 }
 
 local entries: {{ button: GuiObject, order: number }} = {}
@@ -74,8 +78,8 @@ local function row(): (number, number, number)
 		if camera and inset.Width > 0 then
 			right = math.min(-8, -(camera.ViewportSize.X - inset.Max.X) + 20)
 		end
-		-- Roblox's own buttons hang 12 px from the top of the bar; ours 4 px lower
-		return inset.Min.Y + 12 + 4 + SMALL / 2, right, size
+		-- Roblox's own buttons hang 12 px from the top of the bar: the same centre line
+		return inset.Min.Y + 12 + size / 2, right, size
 	end
 	return 28, -16, 44
 end
@@ -103,7 +107,8 @@ layout = function()
 		b.AnchorPoint = Vector2.new(1, 0.5)
 		b.Position = UDim2.new(1, x, 0, centerY)
 		if entry.order == 20 then moreX = x - w / 2 end
-		x -= w + (if i == 1 then ROW_GAP else PILL_GAP)
+		local gap = b:GetAttribute("GapLeft")
+		x -= w + (if typeof(gap) == "number" then gap elseif i == 1 then ROW_GAP else PILL_GAP)
 	end
 	-- menu below ⋯
 	local items = sorted(MENU)
@@ -117,7 +122,7 @@ layout = function()
 		b.BackgroundTransparency = 1
 		b.Size = UDim2.fromOffset(MENU_W, MENU_ROW)
 		local icon = b:FindFirstChild("Icon")
-		if icon and icon:IsA("GuiObject") then icon.Size = UDim2.fromScale(0.54, 0.54) end -- (13 px)
+		if icon and icon:IsA("GuiObject") then icon.Size = UDim2.fromScale(0.54, 0.54) end -- (20 px)
 		b.Position = if open
 			then UDim2.new(1, moreX, 0, top + MENU_PAD + (i - 0.5) * MENU_ROW)
 			else UDim2.fromOffset(-1000, -1000) -- closed: out of sight
@@ -172,7 +177,19 @@ function TopBar.icon(button: GuiObject, image: string, scale: number?)
 	return icon
 end
 
-TopBar.icon(more, require(script.Parent:WaitForChild("Icons")).dots, 0.62)
+-- ☰: three white bars, drawn (sharper than an image at this size; user 2026-10-31,
+-- the ⋯ dots were hard to see)
+for i = -1, 1 do
+	local bar = Instance.new("Frame")
+	bar.Name = "Bar"
+	bar.AnchorPoint = Vector2.new(0.5, 0.5)
+	bar.Position = UDim2.fromScale(0.5, 0.5 + i * 0.17)
+	bar.Size = UDim2.fromScale(0.48, 0.075)
+	bar.BackgroundColor3 = Color3.new(1, 1, 1)
+	bar.BorderSizePixel = 0
+	bar.Parent = more
+	Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+end
 TopBar.add(more, 20)
 
 GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(layout)

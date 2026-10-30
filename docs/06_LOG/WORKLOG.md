@@ -2762,3 +2762,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 2026-10-30 대시보드 아이콘 (D-633)
 - 등록한 상품 44개 아이콘(512×512). 목록·파일: docs/04_ART/dashboard_icons/README.md
 ![](../04_ART/dashboard_icons/_sheet.jpg)
+
+## 2026-10-31
+
+### 상단 버튼 1.5배·☰·시계 (D-634)
+![](images/2026-10-31/topbar_v3_clock.jpg)

@@ -61,12 +61,13 @@ coins.Name = "CoinPill"
 coins.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
 coins.BackgroundTransparency = 0.5 -- (50 %, user 2026-10-30)
 coins.TextColor3 = COIN_TEXT
-coins.TextSize = 11
+coins.TextSize = 16
 coins.Font = Enum.Font.GothamBold
 coins.Text = "0"
--- (user mock-up 2026-10-30 rev 2: 45 x 18, about half of the old 80 x 29)
-coins:SetAttribute("Width", 45)
-coins:SetAttribute("Height", 18)
+-- (user mock-up 2026-10-30 rev 2: 45 x 18; 2026-10-31: 1.5x → 68 x 27)
+coins:SetAttribute("Width", 68)
+coins:SetAttribute("Height", 27)
+coins:SetAttribute("GapLeft", 42) -- (the ₩ coin hangs left of the pill, then the clock)
 coins.Parent = gui
 corner(coins, UDim.new(1, 0))
 do
@@ -82,7 +83,7 @@ do
 	local icon = Instance.new("ImageLabel")
 	icon.Name = "CoinIcon"
 	icon.AnchorPoint = Vector2.new(1, 0.5)
-	icon.Position = UDim2.new(0, -6, 0.5, 0)
+	icon.Position = UDim2.new(0, -9, 0.5, 0)
 	icon.Size = UDim2.fromScale(0.78, 0.78)
 	icon.SizeConstraint = Enum.SizeConstraint.RelativeYY
 	icon.BackgroundTransparency = 1
@@ -90,6 +91,37 @@ do
 	icon.Parent = coins
 end
 TopBar.add(coins, 10)
+
+--------------------------------------------------
+-- 🕐 game clock (user 2026-10-31): left of the coins, the same dark pill.
+-- ☀ by day, 🌙 from 18:00 to 06:00 (the club's hours); shown in 10-minute
+-- steps (one game minute is only about a second).
+--------------------------------------------------
+
+local Lighting = game:GetService("Lighting")
+local clock = Instance.new("TextLabel")
+clock.Name = "ClockPill"
+clock.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
+clock.BackgroundTransparency = 0.5
+clock.TextColor3 = Color3.new(1, 1, 1)
+clock.TextSize = 15
+clock.Font = Enum.Font.GothamBold
+clock.Text = ""
+clock:SetAttribute("Width", 80)
+clock:SetAttribute("Height", 27)
+clock.Parent = gui
+corner(clock, UDim.new(1, 0))
+TopBar.add(clock, 11)
+
+local function refreshClock()
+	local t = Lighting.ClockTime
+	local hour = math.floor(t)
+	local minute = math.floor((t - hour) * 6) * 10
+	local night = t >= 18 or t < 6
+	clock.Text = string.format("%s %02d:%02d", if night then "🌙" else "☀️", hour, minute)
+end
+Lighting:GetPropertyChangedSignal("ClockTime"):Connect(refreshClock)
+refreshClock()
 
 local shown = -1
 local function refreshCoins()

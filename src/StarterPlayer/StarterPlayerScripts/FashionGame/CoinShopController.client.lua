@@ -167,8 +167,8 @@ task.spawn(function()
 	local badge = Instance.new("TextLabel")
 	badge.Name = "X2Badge"
 	badge.AnchorPoint = Vector2.new(1, 0)
-	badge.Position = UDim2.new(1, 3, 0, -5)
-	badge.Size = UDim2.fromOffset(17, 11) -- (small top bar, user mock-up 2026-10-30 rev 2)
+	badge.Position = UDim2.new(1, 4, 0, -7)
+	badge.Size = UDim2.fromOffset(26, 16) -- (top bar 1.5x, user 2026-10-31)
 	badge.BackgroundColor3 = Color3.fromRGB(255, 80, 120)
 	badge.Text = "x2"
 	badge.TextColor3 = Color3.new(1, 1, 1)
