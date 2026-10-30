@@ -2708,3 +2708,5 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
   ![](../04_ART/textures/cakes/vintage_sliced_preview.png)
 - 테이블: 한 조각 먹을 때마다 그 조각이 빠지고 옆 조각 단면이 보임. 손: 그 조각 그대로. 산 케이크를 들 때: 상자 대신 케이크. 진열장: 계산대 쪽 한 줄(3개)을 빈티지 케이크로.
 - 사용자: docs/04_ART/models/VintageLetteringCakeSliced.gltf 가져오기 필요.
+### 2026-10-30 조각 케이크 확인 (D-619)
+![](images/2026-10-30/vintage_sliced_table_d619.jpg) ![](images/2026-10-30/vintage_case_d619.jpg)
