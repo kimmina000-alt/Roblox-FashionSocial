@@ -176,6 +176,11 @@ end
 -- speech bubble over a customer's head: what they ordered. Only the staff of
 -- that cafe and the customer see it (user, 2026-10-22): it starts disabled
 -- and CafeJobController turns it on.
+-- what a customer says (user 2026-10-30: no icon, in quotes: “물 주세요.”)
+local function orderLine(name: string): string
+	return string.format("“%s 주세요.”", name)
+end
+
 local function setBubble(model: Model?, text: string?, shopKey: string?, customerId: number?)
 	local head = model and model:FindFirstChild("Head")
 	if not head then return end
@@ -184,7 +189,7 @@ local function setBubble(model: Model?, text: string?, shopKey: string?, custome
 	if not text then return end
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "CafeOrderBubble"
-	gui.Size = UDim2.fromOffset(170, 34)
+	gui.Size = UDim2.fromOffset(230, 34) -- (wide enough for “아이스 바닐라 라떼 주세요.”)
 	gui.StudsOffset = Vector3.new(0, 2.6, 0)
 	gui.AlwaysOnTop = true
 	gui.MaxDistance = 70
@@ -288,8 +293,10 @@ local function newCup(shopKey: string, at: Vector3, item: SnackConfig.Item?): Pa
 		if cup:GetAttribute("Owner") ~= nil and not cup:GetAttribute("Clearable") then return end
 		cup:Destroy()
 		economy.AddJobXP(player, CafeJobConfig.JobKey, "cleaned", CafeJobConfig.CleanXP)
-		economy.Earn(player, CafeJobConfig.CleanCoins, "CafeJob", CafeJobConfig.DailyCap, "테이블 정리")
+		local given = economy.Earn(player, CafeJobConfig.CleanCoins, "CafeJob", CafeJobConfig.DailyCap, "테이블 정리")
 		player:SetAttribute("CafeJobEarned", economy.Earned(player, "CafeJob"))
+		-- (user 2026-10-30: clearing looked unpaid; past the daily cap it said nothing)
+		if given == 0 then toast(player, "테이블 정리 완료! (오늘 알바 코인은 다 받았어요)") end
 	end)
 	return cup
 end
@@ -376,7 +383,7 @@ local function npcLeave(order: Order, served: boolean)
 	if not npc then return end
 	if served then
 		-- the thank-you shows for a second only (user, 2026-10-22)
-		setBubble(npc, "😋 맛있어요!", order.shop, 0)
+		setBubble(npc, "“맛있어요!”", order.shop, 0)
 		task.delay(1, function() setBubble(npc, nil, nil, nil) end)
 		task.delay(CafeJobConfig.NpcStaySeconds, function()
 			if seat then placeCup(order.shop, seat.Position) end
@@ -414,7 +421,7 @@ local function playerOrder(player: Player, shop: SnackConfig.Shop, item: SnackCo
 		id = nextId, shop = shop.key, item = item.key, kind = "player", userId = player.UserId,
 		npc = nil, seat = nil, created = os.clock(), maker = 0, ready = false,
 	}
-	setBubble(player.Character, "☕ " .. item.name, shop.key, player.UserId)
+	setBubble(player.Character, orderLine(item.name), shop.key, player.UserId)
 	publish()
 	for other, shopKey in pairs(staff) do
 		if shopKey == shop.key then toast(other, string.format("🔔 새 주문: %s · %s", item.name, player.DisplayName)) end
@@ -559,7 +566,7 @@ local function spawnNpc(shopKey: string)
 		who = nil,
 	}
 	-- a friend's look only, no name (user, 2026-10-22)
-	setBubble(npc, "☕ " .. item.name, shopKey, 0)
+	setBubble(npc, orderLine(item.name), shopKey, 0)
 	publish()
 end
 
@@ -690,7 +697,7 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 	player:SetAttribute("CafeJobEarned", economy.Earned(player, "CafeJob"))
 	publish()
 	return true, string.format("☕ 알바 시작! 주문 목록에서 [만들기] → 음료를 손님에게 가져다 주세요. (오늘 %d/%d %s)",
-		economy.Earned(player, "CafeJob"), CafeJobConfig.DailyCap, "코인")
+		economy.Earned(player, "CafeJob"), CafeJobConfig.DailyCap * ((player:GetAttribute("CoinMultiplier") :: number?) or 1), "코인")
 end
 
 local function carrying(player: Player): number

@@ -261,7 +261,10 @@ render = function()
 	local shopInfo = SnackConfig.Shops[shop]
 	title.Text = "☕ " .. (if shopInfo then shopInfo.title else "주문 목록")
 	local xp = player:GetAttribute("JobXP_" .. CafeJobConfig.JobKey)
-	earnedLabel.Text = string.format("오늘 %s %d / %d · 알바 XP %d", EconomyConfig.Icon, earned, CafeJobConfig.DailyCap, if typeof(xp) == "number" then xp else 0)
+	-- (coin x2 doubles the coins and the day's cap too: show the doubled cap, not 24 / 60 → 120 / 60)
+	local m = player:GetAttribute("CoinMultiplier")
+	local cap = CafeJobConfig.DailyCap * (if typeof(m) == "number" then m else 1)
+	earnedLabel.Text = string.format("오늘 %s %d / %d · 알바 XP %d", EconomyConfig.Icon, earned, cap, if typeof(xp) == "number" then xp else 0)
 	if not panel.Visible then return end
 	for _, child in ipairs(list:GetChildren()) do
 		if child:IsA("Frame") or child:IsA("TextLabel") then child:Destroy() end

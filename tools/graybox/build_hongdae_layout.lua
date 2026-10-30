@@ -204,6 +204,10 @@ local function revert()
 	workspace.Terrain:FillBlock(CFrame.new(-272, -2, 42), Vector3.new(16, 4, 44), Enum.Material.Air) -- (the moved basin)
 	-- (layout v8) the cafe left that place: the sea there back to its lowered level (y -3)
 	workspace.Terrain:FillBlock(CFrame.new(-282, -3.5, 44), Vector3.new(28, 1, 60), Enum.Material.Water)
+	-- the half-cell air fills above (y 0.2..2) left thin water skins on their edges
+	-- (z 46 and z 78, occupancy 0.1), seen as light lines over the sea (user 2026-10-30):
+	-- nothing of the sea belongs in the y 0..4 cell layer there
+	workspace.Terrain:ReplaceMaterial(Region3.new(Vector3.new(-300, 0, 16), Vector3.new(-252, 4, 84)), 4, Enum.Material.Water, Enum.Material.Air)
 	-- ride name signs switched off while the park was closed
 	for _, g in ipairs(root:GetDescendants()) do
 		if g:IsA("BillboardGui") and g:GetAttribute("ParkClosedHidden") then

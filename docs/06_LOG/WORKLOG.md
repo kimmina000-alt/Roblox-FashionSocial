@@ -2731,3 +2731,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 2026-10-30 로딩 화면 (D-625)
 ![](images/2026-10-30/loading_1_cafe.jpg) ![](images/2026-10-30/loading_2_club.jpg) ![](images/2026-10-30/loading_3_booth.jpg)
+
+### 2026-10-30 튜브 노 젓기·알바·바다 선 (D-626)
+- 튜브가 움직이면 양팔이 번갈아 앞으로 뻗어 물을 헤치고 뒤로 당김(IK, 모두에게 보임). Play에서 손 위치 확인(캡처는 흰 화면이라 숫자로 확인).
+- 컵 정리 코인은 정상(+2, x2면 +4). 하루 한도를 넘으면 이제 안내가 뜸. 주문 말풍선은 “물 주세요.” 형식.
+- 바다 위 선 = 옛 카페 수영장 자리에 남은 얇은 물 지형(z 46, z 78). 지움 + 그레이박스 스크립트 수정.
