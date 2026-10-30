@@ -179,8 +179,10 @@ end
 
 function MonetizationService.Start()
 	MarketplaceService.ProcessReceipt = processReceipt
-	MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passId, purchased)
-		if not purchased then return end
+	-- (the argument was called "purchased" and hid the function above: every pass
+	-- bought errored there and its spend never reached the rankings, found 2026-10-30)
+	MarketplaceService.PromptGamePassPurchaseFinished:Connect(function(player, passId, wasPurchased)
+		if not wasPurchased then return end
 		local key = MonetizationConfig.passKeyForId(passId)
 		if key then
 			setPass(player, key, true)

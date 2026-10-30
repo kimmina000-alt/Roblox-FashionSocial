@@ -765,6 +765,11 @@ end
 local GLOW_COLORS = { Color3.fromRGB(0, 255, 140), Color3.fromRGB(255, 60, 200), Color3.fromRGB(60, 180, 255), Color3.fromRGB(255, 230, 60), Color3.fromRGB(255, 120, 40) }
 local function giveGlowstick(player: Player)
 	if player:GetAttribute("Pass_Glowstick") ~= true then return end
+	-- Studio tests start with an empty backpack (user 2026-10-30): the creator's
+	-- account owns its own passes, so it got the glowstick every test. Live
+	-- servers unchanged; to try it in Studio set the player attribute
+	-- StudioGlowstick = true.
+	if game:GetService("RunService"):IsStudio() and player:GetAttribute("StudioGlowstick") ~= true then return end
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then return end
 	for _, where in ipairs({ backpack, player.Character }) do
@@ -1004,6 +1009,7 @@ function SparkleService.Start()
 	local function watchGlow(player: Player)
 		player.CharacterAdded:Connect(function() task.wait(1) giveGlowstick(player) end)
 		player:GetAttributeChangedSignal("Pass_Glowstick"):Connect(function() giveGlowstick(player) end)
+		player:GetAttributeChangedSignal("StudioGlowstick"):Connect(function() giveGlowstick(player) end)
 		if player.Character then task.defer(giveGlowstick, player) end
 	end
 	for _, p in ipairs(Players:GetPlayers()) do watchGlow(p) end
