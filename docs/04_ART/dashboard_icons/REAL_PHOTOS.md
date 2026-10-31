@@ -4,7 +4,7 @@
 VIP가 상품은 같은 사진에 오른쪽 위 금색 "VIP" 표시. 파일: `docs/04_ART/dashboard_icons/real/<코드 키>.png`.
 찍는 모델: `FashionGame.DrinkPreviews`(음료), `FashionGame.ItemPreviews`(불꽃·야광봉), `FashionGame.FoodPreviews`(카페·국밥집).
 
-## 실제 사진으로 바꿀 것 (26개, 사진 21장)
+## 실제 사진으로 바꿀 것 (27개, 사진 23장 — VIP가 4개는 같은 사진에 VIP 표시)
 
 | # | 종류 | 상품 | 코드 키 | 찍을 모델 | 배경 |
 |-|-|-|-|-|-|
