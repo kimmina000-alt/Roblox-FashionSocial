@@ -1121,3 +1121,6 @@ D-651 — (2026-10-31) Mobile 2P test (server + Player1/Player2, 801×413 phone 
 
 ## D-652 (2026-10-31) 합친 뒤 모바일 2인 재테스트
 catalog-ui-redesign(D-651까지)으로 2인 폰 테스트. 가드 출입, 카페 알바, 잠긴 케이크, 메뉴 자동 닫기, 주문창 위치, 역할 태그 모두 정상. 코드 변경 없음.
+
+## D-653 (2026-10-31) 게임 아이콘·썸네일 v1
+사용자가 보내 준 로블록스 추천 화면(캐릭터 중심, 굵은 한글 제목, 밝은 색)을 참고했다. AI 아바타 2명(ServerStorage.ThumbRigs: Girl / Boy, 스크립트 없음)을 클럽(밤)·바다 카페(낮)·오후네컷 대기실에 세워 Play에서 찍고, 그 위에 HTML로 제목을 얹었다(tools/art/thumbnails/thumbs.html, render.ps1). 결과: docs/04_ART/thumbnails/ohu_icon.png(512), ohu_club / ohu_cafe / ohu_booth.png(1920×1080). 커플처럼 보이는 포즈(손잡기)는 빼고 둘을 떨어뜨렸다(로맨스 금지 규칙).
