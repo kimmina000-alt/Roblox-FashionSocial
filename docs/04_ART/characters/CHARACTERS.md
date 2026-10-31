@@ -36,11 +36,11 @@ Character A's body, head (스컬), classic clear shirt/pants and scales, with:
 | Layered 2 | 130442955983043 주름진 오피스 버튼업 셔츠 화이트 (TShirt) |
 | Layered 3 | 88241801880611 블랙 (Pants) |
 | Layered 4 | 12271645343 블랙 레스토랑 앞치마 (Jacket) |
-| Pose | emote 94499750241713 → animation 126073867043223 |
+| Pose | idle of animation pack 155758204354290 실감나는 남성 01 → animation 128667162266929 (D-671) |
 | In hand | 스컬 앤 워터 bottle (DrinkService.heldBottle) |
 
 ![](../../06_LOG/images/2026-10-31/staff_faces.jpg)
 
 ## Item seller (D-663)
 
-Character A without the biker jacket, with the bartender's face (head 110649251725469, D-669), dark bronze skin (105, 62, 36), the pose of emote 85369612310951 장엄한 소환 포즈 (animation 100249604916626) and a lit hand sparkler (D-663..D-668).
+Character A without the biker jacket, with the bartender's face (head 110649251725469, D-669), dark bronze skin (105, 62, 36), the pose of emote 85369612310951 장엄한 소환 포즈 (animation 100249604916626) a black face mask 18991656628 and a lit hand sparkler (D-663..D-671).

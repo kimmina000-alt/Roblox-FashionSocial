@@ -66,8 +66,10 @@ do
 		shirt = a.shirt,
 		pants = a.pants,
 		scales = a.scales,
-		-- emote 94499750241713 "귀여운 머리머리 스트리트웨어 배디 포즈": its Animation
-		pose = 126073867043223,
+		-- (D-671) the idle of animation pack bundle 155758204354290 실감나는 남성 01
+		-- (Idle Animation asset 114822686413694 → Animation1); before: emote
+		-- 94499750241713 → 126073867043223
+		pose = 128667162266929,
 		holds = "bottle:skull_water",
 	}
 	-- the item seller: Character A with its own pose (user 2026-10-31):
@@ -76,6 +78,7 @@ do
 	seller.pose = 100249604916626
 	seller.skin = Color3.fromRGB(105, 62, 36) -- dark bronze (user 2026-10-31: bronze, then darker)
 	seller.head = NpcLooks.Looks.Bartender.head -- the bartender's face, not the skull
+	seller.extras = { { id = 18991656628, kind = Enum.AccessoryType.Face } } -- 얼굴 가면 (검정), D-671
 	-- (user 2026-10-31, later: without the biker jacket)
 	seller.layered = {}
 	for _, item in ipairs(a.layered) do

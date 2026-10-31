@@ -2825,3 +2825,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 바 직원 얼굴 통일 (D-668)
 ![](images/2026-10-31/staff_faces.jpg)
+
+### 바텐더 이동, 판매원 가면 (D-671)
+![](images/2026-10-31/bar_staff_moved.jpg)

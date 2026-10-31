@@ -853,7 +853,9 @@ end
 
 local function spawnBartender(spot: Instance)
 	if not spot:IsA("BasePart") then return end
-	spawnStaff(spot, "Bartender", "바텐더", CFrame.new(), Color3.fromRGB(30, 30, 36), "BartenderPrompt", "음료 주문", "Bartender")
+	-- (user 2026-10-31: the bartender 12 studs further along the bar, away from
+	-- the item seller; the order prompt goes with them)
+	spawnStaff(spot, "Bartender", "바텐더", CFrame.new(-12, 0, 0), Color3.fromRGB(30, 30, 36), "BartenderPrompt", "음료 주문", "Bartender")
 	-- (spot's +X runs along the bar)
 	spawnStaff(spot, "ItemSeller", "불꽃 판매원", CFrame.new(8, 0, 0), Color3.fromRGB(150, 40, 110), "ItemShopPrompt", "불꽃 · 아이템", "ItemSeller")
 end
