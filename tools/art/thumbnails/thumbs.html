@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>OHU Thumbnails</title>
+<!-- Game icon (512) and thumbnails (1920x1080) for the Roblox experience page.
+     Backgrounds are in-game shots (docs/04_ART/thumbnails/src). render.ps1 opens
+     this page once per #key and screenshots it with headless Chrome. -->
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Jua&display=block" rel="stylesheet">
+<style>
+:root { --pink:#ff4fa3; --cyan:#3ff2ff; --ink:#1b1030; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { background:#000; overflow:hidden; }
+.card { position:relative; overflow:hidden; display:none; }
+.card.on { display:block; }
+.bg { position:absolute; inset:0; background-size:cover; background-position:center; }
+.shade { position:absolute; inset:0; }
+.title { position:absolute; font-family:"Black Han Sans","Malgun Gothic",sans-serif; line-height:.92; color:#fff;
+  paint-order:stroke fill; -webkit-text-stroke:0; }
+.logo { font-family:"Black Han Sans","Malgun Gothic",sans-serif; color:#fff; letter-spacing:.02em; }
+.out { paint-order:stroke fill; }
+.pill { position:absolute; font-family:"Jua","Malgun Gothic",sans-serif; color:#fff; border-radius:999px; }
+
+/* ---------- icon 512 ---------- */
+#icon { width:512px; height:512px; }
+#icon .bg { background-image:url(../../../docs/04_ART/thumbnails/src/club.jpg); background-size:auto 165%; background-position:53% 30%; }
+#icon .shade { background:linear-gradient(180deg, rgba(20,6,40,0) 55%, rgba(20,6,40,.95) 100%); }
+#icon .logo { position:absolute; left:0; right:0; bottom:62px; text-align:center; font-size:118px;
+  -webkit-text-stroke:14px var(--ink); paint-order:stroke fill;
+  text-shadow:0 0 18px var(--pink), 0 0 36px var(--pink), 0 8px 0 var(--ink); }
+#icon .sub { position:absolute; left:0; right:0; bottom:22px; text-align:center; font-family:"Jua","Malgun Gothic",sans-serif;
+  font-size:40px; color:#fff; -webkit-text-stroke:8px var(--ink); paint-order:stroke fill; }
+
+/* ---------- 1920x1080 thumbnails ---------- */
+.wide { width:1920px; height:1080px; }
+.wide .logo { position:absolute; left:64px; top:46px; font-size:150px; -webkit-text-stroke:16px var(--ink); paint-order:stroke fill;
+  text-shadow:0 0 24px var(--pink), 0 10px 0 var(--ink); }
+.wide .logo small { font-family:"Jua","Malgun Gothic",sans-serif; font-size:78px; margin-left:18px; -webkit-text-stroke:12px var(--ink); }
+.wide .title { left:64px; bottom:70px; font-size:132px; -webkit-text-stroke:20px var(--ink); text-shadow:0 12px 0 var(--ink); }
+.wide .title em { font-style:normal; }
+.wide .pill { right:60px; top:60px; padding:16px 38px; font-size:54px; border:6px solid #fff; box-shadow:0 8px 0 var(--ink); }
+
+#club .bg { background-image:url(../../../docs/04_ART/thumbnails/src/club.jpg); background-position:50% 40%; }
+#club .shade { background:linear-gradient(0deg, rgba(20,6,40,.85) 0%, rgba(20,6,40,0) 45%), linear-gradient(180deg, rgba(20,6,40,.55) 0%, rgba(20,6,40,0) 30%); }
+#club .title em { color:var(--cyan); }
+#club .pill { background:var(--pink); }
+
+#cafe .bg { background-image:url(../../../docs/04_ART/thumbnails/src/cafe.jpg); background-position:50% 35%; }
+#cafe .shade { background:linear-gradient(0deg, rgba(10,40,80,.6) 0%, rgba(10,40,80,0) 42%); }
+#cafe .title em { color:#ffd84a; }
+#cafe .pill { background:#2fa9ff; }
+
+#booth .bg { background-image:url(../../../docs/04_ART/thumbnails/src/booth.jpg); background-position:50% 30%; }
+#booth .shade { background:linear-gradient(0deg, rgba(120,20,70,.55) 0%, rgba(120,20,70,0) 42%); }
+#booth .title em { color:#ffe1f0; }
+#booth .title { color:var(--pink); }
+#booth .pill { background:#ff7cc0; }
+</style>
+</head>
+<body>
+<div id="icon" class="card">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="logo">OHU</div>
+  <div class="sub">오후 · 홍대 소셜</div>
+</div>
+
+<div id="club" class="card wide">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="logo">OHU<small>오후</small></div>
+  <div class="pill">🎧 DJ 되기</div>
+  <div class="title">밤이 되면<br><em>클럽 오픈!</em></div>
+</div>
+
+<div id="cafe" class="card wide">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="logo">OHU<small>오후</small></div>
+  <div class="pill">☕ 카페 알바</div>
+  <div class="title">바다 뷰 카페에서<br><em>코인 벌기</em></div>
+</div>
+
+<div id="booth" class="card wide">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="logo">OHU<small>오후</small></div>
+  <div class="pill">📸 오후네컷</div>
+  <div class="title">친구랑<br><em>네컷 찍자!</em></div>
+</div>
+
+<script>
+const k = (location.hash || "#club").slice(1);
+const el = document.getElementById(k);
+if (el) el.classList.add("on");
+</script>
+</body>
+</html>

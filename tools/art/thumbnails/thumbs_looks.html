@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<title>OHU Thumbnails v2</title>
+<!-- v2 (D-683): the user's picks from the Roblox "Avatar" marketplace (official
+     renders, docs/04_ART/thumbnails/looks/*_trim.png) on our own in-game scenes
+     (docs/04_ART/loading). render.ps1 -Page thumbs_looks.html -->
+<link href="https://fonts.googleapis.com/css2?family=Black+Han+Sans&family=Jua&display=block" rel="stylesheet">
+<style>
+:root { --pink:#ff4fa3; --cyan:#3ff2ff; --ink:#1b1030; }
+* { margin:0; padding:0; box-sizing:border-box; }
+html, body { background:#000; overflow:hidden; }
+.card { position:relative; overflow:hidden; display:none; }
+.card.on { display:block; }
+.bg { position:absolute; inset:-20px; background-size:cover; background-position:center; filter:blur(3px) saturate(1.15); }
+.shade { position:absolute; inset:0; }
+.chars { position:absolute; left:0; right:0; bottom:0; display:flex; justify-content:center; align-items:flex-end; }
+.chars img { display:block; filter:drop-shadow(0 0 3px #fff) drop-shadow(0 0 2px #fff) drop-shadow(0 18px 18px rgba(0,0,0,.45)); }
+.logo, .title { font-family:"Black Han Sans","Malgun Gothic",sans-serif; color:#fff; paint-order:stroke fill; }
+.pill { position:absolute; font-family:"Jua","Malgun Gothic",sans-serif; color:#fff; border-radius:999px; }
+
+/* icon 512 */
+#icon { width:512px; height:512px; }
+#icon .bg { background-image:url(../../../docs/04_ART/loading/loading_club.png); }
+#icon .shade { background:radial-gradient(circle at 50% 40%, rgba(255,79,163,.25), rgba(20,6,40,.2) 60%), linear-gradient(180deg, rgba(20,6,40,0) 55%, rgba(20,6,40,.95) 100%); }
+#icon .chars { bottom:92px; gap:0; }
+#icon .chars img { height:330px; margin:0 -14px; }
+#icon .logo { position:absolute; left:0; right:0; bottom:40px; text-align:center; font-size:110px; line-height:1;
+  -webkit-text-stroke:13px var(--ink); text-shadow:0 0 18px var(--pink), 0 7px 0 var(--ink); }
+#icon .sub { position:absolute; left:0; right:0; bottom:12px; text-align:center; font-family:"Jua","Malgun Gothic",sans-serif;
+  font-size:34px; color:#fff; -webkit-text-stroke:7px var(--ink); paint-order:stroke fill; }
+
+/* 1920 x 1080 */
+.wide { width:1920px; height:1080px; }
+.wide .chars { left:auto; right:60px; bottom:40px; gap:0; }
+.wide .chars img { height:780px; }
+#cafe .chars img, #booth .chars img { height:740px; }
+.wide .logo { position:absolute; left:70px; top:56px; font-size:150px; -webkit-text-stroke:16px var(--ink); text-shadow:0 0 24px var(--pink), 0 10px 0 var(--ink); }
+.wide .logo small { font-family:"Jua","Malgun Gothic",sans-serif; font-size:78px; margin-left:18px; -webkit-text-stroke:12px var(--ink); }
+.wide .title { position:absolute; left:70px; bottom:90px; font-size:138px; line-height:.95; -webkit-text-stroke:20px var(--ink); text-shadow:0 12px 0 var(--ink); }
+.wide .title em { font-style:normal; }
+.wide .pill { left:76px; top:250px; padding:14px 36px; font-size:54px; border:6px solid #fff; box-shadow:0 8px 0 var(--ink); }
+
+#club .bg { background-image:url(../../../docs/04_ART/loading/loading_club.png); }
+#club .shade { background:linear-gradient(90deg, rgba(20,6,40,.85) 0%, rgba(20,6,40,.25) 55%, rgba(20,6,40,0) 100%); }
+#club .title em { color:var(--cyan); }
+#club .pill { background:var(--pink); }
+
+#cafe .bg { background-image:url(../../../docs/04_ART/loading/loading_cafe.png); }
+#cafe .shade { background:linear-gradient(90deg, rgba(10,40,80,.7) 0%, rgba(10,40,80,.15) 55%, rgba(10,40,80,0) 100%); }
+#cafe .title em { color:#ffd84a; }
+#cafe .pill { background:#2fa9ff; }
+
+#booth .bg { background-image:url(../../../docs/04_ART/loading/loading_booth.png); }
+#booth .shade { background:linear-gradient(90deg, rgba(140,30,90,.65) 0%, rgba(140,30,90,.15) 55%, rgba(140,30,90,0) 100%); }
+#booth .title { color:#ffe1f0; }
+#booth .title em { color:var(--pink); }
+#booth .pill { background:#ff7cc0; }
+</style>
+</head>
+<body>
+<div id="icon" class="card">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="chars">
+    <img src="../../../docs/04_ART/thumbnails/looks/stray_cat_wanderer_trim.png">
+    <img src="../../../docs/04_ART/thumbnails/looks/blossom_plushie_princess_trim.png">
+  </div>
+  <div class="logo">OHU</div>
+  <div class="sub">오후 · 홍대 소셜</div>
+</div>
+
+<div id="club" class="card wide">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="chars">
+    <img src="../../../docs/04_ART/thumbnails/looks/chained_casual_wanderer_trim.png">
+    <img src="../../../docs/04_ART/thumbnails/looks/feline_shadow_wanderer_trim.png">
+    <img src="../../../docs/04_ART/thumbnails/looks/shadow_buckle_ninja_trim.png">
+  </div>
+  <div class="logo">OHU<small>오후</small></div>
+  <div class="pill">🎧 DJ 되기</div>
+  <div class="title">밤이 되면<br><em>클럽 오픈!</em></div>
+</div>
+
+<div id="cafe" class="card wide">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="chars">
+    <img src="../../../docs/04_ART/thumbnails/looks/clouded_cape_traveler_trim.png">
+    <img src="../../../docs/04_ART/thumbnails/looks/cewek_old_money_trim.png">
+    <img src="../../../docs/04_ART/thumbnails/looks/academic_brown_scholar_trim.png">
+  </div>
+  <div class="logo">OHU<small>오후</small></div>
+  <div class="pill">☕ 카페 알바</div>
+  <div class="title">바다 뷰 카페에서<br><em>알바하고 코인!</em></div>
+</div>
+
+<div id="booth" class="card wide">
+  <div class="bg"></div><div class="shade"></div>
+  <div class="chars">
+    <img src="../../../docs/04_ART/thumbnails/looks/grey_distressed_traveler_trim.png">
+    <img src="../../../docs/04_ART/thumbnails/looks/blossom_plushie_princess_trim.png">
+    <img src="../../../docs/04_ART/thumbnails/looks/stray_cat_wanderer_trim.png">
+  </div>
+  <div class="logo">OHU<small>오후</small></div>
+  <div class="pill">📸 오후네컷</div>
+  <div class="title">친구랑<br><em>네컷 찍자!</em></div>
+</div>
+
+<script>
+const k = (location.hash || "#club").slice(1);
+const el = document.getElementById(k);
+if (el) el.classList.add("on");
+</script>
+</body>
+</html>

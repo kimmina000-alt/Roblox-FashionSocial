@@ -66,3 +66,16 @@ VIP 존, 음료, 불꽃 아이템도 있어요. (모든 음료는 무알코올�
 캐릭터는 1장의 스타일(치비 몸 + 애니메이션 얼굴 + 오버핏 스트리트웨어)로 게임 안에서 입혀 찍는다.
 촬영과 글자 합성 도구: tools/art/thumbnails/thumbs.html, render.ps1 (D-653).
 로맨스 금지 규칙: 둘이 손잡기, 커플 포즈는 쓰지 않는다.
+
+## 4. 만든 이미지 v2 (D-683)
+
+사용자가 고른 마켓플레이스 아바타 9개의 공식 렌더(투명 PNG, docs/04_ART/thumbnails/looks/)를 게임 장면(docs/04_ART/loading) 위에 올렸다. 도구: tools/art/thumbnails/thumbs_looks.html, render.ps1 -Page thumbs_looks.html.
+
+| 파일 | 캐릭터 |
+|---|---|
+| ohu_v2_icon.png (512) | Stray Cat Wanderer, Blossom Plushie Princess |
+| ohu_v2_club.png | Chained Casual Wanderer, Feline Shadow Wanderer, Shadow Buckle Ninja |
+| ohu_v2_cafe.png | Clouded Cape Traveler, Cewek Old Money, Academic Brown Scholar |
+| ohu_v2_booth.png | Grey Distressed Traveler, Blossom Plushie Princess, Stray Cat Wanderer |
+
+![](../04_ART/thumbnails/ohu_v2_icon.png) ![](../04_ART/thumbnails/ohu_v2_club.png) ![](../04_ART/thumbnails/ohu_v2_cafe.png) ![](../04_ART/thumbnails/ohu_v2_booth.png)
