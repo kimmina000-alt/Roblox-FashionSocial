@@ -1241,3 +1241,6 @@ BAD / ATEEZ(89023892900416, 77초), Lemon Tang / 하츠투하츠(99550529874718,
 
 ## D-686 (2026-11-01) EDM 10곡 제목에서 OHU Mix 번호 빼기
 사용자: 표시 이름만. 제목에서 "OHU Mix 01 · "…"OHU Mix 10 · "을 지웠다(예: SAN FRANCISCO / DOM DOLLA). 장르는 EDM 그대로.
+
+## D-687 (2026-11-01) K-POP 5곡 랩 값 따로 반영
+사용자가 붙여 준 랩 값: BAD, Catch Catch, Get A Guitar, Bubble Pop = speed 1, tempo 0.5, volume 10, boost 3, octave 1, EQ 0/10/10. Lemon Tang = 같고 boost 2.5. 실제 값: PlaybackSpeed 0.5, PitchShift 2.0, Volume 10, SoundGroup 3 (Lemon Tang 2.5), EQ 0/10/10.
