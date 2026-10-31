@@ -29,7 +29,7 @@ Character A's body, head (스컬), classic clear shirt/pants and scales, with:
 
 | Part | Asset |
 |---|---|
-| Head | 112433260004346 (bundle 142347556296633 소년 얼굴 … 한국 남성 실감적, D-663) |
+| Head | 110649251725469 (bundle 24649319209591 얼굴 없는 인형 머리, D-669; before: 112433260004346) |
 | Hair | 137811933417350 지저분한 아이돌 웨이브 헤어 (back on, D-663) |
 | Face accessory | none (masks taken off, D-668) |
 | Layered 1 | 93816036884228 어깨 패드 (TShirt) |
@@ -43,4 +43,4 @@ Character A's body, head (스컬), classic clear shirt/pants and scales, with:
 
 ## Item seller (D-663)
 
-Character A without the biker jacket, with the bartender's face (head 112433260004346), dark bronze skin (105, 62, 36), the pose of emote 85369612310951 장엄한 소환 포즈 (animation 100249604916626) and a lit hand sparkler (D-663..D-668).
+Character A without the biker jacket, with the bartender's face (head 110649251725469, D-669), dark bronze skin (105, 62, 36), the pose of emote 85369612310951 장엄한 소환 포즈 (animation 100249604916626) and a lit hand sparkler (D-663..D-668).

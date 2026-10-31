@@ -52,8 +52,9 @@ do
 	local a = NpcLooks.Looks.CharacterA
 	NpcLooks.Looks.Bartender = {
 		bodyOutfit = a.bodyOutfit,
-		-- face: bundle 142347556296633 (소년 얼굴 … 한국 남성 실감적, a dynamic head)
-		head = 112433260004346,
+		-- face: bundle 24649319209591 얼굴 없는 인형 머리 (a dynamic head; D-669,
+		-- after 142347556296633 → 112433260004346)
+		head = 110649251725469,
 		hair = 137811933417350, -- 지저분한 아이돌 웨이브 헤어 (블랙 화이트; off and back on, 2026-10-31)
 		-- (no mask: 97755745317658, then 12897844075, taken off D-668)
 		layered = {
@@ -74,7 +75,7 @@ do
 	local seller = table.clone(a)
 	seller.pose = 100249604916626
 	seller.skin = Color3.fromRGB(105, 62, 36) -- dark bronze (user 2026-10-31: bronze, then darker)
-	seller.head = 112433260004346 -- the bartender's face (bundle 142347556296633), not the skull
+	seller.head = NpcLooks.Looks.Bartender.head -- the bartender's face, not the skull
 	-- (user 2026-10-31, later: without the biker jacket)
 	seller.layered = {}
 	for _, item in ipairs(a.layered) do
