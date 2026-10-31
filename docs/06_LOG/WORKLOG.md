@@ -2767,3 +2767,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 상단 버튼 1.5배·☰·시계 (D-634)
 ![](images/2026-10-31/topbar_v3_clock.jpg)
+
+### 이름표 한 줄·VIP 조명선·국밥 계산대·카페 2층 조명 (D-635)
+![](images/2026-10-31/role_tags_one_row.jpg) ![](images/2026-10-31/cafe_2f_lights.jpg)

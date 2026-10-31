@@ -495,6 +495,7 @@ do
 	local RX, RZ = 53.6, -319.2
 	if reg then
 		local r = reg:Clone()
+		r:ScaleTo(r:GetScale() * 1.5) -- (the cafe till's size, user 2026-10-31)
 		local cf, size = r:GetBoundingBox()
 		r:PivotTo(CFrame.new(RX, FY + 3.85 + size.Y / 2, RZ) * CFrame.Angles(0, math.pi, 0) * cf:ToObjectSpace(r:GetPivot()))
 		for _, p in ipairs(r:GetDescendants()) do

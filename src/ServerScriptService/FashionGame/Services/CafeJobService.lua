@@ -604,41 +604,16 @@ local function playAt(parent: Instance?, key: string)
 	task.delay(8, function() s:Destroy() end)
 end
 
--- "알바생" over the head while working (user 2026-10-27: no apron any more)
-local function setStaffTag(character: Model?, shopKey: string?)
+-- "알바생" over the head while working (user 2026-10-27: no apron any more).
+-- Since 2026-10-31 it is a badge in NameTagService's role row (VIP size,
+-- next to GUARD / VIP / DJ), shown from the character attribute CafeJob;
+-- here only the old pieces are cleared.
+local function setStaffTag(character: Model?, _shopKey: string?)
 	if not character then return end
 	local old = character:FindFirstChild("CafeStaffTag")
 	if old then old:Destroy() end
 	local apron = character:FindFirstChild("CafeApron") -- (from before 2026-10-27)
 	if apron then apron:Destroy() end
-	if not shopKey then return end
-	local head = character:FindFirstChild("Head")
-	if not head or not head:IsA("BasePart") then return end
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "CafeStaffTag"
-	gui.Adornee = head
-	gui.Size = UDim2.fromOffset(110, 30)
-	-- just above the name tag (NameTagService: 70 px tall at 2.4 studs) at any
-	-- distance: the same anchor, lifted by its own height in pixels
-	gui.StudsOffset = Vector3.new(0, 2.4, 0)
-	gui.SizeOffset = Vector2.new(0, 2.6) -- (over the VIP / DJ row, which sits on the id + XP tag, 2026-10-27)
-	gui.LightInfluence = 0
-	gui.AlwaysOnTop = false
-	gui.MaxDistance = 80
-	-- (user 2026-10-27, 2nd) white letters with a green outline, no box, no cup
-	local label = Instance.new("TextLabel")
-	label.Size = UDim2.fromScale(1, 1)
-	label.BackgroundTransparency = 1
-	label.Text = "알바생"
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.TextScaled = true
-	label.Font = Enum.Font.GothamBlack
-	label.Parent = gui
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Color3.fromRGB(30, 150, 80)
-	stroke.Thickness = 2.5
-	stroke.Parent = label
-	gui.Parent = character
 end
 
 local function stopWork(player: Player, message: string?)

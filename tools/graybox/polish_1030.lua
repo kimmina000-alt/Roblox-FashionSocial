@@ -1286,4 +1286,27 @@ if beach then
 	table.insert(log, "ducks x1.6 " .. n)
 end
 
+---------------------------------------------------------------- 22. cafe upstairs lights (user 2026-10-31, phone shot)
+-- The upstairs tables along the back wall (x ~ -210) sat in the dark at both
+-- ends: only one row of ceiling lights (x -237) and the skylight in the middle.
+-- A second row of the same ceiling discs over them, warm white, pointing down.
+if cafe then
+	for _, d in ipairs(cafe:GetChildren()) do
+		if d.Name == "UpstairsLight" then d:Destroy() end
+	end
+	for _, z in ipairs({ 206, 230, 254, 298, 322, 346 }) do
+		local disc = part("UpstairsLight", Vector3.new(1.4, 0.3, 1.4), CFrame.new(-214, 62, z), Color3.fromRGB(255, 244, 228), cafe,
+			{ material = Enum.Material.Neon, noshadow = true })
+		local light = Instance.new("SpotLight")
+		light.Face = Enum.NormalId.Bottom
+		light.Angle = 75
+		light.Range = 50
+		light.Brightness = 1 -- (2 washed the wall white; 1 matches the skylit middle)
+		light.Color = Color3.fromRGB(255, 226, 190)
+		light.Shadows = false
+		light.Parent = disc
+	end
+	table.insert(log, "upstairs lights 6")
+end
+
 return table.concat(log, " | ")
