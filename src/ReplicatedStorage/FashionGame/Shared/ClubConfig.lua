@@ -103,7 +103,7 @@ ClubConfig.Playlist = {
 	{ channel = "POP", title = "LOVE LOVE LOVE · EPIC HIGH", soundId = 100033043291152, length = 59, baseSpeed = 0.5 },
 	{ channel = "POP", title = "TANI TANI · TANI", soundId = 131058655527940, length = 53, baseSpeed = 0.5 },
 	{ channel = "POP", title = "LOVE ATTACK · RESCENE", soundId = 103905057186427, length = 70, baseSpeed = 0.5 },
-	{ channel = "POP", title = "OHU Mix 05", soundId = 106119256110919, length = 53, baseSpeed = 0.5 },
+	{ channel = "POP", title = "GRIT X DIET COKE", soundId = 106119256110919, length = 53, baseSpeed = 0.5 },
 	{ channel = "POP", title = "CASH OUT", soundId = 140111630417316, length = 53, baseSpeed = 0.5 },
 	{ channel = "POP", title = "MY MIND", soundId = 106804146862342, length = 62, baseSpeed = 0.5 },
 	{ channel = "POP", title = "PLAIN JANE · A$AP FERG", soundId = 78832462526893, length = 44, baseSpeed = 0.5 },
