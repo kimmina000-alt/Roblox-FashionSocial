@@ -69,17 +69,18 @@ local haze = piece("InsideLight", Vector3.new(0.2, 0.2, 0.2), CFrame.new(DOOR.X 
 local inside = Instance.new("PointLight")
 inside.Color, inside.Range, inside.Brightness, inside.Shadows = Color3.fromRGB(200, 100, 255), 18, 2, false
 inside.Parent = haze
--- The doorway: the hole in the club's west wall (x 48..50) from z -218 to
--- -202 and up to y 18 (02_Club Wall_S_L / Wall_S_R / Wall_S_Top). A line at
--- each edge of each inner face (x 48.3 and 49.7: the sliding panels run at x 49).
-local LINE_COLOR = Color3.fromRGB(205, 110, 255)
-local Z0, Z1, TOP = -218, -202, 18
-local lines: {BasePart} = {}
-for _, x in ipairs({ 48.3, 49.7 }) do
-	table.insert(lines, piece("DoorLine", Vector3.new(0.15, TOP, 0.12), CFrame.new(x, TOP / 2, Z0 + 0.06), LINE_COLOR, 1))
-	table.insert(lines, piece("DoorLine", Vector3.new(0.15, TOP, 0.12), CFrame.new(x, TOP / 2, Z1 - 0.06), LINE_COLOR, 1))
-	table.insert(lines, piece("DoorLine", Vector3.new(0.15, 0.12, Z1 - Z0), CFrame.new(x, TOP - 0.06, (Z0 + Z1) / 2), LINE_COLOR, 1))
-end
+-- (user 2026-10-31, later still: not on the black inner faces but round the
+-- outside of the gold door frame, thin yellow lines.) The frame
+-- (Hongdae_Layout.ClubFacade GoldJamb / GoldLintel) faces the street at
+-- x 45.8 and runs z -224..-196, up to y 21; the lines sit on that face along
+-- its outer edge.
+local LINE_COLOR = Color3.fromRGB(255, 205, 40)
+local FACE_X, Z0, Z1, TOP, W = 45.75, -224, -196, 21, 0.1
+local lines: {BasePart} = {
+	piece("DoorLine", Vector3.new(0.1, TOP, W), CFrame.new(FACE_X, TOP / 2, Z0 + W / 2), LINE_COLOR, 1),
+	piece("DoorLine", Vector3.new(0.1, TOP, W), CFrame.new(FACE_X, TOP / 2, Z1 - W / 2), LINE_COLOR, 1),
+	piece("DoorLine", Vector3.new(0.1, W, Z1 - Z0), CFrame.new(FACE_X, TOP - W / 2, (Z0 + Z1) / 2), LINE_COLOR, 1),
+}
 local spill = piece("Spill", Vector3.new(0.2, 0.2, 0.2), CFrame.new(DOOR.X + 2, DOOR.Y + 7, DOOR.Z), Color3.new(1, 1, 1), 1)
 local out = Instance.new("SpotLight")
 out.Face = Enum.NormalId.Left -- (-X: out of the door, onto the sidewalk)
