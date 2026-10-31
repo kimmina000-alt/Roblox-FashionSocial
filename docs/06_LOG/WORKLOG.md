@@ -2773,3 +2773,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 카페·국밥집 상점 UI (D-636)
 ![](images/2026-10-31/cafe_menu_drinks.jpg) ![](images/2026-10-31/cafe_menu_dessert.jpg) ![](images/2026-10-31/gukbap_menu.jpg)
+
+### 계단 조명선·DJ 데스크 화면 (D-638)
+![](images/2026-10-31/stair_foot_lights_joined.jpg) ![](images/2026-10-31/dj_desk_eq.jpg)

@@ -126,11 +126,36 @@ local function build(part: BasePart, spot: BasePart)
 	}
 end
 
+-- the small screen on the front of the DJ desk (user 2026-10-31: the plain
+-- white panel there shows the neon EQ of the LED wall, on its own)
+local desk: { gui: SurfaceGui, visuals: any }? = nil
+local deskTriedAt = 0
+local function buildDesk(club: Instance, spot: BasePart)
+	if desk and desk.gui.Parent then return end
+	local panel = club:FindFirstChild("DeskLogo", true)
+	if not panel or not panel:IsA("BasePart") then return end
+	-- a dark glass panel instead of the white light (this client only)
+	panel.Material = Enum.Material.Glass
+	panel.Color = Color3.fromRGB(8, 8, 14)
+	-- its face away from the DJ, to the dance floor
+	local away = panel.Position + (panel.Position - spot.Position)
+	local gui = create("SurfaceGui", {
+		Name = "DJDeskScreen", Adornee = panel, Face = faceToward(panel, away),
+		SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud, PixelsPerStud = 60,
+		LightInfluence = 0, Brightness = 1.6, ResetOnSpawn = false, AlwaysOnTop = false,
+	}, playerGui)
+	create("Frame", { Size = UDim2.fromScale(1, 1), BackgroundColor3 = Color3.fromRGB(8, 6, 16), BorderSizePixel = 0 }, gui)
+	desk = { gui = gui, visuals = require(script.Parent:WaitForChild("LEDVisuals")).new(gui, 2, true) }
+end
+
 local function find()
 	local club = workspace:FindFirstChild("Graybox_MainSocial") and workspace.Graybox_MainSocial:FindFirstChild("02_Club")
 	local wall = club and club:FindFirstChild("LED_Wall")
 	local spot = club and club:FindFirstChild("DJSpot")
-	if wall and wall:IsA("BasePart") and spot and spot:IsA("BasePart") then build(wall, spot) end
+	if wall and wall:IsA("BasePart") and spot and spot:IsA("BasePart") then
+		build(wall, spot)
+		buildDesk(club :: Instance, spot)
+	end
 end
 
 local function clearClone(s: Screen)
@@ -216,6 +241,7 @@ RunService.RenderStepped:Connect(function()
 	local camera = workspace.CurrentCamera
 	if not camera or (camera.CFrame.Position - s.part.Position).Magnitude > DRAW_DISTANCE then
 		s.gui.Enabled = false
+		if desk then desk.gui.Enabled = false end
 		return
 	end
 	s.gui.Enabled = true
@@ -232,6 +258,15 @@ RunService.RenderStepped:Connect(function()
 	s.gradient.Rotation = (t * 25) % 360
 	local loud = musicLoudness()
 	if visuals then visuals:update(t, loud, { c1, c2, c3 }) end
+	if desk then
+		desk.gui.Enabled = true
+		desk.visuals:update(t, loud, { c1, c2, c3 })
+	elseif s.part.Parent and (t - deskTriedAt) > 2 then
+		-- (the desk streams in after the wall: try again now and then)
+		deskTriedAt = t
+		local spot = s.part.Parent:FindFirstChild("DJSpot")
+		if spot and spot:IsA("BasePart") then buildDesk(s.part.Parent, spot) end
+	end
 	-- DJ on the screen
 	local id = djUserId()
 	local dj = if id ~= 0 then Players:GetPlayerByUserId(id) else nil
