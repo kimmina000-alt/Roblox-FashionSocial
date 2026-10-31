@@ -37,7 +37,8 @@ MonetizationConfig.GamePasses = {
 	-- who spoils the game out of the club for a minute. Permanent. id 0 until the
 	-- user makes the pass on the Creator Dashboard (Studio test buys work till then).
 	-- (named like "VIP 패스" on the dashboard, user 2026-10-30)
-	Guard = { sku = "CLUB-PASS-GUARD", id = 2062319135, name = "가드 패스", price = 199, status = "live",
+	-- (199 → 399, user 2026-10-31: above VIP, like other clubs; fewer guards about)
+	Guard = { sku = "CLUB-PASS-GUARD", id = 2062319135, name = "가드 패스", price = 399, status = "live",
 		description = "머리 위 GUARD 표시와 함께, 클럽 안에서 게임을 방해하는 사람을 1분 동안 밖으로 안내할 수 있어요." },
 	-- Club VIP balcony access (D-045). Permanent.
 	VIP = { sku = "CLUB-PASS-VIP", id = 2053896389, name = "VIP 패스", price = 299, status = "live",
@@ -63,8 +64,9 @@ MonetizationConfig.Products = {
 	CoinBoost1h = { sku = "ECON-DP-BOOST1H", id = 3722464572, name = "1시간 코인 x2 부스트", price = 25, status = "live",
 		description = "접속해 있는 1시간 동안 코인을 2배로 받아요." },
 	-- DJ booth time (D-052). Consumable: each purchase adds DJMinutes.
-	-- (Robux only, test price 25 R$: D-268 / D-270)
-	DJ = { sku = "CLUB-DP-DJ30", id = 3722464534, name = "DJ 30분", price = 25, status = "live",
+	-- (Robux only, test price 25 R$: D-268 / D-270; 49 R$ from 2026-10-31, user:
+	-- one booth per server, so a full queue sells the same number of turns)
+	DJ = { sku = "CLUB-DP-DJ30", id = 3722464534, name = "DJ 30분", price = 49, status = "live",
 		description = "클럽 DJ 부스를 30분 동안 써요. 곡 선택·조명." },
 	-- Paid drinks (DrinkService). key must match ClubConfig.Drinks[].product
 	-- or .vipProduct. One bottle = 6 cups, placed on a table and shared.
