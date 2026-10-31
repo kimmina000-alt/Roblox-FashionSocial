@@ -1321,8 +1321,100 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 	return true, nil
 end
 
+-- The real foods for the order windows (user 2026-10-31: "실제 아이템 사진"):
+-- one model per menu item (FashionGame.FoodPreviews.<item key>), built here
+-- because the meshes and textures are in ServerStorage; clients show them in
+-- little 3D windows (NeonShopUI), like the club's DrinkPreviews. What you get
+-- in the hand, and the whole cake for the cakes.
+local function buildFoodPreviews()
+	local old = FashionGame:FindFirstChild("FoodPreviews")
+	if old then old:Destroy() end
+	local folder = Instance.new("Folder")
+	folder.Name = "FoodPreviews"
+	-- (the asset foods hang off their handle by welds only: they are laid out
+	-- in a hidden spot of the world for a moment so the welds place them)
+	local stage = Instance.new("Model")
+	stage.Name = "FoodPreviewStage"
+	local made: {Model} = {}
+	local done: {[string]: boolean} = {}
+	for _, shop in pairs(SnackConfig.Shops) do
+		for _, item in ipairs(shop.items) do
+			if not done[item.key] then
+				done[item.key] = true
+				local ok, err = pcall(function()
+					local m = Instance.new("Model")
+					m.Name = item.key
+					-- how far the card's camera looks down (NeonShopUI): flat foods from above
+					local angles = { cake = 35, plate = 40, bowl = 32, ricebowl = 32, bread = 30, noodle = 20, parfait = 12 }
+					m:SetAttribute("PreviewAngle", angles[item.kind] or 8)
+					local whole = cakeModel(item.cake)
+					local cake = item.cake and SnackConfig.Cakes[item.cake]
+					if whole then
+						cakeCopy(whole, 2.2).Parent = m
+					elseif cake and sliceMesh() then
+						local centre = CFrame.new()
+						for i = 1, 6 do
+							local a = (i - 1) / 6 * math.pi * 2
+							local slice = cakeSlice(CAKE_R, cake.textures[1], centre, a)
+							if slice then
+								cakeDeco(cake, slice, centre, a, CAKE_R)
+								slice.Parent = m
+							end
+						end
+					else
+						local tool = makeTool(item)
+						for _, d in ipairs(tool:GetChildren()) do d.Parent = m end
+						tool:Destroy()
+					end
+					table.insert(made, m)
+				end)
+				if not ok then warn("[SnackService] preview", item.key, err) end
+			end
+		end
+	end
+	-- hold each handle still far below the map, let the welds settle
+	for i, m in ipairs(made) do
+		local handle = m:FindFirstChild("Handle")
+		if handle and handle:IsA("BasePart") then
+			handle.Anchored = true
+			handle.CFrame = CFrame.new(i * 20, -4000, 0)
+		else
+			for _, d in ipairs(m:GetDescendants()) do if d:IsA("BasePart") then d.Anchored = true end end
+		end
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("BasePart") then d.CanCollide, d.CanTouch, d.CanQuery = false, false, false end
+		end
+		m.Parent = stage
+	end
+	stage.Parent = workspace
+	for _ = 1, 3 do game:GetService("RunService").Heartbeat:Wait() end
+	for i, m in ipairs(made) do
+		local handle = m:FindFirstChild("Handle")
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("BasePart") then d.Anchored = true end
+		end
+		if handle and handle:IsA("BasePart") then m:PivotTo(m:GetPivot() - Vector3.new(i * 20, -4000, 0)) end
+		m.Parent = folder
+	end
+	stage:Destroy()
+	for _, m in ipairs(made) do
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("LuaSourceContainer") or d:IsA("Sound") or d:IsA("ProximityPrompt") or d:IsA("Light")
+				or d:IsA("ParticleEmitter") or d:IsA("JointInstance") or d:IsA("WeldConstraint") then
+				d:Destroy()
+			elseif d:IsA("BasePart") and d.Material == Enum.Material.Glass then
+				-- (ViewportFrames draw see-through glass as nothing)
+				d.Material = Enum.Material.SmoothPlastic
+				d.Transparency = math.min(d.Transparency, 0.45)
+			end
+		end
+	end
+	folder.Parent = FashionGame
+end
+
 function SnackService.Start(economyService: any)
 	economy = economyService
+	task.spawn(buildFoodPreviews)
 	local remote = Remotes:WaitForChild("Snack") :: RemoteFunction
 	remote.OnServerInvoke = function(player: Player, action: any, shopKey: any, itemKey: any)
 		if action == "Buy" then return buy(player, shopKey, itemKey) end

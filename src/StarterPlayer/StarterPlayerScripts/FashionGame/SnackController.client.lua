@@ -97,8 +97,8 @@ local function hide()
 end
 close.MouseButton1Click:Connect(hide)
 
--- the picture window for the cafes and the 국밥집 (user 2026-10-31, ShopMenuUI);
--- the other shops keep the list below
+-- the cafes' and the 국밥집's window in the club shop's look with the real
+-- items (user 2026-10-31, ShopMenuUI); the other shops keep the list below
 local SnackMenuArt = require(FashionGame:WaitForChild("Shared"):WaitForChild("SnackMenuArt"))
 local pictureMenu = require(script.Parent:WaitForChild("ShopMenuUI")).new(gui)
 local function hideAll()
@@ -108,7 +108,7 @@ end
 
 local function showPictures(shopKey: string, shop: any, statusText: string)
 	panel.Visible = false
-	pictureMenu:open(shop, SnackMenuArt.ShopTheme[shopKey], {
+	pictureMenu:open(shopKey, shop, {
 		buyCoins = function(item: any): (boolean, string?)
 			pictureMenu:setStatus("준비 중…")
 			local ok, message = remote:InvokeServer("Buy", shopKey, item.key)

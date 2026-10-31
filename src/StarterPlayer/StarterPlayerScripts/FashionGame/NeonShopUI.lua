@@ -297,6 +297,13 @@ local function bottleView(parent: Instance, preview: Model, color: Color3, posit
 	local dist = math.max(sz.Y, math.max(sz.X, sz.Z) * 1.5) / 2 / math.tan(math.rad(15)) * 1.15
 	-- (bottles face -Z: the camera in front of the printed side)
 	cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(0, sz.Y * 0.05, -dist), cf.Position)
+	-- foods (user 2026-10-31): attribute PreviewAngle looks down on flat things
+	-- (cakes, plates, bowls) from that many degrees
+	local angle = preview:GetAttribute("PreviewAngle")
+	if typeof(angle) == "number" then
+		local a = math.rad(angle)
+		cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(0, math.sin(a), -math.cos(a)) * dist, cf.Position)
+	end
 	cam.Parent = vp
 	vp.CurrentCamera = cam
 	return holder

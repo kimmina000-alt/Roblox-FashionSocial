@@ -72,9 +72,12 @@ SnackMenuArt.Descriptions = {
 	suyuk = "6점 · 테이블에 놓고 함께 먹어요",
 }
 
--- the window looks: pastel pink (cafes, like the photo booth) and warm
--- hanji with a red band (국밥집)
+-- the window looks. (2026-10-31, later) the windows are the club shop's dark
+-- neon ones (NeonShopUI, ShopMenuUI): only accent, icon, subtitle and tabs
+-- are used now; the pastel fields stay for the drawings' own pages.
 export type Theme = {
+	accent: Color3,
+	icon: string,
 	header: {Color3}, -- gradient left → right
 	headerIcon: string,
 	subtitle: string,
@@ -98,9 +101,11 @@ local CAFE_TABS = {
 
 SnackMenuArt.Themes = {
 	cafe = {
+		accent = Color3.fromRGB(255, 130, 190), -- (rose pink next to the club's cyan / magenta)
+		icon = "☕",
 		header = { Color3.fromRGB(150, 98, 168), Color3.fromRGB(214, 140, 190) },
 		headerIcon = "rbxassetid://71544648981150",
-		subtitle = "Enjoy your special moment",
+		subtitle = "음료와 디저트를 골라 자리에서 즐겨 보세요",
 		body = { Color3.fromRGB(253, 240, 248), Color3.fromRGB(242, 224, 242) },
 		edge = Color3.fromRGB(255, 190, 222),
 		card = Color3.fromRGB(255, 248, 252),
@@ -114,9 +119,11 @@ SnackMenuArt.Themes = {
 		tabs = CAFE_TABS,
 	},
 	gukbap = {
+		accent = Color3.fromRGB(255, 140, 70), -- (warm orange, the 국밥집's red sign)
+		icon = "🍲",
 		header = { Color3.fromRGB(150, 32, 26), Color3.fromRGB(196, 72, 44) },
 		headerIcon = "rbxassetid://87087800953873",
-		subtitle = "뜨끈하게 한 그릇, 든든하게!",
+		subtitle = "뜨끈한 국밥 한 그릇, 자리에서 드세요",
 		body = { Color3.fromRGB(252, 246, 232), Color3.fromRGB(242, 230, 206) },
 		edge = Color3.fromRGB(214, 170, 120),
 		card = Color3.fromRGB(255, 251, 242),
