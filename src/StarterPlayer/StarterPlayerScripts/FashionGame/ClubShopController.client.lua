@@ -534,6 +534,7 @@ local function openMenu()
 	layoutMenu()
 	buildMenu()
 	menu.Visible = true
+	Popups.opened("ClubDrinkMenu", function() menu.Visible = false end)
 end
 player:GetAttributeChangedSignal("Pass_VIP"):Connect(function()
 	if menu.Visible then buildMenu() end
@@ -618,6 +619,8 @@ local function openItemShop()
 	layoutWindow(itemWindow.frame)
 	buildItemShop()
 	itemWindow.frame.Visible = true
+	-- (one window at a time; it also closes the ☰ menu, 2026-10-31)
+	Popups.opened("ClubItemShop", function() itemWindow.frame.Visible = false end)
 end
 
 -- 공개 범위 (모든 사람 / 친구만 / 나만) before a bottle goes on a table

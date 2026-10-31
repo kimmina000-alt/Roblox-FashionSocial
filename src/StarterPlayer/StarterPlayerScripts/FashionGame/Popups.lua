@@ -9,7 +9,14 @@ local Popups = {}
 type Entry = { name: string, close: () -> () }
 local current: Entry? = nil
 
+-- (2026-10-31, 2P phone test: the ☰ menu stayed open over a shop window)
+local listeners: {(string) -> ()} = {}
+function Popups.onOpened(f: (string) -> ())
+	table.insert(listeners, f)
+end
+
 function Popups.opened(name: string, close: () -> ())
+	for _, f in ipairs(listeners) do task.spawn(f, name) end
 	local previous = current
 	current = { name = name, close = close }
 	if previous and previous.name ~= name then

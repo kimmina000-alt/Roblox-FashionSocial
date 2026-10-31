@@ -309,7 +309,7 @@ local setupClose = button({
 	Position = UDim2.new(1, -10, 0, 10),
 	Size = UDim2.fromOffset(30, 30),
 	BackgroundColor3 = SETUP_CARD,
-	Text = "✕",
+	Text = "X", -- (✕ is not in the Roblox font: an empty box, 2P phone test 2026-10-31)
 	TextSize = 15,
 	ZIndex = 12,
 }, setupBox, 15)

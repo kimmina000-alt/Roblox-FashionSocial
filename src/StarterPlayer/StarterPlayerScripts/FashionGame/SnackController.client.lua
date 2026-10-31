@@ -30,7 +30,10 @@ local function round(parent: Instance, radius: number)
 	make("UICorner", { CornerRadius = UDim.new(0, radius) }, parent)
 end
 
-local gui = make("ScreenGui", { Name = "SnackGui", ResetOnSpawn = false, DisplayOrder = 40 }, player:WaitForChild("PlayerGui"))
+-- (IgnoreGuiInset like the club shop: the order window is placed under
+-- TopBar.bottom(), which is measured from the screen top; on phones it sat
+-- an inset too low, 2P phone test 2026-10-31)
+local gui = make("ScreenGui", { Name = "SnackGui", ResetOnSpawn = false, DisplayOrder = 40, IgnoreGuiInset = true }, player:WaitForChild("PlayerGui"))
 local panel = make("Frame", {
 	Name = "Menu",
 	AnchorPoint = Vector2.new(0.5, 0.5),

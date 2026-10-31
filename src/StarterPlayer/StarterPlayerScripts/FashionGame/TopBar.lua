@@ -145,6 +145,10 @@ function TopBar.setOpen(on: boolean)
 end
 
 more.MouseButton1Click:Connect(function() TopBar.setOpen(not open) end)
+-- any window opening closes the menu
+require(script.Parent:WaitForChild("Popups")).onOpened(function()
+	if open then TopBar.setOpen(false) end
+end)
 
 -- Bottom edge (px, IgnoreGuiInset space) of the button row. Popups start
 -- below it (user, 2026-10-22: popups covered the buttons on phones, where the
