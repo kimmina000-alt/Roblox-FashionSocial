@@ -224,73 +224,37 @@ corner(speedButton, 8)
 create("UITextSizeConstraint", { MaxTextSize = 13 }, speedButton)
 -- DJ shown on the big LED screen (DjService.Actions.Screen, attribute
 -- ClubDJScreen): next to 시간 연장 in the DJ row (user 2026-10-25)
-local screenButton = create("TextButton", {
-	Name = "Screen",
-	AnchorPoint = Vector2.new(1, 0.5),
-	BackgroundColor3 = COLORS.dj,
-	Text = "📺 전광판 ON",
-	TextColor3 = COLORS.text,
-	TextScaled = true,
-	Font = Enum.Font.GothamBold,
-	Visible = false,
-}, djRow)
-corner(screenButton, 15)
-create("UITextSizeConstraint", { MaxTextSize = 13 }, screenButton)
-create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, screenButton)
-
--- the DJ's sound row (user 2026-10-30): pitch − / + (x0.5..x2 by 0.1) and
--- speed − / + (x0.25..x2 by 0.05); each − button shows the value
--- (user 2026-11-01) the DJ's mixer: ⏸ on its own row, then three rows
--- "− value +" for the speed (PlaybackSpeed), the volume and the pitch (the
--- PitchShift octave). Each value is what the Sound gets: the track's own
--- setting times the DJ's step.
+-- (user 2026-11-01, later) one DJ row: 📺 전광판 on/off, ⏸ 일시정지 and 🎆
+-- 무대 스파클러. The speed / volume / pitch mixer (D-675) is gone from the
+-- turntable; the songs carry their own speed and pitch (ClubConfig).
 local djSound = create("Frame", {
 	Name = "DJSound",
 	BackgroundTransparency = 1,
 	Visible = false,
 }, panel)
-create("UIListLayout", { FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, djSound)
-local SOUND_ROWS = 4
-local soundButtons: {[string]: TextButton} = {}
-local soundLabels: {[string]: TextLabel} = {}
-local function soundButton(name: string, text: string, size: UDim2, parent: Instance, order: number): TextButton
+create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, djSound)
+local function djRowButton(name: string, text: string, order: number, color: Color3): TextButton
 	local b = create("TextButton", {
 		Name = name,
 		LayoutOrder = order,
-		Size = size,
-		BackgroundColor3 = COLORS.card,
+		Size = UDim2.new(1 / 3, -4, 1, 0),
+		BackgroundColor3 = color,
 		Text = text,
 		TextColor3 = COLORS.text,
 		TextScaled = true,
 		Font = Enum.Font.GothamBold,
-	}, parent)
+	}, djSound)
 	corner(b, 8)
 	create("UITextSizeConstraint", { MaxTextSize = 13 }, b)
 	create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, b)
-	soundButtons[name] = b
 	return b
 end
-soundButton("Pause", "⏸ 일시정지", UDim2.new(1, 0, 1 / SOUND_ROWS, -3), djSound, 1)
-for i, key in ipairs({ "Speed", "Volume", "Pitch" }) do
-	local row = create("Frame", { Name = key .. "Row", LayoutOrder = i + 1, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1 / SOUND_ROWS, -3) }, djSound)
-	create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, row)
-	soundButton(key .. "Down", "−", UDim2.new(0.22, -3, 1, 0), row, 1)
-	local label = create("TextLabel", {
-		Name = key .. "Value",
-		LayoutOrder = 2,
-		Size = UDim2.new(0.56, -2, 1, 0),
-		BackgroundColor3 = COLORS.card,
-		BackgroundTransparency = 0.5,
-		TextColor3 = COLORS.text,
-		TextScaled = true,
-		Font = Enum.Font.GothamBold,
-		Text = "",
-	}, row)
-	corner(label, 8)
-	create("UITextSizeConstraint", { MaxTextSize = 13 }, label)
-	soundLabels[key] = label
-	soundButton(key .. "Up", "+", UDim2.new(0.22, -3, 1, 0), row, 3)
-end
+-- DJ shown on the big LED screen (DjService.Actions.Screen, attribute ClubDJScreen)
+local screenButton = djRowButton("Screen", "📺 전광판 ON", 1, COLORS.dj)
+local pauseButton = djRowButton("Pause", "⏸ 일시정지", 2, COLORS.card)
+-- 🎆 the stage fireworks, free for the DJ (user 2026-10-27; SparkleService
+-- "DJColdSpark", once every 90 s)
+local djSparkButton = djRowButton("DJSpark", "🎆 무대 스파클러", 3, Color3.fromRGB(255, 150, 40))
 
 -- light colours (DJ only): ClubConfig.LightColors swatches
 local colorRow = create("Frame", {
@@ -315,18 +279,6 @@ for index, entry in ipairs(ClubConfig.LightColors) do
 	create("UIStroke", { Name = "Picked", Color = Color3.new(1, 1, 1), Thickness = 2, Enabled = false }, button)
 	colorButtons[entry.key] = button
 end
--- 🎆 the stage fireworks, free for the DJ (user 2026-10-27; SparkleService
--- "DJColdSpark", once every 90 s), the last cell of the colour row
-local djSparkButton = create("TextButton", {
-	Name = "DJSpark",
-	LayoutOrder = #ClubConfig.LightColors + 1,
-	BackgroundColor3 = Color3.fromRGB(255, 150, 40),
-	Text = "🎆",
-	TextScaled = true,
-	Font = Enum.Font.GothamBold,
-	TextColor3 = COLORS.text,
-}, colorRow)
-corner(djSparkButton, 6)
 
 local listTitle = create("TextLabel", {
 	Name = "ListTitle",
@@ -473,36 +425,25 @@ local function layout()
 		djLabel.Size = UDim2.new(1, -12, 0, 26)
 		djButton.AnchorPoint = Vector2.new(1, 1)
 		djButton.Position = UDim2.new(1, -4, 1, -4)
-		-- as DJ the row holds both buttons side by side, half the width each
-		-- (2P phone test 2026-10-26: 150 + 96 ran past the panel's left edge)
-		local half = math.floor((leftW - 14) / 2)
-		local djW = if dj then half else math.min(150, leftW - 8)
-		djButton.Size = UDim2.fromOffset(djW, 24)
-		screenButton.AnchorPoint = Vector2.new(1, 1)
-		screenButton.Position = UDim2.new(1, -djW - 10, 1, -4)
-		screenButton.Size = UDim2.fromOffset(half, 24)
+		-- (the 📺 button moved to the DJ row below, user 2026-11-01)
+		djButton.Size = UDim2.fromOffset(math.min(150, leftW - 8), 24)
 	else
 		djLabel.Position = UDim2.fromOffset(10, 0)
-		djLabel.Size = UDim2.new(1, if dj then -226 else -120, 1, 0)
+		djLabel.Size = UDim2.new(1, -120, 1, 0)
 		djButton.AnchorPoint = Vector2.new(1, 0.5)
 		djButton.Position = UDim2.new(1, -6, 0.5, 0)
 		djButton.Size = UDim2.fromOffset(104, 30)
-		screenButton.AnchorPoint = Vector2.new(1, 0.5)
-		screenButton.Position = UDim2.new(1, -116, 0.5, 0)
-		screenButton.Size = UDim2.fromOffset(100, 30)
 	end
-	screenButton.Visible = dj
 	y += (if compact then 58 else 40) + 6
 	if dj then
 		djTools.Position = UDim2.fromOffset(0, y)
 		djTools.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
 		y += (if compact then 26 else 30) + 6
-		local soundH = SOUND_ROWS * ((if compact then 24 else 28) + 4) - 4
 		djSound.Position = UDim2.fromOffset(0, y)
-		djSound.Size = UDim2.fromOffset(leftW, soundH)
-		y += soundH + 6
+		djSound.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
+		y += (if compact then 26 else 30) + 6
 		local perRow = if compact then 4 else 8
-		local rows = math.ceil((#ClubConfig.LightColors + 1) / perRow) -- (+1: the 🎆 cell)
+		local rows = math.ceil(#ClubConfig.LightColors / perRow)
 		local cellH = if compact then 22 else 24
 		colorGrid.CellSize = UDim2.fromOffset(math.floor((leftW - (perRow - 1) * 4) / perRow), cellH)
 		colorRow.Position = UDim2.fromOffset(0, y)
@@ -721,25 +662,9 @@ local function refresh()
 	djTools.Visible = dj
 	djSound.Visible = dj
 	colorRow.Visible = dj
-	do -- the mixer: what the Sound plays at, coloured when the DJ moved it off x1
-		local function attr(name: string): number
-			local v = FashionGame:GetAttribute(name)
-			return if typeof(v) == "number" then v else 1
-		end
-		local mspeed, mvolume, mpitch = attr("ClubMusicSpeed"), attr("ClubMusicVolume"), attr("ClubMusicPitch")
-		local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
-		local MOVED = Color3.fromRGB(90, 60, 160)
-		soundLabels.Speed.Text = string.format("속도 %.2f", ClubConfig.trackRate(track, mspeed))
-		soundLabels.Volume.Text = string.format("볼륨 %.1f", (if track and track.volume then track.volume else ClubConfig.MusicVolume) * mvolume)
-		soundLabels.Pitch.Text = string.format("피치 %.2f", (if track and track.octave then track.octave else 1) * mpitch)
-		for key, value in pairs({ Speed = mspeed, Volume = mvolume, Pitch = mpitch }) do
-			soundButtons[key .. "Down"].BackgroundColor3 = if value < 1 then MOVED else COLORS.card
-			soundButtons[key .. "Up"].BackgroundColor3 = if value > 1 then MOVED else COLORS.card
-		end
-		local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
-		soundButtons.Pause.Text = if paused then "▶ 다시 재생" else "⏸ 일시정지"
-		soundButtons.Pause.BackgroundColor3 = if paused then COLORS.dj else COLORS.card
-	end
+	local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
+	pauseButton.Text = if paused then "▶ 다시 재생" else "⏸ 일시정지"
+	pauseButton.BackgroundColor3 = if paused then COLORS.dj else COLORS.card
 	local pickedColor = FashionGame:GetAttribute("ClubLightColor") or "rainbow"
 	for key, button in pairs(colorButtons) do
 		(button:FindFirstChild("Picked") :: UIStroke).Enabled = key == pickedColor
@@ -818,22 +743,9 @@ closeButton.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
 end)
 skipButton.MouseButton1Click:Connect(function() call("Skip", nil) end)
-soundButtons.Pause.MouseButton1Click:Connect(function()
+pauseButton.MouseButton1Click:Connect(function()
 	call("Pause", FashionGame:GetAttribute("ClubMusicPaused") ~= true)
 end)
-for name, spec in pairs({
-	PitchDown = { "Pitch", -1 }, PitchUp = { "Pitch", 1 },
-	SpeedDown = { "Speed", -1 }, SpeedUp = { "Speed", 1 },
-	VolumeDown = { "Volume", -1 }, VolumeUp = { "Volume", 1 },
-}) do
-	soundButtons[name].MouseButton1Click:Connect(function()
-		local list = if spec[1] == "Pitch" then ClubConfig.MusicPitches
-			elseif spec[1] == "Volume" then ClubConfig.MusicVolumes else ClubConfig.MusicSpeeds
-		local i = ClubConfig.nearestStep(list, FashionGame:GetAttribute("ClubMusic" .. spec[1]))
-		local to = list[math.clamp(i + spec[2], 1, #list)]
-		if to ~= list[i] then call("Music" .. spec[1], to) end
-	end)
-end
 screenButton.MouseButton1Click:Connect(function()
 	call("Screen", FashionGame:GetAttribute("ClubDJScreen") == false)
 end)

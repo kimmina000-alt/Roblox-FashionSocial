@@ -101,16 +101,17 @@ ClubConfig.Playlist = {
 	-- have no song names yet (video_to_mp3_…): titles to be set by the user.
 	-- length = seconds of audio at x1, measured in Studio)
 	-- (2026-10-31, latest: all ten at x0.5 again, user)
-	{ channel = "POP", title = "SAN FRANCISCO · DOM DOLLA", soundId = 113497657842744, length = 60, baseSpeed = 0.5 },
-	{ channel = "POP", title = "LOVE LOVE LOVE · EPIC HIGH", soundId = 100033043291152, length = 59, baseSpeed = 0.5 },
-	{ channel = "POP", title = "TANI TANI · TANI", soundId = 131058655527940, length = 53, baseSpeed = 0.5 },
-	{ channel = "POP", title = "LOVE ATTACK · RESCENE", soundId = 103905057186427, length = 70, baseSpeed = 0.5 },
-	{ channel = "POP", title = "GRIT X DIET COKE", soundId = 106119256110919, length = 53, baseSpeed = 0.5 },
-	{ channel = "POP", title = "CASH OUT", soundId = 140111630417316, length = 53, baseSpeed = 0.5 },
-	{ channel = "POP", title = "MY MIND", soundId = 106804146862342, length = 62, baseSpeed = 0.5 },
-	{ channel = "POP", title = "PLAIN JANE · A$AP FERG", soundId = 78832462526893, length = 44, baseSpeed = 0.5 },
-	{ channel = "POP", title = "PUMP IT UP", soundId = 125479000346000, length = 60, baseSpeed = 0.5 },
-	{ channel = "POP", title = "404 (New Era) · KiiiKiii", soundId = 74181572220193, length = 63, baseSpeed = 0.5 },
+	-- (2026-11-01: x0.5 with PitchShift octave 2, user)
+	{ channel = "POP", title = "SAN FRANCISCO · DOM DOLLA", soundId = 113497657842744, length = 60, baseSpeed = 0.5, octave = 2 },
+	{ channel = "POP", title = "LOVE LOVE LOVE · EPIC HIGH", soundId = 100033043291152, length = 59, baseSpeed = 0.5, octave = 2 },
+	{ channel = "POP", title = "TANI TANI · TANI", soundId = 131058655527940, length = 53, baseSpeed = 0.5, octave = 2 },
+	{ channel = "POP", title = "LOVE ATTACK · RESCENE", soundId = 103905057186427, length = 70, baseSpeed = 0.5, octave = 2 },
+	{ channel = "POP", title = "GRIT X DIET COKE", soundId = 106119256110919, length = 53, baseSpeed = 0.5, octave = 2 },
+	{ channel = "POP", title = "CASH OUT", soundId = 140111630417316, length = 53, baseSpeed = 0.5, octave = 2 },
+	{ channel = "POP", title = "MY MIND", soundId = 106804146862342, length = 62, baseSpeed = 0.5, octave = 2 },
+	{ channel = "POP", title = "PLAIN JANE · A$AP FERG", soundId = 78832462526893, length = 44, baseSpeed = 0.5, octave = 2 },
+	{ channel = "POP", title = "PUMP IT UP", soundId = 125479000346000, length = 60, baseSpeed = 0.5, octave = 2 },
+	{ channel = "POP", title = "404 (New Era) · KiiiKiii", soundId = 74181572220193, length = 63, baseSpeed = 0.5, octave = 2 },
 	-- (MANIAC · Stray Kids, 111304415353887, taken out again: user 2026-11-01)
 	-- (user 2026-10-31: PlaybackSpeed 2, Volume 10 then 20, PitchShift octave 0.5)
 	{ channel = "POP", title = "BANG BANG · IVE", soundId = 126421508146335, length = 352, baseSpeed = 2, volume = 20, octave = 0.5 },

@@ -2832,3 +2832,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ## 2026-11-01
 ### DJ 믹서 (D-675)
 ![](images/2026-11-01/dj_mixer.jpg)
+
+### DJ 한 줄 정리 (D-677)
+![](images/2026-11-01/dj_row.jpg)
