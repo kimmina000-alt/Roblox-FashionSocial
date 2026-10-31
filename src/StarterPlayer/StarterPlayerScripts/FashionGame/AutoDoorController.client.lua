@@ -106,9 +106,15 @@ end)
 while true do
 	task.wait(0.15)
 	local roots = {}
+		local guards: {[number]: boolean} = {}
 	for _, player in ipairs(Players:GetPlayers()) do
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-		if root and root:IsA("BasePart") then table.insert(roots, root.Position) end
+		if root and root:IsA("BasePart") then
+				table.insert(roots, root.Position)
+				-- (a guard opens the club door at any hour, user 2026-10-31; others
+				-- slipping in behind are put back out by ClubAccessService)
+				if player:GetAttribute("Pass_Guard") == true then guards[#roots] = true end
+			end
 	end
 	for model, door in pairs(doors) do
 		if model.Parent then
@@ -129,8 +135,8 @@ while true do
 			-- (and at night it simply stands open, user 2026-10-27)
 			local near = nightOnly and not dayShut
 			local exitPoint = ClubConfig.NightEntry and ClubConfig.NightEntry.ExitPosition
-			for _, pos in ipairs(roots) do
-				local allowed = not dayShut
+			for i, pos in ipairs(roots) do
+				local allowed = not dayShut or guards[i] == true
 					or (typeof(exitPoint) == "Vector3" and (pos - center):Dot(center - exitPoint) > 0)
 				-- distance along the ground (tall avatars carry their root high:
 				-- a 3D distance left them outside the range, 2026-10-27)
