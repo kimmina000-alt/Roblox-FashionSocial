@@ -54,7 +54,7 @@ do
 		-- face: bundle 142347556296633 (소년 얼굴 … 한국 남성 실감적, a dynamic head)
 		head = 112433260004346,
 		hair = 137811933417350, -- 지저분한 아이돌 웨이브 헤어 (블랙 화이트; off and back on, 2026-10-31)
-		extras = { { id = 97755745317658, kind = Enum.AccessoryType.Face } }, -- 마스크
+		extras = { { id = 12897844075, kind = Enum.AccessoryType.Face } }, -- 마스크 (was 97755745317658 until D-664)
 		layered = {
 			{ id = 93816036884228, kind = Enum.AccessoryType.TShirt }, -- 어깨 패드
 			{ id = 130442955983043, kind = Enum.AccessoryType.TShirt }, -- 주름진 오피스 버튼업 셔츠 화이트
