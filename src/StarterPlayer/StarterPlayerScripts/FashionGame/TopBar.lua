@@ -23,7 +23,7 @@ local TopBar = {}
 local SMALL = 38 -- round button (25 x 1.5)
 local ROW_GAP = 9 -- between ♥ and ☰
 local PILL_GAP = 18 -- between the coin pill and ♥
-local MENU_W, MENU_ROW, MENU_PAD = 54, 54, 9 -- (1.5x again, user 2026-10-31: the menu icons were too small)
+local MENU_W, MENU_ROW, MENU_PAD = 36, 36, 6 -- (54 for a moment on 2026-10-31, back: darker instead)
 TopBar.Scale = 1.5 -- (for the pieces other scripts size: coin pill, clock)
 
 -- order → right row place (1 = nearest the edge); menu orders → menu row
@@ -45,7 +45,16 @@ local pill = Instance.new("Frame")
 pill.Name = "MenuPill"
 pill.AnchorPoint = Vector2.new(0.5, 0)
 pill.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
-pill.BackgroundTransparency = 0.5 -- (50 %, user 2026-10-30)
+-- (50 % on 2026-10-30; 2026-10-31: darker, with a thin white edge, so the
+-- white icons stand out on bright places like the pink 오후네컷 wall)
+pill.BackgroundTransparency = 0.15
+do
+	local edge = Instance.new("UIStroke")
+	edge.Color = Color3.new(1, 1, 1)
+	edge.Transparency = 0.7
+	edge.Thickness = 1
+	edge.Parent = pill
+end
 pill.Visible = false
 pill.Parent = gui
 Instance.new("UICorner", pill).CornerRadius = UDim.new(1, 0)
@@ -123,7 +132,7 @@ layout = function()
 		b.BackgroundTransparency = 1
 		b.Size = UDim2.fromOffset(MENU_W, MENU_ROW)
 		local icon = b:FindFirstChild("Icon")
-		if icon and icon:IsA("GuiObject") then icon.Size = UDim2.fromScale(0.54, 0.54) end -- (29 px)
+		if icon and icon:IsA("GuiObject") then icon.Size = UDim2.fromScale(0.6, 0.6) end -- (22 px)
 		b.Position = if open
 			then UDim2.new(1, moreX, 0, top + MENU_PAD + (i - 0.5) * MENU_ROW)
 			else UDim2.fromOffset(-1000, -1000) -- closed: out of sight

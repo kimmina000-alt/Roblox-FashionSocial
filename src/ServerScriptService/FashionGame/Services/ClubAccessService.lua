@@ -68,7 +68,8 @@ local function nightSweep()
 					if notify then notify:FireClient(player, "Toast", string.format("🛡 가드 안내로 %d초 뒤에 들어갈 수 있어요.", left)) end
 				end
 			elseif not player:GetAttribute("ClubInside") then
-				if clubOpen() then
+				-- guards come in at any hour (user 2026-10-31, Guard pass)
+				if clubOpen() or player:GetAttribute("Pass_Guard") == true then
 					player:SetAttribute("ClubInside", true)
 				else
 					-- came in by day: back out to the sidewalk
