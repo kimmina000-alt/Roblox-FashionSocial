@@ -46,6 +46,24 @@ do
 	edge.Parent = button
 end
 
+-- 🧪 tests (user 2026-11-01): start Bubble Pop from inside the club without
+-- being the DJ. Studio, or the owner's account on a phone / live server
+-- (ClubConfig.canTestChoreo; the server checks the same)
+local CAN_TEST = ClubConfig.canTestChoreo(player)
+local testButton = button:Clone()
+testButton.Name = "TestSong"
+testButton.Position = UDim2.new(0.5, 0, 1, -64)
+testButton.Size = UDim2.fromOffset(210, 32)
+testButton.TextSize = 13
+testButton.BackgroundColor3 = Color3.fromRGB(70, 70, 90)
+testButton.Text = "🧪 테스트: Bubble Pop 틀기"
+testButton.Parent = gui
+testButton.Activated:Connect(function()
+	local musicRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Music") :: RemoteFunction
+	local ok, message = musicRemote:InvokeServer("TestChoreoSong", nil)
+	if not ok and message then warn("[ChoreoController]", message) end
+end)
+
 local function attr(name: string, default: number): number
 	local v = FashionGame:GetAttribute(name)
 	return if typeof(v) == "number" then v else default
@@ -123,6 +141,7 @@ RunService.Heartbeat:Connect(function(dt)
 	local track = playingTrack()
 	local here = inClub()
 	button.Visible = here and track ~= nil and track.choreo ~= nil
+	testButton.Visible = CAN_TEST and here
 	if not following then return end
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")

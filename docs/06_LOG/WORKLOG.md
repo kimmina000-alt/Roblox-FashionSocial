@@ -2841,3 +2841,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 안무 따라하기 (D-689)
 ![](images/2026-11-01/choreo_button.jpg)
+
+### 🧪 Bubble Pop 테스트 버튼 (D-693)
+![](images/2026-11-01/choreo_test_button.jpg)

@@ -49,6 +49,16 @@ export type Lab = {
 
 local ClubConfig = {}
 
+-- 🧪 (user 2026-11-01) the "Bubble Pop 틀기" test button in the club, for
+-- trying the choreography on a phone: shown in Studio and, on live servers,
+-- to the experience owner's account only. Set to false before the launch.
+ClubConfig.TestChoreoButton = true
+function ClubConfig.canTestChoreo(player: Player): boolean
+	if not ClubConfig.TestChoreoButton then return false end
+	if game:GetService("RunService"):IsStudio() then return true end
+	return game.CreatorType == Enum.CreatorType.User and player.UserId == game.CreatorId
+end
+
 -- The lab's apply(): the PlaybackSpeed really sent (speed × tempo, Roblox
 -- stops at 20) and the PitchShift octave (octave ÷ the tempo that got
 -- through: tempo is speed with the pitch put back, 1/32..32)

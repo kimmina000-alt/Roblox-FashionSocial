@@ -327,6 +327,19 @@ end
 
 local function onMusic(player: Player, action: any, payload: any): (boolean, any)
 	local isDJ = DjService.IsDJ(player)
+	-- (user 2026-11-01) tests: start Bubble Pop to try its choreography
+	-- (ChoreoController's 🧪 button): Studio, or the owner's account on a
+	-- live server, while ClubConfig.TestChoreoButton is on
+	if action == "TestChoreoSong" then
+		if not ClubConfig.canTestChoreo(player) then return false, "테스트 전용이에요." end
+		for index, track in ipairs(ClubConfig.Playlist) do
+			if track.soundId == 117125823291884 then
+				playTrack(index, player.UserId)
+				return true, nil
+			end
+		end
+		return false, "곡이 없어요."
+	end
 	if action == "Request" then
 		local index = validTrack(payload)
 		if not index then return false, "없는 곡입니다." end
