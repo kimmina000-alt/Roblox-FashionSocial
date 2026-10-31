@@ -2822,3 +2822,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 불꽃 판매원 구릿빛 피부 (D-667)
 ![](images/2026-10-31/seller_bronze.jpg)
+
+### 바 직원 얼굴 통일 (D-668)
+![](images/2026-10-31/staff_faces.jpg)

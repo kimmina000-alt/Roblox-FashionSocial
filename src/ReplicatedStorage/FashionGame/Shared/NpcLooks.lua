@@ -55,7 +55,7 @@ do
 		-- face: bundle 142347556296633 (소년 얼굴 … 한국 남성 실감적, a dynamic head)
 		head = 112433260004346,
 		hair = 137811933417350, -- 지저분한 아이돌 웨이브 헤어 (블랙 화이트; off and back on, 2026-10-31)
-		extras = { { id = 12897844075, kind = Enum.AccessoryType.Face } }, -- 마스크 (was 97755745317658 until D-664)
+		-- (no mask: 97755745317658, then 12897844075, taken off D-668)
 		layered = {
 			{ id = 93816036884228, kind = Enum.AccessoryType.TShirt }, -- 어깨 패드
 			{ id = 130442955983043, kind = Enum.AccessoryType.TShirt }, -- 주름진 오피스 버튼업 셔츠 화이트
@@ -73,7 +73,8 @@ do
 	-- emote 85369612310951 "장엄한 소환 포즈"
 	local seller = table.clone(a)
 	seller.pose = 100249604916626
-	seller.skin = Color3.fromRGB(150, 95, 58) -- bronze (user 2026-10-31)
+	seller.skin = Color3.fromRGB(105, 62, 36) -- dark bronze (user 2026-10-31: bronze, then darker)
+	seller.head = 112433260004346 -- the bartender's face (bundle 142347556296633), not the skull
 	-- (user 2026-10-31, later: without the biker jacket)
 	seller.layered = {}
 	for _, item in ipairs(a.layered) do
