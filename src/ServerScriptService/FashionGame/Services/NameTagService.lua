@@ -5,6 +5,7 @@
 -- name display.
 
 local Players = game:GetService("Players")
+local FashionGame = game:GetService("ReplicatedStorage"):WaitForChild("FashionGame")
 
 local NameTagService = {}
 
@@ -93,7 +94,10 @@ end
 --   알바생  white, green outline   (character attribute CafeJob, CafeJobService)
 --   GUARD   white on a black plate, red edge   (Guard pass, D-623)
 --   VIP     white, red neon outline   (VIP pass)
---   DJ      white, sky-blue outline   (character attribute Djing)
+--   DJ      white, sky-blue outline   (the player's DJ turn: FashionGame
+--           attribute ClubDJ = their id, DjService; until 2026-11-01 only while
+--           standing at the turntable, character attribute Djing — the user
+--           saw no DJ tag)
 local ROLE_TAG = "OHURoleTag"
 local GUARD_TAG = "OHUGuardTag" -- (its own billboard until 2026-10-31: removed if found)
 local ROW_H = 13
@@ -116,7 +120,7 @@ local function refreshRoles(player: Player)
 		Staff = cafeJob ~= nil and cafeJob ~= false and cafeJob ~= "",
 		GUARD = player:GetAttribute("Pass_Guard") == true,
 		VIP = player:GetAttribute("Pass_VIP") == true,
-		DJ = djing ~= nil and djing ~= false,
+		DJ = (djing ~= nil and djing ~= false) or FashionGame:GetAttribute("ClubDJ") == player.UserId,
 	}
 	local tag = head:FindFirstChild(ROLE_TAG)
 	if not (on.Staff or on.GUARD or on.VIP or on.DJ) then
@@ -211,6 +215,10 @@ function NameTagService.StartRoles()
 	end
 	for _, player in ipairs(Players:GetPlayers()) do watch(player) end
 	Players.PlayerAdded:Connect(watch)
+	-- a DJ turn starting or ending moves the DJ tag
+	FashionGame:GetAttributeChangedSignal("ClubDJ"):Connect(function()
+		for _, player in ipairs(Players:GetPlayers()) do refreshRoles(player) end
+	end)
 end
 
 return NameTagService
