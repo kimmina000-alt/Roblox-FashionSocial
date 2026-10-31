@@ -761,6 +761,24 @@ local function heldSparkler(): Tool
 	return tool
 end
 
+-- A drink bottle for a staff NPC (D-660): the shop bottle's shape in the hand
+-- (as giveBottle draws it), nothing to drink or put down.
+local function heldBottle(key: string): Tool?
+	local drink = ClubConfig.findDrink(key)
+	if not drink then return nil end
+	local tool = Instance.new("Tool")
+	tool.Name = "Bottle"
+	tool.CanBeDropped = false
+	local handle = makeHandle(Vector3.new(0.7, 1.8, 0.7), drink.color)
+	handle.Transparency = 1
+	handle.Parent = tool
+	local handScale = if drink.key == "stack_hydro" then 0.79 elseif drink.key == "skull_water" then 0.767
+		elseif drink.key == "pastel_splash" then 0.623 elseif drink.key == "golmok" then 0.985 elseif drink.tier == 2 then 0.5 else 1
+	BottleShapes.add(tool, handle.CFrame * CFrame.new(0, -0.9, 0), drink.key, drink.color, 1.9 / BottleShapes.height(drink.key) * handScale, handle)
+	tool.Grip = CFrame.new(0, -0.3, 0)
+	return tool
+end
+
 -- look: an NpcLooks key (catalog outfit, D-656); a plain coloured rig without
 -- one, or when the outfit cannot load
 local function spawnStaff(spot: BasePart, name: string, title: string, offset: CFrame, shirt: Color3, promptName: string, action: string, look: string?)
@@ -804,6 +822,9 @@ local function spawnStaff(spot: BasePart, name: string, title: string, offset: C
 		local spec = look and NpcLooks.Looks[look]
 		if spec and spec.holds == "sparkler" then
 			humanoid:EquipTool(heldSparkler())
+		elseif spec and spec.holds and string.sub(spec.holds, 1, 7) == "bottle:" then
+			local bottle = heldBottle(string.sub(spec.holds, 8))
+			if bottle then humanoid:EquipTool(bottle) end
 		end
 		if spec and spec.pose then
 			local animator = humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator", humanoid)
@@ -832,7 +853,7 @@ end
 
 local function spawnBartender(spot: Instance)
 	if not spot:IsA("BasePart") then return end
-	spawnStaff(spot, "Bartender", "바텐더", CFrame.new(), Color3.fromRGB(30, 30, 36), "BartenderPrompt", "음료 주문", "CharacterA")
+	spawnStaff(spot, "Bartender", "바텐더", CFrame.new(), Color3.fromRGB(30, 30, 36), "BartenderPrompt", "음료 주문", "Bartender")
 	-- (spot's +X runs along the bar)
 	spawnStaff(spot, "ItemSeller", "불꽃 판매원", CFrame.new(8, 0, 0), Color3.fromRGB(150, 40, 110), "ItemShopPrompt", "불꽃 · 아이템", "CharacterA")
 end

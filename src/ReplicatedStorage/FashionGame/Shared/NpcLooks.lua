@@ -14,7 +14,7 @@ export type Look = {
 	pants: number?,
 	scales: {[string]: number}?, -- HumanoidDescription scale properties
 	pose: number?, -- animation id played on a loop (an emote's Animation)
-	holds: string?, -- a prop in the right hand: "sparkler"
+	holds: string?, -- a prop in the right hand: "sparkler", or "bottle:<drink key>"
 }
 
 local NpcLooks = {}
@@ -41,6 +41,23 @@ NpcLooks.Looks = {
 		holds = "sparkler", -- a lit hand sparkler (user 2026-10-31)
 	},
 } :: {[string]: Look}
+
+-- The bartender (user 2026-10-31, later): Character A without the biker
+-- jacket, a drink bottle in the hand instead of the sparkler (the item seller
+-- keeps Character A). The new top and the apron wait for their asset ids:
+-- the id the user sent for both, 92480837999507, is the pose emote.
+do
+	local a = NpcLooks.Looks.CharacterA
+	local layered = {}
+	for _, item in ipairs(a.layered) do
+		if item.kind ~= Enum.AccessoryType.Jacket then table.insert(layered, item) end
+	end
+	NpcLooks.Looks.Bartender = {
+		bodyOutfit = a.bodyOutfit, head = a.head, hair = a.hair, layered = layered,
+		shirt = a.shirt, pants = a.pants, scales = a.scales, pose = a.pose,
+		holds = "bottle:skull_water",
+	}
+end
 
 function NpcLooks.describe(key: string): HumanoidDescription?
 	local look = NpcLooks.Looks[key]

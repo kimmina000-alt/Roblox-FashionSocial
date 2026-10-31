@@ -2798,3 +2798,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 바 직원 둘 다 캐릭터 A (D-659)
 ![](images/2026-10-31/bar_staff_both_charA.jpg)
+
+### 바텐더 음료병 (D-660)
+![](images/2026-10-31/bartender_bottle.jpg)
