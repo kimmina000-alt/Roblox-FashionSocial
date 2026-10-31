@@ -287,13 +287,14 @@ local function steps(from: number, to: number, step: number): {number}
 	end
 	return list
 end
-ClubConfig.MusicSpeeds = steps(0.25, 2, 0.05)
-ClubConfig.MusicPitches = steps(0.5, 2, 0.1)
+-- (user 2026-11-01, later: all three up to x5)
+ClubConfig.MusicSpeeds = steps(0.25, 5, 0.05)
+ClubConfig.MusicPitches = steps(0.5, 5, 0.1)
 -- (user 2026-11-01) the DJ's mixer on the turntable: speed, volume and the
 -- PitchShift octave, each with − / +. The volume is a multiplier on the
 -- track's own volume (0 = silent .. x2); the pitch is now the octave itself
 -- (times the track's own octave), no longer made up for the speed.
-ClubConfig.MusicVolumes = steps(0, 2, 0.1)
+ClubConfig.MusicVolumes = steps(0, 5, 0.1)
 
 -- the place in a list nearest to a value (an old setting between two steps)
 function ClubConfig.nearestStep(list: {number}, value: any): number
