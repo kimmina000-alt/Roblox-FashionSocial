@@ -1134,3 +1134,6 @@ NpcLooks 모듈(Shared/NpcLooks.lua)에 캐릭터 A 조립법을 넣었다. Drin
 
 ## D-657 (2026-10-31) DJ 역재생 취소
 사용자 요청으로 D-654(⏪ 역재생 버튼, reverseId, ClubMusicReverse)를 git revert로 되돌렸다. MANIAC 곡과 바텐더(D-655/D-656)는 그대로다.
+
+## D-658 (2026-10-31) 바텐더 자세 + 손 스파클러
+사용자가 준 92480837999507은 번들이 아니라 감정 표현(이모트, AssetType 61) "벽 마른 아우라 농장 자세"다. 이 이모트 안의 애니메이션(85700383015225, 2.3초)을 NpcLooks.CharacterA.pose로 넣어 계속 반복 재생한다. 오른손에는 불이 붙은 손 스파클러를 든다(holds = "sparkler": DrinkService.heldSparkler. 상점 손 스파클러와 같은 모양이지만 타서 줄어들지 않고 소리도 없음. 불꽃 파티클과 작은 빛 포함). Studio Play에서 도구가 오른손에 붙고 자세가 재생되는 것을 확인했다.

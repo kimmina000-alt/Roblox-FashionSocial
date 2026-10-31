@@ -13,6 +13,8 @@ export type Look = {
 	shirt: number?,
 	pants: number?,
 	scales: {[string]: number}?, -- HumanoidDescription scale properties
+	pose: number?, -- animation id played on a loop (an emote's Animation)
+	holds: string?, -- a prop in the right hand: "sparkler"
 }
 
 local NpcLooks = {}
@@ -33,6 +35,10 @@ NpcLooks.Looks = {
 		pants = 133566828283173, -- 클리어
 		-- (user: the body as long as it goes)
 		scales = { HeightScale = 1.05, BodyTypeScale = 1, ProportionScale = 1, WidthScale = 1, DepthScale = 1 },
+		-- (user 2026-10-31) emote 92480837999507 "벽 마른 아우라 농장 자세":
+		-- its Animation, read with InsertService:LoadAsset
+		pose = 85700383015225,
+		holds = "sparkler", -- a lit hand sparkler (user 2026-10-31)
 	},
 } :: {[string]: Look}
 

@@ -2792,3 +2792,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 클럽 바텐더 = 캐릭터 A (D-656)
 ![](images/2026-10-31/bartender_charA.jpg)
+
+### 바텐더 자세 + 손 스파클러 (D-658)
+![](images/2026-10-31/bartender_pose_sparkler.jpg)

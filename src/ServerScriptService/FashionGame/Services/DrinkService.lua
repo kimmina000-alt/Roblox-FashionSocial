@@ -705,6 +705,62 @@ end
 
 -- Staff behind the bar: the bartender (drinks) and, next to them, the item
 -- seller (sparklers, sparkler bucket sets, stage cold spark; user 2026-10-26).
+-- A lit hand sparkler for a staff NPC (D-658): the same wire + coated stick +
+-- glowing tip as the shop's hand sparkler (SparkleService), but it never burns
+-- down and makes no sound.
+local function heldSparkler(): Tool
+	local tool = Instance.new("Tool")
+	tool.Name = "Sparkler"
+	tool.CanBeDropped = false
+	tool.Grip = CFrame.new(0, -0.2, 0) * CFrame.Angles(math.rad(-30), 0, 0)
+	local handle = Instance.new("Part")
+	handle.Name = "Handle"
+	handle.Size = Vector3.new(0.08, 0.4, 0.08)
+	handle.Color = Color3.fromRGB(70, 70, 74)
+	handle.Material = Enum.Material.Metal
+	handle.CanCollide = false
+	handle.CanQuery = false
+	handle.Massless = true
+	handle.Parent = tool
+	local function piece(name: string, size: Vector3, color: Color3, material: Enum.Material, at: number, shape: Enum.PartType?): BasePart
+		local part = Instance.new("Part")
+		part.Name = name
+		if shape then part.Shape = shape end
+		part.Size = size
+		part.Color = color
+		part.Material = material
+		part.CanCollide = false
+		part.CanQuery = false
+		part.Massless = true
+		local weld = Instance.new("Weld")
+		weld.Part0 = handle
+		weld.Part1 = part
+		weld.C0 = CFrame.new(0, at, 0)
+		weld.Parent = part
+		part.Parent = tool
+		return part
+	end
+	piece("Stick", Vector3.new(0.05, 1.6, 0.05), Color3.fromRGB(25, 25, 28), Enum.Material.Concrete, 0.2 + 0.8)
+	local tip = piece("Tip", Vector3.new(0.22, 0.22, 0.22), Color3.fromRGB(255, 245, 220), Enum.Material.Neon, 0.2 + 1.6, Enum.PartType.Ball)
+	local emitter = Instance.new("ParticleEmitter")
+	emitter.Texture = "rbxasset://textures/particles/sparkles_main.dds"
+	emitter.LightEmission = 1
+	emitter.Color = ColorSequence.new(Color3.fromRGB(255, 244, 210), Color3.fromRGB(255, 190, 90))
+	emitter.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.18), NumberSequenceKeypoint.new(1, 0) })
+	emitter.Transparency = NumberSequence.new(0, 0.3)
+	emitter.Rate = 160
+	emitter.SpreadAngle = Vector2.new(180, 180)
+	emitter.Speed = NumberRange.new(3, 6)
+	emitter.Lifetime = NumberRange.new(0.3, 0.6)
+	emitter.Parent = tip
+	local light = Instance.new("PointLight")
+	light.Color = Color3.fromRGB(255, 210, 140)
+	light.Range = 6
+	light.Brightness = 1.5
+	light.Parent = tip
+	return tool
+end
+
 -- look: an NpcLooks key (catalog outfit, D-656); a plain coloured rig without
 -- one, or when the outfit cannot load
 local function spawnStaff(spot: BasePart, name: string, title: string, offset: CFrame, shirt: Color3, promptName: string, action: string, look: string?)
@@ -744,6 +800,22 @@ local function spawnStaff(spot: BasePart, name: string, title: string, offset: C
 		model.Parent = spot
 		pcall(function() humanoid:ApplyDescription(styled) end)
 		task.wait(0.5)
+		-- the look's pose and prop (D-658)
+		local spec = look and NpcLooks.Looks[look]
+		if spec and spec.holds == "sparkler" then
+			humanoid:EquipTool(heldSparkler())
+		end
+		if spec and spec.pose then
+			local animator = humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator", humanoid)
+			local animation = Instance.new("Animation")
+			animation.AnimationId = "rbxassetid://" .. tostring(spec.pose)
+			local okTrack, track = pcall(function() return animator:LoadAnimation(animation) end)
+			if okTrack and track then
+				track.Looped = true
+				track.Priority = Enum.AnimationPriority.Idle
+				track:Play()
+			end
+		end
 	end
 	-- feet on the spot's height whatever the body's size (the tall bartender)
 	local box, size = model:GetBoundingBox()
