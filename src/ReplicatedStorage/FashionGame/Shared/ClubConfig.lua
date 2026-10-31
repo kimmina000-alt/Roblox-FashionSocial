@@ -164,7 +164,7 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "Lemon Tang / 하츠투하츠", soundId = 99550529874718, length = 81, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
 	{ channel = "K-POP", title = "Catch Catch / 최예나", soundId = 100968974338230, length = 92, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
 	{ channel = "K-POP", title = "Get A Guitar / RIIZE", soundId = 100035331158760, length = 80, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
-	{ channel = "K-POP", title = "Bubble Pop / HyunA", soundId = 117125823291884, length = 107, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" }, choreo = { 100736920067826 } },
+	{ channel = "K-POP", title = "Bubble Pop / HyunA", soundId = 117125823291884, length = 107, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" }, choreo = { 100736920067826, 133384041896194 } },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
