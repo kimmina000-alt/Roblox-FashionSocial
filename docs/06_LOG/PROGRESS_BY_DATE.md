@@ -427,3 +427,4 @@
 - 곡 안무 따라하기 버튼, Bubble Pop 첫 조각 (D-689).
 - Bubble Pop 안무 두 번째 조각 (D-690).
 - Bubble Pop 안무 3~6번째 조각 (D-691).
+- Bubble Pop 안무 7~11번째 조각 (D-692).
