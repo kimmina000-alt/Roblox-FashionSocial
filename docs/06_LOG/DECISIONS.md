@@ -1222,3 +1222,6 @@ DJ 속도 x0.25..x5(0.05 간격), 피치 x0.5..x5(0.1), 볼륨 0..x5(0.1). 피�
 - engine = "sound"라 humHz / hissHz / gate는 기록만(랩에서도 안 들림).
 반영(랩 DataStore TurntableLabSettings "v1"): 11곡 = SAN FRANCISCO, LOVE LOVE LOVE, TANI TANI, LOVE ATTACK, GRIT X DIET COKE, CASH OUT, MY MIND, PLAIN JANE, PUMP IT UP, 404, BANG BANG. 플레이리스트에 없는 106367625479063은 넣지 않았다(사용자에게 물어봄).
 확인(Studio 오후, Hall, DJ x1): 랩 공식으로 계산한 값과 오후 실제 Sound 값이 같다. SAN FRANCISCO 0.5 / 2.0 / 2.2 / 1 / EQ 3,0,-24.5. LOVE LOVE LOVE 0.5 / 2.0 / 2.3 / 1 / EQ -6,4,2. BANG BANG 2.0 / 0.5 / 10 / 2.5 / EQ 끔. lab 없는 EDM Club Night는 1.0 / 효과 끔 / 0.55 / 1 / EQ 끔(예전과 같음). 콘솔 오류 없음.
+
+## D-681 (2026-11-01) Love 119 추가, 소원을 말해 봐 삭제
+랩 곡 106367625479063을 "Love 119 · RIIZE"(58초)로 랩 값 그대로 추가: speed 0.5, tempo 0.65, volume 10, boost 2.5, octave 1, EQ 0/10/10(humHz 60, hissHz 3900, gate -54는 기록만). 오후 확인: PlaybackSpeed 0.325, PitchShift 1.538(1개), Volume 10, SoundGroup 2.5, EQ 0/10/10 켜짐(랩 공식과 같음). 임시 제목으로 넣었던 128410308180471(소원을 말해 봐 · 소녀시대)은 뺐다. 23곡.

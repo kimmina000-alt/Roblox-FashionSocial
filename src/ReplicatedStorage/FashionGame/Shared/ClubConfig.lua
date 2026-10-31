@@ -148,8 +148,9 @@ ClubConfig.Playlist = {
 	-- (MANIAC · Stray Kids, 111304415353887, taken out again: user 2026-11-01)
 	-- (user 2026-10-31: PlaybackSpeed 2, Volume 10 then 20, PitchShift octave 0.5; 2026-11-01: the lab's values, D-680)
 	{ channel = "POP", title = "BANG BANG · IVE", soundId = 126421508146335, length = 352, lab = { speed = 1, tempo = 2, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 0, high = 0, humHz = 135, hissHz = 20000, gate = -10, engine = "sound" } },
-	-- (user 2026-11-01: a temporary title, the upload's own name; real title to come)
-	{ channel = "POP", title = "새벽 한시반 (임시 제목)", soundId = 128410308180471, length = 76 },
+	-- (128410308180471 소원을 말해 봐 · 소녀시대, added with a temporary title, taken out: user 2026-11-01)
+	-- (user 2026-11-01: from the turntable lab, D-681)
+	{ channel = "POP", title = "Love 119 · RIIZE", soundId = 106367625479063, length = 58, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
