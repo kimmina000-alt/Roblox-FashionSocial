@@ -1058,6 +1058,8 @@ local music = create("Sound", {
 	Looped = false,
 }, script)
 local currentTrack = 0
+-- volume past 10 (Track.volume): an equalizer lifting every band
+local boost = create("EqualizerSoundEffect", { Name = "TrackBoost", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 0 }, music)
 -- the DJ's pitch (ClubMusicPitch, user 2026-10-30): the speed (PlaybackSpeed)
 -- moves the pitch too, so the shift is pitch / speed. One effect reaches
 -- 0.5..2; pitch x2 at speed x0.25 needs x8, so three in a row (0.125..8)
@@ -1187,7 +1189,13 @@ RunService.RenderStepped:Connect(function(dt)
 		if player.Character and player.Character:GetAttribute("PhotoBooth") ~= nil then level = 0 end
 		-- (a track may set its own volume, ClubConfig Track.volume)
 		local playing = ClubConfig.Playlist[currentTrack]
-		music.Volume = (if playing and playing.volume then playing.volume else ClubConfig.MusicVolume) * level
+		local want = (if playing and playing.volume then playing.volume else ClubConfig.MusicVolume) * level
+		-- a Sound stops at Volume 10: above that an equalizer adds the rest in dB
+		-- (Volume 20 = 10 and +6 dB; user 2026-10-31)
+		music.Volume = math.min(want, 10)
+		local gain = if want > 10 then math.min(20 * math.log10(want / 10), 10) else 0
+		boost.Enabled = gain > 0
+		boost.LowGain, boost.MidGain, boost.HighGain = gain, gain, gain
 		banner.Visible = level > 0 and banner.Text ~= ""
 	end
 	if music.Volume > 0 then

@@ -1177,3 +1177,6 @@ NpcLooks Look에 skin(모든 신체 부위 색)을 새로 만들고, 불꽃 판�
 
 ## D-671 (2026-10-31) 바텐더 자리·포즈, 불꽃 판매원 마스크
 바텐더를 바 오른쪽(사용자 표시)으로 옮겼다: BartenderSpot 기준 바를 따라 -12(z -178 → -190). 음료 주문 버튼도 같이 옮겨진다. 메뉴는 BartenderSpot에서 22 이상 멀어지면 닫히는데, 바텐더 앞은 약 14 거리라 괜찮다. 바텐더 포즈 155758204354290은 애니메이션 팩 번들(실감나는 남성 01)이라, 그 안의 Idle Animation(114822686413694)의 Animation1 = 128667162266929를 쓴다. 불꽃 판매원은 얼굴 가면(검정) 18991656628을 쓴다.
+
+## D-672 (2026-10-31) BANG BANG 볼륨 20
+Roblox Sound.Volume은 최대 10이라 20을 넣으면 10으로 잘린다(Studio 확인). DanceController 음악 Sound에 EqualizerSoundEffect TrackBoost를 달아, 곡 볼륨이 10을 넘으면 Volume 10 + 모든 대역 20·log10(볼륨/10) dB(최대 +10)로 채운다. BANG BANG = volume 20 → Volume 10 + 6.02 dB(2배 크기). 다른 곡에서는 꺼진다(확인).
