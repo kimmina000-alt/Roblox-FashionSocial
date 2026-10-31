@@ -92,17 +92,22 @@ ClubConfig.Playlist = {
 	{ channel = "HIP-HOP", title = "Gomood", soundId = 92774322259700, length = 121 },
 	{ channel = "EDM", title = "Midnight Frequency", soundId = 75257760347020, length = 156 },
 	{ channel = "POP", title = "Under the Starlight", soundId = 101328005557095, length = 217 },
-	-- (user 2026-10-30: the user's own upload; they say the audio is not the
-	-- original song. Roblox had not approved the asset yet on 2026-10-30:
-	-- "Asset is not approved for the requester", so it does not play until then)
-	{ channel = "EDM", title = "Gangnam Style", soundId = 118684794101503, length = 110 },
-	-- (user 2026-10-30, later: their own uploads)
-	-- (user 2026-10-30, later) these three play at x0.5 as their normal speed
-	-- (baseSpeed: tempo and pitch both, like the real record slowed down; the
-	-- DJ's speed / pitch steps work on top, shown as x1 at this speed)
-	{ channel = "POP", title = "454", soundId = 106212382564790, length = 62, baseSpeed = 0.5 },
-	{ channel = "POP", title = "MY MIND", soundId = 73122606824515, length = 61, baseSpeed = 0.5 },
-	{ channel = "POP", title = "빨강빨강", soundId = 140226618879694, length = 186, baseSpeed = 0.5 },
+	-- (user 2026-10-31: Gangnam Style, 454, MY MIND and 빨강빨강 taken out; ten
+	-- uploads of their own instead, all at x0.5 as their normal speed —
+	-- baseSpeed: tempo and pitch both, like the record slowed down; the DJ's
+	-- speed / pitch steps work on top, shown as x1 at this speed. The uploads
+	-- have no song names yet (video_to_mp3_…): titles to be set by the user.
+	-- length = seconds of audio at x1, measured in Studio)
+	{ channel = "POP", title = "OHU Mix 01", soundId = 113497657842744, length = 60, baseSpeed = 0.5 },
+	{ channel = "POP", title = "OHU Mix 02", soundId = 100033043291152, length = 59, baseSpeed = 0.5 },
+	{ channel = "POP", title = "OHU Mix 03", soundId = 131058655527940, length = 53, baseSpeed = 0.5 },
+	{ channel = "POP", title = "OHU Mix 04", soundId = 103905057186427, length = 70, baseSpeed = 0.5 },
+	{ channel = "POP", title = "OHU Mix 05", soundId = 106119256110919, length = 53, baseSpeed = 0.5 },
+	{ channel = "POP", title = "OHU Mix 06", soundId = 140111630417316, length = 53, baseSpeed = 0.5 },
+	{ channel = "POP", title = "OHU Mix 07", soundId = 106804146862342, length = 62, baseSpeed = 0.5 },
+	{ channel = "POP", title = "OHU Mix 08", soundId = 78832462526893, length = 44, baseSpeed = 0.5 },
+	{ channel = "POP", title = "OHU Mix 09", soundId = 125479000346000, length = 60, baseSpeed = 0.5 },
+	{ channel = "POP", title = "OHU Mix 10", soundId = 74181572220193, length = 63, baseSpeed = 0.5 },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
