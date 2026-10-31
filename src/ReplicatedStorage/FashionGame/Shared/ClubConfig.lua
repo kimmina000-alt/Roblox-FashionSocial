@@ -152,6 +152,12 @@ ClubConfig.Playlist = {
 	-- (128410308180471 소원을 말해 봐 · 소녀시대, added with a temporary title, taken out: user 2026-11-01)
 	-- (user 2026-11-01: from the turntable lab, D-681)
 	{ channel = "K-POP", title = "Love 119 / RIIZE", soundId = 106367625479063, length = 58, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
+	-- (user 2026-11-01: five more K-POP, the same lab values as Love 119, D-685)
+	{ channel = "K-POP", title = "BAD / ATEEZ", soundId = 89023892900416, length = 77, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
+	{ channel = "K-POP", title = "Lemon Tang / 하츠투하츠", soundId = 99550529874718, length = 81, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
+	{ channel = "K-POP", title = "Catch Catch / 최예나", soundId = 100968974338230, length = 92, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
+	{ channel = "K-POP", title = "Get A Guitar / RIIZE", soundId = 100035331158760, length = 80, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
+	{ channel = "K-POP", title = "Bubble Pop / HyunA", soundId = 117125823291884, length = 107, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside

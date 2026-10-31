@@ -1235,3 +1235,6 @@ DJ 속도 x0.25..x5(0.05 간격), 피치 x0.5..x5(0.1), 볼륨 0..x5(0.1). 피�
 ## D-684 (2026-11-01) 곡 장르·제목 정리, 게임 안 아바타로 썸네일 테스트
 - 사용자 표대로: 업로드 10곡 = 장르 EDM, 제목 "OHU Mix 01 · SAN FRANCISCO / DOM DOLLA" … "OHU Mix 10 · 404 (New Era) / KiiiKiii". BANG BANG / IVE, Love 119 / RIIZE = 장르 K-POP. 표의 "SAN FRANDISCO", "EPIC HIGHT"는 오타로 보고 SAN FRANCISCO, EPIC HIGH로 썼다. 장르 수: EDM 14, POP 4, HIP-HOP 3, K-POP 2.
 - 썸네일 테스트: 바텐더(아이템 id로 만든 NpcLooks.Bartender)를 Play에서 초록 벽 앞에 세워 찍고(옷 로딩에 몇 초 걸림), 초록을 지워 투명 PNG로 만들어(looks/bartender_ingame_trim.png) 마켓플레이스 렌더 둘 사이에 넣었다(ohu_v2_bartender.png). 아이템 id만 있으면 게임 안 아바타도 레퍼런스처럼 쓸 수 있다.
+
+## D-685 (2026-11-01) K-POP 5곡 추가 (Love 119와 같은 설정)
+BAD / ATEEZ(89023892900416, 77초), Lemon Tang / 하츠투하츠(99550529874718, 81초), Catch Catch / 최예나(100968974338230, 92초), Get A Guitar / RIIZE(100035331158760, 80초), Bubble Pop / HyunA(117125823291884, 107초). lab 값은 Love 119와 같다(speed 0.5, tempo 0.65, volume 10, boost 2.5, EQ 0/10/10). 28곡. Studio 확인(Bubble Pop): PlaybackSpeed 0.325, PitchShift 1.538, Volume 10, SoundGroup 2.5, EQ 켜짐.
