@@ -51,8 +51,9 @@ do
 	local a = NpcLooks.Looks.CharacterA
 	NpcLooks.Looks.Bartender = {
 		bodyOutfit = a.bodyOutfit,
-		head = a.head,
-		-- (no hair: the wave hair 137811933417350 taken off, a mask instead, user 2026-10-31)
+		-- face: bundle 142347556296633 (소년 얼굴 … 한국 남성 실감적, a dynamic head)
+		head = 112433260004346,
+		hair = 137811933417350, -- 지저분한 아이돌 웨이브 헤어 (블랙 화이트; off and back on, 2026-10-31)
 		extras = { { id = 97755745317658, kind = Enum.AccessoryType.Face } }, -- 마스크
 		layered = {
 			{ id = 93816036884228, kind = Enum.AccessoryType.TShirt }, -- 어깨 패드
@@ -67,6 +68,11 @@ do
 		pose = 126073867043223,
 		holds = "bottle:skull_water",
 	}
+	-- the item seller: Character A with its own pose (user 2026-10-31):
+	-- emote 85369612310951 "장엄한 소환 포즈"
+	local seller = table.clone(a)
+	seller.pose = 100249604916626
+	NpcLooks.Looks.ItemSeller = seller
 end
 
 function NpcLooks.describe(key: string): HumanoidDescription?

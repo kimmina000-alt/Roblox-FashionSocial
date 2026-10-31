@@ -29,7 +29,8 @@ Character A's body, head (스컬), classic clear shirt/pants and scales, with:
 
 | Part | Asset |
 |---|---|
-| Hair | none (the wave hair 137811933417350 taken off, D-662) |
+| Head | 112433260004346 (bundle 142347556296633 소년 얼굴 … 한국 남성 실감적, D-663) |
+| Hair | 137811933417350 지저분한 아이돌 웨이브 헤어 (back on, D-663) |
 | Face accessory | 97755745317658 마스크 (D-662) |
 | Layered 1 | 93816036884228 어깨 패드 (TShirt) |
 | Layered 2 | 130442955983043 주름진 오피스 버튼업 셔츠 화이트 (TShirt) |
@@ -38,4 +39,8 @@ Character A's body, head (스컬), classic clear shirt/pants and scales, with:
 | Pose | emote 94499750241713 → animation 126073867043223 |
 | In hand | 스컬 앤 워터 bottle (DrinkService.heldBottle) |
 
-![](../../06_LOG/images/2026-10-31/bartender_mask.jpg)
+![](../../06_LOG/images/2026-10-31/bartender_face.jpg)
+
+## Item seller (D-663)
+
+Character A with the pose of emote 85369612310951 장엄한 소환 포즈 (animation 100249604916626), lit hand sparkler.

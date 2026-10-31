@@ -2807,3 +2807,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 바텐더 마스크 (D-662)
 ![](images/2026-10-31/bartender_mask.jpg)
+
+### 바텐더 얼굴, 판매원 포즈 (D-663)
+![](images/2026-10-31/bartender_face.jpg) ![](images/2026-10-31/bar_staff_v4.jpg)
