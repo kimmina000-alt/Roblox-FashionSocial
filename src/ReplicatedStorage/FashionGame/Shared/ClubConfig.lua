@@ -25,10 +25,6 @@ export type Track = {
 	soundId: number,
 	length: number, -- seconds of audio at x1
 	baseSpeed: number?, -- its normal playback speed (default 1)
-	-- the same audio turned back to front, uploaded on its own (user 2026-10-31:
-	-- the DJ's ⏪; a Sound cannot play at a negative speed). Without it the
-	-- song has no ⏪.
-	reverseId: number?,
 }
 
 local ClubConfig = {}

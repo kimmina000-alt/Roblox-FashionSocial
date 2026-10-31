@@ -1131,3 +1131,6 @@ Roblox Sound / AudioPlayer는 PlaybackSpeed를 음수로 못 한다(0으로 바�
 
 ## D-656 (2026-10-31) 클럽 바텐더 = 캐릭터 A
 NpcLooks 모듈(Shared/NpcLooks.lua)에 캐릭터 A 조립법을 넣었다. DrinkService.spawnStaff는 look 키를 받아 그 옷차림으로 NPC를 만든다(못 불러오면 예전 단색 NPC). 몸 크기는 Workspace에서만 적용돼서, 루트 파트만 고정하고 바에 세운 뒤 ApplyDescription을 한 번 더 하고 발을 바닥에 맞춘다(키 11.1). 옷차림을 웹에서 불러오느라 시간이 걸리므로 바텐더 생성은 task.spawn으로 돌린다. 불꽃 판매원은 아직 예전 NPC 그대로.
+
+## D-657 (2026-10-31) DJ 역재생 취소
+사용자 요청으로 D-654(⏪ 역재생 버튼, reverseId, ClubMusicReverse)를 git revert로 되돌렸다. MANIAC 곡과 바텐더(D-655/D-656)는 그대로다.
