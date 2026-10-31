@@ -35,6 +35,14 @@ local function place(src: Model, longest: number, flat: boolean, at: Vector3, ya
 	m:ScaleTo(m:GetScale() * longest / math.max(size.X, size.Z))
 	local box, size2 = m:GetBoundingBox()
 	m:PivotTo(m:GetPivot() + (at + Vector3.new(0, size2.Y / 2, 0) - box.Position))
+	-- (the bounding box keeps the model's own axes, so a toast laid flat kept
+	-- the upright box and floated half its height over the board, user
+	-- 2026-10-31: sit the lowest real part on the board instead)
+	local low = math.huge
+	for _, p in ipairs(m:GetDescendants()) do
+		if p:IsA("BasePart") then low = math.min(low, p.Position.Y - (topOf(p) - p.Position.Y)) end
+	end
+	if low < math.huge then m:PivotTo(m:GetPivot() + Vector3.new(0, at.Y - low, 0)) end
 	m.Parent = parent
 end
 
