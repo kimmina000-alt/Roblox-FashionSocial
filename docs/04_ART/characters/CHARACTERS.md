@@ -29,7 +29,8 @@ Character A's body, head (스컬), classic clear shirt/pants and scales, with:
 
 | Part | Asset |
 |---|---|
-| Hair | 137811933417350 지저분한 아이돌 웨이브 헤어 (블랙 화이트) |
+| Hair | none (the wave hair 137811933417350 taken off, D-662) |
+| Face accessory | 97755745317658 마스크 (D-662) |
 | Layered 1 | 93816036884228 어깨 패드 (TShirt) |
 | Layered 2 | 130442955983043 주름진 오피스 버튼업 셔츠 화이트 (TShirt) |
 | Layered 3 | 88241801880611 블랙 (Pants) |
@@ -37,4 +38,4 @@ Character A's body, head (스컬), classic clear shirt/pants and scales, with:
 | Pose | emote 94499750241713 → animation 126073867043223 |
 | In hand | 스컬 앤 워터 bottle (DrinkService.heldBottle) |
 
-![](../../06_LOG/images/2026-10-31/bartender_v3.jpg)
+![](../../06_LOG/images/2026-10-31/bartender_mask.jpg)

@@ -10,6 +10,7 @@ export type Look = {
 	head: number?,
 	hair: number?,
 	layered: {{id: number, kind: Enum.AccessoryType}}, -- inside → outside
+	extras: {{id: number, kind: Enum.AccessoryType}}?, -- rigid accessories (a mask, a hat)
 	shirt: number?,
 	pants: number?,
 	scales: {[string]: number}?, -- HumanoidDescription scale properties
@@ -51,7 +52,8 @@ do
 	NpcLooks.Looks.Bartender = {
 		bodyOutfit = a.bodyOutfit,
 		head = a.head,
-		hair = 137811933417350, -- 지저분한 아이돌 웨이브 헤어 (블랙 화이트)
+		-- (no hair: the wave hair 137811933417350 taken off, a mask instead, user 2026-10-31)
+		extras = { { id = 97755745317658, kind = Enum.AccessoryType.Face } }, -- 마스크
 		layered = {
 			{ id = 93816036884228, kind = Enum.AccessoryType.TShirt }, -- 어깨 패드
 			{ id = 130442955983043, kind = Enum.AccessoryType.TShirt }, -- 주름진 오피스 버튼업 셔츠 화이트
@@ -84,6 +86,9 @@ function NpcLooks.describe(key: string): HumanoidDescription?
 	local list = {}
 	if look.hair then
 		table.insert(list, { AssetId = look.hair, AccessoryType = Enum.AccessoryType.Hair, IsLayered = false })
+	end
+	for _, item in ipairs(look.extras or {}) do
+		table.insert(list, { AssetId = item.id, AccessoryType = item.kind, IsLayered = false })
 	end
 	for i, item in ipairs(look.layered) do
 		table.insert(list, { AssetId = item.id, AccessoryType = item.kind, IsLayered = true, Order = i })
