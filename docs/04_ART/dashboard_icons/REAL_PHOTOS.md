@@ -34,9 +34,13 @@ VIP가 상품은 같은 사진에 오른쪽 위 금색 "VIP" 표시. 파일: `do
 | 24 | 개발자 상품 | 빈티지 레터링 케이크 | Cafe_CakeVintage | FoodPreviews.cake_vintage | 카페 |
 | 25 | 개발자 상품 | 티라미수 케이크 | Cafe_CakeTiramisu | FoodPreviews.cake_tiramisu | 카페 |
 | 26 | 개발자 상품 | 바스크 치즈케이크 | Cafe_CakeBasque | FoodPreviews.cake_basque | 카페 |
-| 27 | 개발자 상품 | 수육 한 접시 | Gukbap_Suyuk | FoodPreviews.suyuk | 국밥 |
+| 27 | 개발자 상품 | 수육 한 접시 | Gukbap_Suyuk | (미리보기가 꼬치 한 점이라 그림 아이콘 유지) | 국밥 |
 
 ## 그림 아이콘 그대로 두는 것 (실제 물건이 없는 상품, 17개)
 
 VIP 패스·가드 패스·DJ 30분(클럽 팔찌), 프레임 팩, 코인 x2 패스, 1시간 코인 부스트, 버스 광고 24시간 / 3일,
 무대 콜드 스파크(+VIP가: 무대 장치라 그림 유지), 후원 10 / 50 / 100 / 500 / 1,000 / 5,000, 사진첩 +10장.
+
+## 완료 (2026-10-31)
+
+26장 촬영 완료: `real/<코드 키>.png` (512×512), 한눈에 보기 `real/_sheet.jpg`. 수육만 그림 아이콘 그대로.
