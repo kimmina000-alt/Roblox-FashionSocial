@@ -23,7 +23,7 @@ local TopBar = {}
 local SMALL = 38 -- round button (25 x 1.5)
 local ROW_GAP = 9 -- between ♥ and ☰
 local PILL_GAP = 18 -- between the coin pill and ♥
-local MENU_W, MENU_ROW, MENU_PAD = 36, 36, 6
+local MENU_W, MENU_ROW, MENU_PAD = 54, 54, 9 -- (1.5x again, user 2026-10-31: the menu icons were too small)
 TopBar.Scale = 1.5 -- (for the pieces other scripts size: coin pill, clock)
 
 -- order → right row place (1 = nearest the edge); menu orders → menu row
@@ -106,7 +106,8 @@ layout = function()
 		b.Size = UDim2.fromOffset(w, h)
 		b.AnchorPoint = Vector2.new(1, 0.5)
 		b.Position = UDim2.new(1, x, 0, centerY)
-		if entry.order == 20 then moreX = x - w / 2 end
+		-- (the menu is wider than ☰ since 2026-10-31: its right edge lines up with ☰'s)
+		if entry.order == 20 then moreX = x - MENU_W / 2 end
 		local gap = b:GetAttribute("GapLeft")
 		x -= w + (if typeof(gap) == "number" then gap elseif i == 1 then ROW_GAP else PILL_GAP)
 	end
@@ -122,7 +123,7 @@ layout = function()
 		b.BackgroundTransparency = 1
 		b.Size = UDim2.fromOffset(MENU_W, MENU_ROW)
 		local icon = b:FindFirstChild("Icon")
-		if icon and icon:IsA("GuiObject") then icon.Size = UDim2.fromScale(0.54, 0.54) end -- (20 px)
+		if icon and icon:IsA("GuiObject") then icon.Size = UDim2.fromScale(0.54, 0.54) end -- (29 px)
 		b.Position = if open
 			then UDim2.new(1, moreX, 0, top + MENU_PAD + (i - 0.5) * MENU_ROW)
 			else UDim2.fromOffset(-1000, -1000) -- closed: out of sight
