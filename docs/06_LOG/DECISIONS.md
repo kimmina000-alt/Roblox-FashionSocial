@@ -1124,3 +1124,7 @@ catalog-ui-redesign(D-651까지)으로 2인 폰 테스트. 가드 출입, 카페
 
 ## D-654 (2026-10-31) DJ ⏪ 역재생
 Roblox Sound / AudioPlayer는 PlaybackSpeed를 음수로 못 한다(0으로 바뀜, Studio에서 확인). 그래서 곡마다 거꾸로 뒤집은 음원을 따로 올려 `reverseId`로 넣는다(ClubConfig.Track). DJ 패널 소리 줄에 ⏪ 역재생 / ▶ 정방향 버튼(DJ만). 서버는 ClubMusicReverse 속성을 켜고, 시계를 "length − 지금 위치"로 뒤집어 같은 지점부터 거꾸로 나오게 한다(일시정지 중이면 ClubMusicPausedAt도 뒤집음). 새 곡·DJ 교대 때는 정방향으로 돌아간다. 역재생 음원 끝 = 곡의 처음 → 다음 곡. reverseId가 없는 곡은 버튼이 흐리고 "아직 역재생 음원이 없어요." 안내. 현재 reverseId는 아직 0곡(원본 음원 파일 필요).
+
+## D-655 (2026-10-31) 캐릭터 A (바텐더용) + MANIAC 추가
+사용자가 고른 아이템 9개로 캐릭터 A를 HumanoidDescription으로 만들었다. 체형은 베미맨 번들, 헤드는 스컬 다이나믹 헤드, 레이어드 옷 4벌, 클래식 옷은 투명. 체형은 "제일 길쭉하게"로 Height 1.05, BodyType 1, Proportion 1 → 키 9.0 → 약 11.1 스터드. 조립법과 아이템 id는 docs/04_ART/characters/CHARACTERS.md에 있다. 아직 Play에서만 만들었고 저장한 모델은 없다(바텐더 NPC로 확정되면 저장한다).
+클럽 플레이리스트에 "MANIAC · Stray Kids"(111304415353887, 184초)를 원래 속도(x1)로 추가했다. 22곡이 됐다.
