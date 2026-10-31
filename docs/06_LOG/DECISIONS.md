@@ -1210,3 +1210,15 @@ DJ 속도 x0.25..x5(0.05 간격), 피치 x0.5..x5(0.1), 볼륨 0..x5(0.1). 피�
 
 ## D-679 (2026-11-01) DJ 태그는 DJ 차례 내내
 사용자: DJ 아이디 위에 DJ가 안 뜬다. 원인: DJ 태그가 턴테이블에서 '디제잉하기' 중(캐릭터 Djing, 자리에서 5스터드 안)일 때만 켜졌다. 이제 DJ 차례인 동안(FashionGame ClubDJ = 그 사람 id) 어디서든 켜지고, 차례가 끝나면 꺼진다(ClubDJ 변경 시 모두 다시 계산). Studio 확인: 전 false → DJ 중 true → 끝난 뒤 false.
+
+## D-680 (2026-11-01) 턴테이블 랩 값을 오후 클럽에 그대로
+테스트 장소 "테스트"(86558282086977)의 턴테이블 랩(tools/test_places/turntable_lab)에서 사용자가 귀로 맞춘 곡별 값을 오후 클럽 음악에 똑같이 적용한다.
+- ClubConfig.Track.lab = { speed, tempo, volume, boost, octave, low, mid, high, humHz, hissHz, gate, engine }. lab이 있으면 baseSpeed / volume / octave 대신 쓴다(옛 값은 지움, length는 그대로).
+- ClubConfig.labEffective(lab) = 랩 effective(): PlaybackSpeed = min(speed × tempo, 20), 옥타브 = clamp(octave ÷ (PlaybackSpeed / speed), 1/32, 32). ClubConfig.octaveParts = 랩 octaveParts(0.5~2면 1개, 아니면 n = ceil(|log2|)개 최대 5, 같은 크기로 나눔).
+- trackRate: lab 곡 = lab PlaybackSpeed × DJ 속도(서버 곡 시간 계산도 같이).
+- DanceController: DJPitch 효과 3 → 5개. lab 곡은 lab 옥타브 × DJ 음높이를 octaveParts로 나눔(1이면 모두 끔). lab 없는 곡은 예전처럼 3개까지만 0.5~2로 채움.
+- 볼륨: Sound.Volume = min(lab.volume × DJ 볼륨 × 구역 레벨, 10), boost는 ClubMusic 전용 SoundGroup(SoundService.ClubMusicBoost).Volume. lab 곡에는 TrackBoost EQ(10 넘으면 dB 올리기)를 쓰지 않는다.
+- EQ: LabEQ(EqualizerSoundEffect, Priority 10, 랩과 같음)에 low/mid/high, 셋 다 0이면 끔. lab 없는 곡은 끔.
+- engine = "sound"라 humHz / hissHz / gate는 기록만(랩에서도 안 들림).
+반영(랩 DataStore TurntableLabSettings "v1"): 11곡 = SAN FRANCISCO, LOVE LOVE LOVE, TANI TANI, LOVE ATTACK, GRIT X DIET COKE, CASH OUT, MY MIND, PLAIN JANE, PUMP IT UP, 404, BANG BANG. 플레이리스트에 없는 106367625479063은 넣지 않았다(사용자에게 물어봄).
+확인(Studio 오후, Hall, DJ x1): 랩 공식으로 계산한 값과 오후 실제 Sound 값이 같다. SAN FRANCISCO 0.5 / 2.0 / 2.2 / 1 / EQ 3,0,-24.5. LOVE LOVE LOVE 0.5 / 2.0 / 2.3 / 1 / EQ -6,4,2. BANG BANG 2.0 / 0.5 / 10 / 2.5 / EQ 끔. lab 없는 EDM Club Night는 1.0 / 효과 끔 / 0.55 / 1 / EQ 끔(예전과 같음). 콘솔 오류 없음.

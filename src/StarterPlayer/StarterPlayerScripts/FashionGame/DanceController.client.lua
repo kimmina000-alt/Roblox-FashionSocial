@@ -1060,27 +1060,56 @@ local music = create("Sound", {
 local currentTrack = 0
 -- volume past 10 (Track.volume): an equalizer lifting every band
 local boost = create("EqualizerSoundEffect", { Name = "TrackBoost", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 0 }, music)
+-- Turntable lab tracks (Track.lab, D-680) sound as they did in the lab: the
+-- lab's boost on a SoundGroup of the club music alone (Volume stops at 10;
+-- heard = volume × boost) and the lab's own EQ, set per track.
+local labGroup = Instance.new("SoundGroup")
+labGroup.Name = "ClubMusicBoost"
+labGroup.Volume = 1
+labGroup.Parent = game:GetService("SoundService")
+music.SoundGroup = labGroup
+local labEq = create("EqualizerSoundEffect", { Name = "LabEQ", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 10 }, music)
+local function playingTrack(): ClubConfig.Track?
+	return ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
+end
 -- the DJ's pitch (ClubMusicPitch): the PitchShift octave itself, times the
 -- track's own (user 2026-11-01; until then it was pitch / speed, making up for
--- what the speed does). One effect reaches 0.5..2, so three in a row (0.125..8)
+-- what the speed does). One effect reaches 0.5..2: three in a row (0.125..8)
+-- for the other tracks as before; lab tracks split their octave like the lab
+-- (equal parts, up to five: 1/32..32).
 do
 	local shifts = {}
-	for i = 1, 3 do
+	for i = 1, 5 do
 		shifts[i] = create("PitchShiftSoundEffect", { Name = "DJPitch" .. i, Octave = 1, Enabled = false, Priority = 4 - i }, music)
 	end
 	local function syncPitch()
 		local pitch = FashionGame:GetAttribute("ClubMusicPitch")
 		pitch = if typeof(pitch) == "number" then pitch else 1
-		-- (a track may carry its own PitchShift octave on top, Track.octave)
-		local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
-		local own = if track and track.octave then track.octave else 1
-		local rest = math.clamp(pitch * own, 0.125, 8)
-		for _, shift in ipairs(shifts) do
-			local part = math.clamp(rest, 0.5, 2)
-			rest /= part
-			shift.Octave = part
-			shift.Enabled = math.abs(part - 1) > 0.001 -- (off at 1: the effect smears the sound a little)
+		local track = playingTrack()
+		local lab = track and track.lab
+		if lab then
+			local _, labOctave = ClubConfig.labEffective(lab)
+			local total = math.clamp(labOctave * pitch, 1 / 32, 32)
+			local parts = if math.abs(total - 1) < 1e-4 then {} else ClubConfig.octaveParts(total)
+			for i, shift in ipairs(shifts) do
+				shift.Octave = parts[i] or 1
+				shift.Enabled = parts[i] ~= nil
+			end
+		else
+			-- (a track may carry its own PitchShift octave on top, Track.octave)
+			local own = if track and track.octave then track.octave else 1
+			local rest = math.clamp(pitch * own, 0.125, 8)
+			for i, shift in ipairs(shifts) do
+				local part = if i <= 3 then math.clamp(rest, 0.5, 2) else 1
+				rest /= part
+				shift.Octave = part
+				shift.Enabled = math.abs(part - 1) > 0.001 -- (off at 1: the effect smears the sound a little)
+			end
 		end
+		-- the lab's boost and EQ (none for the other tracks)
+		labGroup.Volume = if lab then lab.boost else 1
+		labEq.LowGain, labEq.MidGain, labEq.HighGain = if lab then lab.low else 0, if lab then lab.mid else 0, if lab then lab.high else 0
+		labEq.Enabled = lab ~= nil and (lab.low ~= 0 or lab.mid ~= 0 or lab.high ~= 0)
 	end
 	FashionGame:GetAttributeChangedSignal("ClubMusicPitch"):Connect(syncPitch)
 	FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(syncPitch)
@@ -1189,11 +1218,13 @@ RunService.RenderStepped:Connect(function(dt)
 		-- (times the DJ's volume, ClubMusicVolume: 0 .. x2, user 2026-11-01)
 		local djVolume = FashionGame:GetAttribute("ClubMusicVolume")
 		djVolume = if typeof(djVolume) == "number" then djVolume else 1
-		local want = (if playing and playing.volume then playing.volume else ClubConfig.MusicVolume) * djVolume * level
+		local lab = playing and playing.lab
+		local want = (if lab then lab.volume elseif playing and playing.volume then playing.volume else ClubConfig.MusicVolume) * djVolume * level
 		-- a Sound stops at Volume 10: above that an equalizer adds the rest in dB
-		-- (Volume 20 = 10 and +6 dB; user 2026-10-31)
+		-- (Volume 20 = 10 and +6 dB; user 2026-10-31). Lab tracks never: their
+		-- boost is the SoundGroup (D-680), and the EQ would mix with the lab's.
 		music.Volume = math.min(want, 10)
-		local gain = if want > 10 then math.min(20 * math.log10(want / 10), 10) else 0
+		local gain = if want > 10 and not lab then math.min(20 * math.log10(want / 10), 10) else 0
 		boost.Enabled = gain > 0
 		boost.LowGain, boost.MidGain, boost.HighGain = gain, gain, gain
 		banner.Visible = level > 0 and banner.Text ~= ""

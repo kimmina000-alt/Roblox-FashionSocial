@@ -2835,3 +2835,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### DJ 한 줄 정리 (D-677)
 ![](images/2026-11-01/dj_row.jpg)
+
+### 턴테이블 랩 값 반영 (D-680)
+랩 DataStore v1 → ClubConfig Track.lab 11곡. 오후 Sound 값이 랩 공식 값과 같음(PlaybackSpeed / PitchShift / Volume / SoundGroup / EQ). 랩에만 있는 106367625479063은 보류.
