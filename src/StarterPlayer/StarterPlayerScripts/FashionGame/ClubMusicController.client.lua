@@ -252,11 +252,12 @@ local soundButtons: {[string]: TextButton} = {}
 -- ⏸ stays, the full row. The buttons are still made, hidden, so the rest of
 -- the code keeps working; the server still has the actions)
 -- (later the same day: the speed − / + back, pitch stays off)
-for i, spec in ipairs({ { "Pause", "⏸ 일시정지", 0.42 }, { "PitchDown", "− 피치 x1.0", 0.25 }, { "PitchUp", "+", 0.15 }, { "SpeedDown", "− 속도 x1.00", 0.38 }, { "SpeedUp", "+", 0.2 } }) do
+-- (user 2026-10-31, later: ⏪ reverse next to ⏸)
+for i, spec in ipairs({ { "Pause", "⏸ 일시정지", 0.27 }, { "Reverse", "⏪ 역재생", 0.25 }, { "PitchDown", "− 피치 x1.0", 0.25 }, { "PitchUp", "+", 0.15 }, { "SpeedDown", "− 속도 x1.00", 0.3 }, { "SpeedUp", "+", 0.18 } }) do
 	local b = create("TextButton", {
 		Name = spec[1],
 		LayoutOrder = i,
-		Visible = spec[1] == "Pause" or spec[1] == "SpeedDown" or spec[1] == "SpeedUp",
+		Visible = spec[1] == "Pause" or spec[1] == "Reverse" or spec[1] == "SpeedDown" or spec[1] == "SpeedUp",
 		Size = UDim2.new(spec[3], -5, 1, 0),
 		BackgroundColor3 = COLORS.card,
 		Text = spec[2],
@@ -713,6 +714,11 @@ local function refresh()
 		local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
 		soundButtons.Pause.Text = if paused then "▶ 다시 재생" else "⏸ 일시정지"
 		soundButtons.Pause.BackgroundColor3 = if paused then COLORS.dj else COLORS.card
+		local reverse = FashionGame:GetAttribute("ClubMusicReverse") == true
+		local nowTrack = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
+		soundButtons.Reverse.Text = if reverse then "▶ 정방향" else "⏪ 역재생"
+		soundButtons.Reverse.BackgroundColor3 = if reverse then COLORS.dj else COLORS.card
+		soundButtons.Reverse.TextTransparency = if reverse or (nowTrack and nowTrack.reverseId) then 0 else 0.6
 	end
 	local pickedColor = FashionGame:GetAttribute("ClubLightColor") or "rainbow"
 	for key, button in pairs(colorButtons) do
@@ -773,7 +779,7 @@ local function refreshAll()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen", "ClubMusicSpeed", "ClubMusicPitch", "ClubMusicPaused" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen", "ClubMusicSpeed", "ClubMusicPitch", "ClubMusicPaused", "ClubMusicReverse" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
@@ -794,6 +800,9 @@ end)
 skipButton.MouseButton1Click:Connect(function() call("Skip", nil) end)
 soundButtons.Pause.MouseButton1Click:Connect(function()
 	call("Pause", FashionGame:GetAttribute("ClubMusicPaused") ~= true)
+end)
+soundButtons.Reverse.MouseButton1Click:Connect(function()
+	call("Reverse", FashionGame:GetAttribute("ClubMusicReverse") ~= true)
 end)
 for name, spec in pairs({
 	PitchDown = { "Pitch", -1 }, PitchUp = { "Pitch", 1 },

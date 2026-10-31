@@ -236,6 +236,32 @@ local function setPaused(on: boolean)
 	end
 end
 
+-- DJ reverse (user 2026-10-31): attribute ClubMusicReverse; clients play the
+-- track's reverseId file instead. Seconds into that file = length − seconds
+-- into the song, so the clock (and ClubMusicPausedAt) flips over to keep the place.
+local function isReverse(): boolean
+	return FashionGame:GetAttribute("ClubMusicReverse") == true
+end
+local function setReverse(on: boolean)
+	if on == isReverse() then return end
+	local track = ClubConfig.Playlist[trackIndex]
+	if not track then return end
+	if isPaused() then
+		pausedAt = math.max(0, track.length - pausedAt)
+		FashionGame:SetAttribute("ClubMusicPausedAt", pausedAt)
+		FashionGame:SetAttribute("ClubMusicReverse", on)
+		return
+	end
+	local rate = ClubConfig.trackRate(track, musicSpeed())
+	local now = workspace:GetServerTimeNow()
+	local start = FashionGame:GetAttribute("ClubTrackStart")
+	local elapsed = if typeof(start) == "number" then (now - start) * rate else 0
+	local flipped = math.clamp(track.length - elapsed, 0, track.length)
+	FashionGame:SetAttribute("ClubMusicReverse", on)
+	FashionGame:SetAttribute("ClubTrackStart", now - flipped / rate)
+	trackEnds = now + (track.length - flipped) / rate + 1
+end
+
 -- (a track's own baseSpeed multiplies in: ClubConfig.trackRate)
 local function setMusicSpeed(new: number)
 	local old = musicSpeed()
@@ -260,6 +286,7 @@ local function playTrack(index: number, by: number)
 	if not track then return end
 	trackIndex = index
 	FashionGame:SetAttribute("ClubMusicPaused", false) -- (a new song always plays)
+	FashionGame:SetAttribute("ClubMusicReverse", false) -- (and forwards)
 	trackEnds = workspace:GetServerTimeNow() + track.length / ClubConfig.trackRate(track, musicSpeed()) + 1
 	FashionGame:SetAttribute("ClubTrackStart", workspace:GetServerTimeNow())
 	FashionGame:SetAttribute("ClubTrackBy", by)
@@ -347,7 +374,7 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	if not isDJ then
 		-- (speed / pitch were open to anyone until 2026-10-30)
 		if action == "Play" or action == "Skip" or action == "Queue" or action == "Pause"
-			or action == "MusicSpeed" or action == "MusicPitch" then
+			or action == "MusicSpeed" or action == "MusicPitch" or action == "Reverse" then
 			return false, "DJ만 할 수 있어요."
 		end
 	end
@@ -369,6 +396,13 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	elseif action == "Pause" then
 		setPaused(payload == true)
 		return true, if payload == true then "⏸ 일시정지" else "▶ 다시 재생"
+	elseif action == "Reverse" then
+		local track = ClubConfig.Playlist[trackIndex]
+		if payload == true and not (track and track.reverseId) then
+			return false, "이 곡은 아직 역재생 음원이 없어요."
+		end
+		setReverse(payload == true)
+		return true, if payload == true then "⏪ 역재생" else "▶ 정방향"
 	elseif action == "MusicSpeed" then
 		if not table.find(ClubConfig.MusicSpeeds, payload) then return false, "없는 재생 속도예요." end
 		setMusicSpeed(payload)
@@ -398,6 +432,7 @@ local function onDJChanged()
 	-- each DJ starts with the song as it is; it goes back when the DJ ends
 	if dj ~= lastDJ then
 		setPaused(false) -- (a stopped song plays on when the DJ ends)
+		setReverse(false)
 		setMusicSpeed(1)
 		FashionGame:SetAttribute("ClubMusicPitch", 1)
 	end

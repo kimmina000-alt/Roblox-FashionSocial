@@ -1090,15 +1090,19 @@ local function syncMusic()
 	if typeof(index) ~= "number" or typeof(start) ~= "number" then return end
 	local track = ClubConfig.Playlist[index]
 	if not track then return end
-	if currentTrack ~= index then
-		currentTrack = index
+	-- the DJ's ⏪ (ClubMusicReverse): the reversed upload; the server's clock
+	-- already counts in that file
+	local reverse = FashionGame:GetAttribute("ClubMusicReverse") == true and track.reverseId ~= nil
+	local key = index * 2 + (if reverse then 1 else 0)
+	if currentTrack ~= key then
+		currentTrack = key
 		music:Stop()
-		music.SoundId = "rbxassetid://" .. tostring(track.soundId)
+		music.SoundId = "rbxassetid://" .. tostring(if reverse then track.reverseId else track.soundId)
 	end
 	if not music.IsLoaded then
 		music.Loaded:Wait()
 	end
-	if currentTrack ~= index then return end
+	if currentTrack ~= key then return end
 	-- (the DJ's playback speed, ClubMusicSpeed: the place in the song runs that much faster)
 	-- (times the track's own base speed: three songs play at x0.5, ClubConfig.trackRate)
 	local speed = ClubConfig.trackRate(track, FashionGame:GetAttribute("ClubMusicSpeed"))
@@ -1113,12 +1117,13 @@ local function syncMusic()
 	end
 	music.TimePosition = math.clamp((workspace:GetServerTimeNow() - start) * speed, 0, math.max(music.TimeLength - 0.5, 0))
 	if not music.IsPlaying then music:Play() end
-	banner.Text = "♪ NOW PLAYING · " .. track.channel .. " · " .. track.title
+	banner.Text = (if reverse then "⏪ REVERSE · " else "♪ NOW PLAYING · ") .. track.channel .. " · " .. track.title
 end
 FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubTrackStart"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubMusicSpeed"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubMusicPaused"):Connect(function() task.spawn(syncMusic) end)
+FashionGame:GetAttributeChangedSignal("ClubMusicReverse"):Connect(function() task.spawn(syncMusic) end)
 task.spawn(syncMusic)
 
 -- 0..1 music level at a position: inside a zone that zone's volume (the

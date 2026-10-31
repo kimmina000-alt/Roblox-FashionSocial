@@ -1121,3 +1121,6 @@ D-651 — (2026-10-31) Mobile 2P test (server + Player1/Player2, 801×413 phone 
 
 ## D-652 (2026-10-31) 합친 뒤 모바일 2인 재테스트
 catalog-ui-redesign(D-651까지)으로 2인 폰 테스트. 가드 출입, 카페 알바, 잠긴 케이크, 메뉴 자동 닫기, 주문창 위치, 역할 태그 모두 정상. 코드 변경 없음.
+
+## D-654 (2026-10-31) DJ ⏪ 역재생
+Roblox Sound / AudioPlayer는 PlaybackSpeed를 음수로 못 한다(0으로 바뀜, Studio에서 확인). 그래서 곡마다 거꾸로 뒤집은 음원을 따로 올려 `reverseId`로 넣는다(ClubConfig.Track). DJ 패널 소리 줄에 ⏪ 역재생 / ▶ 정방향 버튼(DJ만). 서버는 ClubMusicReverse 속성을 켜고, 시계를 "length − 지금 위치"로 뒤집어 같은 지점부터 거꾸로 나오게 한다(일시정지 중이면 ClubMusicPausedAt도 뒤집음). 새 곡·DJ 교대 때는 정방향으로 돌아간다. 역재생 음원 끝 = 곡의 처음 → 다음 곡. reverseId가 없는 곡은 버튼이 흐리고 "아직 역재생 음원이 없어요." 안내. 현재 reverseId는 아직 0곡(원본 음원 파일 필요).
