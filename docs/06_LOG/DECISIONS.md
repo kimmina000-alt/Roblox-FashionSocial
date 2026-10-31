@@ -1244,3 +1244,6 @@ BAD / ATEEZ(89023892900416, 77초), Lemon Tang / 하츠투하츠(99550529874718,
 
 ## D-687 (2026-11-01) K-POP 5곡 랩 값 따로 반영
 사용자가 붙여 준 랩 값: BAD, Catch Catch, Get A Guitar, Bubble Pop = speed 1, tempo 0.5, volume 10, boost 3, octave 1, EQ 0/10/10. Lemon Tang = 같고 boost 2.5. 실제 값: PlaybackSpeed 0.5, PitchShift 2.0, Volume 10, SoundGroup 3 (Lemon Tang 2.5), EQ 0/10/10.
+
+## D-688 (2026-11-01) 불꽃 판매원 포즈 = 바텐더 포즈
+불꽃 판매원(NpcLooks.ItemSeller)도 바텐더와 같은 포즈(애니메이션 팩 실감나는 남성 01 대기, 128667162266929)를 쓴다. 판매원은 바텐더 포즈를 그대로 따라간다(seller.pose = Bartender.pose). 손 스파클러는 그대로.

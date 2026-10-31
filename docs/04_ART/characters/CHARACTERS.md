@@ -43,4 +43,4 @@ Character A's body, head (스컬), classic clear shirt/pants and scales, with:
 
 ## Item seller (D-663)
 
-Character A without the biker jacket, with the bartender's face (head 110649251725469, D-669), dark bronze skin (105, 62, 36), the pose of emote 85369612310951 장엄한 소환 포즈 (animation 100249604916626) a black face mask 18991656628 and a lit hand sparkler (D-663..D-671).
+Character A without the biker jacket, with the bartender's face (head 110649251725469, D-669), dark bronze skin (105, 62, 36), the bartender's pose (animation 128667162266929, D-688; before: emote 85369612310951 장엄한 소환 포즈) a black face mask 18991656628 and a lit hand sparkler (D-663..D-671).

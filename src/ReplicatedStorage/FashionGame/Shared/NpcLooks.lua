@@ -75,7 +75,8 @@ do
 	-- the item seller: Character A with its own pose (user 2026-10-31):
 	-- emote 85369612310951 "장엄한 소환 포즈"
 	local seller = table.clone(a)
-	seller.pose = 100249604916626
+	-- (the bartender's pose since 2026-11-01; before: emote 85369612310951 → 100249604916626)
+	seller.pose = NpcLooks.Looks.Bartender.pose
 	seller.skin = Color3.fromRGB(105, 62, 36) -- dark bronze (user 2026-10-31: bronze, then darker)
 	seller.head = NpcLooks.Looks.Bartender.head -- the bartender's face, not the skull
 	seller.extras = { { id = 18991656628, kind = Enum.AccessoryType.Face } } -- 얼굴 가면 (검정), D-671
