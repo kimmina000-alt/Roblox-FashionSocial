@@ -248,10 +248,14 @@ local djSound = create("Frame", {
 create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, djSound)
 local soundButtons: {[string]: TextButton} = {}
 -- (user 2026-10-30, later) ⏸ pause / ▶ play first in the row
-for i, spec in ipairs({ { "Pause", "⏸ 일시정지", 0.2 }, { "PitchDown", "− 피치 x1.0", 0.25 }, { "PitchUp", "+", 0.15 }, { "SpeedDown", "− 속도 x1.00", 0.25 }, { "SpeedUp", "+", 0.15 } }) do
+-- (user 2026-10-31: the pitch and speed buttons taken off the DJ screen; only
+-- ⏸ stays, the full row. The buttons are still made, hidden, so the rest of
+-- the code keeps working; the server still has the actions)
+for i, spec in ipairs({ { "Pause", "⏸ 일시정지", 1 }, { "PitchDown", "− 피치 x1.0", 0.25 }, { "PitchUp", "+", 0.15 }, { "SpeedDown", "− 속도 x1.00", 0.25 }, { "SpeedUp", "+", 0.15 } }) do
 	local b = create("TextButton", {
 		Name = spec[1],
 		LayoutOrder = i,
+		Visible = spec[1] == "Pause",
 		Size = UDim2.new(spec[3], -5, 1, 0),
 		BackgroundColor3 = COLORS.card,
 		Text = spec[2],

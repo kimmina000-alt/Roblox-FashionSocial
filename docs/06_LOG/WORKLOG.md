@@ -2782,3 +2782,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 밝은 주문창·클럽 팔찌 패스 (D-640)
 ![](images/2026-10-31/cafe_beige_final.jpg) ![](images/2026-10-31/club_pass_wristbands.jpg) ![](images/2026-10-31/pass_wristband_icons.png)
+
+### 클럽 문 안쪽 조명 (D-645)
+![](images/2026-10-31/club_door_glow.jpg)
