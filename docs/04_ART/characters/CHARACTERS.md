@@ -22,3 +22,19 @@ or SetAccessories drops it), then `Players:CreateHumanoidModelFromDescription(d,
 Height with these scales: about 11.1 studs (9.0 at the default scales).
 
 ![](charA_tall.jpg)
+
+## Bartender (2026-10-31, D-661)
+
+Character A's body, head (스컬), classic clear shirt/pants and scales, with:
+
+| Part | Asset |
+|---|---|
+| Hair | 137811933417350 지저분한 아이돌 웨이브 헤어 (블랙 화이트) |
+| Layered 1 | 93816036884228 어깨 패드 (TShirt) |
+| Layered 2 | 130442955983043 주름진 오피스 버튼업 셔츠 화이트 (TShirt) |
+| Layered 3 | 88241801880611 블랙 (Pants) |
+| Layered 4 | 12271645343 블랙 레스토랑 앞치마 (Jacket) |
+| Pose | emote 94499750241713 → animation 126073867043223 |
+| In hand | 스컬 앤 워터 bottle (DrinkService.heldBottle) |
+
+![](../../06_LOG/images/2026-10-31/bartender_v3.jpg)

@@ -42,19 +42,27 @@ NpcLooks.Looks = {
 	},
 } :: {[string]: Look}
 
--- The bartender (user 2026-10-31, later): Character A without the biker
--- jacket, a drink bottle in the hand instead of the sparkler (the item seller
--- keeps Character A). The new top and the apron wait for their asset ids:
--- the id the user sent for both, 92480837999507, is the pose emote.
+-- The bartender (user 2026-10-31, later): Character A's body, head and pants
+-- with a white shirt instead of the sweater, a restaurant apron instead of the
+-- biker jacket, its own hair and pose, a drink bottle in the hand (the item
+-- seller keeps Character A).
 do
 	local a = NpcLooks.Looks.CharacterA
-	local layered = {}
-	for _, item in ipairs(a.layered) do
-		if item.kind ~= Enum.AccessoryType.Jacket then table.insert(layered, item) end
-	end
 	NpcLooks.Looks.Bartender = {
-		bodyOutfit = a.bodyOutfit, head = a.head, hair = a.hair, layered = layered,
-		shirt = a.shirt, pants = a.pants, scales = a.scales, pose = a.pose,
+		bodyOutfit = a.bodyOutfit,
+		head = a.head,
+		hair = 137811933417350, -- 지저분한 아이돌 웨이브 헤어 (블랙 화이트)
+		layered = {
+			{ id = 93816036884228, kind = Enum.AccessoryType.TShirt }, -- 어깨 패드
+			{ id = 130442955983043, kind = Enum.AccessoryType.TShirt }, -- 주름진 오피스 버튼업 셔츠 화이트
+			{ id = 88241801880611, kind = Enum.AccessoryType.Pants }, -- 블랙
+			{ id = 12271645343, kind = Enum.AccessoryType.Jacket }, -- 블랙 레스토랑 앞치마
+		},
+		shirt = a.shirt,
+		pants = a.pants,
+		scales = a.scales,
+		-- emote 94499750241713 "귀여운 머리머리 스트리트웨어 배디 포즈": its Animation
+		pose = 126073867043223,
 		holds = "bottle:skull_water",
 	}
 end

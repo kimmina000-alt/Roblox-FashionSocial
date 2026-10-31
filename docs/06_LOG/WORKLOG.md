@@ -2801,3 +2801,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 바텐더 음료병 (D-660)
 ![](images/2026-10-31/bartender_bottle.jpg)
+
+### 바텐더 셔츠·앞치마·헤어·포즈 (D-661)
+![](images/2026-10-31/bartender_v3.jpg)
