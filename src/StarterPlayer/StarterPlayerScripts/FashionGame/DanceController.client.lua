@@ -1071,7 +1071,10 @@ do
 		local speed = FashionGame:GetAttribute("ClubMusicSpeed")
 		pitch = if typeof(pitch) == "number" then pitch else 1
 		speed = if typeof(speed) == "number" then speed else 1
-		local rest = math.clamp(pitch / speed, 0.125, 8)
+		-- (a track may carry its own PitchShift octave on top, Track.octave)
+		local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
+		local own = if track and track.octave then track.octave else 1
+		local rest = math.clamp(pitch / speed * own, 0.125, 8)
 		for _, shift in ipairs(shifts) do
 			local part = math.clamp(rest, 0.5, 2)
 			rest /= part
@@ -1081,6 +1084,7 @@ do
 	end
 	FashionGame:GetAttributeChangedSignal("ClubMusicPitch"):Connect(syncPitch)
 	FashionGame:GetAttributeChangedSignal("ClubMusicSpeed"):Connect(syncPitch)
+	FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(syncPitch)
 	syncPitch()
 end
 

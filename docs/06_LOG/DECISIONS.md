@@ -1171,3 +1171,6 @@ NpcLooks Look에 skin(모든 신체 부위 색)을 새로 만들고, 불꽃 판�
 
 ## D-669 (2026-10-31) 바 직원 얼굴 = 얼굴 없는 인형 머리
 바텐더와 불꽃 판매원 얼굴을 번들 24649319209591(얼굴 없는 인형 머리) 안의 다이나믹 헤드 110649251725469로 바꿨다. 판매원은 바텐더 얼굴을 그대로 따라간다(seller.head = Bartender.head).
+
+## D-670 (2026-10-31) BANG BANG 피치 0.5
+곡마다 PitchShiftSoundEffect 옥타브를 따로 줄 수 있게 Track.octave를 새로 만들었다(DanceController syncPitch: DJ 피치/속도 계산에 곱함, 곡이 바뀔 때도 다시 계산). BANG BANG · IVE(126421508146335) = PlaybackSpeed 2, Volume 10, Octave 0.5. Studio에서 이 곡일 때 속도 2.00 / 볼륨 10.00 / DJPitch1 0.5(켜짐), 다른 곡으로 바뀌면 1.00 / 0.55 / 꺼짐으로 돌아가는 것을 확인했다.

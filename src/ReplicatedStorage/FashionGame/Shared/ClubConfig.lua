@@ -26,6 +26,7 @@ export type Track = {
 	length: number, -- seconds of audio at x1
 	baseSpeed: number?, -- its normal playback speed (default 1)
 	volume: number?, -- its own music volume instead of MusicVolume (0..10)
+	octave: number?, -- a PitchShiftSoundEffect octave on it (1 = none)
 }
 
 local ClubConfig = {}
@@ -112,8 +113,8 @@ ClubConfig.Playlist = {
 	{ channel = "POP", title = "404 (New Era) · KiiiKiii", soundId = 74181572220193, length = 63, baseSpeed = 0.5 },
 	-- (user 2026-10-31, later: added at its own speed)
 	{ channel = "POP", title = "MANIAC · Stray Kids", soundId = 111304415353887, length = 184 },
-	-- (user 2026-10-31: PlaybackSpeed 2, Volume 10)
-	{ channel = "POP", title = "BANG BANG · IVE", soundId = 126421508146335, length = 352, baseSpeed = 2, volume = 10 },
+	-- (user 2026-10-31: PlaybackSpeed 2, Volume 10, PitchShift octave 0.5)
+	{ channel = "POP", title = "BANG BANG · IVE", soundId = 126421508146335, length = 352, baseSpeed = 2, volume = 10, octave = 0.5 },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
