@@ -63,10 +63,23 @@ local function piece(name: string, size: Vector3, cf: CFrame, color: Color3, tra
 	p.Parent = glow
 	return p
 end
-local haze = piece("Haze", Vector3.new(0.2, 16, 14), CFrame.new(DOOR.X + 12, DOOR.Y + 1, DOOR.Z), Color3.fromRGB(190, 80, 255), 0.82)
+-- (user 2026-10-31, later: the haze board taken out; the light stays, on an
+-- invisible part, and light lines run round the inner faces of the doorway)
+local haze = piece("InsideLight", Vector3.new(0.2, 0.2, 0.2), CFrame.new(DOOR.X + 12, DOOR.Y + 1, DOOR.Z), Color3.fromRGB(190, 80, 255), 1)
 local inside = Instance.new("PointLight")
 inside.Color, inside.Range, inside.Brightness, inside.Shadows = Color3.fromRGB(200, 100, 255), 18, 2, false
 inside.Parent = haze
+-- The doorway: the hole in the club's west wall (x 48..50) from z -218 to
+-- -202 and up to y 18 (02_Club Wall_S_L / Wall_S_R / Wall_S_Top). A line at
+-- each edge of each inner face (x 48.3 and 49.7: the sliding panels run at x 49).
+local LINE_COLOR = Color3.fromRGB(205, 110, 255)
+local Z0, Z1, TOP = -218, -202, 18
+local lines: {BasePart} = {}
+for _, x in ipairs({ 48.3, 49.7 }) do
+	table.insert(lines, piece("DoorLine", Vector3.new(0.15, TOP, 0.12), CFrame.new(x, TOP / 2, Z0 + 0.06), LINE_COLOR, 1))
+	table.insert(lines, piece("DoorLine", Vector3.new(0.15, TOP, 0.12), CFrame.new(x, TOP / 2, Z1 - 0.06), LINE_COLOR, 1))
+	table.insert(lines, piece("DoorLine", Vector3.new(0.15, 0.12, Z1 - Z0), CFrame.new(x, TOP - 0.06, (Z0 + Z1) / 2), LINE_COLOR, 1))
+end
 local spill = piece("Spill", Vector3.new(0.2, 0.2, 0.2), CFrame.new(DOOR.X + 2, DOOR.Y + 7, DOOR.Z), Color3.new(1, 1, 1), 1)
 local out = Instance.new("SpotLight")
 out.Face = Enum.NormalId.Left -- (-X: out of the door, onto the sidewalk)
@@ -81,8 +94,7 @@ while true do
 	sign.Enabled = closed
 	-- the glow while open, breathing slowly with the beat of the place
 	local on = not closed
-	-- (0.5 read as a flat pink board: a faint haze)
-	haze.Transparency = if on then 0.82 + 0.06 * math.sin(os.clock() * 2) else 1
+	for _, line in ipairs(lines) do line.Transparency = if on then 0 else 1 end
 	inside.Enabled, out.Enabled = on, on
 	if closed then
 		local minutes = math.max(1, math.ceil(DayNightConfig.secondsUntil(night.OpenHour) / 60))

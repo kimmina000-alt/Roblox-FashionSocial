@@ -2813,3 +2813,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 바텐더 마스크 교체 (D-664)
 ![](images/2026-10-31/bartender_mask2.jpg)
+
+### 클럽 입구 네온선 (D-665)
+![](images/2026-10-31/club_door_lines.jpg)

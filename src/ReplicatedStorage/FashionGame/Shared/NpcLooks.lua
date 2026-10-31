@@ -72,6 +72,11 @@ do
 	-- emote 85369612310951 "장엄한 소환 포즈"
 	local seller = table.clone(a)
 	seller.pose = 100249604916626
+	-- (user 2026-10-31, later: without the biker jacket)
+	seller.layered = {}
+	for _, item in ipairs(a.layered) do
+		if item.kind ~= Enum.AccessoryType.Jacket then table.insert(seller.layered, item) end
+	end
 	NpcLooks.Looks.ItemSeller = seller
 end
 
