@@ -1238,3 +1238,6 @@ DJ 속도 x0.25..x5(0.05 간격), 피치 x0.5..x5(0.1), 볼륨 0..x5(0.1). 피�
 
 ## D-685 (2026-11-01) K-POP 5곡 추가 (Love 119와 같은 설정)
 BAD / ATEEZ(89023892900416, 77초), Lemon Tang / 하츠투하츠(99550529874718, 81초), Catch Catch / 최예나(100968974338230, 92초), Get A Guitar / RIIZE(100035331158760, 80초), Bubble Pop / HyunA(117125823291884, 107초). lab 값은 Love 119와 같다(speed 0.5, tempo 0.65, volume 10, boost 2.5, EQ 0/10/10). 28곡. Studio 확인(Bubble Pop): PlaybackSpeed 0.325, PitchShift 1.538, Volume 10, SoundGroup 2.5, EQ 켜짐.
+
+## D-686 (2026-11-01) EDM 10곡 제목에서 OHU Mix 번호 빼기
+사용자: 표시 이름만. 제목에서 "OHU Mix 01 · "…"OHU Mix 10 · "을 지웠다(예: SAN FRANCISCO / DOM DOLLA). 장르는 EDM 그대로.
