@@ -1188,3 +1188,11 @@ Roblox Sound.Volume은 최대 10이라 20을 넣으면 10으로 잘린다(Studio
 
 ## D-674 (2026-11-01) MANIAC 삭제
 클럽 플레이리스트에서 MANIAC · Stray Kids(111304415353887)를 뺐다(22곡). 역재생(PlaybackSpeed -1)은 Roblox에서 0으로 바뀌어 안 된다.
+
+## D-675 (2026-11-01) DJ 믹서: 속도·볼륨·피치(옥타브) − / +
+DJ 패널 소리 줄을 4줄로 바꿨다: ⏸ 일시정지 한 줄 + "− 값 +" 세 줄(속도, 볼륨, 피치). 값은 Sound에 실제로 들어가는 숫자다(곡 자체 설정 × DJ 단계).
+- 속도(PlaybackSpeed): DJ 배수 x0.25..x2, 0.05 간격(ClubMusicSpeed).
+- 볼륨(Volume): 새 DJ 배수 0..x2, 0.1 간격(ClubMusicVolume, ClubConfig.MusicVolumes, 서버 액션 "MusicVolume", DJ만). 10을 넘으면 D-672의 이퀄라이저로 채운다.
+- 피치(PitchShift Octave): DJ 배수 x0.5..x2, 0.1 간격(ClubMusicPitch). 이제 옥타브 자체다(곡 자체 옥타브와 곱함). 예전처럼 속도에 맞춰 보정(pitch / speed)하지 않는다.
+DJ가 바뀌면 셋 다 x1로 돌아간다. 음수는 불가: Roblox가 PlaybackSpeed·Volume 음수를 0으로, Octave는 0.5 아래를 0.5로 바꾼다(효과 3개를 이어 0.125..8까지).
+Studio 확인: BANG BANG에서 속도 x0.5 / 볼륨 x0.5 / 피치 x1.6 → 패널 "속도 1.00 · 볼륨 10.0 · 피치 0.80", Sound PlaybackSpeed 1, Volume 10, Octave 0.8. DJ가 아니면 서버가 "DJ만 할 수 있어요."로 거절.

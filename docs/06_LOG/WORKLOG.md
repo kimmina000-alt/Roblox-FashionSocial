@@ -2828,3 +2828,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 바텐더 이동, 판매원 가면 (D-671)
 ![](images/2026-10-31/bar_staff_moved.jpg)
+
+## 2026-11-01
+### DJ 믹서 (D-675)
+![](images/2026-11-01/dj_mixer.jpg)

@@ -240,34 +240,56 @@ create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4
 
 -- the DJ's sound row (user 2026-10-30): pitch − / + (x0.5..x2 by 0.1) and
 -- speed − / + (x0.25..x2 by 0.05); each − button shows the value
+-- (user 2026-11-01) the DJ's mixer: ⏸ on its own row, then three rows
+-- "− value +" for the speed (PlaybackSpeed), the volume and the pitch (the
+-- PitchShift octave). Each value is what the Sound gets: the track's own
+-- setting times the DJ's step.
 local djSound = create("Frame", {
 	Name = "DJSound",
 	BackgroundTransparency = 1,
 	Visible = false,
 }, panel)
-create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, djSound)
+create("UIListLayout", { FillDirection = Enum.FillDirection.Vertical, Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, djSound)
+local SOUND_ROWS = 4
 local soundButtons: {[string]: TextButton} = {}
--- (user 2026-10-30, later) ⏸ pause / ▶ play first in the row
--- (user 2026-10-31: the pitch and speed buttons taken off the DJ screen; only
--- ⏸ stays, the full row. The buttons are still made, hidden, so the rest of
--- the code keeps working; the server still has the actions)
--- (later the same day: the speed − / + back, pitch stays off)
-for i, spec in ipairs({ { "Pause", "⏸ 일시정지", 0.42 }, { "PitchDown", "− 피치 x1.0", 0.25 }, { "PitchUp", "+", 0.15 }, { "SpeedDown", "− 속도 x1.00", 0.38 }, { "SpeedUp", "+", 0.2 } }) do
+local soundLabels: {[string]: TextLabel} = {}
+local function soundButton(name: string, text: string, size: UDim2, parent: Instance, order: number): TextButton
 	local b = create("TextButton", {
-		Name = spec[1],
-		LayoutOrder = i,
-		Visible = spec[1] == "Pause" or spec[1] == "SpeedDown" or spec[1] == "SpeedUp",
-		Size = UDim2.new(spec[3], -5, 1, 0),
+		Name = name,
+		LayoutOrder = order,
+		Size = size,
 		BackgroundColor3 = COLORS.card,
-		Text = spec[2],
+		Text = text,
 		TextColor3 = COLORS.text,
 		TextScaled = true,
 		Font = Enum.Font.GothamBold,
-	}, djSound)
+	}, parent)
 	corner(b, 8)
 	create("UITextSizeConstraint", { MaxTextSize = 13 }, b)
 	create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, b)
-	soundButtons[spec[1]] = b
+	soundButtons[name] = b
+	return b
+end
+soundButton("Pause", "⏸ 일시정지", UDim2.new(1, 0, 1 / SOUND_ROWS, -3), djSound, 1)
+for i, key in ipairs({ "Speed", "Volume", "Pitch" }) do
+	local row = create("Frame", { Name = key .. "Row", LayoutOrder = i + 1, BackgroundTransparency = 1, Size = UDim2.new(1, 0, 1 / SOUND_ROWS, -3) }, djSound)
+	create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, row)
+	soundButton(key .. "Down", "−", UDim2.new(0.22, -3, 1, 0), row, 1)
+	local label = create("TextLabel", {
+		Name = key .. "Value",
+		LayoutOrder = 2,
+		Size = UDim2.new(0.56, -2, 1, 0),
+		BackgroundColor3 = COLORS.card,
+		BackgroundTransparency = 0.5,
+		TextColor3 = COLORS.text,
+		TextScaled = true,
+		Font = Enum.Font.GothamBold,
+		Text = "",
+	}, row)
+	corner(label, 8)
+	create("UITextSizeConstraint", { MaxTextSize = 13 }, label)
+	soundLabels[key] = label
+	soundButton(key .. "Up", "+", UDim2.new(0.22, -3, 1, 0), row, 3)
 end
 
 -- light colours (DJ only): ClubConfig.LightColors swatches
@@ -475,9 +497,10 @@ local function layout()
 		djTools.Position = UDim2.fromOffset(0, y)
 		djTools.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
 		y += (if compact then 26 else 30) + 6
+		local soundH = SOUND_ROWS * ((if compact then 24 else 28) + 4) - 4
 		djSound.Position = UDim2.fromOffset(0, y)
-		djSound.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
-		y += (if compact then 26 else 30) + 6
+		djSound.Size = UDim2.fromOffset(leftW, soundH)
+		y += soundH + 6
 		local perRow = if compact then 4 else 8
 		local rows = math.ceil((#ClubConfig.LightColors + 1) / perRow) -- (+1: the 🎆 cell)
 		local cellH = if compact then 22 else 24
@@ -698,18 +721,21 @@ local function refresh()
 	djTools.Visible = dj
 	djSound.Visible = dj
 	colorRow.Visible = dj
-	do -- the sound row: the pitch and the speed on their buttons, coloured when not x1
-		local mpitch = FashionGame:GetAttribute("ClubMusicPitch")
-		local mspeed = FashionGame:GetAttribute("ClubMusicSpeed")
-		mpitch = if typeof(mpitch) == "number" then mpitch else 1
-		mspeed = if typeof(mspeed) == "number" then mspeed else 1
-		soundButtons.PitchDown.Text = string.format("− 피치 x%.1f", mpitch)
-		soundButtons.PitchDown.BackgroundColor3 = if mpitch < 1 then COLORS.dj else COLORS.card
-		soundButtons.PitchUp.BackgroundColor3 = if mpitch > 1 then COLORS.dj else COLORS.card
-		local SPEED = Color3.fromRGB(90, 60, 160)
-		soundButtons.SpeedDown.Text = string.format("− 속도 x%.2f", mspeed)
-		soundButtons.SpeedDown.BackgroundColor3 = if mspeed < 1 then SPEED else COLORS.card
-		soundButtons.SpeedUp.BackgroundColor3 = if mspeed > 1 then SPEED else COLORS.card
+	do -- the mixer: what the Sound plays at, coloured when the DJ moved it off x1
+		local function attr(name: string): number
+			local v = FashionGame:GetAttribute(name)
+			return if typeof(v) == "number" then v else 1
+		end
+		local mspeed, mvolume, mpitch = attr("ClubMusicSpeed"), attr("ClubMusicVolume"), attr("ClubMusicPitch")
+		local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
+		local MOVED = Color3.fromRGB(90, 60, 160)
+		soundLabels.Speed.Text = string.format("속도 %.2f", ClubConfig.trackRate(track, mspeed))
+		soundLabels.Volume.Text = string.format("볼륨 %.1f", (if track and track.volume then track.volume else ClubConfig.MusicVolume) * mvolume)
+		soundLabels.Pitch.Text = string.format("피치 %.2f", (if track and track.octave then track.octave else 1) * mpitch)
+		for key, value in pairs({ Speed = mspeed, Volume = mvolume, Pitch = mpitch }) do
+			soundButtons[key .. "Down"].BackgroundColor3 = if value < 1 then MOVED else COLORS.card
+			soundButtons[key .. "Up"].BackgroundColor3 = if value > 1 then MOVED else COLORS.card
+		end
 		local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
 		soundButtons.Pause.Text = if paused then "▶ 다시 재생" else "⏸ 일시정지"
 		soundButtons.Pause.BackgroundColor3 = if paused then COLORS.dj else COLORS.card
@@ -773,7 +799,7 @@ local function refreshAll()
 	if panel.Visible then renderTracks() end
 end
 
-for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen", "ClubMusicSpeed", "ClubMusicPitch", "ClubMusicPaused" }) do
+for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen", "ClubMusicSpeed", "ClubMusicPitch", "ClubMusicPaused", "ClubMusicVolume" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)
 end
 
@@ -798,9 +824,11 @@ end)
 for name, spec in pairs({
 	PitchDown = { "Pitch", -1 }, PitchUp = { "Pitch", 1 },
 	SpeedDown = { "Speed", -1 }, SpeedUp = { "Speed", 1 },
+	VolumeDown = { "Volume", -1 }, VolumeUp = { "Volume", 1 },
 }) do
 	soundButtons[name].MouseButton1Click:Connect(function()
-		local list = if spec[1] == "Pitch" then ClubConfig.MusicPitches else ClubConfig.MusicSpeeds
+		local list = if spec[1] == "Pitch" then ClubConfig.MusicPitches
+			elseif spec[1] == "Volume" then ClubConfig.MusicVolumes else ClubConfig.MusicSpeeds
 		local i = ClubConfig.nearestStep(list, FashionGame:GetAttribute("ClubMusic" .. spec[1]))
 		local to = list[math.clamp(i + spec[2], 1, #list)]
 		if to ~= list[i] then call("Music" .. spec[1], to) end

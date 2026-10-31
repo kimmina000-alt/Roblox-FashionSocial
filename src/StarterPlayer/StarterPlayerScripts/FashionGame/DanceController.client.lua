@@ -1060,9 +1060,9 @@ local music = create("Sound", {
 local currentTrack = 0
 -- volume past 10 (Track.volume): an equalizer lifting every band
 local boost = create("EqualizerSoundEffect", { Name = "TrackBoost", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 0 }, music)
--- the DJ's pitch (ClubMusicPitch, user 2026-10-30): the speed (PlaybackSpeed)
--- moves the pitch too, so the shift is pitch / speed. One effect reaches
--- 0.5..2; pitch x2 at speed x0.25 needs x8, so three in a row (0.125..8)
+-- the DJ's pitch (ClubMusicPitch): the PitchShift octave itself, times the
+-- track's own (user 2026-11-01; until then it was pitch / speed, making up for
+-- what the speed does). One effect reaches 0.5..2, so three in a row (0.125..8)
 do
 	local shifts = {}
 	for i = 1, 3 do
@@ -1070,13 +1070,11 @@ do
 	end
 	local function syncPitch()
 		local pitch = FashionGame:GetAttribute("ClubMusicPitch")
-		local speed = FashionGame:GetAttribute("ClubMusicSpeed")
 		pitch = if typeof(pitch) == "number" then pitch else 1
-		speed = if typeof(speed) == "number" then speed else 1
 		-- (a track may carry its own PitchShift octave on top, Track.octave)
 		local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
 		local own = if track and track.octave then track.octave else 1
-		local rest = math.clamp(pitch / speed * own, 0.125, 8)
+		local rest = math.clamp(pitch * own, 0.125, 8)
 		for _, shift in ipairs(shifts) do
 			local part = math.clamp(rest, 0.5, 2)
 			rest /= part
@@ -1085,7 +1083,6 @@ do
 		end
 	end
 	FashionGame:GetAttributeChangedSignal("ClubMusicPitch"):Connect(syncPitch)
-	FashionGame:GetAttributeChangedSignal("ClubMusicSpeed"):Connect(syncPitch)
 	FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(syncPitch)
 	syncPitch()
 end
@@ -1189,7 +1186,10 @@ RunService.RenderStepped:Connect(function(dt)
 		if player.Character and player.Character:GetAttribute("PhotoBooth") ~= nil then level = 0 end
 		-- (a track may set its own volume, ClubConfig Track.volume)
 		local playing = ClubConfig.Playlist[currentTrack]
-		local want = (if playing and playing.volume then playing.volume else ClubConfig.MusicVolume) * level
+		-- (times the DJ's volume, ClubMusicVolume: 0 .. x2, user 2026-11-01)
+		local djVolume = FashionGame:GetAttribute("ClubMusicVolume")
+		djVolume = if typeof(djVolume) == "number" then djVolume else 1
+		local want = (if playing and playing.volume then playing.volume else ClubConfig.MusicVolume) * djVolume * level
 		-- a Sound stops at Volume 10: above that an equalizer adds the rest in dB
 		-- (Volume 20 = 10 and +6 dB; user 2026-10-31)
 		music.Volume = math.min(want, 10)

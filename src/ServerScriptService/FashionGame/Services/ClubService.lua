@@ -187,7 +187,8 @@ end
 --   ClubTrack (index into ClubConfig.Playlist), ClubTrackStart (server time),
 --   ClubTrackBy (userId who chose it, 0 = automatic),
 --   ClubRequests (JSON list of {i = track index, u = userId}),
---   ClubMusicSpeed (DJ playback speed), ClubMusicPitch (DJ pitch; user 2026-10-30).
+--   ClubMusicSpeed (DJ playback speed), ClubMusicPitch (DJ pitch; user 2026-10-30),
+--   ClubMusicVolume (DJ volume multiplier; user 2026-11-01).
 -- Without a DJ anyone may queue one song at a time. With a DJ, only the DJ
 -- picks: "Play" (now), "Queue" (next), "Skip"; requests are closed.
 --------------------------------------------------
@@ -347,7 +348,7 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	if not isDJ then
 		-- (speed / pitch were open to anyone until 2026-10-30)
 		if action == "Play" or action == "Skip" or action == "Queue" or action == "Pause"
-			or action == "MusicSpeed" or action == "MusicPitch" then
+			or action == "MusicSpeed" or action == "MusicPitch" or action == "MusicVolume" then
 			return false, "DJ만 할 수 있어요."
 		end
 	end
@@ -377,6 +378,11 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		if not table.find(ClubConfig.MusicPitches, payload) then return false, "없는 피치예요." end
 		FashionGame:SetAttribute("ClubMusicPitch", payload)
 		return true, string.format("피치 x%s", tostring(payload))
+	elseif action == "MusicVolume" then
+		-- (user 2026-11-01) the DJ's volume, a multiplier on the track's own
+		if not table.find(ClubConfig.MusicVolumes, payload) then return false, "없는 볼륨이에요." end
+		FashionGame:SetAttribute("ClubMusicVolume", payload)
+		return true, string.format("볼륨 x%s", tostring(payload))
 	end
 	-- Future DJ abilities (lights, effects, announcements): DjService.Actions.
 	local handler = typeof(action) == "string" and DjService.Actions[action]
@@ -400,6 +406,7 @@ local function onDJChanged()
 		setPaused(false) -- (a stopped song plays on when the DJ ends)
 		setMusicSpeed(1)
 		FashionGame:SetAttribute("ClubMusicPitch", 1)
+		FashionGame:SetAttribute("ClubMusicVolume", 1)
 	end
 	lastDJ = dj
 end
