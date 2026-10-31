@@ -115,6 +115,8 @@ ClubConfig.Playlist = {
 	-- (MANIAC · Stray Kids, 111304415353887, taken out again: user 2026-11-01)
 	-- (user 2026-10-31: PlaybackSpeed 2, Volume 10 then 20, PitchShift octave 0.5)
 	{ channel = "POP", title = "BANG BANG · IVE", soundId = 126421508146335, length = 352, baseSpeed = 2, volume = 20, octave = 0.5 },
+	-- (user 2026-11-01: a temporary title, the upload's own name; real title to come)
+	{ channel = "POP", title = "새벽 한시반 (임시 제목)", soundId = 128410308180471, length = 76 },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
