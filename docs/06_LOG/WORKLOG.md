@@ -2779,3 +2779,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 카페·국밥집 주문창 → 클럽 상점 틀 (D-639)
 ![](images/2026-10-31/cafe_neon_drinks.jpg) ![](images/2026-10-31/cafe_neon_dessert.jpg) ![](images/2026-10-31/gukbap_neon.jpg)
+
+### 밝은 주문창·클럽 팔찌 패스 (D-640)
+![](images/2026-10-31/cafe_beige_final.jpg) ![](images/2026-10-31/club_pass_wristbands.jpg) ![](images/2026-10-31/pass_wristband_icons.png)

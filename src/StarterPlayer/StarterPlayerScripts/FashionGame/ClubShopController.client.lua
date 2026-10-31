@@ -559,17 +559,18 @@ local function buildItemShop()
 	local order = 0
 	local function nextOrder() order += 1 return order end
 	local function passRows()
-		NeonShopUI.wideRow(list2, nextOrder(), "🎧", string.format("DJ %d분 이용권", MonetizationConfig.DJMinutes),
+		-- (the passes as club wristbands, user 2026-10-31: docs/04_ART/menu_icons/menu_band_*)
+		NeonShopUI.wideRow(list2, nextOrder(), "rbxassetid://87530429290561", string.format("DJ %d분 이용권", MonetizationConfig.DJMinutes),
 			string.format("클럽 DJ 부스를 %d분 동안 쓸 수 있어요.", MonetizationConfig.DJMinutes), "R$" .. productPrice("DJ"), C, function() buyProduct("DJ") end)
 		local pass = MonetizationConfig.GamePasses.VIP
-		NeonShopUI.wideRow(list2, nextOrder(), "👑", "VIP 패스", "클럽 2층 VIP 라운지에 언제든 들어갈 수 있어요.",
+		NeonShopUI.wideRow(list2, nextOrder(), "rbxassetid://129430152122263", "VIP 패스", "클럽 2층 VIP 라운지에 언제든 들어갈 수 있어요.",
 			if vip then "보유 중" else ("R$" .. pass.price), M, function()
 				if not vip then buyPass("VIP") end
 			end)
 		-- (D-623) the club guard pass
 		local guard = MonetizationConfig.GamePasses.Guard
 		local isGuard = player:GetAttribute("Pass_Guard") == true
-		NeonShopUI.wideRow(list2, nextOrder(), "🛡", guard.name, "머리 위 GUARD 표시 · 방해하는 사람을 1분 동안 클럽 밖으로 안내",
+		NeonShopUI.wideRow(list2, nextOrder(), "rbxassetid://115722704339141", guard.name, "머리 위 GUARD 표시 · 방해하는 사람을 1분 동안 클럽 밖으로 안내",
 			if isGuard then "보유 중" else ("R$" .. guard.price), M, function()
 				if not isGuard then buyPass("Guard") end
 			end)

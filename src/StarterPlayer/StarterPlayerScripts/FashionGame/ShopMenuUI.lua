@@ -34,6 +34,38 @@ function ShopMenuUI.new(gui: ScreenGui)
 	return self
 end
 
+-- (user 2026-10-31, after comparing both) the cafes and the 국밥집 are bright
+-- daytime places: the same frame repainted warm beige, cream cards, dark
+-- brown letters, prices in deep gold; the accent edge, tabs and buttons stay
+local CREAM = Color3.fromRGB(255, 255, 252)
+local BROWN = Color3.fromRGB(78, 52, 40)
+local SOFT = Color3.fromRGB(150, 120, 100)
+local EDGE = Color3.fromRGB(226, 204, 176)
+local GOLD = Color3.fromRGB(196, 132, 20)
+local DARK_TEXT = Color3.fromRGB(8, 16, 34) -- (NeonShopUI's text on a picked tab / button)
+local function paintLight(root: Instance)
+	local g = root:FindFirstChildOfClass("UIGradient")
+	if g then g.Color = ColorSequence.new(Color3.fromRGB(252, 244, 230), Color3.fromRGB(240, 226, 204)) end
+	for _, d in ipairs(root:GetDescendants()) do
+		if d:IsA("TextLabel") or d:IsA("TextButton") then
+			if d.Name == "Title" or d.Name == "Name" then d.TextColor3 = BROWN
+			elseif d.Name == "Subtitle" then d.TextColor3 = SOFT
+			elseif d.Name == "Price" then d.TextColor3 = GOLD
+			elseif d.Name == "CloseButton" then d.BackgroundColor3, d.TextColor3 = CREAM, BROWN
+			elseif d.Name == "Icon" or d.Name == "Note" then d.BackgroundColor3 = CREAM
+			elseif d.Name:match("^Tab%d") and d.TextColor3 ~= DARK_TEXT then d.BackgroundColor3, d.TextColor3 = CREAM, SOFT
+			end
+		elseif d:IsA("Frame") and d.Name:match("^Card_") then
+			d.BackgroundColor3 = CREAM
+			local s = d:FindFirstChildOfClass("UIStroke")
+			if s then s.Color, s.Transparency = EDGE, 0 end
+		elseif d:IsA("Frame") and d.Name == "Drink" then
+			local gg = d:FindFirstChildOfClass("UIGradient")
+			if gg then gg.Color = ColorSequence.new(Color3.fromRGB(250, 238, 224), Color3.fromRGB(238, 224, 206)) end
+		end
+	end
+end
+
 -- up to 420 x 460 under the top-bar buttons, shorter on a phone (as the club's)
 local function layout(frame: Frame)
 	local camera = workspace.CurrentCamera
@@ -64,6 +96,10 @@ function ShopMenuUI:window(shopKey: string, shop: any)
 	w.note = note
 	w.theme = t
 	w.onTab(function(i) self:fill(i) end)
+	-- (the tab colours are painted again on every switch: repaint after it)
+	for _, tab in ipairs(w.tabs) do
+		tab.MouseButton1Click:Connect(function() task.defer(paintLight, w.frame) end)
+	end
 	w.frame:GetPropertyChangedSignal("Visible"):Connect(function()
 		-- (its X button hides it: tell SnackController)
 		if not w.frame.Visible and self.current == w and self.handlers then
@@ -148,6 +184,7 @@ function ShopMenuUI:fill(tabIndex: number)
 		end
 	end
 	w.content.CanvasPosition = Vector2.zero
+	paintLight(w.frame)
 end
 
 function ShopMenuUI:open(shopKey: string, shop: any, handlers: Handlers, status: string)

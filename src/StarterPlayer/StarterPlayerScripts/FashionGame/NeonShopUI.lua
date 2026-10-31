@@ -425,9 +425,16 @@ function NeonShopUI.wideRow(parent: Instance, order: number, emoji: string, name
 	corner(row, 12)
 	stroke(row, accent, 1.5, 0.15)
 	create("UIGradient", { Color = ColorSequence.new(accent:Lerp(NAVY, 0.75), CARD), Rotation = 0 }, row)
-	label(row, { Name = "Icon", Position = UDim2.fromOffset(10, 10), Size = UDim2.fromOffset(38, 38), Text = emoji, TextXAlignment = Enum.TextXAlignment.Center })
-	label(row, { Name = "Name", Position = UDim2.fromOffset(58, 8), Size = UDim2.new(1, -170, 0, 20), Text = name })
-	label(row, { Name = "Line", Position = UDim2.fromOffset(58, 31), Size = UDim2.new(1, -170, 0, 15), Text = line, TextColor3 = SUB, Font = Enum.Font.GothamMedium })
+	-- (an image id in place of the emoji: the club wristbands, user 2026-10-31)
+	local picture = string.sub(emoji, 1, 13) == "rbxassetid://"
+	local textX = if picture then 66 else 58
+	if picture then
+		create("ImageLabel", { Name = "Icon", Position = UDim2.fromOffset(4, 2), Size = UDim2.fromOffset(56, 54), BackgroundTransparency = 1, Image = emoji, ScaleType = Enum.ScaleType.Fit, ZIndex = 13 }, row)
+	else
+		label(row, { Name = "Icon", Position = UDim2.fromOffset(10, 10), Size = UDim2.fromOffset(38, 38), Text = emoji, TextXAlignment = Enum.TextXAlignment.Center })
+	end
+	label(row, { Name = "Name", Position = UDim2.fromOffset(textX, 8), Size = UDim2.new(1, -170, 0, 20), Text = name })
+	label(row, { Name = "Line", Position = UDim2.fromOffset(textX, 31), Size = UDim2.new(1, -170, 0, 15), Text = line, TextColor3 = SUB, Font = Enum.Font.GothamMedium })
 	label(row, { Name = "Price", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -34, 0.5, 0), Size = UDim2.fromOffset(84, 22), Text = price, TextColor3 = accent, TextXAlignment = Enum.TextXAlignment.Right })
 	label(row, { Name = "Arrow", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, -10, 0.5, 0), Size = UDim2.fromOffset(16, 22), Text = "›", TextColor3 = SUB })
 	row.MouseButton1Click:Connect(onClick)
