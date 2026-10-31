@@ -29,6 +29,7 @@ local EconomyService = require(script.Parent.EconomyService)
 local DrinkBucket = require(script.Parent.DrinkBucket)
 local BottleShapes = require(FashionGame:WaitForChild("Shared"):WaitForChild("BottleShapes"))
 local SoundConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("SoundConfig"))
+local NpcLooks = require(FashionGame:WaitForChild("Shared"):WaitForChild("NpcLooks"))
 
 local DrinkService = {}
 
@@ -704,9 +705,15 @@ end
 
 -- Staff behind the bar: the bartender (drinks) and, next to them, the item
 -- seller (sparklers, sparkler bucket sets, stage cold spark; user 2026-10-26).
-local function spawnStaff(spot: BasePart, name: string, title: string, offset: CFrame, shirt: Color3, promptName: string, action: string)
+-- look: an NpcLooks key (catalog outfit, D-656); a plain coloured rig without
+-- one, or when the outfit cannot load
+local function spawnStaff(spot: BasePart, name: string, title: string, offset: CFrame, shirt: Color3, promptName: string, action: string, look: string?)
 	if spot:FindFirstChild(name) then return end
+	local styled = if look then NpcLooks.describe(look) else nil
 	local ok, model = pcall(function()
+		if styled then
+			return Players:CreateHumanoidModelFromDescription(styled, Enum.HumanoidRigType.R15)
+		end
 		local description = Instance.new("HumanoidDescription")
 		description.HeadColor = Color3.fromRGB(234, 184, 146)
 		description.TorsoColor = shirt
@@ -726,11 +733,21 @@ local function spawnStaff(spot: BasePart, name: string, title: string, offset: C
 		humanoid.DisplayName = title
 		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
 	end
+	local root = model:FindFirstChild("HumanoidRootPart")
+	-- an outfit look scales only in Workspace: the root alone anchored, the
+	-- description applied again there (body scales, D-656)
 	for _, part in ipairs(model:GetDescendants()) do
-		if part:IsA("BasePart") then part.Anchored = true end
+		if part:IsA("BasePart") and (not styled or part == root) then part.Anchored = true end
 	end
 	model:PivotTo(spot.CFrame * offset + Vector3.new(0, 3, 0))
-	local root = model:FindFirstChild("HumanoidRootPart")
+	if styled and humanoid then
+		model.Parent = spot
+		pcall(function() humanoid:ApplyDescription(styled) end)
+		task.wait(0.5)
+	end
+	-- feet on the spot's height whatever the body's size (the tall bartender)
+	local box, size = model:GetBoundingBox()
+	model:PivotTo(model:GetPivot() + Vector3.new(0, (spot.CFrame * offset).Y - (box.Position.Y - size.Y / 2), 0))
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = promptName
 	prompt.ActionText = action
@@ -743,7 +760,7 @@ end
 
 local function spawnBartender(spot: Instance)
 	if not spot:IsA("BasePart") then return end
-	spawnStaff(spot, "Bartender", "바텐더", CFrame.new(), Color3.fromRGB(30, 30, 36), "BartenderPrompt", "음료 주문")
+	spawnStaff(spot, "Bartender", "바텐더", CFrame.new(), Color3.fromRGB(30, 30, 36), "BartenderPrompt", "음료 주문", "CharacterA")
 	-- (spot's +X runs along the bar)
 	spawnStaff(spot, "ItemSeller", "불꽃 판매원", CFrame.new(8, 0, 0), Color3.fromRGB(150, 40, 110), "ItemShopPrompt", "불꽃 · 아이템")
 end
@@ -871,7 +888,8 @@ function DrinkService.Start()
 			end)
 		end
 	end
-	for _, spot in ipairs(CollectionService:GetTagged("BartenderSpot")) do spawnBartender(spot) end
+	-- (the bartender's outfit loads from the web: not holding up the start)
+	for _, spot in ipairs(CollectionService:GetTagged("BartenderSpot")) do task.spawn(spawnBartender, spot) end
 	CollectionService:GetInstanceAddedSignal("BartenderSpot"):Connect(spawnBartender)
 	Players.PlayerRemoving:Connect(function(player)
 		pendingVariant[player.UserId] = nil

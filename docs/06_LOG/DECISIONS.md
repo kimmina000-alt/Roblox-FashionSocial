@@ -1128,3 +1128,6 @@ Roblox Sound / AudioPlayer는 PlaybackSpeed를 음수로 못 한다(0으로 바�
 ## D-655 (2026-10-31) 캐릭터 A (바텐더용) + MANIAC 추가
 사용자가 고른 아이템 9개로 캐릭터 A를 HumanoidDescription으로 만들었다. 체형은 베미맨 번들, 헤드는 스컬 다이나믹 헤드, 레이어드 옷 4벌, 클래식 옷은 투명. 체형은 "제일 길쭉하게"로 Height 1.05, BodyType 1, Proportion 1 → 키 9.0 → 약 11.1 스터드. 조립법과 아이템 id는 docs/04_ART/characters/CHARACTERS.md에 있다. 아직 Play에서만 만들었고 저장한 모델은 없다(바텐더 NPC로 확정되면 저장한다).
 클럽 플레이리스트에 "MANIAC · Stray Kids"(111304415353887, 184초)를 원래 속도(x1)로 추가했다. 22곡이 됐다.
+
+## D-656 (2026-10-31) 클럽 바텐더 = 캐릭터 A
+NpcLooks 모듈(Shared/NpcLooks.lua)에 캐릭터 A 조립법을 넣었다. DrinkService.spawnStaff는 look 키를 받아 그 옷차림으로 NPC를 만든다(못 불러오면 예전 단색 NPC). 몸 크기는 Workspace에서만 적용돼서, 루트 파트만 고정하고 바에 세운 뒤 ApplyDescription을 한 번 더 하고 발을 바닥에 맞춘다(키 11.1). 옷차림을 웹에서 불러오느라 시간이 걸리므로 바텐더 생성은 task.spawn으로 돌린다. 불꽃 판매원은 아직 예전 NPC 그대로.

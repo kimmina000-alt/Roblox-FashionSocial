@@ -2789,3 +2789,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 합친 뒤 모바일 2인 재테스트 (D-652)
 가드 낮 입장 O / 일반 낮 X / 밤 둘 다 O, 카페 알바 주문→만들기→서빙(+4코인), 잠긴 케이크 주문 거절, 메뉴 열린 채 주문창 열면 메뉴 닫힘, 주문창 상단바 아래, 역할 태그(알바생·GUARD), 튜브 모션 로드, 오류 없음(DataStore 경고는 Studio 전용).
 ![](images/2026-10-31/merge_2p_cafe.jpg)
+
+### 클럽 바텐더 = 캐릭터 A (D-656)
+![](images/2026-10-31/bartender_charA.jpg)
