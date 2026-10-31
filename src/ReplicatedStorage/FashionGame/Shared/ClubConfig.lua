@@ -111,8 +111,7 @@ ClubConfig.Playlist = {
 	{ channel = "POP", title = "PLAIN JANE · A$AP FERG", soundId = 78832462526893, length = 44, baseSpeed = 0.5 },
 	{ channel = "POP", title = "PUMP IT UP", soundId = 125479000346000, length = 60, baseSpeed = 0.5 },
 	{ channel = "POP", title = "404 (New Era) · KiiiKiii", soundId = 74181572220193, length = 63, baseSpeed = 0.5 },
-	-- (user 2026-10-31, later: added at its own speed)
-	{ channel = "POP", title = "MANIAC · Stray Kids", soundId = 111304415353887, length = 184 },
+	-- (MANIAC · Stray Kids, 111304415353887, taken out again: user 2026-11-01)
 	-- (user 2026-10-31: PlaybackSpeed 2, Volume 10 then 20, PitchShift octave 0.5)
 	{ channel = "POP", title = "BANG BANG · IVE", soundId = 126421508146335, length = 352, baseSpeed = 2, volume = 20, octave = 0.5 },
 } :: {Track}

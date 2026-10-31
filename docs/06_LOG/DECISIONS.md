@@ -1185,3 +1185,6 @@ Roblox Sound.Volume은 최대 10이라 20을 넣으면 10으로 잘린다(Studio
 지움: Workspace에 남아 있던 분홍 머리 AI 아바타(썸네일용 세 번째 캐릭터가 늦게 들어온 것, 건물 지붕 위), Workspace 바로 아래의 사운드 3개(야호, A quiet evening walk + 발소리 3개, eat_bread: 코드는 사운드 id로 재생해서 이 인스턴스는 안 씀), ServerStorage.ThumbRigs(썸네일 촬영 캐릭터), ChairCandidates(의자 후보, 이미 골랐음), C43_Water(물병 후보), Cars_Full(Cars와 같은 9대 복사본), Graybox_Backup_Before_Hongdae(옛 백업, MapBackup_pre_layout_v8이 대신함). 모두 코드와 도구 스크립트에서 이름으로 찾는 곳이 없다(grep 확인).
 남김: 문서에 되돌리기로 적힌 백업(BeachCafe_pre_v3/v4, OH24Store_pre_tweaks, MapBackup_pre_layout_v8, Hongdae_v1_HiddenParts), 빌드 스크립트가 쓰는 BaseplateTemplate, FallingBlossomCherryTree, Cars, ArtAssets, NewAssets1030, PropRegistry/PropOverrides.
 지운 뒤 Play 시작 시 오류 없음(DataStore 경고는 Studio 전용). 되돌리기: Studio Ctrl+Z (기록 이름 "Cleanup leftovers D-673"), 또는 저장 전 닫기.
+
+## D-674 (2026-11-01) MANIAC 삭제
+클럽 플레이리스트에서 MANIAC · Stray Kids(111304415353887)를 뺐다(22곡). 역재생(PlaybackSpeed -1)은 Roblox에서 0으로 바뀌어 안 된다.
