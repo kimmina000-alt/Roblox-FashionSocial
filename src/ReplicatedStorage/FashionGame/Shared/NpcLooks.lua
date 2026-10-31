@@ -14,6 +14,7 @@ export type Look = {
 	shirt: number?,
 	pants: number?,
 	scales: {[string]: number}?, -- HumanoidDescription scale properties
+	skin: Color3?, -- every body part's colour (instead of the body outfit's)
 	pose: number?, -- animation id played on a loop (an emote's Animation)
 	holds: string?, -- a prop in the right hand: "sparkler", or "bottle:<drink key>"
 }
@@ -72,6 +73,7 @@ do
 	-- emote 85369612310951 "장엄한 소환 포즈"
 	local seller = table.clone(a)
 	seller.pose = 100249604916626
+	seller.skin = Color3.fromRGB(150, 95, 58) -- bronze (user 2026-10-31)
 	-- (user 2026-10-31, later: without the biker jacket)
 	seller.layered = {}
 	for _, item in ipairs(a.layered) do
@@ -90,6 +92,11 @@ function NpcLooks.describe(key: string): HumanoidDescription?
 	if look.head then description.Head = look.head end
 	if look.shirt then description.Shirt = look.shirt end
 	if look.pants then description.Pants = look.pants end
+	if look.skin then
+		for _, part in ipairs({ "Head", "Torso", "LeftArm", "RightArm", "LeftLeg", "RightLeg" }) do
+			(description :: any)[part .. "Color"] = look.skin
+		end
+	end
 	for name, value in pairs(look.scales or {}) do
 		(description :: any)[name] = value
 	end

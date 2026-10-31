@@ -2819,3 +2819,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 클럽 입구 노란 테두리선 (D-666)
 ![](images/2026-10-31/club_door_lines_outer.jpg)
+
+### 불꽃 판매원 구릿빛 피부 (D-667)
+![](images/2026-10-31/seller_bronze.jpg)
