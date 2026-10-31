@@ -25,6 +25,7 @@ export type Item = {
 	bites: number?,
 	section: string?,
 	cake: string?, -- whole cake drawn from slice meshes: a key of SnackConfig.Cakes
+	comingSoon: boolean?, -- shown locked as 개발 중 (3D design not final yet, user 2026-10-31)
 }
 export type Shop = { key: string, title: string, prompt: string, hint: string?, items: {Item} }
 
@@ -54,12 +55,12 @@ local CAFE_ITEMS: {Item} = {
 	{ key = "croissant", name = "딸기 크림 크루아상", kind = "bread", color = Color3.fromRGB(220, 165, 90), topping = Color3.fromRGB(240, 90, 110), coins = 20, section = T3 },
 	-- (strawberry cream cake: coins or Robux, at the end of tier 2, priced like
 	-- the club's shared tier-2 bottles, user 2026-10-26)
-	{ key = "cake_strawberry", name = "딸기생크림 케이크 (6조각)", kind = "cake", color = Color3.fromRGB(252, 248, 242), topping = Color3.fromRGB(230, 40, 60), coins = 100, product = "Cafe_CakeStrawberry", share = 6, cake = "strawberry", section = T2 },
+	{ key = "cake_strawberry", name = "딸기생크림 케이크 (6조각)", kind = "cake", color = Color3.fromRGB(252, 248, 242), topping = Color3.fromRGB(230, 40, 60), coins = 100, product = "Cafe_CakeStrawberry", share = 6, cake = "strawberry", section = T2, comingSoon = true },
 	{ key = "honeybread", name = "허니카라멜브레드", kind = "cake", color = Color3.fromRGB(225, 170, 90), topping = Color3.fromRGB(250, 245, 235), coins = 20, section = T3 },
 	{ key = "parfait", name = "딸기 파르페", kind = "parfait", color = Color3.fromRGB(245, 140, 165), topping = Color3.fromRGB(250, 245, 240), product = "Cafe_Parfait", bites = 5, section = "Robux" },
 	{ key = "cake_vintage", name = "빈티지 레터링 케이크 (6조각)", kind = "cake", color = Color3.fromRGB(245, 170, 185), topping = Color3.fromRGB(252, 248, 240), product = "Cafe_CakeVintage", share = 6, cake = "vintage", section = RB },
-	{ key = "cake_tiramisu", name = "티라미수 케이크 (6조각)", kind = "cake", color = Color3.fromRGB(150, 110, 80), topping = Color3.fromRGB(240, 230, 210), product = "Cafe_CakeTiramisu", share = 6, cake = "tiramisu", section = RB },
-	{ key = "cake_basque", name = "바스크 치즈케이크 (6조각)", kind = "cake", color = Color3.fromRGB(240, 205, 140), topping = Color3.fromRGB(110, 60, 30), product = "Cafe_CakeBasque", share = 6, cake = "basque", section = RB },
+	{ key = "cake_tiramisu", name = "티라미수 케이크 (6조각)", kind = "cake", color = Color3.fromRGB(150, 110, 80), topping = Color3.fromRGB(240, 230, 210), product = "Cafe_CakeTiramisu", share = 6, cake = "tiramisu", section = RB, comingSoon = true },
+	{ key = "cake_basque", name = "바스크 치즈케이크 (6조각)", kind = "cake", color = Color3.fromRGB(240, 205, 140), topping = Color3.fromRGB(110, 60, 30), product = "Cafe_CakeBasque", share = 6, cake = "basque", section = RB, comingSoon = true },
 }
 
 SnackConfig.Shops = {

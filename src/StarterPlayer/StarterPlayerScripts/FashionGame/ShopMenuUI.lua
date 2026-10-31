@@ -50,7 +50,7 @@ local function paintLight(root: Instance)
 		if d:IsA("TextLabel") or d:IsA("TextButton") then
 			if d.Name == "Title" or d.Name == "Name" then d.TextColor3 = BROWN
 			elseif d.Name == "Subtitle" then d.TextColor3 = SOFT
-			elseif d.Name == "Price" then d.TextColor3 = GOLD
+			elseif d.Name == "Price" then d.TextColor3 = if string.find(d.Text, "개발 중", 1, true) then SOFT else GOLD
 			elseif d.Name == "CloseButton" then d.BackgroundColor3, d.TextColor3 = CREAM, BROWN
 			elseif d.Name == "Icon" or d.Name == "Note" then d.BackgroundColor3 = CREAM
 			elseif d.Name:match("^Tab%d") and d.TextColor3 ~= DARK_TEXT then d.BackgroundColor3, d.TextColor3 = CREAM, SOFT
@@ -167,7 +167,13 @@ function ShopMenuUI:fill(tabIndex: number)
 			local price, priceColor = priceOf(item, t.accent)
 			local product = item.product and MonetizationConfig.Products[item.product]
 			local buttons
-			if product and item.coins then
+			if item.comingSoon then
+				-- (3D design not final yet, user 2026-10-31: locked, no buying)
+				price, priceColor = "🔒 개발 중이에요", Color3.fromRGB(150, 120, 100)
+				buttons = { { "🔒 준비 중", Color3.fromRGB(190, 180, 170), function()
+					self:setStatus("🔒 " .. item.name .. "은(는) 개발 중이에요. 조금만 기다려 주세요!")
+				end } }
+			elseif product and item.coins then
 				buttons = {
 					{ "💰" .. item.coins, NeonShopUI.COIN, function() self:buy(item, false) end },
 					{ "R$" .. product.price, t.accent, function() self:buy(item, true) end },
@@ -179,8 +185,13 @@ function ShopMenuUI:fill(tabIndex: number)
 			end
 			local preview = previews and previews:FindFirstChild(item.key)
 			local name = (string.gsub(item.name, " %(.-%)$", ""))
-			NeonShopUI.drinkCard(w.content, index, name, item.color, price, priceColor, buttons, nil,
+			local card = NeonShopUI.drinkCard(w.content, index, name, item.color, price, priceColor, buttons, nil,
 				if preview and preview:IsA("Model") then preview else nil)
+			if item.comingSoon then
+				-- a soft veil over the picture
+				NeonShopUI.create("Frame", { Name = "Locked", Position = UDim2.fromOffset(8, 8), Size = UDim2.new(0.42, -8, 1, -16),
+					BackgroundColor3 = Color3.fromRGB(250, 244, 236), BackgroundTransparency = 0.35, ZIndex = 15 }, card)
+			end
 		end
 	end
 	w.content.CanvasPosition = Vector2.zero
