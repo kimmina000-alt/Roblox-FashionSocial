@@ -97,11 +97,50 @@ local function hide()
 end
 close.MouseButton1Click:Connect(hide)
 
+-- the picture window for the cafes and the 국밥집 (user 2026-10-31, ShopMenuUI);
+-- the other shops keep the list below
+local SnackMenuArt = require(FashionGame:WaitForChild("Shared"):WaitForChild("SnackMenuArt"))
+local pictureMenu = require(script.Parent:WaitForChild("ShopMenuUI")).new(gui)
+local function hideAll()
+	pictureMenu:hide()
+	hide()
+end
+
+local function showPictures(shopKey: string, shop: any, statusText: string)
+	panel.Visible = false
+	pictureMenu:open(shop, SnackMenuArt.ShopTheme[shopKey], {
+		buyCoins = function(item: any): (boolean, string?)
+			pictureMenu:setStatus("준비 중…")
+			local ok, message = remote:InvokeServer("Buy", shopKey, item.key)
+			return ok == true, if typeof(message) == "string" then message else (if ok then "나왔어요!" else "주문하지 못했어요.")
+		end,
+		buyRobux = function(item: any)
+			local product = item.product and MonetizationConfig.Products[item.product]
+			if not product then return end
+			if product.id ~= 0 then
+				MarketplaceService:PromptProductPurchase(player, product.id)
+			elseif RunService:IsStudio() then
+				local ok, message = ClubShop:InvokeServer("StudioTestBuy", { kind = "product", key = item.product })
+				pictureMenu:setStatus(if ok then "[Studio 테스트] 구매했어요." else tostring(message or "구매하지 못했어요."))
+				return
+			else
+				pictureMenu:setStatus("준비 중인 상품이에요.")
+				return
+			end
+			hideAll()
+		end,
+		onClose = function()
+			openShop = nil
+			Popups.closed("Snack")
+		end,
+	}, statusText)
+end
+
 local function show(shopKey: string)
 	local shop = SnackConfig.Shops[shopKey]
 	if not shop then return end
 	openShop = shopKey
-	Popups.opened("Snack", hide)
+	Popups.opened("Snack", hideAll)
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 	openedAt = if root and root:IsA("BasePart") then root.Position else nil
 	title.Text = shop.title
@@ -113,6 +152,11 @@ local function show(shopKey: string)
 			break
 		end
 	end
+	if SnackMenuArt.ShopTheme[shopKey] then
+		showPictures(shopKey, shop, status.Text)
+		return
+	end
+	pictureMenu:hide()
 	for _, child in ipairs(list:GetChildren()) do
 		if child:IsA("GuiObject") then child:Destroy() end
 	end
@@ -305,7 +349,7 @@ task.spawn(function()
 		task.wait(0.5)
 		if openShop and openedAt then
 			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-			if not root or not root:IsA("BasePart") or (root.Position - openedAt).Magnitude > 14 then hide() end
+			if not root or not root:IsA("BasePart") or (root.Position - openedAt).Magnitude > 14 then hideAll() end
 		end
 	end
 end)

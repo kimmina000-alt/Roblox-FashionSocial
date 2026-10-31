@@ -275,10 +275,120 @@ const ICONS={
   Gukbap_Suyuk:D("gukbap",()=>suyuk()),
   AlbumSlots:D("photo",()=>album()),
 };
+// ================= shop menu pictures (user 2026-10-31): transparent, for the
+// cafe / 국밥집 order windows (ShopMenuUI). Keys menu_<item key>.
+function glass(liquid,o={}){
+  // a tall tumbler, liquid up to o.fill (y), layers, ice, straw, cream, garnish
+  const gid=id("gl"),cid=id("gc");
+  const top=110,bot=446,fill=o.fill??170;
+  let s=`<defs><clipPath id="${cid}"><path d="M136,${top} L376,${top} L352,${bot} Q256,${bot+14} 160,${bot}Z"/></clipPath>
+  <linearGradient id="${gid}" x1="0" x2="1"><stop offset="0" stop-color="#fff" stop-opacity=".55"/><stop offset=".3" stop-color="#fff" stop-opacity=".08"/><stop offset=".8" stop-color="#fff" stop-opacity=".05"/><stop offset="1" stop-color="#fff" stop-opacity=".4"/></linearGradient></defs>`;
+  s+=shadow(256,458,118,16,.18);
+  s+=`<g clip-path="url(#${cid})"><rect x="120" y="${fill}" width="280" height="340" fill="${liquid}"/>`;
+  for(const [y,c] of (o.layers||[])) s+=`<rect x="120" y="${y}" width="280" height="${bot-y+20}" fill="${c}"/>`;
+  if(o.drip) s+=`<path d="M120,${fill+30} q30,30 60,0 t60,0 t60,0 t60,0 t60,0" stroke="${o.drip}" stroke-width="14" fill="none" opacity=".8"/>`;
+  if(o.bubbles) for(let i=0;i<14;i++) s+=`<circle cx="${160+((i*47)%190)}" cy="${fill+30+((i*61)%240)}" r="${4+i%3*2}" fill="#fff" opacity=".55"/>`;
+  if(o.ice) for(const [x,y,r] of [[190,fill+10,-12],[262,fill+26,10],[320,fill+6,-6],[228,fill+60,8]]) s+=`<rect x="${x-26}" y="${y-26}" width="52" height="52" rx="10" fill="#fff" opacity=".5" stroke="#fff" stroke-width="3" transform="rotate(${r} ${x} ${y})"/>`;
+  s+=`</g><path d="M136,${top} L376,${top} L352,${bot} Q256,${bot+14} 160,${bot}Z" fill="url(#${gid})" stroke="rgba(255,255,255,.95)" stroke-width="7"/>`;
+  s+=`<path d="M160,${top+30} L176,${bot-30}" stroke="#fff" stroke-width="12" stroke-linecap="round" opacity=".55"/>`;
+  if(o.cream) s+=`<ellipse cx="256" cy="${top+2}" rx="126" ry="36" fill="${o.cream}"/><ellipse cx="236" cy="${top-26}" rx="80" ry="40" fill="${o.cream}"/><ellipse cx="270" cy="${top-58}" rx="44" ry="30" fill="${o.cream}"/>`;
+  if(o.drizzle) s+=`<path d="M170,${top-10} q40,-40 80,-10 t80,-10" stroke="${o.drizzle}" stroke-width="10" fill="none" stroke-linecap="round"/><path d="M200,${top-40} q30,-30 60,-6 t60,-8" stroke="${o.drizzle}" stroke-width="8" fill="none" stroke-linecap="round"/>`;
+  if(o.chips) for(let i=0;i<9;i++) s+=`<rect x="${196+((i*37)%120)}" y="${top-70+((i*23)%60)}" width="12" height="8" rx="2" fill="#4a2a18"/>`;
+  if(o.straw) s+=`<path d="M300,${(o.cream?top-70:top)+40} L344,${top-90}" stroke="${o.straw}" stroke-width="16" stroke-linecap="round"/>`;
+  if(o.garnish) s+=o.garnish;
+  return s;
+}
+function lemonSlice(x,y,r=46){return `<g><circle cx="${x}" cy="${y}" r="${r}" fill="#ffe14d" stroke="#f5c400" stroke-width="6"/><circle cx="${x}" cy="${y}" r="${r*.78}" fill="#fff6b8"/>${[0,1,2,3,4,5].map(i=>`<line x1="${x}" y1="${y}" x2="${x+Math.cos(i*1.047)*r*.75}" y2="${y+Math.sin(i*1.047)*r*.75}" stroke="#ffe14d" stroke-width="5"/>`).join("")}</g>`}
+function mug(coffee,o={}){
+  let s=shadow(256,440,150,20,.18)+`<ellipse cx="256" cy="430" rx="160" ry="28" fill="#fff" stroke="#eadfe4" stroke-width="5"/>`;
+  s+=`<path d="M380,240 q70,0 66,60 q-4,58 -74,56" stroke="${o.cup||"#fff"}" stroke-width="26" fill="none"/>`;
+  s+=`<path d="M120,210 L392,210 L372,370 Q256,430 140,370Z" fill="${o.cup||"#fff"}" stroke="#eadfe4" stroke-width="5"/>`;
+  s+=`<ellipse cx="256" cy="212" rx="136" ry="34" fill="${coffee}"/>`;
+  if(o.art) s+=`<path d="M256,232 C220,206 214,180 236,174 C246,172 256,182 256,190 C256,182 266,172 276,174 C298,180 292,206 256,232Z" fill="${o.art}"/>`;
+  if(o.peel) s+=`<path d="M190,206 q20,-10 40,0 M260,216 q20,-12 44,0 M220,224 q14,-6 30,0" stroke="${o.peel}" stroke-width="8" fill="none" stroke-linecap="round"/>`;
+  if(o.steam) s+=`<g stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round" opacity=".8"><path d="M210,150 q-20,-30 0,-60 t0,-60"/><path d="M262,150 q-20,-30 0,-60 t0,-60"/><path d="M314,150 q-20,-30 0,-60 t0,-60"/></g>`;
+  if(o.heart) s+=`<path d="M256,330 C228,310 222,290 240,284 C248,282 256,290 256,296 C256,290 264,282 272,284 C290,290 284,310 256,330Z" fill="#ff7aa8"/>`;
+  return s;
+}
+function saltBread(){return `${shadow(256,410,170,22,.18)}<path d="M90,330 Q100,210 256,190 Q412,210 422,330 Q256,400 90,330Z" fill="#d9944a"/>
+  <path d="M110,320 Q256,250 402,320" stroke="#b8722e" stroke-width="10" fill="none"/><path d="M140,280 Q256,220 372,280" stroke="#b8722e" stroke-width="10" fill="none"/><path d="M190,240 Q256,210 322,240" stroke="#b8722e" stroke-width="10" fill="none"/>
+  <path d="M110,322 Q256,380 402,322" stroke="#f0c98c" stroke-width="10" fill="none" opacity=".7"/>${[[170,250],[230,230],[300,236],[340,270],[200,290],[270,280]].map(([x,y])=>`<rect x="${x}" y="${y}" width="9" height="9" fill="#fff" transform="rotate(30 ${x} ${y})"/>`).join("")}`}
+function bagel(){return `${shadow(256,400,170,22,.18)}<ellipse cx="256" cy="290" rx="170" ry="110" fill="#c98a45"/><ellipse cx="256" cy="270" rx="160" ry="98" fill="#dda15c"/><ellipse cx="256" cy="268" rx="50" ry="30" fill="#8a5a2a"/>
+  ${Array.from({length:22},(_,i)=>{const a=i/22*6.283;return `<ellipse cx="${256+Math.cos(a)*110}" cy="${268+Math.sin(a)*62}" rx="6" ry="3" fill="#fff5dc" transform="rotate(${i*30} ${256+Math.cos(a)*110} ${268+Math.sin(a)*62})"/>`}).join("")}`}
+function croissant(cream){return `${shadow(256,400,180,22,.18)}<g fill="#e0a35a" stroke="#b9772f" stroke-width="5"><ellipse cx="120" cy="320" rx="60" ry="44" transform="rotate(-30 120 320)"/><ellipse cx="392" cy="320" rx="60" ry="44" transform="rotate(30 392 320)"/><ellipse cx="180" cy="270" rx="70" ry="60"/><ellipse cx="332" cy="270" rx="70" ry="60"/><ellipse cx="256" cy="246" rx="80" ry="70"/></g>
+  ${cream?`<path d="M150,300 Q256,350 362,300" stroke="#fff4f6" stroke-width="30" fill="none" stroke-linecap="round"/><path d="M150,300 Q256,350 362,300" stroke="${cream}" stroke-width="14" fill="none" stroke-linecap="round"/>${strawberry(200,300,1.2)}${strawberry(310,300,1.2)}`:""}`}
+function honeyBread(){return `${shadow(256,420,170,22,.18)}<path d="M110,220 L256,170 L402,220 L402,360 L256,410 L110,360Z" fill="#e0a250"/><path d="M110,220 L256,270 L402,220 L256,170Z" fill="#f2c27a"/><path d="M256,270 L256,410" stroke="#c98535" stroke-width="5"/>
+  <path d="M150,218 L256,184 L362,218 L256,254Z" fill="#c9792a" opacity=".55"/><path d="M140,226 q20,40 6,70 M380,226 q-14,46 -2,80 M220,250 q10,30 0,56" stroke="#b8651c" stroke-width="12" fill="none" stroke-linecap="round"/>
+  <ellipse cx="256" cy="170" rx="70" ry="44" fill="#fffaf0"/><ellipse cx="256" cy="140" rx="46" ry="32" fill="#fffaf0"/><path d="M220,150 q36,-40 72,0" stroke="#c9792a" stroke-width="8" fill="none"/>`}
+function bowlCup(liquid,o={}){
+  // a wide ceramic bowl (식혜)
+  let s=shadow(256,420,160,20,.18)+`<path d="M90,230 L422,230 Q412,380 256,410 Q100,380 90,230Z" fill="${o.bowl||"#f4efe6"}" stroke="#d8cfc0" stroke-width="5"/>`;
+  s+=`<ellipse cx="256" cy="232" rx="166" ry="40" fill="${liquid}"/>`;
+  for(let i=0;i<18;i++) s+=`<ellipse cx="${150+((i*53)%212)}" cy="${222+((i*29)%26)}" rx="7" ry="4" fill="#fffdf4"/>`;
+  s+=`<ellipse cx="236" cy="226" rx="8" ry="5" fill="#f1e2b8"/><ellipse cx="282" cy="236" rx="8" ry="5" fill="#f1e2b8"/>`;
+  return s;
+}
+function yakgwa(){let s=shadow(256,410,160,20,.18);for(let i=0;i<8;i++){const a=i/8*6.283;s+=`<circle cx="${256+Math.cos(a)*92}" cy="${290+Math.sin(a)*62}" r="62" fill="#a4561e"/>`;}
+  s+=`<ellipse cx="256" cy="290" rx="120" ry="82" fill="#b8652a"/><ellipse cx="256" cy="280" rx="96" ry="62" fill="#c97a36" opacity=".8"/><ellipse cx="236" cy="262" rx="40" ry="18" fill="#fff" opacity=".25"/>`;
+  for(const [x,y] of [[240,286],[268,276],[252,300],[280,296],[230,306]]) s+=`<ellipse cx="${x}" cy="${y}" rx="6" ry="3" fill="#fff5dc"/>`;return s}
+function injeolmiToast(){return `${shadow(256,420,170,22,.18)}<path d="M120,180 Q120,120 180,120 L332,120 Q392,120 392,180 L392,380 L120,380Z" fill="#c98a45"/><path d="M136,186 Q136,140 184,140 L328,140 Q376,140 376,186 L376,364 L136,364Z" fill="#f5dc96"/>
+  ${Array.from({length:60},(_,i)=>`<circle cx="${150+((i*37)%220)}" cy="${150+((i*53)%206)}" r="3" fill="#e2b94e"/>`).join("")}${[[200,220],[300,260],[240,320]].map(([x,y])=>`<ellipse cx="${x}" cy="${y}" rx="18" ry="10" fill="#e8c27a" stroke="#c9a05a" stroke-width="3"/>`).join("")}`}
+function ttukbaegi(soup,o={}){
+  let s=`<ellipse cx="256" cy="420" rx="200" ry="40" fill="#8a5a32"/><ellipse cx="256" cy="410" rx="196" ry="36" fill="#a8723f"/>`;
+  s+=`<path d="M96,230 L416,230 Q420,330 384,380 Q256,420 128,380 Q92,330 96,230Z" fill="#2a2420"/><path d="M110,250 Q120,350 160,372" stroke="#4a403a" stroke-width="10" fill="none"/>`;
+  s+=`<ellipse cx="256" cy="232" rx="166" ry="46" fill="#1a1512"/><ellipse cx="256" cy="236" rx="148" ry="38" fill="${soup}"/>`;
+  for(const p of (o.slices||[])) s+=p;
+  if(o.onion) for(let i=0;i<14;i++) s+=`<circle cx="${150+((i*47)%210)}" cy="${222+((i*31)%28)}" r="6" fill="#5fae3c" stroke="#3c8a24" stroke-width="2"/>`;
+  if(o.pepper) for(let i=0;i<16;i++) s+=`<rect x="${150+((i*43)%210)}" y="${222+((i*37)%28)}" width="6" height="4" fill="#c0281e"/>`;
+  s+=`<g stroke="#fff" stroke-width="10" fill="none" stroke-linecap="round" opacity=".75"><path d="M196,190 q-18,-28 0,-56 t0,-56"/><path d="M256,186 q-18,-28 0,-56 t0,-56"/><path d="M316,190 q-18,-28 0,-56 t0,-56"/></g>`;
+  return s;
+}
+const porkSlice=(x,y,r=0)=>`<g transform="translate(${x},${y}) rotate(${r})"><ellipse rx="34" ry="14" fill="#f2dccb"/><ellipse rx="34" ry="5" cy="-8" fill="#fff6ee"/></g>`;
+const sundaeSlice=(x,y)=>`<g transform="translate(${x},${y})"><ellipse rx="18" ry="12" fill="#3a2420"/><ellipse rx="12" ry="7" fill="#6a4a3a"/></g>`;
+const beefSlice=(x,y,r=0)=>`<g transform="translate(${x},${y}) rotate(${r})"><ellipse rx="30" ry="12" fill="#7a3a28"/></g>`;
+function riceBowl(){return `${shadow(256,420,140,18,.18)}<path d="M110,250 L402,250 Q392,380 256,410 Q120,380 110,250Z" fill="#fff" stroke="#e2ddd2" stroke-width="5"/><path d="M130,300 Q256,330 382,300" stroke="#7aa3c9" stroke-width="8" fill="none"/>
+  <path d="M120,252 Q140,160 256,150 Q372,160 392,252Z" fill="#fdfdf8"/>${Array.from({length:30},(_,i)=>`<ellipse cx="${150+((i*41)%212)}" cy="${170+((i*29)%76)}" rx="7" ry="4" fill="#fff" stroke="#ece8dc" stroke-width="2"/>`).join("")}`}
+function waterGlass(){return glass("#cfe9fa",{fill:190,ice:true,bubbles:true})}
+const MENU={
+  menu_water:()=>waterGlass(),
+  menu_iceamericano:()=>glass("#4a2616",{fill:150,ice:true,straw:"#1a1a1a"}),
+  menu_latte:()=>mug("#c9935e",{art:"#fff6ec",steam:true}),
+  menu_caramel:()=>glass("#e9c79a",{fill:170,layers:[[300,"#b9763a"]],cream:"#fffaf2",drizzle:"#c9792a"}),
+  menu_cappuccino:()=>mug("#e9d3b8",{art:"#a8703a",steam:true}),
+  menu_saltbread:()=>saltBread(),
+  menu_bagel:()=>bagel(),
+  menu_tea:()=>mug("#8a4a1e",{steam:true}),
+  menu_smoothie:()=>glass("#f2708f",{fill:150,cream:"#fff4f6",straw:"#ff8fb0",garnish:strawberry(256,62,1.6)}),
+  menu_frappe:()=>glass("#8a5a3e",{fill:150,cream:"#fffaf2",chips:true,drizzle:"#4a2a18",straw:"#2a1a10"}),
+  menu_bluelemonade:()=>glass("#57b8ff",{fill:150,ice:true,bubbles:true,straw:"#ffe14d",garnish:lemonSlice(360,130)}),
+  menu_croissant:()=>croissant("#f0607e"),
+  menu_cake_strawberry:()=>cakeStrawberry(),
+  menu_honeybread:()=>honeyBread(),
+  menu_parfait:()=>`<g transform="translate(0,40)">${parfait()}</g>`,
+  menu_cake_vintage:()=>cakeVintage(),
+  menu_cake_tiramisu:()=>cakeTiramisu(),
+  menu_cake_basque:()=>cakeBasque(),
+  menu_barleytea:()=>glass("#b8783a",{fill:170,ice:true}),
+  menu_sikhye:()=>bowlCup("#f3e6c4"),
+  menu_yuja:()=>mug("#ffc83c",{peel:"#f59a00",steam:true}),
+  menu_yakgwa:()=>yakgwa(),
+  menu_omija:()=>glass("#e8466a",{fill:150,ice:true,bubbles:true,straw:"#fff"}),
+  menu_greentea:()=>glass("#f4f1e4",{fill:150,layers:[[280,"#7bb35a"]],straw:"#2f7a3a"}),
+  menu_injeolmi:()=>injeolmiToast(),
+  menu_rice:()=>riceBowl(),
+  menu_pork:()=>ttukbaegi("#f1e8d6",{slices:[porkSlice(200,236,-10),porkSlice(260,226,8),porkSlice(316,240,-4)],onion:true}),
+  menu_sundae:()=>ttukbaegi("#d9b9a0",{slices:[sundaeSlice(200,234),sundaeSlice(240,246),sundaeSlice(290,228),sundaeSlice(320,248),porkSlice(250,224,6)],onion:true}),
+  menu_beef:()=>ttukbaegi("#b8321e",{slices:[beefSlice(206,232,-8),beefSlice(270,240,10),beefSlice(318,228,-4)],onion:true,pepper:true}),
+  menu_suyuk:()=>suyuk(),
+  menu_header_cafe:()=>mug("#8a4a2a",{steam:true,heart:true,cup:"#fff5f8"}),
+  menu_header_gukbap:()=>ttukbaegi("#f1e8d6",{slices:[porkSlice(220,232,-8),porkSlice(290,236,6)],onion:true}),
+};
 const defs=`<defs>${glowFilter("sparkglow",6,"#ffd75a")}${glowFilter("neon",14,"#3cff9a")}${glowFilter("goldglow",10,"#ffcf4a")}${glowFilter("softglow",10,"#ffb07a")}</defs>`;
 const key=decodeURIComponent(location.hash.slice(1));
 const icon=ICONS[key];
-if(icon){document.getElementById("out").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">${defs}${bg(icon.t)}${icon.body()}${icon.extra}</svg>`;}
+if(MENU[key]){document.body.style.background="transparent";document.documentElement.style.background="transparent";
+  document.getElementById("out").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">${defs}${MENU[key]()}</svg>`;}
+else if(icon){document.getElementById("out").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">${defs}${bg(icon.t)}${icon.body()}${icon.extra}</svg>`;}
 else{document.body.style.background="#fff";document.getElementById("out").innerText=Object.keys(ICONS).join("\n");}
 window.ICON_KEYS=Object.keys(ICONS);
 </script></body></html>

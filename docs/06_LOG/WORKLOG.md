@@ -2770,3 +2770,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 이름표 한 줄·VIP 조명선·국밥 계산대·카페 2층 조명 (D-635)
 ![](images/2026-10-31/role_tags_one_row.jpg) ![](images/2026-10-31/cafe_2f_lights.jpg)
+
+### 카페·국밥집 상점 UI (D-636)
+![](images/2026-10-31/cafe_menu_drinks.jpg) ![](images/2026-10-31/cafe_menu_dessert.jpg) ![](images/2026-10-31/gukbap_menu.jpg)
