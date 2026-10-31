@@ -1231,3 +1231,7 @@ DJ 속도 x0.25..x5(0.05 간격), 피치 x0.5..x5(0.1), 볼륨 0..x5(0.1). 피�
 
 ## D-683 (2026-11-01) 게임 아이콘·썸네일 v2 (마켓플레이스 아바타)
 사용자가 보낸 아바타 공유 링크 9개는 로그인해야 아이템 번호가 나와서, 공유 페이지의 공식 렌더(og:image, 720 크기 = 480×720 투명 PNG)를 받아 여백을 잘라 썼다. 클럽·카페·오후네컷 장면(로딩 화면 이미지, 살짝 흐리게) 위에 캐릭터를 올리고 D-653과 같은 제목 스타일로 아이콘 1 + 썸네일 3을 만들었다(docs/04_ART/thumbnails/ohu_v2_*.png). 게임에서 같은 옷을 입고 찍은 화면은 아니고, 플레이어가 카탈로그에서 입어 볼 수 있는 아이템이다.
+
+## D-684 (2026-11-01) 곡 장르·제목 정리, 게임 안 아바타로 썸네일 테스트
+- 사용자 표대로: 업로드 10곡 = 장르 EDM, 제목 "OHU Mix 01 · SAN FRANCISCO / DOM DOLLA" … "OHU Mix 10 · 404 (New Era) / KiiiKiii". BANG BANG / IVE, Love 119 / RIIZE = 장르 K-POP. 표의 "SAN FRANDISCO", "EPIC HIGHT"는 오타로 보고 SAN FRANCISCO, EPIC HIGH로 썼다. 장르 수: EDM 14, POP 4, HIP-HOP 3, K-POP 2.
+- 썸네일 테스트: 바텐더(아이템 id로 만든 NpcLooks.Bartender)를 Play에서 초록 벽 앞에 세워 찍고(옷 로딩에 몇 초 걸림), 초록을 지워 투명 PNG로 만들어(looks/bartender_ingame_trim.png) 마켓플레이스 렌더 둘 사이에 넣었다(ohu_v2_bartender.png). 아이템 id만 있으면 게임 안 아바타도 레퍼런스처럼 쓸 수 있다.

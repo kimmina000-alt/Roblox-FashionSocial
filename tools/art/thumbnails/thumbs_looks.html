@@ -106,6 +106,22 @@ html, body { background:#000; overflow:hidden; }
   <div class="title">친구랑<br><em>네컷 찍자!</em></div>
 </div>
 
+<!-- test (D-684): an avatar built in the game from item ids (the club
+     bartender, NpcLooks.Bartender), shot in Play on a green wall and keyed out,
+     next to two marketplace renders -->
+<div id="bartender" class="card wide">
+  <div class="bg" style="background-image:url(../../../docs/04_ART/loading/loading_club.png)"></div>
+  <div class="shade" style="background:linear-gradient(90deg, rgba(20,6,40,.85) 0%, rgba(20,6,40,.25) 55%, rgba(20,6,40,0) 100%)"></div>
+  <div class="chars">
+    <img src="../../../docs/04_ART/thumbnails/looks/feline_shadow_wanderer_trim.png">
+    <img src="../../../docs/04_ART/thumbnails/looks/bartender_ingame_trim.png" style="height:860px">
+    <img src="../../../docs/04_ART/thumbnails/looks/shadow_buckle_ninja_trim.png">
+  </div>
+  <div class="logo">OHU<small>오후</small></div>
+  <div class="pill" style="background:#7a3cff">🥤 음료 주문</div>
+  <div class="title">바텐더에게<br><em style="color:var(--cyan)">음료 한 잔!</em></div>
+</div>
+
 <script>
 const k = (location.hash || "#club").slice(1);
 const el = document.getElementById(k);

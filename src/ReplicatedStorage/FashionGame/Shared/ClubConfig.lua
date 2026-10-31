@@ -135,22 +135,23 @@ ClubConfig.Playlist = {
 	-- length = seconds of audio at x1, measured in Studio)
 	-- (2026-10-31, latest: all ten at x0.5 again, user)
 	-- (2026-11-01: x0.5 with PitchShift octave 2, user; then the turntable lab's values, D-680)
-	{ channel = "POP", title = "SAN FRANCISCO · DOM DOLLA", soundId = 113497657842744, length = 60, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "POP", title = "LOVE LOVE LOVE · EPIC HIGH", soundId = 100033043291152, length = 59, lab = { speed = 1, tempo = 0.5, volume = 2.3, boost = 1, octave = 1, low = -6, mid = 4, high = 2, humHz = 500, hissHz = 4100, gate = -10, engine = "sound" } },
-	{ channel = "POP", title = "TANI TANI · TANI", soundId = 131058655527940, length = 53, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "POP", title = "LOVE ATTACK · RESCENE", soundId = 103905057186427, length = 70, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "POP", title = "GRIT X DIET COKE", soundId = 106119256110919, length = 53, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "POP", title = "CASH OUT", soundId = 140111630417316, length = 53, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "POP", title = "MY MIND", soundId = 106804146862342, length = 62, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "POP", title = "PLAIN JANE · A$AP FERG", soundId = 78832462526893, length = 44, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "POP", title = "PUMP IT UP", soundId = 125479000346000, length = 60, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "POP", title = "404 (New Era) · KiiiKiii", soundId = 74181572220193, length = 63, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
+	-- (2026-11-01, later: genres EDM / K-POP and the OHU Mix numbers, user's list, D-684)
+	{ channel = "EDM", title = "OHU Mix 01 · SAN FRANCISCO / DOM DOLLA", soundId = 113497657842744, length = 60, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
+	{ channel = "EDM", title = "OHU Mix 02 · LOVE LOVE LOVE / EPIC HIGH", soundId = 100033043291152, length = 59, lab = { speed = 1, tempo = 0.5, volume = 2.3, boost = 1, octave = 1, low = -6, mid = 4, high = 2, humHz = 500, hissHz = 4100, gate = -10, engine = "sound" } },
+	{ channel = "EDM", title = "OHU Mix 03 · TANI TANI / TANI", soundId = 131058655527940, length = 53, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
+	{ channel = "EDM", title = "OHU Mix 04 · LOVE ATTACK / RESCENE", soundId = 103905057186427, length = 70, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
+	{ channel = "EDM", title = "OHU Mix 05 · GRIT X DIET COKE", soundId = 106119256110919, length = 53, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
+	{ channel = "EDM", title = "OHU Mix 06 · CASH OUT", soundId = 140111630417316, length = 53, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
+	{ channel = "EDM", title = "OHU Mix 07 · MY MIND", soundId = 106804146862342, length = 62, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
+	{ channel = "EDM", title = "OHU Mix 08 · PLAIN JANE / A$AP FERG", soundId = 78832462526893, length = 44, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
+	{ channel = "EDM", title = "OHU Mix 09 · PUMP IT UP", soundId = 125479000346000, length = 60, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
+	{ channel = "EDM", title = "OHU Mix 10 · 404 (New Era) / KiiiKiii", soundId = 74181572220193, length = 63, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
 	-- (MANIAC · Stray Kids, 111304415353887, taken out again: user 2026-11-01)
 	-- (user 2026-10-31: PlaybackSpeed 2, Volume 10 then 20, PitchShift octave 0.5; 2026-11-01: the lab's values, D-680)
-	{ channel = "POP", title = "BANG BANG · IVE", soundId = 126421508146335, length = 352, lab = { speed = 1, tempo = 2, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 0, high = 0, humHz = 135, hissHz = 20000, gate = -10, engine = "sound" } },
+	{ channel = "K-POP", title = "BANG BANG / IVE", soundId = 126421508146335, length = 352, lab = { speed = 1, tempo = 2, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 0, high = 0, humHz = 135, hissHz = 20000, gate = -10, engine = "sound" } },
 	-- (128410308180471 소원을 말해 봐 · 소녀시대, added with a temporary title, taken out: user 2026-11-01)
 	-- (user 2026-11-01: from the turntable lab, D-681)
-	{ channel = "POP", title = "Love 119 · RIIZE", soundId = 106367625479063, length = 58, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
+	{ channel = "K-POP", title = "Love 119 / RIIZE", soundId = 106367625479063, length = 58, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside

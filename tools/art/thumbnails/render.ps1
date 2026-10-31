@@ -8,7 +8,7 @@ $html = (Resolve-Path "$PSScriptRoot\$Page").Path -replace '\\', '/'
 $prefix = if ($Page -eq "thumbs.html") { "ohu_" } else { "ohu_v2_" }
 $outDir = (Resolve-Path "$PSScriptRoot\..\..\..\docs\04_ART\thumbnails").Path
 $profileDir = Join-Path $env:TEMP "thumb_chrome_profile"
-$cards = [ordered]@{ icon = "512,512"; club = "1920,1080"; cafe = "1920,1080"; booth = "1920,1080" }
+$cards = [ordered]@{ icon = "512,512"; club = "1920,1080"; cafe = "1920,1080"; booth = "1920,1080"; bartender = "1920,1080" }
 $Only = @($Only | ForEach-Object { $_ -split ',' } | Where-Object { $_ })
 foreach ($k in $cards.Keys) {
 	if ($Only.Count -gt 0 -and -not ($Only -contains $k)) { continue }
