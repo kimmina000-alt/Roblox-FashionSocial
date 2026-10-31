@@ -33,6 +33,13 @@ export type Track = {
 	-- volume / octave. humHz / hissHz / gate only work on the lab's "audio"
 	-- engine and are kept for the record; the club plays a Sound.
 	lab: Lab?,
+	-- the song's choreography (D-689): animation ids played one after another
+	-- from the start of the song, each danced to the song as heard in the club
+	-- (so at x1; the DJ's speed carries over). Players in the club get a
+	-- "안무 따라하기" button while it plays (ChoreoController). An entry is an
+	-- animation id (it starts where the one before ends) or { id = .., at = .. }
+	-- (it starts `at` seconds into the song, as heard in the club).
+	choreo: {any}?,
 }
 export type Lab = {
 	speed: number, tempo: number, volume: number, boost: number, octave: number,
@@ -157,7 +164,7 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "Lemon Tang / 하츠투하츠", soundId = 99550529874718, length = 81, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
 	{ channel = "K-POP", title = "Catch Catch / 최예나", soundId = 100968974338230, length = 92, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
 	{ channel = "K-POP", title = "Get A Guitar / RIIZE", soundId = 100035331158760, length = 80, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
-	{ channel = "K-POP", title = "Bubble Pop / HyunA", soundId = 117125823291884, length = 107, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
+	{ channel = "K-POP", title = "Bubble Pop / HyunA", soundId = 117125823291884, length = 107, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" }, choreo = { 100736920067826 } },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
