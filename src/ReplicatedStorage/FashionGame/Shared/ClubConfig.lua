@@ -98,16 +98,17 @@ ClubConfig.Playlist = {
 	-- speed / pitch steps work on top, shown as x1 at this speed. The uploads
 	-- have no song names yet (video_to_mp3_…): titles to be set by the user.
 	-- length = seconds of audio at x1, measured in Studio)
+	-- (2026-10-31, later: four named by the user play at their own speed, x1)
 	{ channel = "POP", title = "OHU Mix 01", soundId = 113497657842744, length = 60, baseSpeed = 0.5 },
-	{ channel = "POP", title = "OHU Mix 02", soundId = 100033043291152, length = 59, baseSpeed = 0.5 },
+	{ channel = "POP", title = "LOVE LOVE LOVE · EPIC HIGH", soundId = 100033043291152, length = 59 },
 	{ channel = "POP", title = "OHU Mix 03", soundId = 131058655527940, length = 53, baseSpeed = 0.5 },
-	{ channel = "POP", title = "OHU Mix 04", soundId = 103905057186427, length = 70, baseSpeed = 0.5 },
+	{ channel = "POP", title = "LOVE ATTACK · RESCENE", soundId = 103905057186427, length = 70 },
 	{ channel = "POP", title = "OHU Mix 05", soundId = 106119256110919, length = 53, baseSpeed = 0.5 },
 	{ channel = "POP", title = "OHU Mix 06", soundId = 140111630417316, length = 53, baseSpeed = 0.5 },
-	{ channel = "POP", title = "OHU Mix 07", soundId = 106804146862342, length = 62, baseSpeed = 0.5 },
+	{ channel = "POP", title = "MY MIND", soundId = 106804146862342, length = 62 },
 	{ channel = "POP", title = "OHU Mix 08", soundId = 78832462526893, length = 44, baseSpeed = 0.5 },
 	{ channel = "POP", title = "OHU Mix 09", soundId = 125479000346000, length = 60, baseSpeed = 0.5 },
-	{ channel = "POP", title = "OHU Mix 10", soundId = 74181572220193, length = 63, baseSpeed = 0.5 },
+	{ channel = "POP", title = "404 (New Era) · KiiiKiii", soundId = 74181572220193, length = 63 },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside

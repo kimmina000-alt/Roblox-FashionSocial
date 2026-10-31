@@ -251,11 +251,12 @@ local soundButtons: {[string]: TextButton} = {}
 -- (user 2026-10-31: the pitch and speed buttons taken off the DJ screen; only
 -- ⏸ stays, the full row. The buttons are still made, hidden, so the rest of
 -- the code keeps working; the server still has the actions)
-for i, spec in ipairs({ { "Pause", "⏸ 일시정지", 1 }, { "PitchDown", "− 피치 x1.0", 0.25 }, { "PitchUp", "+", 0.15 }, { "SpeedDown", "− 속도 x1.00", 0.25 }, { "SpeedUp", "+", 0.15 } }) do
+-- (later the same day: the speed − / + back, pitch stays off)
+for i, spec in ipairs({ { "Pause", "⏸ 일시정지", 0.42 }, { "PitchDown", "− 피치 x1.0", 0.25 }, { "PitchUp", "+", 0.15 }, { "SpeedDown", "− 속도 x1.00", 0.38 }, { "SpeedUp", "+", 0.2 } }) do
 	local b = create("TextButton", {
 		Name = spec[1],
 		LayoutOrder = i,
-		Visible = spec[1] == "Pause",
+		Visible = spec[1] == "Pause" or spec[1] == "SpeedDown" or spec[1] == "SpeedUp",
 		Size = UDim2.new(spec[3], -5, 1, 0),
 		BackgroundColor3 = COLORS.card,
 		Text = spec[2],
