@@ -1582,3 +1582,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Coach: 투어 중 들어온 안내는 버리지 않고 대기열에 넣었다가 투어가 끝나면(hold false) 바로 띄움. 대기열에서 그사이 이미 본 안내는 건너뛰고 다음 것(runNext; 전에는 본 안내 하나가 뒤의 알바 안내까지 막았음).
 - GuideController 길 안내 표지: TextButton, PlayerGui의 BillboardGui(Adornee = 목적지; Workspace의 BillboardGui는 누를 수 없음), '✕ 눌러서 길 안내 취소' 한 줄, 누르면 선·표지·도착점 삭제. LightInfluence 0(기본 1이라 밤에 검게 보임).
 - Studio Play: 투어 중 알바 시작 → 투어 건너뛰자 알바 안내 1/7, 클럽 길 안내 표지 누르자 선·표지 사라짐.
+- (D-747 덧붙임, 사용자) 길 안내 표지의 '✕ 눌러서 길 안내 취소' 문구는 빼고 누르면 취소되는 기능만 남김(표지 크기 원래대로).

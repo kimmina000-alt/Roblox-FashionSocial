@@ -239,7 +239,7 @@ local function guideTo(place: GuideConfig.Place)
 	-- a button, so the board lives in PlayerGui with the part as its Adornee —
 	-- a BillboardGui in Workspace takes no taps)
 	local board = create("BillboardGui", {
-		Name = "GuideWaypointSign", Adornee = part, Size = UDim2.fromOffset(200, 64), StudsOffset = Vector3.new(0, 5, 0),
+		Name = "GuideWaypointSign", Adornee = part, Size = UDim2.fromOffset(190, 54), StudsOffset = Vector3.new(0, 5, 0),
 		AlwaysOnTop = true, Active = true, ResetOnSpawn = false,
 		LightInfluence = 0, -- (1 by default: black at night)
 	}, playerGui)
@@ -260,7 +260,7 @@ RunService.Heartbeat:Connect(function()
 		if root then w.from.Parent = root else return end
 	end
 	local distance = (Vector3.new(root.Position.X, w.place.at.Y, root.Position.Z) - w.place.at).Magnitude
-	w.label.Text = string.format("%s %s · %dm\n✕ 눌러서 길 안내 취소", w.place.emoji, w.place.name, math.floor(distance + 0.5))
+	w.label.Text = string.format("%s %s · %dm", w.place.emoji, w.place.name, math.floor(distance + 0.5)) -- (a tap cancels; no words for it, user)
 	if distance < GuideConfig.ArriveDistance or os.clock() > w.untilTime then clearWaypoint() end
 end)
 
