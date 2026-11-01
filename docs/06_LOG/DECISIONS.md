@@ -1370,3 +1370,7 @@ Studio Play 확인: 실제 헤어 위치(머리 기준 y 0.383)와 미리보기 
 - 놀이공원: Player2가 계단으로 문 앞 광장(높이 16, z -249)까지 걸어감.
 - 오류: 서버·두 클라이언트 모두 없음(Studio 데이터스토어 안내 제외).
 - feat/turntable-lab-1101(feat/dj-reverse-1031 포함)을 catalog-ui-redesign에 fast-forward 머지(D-653..D-710).
+
+## D-711 (2026-11-01) 국밥 상점 수육 사진 교체
+- 사용자: 게임 안에서 찍은 수육 접시 사진으로 상점 사진 바꾸기.
+- SnackMenuArt.suyuk = 123327521135180 (docs/04_ART/shop_photos/gukbap_suyuk_top_square.png, 위에서 찍은 512×512, Vantablack_Dev 업로드). 이전 86722270080544.

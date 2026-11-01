@@ -36,7 +36,7 @@ SnackMenuArt.Icons = {
 	pork = "rbxassetid://129225504092655",
 	sundae = "rbxassetid://134665477374241",
 	beef = "rbxassetid://130774465841494",
-	suyuk = "rbxassetid://86722270080544",
+	suyuk = "rbxassetid://123327521135180", -- (2026-11-01: the in-game plate shot, docs/04_ART/shop_photos/gukbap_suyuk_top_square.png; was 86722270080544)
 }
 
 SnackMenuArt.Descriptions = {
