@@ -2970,3 +2970,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### EDM 겹쳐 재생 · 초기화 (D-736)
 ![](images/2026-11-01/edm_together_reset_D736.jpg)
+
+## 2026-11-02
+### 턴테이블 창 배치 (D-737)
+![](images/2026-11-02/dj_tip_grow_left_D737.jpg) ![](images/2026-11-02/dj_layout_D737.jpg)

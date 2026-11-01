@@ -273,6 +273,34 @@ local pauseButton = djRowButton("Pause", "⏸ 일시정지", 1, COLORS.card)
 -- "DJColdSpark", once every 90 s)
 local djSparkButton = djRowButton("DJSpark", "🎆 무대 스파클러", 3, Color3.fromRGB(255, 150, 40))
 
+-- (D-737, user's before / after picture) the two rows sorted by what they do,
+-- a thin line between them and another one over the EDM controls:
+--   [⏸ 일시정지] [⏭ 건너뛰기] [📺 전광판 ON] [👥 초대]      (music, DJ)
+--   ─────────────────────────────────────────────
+--   [💡 조명 ON] [✳ 레이저 ON ⚡x1] [🎆 무대 스파클러]      (lights, stage)
+for order, item in ipairs({ pauseButton, skipButton, screenButton, guestsButton } :: {GuiObject}) do
+	item.Parent = djTools
+	item.LayoutOrder = order
+	item.Size = UDim2.new(0.25, -5, 1, 0)
+end
+for order, entry in ipairs({ { lightsButton, 0.23 }, { laserGroup, 0.42 }, { djSparkButton, 0.35 } }) do
+	local item = entry[1] :: GuiObject
+	item.Parent = djSound
+	item.LayoutOrder = order
+	item.Size = UDim2.new(entry[2] :: number, -4, 1, 0)
+end
+laserButton.Size = UDim2.new(0.66, -2, 1, 0) -- (one line for "레이저 ON")
+speedButton.Size = UDim2.new(0.34, -2, 1, 0)
+local function divider(name: string): Frame
+	-- (BackgroundTransparency 0.5: the window's thin-edge rule above leaves it alone)
+	return create("Frame", {
+		Name = name, BackgroundColor3 = Color3.fromRGB(120, 150, 230), BackgroundTransparency = 0.5,
+		BorderSizePixel = 0, Size = UDim2.new(1, 0, 0, 1), Visible = false,
+	}, panel)
+end
+local dividerTop = divider("DividerTools")
+local dividerEdm = divider("DividerEdm")
+
 -- light colours (DJ only): ClubConfig.LightColors swatches
 local colorRow = create("Frame", {
 	Name = "LightColors",
@@ -431,12 +459,16 @@ local function layout()
 	compactNow = compact
 	local width = if compact then math.clamp(math.floor(viewport.X * 0.3), 210, 300) else math.clamp(math.floor(viewport.X * 0.36), 260, 340)
 	local height = math.min(viewport.Y - top - 8, 560)
+	-- (D-737) a window at the right edge hangs from its right corner: the tip's
+	-- grow (Spotlight's UIScale works round the AnchorPoint) goes left, not off screen
 	if compact then
+		panel.AnchorPoint = Vector2.zero
 		panel.Position = UDim2.new(0, 12, 0, top)
 		listPanel.Position = UDim2.new(1, -width - 12, 0, top)
 		listPanel.Size = UDim2.fromOffset(width, height)
 	else
-		panel.Position = UDim2.new(1, -width - 12, 0, top)
+		panel.AnchorPoint = Vector2.new(1, 0)
+		panel.Position = UDim2.new(1, -12, 0, top)
 	end
 	panel.Size = UDim2.fromOffset(width, height)
 	local W, H = width - 20, height - 20
@@ -474,7 +506,10 @@ local function layout()
 	if dj then
 		djTools.Position = UDim2.fromOffset(0, y)
 		djTools.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
-		y += (if compact then 26 else 30) + 6
+		y += (if compact then 26 else 30) + 5
+		dividerTop.Position = UDim2.fromOffset(0, y)
+		dividerTop.Size = UDim2.fromOffset(leftW, 1)
+		y += 1 + 5
 		djSound.Position = UDim2.fromOffset(0, y)
 		djSound.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
 		y += (if compact then 26 else 30) + 6
@@ -484,7 +519,10 @@ local function layout()
 		colorGrid.CellSize = UDim2.fromOffset(math.floor((leftW - (perRow - 1) * 4) / perRow), cellH)
 		colorRow.Position = UDim2.fromOffset(0, y)
 		colorRow.Size = UDim2.fromOffset(leftW, rows * (cellH + 4))
-		y += rows * (cellH + 4) + 4
+		y += rows * (cellH + 4) + 2
+		dividerEdm.Position = UDim2.fromOffset(0, y)
+		dividerEdm.Size = UDim2.fromOffset(leftW, 1)
+		y += 1 + 6
 		y += edmPanel.place(y, leftW, compact) + 6
 	end
 	if compact then
@@ -704,6 +742,8 @@ local function refresh()
 	djSound.Visible = dj
 	colorRow.Visible = dj
 	edmPanel.frame.Visible = dj
+	dividerTop.Visible = dj
+	dividerEdm.Visible = dj
 	local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
 	pauseButton.Text = if paused then "▶ 다시 재생" else "⏸ 일시정지"
 	pauseButton.BackgroundColor3 = if paused then COLORS.dj else COLORS.card

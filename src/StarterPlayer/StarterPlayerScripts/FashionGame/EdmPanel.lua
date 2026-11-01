@@ -68,7 +68,8 @@ function EdmPanel.new(parent: Instance): Panel
 	end)
 	-- ↺ every slider back to x1 (D-736, user)
 	local resetButton = create("TextButton", {
-		Name = "ResetButton", BackgroundColor3 = OFF, Text = "🔄 초기화", -- (↺ is not in the font: a box) TextColor3 = TEXT, TextScaled = true,
+		-- (🔄: ↺ is not in the font, it showed as a box)
+		Name = "ResetButton", BackgroundColor3 = OFF, Text = "🔄 초기화", TextColor3 = TEXT, TextScaled = true,
 		Font = Enum.Font.GothamBold, AutoButtonColor = true,
 	}, frame)
 	corner(resetButton, 8)
@@ -137,7 +138,7 @@ function EdmPanel.new(parent: Instance): Panel
 	end
 	slider("edm", "⚡ EDM 속도", EdmConfig.EdmSpeed, "x%.2f", function(v) call("Edm", { k = "speed", v = v }) end)
 	slider("song", "🎵 노래 속도", EdmConfig.SongSpeed, "x%.2f", function(v) call("MusicSpeed", v) end)
-	slider("volume", "🔊 볼륨", EdmConfig.Volume, "x%.1f", function(v) call("MusicVolume", v) end)
+	slider("volume", "🔊 노래 볼륨", EdmConfig.Volume, "x%.1f", function(v) call("MusicVolume", v) end) -- (name: user's picture, D-737)
 
 	local function showSlider(key: string, v: number)
 		local s = sliders[key]
