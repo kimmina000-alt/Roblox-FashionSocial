@@ -52,7 +52,10 @@ local function nightSweep()
 		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		if root and character then
 			local inside = ClubConfig.isInClub(root.Position)
-			if not inside then
+			if player:GetAttribute("CarriedBy") then
+				-- in a guard's arms (GuardService, D-722): never moved; carried in = let in
+				if inside then player:SetAttribute("ClubInside", true) end
+			elseif not inside then
 				if player:GetAttribute("ClubInside") then player:SetAttribute("ClubInside", nil) end
 			elseif typeof(player:GetAttribute("GuardOutUntil")) == "number" and (player:GetAttribute("GuardOutUntil") :: number) > workspace:GetServerTimeNow() then
 				-- shown out by a guard a moment ago (GuardService): not back in yet
@@ -195,7 +198,7 @@ local function sweep()
 	for _, player in ipairs(Players:GetPlayers()) do
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if root then
+		if root and not player:GetAttribute("CarriedBy") then
 			for _, region in ipairs(regions) do
 				local gate = region:GetAttribute("Gate")
 				if region:IsA("BasePart") and typeof(gate) == "string" and insideBox(region, root.Position)

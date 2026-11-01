@@ -100,9 +100,13 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 	elseif action == "StudioGrantCoins" then
 		-- Studio play tests only (EconomyService refuses on live servers).
 		return EconomyService.StudioGrant(player, payload)
-	elseif action == "GuardOut" then
-		-- a guard shows a player out of the club (GuardService, D-623)
-		return require(script.Parent.Services.GuardService).ShowOut(player, payload)
+	elseif action == "GuardCarry" then
+		-- a guard picks a player up / puts them down / cuffs them (GuardService, D-722)
+		return require(script.Parent.Services.GuardService).Carry(player, payload)
+	elseif action == "GuardDrop" then
+		return require(script.Parent.Services.GuardService).Drop(player)
+	elseif action == "GuardCuff" or action == "GuardOut" then
+		return require(script.Parent.Services.GuardService).Cuff(player, payload)
 	end
 	if typeof(action) ~= "string" then return false, "잘못된 요청입니다." end
 	-- DJ 차례 window: OK → go to the booth, NO → pass the turn (no refund).

@@ -20,6 +20,11 @@ local function formatXp(value: any): string
 	return "⭐ " .. formatted .. " XP"
 end
 
+-- ⛓ before the id while a guard's handcuffs are on (attribute Cuffed, GuardService, D-722)
+local function nameText(player: Player): string
+	return (if player:GetAttribute("Cuffed") then "⛓ " else "") .. player.Name
+end
+
 local function build(player: Player, character: Model)
 	local head = character:WaitForChild("Head", 10)
 	local humanoid = character:WaitForChild("Humanoid", 10) :: Humanoid?
@@ -46,7 +51,7 @@ local function build(player: Player, character: Model)
 	name.TextScaled = true
 	name.TextColor3 = Color3.new(1, 1, 1)
 	name.TextStrokeTransparency = 0.4
-	name.Text = player.Name -- the player's id (user 2026-10-27), the VIP / DJ badge sits on top
+	name.Text = nameText(player) -- the player's id (user 2026-10-27), the VIP / DJ badge sits on top
 	name.Parent = billboard
 
 	local xp = Instance.new("TextLabel")
@@ -81,6 +86,12 @@ function NameTagService.Start()
 			local tag = head and head:FindFirstChild(TAG_NAME)
 			local label = tag and tag:FindFirstChild("XP")
 			if label and label:IsA("TextLabel") then label.Text = formatXp(player:GetAttribute("XP")) end
+		end)
+		player:GetAttributeChangedSignal("Cuffed"):Connect(function()
+			local head = player.Character and player.Character:FindFirstChild("Head")
+			local tag = head and head:FindFirstChild(TAG_NAME)
+			local label = tag and tag:FindFirstChild("DisplayName")
+			if label and label:IsA("TextLabel") then label.Text = nameText(player) end
 		end)
 	end
 	for _, player in ipairs(Players:GetPlayers()) do watch(player) end

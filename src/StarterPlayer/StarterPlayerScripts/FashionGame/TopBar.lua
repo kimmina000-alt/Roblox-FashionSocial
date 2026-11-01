@@ -27,8 +27,15 @@ local MENU_W, MENU_ROW, MENU_PAD = 36, 36, 6 -- (54 for a moment on 2026-10-31, 
 TopBar.Scale = 1.5 -- (for the pieces other scripts size: coin pill, clock)
 
 -- order → right row place (1 = nearest the edge); menu orders → menu row
-local RIGHT: {[number]: number} = { [20] = 1, [5] = 2, [10] = 3, [11] = 4 }
-local MENU: {[number]: number} = { [4] = 1, [3] = 2, [1] = 3 }
+-- (D-721, user 2026-11-01: the menu's buttons out in the row after ♥, as big
+-- as ♥: [clock] [₩] [♥] [hanger] [bag] [♪]; ☰ is gone. On a narrow screen
+-- the row would reach Roblox's buttons on the left: the rest goes on a second
+-- row below instead.)
+local RIGHT: {[number]: number} = { [1] = 1, [3] = 2, [4] = 3, [5] = 4, [10] = 5, [11] = 6 }
+local MENU: {[number]: number} = {}
+local ROUND = { [1] = true, [3] = true, [4] = true } -- styled like ♥ here
+local LINE_GAP = 8 -- between two rows
+local rowsBottom = 0 -- bottom edge of the last row (TopBar.bottom)
 
 local entries: {{ button: GuiObject, order: number }} = {}
 local open = false
@@ -103,22 +110,36 @@ layout = function()
 		table.sort(list, function(a, b) return map[a.order] < map[b.order] end)
 		return list
 	end
-	-- right row
+	-- right row, wrapping before Roblox's own buttons on the left
+	local camera = workspace.CurrentCamera
+	local screenW = if camera then camera.ViewportSize.X else 1000
+	local inset = GuiService.TopbarInset
+	local leftLimit = if inset.Height > 0 and inset.Min.X > 0 then inset.Min.X + 8 else 160
 	local x = rightX
+	local y = centerY
+	local inRow = 0
 	local moreX = 0
-	for i, entry in ipairs(sorted(RIGHT)) do
+	rowsBottom = centerY + SMALL / 2
+	for _, entry in ipairs(sorted(RIGHT)) do
 		local b = entry.button
 		local wide = b:GetAttribute("Width")
 		local high = b:GetAttribute("Height")
 		local w = if typeof(wide) == "number" then wide else SMALL
 		local h = if typeof(high) == "number" then high else SMALL
+		local gap = b:GetAttribute("GapLeft")
+		local gapLeft = if typeof(gap) == "number" then gap elseif entry.order == 5 or entry.order == 10 then PILL_GAP else ROW_GAP
+		if inRow > 0 and screenW + x - w < leftLimit then
+			x = rightX
+			y += SMALL + LINE_GAP
+			inRow = 0
+		end
 		b.Size = UDim2.fromOffset(w, h)
 		b.AnchorPoint = Vector2.new(1, 0.5)
-		b.Position = UDim2.new(1, x, 0, centerY)
-		-- (the menu is wider than ☰ since 2026-10-31: its right edge lines up with ☰'s)
+		b.Position = UDim2.new(1, x, 0, y)
 		if entry.order == 20 then moreX = x - MENU_W / 2 end
-		local gap = b:GetAttribute("GapLeft")
-		x -= w + (if typeof(gap) == "number" then gap elseif i == 1 then ROW_GAP else PILL_GAP)
+		rowsBottom = math.max(rowsBottom, y + SMALL / 2)
+		x -= w + gapLeft
+		inRow += 1
 	end
 	-- menu below ⋯
 	local items = sorted(MENU)
@@ -155,16 +176,29 @@ end)
 -- Roblox top-bar inset can be 0 and the buttons use the fallback row).
 function TopBar.bottom(): number
 	local inset = GuiService.TopbarInset
+	local base
 	if inset.Height > 0 then
 		local size = math.clamp(inset.Height - 12, 32, 44)
-		return math.max(inset.Min.Y + 12 + size, inset.Max.Y)
+		base = math.max(inset.Min.Y + 12 + size, inset.Max.Y)
+	else
+		base = 34 + 44 / 2
 	end
-	return 34 + 44 / 2
+	return math.max(base, rowsBottom + 4) -- (a second row on narrow screens, D-721)
 end
 
 function TopBar.add(button: GuiObject, order: number)
 	table.insert(entries, { button = button, order = order })
 	button:GetPropertyChangedSignal("Visible"):Connect(layout)
+	if ROUND[order] then
+		-- the same dark round button as ♥ (BannerController)
+		button.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
+		button.BackgroundTransparency = 0.5
+		local corner = button:FindFirstChildOfClass("UICorner") or Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(1, 0)
+		corner.Parent = button
+		local icon = button:FindFirstChild("Icon")
+		if icon and icon:IsA("GuiObject") then icon.Size = UDim2.fromScale(0.6, 0.6) end
+	end
 	-- a menu button closes the menu when it is used
 	if MENU[order] and button:IsA("GuiButton") then
 		(button :: GuiButton).Activated:Connect(function()
@@ -227,6 +261,7 @@ do
 	end
 end
 TopBar.add(more, 20)
+more.Visible = false -- (D-721: nothing left in the menu; kept for the old order number)
 
 GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(layout)
 if workspace.CurrentCamera then

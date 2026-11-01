@@ -411,17 +411,37 @@ local cardInvite = button({
 	Visible = false,
 }, playerCard, 10)
 
--- Only a guard sees this (D-623): show the player out of the club for a minute.
-local cardGuard = button({
-	Name = "GuardOutButton",
+-- Only a guard sees these (D-623; two tools since D-722, user 2026-11-01):
+-- pick the player up (carry them out of or into the club) and handcuffs (no
+-- club for a minute). Shown in and near the club too, not only inside.
+local cardGuard = create("Frame", {
+	Name = "GuardRow",
 	Size = UDim2.new(1, -20, 0, 34),
-	BackgroundColor3 = Color3.fromRGB(20, 20, 24),
-	Text = "🛡 클럽 밖으로 안내",
-	TextSize = 15,
+	BackgroundTransparency = 1,
 	ZIndex = 6,
 	Visible = false,
-}, playerCard, 10)
-create("UIStroke", { Color = Color3.fromRGB(220, 20, 35), Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cardGuard)
+}, playerCard)
+local cardCarry = button({
+	Name = "GuardCarryButton",
+	Size = UDim2.new(0.5, -4, 1, 0),
+	BackgroundColor3 = Color3.fromRGB(20, 20, 24),
+	Text = "🫳 들기",
+	TextSize = 15,
+	ZIndex = 6,
+}, cardGuard, 10)
+create("UIStroke", { Color = Color3.fromRGB(220, 20, 35), Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cardCarry)
+local cardCuff = button({
+	Name = "GuardCuffButton",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.fromScale(1, 0),
+	Size = UDim2.new(0.5, -4, 1, 0),
+	BackgroundColor3 = Color3.fromRGB(20, 20, 24),
+	Text = "⛓ 수갑 (1분)",
+	TextSize = 15,
+	ZIndex = 6,
+}, cardGuard, 10)
+create("UIStroke", { Color = Color3.fromRGB(220, 20, 35), Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cardCuff)
+local GUARD_REACH = 12 -- (GuardService.Reach)
 
 local function topY(): number
 	return require(script.Parent:WaitForChild("TopBar")).bottom() + 6
@@ -507,6 +527,13 @@ end
 local function inClub(character: Model?): boolean
 	local root = rootOf(character)
 	return root ~= nil and ClubConfig.isInClub(root.Position)
+end
+
+-- a guard may open a card on anyone near, in or out of the club (D-722)
+local function guardNear(target: Player): boolean
+	if player:GetAttribute("Pass_Guard") ~= true or target:GetAttribute("Pass_Guard") == true then return false end
+	local mine, theirs = rootOf(player.Character), rootOf(target.Character)
+	return mine ~= nil and theirs ~= nil and (mine.Position - theirs.Position).Magnitude <= GUARD_REACH + 8
 end
 
 local function joinedPlayer(): Player?
@@ -883,7 +910,8 @@ local function refreshCard()
 	local target = cardTarget
 	if not target then return end
 	local character = target.Character
-	if not target.Parent or not character or not inClub(character) or not inClub(player.Character) then
+	local bothIn = character ~= nil and inClub(character) and inClub(player.Character)
+	if not target.Parent or not character or not (bothIn or guardNear(target)) then
 		closeCard()
 		return
 	end
@@ -895,12 +923,17 @@ local function refreshCard()
 	local together = joinedPlayer() == target
 	cardJoin.Text = if together then "같이 추기 해제" else "💃 같이 추기"
 	cardJoin.BackgroundColor3 = if together then COLORS.accent else COLORS.join
-	local amDJ = FashionGame:GetAttribute("ClubDJ") == player.UserId
+	local amDJ = FashionGame:GetAttribute("ClubDJ") == player.UserId and bothIn
+	cardJoin.Visible = bothIn
 	cardInvite.Visible = amDJ
 	local amGuard = player:GetAttribute("Pass_Guard") == true and target:GetAttribute("Pass_Guard") ~= true
 	cardGuard.Visible = amGuard
-	cardGuard.Position = UDim2.fromOffset(10, if amDJ then 160 else 120)
-	playerCard.Size = UDim2.fromOffset(playerCard.Size.X.Offset, 124 + (if amDJ then 40 else 0) + (if amGuard then 40 else 0))
+	local y = if bothIn then 120 else 78
+	if amDJ then cardInvite.Position = UDim2.fromOffset(10, y) y += 40 end
+	cardGuard.Position = UDim2.fromOffset(10, y)
+	if amGuard then y += 40 end
+	playerCard.Size = UDim2.fromOffset(playerCard.Size.X.Offset, y + 4)
+	cardCarry.Text = if player:GetAttribute("Carrying") == target.UserId then "⬇ 내려놓기" else "🫳 들기"
 	if amDJ then
 		local invited = isGuest(target.UserId)
 		cardInvite.Text = if invited then "DJ 존 초대 취소" else "🎧 DJ 존 초대"
@@ -937,17 +970,22 @@ cardInvite.MouseButton1Click:Connect(function()
 		refreshCard()
 	end)
 end)
-cardGuard.MouseButton1Click:Connect(function()
+-- (the server tells both sides how it went, as a toast)
+local function guardAction(action: string)
 	local target = cardTarget
 	if not target then return end
-	-- (the server tells both sides how it went, as a toast)
 	task.spawn(function()
 		local ok, okServer = pcall(function()
-			return FashionGame:WaitForChild("Remotes"):WaitForChild("ClubShop"):InvokeServer("GuardOut", target.UserId)
+			return FashionGame:WaitForChild("Remotes"):WaitForChild("ClubShop"):InvokeServer(action, target.UserId)
 		end)
 		if ok and okServer then closeCard() end
 	end)
+end
+cardCarry.MouseButton1Click:Connect(function()
+	local target = cardTarget
+	guardAction(if target and player:GetAttribute("Carrying") == target.UserId then "GuardDrop" else "GuardCarry")
 end)
+cardCuff.MouseButton1Click:Connect(function() guardAction("GuardCuff") end)
 cardJoin.MouseButton1Click:Connect(function()
 	local target = cardTarget
 	if not target then return end
@@ -1014,9 +1052,10 @@ UserInputService.InputEnded:Connect(function(input, processed)
 	if not press or processed then return end
 	local position = Vector2.new(input.Position.X, input.Position.Y)
 	if (position - press.position).Magnitude > 12 or os.clock() - press.time > 0.45 then return end
-	if not inClub(player.Character) then return end
+	local here = inClub(player.Character)
+	if not here and player:GetAttribute("Pass_Guard") ~= true then return end
 	local target = playerAt(position)
-	if target and inClub(target.Character) then
+	if target and ((here and inClub(target.Character)) or guardNear(target)) then
 		openCard(target)
 	elseif playerCard.Visible then
 		closeCard()
@@ -1037,7 +1076,7 @@ task.spawn(function()
 		local here = inClub(player.Character)
 		if here ~= wasInClub then
 			wasInClub = here
-			if not here then closeCard() end
+			if not here and not (cardTarget and guardNear(cardTarget)) then closeCard() end
 		end
 		if playerCard.Visible then refreshCard() end
 	end

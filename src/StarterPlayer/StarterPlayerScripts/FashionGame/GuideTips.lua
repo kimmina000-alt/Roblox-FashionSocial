@@ -52,16 +52,10 @@ end
 
 -- (D-715, user: right after "준비 끝" the menu button first)
 local HUD: {Coach.Step} = {
-	{ title = "메뉴 버튼", text = "오른쪽 위 이 버튼을 누르면 버튼이 더 나와요.", target = function() return TopBar.button(20) end },
-	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.",
-		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(4) end,
-		after = function() TopBar.setOpen(false) end }, -- (closed also when skipped here, D-718)
-	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.",
-		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(3) end,
-		after = function() TopBar.setOpen(false) end },
-	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽 안에서는 화면 왼쪽에도 ♪ 버튼이 나와요.",
-		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(1) end,
-		after = function() TopBar.setOpen(false) end },
+	-- (D-721: the menu's buttons are out in the top row now, no ☰)
+	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.", target = function() return TopBar.button(4) end },
+	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.", target = function() return TopBar.button(3) end },
+	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽 안에서는 화면 왼쪽에도 ♪ 버튼이 나와요.", target = function() return TopBar.button(1) end },
 	{ title = "왼쪽 위 · Roblox 버튼", text = "Roblox 기본 버튼이에요. 메뉴(설정·나가기), 채팅, 음성 채팅을 여기서 켜고 꺼요.",
 		target = function()
 			local inset = GuiService.TopbarInset

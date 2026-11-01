@@ -154,7 +154,7 @@ local function showStep()
 		nextButton.Text = "다음 ▶"
 		cameraBack()
 		-- (D-714) the screen dark but for this card and the menu button, which pulses
-		Spotlight.set(TopBar.button(20))
+		Spotlight.set(TopBar.button(4)) -- (the catalog button, the first one shown next; ☰ gone, D-721)
 	end
 end
 

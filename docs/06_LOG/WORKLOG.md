@@ -2946,3 +2946,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 2P 가드 테스트 (D-719)
 ![](images/2026-11-01/guard_card_D719.jpg) ![](images/2026-11-01/tip_overlap_bug_D719.jpg) (오른쪽: 고치기 전 겹침)
+
+### 위 줄 버튼 (D-721)
+![](images/2026-11-01/topbar_D721.jpg)

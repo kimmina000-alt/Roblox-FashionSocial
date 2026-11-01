@@ -44,8 +44,17 @@ local TRACKS = {
 	{ title = "Get A Guitar / RIIZE", id = 100035331158760 },
 	{ title = "Bubble Pop / HyunA", id = 117125823291884 },
 	-- the user's own edits (2026-11-01)
-	{ title = "피치 후 증폭", id = 139326796173276 },
+	{ title = "Mirror / IVE", id = 139326796173276 }, -- (first added as "피치 후 증폭"; named by the user 2026-11-01)
 	{ title = "증폭 후 피치", id = 88451163103580 },
+	-- K-POP, new uploads (user 2026-11-01)
+	{ title = "BAD / ATEEZ (새 음원)", id = 134942349436280 },
+	{ title = "소원을 말해봐(Genie) / 소녀시대 (새 음원)", id = 128270208751659 },
+	{ title = "Bubble Pop / 현아 (새 음원)", id = 76388700698178 },
+	{ title = "Get A Guitar / RIIZE (새 음원)", id = 91762270038050 },
+	{ title = "Love 119 / RIIZE (새 음원)", id = 119473981131981 },
+	{ title = "Catch Catch / YENA (새 음원)", id = 80583279340768 },
+	{ title = "Lemon Tang / Hearts2Hearts (새 음원)", id = 97032815457241 },
+	{ title = "Lemonade / aespa", id = 132067415333401 },
 }
 
 -- speed and octave on log sliders (x1 in the middle); volume is the raw

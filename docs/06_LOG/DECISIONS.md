@@ -1446,3 +1446,16 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-720 (2026-11-01) Studio 테스트용 패스 주기
 - 사용자: 가드 테스트를 직접 해 보게 Player1에게 가드 권한. 진짜 id가 있는 패스는 Studio에서 못 사니, ServerScriptService 속성 StudioPasses("Guard:-1" 식, 키:UserId)로 Studio에서만 패스를 줌(MonetizationService.studioGrant, 라이브 서버에서는 무시). 지금 값 "Guard:-1".
+
+## D-721 (2026-11-01) 메뉴 버튼 없애고 버튼을 위 줄에
+- 사용자: ☰ 안의 카탈로그·인벤토리·춤 버튼을 밖으로, 기부(♥) 뒤에 차례로, 크기는 ♥ 기준. 화면이 좁아 Roblox 왼쪽 위 버튼과 겹치게 되면 아래 줄로.
+- TopBar: [시계] [₩] [♥] [옷걸이] [가방] [♪], ☰ 숨김. 세 버튼은 ♥와 같은 38 px 어두운 원형(투명도 0.5), 아이콘 0.6. 왼쪽 끝이 TopbarInset.Min.X + 8을 넘으면 남은 버튼은 오른쪽부터 둘째 줄(38 + 8 px 아래), TopBar.bottom()은 마지막 줄 아래.
+- 안내: 화면 버튼 안내에서 ☰ 단계 삭제(옷걸이부터), 투어 마지막 카드는 옷걸이 버튼을 강조, 안내원 답의 "메뉴 버튼(줄 세 개)" 문구 고침.
+
+## D-722 (2026-11-01) 가드: 들기·내려놓기와 수갑
+- 사용자: 플레이어를 누르면 가드가 손으로 들고 있는 모습, 들고 클럽 밖에서 내려놓으면 내쫓기, 밖에 있는 사람을 들고 들어올 수도. 1분 입장 금지는 따로 수갑 기능, 수갑 찬 사람은 아이디 앞에 수갑 아이콘.
+- GuardService: Carry/Drop/Cuff. 12칸 안, DJ·다른 가드 제외. 들기: 대상 부품 Massless·CanCollide 끔, PlatformStand, 가드 HumanoidRootPart에 Weld(팔 위에 가로로 누운 자세, 얼굴 위), 30초 지나면 저절로 내려놓음, 리셋·죽음·나감에도 풀림. 내려놓기: 가드 앞 3칸에 세움, 클럽 안이면 ClubInside(데리고 들어온 사람은 낮에도 머무름), 클럽 안에서 들고 나와 밖에 내려놓으면 양쪽에 알림. 수갑: GuardOutUntil 60초 + Cuffed, 기존 쿨타임(가드 30초, 대상 5분).
+- ClubAccessService: 들린 사람(CarriedBy)은 옮기지 않음, 들려서 들어오면 ClubInside.
+- NameTagService: Cuffed 동안 아이디 앞 "⛓ ".
+- DanceController 카드: 가드는 클럽 밖에서도 근처 사람 카드(같이 추기 숨김), [🫳 들기 / ⬇ 내려놓기] [⛓ 수갑 (1분)].
+- GuardController(새 LocalScript): 들고 있는 가드의 팔을 앞으로(Motor6D.Transform, 모든 화면), 들린 사람은 못 걸음, 가드 화면 아래 "⬇ ○○ 내려놓기" 버튼.
