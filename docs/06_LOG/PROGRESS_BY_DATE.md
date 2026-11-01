@@ -477,3 +477,4 @@
 - 클럽 노래를 Roblox 라이선스 음악 12곡으로 교체(K-POP 업로드·안무 제거), EDM 버튼 음원도 교체 (D-739).
 - 썸네일 모델 아바타 11명(아이템 검색, ServerStorage.ThumbnailAvatars) (D-740).
 - feat/club-roblox-music-1102 머지, 런칭 체크리스트 문서 (D-741).
+- 실제 브랜드 간판(ABC-MART·나이키·bhc·GS25·PLAYSTATION 등)과 술·전자담배 간판을 가짜 이름으로 (D-744).

@@ -1565,3 +1565,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-743 (2026-11-02) 썸네일은 AI 일러스트로
 - 사용자: 레퍼런스 썸네일은 실제 플레이 화면이 아니라 AI로 만든 것. ChatGPT에 시킬 프롬프트를 만들어 달라. docs/04_ART/thumbnails/CHATGPT_PROMPTS.md: 메인(클럽, 모델 4명 옷 묘사), 패션, 오후네컷, 아이콘. 글자는 넣지 않게 하고 로고·문구는 compose_thumb.ps1로 올림. Studio 촬영 시안(D-742)은 보관만.
+
+## D-744 (2026-11-02) 실제 브랜드 간판 → 가짜 이름
+- 사용자: 런칭 전에 실제 브랜드를 가짜 이름으로.
+- 가짜 건물 사진 6장(tools/art/debrand_facades.ps1 → docs/04_ART/facades/*_nobrand.png, 업로드): facade 2 PLAYSTATION → VR GAME (103525678252089), 4 ABC-MART·나이키·아디다스·뉴발란스·반스 → OHU SHOES / SNEAKERS · BOOTS (77355424821151), 7 JUNO HAIR·ABC-MART → OHU HAIR·OHU SHOES (81168164295826), 9 bhc·신선(설농탕) → OHU CHICKEN·오후설 (132058337151806), 10 BEER·세계맥주(술) → SODA · PLATE, 설농탕 → 렁탕 (95649203947356), 11 bhc 난간 글자 지움 (106495261705537). 플레이스 Decal 30개 교체(Workspace + ServerStorage 백업).
+- 글자 간판: GS25 편의점 → OH24 편의점, 하나투어 → 오후투어, ZERO 전자담배 → ZERO 폰케이스(전자담배는 연령 문제). TextLabel 211개(백업 포함). build_hongdae_layout.lua·shop_facades.ps1도 같게(치킨 & 호프 → 치킨 & 콜라).

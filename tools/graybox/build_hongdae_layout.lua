@@ -5267,9 +5267,9 @@ do
 	-- and stone facade, ground-floor shops). Walls only, nobody goes in.
 	local SHOPS = {
 		{ "보드게임카페", Color3.fromRGB(200, 40, 50) }, { "코인노래연습장", Color3.fromRGB(30, 30, 35) }, { "비스듬히", Color3.fromRGB(40, 40, 45) },
-		{ "하나투어", Color3.fromRGB(40, 50, 140) }, { "VELVET", Color3.fromRGB(35, 35, 40) }, { "ZERO 전자담배", Color3.fromRGB(240, 180, 20) },
+		{ "오후투어", Color3.fromRGB(40, 50, 140) }, { "VELVET", Color3.fromRGB(35, 35, 40) }, { "ZERO 폰케이스", Color3.fromRGB(240, 180, 20) },
 		{ "PASTA BAR", Color3.fromRGB(60, 60, 64) }, { "로라 헤어", Color3.fromRGB(245, 245, 245) }, { "경희 한의원 4F", Color3.fromRGB(40, 50, 120) },
-		{ "프라임에셋", Color3.fromRGB(245, 245, 250) }, { "GS25 편의점", Color3.fromRGB(30, 140, 220) }, { "한우 곱창 전골", Color3.fromRGB(150, 30, 30) },
+		{ "프라임에셋", Color3.fromRGB(245, 245, 250) }, { "OH24 편의점", Color3.fromRGB(30, 140, 220) }, { "한우 곱창 전골", Color3.fromRGB(150, 30, 30) },
 		{ "세무사 사무소", Color3.fromRGB(250, 250, 250) }, { "필라테스 3F", Color3.fromRGB(230, 120, 160) }, { "OHU 치과", Color3.fromRGB(60, 160, 140) },
 		{ "PC방 24시", Color3.fromRGB(20, 20, 25) }, { "파티룸 · 셀프 사진", Color3.fromRGB(245, 245, 245) }, { "내과 · 건강검진", Color3.fromRGB(250, 248, 240) },
 	}
@@ -5364,7 +5364,7 @@ do
 	-- They replace the separate fake buildings along the club side, the north
 	-- road's west side, both sides of the south lot and the towers east of 오후네컷.
 	-- (user 2026-10-27: their own pictures for slots 2, 4, 5 and 7, docs/04_ART/facades/facade_<n>_user.png)
-	local FACADES = { 119555605786938, 108505166753199, 131791880332218, 72400340486961, 98845538068616, 86941239410625, 133905773347734, 134862143501130 }
+	local FACADES = { 119555605786938, 103525678252089, 131791880332218, 77355424821151, 98845538068616, 86941239410625, 81168164295826, 134862143501130 }
 	-- (user 2026-10-30: their own pictures for slots 1, 3 and 6 too, facade_<n>_user.png)
 	-- (user 2026-10-30, later: the same pictures cleaned up, phone numbers
 	-- blurred, the window papers plain; were 82874826300770, 100132644185665, 88158426718188)
@@ -5374,7 +5374,7 @@ do
 	-- (user 2026-10-30) new pictures: 9 / 10 = the two halves of a bhc + 설농탕
 	-- building, 11 = its plain glass side, 12 = a grey tiled side with windows
 	-- (F9 cleaned up too, user 2026-10-30, later; was 115092286598069)
-	local F9, F10, F11, F12 = 129957945484608, 110896225910943, 103277497995975, 72442433508204
+	local F9, F10, F11, F12 = 132058337151806, 95649203947356, 106495261705537, 72442433508204
 	local facadeN = 0
 	-- panelTex[face][k] (k from 1 at the face's start) picks a panel's picture;
 	-- false leaves that panel out (a taller building stands in front of it)
