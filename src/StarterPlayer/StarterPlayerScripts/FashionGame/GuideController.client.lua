@@ -210,11 +210,12 @@ end)
 -- 길 안내 (waypoint)
 --------------------------------------------------
 
-local waypoint: { part: BasePart, beam: Beam, from: Attachment, label: TextLabel, place: GuideConfig.Place, untilTime: number }? = nil
+local waypoint: { part: BasePart, beam: Beam, from: Attachment, board: BillboardGui, label: TextButton, place: GuideConfig.Place, untilTime: number }? = nil
 local function clearWaypoint()
 	if waypoint then
 		waypoint.part:Destroy()
 		waypoint.from:Destroy()
+		waypoint.board:Destroy()
 		waypoint = nil
 	end
 end
@@ -234,13 +235,21 @@ local function guideTo(place: GuideConfig.Place)
 		Texture = "rbxasset://textures/particles/sparkles_main.dds", TextureMode = Enum.TextureMode.Wrap,
 		TextureLength = 3, TextureSpeed = 1.5, Segments = 20,
 	}, part)
-	local board = create("BillboardGui", { Size = UDim2.fromOffset(190, 54), StudsOffset = Vector3.new(0, 5, 0), AlwaysOnTop = true }, part)
-	local label = create("TextLabel", {
-		Size = UDim2.fromScale(1, 1), BackgroundColor3 = ORANGE, BackgroundTransparency = 0.1,
+	-- (D-747, user: a mistaken 길 안내 can be cancelled by tapping this sign:
+	-- a button, so the board lives in PlayerGui with the part as its Adornee —
+	-- a BillboardGui in Workspace takes no taps)
+	local board = create("BillboardGui", {
+		Name = "GuideWaypointSign", Adornee = part, Size = UDim2.fromOffset(200, 64), StudsOffset = Vector3.new(0, 5, 0),
+		AlwaysOnTop = true, Active = true, ResetOnSpawn = false,
+		LightInfluence = 0, -- (1 by default: black at night)
+	}, playerGui)
+	local label = create("TextButton", {
+		Size = UDim2.fromScale(1, 1), BackgroundColor3 = ORANGE, BackgroundTransparency = 0.1, AutoButtonColor = true,
 		Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = Color3.new(1, 1, 1), Text = "",
 	}, board)
 	corner(label, 14)
-	waypoint = { part = part, beam = beam, from = from, label = label, place = place, untilTime = os.clock() + GuideConfig.WaypointSeconds }
+	label.Activated:Connect(clearWaypoint)
+	waypoint = { part = part, beam = beam, from = from, board = board, label = label, place = place, untilTime = os.clock() + GuideConfig.WaypointSeconds }
 end
 RunService.Heartbeat:Connect(function()
 	local w = waypoint
@@ -251,7 +260,7 @@ RunService.Heartbeat:Connect(function()
 		if root then w.from.Parent = root else return end
 	end
 	local distance = (Vector3.new(root.Position.X, w.place.at.Y, root.Position.Z) - w.place.at).Magnitude
-	w.label.Text = string.format("%s %s · %dm", w.place.emoji, w.place.name, math.floor(distance + 0.5))
+	w.label.Text = string.format("%s %s · %dm\n✕ 눌러서 길 안내 취소", w.place.emoji, w.place.name, math.floor(distance + 0.5))
 	if distance < GuideConfig.ArriveDistance or os.clock() > w.untilTime then clearWaypoint() end
 end)
 

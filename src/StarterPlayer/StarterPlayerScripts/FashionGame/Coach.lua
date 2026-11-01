@@ -123,6 +123,18 @@ local rectOf = Spotlight.rectOf
 
 local finish: (boolean, boolean?) -> ()
 
+-- the next waiting tip that is still wanted (one seen meanwhile is dropped,
+-- not left blocking the ones behind it; D-747)
+local function runNext()
+	while #queue > 0 do
+		local nextRun = table.remove(queue, 1)
+		if Coach.wants(nextRun.key) then
+			task.defer(Coach.run, nextRun.key, nextRun.steps, nextRun.turn, nextRun.onEnd)
+			return
+		end
+	end
+end
+
 -- camera flights (as GuideController's tour)
 local TweenService = game:GetService("TweenService")
 local flight: Tween? = nil
@@ -230,8 +242,7 @@ finish = function(done: boolean, again: boolean?)
 	endHook = nil
 	if hook then pcall(hook) end
 	if not again then task.spawn(function() pcall(function() remote:InvokeServer("TipSeen", key) end) end) end
-	local nextRun = table.remove(queue, 1)
-	if nextRun then task.defer(Coach.run, nextRun.key, nextRun.steps, nextRun.turn, nextRun.onEnd) end
+	runNext()
 end
 
 nextButton.Activated:Connect(function()
@@ -300,16 +311,19 @@ end)
 -- (D-719) no tip over the place tour (seen in the 2P guard test: walking into
 -- the club during the tour put the club tip on top of the tour card). The
 -- place tips are checked again every few seconds, so they come after the tour.
+-- (D-747, user) a tip asked for during the tour waits in the queue and comes
+-- right after it (the 알바 tip once only fires as the shift starts).
 local held = false
 function Coach.hold(on: boolean)
 	held = on
+	if not on and not running then runNext() end
 end
 
 -- turn: the camera turns round at the end (D-729); onEnd: called when the
 -- tip ends, finished or skipped (D-731)
 function Coach.run(key: string, list: {Step}, turn: boolean?, onEnd: (() -> ())?)
-	if held or not Coach.wants(key) then return end
-	if running then
+	if not Coach.wants(key) then return end
+	if running or held then
 		if running ~= key then
 			for _, waiting in ipairs(queue) do if waiting.key == key then return end end
 			table.insert(queue, { key = key, steps = list, turn = turn, onEnd = onEnd })
