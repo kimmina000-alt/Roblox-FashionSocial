@@ -199,7 +199,8 @@ local function sellerView(): CFrame?
 	if not spot then return nil end
 	local stand = spot.CFrame * ClubConfig.ItemSellerOffset
 	local at = stand.Position + Vector3.new(0, 4, 0)
-	return CFrame.lookAt(at + stand.LookVector * 20 + Vector3.new(0, 7, 0), at - Vector3.new(0, 2, 0))
+	-- (aimed a little higher: on a phone the head was under the top bar, 2P test)
+	return CFrame.lookAt(at + stand.LookVector * 18 + Vector3.new(0, 5, 0), at + Vector3.new(0, 1.5, 0))
 end
 local function djView(): CFrame?
 	local spot = tagged("DJSpot")()

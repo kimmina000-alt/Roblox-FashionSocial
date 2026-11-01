@@ -1595,3 +1595,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자 요청(라이브 폰 스크린샷에 동그라미). 바 옆(BartenderSpot +8, 월드 76,-170) → 1층 북쪽 벽, VIP 계단 복도 문(x 110~124) 오른쪽 월드 약 (128, -270), 홀(남쪽)을 봄.
 - ClubConfig.ItemSellerOffset(BartenderSpot 기준 CFrame)을 DrinkService·ClubShopController·GuideTips가 함께 씀. 아이템 창은 판매원 기준 22, 바 메뉴는 바 기준 22에서 닫힘. 클럽 안내 '불꽃 판매원' 카메라와 문구("VIP 계단 복도 문 옆")도 바꿈.
 - Studio Play: 판매원 (128,-270) 남쪽을 봄, 프롬프트로 아이템 창 열림, 40 떨어지면 닫힘.
+- 모바일 2P: 판매원 안내 카메라를 조금 위로(18 앞, 5 위, 머리 위 1.5를 봄): 폰에서 머리가 상단 바에 가렸음. 2P 통과 후 사용자 요청대로 catalog-ui-redesign에 머지.

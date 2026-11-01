@@ -2994,3 +2994,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 사용자 표시(라이브 폰) → 이동 후(Studio Play)
 ![](images/2026-11-02/d750_item_seller_request.jpg) ![](images/2026-11-02/d750_item_seller_after.jpg)
 - 바 옆(76, -170) → 1층 북쪽 벽 VIP 계단 복도 문 오른쪽(128, -270), 홀 쪽을 봄. 아이템 창은 판매원에게서 22 이상 멀어지면 닫힘(바 메뉴는 바 기준 그대로). 클럽 안내 카메라·문구도 새 자리로.
+
+### 모바일 2P 테스트 → 머지 (feat/launch-prep-1102, D-741..D-750)
+Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
+![](images/2026-11-02/d750_2p_p2_itemshop.jpg) ![](images/2026-11-02/d750_2p_seller_tip_camera.jpg)
+- 폰 801×413 두 명. Player1(가드)·Player2(일반, 시계 22시)가 새 자리 판매원에게서 아이템 상점 열림, 바로 걸어가면 닫힘, 바텐더 음료 메뉴 정상. 판매원 안내 카메라는 폰에서 머리가 상단 바에 가려 조금 위로 겨눔. 스크립트 오류 없음(Studio DataStore 경고만) → catalog-ui-redesign에 머지.
