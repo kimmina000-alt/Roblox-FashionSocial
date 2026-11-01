@@ -2982,3 +2982,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 썸네일 모델 11명 (D-740)
 ![](images/2026-11-02/thumb_models_a01_a05_D740.jpg) ![](images/2026-11-02/thumb_models_a06_a11_D740.jpg)
+- 모바일 2P(폰 801×413): 12곡 플레이리스트, DJ 건너뛰기·곡 고르기(ECHOES OF THE BASS), EDM ON이 Player2에게도(노래와 겹쳐), 오류 없음 → catalog-ui-redesign에 머지.
