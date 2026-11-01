@@ -90,10 +90,18 @@ function ClubConfig.octaveParts(t: number): {number}
 	return list
 end
 
--- the name shown for a track: a 🎵 after it when its choreography is danced
--- (autoChoreo; Bubble Pop's older one is kept but not danced) (D-731)
-function ClubConfig.showTitle(track: Track): string
-	return track.title .. (if track.choreo and track.autoChoreo then " 🎵" else "")
+-- the name shown for a track: a 🎵 when its choreography is danced
+-- (autoChoreo; Bubble Pop's older one is kept but not danced) (D-731).
+-- (D-756, user: in front of the title and smaller) Rich text: the label needs
+-- RichText = true; textSize = the label's TextSize (the mark is 70 % of it).
+local function escape(s: string): string
+	return (s:gsub("&", "&amp;"):gsub("<", "&lt;"):gsub(">", "&gt;"))
+end
+ClubConfig.escapeRich = escape
+function ClubConfig.showTitle(track: Track, textSize: number?): string
+	local title = escape(track.title)
+	if not (track.choreo and track.autoChoreo) then return title end
+	return string.format('<font size="%d">🎵</font> %s', math.floor((textSize or 14) * 0.7 + 0.5), title)
 end
 
 -- how fast a track's audio runs: its own base speed (or its lab

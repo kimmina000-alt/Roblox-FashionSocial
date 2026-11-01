@@ -1623,3 +1623,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자 요청: "음원도 추가해라, 설정값은 마지막으로 저장해 놨던 값으로 다 적용". 로블록스 음악 12곡 뒤에 29곡: 예전 9곡(Bubble Pop 안무, Get A Guitar 자동 안무 🎵 그대로) + 새 20곡.
 - 모두 lab = ClubConfig.SavedLabs.userUpload(속도 1, 템포 0.335, 볼륨 10, 부스트 6, 옥타브 0.5, 저 -6 / 중 0.5 / 고 -7). length는 Studio에서 불러 잰 x1 길이(들리는 길이 = ÷ 0.335).
 - Studio Play: 곡 수 41, A2O LITE-NEON 재생 → 속도 0.335, 볼륨 10, EQ·피치 효과 붙음.
+- 설정값 메모: 사용자가 붙여 준 lab(템포 0.35, 부스트 2)은 그 뒤 템포 0.335(Get A Guitar 2분 40초에 맞춘 값)와 전체 부스트 6으로 바뀐 값이 마지막. 새 20곡에도 그 값(UP) 적용.
+
+## D-756 (2026-11-02) 안무 표시 🎵를 제목 앞에, 더 작게
+- 사용자 요청. ClubConfig.showTitle(track, textSize): `<font size="70%">🎵</font> 제목`(리치 텍스트, 제목·닉네임은 &<> 이스케이프). 상단 노래 배너, DJ 창 지금 곡·곡 목록·다음 곡 라벨에 RichText.
+- Studio Play: 배너 "♪ NOW PLAYING · K-POP · 🎵RIIZE-Get A Guitar"(🎵 9px, 글자 13px).

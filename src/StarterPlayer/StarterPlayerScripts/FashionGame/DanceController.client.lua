@@ -295,6 +295,7 @@ local banner = label({
 	BackgroundTransparency = 0.62, -- (0.35 until 2026-11-01: more see-through, user)
 	Text = "",
 	TextSize = 13,
+	RichText = true, -- (the smaller 🎵, D-756)
 	TextTruncate = Enum.TextTruncate.AtEnd,
 	Visible = false,
 }, gui)
@@ -1186,12 +1187,12 @@ local function syncMusic()
 		local at = FashionGame:GetAttribute("ClubMusicPausedAt")
 		music:Pause()
 		if typeof(at) == "number" then music.TimePosition = math.clamp(at, 0, math.max(music.TimeLength - 0.5, 0)) end
-		banner.Text = "⏸ PAUSED · " .. track.channel .. " · " .. ClubConfig.showTitle(track)
+		banner.Text = "⏸ PAUSED · " .. track.channel .. " · " .. ClubConfig.showTitle(track, banner.TextSize)
 		return
 	end
 	music.TimePosition = math.clamp((workspace:GetServerTimeNow() - start) * speed, 0, math.max(music.TimeLength - 0.5, 0))
 	if not music.IsPlaying then music:Play() end
-	banner.Text = "♪ NOW PLAYING · " .. track.channel .. " · " .. ClubConfig.showTitle(track) -- (🎵 = a choreography, D-731)
+	banner.Text = "♪ NOW PLAYING · " .. track.channel .. " · " .. ClubConfig.showTitle(track, banner.TextSize) -- (🎵 = a choreography, D-731)
 end
 FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubTrackStart"):Connect(function() task.spawn(syncMusic) end)
