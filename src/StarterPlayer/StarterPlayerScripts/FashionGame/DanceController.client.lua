@@ -487,6 +487,8 @@ layoutPanel()
 if workspace.CurrentCamera then
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(layoutPanel)
 end
+-- (D-729: the top row's height can change after this ran)
+require(script.Parent:WaitForChild("TopBar")).BottomChanged:Connect(layoutPanel)
 
 --------------------------------------------------
 -- Dance state (local view)

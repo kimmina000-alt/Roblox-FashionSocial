@@ -2952,3 +2952,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 의견 보내기 · Get A Guitar 안무 (D-725, D-726)
 ![](images/2026-11-01/feedback_D725.jpg) ![](images/2026-11-01/guitar_choreo_D726.jpg)
+
+### 노래 띠 위치 · 클럽 안내 뒤 방향 (D-729)
+![](images/2026-11-01/club_tip_banner_top_D729.jpg) ![](images/2026-11-01/club_tip_skip_turned_D729.jpg)

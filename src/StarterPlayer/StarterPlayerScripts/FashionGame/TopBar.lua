@@ -37,6 +37,10 @@ local MENU: {[number]: number} = {}
 local ROUND = { [1] = true, [2] = true, [3] = true, [4] = true } -- styled like ♥ here
 local LINE_GAP = 8 -- between two rows
 local rowsBottom = 0 -- bottom edge of the last row (TopBar.bottom)
+-- fired when TopBar.bottom() moves (a second row comes or goes): windows that
+-- stay on screen lay themselves out again (D-729)
+local bottomChanged = Instance.new("BindableEvent")
+TopBar.BottomChanged = bottomChanged.Event
 
 local entries: {{ button: GuiObject, order: number }} = {}
 local open = false
@@ -116,6 +120,11 @@ layout = function()
 	local screenW = if camera then camera.ViewportSize.X else 1000
 	local inset = GuiService.TopbarInset
 	local leftLimit = if inset.Height > 0 and inset.Min.X > 0 then inset.Min.X + 8 else 160
+	-- (D-729) the screen is not measured yet at the very start (1 px wide):
+	-- that put every button on its own row and the club's song banner, laid
+	-- out under TopBar.bottom() then, in the middle of the screen
+	if screenW < 300 then leftLimit = -math.huge end
+	local oldBottom = rowsBottom
 	local x = rightX
 	local y = centerY
 	local inRow = 0
@@ -142,6 +151,7 @@ layout = function()
 		x -= w + gapLeft
 		inRow += 1
 	end
+	if rowsBottom ~= oldBottom then bottomChanged:Fire() end
 	-- menu below ⋯
 	local items = sorted(MENU)
 	local top = centerY + SMALL / 2 + 6

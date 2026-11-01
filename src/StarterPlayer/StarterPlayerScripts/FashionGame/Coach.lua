@@ -107,7 +107,10 @@ function Coach.wants(key: string): boolean
 end
 
 local running: string? = nil
-local queue: {{ key: string, steps: {Step} }} = {}
+local queue: {{ key: string, steps: {Step}, turn: boolean? }} = {}
+-- (D-729) the camera turns round when this tip ends: the club tip leaves the
+-- camera facing the way its first view looked (at the lift, from the door)
+local turnAtEnd = false
 local steps: {Step} = {}
 local index = 0
 local target: any = nil
@@ -205,10 +208,26 @@ finish = function(done: boolean, again: boolean?)
 	Spotlight.set(nil)
 	markBox.Adornee = nil
 	markBox.Visible = false
+	local wasFlown = flown
 	cameraBack()
+	if turnAtEnd and wasFlown then
+		turnAtEnd = false
+		-- half a turn round the character (the player's camera keeps the new way)
+		local camera = workspace.CurrentCamera
+		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if camera and root then
+			local look = Vector3.new(camera.CFrame.LookVector.X, 0, camera.CFrame.LookVector.Z)
+			if look.Magnitude > 0.01 then
+				local away = -look.Unit
+				local head = root.Position + Vector3.new(0, 2, 0)
+				camera.CFrame = CFrame.lookAt(head - away * 12 + Vector3.new(0, 4, 0), head)
+			end
+		end
+	end
+	turnAtEnd = false
 	if not again then task.spawn(function() pcall(function() remote:InvokeServer("TipSeen", key) end) end) end
 	local nextRun = table.remove(queue, 1)
-	if nextRun then task.defer(Coach.run, nextRun.key, nextRun.steps) end
+	if nextRun then task.defer(Coach.run, nextRun.key, nextRun.steps, nextRun.turn) end
 end
 
 nextButton.Activated:Connect(function()
@@ -282,16 +301,18 @@ function Coach.hold(on: boolean)
 	held = on
 end
 
-function Coach.run(key: string, list: {Step})
+-- turn: the camera turns round at the end (D-729)
+function Coach.run(key: string, list: {Step}, turn: boolean?)
 	if held or not Coach.wants(key) then return end
 	if running then
 		if running ~= key then
 			for _, waiting in ipairs(queue) do if waiting.key == key then return end end
-			table.insert(queue, { key = key, steps = list })
+			table.insert(queue, { key = key, steps = list, turn = turn })
 		end
 		return
 	end
 	running = key
+	turnAtEnd = turn == true
 	player:SetAttribute("GuideActive", true) -- (louder ambience, SfxController)
 	steps = table.clone(list)
 	index = 1

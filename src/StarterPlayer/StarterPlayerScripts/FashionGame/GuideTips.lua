@@ -374,7 +374,7 @@ function GuideTips.start()
 					and player:GetAttribute("TutorialDone") == true then
 					Coach.run("feedbackAsk", FEEDBACK_ASK)
 				elseif Coach.wants("club") and ClubConfig.isInClub(root.Position) then
-					Coach.run("club", CLUB)
+					Coach.run("club", CLUB, true) -- (D-729: then facing away from the lift)
 				elseif Coach.wants("photo") and (function()
 					-- inside the 오후네컷 building (Hongdae_Layout.OhuFourCuts), under its roof
 					local layout = workspace:FindFirstChild("Hongdae_Layout")
