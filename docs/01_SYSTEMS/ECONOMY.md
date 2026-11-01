@@ -69,5 +69,5 @@
 
 ## 12. 오픈 기념 코인 (사용자 2026-11-02, D-754)
 
-- 오픈 기간에만 첫 접속 때 한 번 100 코인(`EconomyConfig.WelcomeCoins`, `wallet.welcome`). 기간이 끝나면 nil로.
+- 오픈 기간에만 첫 접속 때 한 번 50 코인(D-758, 처음엔 100; `EconomyConfig.WelcomeCoins`, `wallet.welcome`). 기간이 끝나면 nil로.
 - 예전 테스트 값(D-418, `TestStartCoins`: 접속할 때마다 100 아래면 100으로 채움)은 없앴어요.

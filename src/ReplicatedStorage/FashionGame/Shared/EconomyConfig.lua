@@ -17,7 +17,7 @@ EconomyConfig.MaxBalance = 99999
 -- once, on their first visit. Only for the opening period: set it to nil when
 -- the period ends (docs/00_PROJECT/LAUNCH_CHECKLIST.md). It replaced the
 -- testing top-up (D-418), which put anyone under 100 back at 100 on every visit.
-EconomyConfig.WelcomeCoins = 100
+EconomyConfig.WelcomeCoins = 50 -- (100 until D-758, user: not much to spend coins on yet)
 
 -- Economy v2, first test (user, 2026-10-22; ECONOMY.md, D-074/D-083):
 -- 1 coin per minute online, whether the player moves or not, no daily cap,
