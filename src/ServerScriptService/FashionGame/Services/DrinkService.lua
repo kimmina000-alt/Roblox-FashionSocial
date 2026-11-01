@@ -81,6 +81,11 @@ local function drinkLook(drink: ClubConfig.Drink, variantKey: any): (string, Col
 	return drink.name, drink.color, nil
 end
 
+-- the bar's tier-1 drinks are cans (D-732, user 2026-11-01: the slot said 병)
+local function containerName(drink: ClubConfig.Drink): string
+	return if drink.tier == 1 then "캔" else "병"
+end
+
 local function isVip(player: Player): boolean
 	return MonetizationService.HasPass(player, "VIP")
 end
@@ -97,9 +102,9 @@ local function giveBottle(player: Player, drinkKey: string, servings: number?, v
 	local name, color, variant = drinkLook(drink, variantKey)
 	local cups = math.clamp(servings or ClubConfig.BottleServings, 1, ClubConfig.BottleServings)
 	local tool = Instance.new("Tool")
-	tool.Name = string.format("병 · %s (%d/%d)", name, cups, ClubConfig.BottleServings)
-	tool.ToolTip = if drink.tier == 1 and not isVip(player)
-		then "테이블을 누르면 올려놓기 · 다른 곳을 누르면 병째 마시기"
+	tool.Name = string.format("%s · %s (%d/%d)", containerName(drink), name, cups, ClubConfig.BottleServings)
+	tool.ToolTip = if drink.tier == 1
+		then "테이블을 누르면 올려놓기 · 다른 곳을 누르면 캔째 마시기"
 		else "손에 들고 테이블을 누르면 버킷으로 올라가요"
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
@@ -118,7 +123,7 @@ local function giveBottle(player: Player, drinkKey: string, servings: number?, v
 	BottleShapes.add(tool, handle.CFrame * CFrame.new(0, -0.9, 0), drink.key, color, scale, handle)
 	tool.Grip = CFrame.new(0, -0.3, 0)
 	tool.Parent = backpack
-	return true, name .. " 병을 받았어요! 테이블에 놓고 함께 마셔요."
+	return true, name .. " " .. containerName(drink) .. "을 받았어요! 테이블에 놓고 함께 마셔요."
 end
 DrinkService.GiveBottle = giveBottle
 
@@ -695,7 +700,7 @@ local function swig(player: Player): (boolean, string?)
 	local name = drinkLook(drink, tool:GetAttribute("Variant"))
 	tool:SetAttribute("Servings", left)
 	tool:SetAttribute("Drinking", nil)
-	tool.Name = string.format("병 · %s (%d/%d)", name, left, ClubConfig.BottleServings)
+	tool.Name = string.format("%s · %s (%d/%d)", containerName(drink), name, left, ClubConfig.BottleServings)
 	return true, nil
 end
 
