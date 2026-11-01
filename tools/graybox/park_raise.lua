@@ -91,6 +91,9 @@ do
 	if boundary then
 		for _, w in ipairs(boundary:GetChildren()) do
 			if w:IsA("BasePart") and w.Name == "BoundaryWall" then
+				-- (it moved twice in a day, most likely dragged by a click in the 3D
+				-- view: locked walls cannot be picked in Studio)
+				w.Locked = true
 				local look = w.CFrame.LookVector
 				local square = math.abs(look.X) > 0.999 or math.abs(look.Z) > 0.999
 				if not square or math.abs(w.Position.Y - 55) > 0.5 then

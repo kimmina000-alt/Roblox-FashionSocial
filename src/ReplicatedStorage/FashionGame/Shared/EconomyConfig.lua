@@ -13,9 +13,11 @@ local EconomyConfig = {}
 EconomyConfig.CurrencyName = "코인"
 EconomyConfig.Icon = "💰" -- 🪙 is not in the Roblox font (shows a box)
 EconomyConfig.MaxBalance = 99999
--- TEMPORARY while testing (user 2026-10-27, D-418): a player with fewer coins
--- starts the session with this many. Set to nil when the game is finished.
-EconomyConfig.TestStartCoins = 100
+-- Opening gift (user 2026-11-02, D-754): every player gets this many coins
+-- once, on their first visit. Only for the opening period: set it to nil when
+-- the period ends (docs/00_PROJECT/LAUNCH_CHECKLIST.md). It replaced the
+-- testing top-up (D-418), which put anyone under 100 back at 100 on every visit.
+EconomyConfig.WelcomeCoins = 100
 
 -- Economy v2, first test (user, 2026-10-22; ECONOMY.md, D-074/D-083):
 -- 1 coin per minute online, whether the player moves or not, no daily cap,

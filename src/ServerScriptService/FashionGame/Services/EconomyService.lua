@@ -265,10 +265,15 @@ function EconomyService.Start(dataService: any)
 	playerData = dataService
 	local function onPlayer(player: Player)
 		task.spawn(function()
-			local start = EconomyConfig.TestStartCoins
-			if start and wallet(player).coins < start then
-				wallet(player).coins = start
+			-- (D-754) the opening gift: once per player, on the first visit while
+			-- EconomyConfig.WelcomeCoins is set (wallet.welcome remembers it)
+			local gift = EconomyConfig.WelcomeCoins
+			local w = wallet(player)
+			if gift and not w.welcome then
+				w.welcome = true
+				w.coins = math.min(EconomyConfig.MaxBalance, (w.coins or 0) + gift)
 				playerData.MarkDirty(player)
+				task.delay(8, toast, player, string.format("🎉 오픈 기념 %d 코인을 드렸어요!", gift))
 			end
 			publish(player)
 			-- the saved XP on the name tag from the start (it grows once a minute)

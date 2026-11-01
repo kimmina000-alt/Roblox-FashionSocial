@@ -1873,7 +1873,10 @@ do
 				end
 			end
 		end
-		workspace.Terrain:FillBlock(CFrame.new(-368, -9.5, -150), Vector3.new(92, 13, 92), Enum.Material.Water)
+		-- (D-753, user: a square in the sea) up to y -4 like the rest of the sea:
+		-- 13 high (to -3) left a quarter cell of water in the y -4..0 layer, the
+		-- old dome's square one stud above the sea round it
+		workspace.Terrain:FillBlock(CFrame.new(-368, -10, -150), Vector3.new(92, 12, 92), Enum.Material.Water)
 		-- the beach cafe's 물멍 pool holds the same terrain water as the sea (user 2026-10-24)
 		-- one whole 4-stud cell layer, y -4..0, in the closed basin under the cafe
 		-- floor: surface at y 0, below the floor top (0.6). Since layout v8 the
@@ -5221,6 +5224,7 @@ do
 		local w = part("BoundaryWall", Vector3.new(2, 150, (pb - pa).Magnitude + 2), CFrame.lookAt(mid, mid + (pb - pa)), Color3.new(1, 1, 1), { parent = B, transparency = 1 })
 		w.CanQuery = false -- the camera does not bump into it
 		w.CanTouch = false
+		w.Locked = true -- (D-751) not picked or dragged by a click in Studio
 		w.CastShadow = false
 	end
 
