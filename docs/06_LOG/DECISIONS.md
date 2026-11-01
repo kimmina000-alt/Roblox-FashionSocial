@@ -1559,3 +1559,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-741 (2026-11-02) 런칭 체크리스트
 - 사용자: 머지 → 런칭 체크리스트 → 메인 썸네일 순서로 진행. docs/00_PROJECT/LAUNCH_CHECKLIST.md(코드 확인 끝, Studio·대시보드·썸네일·라이브 확인 할 일). dashboard_icons/README.md 가격 고침(가드 399, DJ 49).
+
+## D-742 (2026-11-02) 메인 썸네일 시안
+- 클럽 댄스 플로어(DJ 부스 앞)에 모델 4명(A10 고딕, A06 고양이 헬멧, A01 파스텔, A03 블랙핑크), 클럽 춤 애니메이션, 밤 + 조명·레이저, LED 벽은 비주얼라이저, 얼굴 쪽 보조 조명(Play 중에만). tools/thumbnail/compose_thumb.ps1: 1920×1080, 위아래 어둡게, '오후' 핑크 네온 + 'OHU · CLUB & FASHION' 시안 + '춤추고 · 꾸미고 · 같이 놀자!'. 스크립트는 BOM 있는 UTF-8(PowerShell 5.1이 한글을 깨뜨림), 글자 경로 FillMode Winding(겹친 획 구멍). 첫 시안은 폰 화면 크기 촬영이라 흐림 → 큰 화면으로 다시 찍을 예정. docs/04_ART/thumbnails/.
