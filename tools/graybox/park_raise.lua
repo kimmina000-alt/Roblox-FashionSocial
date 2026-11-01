@@ -13,7 +13,8 @@
 --   (user 2026-11-01: first 32 high with a steep 19-stud stair; then half the
 --     height, 16, and the stair drawn out from the red line, D-697; then flat
 --     ground before the gate instead of the banks, handrails higher than the
---     stair, and the park's far walls along the roads raised too, D-698)
+--     stair, and the park's far walls along the roads raised too, D-698; then no
+--     railings: taller stone walls instead, and the main road's sidewalk carried on, D-699)
 --   MODE "undo": every moved part goes back down (attribute ParkRaised) and the
 --     new pieces (folder Hongdae_Layout.ParkRaise) are removed.
 -- Running "raise" twice does nothing the second time (attribute on Hongdae_Layout).
@@ -26,7 +27,7 @@ local GATE_FRONT = -215 -- the gate's booths, letters and towers reach to z -216
 local LANDING_Z = -216 -- the landing in front of the gate: z -229 … -216
 local STAIR_Z, STAIR_Y = -172, -2 -- the stair's foot: the round plaza's walk, on the red line
 local BANK_Z = -201 -- the front of the flat ground before the gate (the wooden decks reach z -200)
-local RAIL_H = 3.5 -- the stair's handrails stand this high over the steps
+local WALL_H = 3.5 -- the stair's side walls and the forecourt's parapet stand this high over the walking level
 local STAIR_X0, STAIR_X1 = -114.5, -79.5
 local L = workspace:FindFirstChild("Hongdae_Layout")
 assert(L, "Hongdae_Layout missing")
@@ -131,70 +132,49 @@ for k = 1, steps do
 	local zFront = STAIR_Z - (k - 1) * run
 	block("ParkRaiseStep", STAIR_X0, STAIR_Y - 1, zFront, STAIR_X1, STAIR_Y + k, LANDING_Z, if k % 2 == 0 then PAVE else STONE, Enum.Material.Slate)
 end
--- stair cheeks (low stone walls along both sides of the stair)
+-- (user 2026-11-01, D-698) flat ground before the gate instead of the grass
+-- banks: both sides of the stair are level with the gate from z BANK_Z on, a
+-- stone retaining face to the plaza; the stair climbs between them
+for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
+	block("ParkForecourt", span[1], 0, BANK_Z, span[2], RAISE, LANDING_Z, STONE, Enum.Material.Slate)
+	block("ParkForecourtPaving", span[1], RAISE, BANK_Z, span[2], RAISE + 0.08, LANDING_Z, PAVE, Enum.Material.Slate)
+	-- (user 2026-11-01, D-699: no railings, the wall itself goes up) a stone
+	-- parapet along its front edge, WALL_H over the ground
+	block("ParkForecourtParapet", span[1], RAISE, BANK_Z, span[2], RAISE + WALL_H, BANK_Z - 1.2, STONE, Enum.Material.Slate)
+end
+-- the stair's side walls (D-699: taller, in place of the handrails): a stone
+-- wall from the plaza up to WALL_H over the steps all along, a box for its
+-- lower part and a wedge for the slope on top
 for _, x in ipairs({ STAIR_X0, STAIR_X1 }) do
+	block("ParkStairWall", x - 0.6, STAIR_Y - 1, STAIR_Z, x + 0.6, STAIR_Y + WALL_H, LANDING_Z, STONE, Enum.Material.Slate)
 	local w = Instance.new("WedgePart")
-	w.Name = "ParkStairCheek"
+	w.Name = "ParkStairWall"
 	w.Anchored = true
-	w.Size = Vector3.new(1.2, steps + 1.5, STAIR_Z - LANDING_Z)
+	w.Size = Vector3.new(1.2, steps, STAIR_Z - LANDING_Z)
 	-- rising toward -Z (the gate): a wedge rises toward its +Z face, so turn it round
-	w.CFrame = CFrame.new(x, STAIR_Y + (steps + 1.5) / 2, (STAIR_Z + LANDING_Z) / 2) * CFrame.Angles(0, math.pi, 0)
+	w.CFrame = CFrame.new(x, STAIR_Y + WALL_H + steps / 2, (STAIR_Z + LANDING_Z) / 2) * CFrame.Angles(0, math.pi, 0)
 	w.Color = STONE
 	w.Material = Enum.Material.Slate
 	w.Parent = F
 end
--- (user 2026-11-01, D-698) flat ground before the gate instead of the grass
--- banks: both sides of the stair are level with the gate from z BANK_Z on, a
--- stone retaining face to the plaza; the stair climbs between them
-local RAIL = Color3.fromRGB(45, 45, 52)
-local function rail(name, a: Vector3, b: Vector3, thick)
-	local p = Instance.new("Part")
-	p.Name = name
-	p.Anchored = true
-	p.Size = Vector3.new(thick, thick, (b - a).Magnitude)
-	p.CFrame = CFrame.lookAt((a + b) / 2, b)
-	p.Color = RAIL
-	p.Material = Enum.Material.Metal
-	p.Parent = F
-	return p
-end
-local function post(x, y0, z, h)
-	return block("ParkRailPost", x - 0.15, y0, z - 0.15, x + 0.15, y0 + h, z + 0.15, RAIL, Enum.Material.Metal)
-end
-for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
-	block("ParkForecourt", span[1], 0, BANK_Z, span[2], RAISE, LANDING_Z, STONE, Enum.Material.Slate)
-	block("ParkForecourtPaving", span[1], RAISE, BANK_Z, span[2], RAISE + 0.08, LANDING_Z, PAVE, Enum.Material.Slate)
-	-- a railing along its front edge, so nobody walks off the 16-stud drop
-	local zEdge = BANK_Z + 0.4
-	rail("ParkRailTop", Vector3.new(span[1], RAISE + RAIL_H, zEdge), Vector3.new(span[2], RAISE + RAIL_H, zEdge), 0.3)
-	rail("ParkRailMid", Vector3.new(span[1], RAISE + RAIL_H / 2, zEdge), Vector3.new(span[2], RAISE + RAIL_H / 2, zEdge), 0.2)
-	local n = math.max(1, math.floor((span[2] - span[1]) / 4))
-	for i = 0, n do post(span[1] + (span[2] - span[1]) * i / n, RAISE, zEdge, RAIL_H) end
-	-- (Play test: a character stepped over the thin rails) an invisible wall behind them
-	local wall = block("ParkRailCollide", span[1], RAISE, zEdge - 0.3, span[2], RAISE + 5, zEdge + 0.3, RAIL)
-	wall.Transparency = 1
-	wall.CanQuery = false
-end
--- handrails along both sides of the stair, RAIL_H over the steps (higher than
--- the stair, user 2026-11-01); where the stair runs between the flat ground
--- they stand on its edge at the same height over the steps
-local function stepTop(z) -- the stair's walking height at z
-	return STAIR_Y + math.clamp((STAIR_Z - z) / run, 0, steps)
-end
-for _, x in ipairs({ STAIR_X0 - 0.2, STAIR_X1 + 0.2 }) do
-	local za, zb = STAIR_Z - 0.5, LANDING_Z
-	local a = Vector3.new(x, stepTop(za) + RAIL_H, za)
-	local b = Vector3.new(x, stepTop(zb) + RAIL_H, zb)
-	rail("ParkStairRail", a, b, 0.3)
-	rail("ParkStairRailMid", a - Vector3.new(0, RAIL_H / 2, 0), b - Vector3.new(0, RAIL_H / 2, 0), 0.2)
-	local n = math.floor((za - zb) / 4)
-	for i = 0, n do
-		local z = za - (za - zb) * i / n
-		local base = math.max(stepTop(z), if z < BANK_Z then STAIR_Y else STAIR_Y)
-		post(x, base - 0.5, z, stepTop(z) - base + 0.5 + RAIL_H)
+-- (user 2026-11-01, D-699) the sidewalk along the main road stopped at z -479:
+-- north of it bare ground lay between the park's stone base and the road's
+-- sidewalk. The same sidewalk, carried on to the map's end.
+do
+	local src
+	for _, p in ipairs(L:GetChildren()) do
+		if p:IsA("BasePart") and p.Name == "Sidewalk" and math.abs(p.Position.X - -40.5) < 1 and p.Position.Z < -200 then src = p end
 	end
-end
--- the park's walls north along the roads: a stone base under them, so they
+	if src then
+		local s = src:Clone()
+		s.Name = "ParkSidewalkNorth"
+		local z0, z1 = NZ0, src.Position.Z - src.Size.Z / 2
+		local x0, x1 = X1, src.Position.X + src.Size.X / 2
+		s.Size = Vector3.new(x1 - x0, src.Size.Y, z1 - z0)
+		s.CFrame = CFrame.new((x0 + x1) / 2, src.Position.Y, (z0 + z1) / 2)
+		s.Parent = F
+	end
+end-- the park's walls north along the roads: a stone base under them, so they
 -- don't float (the ground there is out of reach)
 block("ParkPlatformNorth", NX0, 0, NZ0, NX1, RAISE, NZ1, STONE, Enum.Material.Slate)
 F.Parent = L

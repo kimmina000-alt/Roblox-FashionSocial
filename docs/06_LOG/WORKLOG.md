@@ -2859,3 +2859,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 놀이공원 앞 부지, 난간, 북쪽 담 (D-698)
 ![](images/2026-11-01/park_forecourt.jpg) ![](images/2026-11-01/park_north_wall.jpg)
+
+### 돌벽, 인도 잇기 (D-699)
+![](images/2026-11-01/park_stair_walls.jpg) ![](images/2026-11-01/park_sidewalk_north.jpg)
