@@ -56,7 +56,8 @@ PlayerDataService.MaxPhotos = PhotoConfig.MaxPhotos
 export type JobRecord = { xp: number, served: number, cleaned: number }
 -- boost = seconds of the bought "1시간 코인 x2 부스트" left, counted while online (D-278)
 -- hair = the player's hair offsets by asset id (HairFit.toSaved form, D-705)
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}} }
+-- tutorial = the first-visit tour was seen or skipped (GuideService, D-712)
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -131,9 +132,10 @@ local function sanitizePhotos(list: any): {any}
 end
 
 local function sanitizeWallet(raw: any): Wallet
-	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} }, jobs = {}, boost = 0, hair = {} }
+	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} }, jobs = {}, boost = 0, hair = {}, tutorial = false }
 	if typeof(raw) ~= "table" then return wallet end
 	wallet.hair = HairFit.toSaved(HairFit.fromSaved(raw.hair))
+	wallet.tutorial = raw.tutorial == true
 	if typeof(raw.boost) == "number" and raw.boost == raw.boost then
 		wallet.boost = math.clamp(math.floor(raw.boost), 0, 100 * 3600)
 	end

@@ -86,6 +86,10 @@ do
 		if item.kind ~= Enum.AccessoryType.Jacket then table.insert(seller.layered, item) end
 	end
 	NpcLooks.Looks.ItemSeller = seller
+	-- the guide by the ranking boards (D-712): the bartender's look, hands free
+	local guide = table.clone(NpcLooks.Looks.Bartender)
+	guide.holds = nil
+	NpcLooks.Looks.Guide = guide
 end
 
 function NpcLooks.describe(key: string): HumanoidDescription?

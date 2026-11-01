@@ -1376,3 +1376,10 @@ Studio Play 확인: 실제 헤어 위치(머리 기준 y 0.383)와 미리보기 
 - SnackMenuArt.suyuk = 123327521135180 (docs/04_ART/shop_photos/gukbap_suyuk_top_square.png, 위에서 찍은 512×512, Vantablack_Dev 업로드). 이전 86722270080544.
 - (D-711 고침) 주문 창 카드는 SnackMenuArt.Icons가 아니라 FoodPreviews의 3D 모델을 그리고 있어서 사진이 안 바뀌었음. SnackMenuArt.Photos(게임에서 찍은 사진)를 새로 두고, 있으면 ShopMenuUI가 카드의 그림 자리에 그 사진(ImageLabel, Crop)을 씀: suyuk = 123327521135180. Icons의 suyuk은 원래 값으로 되돌림. Studio Play: 국밥집 곁들임 탭의 수육 카드에 사진이 뜸.
 - (D-711, 2) 사용자: 가운데 투명한 네모가 뭔지, 누끼 딴 사진으로. 네모는 사진이 없을 때 그리는 기본 컵 그림(NeonShopUI drinkIcon의 Glass)이 사진 위로 비친 것: 사진이 있으면 그 칸의 컵 그림을 숨기고 칸 배경만 둠. 사진은 접시만 타원으로 오려 낸 투명 배경 PNG(docs/04_ART/shop_photos/gukbap_suyuk_cutout.png, 98888580171981), ScaleType Fit. Studio Play에서 확인.
+
+## D-712 (2026-11-01) 첫 접속 튜토리얼, 순위표 옆 안내원 NPC(무물)
+- 사용자: 처음 접속한 사람에게 어디에 뭐가 있는지 알려 주는 튜토리얼(스킵 가능). 순위표 옆에 NPC를 세워 무슨 기능이 어디 있는지 물어보는 기능.
+- Shared/GuideConfig: 장소 10곳(광장, 클럽, 오후네컷, 국밥집, OH24, 비치 카페, 해변, 광화문·한옥, OHU LAND, 순위표·안내원 — 이름·한 줄 설명·위치·카메라 시점), 투어 순서, 질문 13개(답 + 보여 줄 장소, 마지막은 "동네 둘러보기 다시 보기").
+- 튜토리얼(GuideController): 아래 카드(장소 이름·설명·n/11, [건너뛰기] [다음 ▶]), 단계마다 카메라가 그 장소로 날아감(RequestStreamAroundAsync로 먼저 불러옴), 마지막 "준비 끝!" 후 카메라가 돌아옴. 끝내거나 건너뛰면 서버 GuideService가 wallet.tutorial = true로 저장 → 다음 접속부터 안 나옴(속성 TutorialDone).
+- 안내원(GuideService): 바텐더 모습(NpcLooks.Guide, 손에 아무것도 없음)으로 기부·레벨 순위표 사이(-121, -70.5)에 서고, 머리 위 ? 표시, 프롬프트 "무엇이든 물어보세요". 질문을 누르면 답 + [👀 보여 주기](카메라가 4초 그 장소를 보여 주고 돌아옴) / [📍 길 안내](장소 위에 이름·남은 거리 표시 + 플레이어에서 그곳까지 주황 빛줄기, 도착하거나 90초 뒤 사라짐).
+- Studio Play: 처음 접속 시 카드 뜸, 11단계 모두 넘김(장소 화면 확인, OH24·광화문은 eye 시점 지정), 건너뛰기 → TutorialDone true, 안내원 창·답·길 안내(비치 카페 355m) 동작, 오류 없음.

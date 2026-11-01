@@ -17,6 +17,7 @@ local PlayerDataService = require(
 )
 PlayerDataService.Start()
 require(script.Parent.Services.HairFitService).Start(PlayerDataService)
+require(script.Parent.Services.GuideService).Start(PlayerDataService)
 local MonetizationService = require(script.Parent.Services.MonetizationService)
 local DjService = require(script.Parent.Services.DjService)
 local ClubAccessService = require(script.Parent.Services.ClubAccessService)
