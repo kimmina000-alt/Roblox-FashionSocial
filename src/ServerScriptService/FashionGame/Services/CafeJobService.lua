@@ -659,6 +659,9 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 		return false, "카운터 안쪽 작업대에서 시작해 주세요."
 	end
 	if staff[player] == shopKey then return true, nil end
+	-- (D-715) staff cannot sit: not from a seat or a ride
+	local seated = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if seated and seated.SeatPart then return false, "자리에서 일어난 뒤 알바를 시작해 주세요." end
 	if staff[player] then stopWork(player, nil) end
 	for _, order in pairs(orders) do
 		if order.kind == "player" and order.userId == player.UserId then

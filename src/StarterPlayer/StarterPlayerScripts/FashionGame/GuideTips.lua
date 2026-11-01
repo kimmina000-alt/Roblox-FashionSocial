@@ -10,6 +10,8 @@
 --   club     the first time in the club
 --   cafe     the first time at the beach cafe
 --   job      the first 알바 shift
+--   photo    the first time in 오후네컷 (D-715)
+-- Place tips fly the camera to each thing they talk about (D-715).
 -- GuideController calls GuideTips.hud() at the end of the tour and
 -- GuideTips.start() once.
 
@@ -46,8 +48,16 @@ end
 -- The screen
 --------------------------------------------------
 
+-- (D-715, user: right after "준비 끝" the menu button first)
 local HUD: {Coach.Step} = {
-	{ title = "📱 화면 둘러보기", text = "이제 화면에 있는 버튼들을 알려 드릴게요. 필요 없으면 [건너뛰기]를 눌러요." },
+	{ title = "메뉴 버튼", text = "오른쪽 위 이 버튼을 누르면 버튼이 더 나와요.", target = function() return TopBar.button(20) end },
+	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.",
+		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(4) end },
+	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.",
+		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(3) end },
+	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽 안에서는 화면 왼쪽에도 ♪ 버튼이 나와요.",
+		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(1) end,
+		after = function() TopBar.setOpen(false) end },
 	{ title = "왼쪽 위 · Roblox 버튼", text = "Roblox 기본 버튼이에요. 메뉴(설정·나가기), 채팅, 음성 채팅을 여기서 켜고 꺼요.",
 		target = function()
 			local inset = GuiService.TopbarInset
@@ -60,14 +70,6 @@ local HUD: {Coach.Step} = {
 		target = find("FashionHudGui", "CoinPill") },
 	{ title = "♥ 후원", text = "Robux로 오후를 후원하는 버튼이에요. 후원하면 화면 위 배너와 순위표·전광판에 이름과 메시지가 올라가요.",
 		target = function() return TopBar.button(5) end },
-	{ title = "메뉴 버튼", text = "이 버튼을 누르면 버튼이 더 나와요.", target = function() return TopBar.button(20) end },
-	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.",
-		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(4) end },
-	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.",
-		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(3) end },
-	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽 안에서는 화면 왼쪽에도 ♪ 버튼이 나와요.",
-		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(1) end,
-		after = function() TopBar.setOpen(false) end },
 }
 
 function GuideTips.hud()
@@ -112,35 +114,153 @@ local DANCE: {Coach.Step} = {
 -- Places
 --------------------------------------------------
 
+-- (D-715, user: every place tip flies the camera to what it talks about, like
+-- the place tour.) Camera helper: a view of a tagged / found part (the
+-- nearest to the player), `back` studs out from it toward the player (or
+-- along its LookVector) and `up` above.
+-- (parts or models: the photo booths are models)
+local function cframeOf(i: Instance): CFrame?
+	if i:IsA("BasePart") then return i.CFrame end
+	if i:IsA("Model") then return i:GetPivot() end
+	return nil
+end
+local function nearest(list: {Instance}): Instance?
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local best, bestD = nil, math.huge
+	for _, i in ipairs(list) do
+		local cf = cframeOf(i)
+		if cf and i:IsDescendantOf(workspace) then
+			local d = if root then (cf.Position - root.Position).Magnitude else 0
+			if d < bestD then best, bestD = i, d end
+		end
+	end
+	return best
+end
+local function viewOfPart(get: () -> Instance?, back: number, up: number, useFront: boolean?): () -> CFrame?
+	return function()
+		local thing = get()
+		local cf = thing and cframeOf(thing)
+		if not cf then return nil end
+		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		local away = if useFront then cf.LookVector
+			elseif root then Vector3.new(root.Position.X - cf.X, 0, root.Position.Z - cf.Z)
+			else cf.LookVector
+		away = Vector3.new(away.X, 0, away.Z)
+		if away.Magnitude < 0.01 then away = Vector3.new(1, 0, 0) end
+		return CFrame.lookAt(cf.Position + away.Unit * back + Vector3.new(0, up, 0), cf.Position)
+	end
+end
+local function tagged(tag: string, filter: ((any) -> boolean)?): () -> any
+	return function()
+		local list = {}
+		for _, i in ipairs(CollectionService:GetTagged(tag)) do
+			if cframeOf(i) and (not filter or filter(i)) then table.insert(list, i) end
+		end
+		return nearest(list)
+	end
+end
+local function shopCounter(key: string): () -> BasePart?
+	return tagged("SnackShop", function(p) return p:GetAttribute("Shop") == key end)
+end
+
 local GUKBAP: {Coach.Step} = {
-	{ title = "🍲 오후 돼지국밥", text = "국밥을 사면 뚝배기가 손에 들려요. 화면을 누를 때마다 한 숟가락씩 떠먹어요." },
-	{ title = "테이블에 놓기", text = "국밥을 든 채로 테이블 가까이 가서 '테이블에 놓기'를 누르면 쟁반째 놓여요. 앉아서 '떠먹기'로 먹어요. 놓은 국밥은 나만 먹을 수 있어요." },
-	{ title = "수육 · 함께 먹기", text = "수육 한 접시는 테이블에 놓으면 모두 한 점씩 가져가 먹어요. 공깃밥·물·김치는 무료예요." },
+	{ title = "🍲 오후 돼지국밥", text = "국밥을 사면 뚝배기가 손에 들려요. 화면을 누를 때마다 한 숟가락씩 떠먹어요.",
+		camera = viewOfPart(shopCounter("Gukbap"), 12, 7) },
+	{ title = "테이블에 놓기", text = "국밥을 든 채로 테이블 가까이 가서 '테이블에 놓기'를 누르면 쟁반째 놓여요. 앉아서 '떠먹기'로 먹어요. 놓은 국밥은 나만 먹을 수 있어요.",
+		camera = viewOfPart(tagged("GukbapTable"), 9, 7) },
+	{ title = "수육 · 함께 먹기", text = "수육 한 접시는 테이블에 놓으면 모두 한 점씩 가져가 먹어요. 공깃밥·물·김치는 무료예요.",
+		camera = viewOfPart(tagged("GukbapTable"), 6, 6) },
 }
+
+-- the club's spots (BartenderSpot: the item seller stands on it, the
+-- bartender 12 studs along the bar, DrinkService)
+local function bartenderView(): CFrame?
+	local spot = tagged("BartenderSpot")()
+	if not spot then return nil end
+	-- (their whole body over the bar, the face clear of the card at the bottom)
+	local at = (spot.CFrame * CFrame.new(-12, 4, 0)).Position
+	return CFrame.lookAt(at + spot.CFrame.LookVector * 24 + Vector3.new(0, 7, 0), at - Vector3.new(0, 2, 0))
+end
+local function sellerView(): CFrame?
+	local spot = tagged("BartenderSpot")()
+	if not spot then return nil end
+	local at = spot.Position + Vector3.new(0, 4, 0)
+	return CFrame.lookAt(at + spot.CFrame.LookVector * 24 + Vector3.new(0, 7, 0), at - Vector3.new(0, 2, 0))
+end
+local function djView(): CFrame?
+	local spot = tagged("DJSpot")()
+	if not spot then return nil end
+	return CFrame.lookAt(spot.Position + spot.CFrame.LookVector * 26 + Vector3.new(0, 10, 0), spot.Position + Vector3.new(0, 4, 0))
+end
+-- (a round table on the floor: the VIP balcony's are upstairs)
+local CLUB_TABLE = tagged("DrinkTable", function(p) return p.Name == "RoundTable" and ClubConfig.isInClub(p.Position) end)
 
 local CLUB: {Coach.Step} = {
-	{ title = "🎧 OHU CLUB", text = "어서 오세요! 클럽에서 할 수 있는 것을 알려 드릴게요." },
+	{ title = "🎧 OHU CLUB", text = "어서 오세요! 클럽에서 할 수 있는 것을 알려 드릴게요.", camera = djView },
 	{ title = "♪ 춤 버튼", text = "클럽에 들어오면 왼쪽에 ♪ 버튼이 나와요. 지금 나오는 곡에 맞춰 춤을 골라 춰요.", target = find("ClubQuickBar", "Dance") },
 	{ title = "노래 목록 · › 스킵", text = "노래 제목 왼쪽 목록 버튼(줄 세 개)에서 다음에 들을 곡을 예약하고, 오른쪽 ›로 스킵 투표를 해요. 클럽 사람 절반이 찬성하면 넘어가요.", target = find(DANCE_GUI, "NowPlaying") },
-	{ title = "🍹 바텐더", text = "바에서 바텐더에게 음료(무알코올)를 주문해요. 무료 음료도 있어요." },
-	{ title = "🍾 음료를 테이블에", text = "음료 병을 든 채 테이블을 누르면 모든 사람·친구만·나만 중에 골라 테이블에 놓아요. 테이블이 아닌 곳을 누르면 병째 마셔요. 버킷 음료는 눌러서 한 잔씩 따라 마시고, 내가 놓은 병을 누르면 다시 손에 들어요." },
-	{ title = "🎆 불꽃 판매원", text = "바 옆 판매원에게서 스파클러, 스파클러 세트, 무대 콜드 스파크를 사요. 스파클러를 든 채 병을 누르면 불꽃이 튀어요." },
-	{ title = "🎧 DJ", text = "DJ 부스의 '디제잉하기'에서 DJ 시간을 사면 차례가 와요. DJ는 곡·속도·조명을 바꾸고 큰 전광판에 나와요." },
+	{ title = "🍹 바텐더", text = "바에 있는 바텐더에게 '음료 주문'을 눌러 음료(무알코올)를 골라요. 무료 음료도 있어요.", camera = bartenderView },
+	{ title = "🍾 음료를 테이블에", text = "음료 병을 든 채 테이블을 누르면 모든 사람·친구만·나만 중에 골라 테이블에 놓아요. 테이블이 아닌 곳을 누르면 병째 마셔요.",
+		camera = viewOfPart(CLUB_TABLE, 12, 5) },
+	{ title = "🥂 테이블에서 마시기", text = "버킷 음료는 눌러서 한 잔씩 따라 마셔요. 내가 놓은 병을 누르면 다시 손에 들어요.",
+		camera = viewOfPart(CLUB_TABLE, 8, 4) },
+	{ title = "🎆 불꽃 판매원", text = "바텐더 옆 판매원에게서 스파클러, 스파클러 세트, 무대 콜드 스파크를 사요. 스파클러를 든 채 병을 누르면 불꽃이 튀어요.", camera = sellerView },
+	{ title = "🎧 DJ", text = "DJ 부스의 '디제잉하기'에서 DJ 시간을 사면 차례가 와요. DJ는 곡·속도·조명을 바꾸고 큰 전광판에 나와요.", camera = djView },
 }
 
+local BEACH_COUNTER = shopCounter("BeachCafe")
+local function cafeBackView(): CFrame?
+	local counter = BEACH_COUNTER()
+	local back = counter and counter.Parent and counter.Parent:FindFirstChild("BackCounter")
+	if not counter or not back or not back:IsA("BasePart") then return nil end
+	-- from the customers' side, over the counter, at the work bench behind it
+	local across = Vector3.new(counter.Position.X - back.Position.X, 0, counter.Position.Z - back.Position.Z)
+	if across.Magnitude < 0.01 then return nil end
+	return CFrame.lookAt(counter.Position + across.Unit * 10 + Vector3.new(0, 7, 0), back.Position + Vector3.new(0, 2, 0))
+end
+local CAFE_TABLE = function(): BasePart?
+	local counter = BEACH_COUNTER()
+	local list = {}
+	for _, i in ipairs(CollectionService:GetTagged("CafeTable")) do
+		-- (the ground floor's, near the counter: the mezzanine's are overhead)
+		if i:IsA("BasePart") and counter and math.abs(i.Position.Y - counter.Position.Y) < 6 then table.insert(list, i) end
+	end
+	return nearest(list)
+end
+
 local CAFE: {Coach.Step} = {
-	{ title = "☕ OHU CAFE · Sunset", text = "바다가 보이는 카페예요. 카운터에서 '주문하기'를 누르면 음료·빵·케이크를 골라요." },
-	{ title = "케이크 · 함께 먹기", text = "케이크는 테이블 옆에서 눌러 놓으면 모두 한 조각씩 가져가 먹어요." },
-	{ title = "알바", text = "카운터 안쪽 작업대에서 '알바 시작'을 누르면 카페 직원이 되어 손님에게 음료를 만들어 주고 코인을 벌어요." },
+	{ title = "☕ OHU CAFE · Sunset", text = "바다가 보이는 카페예요. 카운터에서 '주문하기'를 누르면 음료·빵·케이크를 골라요.",
+		camera = viewOfPart(BEACH_COUNTER, 12, 7) },
+	{ title = "케이크 · 함께 먹기", text = "케이크는 테이블 옆에서 눌러 놓으면 모두 한 조각씩 가져가 먹어요.",
+		camera = viewOfPart(CAFE_TABLE, 8, 7) },
+	{ title = "알바", text = "카운터 안쪽 작업대에서 '알바 시작'을 누르면 카페 직원이 되어 손님에게 음료를 만들어 주고 코인을 벌어요.",
+		camera = cafeBackView },
 }
 
 local JOB: {Coach.Step} = {
 	{ title = "☕ 알바 시작!", text = "이제 카페 직원이에요. 머리 위에 '알바생'이 보여요.", target = find("CafeJobGui", "JobPill") },
-	{ title = "주문 목록", text = "왼쪽 '알바 중' 버튼을 누르면 주문 목록이 나와요. 손님(플레이어·NPC)이 주문하면 여기에 쌓여요.", target = find("CafeJobGui", "JobPill") },
-	{ title = "만들기", text = "작업대에서 [만들기] 또는 '음료 만들기'를 누르면 잠깐 뒤 음료가 손에 들려요. 한 번에 2잔까지 들 수 있어요." },
-	{ title = "서빙하기", text = "음료를 들고 주문한 손님에게 가면 그 손님에게 '서빙하기'가 떠요. 누르면 건네주고 코인을 받아요." },
-	{ title = "테이블 정리", text = "손님이 다 마시고 남긴 빈 컵은 '테이블 정리'로 치우면 코인을 더 받아요." },
-	{ title = "끝내기", text = "하루에 벌 수 있는 알바 코인에는 한도가 있어요. 그만할 때는 카운터에서 '알바 끝내기'를 눌러요." },
+	{ title = "주문 목록", text = "왼쪽 '알바 중' 칸을 누르면 주문 목록이 나와요. 손님(플레이어·NPC)이 주문하면 여기에 쌓여요.", target = find("CafeJobGui", "JobPill") },
+	{ title = "📱 폰에서는", text = "폰에서는 '알바 중' 칸이 작게 보여요. 목록을 위아래로 끌어서(드래그) 아래쪽 주문까지 확인해요.",
+		target = function() return find("CafeJobGui", "Orders")() or find("CafeJobGui", "JobPill")() end },
+	{ title = "만들기", text = "작업대에서 [만들기] 또는 '음료 만들기'를 누르면 잠깐 뒤 음료가 손에 들려요. 한 번에 2잔까지 들 수 있어요.",
+		camera = cafeBackView },
+	{ title = "서빙하기", text = "음료를 들고 주문한 손님에게 가면 그 손님에게 '서빙하기'가 떠요. 누르면 건네주고 코인을 받아요.",
+		camera = viewOfPart(CAFE_TABLE, 10, 8) },
+	{ title = "테이블 정리", text = "손님이 다 마시고 남긴 빈 컵은 '테이블 정리'로 치우면 코인을 더 받아요.",
+		camera = viewOfPart(CAFE_TABLE, 6, 6) },
+	{ title = "끝내기", text = "하루에 벌 수 있는 알바 코인에는 한도가 있어요. 알바 중에는 앉거나 튜브를 탈 수 없어요. 그만할 때는 카운터에서 '알바 끝내기'를 눌러요.",
+		camera = viewOfPart(BEACH_COUNTER, 10, 6) },
+}
+
+-- 오후네컷 (D-715): the booths and the photo wall
+local PHOTO: {Coach.Step} = {
+	-- (the booths are closed rooms east of the lobby: seen from the lobby)
+	{ title = "📸 오후네컷", text = "친구랑 네 컷 사진을 찍는 사진관이에요.",
+		camera = function() return CFrame.lookAt(Vector3.new(92, 22, -72), Vector3.new(150, 8, -64)) end },
+	{ title = "사진 찍기", text = "포토부스 앞에서 E 키(폰은 화면의 '사진 찍기' 버튼)를 누르면 들어가요. 포즈를 고르고 네 컷을 찍어요. 친구는 '같이 찍기'로 함께 들어와요.",
+		camera = function() return CFrame.lookAt(Vector3.new(112, 14, -70), Vector3.new(140, 7, -64)) end },
+	{ title = "포토월", text = "찍은 사진은 사진첩(가방의 사진 탭)에 남아요. 포토월 앞에서 '사진 붙이기'를 누르면 내 사진을 벽에 붙여 모두에게 보여 줄 수 있어요.",
+		camera = viewOfPart(tagged("PhotoWall"), 14, 4) },
 }
 
 --------------------------------------------------
@@ -201,6 +321,16 @@ function GuideTips.start()
 			if root and not Coach.isRunning() then
 				if Coach.wants("club") and ClubConfig.isInClub(root.Position) then
 					Coach.run("club", CLUB)
+				elseif Coach.wants("photo") and (function()
+					-- inside the 오후네컷 building (Hongdae_Layout.OhuFourCuts), under its roof
+					local layout = workspace:FindFirstChild("Hongdae_Layout")
+					local building = layout and layout:FindFirstChild("OhuFourCuts")
+					if not building or not building:IsA("Model") then return false end
+					local cf, size = building:GetBoundingBox()
+					local p = cf:PointToObjectSpace(root.Position)
+					return math.abs(p.X) < size.X / 2 - 2 and math.abs(p.Z) < size.Z / 2 - 2 and root.Position.Y < cf.Y + size.Y / 2
+				end)() then
+					Coach.run("photo", PHOTO)
 				elseif Coach.wants("cafe") then
 					for _, counter in ipairs(CollectionService:GetTagged("SnackShop")) do
 						if counter:IsA("BasePart") and counter:GetAttribute("Shop") == "BeachCafe"

@@ -1,7 +1,7 @@
 --!strict
 -- The screen goes dark round one button while a tip talks about it (user
 -- 2026-11-01, D-714): four dark panels leave a hole over the button, and the
--- button grows a little and back once (a UIScale on it). The tip cards sit
+-- button grows (a UIScale on it) and shrinks back when the tip moves on. The tip cards sit
 -- in ScreenGuis above this one (the tour's 40, Coach's 45), so they stay lit.
 -- Spotlight.set(target) — a GuiObject, a Rect in screen pixels, or nil (off).
 
@@ -53,8 +53,15 @@ end
 local target: any = nil
 local scale: UIScale? = nil
 
+-- (D-715, user: the button stays big while it is talked about and shrinks
+-- back when the tip moves on)
 local function dropScale()
-	if scale then scale:Destroy() scale = nil end
+	local s = scale
+	scale = nil
+	if not s then return end
+	local down = TweenService:Create(s, TweenInfo.new(0.2, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Scale = 1 })
+	down.Completed:Connect(function() s:Destroy() end)
+	down:Play()
 end
 
 function Spotlight.set(t: any)
@@ -62,16 +69,12 @@ function Spotlight.set(t: any)
 	dropScale()
 	target = t
 	if typeof(t) == "Instance" and t:IsA("GuiObject") then
-		-- grow a little and back, once
+		-- grows and stays grown
 		local s = Instance.new("UIScale")
 		s.Name = "SpotlightPulse"
 		s.Parent = t
 		scale = s
-		local up = TweenService:Create(s, TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), { Scale = 1.3 })
-		local down = TweenService:Create(s, TweenInfo.new(0.32, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1 })
-		up.Completed:Connect(function() if scale == s then down:Play() end end)
-		down.Completed:Connect(function() if scale == s then dropScale() end end)
-		task.delay(0.15, function() if scale == s then up:Play() end end)
+		TweenService:Create(s, TweenInfo.new(0.3, Enum.EasingStyle.Back, Enum.EasingDirection.Out), { Scale = 1.3 }):Play()
 	end
 end
 

@@ -2931,3 +2931,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 안내 강조 효과 (D-714)
 ![](images/2026-11-01/spotlight_menu_D714.jpg) ![](images/2026-11-01/spotlight_coins_D714.jpg)
+
+### 장소 안내 카메라, 오후네컷 안내 (D-715)
+![](images/2026-11-01/tip_club_bartender_D715.jpg) ![](images/2026-11-01/tip_club_table_D715.jpg) ![](images/2026-11-01/tip_photo_D715.jpg)

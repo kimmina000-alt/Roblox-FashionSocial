@@ -20,7 +20,9 @@ local remote = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Remot
 
 local Coach = {}
 
-export type Step = { title: string, text: string, target: (() -> any)?, before: (() -> ())?, after: (() -> ())? }
+-- camera (D-715): the camera flies there for this step, like the place tour;
+-- a step without one gives the camera back to the player
+export type Step = { title: string, text: string, target: (() -> any)?, before: (() -> ())?, after: (() -> ())?, camera: (() -> CFrame?)? }
 
 local PEACH = Color3.fromRGB(255, 248, 240)
 local ORANGE = Color3.fromRGB(255, 140, 70)
@@ -82,8 +84,11 @@ end
 
 -- Whether tips can be shown now (the player's data has loaded) and this one
 -- has not been seen.
+-- (done here at once: the server's TipsSeen comes back a moment later, and a
+-- place tip skipped in the middle of the place came straight back, D-715)
+local doneHere: {[string]: boolean} = {}
 function Coach.wants(key: string): boolean
-	return typeof(player:GetAttribute("TipsSeen")) == "string" and not seen(key)
+	return typeof(player:GetAttribute("TipsSeen")) == "string" and not seen(key) and not doneHere[key]
 end
 
 local running: string? = nil
@@ -98,6 +103,34 @@ local rectOf = Spotlight.rectOf
 
 local finish: (boolean) -> ()
 
+-- camera flights (as GuideController's tour)
+local TweenService = game:GetService("TweenService")
+local flight: Tween? = nil
+local flown = false
+local flightTo: CFrame? = nil
+local function flyTo(cf: CFrame)
+	flightTo = cf
+	task.spawn(function()
+		pcall(function() player:RequestStreamAroundAsync(cf.Position + cf.LookVector * 20, 2) end)
+	end)
+	local camera = workspace.CurrentCamera
+	camera.CameraType = Enum.CameraType.Scriptable
+	if flight then flight:Cancel() end
+	flight = TweenService:Create(camera, TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { CFrame = cf })
+	;(flight :: Tween):Play()
+	flown = true
+end
+local function cameraBack()
+	if not flown then return end
+	flown = false
+	flightTo = nil
+	if flight then flight:Cancel() flight = nil end
+	local camera = workspace.CurrentCamera
+	camera.CameraType = Enum.CameraType.Custom
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid then camera.CameraSubject = humanoid end
+end
+
 local function show()
 	local step = steps[index]
 	if not step then finish(true) return end
@@ -108,6 +141,12 @@ local function show()
 	nextButton.Text = if index == #steps then "확인" else "다음 ▶"
 	target = nil
 	Spotlight.set(nil)
+	local view: CFrame? = nil
+	if step.camera then
+		local ok, cf = pcall(step.camera :: () -> CFrame?)
+		if ok then view = cf end
+	end
+	if view then flyTo(view) else cameraBack() end
 	if step.target then
 		-- (a moment later: a step's `before` may open the menu it points into)
 		task.delay(0.1, function()
@@ -127,9 +166,11 @@ finish = function(done: boolean)
 	local step = steps[index]
 	if step and step.after then pcall(step.after) end
 	running = nil
+	doneHere[key] = true
 	card.Visible = false
 	ring.Visible = false
 	Spotlight.set(nil)
+	cameraBack()
 	task.spawn(function() pcall(function() remote:InvokeServer("TipSeen", key) end) end)
 	local nextRun = table.remove(queue, 1)
 	if nextRun then task.defer(Coach.run, nextRun.key, nextRun.steps) end
@@ -153,6 +194,13 @@ skip.Activated:Connect(function() finish(false) end)
 -- the outline follows its target every frame (windows move, scroll, open)
 RunService.RenderStepped:Connect(function()
 	if not running then return end
+	-- (D-715) something put the camera back to the player right after a tip's
+	-- first flight (seen in 오후네컷): hold the view while the step shows it
+	local camera = workspace.CurrentCamera
+	if flown and flightTo and camera and camera.CameraType ~= Enum.CameraType.Scriptable then
+		camera.CameraType = Enum.CameraType.Scriptable
+		camera.CFrame = flightTo
+	end
 	local position, size = rectOf(target)
 	if not position or not size then
 		ring.Visible = false
@@ -165,7 +213,6 @@ RunService.RenderStepped:Connect(function()
 	end
 	-- the card where it hides the least: at the bottom, or on top when the
 	-- outline is in the lower part of the screen
-	local camera = workspace.CurrentCamera
 	local low = position ~= nil and size ~= nil and camera ~= nil and (position.Y + size.Y / 2) > camera.ViewportSize.Y * 0.55
 	card.AnchorPoint = if low then Vector2.new(0.5, 0) else Vector2.new(0.5, 1)
 	card.Position = if low then UDim2.new(0.5, 0, 0, 64) else UDim2.new(0.5, 0, 1, -16)
@@ -193,6 +240,7 @@ end
 
 -- Every tip again (the guide's 다시 보기).
 function Coach.reset()
+	table.clear(doneHere)
 	pcall(function() remote:InvokeServer("TipsReset") end)
 end
 

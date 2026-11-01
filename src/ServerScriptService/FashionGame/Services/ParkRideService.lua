@@ -72,6 +72,11 @@ end
 
 local function board(player: Player, model: Instance, slot: Instance?): (boolean, any)
 	if riding[player] then return false, "이미 타고 있어요." end
+	-- (D-715) cafe staff cannot sit (CafeJobController turns the Seated state
+	-- off on duty), so a tube or a seat left them stuck, even after the shift
+	if player.Character and player.Character:GetAttribute("CafeJob") then
+		return false, "알바 중에는 탈 수 없어요. 카운터에서 알바를 끝내고 타 주세요."
+	end
 	local kind = kindOf(model)
 	if not kind then return false, "탈 수 없어요." end
 	local t = now()

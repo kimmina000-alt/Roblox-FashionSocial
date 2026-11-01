@@ -139,7 +139,7 @@ local function showStep()
 	else
 		cardTitle.Text = "✨ " .. GuideConfig.TutorialEnd.title
 		cardText.Text = GuideConfig.TutorialEnd.text
-		nextButton.Text = "시작하기"
+		nextButton.Text = "다음 ▶"
 		cameraBack()
 		-- (D-714) the screen dark but for this card and the menu button, which pulses
 		Spotlight.set(TopBar.button(20))
@@ -159,7 +159,7 @@ local function endTour(finished: boolean?)
 	cameraBack()
 	Popups.closed("Tutorial")
 	task.spawn(function() pcall(function() remote:InvokeServer("TutorialDone") end) end)
-	if finished then task.delay(0.6, GuideTips.hud) end
+	if finished then GuideTips.hud() end
 end
 
 local function startTour()

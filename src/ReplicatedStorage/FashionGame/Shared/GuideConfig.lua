@@ -13,7 +13,8 @@ local GuideConfig = {}
 export type Place = { key: string, name: string, emoji: string, text: string, at: Vector3, look: Vector3, eye: Vector3? }
 
 GuideConfig.Places = {
-	spawn = { key = "spawn", name = "광장", emoji = "📍", text = "여기서 시작해요. 동네를 한 바퀴 둘러볼게요!",
+	-- (the tour's first words, user 2026-11-01, D-715)
+	spawn = { key = "spawn", name = "오후", emoji = "👋", text = "안녕하세요. 오후에 오신 것을 환영합니다. 동네를 한 바퀴 둘러볼게요!",
 		at = Vector3.new(-30, 3, -36), look = Vector3.new(-30, 3, -36) },
 	club = { key = "club", name = "OHU CLUB", emoji = "🎧", text = "밤(18:00~06:00)에 문을 여는 클럽이에요. 춤추고, 노래를 고르고, DJ도 될 수 있어요.",
 		at = Vector3.new(41, 3.6, -210), look = Vector3.new(105, 30, -210) },
@@ -38,8 +39,9 @@ GuideConfig.Places = {
 -- The tour, in order. The last step has no place: the camera comes back.
 GuideConfig.Tutorial = { "spawn", "club", "photo", "gukbap", "oh24", "cafe", "beach", "hanok", "park", "guide" }
 GuideConfig.TutorialEnd = {
-	title = "준비 끝!",
-	text = "오른쪽 위 메뉴 버튼(줄 세 개)의 옷걸이 버튼으로 옷을 갈아입고, 버스 정류장 표지판을 누르면 다른 곳으로 빨리 갈 수 있어요. 궁금한 건 순위표 옆 안내원에게! 즐거운 시간 보내요!",
+	-- (user 2026-11-01, D-715: short; [다음] goes straight on to the menu button)
+	title = "준비 끝",
+	text = "즐거운 시간 보내세요.",
 }
 
 -- The guide NPC: walks about the paved square in front of the 기부 순위표
