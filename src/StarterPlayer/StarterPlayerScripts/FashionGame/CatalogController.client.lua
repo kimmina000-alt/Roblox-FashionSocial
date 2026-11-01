@@ -441,7 +441,9 @@ local function refreshAvatarPreview()
 	local verticalDistance = (bounds.Y * 0.5) / math.tan(halfFov)
 	local horizontalDistance = (bounds.X * 0.5) / (math.tan(halfFov) * math.max(aspect, 0.1))
 	previewTarget = boundsCFrame.Position
-	previewBaseDistance = math.max(verticalDistance, horizontalDistance, bounds.Z * 0.5 + 0.5) * 1.12
+	-- (a step further back in the avatar editor, user 2026-11-01: it filled the box)
+	previewBaseDistance = math.max(verticalDistance, horizontalDistance, bounds.Z * 0.5 + 0.5)
+		* (if avatarEditor and avatarEditor:isOpen() then 1.75 else 1.12)
 	updatePreviewCamera()
 	-- Avatar Editor draws the X/Y/Z guide around the selected accessory.
 	if avatarEditor then avatarEditor:onPreviewBuilt(clone) end

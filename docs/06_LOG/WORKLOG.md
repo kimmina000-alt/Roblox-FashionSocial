@@ -2880,3 +2880,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 헤어 위치 조절 (D-705)
 ![](images/2026-11-01/hair_fit_before_D705.jpg) ![](images/2026-11-01/hair_fit_after_D705.jpg)
+
+### 꾸미기 미리보기 헤어·거리 (D-706)
+![](images/2026-11-01/hair_preview_fix_D706.jpg)
