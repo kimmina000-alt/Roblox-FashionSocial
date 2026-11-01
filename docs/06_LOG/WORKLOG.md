@@ -2856,3 +2856,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 놀이공원 높이 16 + 긴 계단 (D-697)
 ![](images/2026-11-01/park_raised_v2.jpg)
+
+### 놀이공원 앞 부지, 난간, 북쪽 담 (D-698)
+![](images/2026-11-01/park_forecourt.jpg) ![](images/2026-11-01/park_north_wall.jpg)

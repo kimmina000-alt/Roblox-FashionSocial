@@ -11,7 +11,9 @@
 --     banks on both sides from z -201 (north of the wooden decks). The pocket
 --     park's south part and the bus stops stay at street height.
 --   (user 2026-11-01: first 32 high with a steep 19-stud stair; then half the
---     height, 16, and the stair drawn out from the red line, D-697)
+--     height, 16, and the stair drawn out from the red line, D-697; then flat
+--     ground before the gate instead of the banks, handrails higher than the
+--     stair, and the park's far walls along the roads raised too, D-698)
 --   MODE "undo": every moved part goes back down (attribute ParkRaised) and the
 --     new pieces (folder Hongdae_Layout.ParkRaise) are removed.
 -- Running "raise" twice does nothing the second time (attribute on Hongdae_Layout).
@@ -23,7 +25,8 @@ local Z_NORTH, Z_SOUTH = -482, -224 -- the plot (part centres)
 local GATE_FRONT = -215 -- the gate's booths, letters and towers reach to z -216
 local LANDING_Z = -216 -- the landing in front of the gate: z -229 … -216
 local STAIR_Z, STAIR_Y = -172, -2 -- the stair's foot: the round plaza's walk, on the red line
-local BANK_Z = -201 -- the banks' foot (the wooden decks reach z -200)
+local BANK_Z = -201 -- the front of the flat ground before the gate (the wooden decks reach z -200)
+local RAIL_H = 3.5 -- the stair's handrails stand this high over the steps
 local STAIR_X0, STAIR_X1 = -114.5, -79.5
 local L = workspace:FindFirstChild("Hongdae_Layout")
 assert(L, "Hongdae_Layout missing")
@@ -33,8 +36,13 @@ local PAVE = Color3.fromRGB(222, 216, 204)
 local GRASS = Color3.fromRGB(96, 150, 74)
 local SKIP = { Ground = true, BoundaryWall = true, Terrain = true }
 
+-- the park's walls run on north along both roads to the map's end (x -211..-46.5,
+-- z -1400..-470): seen from the street, never reached; they go up too (D-698)
+local NX0, NX1, NZ0, NZ1 = -211, -46.5, -1400, -470
 local function inPlot(p: BasePart): boolean
 	local q = p.Position
+	local gate = L:FindFirstChild("AmusementParkGate")
+	if gate and p:IsDescendantOf(gate) and q.X > NX0 and q.X < NX1 and q.Z < NZ1 then return true end
 	if q.X <= X0 or q.X >= X1 then return false end
 	if q.Z > Z_NORTH and q.Z < Z_SOUTH then return true end
 	-- the gate's front pieces (booths, letters) stand a little south of the wall
@@ -135,17 +143,60 @@ for _, x in ipairs({ STAIR_X0, STAIR_X1 }) do
 	w.Material = Enum.Material.Slate
 	w.Parent = F
 end
--- grass banks either side of the stair (walkable, but the stair is the way up)
-for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
-	local w = Instance.new("WedgePart")
-	w.Name = "ParkBank"
-	w.Anchored = true
-	w.Size = Vector3.new(span[2] - span[1], RAISE, BANK_Z - LANDING_Z)
-	w.CFrame = CFrame.new((span[1] + span[2]) / 2, RAISE / 2, (BANK_Z + LANDING_Z) / 2) * CFrame.Angles(0, math.pi, 0)
-	w.Color = GRASS
-	w.Material = Enum.Material.Grass
-	w.Parent = F
+-- (user 2026-11-01, D-698) flat ground before the gate instead of the grass
+-- banks: both sides of the stair are level with the gate from z BANK_Z on, a
+-- stone retaining face to the plaza; the stair climbs between them
+local RAIL = Color3.fromRGB(45, 45, 52)
+local function rail(name, a: Vector3, b: Vector3, thick)
+	local p = Instance.new("Part")
+	p.Name = name
+	p.Anchored = true
+	p.Size = Vector3.new(thick, thick, (b - a).Magnitude)
+	p.CFrame = CFrame.lookAt((a + b) / 2, b)
+	p.Color = RAIL
+	p.Material = Enum.Material.Metal
+	p.Parent = F
+	return p
 end
+local function post(x, y0, z, h)
+	return block("ParkRailPost", x - 0.15, y0, z - 0.15, x + 0.15, y0 + h, z + 0.15, RAIL, Enum.Material.Metal)
+end
+for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
+	block("ParkForecourt", span[1], 0, BANK_Z, span[2], RAISE, LANDING_Z, STONE, Enum.Material.Slate)
+	block("ParkForecourtPaving", span[1], RAISE, BANK_Z, span[2], RAISE + 0.08, LANDING_Z, PAVE, Enum.Material.Slate)
+	-- a railing along its front edge, so nobody walks off the 16-stud drop
+	local zEdge = BANK_Z + 0.4
+	rail("ParkRailTop", Vector3.new(span[1], RAISE + RAIL_H, zEdge), Vector3.new(span[2], RAISE + RAIL_H, zEdge), 0.3)
+	rail("ParkRailMid", Vector3.new(span[1], RAISE + RAIL_H / 2, zEdge), Vector3.new(span[2], RAISE + RAIL_H / 2, zEdge), 0.2)
+	local n = math.max(1, math.floor((span[2] - span[1]) / 4))
+	for i = 0, n do post(span[1] + (span[2] - span[1]) * i / n, RAISE, zEdge, RAIL_H) end
+	-- (Play test: a character stepped over the thin rails) an invisible wall behind them
+	local wall = block("ParkRailCollide", span[1], RAISE, zEdge - 0.3, span[2], RAISE + 5, zEdge + 0.3, RAIL)
+	wall.Transparency = 1
+	wall.CanQuery = false
+end
+-- handrails along both sides of the stair, RAIL_H over the steps (higher than
+-- the stair, user 2026-11-01); where the stair runs between the flat ground
+-- they stand on its edge at the same height over the steps
+local function stepTop(z) -- the stair's walking height at z
+	return STAIR_Y + math.clamp((STAIR_Z - z) / run, 0, steps)
+end
+for _, x in ipairs({ STAIR_X0 - 0.2, STAIR_X1 + 0.2 }) do
+	local za, zb = STAIR_Z - 0.5, LANDING_Z
+	local a = Vector3.new(x, stepTop(za) + RAIL_H, za)
+	local b = Vector3.new(x, stepTop(zb) + RAIL_H, zb)
+	rail("ParkStairRail", a, b, 0.3)
+	rail("ParkStairRailMid", a - Vector3.new(0, RAIL_H / 2, 0), b - Vector3.new(0, RAIL_H / 2, 0), 0.2)
+	local n = math.floor((za - zb) / 4)
+	for i = 0, n do
+		local z = za - (za - zb) * i / n
+		local base = math.max(stepTop(z), if z < BANK_Z then STAIR_Y else STAIR_Y)
+		post(x, base - 0.5, z, stepTop(z) - base + 0.5 + RAIL_H)
+	end
+end
+-- the park's walls north along the roads: a stone base under them, so they
+-- don't float (the ground there is out of reach)
+block("ParkPlatformNorth", NX0, 0, NZ0, NX1, RAISE, NZ1, STONE, Enum.Material.Slate)
 F.Parent = L
 L:SetAttribute("ParkRaised", RAISE)
 print("[park_raise] raised " .. moved .. " parts by " .. RAISE)
