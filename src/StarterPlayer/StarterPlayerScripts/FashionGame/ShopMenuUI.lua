@@ -189,10 +189,16 @@ function ShopMenuUI:fill(tabIndex: number)
 			local card = NeonShopUI.drinkCard(w.content, index, name, item.color, price, priceColor, buttons, nil,
 				if preview and preview:IsA("Model") and not photo then preview else nil)
 			if photo then
-				-- (D-711) a photo from the game over the picture spot
-				local image = NeonShopUI.create("ImageLabel", { Name = "Photo", Position = UDim2.fromOffset(8, 8), Size = UDim2.new(0.42, -8, 1, -16),
-					BackgroundTransparency = 1, Image = photo, ScaleType = Enum.ScaleType.Crop, ZIndex = 14 }, card)
-				NeonShopUI.create("UICorner", { CornerRadius = UDim.new(0, 10) }, image)
+				-- (D-711) a picture from the game in the picture spot, in place
+				-- of the drawn cup (that cup showed through as a clear box)
+				local tile = card:FindFirstChild("Drink")
+				if tile then
+					for _, child in ipairs(tile:GetChildren()) do
+						if child:IsA("GuiObject") then child.Visible = false end
+					end
+				end
+				NeonShopUI.create("ImageLabel", { Name = "Photo", Position = UDim2.fromOffset(8, 8), Size = UDim2.new(0.42, -8, 1, -16),
+					BackgroundTransparency = 1, Image = photo, ScaleType = Enum.ScaleType.Fit, ZIndex = 14 }, card)
 			end
 			if item.comingSoon then
 				-- a soft veil over the picture

@@ -2919,3 +2919,4 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 국밥 상점 수육 사진 (D-711)
 ![](images/2026-11-01/shop_suyuk_photo_D711.jpg)
+![](images/2026-11-01/shop_suyuk_cutout_D711.jpg)

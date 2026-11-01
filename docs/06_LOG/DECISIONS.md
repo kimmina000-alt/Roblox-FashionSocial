@@ -1375,3 +1375,4 @@ Studio Play 확인: 실제 헤어 위치(머리 기준 y 0.383)와 미리보기 
 - 사용자: 게임 안에서 찍은 수육 접시 사진으로 상점 사진 바꾸기.
 - SnackMenuArt.suyuk = 123327521135180 (docs/04_ART/shop_photos/gukbap_suyuk_top_square.png, 위에서 찍은 512×512, Vantablack_Dev 업로드). 이전 86722270080544.
 - (D-711 고침) 주문 창 카드는 SnackMenuArt.Icons가 아니라 FoodPreviews의 3D 모델을 그리고 있어서 사진이 안 바뀌었음. SnackMenuArt.Photos(게임에서 찍은 사진)를 새로 두고, 있으면 ShopMenuUI가 카드의 그림 자리에 그 사진(ImageLabel, Crop)을 씀: suyuk = 123327521135180. Icons의 suyuk은 원래 값으로 되돌림. Studio Play: 국밥집 곁들임 탭의 수육 카드에 사진이 뜸.
+- (D-711, 2) 사용자: 가운데 투명한 네모가 뭔지, 누끼 딴 사진으로. 네모는 사진이 없을 때 그리는 기본 컵 그림(NeonShopUI drinkIcon의 Glass)이 사진 위로 비친 것: 사진이 있으면 그 칸의 컵 그림을 숨기고 칸 배경만 둠. 사진은 접시만 타원으로 오려 낸 투명 배경 PNG(docs/04_ART/shop_photos/gukbap_suyuk_cutout.png, 98888580171981), ScaleType Fit. Studio Play에서 확인.

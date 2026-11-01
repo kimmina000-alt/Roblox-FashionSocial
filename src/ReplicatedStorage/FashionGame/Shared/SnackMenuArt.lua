@@ -9,7 +9,9 @@ local SnackMenuArt = {}
 -- Photos taken in the game, shown on the order window's card in place of
 -- the 3D preview (D-711; docs/04_ART/shop_photos/)
 SnackMenuArt.Photos = {
-	suyuk = "rbxassetid://123327521135180", -- gukbap_suyuk_top_square.png
+	-- (the plate cut out on a clear ground, user 2026-11-01; was the photo
+	-- with the table, 123327521135180)
+	suyuk = "rbxassetid://98888580171981", -- gukbap_suyuk_cutout.png
 }
 
 SnackMenuArt.Icons = {
