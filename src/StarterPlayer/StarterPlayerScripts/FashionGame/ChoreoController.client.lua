@@ -144,9 +144,15 @@ RunService.Heartbeat:Connect(function(dt)
 	-- code stays for later)
 	button.Visible = false and here and track ~= nil and track.choreo ~= nil
 	testButton.Visible = CAN_TEST and here
-	if not following then return end
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	-- (D-726) a song with autoChoreo: standing still in the club starts it
+	if not following and track and track.autoChoreo and track.choreo and here and humanoid
+		and humanoid.MoveDirection.Magnitude <= 0.1 and not humanoid.Sit and not humanoid.PlatformStand
+		and (character :: Model):GetAttribute("DanceKey") == nil then
+		startFollowing(track)
+	end
+	if not following then return end
 	if not track or track.soundId ~= following.soundId or not here or not humanoid
 		or humanoid.MoveDirection.Magnitude > 0.1 or (character :: Model):GetAttribute("DanceKey") ~= nil then
 		stopFollowing()

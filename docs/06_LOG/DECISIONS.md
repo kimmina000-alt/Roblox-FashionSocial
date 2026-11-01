@@ -1471,3 +1471,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 세 군데서 열림: 위 줄 맨 오른쪽 💬 버튼(FeedbackConfig.TopButton, 나중에 false로 숨김), 안내원 질문 "💬 불편한 점·바라는 점 보내기"(✏️ 의견 쓰기), 이번 접속 20분 뒤 한 번만 💬 버튼을 가리키는 팁(tip feedbackAsk, 투어를 본 사람만).
 - 창(Feedback.lua): 🐞 버그 / 💡 개선 / 😤 불만 / 💬 기타, 300자, 보내기. 한 사람 90초에 한 번.
 - FeedbackService: DataStore Feedback_v1(아이디·종류·글·시간·위치) + OrderedDataStore FeedbackTimes, 서버 출력에도 남김. 게임 주인(CreatorId, Studio에선 누구나)은 같은 창에 📥 받은 의견(최신 60개, Roblox 필터 거친 글, ✔ 처리로 목록에서 뺌). Studio에선 저장소 대신 세션 안에만.
+
+## D-726 (2026-11-01) Get A Guitar 안무 자동
+- 사용자: Get A Guitar 안무 초반 6개(119819611123433, 97097804325917, 119200924904137, 77403973851668, 73939357849033, 137390866303201) 순서대로, 곡이 나오면 자동으로 따라 춤.
+- ClubConfig: 곡에 choreo + autoChoreo = true. ChoreoController: autoChoreo 곡이 나오는 동안 클럽 안에서 서 있으면(걷기·앉기·들림·춤 메뉴 춤 아님) 저절로 따라 춤, 걸으면 멈추고 다시 서면 이어서(곡 시간에 맞춰). Studio Play: 곡 시작 42초에 5번째 동작 재생 확인, 불러오기 실패 없음.

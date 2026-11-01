@@ -40,6 +40,9 @@ export type Track = {
 	-- animation id (it starts where the one before ends) or { id = .., at = .. }
 	-- (it starts `at` seconds into the song, as heard in the club).
 	choreo: {any}?,
+	-- (D-726) dance the choreography by itself: everyone in the club standing
+	-- still (not seated, not in a menu dance) follows it while the song plays
+	autoChoreo: boolean?,
 }
 export type Lab = {
 	speed: number, tempo: number, volume: number, boost: number, octave: number,
@@ -150,7 +153,8 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.35, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
 	-- (the choreography made for the older Bubble Pop upload, kept on this one)
 	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.35, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.35, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
+	-- (D-726, user 2026-11-01: the start of the choreography, in order; danced by itself)
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.35, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 119819611123433, 97097804325917, 119200924904137, 77403973851668, 73939357849033, 137390866303201 }, autoChoreo = true },
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.35, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.35, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.35, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },

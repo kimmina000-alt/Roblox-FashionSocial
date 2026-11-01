@@ -2949,3 +2949,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 위 줄 버튼 (D-721)
 ![](images/2026-11-01/topbar_D721.jpg)
+
+### 의견 보내기 · Get A Guitar 안무 (D-725, D-726)
+![](images/2026-11-01/feedback_D725.jpg) ![](images/2026-11-01/guitar_choreo_D726.jpg)
