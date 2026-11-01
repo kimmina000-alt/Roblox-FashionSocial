@@ -854,6 +854,8 @@ local function setPanelOpen(open: boolean)
 	end
 end
 danceButton.MouseButton1Click:Connect(function() setPanelOpen(not panel.Visible) end)
+-- (the club's own 💃 button, ClubQuickBar, D-694)
+require(script.Parent:WaitForChild("UiBus")).OpenDance.Event:Connect(function() setPanelOpen(not panel.Visible) end)
 closeButton.MouseButton1Click:Connect(function() setPanelOpen(false) end)
 
 --------------------------------------------------

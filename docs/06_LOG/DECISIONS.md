@@ -1263,3 +1263,7 @@ choreo에 74977996210534(15.27초), 128213782788357(14.4초), 133713883432071(14
 
 ## D-693 (2026-11-01) 🧪 Bubble Pop 틀기 테스트 버튼
 클럽 안에서 DJ가 아니어도 Bubble Pop을 바로 트는 테스트 버튼(ChoreoController "🧪 테스트: Bubble Pop 틀기", 안무 버튼 위). 서버 액션 Music "TestChoreoSong". 실제 휴대폰에서도 보이도록(사용자 요청) Studio와, 라이브 서버에서는 게임 주인 계정(Vantablack_Dev, CreatorId 11887382096)에게만 보이고 동작한다(ClubConfig.canTestChoreo, 서버도 같은 검사). 끄기: ClubConfig.TestChoreoButton = false (공개 전에 끄기). Studio 확인: 버튼 → 곡이 Bubble Pop으로 바뀌고 안무 버튼이 뜸.
+
+## D-694 (2026-11-01) 클럽 버튼 줄: 춤 · 노래 신청 · 스킵 투표
+클럽 안에 들어가면 화면 오른쪽 가운데에 동그란 버튼 3개(ClubQuickBar.client.lua): 💃 춤(춤 창), 🎵 신청(음악 창: 지금까지는 턴테이블 '디제잉하기'로만 열렸음; DJ가 없으면 누구나 한 번에 한 곡 신청, 대기열 최대 10곡), ⏭ 스킵(DJ가 있으면 숨김). 창끼리는 UiBus(BindableEvent OpenDance / OpenMusic)로 연다.
+스킵 투표(ClubService "VoteSkip"): 클럽 안 사람만, 한 곡에 한 표, 다시 누르면 취소. 필요한 표 = ClubConfig.skipVotesNeeded(클럽 안 인원) = 절반 올림, 2명 이상이면 최소 2표(혼자면 1표). 예: 2명→2, 3명→2, 5명→3, 10명→5. 표는 클럽을 나가면 빠지고 새 곡이면 0부터(ClubSkipVotes "표/필요"). Studio 확인: 혼자 스킵 → 다음 곡, 춤 버튼 → 춤 창, 신청 버튼 → 음악 창, 신청 → 대기열 1번.

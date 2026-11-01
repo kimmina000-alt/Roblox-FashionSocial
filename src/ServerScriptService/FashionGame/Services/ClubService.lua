@@ -256,9 +256,35 @@ local function setMusicSpeed(new: number)
 	if track then trackEnds = now + math.max(0, track.length - elapsed) / newRate + 1 end
 end
 
+-- Skip vote (user 2026-11-01, D-694): without a DJ the people in the club can
+-- vote the song away; it goes when ClubConfig.skipVotesNeeded(people in the
+-- club) have voted. Attribute ClubSkipVotes = "votes/needed". New song → reset.
+local skipVotes: {[number]: boolean} = {}
+local function peopleInClub(): number
+	local n = 0
+	for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
+		local root = p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if root and ClubConfig.isInClub(root.Position) then n += 1 end
+	end
+	return n
+end
+local function publishSkipVotes()
+	local votes = 0
+	for userId in pairs(skipVotes) do
+		local p = game:GetService("Players"):GetPlayerByUserId(userId)
+		local root = p and p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if root and ClubConfig.isInClub(root.Position) then votes += 1 else skipVotes[userId] = nil end
+	end
+	local needed = ClubConfig.skipVotesNeeded(peopleInClub())
+	FashionGame:SetAttribute("ClubSkipVotes", string.format("%d/%d", votes, needed))
+	return votes, needed
+end
+
 local function playTrack(index: number, by: number)
 	local track = ClubConfig.Playlist[index]
 	if not track then return end
+	table.clear(skipVotes)
+	publishSkipVotes()
 	trackIndex = index
 	FashionGame:SetAttribute("ClubMusicPaused", false) -- (a new song always plays)
 	trackEnds = workspace:GetServerTimeNow() + track.length / ClubConfig.trackRate(track, musicSpeed()) + 1
@@ -312,11 +338,15 @@ end
 local function runPlaylist()
 	publishRequests()
 	playNext()
+	local tick = 0
 	while true do
 		task.wait(0.5)
 		if workspace:GetServerTimeNow() >= trackEnds then
 			playNext()
 		end
+		-- (the skip count follows people coming in and leaving the club)
+		tick += 1
+		if tick % 4 == 0 then publishSkipVotes() end
 	end
 end
 
@@ -339,6 +369,23 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 			end
 		end
 		return false, "곡이 없어요."
+	end
+	if action == "VoteSkip" then
+		if DjService.CurrentDJ() ~= 0 then return false, "DJ가 곡을 고르는 중이에요." end
+		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if not root or not ClubConfig.isInClub(root.Position) then return false, "클럽 안에서만 투표할 수 있어요." end
+		if skipVotes[player.UserId] then
+			skipVotes[player.UserId] = nil -- (a second tap takes the vote back)
+			publishSkipVotes()
+			return true, "스킵 투표를 취소했어요."
+		end
+		skipVotes[player.UserId] = true
+		local votes, needed = publishSkipVotes()
+		if votes >= needed then
+			playNext()
+			return true, "⏭ 투표로 다음 곡으로 넘어갔어요!"
+		end
+		return true, string.format("⏭ 스킵 투표 %d/%d", votes, needed)
 	end
 	if action == "Request" then
 		local index = validTrack(payload)

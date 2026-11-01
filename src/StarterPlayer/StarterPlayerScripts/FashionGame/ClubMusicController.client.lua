@@ -710,6 +710,10 @@ local function setPanelOpen(open: boolean)
 	end
 end
 
+-- (the club's 🎵 노래 신청 button, ClubQuickBar, D-694: the same window as at
+-- the turntable, so anyone in the club can queue a song)
+require(script.Parent:WaitForChild("UiBus")).OpenMusic.Event:Connect(function() setPanelOpen(not panel.Visible) end)
+
 -- The panel closes when the player walks away from where they opened it.
 local function updateVisibility()
 	if panel.Visible and openedAt then

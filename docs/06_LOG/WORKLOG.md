@@ -2844,3 +2844,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 🧪 Bubble Pop 테스트 버튼 (D-693)
 ![](images/2026-11-01/choreo_test_button.jpg)
+
+### 클럽 버튼 줄 (D-694)
+![](images/2026-11-01/club_quickbar_dance.jpg) ![](images/2026-11-01/club_quickbar_request.jpg)

@@ -1,0 +1,12 @@
+--!strict
+-- Client signals between scripts (D-694): one script asks another's window
+-- to open. UiBus.OpenDance / UiBus.OpenMusic are BindableEvents; the club
+-- button bar (ClubQuickBar) fires them, DanceController / ClubMusicController
+-- listen.
+
+local UiBus = {}
+
+UiBus.OpenDance = Instance.new("BindableEvent")
+UiBus.OpenMusic = Instance.new("BindableEvent")
+
+return UiBus

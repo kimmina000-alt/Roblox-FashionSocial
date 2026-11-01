@@ -49,6 +49,14 @@ export type Lab = {
 
 local ClubConfig = {}
 
+-- Skip vote (user 2026-11-01, D-694): votes needed to skip the song while
+-- there is no DJ = half the people in the club, rounded up, and at least 2
+-- once two or more are there (alone: your own vote is enough)
+function ClubConfig.skipVotesNeeded(peopleInClub: number): number
+	if peopleInClub <= 1 then return 1 end
+	return math.max(2, math.ceil(peopleInClub / 2))
+end
+
 -- 🧪 (user 2026-11-01) the "Bubble Pop 틀기" test button in the club, for
 -- trying the choreography on a phone: shown in Studio and, on live servers,
 -- to the experience owner's account only. Set to false before the launch.
