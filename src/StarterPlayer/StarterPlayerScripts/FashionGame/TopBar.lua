@@ -193,16 +193,27 @@ end
 
 -- ☰: three white bars, drawn (sharper than an image at this size; user 2026-10-31,
 -- the ⋯ dots were hard to see)
-for i = -1, 1 do
-	local bar = Instance.new("Frame")
-	bar.Name = "Bar"
-	bar.AnchorPoint = Vector2.new(0.5, 0.5)
-	bar.Position = UDim2.fromScale(0.5, 0.5 + i * 0.17)
-	bar.Size = UDim2.fromScale(0.48, 0.075)
-	bar.BackgroundColor3 = Color3.new(1, 1, 1)
-	bar.BorderSizePixel = 0
-	bar.Parent = more
-	Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+-- (2026-11-01: whole-pixel bars in one box, so all three are drawn the same
+-- thickness; the middle one came out thinner with scaled sizes)
+do
+	local BAR, GAP = 3, 5
+	local box = Instance.new("Frame")
+	box.Name = "Bars"
+	box.AnchorPoint = Vector2.new(0.5, 0.5)
+	box.Position = UDim2.fromScale(0.5, 0.5)
+	box.Size = UDim2.new(0.48, 0, 0, BAR * 3 + GAP * 2)
+	box.BackgroundTransparency = 1
+	box.Parent = more
+	for i = 0, 2 do
+		local bar = Instance.new("Frame")
+		bar.Name = "Bar"
+		bar.Position = UDim2.fromOffset(0, i * (BAR + GAP))
+		bar.Size = UDim2.new(1, 0, 0, BAR)
+		bar.BackgroundColor3 = Color3.new(1, 1, 1)
+		bar.BorderSizePixel = 0
+		bar.Parent = box
+		Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
+	end
 end
 TopBar.add(more, 20)
 

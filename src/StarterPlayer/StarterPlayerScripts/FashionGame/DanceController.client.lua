@@ -299,7 +299,8 @@ local banner = label({
 	Visible = false,
 }, gui)
 corner(banner, 15)
-create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }, banner)
+-- (34: room at both ends for the club's ≡ and › buttons, ClubQuickBar)
+create("UIPadding", { PaddingLeft = UDim.new(0, 34), PaddingRight = UDim.new(0, 34) }, banner)
 
 -- 같이 추기 status pill (under the banner while synced)
 local syncPill = create("Frame", {

@@ -1309,3 +1309,10 @@ Studio Play 확인: 계단→광장→정문 앞(z -277)까지 걸어감, 광장
 - 놀이기구 원인: PrimaryPart 없는 모델의 WorldPivot은 부품을 옮겨도 그대로라, ParkRidesController가 회전부(Rotor)·그네 의자를 옛 피벗 기준으로 돌려 회전목마 등이 남쪽 아래로 튐. park_raise가 옮긴 부품의 조상 모델 피벗도 같이 옮김(속성 ParkPivotRaised/ParkPivotShift, undo 지원).
 - 대관람차 윗부분 24개 부품이 z -482 북쪽이라 안 옮겨졌음: 놀이기구 태그(ParkWheel/Carousel/Swing/Spring) 모델은 통째로 이동. 대관람차 바퀴(지름 130)가 북쪽 벽돌담(z -524) 밖으로 나가서 대관람차·발판·경사로·라벨은 34 덜 북쪽으로(WHEEL_PULL). 06_Park_Playground 모든 모델이 벽돌담 안(x -147..-52, z -524..-279) 확인.
 - 음원(K-POP): 139326796173276 "피치 후 증폭", 88451163103580 "증폭 후 피치" (67 s), lab speed 1 / tempo 0.5 / volume 10 / boost 1 / octave 0.5 / EQ 0 / 0 / 0.
+
+## D-703 (2026-11-01) 클럽 버튼·상단 바 정리, 새 코인 아이콘
+- 사용자: 춤 버튼 아이콘을 메뉴의 ♪ 아이콘으로, 위치는 왼쪽. 노래 리스트(≡)·스킵(›)을 노래 제목 프레임 안으로. 오른쪽 위 ☰ 막대 세 개를 같은 굵기로(가운데가 얇았음). 시계 배경 삭제, 흰 글자 + 진한 검은 외곽 광선. 코인 아이콘을 보내 준 ₩ 이미지로.
+- ClubQuickBar: 춤 버튼 왼쪽 가장자리(x 10), 아이콘 Icons.note. ≡ / › 를 NowPlaying 배너 안 양 끝(지름 24)에 넣고 배너 UIPadding 12 → 34. 투표 수 배지는 배너 오른쪽 밖.
+- TopBar ☰: 막대를 정수 픽셀(굵기 3, 간격 5) 한 상자 안에 배치(비율 크기라 가운데 막대가 반올림으로 얇아졌음).
+- HudController 시계: 배경 없음, 검은 UIStroke 2 + 뒤에 같은 글자에 넓은 반투명 검은 테(4.5, 0.45)로 광선.
+- Icons.coin = 125376576385689 (docs/04_ART/icons/coin_won_v2.png, Vantablack_Dev 업로드). 모든 💰 자리(CoinIcons)와 코인 알약이 같이 바뀜.

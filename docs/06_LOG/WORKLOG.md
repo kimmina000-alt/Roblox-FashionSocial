@@ -2871,3 +2871,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 벽 이음매, 양옆 벽, 놀이기구 (D-702)
 ![](images/2026-11-01/park_corner_D702.jpg) ![](images/2026-11-01/park_west_wall_D702.jpg) ![](images/2026-11-01/park_rides_D702.jpg)
+
+### 클럽 버튼·상단 바·코인 아이콘 (D-703)
+![](images/2026-11-01/club_ui_D703.jpg)

@@ -1,9 +1,9 @@
 --!strict
 -- Club buttons (user 2026-11-01, D-694 / D-695), shown inside the club only:
---   💃 춤        a round button at the right edge: the dance window (DanceController)
---   ≡ list       left of the "NOW PLAYING" banner: the music window, to see
---                the playlist and queue a song (ClubMusicController)
---   › skip       right of the banner: vote the song away (ClubService
+--   ♪ 춤        a round button at the left edge: the dance window (DanceController)
+--   ≡ list       inside the "NOW PLAYING" banner, left end: the music window, to
+--                see the playlist and queue a song (ClubMusicController)
+--   › skip       inside the banner, right end: vote the song away (ClubService
 --                "VoteSkip"; hidden while a DJ plays), the count beside it
 
 local Players = game:GetService("Players")
@@ -24,11 +24,12 @@ gui.DisplayOrder = 4
 gui.Enabled = false
 gui.Parent = playerGui
 
--- 💃 at the right edge
+-- 💃 at the left edge (right edge until 2026-11-01; user moved it), with the
+-- menu's ♪ icon
 local danceButton = Instance.new("TextButton")
 danceButton.Name = "Dance"
-danceButton.AnchorPoint = Vector2.new(1, 0.5)
-danceButton.Position = UDim2.new(1, -10, 0.45, 0)
+danceButton.AnchorPoint = Vector2.new(0, 0.5)
+danceButton.Position = UDim2.new(0, 10, 0.45, 0)
 danceButton.Size = UDim2.fromOffset(56, 56)
 danceButton.BackgroundColor3 = Color3.fromRGB(255, 70, 170)
 danceButton.BackgroundTransparency = 0.1
@@ -42,13 +43,13 @@ do
 	edge.Transparency = 0.4
 	edge.Thickness = 1.5
 	edge.Parent = danceButton
-	local icon = Instance.new("TextLabel")
+	local icon = Instance.new("ImageLabel")
 	icon.BackgroundTransparency = 1
-	icon.Size = UDim2.new(1, 0, 0.62, 0)
-	icon.Position = UDim2.fromScale(0, 0.06)
-	icon.Text = "💃"
-	icon.TextScaled = true
-	icon.Font = Enum.Font.GothamBold
+	icon.AnchorPoint = Vector2.new(0.5, 0)
+	icon.Size = UDim2.fromScale(0.46, 0.46)
+	icon.Position = UDim2.fromScale(0.5, 0.14)
+	icon.Image = require(script.Parent:WaitForChild("Icons")).note
+	icon.ScaleType = Enum.ScaleType.Fit
 	icon.Parent = danceButton
 	local label = Instance.new("TextLabel")
 	label.BackgroundTransparency = 1
@@ -63,15 +64,15 @@ do
 end
 danceButton.Activated:Connect(function() UiBus.OpenDance:Fire() end)
 
--- the two small round buttons beside the banner, in the banner's own
--- ScreenGui (FashionDanceGui) so they share its place on screen
-local SIDE = 30
+-- the two small round buttons at the banner's two ends, inside it (beside it
+-- until 2026-11-01; user: "노래 제목 프레임 안으로")
+local SIDE = 24
 local function sideButton(name: string): TextButton
 	local b = Instance.new("TextButton")
 	b.Name = name
 	b.Size = UDim2.fromOffset(SIDE, SIDE)
-	b.BackgroundColor3 = Color3.new(0, 0, 0)
-	b.BackgroundTransparency = 0.45
+	b.BackgroundColor3 = Color3.new(1, 1, 1)
+	b.BackgroundTransparency = 0.88
 	b.Text = ""
 	b.Visible = false
 	Instance.new("UICorner", b).CornerRadius = UDim.new(1, 0)
@@ -152,8 +153,17 @@ RunService.RenderStepped:Connect(function()
 	local danceGui = playerGui:FindFirstChild("FashionDanceGui")
 	local banner = danceGui and danceGui:FindFirstChild("NowPlaying") :: TextLabel?
 	if not danceGui or not banner then return end
-	for _, item in ipairs({ listButton, skipButton, skipCount, toast } :: {GuiObject}) do
+	for _, item in ipairs({ skipCount, toast } :: {GuiObject}) do
 		if item.Parent ~= danceGui then item.Parent = danceGui end
+	end
+	-- (inside the banner: its UIPadding of 34 leaves room; -30 puts them 4 px in)
+	if listButton.Parent ~= banner then
+		listButton.Parent = banner
+		listButton.AnchorPoint = Vector2.new(0, 0.5)
+		listButton.Position = UDim2.new(0, -30, 0.5, 0)
+		skipButton.Parent = banner
+		skipButton.AnchorPoint = Vector2.new(1, 0.5)
+		skipButton.Position = UDim2.new(1, 30, 0.5, 0)
 	end
 	local shown = inClub and banner.Visible
 	local djOn = (FashionGame:GetAttribute("ClubDJ") or 0) ~= 0
@@ -165,10 +175,7 @@ RunService.RenderStepped:Connect(function()
 	-- (AbsolutePosition leaves out the top bar inset; this ScreenGui ignores it)
 	local inset = game:GetService("GuiService"):GetGuiInset()
 	local p, s = banner.AbsolutePosition + inset, banner.AbsoluteSize
-	local y = p.Y + (s.Y - SIDE) / 2
-	listButton.Position = UDim2.fromOffset(p.X - SIDE - 6, y)
-	skipButton.Position = UDim2.fromOffset(p.X + s.X + 6, y)
-	skipCount.Position = UDim2.fromOffset(p.X + s.X + SIDE + 10, p.Y + (s.Y - 18) / 2)
+	skipCount.Position = UDim2.fromOffset(p.X + s.X + 6, p.Y + (s.Y - 18) / 2)
 	toast.Position = UDim2.fromOffset(p.X + s.X / 2, p.Y + s.Y + 6)
 end)
 
