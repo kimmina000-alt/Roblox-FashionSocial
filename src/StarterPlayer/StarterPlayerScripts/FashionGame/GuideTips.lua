@@ -256,7 +256,7 @@ local JOB: {Coach.Step} = {
 		camera = viewOfPart(CAFE_TABLE, 10, 8) },
 	{ title = "테이블 정리", text = "손님이 다 마시고 남긴 빈 컵은 '테이블 정리'로 치우면 코인을 더 받아요.",
 		camera = viewOfPart(CAFE_TABLE, 6, 6) },
-	{ title = "끝내기", text = "하루에 벌 수 있는 알바 코인에는 한도가 있어요. 알바 중에는 앉거나 튜브를 탈 수 없어요. 그만할 때는 카운터에서 '알바 끝내기'를 눌러요.",
+	{ title = "끝내기", text = "하루에 벌 수 있는 알바 코인에는 한도가 있어요. 그만할 때는 카운터에서 '알바 끝내기'를 눌러요.",
 		camera = viewOfPart(BEACH_COUNTER, 10, 6) },
 }
 
@@ -276,7 +276,8 @@ local PHOTO: {Coach.Step} = {
 	{ title = "📸 오후네컷", text = "친구랑 네 컷 사진을 찍는 사진관이에요.",
 		camera = function() return CFrame.lookAt(Vector3.new(92, 22, -72), Vector3.new(150, 8, -64)) end },
 	{ title = "사진 찍기", text = "포토부스 앞에서 E 키(폰은 화면의 '사진 찍기' 버튼)를 누르면 들어가요. 포즈를 고르고 네 컷을 찍어요. 친구는 '같이 찍기'로 함께 들어와요.",
-		camera = function() return CFrame.lookAt(Vector3.new(112, 14, -70), Vector3.new(140, 7, -64)) end },
+		-- (D-717, user's shot: from the hall, the PINK / SKY ROOM doors on the wall at z -80)
+		camera = function() return CFrame.lookAt(Vector3.new(150, 13, -112), Vector3.new(150, 9, -80)) end },
 	{ title = "포토월", text = "찍은 사진은 사진첩(가방의 사진 탭)에 남아요. 포토월 앞에서 '사진 붙이기'를 누르면 내 사진을 벽에 붙여 모두에게 보여 줄 수 있어요.",
 		camera = viewOfPart(tagged("PhotoWall"), 14, 4) },
 }
@@ -286,7 +287,7 @@ local PHOTO: {Coach.Step} = {
 --------------------------------------------------
 
 -- runs `key` the first time `object` (found later, maybe) becomes visible
-local function onShown(key: string, steps: {Coach.Step}, getObject: () -> Instance?)
+local function onShown(key: string, steps: {Coach.Step}, getObject: () -> Instance?, only: (() -> boolean)?)
 	task.spawn(function()
 		local object: Instance? = nil
 		while not object do
@@ -295,7 +296,7 @@ local function onShown(key: string, steps: {Coach.Step}, getObject: () -> Instan
 		end
 		local gui = object :: GuiObject
 		local function check()
-			if gui.Visible and Coach.wants(key) then task.delay(0.4, function()
+			if gui.Visible and Coach.wants(key) and (not only or only()) then task.delay(0.4, function()
 				if gui.Visible then Coach.run(key, steps) end
 			end) end
 		end
@@ -317,9 +318,12 @@ function GuideTips.start()
 		local g = playerGui:FindFirstChild(DANCE_GUI)
 		return g and g:FindFirstChild("DancePanel")
 	end)
+	-- (D-717, user: only for whoever holds the DJ time)
 	onShown("dj", DJ, function()
 		local g = playerGui:FindFirstChild(MUSIC)
 		return g and g:FindFirstChild("MusicPanel")
+	end, function()
+		return ReplicatedStorage.FashionGame:GetAttribute("ClubDJ") == player.UserId
 	end)
 	onShown("gukbap", GUKBAP, function()
 		for _, d in ipairs(playerGui:GetDescendants()) do

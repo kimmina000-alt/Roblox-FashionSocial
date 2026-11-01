@@ -140,7 +140,9 @@ RunService.Heartbeat:Connect(function(dt)
 	accumulator = 0
 	local track = playingTrack()
 	local here = inClub()
-	button.Visible = here and track ~= nil and track.choreo ~= nil
+	-- (hidden since D-717, user: the dance menu is the way in; the following
+	-- code stays for later)
+	button.Visible = false and here and track ~= nil and track.choreo ~= nil
 	testButton.Visible = CAN_TEST and here
 	if not following then return end
 	local character = player.Character

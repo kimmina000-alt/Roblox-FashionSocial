@@ -41,28 +41,29 @@ local ring = create("Frame", { Name = "Ring", BackgroundTransparency = 1, Visibl
 create("UICorner", { CornerRadius = UDim.new(0, 10) }, ring)
 local ringStroke = create("UIStroke", { Color = ORANGE, Thickness = 4 }, ring)
 local card = create("Frame", {
-	Name = "TipCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16),
-	Size = UDim2.new(1, -32, 0, 150), BackgroundColor3 = PEACH, Visible = false, ZIndex = 3,
-	BackgroundTransparency = 0.5, -- (D-716, user: half see-through)
+	Name = "TipCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 78, 1, -16),
+	Size = UDim2.new(1, -188, 0, 164), BackgroundColor3 = Color3.new(0, 0, 0), Visible = false, ZIndex = 3,
+	BackgroundTransparency = 0.35, -- (D-717, user: black, see-through, white text)
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 18) }, card)
-create("UISizeConstraint", { MaxSize = Vector2.new(520, 150) }, card)
+create("UISizeConstraint", { MaxSize = Vector2.new(520, 164) }, card)
 create("UIStroke", { Color = ORANGE, Thickness = 2 }, card)
--- (D-716) the guide bunny on the card's corner, as if it says the tip
+-- (D-716) the guide bunny beside the card, as if it says the tip
 local GuideSpeaker = require(script.Parent:WaitForChild("GuideSpeaker"))
 GuideSpeaker.attach(card)
 local title = create("TextLabel", {
-	Position = UDim2.fromOffset(GuideSpeaker.Width + 12, 10), Size = UDim2.new(1, -(GuideSpeaker.Width + 90), 0, 24), BackgroundTransparency = 1, ZIndex = 4,
-	Font = Enum.Font.GothamBlack, TextSize = 18, TextColor3 = BROWN, TextXAlignment = Enum.TextXAlignment.Left, Text = "",
+	Position = UDim2.fromOffset(16, 10), Size = UDim2.new(1, -100, 0, 28), BackgroundTransparency = 1, ZIndex = 4,
+	Font = Enum.Font.GothamBlack, TextSize = 22, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, Text = "",
 }, card)
 local count = create("TextLabel", {
 	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -14, 0, 12), Size = UDim2.fromOffset(70, 20), ZIndex = 4,
-	BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = GREY,
+	BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Color3.fromRGB(200, 200, 205),
 	TextXAlignment = Enum.TextXAlignment.Right, Text = "",
 }, card)
 local body = create("TextLabel", {
-	Position = UDim2.fromOffset(GuideSpeaker.Width + 12, 38), Size = UDim2.new(1, -(GuideSpeaker.Width + 28), 0, 56), BackgroundTransparency = 1, ZIndex = 4,
-	Font = Enum.Font.GothamMedium, TextSize = 14, TextColor3 = BROWN, TextWrapped = true,
+	-- (D-717, user: the words stood out less than the buttons: 14 → 19)
+	Position = UDim2.fromOffset(16, 42), Size = UDim2.new(1, -32, 0, 62), BackgroundTransparency = 1, ZIndex = 4,
+	Font = Enum.Font.GothamBold, TextSize = 19, TextColor3 = Color3.new(1, 1, 1), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
 local function button(text: string, color: Color3, textColor: Color3): TextButton
@@ -70,7 +71,7 @@ local function button(text: string, color: Color3, textColor: Color3): TextButto
 	create("UICorner", { CornerRadius = UDim.new(0, 12) }, b)
 	return b
 end
-local skip = button("건너뛰기", Color3.fromRGB(235, 225, 215), BROWN)
+local skip = button("건너뛰기", Color3.fromRGB(70, 70, 78), Color3.new(1, 1, 1))
 skip.AnchorPoint = Vector2.new(0, 1)
 skip.Position = UDim2.new(0, 14, 1, -12)
 skip.Size = UDim2.new(0.36, -18, 0, 38)
@@ -103,6 +104,7 @@ local target: any = nil
 
 -- (D-714) the rest of the screen goes dark and the target pulses once
 local Spotlight = require(script.Parent:WaitForChild("Spotlight"))
+local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local rectOf = Spotlight.rectOf
 
 local finish: (boolean) -> ()
@@ -119,6 +121,7 @@ local function flyTo(cf: CFrame)
 	end)
 	local camera = workspace.CurrentCamera
 	camera.CameraType = Enum.CameraType.Scriptable
+	Sfx.play("teleport") -- (a whoosh as the camera flies, D-717)
 	if flight then flight:Cancel() end
 	flight = TweenService:Create(camera, TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { CFrame = cf })
 	;(flight :: Tween):Play()
@@ -171,6 +174,7 @@ finish = function(done: boolean)
 	if step and step.after then pcall(step.after) end
 	running = nil
 	doneHere[key] = true
+	player:SetAttribute("GuideActive", nil)
 	card.Visible = false
 	ring.Visible = false
 	Spotlight.set(nil)
@@ -221,13 +225,14 @@ RunService.RenderStepped:Connect(function()
 	-- button: at the bottom middle.
 	if not position or not size or not camera then
 		card.AnchorPoint = Vector2.new(0.5, 1)
-		card.Position = UDim2.new(0.5, 0, 1, -16)
+		card.Position = UDim2.new(0.5, GuideSpeaker.Width / 2, 1, -16)
 		return
 	end
 	local screen = camera.ViewportSize
 	local w, h = card.AbsoluteSize.X, card.AbsoluteSize.Y
-	local gap, speaker = 14, 80 -- (the bunny stands this far over the card's top)
-	local x = math.clamp(position.X + size.X / 2 - w / 2, 8, math.max(screen.X - w - 8, 8))
+	local gap, speaker = 14, 0 -- (D-717: the bunny is beside the card now, not over it)
+	local left = GuideSpeaker.Width + 14 -- (room for the bunny left of the card)
+	local x = math.clamp(position.X + size.X / 2 - w / 2, left, math.max(screen.X - w - 8, left))
 	local y
 	if position.Y + size.Y / 2 < screen.Y * 0.5 then
 		y = position.Y + size.Y + gap + speaker
@@ -250,6 +255,7 @@ function Coach.run(key: string, list: {Step})
 		return
 	end
 	running = key
+	player:SetAttribute("GuideActive", true) -- (louder ambience, SfxController)
 	steps = table.clone(list)
 	index = 1
 	card.Visible = true

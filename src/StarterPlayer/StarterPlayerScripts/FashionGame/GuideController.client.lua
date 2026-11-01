@@ -21,6 +21,7 @@ local GuideConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("Gui
 local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("Guide") :: RemoteFunction
 local Popups = require(script.Parent:WaitForChild("Popups"))
 local Spotlight = require(script.Parent:WaitForChild("Spotlight"))
+local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
 
 local player = Players.LocalPlayer
@@ -75,6 +76,7 @@ local function flyTo(cf: CFrame, seconds: number)
 	end)
 	camera = workspace.CurrentCamera
 	camera.CameraType = Enum.CameraType.Scriptable
+	Sfx.play("teleport") -- (a whoosh as the camera flies, D-717)
 	if flight then flight:Cancel() end
 	flight = TweenService:Create(camera, TweenInfo.new(seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { CFrame = cf })
 	;(flight :: Tween):Play()
@@ -92,31 +94,33 @@ end
 --------------------------------------------------
 
 local card = create("Frame", {
-	Name = "TutorialCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16),
-	Size = UDim2.new(1, -32, 0, 168), BackgroundColor3 = PEACH, Visible = false,
-	BackgroundTransparency = 0.5, -- (D-716, user: half see-through)
+	Name = "TutorialCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 78, 1, -16), -- (room on the left for the bunny)
+	Size = UDim2.new(1, -188, 0, 178), BackgroundColor3 = Color3.new(0, 0, 0), Visible = false,
+	-- (D-717, user: black, see-through, white text; peach at 50 % in D-716)
+	BackgroundTransparency = 0.35,
 }, gui)
 corner(card, 18)
-create("UISizeConstraint", { MaxSize = Vector2.new(560, 168) }, card)
+create("UISizeConstraint", { MaxSize = Vector2.new(560, 178) }, card)
 create("UIStroke", { Color = ORANGE, Thickness = 2 }, card)
--- (D-716) the guide bunny on the card's corner, as if it gives the tour
+-- (D-716) the guide bunny beside the card, as if it gives the tour
 local GuideSpeaker = require(script.Parent:WaitForChild("GuideSpeaker"))
 GuideSpeaker.attach(card)
 local cardTitle = create("TextLabel", {
-	Position = UDim2.fromOffset(GuideSpeaker.Width + 12, 12), Size = UDim2.new(1, -(GuideSpeaker.Width + 100), 0, 26), BackgroundTransparency = 1,
-	Font = Enum.Font.GothamBlack, TextSize = 20, TextColor3 = BROWN, TextXAlignment = Enum.TextXAlignment.Left, Text = "",
+	Position = UDim2.fromOffset(18, 12), Size = UDim2.new(1, -110, 0, 30), BackgroundTransparency = 1,
+	Font = Enum.Font.GothamBlack, TextSize = 24, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, Text = "",
 }, card)
 local cardStep = create("TextLabel", {
-	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 14), Size = UDim2.fromOffset(80, 22),
-	BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = GREY,
+	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 16), Size = UDim2.fromOffset(80, 22),
+	BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = Color3.fromRGB(200, 200, 205),
 	TextXAlignment = Enum.TextXAlignment.Right, Text = "",
 }, card)
+-- (D-717, user: the words stood out less than the buttons: 15 → 20)
 local cardText = create("TextLabel", {
-	Position = UDim2.fromOffset(GuideSpeaker.Width + 12, 42), Size = UDim2.new(1, -(GuideSpeaker.Width + 30), 0, 62), BackgroundTransparency = 1,
-	Font = Enum.Font.GothamMedium, TextSize = 15, TextColor3 = BROWN, TextWrapped = true,
+	Position = UDim2.fromOffset(18, 48), Size = UDim2.new(1, -36, 0, 66), BackgroundTransparency = 1,
+	Font = Enum.Font.GothamBold, TextSize = 20, TextColor3 = Color3.new(1, 1, 1), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
-local skipButton = button(card, "건너뛰기", Color3.fromRGB(235, 225, 215), BROWN)
+local skipButton = button(card, "건너뛰기", Color3.fromRGB(70, 70, 78), Color3.new(1, 1, 1))
 skipButton.AnchorPoint = Vector2.new(0, 1)
 skipButton.Position = UDim2.new(0, 16, 1, -14)
 skipButton.Size = UDim2.new(0.38, -20, 0, 40)
@@ -158,6 +162,7 @@ GuideTips.start()
 local function endTour(finished: boolean?)
 	if not touring then return end
 	touring = false
+	player:SetAttribute("GuideActive", nil) -- (the ambience back to normal, SfxController)
 	card.Visible = false
 	Spotlight.set(nil)
 	cameraBack()
@@ -169,6 +174,7 @@ end
 local function startTour()
 	if touring then return end
 	touring = true
+	player:SetAttribute("GuideActive", true)
 	step = 1
 	card.Visible = true
 	Popups.opened("Tutorial", function() endTour(false) end)

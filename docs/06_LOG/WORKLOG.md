@@ -2937,3 +2937,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 토끼 화자 카드, 기부 배너 (D-716)
 ![](images/2026-11-01/tour_speaker_D716.jpg) ![](images/2026-11-01/tip_near_button_D716.jpg) ![](images/2026-11-01/banner_outline_D716.jpg)
+
+### 검정 안내 카드, 오후네컷 앵글 (D-717)
+![](images/2026-11-01/tour_card_black_D717.jpg) ![](images/2026-11-01/tip_photo_doors_D717.jpg)

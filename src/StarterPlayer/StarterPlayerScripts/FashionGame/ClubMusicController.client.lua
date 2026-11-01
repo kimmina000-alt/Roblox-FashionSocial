@@ -301,6 +301,22 @@ local trackList = create("ScrollingFrame", {
 	CanvasSize = UDim2.new(),
 }, panel)
 create("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, trackList)
+-- 🔍 song search (user 2026-11-01, D-717): rows whose title / channel hold the text
+local searchBox = create("TextBox", {
+	Name = "SongSearch",
+	Size = UDim2.new(1, 0, 0, 26),
+	BackgroundColor3 = COLORS.card,
+	PlaceholderText = "🔍 노래 검색",
+	PlaceholderColor3 = COLORS.sub,
+	Text = "",
+	ClearTextOnFocus = false,
+	TextColor3 = COLORS.text,
+	TextSize = 14,
+	Font = Enum.Font.GothamMedium,
+	TextXAlignment = Enum.TextXAlignment.Left,
+}, panel)
+corner(searchBox, 8)
+create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, searchBox)
 local queueLabel = create("TextLabel", {
 	Name = "QueueLabel",
 	AnchorPoint = Vector2.new(0, 1),
@@ -406,7 +422,7 @@ local function layout()
 	local W, H = width - 20, height - 20
 	local leftW = W
 	local listParent = if compact then listPanel else panel
-	for _, item in ipairs({ listTitle, trackList, queueLabel }) do
+	for _, item in ipairs({ listTitle, searchBox, trackList, queueLabel } :: {GuiObject}) do
 		if item.Parent ~= listParent then item.Parent = listParent end
 	end
 	listPanel.Visible = compact and panel.Visible
@@ -453,14 +469,16 @@ local function layout()
 	if compact then
 		listTitle.Position = UDim2.fromOffset(0, 28)
 		listTitle.Size = UDim2.new(1, 0, 0, 18)
-		trackList.Position = UDim2.fromOffset(0, 48)
-		trackList.Size = UDim2.new(1, 0, 1, -48)
+		searchBox.Position = UDim2.fromOffset(0, 48)
+		trackList.Position = UDim2.fromOffset(0, 78)
+		trackList.Size = UDim2.new(1, 0, 1, -78)
 		queueLabel.Visible = false
 	else
 		listTitle.Position = UDim2.fromOffset(0, y)
 		listTitle.Size = UDim2.new(1, 0, 0, 22)
-		trackList.Position = UDim2.fromOffset(0, y + 24)
-		trackList.Size = UDim2.new(1, 0, 1, -(y + 24) - 74)
+		searchBox.Position = UDim2.fromOffset(0, y + 24)
+		trackList.Position = UDim2.fromOffset(0, y + 54)
+		trackList.Size = UDim2.new(1, 0, 1, -(y + 54) - 74)
 		queueLabel.Visible = true
 	end
 end
@@ -590,7 +608,9 @@ local function renderTracks()
 	local dj = isDJ()
 	local otherDJ = (FashionGame:GetAttribute("ClubDJ") or 0) ~= 0 and not dj
 	local current = FashionGame:GetAttribute("ClubTrack")
+	local query = string.lower(searchBox.Text)
 	for index, track in ipairs(ClubConfig.Playlist) do
+		if query ~= "" and not string.find(string.lower(track.title .. " " .. track.channel), query, 1, true) then continue end
 		local row = create("Frame", {
 			Name = "Track_" .. index,
 			LayoutOrder = index,
@@ -727,6 +747,9 @@ local function refreshAll()
 	refresh()
 	if panel.Visible then renderTracks() end
 end
+searchBox:GetPropertyChangedSignal("Text"):Connect(function()
+	if panel.Visible then renderTracks() end
+end)
 
 for _, name in ipairs({ "ClubTrack", "ClubTrackBy", "ClubRequests", "ClubDJ", "ClubDJUntil", "ClubDJQueue", "ClubDJGuests", "ClubLights", "ClubLasers", "ClubLightColor", "ClubLightSpeed", "ClubDJScreen", "ClubMusicSpeed", "ClubMusicPitch", "ClubMusicPaused", "ClubMusicVolume" }) do
 	FashionGame:GetAttributeChangedSignal(name):Connect(refreshAll)

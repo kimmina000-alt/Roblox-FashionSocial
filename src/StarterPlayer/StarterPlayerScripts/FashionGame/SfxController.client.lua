@@ -214,8 +214,11 @@ RunService.Heartbeat:Connect(function()
 		birds = birds,
 		city = if inClub then 0 else (1 - waves) * (1 - 0.5 * birds),
 	}
+	-- (D-717, user) louder while a tour or tip is on (GuideController / Coach
+	-- set the local attribute GuideActive)
+	local boost = if player:GetAttribute("GuideActive") then 2.5 else 1
 	for name, s in pairs(loops) do
-		local goal = (target :: any)[name] * (MAX :: any)[name]
+		local goal = (target :: any)[name] * (MAX :: any)[name] * boost
 		local v = (current :: any)[name]
 		v += (goal - v) * 0.25 -- ease over about a second
 		;(current :: any)[name] = v
