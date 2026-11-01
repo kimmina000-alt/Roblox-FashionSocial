@@ -3040,3 +3040,5 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### EDM 음원 3개 (D-759)
 ![](images/2026-11-02/d759_edm_three.jpg)
 - DJ 창에 EDM 1·2·3 버튼, 켜진 것 분홍. 한 번에 한 곡.
+- 모바일 2P(폰 801×413): Player1(DJ)이 버튼으로 EDM 2 → Player2에게 EDM 2만 재생, EDM 3 → 3만, EDM 3 한 번 더 → 꺼짐. 오류 없음 → catalog-ui-redesign에 머지.
+![](images/2026-11-02/d759_m2p_edm3.jpg)
