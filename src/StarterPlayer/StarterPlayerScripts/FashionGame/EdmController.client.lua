@@ -2,14 +2,14 @@
 -- DJ EDM effects on every client (D-733, Shared/EdmConfig, server EdmService).
 -- Reads the FashionGame attribute ClubEdm and works on the club music Sound
 -- (DanceController's "ClubMusic"):
---   - EQ effects of its own: the filter (mid / high cut) and the bass (low gain;
---     cut away during a build-up)
---   - flange and echo (half a beat)
+--   - an EQ of its own for the bass: cut away during a build-up, a little extra
+--     on the drop (the DJ's filter / bass / flanger sliders are gone, D-734)
+--   - echo (half a beat)
 --   - pump: the song's SoundGroup sits in a group of ours whose volume dips on
 --     every beat
 --   - kick and hi-hats: one-shot sounds on the beat, as loud as the music is here
--- The beat: the tapped bpm and beat time, else EdmConfig.Bpm[soundId] counted
--- from the song's start (ClubTrackStart), as heard (the DJ's speed carries over).
+-- The beat: the DJ's kick tempo, else EdmConfig.Bpm[soundId] (the DJ's speed
+-- carries over), counted from the song's start (ClubTrackStart).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -33,9 +33,7 @@ local function make(className: string, props: {[string]: any}, parent: Instance)
 end
 
 -- effects on the song (after DanceController's own: higher Priority runs first)
-local filterEq = make("EqualizerSoundEffect", { Name = "EdmFilter", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 30 }, music)
 local bassEq = make("EqualizerSoundEffect", { Name = "EdmBass", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 29 }, music)
-local flange = make("FlangeSoundEffect", { Name = "EdmFlange", Depth = 0.45, Mix = 0.6, Rate = 0.6, Enabled = false, Priority = 28 }, music)
 local echo = make("EchoSoundEffect", { Name = "EdmEcho", Delay = 0.25, Feedback = 0.35, WetLevel = -6, DryLevel = 0, Enabled = false, Priority = 27 }, music)
 
 -- pump: our group above the song's own group (nested SoundGroups multiply)
@@ -64,9 +62,8 @@ local function hit(list: {Sound}, turn: number, volume: number): number
 	return turn % #list + 1
 end
 
-type State = { filter: number, bass: number, kick: boolean, pump: boolean, flange: boolean, echo: boolean,
-	bpm: number?, phase: number?, dropAt: number? }
-local state: State = { filter = 1, bass = 0, kick = false, pump = false, flange = false, echo = false }
+type State = { kick: boolean, pump: boolean, echo: boolean, bpm: number?, dropAt: number? }
+local state: State = { kick = false, pump = false, echo = false }
 local function read()
 	local raw = FashionGame:GetAttribute("ClubEdm")
 	if typeof(raw) ~= "string" then return end
@@ -83,13 +80,11 @@ end
 
 -- beat length in server seconds and the server time of a beat
 local function beat(): (number, number)
-	local djSpeed = num("ClubMusicSpeed", 1)
-	if state.bpm and state.phase then
-		return 60 / state.bpm, state.phase -- (tapped in server seconds already)
-	end
+	local anchor = num("ClubTrackStart", 0)
+	if state.bpm then return 60 / state.bpm, anchor end -- (the DJ's kick tempo, as heard)
 	local track = ClubConfig.Playlist[num("ClubTrack", 0)]
 	local bpm = (track and EdmConfig.Bpm[track.soundId]) or EdmConfig.Default
-	return 60 / (bpm * djSpeed), num("ClubTrackStart", 0)
+	return 60 / (bpm * num("ClubMusicSpeed", 1)), anchor
 end
 
 local lastBeat, lastHalf, lastRoll = -1, -1, -1
@@ -131,18 +126,12 @@ RunService.RenderStepped:Connect(function()
 		end
 	end
 
-	-- filter (low-pass): mids and highs cut as it closes
-	local closed = 1 - math.clamp(state.filter or 1, 0, 1)
-	filterEq.Enabled = closed > 0.01
-	filterEq.HighGain = -50 * closed
-	filterEq.MidGain = -24 * closed
-	-- bass: boost, cut away while building, a little extra on the drop
-	local low = 9 * math.clamp(state.bass or 0, 0, 1)
-	if building then low = -40 * buildProgress
-	elseif dropped then low = math.max(low, 4) end
+	-- (a drop switched off part way: the riser stops too)
+	if not building and riser.IsPlaying then riser:Stop() end
+	-- bass: cut away while building, a little extra on the drop
+	local low = if building then -40 * buildProgress elseif dropped then 4 else 0
 	bassEq.LowGain = low
 	bassEq.Enabled = math.abs(low) > 0.1
-	flange.Enabled = state.flange == true
 	echo.Enabled = state.echo == true
 	echo.Delay = math.clamp(period / 2, 0.05, 1)
 

@@ -155,21 +155,21 @@ ClubConfig.Playlist = {
 	-- two pitch / boost tests — and only these nine, all with the same lab
 	-- values. 139326796173276, the "피치 후 증폭" test, is IVE-Mirror.)
 	-- (D-723, user 2026-11-01: new lab values for all nine, the same for each;
-	-- D-727: tempo 0.35 → 0.335, Get A Guitar heard for 2:40)
-	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
+	-- D-727: tempo 0.35 → 0.335, Get A Guitar heard for 2:40; D-734: boost 2 → 4, the music was quiet)
+	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 4, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
+	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 4, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
 	-- (the choreography made for the older Bubble Pop upload, kept on this one)
-	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
+	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 4, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
 	-- (D-726, user 2026-11-01: the start of the choreography, in order; danced by itself)
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 119819611123433, 97097804325917, 119200924904137, 77403973851668, 73939357849033, 137390866303201,
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 4, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 119819611123433, 97097804325917, 119200924904137, 77403973851668, 73939357849033, 137390866303201,
 		-- (D-728, the rest: 20 in all)
 		121969021575883, 92148657532352, 96742563282745, 88430566939812, 108795638313983, 95813030011960, 135272998171625,
 		129447992418977, 82252722293006, 108611133102309, 117244778152210, 113505968174557, 112498417388469, 80874196383963 }, autoChoreo = true },
-	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
+	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 4, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
+	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 4, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
+	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 4, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
+	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 4, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
+	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 4, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside

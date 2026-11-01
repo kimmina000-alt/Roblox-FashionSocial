@@ -3,23 +3,21 @@
 -- song that is playing, everyone in the club hears the same. The state is the
 -- FashionGame attribute ClubEdm (JSON, EdmService); EdmController plays it on
 -- every client, EdmPanel is the DJ's part of the turntable window.
---   filter  0..1   low-pass: 0 = muffled (bass only), 1 = open
---   bass    0..1   bass boost
---   kick    on/off a four-on-the-floor kick and off-beat hi-hats on the song's beat
+-- (D-734, user: 박자 탭, 플랜저, 필터, 베이스 taken out; 킥 tempo slider, 배속)
+--   kick    on/off a four-on-the-floor kick and off-beat hi-hats
+--   bpm     the kick's tempo (the slider beside 킥), MinBpm..MaxBpm
 --   pump    on/off the song ducks on every beat (sidechain)
---   flange  on/off
 --   echo    on/off an echo half a beat long
 --   drop    a build-up (BuildBeats: bass cut away, a riser, hi-hats getting
 --           faster) and then the drop: bass back, a big kick, the kick on for
---           DropBeats
---   tap     the DJ taps the beat: bpm and the time of a beat
--- The beat: EdmConfig.Bpm[soundId] (the original song's BPM as heard in the
--- club) or Default; a tap replaces it until the song changes.
+--           DropBeats. Pressed again while it runs: off.
+-- The beat: the kick tempo, else EdmConfig.Bpm[soundId] (the original song's
+-- BPM as heard in the club) or Default, counted from the song's start.
 
 return {
 	Default = 120,
 	-- the song's BPM as heard (the uploads play at x0.335 back to the original tempo).
-	-- Numbers from songbpm.com / ruwiki (Tunebat); the DJ's tap fixes any that are off.
+	-- Numbers from songbpm.com / ruwiki (Tunebat); the DJ's kick slider fixes any that are off.
 	Bpm = {
 		[134942349436280] = 124, -- ATEEZ-BAD
 		[119473981131981] = 99, -- RIIZE-Love 119
@@ -28,7 +26,9 @@ return {
 	BuildBeats = 16,
 	DropBeats = 32,
 	MinBpm = 60,
-	MaxBpm = 200,
+	MaxBpm = 180,
+	-- the 배속 button cycles these (ClubConfig.MusicSpeeds has them all)
+	Speeds = { 0.75, 1, 1.25, 1.5, 2 },
 	-- sounds (Creator Store; APM Music / Roblox-licensed where there was one)
 	Sounds = {
 		kick = 1837831484, -- KICK-Basic Kick 02 (APM). Candidates: 108664024018025 Kick 5, 130299156805539 compressor kick

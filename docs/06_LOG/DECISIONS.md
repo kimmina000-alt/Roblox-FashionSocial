@@ -1511,3 +1511,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - EdmService: DjService.Actions.Edm(DJ만), 새 곡이면 탭 박자·드롭만 지움, DJ가 바뀌면 처음부터.
 - Studio 테스트용: ServerScriptService 속성 StudioDJ(UserId 목록)면 들어올 때 DJ 시간(라이브에선 무시). 지금 "11887382096,-1".
 - Studio Play: 효과·드럼 켜짐, 드롭 8.5초 빌드업 → 상승음, 저음 -12 → 드롭 뒤 +5.4, 펌핑 동작. 소리는 직접 못 들음.
+
+## D-734 (2026-11-01) EDM 줄이기, 킥 빠르기, 배속, ? 설명, 음원 부스트 x2
+- 사용자: 박자·플랜저·필터·베이스 삭제. 드롭 진행 중 한 번 더 누르면 꺼짐. 음악 배속 추가. 킥은 ON/OFF + 옆 슬라이더로 빠르기. 턴테이블 창 X 옆 ?로 버튼 설명 창. 음악이 작음 → 부스트 2배.
+- EdmPanel: [🥁 킥 ON/OFF] ━━●━━ 140 BPM / [💓 펌핑] [🚀 드롭] [🔁 에코] [⏩ x1]. 슬라이더 60~180 BPM(처음엔 곡 박자), ⏩는 x0.75 → 1 → 1.25 → 1.5 → 2(기존 MusicSpeed).
+- EdmService: kick·pump·echo·bpm·drop(진행 중이면 끔). EdmController: 필터·플랜저 효과 삭제, 저음 EQ는 빌드업·드롭에만, 드롭을 끄면 상승음도 멈춤.
+- DjHelp: ? 버튼 → "턴테이블 버튼 설명" 창(DJ·조명·EDM·곡 칸마다 설명).
+- ClubConfig 9곡 lab.boost 2 → 4.
+- Studio Play: 드롭 → 다시 누르면 dropAt 지워지고 상승음 멈춤, 배속 x1.25 적용, 킥 140 BPM, 그룹 볼륨 4, ? 창 표시.

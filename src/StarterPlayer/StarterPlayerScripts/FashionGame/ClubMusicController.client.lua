@@ -107,6 +107,22 @@ local closeButton = create("TextButton", {
 	Font = Enum.Font.GothamBold,
 }, panel)
 corner(closeButton, 14)
+-- ? beside X: what every button does (DjHelp, D-734)
+local helpButton = create("TextButton", {
+	Name = "HelpButton",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.new(1, -34, 0, 0),
+	Size = UDim2.fromOffset(28, 28),
+	BackgroundColor3 = COLORS.card,
+	Text = "?",
+	TextColor3 = COLORS.text,
+	TextSize = 16,
+	Font = Enum.Font.GothamBold,
+}, panel)
+corner(helpButton, 14)
+helpButton.MouseButton1Click:Connect(function()
+	require(script.Parent:WaitForChild("DjHelp")).toggle(gui)
+end)
 
 local nowLabel = create("TextLabel", {
 	Name = "NowLabel",
@@ -432,7 +448,7 @@ local function layout()
 	listPanel.Visible = compact and panel.Visible
 	local nowLabel = panel:FindFirstChild("NowLabel") :: TextLabel
 	local header = panel:FindFirstChild("Header") :: TextLabel
-	header.Size = UDim2.new(0, leftW - 34, 0, 24)
+	header.Size = UDim2.new(0, leftW - 68, 0, 24) -- (room for ? and X)
 	header.Text = if compact then "🎧 디제잉" else "음악"
 	nowLabel.Position = UDim2.fromOffset(0, if compact then 26 else 32)
 	nowLabel.Size = UDim2.fromOffset(leftW, if compact then 18 else 22)
@@ -774,6 +790,7 @@ listClose.MouseButton1Click:Connect(function()
 end)
 closeButton.MouseButton1Click:Connect(function()
 	setPanelOpen(false)
+	require(script.Parent:WaitForChild("DjHelp")).close()
 end)
 skipButton.MouseButton1Click:Connect(function() call("Skip", nil) end)
 pauseButton.MouseButton1Click:Connect(function()

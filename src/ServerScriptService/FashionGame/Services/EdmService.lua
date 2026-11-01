@@ -1,9 +1,13 @@
 --!strict
--- DJ EDM effects, server side (D-733, Shared/EdmConfig). The DJ's "Edm" action
--- (Music remote → DjService.Actions, DJ only) changes one control; the state
--- is the FashionGame attribute ClubEdm (JSON) for every client.
--- A new song keeps the switches but forgets the tapped beat and a drop; a
--- new DJ (or none) starts from nothing.
+-- DJ EDM effects, server side (D-733, D-734; Shared/EdmConfig). The DJ's
+-- "Edm" action (Music remote → DjService.Actions, DJ only) changes one
+-- control; the state is the FashionGame attribute ClubEdm (JSON) for every
+-- client.
+--   kick  on/off      bpm   the kick's tempo (the slider beside 킥)
+--   pump  on/off      echo  on/off
+--   drop  a build-up and the drop; pressed again while it runs: off
+-- A new song keeps the switches but forgets the kick tempo and a drop; a new
+-- DJ (or none) starts from nothing.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local HttpService = game:GetService("HttpService")
@@ -15,11 +19,10 @@ local DjService = require(script.Parent.DjService)
 
 local EdmService = {}
 
-type State = { filter: number, bass: number, kick: boolean, pump: boolean, flange: boolean, echo: boolean,
-	bpm: number?, phase: number?, dropAt: number? }
+type State = { kick: boolean, pump: boolean, echo: boolean, bpm: number?, dropAt: number? }
 
 local function fresh(): State
-	return { filter = 1, bass = 0, kick = false, pump = false, flange = false, echo = false }
+	return { kick = false, pump = false, echo = false }
 end
 local state: State = fresh()
 
@@ -29,36 +32,34 @@ end
 
 -- beat length in server seconds and the server time of a beat (as EdmController)
 local function beat(): (number, number)
-	if state.bpm and state.phase then return 60 / state.bpm, state.phase end
+	local start = FashionGame:GetAttribute("ClubTrackStart")
+	local anchor = if typeof(start) == "number" then start else 0
+	if state.bpm then return 60 / state.bpm, anchor end
 	local index = FashionGame:GetAttribute("ClubTrack")
 	local track = if typeof(index) == "number" then ClubConfig.Playlist[index] else nil
 	local bpm = (track and EdmConfig.Bpm[track.soundId]) or EdmConfig.Default
 	local speed = FashionGame:GetAttribute("ClubMusicSpeed")
-	local start = FashionGame:GetAttribute("ClubTrackStart")
-	return 60 / (bpm * (if typeof(speed) == "number" then speed else 1)), if typeof(start) == "number" then start else 0
+	return 60 / (bpm * (if typeof(speed) == "number" then speed else 1)), anchor
 end
 
 DjService.Actions.Edm = function(_dj: Player, payload: any): (boolean, any)
 	if typeof(payload) ~= "table" or typeof(payload.k) ~= "string" then return false, "잘못된 요청입니다." end
 	local k, v = payload.k, payload.v
-	if k == "filter" or k == "bass" then
-		if typeof(v) ~= "number" or v ~= v then return false, nil end
-		(state :: any)[k] = math.clamp(v, 0, 1)
-	elseif k == "kick" or k == "pump" or k == "flange" or k == "echo" then
+	if k == "kick" or k == "pump" or k == "echo" then
 		(state :: any)[k] = v == true
+	elseif k == "bpm" then
+		if typeof(v) ~= "number" or v ~= v then return false, nil end
+		state.bpm = math.clamp(math.floor(v + 0.5), EdmConfig.MinBpm, EdmConfig.MaxBpm)
 	elseif k == "drop" then
 		local now = workspace:GetServerTimeNow()
 		local period, anchor = beat()
-		if state.dropAt and state.dropAt > now - period * EdmConfig.DropBeats then
-			return false, "드롭이 끝난 뒤에 다시 할 수 있어요."
+		if state.dropAt and now < state.dropAt + period * EdmConfig.DropBeats then
+			-- (D-734, user: pressed again while it runs = off)
+			state.dropAt = nil
+		else
+			-- on a beat, BuildBeats or a little more from now (the next whole beat after that)
+			state.dropAt = anchor + math.ceil((now - anchor) / period + EdmConfig.BuildBeats) * period
 		end
-		-- on a beat, BuildBeats or a little more from now (the next whole beat after that)
-		state.dropAt = anchor + math.ceil((now - anchor) / period + EdmConfig.BuildBeats) * period
-	elseif k == "tap" then
-		if typeof(v) ~= "table" or typeof(v.bpm) ~= "number" or typeof(v.phase) ~= "number" then return false, nil end
-		if v.bpm ~= v.bpm or v.phase ~= v.phase then return false, nil end
-		state.bpm = math.clamp(math.floor(v.bpm * 10 + 0.5) / 10, EdmConfig.MinBpm, EdmConfig.MaxBpm)
-		state.phase = v.phase
 	elseif k == "reset" then
 		state = fresh()
 	else
@@ -71,7 +72,7 @@ end
 function EdmService.Start()
 	publish()
 	FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function()
-		state.bpm, state.phase, state.dropAt = nil, nil, nil
+		state.bpm, state.dropAt = nil, nil
 		publish()
 	end)
 	local lastDJ = FashionGame:GetAttribute("ClubDJ")
