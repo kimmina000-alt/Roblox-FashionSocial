@@ -1570,3 +1570,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: 런칭 전에 실제 브랜드를 가짜 이름으로.
 - 가짜 건물 사진 6장(tools/art/debrand_facades.ps1 → docs/04_ART/facades/*_nobrand.png, 업로드): facade 2 PLAYSTATION → VR GAME (103525678252089), 4 ABC-MART·나이키·아디다스·뉴발란스·반스 → OHU SHOES / SNEAKERS · BOOTS (77355424821151), 7 JUNO HAIR·ABC-MART → OHU HAIR·OHU SHOES (81168164295826), 9 bhc·신선(설농탕) → OHU CHICKEN·오후설 (132058337151806), 10 BEER·세계맥주(술) → SODA · PLATE, 설농탕 → 렁탕 (95649203947356), 11 bhc 난간 글자 지움 (106495261705537). 플레이스 Decal 30개 교체(Workspace + ServerStorage 백업).
 - 글자 간판: GS25 편의점 → OH24 편의점, 하나투어 → 오후투어, ZERO 전자담배 → ZERO 폰케이스(전자담배는 연령 문제). TextLabel 211개(백업 포함). build_hongdae_layout.lua·shop_facades.ps1도 같게(치킨 & 호프 → 치킨 & 콜라).
+
+## D-745 (2026-11-02) 클럽 음원은 기본 설정, 사용자 보정값은 숨겨 둠
+- 사용자: 클럽 음원 설정 기본으로, 예전 내 음원용 설정값은 숨겨 놓기(나중에 씀). ClubConfig.Playlist 12곡 lab 제거(원래 속도, ClubConfig.MusicVolume 0.55, DJ 🔊 슬라이더는 그대로). 사용자 보정값은 ClubConfig.SavedLabs.userUpload(어느 곡도 안 씀; 곡에 lab = ClubConfig.SavedLabs.userUpload로 되살림). EdmConfig.Track boost 2 → 1. Studio Play: 곡 x1·볼륨 0.55, EDM도 같게.

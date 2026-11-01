@@ -478,3 +478,4 @@
 - 썸네일 모델 아바타 11명(아이템 검색, ServerStorage.ThumbnailAvatars) (D-740).
 - feat/club-roblox-music-1102 머지, 런칭 체크리스트 문서 (D-741).
 - 실제 브랜드 간판(ABC-MART·나이키·bhc·GS25·PLAYSTATION 등)과 술·전자담배 간판을 가짜 이름으로 (D-744).
+- 클럽 음원 기본 설정(보정값 없이), 사용자 보정값은 ClubConfig.SavedLabs에 보관 (D-745).

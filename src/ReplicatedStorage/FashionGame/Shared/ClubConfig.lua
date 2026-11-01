@@ -151,23 +151,30 @@ ClubConfig.JoinRadius = 90
 -- Shared club music. One track plays for everyone; the channel name is shown.
 -- (user 2026-11-02, D-739: only Roblox's own licensed music — DistroKid on the
 -- Creator Store, offered by Roblox — every K-POP upload before taken out; the
--- Bubble Pop / Get A Guitar choreographies went with them.) Normal-speed
--- uploads: the lab only lifts the volume (boost; the DJ's 🔊 slider on top).
-local ROBLOX_LAB = { speed = 1, tempo = 1, volume = 10, boost = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }
+-- Bubble Pop / Get A Guitar choreographies went with them.)
+-- (D-745, user: default sound, no lab values: they play as uploaded at
+-- ClubConfig.MusicVolume, the DJ's 🔊 slider on top)
 ClubConfig.Playlist = {
-	{ channel = "K-POP", title = "K-Pop Party", soundId = 135361546383974, length = 145, lab = ROBLOX_LAB },
-	{ channel = "K-POP", title = "K-pop Cute Crush", soundId = 121416896999522, length = 108, lab = ROBLOX_LAB },
-	{ channel = "K-POP", title = "K-Pop Uprising", soundId = 72966738276299, length = 130, lab = ROBLOX_LAB },
-	{ channel = "K-POP", title = "Push & Pull (밀당의 고수)", soundId = 132502088493185, length = 140, lab = ROBLOX_LAB },
-	{ channel = "K-POP", title = "Secret Party", soundId = 75682100037866, length = 146, lab = ROBLOX_LAB },
-	{ channel = "K-POP", title = "Luminous Dance", soundId = 123336690588412, length = 163, lab = ROBLOX_LAB },
-	{ channel = "EDM", title = "LIGHT UP THE NIGHT", soundId = 102534983754242, length = 235, lab = ROBLOX_LAB },
-	{ channel = "EDM", title = "RUN THE NIGHT", soundId = 123336998544849, length = 218, lab = ROBLOX_LAB },
-	{ channel = "EDM", title = "ECHOES OF THE BASS", soundId = 134070050316863, length = 203, lab = ROBLOX_LAB },
-	{ channel = "DISCO", title = "Disco Inferno", soundId = 87243738678545, length = 135, lab = ROBLOX_LAB },
-	{ channel = "EDM", title = "Festival Fever", soundId = 136228548293465, length = 103, lab = ROBLOX_LAB },
-	{ channel = "EDM", title = "Euphoria Dance", soundId = 76814968175069, length = 99, lab = ROBLOX_LAB },
+	{ channel = "K-POP", title = "K-Pop Party", soundId = 135361546383974, length = 145 },
+	{ channel = "K-POP", title = "K-pop Cute Crush", soundId = 121416896999522, length = 108 },
+	{ channel = "K-POP", title = "K-Pop Uprising", soundId = 72966738276299, length = 130 },
+	{ channel = "K-POP", title = "Push & Pull (밀당의 고수)", soundId = 132502088493185, length = 140 },
+	{ channel = "K-POP", title = "Secret Party", soundId = 75682100037866, length = 146 },
+	{ channel = "K-POP", title = "Luminous Dance", soundId = 123336690588412, length = 163 },
+	{ channel = "EDM", title = "LIGHT UP THE NIGHT", soundId = 102534983754242, length = 235 },
+	{ channel = "EDM", title = "RUN THE NIGHT", soundId = 123336998544849, length = 218 },
+	{ channel = "EDM", title = "ECHOES OF THE BASS", soundId = 134070050316863, length = 203 },
+	{ channel = "DISCO", title = "Disco Inferno", soundId = 87243738678545, length = 135 },
+	{ channel = "EDM", title = "Festival Fever", soundId = 136228548293465, length = 103 },
+	{ channel = "EDM", title = "Euphoria Dance", soundId = 76814968175069, length = 99 },
 } :: {Track}
+
+-- (D-745, user: "숨겨 놔, 나중에 쓸 거임") the lab values the user tuned by ear
+-- for their own sped-up uploads (docs/04_ART/OLD_CLUB_PLAYLIST.md). No track
+-- uses them now; give a track `lab = ClubConfig.SavedLabs.userUpload` to bring them back.
+ClubConfig.SavedLabs = {
+	userUpload = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" },
+} :: {[string]: Lab}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
 -- the club zone (parts tagged "ClubZone").

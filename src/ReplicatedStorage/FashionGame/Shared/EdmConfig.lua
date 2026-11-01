@@ -13,7 +13,8 @@ return {
 	-- (D-739: Roblox's licensed "ECHOES OF THE BASS" in place of Get A Guitar)
 	Track = {
 		soundId = 134070050316863, -- ECHOES OF THE BASS (DistrokidOfficial)
-		lab = { speed = 1, tempo = 1, volume = 10, boost = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
+		-- (D-745: default sound, as the playlist)
+		lab = { speed = 1, tempo = 1, volume = 10, boost = 1, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
 	},
 	-- the sliders' ranges (the song speed and volume use ClubConfig.MusicSpeeds /
 	-- MusicVolumes steps on the server)
