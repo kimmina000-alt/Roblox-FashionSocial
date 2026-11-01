@@ -2986,3 +2986,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 브랜드 간판 정리 (D-744)
 ![](images/2026-11-02/debrand_D744.jpg)
+
+### 알바 안내 (D-746)
+![](images/2026-11-02/job_tip_staff_D746.jpg)

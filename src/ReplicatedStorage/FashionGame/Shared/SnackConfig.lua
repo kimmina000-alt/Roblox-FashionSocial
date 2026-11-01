@@ -37,12 +37,12 @@ SnackConfig.ShopDistance = 16
 SnackConfig.PlateSeconds = 600 -- a shared plate stays this long on the table
 SnackConfig.PlateDistance = 30 -- the bought plate goes on a table this close
 
-local FREE, T2, T3, RB = "무료", "💰 10", "💰 20", "Robux · 함께 나눠 먹기"
+local FREE, T1, T2, T3, RB = "무료", "💰 5", "💰 10", "💰 20", "Robux · 함께 나눠 먹기"
 
 -- the cafe menu (D-310): the same tiers in the beach cafe
 local CAFE_ITEMS: {Item} = {
 	{ key = "water", name = "물", kind = "cup", color = Color3.fromRGB(205, 230, 245), section = FREE },
-	{ key = "iceamericano", name = "아이스 아메리카노", kind = "cup", color = Color3.fromRGB(70, 40, 25), section = FREE },
+	{ key = "iceamericano", name = "아이스 아메리카노", kind = "cup", color = Color3.fromRGB(70, 40, 25), coins = 5, section = T1 }, -- (free until D-746)
 	{ key = "latte", name = "카페라테", kind = "cup", color = Color3.fromRGB(210, 175, 135), coins = 10, section = T2 },
 	{ key = "caramel", name = "카라멜 마끼아또", kind = "cup", color = Color3.fromRGB(200, 140, 80), coins = 10, section = T2 },
 	{ key = "cappuccino", name = "카푸치노", kind = "cup", color = Color3.fromRGB(190, 150, 115), coins = 10, section = T2 },

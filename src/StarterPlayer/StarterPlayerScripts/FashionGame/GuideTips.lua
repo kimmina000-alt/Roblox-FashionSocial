@@ -251,7 +251,21 @@ local CAFE: {Coach.Step} = {
 }
 
 local JOB: {Coach.Step} = {
-	{ title = "☕ 알바 시작!", text = "이제 카페 직원이에요. 머리 위에 '알바생'이 보여요.", target = find("CafeJobGui", "JobPill") },
+	-- (D-746, user: show the 알바생 tag over the name: the camera on the player's own face)
+	{ title = "☕ 알바 시작!", text = "이제 카페 직원이에요. 머리 위 닉네임 위에 '알바생'이 보여요.",
+		camera = function()
+			local character = player.Character
+			local head = character and character:FindFirstChild("Head") :: BasePart?
+			if not head then return nil end
+			-- from the customers' side of the counter (the work bench is against a wall)
+			local counter = BEACH_COUNTER()
+			local cf = counter and cframeOf(counter)
+			local front = if cf then Vector3.new(cf.X - head.Position.X, 0, cf.Z - head.Position.Z)
+				else Vector3.new(head.CFrame.LookVector.X, 0, head.CFrame.LookVector.Z)
+			if front.Magnitude < 0.01 then front = Vector3.new(0, 0, -1) end
+			local tagAt = head.Position + Vector3.new(0, 1.6, 0) -- (the face, the name tag and the 알바생 badge over it)
+			return CFrame.lookAt(tagAt + front.Unit * 8 + Vector3.new(0, 1, 0), tagAt)
+		end },
 	{ title = "주문 목록", text = "왼쪽 '알바 중' 칸을 누르면 주문 목록이 나와요. 손님(플레이어·NPC)이 주문하면 여기에 쌓여요.", target = find("CafeJobGui", "JobPill") },
 	{ title = "📱 폰에서는", text = "폰에서는 '알바 중' 칸이 작게 보여요. 목록을 위아래로 끌어서(드래그) 아래쪽 주문까지 확인해요.",
 		target = function() return find("CafeJobGui", "Orders")() or find("CafeJobGui", "JobPill")() end },

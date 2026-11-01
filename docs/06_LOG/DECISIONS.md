@@ -1573,3 +1573,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-745 (2026-11-02) 클럽 음원은 기본 설정, 사용자 보정값은 숨겨 둠
 - 사용자: 클럽 음원 설정 기본으로, 예전 내 음원용 설정값은 숨겨 놓기(나중에 씀). ClubConfig.Playlist 12곡 lab 제거(원래 속도, ClubConfig.MusicVolume 0.55, DJ 🔊 슬라이더는 그대로). 사용자 보정값은 ClubConfig.SavedLabs.userUpload(어느 곡도 안 씀; 곡에 lab = ClubConfig.SavedLabs.userUpload로 되살림). EdmConfig.Track boost 2 → 1. Studio Play: 곡 x1·볼륨 0.55, EDM도 같게.
+
+## D-746 (2026-11-02) 아메리카노 5코인, 알바 안내에서 알바생 표시 보여 주기
+- 사용자: 카페 아메리카노 5코인. 튜토리얼 '이제 카페 직원이에요'에서 닉네임 위 알바생을 보여 주기. SnackConfig: 아이스 아메리카노 무료 → 💰 5(새 칸). GuideTips JOB 1단계: 카메라가 카운터 손님 쪽에서 내 얼굴·이름표(알바생 배지)를 비춤, 문구 '머리 위 닉네임 위에 알바생'. Studio Play 확인.
