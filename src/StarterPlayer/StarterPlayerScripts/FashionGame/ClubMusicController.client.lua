@@ -250,8 +250,9 @@ local function djRowButton(name: string, text: string, order: number, color: Col
 	return b
 end
 -- DJ shown on the big LED screen (DjService.Actions.Screen, attribute ClubDJScreen)
-local screenButton = djRowButton("Screen", "📺 전광판 ON", 1, COLORS.dj)
-local pauseButton = djRowButton("Pause", "⏸ 일시정지", 2, COLORS.card)
+-- (D-724, user 2026-11-01: ⏸ first, then 📺)
+local screenButton = djRowButton("Screen", "📺 전광판 ON", 2, COLORS.dj)
+local pauseButton = djRowButton("Pause", "⏸ 일시정지", 1, COLORS.card)
 -- 🎆 the stage fireworks, free for the DJ (user 2026-10-27; SparkleService
 -- "DJColdSpark", once every 90 s)
 local djSparkButton = djRowButton("DJSpark", "🎆 무대 스파클러", 3, Color3.fromRGB(255, 150, 40))

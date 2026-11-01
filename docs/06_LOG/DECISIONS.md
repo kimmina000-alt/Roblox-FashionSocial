@@ -1462,3 +1462,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-723 (2026-11-01) 클럽 9곡 보정값 변경
 - 사용자: 9곡 모두 lab = { speed = 1, tempo = 0.35, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }. ClubConfig.Playlist 9곡에 똑같이 적용(곡 목록은 그대로).
+
+## D-724 (2026-11-01) DJ 줄 버튼 순서
+- 사용자: DJ 턴테이블 창의 전광판 ON과 일시정지 자리 바꾸기. 이제 [⏸ 일시정지] [📺 전광판 ON] [🎆 무대 스파클러] (ClubMusicController LayoutOrder).
