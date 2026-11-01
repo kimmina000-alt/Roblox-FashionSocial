@@ -121,10 +121,17 @@ while true do
 			-- (re)collect late panels; a door already marked open is marked shut
 			-- again so the open state is applied to them too (a night door opened
 			-- before its panels streamed in stayed shut for good, 2026-10-27)
-			if #door.panels < ((model:GetAttribute("Panels") :: number?) or 2) then
+			-- (D-748, live phone: the club door stayed shut at night) with streaming a
+			-- panel that went out of range and came back is a new part: the old one
+			-- in the list moved nothing. A panel no longer in the model = scan again.
+			local stale = false
+			for _, panel in ipairs(door.panels) do
+				if not panel.part:IsDescendantOf(model) then stale = true break end
+			end
+			if stale or #door.panels < ((model:GetAttribute("Panels") :: number?) or 2) then
 				local had = #door.panels
 				scan(door)
-				if #door.panels ~= had then door.isOpen = false end
+				if stale or #door.panels ~= had then door.isOpen = false end
 			end
 			local center = model:GetPivot().Position
 			local range = (model:GetAttribute("Range") :: number?) or 9
