@@ -272,6 +272,16 @@ end
 
 function ClubAccessService.Start()
 	setupGroups()
+	-- (D-748, live phone: the club door stayed shut at 21:00) sliding doors are
+	-- small: kept loaded on every client, so streaming never swaps their panels
+	-- (AutoDoorController also finds swapped panels again)
+	local function keepLoaded(model: Instance)
+		if model:IsA("Model") and model:IsDescendantOf(workspace) then
+			model.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+		end
+	end
+	for _, door in ipairs(CollectionService:GetTagged("AutoDoor")) do keepLoaded(door) end
+	CollectionService:GetInstanceAddedSignal("AutoDoor"):Connect(keepLoaded)
 	for _, part in ipairs(CollectionService:GetTagged("ClubGate")) do watchGate(part) end
 	CollectionService:GetInstanceAddedSignal("ClubGate"):Connect(watchGate)
 

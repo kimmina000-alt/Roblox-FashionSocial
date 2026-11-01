@@ -140,26 +140,7 @@ local function spawnGuide()
 	prompt.MaxActivationDistance = 12
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = root
-	-- a "?" over the head so it is seen from afar
-	local head = model:FindFirstChild("Head")
-	if head then
-		local board = Instance.new("BillboardGui")
-		board.Name = "GuideMark"
-		board.Size = UDim2.fromOffset(23, 23) -- (46 until D-716: half, user)
-		board.StudsOffset = Vector3.new(0, 2.6, 0)
-		board.AlwaysOnTop = true
-		board.MaxDistance = 120
-		local mark = Instance.new("TextLabel")
-		mark.Size = UDim2.fromScale(1, 1)
-		mark.BackgroundColor3 = Color3.fromRGB(255, 140, 90)
-		mark.Text = "?"
-		mark.TextScaled = true
-		mark.Font = Enum.Font.GothamBlack
-		mark.TextColor3 = Color3.new(1, 1, 1)
-		mark.Parent = board
-		Instance.new("UICorner", mark).CornerRadius = UDim.new(1, 0)
-		board.Parent = head
-	end
+	-- (no "?" over the head since D-749, user; it was a 23 px orange disc)
 	-- (D-716) a still copy for the tip cards' speaker picture (GuideController /
 	-- Coach show it on the left of the card): in ReplicatedStorage, so every
 	-- client has it wherever the NPC itself is streamed
