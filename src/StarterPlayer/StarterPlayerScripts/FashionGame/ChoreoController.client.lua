@@ -149,12 +149,14 @@ RunService.Heartbeat:Connect(function(dt)
 	-- (D-726) a song with autoChoreo: standing still in the club starts it
 	if not following and track and track.autoChoreo and track.choreo and here and humanoid
 		and humanoid.MoveDirection.Magnitude <= 0.1 and not humanoid.Sit and not humanoid.PlatformStand
-		and (character :: Model):GetAttribute("DanceKey") == nil then
+		and (character :: Model):GetAttribute("DanceKey") == nil
+		and not player:GetAttribute("Carrying") and not player:GetAttribute("CarriedBy") then -- (a guard's carry, D-738)
 		startFollowing(track)
 	end
 	if not following then return end
 	if not track or track.soundId ~= following.soundId or not here or not humanoid
-		or humanoid.MoveDirection.Magnitude > 0.1 or (character :: Model):GetAttribute("DanceKey") ~= nil then
+		or humanoid.MoveDirection.Magnitude > 0.1 or (character :: Model):GetAttribute("DanceKey") ~= nil
+		or player:GetAttribute("Carrying") or player:GetAttribute("CarriedBy") then
 		stopFollowing()
 		return
 	end

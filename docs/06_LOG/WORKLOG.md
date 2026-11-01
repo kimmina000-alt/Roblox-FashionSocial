@@ -2974,3 +2974,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ## 2026-11-02
 ### 턴테이블 창 배치 (D-737)
 ![](images/2026-11-02/dj_tip_grow_left_D737.jpg) ![](images/2026-11-02/dj_layout_D737.jpg)
+
+### 모바일 2P 테스트 (D-738)
+![](images/2026-11-02/m2p_dj_phone_D738.jpg) ![](images/2026-11-02/m2p_guard_carry_D738.jpg)

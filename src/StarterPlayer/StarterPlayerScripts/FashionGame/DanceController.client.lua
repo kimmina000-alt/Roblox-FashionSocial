@@ -1274,7 +1274,12 @@ RunService.RenderStepped:Connect(function(dt)
 		local gain = if want > 10 and not lab then math.min(20 * math.log10(want / 10), 10) else 0
 		boost.Enabled = gain > 0
 		boost.LowGain, boost.MidGain, boost.HighGain = gain, gain, gain
-		banner.Visible = level > 0 and banner.Text ~= ""
+		-- (D-738, 2P phone test: on a short screen the DJ window sits at the left
+		-- top and the banner's ≡ covered its ? / X; the window shows the song too)
+		local musicGui = player.PlayerGui:FindFirstChild("FashionMusicGui")
+		local musicPanel = musicGui and musicGui:FindFirstChild("MusicPanel")
+		local djWindowOnPhone = musicPanel ~= nil and (musicPanel :: GuiObject).Visible and camera.ViewportSize.Y < 450
+		banner.Visible = level > 0 and banner.Text ~= "" and not djWindowOnPhone
 	end
 	if music.Volume > 0 then
 		local pulse = math.clamp(music.PlaybackLoudness / 500, 0, 1)

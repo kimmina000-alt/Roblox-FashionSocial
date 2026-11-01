@@ -42,6 +42,22 @@ RunService.Stepped:Connect(function()
 	end
 end)
 
+-- put down: stand up at once (2P test 2026-11-02, D-738: the player lay on
+-- their side for two seconds before getting up by themselves)
+player:GetAttributeChangedSignal("CarriedBy"):Connect(function()
+	if player:GetAttribute("CarriedBy") then return end
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not humanoid or not root or not root:IsA("BasePart") then return end
+	humanoid.PlatformStand = false
+	local look = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+	if look.Magnitude < 0.1 then look = Vector3.new(0, 0, -1) end
+	root.AssemblyAngularVelocity = Vector3.zero
+	root.CFrame = CFrame.lookAt(root.Position + Vector3.new(0, 1, 0), root.Position + Vector3.new(0, 1, 0) + look.Unit)
+	humanoid:ChangeState(Enum.HumanoidStateType.GettingUp)
+end)
+
 -- the guard's drop button
 local gui = Instance.new("ScreenGui")
 gui.Name = "GuardCarryGui"
