@@ -1550,3 +1550,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - EdmConfig.Track: Get A Guitar → ECHOES OF THE BASS(사용자의 EDM 음원이 올 때까지).
 - Studio Play: 12곡, 지금 곡 재생(x1), EDM 겹쳐 재생 확인.
 - (D-739 덧붙임) 뺀 K-POP 9곡·보정값·BPM·안무 id·EDM 임시 음원은 docs/04_ART/OLD_CLUB_PLAYLIST.md에 보관(되돌릴 Lua 포함).
+
+## D-740 (2026-11-02) 썸네일 모델 아바타 11명
+- 사용자: 아이템 목록 사진 11장(한 장 = 한 명이 입은 것)으로 아이템을 찾아 아바타 11명.
+- 찾기: 게임 안 카탈로그 검색(AvatarEditorService)은 한국어 이름으로는 잘 안 나와서, 이름을 영어로 되돌려 검색 + 가격을 정확히 맞추고, 돌아온 한국어 이름을 사진 이름과 비교(1.6초 간격, 빠르면 HTTP 429). 목록: tools/thumbnail/avatars.lua (못 찾은 것 missing: A06 "Y2K" 검은 곰 60, A08 플란넬 오프숄더 재킷 65, A09 "문신" ×3 — 같은 이름이 수십 개). 이모트·애니메이션 팩은 정지 사진이라 뺌.
+- tools/thumbnail/build_avatars.lua(Edit 모드): 몸 번들의 코디를 바탕, 나머지는 종류대로(몸·머리, 얼굴, 클래식 옷, 장신구·레이어드). 결과 ServerStorage.ThumbnailAvatars(A01~A11, 게임엔 안 보임; 쓸 때 Workspace로).
+- 몸 번들이 없는 아바타는 기본 블록 몸(사진 속 아바타들도 블록 몸).

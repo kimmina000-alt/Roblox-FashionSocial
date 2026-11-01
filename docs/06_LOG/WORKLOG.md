@@ -2979,3 +2979,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ![](images/2026-11-02/m2p_dj_phone_D738.jpg) ![](images/2026-11-02/m2p_guard_carry_D738.jpg)
 - 다시 테스트(2P 폰): 낮에 클럽 밖 Player2를 들고 들어옴 → 가드 안무 안 춤, 내려놓자 바로 섬(UpVector.Y 1.00), 클럽에 남음(ClubInside); 폰 DJ 창 열면 노래 띠 숨김. 오류 없음 → catalog-ui-redesign에 머지.
 ![](images/2026-11-02/m2p_retest_D738.jpg)
+
+### 썸네일 모델 11명 (D-740)
+![](images/2026-11-02/thumb_models_a01_a05_D740.jpg) ![](images/2026-11-02/thumb_models_a06_a11_D740.jpg)
