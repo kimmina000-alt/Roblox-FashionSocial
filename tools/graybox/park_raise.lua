@@ -81,6 +81,29 @@ if MODE == "undo" then
 	return
 end
 
+-- (D-751, live phone: invisible walls across the club street and inside
+-- 오후네컷) the boundary along the park's east wall (x -51.3, z -279 … -455)
+-- was found turned and lowered right across the map (centre 50.6, 15.5,
+-- -149.3). Every boundary wall stands upright, along x or z, centred at y 55:
+-- any other is put back here as that east line, on every run.
+do
+	local boundary = L:FindFirstChild("MapBoundary")
+	if boundary then
+		for _, w in ipairs(boundary:GetChildren()) do
+			if w:IsA("BasePart") and w.Name == "BoundaryWall" then
+				local look = w.CFrame.LookVector
+				local square = math.abs(look.X) > 0.999 or math.abs(look.Z) > 0.999
+				if not square or math.abs(w.Position.Y - 55) > 0.5 then
+					local a, b = Vector3.new(-51.3, 55, -279), Vector3.new(-51.3, 55, -455)
+					w.Size = Vector3.new(2, 150, (b - a).Magnitude + 2)
+					w.CFrame = CFrame.lookAt((a + b) / 2, b)
+					print("[park_raise] boundary wall put back on x -51.3")
+				end
+			end
+		end
+	end
+end
+
 if L:GetAttribute("ParkRaised") then
 	print("[park_raise] already raised")
 	return

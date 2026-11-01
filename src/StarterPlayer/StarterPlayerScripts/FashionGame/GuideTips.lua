@@ -215,7 +215,7 @@ local CLUB: {Coach.Step} = {
 	{ title = "♪ 춤 버튼", text = "오른쪽 위 ♪ 버튼으로 춤을 골라 지금 나오는 곡에 맞춰 춰요.", target = function() return TopBar.button(1) end },
 	{ title = "노래 목록 · › 스킵", text = "노래 제목 왼쪽 목록 버튼(줄 세 개)에서 다음에 들을 곡을 예약하고, 오른쪽 ›로 스킵 투표를 해요. 클럽 사람 절반이 찬성하면 넘어가요.", target = find(DANCE_GUI, "NowPlaying") },
 	{ title = "🍹 바텐더", text = "바에 있는 바텐더에게 '음료 주문'을 눌러 음료(무알코올)를 골라요. 무료 음료도 있어요.", camera = bartenderView },
-	{ title = "🍾 음료를 테이블에", text = "음료(캔·병)를 든 채 테이블을 누르면 모든 사람·친구만·나만 중에 골라 테이블에 놓아요. 한 번 놓은 음료는 회수할 수 없어요. 테이블이 아닌 곳을 누르면 캔째 마셔요.",
+	{ title = "🍾 음료를 테이블에", text = "음료(캔·병)를 든 채 테이블을 누르면 모든 사람·친구만·나만 중에 골라 테이블에 놓아요. 한 번 놓은 음료는 회수할 수 없어요. 테이블은 한 사람이 하나만 잡을 수 있어요. 테이블이 아닌 곳을 누르면 캔째 마셔요.",
 		camera = viewOfPart(CLUB_TABLE, 12, 5) },
 	{ title = "🥂 테이블에서 마시기", text = "테이블 위 버킷을 누르면 한 잔씩 따라 마셔요.",
 		camera = viewOfPart(CLUB_TABLE, 8, 4) },

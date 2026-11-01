@@ -2999,3 +2999,12 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ![](images/2026-11-02/d750_2p_p2_itemshop.jpg) ![](images/2026-11-02/d750_2p_seller_tip_camera.jpg)
 - 폰 801×413 두 명. Player1(가드)·Player2(일반, 시계 22시)가 새 자리 판매원에게서 아이템 상점 열림, 바로 걸어가면 닫힘, 바텐더 음료 메뉴 정상. 판매원 안내 카메라는 폰에서 머리가 상단 바에 가려 조금 위로 겨눔. 스크립트 오류 없음(Studio DataStore 경고만) → catalog-ui-redesign에 머지.
+
+### 투명 벽 (D-751) · 테이블 한 사람당 하나 (D-752)
+사용자 라이브 폰: 빨간 선에서 못 지나감
+![](images/2026-11-02/d751_wall_club_sidewalk.webp) ![](images/2026-11-02/d751_wall_road.webp)
+![](images/2026-11-02/d751_wall_ohu4cut.webp) ![](images/2026-11-02/d751_wall_club_day.webp)
+- 원인: 공원 동쪽 경계벽(x -51.3)이 돌아가 (-27,-233)~(128,-65)를 비스듬히 막고 있었음. 제자리로, park_raise가 매번 바로잡음. 다섯 곳 걸어서 통과 확인.
+- 테이블: 버킷이 있는 사람은 다른 테이블에 못 놓음. 비운 뒤엔 됨(Studio Play).
+- 바다 "네모난 것": Studio에서 보면 수영 가능한 지형 물(밝은 하늘색, x -1020 / z ±1000)이 끝나는 곳에서 짙은 바다 판으로 바뀌어 네모로 보임. 사용자에게 확인 중.
+![](images/2026-11-02/d753_sea_question.webp) ![](images/2026-11-02/d753_sea_edge_studio.jpg)

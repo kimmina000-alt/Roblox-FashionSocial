@@ -417,6 +417,23 @@ local function hasBucket(tablePart: BasePart): boolean
 end
 DrinkService.HasBucket = hasBucket -- (SparkleService: sparkler bucket sets)
 
+-- One table per person (user 2026-11-02, D-752): the table where the player
+-- already has a drink bucket or a sparkler bucket, if any.
+local function ownTable(player: Player): BasePart?
+	for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do
+		if t:IsA("BasePart") and t:IsDescendantOf(workspace) then
+			for _, child in ipairs(t:GetChildren()) do
+				if (child.Name == "PlacedBottle" or child.Name == "SparklerBucket") and child:GetAttribute("Owner") == player.UserId then
+					return t
+				end
+			end
+		end
+	end
+	return nil
+end
+DrinkService.OwnTable = ownTable
+DrinkService.OneTableMessage = "테이블은 한 사람이 하나만 잡을 수 있어요. 지금 테이블의 버킷이 비거나 치워진 뒤에 다른 테이블을 쓸 수 있어요."
+
 -- The middle of a table top: where a bucket goes (an Attachment "CenterSlot",
 -- so the owner sign and removeBottle treat it like the edge slots).
 -- (2026-10-29 (8): placed in world terms. The round tables are cylinders whose
@@ -511,6 +528,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	local drink = ClubConfig.findDrink(bottleTool:GetAttribute("Bottle"))
 	if not drink then return false, nil end
 	if hasBucket(tablePart) then return false, "버킷이 놓인 테이블에는 더 올릴 수 없어요." end
+	if ownTable(player) then return false, DrinkService.OneTableMessage end
 	local kind = kindFor(player, drink)
 	-- (every placed drink is an ice bucket now, tier 1 too: a tap pours a cup,
 	-- it is not taken back, user 2026-10-28 (13))

@@ -448,6 +448,8 @@ local function tap(player: Player, target: any): (boolean, string?, boolean)
 			return false, "테이블 가까이 가서 눌러 주세요.", true
 		end
 		if DrinkService.HasBucket(tablePart) then return false, "버킷이 놓인 테이블에는 더 올릴 수 없어요.", true end
+		-- (one table per person, D-752)
+		if DrinkService.OwnTable(player) then return false, DrinkService.OneTableMessage, true end
 		set:Destroy()
 		return grantBucket(player, tablePart), nil, true
 	end
