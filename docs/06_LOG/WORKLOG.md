@@ -2909,3 +2909,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 1개: 국밥집 테이블(Hongdae_Layout.Gukbap.TableTop)에서도 똑같이 놓임(6조각) → Player1이 한 조각 가져감(남은 5조각).
 - 오류 없음(서버 기록의 SharedPlate 오류는 제 테스트 명령의 것).
 ![](images/2026-11-01/mobile2p_cake_cafe_D710.jpg) ![](images/2026-11-01/mobile2p_cake_gukbap_D710.jpg)
+
+### 모바일 2P 추가: 수육 같이 먹기 + 상점 사진 (D-710)
+- 사용자가 Player1로 수육 한 접시(6점) 구매 → 인벤토리. 국밥집 테이블(85.6, -303) 옆에서 누르자 놓임("수육 한 접시 · Player1님 · 남은 6점").
+- 상점 UI용 사진: UI·이름표를 끄고 낮 조명, FOV 30으로 접시만 찍음 → docs/04_ART/shop_photos/gukbap_suyuk_top / _angle (.jpg 원본, _square.png 512×512).
+- Player2가 "한 조각 먹기"로 한 점씩 가져가 한 입에 먹음(수육은 한 입) → 남은 5 → 4 → 3 → 2 → 1 → 마지막 점을 가져가면 접시가 사라짐.
+- 오류 없음.
+![](../04_ART/shop_photos/gukbap_suyuk_top_square.png)
