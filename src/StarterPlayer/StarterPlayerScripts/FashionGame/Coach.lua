@@ -43,12 +43,16 @@ local ringStroke = create("UIStroke", { Color = ORANGE, Thickness = 4 }, ring)
 local card = create("Frame", {
 	Name = "TipCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16),
 	Size = UDim2.new(1, -32, 0, 150), BackgroundColor3 = PEACH, Visible = false, ZIndex = 3,
+	BackgroundTransparency = 0.5, -- (D-716, user: half see-through)
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 18) }, card)
 create("UISizeConstraint", { MaxSize = Vector2.new(520, 150) }, card)
 create("UIStroke", { Color = ORANGE, Thickness = 2 }, card)
+-- (D-716) the guide bunny on the card's corner, as if it says the tip
+local GuideSpeaker = require(script.Parent:WaitForChild("GuideSpeaker"))
+GuideSpeaker.attach(card)
 local title = create("TextLabel", {
-	Position = UDim2.fromOffset(16, 10), Size = UDim2.new(1, -100, 0, 24), BackgroundTransparency = 1, ZIndex = 4,
+	Position = UDim2.fromOffset(GuideSpeaker.Width + 12, 10), Size = UDim2.new(1, -(GuideSpeaker.Width + 90), 0, 24), BackgroundTransparency = 1, ZIndex = 4,
 	Font = Enum.Font.GothamBlack, TextSize = 18, TextColor3 = BROWN, TextXAlignment = Enum.TextXAlignment.Left, Text = "",
 }, card)
 local count = create("TextLabel", {
@@ -57,7 +61,7 @@ local count = create("TextLabel", {
 	TextXAlignment = Enum.TextXAlignment.Right, Text = "",
 }, card)
 local body = create("TextLabel", {
-	Position = UDim2.fromOffset(16, 38), Size = UDim2.new(1, -32, 0, 56), BackgroundTransparency = 1, ZIndex = 4,
+	Position = UDim2.fromOffset(GuideSpeaker.Width + 12, 38), Size = UDim2.new(1, -(GuideSpeaker.Width + 28), 0, 56), BackgroundTransparency = 1, ZIndex = 4,
 	Font = Enum.Font.GothamMedium, TextSize = 14, TextColor3 = BROWN, TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
@@ -211,11 +215,29 @@ RunService.RenderStepped:Connect(function()
 		ring.Visible = true
 		ringStroke.Transparency = 0.15 + 0.35 * (0.5 + 0.5 * math.sin(os.clock() * 6))
 	end
-	-- the card where it hides the least: at the bottom, or on top when the
-	-- outline is in the lower part of the screen
-	local low = position ~= nil and size ~= nil and camera ~= nil and (position.Y + size.Y / 2) > camera.ViewportSize.Y * 0.55
-	card.AnchorPoint = if low then Vector2.new(0.5, 0) else Vector2.new(0.5, 1)
-	card.Position = if low then UDim2.new(0.5, 0, 0, 64) else UDim2.new(0.5, 0, 1, -16)
+	-- (D-716, user) the card next to the button it talks about: below it when
+	-- the button is in the upper half (room left over the card for the bunny),
+	-- else above it, and as near it sideways as the screen allows. Without a
+	-- button: at the bottom middle.
+	if not position or not size or not camera then
+		card.AnchorPoint = Vector2.new(0.5, 1)
+		card.Position = UDim2.new(0.5, 0, 1, -16)
+		return
+	end
+	local screen = camera.ViewportSize
+	local w, h = card.AbsoluteSize.X, card.AbsoluteSize.Y
+	local gap, speaker = 14, 80 -- (the bunny stands this far over the card's top)
+	local x = math.clamp(position.X + size.X / 2 - w / 2, 8, math.max(screen.X - w - 8, 8))
+	local y
+	if position.Y + size.Y / 2 < screen.Y * 0.5 then
+		y = position.Y + size.Y + gap + speaker
+		if y + h > screen.Y - 8 then y = screen.Y - h - 8 end
+	else
+		y = position.Y - gap - h
+		if y < speaker + 8 then y = speaker + 8 end
+	end
+	card.AnchorPoint = Vector2.zero
+	card.Position = UDim2.fromOffset(x, y)
 end)
 
 function Coach.run(key: string, list: {Step})

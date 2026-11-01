@@ -145,8 +145,8 @@ local function spawnGuide()
 	if head then
 		local board = Instance.new("BillboardGui")
 		board.Name = "GuideMark"
-		board.Size = UDim2.fromOffset(46, 46)
-		board.StudsOffset = Vector3.new(0, 3.2, 0)
+		board.Size = UDim2.fromOffset(23, 23) -- (46 until D-716: half, user)
+		board.StudsOffset = Vector3.new(0, 2.6, 0)
 		board.AlwaysOnTop = true
 		board.MaxDistance = 120
 		local mark = Instance.new("TextLabel")
@@ -159,6 +159,21 @@ local function spawnGuide()
 		mark.Parent = board
 		Instance.new("UICorner", mark).CornerRadius = UDim.new(1, 0)
 		board.Parent = head
+	end
+	-- (D-716) a still copy for the tip cards' speaker picture (GuideController /
+	-- Coach show it on the left of the card): in ReplicatedStorage, so every
+	-- client has it wherever the NPC itself is streamed
+	do
+		model.Archivable = true
+		local copy = model:Clone()
+		for _, d in ipairs(copy:GetDescendants()) do
+			if d:IsA("LuaSourceContainer") or d:IsA("ProximityPrompt") or d:IsA("BillboardGui") or d:IsA("Sound") then d:Destroy()
+			elseif d:IsA("BasePart") then d.Anchored = true end
+		end
+		copy.Name = "GuidePortrait"
+		local old = FashionGame:FindFirstChild("GuidePortrait")
+		if old then old:Destroy() end
+		copy.Parent = FashionGame
 	end
 	root.Anchored = false
 	pcall(function() root:SetNetworkOwner(nil) end)

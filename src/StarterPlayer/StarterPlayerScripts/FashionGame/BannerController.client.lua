@@ -32,7 +32,8 @@ gui.Parent = player:WaitForChild("PlayerGui")
 
 -- (user 2026-10-30, 2nd, from their mock-ups) a strip across the screen: black
 -- at 40 % see-through, a thin red LED line above and below, the text in white
--- with a red outer glow. The text flows from right to left for the whole
+-- with a red outer glow. (2026-11-01, D-716: only the white text with a red
+-- outline is left, both lines at 20.) The text flows from right to left for the whole
 -- show (a cold spark: 30 s) and stays on screen all that time: its speed is
 -- worked out from the screen width, the text width and the time.
 --   cold spark   “message” / @id   (no message: "○○님의 콜드 스파크!")
@@ -44,33 +45,13 @@ local STRIP_H = 96
 local banner = Instance.new("Frame")
 banner.Name = "Banner"
 banner.Size = UDim2.new(1, 0, 0, STRIP_H)
-banner.BackgroundColor3 = Color3.new(0, 0, 0)
-banner.BackgroundTransparency = 0.4
+-- (user 2026-11-01, D-716: no dark strip, no red lines above and below)
+banner.BackgroundTransparency = 1
 banner.BorderSizePixel = 0
 banner.ClipsDescendants = true
 banner.Visible = false
 banner.ZIndex = 5 -- over the 💝 window when both are open (2P test 2026-10-26)
 banner.Parent = gui
--- the LED lines: a bright core with a soft glow round it
-for _, at in ipairs({ 0, 1 }) do
-	local glowLine = Instance.new("Frame")
-	glowLine.AnchorPoint = Vector2.new(0, at)
-	glowLine.Position = UDim2.fromScale(0, at)
-	glowLine.Size = UDim2.new(1, 0, 0, 6)
-	glowLine.BackgroundColor3 = RED
-	glowLine.BackgroundTransparency = 0.65
-	glowLine.BorderSizePixel = 0
-	glowLine.ZIndex = 6
-	glowLine.Parent = banner
-	local core = Instance.new("Frame")
-	core.AnchorPoint = Vector2.new(0, 0.5)
-	core.Position = UDim2.fromScale(0, 0.5)
-	core.Size = UDim2.new(1, 0, 0, 2)
-	core.BackgroundColor3 = Color3.fromRGB(255, 120, 130)
-	core.BorderSizePixel = 0
-	core.ZIndex = 7
-	core.Parent = glowLine
-end
 
 -- the moving block: two lines, centred on each other
 local block = Instance.new("Frame")
@@ -96,16 +77,17 @@ local function glowText(y: number, height: number, size: number, font: Enum.Font
 		l.Parent = block
 		return l
 	end
+	-- (D-716, user: no neon glow, only the red outline: the soft copy behind is
+	-- kept but hidden, so the code that sets both texts stays)
 	local back = one(7)
-	back.TextTransparency = 0.45
-	back.TextColor3 = Color3.fromRGB(255, 150, 160)
-	local bs = Instance.new("UIStroke") bs.Color = RED bs.Thickness = 5 bs.Transparency = 0.55 bs.Parent = back
+	back.Visible = false
 	local front = one(8)
-	local fs = Instance.new("UIStroke") fs.Color = RED fs.Thickness = 1.4 fs.Transparency = 0.15 fs.Parent = front
+	local fs = Instance.new("UIStroke") fs.Color = RED fs.Thickness = 2 fs.Transparency = 0 fs.Parent = front
 	return front, back
 end
-local mainText, mainGlow = glowText(14, 40, 32, Enum.Font.GothamBlack)
-local subText, subGlow = glowText(58, 26, 20, Enum.Font.GothamBold)
+-- (D-716: the main line as small as the message line; was 32 / 20)
+local mainText, mainGlow = glowText(20, 26, 20, Enum.Font.GothamBlack)
+local subText, subGlow = glowText(50, 26, 20, Enum.Font.GothamBold)
 
 local queue: {any} = {}
 local showing = false

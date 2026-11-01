@@ -94,12 +94,16 @@ end
 local card = create("Frame", {
 	Name = "TutorialCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -16),
 	Size = UDim2.new(1, -32, 0, 168), BackgroundColor3 = PEACH, Visible = false,
+	BackgroundTransparency = 0.5, -- (D-716, user: half see-through)
 }, gui)
 corner(card, 18)
 create("UISizeConstraint", { MaxSize = Vector2.new(560, 168) }, card)
 create("UIStroke", { Color = ORANGE, Thickness = 2 }, card)
+-- (D-716) the guide bunny on the card's corner, as if it gives the tour
+local GuideSpeaker = require(script.Parent:WaitForChild("GuideSpeaker"))
+GuideSpeaker.attach(card)
 local cardTitle = create("TextLabel", {
-	Position = UDim2.fromOffset(18, 12), Size = UDim2.new(1, -110, 0, 26), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(GuideSpeaker.Width + 12, 12), Size = UDim2.new(1, -(GuideSpeaker.Width + 100), 0, 26), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBlack, TextSize = 20, TextColor3 = BROWN, TextXAlignment = Enum.TextXAlignment.Left, Text = "",
 }, card)
 local cardStep = create("TextLabel", {
@@ -108,7 +112,7 @@ local cardStep = create("TextLabel", {
 	TextXAlignment = Enum.TextXAlignment.Right, Text = "",
 }, card)
 local cardText = create("TextLabel", {
-	Position = UDim2.fromOffset(18, 42), Size = UDim2.new(1, -36, 0, 62), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(GuideSpeaker.Width + 12, 42), Size = UDim2.new(1, -(GuideSpeaker.Width + 30), 0, 62), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamMedium, TextSize = 15, TextColor3 = BROWN, TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)

@@ -2934,3 +2934,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 장소 안내 카메라, 오후네컷 안내 (D-715)
 ![](images/2026-11-01/tip_club_bartender_D715.jpg) ![](images/2026-11-01/tip_club_table_D715.jpg) ![](images/2026-11-01/tip_photo_D715.jpg)
+
+### 토끼 화자 카드, 기부 배너 (D-716)
+![](images/2026-11-01/tour_speaker_D716.jpg) ![](images/2026-11-01/tip_near_button_D716.jpg) ![](images/2026-11-01/banner_outline_D716.jpg)

@@ -11,6 +11,7 @@
 --   cafe     the first time at the beach cafe
 --   job      the first 알바 shift
 --   photo    the first time in 오후네컷 (D-715)
+--   dj       the first time the DJ turntable's window opens (D-716)
 -- Place tips fly the camera to each thing they talk about (D-715).
 -- GuideController calls GuideTips.hud() at the end of the tour and
 -- GuideTips.start() once.
@@ -23,6 +24,7 @@ local CollectionService = game:GetService("CollectionService")
 local Coach = require(script.Parent:WaitForChild("Coach"))
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
 local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("ClubConfig"))
+local GuideConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("GuideConfig"))
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -70,6 +72,12 @@ local HUD: {Coach.Step} = {
 		target = find("FashionHudGui", "CoinPill") },
 	{ title = "♥ 후원", text = "Robux로 오후를 후원하는 버튼이에요. 후원하면 화면 위 배너와 순위표·전광판에 이름과 메시지가 올라가요.",
 		target = function() return TopBar.button(5) end },
+	-- (D-716, user: the last words, at the guide's own patch)
+	{ title = "🐰 언제든 물어봐!", text = "더 궁금한 점은 공원 순위표 앞에 있는 나에게 찾아와!",
+		camera = function()
+			local spot = GuideConfig.Npc.position
+			return CFrame.lookAt(spot + Vector3.new(16, 9, 14), spot + Vector3.new(0, 2, 0))
+		end },
 }
 
 function GuideTips.hud()
@@ -252,6 +260,16 @@ local JOB: {Coach.Step} = {
 		camera = viewOfPart(BEACH_COUNTER, 10, 6) },
 }
 
+-- The DJ turntable's window ('디제잉하기', ClubMusicController), D-716
+local MUSIC = "FashionMusicGui"
+local DJ: {Coach.Step} = {
+	{ title = "🎧 DJ 턴테이블", text = "클럽 음악을 고르는 DJ 창이에요. DJ가 없을 때는 누구나 이 창에서 DJ 시간을 사서 DJ가 될 수 있어요.", target = find(MUSIC, "MusicPanel") },
+	{ title = "DJ 되기", text = "DJ 시간을 사면 차례가 와요. 앞사람이 DJ 중이면 대기 순서에 들어가고, 차례가 오면 'DJ 차례' 창에서 부스로 갈지 골라요.", target = find(MUSIC, nil, "DJ") },
+	{ title = "🎵 곡 고르기", text = "DJ는 노래 목록에서 지금 틀 곡과 다음 곡을 고르고, 건너뛰거나 일시정지할 수 있어요.", target = find(MUSIC, "MusicListPanel") },
+	{ title = "⚡ 속도 · 조명", text = "곡 속도(⚡)와 조명 색, 레이저를 바꿔 클럽 분위기를 만들어요.", target = find(MUSIC, nil, "⚡") },
+	{ title = "📺 전광판 · 불꽃", text = "DJ는 뒤의 큰 전광판에 실시간으로 나와요(📺로 켜고 끔). 무대 스파클러로 불꽃도 터뜨릴 수 있어요.", camera = djView },
+}
+
 -- 오후네컷 (D-715): the booths and the photo wall
 local PHOTO: {Coach.Step} = {
 	-- (the booths are closed rooms east of the lobby: seen from the lobby)
@@ -298,6 +316,10 @@ function GuideTips.start()
 	onShown("dance", DANCE, function()
 		local g = playerGui:FindFirstChild(DANCE_GUI)
 		return g and g:FindFirstChild("DancePanel")
+	end)
+	onShown("dj", DJ, function()
+		local g = playerGui:FindFirstChild(MUSIC)
+		return g and g:FindFirstChild("MusicPanel")
 	end)
 	onShown("gukbap", GUKBAP, function()
 		for _, d in ipairs(playerGui:GetDescendants()) do
