@@ -22,7 +22,8 @@ local Coach = {}
 
 -- camera (D-715): the camera flies there for this step, like the place tour;
 -- a step without one gives the camera back to the player
-export type Step = { title: string, text: string, target: (() -> any)?, before: (() -> ())?, after: (() -> ())?, camera: (() -> CFrame?)? }
+-- mark (D-718): a part or model in the world to outline with an orange box
+export type Step = { title: string, text: string, target: (() -> any)?, before: (() -> ())?, after: (() -> ())?, camera: (() -> CFrame?)?, mark: (() -> Instance?)? }
 
 local PEACH = Color3.fromRGB(255, 248, 240)
 local ORANGE = Color3.fromRGB(255, 140, 70)
@@ -41,12 +42,12 @@ local ring = create("Frame", { Name = "Ring", BackgroundTransparency = 1, Visibl
 create("UICorner", { CornerRadius = UDim.new(0, 10) }, ring)
 local ringStroke = create("UIStroke", { Color = ORANGE, Thickness = 4 }, ring)
 local card = create("Frame", {
-	Name = "TipCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 78, 1, -16),
-	Size = UDim2.new(1, -188, 0, 164), BackgroundColor3 = Color3.new(0, 0, 0), Visible = false, ZIndex = 3,
+	Name = "TipCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 78, 1, -56),
+	Size = UDim2.new(1, -188, 0, 116), BackgroundColor3 = Color3.new(0, 0, 0), Visible = false, ZIndex = 3,
 	BackgroundTransparency = 0.35, -- (D-717, user: black, see-through, white text)
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 18) }, card)
-create("UISizeConstraint", { MaxSize = Vector2.new(520, 164) }, card)
+create("UISizeConstraint", { MaxSize = Vector2.new(520, 116) }, card)
 create("UIStroke", { Color = ORANGE, Thickness = 2 }, card)
 -- (D-716) the guide bunny beside the card, as if it says the tip
 local GuideSpeaker = require(script.Parent:WaitForChild("GuideSpeaker"))
@@ -71,14 +72,23 @@ local function button(text: string, color: Color3, textColor: Color3): TextButto
 	create("UICorner", { CornerRadius = UDim.new(0, 12) }, b)
 	return b
 end
-local skip = button("건너뛰기", Color3.fromRGB(70, 70, 78), Color3.new(1, 1, 1))
-skip.AnchorPoint = Vector2.new(0, 1)
-skip.Position = UDim2.new(0, 14, 1, -12)
-skip.Size = UDim2.new(0.36, -18, 0, 38)
+-- (D-718, the user's mock-up) a small 건너뛰기 tag over the top right, a small
+-- 다음 button under the bottom right
+local skip = button("건너뛰기 >", Color3.fromRGB(40, 40, 46), Color3.new(1, 1, 1))
+skip.AnchorPoint = Vector2.new(1, 1)
+skip.Position = UDim2.new(1, -10, 0, -4)
+skip.Size = UDim2.fromOffset(84, 24)
+skip.TextSize = 13
 local nextButton = button("다음 ▶", ORANGE, Color3.new(1, 1, 1))
-nextButton.AnchorPoint = Vector2.new(1, 1)
-nextButton.Position = UDim2.new(1, -14, 1, -12)
-nextButton.Size = UDim2.new(0.64, -18, 0, 38)
+nextButton.AnchorPoint = Vector2.new(1, 0)
+nextButton.Position = UDim2.new(1, -6, 1, 6)
+nextButton.Size = UDim2.fromOffset(76, 34)
+
+-- (D-718) the world box of a step's mark
+local markBox = create("SelectionBox", { Name = "CoachMark", Color3 = ORANGE, LineThickness = 0.25, SurfaceTransparency = 1, Visible = false }, gui)
+-- the card waits for its place before it shows (it flashed at the bottom
+-- middle for a frame, D-718)
+local placed = false
 
 local function seen(key: string): boolean
 	local raw = player:GetAttribute("TipsSeen")
@@ -121,7 +131,7 @@ local function flyTo(cf: CFrame)
 	end)
 	local camera = workspace.CurrentCamera
 	camera.CameraType = Enum.CameraType.Scriptable
-	Sfx.play("teleport") -- (a whoosh as the camera flies, D-717)
+	Sfx.play("whoosh") -- (a whoosh as the camera flies, D-717)
 	if flight then flight:Cancel() end
 	flight = TweenService:Create(camera, TweenInfo.new(1.2, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { CFrame = cf })
 	;(flight :: Tween):Play()
@@ -148,6 +158,19 @@ local function show()
 	nextButton.Text = if index == #steps then "확인" else "다음 ▶"
 	target = nil
 	Spotlight.set(nil)
+	-- hidden until the frame loop has put it next to its button
+	placed = false
+	card.Visible = false
+	markBox.Adornee = nil
+	markBox.Visible = false
+	if step.mark then
+		local ok, m = pcall(step.mark :: () -> Instance?)
+		if ok and m and (m:IsA("BasePart") or m:IsA("Model")) then
+			markBox.Adornee = m :: any
+			markBox.Visible = true
+		end
+	end
+	local waitTarget = step.target ~= nil
 	local view: CFrame? = nil
 	if step.camera then
 		local ok, cf = pcall(step.camera :: () -> CFrame?)
@@ -163,8 +186,10 @@ local function show()
 				target = t
 				Spotlight.set(t)
 			end
+			placed = true
 		end)
 	end
+	if not waitTarget then placed = true end
 end
 
 finish = function(done: boolean)
@@ -178,6 +203,8 @@ finish = function(done: boolean)
 	card.Visible = false
 	ring.Visible = false
 	Spotlight.set(nil)
+	markBox.Adornee = nil
+	markBox.Visible = false
 	cameraBack()
 	task.spawn(function() pcall(function() remote:InvokeServer("TipSeen", key) end) end)
 	local nextRun = table.remove(queue, 1)
@@ -225,24 +252,26 @@ RunService.RenderStepped:Connect(function()
 	-- button: at the bottom middle.
 	if not position or not size or not camera then
 		card.AnchorPoint = Vector2.new(0.5, 1)
-		card.Position = UDim2.new(0.5, GuideSpeaker.Width / 2, 1, -16)
+		card.Position = UDim2.new(0.5, GuideSpeaker.Width / 2, 1, -56)
+		if placed then card.Visible = true end
 		return
 	end
 	local screen = camera.ViewportSize
 	local w, h = card.AbsoluteSize.X, card.AbsoluteSize.Y
-	local gap, speaker = 14, 0 -- (D-717: the bunny is beside the card now, not over it)
+	local gap, speaker = 14, 30 -- (D-717: the bunny is beside the card; 30 for the 건너뛰기 tag over it)
 	local left = GuideSpeaker.Width + 14 -- (room for the bunny left of the card)
 	local x = math.clamp(position.X + size.X / 2 - w / 2, left, math.max(screen.X - w - 8, left))
 	local y
 	if position.Y + size.Y / 2 < screen.Y * 0.5 then
 		y = position.Y + size.Y + gap + speaker
-		if y + h > screen.Y - 8 then y = screen.Y - h - 8 end
+		if y + h > screen.Y - 48 then y = screen.Y - h - 48 end -- (room for 다음 under it)
 	else
-		y = position.Y - gap - h
+		y = position.Y - gap - h - 40 -- (다음 hangs under the card)
 		if y < speaker + 8 then y = speaker + 8 end
 	end
 	card.AnchorPoint = Vector2.zero
 	card.Position = UDim2.fromOffset(x, y)
+	if placed then card.Visible = true end
 end)
 
 function Coach.run(key: string, list: {Step})

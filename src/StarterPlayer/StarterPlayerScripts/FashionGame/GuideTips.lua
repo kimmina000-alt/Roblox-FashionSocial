@@ -54,9 +54,11 @@ end
 local HUD: {Coach.Step} = {
 	{ title = "메뉴 버튼", text = "오른쪽 위 이 버튼을 누르면 버튼이 더 나와요.", target = function() return TopBar.button(20) end },
 	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.",
-		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(4) end },
+		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(4) end,
+		after = function() TopBar.setOpen(false) end }, -- (closed also when skipped here, D-718)
 	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.",
-		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(3) end },
+		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(3) end,
+		after = function() TopBar.setOpen(false) end },
 	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽 안에서는 화면 왼쪽에도 ♪ 버튼이 나와요.",
 		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(1) end,
 		after = function() TopBar.setOpen(false) end },
@@ -270,6 +272,24 @@ local DJ: {Coach.Step} = {
 	{ title = "📺 전광판 · 불꽃", text = "DJ는 뒤의 큰 전광판에 실시간으로 나와요(📺로 켜고 끔). 무대 스파클러로 불꽃도 터뜨릴 수 있어요.", camera = djView },
 }
 
+-- the two photo walls (tag PhotoWall: in the 오후네컷 hall, and outside), in a
+-- fixed order; seen from in front of the face the photos are on
+local function photoWall(i: number): BasePart?
+	local list = {}
+	for _, w in ipairs(CollectionService:GetTagged("PhotoWall")) do
+		if w:IsA("BasePart") and w:IsDescendantOf(workspace) then table.insert(list, w) end
+	end
+	table.sort(list, function(a, b) return a:GetFullName() > b:GetFullName() end)
+	return list[i]
+end
+local function photoWallView(i: number): CFrame?
+	local w = photoWall(i)
+	if not w then return nil end
+	-- (the photos are on its Face side: "Back" = against the LookVector)
+	local out = if w:GetAttribute("Face") == "Back" then -w.CFrame.LookVector else w.CFrame.LookVector
+	return CFrame.lookAt(w.Position + out * (w.Size.X * 0.9 + 4) + Vector3.new(0, 2, 0), w.Position)
+end
+
 -- 오후네컷 (D-715): the booths and the photo wall
 local PHOTO: {Coach.Step} = {
 	-- (the booths are closed rooms east of the lobby: seen from the lobby)
@@ -277,9 +297,12 @@ local PHOTO: {Coach.Step} = {
 		camera = function() return CFrame.lookAt(Vector3.new(92, 22, -72), Vector3.new(150, 8, -64)) end },
 	{ title = "사진 찍기", text = "포토부스 앞에서 E 키(폰은 화면의 '사진 찍기' 버튼)를 누르면 들어가요. 포즈를 고르고 네 컷을 찍어요. 친구는 '같이 찍기'로 함께 들어와요.",
 		-- (D-717, user's shot: from the hall, the PINK / SKY ROOM doors on the wall at z -80)
-		camera = function() return CFrame.lookAt(Vector3.new(150, 13, -112), Vector3.new(150, 9, -80)) end },
-	{ title = "포토월", text = "찍은 사진은 사진첩(가방의 사진 탭)에 남아요. 포토월 앞에서 '사진 붙이기'를 누르면 내 사진을 벽에 붙여 모두에게 보여 줄 수 있어요.",
-		camera = viewOfPart(tagged("PhotoWall"), 14, 4) },
+		camera = function() return CFrame.lookAt(Vector3.new(150, 11, -99), Vector3.new(150, 10, -80)) end }, -- (closer, D-718: the cabinet near the camera showed white)
+	-- (D-718, user: both photo walls, each outlined with a box)
+	{ title = "포토월 ①", text = "찍은 사진은 사진첩(가방의 사진 탭)에 남아요. 포토월 앞에서 '사진 붙이기'를 누르면 내 사진을 벽에 붙여 모두에게 보여 줄 수 있어요.",
+		camera = function() return photoWallView(1) end, mark = function() return photoWall(1) end },
+	{ title = "포토월 ②", text = "포토월은 두 곳이에요. 여기에도 사진을 붙일 수 있어요.",
+		camera = function() return photoWallView(2) end, mark = function() return photoWall(2) end },
 }
 
 --------------------------------------------------

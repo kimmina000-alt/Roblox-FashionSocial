@@ -642,10 +642,12 @@ local function pole(px,pz,ledPole)
  -- (user 2026-10-25) one wide round stage, 2 high (no steps), LED round its top edge
  -- (the stepped base black too, user 2026-10-26)
  local POLEB=Color3.fromRGB(18,18,20)
- local b=cyl(z,"PoleBase",7,BH,Vector3.new(px,F+BH/2,pz),POLEB,{mat=Enum.Material.Metal}) CS:AddTag(b,"DancePole") -- (smaller and higher, user 2026-10-25)
+ -- (user 2026-11-01, D-718: the stage light grey with the DJ stage's diamond plate)
+local POLES=Color3.fromRGB(190,192,198)
+local b=cyl(z,"PoleBase",7,BH,Vector3.new(px,F+BH/2,pz),POLES,{mat=Enum.Material.DiamondPlate}) CS:AddTag(b,"DancePole") -- (smaller and higher, user 2026-10-25)
  -- stepped: two wider rings below the top stage, 1 stud each, easy to walk up (user 2026-10-25)
- cyl(z,"PoleStep",10,1,Vector3.new(px,F+0.5,pz),POLEB,{mat=Enum.Material.Metal,nocol=true})
- cyl(z,"PoleStep",8.5,2,Vector3.new(px,F+1,pz),POLEB,{mat=Enum.Material.Metal,nocol=true})
+ cyl(z,"PoleStep",10,1,Vector3.new(px,F+0.5,pz),POLES,{mat=Enum.Material.DiamondPlate,nocol=true})
+ cyl(z,"PoleStep",8.5,2,Vector3.new(px,F+1,pz),POLES,{mat=Enum.Material.DiamondPlate,nocol=true})
  -- (user 2026-10-27: the black stage did not show) a thin LED line round each edge
  for _,r in ipairs({{10,F+1},{8.5,F+2},{7,F+BH}}) do cyl(z,"PoleEdgeLED",r[1]+0.2,0.15,Vector3.new(px,r[2]-0.12,pz),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
  -- (small avatars did not climb the 1-stud steps: invisible wedge ramps all round, user rule)

@@ -22,15 +22,22 @@ gui.IgnoreGuiInset = true
 gui.DisplayOrder = 39 -- (over the top bar's 5 / 30, under the tip cards)
 gui.Parent = Players.LocalPlayer:WaitForChild("PlayerGui")
 
-local panels: {Frame} = {}
-for i = 1, 4 do
-	local f = Instance.new("Frame")
-	f.BackgroundColor3 = Color3.new(0, 0, 0)
-	f.BackgroundTransparency = DIM
-	f.BorderSizePixel = 0
-	f.Visible = false
-	f.Parent = gui
-	panels[i] = f
+-- (D-718) one frame over the hole whose huge black outer stroke darkens all
+-- the rest: four panels left a lighter band at the top on the user's screen
+local hole = Instance.new("Frame")
+hole.Name = "Hole"
+hole.BackgroundTransparency = 1
+hole.Visible = false
+hole.Parent = gui
+do
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.new(0, 0, 0)
+	stroke.Transparency = DIM
+	stroke.Thickness = 4000
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	stroke.LineJoinMode = Enum.LineJoinMode.Miter
+	pcall(function() (stroke :: any).BorderStrokePosition = Enum.BorderStrokePosition.Outer end)
+	stroke.Parent = hole
 end
 
 -- Where a target is on the screen (pixels, top bar included), or nil when it
@@ -82,25 +89,12 @@ RunService.RenderStepped:Connect(function()
 	local position, size = Spotlight.rectOf(target)
 	local camera = workspace.CurrentCamera
 	if not position or not size or not camera then
-		for _, f in ipairs(panels) do f.Visible = false end
+		hole.Visible = false
 		return
 	end
-	local w, h = camera.ViewportSize.X, camera.ViewportSize.Y
-	local x0, y0 = math.max(position.X - PAD, 0), math.max(position.Y - PAD, 0)
-	local x1, y1 = math.min(position.X + size.X + PAD, w), math.min(position.Y + size.Y + PAD, h)
-	-- above, below, left, right of the hole
-	local rects = {
-		{ 0, 0, w, y0 },
-		{ 0, y1, w, h - y1 },
-		{ 0, y0, x0, y1 - y0 },
-		{ x1, y0, w - x1, y1 - y0 },
-	}
-	for i, r in ipairs(rects) do
-		local f = panels[i]
-		f.Position = UDim2.fromOffset(r[1], r[2])
-		f.Size = UDim2.fromOffset(math.max(r[3], 0), math.max(r[4], 0))
-		f.Visible = true
-	end
+	hole.Position = UDim2.fromOffset(position.X - PAD, position.Y - PAD)
+	hole.Size = UDim2.fromOffset(size.X + PAD * 2, size.Y + PAD * 2)
+	hole.Visible = true
 end)
 
 return Spotlight

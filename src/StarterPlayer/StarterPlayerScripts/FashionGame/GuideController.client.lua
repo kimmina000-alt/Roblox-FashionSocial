@@ -76,7 +76,7 @@ local function flyTo(cf: CFrame, seconds: number)
 	end)
 	camera = workspace.CurrentCamera
 	camera.CameraType = Enum.CameraType.Scriptable
-	Sfx.play("teleport") -- (a whoosh as the camera flies, D-717)
+	Sfx.play("whoosh") -- (a whoosh as the camera flies, D-717)
 	if flight then flight:Cancel() end
 	flight = TweenService:Create(camera, TweenInfo.new(seconds, Enum.EasingStyle.Quad, Enum.EasingDirection.InOut), { CFrame = cf })
 	;(flight :: Tween):Play()
@@ -94,13 +94,13 @@ end
 --------------------------------------------------
 
 local card = create("Frame", {
-	Name = "TutorialCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 78, 1, -16), -- (room on the left for the bunny)
-	Size = UDim2.new(1, -188, 0, 178), BackgroundColor3 = Color3.new(0, 0, 0), Visible = false,
+	Name = "TutorialCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 78, 1, -56), -- (room on the left for the bunny, under it for 다음)
+	Size = UDim2.new(1, -188, 0, 122), BackgroundColor3 = Color3.new(0, 0, 0), Visible = false,
 	-- (D-717, user: black, see-through, white text; peach at 50 % in D-716)
 	BackgroundTransparency = 0.35,
 }, gui)
 corner(card, 18)
-create("UISizeConstraint", { MaxSize = Vector2.new(560, 178) }, card)
+create("UISizeConstraint", { MaxSize = Vector2.new(560, 122) }, card)
 create("UIStroke", { Color = ORANGE, Thickness = 2 }, card)
 -- (D-716) the guide bunny beside the card, as if it gives the tour
 local GuideSpeaker = require(script.Parent:WaitForChild("GuideSpeaker"))
@@ -120,14 +120,18 @@ local cardText = create("TextLabel", {
 	Font = Enum.Font.GothamBold, TextSize = 20, TextColor3 = Color3.new(1, 1, 1), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
-local skipButton = button(card, "건너뛰기", Color3.fromRGB(70, 70, 78), Color3.new(1, 1, 1))
-skipButton.AnchorPoint = Vector2.new(0, 1)
-skipButton.Position = UDim2.new(0, 16, 1, -14)
-skipButton.Size = UDim2.new(0.38, -20, 0, 40)
+-- (D-718, the user's mock-up) a small 건너뛰기 tag over the card's top right,
+-- a small 다음 button under its bottom right, so the words come first
+local skipButton = button(card, "건너뛰기 >", Color3.fromRGB(40, 40, 46), Color3.new(1, 1, 1))
+skipButton.AnchorPoint = Vector2.new(1, 1)
+skipButton.Position = UDim2.new(1, -10, 0, -4)
+skipButton.Size = UDim2.fromOffset(84, 24)
+skipButton.TextSize = 13
 local nextButton = button(card, "다음 ▶", ORANGE, Color3.new(1, 1, 1))
-nextButton.AnchorPoint = Vector2.new(1, 1)
-nextButton.Position = UDim2.new(1, -16, 1, -14)
-nextButton.Size = UDim2.new(0.62, -20, 0, 40)
+nextButton.AnchorPoint = Vector2.new(1, 0)
+nextButton.Position = UDim2.new(1, -6, 1, 6)
+nextButton.Size = UDim2.fromOffset(76, 34)
+nextButton.TextSize = 14
 
 local touring = false
 local step = 0
@@ -145,7 +149,7 @@ local function showStep()
 			flyTo(viewOf(place), 1.4)
 		end
 	else
-		cardTitle.Text = "✨ " .. GuideConfig.TutorialEnd.title
+		cardTitle.Text = GuideConfig.TutorialEnd.title
 		cardText.Text = GuideConfig.TutorialEnd.text
 		nextButton.Text = "다음 ▶"
 		cameraBack()

@@ -11,6 +11,10 @@ return {
 		click = 15675032796, -- Roblox_UI_Small_Click: any button on screen (not at shop counters)
 		error = 87047730068459, -- Access Denied (SodaBreadle): a red error message
 		success = 15675043410, -- Roblox_UI_Tonal_Stinger: a purchase goes through, a banner shows
+		-- the tour / tips camera flight (D-718; Roblox_UI_Sweep until the user picks:
+		-- candidates 127183292018512 whoosh!, 140334012603496 long whoosh,
+		-- 138890894929151 Whoosh2, 137081214744553 whoosh, 127438224839678 cartoon whoosh)
+		whoosh = 15675046931,
 	},
 	Body = {
 		sit = 9116248517, -- Leather Bench 4 (Pro Sound Effects): sitting down

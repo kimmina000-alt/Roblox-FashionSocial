@@ -13,7 +13,9 @@ local VOLUME: {[string]: number} = { click = 0.35, error = 0.4, success = 0.45, 
 local IDS: {[string]: number} = {
 	click = SoundConfig.Ui.click, error = SoundConfig.Ui.error, success = SoundConfig.Ui.success,
 	teleport = SoundConfig.Body.teleport,
+	whoosh = SoundConfig.Ui.whoosh, -- (the tours' camera flights, D-718)
 }
+VOLUME.whoosh = 0.5
 
 local folder = Instance.new("Folder")
 folder.Name = "FashionSfx"

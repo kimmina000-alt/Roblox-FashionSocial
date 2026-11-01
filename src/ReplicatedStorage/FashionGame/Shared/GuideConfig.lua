@@ -22,7 +22,7 @@ GuideConfig.Places = {
 		at = Vector3.new(50, 3, -54), look = Vector3.new(105, 20, -79) },
 	gukbap = { key = "gukbap", name = "오후 돼지국밥", emoji = "🍲", text = "국밥을 사서 자리에서 먹어요. 수육 한 접시는 테이블에 놓고 다 같이 나눠 먹어요.",
 		at = Vector3.new(46, 3, -319), look = Vector3.new(90, 15, -330) },
-	oh24 = { key = "oh24", name = "OH24 편의점", emoji = "🏪", text = "과자·음료·컵라면을 코인으로 사는 편의점이에요.",
+	oh24 = { key = "oh24", name = "OH24 편의점 (준비 중)", emoji = "🏪", text = "과자·음료·컵라면을 코인으로 사는 편의점이에요. 지금은 오픈 준비 중이에요.",
 		at = Vector3.new(-68, 1, 118), look = Vector3.new(-88, 2, 118), eye = Vector3.new(-22, 24, 112) },
 	cafe = { key = "cafe", name = "OHU CAFE · Sunset", emoji = "☕", text = "바다가 보이는 카페예요. 음료와 케이크를 먹고, 카운터 안쪽에서 알바도 할 수 있어요.",
 		at = Vector3.new(-206, 3, 272), look = Vector3.new(-260, 18, 276) },
@@ -40,8 +40,9 @@ GuideConfig.Places = {
 GuideConfig.Tutorial = { "spawn", "club", "photo", "gukbap", "oh24", "cafe", "beach", "hanok", "park", "guide" }
 GuideConfig.TutorialEnd = {
 	-- (user 2026-11-01, D-715: short; [다음] goes straight on to the menu button)
-	title = "준비 끝",
-	text = "즐거운 시간 보내세요.",
+	-- (D-718, user: this card says the buttons come next)
+	title = "📱 화면 버튼",
+	text = "동네 소개는 여기까지예요! 이제 화면에 있는 버튼들을 하나씩 알려 드릴게요.",
 }
 
 -- The guide NPC: walks about the paved square in front of the 기부 순위표
@@ -71,7 +72,7 @@ GuideConfig.Faq = {
 	{ q = "사진은 어디서 찍어요?", a = "오후네컷 사진관에서 친구랑 네 컷을 찍어요. 화면의 📸 버튼으로 지금 화면도 찍을 수 있어요.", place = "photo" },
 	{ q = "코인은 어떻게 벌어요?", a = "게임에 있으면 1분마다 코인이 쌓여요. 비치 카페에서 알바를 하면 더 벌 수 있어요.", place = "cafe" },
 	{ q = "알바는 어떻게 해요?", a = "비치 카페 카운터 안쪽 작업대에서 '알바 시작'을 눌러요. 주문 목록에서 [만들기] → 손님에게 [서빙하기]를 하면 코인을 받아요.", place = "cafe" },
-	{ q = "음식은 어디서 먹어요?", a = "국밥집·카페·OH24 편의점에서 사요. 손에 든 음식을 누르면 한 입씩 먹고, 케이크·수육은 테이블에 놓고 다 같이 나눠 먹어요.", place = "gukbap" },
+	{ q = "음식은 어디서 먹어요?", a = "국밥집·카페에서 사요(OH24 편의점은 오픈 준비 중이에요). 손에 든 음식을 누르면 한 입씩 먹고, 케이크·수육은 테이블에 놓고 다 같이 나눠 먹어요.", place = "gukbap" },
 	{ q = "옷은 어떻게 갈아입어요?", a = "오른쪽 위 메뉴 버튼(줄 세 개)의 옷걸이 버튼으로 카탈로그를 열어 입어 보고, ⚙ 아바타 편집에서 장신구 위치·크기도 바꿀 수 있어요." },
 	{ q = "멀리 빨리 가려면요?", a = "길가의 버스 정류장 표지판을 누르면 다른 정류장으로 바로 가요. 지하철 출구 계단 아래에서도 갈 곳을 고를 수 있어요." },
 	{ q = "물놀이는 어디서 해요?", a = "서쪽 해변에서 튜브를 타고 바다에 들어가요.", place = "beach" },
