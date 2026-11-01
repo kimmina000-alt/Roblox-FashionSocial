@@ -62,6 +62,10 @@ if MODE == "undo" then
 			p:SetAttribute("ParkRaised", nil)
 			p:SetAttribute("ParkShift", nil)
 			n += 1
+		elseif p:IsA("Model") and typeof(p:GetAttribute("ParkPivotRaised")) == "number" then
+			p.WorldPivot = p.WorldPivot - Vector3.new(0, p:GetAttribute("ParkPivotRaised"), -(p:GetAttribute("ParkPivotShift") or 0))
+			p:SetAttribute("ParkPivotRaised", nil)
+			p:SetAttribute("ParkPivotShift", nil)
 		end
 	end
 	local f = L:FindFirstChild("ParkRaise")
@@ -104,12 +108,71 @@ if boundary then
 		end
 	end
 end
+-- (D-702) the rides move whole: the Ferris wheel's top cabins and rim stood
+-- north of z -482 and stayed behind (24 parts)
+do
+	local CS = game:GetService("CollectionService")
+	local seen = {}
+	for _, p in ipairs(list) do seen[p] = true end
+	for _, tag in ipairs({ "ParkWheel", "ParkCarousel", "ParkSwing", "ParkSpring" }) do
+		for _, m in ipairs(CS:GetTagged(tag)) do
+			if m:IsA("Model") and m:IsDescendantOf(workspace) then
+				local c = m:GetBoundingBox().Position
+				if c.X > X0 and c.X < X1 and c.Z > Z_NORTH - 100 and c.Z < Z_SOUTH then
+					for _, d in ipairs(m:GetDescendants()) do
+						if d:IsA("BasePart") and not seen[d] then
+							seen[d] = true
+							table.insert(list, d)
+						end
+					end
+				end
+			end
+		end
+	end
+end
+-- (D-702) the Ferris wheel's rim (130 across, in the north-south plane) stuck
+-- out over the park's north wall: the wheel, its platform, ramp and labels go
+-- WHEEL_PULL less far north than the rest
+local WHEEL_PULL = 34 -- (rim inside the brick wall's inner face, z -524)
+local wheelSet = {}
+do
+	local wheel = workspace:FindFirstChild("FerrisWheel", true)
+	if wheel and wheel:IsA("Model") then
+		local hub = wheel:GetBoundingBox().Position
+		wheelSet[wheel] = true
+		for _, d in ipairs(wheel:GetDescendants()) do wheelSet[d] = true end
+		for _, s in ipairs(wheel.Parent:GetChildren()) do
+			if s:IsA("BasePart") and (s.Name:find("^Wheel") or s.Name == "Label")
+				and math.abs(s.Position.X - hub.X) < 12 and math.abs(s.Position.Z - hub.Z) < 20 then
+				wheelSet[s] = true
+			end
+		end
+	end
+end
+local models = {}
 for i, p in ipairs(list) do
-	p.CFrame = p.CFrame + Vector3.new(0, RAISE, -SHIFT)
+	local shift = if wheelSet[p] then SHIFT - WHEEL_PULL else SHIFT
+	p.CFrame = p.CFrame + Vector3.new(0, RAISE, -shift)
 	p:SetAttribute("ParkRaised", RAISE)
-	p:SetAttribute("ParkShift", SHIFT)
+	p:SetAttribute("ParkShift", shift)
 	moved += 1
+	local m = p.Parent
+	while m and m ~= L and m ~= workspace do
+		if m:IsA("Model") then models[m] = true end
+		m = m.Parent
+	end
 	if i % 500 == 0 then task.wait() end
+end
+-- (D-702) models without a PrimaryPart keep their pivot where it was: the
+-- rides (ParkRidesController) turn their rotors about it, so a carousel left
+-- its pivot 50 south and 16 down and spun out through the park's wall
+for m in pairs(models) do
+	if not m.PrimaryPart and m:GetAttribute("ParkPivotRaised") == nil then
+		local shift = if wheelSet[m] then SHIFT - WHEEL_PULL else SHIFT
+		m.WorldPivot = m.WorldPivot + Vector3.new(0, RAISE, -shift)
+		m:SetAttribute("ParkPivotRaised", RAISE)
+		m:SetAttribute("ParkPivotShift", shift)
+	end
 end
 
 -- 2. the new pieces
@@ -162,7 +225,9 @@ for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
 end
 -- and along its two sides, back to the park's wall (D-701: the east side was
 -- open, its top level with the plaza; now the same height as the front)
-local PLAZA_BACK = Z_SOUTH - SHIFT
+-- (D-702: on along the park's whole side, so from the street the stone top is
+-- one line under the brick wall)
+local PLAZA_BACK = Z_NORTH - SHIFT
 for _, x in ipairs({ X0, X1 - 1.2 }) do
 	block("ParkPlazaParapet", x, RAISE, LANDING_Z, x + 1.2, RAISE + WALL_H, PLAZA_BACK, STONE, Enum.Material.Slate)
 end
@@ -213,6 +278,9 @@ end
 -- lower part and a wedge for the slope on top
 for _, x in ipairs({ STAIR_X0, STAIR_X1 }) do
 	block("ParkStairWall", x - 0.6, STAIR_Y - 1, STAIR_Z, x + 0.6, STAIR_Y + WALL_H, LANDING_Z, STONE, Enum.Material.Slate)
+	-- (D-702) its top end runs on through the parapet's depth, so the corner
+	-- where it meets the plaza's front parapet has no notch
+	block("ParkStairWall", x - 0.6, RAISE, LANDING_Z, x + 0.6, RAISE + WALL_H, LANDING_Z - 1.2, STONE, Enum.Material.Slate)
 	local w = Instance.new("WedgePart")
 	w.Name = "ParkStairWall"
 	w.Anchored = true

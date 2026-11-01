@@ -2868,3 +2868,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 북쪽 25 더, 데크 선, 동쪽 벽 (D-701)
 ![](images/2026-11-01/park_plaza_D701.jpg) ![](images/2026-11-01/park_deck_D701.jpg) ![](images/2026-11-01/park_east_wall_D701.jpg)
+
+### 벽 이음매, 양옆 벽, 놀이기구 (D-702)
+![](images/2026-11-01/park_corner_D702.jpg) ![](images/2026-11-01/park_west_wall_D702.jpg) ![](images/2026-11-01/park_rides_D702.jpg)

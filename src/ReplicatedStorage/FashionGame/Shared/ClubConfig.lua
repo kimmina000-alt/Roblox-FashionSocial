@@ -183,6 +183,10 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "Catch Catch / 최예나", soundId = 100968974338230, length = 92, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
 	{ channel = "K-POP", title = "Get A Guitar / RIIZE", soundId = 100035331158760, length = 80, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
 	{ channel = "K-POP", title = "Bubble Pop / HyunA", soundId = 117125823291884, length = 107, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
+	-- (user 2026-11-01: two uploads of one song, pitched then boosted and the
+	-- other way round, the same lab values, D-702)
+	{ channel = "K-POP", title = "피치 후 증폭", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "증폭 후 피치", soundId = 88451163103580, length = 67, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
