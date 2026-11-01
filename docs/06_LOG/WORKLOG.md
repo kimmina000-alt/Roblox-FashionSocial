@@ -2928,3 +2928,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 토끼 안내원, 처음 안내 팁 (D-713)
 ![](images/2026-11-01/guide_bunny_D713.jpg) ![](images/2026-11-01/tip_hud_clock_D713.jpg) ![](images/2026-11-01/tip_hud_menu_D713.jpg)
 ![](images/2026-11-01/tip_catalog_D713.jpg) ![](images/2026-11-01/tip_club_D713.jpg)
+
+### 안내 강조 효과 (D-714)
+![](images/2026-11-01/spotlight_menu_D714.jpg) ![](images/2026-11-01/spotlight_coins_D714.jpg)

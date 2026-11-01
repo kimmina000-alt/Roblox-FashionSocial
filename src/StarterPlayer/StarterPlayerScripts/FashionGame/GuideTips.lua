@@ -60,7 +60,7 @@ local HUD: {Coach.Step} = {
 		target = find("FashionHudGui", "CoinPill") },
 	{ title = "♥ 후원", text = "Robux로 오후를 후원하는 버튼이에요. 후원하면 화면 위 배너와 순위표·전광판에 이름과 메시지가 올라가요.",
 		target = function() return TopBar.button(5) end },
-	{ title = "☰ 메뉴", text = "이 버튼을 누르면 버튼이 더 나와요.", target = function() return TopBar.button(20) end },
+	{ title = "메뉴 버튼", text = "이 버튼을 누르면 버튼이 더 나와요.", target = function() return TopBar.button(20) end },
 	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.",
 		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(4) end },
 	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.",
@@ -121,7 +121,7 @@ local GUKBAP: {Coach.Step} = {
 local CLUB: {Coach.Step} = {
 	{ title = "🎧 OHU CLUB", text = "어서 오세요! 클럽에서 할 수 있는 것을 알려 드릴게요." },
 	{ title = "♪ 춤 버튼", text = "클럽에 들어오면 왼쪽에 ♪ 버튼이 나와요. 지금 나오는 곡에 맞춰 춤을 골라 춰요.", target = find("ClubQuickBar", "Dance") },
-	{ title = "≡ 노래 목록 · › 스킵", text = "노래 제목 왼쪽 ≡에서 다음에 들을 곡을 예약하고, 오른쪽 ›로 스킵 투표를 해요. 클럽 사람 절반이 찬성하면 넘어가요.", target = find(DANCE_GUI, "NowPlaying") },
+	{ title = "노래 목록 · › 스킵", text = "노래 제목 왼쪽 목록 버튼(줄 세 개)에서 다음에 들을 곡을 예약하고, 오른쪽 ›로 스킵 투표를 해요. 클럽 사람 절반이 찬성하면 넘어가요.", target = find(DANCE_GUI, "NowPlaying") },
 	{ title = "🍹 바텐더", text = "바에서 바텐더에게 음료(무알코올)를 주문해요. 무료 음료도 있어요." },
 	{ title = "🍾 음료를 테이블에", text = "음료 병을 든 채 테이블을 누르면 모든 사람·친구만·나만 중에 골라 테이블에 놓아요. 테이블이 아닌 곳을 누르면 병째 마셔요. 버킷 음료는 눌러서 한 잔씩 따라 마시고, 내가 놓은 병을 누르면 다시 손에 들어요." },
 	{ title = "🎆 불꽃 판매원", text = "바 옆 판매원에게서 스파클러, 스파클러 세트, 무대 콜드 스파크를 사요. 스파클러를 든 채 병을 누르면 불꽃이 튀어요." },

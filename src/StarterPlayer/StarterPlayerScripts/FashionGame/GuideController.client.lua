@@ -20,6 +20,8 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local GuideConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("GuideConfig"))
 local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("Guide") :: RemoteFunction
 local Popups = require(script.Parent:WaitForChild("Popups"))
+local Spotlight = require(script.Parent:WaitForChild("Spotlight"))
+local TopBar = require(script.Parent:WaitForChild("TopBar"))
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -139,6 +141,8 @@ local function showStep()
 		cardText.Text = GuideConfig.TutorialEnd.text
 		nextButton.Text = "시작하기"
 		cameraBack()
+		-- (D-714) the screen dark but for this card and the menu button, which pulses
+		Spotlight.set(TopBar.button(20))
 	end
 end
 
@@ -151,6 +155,7 @@ local function endTour(finished: boolean?)
 	if not touring then return end
 	touring = false
 	card.Visible = false
+	Spotlight.set(nil)
 	cameraBack()
 	Popups.closed("Tutorial")
 	task.spawn(function() pcall(function() remote:InvokeServer("TutorialDone") end) end)

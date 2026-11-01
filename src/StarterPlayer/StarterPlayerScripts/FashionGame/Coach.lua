@@ -92,21 +92,9 @@ local steps: {Step} = {}
 local index = 0
 local target: any = nil
 
-local function rectOf(t: any): (Vector2?, Vector2?)
-	if typeof(t) == "Rect" then return t.Min, t.Max - t.Min end
-	if typeof(t) ~= "Instance" or not t:IsA("GuiObject") or not t.Visible then return nil, nil end
-	-- (hidden by a hidden parent too)
-	local p: Instance? = t.Parent
-	while p and not p:IsA("LayerCollector") do
-		if p:IsA("GuiObject") and not p.Visible then return nil, nil end
-		p = p.Parent
-	end
-	local screen = t:FindFirstAncestorOfClass("ScreenGui")
-	if not screen or not screen.Enabled then return nil, nil end
-	-- (AbsolutePosition leaves out the top bar inset whatever the ScreenGui's
-	-- IgnoreGuiInset; this gui ignores it, so it goes back on)
-	return t.AbsolutePosition + GuiService:GetGuiInset(), t.AbsoluteSize
-end
+-- (D-714) the rest of the screen goes dark and the target pulses once
+local Spotlight = require(script.Parent:WaitForChild("Spotlight"))
+local rectOf = Spotlight.rectOf
 
 local finish: (boolean) -> ()
 
@@ -119,9 +107,17 @@ local function show()
 	count.Text = string.format("%d / %d", index, #steps)
 	nextButton.Text = if index == #steps then "확인" else "다음 ▶"
 	target = nil
+	Spotlight.set(nil)
 	if step.target then
-		local ok, t = pcall(step.target)
-		if ok then target = t end
+		-- (a moment later: a step's `before` may open the menu it points into)
+		task.delay(0.1, function()
+			if steps[index] ~= step then return end
+			local ok, t = pcall(step.target :: () -> any)
+			if ok then
+				target = t
+				Spotlight.set(t)
+			end
+		end)
 	end
 end
 
@@ -133,6 +129,7 @@ finish = function(done: boolean)
 	running = nil
 	card.Visible = false
 	ring.Visible = false
+	Spotlight.set(nil)
 	task.spawn(function() pcall(function() remote:InvokeServer("TipSeen", key) end) end)
 	local nextRun = table.remove(queue, 1)
 	if nextRun then task.defer(Coach.run, nextRun.key, nextRun.steps) end
