@@ -36,10 +36,67 @@ type Playback = {
 
 local active: Playback? = nil
 local resolvedCache: {[string]: {DanceRegistry.ResolvedSegment}?} = {}
+local lengthCache: {[string]: number} = {}   -- AnimationId -> 실제 길이(초)
+local measuring: {[string]: boolean} = {}
 
 --------------------------------------------------
 -- Helpers
 --------------------------------------------------
+
+local getAnimator
+
+-- 애니메이션을 한 번 로드해 실제 길이를 읽는다. 캐릭터가 없으면 잠시 기다린다.
+local function measureLength(animationId: string)
+	local animator = getAnimator()
+	local tries = 0
+	while not animator and tries < 20 do
+		task.wait(0.5)
+		animator = getAnimator()
+		tries += 1
+	end
+
+	if animator then
+		local anim = Instance.new("Animation")
+		anim.AnimationId = animationId
+		local ok, track = pcall(function()
+			return animator:LoadAnimation(anim)
+		end)
+		anim:Destroy()
+
+		if ok then
+			local waited = 0
+			while track.Length <= 0 and waited < 10 do
+				task.wait(0.1)
+				waited += 0.1
+			end
+			if track.Length > 0 then
+				lengthCache[animationId] = track.Length
+			else
+				warn(`[DanceController] 애니메이션 길이 측정 실패: {animationId}`)
+			end
+			track:Destroy()
+		else
+			warn(`[DanceController] 애니메이션 로드 실패: {animationId}`)
+		end
+	end
+
+	measuring[animationId] = nil
+end
+
+-- DurationSec이 없는 조각의 길이가 모두 준비됐는지 확인하고, 없으면 측정을 시작한다.
+local function ensureLengths(entry: DanceRegistry.Entry): boolean
+	local ready = true
+	for _, seg in entry.Segments do
+		if seg.DurationSec == nil and lengthCache[seg.AnimationId] == nil then
+			ready = false
+			if not measuring[seg.AnimationId] then
+				measuring[seg.AnimationId] = true
+				task.spawn(measureLength, seg.AnimationId)
+			end
+		end
+	end
+	return ready
+end
 
 local function getResolved(audioId: string, entry: DanceRegistry.Entry): {DanceRegistry.ResolvedSegment}?
 	local cached = resolvedCache[audioId]
@@ -47,7 +104,11 @@ local function getResolved(audioId: string, entry: DanceRegistry.Entry): {DanceR
 		return cached
 	end
 
-	local segments, reason = DanceRegistry.Resolve(entry)
+	if not ensureLengths(entry) then
+		return nil -- 길이 측정 중
+	end
+
+	local segments, reason = DanceRegistry.Resolve(entry, lengthCache)
 	if not segments then
 		warn(`[DanceController] {audioId} ({entry.Title}) 안무 등록 오류: {reason}`)
 		return nil
@@ -57,7 +118,7 @@ local function getResolved(audioId: string, entry: DanceRegistry.Entry): {DanceR
 	return segments
 end
 
-local function getAnimator(): Animator?
+function getAnimator(): Animator?
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if not humanoid then

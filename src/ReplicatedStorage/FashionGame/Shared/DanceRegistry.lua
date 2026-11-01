@@ -7,7 +7,7 @@
 
 	Segments: 안무 조각을 음원 시간 순서대로 나열한다.
 	  AnimationId : "rbxassetid://..."  (애니메이션 에셋 ID)
-	  DurationSec : 이 조각의 길이(초). 자동 이어붙이기에 필요하다.
+	  DurationSec : 이 조각의 길이(초). 생략하면 애니메이션 실제 길이를 재생 시 자동으로 읽는다.
 	  StartSec    : 음원 기준 시작 시각(초). 생략하면 이전 조각이 끝나는 시점에 자동으로 붙는다.
 	                첫 조각을 생략하면 0초부터 시작한다.
 
@@ -41,8 +41,12 @@ local Registry: {[string]: Entry} = {
 	["91762270038050"] = {
 		Title = "RIIZE - Get A Guitar",
 		Segments = {
-			-- 조각을 여기에 순서대로 추가한다.
-			-- { AnimationId = "rbxassetid://000000", DurationSec = 8.0 },
+			{ AnimationId = "rbxassetid://119819611123433" },
+			{ AnimationId = "rbxassetid://97097804325917" },
+			{ AnimationId = "rbxassetid://119200924904137" },
+			{ AnimationId = "rbxassetid://77403973851668" },
+			{ AnimationId = "rbxassetid://73939357849033" },
+			{ AnimationId = "rbxassetid://137390866303201" },
 		},
 	},
 }
@@ -63,7 +67,8 @@ function DanceRegistry.GetEntry(soundId: string): (string?, Entry?)
 end
 
 --- 조각 목록을 음원 타임라인 값으로 확정한다. 실패하면 (nil, 사유)를 돌려준다.
-function DanceRegistry.Resolve(entry: Entry): ({ResolvedSegment}?, string?)
+--- lengths: AnimationId -> 실제 길이(초). DurationSec이 없는 조각의 길이로 쓴다.
+function DanceRegistry.Resolve(entry: Entry, lengths: {[string]: number}?): ({ResolvedSegment}?, string?)
 	local out: {ResolvedSegment} = {}
 
 	for i, seg in entry.Segments do
@@ -98,10 +103,15 @@ function DanceRegistry.Resolve(entry: Entry): ({ResolvedSegment}?, string?)
 			end
 		end
 
+		local duration = seg.DurationSec
+		if duration == nil and lengths then
+			duration = lengths[seg.AnimationId]
+		end
+
 		out[i] = {
 			AnimationId = seg.AnimationId,
 			Start = start,
-			Duration = seg.DurationSec,
+			Duration = duration,
 		}
 	end
 
