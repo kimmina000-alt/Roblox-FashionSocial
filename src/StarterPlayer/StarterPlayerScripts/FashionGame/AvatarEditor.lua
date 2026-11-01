@@ -72,6 +72,9 @@ local SCALE_PROPERTY = {
 	Proportion = "ProportionScale", BodyType = "BodyTypeScale",
 }
 
+-- (set further down, by the axis guide; _nudgePreview uses it too)
+local findAccessoryHandle: (clone: Model, assetId: number) -> BasePart?
+
 local ACCESSORY_LABEL = {
 	Hat = "모자", Face = "얼굴", Neck = "목", Shoulder = "어깨", Front = "앞",
 	Back = "뒤", Hair = "헤어", Waist = "허리",
@@ -589,16 +592,44 @@ end
 
 function AvatarEditor:_changed()
 	self:_updateFooter()
-	-- Debounce preview updates while a slider is being dragged.
+	-- (D-707) the preview moves at once while a slider is dragged
+	self:_nudgePreview()
+	-- Debounce preview rebuilds while a slider is being dragged (0.12 s
+	-- before D-707; the nudge above shows the move meanwhile).
 	self.previewToken += 1
 	local token = self.previewToken
-	task.delay(0.12, function()
+	task.delay(0.35, function()
 		if token ~= self.previewToken or not self.isOpenFlag then return end
 		-- While the editor is open the preview clone always applies the draft itself
 		-- (even when it equals the live look): only then can the axis guide find the
 		-- accessory part via AccessoryDescription:GetAppliedInstance().
+		-- What the rebuilt preview will show, for the nudges after it:
+		local built = {}
+		for id, values in pairs(self.draft.transforms) do
+			built[id] = { Position = values.Position, Rotation = values.Rotation }
+		end
+		self.pendingBuilt = built
 		self.ctx.setPreviewDescription(self:_buildPreviewDescription())
 	end)
+end
+
+-- Moves the selected accessory (and every hair) on the current preview copy
+-- right away, by how far the draft is from what that copy was built with.
+-- The rebuild a moment later shows Roblox's exact result.
+function AvatarEditor:_nudgePreview()
+	local clone = self.previewClone
+	if not clone or not clone.Parent or not self.draft or not self.isOpenFlag then return end
+	local humanoid = clone:FindFirstChildOfClass("Humanoid")
+	if humanoid then HairFit.apply(humanoid, self.draft.hair) end
+	local id = self.selectedAccessory
+	local built = self.builtTransforms and id and self.builtTransforms[id]
+	local values = id and self.draft.transforms[id]
+	if not built or not values or self.draft.hair[id :: number] then return end
+	local handle = findAccessoryHandle(clone, id :: number)
+	local accessory = handle and handle.Parent
+	if accessory and accessory:IsA("Accessory") then
+		HairFit.preview(accessory, { p = values.Position - built.Position, r = values.Rotation - built.Rotation })
+	end
 end
 
 function AvatarEditor:_setStatus(text: string)
@@ -1183,6 +1214,7 @@ end
 
 function AvatarEditor:onPreviewBuilt(clone: Model)
 	self.previewClone = clone
+	self.builtTransforms = self.pendingBuilt
 	local humanoid = clone:FindFirstChildOfClass("Humanoid")
 	if humanoid and self.draft and self.isOpenFlag then HairFit.apply(humanoid, self.draft.hair) end
 	self:_updateGizmo()
@@ -1205,7 +1237,7 @@ function AvatarEditor:_clearGizmo()
 	end
 end
 
-local function findAccessoryHandle(clone: Model, assetId: number): BasePart?
+findAccessoryHandle = function(clone: Model, assetId: number): BasePart?
 	local humanoid = clone:FindFirstChildOfClass("Humanoid")
 	local description = humanoid and humanoid:FindFirstChildOfClass("HumanoidDescription")
 	if not description then return nil end

@@ -2883,3 +2883,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 꾸미기 미리보기 헤어·거리 (D-706)
 ![](images/2026-11-01/hair_preview_fix_D706.jpg)
+
+### 전광판 노래 제목, 꾸미기 실시간 미리보기 (D-707)
+![](images/2026-11-01/led_wall_song_D707.jpg) ![](images/2026-11-01/editor_live_preview_D707.jpg)

@@ -74,30 +74,34 @@ function HairFit.set(accessory: Accessory, offset: Offset?)
 	-- a preview rig outside Workspace (a ViewportFrame's WorldModel) runs no
 	-- physics, so its constraint never moves the handle: place it by hand.
 	-- (Never in Workspace: moving one part there moves the whole character.)
-	if not accessory:IsDescendantOf(workspace) then
-		local handle = accessory:FindFirstChild("Handle") :: BasePart?
-		local rigid = handle and handle:FindFirstChild("AccessoryRigidConstraint")
-		local body = rigid and rigid:IsA("RigidConstraint") and rigid.Attachment1
-		if handle and body then
-			-- Moved from where Roblox placed it, about the body attachment:
-			-- (D-706) placing it from the two attachments put a zero offset
-			-- somewhere else than Roblox did (lower and forward on the preview)
-			local placed = handle:GetAttribute("HairFitPlaced")
-			if typeof(placed) ~= "CFrame" then
-				placed = handle.CFrame
-				handle:SetAttribute("HairFitPlaced", placed)
-			end
-			if HairFit.isZero(offset) then
-				handle.CFrame = placed :: CFrame
-			else
-				-- (while the constraint holds, the handle is part of the rig's
-				-- assembly and moving it moves the whole rig: the still
-				-- preview rig doesn't need it)
-				(rigid :: RigidConstraint).Enabled = false
-				local pivot = body.WorldCFrame
-				handle.CFrame = pivot * offsetCFrame(offset :: Offset) * pivot:Inverse() * (placed :: CFrame)
-			end
-		end
+	if not accessory:IsDescendantOf(workspace) then HairFit.preview(accessory, offset) end
+end
+
+-- Moves an accessory on a preview rig (never in Workspace) by an offset from
+-- where Roblox placed it, about the body attachment it hangs from. Used for
+-- hair, and by the avatar editor to show slider moves at once (D-707), before
+-- the preview is rebuilt from the draft.
+-- (D-706) placing it from the two attachments put a zero offset somewhere
+-- else than Roblox did (lower and forward on the preview).
+function HairFit.preview(accessory: Accessory, offset: Offset?)
+	local handle = accessory:FindFirstChild("Handle") :: BasePart?
+	local rigid = handle and handle:FindFirstChild("AccessoryRigidConstraint")
+	local body = rigid and rigid:IsA("RigidConstraint") and rigid.Attachment1
+	if not handle or not body then return end
+	local placed = handle:GetAttribute("HairFitPlaced")
+	if typeof(placed) ~= "CFrame" then
+		placed = handle.CFrame
+		handle:SetAttribute("HairFitPlaced", placed)
+	end
+	if HairFit.isZero(offset) then
+		handle.CFrame = placed :: CFrame
+	else
+		-- (while the constraint holds, the handle is part of the rig's
+		-- assembly and moving it moves the whole rig: the still preview rig
+		-- doesn't need it)
+		(rigid :: RigidConstraint).Enabled = false
+		local pivot = body.WorldCFrame
+		handle.CFrame = pivot * offsetCFrame(offset :: Offset) * pivot:Inverse() * (placed :: CFrame)
 	end
 end
 

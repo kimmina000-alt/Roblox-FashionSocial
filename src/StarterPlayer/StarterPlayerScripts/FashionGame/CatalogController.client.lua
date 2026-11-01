@@ -406,6 +406,14 @@ local function refreshAvatarPreview()
 	local clone = character:Clone()
 	character.Archivable = wasArchivable
 
+	-- (D-707) the face's mood animation lives under the Animate script: kept
+	-- before the scripts go, played on the copy below. Without it a dynamic
+	-- head shows its blank face in the preview while the real one smiles.
+	local animate = clone:FindFirstChild("Animate")
+	local moodValue = animate and animate:FindFirstChild("mood")
+	local mood = moodValue and moodValue:FindFirstChildOfClass("Animation")
+	if mood then mood.Parent = nil end
+
 	for _, descendant in ipairs(clone:GetDescendants()) do
 		if descendant:IsA("Script") or descendant:IsA("LocalScript") then
 			descendant:Destroy()
@@ -433,6 +441,17 @@ local function refreshAvatarPreview()
 			return
 		end
 		clone:PivotTo(CFrame.new(0, 0, 0))
+	end
+	if mood then
+		local moodHumanoid = clone:FindFirstChildOfClass("Humanoid")
+		local animator = moodHumanoid and moodHumanoid:FindFirstChildOfClass("Animator")
+		if animator then
+			pcall(function()
+				local track = animator:LoadAnimation(mood)
+				track.Looped = true
+				track:Play(0)
+			end)
+		end
 	end
 	local boundsCFrame, bounds = clone:GetBoundingBox()
 	local viewportSize = avatarViewport.AbsoluteSize
