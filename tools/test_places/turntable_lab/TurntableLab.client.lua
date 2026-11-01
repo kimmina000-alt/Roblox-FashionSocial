@@ -43,6 +43,9 @@ local TRACKS = {
 	{ title = "Catch Catch / 최예나", id = 100968974338230 },
 	{ title = "Get A Guitar / RIIZE", id = 100035331158760 },
 	{ title = "Bubble Pop / HyunA", id = 117125823291884 },
+	-- the user's own edits (2026-11-01)
+	{ title = "피치 후 증폭", id = 139326796173276 },
+	{ title = "증폭 후 피치", id = 88451163103580 },
 }
 
 -- speed and octave on log sliders (x1 in the middle); volume is the raw

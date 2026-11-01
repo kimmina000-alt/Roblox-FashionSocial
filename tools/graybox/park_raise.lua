@@ -23,7 +23,7 @@ MODE = MODE or "raise"
 local RAISE = 16
 -- (user 2026-11-01, D-700) the whole park moves this far north (-Z) too, so a
 -- wide plaza lies between the stair's top and the gate
-local SHIFT = 25
+local SHIFT = 50 -- (25, then 25 more: user 2026-11-01, D-701)
 local X0, X1 = -152.5, -46.5 -- the plot, outside edge of the wall pillars
 local Z_NORTH, Z_SOUTH = -482, -224 -- the plot (part centres)
 local GATE_FRONT = -215 -- the gate's booths, letters and towers reach to z -216
@@ -92,6 +92,18 @@ for _, p in ipairs(workspace:GetDescendants()) do
 		table.insert(list, p)
 	end
 end
+-- (D-701) the map's invisible boundary across the park's front (z -229) goes
+-- north with the park, not up: else it cuts the plaza in two
+local boundary = L:FindFirstChild("MapBoundary")
+if boundary then
+	for _, p in ipairs(boundary:GetDescendants()) do
+		if p:IsA("BasePart") and math.abs(p.Position.Z - -229) < 2 and p.Position.X > X0 and p.Position.X < X1 then
+			p.CFrame = p.CFrame + Vector3.new(0, 0, -SHIFT)
+			p:SetAttribute("ParkRaised", 0)
+			p:SetAttribute("ParkShift", SHIFT)
+		end
+	end
+end
 for i, p in ipairs(list) do
 	p.CFrame = p.CFrame + Vector3.new(0, RAISE, -SHIFT)
 	p:SetAttribute("ParkRaised", RAISE)
@@ -147,8 +159,36 @@ local DECK_TOP = 1.5 -- the pocket park's upper deck
 for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
 	-- a stone parapet along the plaza's front edge, WALL_H high
 	block("ParkPlazaParapet", span[1], RAISE, LANDING_Z, span[2], RAISE + WALL_H, LANDING_Z - 1.2, STONE, Enum.Material.Slate)
-	-- the deck beside the stair, from the old decks' edge to the wall
-	block("ParkDeckFill", span[1], 0, BANK_Z + 1, span[2], DECK_TOP, LANDING_Z, DECK, Enum.Material.WoodPlanks)
+end
+-- and along its two sides, back to the park's wall (D-701: the east side was
+-- open, its top level with the plaza; now the same height as the front)
+local PLAZA_BACK = Z_SOUTH - SHIFT
+for _, x in ipairs({ X0, X1 - 1.2 }) do
+	block("ParkPlazaParapet", x, RAISE, LANDING_Z, x + 1.2, RAISE + WALL_H, PLAZA_BACK, STONE, Enum.Material.Slate)
+end
+-- (D-701) the deck beside the stair only on the west, from the pocket park's
+-- upper deck (its west edge x -141) to the stair; west of that line, and on
+-- the east, the street's paving (a sidewalk copy at 0.6) instead of decks
+local DECK_X0 = -141
+-- (it starts under the upper deck's north edge, z -196, so no strip of paving
+-- shows between the two; a hair lower so the tops don't flicker)
+block("ParkDeckFill", DECK_X0, 0, -196, STAIR_X0 - 0.6, DECK_TOP - 0.02, LANDING_Z, DECK, Enum.Material.WoodPlanks)
+do
+	local src
+	for _, p in ipairs(L:GetChildren()) do
+		if p:IsA("BasePart") and p.Name == "Sidewalk" and math.abs(p.Position.X - -154) < 1 then src = p end
+	end
+	local function pave(x0, z0, x1, z1)
+		local s = if src then src:Clone() else Instance.new("Part")
+		s.Name = "ParkFillPaving"
+		s.Anchored = true
+		s.Size = Vector3.new(math.abs(x1 - x0), 0.6, math.abs(z1 - z0))
+		s.CFrame = CFrame.new((x0 + x1) / 2, 0.3, (z0 + z1) / 2)
+		s.Parent = F
+	end
+	-- (between the sidewalks, x -150 and -47, so no two tops overlap)
+	pave(-150, STAIR_Z, DECK_X0, LANDING_Z)
+	pave(STAIR_X1 + 0.6, BANK_Z + 1, -47, LANDING_Z)
 end
 -- invisible blockers over the stone walls: a jump (about 7 studs; phones jump
 -- on their own when walking into a wall) clears WALL_H
@@ -162,11 +202,12 @@ end
 for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
 	blocker(span[1], RAISE + WALL_H, LANDING_Z, span[2], RAISE + WALL_H + BLOCK_H, LANDING_Z - 1.2)
 end
+for _, x in ipairs({ X0, X1 - 1.2 }) do
+	blocker(x, RAISE + WALL_H, LANDING_Z, x + 1.2, RAISE + WALL_H + BLOCK_H, PLAZA_BACK)
+end
 for _, x in ipairs({ STAIR_X0, STAIR_X1 }) do
 	blocker(x - 0.6, STAIR_Y + WALL_H, STAIR_Z, x + 0.6, RAISE + WALL_H + BLOCK_H, LANDING_Z)
 end
--- the strip west of the deck along the retaining wall (bare paving, user's shot)
-block("ParkDeckFill", X0, 0, STAIR_Z, -141, DECK_TOP, BANK_Z + 1, DECK, Enum.Material.WoodPlanks)
 -- the stair's side walls (D-699: taller, in place of the handrails): a stone
 -- wall from the plaza up to WALL_H over the steps all along, a box for its
 -- lower part and a wedge for the slope on top
