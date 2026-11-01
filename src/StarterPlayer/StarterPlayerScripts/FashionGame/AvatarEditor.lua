@@ -475,7 +475,7 @@ local function copyState(state: any)
 		}
 		-- (D-705) hair moved by the game itself (HairFit), not by Roblox's rules
 		if accessory.HairFit and accessory.HairOffset then
-			draft.hair[accessory.AssetId] = { p = accessory.HairOffset.p, r = accessory.HairOffset.r }
+			draft.hair[accessory.AssetId] = { p = accessory.HairOffset.p, r = accessory.HairOffset.r, s = accessory.HairOffset.s or 1 }
 		end
 	end
 	for key, entry in pairs(state.Scales) do
@@ -510,7 +510,7 @@ function AvatarEditor:_changes()
 	end
 	for id, values in pairs(draft.hair) do
 		local before = base.hair[id]
-		if before and (not vecEqual(before.p, values.p) or not vecEqual(before.r, values.r)) then
+		if before and (not vecEqual(before.p, values.p) or not vecEqual(before.r, values.r) or math.abs((before.s or 1) - (values.s or 1)) > 1e-3) then
 			changes.hair = changes.hair or {}
 			changes.hair[tostring(id)] = values
 			any = true
@@ -560,13 +560,10 @@ function AvatarEditor:_buildPreviewDescription(): HumanoidDescription?
 	for _, child in ipairs(description:GetChildren()) do
 		if child:IsA("AccessoryDescription") then
 			local values = draft.transforms[child.AssetId]
-			local hair = draft.hair[child.AssetId]
-			if hair then
-				-- (Roblox keeps but ignores these on hair; they make each draft
-				-- a new description, so the preview rebuilds, and onPreviewBuilt
-				-- moves the hair with HairFit)
-				child.Position = hair.p
-				child.Rotation = hair.r
+			-- (accessories the game fits itself, D-709, keep Roblox's own values:
+			-- onPreviewBuilt and _nudgePreview put the fit on top)
+			if draft.hair[child.AssetId] then
+				-- nothing
 			elseif values and not child.IsLayered then
 				child.Position = values.Position
 				child.Rotation = values.Rotation
@@ -590,10 +587,13 @@ function AvatarEditor:_buildPreviewDescription(): HumanoidDescription?
 	return description
 end
 
-function AvatarEditor:_changed()
+-- fitOnly: only an accessory fit changed (D-709): the preview copy is moved
+-- in place, never rebuilt, so the sliders show it as they move
+function AvatarEditor:_changed(fitOnly: boolean?)
 	self:_updateFooter()
 	-- (D-707) the preview moves at once while a slider is dragged
 	self:_nudgePreview()
+	if fitOnly then return end
 	-- Debounce preview rebuilds while a slider is being dragged (0.12 s
 	-- before D-707; the nudge above shows the move meanwhile).
 	self.previewToken += 1
@@ -621,6 +621,7 @@ function AvatarEditor:_nudgePreview()
 	if not clone or not clone.Parent or not self.draft or not self.isOpenFlag then return end
 	local humanoid = clone:FindFirstChildOfClass("Humanoid")
 	if humanoid then HairFit.apply(humanoid, self.draft.hair) end
+	self:_updateGizmo() -- (the axis guide follows the accessory)
 	local id = self.selectedAccessory
 	local built = self.builtTransforms and id and self.builtTransforms[id]
 	local values = id and self.draft.transforms[id]
@@ -755,8 +756,12 @@ function AvatarEditor:_resetCurrent()
 	if self.tab == "accessory" then
 		local id = self.selectedAccessory
 		if id and self.draft.hair[id] then
-			self.draft.hair[id] = { p = Vector3.zero, r = Vector3.zero }
-			self:_setStatus("헤어 위치·회전을 기본값으로 되돌렸습니다.")
+			self.draft.hair[id] = { p = Vector3.zero, r = Vector3.zero, s = 1 }
+			-- (and any of Roblox's own values from before D-709)
+			if self.draft.transforms[id] then
+				self.draft.transforms[id] = { Position = Vector3.zero, Rotation = Vector3.zero, Scale = Vector3.one }
+			end
+			self:_setStatus("선택한 장신구의 위치·회전·크기를 기본값으로 되돌렸습니다.")
 		elseif id and self.draft.transforms[id] then
 			self.draft.transforms[id] = { Position = Vector3.zero, Rotation = Vector3.zero, Scale = Vector3.one }
 			self:_setStatus("선택한 장신구의 위치·회전·크기를 기본값으로 되돌렸습니다.")
@@ -1014,7 +1019,7 @@ function AvatarEditor:_renderHair(assetId: number)
 					if axis == "X" then value else current.X,
 					if axis == "Y" then value else current.Y,
 					if axis == "Z" then value else current.Z)
-				self:_changed()
+				self:_changed(true)
 			end
 			local slider
 			slider = createSlider(content, axis, minValue, maxValue, step, format, setAxis, function()
@@ -1026,9 +1031,24 @@ function AvatarEditor:_renderHair(assetId: number)
 			slider.set((self.draft.hair[assetId][field] :: any)[axis])
 		end
 	end
-	group("헤어 위치", "p", HairFit.Position, 0.01, function(v) return string.format("%+.2f", v) end)
-	group("헤어 회전", "r", HairFit.Rotation, 1, function(v) return string.format("%+d°", math.floor(v + 0.5)) end)
-	noteLabel(content, "x 좌우 · y 위아래 · z 앞뒤. 🔄는 그 축만, 아래 초기화는 이 헤어 전체를 기본값으로 되돌립니다. 적용하면 저장되어 다음 접속에도 유지됩니다.", order)
+	group("위치", "p", HairFit.Position, 0.01, function(v) return string.format("%+.2f", v) end)
+	group("회전", "r", HairFit.Rotation, 1, function(v) return string.format("%+d°", math.floor(v + 0.5)) end)
+	-- (D-709) size, one slider, 0.5x .. 2x
+	sectionLabel(content, "크기", order)
+	order += 1
+	local function setScale(value: number)
+		self.draft.hair[assetId].s = value
+		self:_changed(true)
+	end
+	local scaleSlider
+	scaleSlider = createSlider(content, "크기", HairFit.Scale.Min, HairFit.Scale.Max, 0.01, function(v) return string.format("%.2fx", v) end, setScale, function()
+		scaleSlider.set(1)
+		setScale(1)
+	end)
+	scaleSlider.frame.LayoutOrder = order
+	order += 1
+	scaleSlider.set(self.draft.hair[assetId].s or 1)
+	noteLabel(content, "x 좌우 · y 위아래 · z 앞뒤. 막대를 움직이면 미리보기에 바로 보입니다. 🔄는 그 항목만, 아래 초기화는 이 장신구 전체를 기본값으로 되돌립니다. 적용하면 저장되어 다음 접속에도 유지됩니다.", order)
 end
 
 function AvatarEditor:_renderBody()
@@ -1265,7 +1285,7 @@ function AvatarEditor:_updateGizmo()
 	for _, accessory in ipairs(self.baseline.Accessories) do
 		if accessory.AssetId == self.selectedAccessory then entry = accessory end
 	end
-	if not entry or not entry.Refinable then return end
+	if not entry or not (entry.Refinable or entry.HairFit) then return end
 	local handle = findAccessoryHandle(clone, self.selectedAccessory :: number)
 	if not handle then return end
 

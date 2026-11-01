@@ -1333,15 +1333,16 @@ function AvatarService.GetEditState(player: Player)
 	local description = humanoid:GetAppliedDescription()
 
 	local accessories = {}
-	-- (D-705) hair is outside Roblox's refinement rules: the game moves it itself
+	-- (D-705) hair is outside Roblox's refinement rules: the game moves it
+	-- itself; (D-709) every rigid accessory now, with wider ranges and size
 	local hairOffsets = require(script.Parent.HairFitService).get(player)
 	for _, child in ipairs(description:GetChildren()) do
 		if child:IsA("AccessoryDescription") then
 			local info = if child.IsLayered then nil else refinementInfo(rules, child.AccessoryType)
-			local hairFit = info == nil and not child.IsLayered and child.AccessoryType == Enum.AccessoryType.Hair
+			local hairFit = not child.IsLayered
 			table.insert(accessories, {
 				HairFit = hairFit,
-				HairOffset = if hairFit then (hairOffsets[child.AssetId] or { p = Vector3.zero, r = Vector3.zero }) else nil,
+				HairOffset = if hairFit then (hairOffsets[child.AssetId] or { p = Vector3.zero, r = Vector3.zero, s = 1 }) else nil,
 				AssetId = child.AssetId,
 				AccessoryType = child.AccessoryType.Name,
 				IsLayered = child.IsLayered,
@@ -1451,7 +1452,7 @@ function AvatarService.ApplyEdit(player: Player, draft: any)
 			local assetId = tonumber(key)
 			local worn = false
 			for _, child in ipairs(description:GetChildren()) do
-				if child:IsA("AccessoryDescription") and child.AssetId == assetId and child.AccessoryType == Enum.AccessoryType.Hair then
+				if child:IsA("AccessoryDescription") and child.AssetId == assetId and not child.IsLayered then
 					worn = true
 				end
 			end

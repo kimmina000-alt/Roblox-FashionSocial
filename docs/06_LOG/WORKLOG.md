@@ -2889,3 +2889,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 노란 띠 노래 제목, 꾸미기 줌 고정 (D-708)
 ![](images/2026-11-01/club_strip_song_D708.jpg) ![](images/2026-11-01/editor_zoom_fix_D708.jpg)
+
+### 장신구 크기·실시간 미리보기 (D-709)
+![](images/2026-11-01/fit_size_160_D709.jpg) ![](images/2026-11-01/fit_size_085_live_D709.jpg)

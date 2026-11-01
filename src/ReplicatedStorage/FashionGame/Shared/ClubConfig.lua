@@ -141,45 +141,11 @@ ClubConfig.JoinRadius = 90
 
 -- Shared club music. One track plays for everyone; the channel name is shown.
 ClubConfig.Playlist = {
-	{ channel = "EDM", title = "EDM Club Night", soundId = 136689162723802, length = 218 },
-	{ channel = "POP", title = "Tomorrow Starts Now", soundId = 124325173394473, length = 205 },
-	{ channel = "HIP-HOP", title = "Free", soundId = 128563409090413, length = 129 },
-	{ channel = "EDM", title = "Run the Night", soundId = 129158012324844, length = 155 },
-	{ channel = "POP", title = "Light It Up", soundId = 103356166395852, length = 187 },
-	{ channel = "HIP-HOP", title = "Future Legend", soundId = 115846580489388, length = 189 },
-	{ channel = "EDM", title = "Skyline Bounce", soundId = 132588706181756, length = 175 },
-	{ channel = "POP", title = "No Gravity Tonight", soundId = 84501429041638, length = 200 },
-	{ channel = "HIP-HOP", title = "Gomood", soundId = 92774322259700, length = 121 },
-	{ channel = "EDM", title = "Midnight Frequency", soundId = 75257760347020, length = 156 },
-	{ channel = "POP", title = "Under the Starlight", soundId = 101328005557095, length = 217 },
-	-- (user 2026-10-31: Gangnam Style, 454, MY MIND and 빨강빨강 taken out; ten
-	-- uploads of their own instead, all at x0.5 as their normal speed —
-	-- baseSpeed: tempo and pitch both, like the record slowed down; the DJ's
-	-- speed / pitch steps work on top, shown as x1 at this speed. The uploads
-	-- have no song names yet (video_to_mp3_…): titles to be set by the user.
-	-- length = seconds of audio at x1, measured in Studio)
-	-- (2026-10-31, latest: all ten at x0.5 again, user)
-	-- (2026-11-01: x0.5 with PitchShift octave 2, user; then the turntable lab's values, D-680)
-	-- (2026-11-01, later: genres EDM / K-POP and the OHU Mix numbers, user's list, D-684; the OHU Mix numbers taken off again, D-686)
-	{ channel = "EDM", title = "SAN FRANCISCO / DOM DOLLA", soundId = 113497657842744, length = 60, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "EDM", title = "LOVE LOVE LOVE / EPIC HIGH", soundId = 100033043291152, length = 59, lab = { speed = 1, tempo = 0.5, volume = 2.3, boost = 1, octave = 1, low = -6, mid = 4, high = 2, humHz = 500, hissHz = 4100, gate = -10, engine = "sound" } },
-	{ channel = "EDM", title = "TANI TANI / TANI", soundId = 131058655527940, length = 53, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "EDM", title = "LOVE ATTACK / RESCENE", soundId = 103905057186427, length = 70, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "EDM", title = "GRIT X DIET COKE", soundId = 106119256110919, length = 53, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "EDM", title = "CASH OUT", soundId = 140111630417316, length = 53, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "EDM", title = "MY MIND", soundId = 106804146862342, length = 62, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "EDM", title = "PLAIN JANE / A$AP FERG", soundId = 78832462526893, length = 44, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "EDM", title = "PUMP IT UP", soundId = 125479000346000, length = 60, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	{ channel = "EDM", title = "404 (New Era) / KiiiKiii", soundId = 74181572220193, length = 63, lab = { speed = 1, tempo = 0.5, volume = 2.2, boost = 1, octave = 1, low = 3, mid = 0, high = -24.5, humHz = 130, hissHz = 8300, gate = -10, engine = "sound" } },
-	-- (MANIAC · Stray Kids, 111304415353887, taken out again: user 2026-11-01)
-	-- (user 2026-10-31: PlaybackSpeed 2, Volume 10 then 20, PitchShift octave 0.5; 2026-11-01: the lab's values, D-680)
-	{ channel = "K-POP", title = "BANG BANG / IVE", soundId = 126421508146335, length = 352, lab = { speed = 1, tempo = 2, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 0, high = 0, humHz = 135, hissHz = 20000, gate = -10, engine = "sound" } },
-	-- (user 2026-11-01, D-708: new uploads of the K-POP songs, all with the
-	-- same lab values, names as the user wrote them. They replace the older
-	-- uploads: Love 119 106367625479063, BAD 89023892900416, Lemon Tang
-	-- 99550529874718, Catch Catch 100968974338230, Get A Guitar 100035331158760,
-	-- Bubble Pop 117125823291884 (D-681..D-687). 소원을 말해봐 is back.)
-	{ channel = "K-POP", title = "에이티즈-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (user 2026-11-01, D-709: every song before taken out — the eleven first
+	-- tracks, the ten EDM uploads, BANG BANG, the older K-POP uploads and the
+	-- two pitch / boost tests — and only these nine, all with the same lab
+	-- values. 139326796173276, the "피치 후 증폭" test, is IVE-Mirror.)
+	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	-- (the choreography made for the older Bubble Pop upload, kept on this one)
 	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
@@ -188,10 +154,7 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
-	-- (user 2026-11-01: two uploads of one song, pitched then boosted and the
-	-- other way round, the same lab values, D-702)
-	{ channel = "K-POP", title = "피치 후 증폭", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
-	{ channel = "K-POP", title = "증폭 후 피치", soundId = 88451163103580, length = 67, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside

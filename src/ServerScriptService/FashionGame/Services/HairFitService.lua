@@ -1,5 +1,6 @@
 --!strict
--- Hair position (D-705): each player's hair offsets live in the wallet
+-- Accessory fit (D-705 hair, D-709 every rigid accessory, with size): each
+-- player's offsets live in the wallet
 -- (wallet.hair, HairFit.toSaved form) and are set on the live character
 -- whenever its accessories change (any ApplyDescription: catalog, wardrobe,
 -- the avatar editor, spawning). See Shared/HairFit.
@@ -56,6 +57,12 @@ local function watch(player: Player, character: Model)
 					if HairFit.changedByEngine(a) then soon() end
 				end)
 			end
+		end
+		-- (and the size Roblox gives it, D-709)
+		if handle:IsA("BasePart") then
+			handle:GetPropertyChangedSignal("Size"):Connect(function()
+				if HairFit.sizeChangedByEngine(handle) then soon() end
+			end)
 		end
 	end
 	character.ChildAdded:Connect(hook)

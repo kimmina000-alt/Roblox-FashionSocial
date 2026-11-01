@@ -1353,3 +1353,11 @@ Studio Play 확인: 실제 헤어 위치(머리 기준 y 0.383)와 미리보기 
 - 순위표 아바타 기준: 기부 순위·레벨 순위의 1위, OH24 오늘의 큰손 상위 3명, 최근 후원 카드. 지금까지는 그 사람이 서버에 있으면 순위표를 갱신할 때마다(1분) 현재 모습을 다시 찍었음(그래서 실시간). 이제 RankingService.lookOf는 저장된 모습(구매·후원하는 순간 saveLook으로 저장)만 쓰고, 저장이 없는 사람(레벨 순위)은 처음 순위에 오를 때 한 번 찍어 그대로 씀. PhotoRender에 clear 옵션(뒷벽·바닥 없음, 투명 뷰포트)을 만들어 순위표 두 곳에 적용, 뷰포트 배경도 투명.
 - 꾸미기 크기 변화 원인: 편집을 열면 미리보기를 초안 설명으로 다시 만드는데(ApplyDescriptionResetAsync), 그 직후에는 다시 만든 몸 부품이 아직 제자리가 아니라 박스가 6.7 대신 5.9로 재져 카메라가 가까워졌음(거리 20.9 → 16.4). 고침(CatalogController): 다시 만든 경우 두 프레임 뒤에 재고, 장신구를 빼고 몸 부품만으로 재며(머리 위 0.8 여유), 미리보기 칸 크기가 바뀔 때도 거리를 다시 계산. Studio: 편집을 연 뒤 3 초 동안 거리 20.9 그대로.
 - 음원(K-POP, 모두 lab speed 1 / tempo 0.5 / volume 10 / boost 1 / octave 0.5 / EQ 0): 에이티즈-BAD 134942349436280(51 s), 소녀시대-소원을 말해봐(Genie) 128270208751659(76 s), 현아-Bubble Pop 76388700698178(71 s, 안무 그대로 옮김), RIIZE-Get A Guitar 91762270038050(54 s), RIIZE-Love 119 119473981131981(58 s), YENA-Catch Catch 80583279340768(61 s), Hearts2Hearts-Lemon Tang 97032815457241(54 s), aespa-Lemonade 132067415333401(62 s). 같은 곡의 이전 업로드 6개는 뺌(ID는 ClubConfig 주석). 안무 테스트 버튼은 soundId 대신 안무가 있는 곡을 찾음.
+
+## D-709 (2026-11-01) 모든 장신구 위치·회전·크기를 게임이 직접, 실시간 미리보기, 플레이리스트 9곡
+- 사용자: 헤어 크기도 조절. 장신구 크기 조절이 지금이 한계인지(더 크게·작게). 위치·회전·크기 모두 실시간으로 보이게. 앞의 음원 다 지우고 9곡만.
+- 한계 답: 지금까지 헤어 말고 장신구는 Roblox 공식 조정(GetAvatarRules 범위, 크기 약 0.9..1.1)이라 그 이상은 Roblox가 막았음. 그래서 D-705 헤어 방식(HairFit)을 모든 비레이어 장신구로 넓힘: 위치 ±1, 회전 ±45°, 크기 0.5x..2x(새로 추가). 크기는 Handle(과 SpecialMesh) 크기와 Handle 안 부착점 위치를 같이 키워, 몸 부착점을 중심으로 커짐.
+- 저장: wallet.hair[assetId] = { px, py, pz, rx, ry, rz, s } (이전 6개 값도 읽음, s = 1). HairFitService가 Roblox가 Handle 크기를 다시 바꾸면(몸 크기 변경 등) 그 크기를 새 기준으로 잡고 다시 맞춤.
+- AvatarEditor: 모든 장신구 카드가 이 조절(위치·회전·크기)을 씀. 막대를 움직이면 미리보기 복사본을 다시 만들지 않고 그 자리에서 바로 옮기고·돌리고·키움(_changed(true)), 축 안내도 따라옴. 초기화는 예전 Roblox 공식 값도 0으로.
+- Studio 확인: 선글라스 y +0.3 / 1.6x, 헤어 1.3x 적용 → 실제 캐릭터와 미리보기의 위치·크기가 같음, 크기 막대를 0.85x로 끌자 미리보기가 즉시 바뀜, 오류 없음.
+- 플레이리스트: 이전 곡 전부(처음 11곡, EDM 10곡, BANG BANG, 이전 K-POP, 테스트 2곡) 빼고 9곡만, 모두 lab speed 1 / tempo 0.5 / volume 10 / boost 1 / octave 0.5 / EQ 0: ATEEZ-BAD, 소녀시대-소원을 말해봐(Genie), 현아-Bubble Pop(안무), RIIZE-Get A Guitar, RIIZE-Love 119, YENA-Catch Catch, Hearts2Hearts-Lemon Tang, aespa-Lemonade, IVE-Mirror(139326796173276, 67 s).
