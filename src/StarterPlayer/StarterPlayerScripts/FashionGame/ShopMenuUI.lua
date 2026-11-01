@@ -185,8 +185,15 @@ function ShopMenuUI:fill(tabIndex: number)
 			end
 			local preview = previews and previews:FindFirstChild(item.key)
 			local name = (string.gsub(item.name, " %(.-%)$", ""))
+			local photo = SnackMenuArt.Photos[item.key]
 			local card = NeonShopUI.drinkCard(w.content, index, name, item.color, price, priceColor, buttons, nil,
-				if preview and preview:IsA("Model") then preview else nil)
+				if preview and preview:IsA("Model") and not photo then preview else nil)
+			if photo then
+				-- (D-711) a photo from the game over the picture spot
+				local image = NeonShopUI.create("ImageLabel", { Name = "Photo", Position = UDim2.fromOffset(8, 8), Size = UDim2.new(0.42, -8, 1, -16),
+					BackgroundTransparency = 1, Image = photo, ScaleType = Enum.ScaleType.Crop, ZIndex = 14 }, card)
+				NeonShopUI.create("UICorner", { CornerRadius = UDim.new(0, 10) }, image)
+			end
 			if item.comingSoon then
 				-- a soft veil over the picture
 				NeonShopUI.create("Frame", { Name = "Locked", Position = UDim2.fromOffset(8, 8), Size = UDim2.new(0.42, -8, 1, -16),

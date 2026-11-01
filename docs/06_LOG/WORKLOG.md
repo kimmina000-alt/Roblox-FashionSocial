@@ -2916,3 +2916,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - Player2가 "한 조각 먹기"로 한 점씩 가져가 한 입에 먹음(수육은 한 입) → 남은 5 → 4 → 3 → 2 → 1 → 마지막 점을 가져가면 접시가 사라짐.
 - 오류 없음.
 ![](../04_ART/shop_photos/gukbap_suyuk_top_square.png)
+
+### 국밥 상점 수육 사진 (D-711)
+![](images/2026-11-01/shop_suyuk_photo_D711.jpg)
