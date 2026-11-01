@@ -2958,3 +2958,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 카탈로그 크게 보기 안내 (D-731)
 ![](images/2026-11-01/catalog_expand_tip_D731.jpg) ![](images/2026-11-01/catalog_big_preview_D731.jpg)
+
+### DJ EDM 효과 (D-733)
+![](images/2026-11-01/edm_panel_D733.jpg)

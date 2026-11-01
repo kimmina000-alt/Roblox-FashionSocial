@@ -281,6 +281,9 @@ for index, entry in ipairs(ClubConfig.LightColors) do
 	colorButtons[entry.key] = button
 end
 
+-- 🎛 EDM effects (DJ only, D-733): EdmPanel lays itself out under the colours
+local edmPanel = require(script.Parent:WaitForChild("EdmPanel")).new(panel)
+
 local listTitle = create("TextLabel", {
 	Name = "ListTitle",
 	Position = UDim2.fromOffset(0, 104),
@@ -459,13 +462,14 @@ local function layout()
 		djSound.Position = UDim2.fromOffset(0, y)
 		djSound.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
 		y += (if compact then 26 else 30) + 6
-		local perRow = if compact then 4 else 8
+		local perRow = 8 -- (one row on phones too since D-733: room for the EDM controls)
 		local rows = math.ceil(#ClubConfig.LightColors / perRow)
 		local cellH = if compact then 22 else 24
 		colorGrid.CellSize = UDim2.fromOffset(math.floor((leftW - (perRow - 1) * 4) / perRow), cellH)
 		colorRow.Position = UDim2.fromOffset(0, y)
 		colorRow.Size = UDim2.fromOffset(leftW, rows * (cellH + 4))
 		y += rows * (cellH + 4) + 4
+		y += edmPanel.place(y, leftW, compact) + 6
 	end
 	if compact then
 		listTitle.Position = UDim2.fromOffset(0, 28)
@@ -683,6 +687,7 @@ local function refresh()
 	djTools.Visible = dj
 	djSound.Visible = dj
 	colorRow.Visible = dj
+	edmPanel.frame.Visible = dj
 	local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
 	pauseButton.Text = if paused then "▶ 다시 재생" else "⏸ 일시정지"
 	pauseButton.BackgroundColor3 = if paused then COLORS.dj else COLORS.card

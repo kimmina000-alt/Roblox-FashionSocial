@@ -343,6 +343,23 @@ end
 
 function DjService.Start()
 	publish()
+	-- Studio only (D-733): the DJ product has a real id and cannot be bought in
+	-- a Studio test. ServerScriptService attribute StudioDJ = UserIds ("-1,
+	-- 11887382096"): that player gets DJ time on joining. Ignored in live servers.
+	if game:GetService("RunService"):IsStudio() then
+		local function studioDJ(player: Player)
+			local list = game:GetService("ServerScriptService"):GetAttribute("StudioDJ")
+			if typeof(list) ~= "string" then return end
+			for id in string.gmatch(list, "%-?%d+") do
+				if tonumber(id) == player.UserId then
+					task.delay(3, function() if player.Parent then DjService.AddTime(player) end end)
+					return
+				end
+			end
+		end
+		Players.PlayerAdded:Connect(studioDJ)
+		for _, p in ipairs(Players:GetPlayers()) do studioDJ(p) end
+	end
 	Players.PlayerRemoving:Connect(function(player)
 		if guests[player.UserId] then
 			guests[player.UserId] = nil
