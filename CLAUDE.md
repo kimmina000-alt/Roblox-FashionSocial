@@ -1,4 +1,4 @@
-# Claude Code handoff
+﻿# Claude Code handoff
 
 Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in Korean.
 
@@ -86,3 +86,5 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-10-31: `fix/grass-step-1030` merged into `catalog-ui-redesign` (fast-forward, user approved after the mobile 2P test, up to D-651). Soft launch next: user changes Guard 399 / DJ 49 on the dashboard, uploads icons (docs/04_ART/dashboard_icons/real, wristbands), publishes, then one live purchase of each kind. New work: branch off catalog-ui-redesign.
 
 - 2026-11-01: `feat/turntable-lab-1101` (with `feat/dj-reverse-1031`) merged into `catalog-ui-redesign` (fast-forward, user asked: mobile 2P test then merge; passed, up to D-710). Club playlist = 9 K-POP songs (lab values in ClubConfig), turntable-lab values per track, skip vote / song queue / quick bar, Bubble Pop choreography (ChoreoController; TestChoreoButton off), park raised 16 and moved north 50 (tools/graybox/park_raise.lua, last step of the layout chain), accessory fit for every rigid accessory by the game (Shared/HairFit + HairFitService, wallet.hair: position, rotation, size 0.5-2x). New work: branch off catalog-ui-redesign.
+
+- 2026-11-02: `feat/guide-1101` merged into `catalog-ui-redesign` (fast-forward, user asked: mobile 2P test then merge; passed after D-738 fixes, up to D-738). Tutorial tour + first-time tips (Coach/GuideTips, Spotlight), guide NPC + FAQ, top row without ☰ (wraps to two rows when narrow), 💬 feedback (FeedbackService; owner inbox), guard carry/drop + handcuffs (GuardService), DJ window: EDM button over the song (EdmConfig.Track = Get A Guitar until the user sends the EDM upload id) + EDM speed / song speed / volume sliders + 🔄 reset + ? help (DjHelp), club boost 6, Get A Guitar choreography (autoChoreo). Studio-only test attributes on ServerScriptService: StudioPasses ("Guard:-1") and StudioDJ ("11887382096,-1"). New work: branch off catalog-ui-redesign.
