@@ -1443,3 +1443,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-719 (2026-11-01) 2P 가드 테스트, 투어 중 팁 겹침 수정
 - 2P 테스트(Player1에 Pass_Guard를 서버에서 켬, 진짜 패스는 id가 있어 Studio 구매 불가): 머리 위 GUARD, 클럽 안 Player2 카드의 "🛡 클럽 밖으로 안내" 버튼, 안내 → 문 앞 보도(41,4.8,-211)로, GuardOutUntil 60초, 다시 넣어도 바로 밖으로(ClubAccessService). 통과.
 - 버그: 투어 중 클럽에 들어가면 투어 카드와 클럽 팁이 겹쳐 보임. Coach.hold: 투어 중엔 팁을 띄우지 않고(장소 팁은 몇 초마다 다시 확인하니 투어 뒤에 나옴), 투어가 시작할 때 떠 있던 팁은 본 것으로 치지 않고 닫음(Coach.finishNow).
+
+## D-720 (2026-11-01) Studio 테스트용 패스 주기
+- 사용자: 가드 테스트를 직접 해 보게 Player1에게 가드 권한. 진짜 id가 있는 패스는 Studio에서 못 사니, ServerScriptService 속성 StudioPasses("Guard:-1" 식, 키:UserId)로 Studio에서만 패스를 줌(MonetizationService.studioGrant, 라이브 서버에서는 무시). 지금 값 "Guard:-1".

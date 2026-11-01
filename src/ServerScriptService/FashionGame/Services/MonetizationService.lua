@@ -63,9 +63,25 @@ local function setPass(player: Player, key: string, owned: boolean)
 	end
 end
 
+-- Studio only (D-720): a pass that already has a real id cannot be test-bought,
+-- so ServerScriptService's attribute StudioPasses ("Guard:-1,VIP:-2", key and
+-- UserId) gives it to a test player. Ignored in live servers.
+local function studioGrant(player: Player, key: string): boolean
+	if not RunService:IsStudio() then return false end
+	local list = game:GetService("ServerScriptService"):GetAttribute("StudioPasses")
+	if typeof(list) ~= "string" then return false end
+	for entry in string.gmatch(list, "[^,%s]+") do
+		local k, id = string.match(entry, "^(%w+):(%-?%d+)$")
+		if k == key and tonumber(id) == player.UserId then return true end
+	end
+	return false
+end
+
 local function refreshPasses(player: Player)
 	for key, pass in pairs(MonetizationConfig.GamePasses) do
-		if pass.id == 0 then
+		if studioGrant(player, key) then
+			setPass(player, key, true)
+		elseif pass.id == 0 then
 			setPass(player, key, player:GetAttribute("Pass_" .. key) == true)
 		else
 			local ok, owned = pcall(function()
