@@ -1459,3 +1459,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - NameTagService: Cuffed 동안 아이디 앞 "⛓ ".
 - DanceController 카드: 가드는 클럽 밖에서도 근처 사람 카드(같이 추기 숨김), [🫳 들기 / ⬇ 내려놓기] [⛓ 수갑 (1분)].
 - GuardController(새 LocalScript): 들고 있는 가드의 팔을 앞으로(Motor6D.Transform, 모든 화면), 들린 사람은 못 걸음, 가드 화면 아래 "⬇ ○○ 내려놓기" 버튼.
+
+## D-723 (2026-11-01) 클럽 9곡 보정값 변경
+- 사용자: 9곡 모두 lab = { speed = 1, tempo = 0.35, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }. ClubConfig.Playlist 9곡에 똑같이 적용(곡 목록은 그대로).
