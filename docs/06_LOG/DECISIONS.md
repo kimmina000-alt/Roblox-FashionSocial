@@ -1556,3 +1556,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 찾기: 게임 안 카탈로그 검색(AvatarEditorService)은 한국어 이름으로는 잘 안 나와서, 이름을 영어로 되돌려 검색 + 가격을 정확히 맞추고, 돌아온 한국어 이름을 사진 이름과 비교(1.6초 간격, 빠르면 HTTP 429). 목록: tools/thumbnail/avatars.lua (못 찾은 것 missing: A06 "Y2K" 검은 곰 60, A08 플란넬 오프숄더 재킷 65, A09 "문신" ×3 — 같은 이름이 수십 개). 이모트·애니메이션 팩은 정지 사진이라 뺌.
 - tools/thumbnail/build_avatars.lua(Edit 모드): 몸 번들의 코디를 바탕, 나머지는 종류대로(몸·머리, 얼굴, 클래식 옷, 장신구·레이어드). 결과 ServerStorage.ThumbnailAvatars(A01~A11, 게임엔 안 보임; 쓸 때 Workspace로).
 - 몸 번들이 없는 아바타는 기본 블록 몸(사진 속 아바타들도 블록 몸).
+
+## D-741 (2026-11-02) 런칭 체크리스트
+- 사용자: 머지 → 런칭 체크리스트 → 메인 썸네일 순서로 진행. docs/00_PROJECT/LAUNCH_CHECKLIST.md(코드 확인 끝, Studio·대시보드·썸네일·라이브 확인 할 일). dashboard_icons/README.md 가격 고침(가드 399, DJ 49).
