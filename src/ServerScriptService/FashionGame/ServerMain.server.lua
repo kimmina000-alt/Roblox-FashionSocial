@@ -18,6 +18,7 @@ local PlayerDataService = require(
 PlayerDataService.Start()
 require(script.Parent.Services.HairFitService).Start(PlayerDataService)
 require(script.Parent.Services.GuideService).Start(PlayerDataService)
+require(script.Parent.Services.FeedbackService).Start() -- (💬 의견 보내기, D-725)
 local MonetizationService = require(script.Parent.Services.MonetizationService)
 local DjService = require(script.Parent.Services.DjService)
 local ClubAccessService = require(script.Parent.Services.ClubAccessService)

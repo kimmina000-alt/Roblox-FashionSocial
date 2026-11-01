@@ -31,9 +31,10 @@ TopBar.Scale = 1.5 -- (for the pieces other scripts size: coin pill, clock)
 -- as ♥: [clock] [₩] [♥] [hanger] [bag] [♪]; ☰ is gone. On a narrow screen
 -- the row would reach Roblox's buttons on the left: the rest goes on a second
 -- row below instead.)
-local RIGHT: {[number]: number} = { [1] = 1, [3] = 2, [4] = 3, [5] = 4, [10] = 5, [11] = 6 }
+-- (D-725: 💬 의견 보내기, order 2, at the end while FeedbackConfig.TopButton is on)
+local RIGHT: {[number]: number} = { [2] = 1, [1] = 2, [3] = 3, [4] = 4, [5] = 5, [10] = 6, [11] = 7 }
 local MENU: {[number]: number} = {}
-local ROUND = { [1] = true, [3] = true, [4] = true } -- styled like ♥ here
+local ROUND = { [1] = true, [2] = true, [3] = true, [4] = true } -- styled like ♥ here
 local LINE_GAP = 8 -- between two rows
 local rowsBottom = 0 -- bottom edge of the last row (TopBar.bottom)
 

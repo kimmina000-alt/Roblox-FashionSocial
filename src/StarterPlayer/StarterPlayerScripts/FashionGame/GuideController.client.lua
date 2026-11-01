@@ -322,8 +322,8 @@ local function showAnswer(faq: GuideConfig.Faq)
 	answerA.Text = faq.a
 	local place = faq.place and GuideConfig.Places[faq.place]
 	showButton.Visible = place ~= nil
-	goButton.Visible = place ~= nil or faq.action == "tutorial"
-	goButton.Text = if faq.action == "tutorial" then "▶ 다시 보기" else "📍 길 안내"
+	goButton.Visible = place ~= nil or faq.action ~= nil
+	goButton.Text = if faq.action == "tutorial" then "▶ 다시 보기" elseif faq.action == "feedback" then "✏️ 의견 쓰기" else "📍 길 안내"
 	list.Visible = false
 	answer.Visible = true
 end
@@ -359,6 +359,11 @@ showButton.Activated:Connect(function()
 end)
 goButton.Activated:Connect(function()
 	if not shown then return end
+	if shown.action == "feedback" then
+		closeWindow()
+		require(script.Parent:WaitForChild("Feedback")).open()
+		return
+	end
 	if shown.action == "tutorial" then
 		closeWindow()
 		-- (every first-time tip comes back too, D-713)

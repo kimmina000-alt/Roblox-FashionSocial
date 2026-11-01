@@ -1465,3 +1465,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-724 (2026-11-01) DJ 줄 버튼 순서
 - 사용자: DJ 턴테이블 창의 전광판 ON과 일시정지 자리 바꾸기. 이제 [⏸ 일시정지] [📺 전광판 ON] [🎆 무대 스파클러] (ClubMusicController LayoutOrder).
+
+## D-725 (2026-11-01) 💬 의견 보내기
+- 사용자: 개선 사항·불만·의견 받을 기능. 초반엔 많이 듣고 싶음(안내원까지 안 갈 수도).
+- 세 군데서 열림: 위 줄 맨 오른쪽 💬 버튼(FeedbackConfig.TopButton, 나중에 false로 숨김), 안내원 질문 "💬 불편한 점·바라는 점 보내기"(✏️ 의견 쓰기), 이번 접속 20분 뒤 한 번만 💬 버튼을 가리키는 팁(tip feedbackAsk, 투어를 본 사람만).
+- 창(Feedback.lua): 🐞 버그 / 💡 개선 / 😤 불만 / 💬 기타, 300자, 보내기. 한 사람 90초에 한 번.
+- FeedbackService: DataStore Feedback_v1(아이디·종류·글·시간·위치) + OrderedDataStore FeedbackTimes, 서버 출력에도 남김. 게임 주인(CreatorId, Studio에선 누구나)은 같은 창에 📥 받은 의견(최신 60개, Roblox 필터 거친 글, ✔ 처리로 목록에서 뺌). Studio에선 저장소 대신 세션 안에만.

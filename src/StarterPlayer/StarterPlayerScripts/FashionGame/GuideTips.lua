@@ -356,13 +356,24 @@ function GuideTips.start()
 	end
 	player.CharacterAdded:Connect(watchJob)
 	if player.Character then watchJob(player.Character) end
+	-- (D-725) once, after FeedbackConfig.NudgeMinutes of this visit: ask for 의견
+	require(script.Parent:WaitForChild("Feedback")) -- (builds the 💬 button)
+	local FeedbackConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("FeedbackConfig"))
+	local FEEDBACK_ASK: {Coach.Step} = {
+		{ title = "💬 오후 어때요?", text = "불편한 점이나 있었으면 하는 게 있으면 이 💬 버튼으로 알려 주세요. 개발자가 하나하나 직접 읽어요!",
+			target = function() return TopBar.button(2) end },
+	}
+	local joinedAt = os.clock()
 	-- places: in the club, near the beach cafe's counter
 	task.spawn(function()
 		while true do
 			task.wait(1)
 			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
 			if root and not Coach.isRunning() then
-				if Coach.wants("club") and ClubConfig.isInClub(root.Position) then
+				if Coach.wants("feedbackAsk") and os.clock() - joinedAt > FeedbackConfig.NudgeMinutes * 60
+					and player:GetAttribute("TutorialDone") == true then
+					Coach.run("feedbackAsk", FEEDBACK_ASK)
+				elseif Coach.wants("club") and ClubConfig.isInClub(root.Position) then
 					Coach.run("club", CLUB)
 				elseif Coach.wants("photo") and (function()
 					-- inside the 오후네컷 building (Hongdae_Layout.OhuFourCuts), under its roof
