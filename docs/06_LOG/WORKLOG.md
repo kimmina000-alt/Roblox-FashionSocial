@@ -2862,3 +2862,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 돌벽, 인도 잇기 (D-699)
 ![](images/2026-11-01/park_stair_walls.jpg) ![](images/2026-11-01/park_sidewalk_north.jpg)
+
+### 문 앞 광장, 계단 끝 벽, 데크 (D-700)
+![](images/2026-11-01/park_plaza_D700.jpg)

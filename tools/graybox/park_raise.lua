@@ -21,6 +21,9 @@
 local MODE = ...
 MODE = MODE or "raise"
 local RAISE = 16
+-- (user 2026-11-01, D-700) the whole park moves this far north (-Z) too, so a
+-- wide plaza lies between the stair's top and the gate
+local SHIFT = 25
 local X0, X1 = -152.5, -46.5 -- the plot, outside edge of the wall pillars
 local Z_NORTH, Z_SOUTH = -482, -224 -- the plot (part centres)
 local GATE_FRONT = -215 -- the gate's booths, letters and towers reach to z -216
@@ -54,8 +57,10 @@ if MODE == "undo" then
 	local n = 0
 	for _, p in ipairs(workspace:GetDescendants()) do
 		if p:IsA("BasePart") and typeof(p:GetAttribute("ParkRaised")) == "number" then
-			p.CFrame = p.CFrame - Vector3.new(0, p:GetAttribute("ParkRaised"), 0)
+			local back = p:GetAttribute("ParkShift")
+			p.CFrame = p.CFrame - Vector3.new(0, p:GetAttribute("ParkRaised"), -(if typeof(back) == "number" then back else 0))
 			p:SetAttribute("ParkRaised", nil)
+			p:SetAttribute("ParkShift", nil)
 			n += 1
 		end
 	end
@@ -88,8 +93,9 @@ for _, p in ipairs(workspace:GetDescendants()) do
 	end
 end
 for i, p in ipairs(list) do
-	p.CFrame = p.CFrame + Vector3.new(0, RAISE, 0)
+	p.CFrame = p.CFrame + Vector3.new(0, RAISE, -SHIFT)
 	p:SetAttribute("ParkRaised", RAISE)
+	p:SetAttribute("ParkShift", SHIFT)
 	moved += 1
 	if i % 500 == 0 then task.wait() end
 end
@@ -111,8 +117,8 @@ local function block(name, x0, y0, z0, x1, y1, z1, color, material)
 end
 -- the raised ground under the park and the landing in front of the gate
 -- (a stone retaining block; its top is the park's new street level)
-block("ParkPlatform", X0, 0, Z_NORTH, X1, RAISE, LANDING_Z, STONE, Enum.Material.Slate)
-block("ParkLandingPaving", X0, RAISE, -229, X1, RAISE + 0.08, LANDING_Z, PAVE, Enum.Material.Slate)
+block("ParkPlatform", X0, 0, Z_NORTH - SHIFT, X1, RAISE, LANDING_Z, STONE, Enum.Material.Slate)
+block("ParkLandingPaving", X0, RAISE, -229 - SHIFT, X1, RAISE + 0.08, LANDING_Z, PAVE, Enum.Material.Slate)
 -- the plaza's old north steps (z -196..-165) go aside: the new stair covers them
 local hidden = Instance.new("Folder")
 hidden.Name = "HiddenOld"
@@ -132,16 +138,35 @@ for k = 1, steps do
 	local zFront = STAIR_Z - (k - 1) * run
 	block("ParkRaiseStep", STAIR_X0, STAIR_Y - 1, zFront, STAIR_X1, STAIR_Y + k, LANDING_Z, if k % 2 == 0 then PAVE else STONE, Enum.Material.Slate)
 end
--- (user 2026-11-01, D-698) flat ground before the gate instead of the grass
--- banks: both sides of the stair are level with the gate from z BANK_Z on, a
--- stone retaining face to the plaza; the stair climbs between them
+-- (D-698 had flat ground beside the stair from z BANK_Z; user 2026-11-01, D-700:
+-- the wall moves back to where the stair ends, both sides; the plaza is on top,
+-- made wide by moving the park north; the ground left beside the stair is
+-- filled with the pocket park's wooden deck)
+local DECK = Color3.fromRGB(120, 88, 62)
+local DECK_TOP = 1.5 -- the pocket park's upper deck
 for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
-	block("ParkForecourt", span[1], 0, BANK_Z, span[2], RAISE, LANDING_Z, STONE, Enum.Material.Slate)
-	block("ParkForecourtPaving", span[1], RAISE, BANK_Z, span[2], RAISE + 0.08, LANDING_Z, PAVE, Enum.Material.Slate)
-	-- (user 2026-11-01, D-699: no railings, the wall itself goes up) a stone
-	-- parapet along its front edge, WALL_H over the ground
-	block("ParkForecourtParapet", span[1], RAISE, BANK_Z, span[2], RAISE + WALL_H, BANK_Z - 1.2, STONE, Enum.Material.Slate)
+	-- a stone parapet along the plaza's front edge, WALL_H high
+	block("ParkPlazaParapet", span[1], RAISE, LANDING_Z, span[2], RAISE + WALL_H, LANDING_Z - 1.2, STONE, Enum.Material.Slate)
+	-- the deck beside the stair, from the old decks' edge to the wall
+	block("ParkDeckFill", span[1], 0, BANK_Z + 1, span[2], DECK_TOP, LANDING_Z, DECK, Enum.Material.WoodPlanks)
 end
+-- invisible blockers over the stone walls: a jump (about 7 studs; phones jump
+-- on their own when walking into a wall) clears WALL_H
+local BLOCK_H = 10
+local function blocker(x0, y0, z0, x1, y1, z1)
+	local b = block("ParkWallBlocker", x0, y0, z0, x1, y1, z1, STONE)
+	b.Transparency = 1
+	b.CanQuery = false
+	b.CastShadow = false
+end
+for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
+	blocker(span[1], RAISE + WALL_H, LANDING_Z, span[2], RAISE + WALL_H + BLOCK_H, LANDING_Z - 1.2)
+end
+for _, x in ipairs({ STAIR_X0, STAIR_X1 }) do
+	blocker(x - 0.6, STAIR_Y + WALL_H, STAIR_Z, x + 0.6, RAISE + WALL_H + BLOCK_H, LANDING_Z)
+end
+-- the strip west of the deck along the retaining wall (bare paving, user's shot)
+block("ParkDeckFill", X0, 0, STAIR_Z, -141, DECK_TOP, BANK_Z + 1, DECK, Enum.Material.WoodPlanks)
 -- the stair's side walls (D-699: taller, in place of the handrails): a stone
 -- wall from the plaza up to WALL_H over the steps all along, a box for its
 -- lower part and a wedge for the slope on top
@@ -176,7 +201,7 @@ do
 	end
 end-- the park's walls north along the roads: a stone base under them, so they
 -- don't float (the ground there is out of reach)
-block("ParkPlatformNorth", NX0, 0, NZ0, NX1, RAISE, NZ1, STONE, Enum.Material.Slate)
+block("ParkPlatformNorth", NX0, 0, NZ0 - SHIFT, NX1, RAISE, NZ1 - SHIFT, STONE, Enum.Material.Slate)
 F.Parent = L
 L:SetAttribute("ParkRaised", RAISE)
 print("[park_raise] raised " .. moved .. " parts by " .. RAISE)
