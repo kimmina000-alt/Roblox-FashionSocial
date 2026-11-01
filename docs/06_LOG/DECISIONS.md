@@ -1361,3 +1361,12 @@ Studio Play 확인: 실제 헤어 위치(머리 기준 y 0.383)와 미리보기 
 - AvatarEditor: 모든 장신구 카드가 이 조절(위치·회전·크기)을 씀. 막대를 움직이면 미리보기 복사본을 다시 만들지 않고 그 자리에서 바로 옮기고·돌리고·키움(_changed(true)), 축 안내도 따라옴. 초기화는 예전 Roblox 공식 값도 0으로.
 - Studio 확인: 선글라스 y +0.3 / 1.6x, 헤어 1.3x 적용 → 실제 캐릭터와 미리보기의 위치·크기가 같음, 크기 막대를 0.85x로 끌자 미리보기가 즉시 바뀜, 오류 없음.
 - 플레이리스트: 이전 곡 전부(처음 11곡, EDM 10곡, BANG BANG, 이전 K-POP, 테스트 2곡) 빼고 9곡만, 모두 lab speed 1 / tempo 0.5 / volume 10 / boost 1 / octave 0.5 / EQ 0: ATEEZ-BAD, 소녀시대-소원을 말해봐(Genie), 현아-Bubble Pop(안무), RIIZE-Get A Guitar, RIIZE-Love 119, YENA-Catch Catch, Hearts2Hearts-Lemon Tang, aespa-Lemonade, IVE-Mirror(139326796173276, 67 s).
+
+## D-710 (2026-11-01) 모바일 2P 테스트 통과, catalog-ui-redesign에 머지
+- 사용자: "모바일 2P 테스트하고 머지해". Studio 2인 테스트(서버 + Player1/Player2, 둘 다 폰 화면·터치), 최신 코드(플레이리스트 9곡, HairFit 크기 0.5~2) 확인.
+- 클럽(밤 입장 규칙 때문에 테스트에서는 ClubInside를 켜고 입장): 스킵 투표 필요 수 2명, Player1 투표 1/2 → Player2 투표로 다음 곡(5 → 6). 폰 화면에 ≡ / › 가 제목 안, ♪ 춤 버튼 왼쪽, ₩ 코인 칸 정상.
+- 새 Bubble Pop(76388700698178, 속도 0.5)에서 "💃 안무 따라하기" 버튼이 뜨고 누르면 안무 구간 재생.
+- 장신구: Player1 헤어 1.5x · y +0.2 적용 → Player2 화면에서도 같은 크기·위치.
+- 놀이공원: Player2가 계단으로 문 앞 광장(높이 16, z -249)까지 걸어감.
+- 오류: 서버·두 클라이언트 모두 없음(Studio 데이터스토어 안내 제외).
+- feat/turntable-lab-1101(feat/dj-reverse-1031 포함)을 catalog-ui-redesign에 fast-forward 머지(D-653..D-710).

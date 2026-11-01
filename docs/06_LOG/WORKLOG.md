@@ -2892,3 +2892,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 장신구 크기·실시간 미리보기 (D-709)
 ![](images/2026-11-01/fit_size_160_D709.jpg) ![](images/2026-11-01/fit_size_085_live_D709.jpg)
+
+### 모바일 2P 테스트 → 머지 (D-710)
+![](images/2026-11-01/mobile2p_club_D710.jpg) ![](images/2026-11-01/mobile2p_park_D710.jpg)
