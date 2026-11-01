@@ -39,28 +39,19 @@ Instance.new("UICorner", danceButton).CornerRadius = UDim.new(1, 0)
 do
 	local edge = Instance.new("UIStroke")
 	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	edge.Color = Color3.new(1, 1, 1)
-	edge.Transparency = 0.4
-	edge.Thickness = 1.5
+	-- (2026-11-01, user: a pink edge and a bigger ♪, no 춤 label)
+	edge.Color = Color3.fromRGB(255, 70, 170)
+	edge.Transparency = 0
+	edge.Thickness = 2
 	edge.Parent = danceButton
 	local icon = Instance.new("ImageLabel")
 	icon.BackgroundTransparency = 1
-	icon.AnchorPoint = Vector2.new(0.5, 0)
-	icon.Size = UDim2.fromScale(0.46, 0.46)
-	icon.Position = UDim2.fromScale(0.5, 0.14)
+	icon.AnchorPoint = Vector2.new(0.5, 0.5)
+	icon.Size = UDim2.fromScale(0.6, 0.6)
+	icon.Position = UDim2.fromScale(0.5, 0.5)
 	icon.Image = require(script.Parent:WaitForChild("Icons")).note
 	icon.ScaleType = Enum.ScaleType.Fit
 	icon.Parent = danceButton
-	local label = Instance.new("TextLabel")
-	label.BackgroundTransparency = 1
-	label.AnchorPoint = Vector2.new(0.5, 1)
-	label.Position = UDim2.new(0.5, 0, 1, -5)
-	label.Size = UDim2.new(1, -6, 0, 13)
-	label.Text = "춤"
-	label.TextScaled = true
-	label.Font = Enum.Font.GothamBold
-	label.TextColor3 = Color3.new(1, 1, 1)
-	label.Parent = danceButton
 end
 danceButton.Activated:Connect(function() UiBus.OpenDance:Fire() end)
 

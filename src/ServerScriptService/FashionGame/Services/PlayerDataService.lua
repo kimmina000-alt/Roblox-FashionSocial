@@ -18,6 +18,7 @@ local Players = game:GetService("Players")
 local HttpService = game:GetService("HttpService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local PhotoConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("PhotoConfig"))
+local HairFit = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("HairFit"))
 
 local PlayerDataService = {}
 
@@ -54,7 +55,8 @@ PlayerDataService.MaxPhotos = PhotoConfig.MaxPhotos
 -- capped (only the coins are, per day), for job levels later.
 export type JobRecord = { xp: number, served: number, cleaned: number }
 -- boost = seconds of the bought "1시간 코인 x2 부스트" left, counted while online (D-278)
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number }
+-- hair = the player's hair offsets by asset id (HairFit.toSaved form, D-705)
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}} }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -129,8 +131,9 @@ local function sanitizePhotos(list: any): {any}
 end
 
 local function sanitizeWallet(raw: any): Wallet
-	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} }, jobs = {}, boost = 0 }
+	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} }, jobs = {}, boost = 0, hair = {} }
 	if typeof(raw) ~= "table" then return wallet end
+	wallet.hair = HairFit.toSaved(HairFit.fromSaved(raw.hair))
 	if typeof(raw.boost) == "number" and raw.boost == raw.boost then
 		wallet.boost = math.clamp(math.floor(raw.boost), 0, 100 * 3600)
 	end

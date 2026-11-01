@@ -65,9 +65,10 @@ coins.TextSize = 16
 coins.Font = Enum.Font.GothamBold
 coins.Text = "0"
 -- (user mock-up 2026-10-30 rev 2: 45 x 18; 2026-10-31: 1.5x → 68 x 27)
-coins:SetAttribute("Width", 68)
+-- (2026-11-01, user: only the ₩ mark, no rings or edge, inside the pill at its
+-- front; the coin picture hung left of the pill before)
+coins:SetAttribute("Width", 84)
 coins:SetAttribute("Height", 27)
-coins:SetAttribute("GapLeft", 42) -- (the ₩ coin hangs left of the pill, then the clock)
 coins.Parent = gui
 corner(coins, UDim.new(1, 0))
 do
@@ -80,14 +81,19 @@ do
 	local function vipEdge() edge.Enabled = player:GetAttribute("Pass_VIP") == true end
 	player:GetAttributeChangedSignal("Pass_VIP"):Connect(vipEdge)
 	vipEdge()
+	local pad = Instance.new("UIPadding")
+	pad.PaddingLeft = UDim.new(0, 26)
+	pad.PaddingRight = UDim.new(0, 6)
+	pad.Parent = coins
 	local icon = Instance.new("ImageLabel")
 	icon.Name = "CoinIcon"
-	icon.AnchorPoint = Vector2.new(1, 0.5)
-	icon.Position = UDim2.new(0, -9, 0.5, 0)
-	icon.Size = UDim2.fromScale(0.78, 0.78)
+	icon.AnchorPoint = Vector2.new(0, 0.5)
+	icon.Position = UDim2.new(0, -18, 0.5, 0) -- (8 px in from the pill's left end)
+	icon.Size = UDim2.fromScale(0.7, 0.7)
 	icon.SizeConstraint = Enum.SizeConstraint.RelativeYY
 	icon.BackgroundTransparency = 1
-	icon.Image = require(script.Parent:WaitForChild("Icons")).coin
+	icon.Image = require(script.Parent:WaitForChild("Icons")).won
+	icon.ScaleType = Enum.ScaleType.Fit
 	icon.Parent = coins
 end
 TopBar.add(coins, 10)

@@ -8,6 +8,9 @@ return {
 	-- (2026-11-01: the user's ₩ line drawing in gold with a dark edge,
 	-- docs/04_ART/icons/coin_won_v3.png; before: v2 125376576385689, 88375483293732)
 	coin = "rbxassetid://81001660486697",
+	-- the ₩ mark alone, gold, no rings or edge: the top bar's coin pill
+	-- (docs/04_ART/icons/coin_won_mark.png)
+	won = "rbxassetid://71526225179744",
 	bag = "rbxassetid://95921900076363", -- backpack
 	note = "rbxassetid://101715049079271",
 	give = "rbxassetid://92507739080371", -- hands + heart (old ♥ button)

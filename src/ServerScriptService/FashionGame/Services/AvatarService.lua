@@ -1333,10 +1333,15 @@ function AvatarService.GetEditState(player: Player)
 	local description = humanoid:GetAppliedDescription()
 
 	local accessories = {}
+	-- (D-705) hair is outside Roblox's refinement rules: the game moves it itself
+	local hairOffsets = require(script.Parent.HairFitService).get(player)
 	for _, child in ipairs(description:GetChildren()) do
 		if child:IsA("AccessoryDescription") then
 			local info = if child.IsLayered then nil else refinementInfo(rules, child.AccessoryType)
+			local hairFit = info == nil and not child.IsLayered and child.AccessoryType == Enum.AccessoryType.Hair
 			table.insert(accessories, {
+				HairFit = hairFit,
+				HairOffset = if hairFit then (hairOffsets[child.AssetId] or { p = Vector3.zero, r = Vector3.zero }) else nil,
 				AssetId = child.AssetId,
 				AccessoryType = child.AccessoryType.Name,
 				IsLayered = child.IsLayered,
@@ -1437,6 +1442,28 @@ function AvatarService.ApplyEdit(player: Player, draft: any)
 		end
 	end
 
+	-- (D-705) hair offsets: hair = { ["<assetId>"] = { p = Vector3, r = Vector3 } },
+	-- only for hair worn now; saved, then set on the character after the apply
+	local hairChanges: {[number]: any} = {}
+	if typeof(draft.hair) == "table" then
+		local HairFit = require(ReplicatedStorage.FashionGame.Shared.HairFit)
+		for key, values in pairs(draft.hair) do
+			local assetId = tonumber(key)
+			local worn = false
+			for _, child in ipairs(description:GetChildren()) do
+				if child:IsA("AccessoryDescription") and child.AssetId == assetId and child.AccessoryType == Enum.AccessoryType.Hair then
+					worn = true
+				end
+			end
+			local offset = HairFit.clean(values)
+			if assetId and worn and offset then
+				hairChanges[assetId] = offset
+			else
+				table.insert(skipped, tostring(key))
+			end
+		end
+	end
+
 	if typeof(draft.scales) == "table" then
 		if humanoid.RigType ~= Enum.HumanoidRigType.R15 then
 			return false, "Body scales apply to R15 avatars only."
@@ -1487,6 +1514,9 @@ function AvatarService.ApplyEdit(player: Player, draft: any)
 	local ok, message = applyDescription(humanoid, description)
 	if not ok then
 		return false, message
+	end
+	for assetId, offset in pairs(hairChanges) do
+		require(script.Parent.HairFitService).set(player, assetId, offset)
 	end
 
 	-- Read back what Roblox actually applied and return it as the new baseline.

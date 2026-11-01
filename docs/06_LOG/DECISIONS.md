@@ -1324,3 +1324,13 @@ Studio Play 확인: 계단→광장→정문 앞(z -277)까지 걸어감, 광장
 - 시계: 어두운 알약 배경으로 되돌림(D-703의 광선 취소).
 - 코인: 보내 준 흑백 ₩(바깥 굵은 원 + 안쪽 얇은 원 + 굵은 ₩)을 금색(255,214,0)으로 칠하고 진한 갈색 테(7 px)를 둘러 밝은·어두운 배경 모두에서 보이게, 256 px (docs/04_ART/icons/coin_won_v3.png, 81001660486697).
 - 헤어 위치 조절 막대는 아직 만들지 않음(대기 중).
+
+## D-705 (2026-11-01) 헤어 위치 조절, 코인 칸 ₩, ☰ 작게, 춤 버튼 분홍 테
+- 사용자: 코인 아이콘 가운데 ₩만 잘라 외곽선 없이 코인 칸 앞에, ☰ 막대 살짝 작게(세로 줄이기), 춤 버튼은 음표 크게·테두리 분홍, 헤어 위치 조절 기능 만들기.
+- 코인 칸: ₩ 마크만(docs/04_ART/icons/coin_won_mark.png, Icons.won 71526225179744)을 알약 안 왼쪽에(알약 너비 68 → 84, 왼쪽 여백 26). 다른 곳의 💰 아이콘은 그대로 v3.
+- ☰: 막대 3 px 간격 5 → 3, 너비 48 % → 42 %.
+- 춤 버튼: ♪ 60 % 크기 가운데, "춤" 글자 없앰, 테두리 분홍(255,70,170) 2 px.
+- 헤어 위치: Roblox 규칙(GetAvatarRules AccessoryRefinementTypes)에 헤어가 없고, ApplyDescription은 헤어의 Position을 저장만 하고 움직이지 않음(Studio 확인). 그래서 직접 옮김: 헤어 Handle의 Attachment(AccessoryRigidConstraint의 Attachment0)를 오프셋의 역으로 바꾸면 머리 부착점 기준으로 헤어가 움직임(Shared/HairFit).
+  - 아바타 꾸미기 › 장신구 조정 › 헤어 카드: 위치 x/y/z ±0.6, 회전 x/y/z ±25°(크기는 없음). 미리보기도 같이 움직임(뷰포트는 물리가 없어 제약을 끄고 Handle을 직접 배치).
+  - 적용 → 서버 AvatarService.ApplyEdit가 범위 안으로 자르고 HairFitService가 wallet.hair(헤어 asset id별)에 저장 → 다음 접속에도 유지. 옷을 바꾸거나 다시 태어나도 HairFitService가 다시 맞춤(새 장신구, 또는 엔진이 부착점을 되돌린 경우 감지).
+Studio Play 확인: 막대로 y +0.38 → 미리보기 이동, 적용 후 실제 캐릭터 헤어 +0.38, 다른 ApplyDescription·리스폰 후에도 유지, 오류 없음.

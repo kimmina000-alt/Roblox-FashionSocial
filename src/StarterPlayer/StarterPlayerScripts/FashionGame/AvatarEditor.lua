@@ -18,6 +18,7 @@ local UserInputService = game:GetService("UserInputService")
 local RunService = game:GetService("RunService")
 
 local ReorderDrag = require(script.Parent:WaitForChild("ReorderDrag"))
+local HairFit = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("HairFit"))
 
 local AvatarEditor = {}
 AvatarEditor.__index = AvatarEditor
@@ -462,13 +463,17 @@ end
 --------------------------------------------------
 
 local function copyState(state: any)
-	local draft = { transforms = {}, scales = {}, colors = {}, makeupOrder = {} }
+	local draft = { transforms = {}, scales = {}, colors = {}, makeupOrder = {}, hair = {} }
 	for _, accessory in ipairs(state.Accessories) do
 		draft.transforms[accessory.AssetId] = {
 			Position = accessory.Position,
 			Rotation = accessory.Rotation,
 			Scale = accessory.Scale,
 		}
+		-- (D-705) hair moved by the game itself (HairFit), not by Roblox's rules
+		if accessory.HairFit and accessory.HairOffset then
+			draft.hair[accessory.AssetId] = { p = accessory.HairOffset.p, r = accessory.HairOffset.r }
+		end
 	end
 	for key, entry in pairs(state.Scales) do
 		draft.scales[key] = entry.Value
@@ -497,6 +502,14 @@ function AvatarEditor:_changes()
 		if before and (not vecEqual(before.Position, values.Position) or not vecEqual(before.Rotation, values.Rotation) or not vecEqual(before.Scale, values.Scale)) then
 			changes.transforms = changes.transforms or {}
 			changes.transforms[tostring(id)] = values
+			any = true
+		end
+	end
+	for id, values in pairs(draft.hair) do
+		local before = base.hair[id]
+		if before and (not vecEqual(before.p, values.p) or not vecEqual(before.r, values.r)) then
+			changes.hair = changes.hair or {}
+			changes.hair[tostring(id)] = values
 			any = true
 		end
 	end
@@ -544,7 +557,14 @@ function AvatarEditor:_buildPreviewDescription(): HumanoidDescription?
 	for _, child in ipairs(description:GetChildren()) do
 		if child:IsA("AccessoryDescription") then
 			local values = draft.transforms[child.AssetId]
-			if values and not child.IsLayered then
+			local hair = draft.hair[child.AssetId]
+			if hair then
+				-- (Roblox keeps but ignores these on hair; they make each draft
+				-- a new description, so the preview rebuilds, and onPreviewBuilt
+				-- moves the hair with HairFit)
+				child.Position = hair.p
+				child.Rotation = hair.r
+			elseif values and not child.IsLayered then
 				child.Position = values.Position
 				child.Rotation = values.Rotation
 				child.Scale = values.Scale
@@ -703,7 +723,10 @@ function AvatarEditor:_resetCurrent()
 	if not self.draft then return end
 	if self.tab == "accessory" then
 		local id = self.selectedAccessory
-		if id and self.draft.transforms[id] then
+		if id and self.draft.hair[id] then
+			self.draft.hair[id] = { p = Vector3.zero, r = Vector3.zero }
+			self:_setStatus("헤어 위치·회전을 기본값으로 되돌렸습니다.")
+		elseif id and self.draft.transforms[id] then
 			self.draft.transforms[id] = { Position = Vector3.zero, Rotation = Vector3.zero, Scale = Vector3.one }
 			self:_setStatus("선택한 장신구의 위치·회전·크기를 기본값으로 되돌렸습니다.")
 		else
@@ -838,10 +861,11 @@ function AvatarEditor:_renderAccessories()
 	make("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6) }, strip)
 	for _, accessory in ipairs(rigid) do
 		local selected = self.selectedAccessory == accessory.AssetId
+		local adjustable = accessory.Refinable or accessory.HairFit
 		local card = make("TextButton", {
 			Size = UDim2.fromOffset(60, 74),
 			BackgroundColor3 = if selected then COLORS.tabActive else COLORS.row,
-			BackgroundTransparency = if accessory.Refinable then 0 else 0.5,
+			BackgroundTransparency = if adjustable then 0 else 0.5,
 			Text = "",
 			AutoButtonColor = true,
 		}, strip)
@@ -854,15 +878,15 @@ function AvatarEditor:_renderAccessories()
 			Position = UDim2.fromOffset(4, 4),
 			BackgroundTransparency = 1,
 			Image = "rbxthumb://type=Asset&id=" .. tostring(accessory.AssetId) .. "&w=150&h=150",
-			ImageTransparency = if accessory.Refinable then 0 else 0.5,
+			ImageTransparency = if adjustable then 0 else 0.5,
 			ScaleType = Enum.ScaleType.Fit,
 		}, card)
 		make("TextLabel", {
 			Size = UDim2.new(1, -4, 0, 18),
 			Position = UDim2.new(0, 2, 1, -20),
 			BackgroundTransparency = 1,
-			Text = if accessory.Refinable then (ACCESSORY_LABEL[accessory.AccessoryType] or accessory.AccessoryType) else "조정 불가",
-			TextColor3 = if accessory.Refinable then COLORS.text else COLORS.dim,
+			Text = if adjustable then (ACCESSORY_LABEL[accessory.AccessoryType] or accessory.AccessoryType) else "조정 불가",
+			TextColor3 = if adjustable then COLORS.text else COLORS.dim,
 			TextSize = 9,
 			Font = Enum.Font.GothamBold,
 		}, card)
@@ -880,8 +904,12 @@ function AvatarEditor:_renderAccessories()
 		noteLabel(content, "조정할 장신구를 선택하세요.", 3)
 		return
 	end
+	if selected.HairFit and self.draft.hair[selected.AssetId] then
+		self:_renderHair(selected.AssetId)
+		return
+	end
 	if not selected.Refinable then
-		noteLabel(content, "이 장신구는 Roblox 공식 아바타 규칙상 위치·회전·크기 조정을 지원하지 않습니다. (조정 가능: 모자·얼굴·목·어깨·앞·뒤 액세서리)", 3)
+		noteLabel(content, "이 장신구는 Roblox 공식 아바타 규칙상 위치·회전·크기 조정을 지원하지 않습니다. (조정 가능: 모자·얼굴·목·어깨·앞·뒤 액세서리·헤어)", 3)
 		return
 	end
 	local bounds = selected.Bounds
@@ -936,6 +964,40 @@ function AvatarEditor:_renderAccessories()
 	order += 1
 	scaleSlider.set(math.clamp((values.Scale :: Vector3).X, scaleMin, scaleMax))
 	noteLabel(content, "미리보기의 색깔 원과 x·y·z 표시가 각 축입니다(x 빨강 · y 초록 · z 파랑). 🔄는 그 축만, 아래 초기화는 선택한 장신구 전체를 기본값으로 되돌립니다. 범위는 Roblox 공식 아바타 규칙(GetAvatarRules)을 따릅니다.", order)
+end
+
+-- (D-705) hair: position and rotation sliders of the game's own (HairFit);
+-- no size (a hair's mesh would need rescaling)
+function AvatarEditor:_renderHair(assetId: number)
+	local content = self.content
+	local order = 3
+	local function group(title: string, field: string, bounds: { Min: Vector3, Max: Vector3 }, step: number, format: (number) -> string)
+		sectionLabel(content, title, order)
+		order += 1
+		for _, axis in ipairs(AXIS_ORDER) do
+			local minValue = (bounds.Min :: any)[axis]
+			local maxValue = (bounds.Max :: any)[axis]
+			local function setAxis(value: number)
+				local current: Vector3 = self.draft.hair[assetId][field]
+				self.draft.hair[assetId][field] = Vector3.new(
+					if axis == "X" then value else current.X,
+					if axis == "Y" then value else current.Y,
+					if axis == "Z" then value else current.Z)
+				self:_changed()
+			end
+			local slider
+			slider = createSlider(content, axis, minValue, maxValue, step, format, setAxis, function()
+				slider.set(0)
+				setAxis(0)
+			end, AXIS_COLORS[axis])
+			slider.frame.LayoutOrder = order
+			order += 1
+			slider.set((self.draft.hair[assetId][field] :: any)[axis])
+		end
+	end
+	group("헤어 위치", "p", HairFit.Position, 0.01, function(v) return string.format("%+.2f", v) end)
+	group("헤어 회전", "r", HairFit.Rotation, 1, function(v) return string.format("%+d°", math.floor(v + 0.5)) end)
+	noteLabel(content, "x 좌우 · y 위아래 · z 앞뒤. 🔄는 그 축만, 아래 초기화는 이 헤어 전체를 기본값으로 되돌립니다. 적용하면 저장되어 다음 접속에도 유지됩니다.", order)
 end
 
 function AvatarEditor:_renderBody()
@@ -1121,6 +1183,8 @@ end
 
 function AvatarEditor:onPreviewBuilt(clone: Model)
 	self.previewClone = clone
+	local humanoid = clone:FindFirstChildOfClass("Humanoid")
+	if humanoid and self.draft and self.isOpenFlag then HairFit.apply(humanoid, self.draft.hair) end
 	self:_updateGizmo()
 end
 

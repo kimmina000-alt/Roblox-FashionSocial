@@ -196,12 +196,13 @@ end
 -- (2026-11-01: whole-pixel bars in one box, so all three are drawn the same
 -- thickness; the middle one came out thinner with scaled sizes)
 do
-	local BAR, GAP = 3, 5
+	-- (a little smaller, 2026-11-01 user: was 3 / 5 px, 48 % wide)
+	local BAR, GAP = 3, 3
 	local box = Instance.new("Frame")
 	box.Name = "Bars"
 	box.AnchorPoint = Vector2.new(0.5, 0.5)
 	box.Position = UDim2.fromScale(0.5, 0.5)
-	box.Size = UDim2.new(0.48, 0, 0, BAR * 3 + GAP * 2)
+	box.Size = UDim2.new(0.42, 0, 0, BAR * 3 + GAP * 2)
 	box.BackgroundTransparency = 1
 	box.Parent = more
 	for i = 0, 2 do
