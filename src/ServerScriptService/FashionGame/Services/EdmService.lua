@@ -1,11 +1,12 @@
 --!strict
 -- The DJ's EDM button, server side (D-733 → D-735; Shared/EdmConfig). The
 -- DJ's "Edm" action (Music remote → DjService.Actions, DJ only):
---   { k = "edm", v = true / false }   the EDM track on / off
+--   { k = "edm", v = 1..3 / false }   that EDM track on (EdmConfig.Tracks, D-759) / off
+--                                     (v = true: track 1, as before D-759)
 --   { k = "speed", v = 0.5..2 }       the EDM track's speed
 -- The state is the FashionGame attribute ClubEdm (JSON) for every client:
---   on, speed, and where the EDM track is: `pos` seconds (at speed 1) at the
---   server time `at`; it runs on at `speed` from there.
+--   on, track, speed, and where the EDM track is: `pos` seconds (at speed 1) at
+--   the server time `at`; it runs on at `speed` from there.
 -- A new DJ (or none) turns it off.
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -17,10 +18,10 @@ local DjService = require(script.Parent.DjService)
 
 local EdmService = {}
 
-type State = { on: boolean, speed: number, pos: number, at: number }
+type State = { on: boolean, track: number, speed: number, pos: number, at: number }
 
 local function fresh(): State
-	return { on = false, speed = 1, pos = 0, at = workspace:GetServerTimeNow() }
+	return { on = false, track = 1, speed = 1, pos = 0, at = workspace:GetServerTimeNow() }
 end
 local state: State = fresh()
 
@@ -38,9 +39,12 @@ DjService.Actions.Edm = function(_dj: Player, payload: any): (boolean, any)
 	local k, v = payload.k, payload.v
 	local now = workspace:GetServerTimeNow()
 	if k == "edm" then
-		local on = v == true
-		if on and not state.on then state.pos = 0 end -- (from the top each time it goes on)
+		local track = if v == true then 1 elseif typeof(v) == "number" and EdmConfig.Tracks[v] then v else nil
+		local on = track ~= nil
+		-- (from the top each time it goes on, or another track is picked)
+		if on and (not state.on or state.track ~= track) then state.pos = 0 end
 		state.on = on
+		if track then state.track = track end
 		state.at = now
 	elseif k == "speed" then
 		if typeof(v) ~= "number" or v ~= v then return false, nil end

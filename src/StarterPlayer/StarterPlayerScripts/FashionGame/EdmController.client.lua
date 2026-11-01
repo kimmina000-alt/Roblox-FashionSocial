@@ -39,31 +39,37 @@ end
 music:GetPropertyChangedSignal("SoundGroup"):Connect(hookGroup)
 hookGroup()
 
--- the EDM track
-local lab = EdmConfig.Track.lab
-local playSpeed, octave = ClubConfig.labEffective(lab)
+-- the EDM tracks (EdmConfig.Tracks, D-759: three, one plays at a time), each
+-- its own Sound in its own group (its boost)
 -- (the DJ's volume on a group of its own above the boost: one group stops at 10)
 local edmVolume = make("SoundGroup", { Name = "EdmVolume", Volume = 1 }, SoundService)
-local edmGroup = make("SoundGroup", { Name = "EdmTrack", Volume = lab.boost }, edmVolume)
-local edm = make("Sound", {
-	Name = "EdmMusic", SoundId = "rbxassetid://" .. EdmConfig.Track.soundId, Looped = true, Volume = 0, SoundGroup = edmGroup,
-}, edmGroup) :: Sound
-do
+type Edm = { sound: Sound, playSpeed: number }
+local edms: {Edm} = {}
+for i, spec in ipairs(EdmConfig.Tracks) do
+	local lab = spec.lab
+	local playSpeed, octave = ClubConfig.labEffective(lab)
+	local group = make("SoundGroup", { Name = "EdmTrack" .. i, Volume = lab.boost }, edmVolume)
+	local sound = make("Sound", {
+		Name = "EdmMusic" .. i, SoundId = "rbxassetid://" .. spec.soundId, Looped = true, Volume = 0, SoundGroup = group,
+	}, group) :: Sound
 	local parts = if math.abs(octave - 1) < 1e-4 then {} else ClubConfig.octaveParts(octave)
-	for i, part in ipairs(parts) do
-		make("PitchShiftSoundEffect", { Name = "EdmPitch" .. i, Octave = part, Priority = 10 - i }, edm)
+	for n, part in ipairs(parts) do
+		make("PitchShiftSoundEffect", { Name = "EdmPitch" .. n, Octave = part, Priority = 10 - n }, sound)
 	end
 	if lab.low ~= 0 or lab.mid ~= 0 or lab.high ~= 0 then
-		make("EqualizerSoundEffect", { Name = "EdmEQ", LowGain = lab.low, MidGain = lab.mid, HighGain = lab.high, Priority = 20 }, edm)
+		make("EqualizerSoundEffect", { Name = "EdmEQ", LowGain = lab.low, MidGain = lab.mid, HighGain = lab.high, Priority = 20 }, sound)
 	end
+	edms[i] = { sound = sound, playSpeed = playSpeed }
 end
 
 task.spawn(function()
-	pcall(function() game:GetService("ContentProvider"):PreloadAsync({ edm }) end)
+	local list = {}
+	for _, e in ipairs(edms) do table.insert(list, e.sound) end
+	pcall(function() game:GetService("ContentProvider"):PreloadAsync(list) end)
 end)
 
-type State = { on: boolean, speed: number, pos: number, at: number }
-local state: State = { on = false, speed = 1, pos = 0, at = 0 }
+type State = { on: boolean, track: number?, speed: number, pos: number, at: number }
+local state: State = { on = false, track = 1, speed = 1, pos = 0, at = 0 }
 FashionGame:GetAttributeChangedSignal("ClubEdm"):Connect(function()
 	local raw = FashionGame:GetAttribute("ClubEdm")
 	if typeof(raw) ~= "string" then return end
@@ -79,6 +85,13 @@ do
 end
 
 RunService.Heartbeat:Connect(function()
+	local pick = edms[if typeof(state.track) == "number" then state.track else 1] or edms[1]
+	-- (only the picked track plays)
+	for _, e in ipairs(edms) do
+		if e ~= pick and e.sound.IsPlaying then e.sound:Stop() end
+	end
+	if not pick then return end
+	local edm, playSpeed = pick.sound, pick.playSpeed
 	local on = state.on == true and edm.IsLoaded and edm.TimeLength > 0
 	-- the DJ's volume (ClubMusicVolume): here for lab tracks and the EDM track,
 	-- DanceController does the other songs (their Sound is below 10)

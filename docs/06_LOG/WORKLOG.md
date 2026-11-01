@@ -3036,3 +3036,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ![](images/2026-11-02/d757_m2p_p1_dj.jpg) ![](images/2026-11-02/d757_m2p_p2_banner.jpg)
 - Player1(DJ): 디제잉 창 왼쪽 240×339, 노래 목록 오른쪽 240×339, 창이 열린 동안 배너 숨김. Get A Guitar 틀기.
 - Player2: 배너 "🎵RIIZE-Get A Guitar"(🎵 작게 앞), 속도 0.335로 재생. 두 명 모두 첫 접속 코인 50(+1분 1). 오류 없음 → catalog-ui-redesign에 머지.
+
+### EDM 음원 3개 (D-759)
+![](images/2026-11-02/d759_edm_three.jpg)
+- DJ 창에 EDM 1·2·3 버튼, 켜진 것 분홍. 한 번에 한 곡.

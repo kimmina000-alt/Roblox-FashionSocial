@@ -2,7 +2,8 @@
 -- The DJ's music controls in the turntable window (D-733 → D-735, user
 -- 2026-11-01: kick / pump / drop / echo out; an EDM button and three sliders).
 -- ClubMusicController places it; EdmController plays the EDM track for everyone.
---   [🎛 EDM OFF]      [↺ 초기화]   (D-736: the sliders back to x1)
+--   [🎛 EDM 1][🎛 EDM 2][🎛 EDM 3][🔄 초기화]   (D-759: a button per track, the
+--                                               lit one plays; D-736: 초기화 = sliders back to x1)
 --   ⚡ EDM 속도   ━━━●━━ x1.00     (the EDM track's speed)
 --   🎵 노래 속도  ━━━●━━ x1.00     (the song: the old "MusicSpeed" action)
 --   🔊 볼륨       ━━━●━━ x1.0      (the old "MusicVolume" action)
@@ -56,16 +57,24 @@ export type Panel = { frame: Frame, place: (y: number, width: number, compact: b
 function EdmPanel.new(parent: Instance): Panel
 	local frame = create("Frame", { Name = "EdmPanel", BackgroundTransparency = 1, Visible = false }, parent) :: Frame
 
-	local edmButton = create("TextButton", {
-		Name = "EdmButton", BackgroundColor3 = OFF, Text = "🎛 EDM OFF", TextColor3 = TEXT, TextScaled = true,
-		Font = Enum.Font.GothamBold, AutoButtonColor = true,
-	}, frame)
-	corner(edmButton, 8)
-	create("UITextSizeConstraint", { MaxTextSize = 13 }, edmButton)
-	create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, edmButton)
-	edmButton.Activated:Connect(function()
-		call("Edm", { k = "edm", v = readState().on ~= true })
-	end)
+	-- (D-759) a button per EDM track (EdmConfig.Tracks): on that track, a tap on
+	-- the one playing turns it off, a tap on another switches to it
+	local edmButtons: {TextButton} = {}
+	for i, spec in ipairs(EdmConfig.Tracks) do
+		local button = create("TextButton", {
+			Name = "EdmButton" .. i, BackgroundColor3 = OFF, Text = "🎛 " .. spec.name, TextColor3 = TEXT, TextScaled = true,
+			Font = Enum.Font.GothamBold, AutoButtonColor = true,
+		}, frame)
+		corner(button, 8)
+		create("UITextSizeConstraint", { MaxTextSize = 13 }, button)
+		create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, button)
+		button.Activated:Connect(function()
+			local st = readState()
+			local playing = st.on == true and (st.track or 1) == i
+			call("Edm", { k = "edm", v = if playing then false else i })
+		end)
+		edmButtons[i] = button
+	end
 	-- ↺ every slider back to x1 (D-736, user)
 	local resetButton = create("TextButton", {
 		-- (🔄: ↺ is not in the font, it showed as a box)
@@ -155,8 +164,9 @@ function EdmPanel.new(parent: Instance): Panel
 	local function refresh()
 		local st = readState()
 		local on = st.on == true
-		edmButton.Text = if on then "🎛 EDM ON" else "🎛 EDM OFF"
-		edmButton.BackgroundColor3 = if on then ON else OFF
+		for i, button in ipairs(edmButtons) do
+			button.BackgroundColor3 = if on and (st.track or 1) == i then ON else OFF
+		end
 		showSlider("edm", if typeof(st.speed) == "number" then st.speed else 1)
 		showSlider("song", num("ClubMusicSpeed", 1))
 		showSlider("volume", num("ClubMusicVolume", 1))
@@ -173,12 +183,16 @@ function EdmPanel.new(parent: Instance): Panel
 		local leftW = math.floor(width * 0.3) -- (the EDM button / a slider's name)
 		local valueW = if compact then 40 else 46
 		frame.Position = UDim2.fromOffset(0, y)
-		-- [🎛 EDM]          [↺ 초기화], then a row per slider
-		local half = math.floor((width - gap) / 2)
-		edmButton.Position = UDim2.fromOffset(0, 0)
-		edmButton.Size = UDim2.fromOffset(half, h)
-		resetButton.Position = UDim2.fromOffset(half + gap, 0)
-		resetButton.Size = UDim2.fromOffset(width - half - gap, h)
+		-- [🎛 EDM 1][🎛 EDM 2][🎛 EDM 3][🔄 초기화], then a row per slider
+		local n = #edmButtons
+		local resetW = math.floor(width * 0.22)
+		local each = math.floor((width - resetW - n * gap) / math.max(n, 1))
+		for i, button in ipairs(edmButtons) do
+			button.Position = UDim2.fromOffset((i - 1) * (each + gap), 0)
+			button.Size = UDim2.fromOffset(each, h)
+		end
+		resetButton.Position = UDim2.fromOffset(n * (each + gap), 0)
+		resetButton.Size = UDim2.fromOffset(width - n * (each + gap), h)
 		for i, key in ipairs({ "edm", "song", "volume" }) do
 			local s = sliders[key]
 			local rowY = i * (h + gap)
