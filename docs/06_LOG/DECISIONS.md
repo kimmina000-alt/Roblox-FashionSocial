@@ -1543,3 +1543,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-738 (2026-11-02) 모바일 2P 테스트, 고친 것 3개
 - 모바일 2P(폰 801×413, Player1 가드 + Studio DJ): 위 줄 한 줄, 노래 띠 위쪽, DJ 창 폰 배치 모두 보임, EDM ON이 Player2에게도(노래와 함께, 볼륨 1.5), Get A Guitar 자동 안무(Player2), 가드 들기(팔 앞으로, ⬇ 내려놓기 버튼) → 클럽 밖으로 → 내려놓기(밖으로 안내 로그), 수갑(⛓ Player2, 다시 들어가도 밖, 30초 쿨타임), 의견 보내기. 스크립트 오류 없음.
 - 고침: 내려놓은 사람이 2초 동안 옆으로 누워 있음 → GuardController가 CarriedBy가 지워지면 바로 세우고 GettingUp. 들고 있는 가드가 자동 안무를 춤 → ChoreoController가 Carrying/CarriedBy면 안 춤. 폰에서 노래 띠의 ≡가 DJ 창의 ?·X를 가림 → 폰에서 DJ 창이 열려 있으면 노래 띠 숨김(창에 곡 제목이 있음).
+
+## D-739 (2026-11-02) 클럽 노래는 Roblox 기본(라이선스) 음악만
+- 사용자: 클럽 노래 목록을 로블록스 기본 노래들로만, 다른 것 빼기.
+- ClubConfig.Playlist: K-POP 업로드 9곡을 모두 빼고, Creator Store에서 Roblox가 제공하는 DistrokidOfficial 음악 12곡(모두 불러오기 확인, 길이 측정): K-Pop Party 135361546383974, K-pop Cute Crush 121416896999522, K-Pop Uprising 72966738276299, Push & Pull (밀당의 고수) 132502088493185, Secret Party 75682100037866, Luminous Dance 123336690588412, LIGHT UP THE NIGHT 102534983754242, RUN THE NIGHT 123336998544849, ECHOES OF THE BASS 134070050316863, Disco Inferno 87243738678545, Festival Fever 136228548293465, Euphoria Dance 76814968175069. 원래 속도라 lab은 볼륨만(boost 2, DJ 🔊로 더 올림). Bubble Pop·Get A Guitar 안무도 함께 빠짐.
+- EdmConfig.Track: Get A Guitar → ECHOES OF THE BASS(사용자의 EDM 음원이 올 때까지).
+- Studio Play: 12곡, 지금 곡 재생(x1), EDM 겹쳐 재생 확인.

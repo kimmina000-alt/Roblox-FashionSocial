@@ -1,4 +1,4 @@
-﻿# Claude Code handoff
+# Claude Code handoff
 
 Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in Korean.
 

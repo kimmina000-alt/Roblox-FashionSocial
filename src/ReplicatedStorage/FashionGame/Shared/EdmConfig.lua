@@ -8,12 +8,12 @@
 -- song speed and volume sliders too.
 
 return {
-	-- the EDM track. For now Get A Guitar (user: until the EDM upload's id
-	-- comes); `lab` as in ClubConfig.Playlist (speed × tempo, octave, boost).
-	-- A normal-speed upload: lab = { speed = 1, tempo = 1, volume = 10, boost = 6, octave = 1, low = 0, mid = 0, high = 0 }
+	-- the EDM track, until the user sends their EDM upload's id; `lab` as in
+	-- ClubConfig.Playlist (speed × tempo, octave, boost).
+	-- (D-739: Roblox's licensed "ECHOES OF THE BASS" in place of Get A Guitar)
 	Track = {
-		soundId = 91762270038050, -- RIIZE-Get A Guitar (temporary)
-		lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" },
+		soundId = 134070050316863, -- ECHOES OF THE BASS (DistrokidOfficial)
+		lab = { speed = 1, tempo = 1, volume = 10, boost = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
 	},
 	-- the sliders' ranges (the song speed and volume use ClubConfig.MusicSpeeds /
 	-- MusicVolumes steps on the server)

@@ -149,27 +149,24 @@ ClubConfig.TempoStep = 0.1
 ClubConfig.JoinRadius = 90
 
 -- Shared club music. One track plays for everyone; the channel name is shown.
+-- (user 2026-11-02, D-739: only Roblox's own licensed music — DistroKid on the
+-- Creator Store, offered by Roblox — every K-POP upload before taken out; the
+-- Bubble Pop / Get A Guitar choreographies went with them.) Normal-speed
+-- uploads: the lab only lifts the volume (boost; the DJ's 🔊 slider on top).
+local ROBLOX_LAB = { speed = 1, tempo = 1, volume = 10, boost = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }
 ClubConfig.Playlist = {
-	-- (user 2026-11-01, D-709: every song before taken out — the eleven first
-	-- tracks, the ten EDM uploads, BANG BANG, the older K-POP uploads and the
-	-- two pitch / boost tests — and only these nine, all with the same lab
-	-- values. 139326796173276, the "피치 후 증폭" test, is IVE-Mirror.)
-	-- (D-723, user 2026-11-01: new lab values for all nine, the same for each;
-	-- D-727: tempo 0.35 → 0.335, Get A Guitar heard for 2:40; D-734: boost 2 → 4, the music was quiet; D-735: 6)
-	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	-- (the choreography made for the older Bubble Pop upload, kept on this one)
-	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
-	-- (D-726, user 2026-11-01: the start of the choreography, in order; danced by itself)
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 119819611123433, 97097804325917, 119200924904137, 77403973851668, 73939357849033, 137390866303201,
-		-- (D-728, the rest: 20 in all)
-		121969021575883, 92148657532352, 96742563282745, 88430566939812, 108795638313983, 95813030011960, 135272998171625,
-		129447992418977, 82252722293006, 108611133102309, 117244778152210, 113505968174557, 112498417388469, 80874196383963 }, autoChoreo = true },
-	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
-	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
+	{ channel = "K-POP", title = "K-Pop Party", soundId = 135361546383974, length = 145, lab = ROBLOX_LAB },
+	{ channel = "K-POP", title = "K-pop Cute Crush", soundId = 121416896999522, length = 108, lab = ROBLOX_LAB },
+	{ channel = "K-POP", title = "K-Pop Uprising", soundId = 72966738276299, length = 130, lab = ROBLOX_LAB },
+	{ channel = "K-POP", title = "Push & Pull (밀당의 고수)", soundId = 132502088493185, length = 140, lab = ROBLOX_LAB },
+	{ channel = "K-POP", title = "Secret Party", soundId = 75682100037866, length = 146, lab = ROBLOX_LAB },
+	{ channel = "K-POP", title = "Luminous Dance", soundId = 123336690588412, length = 163, lab = ROBLOX_LAB },
+	{ channel = "EDM", title = "LIGHT UP THE NIGHT", soundId = 102534983754242, length = 235, lab = ROBLOX_LAB },
+	{ channel = "EDM", title = "RUN THE NIGHT", soundId = 123336998544849, length = 218, lab = ROBLOX_LAB },
+	{ channel = "EDM", title = "ECHOES OF THE BASS", soundId = 134070050316863, length = 203, lab = ROBLOX_LAB },
+	{ channel = "DISCO", title = "Disco Inferno", soundId = 87243738678545, length = 135, lab = ROBLOX_LAB },
+	{ channel = "EDM", title = "Festival Fever", soundId = 136228548293465, length = 103, lab = ROBLOX_LAB },
+	{ channel = "EDM", title = "Euphoria Dance", soundId = 76814968175069, length = 99, lab = ROBLOX_LAB },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
