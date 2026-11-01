@@ -571,7 +571,7 @@ local function buildItemShop()
 		-- (D-623) the club guard pass
 		local guard = MonetizationConfig.GamePasses.Guard
 		local isGuard = player:GetAttribute("Pass_Guard") == true
-		NeonShopUI.wideRow(list2, nextOrder(), "rbxassetid://115722704339141", guard.name, "머리 위 GUARD 표시 · 방해하는 사람을 1분 동안 클럽 밖으로 안내",
+		NeonShopUI.wideRow(list2, nextOrder(), "rbxassetid://115722704339141", guard.name, "머리 위 GUARD 표시 · 사람을 들어서 옮기기 · 수갑(1분 클럽 입장 금지)", -- (D-722)
 			if isGuard then "보유 중" else ("R$" .. guard.price), M, function()
 				if not isGuard then buyPass("Guard") end
 			end)
