@@ -2902,3 +2902,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 - 같이 먹기(수육 6점 접시)는 실제 Robux 상품(3722468485)이라 Studio 테스트 결제 창을 MCP가 누를 수 없어 확인 못 함.
 - 오류 없음.
 ![](images/2026-11-01/mobile2p_cafe_job_D710.jpg)
+
+### 모바일 2P 추가: 케이크 같이 먹기 (D-710)
+- 사용자가 Player2로 빈티지 레터링 케이크 2개를 Studio 테스트 결제로 삼(근처 테이블이 없어 둘 다 인벤토리로).
+- 1개: 비치 카페 1층 테이블 옆에서 케이크를 누르자 테이블에 놓임("빈티지 레터링 케이크 · Player2님 · 남은 n조각"). Player1이 "한 조각 먹기"로 한 조각을 들고 세 번에 다 먹음(조각 수 줄어듦).
+- 1개: 국밥집 테이블(Hongdae_Layout.Gukbap.TableTop)에서도 똑같이 놓임(6조각) → Player1이 한 조각 가져감(남은 5조각).
+- 오류 없음(서버 기록의 SharedPlate 오류는 제 테스트 명령의 것).
+![](images/2026-11-01/mobile2p_cake_cafe_D710.jpg) ![](images/2026-11-01/mobile2p_cake_gukbap_D710.jpg)
