@@ -2,7 +2,8 @@
 -- The DJ's music controls in the turntable window (D-733 → D-735, user
 -- 2026-11-01: kick / pump / drop / echo out; an EDM button and three sliders).
 -- ClubMusicController places it; EdmController plays the EDM track for everyone.
---   [🎛 EDM OFF]  ━━━●━━ x1.00     (the EDM track's speed)
+--   [🎛 EDM OFF]      [↺ 초기화]   (D-736: the sliders back to x1)
+--   ⚡ EDM 속도   ━━━●━━ x1.00     (the EDM track's speed)
 --   🎵 노래 속도  ━━━●━━ x1.00     (the song: the old "MusicSpeed" action)
 --   🔊 볼륨       ━━━●━━ x1.0      (the old "MusicVolume" action)
 -- Sliders send while dragging (a few times a second) and on release.
@@ -65,6 +66,19 @@ function EdmPanel.new(parent: Instance): Panel
 	edmButton.Activated:Connect(function()
 		call("Edm", { k = "edm", v = readState().on ~= true })
 	end)
+	-- ↺ every slider back to x1 (D-736, user)
+	local resetButton = create("TextButton", {
+		Name = "ResetButton", BackgroundColor3 = OFF, Text = "🔄 초기화", -- (↺ is not in the font: a box) TextColor3 = TEXT, TextScaled = true,
+		Font = Enum.Font.GothamBold, AutoButtonColor = true,
+	}, frame)
+	corner(resetButton, 8)
+	create("UITextSizeConstraint", { MaxTextSize = 13 }, resetButton)
+	create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, resetButton)
+	resetButton.Activated:Connect(function()
+		call("Edm", { k = "speed", v = 1 })
+		call("MusicSpeed", 1)
+		call("MusicVolume", 1)
+	end)
 
 	type Slider = { name: TextLabel?, bar: Frame, fill: Frame, knob: Frame, value: TextLabel, dragging: boolean,
 		range: { min: number, max: number, step: number }, format: string }
@@ -121,7 +135,7 @@ function EdmPanel.new(parent: Instance): Panel
 			end)
 		end)
 	end
-	slider("edm", nil, EdmConfig.EdmSpeed, "x%.2f", function(v) call("Edm", { k = "speed", v = v }) end)
+	slider("edm", "⚡ EDM 속도", EdmConfig.EdmSpeed, "x%.2f", function(v) call("Edm", { k = "speed", v = v }) end)
 	slider("song", "🎵 노래 속도", EdmConfig.SongSpeed, "x%.2f", function(v) call("MusicSpeed", v) end)
 	slider("volume", "🔊 볼륨", EdmConfig.Volume, "x%.1f", function(v) call("MusicVolume", v) end)
 
@@ -158,13 +172,16 @@ function EdmPanel.new(parent: Instance): Panel
 		local leftW = math.floor(width * 0.3) -- (the EDM button / a slider's name)
 		local valueW = if compact then 40 else 46
 		frame.Position = UDim2.fromOffset(0, y)
+		-- [🎛 EDM]          [↺ 초기화], then a row per slider
+		local half = math.floor((width - gap) / 2)
+		edmButton.Position = UDim2.fromOffset(0, 0)
+		edmButton.Size = UDim2.fromOffset(half, h)
+		resetButton.Position = UDim2.fromOffset(half + gap, 0)
+		resetButton.Size = UDim2.fromOffset(width - half - gap, h)
 		for i, key in ipairs({ "edm", "song", "volume" }) do
 			local s = sliders[key]
-			local rowY = (i - 1) * (h + gap)
-			if key == "edm" then
-				edmButton.Position = UDim2.fromOffset(0, rowY)
-				edmButton.Size = UDim2.fromOffset(leftW, h)
-			elseif s.name then
+			local rowY = i * (h + gap)
+			if s.name then
 				s.name.Position = UDim2.fromOffset(2, rowY)
 				s.name.Size = UDim2.fromOffset(leftW - 2, h)
 			end
@@ -174,7 +191,7 @@ function EdmPanel.new(parent: Instance): Panel
 			s.value.Position = UDim2.fromOffset(width - valueW, rowY)
 			s.value.Size = UDim2.fromOffset(valueW, h)
 		end
-		local total = 3 * h + 2 * gap
+		local total = 4 * h + 3 * gap
 		frame.Size = UDim2.fromOffset(width, total)
 		return total
 	end

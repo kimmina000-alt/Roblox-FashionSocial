@@ -1527,3 +1527,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 볼륨: SoundGroup은 10에서 멈춰(부스트 6 × 볼륨 2 = 10) EdmController가 그 위 그룹(EdmSongMute / EdmVolume)에 DJ 볼륨을 곱함.
 - ClubConfig 9곡 boost 4 → 6. DjHelp에서 킥·펌핑·드롭·에코·배속 빼고 EDM·EDM 속도·노래 속도·볼륨 설명.
 - Studio Play: EDM ON → 노래 그룹 0, EDM 재생(0.335배속), 속도 1.5 → 0.502, 노래 속도 1.2·볼륨 2(6 × 2 = 12배) 적용, OFF → 노래 복귀.
+
+## D-736 (2026-11-01) EDM은 노래와 함께, 슬라이더 초기화
+- 사용자: EDM을 누르면 EDM 음원만이 아니라 지금 노래와 동시에. 슬라이더 초기화 버튼.
+- EdmController: EDM ON이어도 노래를 끄지 않음(겹쳐 재생). EdmPanel: 첫 줄 [🎛 EDM] [🔄 초기화](EDM 속도·노래 속도·볼륨 모두 x1), 아래 ⚡ EDM 속도 / 🎵 노래 속도 / 🔊 볼륨. ↺는 글꼴에 없어 네모로 보여 🔄. DjHelp 문구 고침.
+- Studio Play: EDM ON에서 노래·EDM 둘 다 재생, 초기화 → speed 1·노래 속도 1·볼륨 1.

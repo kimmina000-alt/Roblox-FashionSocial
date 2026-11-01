@@ -1,9 +1,10 @@
 --!strict
 -- The DJ's EDM button on every client (D-733 → D-735; Shared/EdmConfig,
 -- server EdmService). Reads the FashionGame attribute ClubEdm:
---   on   the club song is muted (a SoundGroup of ours above the song's own
---        group, so DanceController keeps playing it in time underneath) and
---        the EDM track plays instead, looped, as loud as the song would be here
+--   on   the EDM track plays together with the club song (D-736; instead of it
+--        in D-735), looped, as loud as the song is here
+-- A SoundGroup of ours above the song's own group carries the DJ's volume for
+-- lab tracks (a group stops at 10 and their boost is 6).
 --   speed / pos / at   where the EDM track is and how fast it runs
 -- The EDM track's own sound (speed × tempo, octave, EQ, boost) works like a
 -- lab track in the playlist (ClubConfig.labEffective / octaveParts).
@@ -29,7 +30,7 @@ local function make(className: string, props: {[string]: any}, parent: Instance)
 	return instance
 end
 
--- the song's mute: our group above the song's own (nested SoundGroups multiply)
+-- our group above the song's own (nested SoundGroups multiply): the DJ's volume
 local songMute = make("SoundGroup", { Name = "EdmSongMute", Volume = 1 }, SoundService)
 local function hookGroup()
 	local group = music.SoundGroup
@@ -84,7 +85,8 @@ RunService.Heartbeat:Connect(function()
 	local djVolume = FashionGame:GetAttribute("ClubMusicVolume")
 	djVolume = if typeof(djVolume) == "number" then djVolume else 1
 	local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
-	songMute.Volume = if on then 0 elseif track and track.lab then djVolume else 1
+	-- (D-736, user: the EDM track plays together with the song, not instead)
+	songMute.Volume = if track and track.lab then djVolume else 1
 	if not on then
 		if edm.IsPlaying then edm:Stop() end
 		return

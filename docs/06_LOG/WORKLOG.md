@@ -2967,3 +2967,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### EDM 버튼 · 슬라이더 (D-735)
 ![](images/2026-11-01/edm_button_D735.jpg)
+
+### EDM 겹쳐 재생 · 초기화 (D-736)
+![](images/2026-11-01/edm_together_reset_D736.jpg)

@@ -1,8 +1,8 @@
 --!strict
 -- The DJ's EDM button (user 2026-11-01, D-733 → D-735: the kick / pump / drop /
 -- echo effects are gone). EDM ON: everyone in the club hears the EDM track
--- below instead of the song (the song keeps its place underneath and comes
--- back on OFF); a slider sets the EDM track's speed. The state is the
+-- below together with the song (D-736; instead of it in D-735); a slider sets
+-- the EDM track's speed. The state is the
 -- FashionGame attribute ClubEdm (JSON, EdmService); EdmController plays it on
 -- every client; EdmPanel is the DJ's part of the turntable window, with the
 -- song speed and volume sliders too.
