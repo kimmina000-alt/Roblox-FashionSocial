@@ -55,7 +55,7 @@ local HUD: {Coach.Step} = {
 	-- (D-721: the menu's buttons are out in the top row now, no ☰)
 	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.", target = function() return TopBar.button(4) end },
 	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.", target = function() return TopBar.button(3) end },
-	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽 안에서는 화면 왼쪽에도 ♪ 버튼이 나와요.", target = function() return TopBar.button(1) end },
+	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽에서는 지금 나오는 곡에 맞춰 춰요.", target = function() return TopBar.button(1) end },
 	{ title = "왼쪽 위 · Roblox 버튼", text = "Roblox 기본 버튼이에요. 메뉴(설정·나가기), 채팅, 음성 채팅을 여기서 켜고 꺼요.",
 		target = function()
 			local inset = GuiService.TopbarInset
@@ -201,7 +201,7 @@ local CLUB_TABLE = tagged("DrinkTable", function(p) return p.Name == "RoundTable
 
 local CLUB: {Coach.Step} = {
 	{ title = "🎧 OHU CLUB", text = "어서 오세요! 클럽에서 할 수 있는 것을 알려 드릴게요.", camera = djView },
-	{ title = "♪ 춤 버튼", text = "클럽에 들어오면 왼쪽에 ♪ 버튼이 나와요. 지금 나오는 곡에 맞춰 춤을 골라 춰요.", target = find("ClubQuickBar", "Dance") },
+	{ title = "♪ 춤 버튼", text = "오른쪽 위 ♪ 버튼으로 춤을 골라 지금 나오는 곡에 맞춰 춰요.", target = function() return TopBar.button(1) end },
 	{ title = "노래 목록 · › 스킵", text = "노래 제목 왼쪽 목록 버튼(줄 세 개)에서 다음에 들을 곡을 예약하고, 오른쪽 ›로 스킵 투표를 해요. 클럽 사람 절반이 찬성하면 넘어가요.", target = find(DANCE_GUI, "NowPlaying") },
 	{ title = "🍹 바텐더", text = "바에 있는 바텐더에게 '음료 주문'을 눌러 음료(무알코올)를 골라요. 무료 음료도 있어요.", camera = bartenderView },
 	{ title = "🍾 음료를 테이블에", text = "음료 병을 든 채 테이블을 누르면 모든 사람·친구만·나만 중에 골라 테이블에 놓아요. 테이블이 아닌 곳을 누르면 병째 마셔요.",

@@ -1487,3 +1487,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 원인: 시작 순간 화면 폭이 아직 1 px이라 TopBar(D-721 두 줄 기능)가 버튼마다 줄을 바꿔 TopBar.bottom()이 약 330 px. DanceController가 그때 띠 위치를 정하고 다시 안 정함.
 - 고침: TopBar는 폭 300 px 미만이면 줄을 안 바꿈, 줄 높이가 바뀌면 TopBar.BottomChanged, DanceController가 받아서 다시 배치. Studio Play: 띠 y 4(위쪽).
 - Coach.run(key, list, turn): 클럽 안내는 끝나거나 건너뛰면 카메라가 캐릭터 둘레로 반 바퀴(마지막 화면이 보던 쪽의 반대). Studio: 입구에서 건너뛰기 → 길 쪽을 봄.
+
+## D-730 (2026-11-01) 클럽 왼쪽 ♪ 버튼 삭제
+- 사용자: 왼쪽 춤 버튼 삭제. ClubQuickBar에서 ♪ 버튼을 없앰(노래 띠의 ≡·›는 그대로). 춤은 위 줄 ♪로. 클럽 안내의 ♪ 단계는 위 줄 ♪를 가리키고, 화면 버튼 안내·안내원 답의 '왼쪽 ♪' 문구 고침.

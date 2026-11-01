@@ -1,6 +1,5 @@
 --!strict
 -- Club buttons (user 2026-11-01, D-694 / D-695), shown inside the club only:
---   ♪ 춤        a round button at the left edge: the dance window (DanceController)
 --   ≡ list       inside the "NOW PLAYING" banner, left end: the music window, to
 --                see the playlist and queue a song (ClubMusicController)
 --   › skip       inside the banner, right end: vote the song away (ClubService
@@ -24,36 +23,8 @@ gui.DisplayOrder = 4
 gui.Enabled = false
 gui.Parent = playerGui
 
--- 💃 at the left edge (right edge until 2026-11-01; user moved it), with the
--- menu's ♪ icon
-local danceButton = Instance.new("TextButton")
-danceButton.Name = "Dance"
-danceButton.AnchorPoint = Vector2.new(0, 0.5)
-danceButton.Position = UDim2.new(0, 10, 0.45, 0)
-danceButton.Size = UDim2.fromOffset(56, 56)
-danceButton.BackgroundColor3 = Color3.new(0, 0, 0) -- (pink until 2026-11-01; user: see-through black)
-danceButton.BackgroundTransparency = 0.5
-danceButton.Text = ""
-danceButton.Parent = gui
-Instance.new("UICorner", danceButton).CornerRadius = UDim.new(1, 0)
-do
-	local edge = Instance.new("UIStroke")
-	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	-- (2026-11-01, user: a pink edge and a bigger ♪, no 춤 label)
-	edge.Color = Color3.fromRGB(255, 70, 170)
-	edge.Transparency = 0
-	edge.Thickness = 2
-	edge.Parent = danceButton
-	local icon = Instance.new("ImageLabel")
-	icon.BackgroundTransparency = 1
-	icon.AnchorPoint = Vector2.new(0.5, 0.5)
-	icon.Size = UDim2.fromScale(0.6, 0.6)
-	icon.Position = UDim2.fromScale(0.5, 0.5)
-	icon.Image = require(script.Parent:WaitForChild("Icons")).note
-	icon.ScaleType = Enum.ScaleType.Fit
-	icon.Parent = danceButton
-end
-danceButton.Activated:Connect(function() UiBus.OpenDance:Fire() end)
+-- (D-730, user 2026-11-01: the ♪ button at the left edge is gone; the top
+-- row's ♪ opens the dances everywhere)
 
 -- the two small round buttons at the banner's two ends, inside it (beside it
 -- until 2026-11-01; user: "노래 제목 프레임 안으로")
