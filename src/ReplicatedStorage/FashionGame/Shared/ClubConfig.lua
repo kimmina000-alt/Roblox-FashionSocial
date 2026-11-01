@@ -174,15 +174,20 @@ ClubConfig.Playlist = {
 	-- (MANIAC · Stray Kids, 111304415353887, taken out again: user 2026-11-01)
 	-- (user 2026-10-31: PlaybackSpeed 2, Volume 10 then 20, PitchShift octave 0.5; 2026-11-01: the lab's values, D-680)
 	{ channel = "K-POP", title = "BANG BANG / IVE", soundId = 126421508146335, length = 352, lab = { speed = 1, tempo = 2, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 0, high = 0, humHz = 135, hissHz = 20000, gate = -10, engine = "sound" } },
-	-- (128410308180471 소원을 말해 봐 · 소녀시대, added with a temporary title, taken out: user 2026-11-01)
-	-- (user 2026-11-01: from the turntable lab, D-681)
-	{ channel = "K-POP", title = "Love 119 / RIIZE", soundId = 106367625479063, length = 58, lab = { speed = 0.5, tempo = 0.65, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, humHz = 60, hissHz = 3900, gate = -54, engine = "sound" } },
-	-- (user 2026-11-01: five more K-POP, the same lab values as Love 119, D-685; then their own lab values, D-687)
-	{ channel = "K-POP", title = "BAD / ATEEZ", soundId = 89023892900416, length = 77, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
-	{ channel = "K-POP", title = "Lemon Tang / 하츠투하츠", soundId = 99550529874718, length = 81, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 2.5, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
-	{ channel = "K-POP", title = "Catch Catch / 최예나", soundId = 100968974338230, length = 92, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
-	{ channel = "K-POP", title = "Get A Guitar / RIIZE", soundId = 100035331158760, length = 80, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" } },
-	{ channel = "K-POP", title = "Bubble Pop / HyunA", soundId = 117125823291884, length = 107, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 3, octave = 1, low = 0, mid = 10, high = 10, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
+	-- (user 2026-11-01, D-708: new uploads of the K-POP songs, all with the
+	-- same lab values, names as the user wrote them. They replace the older
+	-- uploads: Love 119 106367625479063, BAD 89023892900416, Lemon Tang
+	-- 99550529874718, Catch Catch 100968974338230, Get A Guitar 100035331158760,
+	-- Bubble Pop 117125823291884 (D-681..D-687). 소원을 말해봐 is back.)
+	{ channel = "K-POP", title = "에이티즈-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (the choreography made for the older Bubble Pop upload, kept on this one)
+	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	-- (user 2026-11-01: two uploads of one song, pitched then boosted and the
 	-- other way round, the same lab values, D-702)
 	{ channel = "K-POP", title = "피치 후 증폭", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.5, volume = 10, boost = 1, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },

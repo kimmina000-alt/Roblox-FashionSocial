@@ -60,7 +60,9 @@ do
 	if ok then prefs = store end
 end
 -- Outfit snapshots of buyers (the "오늘의 큰손" screen on OH24 shows the top 3
--- avatars, D-280): taken at each purchase, refreshed while they are online.
+-- avatars, D-280): taken at each purchase. (Until D-708 they were refreshed
+-- from the live avatar while the player was online; user 2026-11-01: the look
+-- from the moment they got onto the board, not the live one.)
 local lookStore: DataStore? = nil
 do
 	local ok, store = pcall(function() return DataStoreService:GetDataStore("RankLooks") end)
@@ -68,20 +70,23 @@ do
 end
 local looks: {[number]: any} = {}
 
+local saveLook: (player: Player) -> ()
+
+-- The saved look; someone on a board with none saved yet (the level board
+-- needs no purchase) is snapped once, now, and keeps that look.
 local function lookOf(userId: number): any
-	local player = Players:GetPlayerByUserId(userId)
-	if player then
-		local ok, snapshot = AvatarService.CaptureSnapshot(player)
-		if ok then looks[userId] = snapshot end
-	end
 	if looks[userId] == nil and lookStore then
 		local ok, value = pcall(function() return (lookStore :: DataStore):GetAsync("look_" .. userId) end)
 		looks[userId] = if ok and value ~= nil then value else false
 	end
+	if not looks[userId] then
+		local player = Players:GetPlayerByUserId(userId)
+		if player then saveLook(player) end
+	end
 	return if looks[userId] then looks[userId] else nil
 end
 
-local function saveLook(player: Player)
+saveLook = function(player: Player)
 	local ok, snapshot = AvatarService.CaptureSnapshot(player)
 	if not ok then return end
 	looks[player.UserId] = snapshot

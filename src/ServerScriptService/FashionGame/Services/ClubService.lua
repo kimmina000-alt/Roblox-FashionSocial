@@ -363,7 +363,7 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	if action == "TestChoreoSong" then
 		if not ClubConfig.canTestChoreo(player) then return false, "테스트 전용이에요." end
 		for index, track in ipairs(ClubConfig.Playlist) do
-			if track.soundId == 117125823291884 then
+			if track.choreo then -- (the first song with a choreography; Bubble Pop)
 				playTrack(index, player.UserId)
 				return true, nil
 			end

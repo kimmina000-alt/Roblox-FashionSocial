@@ -453,19 +453,67 @@ local function refreshAvatarPreview()
 			end)
 		end
 	end
-	local boundsCFrame, bounds = clone:GetBoundingBox()
-	local viewportSize = avatarViewport.AbsoluteSize
-	local aspect = if viewportSize.Y > 0 then viewportSize.X / viewportSize.Y else 1
-	local halfFov = math.rad(avatarPreviewCamera.FieldOfView * 0.5)
-	local verticalDistance = (bounds.Y * 0.5) / math.tan(halfFov)
-	local horizontalDistance = (bounds.X * 0.5) / (math.tan(halfFov) * math.max(aspect, 0.1))
+	-- (D-708) framed on the body only: with accessories in the box, the copy
+	-- rebuilt from the editor draft (accessories still loading, or placed a
+	-- little differently) came out at another zoom than the first copy, so the
+	-- avatar jumped bigger a moment after the editor opened. A little room
+	-- above the head for hats and hair.
+	-- (D-708) right after ApplyDescriptionResetAsync the rebuilt rig's parts
+	-- are not in place yet (its box came out 5.9 high instead of 6.7, so the
+	-- camera moved in and the avatar looked bigger): measured a frame later
+	if override then
+		game:GetService("RunService").Heartbeat:Wait()
+		game:GetService("RunService").Heartbeat:Wait()
+		if generation ~= previewGeneration or not clone.Parent then return end
+	end
+	local boundsCFrame, bounds
+	do
+		local low, high = Vector3.one * math.huge, -Vector3.one * math.huge
+		for _, part in ipairs(clone:GetChildren()) do
+			if part:IsA("BasePart") and part.Name ~= "HumanoidRootPart" then
+				local half = part.Size / 2
+				for _, corner in ipairs({ Vector3.new(-1, -1, -1), Vector3.new(1, 1, 1), Vector3.new(-1, 1, 1), Vector3.new(1, -1, -1),
+					Vector3.new(-1, -1, 1), Vector3.new(1, 1, -1), Vector3.new(-1, 1, -1), Vector3.new(1, -1, 1) }) do
+					local p = part.CFrame:PointToWorldSpace(half * corner)
+					low, high = low:Min(p), high:Max(p)
+				end
+			end
+		end
+		if low.X == math.huge then
+			boundsCFrame, bounds = clone:GetBoundingBox()
+		else
+			high += Vector3.new(0, 0.8, 0)
+			boundsCFrame, bounds = CFrame.new((low + high) / 2), high - low
+		end
+	end
 	previewTarget = boundsCFrame.Position
-	-- (a step further back in the avatar editor, user 2026-11-01: it filled the box)
-	previewBaseDistance = math.max(verticalDistance, horizontalDistance, bounds.Z * 0.5 + 0.5)
-		* (if avatarEditor and avatarEditor:isOpen() then 1.75 else 1.12)
-	updatePreviewCamera()
+	-- (the distance is worked out from these by the handler below, again
+	-- whenever the box changes size: D-708, the editor's box got its new size
+	-- just after the first copy was framed, so the next copy jumped closer)
+	avatarViewport:SetAttribute("PreviewBounds", bounds)
+	avatarViewport:SetAttribute("PreviewFrame", (avatarViewport:GetAttribute("PreviewFrame") or 0) + 1)
 	-- Avatar Editor draws the X/Y/Z guide around the selected accessory.
 	if avatarEditor then avatarEditor:onPreviewBuilt(clone) end
+end
+
+-- The preview camera's distance: from the body's box (PreviewBounds) and the
+-- preview box's shape, whenever either changes.
+do
+	local function frame()
+		local bounds = avatarViewport:GetAttribute("PreviewBounds")
+		if typeof(bounds) ~= "Vector3" then return end
+		local viewportSize = avatarViewport.AbsoluteSize
+		local aspect = if viewportSize.Y > 0 then viewportSize.X / viewportSize.Y else 1
+		local halfFov = math.rad(avatarPreviewCamera.FieldOfView * 0.5)
+		local verticalDistance = (bounds.Y * 0.5) / math.tan(halfFov)
+		local horizontalDistance = (bounds.X * 0.5) / (math.tan(halfFov) * math.max(aspect, 0.1))
+		-- (a step further back in the avatar editor, user 2026-11-01: it filled the box)
+		previewBaseDistance = math.max(verticalDistance, horizontalDistance, bounds.Z * 0.5 + 0.5)
+			* (if avatarEditor and avatarEditor:isOpen() then 1.75 else 1.12)
+		updatePreviewCamera()
+	end
+	avatarViewport:GetAttributeChangedSignal("PreviewFrame"):Connect(frame)
+	avatarViewport:GetPropertyChangedSignal("AbsoluteSize"):Connect(frame)
 end
 
 -- Drag inside the avatar preview to orbit the avatar; mouse wheel zooms.

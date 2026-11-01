@@ -155,8 +155,14 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 	-- Booth set in stand space (the stand looks at the camera along -Z).
 	-- (no side walls and a wide backdrop and floor: the wider view showed the
 	-- darker walls at both edges of every cut, user 2026-10-26)
-	setPart(world, Vector3.new(44, 16, 0.5), CFrame.new(0, 2, 6.25), back)
-	setPart(world, Vector3.new(44, 0.3, 15), CFrame.new(0, -5.85, 0), back:Lerp(Color3.new(1, 1, 1), 0.4))
+	-- (booth.clear: the avatar alone on a see-through viewport, no backdrop
+	-- or floor: the ranking boards, D-708)
+	if booth and booth.clear then
+		viewport.BackgroundTransparency = 1
+	else
+		setPart(world, Vector3.new(44, 16, 0.5), CFrame.new(0, 2, 6.25), back)
+		setPart(world, Vector3.new(44, 0.3, 15), CFrame.new(0, -5.85, 0), back:Lerp(Color3.new(1, 1, 1), 0.4))
+	end
 	for _, entry in ipairs(shot.people or {}) do
 		local s = entry.s -- 키높이 발판: { x, y, z, width, height } in stand space
 		if typeof(s) == "table" and #s == 5 then

@@ -2886,3 +2886,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 전광판 노래 제목, 꾸미기 실시간 미리보기 (D-707)
 ![](images/2026-11-01/led_wall_song_D707.jpg) ![](images/2026-11-01/editor_live_preview_D707.jpg)
+
+### 노란 띠 노래 제목, 꾸미기 줌 고정 (D-708)
+![](images/2026-11-01/club_strip_song_D708.jpg) ![](images/2026-11-01/editor_zoom_fix_D708.jpg)

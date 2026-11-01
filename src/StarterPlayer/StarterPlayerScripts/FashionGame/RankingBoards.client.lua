@@ -18,6 +18,7 @@ local RunService = game:GetService("RunService")
 local player = Players.LocalPlayer
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubNotify = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubNotify") :: RemoteEvent
+local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 
 local TITLES = {
 	support = { "💝", "기부 순위표", "상위 50 플레이어" },
@@ -134,7 +135,7 @@ local function buildList(part: BasePart, board: string)
 	stage.Position = UDim2.fromOffset(24, 58)
 	stage.Size = UDim2.new(1, -36, 1, -112)
 	stage.BackgroundColor3 = Color3.fromRGB(PORTRAIT_BACK[1], PORTRAIT_BACK[2], PORTRAIT_BACK[3])
-	stage.BackgroundTransparency = 0.2
+	stage.BackgroundTransparency = 1 -- (0.2 until D-708: the avatar alone, user)
 	stage.Parent = portrait
 	Instance.new("UICorner", stage).CornerRadius = UDim.new(0, 10)
 	local picture = Instance.new("ImageLabel")
@@ -275,7 +276,7 @@ local function buildList(part: BasePart, board: string)
 					PhotoRenderLazy = PhotoRenderLazy or require(script.Parent:WaitForChild("PhotoRender"))
 					task.spawn(function()
 						PhotoRenderLazy.renderShot(stage, { people = { { u = u, x = 0, y = -2.9, z = 0, r = 0, t = 0 } } },
-							{ [u] = { o = first.o } }, { back = PORTRAIT_BACK, cam = PORTRAIT_CAM })
+							{ [u] = { o = first.o } }, { back = PORTRAIT_BACK, cam = PORTRAIT_CAM, clear = true })
 					end)
 				elseif u > 0 then
 					task.spawn(function()
@@ -548,7 +549,7 @@ local function buildBandPanel(part: BasePart)
 		viewport.Position = UDim2.fromScale(0.04, 0.04)
 		viewport.Size = UDim2.fromScale(0.92, 0.74)
 		viewport.BackgroundColor3 = Color3.fromRGB(AVATAR_BACK[1], AVATAR_BACK[2], AVATAR_BACK[3])
-		viewport.BackgroundTransparency = 0.3
+		viewport.BackgroundTransparency = 1 -- (0.3 until D-708: the avatar alone, user)
 		viewport.Parent = frame
 		label(frame, { Position = UDim2.fromScale(0.04, 0.05), Size = UDim2.fromScale(0.5, 0.09), Text = "💝 R$ " .. tostring(entry.amount),
 			TextColor3 = GOLD, TextXAlignment = Enum.TextXAlignment.Left })
@@ -572,7 +573,7 @@ local function buildBandPanel(part: BasePart)
 		if entry.u and entry.o then
 			task.spawn(function()
 				PhotoRender.renderShot(viewport, { people = { { u = entry.u, x = 0, y = -2.9, z = 0, r = 0, t = 0 } } },
-					{ [entry.u] = { o = entry.o } }, { back = AVATAR_BACK, cam = AVATAR_CAM })
+					{ [entry.u] = { o = entry.o } }, { back = AVATAR_BACK, cam = AVATAR_CAM, clear = true })
 			end)
 		end
 	end
@@ -670,21 +671,27 @@ local function buildStrip(part: BasePart)
 				text.Text = stripMessage
 				return
 			end
+			-- (user 2026-11-01, D-708) the song playing now runs first
+			local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") :: any]
+			local song = if track
+				then (if FashionGame:GetAttribute("ClubMusicPaused") == true then "⏸ PAUSED · " else "♪ NOW PLAYING · ") .. track.title
+				else nil
 			-- (user 2026-10-30) before anyone has given: the club's welcome lines
 			local support = rankings.support or {}
 			if #support == 0 then
-				text.Text = table.concat({
-					"✦ WELCOME TO OHU CLUB ✦", "OHU CLUB에 오신 것을 환영합니다", "🎧 TONIGHT · LIVE DJ",
+				text.Text = (if song then song .. "     ·     " else "") .. table.concat({
+					"✨ WELCOME TO OHU CLUB ✨", "OHU CLUB에 오신 것을 환영합니다", "🎧 TONIGHT · LIVE DJ",
 					"MAKE SOME NOISE!", "음악에 몸을 맡기세요", "🎆 무대 콜드 스파크로 오늘 밤을 밝혀 주세요",
 				}, "     ·     ")
 				return
 			end
 			local parts = { "💝 기부 순위" }
+			if song then table.insert(parts, 1, song) end
 			for i, entry in ipairs(support) do
 				if i > 10 then break end
 				table.insert(parts, string.format("%d위 %s %s", i, tostring(entry.name), valueText("support", entry.value)))
 			end
-			table.insert(parts, "✦ WELCOME TO OHU CLUB ✦")
+			table.insert(parts, "✨ WELCOME TO OHU CLUB ✨")
 			text.Text = table.concat(parts, "     ·     ")
 		end,
 	}
@@ -724,6 +731,9 @@ readRankings()
 for _, part in ipairs(CollectionService:GetTagged("RankBoard")) do add(part) end
 CollectionService:GetInstanceAddedSignal("RankBoard"):Connect(add)
 FashionGame:GetAttributeChangedSignal("Rankings"):Connect(refresh)
+-- (the club strip shows the song playing, D-708)
+FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(refresh)
+FashionGame:GetAttributeChangedSignal("ClubMusicPaused"):Connect(refresh)
 
 -- a new gift: the club strip says thank you for 12 s
 ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)

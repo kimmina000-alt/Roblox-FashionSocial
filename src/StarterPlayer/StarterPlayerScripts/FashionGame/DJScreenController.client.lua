@@ -37,8 +37,6 @@ type Screen = {
 	gradient: UIGradient,
 	bars: {Frame},
 	logo: TextLabel,
-	songSmall: TextLabel,
-	songTitle: TextLabel,
 	viewport: ViewportFrame,
 	camera: Camera,
 	nameLabel: TextLabel,
@@ -86,8 +84,8 @@ local function build(part: BasePart, spot: BasePart)
 	local bars = {}
 	local logo = create("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.36), -- (0.42 / 0.3 high before the song lines, D-707)
-		Size = UDim2.fromScale(0.7, 0.26),
+		Position = UDim2.fromScale(0.5, 0.42),
+		Size = UDim2.fromScale(0.7, 0.3),
 		BackgroundTransparency = 1,
 		Text = "OHU CLUB",
 		TextScaled = true,
@@ -96,32 +94,8 @@ local function build(part: BasePart, spot: BasePart)
 		TextStrokeTransparency = 0.4,
 		ZIndex = 4,
 	}, gui)
-	-- (user 2026-11-01, D-707) no DJ on the screen: the song playing now under
-	-- the logo
-	local songSmall = create("TextLabel", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.6),
-		Size = UDim2.fromScale(0.6, 0.07),
-		BackgroundTransparency = 1,
-		Text = "",
-		TextScaled = true,
-		Font = Enum.Font.GothamBold,
-		TextColor3 = Color3.fromRGB(255, 120, 200),
-		TextStrokeTransparency = 0.5,
-		ZIndex = 4,
-	}, gui)
-	local songTitle = create("TextLabel", {
-		AnchorPoint = Vector2.new(0.5, 0.5),
-		Position = UDim2.fromScale(0.5, 0.72),
-		Size = UDim2.fromScale(0.62, 0.12), -- (between the speakers in front of the wall)
-		BackgroundTransparency = 1,
-		Text = "",
-		TextScaled = true,
-		Font = Enum.Font.GothamBlack,
-		TextColor3 = Color3.new(1, 1, 1),
-		TextStrokeTransparency = 0.3,
-		ZIndex = 4,
-	}, gui)
+	-- (D-707 put the song playing under the logo; taken off again, D-708: it
+	-- runs on the yellow strip above instead, RankingBoards)
 	local viewport = create("ViewportFrame", {
 		AnchorPoint = Vector2.new(0.5, 1),
 		Position = UDim2.fromScale(0.5, 1),
@@ -148,7 +122,7 @@ local function build(part: BasePart, spot: BasePart)
 		Visible = false,
 	}, gui)
 	screen = {
-		part = part, gui = gui, gradient = gradient, bars = bars, logo = logo, songSmall = songSmall, songTitle = songTitle,
+		part = part, gui = gui, gradient = gradient, bars = bars, logo = logo,
 		viewport = viewport, camera = camera, nameLabel = nameLabel,
 		clone = nil, cloneParts = {}, sourceUserId = 0, watch = {}, dirtyAt = nil,
 	}
@@ -302,15 +276,6 @@ RunService.RenderStepped:Connect(function()
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local show = dj ~= nil and root ~= nil and FashionGame:GetAttribute("ClubDJScreen") ~= false
 	s.logo.Visible = not show
-	local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") :: any]
-	local songShown = not show and track ~= nil
-	s.songSmall.Visible = songShown
-	s.songTitle.Visible = songShown
-	if songShown and track then
-		local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
-		s.songSmall.Text = (if paused then "⏸ PAUSED · " else "♪ NOW PLAYING · ") .. track.channel
-		s.songTitle.Text = track.title
-	end
 	s.viewport.Visible = show
 	s.nameLabel.Visible = show
 	if not show or not character or not root or not dj then
