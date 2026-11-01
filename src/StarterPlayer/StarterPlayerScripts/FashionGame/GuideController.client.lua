@@ -166,6 +166,7 @@ GuideTips.start()
 local function endTour(finished: boolean?)
 	if not touring then return end
 	touring = false
+	require(script.Parent:WaitForChild("Coach")).hold(false)
 	player:SetAttribute("GuideActive", nil) -- (the ambience back to normal, SfxController)
 	card.Visible = false
 	Spotlight.set(nil)
@@ -178,6 +179,9 @@ end
 local function startTour()
 	if touring then return end
 	touring = true
+	local Coach = require(script.Parent:WaitForChild("Coach"))
+	if Coach.isRunning() then Coach.finishNow() end -- (D-719: the tour, not a tip, on screen)
+	Coach.hold(true)
 	player:SetAttribute("GuideActive", true)
 	step = 1
 	card.Visible = true

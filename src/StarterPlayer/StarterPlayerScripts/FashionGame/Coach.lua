@@ -117,7 +117,7 @@ local Spotlight = require(script.Parent:WaitForChild("Spotlight"))
 local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local rectOf = Spotlight.rectOf
 
-local finish: (boolean) -> ()
+local finish: (boolean, boolean?) -> ()
 
 -- camera flights (as GuideController's tour)
 local TweenService = game:GetService("TweenService")
@@ -192,13 +192,13 @@ local function show()
 	if not waitTarget then placed = true end
 end
 
-finish = function(done: boolean)
+finish = function(done: boolean, again: boolean?)
 	local key = running
 	if not key then return end
 	local step = steps[index]
 	if step and step.after then pcall(step.after) end
 	running = nil
-	doneHere[key] = true
+	if not again then doneHere[key] = true end
 	player:SetAttribute("GuideActive", nil)
 	card.Visible = false
 	ring.Visible = false
@@ -206,7 +206,7 @@ finish = function(done: boolean)
 	markBox.Adornee = nil
 	markBox.Visible = false
 	cameraBack()
-	task.spawn(function() pcall(function() remote:InvokeServer("TipSeen", key) end) end)
+	if not again then task.spawn(function() pcall(function() remote:InvokeServer("TipSeen", key) end) end) end
 	local nextRun = table.remove(queue, 1)
 	if nextRun then task.defer(Coach.run, nextRun.key, nextRun.steps) end
 end
@@ -274,8 +274,16 @@ RunService.RenderStepped:Connect(function()
 	if placed then card.Visible = true end
 end)
 
+-- (D-719) no tip over the place tour (seen in the 2P guard test: walking into
+-- the club during the tour put the club tip on top of the tour card). The
+-- place tips are checked again every few seconds, so they come after the tour.
+local held = false
+function Coach.hold(on: boolean)
+	held = on
+end
+
 function Coach.run(key: string, list: {Step})
-	if not Coach.wants(key) then return end
+	if held or not Coach.wants(key) then return end
 	if running then
 		if running ~= key then
 			for _, waiting in ipairs(queue) do if waiting.key == key then return end end
@@ -293,6 +301,14 @@ end
 
 function Coach.isRunning(): boolean
 	return running ~= nil
+end
+
+-- close the tip on screen without marking it seen (it can come again)
+function Coach.finishNow()
+	local key = running
+	if not key then return end
+	table.clear(queue)
+	finish(false, true)
 end
 
 -- Every tip again (the guide's 다시 보기).

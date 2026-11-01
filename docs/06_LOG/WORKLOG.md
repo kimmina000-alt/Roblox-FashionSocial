@@ -2943,3 +2943,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 시안대로 안내 카드, 포토월 표시 (D-718)
 ![](images/2026-11-01/tour_mockup_D718.jpg) ![](images/2026-11-01/tip_hanger_D718.jpg) ![](images/2026-11-01/photowall1_D718.jpg) ![](images/2026-11-01/photowall2_D718.jpg)
+
+### 2P 가드 테스트 (D-719)
+![](images/2026-11-01/guard_card_D719.jpg) ![](images/2026-11-01/tip_overlap_bug_D719.jpg) (오른쪽: 고치기 전 겹침)
