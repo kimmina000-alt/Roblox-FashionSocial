@@ -2850,3 +2850,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 제목 줄 목록·스킵 (D-695)
 ![](images/2026-11-01/banner_list_skip.jpg)
+
+### 놀이공원 부지 올리기 (D-696)
+![](images/2026-11-01/park_raised.jpg)
