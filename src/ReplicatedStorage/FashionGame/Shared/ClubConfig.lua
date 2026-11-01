@@ -155,7 +155,10 @@ ClubConfig.Playlist = {
 	-- (the choreography made for the older Bubble Pop upload, kept on this one)
 	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
 	-- (D-726, user 2026-11-01: the start of the choreography, in order; danced by itself)
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 119819611123433, 97097804325917, 119200924904137, 77403973851668, 73939357849033, 137390866303201 }, autoChoreo = true },
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 119819611123433, 97097804325917, 119200924904137, 77403973851668, 73939357849033, 137390866303201,
+		-- (D-728, the rest: 20 in all)
+		121969021575883, 92148657532352, 96742563282745, 88430566939812, 108795638313983, 95813030011960, 135272998171625,
+		129447992418977, 82252722293006, 108611133102309, 117244778152210, 113505968174557, 112498417388469, 80874196383963 }, autoChoreo = true },
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 2, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" } },
