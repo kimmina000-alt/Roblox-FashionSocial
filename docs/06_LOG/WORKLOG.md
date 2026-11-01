@@ -2853,3 +2853,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 놀이공원 부지 올리기 (D-696)
 ![](images/2026-11-01/park_raised.jpg)
+
+### 놀이공원 높이 16 + 긴 계단 (D-697)
+![](images/2026-11-01/park_raised_v2.jpg)

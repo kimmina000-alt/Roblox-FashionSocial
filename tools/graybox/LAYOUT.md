@@ -46,7 +46,7 @@
 3-10. `polish_1028.lua` — 케이크 진열장 높이, 놀이공원·한옥 가림막, 편의점 전자레인지·온수기(직접 제작), 카페 바다 쪽 마감판, VIP 옆 소파 삭제 + 유리 칸막이, 오후네컷 테이블·벤치(D-446..D-451).
 3-11. `polish_1029.lua` — 카페 라운지·바 의자, DJ 무대, 편의점 다듬기, 클럽 엘리베이터 폐쇄, 클럽 띠 선 두께(D-500..D-566).
 3-12. `polish_1030.lua` — 해변 돗자리·아이스박스 에셋, 카페 진열장·헤더·메뉴판·계산기·커피 머신·메뉴 스탠드(D-571). 에셋 원본: ServerStorage.NewAssets1030.
-3-13. `park_raise.lua` — 놀이공원 부지 32 올리기(D-696): 담 안 부품과 문 앞 부스를 올리고, 돌 단·문 앞 단·가파른 계단·양옆 잔디 경사를 새로 만든다(Hongdae_Layout.ParkRaise). 되돌리기: 인자 `undo`. 맨 마지막.
+3-13. `park_raise.lua` — 놀이공원 부지 16 올리기(D-696, D-697): 담 안 부품과 문 앞 부스를 올리고, 돌 단·문 앞 단·빨간 선(z -172)부터 긴 계단·양옆 잔디 경사를 새로 만든다(Hongdae_Layout.ParkRaise). 되돌리기: 인자 `undo`. 맨 마지막.
 4. 손 편집 기록(`ServerStorage.PropOverrides`, git `prop_overrides.json`)은 2·3단계에서 자동 적용. 다시 빌드하기 전에 항상 `prop_save.lua`로 먼저 저장.
 - 필요한 Studio 자산: ServerStorage.ArtAssets(나무·관목·야자수·가로등·신호등 등, 스크립트 제거됨), ServerStorage.Cars(G70·G80), MaterialService(OHU_Asphalt, OHU_Concrete). 장소 파일에만 있으므로 Studio 저장 필수.
 - 예전 이름: hongdae_v1_temp.lua / Workspace.Hongdae_v1_Temp (임시 단계). 새 스크립트의 revert가 예전 폴더도 지운다.

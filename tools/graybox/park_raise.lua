@@ -3,23 +3,27 @@
 -- mode after the layout chain (… polish_1030 → park_raise).
 --   MODE "raise" (default): everything on the park's plot (inside its walls,
 --     x -152.5..-46.5, z -482..-224, plus the gate's front pieces down to
---     z -215) goes up RAISE studs (half the club's height above the street,
---     about 65); a stone platform fills under it, with a landing in front of
---     the gate (z -216..-229); from the pocket park's north edge (z -197, where
---     the stair down into the round plaza starts) a steep stair climbs in the
---     middle (x -114.5..-79.5, 1-stud steps) and grass banks on both sides.
---     The pocket park and the bus stops stay at street height.
+--     z -215) goes up RAISE studs; a stone platform fills under it, with a
+--     landing in front of the gate (z -216..-229). A long, gentle stair (1-stud
+--     steps) climbs in the middle (x -114.5..-79.5) from the round plaza's
+--     walk (y -2) at z -172 (the user's red line) to the landing: it takes in
+--     the plaza's old north steps (moved aside into ParkRaise.HiddenOld). Grass
+--     banks on both sides from z -201 (north of the wooden decks). The pocket
+--     park's south part and the bus stops stay at street height.
+--   (user 2026-11-01: first 32 high with a steep 19-stud stair; then half the
+--     height, 16, and the stair drawn out from the red line, D-697)
 --   MODE "undo": every moved part goes back down (attribute ParkRaised) and the
 --     new pieces (folder Hongdae_Layout.ParkRaise) are removed.
 -- Running "raise" twice does nothing the second time (attribute on Hongdae_Layout).
 local MODE = ...
 MODE = MODE or "raise"
-local RAISE = 32
+local RAISE = 16
 local X0, X1 = -152.5, -46.5 -- the plot, outside edge of the wall pillars
 local Z_NORTH, Z_SOUTH = -482, -224 -- the plot (part centres)
 local GATE_FRONT = -215 -- the gate's booths, letters and towers reach to z -216
 local LANDING_Z = -216 -- the landing in front of the gate: z -229 … -216
-local STAIR_Z = -197 -- the stair's foot (the pocket park's down-stair ends here)
+local STAIR_Z, STAIR_Y = -172, -2 -- the stair's foot: the round plaza's walk, on the red line
+local BANK_Z = -201 -- the banks' foot (the wooden decks reach z -200)
 local STAIR_X0, STAIR_X1 = -114.5, -79.5
 local L = workspace:FindFirstChild("Hongdae_Layout")
 assert(L, "Hongdae_Layout missing")
@@ -47,7 +51,13 @@ if MODE == "undo" then
 		end
 	end
 	local f = L:FindFirstChild("ParkRaise")
-	if f then f:Destroy() end
+	if f then
+		-- the plaza's old north steps go back
+		local hidden = f:FindFirstChild("HiddenOld")
+		local pp = L:FindFirstChild("PocketPark")
+		if hidden and pp then for _, c in ipairs(hidden:GetChildren()) do c.Parent = pp end end
+		f:Destroy()
+	end
 	L:SetAttribute("ParkRaised", nil)
 	print("[park_raise] undo: lowered " .. n .. " parts")
 	return
@@ -94,20 +104,33 @@ end
 -- (a stone retaining block; its top is the park's new street level)
 block("ParkPlatform", X0, 0, Z_NORTH, X1, RAISE, LANDING_Z, STONE, Enum.Material.Slate)
 block("ParkLandingPaving", X0, RAISE, -229, X1, RAISE + 0.08, LANDING_Z, PAVE, Enum.Material.Slate)
--- the stair: 1-stud steps from the pocket park (y 0) to the landing (y RAISE)
-local run = (STAIR_Z - LANDING_Z) / RAISE -- (each step's depth)
-for k = 1, RAISE do
+-- the plaza's old north steps (z -196..-165) go aside: the new stair covers them
+local hidden = Instance.new("Folder")
+hidden.Name = "HiddenOld"
+hidden.Parent = F
+local pp = L:FindFirstChild("PocketPark")
+if pp then
+	for _, c in ipairs(pp:GetChildren()) do
+		if c:IsA("BasePart") and c.Name == "ParkStair" and c.Position.Z < -170 and c.Position.X > STAIR_X0 and c.Position.X < STAIR_X1 then
+			c.Parent = hidden
+		end
+	end
+end
+-- the stair: 1-stud steps from the plaza walk (y STAIR_Y) to the landing (y RAISE)
+local steps = RAISE - STAIR_Y
+local run = (STAIR_Z - LANDING_Z) / steps -- (each step's depth)
+for k = 1, steps do
 	local zFront = STAIR_Z - (k - 1) * run
-	block("ParkRaiseStep", STAIR_X0, 0, zFront, STAIR_X1, k, LANDING_Z, if k % 2 == 0 then PAVE else STONE, Enum.Material.Slate)
+	block("ParkRaiseStep", STAIR_X0, STAIR_Y - 1, zFront, STAIR_X1, STAIR_Y + k, LANDING_Z, if k % 2 == 0 then PAVE else STONE, Enum.Material.Slate)
 end
 -- stair cheeks (low stone walls along both sides of the stair)
 for _, x in ipairs({ STAIR_X0, STAIR_X1 }) do
 	local w = Instance.new("WedgePart")
 	w.Name = "ParkStairCheek"
 	w.Anchored = true
-	w.Size = Vector3.new(1.2, RAISE + 1.5, STAIR_Z - LANDING_Z)
+	w.Size = Vector3.new(1.2, steps + 1.5, STAIR_Z - LANDING_Z)
 	-- rising toward -Z (the gate): a wedge rises toward its +Z face, so turn it round
-	w.CFrame = CFrame.new(x, (RAISE + 1.5) / 2, (STAIR_Z + LANDING_Z) / 2) * CFrame.Angles(0, math.pi, 0)
+	w.CFrame = CFrame.new(x, STAIR_Y + (steps + 1.5) / 2, (STAIR_Z + LANDING_Z) / 2) * CFrame.Angles(0, math.pi, 0)
 	w.Color = STONE
 	w.Material = Enum.Material.Slate
 	w.Parent = F
@@ -117,8 +140,8 @@ for _, span in ipairs({ { X0, STAIR_X0 - 0.6 }, { STAIR_X1 + 0.6, X1 } }) do
 	local w = Instance.new("WedgePart")
 	w.Name = "ParkBank"
 	w.Anchored = true
-	w.Size = Vector3.new(span[2] - span[1], RAISE, STAIR_Z - LANDING_Z)
-	w.CFrame = CFrame.new((span[1] + span[2]) / 2, RAISE / 2, (STAIR_Z + LANDING_Z) / 2) * CFrame.Angles(0, math.pi, 0)
+	w.Size = Vector3.new(span[2] - span[1], RAISE, BANK_Z - LANDING_Z)
+	w.CFrame = CFrame.new((span[1] + span[2]) / 2, RAISE / 2, (BANK_Z + LANDING_Z) / 2) * CFrame.Angles(0, math.pi, 0)
 	w.Color = GRASS
 	w.Material = Enum.Material.Grass
 	w.Parent = F
