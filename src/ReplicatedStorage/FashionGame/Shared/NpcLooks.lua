@@ -86,11 +86,18 @@ do
 		if item.kind ~= Enum.AccessoryType.Jacket then table.insert(seller.layered, item) end
 	end
 	NpcLooks.Looks.ItemSeller = seller
-	-- the guide by the ranking boards (D-712): the bartender's look, hands free
-	local guide = table.clone(NpcLooks.Looks.Bartender)
-	guide.holds = nil
-	NpcLooks.Looks.Guide = guide
 end
+
+-- The guide by the ranking boards (user 2026-11-01, D-713): bundle
+-- 170950066963813 "노란색 귀여운 토끼" (its outfit 4205246513673697, the bunny
+-- hair put back: SetAccessories replaces the outfit's accessories). The
+-- bartender's look before (D-712).
+NpcLooks.Looks.Guide = {
+	bodyOutfit = 4205246513673697,
+	hair = 119121044324572, -- Yellow Cute Bunny - Hair
+	layered = {},
+	pose = 507766388, -- the standard R15 idle
+}
 
 function NpcLooks.describe(key: string): HumanoidDescription?
 	local look = NpcLooks.Looks[key]

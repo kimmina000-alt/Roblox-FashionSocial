@@ -2924,3 +2924,7 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 ### 튜토리얼 · 안내원 (D-712)
 ![](images/2026-11-01/tutorial_club_D712.jpg) ![](images/2026-11-01/tutorial_park_D712.jpg)
 ![](images/2026-11-01/guide_npc_D712.jpg) ![](images/2026-11-01/guide_faq_D712.jpg) ![](images/2026-11-01/guide_waypoint_D712.jpg)
+
+### 토끼 안내원, 처음 안내 팁 (D-713)
+![](images/2026-11-01/guide_bunny_D713.jpg) ![](images/2026-11-01/tip_hud_clock_D713.jpg) ![](images/2026-11-01/tip_hud_menu_D713.jpg)
+![](images/2026-11-01/tip_catalog_D713.jpg) ![](images/2026-11-01/tip_club_D713.jpg)

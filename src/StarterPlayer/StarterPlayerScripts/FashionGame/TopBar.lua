@@ -174,6 +174,16 @@ function TopBar.add(button: GuiObject, order: number)
 	layout()
 end
 
+-- The button added with this order (the first-time tips point at them, D-713).
+function TopBar.button(order: number): GuiObject?
+	for _, entry in ipairs(entries) do
+		if entry.order == order then return entry.button end
+	end
+	return nil
+end
+TopBar.isOpen = function(): boolean return open end
+TopBar.menuPill = pill
+
 -- a white icon in the middle of a top bar button (its text cleared)
 function TopBar.icon(button: GuiObject, image: string, scale: number?)
 	if button:IsA("TextButton") or button:IsA("TextLabel") then (button :: any).Text = "" end

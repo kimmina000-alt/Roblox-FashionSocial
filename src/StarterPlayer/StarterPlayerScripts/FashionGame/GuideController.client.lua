@@ -142,13 +142,19 @@ local function showStep()
 	end
 end
 
-local function endTour()
+local GuideTips = require(script.Parent:WaitForChild("GuideTips"))
+GuideTips.start()
+
+-- finished: the tour went to its end (then the screen's buttons are shown,
+-- D-713); not when it was skipped
+local function endTour(finished: boolean?)
 	if not touring then return end
 	touring = false
 	card.Visible = false
 	cameraBack()
 	Popups.closed("Tutorial")
 	task.spawn(function() pcall(function() remote:InvokeServer("TutorialDone") end) end)
+	if finished then task.delay(0.6, GuideTips.hud) end
 end
 
 local function startTour()
@@ -156,16 +162,16 @@ local function startTour()
 	touring = true
 	step = 1
 	card.Visible = true
-	Popups.opened("Tutorial", endTour)
+	Popups.opened("Tutorial", function() endTour(false) end)
 	showStep()
 end
 
 nextButton.Activated:Connect(function()
 	if not touring then return end
 	step += 1
-	if step > #GuideConfig.Tutorial + 1 then endTour() else showStep() end
+	if step > #GuideConfig.Tutorial + 1 then endTour(true) else showStep() end
 end)
-skipButton.Activated:Connect(endTour)
+skipButton.Activated:Connect(function() endTour(false) end)
 
 -- first visit: once the server says the tour was not seen yet
 task.spawn(function()
@@ -332,7 +338,11 @@ goButton.Activated:Connect(function()
 	if not shown then return end
 	if shown.action == "tutorial" then
 		closeWindow()
-		startTour()
+		-- (every first-time tip comes back too, D-713)
+		task.spawn(function()
+			require(script.Parent:WaitForChild("Coach")).reset()
+			startTour()
+		end)
 		return
 	end
 	local place = shown.place and GuideConfig.Places[shown.place]

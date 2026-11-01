@@ -1,0 +1,217 @@
+--!strict
+-- The first-time tips (user 2026-11-01, D-713), shown with Coach, each once,
+-- each skippable:
+--   hud      after the place tour: the buttons on the screen (Roblox's on the
+--            left, the clock, coins, ♥ 후원, ☰ and the buttons it opens)
+--   catalog  the first time the catalog opens
+--   bag      the first time the 🎒 bag opens
+--   dance    the first time the dance window opens
+--   gukbap   the first time the 국밥집 order window opens
+--   club     the first time in the club
+--   cafe     the first time at the beach cafe
+--   job      the first 알바 shift
+-- GuideController calls GuideTips.hud() at the end of the tour and
+-- GuideTips.start() once.
+
+local Players = game:GetService("Players")
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local GuiService = game:GetService("GuiService")
+local CollectionService = game:GetService("CollectionService")
+
+local Coach = require(script.Parent:WaitForChild("Coach"))
+local TopBar = require(script.Parent:WaitForChild("TopBar"))
+local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("ClubConfig"))
+
+local player = Players.LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+local GuideTips = {}
+
+-- the first descendant called `name` under PlayerGui[guiName] (or with a text containing `text`)
+local function find(guiName: string, name: string?, text: string?): () -> Instance?
+	return function()
+		local root = playerGui:FindFirstChild(guiName)
+		if not root then return nil end
+		for _, d in ipairs(root:GetDescendants()) do
+			if d:IsA("GuiObject") and (name == nil or d.Name == name)
+				and (text == nil or ((d:IsA("TextButton") or d:IsA("TextLabel")) and string.find((d :: any).Text, text, 1, true) ~= nil)) then
+				return d
+			end
+		end
+		return nil
+	end
+end
+
+--------------------------------------------------
+-- The screen
+--------------------------------------------------
+
+local HUD: {Coach.Step} = {
+	{ title = "📱 화면 둘러보기", text = "이제 화면에 있는 버튼들을 알려 드릴게요. 필요 없으면 [건너뛰기]를 눌러요." },
+	{ title = "왼쪽 위 · Roblox 버튼", text = "Roblox 기본 버튼이에요. 메뉴(설정·나가기), 채팅, 음성 채팅을 여기서 켜고 꺼요.",
+		target = function()
+			local inset = GuiService.TopbarInset
+			if inset.Min.X <= 0 then return nil end
+			return Rect.new(6, inset.Min.Y + 4, inset.Min.X - 6, math.max(inset.Max.Y - 4, inset.Min.Y + 40))
+		end },
+	{ title = "🕐 시간", text = "오후에는 시간이 흘러요. 실제 30분이 게임 속 하루예요. 해가 지고 밤(18:00~06:00)이 되면 클럽이 문을 열어요.",
+		target = find("FashionHudGui", "ClockPill") },
+	{ title = "₩ 소지금", text = "내 코인이에요. 게임에 있으면 1분마다 쌓이고, 카페 알바로 더 벌 수 있어요. 음식·아이템을 살 때 써요.",
+		target = find("FashionHudGui", "CoinPill") },
+	{ title = "♥ 후원", text = "Robux로 오후를 후원하는 버튼이에요. 후원하면 화면 위 배너와 순위표·전광판에 이름과 메시지가 올라가요.",
+		target = function() return TopBar.button(5) end },
+	{ title = "☰ 메뉴", text = "이 버튼을 누르면 버튼이 더 나와요.", target = function() return TopBar.button(20) end },
+	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.",
+		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(4) end },
+	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.",
+		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(3) end },
+	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽 안에서는 화면 왼쪽에도 ♪ 버튼이 나와요.",
+		before = function() TopBar.setOpen(true) end, target = function() return TopBar.button(1) end,
+		after = function() TopBar.setOpen(false) end },
+}
+
+function GuideTips.hud()
+	Coach.run("hud", HUD)
+end
+
+--------------------------------------------------
+-- Windows
+--------------------------------------------------
+
+local CAT = "FashionCatalogGui"
+local CATALOG: {Coach.Step} = {
+	{ title = "👗 카탈로그", text = "Roblox의 옷·장신구를 찾아 바로 입어 보는 곳이에요. 하나씩 알려 드릴게요." },
+	{ title = "🔍 검색", text = "아이템 이름을 써서 찾아요.", target = find(CAT, "SearchBox") },
+	{ title = "카테고리", text = "신체·복장·액세서리·얼굴 꾸미기·애니메이션… 옆으로 밀면(드래그) 메뉴가 더 나와요.", target = find(CAT, "MainCategoryStrip") },
+	{ title = "세부 카테고리", text = "헤어·얼굴·상의·하의처럼 더 자세히 골라요. 이 줄도 옆으로 밀면 더 있어요.", target = find(CAT, "SubcategoryStrip") },
+	{ title = "빠른 메뉴", text = "최근 본 것, 인기, ★ 즐겨찾기, 착용 중, ⚙ 아바타 편집, 옷장. 옆으로 밀면 더 나와요.", target = find(CAT, "DiscoveryBar") },
+	{ title = "아이템", text = "[WEAR]를 누르면 바로 입어요. ★를 누르면 즐겨찾기에 담아요. 아래로 내리면 더 많이 나와요.", target = find(CAT, "Results") },
+	{ title = "필터", text = "가격·제작자·정렬로 결과를 걸러요.", target = find(CAT, "FixedFilterButton") },
+	{ title = "미리보기", text = "지금 내 모습이에요. 끌면 돌아가고, 휠·두 손가락으로 크게 볼 수 있어요.", target = find(CAT, "AvatarViewport") },
+	{ title = "⚙ 아바타 편집", text = "장신구의 위치·회전·크기를 세세하게 맞추고, 체형·피부색·메이크업 순서도 바꿔요.", target = find(CAT, "AvatarEditorButton") },
+	{ title = "▣ 옷장", text = "지금 입은 코디를 이름 붙여 저장하고, 나중에 한 번에 다시 입어요.", target = find(CAT, "WardrobeButton") },
+	{ title = "착용 중인 아이템", text = "입고 있는 것들이에요. [× 해제]로 하나씩 벗어요.", target = find(CAT, "CurrentOutfitFrame") },
+	{ title = "되돌리기 · 다시", text = "방금 바꾼 것을 되돌리거나 다시 해요.", target = find(CAT, "UndoButton") },
+}
+
+local BAG: {Coach.Step} = {
+	{ title = "🎒 가방", text = "산 음식·아이템이 모두 여기 있어요. 누르면 손에 들고, 든 것을 다시 누르면 넣어요.", target = find("FashionInventoryGui", "Bag") },
+	{ title = "사진", text = "오후네컷에서 찍은 사진이에요. 누르면 크게 보고, 손에 들거나 지울 수 있어요.", target = find("FashionInventoryGui", nil, "사진") },
+}
+
+local DANCE_GUI = "FashionDanceGui"
+local DANCE: {Coach.Step} = {
+	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽에서는 지금 나오고 있는 곡에 맞춰 출 수 있어요.", target = find(DANCE_GUI, "DancePanel") },
+	{ title = "춤 고르기", text = "추고 싶은 춤을 눌러요. 위의 탭으로 종류를 바꿔요.", target = find(DANCE_GUI, "DanceGrid") },
+	{ title = "속도", text = "춤 속도를 느리게·빠르게 맞춰요.", target = find(DANCE_GUI, "TempoRow") },
+	{ title = "같이 추기", text = "근처 사람을 누르면 그 사람과 같은 춤을 같은 박자로 춰요. 화면에서 사람을 직접 눌러도 돼요.", target = find(DANCE_GUI, "JoinList") },
+	{ title = "멈추기", text = "춤을 멈춰요. 걸어도 멈춰요.", target = find(DANCE_GUI, "StopButton") },
+}
+
+--------------------------------------------------
+-- Places
+--------------------------------------------------
+
+local GUKBAP: {Coach.Step} = {
+	{ title = "🍲 오후 돼지국밥", text = "국밥을 사면 뚝배기가 손에 들려요. 화면을 누를 때마다 한 숟가락씩 떠먹어요." },
+	{ title = "테이블에 놓기", text = "국밥을 든 채로 테이블 가까이 가서 '테이블에 놓기'를 누르면 쟁반째 놓여요. 앉아서 '떠먹기'로 먹어요. 놓은 국밥은 나만 먹을 수 있어요." },
+	{ title = "수육 · 함께 먹기", text = "수육 한 접시는 테이블에 놓으면 모두 한 점씩 가져가 먹어요. 공깃밥·물·김치는 무료예요." },
+}
+
+local CLUB: {Coach.Step} = {
+	{ title = "🎧 OHU CLUB", text = "어서 오세요! 클럽에서 할 수 있는 것을 알려 드릴게요." },
+	{ title = "♪ 춤 버튼", text = "클럽에 들어오면 왼쪽에 ♪ 버튼이 나와요. 지금 나오는 곡에 맞춰 춤을 골라 춰요.", target = find("ClubQuickBar", "Dance") },
+	{ title = "≡ 노래 목록 · › 스킵", text = "노래 제목 왼쪽 ≡에서 다음에 들을 곡을 예약하고, 오른쪽 ›로 스킵 투표를 해요. 클럽 사람 절반이 찬성하면 넘어가요.", target = find(DANCE_GUI, "NowPlaying") },
+	{ title = "🍹 바텐더", text = "바에서 바텐더에게 음료(무알코올)를 주문해요. 무료 음료도 있어요." },
+	{ title = "🍾 음료를 테이블에", text = "음료 병을 든 채 테이블을 누르면 모든 사람·친구만·나만 중에 골라 테이블에 놓아요. 테이블이 아닌 곳을 누르면 병째 마셔요. 버킷 음료는 눌러서 한 잔씩 따라 마시고, 내가 놓은 병을 누르면 다시 손에 들어요." },
+	{ title = "🎆 불꽃 판매원", text = "바 옆 판매원에게서 스파클러, 스파클러 세트, 무대 콜드 스파크를 사요. 스파클러를 든 채 병을 누르면 불꽃이 튀어요." },
+	{ title = "🎧 DJ", text = "DJ 부스의 '디제잉하기'에서 DJ 시간을 사면 차례가 와요. DJ는 곡·속도·조명을 바꾸고 큰 전광판에 나와요." },
+}
+
+local CAFE: {Coach.Step} = {
+	{ title = "☕ OHU CAFE · Sunset", text = "바다가 보이는 카페예요. 카운터에서 '주문하기'를 누르면 음료·빵·케이크를 골라요." },
+	{ title = "케이크 · 함께 먹기", text = "케이크는 테이블 옆에서 눌러 놓으면 모두 한 조각씩 가져가 먹어요." },
+	{ title = "알바", text = "카운터 안쪽 작업대에서 '알바 시작'을 누르면 카페 직원이 되어 손님에게 음료를 만들어 주고 코인을 벌어요." },
+}
+
+local JOB: {Coach.Step} = {
+	{ title = "☕ 알바 시작!", text = "이제 카페 직원이에요. 머리 위에 '알바생'이 보여요.", target = find("CafeJobGui", "JobPill") },
+	{ title = "주문 목록", text = "왼쪽 '알바 중' 버튼을 누르면 주문 목록이 나와요. 손님(플레이어·NPC)이 주문하면 여기에 쌓여요.", target = find("CafeJobGui", "JobPill") },
+	{ title = "만들기", text = "작업대에서 [만들기] 또는 '음료 만들기'를 누르면 잠깐 뒤 음료가 손에 들려요. 한 번에 2잔까지 들 수 있어요." },
+	{ title = "서빙하기", text = "음료를 들고 주문한 손님에게 가면 그 손님에게 '서빙하기'가 떠요. 누르면 건네주고 코인을 받아요." },
+	{ title = "테이블 정리", text = "손님이 다 마시고 남긴 빈 컵은 '테이블 정리'로 치우면 코인을 더 받아요." },
+	{ title = "끝내기", text = "하루에 벌 수 있는 알바 코인에는 한도가 있어요. 그만할 때는 카운터에서 '알바 끝내기'를 눌러요." },
+}
+
+--------------------------------------------------
+-- Triggers
+--------------------------------------------------
+
+-- runs `key` the first time `object` (found later, maybe) becomes visible
+local function onShown(key: string, steps: {Coach.Step}, getObject: () -> Instance?)
+	task.spawn(function()
+		local object: Instance? = nil
+		while not object do
+			object = getObject()
+			if not object then task.wait(1) end
+		end
+		local gui = object :: GuiObject
+		local function check()
+			if gui.Visible and Coach.wants(key) then task.delay(0.4, function()
+				if gui.Visible then Coach.run(key, steps) end
+			end) end
+		end
+		gui:GetPropertyChangedSignal("Visible"):Connect(check)
+		check()
+	end)
+end
+
+function GuideTips.start()
+	onShown("catalog", CATALOG, function()
+		local g = playerGui:FindFirstChild(CAT)
+		return g and g:FindFirstChild("MainFrame")
+	end)
+	onShown("bag", BAG, function()
+		local g = playerGui:FindFirstChild("FashionInventoryGui")
+		return g and g:FindFirstChild("Bag")
+	end)
+	onShown("dance", DANCE, function()
+		local g = playerGui:FindFirstChild(DANCE_GUI)
+		return g and g:FindFirstChild("DancePanel")
+	end)
+	onShown("gukbap", GUKBAP, function()
+		for _, d in ipairs(playerGui:GetDescendants()) do
+			if d.Name == "Menu_Gukbap" and d:IsA("GuiObject") then return d end
+		end
+		return nil
+	end)
+	-- the first 알바 shift
+	local function watchJob(character: Model)
+		character:GetAttributeChangedSignal("CafeJob"):Connect(function()
+			if character:GetAttribute("CafeJob") then task.delay(1, Coach.run, "job", JOB) end
+		end)
+	end
+	player.CharacterAdded:Connect(watchJob)
+	if player.Character then watchJob(player.Character) end
+	-- places: in the club, near the beach cafe's counter
+	task.spawn(function()
+		while true do
+			task.wait(1)
+			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+			if root and not Coach.isRunning() then
+				if Coach.wants("club") and ClubConfig.isInClub(root.Position) then
+					Coach.run("club", CLUB)
+				elseif Coach.wants("cafe") then
+					for _, counter in ipairs(CollectionService:GetTagged("SnackShop")) do
+						if counter:IsA("BasePart") and counter:GetAttribute("Shop") == "BeachCafe"
+							and (counter.Position - root.Position).Magnitude < 28 then
+							Coach.run("cafe", CAFE)
+						end
+					end
+				end
+			end
+		end
+	end)
+end
+
+return GuideTips

@@ -31,8 +31,8 @@ GuideConfig.Places = {
 		at = Vector3.new(120, 1, 165), look = Vector3.new(165, 18, 215), eye = Vector3.new(55, 48, 110) },
 	park = { key = "park", name = "OHU LAND (준비 중)", emoji = "🎡", text = "계단 위 놀이공원은 곧 열려요. 지금은 문 앞 광장까지 올라갈 수 있어요.",
 		at = Vector3.new(-97, 17, -250), look = Vector3.new(-100, 30, -330) },
-	guide = { key = "guide", name = "순위표 · 안내원", emoji = "🙋", text = "기부·레벨 순위표가 있어요. 옆의 안내원에게 무엇이든 물어보세요!",
-		at = Vector3.new(-119, 1, -70.5), look = Vector3.new(-126, 8, -70.5) },
+	guide = { key = "guide", name = "순위표 · 안내원", emoji = "🙋", text = "기부·레벨 순위표가 있어요. 앞에서 돌아다니는 토끼 안내원에게 무엇이든 물어보세요!",
+		at = Vector3.new(-112, 1, -56), look = Vector3.new(-120, 6, -60) },
 } :: {[string]: Place}
 
 -- The tour, in order. The last step has no place: the camera comes back.
@@ -42,12 +42,20 @@ GuideConfig.TutorialEnd = {
 	text = "오른쪽 위 ☰ 메뉴의 옷걸이 버튼으로 옷을 갈아입고, 버스 정류장 표지판을 누르면 다른 곳으로 빨리 갈 수 있어요. 궁금한 건 순위표 옆 안내원에게! 즐거운 시간 보내요!",
 }
 
--- The guide NPC: between the two ranking boards in the pocket park, facing +X.
+-- The guide NPC: walks about the paved square in front of the 기부 순위표
+-- (user 2026-11-01, D-713: the area the user circled; between the boards
+-- before), never out of the box zoneMin..zoneMax (the road is past z -45).
+-- It stops and turns to anyone who comes within StopDistance.
 GuideConfig.Npc = {
-	position = Vector3.new(-121, 0.6, -70.5),
+	position = Vector3.new(-115, 0.6, -56),
 	facing = Vector3.new(1, 0, 0),
 	name = "안내원",
 	look = "Guide", -- NpcLooks
+	zoneMin = Vector3.new(-123, 0, -64),
+	zoneMax = Vector3.new(-106, 0, -48),
+	walkSpeed = 5,
+	stopDistance = 10,
+	walkAnimation = 913402848, -- the standard R15 walk
 }
 
 -- 무엇이든 물어보세요: question → answer (and the place to show, if any).
@@ -66,7 +74,8 @@ GuideConfig.Faq = {
 	{ q = "멀리 빨리 가려면요?", a = "길가의 버스 정류장 표지판을 누르면 다른 정류장으로 바로 가요. 지하철 출구 계단 아래에서도 갈 곳을 고를 수 있어요." },
 	{ q = "물놀이는 어디서 해요?", a = "서쪽 해변에서 튜브를 타고 바다에 들어가요.", place = "beach" },
 	{ q = "놀이공원은 언제 열어요?", a = "OHU LAND는 지금 준비 중이에요. 계단 위 문 앞 광장까지는 올라갈 수 있어요.", place = "park" },
-	{ q = "동네 둘러보기 다시 보기", a = "처음 들어왔을 때 본 동네 소개를 다시 보여 줘요.", action = "tutorial" },
+	{ q = "국밥을 테이블에 놓으면 남도 먹어요?", a = "아니요, 테이블에 놓은 국밥은 놓은 사람만 떠먹어요. 수육 한 접시와 케이크는 테이블에 놓으면 모두 한 조각씩 가져가 먹어요.", place = "gukbap" },
+	{ q = "처음 안내 다시 보기", a = "동네 소개와 화면·카탈로그·가방·춤·클럽·카페·알바 안내를 처음처럼 다시 보여 줘요.", action = "tutorial" },
 } :: {Faq}
 
 -- How long the 길 안내 marker stays (it goes as soon as the player arrives).
