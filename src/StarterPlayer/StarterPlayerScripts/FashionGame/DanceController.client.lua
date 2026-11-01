@@ -1151,6 +1151,8 @@ do
 			end
 		end
 		-- the lab's boost and EQ (none for the other tracks)
+		-- (the DJ's volume for lab tracks: on EdmController's group above this one,
+		-- D-735; a SoundGroup stops at 10 and the boost is 6)
 		labGroup.Volume = if lab then lab.boost else 1
 		labEq.LowGain, labEq.MidGain, labEq.HighGain = if lab then lab.low else 0, if lab then lab.mid else 0, if lab then lab.high else 0
 		labEq.Enabled = lab ~= nil and (lab.low ~= 0 or lab.mid ~= 0 or lab.high ~= 0)
@@ -1263,7 +1265,8 @@ RunService.RenderStepped:Connect(function(dt)
 		local djVolume = FashionGame:GetAttribute("ClubMusicVolume")
 		djVolume = if typeof(djVolume) == "number" then djVolume else 1
 		local lab = playing and playing.lab
-		local want = (if lab then lab.volume elseif playing and playing.volume then playing.volume else ClubConfig.MusicVolume) * djVolume * level
+		-- (lab tracks take the DJ's volume on EdmController's SoundGroup, D-735)
+		local want = (if lab then lab.volume elseif playing and playing.volume then playing.volume else ClubConfig.MusicVolume) * (if lab then 1 else djVolume) * level
 		-- a Sound stops at Volume 10: above that an equalizer adds the rest in dB
 		-- (Volume 20 = 10 and +6 dB; user 2026-10-31). Lab tracks never: their
 		-- boost is the SoundGroup (D-680), and the EQ would mix with the lab's.

@@ -2964,3 +2964,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### EDM 정리 · ? 설명 (D-734)
 ![](images/2026-11-01/edm_panel_D734.jpg) ![](images/2026-11-01/dj_help_D734.jpg)
+
+### EDM 버튼 · 슬라이더 (D-735)
+![](images/2026-11-01/edm_button_D735.jpg)

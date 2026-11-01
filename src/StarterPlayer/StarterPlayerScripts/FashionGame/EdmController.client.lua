@@ -1,15 +1,12 @@
 --!strict
--- DJ EDM effects on every client (D-733, Shared/EdmConfig, server EdmService).
--- Reads the FashionGame attribute ClubEdm and works on the club music Sound
--- (DanceController's "ClubMusic"):
---   - an EQ of its own for the bass: cut away during a build-up, a little extra
---     on the drop (the DJ's filter / bass / flanger sliders are gone, D-734)
---   - echo (half a beat)
---   - pump: the song's SoundGroup sits in a group of ours whose volume dips on
---     every beat
---   - kick and hi-hats: one-shot sounds on the beat, as loud as the music is here
--- The beat: the DJ's kick tempo, else EdmConfig.Bpm[soundId] (the DJ's speed
--- carries over), counted from the song's start (ClubTrackStart).
+-- The DJ's EDM button on every client (D-733 → D-735; Shared/EdmConfig,
+-- server EdmService). Reads the FashionGame attribute ClubEdm:
+--   on   the club song is muted (a SoundGroup of ours above the song's own
+--        group, so DanceController keeps playing it in time underneath) and
+--        the EDM track plays instead, looped, as loud as the song would be here
+--   speed / pos / at   where the EDM track is and how fast it runs
+-- The EDM track's own sound (speed × tempo, octave, EQ, boost) works like a
+-- lab track in the playlist (ClubConfig.labEffective / octaveParts).
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -32,133 +29,76 @@ local function make(className: string, props: {[string]: any}, parent: Instance)
 	return instance
 end
 
--- effects on the song (after DanceController's own: higher Priority runs first)
-local bassEq = make("EqualizerSoundEffect", { Name = "EdmBass", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 29 }, music)
-local echo = make("EchoSoundEffect", { Name = "EdmEcho", Delay = 0.25, Feedback = 0.35, WetLevel = -6, DryLevel = 0, Enabled = false, Priority = 27 }, music)
-
--- pump: our group above the song's own group (nested SoundGroups multiply)
-local pumpGroup = make("SoundGroup", { Name = "EdmPump", Volume = 1 }, SoundService)
+-- the song's mute: our group above the song's own (nested SoundGroups multiply)
+local songMute = make("SoundGroup", { Name = "EdmSongMute", Volume = 1 }, SoundService)
 local function hookGroup()
 	local group = music.SoundGroup
-	if group and group ~= pumpGroup and group.Parent ~= pumpGroup then group.Parent = pumpGroup end
+	if group and group ~= songMute and group.Parent ~= songMute then group.Parent = songMute end
 end
 music:GetPropertyChangedSignal("SoundGroup"):Connect(hookGroup)
 hookGroup()
 
--- drums (not ducked by the pump)
-local drumGroup = make("SoundGroup", { Name = "EdmDrums", Volume = 1 }, SoundService)
-local function oneShot(id: number, name: string): Sound
-	return make("Sound", { Name = name, SoundId = "rbxassetid://" .. id, SoundGroup = drumGroup, Volume = 0 }, drumGroup)
-end
-local kicks = { oneShot(EdmConfig.Sounds.kick, "Kick1"), oneShot(EdmConfig.Sounds.kick, "Kick2") }
-local hats = { oneShot(EdmConfig.Sounds.hat, "Hat1"), oneShot(EdmConfig.Sounds.hat, "Hat2") }
-local riser = oneShot(EdmConfig.Sounds.riser, "Riser")
-local kickTurn, hatTurn = 1, 1
-local function hit(list: {Sound}, turn: number, volume: number): number
-	local s = list[turn]
-	s.Volume = volume
-	s.TimePosition = 0
-	s:Play()
-	return turn % #list + 1
+-- the EDM track
+local lab = EdmConfig.Track.lab
+local playSpeed, octave = ClubConfig.labEffective(lab)
+-- (the DJ's volume on a group of its own above the boost: one group stops at 10)
+local edmVolume = make("SoundGroup", { Name = "EdmVolume", Volume = 1 }, SoundService)
+local edmGroup = make("SoundGroup", { Name = "EdmTrack", Volume = lab.boost }, edmVolume)
+local edm = make("Sound", {
+	Name = "EdmMusic", SoundId = "rbxassetid://" .. EdmConfig.Track.soundId, Looped = true, Volume = 0, SoundGroup = edmGroup,
+}, edmGroup) :: Sound
+do
+	local parts = if math.abs(octave - 1) < 1e-4 then {} else ClubConfig.octaveParts(octave)
+	for i, part in ipairs(parts) do
+		make("PitchShiftSoundEffect", { Name = "EdmPitch" .. i, Octave = part, Priority = 10 - i }, edm)
+	end
+	if lab.low ~= 0 or lab.mid ~= 0 or lab.high ~= 0 then
+		make("EqualizerSoundEffect", { Name = "EdmEQ", LowGain = lab.low, MidGain = lab.mid, HighGain = lab.high, Priority = 20 }, edm)
+	end
 end
 
-type State = { kick: boolean, pump: boolean, echo: boolean, bpm: number?, dropAt: number? }
-local state: State = { kick = false, pump = false, echo = false }
-local function read()
+task.spawn(function()
+	pcall(function() game:GetService("ContentProvider"):PreloadAsync({ edm }) end)
+end)
+
+type State = { on: boolean, speed: number, pos: number, at: number }
+local state: State = { on = false, speed = 1, pos = 0, at = 0 }
+FashionGame:GetAttributeChangedSignal("ClubEdm"):Connect(function()
 	local raw = FashionGame:GetAttribute("ClubEdm")
 	if typeof(raw) ~= "string" then return end
 	local ok, decoded = pcall(function() return HttpService:JSONDecode(raw) end)
 	if ok and typeof(decoded) == "table" then state = decoded :: any end
-end
-FashionGame:GetAttributeChangedSignal("ClubEdm"):Connect(read)
-read()
-
-local function num(name: string, default: number): number
-	local v = FashionGame:GetAttribute(name)
-	return if typeof(v) == "number" then v else default
-end
-
--- beat length in server seconds and the server time of a beat
-local function beat(): (number, number)
-	local anchor = num("ClubTrackStart", 0)
-	if state.bpm then return 60 / state.bpm, anchor end -- (the DJ's kick tempo, as heard)
-	local track = ClubConfig.Playlist[num("ClubTrack", 0)]
-	local bpm = (track and EdmConfig.Bpm[track.soundId]) or EdmConfig.Default
-	return 60 / (bpm * num("ClubMusicSpeed", 1)), anchor
+end)
+do
+	local raw = FashionGame:GetAttribute("ClubEdm")
+	if typeof(raw) == "string" then
+		local ok, decoded = pcall(function() return HttpService:JSONDecode(raw) end)
+		if ok and typeof(decoded) == "table" then state = decoded :: any end
+	end
 end
 
-local lastBeat, lastHalf, lastRoll = -1, -1, -1
-local riserFor = 0 -- the dropAt the riser was started for
-local dropHitFor = 0
-
-RunService.RenderStepped:Connect(function()
-	local now = workspace:GetServerTimeNow()
-	local playing = music.IsPlaying and music.Volume > 0 and FashionGame:GetAttribute("ClubMusicPaused") ~= true
-	local level = math.clamp(music.Volume / 10, 0, 1)
-	local period, anchor = beat()
-	local t = (now - anchor) / period
-	local index = math.floor(t)
-	local frac = t - index
-
-	-- build-up and drop
-	local dropAt = state.dropAt
-	local building, dropped = false, false
-	local buildProgress = 0
-	if typeof(dropAt) == "number" then
-		local buildStart = dropAt - period * EdmConfig.BuildBeats
-		if now >= buildStart and now < dropAt then
-			building = true
-			buildProgress = (now - buildStart) / (dropAt - buildStart)
-			if riserFor ~= dropAt and playing then
-				riserFor = dropAt
-				riser.Volume = EdmConfig.Volumes.riser * level
-				riser.PlaybackSpeed = math.clamp((riser.TimeLength > 0 and riser.TimeLength or 6) / (dropAt - now), 0.5, 2)
-				riser.TimePosition = 0
-				riser:Play()
-			end
-		elseif now >= dropAt and now < dropAt + period * EdmConfig.DropBeats then
-			dropped = true
-			if dropHitFor ~= dropAt then
-				dropHitFor = dropAt
-				riser:Stop()
-				if playing then kickTurn = hit(kicks, kickTurn, EdmConfig.Volumes.kick * 1.6 * level) end
-			end
-		end
+RunService.Heartbeat:Connect(function()
+	local on = state.on == true and edm.IsLoaded and edm.TimeLength > 0
+	-- the DJ's volume (ClubMusicVolume): here for lab tracks and the EDM track,
+	-- DanceController does the other songs (their Sound is below 10)
+	local djVolume = FashionGame:GetAttribute("ClubMusicVolume")
+	djVolume = if typeof(djVolume) == "number" then djVolume else 1
+	local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
+	songMute.Volume = if on then 0 elseif track and track.lab then djVolume else 1
+	if not on then
+		if edm.IsPlaying then edm:Stop() end
+		return
 	end
-
-	-- (a drop switched off part way: the riser stops too)
-	if not building and riser.IsPlaying then riser:Stop() end
-	-- bass: cut away while building, a little extra on the drop
-	local low = if building then -40 * buildProgress elseif dropped then 4 else 0
-	bassEq.LowGain = low
-	bassEq.Enabled = math.abs(low) > 0.1
-	echo.Enabled = state.echo == true
-	echo.Delay = math.clamp(period / 2, 0.05, 1)
-
-	-- pump
-	local pumping = (state.pump == true or dropped) and playing
-	pumpGroup.Volume = if pumping then 1 - EdmConfig.PumpDepth * math.exp(-frac * 6) else 1
-
-	-- drums
-	local kickOn = (state.kick == true or dropped) and playing and not building
-	if index ~= lastBeat then
-		lastBeat = index
-		-- (the drop's own big kick is this beat's kick)
-		local dropBeat = dropped and typeof(dropAt) == "number" and now - dropAt < period * 0.5
-		if kickOn and not dropBeat then kickTurn = hit(kicks, kickTurn, EdmConfig.Volumes.kick * level) end
-	end
-	local half = math.floor(t * 2)
-	if half ~= lastHalf then
-		lastHalf = half
-		if kickOn and half % 2 == 1 then hatTurn = hit(hats, hatTurn, EdmConfig.Volumes.hat * level) end
-	end
-	-- the build-up's hi-hat roll: quarter, eighth, then sixteenth notes
-	if building and playing then
-		local step = if buildProgress < 0.5 then 1 elseif buildProgress < 0.75 then 2 else 4
-		local roll = math.floor(t * step)
-		if roll ~= lastRoll then
-			lastRoll = roll
-			hatTurn = hit(hats, hatTurn, EdmConfig.Volumes.hat * (0.6 + buildProgress) * level)
-		end
+	edmVolume.Volume = djVolume
+	edm.Volume = music.Volume -- (the song's level here: zones, the photo booth's mute)
+	local speed = if typeof(state.speed) == "number" then state.speed else 1
+	edm.PlaybackSpeed = playSpeed * speed
+	local heard = (state.pos or 0) + (workspace:GetServerTimeNow() - (state.at or 0)) * speed
+	local want = (heard * playSpeed) % edm.TimeLength
+	if not edm.IsPlaying then
+		edm.TimePosition = want
+		edm:Play()
+	elseif math.abs(edm.TimePosition - want) > 0.35 and math.abs(edm.TimePosition - want) < edm.TimeLength - 0.35 then
+		edm.TimePosition = want
 	end
 end)

@@ -1519,3 +1519,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - DjHelp: ? 버튼 → "턴테이블 버튼 설명" 창(DJ·조명·EDM·곡 칸마다 설명).
 - ClubConfig 9곡 lab.boost 2 → 4.
 - Studio Play: 드롭 → 다시 누르면 dropAt 지워지고 상승음 멈춤, 배속 x1.25 적용, 킥 140 BPM, 그룹 볼륨 4, ? 창 표시.
+
+## D-735 (2026-11-01) EDM 버튼 + 속도·볼륨 슬라이더, 부스트 6
+- 사용자: 킥·펌핑·드롭·에코 삭제. 전체 음원 부스트 6. EDM 버튼(ON/OFF) + EDM 속도 슬라이더, 노래 속도 슬라이더, 볼륨 슬라이더. 나중에 EDM 음원 id를 주면 EDM 버튼이 그 음원을 틀게, 지금은 임시로 Get A Guitar. ?의 설명서에서 삭제한 것들 빼기.
+- EdmPanel: [🎛 EDM ON/OFF] ━●━ x1.00 / 🎵 노래 속도 ━●━ x1.00(0.5~2, MusicSpeed) / 🔊 볼륨 ━●━ x1.0(0~3, MusicVolume).
+- EDM ON: 클럽 모두 노래 대신 EdmConfig.Track(지금 Get A Guitar, lab 값 그대로)이 반복 재생, 노래는 밑에서 계속 흘러가고 OFF면 돌아옴. EdmService 상태 on·speed·pos·at(속도를 바꿔도 이어서).
+- 볼륨: SoundGroup은 10에서 멈춰(부스트 6 × 볼륨 2 = 10) EdmController가 그 위 그룹(EdmSongMute / EdmVolume)에 DJ 볼륨을 곱함.
+- ClubConfig 9곡 boost 4 → 6. DjHelp에서 킥·펌핑·드롭·에코·배속 빼고 EDM·EDM 속도·노래 속도·볼륨 설명.
+- Studio Play: EDM ON → 노래 그룹 0, EDM 재생(0.335배속), 속도 1.5 → 0.502, 노래 속도 1.2·볼륨 2(6 × 2 = 12배) 적용, OFF → 노래 복귀.
