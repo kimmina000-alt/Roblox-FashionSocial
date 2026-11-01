@@ -107,7 +107,8 @@ function Coach.wants(key: string): boolean
 end
 
 local running: string? = nil
-local queue: {{ key: string, steps: {Step}, turn: boolean? }} = {}
+local queue: {{ key: string, steps: {Step}, turn: boolean?, onEnd: (() -> ())? }} = {}
+local endHook: (() -> ())? = nil -- (D-731) run when the tip ends, skipped or not
 -- (D-729) the camera turns round when this tip ends: the club tip leaves the
 -- camera facing the way its first view looked (at the lift, from the door)
 local turnAtEnd = false
@@ -225,9 +226,12 @@ finish = function(done: boolean, again: boolean?)
 		end
 	end
 	turnAtEnd = false
+	local hook = endHook
+	endHook = nil
+	if hook then pcall(hook) end
 	if not again then task.spawn(function() pcall(function() remote:InvokeServer("TipSeen", key) end) end) end
 	local nextRun = table.remove(queue, 1)
-	if nextRun then task.defer(Coach.run, nextRun.key, nextRun.steps, nextRun.turn) end
+	if nextRun then task.defer(Coach.run, nextRun.key, nextRun.steps, nextRun.turn, nextRun.onEnd) end
 end
 
 nextButton.Activated:Connect(function()
@@ -301,18 +305,20 @@ function Coach.hold(on: boolean)
 	held = on
 end
 
--- turn: the camera turns round at the end (D-729)
-function Coach.run(key: string, list: {Step}, turn: boolean?)
+-- turn: the camera turns round at the end (D-729); onEnd: called when the
+-- tip ends, finished or skipped (D-731)
+function Coach.run(key: string, list: {Step}, turn: boolean?, onEnd: (() -> ())?)
 	if held or not Coach.wants(key) then return end
 	if running then
 		if running ~= key then
 			for _, waiting in ipairs(queue) do if waiting.key == key then return end end
-			table.insert(queue, { key = key, steps = list, turn = turn })
+			table.insert(queue, { key = key, steps = list, turn = turn, onEnd = onEnd })
 		end
 		return
 	end
 	running = key
 	turnAtEnd = turn == true
+	endHook = onEnd
 	player:SetAttribute("GuideActive", true) -- (louder ambience, SfxController)
 	steps = table.clone(list)
 	index = 1

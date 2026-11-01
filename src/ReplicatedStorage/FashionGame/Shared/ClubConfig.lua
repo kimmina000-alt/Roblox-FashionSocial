@@ -90,6 +90,12 @@ function ClubConfig.octaveParts(t: number): {number}
 	return list
 end
 
+-- the name shown for a track: a 🎵 after it when its choreography is danced
+-- (autoChoreo; Bubble Pop's older one is kept but not danced) (D-731)
+function ClubConfig.showTitle(track: Track): string
+	return track.title .. (if track.choreo and track.autoChoreo then " 🎵" else "")
+end
+
 -- how fast a track's audio runs: its own base speed (or its lab
 -- PlaybackSpeed) times the DJ's speed
 function ClubConfig.trackRate(track: Track?, djSpeed: any): number

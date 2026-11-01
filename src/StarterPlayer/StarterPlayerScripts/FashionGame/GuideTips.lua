@@ -85,6 +85,11 @@ end
 --------------------------------------------------
 
 local CAT = "FashionCatalogGui"
+-- the catalog's big window on / off (CatalogController listens to ↗'s Want)
+local function catalogBig(on: boolean)
+	local button = find(CAT, "ExpandButton")()
+	if button then button:SetAttribute("Want", on) end
+end
 local CATALOG: {Coach.Step} = {
 	{ title = "👗 카탈로그", text = "Roblox의 옷·장신구를 찾아 바로 입어 보는 곳이에요. 하나씩 알려 드릴게요." },
 	{ title = "🔍 검색", text = "아이템 이름을 써서 찾아요.", target = find(CAT, "SearchBox") },
@@ -93,7 +98,11 @@ local CATALOG: {Coach.Step} = {
 	{ title = "빠른 메뉴", text = "최근 본 것, 인기, ★ 즐겨찾기, 착용 중, ⚙ 아바타 편집, 옷장. 옆으로 밀면 더 나와요.", target = find(CAT, "DiscoveryBar") },
 	{ title = "아이템", text = "[WEAR]를 누르면 바로 입어요. ★를 누르면 즐겨찾기에 담아요. 아래로 내리면 더 많이 나와요.", target = find(CAT, "Results") },
 	{ title = "필터", text = "가격·제작자·정렬로 결과를 걸러요.", target = find(CAT, "FixedFilterButton") },
-	{ title = "미리보기", text = "지금 내 모습이에요. 끌면 돌아가고, 휠·두 손가락으로 크게 볼 수 있어요.", target = find(CAT, "AvatarViewport") },
+	-- (D-731, user: the ↗ button first, then the big window for the rest; it
+	-- closes again when the tip ends, catalogBig below)
+	{ title = "↗ 크게 보기", text = "이 버튼을 누르면 카탈로그가 크게 열려요. 내 모습 미리보기, 아바타 편집·옷장, 착용 중인 아이템이 함께 나와요.", target = find(CAT, "ExpandButton") },
+	{ title = "미리보기", text = "지금 내 모습이에요. 끌면 돌아가고, 휠·두 손가락으로 크게 볼 수 있어요.",
+		before = function() catalogBig(true) end, target = find(CAT, "AvatarViewport") },
 	{ title = "⚙ 아바타 편집", text = "장신구의 위치·회전·크기를 세세하게 맞추고, 체형·피부색·메이크업 순서도 바꿔요.", target = find(CAT, "AvatarEditorButton") },
 	{ title = "▣ 옷장", text = "지금 입은 코디를 이름 붙여 저장하고, 나중에 한 번에 다시 입어요.", target = find(CAT, "WardrobeButton") },
 	{ title = "착용 중인 아이템", text = "입고 있는 것들이에요. [× 해제]로 하나씩 벗어요.", target = find(CAT, "CurrentOutfitFrame") },
@@ -204,9 +213,9 @@ local CLUB: {Coach.Step} = {
 	{ title = "♪ 춤 버튼", text = "오른쪽 위 ♪ 버튼으로 춤을 골라 지금 나오는 곡에 맞춰 춰요.", target = function() return TopBar.button(1) end },
 	{ title = "노래 목록 · › 스킵", text = "노래 제목 왼쪽 목록 버튼(줄 세 개)에서 다음에 들을 곡을 예약하고, 오른쪽 ›로 스킵 투표를 해요. 클럽 사람 절반이 찬성하면 넘어가요.", target = find(DANCE_GUI, "NowPlaying") },
 	{ title = "🍹 바텐더", text = "바에 있는 바텐더에게 '음료 주문'을 눌러 음료(무알코올)를 골라요. 무료 음료도 있어요.", camera = bartenderView },
-	{ title = "🍾 음료를 테이블에", text = "음료 병을 든 채 테이블을 누르면 모든 사람·친구만·나만 중에 골라 테이블에 놓아요. 테이블이 아닌 곳을 누르면 병째 마셔요.",
+	{ title = "🍾 음료를 테이블에", text = "음료 병을 든 채 테이블을 누르면 모든 사람·친구만·나만 중에 골라 테이블에 놓아요. 한 번 놓은 음료는 회수할 수 없어요. 테이블이 아닌 곳을 누르면 병째 마셔요.",
 		camera = viewOfPart(CLUB_TABLE, 12, 5) },
-	{ title = "🥂 테이블에서 마시기", text = "버킷 음료는 눌러서 한 잔씩 따라 마셔요. 내가 놓은 병을 누르면 다시 손에 들어요.",
+	{ title = "🥂 테이블에서 마시기", text = "테이블 위 버킷을 누르면 한 잔씩 따라 마셔요.",
 		camera = viewOfPart(CLUB_TABLE, 8, 4) },
 	{ title = "🎆 불꽃 판매원", text = "바텐더 옆 판매원에게서 스파클러, 스파클러 세트, 무대 콜드 스파크를 사요. 스파클러를 든 채 병을 누르면 불꽃이 튀어요.", camera = sellerView },
 	{ title = "🎧 DJ", text = "DJ 부스의 '디제잉하기'에서 DJ 시간을 사면 차례가 와요. DJ는 곡·속도·조명을 바꾸고 큰 전광판에 나와요.", camera = djView },
@@ -304,7 +313,7 @@ local PHOTO: {Coach.Step} = {
 --------------------------------------------------
 
 -- runs `key` the first time `object` (found later, maybe) becomes visible
-local function onShown(key: string, steps: {Coach.Step}, getObject: () -> Instance?, only: (() -> boolean)?)
+local function onShown(key: string, steps: {Coach.Step}, getObject: () -> Instance?, only: (() -> boolean)?, onEnd: (() -> ())?)
 	task.spawn(function()
 		local object: Instance? = nil
 		while not object do
@@ -314,7 +323,7 @@ local function onShown(key: string, steps: {Coach.Step}, getObject: () -> Instan
 		local gui = object :: GuiObject
 		local function check()
 			if gui.Visible and Coach.wants(key) and (not only or only()) then task.delay(0.4, function()
-				if gui.Visible then Coach.run(key, steps) end
+				if gui.Visible then Coach.run(key, steps, nil, onEnd) end
 			end) end
 		end
 		gui:GetPropertyChangedSignal("Visible"):Connect(check)
@@ -326,7 +335,7 @@ function GuideTips.start()
 	onShown("catalog", CATALOG, function()
 		local g = playerGui:FindFirstChild(CAT)
 		return g and g:FindFirstChild("MainFrame")
-	end)
+	end, nil, function() catalogBig(false) end) -- (D-731: the big window closes at the end)
 	onShown("bag", BAG, function()
 		local g = playerGui:FindFirstChild("FashionInventoryGui")
 		return g and g:FindFirstChild("Bag")

@@ -1685,6 +1685,18 @@ expandButton.MouseButton1Click:Connect(function()
 		refreshAvatarPreview()
 	end
 end)
+-- (D-731) the catalog tip opens / closes the big window: attribute Want on ↗
+-- (true / false), cleared once done (no new locals here: the 200 limit)
+expandButton:GetAttributeChangedSignal("Want"):Connect(function()
+	local want = expandButton:GetAttribute("Want")
+	if typeof(want) ~= "boolean" then return end
+	expandButton:SetAttribute("Want", nil)
+	if want == expandedPanel or (not want and avatarEditor and avatarEditor:isOpen()) then return end
+	expandedPanel = want
+	if want then previewManuallyClosed = false end
+	updateCatalogLayout()
+	if want then refreshAvatarPreview() end
+end)
 
 --------------------------------------------------
 -- CATEGORY LOOKUP

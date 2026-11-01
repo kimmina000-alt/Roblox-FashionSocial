@@ -637,7 +637,7 @@ local function chooseVisibility(tablePart: Instance)
 			end
 		end })
 	end
-	showModal("누가 마실 수 있게 할까요?", "고른 사람들이 테이블 위 병(버킷)을 눌러 마실 수 있어요.", buttons, true)
+	showModal("누가 마실 수 있게 할까요?", "고른 사람들이 테이블 위 병(버킷)을 눌러 마실 수 있어요. 한 번 테이블에 놓은 음료는 회수할 수 없어요.", buttons, true)
 end
 local visibilityAsk = Instance.new("BindableEvent")
 visibilityAsk.Name = "ClubChooseVisibility"

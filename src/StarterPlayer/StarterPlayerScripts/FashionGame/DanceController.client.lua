@@ -1184,12 +1184,12 @@ local function syncMusic()
 		local at = FashionGame:GetAttribute("ClubMusicPausedAt")
 		music:Pause()
 		if typeof(at) == "number" then music.TimePosition = math.clamp(at, 0, math.max(music.TimeLength - 0.5, 0)) end
-		banner.Text = "⏸ PAUSED · " .. track.channel .. " · " .. track.title
+		banner.Text = "⏸ PAUSED · " .. track.channel .. " · " .. ClubConfig.showTitle(track)
 		return
 	end
 	music.TimePosition = math.clamp((workspace:GetServerTimeNow() - start) * speed, 0, math.max(music.TimeLength - 0.5, 0))
 	if not music.IsPlaying then music:Play() end
-	banner.Text = "♪ NOW PLAYING · " .. track.channel .. " · " .. track.title
+	banner.Text = "♪ NOW PLAYING · " .. track.channel .. " · " .. ClubConfig.showTitle(track) -- (🎵 = a choreography, D-731)
 end
 FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubTrackStart"):Connect(function() task.spawn(syncMusic) end)

@@ -9,7 +9,7 @@
 --   * sparkler in hand + tap a bottle/bucket → sparks over it
 --   * sparkler bucket set + tap a table      → the set goes on it
 --   * tap a bucket                           → a cup of it in the hand
---   * tap your own tier-1 bottle             → back in the hand
+--   (a placed drink is never taken back: every one is a bucket since 2026-10-28)
 -- Taps on the screen (TouchTapInWorld) or short mouse clicks; the server
 -- checks everything again.
 
@@ -61,9 +61,10 @@ local function call(action: string, payload: any)
 	end)
 end
 
+-- (D-731: VIP players too, as the server has done since 2026-10-28; a bucket
+-- drink gets the server's "put it on a table" answer)
 local function tierOneBottle(tool: Tool): boolean
-	local drink = ClubConfig.findDrink(tool:GetAttribute("Bottle"))
-	return drink ~= nil and drink.tier == 1 and player:GetAttribute("Pass_VIP") ~= true
+	return ClubConfig.findDrink(tool:GetAttribute("Bottle")) ~= nil
 end
 
 -- What a hit means for the thing in hand. One tap can arrive twice (the

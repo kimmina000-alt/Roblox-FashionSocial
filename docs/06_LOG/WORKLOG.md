@@ -2955,3 +2955,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 노래 띠 위치 · 클럽 안내 뒤 방향 (D-729)
 ![](images/2026-11-01/club_tip_banner_top_D729.jpg) ![](images/2026-11-01/club_tip_skip_turned_D729.jpg)
+
+### 카탈로그 크게 보기 안내 (D-731)
+![](images/2026-11-01/catalog_expand_tip_D731.jpg) ![](images/2026-11-01/catalog_big_preview_D731.jpg)

@@ -623,7 +623,7 @@ local function renderTracks()
 			Position = UDim2.fromOffset(8, 0),
 			Size = UDim2.new(1, if dj then (if compactNow then -110 else -150) else (if compactNow then -62 else -86), 1, 0),
 			BackgroundTransparency = 1,
-			Text = track.title .. "  ·  " .. track.channel,
+			Text = ClubConfig.showTitle(track) .. "  ·  " .. track.channel, -- (🎵 = a choreography, D-731)
 			TextXAlignment = Enum.TextXAlignment.Left,
 			TextTruncate = Enum.TextTruncate.AtEnd,
 			TextColor3 = COLORS.text,
@@ -658,7 +658,7 @@ local function refresh()
 	local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
 	local by = nameOf(FashionGame:GetAttribute("ClubTrackBy"))
 	nowLabel.Text = if track
-		then "♪ " .. track.title .. (if by ~= "" then "  ·  " .. by .. "님 선곡" else "")
+		then "♪ " .. ClubConfig.showTitle(track) .. (if by ~= "" then "  ·  " .. by .. "님 선곡" else "")
 		else "♪ -"
 	local djId = FashionGame:GetAttribute("ClubDJ") or 0
 	local untilTime = FashionGame:GetAttribute("ClubDJUntil") or 0
@@ -709,7 +709,7 @@ local function refresh()
 	for position, entry in ipairs(requests()) do
 		local queued = ClubConfig.Playlist[entry.i]
 		if queued and position <= 4 then
-			table.insert(lines, string.format("%d. %s · %s", position, queued.title, nameOf(entry.u)))
+			table.insert(lines, string.format("%d. %s · %s", position, ClubConfig.showTitle(queued), nameOf(entry.u)))
 		end
 	end
 	queueLabel.Text = if #lines > 0 then "다음 곡\n" .. table.concat(lines, "\n") else "다음 곡: 자동 재생"
