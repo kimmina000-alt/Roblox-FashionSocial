@@ -1628,3 +1628,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-756 (2026-11-02) 안무 표시 🎵를 제목 앞에, 더 작게
 - 사용자 요청. ClubConfig.showTitle(track, textSize): `<font size="70%">🎵</font> 제목`(리치 텍스트, 제목·닉네임은 &<> 이스케이프). 상단 노래 배너, DJ 창 지금 곡·곡 목록·다음 곡 라벨에 RichText.
 - Studio Play: 배너 "♪ NOW PLAYING · K-POP · 🎵RIIZE-Get A Guitar"(🎵 9px, 글자 13px).
+
+## D-757 (2026-11-02) PC DJ 창도 노래 목록을 따로
+- 사용자 요청: 모바일처럼 PC도. DJ 창(🎧 디제잉)은 왼쪽 위, 노래 목록 창(🎵 음악: 검색·곡 목록·다음 곡)은 오른쪽 위. PC의 디제잉 창은 들어 있는 만큼만 높이. 폰은 그대로.
+- 음원·설정값 정리 문서: docs/04_ART/CLUB_PLAYLIST.md (41곡, 저장 값 UP, 랩용 soundId 표).
+- Studio Play(PC 화면): 디제잉 340×374 왼쪽, 목록 340×560 오른쪽.

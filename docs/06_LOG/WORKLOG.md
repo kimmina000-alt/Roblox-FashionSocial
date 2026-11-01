@@ -3019,3 +3019,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 
 ### 안무 표시 앞으로 (D-756)
 ![](images/2026-11-02/d756_choreo_mark_front.jpg)
+
+### PC DJ 창 나누기 (D-757)
+![](images/2026-11-02/d757_pc_dj_split.jpg)
+- 왼쪽 디제잉, 오른쪽 노래 목록(모바일과 같은 배치). 음원·설정값 정리: docs/04_ART/CLUB_PLAYLIST.md.

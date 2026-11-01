@@ -381,7 +381,7 @@ local queueLabel = create("TextLabel", {
 	Font = Enum.Font.GothamMedium,
 }, panel)
 
--- right-hand popup for the song list on phones (the list moves in here)
+-- right-hand popup for the song list (phones, and PC since D-757; the list moves in here)
 local listPanel = create("Frame", {
 	Name = "MusicListPanel",
 	BackgroundColor3 = COLORS.panel,
@@ -461,29 +461,24 @@ local function layout()
 	compactNow = compact
 	local width = if compact then math.clamp(math.floor(viewport.X * 0.3), 210, 300) else math.clamp(math.floor(viewport.X * 0.36), 260, 340)
 	local height = math.min(viewport.Y - top - 8, 560)
-	-- (D-737) a window at the right edge hangs from its right corner: the tip's
-	-- grow (Spotlight's UIScale works round the AnchorPoint) goes left, not off screen
-	if compact then
-		panel.AnchorPoint = Vector2.zero
-		panel.Position = UDim2.new(0, 12, 0, top)
-		listPanel.Position = UDim2.new(1, -width - 12, 0, top)
-		listPanel.Size = UDim2.fromOffset(width, height)
-	else
-		panel.AnchorPoint = Vector2.new(1, 0)
-		panel.Position = UDim2.new(1, -12, 0, top)
-	end
+	-- (D-757, user: on PC too, as on phones) two windows: 디제잉 at the left
+	-- edge, the song list (🎵 음악) at the right edge. (Before, the PC window
+	-- held both, at the right edge.)
+	panel.AnchorPoint = Vector2.zero
+	panel.Position = UDim2.new(0, 12, 0, top)
+	listPanel.Position = UDim2.new(1, -width - 12, 0, top)
+	listPanel.Size = UDim2.fromOffset(width, height)
 	panel.Size = UDim2.fromOffset(width, height)
 	local W, H = width - 20, height - 20
 	local leftW = W
-	local listParent = if compact then listPanel else panel
 	for _, item in ipairs({ listTitle, searchBox, trackList, queueLabel } :: {GuiObject}) do
-		if item.Parent ~= listParent then item.Parent = listParent end
+		if item.Parent ~= listPanel then item.Parent = listPanel end
 	end
-	listPanel.Visible = compact and panel.Visible
+	listPanel.Visible = panel.Visible
 	local nowLabel = panel:FindFirstChild("NowLabel") :: TextLabel
 	local header = panel:FindFirstChild("Header") :: TextLabel
 	header.Size = UDim2.new(0, leftW - 68, 0, 24) -- (room for ? and X)
-	header.Text = if compact then "🎧 디제잉" else "음악"
+	header.Text = "🎧 디제잉"
 	nowLabel.Position = UDim2.fromOffset(0, if compact then 26 else 32)
 	nowLabel.Size = UDim2.fromOffset(leftW, if compact then 18 else 22)
 	nowLabel.TextSize = if compact then 13 else 16
@@ -527,20 +522,19 @@ local function layout()
 		y += 1 + 6
 		y += edmPanel.place(y, leftW, compact) + 6
 	end
+	listTitle.Position = UDim2.fromOffset(0, 28)
+	listTitle.Size = UDim2.new(1, 0, 0, 18)
+	searchBox.Position = UDim2.fromOffset(0, 48)
+	trackList.Position = UDim2.fromOffset(0, 78)
 	if compact then
-		listTitle.Position = UDim2.fromOffset(0, 28)
-		listTitle.Size = UDim2.new(1, 0, 0, 18)
-		searchBox.Position = UDim2.fromOffset(0, 48)
-		trackList.Position = UDim2.fromOffset(0, 78)
 		trackList.Size = UDim2.new(1, 0, 1, -78)
 		queueLabel.Visible = false
 	else
-		listTitle.Position = UDim2.fromOffset(0, y)
-		listTitle.Size = UDim2.new(1, 0, 0, 22)
-		searchBox.Position = UDim2.fromOffset(0, y + 24)
-		trackList.Position = UDim2.fromOffset(0, y + 54)
-		trackList.Size = UDim2.new(1, 0, 1, -(y + 54) - 74)
+		-- (PC: room for the next songs under the list; the 디제잉 window only as
+		-- tall as what it holds)
+		trackList.Size = UDim2.new(1, 0, 1, -78 - 74)
 		queueLabel.Visible = true
+		panel.Size = UDim2.fromOffset(width, math.min(height, y + 20))
 	end
 end
 layout()
@@ -783,7 +777,7 @@ local openedAt: Vector3? = nil
 local Popups = require(script.Parent:WaitForChild("Popups"))
 local function setPanelOpen(open: boolean)
 	panel.Visible = open
-	listPanel.Visible = open and compactNow
+	listPanel.Visible = open -- (PC too since D-757)
 	if not open then Popups.closed("ClubMusic") end
 	if open then
 		Popups.opened("ClubMusic", function() setPanelOpen(false) end)
