@@ -148,10 +148,19 @@ ClubConfig.TempoStep = 0.1
 -- list). Clicking a player works anywhere inside the club.
 ClubConfig.JoinRadius = 90
 
+-- (D-745, user: "숨겨 놔, 나중에 쓸 거임") the lab values the user tuned by ear
+-- for their own sped-up uploads (docs/04_ART/OLD_CLUB_PLAYLIST.md). Used again
+-- by the user's K-POP uploads since D-755.
+ClubConfig.SavedLabs = {
+	userUpload = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" },
+} :: {[string]: Lab}
+local UP = ClubConfig.SavedLabs.userUpload
+
 -- Shared club music. One track plays for everyone; the channel name is shown.
 -- (user 2026-11-02, D-739: only Roblox's own licensed music — DistroKid on the
 -- Creator Store, offered by Roblox — every K-POP upload before taken out; the
--- Bubble Pop / Get A Guitar choreographies went with them.)
+-- Bubble Pop / Get A Guitar choreographies went with them; D-755: the user's
+-- K-POP uploads back after them, with the saved lab values.)
 -- (D-745, user: default sound, no lab values: they play as uploaded at
 -- ClubConfig.MusicVolume, the DJ's 🔊 slider on top)
 ClubConfig.Playlist = {
@@ -167,14 +176,41 @@ ClubConfig.Playlist = {
 	{ channel = "DISCO", title = "Disco Inferno", soundId = 87243738678545, length = 135 },
 	{ channel = "EDM", title = "Festival Fever", soundId = 136228548293465, length = 103 },
 	{ channel = "EDM", title = "Euphoria Dance", soundId = 76814968175069, length = 99 },
+	-- (D-755, user 2026-11-02: "음원도 추가해라", the saved lab values on all of
+	-- them) the user's K-POP uploads: the 9 from before D-739 with their
+	-- choreographies, and 20 new. length = seconds at x1 (heard: ÷ 0.335).
+	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = UP },
+	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = UP },
+	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = UP, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = UP, choreo = { 119819611123433, 97097804325917, 119200924904137, 77403973851668, 73939357849033, 137390866303201,
+		121969021575883, 92148657532352, 96742563282745, 88430566939812, 108795638313983, 95813030011960, 135272998171625,
+		129447992418977, 82252722293006, 108611133102309, 117244778152210, 113505968174557, 112498417388469, 80874196383963 }, autoChoreo = true },
+	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = UP },
+	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = UP },
+	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = UP },
+	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = UP },
+	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = UP },
+	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 74555169365877, length = 74, lab = UP },
+	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 113196766736048, length = 71, lab = UP },
+	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 92011448544342, length = 61, lab = UP },
+	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 99853291768808, length = 61, lab = UP },
+	{ channel = "K-POP", title = "LUMIN-88", soundId = 110720215000082, length = 55, lab = UP },
+	{ channel = "K-POP", title = "헤이즈-빈틈을 채워 준 너에게", soundId = 76215165790142, length = 82, lab = UP },
+	{ channel = "K-POP", title = "LUMIN-HIDE", soundId = 112657196644886, length = 78, lab = UP },
+	{ channel = "K-POP", title = "MY:RAKL-오색 낙원", soundId = 89952029801748, length = 61, lab = UP },
+	{ channel = "K-POP", title = "Darla Jean-Dam Da Dee", soundId = 94857636654876, length = 73, lab = UP },
+	{ channel = "K-POP", title = "머무르-꿈꾸던 어른이 되었나요", soundId = 89442781401038, length = 69, lab = UP },
+	{ channel = "K-POP", title = "IVE-Looks Can Kill", soundId = 106717797623758, length = 64, lab = UP },
+	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 71227645100967, length = 67, lab = UP },
+	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 125162124703337, length = 62, lab = UP },
+	{ channel = "K-POP", title = "IOI-갑자기", soundId = 82649881602599, length = 65, lab = UP },
+	{ channel = "K-POP", title = "TAEYEON-만찬가", soundId = 85454054799377, length = 73, lab = UP },
+	{ channel = "K-POP", title = "IU-이 별로부터", soundId = 82037005465590, length = 75, lab = UP },
+	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 115957470310890, length = 54, lab = UP },
+	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 101304843634159, length = 65, lab = UP },
+	{ channel = "K-POP", title = "BIGBANG-BiiiG", soundId = 107790212422874, length = 55, lab = UP },
+	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 94498201288355, length = 48, lab = UP },
 } :: {Track}
-
--- (D-745, user: "숨겨 놔, 나중에 쓸 거임") the lab values the user tuned by ear
--- for their own sped-up uploads (docs/04_ART/OLD_CLUB_PLAYLIST.md). No track
--- uses them now; give a track `lab = ClubConfig.SavedLabs.userUpload` to bring them back.
-ClubConfig.SavedLabs = {
-	userUpload = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" },
-} :: {[string]: Lab}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside
 -- the club zone (parts tagged "ClubZone").

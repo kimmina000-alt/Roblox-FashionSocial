@@ -1618,3 +1618,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "오픈 기간에만 첫 접속 시 100 코인". 그동안은 테스트 값(D-418 TestStartCoins)이라 100 아래인 사람을 접속할 때마다 100으로 채웠음(다 쓰고 다시 들어오면 또 100).
 - EconomyConfig.WelcomeCoins = 100: 처음 한 번 +100, wallet.welcome에 기록, 8초 뒤 "🎉 오픈 기념 100 코인을 드렸어요!". 오픈 기간이 끝나면 nil(LAUNCH_CHECKLIST.md, ECONOMY.md §12).
 - Studio Play: 코인 100, 알림 뜸.
+
+## D-755 (2026-11-02) 사용자 K-POP 음원 29곡 다시 추가
+- 사용자 요청: "음원도 추가해라, 설정값은 마지막으로 저장해 놨던 값으로 다 적용". 로블록스 음악 12곡 뒤에 29곡: 예전 9곡(Bubble Pop 안무, Get A Guitar 자동 안무 🎵 그대로) + 새 20곡.
+- 모두 lab = ClubConfig.SavedLabs.userUpload(속도 1, 템포 0.335, 볼륨 10, 부스트 6, 옥타브 0.5, 저 -6 / 중 0.5 / 고 -7). length는 Studio에서 불러 잰 x1 길이(들리는 길이 = ÷ 0.335).
+- Studio Play: 곡 수 41, A2O LITE-NEON 재생 → 속도 0.335, 볼륨 10, EQ·피치 효과 붙음.
