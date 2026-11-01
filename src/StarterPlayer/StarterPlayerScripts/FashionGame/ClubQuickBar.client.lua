@@ -31,8 +31,8 @@ danceButton.Name = "Dance"
 danceButton.AnchorPoint = Vector2.new(0, 0.5)
 danceButton.Position = UDim2.new(0, 10, 0.45, 0)
 danceButton.Size = UDim2.fromOffset(56, 56)
-danceButton.BackgroundColor3 = Color3.fromRGB(255, 70, 170)
-danceButton.BackgroundTransparency = 0.1
+danceButton.BackgroundColor3 = Color3.new(0, 0, 0) -- (pink until 2026-11-01; user: see-through black)
+danceButton.BackgroundTransparency = 0.5
 danceButton.Text = ""
 danceButton.Parent = gui
 Instance.new("UICorner", danceButton).CornerRadius = UDim.new(1, 0)
@@ -71,17 +71,10 @@ local function sideButton(name: string): TextButton
 	local b = Instance.new("TextButton")
 	b.Name = name
 	b.Size = UDim2.fromOffset(SIDE, SIDE)
-	b.BackgroundColor3 = Color3.new(1, 1, 1)
-	b.BackgroundTransparency = 0.88
+	-- (no circle behind them since 2026-11-01, user: only the white marks)
+	b.BackgroundTransparency = 1
 	b.Text = ""
 	b.Visible = false
-	Instance.new("UICorner", b).CornerRadius = UDim.new(1, 0)
-	local edge = Instance.new("UIStroke")
-	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	edge.Color = Color3.new(1, 1, 1)
-	edge.Transparency = 0.5
-	edge.Thickness = 1
-	edge.Parent = b
 	return b
 end
 -- ≡ : three white bars, drawn like the top bar's ☰

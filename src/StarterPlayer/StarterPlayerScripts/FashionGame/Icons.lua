@@ -5,7 +5,9 @@
 -- (rev 2); coin and give are drawn by tools/dev/icons/draw_icons.ps1.
 
 return {
-	coin = "rbxassetid://125376576385689", -- (user's ₩ coin, 2026-11-01, docs/04_ART/icons/coin_won_v2.png; was 88375483293732)
+	-- (2026-11-01: the user's ₩ line drawing in gold with a dark edge,
+	-- docs/04_ART/icons/coin_won_v3.png; before: v2 125376576385689, 88375483293732)
+	coin = "rbxassetid://81001660486697",
 	bag = "rbxassetid://95921900076363", -- backpack
 	note = "rbxassetid://101715049079271",
 	give = "rbxassetid://92507739080371", -- hands + heart (old ♥ button)

@@ -101,8 +101,9 @@ TopBar.add(coins, 10)
 local Lighting = game:GetService("Lighting")
 local clock = Instance.new("TextLabel")
 clock.Name = "ClockPill"
--- (user 2026-11-01: no pill, white text with a strong black glow round it)
-clock.BackgroundTransparency = 1
+-- (2026-11-01: a glow without the pill was tried and taken back, user)
+clock.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
+clock.BackgroundTransparency = 0.5
 clock.TextColor3 = Color3.new(1, 1, 1)
 clock.TextSize = 15
 clock.Font = Enum.Font.GothamBold
@@ -110,30 +111,7 @@ clock.Text = ""
 clock:SetAttribute("Width", 80)
 clock:SetAttribute("Height", 27)
 clock.Parent = gui
-do
-	-- a hard black edge, then a softer, wider one for the glow
-	local edge = Instance.new("UIStroke")
-	edge.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
-	edge.Color = Color3.new(0, 0, 0)
-	edge.Thickness = 2
-	edge.Transparency = 0
-	edge.Parent = clock
-	local glow = clock:Clone()
-	glow:ClearAllChildren()
-	glow.Name = "Glow"
-	glow.AnchorPoint = Vector2.new(0.5, 0.5)
-	glow.Position = UDim2.fromScale(0.5, 0.5)
-	glow.Size = UDim2.fromScale(1, 1)
-	glow.ZIndex = clock.ZIndex - 1
-	local wide = Instance.new("UIStroke")
-	wide.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual
-	wide.Color = Color3.new(0, 0, 0)
-	wide.Thickness = 4.5
-	wide.Transparency = 0.45
-	wide.Parent = glow
-	glow.Parent = clock
-	clock:GetPropertyChangedSignal("Text"):Connect(function() glow.Text = clock.Text end)
-end
+corner(clock, UDim.new(1, 0))
 TopBar.add(clock, 11)
 
 local function refreshClock()

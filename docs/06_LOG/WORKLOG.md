@@ -2874,3 +2874,6 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 클럽 버튼·상단 바·코인 아이콘 (D-703)
 ![](images/2026-11-01/club_ui_D703.jpg)
+
+### 클럽 버튼 배경·코인 v3 (D-704)
+![](images/2026-11-01/club_ui_D704.jpg) ![](../04_ART/icons/coin_won_v3.png)

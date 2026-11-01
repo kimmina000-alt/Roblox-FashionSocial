@@ -60,7 +60,7 @@ end
 -- 🧪 (user 2026-11-01) the "Bubble Pop 틀기" test button in the club, for
 -- trying the choreography on a phone: shown in Studio and, on live servers,
 -- to the experience owner's account only. Set to false before the launch.
-ClubConfig.TestChoreoButton = true
+ClubConfig.TestChoreoButton = false -- (off 2026-11-01, user: "아래 테스트 삭제")
 function ClubConfig.canTestChoreo(player: Player): boolean
 	if not ClubConfig.TestChoreoButton then return false end
 	if game:GetService("RunService"):IsStudio() then return true end
