@@ -1279,7 +1279,8 @@ RunService.RenderStepped:Connect(function(dt)
 		-- top and the banner's ≡ covered its ? / X; the window shows the song too)
 		local musicGui = player.PlayerGui:FindFirstChild("FashionMusicGui")
 		local musicPanel = musicGui and musicGui:FindFirstChild("MusicPanel")
-		local djWindowOnPhone = musicPanel ~= nil and (musicPanel :: GuiObject).Visible and camera.ViewportSize.Y < 450
+		-- (D-757: on PC too, now that its DJ window is two windows at the top)
+		local djWindowOnPhone = musicPanel ~= nil and (musicPanel :: GuiObject).Visible
 		banner.Visible = level > 0 and banner.Text ~= "" and not djWindowOnPhone
 	end
 	if music.Volume > 0 then
