@@ -1549,3 +1549,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ClubConfig.Playlist: K-POP 업로드 9곡을 모두 빼고, Creator Store에서 Roblox가 제공하는 DistrokidOfficial 음악 12곡(모두 불러오기 확인, 길이 측정): K-Pop Party 135361546383974, K-pop Cute Crush 121416896999522, K-Pop Uprising 72966738276299, Push & Pull (밀당의 고수) 132502088493185, Secret Party 75682100037866, Luminous Dance 123336690588412, LIGHT UP THE NIGHT 102534983754242, RUN THE NIGHT 123336998544849, ECHOES OF THE BASS 134070050316863, Disco Inferno 87243738678545, Festival Fever 136228548293465, Euphoria Dance 76814968175069. 원래 속도라 lab은 볼륨만(boost 2, DJ 🔊로 더 올림). Bubble Pop·Get A Guitar 안무도 함께 빠짐.
 - EdmConfig.Track: Get A Guitar → ECHOES OF THE BASS(사용자의 EDM 음원이 올 때까지).
 - Studio Play: 12곡, 지금 곡 재생(x1), EDM 겹쳐 재생 확인.
+- (D-739 덧붙임) 뺀 K-POP 9곡·보정값·BPM·안무 id·EDM 임시 음원은 docs/04_ART/OLD_CLUB_PLAYLIST.md에 보관(되돌릴 Lua 포함).
