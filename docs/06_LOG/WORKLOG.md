@@ -2895,3 +2895,10 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 모바일 2P 테스트 → 머지 (D-710)
 ![](images/2026-11-01/mobile2p_club_D710.jpg) ![](images/2026-11-01/mobile2p_park_D710.jpg)
+
+### 모바일 2P 추가: 카페 알바·국밥 (D-710)
+- 국밥집: Player1 돼지국밥 구매(코인 -20) → 세 번 떠먹고 다 먹으면 손에서 사라짐.
+- 카페 알바(BeachCafe): Player2 알바 시작 → Player1 아이스 아메리카노 주문 → Player2 만들기(2.5초) → 서빙(코인 +4) → Player1이 받아 마심. 곧 NPC 손님 주문(물)도 들어옴. 폰 화면 "알바 중 · 주문 1" 표시.
+- 같이 먹기(수육 6점 접시)는 실제 Robux 상품(3722468485)이라 Studio 테스트 결제 창을 MCP가 누를 수 없어 확인 못 함.
+- 오류 없음.
+![](images/2026-11-01/mobile2p_cafe_job_D710.jpg)
