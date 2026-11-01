@@ -443,4 +443,10 @@ end
 -- the rooftop elevator ride).
 ClubConfig.OutsideGrace = 1.5
 
+-- Where the 불꽃 판매원 stands, from the BartenderSpot (its +X runs along the
+-- bar, its look faces the room). D-750, user's live screenshot: by the north
+-- wall, just east of the hall doorway to the VIP stairs (world about 128,
+-- -270), facing into the room. Before: 8 along the bar (76, -170).
+ClubConfig.ItemSellerOffset = CFrame.new(-92, 0, -52) * CFrame.Angles(0, -math.pi / 2, 0)
+
 return ClubConfig

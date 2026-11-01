@@ -664,16 +664,17 @@ task.spawn(function()
 		task.wait(0.5)
 		if menu.Visible or itemWindow.frame.Visible then
 			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
-			local nearest = math.huge
+			-- (the bar menu from the bar, the item window from the seller: they
+			-- stand apart since D-750)
+			local nearBar, nearSeller = math.huge, math.huge
 			for _, spot in ipairs(game:GetService("CollectionService"):GetTagged("BartenderSpot")) do
 				if spot:IsA("BasePart") and root then
-					nearest = math.min(nearest, (spot.Position - root.Position).Magnitude)
+					nearBar = math.min(nearBar, (spot.Position - root.Position).Magnitude)
+					nearSeller = math.min(nearSeller, ((spot.CFrame * ClubConfig.ItemSellerOffset).Position - root.Position).Magnitude)
 				end
 			end
-			if nearest > 22 then
-				menu.Visible = false
-				itemWindow.frame.Visible = false
-			end
+			if nearBar > 22 then menu.Visible = false end
+			if nearSeller > 22 then itemWindow.frame.Visible = false end
 		end
 	end
 end)

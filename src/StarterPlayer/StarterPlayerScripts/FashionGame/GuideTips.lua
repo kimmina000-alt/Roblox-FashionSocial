@@ -185,8 +185,8 @@ local GUKBAP: {Coach.Step} = {
 		camera = viewOfPart(tagged("GukbapTable"), 6, 6) },
 }
 
--- the club's spots (BartenderSpot: the item seller stands on it, the
--- bartender 12 studs along the bar, DrinkService)
+-- the club's spots (BartenderSpot: the bartender 12 studs along the bar, the
+-- item seller at ClubConfig.ItemSellerOffset by the hall doorway, DrinkService)
 local function bartenderView(): CFrame?
 	local spot = tagged("BartenderSpot")()
 	if not spot then return nil end
@@ -197,8 +197,9 @@ end
 local function sellerView(): CFrame?
 	local spot = tagged("BartenderSpot")()
 	if not spot then return nil end
-	local at = spot.Position + Vector3.new(0, 4, 0)
-	return CFrame.lookAt(at + spot.CFrame.LookVector * 24 + Vector3.new(0, 7, 0), at - Vector3.new(0, 2, 0))
+	local stand = spot.CFrame * ClubConfig.ItemSellerOffset
+	local at = stand.Position + Vector3.new(0, 4, 0)
+	return CFrame.lookAt(at + stand.LookVector * 20 + Vector3.new(0, 7, 0), at - Vector3.new(0, 2, 0))
 end
 local function djView(): CFrame?
 	local spot = tagged("DJSpot")()
@@ -217,7 +218,7 @@ local CLUB: {Coach.Step} = {
 		camera = viewOfPart(CLUB_TABLE, 12, 5) },
 	{ title = "🥂 테이블에서 마시기", text = "테이블 위 버킷을 누르면 한 잔씩 따라 마셔요.",
 		camera = viewOfPart(CLUB_TABLE, 8, 4) },
-	{ title = "🎆 불꽃 판매원", text = "바텐더 옆 판매원에게서 스파클러, 스파클러 세트, 무대 콜드 스파크를 사요. 스파클러를 든 채 병을 누르면 불꽃이 튀어요.", camera = sellerView },
+	{ title = "🎆 불꽃 판매원", text = "VIP 계단 복도 문 옆 판매원에게서 스파클러, 스파클러 세트, 무대 콜드 스파크를 사요. 스파클러를 든 채 병을 누르면 불꽃이 튀어요.", camera = sellerView },
 	{ title = "🎧 DJ", text = "DJ 부스의 '디제잉하기'에서 DJ 시간을 사면 차례가 와요. DJ는 곡·속도·조명을 바꾸고 큰 전광판에 나와요.", camera = djView },
 }
 

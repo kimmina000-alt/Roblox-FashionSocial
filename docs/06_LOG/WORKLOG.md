@@ -2989,3 +2989,8 @@ See ISSUE-MOBILE-001: 7 layout fixes, synced to Studio. The running test session
 
 ### 알바 안내 (D-746)
 ![](images/2026-11-02/job_tip_staff_D746.jpg)
+
+### 불꽃 판매원 위치 이동 (D-750)
+사용자 표시(라이브 폰) → 이동 후(Studio Play)
+![](images/2026-11-02/d750_item_seller_request.jpg) ![](images/2026-11-02/d750_item_seller_after.jpg)
+- 바 옆(76, -170) → 1층 북쪽 벽 VIP 계단 복도 문 오른쪽(128, -270), 홀 쪽을 봄. 아이템 창은 판매원에게서 22 이상 멀어지면 닫힘(바 메뉴는 바 기준 그대로). 클럽 안내 카메라·문구도 새 자리로.
