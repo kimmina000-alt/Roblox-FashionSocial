@@ -434,18 +434,34 @@ local anchors: {[Attachment]: BasePart} = {}
 
 local function refreshJobPrompts()
 	local shop = myShop()
-	for counter, prompt in pairs(jobPrompts) do
-		local key = counter:GetAttribute("Shop")
+	for _, prompt in pairs(jobPrompts) do
 		-- (D-772, user) on duty the bench has only "만들기": the shift ends
 		-- with the list's [알바 끝내기] or by walking out of the cafe
 		prompt.ActionText = "알바 시작"
 		prompt.Enabled = shop == nil
-		-- staff do not order at their own cafe (user, 2026-10-22): hide "음료 주문하기"
-		local order = counter:FindFirstChild("SnackPrompt")
-		if order and order:IsA("ProximityPrompt") then order.Enabled = shop ~= key end
+	end
+	-- staff do not order (user 2026-10-22 at their own cafe; D-789: at any shop
+	-- while on duty, the server refuses it too): every "주문하기" hidden
+	-- (the prompts sit on the counter or on its SnackPromptSpot attachments)
+	for _, counter in ipairs(CollectionService:GetTagged("SnackShop")) do
+		for _, order in ipairs(counter:GetDescendants()) do
+			if order.Name == "SnackPrompt" and order:IsA("ProximityPrompt") then order.Enabled = shop == nil end
+		end
 	end
 	updateMakePrompts()
 end
+
+-- every shop's order prompt (made by the server, it may stream in late): off on duty
+local orderWatched: {[Instance]: boolean} = {}
+local function watchOrders(part: Instance)
+	if orderWatched[part] then return end
+	orderWatched[part] = true
+	part.DescendantAdded:Connect(function(child)
+		if child.Name == "SnackPrompt" and child:IsA("ProximityPrompt") then child.Enabled = myShop() == nil end
+	end)
+end
+for _, part in ipairs(CollectionService:GetTagged("SnackShop")) do watchOrders(part) end
+CollectionService:GetInstanceAddedSignal("SnackShop"):Connect(watchOrders)
 
 local function watchCounter(part: Instance)
 	if not part:IsA("BasePart") or jobPrompts[part] then return end

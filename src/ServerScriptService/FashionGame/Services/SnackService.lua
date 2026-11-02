@@ -1017,6 +1017,10 @@ end
 local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string?)
 	local shop, item = SnackConfig.find(shopKey, itemKey)
 	if not shop or not item then return false, "없는 메뉴예요." end
+	-- (D-789, user) no ordering anywhere while on a cafe shift (character attribute CafeJob)
+	if player.Character and player.Character:GetAttribute("CafeJob") ~= nil then
+		return false, "알바 중에는 주문할 수 없어요. 알바를 끝낸 뒤 주문해 주세요."
+	end
 	if item.comingSoon then return false, "🔒 개발 중이에요. 조금만 기다려 주세요!" end
 	if item.product and not item.coins then return false, "Robux 결제로 주문해요." end
 	if not nearShop(player, shop.key) then return false, "카운터 가까이에서 주문해 주세요." end
