@@ -855,13 +855,14 @@ do
 			local old = spot:FindFirstChild(name)
 			if old then old:Destroy() end
 		end
-		for _, d in ipairs(spot:GetChildren()) do
-			if d:IsA("BasePart") and (d.Name == "Mat" or d.Name == "MatStripe") then d.Transparency = 1 end
-		end
 		local mat = Instance.new("Part")
 		mat.Name = "BeachMatM6"
 		mat.Size = Vector3.new(slab.Size.X, 0.08, slab.Size.Z)
 		mat.CFrame = slab.CFrame * CFrame.new(0, -slab.Size.Y / 2 + 0.06, 0)
+		-- the old mat and its stripes go once the new one has their place (hidden until D-786)
+		for _, d in ipairs(spot:GetChildren()) do
+			if d:IsA("BasePart") and (d.Name == "Mat" or d.Name == "MatStripe") then d:Destroy() end
+		end
 		mat.Color = Color3.new(1, 1, 1)
 		mat.Material = Enum.Material.SmoothPlastic
 		mat.Anchored, mat.CanCollide, mat.CanTouch, mat.CanQuery, mat.CastShadow = true, false, false, false, false

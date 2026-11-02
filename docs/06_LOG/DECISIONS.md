@@ -1744,3 +1744,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자 확인 후 삭제: ServerStorage.ArtAssets의 OfficeFacade, ApartmentFacade, TexGlassTeal, TexGlassBlue, TexConcreteGrid, TexOfficeBand, TexOfficeBlue(그림이 불러와지지 않음), GrassTuft, StreetTree, PalmTreeReal, FireworkCandidate6, SparkFountains, PlasticChair, PitPlushTeddy, PitPlushMonkey, NewAssets1030.BeachMatM4. 스크립트에서 쓰는 곳 없음 확인.
 - 보류: 백업 MapBackup_pre_layout_v8 / BeachCafe_pre_v3·v4 / OH24Store_pre_tweaks(사용자가 PC 저장 뒤), RBX_ANIMSAVES, 오후네컷 맵 밖 라벨 2, 투명 부품 A9(카페 원통 쿠션 12, 해변 옛 돗자리·줄무늬, 편의점 바 스툴 속 원통 다리 4: 사진 docs/06_LOG/images/2026-11-03/cleanup/).
 - 놀이공원 담 북쪽 기둥(z -1155)은 쓰는 것(해변 따라 이어지는 담).
+## D-786 (2026-11-03) 안 쓰는 블록 · 백업 삭제 (2차)
+- 사용자 확인: 기능은 그대로, 안 쓰는 블록만. 장소에서 삭제: 카페 테이블 둘레 투명 원통 쿠션 ChairCushion 12, 해변 옛 돗자리 Mat·MatStripe 18, 편의점 창가 투명 원통 다리 StoolLeg 4. 앉는 자리(CafeChair·WindowStool Seat, 투명)와 새 스툴은 남김.
+- 스크립트도 숨기기 → 지우기: polish_1029(카페 수영장 테이블 쿠션, 편의점 창가 다리: 높이만 읽고 Destroy), polish_1030 14단계(새 돗자리를 놓은 뒤 옛 돗자리 Destroy). 다음 재빌드에도 안 생김.
+- ServerStorage 백업 삭제: BeachCafe_pre_v3, BeachCafe_pre_v4, OH24Store_pre_tweaks (MapBackup_pre_layout_v8은 이미 없었음). 되돌리기는 이제 git의 스크립트로만.
+- Studio Play: 카페 수영장 테이블 의자·편의점 창가 스툴에 앉기 OK, 오류 없음.

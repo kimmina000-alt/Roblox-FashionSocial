@@ -196,7 +196,7 @@ if cafe then
 				for _, k in ipairs(cafe:GetDescendants()) do
 					if k:IsA("BasePart") and k.Name == "ChairCushion" and math.abs(k.Position.X - c.Position.X) < 0.5 and math.abs(k.Position.Z - c.Position.Z) < 0.5 then
 						top = math.max(top, select(2, bounds(k)).Y)
-						k.Transparency = 1
+						k:Destroy() -- (hidden until D-786: only its height was needed)
 					end
 				end
 				c.Transparency = 1 -- (stays as the seat / collider)
@@ -408,8 +408,7 @@ if oh24 then
 			s.Transparency = 1
 			for _, leg in ipairs(oh24:GetDescendants()) do
 				if leg:IsA("BasePart") and leg.Name == "StoolLeg" and math.abs(leg.Position.X - s.Position.X) < 1.2 and math.abs(leg.Position.Z - s.Position.Z) < 1.2 and leg.Position.Y < top then
-					leg.Transparency = 1
-					leg.CanCollide = false
+					leg:Destroy() -- (hidden until D-786; the seat stays, the club stool shows)
 				end
 			end
 			clubStool(oh24, s.Position.X, top, s.Position.Z, true)
