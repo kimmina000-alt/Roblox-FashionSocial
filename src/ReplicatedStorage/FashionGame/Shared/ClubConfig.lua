@@ -202,10 +202,10 @@ ClubConfig.Playlist = {
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
 		119819611123433, { id = 97097804325917, blend = 0.7 }, { id = 119200924904137, blend = 0.45 }, 77403973851668,
 		{ id = 73939357849033, blend = 0.45 }, { id = 137390866303201, blend = 0.7 }, { id = 121969021575883, blend = 0.45 },
-		{ id = 92148657532352, blend = 0.8 }, { id = 96742563282745, stop = 70, blend = 0.4 }, { id = 88430566939812, blend = 0.4 },
+		{ id = 92148657532352, blend = 0.8 }, { id = 96742563282745, stop = 70, blend = 0.4 }, { id = 88430566939812, at = 70, blend = 0.7 },
 		{ id = 108795638313983, blend = 0.7 }, { id = 95813030011960, blend = 0.45 }, { id = 135272998171625, blend = 0.4 },
 		129447992418977, { id = 82252722293006, blend = 0.55 }, 108611133102309, 117244778152210, 113505968174557, 112498417388469,
-		{ id = 80874196383963, blend = 0.45 } }, autoChoreo = true }, -- (D-804, user: no dance 1:10-1:13)
+		{ id = 80874196383963, blend = 0.45 } }, autoChoreo = true }, -- (D-808, user: 9 cut at 1:10 and the rest moved up to follow it)
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" } },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 3, octave = 0.5, low = -13, mid = 2.5, high = 4, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
