@@ -99,6 +99,8 @@ function ItemDetail.new(showToast: (string) -> ())
 	self.toast = showToast
 	self.cart = {} :: {any}
 	self.item = nil :: any
+	-- (D-800) called with the number of items whenever the cart changes (the catalog's 🛒 badge)
+	self.onChanged = function(_count: number) end
 
 	local gui = create("ScreenGui", {
 		Name = "ItemDetailGui",
@@ -262,6 +264,7 @@ function ItemDetail.new(showToast: (string) -> ())
 	self.buyAllButton.Activated:Connect(function() self:buyCart() end)
 	clearButton.Activated:Connect(function()
 		table.clear(self.cart)
+		self.onChanged(0)
 		self:renderCart()
 	end)
 
@@ -298,6 +301,7 @@ function ItemDetail:removeFromCart(itemType: string, id: number)
 	for i = #self.cart, 1, -1 do
 		if self.cart[i].ItemType == itemType and self.cart[i].Id == id then table.remove(self.cart, i) end
 	end
+	self.onChanged(#self.cart)
 	if self.gui.Enabled then
 		if self.cartPanel.Visible then self:renderCart() else self:renderDetail() end
 	end
@@ -314,6 +318,7 @@ function ItemDetail:toggleCart(item: any)
 		return
 	end
 	table.insert(self.cart, item)
+	self.onChanged(#self.cart)
 	self.toast("장바구니에 담았어요. (" .. #self.cart .. "개)")
 	self:renderDetail()
 end

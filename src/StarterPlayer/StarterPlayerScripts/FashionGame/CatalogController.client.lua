@@ -63,8 +63,6 @@ local searchCatalog: () -> ()
 local renderCurrentOutfit: () -> ()
 local recordRecent: (any, string) -> ()
 local toggleFavorite: (number, string, any) -> ()
--- (D-799) the item details window with the cart (ItemDetail module)
-local openItemDetail: (number, string, any?) -> ()
 
 local friendlyError = require(script.Parent:WaitForChild("FriendlyErrors"))
 
@@ -665,6 +663,38 @@ local expandButton = create("TextButton", {
 })
 expandButton.Parent = mainFrame
 create("UICorner", { CornerRadius = UDim.new(0, 8) }).Parent = expandButton
+-- (D-799/D-800) the item details window and the cart (ItemDetail module):
+-- itemDetail.open(id, itemType, item?) and the 🛒 button in the header
+-- (one local for all of it: this chunk is near Luau's 200-local limit)
+local itemDetail: any = {
+	button = create("TextButton", {
+		Name = "CartButton",
+		Size = UDim2.fromOffset(36, 36),
+		BackgroundColor3 = Color3.fromRGB(105, 85, 160),
+		Text = "🛒",
+		TextColor3 = Color3.fromRGB(255, 255, 255),
+		TextSize = 18,
+		Font = Enum.Font.GothamBold,
+		AutoButtonColor = true,
+		Parent = mainFrame,
+	}),
+}
+create("UICorner", { CornerRadius = UDim.new(0, 8) }).Parent = itemDetail.button
+itemDetail.badge = create("TextLabel", {
+	Name = "Count",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.new(1, 4, 0, -4),
+	Size = UDim2.fromOffset(18, 18),
+	BackgroundColor3 = Color3.fromRGB(235, 60, 90),
+	Text = "",
+	TextColor3 = Color3.fromRGB(255, 255, 255),
+	TextSize = 11,
+	Font = Enum.Font.GothamBold,
+	Visible = false,
+	ZIndex = 3,
+	Parent = itemDetail.button,
+})
+create("UICorner", { CornerRadius = UDim.new(1, 0) }).Parent = itemDetail.badge
 -- < > : back to the look before the last change / forward again (UndoBar)
 local undoBar = require(script.Parent:WaitForChild("UndoBar")).new(mainFrame, TryOnItem, function()
 	refreshWornItems()
@@ -1478,7 +1508,11 @@ updateCatalogLayout = function()
 	expandButton.Visible = true
 	expandButton.Text = if expandedPanel then "↙" else "↗"
 	expandButton.TextSize = if phoneCompact then 16 else 20
-	local controlsLeft = undoBar.layout(contentRight - controlSize * 2 - 12, headerY, controlSize, if phoneCompact then 16 else 20)
+	-- (D-800) 🛒 cart left of ↗
+	itemDetail.button.Size = UDim2.fromOffset(controlSize, controlSize)
+	itemDetail.button.Position = UDim2.fromOffset(contentRight - controlSize * 3 - 12, headerY)
+	itemDetail.button.TextSize = if phoneCompact then 15 else 18
+	local controlsLeft = undoBar.layout(contentRight - controlSize * 3 - 18, headerY, controlSize, if phoneCompact then 16 else 20)
 	titleLabel.Visible = not phoneCompact
 	titleLabel.Position = UDim2.fromOffset(x, headerY + 1)
 	titleLabel.Size = UDim2.fromOffset(math.min(132, math.max(72, math.floor(rightWidth * 0.22))), 30)
@@ -1914,7 +1948,7 @@ renderCurrentOutfit = function()
 		image.Parent = itemCard
 		-- (D-799) tap the thumbnail: the item details window
 		image.Activated:Connect(function()
-			if not stripDrag:isDragging() then openItemDetail(assetId, "Asset") end
+			if not stripDrag:isDragging() then itemDetail.open(assetId, "Asset") end
 		end)
 		if wornGroup(assetId) == 1 then
 			layerNumber += 1
@@ -2175,18 +2209,23 @@ end
 
 -- (D-799, user: tap an item in 착용 중 → full name, big picture, buy / cart)
 do
-	local view: any = nil
-	openItemDetail = function(id: number, itemType: string, item: any?)
+	local view = require(script.Parent:WaitForChild("ItemDetail")).new(function(text) showToast(text) end)
+	view.onChanged = function(count: number)
+		itemDetail.badge.Visible = count > 0
+		itemDetail.badge.Text = tostring(count)
+	end
+	itemDetail.open = function(id: number, itemType: string, item: any?)
 		task.spawn(function()
 			local detail = item or fetchItemDetails({ { id = id, itemType = itemType } })[itemKey(itemType, id)]
 			if not detail then
 				showToast("아이템 정보를 불러오지 못했어요.")
 				return
 			end
-			view = view or require(script.Parent:WaitForChild("ItemDetail")).new(showToast)
 			view:open(detail)
 		end)
 	end
+	-- (D-800, user: a cart button of its own)
+	itemDetail.button.Activated:Connect(function() view:showCart() end)
 end
 
 -- Shoes are sold on Roblox only as "Shoes" bundles (left + right shoe assets;
@@ -2338,14 +2377,13 @@ createItemCard = function(item: any, layoutOrder: number)
 			toggleFavorite(assetId, favoriteType, item)
 		else
 			lastImageTap = now
-			-- (D-799) in 착용 중 a single tap opens the details, once the double-tap window has passed
-			if browseMode == "Wearing" then
-				task.delay(0.5, function()
-					if lastImageTap == now and card.Parent and browseMode == "Wearing" then
-						openItemDetail(assetId, favoriteType, item)
-					end
-				end)
-			end
+			-- (D-799; every card since D-800, user) a single tap opens the details,
+			-- once the double-tap (★) window has passed
+			task.delay(0.5, function()
+				if lastImageTap == now and card.Parent then
+					itemDetail.open(assetId, favoriteType, item)
+				end
+			end)
 		end
 	end)
 	card:SetAttribute("ImageHitAreaName", "ImageHitArea")

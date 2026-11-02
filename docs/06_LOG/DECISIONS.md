@@ -1814,3 +1814,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Play 테스트: 편집 → 체형 탭 → ⚙로 닫기 → 검색창 보임. 착용 중 카드 누르기 → 자세히 보기 창(이름, 큰 그림 356px, MoodAnimation · Roblox, 판매하지 않는 아이템 → 구매 불가). 모자 2개 담기 → 장바구니 2개 · R$ 180. 닫기 글자 ✕가 네모로 나와서 ×로.
 - PromptBulkPurchase는 서버에서만 됨("Can only be called on the server") → 모두 구매는 TryOnItem "BuyMany"로 서버가 엶 (20개까지, id 검사).
 - 구매 창이 "AllowThirdPartySales has blocked the purchase prompt"로 막힘: 다른 사람이 만든 아이템을 팔려면 게임 설정 > 보안 > Allow Third Party Sales(Workspace.AllowThirdPartySales)를 켜야 함. 사용자에게 켜 달라고 함.
+
+## D-800 (2026-11-03) 모든 아이템 칸에 자세히 보기 · 🛒 장바구니 버튼
+- 사용자: 실제 게임에서 구매 창까지 뜸(누르지 않음). "착용 중 아이템 칸 눌렀을 때만 뜨는 자세히 보는 창 모든 아이템 칸 다 적용해 / 별도의 장바구니 버튼 추가해".
+- 카탈로그·인기·최근·즐겨찾기·착용 중·번들 내용의 모든 아이템 카드: 그림을 한 번 누르면(0.5초 뒤, 두 번 = ★) 자세히 보기.
+- 카탈로그 위쪽 ↗ 왼쪽에 🛒 버튼 (담은 개수 빨간 배지) → 장바구니 창. CatalogController는 local 한도라 itemDetail 표 하나에 버튼·배지·open을 담음; ItemDetail.onChanged(개수).
+- Play: 카탈로그 첫 카드(니트 스웨터 - 블랙, 무료) 누르기 → 자세히 보기 → 🛒 담기 → 배지 1 → 🛒 버튼 → 장바구니 1개.
