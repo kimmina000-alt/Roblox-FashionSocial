@@ -1764,3 +1764,5 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 저장: PlayerDataService.OnBeforeSave에서 wallet.bag(최대 30개, 단순 값만; sanitizeWallet이 유지) → 자동 저장·나갈 때 저장. Play에서 잰 것: 나갈 때(PlayerRemoving)는 캐릭터와 손에 든 도구가 이미 없음 → 2초마다 적어 둔 목록을 씀. 리스폰: CharacterRemoving 때는 가방이 이미 비어 있음 → 쓰러질 때(Died) 적어 둠. 테이블 음식 정리(SnackService PlayerRemoving)는 저장 뒤로 미룸(task.defer).
 - 되돌려 주기: 방문의 첫 스폰에 저장 목록, 쓰러진 뒤엔 그때 목록. 첫 스폰 전에는 새 목록을 쓰지 않음(기다리는 아이템을 지우지 않게).
 - Studio Play: 7종(카페라테 2입 남음, 빈티지 조각, 티라미수 접시, 몬테 병 4/6, 컵, 스파클러 ×3, 손 스파클러)을 들고 쓰러짐 → 같은 상태로 돌아옴. 내보내기(Kick) 때 저장 목록에 손에 든 카페라테까지 7개. 실제 재접속은 Studio에 저장소가 없어 라이브에서 확인. 먹다 만 음식의 모양은 새것처럼 보이고 남은 입 수만 그대로.
+## D-791 (2026-11-03) 딸기 케이크 검은 씨 모델 교체 · 아이콘 다시
+- 사용자가 StrawberryCreamCakeSliced.gltf(검은 씨, 팔레트 71838454225558)를 가져옴(두 번 들어와 하나 삭제). 흰색·고정·충돌 없음, 바닥 가운데 원점 → ServerStorage.ArtAssets.Foods(예전 씨 없는 모델 삭제). Play에서 검은 씨 보임. 아이콘 nobg/Cafe_CakeStrawberry.png를 같은 4장 방식(Matte.cs)으로 다시.
