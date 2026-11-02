@@ -384,17 +384,58 @@ function GuideTips.start()
 			target = function() return TopBar.button(2) end },
 	}
 	local joinedAt = os.clock()
+	-- (D-831, user) the club tip no longer starts by itself: on the way into the
+	-- club a small card at the bottom middle asks "클럽 설명 들을래요?" and only
+	-- 예 runs it. Asked once a visit until it has been heard (then never again).
+	local clubAsk: Frame
+	local clubAsked, inClubBefore = false, false
+	do
+		local gui = Instance.new("ScreenGui")
+		gui.Name = "ClubGuideAsk" gui.ResetOnSpawn = false gui.DisplayOrder = 44 gui.Parent = playerGui
+		clubAsk = Instance.new("Frame")
+		clubAsk.Name = "Ask" clubAsk.AnchorPoint = Vector2.new(0.5, 1) clubAsk.Position = UDim2.new(0.5, 0, 1, -200)
+		clubAsk.Size = UDim2.fromOffset(300, 96) clubAsk.BackgroundColor3 = Color3.new(0, 0, 0)
+		clubAsk.BackgroundTransparency = 0.35 clubAsk.Visible = false clubAsk.Parent = gui
+		local corner = Instance.new("UICorner") corner.CornerRadius = UDim.new(0, 16) corner.Parent = clubAsk
+		local stroke = Instance.new("UIStroke") stroke.Color = Color3.fromRGB(255, 150, 60) stroke.Thickness = 2 stroke.Parent = clubAsk
+		local label = Instance.new("TextLabel")
+		label.Position = UDim2.fromOffset(12, 8) label.Size = UDim2.new(1, -24, 0, 30) label.BackgroundTransparency = 1
+		label.Font = Enum.Font.GothamBold label.TextSize = 18 label.TextColor3 = Color3.new(1, 1, 1)
+		label.Text = "🎧 클럽 설명 들을래요?" label.Parent = clubAsk
+		local function choice(text: string, color: Color3, x: number): TextButton
+			local b = Instance.new("TextButton")
+			b.AnchorPoint = Vector2.new(0.5, 0) b.Position = UDim2.new(x, 0, 0, 46) b.Size = UDim2.new(0.42, 0, 0, 38)
+			b.BackgroundColor3 = color b.Text = text b.TextColor3 = Color3.new(1, 1, 1)
+			b.Font = Enum.Font.GothamBold b.TextSize = 17 b.Parent = clubAsk
+			local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, 12) c.Parent = b
+			return b
+		end
+		choice("예", Color3.fromRGB(255, 150, 60), 0.27).Activated:Connect(function()
+			clubAsk.Visible = false
+			if Coach.wants("club") then Coach.run("club", CLUB, true) end -- (D-729: then facing away from the lift)
+		end)
+		choice("아니오", Color3.fromRGB(70, 70, 80), 0.73).Activated:Connect(function()
+			clubAsk.Visible = false
+		end)
+	end
 	-- places: in the club, near the beach cafe's counter
 	task.spawn(function()
 		while true do
 			task.wait(1)
 			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+			-- (D-831) the club question: shown on the way in, gone on the way out
+			local inClub = root ~= nil and ClubConfig.isInClub(root.Position)
+			if not inClub then
+				clubAsk.Visible = false
+			elseif not inClubBefore and not clubAsked and not Coach.isRunning() and Coach.wants("club") then
+				clubAsked = true
+				clubAsk.Visible = true
+			end
+			inClubBefore = inClub
 			if root and not Coach.isRunning() then
 				if Coach.wants("feedbackAsk") and os.clock() - joinedAt > FeedbackConfig.NudgeMinutes * 60
 					and player:GetAttribute("TutorialDone") == true then
 					Coach.run("feedbackAsk", FEEDBACK_ASK)
-				elseif Coach.wants("club") and ClubConfig.isInClub(root.Position) then
-					Coach.run("club", CLUB, true) -- (D-729: then facing away from the lift)
 				elseif Coach.wants("photo") and (function()
 					-- inside the 오후네컷 building (Hongdae_Layout.OhuFourCuts), under its roof
 					local layout = workspace:FindFirstChild("Hongdae_Layout")

@@ -304,8 +304,17 @@ end
 -- Ride motion
 --------------------------------------------------
 
+-- (D-831, user) the Ferris wheel and the carousel can be stopped (ParkConfig.RidesRunning,
+-- or live with the attribute ParkRidesRunning on ReplicatedStorage.FashionGame)
+local function ridesRunning(): boolean
+	local live = FashionGame:GetAttribute("ParkRidesRunning")
+	if typeof(live) == "boolean" then return live end
+	return ParkConfig.RidesRunning
+end
+
 local function animate(t: number, dt: number)
-	for _, wheel in ipairs(wheels) do
+	local running = ridesRunning()
+	for _, wheel in ipairs(running and wheels or {}) do
 		local hub = hubCFrame(wheel.model, "Hub")
 		if hub and cameraNear(hub.Position) then
 			if wheel.rotor then
@@ -318,7 +327,7 @@ local function animate(t: number, dt: number)
 			end
 		end
 	end
-	for _, carousel in ipairs(carousels) do
+	for _, carousel in ipairs(running and carousels or {}) do
 		local center = hubCFrame(carousel.model, "Center")
 		if center and cameraNear(center.Position) then
 			if carousel.rotor then

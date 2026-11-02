@@ -23,6 +23,13 @@
 
 local ParkConfig = {}
 
+-- (D-831, user 2026-11-03) the Ferris wheel and the carousel stand still for
+-- now (the park is closed). They only ever turned on each player's screen (no
+-- server work), but there it costs every frame near them. true = turning
+-- again; a live server can also switch them with the attribute
+-- ParkRidesRunning (true/false) on ReplicatedStorage.FashionGame.
+ParkConfig.RidesRunning = false
+
 -- Ferris wheel: one turn in Period seconds; a cabin can be boarded or left
 -- while it is within BoardAngle of the bottom.
 ParkConfig.WheelBoardAngle = math.rad(9)

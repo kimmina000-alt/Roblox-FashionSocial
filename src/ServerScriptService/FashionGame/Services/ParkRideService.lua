@@ -80,6 +80,13 @@ local function board(player: Player, model: Instance, slot: Instance?): (boolean
 	local kind = kindOf(model)
 	if not kind then return false, "탈 수 없어요." end
 	local t = now()
+	-- (D-831) the wheel and the carousel are stopped for now (ParkConfig.RidesRunning)
+	if kind == "ParkWheel" or kind == "ParkCarousel" then
+		local live = game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):GetAttribute("ParkRidesRunning")
+		if not (if typeof(live) == "boolean" then live else ParkConfig.RidesRunning) then
+			return false, "지금은 운행하지 않아요."
+		end
+	end
 	if kind == "ParkWheel" then
 		local boardPoint = model:FindFirstChild("BoardPoint")
 		if not boardPoint or not boardPoint:IsA("BasePart") or not near(player, boardPoint.Position, ParkConfig.BoardDistance) then

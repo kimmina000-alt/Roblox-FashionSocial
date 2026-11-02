@@ -3213,3 +3213,5 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 놀이공원 위치 복구 (D-830)
 ![](images/2026-11-03/d830_park_before.webp) ![](images/2026-11-03/d830_park_after.jpg) ![](images/2026-11-03/d830_plaza_after.jpg)
 - park_raise가 체인 실행마다 다시 올리던 문제. layout revert가 먼저 내리게 고치고, 06 구역 새로 짓고 체인 두 번 → 위치 같음.
+### 놀이기구 멈춤 · 클럽 설명 묻기 (D-831)
+- ParkConfig.RidesRunning = false(대관람차·회전목마, 속성 ParkRidesRunning으로 실시간 켜기). 클럽 입장 시 아래 가운데 "클럽 설명 들을래요? 예/아니오", 예만 설명. Play에서 확인.
