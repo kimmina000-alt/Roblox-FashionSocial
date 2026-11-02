@@ -1,6 +1,6 @@
 # 클럽 음원 목록 · 설정값 (2026-11-02, D-755)
 
-코드: `src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua` 의 `ClubConfig.Playlist` (41곡).
+코드: `src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua` 의 `ClubConfig.Playlist` (25곡).
 예전 목록·안무 기록: `OLD_CLUB_PLAYLIST.md`.
 
 ## 설정값 2가지
@@ -8,9 +8,9 @@
 | 이름 | 쓰는 곡 | 값 |
 |---|---|---|
 | 기본 | 로블록스 음악 12곡 | 설정값 없음. 올라온 그대로, 클럽 볼륨 0.55 (`ClubConfig.MusicVolume`) |
-| 저장 값 `UP` | 사용자 업로드 19곡 (아래 10곡은 곡별 값, D-766) | `{ speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }` |
+| 저장 값 `UP` | 사용자 업로드 3곡 (A2O LITE-NEON, SOYEON-퇴사할게여, ILLIT-체포하겠어; 나머지 10곡은 곡별 값, D-766) | `{ speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }` |
 
-- `UP` = `ClubConfig.SavedLabs.userUpload`. 29곡이 모두 이 하나를 같이 써서, 여기 숫자를 바꾸면 29곡이 한꺼번에 바뀌어요.
+- `UP` = `ClubConfig.SavedLabs.userUpload`. 이 값을 쓰는 곡은 한꺼번에 바뀌어요.
 - 한 곡만 다르게 하려면 그 곡의 `lab = UP` 를 `lab = { ... }` 로 바꾸면 돼요.
 - 실제로 나가는 값: 재생 속도 = speed × tempo = **0.335**, 음높이는 PitchShift로 되돌림(octave ÷ tempo). 들리는 길이 = 길이(x1) ÷ 0.335.
 - 템포 0.335 = RIIZE-Get A Guitar(53.6초)를 약 2분 40초로 맞춘 값. 부스트 3, 음색(저·중·고) 보정 없음 = 사용자 2026-11-03 (D-765; 그전엔 부스트 6, 저 -6 / 중 0.5 / 고 -7).
@@ -32,7 +32,7 @@
 | 11 | EDM | Festival Fever | 136228548293465 | 103 |
 | 12 | EDM | Euphoria Dance | 76814968175069 | 99 |
 
-## 2. 사용자 업로드 29곡 (19곡 `UP`, 10곡 곡별 값)
+## 2. 사용자 업로드 13곡 (3곡 `UP`, 10곡 곡별 값; D-767에서 16곡 삭제)
 
 길이는 x1 기준(들리는 길이 = ÷ 0.335).
 
@@ -50,23 +50,7 @@
 | 22 | A2O LITE-NEON | 74555169365877 | 74 | 3:41 | |
 | 23 | SOYEON-퇴사할게여 | 113196766736048 | 71 | 3:32 | |
 | 24 | ILLIT-체포하겠어 | 92011448544342 | 61 | 3:02 | |
-| 25 | RESCENE-LOVE-ATTACK | 99853291768808 | 61 | 3:02 | |
-| 26 | LUMIN-88 | 110720215000082 | 55 | 2:44 | |
-| 27 | 헤이즈-빈틈을 채워 준 너에게 | 76215165790142 | 82 | 4:05 | |
-| 28 | LUMIN-HIDE | 112657196644886 | 78 | 3:53 | |
-| 29 | MY:RAKL-오색 낙원 | 89952029801748 | 61 | 3:02 | |
-| 30 | Darla Jean-Dam Da Dee | 94857636654876 | 73 | 3:38 | |
-| 31 | 머무르-꿈꾸던 어른이 되었나요 | 89442781401038 | 69 | 3:26 | |
-| 32 | IVE-Looks Can Kill | 106717797623758 | 64 | 3:11 | |
-| 33 | NMIXX-긴 소원(Birthday Wish) | 71227645100967 | 67 | 3:20 | |
-| 34 | NCT WISH-I SPY | 125162124703337 | 62 | 3:05 | |
-| 35 | IOI-갑자기 | 73546697163709 | 65 | 3:14 | |
-| 36 | TAEYEON-만찬가 | 85454054799377 | 73 | 3:38 | |
-| 37 | IU-이 별로부터 | 82037005465590 | 75 | 3:44 | |
-| 38 | CORTIS-REDRED | 115957470310890 | 54 | 2:41 | |
-| 39 | BIG Naughty-노스탈지아 | 101304843634159 | 65 | 3:14 | |
-| 40 | BIGBANG-BiiiG | 107790212422874 | 55 | 2:44 | |
-| 41 | BOYNEXTDOOR-ANIMAL | 94498201288355 | 48 | 2:23 | |
+| 25 | IOI-갑자기 | 73546697163709 | 65 | 3:14 | |
 
 ## 곡별 값 (D-766, 2026-11-03)
 
@@ -87,7 +71,7 @@ speed 1, volume 10, octave 0.5, engine "sound" 는 공통.
 
 ## 3. 턴테이블 랩(테스트 장소)에 넣을 때
 
-테스트 장소 "테스트" 86558282086977 (tools/test_places/turntable_lab)의 저장 형식은 soundId별 표예요. 29곡에 같은 값을 넣는 표:
+테스트 장소 "테스트" 86558282086977 (tools/test_places/turntable_lab)의 저장 형식은 soundId별 표예요. 곡 목록(곡별 값이 있는 곡은 위 표 값):
 
 ```lua
 local UP = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }
@@ -104,23 +88,7 @@ local LAB = {
 	["74555169365877"] = UP, -- A2O LITE-NEON
 	["113196766736048"] = UP, -- SOYEON-퇴사할게여
 	["92011448544342"] = UP, -- ILLIT-체포하겠어
-	["99853291768808"] = UP, -- RESCENE-LOVE-ATTACK
-	["110720215000082"] = UP, -- LUMIN-88
-	["76215165790142"] = UP, -- 헤이즈-빈틈을 채워 준 너에게
-	["112657196644886"] = UP, -- LUMIN-HIDE
-	["89952029801748"] = UP, -- MY:RAKL-오색 낙원
-	["94857636654876"] = UP, -- Darla Jean-Dam Da Dee
-	["89442781401038"] = UP, -- 머무르-꿈꾸던 어른이 되었나요
-	["106717797623758"] = UP, -- IVE-Looks Can Kill
-	["71227645100967"] = UP, -- NMIXX-긴 소원(Birthday Wish)
-	["125162124703337"] = UP, -- NCT WISH-I SPY
 	["73546697163709"] = UP, -- IOI-갑자기
-	["85454054799377"] = UP, -- TAEYEON-만찬가
-	["82037005465590"] = UP, -- IU-이 별로부터
-	["115957470310890"] = UP, -- CORTIS-REDRED
-	["101304843634159"] = UP, -- BIG Naughty-노스탈지아
-	["107790212422874"] = UP, -- BIGBANG-BiiiG
-	["94498201288355"] = UP, -- BOYNEXTDOOR-ANIMAL
 }
 ```
 

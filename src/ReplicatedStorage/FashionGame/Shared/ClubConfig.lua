@@ -188,6 +188,8 @@ ClubConfig.Playlist = {
 	-- (D-755, user 2026-11-02: "음원도 추가해라", the saved lab values on all of
 	-- them) the user's K-POP uploads: the 9 from before D-739 with their
 	-- choreographies, and 20 new. length = seconds at x1 (heard: ÷ 0.335).
+	-- (D-766: the user's per-track lab values on 10; D-767: 16 uploads taken out,
+	-- 13 left)
 	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
@@ -202,23 +204,7 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 74555169365877, length = 74, lab = UP },
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 113196766736048, length = 71, lab = UP },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 92011448544342, length = 61, lab = UP },
-	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 99853291768808, length = 61, lab = UP },
-	{ channel = "K-POP", title = "LUMIN-88", soundId = 110720215000082, length = 55, lab = UP },
-	{ channel = "K-POP", title = "헤이즈-빈틈을 채워 준 너에게", soundId = 76215165790142, length = 82, lab = UP },
-	{ channel = "K-POP", title = "LUMIN-HIDE", soundId = 112657196644886, length = 78, lab = UP },
-	{ channel = "K-POP", title = "MY:RAKL-오색 낙원", soundId = 89952029801748, length = 61, lab = UP },
-	{ channel = "K-POP", title = "Darla Jean-Dam Da Dee", soundId = 94857636654876, length = 73, lab = UP },
-	{ channel = "K-POP", title = "머무르-꿈꾸던 어른이 되었나요", soundId = 89442781401038, length = 69, lab = UP },
-	{ channel = "K-POP", title = "IVE-Looks Can Kill", soundId = 106717797623758, length = 64, lab = UP },
-	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 71227645100967, length = 67, lab = UP },
-	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 125162124703337, length = 62, lab = UP },
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 73546697163709, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.4, octave = 0.5, low = -9.5, mid = 6, high = 0, engine = "sound" } },
-	{ channel = "K-POP", title = "TAEYEON-만찬가", soundId = 85454054799377, length = 73, lab = UP },
-	{ channel = "K-POP", title = "IU-이 별로부터", soundId = 82037005465590, length = 75, lab = UP },
-	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 115957470310890, length = 54, lab = UP },
-	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 101304843634159, length = 65, lab = UP },
-	{ channel = "K-POP", title = "BIGBANG-BiiiG", soundId = 107790212422874, length = 55, lab = UP },
-	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 94498201288355, length = 48, lab = UP },
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside

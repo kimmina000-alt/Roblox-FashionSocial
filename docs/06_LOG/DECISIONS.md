@@ -1671,3 +1671,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-766 (2026-11-03) 곡별 설정값 10곡, IOI-갑자기 새 음원
 - 사용자 값을 곡마다 `lab = { ... }`로 넣음(나머지 19곡은 UP 그대로): ATEEZ-BAD 템포 0.333 부스트 2.5, 소원을 말해봐 0.334/2.5 (저 -5 중 2), Bubble Pop 0.333/2.5 (-6/0.5/-7), Get A Guitar·Love 119 0.333/3 (-7/-3/1.5), Catch Catch 0.34/3 (-13/2.5/4), Lemon Tang 0.333/3 (-3/2/0), Lemonade 0.333/3 (-11/0/-2.5), Mirror 0.332/3 (-10.5/5/4.5), IOI-갑자기 0.333/2.4 (-9.5/6/0).
 - IOI-갑자기 soundId 82649881602599 → 73546697163709 (길이 65초 그대로). docs/04_ART/CLUB_PLAYLIST.md.
+## D-767 (2026-11-03) 업로드 음원 16곡 삭제
+- 사용자 요청으로 ClubConfig.Playlist에서 뺌: TAEYEON-만찬가, IU-이 별로부터, CORTIS-REDRED, BIG Naughty-노스탈지아, BIGBANG-BiiiG, BOYNEXTDOOR-ANIMAL, RESCENE-LOVE-ATTACK, LUMIN-88, 헤이즈-빈틈을 채워 준 너에게, LUMIN-HIDE, MY:RAKL-오색 낙원, Darla Jean-Dam Da Dee, 머무르-꿈꾸던 어른이 되었나요, IVE-Looks Can Kill, NMIXX-긴 소원, NCT WISH-I SPY.
+- 남은 곡: 로블록스 12 + 업로드 13 = 25곡. 테스트 장소(턴테이블 랩) 코드는 손대지 않음. docs/04_ART/CLUB_PLAYLIST.md.
