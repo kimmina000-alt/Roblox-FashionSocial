@@ -2253,6 +2253,7 @@ end
 -- (D-799, user: tap an item in 착용 중 → full name, big picture, buy / cart)
 do
 	local view = require(script.Parent:WaitForChild("ItemDetail")).new(function(text) showToast(text) end)
+	itemDetail.view = view
 	view.onChanged = function(count: number)
 		itemDetail.badge.Visible = count > 0
 		itemDetail.badge.Text = tostring(count)
@@ -2329,6 +2330,74 @@ local function isShoeBundleWorn(bundleId: number): boolean
 		if not currentWornItems[id] then return false end
 	end
 	return true
+end
+
+-- (D-829, user) "👗 입은 옷 모두 담기" in the cart: everything worn now goes in
+-- the cart, a worn full-body / head / shoes bundle as its bundle (not its
+-- parts, like 착용 중), leaving out what the player already owns and what is
+-- not for sale.
+do
+	local busy = false
+	itemDetail.view.onAddWorn = function()
+		if busy then return end
+		busy = true
+		task.spawn(function()
+			refreshWornItems() -- (what the server says is worn now)
+			local entries, inBundle = {}, {}
+			local seen = {}
+			local bundleIds = {}
+			for _, item in ipairs(recentItems) do
+				if item.ItemType == "Bundle" and typeof(item.Id) == "number" then table.insert(bundleIds, { id = item.Id, itemType = "Bundle" }) end
+			end
+			for _, favorite in ipairs(favoriteItems) do
+				if favorite.itemType == "Bundle" and typeof(favorite.id) == "number" then table.insert(bundleIds, { id = favorite.id, itemType = "Bundle" }) end
+			end
+			local bundleDetails = fetchItemDetails(bundleIds)
+			for _, entry in ipairs(bundleIds) do
+				local detail = bundleDetails[itemKey("Bundle", entry.id)]
+				local bundleType = detail and tostring(detail.BundleType)
+				if bundleType and WearableBundles.core[bundleType] and not seen[entry.id] then
+					seen[entry.id] = true
+					if not WearableBundles.coreAssets[entry.id] then
+						local loaded = false
+						loadShoeBundleAssets(entry.id, bundleType, function() loaded = true end)
+						local waited = 0
+						while not loaded and waited < 4 and not WearableBundles.coreAssets[entry.id] do waited += task.wait(0.1) end
+					end
+					if isShoeBundleWorn(entry.id) then
+						table.insert(entries, entry)
+						for _, id in ipairs(shoeBundleAssets[entry.id] or {}) do inBundle[id] = true end
+					end
+				end
+			end
+			for _, assetId in ipairs((getWornOrder())) do
+				if not inBundle[assetId] then table.insert(entries, { id = assetId, itemType = "Asset" }) end
+			end
+			if #entries == 0 then
+				busy = false
+				showToast("입고 있는 아이템이 없어요.")
+				return
+			end
+			local ok, done, owned = pcall(function() return TryOnItem:InvokeServer("Owned", entries) end)
+			owned = if ok and done == true and typeof(owned) == "table" then owned else {}
+			local details = fetchItemDetails(entries)
+			local items, ownedCount = {}, 0
+			for _, entry in ipairs(entries) do
+				local k = itemKey(entry.itemType, entry.id)
+				if owned[(if entry.itemType == "Bundle" then "Bundle:" else "Asset:") .. entry.id] then
+					ownedCount += 1
+				elseif details[k] then
+					table.insert(items, details[k])
+				end
+			end
+			local added, offSale = itemDetail.view:addMany(items)
+			busy = false
+			local parts = { string.format("%d개 담았어요", added) }
+			if ownedCount > 0 then table.insert(parts, string.format("가진 아이템 %d개", ownedCount)) end
+			if offSale > 0 then table.insert(parts, string.format("판매 안 함 %d개", offSale)) end
+			showToast(table.concat(parts, " · ") .. ".")
+		end)
+	end
 end
 
 createItemCard = function(item: any, layoutOrder: number)

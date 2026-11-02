@@ -101,6 +101,9 @@ function ItemDetail.new(showToast: (string) -> ())
 	self.item = nil :: any
 	-- (D-800) called with the number of items whenever the cart changes (the catalog's 🛒 badge)
 	self.onChanged = function(_count: number) end
+	-- (D-829) set by the catalog: puts the worn items in the cart (addMany)
+	self.onAddWorn = function() self.toast("잠시 후 다시 눌러 주세요.") end
+	self.savingOutfit = false
 
 	local gui = create("ScreenGui", {
 		Name = "ItemDetailGui",
@@ -242,10 +245,20 @@ function ItemDetail.new(showToast: (string) -> ())
 		AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -8, 0, 8), Size = UDim2.fromOffset(30, 30),
 	})
 	cartClose.Activated:Connect(function() self:close() end)
+	-- (D-829, user) put everything worn in the cart at once, and save the look
+	-- as an outfit on the player's Roblox account (Roblox's own save window)
+	self.addWornButton = button(cartPanel, "👗 입은 옷 모두 담기", COLORS.cart, {
+		Name = "AddWorn", Position = UDim2.fromOffset(10, 42), Size = UDim2.new(0.5, -14, 0, 34), TextSize = 13,
+	})
+	self.saveOutfitButton = button(cartPanel, "💾 코디 저장", COLORS.plain, {
+		Name = "SaveOutfit", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -10, 0, 42), Size = UDim2.new(0.5, -6, 0, 34), TextSize = 13,
+	})
+	self.addWornButton.Activated:Connect(function() self.onAddWorn() end)
+	self.saveOutfitButton.Activated:Connect(function() self:saveOutfit() end)
 	local list = create("ScrollingFrame", {
 		Name = "Items",
-		Position = UDim2.fromOffset(10, 42),
-		Size = UDim2.new(1, -20, 1, -98),
+		Position = UDim2.fromOffset(10, 84),
+		Size = UDim2.new(1, -20, 1, -140),
 		BackgroundTransparency = 1,
 		BorderSizePixel = 0,
 		ScrollBarThickness = 6,
@@ -321,6 +334,59 @@ function ItemDetail:toggleCart(item: any)
 	self.onChanged(#self.cart)
 	self.toast("장바구니에 담았어요. (" .. #self.cart .. "개)")
 	self:renderDetail()
+end
+
+-- (D-829) several items at once (입은 옷 모두 담기): only the ones for sale and
+-- not in the cart yet. Returns how many went in and how many were not for sale.
+function ItemDetail:addMany(items: {any}): (number, number)
+	local added, offSale = 0, 0
+	for _, item in ipairs(items) do
+		if priceOf(item) == nil then
+			offSale += 1
+		elseif not self:inCart(item) then
+			table.insert(self.cart, item)
+			added += 1
+		end
+	end
+	self.onChanged(#self.cart)
+	if self.gui.Enabled and self.cartPanel.Visible then self:renderCart() end
+	return added, offSale
+end
+
+-- (D-829) the character as it looks now, saved as an outfit on the player's
+-- Roblox account (avatar page > 코디/Outfits). Roblox opens its own window to
+-- name it; the player confirms there.
+function ItemDetail:saveOutfit()
+	if self.savingOutfit then return end
+	local character = player.Character
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not humanoid then
+		self.toast("캐릭터가 준비되면 다시 눌러 주세요.")
+		return
+	end
+	self.savingOutfit = true
+	task.spawn(function()
+		local AvatarEditorService = game:GetService("AvatarEditorService")
+		local ok, err = pcall(function()
+			local description = humanoid:GetAppliedDescription()
+			AvatarEditorService:PromptCreateOutfit(description, humanoid.RigType)
+		end)
+		if not ok then
+			self.savingOutfit = false
+			warn("[ItemDetail] PromptCreateOutfit failed:", err)
+			self.toast("코디 저장 창을 열지 못했어요.")
+			return
+		end
+		local result = AvatarEditorService.PromptCreateOutfitCompleted:Wait()
+		self.savingOutfit = false
+		if result == Enum.AvatarPromptResult.Success then
+			self.toast("코디를 Roblox 계정에 저장했어요. (아바타 > 코디)")
+		elseif result == Enum.AvatarPromptResult.PermissionDenied then
+			self.toast("코디 저장을 취소했어요.")
+		else
+			self.toast("코디를 저장하지 못했어요. 안 산 아이템이 있으면 먼저 구매해 주세요.")
+		end
+	end)
 end
 
 function ItemDetail:buyOne(item: any)
@@ -444,7 +510,7 @@ function ItemDetail:renderCart()
 		create("TextLabel", {
 			Size = UDim2.new(1, 0, 0, 60),
 			BackgroundTransparency = 1,
-			Text = "담은 아이템이 없어요. 아이템을 눌러 🛒 담기를 해 보세요.",
+			Text = "담은 아이템이 없어요. 아이템을 눌러 🛒 담기를 하거나 👗 입은 옷 모두 담기를 눌러 보세요.",
 			TextColor3 = COLORS.sub,
 			Font = Enum.Font.Gotham,
 			TextSize = 13,

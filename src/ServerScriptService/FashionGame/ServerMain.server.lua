@@ -288,6 +288,25 @@ TryOnItem.OnServerInvoke = function(
 		return true
 	end
 
+	-- (D-829) which of these the player already owns, so "입은 옷 모두 담기"
+	-- leaves them out of the cart. Returns a set of "Asset:id" / "Bundle:id".
+	if action == "Owned" then
+		if typeof(payload) ~= "table" or #payload > 60 then return false, "Invalid list." end
+		local MarketplaceService = game:GetService("MarketplaceService")
+		local owned = {}
+		for _, entry in ipairs(payload) do
+			local id, itemType = typedItem(entry)
+			if id and id > 0 then
+				local ok, has = pcall(function()
+					if itemType == "Bundle" then return MarketplaceService:PlayerOwnsBundle(player, id) end
+					return MarketplaceService:PlayerOwnsAsset(player, id)
+				end)
+				if ok and has then owned[(if itemType == "Bundle" then "Bundle:" else "Asset:") .. id] = true end
+			end
+		end
+		return true, owned
+	end
+
 	if action == "Wear" then
 		local id, itemType = typedItem(payload)
 		if not id then
