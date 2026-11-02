@@ -51,15 +51,36 @@ def reset_scene():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
 
-def iter_fcurves(action):
-    """F-curves of an action. Blender 4.x: action.fcurves. Blender 5.x: layers -> strips -> channelbags."""
+def fcurve_containers(action):
+    """Collections that hold F-curves. Blender 4.x: action.fcurves. Blender 5.x: layers -> strips -> channelbags."""
     if hasattr(action, "fcurves"):
-        yield from action.fcurves
+        yield action.fcurves
         return
     for layer in action.layers:
         for strip in layer.strips:
             for channelbag in getattr(strip, "channelbags", []):
-                yield from channelbag.fcurves
+                yield channelbag.fcurves
+
+
+def iter_fcurves(action):
+    for container in fcurve_containers(action):
+        yield from container
+
+
+ROOT_BONE = "LowerTorso"  # the Roblox root joint (was hips_JNT)
+
+
+def remove_root_translation(armature):
+    """Delete location F-curves of the root bone so the dance stays in place."""
+    removed = 0
+    path = f'pose.bones["{ROOT_BONE}"].location'
+    for action in bpy.data.actions:
+        for container in fcurve_containers(action):
+            for fc in list(container):
+                if fc.data_path == path:
+                    container.remove(fc)
+                    removed += 1
+    return removed
 
 
 def rename_all(armature):
@@ -104,6 +125,7 @@ def process(path, out_dir):
 
     renamed, missing = rename_all(armature)
     print(f"[{os.path.basename(path)}] renamed {len(renamed)} bones")
+    print(f"  removed {remove_root_translation(armature)} root translation curves")
     if missing:
         print(f"  not found in this file: {', '.join(missing)}")
 
