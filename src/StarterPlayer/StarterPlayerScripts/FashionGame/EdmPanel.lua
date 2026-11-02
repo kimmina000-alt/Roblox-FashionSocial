@@ -5,6 +5,7 @@
 --   [🎛 EDM 1][🎛 EDM 2][🎛 EDM 3][🔄 초기화]   (D-759: a button per track, the
 --                                               lit one plays; D-736: 초기화 = sliders back to x1)
 --   ⚡ EDM 속도   ━━━●━━ x1.00     (the EDM track's speed)
+--   🔉 EDM 볼륨   ━━━●━━ x1.0      (the EDM track alone, D-764)
 --   🎵 노래 속도  ━━━●━━ x1.00     (the song: the old "MusicSpeed" action)
 --   🔊 볼륨       ━━━●━━ x1.0      (the old "MusicVolume" action)
 -- Sliders send while dragging (a few times a second) and on release.
@@ -86,6 +87,7 @@ function EdmPanel.new(parent: Instance): Panel
 	create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, resetButton)
 	resetButton.Activated:Connect(function()
 		call("Edm", { k = "speed", v = 1 })
+		call("Edm", { k = "volume", v = 1 })
 		call("MusicSpeed", 1)
 		call("MusicVolume", 1)
 	end)
@@ -146,6 +148,7 @@ function EdmPanel.new(parent: Instance): Panel
 		end)
 	end
 	slider("edm", "⚡ EDM 속도", EdmConfig.EdmSpeed, "x%.2f", function(v) call("Edm", { k = "speed", v = v }) end)
+	slider("edmVolume", "🔉 EDM 볼륨", EdmConfig.EdmVolume, "x%.1f", function(v) call("Edm", { k = "volume", v = v }) end) -- (D-764)
 	slider("song", "🎵 노래 속도", EdmConfig.SongSpeed, "x%.2f", function(v) call("MusicSpeed", v) end)
 	slider("volume", "🔊 노래 볼륨", EdmConfig.Volume, "x%.1f", function(v) call("MusicVolume", v) end) -- (name: user's picture, D-737)
 
@@ -168,6 +171,7 @@ function EdmPanel.new(parent: Instance): Panel
 			button.BackgroundColor3 = if on and (st.track or 1) == i then ON else OFF
 		end
 		showSlider("edm", if typeof(st.speed) == "number" then st.speed else 1)
+		showSlider("edmVolume", if typeof(st.volume) == "number" then st.volume else 1)
 		showSlider("song", num("ClubMusicSpeed", 1))
 		showSlider("volume", num("ClubMusicVolume", 1))
 	end
@@ -178,8 +182,9 @@ function EdmPanel.new(parent: Instance): Panel
 
 	-- lays itself out from y in its parent; returns the height used
 	local function place(y: number, width: number, compact: boolean): number
-		local h = if compact then 22 else 28
-		local gap = if compact then 4 else 6
+		-- (phones: 20 / 2 since D-764's fifth row, to stay inside the window)
+		local h = if compact then 20 else 28
+		local gap = if compact then 2 else 6
 		local leftW = math.floor(width * 0.3) -- (the EDM button / a slider's name)
 		local valueW = if compact then 40 else 46
 		frame.Position = UDim2.fromOffset(0, y)
@@ -193,7 +198,7 @@ function EdmPanel.new(parent: Instance): Panel
 		end
 		resetButton.Position = UDim2.fromOffset(n * (each + gap), 0)
 		resetButton.Size = UDim2.fromOffset(width - n * (each + gap), h)
-		for i, key in ipairs({ "edm", "song", "volume" }) do
+		for i, key in ipairs({ "edm", "edmVolume", "song", "volume" }) do
 			local s = sliders[key]
 			local rowY = i * (h + gap)
 			if s.name then
@@ -206,7 +211,7 @@ function EdmPanel.new(parent: Instance): Panel
 			s.value.Position = UDim2.fromOffset(width - valueW, rowY)
 			s.value.Size = UDim2.fromOffset(valueW, h)
 		end
-		local total = 4 * h + 3 * gap
+		local total = 5 * h + 4 * gap
 		frame.Size = UDim2.fromOffset(width, total)
 		return total
 	end

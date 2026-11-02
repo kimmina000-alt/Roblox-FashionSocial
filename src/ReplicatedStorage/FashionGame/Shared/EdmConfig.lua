@@ -23,6 +23,7 @@ return {
 	-- the sliders' ranges (the song speed and volume use ClubConfig.MusicSpeeds /
 	-- MusicVolumes steps on the server)
 	EdmSpeed = { min = 0.5, max = 2, step = 0.05 },
+	EdmVolume = { min = 0, max = 3, step = 0.1 }, -- (D-764: the EDM track alone)
 	SongSpeed = { min = 0.5, max = 2, step = 0.05 },
 	Volume = { min = 0, max = 3, step = 0.1 },
 }

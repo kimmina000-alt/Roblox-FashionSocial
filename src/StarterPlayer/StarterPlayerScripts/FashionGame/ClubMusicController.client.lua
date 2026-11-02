@@ -479,7 +479,11 @@ local function layout()
 	-- held both, at the right edge.)
 	panel.AnchorPoint = Vector2.zero
 	panel.Position = UDim2.new(0, 12, 0, top)
-	listPanel.Position = UDim2.new(1, -width - 12, 0, top)
+	-- (D-763, user: the DJ tip's grow ran off the right edge) the list window at
+	-- the right edge hangs from its right corner, so Spotlight's UIScale grows it
+	-- leftwards (as D-737 did for the old one-window PC layout)
+	listPanel.AnchorPoint = Vector2.new(1, 0)
+	listPanel.Position = UDim2.new(1, -12, 0, top)
 	listPanel.Size = UDim2.fromOffset(width, height)
 	panel.Size = UDim2.fromOffset(width, height)
 	local W, H = width - 20, height - 20

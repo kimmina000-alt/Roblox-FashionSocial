@@ -104,7 +104,8 @@ RunService.Heartbeat:Connect(function()
 		if edm.IsPlaying then edm:Stop() end
 		return
 	end
-	edmVolume.Volume = djVolume
+	-- (D-764) the EDM track's own volume on top of the DJ's song volume
+	edmVolume.Volume = djVolume * (if typeof(state.volume) == "number" then state.volume else 1)
 	edm.Volume = music.Volume -- (the song's level here: zones, the photo booth's mute)
 	local speed = if typeof(state.speed) == "number" then state.speed else 1
 	edm.PlaybackSpeed = playSpeed * speed
