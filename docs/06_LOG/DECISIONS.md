@@ -1724,4 +1724,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 색 나누기(tools/art/CakeKinds.cs, 사진 docs/04_ART/references/cakes/): 티라미수 = 크럼 바닥 · 흰 마스카포네 벽 · 코코아 윗면 두 톤 · 금색 장식(글자 없음) · 금박 2; 바스크 = 캐러멜 윗면 · 탄 테두리 · 탄 옆면(정면/꺾인 면 두 톤) · 접힌 곳 크림색; 딸기 = 크림색 받침판 · 흰 크림 케이크 · 크림 방울 고리(Balls로 찾은 고리 중심 0.5, 5.5 반지름 38.5) · 딸기 6개(중심 6곳) · 타임 잎 · 가운데 빈 카드(글자 없음).
 - CakeCut이 케이크 종류(CakeKinds.Kind: 그룹·색·통째로 남길 부품·받침 높이·단면 색·자를 위치 기준)를 받게 넓힘(빈티지 결과는 그대로). 2만 삼각형(Qem) → 크림 장식이 적은 각도에서 6조각, 단면: 티라미수 크럼·마스카포네·커피 시트·코코아, 바스크 커스터드 + 겉 탄 껍질, 딸기 크림 코팅·시트 2단·딸기 단면 2줄. 받침판 없는 두 케이크는 케이크만 한 원판(접시)을 Board로.
 - 결과: docs/04_ART/models/TiramisuCakeSliced.gltf, BasqueCheesecakeSliced.gltf, StrawberryCreamCakeSliced.gltf (폭 3 스터드), 미리보기 docs/04_ART/textures/cakes/*_sliced_preview.png. 다시 만들기: tools/art/cake_cut.ps1 -Kind <kind> -Width 3.0.
-- SnackService.CAKE_MODELS에 세 모델 이름 연결. 사용자가 Studio에서 gltf 세 개를 가져오면(스크립트로는 메시를 올릴 수 없음) 색 흰색·ArtAssets.Foods로 옮기고 comingSoon 해제.
+- SnackService.CAKE_MODELS에 세 모델 이름 연결. 사용자가 Studio에서 gltf 세 개를 가져오면(스크립트로는 메시를 올릴 수 없음) 색 흰색·ArtAssets.Foods로 옮기고 comingSoon 해제.- (D-781 이어서) 사용자가 gltf 세 개를 가져옴: 부품 흰색(팔레트 그림 83498327092454 / 95289368989120 / 102722040238954), 고정·충돌 없음, 바닥 가운데를 원점에 두고 ServerStorage.ArtAssets.Foods로(3.11×1.10 / 3.12×1.14 / 3.00×1.37). SnackConfig에서 세 케이크 comingSoon 해제(판매 시작). Studio Play: 세 케이크 카페 테이블에, 딸기·티라미수 '한 조각 먹기' → 손에 한 조각, 남은 5조각, 빠진 자리에 단면(시트·딸기 층). 오류 없음. 장소 저장 필요(모델은 장소에만 있음).
+
+## D-782 (2026-11-03) 새 업로드 5곡 ("여섯시…분1102")
+- 여섯시사분 IU-이 별로부터 96396723842714 (75.0초→3:45, 템포 0.333), 여섯시오분 CORTIS-REDRED 125703446596781 (54.4→2:43, 0.333), 여섯시육분 BIG Naughty-노스탈지아 116539470869444 (65.0→3:15, 0.333), 여섯시칠분 BIGBANG-BiiiG 113809029583519 (54.8→2:44, 0.334), 여섯시팔분 BOYNEXTDOOR-ANIMAL 130804487358433 (47.6→2:44, 0.290). 부스트 3, -3/2/0. 목록 37곡.
+- 여섯시이분 TAEYEON-만찬가 103785084548518은 Studio에서 안 불러와짐(대시보드 아이콘도 다름: 승인 전/거절로 보임) → 안 넣음. 여섯시·여섯시일분은 이미 있음(NMIXX, NCT WISH).
