@@ -4,7 +4,7 @@
 -- "Rankings" (RankingService).
 --   clubStrip  the strip above the club LED wall: the supporter ranking
 --              scrolls by; a new gift shows "○○님 후원 감사합니다!" for a while
---   todayBand  the corner screen on the tower over OH24: the latest supporters (avatar, amount, message) run along it (D-294)
+--   todayBand  the corner screen on the tower over OH24: ad → supporter's avatar + id → @id + message → avatar + id, for the latest supporters (D-294, D-777)
 --   support / level   the two boards in the park (user 2026-10-30): 기부 순위표
 --              and 레벨 순위표, top 50 each, on a see-through LED pane with a
 --              neon edge; the list scrolls by itself (and by hand)
@@ -417,7 +417,12 @@ local spark: any = nil
 local SPARK_SHOW = 30 -- (as long as the show, SparkleService COLD_SPARK_SECONDS)
 
 local WRAP_SPEED = 2.5 -- studs per second
-local CARD = 30 -- studs per card (the screen is 56 tall)
+local CARD = 30 -- studs per card (the screen is 64 tall since D-777)
+-- (D-777, user 2026-11-03) the ad shown between the supporters, as wide as its
+-- picture (1024 × 576, docs/04_ART/ads/led_ad_ohu_1103.png); the @id + message card
+local AD_IMAGE = "rbxassetid://78452328820553"
+local AD_ASPECT = 1024 / 576
+local TEXT_CARD = 40
 local SPARK_CARD = 96 -- a cold spark card: wide, fireworks over the message (user 2026-10-30)
 local FIREWORK = "rbxassetid://111289615885616" -- the user's pink firework on a clear ground (docs/04_ART/textures/firework_pink.png)
 local AVATAR_BACK = { 40, 26, 70 }
@@ -465,10 +470,9 @@ local function buildBandPanel(part: BasePart)
 	click.Parent = part
 	click.MouseClick:Connect(function() openVoteWindow() end)
 
-	local cards: {{ frame: Frame, entry: any, index: number, built: boolean }} = {}
+	-- (D-777) cards of their own widths: at = where the card starts in one round
+	local cards: {{ frame: Frame, entry: any, index: number, built: boolean, at: number, w: number }} = {}
 	local dark = false
-	local cardW = CARD
-	local spacing = 1
 	local shownKey = ""
 	-- the card's content is built the first time it shows on this panel
 	local function neonText(frame: Instance, props: {[string]: any}, glowColor: Color3)
@@ -538,31 +542,36 @@ local function buildBandPanel(part: BasePart)
 			end)
 			return
 		end
-		if entry == "title" then
-			label(frame, { Position = UDim2.fromScale(0.05, 0.28), Size = UDim2.fromScale(0.9, 0.2), Text = "💝 실시간",
-				Font = Enum.Font.GothamBlack, TextColor3 = GOLD })
-			label(frame, { Position = UDim2.fromScale(0.05, 0.5), Size = UDim2.fromScale(0.9, 0.24), Text = "후원",
-				Font = Enum.Font.GothamBlack, TextColor3 = GOLD })
+		-- (D-777, user 2026-11-03) the screen runs ad → avatar + id → @id + message
+		-- → avatar + id → ad …
+		if typeof(entry) == "table" and entry.ad then
+			local img = Instance.new("ImageLabel")
+			img.Size = UDim2.fromScale(1, 1)
+			img.BackgroundTransparency = 1
+			img.ScaleType = Enum.ScaleType.Fit
+			img.Image = AD_IMAGE
+			img.Parent = frame
 			return
 		end
+		if typeof(entry) == "table" and entry.say then
+			local who = entry.say
+			local message = if typeof(who.message) == "string" and who.message ~= "" then "“" .. who.message .. "”" else "“💝 후원 감사합니다”"
+			label(frame, { Position = UDim2.fromScale(0.04, 0.32), Size = UDim2.fromScale(0.92, 0.12), Text = "@" .. tostring(who.name),
+				Font = Enum.Font.GothamBlack })
+			label(frame, { Position = UDim2.fromScale(0.04, 0.47), Size = UDim2.fromScale(0.92, 0.16), Text = message,
+				Font = Enum.Font.GothamBold, TextWrapped = true, TextColor3 = Color3.fromRGB(255, 225, 240) })
+			return
+		end
+		entry = entry.look
 		local viewport = Instance.new("ViewportFrame")
 		viewport.Position = UDim2.fromScale(0.04, 0.04)
-		viewport.Size = UDim2.fromScale(0.92, 0.74)
+		viewport.Size = UDim2.fromScale(0.92, 0.8)
 		viewport.BackgroundColor3 = Color3.fromRGB(AVATAR_BACK[1], AVATAR_BACK[2], AVATAR_BACK[3])
 		viewport.BackgroundTransparency = 1 -- (0.3 until D-708: the avatar alone, user)
 		viewport.Parent = frame
-		label(frame, { Position = UDim2.fromScale(0.04, 0.05), Size = UDim2.fromScale(0.5, 0.09), Text = "💝 R$ " .. tostring(entry.amount),
-			TextColor3 = GOLD, TextXAlignment = Enum.TextXAlignment.Left })
-		label(frame, { Position = UDim2.fromScale(0.5, 0.05), Size = UDim2.fromScale(0.46, 0.08),
-			Text = string.format("👍%d 👎%d", entry.likes or 0, entry.dislikes or 0), Font = Enum.Font.GothamMedium,
-			TextXAlignment = Enum.TextXAlignment.Right })
-		label(frame, { Position = UDim2.fromScale(0.04, 0.79), Size = UDim2.fromScale(0.92, 0.11), Text = tostring(entry.name),
+		-- the id under the avatar (D-777: no amount / likes on the card any more)
+		label(frame, { Position = UDim2.fromScale(0.04, 0.85), Size = UDim2.fromScale(0.92, 0.09), Text = tostring(entry.name),
 			Font = Enum.Font.GothamBlack })
-		-- their message (filtered on the server)
-		if typeof(entry.message) == "string" and entry.message ~= "" then
-			label(frame, { Position = UDim2.fromScale(0.04, 0.9), Size = UDim2.fromScale(0.92, 0.08), Text = "“" .. entry.message .. "”",
-				Font = Enum.Font.GothamMedium, TextColor3 = Color3.fromRGB(255, 220, 235) })
-		end
 		if entry.hidden then
 			-- hidden by 싫어요 (D-281): the name only
 			viewport.Visible = false
@@ -581,36 +590,55 @@ local function buildBandPanel(part: BasePart)
 		gui = gui,
 		update = function()
 			local list = rankings.recent or {}
-			local entries: {any} = { "title" }
+			local AD = { ad = true }
+			local entries: {any} = {}
 			if spark and os.clock() < spark.untilAt then
 				entries = { spark }
 			elseif #list == 0 then
-				entries = PROMOS
+				-- nobody has given yet: the ad, then the OHU ads
+				entries = { AD }
+				for _, promo in ipairs(PROMOS) do table.insert(entries, promo) end
 			else
-				for i = 1, math.min(5, #list) do table.insert(entries, list[i]) end
+				-- (D-777) for each of the latest supporters: ad, avatar, @id + message, avatar
+				for i = 1, math.min(5, #list) do
+					table.insert(entries, AD)
+					table.insert(entries, { look = list[i] })
+					table.insert(entries, { say = list[i] })
+					table.insert(entries, { look = list[i] })
+				end
 			end
-			dark = entries ~= nil and entries[1] ~= "title"
+			dark = #list == 0 or entries[1] == spark
 			-- (the ads and the spark hold colours / tables JSON cannot encode)
-			local key = if entries == PROMOS then "promos"
+			local key = if #list == 0 and entries[1] ~= spark then "promos"
 				elseif entries[1] == spark then "spark" .. tostring(spark.untilAt)
-				else HttpService:JSONEncode(entries)
+				else HttpService:JSONEncode(list)
 			if key == shownKey then return end
 			shownKey = key
 			for _, card in ipairs(cards) do card.frame:Destroy() end
 			cards = {}
 			local total = bandLength()
-			-- as many rounds of the cards as fit with a gap between them
-			cardW = if dark and entries[1] == spark then SPARK_CARD else CARD
-			local copies = math.max(1, math.floor(total / (#entries * cardW * 1.4)))
-			spacing = total / (#entries * copies)
+			local function widthOf(entry: any): number
+				if entry == spark then return SPARK_CARD end
+				if entry.ad then return part.Size.Y * AD_ASPECT end
+				if entry.say then return TEXT_CARD end
+				return CARD
+			end
+			-- as many rounds of the cards as fit, the gaps stretched to fill the band
+			local round = 0
+			for _, entry in ipairs(entries) do round += widthOf(entry) end
+			local copies = math.max(1, math.floor(total / (round * 1.15)))
+			local gap = (total / copies - round) / #entries
+			local at = 0
 			for _ = 1, copies do
 				for index, entry in ipairs(entries) do
+					local w = widthOf(entry)
 					local frame = Instance.new("Frame")
-					frame.Size = UDim2.new(0, cardW * pps, 1, 0)
+					frame.Size = UDim2.new(0, w * pps, 1, 0)
 					frame.BackgroundTransparency = 1
 					frame.Visible = false
 					frame.Parent = bg
-					table.insert(cards, { frame = frame, entry = entry, index = index - 1, built = false })
+					table.insert(cards, { frame = frame, entry = entry, index = index - 1, built = false, at = at, w = w })
+					at += w + gap
 				end
 			end
 		end,
@@ -627,10 +655,10 @@ local function buildBandPanel(part: BasePart)
 				ColorSequenceKeypoint.new(0.5, waveColor(bandStart + width / 2)),
 				ColorSequenceKeypoint.new(1, waveColor(bandStart + width)),
 			})
-			for i, card in ipairs(cards) do
-				local pos = ((i - 1) * spacing + offset - bandStart) % total
-				if pos > total - cardW then pos -= total end
-				local visible = pos < width and pos > -cardW
+			for _, card in ipairs(cards) do
+				local pos = (card.at + offset - bandStart) % total
+				if pos > total - card.w then pos -= total end
+				local visible = pos < width and pos > -card.w
 				card.frame.Visible = visible
 				if visible then
 					if not card.built then fill(card) end

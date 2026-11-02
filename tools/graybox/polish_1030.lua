@@ -1309,4 +1309,61 @@ if cafe then
 	table.insert(log, "upstairs lights 6")
 end
 
+---------------------------------------------------------------- 23. pizza awning corner mitred (user 2026-11-03, screenshot)
+-- Step 18 ran both awnings past the corner to each other's outer edge, so they
+-- crossed there (a fold of red sticking out). Now each stops where the other
+-- starts at the wall (west: z 65.70, north: x -135.12) and two right triangles
+-- (thin wedges) fill the corner up to the diagonal from the top corner T to the
+-- outer bottom corner B: a hip like a real corner awning.
+if store15 and not store15:GetAttribute("Polish1030_23") then
+	local F = store15:FindFirstChild("PizzaFront")
+	local west, north
+	if F then
+		for _, p in ipairs(F:GetChildren()) do
+			if p:IsA("BasePart") and p.Name == "PizzaAwning" and math.abs(p.Position.Z - p.Size.Z / 2 - 63.2) < 0.1 then west = p end
+		end
+		north = F:FindFirstChild("PizzaAwningNorth")
+	end
+	if west and north then
+		store15:SetAttribute("Polish1030_23", true)
+		local RED = west.Color
+		local slopeW = west.CFrame.UpVector -- up the west awning, towards the wall
+		local slopeN = north.CFrame.UpVector -- up the north awning
+		local top = west.Position + slopeW * (west.Size.Y / 2) -- the west awning's top edge line
+		local T = Vector3.new(top.X, top.Y, north.Position.Z + slopeN.Z * north.Size.Y / 2)
+		local bottomW = west.Position - slopeW * (west.Size.Y / 2)
+		local bottomN = north.Position - slopeN * (north.Size.Y / 2)
+		local B = Vector3.new(bottomW.X, bottomW.Y, bottomN.Z)
+		-- west awning: from z T.Z on
+		local z1 = west.Position.Z + west.Size.Z / 2
+		west.Size = Vector3.new(west.Size.X, west.Size.Y, z1 - T.Z)
+		west.CFrame = west.CFrame.Rotation + Vector3.new(west.Position.X, west.Position.Y, (T.Z + z1) / 2)
+		-- north awning: up to x T.X
+		local x1 = north.Position.X + north.Size.X / 2
+		north.Size = Vector3.new(x1 - T.X, north.Size.Y, north.Size.Z)
+		north.CFrame = north.CFrame.Rotation + Vector3.new((T.X + x1) / 2, north.Position.Y, north.Position.Z)
+		-- a right triangle R (right angle) → A along the slope (h), R → Bv (d):
+		-- a WedgePart has its right angle at local (y -h/2, z +d/2), A at +y, Bv at -z
+		local function tri(name: string, R: Vector3, A: Vector3, Bv: Vector3)
+			local Y = (A - R).Unit
+			local Z = (R - Bv).Unit
+			local X = Y:Cross(Z)
+			local h, d = (A - R).Magnitude, (Bv - R).Magnitude
+			local w = Instance.new("WedgePart")
+			w.Name = name
+			w.Anchored = true
+			w.CanCollide = false
+			w.CanTouch = false
+			w.Size = Vector3.new(0.15, h, d)
+			w.CFrame = CFrame.fromMatrix(R + Y * (h / 2) - Z * (d / 2), X, Y, Z)
+			w.Color = RED
+			w.Material = Enum.Material.Fabric
+			w.Parent = F
+		end
+		tri("PizzaAwningCornerW", Vector3.new(B.X, B.Y, T.Z), T, B)
+		tri("PizzaAwningCornerN", Vector3.new(T.X, B.Y, B.Z), T, B)
+		table.insert(log, "pizza awning corner mitred")
+	end
+end
+
 return table.concat(log, " | ")
