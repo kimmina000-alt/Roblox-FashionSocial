@@ -3117,3 +3117,5 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### Studio 재시작 뒤 확인 · 업로드 15곡 랩 값 (D-793)
 - Studio 스크립트 125개를 git과 비교: RankingBoards(D-792)만 예전 코드 → 다시 넣음, FoodShapes 주석 한 줄 맞춤. 장소 변경은 모두 남아 있음.
 - 사용자 랩 값 15곡을 ClubConfig에 넣고 Studio에 동기화 (CLUB_PLAYLIST.md 갱신).
+### IU-이 별로부터 삭제 (D-794)
+- ClubConfig에서 한 줄 빼고 Studio에 동기화(곡 36개 확인). 음원 목록 문서도 맞춤.

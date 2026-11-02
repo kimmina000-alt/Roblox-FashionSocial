@@ -1773,3 +1773,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-793 (2026-11-03) 업로드 15곡 랩 값
 - 사용자가 보낸 값 그대로 ClubConfig에: RIIZE-Get A Guitar 부스트 5, RIIZE-Love 119 부스트 4.05 (저 -7 / 중 -3 / 고 1.5 그대로), ILLIT-체포하겠어 저 -1.5, RESCENE-LOVE-ATTACK 저 -11, BOYNEXTDOOR-ANIMAL 템포 0.29 → 0.335, 나머지 10곡은 부스트 3에 음색 보정 0/0/0. docs/04_ART/CLUB_PLAYLIST.md 표와 LAB 블록도 맞춤.
+
+## D-794 (2026-11-03) IU-이 별로부터 삭제
+- 사용자 요청: 클럽 플레이리스트에서 IU-이 별로부터(96396723842714)를 뺌. 36곡 = 로블록스 12 + 업로드 24. ClubConfig, CLUB_PLAYLIST.md(번호 33~36 당김). 턴테이블 랩(테스트 장소 코드)은 건드리지 않음.
