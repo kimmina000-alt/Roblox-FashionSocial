@@ -281,11 +281,27 @@ DrinkService.GiveCup = giveCup -- (SparkleService: cans from a sparkler bucket)
 local function isFriend(player: Player, ownerId: number): boolean
 	local key = player.UserId .. ":" .. ownerId
 	local cached = friendCache[key]
-	if cached and os.clock() - cached.at < 300 then return cached.value end
+	-- (D-773, user: a friend added after the bottle went down may pour too) a
+	-- "yes" is kept 5 min, a "no" only 5 s, so a new friend is asked again
+	if cached and os.clock() - cached.at < (if cached.value then 300 else 5) then return cached.value end
 	local ok, value = pcall(function()
 		return player:IsFriendsWith(ownerId)
 	end)
 	local result = ok and value == true
+	-- IsFriendsWith can answer from an old copy: a "no" is checked again on
+	-- the owner's friend list as it is now (a few pages, only on a "no")
+	if not result then
+		pcall(function()
+			local pages = Players:GetFriendsAsync(ownerId)
+			for _ = 1, 5 do
+				for _, friend in ipairs(pages:GetCurrentPage()) do
+					if friend.Id == player.UserId then result = true return end
+				end
+				if pages.IsFinished then return end
+				pages:AdvanceToNextPageAsync()
+			end
+		end)
+	end
 	friendCache[key] = { value = result, at = os.clock() }
 	return result
 end

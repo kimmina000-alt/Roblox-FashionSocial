@@ -1,8 +1,8 @@
 --!strict
 -- The first-time tips (user 2026-11-01, D-713), shown with Coach, each once,
 -- each skippable:
---   hud      after the place tour: the buttons on the screen (Roblox's on the
---            left, the clock, coins, ♥ 후원, ☰ and the buttons it opens)
+--   hud      after the place tour: the buttons on the screen (the clock,
+--            coins, ♥ 후원 and the top row; Roblox's own buttons not since D-774)
 --   catalog  the first time the catalog opens
 --   bag      the first time the 🎒 bag opens
 --   dance    the first time the dance window opens
@@ -18,7 +18,6 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
-local GuiService = game:GetService("GuiService")
 local CollectionService = game:GetService("CollectionService")
 
 local Coach = require(script.Parent:WaitForChild("Coach"))
@@ -56,12 +55,7 @@ local HUD: {Coach.Step} = {
 	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.", target = function() return TopBar.button(4) end },
 	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.", target = function() return TopBar.button(3) end },
 	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽에서는 지금 나오는 곡에 맞춰 춰요.", target = function() return TopBar.button(1) end },
-	{ title = "왼쪽 위 · Roblox 버튼", text = "Roblox 기본 버튼이에요. 메뉴(설정·나가기), 채팅, 음성 채팅을 여기서 켜고 꺼요.",
-		target = function()
-			local inset = GuiService.TopbarInset
-			if inset.Min.X <= 0 then return nil end
-			return Rect.new(6, inset.Min.Y + 4, inset.Min.X - 6, math.max(inset.Max.Y - 4, inset.Min.Y + 40))
-		end },
+	-- (D-774, user: no step for Roblox's own buttons at the top left)
 	{ title = "🕐 시간", text = "오후에는 시간이 흘러요. 실제 30분이 게임 속 하루예요. 해가 지고 밤(18:00~06:00)이 되면 클럽이 문을 열어요.",
 		target = find("FashionHudGui", "ClockPill") },
 	{ title = "₩ 소지금", text = "내 코인이에요. 게임에 있으면 1분마다 쌓이고, 카페 알바로 더 벌 수 있어요. 음식·아이템을 살 때 써요.",
@@ -69,7 +63,8 @@ local HUD: {Coach.Step} = {
 	{ title = "♥ 후원", text = "Robux로 오후를 후원하는 버튼이에요. 후원하면 화면 위 배너와 순위표·전광판에 이름과 메시지가 올라가요.",
 		target = function() return TopBar.button(5) end },
 	-- (D-716, user: the last words, at the guide's own patch)
-	{ title = "🐰 언제든 물어봐!", text = "더 궁금한 점은 공원 순위표 앞에 있는 나에게 찾아와!",
+	-- (D-774, user: polite to the end, like the rest of the tour)
+	{ title = "🐰 언제든 물어보세요!", text = "더 궁금한 점은 공원 순위표 앞에 있는 저에게 찾아와 주세요!",
 		camera = function()
 			local spot = GuideConfig.Npc.position
 			return CFrame.lookAt(spot + Vector3.new(16, 9, 14), spot + Vector3.new(0, 2, 0))

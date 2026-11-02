@@ -19,6 +19,12 @@ EconomyConfig.MaxBalance = 99999
 -- testing top-up (D-418), which put anyone under 100 back at 100 on every visit.
 EconomyConfig.WelcomeCoins = 50 -- (100 until D-758, user: not much to spend coins on yet)
 
+-- Attendance (user 2026-11-03, D-775): coming back on following days gives
+-- day 1..7 of this list, then it starts again at day 1 (every week). A missed
+-- day starts again at day 1. Days are Korean days (UTC+9, midnight KST).
+EconomyConfig.StreakCoins = { 10, 20, 30, 40, 50, 60, 100 }
+EconomyConfig.StreakUtcOffsetHours = 9
+
 -- Economy v2, first test (user, 2026-10-22; ECONOMY.md, D-074/D-083):
 -- 1 coin per minute online, whether the player moves or not, no daily cap,
 -- activity bonuses off. XP back on (user 2026-10-27): 1 XP per minute online,
