@@ -1674,3 +1674,5 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-767 (2026-11-03) 업로드 음원 16곡 삭제
 - 사용자 요청으로 ClubConfig.Playlist에서 뺌: TAEYEON-만찬가, IU-이 별로부터, CORTIS-REDRED, BIG Naughty-노스탈지아, BIGBANG-BiiiG, BOYNEXTDOOR-ANIMAL, RESCENE-LOVE-ATTACK, LUMIN-88, 헤이즈-빈틈을 채워 준 너에게, LUMIN-HIDE, MY:RAKL-오색 낙원, Darla Jean-Dam Da Dee, 머무르-꿈꾸던 어른이 되었나요, IVE-Looks Can Kill, NMIXX-긴 소원, NCT WISH-I SPY.
 - 남은 곡: 로블록스 12 + 업로드 13 = 25곡. 테스트 장소(턴테이블 랩) 코드는 손대지 않음. docs/04_ART/CLUB_PLAYLIST.md.
+## D-768 (2026-11-03) 업로드 2곡 추가: NMIXX-긴 소원, NCT WISH-I SPY
+- 새 음원 107782871991364 (66.7초 → 3:20), 90694654380166 (61.7초 → 3:05). 템포 = 원래 길이 ÷ 들리는 길이 = 둘 다 0.333. 부스트 3, 저/중/고 -3/2/0 (사용자). 목록 27곡.

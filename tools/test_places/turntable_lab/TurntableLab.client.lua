@@ -49,8 +49,8 @@ local TRACKS = {
 	{ title = "Darla Jean-Dam Da Dee", id = 94857636654876, up = true },
 	{ title = "머무르-꿈꾸던 어른이 되었나요", id = 89442781401038, up = true },
 	{ title = "IVE-Looks Can Kill", id = 106717797623758, up = true },
-	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 71227645100967, up = true },
-	{ title = "NCT WISH-I SPY", id = 125162124703337, up = true },
+	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 107782871991364, up = true }, -- (new upload, user 2026-11-03; was 71227645100967)
+	{ title = "NCT WISH-I SPY", id = 90694654380166, up = true }, -- (new upload, user 2026-11-03; was 125162124703337)
 	{ title = "IOI-갑자기", id = 73546697163709, up = true }, -- (new upload, user 2026-11-03; was 82649881602599)
 	{ title = "TAEYEON-만찬가", id = 85454054799377, up = true },
 	{ title = "IU-이 별로부터", id = 82037005465590, up = true },

@@ -1,6 +1,6 @@
 # 클럽 음원 목록 · 설정값 (2026-11-02, D-755)
 
-코드: `src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua` 의 `ClubConfig.Playlist` (25곡).
+코드: `src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua` 의 `ClubConfig.Playlist` (27곡).
 예전 목록·안무 기록: `OLD_CLUB_PLAYLIST.md`.
 
 ## 설정값 2가지
@@ -32,7 +32,7 @@
 | 11 | EDM | Festival Fever | 136228548293465 | 103 |
 | 12 | EDM | Euphoria Dance | 76814968175069 | 99 |
 
-## 2. 사용자 업로드 13곡 (3곡 `UP`, 10곡 곡별 값; D-767에서 16곡 삭제)
+## 2. 사용자 업로드 15곡 (3곡 `UP`, 12곡 곡별 값; D-767에서 16곡 삭제, D-768에서 2곡 추가)
 
 길이는 x1 기준(들리는 길이 = ÷ 0.335).
 
@@ -51,6 +51,8 @@
 | 23 | SOYEON-퇴사할게여 | 113196766736048 | 71 | 3:32 | |
 | 24 | ILLIT-체포하겠어 | 92011448544342 | 61 | 3:02 | |
 | 25 | IOI-갑자기 | 73546697163709 | 65 | 3:14 | |
+| 26 | NMIXX-긴 소원(Birthday Wish) | 107782871991364 | 67 | 3:20 | |
+| 27 | NCT WISH-I SPY | 90694654380166 | 62 | 3:05 | |
 
 ## 곡별 값 (D-766, 2026-11-03)
 
@@ -68,6 +70,8 @@ speed 1, volume 10, octave 0.5, engine "sound" 는 공통.
 | aespa-Lemonade | 0.333 | 3 | -11 | 0 | -2.5 |
 | IVE-Mirror | 0.332 | 3 | -10.5 | 5 | 4.5 |
 | IOI-갑자기 (새 음원 73546697163709) | 0.333 | 2.4 | -9.5 | 6 | 0 |
+| NMIXX-긴 소원 (107782871991364, D-768) | 0.333 | 3 | -3 | 2 | 0 |
+| NCT WISH-I SPY (90694654380166, D-768) | 0.333 | 3 | -3 | 2 | 0 |
 
 ## 3. 턴테이블 랩(테스트 장소)에 넣을 때
 
