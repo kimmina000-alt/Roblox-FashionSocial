@@ -425,6 +425,10 @@ end
 do
 	local lift = L and L:FindFirstChild("ClubLift")
 	local door = lift and lift:FindFirstChild("AutoDoor")
+	-- (D-821) the car's door line (its z moved to the corridor's end): the sign
+	-- and the blocker stand that far in front of it (they were at -187.5 / -184.9
+	-- with the door at -184)
+	local doorZ = if door then door.WorldPivot.Position.Z else -184
 	if door then
 		game:GetService("CollectionService"):RemoveTag(door, "AutoDoor")
 		door:SetAttribute("ClosedTemp", true)
@@ -432,7 +436,7 @@ do
 	if lift and not lift:FindFirstChild("LiftClosedSign") then
 		local m = Instance.new("Model")
 		m.Name = "LiftClosedSign"
-		local x, z = 57.75, -187.5 -- in front of the door, in the corridor
+		local x, z = 57.75, doorZ - 3.5 -- in front of the door, in the corridor
 		local lean = math.rad(12)
 		local W, H = 4.4 * 0.7, 7.2 * 0.7 -- (70 %, user 2026-10-29 (24))
 		local dz = H / 2 * math.sin(lean)
@@ -461,7 +465,7 @@ do
 		b.Anchored, b.CanCollide, b.CanTouch, b.CastShadow = true, true, false, false
 		b.Transparency = 1
 		b.Size = Vector3.new(16, 18, 0.6)
-		b.CFrame = CFrame.new(57.75, 9, -184.9)
+		b.CFrame = CFrame.new(57.75, 9, doorZ - 0.9)
 		b.Parent = lift
 	end
 	for _, d in ipairs(lift and lift:GetChildren() or {}) do

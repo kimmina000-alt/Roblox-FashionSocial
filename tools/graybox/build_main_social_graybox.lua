@@ -226,21 +226,23 @@ do local RED=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=
 box(z,"Wall_W",-82,F,(NZ-1),-80,RT,-149,WALL_C,WALLO)
 box(z,"Wall_E",80,F,(NZ-1),82,RT,-149,WALL_C,WALLO)
 box(z,"Wall_N",-80,F,(NZ-2),80,RT,NZ,WALL_C,WALLO)
-box(z,"Wall_S_L",-80,F,-151,-8,RT,-149,WALL_C,WALLO)
-box(z,"Wall_S_R",8,F,-151,80,RT,-149,WALL_C,WALLO)
+-- (D-821, user 2026-11-03) the street door twice as wide: 16 → 32 (ED = half)
+local ED=16
+box(z,"Wall_S_L",-80,F,-151,-ED,RT,-149,WALL_C,WALLO)
+box(z,"Wall_S_R",ED,F,-151,80,RT,-149,WALL_C,WALLO)
 local EDH=18 -- street door height (12 → 18 with the taller storeys, user 2026-10-27)
-box(z,"Wall_S_Top",-8,EDH,-151,8,RT,-149,WALL_C,WALLO)
-box(z,"Wall_S_Below",-8,F,-151,8,0,-149,WALL_C,WALLO)
+box(z,"Wall_S_Top",-ED,EDH,-151,ED,RT,-149,WALL_C,WALLO)
+box(z,"Wall_S_Below",-ED,F,-151,ED,0,-149,WALL_C,WALLO)
 -- ENTRANCE DOOR (user 2026-10-26): two black leaves that slide apart into the
 -- wall when someone comes near and close again behind them (AutoDoorController;
 -- SlideX = along the part's own X, so it turns with the zone)
 do local door=Instance.new("Model") door.Name="AutoDoor" door:SetAttribute("Range",10) door:SetAttribute("Panels",4)
  door:SetAttribute("NightOnly",true) -- (shut by day: the club opens at night only, D-320/D-343)
  local BLK=Color3.fromRGB(14,14,16) local STL=Color3.fromRGB(190,190,196)
- for _,lf in ipairs({{-8,0,-1},{0,8,1}}) do
-  box(door,"DoorPanel",lf[1],0,-150.2,lf[2],EDH,-149.8,BLK,{mat=Enum.Material.SmoothPlastic}):SetAttribute("SlideX",lf[3]*7.9)
+ for _,lf in ipairs({{-ED,0,-1},{0,ED,1}}) do
+  box(door,"DoorPanel",lf[1],0,-150.2,lf[2],EDH,-149.8,BLK,{mat=Enum.Material.SmoothPlastic}):SetAttribute("SlideX",lf[3]*(ED-0.1))
   local hx=if lf[3]<0 then lf[2]-0.8 else lf[1]+0.6
-  box(door,"DoorHandle",hx,4,-150.45,hx+0.2,8,-149.55,STL,{mat=Enum.Material.Metal,nocol=true}):SetAttribute("SlideX",lf[3]*7.9)
+  box(door,"DoorHandle",hx,4,-150.45,hx+0.2,8,-149.55,STL,{mat=Enum.Material.Metal,nocol=true}):SetAttribute("SlideX",lf[3]*(ED-0.1))
  end
  door.PrimaryPart=box(door,"DoorCentre",-0.1,3.9,-150.1,0.1,4.1,-149.9,BLK,{t=1,ghost=true})
  door.Parent=z CS:AddTag(door,"AutoDoor") end
@@ -251,7 +253,7 @@ box(z,"Foyer",-24,-1,-166.5,12,0,-151,MARBLE_C,MARBLE)
 -- the foyer only, not down the stairs; the door gap in the street wall left out)
 do local LC=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
  box(z,"FoyerLED",-24,0,-166.5,12,0.25,-166.38,LC,NE) -- (all floor lines 0.12 thin, user 2026-10-27)
- box(z,"FoyerLED",-24,0,-151.12,-8,0.25,-151,LC,NE) box(z,"FoyerLED",8,0,-151.12,12,0.25,-151,LC,NE)
+ box(z,"FoyerLED",-24,0,-151.12,-ED,0.25,-151,LC,NE) -- (the door gap is ±ED now, D-821: nothing left east of it)
  -- (no line across the end in front of the lift corridor, user 2026-10-25)
  end
 box(z,"Foyer_E",12,0,-166.5,13,EDH,-151,WALL_C,WALLO)
@@ -297,7 +299,7 @@ do local p=box(z,"GraffitiSign",-11,3,-166.5,-2.5,7.25,-166.45,Color3.new(0,0,0)
   -- ("HERE" instead of "OHU CLUB", user 2026-10-25; docs/04_ART/textures/here_arrow.png)
   local d=Instance.new("Decal") d.Texture="rbxassetid://101741924682334" d.Face=Enum.NormalId.Back d.Transparency=0.45 d.Parent=p end -- (paler, user 2026-10-26)
  graffiti(-80,F,-151.05,-24,EDH,-151,Enum.NormalId.Front)
- graffiti(-24,0,-151.05,-8,EDH,-151,Enum.NormalId.Front)
+ graffiti(-24,0,-151.05,-ED,EDH,-151,Enum.NormalId.Front)
  -- (none on the street wall by the lift corridor, user 2026-10-25)
  graffiti(-80,F,-166.45,-79.95,EDH,-151.05,Enum.NormalId.Right,15,15)
 end

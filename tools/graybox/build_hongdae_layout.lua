@@ -4124,7 +4124,7 @@ do
 	-- graybox walls are lilac; the cladding covers their outside faces.
 	local BLACK, BLACK2 = Color3.fromRGB(26, 27, 30), Color3.fromRGB(40, 42, 46)
 	local GOLD = Color3.fromRGB(214, 172, 92)
-	local DZ0, DZ1 = -189 + CDZ, -167 + CDZ -- door gap (with its gold frame)
+	local DZ0, DZ1 = -197 + CDZ, -159 + CDZ -- door gap (with its gold frame); 22 → 38 with the door 16 → 32 (D-821)
 	-- (user 2026-10-27) three storeys outside, taller than 오후네컷: the walls
 	-- run up to the roof (65); the street door 18 high (graybox EDH)
 	local Z0, Z1, TOPY = -260.2 + CDZ, -95.8 + CDZ, 65 -- to the outer faces of the lilac side walls
@@ -4296,8 +4296,11 @@ do
 		local undo = MOVES["02_Club"]:Inverse()
 		local CX0, CX1 = 50, 65.5 -- inside faces of the front wall and the hall wall
 		local FOYER_END = -165.5 + CDZ -- the old foyer end wall
-		local CAR0, CAR1 = -152 + CDZ, -143 + CDZ -- lift car (door at CAR0)
 		local FILL_END = -98 + CDZ
+		-- (D-821, user 2026-11-03) the car at the corridor's far (south) end, the
+		-- whole old fill opened up as corridor (it was -152..-143)
+		local CAR1 = FILL_END - 0.6
+		local CAR0 = CAR1 - 9 -- lift car (door at CAR0)
 		local DARK = Color3.fromRGB(28, 28, 32)
 		local function park(c: BasePart)
 			c.CFrame = undo * c.CFrame
@@ -4324,7 +4327,12 @@ do
 		end
 		box("LiftCorridorCeiling", CX0, LH, FOYER_END - 0.5, CX1, LH + 1, CAR1 + 0.6, DARK, { parent = E })
 		-- the rest of the old fill behind the car stays solid
-		box("EntryFillRest", CX0 - 0.1, -24, CAR1 + 0.6, CX1 + 0.1, 64, FILL_END, Color3.fromRGB(40, 42, 46), { parent = E }) -- (up to the raised ceiling, 2026-10-27)
+		if FILL_END - (CAR1 + 0.6) > 0.05 then
+			box("EntryFillRest", CX0 - 0.1, -24, CAR1 + 0.6, CX1 + 0.1, 64, FILL_END, Color3.fromRGB(40, 42, 46), { parent = E }) -- (up to the raised ceiling, 2026-10-27)
+		end
+		-- (D-821) under the longer corridor's floor and over its ceiling: closed dark
+		box("LiftCorridorBelow", CX0 - 0.1, -24, FOYER_END - 0.5, CX1 + 0.1, -0.5, CAR1 + 0.6, Color3.fromRGB(40, 42, 46), { parent = E })
+		box("LiftCorridorAbove", CX0 - 0.1, LH + 1, FOYER_END - 0.5, CX1 + 0.1, 64, CAR1 + 0.6, Color3.fromRGB(40, 42, 46), { parent = E })
 		-- strip lights along the corridor ceiling
 		for z = FOYER_END + 2, CAR0 - 2, 4 do
 			local l = box("LiftCorridorLight", 56.6, LH - 0.2, z - 0.8, 58.9, LH, z + 0.8, Color3.fromRGB(255, 240, 220), { parent = E, nocol = true })
@@ -5193,7 +5201,9 @@ do
 		-- the east edge at x 194 to the east road, then out to x 277 over the
 		-- 광화문 yard and the (empty) village, the south edge at z 387
 		{ -415, -385 }, { -148, -385 }, { -148, -229 }, { -51.3, -229 }, { -51.3, -455 }, { 47, -455 }, { 47, -385 },
-		{ 160, -385 }, { 160, -316 }, { 194, -316 }, { 194, -50 }, { 277, -50 }, { 277, 387 }, { -415, 387 },	}
+		-- (D-821, user 2026-11-03) out round the club's new VIP stair hall east
+		-- of the club (x 190..248, z -298..-254, club_locker_1103.lua)
+		{ 160, -385 }, { 160, -316 }, { 194, -316 }, { 194, -299 }, { 249, -299 }, { 249, -253 }, { 194, -253 }, { 194, -50 }, { 277, -50 }, { 277, 387 }, { -415, 387 },	}
 	for i = 1, #P do
 		local a, b = P[i], P[(i % #P) + 1]
 		local pa, pb = Vector3.new(a[1], 0, a[2]), Vector3.new(b[1], 0, b[2])

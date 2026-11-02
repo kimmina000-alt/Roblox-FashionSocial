@@ -3187,3 +3187,9 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 클럽 레이저 바닥까지 · 파도 (D-820)
 ![](images/2026-11-03/d820_laser_floor_wave.jpg)
 - 12줄 끝이 댄스 플로어 바닥에 닿고 무지개 파도. 락커룸 자리 계산: 옥상이 거의 비어 있음.
+### 클럽 별관: 락커룸 · VIP 계단실 · 넓은 문 · 엘리베이터 (D-821)
+![](images/2026-11-03/d821_user_plan.webp)
+![](images/2026-11-03/d821_top_after.jpg) ![](images/2026-11-03/d821_locker_room.jpg)
+![](images/2026-11-03/d821_corridor.jpg) ![](images/2026-11-03/d821_vip_stair_hall.jpg)
+![](images/2026-11-03/d821_street_door.jpg) ![](images/2026-11-03/d821_lift_end.jpg)
+- 클럽 구역 다시 짓고 체인 전체 + club_locker_1103. 걸어서 VIP 계단 끝까지·락커룸 문 확인. 그래피티 판은 CanQuery가 꺼져 있어 GetPartBoundsInBox로 안 잡힘 → 모든 부품을 직접 훑어 자름.
