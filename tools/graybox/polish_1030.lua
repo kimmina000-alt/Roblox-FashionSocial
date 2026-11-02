@@ -299,7 +299,7 @@ if cafe and once(cafe) then
 		end
 		-- (the cafe's own menu, made for this game)
 		stand(-224.6, 2.6, 2.0, "OHU CAFE MENU", "COFFEE\n아이스 아메리카노  무료\n카페라테 · 카푸치노  💰10\n카라멜 마끼아또  💰10\n\nNON COFFEE\n딸기 스무디 · 얼그레이  💰20\n블루 레몬에이드  💰20")
-		stand(-221.4, 1.8, 2.0, "SIGNATURE", "자바칩 프라푸치노\n딸기 파르페\n\nBAKERY\n소금빵 · 베이글\n딸기 크림 크루아상")
+		stand(-221.4, 1.8, 2.0, "SIGNATURE", "자바칩 프라푸치노\n딸기 파르페\n\nBAKERY\n소금빵 · 베이글\n크루아상")
 		table.insert(log, "menu stands 2")
 	end
 end

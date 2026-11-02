@@ -5,7 +5,7 @@
 --
 --   소금빵            a short plump roll in rolled ridges, a crisp flat bottom, coarse salt
 --   베이글            a glossy ring with sesame
---   딸기 크림 크루아상  a crescent split open: cream and strawberry halves inside
+--   크루아상 (딸기 크림 크루아상 until D-780)  a crescent split open: cream and strawberry halves inside
 --   허니카라멜브레드    a thick toast cube scored on top, whipped cream, caramel drizzle, almonds
 --   딸기 파르페        a stemmed tall glass: granola, cream, strawberry layers, a cream swirl,
 --                     strawberries, a wafer and mint
