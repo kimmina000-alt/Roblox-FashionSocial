@@ -236,9 +236,9 @@ do
 		e.CFrame = CFrame.new((67 + 179.6) / 2, V + 0.1, -289.7)
 		e.Parent = club
 	end
-	-- (D-824 30 %, D-827 80 %, user) the VIP floors see-through
+	-- (D-824 30 %, D-827 80 %, D-828 10 %, user) the VIP floors see-through
 	for _, p in ipairs(club:GetChildren()) do
-		if p:IsA("BasePart") and p.Name:match("^VIP_Floor_") then p.Transparency = 0.8 end
+		if p:IsA("BasePart") and p.Name:match("^VIP_Floor_") then p.Transparency = 0.1 end
 	end
 	-- (D-827, user) a light frame round the street door, seen from inside the club
 	do
@@ -246,6 +246,8 @@ do
 		box("StreetDoorLight", 50.02, 0, -218.3, 50.22, 18.2, -218, LC, A, NEON())
 		box("StreetDoorLight", 50.02, 0, -202, 50.22, 18.2, -201.7, LC, A, NEON())
 		box("StreetDoorLight", 50.02, 18, -218.3, 50.22, 18.2, -201.7, LC, A, NEON())
+		-- (D-828, user) the wall-foot line on from the door post to the lift corridor's line (it stopped 4 short)
+		box("FoyerLED", 50, 0, -202, 50.12, 0.25, -198, Color3.fromRGB(255, 250, 175), A, NEON())
 	end
 end
 
@@ -365,6 +367,32 @@ do
 	box("VIP_GateNeon", 190, F, -290, 190.4, F + 21, -289.6, VIP_RED, H, NEON())
 	box("VIP_GateNeon", 190, F, -275.4, 190.4, F + 21, -275, VIP_RED, H, NEON())
 	box("VIP_GateNeon", 190, F + 20.6, -290, 190.4, F + 21, -275, VIP_RED, H, NEON())
+	-- (D-828, user) red neon "VIP" signs: over the stair door in the corridor
+	-- with an arrow down at it, and on the end wall at the flight's top with an
+	-- arrow right (to the walkway back to the lounge)
+	local function vipSign(x0, y0, z0, x1, y1, z1, face, arrow)
+		local p = box("VIP_Sign", x0, y0, z0, x1, y1, z1, Color3.new(0, 0, 0), H, { t = 1, ghost = true })
+		p.CastShadow = false
+		local g = Instance.new("SurfaceGui")
+		g.Face = face g.LightInfluence = 0 g.Brightness = 3
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud = 40
+		g.Parent = p
+		local function line(str, y, h)
+			local l = Instance.new("TextLabel")
+			l.Size = UDim2.fromScale(1, h) l.Position = UDim2.fromScale(0, y)
+			l.BackgroundTransparency = 1 l.TextScaled = true l.Font = Enum.Font.GothamBlack
+			l.TextColor3 = VIP_RED l.Text = str l.Parent = g
+			local st = Instance.new("UIStroke") st.Color = Color3.fromRGB(255, 120, 140) st.Thickness = 2 st.Transparency = 0.4 st.Parent = l
+		end
+		if arrow == "down" then
+			line("VIP", 0, 0.62)
+			line("▼", 0.64, 0.36)
+		else
+			line("VIP  →", 0, 1)
+		end
+	end
+	vipSign(186.9, F + 21.6, -287, 186.95, F + 30, -278, Enum.NormalId.Left, "down")
+	vipSign(X1 - 0.1, V + 6, -287, X1 - 0.05, V + 10, -276.5, Enum.NormalId.Left, "right")
 	-- the VIP region over the whole hall
 	local region = club:FindFirstChild("VIP_StairRegion")
 	if region then
@@ -475,18 +503,21 @@ do
 		door.Parent = R
 		CS:AddTag(door, "AutoDoor")
 	end
-	-- a sign in a box on the corridor wall left of the passage, with an arrow (D-827)
+	-- a small grey sign with black letters on the corridor wall left of the
+	-- passage, at eye height (D-827; D-828, user: smaller, no neon frame)
 	do
-		local x0, x1, y0, y1, zf = PX0 - 15, PX0 - 2, F + 9, F + 13, -289.9
-		local plate = box("LockerWaySign", x0, y0, zf, x1, y1, zf + 0.12, Color3.fromRGB(20, 20, 24), R)
-		local LC = Color3.fromRGB(255, 250, 235)
-		box("LockerWayFrame", x0, y1 - 0.15, zf + 0.12, x1, y1, zf + 0.2, LC, R, NEON())
-		box("LockerWayFrame", x0, y0, zf + 0.12, x1, y0 + 0.15, zf + 0.2, LC, R, NEON())
-		box("LockerWayFrame", x0, y0, zf + 0.12, x0 + 0.15, y1, zf + 0.2, LC, R, NEON())
-		box("LockerWayFrame", x1 - 0.15, y0, zf + 0.12, x1, y1, zf + 0.2, LC, R, NEON())
-		local l = text(plate, Enum.NormalId.Back, "LOCKER ROOM  →", Color3.fromRGB(255, 255, 255))
-		l.Size = UDim2.fromScale(0.86, 0.6)
-		l.Position = UDim2.fromScale(0.07, 0.2)
+		local x0, x1, y0, y1, zf = PX0 - 5.3, PX0 - 1.3, F + 6, F + 7.3, -289.9
+		local plate = box("LockerWaySign", x0, y0, zf, x1, y1, zf + 0.1, Color3.fromRGB(168, 168, 172), R, { mat = Enum.Material.SmoothPlastic })
+		local g = Instance.new("SurfaceGui")
+		g.Face = Enum.NormalId.Back g.LightInfluence = 0 g.Brightness = 1
+		g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud = 60
+		g.Parent = plate
+		local bg = Instance.new("Frame") bg.Size = UDim2.fromScale(1, 1) bg.BorderSizePixel = 0
+		bg.BackgroundColor3 = Color3.fromRGB(168, 168, 172) bg.Parent = g
+		local l = Instance.new("TextLabel")
+		l.Size = UDim2.fromScale(0.9, 0.62) l.Position = UDim2.fromScale(0.05, 0.19)
+		l.BackgroundTransparency = 1 l.TextScaled = true l.Font = Enum.Font.GothamBold
+		l.TextColor3 = Color3.fromRGB(15, 15, 18) l.Text = "LOCKER ROOM  →" l.Parent = bg
 	end
 	table.insert(log, "locker room parts " .. #R:GetDescendants())
 end

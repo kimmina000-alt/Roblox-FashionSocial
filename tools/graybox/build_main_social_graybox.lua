@@ -339,11 +339,13 @@ box(z,"CorridorNeon_E",-65.12,F,HD1+0.25,-65,F+0.25,-166.2,Color3.fromRGB(255,25
 -- pink door posts: only the faces looking into the doorway glow (user 2026-10-25)
 for _,d in ipairs({{HD1-0.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
  -- (the rest of the post is wall: wall colour, user 2026-10-25)
- P(z,"HallDoorFrame",Vector3.new(1.5,HDH,1.5),CFrame.new(-64.5,F+HDH/2,pz),WALL_C,WALLO)
- -- the floor light lines run on along the foot of the post on both sides (user 2026-10-25)
- for _,xf in ipairs({{-63.75,-63.63},{-65.37,-65.25}}) do
-  box(z,"HallDoorFootLED",xf[1],F,pz-0.75,xf[2],F+0.25,pz+0.75,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
+ -- (D-828, user: one wall layer only: the post is as thick as the wall, so the
+ -- floor lines run on straight and turn round its end face)
+ P(z,"HallDoorFrame",Vector3.new(1,HDH,1.5),CFrame.new(-64.5,F+HDH/2,pz),WALL_C,WALLO)
  local fz=pz+s*0.75
+ for _,xf in ipairs({{-64,-63.88},{-65.12,-65}}) do
+  box(z,"HallDoorFootLED",xf[1],F,pz-0.75,xf[2],F+0.25,pz+0.75,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
+ box(z,"HallDoorFootLED",-65.12,F,math.min(fz,fz+s*0.12),-63.88,F+0.25,math.max(fz,fz+s*0.12),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
  -- (two thin neon lines instead of the whole face, user 2026-10-29 (14))
  for i,xs in ipairs({{-64.95,-64.8},{-64.2,-64.05}}) do
   local g=box(z,"HallDoorGlow",xs[1],F,math.min(fz,fz+s*0.12),xs[2],F+HDH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
