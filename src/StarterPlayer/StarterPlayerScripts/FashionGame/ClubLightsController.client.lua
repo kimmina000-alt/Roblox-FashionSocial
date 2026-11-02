@@ -70,7 +70,7 @@ local function addEmitter(instance: Instance)
 		beam.Attachment0 = origin
 		beam.Attachment1 = target
 		beam.Width0 = 0.18
-		beam.Width1 = 0.45
+		beam.Width1 = 0.8 -- (0.45 until D-820: the beams reach the floor now)
 		beam.Texture = SOFT_BEAM
 		beam.TextureMode = Enum.TextureMode.Stretch
 		beam.TextureLength = 1
@@ -78,7 +78,7 @@ local function addEmitter(instance: Instance)
 		beam.LightEmission = 1
 		beam.LightInfluence = 0
 		beam.Segments = 1
-		beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.5, 0.45), NumberSequenceKeypoint.new(1, 0.9) }) -- (stronger fade along the line, user 2026-10-25)
+		beam.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0), NumberSequenceKeypoint.new(0.5, 0.3), NumberSequenceKeypoint.new(1, 0.55) }) -- (stronger fade along the line, user 2026-10-25; less, D-820: the ends on the floor show)
 		beam.Enabled = false
 		beam.Parent = instance
 		-- (a soft halo was tried and taken back, user 2026-10-25)
@@ -100,6 +100,16 @@ local function updateLasers(lightTime: number)
 	local fixed: Color3? = picked and picked.color
 	-- Pattern changes every 12 s: 0 = circle sweep, 1 = fan sweep.
 	local pattern = math.floor(t / 12) % 2
+	-- (D-820) the middle of the row of floor-wave emitters (AimLow), for the wave's width
+	local rowX, rowCount = 0, 0
+	for _, entry in ipairs(emitters) do
+		local aimAt = entry.part:GetAttribute("AimAt")
+		if typeof(aimAt) == "Vector3" and typeof(entry.part:GetAttribute("AimLow")) == "Vector3" then
+			rowX += aimAt.X
+			rowCount += 1
+		end
+	end
+	rowX = if rowCount > 0 then rowX / rowCount else 0
 	for _, entry in ipairs(emitters) do
 		local part = entry.part
 		local visible = on and part.Parent ~= nil and inRange(part.Position)
@@ -119,18 +129,33 @@ local function updateLasers(lightTime: number)
 				-- other way), 1 = a wave running along the row of emitters.
 				local beamBase = base
 				local spreadScale = 1
-				if typeof(aimLow) == "Vector3" then
-					local upDown = math.floor(t / 16) % 2
-					local wave = if upDown == 0
-						then t * 0.35 + ((entry.index + i) % 2) * math.pi
-						else t * 0.5 - (entry.index * BEAMS_PER_EMITTER + i) * 0.45
-					local s = 0.5 - 0.5 * math.cos(wave)
-					beamBase = base:Lerp(aimLow, s)
-					spreadScale = 1 - 0.4 * s
-				end
 				local phase = entry.index * 0.9 + i * (math.pi * 2 / BEAMS_PER_EMITTER)
 				local offset: Vector3
-				if pattern == 0 then
+				if typeof(aimLow) == "Vector3" and typeof(aimAt) == "Vector3" then
+					-- (D-820, user: the lasers come down onto the dance floor, a
+					-- flashy wave) the beams land on the floor (AimLow's height)
+					-- between the DJ end and the far wall. 0 = a wave rolling
+					-- front to back along the row (each beam a step behind the
+					-- one before; the crest climbs the far walls), 1 = a wave
+					-- swaying side to side across the floor.
+					local g = entry.index * BEAMS_PER_EMITTER + i
+					local midZ = (part.Position.Z + aimLow.Z) / 2
+					local depth = math.max(8, math.abs(aimLow.Z - part.Position.Z) / 2 - 10)
+					local width = (aimAt.X - rowX) * 1.8 + (i - (BEAMS_PER_EMITTER + 1) / 2) * 6
+					local w = t * 1.2 - g * 0.55
+					local x, z, lift
+					if pattern == 0 then
+						x = rowX + width + math.sin(t * 0.7 + g) * 4
+						z = midZ + math.sin(w) * depth
+						lift = (floorY - aimLow.Y) * math.max(0, math.sin(w)) ^ 6 * 0.5
+					else
+						x = rowX + width + math.sin(w) * 22
+						z = midZ + math.cos(t * 0.45 + g * 0.3) * depth * 0.7
+						lift = 0
+					end
+					beamBase = Vector3.new(x, aimLow.Y + lift, z)
+					offset = Vector3.zero
+				elseif pattern == 0 then
 					local radius = 10 + 6 * math.sin(t * 0.8 + phase)
 					local angle = t * 1.3 + phase
 					offset = Vector3.new(math.cos(angle) * radius, 0, math.sin(angle) * radius)
@@ -145,9 +170,10 @@ local function updateLasers(lightTime: number)
 					-- one colour, beams shimmer slightly brighter / darker
 					color = fixed:Lerp(Color3.new(1, 1, 1), 0.15 * (0.5 + 0.5 * math.sin(t * 3 + i + entry.index)))
 				else
-					-- pale white-violet with a slow hue drift (user video 2026-10-25)
-					local hue = (0.72 + 0.08 * math.sin(t * 0.05 + entry.index * 0.4)) % 1
-					color = Color3.fromHSV(hue, 0.3, 1)
+					-- (D-820, user: flashy) a rainbow running along the wave, one
+					-- step of hue per beam (pale white-violet before, 2026-10-25)
+					local hue = (t * 0.06 + (entry.index * BEAMS_PER_EMITTER + i) * 0.07) % 1
+					color = Color3.fromHSV(hue, 0.85, 1)
 				end
 				beam.Color = ColorSequence.new(color)
 			end
