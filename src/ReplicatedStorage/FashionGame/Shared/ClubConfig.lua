@@ -66,6 +66,12 @@ local ClubConfig = {}
 -- nil = off.
 ClubConfig.ChoreoSmoothing = { maxStep = 8, passes = 4 } :: { maxStep: number, passes: number }?
 
+-- (D-817) a dancer following a choreography walks its dance path (D-813),
+-- and is eased back toward where the dance began over about this many
+-- seconds, so the drift the pieces add up to does not carry them off the
+-- floor. nil = no easing back.
+ClubConfig.ChoreoDriftReturn = 8 :: number?
+
 -- Skip vote (user 2026-11-01, D-694): votes needed to skip the song while
 -- there is no DJ = half the people in the club, rounded up, and at least 2
 -- once two or more are there (alone: your own vote is enough)

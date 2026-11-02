@@ -89,8 +89,9 @@ end
 -- the segments of the track being followed, loaded on this character;
 -- starts[i] = its `at` (seconds into the song) or nil (after the one before);
 -- stops[i] = its `stop` (D-804) or nil; blends[i] = its `blend` (D-807) or nil;
--- froms[i] = its `from` (D-810, seconds into the animation) or 0
-local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, stops: {number?}, blends: {number?}, froms: {number}, playing: AnimationTrack?, speed: number? }? = nil
+-- froms[i] = its `from` (D-810, seconds into the animation) or 0;
+-- home = where the root was when the dance began (D-817)
+local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, stops: {number?}, blends: {number?}, froms: {number}, playing: AnimationTrack?, speed: number?, home: Vector3? }? = nil
 
 -- (D-802, user: "앵글 움직이는 부분 다 고쳐") the segments carry the dancer's
 -- travel in the hips (Get A Guitar 2 ends 11 studs forward, then 3 starts
@@ -167,9 +168,10 @@ end
 -- the club's edge. The hips' own travel is then taken out below as before.
 local lastHips: {[AnimationTrack]: Vector3} = setmetatable({}, { __mode = "k" }) :: any
 local travelScale = 0.85 -- (the animator shrinks travel to the avatar's size; measured below)
-local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint, tracks: {AnimationTrack})
+local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint, tracks: {AnimationTrack}, dt: number)
 	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	if not root then return end
+	if not root or not following then return end
+	following.home = following.home or root.Position
 	local move = Vector3.zero
 	for _, t in ipairs(tracks) do
 		local id = t.Animation and t.Animation.AnimationId
@@ -189,8 +191,19 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 			end
 		end
 	end
-	if move.Magnitude < 1e-4 then return end
 	local worldMove = root.CFrame:VectorToWorldSpace(move * travelScale)
+	-- (D-817, user: "쏠림만 빼기 … 이걸로 한번 보자") the pieces add up to a
+	-- drift one way (Get A Guitar: about 30 studs over the song), so the dancer
+	-- is eased back toward where the dance began, slowly (ChoreoDriftReturn
+	-- seconds): a few seconds of travel inside a piece still shows, the
+	-- build-up over the song does not
+	local settle = ClubConfig.ChoreoDriftReturn
+	local home = following.home
+	if settle and home then
+		local away = (root.Position - home) * Vector3.new(1, 0, 1)
+		worldMove -= away * math.min(dt / settle, 1)
+	end
+	if worldMove.Magnitude < 1e-4 then return end
 	local target = root.Position + worldMove
 	if not ClubConfig.isInClub(target) then return end
 	local skip = {}
@@ -207,7 +220,7 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 end
 
 -- after the animator, before the frame is drawn
-RunService.PreSimulation:Connect(function()
+RunService.PreSimulation:Connect(function(dt)
 	for _, p in ipairs(Players:GetPlayers()) do
 		local character = p.Character
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
@@ -219,7 +232,7 @@ RunService.PreSimulation:Connect(function()
 				if t.Animation and choreoAnimations[t.Animation.AnimationId] then table.insert(choreo, t) end
 			end
 			if #choreo > 0 then
-				if p == player and following then moveAlong(character, joint, choreo) end
+				if p == player and following then moveAlong(character, joint, choreo, dt) end
 				smoothJoints(character, choreo)
 				local hips = joint.Transform
 				joint.Transform = CFrame.new(0, hips.Y, 0) * hips.Rotation
