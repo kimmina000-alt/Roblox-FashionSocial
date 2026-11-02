@@ -3056,3 +3056,9 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### DJ 안내 확대 방향 (D-763) · EDM 볼륨 (D-764)
 ![](images/2026-11-03/d763_dj_tip_before.png) ![](images/2026-11-03/d763_dj_tip_grow_left.jpg)
 - 음악 창을 오른쪽 모서리 기준으로: 안내 때 왼쪽으로 커짐. DJ 창에 🔉 EDM 볼륨.
+
+### 모바일 2P (폰 801×413) → 머지 (fix/live-1103, D-760..D-764)
+![](images/2026-11-03/m2p_dj_edm_volume.jpg)
+- Player1(DJ): 디제잉 창에 EDM 볼륨까지 들어감(EDM 줄 아래 끝 342, 창 아래 347). 음악 창 '♪ 지금: BIGBANG-BiiiG'.
+- Player2: EDM 2만 재생, EDM 볼륨 0.5 반영. 정류장 '버스 타기' 프롬프트 뜨고 눌러서 정류장 창 열림.
+- 오류 없음(Studio DataStore 경고만) → catalog-ui-redesign에 머지. 오픈 코인 한 번만은 라이브에서 확인 필요(Studio 저장소 막힘).
