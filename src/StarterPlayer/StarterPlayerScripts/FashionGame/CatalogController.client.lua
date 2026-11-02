@@ -1654,6 +1654,9 @@ updateCatalogLayout = function()
 		avatarEditor:layout(x, rowY, innerWidth, math.max(120, panelHeight - rowY - pad))
 	else
 		resultsFrame.Visible = true
+		-- (D-799, user: the search box was gone after the editor; it is the only
+		-- control hidden above that nothing else shows again)
+		searchBox.Visible = true
 	end
 	-- (the C button is placed by TopBar now, 2026-10-30)
 end

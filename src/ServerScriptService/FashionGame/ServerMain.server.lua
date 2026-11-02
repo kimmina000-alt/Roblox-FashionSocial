@@ -263,6 +263,31 @@ TryOnItem.OnServerInvoke = function(
 		return true, AvatarService.GetCurrentItems(player)
 	end
 
+	-- (D-799) the catalog cart: Roblox's bulk purchase prompt can only be
+	-- opened by the server. At most 20 avatar items or bundles.
+	if action == "BuyMany" then
+		if typeof(payload) ~= "table" or #payload == 0 or #payload > 20 then
+			return false, "장바구니를 확인해 주세요."
+		end
+		local lineItems = {}
+		for _, entry in ipairs(payload) do
+			local id, itemType = typedItem(entry)
+			if not id or id <= 0 then return false, "Invalid item." end
+			table.insert(lineItems, {
+				Type = if itemType == "Bundle" then Enum.MarketplaceProductType.AvatarBundle else Enum.MarketplaceProductType.AvatarAsset,
+				Id = tostring(id),
+			})
+		end
+		local ok, err = pcall(function()
+			game:GetService("MarketplaceService"):PromptBulkPurchase(player, lineItems, {})
+		end)
+		if not ok then
+			warn("[FashionGame] PromptBulkPurchase failed:", err)
+			return false, "한 번에 사기를 열지 못했어요."
+		end
+		return true
+	end
+
 	if action == "Wear" then
 		local id, itemType = typedItem(payload)
 		if not id then

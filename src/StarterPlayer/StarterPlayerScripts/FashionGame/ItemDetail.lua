@@ -157,7 +157,7 @@ function ItemDetail.new(showToast: (string) -> ())
 	end
 	image:GetPropertyChangedSignal("AbsoluteSize"):Connect(placeInfo)
 	placeInfo()
-	local close = button(panel, "✕", COLORS.plain, {
+	local close = button(panel, "×", COLORS.plain, {
 		Name = "Close", AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -8, 0, 8),
 		Size = UDim2.fromOffset(30, 30), ZIndex = 3,
 	})
@@ -236,7 +236,7 @@ function ItemDetail.new(showToast: (string) -> ())
 		TextXAlignment = Enum.TextXAlignment.Left,
 		Parent = cartPanel,
 	})
-	local cartClose = button(cartPanel, "✕", COLORS.plain, {
+	local cartClose = button(cartPanel, "×", COLORS.plain, {
 		AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -8, 0, 8), Size = UDim2.fromOffset(30, 30),
 	})
 	cartClose.Activated:Connect(function() self:close() end)
@@ -349,17 +349,15 @@ function ItemDetail:buyCart()
 		self:buyOne(items[1])
 		return
 	end
-	local lineItems = {}
+	-- (the bulk prompt opens from the server only: TryOnItem "BuyMany")
+	local list = {}
 	for _, item in ipairs(items) do
-		table.insert(lineItems, {
-			Type = if isBundle(item) then Enum.MarketplaceProductType.AvatarBundle else Enum.MarketplaceProductType.AvatarAsset,
-			Id = tostring(item.Id),
-		})
+		table.insert(list, { id = item.Id, itemType = if isBundle(item) then "Bundle" else "Asset" })
 	end
-	local ok, err = pcall(function()
-		(MarketplaceService :: any):PromptBulkPurchase(player, lineItems, {})
-	end)
-	if not ok then
+	local remote = game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Remotes"):WaitForChild("TryOnItem") :: RemoteFunction
+	local ok, done, err = pcall(function() return remote:InvokeServer("BuyMany", list) end)
+	if not (ok and done == true) then
+		err = if ok then err else done
 		-- (no bulk purchase here: the first item; the rest stay in the cart)
 		warn("[ItemDetail] bulk purchase failed:", err)
 		self.toast("한 번에 사기를 못 해서 첫 아이템부터 열어요.")
