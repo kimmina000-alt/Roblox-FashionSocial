@@ -58,7 +58,9 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- hair = the player's hair offsets by asset id (HairFit.toSaved form, D-705)
 -- tutorial = the first-visit tour was seen or skipped (GuideService, D-712)
 -- tips = the first-time tips seen, key → true (GuideService, D-713)
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean} }
+-- welcome = the opening gift was given (EconomyService, D-754; kept since D-760:
+-- before, this sanitizer dropped it, so the gift came back on every visit)
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -133,10 +135,11 @@ local function sanitizePhotos(list: any): {any}
 end
 
 local function sanitizeWallet(raw: any): Wallet
-	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} }, jobs = {}, boost = 0, hair = {}, tutorial = false, tips = {} }
+	local wallet: Wallet = { coins = 0, xp = 0, frames = {}, slots = 0, daily = { day = "", counts = {} }, jobs = {}, boost = 0, hair = {}, tutorial = false, tips = {}, welcome = false }
 	if typeof(raw) ~= "table" then return wallet end
 	wallet.hair = HairFit.toSaved(HairFit.fromSaved(raw.hair))
 	wallet.tutorial = raw.tutorial == true
+	wallet.welcome = raw.welcome == true
 	if typeof(raw.tips) == "table" then
 		for key, seen in pairs(raw.tips) do
 			if typeof(key) == "string" and #key <= 24 and seen == true then wallet.tips[key] = true end

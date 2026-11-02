@@ -415,6 +415,19 @@ local listClose = create("TextButton", {
 	Font = Enum.Font.GothamBold,
 }, listPanel)
 corner(listClose, 13)
+-- (D-762, user: the playing song in the song window too, under its header)
+local listNow = create("TextLabel", {
+	Name = "ListNowLabel",
+	Position = UDim2.fromOffset(0, 26),
+	Size = UDim2.new(1, 0, 0, 18),
+	BackgroundTransparency = 1,
+	TextXAlignment = Enum.TextXAlignment.Left,
+	TextTruncate = Enum.TextTruncate.AtEnd,
+	TextColor3 = COLORS.text,
+	TextSize = 13,
+	RichText = true,
+	Font = Enum.Font.GothamBold,
+}, listPanel)
 local compactNow = false
 
 local toastLabel = create("TextLabel", {
@@ -522,17 +535,18 @@ local function layout()
 		y += 1 + 6
 		y += edmPanel.place(y, leftW, compact) + 6
 	end
-	listTitle.Position = UDim2.fromOffset(0, 28)
+	-- (the playing song at 26, D-762)
+	listTitle.Position = UDim2.fromOffset(0, 46)
 	listTitle.Size = UDim2.new(1, 0, 0, 18)
-	searchBox.Position = UDim2.fromOffset(0, 48)
-	trackList.Position = UDim2.fromOffset(0, 78)
+	searchBox.Position = UDim2.fromOffset(0, 66)
+	trackList.Position = UDim2.fromOffset(0, 96)
 	if compact then
-		trackList.Size = UDim2.new(1, 0, 1, -78)
+		trackList.Size = UDim2.new(1, 0, 1, -96)
 		queueLabel.Visible = false
 	else
 		-- (PC: room for the next songs under the list; the 디제잉 window only as
 		-- tall as what it holds)
-		trackList.Size = UDim2.new(1, 0, 1, -78 - 74)
+		trackList.Size = UDim2.new(1, 0, 1, -96 - 74)
 		queueLabel.Visible = true
 		panel.Size = UDim2.fromOffset(width, math.min(height, y + 20))
 	end
@@ -715,6 +729,7 @@ local function refresh()
 	nowLabel.Text = if track
 		then "♪ " .. ClubConfig.showTitle(track, nowLabel.TextSize) .. (if by ~= "" then "  ·  " .. ClubConfig.escapeRich(by) .. "님 선곡" else "")
 		else "♪ -"
+	listNow.Text = if track then "♪ 지금: " .. ClubConfig.showTitle(track, listNow.TextSize) else "♪ 지금: -"
 	local djId = FashionGame:GetAttribute("ClubDJ") or 0
 	local untilTime = FashionGame:GetAttribute("ClubDJUntil") or 0
 	local waiting = FashionGame:GetAttribute("ClubDJQueue") or 0

@@ -3042,3 +3042,13 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - DJ 창에 EDM 1·2·3 버튼, 켜진 것 분홍. 한 번에 한 곡.
 - 모바일 2P(폰 801×413): Player1(DJ)이 버튼으로 EDM 2 → Player2에게 EDM 2만 재생, EDM 3 → 3만, EDM 3 한 번 더 → 꺼짐. 오류 없음 → catalog-ui-redesign에 머지.
 ![](images/2026-11-02/d759_m2p_edm3.jpg)
+
+## 2026-11-03
+
+### 오픈 코인 (D-760) · 정류장 E (D-761) · 음악 창 지금 곡 (D-762)
+사용자 라이브 폰 → 고친 뒤(Studio)
+![](images/2026-11-03/d761_bus_sign_request.jpg) ![](images/2026-11-03/d761_bus_prompt_menu.jpg)
+![](images/2026-11-03/d762_list_request.jpg) ![](images/2026-11-03/d762_list_now_playing.jpg)
+- 오픈 코인: 불러올 때 welcome 기록이 지워져 매번 지급 → 기록 유지.
+- 정류장: 표지판 아래 '버스 타기' 프롬프트, 이동 거리 확인은 땅 기준.
+- 음악 창 머리 아래 '♪ 지금: 곡'.

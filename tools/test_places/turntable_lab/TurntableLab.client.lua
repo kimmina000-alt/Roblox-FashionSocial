@@ -10,52 +10,57 @@ local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 
--- 오후 club playlist (ClubConfig.Playlist, 2026-11-01) with its own values
+-- 오후 club playlist (ClubConfig.Playlist, 41 songs, 2026-11-02 D-755;
+-- docs/04_ART/CLUB_PLAYLIST.md). The 12 Roblox tracks play as uploaded; the
+-- 29 uploads of the user's share ClubConfig.SavedLabs.userUpload (`up`
+-- marks them in the list). Per-track values live in the lab's DataStore.
 local TRACKS = {
-	{ title = "EDM Club Night", id = 136689162723802 },
-	{ title = "Tomorrow Starts Now", id = 124325173394473 },
-	{ title = "Free", id = 128563409090413 },
-	{ title = "Run the Night", id = 129158012324844 },
-	{ title = "Light It Up", id = 103356166395852 },
-	{ title = "Future Legend", id = 115846580489388 },
-	{ title = "Skyline Bounce", id = 132588706181756 },
-	{ title = "No Gravity Tonight", id = 84501429041638 },
-	{ title = "Gomood", id = 92774322259700 },
-	{ title = "Midnight Frequency", id = 75257760347020 },
-	{ title = "Under the Starlight", id = 101328005557095 },
-	{ title = "SAN FRANCISCO · DOM DOLLA", id = 113497657842744, speed = 0.5, octave = 2 },
-	{ title = "LOVE LOVE LOVE · EPIC HIGH", id = 100033043291152, speed = 0.5, octave = 2 },
-	{ title = "TANI TANI · TANI", id = 131058655527940, speed = 0.5, octave = 2 },
-	{ title = "LOVE ATTACK · RESCENE", id = 103905057186427, speed = 0.5, octave = 2 },
-	{ title = "GRIT X DIET COKE", id = 106119256110919, speed = 0.5, octave = 2 },
-	{ title = "CASH OUT", id = 140111630417316, speed = 0.5, octave = 2 },
-	{ title = "MY MIND", id = 106804146862342, speed = 0.5, octave = 2 },
-	{ title = "PLAIN JANE · A$AP FERG", id = 78832462526893, speed = 0.5, octave = 2 },
-	{ title = "PUMP IT UP", id = 125479000346000, speed = 0.5, octave = 2 },
-	{ title = "404 (New Era) · KiiiKiii", id = 74181572220193, speed = 0.5, octave = 2 },
-	{ title = "BANG BANG · IVE", id = 126421508146335, speed = 2, volume = 20, octave = 0.5 },
-	-- lab only (user 2026-11-01)
-	{ title = "소원을 말해 봐 / 소녀시대", id = 128410308180471 },
-	{ title = "Love 119 / RIIZE", id = 106367625479063 },
-	-- K-POP (user 2026-11-01)
-	{ title = "BAD / ATEEZ", id = 89023892900416 },
-	{ title = "Lemon Tang / 하츠투하츠", id = 99550529874718 },
-	{ title = "Catch Catch / 최예나", id = 100968974338230 },
-	{ title = "Get A Guitar / RIIZE", id = 100035331158760 },
-	{ title = "Bubble Pop / HyunA", id = 117125823291884 },
-	-- the user's own edits (2026-11-01)
-	{ title = "Mirror / IVE", id = 139326796173276 }, -- (first added as "피치 후 증폭"; named by the user 2026-11-01)
-	{ title = "증폭 후 피치", id = 88451163103580 },
-	-- K-POP, new uploads (user 2026-11-01)
-	{ title = "BAD / ATEEZ (새 음원)", id = 134942349436280 },
-	{ title = "소원을 말해봐(Genie) / 소녀시대 (새 음원)", id = 128270208751659 },
-	{ title = "Bubble Pop / 현아 (새 음원)", id = 76388700698178 },
-	{ title = "Get A Guitar / RIIZE (새 음원)", id = 91762270038050 },
-	{ title = "Love 119 / RIIZE (새 음원)", id = 119473981131981 },
-	{ title = "Catch Catch / YENA (새 음원)", id = 80583279340768 },
-	{ title = "Lemon Tang / Hearts2Hearts (새 음원)", id = 97032815457241 },
-	{ title = "Lemonade / aespa", id = 132067415333401 },
+	-- Roblox music (no lab values)
+	{ title = "K-Pop Party", id = 135361546383974 },
+	{ title = "K-pop Cute Crush", id = 121416896999522 },
+	{ title = "K-Pop Uprising", id = 72966738276299 },
+	{ title = "Push & Pull (밀당의 고수)", id = 132502088493185 },
+	{ title = "Secret Party", id = 75682100037866 },
+	{ title = "Luminous Dance", id = 123336690588412 },
+	{ title = "LIGHT UP THE NIGHT", id = 102534983754242 },
+	{ title = "RUN THE NIGHT", id = 123336998544849 },
+	{ title = "ECHOES OF THE BASS (EDM 버튼 곡)", id = 134070050316863 },
+	{ title = "Disco Inferno", id = 87243738678545 },
+	{ title = "Festival Fever", id = 136228548293465 },
+	{ title = "Euphoria Dance", id = 76814968175069 },
+	-- the user's uploads (lab value UP)
+	{ title = "ATEEZ-BAD", id = 134942349436280, up = true },
+	{ title = "소녀시대-소원을 말해봐(Genie)", id = 128270208751659, up = true },
+	{ title = "현아-Bubble Pop", id = 76388700698178, up = true },
+	{ title = "RIIZE-Get A Guitar", id = 91762270038050, up = true },
+	{ title = "RIIZE-Love 119", id = 119473981131981, up = true },
+	{ title = "YENA-Catch Catch", id = 80583279340768, up = true },
+	{ title = "Hearts2Hearts-Lemon Tang", id = 97032815457241, up = true },
+	{ title = "aespa-Lemonade", id = 132067415333401, up = true },
+	{ title = "IVE-Mirror", id = 139326796173276, up = true },
+	{ title = "A2O LITE-NEON", id = 74555169365877, up = true },
+	{ title = "SOYEON-퇴사할게여", id = 113196766736048, up = true },
+	{ title = "ILLIT-체포하겠어", id = 92011448544342, up = true },
+	{ title = "RESCENE-LOVE-ATTACK", id = 99853291768808, up = true },
+	{ title = "LUMIN-88", id = 110720215000082, up = true },
+	{ title = "헤이즈-빈틈을 채워 준 너에게", id = 76215165790142, up = true },
+	{ title = "LUMIN-HIDE", id = 112657196644886, up = true },
+	{ title = "MY:RAKL-오색 낙원", id = 89952029801748, up = true },
+	{ title = "Darla Jean-Dam Da Dee", id = 94857636654876, up = true },
+	{ title = "머무르-꿈꾸던 어른이 되었나요", id = 89442781401038, up = true },
+	{ title = "IVE-Looks Can Kill", id = 106717797623758, up = true },
+	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 71227645100967, up = true },
+	{ title = "NCT WISH-I SPY", id = 125162124703337, up = true },
+	{ title = "IOI-갑자기", id = 82649881602599, up = true },
+	{ title = "TAEYEON-만찬가", id = 85454054799377, up = true },
+	{ title = "IU-이 별로부터", id = 82037005465590, up = true },
+	{ title = "CORTIS-REDRED", id = 115957470310890, up = true },
+	{ title = "BIG Naughty-노스탈지아", id = 101304843634159, up = true },
+	{ title = "BIGBANG-BiiiG", id = 107790212422874, up = true },
+	{ title = "BOYNEXTDOOR-ANIMAL", id = 94498201288355, up = true },
 }
+-- ClubConfig.SavedLabs.userUpload, what the club plays the `up` songs with
+local UP = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }
 
 -- speed and octave on log sliders (x1 in the middle); volume is the raw
 -- Sound.Volume
@@ -354,11 +359,7 @@ for i, t in ipairs(TRACKS) do
 	}, list)
 	corner(b, 5)
 	label(b, string.format("%d.  %s", i, t.title), UDim2.new(1, -96, 1, 0), UDim2.fromOffset(8, 0), { TextSize = 13 })
-	local tags = {}
-	if t.speed then table.insert(tags, "x" .. fmt(t.speed)) end
-	if t.octave then table.insert(tags, "oct " .. fmt(t.octave)) end
-	if t.volume then table.insert(tags, "vol " .. fmt(t.volume)) end
-	listTags[i] = label(b, table.concat(tags, " · "), UDim2.fromOffset(92, 28), UDim2.new(1, -92, 0, 0), { TextSize = 11, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right })
+	listTags[i] = label(b, "", UDim2.fromOffset(92, 28), UDim2.new(1, -92, 0, 0), { TextSize = 11, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right })
 	listButtons[i] = b
 end
 
@@ -653,9 +654,7 @@ local function refreshTrack()
 		if savedFor(t.id) then
 			table.insert(tags, "💾 저장됨")
 		else
-			if t.speed then table.insert(tags, "x" .. fmt(t.speed)) end
-			if t.octave then table.insert(tags, "oct " .. fmt(t.octave)) end
-			if t.volume then table.insert(tags, "vol " .. fmt(t.volume)) end
+			table.insert(tags, if t.up then "클럽: UP" else "클럽: 기본")
 		end
 		listTags[i].Text = table.concat(tags, " · ")
 		listTags[i].TextColor3 = if savedFor(t.id) then Color3.fromRGB(120, 230, 150) else DIM
@@ -869,10 +868,15 @@ seekBar.MouseButton1Down:Connect(function(x)
 end)
 ohuB.MouseButton1Click:Connect(function()
 	if customId then return end
+	-- what the club plays it with now: UP for the user's uploads, as uploaded
+	-- at the club volume (ClubConfig.MusicVolume 0.55) for the Roblox tracks
 	local t = TRACKS[trackIndex]
-	values.speed = t.speed or 1
-	values.octave = t.octave or 1
-	values.volume = math.min(t.volume or 1, 10)
+	for _, p in ipairs(PARAMS) do
+		local v = if t.up then (UP :: any)[p.key] else nil
+		values[p.key] = if typeof(v) == "number" then v else p.default
+	end
+	if not t.up then values.volume = 0.55 end
+	setEngine("sound")
 	set("speed", values.speed)
 end)
 allB.MouseButton1Click:Connect(function()

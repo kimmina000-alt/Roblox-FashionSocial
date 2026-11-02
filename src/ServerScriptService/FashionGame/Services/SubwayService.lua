@@ -78,7 +78,11 @@ local function go(player: Player, tag: any, number: any): (boolean, string?)
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	if not from or not CollectionService:HasTag(from, tag) or not root or not humanoid or (root.Position - from.Position).Magnitude > NEAR then
+	-- (D-761) along the ground: the bus sign hangs 11 up, a small avatar's root
+	-- under it was more than NEAR away in 3D
+	local offset = if root and from then root.Position - from.Position else Vector3.zero
+	local far = Vector3.new(offset.X, 0, offset.Z).Magnitude > NEAR or math.abs(offset.Y) > 16
+	if not from or not CollectionService:HasTag(from, tag) or not root or not humanoid or far then
 		return false, if tag == "BusStop" then "정류장 표지판 가까이에서 골라 주세요." else "발판 위에서 골라 주세요."
 	end
 	local target = findPad(tag, number)
@@ -129,6 +133,26 @@ local function hook(tag: string)
 			click.MaxActivationDistance = NEAR
 			click.Parent = pad
 			click.MouseClick:Connect(function(player) open(tag, pad, player) end)
+			-- (D-761, live phone: the sign hangs at y 11, a small avatar's tap did not
+			-- reach it) an E prompt at head height under the sign too
+			if pad:IsDescendantOf(workspace) and not pad:FindFirstChild("BusStopPromptAt") then
+				local params = RaycastParams.new()
+				params.FilterDescendantsInstances = { pad.Parent or pad }
+				params.FilterType = Enum.RaycastFilterType.Exclude
+				local ground = workspace:Raycast(pad.Position, Vector3.new(0, -40, 0), params)
+				local at = Instance.new("Attachment")
+				at.Name = "BusStopPromptAt"
+				at.Parent = pad
+				at.WorldPosition = Vector3.new(pad.Position.X, (if ground then ground.Position.Y else pad.Position.Y - 10) + 3, pad.Position.Z)
+				local prompt = Instance.new("ProximityPrompt")
+				prompt.Name = "BusStopPrompt"
+				prompt.ActionText = "버스 타기"
+				prompt.ObjectText = tostring(pad:GetAttribute("ExitName") or "정류장")
+				prompt.MaxActivationDistance = 10
+				prompt.RequiresLineOfSight = false
+				prompt.Parent = at
+				prompt.Triggered:Connect(function(player) open(tag, pad, player) end)
+			end
 		else
 			pad.Touched:Connect(function(hit) onTouched(tag, pad, hit) end)
 		end
