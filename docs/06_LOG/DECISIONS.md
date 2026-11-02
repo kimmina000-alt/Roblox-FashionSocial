@@ -1740,3 +1740,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: 안개 복구, 다리는 흔적 없이 삭제(데이터). DayNightController를 D-783 전으로 되돌림(Atmosphere 밀도 0.3 그대로). build_hongdae_layout에서 광안대교 블록 전부 삭제, 장소의 GwanganBridge(64부품) 삭제.
 - 딸기 씨 색 검은색(34, 24, 20)으로 StrawberryCreamCakeSliced.gltf 다시 만듦(다시 가져오기 필요). 케이크 팔레트 4장 docs/04_ART/textures/cakes/palettes/.
 - 안 쓰는 흔적 조사 결과는 사용자에게 보고하고 승인 뒤 삭제(D-785).
+## D-785 (2026-11-03) 안 쓰는 에셋 정리 (1차)
+- 사용자 확인 후 삭제: ServerStorage.ArtAssets의 OfficeFacade, ApartmentFacade, TexGlassTeal, TexGlassBlue, TexConcreteGrid, TexOfficeBand, TexOfficeBlue(그림이 불러와지지 않음), GrassTuft, StreetTree, PalmTreeReal, FireworkCandidate6, SparkFountains, PlasticChair, PitPlushTeddy, PitPlushMonkey, NewAssets1030.BeachMatM4. 스크립트에서 쓰는 곳 없음 확인.
+- 보류: 백업 MapBackup_pre_layout_v8 / BeachCafe_pre_v3·v4 / OH24Store_pre_tweaks(사용자가 PC 저장 뒤), RBX_ANIMSAVES, 오후네컷 맵 밖 라벨 2, 투명 부품 A9(카페 원통 쿠션 12, 해변 옛 돗자리·줄무늬, 편의점 바 스툴 속 원통 다리 4: 사진 docs/06_LOG/images/2026-11-03/cleanup/).
+- 놀이공원 담 북쪽 기둥(z -1155)은 쓰는 것(해변 따라 이어지는 담).
