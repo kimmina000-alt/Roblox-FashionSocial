@@ -202,7 +202,7 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = -2.5, engine = "sound" } },
 	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -10.5, mid = 5, high = 4.5, engine = "sound" } },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
-	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 97511700575810, length = 74, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 97511700575810, length = 74, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, choreo = { 93593911357942 }, autoChoreo = true }, -- (D-795: 16 s from the start of the song)
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -1.5, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" } },

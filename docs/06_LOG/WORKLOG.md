@@ -3119,3 +3119,5 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 사용자 랩 값 15곡을 ClubConfig에 넣고 Studio에 동기화 (CLUB_PLAYLIST.md 갱신).
 ### IU-이 별로부터 삭제 (D-794)
 - ClubConfig에서 한 줄 빼고 Studio에 동기화(곡 36개 확인). 음원 목록 문서도 맞춤.
+### NEON 안무 (D-795)
+- ClubConfig NEON에 안무 1개 + autoChoreo. Play 테스트: 곡 3초 지점에서 안무도 3.1초 지점 재생.
