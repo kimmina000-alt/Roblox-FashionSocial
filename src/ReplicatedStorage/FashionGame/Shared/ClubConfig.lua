@@ -483,4 +483,9 @@ ClubConfig.OutsideGrace = 1.5
 -- -270), facing into the room. Before: 8 along the bar (76, -170).
 ClubConfig.ItemSellerOffset = CFrame.new(-92, 0, -52) * CFrame.Angles(0, -math.pi / 2, 0)
 
+-- A table (bottles, sparkler bucket) stays this long after its owner leaves the
+-- game, so a quick rejoin finds it still theirs (D-770, user: 2-3 min, not
+-- cleared at once). DrinkService / SparkleService.
+ClubConfig.TableKeepSeconds = 180
+
 return ClubConfig

@@ -3,7 +3,8 @@
 --
 --   * Start / stop work at the counter (client prompt → remote CafeJob
 --     "Start"/"Stop"). Staff show "알바생" over the head (character attribute CafeJob = shop).
---   * Orders: a player ordering a free drink at a cafe where someone works
+--   * Orders: a player ordering anything but the Robux menu (coins paid when
+--     ordering, D-772; free drinks only before) at a cafe where someone works
 --     becomes an order (SnackService order handler) instead of getting the cup
 --     straight away; NPC customers also sit down at free seats and order.
 --     Orders are published as JSON in FashionGame attribute "CafeOrders".
@@ -45,6 +46,7 @@ type Order = {
 	maker: number, -- staff UserId making / carrying it (0 = nobody yet)
 	ready: boolean,
 	who: string?, -- NPC: the name it shows (a staff member's friend)
+	paid: number?, -- coins the player customer paid when ordering (D-772), back if cancelled
 }
 
 local orders: {[number]: Order} = {}
@@ -214,6 +216,14 @@ local function setBubble(model: Model?, text: string?, shopKey: string?, custome
 	limit.Parent = label
 	label.Parent = gui
 	gui.Parent = head
+end
+
+-- a new text in the bubble already there (it stays shown to the same people)
+local function setBubbleText(model: Model?, text: string)
+	local head = model and model:FindFirstChild("Head")
+	local gui = head and head:FindFirstChild("CafeOrderBubble")
+	local label = gui and gui:FindFirstChildOfClass("TextLabel")
+	if label then label.Text = text end
 end
 
 --------------------------------------------------
@@ -416,11 +426,14 @@ local function playerOrder(player: Player, shop: SnackConfig.Shop, item: SnackCo
 	end
 	local last = lastOrderAt[player.UserId]
 	if last and os.clock() - last < CafeJobConfig.PlayerOrderGap then return false, nil end
+	-- (D-772) coin items too: paid now (not enough → SnackService says so)
+	local price = item.coins or 0
+	if price > 0 and not economy.Spend(player, price) then return false, nil end
 	lastOrderAt[player.UserId] = os.clock()
 	nextId += 1
 	orders[nextId] = {
 		id = nextId, shop = shop.key, item = item.key, kind = "player", userId = player.UserId,
-		npc = nil, seat = nil, created = os.clock(), maker = 0, ready = false,
+		npc = nil, seat = nil, created = os.clock(), maker = 0, ready = false, paid = price,
 	}
 	setBubble(player.Character, orderLine(item.name), shop.key, player.UserId)
 	publish()
@@ -811,7 +824,16 @@ local function tick()
 		if orders[order.id] == order then
 			local late = now - order.created > CafeJobConfig.OrderTimeout
 			if order.kind == "npc" then
-				if late or not order.npc or not order.npc.Parent then npcLeave(order, false) end
+				if late or not order.npc or not order.npc.Parent then
+					npcLeave(order, false)
+				else
+					-- (D-772, user) the last seconds counted down in the bubble
+					local left = CafeJobConfig.OrderTimeout - (now - order.created)
+					if left <= CafeJobConfig.LeaveCountdown then
+						local item = itemOf(order)
+						setBubbleText(order.npc, orderLine(if item then item.name else order.item) .. string.format(" ⏳ %d", math.max(1, math.ceil(left))))
+					end
+				end
 			else
 				local customer = Players:GetPlayerByUserId(order.userId)
 				if not customer then
@@ -820,7 +842,12 @@ local function tick()
 					selfServe(order, "기다려 줘서 고마워요! 음료를 바로 받았어요.")
 				elseif not playerInCafe(customer, order.shop, CafeJobConfig.WorkArea + 20) then
 					removeOrder(order)
-					toast(customer, "카페를 떠나서 주문이 취소됐어요.")
+					if order.paid and order.paid > 0 then
+						economy.Refund(customer, order.paid)
+						toast(customer, string.format("카페를 떠나서 주문이 취소됐어요. %d 코인을 돌려드렸어요.", order.paid))
+					else
+						toast(customer, "카페를 떠나서 주문이 취소됐어요.")
+					end
 				end
 			end
 		end

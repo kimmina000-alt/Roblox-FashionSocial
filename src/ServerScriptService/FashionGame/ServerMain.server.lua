@@ -204,6 +204,8 @@ local function runTracked(player: Player, fn: () -> (boolean, any)): (boolean, a
 		local ok, result = fn()
 		if ok and okBefore then
 			local okAfter, after = AvatarService.CaptureSnapshot(player)
+			-- (D-771) the look worn now is the one the next visit starts with
+			if okAfter then PlayerDataService.SetLook(player, after) end
 			if okAfter and not sameLook(before, after) then
 				local h = historyOf(player)
 				table.insert(h.undo, before)
@@ -229,6 +231,8 @@ local function stepHistory(player: Player, back: boolean): (boolean, any)
 		if ok then
 			table.remove(from)
 			if okNow then table.insert(to, now) end
+			local okAfter, after = AvatarService.CaptureSnapshot(player)
+			if okAfter then PlayerDataService.SetLook(player, after) end
 		end
 		publishHistory(player)
 		return ok, result
@@ -349,6 +353,14 @@ end
 local function watchAppearance(player: Player)
 	player.CharacterAppearanceLoaded:Connect(function()
 		AvatarService.RememberSpawnLook(player)
+		-- (D-771, user: "재접속시 마지막 착장") the last look worn here, on every
+		-- new character: after joining again and after a respawn
+		local look = PlayerDataService.GetLook(player)
+		if look and player.Parent then
+			runExclusive(player, function()
+				return AvatarService.RestoreSnapshot(player, look)
+			end)
+		end
 	end)
 end
 game:GetService("Players").PlayerAdded:Connect(watchAppearance)

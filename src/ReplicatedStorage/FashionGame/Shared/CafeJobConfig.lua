@@ -32,7 +32,7 @@ CafeJobConfig.WorkArea = 25
 
 -- NPC customers (only while someone works at that cafe; PERFORMANCE.md: few)
 CafeJobConfig.NpcMax = 3
-CafeJobConfig.NpcEverySeconds = 18
+CafeJobConfig.NpcEverySeconds = 36 -- (18 → 36, D-772, user: half as often)
 CafeJobConfig.NpcStaySeconds = 20 -- drinking after being served, then leaves
 -- opening hours by the game clock (user 2026-10-30): customers come
 -- 10:00-15:00, half as often 15:00-21:00, none 21:00-10:00
@@ -49,6 +49,7 @@ end
 
 -- orders
 CafeJobConfig.OrderTimeout = 150 -- a player customer then gets the drink anyway; an NPC leaves
+CafeJobConfig.LeaveCountdown = 5 -- an NPC's bubble counts down its last seconds (D-772)
 CafeJobConfig.PlayerOrderGap = 45 -- one player can order at a staffed cafe this often
 CafeJobConfig.SamePairGap = 120 -- coins for serving the same player customer again only after this
 CafeJobConfig.CupSeconds = 240 -- an empty cup nobody clears disappears after this

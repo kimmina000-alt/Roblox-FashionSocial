@@ -1,6 +1,7 @@
 --!strict
 -- Cafe part-time job, client side (CafeJobService, CAFE.md §9, D-099).
---   * "알바 시작" / "알바 끝내기" prompt (F) on each job cafe's counter.
+--   * "알바 시작" prompt (F) on each job cafe's counter (on duty only "만들기"
+--     there, D-772; [알바 끝내기] in the order list).
 --   * On duty: a "☕ 알바 중" pill (left) opens the order list (one popup at a
 --     time, Popups). Each order: [만들기] at the counter → carry the cup →
 --     a "서빙하기" prompt appears on that customer (outlined) → hand it over.
@@ -435,7 +436,10 @@ local function refreshJobPrompts()
 	local shop = myShop()
 	for counter, prompt in pairs(jobPrompts) do
 		local key = counter:GetAttribute("Shop")
-		prompt.ActionText = if shop == key then "알바 끝내기" else "알바 시작"
+		-- (D-772, user) on duty the bench has only "만들기": the shift ends
+		-- with the list's [알바 끝내기] or by walking out of the cafe
+		prompt.ActionText = "알바 시작"
+		prompt.Enabled = shop == nil
 		-- staff do not order at their own cafe (user, 2026-10-22): hide "음료 주문하기"
 		local order = counter:FindFirstChild("SnackPrompt")
 		if order and order:IsA("ProximityPrompt") then order.Enabled = shop ~= key end
@@ -483,7 +487,7 @@ local function watchCounter(part: Instance)
 	-- not found): makes the oldest waiting order
 	local makePrompt = make("ProximityPrompt", {
 		Name = "MakePrompt",
-		ActionText = "음료 만들기",
+		ActionText = "만들기", -- (D-772: food too, so not "음료 만들기")
 		ObjectText = "",
 		KeyboardKeyCode = Enum.KeyCode.E,
 		HoldDuration = 0,

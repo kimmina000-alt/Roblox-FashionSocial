@@ -164,6 +164,11 @@ function EconomyService.Spend(player: Player, amount: number): boolean
 	return true
 end
 
+-- Coins back for something paid and not given (a cafe order cancelled, D-772).
+function EconomyService.Refund(player: Player, amount: number)
+	if amount > 0 and player.Parent then add(player, math.floor(amount)) end
+end
+
 -- Studio play tests only (never on live servers): give test coins.
 function EconomyService.StudioGrant(player: Player, amount: any): (boolean, string?)
 	if not game:GetService("RunService"):IsStudio() then return false, "Studio 테스트 전용이에요." end

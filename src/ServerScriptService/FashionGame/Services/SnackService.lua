@@ -1028,8 +1028,10 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 		return false, string.format("손에 %d개까지 들 수 있어요. 먼저 드세요!", SnackConfig.MaxCarried)
 	end
 	if not player:FindFirstChildOfClass("Backpack") then return false, "잠시 후 다시 시도해 주세요." end
-	-- the cafe staff makes the free drinks (their job only knows cups)
-	if orderHandler and not item.coins and item.kind == "cup" then
+	-- the cafe staff makes the order (free cups until D-772)
+	-- (D-772, user: everything but the Robux menu goes through the staff; the
+	-- coins are paid when ordering, CafeJobService)
+	if orderHandler and not item.product then
 		local handled, message = orderHandler(player, shop, item)
 		if handled then return true, message end
 	end

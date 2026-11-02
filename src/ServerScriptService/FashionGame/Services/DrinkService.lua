@@ -1010,14 +1010,19 @@ function DrinkService.Start()
 	for _, spot in ipairs(CollectionService:GetTagged("BartenderSpot")) do task.spawn(spawnBartender, spot) end
 	CollectionService:GetInstanceAddedSignal("BartenderSpot"):Connect(spawnBartender)
 	Players.PlayerRemoving:Connect(function(player)
-		pendingVariant[player.UserId] = nil
-		for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do
-			for _, child in ipairs(t:GetChildren()) do
-				if child.Name == "PlacedBottle" and child:GetAttribute("Owner") == player.UserId then
-					removeBottle(child :: BasePart)
+		local userId = player.UserId
+		pendingVariant[userId] = nil
+		-- (D-770) the table stays a while: back in time, it is still theirs
+		task.delay(ClubConfig.TableKeepSeconds, function()
+			if Players:GetPlayerByUserId(userId) then return end
+			for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do
+				for _, child in ipairs(t:GetChildren()) do
+					if child.Name == "PlacedBottle" and child:GetAttribute("Owner") == userId then
+						removeBottle(child :: BasePart)
+					end
 				end
 			end
-		end
+		end)
 	end)
 end
 

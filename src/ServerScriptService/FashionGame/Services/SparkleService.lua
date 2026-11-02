@@ -29,6 +29,7 @@ local MonetizationConfig = require(FashionGame:WaitForChild("Shared"):WaitForChi
 local MonetizationService = require(script.Parent.MonetizationService)
 local DrinkBucket = require(script.Parent.DrinkBucket)
 local DrinkService = require(script.Parent.DrinkService)
+local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 
 local SparkleService = {}
 
@@ -1020,11 +1021,16 @@ function SparkleService.Start()
 		djSparkAt[player.UserId] = nil
 		pendingTable[player.UserId] = nil
 		pendingMessage[player.UserId] = nil
-		for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do
-			for _, child in ipairs(t:GetChildren()) do
-				if child.Name == "SparklerBucket" and child:GetAttribute("Owner") == player.UserId then child:Destroy() end
+		-- (D-770) the bucket stays with the table a while (ClubConfig.TableKeepSeconds)
+		local userId = player.UserId
+		task.delay(ClubConfig.TableKeepSeconds, function()
+			if Players:GetPlayerByUserId(userId) then return end
+			for _, t in ipairs(CollectionService:GetTagged("DrinkTable")) do
+				for _, child in ipairs(t:GetChildren()) do
+					if child.Name == "SparklerBucket" and child:GetAttribute("Owner") == userId then child:Destroy() end
+				end
 			end
-		end
+		end)
 	end)
 end
 

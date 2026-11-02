@@ -1679,3 +1679,16 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-769 (2026-11-03) 의견 접수 문구 1초 카드
 - 사용자 요청: 의견이 잘 보내지면 "소중한 의견이 잘 접수되었어요. 고마워요! 💛"를 의견 창 가운데 주황 카드로 1초 띄움(Feedback.lua SentCard; 문구는 FeedbackService). 실패 문구는 전처럼 아래 글자 수 자리에.
 - EDM 버튼은 D-736부터 노래와 같이 나옴: Studio Play에서 긴 소원(ClubMusic, 부스트 3)과 EDM 1(EdmMusic1)이 함께 재생되는 것 확인. 코드 변경 없음.
+## D-770 (2026-11-03) 클럽 테이블: 나가도 3분 남김
+- 테이블 주인이 게임을 나가면 병(PlacedBottle)과 불꽃 버킷(SparklerBucket)을 바로 치우지 않고 ClubConfig.TableKeepSeconds = 180초 뒤에 치움. 그 안에 다시 들어오면 그대로 자기 테이블(같은 UserId). 사용자 "2분? 3분?" → 3분으로 정함(재접속 로딩 여유), 숫자 하나로 바꿀 수 있음.
+
+## D-771 (2026-11-03) 재접속 시 마지막 착장
+- 아바타를 바꿀 때마다(입기·벗기·번들·편집·코디 불러오기·되돌리기) 지금 모습을 OutfitSnapshot으로 wallet.look에 저장(PlayerDataService.SetLook, sanitizeWallet이 look 유지). 캐릭터가 로드될 때마다(재접속, 리스폰) wallet.look을 다시 입힘(ServerMain watchAppearance).
+- Studio Play: 헤어 입고 리스폰 → 같은 헤어. 재접속은 Studio에서 DataStore가 막혀 라이브에서 확인 필요.
+
+## D-772 (2026-11-03) 카페 알바 정리
+- 알바생이 있으면 Robux 메뉴를 뺀 모든 메뉴(코인 메뉴, 빵 포함)가 알바생 주문으로 감. 코인은 주문할 때 냄; 카페를 떠나 주문이 취소되면 돌려줌(EconomyService.Refund). 전에는 무료 음료만 주문으로 가서 얼그레이 티(20코인)는 바로 받았음.
+- 손님 NPC 빈도 반: NpcEverySeconds 18 → 36.
+- 알바 중 작업대 프롬프트는 "만들기"만(알바 끝내기 프롬프트 숨김; 끝내기는 주문 목록 버튼 또는 카페 밖으로).
+- 서빙 안 된 NPC 손님이 떠나기 5초 전부터 말풍선에 "⏳ 5…1" (CafeJobConfig.LeaveCountdown).
+- 질문 답: NPC 손님이 있어도 플레이어 주문은 받음(NPC 수와 무관). 같은 플레이어는 45초에 한 번(PlayerOrderGap), 그 사이 주문은 바로 받음.
