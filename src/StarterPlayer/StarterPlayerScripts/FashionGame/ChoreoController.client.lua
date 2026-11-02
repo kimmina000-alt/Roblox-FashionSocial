@@ -12,6 +12,7 @@
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local KeyframeSequenceProvider = game:GetService("KeyframeSequenceProvider")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
@@ -86,13 +87,82 @@ local function inClub(): boolean
 end
 
 -- the segments of the track being followed, loaded on this character;
--- starts[i] = its `at` (seconds into the song) or nil (after the one before)
-local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, playing: AnimationTrack? }? = nil
+-- starts[i] = its `at` (seconds into the song) or nil (after the one before);
+-- lastHips = the hips' place (LowerTorso Root joint) in the last frame of the
+-- segment playing
+local following: { soundId: number, tracks: {AnimationTrack}, ids: {number}, starts: {number?}, playing: AnimationTrack?, playingIndex: number?, lastHips: CFrame?, speed: number? }? = nil
+
+-- (D-798, user: "앞에 서 있는 상태로 이어서 춰야") every segment starts with the
+-- hips over the root and ends where the dance took them (Get A Guitar 2 ends
+-- 11 studs forward), so the next one used to snap back. When a segment ends,
+-- the root moves to where the hips are, less where the next one starts.
+-- Start poses come from the keyframes; the end is measured on the character
+-- (the animator scales the travel to the avatar's size).
+local startPoses: {[number]: CFrame} = {}
+local function loadStartPose(id: number)
+	if startPoses[id] then return end
+	startPoses[id] = CFrame.identity
+	task.spawn(function()
+		local ok, sequence = pcall(function()
+			return KeyframeSequenceProvider:GetKeyframeSequenceAsync("rbxassetid://" .. tostring(id))
+		end)
+		if not ok or not sequence then return end
+		local first: Keyframe? = nil
+		for _, kf in ipairs((sequence :: KeyframeSequence):GetKeyframes()) do
+			if kf:IsA("Keyframe") and (not first or kf.Time < first.Time) then first = kf end
+		end
+		local pose = first and first:FindFirstChild("LowerTorso", true)
+		if pose and pose:IsA("Pose") then startPoses[id] = pose.CFrame end
+	end)
+end
+
+local function flat(c: CFrame): CFrame
+	local _, yaw = c:ToEulerAnglesYXZ()
+	return CFrame.new(c.X, 0, c.Z) * CFrame.Angles(0, yaw, 0)
+end
+
+-- the hips' animated offset from the root (a Motor6D, or an AnimationConstraint
+-- on newer avatars)
+local function hipsTransform(): CFrame?
+	local character = player.Character
+	local lower = character and character:FindFirstChild("LowerTorso")
+	local joint = lower and lower:FindFirstChild("Root")
+	if joint and joint:IsA("Motor6D") then return joint.Transform end
+	if joint and joint:IsA("AnimationConstraint") then return joint.Transform end
+	return nil
+end
+
+-- moves the root under the hips of the segment that is ending; false when it
+-- would leave the club or go through a wall (then the dancer steps back)
+local function carry(nextStart: CFrame?): boolean
+	local f = following
+	local hips = f and f.lastHips
+	if not f or not hips then return false end
+	f.lastHips = nil
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not root then return false end
+	local target = root.CFrame * flat(hips) * flat(nextStart or CFrame.identity):Inverse()
+	if not ClubConfig.isInClub(target.Position) then return false end
+	local skip = {}
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p.Character then table.insert(skip, p.Character) end
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = skip
+	params.RespectCanCollide = true
+	if workspace:Raycast(root.Position, target.Position - root.Position, params) then return false end
+	root.CFrame = target
+	return true
+end
 
 local function stopFollowing()
 	if not following then return end
+	-- (D-798) stay where the dance got to
+	local fade = if following.playing and carry(nil) then 0 else 0.25
 	for _, t in ipairs(following.tracks) do
-		t:Stop(0.25)
+		t:Stop(fade)
 		t:Destroy()
 	end
 	following = nil
@@ -105,7 +175,7 @@ local function startFollowing(track: ClubConfig.Track)
 	-- (the dance menu's dance stops first: one dance at a time)
 	local character = player.Character
 	if character and character:GetAttribute("DanceKey") ~= nil then danceRemote:FireServer("Stop") end
-	local tracks, starts = {}, {}
+	local tracks, ids, starts = {}, {}, {}
 	for _, entry in ipairs(track.choreo) do
 		local id = if typeof(entry) == "table" then entry.id else entry
 		local at = if typeof(entry) == "table" and typeof(entry.at) == "number" then entry.at else nil
@@ -116,13 +186,15 @@ local function startFollowing(track: ClubConfig.Track)
 			loaded.Priority = Enum.AnimationPriority.Action2
 			loaded.Looped = false
 			table.insert(tracks, loaded)
+			ids[#tracks] = id
 			starts[#tracks] = at
+			loadStartPose(id)
 		else
 			warn("[ChoreoController] Could not load", id, loaded)
 		end
 	end
 	if #tracks == 0 then return end
-	following = { soundId = track.soundId, tracks = tracks, starts = starts, playing = nil }
+	following = { soundId = track.soundId, tracks = tracks, ids = ids, starts = starts, playing = nil, playingIndex = nil, lastHips = nil, speed = nil }
 	button.Text = "⏹ 그만 추기"
 end
 
@@ -132,7 +204,7 @@ button.Activated:Connect(function()
 	if track and track.choreo and inClub() then startFollowing(track) end
 end)
 
--- keep the dance on the song's clock
+-- start and stop following (the dance itself keeps time below)
 local accumulator = 0
 RunService.Heartbeat:Connect(function(dt)
 	accumulator += dt
@@ -160,6 +232,18 @@ RunService.Heartbeat:Connect(function(dt)
 		stopFollowing()
 		return
 	end
+end)
+
+-- the segment for this moment of the song, every frame before the animator
+-- steps (D-798: a carried root and the next segment's first pose show in the
+-- same frame)
+RunService.PreAnimation:Connect(function()
+	if not following then return end
+	local track = playingTrack()
+	if not track or track.soundId ~= following.soundId then return end
+	-- (D-798) where the hips got to in the frame just drawn
+	local hips = hipsTransform()
+	if hips and following.playing and following.playing.IsPlaying then following.lastHips = hips end
 	-- where the song is, in the club's seconds (the DJ's speed carries over)
 	local djSpeed = attr("ClubMusicSpeed", 1)
 	local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
@@ -179,19 +263,35 @@ RunService.Heartbeat:Connect(function(dt)
 	end
 	if not index then
 		-- before, between or after the segments: no dance right now
-		if following.playing then following.playing:Stop(0.3) following.playing = nil end
+		if following.playing then
+			following.playing:Stop(if carry(nil) then 0 else 0.3)
+			following.playing = nil
+			following.playingIndex = nil
+		end
 		return
 	end
 	local seg = following.tracks[index]
 	if following.playing ~= seg then
-		if following.playing then following.playing:Stop(0.15) end
-		seg:Play(0.15)
+		-- (D-798) the next segment in line goes on from where this one ended
+		local fade = 0.15
+		if following.playing and following.playingIndex == index - 1 and carry(startPoses[following.ids[index]]) then fade = 0 end
+		if following.playing then following.playing:Stop(fade) end
+		seg:Play(fade)
 		following.playing = seg
+		following.playingIndex = index
+		following.lastHips = nil
+		following.speed = nil
 		seg.TimePosition = t
 	elseif math.abs(seg.TimePosition - t) > 0.3 then
 		seg.TimePosition = t
 	end
-	seg:AdjustSpeed(if paused then 0 else djSpeed)
+	-- (D-798) a segment a moment ahead of the song holds its last pose
+	-- instead of ending (and fading back to the root) before the next one
+	local speed = if paused or seg.TimePosition >= seg.Length - 0.05 then 0 else djSpeed
+	if following.speed ~= speed then
+		seg:AdjustSpeed(speed)
+		following.speed = speed
+	end
 end)
 
 player.CharacterAdded:Connect(function() following = nil button.Text = "💃 안무 따라하기" end)
