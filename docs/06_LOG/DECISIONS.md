@@ -1667,3 +1667,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-765 (2026-11-03) 사용자 업로드 설정값: 부스트 3, 음색 보정 없음
 - 사용자: `lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }`. ClubConfig.SavedLabs.userUpload를 이 값으로 → 업로드 29곡 모두 적용(그전: 부스트 6, 저 -6 / 중 0.5 / 고 -7). docs/04_ART/CLUB_PLAYLIST.md도.
 - Studio Play: CORTIS-REDRED 속도 0.335, 볼륨 10, 부스트 그룹 3, EQ 꺼짐.
+
+## D-766 (2026-11-03) 곡별 설정값 10곡, IOI-갑자기 새 음원
+- 사용자 값을 곡마다 `lab = { ... }`로 넣음(나머지 19곡은 UP 그대로): ATEEZ-BAD 템포 0.333 부스트 2.5, 소원을 말해봐 0.334/2.5 (저 -5 중 2), Bubble Pop 0.333/2.5 (-6/0.5/-7), Get A Guitar·Love 119 0.333/3 (-7/-3/1.5), Catch Catch 0.34/3 (-13/2.5/4), Lemon Tang 0.333/3 (-3/2/0), Lemonade 0.333/3 (-11/0/-2.5), Mirror 0.332/3 (-10.5/5/4.5), IOI-갑자기 0.333/2.4 (-9.5/6/0).
+- IOI-갑자기 soundId 82649881602599 → 73546697163709 (길이 65초 그대로). docs/04_ART/CLUB_PLAYLIST.md.

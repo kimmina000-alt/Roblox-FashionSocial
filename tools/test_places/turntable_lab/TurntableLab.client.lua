@@ -51,14 +51,15 @@ local TRACKS = {
 	{ title = "IVE-Looks Can Kill", id = 106717797623758, up = true },
 	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 71227645100967, up = true },
 	{ title = "NCT WISH-I SPY", id = 125162124703337, up = true },
-	{ title = "IOI-갑자기", id = 82649881602599, up = true },
+	{ title = "IOI-갑자기", id = 73546697163709, up = true }, -- (new upload, user 2026-11-03; was 82649881602599)
 	{ title = "TAEYEON-만찬가", id = 85454054799377, up = true },
 	{ title = "IU-이 별로부터", id = 82037005465590, up = true },
 	{ title = "CORTIS-REDRED", id = 115957470310890, up = true },
 	{ title = "BIG Naughty-노스탈지아", id = 101304843634159, up = true },
 	{ title = "BIGBANG-BiiiG", id = 107790212422874, up = true },
 	{ title = "BOYNEXTDOOR-ANIMAL", id = 94498201288355, up = true },
-}
+	-- lab only (user 2026-11-03)
+	{ title = "헤이즈 테스트", id = 91382298830000 },}
 -- ClubConfig.SavedLabs.userUpload, what the club plays the `up` songs with
 -- (user 2026-11-03: all uploads on boost 3, EQ flat)
 local UP = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }
@@ -93,7 +94,7 @@ local PARAMS = {
 	{ key = "hissHz", name = "히스 컷 (Lowpass)", sub = "이 주파수 위 '치이-' 깎기 · 20000 = 끔", min = 2000, max = 20000, log = true, default = 20000, fixedStep = 100, unit = " Hz" },
 	{ key = "gate", name = "노이즈 게이트", sub = "이보다 작은 소리는 묵음 · −80 = 끔", min = -80, max = -10, default = -80, fixedStep = 1, unit = " dB" },
 }
-local STEPS = { 0.01, 0.05, 0.1, 0.5 }
+local STEPS = { 0.005, 0.01, 0.05, 0.1, 0.5 } -- (0.005: user 2026-11-03)
 local values = { speed = 1, tempo = 1, volume = 1, boost = 1, octave = 1, low = 0, mid = 0, high = 0, humHz = 20, hissHz = 20000, gate = -80 }
 -- "sound" = Sound with SoundEffects (what 오후 uses); "audio" = the new API:
 -- AudioPlayer → pitch shifters → EQ → filters → gate → device output
@@ -282,7 +283,7 @@ local function button(parent: Instance, text: string, size: UDim2, color: Color3
 	return b
 end
 local function fmt(v: number): string
-	local s = string.format("%.2f", v)
+	local s = string.format("%.3f", v)
 	s = s:gsub("0+$", ""):gsub("%.$", "")
 	return s
 end
@@ -414,8 +415,10 @@ local stepRow = row(30)
 label(stepRow, "한 번에", UDim2.fromOffset(60, 30), nil, { TextColor3 = DIM })
 local stepButtons = {}
 for i, s in ipairs(STEPS) do
-	local b = button(stepRow, fmt(s), UDim2.new(0.25, -20, 1, 0))
-	b.Position = UDim2.new((i - 1) * 0.25, 64 - (i - 1) * 16, 0, 0)
+	local n = #STEPS -- the buttons share the row right of the label (64 px)
+	local b = button(stepRow, fmt(s), UDim2.new(1 / n, -64 / n - 4, 1, 0))
+	b.Position = UDim2.new((i - 1) / n, 64 - (i - 1) * 64 / n, 0, 0)
+	b.TextSize = 13
 	stepButtons[s] = b
 	b.MouseButton1Click:Connect(function()
 		step = s
@@ -470,7 +473,7 @@ local function set(key: string, v: number)
 	local p
 	for _, q in ipairs(PARAMS) do if q.key == key then p = q end end
 	if typeof(v) ~= "number" or v ~= v then return end
-	values[key] = math.clamp(math.floor(v * 100 + 0.5) / 100, p.min, p.max)
+	values[key] = math.clamp(math.floor(v * 1000 + 0.5) / 1000, p.min, p.max) -- to 0.001, under the 0.005 step
 	apply()
 	refreshAll()
 end
