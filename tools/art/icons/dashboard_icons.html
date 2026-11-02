@@ -32,7 +32,7 @@ function badge(text,fill="#ffffff",color="#1a1030",y=432){
   return `<g><rect x="${256-w/2}" y="${y}" width="${w}" height="54" rx="27" fill="${fill}" stroke="rgba(0,0,0,.15)" stroke-width="2"/><text x="256" y="${y+39}" font-size="34" text-anchor="middle" fill="${color}">${text}</text></g>`;
 }
 function vip(){return `<g transform="translate(372,40)"><rect width="110" height="48" rx="24" fill="#f5c542" stroke="#7a5200" stroke-width="3"/><text x="55" y="35" font-size="30" text-anchor="middle" fill="#3a2500">VIP</text></g>`}
-function shadow(cx,cy,rx,ry,op=.35){return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#000" opacity="${op}"/>`}
+function shadow(cx,cy,rx,ry,op=.35){if(clear)return "";return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="#000" opacity="${op}"/>`}
 
 // ---------- bottles ----------
 function flask(x,y,s,col,label,cap,mark=""){
@@ -241,7 +241,8 @@ function wristband(base,ink,line,text,o={}){
     <pattern id="${id3}" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M0,10 L10,0" stroke="#fff" stroke-width="1" opacity=".08"/></pattern></defs>`;
   s+=shadow(256,420,190,26,.3);
   // the back of the loop (darker), then the front
-  s+=`<path d="M70,240 A190,120 0 0 1 442,240" stroke="${back}" stroke-width="96" fill="none" opacity=".55"/>`;
+  // (:clear: the back of the loop solid, nothing behind it shows through)
+  s+=`<path d="M70,240 A190,120 0 0 1 442,240" stroke="${back}" stroke-width="96" fill="none" opacity="${clear?1:.55}"/>`;
   s+=`<path d="M70,240 A190,120 0 0 1 442,240" stroke="#000" stroke-width="96" fill="none" opacity=".35"/>`;
   s+=`<path d="M70,240 A190,120 0 0 0 442,240" stroke="url(#${id1})" stroke-width="100" fill="none"/>`;
   s+=`<path d="M70,240 A190,120 0 0 0 442,240" stroke="url(#${id3})" stroke-width="100" fill="none"/>`;
@@ -422,11 +423,15 @@ const MENU={
   menu_header_gukbap:()=>ttukbaegi("#f1e8d6",{slices:[porkSlice(220,232,-8),porkSlice(290,236,6)],onion:true}),
 };
 const defs=`<defs>${glowFilter("sparkglow",6,"#ffd75a")}${glowFilter("neon",14,"#3cff9a")}${glowFilter("goldglow",10,"#ffcf4a")}${glowFilter("softglow",10,"#ffb07a")}</defs>`;
-const key=decodeURIComponent(location.hash.slice(1));
+// (#Key:clear, user 2026-11-03: the same icon on a transparent ground, no background or light dots)
+const rawKey=decodeURIComponent(location.hash.slice(1));
+const clear=rawKey.endsWith(":clear");
+const key=clear?rawKey.slice(0,-6):rawKey;
 const icon=ICONS[key];
 if(MENU[key]){document.body.style.background="transparent";document.documentElement.style.background="transparent";
   document.getElementById("out").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">${defs}${MENU[key]()}</svg>`;}
-else if(icon){document.getElementById("out").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">${defs}${bg(icon.t)}${icon.body()}${icon.extra}</svg>`;}
+else if(icon){if(clear){document.body.style.background="transparent";document.documentElement.style.background="transparent";}
+  document.getElementById("out").innerHTML=`<svg xmlns="http://www.w3.org/2000/svg" width="512" height="512" viewBox="0 0 512 512">${defs}${clear?"":bg(icon.t)}${icon.body()}${icon.extra}</svg>`;}
 else{document.body.style.background="#fff";document.getElementById("out").innerText=Object.keys(ICONS).join("\n");}
 window.ICON_KEYS=Object.keys(ICONS);
 </script></body></html>

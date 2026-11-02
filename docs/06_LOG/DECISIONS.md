@@ -1749,3 +1749,5 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 스크립트도 숨기기 → 지우기: polish_1029(카페 수영장 테이블 쿠션, 편의점 창가 다리: 높이만 읽고 Destroy), polish_1030 14단계(새 돗자리를 놓은 뒤 옛 돗자리 Destroy). 다음 재빌드에도 안 생김.
 - ServerStorage 백업 삭제: BeachCafe_pre_v3, BeachCafe_pre_v4, OH24Store_pre_tweaks (MapBackup_pre_layout_v8은 이미 없었음). 되돌리기는 이제 git의 스크립트로만.
 - Studio Play: 카페 수영장 테이블 의자·편의점 창가 스툴에 앉기 OK, 오류 없음.
+## D-787 (2026-11-03) 대시보드 아이콘 누끼
+- 그림 아이콘 6개(VIP·가드·DJ·코인 x2·프레임 팩·야광봉)를 투명 배경으로 다시 렌더링(dashboard_icons.html `#Key:clear`, render_icons.ps1 -Clear). 케이크 4개는 게임 속 모델을 검은/밝은 배경에서 찍어 차이로 투명도 계산(tools/art/Matte.cs). docs/04_ART/dashboard_icons/nobg/. 딸기 케이크는 검은 씨 모델을 가져오기 전이라 씨 없는 모델로 찍음(가져온 뒤 다시).

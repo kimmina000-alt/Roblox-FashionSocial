@@ -53,3 +53,7 @@
 
 * 등록하지 않는 것: Drink_Fanta(환타, retired).
 * 가격은 MonetizationConfig.lua와 같게(2026-11-02 기준: 가드 399, DJ 49). 음료·스파클러·카페는 real/ 폴더의 실사 아이콘이 있으면 그걸 써요(REAL_PHOTOS.md).
+
+## 배경 없는 버전 (2026-11-03, D-787): `nobg/`
+- 그림 아이콘 6개(VIP, Guard, DJ, CoinX2, FramePack, Glowstick): `render_icons.ps1 -Clear -Only VIP,Guard,...` (SVG의 `#Key:clear`: 배경·빛 점·바닥 그림자 없이, 팔찌 뒤쪽 고리는 불투명).
+- 케이크 4개(Cafe_Cake*): 게임 속 실제 모델을 하늘 위 검은 배경 / 밝은 배경에서 같은 각도로 찍고, 배경만 있는 두 장과 함께 tools/art/Matte.cs로 잘라 냄(테두리 반투명까지). 미리보기: `nobg/_preview_checker.png`, `nobg/_preview_cakes.png`.
