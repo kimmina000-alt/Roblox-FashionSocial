@@ -3100,3 +3100,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 케이크 3종 3D (D-781) · 업로드 5곡 (D-782)
 ![](images/2026-11-03/d781_basque_table.jpg) ![](images/2026-11-03/d781_strawberry_cut.jpg) ![](images/2026-11-03/d781_tiramisu_cut.jpg)
 - STL → 색 그룹(CakeKinds) → 2만 삼각형 → 6조각 gltf → 사용자 가져오기 → Foods. 카페 테이블에서 조각 먹기 확인. 음원 5곡 추가(만찬가는 로드 안 됨).
+### 밤 광안대교 · 케이크 다듬기 (D-783)
+![](images/2026-11-03/d783_bridge_night_before.jpg) ![](images/2026-11-03/d783_bridge_night_after.jpg)
+![](images/2026-11-03/d783_tiramisu_no_gold.jpg)
+- 원인: 스트리밍 + 밤 Atmosphere. 다리 Persistent 모델 + 밤 안개 0. 체인 전체 다시 실행(손 편집 48개).

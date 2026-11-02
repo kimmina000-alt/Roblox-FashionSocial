@@ -9,7 +9,7 @@
 |---|---|---|---|---|---|---|
 | Cafe_Parfait | CAFE-DP-PARFAIT | 딸기 파르페 | R$15 | 3722468372 | live | 카페의 큰 딸기 파르페 한 잔. |
 | Cafe_CakeStrawberry | CAFE-DP-CAKE-STRAWBERRY | 딸기생크림 케이크 (코인 100으로도 구매) | R$10 | 3722468408 | live | 테이블에 놓는 홀케이크. 6조각을 모두 함께 나눠 먹어요. |
-| Cafe_CakeVintage | CAFE-DP-CAKE-VINTAGE | 빈티지 레터링 케이크 | R$25 | 3722468462 | live | 체리와 크림, 레터링이 올라간 빈티지 홀케이크(색은 랜덤 4가지). 6조각을 모두 함께 나눠 먹어요. |
+| Cafe_CakeVintage | CAFE-DP-CAKE-VINTAGE | 빈티지 레터링 케이크 | R$30 | 3722468462 | live | 체리와 크림, 레터링이 올라간 빈티지 홀케이크(색은 랜덤 4가지). 6조각을 모두 함께 나눠 먹어요. |
 | Cafe_CakeTiramisu | CAFE-DP-CAKE-TIRAMISU | 티라미수 케이크 | R$25 | 3722468430 | live | 테이블에 놓는 홀케이크. 6조각을 모두 함께 나눠 먹어요. |
 | Cafe_CakeBasque | CAFE-DP-CAKE-BASQUE | 바스크 치즈케이크 | R$25 | 3722468449 | live | 테이블에 놓는 홀케이크. 6조각을 모두 함께 나눠 먹어요. |
 | Gukbap_Suyuk | GUKBAP-DP-SUYUK | 수육 한 접시 (6점) | R$19 | 3722468485 | live | 국밥집 테이블에 놓는 수육 한 접시. 6점을 모두 함께 나눠 먹어요. (한 점 = 한 입) |

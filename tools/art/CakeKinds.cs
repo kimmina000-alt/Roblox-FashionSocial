@@ -30,7 +30,7 @@ public static class CakeKinds
         return nz > 0.92 ? "Cocoa" : "CocoaDark";
     }
     public static readonly string TiramisuColors =
-        "Board=246,244,240;Crust=112,78,52;Mascarpone=246,240,224;Cocoa=112,66,40;CocoaDark=78,44,27;Gold=214,170,72";
+        "Board=246,244,240;Crust=112,78,52;Mascarpone=246,240,224;Cocoa=112,66,40;CocoaDark=78,44,27;Gold=112,66,40"; // (Gold = Cocoa since D-783, user: no odd-coloured patches; the group stays so the palette cells line up)
 
     // ---- basque burnt cheesecake (photo cake_basque_cheese.png): a caramel
     // top, a near-black burnt rim and sides, the cream showing in the folds ----
@@ -55,6 +55,17 @@ public static class CakeKinds
     // (no lettering) in the middle ----
     static readonly double[][] SBerries = {
         new[] { -13.18, 25.31 }, new[] { 10.86, 22.99 }, new[] { -24.66, 12.56 }, new[] { 21.07, 1.10 }, new[] { -20.30, -3.72 }, new[] { -0.70, -12.76 } };
+    // (D-783, user: the strawberries' seeds) little yellow dots: one in every
+    // third 1.8-unit cell of the surface, within 0.6 of its middle
+    static bool Seed(double[] c)
+    {
+        const double S = 1.8;
+        long qx = (long)Math.Floor(c[0] / S), qy = (long)Math.Floor(c[1] / S), qz = (long)Math.Floor(c[2] / S);
+        long h = (qx * 73856093) ^ (qy * 19349663) ^ (qz * 83492791);
+        if (((h % 3) + 3) % 3 != 0) return false;
+        double dx = c[0] - (qx + 0.5) * S, dy = c[1] - (qy + 0.5) * S, dz = c[2] - (qz + 0.5) * S;
+        return dx * dx + dy * dy + dz * dz < 0.6 * 0.6;
+    }
     public static string Strawberry(double[] c)
     {
         double z = c[2], r = R(c);
@@ -72,11 +83,11 @@ public static class CakeKinds
         if (c[0] > -12 && c[0] < 9 && c[1] > 1 && c[1] < 15 && z < 40) return "Label";
         // the six strawberries (centres from CakeTool.Balls); thin bits
         // elsewhere are thyme
-        foreach (var b in SBerries) if ((c[0] - b[0]) * (c[0] - b[0]) + (c[1] - b[1]) * (c[1] - b[1]) < 100) return "Berry";
+        foreach (var b in SBerries) if ((c[0] - b[0]) * (c[0] - b[0]) + (c[1] - b[1]) * (c[1] - b[1]) < 100) return Seed(c) ? "Seed" : "Berry";
         return "Leaf";
     }
     public static readonly string StrawberryColors =
-        "Board=238,222,178;Side=252,250,246;TopCream=255,253,248;Piping=255,252,246;Leaf=86,140,62;Label=246,240,230;Berry=205,30,45";
+        "Board=238,222,178;Side=252,250,246;TopCream=255,253,248;Piping=255,252,246;Leaf=86,140,62;Label=246,240,230;Berry=205,30,45;Seed=240,205,100";
 
     // What CakeCut needs to know about a cake (the vintage one as before):
     // its groups and colours, the groups left whole under the slices (the
@@ -137,7 +148,7 @@ public static class CakeKinds
                     Name = name, Group = Strawberry, Colors = StrawberryColors + ";Sponge=246,222,160;CutCream=255,252,246;BerryCut=228,70,80",
                     Whole = new[] { "Board" }, Zboard = 1.0, SplitU = new[] { 48.3 },
                     Inside = (u, z) => (u > 48.3 || z > 28.5 || z < 3.5) ? "CutCream" : z < 12 ? "Sponge" : z < 14.5 ? "BerryCut" : z < 16 ? "CutCream" : z < 24 ? "Sponge" : z < 26.5 ? "BerryCut" : "CutCream",
-                    Weight = n => n == "Leaf" || n == "Label" ? 20.0 : n == "Berry" ? 6.0 : n == "Board" || n == "Side" ? 0.5 : 1.0,
+                    Weight = n => n == "Leaf" || n == "Label" ? 20.0 : n == "Berry" || n == "Seed" ? 6.0 : n == "Board" || n == "Side" ? 0.5 : 1.0,
                     RingZ = 33.8, RingR = 31,
                 };
         }

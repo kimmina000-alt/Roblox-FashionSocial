@@ -403,15 +403,8 @@ local function openVoteWindow()
 		end)
 	end
 end
--- (user 2026-10-30) the corner screen before anyone has given: OHU ads
-local PROMOS: {any} = {
-	{ promo = true, icon = "🧡", big = "OHU", sub = "오후 · 홍대 패션 소셜", color = Color3.fromRGB(255, 140, 60) },
-	{ promo = true, icon = "🎧", big = "OHU CLUB", sub = "오늘 밤 라이브 DJ", color = Color3.fromRGB(200, 80, 255) },
-	{ promo = true, icon = "📸", big = "오후네컷", sub = "친구와 네 컷 찍기", color = Color3.fromRGB(255, 90, 170) },
-	{ promo = true, icon = "🏖", big = "BEACH CAFE", sub = "바다 보며 쉬어 가요", color = Color3.fromRGB(60, 200, 255) },
-	{ promo = true, icon = "👗", big = "TODAY'S LOOK", sub = "C 카탈로그로 코디 바꾸기", color = Color3.fromRGB(255, 220, 90) },
-	{ promo = true, icon = "💝", big = "실시간 후원", sub = "상단 💝 버튼", color = Color3.fromRGB(255, 70, 110) },
-}
+-- (the OHU text ads shown before anyone had given, 2026-10-30, are gone since
+-- D-783: the picture ad only)
 -- a stage cold spark showing on the corner screen (ClubNotify "Banner")
 local spark: any = nil
 local SPARK_SHOW = 30 -- (as long as the show, SparkleService COLD_SPARK_SECONDS)
@@ -595,9 +588,9 @@ local function buildBandPanel(part: BasePart)
 			if spark and os.clock() < spark.untilAt then
 				entries = { spark }
 			elseif #list == 0 then
-				-- nobody has given yet: the ad, then the OHU ads
+				-- nobody has given yet: the picture ad only (D-783, user: the
+				-- OHU text ads PROMOS are off the screen)
 				entries = { AD }
-				for _, promo in ipairs(PROMOS) do table.insert(entries, promo) end
 			else
 				-- (D-777) for each of the latest supporters: ad, avatar, @id + message, avatar
 				for i = 1, math.min(5, #list) do

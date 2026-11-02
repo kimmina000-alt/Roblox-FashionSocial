@@ -1949,10 +1949,25 @@ do
 		end
 		for k = 1, #pts - 1 do
 			local a, b = pts[k], pts[k + 1]
-			part("BridgeCable", Vector3.new(0.8, 0.8, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), purple, { material = Enum.Material.Neon, nocol = true })
+			part("BridgeCable", Vector3.new(1.6, 1.6, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), purple, { material = Enum.Material.Neon, nocol = true }) -- (0.8 → 1.6, D-783: seen from the beach at night)
 		end
 	end
 	label(box("BridgeLabel", bx - 1, 160, -1, bx + 1, 161, 1, purple, { transparency = 1, nocol = true }), "광안대교", purple, 0, 1)
+	-- (D-783, user: "밤에 바다에 다리 안 보임") the bridge is 570 out from the
+	-- beach, past a phone's streaming radius: it goes in a model that always
+	-- streams (Persistent), with a purple neon strip up each tower leg
+	for _, tz in ipairs({ -260, 260 }) do
+		for _, s in ipairs({ -1, 1 }) do
+			box("BridgeTowerGlow", bx + s * 9 - 2.3, deckY, tz - 0.5, bx + s * 9 + 2.3, 150, tz + 0.5, purple, { material = Enum.Material.Neon, nocol = true })
+		end
+	end
+	local bridge = Instance.new("Model")
+	bridge.Name = "GwanganBridge"
+	bridge.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
+	for _, d in ipairs(T:GetChildren()) do
+		if d:IsA("BasePart") and d.Name:match("^Bridge") then d.Parent = bridge end
+	end
+	bridge.Parent = T
 end
 
 ------------------------------------------------------- palace stone wall (궁궐 담장)
