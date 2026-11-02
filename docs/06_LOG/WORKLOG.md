@@ -3130,3 +3130,5 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - Get A Guitar 2번 → 3번(19.63초)에서 뒤로 튀던 것: 조각 끝 위치로 루트를 옮기고 이어 춤. Play(혼자) 클럽 플로어: 0~115초 엉덩이 프레임 이동 0.5 넘는 것 0개, 아바타 움직임 확인(스크린샷).
 ### 착용 중 전신 번들 · 아이템 자세히 보기 · 장바구니 (D-799)
 - ItemDetail.lua 새 모듈 + CatalogController 연결. Studio가 플레이 중이라 동기화·테스트는 플레이가 끝난 뒤.
+- 2P 테스트 (D-797, D-799): Player2가 신체 > 전신 Vemi Man 번들 WEAR → WORN, 착용 중(신체 > 전신 필터)에 번들 카드 1장 → 누르면 자세히 보기(전체 이름 2줄, BodyParts · Nepeta Art, R$ 175, 구매 R$ 175). 장바구니 2개 · R$ 180. Player1 TryOnItem BuyMany → 서버 오류 없음. 이름표는 DisplayName(Studio 테스트 계정은 이름 = 닉네임이라 같게 보임). 제삼자 판매 허용이 아직 false라 구매 창 자체는 확인 못 함.
+![](images/2026-11-03/d799_detail_bundle.jpg) ![](images/2026-11-03/d799_cart.jpg)
