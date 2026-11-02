@@ -1663,3 +1663,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-764 (2026-11-03) EDM 볼륨
 - 사용자 요청. DJ 창 ⚡ EDM 속도 아래 🔉 EDM 볼륨(x0~x3, 0.1 단위), EDM 곡만. ClubEdm.volume, EdmService k "volume", EdmController는 노래 볼륨 × EDM 볼륨. 🔄 초기화와 ? 도움말에도. 폰에서는 EDM 줄 높이 20, 간격 2.
 - Studio Play: volume 2.5 → EdmVolume 그룹 2.5.
+
+## D-765 (2026-11-03) 사용자 업로드 설정값: 부스트 3, 음색 보정 없음
+- 사용자: `lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }`. ClubConfig.SavedLabs.userUpload를 이 값으로 → 업로드 29곡 모두 적용(그전: 부스트 6, 저 -6 / 중 0.5 / 고 -7). docs/04_ART/CLUB_PLAYLIST.md도.
+- Studio Play: CORTIS-REDRED 속도 0.335, 볼륨 10, 부스트 그룹 3, EQ 꺼짐.

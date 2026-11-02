@@ -159,8 +159,9 @@ ClubConfig.JoinRadius = 90
 -- (D-745, user: "숨겨 놔, 나중에 쓸 거임") the lab values the user tuned by ear
 -- for their own sped-up uploads (docs/04_ART/OLD_CLUB_PLAYLIST.md). Used again
 -- by the user's K-POP uploads since D-755.
+-- (D-765, user 2026-11-03: boost 3, no EQ; was boost 6, low -6 / mid 0.5 / high -7)
 ClubConfig.SavedLabs = {
-	userUpload = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" },
+	userUpload = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" },
 } :: {[string]: Lab}
 local UP = ClubConfig.SavedLabs.userUpload
 

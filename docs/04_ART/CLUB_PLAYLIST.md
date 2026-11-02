@@ -8,12 +8,12 @@
 | 이름 | 쓰는 곡 | 값 |
 |---|---|---|
 | 기본 | 로블록스 음악 12곡 | 설정값 없음. 올라온 그대로, 클럽 볼륨 0.55 (`ClubConfig.MusicVolume`) |
-| 저장 값 `UP` | 사용자 업로드 29곡 | `{ speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }` |
+| 저장 값 `UP` | 사용자 업로드 29곡 | `{ speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }` |
 
 - `UP` = `ClubConfig.SavedLabs.userUpload`. 29곡이 모두 이 하나를 같이 써서, 여기 숫자를 바꾸면 29곡이 한꺼번에 바뀌어요.
 - 한 곡만 다르게 하려면 그 곡의 `lab = UP` 를 `lab = { ... }` 로 바꾸면 돼요.
 - 실제로 나가는 값: 재생 속도 = speed × tempo = **0.335**, 음높이는 PitchShift로 되돌림(octave ÷ tempo). 들리는 길이 = 길이(x1) ÷ 0.335.
-- 템포 0.335 = RIIZE-Get A Guitar(53.6초)를 약 2분 40초로 맞춘 값. 부스트 6 = 사용자 "전체 음원 부스트 6으로 변경"(2026-11-01).
+- 템포 0.335 = RIIZE-Get A Guitar(53.6초)를 약 2분 40초로 맞춘 값. 부스트 3, 음색(저·중·고) 보정 없음 = 사용자 2026-11-03 (D-765; 그전엔 부스트 6, 저 -6 / 중 0.5 / 고 -7).
 
 ## 1. 로블록스 음악 12곡 (설정값 없음)
 
@@ -73,7 +73,7 @@
 테스트 장소 "테스트" 86558282086977 (tools/test_places/turntable_lab)의 저장 형식은 soundId별 표예요. 29곡에 같은 값을 넣는 표:
 
 ```lua
-local UP = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }
+local UP = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }
 local LAB = {
 	["134942349436280"] = UP, -- ATEEZ-BAD
 	["128270208751659"] = UP, -- 소녀시대-소원을 말해봐(Genie)

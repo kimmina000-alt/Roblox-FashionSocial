@@ -60,7 +60,8 @@ local TRACKS = {
 	{ title = "BOYNEXTDOOR-ANIMAL", id = 94498201288355, up = true },
 }
 -- ClubConfig.SavedLabs.userUpload, what the club plays the `up` songs with
-local UP = { speed = 1, tempo = 0.335, volume = 10, boost = 6, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }
+-- (user 2026-11-03: all uploads on boost 3, EQ flat)
+local UP = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }
 
 -- speed and octave on log sliders (x1 in the middle); volume is the raw
 -- Sound.Volume
