@@ -63,6 +63,8 @@ local searchCatalog: () -> ()
 local renderCurrentOutfit: () -> ()
 local recordRecent: (any, string) -> ()
 local toggleFavorite: (number, string, any) -> ()
+-- (D-799) the item details window with the cart (ItemDetail module)
+local openItemDetail: (number, string, any?) -> ()
 
 local friendlyError = require(script.Parent:WaitForChild("FriendlyErrors"))
 
@@ -1907,6 +1909,10 @@ renderCurrentOutfit = function()
 			ScaleType = Enum.ScaleType.Fit,
 		})
 		image.Parent = itemCard
+		-- (D-799) tap the thumbnail: the item details window
+		image.Activated:Connect(function()
+			if not stripDrag:isDragging() then openItemDetail(assetId, "Asset") end
+		end)
 		if wornGroup(assetId) == 1 then
 			layerNumber += 1
 			itemCard:SetAttribute("LayerId", assetId)
@@ -2164,6 +2170,22 @@ local function fetchItemDetails(entries: {{id: number, itemType: string}}): {[st
 	return result
 end
 
+-- (D-799, user: tap an item in 착용 중 → full name, big picture, buy / cart)
+do
+	local view: any = nil
+	openItemDetail = function(id: number, itemType: string, item: any?)
+		task.spawn(function()
+			local detail = item or fetchItemDetails({ { id = id, itemType = itemType } })[itemKey(itemType, id)]
+			if not detail then
+				showToast("아이템 정보를 불러오지 못했어요.")
+				return
+			end
+			view = view or require(script.Parent:WaitForChild("ItemDetail")).new(showToast)
+			view:open(detail)
+		end)
+	end
+end
+
 -- Shoes are sold on Roblox only as "Shoes" bundles (left + right shoe assets;
 -- the individual shoe assets are off-sale). Wear/remove them as a pair from the
 -- card; the worn strip still lists each shoe separately.
@@ -2313,6 +2335,14 @@ createItemCard = function(item: any, layoutOrder: number)
 			toggleFavorite(assetId, favoriteType, item)
 		else
 			lastImageTap = now
+			-- (D-799) in 착용 중 a single tap opens the details, once the double-tap window has passed
+			if browseMode == "Wearing" then
+				task.delay(0.5, function()
+					if lastImageTap == now and card.Parent and browseMode == "Wearing" then
+						openItemDetail(assetId, favoriteType, item)
+					end
+				end)
+			end
 		end
 	end)
 	card:SetAttribute("ImageHitAreaName", "ImageHitArea")
@@ -2768,8 +2798,37 @@ renderLocalMode = function()
 			table.insert(entries, { id = favorite.id, itemType = favorite.itemType })
 		end
 	else
+		-- (D-799, user: the body from 신체 > 전신 in 착용 중) a worn full-body / head /
+		-- shoes bundle (tried on or ★ this session) shows as its bundle card, in
+		-- place of its parts. The snapshot only has asset ids, so the bundles
+		-- come from 최근 and 즐겨찾기.
+		local bundleIds, partOf = {}, {}
+		for _, item in ipairs(recentItems) do
+			if item.ItemType == "Bundle" and typeof(item.Id) == "number" then table.insert(bundleIds, { id = item.Id, itemType = "Bundle" }) end
+		end
+		for _, favorite in ipairs(favoriteItems) do
+			if favorite.itemType == "Bundle" and typeof(favorite.id) == "number" then table.insert(bundleIds, { id = favorite.id, itemType = "Bundle" }) end
+		end
+		local bundleDetails = fetchItemDetails(bundleIds)
+		if browseMode ~= mode or generation ~= resultsFrame:GetAttribute("LocalRenderGeneration") then return end
+		local added = {}
+		for _, entry in ipairs(bundleIds) do
+			local detail = bundleDetails[itemKey("Bundle", entry.id)]
+			local bundleType = detail and tostring(detail.BundleType)
+			if bundleType and WearableBundles.core[bundleType] and not added[entry.id] then
+				if not WearableBundles.coreAssets[entry.id] then
+					loadShoeBundleAssets(entry.id, bundleType, function()
+						if browseMode == "Wearing" then renderLocalMode() end
+					end)
+				elseif isShoeBundleWorn(entry.id) then
+					added[entry.id] = true
+					table.insert(entries, entry)
+					for _, part in ipairs(shoeBundleAssets[entry.id] or {}) do partOf[part] = true end
+				end
+			end
+		end
 		for _, assetId in ipairs((getWornOrder())) do
-			table.insert(entries, { id = assetId, itemType = "Asset" })
+			if not partOf[assetId] then table.insert(entries, { id = assetId, itemType = "Asset" }) end
 		end
 	end
 	local details = fetchItemDetails(entries)
