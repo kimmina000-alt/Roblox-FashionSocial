@@ -346,7 +346,12 @@ local function runPlaylist()
 		end
 		-- (the skip count follows people coming in and leaving the club)
 		tick += 1
-		if tick % 4 == 0 then publishSkipVotes() end
+		if tick % 4 == 0 then
+			-- (D-823, user: two voted, one left without voting: it stood at 1/1)
+			-- enough votes after someone left goes on to the next song too
+			local votes, needed = publishSkipVotes()
+			if votes > 0 and votes >= needed and DjService.CurrentDJ() == 0 then playNext() end
+		end
 	end
 end
 
