@@ -162,8 +162,8 @@ end
 -- 걸어나간 그 위치에서 시작하면 되잖아") the dance's own travel moves this
 -- player's root, frame by frame, as far as the hips travel in each playing
 -- piece (by its weight, so a blend between two pieces carries both moves
--- and nothing snaps back). The camera is Roblox's own and follows the
--- dancer as usual (D-815, user: "카메라는 그냥 건들지 마"), the facing is
+-- and nothing snaps back). The camera stays where the dance began (D-825,
+-- holdCamera), the facing is
 -- left alone (D-798 turned the dancer round), and it stops at walls and at
 -- the club's edge. The hips' own travel is then taken out below as before.
 local lastHips: {[AnimationTrack]: Vector3} = setmetatable({}, { __mode = "k" }) :: any
@@ -241,8 +241,67 @@ RunService.PreSimulation:Connect(function(dt)
 	end
 end)
 
+-- (D-825, user: "춤 출 때 카메라 고정해 줘 … 플레이어가 회전하고 확대 축소해
+-- 놓은 앵글로 고정되어 있어야 함") while following, the camera looks at a
+-- still point where the dance began instead of at the dancer: it does not
+-- move with the dance path, and the player can still turn and zoom it (the
+-- angle and distance they set stay). When the dance stops, the point glides
+-- to the character and the camera follows it again as usual.
+local cameraAnchor: BasePart? = nil
+-- where the camera looked above the root when the dance began (Camera.Focus),
+-- so taking the camera and giving it back moves nothing
+local focusOffset = Vector3.new(0, 1.5, 0)
+local function cameraFocus(root: BasePart): Vector3
+	return root.Position + focusOffset
+end
+local function holdCamera()
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not root or cameraAnchor then return end
+	local seen = workspace.CurrentCamera.Focus.Position - root.Position
+	if seen.Magnitude < 6 then focusOffset = seen end
+	local anchor = Instance.new("Part")
+	anchor.Name = "ChoreoCameraAnchor"
+	anchor.Anchored = true
+	anchor.CanCollide = false
+	anchor.CanQuery = false
+	anchor.CanTouch = false
+	anchor.Transparency = 1
+	anchor.Size = Vector3.new(0.2, 0.2, 0.2)
+	anchor.CFrame = CFrame.new(cameraFocus(root))
+	anchor.Parent = workspace.CurrentCamera
+	cameraAnchor = anchor
+	workspace.CurrentCamera.CameraSubject = anchor
+end
+local function releaseCamera()
+	local anchor = cameraAnchor
+	if not anchor then return end
+	cameraAnchor = nil
+	task.spawn(function()
+		local camera = workspace.CurrentCamera
+		local from = anchor.Position
+		local glide = 0.4
+		local t0 = os.clock()
+		while camera.CameraSubject == anchor and os.clock() - t0 < glide do
+			local character = player.Character
+			local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+			if not root then break end
+			local f = (os.clock() - t0) / glide
+			anchor.CFrame = CFrame.new(from:Lerp(cameraFocus(root), f * f * (3 - 2 * f)))
+			RunService.RenderStepped:Wait()
+		end
+		if camera.CameraSubject == anchor then
+			local character = player.Character
+			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+			if humanoid then camera.CameraSubject = humanoid end
+		end
+		anchor:Destroy()
+	end)
+end
+
 local function stopFollowing()
 	if not following then return end
+	releaseCamera()
 	for _, t in ipairs(following.tracks) do
 		t:Stop(0.25)
 		t:Destroy()
@@ -280,6 +339,7 @@ local function startFollowing(track: ClubConfig.Track)
 		end
 	end
 	if #tracks == 0 then return end
+	holdCamera()
 	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, blends = blends, froms = froms, playing = nil, speed = nil }
 	button.Text = "⏹ 그만 추기"
 end
@@ -377,4 +437,8 @@ RunService.PreAnimation:Connect(function()
 	end
 end)
 
-player.CharacterAdded:Connect(function() following = nil button.Text = "💃 안무 따라하기" end)
+player.CharacterAdded:Connect(function()
+	following = nil
+	button.Text = "💃 안무 따라하기"
+	if cameraAnchor then cameraAnchor:Destroy() cameraAnchor = nil end
+end)
