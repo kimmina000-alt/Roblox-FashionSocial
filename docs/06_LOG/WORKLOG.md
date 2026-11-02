@@ -3076,3 +3076,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ![](images/2026-11-03/m2p_upload_lab_1103.jpg)
 - 두 클라이언트 모두 목록 27곡. Player1(DJ)이 I SPY → 긴 소원 재생: 템포 0.333, 부스트 그룹 3, EQ -3/2/0 켜짐(Player2 확인). DJ 창·노래 선택창 '♪ 지금: NMIXX-긴 소원'.
 - 오류 없음(Studio DataStore 경고만) → catalog-ui-redesign에 머지.
+### 의견 접수 카드 (D-769)
+![](images/2026-11-03/d769_feedback_sent.jpg)
+- 보내기 → 주황 카드 "소중한 의견이 잘 접수되었어요. 고마워요! 💛" 1초 뒤 사라짐(Play 확인).
+- EDM 질문: 노래(긴 소원)와 EDM 1이 동시에 재생됨(둘 다 IsPlaying, 볼륨 10; 노래는 부스트 3 그룹).

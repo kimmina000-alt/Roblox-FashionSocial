@@ -128,6 +128,25 @@ box:GetPropertyChangedSignal("Text"):Connect(function()
 end)
 refreshCounter()
 
+-- (D-769, user) a sent message: the server's thanks on a card over the form for 1 s
+local sentCard = create("TextLabel", {
+	Name = "SentCard", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
+	Size = UDim2.new(0.86, 0, 0, 64), BackgroundColor3 = ORANGE, Font = Enum.Font.GothamBold, TextSize = 16,
+	TextColor3 = Color3.new(1, 1, 1), TextWrapped = true, Text = "", Visible = false, ZIndex = 5,
+}, window)
+corner(sentCard, 14)
+create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }, sentCard)
+local sentShown = 0
+local function showSent(message: string)
+	sentShown += 1
+	local mine = sentShown
+	sentCard.Text = message
+	sentCard.Visible = true
+	task.delay(1, function()
+		if sentShown == mine then sentCard.Visible = false end
+	end)
+end
+
 local sending = false
 sendButton.Activated:Connect(function()
 	if sending then return end
@@ -137,7 +156,11 @@ sendButton.Activated:Connect(function()
 		local ok, sent, message = pcall(function() return remote:InvokeServer("Send", { kind = kind, text = box.Text }) end)
 		sending = false
 		sendButton.Text = "보내기 ▶"
-		if ok and sent then box.Text = "" end
+		if ok and sent then
+			box.Text = ""
+			showSent(if typeof(message) == "string" then message else "소중한 의견이 잘 접수되었어요.")
+			return
+		end
 		status = if ok and typeof(message) == "string" then message else "지금은 보낼 수 없어요."
 		refreshCounter()
 	end)

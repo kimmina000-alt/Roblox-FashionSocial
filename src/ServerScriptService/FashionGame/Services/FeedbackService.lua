@@ -78,7 +78,8 @@ local function send(player: Player, payload: any): (boolean, string?)
 			return false, "지금은 보낼 수 없어요. 잠시 뒤에 다시 해 주세요."
 		end
 	end
-	return true, "고마워요! 의견이 잘 전해졌어요. 💛"
+	-- (D-769, user: shown for 1 s over the form, Feedback.lua)
+	return true, "소중한 의견이 잘 접수되었어요. 고마워요! 💛"
 end
 
 -- the owner reads them in the game: filtered for the owner (Roblox text rules)
