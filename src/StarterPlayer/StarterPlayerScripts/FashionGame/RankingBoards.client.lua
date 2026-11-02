@@ -416,6 +416,7 @@ local CARD = 30 -- studs per card (the screen is 64 tall since D-777)
 local AD_IMAGE = "rbxassetid://78452328820553"
 local AD_ASPECT = 1024 / 576
 local TEXT_CARD = 40
+local CARD_GAP = 8 -- studs at least between two cards on the corner screen (D-792)
 local SPARK_CARD = 96 -- a cold spark card: wide, fireworks over the message (user 2026-10-30)
 local FIREWORK = "rbxassetid://111289615885616" -- the user's pink firework on a clear ground (docs/04_ART/textures/firework_pink.png)
 local AVATAR_BACK = { 40, 26, 70 }
@@ -467,6 +468,7 @@ local function buildBandPanel(part: BasePart)
 	local cards: {{ frame: Frame, entry: any, index: number, built: boolean, at: number, w: number }} = {}
 	local dark = false
 	local shownKey = ""
+	local cycle = 1 -- studs before the row of cards comes round again (D-792)
 	-- the card's content is built the first time it shows on this panel
 	local function neonText(frame: Instance, props: {[string]: any}, glowColor: Color3)
 		local glowLabel = label(frame, props)
@@ -620,7 +622,12 @@ local function buildBandPanel(part: BasePart)
 			local round = 0
 			for _, entry in ipairs(entries) do round += widthOf(entry) end
 			local copies = math.max(1, math.floor(total / (round * 1.15)))
-			local gap = (total / copies - round) / #entries
+			-- (D-792, user live shot: with several supporters the row was longer
+			-- than the band, the gap went below zero and the cards lay over each
+			-- other) never closer than CARD_GAP: a longer row runs on past the
+			-- end of the band and comes round again (cycle)
+			local gap = math.max(CARD_GAP, (total / copies - round) / #entries)
+			cycle = math.max(total, copies * (round + gap * #entries))
 			local at = 0
 			for _ = 1, copies do
 				for index, entry in ipairs(entries) do
@@ -637,7 +644,7 @@ local function buildBandPanel(part: BasePart)
 		end,
 		tick = function()
 			local total = bandLength()
-			local offset = (os.clock() * WRAP_SPEED) % total
+			local offset = (os.clock() * WRAP_SPEED) % cycle
 			local function waveColor(x: number): Color3
 				local s = 0.5 + 0.5 * math.sin(2 * math.pi * (x / total - os.clock() * 0.05))
 				-- (ads and the cold spark on a nearly black screen, so the neon reads)
@@ -649,8 +656,8 @@ local function buildBandPanel(part: BasePart)
 				ColorSequenceKeypoint.new(1, waveColor(bandStart + width)),
 			})
 			for _, card in ipairs(cards) do
-				local pos = (card.at + offset - bandStart) % total
-				if pos > total - card.w then pos -= total end
+				local pos = (card.at + offset - bandStart) % cycle
+				if pos > cycle - card.w then pos -= cycle end
 				local visible = pos < width and pos > -card.w
 				card.frame.Visible = visible
 				if visible then
