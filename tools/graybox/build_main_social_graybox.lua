@@ -326,8 +326,9 @@ box(z,"Corridor_E_N",-65,F,NZ,-64,V-1,-225,WALL_C,WALLO)
 box(z,"Corridor_E_S",-65,F,HD1,-64,V-1,-167.5,WALL_C,WALLO)
 -- (corridor as high as the rest of the 1F, up to the 2F floor, and a taller
 -- hall door: user 2026-10-25)
-local DH=21 -- hall door height (18 → 21, user 2026-10-27)
-box(z,"Corridor_DoorTop",-65,F+DH,-225,-64,V-1,HD1,WALL_C,WALLO)
+local DH=21 -- hall door height (18 → 21, user 2026-10-27); the VIP gate keeps it
+-- (D-827, user) the hall door open up to the corridor's ceiling (the balcony floor): no top piece
+local HDH=V-1-F
 box(z,"Corridor_Ceiling",-80,V-1,-236,-65,V-0.6,-167.5,dark) -- (underside level with the balcony floor over the hall)
 -- (both run through the passage door to meet the stair-foot lines, user 2026-10-31: they stopped a stud short)
 box(z,"CorridorNeon_W",-80,F,NZ,-79.88,F+0.25,-166.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
@@ -338,17 +339,17 @@ box(z,"CorridorNeon_E",-65.12,F,HD1+0.25,-65,F+0.25,-166.2,Color3.fromRGB(255,25
 -- pink door posts: only the faces looking into the doorway glow (user 2026-10-25)
 for _,d in ipairs({{HD1-0.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
  -- (the rest of the post is wall: wall colour, user 2026-10-25)
- P(z,"HallDoorFrame",Vector3.new(1.5,DH,1.5),CFrame.new(-64.5,F+DH/2,pz),WALL_C,WALLO)
+ P(z,"HallDoorFrame",Vector3.new(1.5,HDH,1.5),CFrame.new(-64.5,F+HDH/2,pz),WALL_C,WALLO)
  -- the floor light lines run on along the foot of the post on both sides (user 2026-10-25)
  for _,xf in ipairs({{-63.75,-63.63},{-65.37,-65.25}}) do
   box(z,"HallDoorFootLED",xf[1],F,pz-0.75,xf[2],F+0.25,pz+0.75,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
  local fz=pz+s*0.75
  -- (two thin neon lines instead of the whole face, user 2026-10-29 (14))
  for i,xs in ipairs({{-64.95,-64.8},{-64.2,-64.05}}) do
-  local g=box(z,"HallDoorGlow",xs[1],F,math.min(fz,fz+s*0.12),xs[2],F+DH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
+  local g=box(z,"HallDoorGlow",xs[1],F,math.min(fz,fz+s*0.12),xs[2],F+HDH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
   if i==1 then local sl=Instance.new("SurfaceLight") sl.Face=if s>0 then Enum.NormalId.Back else Enum.NormalId.Front sl.Color=pink sl.Range=10 sl.Brightness=1.2 sl.Angle=150 sl.Parent=g end end end
 -- and along the top of the doorway, pink like the posts (user 2026-10-27), two thin lines too
-for i,xs in ipairs({{-64.95,-64.8},{-64.2,-64.05}}) do local g=box(z,"HallDoorGlow",xs[1],F+DH-0.12,-223.75,xs[2],F+DH,HD1-1.25,pink,{mat=Enum.Material.Neon,ghost=true})
+for i,xs in ipairs({{-64.95,-64.8},{-64.2,-64.05}}) do local g=box(z,"HallDoorGlow",xs[1],F+HDH-0.12,-223.75,xs[2],F+HDH,HD1-1.25,pink,{mat=Enum.Material.Neon,ghost=true})
  if i==1 then local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Color=pink sl.Range=10 sl.Brightness=1.2 sl.Angle=150 sl.Parent=g end end
 label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,(-225+HD1)/2))
 -- graffiti on the corridor walls seen at the foot of the stairs (user 2026-10-25),
@@ -360,7 +361,7 @@ do local function graffiti(x0,y0,z0,x1,y1,z1,face)
  graffiti(-80,F,NZ,-65,V-1,NZ+0.05,Enum.NormalId.Back) -- the end wall behind the landing
  graffiti(-65.05,F,NZ,-65,V-1,-225.25,Enum.NormalId.Left) -- east wall, north of the door
  graffiti(-65.05,F,HD1+0.25,-65,V-1,-167.5,Enum.NormalId.Left) -- east wall, south of the door
- graffiti(-65.05,F+DH,-225.25,-65,V-1,HD1+0.25,Enum.NormalId.Left) end -- over the door
+ end -- (nothing over the door: it is open up to the ceiling, D-827)
 -- VIP wall across the corridor
 local vipRed=Color3.fromRGB(255,40,70)
 -- (as high as the raised corridor ceiling; no "VIP" text on the glass, the
@@ -894,7 +895,7 @@ do local BC=Color3.fromRGB(255,250,175) local k=0
   zc-=HZ -- (the pass below moves this block by HZ; the bars stay on the fixed walls, clear of the hall door: user 2026-10-25)
   local b=box(z,"WallLEDBar",x0,y0,zc-0.2,x1,y1,zc+0.2,BC,{mat=Enum.Material.Neon,ghost=true})
   b.CastShadow=false b:SetAttribute("Index",k) CS:AddTag(b,"ClubWallBar") end
- for zc=NZ+3,-170,4 do if zc<-226.5 or zc>-209.5 then bar(-63.95,-63.75,F+1,V-2,zc) end end
+ for zc=NZ+3,-170,4 do if zc<-226.5 or zc>HD1+1.5 then bar(-63.95,-63.75,F+1,V-2,zc) end end -- (clear of the wider hall door, D-827)
  -- (behind the club logo crown, z -228 at V+25..V+33, the bars break off so
  -- the crown shows on the bare dark wall: user 2026-10-27, no plate)
  for zc=NZ+3,-170,4 do

@@ -15,9 +15,8 @@
 --   2. a bright locker room (dressing room) under the lot north of the club
 --      (x 131.6..231, z -365..-313, at the corridor's level -24), reached by a
 --      short dark passage north from the corridor (x 132.5..146.5) with the
---      door at its end (D-824): lockers drawn with the user's locker photo,
---      full-length live mirrors (tag "Mirror"), Hollywood vanity mirrors, light
---      panels, no benches. One open room (no small closed rooms: content rules).
+--      door at its end (D-824; dark glass auto door, D-827): lockers drawn with the user's locker photo
+--      up to the ceiling, light panels and plants only. One open room.
 --   3. the ground and the play-area walls make room for both (the boundary
 --      walls over the locker room start at street level: nobody walks there).
 -- The lift at the corridor's end, the wider hall door (D-824) and the boundary
@@ -237,9 +236,16 @@ do
 		e.CFrame = CFrame.new((67 + 179.6) / 2, V + 0.1, -289.7)
 		e.Parent = club
 	end
-	-- (D-824, user) the VIP floors 30 % see-through
+	-- (D-824 30 %, D-827 80 %, user) the VIP floors see-through
 	for _, p in ipairs(club:GetChildren()) do
-		if p:IsA("BasePart") and p.Name:match("^VIP_Floor_") then p.Transparency = 0.3 end
+		if p:IsA("BasePart") and p.Name:match("^VIP_Floor_") then p.Transparency = 0.8 end
+	end
+	-- (D-827, user) a light frame round the street door, seen from inside the club
+	do
+		local LC = Color3.fromRGB(255, 250, 235)
+		box("StreetDoorLight", 50.02, 0, -218.3, 50.22, 18.2, -218, LC, A, NEON())
+		box("StreetDoorLight", 50.02, 0, -202, 50.22, 18.2, -201.7, LC, A, NEON())
+		box("StreetDoorLight", 50.02, 18, -218.3, 50.22, 18.2, -201.7, LC, A, NEON())
 	end
 end
 
@@ -254,11 +260,16 @@ local PX0, PX1 = 132.5, 146.5 -- the passage inside (z LZ1 .. -292)
 local SX1 = 191 + (V - F) -- the top step's east edge (235)
 local HX1 = 255 -- the stair hall's inside east end (the landing 20 deep, D-824)
 local HTOP = 60 -- its roof (36 → 60, D-824: it felt low)
-hole("stair hall door (corridor end)", 187.8, F + 0.01, -290, 190.4, F + 21, -275, notGate)
-hole("stair hall door (2F lounge)", 187.8, V + 0.01, -273, 190.4, V + 14, -259)
-hole("locker passage (corridor wall)", PX0, F + 0.01, -292.4, PX1, F + 21, -289.9)
+-- (D-827) the doors go right down to the floor (a 0.01 strip of wall stood on
+-- it and looked like a crack), the floors are not cut
+local function wallOnly(p) return p.Name ~= "VIP_GateNeon" and p.Name ~= "Floor" and not p.Name:match("^VIP_Floor_") end
+local UDH = 20 -- the door to the lounge, 14 → 20 high (D-827)
+hole("stair hall door (corridor end)", 187.8, F - 0.5, -290, 190.4, F + 21, -275, wallOnly)
+-- (from x 187.4: the lounge's floor-edge light line is cut across the doorway too, D-827)
+hole("stair hall door (2F lounge)", 187.4, V + 0.01, -273, 190.4, V + UDH, -259, wallOnly)
+hole("locker passage (corridor wall)", PX0, F - 0.5, -292.4, PX1, F + 21, -289.9, wallOnly)
 hole("ground: stair hall", 188.5, -16, -292.5, HX1 + 2.5, 0.6, -254.5, groundOnly)
-hole("ground: locker room", LX0 - 2.5, -16, LZ0 - 2.5, LX1 + 2.5, 0, -292, groundOnly)
+hole("ground: locker room", LX0 - 2.5, -16, LZ0 - 2.5, LX1 + 2.5, 0, -289.9, groundOnly) -- (to -289.9: a strip of ground showed at the passage, D-827)
 
 ---------------------------------------------------------------- 3. VIP stair hall
 do
@@ -270,7 +281,7 @@ do
 	local W = { mat = Enum.Material.SmoothPlastic }
 	local LEMON = Color3.fromRGB(255, 250, 175)
 	-- shell: floor, three walls, roof (the club's east wall is the fourth)
-	local fl = box("Floor", 189, F - 1, Z0, X1, F, Z1, MARBLE_C, H, { mat = Enum.Material.Marble })
+	local fl = box("Floor", 187.8, F - 1, Z0, X1, F, Z1, MARBLE_C, H, { mat = Enum.Material.Marble }) -- (from 187.8: under the gate in the wall too, D-827)
 	fl.Reflectance = 0.15
 	box("Wall_Nth", 189, F, -292, X1 + 2, TOPY + 1, Z0, WALL_C, H, W)
 	box("Wall_Sth", 189, F, Z1, X1 + 2, TOPY + 1, -255, WALL_C, H, W)
@@ -320,8 +331,8 @@ do
 		box("VIP_Portal", x - 0.15, y0, zb - 0.3, x + 0.15, y0 + h, zb, VIP_RED, H, NEON())
 		box("VIP_Portal", x - 0.15, y0 + h - 0.3, za, x + 0.15, y0 + h, zb, VIP_RED, H, NEON())
 	end
-	portal(SX1 + 0.2, Z0, AZ1, V, 21)
-	portal(190.6, -273, -259, V, 14)
+	-- (the one at the flight's top went again, D-827, user)
+	portal(190.6, -273, -259, V, UDH)
 	-- graffiti on the inside walls (as in the corridor)
 	graffiti(H, 189, F, Z0, X1, TOPY, Z0 + 0.05, Enum.NormalId.Back)
 	graffiti(H, 189, F, Z1 - 0.05, X1, TOPY, Z1, Enum.NormalId.Front)
@@ -378,32 +389,26 @@ do
 	box("Wall_W", X0 - 1.6, F, Z0 - 1.6, X0, TOP, Z1 + 1.6, WHITE, R, PLASTER)
 	box("Wall_E", X1, F, Z0 - 1.6, X1 + 1.6, TOP, Z1 + 1.6, WHITE, R, PLASTER)
 	box("Wall_N", X0 - 1.6, F, Z0 - 1.6, X1 + 1.6, TOP, Z0, WHITE, R, PLASTER)
-	-- the south wall with the door from the passage
+	-- the south wall with the doorway from the passage, open up to the ceiling (D-827)
 	box("Wall_S", PX1, F, Z1, X1 + 1.6, TOP, Z1 + 1.6, WHITE, R, PLASTER)
 	box("Wall_S", X0 - 1.6, F, Z1, PX0, TOP, Z1 + 1.6, WHITE, R, PLASTER)
-	box("Wall_S", PX0, F + 18, Z1, PX1, TOP, Z1 + 1.6, WHITE, R, PLASTER)
-	-- THE PASSAGE from the corridor (D-824, user plan): dark like the club, graffiti, a light strip
+	-- THE PASSAGE from the corridor (D-824, user plan): dark like the club,
+	-- graffiti, the floor lines joining the corridor's (no ceiling light, D-827)
 	do
 		local P = Instance.new("Model")
 		P.Name = "Passage"
 		P.Parent = R
-		local pz0, pz1 = Z1 + 1.6, -292
+		local pz0, pz1 = Z1 + 1.6, -289.9 -- (on through the club wall's thickness: no gap in the floor, D-827)
 		local f = box("Floor", PX0 - 1, F - 1, pz0, PX1 + 1, F, pz1, MARBLE_C, P, { mat = Enum.Material.Marble })
 		f.Reflectance = 0.15
-		box("Wall_W", PX0 - 1, F, pz0, PX0, TOP, pz1, WALL_C, P)
-		box("Wall_E", PX1, F, pz0, PX1 + 1, TOP, pz1, WALL_C, P)
-		box("Ceiling", PX0 - 1, TOP, pz0, PX1 + 1, 0, pz1, DARK, P)
-		graffiti(P, PX0, F, pz0, PX0 + 0.05, TOP, pz1, Enum.NormalId.Right)
-		graffiti(P, PX1 - 0.05, F, pz0, PX1, TOP, pz1, Enum.NormalId.Left)
-		local s = box("CeilingStrip", (PX0 + PX1) / 2 - 0.6, TOP - 0.2, pz0 + 1, (PX0 + PX1) / 2 + 0.6, TOP, pz1 - 1, Color3.fromRGB(255, 240, 220), P, NEON())
-		local pl = Instance.new("PointLight") pl.Range = 16 pl.Brightness = 0.8 pl.Color = Color3.fromRGB(255, 225, 200) pl.Shadows = false pl.Parent = s
+		box("Wall_W", PX0 - 1, F, pz0, PX0, TOP, -292, WALL_C, P)
+		box("Wall_E", PX1, F, pz0, PX1 + 1, TOP, -292, WALL_C, P)
+		box("Ceiling", PX0 - 1, TOP, pz0, PX1 + 1, 0, -292, DARK, P)
+		graffiti(P, PX0, F, pz0, PX0 + 0.05, TOP, -292, Enum.NormalId.Right)
+		graffiti(P, PX1 - 0.05, F, pz0, PX1, TOP, -292, Enum.NormalId.Left)
 		for _, x in ipairs({ PX0 + 0.06, PX1 - 0.06 }) do
-			box("FloorLED", x - 0.06, F, pz0, x + 0.06, F + 0.25, pz1, Color3.fromRGB(255, 250, 175), P, NEON())
+			box("FloorLED", x - 0.06, F, pz0, x + 0.06, F + 0.25, pz1 + 0.01, Color3.fromRGB(255, 250, 175), P, NEON())
 		end
-	end
-	-- skirting and a soft pink line along the floor
-	for _, w in ipairs({ { X0, Z0, X1, Z0 + 0.12 }, { X0, Z0, X0 + 0.12, Z1 }, { X1 - 0.12, Z0, X1, Z1 } }) do
-		box("FloorLine", w[1], F, w[2], w[3], F + 0.2, w[4], Color3.fromRGB(255, 190, 215), R, NEON())
 	end
 	-- light panels: a 4 × 2 grid, bright
 	for i = 0, 3 do
@@ -415,67 +420,24 @@ do
 			sl.Color = Color3.fromRGB(255, 248, 238) sl.Shadows = false sl.Parent = p
 		end
 	end
-	-- LOCKERS on the north and east walls: the user's locker photo
-	-- (docs/04_ART/references/locker_ref_1103.png, 3 × 2 doors) tiled along them
+	-- LOCKERS on the north and east walls, nearly to the ceiling (D-827): the
+	-- user's locker photo (docs/04_ART/references/locker_ref_1103.png, 3 × 2
+	-- doors) tiled along them, two photos high
 	local LOCKER_IMG = "rbxassetid://117301508454056"
-	local LH = 14 -- one photo is 14 high; its width 14 × 259 / 548
+	local LH = TOP - 0.7 - F -- 20.3
 	local function lockers(x0, z0, x1, z1, face)
 		local b = box("Lockers", x0, F, z0, x1, F + LH, z1, Color3.fromRGB(238, 238, 240), R, { mat = Enum.Material.Metal })
 		local tx = Instance.new("Texture")
 		tx.Texture = LOCKER_IMG tx.Face = face
-		tx.StudsPerTileU = LH * 259 / 548 tx.StudsPerTileV = LH
+		tx.StudsPerTileV = LH / 2 tx.StudsPerTileU = LH / 2 * 259 / 548
 		tx.Parent = b
 		box("LockerTop", x0, F + LH, z0, x1, F + LH + 0.3, z1, Color3.fromRGB(220, 220, 224), R, { mat = Enum.Material.Metal })
 		return b
 	end
 	lockers(X0 + 4, Z0, X1 - 4, Z0 + 1.8, Enum.NormalId.Back)
 	lockers(X1 - 1.8, Z0 + 4, X1, Z1 - 4, Enum.NormalId.Left)
-	-- FULL-LENGTH MIRRORS (live, MirrorController) on the west wall, gold frames
-	local GOLD = Color3.fromRGB(214, 172, 92)
-	for _, cz in ipairs({ -354, -339, -324 }) do
-		local pos = Vector3.new(X0 + 0.12, F + 7.5, cz)
-		local m = Instance.new("Part")
-		m.Name = "Mirror" m.Anchored = true m.CanCollide = false m.CastShadow = false
-		m.Size = Vector3.new(9, 14, 0.1)
-		m.CFrame = CFrame.lookAt(pos, pos + Vector3.new(1, 0, 0))
-		m.Color = Color3.fromRGB(200, 210, 220) m.Material = Enum.Material.Glass m.Reflectance = 0.2
-		m.Parent = R
-		CS:AddTag(m, "Mirror")
-		box("MirrorFrame", X0, F + 0.3, cz - 4.8, X0 + 0.3, F + 0.5, cz + 4.8, GOLD, R, { mat = Enum.Material.Foil, nocol = true })
-		box("MirrorFrame", X0, F + 14.5, cz - 4.8, X0 + 0.3, F + 14.7, cz + 4.8, GOLD, R, { mat = Enum.Material.Foil, nocol = true })
-		box("MirrorFrame", X0, F + 0.3, cz - 4.8, X0 + 0.3, F + 14.7, cz - 4.6, GOLD, R, { mat = Enum.Material.Foil, nocol = true })
-		box("MirrorFrame", X0, F + 0.3, cz + 4.6, X0 + 0.3, F + 14.7, cz + 4.8, GOLD, R, { mat = Enum.Material.Foil, nocol = true })
-		local l = box("MirrorLight", X0, F + 15.2, cz - 3, X0 + 0.5, F + 15.6, cz + 3, Color3.fromRGB(255, 240, 215), R, NEON())
-		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Right sl.Range = 14 sl.Brightness = 1.4 sl.Angle = 100 sl.Parent = l
-	end
-	-- HOLLYWOOD VANITY along the south wall east of the door: a long counter,
-	-- three mirrors with round bulbs, stools
-	local VZ = Z1 - 0.12
-	box("VanityTop", 158, F + 4.8, VZ - 3, 226, F + 5.3, VZ, WHITE, R, { mat = Enum.Material.Marble })
-	box("VanityBody", 158, F, VZ - 2.6, 226, F + 4.8, VZ, Color3.fromRGB(236, 230, 224), R)
-	for _, cx in ipairs({ 170, 192, 214 }) do
-		local mp = box("VanityMirror", cx - 7, F + 6.5, VZ - 0.08, cx + 7, F + 14.5, VZ, Color3.fromRGB(215, 222, 230), R, { mat = Enum.Material.Glass })
-		mp.Reflectance = 0.35
-		for _, by in ipairs({ F + 6.4, F + 14.6 }) do
-			for bx = cx - 6.5, cx + 6.6, 1.625 do
-				local bulb = Instance.new("Part") bulb.Name = "VanityBulb" bulb.Shape = Enum.PartType.Ball bulb.Anchored = true bulb.CanCollide = false bulb.CastShadow = false
-				bulb.Size = Vector3.new(0.6, 0.6, 0.6) bulb.Material = Enum.Material.Neon bulb.Color = Color3.fromRGB(255, 244, 220)
-				bulb.CFrame = CFrame.new(bx, by, VZ - 0.35) bulb.Parent = R
-			end
-		end
-		local glow = box("VanityGlow", cx - 6, F + 10, VZ - 0.5, cx + 6, F + 10.2, VZ - 0.4, Color3.new(1, 1, 1), R, { t = 1, ghost = true })
-		local pl = Instance.new("PointLight") pl.Range = 12 pl.Brightness = 1 pl.Color = Color3.fromRGB(255, 236, 210) pl.Shadows = false pl.Parent = glow
-		for _, sx in ipairs({ -4, 4 }) do
-			local s = Instance.new("Seat") s.Name = "VanityStool" s.Anchored = true s.Size = Vector3.new(2.4, 0.6, 2.4)
-			s.CFrame = CFrame.lookAt(Vector3.new(cx + sx, F + 2.6, VZ - 5), Vector3.new(cx + sx, F + 2.6, VZ)) s.Color = Color3.fromRGB(255, 205, 222) s.Material = Enum.Material.Fabric
-			s.Parent = R CS:AddTag(s, "PromptSeat")
-			box("StoolLeg", cx + sx - 0.25, F, VZ - 5.25, cx + sx + 0.25, F + 2.3, VZ - 4.75, Color3.fromRGB(200, 200, 206), R, { mat = Enum.Material.Metal })
-		end
-	end
-	-- (no benches in the middle, D-824, user) a round rug and a few plants
-	local rug = Instance.new("Part") rug.Name = "Rug" rug.Shape = Enum.PartType.Cylinder rug.Anchored = true rug.CanCollide = false
-	rug.Size = Vector3.new(0.1, 24, 24) rug.CFrame = CFrame.new((X0 + X1) / 2, F + 0.05, (Z0 + Z1) / 2) * CFrame.Angles(0, 0, math.rad(90))
-	rug.Color = Color3.fromRGB(255, 226, 236) rug.Material = Enum.Material.Fabric rug.Parent = R
+	-- (no mirrors, vanity, stools, rug, floor lines or name over the lockers:
+	-- all taken out, D-827, user) a few plants
 	local plant = game:GetService("ServerStorage"):FindFirstChild("ArtAssets") and game:GetService("ServerStorage").ArtAssets:FindFirstChild("CafePotPlant")
 	if plant then
 		for _, at in ipairs({ Vector3.new(X0 + 2, F, Z0 + 2), Vector3.new(X1 - 3, F, Z0 + 3), Vector3.new(X1 - 3, F, Z1 - 3) }) do
@@ -488,27 +450,43 @@ do
 			m.Parent = R
 		end
 	end
-	-- the name over the lockers, pink neon
-	do
-		local s = box("LockerSign", (X0 + X1) / 2 - 20, F + LH + 0.8, Z0 + 0.06, (X0 + X1) / 2 + 20, F + LH + 4.4, Z0 + 0.12, Color3.new(0, 0, 0), R, { t = 1, ghost = true })
-		text(s, Enum.NormalId.Back, "LOCKER ROOM · 락커룸", Color3.fromRGB(255, 92, 160))
-		local pl = Instance.new("SurfaceLight") pl.Face = Enum.NormalId.Back pl.Color = Color3.fromRGB(255, 120, 180) pl.Range = 8 pl.Brightness = 1 pl.Parent = s
-	end
-	-- the door at the passage's end: a white light frame on both faces, the name over it
+	-- the doorway: a white light frame on both faces, up to the ceiling
 	for _, zf in ipairs({ Z1 - 0.05, Z1 + 1.65 }) do
-		box("DoorFrameLight", PX0, F, zf - 0.15, PX0 + 0.3, F + 18, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
-		box("DoorFrameLight", PX1 - 0.3, F, zf - 0.15, PX1, F + 18, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
-		box("DoorFrameLight", PX0, F + 17.7, zf - 0.15, PX1, F + 18, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
+		box("DoorFrameLight", PX0, F, zf - 0.15, PX0 + 0.3, TOP, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
+		box("DoorFrameLight", PX1 - 0.3, F, zf - 0.15, PX1, TOP, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
+		box("DoorFrameLight", PX0, TOP - 0.3, zf - 0.15, PX1, TOP, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
 	end
+	-- (D-827, user) the door: two dark grey see-through glass leaves that
+	-- slide apart into the walls (AutoDoorController), so the bright room
+	-- shows only dimly from outside
 	do
-		local s = box("LockerDoorSign", PX0 + 0.5, F + 18.2, Z1 + 1.66, PX1 - 0.5, F + 20.8, Z1 + 1.72, Color3.new(0, 0, 0), R, { t = 1, ghost = true })
-		text(s, Enum.NormalId.Back, "LOCKER ROOM", Color3.fromRGB(255, 255, 255)) -- (seen from the passage, +z)
-		local pl = Instance.new("SurfaceLight") pl.Face = Enum.NormalId.Back pl.Range = 8 pl.Brightness = 1 pl.Parent = s
+		local door = Instance.new("Model")
+		door.Name = "AutoDoor"
+		door:SetAttribute("Range", 9)
+		local mid = (PX0 + PX1) / 2
+		local half = (PX1 - PX0) / 2
+		local zc = Z1 + 0.8
+		for _, s in ipairs({ -1, 1 }) do
+			local leaf = box("DoorPanel", mid + s * half, F, zc - 0.15, mid, TOP, zc + 0.15, Color3.fromRGB(48, 48, 54), door, { mat = Enum.Material.Glass, t = 0.35 })
+			leaf.Reflectance = 0.1
+			leaf:SetAttribute("Slide", Vector3.new(s * (half - 0.2), 0, 0))
+		end
+		door.WorldPivot = CFrame.new(mid, F + 4, zc)
+		door.Parent = R
+		CS:AddTag(door, "AutoDoor")
 	end
-	-- and a small sign over the passage in the corridor
+	-- a sign in a box on the corridor wall left of the passage, with an arrow (D-827)
 	do
-		local s = box("LockerWaySign", PX0 + 1, F + 21.4, -289.86, PX1 - 1, F + 23.4, -289.8, Color3.new(0, 0, 0), R, { t = 1, ghost = true })
-		text(s, Enum.NormalId.Back, "LOCKER ROOM ↑", Color3.fromRGB(255, 255, 255))
+		local x0, x1, y0, y1, zf = PX0 - 15, PX0 - 2, F + 9, F + 13, -289.9
+		local plate = box("LockerWaySign", x0, y0, zf, x1, y1, zf + 0.12, Color3.fromRGB(20, 20, 24), R)
+		local LC = Color3.fromRGB(255, 250, 235)
+		box("LockerWayFrame", x0, y1 - 0.15, zf + 0.12, x1, y1, zf + 0.2, LC, R, NEON())
+		box("LockerWayFrame", x0, y0, zf + 0.12, x1, y0 + 0.15, zf + 0.2, LC, R, NEON())
+		box("LockerWayFrame", x0, y0, zf + 0.12, x0 + 0.15, y1, zf + 0.2, LC, R, NEON())
+		box("LockerWayFrame", x1 - 0.15, y0, zf + 0.12, x1, y1, zf + 0.2, LC, R, NEON())
+		local l = text(plate, Enum.NormalId.Back, "LOCKER ROOM  →", Color3.fromRGB(255, 255, 255))
+		l.Size = UDim2.fromScale(0.86, 0.6)
+		l.Position = UDim2.fromScale(0.07, 0.2)
 	end
 	table.insert(log, "locker room parts " .. #R:GetDescendants())
 end

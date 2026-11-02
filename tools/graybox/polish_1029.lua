@@ -436,7 +436,7 @@ do
 	if lift and not lift:FindFirstChild("LiftClosedSign") then
 		local m = Instance.new("Model")
 		m.Name = "LiftClosedSign"
-		local x, z = 57.75, doorZ - 3.5 -- in front of the door, in the corridor
+		local x, z = 57.75, doorZ - 9 -- in front of the door, in the corridor (3.5 → 9 out, D-827, user)
 		local lean = math.rad(12)
 		local W, H = 4.4 * 0.7, 7.2 * 0.7 -- (70 %, user 2026-10-29 (24))
 		local dz = H / 2 * math.sin(lean)
