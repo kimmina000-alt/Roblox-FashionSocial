@@ -1813,4 +1813,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - (D-799 이어서) 사용자: "체형 조절하고 나오면 카탈로그에 검색창 사라짐" → 아바타 편집을 열 때 숨기는 것 중 검색창만 다시 보이게 하는 코드가 없었음. 편집을 닫을 때 searchBox.Visible = true (CatalogController.updateCatalogLayout).
 - Play 테스트: 편집 → 체형 탭 → ⚙로 닫기 → 검색창 보임. 착용 중 카드 누르기 → 자세히 보기 창(이름, 큰 그림 356px, MoodAnimation · Roblox, 판매하지 않는 아이템 → 구매 불가). 모자 2개 담기 → 장바구니 2개 · R$ 180. 닫기 글자 ✕가 네모로 나와서 ×로.
 - PromptBulkPurchase는 서버에서만 됨("Can only be called on the server") → 모두 구매는 TryOnItem "BuyMany"로 서버가 엶 (20개까지, id 검사).
-- 구매 창이 "AllowThirdPartySales has blocked the purchase prompt"로 막힘: 다른 사람이 만든 아이템을 팔려면 게임 설정 > 보안 > Allow Third Party Sales(Workspace.AllowThirdPartySales)를 켜야 함. 사용자가 켬.
+- 구매 창이 "AllowThirdPartySales has blocked the purchase prompt"로 막힘: 다른 사람이 만든 아이템을 팔려면 게임 설정 > 보안 > Allow Third Party Sales(Workspace.AllowThirdPartySales)를 켜야 함. 사용자에게 켜 달라고 함.
