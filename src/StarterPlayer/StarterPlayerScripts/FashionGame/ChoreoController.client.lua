@@ -87,8 +87,8 @@ end
 
 -- the segments of the track being followed, loaded on this character;
 -- starts[i] = its `at` (seconds into the song) or nil (after the one before);
--- stops[i] = its `stop` (D-804) or nil
-local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, stops: {number?}, playing: AnimationTrack?, speed: number? }? = nil
+-- stops[i] = its `stop` (D-804) or nil; blends[i] = its `blend` (D-807) or nil
+local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, stops: {number?}, blends: {number?}, playing: AnimationTrack?, speed: number? }? = nil
 
 -- (D-802, user: "앵글 움직이는 부분 다 고쳐") the segments carry the dancer's
 -- travel in the hips (Get A Guitar 2 ends 11 studs forward, then 3 starts
@@ -148,11 +148,12 @@ local function startFollowing(track: ClubConfig.Track)
 	-- (the dance menu's dance stops first: one dance at a time)
 	local character = player.Character
 	if character and character:GetAttribute("DanceKey") ~= nil then danceRemote:FireServer("Stop") end
-	local tracks, starts, stops = {}, {}, {}
+	local tracks, starts, stops, blends = {}, {}, {}, {}
 	for _, entry in ipairs(track.choreo) do
 		local id = if typeof(entry) == "table" then entry.id else entry
 		local at = if typeof(entry) == "table" and typeof(entry.at) == "number" then entry.at else nil
 		local stop = if typeof(entry) == "table" and typeof(entry.stop) == "number" then entry.stop else nil
+		local blend = if typeof(entry) == "table" and typeof(entry.blend) == "number" then entry.blend else nil
 		local animation = Instance.new("Animation")
 		animation.AnimationId = "rbxassetid://" .. tostring(id)
 		local ok, loaded = pcall(function() return anim:LoadAnimation(animation) end)
@@ -162,12 +163,13 @@ local function startFollowing(track: ClubConfig.Track)
 			table.insert(tracks, loaded)
 			starts[#tracks] = at
 			stops[#tracks] = stop
+			blends[#tracks] = blend
 		else
 			warn("[ChoreoController] Could not load", id, loaded)
 		end
 	end
 	if #tracks == 0 then return end
-	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, playing = nil, speed = nil }
+	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, blends = blends, playing = nil, speed = nil }
 	button.Text = "⏹ 그만 추기"
 end
 
@@ -241,9 +243,11 @@ RunService.PreAnimation:Connect(function()
 	end
 	local seg = following.tracks[index]
 	if following.playing ~= seg then
-		-- (D-802: a little longer, Get A Guitar 9 ends turned 108° from where 10 starts)
-		if following.playing then following.playing:Stop(0.25) end
-		seg:Play(0.25)
+		-- (D-807) the last pose eases into the first one over the entry's
+		-- `blend`, longer where they differ more (tools/choreo/choreo_check.lua)
+		local blend = following.blends[index] or 0.25
+		if following.playing then following.playing:Stop(blend) end
+		seg:Play(blend)
 		following.playing = seg
 		following.speed = nil
 		seg.TimePosition = t

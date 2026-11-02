@@ -5,7 +5,8 @@
 -- at the first and last keyframe: travel (sideways / forward, taken out by
 -- ChoreoController), height and facing. For each pair it prints how well the
 -- end of one fits the start of the next: facing gap, height gap and the
--- largest joint angle gap. Lines marked "!!" need a fix before use.
+-- largest joint angle gap. Lines marked "!!" need a fix before use; they
+-- suggest a `blend` (seconds) for the next entry (D-807).
 -- Set IDS to the new list, or SOUND_ID to check a track already in ClubConfig.
 
 local IDS: {any}? = nil -- e.g. { 119819611123433, 97097804325917, ... }
@@ -96,8 +97,12 @@ for i, s in ipairs(segs) do
 			end
 		end
 		local bad = yawGap > YAW_LIMIT or heightGap > HEIGHT_LIMIT or worst > JOINT_LIMIT
-		table.insert(lines, string.format("%s   %d->%d facing gap %.0f, height gap %.2f, joint gap %.0f (%s)",
-			if bad then "!!" else "  ", i, i + 1, yawGap, heightGap, worst, worstName))
+		-- (D-807) the blend that eases the gap: about 120°/s for facing, 90°/s
+		-- for a joint, 1 stud/s for height; 0.25 s is the default
+		local blend = math.clamp(math.max(0.25, yawGap / 120, worst / 90, heightGap), 0.25, 1)
+		table.insert(lines, string.format("%s   %d->%d facing gap %.0f, height gap %.2f, joint gap %.0f (%s)%s",
+			if bad then "!!" else "  ", i, i + 1, yawGap, heightGap, worst, worstName,
+			if bad then string.format("  -> blend = %.2f on %d", blend, i + 1) else ""))
 	end
 end
 local text = table.concat(lines, "\n")
