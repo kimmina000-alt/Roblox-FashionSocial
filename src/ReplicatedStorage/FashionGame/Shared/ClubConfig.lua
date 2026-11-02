@@ -212,7 +212,15 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = -2.5, engine = "sound" } },
 	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -10.5, mid = 5, high = 4.5, engine = "sound" } },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
-	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 97511700575810, length = 74, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } }, -- (D-795 choreography 93593911357942 removed again, D-796, user)
+	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 97511700575810, length = 74, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, choreo = {
+		-- (D-809, user: 22 pieces, blends from tools/choreo/choreo_check.lua)
+		118329772913374, { id = 95449015545787, blend = 0.64 }, { id = 84806571273074, blend = 0.92 }, { id = 99868719395147, blend = 0.5 },
+		{ id = 93933273398995, blend = 0.96 }, 128256391320572, { id = 114466589507598, blend = 0.79 }, { id = 84027575690735, blend = 1 },
+		{ id = 100410498984971, blend = 0.76 }, { id = 124518142645731, blend = 0.59 }, { id = 126736648781925, blend = 0.42 },
+		{ id = 76437753036430, blend = 0.56 }, { id = 136355327951443, blend = 0.67 }, { id = 117451819045051, blend = 0.47 },
+		{ id = 111932052760637, blend = 0.74 }, { id = 133401623277764, blend = 0.7 }, { id = 96973609514230, blend = 0.55 },
+		{ id = 106546379406531, blend = 1 }, { id = 73851407273132, blend = 1 }, { id = 71570705300325, blend = 1 },
+		{ id = 121393866689759, blend = 0.54 }, 114419952125075 }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -1.5, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" } },
