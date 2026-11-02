@@ -116,7 +116,11 @@ end
 local moved = 0
 local list = {}
 for _, p in ipairs(workspace:GetDescendants()) do
+	-- (D-830) build_hongdae_layout's revert lowers the park first (the same
+	-- steps as MODE "undo"), so here nothing carries a raise; a part that does
+	-- is left alone rather than lifted twice
 	if p:IsA("BasePart") and not SKIP[p.Name] and not p:IsA("Terrain")
+		and p:GetAttribute("ParkRaised") == nil
 		and not p:IsDescendantOf(L:FindFirstChild("PocketPark") or game)
 		and inPlot(p) then
 		table.insert(list, p)
@@ -146,7 +150,7 @@ do
 				local c = m:GetBoundingBox().Position
 				if c.X > X0 and c.X < X1 and c.Z > Z_NORTH - 100 and c.Z < Z_SOUTH then
 					for _, d in ipairs(m:GetDescendants()) do
-						if d:IsA("BasePart") and not seen[d] then
+						if d:IsA("BasePart") and not seen[d] and d:GetAttribute("ParkRaised") == nil then
 							seen[d] = true
 							table.insert(list, d)
 						end

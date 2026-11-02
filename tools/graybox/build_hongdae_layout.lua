@@ -121,6 +121,23 @@ end
 local spawn = workspace:FindFirstChild("SpawnLocation") :: SpawnLocation?
 
 local function revert()
+	-- (D-830) the amusement park first goes back down from park_raise (the last
+	-- steps of the chain): its parts, the rides' and the zone's pivots, in the
+	-- same way as park_raise "undo". Without this the next park_raise lifted the
+	-- park again on top of the old raise (every chain run 16 more up and 50 more
+	-- north), because the zone is moved by the layout but not rebuilt.
+	for _, p in ipairs(root:GetDescendants()) do
+		if p:IsA("BasePart") and typeof(p:GetAttribute("ParkRaised")) == "number" then
+			local back = p:GetAttribute("ParkShift")
+			p.CFrame = p.CFrame - Vector3.new(0, p:GetAttribute("ParkRaised"), -(if typeof(back) == "number" then back else 0))
+			p:SetAttribute("ParkRaised", nil)
+			p:SetAttribute("ParkShift", nil)
+		elseif p:IsA("Model") and typeof(p:GetAttribute("ParkPivotRaised")) == "number" then
+			p.WorldPivot = p.WorldPivot - Vector3.new(0, p:GetAttribute("ParkPivotRaised"), -(p:GetAttribute("ParkPivotShift") or 0))
+			p:SetAttribute("ParkPivotRaised", nil)
+			p:SetAttribute("ParkPivotShift", nil)
+		end
+	end
 	-- graybox labels this script re-texted / moved (photo booth): back first,
 	-- while their zone still stands where they were changed
 	for _, x in ipairs(root:GetDescendants()) do
