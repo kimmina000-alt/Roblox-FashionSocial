@@ -38,7 +38,9 @@ export type Track = {
 	-- (so at x1; the DJ's speed carries over). Players in the club get a
 	-- "안무 따라하기" button while it plays (ChoreoController). An entry is an
 	-- animation id (it starts where the one before ends) or { id = .., at = .. }
-	-- (it starts `at` seconds into the song, as heard in the club).
+	-- (it starts `at` seconds into the song, as heard in the club). `stop` (D-804)
+	-- ends that one early, `stop` seconds into the song: the dancer stands still
+	-- and the next one starts on time, as if this one had played to its end.
 	choreo: {any}?,
 	-- (D-726) dance the choreography by itself: everyone in the club standing
 	-- still (not seated, not in a menu dance) follows it while the song plays
@@ -194,8 +196,8 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
 	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 5, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, choreo = { 119819611123433, 97097804325917, 119200924904137, 77403973851668, 73939357849033, 137390866303201,
-		121969021575883, 92148657532352, 96742563282745, 88430566939812, 108795638313983, 95813030011960, 135272998171625,
-		129447992418977, 82252722293006, 108611133102309, 117244778152210, 113505968174557, 112498417388469, 80874196383963 }, autoChoreo = true },
+		121969021575883, 92148657532352, { id = 96742563282745, stop = 70 }, 88430566939812, 108795638313983, 95813030011960, 135272998171625,
+		129447992418977, 82252722293006, 108611133102309, 117244778152210, 113505968174557, 112498417388469, 80874196383963 }, autoChoreo = true }, -- (D-804, user: no dance 1:10-1:13)
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 4.05, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" } },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 3, octave = 0.5, low = -13, mid = 2.5, high = 4, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },

@@ -1840,3 +1840,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "출석 삭제해 버려 시스템 아예 삭제해 주지 말자". 출석 코인(D-775)과 도장 카드(D-801)를 통째로 뺌: EconomyConfig.StreakCoins / StreakUtcOffsetHours, EconomyService claimStreak · 자정 지급, StreakDay 속성, wallet.streak(저장돼 있던 값은 읽을 때 버림), AttendanceController.client.lua.
 - 첫 접속 기념 코인(WelcomeCoins 50)은 그대로, 예전처럼 8초 뒤 알림 글.
 - Play: 코인 50(선물만), StreakDay 없음, 카드 없음, 오류 0.
+
+## D-804 (2026-11-03) Get A Guitar 1:10부터 3초 안무 삭제
+- 사용자: "1분 10초부터 3초 안무 삭제."
+- 70초는 9번 96742563282745(66.83~73.13초) 가운데. 안무 항목에 `stop`(노래 몇 초에 멈춤) 추가: `{ id = 96742563282745, stop = 70 }`. 70초부터 서 있다가 10번이 원래 시간(73.13초)에 시작해서 뒤는 노래와 그대로 맞음.
+- Play(혼자, ClubTrackStart를 64초 앞으로): 9번 70.0초에 멈춤(0.3초 페이드), 10번 73.13초 시작.

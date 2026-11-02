@@ -86,8 +86,9 @@ local function inClub(): boolean
 end
 
 -- the segments of the track being followed, loaded on this character;
--- starts[i] = its `at` (seconds into the song) or nil (after the one before)
-local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, playing: AnimationTrack?, speed: number? }? = nil
+-- starts[i] = its `at` (seconds into the song) or nil (after the one before);
+-- stops[i] = its `stop` (D-804) or nil
+local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, stops: {number?}, playing: AnimationTrack?, speed: number? }? = nil
 
 -- (D-802, user: "앵글 움직이는 부분 다 고쳐") the segments carry the dancer's
 -- travel in the hips (Get A Guitar 2 ends 11 studs forward, then 3 starts
@@ -147,10 +148,11 @@ local function startFollowing(track: ClubConfig.Track)
 	-- (the dance menu's dance stops first: one dance at a time)
 	local character = player.Character
 	if character and character:GetAttribute("DanceKey") ~= nil then danceRemote:FireServer("Stop") end
-	local tracks, starts = {}, {}
+	local tracks, starts, stops = {}, {}, {}
 	for _, entry in ipairs(track.choreo) do
 		local id = if typeof(entry) == "table" then entry.id else entry
 		local at = if typeof(entry) == "table" and typeof(entry.at) == "number" then entry.at else nil
+		local stop = if typeof(entry) == "table" and typeof(entry.stop) == "number" then entry.stop else nil
 		local animation = Instance.new("Animation")
 		animation.AnimationId = "rbxassetid://" .. tostring(id)
 		local ok, loaded = pcall(function() return anim:LoadAnimation(animation) end)
@@ -159,12 +161,13 @@ local function startFollowing(track: ClubConfig.Track)
 			loaded.Looped = false
 			table.insert(tracks, loaded)
 			starts[#tracks] = at
+			stops[#tracks] = stop
 		else
 			warn("[ChoreoController] Could not load", id, loaded)
 		end
 	end
 	if #tracks == 0 then return end
-	following = { soundId = track.soundId, tracks = tracks, starts = starts, playing = nil, speed = nil }
+	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, playing = nil, speed = nil }
 	button.Text = "⏹ 그만 추기"
 end
 
@@ -224,7 +227,8 @@ RunService.PreAnimation:Connect(function()
 	for i, seg in ipairs(following.tracks) do
 		if seg.Length <= 0 then return end -- (still loading)
 		segStart = following.starts[i] or segStart
-		if songTime >= segStart and songTime < segStart + seg.Length then index = i t = songTime - segStart break end
+		local segEnd = math.min(segStart + seg.Length, following.stops[i] or math.huge)
+		if songTime >= segStart and songTime < segEnd then index = i t = songTime - segStart break end
 		segStart += seg.Length
 	end
 	if not index then
