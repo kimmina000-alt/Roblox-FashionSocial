@@ -3193,3 +3193,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ![](images/2026-11-03/d821_corridor.jpg) ![](images/2026-11-03/d821_vip_stair_hall.jpg)
 ![](images/2026-11-03/d821_street_door.jpg) ![](images/2026-11-03/d821_lift_end.jpg)
 - 클럽 구역 다시 짓고 체인 전체 + club_locker_1103. 걸어서 VIP 계단 끝까지·락커룸 문 확인. 그래피티 판은 CanQuery가 꺼져 있어 GetPartBoundsInBox로 안 잡힘 → 모든 부품을 직접 훑어 자름.
+### 클럽 별관 다듬기 (D-824)
+![](images/2026-11-03/d824_street_door.jpg) ![](images/2026-11-03/d824_hall_door.jpg)
+![](images/2026-11-03/d824_locker_passage.jpg) ![](images/2026-11-03/d824_locker_room.jpg)
+![](images/2026-11-03/d824_stair_landing.jpg) ![](images/2026-11-03/d824_lasers.jpg)
+- 클럽 구역 다시 짓고 체인 전체. 레이저 끝 높이 -24..42. 걸어서 계단 끝·락커룸 통로 확인.

@@ -185,6 +185,9 @@ local VMID=F+22
 -- (world east, over the old side street); the DJ zone, LED wall, dance floor,
 -- pillars and lasers move to the middle of the longer hall (HZ)
 local EXT=19 local NZ=-270-EXT local HZ=-EXT/2
+-- (D-824, user 2026-11-03) the hall door from the corridor twice as wide,
+-- towards the street end: its south edge -211 → -197 (north edge stays -225)
+local HD1=-197
 local dark=Color3.fromRGB(25,22,35)
 local navy=Color3.fromRGB(18,16,40)
 local gold=Color3.fromRGB(212,175,55)
@@ -218,7 +221,7 @@ do local fl=box(z,"Floor",-80,F-1,NZ,80,F,-150,MARBLE_C,MARBLE) fl.Reflectance=0
 do local RED=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=true}
  -- (the west line leaves out the hall door from the corridor, user 2026-10-25)
  -- (runs on to the passage post at -166.35: it stopped a stud short and looked cut, user 2026-10-31)
- box(z,"FloorLED",-64,F,NZ,-63.88,F+0.25,-225.25,RED,NE) box(z,"FloorLED",-64,F,-210.75,-63.88,F+0.25,-166.2,RED,NE)
+ box(z,"FloorLED",-64,F,NZ,-63.88,F+0.25,-225.25,RED,NE) box(z,"FloorLED",-64,F,HD1+0.25,-63.88,F+0.25,-166.2,RED,NE)
  box(z,"FloorLED",79.88,F,NZ,80,F+0.25,-167.5,RED,NE)
  box(z,"FloorLED",-64,F,NZ,80,F+0.25,NZ+0.12,RED,NE) box(z,"FloorLED",-64,F,-167.62,80,F+0.25,-167.5,RED,NE)
  -- the floor at the foot of the entry stairs: its end wall and its side wall only (user 2026-10-26)
@@ -226,8 +229,9 @@ do local RED=Color3.fromRGB(255,250,175) local NE={mat=Enum.Material.Neon,ghost=
 box(z,"Wall_W",-82,F,(NZ-1),-80,RT,-149,WALL_C,WALLO)
 box(z,"Wall_E",80,F,(NZ-1),82,RT,-149,WALL_C,WALLO)
 box(z,"Wall_N",-80,F,(NZ-2),80,RT,NZ,WALL_C,WALLO)
--- (D-821, user 2026-11-03) the street door twice as wide: 16 → 32 (ED = half)
-local ED=16
+-- (D-821 made the street door 32 wide; back to 16 to its yellow light frame,
+-- user 2026-11-03, D-824: it was the hall door that was meant). ED = half
+local ED=8
 box(z,"Wall_S_L",-80,F,-151,-ED,RT,-149,WALL_C,WALLO)
 box(z,"Wall_S_R",ED,F,-151,80,RT,-149,WALL_C,WALLO)
 local EDH=18 -- street door height (12 → 18 with the taller storeys, user 2026-10-27)
@@ -319,20 +323,20 @@ do local LC=Color3.fromRGB(235,235,235) local NE={mat=Enum.Material.Neon,ghost=t
 -- with a neon "VIP" sign. VIP pass holders walk through it (ClubGate) and
 -- climb the VIP stair north to the 2nd floor; others get the purchase window.
 box(z,"Corridor_E_N",-65,F,NZ,-64,V-1,-225,WALL_C,WALLO)
-box(z,"Corridor_E_S",-65,F,-211,-64,V-1,-167.5,WALL_C,WALLO)
+box(z,"Corridor_E_S",-65,F,HD1,-64,V-1,-167.5,WALL_C,WALLO)
 -- (corridor as high as the rest of the 1F, up to the 2F floor, and a taller
 -- hall door: user 2026-10-25)
 local DH=21 -- hall door height (18 → 21, user 2026-10-27)
-box(z,"Corridor_DoorTop",-65,F+DH,-225,-64,V-1,-211,WALL_C,WALLO)
+box(z,"Corridor_DoorTop",-65,F+DH,-225,-64,V-1,HD1,WALL_C,WALLO)
 box(z,"Corridor_Ceiling",-80,V-1,-236,-65,V-0.6,-167.5,dark) -- (underside level with the balcony floor over the hall)
 -- (both run through the passage door to meet the stair-foot lines, user 2026-10-31: they stopped a stud short)
 box(z,"CorridorNeon_W",-80,F,NZ,-79.88,F+0.25,-166.5,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
 -- (not across the hall door: user 2026-10-25)
 box(z,"CorridorNeon_E",-65.12,F,NZ,-65,F+0.25,-225.25,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
-box(z,"CorridorNeon_E",-65.12,F,-210.75,-65,F+0.25,-166.2,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
+box(z,"CorridorNeon_E",-65.12,F,HD1+0.25,-65,F+0.25,-166.2,Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true})
 -- (the LED lines along the entrance stairs were tried and taken out again, user 2026-10-25)
 -- pink door posts: only the faces looking into the doorway glow (user 2026-10-25)
-for _,d in ipairs({{-211.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
+for _,d in ipairs({{HD1-0.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
  -- (the rest of the post is wall: wall colour, user 2026-10-25)
  P(z,"HallDoorFrame",Vector3.new(1.5,DH,1.5),CFrame.new(-64.5,F+DH/2,pz),WALL_C,WALLO)
  -- the floor light lines run on along the foot of the post on both sides (user 2026-10-25)
@@ -344,9 +348,9 @@ for _,d in ipairs({{-211.5,-1},{-224.5,1}}) do local pz,s=d[1],d[2]
   local g=box(z,"HallDoorGlow",xs[1],F,math.min(fz,fz+s*0.12),xs[2],F+DH,math.max(fz,fz+s*0.12),pink,{mat=Enum.Material.Neon,ghost=true})
   if i==1 then local sl=Instance.new("SurfaceLight") sl.Face=if s>0 then Enum.NormalId.Back else Enum.NormalId.Front sl.Color=pink sl.Range=10 sl.Brightness=1.2 sl.Angle=150 sl.Parent=g end end end
 -- and along the top of the doorway, pink like the posts (user 2026-10-27), two thin lines too
-for i,xs in ipairs({{-64.95,-64.8},{-64.2,-64.05}}) do local g=box(z,"HallDoorGlow",xs[1],F+DH-0.12,-223.75,xs[2],F+DH,-212.25,pink,{mat=Enum.Material.Neon,ghost=true})
+for i,xs in ipairs({{-64.95,-64.8},{-64.2,-64.05}}) do local g=box(z,"HallDoorGlow",xs[1],F+DH-0.12,-223.75,xs[2],F+DH,HD1-1.25,pink,{mat=Enum.Material.Neon,ghost=true})
  if i==1 then local sl=Instance.new("SurfaceLight") sl.Face=Enum.NormalId.Bottom sl.Color=pink sl.Range=10 sl.Brightness=1.2 sl.Angle=150 sl.Parent=g end end
-label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,-218))
+label(z,"댄스홀 입구 →",Vector3.new(-71,F+10,(-225+HD1)/2))
 -- graffiti on the corridor walls seen at the foot of the stairs (user 2026-10-25),
 -- the same pale pattern as the stair walls; none over the hall door opening
 do local function graffiti(x0,y0,z0,x1,y1,z1,face)
@@ -355,8 +359,8 @@ do local function graffiti(x0,y0,z0,x1,y1,z1,face)
  graffiti(-80,F,NZ,-79.95,V-1,-167.5,Enum.NormalId.Right) -- west wall (on round the VIP stair and its landing, user 2026-10-27)
  graffiti(-80,F,NZ,-65,V-1,NZ+0.05,Enum.NormalId.Back) -- the end wall behind the landing
  graffiti(-65.05,F,NZ,-65,V-1,-225.25,Enum.NormalId.Left) -- east wall, north of the door
- graffiti(-65.05,F,-210.75,-65,V-1,-167.5,Enum.NormalId.Left) -- east wall, south of the door
- graffiti(-65.05,F+DH,-225.25,-65,V-1,-210.75,Enum.NormalId.Left) end -- over the door
+ graffiti(-65.05,F,HD1+0.25,-65,V-1,-167.5,Enum.NormalId.Left) -- east wall, south of the door
+ graffiti(-65.05,F+DH,-225.25,-65,V-1,HD1+0.25,Enum.NormalId.Left) end -- over the door
 -- VIP wall across the corridor
 local vipRed=Color3.fromRGB(255,40,70)
 -- (as high as the raised corridor ceiling; no "VIP" text on the glass, the

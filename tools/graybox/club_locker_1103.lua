@@ -4,21 +4,24 @@
 -- again gives the same result (the annex is rebuilt, the cuts and moves are
 -- absolute).
 --   1. the VIP stair leaves the entrance corridor: a stair hall of its own
---      outside the club's east wall (x 190..248, z -292..-255), built like the
---      inside (dark walls, graffiti, red VIP steps): the VIP glass gate stands
---      in the corridor's end wall, the flight climbs east, a landing turns
---      back west to a door onto the north VIP lounge (2F). The old stairwell
---      over the corridor becomes VIP floor; the corridor gets its ceiling.
+--      outside the club's east wall (x 190..257, z -292..-255, roof 60),
+--      built like the inside (dark walls, graffiti, red VIP steps): the VIP
+--      glass gate stands in the corridor's end wall, the flight climbs east to
+--      a 20-deep landing, a walkway turns back west to a door onto the north
+--      VIP lounge (2F); red portals the size of the doors at the flight's top
+--      and the lounge door. The old stairwell over the corridor becomes VIP
+--      floor (all VIP floors 30 % see-through, D-824), the corridor gets its
+--      ceiling, a light line along the wall where the stair stood.
 --   2. a bright locker room (dressing room) under the lot north of the club
---      (x 136..249, z -382..-292, at the corridor's level -24), its door in the
---      corridor's north wall (x 138..158) where the VIP stair began: lockers,
---      full-length live mirrors (tag "Mirror"), Hollywood vanity mirrors,
---      benches, light panels. One open room (no small closed rooms: content rules).
+--      (x 131.6..231, z -365..-313, at the corridor's level -24), reached by a
+--      short dark passage north from the corridor (x 132.5..146.5) with the
+--      door at its end (D-824): lockers drawn with the user's locker photo,
+--      full-length live mirrors (tag "Mirror"), Hollywood vanity mirrors, light
+--      panels, no benches. One open room (no small closed rooms: content rules).
 --   3. the ground and the play-area walls make room for both (the boundary
 --      walls over the locker room start at street level: nobody walks there).
--- The wider street door (16 → 32), the lift at the corridor's end and the
--- boundary round the stair hall are in build_main_social_graybox /
--- build_hongdae_layout (D-821).
+-- The lift at the corridor's end, the wider hall door (D-824) and the boundary
+-- round the stair hall are in build_main_social_graybox / build_hongdae_layout.
 local CS = game:GetService("CollectionService")
 local log = {}
 local G = workspace:FindFirstChild("Graybox_MainSocial")
@@ -220,32 +223,58 @@ do
 		local tl = bb and bb:FindFirstChildWhichIsA("TextLabel")
 		if lb:IsA("BasePart") and tl and string.find(tl.Text, "VIP 2층", 1, true) then lb.CFrame = CFrame.new(184, F + 17, -282.5) end
 	end
+	-- (D-824, user) the old "VIP →" neon sign on the 2F landing goes
+	for _, p in ipairs(club:GetChildren()) do
+		if p:IsA("BasePart") and (p.Name == "VIP_WaySign" or p.Name == "VIP_WayArrow") then p:Destroy() end
+	end
+	-- (D-824, user: a light line where the old stair stood) the 2F floor's
+	-- wall-base line along the corridor's north wall, like the other walls'
+	local edge = club:FindFirstChild("VIP_FloorEdgeLight")
+	if edge and not club:FindFirstChild("VIP_FloorEdgeLight_Old") then
+		local e = edge:Clone()
+		e.Name = "VIP_FloorEdgeLight_Old"
+		e.Size = Vector3.new(179.6 - 67, 0.2, 0.2)
+		e.CFrame = CFrame.new((67 + 179.6) / 2, V + 0.1, -289.7)
+		e.Parent = club
+	end
+	-- (D-824, user) the VIP floors 30 % see-through
+	for _, p in ipairs(club:GetChildren()) do
+		if p:IsA("BasePart") and p.Name:match("^VIP_Floor_") then p.Transparency = 0.3 end
+	end
 end
 
 ---------------------------------------------------------------- 2. holes
 -- (the gate stands in the lower one: its neon is not cut)
 local function notGate(p) return p.Name ~= "VIP_GateNeon" end
 local function groundOnly(p) return p.Name == "Ground" or p.Name == "Sidewalk" end
+-- the locker room (D-824, user plan): a short passage north from the
+-- corridor's wall, the room at its end
+local LX0, LX1, LZ0, LZ1 = 131.6, 231, -365, -313 -- the room inside
+local PX0, PX1 = 132.5, 146.5 -- the passage inside (z LZ1 .. -292)
+local SX1 = 191 + (V - F) -- the top step's east edge (235)
+local HX1 = 255 -- the stair hall's inside east end (the landing 20 deep, D-824)
+local HTOP = 60 -- its roof (36 → 60, D-824: it felt low)
 hole("stair hall door (corridor end)", 187.8, F + 0.01, -290, 190.4, F + 21, -275, notGate)
 hole("stair hall door (2F lounge)", 187.8, V + 0.01, -273, 190.4, V + 14, -259)
-hole("locker room door", 138, F + 0.01, -292.4, 158, F + 18, -289.9)
-hole("ground: stair hall", 188.5, -16, -292.5, 249, 0.6, -254.5, groundOnly)
-hole("ground: locker room", 136, -16, -382.5, 249.5, 0, -292, groundOnly)
+hole("locker passage (corridor wall)", PX0, F + 0.01, -292.4, PX1, F + 21, -289.9)
+hole("ground: stair hall", 188.5, -16, -292.5, HX1 + 2.5, 0.6, -254.5, groundOnly)
+hole("ground: locker room", LX0 - 2.5, -16, LZ0 - 2.5, LX1 + 2.5, 0, -292, groundOnly)
 
 ---------------------------------------------------------------- 3. VIP stair hall
 do
 	local H = Instance.new("Model")
 	H.Name = "VipStairHall"
 	H.Parent = A
-	local X0, X1, Z0, Z1 = 190, 246, -290, -257 -- inside
-	local TOPY = 36
+	local Z0, Z1 = -290, -257 -- inside
+	local X1, TOPY = HX1, HTOP
 	local W = { mat = Enum.Material.SmoothPlastic }
+	local LEMON = Color3.fromRGB(255, 250, 175)
 	-- shell: floor, three walls, roof (the club's east wall is the fourth)
 	local fl = box("Floor", 189, F - 1, Z0, X1, F, Z1, MARBLE_C, H, { mat = Enum.Material.Marble })
 	fl.Reflectance = 0.15
-	box("Wall_Nth", 189, F, -292, 248, TOPY + 1, Z0, WALL_C, H, W)
-	box("Wall_Sth", 189, F, Z1, 248, TOPY + 1, -255, WALL_C, H, W)
-	box("Wall_End", X1, F, Z0, 248, TOPY + 1, Z1, WALL_C, H, W)
+	box("Wall_Nth", 189, F, -292, X1 + 2, TOPY + 1, Z0, WALL_C, H, W)
+	box("Wall_Sth", 189, F, Z1, X1 + 2, TOPY + 1, -255, WALL_C, H, W)
+	box("Wall_End", X1, F, Z0, X1 + 2, TOPY + 1, Z1, WALL_C, H, W)
 	box("Roof", 189, TOPY, Z0, X1, TOPY + 1, Z1, DARK, H)
 	-- lane A: the flight east along the corridor's line, 44 steps of 1
 	local AZ0, AZ1 = Z0, -275.5
@@ -260,7 +289,6 @@ do
 		local l = Instance.new("TextLabel") l.Size = UDim2.fromScale(1, 1) l.BackgroundTransparency = 1 l.TextScaled = true
 		l.Font = Enum.Font.GothamBlack l.TextColor3 = VIP_RED l.Text = string.rep("▼", 12) l.Parent = g
 	end
-	local SX1 = SX0 + (V - F) -- 235: the top step's east edge
 	-- the slope people actually walk on (a wedge rising east)
 	do
 		local c = Vector3.new((SX0 + SX1) / 2, (F + V) / 2, (AZ0 + AZ1) / 2)
@@ -270,7 +298,7 @@ do
 		w.CFrame = CFrame.lookAt(c, c + Vector3.new(-1, 0, 0))
 		w.Parent = H
 	end
-	-- landing at the top, all across, and lane B back west at the 2F level
+	-- landing at the top (20 deep, D-824), all across, and lane B back west at the 2F level
 	local land = box("VIP_Landing", SX1, V - 1, Z0, X1, V, Z1, MARBLE_C, H, { mat = Enum.Material.Marble })
 	land.Reflectance = 0.15
 	box("VIP_Walk", 189, V - 1, -275.5, SX1, V, Z1, MARBLE_C, H, { mat = Enum.Material.Marble })
@@ -278,10 +306,22 @@ do
 	-- glass rail along the walkway over the flight, with the invisible block above it
 	box("VIP_Rail", 190, V, -276, SX1, V + 6, -275.5, Color3.fromRGB(200, 230, 255), H, { t = 0.6 })
 	box("VIP_RailBlock", 190, V, -276, SX1, V + 12, -275.5, Color3.new(1, 1, 1), H, { t = 1 }).CastShadow = false
-	box("VIP_RailNeon", 190, V - 0.65, -275.6, SX1, V - 0.35, -275.45, Color3.fromRGB(255, 250, 175), H, NEON())
-	-- red LED lines where the floors meet the walls, and the landing's edge
+	box("VIP_RailNeon", 190, V - 0.65, -275.6, SX1, V - 0.35, -275.45, LEMON, H, NEON())
+	-- light lines: the flight's top edge in red, round the landing and the walkway at the wall feet
 	box("VIP_FloorLine", SX1, V, Z0, SX1 + 0.3, V + 0.08, AZ1, VIP_RED, H, NEON())
-	box("FloorLED", 190, F, Z0, 191, F + 0.25, Z0 + 0.12, Color3.fromRGB(255, 250, 175), H, NEON())
+	box("FloorLED", SX1, V, Z0, X1, V + 0.25, Z0 + 0.12, LEMON, H, NEON())
+	box("FloorLED", X1 - 0.12, V, Z0, X1, V + 0.25, Z1, LEMON, H, NEON())
+	box("FloorLED", 189, V, Z1 - 0.12, X1, V + 0.25, Z1, LEMON, H, NEON())
+	box("FloorLED", 190, F, Z0, 191, F + 0.25, Z0 + 0.12, LEMON, H, NEON())
+	-- (D-824, user: red light lines the size of the stair door) a red portal
+	-- where the flight reaches the landing, and round the door to the lounge
+	local function portal(x, za, zb, y0, h)
+		box("VIP_Portal", x - 0.15, y0, za, x + 0.15, y0 + h, za + 0.3, VIP_RED, H, NEON())
+		box("VIP_Portal", x - 0.15, y0, zb - 0.3, x + 0.15, y0 + h, zb, VIP_RED, H, NEON())
+		box("VIP_Portal", x - 0.15, y0 + h - 0.3, za, x + 0.15, y0 + h, zb, VIP_RED, H, NEON())
+	end
+	portal(SX1 + 0.2, Z0, AZ1, V, 21)
+	portal(190.6, -273, -259, V, 14)
 	-- graffiti on the inside walls (as in the corridor)
 	graffiti(H, 189, F, Z0, X1, TOPY, Z0 + 0.05, Enum.NormalId.Back)
 	graffiti(H, 189, F, Z1 - 0.05, X1, TOPY, Z1, Enum.NormalId.Front)
@@ -292,21 +332,15 @@ do
 		local s = box("CeilingStrip", lane[2], TOPY - 0.2, lane[1] - 0.6, lane[3], TOPY, lane[1] + 0.6, Color3.fromRGB(255, 240, 220), H, NEON())
 		for x = lane[2] + 6, lane[3] - 4, 12 do
 			local at = Instance.new("Attachment") at.WorldPosition = Vector3.new(x, TOPY - 0.6, lane[1]) at.Parent = s
-			local pl = Instance.new("PointLight") pl.Range = 18 pl.Brightness = 0.8 pl.Color = Color3.fromRGB(255, 225, 200) pl.Shadows = false pl.Parent = at
+			local pl = Instance.new("PointLight") pl.Range = 26 pl.Brightness = 0.9 pl.Color = Color3.fromRGB(255, 225, 200) pl.Shadows = false pl.Parent = at
 		end
-	end
-	-- "VIP" in red neon on the end wall over the landing, an arrow back west
-	do
-		local s = box("VIP_WaySign", X1 - 0.12, V + 6, -284, X1 - 0.06, V + 11, -268, Color3.new(0, 0, 0), H, { t = 1, ghost = true })
-		text(s, Enum.NormalId.Left, "VIP  ←", Color3.fromRGB(255, 60, 80))
-		local pl = Instance.new("SurfaceLight") pl.Face = Enum.NormalId.Left pl.Color = VIP_RED pl.Range = 10 pl.Brightness = 1.5 pl.Parent = s
 	end
 	-- outside: black cladding like the club front above the ground
 	local BLACK = Color3.fromRGB(26, 27, 30)
-	box("Cladding", 189, 0, -292.2, 248.2, TOPY + 1, -292, BLACK, H, { mat = Enum.Material.Metal })
-	box("Cladding", 189, 0, -255, 248.2, TOPY + 1, -254.8, BLACK, H, { mat = Enum.Material.Metal })
-	box("Cladding", 248, 0, -292.2, 248.2, TOPY + 1, -254.8, BLACK, H, { mat = Enum.Material.Metal })
-	box("CapBand", 189, TOPY + 0.6, -292.4, 248.4, TOPY + 1.4, -254.6, Color3.fromRGB(40, 42, 46), H, { mat = Enum.Material.Metal })
+	box("Cladding", 189, 0, -292.2, X1 + 2.2, TOPY + 1, -292, BLACK, H, { mat = Enum.Material.Metal })
+	box("Cladding", 189, 0, -255, X1 + 2.2, TOPY + 1, -254.8, BLACK, H, { mat = Enum.Material.Metal })
+	box("Cladding", X1 + 2, 0, -292.2, X1 + 2.2, TOPY + 1, -254.8, BLACK, H, { mat = Enum.Material.Metal })
+	box("CapBand", 189, TOPY + 0.6, -292.4, X1 + 2.4, TOPY + 1.4, -254.6, Color3.fromRGB(40, 42, 46), H, { mat = Enum.Material.Metal })
 	-- quiet music here, like the entrance stairs (a copy of that zone box)
 	local zs = club:FindFirstChild("ClubZone_Stairs")
 	if zs then
@@ -320,6 +354,12 @@ do
 	box("VIP_GateNeon", 190, F, -290, 190.4, F + 21, -289.6, VIP_RED, H, NEON())
 	box("VIP_GateNeon", 190, F, -275.4, 190.4, F + 21, -275, VIP_RED, H, NEON())
 	box("VIP_GateNeon", 190, F + 20.6, -290, 190.4, F + 21, -275, VIP_RED, H, NEON())
+	-- the VIP region over the whole hall
+	local region = club:FindFirstChild("VIP_StairRegion")
+	if region then
+		region.Size = Vector3.new(X1 - 190, TOPY - F + 1, Z1 - Z0)
+		region.CFrame = CFrame.new((190 + X1) / 2, (F + 1 + TOPY + 2) / 2, (Z0 + Z1) / 2)
+	end
 	table.insert(log, "stair hall parts " .. #H:GetDescendants())
 end
 
@@ -328,67 +368,71 @@ do
 	local R = Instance.new("Model")
 	R.Name = "LockerRoom"
 	R.Parent = A
-	local X0, X1, Z0, Z1 = 137.6, 247, -380, -292.4 -- inside
+	local X0, X1, Z0, Z1 = LX0, LX1, LZ0, LZ1
 	local TOP = -3
 	local WHITE = Color3.fromRGB(246, 244, 240)
 	local PLASTER = { mat = Enum.Material.Plaster }
-	local wood = box("Floor", 136, F - 1, -382, 249, F, -292, Color3.fromRGB(214, 190, 156), R, { mat = Enum.Material.WoodPlanks })
+	local wood = box("Floor", X0 - 1.6, F - 1, Z0 - 1.6, X1 + 1.6, F, Z1, Color3.fromRGB(214, 190, 156), R, { mat = Enum.Material.WoodPlanks })
 	wood.Reflectance = 0.05
-	box("Ceiling", 136, TOP, -382, 249, 0, -292, WHITE, R)
-	box("Wall_W", 136, F, -382, X0, TOP, -292, WHITE, R, PLASTER)
-	box("Wall_E", X1, F, -382, 249, TOP, -292, WHITE, R, PLASTER)
-	box("Wall_N", 136, F, -382, 249, TOP, Z0, WHITE, R, PLASTER)
-	-- the south side is the club's wall and the stair hall's: a white lining with the door
-	box("Lining", X0, F, Z1, 138, TOP, -292, WHITE, R, PLASTER)
-	box("Lining", 158, F, Z1, X1, TOP, -292, WHITE, R, PLASTER)
-	box("Lining", 138, F + 18, Z1, 158, TOP, -292, WHITE, R, PLASTER)
+	box("Ceiling", X0 - 1.6, TOP, Z0 - 1.6, X1 + 1.6, 0, Z1 + 1.6, WHITE, R)
+	box("Wall_W", X0 - 1.6, F, Z0 - 1.6, X0, TOP, Z1 + 1.6, WHITE, R, PLASTER)
+	box("Wall_E", X1, F, Z0 - 1.6, X1 + 1.6, TOP, Z1 + 1.6, WHITE, R, PLASTER)
+	box("Wall_N", X0 - 1.6, F, Z0 - 1.6, X1 + 1.6, TOP, Z0, WHITE, R, PLASTER)
+	-- the south wall with the door from the passage
+	box("Wall_S", PX1, F, Z1, X1 + 1.6, TOP, Z1 + 1.6, WHITE, R, PLASTER)
+	box("Wall_S", X0 - 1.6, F, Z1, PX0, TOP, Z1 + 1.6, WHITE, R, PLASTER)
+	box("Wall_S", PX0, F + 18, Z1, PX1, TOP, Z1 + 1.6, WHITE, R, PLASTER)
+	-- THE PASSAGE from the corridor (D-824, user plan): dark like the club, graffiti, a light strip
+	do
+		local P = Instance.new("Model")
+		P.Name = "Passage"
+		P.Parent = R
+		local pz0, pz1 = Z1 + 1.6, -292
+		local f = box("Floor", PX0 - 1, F - 1, pz0, PX1 + 1, F, pz1, MARBLE_C, P, { mat = Enum.Material.Marble })
+		f.Reflectance = 0.15
+		box("Wall_W", PX0 - 1, F, pz0, PX0, TOP, pz1, WALL_C, P)
+		box("Wall_E", PX1, F, pz0, PX1 + 1, TOP, pz1, WALL_C, P)
+		box("Ceiling", PX0 - 1, TOP, pz0, PX1 + 1, 0, pz1, DARK, P)
+		graffiti(P, PX0, F, pz0, PX0 + 0.05, TOP, pz1, Enum.NormalId.Right)
+		graffiti(P, PX1 - 0.05, F, pz0, PX1, TOP, pz1, Enum.NormalId.Left)
+		local s = box("CeilingStrip", (PX0 + PX1) / 2 - 0.6, TOP - 0.2, pz0 + 1, (PX0 + PX1) / 2 + 0.6, TOP, pz1 - 1, Color3.fromRGB(255, 240, 220), P, NEON())
+		local pl = Instance.new("PointLight") pl.Range = 16 pl.Brightness = 0.8 pl.Color = Color3.fromRGB(255, 225, 200) pl.Shadows = false pl.Parent = s
+		for _, x in ipairs({ PX0 + 0.06, PX1 - 0.06 }) do
+			box("FloorLED", x - 0.06, F, pz0, x + 0.06, F + 0.25, pz1, Color3.fromRGB(255, 250, 175), P, NEON())
+		end
+	end
 	-- skirting and a soft pink line along the floor
 	for _, w in ipairs({ { X0, Z0, X1, Z0 + 0.12 }, { X0, Z0, X0 + 0.12, Z1 }, { X1 - 0.12, Z0, X1, Z1 } }) do
 		box("FloorLine", w[1], F, w[2], w[3], F + 0.2, w[4], Color3.fromRGB(255, 190, 215), R, NEON())
 	end
-	-- light panels: a 4 × 3 grid, bright
+	-- light panels: a 4 × 2 grid, bright
 	for i = 0, 3 do
-		for k = 0, 2 do
+		for k = 0, 1 do
 			local cx = X0 + (X1 - X0) * (i + 0.5) / 4
-			local cz = Z0 + (Z1 - Z0) * (k + 0.5) / 3
+			local cz = Z0 + (Z1 - Z0) * (k + 0.5) / 2
 			local p = box("LightPanel", cx - 5, TOP - 0.15, cz - 5, cx + 5, TOP, cz + 5, Color3.fromRGB(255, 252, 245), R, NEON())
 			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 24 sl.Brightness = 2.2 sl.Angle = 120
 			sl.Color = Color3.fromRGB(255, 248, 238) sl.Shadows = false sl.Parent = p
 		end
 	end
-	-- LOCKERS along the north and east walls: one block per run with the doors
-	-- drawn on it (SurfaceGui grid: pastel doors, a dark gap, a little handle)
-	local function lockers(x0, z0, x1, z1, face, cols)
-		local b = box("Lockers", x0, F, z0, x1, F + 11, z1, Color3.fromRGB(232, 232, 236), R, { mat = Enum.Material.Metal })
-		local g = Instance.new("SurfaceGui") g.Face = face g.LightInfluence = 1 g.SizingMode = Enum.SurfaceGuiSizingMode.PixelsPerStud g.PixelsPerStud = 20 g.Parent = b
-		local grid = Instance.new("UIGridLayout")
-		grid.CellPadding = UDim2.fromOffset(6, 6)
-		grid.CellSize = UDim2.new(1 / cols, -6, 0.5, -6)
-		grid.Parent = g
-		local pad = Instance.new("UIPadding") pad.PaddingLeft = UDim.new(0, 4) pad.PaddingTop = UDim.new(0, 4) pad.Parent = g
-		local tints = { Color3.fromRGB(255, 214, 228), Color3.fromRGB(250, 250, 252), Color3.fromRGB(205, 228, 255), Color3.fromRGB(250, 250, 252) }
-		for n = 1, cols * 2 do
-			local d = Instance.new("Frame")
-			d.BackgroundColor3 = tints[(n - 1) % #tints + 1]
-			d.BorderSizePixel = 0
-			d.Parent = g
-			local c = Instance.new("UICorner") c.CornerRadius = UDim.new(0, 6) c.Parent = d
-			local h = Instance.new("Frame") h.BackgroundColor3 = Color3.fromRGB(150, 150, 160) h.BorderSizePixel = 0
-			h.AnchorPoint = Vector2.new(1, 0.5) h.Position = UDim2.fromScale(0.86, 0.5) h.Size = UDim2.new(0, 6, 0.16, 0) h.Parent = d
-			for v = 0, 2 do
-				local s = Instance.new("Frame") s.BackgroundColor3 = Color3.fromRGB(190, 190, 198) s.BorderSizePixel = 0
-				s.Position = UDim2.new(0.2, 0, 0.08 + v * 0.05, 0) s.Size = UDim2.new(0.5, 0, 0, 3) s.Parent = d
-			end
-			local num = Instance.new("TextLabel") num.BackgroundTransparency = 1 num.Position = UDim2.fromScale(0.2, 0.25) num.Size = UDim2.fromScale(0.5, 0.12)
-			num.TextScaled = true num.Font = Enum.Font.GothamBold num.TextColor3 = Color3.fromRGB(120, 120, 132) num.Text = tostring(n) num.Parent = d
-		end
+	-- LOCKERS on the north and east walls: the user's locker photo
+	-- (docs/04_ART/references/locker_ref_1103.png, 3 × 2 doors) tiled along them
+	local LOCKER_IMG = "rbxassetid://117301508454056"
+	local LH = 14 -- one photo is 14 high; its width 14 × 259 / 548
+	local function lockers(x0, z0, x1, z1, face)
+		local b = box("Lockers", x0, F, z0, x1, F + LH, z1, Color3.fromRGB(238, 238, 240), R, { mat = Enum.Material.Metal })
+		local tx = Instance.new("Texture")
+		tx.Texture = LOCKER_IMG tx.Face = face
+		tx.StudsPerTileU = LH * 259 / 548 tx.StudsPerTileV = LH
+		tx.Parent = b
+		box("LockerTop", x0, F + LH, z0, x1, F + LH + 0.3, z1, Color3.fromRGB(220, 220, 224), R, { mat = Enum.Material.Metal })
 		return b
 	end
-	lockers(142, Z0, X1 - 6, Z0 + 1.6, Enum.NormalId.Back, 28)
-	lockers(X1 - 1.6, Z0 + 6, X1, -300, Enum.NormalId.Left, 20)
+	lockers(X0 + 4, Z0, X1 - 4, Z0 + 1.8, Enum.NormalId.Back)
+	lockers(X1 - 1.8, Z0 + 4, X1, Z1 - 4, Enum.NormalId.Left)
 	-- FULL-LENGTH MIRRORS (live, MirrorController) on the west wall, gold frames
 	local GOLD = Color3.fromRGB(214, 172, 92)
-	for _, cz in ipairs({ -366, -346, -326, -306 }) do
+	for _, cz in ipairs({ -354, -339, -324 }) do
 		local pos = Vector3.new(X0 + 0.12, F + 7.5, cz)
 		local m = Instance.new("Part")
 		m.Name = "Mirror" m.Anchored = true m.CanCollide = false m.CastShadow = false
@@ -401,16 +445,15 @@ do
 		box("MirrorFrame", X0, F + 14.5, cz - 4.8, X0 + 0.3, F + 14.7, cz + 4.8, GOLD, R, { mat = Enum.Material.Foil, nocol = true })
 		box("MirrorFrame", X0, F + 0.3, cz - 4.8, X0 + 0.3, F + 14.7, cz - 4.6, GOLD, R, { mat = Enum.Material.Foil, nocol = true })
 		box("MirrorFrame", X0, F + 0.3, cz + 4.6, X0 + 0.3, F + 14.7, cz + 4.8, GOLD, R, { mat = Enum.Material.Foil, nocol = true })
-		-- a warm light over each mirror
 		local l = box("MirrorLight", X0, F + 15.2, cz - 3, X0 + 0.5, F + 15.6, cz + 3, Color3.fromRGB(255, 240, 215), R, NEON())
 		local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Right sl.Range = 14 sl.Brightness = 1.4 sl.Angle = 100 sl.Parent = l
 	end
-	-- HOLLYWOOD VANITY along the east part of the south lining: a long counter,
+	-- HOLLYWOOD VANITY along the south wall east of the door: a long counter,
 	-- three mirrors with round bulbs, stools
 	local VZ = Z1 - 0.12
-	box("VanityTop", 170, F + 4.8, VZ - 3, 240, F + 5.3, VZ, WHITE, R, { mat = Enum.Material.Marble })
-	box("VanityBody", 170, F, VZ - 2.6, 240, F + 4.8, VZ, Color3.fromRGB(236, 230, 224), R)
-	for i, cx in ipairs({ 182, 205, 228 }) do
+	box("VanityTop", 158, F + 4.8, VZ - 3, 226, F + 5.3, VZ, WHITE, R, { mat = Enum.Material.Marble })
+	box("VanityBody", 158, F, VZ - 2.6, 226, F + 4.8, VZ, Color3.fromRGB(236, 230, 224), R)
+	for _, cx in ipairs({ 170, 192, 214 }) do
 		local mp = box("VanityMirror", cx - 7, F + 6.5, VZ - 0.08, cx + 7, F + 14.5, VZ, Color3.fromRGB(215, 222, 230), R, { mat = Enum.Material.Glass })
 		mp.Reflectance = 0.35
 		for _, by in ipairs({ F + 6.4, F + 14.6 }) do
@@ -429,25 +472,13 @@ do
 			box("StoolLeg", cx + sx - 0.25, F, VZ - 5.25, cx + sx + 0.25, F + 2.3, VZ - 4.75, Color3.fromRGB(200, 200, 206), R, { mat = Enum.Material.Metal })
 		end
 	end
-	-- BENCHES down the middle, upholstered, in pairs back to back
-	for _, cx in ipairs({ 168, 196, 224 }) do
-		for _, cz in ipairs({ -360, -330 }) do
-			box("BenchBase", cx - 8, F, cz - 1.3, cx + 8, F + 1.6, cz + 1.3, Color3.fromRGB(226, 226, 230), R, { mat = Enum.Material.Metal })
-			for _, side in ipairs({ -1, 1 }) do
-				local s = Instance.new("Seat") s.Name = "Bench" s.Anchored = true s.Size = Vector3.new(16, 0.6, 1.3)
-				local c = Vector3.new(cx, F + 1.9, cz + side * 0.65)
-				s.CFrame = CFrame.lookAt(c, c + Vector3.new(0, 0, side)) s.Color = Color3.fromRGB(250, 220, 230) s.Material = Enum.Material.Fabric
-				s.Parent = R CS:AddTag(s, "PromptSeat")
-			end
-		end
-	end
-	-- a round rug in the middle and a few plants
+	-- (no benches in the middle, D-824, user) a round rug and a few plants
 	local rug = Instance.new("Part") rug.Name = "Rug" rug.Shape = Enum.PartType.Cylinder rug.Anchored = true rug.CanCollide = false
-	rug.Size = Vector3.new(0.1, 26, 26) rug.CFrame = CFrame.new(196, F + 0.05, -345) * CFrame.Angles(0, 0, math.rad(90))
+	rug.Size = Vector3.new(0.1, 24, 24) rug.CFrame = CFrame.new((X0 + X1) / 2, F + 0.05, (Z0 + Z1) / 2) * CFrame.Angles(0, 0, math.rad(90))
 	rug.Color = Color3.fromRGB(255, 226, 236) rug.Material = Enum.Material.Fabric rug.Parent = R
 	local plant = game:GetService("ServerStorage"):FindFirstChild("ArtAssets") and game:GetService("ServerStorage").ArtAssets:FindFirstChild("CafePotPlant")
 	if plant then
-		for _, at in ipairs({ Vector3.new(141, F, -377), Vector3.new(244, F, -377), Vector3.new(141, F, -296), Vector3.new(244, F, -296) }) do
+		for _, at in ipairs({ Vector3.new(X0 + 2, F, Z0 + 2), Vector3.new(X1 - 3, F, Z0 + 3), Vector3.new(X1 - 3, F, Z1 - 3) }) do
 			local m = plant:Clone()
 			for _, d in ipairs(m:GetDescendants()) do
 				if d:IsA("LuaSourceContainer") then d:Destroy() elseif d:IsA("BasePart") then d.Anchored = true d.CanCollide = false end
@@ -457,22 +488,27 @@ do
 			m.Parent = R
 		end
 	end
-	-- the name on the north wall over the lockers, pink neon
+	-- the name over the lockers, pink neon
 	do
-		local s = box("LockerSign", 175, F + 12.5, Z0 + 0.06, 215, F + 16.5, Z0 + 0.12, Color3.new(0, 0, 0), R, { t = 1, ghost = true })
+		local s = box("LockerSign", (X0 + X1) / 2 - 20, F + LH + 0.8, Z0 + 0.06, (X0 + X1) / 2 + 20, F + LH + 4.4, Z0 + 0.12, Color3.new(0, 0, 0), R, { t = 1, ghost = true })
 		text(s, Enum.NormalId.Back, "LOCKER ROOM · 락커룸", Color3.fromRGB(255, 92, 160))
 		local pl = Instance.new("SurfaceLight") pl.Face = Enum.NormalId.Back pl.Color = Color3.fromRGB(255, 120, 180) pl.Range = 8 pl.Brightness = 1 pl.Parent = s
 	end
-	-- the doorway: a white light frame on both sides, the name over it in the corridor
-	for _, zf in ipairs({ -289.85, -292.55 }) do
-		box("DoorFrameLight", 137.7, F, zf - 0.15, 138, F + 18, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
-		box("DoorFrameLight", 158, F, zf - 0.15, 158.3, F + 18, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
-		box("DoorFrameLight", 137.7, F + 17.7, zf - 0.15, 158.3, F + 18, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
+	-- the door at the passage's end: a white light frame on both faces, the name over it
+	for _, zf in ipairs({ Z1 - 0.05, Z1 + 1.65 }) do
+		box("DoorFrameLight", PX0, F, zf - 0.15, PX0 + 0.3, F + 18, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
+		box("DoorFrameLight", PX1 - 0.3, F, zf - 0.15, PX1, F + 18, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
+		box("DoorFrameLight", PX0, F + 17.7, zf - 0.15, PX1, F + 18, zf + 0.15, Color3.fromRGB(255, 250, 235), R, NEON())
 	end
 	do
-		local s = box("LockerDoorSign", 139, F + 18.2, -289.86, 157, F + 21.6, -289.8, Color3.new(0, 0, 0), R, { t = 1, ghost = true })
-		text(s, Enum.NormalId.Back, "LOCKER ROOM", Color3.fromRGB(255, 255, 255)) -- (the corridor is on +z)
+		local s = box("LockerDoorSign", PX0 + 0.5, F + 18.2, Z1 + 1.66, PX1 - 0.5, F + 20.8, Z1 + 1.72, Color3.new(0, 0, 0), R, { t = 1, ghost = true })
+		text(s, Enum.NormalId.Back, "LOCKER ROOM", Color3.fromRGB(255, 255, 255)) -- (seen from the passage, +z)
 		local pl = Instance.new("SurfaceLight") pl.Face = Enum.NormalId.Back pl.Range = 8 pl.Brightness = 1 pl.Parent = s
+	end
+	-- and a small sign over the passage in the corridor
+	do
+		local s = box("LockerWaySign", PX0 + 1, F + 21.4, -289.86, PX1 - 1, F + 23.4, -289.8, Color3.new(0, 0, 0), R, { t = 1, ghost = true })
+		text(s, Enum.NormalId.Back, "LOCKER ROOM ↑", Color3.fromRGB(255, 255, 255))
 	end
 	table.insert(log, "locker room parts " .. #R:GetDescendants())
 end
@@ -484,7 +520,7 @@ do
 	for _, w in ipairs(B and B:GetChildren() or {}) do
 		if w:IsA("BasePart") and w.Name == "BoundaryWall" then
 			local a, b = aabb(w)
-			if b.X > 136 and a.X < 249.5 and b.Z > -382.5 and a.Z < -290 and a.Y < 0 then
+			if b.X > LX0 - 3 and a.X < LX1 + 3 and b.Z > LZ0 - 3 and a.Z < -290 and a.Y < 0 then
 				local top = b.Y
 				w.Size = Vector3.new(w.Size.X, top, w.Size.Z)
 				w.CFrame = w.CFrame + Vector3.new(0, (top / 2) - w.Position.Y, 0)

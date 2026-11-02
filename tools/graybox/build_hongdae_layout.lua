@@ -4124,7 +4124,7 @@ do
 	-- graybox walls are lilac; the cladding covers their outside faces.
 	local BLACK, BLACK2 = Color3.fromRGB(26, 27, 30), Color3.fromRGB(40, 42, 46)
 	local GOLD = Color3.fromRGB(214, 172, 92)
-	local DZ0, DZ1 = -197 + CDZ, -159 + CDZ -- door gap (with its gold frame); 22 → 38 with the door 16 → 32 (D-821)
+	local DZ0, DZ1 = -189 + CDZ, -167 + CDZ -- door gap (with its gold frame); (38 for a day, D-821; back, D-824)
 	-- (user 2026-10-27) three storeys outside, taller than 오후네컷: the walls
 	-- run up to the roof (65); the street door 18 high (graybox EDH)
 	local Z0, Z1, TOPY = -260.2 + CDZ, -95.8 + CDZ, 65 -- to the outer faces of the lilac side walls
@@ -5203,7 +5203,8 @@ do
 		{ -415, -385 }, { -148, -385 }, { -148, -229 }, { -51.3, -229 }, { -51.3, -455 }, { 47, -455 }, { 47, -385 },
 		-- (D-821, user 2026-11-03) out round the club's new VIP stair hall east
 		-- of the club (x 190..248, z -298..-254, club_locker_1103.lua)
-		{ 160, -385 }, { 160, -316 }, { 194, -316 }, { 194, -299 }, { 249, -299 }, { 249, -253 }, { 194, -253 }, { 194, -50 }, { 277, -50 }, { 277, 387 }, { -415, 387 },	}
+		{ 160, -385 }, { 160, -316 }, { 194, -316 }, { 194, -299 }, { 259, -299 }, { 259, -253 }, { 194, -253 }, -- (landing wider, x 257: D-824)
+		{ 194, -50 }, { 277, -50 }, { 277, 387 }, { -415, 387 },	}
 	for i = 1, #P do
 		local a, b = P[i], P[(i % #P) + 1]
 		local pa, pb = Vector3.new(a[1], 0, a[2]), Vector3.new(b[1], 0, b[2])

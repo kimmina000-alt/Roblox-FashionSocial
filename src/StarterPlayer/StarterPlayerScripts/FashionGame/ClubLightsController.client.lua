@@ -143,15 +143,18 @@ local function updateLasers(lightTime: number)
 					local depth = math.max(8, math.abs(aimLow.Z - part.Position.Z) / 2 - 10)
 					local width = (aimAt.X - rowX) * 1.8 + (i - (BEAMS_PER_EMITTER + 1) / 2) * 6
 					local w = t * 1.2 - g * 0.55
+					-- (D-824, user) the crest climbs from the floor all the way up
+					-- the walls to the 2F walls' height (AimY + 20)
+					local topLift = (floorY + 20) - aimLow.Y
 					local x, z, lift
 					if pattern == 0 then
 						x = rowX + width + math.sin(t * 0.7 + g) * 4
 						z = midZ + math.sin(w) * depth
-						lift = (floorY - aimLow.Y) * math.max(0, math.sin(w)) ^ 6 * 0.5
+						lift = topLift * math.max(0, math.sin(w)) ^ 2
 					else
 						x = rowX + width + math.sin(w) * 22
 						z = midZ + math.cos(t * 0.45 + g * 0.3) * depth * 0.7
-						lift = 0
+						lift = topLift * math.max(0, math.abs(math.sin(w)) - 0.45) / 0.55
 					end
 					beamBase = Vector3.new(x, aimLow.Y + lift, z)
 					offset = Vector3.zero
