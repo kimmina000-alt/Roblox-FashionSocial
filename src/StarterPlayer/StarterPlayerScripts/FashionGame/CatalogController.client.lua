@@ -2797,6 +2797,8 @@ local function passesLocalFilters(detail: any): boolean
 		if detail.ItemType == "Bundle" then
 			return bundles[tostring(detail.BundleType)] == true
 		end
+		-- (D-816) 신체 > 전신 also lists the single body parts in 착용 중 / 즐겨찾기
+		if bundles.BodyParts and (WearableBundles.core.BodyParts[tostring(detail.AssetType)] or tostring(detail.AssetType) == "Head") then return true end
 		return assets[tostring(detail.AssetType)] == true
 	end
 	return true
@@ -2840,10 +2842,11 @@ renderLocalMode = function()
 		end
 	else
 		-- (D-799, user: the body from 신체 > 전신 in 착용 중) a worn full-body / head /
-		-- shoes bundle (tried on or ★ this session) shows as its bundle card, in
-		-- place of its parts. The snapshot only has asset ids, so the bundles
-		-- come from 최근 and 즐겨찾기.
-		local bundleIds, partOf = {}, {}
+		-- shoes bundle (tried on or ★ this session) shows as its bundle card. The
+		-- snapshot only has asset ids, so the bundles come from 최근 and 즐겨찾기.
+		-- (D-816, user) its parts follow it one by one, like the worn strip:
+		-- each part can be taken off, ★ and worn on its own.
+		local bundleIds = {}
 		for _, item in ipairs(recentItems) do
 			if item.ItemType == "Bundle" and typeof(item.Id) == "number" then table.insert(bundleIds, { id = item.Id, itemType = "Bundle" }) end
 		end
@@ -2864,12 +2867,11 @@ renderLocalMode = function()
 				elseif isShoeBundleWorn(entry.id) then
 					added[entry.id] = true
 					table.insert(entries, entry)
-					for _, part in ipairs(shoeBundleAssets[entry.id] or {}) do partOf[part] = true end
 				end
 			end
 		end
 		for _, assetId in ipairs((getWornOrder())) do
-			if not partOf[assetId] then table.insert(entries, { id = assetId, itemType = "Asset" }) end
+			table.insert(entries, { id = assetId, itemType = "Asset" })
 		end
 	end
 	local details = fetchItemDetails(entries)
