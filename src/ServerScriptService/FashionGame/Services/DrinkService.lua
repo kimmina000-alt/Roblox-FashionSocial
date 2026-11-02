@@ -274,6 +274,39 @@ end
 
 DrinkService.GiveCup = giveCup -- (SparkleService: cans from a sparkler bucket)
 
+-- Carried bottles and cups across a rejoin (D-790, BagService):
+--   { k = "bottle", key, variant?, servings }   { k = "cup", key }
+function DrinkService.BagEntries(player: Player): {any}
+	local list = {}
+	for _, where in ipairs({ player:FindFirstChildOfClass("Backpack"), player.Character }) do
+		if where then
+			for _, t in ipairs(where:GetChildren()) do
+				if t:IsA("Tool") then
+					local bottle, cup = t:GetAttribute("Bottle"), t:GetAttribute("Cup")
+					if typeof(bottle) == "string" then
+						local servings = t:GetAttribute("Servings")
+						if typeof(servings) ~= "number" or servings > 0 then
+							table.insert(list, { k = "bottle", key = bottle, variant = t:GetAttribute("Variant"), servings = servings })
+						end
+					elseif typeof(cup) == "string" and not t:GetAttribute("Drinking") then
+						table.insert(list, { k = "cup", key = cup })
+					end
+				end
+			end
+		end
+	end
+	return list
+end
+
+function DrinkService.BagRestore(player: Player, e: any): boolean
+	if e.k == "bottle" then
+		return (giveBottle(player, e.key, if typeof(e.servings) == "number" then e.servings else nil, e.variant))
+	elseif e.k == "cup" then
+		return (giveCup(player, e.key))
+	end
+	return false
+end
+
 --------------------------------------------------
 -- Tables and placed bottles
 --------------------------------------------------

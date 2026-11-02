@@ -1756,3 +1756,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-789 (2026-11-03) 알바 중에는 어디서도 주문 못 함
 - SnackService.buy: 캐릭터에 CafeJob이 있으면 "알바 중에는 주문할 수 없어요. 알바를 끝낸 뒤 주문해 주세요." (카페·편의점·국밥집·아이스크림 트럭 등 모든 가게). CafeJobController: 알바 중에는 모든 가게의 주문 프롬프트(SnackPrompt, SnackPromptSpot 아래 것까지) 끄고, 끝나면 다시 켬. 전에는 자기 카페 카운터 바로 아래 프롬프트만 찾아서, 비치 카페처럼 SnackPromptSpot 아래 있는 것은 안 꺼졌음.
 - Studio Play: 알바 중 OH24 4 / 국밥집 1 / 비치 카페 3개 모두 꺼짐, 주문 요청도 거절, 알바 끝내면 다시 켜짐.
+## D-790 (2026-11-03) 가방 아이템: 재접속·리스폰 뒤에도 그대로
+- 사용자: 다 먹은 게 아니면 재접속 때 그 상태 그대로. 새 BagService: 각 서비스가 BagEntries / BagRestore를 가짐.
+  - SnackService: 음식·음료(남은 입 Bites, 케이크 조각 Piece + SliceTexture/SliceModel/SliceName), 테이블에 내려놓은 음식(PutDownFood의 KeptBy), 손에 든 케이크·수육 접시(Plate).
+  - DrinkService: 병(Bottle, Variant, 남은 잔 Servings), 컵(Cup). SparkleService: 안 붙인 스파클러(Count), 스파클러 버킷, 손 스파클러.
+  - 안 남기는 것: 알바 주문 음료(CafeOrder), 사진(사진첩에 있음), 야광봉(패스가 매번 줌), 불붙은 스파클러.
+- 저장: PlayerDataService.OnBeforeSave에서 wallet.bag(최대 30개, 단순 값만; sanitizeWallet이 유지) → 자동 저장·나갈 때 저장. Play에서 잰 것: 나갈 때(PlayerRemoving)는 캐릭터와 손에 든 도구가 이미 없음 → 2초마다 적어 둔 목록을 씀. 리스폰: CharacterRemoving 때는 가방이 이미 비어 있음 → 쓰러질 때(Died) 적어 둠. 테이블 음식 정리(SnackService PlayerRemoving)는 저장 뒤로 미룸(task.defer).
+- 되돌려 주기: 방문의 첫 스폰에 저장 목록, 쓰러진 뒤엔 그때 목록. 첫 스폰 전에는 새 목록을 쓰지 않음(기다리는 아이템을 지우지 않게).
+- Studio Play: 7종(카페라테 2입 남음, 빈티지 조각, 티라미수 접시, 몬테 병 4/6, 컵, 스파클러 ×3, 손 스파클러)을 들고 쓰러짐 → 같은 상태로 돌아옴. 내보내기(Kick) 때 저장 목록에 손에 든 카페라테까지 7개. 실제 재접속은 Studio에 저장소가 없어 라이브에서 확인. 먹다 만 음식의 모양은 새것처럼 보이고 남은 입 수만 그대로.

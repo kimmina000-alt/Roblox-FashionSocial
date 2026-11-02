@@ -904,7 +904,13 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		end
 		-- (a 수육 slice is one bite: six bites a plate, user 2026-10-27)
 		if item.kind == "plate" then pieceItem.oneBite = true end
-		giveTool(who, makeTool(pieceItem, baseName .. " 한 " .. pieceWord))
+		local pieceTool = makeTool(pieceItem, baseName .. " 한 " .. pieceWord)
+		-- (D-790) what it takes to make this piece again after a rejoin
+		pieceTool:SetAttribute("Piece", true)
+		if pieceItem.sliceTexture then pieceTool:SetAttribute("SliceTexture", pieceItem.sliceTexture) end
+		if pieceItem.cakeModel then pieceTool:SetAttribute("SliceModel", pieceItem.cakeModel) end
+		if pieceItem.sliceName then pieceTool:SetAttribute("SliceName", pieceItem.sliceName) end
+		giveTool(who, pieceTool)
 		if left <= 0 then plate:Destroy() else refresh() end
 	end)
 	plate.Parent = tablePart
@@ -917,6 +923,7 @@ local function plateTool(player: Player, item: SnackConfig.Item): Tool
 	tool.Name = item.name
 	tool.ToolTip = "테이블 가까이에서 클릭(터치)하면 테이블에 놓아요"
 	tool.CanBeDropped = false
+	tool:SetAttribute("Plate", item.key) -- (D-790: BagService)
 	local handle = part("Handle", Vector3.new(1.4, 0.4, 1.4), item.color)
 	handle.Parent = tool
 	local model = cakeModel(item.cake)
@@ -1307,6 +1314,7 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 		keptFolder.Name = "PutDownFood"
 		keptFolder.Parent = game:GetService("ServerStorage")
 	end
+	tool:SetAttribute("KeptBy", player.UserId) -- (D-790: still theirs, BagService)
 	tool.Parent = keptFolder
 	local item = itemByKey(tool:GetAttribute("Snack"))
 	local soup = item ~= nil and (item.kind == "bowl" or item.kind == "ricebowl" or item.kind == "noodle") -- (컵라면 too: chopsticks, 2026-10-27)
@@ -1323,6 +1331,7 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 			-- spoon, never picked up again
 			spoonful(player, model, copy, tool, item)
 		elseif giveTool(player, tool) then
+			tool:SetAttribute("KeptBy", nil)
 			model:Destroy()
 		end
 	end)
@@ -1333,6 +1342,70 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 	-- (a bowl left behind goes sooner: its owner may have walked off, user 2026-10-26)
 	Debris:AddItem(model, if soup then SOUP_SECONDS else SnackConfig.PlateSeconds)
 	return true, nil
+end
+
+-- Carried foods across a rejoin (D-790, BagService): what the player holds or
+-- has put down on a table, as plain entries, and the tools made again from them.
+--   { k = "snack", key, bites, piece?, tex?, model?, slice?, name? }  a food / drink in the hand
+--   { k = "plate", key }                                              a whole cake / 수육 plate in the hand
+function SnackService.BagEntries(player: Player): {any}
+	local list = {}
+	local function note(tool: Instance)
+		if not tool:IsA("Tool") or tool:GetAttribute("CafeOrder") then return end
+		local plate = tool:GetAttribute("Plate")
+		if typeof(plate) == "string" then
+			table.insert(list, { k = "plate", key = plate })
+			return
+		end
+		local key = tool:GetAttribute("Snack")
+		if typeof(key) ~= "string" then return end
+		local bites = tool:GetAttribute("Bites")
+		if typeof(bites) == "number" and bites <= 0 then return end
+		table.insert(list, {
+			k = "snack", key = key, bites = bites, name = tool.Name,
+			piece = tool:GetAttribute("Piece"), tex = tool:GetAttribute("SliceTexture"),
+			model = tool:GetAttribute("SliceModel"), slice = tool:GetAttribute("SliceName"),
+		})
+	end
+	for _, where in ipairs({ player:FindFirstChildOfClass("Backpack"), player.Character }) do
+		if where then for _, t in ipairs(where:GetChildren()) do note(t) end end
+	end
+	if keptFolder then
+		for _, t in ipairs(keptFolder:GetChildren()) do
+			if t:GetAttribute("KeptBy") == player.UserId then note(t) end
+		end
+	end
+	return list
+end
+
+function SnackService.BagRestore(player: Player, e: any): boolean
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	local item = itemByKey(e.key)
+	if not backpack or not item then return false end
+	if e.k == "plate" then
+		if not item.share then return false end
+		plateTool(player, item).Parent = backpack
+		return true
+	end
+	if e.k ~= "snack" then return false end
+	local use: any = item
+	if e.piece then
+		use = table.clone(item)
+		use.sliceTexture = e.tex
+		use.cakeModel = e.model
+		use.sliceName = e.slice
+		if item.kind == "plate" then use.oneBite = true end
+	end
+	local tool = makeTool(use, if typeof(e.name) == "string" then e.name else nil)
+	if e.piece then
+		tool:SetAttribute("Piece", true)
+		if e.tex then tool:SetAttribute("SliceTexture", e.tex) end
+		if e.model then tool:SetAttribute("SliceModel", e.model) end
+		if e.slice then tool:SetAttribute("SliceName", e.slice) end
+	end
+	if typeof(e.bites) == "number" then tool:SetAttribute("Bites", math.max(1, math.floor(e.bites))) end
+	tool.Parent = backpack
+	return true
 end
 
 -- The real foods for the order windows (user 2026-10-31: "실제 아이템 사진"):
@@ -1437,6 +1510,8 @@ function SnackService.Start(economyService: any)
 	end
 	-- food left on a table goes when its owner leaves
 	Players.PlayerRemoving:Connect(function(player)
+		-- (deferred, D-790: the leave-save notes the food put down first, BagService)
+		task.defer(function()
 		for _, tag in ipairs(TABLE_TAGS) do
 			for _, t in ipairs(CollectionService:GetTagged(tag)) do
 				for _, m in ipairs(t:GetChildren()) do
@@ -1444,6 +1519,7 @@ function SnackService.Start(economyService: any)
 				end
 			end
 		end
+		end)
 	end)
 	-- Robux menu items
 	local registered: {[string]: boolean} = {}

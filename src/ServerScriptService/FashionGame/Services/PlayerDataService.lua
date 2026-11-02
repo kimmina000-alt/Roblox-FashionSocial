@@ -62,7 +62,9 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- before, this sanitizer dropped it, so the gift came back on every visit)
 -- look = the last outfit worn (OutfitSnapshot), put back on the next visit (D-771)
 -- streak = attendance: the last Korean day here and its day number 1..7 (D-775)
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, streak: { day: string, n: number }? }
+-- bag = the items carried when the player left (BagService, D-790): plain
+-- tables { k = kind, ... }, given back on the next visit
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, streak: { day: string, n: number }?, bag: {any}? }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -143,6 +145,21 @@ local function sanitizeWallet(raw: any): Wallet
 	wallet.tutorial = raw.tutorial == true
 	wallet.welcome = raw.welcome == true
 	if typeof(raw.look) == "table" then wallet.look = raw.look end
+	-- (D-790) the carried items: at most 30 entries of plain values
+	if typeof(raw.bag) == "table" then
+		local bag = {}
+		for _, e in ipairs(raw.bag) do
+			if typeof(e) == "table" and typeof(e.k) == "string" and #bag < 30 then
+				local clean = {}
+				for key, value in pairs(e) do
+					local tv = typeof(value)
+					if typeof(key) == "string" and (tv == "string" or tv == "number" or tv == "boolean") then clean[key] = value end
+				end
+				table.insert(bag, clean)
+			end
+		end
+		wallet.bag = bag
+	end
 	if typeof(raw.streak) == "table" and typeof(raw.streak.day) == "string" and typeof(raw.streak.n) == "number" then
 		wallet.streak = { day = raw.streak.day, n = math.clamp(math.floor(raw.streak.n), 0, 7) }
 	end
@@ -240,8 +257,20 @@ local function load(player: Player): Session
 	return session
 end
 
+-- (D-790) callbacks run just before a save reads the wallet (BagService notes the carried items)
+local beforeSave: {(Player) -> ()} = {}
+function PlayerDataService.OnBeforeSave(fn: (Player) -> ())
+	table.insert(beforeSave, fn)
+end
+
 local function save(player: Player): boolean
 	local session = sessions[player.UserId]
+	if session then
+		for _, fn in ipairs(beforeSave) do
+			local ok, err = pcall(fn, player)
+			if not ok then warn("[PlayerDataService] before save:", err) end
+		end
+	end
 	if not session or not session.persistent or not session.dirty or not store then
 		return true
 	end

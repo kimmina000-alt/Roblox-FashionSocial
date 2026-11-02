@@ -3104,3 +3104,5 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ![](images/2026-11-03/d783_bridge_night_before.jpg) ![](images/2026-11-03/d783_bridge_night_after.jpg)
 ![](images/2026-11-03/d783_tiramisu_no_gold.jpg)
 - 원인: 스트리밍 + 밤 Atmosphere. 다리 Persistent 모델 + 밤 안개 0. 체인 전체 다시 실행(손 편집 48개).
+### 가방 아이템 유지 (D-790)
+- BagService + 각 서비스 BagEntries/BagRestore. Play: 쓰러진 뒤 7종 그대로, Kick 때 저장 목록 7개(손에 든 것 포함). 라이브 재접속 확인 필요.

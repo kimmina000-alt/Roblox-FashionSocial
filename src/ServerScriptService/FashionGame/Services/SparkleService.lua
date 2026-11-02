@@ -725,7 +725,7 @@ local function lightHandSparkler(player: Player): (boolean, string?)
 	return true, string.format("✨ 불이 붙었어요! %d초 동안 타요.", HAND_SPARKLER_SECONDS)
 end
 
-local function grantHandSparkler(player: Player): (boolean, string?)
+local function grantHandSparkler(player: Player, quiet: boolean?): (boolean, string?)
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not backpack then return false, "잠시 후 다시 시도하세요." end
 	local tool = Instance.new("Tool")
@@ -759,10 +759,47 @@ local function grantHandSparkler(player: Player): (boolean, string?)
 	weld.Parent = stick
 	stick.Parent = tool
 	tool.Parent = backpack
+	if quiet then return true, nil end -- (D-790: given back after a rejoin)
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if humanoid then humanoid:EquipTool(tool) end
 	toast(player, "✨ 손 스파클러를 받았어요! 손에 들고 [불 붙이기]를 누르세요.")
 	return true, nil
+end
+
+-- Carried sparkler items across a rejoin (D-790, BagService), unlit ones only:
+--   { k = "sparkler", count? }   { k = "sparkset" }   { k = "hand" }
+function SparkleService.BagEntries(player: Player): {any}
+	local list = {}
+	for _, where in ipairs({ player:FindFirstChildOfClass("Backpack"), player.Character }) do
+		if where then
+			for _, t in ipairs(where:GetChildren()) do
+				if t:IsA("Tool") and not t:GetAttribute("Lit") then
+					if t:GetAttribute("Sparkler") then
+						local count = t:GetAttribute("Count")
+						if typeof(count) ~= "number" or count > 0 then table.insert(list, { k = "sparkler", count = count }) end
+					elseif t:GetAttribute("SparklerSet") then
+						table.insert(list, { k = "sparkset" })
+					elseif t:GetAttribute("HandSparkler") then
+						table.insert(list, { k = "hand" })
+					end
+				end
+			end
+		end
+	end
+	return list
+end
+
+function SparkleService.BagRestore(player: Player, e: any): boolean
+	if e.k == "sparkler" then
+		local count = if typeof(e.count) == "number" then math.floor(e.count) else nil
+		local name = if count and count > 1 then "🎇 스파클러 ×" .. count else "🎇 스파클러"
+		return (giveItem(player, "Sparkler", name, "들고 테이블 위 병(버킷)을 누르면 불꽃 30초", Color3.fromRGB(25, 25, 28), count))
+	elseif e.k == "sparkset" then
+		return (giveItem(player, "SparklerSet", "🍾 스파클러 버킷", "들고 빈 테이블을 누르면 유리 버킷 + 병 3개 + 불꽃 3개", Color3.fromRGB(200, 200, 208)))
+	elseif e.k == "hand" then
+		return (grantHandSparkler(player, true))
+	end
+	return false
 end
 -- the glowstick (Game Pass, permanent): always in the backpack, a tap changes its colour
 local GLOW_COLORS = { Color3.fromRGB(0, 255, 140), Color3.fromRGB(255, 60, 200), Color3.fromRGB(60, 180, 255), Color3.fromRGB(255, 230, 60), Color3.fromRGB(255, 120, 40) }

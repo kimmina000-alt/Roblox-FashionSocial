@@ -60,6 +60,8 @@ BusAdService.Start()
 require(script.Parent.Services.BarShelfService).Start()
 require(script.Parent.Services.BakeryDisplayService).Start()
 require(script.Parent.Services.GuardService).Start()
+-- carried items back after a rejoin or a respawn (D-790)
+require(script.Parent.Services.BagService).Start(PlayerDataService, SnackService, DrinkService, SparkleService)
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers
