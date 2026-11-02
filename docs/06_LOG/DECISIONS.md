@@ -1736,3 +1736,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 빈티지 레터링 케이크 25 → 30 R$(MonetizationConfig; 대시보드 상품 가격도 30으로 바꿔야 함), 카페 메뉴 맨 끝으로.
 - 밤에 광안대교 안 보임: 두 가지. (1) 해변에서 570 떨어져 폰 스트리밍 범위 밖 → 다리 부품을 GwanganBridge 모델(ModelStreamingMode Persistent)로 묶음, 케이블 0.8 → 1.6, 탑 다리마다 보라 네온 줄(build_hongdae_layout). (2) 장소의 Atmosphere(밀도 0.3)가 밤에 먼 네온을 덮음(0.08·0.02에서도 탑 윗부분 사라짐) → DayNightController가 20:00~05:00 밀도 0, 19~20시·5~6시에 서서히.
 - Studio Play: 밤 22시 해변에서 다리 전체(케이블·탑) 보임, 티라미수 금색 얼룩 없음.
+## D-784 (2026-11-03) 광안대교 삭제 · 밤 안개 원래대로 · 딸기 씨 검은색
+- 사용자: 안개 복구, 다리는 흔적 없이 삭제(데이터). DayNightController를 D-783 전으로 되돌림(Atmosphere 밀도 0.3 그대로). build_hongdae_layout에서 광안대교 블록 전부 삭제, 장소의 GwanganBridge(64부품) 삭제.
+- 딸기 씨 색 검은색(34, 24, 20)으로 StrawberryCreamCakeSliced.gltf 다시 만듦(다시 가져오기 필요). 케이크 팔레트 4장 docs/04_ART/textures/cakes/palettes/.
+- 안 쓰는 흔적 조사 결과는 사용자에게 보고하고 승인 뒤 삭제(D-785).

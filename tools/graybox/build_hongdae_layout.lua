@@ -1929,45 +1929,7 @@ do
 	end
 	-- (no promenade benches any more, user 2026-10-30; they stood every 60 from
 	-- z0 + 28: BenchBase -197.5..-195.5 with two PromenadeBench seats)
-	-- 광안대교 (suspension bridge) out in the sea, lit purple at night
-	local bx, deckY = -820, 34
-	local purple = Color3.fromRGB(190, 90, 255)
-	box("BridgeDeck", bx - 10, deckY - 2, -760, bx + 10, deckY, 760, Color3.fromRGB(200, 200, 205))
-	for _, s in ipairs({ -1, 1 }) do box("BridgeLight", bx + s * 10 - 0.3, deckY - 2.5, -760, bx + s * 10 + 0.3, deckY - 1.8, 760, purple, { material = Enum.Material.Neon, nocol = true }) end
-	for _, tz in ipairs({ -260, 260 }) do
-		for _, s in ipairs({ -1, 1 }) do box("BridgeTowerLeg", bx + s * 9 - 2, -24, tz - 2, bx + s * 9 + 2, 150, tz + 2, Color3.fromRGB(215, 215, 220)) end
-		box("BridgeTowerBeam", bx - 11, 120, tz - 2, bx + 11, 126, tz + 2, Color3.fromRGB(215, 215, 220))
-		box("BridgeTowerBeam", bx - 11, 70, tz - 2, bx + 11, 75, tz + 2, Color3.fromRGB(215, 215, 220))
-	end
-	for _, s in ipairs({ -1, 1 }) do
-		local pts = {}
-		for k = 0, 24 do
-			local zz = -760 + k * (1520 / 24)
-			local y
-			if math.abs(zz) <= 260 then y = deckY + 12 + (150 - deckY - 12) * (zz / 260) ^ 2 else y = 150 - (150 - deckY - 4) * ((math.abs(zz) - 260) / 500) end
-			table.insert(pts, Vector3.new(bx + s * 9, y, zz))
-		end
-		for k = 1, #pts - 1 do
-			local a, b = pts[k], pts[k + 1]
-			part("BridgeCable", Vector3.new(1.6, 1.6, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), purple, { material = Enum.Material.Neon, nocol = true }) -- (0.8 → 1.6, D-783: seen from the beach at night)
-		end
-	end
-	label(box("BridgeLabel", bx - 1, 160, -1, bx + 1, 161, 1, purple, { transparency = 1, nocol = true }), "광안대교", purple, 0, 1)
-	-- (D-783, user: "밤에 바다에 다리 안 보임") the bridge is 570 out from the
-	-- beach, past a phone's streaming radius: it goes in a model that always
-	-- streams (Persistent), with a purple neon strip up each tower leg
-	for _, tz in ipairs({ -260, 260 }) do
-		for _, s in ipairs({ -1, 1 }) do
-			box("BridgeTowerGlow", bx + s * 9 - 2.3, deckY, tz - 0.5, bx + s * 9 + 2.3, 150, tz + 0.5, purple, { material = Enum.Material.Neon, nocol = true })
-		end
-	end
-	local bridge = Instance.new("Model")
-	bridge.Name = "GwanganBridge"
-	bridge.ModelStreamingMode = Enum.ModelStreamingMode.Persistent
-	for _, d in ipairs(T:GetChildren()) do
-		if d:IsA("BasePart") and d.Name:match("^Bridge") then d.Parent = bridge end
-	end
-	bridge.Parent = T
+	-- (the 광안대교 out in the sea was taken out, D-784, user: unused weight)
 end
 
 ------------------------------------------------------- palace stone wall (궁궐 담장)

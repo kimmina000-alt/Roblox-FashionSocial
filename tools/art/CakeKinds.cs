@@ -55,7 +55,7 @@ public static class CakeKinds
     // (no lettering) in the middle ----
     static readonly double[][] SBerries = {
         new[] { -13.18, 25.31 }, new[] { 10.86, 22.99 }, new[] { -24.66, 12.56 }, new[] { 21.07, 1.10 }, new[] { -20.30, -3.72 }, new[] { -0.70, -12.76 } };
-    // (D-783, user: the strawberries' seeds) little yellow dots: one in every
+    // (D-783, user: the strawberries' seeds; black, D-784) little dots: one in every
     // third 1.8-unit cell of the surface, within 0.6 of its middle
     static bool Seed(double[] c)
     {
@@ -87,7 +87,7 @@ public static class CakeKinds
         return "Leaf";
     }
     public static readonly string StrawberryColors =
-        "Board=238,222,178;Side=252,250,246;TopCream=255,253,248;Piping=255,252,246;Leaf=86,140,62;Label=246,240,230;Berry=205,30,45;Seed=240,205,100";
+        "Board=238,222,178;Side=252,250,246;TopCream=255,253,248;Piping=255,252,246;Leaf=86,140,62;Label=246,240,230;Berry=205,30,45;Seed=34,24,20";
 
     // What CakeCut needs to know about a cake (the vintage one as before):
     // its groups and colours, the groups left whole under the slices (the
