@@ -2798,7 +2798,9 @@ local function passesLocalFilters(detail: any): boolean
 			return bundles[tostring(detail.BundleType)] == true
 		end
 		-- (D-816) 신체 > 전신 also lists the single body parts in 착용 중 / 즐겨찾기
-		if bundles.BodyParts and (WearableBundles.core.BodyParts[tostring(detail.AssetType)] or tostring(detail.AssetType) == "Head") then return true end
+		-- (D-818, user: the body's head was missing: heads are DynamicHead assets)
+		if bundles.BodyParts and (WearableBundles.core.BodyParts[tostring(detail.AssetType)]
+			or WearableBundles.core.DynamicHead[tostring(detail.AssetType)]) then return true end
 		return assets[tostring(detail.AssetType)] == true
 	end
 	return true
