@@ -426,7 +426,7 @@ local cardCarry = button({
 	Name = "GuardCarryButton",
 	Size = UDim2.new(0.5, -4, 1, 0),
 	BackgroundColor3 = Color3.fromRGB(20, 20, 24),
-	Text = "🫳 들기",
+	Text = "들기", -- (D-788: no icon, user)
 	TextSize = 15,
 	ZIndex = 6,
 }, cardGuard, 10)
@@ -437,7 +437,7 @@ local cardCuff = button({
 	Position = UDim2.fromScale(1, 0),
 	Size = UDim2.new(0.5, -4, 1, 0),
 	BackgroundColor3 = Color3.fromRGB(20, 20, 24),
-	Text = "⛓ 수갑 (1분)",
+	Text = "수갑 (1분)",
 	TextSize = 15,
 	ZIndex = 6,
 }, cardGuard, 10)
@@ -936,7 +936,7 @@ local function refreshCard()
 	cardGuard.Position = UDim2.fromOffset(10, y)
 	if amGuard then y += 40 end
 	playerCard.Size = UDim2.fromOffset(playerCard.Size.X.Offset, y + 4)
-	cardCarry.Text = if player:GetAttribute("Carrying") == target.UserId then "⬇ 내려놓기" else "🫳 들기"
+	cardCarry.Text = if player:GetAttribute("Carrying") == target.UserId then "내려놓기" else "들기"
 	if amDJ then
 		local invited = isGuest(target.UserId)
 		cardInvite.Text = if invited then "DJ 존 초대 취소" else "🎧 DJ 존 초대"
