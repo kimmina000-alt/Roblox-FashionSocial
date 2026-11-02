@@ -1947,3 +1947,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 땅(Ground 16 두께)과 인도를 그만큼 뚫고, 락커룸 위 경계벽은 땅 위(y 0)부터 → 길 위는 그대로 막힘. 경계는 계단실 둘레로(x 194 → 249, z -299..-253).
 - 새 체인 끝 스크립트 tools/graybox/club_locker_1103.lua(Hongdae_Layout.ClubAnnex, 343 부품, 조명 30). 클럽 구역 1,682 → 1,542, 맵 전체 15,852.
 - 테스트(Play): VIP 문 → 계단 → 꼭대기 → 2층 통로 → 라운지 걸어서 끝까지(발 높이 20), 복도 ↔ 락커룸 문 양쪽, 사진 d821_*.jpg.
+
+## D-822 (2026-11-03) 게임 주인에게 DJ 시간
+- 사용자: "Vantablack_Dev한테 dj 권도 줄 수 있음? vip 산 적 없는데 있네". VIP·가드는 게임 패스라 Roblox가 게임 주인에게 자기 게임의 패스를 모두 준 것(UserOwnsGamePassAsync = true). DJ는 살 때마다 시간을 주는 개발자 상품이라 따로 없음.
+- 실제 서버에서 게임 주인(game.CreatorId)이 들어오면 3초 뒤 DJ 시간 1회(DJMinutes 30분)를 줌(DjService, Studio의 StudioDJ와 같은 방식). 다른 DJ가 있으면 대기열에 들어감. Studio에서는 확인할 수 없어 게시 후 실제 게임에서 확인.
