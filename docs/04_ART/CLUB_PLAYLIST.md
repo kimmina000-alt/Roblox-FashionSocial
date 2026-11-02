@@ -72,8 +72,8 @@ speed 1, volume 10, octave 0.5, engine "sound" 는 공통.
 | ATEEZ-BAD | 0.333 | 2.5 | 0 | 0 | 0 |
 | 소녀시대-소원을 말해봐(Genie) | 0.334 | 2.5 | -5 | 2 | 0 |
 | 현아-Bubble Pop | 0.333 | 2.5 | -6 | 0.5 | -7 |
-| RIIZE-Get A Guitar | 0.333 | 5 | -7 | -3 | 1.5 |
-| RIIZE-Love 119 | 0.333 | 4.05 | -7 | -3 | 1.5 |
+| RIIZE-Get A Guitar | 0.333 | 3 | -7 | -3 | 1.5 |
+| RIIZE-Love 119 | 0.333 | 3 | -7 | -3 | 1.5 |
 | YENA-Catch Catch | 0.34 | 3 | -13 | 2.5 | 4 |
 | Hearts2Hearts-Lemon Tang | 0.333 | 3 | -3 | 2 | 0 |
 | aespa-Lemonade | 0.333 | 3 | -11 | 0 | -2.5 |
@@ -103,8 +103,8 @@ local LAB = {
 	["134942349436280"] = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, -- ATEEZ-BAD
 	["128270208751659"] = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" }, -- 소녀시대-소원을 말해봐(Genie)
 	["76388700698178"] = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, -- 현아-Bubble Pop
-	["91762270038050"] = { speed = 1, tempo = 0.333, volume = 10, boost = 5, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, -- RIIZE-Get A Guitar
-	["119473981131981"] = { speed = 1, tempo = 0.333, volume = 10, boost = 4.05, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, -- RIIZE-Love 119
+	["91762270038050"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, -- RIIZE-Get A Guitar
+	["119473981131981"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, -- RIIZE-Love 119
 	["80583279340768"] = { speed = 1, tempo = 0.34, volume = 10, boost = 3, octave = 0.5, low = -13, mid = 2.5, high = 4, engine = "sound" }, -- YENA-Catch Catch
 	["97032815457241"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- Hearts2Hearts-Lemon Tang
 	["132067415333401"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = -2.5, engine = "sound" }, -- aespa-Lemonade
