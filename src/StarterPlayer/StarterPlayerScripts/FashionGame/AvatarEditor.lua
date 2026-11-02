@@ -617,6 +617,14 @@ end
 -- right away, by how far the draft is from what that copy was built with.
 -- The rebuild a moment later shows Roblox's exact result.
 function AvatarEditor:_nudgePreview()
+	-- (D-819, user: the real character shows the fit at once too) the hair /
+	-- rigid accessory fit on this player's own character, on this screen only
+	-- until 적용 (cancel and close put the saved fit back)
+	if self.draft and self.isOpenFlag then
+		local character = Players.LocalPlayer.Character
+		local live = character and character:FindFirstChildOfClass("Humanoid")
+		if live then HairFit.apply(live, self.draft.hair) end
+	end
 	local clone = self.previewClone
 	if not clone or not clone.Parent or not self.draft or not self.isOpenFlag then return end
 	local humanoid = clone:FindFirstChildOfClass("Humanoid")
@@ -690,6 +698,12 @@ end
 function AvatarEditor:_close()
 	if not self.isOpenFlag then return end
 	self.isOpenFlag = false
+	-- (D-819) closed without 적용: the character's saved fit again
+	if self.baseline and self.baseline.hair then
+		local character = Players.LocalPlayer.Character
+		local live = character and character:FindFirstChildOfClass("Humanoid")
+		if live then HairFit.apply(live, self.baseline.hair) end
+	end
 	self.root.Visible = false
 	self.overlay.Visible = false
 	self.makeupDrag:cancel()

@@ -374,7 +374,7 @@ avatarPreviewCamera.Parent = avatarViewport
 avatarViewport.CurrentCamera = avatarPreviewCamera
 
 -- Preview orbit state survives refreshes so wearing an item keeps the angle.
-local PREVIEW_MIN_ZOOM = 0.45
+local PREVIEW_MIN_ZOOM = 0.25 -- (0.45 until D-819: closer, for fitting hair)
 local PREVIEW_MAX_ZOOM = 1.6
 local previewYaw = 0
 local previewPitch = 0
@@ -386,7 +386,12 @@ local function updatePreviewCamera()
 	-- Characters face local -Z; yaw 0 looks at the front of the avatar.
 	local rotation = CFrame.Angles(0, previewYaw, 0) * CFrame.Angles(previewPitch, 0, 0)
 	local offset = rotation:VectorToWorldSpace(Vector3.new(0, 0, -previewBaseDistance * previewZoom))
-	avatarPreviewCamera.CFrame = CFrame.lookAt(previewTarget + offset, previewTarget)
+	-- (D-819) zooming in moves the view up to the head, where hair and hats are fitted
+	local bounds = avatarViewport:GetAttribute("PreviewBounds")
+	local lift = if typeof(bounds) == "Vector3" and previewZoom < 1
+		then bounds.Y * 0.36 * math.clamp((1 - previewZoom) / (1 - PREVIEW_MIN_ZOOM), 0, 1) else 0
+	local target = previewTarget + Vector3.new(0, lift, 0)
+	avatarPreviewCamera.CFrame = CFrame.lookAt(target + offset, target)
 end
 
 local function refreshAvatarPreview()
@@ -550,6 +555,44 @@ UserInputService.InputEnded:Connect(function(input)
 		previewDragLast = nil
 	end
 end)
+-- (D-819, user: zoom the preview on phones too) two fingers pinch in the
+-- preview: apart = closer, together = further (the mouse wheel does the same)
+do
+	local touches: {[InputObject]: boolean} = {}
+	local pinchStart: number? = nil
+	local zoomStart = 1
+	local function fingers(): {InputObject}
+		local list = {}
+		for touch in pairs(touches) do table.insert(list, touch) end
+		return list
+	end
+	avatarViewport.InputBegan:Connect(function(input)
+		if input.UserInputType ~= Enum.UserInputType.Touch then return end
+		touches[input] = true
+		local list = fingers()
+		if #list == 2 then
+			pinchStart = (list[1].Position - list[2].Position).Magnitude
+			zoomStart = previewZoom
+			previewDragInput = nil -- (two fingers zoom; they don't turn the avatar)
+			previewDragLast = nil
+		end
+	end)
+	UserInputService.InputChanged:Connect(function(input)
+		if not touches[input] or not pinchStart then return end
+		local list = fingers()
+		if #list < 2 then return end
+		local distance = (list[1].Position - list[2].Position).Magnitude
+		if distance > 1 and (pinchStart :: number) > 1 then
+			previewZoom = math.clamp(zoomStart * (pinchStart :: number) / distance, PREVIEW_MIN_ZOOM, PREVIEW_MAX_ZOOM)
+			updatePreviewCamera()
+		end
+	end)
+	UserInputService.InputEnded:Connect(function(input)
+		if not touches[input] then return end
+		touches[input] = nil
+		if #fingers() < 2 then pinchStart = nil end
+	end)
+end
 
 -- Reframe the preview after responsive layout changes alter its viewport shape.
 avatarViewport:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
