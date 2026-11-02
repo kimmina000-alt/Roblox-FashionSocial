@@ -87,8 +87,9 @@ end
 
 -- the segments of the track being followed, loaded on this character;
 -- starts[i] = its `at` (seconds into the song) or nil (after the one before);
--- stops[i] = its `stop` (D-804) or nil; blends[i] = its `blend` (D-807) or nil
-local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, stops: {number?}, blends: {number?}, playing: AnimationTrack?, speed: number? }? = nil
+-- stops[i] = its `stop` (D-804) or nil; blends[i] = its `blend` (D-807) or nil;
+-- froms[i] = its `from` (D-810, seconds into the animation) or 0
+local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, stops: {number?}, blends: {number?}, froms: {number}, playing: AnimationTrack?, speed: number? }? = nil
 
 -- (D-802, user: "앵글 움직이는 부분 다 고쳐") the segments carry the dancer's
 -- travel in the hips (Get A Guitar 2 ends 11 studs forward, then 3 starts
@@ -148,12 +149,13 @@ local function startFollowing(track: ClubConfig.Track)
 	-- (the dance menu's dance stops first: one dance at a time)
 	local character = player.Character
 	if character and character:GetAttribute("DanceKey") ~= nil then danceRemote:FireServer("Stop") end
-	local tracks, starts, stops, blends = {}, {}, {}, {}
+	local tracks, starts, stops, blends, froms = {}, {}, {}, {}, {}
 	for _, entry in ipairs(track.choreo) do
 		local id = if typeof(entry) == "table" then entry.id else entry
 		local at = if typeof(entry) == "table" and typeof(entry.at) == "number" then entry.at else nil
 		local stop = if typeof(entry) == "table" and typeof(entry.stop) == "number" then entry.stop else nil
 		local blend = if typeof(entry) == "table" and typeof(entry.blend) == "number" then entry.blend else nil
+		local from = if typeof(entry) == "table" and typeof(entry.from) == "number" then entry.from else 0
 		local animation = Instance.new("Animation")
 		animation.AnimationId = "rbxassetid://" .. tostring(id)
 		local ok, loaded = pcall(function() return anim:LoadAnimation(animation) end)
@@ -164,12 +166,13 @@ local function startFollowing(track: ClubConfig.Track)
 			starts[#tracks] = at
 			stops[#tracks] = stop
 			blends[#tracks] = blend
+			froms[#tracks] = from
 		else
 			warn("[ChoreoController] Could not load", id, loaded)
 		end
 	end
 	if #tracks == 0 then return end
-	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, blends = blends, playing = nil, speed = nil }
+	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, blends = blends, froms = froms, playing = nil, speed = nil }
 	button.Text = "⏹ 그만 추기"
 end
 
@@ -223,15 +226,18 @@ RunService.PreAnimation:Connect(function()
 		then attr("ClubMusicPausedAt", 0) / math.max(ClubConfig.trackRate(track, 1), 1e-3)
 		else (workspace:GetServerTimeNow() - start) * djSpeed
 	-- which segment that is (lengths known once each one has loaded); a gap
-	-- between segments (an `at` later than the one before ends) stands still
+	-- between segments (an `at` later than the one before ends) stands still;
+	-- t = the time in the animation (a `from` skips its start, D-810)
 	local t, index = 0, nil :: number?
 	local segStart = 0
 	for i, seg in ipairs(following.tracks) do
 		if seg.Length <= 0 then return end -- (still loading)
+		local from = following.froms[i]
+		local span = math.max(seg.Length - from, 0)
 		segStart = following.starts[i] or segStart
-		local segEnd = math.min(segStart + seg.Length, following.stops[i] or math.huge)
-		if songTime >= segStart and songTime < segEnd then index = i t = songTime - segStart break end
-		segStart += seg.Length
+		local segEnd = math.min(segStart + span, following.stops[i] or math.huge)
+		if songTime >= segStart and songTime < segEnd then index = i t = songTime - segStart + from break end
+		segStart += span
 	end
 	if not index then
 		-- before, between or after the segments: no dance right now

@@ -523,3 +523,4 @@
 - Get A Guitar 이음새 13곳 부드럽게 (blend, D-807).
 - Get A Guitar 1:10에서 3초 잘라 뒤 안무 앞당겨 붙임 (D-808).
 - A2O LITE-NEON 안무 22개 + 이음새 blend, 자동 🎵 (D-809).
+- Get A Guitar 1:10에서 2초만 잘라 붙임, 안무 항목에 from 추가 (D-810).

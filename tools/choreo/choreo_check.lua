@@ -57,12 +57,18 @@ for i, entry in ipairs(list) do
 	end
 	local kfs = sequence:GetKeyframes()
 	table.sort(kfs, function(a, b) return a.Time < b.Time end)
+	-- (D-810) `from` starts the animation later: its first pose is the
+	-- keyframe nearest that time
+	local from = if typeof(entry) == "table" and entry.from then entry.from else 0
 	local first, last = kfs[1], kfs[#kfs]
+	for _, kf in ipairs(kfs) do
+		if math.abs(kf.Time - from) < math.abs(first.Time - from) then first = kf end
+	end
 	segs[i] = {
 		id = id,
 		at = if typeof(entry) == "table" then entry.at else nil,
 		stop = if typeof(entry) == "table" then entry.stop else nil,
-		length = last.Time,
+		length = last.Time - from,
 		startPoses = poses(first),
 		endPoses = poses(last),
 	}
