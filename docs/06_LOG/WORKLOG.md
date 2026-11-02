@@ -3114,3 +3114,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 딸기 케이크 검은 씨 gltf는 아직 가져오기 전(지금 장소 모델은 씨 없음).
 ### 전광판 카드 간격 (D-792)
 ![](images/2026-11-03/d792_led_gap_1.jpg) ![](images/2026-11-03/d792_led_gap_2.jpg)
+### Studio 재시작 뒤 확인 · 업로드 15곡 랩 값 (D-793)
+- Studio 스크립트 125개를 git과 비교: RankingBoards(D-792)만 예전 코드 → 다시 넣음, FoodShapes 주석 한 줄 맞춤. 장소 변경은 모두 남아 있음.
+- 사용자 랩 값 15곡을 ClubConfig에 넣고 Studio에 동기화 (CLUB_PLAYLIST.md 갱신).
