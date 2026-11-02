@@ -1780,3 +1780,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-795 (2026-11-03) A2O LITE-NEON 안무
 - 사용자 요청: NEON 시작에 안무 93593911357942("네온 테스트 1", Vantablack_Dev, 16.2초). ClubConfig에 choreo = { 93593911357942 }, autoChoreo = true → 클럽에서 가만히 서 있으면 곡 시작부터 16초 동안 자동으로 춤추고, 곡 제목 앞에 🎵.
 - Studio Play: 클럽 안에서 DJ로 NEON 재생 → 3초 뒤 안무가 3.1/16.2초 위치에서 재생 중(곡 시간과 맞음).
+
+## D-796 (2026-11-03) NEON 안무 다시 뺌
+- 사용자: "네온 안무 삭제해.. 안된다". D-795의 choreo / autoChoreo를 ClubConfig에서 뺌 (NEON은 다시 안무 없음, 🎵 없음).
