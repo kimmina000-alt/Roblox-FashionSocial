@@ -16,6 +16,11 @@ using System.Linq;
 
 public static class CakeCut
 {
+    // the cake being cut (CakeKinds.Get; the vintage lettering cake unless set, D-781)
+    public static CakeKinds.Kind K;
+    static CakeKinds.Kind Kd { get { return K ?? (K = CakeKinds.Get("vintage")); } }
+    public static void Use(string name) { K = CakeKinds.Get(name); }
+
     // ---- reduced mesh cache (V in model units Z up, T, group names) ----
     public static string ReduceAndCache(string stlPath, string cachePath, int target)
     {
@@ -28,11 +33,11 @@ public static class CakeCut
             double ny = (P[1][2] - P[0][2]) * (P[2][0] - P[0][0]) - (P[1][0] - P[0][0]) * (P[2][2] - P[0][2]);
             double nz = (P[1][0] - P[0][0]) * (P[2][1] - P[0][1]) - (P[1][1] - P[0][1]) * (P[2][0] - P[0][0]);
             double l = Math.Sqrt(nx * nx + ny * ny + nz * nz); if (l < 1e-12) continue;
-            string g = CakeTool.VintageGroup(new[] { (P[0][0] + P[1][0] + P[2][0]) / 3, (P[0][1] + P[1][1] + P[2][1]) / 3, (P[0][2] + P[1][2] + P[2][2]) / 3, nx / l, ny / l, nz / l });
+            string g = Kd.Group(new[] { (P[0][0] + P[1][0] + P[2][0]) / 3, (P[0][1] + P[1][1] + P[2][1]) / 3, (P[0][2] + P[1][2] + P[2][2]) / 3, nx / l, ny / l, nz / l });
             int id; if (!gid.TryGetValue(g, out id)) { id = names.Count; gid[g] = id; names.Add(g); }
             T.Add(t); G.Add(id);
         }
-        var w = names.Select(n => n.StartsWith("Letter") || n.StartsWith("Flower") ? 40.0 : n == "Pearl" || n == "Stem" || n == "Cherry" ? 10.0 : n == "Board" || n == "Top" || n == "Side" ? 0.5 : 1.0).ToArray();
+        var w = names.Select(n => Kd.Weight(n)).ToArray();
         List<double[]> oV; List<int[]> oT; List<int> oG;
         Qem.Simplify(m.V, T, G, target, 100, out oV, out oT, out oG, w);
         using (var bw = new BinaryWriter(File.Create(cachePath)))
@@ -63,7 +68,7 @@ public static class CakeCut
     // board under it all; the blue icing shell 1.6 thick under the outer wall
     // and the top; inside, sponge with cream, jam and cream layers
     public static double Rwall = 35.6, Ztop = 31.2, Zboard = 1.0;
-    static string Inside(double u, double z)
+    public static string VintageInside(double u, double z)
     {
         if (u > Rwall + 1.3 || z > Ztop + 0.2) return "CutCream"; // the piping and rosettes cut through
         if (u > Rwall - 1.6 || z > Ztop - 1.6) return "Top"; // the blue icing
@@ -87,7 +92,7 @@ public static class CakeCut
             double x = 0, y = 0, z = 0; foreach (int k in t) { x += c.V[k][0] / 3; y += c.V[k][1] / 3; z += c.V[k][2] / 3; }
             x -= cx; y -= cy;
             double r = Math.Sqrt(x * x + y * y);
-            if (z < 34 || r < 20) continue;
+            if (z < Kd.RingZ || r < Kd.RingR) continue;
             int a = ((int)Math.Floor(Math.Atan2(y, x) * 180 / Math.PI) + 360) % 360;
             hist[a] += 1;
         }
@@ -102,7 +107,6 @@ public static class CakeCut
         return bestA + " (" + best + ")";
     }
 
-    static readonly string[] Extra = { "Sponge=246,220,160", "CutCream=255,250,240", "Jam=225,70,90" };
 
     // Cut and write. start: degrees; dz: the cut faces' row height (model units)
     public static string Cut(string cachePath, string gltfPath, int slices, double startDeg, double scale, double dz, string previewPng)
@@ -111,7 +115,7 @@ public static class CakeCut
         double cx = (c.Box[0] + c.Box[1]) / 2, cy = (c.Box[2] + c.Box[3]) / 2, minZ = c.Box[4];
         // palette: every group a cell
         var colors = new Dictionary<string, Color>();
-        foreach (var kv in CakeTool.VintageColors.Split(';').Concat(Extra))
+        foreach (var kv in Kd.Colors.Split(';'))
         {
             var p = kv.Split('='); var q = p[1].Split(',');
             colors[p[0]] = Color.FromArgb(int.Parse(q[0]), int.Parse(q[1]), int.Parse(q[2]));
@@ -126,7 +130,7 @@ public static class CakeCut
         }
         Func<string, double[]> uvOf = name =>
         {
-            int i = palNames.IndexOf(name); if (i < 0) i = palNames.IndexOf("Cream");
+            int i = palNames.IndexOf(name); if (i < 0) i = palNames.IndexOf("Cream"); if (i < 0) i = 0;
             return new[] { ((i % CELLS) + 0.5) / CELLS, ((i / CELLS) + 0.5) / CELLS };
         };
         var rep = new System.Text.StringBuilder();
@@ -136,7 +140,7 @@ public static class CakeCut
         var meshes = new List<Tuple<string, List<double[]>, List<double[]>, List<double[]>, List<int>>>(); // name, pos, nrm, uv, idx
         // how far the cake reaches at its foot (the lowest cut-face rows)
         double baseR = 0;
-        foreach (var cap in caps) foreach (var r in cap) if (r.Item3 <= Zboard + dz * 1.5) baseR = Math.Max(baseR, r.Item2);
+        foreach (var cap in caps) foreach (var r in cap) if (r.Item3 <= Kd.Zboard + dz * 1.5) baseR = Math.Max(baseR, r.Item2);
         rep.AppendFormat("foot radius {0:F1}\n", baseR);
         // the board (and its sticker) stays whole under the slices: its own mesh
         {
@@ -144,7 +148,7 @@ public static class CakeCut
             for (int i = 0; i < c.T.Count; i++)
             {
                 string gname = c.Names[c.G[i]];
-                if (gname != "Board" && gname != "Label") continue;
+                if (!Kd.Whole.Contains(gname)) continue;
                 var P = c.T[i].Select(k => new[] { c.V[k][0] - cx, c.V[k][1] - cy, c.V[k][2] }).ToArray();
                 var n = Cross(Sub(P[1], P[0]), Sub(P[2], P[0])); double l = Math.Sqrt(n[0] * n[0] + n[1] * n[1] + n[2] * n[2]); if (l < 1e-12) continue;
                 var uv = uvOf(gname);
@@ -153,7 +157,9 @@ public static class CakeCut
             // the board's top under the cake (inside the one shell there was
             // none): a disc just under the foot, seen where slices are gone
             {
-                var uvB = uvOf("Board"); int seg = 48; double rr = baseR + 0.6, zz = Zboard - 0.03;
+                // (D-781: a cake with no board of its own gets a disc as wide as the cake, a plate)
+                double outR = 0; foreach (var cap in caps) foreach (var r in cap) outR = Math.Max(outR, r.Item2);
+                var uvB = uvOf("Board"); int seg = 48; double rr = (Kd.Whole.Length == 0 ? outR + 2.5 : baseR + 0.6), zz = Kd.Zboard - 0.03;
                 int c0 = pos.Count; pos.Add(new[] { 0.0, (zz - minZ) * scale, 0.0 }); nrm.Add(new[] { 0.0, 1.0, 0.0 }); uvs.Add(uvB);
                 for (int k = 0; k < seg; k++) { double an = k * 2 * Math.PI / seg; pos.Add(new[] { Math.Cos(an) * rr * scale, (zz - minZ) * scale, -Math.Sin(an) * rr * scale }); nrm.Add(new[] { 0.0, 1.0, 0.0 }); uvs.Add(uvB); }
                 // (Y up, ring at (cos, -sin): c0, a, b turns counter-clockwise seen from above)
@@ -170,7 +176,7 @@ public static class CakeCut
             var polys = new List<Tuple<List<double[]>, string>>();
             for (int i = 0; i < c.T.Count; i++)
             {
-                if (c.Names[c.G[i]] == "Board" || c.Names[c.G[i]] == "Label") continue;
+                if (Kd.Whole.Contains(c.Names[c.G[i]])) continue;
                 var poly = c.T[i].Select(k => new[] { c.V[k][0] - cx, c.V[k][1] - cy, c.V[k][2] }).ToList();
                 poly = Clip(poly, p => t0[0] * p[0] + t0[1] * p[1]);
                 if (poly.Count < 3) continue;
@@ -229,7 +235,7 @@ public static class CakeCut
             }
             // the slice's foot, facing down (seen when it is in the hand)
             {
-                var uvF = uvOf("Sponge"); int seg = 10; double zz = Zboard + 0.02;
+                var uvF = uvOf(Kd.Inside(1, Kd.Zboard + 0.5)); int seg = 10; double zz = Kd.Zboard + 0.02;
                 var ctr = vert(new[] { 0.0, 0.0, zz }, new[] { 0.0, 0.0, -1.0 }, uvF, "foot");
                 var ring = new List<int>();
                 for (int k = 0; k <= seg; k++)
@@ -317,7 +323,7 @@ public static class CakeCut
         for (double z = zmin; z < zmax; z += dz)
         {
             double zc = z + dz / 2;
-            if (zc < Zboard + 0.05) continue; // (the board is not cut)
+            if (zc < Kd.Zboard + 0.05) continue; // (the board is not cut)
             var xs = new List<double>();
             foreach (var sg in segs)
                 if ((sg[1] > zc) != (sg[3] > zc)) xs.Add(sg[0] + (sg[2] - sg[0]) * (zc - sg[1]) / (sg[3] - sg[1]));
@@ -329,9 +335,9 @@ public static class CakeCut
                 if (u1 <= u0 + 1e-6) continue;
                 // split where the colour changes
                 var cuts = new List<double> { u0 };
-                foreach (double b in new[] { Rwall - 1.6, Rwall + 1.3 }) if (b > u0 && b < u1) cuts.Add(b);
+                foreach (double b in Kd.SplitU) if (b > u0 && b < u1) cuts.Add(b);
                 cuts.Add(u1);
-                for (int k = 0; k + 1 < cuts.Count; k++) pieces.Add(Tuple.Create(cuts[k], cuts[k + 1], Inside((cuts[k] + cuts[k + 1]) / 2, zc)));
+                for (int k = 0; k + 1 < cuts.Count; k++) pieces.Add(Tuple.Create(cuts[k], cuts[k + 1], Kd.Inside((cuts[k] + cuts[k + 1]) / 2, zc)));
             }
             rows.Add(pieces); rowZ.Add(z);
         }

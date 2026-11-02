@@ -374,7 +374,14 @@ end
 -- <Name>Sliced.gltf, tools/art/CakeCut.cs): a whole cake cut in six, each
 -- slice "Slice1".."Slice6" a MeshPart closed by its cut faces (the layers
 -- inside), the board "Board" apart. Imported into ServerStorage.ArtAssets.Foods.
-local CAKE_MODELS = { vintage = "VintageLetteringCakeSliced" }
+-- (D-781: the tiramisu, basque and strawberry cream cakes from the user's
+-- Meshy STL files, the same way)
+local CAKE_MODELS = {
+	vintage = "VintageLetteringCakeSliced",
+	tiramisu = "TiramisuCakeSliced",
+	basque = "BasqueCheesecakeSliced",
+	strawberry = "StrawberryCreamCakeSliced",
+}
 local function cakeModel(key: string?): Model?
 	local name = key and CAKE_MODELS[key]
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")

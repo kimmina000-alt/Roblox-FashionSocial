@@ -1719,3 +1719,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 표에 이름이 없는 두 개는 넣지 않음: 다섯시오십일분 135579922291985(65.1초), 다섯시오십오분 101545378733403(54.8초; 길이로 보면 LUMIN-88(2:44)일 수 있음).
 ## D-780 (2026-11-03) 카페 메뉴 이름: 딸기 크림 크루아상 → 크루아상
 - SnackConfig croissant name, 카페 메뉴 스탠드 글자(polish_1030 + 장소 안 스탠드 직접), 메뉴·가격 문서. 손에 드는 모양(딸기·크림 사이)은 그대로.
+## D-781 (2026-11-03) 티라미수 · 바스크 치즈 · 딸기생크림 케이크 3D (빈티지 레터링과 같은 방법)
+- 사용자 Meshy STL 3개(docs/04_ART/models/source/{tiramisu,basque,strawberry}_cake_meshy.stl; 145k / 114k / 161k 삼각형, 닫힌 껍질, 면 바깥쪽 OK, 높이 50).
+- 색 나누기(tools/art/CakeKinds.cs, 사진 docs/04_ART/references/cakes/): 티라미수 = 크럼 바닥 · 흰 마스카포네 벽 · 코코아 윗면 두 톤 · 금색 장식(글자 없음) · 금박 2; 바스크 = 캐러멜 윗면 · 탄 테두리 · 탄 옆면(정면/꺾인 면 두 톤) · 접힌 곳 크림색; 딸기 = 크림색 받침판 · 흰 크림 케이크 · 크림 방울 고리(Balls로 찾은 고리 중심 0.5, 5.5 반지름 38.5) · 딸기 6개(중심 6곳) · 타임 잎 · 가운데 빈 카드(글자 없음).
+- CakeCut이 케이크 종류(CakeKinds.Kind: 그룹·색·통째로 남길 부품·받침 높이·단면 색·자를 위치 기준)를 받게 넓힘(빈티지 결과는 그대로). 2만 삼각형(Qem) → 크림 장식이 적은 각도에서 6조각, 단면: 티라미수 크럼·마스카포네·커피 시트·코코아, 바스크 커스터드 + 겉 탄 껍질, 딸기 크림 코팅·시트 2단·딸기 단면 2줄. 받침판 없는 두 케이크는 케이크만 한 원판(접시)을 Board로.
+- 결과: docs/04_ART/models/TiramisuCakeSliced.gltf, BasqueCheesecakeSliced.gltf, StrawberryCreamCakeSliced.gltf (폭 3 스터드), 미리보기 docs/04_ART/textures/cakes/*_sliced_preview.png. 다시 만들기: tools/art/cake_cut.ps1 -Kind <kind> -Width 3.0.
+- SnackService.CAKE_MODELS에 세 모델 이름 연결. 사용자가 Studio에서 gltf 세 개를 가져오면(스크립트로는 메시를 올릴 수 없음) 색 흰색·ArtAssets.Foods로 옮기고 comingSoon 해제.

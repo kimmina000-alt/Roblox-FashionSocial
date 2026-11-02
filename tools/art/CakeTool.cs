@@ -399,7 +399,8 @@ public static class CakeTool
                 var S = P.Select(proj).ToArray();
                 double facing = view == 0 ? nz : -ny;
                 double shade = Math.Max(0.25, 0.35 + 0.65 * Math.Max(0, 0.5 * facing + 0.5 * (view == 0 ? (nx * -0.4 + ny * 0.4 + nz * 0.8) : (nx * -0.4 - ny * 0.6 + nz * 0.6))));
-                string g = vintage ? VintageGroup(new[] { cen[0], cen[1], cen[2], nx, ny, nz }) : groupOf != null ? groupOf(cen) : null;
+                // (groupOf gets the centre and the normal too, D-781)
+                string g = vintage ? VintageGroup(new[] { cen[0], cen[1], cen[2], nx, ny, nz }) : groupOf != null ? groupOf(new[] { cen[0], cen[1], cen[2], nx, ny, nz }) : null;
                 Color baseC = g != null && colors.ContainsKey(g) ? colors[g] : Color.FromArgb(200, 200, 205);
                 if (g == "") continue;
                 Color c2 = Color.FromArgb((int)(baseC.R * shade), (int)(baseC.G * shade), (int)(baseC.B * shade));
