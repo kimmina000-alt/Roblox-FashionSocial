@@ -95,10 +95,12 @@ local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?},
 -- (D-802, user: "앵글 움직이는 부분 다 고쳐") the segments carry the dancer's
 -- travel in the hips (Get A Guitar 2 ends 11 studs forward, then 3 starts
 -- over the root again: the snap back of D-798). Moving the root along with
--- it (D-798) moved the camera and turned the dancer round, so now the dance
--- stays in place instead: while a choreography animation plays, the hips'
--- sideways / forward travel is taken out every frame, on every dancer this
--- client sees (other players' animations play here too). Turns stay.
+-- it at the seams (D-798) jerked the camera and turned the dancer round.
+-- While a choreography animation plays, the hips' sideways / forward travel
+-- is taken out every frame, on every dancer this client sees (other
+-- players' animations play here too); since D-813 the dancer's own client
+-- moves the root along that travel instead (moveAlong), so the dance path
+-- shows and each piece starts where the one before ended. Turns stay.
 local choreoAnimations: {[string]: boolean} = {}
 for _, t in ipairs(ClubConfig.Playlist) do
 	for _, entry in ipairs(t.choreo or {}) do
@@ -155,6 +157,54 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 	end
 end
 
+-- (D-813, user: "한 조각 안에서 3걸음 걸어나가서 끝났으면 다음 조각은 3걸음
+-- 걸어나간 그 위치에서 시작하면 되잖아") the dance's own travel moves this
+-- player's root, frame by frame, as far as the hips travel in each playing
+-- piece (by its weight, so a blend between two pieces carries both moves
+-- and nothing snaps back). The camera glides along with it, the facing is
+-- left alone (D-798 turned the dancer round), and it stops at walls and at
+-- the club's edge. The hips' own travel is then taken out below as before.
+local lastHips: {[AnimationTrack]: Vector3} = setmetatable({}, { __mode = "k" }) :: any
+local travelScale = 0.85 -- (the animator shrinks travel to the avatar's size; measured below)
+local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint, tracks: {AnimationTrack})
+	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not root then return end
+	local move = Vector3.zero
+	for _, t in ipairs(tracks) do
+		local id = t.Animation and t.Animation.AnimationId
+		local here = id and ChoreoSmooth.hips(id, t.TimePosition)
+		if id and not here then ChoreoSmooth.load(id) end
+		if here then
+			local before = lastHips[t]
+			lastHips[t] = here
+			-- (a jump in the track's time, e.g. re-synced to the song: no move)
+			if before and (here - before).Magnitude < 1.5 then
+				move += (here - before) * math.min(t.WeightCurrent, 1)
+			end
+			-- the avatar's travel scale, from a piece playing alone
+			if t.WeightCurrent > 0.99 and here.Magnitude > 1 then
+				local actual = Vector3.new(joint.Transform.X, 0, joint.Transform.Z).Magnitude
+				travelScale += 0.1 * (math.clamp(actual / here.Magnitude, 0.3, 2) - travelScale)
+			end
+		end
+	end
+	if move.Magnitude < 1e-4 then return end
+	local worldMove = root.CFrame:VectorToWorldSpace(move * travelScale)
+	local target = root.Position + worldMove
+	if not ClubConfig.isInClub(target) then return end
+	local skip = {}
+	for _, p in ipairs(Players:GetPlayers()) do
+		if p.Character then table.insert(skip, p.Character) end
+	end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = skip
+	params.RespectCanCollide = true
+	-- (a step and a bit ahead, so the body does not end up in the wall)
+	if workspace:Raycast(root.Position, worldMove.Unit * (worldMove.Magnitude + 1.5), params) then return end
+	root.CFrame += worldMove
+end
+
 -- after the animator, before the frame is drawn
 RunService.PreSimulation:Connect(function()
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -168,6 +218,7 @@ RunService.PreSimulation:Connect(function()
 				if t.Animation and choreoAnimations[t.Animation.AnimationId] then table.insert(choreo, t) end
 			end
 			if #choreo > 0 then
+				if p == player and following then moveAlong(character, joint, choreo) end
 				smoothJoints(character, choreo)
 				local hips = joint.Transform
 				joint.Transform = CFrame.new(0, hips.Y, 0) * hips.Rotation

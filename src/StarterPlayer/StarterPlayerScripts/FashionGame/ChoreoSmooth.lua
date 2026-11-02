@@ -13,6 +13,7 @@
 --   ChoreoSmooth.load(animationId)                 -- starts reading (async)
 --   ChoreoSmooth.correction(animationId, partName, t) -- CFrame? to multiply onto the joint's Transform at time t
 --   ChoreoSmooth.clear()                           -- read again with new settings
+--   ChoreoSmooth.hips(animationId, t)              -- Vector3? the hips' travel at time t (D-813)
 
 local KeyframeSequenceProvider = game:GetService("KeyframeSequenceProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -23,6 +24,10 @@ local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitFor
 -- (raw:Inverse() * clean) at each keyframe; parts with no zigzag are left out
 type Track = { times: {number}, fix: {CFrame} }
 local cache: {[string]: {[string]: Track}} = {}
+-- (D-813) per animation id: the hips' (LowerTorso) sideways / forward place
+-- at each keyframe, as made (ChoreoController moves the dancer along it)
+type Path = { times: {number}, at: {Vector3} }
+local paths: {[string]: Path} = {}
 
 local ChoreoSmooth = {}
 
@@ -67,7 +72,6 @@ function ChoreoSmooth.load(animationId: string)
 	if cache[animationId] then return end
 	cache[animationId] = {}
 	local settings = ClubConfig.ChoreoSmoothing
-	if not settings then return end
 	task.spawn(function()
 		local ok, sequence = pcall(function()
 			return KeyframeSequenceProvider:GetKeyframeSequenceAsync(animationId)
@@ -90,6 +94,13 @@ function ChoreoSmooth.load(animationId: string)
 				end
 			end
 		end
+		local hips = series.LowerTorso
+		if hips then
+			local at = {}
+			for k, c in ipairs(hips.raw) do at[k] = Vector3.new(c.X, 0, c.Z) end
+			paths[animationId] = { times = hips.times, at = at }
+		end
+		if not settings then return end
 		local result = {}
 		for part, s in pairs(series) do
 			local cleaned = clean(s.raw, settings.maxStep, settings.passes)
@@ -106,24 +117,37 @@ end
 -- forget what was read (after ClubConfig.ChoreoSmoothing changes, e.g. when tuning in Studio)
 function ChoreoSmooth.clear()
 	table.clear(cache)
+	table.clear(paths)
+end
+
+-- the keyframes either side of t and how far between them
+local function around(times: {number}, t: number): (number, number, number)
+	local n = #times
+	if t <= times[1] then return 1, 1, 0 end
+	if t >= times[n] then return n, n, 0 end
+	local lo, hi = 1, n
+	while hi - lo > 1 do
+		local mid = (lo + hi) // 2
+		if times[mid] <= t then lo = mid else hi = mid end
+	end
+	return lo, hi, (t - times[lo]) / math.max(times[hi] - times[lo], 1e-6)
 end
 
 function ChoreoSmooth.correction(animationId: string, part: string, t: number): CFrame?
 	local parts = cache[animationId]
 	local track = parts and parts[part]
 	if not track then return nil end
-	local times = track.times
-	local n = #times
-	if t <= times[1] then return track.fix[1] end
-	if t >= times[n] then return track.fix[n] end
-	-- the keyframes either side of t
-	local lo, hi = 1, n
-	while hi - lo > 1 do
-		local mid = (lo + hi) // 2
-		if times[mid] <= t then lo = mid else hi = mid end
-	end
-	local f = (t - times[lo]) / math.max(times[hi] - times[lo], 1e-6)
+	local lo, hi, f = around(track.times, t)
 	return track.fix[lo]:Lerp(track.fix[hi], f)
+end
+
+-- (D-813) where the animation has taken the hips at time t (sideways /
+-- forward, in the animation's studs), or nil until it has been read
+function ChoreoSmooth.hips(animationId: string, t: number): Vector3?
+	local path = paths[animationId]
+	if not path then return nil end
+	local lo, hi, f = around(path.times, t)
+	return path.at[lo]:Lerp(path.at[hi], f)
 end
 
 return ChoreoSmooth
