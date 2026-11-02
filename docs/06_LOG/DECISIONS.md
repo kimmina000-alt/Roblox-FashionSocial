@@ -1835,3 +1835,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 바꾼 것: 루트는 그대로 두고, 안무 애니메이션이 재생되는 동안 엉덩이 관절(LowerTorso Root, Motor6D 또는 AnimationConstraint)의 앞뒤·좌우 이동을 매 프레임(PreSimulation) 0으로. 위아래와 회전은 그대로. 이 클라이언트에 보이는 모든 플레이어에게 적용(다른 사람 애니메이션도 각자 화면에서 재생되므로). 19.6초 뒤로 튐도 이동이 없어서 생기지 않음.
 - 조각 사이 페이드 0.15 → 0.25초(9→10 108° 방향 차이를 부드럽게). 노래보다 먼저 끝나는 조각은 마지막 자세로 기다림(D-798에서 유지).
 - Studio Play(혼자) 곡 전체: 루트 이동 0, 루트 방향 0°, 카메라 이동 0, 엉덩이가 루트에서 최대 0.19스터드, 프레임당 엉덩이 이동 최대 0.03.
+
+## D-803 (2026-11-03) 출석 시스템 삭제
+- 사용자: "출석 삭제해 버려 시스템 아예 삭제해 주지 말자". 출석 코인(D-775)과 도장 카드(D-801)를 통째로 뺌: EconomyConfig.StreakCoins / StreakUtcOffsetHours, EconomyService claimStreak · 자정 지급, StreakDay 속성, wallet.streak(저장돼 있던 값은 읽을 때 버림), AttendanceController.client.lua.
+- 첫 접속 기념 코인(WelcomeCoins 50)은 그대로, 예전처럼 8초 뒤 알림 글.
+- Play: 코인 50(선물만), StreakDay 없음, 카드 없음, 오류 0.

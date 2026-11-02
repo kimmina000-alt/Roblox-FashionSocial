@@ -61,10 +61,9 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- welcome = the opening gift was given (EconomyService, D-754; kept since D-760:
 -- before, this sanitizer dropped it, so the gift came back on every visit)
 -- look = the last outfit worn (OutfitSnapshot), put back on the next visit (D-771)
--- streak = attendance: the last Korean day here and its day number 1..7 (D-775)
 -- bag = the items carried when the player left (BagService, D-790): plain
 -- tables { k = kind, ... }, given back on the next visit
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, streak: { day: string, n: number }?, bag: {any}? }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}? }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -160,9 +159,7 @@ local function sanitizeWallet(raw: any): Wallet
 		end
 		wallet.bag = bag
 	end
-	if typeof(raw.streak) == "table" and typeof(raw.streak.day) == "string" and typeof(raw.streak.n) == "number" then
-		wallet.streak = { day = raw.streak.day, n = math.clamp(math.floor(raw.streak.n), 0, 7) }
-	end
+	-- (wallet.streak, attendance D-775: removed, D-803; an old saved streak is dropped here)
 	if typeof(raw.tips) == "table" then
 		for key, seen in pairs(raw.tips) do
 			if typeof(key) == "string" and #key <= 24 and seen == true then wallet.tips[key] = true end

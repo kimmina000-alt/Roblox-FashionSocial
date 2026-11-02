@@ -266,43 +266,6 @@ local function passiveTick()
 	end
 end
 
--- Attendance (D-775, EconomyConfig.StreakCoins): the first time each Korean
--- day a player is here, day n of the week's list. wallet.streak = { day, n }.
-local function streakDay(offsetDays: number): string
-	local hours = EconomyConfig.StreakUtcOffsetHours or 0
-	return os.date("!%Y%m%d", os.time() + hours * 3600 + offsetDays * 86400) :: string
-end
--- (D-801, user) the attendance card: 7 stamp slots, today's stamp lands with
--- an animation, the opening gift on top; it closes with its × only
--- (AttendanceController). welcome = the opening gift given just now.
-local function showAttendance(player: Player, day: number, fresh: boolean, welcome: number?)
-	local remotes = FashionGame:FindFirstChild("Remotes")
-	local notify = remotes and remotes:FindFirstChild("ClubNotify")
-	if notify and notify:IsA("RemoteEvent") then
-		notify:FireClient(player, "Attendance", { day = day, fresh = fresh, coins = EconomyConfig.StreakCoins, welcome = welcome })
-	end
-end
-local function claimStreak(player: Player, welcome: number?)
-	local list = EconomyConfig.StreakCoins
-	if not list or #list == 0 or not player.Parent then return end
-	local w = playerData.Wallet(player)
-	local streak = w.streak or { day = "", n = 0 }
-	local now = streakDay(0)
-	if streak.day == now then
-		-- (already stamped today: the card only for a new opening gift)
-		if welcome then showAttendance(player, streak.n, false, welcome) end
-		return
-	end
-	local n = if streak.day == streakDay(-1) then streak.n % #list + 1 else 1
-	w.streak = { day = now, n = n }
-	local amount = list[n]
-	w.coins = math.min(EconomyConfig.MaxBalance, (w.coins or 0) + amount)
-	playerData.MarkDirty(player)
-	publish(player)
-	player:SetAttribute("StreakDay", n)
-	showAttendance(player, n, true, welcome)
-end
-
 function EconomyService.Start(dataService: any)
 	playerData = dataService
 	local function onPlayer(player: Player)
@@ -311,16 +274,14 @@ function EconomyService.Start(dataService: any)
 			-- EconomyConfig.WelcomeCoins is set (wallet.welcome remembers it)
 			local gift = EconomyConfig.WelcomeCoins
 			local w = wallet(player)
-			local gave: number? = nil
 			if gift and not w.welcome then
-				gave = gift
 				w.welcome = true
 				w.coins = math.min(EconomyConfig.MaxBalance, (w.coins or 0) + gift)
 				playerData.MarkDirty(player)
+				task.delay(8, toast, player, string.format("🎉 오픈 기념 %d 코인을 드렸어요!", gift))
 			end
 			publish(player)
-			-- (D-775) attendance; (D-801) one card with the opening gift on top
-			task.delay(8, claimStreak, player, gave)
+			-- (attendance coins D-775 and their stamp card D-801: removed, D-803, user)
 			-- the saved XP on the name tag from the start (it grows once a minute)
 			if EconomyConfig.XPEnabled then player:SetAttribute("XP", playerData.Wallet(player).xp or 0) end
 			EconomyService.Award(player, "DailyLogin")
@@ -345,8 +306,6 @@ function EconomyService.Start(dataService: any)
 			if elapsed >= EconomyConfig.PassiveSeconds then
 				elapsed = 0
 				passiveTick()
-				-- (D-775) someone online past midnight gets the new day too
-				for _, player in ipairs(Players:GetPlayers()) do task.spawn(claimStreak, player) end
 			end
 		end
 	end)
