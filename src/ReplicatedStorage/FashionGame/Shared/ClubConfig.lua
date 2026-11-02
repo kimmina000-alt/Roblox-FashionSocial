@@ -201,9 +201,15 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = -2.5, engine = "sound" } },
 	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -10.5, mid = 5, high = 4.5, engine = "sound" } },
-	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 74555169365877, length = 74, lab = UP },
-	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 113196766736048, length = 71, lab = UP },
-	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 92011448544342, length = 61, lab = UP },
+	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
+	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 97511700575810, length = 74, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "MY:RAKL-오색 낙원", soundId = 108027306922001, length = 61, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "Darla Jean-Dam Da Dee", soundId = 78077595750886, length = 73, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "머무르-꿈꾸던 어른이 되었나요", soundId = 120160897793669, length = 69, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "IVE-Looks Can Kill", soundId = 135553051649506, length = 64, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 73546697163709, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.4, octave = 0.5, low = -9.5, mid = 6, high = 0, engine = "sound" } },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
