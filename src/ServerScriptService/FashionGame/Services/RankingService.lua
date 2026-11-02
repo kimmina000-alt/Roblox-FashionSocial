@@ -15,6 +15,7 @@
 local Players = game:GetService("Players")
 local DataStoreService = game:GetService("DataStoreService")
 local HttpService = game:GetService("HttpService")
+local UserService = game:GetService("UserService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
@@ -112,8 +113,15 @@ local function nameOf(userId: number): string
 		names[userId] = player.DisplayName
 		return player.DisplayName
 	end
-	local ok, name = pcall(function() return Players:GetNameFromUserIdAsync(userId) end)
-	names[userId] = if ok and typeof(name) == "string" then name else "?"
+	-- (D-797, user: nicknames, not ids) players not in this server: their display name
+	local ok, infos = pcall(function() return UserService:GetUserInfosByUserIdsAsync({ userId }) end)
+	local info = if ok and typeof(infos) == "table" then infos[1] else nil
+	if info and typeof(info.DisplayName) == "string" and info.DisplayName ~= "" then
+		names[userId] = info.DisplayName
+	else
+		local ok2, name = pcall(function() return Players:GetNameFromUserIdAsync(userId) end)
+		names[userId] = if ok2 and typeof(name) == "string" then name else "?"
+	end
 	return names[userId]
 end
 

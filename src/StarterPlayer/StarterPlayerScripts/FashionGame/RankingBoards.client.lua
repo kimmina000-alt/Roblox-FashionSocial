@@ -515,7 +515,7 @@ local function buildBandPanel(part: BasePart)
 			textBox.Parent = frame
 			neonText(textBox, { Position = UDim2.fromScale(0.03, 0), Size = UDim2.fromScale(0.94, 0.55), Text = main, Font = Enum.Font.GothamBlack },
 				Color3.fromRGB(255, 40, 60))
-			label(textBox, { Position = UDim2.fromScale(0.1, 0.66), Size = UDim2.fromScale(0.8, 0.28), Text = "@" .. tostring(entry.user),
+			label(textBox, { Position = UDim2.fromScale(0.1, 0.66), Size = UDim2.fromScale(0.8, 0.28), Text = tostring(entry.name), -- (D-797: the nickname, not the @id)
 				Font = Enum.Font.GothamBold })
 			task.spawn(function()
 				while frame.Parent do
@@ -551,7 +551,7 @@ local function buildBandPanel(part: BasePart)
 		if typeof(entry) == "table" and entry.say then
 			local who = entry.say
 			local message = if typeof(who.message) == "string" and who.message ~= "" then "“" .. who.message .. "”" else "“💝 후원 감사합니다”"
-			label(frame, { Position = UDim2.fromScale(0.04, 0.32), Size = UDim2.fromScale(0.92, 0.12), Text = "@" .. tostring(who.name),
+			label(frame, { Position = UDim2.fromScale(0.04, 0.32), Size = UDim2.fromScale(0.92, 0.12), Text = tostring(who.name), -- (D-797: the nickname, no @)
 				Font = Enum.Font.GothamBlack })
 			label(frame, { Position = UDim2.fromScale(0.04, 0.47), Size = UDim2.fromScale(0.92, 0.16), Text = message,
 				Font = Enum.Font.GothamBold, TextWrapped = true, TextColor3 = Color3.fromRGB(255, 225, 240) })

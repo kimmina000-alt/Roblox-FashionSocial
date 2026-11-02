@@ -1929,7 +1929,7 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt)
 		local phase = booth:GetAttribute("Phase")
 		if phase ~= nil and phase ~= "idle" and not myBooth() then
 			local host = Players:GetPlayerByUserId(booth:GetAttribute("Host") or 0)
-			toast((if host then host.Name else "다른 사람") .. " 님이 사진을 찍고 있어요. 기다려 주세요.")
+			toast((if host then host.DisplayName else "다른 사람") .. " 님이 사진을 찍고 있어요. 기다려 주세요.")
 			return
 		end
 		-- A finished result never blocks shooting again (user, 2026-10-20).

@@ -101,13 +101,14 @@ local function showNext()
 	local main, sub
 	if data.kind == "support" then
 		main = string.format("%s님이 %s R$ 기부하셨습니다.", tostring(data.name), tostring(data.amount))
-		sub = if message ~= "" then ("“" .. message .. "”") else ("@" .. tostring(data.user))
+		-- (D-797, user: nicknames, not @ids)
+		sub = if message ~= "" then ("“" .. message .. "”") else "💝 후원 감사합니다"
 	elseif message ~= "" then
-		main, sub = "“" .. message .. "”", "@" .. tostring(data.user)
+		main, sub = "“" .. message .. "”", tostring(data.name)
 	elseif data.kind == "djspark" then
-		main, sub = string.format("DJ %s님의 불꽃 쇼!", tostring(data.name)), "@" .. tostring(data.user)
+		main, sub = string.format("DJ %s님의 불꽃 쇼!", tostring(data.name)), "🎆"
 	else
-		main, sub = string.format("%s님의 콜드 스파크!", tostring(data.name)), "@" .. tostring(data.user)
+		main, sub = string.format("%s님의 콜드 스파크!", tostring(data.name)), "✨"
 	end
 	mainText.Text, mainGlow.Text = main, main
 	subText.Text, subGlow.Text = sub, sub

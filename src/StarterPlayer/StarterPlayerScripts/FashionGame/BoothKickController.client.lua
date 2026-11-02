@@ -72,7 +72,7 @@ local function row(userId: number): Frame
 		TextTruncate = Enum.TextTruncate.AtEnd,
 		TextXAlignment = Enum.TextXAlignment.Left,
 		TextColor3 = Color3.fromRGB(255, 255, 255),
-		Text = if other then other.Name else tostring(userId),
+		Text = if other then other.DisplayName else tostring(userId), -- (D-797: nickname)
 	}, frame)
 	local button = make("TextButton", {
 		AnchorPoint = Vector2.new(1, 0.5),

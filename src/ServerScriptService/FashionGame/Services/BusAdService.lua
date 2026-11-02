@@ -88,7 +88,9 @@ local function publish()
 	for id, slot in pairs(slots) do
 		if slot.ad then
 			local votes = VoteService.State("busad", id, adVersion(slot.ad))
-			shown[id] = { u = slot.ad.u, n = slot.ad.n, o = slot.ad.o, k = slot.ad.k, t = slot.ad.t,
+			-- (D-797) the nickname: older ads saved the id, so a player here shows their nickname
+			local here = Players:GetPlayerByUserId(slot.ad.u)
+			shown[id] = { u = slot.ad.u, n = if here then here.DisplayName else slot.ad.n, o = slot.ad.o, k = slot.ad.k, t = slot.ad.t,
 				untilTime = slot.ad.untilTime, queue = #slot.q,
 				likes = votes.likes, dislikes = votes.dislikes, hidden = votes.hidden }
 		elseif #slot.q > 0 then
@@ -156,10 +158,10 @@ local function grant(player: Player, days: number): (boolean, string?)
 			message = "📰 내 광고 시간이 늘어났어요!"
 			live = true
 		elseif slot.ad then
-			table.insert(slot.q, { u = player.UserId, n = player.Name, o = outfit, days = days })
+			table.insert(slot.q, { u = player.UserId, n = player.DisplayName, o = outfit, days = days })
 			message = string.format("📰 지금 광고가 끝나면 내 광고가 걸려요 (대기 %d번째).", #slot.q)
 		else
-			slot.ad = { u = player.UserId, n = player.Name, o = outfit, untilTime = os.time() + days * DAY }
+			slot.ad = { u = player.UserId, n = player.DisplayName, o = outfit, untilTime = os.time() + days * DAY }
 			message = "📰 광고가 걸렸어요! 포즈를 골라 사진을 찍어 주세요."
 			live = true
 		end
@@ -242,7 +244,7 @@ function BusAdService.Start()
 		local slot = slots[id]
 		if not slot or not slot.ad then return nil, nil end
 		return slot.ad.u, adVersion(slot.ad)
-	end, "📰 싫어요가 많아 광고 사진이 가려지고 아이디만 보여요. 광고판에서 포즈나 코디를 바꿔 다시 찍으면 표가 새로 시작돼요.")
+	end, "📰 싫어요가 많아 광고 사진이 가려지고 닉네임만 보여요. 광고판에서 포즈나 코디를 바꿔 다시 찍으면 표가 새로 시작돼요.")
 	VoteService.OnChange(publish)
 	Players.PlayerRemoving:Connect(function(player) pendingSlot[player.UserId] = nil end)
 	task.spawn(function()

@@ -20,9 +20,10 @@ local function formatXp(value: any): string
 	return "⭐ " .. formatted .. " XP"
 end
 
--- ⛓ before the id while a guard's handcuffs are on (attribute Cuffed, GuardService, D-722)
+-- ⛓ before the name while a guard's handcuffs are on (attribute Cuffed, GuardService, D-722);
+-- the nickname, not the id (D-797, user)
 local function nameText(player: Player): string
-	return (if player:GetAttribute("Cuffed") then "⛓ " else "") .. player.Name
+	return (if player:GetAttribute("Cuffed") then "⛓ " else "") .. player.DisplayName
 end
 
 local function build(player: Player, character: Model)

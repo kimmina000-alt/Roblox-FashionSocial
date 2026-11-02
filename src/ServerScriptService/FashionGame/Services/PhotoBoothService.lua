@@ -238,7 +238,7 @@ local function publish(session: Session?, booth: Model)
 			-- while others may join, "같이 찍기" shows instead
 			start.Enabled = not joinable
 			start.ActionText = if session then "사용 중" else "사진 찍기"
-			start.ObjectText = if session then session.host.Name .. " 님 촬영 중" else tostring(booth:GetAttribute("BoothName") or "인생네컷")
+			start.ObjectText = if session then session.host.DisplayName .. " 님 촬영 중" else tostring(booth:GetAttribute("BoothName") or "인생네컷")
 		end
 		if join then join.Enabled = joinable end
 	end
@@ -328,7 +328,7 @@ local function guardBooths()
 				local t = os.clock()
 				if not lastPush[other] or t - lastPush[other] > 4 then
 					lastPush[other] = t
-					toast(other, session.host.Name .. " 님이 사진을 찍고 있어요. 기다려 주세요.")
+					toast(other, session.host.DisplayName .. " 님이 사진을 찍고 있어요. 기다려 주세요.")
 				end
 			end
 		end
@@ -652,7 +652,7 @@ local function open(player: Player, payload: any): (boolean, string?)
 			return false, "이미 촬영 중이에요."
 		end
 	end
-	if sessions[booth] then return false, sessions[booth].host.Name .. " 님이 사진을 찍고 있어요. 기다려 주세요." end
+	if sessions[booth] then return false, sessions[booth].host.DisplayName .. " 님이 사진을 찍고 있어요. 기다려 주세요." end
 	if not PhotoConfig.findLayout(payload.layout) or not PhotoConfig.isMode(payload.mode) then
 		return false, "사진 유형을 골라 주세요."
 	end
@@ -724,8 +724,8 @@ local function kick(player: Player, payload: any): (boolean, string?)
 			end
 		end
 	end
-	removePerson(session, target, player.Name .. " 님이 촬영에서 내보냈어요.")
-	toast(player, target.Name .. " 님을 내보냈어요.")
+	removePerson(session, target, player.DisplayName .. " 님이 촬영에서 내보냈어요.")
+	toast(player, target.DisplayName .. " 님을 내보냈어요.")
 	return true, nil
 end
 

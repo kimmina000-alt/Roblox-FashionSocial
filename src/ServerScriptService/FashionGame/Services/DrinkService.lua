@@ -382,7 +382,7 @@ local function refreshTableSign(tablePart: Instance)
 		local label = wallSign.Value
 		if label and label:IsA("TextLabel") then
 			local shown = {}
-			for _, name in ipairs(names) do table.insert(shown, "@" .. name) end
+			for _, name in ipairs(names) do table.insert(shown, name) end
 			label.Text = table.concat(shown, " · ")
 			-- the red glow copy of the name (graybox "GlowGui" on the same board) follows it
 			local glowGui = label.Parent and label.Parent.Parent and label.Parent.Parent:FindFirstChild("GlowGui")
@@ -419,7 +419,7 @@ local function refreshTableSign(tablePart: Instance)
 		sign = billboard
 	end
 	local shown = {}
-	for _, name in ipairs(names) do table.insert(shown, "@" .. name) end
+	for _, name in ipairs(names) do table.insert(shown, name) end
 	(sign :: any).Text.Text = "🍾 " .. table.concat(shown, " · ") .. " 테이블"
 end
 
@@ -590,7 +590,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	local drinkName, drinkColor = drinkLook(drink, variantKey)
 	bottleTool:Destroy()
 	slot:SetAttribute("Occupied", true)
-	slot:SetAttribute("OwnerName", player.Name)
+	slot:SetAttribute("OwnerName", player.DisplayName) -- (D-797: nickname on the table sign)
 	refreshTableSign(tablePart)
 
 	local bottle = Instance.new("Part")

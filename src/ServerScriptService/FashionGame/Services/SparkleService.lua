@@ -77,7 +77,7 @@ local function banner(kind: string, player: Player, message: string, amount: num
 		notify:FireAllClients("Banner", {
 			kind = kind,
 			name = player.DisplayName,
-			user = player.Name,
+			user = player.DisplayName, -- (D-797: nicknames on screen, not ids)
 			message = message,
 			amount = amount,
 		})

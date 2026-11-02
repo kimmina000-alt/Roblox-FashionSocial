@@ -1,7 +1,7 @@
 --!strict
 -- Bus stop ad boards (D-279). Each panel (tag "BusAd") shows the ad of whoever
 -- bought it: their avatar in their outfit and pose (drawn like a photo booth
--- shot, PhotoRender) and "@username". An empty panel keeps its default poster
+-- shot, PhotoRender) and the nickname (D-797; it was "@username"). An empty panel keeps its default poster
 -- with a small "광고 자리" band. The "광고판" prompt (G) opens a window to buy
 -- the panel (24시간 49 R$ / 3일 99 R$) or, for the owner, to retake the photo:
 -- pick a pose, step through it, "📸 이걸로".
@@ -129,10 +129,10 @@ local function buildPanel(panel: BasePart)
 				shown = ""
 				return
 			end
-			band.Text = string.format("@%s   👍%d 👎%d", tostring(ad.n), ad.likes or 0, ad.dislikes or 0)
+			band.Text = string.format("%s   👍%d 👎%d", tostring(ad.n), ad.likes or 0, ad.dislikes or 0)
 			viewport.Visible = not ad.hidden
 			nameOnly.Visible = ad.hidden == true
-			nameOnly.Text = "@" .. tostring(ad.n)
+			nameOnly.Text = tostring(ad.n) -- (D-797: the nickname, no @)
 			if ad.hidden then return end
 			local key = adKey(ad)
 			if key == shown then return end
@@ -250,9 +250,9 @@ local function showSlotWindow(panel: BasePart)
 	button({ AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -10, 0, 10), Size = UDim2.fromOffset(30, 30),
 		BackgroundColor3 = Color3.fromRGB(38, 38, 50), Text = "X" }, closeWindow)
 	local mine = ad and ad.u == player.UserId
-	local status = if not ad or not ad.u then "비어 있어요! 내 아바타와 아이디를 걸 수 있어요."
+	local status = if not ad or not ad.u then "비어 있어요! 내 아바타와 닉네임을 걸 수 있어요."
 		elseif mine then string.format("내 광고 · 남은 시간 %s", timeLeft(ad.untilTime))
-		else string.format("@%s님 광고 · %s 남음%s", tostring(ad.n), timeLeft(ad.untilTime),
+		else string.format("%s님 광고 · %s 남음%s", tostring(ad.n), timeLeft(ad.untilTime),
 			if (ad.queue or 0) > 0 then string.format(" · 대기 %d명", ad.queue) else "")
 	label({ Position = UDim2.fromOffset(16, 42), Size = UDim2.new(1, -32, 0, 40), TextWrapped = true, Font = Enum.Font.GothamMedium,
 		TextColor3 = Color3.fromRGB(200, 200, 215), Text = status .. (if ad and ad.u and not mine then "\n사면 대기열에 들어가요 (끝나면 바로 내 차례)." else "") })

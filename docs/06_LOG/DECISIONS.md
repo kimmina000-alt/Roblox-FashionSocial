@@ -1783,3 +1783,15 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-796 (2026-11-03) NEON 안무 다시 뺌
 - 사용자: "네온 안무 삭제해.. 안된다". D-795의 choreo / autoChoreo를 ClubConfig에서 뺌 (NEON은 다시 안무 없음, 🎵 없음).
+
+## D-797 (2026-11-03) 아이디 대신 닉네임
+- 사용자: "게임 속 플레이어들 아이디 말고 닉네임으로 뜨게 해 줘". 화면에 player.Name(@아이디)이 나오던 곳을 DisplayName(닉네임)으로, "@"도 뺌:
+  - 머리 위 이름표 (NameTagService)
+  - 클럽 테이블 주인 표지판 (DrinkService OwnerName)
+  - 콜드 스파크 / DJ 불꽃 / 후원 배너 아래 줄 (BannerController, SparkleService): 메시지가 있으면 닉네임, 없으면 💝 후원 감사합니다 / 🎆 / ✨
+  - OH24 전광판 스파크 카드와 후원 한마디 카드 (RankingBoards)
+  - 버스 정류장 광고판 (BusAdService/Controller): 새 광고는 닉네임 저장, 예전 광고는 그 사람이 서버에 있으면 닉네임
+  - 인생네컷 "○○ 님 촬영 중" / 내보내기 안내 / 내보내기 목록 (PhotoBoothService/Controller, BoothKickController)
+  - 랭킹: 서버에 없는 사람도 UserService로 닉네임 (실패하면 예전처럼 아이디)
+  - 문구: 버스 광고 상품 설명·싫어요 안내의 "아이디" → "닉네임"
+- 그대로 둔 것: 플레이어 카드(닉네임 크게 + 작은 @아이디), 피드백 받은편지함·서버 로그(운영용 아이디).
