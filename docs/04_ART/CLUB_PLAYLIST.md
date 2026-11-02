@@ -1,4 +1,4 @@
-# 클럽 음원 목록 · 설정값 (2026-11-02, D-755)
+# 클럽 음원 목록 · 설정값 (2026-11-03, D-782까지)
 
 코드: `src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua` 의 `ClubConfig.Playlist` (37곡).
 예전 목록·안무 기록: `OLD_CLUB_PLAYLIST.md`.
@@ -12,7 +12,7 @@
 
 - `UP` = `ClubConfig.SavedLabs.userUpload`. 이 값을 쓰는 곡은 한꺼번에 바뀌어요.
 - 한 곡만 다르게 하려면 그 곡의 `lab = UP` 를 `lab = { ... }` 로 바꾸면 돼요.
-- 실제로 나가는 값: 재생 속도 = speed × tempo = **0.335**, 음높이는 PitchShift로 되돌림(octave ÷ tempo). 들리는 길이 = 길이(x1) ÷ 0.335.
+- 실제로 나가는 값: 재생 속도 = speed × tempo, 음높이는 PitchShift로 되돌림(octave ÷ tempo). 들리는 길이 = 길이(x1) ÷ 템포.
 - 템포 0.335 = RIIZE-Get A Guitar(53.6초)를 약 2분 40초로 맞춘 값. 부스트 3, 음색(저·중·고) 보정 없음 = 사용자 2026-11-03 (D-765; 그전엔 부스트 6, 저 -6 / 중 0.5 / 고 -7).
 
 ## 1. 로블록스 음악 12곡 (설정값 없음)
@@ -98,24 +98,35 @@ speed 1, volume 10, octave 0.5, engine "sound" 는 공통.
 
 ## 3. 턴테이블 랩(테스트 장소)에 넣을 때
 
-테스트 장소 "테스트" 86558282086977 (tools/test_places/turntable_lab)의 저장 형식은 soundId별 표예요. 곡 목록(곡별 값이 있는 곡은 위 표 값):
+테스트 장소 "테스트" 86558282086977 (tools/test_places/turntable_lab)의 저장 형식은 soundId별 표예요. 업로드 25곡의 지금 값 그대로(ClubConfig에서 뽑음, 2026-11-03):
 
 ```lua
-local UP = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }
 local LAB = {
-	["134942349436280"] = UP, -- ATEEZ-BAD
-	["128270208751659"] = UP, -- 소녀시대-소원을 말해봐(Genie)
-	["76388700698178"] = UP, -- 현아-Bubble Pop
-	["91762270038050"] = UP, -- RIIZE-Get A Guitar
-	["119473981131981"] = UP, -- RIIZE-Love 119
-	["80583279340768"] = UP, -- YENA-Catch Catch
-	["97032815457241"] = UP, -- Hearts2Hearts-Lemon Tang
-	["132067415333401"] = UP, -- aespa-Lemonade
-	["139326796173276"] = UP, -- IVE-Mirror
-	["97511700575810"] = UP, -- A2O LITE-NEON
-	["96358497474432"] = UP, -- SOYEON-퇴사할게여
-	["139044453511745"] = UP, -- ILLIT-체포하겠어
-	["73546697163709"] = UP, -- IOI-갑자기
+	["134942349436280"] = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, -- ATEEZ-BAD
+	["128270208751659"] = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" }, -- 소녀시대-소원을 말해봐(Genie)
+	["76388700698178"] = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, -- 현아-Bubble Pop
+	["91762270038050"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, -- RIIZE-Get A Guitar
+	["119473981131981"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, -- RIIZE-Love 119
+	["80583279340768"] = { speed = 1, tempo = 0.34, volume = 10, boost = 3, octave = 0.5, low = -13, mid = 2.5, high = 4, engine = "sound" }, -- YENA-Catch Catch
+	["97032815457241"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- Hearts2Hearts-Lemon Tang
+	["132067415333401"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = -2.5, engine = "sound" }, -- aespa-Lemonade
+	["139326796173276"] = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -10.5, mid = 5, high = 4.5, engine = "sound" }, -- IVE-Mirror
+	["97511700575810"] = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- A2O LITE-NEON
+	["96358497474432"] = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- SOYEON-퇴사할게여
+	["139044453511745"] = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- ILLIT-체포하겠어
+	["71873496902418"] = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- RESCENE-LOVE-ATTACK
+	["108027306922001"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- MY:RAKL-오색 낙원
+	["78077595750886"] = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- Darla Jean-Dam Da Dee
+	["120160897793669"] = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- 머무르-꿈꾸던 어른이 되었나요
+	["135553051649506"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- IVE-Looks Can Kill
+	["73546697163709"] = { speed = 1, tempo = 0.333, volume = 10, boost = 2.4, octave = 0.5, low = -9.5, mid = 6, high = 0, engine = "sound" }, -- IOI-갑자기
+	["107782871991364"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- NMIXX-긴 소원(Birthday Wish)
+	["90694654380166"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- NCT WISH-I SPY
+	["96396723842714"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- IU-이 별로부터
+	["125703446596781"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- CORTIS-REDRED
+	["116539470869444"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- BIG Naughty-노스탈지아
+	["113809029583519"] = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- BIGBANG-BiiiG
+	["130804487358433"] = { speed = 1, tempo = 0.29, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- BOYNEXTDOOR-ANIMAL
 }
 ```
 
