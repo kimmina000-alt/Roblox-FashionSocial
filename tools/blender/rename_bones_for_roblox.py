@@ -51,6 +51,17 @@ def reset_scene():
     bpy.ops.wm.read_factory_settings(use_empty=True)
 
 
+def iter_fcurves(action):
+    """F-curves of an action. Blender 4.x: action.fcurves. Blender 5.x: layers -> strips -> channelbags."""
+    if hasattr(action, "fcurves"):
+        yield from action.fcurves
+        return
+    for layer in action.layers:
+        for strip in layer.strips:
+            for channelbag in getattr(strip, "channelbags", []):
+                yield from channelbag.fcurves
+
+
 def rename_all(armature):
     old_to_new = {}
     for bone in armature.data.bones:
@@ -66,7 +77,7 @@ def rename_all(armature):
 
     # Animation F-curves refer to bones by name, so their paths must change too
     for action in bpy.data.actions:
-        for fc in action.fcurves:
+        for fc in iter_fcurves(action):
             for old, new in old_to_new.items():
                 token = f'pose.bones["{old}"]'
                 if token in fc.data_path:
