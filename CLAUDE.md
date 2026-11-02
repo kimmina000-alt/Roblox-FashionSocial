@@ -98,3 +98,5 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-11-02 (5): `feat/edm-tracks-1102` merged (mobile 2P passed, D-759): three EDM tracks of the user's (EdmConfig.Tracks, default sound), a button each in the DJ window, one at a time (ClubEdm.track). New work: branch off catalog-ui-redesign.
 
 - 2026-11-03: `fix/live-1103` merged (mobile 2P passed, D-760..D-764): opening gift really once (PlayerDataService.sanitizeWallet keeps wallet.welcome; check on live), bus stop "버스 타기" E prompt under each sign + ground-distance check, "♪ 지금" line in the song window, song window anchored right (DJ tip grows left), 🔉 EDM volume slider (ClubEdm.volume). Studio place is now named "[☀️/🌙] 오우" (same placeId). New work: branch off catalog-ui-redesign.
+
+- 2026-11-03 (2): `feat/upload-lab-1103` merged (mobile 2P passed, D-765..D-768): club playlist 27 = 12 Roblox + 15 user uploads; 12 uploads have their own lab values from the user (tempo ≈ x1 length ÷ heard length, docs/04_ART/CLUB_PLAYLIST.md), 3 use SavedLabs.userUpload; 16 uploads removed (D-767). New work: branch off catalog-ui-redesign.
