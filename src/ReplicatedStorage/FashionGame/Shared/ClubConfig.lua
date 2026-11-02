@@ -58,6 +58,14 @@ export type Lab = {
 
 local ClubConfig = {}
 
+-- (D-811, user: "미세하게 바들바들 떨리는 부분 보정 … 멀쩡한 안무까지 수정하지
+-- 말고") the choreography animations are captured at 24 keyframes a second
+-- with small back-and-forth zigzags in the joints. ChoreoSmooth eases only
+-- the keyframes where a joint goes back and forth by less than `maxStep`
+-- degrees (`passes` times); the rest of the dance stays exactly as made.
+-- nil = off.
+ClubConfig.ChoreoSmoothing = { maxStep = 8, passes = 4 } :: { maxStep: number, passes: number }?
+
 -- Skip vote (user 2026-11-01, D-694): votes needed to skip the song while
 -- there is no DJ = half the people in the club, rounded up, and at least 2
 -- once two or more are there (alone: your own vote is enough)

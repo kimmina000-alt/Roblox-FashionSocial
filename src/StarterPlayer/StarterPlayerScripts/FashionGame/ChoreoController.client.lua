@@ -15,6 +15,7 @@ local RunService = game:GetService("RunService")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
+local ChoreoSmooth = require(script.Parent:WaitForChild("ChoreoSmooth"))
 local danceRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Dance") :: RemoteEvent
 local player = Players.LocalPlayer
 
@@ -114,6 +115,46 @@ local function hipsJoint(character: Model?): (Motor6D | AnimationConstraint)?
 	return nil
 end
 
+-- (D-811) every dancer's body joints by the part they move (the name the
+-- keyframe poses use), for ChoreoSmooth
+local jointsOf: {[Model]: {[string]: Motor6D | AnimationConstraint}} = setmetatable({}, { __mode = "k" }) :: any
+local function bodyJoints(character: Model): {[string]: Motor6D | AnimationConstraint}
+	local cached = jointsOf[character]
+	if cached then return cached end
+	local out = {}
+	for _, d in ipairs(character:GetDescendants()) do
+		if d:IsA("Motor6D") and d.Part1 and not d:FindFirstAncestorOfClass("Accessory") then
+			out[d.Part1.Name] = d
+		elseif d:IsA("AnimationConstraint") and d.Attachment1 and d.Attachment1.Parent then
+			out[(d.Attachment1.Parent :: Instance).Name] = d
+		end
+	end
+	jointsOf[character] = out
+	return out
+end
+
+-- (D-811) the zigzag keyframes eased: each choreography animation playing
+-- adds its correction at its own time, as much as it shows (its weight)
+local function smoothJoints(character: Model, tracks: {AnimationTrack})
+	if not ClubConfig.ChoreoSmoothing then return end
+	-- (Studio only: FashionGame attribute ChoreoSmoothingOff compares without it)
+	if RunService:IsStudio() and FashionGame:GetAttribute("ChoreoSmoothingOff") then return end
+	local joints = bodyJoints(character)
+	for _, t in ipairs(tracks) do
+		local id = t.Animation and t.Animation.AnimationId
+		local weight = t.WeightCurrent
+		if id and weight > 0.01 then
+			ChoreoSmooth.load(id)
+			for part, joint in pairs(joints) do
+				local fix = ChoreoSmooth.correction(id, part, t.TimePosition)
+				if fix then
+					joint.Transform = joint.Transform * CFrame.identity:Lerp(fix, math.min(weight, 1))
+				end
+			end
+		end
+	end
+end
+
 -- after the animator, before the frame is drawn
 RunService.PreSimulation:Connect(function()
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -121,13 +162,15 @@ RunService.PreSimulation:Connect(function()
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		local anim = humanoid and humanoid:FindFirstChildOfClass("Animator")
 		local joint = hipsJoint(character)
-		if anim and joint then
+		if character and anim and joint then
+			local choreo = {}
 			for _, t in ipairs(anim:GetPlayingAnimationTracks()) do
-				if t.Animation and choreoAnimations[t.Animation.AnimationId] then
-					local hips = joint.Transform
-					joint.Transform = CFrame.new(0, hips.Y, 0) * hips.Rotation
-					break
-				end
+				if t.Animation and choreoAnimations[t.Animation.AnimationId] then table.insert(choreo, t) end
+			end
+			if #choreo > 0 then
+				smoothJoints(character, choreo)
+				local hips = joint.Transform
+				joint.Transform = CFrame.new(0, hips.Y, 0) * hips.Rotation
 			end
 		end
 	end
