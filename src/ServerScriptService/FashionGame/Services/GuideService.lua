@@ -114,7 +114,9 @@ local function spawnGuide()
 		return
 	end
 	humanoid.DisplayName = spec.name
-	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+	-- (D-836, user: nothing over the guide, just the character)
+	humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+	humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
 	humanoid.WalkSpeed = spec.walkSpeed
 	-- placed anchored, the look applied again in Workspace for its body
 	-- scales (as the bar staff, DrinkService), then set free to walk

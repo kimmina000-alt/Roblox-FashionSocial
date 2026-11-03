@@ -103,6 +103,16 @@ local live: {[string]: {[number]: number}} = { support = {}, spend = {}, today =
 local liveDay = kstDay()
 local names: {[number]: string} = {}
 local hidden: {[number]: boolean} = {}
+-- (D-836, user) left off every board, matched by account name or nickname
+-- (lower case); their account ids are looked up once at start
+local EXCLUDED_NAMES = { kr_ohu = true, arrrrall = true }
+local excluded: {[number]: boolean} = {}
+task.spawn(function()
+	for name in pairs(EXCLUDED_NAMES) do
+		local ok, id = pcall(function() return Players:GetUserIdFromNameAsync(name) end)
+		if ok and typeof(id) == "number" then excluded[id] = true end
+	end
+end)
 local pendingMinutes: {[number]: number} = {}
 
 local function nameOf(userId: number): string
@@ -197,8 +207,12 @@ local function top(board: Board): {{ name: string, value: number, id: number }}
 	end
 	table.sort(list, function(a, b) return a.value > b.value end)
 	local out = {}
-	for i = 1, math.min(TOP, #list) do
-		table.insert(out, { name = nameOf(list[i].id), value = list[i].value, id = list[i].id })
+	for _, row in ipairs(list) do
+		if #out >= TOP then break end
+		local name = nameOf(row.id)
+		if not excluded[row.id] and not EXCLUDED_NAMES[string.lower(name)] then
+			table.insert(out, { name = name, value = row.value, id = row.id })
+		end
 	end
 	return out
 end
@@ -273,7 +287,7 @@ local function publish()
 	data.recent = {}
 	recentLooks = {}
 	for _, entry in ipairs(recent) do
-		if not hidden[entry.u] then
+		if not hidden[entry.u] and not excluded[entry.u] and not EXCLUDED_NAMES[string.lower(tostring(entry.n))] then
 			local look = lookOf(entry.u)
 			recentLooks[entry.u] = look
 			local votes = VoteService.State("supporter", tostring(entry.u), VoteService.Version(look))

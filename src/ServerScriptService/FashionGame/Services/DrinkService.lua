@@ -877,7 +877,9 @@ local function spawnStaff(spot: BasePart, name: string, title: string, offset: C
 	local humanoid = model:FindFirstChildOfClass("Humanoid")
 	if humanoid then
 		humanoid.DisplayName = title
-		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.Viewer
+		-- (D-836, user: nothing over the bartender and the 불꽃 판매원, just the character)
+		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+		humanoid.HealthDisplayType = Enum.HumanoidHealthDisplayType.AlwaysOff
 	end
 	local root = model:FindFirstChild("HumanoidRootPart")
 	-- an outfit look scales only in Workspace: the root alone anchored, the
