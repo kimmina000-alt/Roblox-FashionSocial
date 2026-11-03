@@ -156,6 +156,12 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 						joint.Transform = joint.Transform * CFrame.identity:Lerp(fix, weight)
 					end
 				end
+				-- (D-848, user: "가슴을 더 앞으로 크게 튕겼으면") chest pops the
+				-- capture lost, from ClubConfig.ChoreoFixes
+				local waistPop, neckPop = ChoreoSmooth.pop(id, t.TimePosition)
+				local w, n = joints.UpperTorso, joints.Head
+				if waistPop and w then w.Transform = w.Transform * CFrame.identity:Lerp(waistPop, weight) end
+				if neckPop and n then n.Transform = n.Transform * CFrame.identity:Lerp(neckPop, weight) end
 			end
 			-- (D-843, user: "고개나 세세한 움직임 모두 읽고 넣어 … 덜덜 떨리는 모션
 			-- 아니면") the captured spine, chest and clavicles have no joint on an

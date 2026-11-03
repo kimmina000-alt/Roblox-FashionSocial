@@ -73,3 +73,7 @@ Get A Guitar(2026-11-03, D-807): `!!` 이음새 13곳 모두 `blend`로 맞췄�
 - 떨림 보정(3번 D-811)은 연달아 앞뒤로 흔들리는 작은 떨림만 지운다. 고개·손·발의 진짜 움직임은 지우지 않는다.
 - 확인: Studio 스위치 FashionGame `ChoreoRetargetOff`로 끄고·켜고 같은 순간을 비교한다(노래를 멈추려면 클라이언트에서 FashionGame `ClubMusicPaused` = true, `ClubMusicPausedAt` = 초 × trackRate).
 - 조각별 국소 수정(D-840): `ClubConfig.ChoreoFixes[애니메이션 id]` — `steady = { from, to, parts }`(그 구간 그 관절만 강하게 다듬기), `turn = 초`(앞 조각이 끝난 방향에서 돌던 방향으로 이어 돌기, 섞기 대신).
+
+## 7. 캡처가 놓친 동작 더하기 (D-848)
+- 영상보다 캡처가 약한 동작(예: 가슴 튕김)은 `ClubConfig.ChoreoFixes[id].pops = { at = {초…}, push, arch }`로 더함. 시각은 그 조각 안의 초(영상의 박자 표시나 동작 시작에 맞춤).
+- 비교: Play에서 그 시각에 멈추고(ClubMusicPaused / ClubMusicPausedAt, 0.3초 넘게 떨어진 곳을 먼저 들렀다 오기) ChoreoSmoothingOff를 끄고 켜서 옆에서 찍음.

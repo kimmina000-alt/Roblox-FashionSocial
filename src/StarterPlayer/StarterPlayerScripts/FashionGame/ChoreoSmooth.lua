@@ -15,6 +15,7 @@
 --   ChoreoSmooth.clear()                           -- read again with new settings
 --   ChoreoSmooth.hips(animationId, t)              -- Vector3? the hips' travel at time t (D-813)
 --   ChoreoSmooth.retarget(animationId, t)          -- waist, left, right turns for joints R15 lacks (D-843)
+--   ChoreoSmooth.pop(animationId, t)               -- waist, neck for a chest pop from ChoreoFixes (D-848)
 
 local KeyframeSequenceProvider = game:GetService("KeyframeSequenceProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -180,6 +181,7 @@ function ChoreoSmooth.clear()
 	table.clear(cache)
 	table.clear(paths)
 	table.clear(retargets)
+	table.clear(popCache)
 end
 
 -- the keyframes either side of t and how far between them
@@ -206,6 +208,32 @@ function ChoreoSmooth.retarget(animationId: string, t: number): (CFrame?, CFrame
 		return if list then list[lo]:Lerp(list[hi], f) else nil
 	end
 	return at(r.waist), at(r.left), at(r.right)
+end
+
+-- (D-848) the chest pops a piece is given (ClubConfig.ChoreoFixes pops) at
+-- time t: the waist turn to add after UpperTorso's own and the neck turn
+-- that keeps the head level, or nil away from a pop
+local popCache: {[string]: any} = {}
+function ChoreoSmooth.pop(animationId: string, t: number): (CFrame?, CFrame?)
+	local pops = popCache[animationId]
+	if pops == nil then
+		local fixes = ClubConfig.ChoreoFixes and ClubConfig.ChoreoFixes[tonumber(animationId:match("%d+")) or 0]
+		pops = fixes and fixes.pops or false
+		popCache[animationId] = pops
+	end
+	if not pops then return nil, nil end
+	local k = 0
+	for _, at in ipairs(pops.at) do
+		local d = t - at
+		if d > -0.07 and d < 0.3 then
+			-- out fast, back slower, both eased
+			local f = if d < 0 then 1 + d / 0.07 else 1 - d / 0.3
+			k = math.max(k, f * f * (3 - 2 * f))
+		end
+	end
+	if k <= 0 then return nil, nil end
+	local arch = math.rad(pops.arch) * k
+	return CFrame.new(0, 0, -pops.push * k) * CFrame.Angles(arch, 0, 0), CFrame.Angles(-arch, 0, 0)
 end
 
 function ChoreoSmooth.correction(animationId: string, part: string, t: number): CFrame?
