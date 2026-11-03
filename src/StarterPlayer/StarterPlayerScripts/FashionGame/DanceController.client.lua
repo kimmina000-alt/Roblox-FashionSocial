@@ -1204,8 +1204,29 @@ task.spawn(syncMusic)
 -- 0..1 music level at a position: inside a zone that zone's volume (the
 -- quieter rooftop wins over the hall below it); outside, the loudest fade.
 local function musicLevel(position: Vector3): number
+	-- (D-834) silent there (the 국밥집)
+	for _, box in ipairs(ClubConfig.QuietBoxes) do
+		if position.X > box.min.X and position.X < box.max.X and position.Y > box.min.Y and position.Y < box.max.Y
+			and position.Z > box.min.Z and position.Z < box.max.Z then
+			return 0
+		end
+	end
 	local inside: number? = nil
 	local outside = 0
+	-- (D-834) the world-box zones (the locker room), like the tagged ones below
+	for _, extra in ipairs(ClubConfig.ExtraZones) do
+		local zoneVolume = ClubConfig.ZoneVolumes[extra.zone] or 1
+		local distance = Vector3.new(
+			math.max(extra.min.X - position.X, position.X - extra.max.X, 0),
+			math.max(extra.min.Y - position.Y, position.Y - extra.max.Y, 0),
+			math.max(extra.min.Z - position.Z, position.Z - extra.max.Z, 0)
+		).Magnitude
+		if distance == 0 then
+			inside = math.min(inside or math.huge, zoneVolume)
+		else
+			outside = math.max(outside, zoneVolume * math.clamp(1 - distance / ClubConfig.FadeDistance, 0, 1))
+		end
+	end
 	for _, zone in ipairs(CollectionService:GetTagged("ClubZone")) do
 		if zone:IsA("BasePart") then
 			local zoneVolume = ClubConfig.ZoneVolumes[zone:GetAttribute("Zone") or "Hall"] or 1

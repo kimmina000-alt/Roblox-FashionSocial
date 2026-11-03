@@ -269,7 +269,19 @@ ClubConfig.FadeDistance = 6
 -- Volume per club zone (ClubZone part attribute "Zone"). Inside a zone that
 -- zone's level is used (the quietest when zones overlap); outside, the loudest
 -- fade wins. The rooftop is quieter, like music coming up from below.
-ClubConfig.ZoneVolumes = { Hall = 1, Corridor = 0.45, Stairs = 0.12, Rooftop = 0.3 }
+ClubConfig.ZoneVolumes = { Hall = 1, Corridor = 0.45, Stairs = 0.12, Rooftop = 0.3, Locker = 0.5 }
+-- (D-834, user) more music zones as world boxes, beside the tagged ClubZone
+-- parts: the locker room and its passage (tools/graybox/club_locker_1103.lua,
+-- under the 국밥집 lot, x 131.6..231, z -365..-289.9, floor -24, ceiling -3)
+ClubConfig.ExtraZones = {
+	{ zone = "Locker", min = Vector3.new(130, -24, -366.6), max = Vector3.new(232.6, -3, -289.9) },
+}
+-- (D-834, user) silent boxes: no club music inside them, even a fade from a
+-- zone next door (the 국밥집 stands right over the locker room and by the club's
+-- north wall). From y -2: the locker room's ceiling is at -3.
+ClubConfig.QuietBoxes = {
+	{ min = Vector3.new(39, -2, -377), max = Vector3.new(159, 46, -291) }, -- 국밥집 (Hongdae_Layout.Gukbap)
+}
 
 --------------------------------------------------
 -- Drinks (non-alcoholic only, D-043). Test list from the user (2026-10-20):
