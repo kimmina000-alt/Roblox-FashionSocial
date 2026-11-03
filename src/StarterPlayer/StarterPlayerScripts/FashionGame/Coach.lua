@@ -344,6 +344,11 @@ function Coach.isRunning(): boolean
 	return running ~= nil
 end
 
+-- (D-835) a tip on screen or the place tour going (GuideTips asks nothing then)
+function Coach.isBusy(): boolean
+	return running ~= nil or held
+end
+
 -- close the tip on screen without marking it seen (it can come again)
 function Coach.finishNow()
 	local key = running

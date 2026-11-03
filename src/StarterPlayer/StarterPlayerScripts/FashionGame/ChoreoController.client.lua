@@ -364,8 +364,12 @@ RunService.Heartbeat:Connect(function(dt)
 	testButton.Visible = CAN_TEST and here
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
-	-- (D-726) a song with autoChoreo: standing still in the club starts it
-	if not following and track and track.autoChoreo and track.choreo and here and humanoid
+	-- (D-726) standing still in the club starts the song's choreography;
+	-- (D-835, user) only for whoever switched on 🎵 안무 in the dance window,
+	-- for every song with a choreography (not only the autoChoreo ones)
+	local wanted = player:GetAttribute("ChoreoOn") == true
+	if following and not wanted then stopFollowing() return end
+	if not following and wanted and track and track.choreo and here and humanoid
 		and humanoid.MoveDirection.Magnitude <= 0.1 and not humanoid.Sit and not humanoid.PlatformStand
 		and (character :: Model):GetAttribute("DanceKey") == nil
 		and not player:GetAttribute("Carrying") and not player:GetAttribute("CarriedBy") then -- (a guard's carry, D-738)

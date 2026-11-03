@@ -364,7 +364,8 @@ end
 
 -- ask about tip `key` (once a visit, while it is wanted and no tip is on screen)
 local function ask(key: string, question: string, onYes: () -> ())
-	if askedThisVisit[key] or askKey ~= nil or Coach.isRunning() or not Coach.wants(key) then return end
+	-- (D-835: not over the place tour either, seen in a test)
+	if askedThisVisit[key] or askKey ~= nil or Coach.isBusy() or not Coach.wants(key) then return end
 	askedThisVisit[key] = true
 	askKey, askYes = key, onYes
 	askLabel.Text = question
@@ -459,6 +460,11 @@ function GuideTips.start()
 		while true do
 			task.wait(1)
 			local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+			-- (D-835) the tour or a tip came up over the question: it goes and is asked again after
+			if askKey and Coach.isBusy() then
+				askedThisVisit[askKey] = nil
+				unask(askKey)
+			end
 			-- (D-831/D-832) the club and cafe questions: shown on the way in, gone on the way out
 			if root and ClubConfig.isInClub(root.Position) then
 				ask("club", "🎧 클럽 설명 들을래요?", function()
