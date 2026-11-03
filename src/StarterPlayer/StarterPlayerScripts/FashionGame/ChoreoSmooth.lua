@@ -26,7 +26,7 @@ type Track = { times: {number}, fix: {CFrame} }
 local cache: {[string]: {[string]: Track}} = {}
 -- (D-813) per animation id: the hips' (LowerTorso) sideways / forward place
 -- at each keyframe, as made (ChoreoController moves the dancer along it)
-type Path = { times: {number}, at: {Vector3} }
+type Path = { times: {number}, at: {Vector3}, facing: {number} }
 local paths: {[string]: Path} = {}
 
 local ChoreoSmooth = {}
@@ -96,14 +96,41 @@ function ChoreoSmooth.load(animationId: string)
 		end
 		local hips = series.LowerTorso
 		if hips then
-			local at = {}
-			for k, c in ipairs(hips.raw) do at[k] = Vector3.new(c.X, 0, c.Z) end
-			paths[animationId] = { times = hips.times, at = at }
+			local at, facing = {}, {}
+			for k, c in ipairs(hips.raw) do
+				at[k] = Vector3.new(c.X, 0, c.Z)
+				-- (D-840) the facing, unwrapped so a turn past 180° keeps counting
+				local _, yaw = c:ToEulerAnglesYXZ()
+				if k > 1 then yaw = facing[k - 1] + ((yaw - facing[k - 1] + math.pi) % (2 * math.pi) - math.pi) end
+				facing[k] = yaw
+			end
+			paths[animationId] = { times = hips.times, at = at, facing = facing }
 		end
-		if not settings then return end
+		local fixes = ClubConfig.ChoreoFixes and ClubConfig.ChoreoFixes[tonumber(animationId:match("%d+")) or 0]
+		local steady = fixes and fixes.steady
+		if not settings and not steady then return end
 		local result = {}
 		for part, s in pairs(series) do
-			local cleaned = clean(s.raw, settings.maxStep, settings.passes)
+			local cleaned = if settings then clean(s.raw, settings.maxStep, settings.passes) else nil
+			-- (D-840) a spot the user picked (a shaky arm): these parts smoothed
+			-- hard between `from` and `to`, easing in and out at both ends
+			if steady and table.find(steady.parts, part) then
+				local out = cleaned or table.clone(s.raw)
+				local edge = 0.15
+				for _ = 1, steady.passes or 4 do
+					local nextOut = table.clone(out)
+					for k = 2, #out - 1 do
+						local t = s.times[k]
+						local w = math.clamp(math.min(t - steady.from, steady.to - t) / edge + 1, 0, 1)
+						if w > 0 then
+							local mid = out[k - 1]:Lerp(out[k + 1], 0.5)
+							nextOut[k] = out[k]:Lerp(out[k]:Lerp(mid, 0.5), w)
+						end
+					end
+					out = nextOut
+				end
+				cleaned = out
+			end
 			if cleaned then
 				local fix = {}
 				for k, c in ipairs(cleaned) do fix[k] = s.raw[k]:Inverse() * c end
@@ -139,6 +166,26 @@ function ChoreoSmooth.correction(animationId: string, part: string, t: number): 
 	if not track then return nil end
 	local lo, hi, f = around(track.times, t)
 	return track.fix[lo]:Lerp(track.fix[hi], f)
+end
+
+-- (D-840) which way the hips face at time t (radians, unwrapped), or nil
+-- until the animation has been read
+function ChoreoSmooth.facing(animationId: string, t: number): number?
+	local path = paths[animationId]
+	if not path then return nil end
+	local lo, hi, f = around(path.times, t)
+	return path.facing[lo] + (path.facing[hi] - path.facing[lo]) * f
+end
+
+-- (D-840) the facing an animation ends with and which way it was turning
+-- then (+1 / -1, from its last 0.3 s), or nil until it has been read
+function ChoreoSmooth.endFacing(animationId: string): (number?, number)
+	local path = paths[animationId]
+	if not path then return nil, 1 end
+	local last = path.times[#path.times]
+	local yaw = path.facing[#path.facing]
+	local before = ChoreoSmooth.facing(animationId, last - 0.3) or yaw
+	return yaw, if yaw >= before then 1 else -1
 end
 
 -- (D-813) where the animation has taken the hips at time t (sideways /

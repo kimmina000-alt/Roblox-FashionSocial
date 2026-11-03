@@ -219,6 +219,48 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 	root.CFrame += worldMove
 end
 
+-- (D-840, user: IVE 2:29-2:30 "뒤도는 거 부드럽게 턴하는 애니메이션으로 수정 (전체
+-- 길이랑 춤추는 타이밍은 변경되면 안 됨)") a piece with ClubConfig.ChoreoFixes
+-- `turn = seconds` starts facing where the piece before it ended and turns on
+-- the way that one was turning, easing into its own facing over that many
+-- seconds. A cross-fade between two poses nearly back to back flips the body
+-- round in a frame; this sets the hips' facing itself instead.
+local turnFixes: {[string]: { prev: string, seconds: number }} = {}
+for _, t in ipairs(ClubConfig.Playlist) do
+	local before: string? = nil
+	for _, entry in ipairs(t.choreo or {}) do
+		local id = "rbxassetid://" .. tostring(if typeof(entry) == "table" then entry.id else entry)
+		local fixes = ClubConfig.ChoreoFixes and ClubConfig.ChoreoFixes[tonumber(id:match("%d+")) or 0]
+		if fixes and fixes.turn and before then turnFixes[id] = { prev = before, seconds = fixes.turn } end
+		before = id
+	end
+end
+
+local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {AnimationTrack})
+	-- (Studio only: ChoreoSmoothingOff compares without the spot fixes too)
+	if RunService:IsStudio() and FashionGame:GetAttribute("ChoreoSmoothingOff") then return end
+	for _, t in ipairs(tracks) do
+		local id = t.Animation and t.Animation.AnimationId
+		local fix = id and turnFixes[id]
+		if id and fix and t.WeightCurrent > 0.01 and t.TimePosition < fix.seconds then
+			ChoreoSmooth.load(fix.prev)
+			local fromYaw, dir = ChoreoSmooth.endFacing(fix.prev)
+			local startYaw = ChoreoSmooth.facing(id, 0)
+			local nowYaw = ChoreoSmooth.facing(id, t.TimePosition)
+			if fromYaw and startYaw and nowYaw then
+				-- the turn still to make, the way the piece before was turning
+				local gap = (startYaw - fromYaw) % (2 * math.pi)
+				if dir < 0 then gap -= 2 * math.pi end
+				local f = math.clamp(t.TimePosition / fix.seconds, 0, 1)
+				local yaw = fromYaw + gap * (f * f * (3 - 2 * f)) + (nowYaw - startYaw)
+				local tilt, _, roll = joint.Transform:ToEulerAnglesYXZ()
+				joint.Transform = CFrame.new(joint.Transform.Position) * CFrame.fromEulerAnglesYXZ(tilt, yaw, roll)
+			end
+			return
+		end
+	end
+end
+
 -- after the animator, before the frame is drawn
 RunService.PreSimulation:Connect(function(dt)
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -234,6 +276,7 @@ RunService.PreSimulation:Connect(function(dt)
 			if #choreo > 0 then
 				if p == player and following then moveAlong(character, joint, choreo, dt) end
 				smoothJoints(character, choreo)
+				turnHips(joint, choreo)
 				local hips = joint.Transform
 				joint.Transform = CFrame.new(0, hips.Y, 0) * hips.Rotation
 			end

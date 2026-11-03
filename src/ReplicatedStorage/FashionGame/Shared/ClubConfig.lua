@@ -72,6 +72,22 @@ ClubConfig.ChoreoSmoothing = { maxStep = 8, passes = 4 } :: { maxStep: number, p
 -- floor. nil = no easing back.
 ClubConfig.ChoreoDriftReturn = 8 :: number?
 
+-- (D-840, user) spot fixes for single choreography pieces, by animation id
+-- (the same piece gets them in any song):
+--   steady = { from, to, parts, passes? }: those parts' keyframes between
+--     `from` and `to` seconds into the animation smoothed hard (a shaky arm),
+--     easing in and out over 0.15 s at both ends (ChoreoSmooth)
+--   turn = seconds: the piece starts facing where the piece before it ended
+--     and turns on the way that one was turning into its own facing over
+--     that many seconds (ChoreoController.turnHips), instead of a cross-fade
+--     that flips the body round; keep it within the piece's `blend`
+ClubConfig.ChoreoFixes = {
+	-- IVE-Looks Can Kill 25 (song 2:18.5): the right arm shook at 2:22
+	[134968782013343] = { steady = { from = 3.1, to = 4.1, parts = { "RightUpperArm", "RightLowerArm", "RightHand" } } },
+	-- IVE-Looks Can Kill 27 (song 2:30.8): 26 ends facing back (2:29-2:30)
+	[88317170211079] = { turn = 1 },
+} :: {[number]: { steady: { from: number, to: number, parts: {string}, passes: number? }?, turn: number? }}
+
 -- Skip vote (user 2026-11-01, D-694): votes needed to skip the song while
 -- there is no DJ = half the people in the club, rounded up, and at least 2
 -- once two or more are there (alone: your own vote is enough)
