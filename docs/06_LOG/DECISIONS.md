@@ -2030,3 +2030,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: 코디 저장(💾)으로 Roblox 계정에 저장한 코디를 게임에서 불러오기 → "응 추가하고".
 - 옷장 첫 줄에 "☁️ Roblox 코디" 카드(현재 코디 저장 옆). 누르면 Roblox가 처음 한 번 "아바타 목록 보기" 허락을 물음(AvatarEditorService:PromptAllowInventoryReadAccess), 허락하면 계정 코디 목록(GetOutfits, 아바타 코디, 최대 100개)을 사진(rbxthumb Outfit)·이름·입기로 보여 줌. "← 내 옷장" 카드로 돌아감. 입기 = TryOnItem "WearRobloxOutfit"(서버가 Players:GetHumanoidDescriptionFromOutfitId로 읽어 옷장 복원과 같은 RestoreSnapshot으로 입힘, 못 입는 아이템은 빼고 알림).
 - Play: WearRobloxOutfit(코디 4205246513673697) → 입힘, 빠진 것 0. 허락 없이 GetOutfits는 Roblox가 막음(예상대로) → 허락 창과 목록은 실제 게임에서 확인.
+## D-839 (2026-11-03) 노래 칸 🎵 = 안무 버튼 · 안무 자동 따라하기
+- 사용자: "음표 두 개 중 하나가 안무 있을 때만 뜨는 거 아니야? 그 음표를 안무 버튼으로 하자. 노래 시작하면 자동으로 안무 따라 추다가 안무 버튼 누르면 원래 추던 춤 있으면 추던 춤으로 돌아가고 멈춰 있었으면 멈춰 있는 걸로. 그리고 안무 자동으로 따라하기 on/off 넣자. 이걸 춤 리스트에 넣자. 상단에."
+- 안무 있는 곡은 노래 칸 제목 앞 ♪ 대신 누를 수 있는 🎵(ClubQuickBar, 제목 바로 앞에 붙음). 안무 추는 동안 분홍 원. D-837의 💃 버튼은 뺌, 노래 칸 왼쪽 여백 다시 34.
+- 자동 따라하기(LocalPlayer 속성 ChoreoAuto, 처음 켜짐): 안무 곡이 시작되면 메뉴 춤을 추고 있어도 안무로 바뀜(그 춤은 기억). 🎵를 누르면 멈추고 기억한 춤으로 돌아감(같이 추기는 그 사람에게 다시 붙음), 없으면 서 있음. 그 곡 동안은 다시 저절로 시작하지 않음(🎵로 다시 시작). 곡 중간에 메뉴에서 다른 춤을 고르면 그 곡 동안은 그 춤. 걷다 서면 다시 시작하는 것은 그대로.
+- 춤 창 맨 윗줄(멈추기 왼쪽)에 "🎵 자동 ON / OFF". 끄면 곡이 시작해도 저절로 안 추고 🎵를 누를 때만.
+- 고친 것: 메뉴 춤을 멈춘 직후 그 춤 표시(DanceKey)가 잠깐 남아 안무가 곧바로 꺼지던 것(2초 기다림).
+- Play(혼자, 밤): 메뉴 춤(break) 중 Get A Guitar 시작 → 안무, 🎵 → break로 돌아감, 다시 🎵 → 안무. 자동 OFF로 새 곡 → 안 춤.
+- (같은 폴더에서 안무 세션이 D-840을 작업 중: ChoreoController의 turnFixes/turnHips, ChoreoSmooth, ClubConfig.ChoreoFixes는 그 세션이 따로 커밋.)

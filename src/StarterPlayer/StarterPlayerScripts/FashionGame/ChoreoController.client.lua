@@ -308,6 +308,34 @@ local function stopFollowing()
 	end
 	following = nil
 	button.Text = "💃 안무 따라하기"
+	player:SetAttribute("ChoreoFollowing", nil) -- (the banner's 🎵, ClubQuickBar)
+end
+
+-- (D-839, user) the menu dance the player was doing when the choreography
+-- took over: the 🎵 in the banner gives it back (key, speed, or the player
+-- they were dancing with)
+local previousDance: { key: string?, speed: number?, joined: number? }? = nil
+local menuStopAt = 0 -- (when the choreography stopped a menu dance)
+local function rememberDance()
+	local character = player.Character
+	local key = character and character:GetAttribute("DanceKey")
+	if not character or key == nil then previousDance = nil return end
+	local joined = character:GetAttribute("DanceJoined")
+	previousDance = {
+		key = key,
+		speed = character:GetAttribute("DanceSpeed"),
+		joined = if typeof(joined) == "number" then joined else nil,
+	}
+end
+local function restoreDance()
+	local dance = previousDance
+	previousDance = nil
+	if not dance then return end
+	if dance.joined and Players:GetPlayerByUserId(dance.joined) then
+		danceRemote:FireServer("Join", dance.joined)
+	elseif dance.key then
+		danceRemote:FireServer("Start", dance.key, dance.speed or 1)
+	end
 end
 
 local function startFollowing(track: ClubConfig.Track)
@@ -315,7 +343,10 @@ local function startFollowing(track: ClubConfig.Track)
 	if not anim or not track.choreo then return end
 	-- (the dance menu's dance stops first: one dance at a time)
 	local character = player.Character
-	if character and character:GetAttribute("DanceKey") ~= nil then danceRemote:FireServer("Stop") end
+	if character and character:GetAttribute("DanceKey") ~= nil then
+		danceRemote:FireServer("Stop")
+		menuStopAt = os.clock() -- (D-839: its DanceKey stays a moment, until the server clears it)
+	end
 	local tracks, starts, stops, blends, froms = {}, {}, {}, {}, {}
 	for _, entry in ipairs(track.choreo) do
 		local id = if typeof(entry) == "table" then entry.id else entry
@@ -342,12 +373,46 @@ local function startFollowing(track: ClubConfig.Track)
 	holdCamera()
 	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, blends = blends, froms = froms, playing = nil, speed = nil }
 	button.Text = "⏹ 그만 추기"
+	player:SetAttribute("ChoreoFollowing", true)
 end
 
-button.Activated:Connect(function()
-	if following then stopFollowing() return end
+-- (D-839, user) per song: "auto" follows a choreography song from its start
+-- when 안무 자동 따라하기 is on (LocalPlayer attribute ChoreoAuto, on unless
+-- false; the dance window's switch), even over a menu dance (given back by the
+-- 🎵); the 🎵 stops it for the rest of the song ("optOut") or starts it by
+-- hand ("manual"); choosing a menu dance mid-song also opts out
+local songKey: string? = nil
+local songAuto = false -- (this song may still start by itself over a menu dance)
+local optOut = false
+local manual = false
+local function autoOn(): boolean
+	return player:GetAttribute("ChoreoAuto") ~= false
+end
+
+local function tap()
 	local track = playingTrack()
-	if track and track.choreo and inClub() then startFollowing(track) end
+	if following then
+		stopFollowing()
+		optOut, manual = true, false
+		restoreDance()
+		return
+	end
+	if track and track.choreo and inClub() then
+		optOut, manual = false, true
+		rememberDance()
+		startFollowing(track)
+	end
+end
+button.Activated:Connect(tap)
+require(script.Parent:WaitForChild("UiBus")).ChoreoTap.Event:Connect(tap)
+player:GetAttributeChangedSignal("ChoreoAuto"):Connect(function()
+	-- switched off: a dance it started stops; switched on: this song may start again
+	if not autoOn() and following and not manual then
+		stopFollowing()
+		restoreDance()
+	elseif autoOn() then
+		optOut = false
+	end
 end)
 
 -- start and stop following (the dance itself keeps time below)
@@ -364,20 +429,37 @@ RunService.Heartbeat:Connect(function(dt)
 	testButton.Visible = CAN_TEST and here
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	-- (D-839) a new song: its own choices
+	local key = if track then tostring(track.soundId) .. ":" .. tostring(FashionGame:GetAttribute("ClubTrackStart")) else nil
+	if key ~= songKey then
+		songKey = key
+		optOut, manual = false, false
+		songAuto = true
+		previousDance = nil
+	end
 	-- (D-726) standing still in the club starts the song's choreography;
-	-- (D-835, user) only for whoever switched on 🎵 안무 in the dance window,
-	-- for every song with a choreography (not only the autoChoreo ones)
-	local wanted = player:GetAttribute("ChoreoOn") == true
-	if following and not wanted then stopFollowing() return end
+	-- (D-839, user) for every song with one, by itself while 안무 자동 따라하기
+	-- is on (from the song's start even over a menu dance, given back by the
+	-- 🎵), or after the 🎵 was tapped for this song
+	local wanted = not optOut and (manual or autoOn())
+	local dancing = character ~= nil and (character :: Model):GetAttribute("DanceKey") ~= nil
 	if not following and wanted and track and track.choreo and here and humanoid
 		and humanoid.MoveDirection.Magnitude <= 0.1 and not humanoid.Sit and not humanoid.PlatformStand
-		and (character :: Model):GetAttribute("DanceKey") == nil
+		and (not dancing or (songAuto and autoOn()))
 		and not player:GetAttribute("Carrying") and not player:GetAttribute("CarriedBy") then -- (a guard's carry, D-738)
+		if dancing then rememberDance() end
+		songAuto = false
 		startFollowing(track)
 	end
 	if not following then return end
+	if (character :: Model):GetAttribute("DanceKey") ~= nil and os.clock() - menuStopAt > 2 then
+		-- a dance from the menu now: it wins for the rest of this song
+		stopFollowing()
+		optOut, previousDance = true, nil
+		return
+	end
 	if not track or track.soundId ~= following.soundId or not here or not humanoid
-		or humanoid.MoveDirection.Magnitude > 0.1 or (character :: Model):GetAttribute("DanceKey") ~= nil
+		or humanoid.MoveDirection.Magnitude > 0.1
 		or player:GetAttribute("Carrying") or player:GetAttribute("CarriedBy") then
 		stopFollowing()
 		return

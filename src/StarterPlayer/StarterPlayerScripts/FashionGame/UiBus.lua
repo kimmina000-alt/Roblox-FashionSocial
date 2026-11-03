@@ -8,5 +8,7 @@ local UiBus = {}
 
 UiBus.OpenDance = Instance.new("BindableEvent")
 UiBus.OpenMusic = Instance.new("BindableEvent")
+-- (D-839) the 🎵 in the song banner (ClubQuickBar): dance the choreography / stop it (ChoreoController)
+UiBus.ChoreoTap = Instance.new("BindableEvent")
 
 return UiBus

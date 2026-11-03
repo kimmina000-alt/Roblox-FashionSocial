@@ -64,22 +64,21 @@ for _, sign in ipairs({ -1, 1 }) do
 	bar.Parent = skipButton
 	Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
 end
--- 💃 right of ≡ (D-837, user; in the dance window in D-835): switched on, the
--- player dances the choreography of every song that has one, in time with it,
--- while standing in the club (ChoreoController reads the LocalPlayer
--- attribute ChoreoOn). Off by default; a pink circle while on.
+-- 🎵 in front of the title of a song with a choreography (D-839, user: "그
+-- 음표를 안무 버튼으로 하자"; the 💃 of D-837 is gone): tap to dance the
+-- choreography or stop it (back to the dance before, ChoreoController). A
+-- pink circle while dancing it (LocalPlayer attribute ChoreoFollowing).
 local choreoButton = sideButton("ClubChoreo")
-choreoButton.Text = "💃"
-choreoButton.TextSize = 15
+choreoButton.Size = UDim2.fromOffset(22, 22)
+choreoButton.Text = "🎵"
+choreoButton.TextSize = 14
 choreoButton.TextColor3 = Color3.new(1, 1, 1)
 choreoButton.BackgroundColor3 = Color3.fromRGB(255, 70, 170)
 Instance.new("UICorner", choreoButton).CornerRadius = UDim.new(1, 0)
 local function paintChoreo()
-	local on = player:GetAttribute("ChoreoOn") == true
-	choreoButton.BackgroundTransparency = if on then 0 else 1
-	choreoButton.TextTransparency = if on then 0 else 0.35
+	choreoButton.BackgroundTransparency = if player:GetAttribute("ChoreoFollowing") then 0 else 1
 end
-player:GetAttributeChangedSignal("ChoreoOn"):Connect(paintChoreo)
+player:GetAttributeChangedSignal("ChoreoFollowing"):Connect(paintChoreo)
 paintChoreo()
 -- the vote count right of ›
 local skipCount = Instance.new("TextLabel")
@@ -116,9 +115,9 @@ local function showToast(text: string)
 end
 
 choreoButton.Activated:Connect(function()
-	local on = not (player:GetAttribute("ChoreoOn") == true)
-	player:SetAttribute("ChoreoOn", on)
-	showToast(if on then "💃 안무 켜짐: 안무 있는 노래에 맞춰 춰요" else "💃 안무 꺼짐")
+	local was = player:GetAttribute("ChoreoFollowing") == true
+	UiBus.ChoreoTap:Fire()
+	showToast(if was then "🎵 안무 멈춤" else "🎵 안무 따라 추기")
 end)
 
 skipButton.Activated:Connect(function()
@@ -134,14 +133,13 @@ RunService.RenderStepped:Connect(function()
 	for _, item in ipairs({ skipCount, toast } :: {GuiObject}) do
 		if item.Parent ~= danceGui then item.Parent = danceGui end
 	end
-	-- (inside the banner: its UIPadding (62 left, 34 right) leaves room; 4 px in)
+	-- (inside the banner: its UIPadding (34 at both ends) leaves room; 4 px in)
 	if listButton.Parent ~= banner then
 		listButton.Parent = banner
 		listButton.AnchorPoint = Vector2.new(0, 0.5)
-		listButton.Position = UDim2.new(0, -58, 0.5, 0)
+		listButton.Position = UDim2.new(0, -30, 0.5, 0)
 		choreoButton.Parent = banner
-		choreoButton.AnchorPoint = Vector2.new(0, 0.5)
-		choreoButton.Position = UDim2.new(0, -32, 0.5, 0)
+		choreoButton.AnchorPoint = Vector2.new(1, 0.5)
 		skipButton.Parent = banner
 		skipButton.AnchorPoint = Vector2.new(1, 0.5)
 		skipButton.Position = UDim2.new(1, 30, 0.5, 0)
@@ -150,7 +148,15 @@ RunService.RenderStepped:Connect(function()
 	local djOn = (FashionGame:GetAttribute("ClubDJ") or 0) ~= 0
 	local votes = FashionGame:GetAttribute("ClubSkipVotes")
 	listButton.Visible = shown
-	choreoButton.Visible = shown
+	-- the 🎵 sits just in front of the title (centred in the banner; the title
+	-- of a choreography song is shown without its ♪, DanceController)
+	local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
+	choreoButton.Visible = shown and track ~= nil and track.choreo ~= nil
+	if choreoButton.Visible then
+		local inner = banner.AbsoluteSize.X - 68
+		local textLeft = math.max((inner - banner.TextBounds.X) / 2, 31)
+		choreoButton.Position = UDim2.new(0, textLeft - 8, 0.5, 0)
+	end
 	skipButton.Visible = shown and not djOn
 	skipCount.Visible = skipButton.Visible and typeof(votes) == "string" and votes:sub(1, 2) ~= "0/"
 	skipCount.Text = if typeof(votes) == "string" then votes else ""

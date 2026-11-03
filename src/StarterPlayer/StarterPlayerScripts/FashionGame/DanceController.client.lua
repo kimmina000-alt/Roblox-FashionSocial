@@ -137,7 +137,7 @@ label({
 local nowLabel = label({
 	Name = "NowLabel",
 	Position = UDim2.fromOffset(34, 0),
-	Size = UDim2.new(1, -34 - 76 - 34, 0, 28),
+	Size = UDim2.new(1, -34 - 76 - 34 - 86, 0, 28), -- (room for 안무 자동, D-839)
 	Text = "춤을 고르세요",
 	TextXAlignment = Enum.TextXAlignment.Left,
 	TextColor3 = COLORS.sub,
@@ -162,6 +162,28 @@ local closeButton = button({
 	Text = "X",
 	TextSize = 15,
 }, panel, 14)
+-- (D-839, user) 안무 자동 따라하기 on/off at the top of the dance window: on
+-- (the default), a song with a choreography is danced from its start by
+-- itself (ChoreoController; LocalPlayer attribute ChoreoAuto, false = off)
+do
+	local autoButton = button({
+		Name = "ChoreoAuto",
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -34 - 76, 0, 0),
+		Size = UDim2.fromOffset(82, 28),
+		TextSize = 12,
+	}, panel)
+	local function paint()
+		local on = player:GetAttribute("ChoreoAuto") ~= false
+		autoButton.BackgroundColor3 = if on then COLORS.accent else COLORS.card
+		autoButton.Text = if on then "🎵 자동 ON" else "🎵 자동 OFF"
+	end
+	autoButton.MouseButton1Click:Connect(function()
+		player:SetAttribute("ChoreoAuto", player:GetAttribute("ChoreoAuto") == false)
+	end)
+	player:GetAttributeChangedSignal("ChoreoAuto"):Connect(paint)
+	paint()
+end
 
 -- Row 2: tempo
 local tempoRow = create("Frame", {
@@ -300,9 +322,8 @@ local banner = label({
 	Visible = false,
 }, gui)
 corner(banner, 15)
--- (room at both ends for the club's ≡ 💃 and › buttons, ClubQuickBar; 34 → 62
--- on the left for 💃 안무, D-837)
-create("UIPadding", { PaddingLeft = UDim.new(0, 62), PaddingRight = UDim.new(0, 34) }, banner)
+-- (34: room at both ends for the club's ≡ and › buttons, ClubQuickBar)
+create("UIPadding", { PaddingLeft = UDim.new(0, 34), PaddingRight = UDim.new(0, 34) }, banner)
 
 -- 같이 추기 status pill (under the banner while synced)
 local syncPill = create("Frame", {
@@ -1188,13 +1209,14 @@ local function syncMusic()
 		local at = FashionGame:GetAttribute("ClubMusicPausedAt")
 		music:Pause()
 		if typeof(at) == "number" then music.TimePosition = math.clamp(at, 0, math.max(music.TimeLength - 0.5, 0)) end
-		banner.Text = "⏸ " .. ClubConfig.showTitle(track, banner.TextSize) -- (D-776: the title only)
+		banner.Text = "⏸ " .. (if track.choreo then ClubConfig.escapeRich(track.title) else ClubConfig.showTitle(track, banner.TextSize)) -- (D-776: the title only)
 		return
 	end
 	music.TimePosition = math.clamp((workspace:GetServerTimeNow() - start) * speed, 0, math.max(music.TimeLength - 0.5, 0))
 	if not music.IsPlaying then music:Play() end
 	-- (D-776, user: the title only, no "NOW PLAYING · K-POP"; 🎵 = a choreography, D-731)
-	banner.Text = "♪ " .. ClubConfig.showTitle(track, banner.TextSize)
+	-- (D-839) a choreography song: no ♪, the 🎵 button stands in front instead (ClubQuickBar)
+	banner.Text = if track.choreo then ClubConfig.escapeRich(track.title) else "♪ " .. ClubConfig.showTitle(track, banner.TextSize)
 end
 FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubTrackStart"):Connect(function() task.spawn(syncMusic) end)
