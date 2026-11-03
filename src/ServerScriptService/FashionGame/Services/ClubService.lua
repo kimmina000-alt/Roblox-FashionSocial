@@ -237,6 +237,23 @@ local function setPaused(on: boolean)
 	end
 end
 
+-- (D-849, user: "재생바에서 노래 부분 선택할 수 있게") move the song to
+-- `fraction` of its length for everyone, playing or paused
+local function seek(fraction: number)
+	local track = ClubConfig.Playlist[trackIndex]
+	if not track then return end
+	local at = math.clamp(fraction, 0, 0.98) * track.length
+	if isPaused() then
+		pausedAt = at
+		FashionGame:SetAttribute("ClubMusicPausedAt", at)
+		return
+	end
+	local rate = ClubConfig.trackRate(track, musicSpeed())
+	local now = workspace:GetServerTimeNow()
+	FashionGame:SetAttribute("ClubTrackStart", now - at / rate)
+	trackEnds = now + (track.length - at) / rate + 1
+end
+
 -- (a track's own baseSpeed multiplies in: ClubConfig.trackRate)
 local function setMusicSpeed(new: number)
 	local old = musicSpeed()
@@ -391,6 +408,13 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 			return true, "⏭ 투표로 다음 곡으로 넘어갔어요!"
 		end
 		return true, string.format("⏭ 스킵 투표 %d/%d", votes, needed)
+	end
+	if action == "Seek" then
+		-- (D-849, user: the DJ and the game's owner only)
+		if not ClubConfig.canSeek(player, isDJ) then return false, "DJ만 구간을 옮길 수 있어요." end
+		if typeof(payload) ~= "number" or payload ~= payload then return false, nil end
+		seek(payload)
+		return true, nil
 	end
 	if action == "Request" then
 		local index = validTrack(payload)

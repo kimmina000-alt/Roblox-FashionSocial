@@ -1223,6 +1223,7 @@ FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function() task.spawn
 FashionGame:GetAttributeChangedSignal("ClubTrackStart"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubMusicSpeed"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubMusicPaused"):Connect(function() task.spawn(syncMusic) end)
+FashionGame:GetAttributeChangedSignal("ClubMusicPausedAt"):Connect(function() task.spawn(syncMusic) end) -- (moved on the play bar while paused, D-849)
 task.spawn(syncMusic)
 
 -- 0..1 music level at a position: inside a zone that zone's volume (the

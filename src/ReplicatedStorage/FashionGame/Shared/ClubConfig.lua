@@ -125,6 +125,13 @@ function ClubConfig.canTestChoreo(player: Player): boolean
 	return game.CreatorType == Enum.CreatorType.User and player.UserId == game.CreatorId
 end
 
+-- (D-849, user) who may move the song with the play bar: the DJ playing now,
+-- the game's owner, anyone in Studio tests
+function ClubConfig.canSeek(player: Player, isDJ: boolean): boolean
+	if isDJ or game:GetService("RunService"):IsStudio() then return true end
+	return game.CreatorType == Enum.CreatorType.User and player.UserId == game.CreatorId
+end
+
 -- The lab's apply(): the PlaybackSpeed really sent (speed × tempo, Roblox
 -- stops at 20) and the PitchShift octave (octave ÷ the tempo that got
 -- through: tempo is speed with the pitch put back, 1/32..32)
