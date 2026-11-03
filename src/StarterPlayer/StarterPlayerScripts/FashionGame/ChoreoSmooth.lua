@@ -296,7 +296,8 @@ function ChoreoSmooth.pop(animationId: string, t: number): (CFrame?, CFrame?)
 	end
 	if k <= 0 then return nil, nil end
 	local arch = math.rad(pops.arch) * k
-	return CFrame.new(0, 0, -pops.push * k) * CFrame.Angles(arch, 0, 0), CFrame.Angles(-arch, 0, 0)
+	-- (D-853, user: "가슴 앞으로 위로 튀어나오게") `lift` raises the chest too
+	return CFrame.new(0, (pops.lift or 0) * k, -pops.push * k) * CFrame.Angles(arch, 0, 0), CFrame.Angles(-arch, 0, 0)
 end
 
 function ChoreoSmooth.correction(animationId: string, part: string, t: number): CFrame?

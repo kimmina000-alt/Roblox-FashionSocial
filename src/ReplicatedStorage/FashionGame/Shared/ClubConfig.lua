@@ -87,7 +87,7 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --     and turns on the way that one was turning into its own facing over
 --     that many seconds (ChoreoController.turnHips), instead of a cross-fade
 --     that flips the body round; keep it within the piece's `blend`
---   pops = { at, push, arch, back? }: a chest pop at each of those seconds
+--   pops = { at, push, lift?, arch, back? }: a chest pop at each of those seconds
 --     into the animation: the chest goes `push` studs forward and arches
 --     `arch` degrees back (the head stays level), out in 0.07 s and back in
 --     `back` seconds (0.3 if not given) (ChoreoSmooth.pop)
@@ -114,7 +114,9 @@ ClubConfig.ChoreoFixes = {
 	-- ATEEZ-BAD 21 (D-848, user: "가슴을 더 앞으로 크게 튕겼으면"): the capture
 	-- kept under 3° of the four chest pops in the reference clip
 	-- (D-851, user: "눈에 확 보이게") pushed further and held a little longer
-	[82346668311878] = { pops = { at = { 1.5, 2.47, 3.43, 4.4 }, push = 0.7, arch = 2, back = 0.4 } },
+	-- (D-853, user: "1초에 한 번씩 가슴 앞으로 위로 튀어나오게", in the arm-across pose,
+	-- 1.25-4.75 s): forward and up, the chest arching up (the head stays level)
+	[82346668311878] = { pops = { at = { 1.5, 2.47, 3.43, 4.4 }, push = 0.5, lift = 0.2, arch = 8, back = 0.4 } },
 	-- A2O LITE-NEON 1, 2, 3 (D-851, user: "네온 초반에 바들바들 떠는 거"): a
 	-- slower wobble (about 4-8 a second) than the usual clean-up catches
 	-- NEON 1 (D-852, user: 5-6 s, the raised-arm pose twice "처음 나오는 자세에서
@@ -135,7 +137,7 @@ ClubConfig.ChoreoFixes = {
 		parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "LeftToeBase", "RightUpperLeg", "RightLowerLeg", "RightFoot", "RightToeBase" } },
 		still = { from = 0.4, to = 2.8 } },
 } :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
-	pops: { at: {number}, push: number, arch: number, back: number? }?, calm: boolean?,
+	pops: { at: {number}, push: number, lift: number?, arch: number, back: number? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: { from: number, to: number }?, turnEase: string?,
 	spin: { from: number, to: number }? }}
 
