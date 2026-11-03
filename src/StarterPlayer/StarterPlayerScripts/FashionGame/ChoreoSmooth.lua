@@ -317,8 +317,15 @@ local function angles(a: {number}): CFrame
 end
 function ChoreoSmooth.pose(animationId: string, t: number): ({[string]: CFrame}?, {[string]: CFrame}?, number)
 	local fixes = ChoreoSmooth.fixes(animationId)
-	local pose = fixes and fixes.pose
-	if not pose or t <= pose.from or t >= pose.to then return nil, nil, 0 end
+	-- (D-860) `pose` may be a list of poses for different stretches
+	local list = fixes and fixes.pose
+	if not list then return nil, nil, 0 end
+	if list.from then list = { list } end
+	local pose
+	for _, p in ipairs(list) do
+		if t > p.from and t < p.to then pose = p break end
+	end
+	if not pose then return nil, nil, 0 end
 	local ease = pose.ease or 0.3
 	local f = math.clamp(math.min(t - pose.from, pose.to - t) / ease, 0, 1)
 	local keys = pose.keys
@@ -331,11 +338,16 @@ function ChoreoSmooth.pose(animationId: string, t: number): ({[string]: CFrame}?
 	local k = if b.t > a.t then (t - a.t) / (b.t - a.t) else 0
 	k = k * k * (3 - 2 * k)
 	local set = {}
-	for part, value in pairs(a.set) do
-		set[part] = angles(value):Lerp(angles(b.set[part] or value), k)
+	for part, value in pairs(a.set or {}) do
+		set[part] = angles(value):Lerp(angles((b.set or {})[part] or value), k)
 	end
 	local add = {}
 	for part, value in pairs(pose.add or {}) do add[part] = angles(value) end
+	-- (D-860) keys may carry their own `add` turns, eased between keys too
+	for part, value in pairs(a.add or {}) do
+		local turn = angles(value):Lerp(angles((b.add or {})[part] or value), k)
+		add[part] = if add[part] then add[part] * turn else turn
+	end
 	return set, add, f * f * (3 - 2 * f)
 end
 

@@ -104,7 +104,8 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --   pose = { from, to, ease?, keys = {{ t, set = { [part] = { x, y, z } } }}, add? }:
 --     a pose the capture lost: those joints set to the keys' turns (degrees,
 --     eased between keys), `add` turns added on top, easing in and out over
---     `ease` s (D-855)
+--     `ease` s (D-855); a list of such poses for different stretches, and keys
+--     with their own `add` turns (eased between keys), D-860
 --   (steady without `parts` = the whole body, D-852)
 ClubConfig.ChoreoFixes = {
 	-- IVE-Looks Can Kill 25 (song 2:18.5): the right arm shook at 2:22
@@ -137,14 +138,26 @@ ClubConfig.ChoreoFixes = {
 		-- across is the right one: the piece is the mirror of the clip); (D-856,
 		-- user: "손 모양도 영상처럼 펴서") the hand straight along the forearm, turned
 		-- so its broad side faces up
-		pose = { from = 1.15, to = 4.75, ease = 0.3,
+		pose = { { from = 1.15, to = 4.75, ease = 0.3,
 			keys = {
 				{ t = 1.3, set = { RightUpperArm = { -54, 30, 96 }, RightLowerArm = { 135, 0, 0 }, RightHand = { 0, -45, 0 } } },
 				{ t = 2.6, set = { RightUpperArm = { -54, 30, 96 }, RightLowerArm = { 135, 0, 0 }, RightHand = { 0, -45, 0 } } },
 				{ t = 3.4, set = { RightUpperArm = { -78, 42, 96 }, RightLowerArm = { 115, 0, 0 }, RightHand = { 0, -25, 0 } } },
 				{ t = 4.3, set = { RightUpperArm = { -66, 66, 66 }, RightLowerArm = { 110, 0, 0 }, RightHand = { 0, -5, 0 } } },
 			},
-			add = { Head = { 14, 0, 0 } } } },
+			add = { Head = { 14, 0, 0 } } },
+			-- (D-860, user: "다리 부분도 동영상 분석해서 똑같이 … 왜 벌어지는 거임") hands on
+			-- the hips (5-6.6 s): the clip stands with the feet side by side, 1.0-1.5
+			-- hip widths apart; the capture opened them to 1.3-1.8 and put the left
+			-- foot about a stud ahead. The hips turn the feet in (z) and level (x),
+			-- about a leg of 2.6 studs
+			{ from = 4.85, to = 6.62, ease = 0.25,
+				keys = {
+					{ t = 5.0, add = { LeftUpperLeg = { -2.6, 0, 4 }, RightUpperLeg = { 2.6, 0, -4 } } },
+					{ t = 5.5, add = { LeftUpperLeg = { -7.1, 0, 5 }, RightUpperLeg = { 7.1, 0, -5 } } },
+					{ t = 6.0, add = { LeftUpperLeg = { -8.6, 0, 4.5 }, RightUpperLeg = { 8.6, 0, -4.5 } } },
+					{ t = 6.5, add = { LeftUpperLeg = { -10.4, 0, 5.5 }, RightUpperLeg = { 10.4, 0, -5.5 } } },
+				} } } },
 	-- A2O LITE-NEON 1, 2, 3 (D-851, user: "네온 초반에 바들바들 떠는 거"): a
 	-- slower wobble (about 4-8 a second) than the usual clean-up catches
 	-- NEON 1 (D-852, user: 5-6 s, the raised-arm pose twice "처음 나오는 자세에서
@@ -168,7 +181,7 @@ ClubConfig.ChoreoFixes = {
 	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: { from: number, to: number }?, turnEase: string?,
 	spin: { from: number, to: number }?,
-	pose: { from: number, to: number, ease: number?, keys: {{ t: number, set: {[string]: {number}} }}, add: {[string]: {number}}? }? }}
+	pose: any? }}
 
 -- (D-851) the slower wobble clean-up for pieces with `calm` in ChoreoFixes:
 -- a turn back between two swings of at most maxLen keyframes and maxSwing
