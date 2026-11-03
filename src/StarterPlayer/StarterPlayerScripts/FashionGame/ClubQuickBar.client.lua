@@ -66,17 +66,35 @@ for _, sign in ipairs({ -1, 1 }) do
 end
 -- 🎵 in front of the title of a song with a choreography (D-839, user: "그
 -- 음표를 안무 버튼으로 하자"; the 💃 of D-837 is gone): tap to dance the
--- choreography or stop it (back to the dance before, ChoreoController). A
--- pink circle while dancing it (LocalPlayer attribute ChoreoFollowing).
+-- choreography or stop it (back to the dance before, ChoreoController).
+-- (D-841, user) the note itself shows it, no circle: blue like the old 🎵 while
+-- dancing it (LocalPlayer attribute ChoreoFollowing), white when not. A white
+-- ♫ drawn from small shapes like the ≡ and › (an emoji keeps its own colours),
+-- no background (user: "흰색 음표 아이콘 … 누르면 거기 색을 넣어 … 배경 깔지 마").
+local CHOREO_ON = Color3.fromRGB(90, 175, 255)
 local choreoButton = sideButton("ClubChoreo")
 choreoButton.Size = UDim2.fromOffset(22, 22)
-choreoButton.Text = "🎵"
-choreoButton.TextSize = 14
-choreoButton.TextColor3 = Color3.new(1, 1, 1)
-choreoButton.BackgroundColor3 = Color3.fromRGB(255, 70, 170)
-Instance.new("UICorner", choreoButton).CornerRadius = UDim.new(1, 0)
+local noteParts: {Frame} = {}
+for _, s in ipairs({
+	{ 0.25, 0.79, 0.36, 0.26, -20, true }, -- the two note heads
+	{ 0.73, 0.69, 0.36, 0.26, -20, true },
+	{ 0.40, 0.49, 0.08, 0.60, 0, false }, -- their stems
+	{ 0.88, 0.39, 0.08, 0.60, 0, false },
+	{ 0.64, 0.19, 0.58, 0.13, -12, false }, -- the beam
+}) do
+	local part = Instance.new("Frame")
+	part.AnchorPoint = Vector2.new(0.5, 0.5)
+	part.Position = UDim2.fromScale(s[1], s[2])
+	part.Size = UDim2.fromScale(s[3], s[4])
+	part.Rotation = s[5]
+	part.BorderSizePixel = 0
+	part.Parent = choreoButton
+	if s[6] then Instance.new("UICorner", part).CornerRadius = UDim.new(1, 0) end
+	table.insert(noteParts, part)
+end
 local function paintChoreo()
-	choreoButton.BackgroundTransparency = if player:GetAttribute("ChoreoFollowing") then 0 else 1
+	local color = if player:GetAttribute("ChoreoFollowing") then CHOREO_ON else Color3.new(1, 1, 1)
+	for _, part in ipairs(noteParts) do part.BackgroundColor3 = color end
 end
 player:GetAttributeChangedSignal("ChoreoFollowing"):Connect(paintChoreo)
 paintChoreo()
