@@ -17,6 +17,7 @@
 --   ChoreoSmooth.retarget(animationId, t)          -- waist, left, right turns for joints R15 lacks (D-843)
 --   ChoreoSmooth.pop(animationId, t)               -- waist, neck for a chest pop from ChoreoFixes (D-848)
 --   ChoreoSmooth.fixes(animationId)                -- the ClubConfig.ChoreoFixes entry, or nil (D-852)
+--   ChoreoSmooth.pose(animationId, t)              -- joint turns to set / add for a lost pose, and how much (D-855)
 
 local KeyframeSequenceProvider = game:GetService("KeyframeSequenceProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -300,6 +301,37 @@ function ChoreoSmooth.pop(animationId: string, t: number): (CFrame?, CFrame?)
 	local arch = math.rad(pops.arch) * k
 	-- (D-853, user: "가슴 앞으로 위로 튀어나오게") `lift` raises the chest too
 	return CFrame.new(0, (pops.lift or 0) * k, -pops.push * k) * CFrame.Angles(arch, 0, 0), CFrame.Angles(-arch, 0, 0)
+end
+
+-- (D-855) a pose the capture lost, from ClubConfig.ChoreoFixes `pose`: at
+-- time t, the joint turns to set (by part name), the turns to add on top,
+-- and how much of them shows (easing in after `from`, out before `to`), or
+-- nil outside it
+local function angles(a: {number}): CFrame
+	return CFrame.Angles(math.rad(a[1]), math.rad(a[2]), math.rad(a[3]))
+end
+function ChoreoSmooth.pose(animationId: string, t: number): ({[string]: CFrame}?, {[string]: CFrame}?, number)
+	local fixes = ChoreoSmooth.fixes(animationId)
+	local pose = fixes and fixes.pose
+	if not pose or t <= pose.from or t >= pose.to then return nil, nil, 0 end
+	local ease = pose.ease or 0.3
+	local f = math.clamp(math.min(t - pose.from, pose.to - t) / ease, 0, 1)
+	local keys = pose.keys
+	-- the two keys either side of t (held before the first, after the last)
+	local a, b = keys[1], keys[#keys]
+	for i = 1, #keys - 1 do
+		if t >= keys[i].t and t <= keys[i + 1].t then a, b = keys[i], keys[i + 1] break end
+	end
+	if t < keys[1].t then b = a elseif t > keys[#keys].t then a = b end
+	local k = if b.t > a.t then (t - a.t) / (b.t - a.t) else 0
+	k = k * k * (3 - 2 * k)
+	local set = {}
+	for part, value in pairs(a.set) do
+		set[part] = angles(value):Lerp(angles(b.set[part] or value), k)
+	end
+	local add = {}
+	for part, value in pairs(pose.add or {}) do add[part] = angles(value) end
+	return set, add, f * f * (3 - 2 * f)
 end
 
 function ChoreoSmooth.correction(animationId: string, part: string, t: number): CFrame?

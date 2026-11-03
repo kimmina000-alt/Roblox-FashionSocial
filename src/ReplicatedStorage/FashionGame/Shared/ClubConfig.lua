@@ -101,6 +101,10 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --   spin = { from, to }: a spin in the capture that lurches turns evenly
 --     between its facings at `from` and `to` (starts gently, ends at full
 --     speed) (D-852)
+--   pose = { from, to, ease?, keys = {{ t, set = { [part] = { x, y, z } } }}, add? }:
+--     a pose the capture lost: those joints set to the keys' turns (degrees,
+--     eased between keys), `add` turns added on top, easing in and out over
+--     `ease` s (D-855)
 --   (steady without `parts` = the whole body, D-852)
 ClubConfig.ChoreoFixes = {
 	-- IVE-Looks Can Kill 25 (song 2:18.5): the right arm shook at 2:22
@@ -122,7 +126,19 @@ ClubConfig.ChoreoFixes = {
 	-- sink until the next one; his clip runs 0.22 s behind this piece (arms
 	-- across, the lunge), so 1.55 / 2.55 / 3.58 / 4.63 here (the ATEEZ source
 	-- of this piece lengthens its torso at 2.54 / 3.57 / 4.57 too)
-	[82346668311878] = { pops = { at = { 1.55, 2.55, 3.58, 4.63 }, push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.85, sink = true } },
+	[82346668311878] = { pops = { at = { 1.55, 2.55, 3.58, 4.63 }, push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.85, sink = true },
+		-- (D-855, user: "보정") the user's clip holds the forearm level across the
+		-- chest (lower from about 3 s, at the waist by 4.3 s) and the head tipped back from the arms
+		-- across to the hands on the hips; the capture lost both (here the arm
+		-- across is the right one: the piece is the mirror of the clip)
+		pose = { from = 1.15, to = 4.75, ease = 0.3,
+			keys = {
+				{ t = 1.3, set = { RightUpperArm = { -54, 30, 96 }, RightLowerArm = { 135, 0, 0 } } },
+				{ t = 2.6, set = { RightUpperArm = { -54, 30, 96 }, RightLowerArm = { 135, 0, 0 } } },
+				{ t = 3.4, set = { RightUpperArm = { -78, 42, 96 }, RightLowerArm = { 115, 0, 0 } } },
+				{ t = 4.3, set = { RightUpperArm = { -66, 66, 66 }, RightLowerArm = { 110, 0, 0 } } },
+			},
+			add = { Head = { 14, 0, 0 } } } },
 	-- A2O LITE-NEON 1, 2, 3 (D-851, user: "네온 초반에 바들바들 떠는 거"): a
 	-- slower wobble (about 4-8 a second) than the usual clean-up catches
 	-- NEON 1 (D-852, user: 5-6 s, the raised-arm pose twice "처음 나오는 자세에서
@@ -145,7 +161,8 @@ ClubConfig.ChoreoFixes = {
 } :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
 	pops: { at: {number}, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: { from: number, to: number }?, turnEase: string?,
-	spin: { from: number, to: number }? }}
+	spin: { from: number, to: number }?,
+	pose: { from: number, to: number, ease: number?, keys: {{ t: number, set: {[string]: {number}} }}, add: {[string]: {number}}? }? }}
 
 -- (D-851) the slower wobble clean-up for pieces with `calm` in ChoreoFixes:
 -- a turn back between two swings of at most maxLen keyframes and maxSwing

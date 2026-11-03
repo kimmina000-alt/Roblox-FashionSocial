@@ -176,6 +176,23 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 				if left and l then l.Transform = CFrame.identity:Lerp(left, weight) * l.Transform end
 				if right and r then r.Transform = CFrame.identity:Lerp(right, weight) * r.Transform end
 			end
+			-- (D-855, user: ATEEZ 21 "보정") a pose the capture lost (the forearm
+			-- across the chest, the head back): those joints are set to it, or
+			-- turned by it, easing in and out (after the clavicles, so the set
+			-- turn is the whole shoulder)
+			if smooth then
+				local set, add, amount = ChoreoSmooth.pose(id, t.TimePosition)
+				if set and add and amount > 0 then
+					for part, target in pairs(set) do
+						local j = joints[part]
+						if j then j.Transform = j.Transform:Lerp(target, amount * weight) end
+					end
+					for part, turn in pairs(add) do
+						local j = joints[part]
+						if j then j.Transform = j.Transform * CFrame.identity:Lerp(turn, amount * weight) end
+					end
+				end
+			end
 		end
 	end
 end
