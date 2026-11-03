@@ -59,7 +59,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - `docs/04_ART/REFERENCES.md` + `docs/04_ART/references/`: the user's photos/videos. Art direction = build realistically from these (D-102); save new references there.
 - `docs/06_LOG/ISSUES.md`, `WORKLOG.md` (daily journal), `PROGRESS_BY_DATE.md` (short summary per day: add to it each day; put before/after screenshots of the day in docs/06_LOG/images/<date>/ and show them in the WORKLOG entry), `CHANGELOG.md`.
 - `docs/01_SYSTEMS/CLUB.md`, `DJ_SYSTEM.md`, `MONETIZATION.md`, `PHOTO_BOOTH.md`, `ECONOMY.md`, `docs/02_WORLDS/CAFE.md` (§9 part-time job), `CLUB_DRESS_CODE.md`.
-- `docs/01_SYSTEMS/CHOREOGRAPHY.md`: club choreography made of animation pieces. Before adding ids, run `tools/choreo/choreo_check.lua` and fix the seams (the end of one piece must match the start of the next, user rule D-806); dance stays in place (D-802).
+- `docs/01_SYSTEMS/CHOREOGRAPHY.md`: club choreography made of animation pieces. Before adding ids, run `tools/choreo/choreo_check.lua` and fix the seams (the end of one piece must match the start of the next, user rule D-806). The dance path shows: the dancer's root moves along each piece's hips travel so the next piece starts where the last ended (D-813), drift eased back over 8 s (D-817), camera held at the dance start with turn/zoom still working (D-825).
 - `docs/02_WORLDS/HONGDAE_LAYOUT.md` (current layout v7b + history), `MAIN_SOCIAL_LAYOUT_PROPOSAL.md`, `CLUB_AREA.md`.
 
 ## Rules learned
