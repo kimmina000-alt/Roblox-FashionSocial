@@ -61,3 +61,15 @@ Get A Guitar(2026-11-03, D-807): `!!` 이음새 13곳 모두 `blend`로 맞췄�
 5. 스크린샷을 찍는다. BindToRenderStep으로 카메라를 고정하고 screen_capture를 쓴다. 아바타가 실제로 움직이는지 본다(2026-11-03 NEON: "재생 중"인데 안 움직였음).
 6. 2P 테스트에서는 각 화면에서 상대방도 제자리에서 춤추는지 본다.
 7. 기록은 DECISIONS / WORKLOG / PROGRESS_BY_DATE에 남긴다. `docs/04_ART/CLUB_PLAYLIST.md` 안무 칸도 맞춘다. D 번호는 다른 세션과 겹치지 않게 DECISIONS.md 마지막 번호를 보고 정한다.
+
+## 6. 세세한 움직임 모두 반영 (사용자 2026-11-03, D-843)
+
+> 앞으로는 고개나 세세한 움직임 모두 읽고 넣는다. 손가락이나 발 같은 부분 움직임도 있으면 모두 반영한다. 덜덜 떨리는 모션만 빼고.
+
+- 새 안무를 넣을 때 조각마다 어떤 관절 키가 들어 있는지 읽는다(Pose 이름과 움직임 범위). 표준 R15 관절이 아닌 것은 버려지지 않게 옮겨 담는다.
+  - 쇄골(Left/RightClavicle) → 어깨(UpperArm) 앞에 곱한다. 척추(Spine)·가슴(Chest) → 허리(UpperTorso) 뒤에 곱한다(`ChoreoSmooth.retarget`, `ClubConfig.ChoreoRetarget`). 자동이다.
+  - 발가락(ToeBase)은 R15에 관절이 없어 넣을 수 없다. 손가락 키는 지금까지의 안무에 없다. 새 관절이 나오면 사용자에게 알리고 옮길 곳을 정한다.
+- 고개(Head)는 이미 R15 관절이라 그대로 나온다. 4곡 85조각 모두 고개 키가 있다.
+- 떨림 보정(3번 D-811)은 연달아 앞뒤로 흔들리는 작은 떨림만 지운다. 고개·손·발의 진짜 움직임은 지우지 않는다.
+- 확인: Studio 스위치 FashionGame `ChoreoRetargetOff`로 끄고·켜고 같은 순간을 비교한다(노래를 멈추려면 클라이언트에서 FashionGame `ClubMusicPaused` = true, `ClubMusicPausedAt` = 초 × trackRate).
+- 조각별 국소 수정(D-840): `ClubConfig.ChoreoFixes[애니메이션 id]` — `steady = { from, to, parts }`(그 구간 그 관절만 강하게 다듬기), `turn = 초`(앞 조각이 끝난 방향에서 돌던 방향으로 이어 돌기, 섞기 대신).

@@ -139,20 +139,35 @@ end
 -- (D-811) the zigzag keyframes eased: each choreography animation playing
 -- adds its correction at its own time, as much as it shows (its weight)
 local function smoothJoints(character: Model, tracks: {AnimationTrack})
-	if not ClubConfig.ChoreoSmoothing then return end
-	-- (Studio only: FashionGame attribute ChoreoSmoothingOff compares without it)
-	if RunService:IsStudio() and FashionGame:GetAttribute("ChoreoSmoothingOff") then return end
+	-- (Studio only: FashionGame attributes ChoreoSmoothingOff / ChoreoRetargetOff compare without them)
+	local smooth = ClubConfig.ChoreoSmoothing and not (RunService:IsStudio() and FashionGame:GetAttribute("ChoreoSmoothingOff"))
+	local retarget = ClubConfig.ChoreoRetarget and not (RunService:IsStudio() and FashionGame:GetAttribute("ChoreoRetargetOff"))
+	if not smooth and not retarget then return end
 	local joints = bodyJoints(character)
 	for _, t in ipairs(tracks) do
 		local id = t.Animation and t.Animation.AnimationId
-		local weight = t.WeightCurrent
+		local weight = math.min(t.WeightCurrent, 1)
 		if id and weight > 0.01 then
 			ChoreoSmooth.load(id)
-			for part, joint in pairs(joints) do
-				local fix = ChoreoSmooth.correction(id, part, t.TimePosition)
-				if fix then
-					joint.Transform = joint.Transform * CFrame.identity:Lerp(fix, math.min(weight, 1))
+			if smooth then
+				for part, joint in pairs(joints) do
+					local fix = ChoreoSmooth.correction(id, part, t.TimePosition)
+					if fix then
+						joint.Transform = joint.Transform * CFrame.identity:Lerp(fix, weight)
+					end
 				end
+			end
+			-- (D-843, user: "고개나 세세한 움직임 모두 읽고 넣어 … 덜덜 떨리는 모션
+			-- 아니면") the captured spine, chest and clavicles have no joint on an
+			-- R15 body, so their turns would be lost: spine + chest go onto the
+			-- waist (the upper body, arms and head follow), each clavicle onto
+			-- its shoulder ahead of the upper arm's own turn
+			if retarget then
+				local waist, left, right = ChoreoSmooth.retarget(id, t.TimePosition)
+				local w, l, r = joints.UpperTorso, joints.LeftUpperArm, joints.RightUpperArm
+				if waist and w then w.Transform = w.Transform * CFrame.identity:Lerp(waist, weight) end
+				if left and l then l.Transform = CFrame.identity:Lerp(left, weight) * l.Transform end
+				if right and r then r.Transform = CFrame.identity:Lerp(right, weight) * r.Transform end
 			end
 		end
 	end

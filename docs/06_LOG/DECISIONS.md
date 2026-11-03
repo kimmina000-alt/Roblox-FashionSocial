@@ -2056,3 +2056,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자(스크린샷 2장): "다른 곡에는 음표 삭제", "안무 음표 크기 2/3로 줄이기".
 - 안무 없는 곡은 노래 칸에 제목만(♪ 뺌, 일시정지는 ⏸ 그대로). 안무 음표 아이콘 22 → 15.
 - Play: K-Pop Party "제목만", Get A Guitar 작은 파란 ♫ + 제목.
+
+## D-843 (2026-11-03) 안무의 세세한 움직임 모두 반영 (척추·가슴·쇄골 → R15)
+- 사용자: "앞으로는 고개나 세세한 움직임 모두 읽고 넣어 손가락이나 발 같은 부분 움직임도 있으면 모두 반영해 덜덜 떨리는 모션 아니면".
+- 확인(4곡 85조각 키프레임): 모든 조각에 고개 있음(평균 범위 61°, 화면에서도 곡마다 59~82° 움직임). 손가락 키는 없음. 표준 R15에 없는 관절이 들어 있어 그동안 버려졌음: 쇄골 Left/RightClavicle(평균 범위 40°), 척추 Spine(11°), 가슴 Chest(16°), 발가락 Left/RightToeBase(13~14°). 뼈대: UpperTorso → Spine → Chest → (Clavicle → UpperArm …, Head).
+- ChoreoSmooth.retarget + ChoreoController.smoothJoints: 척추×가슴 회전을 허리(Waist, UpperTorso) 뒤에 곱함(팔·고개도 따라감), 각 쇄골 회전을 어깨(UpperArm) 앞에 곱함. 떨림 보정 뒤 값 사용. 발가락은 R15에 관절이 없어 못 넣음(발 전체에 합치면 발이 틀어짐). `ClubConfig.ChoreoRetarget = true`(false면 끔), Studio 스위치 FashionGame `ChoreoRetargetOff`.
+- Play(IVE 3번 조각, 노래 7.6~18.5초, 켜고/끄고 비교): 위팔·손 방향 평균 25~28°(최대 47°), 상체·고개 평균 7°(최대 14°) 바뀜, 측정 오차 2° 이하. 같은 순간 비교 사진 d843_retarget_off/on: 켜면 팔꿈치가 더 높이 들림, 꺾임 없음. 어깨 위치가 들리는 것까지는 R15로 표현 못 함(방향만).

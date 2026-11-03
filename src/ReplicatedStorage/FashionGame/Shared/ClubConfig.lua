@@ -66,6 +66,12 @@ local ClubConfig = {}
 -- nil = off.
 ClubConfig.ChoreoSmoothing = { maxStep = 8, passes = 4 } :: { maxStep: number, passes: number }?
 
+-- (D-843) the choreography captures carry a spine, a chest and two
+-- clavicles that an R15 body does not have; true folds their turns onto the
+-- waist and the shoulders (ChoreoSmooth.retarget) so that motion shows.
+-- The toes have nowhere to go on R15 and stay out. false = off.
+ClubConfig.ChoreoRetarget = true
+
 -- (D-817) a dancer following a choreography walks its dance path (D-813),
 -- and is eased back toward where the dance began over about this many
 -- seconds, so the drift the pieces add up to does not carry them off the

@@ -14,6 +14,7 @@
 --   ChoreoSmooth.correction(animationId, partName, t) -- CFrame? to multiply onto the joint's Transform at time t
 --   ChoreoSmooth.clear()                           -- read again with new settings
 --   ChoreoSmooth.hips(animationId, t)              -- Vector3? the hips' travel at time t (D-813)
+--   ChoreoSmooth.retarget(animationId, t)          -- waist, left, right turns for joints R15 lacks (D-843)
 
 local KeyframeSequenceProvider = game:GetService("KeyframeSequenceProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -28,6 +29,12 @@ local cache: {[string]: {[string]: Track}} = {}
 -- at each keyframe, as made (ChoreoController moves the dancer along it)
 type Path = { times: {number}, at: {Vector3}, facing: {number} }
 local paths: {[string]: Path} = {}
+-- (D-843) per animation id: the turns of the captured joints a standard R15
+-- body does not have, at each keyframe, folded onto joints it does have:
+-- waist = Spine * Chest (after UpperTorso), left / right = the clavicle
+-- (before the upper arm)
+type Retarget = { times: {number}, waist: {CFrame}?, left: {CFrame}?, right: {CFrame}? }
+local retargets: {[string]: Retarget} = {}
 
 local ChoreoSmooth = {}
 
@@ -108,9 +115,10 @@ function ChoreoSmooth.load(animationId: string)
 		end
 		local fixes = ClubConfig.ChoreoFixes and ClubConfig.ChoreoFixes[tonumber(animationId:match("%d+")) or 0]
 		local steady = fixes and fixes.steady
-		if not settings and not steady then return end
 		local result = {}
+		local final: {[string]: {CFrame}} = {} -- (each part's poses after the clean-up, D-843)
 		for part, s in pairs(series) do
+			final[part] = s.raw
 			local cleaned = if settings then clean(s.raw, settings.maxStep, settings.passes) else nil
 			-- (D-840) a spot the user picked (a shaky arm): these parts smoothed
 			-- hard between `from` and `to`, easing in and out at both ends
@@ -132,12 +140,38 @@ function ChoreoSmooth.load(animationId: string)
 				cleaned = out
 			end
 			if cleaned then
+				final[part] = cleaned
 				local fix = {}
 				for k, c in ipairs(cleaned) do fix[k] = s.raw[k]:Inverse() * c end
 				result[part] = { times = s.times, fix = fix }
 			end
 		end
 		cache[animationId] = result
+		-- (D-843) the joints R15 lacks, folded onto the ones it has (one pose
+		-- per keyframe for every joint, so the lists line up)
+		local timesOf = series.UpperTorso and series.UpperTorso.times
+		if ClubConfig.ChoreoRetarget and timesOf then
+			local n = #timesOf
+			local function same(part: string): {CFrame}?
+				local list = final[part]
+				return if list and #list == n then list else nil
+			end
+			local spine, chest = same("Spine"), same("Chest")
+			local waist: {CFrame}? = nil
+			if spine or chest then
+				waist = {}
+				for k = 1, n do
+					(waist :: {CFrame})[k] = (if spine then spine[k].Rotation else CFrame.identity) * (if chest then chest[k].Rotation else CFrame.identity)
+				end
+			end
+			local function rotations(list: {CFrame}?): {CFrame}?
+				if not list then return nil end
+				local out = {}
+				for k, c in ipairs(list) do out[k] = c.Rotation end
+				return out
+			end
+			retargets[animationId] = { times = timesOf, waist = waist, left = rotations(same("LeftClavicle")), right = rotations(same("RightClavicle")) }
+		end
 	end)
 end
 
@@ -145,6 +179,7 @@ end
 function ChoreoSmooth.clear()
 	table.clear(cache)
 	table.clear(paths)
+	table.clear(retargets)
 end
 
 -- the keyframes either side of t and how far between them
@@ -158,6 +193,19 @@ local function around(times: {number}, t: number): (number, number, number)
 		if times[mid] <= t then lo = mid else hi = mid end
 	end
 	return lo, hi, (t - times[lo]) / math.max(times[hi] - times[lo], 1e-6)
+end
+
+-- (D-843) at time t: the spine + chest turn to add after the waist joint,
+-- and each clavicle's turn to add before that shoulder joint (nil where the
+-- animation has none or has not been read yet)
+function ChoreoSmooth.retarget(animationId: string, t: number): (CFrame?, CFrame?, CFrame?)
+	local r = retargets[animationId]
+	if not r then return nil, nil, nil end
+	local lo, hi, f = around(r.times, t)
+	local function at(list: {CFrame}?): CFrame?
+		return if list then list[lo]:Lerp(list[hi], f) else nil
+	end
+	return at(r.waist), at(r.left), at(r.right)
 end
 
 function ChoreoSmooth.correction(animationId: string, part: string, t: number): CFrame?
