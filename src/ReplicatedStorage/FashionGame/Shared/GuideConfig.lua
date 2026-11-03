@@ -36,14 +36,7 @@ GuideConfig.Places = {
 		at = Vector3.new(-112, 1, -56), look = Vector3.new(-120, 6, -60) },
 } :: {[string]: Place}
 
--- The tour, in order. The last step has no place: the camera comes back.
-GuideConfig.Tutorial = { "spawn", "club", "photo", "gukbap", "oh24", "cafe", "beach", "hanok", "park", "guide" }
-GuideConfig.TutorialEnd = {
-	-- (user 2026-11-01, D-715: short; [다음] goes straight on to the menu button)
-	-- (D-718, user: this card says the buttons come next)
-	title = "📱 화면 버튼",
-	text = "동네 소개는 여기까지예요! 이제 화면에 있는 버튼들을 하나씩 알려 드릴게요.",
-}
+-- (the first-visit tour of these places is gone, D-845)
 
 -- The guide NPC: walks about the paved square in front of the 기부 순위표
 -- (user 2026-11-01, D-713: the area the user circled; between the boards
@@ -62,7 +55,6 @@ GuideConfig.Npc = {
 }
 
 -- 무엇이든 물어보세요: question → answer (and the place to show, if any).
--- action = "tutorial": the button plays the tour again.
 export type Faq = { q: string, a: string, place: string?, action: string? }
 GuideConfig.Faq = {
 	{ q = "클럽은 어디 있고 언제 열어요?", a = "큰길 동쪽의 검은 건물 OHU CLUB이에요. 밤 18:00~06:00에만 들어갈 수 있어요(게임 시간, 오른쪽 위 시계).", place = "club" },
@@ -80,7 +72,6 @@ GuideConfig.Faq = {
 	{ q = "국밥을 테이블에 놓으면 남도 먹어요?", a = "아니요, 테이블에 놓은 국밥은 놓은 사람만 떠먹어요. 수육 한 접시와 케이크는 테이블에 놓으면 모두 한 조각씩 가져가 먹어요.", place = "gukbap" },
 	-- (D-725) action = "feedback": the button opens 💬 의견 보내기
 	{ q = "💬 불편한 점·바라는 점 보내기", a = "버그, 불편한 점, 있었으면 하는 것 무엇이든 알려 주세요! 개발자가 하나하나 직접 읽어요. 화면 오른쪽 위 💬 버튼으로도 보낼 수 있어요.", action = "feedback" },
-	{ q = "처음 안내 다시 보기", a = "동네 소개와 화면·카탈로그·가방·춤·클럽·카페·알바 안내를 처음처럼 다시 보여 줘요.", action = "tutorial" },
 } :: {Faq}
 
 -- How long the 길 안내 marker stays (it goes as soon as the player arrives).

@@ -1,8 +1,7 @@
 --!strict
 -- The first-time tips (user 2026-11-01, D-713), shown with Coach, each once,
 -- each skippable:
---   hud      after the place tour: the buttons on the screen (the clock,
---            coins, ♥ 후원 and the top row; Roblox's own buttons not since D-774)
+--   (hud, the screen buttons after the place tour: gone with the tour, D-845)
 --   catalog  the first time the catalog opens
 --   bag      the first time the 🎒 bag opens
 --   dance    the first time the dance window opens
@@ -13,8 +12,7 @@
 --   photo    the first time in 오후네컷 (D-715)
 --   dj       the first time the DJ turntable's window opens (D-716)
 -- Place tips fly the camera to each thing they talk about (D-715).
--- GuideController calls GuideTips.hud() at the end of the tour and
--- GuideTips.start() once.
+-- GuideController calls GuideTips.start() once.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -43,36 +41,6 @@ local function find(guiName: string, name: string?, text: string?): () -> Instan
 		end
 		return nil
 	end
-end
-
---------------------------------------------------
--- The screen
---------------------------------------------------
-
--- (D-715, user: right after "준비 끝" the menu button first)
-local HUD: {Coach.Step} = {
-	-- (D-721: the menu's buttons are out in the top row now, no ☰)
-	{ title = "옷걸이 · 카탈로그", text = "옷과 장신구를 찾아 입어 보고 갈아입어요.", target = function() return TopBar.button(4) end },
-	{ title = "🎒 가방", text = "산 음식·아이템과 오후네컷에서 찍은 사진이 여기 있어요.", target = function() return TopBar.button(3) end },
-	{ title = "♪ 춤", text = "춤을 골라 춰요. 클럽에서는 지금 나오는 곡에 맞춰 춰요.", target = function() return TopBar.button(1) end },
-	-- (D-774, user: no step for Roblox's own buttons at the top left)
-	{ title = "🕐 시간", text = "오후에는 시간이 흘러요. 실제 30분이 게임 속 하루예요. 해가 지고 밤(18:00~06:00)이 되면 클럽이 문을 열어요.",
-		target = find("FashionHudGui", "ClockPill") },
-	{ title = "₩ 소지금", text = "내 코인이에요. 게임에 있으면 1분마다 쌓이고, 카페 알바로 더 벌 수 있어요. 음식·아이템을 살 때 써요.",
-		target = find("FashionHudGui", "CoinPill") },
-	{ title = "♥ 후원", text = "Robux로 오후를 후원하는 버튼이에요. 후원하면 화면 위 배너와 순위표·전광판에 이름과 메시지가 올라가요.",
-		target = function() return TopBar.button(5) end },
-	-- (D-716, user: the last words, at the guide's own patch)
-	-- (D-774, user: polite to the end, like the rest of the tour)
-	{ title = "🐰 언제든 물어보세요!", text = "더 궁금한 점은 공원 순위표 앞에 있는 저에게 찾아와 주세요!",
-		camera = function()
-			local spot = GuideConfig.Npc.position
-			return CFrame.lookAt(spot + Vector3.new(16, 9, 14), spot + Vector3.new(0, 2, 0))
-		end },
-}
-
-function GuideTips.hud()
-	Coach.run("hud", HUD)
 end
 
 --------------------------------------------------
@@ -479,8 +447,7 @@ function GuideTips.start()
 				unask("cafe")
 			end
 			if root and not Coach.isRunning() then
-				if Coach.wants("feedbackAsk") and os.clock() - joinedAt > FeedbackConfig.NudgeMinutes * 60
-					and player:GetAttribute("TutorialDone") == true then
+				if Coach.wants("feedbackAsk") and os.clock() - joinedAt > FeedbackConfig.NudgeMinutes * 60 then
 					Coach.run("feedbackAsk", FEEDBACK_ASK)
 				elseif Coach.wants("photo") and (function()
 					-- inside the 오후네컷 building (Hongdae_Layout.OhuFourCuts), under its roof

@@ -1,10 +1,6 @@
 --!strict
--- First-visit tutorial and the guide NPC's 무엇이든 물어보세요 window (user
--- 2026-11-01, D-712; places and questions in Shared/GuideConfig).
---   * Tutorial: a player who has not seen it (attribute TutorialDone = false,
---     GuideService) gets a short tour: the camera flies to each place while a
---     card at the bottom says what is there. 건너뛰기 ends it at any step;
---     either way the server remembers it.
+-- The guide NPC's 무엇이든 물어보세요 window (user 2026-11-01, D-712; places
+-- and questions in Shared/GuideConfig). (The first-visit tour is gone, D-845.)
 --   * Guide NPC (prompt "GuidePrompt"): a window of questions; an answer can
 --     show its place (the camera flies there and back) or guide the way
 --     there (a marker over the place and a line from the player to it, gone
@@ -20,9 +16,7 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local GuideConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("GuideConfig"))
 local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("Guide") :: RemoteFunction
 local Popups = require(script.Parent:WaitForChild("Popups"))
-local Spotlight = require(script.Parent:WaitForChild("Spotlight"))
 local Sfx = require(script.Parent:WaitForChild("Sfx"))
-local TopBar = require(script.Parent:WaitForChild("TopBar"))
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -89,122 +83,10 @@ local function cameraBack()
 	if humanoid then camera.CameraSubject = humanoid end
 end
 
---------------------------------------------------
--- Tutorial
---------------------------------------------------
-
-local card = create("Frame", {
-	Name = "TutorialCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 78, 1, -56), -- (room on the left for the bunny, under it for 다음)
-	Size = UDim2.new(1, -188, 0, 122), BackgroundColor3 = Color3.new(0, 0, 0), Visible = false,
-	-- (D-717, user: black, see-through, white text; peach at 50 % in D-716)
-	BackgroundTransparency = 0.35,
-}, gui)
-corner(card, 18)
-create("UISizeConstraint", { MaxSize = Vector2.new(560, 122) }, card)
-create("UIStroke", { Color = ORANGE, Thickness = 2 }, card)
--- (D-716) the guide bunny beside the card, as if it gives the tour
-local GuideSpeaker = require(script.Parent:WaitForChild("GuideSpeaker"))
-GuideSpeaker.attach(card)
-local cardTitle = create("TextLabel", {
-	Position = UDim2.fromOffset(18, 12), Size = UDim2.new(1, -110, 0, 30), BackgroundTransparency = 1,
-	Font = Enum.Font.GothamBlack, TextSize = 24, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, Text = "",
-}, card)
-local cardStep = create("TextLabel", {
-	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 16), Size = UDim2.fromOffset(80, 22),
-	BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = Color3.fromRGB(200, 200, 205),
-	TextXAlignment = Enum.TextXAlignment.Right, Text = "",
-}, card)
--- (D-717, user: the words stood out less than the buttons: 15 → 20)
-local cardText = create("TextLabel", {
-	Position = UDim2.fromOffset(18, 48), Size = UDim2.new(1, -36, 0, 66), BackgroundTransparency = 1,
-	Font = Enum.Font.GothamBold, TextSize = 20, TextColor3 = Color3.new(1, 1, 1), TextWrapped = true,
-	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
-}, card)
--- (D-718, the user's mock-up) a small 건너뛰기 tag over the card's top right,
--- a small 다음 button under its bottom right, so the words come first
-local skipButton = button(card, "건너뛰기 >", Color3.fromRGB(40, 40, 46), Color3.new(1, 1, 1))
-skipButton.AnchorPoint = Vector2.new(1, 1)
-skipButton.Position = UDim2.new(1, -10, 0, -4)
-skipButton.Size = UDim2.fromOffset(84, 24)
-skipButton.TextSize = 13
-local nextButton = button(card, "다음 ▶", ORANGE, Color3.new(1, 1, 1))
-nextButton.AnchorPoint = Vector2.new(1, 0)
-nextButton.Position = UDim2.new(1, -6, 1, 6)
-nextButton.Size = UDim2.fromOffset(76, 34)
-nextButton.TextSize = 14
-
-local touring = false
-local step = 0
-local function showStep()
-	local total = #GuideConfig.Tutorial + 1
-	cardStep.Text = string.format("%d / %d", step, total)
-	if step <= #GuideConfig.Tutorial then
-		local place = GuideConfig.Places[GuideConfig.Tutorial[step]]
-		cardTitle.Text = place.emoji .. " " .. place.name
-		cardText.Text = place.text
-		nextButton.Text = "다음 ▶"
-		if step == 1 then
-			cameraBack() -- the start: the player's own view
-		else
-			flyTo(viewOf(place), 1.4)
-		end
-	else
-		cardTitle.Text = GuideConfig.TutorialEnd.title
-		cardText.Text = GuideConfig.TutorialEnd.text
-		nextButton.Text = "다음 ▶"
-		cameraBack()
-		-- (D-714) the screen dark but for this card and the menu button, which pulses
-		Spotlight.set(TopBar.button(4)) -- (the catalog button, the first one shown next; ☰ gone, D-721)
-	end
-end
-
+-- (D-845, user 2026-11-03: "튜토리얼 삭제해라 정신 사납다": the first-visit
+-- place tour is gone; the place tips still ask 예/아니오 first, GuideTips)
 local GuideTips = require(script.Parent:WaitForChild("GuideTips"))
 GuideTips.start()
-
--- finished: the tour went to its end (then the screen's buttons are shown,
--- D-713); not when it was skipped
-local function endTour(finished: boolean?)
-	if not touring then return end
-	touring = false
-	require(script.Parent:WaitForChild("Coach")).hold(false)
-	player:SetAttribute("GuideActive", nil) -- (the ambience back to normal, SfxController)
-	card.Visible = false
-	Spotlight.set(nil)
-	cameraBack()
-	Popups.closed("Tutorial")
-	task.spawn(function() pcall(function() remote:InvokeServer("TutorialDone") end) end)
-	if finished then GuideTips.hud() end
-end
-
-local function startTour()
-	if touring then return end
-	touring = true
-	local Coach = require(script.Parent:WaitForChild("Coach"))
-	if Coach.isRunning() then Coach.finishNow() end -- (D-719: the tour, not a tip, on screen)
-	Coach.hold(true)
-	player:SetAttribute("GuideActive", true)
-	step = 1
-	card.Visible = true
-	Popups.opened("Tutorial", function() endTour(false) end)
-	showStep()
-end
-
-nextButton.Activated:Connect(function()
-	if not touring then return end
-	step += 1
-	if step > #GuideConfig.Tutorial + 1 then endTour(true) else showStep() end
-end)
-skipButton.Activated:Connect(function() endTour(false) end)
-
--- first visit: once the server says the tour was not seen yet
-task.spawn(function()
-	local waited = 0
-	while player:GetAttribute("TutorialDone") == nil and waited < 20 do task.wait(0.5) waited += 0.5 end
-	if player:GetAttribute("TutorialDone") ~= false then return end
-	if not player.Character then player.CharacterAdded:Wait() end
-	task.wait(2.5) -- (the world around the spawn streams in first)
-	startTour()
-end)
 
 --------------------------------------------------
 -- 길 안내 (waypoint)
@@ -332,7 +214,7 @@ local function showAnswer(faq: GuideConfig.Faq)
 	local place = faq.place and GuideConfig.Places[faq.place]
 	showButton.Visible = place ~= nil
 	goButton.Visible = place ~= nil or faq.action ~= nil
-	goButton.Text = if faq.action == "tutorial" then "▶ 다시 보기" elseif faq.action == "feedback" then "✏️ 의견 쓰기" else "📍 길 안내"
+	goButton.Text = if faq.action == "feedback" then "✏️ 의견 쓰기" else "📍 길 안내"
 	list.Visible = false
 	answer.Visible = true
 end
@@ -348,7 +230,6 @@ for i, faq in ipairs(GuideConfig.Faq) do
 end
 
 local function openWindow()
-	if touring then return end
 	showList()
 	window.Visible = true
 	Popups.opened("Guide", closeWindow)
@@ -363,7 +244,7 @@ showButton.Activated:Connect(function()
 	flyTo(viewOf(place), 1.4)
 	task.delay(4, function()
 		cameraBack()
-		if not touring then window.Visible = true end
+		window.Visible = true
 	end)
 end)
 goButton.Activated:Connect(function()
@@ -371,15 +252,6 @@ goButton.Activated:Connect(function()
 	if shown.action == "feedback" then
 		closeWindow()
 		require(script.Parent:WaitForChild("Feedback")).open()
-		return
-	end
-	if shown.action == "tutorial" then
-		closeWindow()
-		-- (every first-time tip comes back too, D-713)
-		task.spawn(function()
-			require(script.Parent:WaitForChild("Coach")).reset()
-			startTour()
-		end)
 		return
 	end
 	local place = shown.place and GuideConfig.Places[shown.place]
