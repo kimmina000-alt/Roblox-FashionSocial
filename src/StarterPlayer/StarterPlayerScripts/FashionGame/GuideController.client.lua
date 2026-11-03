@@ -1,6 +1,6 @@
 --!strict
 -- The guide NPC's 무엇이든 물어보세요 window (user 2026-11-01, D-712; places
--- and questions in Shared/GuideConfig). (The first-visit tour is gone, D-845.)
+-- and questions in Shared/GuideConfig). (The tour and tips are gone, D-845 / D-850.)
 --   * Guide NPC (prompt "GuidePrompt"): a window of questions; an answer can
 --     show its place (the camera flies there and back) or guide the way
 --     there (a marker over the place and a line from the player to it, gone
@@ -84,9 +84,9 @@ local function cameraBack()
 end
 
 -- (D-845, user 2026-11-03: "튜토리얼 삭제해라 정신 사납다": the first-visit
--- place tour is gone; the place tips still ask 예/아니오 first, GuideTips)
-local GuideTips = require(script.Parent:WaitForChild("GuideTips"))
-GuideTips.start()
+-- place tour is gone; D-850, "튜토리얼 싹 다 없애": every first-time tip and
+-- 예/아니오 question too, with their Coach / GuideTips / Spotlight /
+-- GuideSpeaker modules)
 
 --------------------------------------------------
 -- 길 안내 (waypoint)
