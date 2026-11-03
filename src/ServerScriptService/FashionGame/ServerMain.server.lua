@@ -368,6 +368,21 @@ TryOnItem.OnServerInvoke = function(
 		end)
 	end
 
+	-- (D-838) an outfit from the player's Roblox account (the wardrobe's Roblox
+	-- 코디 list): read by its id and put on like a saved outfit
+	if action == "WearRobloxOutfit" then
+		if typeof(payload) ~= "number" or payload <= 0 then return false, "Invalid outfit." end
+		local ok, description = pcall(function() return Players:GetHumanoidDescriptionFromOutfitId(payload) end)
+		if not ok or not description then
+			warn("[FashionGame] GetHumanoidDescriptionFromOutfitId failed:", description)
+			return false, "이 코디를 불러오지 못했어요."
+		end
+		local snapshot = require(FashionGame.Shared.OutfitSnapshot).encode(description)
+		return runTracked(player, function()
+			return AvatarService.RestoreSnapshot(player, snapshot)
+		end)
+	end
+
 	if action == "GetAnimationPreview" then
 		return AvatarService.GetAnimationPreview(player, payload)
 	end

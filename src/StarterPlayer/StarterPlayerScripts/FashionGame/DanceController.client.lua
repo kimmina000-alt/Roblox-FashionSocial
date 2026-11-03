@@ -137,7 +137,7 @@ label({
 local nowLabel = label({
 	Name = "NowLabel",
 	Position = UDim2.fromOffset(34, 0),
-	Size = UDim2.new(1, -34 - 76 - 34 - 72, 0, 28), -- (room for 🎵 안무, D-835)
+	Size = UDim2.new(1, -34 - 76 - 34, 0, 28),
 	Text = "춤을 고르세요",
 	TextXAlignment = Enum.TextXAlignment.Left,
 	TextColor3 = COLORS.sub,
@@ -162,29 +162,6 @@ local closeButton = button({
 	Text = "X",
 	TextSize = 15,
 }, panel, 14)
--- (D-835, user) 🎵 안무: switched on, the player dances the choreography of
--- every song that has one, in time with it, while standing in the club
--- (ChoreoController reads the LocalPlayer attribute ChoreoOn). Off by default.
-do
-	local choreoButton = button({
-		Name = "ChoreoToggle",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -34 - 76, 0, 0),
-		Size = UDim2.fromOffset(68, 28),
-		Text = "🎵 안무",
-		TextSize = 13,
-	}, panel)
-	local function paint()
-		local on = player:GetAttribute("ChoreoOn") == true
-		choreoButton.BackgroundColor3 = if on then COLORS.accent else COLORS.card
-		choreoButton.Text = if on then "🎵 안무 ON" else "🎵 안무"
-	end
-	choreoButton.MouseButton1Click:Connect(function()
-		player:SetAttribute("ChoreoOn", not (player:GetAttribute("ChoreoOn") == true))
-	end)
-	player:GetAttributeChangedSignal("ChoreoOn"):Connect(paint)
-	paint()
-end
 
 -- Row 2: tempo
 local tempoRow = create("Frame", {
@@ -323,8 +300,9 @@ local banner = label({
 	Visible = false,
 }, gui)
 corner(banner, 15)
--- (34: room at both ends for the club's ≡ and › buttons, ClubQuickBar)
-create("UIPadding", { PaddingLeft = UDim.new(0, 34), PaddingRight = UDim.new(0, 34) }, banner)
+-- (room at both ends for the club's ≡ 💃 and › buttons, ClubQuickBar; 34 → 62
+-- on the left for 💃 안무, D-837)
+create("UIPadding", { PaddingLeft = UDim.new(0, 62), PaddingRight = UDim.new(0, 34) }, banner)
 
 -- 같이 추기 status pill (under the banner while synced)
 local syncPill = create("Frame", {

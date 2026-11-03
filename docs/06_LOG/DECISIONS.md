@@ -2022,3 +2022,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "불꽃판매원 바텐더 안내원 캐릭터 위에 글씨나 표시 지워줘 그냥 캐릭터만 둬". 머리 위 이름은 Roblox가 Humanoid.DisplayName을 보여 주던 것: DisplayDistanceType None, 체력 막대도 AlwaysOff(DrinkService 바텐더·불꽃 판매원, GuideService 안내원). 다가가면 뜨는 주문·질문 버튼(ProximityPrompt)은 그대로.
 - 사용자: "현재 순위표에 kr_ohu랑 Arrrrall 지워 줘". RankingService EXCLUDED_NAMES(kr_ohu 11886390086, Arrrrall 11931560912): 계정 이름이나 닉네임이 같으면 모든 순위표(기부·레벨·오늘의 큰손)와 실시간 후원 화면에서 빠짐. 데이터 저장소의 기록은 지우지 않음(되돌리려면 목록에서 빼면 됨). 실제 서버에서만 확인 가능(Studio는 데이터 저장소가 꺼져 있음).
 - Play: 세 NPC 머리 위 표시 없음, 두 이름의 계정 id 찾기 확인.
+## D-837 (2026-11-03) 💃 안무 버튼을 노래 칸으로
+- 사용자: "안무 버튼 춤에서 빼고 중앙 상단에 플레이 중인 노래 보여 주는 칸에 추가해 줘 어디 넣는 게 좋을까". 리스트(≡) 바로 뒤에 💃(ClubQuickBar): 왼쪽은 내가 쓰는 것(노래 목록·안무), 오른쪽 ›는 모두의 스킵 투표로 나눔. 켜면 분홍 원, 노래 칸 아래 "💃 안무 켜짐: 안무 있는 노래에 맞춰 춰요" / "💃 안무 꺼짐". 노래 칸 왼쪽 여백 34 → 62. 춤 창의 🎵 안무 버튼은 뺌. 동작은 D-835 그대로(ChoreoOn).
+- Play: ≡ 뒤 💃 → 켜짐, Get A Guitar 안무 1.
+
+## D-838 (2026-11-03) 옷장에 Roblox 코디
+- 사용자: 코디 저장(💾)으로 Roblox 계정에 저장한 코디를 게임에서 불러오기 → "응 추가하고".
+- 옷장 첫 줄에 "☁️ Roblox 코디" 카드(현재 코디 저장 옆). 누르면 Roblox가 처음 한 번 "아바타 목록 보기" 허락을 물음(AvatarEditorService:PromptAllowInventoryReadAccess), 허락하면 계정 코디 목록(GetOutfits, 아바타 코디, 최대 100개)을 사진(rbxthumb Outfit)·이름·입기로 보여 줌. "← 내 옷장" 카드로 돌아감. 입기 = TryOnItem "WearRobloxOutfit"(서버가 Players:GetHumanoidDescriptionFromOutfitId로 읽어 옷장 복원과 같은 RestoreSnapshot으로 입힘, 못 입는 아이템은 빼고 알림).
+- Play: WearRobloxOutfit(코디 4205246513673697) → 입힘, 빠진 것 0. 허락 없이 GetOutfits는 Roblox가 막음(예상대로) → 허락 창과 목록은 실제 게임에서 확인.

@@ -287,8 +287,14 @@ function WardrobeView:render()
 		return
 	end
 
+	-- (D-838) the outfits saved on the player's Roblox account, in their own list
+	if self.robloxMode then
+		self:_renderRoblox(generation)
+		return
+	end
+
 	-- Save card.
-	local _, saveContent = self:_card("WardrobeSave", 0)
+	local _, saveContent = self:_card("WardrobeSave", -1)
 	local saveButton = make("TextButton", {
 		Name = "SaveCurrent",
 		Size = UDim2.new(1, -10, 1, -10),
@@ -329,6 +335,10 @@ function WardrobeView:render()
 	saveButton.MouseButton1Click:Connect(function()
 		self:_openPrompt()
 	end)
+	self:_bigCard("WardrobeRoblox", 0, "☁️", "Roblox 코디", "계정에 저장한 코디", function()
+		self.robloxMode = true
+		self:render()
+	end)
 
 	for index, outfit in ipairs(self.outfits) do
 		self:_outfitCard(outfit, index)
@@ -342,6 +352,149 @@ function WardrobeView:render()
 		self.ctx.showToast("옷장: " .. self.note)
 	end
 	self:_pumpThumbnails(generation)
+end
+
+-- A card that is one big button (an icon, a title, a line under it), like "현재 코디 저장".
+function WardrobeView:_bigCard(name: string, layoutOrder: number, icon: string, title: string, sub: string, onClick: () -> ())
+	local _, content = self:_card(name, layoutOrder)
+	local b = make("TextButton", {
+		Name = name .. "Button",
+		Size = UDim2.new(1, -10, 1, -10),
+		Position = UDim2.fromOffset(5, 5),
+		BackgroundColor3 = COLORS.thumb,
+		Text = "",
+		AutoButtonColor = true,
+	}, content)
+	corner(b, 6)
+	make("TextLabel", {
+		Size = UDim2.new(1, 0, 0, 60), Position = UDim2.new(0, 0, 0.5, -50), BackgroundTransparency = 1,
+		Text = icon, TextColor3 = COLORS.text, TextSize = 44, Font = Enum.Font.GothamBold,
+	}, b)
+	make("TextLabel", {
+		Size = UDim2.new(1, -8, 0, 24), Position = UDim2.new(0, 4, 0.5, 12), BackgroundTransparency = 1,
+		Text = title, TextColor3 = COLORS.text, TextSize = 18, Font = Enum.Font.GothamBold,
+	}, b)
+	make("TextLabel", {
+		Size = UDim2.new(1, -8, 0, 18), Position = UDim2.new(0, 4, 0.5, 38), BackgroundTransparency = 1,
+		Text = sub, TextColor3 = COLORS.subtext, TextSize = 13, Font = Enum.Font.Gotham,
+	}, b)
+	b.MouseButton1Click:Connect(onClick)
+	return b
+end
+
+--------------------------------------------------
+-- (D-838, user) Roblox 코디: the outfits on the player's Roblox account (the
+-- avatar page's 코디, e.g. saved with the cart's 💾 코디 저장). Roblox asks the
+-- player once whether the game may read their avatar list; 입기 puts the
+-- outfit on (TryOnItem "WearRobloxOutfit": the server reads it by its id).
+--------------------------------------------------
+
+local AvatarEditorService = game:GetService("AvatarEditorService")
+
+local function readRobloxOutfits(): (boolean, any)
+	return pcall(function()
+		local pages = AvatarEditorService:GetOutfits(Enum.OutfitSource.All, Enum.OutfitType.Avatar)
+		local list = {}
+		while true do
+			for _, item in ipairs(pages:GetCurrentPage()) do table.insert(list, item) end
+			if pages.IsFinished or #list >= 100 then break end
+			pages:AdvanceToNextPageAsync()
+		end
+		return list
+	end)
+end
+
+function WardrobeView:_renderRoblox(generation: number)
+	self:_bigCard("WardrobeBack", -1, "←", "내 옷장", "게임에 저장한 코디", function()
+		self.robloxMode = false
+		self:render()
+	end)
+	self.ctx.setMessage("Roblox 코디를 불러오는 중…")
+	local ok, list = readRobloxOutfits()
+	if not ok then
+		-- not allowed yet: Roblox's own window asks the player
+		local asked = pcall(function() AvatarEditorService:PromptAllowInventoryReadAccess() end)
+		local result = if asked then AvatarEditorService.PromptAllowInventoryReadAccessCompleted:Wait() else nil
+		if generation ~= self.generation or not self.ctx.isActive() then return end
+		if result ~= Enum.AvatarPromptResult.Success then
+			self.ctx.setMessage("Roblox 코디를 보려면 아바타 목록 보기를 허락해 주세요. 다시 열면 또 물어봐요.")
+			return
+		end
+		ok, list = readRobloxOutfits()
+	end
+	if generation ~= self.generation or not self.ctx.isActive() then return end
+	if not ok then
+		warn("[Wardrobe] GetOutfits failed:", list)
+		self.ctx.setMessage("Roblox 코디를 불러오지 못했어요. 잠시 후 다시 열어 주세요.")
+		return
+	end
+	if #list == 0 then
+		self.ctx.setMessage("Roblox 계정에 저장한 코디가 없어요. 장바구니의 💾 코디 저장으로 만들 수 있어요.")
+		return
+	end
+	self.ctx.setMessage(nil)
+	for index, item in ipairs(list) do
+		if typeof(item) == "table" and typeof(item.Id) == "number" then
+			self:_robloxCard(item, index)
+		end
+	end
+end
+
+function WardrobeView:_robloxCard(item: any, index: number)
+	local _, content = self:_card("RobloxOutfit_" .. tostring(index), index)
+	local thumb = make("ImageLabel", {
+		Name = "Thumbnail",
+		Size = UDim2.new(1, -10, 1, -70),
+		Position = UDim2.fromOffset(5, 5),
+		BackgroundColor3 = COLORS.thumb,
+		BorderSizePixel = 0,
+		Image = string.format("rbxthumb://type=Outfit&id=%d&w=420&h=420", item.Id),
+		ScaleType = Enum.ScaleType.Fit,
+	}, content)
+	corner(thumb, 6)
+	make("TextLabel", {
+		Name = "Name",
+		Size = UDim2.new(1, -12, 0, 22),
+		Position = UDim2.new(0, 6, 1, -62),
+		BackgroundTransparency = 1,
+		Text = tostring(item.Name or "코디"),
+		TextColor3 = COLORS.text,
+		TextSize = 20,
+		Font = Enum.Font.GothamMedium,
+		TextTruncate = Enum.TextTruncate.AtEnd,
+		TextXAlignment = Enum.TextXAlignment.Left,
+	}, content)
+	local wear = make("TextButton", {
+		Name = "ActionButton",
+		Size = UDim2.new(1, -12, 0, 24),
+		Position = UDim2.new(0, 6, 1, -30),
+		BackgroundColor3 = COLORS.button,
+		Text = "입기",
+		TextColor3 = COLORS.text,
+		TextSize = 11,
+		Font = Enum.Font.GothamBold,
+	}, content)
+	corner(wear, 7)
+	wear.MouseButton1Click:Connect(function()
+		if self.restoring or not self.ctx.canChangeAvatar() then return end
+		self.restoring = true
+		self.ctx.setBusy(true)
+		wear.Text = "입는 중..."
+		local ok, success, result = pcall(function()
+			return self.ctx.TryOnItem:InvokeServer("WearRobloxOutfit", item.Id)
+		end)
+		self.ctx.setBusy(false)
+		self.restoring = false
+		if wear.Parent then wear.Text = "입기" end
+		if ok and success == true then
+			local skipped = if typeof(result) == "table" and typeof(result.skipped) == "table" then #result.skipped else 0
+			self.ctx.showToast("\"" .. tostring(item.Name) .. "\" 코디로 갈아입었습니다."
+				.. (if skipped > 0 then " (아이템 " .. skipped .. "개는 입을 수 없어 뺐어요)" else ""))
+		else
+			self.ctx.showToast(if typeof(result) == "string" then result else "코디를 입지 못했습니다.")
+		end
+		self.ctx.onRestored()
+	end)
 end
 
 function WardrobeView:_outfitCard(outfit: any, index: number)

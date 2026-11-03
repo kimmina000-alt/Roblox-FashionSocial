@@ -64,6 +64,23 @@ for _, sign in ipairs({ -1, 1 }) do
 	bar.Parent = skipButton
 	Instance.new("UICorner", bar).CornerRadius = UDim.new(1, 0)
 end
+-- 💃 right of ≡ (D-837, user; in the dance window in D-835): switched on, the
+-- player dances the choreography of every song that has one, in time with it,
+-- while standing in the club (ChoreoController reads the LocalPlayer
+-- attribute ChoreoOn). Off by default; a pink circle while on.
+local choreoButton = sideButton("ClubChoreo")
+choreoButton.Text = "💃"
+choreoButton.TextSize = 15
+choreoButton.TextColor3 = Color3.new(1, 1, 1)
+choreoButton.BackgroundColor3 = Color3.fromRGB(255, 70, 170)
+Instance.new("UICorner", choreoButton).CornerRadius = UDim.new(1, 0)
+local function paintChoreo()
+	local on = player:GetAttribute("ChoreoOn") == true
+	choreoButton.BackgroundTransparency = if on then 0 else 1
+	choreoButton.TextTransparency = if on then 0 else 0.35
+end
+player:GetAttributeChangedSignal("ChoreoOn"):Connect(paintChoreo)
+paintChoreo()
 -- the vote count right of ›
 local skipCount = Instance.new("TextLabel")
 skipCount.Name = "SkipCount"
@@ -98,6 +115,12 @@ local function showToast(text: string)
 	task.delay(2.5, function() if toastId == id then toast.Visible = false end end)
 end
 
+choreoButton.Activated:Connect(function()
+	local on = not (player:GetAttribute("ChoreoOn") == true)
+	player:SetAttribute("ChoreoOn", on)
+	showToast(if on then "💃 안무 켜짐: 안무 있는 노래에 맞춰 춰요" else "💃 안무 꺼짐")
+end)
+
 skipButton.Activated:Connect(function()
 	local ok, message = musicRemote:InvokeServer("VoteSkip", nil)
 	if typeof(message) == "string" then showToast(message) elseif not ok then showToast("지금은 투표할 수 없어요.") end
@@ -111,11 +134,14 @@ RunService.RenderStepped:Connect(function()
 	for _, item in ipairs({ skipCount, toast } :: {GuiObject}) do
 		if item.Parent ~= danceGui then item.Parent = danceGui end
 	end
-	-- (inside the banner: its UIPadding of 34 leaves room; -30 puts them 4 px in)
+	-- (inside the banner: its UIPadding (62 left, 34 right) leaves room; 4 px in)
 	if listButton.Parent ~= banner then
 		listButton.Parent = banner
 		listButton.AnchorPoint = Vector2.new(0, 0.5)
-		listButton.Position = UDim2.new(0, -30, 0.5, 0)
+		listButton.Position = UDim2.new(0, -58, 0.5, 0)
+		choreoButton.Parent = banner
+		choreoButton.AnchorPoint = Vector2.new(0, 0.5)
+		choreoButton.Position = UDim2.new(0, -32, 0.5, 0)
 		skipButton.Parent = banner
 		skipButton.AnchorPoint = Vector2.new(1, 0.5)
 		skipButton.Position = UDim2.new(1, 30, 0.5, 0)
@@ -124,6 +150,7 @@ RunService.RenderStepped:Connect(function()
 	local djOn = (FashionGame:GetAttribute("ClubDJ") or 0) ~= 0
 	local votes = FashionGame:GetAttribute("ClubSkipVotes")
 	listButton.Visible = shown
+	choreoButton.Visible = shown
 	skipButton.Visible = shown and not djOn
 	skipCount.Visible = skipButton.Visible and typeof(votes) == "string" and votes:sub(1, 2) ~= "0/"
 	skipCount.Text = if typeof(votes) == "string" then votes else ""
