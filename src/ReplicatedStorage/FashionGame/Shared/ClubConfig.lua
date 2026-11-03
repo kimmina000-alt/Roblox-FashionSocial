@@ -565,14 +565,28 @@ function ClubConfig.isNightOpen(clock: number): boolean
 	return clock >= n.OpenHour or clock < n.CloseHour
 end
 
+-- (D-846, user: "락커룸에서도 … 클럽 안에서 하는 기능 다 가능하게 해") the
+-- locker room counts as inside the club too: the song banner, dances, song
+-- list, skip vote, choreography (its ExtraZones box)
+local function inLocker(position: Vector3): boolean
+	for _, extra in ipairs(ClubConfig.ExtraZones) do
+		local lo, hi = extra.min, extra.max
+		if extra.zone == "Locker" and position.X >= lo.X and position.X <= hi.X and position.Y >= lo.Y and position.Y <= hi.Y
+			and position.Z >= lo.Z and position.Z <= hi.Z then
+			return true
+		end
+	end
+	return false
+end
+
 function ClubConfig.isInClub(position: Vector3): boolean
-	return insideTagged("ClubInterior", position)
+	return insideTagged("ClubInterior", position) or inLocker(position)
 end
 
 -- Dancing is allowed in the club and on photo booth stages ("PhotoStage"
 -- boxes), where the 인생네컷 pose panel uses the same dances.
 function ClubConfig.canDance(position: Vector3): boolean
-	return insideTagged("ClubInterior", position) or insideTagged("PhotoStage", position)
+	return ClubConfig.isInClub(position) or insideTagged("PhotoStage", position)
 end
 
 -- How long a player must stay outside before their dance stops (doorways,
