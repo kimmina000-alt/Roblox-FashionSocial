@@ -76,6 +76,57 @@ local function clean(raw: {CFrame}, maxStep: number, passes: number): {CFrame}?
 	return if changed then out else nil
 end
 
+-- (D-851) the stretches where a joint keeps turning one way and back
+-- (between two turn backs): from keyframe, to keyframe, degrees turned
+local function runs(poses: {CFrame}): {{number}}
+	local out, from, turned, dir = {}, 1, 0, nil :: Vector3?
+	for k = 2, #poses do
+		local d = step(poses[k - 1], poses[k])
+		if d.Magnitude < 0.3 then continue end
+		if dir and d:Dot(dir) < 0 then
+			table.insert(out, { from, k - 1, turned })
+			from, turned = k - 1, 0
+		end
+		dir = d
+		turned += d.Magnitude
+	end
+	table.insert(out, { from, #poses, turned })
+	return out
+end
+
+-- (D-851) a slower wobble than clean() catches: a turn back between two
+-- short, small swings (at most maxLen keyframes and maxSwing degrees each)
+-- is eased toward the line through its neighbours two keyframes away, never
+-- further than `cap` degrees from the capture
+local function calm(poses: {CFrame}, raw: {CFrame}, settings: {maxSwing: number, maxLen: number, passes: number, cap: number}): {CFrame}?
+	local out = table.clone(poses)
+	local changed = false
+	local function small(r: {number}): boolean
+		return r[2] - r[1] <= settings.maxLen and r[3] < settings.maxSwing
+	end
+	for _ = 1, settings.passes do
+		local rs = runs(out)
+		local nextOut = table.clone(out)
+		for i = 1, #rs - 1 do
+			if small(rs[i]) and small(rs[i + 1]) then
+				local peak = rs[i][2]
+				for k = math.max(2, peak - 1), math.min(#out - 1, peak + 1) do
+					local lo, hi = math.max(1, k - 2), math.min(#out, k + 2)
+					local line = out[lo]:Lerp(out[hi], (k - lo) / (hi - lo))
+					local want = out[k]:Lerp(line, if k == peak then 0.5 else 0.25)
+					local _, off = (raw[k].Rotation:Inverse() * want.Rotation):ToAxisAngle()
+					off = math.deg(math.abs(off))
+					if off > settings.cap then want = raw[k]:Lerp(want, settings.cap / off) end
+					nextOut[k] = want
+					changed = true
+				end
+			end
+		end
+		out = nextOut
+	end
+	return if changed then out else nil
+end
+
 function ChoreoSmooth.load(animationId: string)
 	if cache[animationId] then return end
 	cache[animationId] = {}
@@ -121,6 +172,10 @@ function ChoreoSmooth.load(animationId: string)
 		for part, s in pairs(series) do
 			final[part] = s.raw
 			local cleaned = if settings then clean(s.raw, settings.maxStep, settings.passes) else nil
+			-- (D-851) pieces the user saw tremble: the slower wobble too
+			if fixes and fixes.calm and ClubConfig.ChoreoCalm and part ~= "LowerTorso" then
+				cleaned = calm(cleaned or s.raw, s.raw, ClubConfig.ChoreoCalm) or cleaned
+			end
 			-- (D-840) a spot the user picked (a shaky arm): these parts smoothed
 			-- hard between `from` and `to`, easing in and out at both ends
 			if steady and table.find(steady.parts, part) then
@@ -223,11 +278,12 @@ function ChoreoSmooth.pop(animationId: string, t: number): (CFrame?, CFrame?)
 	end
 	if not pops then return nil, nil end
 	local k = 0
+	local back = pops.back or 0.3
 	for _, at in ipairs(pops.at) do
 		local d = t - at
-		if d > -0.07 and d < 0.3 then
+		if d > -0.07 and d < back then
 			-- out fast, back slower, both eased
-			local f = if d < 0 then 1 + d / 0.07 else 1 - d / 0.3
+			local f = if d < 0 then 1 + d / 0.07 else 1 - d / back
 			k = math.max(k, f * f * (3 - 2 * f))
 		end
 	end

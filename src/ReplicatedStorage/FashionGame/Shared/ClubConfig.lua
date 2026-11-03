@@ -87,10 +87,11 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --     and turns on the way that one was turning into its own facing over
 --     that many seconds (ChoreoController.turnHips), instead of a cross-fade
 --     that flips the body round; keep it within the piece's `blend`
---   pops = { at, push, arch }: a chest pop at each of those seconds into the
---     animation: the chest goes `push` studs forward and arches `arch`
---     degrees back (the head stays level), out in 0.07 s and back in 0.3 s
---     (ChoreoSmooth.pop)
+--   pops = { at, push, arch, back? }: a chest pop at each of those seconds
+--     into the animation: the chest goes `push` studs forward and arches
+--     `arch` degrees back (the head stays level), out in 0.07 s and back in
+--     `back` seconds (0.3 if not given) (ChoreoSmooth.pop)
+--   calm = true: the slower wobble eased too (ClubConfig.ChoreoCalm, D-851)
 ClubConfig.ChoreoFixes = {
 	-- IVE-Looks Can Kill 25 (song 2:18.5): the right arm shook at 2:22
 	[134968782013343] = { steady = { from = 3.1, to = 4.1, parts = { "RightUpperArm", "RightLowerArm", "RightHand" } } },
@@ -103,9 +104,21 @@ ClubConfig.ChoreoFixes = {
 	[87606540400975] = { turn = 1 },
 	-- ATEEZ-BAD 21 (D-848, user: "가슴을 더 앞으로 크게 튕겼으면"): the capture
 	-- kept under 3° of the four chest pops in the reference clip
-	[82346668311878] = { pops = { at = { 1.5, 2.47, 3.43, 4.4 }, push = 0.4, arch = 3 } },
+	-- (D-851, user: "눈에 확 보이게") pushed further and held a little longer
+	[82346668311878] = { pops = { at = { 1.5, 2.47, 3.43, 4.4 }, push = 0.7, arch = 2, back = 0.4 } },
+	-- A2O LITE-NEON 1, 2, 3 (D-851, user: "네온 초반에 바들바들 떠는 거"): a
+	-- slower wobble (about 4-8 a second) than the usual clean-up catches
+	[118329772913374] = { calm = true },
+	[95449015545787] = { calm = true },
+	[84806571273074] = { calm = true },
 } :: {[number]: { steady: { from: number, to: number, parts: {string}, passes: number? }?, turn: number?,
-	pops: { at: {number}, push: number, arch: number }? }}
+	pops: { at: {number}, push: number, arch: number, back: number? }?, calm: boolean? }}
+
+-- (D-851) the slower wobble clean-up for pieces with `calm` in ChoreoFixes:
+-- a turn back between two swings of at most maxLen keyframes and maxSwing
+-- degrees is eased, passes times, never more than cap degrees off the
+-- capture (NEON 1: 118 such swings → 51, about what other pieces have)
+ClubConfig.ChoreoCalm = { maxSwing = 10, maxLen = 4, passes = 6, cap = 5 }
 
 -- Skip vote (user 2026-11-01, D-694): votes needed to skip the song while
 -- there is no DJ = half the people in the club, rounded up, and at least 2

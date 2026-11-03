@@ -77,3 +77,4 @@ Get A Guitar(2026-11-03, D-807): `!!` 이음새 13곳 모두 `blend`로 맞췄�
 ## 7. 캡처가 놓친 동작 더하기 (D-848)
 - 영상보다 캡처가 약한 동작(예: 가슴 튕김)은 `ClubConfig.ChoreoFixes[id].pops = { at = {초…}, push, arch }`로 더함. 시각은 그 조각 안의 초(영상의 박자 표시나 동작 시작에 맞춤).
 - 비교: Play에서 그 시각에 멈추고(ClubMusicPaused / ClubMusicPausedAt, 0.3초 넘게 떨어진 곳을 먼저 들렀다 오기) ChoreoSmoothingOff를 끄고 켜서 옆에서 찍음.
+- 느린 떨림(0.1~0.2초에 2~10° 왔다 갔다)이 보이는 조각은 `ChoreoFixes[id].calm = true` (ClubConfig.ChoreoCalm, D-851). 원래 캡처에서 5° 넘게는 안 바꿈.
