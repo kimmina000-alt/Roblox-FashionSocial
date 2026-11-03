@@ -73,7 +73,7 @@ end
 -- no background (user: "흰색 음표 아이콘 … 누르면 거기 색을 넣어 … 배경 깔지 마").
 local CHOREO_ON = Color3.fromRGB(90, 175, 255)
 local choreoButton = sideButton("ClubChoreo")
-choreoButton.Size = UDim2.fromOffset(22, 22)
+choreoButton.Size = UDim2.fromOffset(15, 15) -- (22 → 2/3, D-842, user)
 local noteParts: {Frame} = {}
 for _, s in ipairs({
 	{ 0.25, 0.79, 0.36, 0.26, -20, true }, -- the two note heads
@@ -172,8 +172,8 @@ RunService.RenderStepped:Connect(function()
 	choreoButton.Visible = shown and track ~= nil and track.choreo ~= nil
 	if choreoButton.Visible then
 		local inner = banner.AbsoluteSize.X - 68
-		local textLeft = math.max((inner - banner.TextBounds.X) / 2, 31)
-		choreoButton.Position = UDim2.new(0, textLeft - 8, 0.5, 0)
+		local textLeft = math.max((inner - banner.TextBounds.X) / 2, 24)
+		choreoButton.Position = UDim2.new(0, textLeft - 6, 0.5, 0)
 	end
 	skipButton.Visible = shown and not djOn
 	skipCount.Visible = skipButton.Visible and typeof(votes) == "string" and votes:sub(1, 2) ~= "0/"

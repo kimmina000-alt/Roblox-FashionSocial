@@ -1215,8 +1215,9 @@ local function syncMusic()
 	music.TimePosition = math.clamp((workspace:GetServerTimeNow() - start) * speed, 0, math.max(music.TimeLength - 0.5, 0))
 	if not music.IsPlaying then music:Play() end
 	-- (D-776, user: the title only, no "NOW PLAYING · K-POP"; 🎵 = a choreography, D-731)
-	-- (D-839) a choreography song: no ♪, the 🎵 button stands in front instead (ClubQuickBar)
-	banner.Text = if track.choreo then ClubConfig.escapeRich(track.title) else "♪ " .. ClubConfig.showTitle(track, banner.TextSize)
+	-- (D-839) a choreography song: the ♫ button stands in front (ClubQuickBar);
+	-- (D-842, user) the other songs: the title alone, no ♪ either
+	banner.Text = if track.choreo then ClubConfig.escapeRich(track.title) else ClubConfig.showTitle(track, banner.TextSize)
 end
 FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(function() task.spawn(syncMusic) end)
 FashionGame:GetAttributeChangedSignal("ClubTrackStart"):Connect(function() task.spawn(syncMusic) end)
