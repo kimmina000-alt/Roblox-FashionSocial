@@ -247,7 +247,16 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "IVE-Looks Can Kill", soundId = 135553051649506, length = 64, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = {
 		-- (D-826, user: the first 7 pieces, more later; blends from tools/choreo/choreo_check.lua)
 		104472985141273, { id = 100762274305324, blend = 0.8 }, { id = 92352840963540, blend = 0.83 }, { id = 73035150280152, blend = 0.98 },
-		{ id = 77509133314202, blend = 0.31 }, { id = 109736190348459, blend = 0.84 }, { id = 120841071882545, blend = 1 } }, autoChoreo = true },
+		{ id = 77509133314202, blend = 0.31 }, { id = 109736190348459, blend = 0.84 }, { id = 120841071882545, blend = 1 },
+		-- (D-833, user: the next 25 pieces to the end; a short piece's blend is
+		-- at most half its length, so 17 and 24 still show)
+		{ id = 128205693221038, blend = 0.79 }, { id = 111907232555806, blend = 0.4 }, 124059184095981, { id = 87500016171854, blend = 1 },
+		73623563360624, { id = 105165734205045, blend = 0.41 }, { id = 84050357538982, blend = 0.44 }, { id = 80842274249808, blend = 0.98 },
+		{ id = 112107210780715, blend = 0.84 }, { id = 92250246039046, blend = 0.36 }, { id = 123875931497308, blend = 1 },
+		{ id = 97254731498706, blend = 0.66 }, { id = 85566191636983, blend = 0.9 }, { id = 133964239076172, blend = 0.41 }, 120575710088163,
+		{ id = 104957688493242, blend = 0.76 }, { id = 132124420274015, blend = 0.25 }, { id = 134968782013343, blend = 0.74 },
+		{ id = 92922732552861, blend = 0.43 }, { id = 88317170211079, blend = 1 }, { id = 130014890140037, blend = 1 },
+		{ id = 76585975326316, blend = 0.67 }, 128909786311122, 74039257328689, { id = 79871898776208, blend = 0.88 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 73546697163709, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.4, octave = 0.5, low = -9.5, mid = 6, high = 0, engine = "sound" } },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
