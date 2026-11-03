@@ -80,3 +80,4 @@ Get A Guitar(2026-11-03, D-807): `!!` 이음새 13곳 모두 `blend`로 맞췄�
 - 느린 떨림(0.1~0.2초에 2~10° 왔다 갔다)이 보이는 조각은 `ChoreoFixes[id].calm = true` (ClubConfig.ChoreoCalm, D-851). 원래 캡처에서 5° 넘게는 안 바꿈.
 - 한 조각 안 보정(ChoreoFixes, D-852): `hold = { from, to }` 자세 고정, `still = { from, to }` 제자리, `spin = { from, to }` 고르지 않은 회전 고르게, `turnEase = "out"` 앞 조각이 돌던 중이면 그 속도로 이어 돌기, steady에 parts 없으면 온몸.
 - 회전을 잴 때는 엉덩이 관절 Transform의 yaw를 봄(LowerTorso 월드 방향은 숙이거나 섞일 때 값이 튐).
+- 참고 영상의 동작 순간을 조각에 옮길 때: 두 영상에 다 있는 큰 동작 두 개(팔 올림, 다리 벌림 등)로 시간 차이를 재서 맞춤(D-854). 같은 이름의 파일이 바뀌었을 수 있으니 수정 시간을 먼저 봄.

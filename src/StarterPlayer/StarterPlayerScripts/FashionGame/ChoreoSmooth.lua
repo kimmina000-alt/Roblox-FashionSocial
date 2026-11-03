@@ -286,12 +286,14 @@ function ChoreoSmooth.pop(animationId: string, t: number): (CFrame?, CFrame?)
 	if not pops then return nil, nil end
 	local k = 0
 	local back = pops.back or 0.3
+	local out = pops.out or 0.07
 	for _, at in ipairs(pops.at) do
 		local d = t - at
-		if d > -0.07 and d < back then
-			-- out fast, back slower, both eased
-			local f = if d < 0 then 1 + d / 0.07 else 1 - d / back
-			k = math.max(k, f * f * (3 - 2 * f))
+		if d > -out and d < back then
+			-- out fast, back slower, both eased; (D-854) `sink`: back down at
+			-- an even pace from the top, as the dancer in the user's clip does
+			local f = if d < 0 then 1 + d / out else 1 - d / back
+			k = math.max(k, if d >= 0 and pops.sink then f else f * f * (3 - 2 * f))
 		end
 	end
 	if k <= 0 then return nil, nil end
