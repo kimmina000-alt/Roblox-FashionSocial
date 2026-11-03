@@ -124,7 +124,15 @@ end
 local jointsOf: {[Model]: {[string]: Motor6D | AnimationConstraint}} = setmetatable({}, { __mode = "k" }) :: any
 local function bodyJoints(character: Model): {[string]: Motor6D | AnimationConstraint}
 	local cached = jointsOf[character]
-	if cached then return cached end
+	-- (D-858) a new body (wardrobe, a saved look) builds new joints: read them
+	-- again, or every fix would go to joints no longer in the character
+	if cached then
+		local stale = false
+		for _, joint in pairs(cached) do
+			if not joint:IsDescendantOf(character) then stale = true break end
+		end
+		if not stale then return cached end
+	end
 	local out = {}
 	for _, d in ipairs(character:GetDescendants()) do
 		if d:IsA("Motor6D") and d.Part1 and not d:FindFirstAncestorOfClass("Accessory") then
