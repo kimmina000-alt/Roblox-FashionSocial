@@ -92,6 +92,15 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --     `arch` degrees back (the head stays level), out in 0.07 s and back in
 --     `back` seconds (0.3 if not given) (ChoreoSmooth.pop)
 --   calm = true: the slower wobble eased too (ClubConfig.ChoreoCalm, D-851)
+--   hold = { from, to }: the pose at `from` kept until `to`, then the dance
+--     goes on from `to`, easing out of the held pose in 0.25 s (D-852)
+--   still = { from, to }: no travel of the dancer there (D-852)
+--   turnEase = "out": the `turn` starts at full speed and slows down, for a
+--     piece before that ends mid-spin (D-852)
+--   spin = { from, to }: a spin in the capture that lurches turns evenly
+--     between its facings at `from` and `to` (starts gently, ends at full
+--     speed) (D-852)
+--   (steady without `parts` = the whole body, D-852)
 ClubConfig.ChoreoFixes = {
 	-- IVE-Looks Can Kill 25 (song 2:18.5): the right arm shook at 2:22
 	[134968782013343] = { steady = { from = 3.1, to = 4.1, parts = { "RightUpperArm", "RightLowerArm", "RightHand" } } },
@@ -108,11 +117,27 @@ ClubConfig.ChoreoFixes = {
 	[82346668311878] = { pops = { at = { 1.5, 2.47, 3.43, 4.4 }, push = 0.7, arch = 2, back = 0.4 } },
 	-- A2O LITE-NEON 1, 2, 3 (D-851, user: "네온 초반에 바들바들 떠는 거"): a
 	-- slower wobble (about 4-8 a second) than the usual clean-up catches
-	[118329772913374] = { calm = true },
+	-- NEON 1 (D-852, user: 5-6 s, the raised-arm pose twice "처음 나오는 자세에서
+	-- 두 번째 나오는 같은 자세 끝날 때까지 고정")
+	[118329772913374] = { calm = true, hold = { from = 4.83, to = 6.04 } },
 	[95449015545787] = { calm = true },
 	[84806571273074] = { calm = true },
-} :: {[number]: { steady: { from: number, to: number, parts: {string}, passes: number? }?, turn: number?,
-	pops: { at: {number}, push: number, arch: number, back: number? }?, calm: boolean? }}
+	-- NEON 5 (D-852, user: 0:53 "이 자세로 잠시 머무는데 이때 떨림 삭제")
+	[93933273398995] = { steady = { from = 7.85, to = 9.45, passes = 8 } },
+	-- NEON 8 (D-852, user: 1:22 "한 바퀴 도는 게 매끄럽지 않음"): 7 ends
+	-- mid-spin (about 400°/s), so 8 carries on at that speed and slows down
+	-- (its blend 1 → 0.85, the same as the turn, so nothing jumps when it ends)
+	[114466589507598] = { spin = { from = 8.47, to = 8.97 } },
+	[84027575690735] = { turn = 0.85, turnEase = "out" },
+	-- NEON 17 (D-852, user: 2:31 "다리가 진동함 … 저 자세로 뒤로 빠지는데 저
+	-- 자리에 고정")
+	[96973609514230] = { steady = { from = 0.4, to = 2.7, passes = 8,
+		parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "LeftToeBase", "RightUpperLeg", "RightLowerLeg", "RightFoot", "RightToeBase" } },
+		still = { from = 0.4, to = 2.8 } },
+} :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
+	pops: { at: {number}, push: number, arch: number, back: number? }?, calm: boolean?,
+	hold: { from: number, to: number }?, still: { from: number, to: number }?, turnEase: string?,
+	spin: { from: number, to: number }? }}
 
 -- (D-851) the slower wobble clean-up for pieces with `calm` in ChoreoFixes:
 -- a turn back between two swings of at most maxLen keyframes and maxSwing
@@ -299,7 +324,7 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 97511700575810, length = 74, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, choreo = {
 		-- (D-809, user: 22 pieces, blends from tools/choreo/choreo_check.lua)
 		118329772913374, { id = 95449015545787, blend = 0.64 }, { id = 84806571273074, blend = 0.92 }, { id = 99868719395147, blend = 0.5 },
-		{ id = 93933273398995, blend = 0.96 }, 128256391320572, { id = 114466589507598, blend = 0.79 }, { id = 84027575690735, blend = 1 },
+		{ id = 93933273398995, blend = 0.96 }, 128256391320572, { id = 114466589507598, blend = 0.79 }, { id = 84027575690735, blend = 0.85 },
 		{ id = 100410498984971, blend = 0.76 }, { id = 124518142645731, blend = 0.59 }, { id = 126736648781925, blend = 0.42 },
 		{ id = 76437753036430, blend = 0.56 }, { id = 136355327951443, blend = 0.67 }, { id = 117451819045051, blend = 0.47 },
 		{ id = 111932052760637, blend = 0.74 }, { id = 133401623277764, blend = 0.7 }, { id = 96973609514230, blend = 0.55 },

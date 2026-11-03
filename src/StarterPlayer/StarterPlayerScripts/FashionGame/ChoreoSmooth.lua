@@ -16,6 +16,7 @@
 --   ChoreoSmooth.hips(animationId, t)              -- Vector3? the hips' travel at time t (D-813)
 --   ChoreoSmooth.retarget(animationId, t)          -- waist, left, right turns for joints R15 lacks (D-843)
 --   ChoreoSmooth.pop(animationId, t)               -- waist, neck for a chest pop from ChoreoFixes (D-848)
+--   ChoreoSmooth.fixes(animationId)                -- the ClubConfig.ChoreoFixes entry, or nil (D-852)
 
 local KeyframeSequenceProvider = game:GetService("KeyframeSequenceProvider")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -178,7 +179,8 @@ function ChoreoSmooth.load(animationId: string)
 			end
 			-- (D-840) a spot the user picked (a shaky arm): these parts smoothed
 			-- hard between `from` and `to`, easing in and out at both ends
-			if steady and table.find(steady.parts, part) then
+			-- (D-852) no `parts`: the whole body
+			if steady and (not steady.parts or table.find(steady.parts, part)) then
 				local out = cleaned or table.clone(s.raw)
 				local edge = 0.15
 				for _ = 1, steady.passes or 4 do
@@ -263,6 +265,11 @@ function ChoreoSmooth.retarget(animationId: string, t: number): (CFrame?, CFrame
 		return if list then list[lo]:Lerp(list[hi], f) else nil
 	end
 	return at(r.waist), at(r.left), at(r.right)
+end
+
+-- (D-852) the spot fixes ClubConfig.ChoreoFixes gives this animation, or nil
+function ChoreoSmooth.fixes(animationId: string): any
+	return ClubConfig.ChoreoFixes and ClubConfig.ChoreoFixes[tonumber(animationId:match("%d+")) or 0]
 end
 
 -- (D-848) the chest pops a piece is given (ClubConfig.ChoreoFixes pops) at
