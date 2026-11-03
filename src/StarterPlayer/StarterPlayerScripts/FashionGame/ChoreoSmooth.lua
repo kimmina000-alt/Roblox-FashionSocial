@@ -288,18 +288,13 @@ function ChoreoSmooth.pop(animationId: string, t: number): (CFrame?, CFrame?)
 	local k = 0
 	local back = pops.back or 0.3
 	local out = pops.out or 0.07
-	for i, at in ipairs(pops.at) do
+	for _, at in ipairs(pops.at) do
 		local d = t - at
-		-- (D-856) with `sink`, each pop settles by the time the next one starts
-		local nextAt = pops.at[i + 1]
-		local down = if pops.sink and nextAt then math.min(back, nextAt - out - at) else back
-		if d > -out and d < down then
+		if d > -out and d < back then
 			-- out fast, back slower, both eased; (D-854) `sink`: back down at
 			-- an even pace from the top, as the dancer in the user's clip does
-			local f = if d < 0 then 1 + d / out else 1 - d / down
-			f = if d >= 0 and pops.sink then f else f * f * (3 - 2 * f)
-			-- (D-856, user: "큰 가슴 튕김 -> 작은 가슴 튕김 …") each pop's size
-			k = math.max(k, f * (if pops.sizes then pops.sizes[i] or 1 else 1))
+			local f = if d < 0 then 1 + d / out else 1 - d / back
+			k = math.max(k, if d >= 0 and pops.sink then f else f * f * (3 - 2 * f))
 		end
 	end
 	if k <= 0 then return nil, nil end

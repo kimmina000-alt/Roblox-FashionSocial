@@ -87,7 +87,7 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --     and turns on the way that one was turning into its own facing over
 --     that many seconds (ChoreoController.turnHips), instead of a cross-fade
 --     that flips the body round; keep it within the piece's `blend`
---   pops = { at, sizes?, push, lift?, arch, out?, back?, sink? }: a chest pop at each of those seconds
+--   pops = { at, push, lift?, arch, out?, back?, sink? }: a chest pop at each of those seconds
 --     into the animation: the chest goes `push` studs forward, `lift` up and
 --     arches `arch` degrees back (the head stays level), out in `out` s
 --     (0.07) and back in `back` s (0.3), at an even pace with `sink`
@@ -126,23 +126,17 @@ ClubConfig.ChoreoFixes = {
 	-- sink until the next one; his clip runs 0.22 s behind this piece (arms
 	-- across, the lunge), so 1.55 / 2.55 / 3.58 / 4.63 here (the ATEEZ source
 	-- of this piece lengthens its torso at 2.54 / 3.57 / 4.57 too)
-	-- (D-856, user: "큰 가슴 튕김->작은 가슴 튕김 … 세 번은 반복", the small one "살짝 덜")
-	-- the clip frame by frame: big 1.77 / 2.77 / 3.80 s, small 2.37 / 3.25 / 4.30 s
-	-- (- 0.22 s here); the small ones 0.6 of the big
-	[82346668311878] = { pops = { at = { 1.55, 2.15, 2.55, 3.03, 3.58, 4.08 }, sizes = { 1, 0.6, 1, 0.6, 1, 0.6 },
-		push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.85, sink = true },
+	[82346668311878] = { pops = { at = { 1.55, 2.55, 3.58, 4.63 }, push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.85, sink = true },
 		-- (D-855, user: "보정") the user's clip holds the forearm level across the
 		-- chest (lower from about 3 s, at the waist by 4.3 s) and the head tipped back from the arms
 		-- across to the hands on the hips; the capture lost both (here the arm
-		-- across is the right one: the piece is the mirror of the clip); (D-856,
-		-- user: "손 모양도 영상처럼 펴서") the hand straight along the forearm, turned
-		-- so its broad side faces up
+		-- across is the right one: the piece is the mirror of the clip)
 		pose = { from = 1.15, to = 4.75, ease = 0.3,
 			keys = {
-				{ t = 1.3, set = { RightUpperArm = { -54, 30, 96 }, RightLowerArm = { 135, 0, 0 }, RightHand = { 0, -45, 0 } } },
-				{ t = 2.6, set = { RightUpperArm = { -54, 30, 96 }, RightLowerArm = { 135, 0, 0 }, RightHand = { 0, -45, 0 } } },
-				{ t = 3.4, set = { RightUpperArm = { -78, 42, 96 }, RightLowerArm = { 115, 0, 0 }, RightHand = { 0, -25, 0 } } },
-				{ t = 4.3, set = { RightUpperArm = { -66, 66, 66 }, RightLowerArm = { 110, 0, 0 }, RightHand = { 0, -5, 0 } } },
+				{ t = 1.3, set = { RightUpperArm = { -54, 30, 96 }, RightLowerArm = { 135, 0, 0 } } },
+				{ t = 2.6, set = { RightUpperArm = { -54, 30, 96 }, RightLowerArm = { 135, 0, 0 } } },
+				{ t = 3.4, set = { RightUpperArm = { -78, 42, 96 }, RightLowerArm = { 115, 0, 0 } } },
+				{ t = 4.3, set = { RightUpperArm = { -66, 66, 66 }, RightLowerArm = { 110, 0, 0 } } },
 			},
 			add = { Head = { 14, 0, 0 } } } },
 	-- A2O LITE-NEON 1, 2, 3 (D-851, user: "네온 초반에 바들바들 떠는 거"): a
@@ -165,7 +159,7 @@ ClubConfig.ChoreoFixes = {
 		parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "LeftToeBase", "RightUpperLeg", "RightLowerLeg", "RightFoot", "RightToeBase" } },
 		still = { from = 0.4, to = 2.8 } },
 } :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
-	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
+	pops: { at: {number}, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: { from: number, to: number }?, turnEase: string?,
 	spin: { from: number, to: number }?,
 	pose: { from: number, to: number, ease: number?, keys: {{ t: number, set: {[string]: {number}} }}, add: {[string]: {number}}? }? }}
