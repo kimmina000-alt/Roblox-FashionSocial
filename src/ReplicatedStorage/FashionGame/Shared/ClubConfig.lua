@@ -92,6 +92,13 @@ ClubConfig.ChoreoFixes = {
 	[134968782013343] = { steady = { from = 3.1, to = 4.1, parts = { "RightUpperArm", "RightLowerArm", "RightHand" } } },
 	-- IVE-Looks Can Kill 27 (song 2:30.8): 26 ends facing back (2:29-2:30)
 	[88317170211079] = { turn = 1 },
+	-- ATEEZ-BAD 5, 10, 12, 17 (D-844): facing gaps of 166°, 118°, 141° and 161°
+	-- at 0:25, 0:58, 1:09 and 1:41 (10 flipped round in one frame with a
+	-- cross-fade)
+	[92835143638207] = { turn = 1 },
+	[78517242404651] = { turn = 0.99 },
+	[130559113363194] = { turn = 1 },
+	[87606540400975] = { turn = 1 },
 } :: {[number]: { steady: { from: number, to: number, parts: {string}, passes: number? }?, turn: number? }}
 
 -- Skip vote (user 2026-11-01, D-694): votes needed to skip the song while
@@ -232,7 +239,18 @@ ClubConfig.Playlist = {
 	-- choreographies, and 20 new. length = seconds at x1 (heard: ÷ 0.335).
 	-- (D-766: the user's per-track lab values on 10; D-767: 16 uploads taken out,
 	-- 13 left)
-	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = {
+		-- (D-844, user: 23 pieces, blends from tools/choreo/choreo_check.lua; a short
+		-- piece's blend is at most half its length; 5, 10, 12 and 17 turn (ChoreoFixes);
+		-- 11 skips its first 1.3 s, a spin of about 200° into place (user); the
+		-- last piece runs past the song end, about 153 s heard)
+		82278370960435, { id = 120748822938478, blend = 0.9 }, { id = 110345323270713, blend = 0.75 }, { id = 79757317260987, blend = 0.79 },
+		{ id = 92835143638207, blend = 1 }, { id = 86662698277528, blend = 0.85 }, { id = 122397631727855, blend = 0.87 },
+		{ id = 96766863219484, blend = 0.47 }, { id = 116077835257285, blend = 0.75 }, { id = 78517242404651, blend = 0.99 },
+		{ id = 135462564673113, from = 1.3, blend = 0.45 }, { id = 130559113363194, blend = 1 }, { id = 79303516060999, blend = 0.61 },
+		94325256666159, { id = 111913125032810, blend = 1 }, { id = 129415986484255, blend = 0.53 }, { id = 87606540400975, blend = 1 },
+		{ id = 121775933093308, blend = 0.95 }, { id = 138549092776506, blend = 0.73 }, 88428525489460,
+		{ id = 82346668311878, blend = 0.7 }, 134748500609652, 70571634425422 }, autoChoreo = true },
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
 	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, choreo = {
