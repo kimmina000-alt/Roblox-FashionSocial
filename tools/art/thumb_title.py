@@ -285,6 +285,19 @@ def logos():
     logo_pair_png(os.path.join(LOGO_OUT, "ohu_logo_ko.png"), "OHU", "오후", 260, gap=-0.1, left_tracking=OHU_TRACKING_OUTLINED,
                   thick=0.015, outline=0.07)
     flat_png(os.path.join(LOGO_OUT, "ohu_flat_white.png"), "OHU", 300, thick=0.015, tracking=OHU_TRACKING)
+    # (D-866, user: the plain white one is the default logo; the loading screen
+    # uses it with 오후 beside it)
+    a_path, b_path = os.path.join(LOGO_OUT, "_a.png"), os.path.join(LOGO_OUT, "_b.png")
+    flat_png(a_path, "OHU", 300, thick=0.015, tracking=OHU_TRACKING)
+    flat_png(b_path, "오후", 300, thick=0.015)
+    a, b = Image.open(a_path), Image.open(b_path)
+    space = int(300 * 0.3)
+    pair = Image.new("RGBA", (a.width + space + b.width, max(a.height, b.height)), (255, 255, 255, 0))
+    pair.alpha_composite(a, (0, pair.height - a.height))
+    pair.alpha_composite(b, (a.width + space, pair.height - b.height))
+    pair.save(os.path.join(LOGO_OUT, "ohu_flat_white_ko.png"))
+    os.remove(a_path)
+    os.remove(b_path)
     print("wrote logos")
 
 

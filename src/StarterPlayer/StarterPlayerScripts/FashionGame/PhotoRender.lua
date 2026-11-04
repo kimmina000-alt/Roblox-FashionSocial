@@ -498,6 +498,11 @@ function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: st
 	label.ZIndex = 2
 	local cap = Instance.new("UISizeConstraint")
 	cap.MaxSize = Vector2.new(math.huge, 20) -- (about the old 22 px words)
+	if label:IsA("ImageLabel") then
+		-- (D-866, user: the logo at 2/3 of that)
+		label.Size = UDim2.fromScale(1, 2 / 3)
+		cap.MaxSize = Vector2.new(math.huge, 13)
+	end
 	cap.Parent = label
 	label.Parent = row
 	strip.Parent = parent

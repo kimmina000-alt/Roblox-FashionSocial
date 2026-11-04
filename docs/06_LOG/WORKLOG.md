@@ -3306,3 +3306,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 로고 글자 간격 (D-865)
 ![](images/2026-11-04/d865_loading_spaced.jpg)
 - O H U 띄운 로고 3장 다시 올려 로딩 화면·사진 띠·사진기 띠에 반영. Play: 로딩 화면 확인.
+### 기본 로고 흰색 (D-866)
+![](images/2026-11-04/d866_loading_white.jpg) ![](images/2026-11-04/d866_footer_small.jpg)
+- Play: 로딩 화면 흰 로고, 사진 띠 OHU 높이 13 px.
