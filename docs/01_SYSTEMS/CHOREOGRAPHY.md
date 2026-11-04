@@ -238,3 +238,5 @@ Get A Guitar(2026-11-03, D-807): `!!` 이음새 13곳 모두 `blend`로 맞췄�
 3. **샷 목록:** `Shared/ClubCamera.lua`의 Songs[soundId] = { video, offset, shots }. 샷 = at(원곡 초, 컷) · size · yaw · pitch · roll · to(끝 상태) · move · ease · fov. 크기 이름: close 1.6 / bust 2.6 / waist 3.8 / knee 5 / full 8 / wide 16 / xwide 28(5.5 키 기준, 코드가 아바타 키로 늘림).
 4. **확인:** Play(클럽 지하 무대, 예: 118, -19, -205 / ClockOverride 22) → DJ로 곡 재생 → StageCamera 속성 true → Seek + Pause로 순간을 멈추고 screen_capture → `compare.py`로 무대 | 게임 나란히(docs/06_LOG/images/<날짜>/). 끄면 원래 카메라(Custom, FOV)로 돌아오는지.
 5. 모바일 2인 테스트 후 사용자 허락 시 머지.
+
+- (D-898) 긴 영상에 다른 판(무대 전체 고정 카메라 등)이 붙어 있으면 align_wide.py를 넓게(-5 300) 돌려 첫 후보를 쓰고 앞부분만 잘라(ffmpeg -t) 분석한다. 컷이 적은 스테디캠 롱테이크는 0.5초 사진 띠에서 크기가 바뀌는 순간을 키프레임으로 적어 `ClubCamera.take`로 넣는다. soft_cuts.py <영상> <폴더> <영상 시작 차이> <곡 끝>.

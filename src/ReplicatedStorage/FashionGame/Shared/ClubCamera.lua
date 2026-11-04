@@ -29,7 +29,7 @@ local ClubCamera = {}
 
 export type Pose = { size: (string | number)?, yaw: number?, pitch: number?, roll: number?, pan: number? }
 export type Shot = { at: number, size: string | number, yaw: number?, pitch: number?, roll: number?, pan: number?,
-	to: Pose?, move: {number}?, ease: string?, fov: number? }
+	to: Pose?, move: {number}?, ease: string?, fov: number?, cont: boolean? }
 export type Song = { video: string, offset: number, shots: {Shot} }
 export type View = { height: number, aim: number, yaw: number, pitch: number, roll: number, panX: number, panY: number, fov: number }
 
@@ -81,6 +81,33 @@ local function ease(kind: string?, u: number): number
 	if kind == "in" then return u * u * u end
 	if kind == "out" then return 1 - (1 - u) ^ 3 end
 	return u * u * (3 - 2 * u) -- (inout)
+end
+
+-- (D-898) a one-take run (a steadicam among the dancers, no cut): keyframes
+-- { t, size, yaw =, pitch =, roll = } become shots that each move from one
+-- keyframe to the next, marked `cont` (no cut: StageCameraController keeps
+-- following softly instead of jumping). Missing yaw / pitch / roll are 0.
+type Key = { [number]: any, yaw: number?, pitch: number?, roll: number?, ease: string? }
+function ClubCamera.take(keys: {Key}): {Shot}
+	local out = {}
+	for i, k in ipairs(keys) do
+		local n = keys[i + 1]
+		table.insert(out, {
+			at = k[1], size = k[2], yaw = k.yaw, pitch = k.pitch, roll = k.roll,
+			to = if n then { size = n[2], yaw = n.yaw or 0, pitch = n.pitch or 0, roll = n.roll or 0 } else nil,
+			ease = k.ease, cont = i > 1,
+		})
+	end
+	return out
+end
+-- a song's shots from plain shots and takes, in order
+function ClubCamera.join(parts: {any}): {Shot}
+	local out = {}
+	for _, p in ipairs(parts) do
+		if p.at then table.insert(out, p) else for _, s in ipairs(p) do table.insert(out, s) end end
+	end
+	table.sort(out, function(a, b) return a.at < b.at end)
+	return out
 end
 
 -- the shot list of a track, or nil
@@ -250,6 +277,123 @@ ClubCamera.Songs[134942349436280] = {
 		{ at = 150.95, size = "bust", to = { size = "knee" } },
 		{ at = 153.02, size = "bust" },
 	},
+}
+
+-- A2O LITE-NEON: MBC Show! Music Core 2026-10-24 stage (youtube pKvx_bN74j4,
+-- its first half; the second half is a fixed full-stage camera), video =
+-- song + 1.00 s (loudness matched over the whole song, no drift, D-898).
+-- Mostly long steadicam takes moving round the members (take: keyframes read
+-- from 0.5 s strips), beat cuts in the intro, crane / audience wides between.
+local take = ClubCamera.take
+ClubCamera.Songs[97511700575810] = {
+	video = "MBC Show! Music Core 2026-10-24, youtube pKvx_bN74j4 (first half)",
+	offset = 1.0,
+	shots = ClubCamera.join({
+		-- intro: one take from a bust, back to the two, in and out again
+		take({ { 0, "bust" }, { 1.0, "bust" }, { 2.0, 9, pitch = 5 }, { 3.8, 9, yaw = 10, pitch = 4 }, { 4.4, "knee" },
+			{ 5.2, "knee", yaw = -10 }, { 5.8, "full" }, { 6.6, "full", yaw = 8 }, { 7.2, "knee", pitch = -5 } }),
+		-- beat cuts
+		{ at = 7.47, size = "waist", pitch = -8, roll = -12 },
+		{ at = 7.93, size = "wide", pitch = 3 },
+		{ at = 8.37, size = "full", yaw = 15 },
+		{ at = 8.87, size = "wide", yaw = -10, pitch = 3 },
+		{ at = 9.3, size = "full", yaw = 5, to = { size = "knee" } },
+		{ at = 9.77, size = "knee", to = { size = "waist" } },
+		{ at = 10.23, size = "bust", to = { size = "waist" } },
+		{ at = 11.13, size = "full", yaw = 10 },
+		{ at = 12.07, size = "wide", pitch = 5 },
+		{ at = 13.0, size = "full" },
+		{ at = 13.47, size = "knee" },
+		-- verse 1: a long steadicam take among the members
+		take({ { 13.9, "knee" }, { 14.5, "waist", yaw = 10 }, { 15.0, "full" }, { 15.8, "full", yaw = -10 }, { 16.2, "wide", pitch = 4 },
+			{ 16.6, "knee" }, { 17.0, "waist" }, { 17.5, "bust", yaw = 10 }, { 18.0, "waist" }, { 18.5, "knee", yaw = -25 },
+			{ 19.0, "wide", pitch = 5 }, { 20.2, 14, pitch = 5 }, { 20.6, "knee" }, { 21.6, "waist", yaw = 10 }, { 22.4, "wide", pitch = 4 },
+			{ 23.6, "wide", yaw = -8, pitch = 4 }, { 24.0, "knee" }, { 24.6, "waist" }, { 25.6, "bust", yaw = -8 }, { 26.6, "bust", yaw = 8 },
+			{ 27.6, "waist" }, { 28.4, "bust" }, { 29.0, "close", yaw = 10 }, { 29.6, "bust" }, { 30.0, "knee" }, { 30.6, "wide", pitch = 10 },
+			{ 32.0, "wide", yaw = 10, pitch = 8 }, { 32.5, "waist" }, { 34.0, "waist", yaw = -10 }, { 35.5, "waist" }, { 36.0, "bust" },
+			{ 36.6, "bust", yaw = 10 }, { 37.0, "wide", pitch = 12 }, { 38.2, "wide", yaw = -10, pitch = 12 }, { 38.6, "bust" }, { 39.1, "bust" },
+			{ 39.6, "knee" }, { 40.2, "wide", pitch = 6 }, { 41.2, "wide", pitch = 6 }, { 41.7, "knee" } }),
+		-- pre-chorus
+		take({ { 42.07, "knee" }, { 43.0, "knee", yaw = 10 } }),
+		take({ { 43.53, "bust" }, { 44.4, "waist", yaw = -10 } }),
+		take({ { 44.77, "bust", roll = -6 }, { 45.5, "knee" }, { 46.0, "wide", pitch = 6 }, { 46.6, "full" } }),
+		{ at = 47.2, size = "waist", yaw = 15 },
+		take({ { 48.3, "full", yaw = 20 }, { 49.0, "knee", yaw = 10 }, { 50.5, "knee" } }),
+		take({ { 51.0, "wide", pitch = 15 }, { 51.6, "wide", pitch = 15 }, { 52.0, "close", roll = -15 }, { 52.6, "bust" }, { 53.0, "xwide", pitch = 4 },
+			{ 55.6, "xwide", pitch = 4 }, { 56.0, "full" }, { 56.6, "full", yaw = 10 }, { 57.0, "waist" }, { 57.5, "bust" }, { 58.0, "waist" } }),
+		{ at = 58.5, size = "xwide", pitch = 20 },
+		-- chorus 1
+		take({ { 59.13, "wide", pitch = 4 }, { 60.0, "full" }, { 61.5, "full", yaw = -10 }, { 62.0, "bust" }, { 62.6, "bust", yaw = 8 },
+			{ 63.0, "wide", pitch = 6 }, { 63.6, "wide", pitch = 10 }, { 64.4, "wide", pitch = 10 } }),
+		take({ { 64.53, "bust", roll = 8 }, { 65.6, "bust" } }),
+		take({ { 66.0, "wide", yaw = -25, pitch = 15 }, { 67.0, "wide", pitch = 8 }, { 67.5, "knee", yaw = 20 }, { 68.2, "knee" } }),
+		take({ { 68.73, "waist", yaw = 15 }, { 69.6, "waist" } }),
+		take({ { 70.17, "bust" }, { 71.5, "bust", yaw = -10 }, { 72.0, "wide", pitch = 5 }, { 73.0, "knee" } }),
+		take({ { 73.33, "xwide", pitch = 8 }, { 74.5, "wide", pitch = 6 }, { 75.0, "bust" }, { 75.5, "wide", pitch = 5 }, { 76.0, "knee" },
+			{ 76.6, "waist" }, { 77.1, "waist", yaw = 10 }, { 77.5, "wide", pitch = 6 }, { 78.0, "full" }, { 79.0, "knee" } }),
+		take({ { 79.4, "bust" }, { 80.2, "close" }, { 81.0, "bust" } }),
+		take({ { 81.03, "xwide", pitch = 15 }, { 82.5, "wide", pitch = 8 }, { 83.5, "full" }, { 84.0, "knee" }, { 85.5, "waist" } }),
+		take({ { 85.97, "bust" }, { 86.6, "bust", yaw = 8 }, { 87.0, "close" }, { 87.8, "close", yaw = -10 }, { 88.5, "full" }, { 89.0, "wide", pitch = 5 },
+			{ 91.4, "wide", yaw = 10, pitch = 5 } }),
+		-- verse 2
+		take({ { 91.57, "bust" }, { 92.6, "bust", yaw = 10 }, { 93.0, "knee" }, { 94.5, "waist" } }),
+		take({ { 95.17, "xwide", pitch = 6 }, { 96.0, "wide", pitch = 5 }, { 97.0, "full" }, { 98.0, "full", yaw = 10 }, { 98.5, "waist" },
+			{ 99.6, "waist", yaw = -10 }, { 100.0, "knee" }, { 100.5, "wide", pitch = 6 }, { 102.0, "wide", yaw = -10, pitch = 6 } }),
+		take({ { 102.5, "waist" }, { 103.2, "bust" }, { 104.2, "bust", yaw = 10 } }),
+		take({ { 104.4, "bust", roll = -6 }, { 105.0, "waist" }, { 105.5, "knee" }, { 106.0, "wide", pitch = 6 }, { 107.6, "wide", yaw = 10, pitch = 6 } }),
+		take({ { 108.0, "waist" }, { 108.6, "bust" }, { 110.0, "bust", yaw = -8 } }),
+		take({ { 110.17, "bust" }, { 110.6, "waist" }, { 111.0, "knee" }, { 111.5, "full", pitch = 15 }, { 112.4, "full", pitch = 12 } }),
+		take({ { 112.63, "bust", roll = 8 }, { 113.0, "wide", pitch = 6 }, { 113.6, "wide", pitch = 6 }, { 114.0, "knee" }, { 114.5, "waist" },
+			{ 115.0, "wide", pitch = 6 }, { 116.2, "wide", pitch = 6 } }),
+		take({ { 116.37, "bust" }, { 117.0, "bust", yaw = 10 }, { 117.5, "waist" }, { 118.0, "full" }, { 118.6, "wide", pitch = 5 }, { 119.0, "bust" } }),
+		take({ { 119.57, "waist" }, { 120.0, "wide", pitch = 6 }, { 122.0, "wide", yaw = -10, pitch = 6 }, { 122.5, "waist" }, { 123.0, "waist", yaw = 10 },
+			{ 123.5, "bust" }, { 124.2, "bust" }, { 124.6, "waist" }, { 125.2, "wide", pitch = 5 } }),
+		take({ { 125.63, "wide", pitch = 5 }, { 126.0, "waist" }, { 126.6, "waist", yaw = 10 } }),
+		-- chorus 2
+		take({ { 126.97, "wide", pitch = 5 }, { 129.5, "wide", yaw = -10, pitch = 5 }, { 130.0, "bust" }, { 130.6, "bust" }, { 131.0, "wide", pitch = 6 },
+			{ 133.0, "wide", yaw = 10, pitch = 6 }, { 133.5, "bust" }, { 134.3, "bust", yaw = 8 } }),
+		take({ { 134.47, "wide", pitch = 5 }, { 135.0, "knee" }, { 135.5, "full" }, { 136.0, "knee" }, { 136.5, "full", pitch = 15 }, { 137.0, "waist" },
+			{ 137.6, "waist", yaw = 10 }, { 138.0, "wide", pitch = 6 }, { 138.6, "wide", pitch = 6 }, { 139.0, "knee" }, { 139.5, "wide", pitch = 6 },
+			{ 140.2, "wide", pitch = 6 }, { 140.6, "knee" }, { 141.0, "full" }, { 141.5, "knee" }, { 142.0, "waist" } }),
+		take({ { 142.23, "wide", pitch = 6 }, { 143.0, "wide", pitch = 6 }, { 143.5, "knee" }, { 144.0, "waist" }, { 144.5, "wide", pitch = 5 },
+			{ 145.0, "wide", pitch = 5 }, { 145.5, "waist" } }),
+		take({ { 145.93, "waist" }, { 146.5, "knee" }, { 147.0, "wide", pitch = 6 }, { 148.6, "wide", yaw = 10, pitch = 6 }, { 149.0, "knee" }, { 149.5, "waist" } }),
+		-- bridge
+		take({ { 149.7, "knee" }, { 152.6, "knee", yaw = 10 } }),
+		take({ { 152.93, "knee", roll = -6 }, { 153.5, "wide", pitch = 6 }, { 154.0, "full" }, { 155.0, "full", yaw = -10 }, { 155.5, "knee" }, { 156.5, "knee" } }),
+		take({ { 156.73, "knee" }, { 157.5, "full" }, { 158.0, "wide", pitch = 6 }, { 158.6, "wide", pitch = 6 }, { 159.0, "knee" }, { 159.6, "knee", yaw = 10 },
+			{ 160.0, "waist" }, { 160.5, "waist", roll = -10 }, { 161.0, "knee" }, { 161.5, "wide", pitch = 6 }, { 164.0, "wide", yaw = 10, pitch = 6 } }),
+		{ at = 164.4, size = "bust" },
+		take({ { 165.1, "wide", pitch = 6 }, { 165.5, "xwide", pitch = 5 }, { 166.0, "wide", pitch = 5 }, { 166.5, "full" }, { 167.3, "waist" } }),
+		take({ { 167.7, "bust" }, { 168.0, "xwide", pitch = 8 }, { 168.6, "xwide", pitch = 8 }, { 169.0, "wide", pitch = 5 }, { 169.5, "knee" }, { 170.0, "waist" },
+			{ 170.6, "wide", pitch = 5 } }),
+		{ at = 170.87, size = "wide", pitch = 6 },
+		-- last chorus
+		take({ { 171.73, "waist" }, { 172.5, "bust" }, { 173.0, "waist" }, { 173.6, "waist", yaw = 10 }, { 174.0, "bust" }, { 174.6, "bust", yaw = -8 },
+			{ 175.2, "waist" } }),
+		take({ { 175.5, "wide", pitch = 5 }, { 176.0, "xwide", pitch = 5 }, { 177.6, "xwide", yaw = 10, pitch = 5 } }),
+		take({ { 177.83, "bust" }, { 178.2, "knee" }, { 179.0, "knee", yaw = 10 } }),
+		take({ { 179.27, "knee" }, { 180.0, "bust" }, { 180.6, "close" } }),
+		take({ { 180.97, "knee" }, { 182.0, "knee", yaw = -10 }, { 182.5, "waist" } }),
+		take({ { 182.77, "xwide", pitch = 6 }, { 183.5, "wide", pitch = 5 }, { 185.0, "wide", yaw = 10, pitch = 5 }, { 185.6, "waist" } }),
+		{ at = 186.13, size = "waist", yaw = -10 },
+		take({ { 186.63, "knee" }, { 187.5, "waist" }, { 188.1, "waist", yaw = 10 } }),
+		take({ { 188.33, "xwide", pitch = 15 }, { 189.5, "wide", pitch = 10 } }),
+		take({ { 190.57, "wide", pitch = 6 }, { 191.0, "waist" }, { 191.6, "bust" }, { 192.5, "waist" }, { 193.0, "wide", pitch = 6 }, { 193.7, "wide", pitch = 6 } }),
+		take({ { 193.93, "bust" }, { 194.5, "knee", yaw = 20 }, { 195.0, "waist" }, { 195.5, "waist" } }),
+		take({ { 195.7, "xwide", pitch = 18 }, { 196.5, "wide", pitch = 8 }, { 197.0, "knee" }, { 197.5, "waist" }, { 198.6, "waist", yaw = 10 },
+			{ 199.0, "wide", pitch = 6 }, { 199.6, "wide", pitch = 6 }, { 200.0, "full" }, { 200.5, "waist" }, { 201.0, "bust" }, { 201.5, "wide", pitch = 6 },
+			{ 202.4, "wide", yaw = 10, pitch = 6 } }),
+		take({ { 202.63, "wide", pitch = 6 }, { 203.0, "bust" }, { 203.5, "waist" }, { 204.0, "knee" }, { 204.6, "knee", yaw = 10 }, { 205.0, "waist" },
+			{ 206.0, "waist", yaw = -10 }, { 206.6, "bust" } }),
+		take({ { 206.97, "bust" }, { 207.5, "wide", pitch = 6 }, { 208.6, "wide", pitch = 6 }, { 209.0, "bust" }, { 210.0, "bust", yaw = 10 } }),
+		take({ { 210.27, "xwide", pitch = 6 }, { 211.0, "wide", pitch = 6 }, { 211.6, "wide", pitch = 6 }, { 212.0, "waist" }, { 213.0, "waist", yaw = 10 },
+			{ 213.5, "bust" }, { 214.0, "bust" }, { 214.5, "wide", pitch = 5 }, { 215.3, "wide", pitch = 5 } }),
+		-- ending: the members close together, then the whole line
+		take({ { 215.57, "bust" }, { 216.6, "bust", yaw = 8 }, { 217.0, "close" }, { 218.5, "bust" }, { 219.0, "knee" }, { 219.5, "wide", pitch = 4 },
+			{ 222.4, "wide", pitch = 4 } }),
+		{ at = 222.63, size = "bust" },
+	}),
 }
 
 return ClubCamera

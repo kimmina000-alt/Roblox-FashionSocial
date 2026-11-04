@@ -76,6 +76,7 @@ local frontFor = ""
 local smoothAim: Vector3? = nil
 local lastShot: number? = nil
 local bodyScale: number? = nil
+local reach: number? = nil -- (how far the camera may go from the aim, eased)
 
 local rayParams = RaycastParams.new()
 rayParams.FilterType = Enum.RaycastFilterType.Exclude
@@ -103,7 +104,7 @@ local function release()
 	camera.CameraType = saved.type
 	camera.FieldOfView = saved.fov
 	-- (the subject is left alone: ChoreoController may hold its own anchor)
-	saved, front, smoothAim, lastShot, bodyScale = nil, nil, nil, nil, nil
+	saved, front, smoothAim, lastShot, bodyScale, reach = nil, nil, nil, nil, nil, nil
 end
 
 RunService:BindToRenderStep("StageCamera", Enum.RenderPriority.Camera.Value + 2, function(dt)
@@ -143,7 +144,9 @@ RunService:BindToRenderStep("StageCamera", Enum.RenderPriority.Camera.Value + 2,
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	local footDrop = r.Size.Y / 2 + (if humanoid then humanoid.HipHeight else 2)
-	if lastShot ~= index or not bodyScale then
+	-- (a `cont` shot is the same take going on, D-898: no new cut)
+	local cut = lastShot ~= index and not (shot.cont and lastShot == index - 1)
+	if cut or not bodyScale then
 		local head = character and character:FindFirstChild("Head") :: BasePart?
 		bodyScale = 1
 		if head then
@@ -156,10 +159,11 @@ RunService:BindToRenderStep("StageCamera", Enum.RenderPriority.Camera.Value + 2,
 	-- the aim follows the dancer softly inside a shot (a camera operator's
 	-- lag), and jumps at a cut
 	local target = r.Position + Vector3.new(0, -footDrop + view.aim * ClubCamera.BODY * scale, 0)
-	if lastShot ~= index or not smoothAim then
+	if cut or not smoothAim then
 		smoothAim = target
 		lastShot = index
 	else
+		lastShot = index
 		smoothAim = (smoothAim :: Vector3):Lerp(target, 1 - math.exp(-dt * 6))
 	end
 	local aim = smoothAim :: Vector3
@@ -187,17 +191,36 @@ RunService:BindToRenderStep("StageCamera", Enum.RenderPriority.Camera.Value + 2,
 	-- (club walls are often CanCollide false with collision boxes elsewhere
 	-- (D-192): any visible part counts; invisible non-colliding ones, zones
 	-- and triggers, do not)
+	-- (D-898) thin things are filmed past, as a real camera would, not jumped
+	-- in front of: poles (less than 3 studs across on the floor) and beams /
+	-- light bars (thinner than 1 stud in two directions)
 	local hit: RaycastResult? = nil
-	for _ = 1, 8 do
+	for _ = 1, 12 do
 		rayParams.FilterDescendantsInstances = ignore
 		hit = workspace:Raycast(lookAt, pos - lookAt, rayParams)
 		local part = hit and hit.Instance
-		if not part or not part:IsA("BasePart") or part.Transparency < 0.95 or part.CanCollide then break end
+		if not part or not part:IsA("BasePart") then break end
+		local see = part.Transparency < 0.95 or part.CanCollide
+		local s = part.Size
+		local dims = { s.X, s.Y, s.Z }
+		table.sort(dims)
+		local thin = math.max(s.X, s.Z) < 3 or dims[2] < 1
+		if see and not thin then break end
 		table.insert(ignore, part)
 		hit = nil
 	end
-	if hit then
-		local d = math.max((hit.Position - lookAt).Magnitude - 0.6, 1.5)
+	-- (D-898) how far the camera may go: the wall's distance, eased so a wall
+	-- coming between in a moving take does not jump the camera (in at once
+	-- only on a cut)
+	local want = if hit then math.max((hit.Position - lookAt).Magnitude - 0.6, 1.5) else distance
+	if cut or not reach then
+		reach = want
+	else
+		local r = reach :: number
+		reach = r + (want - r) * (1 - math.exp(-dt * (if want < r then 10 else 4)))
+	end
+	local d = math.min(reach :: number, distance)
+	if d < distance - 0.01 then
 		-- keep the framing: a closer camera needs a wider lens
 		fov = math.clamp(math.deg(2 * math.atan((view.height / 2) / d)), fov, 90)
 		pos = lookAt + dir * d
