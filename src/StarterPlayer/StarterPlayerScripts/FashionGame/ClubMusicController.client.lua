@@ -698,7 +698,10 @@ local function renderTracks()
 			Text = ClubConfig.showTitle(track, 14) .. "  ·  " .. track.channel, -- (🎵 = a choreography, D-731)
 			RichText = true,
 			TextXAlignment = Enum.TextXAlignment.Left,
-			TextTruncate = Enum.TextTruncate.AtEnd,
+			-- (D-903, user 2026-11-05: a long title is just cut at the edge, no "…":
+			-- with rich text AtEnd left only "🎵…" on the playing row)
+			TextTruncate = Enum.TextTruncate.None,
+			ClipsDescendants = true,
 			TextColor3 = COLORS.text,
 			TextSize = 14,
 			Font = Enum.Font.GothamMedium,
