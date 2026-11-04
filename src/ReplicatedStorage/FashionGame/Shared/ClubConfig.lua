@@ -209,7 +209,7 @@ ClubConfig.ChoreoFixes = {
 	[118329772913374] = { calm = true, hold = { from = 4.83, to = 6.04 } },
 	[95449015545787] = { calm = true },
 	[84806571273074] = { calm = true },
-	-- NEON (D-865, user: the stage fancam, "네온 안무 수정"): every piece with more
+	-- NEON (D-868, user: the stage fancam, "네온 안무 수정"): every piece with more
 	-- of the slower wobble than other songs' pieces (over 5.5 short swings a
 	-- second; ATEEZ pieces have about 3) gets it eased too
 	[128256391320572] = { calm = true }, [100410498984971] = { calm = true }, [126736648781925] = { calm = true },
@@ -427,7 +427,7 @@ ClubConfig.Playlist = {
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
 	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 97511700575810, length = 74, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, choreo = {
 		-- (D-809, user: 22 pieces, blends from tools/choreo/choreo_check.lua)
-		-- (D-865, user: the stage fancam n9HYtcN6W4w "네온 안무 수정") the pieces
+		-- (D-868, user: the stage fancam n9HYtcN6W4w "네온 안무 수정") the pieces
 		-- were cut from that video on its own clock, which starts about 3.4 s
 		-- before the song: chained from 0:00 they danced 3.4 s late (the song
 		-- ends at 218.2 s, the video's music at 221.7 s; the dance accents fit
