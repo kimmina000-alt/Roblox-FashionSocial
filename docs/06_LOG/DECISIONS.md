@@ -2355,3 +2355,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "클럽 콘피드에 춤, 노래, 술 아이템 다 같이 있는데 … 나누는 게 좋지 않을까?" → "아랄 음원 작업 끝나면 나눠". 성능 문제는 아니고(한 번 읽는 75 KB 표), 여러 세션·사용자가 한 파일을 고쳐 덮어쓰기·오류 번짐 위험 때문.
 - Shared/ClubChoreo(안무 보정 표: ChoreoFixes 등), ClubDances(춤 메뉴·템포), ClubPlaylist(Track/Lab/Joined 타입, SavedLabs, Playlist; 아랄 음원은 이 파일 끝), ClubDrinks(음료·병·가격·Visibility·findDrink). ClubConfig는 1026 → 317줄, 네 파일을 require해 필드를 하나씩 다시 내보냄(ClubConfig.Playlist 등 그대로, 타입도 export type으로 이어짐). 다른 스크립트는 안 바꿈.
 - 검사: 나누기 전후 ClubConfig 표 깊은 비교(62개 키) 차이 0, 함수 7개 같은 결과. Play: 음악·춤·이어 붙인 노래(37번)·음료 18 / 춤 31 / 곡 37 정상. 사용자가 고친 IU 제목·채널(K-POP, 닫는 괄호)도 ClubPlaylist에 반영. 만든 스크립트 tools/dev/split_clubconfig_1105.py(한 번 쓰는 용).
+
+## D-893 로딩 화면 로고 영문만 (2026-11-05)
+- 사용자: "로딩 화면 왼쪽 상단 로고에서 한글 삭제 영문만". LoadingScreen 로고를 ohu_main_white(OHU 위 + 오후) 105006870705482 → ohu_white(OHU만, 테두리 고친 흰색) 115835243531131로. 글자 크기는 그대로: 상자 높이 0.17 → 0.105(= 0.17 × 490 / 791), 비율 1477 / 490.
