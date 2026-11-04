@@ -43,6 +43,10 @@ export type Lab = {
 	speed: number, tempo: number, volume: number, boost: number, octave: number,
 	low: number, mid: number, high: number,
 	humHz: number?, hissHz: number?, gate: number?, engine: string?,
+	-- (D-892) a second SoundGroup above `boost`, 0..10 per song: heard =
+	-- boost × boost2 (each group stops at 10). Left out: 1, or for a joined
+	-- song with boost over 10, boost ÷ 10 (D-891)
+	boost2: number?,
 }
 
 export type Joined = { parts: {number}, segLen: number, tail: number, total: number, lead: number? }

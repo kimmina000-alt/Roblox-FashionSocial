@@ -2376,3 +2376,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - DanceController: 이어 붙인 곡이고 boost > 10이면 그 위 그룹 ClubMusicBoost(labGroup, 그동안 1 고정)에 boost ÷ 10(최대 10). 조각 그룹은 그대로 boost(Roblox가 10에서 자름). 들리는 배수 = 조각 그룹 × labGroup: 20 = 10 × 2, 최대 100. boost 10 이하는 전과 같음.
 - Play 확인: 36번을 Studio에서만 잠깐 boost 20으로 → labGroup 2, ClipABoost 10, ClipBBoost 10. 37번 IU(boost 1) labGroup 1, 35번 일반 업로드(boost 3) labGroup 3(전과 같음). 확인 뒤 Studio ClubPlaylist는 원래 값으로.
 - 같이 본 것: 이어 붙인 ANIMAL 첫 조각 99795651324027이 이번 Play에선 "Asset is not approved for the requester"(앞 Play에선 불러와졌음): 새로 올린 음원은 Roblox 검토 중 막혔다 풀렸다 할 수 있음.
+
+## D-892 노래마다 두 번째 SoundGroup 값 boost2 (2026-11-05)
+- 사용자: "노래마다 개별 설정할 수 있게 고쳐" (D-891은 boost가 10을 넘을 때 자동으로 나눔). Track.lab.boost2 = 노래마다 적는 두 번째 그룹 값(0..10). 들리는 배수 = boost × boost2. 안 적으면 1, 이어 붙인 곡에서 boost > 10이면 boost ÷ 10(D-891 그대로).
+- DanceController: 새 그룹 ClubMusicBoost2를 ClubMusicBoost(labGroup) 위에 둠. 일반 업로드 곡 labGroup = boost(전과 같음), 이어 붙인 곡 labGroup = 1(조각 그룹이 boost), ClubMusicBoost2 = boost2. EdmController hookGroup: ClubMusic의 그룹을 바로 옮기던 것 → 그 그룹 줄의 맨 위(ClubMusicBoost2)를 DJ 음량 그룹 EdmSongMute 밑에 (줄이 끊기지 않게). ClubPlaylist Lab 타입에 boost2.
+- Play 확인(Studio에서만 잠깐 35번 boost2 2, 37번 boost2 3): 그룹 줄 ClubMusic → ClubMusicBoost → ClubMusicBoost2 → EdmSongMute. 35번(일반 업로드, boost 3) ClubMusicBoost 3 · Boost2 2, ClubMusic 재생. 37번 IU(이어 붙인 곡, boost 1) 조각 그룹 1 · ClubMusicBoost 1 · Boost2 3, ClipA 재생. 확인 뒤 Studio ClubPlaylist 원래 값으로.
+- 같이 본 것: 33번 REDRED 새 첫 조각 129068801900804도 이번 Play에선 "Asset is not approved for the requester"(앞 Play에선 불러와졌음). 새로 올린 음원이 처음엔 되다가 막힘: Roblox 검토(저작권 포함) 중이거나 거절됐을 수 있음.

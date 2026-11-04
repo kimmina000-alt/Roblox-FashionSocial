@@ -33,7 +33,12 @@ end
 -- our group above the song's own (nested SoundGroups multiply): the DJ's volume
 local songMute = make("SoundGroup", { Name = "EdmSongMute", Volume = 1 }, SoundService)
 local function hookGroup()
+	-- (D-892) the top of the song's own chain of groups (DanceController:
+	-- ClubMusicBoost under ClubMusicBoost2), so the chain stays whole
 	local group = music.SoundGroup
+	while group and group.Parent and group.Parent:IsA("SoundGroup") and group.Parent ~= songMute do
+		group = group.Parent :: SoundGroup
+	end
 	if group and group ~= songMute and group.Parent ~= songMute then group.Parent = songMute end
 end
 music:GetPropertyChangedSignal("SoundGroup"):Connect(hookGroup)

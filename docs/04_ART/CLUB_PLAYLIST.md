@@ -131,7 +131,7 @@ local LAB = {
 
 ## 4. 아랄 음원 칸 (ClubPlaylist.lua의 `★★★아랄 음원 추가★★★` 아래, 사용자가 직접 넣음)
 
-이어 붙인 곡(`joined`)은 30초 조각 여러 개를 한 곡처럼 틀어요(Shared/JoinedSongPlayer, D-887). `joined = { parts, segLen, tail, total, lead }`: 조각 soundId들, 조각 길이, 겹치는 꼬리(초), 전체 길이, 앞 여백. lab의 `boost`는 최대 100(10 넘는 만큼은 위 SoundGroup이 곱함, D-891). `volume`은 최대 10. 원곡보다 빠르게 줄인 파일을 조각으로 올렸으면 `fileSpeed`(예: 3)를 적어야 안무가 맞음.
+이어 붙인 곡(`joined`)은 30초 조각 여러 개를 한 곡처럼 틀어요(Shared/JoinedSongPlayer, D-887). `joined = { parts, segLen, tail, total, lead }`: 조각 soundId들, 조각 길이, 겹치는 꼬리(초), 전체 길이, 앞 여백. lab의 `boost`(첫 SoundGroup, 0..10)와 `boost2`(두 번째 SoundGroup, 0..10, 노래마다; 안 적으면 1)를 곱한 만큼 커져요(D-892). 이어 붙인 곡에서 boost2 없이 boost를 10 넘게 적으면 넘는 만큼 자동으로 boost2가 돼요(D-891). `volume`은 최대 10. 원곡보다 빠르게 줄인 파일을 조각으로 올렸으면 `fileSpeed`(예: 3)를 적어야 안무가 맞음.
 
 | # | 채널 | 곡 | soundId (첫 조각) | 길이(초) | 조각 | lab | 기록 |
 |---|---|---|---|---|---|---|---|

@@ -1133,7 +1133,14 @@ local boost = create("EqualizerSoundEffect", { Name = "TrackBoost", LowGain = 0,
 local labGroup = Instance.new("SoundGroup")
 labGroup.Name = "ClubMusicBoost"
 labGroup.Volume = 1
-labGroup.Parent = game:GetService("SoundService")
+-- (D-892) a second group above it, per song (Track.lab.boost2): heard =
+-- boost × boost2. EdmController hangs the top of this chain under its DJ
+-- volume group: music → labGroup → ClubMusicBoost2 → EdmSongMute
+local gainGroup = Instance.new("SoundGroup")
+gainGroup.Name = "ClubMusicBoost2"
+gainGroup.Volume = 1
+gainGroup.Parent = game:GetService("SoundService")
+labGroup.Parent = gainGroup
 music.SoundGroup = labGroup
 local labEq = create("EqualizerSoundEffect", { Name = "LabEQ", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 10 }, music)
 																													
@@ -1208,11 +1215,15 @@ do
 		-- (the DJ's volume for lab tracks: on EdmController's group above this one,
 		-- D-735; a SoundGroup stops at 10 and the boost is 6)
 																																			
-			-- (D-891, user: boost past 10 for joined songs) each clip's group
-			-- takes the boost up to 10 (a SoundGroup stops there), this group
-			-- the rest: 20 = 10 × 2, up to 100
-			labGroup.Volume = if lab and not ClubConfig.isJoined(track) then lab.boost
-				elseif lab and typeof(lab.boost) == "number" and lab.boost > 10 then math.min(lab.boost / 10, 10)
+			-- (joined songs: each clip's own group takes the boost, labGroup 1)
+			local joined = track ~= nil and ClubConfig.isJoined(track)
+			labGroup.Volume = if lab and not joined then lab.boost else 1
+			-- (D-892, user: per song) the second group: lab.boost2, or (D-891)
+			-- for a joined song with boost over 10 the part past 10 (a
+			-- SoundGroup stops at 10: 20 = 10 × 2)
+			local boost2 = lab and (lab :: any).boost2
+			gainGroup.Volume = if typeof(boost2) == "number" then math.clamp(boost2, 0, 10)
+				elseif lab and joined and typeof(lab.boost) == "number" and lab.boost > 10 then math.min(lab.boost / 10, 10)
 				else 1
 		if track and ClubConfig.isJoined(track) then joinedPlayer:SetLab(joinedLab(track)) end
 																																				
