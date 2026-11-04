@@ -88,14 +88,17 @@ end
 -- keyframe to the next, marked `cont` (no cut: StageCameraController keeps
 -- following softly instead of jumping). Missing yaw / pitch / roll are 0.
 type Key = { [number]: any, yaw: number?, pitch: number?, roll: number?, ease: string? }
-function ClubCamera.take(keys: {Key}): {Shot}
+-- `ease` (D-899) for every move of the take: "linear" keeps a steady glide
+-- through closely spaced keyframes (a one-take steadicam), where "inout"
+-- (default) would stop at each
+function ClubCamera.take(keys: {Key}, ease: string?): {Shot}
 	local out = {}
 	for i, k in ipairs(keys) do
 		local n = keys[i + 1]
 		table.insert(out, {
 			at = k[1], size = k[2], yaw = k.yaw, pitch = k.pitch, roll = k.roll,
 			to = if n then { size = n[2], yaw = n.yaw or 0, pitch = n.pitch or 0, roll = n.roll or 0 } else nil,
-			ease = k.ease, cont = i > 1,
+			ease = k.ease or ease, cont = i > 1,
 		})
 	end
 	return out
@@ -394,6 +397,45 @@ ClubCamera.Songs[97511700575810] = {
 			{ 222.4, "wide", pitch = 4 } }),
 		{ at = 222.63, size = "bust" },
 	}),
+}
+
+-- IVE-Looks Can Kill: KBS Music Bank 2026-10-23 one-take 4K bonus version
+-- (youtube d7s-2eLvT8Q), video = song + 1.60 s (loudness matched, no drift,
+-- D-899). No cut at all: one steadicam at chest height weaving among the
+-- members, in and out on the beat; the "cuts" a frame difference finds are
+-- light changes. One take, keyframes from 0.5 s strips, a steady glide.
+ClubCamera.Songs[135553051649506] = {
+	video = "KBS Music Bank 2026-10-23 one-take 4K bonus, youtube d7s-2eLvT8Q",
+	offset = 1.6,
+	shots = take({
+		{ 0, "wide", pitch = 3 }, { 3.5, "wide", pitch = 3 }, { 4.0, "knee" }, { 5.0, "waist" }, { 6.0, "bust", yaw = 15 }, { 6.5, "waist", yaw = 8 },
+		{ 7.5, "bust" }, { 8.0, "knee" }, { 8.5, "waist" }, { 9.0, "knee", yaw = -8 }, { 10.0, "waist" }, { 11.0, "knee" }, { 12.0, "wide", pitch = 3 },
+		{ 13.5, "full" }, { 14.0, "knee" }, { 14.5, "waist" }, { 16.0, "waist", yaw = -10 }, { 16.6, "bust" }, { 17.5, "waist" }, { 18.0, "wide", pitch = 3 },
+		{ 19.5, "wide", pitch = 3 }, { 20.3, "full" }, { 21.0, "waist" }, { 21.5, "bust", yaw = 8 }, { 22.0, "waist" }, { 23.5, "bust", yaw = -8 },
+		{ 24.0, "waist" }, { 25.0, "bust" }, { 25.5, "knee" }, { 26.5, "waist" }, { 27.0, "knee" }, { 27.5, "bust", yaw = 25 }, { 28.0, "full", yaw = 25 },
+		{ 28.5, "knee", yaw = 10 }, { 29.5, "bust" }, { 30.0, "knee" }, { 31.0, "full", yaw = -8 }, { 32.0, "waist" }, { 32.5, "knee" }, { 33.0, "waist" },
+		{ 34.0, "bust" }, { 34.5, "waist" }, { 35.0, "knee", yaw = 8 }, { 36.0, "waist" }, { 36.5, "bust" }, { 37.5, "waist", yaw = -8 }, { 38.0, "knee" },
+		{ 39.5, "waist" }, { 41.5, "knee", yaw = 8 }, { 42.5, "wide", pitch = 3 }, { 43.0, "knee" }, { 44.0, "waist" }, { 45.0, "bust" }, { 45.5, "waist" },
+		{ 47.0, "bust", yaw = -8 }, { 47.5, "waist" }, { 48.5, "knee" }, { 49.0, "full" }, { 49.5, "knee", yaw = 8 }, { 51.0, "waist" }, { 52.0, "knee" },
+		{ 53.5, "bust", yaw = -8 }, { 54.0, "knee" }, { 55.0, "waist" }, { 55.5, "bust", yaw = 10 }, { 56.0, "waist" }, { 56.5, "knee" }, { 58.5, "waist", yaw = -8 },
+		{ 60.0, "knee" }, { 61.0, "bust" }, { 61.5, "knee" }, { 62.5, "waist", yaw = 8 }, { 63.5, "knee" }, { 64.0, "full" }, { 66.0, "knee", yaw = -8 },
+		{ 66.5, "waist" }, { 67.0, "bust" }, { 67.5, "waist" }, { 68.0, "knee" }, { 68.5, "full" }, { 69.0, "wide", pitch = 3 }, { 70.0, "full" },
+		{ 71.0, "knee", yaw = 8 }, { 72.0, "waist" }, { 73.0, "close" }, { 73.5, "knee" }, { 74.5, "waist", yaw = -8 }, { 75.0, "knee" }, { 76.0, "full" },
+		{ 79.0, "wide", pitch = 3 }, { 79.5, "knee" }, { 80.0, "waist" }, { 81.0, "knee", yaw = 8 }, { 81.5, "waist" }, { 82.5, "bust" }, { 83.0, "waist" },
+		{ 85.0, "full", yaw = -8 }, { 87.0, "knee" }, { 88.0, "waist" }, { 90.5, "full", yaw = 8 }, { 91.0, "knee" }, { 93.0, "waist" }, { 94.5, "knee", yaw = -8 },
+		{ 96.5, "waist" }, { 97.5, "knee" }, { 98.5, "waist", yaw = 8 }, { 100.0, "knee" }, { 100.5, "full" }, { 102.5, "knee" }, { 104.0, "waist", yaw = -8 },
+		{ 105.5, "knee" }, { 106.5, "waist" }, { 107.5, "full", yaw = 8 }, { 108.0, "knee" }, { 109.0, "waist" }, { 110.0, "knee" }, { 110.5, "full" },
+		{ 112.5, "knee", yaw = -8 }, { 113.5, "waist" }, { 116.0, "knee" }, { 116.5, "full", yaw = 8 }, { 118.5, "knee" }, { 120.0, "waist" },
+		{ 120.5, "knee" }, { 121.5, "waist", yaw = -8 }, { 122.0, "knee" }, { 124.5, "full" }, { 126.5, "knee", yaw = 8 }, { 127.0, "waist" }, { 128.0, "knee" },
+		{ 128.5, "waist" }, { 130.0, "full", yaw = -8 }, { 133.0, "knee" }, { 134.0, "bust" }, { 134.5, "knee" }, { 135.5, "waist", yaw = 8 }, { 136.5, "knee" },
+		{ 137.5, "waist" }, { 138.0, "knee" }, { 139.0, "full", yaw = -8 }, { 140.0, "knee" }, { 140.5, "waist" }, { 141.5, "knee" }, { 142.5, "waist", yaw = 8 },
+		{ 146.0, "knee" }, { 147.0, "waist" }, { 148.0, "knee", yaw = -8 }, { 149.0, "full" }, { 149.5, "wide", pitch = 3 }, { 153.0, "wide", pitch = 3 },
+		{ 153.5, "knee" }, { 154.0, "waist" }, { 154.5, "bust", yaw = 8 }, { 155.5, "waist" }, { 156.0, "knee" }, { 156.5, "full" }, { 158.5, "knee", yaw = -8 },
+		{ 160.0, "waist" }, { 162.0, "knee", yaw = 8 }, { 165.0, "full" }, { 166.0, "wide", pitch = 3 }, { 168.3, "wide", pitch = 3 }, { 168.6, "full" },
+		{ 169.0, "knee" }, { 170.5, "waist", yaw = -8 }, { 172.0, "knee" }, { 173.5, "waist", yaw = 8 }, { 174.5, "knee" }, { 175.0, "full" }, { 177.0, "knee" },
+		{ 178.0, "waist", yaw = -8 }, { 180.0, "knee" }, { 180.5, "waist" }, { 182.0, "knee", yaw = 8 }, { 183.0, "full" }, { 185.5, "knee" },
+		{ 187.0, "waist", yaw = -8 }, { 188.0, "bust" }, { 190.0, "knee" }, { 190.5, "full" }, { 193.0, "full" },
+	}, "linear"),
 }
 
 return ClubCamera
