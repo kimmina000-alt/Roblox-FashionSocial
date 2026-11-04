@@ -3443,3 +3443,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
   ![loveattack](images/2026-11-05/d903_loveattack_compare.jpg)
 - 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지.
 - 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치, ClockOverride 22, 둘 다 클럽 플로어, ChoreoOn/Auto): 테스트 서버 ClubPlaylist / ClubChoreo에 Genie · LOVE-ATTACK 안무와 still이 들어 있음. Player1(DJ)이 Genie 재생 → 두 화면 모두 11 / 12 / 13번 조각이 제때(내 캐릭터 `at`에서 0.01~0.05초, 상대 캐릭터 0.08~0.14초 뒤), 상대 엉덩이가 루트에서 최대 0.09(제자리). LOVE-ATTACK 재생 → 2~6번 내 캐릭터 0.01~0.07초, 상대 0.06~0.19초, 상대 엉덩이 최대 0.17. 1번(0~1.42초)은 곡이 막 시작할 때라 1.06~1.26초에야 보임(첫 조각 불러오기). 스크립트 오류 없음(DataStore 'Studio API 접근 꺼짐' 메시지와 93308695817877 경고만). 사용자 요청("모바일 2P 테스트하고 머지해")대로 머지.
+
+### 무대 카메라 소원을 말해봐 (D-904)
+- 영상 MBC 음악중심 2009 옥상 헬기장 무대(youtube z3RTc-8J3CU, D:\Roblox\영상\Genie_stage). 영상 = 노래 − 14.8초, 샷 108개. 브랜치 feat/stage-camera-genie-1105(Genie 안무가 머지된 catalog-ui-redesign 위).
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치): Studio 스크립트 같음(크기 차이는 줄바꿈). 두 휴대폰 모두 🎥(선택 + Return)으로 켜짐. 컷 순간 P1 29.88 / 32.41 / 33.42 / 34.89 / 36.43 / 38.43초, P2 29.89 / 32.43 / 33.43 / 34.90 / 36.44 / 38.44초(목록 29.8 / 32.3 / 33.3 / 34.8 / 36.3 / 38.3). 28.2초 경례 자세가 무대와 같은 순간(시작 지점 안무로 확인). P2만 끄니 Custom / FOV 70, P1은 켜진 채. 스크립트 오류 없음(93308695817877 경고만).
+  ![genie stage camera](images/2026-11-05/stagecam_genie_compare.jpg)
