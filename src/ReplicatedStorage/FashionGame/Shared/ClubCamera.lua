@@ -519,4 +519,106 @@ ClubCamera.Songs[91762270038050] = {
 	}),
 }
 
+-- CORTIS-REDRED: Mnet M COUNTDOWN 2026-04-23 first stage (youtube
+-- rREZviPAdM8), video = song + 34.5 s (D-902: the even beat gives answers 2 s
+-- apart, +32.5 / +34.5; the choreography decides: the song's quiet break at
+-- 121.8 s is standing still in the game, and in the video at +34.5 (32.5
+-- would be fast dancing)). Fast edit: many cuts on the beat (the video's
+-- red / green colour washes are lighting, not cuts), read from 0.5 s strips.
+local function cutList(list: {{any}}): {Shot}
+	local out = {}
+	for _, c in ipairs(list) do
+		table.insert(out, { at = c[1], size = c[2], yaw = c[3], pitch = c[4], to = c[5] })
+	end
+	return out
+end
+ClubCamera.Songs[125703446596781] = {
+	video = "Mnet M COUNTDOWN 2026-04-23, youtube rREZviPAdM8",
+	offset = 34.5,
+	shots = cutList({
+		-- intro: the members one by one, then the crew
+		{ 0, "wide", 0, 6 }, { 0.2, "bust", 15 }, { 1.5, "bust", -10 }, { 3.0, "bust", 10 }, { 4.0, "waist" },
+		{ 4.5, "knee", -15, 0, { size = "wide" } }, { 5.0, "wide", 0, 10 }, { 7.0, "waist", 10, -5 }, { 7.5, "bust" },
+		{ 8.5, "close", -10 }, { 9.0, "waist", 10 }, { 9.5, "knee", -15 },
+		{ 10.0, "xwide", 0, 8 }, { 11.5, "xwide", 0, 50 }, { 12.0, "waist", 10 }, { 13.5, "bust" },
+		{ 14.0, "xwide", 0, 10, { size = "wide" } }, { 16.0, "knee", -20 }, { 16.5, "waist", 15 }, { 17.0, "wide", 0, 6 },
+		{ 19.0, "waist", 10 }, { 19.5, "knee" }, { 20.0, "wide", -15, 8 }, { 21.0, "waist", 10 }, { 21.5, "bust" },
+		-- verse 1
+		{ 22.0, "xwide", 0, 8 }, { 25.0, "knee", -10 }, { 25.5, "full" }, { 26.0, "waist", 15 }, { 27.0, "bust" },
+		{ 28.0, "xwide", 0, 12, { size = "wide" } }, { 30.0, "bust", 10 }, { 31.0, "waist" }, { 31.5, "wide", 0, 6 },
+		{ 35.0, "knee", -10 }, { 35.5, "xwide", 0, 8 }, { 37.0, "full", 10 }, { 37.5, "waist" },
+		{ 38.0, "xwide", 0, 45 }, { 38.5, "wide", 0, 20 }, { 40.0, "xwide", 0, 10 }, { 42.0, "wide", 0, 6 },
+		{ 44.0, "knee", 15 }, { 45.0, "waist" }, { 46.0, "wide", 0, 8 }, { 47.0, "waist", -10 }, { 48.0, "full" },
+		{ 48.5, "wide", 0, 6 }, { 50.0, "waist", 10 }, { 52.0, "wide", 0, 8 }, { 54.0, "knee", -10 }, { 55.0, "waist", 15 },
+		-- chorus 1
+		{ 56.0, "xwide", 0, 10 }, { 57.0, "wide", 0, 6 }, { 58.0, "full" }, { 60.0, "waist", 10 }, { 61.0, "wide", 0, 6 },
+		{ 63.0, "waist", -10 }, { 64.0, "xwide", 0, 10 }, { 65.0, "wide", 0, 6 }, { 68.0, "knee", 0, -10 }, { 68.5, "waist", 10 },
+		{ 70.0, "wide", 0, 6 }, { 72.0, "bust", 15 }, { 73.5, "knee", -10 }, { 74.0, "wide", 0, 8 }, { 75.5, "knee", 0, -10 },
+		{ 76.5, "waist", 10 }, { 77.5, "wide", 0, 6 }, { 78.0, "full", 10 }, { 78.5, "waist" }, { 79.5, "knee", -10 },
+		-- verse 2
+		{ 80.0, "wide", 0, 6 }, { 82.0, "waist", 10 }, { 84.0, "knee", -10 }, { 85.0, "waist" }, { 86.0, "wide", 0, 6 },
+		{ 86.5, "knee", 10 }, { 87.5, "wide", 0, 8 }, { 90.5, "waist", -10 }, { 91.0, "bust" }, { 91.5, "waist" },
+		{ 92.0, "wide", 0, 6 }, { 93.5, "knee", 10 }, { 94.0, "waist" }, { 95.0, "knee", -10 }, { 95.5, "wide", 0, 6 },
+		{ 98.0, "waist", 10 }, { 99.5, "wide", 0, 8 }, { 101.0, "waist", -10 }, { 101.5, "xwide", 0, 45 }, { 102.0, "wide", 0, 20 },
+		{ 103.5, "xwide", 0, 10 }, { 104.5, "wide", 0, 6 }, { 105.5, "waist", 10 }, { 107.5, "wide", 0, 8 },
+		{ 108.5, "waist", -10 }, { 109.5, "wide", 0, 6 }, { 112.0, "knee", 10 }, { 112.5, "waist" },
+		{ 113.0, "xwide", 0, 10 }, { 114.0, "wide", 0, 6 }, { 115.5, "waist", -10 }, { 117.5, "wide", 0, 6 },
+		{ 118.5, "waist", 10 }, { 119.5, "wide", 0, 8 },
+		-- the quiet break: a close-up of the singer
+		{ 121.0, "bust" }, { 122.5, "wide", 0, 6 }, { 124.0, "full", 10 }, { 125.0, "waist" }, { 126.0, "wide", 0, 6 },
+		{ 127.0, "xwide", 0, 10 }, { 129.5, "xwide", 0, 50 }, { 131.5, "waist", 10 }, { 133.5, "wide", 0, 6 },
+		{ 135.5, "bust", -10 }, { 137.0, "waist" }, { 137.5, "wide", 0, 6 }, { 139.5, "waist", 10 }, { 141.5, "wide", 0, 6 },
+		{ 142.5, "waist", -10 },
+		-- last chorus
+		{ 143.0, "xwide", 0, 10 }, { 144.5, "wide", 0, 6 }, { 146.0, "waist", 10 }, { 147.0, "wide", 0, 6 },
+		{ 149.5, "waist", -10 }, { 151.0, "xwide", 0, 10 }, { 153.0, "wide", 0, 6 }, { 155.0, "bust", 10 }, { 155.5, "waist" },
+		{ 156.0, "wide", 0, 6 }, { 157.0, "waist", -10 }, { 157.5, "bust" }, { 158.0, "waist", 10 }, { 159.5, "wide", 0, 6 },
+		{ 162.0, "close", 10 },
+	}),
+}
+
+-- 소녀시대-소원을 말해봐(Genie): MBC Show! Music Core 2009-07-18 rooftop
+-- helipad stage (MBCkpop, youtube z3RTc-8J3CU), video = song - 14.8 s (D-904:
+-- the video starts after the song's intro; 17 of 21 loudness windows -14.80).
+-- Shots read from 0.5 s strips in VIDEO seconds (cuts on the beat; high crane
+-- and helicopter shots of the helipad, low shots of the legs).
+local function videoCuts(offset: number, list: {{any}}): {Shot}
+	local out = {}
+	for _, c in ipairs(list) do
+		table.insert(out, { at = math.max(c[1] - offset, 0), size = c[2], yaw = c[3], pitch = c[4], to = c[5] })
+	end
+	return out
+end
+ClubCamera.Songs[128270208751659] = {
+	video = "MBC Show! Music Core 2009-07-18, youtube z3RTc-8J3CU",
+	offset = -14.8,
+	shots = videoCuts(-14.8, {
+		-- (the song's intro before the video: the whole rooftop from high up)
+		{ -14.8, "xwide", 0, 25 }, { 4.5, "full", 0, -8, { size = "knee" } },
+		{ 7.0, "bust" }, { 8.0, "waist", 10 }, { 8.5, "full" }, { 9.5, "bust" }, { 11.5, "close", -10 }, { 13.5, "waist" },
+		{ 15.0, "wide", 0, 5 }, { 17.5, "close", 10 }, { 18.5, "bust" }, { 20.0, "xwide", -30, 10 }, { 21.5, "knee" },
+		{ 23.5, "wide", 0, 5 }, { 26.0, "bust", 10 }, { 27.0, "bust" }, { 28.5, "xwide", -30, 10 }, { 29.5, "wide", 0, 5 },
+		{ 32.5, "waist" }, { 36.5, "wide", 0, 5 }, { 38.0, "xwide", -30, 10 }, { 39.0, "bust" }, { 41.0, "xwide", 0, 35 },
+		{ 43.0, "bust" }, { 44.0, "wide", 0, 5 }, { 46.0, "bust", 10 }, { 48.0, "wide", 0, 35 }, { 49.5, "bust" },
+		{ 51.0, "xwide", 0, 80 }, { 53.0, "bust" }, { 55.0, "wide", 0, 8 }, { 57.0, "bust" }, { 59.0, "wide", 0, 8 },
+		{ 61.5, "xwide", -30, 10 }, { 63.0, "knee", 0, -12 }, { 64.5, "waist" }, { 65.0, "xwide", 0, 30 }, { 67.5, "waist" },
+		{ 69.0, "bust", -10 }, { 70.5, "wide", 0, 6 }, { 72.5, "bust", 15 }, { 74.0, "xwide", 0, 40 }, { 75.5, "bust" },
+		{ 78.0, "wide", 0, 6 }, { 80.0, "waist" }, { 81.0, "xwide", 0, 35 }, { 82.0, "bust", -10 }, { 84.0, "wide", 0, 6 },
+		{ 86.0, "waist" }, { 88.0, "xwide", 0, 35 }, { 89.5, "close" }, { 91.0, "knee" }, { 92.0, "wide", 0, 6 },
+		{ 94.0, "waist" }, { 95.0, "knee" }, { 96.0, "waist" }, { 97.0, "wide", 0, 6 }, { 98.0, "knee" },
+		{ 99.0, "xwide", -30, 8 }, { 100.5, "waist" }, { 103.5, "xwide", 0, 70 }, { 105.5, "knee" }, { 108.0, "wide", 0, 6 },
+		{ 109.5, "knee", 0, -12 }, { 110.5, "bust" }, { 112.5, "wide", 0, 6 }, { 114.0, "bust" }, { 116.0, "xwide", -30, 8 },
+		{ 117.5, "waist" }, { 121.5, "wide", 0, 6 }, { 124.0, "knee" }, { 125.0, "waist" }, { 127.5, "wide", 0, 35 },
+		{ 129.0, "waist" }, { 131.5, "wide", 0, 6 }, { 133.0, "waist" }, { 134.5, "wide", 0, 6 }, { 137.0, "xwide", -30, 8 },
+		{ 137.5, "wide", 0, 6 }, { 138.5, "close", 10 }, { 141.0, "wide", 0, 6 }, { 144.5, "xwide", 0, 55 }, { 146.0, "waist" },
+		{ 148.5, "wide", 0, 6 }, { 150.0, "close" }, { 151.5, "waist" }, { 153.0, "wide", 0, 6 }, { 155.0, "wide", 20, 20 },
+		{ 156.5, "wide", 0, 6 }, { 158.5, "knee" }, { 160.5, "xwide", -30, 8 }, { 162.0, "bust" }, { 164.5, "xwide", 0, 8 },
+		{ 166.5, "wide", 0, 25 }, { 168.0, "wide", 0, 6 }, { 169.5, "knee", 0, -8 }, { 172.0, "xwide", -30, 8 }, { 174.5, "knee" },
+		{ 176.0, "wide", 0, 30 }, { 177.5, "waist" }, { 180.5, "wide", 0, 30 }, { 183.5, "knee", 0, -12 }, { 186.0, "wide", 0, 35 },
+		{ 187.5, "wide", 0, 6 }, { 192.0, "knee" }, { 194.0, "xwide", -30, 8 }, { 198.0, "knee" },
+		-- ending: the crane rises off the helipad into the city
+		{ 200.0, "wide", 0, 45, { size = "xwide", pitch = 80 } },
+	}),
+}
+
 return ClubCamera

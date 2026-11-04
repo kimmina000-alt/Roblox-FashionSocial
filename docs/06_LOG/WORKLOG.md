@@ -3407,7 +3407,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 영상 MBC 쇼! 음악중심 NEON(youtube pKvx_bN74j4, D:\Roblox\영상\NEON_stage, 앞 절반만). 영상 = 노래 + 1.00초. 브랜치 feat/stage-camera-neon-1105.
 - 롱테이크 키프레임(take)과 장애물 부드럽게. Play(클럽 지하, 밤): 16 / 29 / 58.7 / 136.6 / 217.4초 무대와 같은 크기·각도, 스크립트 오류 없음.
   ![neon stage camera](images/2026-11-05/stagecam_neon_compare.jpg)
-- 남은 것: 모바일 2인 테스트, 머지 허락.
+- 2인 테스트(서버 + Player1/Player2, 사용자가 켬; 창 686×796·터치 없음이라 휴대폰 화면 흉내는 꺼져 있었음): Studio 스크립트 길이 브랜치와 같음. Player1(DJ)이 REDRED 재생, 두 화면 모두 🎥 클릭으로 켜짐. 컷 순간 P1 13.57 / 14.10 / 16.54초, P2 13.62 / 14.09 / 16.57초(목록 13.5 / 14.0 / 16.5; P1 창은 뒤에 있어 일부 프레임 기록 빠짐). P2만 끄니 Custom / FOV 70, P1은 켜진 채. 스크립트 오류 없음(93308695817877 경고만).
 ### 무대 카메라 Looks Can Kill (D-899)
 - 영상 KBS 뮤직뱅크 원테이크(youtube d7s-2eLvT8Q, D:\Roblox\영상\LooksCanKill_stage). 영상 = 노래 + 1.60초. 컷 없는 원테이크라 키프레임 181개, 일정한 미끄러짐(take ease "linear").
 - Play(클럽 지하, 밤): 무대와 같은 크기·방향, 30초 동안 큰 튐 없음, 스크립트 오류 없음.
@@ -3422,5 +3422,39 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 곡 소리 값 + 새 곡 (D-901)
 - ClubPlaylist.lua: 23곡 lab을 사용자 값으로(템포 유지, 스크립트로 바꾼 뒤 tempo 줄 비교: 바뀐 것 없음). 새 곡 길이는 Studio에서 Sound.TimeLength로 잼(82.423초).
 
-### 곡 목록 제목 잘림 (D-903)
+### 곡 목록 제목 잘림 (D-905)
 - ClubMusicController.client.lua 곡 줄 TextLabel: TextTruncate None, ClipsDescendants true. Studio에는 그 부분만 바꿔 넣음.
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치): 스크립트 길이 같음. 두 휴대폰 모두 🎥(선택 + Return)으로 켜짐. 컷 순간 P1 11.58 / 12.11 / 13.58 / 14.11 / 16.61 / 17.09 / 19.09초, P2 11.59 / 12.12 / 13.59 / 14.12 / 16.60 / 17.11 / 19.12초(목록 11.5 / 12.0 / 13.5 / 14.0 / 16.5 / 17.0 / 19.0). P2만 끄니 Custom / FOV 70, P1은 켜진 채. 스크립트 오류 없음(93308695817877 경고, rbxassethash 18개 'User is not authorized to access Asset' 경고: 이번 변경과 무관한 에셋).
+### 무대 카메라 REDRED (D-902)
+- 영상 Mnet 엠카운트다운 첫 무대(youtube rREZviPAdM8, D:\Roblox\영상\REDRED_stage). 소리 후보 둘(+32.5/+34.5)을 안무 자세로 골라 영상 = 노래 + 34.5초. 샷 136개. 브랜치 feat/stage-camera-redred-1105.
+- Play(클럽 지하, 밤): 30.8초 클로즈업, 130초 위에서 내려다보는 샷이 무대와 같음, 스크립트 오류 없음.
+  ![redred stage camera](images/2026-11-05/stagecam_redred_compare.jpg)
+- 남은 것: 모바일 2인 테스트, 머지 허락.
+
+### 소녀시대 Genie 안무 26조각 (D-897)
+- 사용자: "Genie" + id 26개(19번은 처음에 18번과 같은 id → 98754942494305로 받음). 영상 SNSD_Genie_centercut(미러 커버, 클립 26개).
+- 노래 ↔ 영상: 영상 = 노래 − 13.55초(노래 15~210초 구간 40개 모두 같음, 영상이 전주를 잘라 냄). `at` = 클립 시작 + 13.55, blend = choreo_check 제안값.
+- 검사: 타이밍 점검 ok, 미끄러짐 26곳 → ChoreoSlideStill 뒤 0, 영상 서 있기 still 4조각, 떨림 0구간(원본부터 깨끗).
+- Play: 조각 시작 차이 −0.01~−0.03초(앞·가운데·끝), 8→9(91°)·22→23 회전 한 방향, still 구간 이동 0.000, 몸 바꾸기 뒤 회전 177.7° 그대로.
+- 영상과 같은 순간(노래 30 / 100 / 205초, 왼쪽 미러 영상):
+  ![genie](images/2026-11-05/d897_genie_compare.jpg)
+- 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지.
+
+### RESCENE LOVE ATTACK 안무 27조각 (D-903)
+- 사용자: "loveattack" + id 27개. 영상 RESCENE_LoveAttack_centercut(미러 연습 영상, 클립 27개).
+- 노래 ↔ 영상: 영상 = 노래 + 0.45초(곡 내내 같음). `at` = 클립 시작 − 0.45, 1번 `from = 0.45`, blend = choreo_check 제안값.
+- 검사: 타이밍 점검 ok, 미끄러짐 26곳 → ChoreoSlideStill 뒤 0, 영상 서 있기 still 2조각, 떨림 51 → 2구간.
+- Play: 조각 시작 차이 −0.01~−0.08초(앞·가운데·끝), 10→11(91°) 회전 한 방향 프레임당 2.7°, still 이동 0.000~0.011, 몸 바꾸기 뒤 회전 37.2° 그대로.
+- 영상과 같은 순간(노래 20 / 90 / 175초, 왼쪽 미러 영상):
+  ![loveattack](images/2026-11-05/d903_loveattack_compare.jpg)
+- 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지.
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치, ClockOverride 22, 둘 다 클럽 플로어, ChoreoOn/Auto): 테스트 서버 ClubPlaylist / ClubChoreo에 Genie · LOVE-ATTACK 안무와 still이 들어 있음. Player1(DJ)이 Genie 재생 → 두 화면 모두 11 / 12 / 13번 조각이 제때(내 캐릭터 `at`에서 0.01~0.05초, 상대 캐릭터 0.08~0.14초 뒤), 상대 엉덩이가 루트에서 최대 0.09(제자리). LOVE-ATTACK 재생 → 2~6번 내 캐릭터 0.01~0.07초, 상대 0.06~0.19초, 상대 엉덩이 최대 0.17. 1번(0~1.42초)은 곡이 막 시작할 때라 1.06~1.26초에야 보임(첫 조각 불러오기). 스크립트 오류 없음(DataStore 'Studio API 접근 꺼짐' 메시지와 93308695817877 경고만). 사용자 요청("모바일 2P 테스트하고 머지해")대로 머지.
+
+### 무대 카메라 소원을 말해봐 (D-904)
+- 영상 MBC 음악중심 2009 옥상 헬기장 무대(youtube z3RTc-8J3CU, D:\Roblox\영상\Genie_stage). 영상 = 노래 − 14.8초, 샷 108개. 브랜치 feat/stage-camera-genie-1105(Genie 안무가 머지된 catalog-ui-redesign 위).
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치): Studio 스크립트 같음(크기 차이는 줄바꿈). 두 휴대폰 모두 🎥(선택 + Return)으로 켜짐. 컷 순간 P1 29.88 / 32.41 / 33.42 / 34.89 / 36.43 / 38.43초, P2 29.89 / 32.43 / 33.43 / 34.90 / 36.44 / 38.44초(목록 29.8 / 32.3 / 33.3 / 34.8 / 36.3 / 38.3). 28.2초 경례 자세가 무대와 같은 순간(시작 지점 안무로 확인). P2만 끄니 Custom / FOV 70, P1은 켜진 채. 스크립트 오류 없음(93308695817877 경고만).
+  ![genie stage camera](images/2026-11-05/stagecam_genie_compare.jpg)
+
+### D-901 / D-905 모바일 2인 테스트 → 머지
+- 최신 catalog-ui-redesign(9153fff, Genie / LOVE-ATTACK 안무, 무대 카메라 D-902/D-904)과 합침: 곡 목록은 그쪽 안무를 살리고 D-901 소리 값을 다시 적용. 내 D-903(제목 잘림)은 LOVE-ATTACK D-903과 겹쳐 D-905로 바꿈.
+- 2인 테스트(서버 + Player1/Player2): Studio 서버의 ClubPlaylist / ClubMusicController가 브랜치와 같음(주석 한 줄만 다름). Player1(DJ)이 38번 이무진-그대 잠시 내게를 틈. 곡 창에서 긴 제목(aespa-Lemonade, SOYEON-퇴사할게여, 이무진-그대 잠시 내게)이 점 없이 칸(104 px) 끝에서 잘림. Player2: ClubMusic 속도 0.334, LabEQ -40/-25/-40, 음높이 1.497(= 0.5 ÷ 0.334), ClubMusicBoost 10 / ClubMusicBoost2 10. 스크립트 오류 없음(데이터 저장소 Studio 접근 꺼짐, 93308695817877 '승인 안 된 에셋' 경고만).
