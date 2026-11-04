@@ -180,7 +180,17 @@ M.Playlist = {
 		{ id = 114419952125075, at = 210.11 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -1.5, mid = 0, high = 0, engine = "sound" } },
-	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" },
+		-- D-902: LoveAttack1..27 (practice video nXDQPm_HnFc, video = song + 0.45 s)
+		choreo = { { id = 109011245162387, from = 0.45 }, { id = 77108502823118, at = 1.48, blend = 0.82 }, { id = 86687841705348, at = 5.12, blend = 1 },
+		{ id = 131382757802821, at = 8.95, blend = 0.52 }, { id = 137275968003632, at = 10.18, blend = 0.53 }, { id = 110961201759433, at = 14.82, blend = 1 },
+		{ id = 107032969312689, at = 17.12, blend = 0.68 }, { id = 118832898913501, at = 21.28, blend = 1 }, { id = 90182725361176, at = 27.42, blend = 0.65 },
+		{ id = 70453746052130, at = 29.58, blend = 1 }, { id = 108475995123642, at = 35.02, blend = 0.82 }, { id = 108964771979987, at = 38.72, blend = 0.56 },
+		{ id = 88670191702155, at = 46.68, blend = 0.68 }, { id = 115864358490692, at = 59.45 }, { id = 111343039783743, at = 73.42, blend = 0.62 },
+		{ id = 93973196577178, at = 76.82, blend = 0.71 }, { id = 105227322276080, at = 78.85, blend = 0.65 }, { id = 132442605548936, at = 90.08, blend = 1 },
+		{ id = 97954457634320, at = 93.88, blend = 0.34 }, { id = 76304830605030, at = 106.12, blend = 0.45 }, { id = 115786464203055, at = 117.72 },
+		{ id = 73284838254272, at = 124.55, blend = 0.42 }, { id = 80227668256511, at = 133.15, blend = 0.6 }, { id = 72915658378938, at = 138.48, blend = 0.61 },
+		{ id = 104212164342204, at = 145.55, blend = 0.53 }, { id = 83427493012714, at = 159.45, blend = 0.76 }, { id = 78989896538167, at = 168.32, blend = 1 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "MY:RAKL-오색 낙원", soundId = 108027306922001, length = 61, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "Darla Jean-Dam Da Dee", soundId = 78077595750886, length = 73, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "머무르-꿈꾸던 어른이 되었나요", soundId = 120160897793669, length = 69, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
