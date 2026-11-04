@@ -109,8 +109,18 @@ function ClubCamera.join(parts: {any}): {Shot}
 	for _, p in ipairs(parts) do
 		if p.at then table.insert(out, p) else for _, s in ipairs(p) do table.insert(out, s) end end
 	end
-	table.sort(out, function(a, b) return a.at < b.at end)
-	return out
+	-- (D-900) a take's last keyframe only says where its move ends: when the
+	-- next shot cuts in at that moment, the cut wins (no zero-length shot)
+	table.sort(out, function(a, b)
+		if a.at ~= b.at then return a.at < b.at end
+		return (a.cont and 1 or 0) < (b.cont and 1 or 0)
+	end)
+	local kept = {}
+	for _, s in ipairs(out) do
+		local last = kept[#kept]
+		if not (last and math.abs(last.at - s.at) < 1e-6) then table.insert(kept, s) end
+	end
+	return kept
 end
 
 -- the shot list of a track, or nil
@@ -436,6 +446,77 @@ ClubCamera.Songs[135553051649506] = {
 		{ 178.0, "waist", yaw = -8 }, { 180.0, "knee" }, { 180.5, "waist" }, { 182.0, "knee", yaw = 8 }, { 183.0, "full" }, { 185.5, "knee" },
 		{ 187.0, "waist", yaw = -8 }, { 188.0, "bust" }, { 190.0, "knee" }, { 190.5, "full" }, { 193.0, "full" },
 	}, "linear"),
+}
+
+-- RIIZE-Get A Guitar: KBS Music Bank 2023-09-08 stage (KBS WORLD TV, youtube
+-- EXRHfIvmPIQ), video = song + 3.88 s (loudness matched, no drift, D-900).
+-- 55 hard cuts: crane wides from high left, handheld close-ups with whips,
+-- low front full shots; moving shots are takes from 0.5 s strips.
+ClubCamera.Songs[91762270038050] = {
+	video = "KBS Music Bank 2023-09-08, youtube EXRHfIvmPIQ",
+	offset = 3.88,
+	shots = ClubCamera.join({
+		-- intro (the logo, then the crane)
+		take({ { 0, "xwide", yaw = -30, pitch = 25 }, { 0.35, "xwide", yaw = -30, pitch = 25 }, { 2.75, "wide", yaw = -10, pitch = 10 } }),
+		take({ { 2.75, "full", yaw = 20 }, { 3.95, "knee", yaw = 10 } }),
+		take({ { 3.95, "wide", yaw = 15, pitch = 6 }, { 6.0, "full" }, { 7.45, "knee" } }),
+		take({ { 7.45, "bust", pitch = -5 }, { 9.35, "close" } }),
+		take({ { 9.35, "wide", pitch = 8 }, { 11.0, "full" }, { 13.5, "knee", yaw = 10 }, { 14.89, "waist" } }),
+		take({ { 14.89, "wide", yaw = -25, pitch = 15 }, { 16.0, "full" }, { 17.6, "waist" }, { 19.52, "waist", yaw = 10 } }),
+		take({ { 19.52, "wide", pitch = 6 }, { 21.67, "full", yaw = -10 }, { 22.5, "waist" }, { 24.15, "knee" } }),
+		-- verse 1: the low front camera dollying in and out, a handheld at 26
+		take({ { 24.15, "full", pitch = -4 }, { 26.0, "bust" }, { 27.5, "waist", yaw = 15 }, { 28.5, "full" }, { 30.0, "wide", pitch = 6 }, { 32.0, "full" },
+			{ 33.5, "wide", pitch = 6 }, { 35.15, "full" } }),
+		{ at = 35.15, size = "knee", yaw = -15 },
+		{ at = 35.42, size = "full" },
+		take({ { 35.99, "waist", yaw = 15 }, { 38.0, "bust" }, { 39.5, "waist" }, { 41.75, "full" } }),
+		take({ { 41.75, "wide", pitch = 5 }, { 43.5, "full", yaw = 10 }, { 45.5, "waist" }, { 47.0, "bust", roll = -6 }, { 49.55, "bust" } }),
+		{ at = 49.55, size = "wide", yaw = 15, pitch = 6 },
+		take({ { 51.19, "bust", yaw = -15 }, { 54.59, "close" } }),
+		take({ { 54.59, "xwide", yaw = -30, pitch = 20 }, { 55.7, "wide", pitch = -6 }, { 56.1, "waist" }, { 56.92, "waist", yaw = 15 } }),
+		take({ { 56.92, "wide", yaw = -20, pitch = 15 }, { 59.02, "full" } }),
+		take({ { 59.02, "bust" }, { 62.95, "waist", yaw = 10 } }),
+		take({ { 62.95, "waist", yaw = -10 }, { 65.62, "bust" } }),
+		take({ { 65.62, "wide", yaw = 15, pitch = 8 }, { 67.29, "full" } }),
+		take({ { 67.29, "bust", roll = 6 }, { 69.0, "waist" }, { 70.72, "wide", pitch = 6 } }),
+		take({ { 70.72, "full", yaw = 15 }, { 72.12, "knee" } }),
+		take({ { 72.12, "waist", yaw = -10 }, { 74.0, "bust" }, { 76.29, "waist" } }),
+		take({ { 76.29, "wide", pitch = 8 }, { 78.0, "full" }, { 80.35, "wide", pitch = 8 } }),
+		-- chorus
+		take({ { 80.35, "xwide", yaw = -30, pitch = 20 }, { 81.5, "wide", pitch = 8 }, { 84.32, "wide", yaw = 10, pitch = 6 } }),
+		take({ { 84.32, "close", yaw = 15 }, { 86.0, "close" }, { 87.29, "bust" } }),
+		{ at = 87.29, size = "xwide", yaw = -20, pitch = 15 },
+		{ at = 87.92, size = "wide", pitch = 10 },
+		{ at = 88.49, size = "wide", pitch = -4 },
+		{ at = 89.59, size = "wide", pitch = 6 },
+		take({ { 90.65, "full", yaw = -10 }, { 93.0, "knee" }, { 95.0, "waist", yaw = 10 }, { 96.0, "bust" }, { 98.49, "waist" } }),
+		take({ { 98.49, "wide", pitch = 6 }, { 99.85, "full" } }),
+		take({ { 99.85, "full", yaw = 15 }, { 102.0, "bust" }, { 104.0, "waist" }, { 105.5, "bust" }, { 107.39, "waist" } }),
+		take({ { 107.39, "wide", pitch = 6 }, { 109.0, "full" }, { 110.5, "waist" }, { 111.32, "bust" } }),
+		take({ { 111.32, "waist", yaw = -15 }, { 113.0, "bust" }, { 114.62, "close" } }),
+		take({ { 114.62, "xwide", yaw = 20, pitch = 20 }, { 116.42, "wide", pitch = 10 } }),
+		take({ { 116.42, "bust" }, { 118.0, "waist", yaw = 10 }, { 120.05, "bust" } }),
+		take({ { 120.05, "xwide", yaw = -30, pitch = 25 }, { 122.22, "wide", yaw = -15, pitch = 12 } }),
+		take({ { 122.22, "full", yaw = 15 }, { 123.69, "waist" } }),
+		take({ { 123.69, "wide", pitch = 6 }, { 125.5, "full" }, { 127.72, "wide", pitch = 6 } }),
+		-- bridge
+		take({ { 127.72, "bust", yaw = -10 }, { 130.65, "waist", yaw = 10 } }),
+		take({ { 130.65, "full", pitch = 4 }, { 133.12, "wide", pitch = 6 } }),
+		{ at = 133.12, size = "waist", yaw = 15 },
+		{ at = 133.39, size = "bust" },
+		take({ { 133.85, "waist", yaw = -10 }, { 135.42, "bust" } }),
+		take({ { 135.42, "wide", yaw = -20, pitch = 15 }, { 137.82, "full" } }),
+		take({ { 137.82, "bust", yaw = 15 }, { 139.75, "close" } }),
+		take({ { 139.75, "xwide", yaw = -25, pitch = 20 }, { 141.69, "wide", pitch = 10 } }),
+		-- last chorus
+		take({ { 141.69, "wide", pitch = 6 }, { 143.5, "full" }, { 146.19, "full" } }),
+		take({ { 146.19, "bust" }, { 148.15, "waist", yaw = 10 } }),
+		take({ { 148.15, "wide", pitch = 6 }, { 150.29, "full" } }),
+		take({ { 150.29, "waist", yaw = 15 }, { 150.59, "waist" } }),
+		take({ { 150.59, "wide", pitch = 6 }, { 152.5, "full" }, { 154.95, "full" } }),
+		take({ { 154.95, "bust" }, { 157.0, "close" }, { 158.22, "close" } }),
+		take({ { 158.22, "wide", yaw = -25, pitch = 18 }, { 161.0, "wide", yaw = -15, pitch = 12 } }),
+	}),
 }
 
 return ClubCamera

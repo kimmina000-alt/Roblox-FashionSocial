@@ -3413,3 +3413,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - Play(클럽 지하, 밤): 무대와 같은 크기·방향, 30초 동안 큰 튐 없음, 스크립트 오류 없음.
   ![looks can kill stage camera](images/2026-11-05/stagecam_lck_compare.jpg)
 - 남은 것: 모바일 2인 테스트(NEON과 같이), 머지 허락.
+### 무대 카메라 Get A Guitar (D-900)
+- 영상 KBS 뮤직뱅크(youtube EXRHfIvmPIQ, D:\Roblox\영상\GetAGuitar_stage). 영상 = 노래 + 3.88초, 컷 55개 → 샷 95개.
+- Play: 80~87초 바스트/크레인 순서 바뀐 것 고침, 가까운 샷이 숙인 머리를 따라가게. 무대와 같은 크기·자세, 스크립트 오류 없음.
+  ![get a guitar stage camera](images/2026-11-05/stagecam_gag_compare.jpg)
+- 남은 것: 모바일 2인 테스트(NEON · Looks Can Kill · Get A Guitar), 머지 허락.
