@@ -3390,3 +3390,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 사용자: "bad 가슴 튕기는 안무 반박자만 빠르게 들어가자". 21번 조각의 pops 6개를 0.25 s씩 앞으로(박자 간격 약 0.5 s). 브랜치 feat/bad-pops-1105(작업 폴더 D:\Roblox\OHU-wt-choreo, 메인 폴더는 아랄 음원 세션 브랜치라서).
 - Studio: ClubChoreo의 그 줄만 바꿈(파일과 바이트 수 같음). Play에서 2:14부터 상체가 앞으로 튀는 순간을 프레임마다 기록: 1.28 / 1.89 / 2.28 / 2.77 / 3.32 / 3.82 s(이전 값보다 0.25 s 빠름). 조각 시작 시각은 안 바꿔서 타이밍 검사(§9.4-5) 값 그대로.
 - 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치): Player1(DJ)이 BAD 재생 + 2:10으로 이동, 두 화면 모두 21번 조각 튕김 1.26-1.27 / 1.87-1.88 / 2.27 / 2.75-2.76 / 3.30-3.31 / 3.80-3.81 s(값 1.30 … 3.83과 프레임 한두 개 차이). 스크립트 오류 없음(DataStore 'Studio API 접근 꺼짐' 메시지와 93308695817877 '승인 안 된 에셋' 경고만, 이번 변경과 무관). 머지.
+
+### 음원 추가 칸 · 두 번째 SoundGroup · REDRED (D-889..D-892, D-894)
+- 사용자가 ClubPlaylist 끝 칸(이름 ★★★음원 추가★★★, D-894 전 "아랄")과 REDRED/ANIMAL 줄을 여러 번 바꿈 → 매번 Studio에 넣고 Play(조각 길이, Play 서버에서 불러와지는지, 이음새 크로스페이드, 안무 시각). 이어 붙인 곡 boost 10 넘게(D-891), 노래마다 boost2(D-892). REDRED는 54초 파일로(D-894).
+- 모바일 2인 테스트(서버 + Player1/Player2): Studio 스크립트 127개 브랜치와 같음, 테스트 서버의 바뀐 5개(ClubPlaylist, ClubChoreo, DanceController, EdmController, LoadingScreen) 길이 같음. Player1(DJ)이 37번 IU → 두 화면 모두 ClipA 81568082292649 음량 10, 그룹 줄 ClubMusicBoost → ClubMusicBoost2 → EdmSongMute. 33번 REDRED 원곡 57초로 이동 → 두 화면 모두 원곡 59.0초에 안무 조각 116978800280311. 스크립트 오류 없음(DataStore 메시지와 93308695817877 경고만). 사용자 승인 후 머지.
