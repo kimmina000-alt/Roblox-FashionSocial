@@ -3355,3 +3355,4 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### EDM 음원 교체, 클럽 문 옆 나무 (D-885, D-886)
 ![](images/2026-11-04/d886_club_tree.jpg)
 - Play: EdmConfig 새 id 3개, 문 오른쪽 화단에 나무.
+- 2인 테스트(서버 + Player1/Player2, 589×794 창, 터치 아님): 두 화면 모두 문 옆 나무 있음. Player1(DJ)이 EDM 1→2→3: 서버 ClubEdm track 1/2/3, Player1 새 음원 재생, Player2도 같은 EDM 3(137443947685209)을 같은 시점(2.6 s)에 들음. 오류 없음(서버에 Bubble Pop 음원 한 번 HTTP 502, Roblox 쪽 일시 오류, 이번 변경과 무관). 머지.
