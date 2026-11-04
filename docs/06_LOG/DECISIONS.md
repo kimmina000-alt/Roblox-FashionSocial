@@ -2382,3 +2382,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - DanceController: 새 그룹 ClubMusicBoost2를 ClubMusicBoost(labGroup) 위에 둠. 일반 업로드 곡 labGroup = boost(전과 같음), 이어 붙인 곡 labGroup = 1(조각 그룹이 boost), ClubMusicBoost2 = boost2. EdmController hookGroup: ClubMusic의 그룹을 바로 옮기던 것 → 그 그룹 줄의 맨 위(ClubMusicBoost2)를 DJ 음량 그룹 EdmSongMute 밑에 (줄이 끊기지 않게). ClubPlaylist Lab 타입에 boost2.
 - Play 확인(Studio에서만 잠깐 35번 boost2 2, 37번 boost2 3): 그룹 줄 ClubMusic → ClubMusicBoost → ClubMusicBoost2 → EdmSongMute. 35번(일반 업로드, boost 3) ClubMusicBoost 3 · Boost2 2, ClubMusic 재생. 37번 IU(이어 붙인 곡, boost 1) 조각 그룹 1 · ClubMusicBoost 1 · Boost2 3, ClipA 재생. 확인 뒤 Studio ClubPlaylist 원래 값으로.
 - 같이 본 것: 33번 REDRED 새 첫 조각 129068801900804도 이번 Play에선 "Asset is not approved for the requester"(앞 Play에선 불러와졌음). 새로 올린 음원이 처음엔 되다가 막힘: Roblox 검토(저작권 포함) 중이거나 거절됐을 수 있음.
+
+## D-894 CORTIS-REDRED 예전 54초 파일로 되돌림, 음원 추가 칸 이름 (2026-11-05)
+- 사용자가 ClubPlaylist.lua에서 여러 번 시험(제목 test-REDRED, 매번 "업로드해" → Studio에 넣고 Play): D-890 6조각(130916906404688…) → 새 6조각(89700374029423…, Play에서 5개 "Asset is not approved for the requester") → 54초 2조각 tempo 0.5 / 0.333(72105637204397, 113147306415829; joined는 fileSpeed 1이라 안무가 약 40초 늦음, 원곡 3배 파일이면 fileSpeed = 3 필요) → x1 6조각(130020173958370…, 129068801900804…; 처음엔 되다가 다음 Play에서 첫 조각 not approved) → 예전 파일.
+- 정한 값: soundId 125703446596781(54.35초 파일, 원곡 3배), length 163 → 54.35(사용자 "length 54.35로 고쳐서"; 163이면 서버가 163 ÷ 0.333 ≈ 490초 기다려 노래 뒤 약 5분 반 조용), lab tempo 0.333 / boost 3 / octave 0.5 / low -3 / mid 2 / engine sound, 제목 CORTIS-REDRED(사용자 "CORTIS-REDRED로 바꿔"), 안무 D-879 그대로.
+- Play(클럽 홀): 재생, 원곡 57.6초 조각 116978800280311 제때(파일 19.2초), 끝나면 1초 안에 다음 곡, PitchShift 1.5(octave ÷ tempo), 오류 없음.
+- 표시 주석 "★★★아랄 음원 추가★★★" → "★★★음원 추가★★★"(사용자). 빈 줄 하나 정리. 시험한 새 음원들(ANIMAL 99795651324027… 포함)은 처음 불러와지다 다음 Play에서 막힘: Roblox 검토(저작권 포함) 결과를 Creator Dashboard에서 확인할 것.

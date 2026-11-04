@@ -612,3 +612,5 @@
 - 이어 붙인 곡 boost 10 넘게: 위에 SoundGroup 하나 더(20 = 10 × 2, 최대 100) (D-891).
 - 이어 붙인 곡 boost 10 넘게: 위에 SoundGroup 하나 더(20 = 10 × 2, 최대 100) (D-891).
 - 노래마다 두 번째 SoundGroup 값 lab.boost2 (들리는 배수 = boost × boost2) (D-892).
+- 노래마다 두 번째 SoundGroup 값 lab.boost2 (들리는 배수 = boost × boost2) (D-892).
+- CORTIS-REDRED: 조각 여러 번 시험 뒤 예전 54초 파일로(length 54.35, octave 0.5, low -3 / mid 2), 음원 추가 칸 이름 (D-894).
