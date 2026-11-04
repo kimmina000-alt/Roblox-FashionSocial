@@ -638,7 +638,12 @@ RunService.PreAnimation:Connect(function()
 		local span = math.max(seg.Length - from, 0)
 		segStart = following.starts[i] or segStart
 		local segEnd = math.min(segStart + span, following.stops[i] or math.huge)
-		if songTime >= segStart and songTime < segEnd then index = i t = songTime - segStart + from break end
+		-- (D-861) a short gap before the next piece's `at` (captures run a
+		-- little shorter than their clips) keeps this piece's last pose
+		-- instead of dropping to the idle pose for a moment
+		local nextAt = following.starts[i + 1]
+		local holdEnd = if nextAt and nextAt > segEnd and nextAt - segEnd <= 1.5 and not following.stops[i] then nextAt else segEnd
+		if songTime >= segStart and songTime < holdEnd then index = i t = math.min(songTime - segStart, span - 0.03) + from break end
 		segStart += span
 	end
 	if not index then

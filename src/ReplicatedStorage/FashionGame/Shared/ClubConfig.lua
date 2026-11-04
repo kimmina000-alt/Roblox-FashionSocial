@@ -340,13 +340,22 @@ ClubConfig.Playlist = {
 		-- 4, 5 and 6 captured again from the user's new clips (D-847); 21 pops its chest (ChoreoFixes);
 		-- 11 skips its first 1.3 s, a spin of about 200° into place (user); the
 		-- last piece runs past the song end, about 153 s heard)
-		82278370960435, { id = 120748822938478, blend = 0.9 }, { id = 110345323270713, blend = 0.75 }, { id = 128919651219199, blend = 0.9 },
-		{ id = 82580725724862, blend = 0.37 }, { id = 102168077584280, blend = 0.59 }, { id = 122397631727855, blend = 0.41 },
-		{ id = 96766863219484, blend = 0.47 }, { id = 116077835257285, blend = 0.75 }, { id = 78517242404651, blend = 0.99 },
-		{ id = 135462564673113, from = 1.3, blend = 0.45 }, { id = 130559113363194, blend = 1 }, { id = 79303516060999, blend = 0.61 },
-		94325256666159, { id = 111913125032810, blend = 1 }, { id = 129415986484255, blend = 0.53 }, { id = 87606540400975, blend = 1 },
-		{ id = 121775933093308, blend = 0.95 }, { id = 138549092776506, blend = 0.73 }, 88428525489460,
-		{ id = 82346668311878, blend = 0.7 }, 134748500609652, 70571634425422 }, autoChoreo = true },
+		-- (D-861, user: "21번 안무가 영상보다 빠르게 나와서 노래랑 타이밍이 안 맞아 … 약
+		-- 3초") each piece starts where its clip starts in the practice video
+		-- (D:\Roblox\영상\ATEEZ_BAD_centercut\clips.json), less 0.16 s: the song
+		-- runs 0.16 s ahead of that video (loudness envelopes matched, Studio
+		-- PlaybackLoudness vs the video's audio). Run back to back, the captures
+		-- (a little shorter than their clips) and 11's skipped 1.3 s had pulled
+		-- 21 2.5 s and 23 2.6 s early; a short gap before the next `at` holds
+		-- the last pose (ChoreoController)
+		{ id = 82278370960435, from = 0.16 }, { id = 120748822938478, at = 6.61, blend = 0.9 }, { id = 110345323270713, at = 17.22, blend = 0.75 },
+		{ id = 128919651219199, at = 23.46, blend = 0.9 }, { id = 82580725724862, at = 25.37, blend = 0.37 }, { id = 102168077584280, at = 32.11, blend = 0.59 },
+		{ id = 122397631727855, at = 33.87, blend = 0.41 }, { id = 96766863219484, at = 39.28, blend = 0.47 }, { id = 116077835257285, at = 46.52, blend = 0.75 },
+		{ id = 78517242404651, at = 58.53, blend = 0.99 }, { id = 135462564673113, at = 67.24, from = 1.3, blend = 0.45 }, { id = 130559113363194, at = 70.94, blend = 1 },
+		{ id = 79303516060999, at = 73.01, blend = 0.61 }, { id = 94325256666159, at = 83.46 }, { id = 111913125032810, at = 88.33, blend = 1 },
+		{ id = 129415986484255, at = 95.14, blend = 0.53 }, { id = 87606540400975, at = 103.48, blend = 1 }, { id = 121775933093308, at = 110.55, blend = 0.95 },
+		{ id = 138549092776506, at = 122.03, blend = 0.73 }, { id = 88428525489460, at = 132.31 }, { id = 82346668311878, at = 136.64, blend = 0.7 },
+		{ id = 134748500609652, at = 143.72 }, { id = 70571634425422, at = 151.66 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
 	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, choreo = {
