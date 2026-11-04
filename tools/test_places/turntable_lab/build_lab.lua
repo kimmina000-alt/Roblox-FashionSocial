@@ -97,6 +97,7 @@ local function install(file: string, class: string, parent: Instance, name: stri
 	return #src
 end
 local sps = game:GetService("StarterPlayer"):WaitForChild("StarterPlayerScripts")
+local m = install("JoinedSongPlayer.lua", "ModuleScript", game:GetService("ReplicatedStorage"), "JoinedSongPlayer")
 local a = install("TurntableLab.client.lua", "LocalScript", sps, "TurntableLab")
 local b = install("TurntableLabStore.server.lua", "Script", game:GetService("ServerScriptService"), "TurntableLabStore")
-return "built, client " .. a .. " / server " .. b .. " chars"
+return "built, module " .. m .. " / client " .. a .. " / server " .. b .. " chars"

@@ -10,10 +10,11 @@ local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 
--- 오후 club playlist (ClubConfig.Playlist, 41 songs, 2026-11-02 D-755;
--- docs/04_ART/CLUB_PLAYLIST.md). The 12 Roblox tracks play as uploaded; the
--- 29 uploads of the user's share ClubConfig.SavedLabs.userUpload (`up`
--- marks them in the list). Per-track values live in the lab's DataStore.
+-- 오후 club playlist (ClubConfig.Playlist, 37 songs, 2026-11-03 D-782;
+-- docs/04_ART/CLUB_PLAYLIST.md). The 12 Roblox tracks play as uploaded; each
+-- of the 25 uploads has its own club value, `club` = { tempo, boost, low,
+-- mid, high } on top of speed 1, volume 10, octave 0.5, engine "sound".
+-- Per-track lab values live in the lab's DataStore.
 local TRACKS = {
 	-- Roblox music (no lab values)
 	{ title = "K-Pop Party", id = 135361546383974 },
@@ -28,41 +29,44 @@ local TRACKS = {
 	{ title = "Disco Inferno", id = 87243738678545 },
 	{ title = "Festival Fever", id = 136228548293465 },
 	{ title = "Euphoria Dance", id = 76814968175069 },
-	-- the user's uploads (lab value UP)
-	{ title = "ATEEZ-BAD", id = 134942349436280, up = true },
-	{ title = "소녀시대-소원을 말해봐(Genie)", id = 128270208751659, up = true },
-	{ title = "현아-Bubble Pop", id = 76388700698178, up = true },
-	{ title = "RIIZE-Get A Guitar", id = 91762270038050, up = true },
-	{ title = "RIIZE-Love 119", id = 119473981131981, up = true },
-	{ title = "YENA-Catch Catch", id = 80583279340768, up = true },
-	{ title = "Hearts2Hearts-Lemon Tang", id = 97032815457241, up = true },
-	{ title = "aespa-Lemonade", id = 132067415333401, up = true },
-	{ title = "IVE-Mirror", id = 139326796173276, up = true },
-	{ title = "A2O LITE-NEON", id = 74555169365877, up = true },
-	{ title = "SOYEON-퇴사할게여", id = 113196766736048, up = true },
-	{ title = "ILLIT-체포하겠어", id = 92011448544342, up = true },
-	{ title = "RESCENE-LOVE-ATTACK", id = 99853291768808, up = true },
-	{ title = "LUMIN-88", id = 110720215000082, up = true },
-	{ title = "헤이즈-빈틈을 채워 준 너에게", id = 76215165790142, up = true },
-	{ title = "LUMIN-HIDE", id = 112657196644886, up = true },
-	{ title = "MY:RAKL-오색 낙원", id = 89952029801748, up = true },
-	{ title = "Darla Jean-Dam Da Dee", id = 94857636654876, up = true },
-	{ title = "머무르-꿈꾸던 어른이 되었나요", id = 89442781401038, up = true },
-	{ title = "IVE-Looks Can Kill", id = 106717797623758, up = true },
-	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 107782871991364, up = true }, -- (new upload, user 2026-11-03; was 71227645100967)
-	{ title = "NCT WISH-I SPY", id = 90694654380166, up = true }, -- (new upload, user 2026-11-03; was 125162124703337)
-	{ title = "IOI-갑자기", id = 73546697163709, up = true }, -- (new upload, user 2026-11-03; was 82649881602599)
-	{ title = "TAEYEON-만찬가", id = 85454054799377, up = true },
-	{ title = "IU-이 별로부터", id = 82037005465590, up = true },
-	{ title = "CORTIS-REDRED", id = 115957470310890, up = true },
-	{ title = "BIG Naughty-노스탈지아", id = 101304843634159, up = true },
-	{ title = "BIGBANG-BiiiG", id = 107790212422874, up = true },
-	{ title = "BOYNEXTDOOR-ANIMAL", id = 94498201288355, up = true },
+	-- the user's uploads, each with its club value
+	{ title = "ATEEZ-BAD", id = 134942349436280, club = { 0.333, 2.5, 0, 0, 0 } },
+	{ title = "소녀시대-소원을 말해봐(Genie)", id = 128270208751659, club = { 0.334, 2.5, -5, 2, 0 } },
+	{ title = "현아-Bubble Pop", id = 76388700698178, club = { 0.333, 2.5, -6, 0.5, -7 } },
+	{ title = "RIIZE-Get A Guitar", id = 91762270038050, club = { 0.333, 3, -7, -3, 1.5 } },
+	{ title = "RIIZE-Love 119", id = 119473981131981, club = { 0.333, 3, -7, -3, 1.5 } },
+	{ title = "YENA-Catch Catch", id = 80583279340768, club = { 0.34, 3, -13, 2.5, 4 } },
+	{ title = "Hearts2Hearts-Lemon Tang", id = 97032815457241, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "aespa-Lemonade", id = 132067415333401, club = { 0.333, 3, -11, 0, -2.5 } },
+	{ title = "IVE-Mirror", id = 139326796173276, club = { 0.332, 3, -10.5, 5, 4.5 } },
+	{ title = "A2O LITE-NEON", id = 97511700575810, club = { 0.332, 3, -3, 2, 0 } },
+	{ title = "SOYEON-퇴사할게여", id = 96358497474432, club = { 0.334, 3, -3, 2, 0 } },
+	{ title = "ILLIT-체포하겠어", id = 139044453511745, club = { 0.335, 3, -3, 2, 0 } },
+	{ title = "RESCENE-LOVE-ATTACK", id = 71873496902418, club = { 0.334, 3, -3, 2, 0 } },
+	{ title = "MY:RAKL-오색 낙원", id = 108027306922001, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "Darla Jean-Dam Da Dee", id = 78077595750886, club = { 0.335, 3, -3, 2, 0 } },
+	{ title = "머무르-꿈꾸던 어른이 되었나요", id = 120160897793669, club = { 0.334, 3, -3, 2, 0 } },
+	{ title = "IVE-Looks Can Kill", id = 135553051649506, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "IOI-갑자기", id = 73546697163709, club = { 0.333, 2.4, -9.5, 6, 0 } },
+	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 107782871991364, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "NCT WISH-I SPY", id = 90694654380166, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "IU-이 별로부터", id = 96396723842714, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "CORTIS-REDRED", id = 125703446596781, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "BIG Naughty-노스탈지아", id = 116539470869444, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "BIGBANG-BiiiG", id = 113809029583519, club = { 0.334, 3, -3, 2, 0 } },
+	{ title = "BOYNEXTDOOR-ANIMAL", id = 130804487358433, club = { 0.29, 3, -3, 2, 0 } },
 	-- lab only (user 2026-11-03)
-	{ title = "헤이즈 테스트", id = 91382298830000 },}
--- ClubConfig.SavedLabs.userUpload, what the club plays the `up` songs with
--- (user 2026-11-03: all uploads on boost 3, EQ flat)
-local UP = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }
+	{ title = "헤이즈 테스트", id = 91382298830000 },
+	-- joined songs (user 2026-11-03): one song uploaded as clips cut by
+	-- tools/audio/split_for_crossfade.ps1, played as one by JoinedSongPlayer
+	{ title = "녹음본 (8구간 이어 붙임)", joined = { parts = { 81568082292649, 130739295576800, 136055998058951, 101406045735531, 115474783735573, 101362036297281, 107766734212525, 139626977220244 }, segLen = 30, tail = 4, total = 225.05, lead = 0.09 } },
+}
+-- a track's club value as a full lab table (nil for the Roblox tracks)
+local function clubValues(t: any): any
+	local c = t.club
+	if not c then return nil end
+	return { speed = 1, tempo = c[1], volume = 10, boost = c[2], octave = 0.5, low = c[3], mid = c[4], high = c[5], engine = "sound" }
+end
 
 -- speed and octave on log sliders (x1 in the middle); volume is the raw
 -- Sound.Volume
@@ -108,32 +112,47 @@ local customId: number? = nil
 local looped = true
 
 --------------------------------------------------------------------------
--- sound: one Sound and five PitchShift effects in a row. One effect only
--- reaches 0.5..2, so a bigger octave is split into equal parts.
+-- sound: a deck = one Sound with its own SoundGroup (the boost), five
+-- PitchShift effects in a row (one effect only reaches 0.5..2, so a bigger
+-- octave is split into equal parts) and an EQ. Two decks take turns for the
+-- crossfade test (user 2026-11-03): `deck` plays (its parts are `snd`,
+-- `boostGroup`, `shifters`, `eq`), `otherDeck` waits with the next song.
+-- `gain` is the crossfade level (0..1) on top of the track's volume.
 --------------------------------------------------------------------------
-local boostGroup = Instance.new("SoundGroup")
-boostGroup.Name = "LabBoost"
-boostGroup.Parent = SoundService
-local snd = Instance.new("Sound")
-snd.Name = "LabTrack"
-snd.Looped = looped
-snd.SoundGroup = boostGroup
-snd.Parent = SoundService
-local shifters = {}
-for i = 1, 5 do
-	local fx = Instance.new("PitchShiftSoundEffect")
-	fx.Name = "PitchShift" .. i
-	fx.Priority = i
-	fx.Enabled = false
-	fx.Parent = snd
-	shifters[i] = fx
+local function makeDeck(name: string, groupName: string): any
+	local group = Instance.new("SoundGroup")
+	group.Name = groupName
+	group.Parent = SoundService
+	local s = Instance.new("Sound")
+	s.Name = name
+	s.Looped = looped
+	s.SoundGroup = group
+	s.Parent = SoundService
+	local fxs = {}
+	for i = 1, 5 do
+		local fx = Instance.new("PitchShiftSoundEffect")
+		fx.Name = "PitchShift" .. i
+		fx.Priority = i
+		fx.Enabled = false
+		fx.Parent = s
+		fxs[i] = fx
+	end
+	local e = Instance.new("EqualizerSoundEffect")
+	e.Name = "EQ"
+	e.Priority = 10
+	e.LowGain, e.MidGain, e.HighGain = 0, 0, 0
+	e.Enabled = false
+	e.Parent = s
+	return { snd = s, group = group, shifters = fxs, eq = e, gain = 1 }
 end
-local eq = Instance.new("EqualizerSoundEffect")
-eq.Name = "EQ"
-eq.Priority = 10
-eq.LowGain, eq.MidGain, eq.HighGain = 0, 0, 0
-eq.Enabled = false
-eq.Parent = snd
+local deck = makeDeck("LabTrack", "LabBoost")
+local otherDeck = makeDeck("LabTrackNext", "LabBoostNext")
+otherDeck.gain = 0
+local snd, boostGroup, shifters, eq = deck.snd, deck.group, deck.shifters, deck.eq
+local function swapDecks()
+	deck, otherDeck = otherDeck, deck
+	snd, boostGroup, shifters, eq = deck.snd, deck.group, deck.shifters, deck.eq
+end
 
 -- the new-API chain, wired in a row
 local chain = Instance.new("Folder")
@@ -169,9 +188,32 @@ end
 ap.Looping = looped
 chain.Parent = SoundService
 
+-- a joined song (clips played as one) runs on its own player
+-- (ReplicatedStorage.JoinedSongPlayer, the same module 오후 gets)
+local JoinedSongPlayer = require(game:GetService("ReplicatedStorage"):WaitForChild("JoinedSongPlayer"))
+local joined = JoinedSongPlayer.new(SoundService)
+local joinedActive = false
+
 -- one face for both engines: the transport code below talks to `sound` as
 -- if it were a Sound; on the new engine Pause / Resume are Stop / Play
--- keeping the time, and the loop region is LoopRegion with no switch
+-- keeping the time, and the loop region is LoopRegion with no switch.
+-- A joined song answers with its whole length and song time.
+local JOINED_GET = {
+	IsLoaded = function() return true end,
+	IsPlaying = function() return joined:IsPlaying() end,
+	TimePosition = function() return joined:GetTime() end,
+	TimeLength = function() return joined:GetLength() end,
+	Looped = function() return false end,
+	PlaybackRegionsEnabled = function() return false end,
+	LoopRegion = function() return NumberRange.new(0, 60000) end,
+	-- a jump made while stopped (pendingAt) is where the next play starts
+	Play = function() return function() joined:Play(joined.pendingAt or joined:GetTime()) joined.pendingAt = nil end end,
+	Resume = function() return function()
+		if joined.pendingAt then joined:Play(joined.pendingAt) joined.pendingAt = nil else joined:Resume() end
+	end end,
+	Pause = function() return function() joined:Pause() end end,
+	Stop = function() return function() joined:Stop() end end,
+}
 local regionsOn = false
 local AUDIO_GET = {
 	IsLoaded = function() return ap.IsReady end,
@@ -192,6 +234,10 @@ local AUDIO_SET = {
 }
 local sound: any = setmetatable({}, {
 	__index = function(_, k)
+		if joinedActive then
+			local get = JOINED_GET[k]
+			return if get then get() else nil
+		end
 		if engine == "sound" then
 			local v = (snd :: any)[k]
 			if typeof(v) == "function" then return function(_, ...) return v(snd, ...) end end
@@ -202,6 +248,13 @@ local sound: any = setmetatable({}, {
 		return (ap :: any)[k]
 	end,
 	__newindex = function(_, k, v)
+		if joinedActive then
+			-- a jump on the time bar; the loop settings do not apply
+			if k == "TimePosition" then
+				if joined:IsPlaying() then joined:Play(v) else joined.pendingAt = v end
+			end
+			return
+		end
 		if engine == "sound" then (snd :: any)[k] = v return end
 		local set = AUDIO_SET[k]
 		if set then set(v) else (ap :: any)[k] = v end
@@ -219,31 +272,45 @@ end
 
 -- what is really sent: speed × tempo (Roblox stops at 20), and the octave
 -- divided by the tempo that got through (five shifters reach 1/32..32)
+local function effectiveOf(v: any): (number, number)
+	local playSpeed = math.min(v.speed * v.tempo, 20)
+	local tempo = playSpeed / v.speed
+	return playSpeed, math.clamp(v.octave / tempo, 1 / 32, 32)
+end
 local function effective(): (number, number)
-	local playSpeed = math.min(values.speed * values.tempo, 20)
-	local tempo = playSpeed / values.speed
-	return playSpeed, math.clamp(values.octave / tempo, 1 / 32, 32)
+	return effectiveOf(values)
+end
+
+-- a deck gets a track's values (the next song's while it waits)
+local function applyDeck(d: any, v: any)
+	local playSpeed, octave = effectiveOf(v)
+	d.snd.PlaybackSpeed = playSpeed
+	d.snd.Volume = v.volume * d.gain
+	d.group.Volume = v.boost
+	local split = if math.abs(octave - 1) < 1e-4 then {} else octaveParts(octave)
+	-- the raw test is for PitchShiftSoundEffect only (AudioPitchShifter cuts at 2)
+	local parts = if rawOctave and #split > 0 then { octave } else split
+	for i, fx in ipairs(d.shifters) do
+		fx.Octave = parts[i] or 1
+		fx.Enabled = parts[i] ~= nil
+	end
+	d.eq.LowGain, d.eq.MidGain, d.eq.HighGain = v.low, v.mid, v.high
+	d.eq.Enabled = v.low ~= 0 or v.mid ~= 0 or v.high ~= 0
 end
 
 -- both engines get every value, so switching keeps the sound
 local function apply()
 	local playSpeed, octave = effective()
-	snd.PlaybackSpeed, ap.PlaybackSpeed = playSpeed, playSpeed
-	snd.Volume, ap.Volume = values.volume, values.volume
-	boostGroup.Volume, boostFader.Volume = values.boost, values.boost
+	applyDeck(deck, values)
+	if joinedActive then joined:SetLab(values) end
+	ap.PlaybackSpeed = playSpeed
+	ap.Volume = values.volume
+	boostFader.Volume = values.boost
 	local split = if math.abs(octave - 1) < 1e-4 then {} else octaveParts(octave)
-	-- the raw test is for PitchShiftSoundEffect only (AudioPitchShifter cuts at 2)
-	local parts = if rawOctave and #split > 0 then { octave } else split
-	for i, fx in ipairs(shifters) do
-		fx.Octave = parts[i] or 1
-		fx.Enabled = parts[i] ~= nil
-	end
 	for i, fx in ipairs(apShifters) do
 		fx.Pitch = split[i] or 1
 		fx.Bypass = split[i] == nil
 	end
-	eq.LowGain, eq.MidGain, eq.HighGain = values.low, values.mid, values.high
-	eq.Enabled = values.low ~= 0 or values.mid ~= 0 or values.high ~= 0
 	apEq.LowGain, apEq.MidGain, apEq.HighGain = values.low, values.mid, values.high
 	apEq.Bypass = not eq.Enabled
 	humFilter.Frequency = values.humHz
@@ -373,6 +440,42 @@ local stopB = button(tRow, "⏹ 끄기", UDim2.new(0.33, -4, 1, 0), Color3.fromR
 local repeatB = button(tRow, "", UDim2.new(0.33, -4, 1, 0))
 local engineB = button(row(32), "", UDim2.fromScale(1, 1))
 engineB.TextSize = 13
+
+-- crossfade test (user 2026-11-03): song → song on two decks; wired up
+-- further down with the transport
+label(row(20), "🔀 크로스페이드 (곡 → 곡)", UDim2.fromScale(1, 1), nil, { Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = CYAN })
+local xfNextRow = row(32)
+local xfPrev = button(xfNextRow, "◀", UDim2.fromOffset(32, 32))
+local xfNext = button(xfNextRow, "▶", UDim2.fromOffset(32, 32))
+xfNext.Position = UDim2.new(1, -32, 0, 0)
+local xfNextLabel = label(xfNextRow, "", UDim2.new(1, -76, 1, 0), UDim2.fromOffset(38, 0), { TextXAlignment = Enum.TextXAlignment.Center, TextSize = 13 })
+local xfLenRow = row(32)
+label(xfLenRow, "겹침", UDim2.fromOffset(40, 32), nil, { TextColor3 = DIM, TextSize = 13 })
+local xfMinus = button(xfLenRow, "−", UDim2.fromOffset(36, 32), Color3.fromRGB(60, 60, 80))
+xfMinus.Position = UDim2.fromOffset(44, 0)
+local xfLenBox = mk("TextBox", {
+	Size = UDim2.new(1, -128, 1, 0), Position = UDim2.fromOffset(84, 0), BackgroundColor3 = BG,
+	Text = "", TextColor3 = CYAN, Font = Enum.Font.GothamBold, TextSize = 16, ClearTextOnFocus = false,
+}, xfLenRow)
+corner(xfLenBox, 6)
+local xfPlus = button(xfLenRow, "+", UDim2.fromOffset(36, 32), Color3.fromRGB(60, 60, 80))
+xfPlus.Position = UDim2.new(1, -36, 0, 0)
+local xfBar = mk("TextButton", { Size = UDim2.new(1, 0, 0, 10), BackgroundColor3 = CARD, Text = "", AutoButtonColor = false, LayoutOrder = 0 }, row(10))
+corner(xfBar, 5)
+local xfFill = mk("Frame", { Size = UDim2.fromScale(0, 1), BackgroundColor3 = PINK, BorderSizePixel = 0 }, xfBar)
+corner(xfFill, 5)
+local xfOptRow = row(32)
+local xfCurveB = button(xfOptRow, "", UDim2.new(1 / 3, -4, 1, 0))
+local xfAutoB = button(xfOptRow, "", UDim2.new(1 / 3, -4, 1, 0))
+xfAutoB.Position = UDim2.new(1 / 3, 2, 0, 0)
+local xfTailB = button(xfOptRow, "", UDim2.new(1 / 3, -4, 1, 0))
+xfTailB.Position = UDim2.new(2 / 3, 4, 0, 0)
+for _, b in ipairs({ xfCurveB, xfAutoB, xfTailB }) do b.TextSize = 12 end
+local xfLeadB = button(row(28), "", UDim2.fromScale(1, 1))
+xfLeadB.TextSize = 12
+local xfGoRow = row(36)
+local xfGoB = button(xfGoRow, "🔀 지금 전환", UDim2.new(0.4, -4, 1, 0), Color3.fromRGB(120, 50, 150))
+local xfStatus = label(xfGoRow, "", UDim2.new(0.6, -4, 1, 0), UDim2.new(0.4, 4, 0, 0), { TextColor3 = DIM, TextSize = 12, TextWrapped = true, TextTruncate = Enum.TextTruncate.None })
 
 -- time bar (click to jump)
 local timeRow = row(34)
@@ -626,8 +729,11 @@ corner(copyBox, 6)
 --------------------------------------------------------------------------
 -- tracks and transport
 --------------------------------------------------------------------------
+-- (a joined song saves its values under its first clip's id)
 local function currentId(): number
-	return customId or TRACKS[trackIndex].id
+	if customId then return customId end
+	local t = TRACKS[trackIndex]
+	return if t.joined then t.joined.parts[1] else t.id
 end
 
 -- saved settings, by sound id (string keys, as the DataStore keeps them)
@@ -654,14 +760,16 @@ local function refreshTrack()
 		b.BackgroundTransparency = if on then 0 else 1
 		b.BackgroundColor3 = if on then Color3.fromRGB(110, 40, 95) else BG
 		local t = TRACKS[i]
+		local key = if t.joined then t.joined.parts[1] else t.id
 		local tags = {}
-		if savedFor(t.id) then
+		if t.joined then table.insert(tags, "🔗 " .. #t.joined.parts .. "구간") end
+		if savedFor(key) then
 			table.insert(tags, "💾 저장됨")
-		else
-			table.insert(tags, if t.up then "클럽: UP" else "클럽: 기본")
+		elseif not t.joined then
+			table.insert(tags, if t.club then "클럽 값 있음" elseif t.id == 91382298830000 then "랩 전용" else "클럽: 기본")
 		end
 		listTags[i].Text = table.concat(tags, " · ")
-		listTags[i].TextColor3 = if savedFor(t.id) then Color3.fromRGB(120, 230, 150) else DIM
+		listTags[i].TextColor3 = if savedFor(key) then Color3.fromRGB(120, 230, 150) else DIM
 	end
 	ohuB.AutoButtonColor = customId == nil
 	ohuB.TextTransparency = if customId then 0.6 else 0
@@ -688,14 +796,22 @@ local function setEngine(e: string)
 	refreshAll()
 end
 
--- the track's saved values, or the untouched ones when it has none
-local function applySaved()
-	local entry = savedFor(currentId())
+-- a track's saved values, or the untouched ones when it has none
+-- (a joined song starts at volume 10 and always plays as Sounds)
+local function valuesFor(id: number, isJoined: boolean?): any
+	local entry = savedFor(id)
+	local v = {}
 	for _, p in ipairs(PARAMS) do
-		local v = entry and entry[p.key]
-		values[p.key] = if typeof(v) == "number" then math.clamp(v, p.min, p.max) else p.default
+		local x = entry and entry[p.key]
+		v[p.key] = if typeof(x) == "number" then math.clamp(x, p.min, p.max) elseif isJoined and p.key == "volume" then 10 else p.default
 	end
-	setEngine(if entry and entry.engine == "audio" then "audio" else "sound")
+	v.engine = if entry and entry.engine == "audio" and not isJoined then "audio" else "sound"
+	return v
+end
+local function applySaved()
+	local v = valuesFor(currentId(), joinedActive)
+	for _, p in ipairs(PARAMS) do values[p.key] = v[p.key] end
+	setEngine(v.engine)
 	apply()
 	refreshAll()
 end
@@ -721,22 +837,36 @@ function paintSave()
 	end
 end
 
+local cancelFade: () -> () -- the crossfade, below
+local prepareNext: (number?) -> ()
+
 local loadToken = 0
 local function load(playNow: boolean)
 	loadToken += 1
 	local my = loadToken
+	cancelFade()
 	local wasPlaying = sound.IsPlaying or playNow
 	sound:Stop()
+	joined:Stop()
+	joinedActive = false
 	loopA, loopB, regionOn = nil, nil, false -- marks belong to one track
 	refreshRegion()
 	-- both engines hold the track, ready for a switch
 	snd.SoundId = "rbxassetid://" .. currentId()
 	ap.AssetId = "rbxassetid://" .. currentId()
 	snd.TimePosition, ap.TimePosition = 0, 0
+	-- a joined song: its player takes over the transport
+	local t = if customId then nil else TRACKS[trackIndex]
+	if t and t.joined then
+		joinedActive = true
+		joined.pendingAt = nil
+		joined:Load({ title = t.title, joined = t.joined })
+	end
 	statusLabel.Text = "불러오는 중…"
 	pickerRow.Visible = false -- its list is for the track it was opened on
 	applySaved()
 	refreshTrack()
+	prepareNext(nil) -- the next deck takes the song after this one
 	task.spawn(function()
 		local t0 = os.clock()
 		while not sound.IsLoaded and os.clock() - t0 < 8 do task.wait(0.1) end
@@ -749,10 +879,214 @@ local function load(playNow: boolean)
 	end)
 end
 
+--------------------------------------------------------------------------
+-- crossfade test (user 2026-11-03): the next song waits on the other deck,
+-- loaded, with its own saved values and volume 0. At the switch it starts
+-- and the two levels cross over `xfLen` seconds (equal-power: cos / sin, or
+-- straight lines), then the decks change roles. Time left = (length −
+-- position) ÷ the real playback speed; the automatic switch starts one
+-- frame early. "꼬리" is for clips cut with a few seconds of the next clip
+-- at their end (the 2026-11-03 recording: 30 s + 4 s): the next clip then
+-- starts `tail − overlap` in, so the overlapping sound lines up.
+-- The decks are Sounds, so a track saved on the new engine plays here
+-- without its denoise.
+--------------------------------------------------------------------------
+local XF_MIN, XF_MAX = 0.1, 8
+local xfLen = 2
+local xfCurve = "power" -- or "linear"
+local xfAuto = false
+local xfTail = 0 -- seconds of the next clip at the end of each clip
+-- (user 2026-11-03) a Sound sits still for a moment after Play, so with a
+-- tail the next clip starts that much further in to stay in line. Measured
+-- in Studio: no lead = 0.10 s behind, 0.1 = 0.037 ahead, so 0.05 is closest
+local XF_LEADS = { 0, 0.05, 0.1, 0.15, 0.2 }
+local xfLead = 0.05
+local nextIndex = 1
+local nextVals: any = valuesFor(TRACKS[1].id)
+local fading: any = nil
+local lastDt = 1 / 60
+local lastGains = { 1, 0 }
+
+local function curveGains(f: number): (number, number)
+	if xfCurve == "linear" then return 1 - f, f end
+	return math.cos(f * math.pi / 2), math.sin(f * math.pi / 2)
+end
+
+local function paintXf()
+	xfNextLabel.Text = "다음: " .. nextIndex .. ". " .. TRACKS[nextIndex].title
+	xfLenBox.Text = fmt(xfLen) .. "초"
+	xfFill.Size = UDim2.fromScale((xfLen - XF_MIN) / (XF_MAX - XF_MIN), 1)
+	xfCurveB.Text = if xfCurve == "power" then "곡선: equal-power" else "곡선: 직선"
+	xfAutoB.Text = if xfAuto then "곡 끝 자동: 켬" else "곡 끝 자동: 끔"
+	xfAutoB.BackgroundColor3 = if xfAuto then Color3.fromRGB(120, 50, 150) else CARD
+	xfTailB.Text = if xfTail > 0 then ("꼬리 " .. xfTail .. "초 (녹음 구간)") else "꼬리 없음 (곡)"
+	xfTailB.BackgroundColor3 = if xfTail > 0 then Color3.fromRGB(110, 90, 30) else CARD
+	xfLeadB.Text = string.format("시작 보정 %s초 (꼬리 모드에서 다음 구간을 그만큼 앞당겨요 · 누르면 바뀜)", fmt(xfLead))
+	xfLeadB.TextTransparency = if xfTail > 0 then 0 else 0.5
+end
+
+function prepareNext(index: number?)
+	if fading then return end
+	nextIndex = index or (trackIndex % #TRACKS + 1)
+	-- a joined song is not a single Sound: the song → song test skips it
+	for _ = 1, #TRACKS do
+		if not TRACKS[nextIndex].joined then break end
+		nextIndex = nextIndex % #TRACKS + 1
+	end
+	local t = TRACKS[nextIndex]
+	nextVals = valuesFor(t.id)
+	local d = otherDeck
+	d.snd:Stop()
+	d.gain = 0
+	d.snd.SoundId = "rbxassetid://" .. t.id
+	d.snd.Looped = false
+	d.snd.PlaybackRegionsEnabled = false
+	d.snd.TimePosition = 0
+	applyDeck(d, nextVals)
+	paintXf()
+end
+
+function cancelFade()
+	if not fading then return end
+	fading.to.snd:Stop()
+	fading.to.gain = 0
+	fading.from.gain = 1
+	fading = nil
+	apply()
+end
+
+-- the overlap in real seconds; with a tail it may not run past the tail
+local function overlapNow(): number
+	if xfTail <= 0 then return xfLen end
+	return math.min(xfLen, xfTail / effective())
+end
+
+local function startTransition()
+	if fading then return end
+	if joinedActive then
+		xfStatus.Text = "이어 붙인 곡은 구간끼리 저절로 이어져요"
+		return
+	end
+	local d = otherDeck
+	if not d.snd.IsLoaded then
+		xfStatus.Text = "다음 곡을 아직 불러오는 중이에요"
+		return
+	end
+	if engine ~= "sound" then setEngine("sound") end -- the decks are Sounds
+	if regionOn then
+		regionOn = false
+		refreshRegion()
+	end
+	local len = overlapNow()
+	d.gain = 0
+	applyDeck(d, nextVals)
+	-- the next clip starts where the end of this one overlaps it (file seconds)
+	local lead = if xfTail > 0 then xfLead * effectiveOf(nextVals) else 0
+	d.snd.TimePosition = math.max(0, xfTail - len * effective()) + lead
+	d.snd:Play()
+	fading = { t0 = os.clock(), len = len, from = deck, to = d, index = nextIndex, vals = nextVals }
+end
+
+local function finishFade()
+	local f = fading
+	fading = nil
+	f.from.snd:Stop()
+	f.from.gain = 0
+	f.to.gain = 1
+	swapDecks()
+	-- the next song is now the one on the mixer, with its own values
+	customId = nil
+	trackIndex = f.index
+	for _, p in ipairs(PARAMS) do values[p.key] = f.vals[p.key] end
+	loopA, loopB, regionOn = nil, nil, false
+	ap.AssetId = "rbxassetid://" .. currentId() -- the new engine holds it too, for a switch
+	apply()
+	refreshAll()
+	refreshTrack()
+	refreshRegion()
+	prepareNext(nil)
+end
+
+local function setXfLen(v: number)
+	xfLen = math.clamp(math.floor(v * 10 + 0.5) / 10, XF_MIN, XF_MAX)
+	paintXf()
+end
+holdRepeat(xfMinus, function() setXfLen(xfLen - 0.1) end)
+holdRepeat(xfPlus, function() setXfLen(xfLen + 0.1) end)
+xfLenBox.FocusLost:Connect(function()
+	local n = tonumber(xfLenBox.Text:match("[%d%.]+") or "")
+	if n then setXfLen(n) else paintXf() end
+end)
+local function xfFromInput(x: number)
+	local f = math.clamp((x - xfBar.AbsolutePosition.X) / xfBar.AbsoluteSize.X, 0, 1)
+	setXfLen(XF_MIN + f * (XF_MAX - XF_MIN))
+end
+xfBar.InputBegan:Connect(function(input)
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		dragging = xfFromInput
+		xfFromInput(input.Position.X)
+	end
+end)
+xfCurveB.MouseButton1Click:Connect(function()
+	xfCurve = if xfCurve == "power" then "linear" else "power"
+	paintXf()
+end)
+xfAutoB.MouseButton1Click:Connect(function()
+	xfAuto = not xfAuto
+	paintXf()
+end)
+xfTailB.MouseButton1Click:Connect(function()
+	xfTail = if xfTail > 0 then 0 else 4
+	paintXf()
+end)
+xfLeadB.MouseButton1Click:Connect(function()
+	xfLead = XF_LEADS[(table.find(XF_LEADS, xfLead) or 0) % #XF_LEADS + 1]
+	paintXf()
+end)
+xfPrev.MouseButton1Click:Connect(function()
+	if not fading then prepareNext((nextIndex - 2) % #TRACKS + 1) end
+end)
+xfNext.MouseButton1Click:Connect(function()
+	if not fading then prepareNext(nextIndex % #TRACKS + 1) end
+end)
+xfGoB.MouseButton1Click:Connect(startTransition)
+
+RunService.Heartbeat:Connect(function(dt)
+	lastDt = dt
+	if fading then
+		local f = math.clamp((os.clock() - fading.t0) / fading.len, 0, 1)
+		local gOut, gIn = curveGains(f)
+		fading.from.gain, fading.to.gain = gOut, gIn
+		fading.from.snd.Volume = values.volume * gOut
+		fading.to.snd.Volume = fading.vals.volume * gIn
+		lastGains = { gOut, gIn }
+		xfStatus.Text = string.format("전환 중 %.1f / %.1f초\n지금 곡 %.2f · 다음 곡 %.2f", os.clock() - fading.t0, fading.len, gOut, gIn)
+		if f >= 1 then finishFade() end
+		return
+	end
+	local left = if sound.TimeLength > 0 then (sound.TimeLength - sound.TimePosition) / effective() else 0
+	if joinedActive then
+		xfStatus.Text = string.format("이어 붙인 곡 · 구간 %d / %d\n남은 %d:%02d", joined:GetPart(), #TRACKS[trackIndex].joined.parts, left // 60, math.floor(left % 60))
+		return
+	end
+	if xfAuto and not regionOn and sound.IsPlaying and sound.TimeLength > 0 and left <= overlapNow() + lastDt then
+		startTransition()
+		return
+	end
+	if not otherDeck.snd.IsLoaded then
+		xfStatus.Text = "다음 곡 불러오는 중…"
+	else
+		xfStatus.Text = string.format("다음 곡 준비됨%s\n지금 곡 남은 %d:%02d",
+			if nextVals.engine == "audio" then " (디노이즈 빠짐)" else "", left // 60, math.floor(left % 60))
+	end
+end)
+
 engineB.MouseButton1Click:Connect(function()
+	if fading or joinedActive then return end -- a joined song plays as Sounds
 	setEngine(if engine == "sound" then "audio" else "sound")
 end)
 paintEngine()
+paintXf()
 
 local function store(action: string)
 	if not storeRemote then return end
@@ -856,6 +1190,7 @@ playB.MouseButton1Click:Connect(function()
 	end
 end)
 stopB.MouseButton1Click:Connect(function()
+	cancelFade()
 	sound:Stop()
 	sound.TimePosition = 0
 end)
@@ -872,14 +1207,15 @@ seekBar.MouseButton1Down:Connect(function(x)
 end)
 ohuB.MouseButton1Click:Connect(function()
 	if customId then return end
-	-- what the club plays it with now: UP for the user's uploads, as uploaded
+	-- what the club plays it with now: its own club value for the uploads, as uploaded
 	-- at the club volume (ClubConfig.MusicVolume 0.55) for the Roblox tracks
 	local t = TRACKS[trackIndex]
+	local club = clubValues(t)
 	for _, p in ipairs(PARAMS) do
-		local v = if t.up then (UP :: any)[p.key] else nil
+		local v = club and club[p.key]
 		values[p.key] = if typeof(v) == "number" then v else p.default
 	end
-	if not t.up then values.volume = 0.55 end
+	if not club then values.volume = 0.55 end
 	setEngine("sound")
 	set("speed", values.speed)
 end)
