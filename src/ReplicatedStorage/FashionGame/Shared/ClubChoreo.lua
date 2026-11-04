@@ -138,7 +138,9 @@ M.ChoreoFixes = {
 	-- (D-856, user: "큰 가슴 튕김->작은 가슴 튕김 … 세 번은 반복", the small one "살짝 덜")
 	-- the clip frame by frame: big 1.77 / 2.77 / 3.80 s, small 2.37 / 3.25 / 4.30 s
 	-- (- 0.22 s here); the small ones 0.6 of the big
-	[82346668311878] = { still = { { from = 1.4, to = 5.2 } }, pops = { at = { 1.55, 2.15, 2.55, 3.03, 3.58, 4.08 }, sizes = { 1, 0.6, 1, 0.6, 1, 0.6 },
+	-- (D-893, user: "가슴 튕기는 안무 반박자만 빠르게") every pop 0.25 s earlier
+	-- (the pops come about every 0.5 s, one beat)
+	[82346668311878] = { still = { { from = 1.4, to = 5.2 } }, pops = { at = { 1.30, 1.90, 2.30, 2.78, 3.33, 3.83 }, sizes = { 1, 0.6, 1, 0.6, 1, 0.6 },
 		push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.85, sink = true },
 		-- (D-855, user: "보정") the user's clip holds the forearm level across the
 		-- chest (lower from about 3 s, at the waist by 4.3 s) and the head tipped back from the arms

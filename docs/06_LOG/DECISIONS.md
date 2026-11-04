@@ -2355,3 +2355,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "클럽 콘피드에 춤, 노래, 술 아이템 다 같이 있는데 … 나누는 게 좋지 않을까?" → "아랄 음원 작업 끝나면 나눠". 성능 문제는 아니고(한 번 읽는 75 KB 표), 여러 세션·사용자가 한 파일을 고쳐 덮어쓰기·오류 번짐 위험 때문.
 - Shared/ClubChoreo(안무 보정 표: ChoreoFixes 등), ClubDances(춤 메뉴·템포), ClubPlaylist(Track/Lab/Joined 타입, SavedLabs, Playlist; 아랄 음원은 이 파일 끝), ClubDrinks(음료·병·가격·Visibility·findDrink). ClubConfig는 1026 → 317줄, 네 파일을 require해 필드를 하나씩 다시 내보냄(ClubConfig.Playlist 등 그대로, 타입도 export type으로 이어짐). 다른 스크립트는 안 바꿈.
 - 검사: 나누기 전후 ClubConfig 표 깊은 비교(62개 키) 차이 0, 함수 7개 같은 결과. Play: 음악·춤·이어 붙인 노래(37번)·음료 18 / 춤 31 / 곡 37 정상. 사용자가 고친 IU 제목·채널(K-POP, 닫는 괄호)도 ClubPlaylist에 반영. 만든 스크립트 tools/dev/split_clubconfig_1105.py(한 번 쓰는 용).
+
+## D-893 BAD 가슴 튕김 반 박자 빠르게 (2026-11-05)
+- 사용자: "bad 가슴 튕기는 안무 반박자만 빠르게 들어가자". ATEEZ-BAD 21번 조각(82346668311878, 2:16.5부터)의 가슴 튕김 6번(큰/작은 번갈아, 약 0.5 s = 한 박자 간격)을 모두 0.25 s 앞당김: 1.55 / 2.15 / 2.55 / 3.03 / 3.58 / 4.08 → 1.30 / 1.90 / 2.30 / 2.78 / 3.33 / 3.83 (Shared/ClubChoreo.lua pops.at). 조각 시작(`at`)·팔 자세·나머지 조각은 그대로.
+- Play(Studio 1인, 2:14부터): UpperTorso가 앞으로 튀는 순간 애니메이션 1.28 / 1.89 / 2.28 / 2.77 / 3.32 / 3.82 s, 값과 일치.
