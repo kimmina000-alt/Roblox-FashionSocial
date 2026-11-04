@@ -98,6 +98,37 @@ local function paintChoreo()
 end
 player:GetAttributeChangedSignal("ChoreoFollowing"):Connect(paintChoreo)
 paintChoreo()
+-- 🎥 just after the title of a song with a stage camera (D-896,
+-- Shared/ClubCamera): tap to film yourself like the TV stage, tap again for the
+-- usual camera (StageCameraController). Drawn white like the ♫ (a body and
+-- the lens hood), blue while on (LocalPlayer attribute StageCamera)
+local ClubCamera = require(FashionGame.Shared:WaitForChild("ClubCamera"))
+local camButton = sideButton("ClubStageCam")
+camButton.Size = UDim2.fromOffset(17, 15)
+local camParts: {Frame} = {}
+for _, s in ipairs({
+	{ 0.36, 0.5, 0.64, 0.56, 0 }, -- the body
+	{ 0.82, 0.5, 0.2, 0.3, 0 }, -- the lens
+	{ 0.94, 0.5, 0.12, 0.62, 0 }, -- the hood
+	{ 0.2, 0.14, 0.24, 0.2, 0 }, -- the reels on top
+	{ 0.5, 0.14, 0.24, 0.2, 0 },
+}) do
+	local part = Instance.new("Frame")
+	part.AnchorPoint = Vector2.new(0.5, 0.5)
+	part.Position = UDim2.fromScale(s[1], s[2])
+	part.Size = UDim2.fromScale(s[3], s[4])
+	part.Rotation = s[5]
+	part.BorderSizePixel = 0
+	part.Parent = camButton
+	Instance.new("UICorner", part).CornerRadius = UDim.new(0.25, 0)
+	table.insert(camParts, part)
+end
+local function paintCam()
+	local color = if player:GetAttribute("StageCamera") == true then CHOREO_ON else Color3.new(1, 1, 1)
+	for _, part in ipairs(camParts) do part.BackgroundColor3 = color end
+end
+player:GetAttributeChangedSignal("StageCamera"):Connect(paintCam)
+paintCam()
 -- the vote count right of ›
 local skipCount = Instance.new("TextLabel")
 skipCount.Name = "SkipCount"
@@ -301,6 +332,12 @@ choreoButton.Activated:Connect(function()
 	showToast(if was then "🎵 안무 멈춤" else "🎵 안무 따라 추기")
 end)
 
+camButton.Activated:Connect(function()
+	local was = player:GetAttribute("StageCamera") == true
+	UiBus.StageCamTap:Fire()
+	showToast(if was then "🎥 무대 카메라 끔" else "🎥 무대 카메라 켬")
+end)
+
 skipButton.Activated:Connect(function()
 	local ok, message = musicRemote:InvokeServer("VoteSkip", nil)
 	if typeof(message) == "string" then showToast(message) elseif not ok then showToast("지금은 투표할 수 없어요.") end
@@ -321,6 +358,8 @@ RunService.RenderStepped:Connect(function()
 		listButton.Position = UDim2.new(0, -30, 0.5, 0)
 		choreoButton.Parent = banner
 		choreoButton.AnchorPoint = Vector2.new(1, 0.5)
+		camButton.Parent = banner
+		camButton.AnchorPoint = Vector2.new(0, 0.5)
 		skipButton.Parent = banner
 		skipButton.AnchorPoint = Vector2.new(1, 0.5)
 		skipButton.Position = UDim2.new(1, 30, 0.5, 0)
@@ -337,6 +376,13 @@ RunService.RenderStepped:Connect(function()
 		local inner = banner.AbsoluteSize.X - 68
 		local textLeft = math.max((inner - banner.TextBounds.X) / 2, 24)
 		choreoButton.Position = UDim2.new(0, textLeft - 6, 0.5, 0)
+	end
+	-- (D-896) the 🎥 just after the title
+	camButton.Visible = shown and track ~= nil and ClubCamera.forTrack(track) ~= nil
+	if camButton.Visible then
+		local inner = banner.AbsoluteSize.X - 68
+		local textRight = math.min((inner + banner.TextBounds.X) / 2, inner - 24)
+		camButton.Position = UDim2.new(0, textRight + 6, 0.5, 0)
 	end
 	skipButton.Visible = shown and not djOn
 	skipCount.Visible = skipButton.Visible and typeof(votes) == "string" and votes:sub(1, 2) ~= "0/"

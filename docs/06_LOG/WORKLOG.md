@@ -3394,3 +3394,12 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 음원 추가 칸 · 두 번째 SoundGroup · REDRED (D-889..D-892, D-894)
 - 사용자가 ClubPlaylist 끝 칸(이름 ★★★음원 추가★★★, D-894 전 "아랄")과 REDRED/ANIMAL 줄을 여러 번 바꿈 → 매번 Studio에 넣고 Play(조각 길이, Play 서버에서 불러와지는지, 이음새 크로스페이드, 안무 시각). 이어 붙인 곡 boost 10 넘게(D-891), 노래마다 boost2(D-892). REDRED는 54초 파일로(D-894).
 - 모바일 2인 테스트(서버 + Player1/Player2): Studio 스크립트 127개 브랜치와 같음, 테스트 서버의 바뀐 5개(ClubPlaylist, ClubChoreo, DanceController, EdmController, LoadingScreen) 길이 같음. Player1(DJ)이 37번 IU → 두 화면 모두 ClipA 81568082292649 음량 10, 그룹 줄 ClubMusicBoost → ClubMusicBoost2 → EdmSongMute. 33번 REDRED 원곡 57초로 이동 → 두 화면 모두 원곡 59.0초에 안무 조각 116978800280311. 스크립트 오류 없음(DataStore 메시지와 93308695817877 경고만). 사용자 승인 후 머지.
+
+### 무대 카메라 🎥, ATEEZ-BAD (D-896)
+- 사용자 요청: 음원·안무 등록이 끝난 곡의 무대 영상을 분석해 카메라 무빙. 영상 SBS 인기가요 BAD(youtube R9hv2cLYK-w, 720p, D:\Roblox\영상\ATEEZ_BAD_stage), 찍는 대상 "나 자신". 브랜치 feat/stage-camera-1105(작업 폴더 D:\Roblox\OHU-wt-camera).
+- 시작 지점: 게임 곡 소리 크기(0~160초) ↔ 영상 소리 → 영상 = 노래 + 12.15초, 곡 내내 같음(구간 14개 모두 +12.150).
+- 분석: 컷 95개(화면 차이) + 흐림 넘김 확인 → 샷 97개(크기·각도·줌·크레인·궤도·기울임·이징). 도구와 결과: tools/choreo/stagecam/ (ATEEZ_BAD/ 에 cuts.json, shots.json, soft_cuts.json, 소리 기록).
+- Play(클럽 지하 무대, 밤 22시, 801×413): 🎥 켜면 Scriptable, 끄면 Custom / FOV 70으로 돌아옴(안무 카메라 앵커는 그대로). 스크립트 오류 없음. 고친 것: 아바타 키에 맞춘 크기, 몸 비율 겨냥, 노래 칸에 머리 가림(UI_LIFT 0.15), 투명하지 않은 벽은 CanCollide 꺼져 있어도 앞으로, 56초 크레인 빠르게.
+- 무대 영상과 같은 순간 나란히(왼쪽 무대, 오른쪽 게임):
+  ![stage camera](images/2026-11-05/stagecam_bad_compare.jpg)
+- 남은 것: 모바일 2인 테스트(사용자가 켜 줘야 함), 그 뒤 머지 허락.

@@ -230,3 +230,11 @@ Get A Guitar(2026-11-03, D-807): `!!` 이음새 13곳 모두 `blend`로 맞췄�
 - RIIZE-Get A Guitar: 연습 영상으로 21조각 모두 `at`(D-878). 5번 캡처가 6번과 2.4초 겹쳤던 것도 원인(원인 5의 한 종류: 캡처 겹침).
 - 현아-Bubble Pop: 10곳 `NO_AT`(자동 안무 꺼짐).
 - ATEEZ-BAD: 마지막 조각이 노래보다 7.6초 김(다음 곡이 시작되면 잘림, 정보).
+## 13. 무대 카메라 🎥 만들기 (D-896, 사용자 2026-11-05: "음원 등록->안무 등록 작업까지 마친 후 무대 영상 보내주면 분석해서 카메라 무빙 구현")
+음원과 안무가 끝난 곡에 무대 영상(음악방송 등)을 받으면 이 순서로 한다. 내려받기는 사용자에게 먼저 묻는다(D:\Roblox\영상\<곡>_stage). 찍는 대상은 플레이어 자신(사용자 선택).
+
+1. **시작 지점:** Play Client에서 `tools/choreo/sync/record_loudness.lua`(SOUND_ID 바꿔, 0~45 / 45~90 / 90~135 / 135~끝, 마지막 DUMP)로 곡 소리를 기록 → `python tools/choreo/stagecam/align_wide.py <loudness.txt> <영상> -5 40`(무대 영상은 앞에 소개가 있어 ±6초보다 넓게 찾음). 구간마다 같은 값이어야 함(BAD +12.15). 안무 장면도 같은 순간인지 Play 사진으로 확인.
+2. **컷:** `cuts.py`(화면 차이) → `soft_cuts.py`(흐림 휙 넘김, 번쩍임과 섞여 있으니 눈으로 확인) → `shots.py`(컷마다 처음·가운데·끝 사진, 사람 크기, 줌·팬·롤 추정; 사람이 많아 숫자는 참고만) → `strips.py`(0.25초 띠, 의심 구간). 파이썬은 centercut .venv(cv2, YOLO). cv2.imwrite는 한글 경로에 안 써지니 영문 폴더에 쓴다.
+3. **샷 목록:** `Shared/ClubCamera.lua`의 Songs[soundId] = { video, offset, shots }. 샷 = at(원곡 초, 컷) · size · yaw · pitch · roll · to(끝 상태) · move · ease · fov. 크기 이름: close 1.6 / bust 2.6 / waist 3.8 / knee 5 / full 8 / wide 16 / xwide 28(5.5 키 기준, 코드가 아바타 키로 늘림).
+4. **확인:** Play(클럽 지하 무대, 예: 118, -19, -205 / ClockOverride 22) → DJ로 곡 재생 → StageCamera 속성 true → Seek + Pause로 순간을 멈추고 screen_capture → `compare.py`로 무대 | 게임 나란히(docs/06_LOG/images/<날짜>/). 끄면 원래 카메라(Custom, FOV)로 돌아오는지.
+5. 모바일 2인 테스트 후 사용자 허락 시 머지.
