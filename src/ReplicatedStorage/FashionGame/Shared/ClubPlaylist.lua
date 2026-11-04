@@ -181,7 +181,7 @@ M.Playlist = {
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -1.5, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" },
-		-- D-902: LoveAttack1..27 (practice video nXDQPm_HnFc, video = song + 0.45 s)
+		-- D-903: LoveAttack1..27 (practice video nXDQPm_HnFc, video = song + 0.45 s)
 		choreo = { { id = 109011245162387, from = 0.45 }, { id = 77108502823118, at = 1.48, blend = 0.82 }, { id = 86687841705348, at = 5.12, blend = 1 },
 		{ id = 131382757802821, at = 8.95, blend = 0.52 }, { id = 137275968003632, at = 10.18, blend = 0.53 }, { id = 110961201759433, at = 14.82, blend = 1 },
 		{ id = 107032969312689, at = 17.12, blend = 0.68 }, { id = 118832898913501, at = 21.28, blend = 1 }, { id = 90182725361176, at = 27.42, blend = 0.65 },

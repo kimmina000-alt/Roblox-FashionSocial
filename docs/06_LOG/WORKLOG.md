@@ -3434,11 +3434,12 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
   ![genie](images/2026-11-05/d897_genie_compare.jpg)
 - 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지.
 
-### RESCENE LOVE ATTACK 안무 27조각 (D-902)
+### RESCENE LOVE ATTACK 안무 27조각 (D-903)
 - 사용자: "loveattack" + id 27개. 영상 RESCENE_LoveAttack_centercut(미러 연습 영상, 클립 27개).
 - 노래 ↔ 영상: 영상 = 노래 + 0.45초(곡 내내 같음). `at` = 클립 시작 − 0.45, 1번 `from = 0.45`, blend = choreo_check 제안값.
 - 검사: 타이밍 점검 ok, 미끄러짐 26곳 → ChoreoSlideStill 뒤 0, 영상 서 있기 still 2조각, 떨림 51 → 2구간.
 - Play: 조각 시작 차이 −0.01~−0.08초(앞·가운데·끝), 10→11(91°) 회전 한 방향 프레임당 2.7°, still 이동 0.000~0.011, 몸 바꾸기 뒤 회전 37.2° 그대로.
 - 영상과 같은 순간(노래 20 / 90 / 175초, 왼쪽 미러 영상):
-  ![loveattack](images/2026-11-05/d902_loveattack_compare.jpg)
+  ![loveattack](images/2026-11-05/d903_loveattack_compare.jpg)
 - 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지.
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치, ClockOverride 22, 둘 다 클럽 플로어, ChoreoOn/Auto): 테스트 서버 ClubPlaylist / ClubChoreo에 Genie · LOVE-ATTACK 안무와 still이 들어 있음. Player1(DJ)이 Genie 재생 → 두 화면 모두 11 / 12 / 13번 조각이 제때(내 캐릭터 `at`에서 0.01~0.05초, 상대 캐릭터 0.08~0.14초 뒤), 상대 엉덩이가 루트에서 최대 0.09(제자리). LOVE-ATTACK 재생 → 2~6번 내 캐릭터 0.01~0.07초, 상대 0.06~0.19초, 상대 엉덩이 최대 0.17. 1번(0~1.42초)은 곡이 막 시작할 때라 1.06~1.26초에야 보임(첫 조각 불러오기). 스크립트 오류 없음(DataStore 'Studio API 접근 꺼짐' 메시지와 93308695817877 경고만). 사용자 요청("모바일 2P 테스트하고 머지해")대로 머지.
