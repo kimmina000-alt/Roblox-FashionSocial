@@ -129,6 +129,70 @@ local function calm(poses: {CFrame}, raw: {CFrame}, settings: {maxSwing: number,
 	return if changed then out else nil
 end
 
+-- (D-881, user: NEON 2:33 "벌벌 떠는 움직임 … 다른 부분에도 이런 달달 떨림 발견해서
+-- 떨림 수정") the stretches where a joint still shakes after clean() and calm():
+-- turn backs of `minSwing`..`maxSwing` degrees at most `maxGap` s apart, on any
+-- axis, `count` or more within `window` s. Only there (easing in and out over
+-- `edge` s) the joint is eased toward its neighbours `passes` times, like a
+-- `steady` fix, at most `cap` degrees; bigger and slower moves are left alone.
+local function shaky(poses: {CFrame}, times: {number}, settings: {[string]: number}): {CFrame}?
+	local n = #poses
+	if n < 5 then return nil end
+	local backs = {}
+	for axis = 1, 3 do
+		local v = {}
+		for k, c in ipairs(poses) do v[k] = math.deg((table.pack(c:ToEulerAnglesXYZ()))[axis]) end
+		local last: number? = nil
+		for k = 2, n - 1 do
+			if (v[k] - v[k - 1]) * (v[k + 1] - v[k]) < 0 then
+				if last then
+					local swing, gap = math.abs(v[k] - v[last]), times[k] - times[last]
+					if swing >= settings.minSwing and swing <= settings.maxSwing and gap <= settings.maxGap then
+						table.insert(backs, times[k])
+					end
+				end
+				last = k
+			end
+		end
+	end
+	if #backs < settings.count then return nil end
+	table.sort(backs)
+	-- the stretches where the turn backs crowd together
+	local spans = {}
+	for i = 1, #backs - settings.count + 1 do
+		local j = i + settings.count - 1
+		if backs[j] - backs[i] <= settings.window then table.insert(spans, { backs[i], backs[j] }) end
+	end
+	if #spans == 0 then return nil end
+	local w = {}
+	for k = 1, n do
+		local t, best = times[k], 0
+		for _, s in ipairs(spans) do
+			best = math.max(best, math.clamp(math.min(t - s[1], s[2] - t) / settings.edge + 1, 0, 1))
+		end
+		w[k] = best
+	end
+	local out = table.clone(poses)
+	for _ = 1, settings.passes do
+		local nextOut = table.clone(out)
+		for k = 2, n - 1 do
+			if w[k] > 0 then
+				local mid = out[k - 1]:Lerp(out[k + 1], 0.5)
+				nextOut[k] = out[k]:Lerp(out[k]:Lerp(mid, 0.5), w[k])
+			end
+		end
+		out = nextOut
+	end
+	-- never more than `cap` degrees off the pose it was given (a real flick of
+	-- the hand inside a shaky stretch stays)
+	for k = 1, n do
+		local _, off = (poses[k].Rotation:Inverse() * out[k].Rotation):ToAxisAngle()
+		off = math.deg(math.abs(off))
+		if off > settings.cap then out[k] = poses[k]:Lerp(out[k], settings.cap / off) end
+	end
+	return out
+end
+
 function ChoreoSmooth.load(animationId: string)
 	if cache[animationId] then return end
 	cache[animationId] = {}
@@ -177,6 +241,10 @@ function ChoreoSmooth.load(animationId: string)
 			-- (D-851) pieces the user saw tremble: the slower wobble too
 			if fixes and fixes.calm and ClubConfig.ChoreoCalm and part ~= "LowerTorso" then
 				cleaned = calm(cleaned or s.raw, s.raw, ClubConfig.ChoreoCalm) or cleaned
+			end
+			-- (D-881) whatever still shakes, found by itself in every piece
+			if ClubConfig.ChoreoShake and part ~= "LowerTorso" then
+				cleaned = shaky(cleaned or s.raw, s.times, ClubConfig.ChoreoShake) or cleaned
 			end
 			-- (D-840) a spot the user picked (a shaky arm): these parts smoothed
 			-- hard between `from` and `to`, easing in and out at both ends

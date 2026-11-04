@@ -134,13 +134,21 @@ ClubConfig.ChoreoFixes = {
 	[85566191636983] = { still = { { from = 4.6, to = 5.2 }, { from = 6.6, to = 7.2 } } }, -- 20
 	[133964239076172] = { still = { { from = 2.6, to = 3.2 } }, calm = true }, -- 21
 	[120575710088163] = { still = { { from = 0.4, to = 1 }, { from = 1.6, to = 3 } } }, -- 22
-	[104957688493242] = { calm = true }, -- 23
+	-- 23 (D-882, user: 2:19-2:20 "버벅거리는데 … 해당 시간 안에서 매끄럽게 반바퀴 도는 걸로"):
+	-- the capture turned about 50° and back; in the video she goes round through
+	-- her back and faces the same way again by 2:20, so one even turn there
+	-- (a spin only runs once the piece plays alone: its blend 0.76 → 0.3)
+	[104957688493242] = { calm = true, spin = { from = 0.3, to = 1.49, turns = -1, ease = "both" } }, -- 23
 	[132124420274015] = { calm = true }, -- 24
 	-- 25 (song 2:20.5): the right arm shook at 2:24
 	[134968782013343] = { steady = { from = 3.1, to = 4.1, parts = { "RightUpperArm", "RightLowerArm", "RightHand" } }, still = { { from = 3, to = 4 }, { from = 4.6, to = 5.2 } } },
-	[92922732552861] = { still = { { from = 0.2, to = 0.8 }, { from = 1.6, to = 2.8 }, { from = 3.6, to = 5.4 } } }, -- 26
+	-- 26 + 27 (D-882, user: 2:33 "한바퀴 도는 거 매끄럽게"): 26 turned 137° and
+	-- stopped for 0.4 s, then 27's `turn` started from a standstill for the
+	-- other 195°: 26 turns evenly to its end at speed, 27 carries on at speed
+	-- and slows down over 1.5 s (its blend too)
+	[92922732552861] = { still = { { from = 0.2, to = 0.8 }, { from = 1.6, to = 2.8 }, { from = 3.6, to = 5.4 } }, spin = { from = 4.84, to = 6.76 } }, -- 26 (to 27's start, no stop between)
 	-- 27 (song 2:32.9): 26 ends facing back
-	[88317170211079] = { turn = 1, still = { { from = 0.4, to = 1.2 } }, calm = true },
+	[88317170211079] = { turn = 1.5, turnEase = "out", still = { { from = 0.4, to = 1.2 } }, calm = true },
 	[76585975326316] = { still = { { from = 2.4, to = 3.2 }, { from = 4.2, to = 5.2 }, { from = 8, to = 8.8 } } }, -- 29
 	[74039257328689] = { calm = true }, -- 31
 	[79871898776208] = { still = { { from = 1, to = 5.77 } }, calm = true }, -- 32
@@ -292,9 +300,25 @@ ClubConfig.ChoreoFixes = {
 	[84027575690735] = { turn = 0.85, turnEase = "out", spin = { from = 3.2, to = 4.15, turns = -1, ease = "both" } },
 	-- NEON 17 (D-852, user: 2:31 "다리가 진동함 … 저 자세로 뒤로 빠지는데 저
 	-- 자리에 고정")
-	[96973609514230] = { calm = true, steady = { from = 0.4, to = 2.7, passes = 8,
-		parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "LeftToeBase", "RightUpperLeg", "RightLowerLeg", "RightFoot", "RightToeBase" } },
+	-- (D-881, user: 2:33 "벌벌 떠는 움직임"): the hands and arms shook there too
+	-- (2:30-2:31.5, 5-7 turn backs in 0.5 s): the whole body, not only the legs
+	[96973609514230] = { calm = true, steady = { from = 0.4, to = 2.7, passes = 8 },
 		still = { from = 0.4, to = 2.8 } },
+	-- RIIZE-Get A Guitar 15 (D-882, user: 1:54 "한바퀴 도는 거 매끄럽게"): the turn at
+	-- 16.4-16.6 s lurched 157° in one keyframe; one even turn instead
+	[129447992418977] = { spin = { from = 16.07, to = 17.15, ease = "both" } },
+	-- CORTIS-REDRED (D-879, the practice video u_vusNeo6xI): `still` where the
+	-- clip's member stands in the video (hips and feet under 0.12 body heights
+	-- a second for 0.6 s or more); `turn` at the seams that face 101°-173° apart
+	-- (not 2 → 3, 90°: the way 2 was turning is the long way round, 270°)
+	[74457262116826] = { still = { from = 0.4, to = 3.12 } }, -- 1 (from 0.12; the piece starts at 0.4)
+	[133388702168878] = { turn = 0.84 }, -- 4 (101°)
+	[76336157312311] = { still = { from = 6.07, to = 6.97 } }, -- 7
+	[131666628776868] = { still = { { from = 6.57, to = 7.87 }, { from = 8.73, to = 9.83 } } }, -- 11
+	[131761907712654] = { still = { from = 10.32, to = 11.17 } }, -- 12
+	[121234850587240] = { turn = 1 }, -- 20 (173°)
+	[124489277659547] = { turn = 1 }, -- 21 (171°)
+	[114253650075143] = { still = { from = 4.6, to = 8.92 } }, -- 24
 } :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
 	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: any?, turnEase: string?,
@@ -306,6 +330,69 @@ ClubConfig.ChoreoFixes = {
 -- degrees is eased, passes times, never more than cap degrees off the
 -- capture (NEON 1: 118 such swings → 51, about what other pieces have)
 ClubConfig.ChoreoCalm = { maxSwing = 10, maxLen = 4, passes = 6, cap = 5 }
+
+-- (D-881, user: NEON 2:33 "벌벌 떠는 움직임 … 다른 부분에도 이런 달달 떨림 발견해서
+-- 떨림 수정") in every piece, the stretches where a joint still shakes after the
+-- clean-up above (turn backs of minSwing..maxSwing degrees, at most maxGap s
+-- apart, `count` or more within `window` s) are eased like a `steady` fix,
+-- that joint only and never more than `cap` degrees (ChoreoSmooth.shaky).
+-- Measured on the cleaned keyframes: 8 or more in 0.5 s was 481 stretches over
+-- the six songs (NEON 2:30-2:31 hands 9); most of a dance has 3-6. nil = off.
+ClubConfig.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window = 0.5, edge = 0.15, passes = 4, cap = 8 } :: {[string]: number}?
+
+-- (D-880, user: NEON 2:51 "제자리에 서서 오른쪽팔을 뻗는 안무인데 위치가 왔다갔다 함 …
+-- 다리에 움직임 없는데 위치 변동 있는 부분 … 전체적으로 스캔 후 모두 잡아내서 수정. 안무
+-- 있는 곡 모두 해당") stretches (seconds into each piece) where the capture's feet,
+-- worked out from its leg joints on an R15 body, keep their stance (left to
+-- right foot within 0.25 studs), neither lifts (0.2), and yet both go 0.4 studs
+-- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
+-- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
+ClubConfig.ChoreoSlideStill = {
+	-- A2O LITE-NEON
+	[95449015545787] = { { 4.0, 4.6 } }, [93933273398995] = { { 4.0, 4.7 }, { 5.5, 6.1 } }, [128256391320572] = { { 12.0, 12.6 } },
+	[114466589507598] = { { 3.5, 4.2 }, { 6.2, 6.8 } }, [124518142645731] = { { 0.5, 1.1 } }, [76437753036430] = { { 0.6, 1.3 } },
+	[117451819045051] = { { 3.0, 3.6 }, { 5.5, 6.1 } }, [111932052760637] = { { 3.3, 4.0 } },
+	[96973609514230] = { { 7.9, 8.5 }, { 10.7, 11.7 }, { 15.1, 15.8 } }, [106546379406531] = { { 5.7, 6.9 } }, [73851407273132] = { { 3.6, 4.3 } },
+	[71570705300325] = { { 9.2, 9.8 }, { 12.2, 12.8 } }, [121393866689759] = { { 3.2, 4.2 }, { 4.6, 5.2 }, { 6.1, 6.9 } },
+	[114419952125075] = { { 3.0, 3.5 } },
+	-- 현아-Bubble Pop
+	[100736920067826] = { { 7.8, 8.8 } }, [133384041896194] = { { 4.0, 4.8 }, { 9.7, 10.4 } },
+	[83466816721074] = { { 10.0, 12.5 } }, [133279932519664] = { { 5.5, 6.3 }, { 6.5, 7.1 } },
+	[80189218624271] = { { 5.5, 6.2 }, { 10.3, 10.9 } }, [74977996210534] = { { 1.3, 2.1 }, { 13.1, 13.8 } },
+	[128213782788357] = { { 4.9, 5.5 }, { 6.0, 6.7 }, { 7.9, 8.6 }, { 10.5, 11.3 } }, [79851078896686] = { { 11.9, 12.5 } },
+	-- CORTIS-REDRED
+	[99354632184083] = { { 1.4, 2.0 } }, [76336157312311] = { { 2.7, 3.3 } }, [77329818010081] = { { 6.9, 7.5 } }, [116978800280311] = { { 6.8, 7.6 } },
+	[131666628776868] = { { 5.5, 6.1 } }, [131761907712654] = { { 6.3, 7.5 }, { 9.1, 9.9 } }, [80284068432208] = { { 3.5, 4.1 } },
+	[89337681817413] = { { 4.8, 5.5 } }, [81129454597965] = { { 6.9, 7.5 }, { 9.9, 11.2 } }, [122387053799826] = { { 5.7, 6.4 } },
+	[121234850587240] = { { 1.1, 1.9 } }, [73438902388486] = { { 4.0, 4.8 } }, [103007904279324] = { { 0.1, 0.9 }, { 4.5, 5.3 }, { 11.3, 12.0 } },
+	[114253650075143] = { { 3.9, 4.6 } },
+	-- IVE-Looks Can Kill
+	[104472985141273] = { { 2.7, 3.3 } }, [109736190348459] = { { 1.0, 1.6 } }, [120841071882545] = { { 2.8, 4.4 } },
+	[128205693221038] = { { 0.8, 1.4 }, { 3.3, 3.9 } }, [111907232555806] = { { 0.2, 1.5 }, { 8.3, 9.1 } },
+	[87500016171854] = { { 0.7, 1.3 }, { 6.5, 7.2 } }, [112107210780715] = { { 6.2, 6.8 } },
+	[123875931497308] = { { 0.9, 1.6 }, { 2.9, 3.5 }, { 3.7, 4.3 } }, [97254731498706] = { { 6.3, 6.9 } },
+	[133964239076172] = { { 0.7, 1.5 }, { 2.3, 3.0 } }, [120575710088163] = { { 4.9, 6.5 } }, [92922732552861] = { { 1.0, 1.6 }, { 5.2, 5.8 } },
+	[88317170211079] = { { 0.2, 0.9 }, { 2.6, 4.2 } }, [76585975326316] = { { 0.6, 1.3 }, { 8.6, 9.5 } },
+	[128909786311122] = { { 0.6, 1.3 }, { 1.5, 2.5 } }, [74039257328689] = { { 8.1, 8.7 } }, [79871898776208] = { { 0.2, 1.1 } },
+	-- RIIZE-Get A Guitar
+	[97097804325917] = { { 7.3, 8.0 } }, [119200924904137] = { { 0.9, 1.5 } }, [77403973851668] = { { 2.7, 3.3 } },
+	[121969021575883] = { { 4.1, 4.8 }, { 9.0, 9.6 } }, [96742563282745] = { { 1.5, 2.4 } }, [88430566939812] = { { 4.1, 4.8 } },
+	[108795638313983] = { { 1.4, 2.0 } }, [129447992418977] = { { 5.4, 6.0 }, { 8.1, 8.8 } }, [82252722293006] = { { 2.9, 3.6 }, { 5.4, 6.1 } },
+	[117244778152210] = { { 1.6, 2.2 } }, [113505968174557] = { { 5.5, 6.1 } }, [112498417388469] = { { 5.0, 6.1 } },
+	-- ATEEZ-BAD
+	[120748822938478] = { { 8.4, 9.4 } }, [110345323270713] = { { 4.4, 5.0 } }, [122397631727855] = { { 3.5, 4.3 } },
+	[96766863219484] = { { 4.7, 5.3 }, { 5.9, 6.5 } }, [116077835257285] = { { 9.4, 10.1 } }, [78517242404651] = { { 2.2, 3.0 } },
+	[94325256666159] = { { 1.4, 2.4 } }, [111913125032810] = { { 0.5, 1.1 } }, [129415986484255] = { { 4.7, 5.4 } },
+	[87606540400975] = { { 1.2, 1.9 }, { 3.2, 3.8 } }, [121775933093308] = { { 2.9, 3.8 }, { 8.0, 8.6 }, { 10.4, 11.1 } },
+	[88428525489460] = { { 1.7, 2.3 }, { 2.7, 3.3 } }, [82346668311878] = { { 5.0, 5.6 } }, [70571634425422] = { { 0.4, 1.1 } },
+} :: {[number]: {{number}}}
+for id, stretches in pairs(ClubConfig.ChoreoSlideStill) do
+	local fix = (ClubConfig.ChoreoFixes[id] or {}) :: any
+	ClubConfig.ChoreoFixes[id] = fix
+	local still = if fix.still == nil then {} elseif fix.still.from then { fix.still } else table.clone(fix.still)
+	for _, s in ipairs(stretches) do table.insert(still, { from = s[1], to = s[2] }) end
+	fix.still = still
+end
 
 -- Skip vote (user 2026-11-01, D-694): votes needed to skip the song while
 -- there is no DJ = half the people in the club, rounded up, and at least 2
@@ -572,8 +659,8 @@ ClubConfig.Playlist = {
 		{ id = 73623563360624, at = 70.58 }, { id = 105165734205045, at = 75.23, blend = 0.41 }, { id = 84050357538982, at = 82.58, blend = 0.44 }, { id = 80842274249808, at = 85.82, blend = 0.98 },
 		{ id = 112107210780715, at = 93.72, blend = 0.84 }, { id = 92250246039046, at = 100.85, blend = 0.36 }, { id = 123875931497308, at = 101.63, blend = 1 },
 		{ id = 97254731498706, at = 109.23, blend = 0.66 }, { id = 85566191636983, at = 117.03, blend = 0.9 }, { id = 133964239076172, at = 125.08, blend = 0.41 }, { id = 120575710088163, at = 130.97 },
-		{ id = 104957688493242, at = 138.25, blend = 0.76 }, { id = 132124420274015, at = 139.83, blend = 0.25 }, { id = 134968782013343, at = 140.35, blend = 0.74 },
-		{ id = 92922732552861, at = 146.05, blend = 0.43 }, { id = 88317170211079, at = 152.7, blend = 1 }, { id = 130014890140037, at = 159.85, blend = 1 },
+		{ id = 104957688493242, at = 138.25, blend = 0.3 }, { id = 132124420274015, at = 139.83, blend = 0.25 }, { id = 134968782013343, at = 140.35, blend = 0.74 },
+		{ id = 92922732552861, at = 146.05, blend = 0.43 }, { id = 88317170211079, at = 152.7, blend = 1.5 }, { id = 130014890140037, at = 159.85, blend = 1 },
 		{ id = 76585975326316, at = 162.05, blend = 0.67 }, { id = 128909786311122, at = 172.23 }, { id = 74039257328689, at = 178.8 }, { id = 79871898776208, at = 188.18, blend = 0.88 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 73546697163709, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.4, octave = 0.5, low = -9.5, mid = 6, high = 0, engine = "sound" } },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
@@ -581,7 +668,20 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 90694654380166, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	-- (D-782, user 2026-11-03: new uploads "여섯시…분1102", the same way as D-779; 여섯시이분 TAEYEON-만찬가 103785084548518 does not load yet;
 	-- D-794: IU-이 별로부터 96396723842714 removed, user)
-	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 125703446596781, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 125703446596781, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = {
+		-- (D-879, user: 24 pieces from the practice video u_vusNeo6xI, mirrored,
+		-- clips 1-24 of D:\Roblox\영상\CORTIS_REDRED_centercut) each starts where its
+		-- clip starts in the video, less 0.40 s: the video runs 0.40 s behind the
+		-- song (tools/choreo/sync, the same in all 20 windows). Blends from
+		-- tools/choreo/choreo_check.lua (a short piece's at most half its length)
+		{ id = 74457262116826, from = 0.4 }, { id = 78451293274859, at = 6.67, blend = 0.72 }, { id = 99354632184083, at = 10.13, blend = 0.75 },
+		{ id = 133388702168878, at = 18.5, blend = 0.84 }, { id = 89905442825152, at = 20.7, blend = 0.47 }, { id = 101510288461879, at = 23.13, blend = 0.44 },
+		{ id = 76336157312311, at = 32.0, blend = 0.51 }, { id = 77329818010081, at = 40.02, blend = 0.54 }, { id = 139026140322649, at = 48.43 },
+		{ id = 116978800280311, at = 57.6, blend = 1 }, { id = 131666628776868, at = 65.27 }, { id = 131761907712654, at = 79.33, blend = 1 },
+		{ id = 80284068432208, at = 90.58, blend = 0.52 }, { id = 89337681817413, at = 95.48, blend = 0.66 }, { id = 81129454597965, at = 103.53 },
+		{ id = 122387053799826, at = 114.88 }, { id = 140062402474513, at = 121.63, blend = 0.66 }, { id = 116086929837354, at = 124.62, blend = 1 },
+		{ id = 71984111187045, at = 127.77, blend = 0.53 }, { id = 121234850587240, at = 128.87, blend = 1 }, { id = 124489277659547, at = 131.0, blend = 1 },
+		{ id = 73438902388486, at = 134.05, blend = 0.62 }, { id = 103007904279324, at = 141.83, blend = 0.55 }, { id = 114253650075143, at = 153.78 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 116539470869444, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "BIGBANG-BiiiG", soundId = 113809029583519, length = 55, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 130804487358433, length = 48, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
