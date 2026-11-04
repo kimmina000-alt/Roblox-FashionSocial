@@ -2370,3 +2370,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자가 ClubPlaylist.lua에서 직접 바꿈: 예전 54초 파일(125703446596781)을 tempo 0.333으로 느리게 틀던 것 → 원래 속도 6조각 joined { parts = 130916906404688, 85038963263138, 130407813233363, 123026326509483, 126050230993754, 74528960992238; segLen 30, tail 4, total 163, lead 0 }, length 163, lab tempo 1 / boost 2 / octave 1. 안무(D-879 24조각, 원곡 초)는 그대로.
 - 확인: 조각 길이 34 / 34 / 34 / 34 / 34 / 13초(30×5 + 13 = 163). 처음엔 2·3번이 같은 id(85038963263138)라 물어봄 → 사용자가 3번을 130407813233363으로 고침("고쳤어").
 - Play(클럽 홀): 33번 재생, 60초 이음새 32~34초에서 크로스페이드(음량 10 → 0, 0 → 10), 150초 이음새 다음 조각 시작, 안무 조각 116978800280311(at 57.6)이 제때 시작, 게임 스크립트 오류 없음. 클럽 밖에선 음량 0(원래 그럼).
+
+## D-891 이어 붙인 곡 boost 10 넘게 (2026-11-05)
+- 사용자: "boost 20은 안 돼?" → "응 부스트 10으로 하고 사운드그룹 하나 더 겹쳐줘". SoundGroup.Volume은 10에서 멈춤: 이어 붙인 곡은 조각마다 SoundGroup(ClipABoost/ClipBBoost)에 boost를 넣어 10이 끝이었음.
+- DanceController: 이어 붙인 곡이고 boost > 10이면 그 위 그룹 ClubMusicBoost(labGroup, 그동안 1 고정)에 boost ÷ 10(최대 10). 조각 그룹은 그대로 boost(Roblox가 10에서 자름). 들리는 배수 = 조각 그룹 × labGroup: 20 = 10 × 2, 최대 100. boost 10 이하는 전과 같음.
+- Play 확인: 36번을 Studio에서만 잠깐 boost 20으로 → labGroup 2, ClipABoost 10, ClipBBoost 10. 37번 IU(boost 1) labGroup 1, 35번 일반 업로드(boost 3) labGroup 3(전과 같음). 확인 뒤 Studio ClubPlaylist는 원래 값으로.
+- 같이 본 것: 이어 붙인 ANIMAL 첫 조각 99795651324027이 이번 Play에선 "Asset is not approved for the requester"(앞 Play에선 불러와졌음): 새로 올린 음원은 Roblox 검토 중 막혔다 풀렸다 할 수 있음.

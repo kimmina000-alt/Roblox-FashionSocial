@@ -1208,7 +1208,12 @@ do
 		-- (the DJ's volume for lab tracks: on EdmController's group above this one,
 		-- D-735; a SoundGroup stops at 10 and the boost is 6)
 																																			
-			labGroup.Volume = if lab and not ClubConfig.isJoined(track) then lab.boost else 1
+			-- (D-891, user: boost past 10 for joined songs) each clip's group
+			-- takes the boost up to 10 (a SoundGroup stops there), this group
+			-- the rest: 20 = 10 × 2, up to 100
+			labGroup.Volume = if lab and not ClubConfig.isJoined(track) then lab.boost
+				elseif lab and typeof(lab.boost) == "number" and lab.boost > 10 then math.min(lab.boost / 10, 10)
+				else 1
 		if track and ClubConfig.isJoined(track) then joinedPlayer:SetLab(joinedLab(track)) end
 																																				
 		labEq.LowGain, labEq.MidGain, labEq.HighGain = if lab then lab.low else 0, if lab then lab.mid else 0, if lab then lab.high else 0
