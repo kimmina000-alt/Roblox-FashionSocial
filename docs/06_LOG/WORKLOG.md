@@ -3407,7 +3407,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 영상 MBC 쇼! 음악중심 NEON(youtube pKvx_bN74j4, D:\Roblox\영상\NEON_stage, 앞 절반만). 영상 = 노래 + 1.00초. 브랜치 feat/stage-camera-neon-1105.
 - 롱테이크 키프레임(take)과 장애물 부드럽게. Play(클럽 지하, 밤): 16 / 29 / 58.7 / 136.6 / 217.4초 무대와 같은 크기·각도, 스크립트 오류 없음.
   ![neon stage camera](images/2026-11-05/stagecam_neon_compare.jpg)
-- 남은 것: 모바일 2인 테스트, 머지 허락.
+- 2인 테스트(서버 + Player1/Player2, 사용자가 켬; 창 686×796·터치 없음이라 휴대폰 화면 흉내는 꺼져 있었음): Studio 스크립트 길이 브랜치와 같음. Player1(DJ)이 REDRED 재생, 두 화면 모두 🎥 클릭으로 켜짐. 컷 순간 P1 13.57 / 14.10 / 16.54초, P2 13.62 / 14.09 / 16.57초(목록 13.5 / 14.0 / 16.5; P1 창은 뒤에 있어 일부 프레임 기록 빠짐). P2만 끄니 Custom / FOV 70, P1은 켜진 채. 스크립트 오류 없음(93308695817877 경고만).
 ### 무대 카메라 Looks Can Kill (D-899)
 - 영상 KBS 뮤직뱅크 원테이크(youtube d7s-2eLvT8Q, D:\Roblox\영상\LooksCanKill_stage). 영상 = 노래 + 1.60초. 컷 없는 원테이크라 키프레임 181개, 일정한 미끄러짐(take ease "linear").
 - Play(클럽 지하, 밤): 무대와 같은 크기·방향, 30초 동안 큰 튐 없음, 스크립트 오류 없음.
