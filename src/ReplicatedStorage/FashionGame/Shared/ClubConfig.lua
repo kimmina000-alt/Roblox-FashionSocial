@@ -101,8 +101,9 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --     piece before that ends mid-spin (D-852)
 --   spin = { from, to }: a spin in the capture that lurches turns evenly
 --     between its facings at `from` and `to` (starts gently, ends at full
---     speed) (D-852)
---   pose = { from, to, ease?, keys = {{ t, set = { [part] = { x, y, z } } }}, add? }:
+--     speed) (D-852); `turns` whole turns added on the way, `ease = "both"`
+--     starts and ends gently (D-873)
+--   pose ={ from, to, ease?, keys = {{ t, set = { [part] = { x, y, z } } }}, add? }:
 --     a pose the capture lost: those joints set to the keys' turns (degrees,
 --     eased between keys), `add` turns added on top, easing in and out over
 --     `ease` s (D-855); a list of such poses for different stretches, and keys
@@ -235,7 +236,29 @@ ClubConfig.ChoreoFixes = {
 	-- slower wobble (about 4-8 a second) than the usual clean-up catches
 	-- NEON 1 (D-852, user: 5-6 s, the raised-arm pose twice "처음 나오는 자세에서
 	-- 두 번째 나오는 같은 자세 끝날 때까지 고정")
-	[118329772913374] = { calm = true, hold = { from = 4.83, to = 6.04 } },
+	-- (D-873, user: "10초 돌려차기 하는 동작으로 수정") the member spins all the way
+	-- round with a kick (video 12.4-13.4 s = song 10.4-11.4); the capture
+	-- turned half way and back and squatted (hips 1.1 studs down) instead:
+	-- one turn on, left leg chambered, kicked out at hip height and back, the
+	-- standing leg straight and the hips held up (`move` = 0.8 x (-0.15 less
+	-- the capture's hips height): the animator scales travel to the body)
+	[118329772913374] = { calm = true, hold = { from = 4.83, to = 6.04 },
+		spin = { from = 12.33, to = 13.42, turns = 1, ease = "both" },
+		-- (the chest up 15°: the capture bent over into its squat)
+		pose = { from = 12.72, to = 13.42, ease = 0.1, add = { UpperTorso = { 15, 0, 0 } }, keys = {
+			{ t = 12.8, set = { LeftUpperLeg = { 40, 0, -10 }, LeftLowerLeg = { -70, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -10, 0, 0 } }, move = { LowerTorso = { 0, 0.06, 0 } } },
+			{ t = 12.88, set = { LeftUpperLeg = { 62, 0, -18 }, LeftLowerLeg = { -90, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -8, 0, 0 } }, move = { LowerTorso = { 0, 0.12, 0 } } },
+			{ t = 12.92, set = { LeftUpperLeg = { 75, 0, -25 }, LeftLowerLeg = { -95, 0, 0 }, RightUpperLeg = { 4, 0, 0 }, RightLowerLeg = { -6, 0, 0 } }, move = { LowerTorso = { 0, 0.3, 0 } } },
+			{ t = 12.96, set = { LeftUpperLeg = { 82, 0, -30 }, LeftLowerLeg = { -60, 0, 0 }, RightUpperLeg = { 3, 0, 0 }, RightLowerLeg = { -5, 0, 0 } }, move = { LowerTorso = { 0, 0.56, 0 } } },
+			{ t = 13.0, set = { LeftUpperLeg = { 85, 0, -35 }, LeftLowerLeg = { -20, 0, 0 }, RightUpperLeg = { 3, 0, 0 }, RightLowerLeg = { -5, 0, 0 } }, move = { LowerTorso = { 0, 0.78, 0 } } },
+			{ t = 13.04, set = { LeftUpperLeg = { 86, 0, -35 }, LeftLowerLeg = { -10, 0, 0 }, RightUpperLeg = { 3, 0, 0 }, RightLowerLeg = { -5, 0, 0 } }, move = { LowerTorso = { 0, 0.9, 0 } } },
+			{ t = 13.08, set = { LeftUpperLeg = { 85, 0, -35 }, LeftLowerLeg = { -12, 0, 0 }, RightUpperLeg = { 3, 0, 0 }, RightLowerLeg = { -5, 0, 0 } }, move = { LowerTorso = { 0, 0.86, 0 } } },
+			{ t = 13.12, set = { LeftUpperLeg = { 80, 0, -28 }, LeftLowerLeg = { -50, 0, 0 }, RightUpperLeg = { 3, 0, 0 }, RightLowerLeg = { -6, 0, 0 } }, move = { LowerTorso = { 0, 0.69, 0 } } },
+			{ t = 13.17, set = { LeftUpperLeg = { 70, 0, -20 }, LeftLowerLeg = { -80, 0, 0 }, RightUpperLeg = { 4, 0, 0 }, RightLowerLeg = { -8, 0, 0 } }, move = { LowerTorso = { 0, 0.43, 0 } } },
+			{ t = 13.21, set = { LeftUpperLeg = { 45, 0, -10 }, LeftLowerLeg = { -60, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -10, 0, 0 } }, move = { LowerTorso = { 0, 0.19, 0 } } },
+			{ t = 13.25, set = { LeftUpperLeg = { 25, 0, -5 }, LeftLowerLeg = { -40, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -10, 0, 0 } }, move = { LowerTorso = { 0, 0.03, 0 } } },
+			{ t = 13.33, set = { LeftUpperLeg = { 10, 0, 0 }, LeftLowerLeg = { -15, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -10, 0, 0 } }, move = { LowerTorso = { 0, 0, 0 } } },
+		} } },
 	[95449015545787] = { calm = true },
 	[84806571273074] = { calm = true },
 	-- NEON (D-868, user: the stage fancam, "네온 안무 수정"): every piece with more
@@ -246,7 +269,10 @@ ClubConfig.ChoreoFixes = {
 	[133401623277764] = { calm = true }, [106546379406531] = { calm = true }, [71570705300325] = { calm = true },
 	[121393866689759] = { calm = true }, [114419952125075] = { calm = true },
 	-- NEON 5 (D-852, user: 0:53 "이 자세로 잠시 머무는데 이때 떨림 삭제")
-	[93933273398995] = { calm = true, steady = { from = 7.85, to = 9.45, passes = 8 } },
+	-- (D-873, user: "50초 가만히 있기") the members hold that low pose from song
+	-- 49.75 to 52.1 (video 51.75-54.1); the capture gets up from 51.6, so the
+	-- pose is held to 52.0 (anim 9.95)
+	[93933273398995] = { calm = true, steady = { from = 7.85, to = 9.45, passes = 8 }, hold = { from = 7.9, to = 9.95 } },
 	-- NEON 8 (D-852, user: 1:22 "한 바퀴 도는 게 매끄럽지 않음"): 7 ends
 	-- mid-spin (about 400°/s), so 8 carries on at that speed and slows down
 	-- (its blend 1 → 0.85, the same as the turn, so nothing jumps when it ends)
@@ -466,7 +492,9 @@ ClubConfig.Playlist = {
 		-- 봐 앞에 2초 앞당기기") all 2 s earlier, 1 from its 2 s mark
 		{ id = 118329772913374, from = 2 }, { id = 95449015545787, at = 14.5, blend = 0.64 }, { id = 84806571273074, at = 21.13, blend = 0.92 },
 		{ id = 99868719395147, at = 35.37, blend = 0.5 }, { id = 93933273398995, at = 42.06, blend = 0.96 }, { id = 128256391320572, at = 54.63 },
-		{ id = 114466589507598, at = 71.56, blend = 0.79 }, { id = 84027575690735, at = 80.53, blend = 0.85 }, { id = 100410498984971, at = 86.93, blend = 0.76 },
+		-- (D-873, user: "1:15 0.5초 빠름") 7 and 8 0.5 s later (8 with it, so 7's
+		-- closing spin still runs into 8's turn)
+		{ id = 114466589507598, at = 72.06, blend = 0.79 }, { id = 84027575690735, at = 81.03, blend = 0.85 }, { id = 100410498984971, at = 86.93, blend = 0.76 },
 		{ id = 124518142645731, at = 92.63, blend = 0.59 }, { id = 126736648781925, at = 104.8, blend = 0.42 }, { id = 76437753036430, at = 109.26, blend = 0.56 },
 		{ id = 136355327951443, at = 111.56, blend = 0.67 }, { id = 117451819045051, at = 118.83, blend = 0.47 }, { id = 111932052760637, at = 125.1, blend = 0.74 },
 		{ id = 133401623277764, at = 133.63, blend = 0.7 }, { id = 96973609514230, at = 148.17, blend = 0.55 }, { id = 106546379406531, at = 164.19, blend = 1 },

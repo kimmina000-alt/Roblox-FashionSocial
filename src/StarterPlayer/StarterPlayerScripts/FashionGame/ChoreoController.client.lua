@@ -325,8 +325,12 @@ local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {Animation
 		if spin and at >= spin.from and at <= spin.to + 0.1 then
 			local a, b = ChoreoSmooth.facing(id, spin.from), ChoreoSmooth.facing(id, spin.to)
 			if a and b then
+				-- (D-873) `turns`: whole turns to add, for a capture that turned
+				-- half way and back where the dancer spins all the way round;
+				-- ease = "both" starts and ends gently
+				b += (spin.turns or 0) * 2 * math.pi
 				local f = math.min((at - spin.from) / (spin.to - spin.from), 1)
-				local yaw = a + (b - a) * (f * f * (2 - f))
+				local yaw = a + (b - a) * (if spin.ease == "both" then f * f * (3 - 2 * f) else f * f * (2 - f))
 				local tilt, _, roll = joint.Transform:ToEulerAnglesYXZ()
 				joint.Transform = CFrame.new(joint.Transform.Position) * CFrame.fromEulerAnglesYXZ(tilt, yaw, roll)
 			end
