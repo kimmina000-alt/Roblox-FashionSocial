@@ -244,8 +244,15 @@ ClubConfig.ChoreoFixes = {
 	-- the capture's hips height): the animator scales travel to the body)
 	[118329772913374] = { calm = true, hold = { from = 4.83, to = 6.04 },
 		spin = { from = 12.33, to = 13.42, turns = 1, ease = "both" },
-		-- (the chest up 15°: the capture bent over into its squat)
-		pose = { from = 12.72, to = 13.42, ease = 0.1, add = { UpperTorso = { 15, 0, 0 } }, keys = {
+		-- (D-875, user: "1초에 허리 숙이는 거 더 아래로 숙이게") the members fold
+		-- right down at video 3.0 s (hair thrown forward); the capture leans
+		-- only 24°: up to 40° more at the waist, easing back by 3.85;
+		-- (the chest up 15° in the kick: the capture bent over into its squat)
+		pose = { { from = 2.75, to = 3.9, ease = 0.05, keys = {
+			{ t = 2.8, add = { UpperTorso = { 0, 0, 0 } } }, { t = 2.95, add = { UpperTorso = { -30, 0, 0 } } },
+			{ t = 3.05, add = { UpperTorso = { -40, 0, 0 } } }, { t = 3.2, add = { UpperTorso = { -35, 0, 0 } } },
+			{ t = 3.5, add = { UpperTorso = { -20, 0, 0 } } }, { t = 3.85, add = { UpperTorso = { 0, 0, 0 } } } } },
+		{ from = 12.72, to = 13.42, ease = 0.1, add = { UpperTorso = { 15, 0, 0 } }, keys = {
 			{ t = 12.8, set = { LeftUpperLeg = { 40, 0, -10 }, LeftLowerLeg = { -70, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -10, 0, 0 } }, move = { LowerTorso = { 0, 0.06, 0 } } },
 			{ t = 12.88, set = { LeftUpperLeg = { 62, 0, -18 }, LeftLowerLeg = { -90, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -8, 0, 0 } }, move = { LowerTorso = { 0, 0.12, 0 } } },
 			{ t = 12.92, set = { LeftUpperLeg = { 75, 0, -25 }, LeftLowerLeg = { -95, 0, 0 }, RightUpperLeg = { 4, 0, 0 }, RightLowerLeg = { -6, 0, 0 } }, move = { LowerTorso = { 0, 0.3, 0 } } },
@@ -258,7 +265,7 @@ ClubConfig.ChoreoFixes = {
 			{ t = 13.21, set = { LeftUpperLeg = { 45, 0, -10 }, LeftLowerLeg = { -60, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -10, 0, 0 } }, move = { LowerTorso = { 0, 0.19, 0 } } },
 			{ t = 13.25, set = { LeftUpperLeg = { 25, 0, -5 }, LeftLowerLeg = { -40, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -10, 0, 0 } }, move = { LowerTorso = { 0, 0.03, 0 } } },
 			{ t = 13.33, set = { LeftUpperLeg = { 10, 0, 0 }, LeftLowerLeg = { -15, 0, 0 }, RightUpperLeg = { 5, 0, 0 }, RightLowerLeg = { -10, 0, 0 } }, move = { LowerTorso = { 0, 0, 0 } } },
-		} } },
+		} } } },
 	[95449015545787] = { calm = true },
 	[84806571273074] = { calm = true },
 	-- NEON (D-868, user: the stage fancam, "네온 안무 수정"): every piece with more
@@ -277,7 +284,11 @@ ClubConfig.ChoreoFixes = {
 	-- mid-spin (about 400°/s), so 8 carries on at that speed and slows down
 	-- (its blend 1 → 0.85, the same as the turn, so nothing jumps when it ends)
 	[114466589507598] = { calm = true, spin = { from = 8.47, to = 8.97 } },
-	[84027575690735] = { turn = 0.85, turnEase = "out" },
+	-- (D-875, user: "한바퀴 도는 동작은 제 시간 안에 매끄럽게 한 바퀴 … 1:25 전후")
+	-- 8 spins once to the left at 3.2-3.9 s but stalls near -140° and then
+	-- jumps 160° in one keyframe: one even turn instead, to 4.15 where the
+	-- capture's own facing settles (no step when it lets go)
+	[84027575690735] = { turn = 0.85, turnEase = "out", spin = { from = 3.2, to = 4.15, turns = -1, ease = "both" } },
 	-- NEON 17 (D-852, user: 2:31 "다리가 진동함 … 저 자세로 뒤로 빠지는데 저
 	-- 자리에 고정")
 	[96973609514230] = { calm = true, steady = { from = 0.4, to = 2.7, passes = 8,
@@ -491,15 +502,23 @@ ClubConfig.Playlist = {
 		-- found by matching limb angles to the dancers); (D-870, user: "3.3 아니었나
 		-- 봐 앞에 2초 앞당기기") all 2 s earlier, 1 from its 2 s mark
 		{ id = 118329772913374, from = 2 }, { id = 95449015545787, at = 14.5, blend = 0.64 }, { id = 84806571273074, at = 21.13, blend = 0.92 },
-		{ id = 99868719395147, at = 35.37, blend = 0.5 }, { id = 93933273398995, at = 42.06, blend = 0.96 }, { id = 128256391320572, at = 54.63 },
-		-- (D-873, user: "1:15 0.5초 빠름") 7 and 8 0.5 s later (8 with it, so 7's
-		-- closing spin still runs into 8's turn)
-		{ id = 114466589507598, at = 72.06, blend = 0.79 }, { id = 84027575690735, at = 81.03, blend = 0.85 }, { id = 100410498984971, at = 86.93, blend = 0.76 },
-		{ id = 124518142645731, at = 92.63, blend = 0.59 }, { id = 126736648781925, at = 104.8, blend = 0.42 }, { id = 76437753036430, at = 109.26, blend = 0.56 },
-		{ id = 136355327951443, at = 111.56, blend = 0.67 }, { id = 117451819045051, at = 118.83, blend = 0.47 }, { id = 111932052760637, at = 125.1, blend = 0.74 },
-		{ id = 133401623277764, at = 133.63, blend = 0.7 }, { id = 96973609514230, at = 148.17, blend = 0.55 }, { id = 106546379406531, at = 164.19, blend = 1 },
-		{ id = 73851407273132, at = 171.49, blend = 1 }, { id = 71570705300325, at = 180.1, blend = 1 }, { id = 121393866689759, at = 201.8, blend = 0.54 },
-		{ id = 114419952125075, at = 209.4 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
+		-- (D-875, user: "1:11 그냥 멈추지 말고 앞뒤 프레임을 느리게 재생") the 1 s
+		-- between 6 and 7 is filled by playing 6's last and 7's first 1.5 s at
+		-- three quarters speed
+		{ id = 99868719395147, at = 35.37, blend = 0.5 }, { id = 93933273398995, at = 42.06, blend = 0.96 }, { id = 128256391320572, at = 54.63, slowOut = { 1.5, 0.5 } },
+		-- (D-873 → D-875, user: "1:15 0.5초 빠름", "0.5초 느리게 한 거 0.5초 더
+		-- 느리게", "3:22초쯤은 2초 정도 안무가 먼저 나옴") the game's song runs
+		-- 0.4 % slower than the fancam (tempo 0.332; loudness windows: video =
+		-- game + 1.15 s at 1:00, 0.95 at 1:40, 0.8 at 2:25, 0.55 at 3:10), so
+		-- with every piece at its video time - 2 s they came earlier and earlier:
+		-- from 7 on each piece is at its video time - (1.40 - 0.0045 x video
+		-- time), 7 and 8 1 s later as asked (3:22: 1.5 s later)
+		{ id = 114466589507598, at = 72.56, blend = 0.79, slowIn = { 1.5, 0.5 } }, { id = 84027575690735, at = 81.53, blend = 0.85 }, { id = 100410498984971, at = 87.93, blend = 0.76 },
+		{ id = 124518142645731, at = 93.66, blend = 0.59 }, { id = 126736648781925, at = 105.88, blend = 0.42 }, { id = 76437753036430, at = 110.36, blend = 0.56 },
+		{ id = 136355327951443, at = 112.67, blend = 0.67 }, { id = 117451819045051, at = 119.97, blend = 0.47 }, { id = 111932052760637, at = 126.27, blend = 0.74 },
+		{ id = 133401623277764, at = 134.84, blend = 0.7 }, { id = 96973609514230, at = 149.45, blend = 0.55 }, { id = 106546379406531, at = 165.54, blend = 1 },
+		{ id = 73851407273132, at = 172.87, blend = 1 }, { id = 71570705300325, at = 181.52, blend = 1 }, { id = 121393866689759, at = 203.32, blend = 0.54 },
+		{ id = 114419952125075, at = 210.95 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -1.5, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" } },

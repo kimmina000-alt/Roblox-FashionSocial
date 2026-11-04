@@ -509,13 +509,15 @@ local function startFollowing(track: ClubConfig.Track)
 		danceRemote:FireServer("Stop")
 		menuStopAt = os.clock() -- (D-839: its DanceKey stays a moment, until the server clears it)
 	end
-	local tracks, starts, stops, blends, froms = {}, {}, {}, {}, {}
+	local tracks, starts, stops, blends, froms, slowIns, slowOuts = {}, {}, {}, {}, {}, {}, {}
 	for _, entry in ipairs(track.choreo) do
 		local id = if typeof(entry) == "table" then entry.id else entry
 		local at = if typeof(entry) == "table" and typeof(entry.at) == "number" then entry.at else nil
 		local stop = if typeof(entry) == "table" and typeof(entry.stop) == "number" then entry.stop else nil
 		local blend = if typeof(entry) == "table" and typeof(entry.blend) == "number" then entry.blend else nil
 		local from = if typeof(entry) == "table" and typeof(entry.from) == "number" then entry.from else 0
+		local slowIn = if typeof(entry) == "table" and typeof(entry.slowIn) == "table" then entry.slowIn else nil
+		local slowOut = if typeof(entry) == "table" and typeof(entry.slowOut) == "table" then entry.slowOut else nil
 		local animation = Instance.new("Animation")
 		animation.AnimationId = "rbxassetid://" .. tostring(id)
 		local ok, loaded = pcall(function() return anim:LoadAnimation(animation) end)
@@ -527,13 +529,16 @@ local function startFollowing(track: ClubConfig.Track)
 			stops[#tracks] = stop
 			blends[#tracks] = blend
 			froms[#tracks] = from
+			slowIns[#tracks] = slowIn
+			slowOuts[#tracks] = slowOut
 		else
 			warn("[ChoreoController] Could not load", id, loaded)
 		end
 	end
 	if #tracks == 0 then return end
 	holdCamera()
-	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, blends = blends, froms = froms, playing = nil, speed = nil }
+	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, blends = blends, froms = froms,
+		slowIns = slowIns, slowOuts = slowOuts, playing = nil, speed = nil }
 	button.Text = "⏹ 그만 추기"
 	player:SetAttribute("ChoreoFollowing", true)
 end
@@ -644,21 +649,46 @@ RunService.PreAnimation:Connect(function()
 	-- which segment that is (lengths known once each one has loaded); a gap
 	-- between segments (an `at` later than the one before ends) stands still;
 	-- t = the time in the animation (a `from` skips its start, D-810)
-	local t, index = 0, nil :: number?
+	local t, index, rate = 0, nil :: number?, 1
 	local segStart = 0
 	for i, seg in ipairs(following.tracks) do
 		if seg.Length <= 0 then return end -- (still loading)
 		local from = following.froms[i]
 		local span = math.max(seg.Length - from, 0)
-		segStart = following.starts[i] or segStart
-		local segEnd = math.min(segStart + span, following.stops[i] or math.huge)
+		-- (D-875, user: "1:11 그냥 멈추지 말고 앞뒤 프레임을 느리게 재생") an entry's
+		-- `slowIn = { seconds, extra }` plays its first `seconds` over `extra`
+		-- more, starting that much before its `at`; `slowOut` its last ones,
+		-- ending that much later: a gap filled with slower dancing, not a stop
+		local slowIn, slowOut = following.slowIns[i], following.slowOuts[i]
+		local inLen, inExtra = if slowIn then math.min(slowIn[1], span) else 0, if slowIn then slowIn[2] else 0
+		local outLen, outExtra = if slowOut then math.min(slowOut[1], span - inLen) else 0, if slowOut then slowOut[2] else 0
+		segStart = (following.starts[i] or segStart) - inExtra
+		local songSpan = span + inExtra + outExtra
+		local segEnd = math.min(segStart + songSpan, following.stops[i] or math.huge)
 		-- (D-861) a short gap before the next piece's `at` (captures run a
 		-- little shorter than their clips) keeps this piece's last pose
 		-- instead of dropping to the idle pose for a moment
 		local nextAt = following.starts[i + 1]
+		if nextAt and following.slowIns[i + 1] then nextAt -= following.slowIns[i + 1][2] end
 		local holdEnd = if nextAt and nextAt > segEnd and nextAt - segEnd <= 1.5 and not following.stops[i] then nextAt else segEnd
-		if songTime >= segStart and songTime < holdEnd then index = i t = math.min(songTime - segStart, span - 0.03) + from break end
-		segStart += span
+		if songTime >= segStart and songTime < holdEnd then
+			index = i
+			local u = songTime - segStart
+			if u < inLen + inExtra then
+				rate = inLen / (inLen + inExtra)
+				t = u * rate
+			else
+				t = u - inExtra
+				local outFrom = span - outLen
+				if outLen > 0 and t > outFrom then
+					rate = outLen / (outLen + outExtra)
+					t = outFrom + (t - outFrom) * rate
+				end
+			end
+			t = math.min(t, span - 0.03) + from
+			break
+		end
+		segStart += songSpan
 	end
 	if not index then
 		-- before, between or after the segments: no dance right now
@@ -693,7 +723,7 @@ RunService.PreAnimation:Connect(function()
 	end
 	-- (D-798) a segment a moment ahead of the song holds its last pose
 	-- instead of ending (and fading back to the root) before the next one
-	local speed = if paused or held or seg.TimePosition >= seg.Length - 0.05 then 0 else djSpeed
+	local speed = if paused or held or seg.TimePosition >= seg.Length - 0.05 then 0 else djSpeed * rate
 	if following.speed ~= speed then
 		seg:AdjustSpeed(speed)
 		following.speed = speed
