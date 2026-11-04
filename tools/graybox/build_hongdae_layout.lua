@@ -3495,7 +3495,10 @@ do
 	-- (user 2026-10-24) no step ring: the inner circle round the mound drops
 	-- deep (a pit for a fountain, water to fall into it later); the mound stays
 	-- at its height (MOUND_H) on a stone plinth rising from the pit floor
-	local LEVELS = { { 44, -2.5 }, { 20, -7 } }
+	-- (D-870, user 2026-11-04: "광장에 가운데 분수 아예 삭제해 버리고 그냥
+	-- 빈땅으로 둬", the floor like the ground round it) one level: no pit, no
+	-- mound, no water; the whole circle is the upper ring's paving
+	local LEVELS = { { 44, -2.5 } }
 	local MOUND_H = -3.8
 	local function domeH(x, z) -- (the name stays: everything below sits at the level under it)
 		local d = math.sqrt((x - C.X) ^ 2 + (z - C.Z) ^ 2)
@@ -3523,7 +3526,23 @@ do
 				outer.Parent = P
 			end
 		else
-			outer.Parent = P
+			-- (D-870) the whole disc: made a union (a sliver cut off its bottom) so
+			-- the pavers below lie on its top like on the paving round it; a
+			-- cylinder part shows no textures on its round faces
+			local sliver = box("Cut", C.X - 1, l[2] - 8.1, C.Z - 1, C.X + 1, l[2] - 7.9, C.Z + 1, PAVE, { parent = workspace })
+			local okD, disc = pcall(function() return outer:SubtractAsync({ sliver }) end)
+			sliver:Destroy()
+			if okD and disc then
+				disc.Name = "ParkLevel"
+				disc.CanCollide = false -- (collision rows below)
+				disc.CanQuery = false
+				disc.UsePartColor = true
+				disc.Anchored = true
+				disc.Parent = P
+				outer:Destroy()
+			else
+				outer.Parent = P
+			end
 		end
 	end
 	-- the south walk's floor: the outline's triangles at the upper level (top
@@ -3607,8 +3626,8 @@ do
 		-- the paving (top 0.08)
 		collideRows("ParkCollide", PZ0, Z1, 0.08, { circleOut(44), corridor, southWalk, pit })
 		-- ring 1 (r 34..44) and ring 2 (r 20..34)
-		for i = 1, #LEVELS - 1 do
-			local ro, ri, top = LEVELS[i][1], LEVELS[i + 1][1], LEVELS[i][2]
+		for i = 1, #LEVELS do -- (D-870: the last level is a whole disc, inner radius 0)
+			local ro, ri, top = LEVELS[i][1], if LEVELS[i + 1] then LEVELS[i + 1][1] else 0, LEVELS[i][2]
 			for z = C.Z - ro, C.Z + ro - 0.01, 1.5 do
 				local z1 = math.min(z + 1.5, C.Z + ro)
 				local zm = (z + z1) / 2
@@ -3664,16 +3683,7 @@ do
 		end
 	end
 	-- the round stepped mound: three stone rings stepping up, a seat ledge, a sculpture
-	vcyl("MoundPlinth", C + Vector3.new(0, LEVELS[2][2] - MOUND_H, 0), 30, MOUND_H - LEVELS[2][2], STONE, o(Enum.Material.Limestone)) -- (from the pit floor up to the mound)
-	vcyl("MoundStep", C, 30, 0.6, STONE, o(Enum.Material.Limestone))
-	vcyl("MoundStep", C, 22, 1.2, STONE, o(Enum.Material.Limestone))
-	vcyl("MoundStep", C, 14, 1.8, STONE, o(Enum.Material.Limestone))
-	vcyl("MoundTop", C + Vector3.new(0, 1.8, 0), 12, 0.1, PAVE2, o(Enum.Material.Slate))
-	arc("MoundSeat", C, 9.6, 11, 200, 340, 1.2, 2.6, STONE, Enum.Material.Limestone)
-	arc("MoundCushion", C, 9.7, 10.9, 200, 340, 2.6, 2.8, CUSH, Enum.Material.Fabric)
-	vcyl("SculptureBase", C + Vector3.new(0, 1.9, 0), 3, 1, Color3.fromRGB(70, 70, 74), o(Enum.Material.Granite))
-	part("Sculpture", Vector3.new(1.6, 5, 1.6), CFrame.new(C + Vector3.new(0, 5.4, 0)) * CFrame.Angles(0, 0, math.rad(8)), Color3.fromRGB(160, 120, 80), o(Enum.Material.Metal))
-	part("Sculpture", Vector3.new(1.2, 3.4, 1.2), CFrame.new(C + Vector3.new(0.9, 4.6, 0.6)) * CFrame.Angles(0, 0, math.rad(-14)), Color3.fromRGB(160, 120, 80), o(Enum.Material.Metal))
+	-- (D-870: the mound, its seats and the sculpture are gone with the pit)
 	-- the curved wooden deck with the white sofa: out of the circle, on the
 	-- paving by the west tree bed in the south-west (user 2026-10-24), curving
 	-- round a centre to its east so the sofa faces into the park
@@ -3883,60 +3893,7 @@ do
 		infill(Vector2.new(C.X + math.sqrt(34.6 ^ 2 - dz * dz), EAST_ZL), Vector2.new(C.X + math.sqrt(44.1 ^ 2 - dz * dz), EAST_ZL),
 			Vector2.new(WALK_X1, C.Z + math.sqrt(44.1 ^ 2 - (WALK_X1 - C.X) ^ 2)))
 	end
-	-- (user 2026-10-27: the wooden board by the pit, ParkDeckWalk, is gone; the
-	-- pit round the mound holds water like a fountain basin) terrain water 3
-	-- deep in the ring between the mound plinth (r 15) and the pit wall (r 20),
-	-- its rough voxel edge hidden inside them; jets from nozzles on the outer
-	-- rim arc onto the mound plinth
-	do
-		local floorY = LEVELS[2][2]
-		-- (user 2026-10-27, 2nd: up to just under the rim) the park is raised by
-		-- CURB - 0.08 at the end and the pit floor ends at -6.48, the rim at -1.98:
-		-- the water (terrain, not moved by that) goes up to -2.4
-		local RAISED = CURB - 0.08
-		local waterTop = LEVELS[1][2] + RAISED - 0.4
-		local waterBottom = floorY + RAISED
-		workspace.Terrain:FillCylinder(CFrame.new(C.X, (waterTop + waterBottom) / 2, C.Z), waterTop - waterBottom, 20, Enum.Material.Water)
-		T:SetAttribute("PitWater", true)
-		local N = 12
-		for i = 0, N - 1 do
-			local a = math.rad(i * 360 / N + 15)
-			local out = Vector3.new(math.cos(a), 0, math.sin(a))
-			-- (the plaza pass below adds the pit's depth again and the raise: built so
-			-- they end just over the water at the rim; they sat under the floor before)
-			local p = Vector3.new(C.X, waterTop + 0.2 - floorY - RAISED, C.Z) + out * 19.2
-			local nozzle = part("FountainNozzle", Vector3.new(0.5, 0.5, 0.5), CFrame.lookAt(p, p - out + Vector3.new(0, 1.6, 0)), Color3.fromRGB(150, 152, 156), o(Enum.Material.Metal, { nocol = true }))
-			nozzle.CastShadow = false
-			nozzle.CanQuery = false
-			local att = Instance.new("Attachment")
-			att.Parent = nozzle
-			local jet = Instance.new("ParticleEmitter")
-			jet.Name = "FountainJet"
-			jet.EmissionDirection = Enum.NormalId.Front
-			jet.Speed = NumberRange.new(14, 15)
-			jet.SpreadAngle = Vector2.new(2, 2)
-			jet.Acceleration = Vector3.new(0, -32, 0)
-			jet.Lifetime = NumberRange.new(0.75, 0.85)
-			jet.Rate = 45
-			jet.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 0.5) })
-			jet.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.25), NumberSequenceKeypoint.new(1, 0.7) })
-			jet.Color = ColorSequence.new(Color3.fromRGB(210, 235, 255))
-			jet.LightEmission = 0.3
-			jet.Parent = att
-		end
-		-- the sound of falling water, heard round the plaza
-		local hum = Instance.new("Sound")
-		hum.Name = "FountainSound"
-		hum.SoundId = "rbxassetid://9120552550" -- "Waterfall Steady Stream 1" (Pro Sound Effects), docs/04_ART/SOUNDS.md
-		hum.Looped = true
-		hum.Volume = 0.5
-		hum.RollOffMinDistance = 10
-		hum.RollOffMaxDistance = 60
-		hum.Playing = true
-		local holder = vcyl("FountainSoundSource", Vector3.new(C.X, 0, C.Z), 1, 0.2, STONE, o(Enum.Material.Limestone, { nocol = true, transparency = 1 }))
-		holder.CanQuery = false
-		hum.Parent = holder
-	end
+	-- (D-870, user 2026-11-04: the fountain is gone: no terrain water, no jets, no water sound)
 	-- (no wicker chairs: tiered seats there instead, user 2026-10-24)
 	-- a raised wooden deck (one step, the tiers' wood) between the west tree bed,
 	-- the gate walk and the sunken circle (user 2026-10-24, red outline + sketch):
@@ -4100,11 +4057,13 @@ do
 	for _, c in ipairs(P:GetChildren()) do
 		-- (user 2026-10-24) the stairs and the sunken floors below them: plain
 		-- near-white grey, no pavers
-		if c:IsA("BasePart") and (c.Name == "ParkLevel" or c.Name == "ParkStair") then
+		-- (D-870, user 2026-11-04: the floor like the ground round it) the sunken
+		-- floors (ParkLevel) take the pavers now; the stairs stay plain
+		if c:IsA("BasePart") and c.Name == "ParkStair" then
 			c.Color = Color3.fromRGB(224, 224, 220)
 			c.Material = Enum.Material.Concrete
 		end
-		if c:IsA("BasePart") and (c.Name == "ParkPaving" or c.Name == "ParkInfill") then
+		if c:IsA("BasePart") and (c.Name == "ParkPaving" or c.Name == "ParkInfill" or c.Name == "ParkLevel") then
 			c.Color = Color3.fromRGB(176, 172, 166)
 			c.Material = Enum.Material.SmoothPlastic
 			-- the face that points up in the world (the infill is a union of wedges:

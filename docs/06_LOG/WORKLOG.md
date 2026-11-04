@@ -3317,3 +3317,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### OH24 전광판 광고 5장 (D-869)
 ![](images/2026-11-04/d869_led_ads.jpg)
 - Play: 전광판(BigSpenderLED.LEDPanel)에 광고 5장이 모두 카드로 올라옴(각 2장, 감싸 도는 복사본 포함), 화면 확인.
+### 공원 광장 분수 삭제 (D-870)
+![](images/2026-11-04/d870_plaza_before.webp) ![](images/2026-11-04/d870_plaza_after.jpg)
+- 그레이박스 체인 전체 실행(prop_save 48 → … → club_locker_1103). Play: 원 안 6곳 걸어 봄, 발 높이 모두 -1.98(같은 바닥), 지형 물 0.
