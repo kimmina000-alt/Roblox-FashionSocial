@@ -109,7 +109,17 @@ M.Playlist = {
 		{ id = 129415986484255, at = 95.04, blend = 0.53 }, { id = 87606540400975, at = 103.38, blend = 1 }, { id = 121775933093308, at = 110.44, blend = 0.95 },
 		{ id = 138549092776506, at = 121.91, blend = 0.73 }, { id = 88428525489460, at = 132.18 }, { id = 82346668311878, at = 136.5, blend = 0.7 },
 		{ id = 134748500609652, at = 143.58 }, { id = 70571634425422, at = 151.51 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" },
+		-- D-897: Genie1..26 (video = song - 13.55 s, the cover video cut the intro)
+		choreo = { { id = 122991710923104, at = 13.82 }, { id = 118462778307290, at = 20.62, blend = 0.56 }, { id = 127323208506008, at = 26.83, blend = 0.53 },
+		{ id = 121572726416294, at = 34.07, blend = 0.91 }, { id = 101676644495491, at = 45.32 }, { id = 105545108302127, at = 58.39 },
+		{ id = 107809363798601, at = 68.14, blend = 0.52 }, { id = 97769840770691, at = 81.85, blend = 0.28 }, { id = 108803469428764, at = 93.43, blend = 0.76 },
+		{ id = 76060752564499, at = 103.47, blend = 1 }, { id = 136331779515321, at = 114.18, blend = 1 }, { id = 94271336995595, at = 120.92, blend = 0.49 },
+		{ id = 76687116604339, at = 132.64 }, { id = 94143895222958, at = 141.11 }, { id = 137553505478362, at = 142.41, blend = 0.58 },
+		{ id = 120592352351697, at = 153.36, blend = 0.4 }, { id = 110416135198674, at = 155.43, blend = 0.52 }, { id = 124091598492660, at = 156.86, blend = 0.49 },
+		{ id = 98754942494305, at = 161.5, blend = 0.6 }, { id = 105066453794976, at = 170.27, blend = 0.49 }, { id = 130670560182985, at = 171.27, blend = 0.6 },
+		{ id = 125902811896005, at = 179.22, blend = 1 }, { id = 105428606733839, at = 188.56, blend = 0.84 }, { id = 127287424998997, at = 200.44, blend = 0.71 },
+		{ id = 115574620758490, at = 201.47, blend = 0.48 }, { id = 127828014236660, at = 210.11, blend = 0.94 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
 	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, choreo = {
 		-- (D-807, user: "이음새도 맞춰") blend = seconds to ease from the last pose
