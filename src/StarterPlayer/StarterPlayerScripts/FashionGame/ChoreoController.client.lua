@@ -225,10 +225,16 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 		local id = t.Animation and t.Animation.AnimationId
 		local here = id and ChoreoSmooth.hips(id, t.TimePosition)
 		if id and not here then ChoreoSmooth.load(id) end
-		-- (D-852) ChoreoFixes `still = { from, to }`: the dancer stays put there
+		-- (D-852) ChoreoFixes `still = { from, to }`: the dancer stays put there;
+		-- (D-863) or a list of such stretches
 		local fixes = id and ChoreoSmooth.fixes(id)
 		local still = fixes and fixes.still
-		local staying = still and t.TimePosition >= still.from and t.TimePosition < still.to
+		local staying = false
+		if still then
+			for _, s in ipairs(if still.from then { still } else still) do
+				if t.TimePosition >= s.from and t.TimePosition < s.to then staying = true break end
+			end
+		end
 		if staying and t.WeightCurrent > 0.5 then stayingAny = true end
 		if here then
 			local before = lastHips[t]
@@ -252,10 +258,14 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 	-- build-up over the song does not
 	local settle = ClubConfig.ChoreoDriftReturn
 	local home = following.home
-	-- (D-852: not while a `still` stretch keeps the dancer in place)
-	if settle and home and not stayingAny then
+	-- (D-852: not while a `still` stretch keeps the dancer in place;
+	-- D-863, user: "가만히 서 있는데 이동함": only while the dance itself is
+	-- travelling, as much as it travels (full at 1 stud a second), so a dancer
+	-- standing still never slides)
+	local travelling = math.clamp(move.Magnitude * travelScale / math.max(dt, 1e-3), 0, 1)
+	if settle and home and not stayingAny and travelling > 0 then
 		local away = (root.Position - home) * Vector3.new(1, 0, 1)
-		worldMove -= away * math.min(dt / settle, 1)
+		worldMove -= away * math.min(dt / settle, 1) * travelling
 	end
 	if worldMove.Magnitude < 1e-4 then return end
 	local target = root.Position + worldMove

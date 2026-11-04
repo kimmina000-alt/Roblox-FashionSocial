@@ -95,7 +95,8 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --   calm = true: the slower wobble eased too (ClubConfig.ChoreoCalm, D-851)
 --   hold = { from, to }: the pose at `from` kept until `to`, then the dance
 --     goes on from `to`, easing out of the held pose in 0.25 s (D-852)
---   still = { from, to }: no travel of the dancer there (D-852)
+--   still = { from, to }: no travel of the dancer there (D-852), or a list of
+--     such stretches (D-863)
 --   turnEase = "out": the `turn` starts at full speed and slows down, for a
 --     piece before that ends mid-spin (D-852)
 --   spin = { from, to }: a spin in the capture that lurches turns evenly
@@ -114,9 +115,29 @@ ClubConfig.ChoreoFixes = {
 	[88317170211079] = { turn = 1 },
 	-- ATEEZ-BAD 10, 12, 17 (D-844): facing gaps of 118°, 141° and 161° at
 	-- 0:58, 1:09 and 1:41 (10 flipped round in one frame with a cross-fade)
-	[78517242404651] = { turn = 0.99 },
+	[78517242404651] = { turn = 0.99, still = { { from = 5.8, to = 7.4 } } },
 	[130559113363194] = { turn = 1 },
 	[87606540400975] = { turn = 1 },
+	-- ATEEZ-BAD (D-863, user: "가만히 서 있는데 이동하는 거 … 이런 동작 전부 확인한
+	-- 후 삭제"): stretches of each piece where its dancer stands still in the
+	-- practice video (hips and feet moving under 0.12 body heights a second
+	-- for 0.6 s or more, ATEEZ_BAD_centercut/tracks.json), so the capture's
+	-- travel there is dropped (piece seconds; 10 also through its last pose)
+	[82278370960435] = { still = { { from = 0, to = 3.2 }, { from = 4.2, to = 6.6 } } },
+	[120748822938478] = { still = { { from = 7.4, to = 8.2 } } },
+	[110345323270713] = { still = { { from = 2.6, to = 4.6 } } },
+	[122397631727855] = { still = { { from = 0.6, to = 1.4 } } },
+	[96766863219484] = { still = { { from = 0.8, to = 1.6 }, { from = 2.0, to = 2.8 }, { from = 4.0, to = 5.2 } } },
+	[116077835257285] = { still = { { from = 0.8, to = 1.8 }, { from = 4.4, to = 5.8 }, { from = 9.6, to = 10.4 } } },
+	[135462564673113] = { still = { { from = 3.2, to = 4.0 } } },
+	[94325256666159] = { still = { { from = 0, to = 0.8 } } },
+	[111913125032810] = { still = { { from = 3.8, to = 4.6 } } },
+	[129415986484255] = { still = { { from = 0.2, to = 1.0 }, { from = 2.4, to = 3.6 }, { from = 6.6, to = 7.8 } } },
+	[121775933093308] = { still = { { from = 0.2, to = 1.0 }, { from = 2.2, to = 3.0 }, { from = 4.4, to = 5.2 }, { from = 5.6, to = 6.4 },
+		{ from = 6.6, to = 7.6 }, { from = 8.4, to = 10.4 } } },
+	[138549092776506] = { still = { { from = 9.6, to = 10.4 } } },
+	[134748500609652] = { still = { { from = 1.0, to = 2.0 }, { from = 2.4, to = 5.8 } } },
+	[70571634425422] = { still = { { from = 1.0, to = 7.4 } } },
 	-- ATEEZ-BAD 21 (D-848, user: "가슴을 더 앞으로 크게 튕겼으면"): the capture
 	-- kept under 3° of the four chest pops in the reference clip
 	-- (D-851, user: "눈에 확 보이게") pushed further and held a little longer
@@ -130,7 +151,7 @@ ClubConfig.ChoreoFixes = {
 	-- (D-856, user: "큰 가슴 튕김->작은 가슴 튕김 … 세 번은 반복", the small one "살짝 덜")
 	-- the clip frame by frame: big 1.77 / 2.77 / 3.80 s, small 2.37 / 3.25 / 4.30 s
 	-- (- 0.22 s here); the small ones 0.6 of the big
-	[82346668311878] = { pops = { at = { 1.55, 2.15, 2.55, 3.03, 3.58, 4.08 }, sizes = { 1, 0.6, 1, 0.6, 1, 0.6 },
+	[82346668311878] = { still = { { from = 1.4, to = 5.2 } }, pops = { at = { 1.55, 2.15, 2.55, 3.03, 3.58, 4.08 }, sizes = { 1, 0.6, 1, 0.6, 1, 0.6 },
 		push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.85, sink = true },
 		-- (D-855, user: "보정") the user's clip holds the forearm level across the
 		-- chest (lower from about 3 s, at the waist by 4.3 s) and the head tipped back from the arms
@@ -202,7 +223,7 @@ ClubConfig.ChoreoFixes = {
 		still = { from = 0.4, to = 2.8 } },
 } :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
 	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
-	hold: { from: number, to: number }?, still: { from: number, to: number }?, turnEase: string?,
+	hold: { from: number, to: number }?, still: any?, turnEase: string?,
 	spin: { from: number, to: number }?,
 	pose: any? }}
 
