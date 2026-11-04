@@ -4057,13 +4057,14 @@ do
 	for _, c in ipairs(P:GetChildren()) do
 		-- (user 2026-10-24) the stairs and the sunken floors below them: plain
 		-- near-white grey, no pavers
-		-- (D-870, user 2026-11-04: the floor like the ground round it) the sunken
-		-- floors (ParkLevel) take the pavers now; the stairs stay plain
-		if c:IsA("BasePart") and c.Name == "ParkStair" then
+		-- (D-870 gave the sunken floors the pavers; D-874, user 2026-11-04: "광장
+		-- 중앙에 아래에 있는 땅은 계단이랑 같은 컬러로") back to the stairs' plain
+		-- near-white concrete
+		if c:IsA("BasePart") and (c.Name == "ParkStair" or c.Name == "ParkLevel") then
 			c.Color = Color3.fromRGB(224, 224, 220)
 			c.Material = Enum.Material.Concrete
 		end
-		if c:IsA("BasePart") and (c.Name == "ParkPaving" or c.Name == "ParkInfill" or c.Name == "ParkLevel") then
+		if c:IsA("BasePart") and (c.Name == "ParkPaving" or c.Name == "ParkInfill") then
 			c.Color = Color3.fromRGB(176, 172, 166)
 			c.Material = Enum.Material.SmoothPlastic
 			-- the face that points up in the world (the infill is a union of wedges:
@@ -7237,7 +7238,7 @@ do
 			im.Size = UDim2.fromScale(0.9, 0.8)
 			im.BackgroundTransparency = 1
 			im.ScaleType = Enum.ScaleType.Fit
-			im.Image = "rbxassetid://123273373911553"
+			im.Image = "rbxassetid://115835243531131"
 			im.ImageColor3 = Color3.fromRGB(255, 225, 200)
 			im.Parent = g
 		end

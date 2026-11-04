@@ -190,7 +190,7 @@ local logo = new("ImageLabel", {
 	-- (the aspect constraint fits it inside this box, from the top-left corner)
 	-- (y 40: below Roblox's own buttons at the top, which sit over this screen)
 	Position = UDim2.fromOffset(0, 44), Size = UDim2.new(1, 0, 0.17, 0), BackgroundTransparency = 1,
-	Image = "rbxassetid://127760136983798", ScaleType = Enum.ScaleType.Fit, ZIndex = 21,
+	Image = "rbxassetid://105006870705482", ScaleType = Enum.ScaleType.Fit, ZIndex = 21,
 }, textLayer)
 new("UIAspectRatioConstraint", { AspectRatio = 1476 / 791, DominantAxis = Enum.DominantAxis.Height }, logo)
 task.spawn(pcall, function() game:GetService("ContentProvider"):PreloadAsync({ logo }) end)

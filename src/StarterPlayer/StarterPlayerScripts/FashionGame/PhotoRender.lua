@@ -475,7 +475,7 @@ function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: st
 	local label: GuiObject
 	if text == "OHU" then
 		local image = Instance.new("ImageLabel")
-		image.Image = "rbxassetid://123273373911553"
+		image.Image = "rbxassetid://115835243531131"
 		image.ScaleType = Enum.ScaleType.Fit
 		image.ImageColor3 = frameInfo.text
 		label = image

@@ -117,9 +117,18 @@ def ohu_only_white():
     return img.crop(img.getbbox())
 
 
+def solid_white(img):
+    """(D-874, user: "테두리 뭐야 못생겼어") every pixel white, only the alpha
+    kept: the see-through pixels round the letters were black, and Roblox's
+    scaling blended them into a dark rim"""
+    out = Image.new("RGBA", img.size, (255, 255, 255, 0))
+    out.putalpha(img.getchannel("A"))
+    return out
+
+
 if __name__ == "__main__":
-    main_logo("white").save(os.path.join(FINAL, "ohu_main_white.png"))
+    solid_white(main_logo("white")).save(os.path.join(FINAL, "ohu_main_white.png"))
     main_logo("outline").save(os.path.join(FINAL, "ohu_main_outline.png"))
     main_logo("glow").save(os.path.join(FINAL, "ohu_main_glow.png"))
-    ohu_only_white().save(os.path.join(FINAL, "ohu_white.png"))
+    solid_white(ohu_only_white()).save(os.path.join(FINAL, "ohu_white.png"))
     print("wrote main logos")
