@@ -60,6 +60,16 @@ local TRACKS = {
 	-- joined songs (user 2026-11-03): one song uploaded as clips cut by
 	-- tools/audio/split_for_crossfade.ps1, played as one by JoinedSongPlayer
 	{ title = "녹음본 (8구간 이어 붙임)", joined = { parts = { 81568082292649, 130739295576800, 136055998058951, 101406045735531, 115474783735573, 101362036297281, 107766734212525, 139626977220244 }, segLen = 30, tail = 4, total = 225.05, lead = 0.09 } },
+	-- the same clips one by one again (user 2026-11-04), to play or crossfade
+	-- each on its own (30 s + the next clip's first 4 s: use 꼬리 4초)
+	{ title = "녹음 구간 1 (0~30초)", id = 81568082292649, seg = 1 },
+	{ title = "녹음 구간 2 (30~60초)", id = 130739295576800, seg = 2 },
+	{ title = "녹음 구간 3 (60~90초)", id = 136055998058951, seg = 3 },
+	{ title = "녹음 구간 4 (90~120초)", id = 101406045735531, seg = 4 },
+	{ title = "녹음 구간 5 (120~150초)", id = 115474783735573, seg = 5 },
+	{ title = "녹음 구간 6 (150~180초)", id = 101362036297281, seg = 6 },
+	{ title = "녹음 구간 7 (180~210초)", id = 107766734212525, seg = 7 },
+	{ title = "녹음 구간 8 (210~225초)", id = 139626977220244, seg = 8 },
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
@@ -766,7 +776,7 @@ local function refreshTrack()
 		if savedFor(key) then
 			table.insert(tags, "💾 저장됨")
 		elseif not t.joined then
-			table.insert(tags, if t.club then "클럽 값 있음" elseif t.id == 91382298830000 then "랩 전용" else "클럽: 기본")
+			table.insert(tags, if t.club then "클럽 값 있음" elseif t.seg then "녹음 구간" elseif t.id == 91382298830000 then "랩 전용" else "클럽: 기본")
 		end
 		listTags[i].Text = table.concat(tags, " · ")
 		listTags[i].TextColor3 = if savedFor(key) then Color3.fromRGB(120, 230, 150) else DIM
