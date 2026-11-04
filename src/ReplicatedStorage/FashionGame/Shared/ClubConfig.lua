@@ -138,6 +138,187 @@ ClubConfig.ChoreoFixes = {
 		-- across is the right one: the piece is the mirror of the clip); (D-856,
 		-- user: "손 모양도 영상처럼 펴서") the hand straight along the forearm, turned
 		-- so its broad side faces up
+		-- (D-862, user: the practice video 3ZO5F5wUmBg, the dancer in the black
+		-- tank top, mirrored; "움직임이 작은 건 영상처럼 확실한 액션으로") measured
+		-- frame by frame at 60 fps (anim time = video time - 136.49 s): the
+		-- forearm across goes from the chest at 1.35 s steadily down to the belt
+		-- by 4.0 s (wrist 1.13 → 0.34 torso lengths above the hips) and the hands
+		-- are on the hips by 4.3 s; the elbow is held out wide, at the shoulder at
+		-- first and sinking with the hand; angles solved for elbow and hand
+		pose = { { from = 1.15, to = 4.4, ease = 0.3,
+			keys = {
+				{ t = 1.35, set = { RightUpperArm = { -42, 18, 78 }, RightLowerArm = { 145, 0, 0 }, RightHand = { 0, -45, 0 } } },
+				{ t = 2.0, set = { RightUpperArm = { -60, 24, 78 }, RightLowerArm = { 140, 0, 0 }, RightHand = { 0, -45, 0 } } },
+				{ t = 2.5, set = { RightUpperArm = { -60, 36, 72 }, RightLowerArm = { 130, 0, 0 }, RightHand = { 0, -40, 0 } } },
+				{ t = 3.0, set = { RightUpperArm = { -60, 48, 66 }, RightLowerArm = { 115, 0, 0 }, RightHand = { 0, -30, 0 } } },
+				{ t = 3.5, set = { RightUpperArm = { -60, 60, 66 }, RightLowerArm = { 105, 0, 0 }, RightHand = { 0, -15, 0 } } },
+				{ t = 4.0, set = { RightUpperArm = { -60, 72, 66 }, RightLowerArm = { 90, 0, 0 }, RightHand = { 0, -10, 0 } } },
+			},
+			add = { Head = { 14, 0, 0 } } },
+			-- (D-862) hands on the hips (5-6.6 s): the video opens the feet to 1.5
+			-- then 2.0-2.1 hip widths, knees out, and sinks the hips by about a third
+			-- of a torso (ankle below hip 1.65 → 1.31 torsos) into a wide squat; the
+			-- capture stood up with the feet 1.3-1.8 apart (D-860 had narrowed them,
+			-- read wrongly from a low-resolution clip). The legs are set to that
+			-- squat (angles solved for the ankle on the floor), the feet kept level,
+			-- the hips lowered (`move`, feet on the floor) and the head comes back
+			-- down; it hands over to the capture's lunge at 6.65-6.78 s
+			{ from = 4.85, to = 6.78, ease = 0.2,
+				keys = {
+					{ t = 5.0, set = { LeftUpperLeg = { 15, -5, -3 }, LeftLowerLeg = { -33, 0, 0 }, LeftFoot = { 18, 0, 0 },
+						RightUpperLeg = { 15, 5, 3 }, RightLowerLeg = { -33, 0, 0 }, RightFoot = { 18, 0, 0 } },
+						move = { LowerTorso = { 0, -0.08, 0 } }, add = { Head = { 12, 0, 0 } } },
+					{ t = 5.25, set = { LeftUpperLeg = { 21, -10, -3 }, LeftLowerLeg = { -48, 0, 0 }, LeftFoot = { 27, 0, 0 },
+						RightUpperLeg = { 21, 10, 3 }, RightLowerLeg = { -48, 0, 0 }, RightFoot = { 27, 0, 0 } },
+						move = { LowerTorso = { 0, -0.23, 0 } }, add = { Head = { 11, 0, 0 } } },
+					{ t = 5.5, set = { LeftUpperLeg = { 24, -10, -6 }, LeftLowerLeg = { -57, 0, 0 }, LeftFoot = { 33, 0, 0 },
+						RightUpperLeg = { 24, 10, 6 }, RightLowerLeg = { -57, 0, 0 }, RightFoot = { 33, 0, 0 } },
+						move = { LowerTorso = { 0, -0.36, 0 } }, add = { Head = { 10, 0, 0 } } },
+					{ t = 6.0, set = { LeftUpperLeg = { 27, -15, -6 }, LeftLowerLeg = { -66, 0, 0 }, LeftFoot = { 39, 0, 0 },
+						RightUpperLeg = { 27, 15, 6 }, RightLowerLeg = { -66, 0, 0 }, RightFoot = { 39, 0, 0 } },
+						move = { LowerTorso = { 0, -0.5, 0 } }, add = { Head = { 8, 0, 0 } } },
+					{ t = 6.5, set = { LeftUpperLeg = { 30, -15, -6 }, LeftLowerLeg = { -75, 0, 0 }, LeftFoot = { 45, 0, 0 },
+						RightUpperLeg = { 30, 15, 6 }, RightLowerLeg = { -75, 0, 0 }, RightFoot = { 45, 0, 0 } },
+						move = { LowerTorso = { 0, -0.58, 0 } }, add = { Head = { 4, 0, 0 } } },
+				} } } },- Club MVP data (Stage 4): dance list, tempo range, club music.
+--
+-- Dances are Roblox-made catalog emotes (creator "Roblox"), so any experience
+-- may play them. Each animationId below is the clip inside the emote package,
+-- resolved once with InsertService:LoadAsset in Studio (2026-10-20) and checked
+-- to load on a character. Branded emotes (artists, films, TV) are left out.
+--
+-- Music: free Creator Store audio from the licensed distributors
+-- (DistrokidOfficial, APMOfficial), checked to load in Studio (2026-10-20).
+-- Lengths are rounded down from Sound.TimeLength; the server advances tracks
+-- by these lengths.
+
+export type Dance = {
+	key: string,
+	name: string,
+	category: string,
+	animationId: number,
+	looped: boolean,
+}
+
+export type Track = {
+	channel: string,
+	title: string,
+	soundId: number,
+	length: number, -- seconds of audio at x1
+	baseSpeed: number?, -- its normal playback speed (default 1)
+	volume: number?, -- its own music volume instead of MusicVolume (past 10: an equalizer boost)
+	octave: number?, -- a PitchShiftSoundEffect octave on it (1 = none)
+	-- the values the user tuned by ear in the turntable lab (test place
+	-- 86558282086977, tools/test_places/turntable_lab, DataStore
+	-- TurntableLabSettings "v1"; D-680). When set it replaces baseSpeed /
+	-- volume / octave. humHz / hissHz / gate only work on the lab's "audio"
+	-- engine and are kept for the record; the club plays a Sound.
+	lab: Lab?,
+	-- the song's choreography (D-689): animation ids played one after another
+	-- from the start of the song, each danced to the song as heard in the club
+	-- (so at x1; the DJ's speed carries over). Players in the club get a
+	-- "안무 따라하기" button while it plays (ChoreoController). An entry is an
+	-- animation id (it starts where the one before ends) or { id = .., at = .. }
+	-- (it starts `at` seconds into the song, as heard in the club). `stop` (D-804)
+	-- ends that one early, `stop` seconds into the song: the dancer stands still
+	-- and the next one starts on time, as if this one had played to its end.
+	-- `blend` (D-807) = seconds to ease into this one from the pose before
+	-- (0.25 if not given; tools/choreo/choreo_check.lua suggests it).
+	-- `from` (D-810) = seconds into the animation to start from (skips its
+	-- start; with `stop` on the entry before, this cuts a stretch out).
+	choreo: {any}?,
+	-- (D-726) dance the choreography by itself: everyone in the club standing
+	-- still (not seated, not in a menu dance) follows it while the song plays
+	autoChoreo: boolean?,
+}
+export type Lab = {
+	speed: number, tempo: number, volume: number, boost: number, octave: number,
+	low: number, mid: number, high: number,
+	humHz: number?, hissHz: number?, gate: number?, engine: string?,
+}
+
+local ClubConfig = {}
+
+-- (D-811, user: "미세하게 바들바들 떨리는 부분 보정 … 멀쩡한 안무까지 수정하지
+-- 말고") the choreography animations are captured at 24 keyframes a second
+-- with small back-and-forth zigzags in the joints. ChoreoSmooth eases only
+-- the keyframes where a joint goes back and forth by less than `maxStep`
+-- degrees (`passes` times); the rest of the dance stays exactly as made.
+-- nil = off.
+ClubConfig.ChoreoSmoothing = { maxStep = 8, passes = 4 } :: { maxStep: number, passes: number }?
+
+-- (D-843) the choreography captures carry a spine, a chest and two
+-- clavicles that an R15 body does not have; true folds their turns onto the
+-- waist and the shoulders (ChoreoSmooth.retarget) so that motion shows.
+-- The toes have nowhere to go on R15 and stay out. false = off.
+ClubConfig.ChoreoRetarget = true
+
+-- (D-817) a dancer following a choreography walks its dance path (D-813),
+-- and is eased back toward where the dance began over about this many
+-- seconds, so the drift the pieces add up to does not carry them off the
+-- floor. nil = no easing back.
+ClubConfig.ChoreoDriftReturn = 8 :: number?
+
+-- (D-840, user) spot fixes for single choreography pieces, by animation id
+-- (the same piece gets them in any song):
+--   steady = { from, to, parts, passes? }: those parts' keyframes between
+--     `from` and `to` seconds into the animation smoothed hard (a shaky arm),
+--     easing in and out over 0.15 s at both ends (ChoreoSmooth)
+--   turn = seconds: the piece starts facing where the piece before it ended
+--     and turns on the way that one was turning into its own facing over
+--     that many seconds (ChoreoController.turnHips), instead of a cross-fade
+--     that flips the body round; keep it within the piece's `blend`
+--   pops = { at, sizes?, push, lift?, arch, out?, back?, sink? }: a chest pop at each of those seconds
+--     into the animation: the chest goes `push` studs forward, `lift` up and
+--     arches `arch` degrees back (the head stays level), out in `out` s
+--     (0.07) and back in `back` s (0.3), at an even pace with `sink`
+--     (ChoreoSmooth.pop)
+--   calm = true: the slower wobble eased too (ClubConfig.ChoreoCalm, D-851)
+--   hold = { from, to }: the pose at `from` kept until `to`, then the dance
+--     goes on from `to`, easing out of the held pose in 0.25 s (D-852)
+--   still = { from, to }: no travel of the dancer there (D-852)
+--   turnEase = "out": the `turn` starts at full speed and slows down, for a
+--     piece before that ends mid-spin (D-852)
+--   spin = { from, to }: a spin in the capture that lurches turns evenly
+--     between its facings at `from` and `to` (starts gently, ends at full
+--     speed) (D-852)
+--   pose = { from, to, ease?, keys = {{ t, set = { [part] = { x, y, z } } }}, add? }:
+--     a pose the capture lost: those joints set to the keys' turns (degrees,
+--     eased between keys), `add` turns added on top, easing in and out over
+--     `ease` s (D-855); a list of such poses for different stretches, and keys
+--     with their own `add` turns (eased between keys), D-860
+--   (steady without `parts` = the whole body, D-852)
+ClubConfig.ChoreoFixes = {
+	-- IVE-Looks Can Kill 25 (song 2:18.5): the right arm shook at 2:22
+	[134968782013343] = { steady = { from = 3.1, to = 4.1, parts = { "RightUpperArm", "RightLowerArm", "RightHand" } } },
+	-- IVE-Looks Can Kill 27 (song 2:30.8): 26 ends facing back (2:29-2:30)
+	[88317170211079] = { turn = 1 },
+	-- ATEEZ-BAD 10, 12, 17 (D-844): facing gaps of 118°, 141° and 161° at
+	-- 0:58, 1:09 and 1:41 (10 flipped round in one frame with a cross-fade)
+	[78517242404651] = { turn = 0.99 },
+	[130559113363194] = { turn = 1 },
+	[87606540400975] = { turn = 1 },
+	-- ATEEZ-BAD 21 (D-848, user: "가슴을 더 앞으로 크게 튕겼으면"): the capture
+	-- kept under 3° of the four chest pops in the reference clip
+	-- (D-851, user: "눈에 확 보이게") pushed further and held a little longer
+	-- (D-853, user: "1초에 한 번씩 가슴 앞으로 위로 튀어나오게", in the arm-across pose,
+	-- 1.25-4.75 s): forward and up, the chest arching up (the head stays level)
+	-- (D-854, user: "영상 속 남자가 가슴 튕기는 순간 분석하여 적용") the dancer in the
+	-- user's clip pops at 1.77 / 2.77 / 3.80 / 4.87 s, a frame up and then an even
+	-- sink until the next one; his clip runs 0.22 s behind this piece (arms
+	-- across, the lunge), so 1.55 / 2.55 / 3.58 / 4.63 here (the ATEEZ source
+	-- of this piece lengthens its torso at 2.54 / 3.57 / 4.57 too)
+	-- (D-856, user: "큰 가슴 튕김->작은 가슴 튕김 … 세 번은 반복", the small one "살짝 덜")
+	-- the clip frame by frame: big 1.77 / 2.77 / 3.80 s, small 2.37 / 3.25 / 4.30 s
+	-- (- 0.22 s here); the small ones 0.6 of the big
+	[82346668311878] = { pops = { at = { 1.55, 2.15, 2.55, 3.03, 3.58, 4.08 }, sizes = { 1, 0.6, 1, 0.6, 1, 0.6 },
+		push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.85, sink = true },
+		-- (D-855, user: "보정") the user's clip holds the forearm level across the
+		-- chest (lower from about 3 s, at the waist by 4.3 s) and the head tipped back from the arms
+		-- across to the hands on the hips; the capture lost both (here the arm
+		-- across is the right one: the piece is the mirror of the clip); (D-856,
+		-- user: "손 모양도 영상처럼 펴서") the hand straight along the forearm, turned
+		-- so its broad side faces up
 		pose = { { from = 1.15, to = 4.75, ease = 0.3,
 			keys = {
 				{ t = 1.3, set = { RightUpperArm = { -54, 30, 96 }, RightLowerArm = { 135, 0, 0 }, RightHand = { 0, -45, 0 } } },
@@ -151,7 +332,7 @@ ClubConfig.ChoreoFixes = {
 			-- hip widths apart; the capture opened them to 1.3-1.8 and put the left
 			-- foot about a stud ahead. The hips turn the feet in (z) and level (x),
 			-- about a leg of 2.6 studs
-			{ from = 4.85, to = 6.62, ease = 0.25,
+			{ from = 4.85, to = 6.78, ease = 0.2,
 				keys = {
 					{ t = 5.0, add = { LeftUpperLeg = { -2.6, 0, 4 }, RightUpperLeg = { 2.6, 0, -4 } } },
 					{ t = 5.5, add = { LeftUpperLeg = { -7.1, 0, 5 }, RightUpperLeg = { 7.1, 0, -5 } } },

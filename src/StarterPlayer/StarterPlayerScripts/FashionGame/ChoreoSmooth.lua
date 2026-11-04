@@ -348,6 +348,12 @@ function ChoreoSmooth.pose(animationId: string, t: number): ({[string]: CFrame}?
 		local turn = angles(value):Lerp(angles((b.add or {})[part] or value), k)
 		add[part] = if add[part] then add[part] * turn else turn
 	end
+	-- (D-862) and `move` (studs), e.g. the hips lowered into a squat
+	for part, value in pairs(a.move or {}) do
+		local other = (b.move or {})[part] or value
+		local shift = CFrame.new(Vector3.new(value[1], value[2], value[3]):Lerp(Vector3.new(other[1], other[2], other[3]), k))
+		add[part] = if add[part] then add[part] * shift else shift
+	end
 	return set, add, f * f * (3 - 2 * f)
 end
 
