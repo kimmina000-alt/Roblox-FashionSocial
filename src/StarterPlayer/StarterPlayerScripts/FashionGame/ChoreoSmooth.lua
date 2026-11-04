@@ -249,22 +249,25 @@ function ChoreoSmooth.load(animationId: string)
 			-- (D-840) a spot the user picked (a shaky arm): these parts smoothed
 			-- hard between `from` and `to`, easing in and out at both ends
 			-- (D-852) no `parts`: the whole body
-			if steady and (not steady.parts or table.find(steady.parts, part)) then
-				local out = cleaned or table.clone(s.raw)
-				local edge = 0.15
-				for _ = 1, steady.passes or 4 do
-					local nextOut = table.clone(out)
-					for k = 2, #out - 1 do
-						local t = s.times[k]
-						local w = math.clamp(math.min(t - steady.from, steady.to - t) / edge + 1, 0, 1)
-						if w > 0 then
-							local mid = out[k - 1]:Lerp(out[k + 1], 0.5)
-							nextOut[k] = out[k]:Lerp(out[k]:Lerp(mid, 0.5), w)
+			-- (D-884) or a list of such stretches
+			for _, st in ipairs(if steady and steady.from then { steady } else steady or {}) do
+				if not st.parts or table.find(st.parts, part) then
+					local out = cleaned or table.clone(s.raw)
+					local edge = 0.15
+					for _ = 1, st.passes or 4 do
+						local nextOut = table.clone(out)
+						for k = 2, #out - 1 do
+							local t = s.times[k]
+							local w = math.clamp(math.min(t - st.from, st.to - t) / edge + 1, 0, 1)
+							if w > 0 then
+								local mid = out[k - 1]:Lerp(out[k + 1], 0.5)
+								nextOut[k] = out[k]:Lerp(out[k]:Lerp(mid, 0.5), w)
+							end
 						end
+						out = nextOut
 					end
-					out = nextOut
+					cleaned = out
 				end
-				cleaned = out
 			end
 			if cleaned then
 				final[part] = cleaned

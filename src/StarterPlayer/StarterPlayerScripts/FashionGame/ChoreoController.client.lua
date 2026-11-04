@@ -732,9 +732,14 @@ RunService.PreAnimation:Connect(function()
 	-- stays until `to`, then the dance goes on from `to` (the song's timing
 	-- is kept; PreSimulation eases out of the held pose)
 	local fixes = ChoreoSmooth.fixes(seg.Animation.AnimationId)
-	local hold = fixes and fixes.hold
-	local held = hold ~= nil and t >= hold.from and t < hold.to
-	if held then t = hold.from end
+	-- (D-884) or a list of such stretches
+	local held = false
+	local holds = fixes and fixes.hold
+	if holds then
+		for _, hold in ipairs(if holds.from then { holds } else holds) do
+			if t >= hold.from and t < hold.to then held = true t = hold.from break end
+		end
+	end
 	if following.held and not held then following.unheldAt = os.clock() end
 	following.held = held
 	if following.playing ~= seg then

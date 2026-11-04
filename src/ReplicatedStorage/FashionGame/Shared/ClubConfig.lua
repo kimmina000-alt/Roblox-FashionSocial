@@ -83,7 +83,8 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 -- (the same piece gets them in any song):
 --   steady = { from, to, parts, passes? }: those parts' keyframes between
 --     `from` and `to` seconds into the animation smoothed hard (a shaky arm),
---     easing in and out over 0.15 s at both ends (ChoreoSmooth)
+--     easing in and out over 0.15 s at both ends (ChoreoSmooth); a list of
+--     such stretches (D-884)
 --   turn = seconds: the piece starts facing where the piece before it ended
 --     and turns on the way that one was turning into its own facing over
 --     that many seconds (ChoreoController.turnHips), instead of a cross-fade
@@ -95,7 +96,8 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --     (ChoreoSmooth.pop)
 --   calm = true: the slower wobble eased too (ClubConfig.ChoreoCalm, D-851)
 --   hold = { from, to }: the pose at `from` kept until `to`, then the dance
---     goes on from `to`, easing out of the held pose in 0.25 s (D-852)
+--     goes on from `to`, easing out of the held pose in 0.25 s (D-852), or a
+--     list of such stretches (D-884)
 --   still = { from, to }: no travel of the dancer there (D-852), or a list of
 --     such stretches (D-863)
 --   turnEase = "out": the `turn` starts at full speed and slows down, for a
@@ -314,7 +316,14 @@ ClubConfig.ChoreoFixes = {
 	[74457262116826] = { still = { from = 0.4, to = 3.12 } }, -- 1 (from 0.12; the piece starts at 0.4)
 	[133388702168878] = { turn = 0.84 }, -- 4 (101°)
 	[76336157312311] = { still = { from = 6.07, to = 6.97 } }, -- 7
-	[131666628776868] = { still = { { from = 6.57, to = 7.87 }, { from = 8.73, to = 9.83 } } }, -- 11
+	-- 11 (D-884, user: "1:13 허리 숙이고 바들바들 떠는 거 수정"): the member bends
+	-- over and stays still twice (clip 11: 6.6-7.8 s and 8.6-9.8 s); the capture
+	-- trembles while it settles into each bend (Play: 21 small turn-backs in
+	-- 0.5 s at 1:12.0-1:12.5, 9 at 1:14.0-1:14.5, under ChoreoShake's count),
+	-- then is still by itself: the whole body smoothed while it settles only
+	-- (reaching into the still part gave it a slow wobble of its own)
+	[131666628776868] = { still = { { from = 6.57, to = 7.87 }, { from = 8.73, to = 9.83 } },
+		steady = { { from = 6.5, to = 7.0, passes = 8 }, { from = 8.5, to = 9.6, passes = 8 } } },
 	[131761907712654] = { still = { from = 10.32, to = 11.17 } }, -- 12
 	[121234850587240] = { turn = 1 }, -- 20 (173°)
 	[124489277659547] = { turn = 1 }, -- 21 (171°)
