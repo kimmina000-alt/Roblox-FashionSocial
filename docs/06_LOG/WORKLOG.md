@@ -3320,3 +3320,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 공원 광장 분수 삭제 (D-870)
 ![](images/2026-11-04/d870_plaza_before.webp) ![](images/2026-11-04/d870_plaza_after.jpg)
 - 그레이박스 체인 전체 실행(prop_save 48 → … → club_locker_1103). Play: 원 안 6곳 걸어 봄, 발 높이 모두 -1.98(같은 바닥), 지형 물 0.
+### IVE-Looks Can Kill 연습 영상으로 고침 (D-871)
+![](images/2026-11-04/d871_ive_compare.jpg)
+- 32조각 `at`(영상 클립 시작 × 1.001), 26조각 `still`, 12조각 `calm`. Play: 모든 조각 제때 시작, 서 있는 구간 이동 0, 춤추는 중 몸 바꾸기 OK.

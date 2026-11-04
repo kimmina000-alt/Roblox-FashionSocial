@@ -109,10 +109,39 @@ ClubConfig.ChoreoDriftReturn = 8 :: number?
 --     with their own `add` turns (eased between keys), D-860
 --   (steady without `parts` = the whole body, D-852)
 ClubConfig.ChoreoFixes = {
-	-- IVE-Looks Can Kill 25 (song 2:18.5): the right arm shook at 2:22
-	[134968782013343] = { steady = { from = 3.1, to = 4.1, parts = { "RightUpperArm", "RightLowerArm", "RightHand" } } },
-	-- IVE-Looks Can Kill 27 (song 2:30.8): 26 ends facing back (2:29-2:30)
-	[88317170211079] = { turn = 1 },
+	-- IVE-Looks Can Kill (D-871, from the practice video LvRTCcTPgsY): `still`
+	-- where the member the piece was cut from stands in the video (hips and
+	-- feet under 0.12 body heights a second for 0.6 s or more) but the piece
+	-- carries the hips 0.3 studs or more; `calm` on the pieces with 7 or more
+	-- short back-and-forth turns a second (other songs' pieces have 1-4)
+	[104472985141273] = { still = { { from = 2.8, to = 4.8 } } }, -- 1
+	[100762274305324] = { still = { { from = 0.8, to = 1.6 } }, calm = true }, -- 2
+	[92352840963540] = { still = { { from = 1.8, to = 2.6 }, { from = 3.6, to = 4.2 }, { from = 5.6, to = 9 } } }, -- 3
+	[77509133314202] = { still = { { from = 1.8, to = 2.8 } }, calm = true }, -- 5
+	[109736190348459] = { still = { { from = 2.6, to = 4.2 } }, calm = true }, -- 6
+	[111907232555806] = { still = { { from = 4.4, to = 5.4 }, { from = 5.8, to = 6.6 }, { from = 7.6, to = 8.8 } } }, -- 9
+	[124059184095981] = { still = { { from = 2, to = 3 }, { from = 3.6, to = 4.4 }, { from = 4.6, to = 5.8 } } }, -- 10
+	[87500016171854] = { still = { { from = 3, to = 3.8 }, { from = 5.6, to = 6.4 } } }, -- 11
+	[73623563360624] = { still = { { from = 0.8, to = 1.6 }, { from = 2.4, to = 3.4 } } }, -- 12
+	[105165734205045] = { still = { { from = 2.6, to = 4.2 }, { from = 4.4, to = 5.6 } }, calm = true }, -- 13
+	[84050357538982] = { still = { { from = 0, to = 0.8 } } }, -- 14
+	[80842274249808] = { still = { { from = 0.2, to = 0.8 }, { from = 1, to = 1.6 }, { from = 3, to = 4 } }, calm = true }, -- 15
+	[112107210780715] = { still = { { from = 1.6, to = 2.6 }, { from = 2.8, to = 3.8 }, { from = 4, to = 5.4 } }, calm = true }, -- 16
+	[123875931497308] = { still = { { from = 1.4, to = 2.6 } } }, -- 18
+	[97254731498706] = { still = { { from = 0, to = 0.8 }, { from = 3.6, to = 5.4 } } }, -- 19
+	[85566191636983] = { still = { { from = 4.6, to = 5.2 }, { from = 6.6, to = 7.2 } } }, -- 20
+	[133964239076172] = { still = { { from = 2.6, to = 3.2 } }, calm = true }, -- 21
+	[120575710088163] = { still = { { from = 0.4, to = 1 }, { from = 1.6, to = 3 } } }, -- 22
+	[104957688493242] = { calm = true }, -- 23
+	[132124420274015] = { calm = true }, -- 24
+	-- 25 (song 2:20.5): the right arm shook at 2:24
+	[134968782013343] = { steady = { from = 3.1, to = 4.1, parts = { "RightUpperArm", "RightLowerArm", "RightHand" } }, still = { { from = 3, to = 4 }, { from = 4.6, to = 5.2 } } },
+	[92922732552861] = { still = { { from = 0.2, to = 0.8 }, { from = 1.6, to = 2.8 }, { from = 3.6, to = 5.4 } } }, -- 26
+	-- 27 (song 2:32.9): 26 ends facing back
+	[88317170211079] = { turn = 1, still = { { from = 0.4, to = 1.2 } }, calm = true },
+	[76585975326316] = { still = { { from = 2.4, to = 3.2 }, { from = 4.2, to = 5.2 }, { from = 8, to = 8.8 } } }, -- 29
+	[74039257328689] = { calm = true }, -- 31
+	[79871898776208] = { still = { { from = 1, to = 5.77 } }, calm = true }, -- 32
 	-- ATEEZ-BAD 10, 12, 17 (D-844): facing gaps of 118°, 141° and 161° at
 	-- 0:58, 1:09 and 1:41 (10 flipped round in one frame with a cross-fade)
 	[78517242404651] = { turn = 0.99, still = { { from = 5.8, to = 7.4 } } },
@@ -450,9 +479,23 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "Darla Jean-Dam Da Dee", soundId = 78077595750886, length = 73, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "머무르-꿈꾸던 어른이 되었나요", soundId = 120160897793669, length = 69, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "IVE-Looks Can Kill", soundId = 135553051649506, length = 64, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = {
-		-- (D-826, user: the first 7 pieces, more later; blends from tools/choreo/choreo_check.lua)
-		104472985141273, { id = 100762274305324, blend = 0.8 }, { id = 92352840963540, blend = 0.83 }, { id = 73035150280152, blend = 0.98 },
-		{ id = 77509133314202, blend = 0.31 }, { id = 109736190348459, blend = 0.84 }, { id = 120841071882545, blend = 1 } }, autoChoreo = true },
+		-- (D-826 the first 7 pieces, D-833 the other 25; blends from tools/choreo/choreo_check.lua)
+		-- (D-871) each piece starts where it is danced in the practice video
+		-- (D:\Roblox\영상\IVE_LooksCanKill_centercut\clips.json; 1-7, cut
+		-- before those clips, placed by matching their arm and leg angles to
+		-- the members'), times 1.001: the song at tempo 0.333 runs 0.1 % slower
+		-- than the video (loudness envelopes: 0.00 s apart at the start, 0.15 s
+		-- at 2:45). Run back to back, the captures (shorter than their clips)
+		-- had pulled 8 on 1.3 s and 32 2.0 s early
+		104472985141273, { id = 100762274305324, at = 5.8, blend = 0.8 }, { id = 92352840963540, at = 7.6, blend = 0.83 }, { id = 73035150280152, at = 18.65, blend = 0.98 },
+		{ id = 77509133314202, at = 26.55, blend = 0.31 }, { id = 109736190348459, at = 31.73, blend = 0.84 }, { id = 120841071882545, at = 36.04, blend = 1 },
+		{ id = 128205693221038, at = 42.57, blend = 0.79 }, { id = 111907232555806, at = 46.4, blend = 0.4 }, { id = 124059184095981, at = 57.14 }, { id = 87500016171854, at = 63.46, blend = 1 },
+		{ id = 73623563360624, at = 70.65 }, { id = 105165734205045, at = 75.31, blend = 0.41 }, { id = 84050357538982, at = 82.66, blend = 0.44 }, { id = 80842274249808, at = 85.91, blend = 0.98 },
+		{ id = 112107210780715, at = 93.81, blend = 0.84 }, { id = 92250246039046, at = 100.95, blend = 0.36 }, { id = 123875931497308, at = 101.73, blend = 1 },
+		{ id = 97254731498706, at = 109.34, blend = 0.66 }, { id = 85566191636983, at = 117.15, blend = 0.9 }, { id = 133964239076172, at = 125.21, blend = 0.41 }, { id = 120575710088163, at = 131.1 },
+		{ id = 104957688493242, at = 138.39, blend = 0.76 }, { id = 132124420274015, at = 139.97, blend = 0.25 }, { id = 134968782013343, at = 140.49, blend = 0.74 },
+		{ id = 92922732552861, at = 146.2, blend = 0.43 }, { id = 88317170211079, at = 152.85, blend = 1 }, { id = 130014890140037, at = 160.01, blend = 1 },
+		{ id = 76585975326316, at = 162.21, blend = 0.67 }, { id = 128909786311122, at = 172.4 }, { id = 74039257328689, at = 178.98 }, { id = 79871898776208, at = 188.37, blend = 0.88 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 73546697163709, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.4, octave = 0.5, low = -9.5, mid = 6, high = 0, engine = "sound" } },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
