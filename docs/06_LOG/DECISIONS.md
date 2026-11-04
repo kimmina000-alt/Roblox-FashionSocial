@@ -2350,3 +2350,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-887 이어 붙인 노래(joined songs) 커밋 (2026-11-05)
 - 메인 작업 폴더에 커밋 안 된 채 있던 작업(턴테이블 실험실 / 사용자 쪽, JOINED_SONGS_HANDOFF.md): 한 곡을 여러 음원 조각으로 올려 한 곡처럼 트는 Shared/JoinedSongPlayer, Track.joined { parts, segLen, tail, total, lead }, DanceController / ChoreoController / DJScreenController가 JoinedTime·JoinedLoudness로 위치·음량을 읽음, IU-이 별로부터(Unknown Planet) 8조각 추가, tools/audio/split_for_crossfade.ps1.
 - 사용자: "해당 파일 변경된 거 적용해" → Studio에 넣자 클럽 음악이 멈춤: ClubConfig.isJoined가 불리는데 정의가 없었음 → 추가(fileSpeed 위). Play: 일반 곡 재생, 37번(IU) 조각 이어 재생, 오류 없음. 사용자 "오류 없다 커밋해".
+
+## D-888 ClubConfig 나누기 (2026-11-05)
+- 사용자: "클럽 콘피드에 춤, 노래, 술 아이템 다 같이 있는데 … 나누는 게 좋지 않을까?" → "아랄 음원 작업 끝나면 나눠". 성능 문제는 아니고(한 번 읽는 75 KB 표), 여러 세션·사용자가 한 파일을 고쳐 덮어쓰기·오류 번짐 위험 때문.
+- Shared/ClubChoreo(안무 보정 표: ChoreoFixes 등), ClubDances(춤 메뉴·템포), ClubPlaylist(Track/Lab/Joined 타입, SavedLabs, Playlist; 아랄 음원은 이 파일 끝), ClubDrinks(음료·병·가격·Visibility·findDrink). ClubConfig는 1026 → 317줄, 네 파일을 require해 필드를 하나씩 다시 내보냄(ClubConfig.Playlist 등 그대로, 타입도 export type으로 이어짐). 다른 스크립트는 안 바꿈.
+- 검사: 나누기 전후 ClubConfig 표 깊은 비교(62개 키) 차이 0, 함수 7개 같은 결과. Play: 음악·춤·이어 붙인 노래(37번)·음료 18 / 춤 31 / 곡 37 정상. 사용자가 고친 IU 제목·채널(K-POP, 닫는 괄호)도 ClubPlaylist에 반영. 만든 스크립트 tools/dev/split_clubconfig_1105.py(한 번 쓰는 용).
