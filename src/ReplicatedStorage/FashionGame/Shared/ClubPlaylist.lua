@@ -222,8 +222,8 @@ M.Playlist = {
 { channel = "K-POP", title = "IU-이 별로부터(Unknown Planet)", soundId = 81568082292649, length = 225.05,
 		joined = {  parts = { 81568082292649, 130739295576800, 136055998058951, 101406045735531, 115474783735573, 101362036297281, 107766734212525, 139626977220244}, segLen = 30, tail = 4, total = 225.05, lead = 0.09  },
 		lab = { speed = 1, tempo = 1, volume = 10, boost = 1, octave = 1, low = 0, mid = 0, high = 0 } },
-	-- (D-901, user 2026-11-05: new upload, tempo = 82.42 s file ÷ heard 4:07 = 0.334)
-	{ channel = "K-POP", title = "새벽네시사십사분", soundId = 129938231085858, length = 82.42,
+	-- (D-901, user 2026-11-05: new upload (uploaded as 새벽네시사십사분), tempo = 82.42 s file ÷ heard 4:07 = 0.334)
+	{ channel = "K-POP", title = "이무진-그대 잠시 내게", soundId = 129938231085858, length = 82.42,
 		lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 
 } :: {Track}
