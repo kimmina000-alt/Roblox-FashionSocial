@@ -413,7 +413,17 @@ local WRAP_SPEED = 2.5 -- studs per second
 local CARD = 30 -- studs per card (the screen is 64 tall since D-777)
 -- (D-777, user 2026-11-03) the ad shown between the supporters, as wide as its
 -- picture (1024 × 576, docs/04_ART/ads/led_ad_ohu_1103.png); the @id + message card
-local AD_IMAGE = "rbxassetid://78452328820553"
+-- (D-869, user 2026-11-04: "건물 전광판에 광고 이 이미지들 나오게") five ads
+-- (docs/04_ART/ads/led_ad_1104_1..5.png, 1024 × 576), one after another: each
+-- ad card takes the next one; the D-777 ad (78452328820553) is not shown any more
+local AD_IMAGES = {
+	"rbxassetid://92462708040474",
+	"rbxassetid://138884522241895",
+	"rbxassetid://73336631845014",
+	"rbxassetid://81500696359134",
+	"rbxassetid://92240796702277",
+}
+local adTurn = 0
 local AD_ASPECT = 1024 / 576
 local TEXT_CARD = 40
 local CARD_GAP = 8 -- studs at least between two cards on the corner screen (D-792)
@@ -544,7 +554,8 @@ local function buildBandPanel(part: BasePart)
 			img.Size = UDim2.fromScale(1, 1)
 			img.BackgroundTransparency = 1
 			img.ScaleType = Enum.ScaleType.Fit
-			img.Image = AD_IMAGE
+			adTurn = adTurn % #AD_IMAGES + 1
+			img.Image = AD_IMAGES[adTurn]
 			img.Parent = frame
 			return
 		end
