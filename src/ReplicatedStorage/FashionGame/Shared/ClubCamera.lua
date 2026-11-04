@@ -519,4 +519,62 @@ ClubCamera.Songs[91762270038050] = {
 	}),
 }
 
+-- CORTIS-REDRED: Mnet M COUNTDOWN 2026-04-23 first stage (youtube
+-- rREZviPAdM8), video = song + 34.5 s (D-902: the even beat gives answers 2 s
+-- apart, +32.5 / +34.5; the choreography decides: the song's quiet break at
+-- 121.8 s is standing still in the game, and in the video at +34.5 (32.5
+-- would be fast dancing)). Fast edit: many cuts on the beat (the video's
+-- red / green colour washes are lighting, not cuts), read from 0.5 s strips.
+local function cutList(list: {{any}}): {Shot}
+	local out = {}
+	for _, c in ipairs(list) do
+		table.insert(out, { at = c[1], size = c[2], yaw = c[3], pitch = c[4], to = c[5] })
+	end
+	return out
+end
+ClubCamera.Songs[125703446596781] = {
+	video = "Mnet M COUNTDOWN 2026-04-23, youtube rREZviPAdM8",
+	offset = 34.5,
+	shots = cutList({
+		-- intro: the members one by one, then the crew
+		{ 0, "wide", 0, 6 }, { 0.2, "bust", 15 }, { 1.5, "bust", -10 }, { 3.0, "bust", 10 }, { 4.0, "waist" },
+		{ 4.5, "knee", -15, 0, { size = "wide" } }, { 5.0, "wide", 0, 10 }, { 7.0, "waist", 10, -5 }, { 7.5, "bust" },
+		{ 8.5, "close", -10 }, { 9.0, "waist", 10 }, { 9.5, "knee", -15 },
+		{ 10.0, "xwide", 0, 8 }, { 11.5, "xwide", 0, 50 }, { 12.0, "waist", 10 }, { 13.5, "bust" },
+		{ 14.0, "xwide", 0, 10, { size = "wide" } }, { 16.0, "knee", -20 }, { 16.5, "waist", 15 }, { 17.0, "wide", 0, 6 },
+		{ 19.0, "waist", 10 }, { 19.5, "knee" }, { 20.0, "wide", -15, 8 }, { 21.0, "waist", 10 }, { 21.5, "bust" },
+		-- verse 1
+		{ 22.0, "xwide", 0, 8 }, { 25.0, "knee", -10 }, { 25.5, "full" }, { 26.0, "waist", 15 }, { 27.0, "bust" },
+		{ 28.0, "xwide", 0, 12, { size = "wide" } }, { 30.0, "bust", 10 }, { 31.0, "waist" }, { 31.5, "wide", 0, 6 },
+		{ 35.0, "knee", -10 }, { 35.5, "xwide", 0, 8 }, { 37.0, "full", 10 }, { 37.5, "waist" },
+		{ 38.0, "xwide", 0, 45 }, { 38.5, "wide", 0, 20 }, { 40.0, "xwide", 0, 10 }, { 42.0, "wide", 0, 6 },
+		{ 44.0, "knee", 15 }, { 45.0, "waist" }, { 46.0, "wide", 0, 8 }, { 47.0, "waist", -10 }, { 48.0, "full" },
+		{ 48.5, "wide", 0, 6 }, { 50.0, "waist", 10 }, { 52.0, "wide", 0, 8 }, { 54.0, "knee", -10 }, { 55.0, "waist", 15 },
+		-- chorus 1
+		{ 56.0, "xwide", 0, 10 }, { 57.0, "wide", 0, 6 }, { 58.0, "full" }, { 60.0, "waist", 10 }, { 61.0, "wide", 0, 6 },
+		{ 63.0, "waist", -10 }, { 64.0, "xwide", 0, 10 }, { 65.0, "wide", 0, 6 }, { 68.0, "knee", 0, -10 }, { 68.5, "waist", 10 },
+		{ 70.0, "wide", 0, 6 }, { 72.0, "bust", 15 }, { 73.5, "knee", -10 }, { 74.0, "wide", 0, 8 }, { 75.5, "knee", 0, -10 },
+		{ 76.5, "waist", 10 }, { 77.5, "wide", 0, 6 }, { 78.0, "full", 10 }, { 78.5, "waist" }, { 79.5, "knee", -10 },
+		-- verse 2
+		{ 80.0, "wide", 0, 6 }, { 82.0, "waist", 10 }, { 84.0, "knee", -10 }, { 85.0, "waist" }, { 86.0, "wide", 0, 6 },
+		{ 86.5, "knee", 10 }, { 87.5, "wide", 0, 8 }, { 90.5, "waist", -10 }, { 91.0, "bust" }, { 91.5, "waist" },
+		{ 92.0, "wide", 0, 6 }, { 93.5, "knee", 10 }, { 94.0, "waist" }, { 95.0, "knee", -10 }, { 95.5, "wide", 0, 6 },
+		{ 98.0, "waist", 10 }, { 99.5, "wide", 0, 8 }, { 101.0, "waist", -10 }, { 101.5, "xwide", 0, 45 }, { 102.0, "wide", 0, 20 },
+		{ 103.5, "xwide", 0, 10 }, { 104.5, "wide", 0, 6 }, { 105.5, "waist", 10 }, { 107.5, "wide", 0, 8 },
+		{ 108.5, "waist", -10 }, { 109.5, "wide", 0, 6 }, { 112.0, "knee", 10 }, { 112.5, "waist" },
+		{ 113.0, "xwide", 0, 10 }, { 114.0, "wide", 0, 6 }, { 115.5, "waist", -10 }, { 117.5, "wide", 0, 6 },
+		{ 118.5, "waist", 10 }, { 119.5, "wide", 0, 8 },
+		-- the quiet break: a close-up of the singer
+		{ 121.0, "bust" }, { 122.5, "wide", 0, 6 }, { 124.0, "full", 10 }, { 125.0, "waist" }, { 126.0, "wide", 0, 6 },
+		{ 127.0, "xwide", 0, 10 }, { 129.5, "xwide", 0, 50 }, { 131.5, "waist", 10 }, { 133.5, "wide", 0, 6 },
+		{ 135.5, "bust", -10 }, { 137.0, "waist" }, { 137.5, "wide", 0, 6 }, { 139.5, "waist", 10 }, { 141.5, "wide", 0, 6 },
+		{ 142.5, "waist", -10 },
+		-- last chorus
+		{ 143.0, "xwide", 0, 10 }, { 144.5, "wide", 0, 6 }, { 146.0, "waist", 10 }, { 147.0, "wide", 0, 6 },
+		{ 149.5, "waist", -10 }, { 151.0, "xwide", 0, 10 }, { 153.0, "wide", 0, 6 }, { 155.0, "bust", 10 }, { 155.5, "waist" },
+		{ 156.0, "wide", 0, 6 }, { 157.0, "waist", -10 }, { 157.5, "bust" }, { 158.0, "waist", 10 }, { 159.5, "wide", 0, 6 },
+		{ 162.0, "close", 10 },
+	}),
+}
+
 return ClubCamera
