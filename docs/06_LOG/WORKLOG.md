@@ -3383,3 +3383,5 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 
 ### 로딩 화면 로고 영문만 (D-893)
 - LoadingScreen.client.lua: 이미지 ohu_white 115835243531131, 높이 0.105, 비율 1477/490 (OHU 글자 크기 전과 같음).
+- Studio Play: 로딩 화면 왼쪽 위 OHU만 보임.
+  ![loading](images/2026-11-05/loading_logo_ohu_only.jpg)
