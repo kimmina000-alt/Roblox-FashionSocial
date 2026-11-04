@@ -2219,3 +2219,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자가 고른 것: 위에 OHU(베이글 팻 원, O H U 간격은 D-865 외곽선 간격의 반), 아래 작게 오후(주아, OHU의 0.36 크기)를 U 오른쪽 끝에 맞춤. 대표 색 = 노을 그라데이션 #FFB36B → #FF6F91 → #7A5CFF (O 주황 → H 핑크 → U 보라).
 - 두 가지(투명 PNG): docs/04_ART/logo/ohu_main_white.png = 외곽선 없는 흰 글자(기본), ohu_main_outline.png = 흰 글자 + 그라데이션 외곽선, 오후는 그라데이션 색. 만드는 스크립트 tools/art/brand_logo.py, 폰트 docs/04_ART/fonts/Jua-Regular.ttf (OFL).
 - 썸네일 제목(G3, 빛 있는 것) = brand/S3R_G3.png. 게임 안·썸네일 적용은 다음 단계.
+
+## D-868 게임 안 로고 = 대표 로고 (2026-11-04)
+- 사용자: "게임 안 로고만 적용해" (썸네일은 그대로, D-864/D-865 글씨).
+- 로딩 화면: ohu_main_white.png(OHU 위, 오후 아래 오른쪽) 127760136983798, 화면 높이 0.17. 사진 띠 아래·오후네컷 사진기 띠: ohu_white.png(OHU만, 대표 로고와 같은 글자 간격) 123273373911553. tools/art/brand_logo.py가 ohu_main_white/outline/glow/ohu_white를 만듦(glow의 오후에는 흰 테두리).
+- Studio에 반영(스크립트 2개 + 사진기 띠 3곳). Play 화면 확인은 못 함.

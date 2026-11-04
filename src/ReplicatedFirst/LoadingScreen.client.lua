@@ -184,15 +184,15 @@ end
 local textLayer = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 20 }, root)
 new("UIPadding", { PaddingLeft = UDim.new(0.05, 0), PaddingRight = UDim.new(0.05, 0), PaddingBottom = UDim.new(0.07, 0), PaddingTop = UDim.new(0.05, 0) }, textLayer)
 -- (D-864) the game name in the title font, Bagel Fat One (D-866: the plain white one, no effects,
--- docs/04_ART/logo/ohu_flat_white_ko.png;
+-- D-867: the main logo, OHU over 오후, docs/04_ART/logo/ohu_main_white.png;
 -- Roblox has no such font, so it is an image), left-aligned by its aspect ratio
 local logo = new("ImageLabel", {
 	-- (the aspect constraint fits it inside this box, from the top-left corner)
 	-- (y 40: below Roblox's own buttons at the top, which sit over this screen)
-	Position = UDim2.fromOffset(0, 44), Size = UDim2.new(1, 0, 0.1, 0), BackgroundTransparency = 1,
-	Image = "rbxassetid://110827249306569", ScaleType = Enum.ScaleType.Fit, ZIndex = 21,
+	Position = UDim2.fromOffset(0, 44), Size = UDim2.new(1, 0, 0.17, 0), BackgroundTransparency = 1,
+	Image = "rbxassetid://127760136983798", ScaleType = Enum.ScaleType.Fit, ZIndex = 21,
 }, textLayer)
-new("UIAspectRatioConstraint", { AspectRatio = 1283 / 270, DominantAxis = Enum.DominantAxis.Height }, logo)
+new("UIAspectRatioConstraint", { AspectRatio = 1476 / 791, DominantAxis = Enum.DominantAxis.Height }, logo)
 task.spawn(pcall, function() game:GetService("ContentProvider"):PreloadAsync({ logo }) end)
 local info = new("Frame", { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -36), Size = UDim2.new(0.75, 0, 0.36, 0), BackgroundTransparency = 1, ZIndex = 21 }, textLayer)
 local sub = new("TextLabel", { Size = UDim2.new(1, 0, 0.16, 0), BackgroundTransparency = 1, TextScaled = true, Font = Enum.Font.GothamBold, TextColor3 = Color3.fromRGB(255, 220, 240), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 22 }, info)

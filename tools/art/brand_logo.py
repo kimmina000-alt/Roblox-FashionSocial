@@ -80,6 +80,11 @@ def stacked(ko_font, ko_size, align="center", glow=False, ko_gap_ratio=0.06, whi
     fl = Image.new("RGBA", canvas, (255, 255, 255, 0))
     fl.putalpha(fill_m)
     out = Image.alpha_composite(out, fl)
+    if glow:
+        # (on busy thumbnails the gradient 오후 sank into its own glow: a white rim)
+        rim = Image.new("RGBA", canvas, (255, 255, 255, 0))
+        rim.putalpha(ko_m.filter(ImageFilter.MaxFilter(2 * int(KS * 0.05) + 1)))
+        out = Image.alpha_composite(out, rim)
     kl = Image.new("RGBA", canvas, (255, 255, 255, 0)) if white else grad.copy()
     kl.putalpha(ko_m)
     out = Image.alpha_composite(out, kl)
@@ -87,30 +92,34 @@ def stacked(ko_font, ko_size, align="center", glow=False, ko_gap_ratio=0.06, whi
 
 
 KS = int(S * 0.36)
-fonts = {
-    "J": ("주아", load(os.path.join(FD, "Jua-Regular.ttf"), KS)),
-}
-rows = [
-    ("S3R  주아 · 오른쪽 U에 맞춤", stacked(fonts["J"][1], KS, "right"), stacked(fonts["J"][1], KS, "right", glow=True)),
-]
-label = ImageFont.truetype(r"C:\Windows\Fonts\malgunbd.ttf", 30)
-cw, ch = 820, 520
-sheet = Image.new("RGB", (cw * 2, ch * len(rows)), (255, 255, 255))
-d = ImageDraw.Draw(sheet)
-for r, (name, a, b) in enumerate(rows):
-    for c, (im0, bg, tag) in enumerate([(a, (255, 255, 255), "G1"), (b, NAVY, "G3")]):
-        x0, y0 = c * cw, r * ch
-        d.rectangle((x0, y0, x0 + cw, y0 + ch), fill=bg)
-        s = min((cw - 160) / im0.width, (ch - 120) / im0.height)
-        im = im0.resize((int(im0.width * s), int(im0.height * s)), Image.LANCZOS)
-        sheet.paste(im, (x0 + (cw - im.width) // 2, y0 + 60 + (ch - 80 - im.height) // 2), im)
-        d.text((x0 + 22, y0 + 14), name + "  ·  " + tag, font=label, fill=(40, 40, 50) if c == 0 else (235, 235, 245))
-    a.save(os.path.join(OUT, name.split()[0] + "_G1.png"))
-    b.save(os.path.join(OUT, name.split()[0] + "_G3.png"))
-sheet.save(r"D:\Roblox\Roblox-FashionSocial\docs\04_ART\logo\brand_stacked_s3r.jpg", quality=92)
-print(sheet.size)
+JUA = load(os.path.join(FD, "Jua-Regular.ttf"), KS)
+FINAL = r"D:\Roblox\Roblox-FashionSocial\docs\04_ART\logo"
 
-final = r"D:\Roblox\Roblox-FashionSocial\docs\04_ART\logo"
-stacked(fonts["J"][1], KS, "right", white=True).save(os.path.join(final, "ohu_main_white.png"))
-stacked(fonts["J"][1], KS, "right").save(os.path.join(final, "ohu_main_outline.png"))
-print("finals")
+
+def main_logo(style="white"):
+    """The main logo (D-867): "white" (no outline, the default), "outline"
+    (white letters, gradient outline) or "glow" (outline + 3D drop + glow, for
+    thumbnails)."""
+    if style == "white":
+        return stacked(JUA, KS, "right", white=True)
+    return stacked(JUA, KS, "right", glow=(style == "glow"))
+
+
+def ohu_only_white():
+    """Just OHU in plain white, with the main logo's letter spacing (photo
+    strip footers, the photo booth bands)."""
+    canvas = (int(S * 6), int(S * 2))
+    bagel = load(BAGEL, S)
+    gap = S * (0.12 + 2 * (0.015 + 0.07)) / 2
+    m = text_mask("OHU", bagel, int(S * 0.015), gap, canvas, (S * 0.5, S * 0.3))
+    img = Image.new("RGBA", canvas, (255, 255, 255, 0))
+    img.putalpha(m)
+    return img.crop(img.getbbox())
+
+
+if __name__ == "__main__":
+    main_logo("white").save(os.path.join(FINAL, "ohu_main_white.png"))
+    main_logo("outline").save(os.path.join(FINAL, "ohu_main_outline.png"))
+    main_logo("glow").save(os.path.join(FINAL, "ohu_main_glow.png"))
+    ohu_only_white().save(os.path.join(FINAL, "ohu_white.png"))
+    print("wrote main logos")

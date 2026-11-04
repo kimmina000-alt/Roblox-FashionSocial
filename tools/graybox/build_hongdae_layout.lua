@@ -7266,7 +7266,7 @@ do
 		kbox("MachineHood", lensY + 1.3, lensY + 2.4, 4.6, Color3.fromRGB(230, 230, 232))
 		local band = kbox("MachineBand", lensY + 2.4, lensY + 3, 4.8, RED, D + 0.1)
 		-- (D-864) the game name in the title font: an image of Bagel Fat One letters
-		-- (docs/04_ART/logo/ohu_flat_white.png), tinted the old text colour
+		-- (docs/04_ART/logo/ohu_white.png), tinted the old text colour
 		do
 			local l = txt(band, Enum.NormalId.Front, "", Color3.new(1, 1, 1), nil, nil, 50)
 			local g = l.Parent :: SurfaceGui
@@ -7278,7 +7278,7 @@ do
 			im.Size = UDim2.fromScale(0.9, 0.8)
 			im.BackgroundTransparency = 1
 			im.ScaleType = Enum.ScaleType.Fit
-			im.Image = "rbxassetid://130117721200299"
+			im.Image = "rbxassetid://123273373911553"
 			im.ImageColor3 = Color3.fromRGB(255, 225, 200)
 			im.Parent = g
 		end

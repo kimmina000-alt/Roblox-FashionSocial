@@ -471,11 +471,11 @@ function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: st
 	row.ZIndex = 2
 	row.Parent = strip
 	-- (D-864) the game name in the title font: a white image tinted with the
-	-- frame's text colour (docs/04_ART/logo/ohu_flat_white.png); other words stay text
+	-- frame's text colour (docs/04_ART/logo/ohu_white.png); other words stay text
 	local label: GuiObject
 	if text == "OHU" then
 		local image = Instance.new("ImageLabel")
-		image.Image = "rbxassetid://130117721200299"
+		image.Image = "rbxassetid://123273373911553"
 		image.ScaleType = Enum.ScaleType.Fit
 		image.ImageColor3 = frameInfo.text
 		label = image
