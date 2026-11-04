@@ -427,22 +427,21 @@ ClubConfig.Playlist = {
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
 	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 97511700575810, length = 74, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, choreo = {
 		-- (D-809, user: 22 pieces, blends from tools/choreo/choreo_check.lua)
-		-- (D-868, user: the stage fancam n9HYtcN6W4w "네온 안무 수정") the pieces
-		-- were cut from that video on its own clock, which starts about 3.4 s
-		-- before the song: chained from 0:00 they danced 3.4 s late (the song
-		-- ends at 218.2 s, the video's music at 221.7 s; the dance accents fit
-		-- the song's onsets best 3.3-3.9 s later). Each piece now starts at its
-		-- moment in the video (limb angles matched to the dancers, 0.07-0.6 s of
-		-- drift from captures shorter than their clips) less 3.4 s; 1 skips its
-		-- first 3.33 s (standing before the music)
-		{ id = 118329772913374, from = 3.33 }, { id = 95449015545787, at = 13.17, blend = 0.64 }, { id = 84806571273074, at = 19.8, blend = 0.92 },
-		{ id = 99868719395147, at = 34.04, blend = 0.5 }, { id = 93933273398995, at = 40.73, blend = 0.96 }, { id = 128256391320572, at = 53.3 },
-		{ id = 114466589507598, at = 70.23, blend = 0.79 }, { id = 84027575690735, at = 79.2, blend = 0.85 }, { id = 100410498984971, at = 85.6, blend = 0.76 },
-		{ id = 124518142645731, at = 91.3, blend = 0.59 }, { id = 126736648781925, at = 103.47, blend = 0.42 }, { id = 76437753036430, at = 107.93, blend = 0.56 },
-		{ id = 136355327951443, at = 110.23, blend = 0.67 }, { id = 117451819045051, at = 117.5, blend = 0.47 }, { id = 111932052760637, at = 123.77, blend = 0.74 },
-		{ id = 133401623277764, at = 132.3, blend = 0.7 }, { id = 96973609514230, at = 146.84, blend = 0.55 }, { id = 106546379406531, at = 162.86, blend = 1 },
-		{ id = 73851407273132, at = 170.16, blend = 1 }, { id = 71570705300325, at = 178.77, blend = 1 }, { id = 121393866689759, at = 200.47, blend = 0.54 },
-		{ id = 114419952125075, at = 208.07 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
+		-- (D-868 → D-869, user: "서 있는 앞 3.3초 이거 안무임 다시 추가해서 수정해")
+		-- the pieces were cut from the stage fancam n9HYtcN6W4w on its own clock
+		-- from 0:00; the song/video offset could not be pinned down from the
+		-- live audio (one bar, 1.85 s, apart candidates), so the user's own
+		-- start (video 0 = song 0, piece 1 whole) stays and each piece only
+		-- takes up the drift of captures shorter than their clips (0-0.53 s,
+		-- found by matching limb angles to the dancers)
+		118329772913374, { id = 95449015545787, at = 16.5, blend = 0.64 }, { id = 84806571273074, at = 23.13, blend = 0.92 },
+		{ id = 99868719395147, at = 37.37, blend = 0.5 }, { id = 93933273398995, at = 44.06, blend = 0.96 }, { id = 128256391320572, at = 56.63 },
+		{ id = 114466589507598, at = 73.56, blend = 0.79 }, { id = 84027575690735, at = 82.53, blend = 0.85 }, { id = 100410498984971, at = 88.93, blend = 0.76 },
+		{ id = 124518142645731, at = 94.63, blend = 0.59 }, { id = 126736648781925, at = 106.8, blend = 0.42 }, { id = 76437753036430, at = 111.26, blend = 0.56 },
+		{ id = 136355327951443, at = 113.56, blend = 0.67 }, { id = 117451819045051, at = 120.83, blend = 0.47 }, { id = 111932052760637, at = 127.1, blend = 0.74 },
+		{ id = 133401623277764, at = 135.63, blend = 0.7 }, { id = 96973609514230, at = 150.17, blend = 0.55 }, { id = 106546379406531, at = 166.19, blend = 1 },
+		{ id = 73851407273132, at = 173.49, blend = 1 }, { id = 71570705300325, at = 182.1, blend = 1 }, { id = 121393866689759, at = 203.8, blend = 0.54 },
+		{ id = 114419952125075, at = 211.4 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -1.5, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" } },
