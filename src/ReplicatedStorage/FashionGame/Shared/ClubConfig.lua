@@ -433,15 +433,16 @@ ClubConfig.Playlist = {
 		-- live audio (one bar, 1.85 s, apart candidates), so the user's own
 		-- start (video 0 = song 0, piece 1 whole) stays and each piece only
 		-- takes up the drift of captures shorter than their clips (0-0.53 s,
-		-- found by matching limb angles to the dancers)
-		118329772913374, { id = 95449015545787, at = 16.5, blend = 0.64 }, { id = 84806571273074, at = 23.13, blend = 0.92 },
-		{ id = 99868719395147, at = 37.37, blend = 0.5 }, { id = 93933273398995, at = 44.06, blend = 0.96 }, { id = 128256391320572, at = 56.63 },
-		{ id = 114466589507598, at = 73.56, blend = 0.79 }, { id = 84027575690735, at = 82.53, blend = 0.85 }, { id = 100410498984971, at = 88.93, blend = 0.76 },
-		{ id = 124518142645731, at = 94.63, blend = 0.59 }, { id = 126736648781925, at = 106.8, blend = 0.42 }, { id = 76437753036430, at = 111.26, blend = 0.56 },
-		{ id = 136355327951443, at = 113.56, blend = 0.67 }, { id = 117451819045051, at = 120.83, blend = 0.47 }, { id = 111932052760637, at = 127.1, blend = 0.74 },
-		{ id = 133401623277764, at = 135.63, blend = 0.7 }, { id = 96973609514230, at = 150.17, blend = 0.55 }, { id = 106546379406531, at = 166.19, blend = 1 },
-		{ id = 73851407273132, at = 173.49, blend = 1 }, { id = 71570705300325, at = 182.1, blend = 1 }, { id = 121393866689759, at = 203.8, blend = 0.54 },
-		{ id = 114419952125075, at = 211.4 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
+		-- found by matching limb angles to the dancers); (D-870, user: "3.3 아니었나
+		-- 봐 앞에 2초 앞당기기") all 2 s earlier, 1 from its 2 s mark
+		{ id = 118329772913374, from = 2 }, { id = 95449015545787, at = 14.5, blend = 0.64 }, { id = 84806571273074, at = 21.13, blend = 0.92 },
+		{ id = 99868719395147, at = 35.37, blend = 0.5 }, { id = 93933273398995, at = 42.06, blend = 0.96 }, { id = 128256391320572, at = 54.63 },
+		{ id = 114466589507598, at = 71.56, blend = 0.79 }, { id = 84027575690735, at = 80.53, blend = 0.85 }, { id = 100410498984971, at = 86.93, blend = 0.76 },
+		{ id = 124518142645731, at = 92.63, blend = 0.59 }, { id = 126736648781925, at = 104.8, blend = 0.42 }, { id = 76437753036430, at = 109.26, blend = 0.56 },
+		{ id = 136355327951443, at = 111.56, blend = 0.67 }, { id = 117451819045051, at = 118.83, blend = 0.47 }, { id = 111932052760637, at = 125.1, blend = 0.74 },
+		{ id = 133401623277764, at = 133.63, blend = 0.7 }, { id = 96973609514230, at = 148.17, blend = 0.55 }, { id = 106546379406531, at = 164.19, blend = 1 },
+		{ id = 73851407273132, at = 171.49, blend = 1 }, { id = 71570705300325, at = 180.1, blend = 1 }, { id = 121393866689759, at = 201.8, blend = 0.54 },
+		{ id = 114419952125075, at = 209.4 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -1.5, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" } },
