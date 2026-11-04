@@ -496,13 +496,23 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, choreo = {
 		-- (D-807, user: "이음새도 맞춰") blend = seconds to ease from the last pose
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
-		119819611123433, { id = 97097804325917, blend = 0.7 }, { id = 119200924904137, blend = 0.45 }, 77403973851668,
-		{ id = 73939357849033, blend = 0.45 }, { id = 137390866303201, blend = 0.7 }, { id = 121969021575883, blend = 0.45 },
-		{ id = 92148657532352, blend = 0.8 }, { id = 96742563282745, stop = 69.93, blend = 0.4 },
-		{ id = 96742563282745, at = 69.93, from = 5.17, blend = 0.9 }, { id = 88430566939812, blend = 0.9 },
-		{ id = 108795638313983, blend = 0.7 }, { id = 95813030011960, blend = 0.45 }, { id = 135272998171625, blend = 0.4 },
-		129447992418977, { id = 82252722293006, blend = 0.55 }, 108611133102309, 117244778152210, 113505968174557, 112498417388469,
-		{ id = 80874196383963, blend = 0.45 } }, autoChoreo = true }, -- (D-810, user: 2 s of 9 cut at 1:10, the rest moved up 2 s)
+		-- (D-878, user: "겟어기타 안무 수정", practice video u_u21u8zIIs, mirrored
+		-- to match the pieces) every piece at its start in the video - 0.08 s
+		-- (the song runs 0.05-0.10 s ahead of the video, the same all through,
+		-- tools/choreo/sync); run back to back they had come 0.3-1 s early, and
+		-- 5's last 2.4 s repeat the start of 6, so 6-9 had come 2 s late (what
+		-- the user's 1:10 cut, D-810, made up for by ear: that cut stays). 5
+		-- stops where 6 starts; the 1.2 s the captures miss between 7 and 8 and
+		-- the 0.9 s before 9's second part are danced slower, not stood still
+		{ id = 119819611123433, at = 0.42 }, { id = 97097804325917, at = 10.19, blend = 0.7 }, { id = 119200924904137, at = 19.95, blend = 0.45 },
+		{ id = 77403973851668, at = 27.49 }, { id = 73939357849033, at = 34.59, stop = 47.92, blend = 0.45 }, { id = 137390866303201, at = 47.92, blend = 0.7 },
+		{ id = 121969021575883, at = 53.65, blend = 0.45, slowOut = { 1.5, 0.6 } }, { id = 92148657532352, at = 64.75, blend = 0.8, slowIn = { 1, 0.6 } },
+		{ id = 96742563282745, at = 66.19, stop = 69.29, blend = 0.4 },
+		{ id = 96742563282745, at = 70.18, from = 5.17, blend = 0.9, slowIn = { 1, 0.89 } }, { id = 88430566939812, at = 71.28, blend = 0.9 },
+		{ id = 108795638313983, at = 80.78, blend = 0.7 }, { id = 95813030011960, at = 89.11, blend = 0.45 }, { id = 135272998171625, at = 93.08, blend = 0.4 },
+		{ id = 129447992418977, at = 97.15 }, { id = 82252722293006, at = 116.21, blend = 0.55 }, { id = 108611133102309, at = 123.78 },
+		{ id = 117244778152210, at = 130.88 }, { id = 113505968174557, at = 141.55 }, { id = 112498417388469, at = 149.48 },
+		{ id = 80874196383963, at = 156.61, blend = 0.45 } }, autoChoreo = true }, -- (D-810, user: 2 s of 9 cut at 1:10)
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" } },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 3, octave = 0.5, low = -13, mid = 2.5, high = 4, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },

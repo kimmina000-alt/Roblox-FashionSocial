@@ -73,6 +73,7 @@ end
 -- (D-876) the club music this player hears (DanceController's ClubMusic) and
 -- how far it runs behind the server's clock, in song seconds
 local audioLag = 0
+local audioLagFor: string? = nil -- (the song and start it was measured for)
 local function musicSound(): Sound?
 	local dance = script.Parent:FindFirstChild("DanceController")
 	local sound = dance and dance:FindFirstChild("ClubMusic")
@@ -663,10 +664,13 @@ RunService.PreAnimation:Connect(function()
 	-- so the dance follows the heard music (smoothed: TimePosition moves in
 	-- steps), snapping only after a seek
 	local music = musicSound()
-	if not paused and music and music.IsPlaying and music.SoundId == "rbxassetid://" .. tostring(track.soundId) then
+	if not paused and music and music.IsPlaying and music.TimePosition > 0.05 and music.SoundId == "rbxassetid://" .. tostring(track.soundId) then
 		local heard = music.TimePosition * ClubConfig.fileSpeed(track) - songTime
 		if math.abs(heard) < 3 then
-			if math.abs(heard - audioLag) > 0.5 then audioLag = heard else audioLag += (heard - audioLag) * 0.05 end
+			-- (D-878) a new song or seek starts from its first reading, not from 0
+			local key = tostring(track.soundId) .. ":" .. tostring(start)
+			if audioLagFor ~= key or math.abs(heard - audioLag) > 0.5 then audioLag = heard else audioLag += (heard - audioLag) * 0.05 end
+			audioLagFor = key
 		end
 		songTime += audioLag
 	end
