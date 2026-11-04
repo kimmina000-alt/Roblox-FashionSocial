@@ -195,7 +195,9 @@ M.Playlist = {
 	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 90694654380166, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	-- (D-782, user 2026-11-03: new uploads "여섯시…분1102", the same way as D-779; 여섯시이분 TAEYEON-만찬가 103785084548518 does not load yet;
 	-- D-794: IU-이 별로부터 96396723842714 removed, user)
-	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 125703446596781, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = {
+	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 130916906404688, length = 163, 
+		joined = {  parts = { 130916906404688, 85038963263138, 130407813233363, 123026326509483, 126050230993754, 74528960992238}, segLen = 30, tail = 4, total = 163, lead = 0  },
+		lab = { speed = 1, tempo = 1, volume = 10, boost = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = {
 		-- (D-879, user: 24 pieces from the practice video u_vusNeo6xI, mirrored,
 		-- clips 1-24 of D:\Roblox\영상\CORTIS_REDRED_centercut) each starts where its
 		-- clip starts in the video, less 0.40 s: the video runs 0.40 s behind the
@@ -218,6 +220,7 @@ M.Playlist = {
 		joined = {  parts = { 81568082292649, 130739295576800, 136055998058951, 101406045735531, 115474783735573, 101362036297281, 107766734212525, 139626977220244}, segLen = 30, tail = 4, total = 225.05, lead = 0.09  },
 		lab = { speed = 1, tempo = 1, volume = 10, boost = 1, octave = 1, low = 0, mid = 0, high = 0 } },
 
+	
 
 } :: {Track}
 
