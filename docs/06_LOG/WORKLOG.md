@@ -3369,3 +3369,10 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ![](images/2026-11-04/d886_club_tree.jpg)
 - Play: EdmConfig 새 id 3개, 문 오른쪽 화단에 나무.
 - 2인 테스트(서버 + Player1/Player2, 589×794 창, 터치 아님): 두 화면 모두 문 옆 나무 있음. Player1(DJ)이 EDM 1→2→3: 서버 ClubEdm track 1/2/3, Player1 새 음원 재생, Player2도 같은 EDM 3(137443947685209)을 같은 시점(2.6 s)에 들음. 오류 없음(서버에 Bubble Pop 음원 한 번 HTTP 502, Roblox 쪽 일시 오류, 이번 변경과 무관). 머지.
+
+### 2026-11-04 모바일 2인 테스트 (REDRED D-879..D-884 + catalog의 D-885/D-886) — 통과, catalog-ui-redesign에 머지
+- 서버 + Player1·Player2, 둘 다 휴대폰 화면(801×413, 터치). 처음 켜져 있던 2인 테스트는 PC 창이라 사용자가 휴대폰 화면으로 다시 켬(PC 창에서도 같은 결과).
+- REDRED 11번 조각: Player1 노래 65.23초, Player2 65.25초 시작(at 65.27), 들리는 노래 기준. Player2 화면에 Player1 안무 트랙 재생 중.
+- 1:13 떨림(Player2, 초당 60번 기록): 1:12.0 0.59°, 1:12.5 0.75°, 1:14.0 0.90°, 1:14.5 1.26°(고치기 전 1.28 / 0.72 / 4.42 / 3.82°).
+- 콘솔: 게임 코드 오류 없음. Player2에 Roblox 콘텐츠(rbxassethash) 불러오기 실패 17줄(RuntimePropertySet 없음 / 권한 없음)과 서버에 Bubble Pop 음원 HTTP 502 한 번(PC 창 테스트) — 코드 오류 아님.
+- 머지 전 catalog-ui-redesign(D-885 EDM 음원, D-886 클럽 문 앞 나무)을 이 브랜치에 합침(4436eef, 작업 기록 세 문서만 충돌 → 양쪽 다 남김).
