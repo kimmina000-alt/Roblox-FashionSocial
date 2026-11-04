@@ -1209,7 +1209,9 @@ local function syncMusic()
 		local at = FashionGame:GetAttribute("ClubMusicPausedAt")
 		music:Pause()
 		if typeof(at) == "number" then music.TimePosition = math.clamp(at, 0, math.max(music.TimeLength - 0.5, 0)) end
-		banner.Text = "⏸ " .. (if track.choreo then ClubConfig.escapeRich(track.title) else ClubConfig.showTitle(track, banner.TextSize)) -- (D-776: the title only)
+		-- (D-776: the title only; D-872: no ⏸ before it any more, the ▶ in front of
+		-- the play bar shows the pause, and the ⏸ sat under the choreography note)
+		banner.Text = if track.choreo then ClubConfig.escapeRich(track.title) else ClubConfig.showTitle(track, banner.TextSize)
 		return
 	end
 	music.TimePosition = math.clamp((workspace:GetServerTimeNow() - start) * speed, 0, math.max(music.TimeLength - 0.5, 0))

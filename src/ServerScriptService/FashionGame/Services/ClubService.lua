@@ -434,6 +434,12 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		publishRequests()
 		return true, string.format("신청 완료! %d번째로 나와요.", #requests)
 	end
+	-- (D-872, user: ⏸ / ▶ in front of the play bar) the same people as the play
+	-- bar's seek: the DJ, the game's owner, Studio tests
+	if action == "Pause" and not isDJ and ClubConfig.canSeek(player, false) then
+		setPaused(payload == true)
+		return true, if payload == true then "⏸ 일시정지" else "▶ 다시 재생"
+	end
 	if not isDJ then
 		-- (speed / pitch were open to anyone until 2026-10-30)
 		if action == "Play" or action == "Skip" or action == "Queue" or action == "Pause"

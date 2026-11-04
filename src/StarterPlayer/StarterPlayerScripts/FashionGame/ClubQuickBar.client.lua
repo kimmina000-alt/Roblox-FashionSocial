@@ -171,6 +171,53 @@ barKnob.BorderSizePixel = 0
 barKnob.Parent = barTrack
 Instance.new("UICorner", barKnob).CornerRadius = UDim.new(1, 0)
 
+-- ⏸ / ▶ in front of the play bar (D-872, user: "재생바 앞에 일시정지, 재생
+-- 버튼"): for the same people who can move the song (ClubService "Pause");
+-- drawn white like the ≡ and ›: two bars while it plays, a triangle while paused
+local pauseButton = Instance.new("TextButton")
+pauseButton.Name = "Pause"
+pauseButton.AnchorPoint = Vector2.new(1, 0.5)
+pauseButton.Position = UDim2.new(0, -2, 0.5, 0)
+pauseButton.Size = UDim2.fromOffset(20, 20)
+pauseButton.BackgroundTransparency = 1
+pauseButton.Text = ""
+pauseButton.Parent = playBar
+local pauseBars: {Frame} = {}
+for _, x in ipairs({ 0.36, 0.64 }) do
+	local bar = Instance.new("Frame")
+	bar.AnchorPoint = Vector2.new(0.5, 0.5)
+	bar.Position = UDim2.fromScale(x, 0.5)
+	bar.Size = UDim2.fromScale(0.16, 0.55)
+	bar.BackgroundColor3 = Color3.new(1, 1, 1)
+	bar.BorderSizePixel = 0
+	bar.Parent = pauseButton
+	Instance.new("UICorner", bar).CornerRadius = UDim.new(0.3, 0)
+	table.insert(pauseBars, bar)
+end
+local playMark = Instance.new("TextLabel")
+playMark.Size = UDim2.fromScale(1, 1)
+playMark.Position = UDim2.fromOffset(1, 0)
+playMark.BackgroundTransparency = 1
+playMark.Font = Enum.Font.Arimo
+playMark.Text = "►"
+playMark.TextSize = 16
+playMark.TextColor3 = Color3.new(1, 1, 1)
+playMark.Parent = pauseButton
+local function paintPause()
+	local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
+	for _, bar in ipairs(pauseBars) do bar.Visible = not paused end
+	playMark.Visible = paused
+end
+FashionGame:GetAttributeChangedSignal("ClubMusicPaused"):Connect(paintPause)
+paintPause()
+pauseButton.Activated:Connect(function()
+	local want = FashionGame:GetAttribute("ClubMusicPaused") ~= true
+	task.spawn(function()
+		local ok, message = musicRemote:InvokeServer("Pause", want)
+		if not ok and typeof(message) == "string" then showToast(message) end
+	end)
+end)
+
 local function clock(seconds: number): string
 	seconds = math.max(0, math.floor(seconds))
 	return string.format("%d:%02d", seconds // 60, seconds % 60)
@@ -309,6 +356,7 @@ RunService.RenderStepped:Connect(function()
 		barFill.Size = UDim2.fromScale(fraction, 1)
 		barKnob.Position = UDim2.fromScale(fraction, 0.5)
 		barKnob.Visible = canSeek()
+		pauseButton.Visible = barKnob.Visible -- (D-872)
 		timeNow.Text = clock(if dragging then dragging * total else heard)
 		timeAll.Text = clock(total)
 	end
