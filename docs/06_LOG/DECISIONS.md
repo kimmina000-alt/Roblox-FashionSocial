@@ -2281,3 +2281,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 도구: `tools/choreo/sync/record_loudness.lua`(Play Client, 원곡 초로 소리 크기 기록), `tools/choreo/sync/align_song_video.py`(20초 구간별 차이 + 직선 맞춤, 흐르면 `!!`), `tools/choreo/choreo_timing_check.lua`(Studio Edit: NO_AT / GAP / OVERLAP / PAST / CLOCK).
 - 점검 결과: Get A Guitar 19곳 NO_AT(뒤로 갈수록 일찍 나올 수 있음, 영상으로 `at` 필요), Bubble Pop 10곳(자동 안무 꺼짐), BAD 마지막 조각이 노래보다 7.6초 김(정보). NEON · IVE 문제 없음.
 - 규칙: CHOREOGRAPHY.md §12(원인 표, 작업 순서 6단계), §9.1의 1·7·9번을 새 방식으로 고침.
+
+## D-877 순위표를 놀이공원 계단 옆 벽으로 (2026-11-04)
+- 사용자: "순위표 놀이공원 올라가는 계단 옆 벽으로 위치 이동" (계단 양옆 벽 빨간 박스). build_hongdae_layout RankingBoards: 놀이공원 받침(ParkPlatform) 남쪽 벽 z -216 앞(0.25), 레벨 x -133.5(계단 서쪽 벽), 기부 x -63(동쪽 벽), 높이 3.4..14.4 그대로, 광장 쪽(+Z, Face Back) 한 면만. park_raise 구역(z < -224) 밖이라 안 움직임.
+- 안내원 NPC는 예전 순위표 자리 앞 그대로(GuideConfig.Npc).

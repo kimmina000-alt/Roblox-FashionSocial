@@ -4530,24 +4530,29 @@ do -- three ranking boards in the pocket park in front of the park gate (user
 	-- at 0.6, so 6.2 → 3.4 and the top 17.2 → 14.4
 	local HALF, Y0, Y1 = 12, 3.4, 14.4
 	local E = 0.035 -- half the neon edge's thickness
-	for _, spec in ipairs({ { "level", -83.5 }, { "support", -57.5 } }) do
-		local z = spec[2]
-		local pane = box("BoardPane", X - 0.06, Y0, z - HALF, X + 0.06, Y1, z + HALF, Color3.fromRGB(20, 10, 24), { parent = B, material = Enum.Material.Glass })
+	-- (D-877, user 2026-11-04: "순위표 놀이공원 올라가는 계단 옆 벽으로") on the
+	-- raised park's front wall (park_raise: ParkPlatform's south face, z -216,
+	-- y 0..16) either side of the stair (x -114.5..-79.5), facing the plaza (+Z):
+	-- 레벨 on the west part (x -152.5..-114.5), 기부 on the east (-79.5..-46.5);
+	-- one face each now (the wall is behind them). Not in park_raise's plot
+	-- (z > -224), so it does not move them.
+	local WALL_Z = -216
+	for _, spec in ipairs({ { "level", -133.5 }, { "support", -63 } }) do
+		local x = spec[2]
+		local z = WALL_Z + 0.25 -- (a little off the stone)
+		local pane = box("BoardPane", x - HALF, Y0, z - 0.06, x + HALF, Y1, z + 0.06, Color3.fromRGB(20, 10, 24), { parent = B, material = Enum.Material.Glass })
 		pane.Transparency = 0.7
 		pane.CastShadow = false
 		-- the neon edge round the pane
-		for _, e in ipairs({ { Y1 - E, Y1 + E, z - HALF, z + HALF }, { Y0 - E, Y0 + E, z - HALF, z + HALF },
-			{ Y0, Y1, z - HALF - E, z - HALF + E }, { Y0, Y1, z + HALF - E, z + HALF + E } }) do
-			local n = box("BoardNeon", X - 0.08, e[1], e[3], X + 0.08, e[2], e[4], NEON, { parent = B, material = Enum.Material.Neon })
+		for _, e in ipairs({ { x - HALF, x + HALF, Y1 - E, Y1 + E }, { x - HALF, x + HALF, Y0 - E, Y0 + E },
+			{ x - HALF - E, x - HALF + E, Y0, Y1 }, { x + HALF - E, x + HALF + E, Y0, Y1 } }) do
+			local n = box("BoardNeon", e[1], e[3], z - 0.08, e[2], e[4], z + 0.08, NEON, { parent = B, material = Enum.Material.Neon })
 			n.CastShadow = false
 		end
-		for _, side in ipairs({ { -1, "Left" }, { 1, "Right" } }) do
-			local x0 = X + side[1] * 0.09
-			local s = box("BoardScreen", math.min(x0, x0 + side[1] * 0.02), Y0 + 0.25, z - HALF + 0.15, math.max(x0, x0 + side[1] * 0.02), Y1 - 0.15, z + HALF - 0.15, Color3.new(0, 0, 0), { parent = B, material = Enum.Material.SmoothPlastic })
-			s.Transparency = 1
-			s.CastShadow = false
-			s:SetAttribute("Board", spec[1]) s:SetAttribute("Face", side[2]) CS:AddTag(s, "RankBoard")
-		end
+		local s = box("BoardScreen", x - HALF + 0.15, Y0 + 0.25, z + 0.09, x + HALF - 0.15, Y1 - 0.15, z + 0.11, Color3.new(0, 0, 0), { parent = B, material = Enum.Material.SmoothPlastic })
+		s.Transparency = 1
+		s.CastShadow = false
+		s:SetAttribute("Board", spec[1]) s:SetAttribute("Face", "Back") CS:AddTag(s, "RankBoard") -- (Back = +Z, toward the plaza)
 	end
 end
 
