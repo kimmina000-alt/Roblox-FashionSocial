@@ -462,27 +462,51 @@ function PhotoRender.newStrip(parent: GuiObject, layoutKey: string, frameKey: st
 			table.insert(cells, cell)
 		end
 	end
-	local label = Instance.new("TextLabel")
+	local text = footer or "OHU" -- (only OHU under the photos, user 2026-10-30)
+	local row = Instance.new("Frame")
+	row.Name = "FooterRow"
+	row.BackgroundTransparency = 1
+	row.Position = UDim2.fromScale(0, (totalH - 1.3) / totalH)
+	row.Size = UDim2.fromScale(1, 1.1 / totalH)
+	row.ZIndex = 2
+	row.Parent = strip
+	-- (D-864) the game name in the title font: a white image tinted with the
+	-- frame's text colour (docs/04_ART/logo/ohu_flat_white.png); other words stay text
+	local label: GuiObject
+	if text == "OHU" then
+		local image = Instance.new("ImageLabel")
+		image.Image = "rbxassetid://99009405125272"
+		image.ScaleType = Enum.ScaleType.Fit
+		image.ImageColor3 = frameInfo.text
+		label = image
+	else
+		local words = Instance.new("TextLabel")
+		words.Text = text
+		words.TextScaled = true
+		words.Font = Enum.Font.GothamBlack
+		words.TextColor3 = frameInfo.text
+		local sizeLimit = Instance.new("UITextSizeConstraint")
+		sizeLimit.MaxTextSize = 22
+		sizeLimit.Parent = words
+		label = words
+	end
 	label.Name = "Footer"
 	label.BackgroundTransparency = 1
-	label.Position = UDim2.fromScale(0, (totalH - 1.3) / totalH)
-	label.Size = UDim2.fromScale(1, 1.1 / totalH)
-	label.Text = footer or "OHU" -- (only OHU under the photos, user 2026-10-30)
-	label.TextScaled = true
-	label.Font = Enum.Font.GothamBlack
-	label.TextColor3 = frameInfo.text
+	label.AnchorPoint = Vector2.new(0.5, 0.5)
+	label.Position = UDim2.fromScale(0.5, 0.5)
+	label.Size = UDim2.fromScale(1, 1)
 	label.ZIndex = 2
-	label.Parent = strip
-	local sizeLimit = Instance.new("UITextSizeConstraint")
-	sizeLimit.MaxTextSize = 22
-	sizeLimit.Parent = label
+	local cap = Instance.new("UISizeConstraint")
+	cap.MaxSize = Vector2.new(math.huge, 20) -- (about the old 22 px words)
+	cap.Parent = label
+	label.Parent = row
 	strip.Parent = parent
 	applyStyle(strip, frameInfo)
 	local function setColor(key: string)
 		local info = PhotoConfig.findFrame(key)
 		if info then
 			strip.BackgroundColor3 = info.color
-			label.TextColor3 = info.text
+			if label:IsA("ImageLabel") then label.ImageColor3 = info.text else (label :: TextLabel).TextColor3 = info.text end
 			applyStyle(strip, info)
 		end
 	end

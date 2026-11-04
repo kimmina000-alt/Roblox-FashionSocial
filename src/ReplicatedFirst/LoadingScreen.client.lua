@@ -183,12 +183,16 @@ end
 -- text (above every scene)
 local textLayer = new("Frame", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, ZIndex = 20 }, root)
 new("UIPadding", { PaddingLeft = UDim.new(0.05, 0), PaddingRight = UDim.new(0.05, 0), PaddingBottom = UDim.new(0.07, 0), PaddingTop = UDim.new(0.05, 0) }, textLayer)
-local logo = new("TextLabel", {
-	Size = UDim2.new(0.4, 0, 0.09, 0), BackgroundTransparency = 1, Text = "OHU  오후",
-	TextColor3 = Color3.new(1, 1, 1), TextScaled = true, Font = Enum.Font.GothamBlack,
-	TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 21,
+-- (D-864) the game name in the title font, Bagel Fat One (docs/04_ART/logo/ohu_logo_ko.png;
+-- Roblox has no such font, so it is an image), left-aligned by its aspect ratio
+local logo = new("ImageLabel", {
+	-- (the aspect constraint fits it inside this box, from the top-left corner)
+	-- (y 40: below Roblox's own buttons at the top, which sit over this screen)
+	Position = UDim2.fromOffset(-10, 40), Size = UDim2.new(1, 0, 0.15, 0), BackgroundTransparency = 1,
+	Image = "rbxassetid://89459266377304", ScaleType = Enum.ScaleType.Fit, ZIndex = 21,
 }, textLayer)
-new("UIStroke", { Thickness = 1, Transparency = 0.6 }, logo)
+new("UIAspectRatioConstraint", { AspectRatio = 1254 / 459, DominantAxis = Enum.DominantAxis.Height }, logo)
+task.spawn(pcall, function() game:GetService("ContentProvider"):PreloadAsync({ logo }) end)
 local info = new("Frame", { AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -36), Size = UDim2.new(0.75, 0, 0.36, 0), BackgroundTransparency = 1, ZIndex = 21 }, textLayer)
 local sub = new("TextLabel", { Size = UDim2.new(1, 0, 0.16, 0), BackgroundTransparency = 1, TextScaled = true, Font = Enum.Font.GothamBold, TextColor3 = Color3.fromRGB(255, 220, 240), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 22 }, info)
 local title = new("TextLabel", { Position = UDim2.fromScale(0, 0.17), Size = UDim2.new(1, 0, 0.36, 0), BackgroundTransparency = 1, TextScaled = true, Font = Enum.Font.GothamBlack, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left, ZIndex = 22 }, info)

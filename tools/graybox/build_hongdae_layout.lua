@@ -7265,7 +7265,23 @@ do
 		kbox("MachineBody", baseTop + 0.25, lensY + 1.3, 4.6, KWHITE)
 		kbox("MachineHood", lensY + 1.3, lensY + 2.4, 4.6, Color3.fromRGB(230, 230, 232))
 		local band = kbox("MachineBand", lensY + 2.4, lensY + 3, 4.8, RED, D + 0.1)
-		txt(band, Enum.NormalId.Front, "OHU", Color3.fromRGB(255, 225, 200), Enum.Font.FredokaOne, nil, 50)
+		-- (D-864) the game name in the title font: an image of Bagel Fat One letters
+		-- (docs/04_ART/logo/ohu_flat_white.png), tinted the old text colour
+		do
+			local l = txt(band, Enum.NormalId.Front, "", Color3.new(1, 1, 1), nil, nil, 50)
+			local g = l.Parent :: SurfaceGui
+			l:Destroy()
+			local im = Instance.new("ImageLabel")
+			im.Name = "OHULogo"
+			im.AnchorPoint = Vector2.new(0.5, 0.5)
+			im.Position = UDim2.fromScale(0.5, 0.5)
+			im.Size = UDim2.fromScale(0.9, 0.8)
+			im.BackgroundTransparency = 1
+			im.ScaleType = Enum.ScaleType.Fit
+			im.Image = "rbxassetid://99009405125272"
+			im.ImageColor3 = Color3.fromRGB(255, 225, 200)
+			im.Parent = g
+		end
 		face("MachineLight", lensY + 1.85, 4, 0.9, Color3.fromRGB(225, 238, 255), Enum.Material.Neon)
 		for _, s in ipairs({ -1, 1 }) do
 			part("MachineBar", Vector3.new(0.45 * S, 2.4 * S, 0.05), base * CFrame.new(s * 1.95 * S, (lensY - 0.4) * S, -0.03), Color3.fromRGB(225, 238, 255), { parent = K, nocol = true, material = Enum.Material.Neon })
