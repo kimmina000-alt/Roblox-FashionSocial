@@ -70,6 +70,15 @@ local function attr(name: string, default: number): number
 	return if typeof(v) == "number" then v else default
 end
 
+-- (D-876) the club music this player hears (DanceController's ClubMusic) and
+-- how far it runs behind the server's clock, in song seconds
+local audioLag = 0
+local function musicSound(): Sound?
+	local dance = script.Parent:FindFirstChild("DanceController")
+	local sound = dance and dance:FindFirstChild("ClubMusic")
+	return if sound and sound:IsA("Sound") then sound else nil
+end
+
 local function playingTrack(): ClubConfig.Track?
 	return ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
 end
@@ -639,13 +648,28 @@ RunService.PreAnimation:Connect(function()
 	if not following then return end
 	local track = playingTrack()
 	if not track or track.soundId ~= following.soundId then return end
-	-- where the song is, in the club's seconds (the DJ's speed carries over)
-	local djSpeed = attr("ClubMusicSpeed", 1)
+	-- (D-876) where the song is, in the original song's seconds (the clock
+	-- the pieces were cut on): the audio's place times its file speed, so a
+	-- lab tempo set by ear or the DJ's speed moves the dance with the music,
+	-- and the dance plays at that same rate
+	local songRate = ClubConfig.songRate(track, FashionGame:GetAttribute("ClubMusicSpeed"))
 	local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
 	local start = attr("ClubTrackStart", workspace:GetServerTimeNow())
 	local songTime = if paused
-		then attr("ClubMusicPausedAt", 0) / math.max(ClubConfig.trackRate(track, 1), 1e-3)
-		else (workspace:GetServerTimeNow() - start) * djSpeed
+		then attr("ClubMusicPausedAt", 0) * ClubConfig.fileSpeed(track)
+		else (workspace:GetServerTimeNow() - start) * songRate
+	-- (D-876) and where this player's audio really is: it starts a moment
+	-- late (about 0.1 s in Studio, more on a slow phone) and never re-seeks,
+	-- so the dance follows the heard music (smoothed: TimePosition moves in
+	-- steps), snapping only after a seek
+	local music = musicSound()
+	if not paused and music and music.IsPlaying and music.SoundId == "rbxassetid://" .. tostring(track.soundId) then
+		local heard = music.TimePosition * ClubConfig.fileSpeed(track) - songTime
+		if math.abs(heard) < 3 then
+			if math.abs(heard - audioLag) > 0.5 then audioLag = heard else audioLag += (heard - audioLag) * 0.05 end
+		end
+		songTime += audioLag
+	end
 	-- which segment that is (lengths known once each one has loaded); a gap
 	-- between segments (an `at` later than the one before ends) stands still;
 	-- t = the time in the animation (a `from` skips its start, D-810)
@@ -723,7 +747,7 @@ RunService.PreAnimation:Connect(function()
 	end
 	-- (D-798) a segment a moment ahead of the song holds its last pose
 	-- instead of ending (and fading back to the root) before the next one
-	local speed = if paused or held or seg.TimePosition >= seg.Length - 0.05 then 0 else djSpeed * rate
+	local speed = if paused or held or seg.TimePosition >= seg.Length - 0.05 then 0 else songRate * rate
 	if following.speed ~= speed then
 		seg:AdjustSpeed(speed)
 		following.speed = speed

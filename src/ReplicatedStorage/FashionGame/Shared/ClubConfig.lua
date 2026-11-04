@@ -33,6 +33,7 @@ export type Track = {
 	-- volume / octave. humHz / hissHz / gate only work on the lab's "audio"
 	-- engine and are kept for the record; the club plays a Sound.
 	lab: Lab?,
+	fileSpeed: number?, -- how much faster than the original the uploaded file is (D-876; uploads 3)
 	-- the song's choreography (D-689): animation ids played one after another
 	-- from the start of the song, each danced to the song as heard in the club
 	-- (so at x1; the DJ's speed carries over). Players in the club get a
@@ -373,6 +374,23 @@ function ClubConfig.trackRate(track: Track?, djSpeed: any): number
 	return base * (if typeof(djSpeed) == "number" then djSpeed else 1)
 end
 
+-- (D-876, user: "왜 안무랑 음악 타이밍이 안 맞는 상황이 발생하는지 연구 후 … 보완")
+-- the user's uploads are the song sped up exactly 3 times (IVE: 64.33 s x 3
+-- = 193.0 s, the original) and played back slower by each song's lab tempo,
+-- set by ear (0.332..0.34), so a tempo other than 1/3 runs the heard song a
+-- little slower or faster than the original (NEON 0.332: 0.4 %, 0.9 s over
+-- 3:42). Choreography is cut from videos on the original's clock, so it
+-- follows this clock: the original song's seconds per real second, as heard
+-- (`fileSpeed` on a track overrides the uploads' 3)
+ClubConfig.UploadSpeed = 3
+function ClubConfig.fileSpeed(track: Track?): number
+	if track and typeof(track.fileSpeed) == "number" then return track.fileSpeed end
+	return if track and track.lab then ClubConfig.UploadSpeed else 1
+end
+function ClubConfig.songRate(track: Track?, djSpeed: any): number
+	return ClubConfig.trackRate(track, djSpeed) * ClubConfig.fileSpeed(track)
+end
+
 ClubConfig.Categories = { "댄스", "포즈·응원" }
 
 ClubConfig.Dances = {
@@ -465,14 +483,14 @@ ClubConfig.Playlist = {
 		-- (a little shorter than their clips) and 11's skipped 1.3 s had pulled
 		-- 21 2.5 s and 23 2.6 s early; a short gap before the next `at` holds
 		-- the last pose (ChoreoController)
-		{ id = 82278370960435, from = 0.16 }, { id = 120748822938478, at = 6.61, blend = 0.9 }, { id = 110345323270713, at = 17.22, blend = 0.75 },
-		{ id = 128919651219199, at = 23.46, blend = 0.9 }, { id = 82580725724862, at = 25.37, blend = 0.37 }, { id = 102168077584280, at = 32.11, blend = 0.59 },
-		{ id = 122397631727855, at = 33.87, blend = 0.41 }, { id = 96766863219484, at = 39.28, blend = 0.47 }, { id = 116077835257285, at = 46.52, blend = 0.75 },
-		{ id = 78517242404651, at = 58.53, blend = 0.99 }, { id = 135462564673113, at = 67.24, from = 1.3, blend = 0.45 }, { id = 130559113363194, at = 70.94, blend = 1 },
-		{ id = 79303516060999, at = 73.01, blend = 0.61 }, { id = 94325256666159, at = 83.46 }, { id = 111913125032810, at = 88.33, blend = 1 },
-		{ id = 129415986484255, at = 95.14, blend = 0.53 }, { id = 87606540400975, at = 103.48, blend = 1 }, { id = 121775933093308, at = 110.55, blend = 0.95 },
-		{ id = 138549092776506, at = 122.03, blend = 0.73 }, { id = 88428525489460, at = 132.31 }, { id = 82346668311878, at = 136.64, blend = 0.7 },
-		{ id = 134748500609652, at = 143.72 }, { id = 70571634425422, at = 151.66 } }, autoChoreo = true },
+		{ id = 82278370960435, from = 0.16 }, { id = 120748822938478, at = 6.6, blend = 0.9 }, { id = 110345323270713, at = 17.2, blend = 0.75 },
+		{ id = 128919651219199, at = 23.44, blend = 0.9 }, { id = 82580725724862, at = 25.34, blend = 0.37 }, { id = 102168077584280, at = 32.08, blend = 0.59 },
+		{ id = 122397631727855, at = 33.84, blend = 0.41 }, { id = 96766863219484, at = 39.24, blend = 0.47 }, { id = 116077835257285, at = 46.47, blend = 0.75 },
+		{ id = 78517242404651, at = 58.47, blend = 0.99 }, { id = 135462564673113, at = 67.17, from = 1.3, blend = 0.45 }, { id = 130559113363194, at = 70.87, blend = 1 },
+		{ id = 79303516060999, at = 72.94, blend = 0.61 }, { id = 94325256666159, at = 83.38 }, { id = 111913125032810, at = 88.24, blend = 1 },
+		{ id = 129415986484255, at = 95.04, blend = 0.53 }, { id = 87606540400975, at = 103.38, blend = 1 }, { id = 121775933093308, at = 110.44, blend = 0.95 },
+		{ id = 138549092776506, at = 121.91, blend = 0.73 }, { id = 88428525489460, at = 132.18 }, { id = 82346668311878, at = 136.5, blend = 0.7 },
+		{ id = 134748500609652, at = 143.58 }, { id = 70571634425422, at = 151.51 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "현아-Bubble Pop", soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
 	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 91762270038050, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, choreo = {
@@ -480,8 +498,8 @@ ClubConfig.Playlist = {
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
 		119819611123433, { id = 97097804325917, blend = 0.7 }, { id = 119200924904137, blend = 0.45 }, 77403973851668,
 		{ id = 73939357849033, blend = 0.45 }, { id = 137390866303201, blend = 0.7 }, { id = 121969021575883, blend = 0.45 },
-		{ id = 92148657532352, blend = 0.8 }, { id = 96742563282745, stop = 70, blend = 0.4 },
-		{ id = 96742563282745, at = 70, from = 5.17, blend = 0.9 }, { id = 88430566939812, blend = 0.9 },
+		{ id = 92148657532352, blend = 0.8 }, { id = 96742563282745, stop = 69.93, blend = 0.4 },
+		{ id = 96742563282745, at = 69.93, from = 5.17, blend = 0.9 }, { id = 88430566939812, blend = 0.9 },
 		{ id = 108795638313983, blend = 0.7 }, { id = 95813030011960, blend = 0.45 }, { id = 135272998171625, blend = 0.4 },
 		129447992418977, { id = 82252722293006, blend = 0.55 }, 108611133102309, 117244778152210, 113505968174557, 112498417388469,
 		{ id = 80874196383963, blend = 0.45 } }, autoChoreo = true }, -- (D-810, user: 2 s of 9 cut at 1:10, the rest moved up 2 s)
@@ -501,24 +519,27 @@ ClubConfig.Playlist = {
 		-- takes up the drift of captures shorter than their clips (0-0.53 s,
 		-- found by matching limb angles to the dancers); (D-870, user: "3.3 아니었나
 		-- 봐 앞에 2초 앞당기기") all 2 s earlier, 1 from its 2 s mark
-		{ id = 118329772913374, from = 2 }, { id = 95449015545787, at = 14.5, blend = 0.64 }, { id = 84806571273074, at = 21.13, blend = 0.92 },
+		{ id = 118329772913374, from = 2 }, { id = 95449015545787, at = 14.44, blend = 0.64 }, { id = 84806571273074, at = 21.05, blend = 0.92 },
 		-- (D-875, user: "1:11 그냥 멈추지 말고 앞뒤 프레임을 느리게 재생") the 1 s
 		-- between 6 and 7 is filled by playing 6's last and 7's first 1.5 s at
 		-- three quarters speed
-		{ id = 99868719395147, at = 35.37, blend = 0.5 }, { id = 93933273398995, at = 42.06, blend = 0.96 }, { id = 128256391320572, at = 54.63, slowOut = { 1.5, 0.5 } },
+		{ id = 99868719395147, at = 35.23, blend = 0.5 }, { id = 93933273398995, at = 41.89, blend = 0.96 }, { id = 128256391320572, at = 54.41, slowOut = { 1.5, 0.5 } },
 		-- (D-873 → D-875, user: "1:15 0.5초 빠름", "0.5초 느리게 한 거 0.5초 더
 		-- 느리게", "3:22초쯤은 2초 정도 안무가 먼저 나옴") the game's song runs
 		-- 0.4 % slower than the fancam (tempo 0.332; loudness windows: video =
 		-- game + 1.15 s at 1:00, 0.95 at 1:40, 0.8 at 2:25, 0.55 at 3:10), so
 		-- with every piece at its video time - 2 s they came earlier and earlier:
 		-- from 7 on each piece is at its video time - (1.40 - 0.0045 x video
-		-- time), 7 and 8 1 s later as asked (3:22: 1.5 s later)
-		{ id = 114466589507598, at = 72.56, blend = 0.79, slowIn = { 1.5, 0.5 } }, { id = 84027575690735, at = 81.53, blend = 0.85 }, { id = 100410498984971, at = 87.93, blend = 0.76 },
-		{ id = 124518142645731, at = 93.66, blend = 0.59 }, { id = 126736648781925, at = 105.88, blend = 0.42 }, { id = 76437753036430, at = 110.36, blend = 0.56 },
-		{ id = 136355327951443, at = 112.67, blend = 0.67 }, { id = 117451819045051, at = 119.97, blend = 0.47 }, { id = 111932052760637, at = 126.27, blend = 0.74 },
-		{ id = 133401623277764, at = 134.84, blend = 0.7 }, { id = 96973609514230, at = 149.45, blend = 0.55 }, { id = 106546379406531, at = 165.54, blend = 1 },
-		{ id = 73851407273132, at = 172.87, blend = 1 }, { id = 71570705300325, at = 181.52, blend = 1 }, { id = 121393866689759, at = 203.32, blend = 0.54 },
-		{ id = 114419952125075, at = 210.95 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
+		-- time), 7 and 8 1 s later as asked (3:22: 1.5 s later). (D-876) All `at`
+		-- here are in the original song's seconds now (x 0.996, the song's
+		-- clock, ClubConfig.songRate): from 7 on that is video time - 1.39 s
+		-- throughout, 1-6 video time - 2 s (the user's start)
+		{ id = 114466589507598, at = 72.27, blend = 0.79, slowIn = { 1.5, 0.5 } }, { id = 84027575690735, at = 81.2, blend = 0.85 }, { id = 100410498984971, at = 87.58, blend = 0.76 },
+		{ id = 124518142645731, at = 93.29, blend = 0.59 }, { id = 126736648781925, at = 105.46, blend = 0.42 }, { id = 76437753036430, at = 109.92, blend = 0.56 },
+		{ id = 136355327951443, at = 112.22, blend = 0.67 }, { id = 117451819045051, at = 119.49, blend = 0.47 }, { id = 111932052760637, at = 125.76, blend = 0.74 },
+		{ id = 133401623277764, at = 134.3, blend = 0.7 }, { id = 96973609514230, at = 148.85, blend = 0.55 }, { id = 106546379406531, at = 164.88, blend = 1 },
+		{ id = 73851407273132, at = 172.18, blend = 1 }, { id = 71570705300325, at = 180.79, blend = 1 }, { id = 121393866689759, at = 202.51, blend = 0.54 },
+		{ id = 114419952125075, at = 210.11 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -1.5, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" } },
@@ -530,19 +551,20 @@ ClubConfig.Playlist = {
 		-- (D-871) each piece starts where it is danced in the practice video
 		-- (D:\Roblox\영상\IVE_LooksCanKill_centercut\clips.json; 1-7, cut
 		-- before those clips, placed by matching their arm and leg angles to
-		-- the members'), times 1.001: the song at tempo 0.333 runs 0.1 % slower
-		-- than the video (loudness envelopes: 0.00 s apart at the start, 0.15 s
-		-- at 2:45). Run back to back, the captures (shorter than their clips)
-		-- had pulled 8 on 1.3 s and 32 2.0 s early
-		104472985141273, { id = 100762274305324, at = 5.8, blend = 0.8 }, { id = 92352840963540, at = 7.6, blend = 0.83 }, { id = 73035150280152, at = 18.65, blend = 0.98 },
-		{ id = 77509133314202, at = 26.55, blend = 0.31 }, { id = 109736190348459, at = 31.73, blend = 0.84 }, { id = 120841071882545, at = 36.04, blend = 1 },
-		{ id = 128205693221038, at = 42.57, blend = 0.79 }, { id = 111907232555806, at = 46.4, blend = 0.4 }, { id = 124059184095981, at = 57.14 }, { id = 87500016171854, at = 63.46, blend = 1 },
-		{ id = 73623563360624, at = 70.65 }, { id = 105165734205045, at = 75.31, blend = 0.41 }, { id = 84050357538982, at = 82.66, blend = 0.44 }, { id = 80842274249808, at = 85.91, blend = 0.98 },
-		{ id = 112107210780715, at = 93.81, blend = 0.84 }, { id = 92250246039046, at = 100.95, blend = 0.36 }, { id = 123875931497308, at = 101.73, blend = 1 },
-		{ id = 97254731498706, at = 109.34, blend = 0.66 }, { id = 85566191636983, at = 117.15, blend = 0.9 }, { id = 133964239076172, at = 125.21, blend = 0.41 }, { id = 120575710088163, at = 131.1 },
-		{ id = 104957688493242, at = 138.39, blend = 0.76 }, { id = 132124420274015, at = 139.97, blend = 0.25 }, { id = 134968782013343, at = 140.49, blend = 0.74 },
-		{ id = 92922732552861, at = 146.2, blend = 0.43 }, { id = 88317170211079, at = 152.85, blend = 1 }, { id = 130014890140037, at = 160.01, blend = 1 },
-		{ id = 76585975326316, at = 162.21, blend = 0.67 }, { id = 128909786311122, at = 172.4 }, { id = 74039257328689, at = 178.98 }, { id = 79871898776208, at = 188.37, blend = 0.88 } }, autoChoreo = true },
+		-- the members'): the video's own time, in the original song's seconds
+		-- (D-876: the song at tempo 0.333 runs 0.1 % slower, 0.15 s by 2:45,
+		-- and ChoreoController follows that clock). Run back to back, the
+		-- captures (shorter than their clips) had pulled 8 on 1.3 s and 32 2.0 s
+		-- early
+		104472985141273, { id = 100762274305324, at = 5.79, blend = 0.8 }, { id = 92352840963540, at = 7.59, blend = 0.83 }, { id = 73035150280152, at = 18.63, blend = 0.98 },
+		{ id = 77509133314202, at = 26.52, blend = 0.31 }, { id = 109736190348459, at = 31.7, blend = 0.84 }, { id = 120841071882545, at = 36, blend = 1 },
+		{ id = 128205693221038, at = 42.53, blend = 0.79 }, { id = 111907232555806, at = 46.35, blend = 0.4 }, { id = 124059184095981, at = 57.08 }, { id = 87500016171854, at = 63.4, blend = 1 },
+		{ id = 73623563360624, at = 70.58 }, { id = 105165734205045, at = 75.23, blend = 0.41 }, { id = 84050357538982, at = 82.58, blend = 0.44 }, { id = 80842274249808, at = 85.82, blend = 0.98 },
+		{ id = 112107210780715, at = 93.72, blend = 0.84 }, { id = 92250246039046, at = 100.85, blend = 0.36 }, { id = 123875931497308, at = 101.63, blend = 1 },
+		{ id = 97254731498706, at = 109.23, blend = 0.66 }, { id = 85566191636983, at = 117.03, blend = 0.9 }, { id = 133964239076172, at = 125.08, blend = 0.41 }, { id = 120575710088163, at = 130.97 },
+		{ id = 104957688493242, at = 138.25, blend = 0.76 }, { id = 132124420274015, at = 139.83, blend = 0.25 }, { id = 134968782013343, at = 140.35, blend = 0.74 },
+		{ id = 92922732552861, at = 146.05, blend = 0.43 }, { id = 88317170211079, at = 152.7, blend = 1 }, { id = 130014890140037, at = 159.85, blend = 1 },
+		{ id = 76585975326316, at = 162.05, blend = 0.67 }, { id = 128909786311122, at = 172.23 }, { id = 74039257328689, at = 178.8 }, { id = 79871898776208, at = 188.18, blend = 0.88 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 73546697163709, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 2.4, octave = 0.5, low = -9.5, mid = 6, high = 0, engine = "sound" } },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
