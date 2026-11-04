@@ -3417,4 +3417,4 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 영상 KBS 뮤직뱅크(youtube EXRHfIvmPIQ, D:\Roblox\영상\GetAGuitar_stage). 영상 = 노래 + 3.88초, 컷 55개 → 샷 95개.
 - Play: 80~87초 바스트/크레인 순서 바뀐 것 고침, 가까운 샷이 숙인 머리를 따라가게. 무대와 같은 크기·자세, 스크립트 오류 없음.
   ![get a guitar stage camera](images/2026-11-05/stagecam_gag_compare.jpg)
-- 남은 것: 모바일 2인 테스트(NEON · Looks Can Kill · Get A Guitar), 머지 허락.
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치): Studio 스크립트 길이 브랜치와 같음. 두 휴대폰 화면 모두 🎥 버튼(선택 + Return)으로 켜짐. NEON 컷 순간 P1 11.22 / 12.17 / 13.10 / 13.56초, P2 11.21 / 12.21 / 13.14 / 13.60초(목록 11.13 / 12.07 / 13.0 / 13.47, 0.1초 뒤 = 들리는 음악 따라가기). Player1(DJ)이 Looks Can Kill → Get A Guitar로 바꾸니 두 화면 모두 그 곡 샷으로(GAG 1:26 클로즈업, 머리 화면 안). P2만 끄니 Custom / FOV 70, P1은 계속 켜져 있음. 스크립트 오류 없음(93308695817877 경고만).
