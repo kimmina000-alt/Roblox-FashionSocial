@@ -65,14 +65,24 @@ def fill_flat(img, box, ring=10, feather=10):
     img.alpha_composite(flat)
 
 
-def text_mask(text, size, stroke, canvas):
+def text_mask(text, size, stroke, canvas, tracking=0.0):
+    """`tracking`: extra room between the letters, in font sizes (D-865, user:
+    "O H U 알파벳 사이 간격 둬")."""
     m = Image.new("L", canvas, 0)
     f = font(size)
     d = ImageDraw.Draw(m)
     bbox = d.textbbox((0, 0), text, font=f, stroke_width=stroke)
-    w, h = bbox[2] - bbox[0], bbox[3] - bbox[1]
-    d.text(((canvas[0] - w) / 2 - bbox[0], (canvas[1] - h) / 2 - bbox[1]), text, font=f, fill=255,
-           stroke_width=stroke, stroke_fill=255)
+    h = bbox[3] - bbox[1]
+    gap = tracking * size
+    w = bbox[2] - bbox[0] + gap * (len(text) - 1)
+    x = (canvas[0] - w) / 2 - bbox[0]
+    y = (canvas[1] - h) / 2 - bbox[1]
+    if not gap:
+        d.text((x, y), text, font=f, fill=255, stroke_width=stroke, stroke_fill=255)
+        return m
+    for ch in text:
+        d.text((x, y), ch, font=f, fill=255, stroke_width=stroke, stroke_fill=255)
+        x += f.getlength(ch) + gap
     return m
 
 
@@ -86,15 +96,15 @@ def gradient(canvas, top, bottom):
 
 
 def title(img, text, center, size, angle=0.0, thick=0.035, outline=0.08, top=WHITE, bottom=PINK,
-          edge=DEEP, glow=GLOW, drop=0.06):
+          edge=DEEP, glow=GLOW, drop=0.06, tracking=0.0):
     """Draw one line of text centred on `center` (x, y), `size` px font."""
     t, o = max(1, int(size * thick)), max(2, int(size * outline))
     probe = ImageDraw.Draw(Image.new("L", (1, 1)))
     bb = probe.textbbox((0, 0), text, font=font(size), stroke_width=t + o)
-    canvas = (bb[2] - bb[0] + size, bb[3] - bb[1] + size)
-    fill_m = text_mask(text, size, t, canvas)
-    edge_m = text_mask(text, size, t + o, canvas)
-    glow_m = text_mask(text, size, t + o + int(size * 0.06), canvas).filter(ImageFilter.GaussianBlur(size * 0.14))
+    canvas = (int(bb[2] - bb[0] + size + tracking * size * (len(text) - 1)), bb[3] - bb[1] + size)
+    fill_m = text_mask(text, size, t, canvas, tracking)
+    edge_m = text_mask(text, size, t + o, canvas, tracking)
+    glow_m = text_mask(text, size, t + o + int(size * 0.06), canvas, tracking).filter(ImageFilter.GaussianBlur(size * 0.14))
 
     layer = Image.new("RGBA", canvas, (0, 0, 0, 0))
     glow_l = Image.new("RGBA", canvas, glow + (0,))
@@ -238,22 +248,43 @@ def logo_png(path, text, size, **style):
     canvas.crop(canvas.getbbox()).save(path)
 
 
-def flat_png(path, text, size, thick=0.035):
+def flat_png(path, text, size, thick=0.035, tracking=0.0):
     """Plain white thick letters (the game tints them, ImageColor3)."""
     canvas = (int(size * (len(text) + 2)), int(size * 3))
-    m = text_mask(text, size, int(size * thick), canvas)
+    m = text_mask(text, size, int(size * thick), canvas, tracking)
     img = Image.new("RGBA", canvas, (255, 255, 255, 0))
     img.putalpha(m)
     img.crop(img.getbbox()).save(path)
+
+
+def logo_pair_png(path, left, right, size, gap=0.35, left_tracking=0.0, **style):
+    """Two words side by side (OHU 오후), each with its own letter spacing."""
+    def word(text, tracking):
+        c = Image.new("RGBA", (int(size * (len(text) * (1 + tracking) + 2)), int(size * 3)), (0, 0, 0, 0))
+        title(c, text, (c.width / 2, c.height / 2), size, tracking=tracking, **style)
+        return c.crop(c.getbbox())
+    a, b = word(left, left_tracking), word(right, 0.0)
+    space = int(size * gap)
+    out = Image.new("RGBA", (a.width + space + b.width, max(a.height, b.height)), (0, 0, 0, 0))
+    out.alpha_composite(a, (0, (out.height - a.height) // 2))
+    out.alpha_composite(b, (a.width + space, (out.height - b.height) // 2))
+    out.save(path)
+
+
+# letter spacing of O H U (D-865, user: "O H U 알파벳 사이 간격 둬")
+OHU_TRACKING = 0.12
+# (with an outline the outlines need room too, or they run into one another)
+OHU_TRACKING_OUTLINED = OHU_TRACKING + 2 * (0.015 + 0.07)
 
 
 def logos():
     """The game-name images used in the game (D-864): loading screen, photo
     booth bands, photo strip footer."""
     os.makedirs(LOGO_OUT, exist_ok=True)
-    logo_png(os.path.join(LOGO_OUT, "ohu_logo.png"), "OHU", 300, thick=0.015, outline=0.07)
-    logo_png(os.path.join(LOGO_OUT, "ohu_logo_ko.png"), "OHU 오후", 260, thick=0.015, outline=0.07)
-    flat_png(os.path.join(LOGO_OUT, "ohu_flat_white.png"), "OHU", 300, thick=0.015)
+    logo_png(os.path.join(LOGO_OUT, "ohu_logo.png"), "OHU", 300, thick=0.015, outline=0.07, tracking=OHU_TRACKING_OUTLINED)
+    logo_pair_png(os.path.join(LOGO_OUT, "ohu_logo_ko.png"), "OHU", "오후", 260, gap=-0.1, left_tracking=OHU_TRACKING_OUTLINED,
+                  thick=0.015, outline=0.07)
+    flat_png(os.path.join(LOGO_OUT, "ohu_flat_white.png"), "OHU", 300, thick=0.015, tracking=OHU_TRACKING)
     print("wrote logos")
 
 

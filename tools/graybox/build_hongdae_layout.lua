@@ -7278,7 +7278,7 @@ do
 			im.Size = UDim2.fromScale(0.9, 0.8)
 			im.BackgroundTransparency = 1
 			im.ScaleType = Enum.ScaleType.Fit
-			im.Image = "rbxassetid://99009405125272"
+			im.Image = "rbxassetid://130117721200299"
 			im.ImageColor3 = Color3.fromRGB(255, 225, 200)
 			im.Parent = g
 		end

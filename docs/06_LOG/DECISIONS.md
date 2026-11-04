@@ -2188,3 +2188,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 썸네일: 원본 docs/04_ART/thumbnails/gpt_1104/ (a~f), 결과 gpt_1104/out/*.png. tools/art/thumb_title.py가 GPT 글씨(OHU / Fashion Social / Dress · Dance · Make Friends / 오후에서, 친구들과 함께해요! / 지금 바로 플레이!)를 흐림으로 지우고 같은 자리에 베이글 팻 원(두껍게 + 보라 외곽선 + 입체 그림자 + 빛)으로 다시 씀. 버튼은 원래 버튼 위 글씨만 바꿈(▶는 그림, 폰트에 없음). 글씨 없던 b·c에는 하늘에 작은 로고. 가게 간판·카드 글씨(OHU CLUB, OHU CAFE, KOREA MAP)는 그대로.
 - 게임 속: 로블록스에 이 폰트가 없어 이미지로(docs/04_ART/logo/, Vantablack_Dev로 올림): ohu_logo_ko 89459266377304 = 로딩 화면 "OHU 오후" (Roblox 버튼 아래 y 40), ohu_flat_white 99009405125272 = 사진 띠 아래 "OHU"(PhotoRender, 액자 글씨색으로 물들임) + 오후네컷 사진기 띠 "OHU" 3곳(build_hongdae_layout + Studio에 직접 반영), ohu_logo 85817349421333 = 예비.
 - 그대로 둔 것: 건물 간판(OHU CLUB/CAFE/PIZZA 등 가게 이름), 버스 정류장 기본 광고 "만나서 반가워요 OHU 오후!", VIP 얼음 상자 네온 OHU.
+
+## D-865 로고 O H U 글자 간격 (2026-11-04)
+- 사용자: "O H U 알파벳 사이 간격 둬 로고 이미지 작업 먼저 하자". thumb_title.py에 tracking(글자 사이 여백, 폰트 크기 비율). 외곽선 없는 흰 로고 0.12, 외곽선 로고는 외곽선끼리 붙지 않게 0.12 + 2×(굵기+외곽선) = 0.29. "OHU 오후"는 OHU만 띄우고 오후는 그대로.
+- 새 이미지(Vantablack_Dev): ohu_logo_ko 114136423299963(로딩 화면), ohu_flat_white 130117721200299(사진 띠·사진기 띠), ohu_logo 128372612449739(예비). D-864 id는 안 씀. 미리보기: docs/04_ART/logo/preview_sheet.jpg. 썸네일 글씨는 아직 이전 간격.
