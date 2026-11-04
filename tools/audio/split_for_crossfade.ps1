@@ -23,10 +23,7 @@ if ($OutDir -eq '') { $OutDir = Join-Path 'D:\Roblox\음원' $Title }
 New-Item -ItemType Directory -Force $OutDir | Out-Null
 
 $total = [double](& $ffprobe -v error -show_entries format=duration -of default=nw=1:nk=1 $InputFile)
-# (2026-11-03) splitting is only for audio longer than Roblox's upload limit
-# (7 minutes); a shorter file is uploaded whole. Cutting a short song into
-# clips would only hide it from Roblox's copyright check.
-if ($total -le 420) { throw ("{0:N1} s is under the 7-minute upload limit: upload the file as it is, no split" -f $total) }
+
 $inv = [Globalization.CultureInfo]::InvariantCulture
 $table = @()
 $i = 1

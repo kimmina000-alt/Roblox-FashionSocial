@@ -2345,3 +2345,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-886 클럽 문 옆 화단에 나무 (2026-11-04)
 - 사용자: "나무 심기" (문 남쪽 화단 가운데 빈자리, z -190). polish_1030 단계 13(ClubBedFill)에서 같은 줄(x 27) 가장 가까운 가로수(자작나무, Tree@27,-150) 복사본을 z -190에. Studio에는 같은 작업을 직접 적용(체인 결과와 같음).
+
+
+## D-887 이어 붙인 노래(joined songs) 커밋 (2026-11-05)
+- 메인 작업 폴더에 커밋 안 된 채 있던 작업(턴테이블 실험실 / 사용자 쪽, JOINED_SONGS_HANDOFF.md): 한 곡을 여러 음원 조각으로 올려 한 곡처럼 트는 Shared/JoinedSongPlayer, Track.joined { parts, segLen, tail, total, lead }, DanceController / ChoreoController / DJScreenController가 JoinedTime·JoinedLoudness로 위치·음량을 읽음, IU-이 별로부터(Unknown Planet) 8조각 추가, tools/audio/split_for_crossfade.ps1.
+- 사용자: "해당 파일 변경된 거 적용해" → Studio에 넣자 클럽 음악이 멈춤: ClubConfig.isJoined가 불리는데 정의가 없었음 → 추가(fileSpeed 위). Play: 일반 곡 재생, 37번(IU) 조각 이어 재생, 오류 없음. 사용자 "오류 없다 커밋해".

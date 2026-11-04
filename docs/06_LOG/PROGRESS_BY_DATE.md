@@ -598,3 +598,7 @@
 - 회전 매끄럽게: IVE 2:19 · 2:33, Get A Guitar 1:54 (D-882).
 - REDRED 1:13 허리 숙인 채 떨림 정리(steady 두 구간), steady·hold 여러 구간 지원 (D-884).
 - EDM 버튼 음원 3개 교체, 클럽 문 옆 화단 나무 (D-885, D-886).
+
+
+## 2026-11-05
+- 이어 붙인 노래(JoinedSongPlayer) + IU-이 별로부터 커밋, 빠진 isJoined 추가 (D-887).

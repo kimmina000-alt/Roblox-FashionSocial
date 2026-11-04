@@ -227,7 +227,13 @@ end
 local function musicLoudness(): number
 	local scripts = player:FindFirstChild("PlayerScripts")
 	local sound = scripts and scripts:FindFirstChild("ClubMusic", true)
-	if sound and sound:IsA("Sound") and sound.Volume > 0 then
+	if not (sound and sound:IsA("Sound")) then return 0 end
+	-- (joined songs) the live clip's loudness, reported on ClubMusic
+	if sound:GetAttribute("JoinedPlaying") == true then
+		local loud = sound:GetAttribute("JoinedLoudness")
+		return math.clamp((if typeof(loud) == "number" then loud else 0) / 400, 0, 1)
+	end
+	if sound.Volume > 0 then
 		return math.clamp(sound.PlaybackLoudness / 400, 0, 1)
 	end
 	return 0

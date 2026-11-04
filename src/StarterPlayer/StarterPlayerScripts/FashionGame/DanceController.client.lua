@@ -1136,6 +1136,37 @@ labGroup.Volume = 1
 labGroup.Parent = game:GetService("SoundService")
 music.SoundGroup = labGroup
 local labEq = create("EqualizerSoundEffect", { Name = "LabEQ", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 10 }, music)
+																													
+-- (joined songs) the clips play on JoinedSongPlayer's two Sounds; their
+-- SoundGroups go under labGroup so the DJ's volume (EdmController's group
+-- above labGroup) reaches them; labGroup stays 1 (each clip's group boosts)
+local JoinedSongPlayer = require(FashionGame:WaitForChild("Shared"):WaitForChild("JoinedSongPlayer"))
+local joinedPlayer = JoinedSongPlayer.new(script)
+for _, d in ipairs(joinedPlayer.decks) do d.group.Parent = labGroup end
+local joinedIndex = 0 -- the playlist index loaded on it (0 = none)
+-- the track's lab values with the DJ's speed and pitch on top
+local function joinedLab(track: ClubConfig.Track): any
+	local lab: any = track.lab or { speed = 1, tempo = 1, volume = 10, boost = 1, octave = 1, low = 0, mid = 0, high = 0 }
+	local djSpeed = FashionGame:GetAttribute("ClubMusicSpeed")
+	local djPitch = FashionGame:GetAttribute("ClubMusicPitch")
+	local v = table.clone(lab)
+	v.speed = lab.speed * (if typeof(djSpeed) == "number" then djSpeed else 1)
+	v.octave = lab.octave * (if typeof(djPitch) == "number" then djPitch else 1)
+	return v
+end		
+
+-- (joined songs, for ChoreoController / DJScreenController) where the joined
+-- song is, in file seconds like ClubMusic.TimePosition, and how loud its
+-- live clip is; written on ClubMusic so the other scripts can read it
+RunService.Heartbeat:Connect(function()
+	local on = joinedIndex ~= 0 and joinedPlayer:IsPlaying()
+	music:SetAttribute("JoinedPlaying", on)
+	if on then
+		music:SetAttribute("JoinedTime", joinedPlayer:GetTime())
+		music:SetAttribute("JoinedLoudness", joinedPlayer.decks[joinedPlayer.cur].snd.PlaybackLoudness)
+	end
+end)																									
+																										
 local function playingTrack(): ClubConfig.Track?
 	return ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
 end
@@ -1176,7 +1207,10 @@ do
 		-- the lab's boost and EQ (none for the other tracks)
 		-- (the DJ's volume for lab tracks: on EdmController's group above this one,
 		-- D-735; a SoundGroup stops at 10 and the boost is 6)
-		labGroup.Volume = if lab then lab.boost else 1
+																																			
+			labGroup.Volume = if lab and not ClubConfig.isJoined(track) then lab.boost else 1
+		if track and ClubConfig.isJoined(track) then joinedPlayer:SetLab(joinedLab(track)) end
+																																				
 		labEq.LowGain, labEq.MidGain, labEq.HighGain = if lab then lab.low else 0, if lab then lab.mid else 0, if lab then lab.high else 0
 		labEq.Enabled = lab ~= nil and (lab.low ~= 0 or lab.mid ~= 0 or lab.high ~= 0)
 	end
@@ -1191,6 +1225,32 @@ local function syncMusic()
 	if typeof(index) ~= "number" or typeof(start) ~= "number" then return end
 	local track = ClubConfig.Playlist[index]
 	if not track then return end
+																																						
+	if ClubConfig.isJoined(track) then
+		if currentTrack ~= index then
+			currentTrack = index
+			music:Stop()
+		end
+		if joinedIndex ~= index then
+			joinedIndex = index
+			joinedPlayer:Load({ title = track.title, joined = track.joined, lab = joinedLab(track) })
+		end
+		joinedPlayer:SetLab(joinedLab(track))
+		banner.Text = if track.choreo then ClubConfig.escapeRich(track.title) else ClubConfig.showTitle(track, banner.TextSize)
+		if FashionGame:GetAttribute("ClubMusicPaused") == true then
+			joinedPlayer:Pause()
+			return
+		end
+		local speed = ClubConfig.trackRate(track, FashionGame:GetAttribute("ClubMusicSpeed"))
+		joinedPlayer:Play((workspace:GetServerTimeNow() - start) * speed)
+		return
+	end
+	-- not a joined song: the joined player falls silent
+	if joinedIndex ~= 0 then
+		joinedIndex = 0
+		joinedPlayer:Stop()
+	end
+																																						
 	if currentTrack ~= index then
 		currentTrack = index
 		music:Stop()
@@ -1285,7 +1345,8 @@ local accumulator = 0
 -- left the last volume playing)
 local function boothMute()
 	if player.Character and player.Character:GetAttribute("PhotoBooth") ~= nil then
-		music.Volume = 0
+		music.Volume = 0		
+		joinedPlayer:SetLevel(0)
 		banner.Visible = false
 	end
 end
@@ -1320,7 +1381,9 @@ RunService.RenderStepped:Connect(function(dt)
 		-- a Sound stops at Volume 10: above that an equalizer adds the rest in dB
 		-- (Volume 20 = 10 and +6 dB; user 2026-10-31). Lab tracks never: their
 		-- boost is the SoundGroup (D-680), and the EQ would mix with the lab's.
-		music.Volume = math.min(want, 10)
+		music.Volume = math.min(want, 10)		
+		-- (joined songs) the same level on the clips (their volume is lab.volume)
+		if joinedIndex ~= 0 then joinedPlayer:SetLevel(level) end
 		local gain = if want > 10 and not lab then math.min(20 * math.log10(want / 10), 10) else 0
 		boost.Enabled = gain > 0
 		boost.LowGain, boost.MidGain, boost.HighGain = gain, gain, gain
@@ -1333,7 +1396,8 @@ RunService.RenderStepped:Connect(function(dt)
 		banner.Visible = level > 0 and banner.Text ~= "" and not djWindowOnPhone
 	end
 	if music.Volume > 0 then
-		local pulse = math.clamp(music.PlaybackLoudness / 500, 0, 1)
+		local loud = if joinedIndex ~= 0 then joinedPlayer.decks[joinedPlayer.cur].snd else music
+		local pulse = math.clamp(loud.PlaybackLoudness / 500, 0, 1)
 		-- The DJ can switch the lights off (attribute ClubLights = false).
 		local lightsOff = FashionGame:GetAttribute("ClubLights") == false
 		-- DJ colour pick (ClubLightColor): beat lights take the colour

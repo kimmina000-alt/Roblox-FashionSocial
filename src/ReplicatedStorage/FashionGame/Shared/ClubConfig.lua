@@ -33,6 +33,11 @@ export type Track = {
 	-- volume / octave. humHz / hissHz / gate only work on the lab's "audio"
 	-- engine and are kept for the record; the club plays a Sound.
 	lab: Lab?,
+
+	-- (joined songs) one song uploaded as several clips, played as one by
+	-- Shared/JoinedSongPlayer; soundId = the first clip, length = joined.total
+	joined: Joined?,
+
 	fileSpeed: number?, -- how much faster than the original the uploaded file is (D-876; uploads 3)
 	-- the song's choreography (D-689): animation ids played one after another
 	-- from the start of the song, each danced to the song as heard in the club
@@ -56,6 +61,8 @@ export type Lab = {
 	low: number, mid: number, high: number,
 	humHz: number?, hissHz: number?, gate: number?, engine: string?,
 }
+
+export type Joined = { parts: {number}, segLen: number, tail: number, total: number, lead: number? }
 
 local ClubConfig = {}
 
@@ -479,8 +486,16 @@ end
 -- follows this clock: the original song's seconds per real second, as heard
 -- (`fileSpeed` on a track overrides the uploads' 3)
 ClubConfig.UploadSpeed = 3
+-- (joined songs) a track uploaded as several clips (Track.joined): played by
+-- Shared/JoinedSongPlayer instead of one Sound. (It was called here and in
+-- DanceController / ChoreoController but missing, and the club music stopped.)
+function ClubConfig.isJoined(track: Track?): boolean
+	return track ~= nil and typeof(track.joined) == "table" and typeof(track.joined.parts) == "table" and #track.joined.parts > 0
+end
 function ClubConfig.fileSpeed(track: Track?): number
 	if track and typeof(track.fileSpeed) == "number" then return track.fileSpeed end
+	-- (joined songs) the clips are cut from the original as it is: x1
+	if ClubConfig.isJoined(track) then return 1 end
 	return if track and track.lab then ClubConfig.UploadSpeed else 1
 end
 function ClubConfig.songRate(track: Track?, djSpeed: any): number
@@ -694,6 +709,13 @@ ClubConfig.Playlist = {
 	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 116539470869444, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "BIGBANG-BiiiG", soundId = 113809029583519, length = 55, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 130804487358433, length = 48, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+
+--★★★아랄 음원 추가★★★--
+{ channel = "…", title = "IU-이 별로부터(Unknown Planet", soundId = 81568082292649, length = 225.05,
+		joined = {  parts = { 81568082292649, 130739295576800, 136055998058951, 101406045735531, 115474783735573, 101362036297281, 107766734212525, 139626977220244}, segLen = 30, tail = 4, total = 225.05, lead = 0.09  },
+		lab = { speed = 1, tempo = 1, volume = 10, boost = 1, octave = 1, low = 0, mid = 0, high = 0 } },
+
+
 } :: {Track}
 
 -- Music volume inside the club; it fades out over FadeDistance studs outside

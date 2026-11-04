@@ -664,8 +664,17 @@ RunService.PreAnimation:Connect(function()
 	-- so the dance follows the heard music (smoothed: TimePosition moves in
 	-- steps), snapping only after a seek
 	local music = musicSound()
-	if not paused and music and music.IsPlaying and music.TimePosition > 0.05 and music.SoundId == "rbxassetid://" .. tostring(track.soundId) then
-		local heard = music.TimePosition * ClubConfig.fileSpeed(track) - songTime
+	-- where this player's audio really is: ClubMusic's place, or for a joined
+	-- song the place its clips report on ClubMusic (DanceController)
+	local heardAt: number? = nil
+	if music and music:GetAttribute("JoinedPlaying") == true and ClubConfig.isJoined(track) then
+		local jt = music:GetAttribute("JoinedTime")
+		if typeof(jt) == "number" and jt > 0.05 then heardAt = jt end
+	elseif music and music.IsPlaying and music.TimePosition > 0.05 and music.SoundId == "rbxassetid://" .. tostring(track.soundId) then
+		heardAt = music.TimePosition
+	end
+	if not paused and heardAt then
+		local heard = heardAt * ClubConfig.fileSpeed(track) - songTime
 		if math.abs(heard) < 3 then
 			-- (D-878) a new song or seek starts from its first reading, not from 0
 			local key = tostring(track.soundId) .. ":" .. tostring(start)
