@@ -805,7 +805,26 @@ if L and not L:FindFirstChild("ClubBedFill") then
 				copy.Parent = fill
 			end
 		end
-		table.insert(log, "club beds 2 (" .. #group .. " pieces each)")
+		-- (D-886, user 2026-11-04: "나무 심기", the gap in the middle of the bed
+		-- south of the door, z -190) one street tree there, a copy of the nearest
+		-- one on the same kerb line (x 27)
+		local tree, best
+		for _, m in ipairs(L:GetChildren()) do
+			local id = m:GetAttribute("PropId")
+			if m:IsA("Model") and typeof(id) == "string" and id:match("^Tree@") then -- (the birch models are named Birch1..6)
+				local p = m:GetPivot().Position
+				local d = math.abs(p.Z - -190)
+				if math.abs(p.X - c.X) < 1 and (not best or d < best) then tree, best = m, d end
+			end
+		end
+		if tree then
+			local copy = tree:Clone()
+			copy:SetAttribute("PropId", nil)
+			local p = tree:GetPivot()
+			copy:PivotTo(p + Vector3.new(c.X - p.Position.X, 0, -190 - p.Position.Z))
+			copy.Parent = fill
+		end
+		table.insert(log, "club beds 2 (" .. #group .. " pieces each)" .. (if tree then ", tree at -190" else ""))
 	end
 end
 

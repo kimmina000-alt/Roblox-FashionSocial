@@ -15,10 +15,12 @@ return {
 	-- (D-759, user 2026-11-02: three EDM tracks of their own, a button each; one
 	-- plays at a time. ECHOES OF THE BASS (134070050316863) was the one track
 	-- before.) name = the button's text.
+	-- (D-885, user 2026-11-04: three new uploads; before: 119641572301610,
+	-- 129472912679102, 86899466245520)
 	Tracks = {
-		{ name = "EDM 1", soundId = 119641572301610, lab = DEFAULT }, -- 66 s
-		{ name = "EDM 2", soundId = 129472912679102, lab = DEFAULT }, -- 325 s
-		{ name = "EDM 3", soundId = 86899466245520, lab = DEFAULT }, -- 373 s
+		{ name = "EDM 1", soundId = 95158960995959, lab = DEFAULT }, -- 283 s
+		{ name = "EDM 2", soundId = 85427648559465, lab = DEFAULT }, -- 335 s
+		{ name = "EDM 3", soundId = 137443947685209, lab = DEFAULT }, -- 301 s
 	},
 	-- the sliders' ranges (the song speed and volume use ClubConfig.MusicSpeeds /
 	-- MusicVolumes steps on the server)
