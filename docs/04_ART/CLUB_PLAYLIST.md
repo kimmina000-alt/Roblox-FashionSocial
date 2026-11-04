@@ -1,6 +1,6 @@
 # 클럽 음원 목록 · 설정값 (2026-11-03, D-796까지)
 
-코드: `src/ReplicatedStorage/FashionGame/Shared/ClubConfig.lua` 의 `ClubConfig.Playlist` (36곡).
+코드: `src/ReplicatedStorage/FashionGame/Shared/ClubPlaylist.lua` (37곡; `ClubConfig.Playlist`로도 읽힘, D-888). 37번부터 = 아랄 음원 칸, 아래 4번.
 예전 목록·안무 기록: `OLD_CLUB_PLAYLIST.md`.
 
 ## 설정값 2가지
@@ -128,3 +128,11 @@ local LAB = {
 ```
 
 랩에서 곡별로 바꾼 값은 "곡 이름 + soundId + lab 값"으로 보내 주면 ClubConfig의 그 곡에만 넣을게요.
+
+## 4. 아랄 음원 칸 (ClubPlaylist.lua의 `★★★아랄 음원 추가★★★` 아래, 사용자가 직접 넣음)
+
+이어 붙인 곡(`joined`)은 30초 조각 여러 개를 한 곡처럼 틀어요(Shared/JoinedSongPlayer, D-887). `joined = { parts, segLen, tail, total, lead }`: 조각 soundId들, 조각 길이, 겹치는 꼬리(초), 전체 길이, 앞 여백.
+
+| # | 채널 | 곡 | soundId (첫 조각) | 길이(초) | 조각 | lab | 기록 |
+|---|---|---|---|---|---|---|---|
+| 37 | K-POP | IU-이 별로부터(Unknown Planet) | 81568082292649 | 225.05 | 8 (segLen 30, tail 4, lead 0.09) | tempo 1, boost 1, octave 1 | D-887, D-889 |
