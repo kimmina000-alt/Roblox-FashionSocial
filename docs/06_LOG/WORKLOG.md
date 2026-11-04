@@ -3421,3 +3421,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 
 ### 곡 소리 값 + 새 곡 (D-901)
 - ClubPlaylist.lua: 23곡 lab을 사용자 값으로(템포 유지, 스크립트로 바꾼 뒤 tempo 줄 비교: 바뀐 것 없음). 새 곡 길이는 Studio에서 Sound.TimeLength로 잼(82.423초).
+
+### 곡 목록 제목 잘림 (D-903)
+- ClubMusicController.client.lua 곡 줄 TextLabel: TextTruncate None, ClipsDescendants true. Studio에는 그 부분만 바꿔 넣음.

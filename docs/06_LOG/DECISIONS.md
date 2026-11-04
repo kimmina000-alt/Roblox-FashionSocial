@@ -2419,3 +2419,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-901 업로드 곡 23개 소리 값 + 새 곡 이무진-그대 잠시 내게 (2026-11-05)
 - 사용자: "음원 설정값 변경. 템포는 유지." ATEEZ-BAD … BOYNEXTDOOR-ANIMAL 23곡(NCT WISH-I SPY, IU 이어 붙인 곡은 목록에 없어서 그대로): volume 10, boost 10, boost2 10, octave 0.5, low -40, mid -25(IOI-갑자기만 -20), high -40, engine sound. tempo는 곡마다 원래 값 그대로.
 - 새 곡 129938231085858 "새벽네시사십사분"(업로드 이름, Vantablack_Dev): 파일 82.42초, 들리는 길이 4:07 = 247초 → tempo 82.42 ÷ 247 = 0.334, 나머지 값은 위와 같음. ★★★음원 추가★★★ 구역 끝에 넣음. 사용자: "새벽네시사십사분 제목 변경 > 이무진-그대 잠시 내게" → 제목 이무진-그대 잠시 내게.
+
+## D-903 곡 목록 긴 제목은 점 없이 잘리게 (2026-11-05)
+- 사용자: "노래 제목 길어서 점으로 보이는 거 노래 제목 그냥 잘리게 넣어" (스크린샷: 지금 나오는 RESCENE-LOVE-ATTACK 줄이 🎵…만 보임). ClubMusicController 곡 줄 글자: TextTruncate AtEnd → None + ClipsDescendants, 칸 끝에서 그냥 잘림.
