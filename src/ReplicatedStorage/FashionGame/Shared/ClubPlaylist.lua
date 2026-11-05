@@ -216,7 +216,18 @@ M.Playlist = {
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 73546697163709, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -20, high = -40, engine = "sound" } },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
-	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 90694654380166, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 90694654380166, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" },
+		-- D-912: ISPY1..30 (practice video ILeBVk4x_XQ, video = song - 1.50 s; ISPY12 / ISPY15 were uploaded twice, the first id of each is used)
+		choreo = { { id = 83299308409543, at = 1.5 }, { id = 107073213896668, at = 4.9, blend = 0.93 }, { id = 88558817308286, at = 8.82, blend = 0.92 },
+		{ id = 98909637894188, at = 10.3, blend = 0.79 }, { id = 97906912240537, at = 15.32, blend = 0.46 }, { id = 114940315235555, at = 20.78, blend = 0.67 },
+		{ id = 130779565006070, at = 28.05, blend = 1 }, { id = 98654918637507, at = 35.03 }, { id = 122217205660431, at = 44.38, blend = 0.42 },
+		{ id = 140084544726244, at = 47.37 }, { id = 100757574150030, at = 49.27, blend = 0.49 }, { id = 71548910990490, at = 54.03, blend = 0.42 },
+		{ id = 74401251779168, at = 61.18 }, { id = 137433206050479, at = 72.27, blend = 0.62 }, { id = 135074521559748, at = 77.58, blend = 0.64 },
+		{ id = 119352807886781, at = 81.67, blend = 0.78 }, { id = 80718941616155, at = 87.78, blend = 0.85 }, { id = 129241685079019, at = 97.67, blend = 0.55 },
+		{ id = 76871177818406, at = 100.58, blend = 0.82 }, { id = 96659789313572, at = 103.88, blend = 0.29 }, { id = 133446362959561, at = 107.7, blend = 0.51 },
+		{ id = 84123931984762, at = 112.65, blend = 1 }, { id = 74058508632786, at = 119.82, blend = 0.66 }, { id = 127691136882789, at = 127.95, blend = 0.64 },
+		{ id = 103256787571476, at = 137.28, blend = 0.78 }, { id = 114665222364433, at = 140.78, blend = 1 }, { id = 73998534307708, at = 148.35 },
+		{ id = 117524452063760, at = 157.37, blend = 0.67 }, { id = 80845800354299, at = 168.87, blend = 1 }, { id = 112388068192596, at = 180.55 } }, autoChoreo = true },
 	-- (D-782, user 2026-11-03: new uploads "여섯시…분1102", the same way as D-779; 여섯시이분 TAEYEON-만찬가 103785084548518 does not load yet;
 	-- D-794: IU-이 별로부터 96396723842714 removed, user)
 	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 125703446596781, length = 54.35, 
