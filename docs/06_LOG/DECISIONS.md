@@ -2571,3 +2571,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 들리는 속도 songRate = 0.91 × 1.1 = 1.001(원곡 3:41.3을 3:41.1에).
 - 확인(Play, 1인, 클럽 안): 불러옴, 속도 0.91, volume 10, Boost 10 > Boost2 5, 102.5초에서 서버 시계 − 소리 위치 0.1초 안, 안무 따라하기 켜짐(그 시각 조각 124518142645731, 조각 안 9.34초 = 소리 기준 9.24초 + 읽는 사이 0.1초), 🎥 카메라 Scriptable / FOV 32, 타이밍 검사 ok(곡 221.31초, clock 1.0010), 201.16초까지 재생 후 다음 곡, 카메라 원래대로(Custom, FOV 70).
 - tools/choreo/sync/record_loudness.lua 기본 SOUND_ID도 새 id.
+
+## D-923 클럽 곡 2개 추가: LISA - Tarantino / K/DA - GIRLS (2026-11-06)
+- 사용자(랩 세션): "오후 전달". K/DA - NEVER GOING BACK 다음에 이 순서로, 랩 값 그대로(volume 10 / boost 10 / boost2 5 / octave 1 / EQ 0), length = 파일 초.
+- LISA - Tarantino 102033386205095(151.795초, 원곡 2:47) tempo 0.909, fileSpeed ≈ 1.1002 · K/DA - GIRLS (Feat. Sorana, Royal & the Serpent) 127811970673239(112.3초, 원곡 2:16) tempo 0.826, fileSpeed ≈ 1.211. fileSpeed는 D-921처럼 원곡 길이 ÷ 파일 길이(어림값, 안무·카메라를 붙일 때 재기).
+- 확인(Play, 1인, 클럽 안): 둘 다 불러옴, 속도 0.909 / 0.826, volume 10, Boost 10 > Boost2 5, 151.75 / 112.20초까지 재생 후 다음 곡.

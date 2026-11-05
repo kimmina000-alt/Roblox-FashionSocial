@@ -1,6 +1,6 @@
 # 클럽 음원 목록 · 설정값 (2026-11-03, D-796까지)
 
-코드: `src/ReplicatedStorage/FashionGame/Shared/ClubPlaylist.lua` (46곡, D-921; `ClubConfig.Playlist`로도 읽힘, D-888). 끝부분 `--★★★음원 추가★★★--` 아래 = 사용자 음원 칸, 아래 4번.
+코드: `src/ReplicatedStorage/FashionGame/Shared/ClubPlaylist.lua` (48곡, D-923; `ClubConfig.Playlist`로도 읽힘, D-888). 끝부분 `--★★★음원 추가★★★--` 아래 = 사용자 음원 칸, 아래 4번.
 예전 목록·안무 기록: `OLD_CLUB_PLAYLIST.md`.
 
 ## 설정값 2가지
@@ -50,23 +50,25 @@
 | 22 | RESCENE-With | 120039092597099 | 171.659 | 3:09 | lab tempo 1(사용자 저장값; 3:09로 들으려면 0.908) / volume 10 / boost 10 / boost2 5, fileSpeed ≈ 1.101 (D-921) |
 | 23 | K/DA - FIRESTARTER (Feat. Sophie Powers, MIYEON, SOYEON) | 102216920231649 | 181.643 | 3:20 | lab tempo 0.908 / volume 10 / boost 10 / boost2 5, fileSpeed ≈ 1.1011 (D-921) |
 | 24 | K/DA - NEVER GOING BACK (Feat. SOYEON, MIYEON) | 113680653484321 | 178.034 | 3:16 | lab tempo 0.908 / volume 10 / boost 10 / boost2 5, fileSpeed ≈ 1.1009 (D-921) |
-| 25 | aespa-Lemonade | 132067415333401 | 62 | 3:05 | |
-| 26 | IVE-Mirror | 139326796173276 | 67 | 3:20 | |
-| 27 | A2O LITE-NEON (다섯시사십칠분) | 74988982712396 | 201.19 | 3:42 | 새 업로드(D-922, 옛 3배 파일 97511700575810 대신): 원곡의 1.1배 파일(fileSpeed 1.1), lab tempo 0.91 / boost2 5. 22개, 자동 🎵, 이음새 blend (D-809) , 무대 카메라 (D-898) |
-| 28 | SOYEON-퇴사할게여 (다섯시사십팔분) | 96358497474432 | 70.5 | 3:31 | |
-| 29 | ILLIT-체포하겠어 (다섯시사십구분) | 139044453511745 | 60.6 | 3:01 | 21개(0:00~3:01), 자동 🎵, 연습 영상 시간(`at` = 클립 − 2.38초), blend (D-914) |
-| 30 | RESCENE-LOVE-ATTACK (다섯시오십이분) | 71873496902418 | 60.5 | 3:01 | 27개(0:00~3:01), 자동 🎵, 연습 영상 시간(t = 클립 − 0.45초), blend, still (D-903) |
-| 31 | MY:RAKL-오색 낙원 (다섯시오십육분) | 108027306922001 | 61.3 | 3:04 | |
-| 32 | Darla Jean-Dam Da Dee (다섯시오십칠분) | 78077595750886 | 72.9 | 3:38 | |
-| 33 | 머무르-꿈꾸던 어른이 되었나요 (다섯시오십팔분) | 120160897793669 | 69.2 | 3:27 | |
-| 34 | IVE-Looks Can Kill (다섯시오십구분) | 135553051649506 | 64.3 | 3:13 | 앞부분 7개(0:00~0:41), 자동 🎵, 이음새 blend (D-826) |
-| 35 | IOI-갑자기 | 73546697163709 | 65 | 3:14 | |
-| 36 | NMIXX-긴 소원(Birthday Wish) | 107782871991364 | 67 | 3:20 | |
-| 37 | NCT WISH-I SPY | 90694654380166 | 62 | 3:05 | 30개(0:01~3:05), 자동 🎵, 연습 영상 시간(`at` = 클립 + 1.50초), blend, still (D-912) |
-| 38 | CORTIS-REDRED (여섯시오분; D-890 이어 붙인 노래 시험 뒤 D-894에 이 파일로 되돌림) | 125703446596781 | 54.35 | 2:43 | 24개(0:00~2:43), 자동 🎵, 연습 영상 시간(`at` = 클립 − 0.40초), blend + turn, still (D-879) |
-| 39 | BIG Naughty-노스탈지아 (여섯시육분) | 116539470869444 | 65.0 | 3:15 | |
-| 40 | BIGBANG-BiiiG (여섯시칠분) | 113809029583519 | 54.8 | 2:44 | |
-| 41 | BOYNEXTDOOR-ANIMAL (여섯시팔분) | 130804487358433 | 47.6 | 2:22 | 25개(0:00~2:23), 자동 🎵, 연습 영상 시간(`at` = 클립 + 0.23초), blend (D-916) |
+| 25 | LISA - Tarantino | 102033386205095 | 151.795 | 2:47 | lab tempo 0.909 / volume 10 / boost 10 / boost2 5, fileSpeed ≈ 1.1002 (D-923) |
+| 26 | K/DA - GIRLS (Feat. Sorana, Royal & the Serpent) | 127811970673239 | 112.3 | 2:16 | lab tempo 0.826 / volume 10 / boost 10 / boost2 5, fileSpeed ≈ 1.211 (D-923) |
+| 27 | aespa-Lemonade | 132067415333401 | 62 | 3:05 | |
+| 28 | IVE-Mirror | 139326796173276 | 67 | 3:20 | |
+| 29 | A2O LITE-NEON (다섯시사십칠분) | 74988982712396 | 201.19 | 3:42 | 새 업로드(D-922, 옛 3배 파일 97511700575810 대신): 원곡의 1.1배 파일(fileSpeed 1.1), lab tempo 0.91 / boost2 5. 22개, 자동 🎵, 이음새 blend (D-809) , 무대 카메라 (D-898) |
+| 30 | SOYEON-퇴사할게여 (다섯시사십팔분) | 96358497474432 | 70.5 | 3:31 | |
+| 31 | ILLIT-체포하겠어 (다섯시사십구분) | 139044453511745 | 60.6 | 3:01 | 21개(0:00~3:01), 자동 🎵, 연습 영상 시간(`at` = 클립 − 2.38초), blend (D-914) |
+| 32 | RESCENE-LOVE-ATTACK (다섯시오십이분) | 71873496902418 | 60.5 | 3:01 | 27개(0:00~3:01), 자동 🎵, 연습 영상 시간(t = 클립 − 0.45초), blend, still (D-903) |
+| 33 | MY:RAKL-오색 낙원 (다섯시오십육분) | 108027306922001 | 61.3 | 3:04 | |
+| 34 | Darla Jean-Dam Da Dee (다섯시오십칠분) | 78077595750886 | 72.9 | 3:38 | |
+| 35 | 머무르-꿈꾸던 어른이 되었나요 (다섯시오십팔분) | 120160897793669 | 69.2 | 3:27 | |
+| 36 | IVE-Looks Can Kill (다섯시오십구분) | 135553051649506 | 64.3 | 3:13 | 앞부분 7개(0:00~0:41), 자동 🎵, 이음새 blend (D-826) |
+| 37 | IOI-갑자기 | 73546697163709 | 65 | 3:14 | |
+| 38 | NMIXX-긴 소원(Birthday Wish) | 107782871991364 | 67 | 3:20 | |
+| 39 | NCT WISH-I SPY | 90694654380166 | 62 | 3:05 | 30개(0:01~3:05), 자동 🎵, 연습 영상 시간(`at` = 클립 + 1.50초), blend, still (D-912) |
+| 40 | CORTIS-REDRED (여섯시오분; D-890 이어 붙인 노래 시험 뒤 D-894에 이 파일로 되돌림) | 125703446596781 | 54.35 | 2:43 | 24개(0:00~2:43), 자동 🎵, 연습 영상 시간(`at` = 클립 − 0.40초), blend + turn, still (D-879) |
+| 41 | BIG Naughty-노스탈지아 (여섯시육분) | 116539470869444 | 65.0 | 3:15 | |
+| 42 | BIGBANG-BiiiG (여섯시칠분) | 113809029583519 | 54.8 | 2:44 | |
+| 43 | BOYNEXTDOOR-ANIMAL (여섯시팔분) | 130804487358433 | 47.6 | 2:22 | 25개(0:00~2:23), 자동 🎵, 연습 영상 시간(`at` = 클립 + 0.23초), blend (D-916) |
 
 ## 곡별 값 (D-766, 2026-11-03)
 
@@ -117,6 +119,8 @@ local LAB = {
 	["120039092597099"] = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- RESCENE-With (D-921)
 	["102216920231649"] = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- K/DA - FIRESTARTER (D-921)
 	["113680653484321"] = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- K/DA - NEVER GOING BACK (D-921)
+	["102033386205095"] = { speed = 1, tempo = 0.909, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- LISA - Tarantino (D-923)
+	["127811970673239"] = { speed = 1, tempo = 0.826, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- K/DA - GIRLS (D-923)
 	["132067415333401"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = -2.5, engine = "sound" }, -- aespa-Lemonade
 	["139326796173276"] = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -10.5, mid = 5, high = 4.5, engine = "sound" }, -- IVE-Mirror
 	["74988982712396"] = { speed = 1, tempo = 0.91, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- A2O LITE-NEON (D-922, new upload; was 97511700575810)
