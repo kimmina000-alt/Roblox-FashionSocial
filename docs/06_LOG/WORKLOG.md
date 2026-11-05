@@ -3480,3 +3480,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - Play(클럽 지하, 밤): 35.5초 팔 가로지른 자세가 무대와 같은 순간(시작 지점 확인), 141.8초 무릎 위 샷. 스크립트 오류 없음.
   ![i spy stage camera](images/2026-11-05/stagecam_ispy_compare.jpg)
 - 남은 것: 모바일 2인 테스트, 머지 허락.
+### 무대 카메라 체포하겠어 (D-915)
+- 영상 KBS 뮤직뱅크 컴백(youtube gcmQ8eZW_vI, D:\Roblox\영상\Arrest_stage). 영상 = 노래 + 24.9초, 샷 90개. 브랜치 feat/stage-camera-arrest-1105.
+- Play(클럽 지하, 밤): 37.6초 깊이 숙이는 자세가 무대와 같은 순간(시작 지점 확인). 처음엔 허리 샷에서 머리가 잘려 머리 따라가기를 허리 샷까지 넓힘. 스크립트 오류 없음.
+  ![arrest stage camera](images/2026-11-05/stagecam_arrest_compare.jpg)
+- 남은 것: 모바일 2인 테스트, 머지 허락.

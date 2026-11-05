@@ -704,4 +704,34 @@ ClubCamera.Songs[90694654380166] = {
 	}),
 }
 
+-- ILLIT-체포하겠어 (You're Under Arrest): KBS Music Bank 2026-10-30 comeback
+-- stage (KBS WORLD TV, youtube gcmQ8eZW_vI), video = song + 24.9 s (D-915:
+-- 17 of 17 loudness windows +24.90; the first 25 s are the channel logo and
+-- the comeback film). A big set with a crowd of dancers: mostly wides and
+-- full shots, a few close-ups, read from 0.5 s strips in video seconds.
+ClubCamera.Songs[139044453511745] = {
+	video = "KBS Music Bank 2026-10-30, youtube gcmQ8eZW_vI",
+	offset = 24.9,
+	shots = videoCuts(24.9, {
+		{ 24.9, "xwide", 0, 6 }, { 27.0, "bust" }, { 28.3, "xwide", 0, 8 }, { 33.0, "wide", -15 }, { 34.5, "xwide", 0, 6 },
+		{ 37.0, "wide" }, { 38.8, "xwide", 0, 10 }, { 43.0, "waist" }, { 44.4, "wide", 0, 6 }, { 45.5, "bust" },
+		{ 46.5, "xwide", 0, 6 }, { 47.8, "wide", 0, 10 }, { 49.0, "xwide", 0, 6 }, { 50.0, "waist" }, { 50.5, "xwide", 0, 8 },
+		{ 53.0, "wide" }, { 54.0, "knee" }, { 55.0, "xwide", 0, 6 }, { 58.0, "waist" }, { 60.0, "wide", 0, 6 },
+		{ 62.0, "waist", 15 }, { 64.0, "xwide", 0, 6 }, { 66.0, "wide" }, { 68.0, "knee" }, { 69.0, "wide" },
+		{ 71.0, "waist" }, { 72.5, "bust" }, { 73.0, "wide" }, { 76.1, "xwide", 0, 10 }, { 78.0, "xwide", 0, 6 },
+		{ 81.5, "xwide", 0, 8 }, { 85.0, "waist" }, { 86.0, "xwide", 0, 6 }, { 88.5, "waist", 10 }, { 89.5, "xwide", 0, 8 },
+		{ 92.5, "waist" }, { 94.3, "xwide", 0, 8 }, { 96.5, "wide" }, { 97.0, "xwide", 0, 6 }, { 102.5, "wide" },
+		{ 103.0, "knee" }, { 104.5, "xwide", 0, 6 }, { 108.5, "knee" }, { 109.0, "bust" }, { 110.5, "waist" },
+		{ 111.0, "xwide", 0, 6 }, { 115.0, "wide" }, { 116.0, "xwide", 0, 6 }, { 122.0, "wide", 0, 6 }, { 129.0, "xwide", 0, 6 },
+		{ 131.5, "wide" }, { 133.0, "knee" }, { 135.5, "bust" }, { 136.8, "xwide", 0, 6 }, { 140.1, "wide" },
+		{ 141.5, "xwide", 0, 8 }, { 143.1, "xwide", 0, 6 }, { 146.0, "waist" }, { 147.0, "wide" }, { 148.0, "xwide", 0, 6 },
+		{ 149.5, "waist" }, { 151.3, "xwide", 0, 6 }, { 153.0, "xwide", 0, 8 }, { 153.5, "waist" }, { 155.3, "wide", 0, 6 },
+		{ 156.0, "waist" }, { 157.0, "wide", 0, 8 }, { 161.0, "bust" }, { 161.6, "wide", 0, 6 }, { 162.5, "xwide", 0, 6 },
+		{ 166.5, "waist" }, { 168.3, "xwide", 0, 8 }, { 173.0, "waist" }, { 174.2, "xwide", 0, 6 }, { 175.5, "waist" },
+		{ 176.5, "xwide", 0, 6 }, { 180.0, "waist" }, { 181.4, "xwide", 0, 6 }, { 183.5, "wide" }, { 184.5, "xwide", 0, 6 },
+		{ 187.0, "wide" }, { 188.0, "waist" }, { 189.5, "wide" }, { 190.0, "bust" }, { 191.5, "xwide", 0, 6 },
+		{ 197.0, "xwide", 0, 6 }, { 201.5, "wide" }, { 202.5, "xwide", 0, 6 }, { 203.0, "wide" }, { 207.0, "waist" },
+	}),
+}
+
 return ClubCamera

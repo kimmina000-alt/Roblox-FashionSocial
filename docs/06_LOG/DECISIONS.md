@@ -2480,3 +2480,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 컷 99개 + 0.5초 사진 띠로 샷 163개(`videoCuts`). I SPY 안무(D-912, feat/ispy-choreo-1105)는 아직 머지 전이지만 Studio에는 들어가 있어 Play에서 같이 확인함. 카메라 데이터는 안무와 따로라 먼저 머지해도 됨.
 - Studio 넣기: localhost가 막혀 있어 이번 곡 블록만 execute_luau로 넣음(바이트 수 브랜치와 같음 49,592).
 - 비교: docs/06_LOG/images/2026-11-05/stagecam_ispy_compare.jpg(35.5초 바스트 · 141.8초 무릎 위).
+## D-915 무대 카메라 아홉 번째 곡 ILLIT-체포하겠어, 허리 샷도 머리 따라가기 (2026-11-05)
+- 사용자: "arrest" + youtube gcmQ8eZW_vI(KBS 뮤직뱅크 2026-10-30 컴백, KBS WORLD TV). 앞 25초는 채널 로고와 컴백 영상.
+- 시작 지점: 게임 곡 소리(0~181.9초) ↔ 영상 → **영상 = 노래 + 24.9초**(17구간 모두 +24.90). 안무로 확인: 노래 37.6초 손을 앞으로 뻗으며 깊이 숙이는 자세 = 무대 같은 순간("On your knees").
+- 컷 66개 + 0.5초 사진 띠로 샷 90개(`videoCuts`). 큰 세트에 댄서가 많아 넓은 샷이 대부분.
+- StageCameraController: 머리 따라가기를 허리 샷까지 넓힘(바스트 이하 1, 허리 0.5, 무릎 0). 깊이 숙이는 동작에서 허리 샷 머리가 화면 밖으로 나가던 것.
+- 체포하겠어 안무(D-914, feat/arrest-choreo-1105)는 머지 전, Studio에는 있음. Studio 넣기: 이번 곡 블록 + 컨트롤러 한 줄만 execute_luau로(바이트 수 브랜치와 같음: ClubCamera 52,153, 컨트롤러 11,313).
+- 비교: docs/06_LOG/images/2026-11-05/stagecam_arrest_compare.jpg(37.6초 허리 · 131.6초 허리).

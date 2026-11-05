@@ -162,7 +162,9 @@ RunService:BindToRenderStep("StageCamera", Enum.RenderPriority.Camera.Value + 2,
 	-- (D-900) close and bust shots follow the head sideways, not the root: a
 	-- dancer leaning in a close-up would slide out of the frame
 	local head = character and character:FindFirstChild("Head") :: BasePart?
-	local closeness = math.clamp((4 - view.height / scale) / 2, 0, 1) -- (1 at bust and closer, 0 from 4 studs)
+	-- (1 at bust and closer, half at waist, 0 from a knee shot; D-915: a deep
+	-- lunge in a waist shot took the head out of the frame)
+	local closeness = math.clamp((5 - view.height / scale) / 2.4, 0, 1)
 	if head and closeness > 0 then
 		local h = head.Position
 		-- (and its height: the frame's aim sits that far below the head top
