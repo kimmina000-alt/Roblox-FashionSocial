@@ -117,6 +117,19 @@ def ohu_only_white():
     return img.crop(img.getbbox())
 
 
+def title_white(text, size=300):
+    """(D-907, user 2026-11-05: "로딩 화면에 OHU CLUB 폰트를 로고 폰트로 쓰자")
+    a white title in the logo font with the logo's letter spacing, for the
+    loading screen's scene titles (Roblox has no Bagel Fat One)"""
+    canvas = (int(size * (len(text) + 2)), int(size * 2))
+    bagel = load(BAGEL, size)
+    gap = size * (0.12 + 2 * (0.015 + 0.07)) / 2
+    m = text_mask(text, bagel, int(size * 0.015), gap, canvas, (size * 0.5, size * 0.3))
+    img = Image.new("RGBA", canvas, (255, 255, 255, 0))
+    img.putalpha(m)
+    return img.crop(img.getbbox())
+
+
 def solid_white(img):
     """(D-874, user: "테두리 뭐야 못생겼어") every pixel white, only the alpha
     kept: the see-through pixels round the letters were black, and Roblox's
@@ -131,4 +144,5 @@ if __name__ == "__main__":
     main_logo("outline").save(os.path.join(FINAL, "ohu_main_outline.png"))
     main_logo("glow").save(os.path.join(FINAL, "ohu_main_glow.png"))
     solid_white(ohu_only_white()).save(os.path.join(FINAL, "ohu_white.png"))
+    solid_white(title_white("OHU CLUB")).save(os.path.join(FINAL, "ohu_club_white.png"))
     print("wrote main logos")

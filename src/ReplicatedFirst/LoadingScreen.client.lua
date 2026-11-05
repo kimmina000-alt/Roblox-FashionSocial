@@ -26,6 +26,9 @@ local BEAM = "rbxassetid://109650761162030"
 type Scene = {
 	image: string,
 	title: string,
+	-- (D-907) the title drawn as an image in the logo font, and its width / height
+	titleImage: string?,
+	titleAspect: number?,
 	sub: string,
 	about: string,
 	tip: string,
@@ -56,6 +59,10 @@ local SCENES: {Scene} = {
 	{
 		image = "rbxassetid://98281600315142",
 		title = "OHU CLUB",
+		-- (D-907, user 2026-11-05: "로딩 화면에 OHU CLUB 폰트를 로고 폰트로 쓰자")
+		-- docs/04_ART/logo/ohu_club_white.png (tools/art/brand_logo.py title_white)
+		titleImage = "rbxassetid://74636429583204",
+		titleAspect = 1739 / 230,
 		sub = "OPEN 18:00 – 06:00",
 		about = "밤에만 문을 여는 클럽. DJ가 되어 직접 음악을 틀어 보세요.",
 		tip = "테이블을 터치하면 음료를 놓고 친구들과 함께 즐길 수 있어요.",
@@ -204,6 +211,22 @@ local tip = new("TextLabel", { Position = UDim2.fromScale(0, 0.8), Size = UDim2.
 for _, t in ipairs({ sub, title, about, tip }) do
 	new("UITextSizeConstraint", { MaxTextSize = if t == title then 46 elseif t == sub then 16 else 18, MinTextSize = 10 }, t)
 end
+-- (D-907) a scene's title as an image in the logo font, in the title's place,
+-- from its left edge, about as tall as the 46 px text
+local titleImage = new("ImageLabel", { Position = UDim2.fromScale(0, 0.17), Size = UDim2.new(1, 0, 0.36, 0), BackgroundTransparency = 1, ImageTransparency = 1, ScaleType = Enum.ScaleType.Fit, Visible = false, ZIndex = 22 }, info)
+local titleAspect = new("UIAspectRatioConstraint", { AspectRatio = 1, DominantAxis = Enum.DominantAxis.Height }, titleImage)
+new("UISizeConstraint", { MaxSize = Vector2.new(math.huge, 36) }, titleImage)
+do
+	local preload = {}
+	for _, scene in ipairs(SCENES) do
+		if scene.titleImage then
+			local probe = Instance.new("ImageLabel")
+			probe.Image = scene.titleImage
+			table.insert(preload, probe)
+		end
+	end
+	task.spawn(pcall, function() game:GetService("ContentProvider"):PreloadAsync(preload) end)
+end
 
 -- progress bar along the bottom
 local bar = new("Frame", { AnchorPoint = Vector2.new(0, 1), Position = UDim2.fromScale(0, 1), Size = UDim2.new(0.6, 0, 0, 6), BackgroundColor3 = Color3.new(1, 1, 1), BackgroundTransparency = 0.75, BorderSizePixel = 0, ZIndex = 21 }, textLayer)
@@ -219,8 +242,17 @@ local function showText(i: number)
 	for _, t in ipairs({ sub, title, about, tip }) do
 		TweenService:Create(t, TweenInfo.new(0.5), { TextTransparency = 1 }):Play()
 	end
+	TweenService:Create(titleImage, TweenInfo.new(0.5), { ImageTransparency = 1 }):Play()
 	task.delay(0.55, function()
 		sub.Text, title.Text, about.Text, tip.Text = scene.sub, scene.title, scene.about, "TIP  ·  " .. scene.tip
+		-- (D-907) the image title instead of the text one
+		title.Visible = scene.titleImage == nil
+		titleImage.Visible = scene.titleImage ~= nil
+		if scene.titleImage then
+			titleImage.Image = scene.titleImage
+			titleAspect.AspectRatio = scene.titleAspect or 1
+			TweenService:Create(titleImage, TweenInfo.new(0.9), { ImageTransparency = 0 }):Play()
+		end
 		for _, t in ipairs({ sub, title, about, tip }) do
 			TweenService:Create(t, TweenInfo.new(0.9), { TextTransparency = 0 }):Play()
 		end

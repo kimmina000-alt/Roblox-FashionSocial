@@ -2457,3 +2457,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 비교: docs/06_LOG/images/2026-11-05/stagecam_genie_compare.jpg(28.2 / 65.3초, 바스트 샷).
 - 샷 108개(`videoCuts`: 영상 시각으로 적고 차이를 빼서 노래 시각으로). 영상에 없는 노래 앞 14.8초는 옥상 전체를 높이서 보는 샷. 헬기장 위 크레인·헬기 샷(pitch 35~80), 다리 낮은 샷(pitch −12), 끝은 크레인이 위로 빠져 도시까지.
 - 브랜치는 Genie 안무가 머지된 catalog-ui-redesign(2febb29) 위.
+
+## D-906 지금 나오는 노래 띠: 왼쪽 가운데 + 접기 −/+ (2026-11-05)
+- 사용자: "재생 중인 노래 보여 주는 거 왼쪽 중앙 정렬로 옮기고 +, - 표시로 보이게 펼쳤다가 감췄다가 할 수 있게 해 줘 캐릭터 가린다."
+- DanceController: NowPlaying 띠를 화면 위 가운데 → 왼쪽 끝, 세로 가운데로(춤 창이 열려 있으면 그 오른쪽). 너비 화면의 40 %(200–300). 앞에 둥근 − 버튼(NowPlayingToggle): 누르면 띠가 접히고(+로 바뀜) ≡ › 🎵 🎥 재생바도 같이 숨음(ClubQuickBar가 banner.Visible을 따름), + 누르면 다시 펼침. 접힘 상태는 그 접속 동안만.
+
+## D-907 로딩 화면 OHU CLUB 제목을 로고 폰트로 (2026-11-05)
+- 사용자: "로딩 화면에 OHU CLUB 폰트를 로고 폰트로 쓰자". Roblox에 Bagel Fat One이 없어서 이미지: tools/art/brand_logo.py title_white → docs/04_ART/logo/ohu_club_white.png(흰색, 로고와 같은 글자 간격, 1739×230), rbxassetid://74636429583204 (Vantablack_Dev). LoadingScreen: 장면에 titleImage가 있으면 글자 제목 대신 이미지(높이 최대 36 px, 왼쪽 정렬), 같이 페이드.

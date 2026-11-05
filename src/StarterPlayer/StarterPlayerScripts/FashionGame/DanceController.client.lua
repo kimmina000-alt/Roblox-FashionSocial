@@ -324,6 +324,31 @@ local banner = label({
 corner(banner, 15)
 -- (34: room at both ends for the club's ≡ and › buttons, ClubQuickBar)
 create("UIPadding", { PaddingLeft = UDim.new(0, 34), PaddingRight = UDim.new(0, 34) }, banner)
+-- (D-906, user 2026-11-05: "재생 중인 노래 보여 주는 거 왼쪽 중앙 정렬로 옮기고 +, -
+-- 표시로 보이게 펼쳤다가 감췄다가 할 수 있게 해 줘 캐릭터 가린다") the banner sits at
+-- the left edge, half way down (layoutPanel); this round − folds it away (its
+-- ≡ › 🎵 🎥 and the play bar go with it, ClubQuickBar follows banner.Visible),
+-- + brings it back
+local bannerFolded = false
+local bannerToggle = create("TextButton", {
+	Name = "NowPlayingToggle",
+	AnchorPoint = Vector2.new(0, 0.5),
+	Size = UDim2.fromOffset(26, 26),
+	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
+	BackgroundTransparency = 0.45,
+	Text = "−",
+	TextColor3 = Color3.new(1, 1, 1),
+	TextSize = 20,
+	Font = Enum.Font.GothamBold,
+	AutoButtonColor = true,
+	Visible = false,
+}, gui)
+corner(bannerToggle, 13)
+bannerToggle.Activated:Connect(function()
+	bannerFolded = not bannerFolded
+	bannerToggle.Text = if bannerFolded then "+" else "−"
+	if bannerFolded then banner.Visible = false end
+end)
 
 -- 같이 추기 status pill (under the banner while synced)
 local syncPill = create("Frame", {
@@ -502,7 +527,13 @@ local function layoutPanel()
 		item.Position = UDim2.fromOffset(centerX, y)
 		item.Size = UDim2.fromOffset(w, item.Size.Y.Offset)
 	end
-	place(banner, 340, top - 2)
+	-- (D-906) the song banner: at the left, half way down, the − / + in front;
+	-- right of the dance panel when that is open
+	local bannerW = math.clamp(viewport.X * 0.4, 200, 300)
+	local midY = math.floor(viewport.Y / 2)
+	bannerToggle.Position = UDim2.fromOffset(leftEdge, midY)
+	banner.Position = UDim2.fromOffset(leftEdge + 32 + bannerW / 2, midY - 15)
+	banner.Size = UDim2.fromOffset(bannerW, banner.Size.Y.Offset)
 	place(syncPill, 330, top + 32)
 	place(playerCard, 290, top + 70)
 end
@@ -1364,6 +1395,7 @@ local function boothMute()
 		music.Volume = 0		
 		joinedPlayer:SetLevel(0)
 		banner.Visible = false
+		bannerToggle.Visible = false
 	end
 end
 local function watchBooth(character: Model)
@@ -1409,7 +1441,9 @@ RunService.RenderStepped:Connect(function(dt)
 		local musicPanel = musicGui and musicGui:FindFirstChild("MusicPanel")
 		-- (D-757: on PC too, now that its DJ window is two windows at the top)
 		local djWindowOnPhone = musicPanel ~= nil and (musicPanel :: GuiObject).Visible
-		banner.Visible = level > 0 and banner.Text ~= "" and not djWindowOnPhone
+		local wanted = level > 0 and banner.Text ~= "" and not djWindowOnPhone
+		banner.Visible = wanted and not bannerFolded
+		bannerToggle.Visible = wanted -- (D-906)
 	end
 	if music.Volume > 0 then
 		local loud = if joinedIndex ~= 0 then joinedPlayer.decks[joinedPlayer.cur].snd else music
