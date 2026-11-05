@@ -3474,3 +3474,9 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 모바일 2P 테스트 (D-906, D-907, D-909)
 - Player1/Player2 클럽(22시): 띠 왼쪽 가운데(42, 325), − 누르면 접힘(+), + 누르면 펼침, ≡ 🎵 🎥 재생바 같이 따라감. SnackService.Give: 돼지국밥 Sip 1.4, 순대국밥 0.7. 스크립트 오류 없음.
 ![펼침](images/2026-11-05/banner_left_open.jpg) ![접힘](images/2026-11-05/banner_left_folded.jpg)
+
+### 무대 카메라 I SPY (D-913)
+- 영상 MBC 음악중심(youtube 9N0svN37emE, D:\Roblox\영상\ISPY_stage). 영상 = 노래 − 0.6초, 샷 163개. 브랜치 feat/stage-camera-ispy-1105.
+- Play(클럽 지하, 밤): 35.5초 팔 가로지른 자세가 무대와 같은 순간(시작 지점 확인), 141.8초 무릎 위 샷. 스크립트 오류 없음.
+  ![i spy stage camera](images/2026-11-05/stagecam_ispy_compare.jpg)
+- 남은 것: 모바일 2인 테스트, 머지 허락.

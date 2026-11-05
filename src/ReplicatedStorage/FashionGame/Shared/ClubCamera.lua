@@ -661,4 +661,47 @@ ClubCamera.Songs[71873496902418] = {
 	}),
 }
 
+-- NCT WISH-I SPY: MBC Show! Music Core 2026-10-31 stage (youtube
+-- 9N0svN37emE), video = song - 0.6 s (D-913: 17 of 17 loudness windows
+-- -0.60 / -0.65). Fast beat cuts between close-ups and the full stage, read
+-- from 0.5 s strips in video seconds.
+ClubCamera.Songs[90694654380166] = {
+	video = "MBC Show! Music Core 2026-10-31, youtube 9N0svN37emE",
+	offset = -0.6,
+	shots = videoCuts(-0.6, {
+		{ -0.6, "bust" }, { 2.3, "xwide", 0, 6 }, { 4.2, "waist" }, { 5.5, "knee" }, { 6.0, "bust", 10 }, { 6.6, "xwide", 0, 6 },
+		{ 9.7, "wide", 0, 6 }, { 10.0, "bust", -10 }, { 11.5, "wide" }, { 12.0, "wide", 0, 6 }, { 14.5, "bust", 10 },
+		{ 16.4, "knee", 15 }, { 17.0, "waist" }, { 18.9, "xwide", 0, 6 }, { 20.5, "wide", 0, 6 }, { 21.5, "knee" },
+		{ 22.3, "bust", -10 }, { 22.5, "wide", 0, 6 }, { 24.0, "bust" }, { 25.8, "wide", 0, 6 }, { 27.0, "knee" },
+		{ 27.8, "bust", 10 }, { 29.1, "wide", 0, 6 }, { 30.0, "waist" }, { 31.0, "wide" }, { 32.0, "waist" }, { 32.6, "bust" },
+		{ 34.7, "bust", -10 }, { 35.8, "xwide", 0, 8 }, { 36.7, "wide", 0, 8 }, { 38.3, "bust" }, { 39.1, "wide" },
+		{ 40.5, "wide", 0, 6 }, { 41.5, "knee" }, { 42.7, "bust", 10 }, { 43.1, "xwide", 0, 6 }, { 44.0, "wide", 0, 6 },
+		{ 45.6, "bust" }, { 46.4, "bust", -10 }, { 47.5, "bust", 10 }, { 49.3, "wide", 0, 6 }, { 51.0, "waist" },
+		{ 51.5, "bust" }, { 52.3, "xwide", 0, 6 }, { 53.2, "wide" }, { 54.1, "wide", 0, 6 }, { 55.0, "bust" },
+		{ 55.7, "xwide", 0, 6 }, { 57.0, "wide", 0, 6 }, { 58.5, "bust", -10 }, { 60.0, "bust" }, { 61.1, "bust", 10 },
+		{ 61.5, "waist" }, { 62.9, "xwide", 0, 10 }, { 63.5, "wide", 0, 8 }, { 64.5, "knee" }, { 65.0, "bust" },
+		{ 66.9, "bust", -10 }, { 67.5, "waist" }, { 69.0, "bust" }, { 70.0, "wide" }, { 71.2, "waist" }, { 72.0, "bust", 10 },
+		{ 72.5, "waist" }, { 74.0, "bust" }, { 74.5, "wide" }, { 75.5, "xwide", 0, 8 }, { 76.0, "bust" }, { 76.5, "knee" },
+		{ 78.2, "bust", -10 }, { 78.5, "wide", 0, 6 }, { 79.0, "bust" }, { 80.0, "wide", -20 }, { 80.8, "bust" },
+		{ 83.0, "wide", 0, 6 }, { 85.0, "waist" }, { 86.5, "wide", 0, 6 }, { 87.3, "bust" }, { 88.0, "close" },
+		{ 90.0, "xwide", 0, 6 }, { 91.0, "wide", 0, 6 }, { 92.1, "waist" }, { 92.5, "bust", 10 }, { 94.0, "waist" },
+		{ 94.6, "wide" }, { 95.5, "bust" }, { 97.2, "wide", 0, 6 }, { 98.5, "waist" }, { 99.0, "bust", -10 },
+		{ 100.5, "wide", 0, 6 }, { 102.5, "bust" }, { 103.4, "xwide", 0, 10 }, { 104.0, "wide", 0, 6 }, { 105.5, "waist" },
+		{ 106.5, "bust", 10 }, { 107.0, "wide" }, { 108.5, "bust" }, { 110.1, "wide", 0, 6 }, { 112.5, "bust", -10 },
+		{ 114.0, "waist" }, { 115.2, "bust" }, { 117.0, "xwide", 0, 8 }, { 118.0, "wide", 0, 6 }, { 119.0, "waist" },
+		{ 122.0, "wide", 0, 6 }, { 122.7, "bust", 10 }, { 125.5, "bust", -10 }, { 127.0, "xwide", 0, 8 }, { 127.6, "wide" },
+		{ 128.0, "waist" }, { 129.7, "bust" }, { 130.0, "xwide", 0, 6 }, { 132.0, "wide" }, { 132.5, "waist" },
+		{ 133.0, "bust", 10 }, { 134.4, "wide", 0, 6 }, { 136.0, "wide" }, { 136.5, "bust" }, { 138.0, "bust", -10 },
+		{ 138.5, "wide" }, { 139.0, "wide", 0, 6 }, { 139.6, "bust" }, { 140.5, "waist" }, { 141.0, "knee" },
+		{ 141.5, "wide", 0, 6 }, { 143.0, "waist" }, { 145.0, "bust" }, { 145.5, "xwide", 0, 6 }, { 148.5, "waist" },
+		{ 149.0, "bust" }, { 149.5, "waist" }, { 150.8, "bust", 10 }, { 152.0, "wide" }, { 152.5, "waist" }, { 153.0, "bust" },
+		{ 154.0, "waist" }, { 155.1, "bust", -10 }, { 157.0, "waist" }, { 158.0, "bust" }, { 158.5, "xwide", 0, 6 },
+		{ 159.0, "wide" }, { 160.4, "waist" }, { 161.2, "bust", 10 }, { 162.0, "wide", 0, 6 }, { 163.2, "bust" },
+		{ 164.6, "wide", 0, 6 }, { 166.0, "wide" }, { 166.4, "waist" }, { 167.2, "bust", -10 }, { 168.7, "wide", 0, 6 },
+		{ 170.0, "waist" }, { 170.5, "bust", 10 }, { 172.0, "wide" }, { 173.0, "waist" }, { 174.0, "bust" },
+		{ 175.0, "wide", 0, 6 }, { 175.5, "xwide", 0, 8 }, { 177.0, "bust" }, { 179.0, "wide" }, { 180.0, "waist" },
+		{ 183.0, "bust" }, { 183.5, "waist" }, { 184.0, "xwide", 0, 6 },
+	}),
+}
+
 return ClubCamera
