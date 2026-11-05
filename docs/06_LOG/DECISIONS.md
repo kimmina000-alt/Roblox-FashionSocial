@@ -2549,3 +2549,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 확인(Play, 1인, 클럽 안): 새 id 불러옴(승인 오류 없음), 서버 시계 × songRate와 실제 TimePosition × fileSpeed 차이 0.00~0.01초, 곡 끝에서 다음 곡으로 넘어감, 안무 타이밍 검사(choreo_timing_check, 이 곡만) ok, 카메라 항목 있음.
 - Studio: ClubPlaylist(사용자가 두 줄로 나눠 둔 곡 줄을 새 줄로) / ClubCamera 키 한 줄만 multi_edit. tools/choreo/choreo_check.lua 기본 SOUND_ID도 새 id.
 - 모바일 2P 테스트(2026-11-06, Player1/Player2 폰 801×413): 두 폰 모두 새 id·fileSpeed 1.0908, 같은 안무 조각(2번 12.4초 / 129447992418977 99~103초)을 들리는 위치 − `at`과 0.03초 안에서 춤춤, 서버 시계와 소리 차이 0.02~0.08초, 🎥 무대 카메라 켜짐(Scriptable, 배너 2:39), 곡 끝에서 다음 곡으로 넘어가며 카메라 원래대로(Custom, FOV 70). 오류 없음(콘솔의 93308695817877 승인 오류는 이 곡과 무관).
+
+## D-920 클럽 곡 추가: Hearts2Hearts-Next Chapter (2026-11-06)
+- 사용자(랩 세션): "템포 1로 해서 오후에 넘겨". 새 업로드 113170325006427 = x1 파일 172.366초(원곡 2:52).
+- 랩 값 그대로(DataStore TurntableLabSettings v1): `lab = { speed = 1, tempo = 1, volume = 1, boost = 1, octave = 1, low = 0, mid = 0, high = 0 }` (volume 1 / boost 1은 사용자가 손대지 않은 랩 기본값, 받은 그대로). length = 172.366(파일 초).
+- `fileSpeed = 1`: `lab`이 있는 곡은 3배 업로드로 보기 때문에(ClubConfig.fileSpeed) x1 파일은 꼭 적어야 안무·카메라 시계가 맞음(지금은 안무·카메라 없음).
+- 자리: ClubPlaylist에서 Hearts2Hearts-Lemon Tang 바로 다음(번호는 하나씩 밀림; 번호로 곡을 가리키는 코드는 없음).
+- 확인(Play, 1인, 클럽 안): 불러옴(승인 오류 없음), 길이 172.366초, 속도 1, 서버 시계와 소리 위치 차이 0.01초, 172.34초까지 재생 후 다음 곡. 주의: volume 1 / boost 1 / boost2 1이라 다른 사용자 곡(volume 10, boost 10, boost2 2~10)보다 훨씬 작게 들림.
