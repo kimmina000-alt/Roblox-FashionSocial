@@ -3474,3 +3474,13 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 모바일 2P 테스트 (D-906, D-907, D-909)
 - Player1/Player2 클럽(22시): 띠 왼쪽 가운데(42, 325), − 누르면 접힘(+), + 누르면 펼침, ≡ 🎵 🎥 재생바 같이 따라감. SnackService.Give: 돼지국밥 Sip 1.4, 순대국밥 0.7. 스크립트 오류 없음.
 ![펼침](images/2026-11-05/banner_left_open.jpg) ![접힘](images/2026-11-05/banner_left_folded.jpg)
+
+### NCT WISH I SPY 안무 30조각 (D-912)
+- 사용자: "ISPY 안무 추가 30개" + id 32개(ISPY12 · ISPY15가 두 번씩 올라감, 키프레임 같음 → 먼저 올린 id). 영상 NCTWISH_ISPY_centercut(미러 연습 영상, 클립 30개).
+- 노래 ↔ 영상: 영상 = 노래 − 1.50초(곡 내내 같음). `at` = 클립 시작 + 1.50, blend = 이음새 검사 제안값.
+- 검사: 미끄러짐 16곳 → ChoreoSlideStill 뒤 0, 영상 서 있기 still 1조각, 떨림 261 → 18구간(모두 기준선, 대부분 조각 첫 0.2초).
+- Play: 조각 시작 차이 −0.01~−0.08초(앞 · 끝), 25→26(133°) 뒤집힘 없음, still 이동 0.000, 몸 바꾸기 뒤 회전 · 허리 그대로.
+- 영상과 같은 순간(노래 20 / 90 / 175초, 왼쪽 미러 영상):
+  ![ispy](images/2026-11-05/d912_ispy_compare.jpg)
+- Studio MCP의 localhost HTTP가 막힘(Assistant HTTP allowlist): 동기화 서버 대신 코드를 직접 붙여 넣음.
+- 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지.

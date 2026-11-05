@@ -286,6 +286,9 @@ M.ChoreoFixes = {
 	-- where the clip's member stands in the video (still_from_video.py)
 	[109011245162387] = { still = { from = 0.13, to = 1.2 } }, -- 1
 	[118832898913501] = { still = { from = 4.77, to = 5.6 } }, -- 8
+	-- NCT WISH-I SPY (D-912, the mirrored practice video ILeBVk4x_XQ): `still` where
+	-- the clip's member stands in the video (still_from_video.py)
+	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
 } :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
 	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: any?, turnEase: string?,
@@ -366,6 +369,11 @@ M.ChoreoSlideStill = {
 	[76304830605030] = { { 4.6, 5.2 }, { 7.6, 8.3 } }, [115786464203055] = { { 2.6, 3.3 } }, [73284838254272] = { { 6.5, 7.2 } },
 	[80227668256511] = { { 3.3, 3.9 } }, [72915658378938] = { { 0.3, 0.9 } }, [104212164342204] = { { 6.7, 7.4 } },
 	[83427493012714] = { { 5.6, 6.3 }, { 6.3, 7.0 } },
+	-- NCT WISH-I SPY (D-912)
+	[83299308409543] = { { 2.2, 2.9 } }, [122217205660431] = { { 0.7, 1.4 } }, [71548910990490] = { { 0.3, 1.1 }, { 4.0, 4.6 } },
+	[137433206050479] = { { 3.3, 3.9 } }, [119352807886781] = { { 0.0, 0.5 }, { 0.6, 1.6 } }, [80718941616155] = { { 0.1, 0.7 }, { 4.8, 5.4 } },
+	[76871177818406] = { { 1.0, 1.7 } }, [84123931984762] = { { 3.3, 4.1 } }, [74058508632786] = { { 0.2, 0.9 } },
+	[127691136882789] = { { 0.3, 0.9 }, { 2.3, 2.9 } }, [73998534307708] = { { 8.0, 8.6 } }, [117524452063760] = { { 7.0, 7.7 } },
 } :: {[number]: {{number}}}
 for id, stretches in pairs(M.ChoreoSlideStill) do
 	local fix = (M.ChoreoFixes[id] or {}) :: any
