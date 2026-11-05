@@ -388,6 +388,7 @@ class Runner:
                     return
                 write_log(path, title, "완료", t0, asset_id)
                 memo = save_id(os.path.dirname(path), prefix, number, asset_id)
+                app.add_id(number, asset_id)
                 done += 1
                 app.log(f"  ✓ 완료 ({time.time() - t0:.0f}초) → {os.path.basename(memo)}")
             app.log(f"끝: {done}개 완료. ID 메모: {memo if done else '-'}")
@@ -488,11 +489,62 @@ class App:
 
         self.text = tk.Text(f, width=72, height=18)
         self.text.grid(row=4, column=0, columnspan=4, sticky="nsew")
+
+        # (user 2026-11-05: "메모칸 만들어서 거기에 id 메모해 놔") the IDs, one per
+        # line in number order, as they come in; also kept in the video folder
+        memo_box = ttk.Frame(f)
+        memo_box.grid(row=0, column=4, rowspan=5, sticky="nsew", padx=(10, 0))
+        ttk.Label(memo_box, text="ID 메모 (번호 순서)").pack(anchor="w")
+        self.memo = tk.Text(memo_box, width=22, height=26)
+        self.memo.pack(fill="both", expand=True)
+        memo_bar = ttk.Frame(memo_box)
+        memo_bar.pack(fill="x")
+        ttk.Button(memo_bar, text="전부 복사", command=self.copy_memo).pack(side="left")
+        self.memo_numbers = tk.BooleanVar(value=False)
+        ttk.Checkbutton(memo_bar, text="번호도 보기", variable=self.memo_numbers, command=self.show_memo).pack(side="left", padx=4)
+        self.ids = {}
+        self.folder_var.trace_add("write", lambda *_: self.load_memo())
+        self.prefix_var.trace_add("write", lambda *_: self.load_memo())
         self.refresh()
         if self.points.get("_studio") in self.studio_box["values"]:
             self.studio_var.set(self.points["_studio"])
+        # (the last folder and prefix come back next time)
+        if self.points.get("_folder"):
+            self.folder_var.set(self.points["_folder"])
+        if self.points.get("_prefix"):
+            self.prefix_var.set(self.points["_prefix"])
+        self.load_memo()
         self.log("처음이면 ① 위치 기록부터 하세요. 기록된 위치: " + (", ".join(k for k in self.points if not k.startswith("_")) or "없음"))
         threading.Thread(target=self.hotkeys, daemon=True).start()
+
+    # -- the ID memo
+    def load_memo(self):
+        folder, prefix = self.folder_var.get().strip(), self.prefix_var.get().strip()
+        self.ids = {}
+        table = os.path.join(folder, f"{prefix}_ids_번호.txt")
+        if folder and os.path.exists(table):
+            with open(table, encoding="utf-8") as fh:
+                for line in fh:
+                    parts = line.strip().split("\t")
+                    if len(parts) == 2 and parts[0].isdigit():
+                        self.ids[int(parts[0])] = parts[1]
+        self.show_memo()
+
+    def show_memo(self):
+        lines = [(f"{n}\t{self.ids[n]}" if self.memo_numbers.get() else self.ids[n]) for n in sorted(self.ids)]
+        self.memo.delete("1.0", "end")
+        self.memo.insert("1.0", "\n".join(lines))
+
+    def add_id(self, number, asset_id):
+        def ui():
+            self.ids[number] = asset_id
+            self.show_memo()
+        self.root.after(0, ui)
+
+    def copy_memo(self):
+        self.root.clipboard_clear()
+        self.root.clipboard_append(self.memo.get("1.0", "end").strip())
+        self.log("ID 메모를 복사했어요.")
 
     # -- helpers
     def log(self, s):
@@ -574,7 +626,7 @@ class App:
     def start_calib(self):
         self.refresh()
         # (user 2026-11-05: always all of them, from the first)
-        self.points = {}
+        self.points = {k: v for k, v in self.points.items() if k in ("_folder", "_prefix")}
         self.calib_list = list(range(len(STEPS)))
         self.calib_pos = 0
         self.calib_index = self.calib_list[0]
@@ -629,6 +681,10 @@ class App:
         if not fs:
             self.log("처리할 영상이 없어요 (이름이 1.mp4, 2.mp4… 인 영상만).")
             return
+        self.points["_folder"] = self.folder_var.get().strip()
+        self.points["_prefix"] = self.prefix_var.get().strip()
+        with open(POINTS_FILE, "w", encoding="utf-8") as fh:
+            json.dump(self.points, fh, ensure_ascii=False, indent=1)
         self.log(f"시작: {len(fs)}개. 도중에 마우스·키보드를 건드리지 마세요. 멈춤은 F9.")
         self.start_btn["state"] = "disabled"
         self.stop_btn["state"] = "normal"
