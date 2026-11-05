@@ -228,7 +228,31 @@ class Runner:
             tail += 1
             xx += 1
         fill = run / (run + tail)
-        return ("done" if tail <= max(3, run * 0.02) else "working"), run, fill
+        if tail > max(3, run * 0.02):
+            return "working", run, fill
+        # (user 2026-11-05: the bar is full while it still says "애니메이션을 처리
+        # 중입니다", the convert goes on for a while; done is "작업 완료!
+        # 애니메이션이 준비되었습니다", a longer line. Its half width against the
+        # bar: about 0.13 while working, 0.22 when done, measured on the user's
+        # recording)
+        length = run + tail
+        start = end - run + 1
+        centre = start + length / 2
+        # (the line above the bar: from the bar's top row up; the bar's own
+        # rounded ends have dark edge pixels)
+        bar_top = bar[0][1]
+        top = max(0, int(bar_top - length * 0.12))
+        bottom = max(0, bar_top - 3)
+        left = None
+        for xx in range(max(0, start), min(W, int(centre))):
+            for yy in range(top, bottom):
+                if sum(px[xx, yy]) < 450:
+                    left = xx
+                    break
+            if left is not None:
+                break
+        half = (centre - left) / length if left is not None else 0.0
+        return ("done" if half > 0.175 else "working"), run, fill
 
     def menu(self, studio, *names):
         for n in names:
@@ -266,6 +290,11 @@ class Runner:
                 log(f"    (진행 막대 {fill:.0%})")
             if state == "done":
                 log("  작업 완료")
+                # (the 작업 완료 box closes by itself after a few seconds; the ⋯
+                # does not open while it is up)
+                close_end = time.time() + 20
+                while time.time() < close_end and self.busy_state(studio)[0] != "none":
+                    self.sleep(0.5)
                 break
             # (the box closed by itself after it was seen working)
             if state == "none":
@@ -279,8 +308,17 @@ class Runner:
         self.sleep(2.0)
         # 3. publish
         log(f"  게시: {title}")
-        self.menu(studio, "dots", "publish")
-        self.wait(lambda: find_window(ASSET_TITLE) is not None, 30, "게시 창")
+        for attempt in range(3):
+            self.menu(studio, "dots", "publish")
+            try:
+                self.wait(lambda: find_window(ASSET_TITLE) is not None, 20, "게시 창")
+                break
+            except RuntimeError:
+                if attempt == 2:
+                    raise
+                log("  게시 창이 안 떠서 다시 눌러요")
+                press(VK_ESC)
+                self.sleep(2.0)
         self.sleep(2.0)
         asset = find_window(ASSET_TITLE)
         click(*self.at("title", asset))
@@ -391,7 +429,9 @@ class App:
         self.text = tk.Text(f, width=72, height=18)
         self.text.grid(row=4, column=0, columnspan=4, sticky="nsew")
         self.refresh()
-        self.log("처음이면 ① 위치 기록부터 하세요. 기록된 위치: " + (", ".join(self.points) or "없음"))
+        if self.points.get("_studio") in self.studio_box["values"]:
+            self.studio_var.set(self.points["_studio"])
+        self.log("처음이면 ① 위치 기록부터 하세요. 기록된 위치: " + (", ".join(k for k in self.points if not k.startswith("_")) or "없음"))
         threading.Thread(target=self.hotkeys, daemon=True).start()
 
     # -- helpers
@@ -470,11 +510,25 @@ class App:
         if self.calib_index is None:
             return
         name, base, _ = STEPS[self.calib_index]
-        hwnd = self.studio_hwnd() if base == "studio" else find_window(ASSET_TITLE)
-        if not hwnd:
-            self.log("  " + ("Studio 창" if base == "studio" else "게시(Asset Configuration) 창") + "을 찾지 못했어요. 열고 다시 F8.")
-            return
         x, y = cursor()
+        # (2026-11-05: the window under the mouse, not the list's pick: a
+        # point was once kept against another Studio window's corner)
+        under = user32.GetAncestor(user32.WindowFromPoint(wt.POINT(x, y)), 2)  # GA_ROOT
+        n = user32.GetWindowTextLengthW(under)
+        buf = ctypes.create_unicode_buffer(n + 1)
+        user32.GetWindowTextW(under, buf, n + 1)
+        title = buf.value
+        if base == "studio" and "Roblox Studio" not in title:
+            self.log(f"  마우스 아래 창이 Studio가 아니에요 ({title or '?'}). 다시 F8.")
+            return
+        if base == "asset" and title != ASSET_TITLE:
+            self.log(f"  마우스 아래 창이 게시(Asset Configuration) 창이 아니에요 ({title or '?'}). 다시 F8.")
+            return
+        hwnd = under
+        if base == "studio":
+            self.points["_studio"] = title
+            self.refresh()
+            self.studio_var.set(title)
         l, t, _, _ = rect(hwnd)
         self.points[name] = [x - l, y - t]
         self.log(f"  기록: {name} = ({x - l}, {y - t})")
