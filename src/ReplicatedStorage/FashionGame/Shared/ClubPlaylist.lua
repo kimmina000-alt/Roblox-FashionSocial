@@ -258,9 +258,9 @@ M.Playlist = {
 		{ id = 73438902388486, at = 134.05, blend = 0.62 }, { id = 103007904279324, at = 141.83, blend = 0.55 }, { id = 114253650075143, at = 153.78 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 116539470869444, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "BIGBANG-BiiiG", soundId = 113809029583519, length = 55, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
-	-- (user 2026-11-06, set in Studio: new upload 94498201288355, tempo 1, boost2 2; was 130804487358433 at tempo 0.335)
+	-- (user 2026-11-06, set in Studio: new upload 94498201288355, boost2 2; was 130804487358433. User: "2:22에 맞춰서 템포": the file is 47.63 s, 47.63 / 142 = 0.335)
 	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 94498201288355, length = 48,
-		lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
+		lab = { speed = 1, tempo = 0.335, volume = 10, boost = 10, boost2 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
 		-- D-916: ANIMAL1..25 (practice video Gl1VZ3UPeZU, video = song - 0.23 s, `at` = clip start + 0.23)
 		choreo = { { id = 129402890751712, at = 0.23 }, { id = 80772039533772, at = 2.03, blend = 0.73 }, { id = 112166541341442, at = 4.51, blend = 0.74 },
 		{ id = 80410028707124, at = 6.36, blend = 0.48 }, { id = 105018508412110, at = 11.01, blend = 1 }, { id = 130036196270388, at = 13.41, blend = 1 },
