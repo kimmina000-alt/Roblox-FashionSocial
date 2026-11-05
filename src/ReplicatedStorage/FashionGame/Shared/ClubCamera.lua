@@ -452,7 +452,8 @@ ClubCamera.Songs[135553051649506] = {
 -- EXRHfIvmPIQ), video = song + 3.88 s (loudness matched, no drift, D-900).
 -- 55 hard cuts: crane wides from high left, handheld close-ups with whips,
 -- low front full shots; moving shots are takes from 0.5 s strips.
-ClubCamera.Songs[91762270038050] = {
+-- (D-919) the new upload 133586602463513 (was 91762270038050): same song clock
+ClubCamera.Songs[133586602463513] = {
 	video = "KBS Music Bank 2023-09-08, youtube EXRHfIvmPIQ",
 	offset = 3.88,
 	shots = ClubCamera.join({

@@ -10,7 +10,7 @@
 -- Set IDS to the new list, or SOUND_ID to check a track already in ClubConfig.
 
 local IDS: {any}? = nil -- e.g. { 119819611123433, 97097804325917, ... }
-local SOUND_ID = 91762270038050
+local SOUND_ID = 133586602463513
 
 local YAW_LIMIT = 20 -- degrees
 local HEIGHT_LIMIT = 0.3 -- studs

@@ -41,7 +41,7 @@
 | 13 | ATEEZ-BAD | 134942349436280 | 51 | 2:32 | 23개(0:00~곡 끝), 자동 🎵, 이음새 blend + turn, 11번 from 1.3 (D-844) |
 | 14 | 소녀시대-소원을 말해봐(Genie) | 128270208751659 | 76 | 3:47 | 26개(0:14~3:36), 자동 🎵, 커버 영상 시간(t = 클립 + 13.55초, 영상이 전주를 잘라 냄), blend, still (D-897) |
 | 15 | 현아-Bubble Pop | 76388700698178 | 71 | 3:32 | 11개 (자동 아님) |
-| 16 | RIIZE-Get A Guitar | 91762270038050 | 54 | 2:40 | 20개, 자동 🎵, 제자리에서 (D-802), 1:10에서 2초 잘라 이어 붙임 (D-810), 이음새 blend (D-807) |
+| 16 | RIIZE-Get A Guitar | 133586602463513 | 147.285 | 2:40 | 새 업로드(D-919, 옛 3배 파일 91762270038050 대신): 원곡의 1.0908배 파일(fileSpeed 1.0908), lab tempo 0.921 / boost2 5.05. 20개, 자동 🎵, 제자리에서 (D-802), 1:10에서 2초 잘라 이어 붙임 (D-810), 이음새 blend (D-807), 무대 카메라 (D-900) |
 | 17 | RIIZE-Love 119 | 119473981131981 | 58 | 2:53 | |
 | 18 | YENA-Catch Catch | 80583279340768 | 61 | 3:02 | |
 | 19 | Hearts2Hearts-Lemon Tang | 97032815457241 | 54 | 2:41 | |
@@ -103,7 +103,7 @@ local LAB = {
 	["134942349436280"] = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = 0, mid = 0, high = 0, engine = "sound" }, -- ATEEZ-BAD
 	["128270208751659"] = { speed = 1, tempo = 0.334, volume = 10, boost = 2.5, octave = 0.5, low = -5, mid = 2, high = 0, engine = "sound" }, -- 소녀시대-소원을 말해봐(Genie)
 	["76388700698178"] = { speed = 1, tempo = 0.333, volume = 10, boost = 2.5, octave = 0.5, low = -6, mid = 0.5, high = -7, engine = "sound" }, -- 현아-Bubble Pop
-	["91762270038050"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, -- RIIZE-Get A Guitar
+	["133586602463513"] = { speed = 1, tempo = 0.921, volume = 10, boost = 10, boost2 = 5.05, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- RIIZE-Get A Guitar (D-919, new upload; was 91762270038050)
 	["119473981131981"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, -- RIIZE-Love 119
 	["80583279340768"] = { speed = 1, tempo = 0.34, volume = 10, boost = 3, octave = 0.5, low = -13, mid = 2.5, high = 4, engine = "sound" }, -- YENA-Catch Catch
 	["97032815457241"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- Hearts2Hearts-Lemon Tang

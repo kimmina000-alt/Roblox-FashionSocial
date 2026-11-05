@@ -2530,3 +2530,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 비교 사진(왼쪽 영상, 오른쪽 Play 뒷모습; 노래 20 / 70 / 120초): docs/06_LOG/images/2026-11-05/d916_animal_compare.jpg(두 팔 옆으로 벌림, 옆으로 서서 머리 위 팔, 앞으로 팔 엇갈림 같음).
 - Studio: ClubPlaylist / ClubChoreo는 바뀐 줄만 끼워 넣음. D-915는 stage-camera-arrest 브랜치가 씀.
 - 브랜치 feat/animal-choreo-1105(catalog-ui-redesign 009c74b에서). 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지.
+## D-919 RIIZE-Get A Guitar 새 음원 133586602463513 (2026-11-06)
+- 사용자: 턴테이블 랩에서 새 Get A Guitar 업로드(133586602463513)를 맞추고 옛 곡을 지운 뒤 "오후에도 전달해".
+- 랩 값 그대로: `lab = { speed = 1, tempo = 0.921, volume = 10, boost = 10, boost2 = 5.05, octave = 1, low = 0, mid = 0, high = 0 }`, length = 147.285(파일 x1 초).
+- 파일 속도: 옛 파일(91762270038050, 53.553초, 3배)과 새 파일을 Play에서 같은 원곡 속도로 틀어 소리 크기(PlaybackLoudness, 0.05초)를 녹음, 8초 구간 상호상관. 20~150초 모든 구간에서 시작 차이 0.03초, 원곡 시간 = 새 파일 초 × 1.0908(= 3 × 53.553 ÷ 147.285, 같은 편집본, 늘어짐 없음). → `fileSpeed = 1.0908`. 그래서 안무 `at`(D-878)과 무대 카메라(D-900, video = song + 3.88초)는 그대로 맞음; ClubCamera.Songs 키만 새 id로.
+- 들리는 속도: songRate = 0.921 × 1.0908 = 1.0046(원곡보다 0.46 % 빠름, 사용자가 귀로 맞춘 값). 서버가 곡을 끝내는 때 = 147.285 ÷ 0.921 + 1 = 160.9초.
+- 확인(Play, 1인, 클럽 안): 새 id 불러옴(승인 오류 없음), 서버 시계 × songRate와 실제 TimePosition × fileSpeed 차이 0.00~0.01초, 곡 끝에서 다음 곡으로 넘어감, 안무 타이밍 검사(choreo_timing_check, 이 곡만) ok, 카메라 항목 있음.
+- Studio: ClubPlaylist(사용자가 두 줄로 나눠 둔 곡 줄을 새 줄로) / ClubCamera 키 한 줄만 multi_edit. tools/choreo/choreo_check.lua 기본 SOUND_ID도 새 id.
