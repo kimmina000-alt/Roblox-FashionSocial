@@ -2557,3 +2557,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 자리: ClubPlaylist에서 Hearts2Hearts-Lemon Tang 바로 다음(번호는 하나씩 밀림; 번호로 곡을 가리키는 코드는 없음).
 - 확인(Play, 1인, 클럽 안): 불러옴(승인 오류 없음), 길이 172.366초, 속도 1, 서버 시계와 소리 위치 차이 0.01초, 172.34초까지 재생 후 다음 곡. 주의: volume 1 / boost 1 / boost2 1이라 다른 사용자 곡(volume 10, boost 10, boost2 2~10)보다 훨씬 작게 들림.
 - 사용자(랩): "Next Chapte 설정값 바꿨어 바꾼 걸로 넘겨" → `lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0 }`(위의 작게 들림 주의는 없어짐). Play 다시: volume 10, ClubMusicBoost 10 > ClubMusicBoost2 5, 속도 1, 172.29초까지 재생 후 다음 곡.
+
+## D-921 클럽 곡 4개 추가: French Kissing / With / FIRESTARTER / NEVER GOING BACK (2026-11-06)
+- 사용자(랩 세션): "지금까지 추가한 거 오후에 전달". 랩 값 그대로(DataStore TurntableLabSettings v1), Next Chapter 다음에 이 순서로. length = 파일 초.
+- AND2BLE-French Kissing 120866427099057(177.422초, 원곡 3:15) tempo 0.91 · RESCENE-With 120039092597099(171.659초, 3:09) tempo 1 · K/DA - FIRESTARTER 102216920231649(181.643초, 3:20) tempo 0.908 · K/DA - NEVER GOING BACK 113680653484321(178.034초, 3:16) tempo 0.908. 모두 volume 10 / boost 10 / boost2 5 / octave 1 / EQ 0.
+- 파일이 원곡보다 약 1.1배 빠름 → `fileSpeed` = 원곡 길이 ÷ 파일 길이(1.0991 / 1.101 / 1.1011 / 1.1009). 원곡 길이가 초 단위라 어림값이고 안무·무대 카메라 시계에만 쓰임: 그걸 붙일 때 D-919처럼 재기.
+- With는 사용자가 저장한 tempo 1 그대로(들리는 길이 2:52, 원곡 3:09보다 빠름; 랩 세션이 0.908이 맞는지 사용자에게 물어봄).
+- 확인(Play, 1인, 클럽 안): 네 곡 모두 불러옴(승인 오류 없음), 속도 0.91 / 1 / 0.908 / 0.908, volume 10, ClubMusicBoost 10 > Boost2 5, 끝 직전(177.37 / 171.62 / 181.63 / 178.01초)까지 재생 후 다음 곡.

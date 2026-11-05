@@ -151,6 +151,18 @@ M.Playlist = {
 	-- fileSpeed 1: a track with `lab` counts as a 3× upload otherwise (ClubConfig.fileSpeed)
 	{ channel = "K-POP", title = "Hearts2Hearts-Next Chapter", soundId = 113170325006427, length = 172.366, fileSpeed = 1,
 		lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (D-921, user 2026-11-06: "지금까지 추가한 거 오후에 전달") 4 uploads from the lab, values as saved there;
+	-- length = file seconds. Each file runs about 1.1× the song: fileSpeed = song length ÷ file length
+	-- (song lengths in whole seconds, only the choreography / stage camera clock uses it: measure it,
+	-- as for Get A Guitar D-919, before adding either)
+	{ channel = "K-POP", title = "AND2BLE-French Kissing", soundId = 120866427099057, length = 177.422, fileSpeed = 1.0991,
+		lab = { speed = 1, tempo = 0.91, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "RESCENE-With", soundId = 120039092597099, length = 171.659, fileSpeed = 1.101,
+		lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "K/DA - FIRESTARTER (Feat. Sophie Powers, MIYEON, SOYEON)", soundId = 102216920231649, length = 181.643, fileSpeed = 1.1011,
+		lab = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "K/DA - NEVER GOING BACK (Feat. SOYEON, MIYEON)", soundId = 113680653484321, length = 178.034, fileSpeed = 1.1009,
+		lab = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
