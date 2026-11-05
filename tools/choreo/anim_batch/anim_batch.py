@@ -38,6 +38,7 @@ user32 = ctypes.windll.user32
 HERE = os.path.dirname(os.path.abspath(__file__))
 POINTS_FILE = os.path.join(HERE, "anim_batch_points.json")
 LOG_FILE = os.path.join(HERE, "anim_batch_log.csv")
+MEMO_FILE = os.path.join(HERE, "anim_batch_memo.txt")
 
 # --------------------------------------------------------------------------
 # Windows: windows, mouse, keys
@@ -490,21 +491,25 @@ class App:
         self.text = tk.Text(f, width=72, height=18)
         self.text.grid(row=4, column=0, columnspan=4, sticky="nsew")
 
-        # (user 2026-11-05: "메모칸 만들어서 거기에 id 메모해 놔") the IDs, one per
-        # line in number order, as they come in; also kept in the video folder
+        # (user 2026-11-05: "메모칸 만들어서 거기에 id 메모해 놔", then: never
+        # clear it; each new ID goes after what is there, with a comma) the
+        # memo is the user's own text: the program only adds to its end, and it
+        # is kept in anim_batch_memo.txt (saved on every change, back next time)
         memo_box = ttk.Frame(f)
         memo_box.grid(row=0, column=4, rowspan=5, sticky="nsew", padx=(10, 0))
-        ttk.Label(memo_box, text="ID 메모 (번호 순서)").pack(anchor="w")
-        self.memo = tk.Text(memo_box, width=22, height=26)
+        ttk.Label(memo_box, text="ID 메모 (새 ID는 뒤에 , 붙여서 이어짐)").pack(anchor="w")
+        self.memo = tk.Text(memo_box, width=30, height=26, wrap="char")
         self.memo.pack(fill="both", expand=True)
         memo_bar = ttk.Frame(memo_box)
         memo_bar.pack(fill="x")
         ttk.Button(memo_bar, text="전부 복사", command=self.copy_memo).pack(side="left")
-        self.memo_numbers = tk.BooleanVar(value=False)
-        ttk.Checkbutton(memo_bar, text="번호도 보기", variable=self.memo_numbers, command=self.show_memo).pack(side="left", padx=4)
-        self.ids = {}
-        self.folder_var.trace_add("write", lambda *_: self.load_memo())
-        self.prefix_var.trace_add("write", lambda *_: self.load_memo())
+        try:
+            with open(MEMO_FILE, encoding="utf-8") as fh:
+                self.memo.insert("1.0", fh.read())
+        except OSError:
+            pass
+        self.memo.bind("<KeyRelease>", lambda _e: self.save_memo())
+        self.memo.bind("<<Paste>>", lambda _e: self.root.after(50, self.save_memo))
         self.refresh()
         if self.points.get("_studio") in self.studio_box["values"]:
             self.studio_var.set(self.points["_studio"])
@@ -513,32 +518,24 @@ class App:
             self.folder_var.set(self.points["_folder"])
         if self.points.get("_prefix"):
             self.prefix_var.set(self.points["_prefix"])
-        self.load_memo()
         self.log("처음이면 ① 위치 기록부터 하세요. 기록된 위치: " + (", ".join(k for k in self.points if not k.startswith("_")) or "없음"))
         threading.Thread(target=self.hotkeys, daemon=True).start()
 
     # -- the ID memo
-    def load_memo(self):
-        folder, prefix = self.folder_var.get().strip(), self.prefix_var.get().strip()
-        self.ids = {}
-        table = os.path.join(folder, f"{prefix}_ids_번호.txt")
-        if folder and os.path.exists(table):
-            with open(table, encoding="utf-8") as fh:
-                for line in fh:
-                    parts = line.strip().split("\t")
-                    if len(parts) == 2 and parts[0].isdigit():
-                        self.ids[int(parts[0])] = parts[1]
-        self.show_memo()
-
-    def show_memo(self):
-        lines = [(f"{n}\t{self.ids[n]}" if self.memo_numbers.get() else self.ids[n]) for n in sorted(self.ids)]
-        self.memo.delete("1.0", "end")
-        self.memo.insert("1.0", "\n".join(lines))
+    def save_memo(self):
+        try:
+            with open(MEMO_FILE, "w", encoding="utf-8") as fh:
+                fh.write(self.memo.get("1.0", "end-1c"))
+        except OSError:
+            pass
 
     def add_id(self, number, asset_id):
         def ui():
-            self.ids[number] = asset_id
-            self.show_memo()
+            current = self.memo.get("1.0", "end-1c").rstrip()
+            self.memo.delete("1.0", "end")
+            self.memo.insert("1.0", (current + ", " + asset_id) if current else asset_id)
+            self.memo.see("end")
+            self.save_memo()
         self.root.after(0, ui)
 
     def copy_memo(self):
