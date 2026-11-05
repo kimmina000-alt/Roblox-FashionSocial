@@ -159,6 +159,8 @@ end
 local COFFEE_SIP = 1481574895
 local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true, water = true }
 local QUIET = { bagel = true, saltbread = true } -- their bite at half volume
+-- (D-908, user 2026-11-05: "돼지국밥 먹는 소리 2배로 키워") 0.7 → 1.4
+local LOUD = { pork = 1.4 }
 
 -- Remembers each edible piece's place in the handle's height (call once the
 -- tool is built): which local axis is up, its bottom and top, and its weld.
@@ -598,7 +600,7 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	sip.Name = "Sip"
 	sip.SoundId = "rbxassetid://" .. tostring(if COFFEE[item.key] then COFFEE_SIP else EAT_SOUND[kind] or ClubConfig.GulpSoundId)
 	-- coffee twice as loud, bagel and 소금빵 half (user 2026-10-30)
-	sip.Volume = if COFFEE[item.key] then 0.9 elseif QUIET[item.key] then 0.35 else 0.7
+	sip.Volume = if COFFEE[item.key] then 0.9 elseif QUIET[item.key] then 0.35 else LOUD[item.key] or 0.7
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
 	markEdible(tool, handle)
@@ -1187,7 +1189,7 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	spoon.Grip = CFrame.new(0, -0.3, 0)
 	local sound = Instance.new("Sound")
 	sound.SoundId = "rbxassetid://" .. tostring((if item.kind == "bowl" then gukbapClip() else nil) or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
-	sound.Volume = 0.7
+	sound.Volume = LOUD[item.key] or 0.7
 	sound.RollOffMaxDistance = 40
 	-- (on the character, not the spoon: the spoon goes 1.5 s after the bite and
 	-- would cut a longer clip, user 2026-10-30)

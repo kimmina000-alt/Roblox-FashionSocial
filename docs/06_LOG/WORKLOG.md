@@ -3461,3 +3461,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 
 ### 노래 띠 왼쪽 + 접기, 로딩 OHU CLUB 로고 폰트 (D-906, D-907)
 - DanceController.client.lua(띠 위치, NowPlayingToggle), LoadingScreen.client.lua(titleImage), brand_logo.py title_white.
+
+### 돼지국밥 먹는 소리 2배 (D-908)
+- SnackService.lua: LOUD 표, Sip 볼륨과 떠먹기 소리 볼륨.

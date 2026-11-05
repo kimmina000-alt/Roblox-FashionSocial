@@ -2464,3 +2464,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-907 로딩 화면 OHU CLUB 제목을 로고 폰트로 (2026-11-05)
 - 사용자: "로딩 화면에 OHU CLUB 폰트를 로고 폰트로 쓰자". Roblox에 Bagel Fat One이 없어서 이미지: tools/art/brand_logo.py title_white → docs/04_ART/logo/ohu_club_white.png(흰색, 로고와 같은 글자 간격, 1739×230), rbxassetid://74636429583204 (Vantablack_Dev). LoadingScreen: 장면에 titleImage가 있으면 글자 제목 대신 이미지(높이 최대 36 px, 왼쪽 정렬), 같이 페이드.
+
+## D-908 돼지국밥 먹는 소리 2배 (2026-11-05)
+- 사용자: "돼지국밥 먹는 소리 2배로 키워". SnackService LOUD = { pork = 1.4 } (0.7 → 1.4): 그릇 들고 먹을 때(Sip)와 숟가락으로 떠먹을 때 둘 다. 순대국밥 / 소고기국밥은 그대로 0.7.
