@@ -2,7 +2,8 @@
 애니메이션 따는 단순 반복 작업하는 프로그램 만들어")
 
 Roblox Studio 애니메이션 편집기에서 영상마다 손으로 하던 일을 차례로 되풀이한다:
-  1. ⋯ → 가져오기 → 파일에서 가져오기... → "비디오 선택" 창에 영상 경로 → 열기
+  1. ⋯ → 가져오기 → 라이브 애니메이션 제작기 → 안내 창의 "비디오 선택" →
+     "비디오 선택" 파일 창에 영상 경로 → 열기
   2. "애니메이션을 처리 중입니다" 창이 사라질 때까지 기다림
   3. ⋯ → Roblox에 게시 → Asset Configuration 창의 제목에 "<접두어><번호>" → 저장
   4. 업로드 창이 닫힐 때까지 기다림, 다음 영상
@@ -115,7 +116,8 @@ def near_white(c):
 STEPS = [
     ("dots", "studio", "애니메이션 편집기 왼쪽 위 ⋯ 버튼 위에 마우스를 두고 F8"),
     ("import", "studio", "⋯를 눌러 메뉴를 열고 '가져오기' 위에서 F8"),
-    ("from_file", "studio", "'가져오기' 옆에 열린 '파일에서 가져오기...' 위에서 F8"),
+    ("from_file", "studio", "'가져오기' 옆에 열린 '라이브 애니메이션 제작기' 위에서 F8"),
+    ("video_btn", "studio", "'라이브 애니메이션 제작기'를 눌러 뜬 안내 창의 파란 '비디오 선택' 위에서 F8, 그다음 '취소'"),
     ("publish", "studio", "Esc로 닫고 ⋯를 다시 열어 'Roblox에 게시' 위에서 F8 (누르지 마세요)"),
     ("busy", "studio", "Esc로 메뉴를 닫고, 편집기 가운데(처리 중 흰 창이 뜨는 자리) 위에서 F8"),
     ("title", "asset", "⋯ → 'Roblox에 게시'를 눌러 창을 연 뒤 '제목' 칸 위에서 F8"),
@@ -195,6 +197,10 @@ class Runner:
         # 1. import the video
         log(f"  가져오기: {os.path.basename(path)}")
         self.menu(studio, "dots", "import", "from_file")
+        # (the user 2026-11-05: 라이브 애니메이션 제작기 first shows a note with
+        # 취소 / 비디오 선택; the file window opens from 비디오 선택)
+        self.sleep(0.8)
+        click(*self.at("video_btn", studio))
         self.wait(lambda: find_window(VIDEO_TITLE) is not None, 15, "비디오 선택 창")
         self.sleep(0.6)
         self.paste(path)
@@ -399,9 +405,13 @@ class App:
 
     def start_calib(self):
         self.refresh()
-        self.calib_index = 0
+        # only the missing points when some are kept; all of them otherwise
+        missing = [i for i, s in enumerate(STEPS) if s[0] not in self.points]
+        self.calib_list = missing if 0 < len(missing) < len(STEPS) else list(range(len(STEPS)))
+        self.calib_pos = 0
+        self.calib_index = self.calib_list[0]
         self.log("— 위치 기록 —")
-        self.log("1/" + str(len(STEPS)) + ": " + STEPS[0][2])
+        self.log(f"1/{len(self.calib_list)}: " + STEPS[self.calib_index][2])
 
     def calib_record(self):
         if self.calib_index is None:
@@ -415,14 +425,15 @@ class App:
         l, t, _, _ = rect(hwnd)
         self.points[name] = [x - l, y - t]
         self.log(f"  기록: {name} = ({x - l}, {y - t})")
-        self.calib_index += 1
-        if self.calib_index >= len(STEPS):
+        self.calib_pos += 1
+        if self.calib_pos >= len(self.calib_list):
             self.calib_index = None
             with open(POINTS_FILE, "w", encoding="utf-8") as f:
                 json.dump(self.points, f, ensure_ascii=False, indent=1)
             self.log("위치 기록 끝 (저장됨). 이제 ② 시작.")
         else:
-            self.log(f"{self.calib_index + 1}/{len(STEPS)}: " + STEPS[self.calib_index][2])
+            self.calib_index = self.calib_list[self.calib_pos]
+            self.log(f"{self.calib_pos + 1}/{len(self.calib_list)}: " + STEPS[self.calib_index][2])
 
     # -- run
     def start(self):
