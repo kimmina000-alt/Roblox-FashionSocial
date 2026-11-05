@@ -255,7 +255,17 @@ M.Playlist = {
 		{ id = 73438902388486, at = 134.05, blend = 0.62 }, { id = 103007904279324, at = 141.83, blend = 0.55 }, { id = 114253650075143, at = 153.78 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 116539470869444, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "BIGBANG-BiiiG", soundId = 113809029583519, length = 55, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
-	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 130804487358433, length = 48, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 130804487358433, length = 48, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+		-- D-916: ANIMAL1..25 (practice video Gl1VZ3UPeZU, video = song - 0.23 s, `at` = clip start + 0.23)
+		choreo = { { id = 129402890751712, at = 0.23 }, { id = 80772039533772, at = 2.03, blend = 0.73 }, { id = 112166541341442, at = 4.51, blend = 0.74 },
+		{ id = 80410028707124, at = 6.36, blend = 0.48 }, { id = 105018508412110, at = 11.01, blend = 1 }, { id = 130036196270388, at = 13.41, blend = 1 },
+		{ id = 106354393645678, at = 18.91, blend = 1 }, { id = 78895444151768, at = 27.9, blend = 0.61 }, { id = 97744184558515, at = 29.03, blend = 0.95 },
+		{ id = 136955392986245, at = 39.86, blend = 0.66 }, { id = 100329215645751, at = 43.98 }, { id = 78840320722064, at = 53.01, blend = 0.45 },
+		{ id = 82639576960460, at = 63.36, blend = 0.66 }, { id = 104678910693394, at = 65.51, blend = 0.98 }, { id = 82506858822635, at = 77.35, blend = 0.39 },
+		{ id = 91831034598236, at = 90.76, blend = 1 }, { id = 123997379474433, at = 92.43, blend = 0.46 }, { id = 99593989311395, at = 99.11, blend = 1 },
+		{ id = 132625911221975, at = 102.7, blend = 0.69 }, { id = 79329885109157, at = 112.76, blend = 0.61 }, { id = 136007113687275, at = 122.28, blend = 0.42 },
+		{ id = 123310558991493, at = 127.28, blend = 0.43 }, { id = 89056804683617, at = 132.25, blend = 0.5 }, { id = 116387739582454, at = 138.53 },
+		{ id = 72908007597304, at = 141.9, blend = 0.77 } }, autoChoreo = true },
 
 --★★★음원 추가★★★--
 { channel = "K-POP", title = "IU-이 별로부터(Unknown Planet)", soundId = 81568082292649, length = 225.05,
