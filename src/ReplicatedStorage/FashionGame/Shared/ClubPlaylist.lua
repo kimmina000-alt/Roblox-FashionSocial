@@ -264,6 +264,13 @@ M.Playlist = {
 	-- (D-901, user 2026-11-05: new upload (uploaded as 새벽네시사십사분), tempo = 82.42 s file ÷ heard 4:07 = 0.334)
 	{ channel = "K-POP", title = "이무진-그대 잠시 내게", soundId = 129938231085858, length = 82.42,
 		lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	-- (D-917, user 2026-11-05: "음원 테스트에서 설정값 받아서" 3 songs; values saved in the lab place, length = the file's seconds)
+	{ channel = "K-POP", title = "ALLDAY PROJECT-CRASH", soundId = 104827635407586, length = 57.68,
+		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" } },
+	{ channel = "K-POP", title = "RESCENE-Pretty Girl", soundId = 89634330677538, length = 70.01,
+		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" } },
+	{ channel = "K-POP", title = "키키-Pop Off", soundId = 129996145931101, length = 47.11,
+		lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" } },
 
 } :: {Track}
 

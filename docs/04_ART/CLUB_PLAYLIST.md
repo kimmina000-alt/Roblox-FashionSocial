@@ -137,3 +137,6 @@ local LAB = {
 |---|---|---|---|---|---|---|---|
 | 37 | K-POP | IU-이 별로부터(Unknown Planet) | 81568082292649 | 225.05 | 8 (segLen 30, tail 4, lead 0.09) | tempo 1, boost 1, octave 1 | D-887, D-889 |
 | ~~33~~ | K-POP | ~~CORTIS-REDRED~~ (D-890에 6조각으로 했다가 D-894에 예전 54초 파일로 되돌림, 위 2번) | ~~130916906404688~~ | ~~163~~ | ~~6~~ | | D-890, D-894 |
+| 39 | K-POP | ALLDAY PROJECT-CRASH | 104827635407586 | 57.68 | 1 파일 | tempo 0.333, boost 3, boost2 1, octave 0.5, EQ -18.5 / -4 / -12.5 | D-917 |
+| 40 | K-POP | RESCENE-Pretty Girl | 89634330677538 | 70.01 | 1 파일 | tempo 0.333, boost 3, boost2 1, octave 0.5, EQ -18.5 / -4 / -12.5 | D-917 |
+| 41 | K-POP | 키키-Pop Off | 129996145931101 | 47.11 | 1 파일 | tempo 0.334, boost 3, boost2 1, octave 0.5, EQ -18.5 / -4 / -12.5 | D-917 |
