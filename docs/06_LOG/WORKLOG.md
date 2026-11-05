@@ -3429,7 +3429,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 영상 Mnet 엠카운트다운 첫 무대(youtube rREZviPAdM8, D:\Roblox\영상\REDRED_stage). 소리 후보 둘(+32.5/+34.5)을 안무 자세로 골라 영상 = 노래 + 34.5초. 샷 136개. 브랜치 feat/stage-camera-redred-1105.
 - Play(클럽 지하, 밤): 30.8초 클로즈업, 130초 위에서 내려다보는 샷이 무대와 같음, 스크립트 오류 없음.
   ![redred stage camera](images/2026-11-05/stagecam_redred_compare.jpg)
-- 남은 것: 모바일 2인 테스트, 머지 허락.
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치): Studio 스크립트 길이 브랜치와 같음(ClubCamera 45,649). 두 휴대폰 모두 🎥(선택 + Return)으로 켜짐. 컷 순간 P1 5.53 / 6.80 / 9.27 / 10.27 / 12.29 / 14.29초, P2 5.57 / 6.78 / 9.32 / 10.32 / 12.29 / 14.29초(목록 5.4 / 6.6 / 9.1 / 10.1 / 12.1 / 14.1). P2만 끄니 Custom / FOV 70, P1은 켜진 채. 스크립트 오류 없음(93308695817877 경고만).
 
 ### 소녀시대 Genie 안무 26조각 (D-897)
 - 사용자: "Genie" + id 26개(19번은 처음에 18번과 같은 id → 98754942494305로 받음). 영상 SNSD_Genie_centercut(미러 커버, 클립 26개).
@@ -3459,6 +3459,12 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 최신 catalog-ui-redesign(9153fff, Genie / LOVE-ATTACK 안무, 무대 카메라 D-902/D-904)과 합침: 곡 목록은 그쪽 안무를 살리고 D-901 소리 값을 다시 적용. 내 D-903(제목 잘림)은 LOVE-ATTACK D-903과 겹쳐 D-905로 바꿈.
 - 2인 테스트(서버 + Player1/Player2): Studio 서버의 ClubPlaylist / ClubMusicController가 브랜치와 같음(주석 한 줄만 다름). Player1(DJ)이 38번 이무진-그대 잠시 내게를 틈. 곡 창에서 긴 제목(aespa-Lemonade, SOYEON-퇴사할게여, 이무진-그대 잠시 내게)이 점 없이 칸(104 px) 끝에서 잘림. Player2: ClubMusic 속도 0.334, LabEQ -40/-25/-40, 음높이 1.497(= 0.5 ÷ 0.334), ClubMusicBoost 10 / ClubMusicBoost2 10. 스크립트 오류 없음(데이터 저장소 Studio 접근 꺼짐, 93308695817877 '승인 안 된 에셋' 경고만).
 
+### 무대 카메라 LOVE ATTACK (D-908)
+- 영상 SBS 인기가요(youtube Hv1wQ6nlpNE, D:\Roblox\영상\LoveAttack_stage). 영상 = 노래 + 1.9초, 샷 144개. 브랜치 feat/stage-camera-loveattack-1105.
+- Play(클럽 지하, 밤): 57.7초 두 손 펼친 자세가 무대와 같은 순간(시작 지점 확인), 106.6초 무릎 위 샷. 스크립트 오류 없음.
+  ![love attack stage camera](images/2026-11-05/stagecam_loveattack_compare.jpg)
+- 참고: Studio Assistant HTTP 허용 목록에 localhost가 없어져 파일 서버 동기화가 막힘 → 바뀐 블록만 execute_luau로 넣음.
+- 남은 것: 모바일 2인 테스트, 머지 허락.
 ### 노래 띠 왼쪽 + 접기, 로딩 OHU CLUB 로고 폰트 (D-906, D-907)
 - DanceController.client.lua(띠 위치, NowPlayingToggle), LoadingScreen.client.lua(titleImage), brand_logo.py title_white.
 

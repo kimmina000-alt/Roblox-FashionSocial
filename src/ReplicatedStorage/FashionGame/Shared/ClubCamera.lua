@@ -621,4 +621,44 @@ ClubCamera.Songs[128270208751659] = {
 	}),
 }
 
+-- RESCENE-LOVE-ATTACK: SBS Inkigayo 2024-09-01 stage (youtube Hv1wQ6nlpNE),
+-- video = song + 1.9 s (D-908: 17 of 17 loudness windows +1.90). Fast beat
+-- cuts between the sailor-set wides, high crane shots and close-ups; read
+-- from 0.5 s strips in video seconds.
+ClubCamera.Songs[71873496902418] = {
+	video = "SBS Inkigayo 2024-09-01, youtube Hv1wQ6nlpNE",
+	offset = 1.9,
+	shots = videoCuts(1.9, {
+		{ 1.9, "waist" }, { 2.6, "knee" }, { 3.0, "full" }, { 4.0, "knee" }, { 4.5, "xwide", 0, 6 }, { 5.0, "bust", 10 },
+		{ 6.3, "xwide", 0, 6 }, { 7.3, "wide", -15, 6 }, { 8.5, "bust", -10 }, { 8.8, "bust", 10 }, { 9.9, "bust" },
+		{ 11.0, "wide", 0, 15 }, { 12.0, "knee" }, { 13.1, "waist", 10 }, { 14.0, "full" }, { 14.9, "bust" },
+		{ 16.0, "xwide", 0, 10 }, { 17.5, "bust", -15 }, { 19.2, "xwide", 0, 8 }, { 20.0, "wide", 0, 6 }, { 21.5, "knee" },
+		{ 22.0, "waist", 10 }, { 23.5, "xwide", 0, 8 }, { 24.0, "wide" }, { 24.5, "bust" }, { 25.5, "waist" },
+		{ 26.0, "xwide", 0, 6 }, { 27.0, "waist", -10 }, { 28.0, "bust" }, { 30.0, "waist" }, { 31.0, "bust", 10 },
+		{ 32.0, "bust", -10 }, { 33.0, "waist" }, { 35.0, "bust" }, { 35.5, "xwide", 0, 15 }, { 37.0, "xwide", 0, 6 },
+		{ 37.5, "bust", 10 }, { 38.5, "xwide", 0, 6 }, { 40.0, "waist" }, { 40.5, "xwide", -20, 30 }, { 41.5, "wide", 0, 15 },
+		{ 43.0, "knee" }, { 44.0, "waist" }, { 45.0, "xwide", 0, 10 }, { 48.0, "xwide", 20, 30 }, { 48.5, "bust" },
+		{ 50.5, "knee" }, { 52.5, "xwide", 0, 6 }, { 53.0, "bust", -10 }, { 54.0, "waist" }, { 55.0, "xwide", 0, 10 },
+		{ 56.0, "knee" }, { 57.0, "waist" }, { 59.0, "bust" }, { 60.5, "xwide", 0, 15 }, { 62.0, "wide", 0, 10 },
+		{ 63.0, "knee" }, { 64.5, "waist", 10 }, { 65.5, "xwide", 0, 10 }, { 68.5, "bust", -10 }, { 70.0, "waist", 10 },
+		{ 71.0, "wide" }, { 72.0, "xwide", 0, 6 }, { 73.5, "bust" }, { 75.0, "xwide", 0, 10 }, { 76.0, "wide", 0, 8 },
+		{ 78.0, "waist", -10 }, { 79.0, "bust" }, { 79.5, "knee" }, { 80.0, "wide", 0, 6 }, { 81.5, "bust", 10 },
+		{ 83.5, "xwide", 0, 6 }, { 86.0, "waist" }, { 87.5, "bust" }, { 88.0, "xwide", 0, 6 }, { 89.5, "waist" },
+		{ 90.5, "bust", -10 }, { 92.0, "waist" }, { 94.0, "bust" }, { 94.5, "xwide", 0, 6 }, { 97.0, "knee" },
+		{ 97.5, "bust", 10 }, { 98.5, "waist" }, { 100.5, "wide", 0, 10 }, { 101.0, "knee" }, { 103.0, "bust" },
+		{ 104.0, "waist" }, { 104.5, "xwide", 0, 15 }, { 105.0, "bust", -10 }, { 108.0, "bust" }, { 108.5, "wide", 0, 8 },
+		{ 110.0, "knee" }, { 111.0, "waist" }, { 113.0, "bust", 10 }, { 114.0, "waist" }, { 114.5, "bust" },
+		{ 116.5, "xwide", 0, 8 }, { 118.0, "wide" }, { 120.0, "waist" }, { 122.5, "xwide", 0, 15 }, { 124.0, "wide", 0, 8 },
+		{ 125.0, "knee" }, { 126.0, "wide", 0, 8 }, { 128.0, "bust", -10 }, { 129.0, "waist" }, { 130.5, "xwide", 0, 8 },
+		{ 131.0, "bust", 10 }, { 132.5, "xwide", 0, 6 }, { 133.5, "bust" }, { 135.0, "xwide", 0, 6 }, { 136.5, "wide" },
+		{ 138.0, "waist" }, { 138.5, "bust" }, { 139.0, "close" }, { 139.5, "waist" }, { 141.0, "knee" },
+		{ 141.5, "xwide", 0, 6 }, { 143.0, "knee" }, { 144.5, "xwide", 0, 6 }, { 146.0, "bust", 10 }, { 148.0, "bust", -10 },
+		{ 149.5, "close" }, { 150.0, "xwide", 0, 6 }, { 153.5, "bust" }, { 156.5, "knee", 0, -10 }, { 157.5, "waist" },
+		{ 159.0, "wide", 0, 8 }, { 159.5, "bust" }, { 161.5, "xwide", 0, 15 }, { 162.5, "wide", 0, 8 }, { 163.0, "knee" },
+		{ 164.0, "waist" }, { 165.0, "wide", 0, 8 }, { 166.0, "xwide", 0, 15 }, { 166.5, "bust", 10 }, { 168.0, "xwide", 0, 15 },
+		{ 170.0, "bust" }, { 171.5, "xwide", 0, 6 }, { 175.5, "knee", 0, -10 }, { 176.5, "waist" }, { 177.0, "bust" },
+		{ 178.5, "xwide", 0, 6 }, { 179.0, "wide", 0, 6 }, { 180.0, "xwide", 0, 6 },
+	}),
+}
+
 return ClubCamera
