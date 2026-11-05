@@ -159,7 +159,7 @@ end
 local COFFEE_SIP = 1481574895
 local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true, water = true }
 local QUIET = { bagel = true, saltbread = true } -- their bite at half volume
--- (D-908, user 2026-11-05: "돼지국밥 먹는 소리 2배로 키워") 0.7 → 1.4
+-- (D-909, user 2026-11-05: "돼지국밥 먹는 소리 2배로 키워") 0.7 → 1.4
 local LOUD = { pork = 1.4 }
 
 -- Remembers each edible piece's place in the handle's height (call once the

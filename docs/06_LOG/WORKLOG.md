@@ -3462,9 +3462,9 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 노래 띠 왼쪽 + 접기, 로딩 OHU CLUB 로고 폰트 (D-906, D-907)
 - DanceController.client.lua(띠 위치, NowPlayingToggle), LoadingScreen.client.lua(titleImage), brand_logo.py title_white.
 
-### 돼지국밥 먹는 소리 2배 (D-908)
+### 돼지국밥 먹는 소리 2배 (D-909)
 - SnackService.lua: LOUD 표, Sip 볼륨과 떠먹기 소리 볼륨.
 
-### 모바일 2P 테스트 (D-906..D-908)
+### 모바일 2P 테스트 (D-906, D-907, D-909)
 - Player1/Player2 클럽(22시): 띠 왼쪽 가운데(42, 325), − 누르면 접힘(+), + 누르면 펼침, ≡ 🎵 🎥 재생바 같이 따라감. SnackService.Give: 돼지국밥 Sip 1.4, 순대국밥 0.7. 스크립트 오류 없음.
 ![펼침](images/2026-11-05/banner_left_open.jpg) ![접힘](images/2026-11-05/banner_left_folded.jpg)
