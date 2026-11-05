@@ -3474,3 +3474,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ### 모바일 2P 테스트 (D-906, D-907, D-909)
 - Player1/Player2 클럽(22시): 띠 왼쪽 가운데(42, 325), − 누르면 접힘(+), + 누르면 펼침, ≡ 🎵 🎥 재생바 같이 따라감. SnackService.Give: 돼지국밥 Sip 1.4, 순대국밥 0.7. 스크립트 오류 없음.
 ![펼침](images/2026-11-05/banner_left_open.jpg) ![접힘](images/2026-11-05/banner_left_folded.jpg)
+
+### 디제잉 창 🎵 🎥 + 재생바, 바깥 누르면 닫힘 (D-910, D-911)
+- ClubMusicController.client.lua(IconSlot, PlayBarSlot, 바깥 클릭), ClubQuickBar.client.lua(창이 열리면 버튼/재생바를 창으로).
+- Studio Play(PC 1인, 22시, LOVE ATTACK): 곡 줄 오른쪽에 🎵 🎥, 바로 아래 ⏸ 0:23 ━ 3:02. 창 안 클릭은 그대로, 세상 클릭은 두 창 닫힘 → 버튼/재생바가 띠로 돌아감.
+![디제잉 창](images/2026-11-05/dj_window_bar.jpg)

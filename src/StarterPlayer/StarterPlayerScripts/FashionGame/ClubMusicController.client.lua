@@ -136,6 +136,13 @@ local nowLabel = create("TextLabel", {
 	RichText = true, -- (the smaller 🎵, D-756)
 	Font = Enum.Font.GothamBold,
 }, panel)
+-- (D-910, user 2026-11-05: "왼쪽 팝업에 안무 버튼 카메라 버튼 추가 바로 아래에
+-- 재생바 추가") the banner's 🎵 / 🎥 sit at the right end of the song line and
+-- its play bar just under it while this window is open (ClubQuickBar moves
+-- them into these two slots; the banner itself hides behind the window)
+local iconSlot = create("Frame", { Name = "IconSlot", BackgroundTransparency = 1 }, panel)
+local barSlot = create("Frame", { Name = "PlayBarSlot", BackgroundTransparency = 1 }, panel)
+local ICON_W, BAR_H = 44, 18
 
 -- DJ status row
 local djRow = create("Frame", {
@@ -496,10 +503,16 @@ local function layout()
 	local header = panel:FindFirstChild("Header") :: TextLabel
 	header.Size = UDim2.new(0, leftW - 68, 0, 24) -- (room for ? and X)
 	header.Text = "🎧 디제잉"
-	nowLabel.Position = UDim2.fromOffset(0, if compact then 26 else 32)
-	nowLabel.Size = UDim2.fromOffset(leftW, if compact then 18 else 22)
+	local nowY, nowH = (if compact then 26 else 32), (if compact then 18 else 22)
+	nowLabel.Position = UDim2.fromOffset(0, nowY)
+	nowLabel.Size = UDim2.fromOffset(leftW - ICON_W, nowH)
 	nowLabel.TextSize = if compact then 13 else 16
-	local y = if compact then 48 else 58
+	-- (D-910) 🎵 🎥 after the title, the play bar under it
+	iconSlot.Position = UDim2.fromOffset(leftW - ICON_W, nowY)
+	iconSlot.Size = UDim2.fromOffset(ICON_W, nowH)
+	barSlot.Position = UDim2.fromOffset(0, nowY + nowH + 2)
+	barSlot.Size = UDim2.fromOffset(leftW, BAR_H - 4)
+	local y = (if compact then 48 else 58) + BAR_H
 	djRow.Position = UDim2.fromOffset(0, y)
 	djRow.Size = UDim2.fromOffset(leftW, if compact then 58 else 40)
 	if compact then
@@ -796,12 +809,14 @@ local function refresh()
 end
 
 local openedAt: Vector3? = nil
+local openedClock = 0
 local Popups = require(script.Parent:WaitForChild("Popups"))
 local function setPanelOpen(open: boolean)
 	panel.Visible = open
 	listPanel.Visible = open -- (PC too since D-757)
 	if not open then Popups.closed("ClubMusic") end
 	if open then
+		openedClock = os.clock()
 		Popups.opened("ClubMusic", function() setPanelOpen(false) end)
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		openedAt = if root and root:IsA("BasePart") then root.Position else nil
@@ -814,6 +829,21 @@ end
 -- (the club's 🎵 노래 신청 button, ClubQuickBar, D-694: the same window as at
 -- the turntable, so anyone in the club can queue a song)
 require(script.Parent:WaitForChild("UiBus")).OpenMusic.Event:Connect(function() setPanelOpen(not panel.Visible) end)
+
+-- (D-911, user 2026-11-05: "엑스 말고 팝업 외 다른 공간 누르면 팝업 꺼지게") a
+-- click or tap anywhere outside the two windows (and the ? help) closes them.
+-- Taps on other buttons (the top row, the joystick) are left alone: they are
+-- the game's own and open their own windows.
+game:GetService("UserInputService").InputBegan:Connect(function(input, processed)
+	if processed or not panel.Visible or os.clock() - openedClock < 0.4 then return end
+	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
+	-- (GetGuiObjectsAtPosition wants the inset-free position the input has)
+	for _, hit in ipairs(playerGui:GetGuiObjectsAtPosition(input.Position.X, input.Position.Y)) do
+		if hit:IsDescendantOf(gui) then return end
+	end
+	setPanelOpen(false)
+	require(script.Parent:WaitForChild("DjHelp")).close()
+end)
 
 -- The panel closes when the player walks away from where they opened it.
 local function updateVisibility()

@@ -343,27 +343,73 @@ skipButton.Activated:Connect(function()
 	if typeof(message) == "string" then showToast(message) elseif not ok then showToast("지금은 투표할 수 없어요.") end
 end)
 
+-- (D-910) the DJ window's thin-edge rule strokes every TextButton put in it:
+-- these keep a switched-off stroke so they stay plain white marks there
+for _, b in ipairs({ choreoButton, camButton, barHit, pauseButton } :: {GuiObject}) do
+	local stroke = Instance.new("UIStroke")
+	stroke.Enabled = false
+	stroke.Parent = b
+end
+
 local inClub = false
 RunService.RenderStepped:Connect(function()
 	local danceGui = playerGui:FindFirstChild("FashionDanceGui")
 	local banner = danceGui and danceGui:FindFirstChild("NowPlaying") :: TextLabel?
 	if not danceGui or not banner then return end
-	for _, item in ipairs({ skipCount, toast, playBar } :: {GuiObject}) do
+	-- (D-910, user 2026-11-05) while the 디제잉 window is open (the banner hides
+	-- behind it), its song line holds the 🎵 🎥 and the play bar sits under it
+	local musicGui = playerGui:FindFirstChild("FashionMusicGui")
+	local musicPanel = musicGui and musicGui:FindFirstChild("MusicPanel") :: Frame?
+	local iconSlot = musicPanel and musicPanel:FindFirstChild("IconSlot") :: Frame?
+	local barSlot = musicPanel and musicPanel:FindFirstChild("PlayBarSlot") :: Frame?
+	local inPanel = inClub and musicPanel ~= nil and musicPanel.Visible and iconSlot ~= nil and barSlot ~= nil
+	for _, item in ipairs({ skipCount, toast } :: {GuiObject}) do
 		if item.Parent ~= danceGui then item.Parent = danceGui end
+	end
+	local barHome = if inPanel then barSlot else danceGui
+	if playBar.Parent ~= barHome then playBar.Parent = barHome end
+	local iconHome = if inPanel then iconSlot else banner
+	if choreoButton.Parent ~= iconHome then
+		choreoButton.Parent = iconHome
+		camButton.Parent = iconHome
+		choreoButton.AnchorPoint = Vector2.new(1, 0.5)
+		camButton.AnchorPoint = if inPanel then Vector2.new(1, 0.5) else Vector2.new(0, 0.5)
 	end
 	-- (inside the banner: its UIPadding (34 at both ends) leaves room; 4 px in)
 	if listButton.Parent ~= banner then
 		listButton.Parent = banner
 		listButton.AnchorPoint = Vector2.new(0, 0.5)
 		listButton.Position = UDim2.new(0, -30, 0.5, 0)
-		choreoButton.Parent = banner
-		choreoButton.AnchorPoint = Vector2.new(1, 0.5)
-		camButton.Parent = banner
-		camButton.AnchorPoint = Vector2.new(0, 0.5)
 		skipButton.Parent = banner
 		skipButton.AnchorPoint = Vector2.new(1, 0.5)
 		skipButton.Position = UDim2.new(1, 30, 0.5, 0)
 	end
+	if inPanel then
+		local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
+		camButton.Visible = track ~= nil and ClubCamera.forTrack(track) ~= nil
+		camButton.Position = UDim2.new(1, -2, 0.5, 0)
+		choreoButton.Visible = track ~= nil and track.choreo ~= nil
+		choreoButton.Position = UDim2.new(1, if camButton.Visible then -26 else -2, 0.5, 0)
+		playBar.Visible = track ~= nil
+		if not playBar.Visible then dragging = nil end
+		-- (the ⏸ hangs 22 px in front of the bar: room for it inside the window)
+		playBar.AnchorPoint = Vector2.zero
+		playBar.Position = UDim2.fromOffset(24, 0)
+		playBar.Size = UDim2.new(1, -24, 0, 14)
+		if playBar.Visible then
+			local heard, total = songTimes()
+			local fraction = dragging or (if total > 0 then heard / total else 0)
+			barFill.Size = UDim2.fromScale(fraction, 1)
+			barKnob.Position = UDim2.fromScale(fraction, 0.5)
+			barKnob.Visible = canSeek()
+			pauseButton.Visible = barKnob.Visible
+			timeNow.Text = clock(if dragging then dragging * total else heard)
+			timeAll.Text = clock(total)
+		end
+		listButton.Visible, skipButton.Visible, skipCount.Visible = false, false, false
+		return
+	end
+	playBar.AnchorPoint = Vector2.new(0.5, 0)
 	local shown = inClub and banner.Visible
 	local djOn = (FashionGame:GetAttribute("ClubDJ") or 0) ~= 0
 	local votes = FashionGame:GetAttribute("ClubSkipVotes")
