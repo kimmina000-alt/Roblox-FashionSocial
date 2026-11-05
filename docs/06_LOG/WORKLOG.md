@@ -3464,7 +3464,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - Play(클럽 지하, 밤): 57.7초 두 손 펼친 자세가 무대와 같은 순간(시작 지점 확인), 106.6초 무릎 위 샷. 스크립트 오류 없음.
   ![love attack stage camera](images/2026-11-05/stagecam_loveattack_compare.jpg)
 - 참고: Studio Assistant HTTP 허용 목록에 localhost가 없어져 파일 서버 동기화가 막힘 → 바뀐 블록만 execute_luau로 넣음.
-- 남은 것: 모바일 2인 테스트, 머지 허락.
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치): Studio 스크립트 길이 브랜치와 같음(ClubCamera 49,592). 두 휴대폰 모두 🎥(선택 + Return)으로 켜짐. 컷 순간 P1 4.93 / 6.26 / 7.32 / 10.45 / 12.26 / 15.26초, P2 4.92 / 6.26 / 7.32 / 10.45 / 12.25 / 15.24초(목록 4.8 / 6.1 / 7.2 / 10.3 / 12.1 / 15.1). P2만 끄니 Custom / FOV 70, P1은 켜진 채. 스크립트 오류 없음(93308695817877 경고만).
 ### 노래 띠 왼쪽 + 접기, 로딩 OHU CLUB 로고 폰트 (D-906, D-907)
 - DanceController.client.lua(띠 위치, NowPlayingToggle), LoadingScreen.client.lua(titleImage), brand_logo.py title_white.
 
@@ -3475,6 +3475,31 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - Player1/Player2 클럽(22시): 띠 왼쪽 가운데(42, 325), − 누르면 접힘(+), + 누르면 펼침, ≡ 🎵 🎥 재생바 같이 따라감. SnackService.Give: 돼지국밥 Sip 1.4, 순대국밥 0.7. 스크립트 오류 없음.
 ![펼침](images/2026-11-05/banner_left_open.jpg) ![접힘](images/2026-11-05/banner_left_folded.jpg)
 
+### 무대 카메라 I SPY (D-913)
+- 영상 MBC 음악중심(youtube 9N0svN37emE, D:\Roblox\영상\ISPY_stage). 영상 = 노래 − 0.6초, 샷 163개. 브랜치 feat/stage-camera-ispy-1105.
+- Play(클럽 지하, 밤): 35.5초 팔 가로지른 자세가 무대와 같은 순간(시작 지점 확인), 141.8초 무릎 위 샷. 스크립트 오류 없음.
+  ![i spy stage camera](images/2026-11-05/stagecam_ispy_compare.jpg)
+- 남은 것: 모바일 2인 테스트, 머지 허락.
+### NCT WISH I SPY 안무 30조각 (D-912)
+- 사용자: "ISPY 안무 추가 30개" + id 32개(ISPY12 · ISPY15가 두 번씩 올라감, 키프레임 같음 → 먼저 올린 id). 영상 NCTWISH_ISPY_centercut(미러 연습 영상, 클립 30개).
+- 노래 ↔ 영상: 영상 = 노래 − 1.50초(곡 내내 같음). `at` = 클립 시작 + 1.50, blend = 이음새 검사 제안값.
+- 검사: 미끄러짐 16곳 → ChoreoSlideStill 뒤 0, 영상 서 있기 still 1조각, 떨림 261 → 18구간(모두 기준선, 대부분 조각 첫 0.2초).
+- Play: 조각 시작 차이 −0.01~−0.08초(앞 · 끝), 25→26(133°) 뒤집힘 없음, still 이동 0.000, 몸 바꾸기 뒤 회전 · 허리 그대로.
+- 영상과 같은 순간(노래 20 / 90 / 175초, 왼쪽 미러 영상):
+  ![ispy](images/2026-11-05/d912_ispy_compare.jpg)
+- Studio MCP의 localhost HTTP가 막힘(Assistant HTTP allowlist): 동기화 서버 대신 코드를 직접 붙여 넣음.
+- 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지.
+
+### ILLIT 체포하겠어 안무 20조각 (D-914)
+- 사용자: "Arrest 안무 추가 21개" + id 21개. 21번 업로드가 20번과 똑같음(키프레임 같음) → 1~20번만 넣고 21번(노래 마지막 11초)은 다시 올려 주면 추가.
+- 노래 ↔ 영상: 영상 = 노래 + 2.38초(곡 내내 같음). 1번 `from = 2.38`, 나머지 `at` = 클립 시작 − 2.38, blend = 이음새 검사 제안값.
+- 검사: 미끄러짐 17곳 → ChoreoSlideStill 뒤 0, 떨림 422 → 7구간.
+- Play: 조각 시작 차이 −0.06~0.00초, 20번 끝(169.95초) 뒤로는 기본 춤, 몸 바꾸기 뒤 회전 · 허리 그대로.
+- 영상과 같은 순간(노래 20 / 90 / 160초):
+  ![arrest](images/2026-11-05/d914_arrest_compare.jpg)
+- 남은 것: 21번 다시 올리기, 모바일 2P 테스트 → 사용자 승인 후 머지.
+- 21번 다시 올림(113936517496560): `at` = 169.99, 미끄러짐 0, 떨림 0, Play 시작 차이 −0.02초, 노래 끝까지 이어짐 → 21조각 완성.
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치, ClockOverride 22, ChoreoOn/Auto): Player1(DJ)이 체포하겠어 재생 → 두 화면 모두 1~4, 19~21번이 제때(내 캐릭터 −0.05~0.00초, 상대 −0.08~+0.09초), 상대 엉덩이 최대 0.12. I SPY 재생 → 2~5번 내 캐릭터 −0.03~−0.01초, 상대 −0.06~+0.14초, 1번은 곡 시작 직후 1.5~3초에 보임(첫 조각 불러오기, 전과 같음). 스크립트 오류 없음(93308695817877 승인 경고만). 사용자 요청("모바일 2P 테스트하고 머지해")대로 머지 (D-912 / D-914).
 ### 디제잉 창 🎵 🎥 + 재생바, 바깥 누르면 닫힘 (D-910, D-911)
 - ClubMusicController.client.lua(IconSlot, PlayBarSlot, 바깥 클릭), ClubQuickBar.client.lua(창이 열리면 버튼/재생바를 창으로).
 - Studio Play(PC 1인, 22시, LOVE ATTACK): 곡 줄 오른쪽에 🎵 🎥, 바로 아래 ⏸ 0:23 ━ 3:02. 창 안 클릭은 그대로, 세상 클릭은 두 창 닫힘 → 버튼/재생바가 띠로 돌아감.
