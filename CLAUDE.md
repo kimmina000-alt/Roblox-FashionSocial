@@ -134,4 +134,4 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-05 (3): `feat/banner-left-1105` merged into `catalog-ui-redesign` (mobile 2P passed, D-906/D-907/D-909): now-playing banner at the left middle with a −/+ fold button (NowPlayingToggle), loading screen OHU CLUB title as a logo-font image (74636429583204), pork 국밥 eating sound 1.4 (SnackService LOUD). If Play will not stop by MCP ("Start play hasn't finished yet"), call StudioTestService:EndTest() from the Server datamodel. New work: branch off catalog-ui-redesign.
 
-- 2026-11-05 (8), on `feat/stage-camera-ispy-1105` (worktree D:\Roblox\OHU-wt-camera, not merged): stage camera for NCT WISH-I SPY (D-913, Music Core, video = song - 0.6 s). Next: mobile 2P test, then ask to merge.
+- 2026-11-05 (8), on `feat/stage-camera-ispy-1105` (worktree D:\Roblox\OHU-wt-camera, not merged): stage camera for NCT WISH-I SPY (D-913, Music Core, video = song - 0.6 s). Mobile 2P test passed; ask to merge.

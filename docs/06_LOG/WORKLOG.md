@@ -3464,7 +3464,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - Play(클럽 지하, 밤): 57.7초 두 손 펼친 자세가 무대와 같은 순간(시작 지점 확인), 106.6초 무릎 위 샷. 스크립트 오류 없음.
   ![love attack stage camera](images/2026-11-05/stagecam_loveattack_compare.jpg)
 - 참고: Studio Assistant HTTP 허용 목록에 localhost가 없어져 파일 서버 동기화가 막힘 → 바뀐 블록만 execute_luau로 넣음.
-- 남은 것: 모바일 2인 테스트, 머지 허락.
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치): Studio 스크립트 길이 브랜치와 같음(ClubCamera 49,592). 두 휴대폰 모두 🎥(선택 + Return)으로 켜짐. 컷 순간 P1 4.93 / 6.26 / 7.32 / 10.45 / 12.26 / 15.26초, P2 4.92 / 6.26 / 7.32 / 10.45 / 12.25 / 15.24초(목록 4.8 / 6.1 / 7.2 / 10.3 / 12.1 / 15.1). P2만 끄니 Custom / FOV 70, P1은 켜진 채. 스크립트 오류 없음(93308695817877 경고만).
 ### 노래 띠 왼쪽 + 접기, 로딩 OHU CLUB 로고 폰트 (D-906, D-907)
 - DanceController.client.lua(띠 위치, NowPlayingToggle), LoadingScreen.client.lua(titleImage), brand_logo.py title_white.
 
