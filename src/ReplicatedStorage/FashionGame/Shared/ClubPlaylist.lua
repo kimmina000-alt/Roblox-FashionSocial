@@ -180,14 +180,14 @@ M.Playlist = {
 		{ id = 114419952125075, at = 210.11 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
-		-- D-914: Arrest1..20 (practice video 3nBkzv0TNDk, video = song + 2.38 s; the Arrest21 upload is a copy of Arrest20, so the last 11 s have no piece yet)
+		-- D-914: Arrest1..21 (practice video 3nBkzv0TNDk, video = song + 2.38 s; piece 21 is the re-upload 113936517496560, the first Arrest21 upload was a copy of Arrest20)
 		choreo = { { id = 110040253056586, from = 2.38 }, { id = 116782676046427, at = 11.12 }, { id = 91788521477193, at = 20.12, blend = 0.39 },
 		{ id = 130744405360835, at = 26.09, blend = 0.46 }, { id = 75102459386899, at = 32.95, blend = 0.7 }, { id = 128174978668663, at = 38.69, blend = 0.61 },
 		{ id = 100385332540044, at = 48.52, blend = 1 }, { id = 76359264534217, at = 51.42, blend = 0.45 }, { id = 99715197125931, at = 62.59, blend = 0.3 },
 		{ id = 92743762405771, at = 76.19, blend = 0.94 }, { id = 108969470552658, at = 81.45 }, { id = 87742291719868, at = 92.75, blend = 0.87 },
 		{ id = 99241032937972, at = 96.45, blend = 0.41 }, { id = 90778610748932, at = 103.62, blend = 0.94 }, { id = 119318712525281, at = 116.25, blend = 1 },
 		{ id = 113529281081668, at = 123.32, blend = 0.52 }, { id = 138780635090818, at = 130.25 }, { id = 134859541553614, at = 143.45, blend = 0.52 },
-		{ id = 127453915676688, at = 154.69 }, { id = 98926631193332, at = 164.52, blend = 1 } }, autoChoreo = true },
+		{ id = 127453915676688, at = 154.69 }, { id = 98926631193332, at = 164.52, blend = 1 }, { id = 113936517496560, at = 169.99 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 71873496902418, length = 61, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
 		-- D-903: LoveAttack1..27 (practice video nXDQPm_HnFc, video = song + 0.45 s)
 		choreo = { { id = 109011245162387, from = 0.45 }, { id = 77108502823118, at = 1.48, blend = 0.82 }, { id = 86687841705348, at = 5.12, blend = 1 },
