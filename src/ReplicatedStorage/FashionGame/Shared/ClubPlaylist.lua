@@ -279,7 +279,15 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-917, user 2026-11-05: "음원 테스트에서 설정값 받아서" 3 songs; values saved in the lab place, length = the file's seconds)
 	{ channel = "K-POP", title = "ALLDAY PROJECT-CRASH", soundId = 104827635407586, length = 57.68,
-		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" },
+		-- D-918: Crash2..20 (practice video ljFL31qEn6M, video = song + 2.50 s, `at` = clip start - 2.50; clip 1 = song 0.1-11.3 s has no upload: default dance until 11.31)
+		choreo = { { id = 103881583439894, at = 11.31 }, { id = 110262357944188, at = 16.95, blend = 0.99 }, { id = 85184392148752, at = 23.06, blend = 1 },
+		{ id = 86200130207984, at = 31.57, blend = 0.65 }, { id = 109096810120786, at = 39.38 }, { id = 108547801175160, at = 51.62, blend = 0.57 },
+		{ id = 119507357461993, at = 61 }, { id = 86220019327088, at = 73.91, blend = 1 }, { id = 103539561583468, at = 75.61, blend = 0.65 },
+		{ id = 116383725353409, at = 78.98, blend = 0.82 }, { id = 124516959620423, at = 88.76, blend = 0.81 }, { id = 124646840847010, at = 94.3 },
+		{ id = 109278338620404, at = 103.61, blend = 0.54 }, { id = 92004530682011, at = 114.08, blend = 0.51 }, { id = 84989603326490, at = 128.33 },
+		{ id = 130905271100211, at = 136.91, blend = 0.98 }, { id = 83612611749583, at = 138.71, blend = 1 }, { id = 128860681514235, at = 152.25, blend = 0.63 },
+		{ id = 140259213928051, at = 163.1, blend = 0.45 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "RESCENE-Pretty Girl", soundId = 89634330677538, length = 70.01,
 		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" } },
 	{ channel = "K-POP", title = "키키-Pop Off", soundId = 129996145931101, length = 47.11,
