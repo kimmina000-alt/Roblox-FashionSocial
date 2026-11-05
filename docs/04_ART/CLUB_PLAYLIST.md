@@ -1,7 +1,4 @@
 # 클럽 음원 목록 · 설정값 (2026-11-03, D-796까지)
-	["132951659748689"] = { speed = 1, tempo = 0.748, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- izna - ROCK, PAPER, SCISSORS (D-924)
-	["95502375387883"] = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- LISA - Cobra (D-924)
-	["81251273866025"] = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- ALLDAY PROJECT - NO 한도 (D-924)
 
 코드: `src/ReplicatedStorage/FashionGame/Shared/ClubPlaylist.lua` (51곡, D-924; `ClubConfig.Playlist`로도 읽힘, D-888). 끝부분 `--★★★음원 추가★★★--` 아래 = 사용자 음원 칸, 아래 4번.
 예전 목록·안무 기록: `OLD_CLUB_PLAYLIST.md`.
@@ -127,6 +124,9 @@ local LAB = {
 	["113680653484321"] = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- K/DA - NEVER GOING BACK (D-921)
 	["102033386205095"] = { speed = 1, tempo = 0.909, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- LISA - Tarantino (D-923)
 	["127811970673239"] = { speed = 1, tempo = 0.826, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- K/DA - GIRLS (D-923)
+	["132951659748689"] = { speed = 1, tempo = 0.748, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- izna - ROCK, PAPER, SCISSORS (D-924)
+	["95502375387883"] = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- LISA - Cobra (D-924)
+	["81251273866025"] = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- ALLDAY PROJECT - NO 한도 (D-924)
 	["132067415333401"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = -2.5, engine = "sound" }, -- aespa-Lemonade
 	["139326796173276"] = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -10.5, mid = 5, high = 4.5, engine = "sound" }, -- IVE-Mirror
 	["74988982712396"] = { speed = 1, tempo = 0.91, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- A2O LITE-NEON (D-922, new upload; was 97511700575810)
