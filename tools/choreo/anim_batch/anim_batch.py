@@ -67,6 +67,12 @@ def find_window(part):
     return None
 
 
+def process_of(hwnd):
+    pid = wt.DWORD()
+    user32.GetWindowThreadProcessId(hwnd, ctypes.byref(pid))
+    return pid.value
+
+
 def rect(hwnd):
     r = wt.RECT()
     user32.GetWindowRect(hwnd, ctypes.byref(r))
@@ -567,9 +573,9 @@ class App:
 
     def start_calib(self):
         self.refresh()
-        # only the missing points when some are kept; all of them otherwise
-        missing = [i for i, s in enumerate(STEPS) if s[0] not in self.points]
-        self.calib_list = missing if 0 < len(missing) < len(STEPS) else list(range(len(STEPS)))
+        # (user 2026-11-05: always all of them, from the first)
+        self.points = {}
+        self.calib_list = list(range(len(STEPS)))
         self.calib_pos = 0
         self.calib_index = self.calib_list[0]
         self.log("— 위치 기록 —")
@@ -583,21 +589,23 @@ class App:
         # (2026-11-05: the window under the mouse, not the list's pick: a
         # point was once kept against another Studio window's corner)
         under = user32.GetAncestor(user32.WindowFromPoint(wt.POINT(x, y)), 2)  # GA_ROOT
-        n = user32.GetWindowTextLengthW(under)
-        buf = ctypes.create_unicode_buffer(n + 1)
-        user32.GetWindowTextW(under, buf, n + 1)
-        title = buf.value
-        if base == "studio" and "Roblox Studio" not in title:
-            self.log(f"  마우스 아래 창이 Studio가 아니에요 ({title or '?'}). 다시 F8.")
-            return
-        if base == "asset" and title != ASSET_TITLE:
-            self.log(f"  마우스 아래 창이 게시(Asset Configuration) 창이 아니에요 ({title or '?'}). 다시 F8.")
-            return
-        hwnd = under
+        # (the ⋯ menu is its own small window "RobloxStudio": what counts is the
+        # Studio program it belongs to, and that program's main window)
+        pid = process_of(under)
         if base == "studio":
+            main = [(h, t) for h, t in windows() if "Roblox Studio" in t and process_of(h) == pid]
+            if not main:
+                self.log("  마우스가 Studio 위에 있지 않아요. 다시 F8.")
+                return
+            hwnd, title = main[0]
             self.points["_studio"] = title
             self.refresh()
             self.studio_var.set(title)
+        else:
+            hwnd = find_window(ASSET_TITLE)
+            if not hwnd or process_of(hwnd) != pid:
+                self.log("  마우스가 게시(Asset Configuration) 창 위에 있지 않아요. 다시 F8.")
+                return
         l, t, _, _ = rect(hwnd)
         self.points[name] = [x - l, y - t]
         self.log(f"  기록: {name} = ({x - l}, {y - t})")
