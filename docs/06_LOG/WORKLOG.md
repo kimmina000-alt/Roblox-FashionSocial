@@ -3522,3 +3522,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 영상과 같은 순간(노래 20 / 70 / 120초):
   ![animal](images/2026-11-05/d916_animal_compare.jpg)
 - 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지.
+
+### 2026-11-06 머지: 체포하겠어 무대 카메라 (D-915) + ANIMAL 안무 (D-916)
+- 사용자 "머지해". 두 브랜치 모두 Studio에 이미 들어가 있었음: Studio 스크립트 129개를 머지한 코드와 줄 단위로 비교, 다른 곳은 주석의 D-번호뿐(ClubCamera / ClubPlaylist / ClubChoreo / ClubMusicController / LoadingScreen). 문서 충돌은 양쪽 기록을 모두 남김.
+- 같은 날 D:\Roblox의 복사본 폴더 4개(OHU-wt-1104 / camera / choreo / genie, 각 약 625 MB)를 휴지통으로 옮김(사용자 요청, 모두 GitHub에 올라가 있었음). C 드라이브 Roblox 캐시(rbx-storage 3 GB 등)와 임시 파일도 휴지통으로.
