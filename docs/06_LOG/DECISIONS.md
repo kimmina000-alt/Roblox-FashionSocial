@@ -2457,3 +2457,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 비교: docs/06_LOG/images/2026-11-05/stagecam_genie_compare.jpg(28.2 / 65.3초, 바스트 샷).
 - 샷 108개(`videoCuts`: 영상 시각으로 적고 차이를 빼서 노래 시각으로). 영상에 없는 노래 앞 14.8초는 옥상 전체를 높이서 보는 샷. 헬기장 위 크레인·헬기 샷(pitch 35~80), 다리 낮은 샷(pitch −12), 끝은 크레인이 위로 빠져 도시까지.
 - 브랜치는 Genie 안무가 머지된 catalog-ui-redesign(2febb29) 위.
+
+## D-908 무대 카메라 일곱 번째 곡 RESCENE-LOVE-ATTACK (2026-11-05)
+- 사용자: "러브어택" + youtube Hv1wQ6nlpNE(SBS 인기가요 2024-09-01).
+- 시작 지점: 게임 곡 소리(0~181.6초) ↔ 영상 → **영상 = 노래 + 1.9초**(17구간 모두 +1.90). 안무로 확인: 노래 57.7초 두 손을 얼굴 옆에 펼친 자세 = 무대 같은 순간.
+- 컷 69개 + 0.5초 사진 띠로 샷 144개(`videoCuts`, 영상 초로 적음).
+- Studio 넣기: Studio Assistant가 이제 localhost(8766) HTTP를 막아서, 이번 곡 블록만 execute_luau로 `return ClubCamera` 앞에 끼워 넣음(바이트 수 브랜치와 같음 45,649).
+- 비교: docs/06_LOG/images/2026-11-05/stagecam_loveattack_compare.jpg(57.7초 바스트 · 106.6초 무릎 위).
