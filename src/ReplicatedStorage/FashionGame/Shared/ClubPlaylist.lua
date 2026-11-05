@@ -124,7 +124,7 @@ M.Playlist = {
 	-- (D-919, user 2026-11-06: new upload, tuned in the lab; was 91762270038050, a 3× file of 53.553 s)
 	-- the new file is the same edit at 1.0908× (3 × 53.553 ÷ 147.285; loudness of both matched,
 	-- same start, no drift), so `at` and the stage camera keep the old song clock
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 133586602463513, length = 147.285, fileSpeed = 1.0908, lab = { speed = 1, tempo = 0.921, volume = 10, boost = 10, boost2 = 5.05, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = {
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 133586602463513, length = 147.285, fileSpeed = 1.0908, lab = { speed = 1, tempo = 0.921, volume = 10, boost = 10, boost2 = 10, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, choreo = {
 		-- (D-807, user: "이음새도 맞춰") blend = seconds to ease from the last pose
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
 		-- (D-878, user: "겟어기타 안무 수정", practice video u_u21u8zIIs, mirrored
