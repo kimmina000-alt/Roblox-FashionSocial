@@ -3504,3 +3504,4 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - ClubMusicController.client.lua(IconSlot, PlayBarSlot, 바깥 클릭), ClubQuickBar.client.lua(창이 열리면 버튼/재생바를 창으로).
 - Studio Play(PC 1인, 22시, LOVE ATTACK): 곡 줄 오른쪽에 🎵 🎥, 바로 아래 ⏸ 0:23 ━ 3:02. 창 안 클릭은 그대로, 세상 클릭은 두 창 닫힘 → 버튼/재생바가 띠로 돌아감.
 ![디제잉 창](images/2026-11-05/dj_window_bar.jpg)
+- (머지 후) 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치, ClockOverride 22) D-910/D-911: Player1(DJ)이 턴테이블 프롬프트로 디제잉 창을 열고 I SPY 재생 → 곡 줄 오른쪽에 🎵(201,45) 🎥(223,45), 바로 아래 재생바(46,64). 안무 없는 Disco Inferno에서는 🎵 🎥 숨음(띠와 같은 규칙). Player2(손님)는 띠의 목록 버튼으로 열어도 같은 자리. 창 안 터치는 그대로, 창 밖 터치는 두 창 다 닫히고 버튼/재생바가 띠로 돌아감(두 화면 모두). 스크립트 오류 없음(93308695817877 승인 경고만).
