@@ -2556,3 +2556,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - `fileSpeed = 1`: `lab`이 있는 곡은 3배 업로드로 보기 때문에(ClubConfig.fileSpeed) x1 파일은 꼭 적어야 안무·카메라 시계가 맞음(지금은 안무·카메라 없음).
 - 자리: ClubPlaylist에서 Hearts2Hearts-Lemon Tang 바로 다음(번호는 하나씩 밀림; 번호로 곡을 가리키는 코드는 없음).
 - 확인(Play, 1인, 클럽 안): 불러옴(승인 오류 없음), 길이 172.366초, 속도 1, 서버 시계와 소리 위치 차이 0.01초, 172.34초까지 재생 후 다음 곡. 주의: volume 1 / boost 1 / boost2 1이라 다른 사용자 곡(volume 10, boost 10, boost2 2~10)보다 훨씬 작게 들림.
+- 사용자(랩): "Next Chapte 설정값 바꿨어 바꾼 걸로 넘겨" → `lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0 }`(위의 작게 들림 주의는 없어짐). Play 다시: volume 10, ClubMusicBoost 10 > ClubMusicBoost2 5, 속도 1, 172.29초까지 재생 후 다음 곡.

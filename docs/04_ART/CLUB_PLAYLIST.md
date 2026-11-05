@@ -45,7 +45,7 @@
 | 17 | RIIZE-Love 119 | 119473981131981 | 58 | 2:53 | |
 | 18 | YENA-Catch Catch | 80583279340768 | 61 | 3:02 | |
 | 19 | Hearts2Hearts-Lemon Tang | 97032815457241 | 54 | 2:41 | |
-| 20 | Hearts2Hearts-Next Chapter | 113170325006427 | 172.366 | 2:52 | x1 업로드, lab tempo 1 / volume 1 / boost 1, fileSpeed 1 (D-920) |
+| 20 | Hearts2Hearts-Next Chapter | 113170325006427 | 172.366 | 2:52 | x1 업로드, lab tempo 1 / volume 10 / boost 10 / boost2 5, fileSpeed 1 (D-920) |
 | 21 | aespa-Lemonade | 132067415333401 | 62 | 3:05 | |
 | 22 | IVE-Mirror | 139326796173276 | 67 | 3:20 | |
 | 23 | A2O LITE-NEON (다섯시사십칠분) | 97511700575810 | 73.8 | 3:42 | 22개, 자동 🎵, 이음새 blend (D-809) |
@@ -108,7 +108,7 @@ local LAB = {
 	["119473981131981"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -7, mid = -3, high = 1.5, engine = "sound" }, -- RIIZE-Love 119
 	["80583279340768"] = { speed = 1, tempo = 0.34, volume = 10, boost = 3, octave = 0.5, low = -13, mid = 2.5, high = 4, engine = "sound" }, -- YENA-Catch Catch
 	["97032815457241"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- Hearts2Hearts-Lemon Tang
-	["113170325006427"] = { speed = 1, tempo = 1, volume = 1, boost = 1, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- Hearts2Hearts-Next Chapter (D-920, x1 file)
+	["113170325006427"] = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- Hearts2Hearts-Next Chapter (D-920, x1 file)
 	["132067415333401"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = -2.5, engine = "sound" }, -- aespa-Lemonade
 	["139326796173276"] = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -10.5, mid = 5, high = 4.5, engine = "sound" }, -- IVE-Mirror
 	["97511700575810"] = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- A2O LITE-NEON
