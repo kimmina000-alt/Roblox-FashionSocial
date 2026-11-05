@@ -4,9 +4,11 @@
 Roblox Studio 애니메이션 편집기에서 영상마다 손으로 하던 일을 차례로 되풀이한다:
   1. ⋯ → 가져오기 → 라이브 애니메이션 제작기 → 안내 창의 "비디오 선택" →
      "비디오 선택" 파일 창에 영상 경로 → 열기
-  2. "애니메이션을 처리 중입니다" 창이 사라질 때까지 기다림
-  3. ⋯ → Roblox에 게시 → Asset Configuration 창의 제목에 "<접두어><번호>" → 저장
-  4. 업로드 창이 닫힐 때까지 기다림, 다음 영상
+  2. "애니메이션을 처리 중입니다" → "작업 완료!"까지 기다림
+  3. ⋯ → 저장, ⋯ → Roblox에 게시 → Asset Configuration 창의 제목에
+     "<접두어><번호>" → 저장
+  4. "제출 완료" 화면의 ID 복사 → 닫기 → 영상 폴더의 <접두어>_ids.txt에 번호 순서로
+     한 줄씩(<접두어>_ids_번호.txt에는 번호와 함께), 다음 영상
 
 Studio 화면 안의 버튼(⋯, 메뉴, 게시 창)은 Windows가 읽을 수 없어서, 처음 한 번
 마우스를 그 자리에 두고 F8을 눌러 위치를 기록한다(설정 → anim_batch_points.json).
@@ -118,10 +120,13 @@ STEPS = [
     ("import", "studio", "⋯를 눌러 메뉴를 열고 '가져오기' 위에서 F8"),
     ("from_file", "studio", "'가져오기' 옆에 열린 '라이브 애니메이션 제작기' 위에서 F8"),
     ("video_btn", "studio", "'라이브 애니메이션 제작기'를 눌러 뜬 안내 창의 파란 '비디오 선택' 위에서 F8, 그다음 '취소'"),
-    ("publish", "studio", "Esc로 닫고 ⋯를 다시 열어 'Roblox에 게시' 위에서 F8 (누르지 마세요)"),
+    ("editor_save", "studio", "Esc로 닫고 ⋯를 다시 열어 '저장' 위에서 F8 (누르지 마세요)"),
+    ("publish", "studio", "⋯ 메뉴의 'Roblox에 게시' 위에서 F8 (누르지 마세요)"),
     ("busy", "studio", "Esc로 메뉴를 닫고, 편집기 가운데(처리 중 흰 창이 뜨는 자리) 위에서 F8"),
     ("title", "asset", "⋯ → 'Roblox에 게시'를 눌러 창을 연 뒤 '제목' 칸 위에서 F8"),
-    ("save", "asset", "같은 창 오른쪽 아래 파란 '저장' 버튼 위에서 F8, 그다음 '취소'로 닫기"),
+    ("save", "asset", "같은 창 오른쪽 아래 파란 '저장' 버튼 위에서 F8"),
+    ("copy_id", "asset", "그 저장을 눌러 업로드가 끝난 '제출 완료' 화면에서 ID 옆 복사 아이콘 위에서 F8"),
+    ("close_btn", "asset", "같은 화면 아래 '닫기' 버튼 위에서 F8, 그다음 닫기"),
 ]
 ASSET_TITLE = "Asset Configuration"
 VIDEO_TITLE = "비디오 선택"
@@ -306,7 +311,10 @@ class Runner:
                 quiet = None
             time.sleep(0.5)
         self.sleep(2.0)
-        # 3. publish
+        # 3. ⋯ → 저장 (the user's step 8), then ⋯ → Roblox에 게시
+        log("  저장")
+        self.menu(studio, "dots", "editor_save")
+        self.sleep(1.5)
         log(f"  게시: {title}")
         for attempt in range(3):
             self.menu(studio, "dots", "publish")
@@ -326,9 +334,32 @@ class Runner:
         self.paste(title)
         self.sleep(0.4)
         click(*self.at("save", asset))
-        # 4. upload
-        self.wait(lambda: find_window(ASSET_TITLE) is None, 10 * 60, "업로드")
-        self.sleep(2.0)
+        # 4. upload: "제출 완료" shows "ID: …" with a copy icon. The icon is tapped
+        # until the clipboard holds the number (before that the spot is blank)
+        log("  업로드 중...")
+        asset_id = None
+        end = time.time() + 10 * 60
+        while asset_id is None:
+            self.check()
+            if time.time() > end:
+                raise RuntimeError("업로드 10분 초과 (ID를 못 받음)")
+            asset = find_window(ASSET_TITLE)
+            if not asset:
+                raise RuntimeError("ID를 받기 전에 게시 창이 닫힘")
+            self.app.set_clipboard("")
+            click(*self.at("copy_id", asset))
+            self.sleep(0.7)
+            got = self.app.get_clipboard().strip()
+            if re.fullmatch(r"\d{6,}", got):
+                asset_id = got
+            else:
+                self.sleep(1.0)
+        log(f"  ID: {asset_id}")
+        # 5. 닫기
+        click(*self.at("close_btn", find_window(ASSET_TITLE)))
+        self.wait(lambda: find_window(ASSET_TITLE) is None, 20, "게시 창 닫기")
+        self.sleep(1.5)
+        return asset_id
 
     def run(self, files, prefix):
         app = self.app
@@ -344,27 +375,50 @@ class Runner:
                 app.log(f"[{done + 1}/{len(files)}] {os.path.basename(path)} → {title}")
                 t0 = time.time()
                 try:
-                    self.one(studio, path, title)
+                    asset_id = self.one(studio, path, title)
                 except RuntimeError as e:
                     app.log(f"  ✗ {e} — 여기서 멈춰요. 화면을 확인해 주세요.")
                     write_log(path, title, "실패: " + str(e), t0)
                     return
-                write_log(path, title, "완료", t0)
+                write_log(path, title, "완료", t0, asset_id)
+                memo = save_id(os.path.dirname(path), prefix, number, asset_id)
                 done += 1
-                app.log(f"  ✓ 완료 ({time.time() - t0:.0f}초)")
-            app.log(f"끝: {done}개 완료")
+                app.log(f"  ✓ 완료 ({time.time() - t0:.0f}초) → {os.path.basename(memo)}")
+            app.log(f"끝: {done}개 완료. ID 메모: {memo if done else '-'}")
         except Stop:
             app.log(f"멈춤 ({done}개 완료)")
         finally:
             app.running_done()
 
 
-def write_log(path, title, status, t0):
+def write_log(path, title, status, t0, asset_id=""):
     new = not os.path.exists(LOG_FILE)
     with open(LOG_FILE, "a", encoding="utf-8-sig") as f:
         if new:
-            f.write("시각,파일,제목,결과,초\n")
-        f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')},{path},{title},{status},{time.time() - t0:.0f}\n")
+            f.write("시각,파일,제목,결과,초,ID\n")
+        f.write(f"{time.strftime('%Y-%m-%d %H:%M:%S')},{path},{title},{status},{time.time() - t0:.0f},{asset_id}\n")
+
+
+def save_id(folder, prefix, number, asset_id):
+    """(the user's step 14) the IDs in number order, one per line, in the video
+    folder: <prefix>_ids.txt (IDs only) and <prefix>_ids_번호.txt (번호<TAB>ID,
+    kept across runs so a later run adds to it)"""
+    table = os.path.join(folder, f"{prefix}_ids_번호.txt")
+    ids = {}
+    if os.path.exists(table):
+        with open(table, encoding="utf-8") as f:
+            for line in f:
+                parts = line.strip().split("\t")
+                if len(parts) == 2 and parts[0].isdigit():
+                    ids[int(parts[0])] = parts[1]
+    ids[number] = asset_id
+    order = sorted(ids)
+    with open(table, "w", encoding="utf-8") as f:
+        f.write("".join(f"{n}\t{ids[n]}\n" for n in order))
+    memo = os.path.join(folder, f"{prefix}_ids.txt")
+    with open(memo, "w", encoding="utf-8") as f:
+        f.write("".join(f"{ids[n]}\n" for n in order))
+    return memo
 
 
 def video_files(folder, first, last):
@@ -449,6 +503,21 @@ class App:
 
         self.root.after(0, put)
         done.wait(2)
+
+    def get_clipboard(self):
+        box = {"v": ""}
+        done = threading.Event()
+
+        def get():
+            try:
+                box["v"] = self.root.clipboard_get()
+            except tk.TclError:
+                box["v"] = ""
+            done.set()
+
+        self.root.after(0, get)
+        done.wait(2)
+        return box["v"]
 
     def refresh(self):
         self.studios = [(h, t) for h, t in windows() if "Roblox Studio" in t]
