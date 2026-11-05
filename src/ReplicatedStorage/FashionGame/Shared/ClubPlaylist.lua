@@ -168,6 +168,13 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.909, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "K/DA - GIRLS (Feat. Sorana, Royal & the Serpent)", soundId = 127811970673239, length = 112.3, fileSpeed = 1.211,
 		lab = { speed = 1, tempo = 0.826, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (D-924, user 2026-11-06: "오후에 전달") 3 more from the lab, the same way as D-921 (fileSpeed = song ÷ file, approximate)
+	{ channel = "K-POP", title = "izna - ROCK, PAPER, SCISSORS", soundId = 132951659748689, length = 105.5, fileSpeed = 1.3365,
+		lab = { speed = 1, tempo = 0.748, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "LISA - Cobra", soundId = 95502375387883, length = 131.638, fileSpeed = 1.1015,
+		lab = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "ALLDAY PROJECT - NO 한도", soundId = 81251273866025, length = 131.699, fileSpeed = 1.101,
+		lab = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)

@@ -2576,3 +2576,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자(랩 세션): "오후 전달". K/DA - NEVER GOING BACK 다음에 이 순서로, 랩 값 그대로(volume 10 / boost 10 / boost2 5 / octave 1 / EQ 0), length = 파일 초.
 - LISA - Tarantino 102033386205095(151.795초, 원곡 2:47) tempo 0.909, fileSpeed ≈ 1.1002 · K/DA - GIRLS (Feat. Sorana, Royal & the Serpent) 127811970673239(112.3초, 원곡 2:16) tempo 0.826, fileSpeed ≈ 1.211. fileSpeed는 D-921처럼 원곡 길이 ÷ 파일 길이(어림값, 안무·카메라를 붙일 때 재기).
 - 확인(Play, 1인, 클럽 안): 둘 다 불러옴, 속도 0.909 / 0.826, volume 10, Boost 10 > Boost2 5, 151.75 / 112.20초까지 재생 후 다음 곡.
+
+## D-924 클럽 곡 3개 추가: izna - ROCK, PAPER, SCISSORS / LISA - Cobra / ALLDAY PROJECT - NO 한도 (2026-11-06)
+- 사용자(랩 세션): "오후에 전달". K/DA - GIRLS 다음에 이 순서로, 랩 값 그대로(volume 10 / boost 10 / boost2 5 / octave 1 / EQ 0), length = 파일 초.
+- izna - ROCK, PAPER, SCISSORS 132951659748689(105.5초, 원곡 2:21) tempo 0.748, fileSpeed ≈ 1.3365 · LISA - Cobra 95502375387883(131.638초, 2:25) tempo 0.908, fileSpeed ≈ 1.1015 · ALLDAY PROJECT - NO 한도 81251273866025(131.699초, 2:25) tempo 0.908, fileSpeed ≈ 1.101 (D-921처럼 어림값).
+- 모바일 2P 테스트(2026-11-06, 사용자가 시작한 Player1 / Player2, 폰 801×413; D-920..D-924 열한 곡): Player1(DJ)이 20~29번과 32번(NEON)을 차례로 틀고 두 폰 모두 새 id 불러옴·재생, 속도 = 랩 tempo, volume 10, Boost 10 > Boost2 5(Player2는 처음에 클럽 밖으로 밀려 있어 volume 0 → 22시로 두고 들여보낸 뒤 10). 27 / 28 / 29는 끝(105.46 / 131.63 / 131.70초)까지 재생 후 다음 곡. NEON 102.6초: 두 폰 같은 안무 조각 124518142645731(조각 안 9.35 / 9.55초 = 각자 소리 위치 기준 9.26 / 9.42초), 🎥 카메라 Scriptable / FOV 32. 긴 제목(K/DA - FIRESTARTER …)은 배너에서 "…"로 줄고 길이 3:20 표시. 오류 없음(93308695817877 승인 오류는 이 작업과 무관).
