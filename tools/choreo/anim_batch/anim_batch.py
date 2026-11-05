@@ -179,13 +179,56 @@ class Runner:
         time.sleep(0.05)
         press(VK_CTRL, VK_V)
 
-    def busy_now(self, studio):
-        # the processing box is white on the dark editor: a few white pixels on
-        # a short vertical line through the point
+    def busy_state(self, studio):
+        """'none' (no box), 'working' or 'done' for the white processing box
+        round the busy point. (user 2026-11-05: the "작업 완료!" box can stay
+        on screen, so "done" is read from its progress bar: blue to the end)"""
+        # (works in the light and the dark Studio theme: only the box's progress
+        # bar is read, a long horizontal blue run; the playhead is a thin
+        # vertical line and the key rows are grey)
         x, y = self.at("busy", studio)
-        img = ImageGrab.grab(bbox=(x - 2, y - 40, x + 3, y + 41), all_screens=True)
-        whites = sum(1 for yy in range(0, 81, 8) if near_white(img.getpixel((2, yy))[:3]))
-        return whites >= 3
+        w, h = 230, 130
+        img = ImageGrab.grab(bbox=(x - w, y - h, x + w, y + h), all_screens=True).convert("RGB")
+        W, H = img.size
+        px = img.load()
+
+        def blue(c):
+            r, g, b = c
+            return b > 170 and b - r > 60
+
+        def grey(c):
+            r, g, b = c
+            return abs(r - g) < 16 and abs(g - b) < 16 and 140 < r < 236
+
+        rows = []  # (longest blue run, row, its end x) per row
+        for yy in range(0, H, 2):
+            run, top = 0, (0, yy, 0)
+            for xx in range(W):
+                if blue(px[xx, yy]):
+                    run += 1
+                    if run > top[0]:
+                        top = (run, yy, xx)
+                else:
+                    run = 0
+            rows.append(top)
+        longest = max(r[0] for r in rows)
+        if longest < 40:
+            return "none", longest, 0.0
+        # the bar's middle row (its top and bottom edges blend into the box)
+        bar = [r for r in rows if r[0] >= longest * 0.9]
+        run, row, end = bar[len(bar) // 2]
+        tail = 0
+        xx = end + 1
+        # (a thin dark edge can sit between the blue and the grey rest)
+        skip = 0
+        while xx < W and skip < 4 and not grey(px[xx, row]):
+            xx += 1
+            skip += 1
+        while xx < W and grey(px[xx, row]):
+            tail += 1
+            xx += 1
+        fill = run / (run + tail)
+        return ("done" if tail <= max(3, run * 0.02) else "working"), run, fill
 
     def menu(self, studio, *names):
         for n in names:
@@ -209,21 +252,31 @@ class Runner:
         self.wait(lambda: find_window(VIDEO_TITLE) is None, 10, "비디오 선택 창 닫기")
         # 2. processing
         log("  처리 중...")
-        self.wait(lambda: self.busy_now(studio), 60, "처리 창 나타나기")
+        self.wait(lambda: self.busy_state(studio)[0] != "none", 90, "처리 창(파란 진행 막대) 나타나기")
         quiet = None
         end = time.time() + 20 * 60
+        last_note = 0.0
         while True:
             self.check()
             if time.time() > end:
                 raise RuntimeError("처리 20분 초과")
-            if self.busy_now(studio):
-                quiet = None
-            else:
+            state, run, fill = self.busy_state(studio)
+            if time.time() - last_note > 10:
+                last_note = time.time()
+                log(f"    (진행 막대 {fill:.0%})")
+            if state == "done":
+                log("  작업 완료")
+                break
+            # (the box closed by itself after it was seen working)
+            if state == "none":
                 quiet = quiet or time.time()
-                if time.time() - quiet > 3:
+                if time.time() - quiet > 5:
+                    log("  처리 창이 닫혀서 완료로 봐요")
                     break
-            time.sleep(0.4)
-        self.sleep(1.0)
+            else:
+                quiet = None
+            time.sleep(0.5)
+        self.sleep(2.0)
         # 3. publish
         log(f"  게시: {title}")
         self.menu(studio, "dots", "publish")
