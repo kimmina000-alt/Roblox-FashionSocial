@@ -2513,3 +2513,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-917 클럽 노래 3곡 추가: CRASH / Pretty Girl / Pop Off (2026-11-05)
 - 사용자: "음원 테스트에서 설정값 받아서 아래 3곡 추가해". 테스트 place(86558282086977)의 저장값(DataStore TurntableLabSettings, Play에서 읽기만 함)을 그대로 ClubPlaylist `★★★음원 추가★★★` 칸 끝에 넣음: ALLDAY PROJECT-CRASH 104827635407586 (57.68초, tempo 0.333), RESCENE-Pretty Girl 89634330677538 (70.01초, 0.333), 키키-Pop Off 129996145931101 (47.11초, 0.334); 셋 다 volume 10, boost 3, boost2 1, octave 0.5, EQ 저 -18.5 / 중 -4 / 고 -12.5. 랩의 humHz 20 / hissHz 20000 / gate -80은 꺼진 값이고 게임에 없는 항목이라 뺌. length = 파일 길이(초). 플레이리스트 41곡.
+## D-915 무대 카메라 아홉 번째 곡 ILLIT-체포하겠어, 허리 샷도 머리 따라가기 (2026-11-05)
+- 사용자: "arrest" + youtube gcmQ8eZW_vI(KBS 뮤직뱅크 2026-10-30 컴백, KBS WORLD TV). 앞 25초는 채널 로고와 컴백 영상.
+- 시작 지점: 게임 곡 소리(0~181.9초) ↔ 영상 → **영상 = 노래 + 24.9초**(17구간 모두 +24.90). 안무로 확인: 노래 37.6초 손을 앞으로 뻗으며 깊이 숙이는 자세 = 무대 같은 순간("On your knees").
+- 컷 66개 + 0.5초 사진 띠로 샷 90개(`videoCuts`). 큰 세트에 댄서가 많아 넓은 샷이 대부분.
+- StageCameraController: 머리 따라가기를 허리 샷까지 넓힘(바스트 이하 1, 허리 0.5, 무릎 0). 깊이 숙이는 동작에서 허리 샷 머리가 화면 밖으로 나가던 것.
+- 체포하겠어 안무(D-914, feat/arrest-choreo-1105)는 머지 전, Studio에는 있음. Studio 넣기: 이번 곡 블록 + 컨트롤러 한 줄만 execute_luau로(바이트 수 브랜치와 같음: ClubCamera 52,153, 컨트롤러 11,313).
+- 비교: docs/06_LOG/images/2026-11-05/stagecam_arrest_compare.jpg(37.6초 허리 · 131.6초 허리).

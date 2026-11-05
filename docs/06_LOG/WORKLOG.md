@@ -3510,3 +3510,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 테스트 place를 잠깐 Play로 켜서 세 곡 저장값과 파일 길이를 읽고 끔(place는 그대로). ClubPlaylist.lua 끝에 세 줄, Studio 스크립트에도 같은 세 줄만 끼워 넣음(Studio의 다른 세션 수정은 그대로).
 - Studio Play(PC 1인, 22시): 플레이리스트 41곡(39~41번), 세 음원 모두 오후 place에서 불러짐. DJ로 CRASH 재생 → ClubMusic 속도 0.333, ClubMusicBoost 3 / Boost2 1, LabEQ -18.5/-4/-12.5, 음높이 1.502(= 0.5 ÷ 0.333).
 - 2인 테스트(서버 + Player1/Player2, 사용자가 켬; 창 685×796·터치 없음이라 휴대폰 화면 흉내는 꺼져 있었음, 22시): Studio ClubPlaylist 41곡(31,090자). Player1(DJ)이 39 CRASH → 40 Pretty Girl → 41 Pop Off 차례로 재생, 두 화면 모두 같은 음원·위치(차이 0.03~0.07초), 속도 0.333 / 0.333 / 0.334, 음높이 1.502 / 1.502 / 1.497, ClubMusicBoost 3 / Boost2 1, LabEQ -18.5/-4/-12.5. 스크립트 오류 없음(93308695817877 승인 경고만). 사용자 요청("모바일 2인 테스트하고 머지해")대로 머지 (D-917).
+### 무대 카메라 체포하겠어 (D-915)
+- 영상 KBS 뮤직뱅크 컴백(youtube gcmQ8eZW_vI, D:\Roblox\영상\Arrest_stage). 영상 = 노래 + 24.9초, 샷 90개. 브랜치 feat/stage-camera-arrest-1105.
+- Play(클럽 지하, 밤): 37.6초 깊이 숙이는 자세가 무대와 같은 순간(시작 지점 확인). 처음엔 허리 샷에서 머리가 잘려 머리 따라가기를 허리 샷까지 넓힘. 스크립트 오류 없음.
+  ![arrest stage camera](images/2026-11-05/stagecam_arrest_compare.jpg)
+- 남은 것: 모바일 2인 테스트, 머지 허락.
