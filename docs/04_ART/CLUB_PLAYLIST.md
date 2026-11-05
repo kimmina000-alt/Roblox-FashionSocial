@@ -52,7 +52,7 @@
 | 24 | K/DA - NEVER GOING BACK (Feat. SOYEON, MIYEON) | 113680653484321 | 178.034 | 3:16 | lab tempo 0.908 / volume 10 / boost 10 / boost2 5, fileSpeed ≈ 1.1009 (D-921) |
 | 25 | aespa-Lemonade | 132067415333401 | 62 | 3:05 | |
 | 26 | IVE-Mirror | 139326796173276 | 67 | 3:20 | |
-| 27 | A2O LITE-NEON (다섯시사십칠분) | 97511700575810 | 73.8 | 3:42 | 22개, 자동 🎵, 이음새 blend (D-809) |
+| 27 | A2O LITE-NEON (다섯시사십칠분) | 74988982712396 | 201.19 | 3:42 | 새 업로드(D-922, 옛 3배 파일 97511700575810 대신): 원곡의 1.1배 파일(fileSpeed 1.1), lab tempo 0.91 / boost2 5. 22개, 자동 🎵, 이음새 blend (D-809) , 무대 카메라 (D-898) |
 | 28 | SOYEON-퇴사할게여 (다섯시사십팔분) | 96358497474432 | 70.5 | 3:31 | |
 | 29 | ILLIT-체포하겠어 (다섯시사십구분) | 139044453511745 | 60.6 | 3:01 | 21개(0:00~3:01), 자동 🎵, 연습 영상 시간(`at` = 클립 − 2.38초), blend (D-914) |
 | 30 | RESCENE-LOVE-ATTACK (다섯시오십이분) | 71873496902418 | 60.5 | 3:01 | 27개(0:00~3:01), 자동 🎵, 연습 영상 시간(t = 클립 − 0.45초), blend, still (D-903) |
@@ -119,7 +119,7 @@ local LAB = {
 	["113680653484321"] = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- K/DA - NEVER GOING BACK (D-921)
 	["132067415333401"] = { speed = 1, tempo = 0.333, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = -2.5, engine = "sound" }, -- aespa-Lemonade
 	["139326796173276"] = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -10.5, mid = 5, high = 4.5, engine = "sound" }, -- IVE-Mirror
-	["97511700575810"] = { speed = 1, tempo = 0.332, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- A2O LITE-NEON
+	["74988982712396"] = { speed = 1, tempo = 0.91, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" }, -- A2O LITE-NEON (D-922, new upload; was 97511700575810)
 	["96358497474432"] = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -3, mid = 2, high = 0, engine = "sound" }, -- SOYEON-퇴사할게여
 	["139044453511745"] = { speed = 1, tempo = 0.335, volume = 10, boost = 3, octave = 0.5, low = -1.5, mid = 0, high = 0, engine = "sound" }, -- ILLIT-체포하겠어
 	["71873496902418"] = { speed = 1, tempo = 0.334, volume = 10, boost = 3, octave = 0.5, low = -11, mid = 0, high = 0, engine = "sound" }, -- RESCENE-LOVE-ATTACK

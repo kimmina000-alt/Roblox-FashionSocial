@@ -9,7 +9,7 @@
 -- speed), the clock choreography `at` values use since D-876. Compare with
 -- the dance video's audio: tools/choreo/sync/align_song_video.py.
 
-local SOUND_ID = 97511700575810
+local SOUND_ID = 74988982712396
 local FROM, TO = 0, 45 -- original song seconds for this call
 local DUMP = false
 local BIN = 0.05

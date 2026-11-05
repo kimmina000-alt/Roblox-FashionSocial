@@ -297,8 +297,9 @@ ClubCamera.Songs[134942349436280] = {
 -- song + 1.00 s (loudness matched over the whole song, no drift, D-898).
 -- Mostly long steadicam takes moving round the members (take: keyframes read
 -- from 0.5 s strips), beat cuts in the intro, crane / audience wides between.
+-- (D-922) the new upload 74988982712396 (was 97511700575810): same song clock
 local take = ClubCamera.take
-ClubCamera.Songs[97511700575810] = {
+ClubCamera.Songs[74988982712396] = {
 	video = "MBC Show! Music Core 2026-10-24, youtube pKvx_bN74j4 (first half)",
 	offset = 1.0,
 	shots = ClubCamera.join({
