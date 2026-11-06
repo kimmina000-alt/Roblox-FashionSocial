@@ -2668,7 +2668,12 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - `tools/choreo/play_record.lua`(Play Client): `_G.flagSong(곡, 시작, 끝)` → SPIN(600°/s↑) · JUMP(12 stud/s↑) · SLIDE(0.5초 0.5 이동, 발은 몸에 고정) · SHAKE(높이 0.15 · 가슴 8° 안에서 되돌림 10번↑). 처음 돌린 Love 119 0:20~0:50에서 8번 조각 끝 0.25초에 2스터드 미끄러짐을 찾아 `still`로 고침. 프레임 끊김(77ms)을 문제로 잡지 않게 초당 값으로 셈.
 - 도구 고침: D-888 뒤로 `ClubConfig:Clone()`만 require하면 형제 모듈을 기다리다 멈춤 → `Shared:Clone().ClubConfig`(slide_check · timing_check · motion_scan). KeyframeSequence를 Destroy하면 그 Studio가 켜져 있는 동안 같은 id가 빈 시퀀스로 옴(처음 만든 scan이 그랬음) → Destroy 안 함.
 
-## D-966 모션은 깔끔하게: 모든 안무 프레임 끊김 · 떨림 · 순간이동 (2026-11-07, 진행 중)
+## D-966 모션은 깔끔하게: 모든 안무 프레임 끊김 · 떨림 · 순간이동 (2026-11-07)
 - 사용자(2026-11-07): Get A Guitar 1:20 팔이 뚝 끊김, 모든 안무의 프레임 끊김 · 떨림을 부드럽게("완전 중요", 액션은 크고 확실하게), 1:52 고친 뒤 다음 동작 버벅거림, 손발 · 몸이 1스터드라도 순간이동하면 지나가는 동작을 넣기. 규칙: CHOREOGRAPHY.md §17, 메모리 choreo-clean-motion.
 - play_record.lua에 SNAP · TELEPORT · JITTER 추가(손 · 발 · 머리, 초당 값).
 - Get A Guitar 11번(1:20): pose를 8.2부터 0.35초에 걸쳐 들어가고 조각 끝 뒤까지(나올 때 12번 blend가 이음).
+- 끊김 보정(ChoreoController limitSnaps, 모든 플레이어 · 모든 안무): 관절이 한 프레임에 max(360°/s, 최근 0.1초 속도의 1.6배)보다 빨리 돌거나 max(6, 1.6배) stud/s보다 빨리 움직이면 그만큼만 보여 주고 나머지는 다음 프레임에. 빨라지는 동작은 한계가 같이 올라가서 그대로, 동작 끝 자세는 그대로(크기 안 줄임). `sharp = true`인 조각은 끔(BAD 21 가슴 튕김). Studio 속성 ChoreoSnapOff로 비교. 몸 이동도 프레임당 8 stud/s까지(나머지는 다음 프레임). NEON 0:40~1:15: 관절 끊김 2 → 0(팔 34°/프레임), 몸 튐(13 stud/s) 2 → 0.
+- 검사 도구: SNAP을 관절 단위(한 프레임 12°↑ · 앞뒤 3배)로 바꿈(손 위치로 세면 빠른 휘두르기까지 잡았음), TELEPORT는 발이 이동의 35% 미만으로 딛을 때만, `_G.scanAll`로 곡 전체를 Studio 안에서 이어 검사.
+- 9곡 전체 검사(BAD, Genie, Get A Guitar, Love 119, Catch Catch, NEON, 체포하겠어, LOVE ATTACK, Looks Can Kill): 관절 끊김 0. 발을 거의 안 딛고 미끄러지는 17조각 19곳 → ChoreoGlideStill(`still`), 멈춘 자세 떨림 6곳 → ChoreoAutoSteady(`steady`). 발을 반쯤 딛는 이동(발 0.3~0.5)과 600~790°/s 회전은 그대로 둠(걷기 · 빠른 회전).
+- Get A Guitar 1:52 다음 버벅거림: 회전이 느리게 튼 발 찍기 안(16.07)에서 시작해 반쯤 돈 자리로 건너뜀 → 회전을 발 찍기가 끝나는 16.25부터 17.25까지. Play: 1:53.5~1:54.6 한 방향 한 번에(프레임당 최대 9.5°), 1:45~1:58 관절 끊김 0.
+- 남음: IOI · I SPY · REDRED · ANIMAL · CRASH · Pretty Girl · Pop Off · Bubble Pop은 검사 중 곡이 바뀌지 않아(IOI 결과가 IVE와 같음) 다시 돌려야 함. 모바일 2P 테스트 전.

@@ -299,7 +299,11 @@ M.ChoreoFixes = {
 	-- 맞추기") the leg swings round and taps at 15.9, then taps again at 16.0-16.2:
 	-- 15.3-15.9 plays over 15.3-16.25 (0.63x, one tap), and the feet ease 0.3 s
 	-- into the step that follows (the left foot 0.4 stud on)
-	[129447992418977] = { spin = { from = 16.07, to = 17.15, ease = "both" },
+	-- (D-966, user: "수정한 모션 굉장히 부드럽고 자연스러움. 그러나 바로 다음 안무
+	-- 버벅거림 … 깔끔하게 하나로 정리") the turn after the tap started at 16.07,
+	-- inside the slowed tap (15.3-16.25), so the body jumped into it part way
+	-- round while the tap's ease ran: one even turn from where the tap ends
+	[129447992418977] = { spin = { from = 16.25, to = 17.25, ease = "both" },
 		warp = { { from = 0.5, to = 1.14, play = { 0.5, 1.25 } }, { from = 1.14, to = 1.5, play = { 1.25, 1.5 } },
 			{ from = 15.3, to = 16.25, play = { 15.3, 15.9 }, ease = 0.3 } } },
 	-- RIIZE-Get A Guitar 1 (D-962, user: "처음에 무릎 숙이고 있는 거 펴"): the
@@ -520,6 +524,40 @@ for id, stretches in pairs(M.ChoreoSlideStill) do
 	local still = if fix.still == nil then {} elseif fix.still.from then { fix.still } else table.clone(fix.still)
 	for _, s in ipairs(stretches) do table.insert(still, { from = s[1], to = s[2] }) end
 	fix.still = still
+end
+
+-- (D-966, user: "캐릭터 위치 갑자기 이동하면 이상해 보임 … 1 스터드도 티 날 것
+-- 같아", "바들바들 떠는 부분 … 이거 완전 중요") from tools/choreo/play_record.lua
+-- run over whole songs in Play (BAD, Genie, Get A Guitar, Love 119, Catch
+-- Catch, NEON, 체포하겠어, LOVE ATTACK, Looks Can Kill): ChoreoGlideStill =
+-- the body glides 1-2.4 studs in 0.3 s while the feet step under a third of
+-- it (or slides with both feet still) → `still`; ChoreoAutoSteady = a held
+-- pose with 10-16 turn-backs in 0.5 s → `steady` (passes 8). Piece seconds.
+M.ChoreoGlideStill = {
+	[101676644495491] = { { 4.8, 5.4 } }, [104212164342204] = { { 4.4, 5.0 }, { 5.8, 6.4 }, { 11.0, 11.6 } },
+	[111932052760637] = { { 5.5, 6.1 } }, [115574620758490] = { { 0.6, 1.2 } }, [119819611123433] = { { 3.9, 4.5 } },
+	[128174978668663] = { { 9.1, 9.7 } }, [128412578867487] = { { 5.1, 5.7 }, { 8.9, 9.5 } }, [129447992418977] = { { 9.8, 10.4 } },
+	[71570705300325] = { { 4.3, 4.9 } }, [72915658378938] = { { 6.6, 7.2 } }, [73284838254272] = { { 7.3, 7.9 } },
+	[73939357849033] = { { 2.4, 3.0 } }, [83427493012714] = { { 8.4, 9.0 } }, [90778610748932] = { { 10.5, 11.1 } },
+	[93973196577178] = { { 1.8, 2.4 } }, [97954457634320] = { { 7.7, 8.3 } }, [99868719395147] = { { 0.6, 1.2 } },
+} :: {[number]: {{number}}}
+M.ChoreoAutoSteady = {
+	[118832898913501] = { { 5.5, 6.4 } }, [122624428391289] = { { 2.3, 3.2 } }, [129415986484255] = { { 6.8, 7.7 } },
+	[134748500609652] = { { 3.2, 4.1 } }, [76049029842393] = { { 3.2, 4.1 } }, [88317170211079] = { { 3.1, 4.0 } },
+} :: {[number]: {{number}}}
+for id, stretches in pairs(M.ChoreoGlideStill) do
+	local fix = (M.ChoreoFixes[id] or {}) :: any
+	M.ChoreoFixes[id] = fix
+	local still = if fix.still == nil then {} elseif fix.still.from then { fix.still } else table.clone(fix.still)
+	for _, s in ipairs(stretches) do table.insert(still, { from = s[1], to = s[2] }) end
+	fix.still = still
+end
+for id, stretches in pairs(M.ChoreoAutoSteady) do
+	local fix = (M.ChoreoFixes[id] or {}) :: any
+	M.ChoreoFixes[id] = fix
+	local steady = if fix.steady == nil then {} elseif fix.steady.from then { fix.steady } else table.clone(fix.steady)
+	for _, s in ipairs(stretches) do table.insert(steady, { from = s[1], to = s[2], passes = 8 }) end
+	fix.steady = steady
 end
 
 return M
