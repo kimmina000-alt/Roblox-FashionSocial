@@ -500,6 +500,31 @@ local function layoutPanel()
 	if not camera then return end
 	local viewport = camera.ViewportSize
 	local top = topY()
+	-- (D-926, user 2026-11-06: "왼쪽 중앙에 있는 재생중인 노래 보여 주는 창 왼쪽
+	-- 상단으로 옮겨 로블록스 버튼에 겹쳐지지 않게 모바일 가로 세로 버전에서 알아서
+	-- 위치 안 겹치게") the song banner sits top left: in the top row between
+	-- Roblox's buttons and ours when it fits (phones held sideways, PC), else
+	-- under the top row at the left edge (phones held upright). Its − / + in
+	-- front, the play bar under it (ClubQuickBar), the skip count after it.
+	-- The dance panel, sync pill and player card start below it.
+	local TOGGLE_W, SKIP_W, GROUP_H = 32, 42, 47 -- (− / + and gap, skip count, banner 30 + bar 17)
+	local rowLeft, rowRight, rowY = require(script.Parent:WaitForChild("TopBar")).firstRow()
+	local roomInRow = rowRight - rowLeft - TOGGLE_W - SKIP_W
+	local bannerX, bannerY, bannerW
+	if roomInRow >= 200 then
+		bannerW = math.min(300, roomInRow)
+		bannerX, bannerY = rowLeft, math.floor(rowY - 15)
+	else
+		bannerW = math.clamp(viewport.X - 20 - TOGGLE_W - SKIP_W, 160, 300)
+		bannerX, bannerY = 10, top
+	end
+	bannerToggle.Position = UDim2.fromOffset(bannerX, bannerY + 15)
+	banner.Position = UDim2.fromOffset(bannerX + TOGGLE_W + bannerW / 2, bannerY)
+	banner.Size = UDim2.fromOffset(bannerW, banner.Size.Y.Offset)
+	local groupBottom = if not bannerToggle.Visible then 0
+		elseif banner.Visible then bannerY + GROUP_H
+		else bannerY + 28
+	top = math.max(top, groupBottom + 6)
 	local width = math.clamp(math.floor(viewport.X * 0.36), 240, 330)
 	-- On the left edge (user 2026-10-26: it sat oddly in the middle). With the
 	-- move stick on screen the panel ends above it (bottom 40 % free) and its
@@ -527,17 +552,14 @@ local function layoutPanel()
 		item.Position = UDim2.fromOffset(centerX, y)
 		item.Size = UDim2.fromOffset(w, item.Size.Y.Offset)
 	end
-	-- (D-906) the song banner: at the left, half way down, the − / + in front;
-	-- right of the dance panel when that is open
-	local bannerW = math.clamp(viewport.X * 0.4, 200, 300)
-	local midY = math.floor(viewport.Y / 2)
-	bannerToggle.Position = UDim2.fromOffset(leftEdge, midY)
-	banner.Position = UDim2.fromOffset(leftEdge + 32 + bannerW / 2, midY - 15)
-	banner.Size = UDim2.fromOffset(bannerW, banner.Size.Y.Offset)
-	place(syncPill, 330, top + 32)
-	place(playerCard, 290, top + 70)
+	-- (D-906 had the song banner at the left, half way down; D-926 above)
+	place(syncPill, 330, top)
+	place(playerCard, 290, top + 38)
 end
 layoutPanel()
+-- (D-926) the panel and pills move under the banner while it shows
+banner:GetPropertyChangedSignal("Visible"):Connect(layoutPanel)
+bannerToggle:GetPropertyChangedSignal("Visible"):Connect(layoutPanel)
 if workspace.CurrentCamera then
 	workspace.CurrentCamera:GetPropertyChangedSignal("ViewportSize"):Connect(layoutPanel)
 end
