@@ -2676,4 +2676,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 검사 도구: SNAP을 관절 단위(한 프레임 12°↑ · 앞뒤 3배)로 바꿈(손 위치로 세면 빠른 휘두르기까지 잡았음), TELEPORT는 발이 이동의 35% 미만으로 딛을 때만, `_G.scanAll`로 곡 전체를 Studio 안에서 이어 검사.
 - 9곡 전체 검사(BAD, Genie, Get A Guitar, Love 119, Catch Catch, NEON, 체포하겠어, LOVE ATTACK, Looks Can Kill): 관절 끊김 0. 발을 거의 안 딛고 미끄러지는 17조각 19곳 → ChoreoGlideStill(`still`), 멈춘 자세 떨림 6곳 → ChoreoAutoSteady(`steady`). 발을 반쯤 딛는 이동(발 0.3~0.5)과 600~790°/s 회전은 그대로 둠(걷기 · 빠른 회전).
 - Get A Guitar 1:52 다음 버벅거림: 회전이 느리게 튼 발 찍기 안(16.07)에서 시작해 반쯤 돈 자리로 건너뜀 → 회전을 발 찍기가 끝나는 16.25부터 17.25까지. Play: 1:53.5~1:54.6 한 방향 한 번에(프레임당 최대 9.5°), 1:45~1:58 관절 끊김 0.
-- 남음: IOI · I SPY · REDRED · ANIMAL · CRASH · Pretty Girl · Pop Off · Bubble Pop은 검사 중 곡이 바뀌지 않아(IOI 결과가 IVE와 같음) 다시 돌려야 함. 모바일 2P 테스트 전.
+- 나머지 곡 다시 검사(Play 시작 직후 Studio가 아직 DJ가 아니라 곡 바꾸기가 거절됐던 것: 도구가 곡이 바뀔 때까지 다시 시도): IOI · I SPY · REDRED · ANIMAL · CRASH · Pretty Girl · Pop Off 관절 끊김 · 떨림 0. 이 곡들은 발을 딛으며 많이 이동해서 발 딛기가 이동의 1/5 이하인 확실한 미끄러짐 13조각만 still. Bubble Pop은 조각에 t이 없어 자동 안무가 안 켜져 검사 못 함. 모바일 2P 테스트 전.

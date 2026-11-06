@@ -37,7 +37,14 @@ end
 
 -- play the song (Studio is the DJ) and move to `songSec` (play-bar seconds)
 _G.go = function(index, songSec)
-	if FG:GetAttribute("ClubTrack") ~= index then music:InvokeServer("Play", index) task.wait(1) end
+	-- (right after Play starts Studio is not the DJ yet, "DJ만 할 수 있어요.":
+	-- try again until the song really changed, or a scan measures the old one)
+	for _ = 1, 10 do
+		if FG:GetAttribute("ClubTrack") == index then break end
+		music:InvokeServer("Play", index)
+		task.wait(1)
+	end
+	if FG:GetAttribute("ClubTrack") ~= index then error("could not play song " .. index) end
 	local tr = CC.Playlist[index]
 	-- (a 3x upload's file seconds are a third of the song's: ClubConfig.fileSpeed)
 	local fs = if CC.fileSpeed then CC.fileSpeed(tr) else (tr.fileSpeed or 1)
