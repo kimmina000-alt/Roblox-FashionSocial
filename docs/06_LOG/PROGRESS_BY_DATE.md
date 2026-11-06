@@ -642,3 +642,4 @@
 - 볼륨 부스트 3(boost3) 지원, Get A Guitar / Love 119 boost3 5 · 고음 -28 (Get A Guitar 저음 -3), ANIMAL 새 음원 94774089824958 fileSpeed 1.05 (D-933).
 
 - 무대 카메라 4곡: CRASH(+35.8) / Love 119 / Pop Off(+7.0) / Pretty Girl(+7.6), 원곡 mp3 소리로 시작 지점, 컷 목록은 shots_to_lua.py로 자동 (D-944).
+- 먹는 동작: 숟가락 끝이 입에 닿고 팔꿈치가 굽음, 손이 얼굴을 안 뚫음 (D-949).
