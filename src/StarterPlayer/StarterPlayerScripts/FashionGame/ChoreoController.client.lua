@@ -281,6 +281,14 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 		local away = (root.Position - home) * Vector3.new(1, 0, 1)
 		worldMove -= away * math.min(dt / settle, 1) * travelling
 	end
+	-- (D-966, user: "캐릭터 위치 갑자기 이동하면 이상해 보임 … 1 스터드도 티 날 것
+	-- 같아") a capture's hips that dash (13 stud/s in a frame, NEON 0:49 / 0:55)
+	-- move the body at most 8 stud/s; the rest follows over the next frames
+	following.moveDebt = (following.moveDebt or Vector3.zero) + worldMove
+	local most = 8 * dt
+	worldMove = if following.moveDebt.Magnitude > most then following.moveDebt.Unit * most else following.moveDebt
+	following.moveDebt -= worldMove
+	if following.moveDebt.Magnitude > 3 then following.moveDebt = Vector3.zero end -- (not a backlog)
 	if worldMove.Magnitude < 1e-4 then return end
 	local target = root.Position + worldMove
 	if not ClubConfig.isInClub(target) then return end
@@ -394,6 +402,52 @@ local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {Animation
 	end
 end
 
+-- (D-966, user: "모든 안무에서 프레임 뚝뚝 끊기는 부분들 부드럽게 … 액션 크고
+-- 확실하게") a joint that jumps in one frame (a capture keyframe gap, a seam,
+-- a fix stepping in) far faster than it has been moving is carried over a
+-- few frames instead: each frame a joint may turn at most max(360°/s, 1.6x
+-- its speed of the last ~0.1 s) and move max(6, 1.6x) stud/s, and what is
+-- left over comes in the next frames. A move that speeds up over a few
+-- frames passes as it is (the limit rises with it) and every move still
+-- reaches its full pose, so actions keep their size. ChoreoFixes `sharp`
+-- turns it off for a piece (BAD 21's chest pops are meant to snap).
+-- (NEON 0:48: an upper arm 34° in one frame among 11° ones passed at 2.5x)
+local SNAP_TURN, SNAP_MOVE, SNAP_FACTOR = math.rad(360), 6, 1.6
+local snapState: {[Model]: {[any]: { cf: CFrame, turn: number, move: number }}} = setmetatable({}, { __mode = "k" }) :: any
+local function limitSnaps(character: Model, choreo: {AnimationTrack}, dt: number)
+	if RunService:IsStudio() and FashionGame:GetAttribute("ChoreoSnapOff") then snapState[character] = nil return end
+	for _, t in ipairs(choreo) do
+		local fixes = t.WeightCurrent > 0.5 and t.Animation and ChoreoSmooth.fixes(t.Animation.AnimationId)
+		if fixes and fixes.sharp then snapState[character] = nil return end
+	end
+	dt = math.max(dt, 1 / 240)
+	local state = snapState[character]
+	if not state then state = {} snapState[character] = state end
+	for _, j in pairs(bodyJoints(character)) do
+		local target = j.Transform
+		local s = state[j]
+		if not s then
+			state[j] = { cf = target, turn = 0, move = 0 }
+		else
+			local _, angle = (s.cf:Inverse() * target):ToAxisAngle()
+			local turn = math.abs(angle) / dt
+			local move = (target.Position - s.cf.Position).Magnitude / dt
+			local turnLimit = math.max(SNAP_TURN, s.turn * SNAP_FACTOR)
+			local moveLimit = math.max(SNAP_MOVE, s.move * SNAP_FACTOR)
+			local f = 1
+			if turn > turnLimit then f = turnLimit / turn end
+			if move > moveLimit then f = math.min(f, moveLimit / move) end
+			local shown = if f < 1 then s.cf:Lerp(target, f) else target
+			j.Transform = shown
+			-- (the speed shown, over about 0.1 s)
+			local k = math.min(dt * 10, 1)
+			s.turn += (math.min(turn, turnLimit) - s.turn) * k
+			s.move += (math.min(move, moveLimit) - s.move) * k
+			s.cf = shown
+		end
+	end
+end
+
 -- after the animator, before the frame is drawn
 RunService.PreSimulation:Connect(function(dt)
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -439,6 +493,9 @@ RunService.PreSimulation:Connect(function(dt)
 					for _, j in pairs(joints) do last[j] = j.Transform end
 					following.lastPose = last
 				end
+				limitSnaps(character, choreo, dt)
+			else
+				snapState[character] = nil
 			end
 		end
 	end
