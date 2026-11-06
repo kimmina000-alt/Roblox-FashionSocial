@@ -47,6 +47,9 @@ export type Lab = {
 	-- boost × boost2 (each group stops at 10). Left out: 1, or for a joined
 	-- song with boost over 10, boost ÷ 10 (D-891)
 	boost2: number?,
+	-- (D-933) a third group above boost2, 0..10, like the lab's boost 3: heard =
+	-- boost × boost2 × boost3. Left out: 1
+	boost3: number?,
 }
 
 export type Joined = { parts: {number}, segLen: number, tail: number, total: number, lead: number? }
@@ -126,7 +129,8 @@ M.Playlist = {
 	-- same start, no drift), so `at` and the stage camera keep the old song clock
 	-- (D-925, user 2026-11-06: new upload 70738014182544 with these lab values; high -27 → -7 → -20 → -28 → -20, low -3 → 0 the same day) a 153.008 s file:
 	-- 3 × 53.553 ÷ 153.008 = 1.0500, and the user's tempo 0.956 × 1.05 = 1.004 (heard ≈ the original)
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20 }, choreo = {
+	-- (D-933, user 2026-11-06: boost3 5, low -3, high -28)
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -3, mid = 0, high = -28 }, choreo = {
 		-- (D-807, user: "이음새도 맞춰") blend = seconds to ease from the last pose
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
 		-- (D-878, user: "겟어기타 안무 수정", practice video u_u21u8zIIs, mirrored
@@ -149,8 +153,9 @@ M.Playlist = {
 	-- (D-928, user 2026-11-06: "러브119 아이디 변경 85204387077332 하면서 설정값 가지고 갈 것") was 119473981131981,
 	-- a 3× file of 58 s; the new upload is 157.727 s of the 2:53 song: fileSpeed = 173 ÷ 157.727 = 1.0968,
 	-- the lab values of the D-927 entry (tempo 0.906, high -20 → -28 → -20 the same day), which is gone
+	-- (D-933, user 2026-11-06: boost3 5, high -28)
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
-		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20 } },
+		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -28 } },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);
@@ -310,8 +315,10 @@ M.Playlist = {
 	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 116539470869444, length = 65, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "BIGBANG-BiiiG", soundId = 113809029583519, length = 55, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (user 2026-11-06, set in Studio: new upload 94498201288355, boost2 2; was 130804487358433. User: "2:22에 맞춰서 템포": the file is 47.63 s, 47.63 / 142 = 0.335)
-	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 94498201288355, length = 48,
-		lab = { speed = 1, tempo = 0.335, volume = 10, boost = 10, boost2 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
+	-- (D-933, user 2026-11-06: "ANIMAL 새 음원 94774089824958" with its lab values) was 94498201288355, a 3× file of 47.632 s;
+	-- the new upload is 136.107 s: fileSpeed = 3 × 47.632 ÷ 136.107 = 1.05 (tempo 0.958 × 1.05 = 1.006), so `at` keeps the song clock
+	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 94774089824958, length = 136.107, fileSpeed = 1.05,
+		lab = { speed = 1, tempo = 0.958, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -20, engine = "sound" },
 		-- D-916: ANIMAL1..25 (practice video Gl1VZ3UPeZU, video = song - 0.23 s, `at` = clip start + 0.23)
 		choreo = { { id = 129402890751712, at = 0.23 }, { id = 80772039533772, at = 2.03, blend = 0.73 }, { id = 112166541341442, at = 4.51, blend = 0.74 },
 		{ id = 80410028707124, at = 6.36, blend = 0.48 }, { id = 105018508412110, at = 11.01, blend = 1 }, { id = 130036196270388, at = 13.41, blend = 1 },

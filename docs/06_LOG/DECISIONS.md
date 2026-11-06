@@ -2617,3 +2617,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-932 새 음원을 원래 곡에 합침: NEON / LOVE-ATTACK / REDRED, I SPY 중복 삭제 (2026-11-06)
 - 사용자: "I SPY 같은 아이디면 안무 있는 곡만 살리고 삭제 / 아래 세 곡은 원래 있던 곡에 새 음원 아이디랑 설정값 넣고 새 음원 삭제 NEON LOVE ATTACK REDRED".
 - D-931의 "(새 음원)" 4줄을 지우고, 세 곡은 원래 곡(안무 · 무대 카메라 있는 줄)에 새 id, length, fileSpeed, lab을 옮김: NEON 140713297574648 (210.771초, 1.05, tempo 0.954), LOVE-ATTACK 139330220515727 (172.955초, 1.05, tempo 0.956), REDRED 76034005809699 (153.821초, 1.06, tempo 0.944), 셋 다 boost2 5 / high -20. ClubCamera.Songs 키도 새 id로. I SPY는 D-929 줄(안무 30조각, 같은 id 98124521559769)만 남김.
+
+## D-933 볼륨 부스트 3 (boost3), Get A Guitar / Love 119 값, ANIMAL 새 음원 94774089824958 (2026-11-06)
+- 사용자가 랩 값 4줄을 보냄("설정값 변경"). 랩에 생긴 `boost3`(부스트 2 위 SoundGroup)를 게임도 씀: DanceController에 `ClubMusicBoost3` 그룹을 ClubMusicBoost2 위에 두고 `lab.boost3`(0..10, 없으면 1)를 넣음. 들리는 크기 = boost × boost2 × boost3. EdmController는 사슬 맨 위를 찾아 EdmSongMute 아래에 거니 그대로 됨. `Lab` 타입에 `boost3: number?`.
+- RIIZE-Get A Guitar 70738014182544: boost3 5, low 0 → -3, high -20 → -28.
+- RIIZE-Love 119 85204387077332: boost3 5, high -20 → -28.
+- BOYNEXTDOOR-ANIMAL = 새 음원 94774089824958(136.107초, Studio에서 잼). 옛 94498201288355는 3배 파일 47.632초 → fileSpeed = 3 × 47.632 ÷ 136.107 = 1.05, tempo 0.958 × 1.05 = 1.006(들리는 길이 2:22). lab tempo 0.958 / boost2 5 / boost3 5 / octave 1 / high -20. 안무 `at`은 그대로(곡 시계 같음), 무대 카메라는 없음. D-932처럼 원래 곡 줄에서 바꿈.
+- NCT WISH-I SPY 98124521559769: 보낸 값이 이미 들어간 값과 같아 바꾸지 않음.
+- Play로 들어 보지는 않음.

@@ -639,3 +639,4 @@
 - 클럽 노래 배너를 왼쪽 위로: 자리가 있으면 로블록스 버튼 옆 맨 위 줄, 없으면 그 아래 왼쪽, 춤 창은 배너 아래부터 (D-926).
 - 새 음원 4곡(REDRED / LOVE-ATTACK / I SPY / NEON)을 예전 곡 바로 아래에 "(새 음원)"으로, fileSpeed 1.06 / 1.05 / 1.05 / 1.05 (D-931).
 - NEON / LOVE-ATTACK / REDRED 원래 곡에 새 음원과 값을 넣고 "(새 음원)" 줄 삭제, I SPY 중복 삭제 (D-932).
+- 볼륨 부스트 3(boost3) 지원, Get A Guitar / Love 119 boost3 5 · 고음 -28 (Get A Guitar 저음 -3), ANIMAL 새 음원 94774089824958 fileSpeed 1.05 (D-933).

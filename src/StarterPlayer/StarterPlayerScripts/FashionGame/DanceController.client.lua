@@ -1189,10 +1189,16 @@ labGroup.Volume = 1
 -- (D-892) a second group above it, per song (Track.lab.boost2): heard =
 -- boost × boost2. EdmController hangs the top of this chain under its DJ
 -- volume group: music → labGroup → ClubMusicBoost2 → EdmSongMute
+-- (D-933) a third group above that (Track.lab.boost3, the lab's boost 3):
+-- heard = boost × boost2 × boost3; ClubMusicBoost3 is the top of the chain
+local gain3Group = Instance.new("SoundGroup")
+gain3Group.Name = "ClubMusicBoost3"
+gain3Group.Volume = 1
+gain3Group.Parent = game:GetService("SoundService")
 local gainGroup = Instance.new("SoundGroup")
 gainGroup.Name = "ClubMusicBoost2"
 gainGroup.Volume = 1
-gainGroup.Parent = game:GetService("SoundService")
+gainGroup.Parent = gain3Group
 labGroup.Parent = gainGroup
 music.SoundGroup = labGroup
 local labEq = create("EqualizerSoundEffect", { Name = "LabEQ", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 10 }, music)
@@ -1278,6 +1284,9 @@ do
 			gainGroup.Volume = if typeof(boost2) == "number" then math.clamp(boost2, 0, 10)
 				elseif lab and joined and typeof(lab.boost) == "number" and lab.boost > 10 then math.min(lab.boost / 10, 10)
 				else 1
+			-- (D-933) the third group: lab.boost3, else 1
+			local boost3 = lab and (lab :: any).boost3
+			gain3Group.Volume = if typeof(boost3) == "number" then math.clamp(boost3, 0, 10) else 1
 		if track and ClubConfig.isJoined(track) then joinedPlayer:SetLab(joinedLab(track)) end
 																																				
 		labEq.LowGain, labEq.MidGain, labEq.HighGain = if lab then lab.low else 0, if lab then lab.mid else 0, if lab then lab.high else 0
