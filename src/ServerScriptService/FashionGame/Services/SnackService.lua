@@ -160,7 +160,9 @@ local COFFEE_SIP = 1481574895
 local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true, water = true }
 local QUIET = { bagel = true, saltbread = true } -- their bite at half volume
 -- (D-909, user 2026-11-05: "돼지국밥 먹는 소리 2배로 키워") 0.7 → 1.4
-local LOUD = { pork = 1.4 }
+-- (D-952, user 2026-11-07: "국밥 먹는 소리 3배로 키워") the three 국밥 at 3×
+-- (pork 1.4 → 4.2, the others 0.7 → 2.1)
+local LOUD = { pork = 4.2, sundae = 2.1, beef = 2.1 }
 
 -- Remembers each edible piece's place in the handle's height (call once the
 -- tool is built): which local axis is up, its bottom and top, and its weld.
@@ -631,7 +633,9 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		tool.Grip = CFrame.new(0, -0.2, 0)
 	elseif kind == "plate" then
 		-- one piece of 수육 on chopsticks
-		handle = part("Handle", Vector3.new(0.05, 0.05, 1.0), Color3.fromRGB(200, 170, 120), Enum.Material.Wood)
+		-- (D-952, user 2026-11-07: "젓가락 더 얇은 막대기로. 색은 회색") a thin grey
+		-- metal stick (0.05 wood before; 0.03 after the 1.5× of D-950)
+		handle = part("Handle", Vector3.new(0.02, 0.02, 1.0), Color3.fromRGB(150, 152, 158), Enum.Material.Metal)
 		handle.Parent = tool
 		local slice = part("Fill", Vector3.new(0.5, 0.07, 0.32), item.color)
 		local stex = Instance.new("Texture")
@@ -782,12 +786,19 @@ local function cakeDeco(cake: SnackConfig.Cake, slice: BasePart, centre: CFrame,
 	end
 end
 
-local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item)
+-- (D-952) a tap on a shared plate takes a piece (SnackController asks "TakePiece")
+local sharedPlates: {[Model]: (Player) -> ()} = {}
+local PLATE_RADIUS = 1.1 -- (the dish: 2.2 across)
+
+local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item, spot: Vector3?)
 	local servings = item.share or 6
 	-- (the real top: round tables are turned cylinders, whose Size.Y is the
 	-- diameter, so a cake floated above them, user 2026-10-27)
 	local c, s = tablePart.CFrame, tablePart.Size
 	local top = tablePart.Position + Vector3.new(0, math.abs(c.RightVector.Y) * s.X / 2 + math.abs(c.UpVector.Y) * s.Y / 2 + math.abs(c.LookVector.Y) * s.Z / 2, 0)
+	-- (D-952, user 2026-11-07: "수육은 테이블에 놓는 자리 안 뜸") put down where
+	-- the player pointed (SnackController's green silhouette), not in the middle
+	if spot then top = Vector3.new(spot.X, top.Y, spot.Z) end
 	local plate = Instance.new("Model")
 	plate.Name = "SharedPlate"
 	local cake = item.cake and SnackConfig.Cakes[item.cake]
@@ -914,38 +925,18 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 	end
 	plate:SetAttribute("Servings", servings)
 	plate:SetAttribute("Owner", player.UserId)
-	-- label
-	local info = Instance.new("BillboardGui")
-	info.Name = "Info"
-	info.Size = UDim2.fromOffset(190, 24)
-	info.StudsOffset = Vector3.new(0, 2.2, 0)
-	info.MaxDistance = 30
-	info.Adornee = dish
-	info.Parent = plate
-	local text = Instance.new("TextLabel")
-	text.Size = UDim2.fromScale(1, 1)
-	text.BackgroundTransparency = 0.35
-	text.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-	text.TextColor3 = Color3.new(1, 1, 1)
-	text.TextScaled = true
-	text.Font = Enum.Font.GothamBold
-	text.Parent = info
+	plate:SetAttribute("Radius", PLATE_RADIUS)
+	-- (D-952, user 2026-11-07: "\"수육 한 접시, 닉네임, 남은 5점\" 이 텍스트 삭제",
+	-- "수육도 한 점 먹기 삭제") no label and no "한 점 먹기" E button over the
+	-- plate any more: a tap on the plate takes a piece (SnackController →
+	-- "TakePiece"), so its parts answer raycasts
+	for _, d in ipairs(plate:GetDescendants()) do
+		if d:IsA("BasePart") then d.CanQuery = true end
+	end
 	local pieceWord = if item.kind == "cake" then "조각" else "점"
 	local baseName = string.gsub(item.name, "%s*%(.*%)", "")
-	local function refresh()
-		text.Text = string.format("%s · %s님 · 남은 %d%s", baseName, player.DisplayName, plate:GetAttribute("Servings") :: number, pieceWord)
-	end
-	refresh()
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "TakePiecePrompt"
-	prompt.ActionText = "한 " .. pieceWord .. " 먹기"
-	prompt.ObjectText = baseName
-	prompt.KeyboardKeyCode = Enum.KeyCode.E
-	prompt.HoldDuration = 0
-	prompt.MaxActivationDistance = 9
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = dish
-	prompt.Triggered:Connect(function(who)
+	local function refresh() end
+	local function take(who: Player)
 		if handsFull(who) then
 			local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
 			if notify then notify:FireClient(who, "Toast", string.format("손에 %d개까지 들 수 있어요. 먼저 드세요!", SnackConfig.MaxCarried)) end
@@ -979,9 +970,22 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		if pieceItem.sliceName then pieceTool:SetAttribute("SliceName", pieceItem.sliceName) end
 		giveTool(who, pieceTool)
 		if left <= 0 then plate:Destroy() else refresh() end
-	end)
+	end
+	sharedPlates[plate] = take
+	plate.Destroying:Connect(function() sharedPlates[plate] = nil end)
 	plate.Parent = tablePart
 	Debris:AddItem(plate, SnackConfig.PlateSeconds)
+end
+
+-- (D-952) a tap on a shared plate: a piece for whoever tapped, if they are near
+local function takePiece(player: Player, plate: any): (boolean, string?)
+	if typeof(plate) ~= "Instance" or not plate:IsA("Model") or not plate.Parent then return false, nil end
+	local take = sharedPlates[plate]
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not take or not root then return false, nil end
+	if (root.Position - plate:GetBoundingBox().Position).Magnitude > 12 then return false, "접시 가까이 가 주세요." end
+	take(player)
+	return true, nil
 end
 
 -- a plate held in the hand when no table was near: click next to a table to put it down
@@ -1021,7 +1025,12 @@ local function plateTool(player: Player, item: SnackConfig.Item): Tool
 			attach(handle, p, CFrame.new((row - 0.5) * 0.62, -0.02 + k * 0.025, (k - 1) * 0.22)
 				* CFrame.Angles(math.rad(-22 + r:NextNumber(-4, 4)), math.rad((row - 0.5) * 20), 0))
 		end
-	end	tool.Activated:Connect(function()
+	end
+	-- (D-952) put down like the other foods: SnackController shows the green /
+	-- red silhouette and asks "PutDown" with the spot (no click-to-nearest-table)
+	tool.ManualActivationOnly = true
+	tool:SetAttribute("PlaceRadius", PLATE_RADIUS)
+	tool.Activated:Connect(function()
 		local t = nearestTable(player)
 		if not t then
 			local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
@@ -1317,6 +1326,34 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	local character = player.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local tool = character and character:FindFirstChildOfClass("Tool")
+	-- (D-952) a whole cake / 수육 plate goes down on the spot as a shared plate
+	local plateKey = tool and tool:GetAttribute("Plate")
+	if root and tool and typeof(plateKey) == "string" then
+		local item = itemByKey(plateKey)
+		if not item then return false, nil end
+		if typeof(at) ~= "Vector3" then return false, nil end
+		local here = tablePart.CFrame:PointToObjectSpace(at)
+		local half = tablePart.Size / 2
+		if math.abs(here.X) > half.X - PLATE_RADIUS * 0.5 or math.abs(here.Z) > half.Z - PLATE_RADIUS * 0.5 then
+			return false, "테이블 가장자리라 놓을 수 없어요."
+		end
+		if Vector3.new(at.X - root.Position.X, 0, at.Z - root.Position.Z).Magnitude > 9 then return false, "테이블 가까이 가 주세요." end
+		for _, other in ipairs(tablePart:GetChildren()) do
+			if other:IsA("Model") and (other.Name == "PlacedFood" or other.Name == "SharedPlate") then
+				local r2 = other:GetAttribute("Radius")
+				local p = other:GetBoundingBox().Position
+				if Vector3.new(p.X - at.X, 0, p.Z - at.Z).Magnitude < (PLATE_RADIUS + (if typeof(r2) == "number" then r2 else 0.8)) * OVERLAP then
+					return false, "다른 음식과 너무 가까워요."
+				end
+			end
+		end
+		placePlate(player, tablePart, item, at)
+		tool:Destroy()
+		return true, nil
+	end
+	-- (D-952, user 2026-11-07: "수육 한 점은 배치 안 되어야 함") a piece taken
+	-- from a shared plate is eaten from the hand, never put down
+	if tool and tool:GetAttribute("Piece") then return false, nil end
 	if not root or not tool or not tool:GetAttribute("Snack") then return false, "손에 든 음식이 없어요." end
 	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return false, "먹는 중이에요." end
 	local handle = tool:FindFirstChild("Handle")
@@ -1351,6 +1388,15 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 				local otherR = other:GetAttribute("Radius")
 				local r2 = if typeof(otherR) == "number" then otherR else 0.8
 				if Vector3.new(p.X - at.X, 0, p.Z - at.Z).Magnitude < (radius + r2) * OVERLAP then
+					return false, "다른 음식과 너무 가까워요."
+				end
+			end
+		end
+		-- (D-952) the shared plates too
+		for _, other in ipairs(tablePart:GetChildren()) do
+			if other:IsA("Model") and other.Name == "SharedPlate" then
+				local p = other:GetBoundingBox().Position
+				if Vector3.new(p.X - at.X, 0, p.Z - at.Z).Magnitude < (radius + PLATE_RADIUS) * OVERLAP then
 					return false, "다른 음식과 너무 가까워요."
 				end
 			end
@@ -1651,6 +1697,7 @@ function SnackService.Start(economyService: any)
 		if action == "PutDown" then return putDown(player, shopKey, itemKey) end -- (D-950: itemKey = the spot)
 		if action == "Spoon" then return spoonFromTable(player, shopKey) end
 		if action == "PickUp" then return pickUp(player, shopKey) end
+		if action == "TakePiece" then return takePiece(player, shopKey) end -- (D-952)
 		return false, nil
 	end
 	-- food left on a table goes when its owner leaves

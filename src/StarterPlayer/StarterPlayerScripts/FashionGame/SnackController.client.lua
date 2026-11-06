@@ -322,9 +322,23 @@ do
 	local HOLD = 0.6 -- seconds for a long press
 	local GREEN, RED = Color3.fromRGB(60, 235, 90), Color3.fromRGB(240, 50, 50)
 
-	local function heldFood(): Tool?
+	-- (D-952) a whole cake / 수육 plate ("Plate") is put down the same way; a
+	-- piece taken from a plate ("Piece") is only eaten, never put down
+	local function heldAny(): Tool?
 		local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
-		return if tool and tool:GetAttribute("Snack") and not tool:GetAttribute("CafeOrder") then tool else nil
+		return if tool and (tool:GetAttribute("Snack") or tool:GetAttribute("Plate")) and not tool:GetAttribute("CafeOrder") then tool else nil
+	end
+	local function heldFood(): Tool?
+		local tool = heldAny()
+		return if tool and not tool:GetAttribute("Piece") then tool else nil
+	end
+	local function sharedPlateOf(part: Instance?): Model?
+		local node = part
+		while node and node ~= workspace do
+			if node:IsA("Model") and node.Name == "SharedPlate" then return node end
+			node = node.Parent
+		end
+		return nil
 	end
 	local function foodTableOf(part: Instance?): BasePart?
 		local node = part
@@ -375,7 +389,7 @@ do
 		local best: RaycastResult? = nil
 		for _, ray in ipairs({ camera:ViewportPointToRay(screen.X, screen.Y), camera:ScreenPointToRay(screen.X, screen.Y) }) do
 			local hit = workspace:Raycast(ray.Origin, ray.Direction * 150, params)
-			if hit and (foodTableOf(hit.Instance) or placedOf(hit.Instance)) then return hit end
+			if hit and (foodTableOf(hit.Instance) or placedOf(hit.Instance) or sharedPlateOf(hit.Instance)) then return hit end
 			best = best or hit
 		end
 		return best
@@ -390,7 +404,7 @@ do
 		local top = tablePart.CFrame:PointToObjectSpace(hit.Position)
 		local half = tablePart.Size / 2
 		local spot = tablePart.CFrame:PointToWorldSpace(Vector3.new(top.X, half.Y, top.Z))
-		local ok = placedOf(hit.Instance) == nil
+		local ok = placedOf(hit.Instance) == nil and sharedPlateOf(hit.Instance) == nil
 			and math.abs(top.X) <= half.X - radius * 0.5 and math.abs(top.Z) <= half.Z - radius * 0.5
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		if ok and root and root:IsA("BasePart") then
@@ -398,7 +412,7 @@ do
 		end
 		if ok then
 			for _, other in ipairs(tablePart:GetChildren()) do
-				if other:IsA("Model") and other.Name == "PlacedFood" then
+				if other:IsA("Model") and (other.Name == "PlacedFood" or other.Name == "SharedPlate") then
 					local r2 = other:GetAttribute("Radius")
 					local c = other:GetBoundingBox().Position
 					if Vector3.new(c.X - spot.X, 0, c.Z - spot.Z).Magnitude < (radius + (if typeof(r2) == "number" then r2 else 0.8)) * OVERLAP then
@@ -453,7 +467,7 @@ do
 	end)
 
 	-- one press (mouse button or finger): what it lands on decides
-	type Press = { input: InputObject, start: Vector2, at: number, placed: Model?, moved: boolean, done: boolean }
+	type Press = { input: InputObject, start: Vector2, at: number, placed: Model?, plate: Model?, moved: boolean, done: boolean }
 	local press: Press? = nil
 	local function pointOf(input: InputObject): Vector2
 		-- (mouse: GetMouseLocation counts the inset like the viewport rays)
@@ -467,7 +481,7 @@ do
 		local hit = rayAt(screen)
 		local placed = hit and placedOf(hit.Instance)
 		if placed and placed:GetAttribute("Owner") ~= player.UserId then placed = nil end
-		local p: Press = { input = input, start = screen, at = os.clock(), placed = placed, moved = false, done = false }
+		local p: Press = { input = input, start = screen, at = os.clock(), placed = placed, plate = hit and sharedPlateOf(hit.Instance), moved = false, done = false }
 		press = p
 		if heldFood() then showGhost(screen) end
 		-- a long press on my food on the table takes it back
@@ -505,10 +519,19 @@ do
 				if ok then ask("PutDown", tablePart, spot) end
 				return
 			end
-			-- anywhere else: a bite (a short tap or click, not a camera drag)
-			if short and not p.moved then tool:Activate() end
+		end
+		-- (D-952) a short tap on a shared plate (cake / 수육): a piece of it
+		if p.plate and short and not p.moved and p.plate.Parent then
+			ask("TakePiece", p.plate)
 			return
 		end
+		local eat = heldAny()
+		if eat and eat:GetAttribute("Snack") then
+			-- anywhere else: a bite (a short tap or click, not a camera drag)
+			if short and not p.moved then eat:Activate() end
+			return
+		end
+		if eat then return end -- (a plate in hand: nothing off the tables)
 		-- empty hands: a short tap on my 국밥 on the table is a spoonful
 		if p.placed and short and not p.moved and p.placed:GetAttribute("Soup") then
 			ask("Spoon", p.placed)
