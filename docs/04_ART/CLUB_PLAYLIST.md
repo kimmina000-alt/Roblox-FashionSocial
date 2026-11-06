@@ -160,3 +160,12 @@ local LAB = {
 | 39 | K-POP | ALLDAY PROJECT-CRASH | 104827635407586 | 57.68 | 1 파일 | tempo 0.333, boost 3, boost2 1, octave 0.5, EQ -18.5 / -4 / -12.5; 안무 19개(0:11~2:50, 처음 11초는 기본 춤), 자동 🎵, `at` = 연습 영상 − 2.50초 | D-917, D-918 |
 | 40 | K-POP | RESCENE-Pretty Girl | 89634330677538 | 70.01 | 1 파일 | tempo 0.333, boost 3, boost2 1, octave 0.5, EQ -18.5 / -4 / -12.5 | D-917 |
 | 41 | K-POP | 키키-Pop Off | 129996145931101 | 47.11 | 1 파일 | tempo 0.334, boost 3, boost2 1, octave 0.5, EQ -18.5 / -4 / -12.5 | D-917 |
+
+### 새 음원 (D-931, 예전 곡 바로 아래, 안무·무대 카메라 없음)
+
+| 곡 | soundId | 길이(초) | fileSpeed | lab |
+|---|---|---|---|---|
+| CORTIS-REDRED (새 음원) | 76034005809699 | 153.821 | 1.06 | tempo 0.944, boost 10, boost2 5, octave 1, high -20 |
+| RESCENE-LOVE-ATTACK (새 음원) | 139330220515727 | 172.955 | 1.05 | tempo 0.956, boost 10, boost2 5, octave 1, high -20 |
+| NCT WISH-I SPY (새 음원) | 98124521559769 | 176.273 | 1.05 | tempo 0.953, boost 10, boost2 5, octave 1, high -23 |
+| A2O LITE-NEON (새 음원) | 140713297574648 | 210.771 | 1.05 | tempo 0.954, boost 10, boost2 5, octave 1, high -20 |
