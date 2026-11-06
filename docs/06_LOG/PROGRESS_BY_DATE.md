@@ -633,3 +633,4 @@
 - BOYNEXTDOOR ANIMAL 안무 25조각: 영상 = 노래 − 0.23초, 모든 조각 `at`, 미끄러짐 0, 떨림 372 → 8 (D-916).
 - ALLDAY PROJECT CRASH 안무 19조각(1번 클립 없음, 처음 11초 기본 춤): 영상 = 노래 + 2.50초, 모든 조각 `at`, 미끄러짐 0, 떨림 336 → 11 (D-918).
 - RIIZE-Get A Guitar 새 음원 70738014182544 + 랩 값(tempo 0.956, boost2 5, high -27), fileSpeed 1.05로 안무·카메라 시간 그대로 (D-925).
+- Get A Guitar high -7, 클럽 곡 85204387077332 추가(Love 119 다음, tempo 0.906 / boost2 5) (D-925, D-927).
