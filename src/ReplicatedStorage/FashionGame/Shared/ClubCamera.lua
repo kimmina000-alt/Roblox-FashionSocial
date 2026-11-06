@@ -668,7 +668,8 @@ ClubCamera.Songs[71873496902418] = {
 -- 9N0svN37emE), video = song - 0.6 s (D-913: 17 of 17 loudness windows
 -- -0.60 / -0.65). Fast beat cuts between close-ups and the full stage, read
 -- from 0.5 s strips in video seconds.
-ClubCamera.Songs[90694654380166] = {
+-- (D-929) now 98124521559769 (fileSpeed 1.05): same song clock
+ClubCamera.Songs[98124521559769] = {
 	video = "MBC Show! Music Core 2026-10-31, youtube 9N0svN37emE",
 	offset = -0.6,
 	shots = videoCuts(-0.6, {
