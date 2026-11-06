@@ -2632,3 +2632,15 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - EdmController는 그대로(사슬 맨 위까지 올라가 EdmSongMute 아래에 검), 주석만. 이어 붙인 곡의 ClipA/ClipBBoost도 ClubMusicBoost 아래라 새 층을 지나감. `Lab` 타입에 `boost4: number?`. 곡 값은 아직 없음(따로 받음).
 - PC Play 확인: 사슬 순서, Get A Guitar 10 × 5 × 5 × 1, boost3/4 없는 곡(ATEEZ-BAD, Next Chapter)은 3·4층 1(예전과 같음), DJ 볼륨 5가 EdmSongMute에, EDM 1번 재생, 이어 붙인 곡(IU-이 별로부터) 두 클립이 같은 사슬. PlaybackLoudness는 이 Play에서 곡마다 0 근처(예전에도 있던 Studio 현상, EDM은 226).
 - 모바일 2P 테스트 통과(2026-11-06, Player1 DJ / Player2, 폰 화면 801×413, 클럽 안): Get A Guitar는 두 폰 모두 10 × 5 × 5 × 1, ATEEZ-BAD는 10 × 10 × 1 × 1(예전과 같음), DJ 볼륨 x2 → 두 폰의 EdmSongMute 2, EDM 2번 켜면 두 폰에서 재생 / 끄면 멈춤, 이어 붙인 곡(47번) 두 폰에서 두 클립이 같은 사슬로 재생. 오류 없음(93308695817877 승인 오류는 상관없음).
+
+## D-936 / D-937 / D-938 키키-Pop Off · RESCENE-Pretty Girl · RIIZE-Love 119 안무 (2026-11-06)
+- 사용자 방법(2026-11-06): D:\Roblox\영상의 `*_centercut` 폴더(`*stage*`는 카메라용이라 뺌) 중 오후 음원 목록에 있고 안무가 아직 없는 곡, `clips\<곡>_ids.txt`(id가 클립 순서대로) 있으면 추가. 찾은 것: Pop Off 21개, Pretty Girl 26개, Love 119 33개, 그리고 CRASH ids에 새로 생긴 1번.
+- id 확인(모두 Vantablack_Dev, 길이 = 클립 길이): Pop Off 1~7번 애셋 이름이 "Crash1..7"이지만 길이 · 동작이 Pop Off 클립과 맞아 그대로 씀. **빠진 것 2개**: CRASH 1번 새 id 80997055634037은 ANIMAL 25번(72908007597304)과 키프레임이 똑같음(1.23초, 클립 1은 11.2초) → 안 넣음, CRASH는 지금처럼 2~20번. Love 119 27번(123352735964940)은 26번과 같음(1.00초, 클립 27은 8.8초) → 빼고 그 사이(118.2~127.0초)는 기본 춤.
+- 시간(원곡 mp3와 게임 곡 소리 ↔ 연습 영상 소리 상호상관):
+  - Pop Off(x22oELcVsVU): 영상 = 노래 + 0.30초(0~135초 모두, 게임 곡 0~30초도 같음). 1번 `from = 0.3`, 나머지 `at` = 클립 시작 − 0.30. (D-936)
+  - Pretty Girl(IrqXrM4CaiE): 영상 = 노래 + 0.12초(+0.10/+0.15). 1번 `from = 0.12`, 나머지 `at` = 클립 시작 − 0.12. (D-937)
+  - Love 119(hYEy_patW5s): mp3로는 영상 = 노래 − 0.40초인데, 게임 곡(85204387077332, fileSpeed 1.0968, D-933)은 노래 5초에 −0.35, 25초에 −0.25, 128~158초에 +0.30~+0.45로 점점 늘어남 → 게임 시계가 원곡보다 0.5 % 느림(영상 = −0.375 + 1.00496 × 게임 시각). 원곡 길이 173.85 ÷ 파일 157.727 = 1.1022가 맞는 fileSpeed로 보이지만, D-933 값은 그대로 두고 `at` = (클립 시작 + 0.375) ÷ 1.00496 로 게임 시계에 맞춤. (D-938)
+- `blend` = 이음새 검사 제안값. 미끄러짐 → ChoreoSlideStill: Pop Off 11조각 14곳, Pretty Girl 17조각 21곳, Love 119 11조각 21곳. 떨림(ChoreoShake 정리 전 → 후): Pop Off 186 → 13, Pretty Girl 169 → 9, Love 119 193 → 8(대부분 조각 첫 0.2초 = blend 안).
+- 확인(Play, 1인, 22시): 조각 시작 = 들리는 노래 위치와 `at` 차이 Pop Off −0.03~0.00초(1~4, 10~13, 16~19번), Pretty Girl −0.03~0.00초(1~2, 6~9, 16~20, 23~26번), Love 119 −0.03~0.00초(1~4, 11~14, 25~26, 28, 30~32번). 몸 바꾸기(Love 119 41~43초): 엉덩이 회전 5.6 / 3.4 / 8.0° ↔ 4.4 / 2.9 / 8.2°, 허리 3° 안.
+- 비교 사진(왼쪽 영상, 오른쪽 Play; 줄마다 Pop Off 40 / 128초, Pretty Girl 30 / 150초, Love 119 30 / 150초): docs/06_LOG/images/2026-11-06/d936_938_compare.jpg — 팔 벌려 흔들기, 가슴 앞 팔 모으기, 허리에 손, 얼굴 옆 손, 가슴에 주먹, 팔 내림 같음.
+- Studio: ClubPlaylist / ClubChoreo에 바뀐 줄만 넣음. 브랜치 feat/choreo-batch-1106(catalog-ui-redesign 973a72f에서, 작업은 별도 worktree). 남은 것: 모바일 2P 테스트 → 사용자 승인 후 머지, CRASH 1번 · Love 119 27번 다시 올리기.
