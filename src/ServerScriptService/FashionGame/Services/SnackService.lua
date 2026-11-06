@@ -1320,23 +1320,38 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 	tool.Parent = keptFolder
 	local item = itemByKey(tool:GetAttribute("Snack"))
 	local soup = item ~= nil and (item.kind == "bowl" or item.kind == "ricebowl" or item.kind == "noodle") -- (컵라면 too: chopsticks, 2026-10-27)
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.ActionText = if soup then (if item and item.kind == "noodle" then "먹기" else "떠먹기") else "다시 들기"
-	prompt.ObjectText = tool.Name
-	prompt.MaxActivationDistance = 8
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = copy
-	prompt.Triggered:Connect(function(who)
-		if who ~= player or not model.Parent then return end
-		if soup and item then
-			-- 국밥 stays on the table (user 2026-10-26): eaten from there with a
-			-- spoon, never picked up again
-			spoonful(player, model, copy, tool, item)
-		elseif giveTool(player, tool) then
-			tool:SetAttribute("KeptBy", nil)
-			model:Destroy()
+	if soup and item then
+		-- 국밥 stays on the table (user 2026-10-26): eaten from there with a
+		-- spoon, never picked up again.
+		-- (D-947, user 2026-11-07: "모든 음식 테이블에 둔 다음 E떠먹기 뜨는 거 없애",
+		-- then "화면 터치로 먹기") no E 떠먹기 / 먹기 button: a click or a tap on
+		-- the bowl (its tray too) is one spoonful
+		-- (the food parts are made with CanQuery off: a click must find them)
+		for _, p in ipairs(model:GetDescendants()) do
+			if p:IsA("BasePart") then p.CanQuery = true end
 		end
-	end)
+		local detector = Instance.new("ClickDetector")
+		detector.MaxActivationDistance = 12
+		detector.Parent = model
+		detector.MouseClick:Connect(function(who)
+			if who ~= player or not model.Parent then return end
+			spoonful(player, model, copy, tool, item)
+		end)
+	else
+		local prompt = Instance.new("ProximityPrompt")
+		prompt.ActionText = "다시 들기"
+		prompt.ObjectText = tool.Name
+		prompt.MaxActivationDistance = 8
+		prompt.RequiresLineOfSight = false
+		prompt.Parent = copy
+		prompt.Triggered:Connect(function(who)
+			if who ~= player or not model.Parent then return end
+			if giveTool(player, tool) then
+				tool:SetAttribute("KeptBy", nil)
+				model:Destroy()
+			end
+		end)
+	end
 	model.Parent = tablePart
 	model.Destroying:Connect(function()
 		if tool.Parent == keptFolder then tool:Destroy() end
