@@ -36,6 +36,7 @@ local TRACKS = {
 	{ title = "현아-Bubble Pop", id = 76388700698178, club = { 0.333, 2.5, -6, 0.5, -7 } },
 	-- (user 2026-11-06) chosen upload, replaces 133586602463513 / 91762270038050
 	{ title = "RIIZE-Get A Guitar", id = 70738014182544 }, -- file 153.0 s, song 2:40
+	{ title = "RIIZE-Get A Guitar 2", id = 70738014182544, slot = 2 }, -- same file, its own saved values (user 2026-11-06)
 	-- (user 2026-11-06) new upload, replaces 119473981131981 (a 3× file)
 	{ title = "RIIZE-Love 119", id = 85204387077332 }, -- file 157.7 s, song 2:54
 	{ title = "YENA-Catch Catch", id = 80583279340768, club = { 0.34, 3, -13, 2.5, 4 } },
@@ -834,6 +835,16 @@ local function currentId(): number
 	local t = TRACKS[trackIndex]
 	return if t.joined then t.joined.parts[1] else t.id
 end
+-- the key a track's values are saved under: a second copy of a track
+-- (slot = 2) keeps its own values under "<soundId>#2"
+local function keyOf(t: any): string
+	if t.joined then return tostring(t.joined.parts[1]) end
+	return tostring(t.id) .. (if t.slot then "#" .. t.slot else "")
+end
+local function currentKey(): string
+	if customId then return tostring(customId) end
+	return keyOf(TRACKS[trackIndex])
+end
 
 -- saved settings, by sound id (string keys, as the DataStore keeps them)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -846,7 +857,7 @@ if storeRemote then
 else
 	storeError = "서버 스크립트(TurntableLabStore)가 없어요"
 end
-local function savedFor(id: number): any
+local function savedFor(id: any): any
 	return saved[tostring(id)]
 end
 
@@ -859,7 +870,7 @@ local function refreshTrack()
 		b.BackgroundTransparency = if on then 0 else 1
 		b.BackgroundColor3 = if on then Color3.fromRGB(110, 40, 95) else BG
 		local t = TRACKS[i]
-		local key = if t.joined then t.joined.parts[1] else t.id
+		local key = keyOf(t)
 		local tags = {}
 		if t.joined then table.insert(tags, "🔗 " .. #t.joined.parts .. "구간") end
 		if savedFor(key) then
@@ -897,7 +908,7 @@ end
 
 -- a track's saved values, or the untouched ones when it has none
 -- (a joined song starts at volume 10 and always plays as Sounds)
-local function valuesFor(id: number, isJoined: boolean?): any
+local function valuesFor(id: any, isJoined: boolean?): any
 	local entry = savedFor(id)
 	local v = {}
 	for _, p in ipairs(PARAMS) do
@@ -908,7 +919,7 @@ local function valuesFor(id: number, isJoined: boolean?): any
 	return v
 end
 local function applySaved()
-	local v = valuesFor(currentId(), joinedActive)
+	local v = valuesFor(currentKey(), joinedActive)
 	for _, p in ipairs(PARAMS) do values[p.key] = v[p.key] end
 	setEngine(v.engine)
 	apply()
@@ -916,7 +927,7 @@ local function applySaved()
 end
 
 function paintSave()
-	local entry = savedFor(currentId())
+	local entry = savedFor(currentKey())
 	local same = (if entry and entry.engine == "audio" then "audio" else "sound") == engine
 	for _, p in ipairs(PARAMS) do
 		local base = if entry and typeof(entry[p.key]) == "number" then entry[p.key] else p.default
@@ -1189,7 +1200,8 @@ paintXf()
 
 local function store(action: string)
 	if not storeRemote then return end
-	local id = currentId()
+	local key = currentKey()
+	local id: any = tonumber(key) or key
 	local entry: any = nil
 	if action == "save" then
 		entry = { engine = engine }
@@ -1220,14 +1232,16 @@ local function openPicker()
 	end
 	local n = 0
 	for key, entry in pairs(saved) do
-		local id = tonumber(key)
-		if id and id ~= currentId() and typeof(entry) == "table" then
+		local id = tonumber(string.match(key, "^(%d+)"))
+		if id and key ~= currentKey() and typeof(entry) == "table" then
 			n += 1
+			local slot = string.match(key, "#(%d+)$")
+			local name = titleOf(id) .. (if slot then " " .. slot else "")
 			local b = mk("TextButton", {
 				Size = UDim2.new(1, 0, 0, 28), BackgroundColor3 = BG, Text = "", AutoButtonColor = true, LayoutOrder = n,
 			}, picker)
 			corner(b, 5)
-			label(b, titleOf(id), UDim2.new(1, -150, 1, 0), UDim2.fromOffset(8, 0), { TextSize = 13 })
+			label(b, name, UDim2.new(1, -150, 1, 0), UDim2.fromOffset(8, 0), { TextSize = 13 })
 			label(b, string.format("x%s · 템포 x%s · vol %s", fmt(entry.speed or 1), fmt(entry.tempo or 1), fmt((entry.volume or 1) * (entry.boost or 1) * (entry.boost2 or 1) * (entry.boost3 or 1) * (entry.boost4 or 1))),
 				UDim2.fromOffset(140, 28), UDim2.new(1, -144, 0, 0), { TextSize = 11, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right })
 			b.MouseButton1Click:Connect(function()
@@ -1239,7 +1253,7 @@ local function openPicker()
 				apply()
 				refreshAll()
 				pickerRow.Visible = false
-				saveStatus.Text = "「" .. titleOf(id) .. "」 설정을 가져왔어요 · 💾를 눌러야 이 곡에 저장돼요"
+				saveStatus.Text = "「" .. name .. "」 설정을 가져왔어요 · 💾를 눌러야 이 곡에 저장돼요"
 			end)
 		end
 	end
@@ -1252,7 +1266,7 @@ copyFromB.MouseButton1Click:Connect(function()
 	if pickerRow.Visible then pickerRow.Visible = false else openPicker() end
 end)
 unsaveB.MouseButton1Click:Connect(function()
-	if savedFor(currentId()) then store("clear") end
+	if savedFor(currentKey()) then store("clear") end
 end)
 
 prevB.MouseButton1Click:Connect(function()

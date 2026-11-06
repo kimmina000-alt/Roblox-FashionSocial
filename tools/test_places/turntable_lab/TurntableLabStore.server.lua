@@ -30,12 +30,16 @@ remote.OnServerInvoke = function(_player, action: any, id: any, data: any)
 		if not ok then return false, tostring(all) end
 		return true, all or {}
 	end
-	if (action == "save" or action == "clear") and typeof(id) == "number" and id > 0 then
+	-- a second copy of a track saves under "<soundId>#<n>" (user 2026-11-06)
+	local key = if typeof(id) == "number" and id > 0 then tostring(id)
+		elseif typeof(id) == "string" and string.match(id, "^%d+#%d+$") then id
+		else nil
+	if (action == "save" or action == "clear") and key then
 		local entry = if action == "save" then clean(data) else nil
 		if action == "save" and not entry then return false, "bad data" end
 		local ok, err = pcall(store.UpdateAsync, store, "v1", function(all)
 			all = all or {}
-			all[tostring(id)] = entry
+			all[key] = entry
 			return all
 		end)
 		if not ok then return false, tostring(err) end
