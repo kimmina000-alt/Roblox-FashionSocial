@@ -2625,3 +2625,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - BOYNEXTDOOR-ANIMAL = 새 음원 94774089824958(136.107초, Studio에서 잼). 옛 94498201288355는 3배 파일 47.632초 → fileSpeed = 3 × 47.632 ÷ 136.107 = 1.05, tempo 0.958 × 1.05 = 1.006(들리는 길이 2:22). lab tempo 0.958 / boost2 5 / boost3 5 / octave 1 / high -20. 안무 `at`은 그대로(곡 시계 같음), 무대 카메라는 없음. D-932처럼 원래 곡 줄에서 바꿈.
 - NCT WISH-I SPY 98124521559769: 보낸 값이 이미 들어간 값과 같아 바꾸지 않음.
 - Play로 들어 보지는 않음.
+
+## D-934 볼륨 부스트 4 (boost4) (2026-11-06)
+- 사용자 "추가해"(음원 테스트 세션 통해): 랩의 부스트 3 / 4를 오후에도. boost3는 D-933(feat/songs-1106b)에 이미 있어서 이 브랜치는 그 위에 쌓고 boost4만 더함.
+- DanceController: `ClubMusicBoost4` 그룹을 ClubMusicBoost3 위에 둠(사슬 맨 위). `lab.boost4`(숫자 아니면 1, 0..10). 사슬 = 곡 → ClubMusicBoost → ClubMusicBoost2 → ClubMusicBoost3 → ClubMusicBoost4 → EdmSongMute, 들리는 크기 = volume × boost × boost2 × boost3 × boost4.
+- EdmController는 그대로(사슬 맨 위까지 올라가 EdmSongMute 아래에 검), 주석만. 이어 붙인 곡의 ClipA/ClipBBoost도 ClubMusicBoost 아래라 새 층을 지나감. `Lab` 타입에 `boost4: number?`. 곡 값은 아직 없음(따로 받음).
+- PC Play 확인: 사슬 순서, Get A Guitar 10 × 5 × 5 × 1, boost3/4 없는 곡(ATEEZ-BAD, Next Chapter)은 3·4층 1(예전과 같음), DJ 볼륨 5가 EdmSongMute에, EDM 1번 재생, 이어 붙인 곡(IU-이 별로부터) 두 클립이 같은 사슬. PlaybackLoudness는 이 Play에서 곡마다 0 근처(예전에도 있던 Studio 현상, EDM은 226).

@@ -1194,7 +1194,13 @@ labGroup.Volume = 1
 local gain3Group = Instance.new("SoundGroup")
 gain3Group.Name = "ClubMusicBoost3"
 gain3Group.Volume = 1
-gain3Group.Parent = game:GetService("SoundService")
+-- (D-934) a fourth above it (Track.lab.boost4): heard = boost × boost2 ×
+-- boost3 × boost4; ClubMusicBoost4 is now the top of the chain
+local gain4Group = Instance.new("SoundGroup")
+gain4Group.Name = "ClubMusicBoost4"
+gain4Group.Volume = 1
+gain4Group.Parent = game:GetService("SoundService")
+gain3Group.Parent = gain4Group
 local gainGroup = Instance.new("SoundGroup")
 gainGroup.Name = "ClubMusicBoost2"
 gainGroup.Volume = 1
@@ -1287,6 +1293,9 @@ do
 			-- (D-933) the third group: lab.boost3, else 1
 			local boost3 = lab and (lab :: any).boost3
 			gain3Group.Volume = if typeof(boost3) == "number" then math.clamp(boost3, 0, 10) else 1
+			-- (D-934) the fourth group: lab.boost4, else 1
+			local boost4 = lab and (lab :: any).boost4
+			gain4Group.Volume = if typeof(boost4) == "number" then math.clamp(boost4, 0, 10) else 1
 		if track and ClubConfig.isJoined(track) then joinedPlayer:SetLab(joinedLab(track)) end
 																																				
 		labEq.LowGain, labEq.MidGain, labEq.HighGain = if lab then lab.low else 0, if lab then lab.mid else 0, if lab then lab.high else 0

@@ -34,7 +34,9 @@ end
 local songMute = make("SoundGroup", { Name = "EdmSongMute", Volume = 1 }, SoundService)
 local function hookGroup()
 	-- (D-892) the top of the song's own chain of groups (DanceController:
-	-- ClubMusicBoost under ClubMusicBoost2), so the chain stays whole
+	-- ClubMusicBoost under ClubMusicBoost2, under ClubMusicBoost3 and
+	-- ClubMusicBoost4 since D-933 / D-934), so the chain stays whole: the loop
+	-- climbs to the top group, whatever its name
 	local group = music.SoundGroup
 	while group and group.Parent and group.Parent:IsA("SoundGroup") and group.Parent ~= songMute do
 		group = group.Parent :: SoundGroup

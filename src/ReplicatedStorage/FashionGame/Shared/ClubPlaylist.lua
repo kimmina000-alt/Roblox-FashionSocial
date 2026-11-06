@@ -50,6 +50,9 @@ export type Lab = {
 	-- (D-933) a third group above boost2, 0..10, like the lab's boost 3: heard =
 	-- boost × boost2 × boost3. Left out: 1
 	boost3: number?,
+	-- (D-934) a fourth group above boost3, 0..10: heard = volume × boost ×
+	-- boost2 × boost3 × boost4. Left out: 1
+	boost4: number?,
 }
 
 export type Joined = { parts: {number}, segLen: number, tail: number, total: number, lead: number? }
