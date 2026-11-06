@@ -2613,3 +2613,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 길이 = 파일 초(Studio에서 잼): 153.821 / 172.955 / 176.273 / 210.771. fileSpeed = 3 × 예전 3배 파일 ÷ 새 파일: REDRED 3 × 54.350 ÷ 153.821 = 1.06, LOVE-ATTACK 3 × 60.534 ÷ 172.955 = 1.05, I SPY 3 × 61.695 ÷ 176.273 = 1.05, NEON 3 × 73.770 ÷ 210.771 = 1.05. 사용자 tempo × fileSpeed ≈ 1(1.001 / 1.004 / 1.001 / 1.002), 곧 원곡 속도. engine "sound".
 - 겹침: feat/guitar-upload2-1106(D-925..D-930, 안 합쳐짐)은 I SPY를 같은 새 음원 98124521559769로 바로 바꿈(안무·무대 카메라도 옮김). 둘 다 합치면 I SPY 새 음원이 두 줄: 합치기 전에 사용자에게 어느 쪽인지 물을 것.
 - Studio: ClubPlaylist에 네 줄만 넣음(localhost가 막혀 execute_luau로; Studio의 사용자 I SPY 이어 붙인 줄은 그대로, 깃에는 안 넣음). Play 확인은 Studio 연결이 끊겨 아직.
+
+## D-932 새 음원을 원래 곡에 합침: NEON / LOVE-ATTACK / REDRED, I SPY 중복 삭제 (2026-11-06)
+- 사용자: "I SPY 같은 아이디면 안무 있는 곡만 살리고 삭제 / 아래 세 곡은 원래 있던 곡에 새 음원 아이디랑 설정값 넣고 새 음원 삭제 NEON LOVE ATTACK REDRED".
+- D-931의 "(새 음원)" 4줄을 지우고, 세 곡은 원래 곡(안무 · 무대 카메라 있는 줄)에 새 id, length, fileSpeed, lab을 옮김: NEON 140713297574648 (210.771초, 1.05, tempo 0.954), LOVE-ATTACK 139330220515727 (172.955초, 1.05, tempo 0.956), REDRED 76034005809699 (153.821초, 1.06, tempo 0.944), 셋 다 boost2 5 / high -20. ClubCamera.Songs 키도 새 id로. I SPY는 D-929 줄(안무 30조각, 같은 id 98124521559769)만 남김.

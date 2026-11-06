@@ -299,7 +299,8 @@ ClubCamera.Songs[134942349436280] = {
 -- from 0.5 s strips), beat cuts in the intro, crane / audience wides between.
 -- (D-922) the new upload 74988982712396 (was 97511700575810): same song clock
 local take = ClubCamera.take
-ClubCamera.Songs[74988982712396] = {
+-- (D-932) now 140713297574648 (fileSpeed 1.05): same song clock
+ClubCamera.Songs[140713297574648] = {
 	video = "MBC Show! Music Core 2026-10-24, youtube pKvx_bN74j4 (first half)",
 	offset = 1.0,
 	shots = ClubCamera.join({
@@ -535,7 +536,8 @@ local function cutList(list: {{any}}): {Shot}
 	end
 	return out
 end
-ClubCamera.Songs[125703446596781] = {
+-- (D-932) now 76034005809699 (fileSpeed 1.06): same song clock
+ClubCamera.Songs[76034005809699] = {
 	video = "Mnet M COUNTDOWN 2026-04-23, youtube rREZviPAdM8",
 	offset = 34.5,
 	shots = cutList({
@@ -628,7 +630,8 @@ ClubCamera.Songs[128270208751659] = {
 -- video = song + 1.9 s (D-908: 17 of 17 loudness windows +1.90). Fast beat
 -- cuts between the sailor-set wides, high crane shots and close-ups; read
 -- from 0.5 s strips in video seconds.
-ClubCamera.Songs[71873496902418] = {
+-- (D-932) now 139330220515727 (fileSpeed 1.05): same song clock
+ClubCamera.Songs[139330220515727] = {
 	video = "SBS Inkigayo 2024-09-01, youtube Hv1wQ6nlpNE",
 	offset = 1.9,
 	shots = videoCuts(1.9, {
