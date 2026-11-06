@@ -2640,3 +2640,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 컷 목록은 새 도구 tools/choreo/stagecam/shots_to_lua.py로 만듦: shots.py 결과에서 각 컷 샘플 3장의 가장 큰 멤버 포즈로 크기(발목 보임 = full/wide/xwide 키 비율, 무릎 = knee, 엉덩이 = waist, 나머지 bust), 컷 안에서 크기가 바뀌면 그 사이에서 나눔(놓친 부드러운 컷), 줌 인/아웃 1.4배 이상 = 	o, 큰 팬 = 작은 yaw, wide/xwide는 크레인 pitch 5/8, 0.35초 미만 번쩍임은 뺌. 곡 초 단위 cutList: CRASH 113, Love 119 93, Pop Off 89, Pretty Girl 109컷.
 - 사람이 0.5초 띠로 하나하나 읽던 앞의 곡들보다 거칠 수 있음(크기 판정은 자동). Play 비교와 모바일 2P 테스트 전.- PC Play 확인(Studio 다시 켠 뒤, 클럽 무대, 22시): 4곡 모두 🎥이 켜지고 Scriptable 카메라가 컷 목록대로 움직임 — CRASH 4.6초 bust / 19.6초 full, Love 119 50.8초 xwide 크레인, Pop Off 30초 waist, Pretty Girl 12초대 bust. 게임 오류 없음(93308695817877 승인 오류는 상관없음). Studio 원본 = 브랜치 파일(64,080 바이트). 모바일 2P 테스트 전.
 - 모바일 2P 테스트 통과(2026-11-06, Player1 / Player2, 폰 화면 801×413 터치, 클럽 무대, 22시): Player1이 CRASH를 틀고 🎥(ClubStageCam 버튼, SelectedObject + Return)을 켜면 Player1만 Scriptable(FOV 30), 켜지 않은 Player2는 Custom 그대로. Player2도 켜면 자기 아바타를 따라감(44초 bust). 곡을 Pop Off로 바꾸면 Player2 카메라가 새 곡 컷으로 이어짐(FOV 31.9). Player1이 끄면 Custom / FOV 70으로 돌아옴. 스크립트 오류 없음(93308695817877 승인 오류, 테스트 플레이어 아바타 rbxassethash 권한 오류는 상관없음).
+
+## D-963 무대 카메라 손보기: NEON 0:50 / 2:33, Love 119 시작 (2026-11-07)
+- 사용자 요청(안무 편집 세션이 전달, 시간 = 재생 바의 곡 초). 안무 쪽 같은 목록은 feat/choreo-fixes-1107에서 따로 함. 멈춰 있는 시간은 그 세션이 Play에서 잰 값.
+- A2O LITE-NEON 0:50 "무릎 꿇고 멈춰 있을 때 얼굴 위주로, 천천히 조금만 돌기": 조각 5가 49.8~52.0 무릎 꿇고 멈춤 → take 48.3 full(yaw 20) → 49.8 close(yaw -6) → 52.0 close(yaw 6), 일어날 때(52.0) 원래 컷으로.
+- A2O LITE-NEON 2:33 "허리 숙이고 멈춰 있을 때 카메라가 천천히 멀어지게, 앞뒤와 자연스럽게": 조각 17이 149.3~155.2 숙이고 멈춤 → 145.93 take를 이어서 149.3 waist → 155.2 wide(pitch 6) → 156.73 knee(다음 take의 첫 화면과 같음). 149.7 / 152.93 take 두 개는 뺌. 컷 없이 이어짐.
+- RIIZE-Love 119 시작 "첫 포즈로 서 있을 때 얼굴 중심으로 돌다가 걷는 부분으로 자연스럽게": 첫 포즈 0.7~3.9, 걷기 3.94부터 → take 0 close(yaw -40) → 3.9 close(yaw 25) → 5.6 knee, 다음 컷 8.73까지 유지(원래 0 bust / 4.64 knee 컷은 뺌). cutList를 ClubCamera.join으로 감쌈.
+- PC Play 기록(카메라 ↔ 머리 거리 / 각도 0.25초마다): Love 119 거리 5.3에서 yaw -39 → +25로 3.9초까지 돌고, 4.2초부터 14로 빠짐. NEON 0:50 머리가 내려가는(무릎) 동안 거리 5.7, yaw -11 → +6으로 천천히, 머리가 올라올 때 컷. NEON 2:33 숙인 동안 거리 13 → 33, FOV 34 → 50으로 천천히 멀어지고, 일어날 때 컷 없이 16까지 다가감. 오류 없음.

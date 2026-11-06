@@ -333,8 +333,11 @@ ClubCamera.Songs[140713297574648] = {
 		take({ { 43.53, "bust" }, { 44.4, "waist", yaw = -10 } }),
 		take({ { 44.77, "bust", roll = -6 }, { 45.5, "knee" }, { 46.0, "wide", pitch = 6 }, { 46.6, "full" } }),
 		{ at = 47.2, size = "waist", yaw = 15 },
-		take({ { 48.3, "full", yaw = 20 }, { 49.0, "knee", yaw = 10 }, { 50.5, "knee" } }),
-		take({ { 51.0, "wide", pitch = 15 }, { 51.6, "wide", pitch = 15 }, { 52.0, "close", roll = -15 }, { 52.6, "bust" }, { 53.0, "xwide", pitch = 4 },
+		-- (D-963, user 2026-11-07: "0:50 무릎 꿇고 멈춰 있을 때 얼굴 위주로, 천천히 조금만
+		-- 돌기") piece 5 kneels still from 49.8 to 52.0 (feat/choreo-fixes-1107): in to the face
+		-- while kneeling down, then a slow small turn until it gets up
+		take({ { 48.3, "full", yaw = 20 }, { 49.8, "close", yaw = -6 }, { 52.0, "close", yaw = 6 } }),
+		take({ { 52.0, "close", roll = -15 }, { 52.6, "bust" }, { 53.0, "xwide", pitch = 4 },
 			{ 55.6, "xwide", pitch = 4 }, { 56.0, "full" }, { 56.6, "full", yaw = 10 }, { 57.0, "waist" }, { 57.5, "bust" }, { 58.0, "waist" } }),
 		{ at = 58.5, size = "xwide", pitch = 20 },
 		-- chorus 1
@@ -372,10 +375,12 @@ ClubCamera.Songs[140713297574648] = {
 			{ 140.2, "wide", pitch = 6 }, { 140.6, "knee" }, { 141.0, "full" }, { 141.5, "knee" }, { 142.0, "waist" } }),
 		take({ { 142.23, "wide", pitch = 6 }, { 143.0, "wide", pitch = 6 }, { 143.5, "knee" }, { 144.0, "waist" }, { 144.5, "wide", pitch = 5 },
 			{ 145.0, "wide", pitch = 5 }, { 145.5, "waist" } }),
-		take({ { 145.93, "waist" }, { 146.5, "knee" }, { 147.0, "wide", pitch = 6 }, { 148.6, "wide", yaw = 10, pitch = 6 }, { 149.0, "knee" }, { 149.5, "waist" } }),
-		-- bridge
-		take({ { 149.7, "knee" }, { 152.6, "knee", yaw = 10 } }),
-		take({ { 152.93, "knee", roll = -6 }, { 153.5, "wide", pitch = 6 }, { 154.0, "full" }, { 155.0, "full", yaw = -10 }, { 155.5, "knee" }, { 156.5, "knee" } }),
+		-- bridge: (D-963, user 2026-11-07: "2:33 허리 숙이고 멈춰 있을 때 카메라가 천천히
+		-- 멀어지게, 앞뒤와 자연스럽게") piece 17 stays bent over from 149.3 to 155.2
+		-- (feat/choreo-fixes-1107): one take from the waist shot slowly back to a wide, then in to
+		-- the knee shot the next take starts with (no cut on either side)
+		take({ { 145.93, "waist" }, { 146.5, "knee" }, { 147.0, "wide", pitch = 6 }, { 148.6, "wide", yaw = 10, pitch = 6 }, { 149.3, "waist" },
+			{ 155.2, "wide", pitch = 6 }, { 156.73, "knee" } }),
 		take({ { 156.73, "knee" }, { 157.5, "full" }, { 158.0, "wide", pitch = 6 }, { 158.6, "wide", pitch = 6 }, { 159.0, "knee" }, { 159.6, "knee", yaw = 10 },
 			{ 160.0, "waist" }, { 160.5, "waist", roll = -10 }, { 161.0, "knee" }, { 161.5, "wide", pitch = 6 }, { 164.0, "wide", yaw = 10, pitch = 6 } }),
 		{ at = 164.4, size = "bust" },
@@ -789,8 +794,14 @@ ClubCamera.Songs[104827635407586] = {
 ClubCamera.Songs[85204387077332] = {
 	video = "SBS Inkigayo 2024-01-14, youtube w11AQwiT07g",
 	offset = -1.225,
-	shots = cutList({
-		{ 0, "bust" }, { 4.64, "knee" }, { 8.73, "wide", 0, 5 }, { 10.6, "bust" }, { 11.9, "wide", 0, 5 },
+	shots = ClubCamera.join({
+		-- (D-963, user 2026-11-07: start = the first pose held still, the camera
+		-- on the face turning round it, then flowing into the walk) the game
+		-- holds the first pose from 0.7 to 3.9 s and walks from 3.94 s (feat/choreo-fixes-1107):
+		-- one take orbiting the face to 3.9 s, then easing out to the knee shot
+		-- while the walk blends in, held until the stage's next cut at 8.73
+		take({ { 0, "close", yaw = -40 }, { 3.9, "close", yaw = 25 }, { 5.6, "knee" } }),
+		cutList({ { 8.73, "wide", 0, 5 }, { 10.6, "bust" }, { 11.9, "wide", 0, 5 },
 		{ 12.47, "waist" }, { 13.53, "knee" }, { 15.62, "full" }, { 16.74, "waist" },
 		{ 17.97, "xwide", 0, 8, { size = "wide" } }, { 19.63, "bust" }, { 21.52, "wide", 0, 5, { size = "full" } },
 		{ 24.63, "waist" }, { 28.33, "wide", 0, 5 }, { 29.45, "waist" }, { 31.84, "xwide", 0, 8, { size = "wide" } },
@@ -814,6 +825,7 @@ ClubCamera.Songs[85204387077332] = {
 		{ 153.94, "wide", 0, 5 }, { 155.26, "full" }, { 159.5, "wide", 0, 5 }, { 160.14, "bust" },
 		{ 162.35, "bust", 5, 0, { size = "waist" } }, { 163.44, "waist" }, { 164.78, "full" }, { 165.8, "bust" },
 		{ 167.69, "wide", 0, 5 }, { 170.29, "full" }, { 171.54, "bust" },
+		}),
 	}),
 }
 -- 키키-Pop Off: KBS Music Bank 2026-08-14 (youtube bpYdX73przc), video = song + 7.0 s
