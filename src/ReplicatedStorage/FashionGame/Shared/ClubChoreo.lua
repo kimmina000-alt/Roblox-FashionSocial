@@ -201,7 +201,7 @@ M.ChoreoFixes = {
 	-- one turn on, left leg chambered, kicked out at hip height and back, the
 	-- standing leg straight and the hips held up (`move` = 0.8 x (-0.15 less
 	-- the capture's hips height): the animator scales travel to the body)
-	-- (D-946, user: 0:04 "팔 들고 등 돌리고 있다가 뒤도는 거 끊겨서 보임 … 팔
+	-- (D-962, user: 0:04 "팔 들고 등 돌리고 있다가 뒤도는 거 끊겨서 보임 … 팔
 	-- 내리면서 뒤도는 거 슬로우 걸어서 자연스럽게 이어지게") the held pose (back
 	-- turned, arm up) let go at 6.04 straight into a pose 65° round, then
 	-- turned to the front in 0.4 s: now it lets go at 6.0 easing over 0.5 s
@@ -249,7 +249,7 @@ M.ChoreoFixes = {
 	-- (D-873, user: "50초 가만히 있기") the members hold that low pose from song
 	-- 49.75 to 52.1 (video 51.75-54.1); the capture gets up from 51.6, so the
 	-- pose is held to 52.0 (anim 9.95)
-	-- (D-946, user: 0:52 "너무 훽훽 돌아 끊기지 않게 자연스러운 회전. 시간 부족하면
+	-- (D-962, user: 0:52 "너무 훽훽 돌아 끊기지 않게 자연스러운 회전. 시간 부족하면
 	-- 회전 한 번만 해") the capture turns once at 11.0-12.3 with a 151° jump in
 	-- one keyframe: one even turn over 1.4 s
 	[93933273398995] = { calm = true, steady = { from = 7.85, to = 9.45, passes = 8 }, hold = { from = 7.9, to = 9.95 },
@@ -262,34 +262,34 @@ M.ChoreoFixes = {
 	-- 8 spins once to the left at 3.2-3.9 s but stalls near -140° and then
 	-- jumps 160° in one keyframe: one even turn instead, to 4.15 where the
 	-- capture's own facing settles (no step when it lets go)
-	-- (D-946, user: 1:26 "다리 가만히 있는데 캐릭터 전체가 앞으로 이동") both feet
+	-- (D-962, user: 1:26 "다리 가만히 있는데 캐릭터 전체가 앞으로 이동") both feet
 	-- slide 1 stud at 5.6-6.2: kept in place
 	[84027575690735] = { turn = 0.85, turnEase = "out", spin = { from = 3.2, to = 4.15, turns = -1, ease = "both" },
 		still = { { from = 5.5, to = 6.3 } } },
-	-- NEON 10 / 11 (D-946, user: 1:40, 1:48 "한바퀴 자연스럽게 도는 걸로") 10 turns
+	-- NEON 10 / 11 (D-962, user: 1:40, 1:48 "한바퀴 자연스럽게 도는 걸로") 10 turns
 	-- half way and back at 7.7-8.1 (131° in a keyframe); 11 turns once at
 	-- 2.3-3.4 with a 184° jump and a stall: one even turn each
 	[124518142645731] = { spin = { from = 7.5, to = 8.6, turns = -1, ease = "both" } },
 	[126736648781925] = { calm = true, spin = { from = 2.25, to = 3.5, ease = "both" } },
-	-- NEON 15 (D-946, user: 2:09 "캐릭터 뒤로 살짝 이동. 다리 달달 떠는 거") the
+	-- NEON 15 (D-962, user: 2:09 "캐릭터 뒤로 살짝 이동. 다리 달달 떠는 거") the
 	-- feet slide at 2.8-3.3 and 4.2-4.5; the low stance shakes before
 	[111932052760637] = { steady = { from = 1.3, to = 4.6, passes = 8 }, still = { { from = 1.3, to = 5.0 } } },
 	-- NEON 17 (D-852, user: 2:31 "다리가 진동함 … 저 자세로 뒤로 빠지는데 저
 	-- 자리에 고정")
 	-- (D-881, user: 2:33 "벌벌 떠는 움직임"): the hands and arms shook there too
 	-- (2:30-2:31.5, 5-7 turn backs in 0.5 s): the whole body, not only the legs
-	-- (D-946, user: 2:33 "허리 숙이고 가만히 있는데 캐릭터 천천히 뒤로 움직이는 거")
+	-- (D-962, user: 2:33 "허리 숙이고 가만히 있는데 캐릭터 천천히 뒤로 움직이는 거")
 	-- the hips creep 0.5 stud back at 3.5-6.3: kept in place to 6.4, and the
 	-- bent-over pose smoothed too (15 small turn-backs in 0.5 s at 2:32)
 	[96973609514230] = { calm = true, steady = { from = 0.4, to = 6.3, passes = 8 },
 		still = { from = 0.4, to = 6.4 } },
-	-- NEON 22 (D-946, user: 3:31 "뒤로 감. 제자리에", 3:38 "마지막 포즈 달달 떠는
+	-- NEON 22 (D-962, user: 3:31 "뒤로 감. 제자리에", 3:38 "마지막 포즈 달달 떠는
 	-- 거") the last piece walks 5 studs back with the feet; in place, and the
 	-- end pose smoothed
 	[114419952125075] = { calm = true, still = { { from = 0.3, to = 9.4 } }, steady = { from = 5.5, to = 9.4, passes = 8 } },
 	-- RIIZE-Get A Guitar 15 (D-882, user: 1:54 "한바퀴 도는 거 매끄럽게"): the turn at
 	-- 16.4-16.6 s lurched 157° in one keyframe; one even turn instead
-	-- (D-946, user: 1:38 "무릎 엄청 빠르게 찍고 내리는데 올릴 때 엄청 살짝 슬로우
+	-- (D-962, user: 1:38 "무릎 엄청 빠르게 찍고 내리는데 올릴 때 엄청 살짝 슬로우
 	-- 줘서 부드럽게 … 안무 안 밀리게 앞뒤 안무 조금씩 조정") the left knee comes up
 	-- in 0.2 s (1.30-1.50): the 0.75 s before it play a little faster (1.17x)
 	-- so the knee starts rising at 1.14 and takes 0.36 s (0.7x), up at the
@@ -301,7 +301,7 @@ M.ChoreoFixes = {
 	[129447992418977] = { spin = { from = 16.07, to = 17.15, ease = "both" },
 		warp = { { from = 0.5, to = 1.14, play = { 0.5, 1.25 } }, { from = 1.14, to = 1.5, play = { 1.25, 1.5 } },
 			{ from = 15.3, to = 16.25, play = { 15.3, 15.9 }, ease = 0.3 } } },
-	-- RIIZE-Get A Guitar 1 (D-946, user: "처음에 무릎 숙이고 있는 거 펴"): the
+	-- RIIZE-Get A Guitar 1 (D-962, user: "처음에 무릎 숙이고 있는 거 펴"): the
 	-- first pose stands on bent knees (hips 0.3-0.5 stud low) until about 3.5 s:
 	-- legs straight (the turn-out kept) and the hips up by as much, easing back
 	-- into the capture by 3.9
@@ -319,10 +319,10 @@ M.ChoreoFixes = {
 		{ t = 3.5, set = { LeftUpperLeg = { 0, 10, 3 }, LeftLowerLeg = { 0, 1, -3 }, LeftFoot = { 0, -1, -3 }, RightUpperLeg = { 0, -9, 2 }, RightLowerLeg = { 0, -3, -3 }, RightFoot = { 0, -14, 3 } },
 			move = { LowerTorso = { 0, 0.28, 0 } } },
 	} } } },
-	-- 2 (D-946, user: "19~21초에 위치 이동하는 거 수정. 걷는 모션 없잖아") the body
+	-- 2 (D-962, user: "19~21초에 위치 이동하는 거 수정. 걷는 모션 없잖아") the body
 	-- slides 3.5 studs while turning at 8.5-9.8 (song 18.7-20.0): in place
 	[97097804325917] = { still = { { from = 8.4, to = 9.8 } } },
-	-- 11 (D-946, user: 1:20 "오른쪽 다리는 고정하고 왼쪽다리 쭉 뻗었다가 끌고 오는
+	-- 11 (D-962, user: 1:20 "오른쪽 다리는 고정하고 왼쪽다리 쭉 뻗었다가 끌고 오는
 	-- 모션으로") the capture steps the left foot out and shifts the whole body
 	-- 1.2 studs (8.7-9.47): in place, the right leg held as at 8.6, the left leg
 	-- stretched straight out to the side by 9.05 and dragged back in by 9.45;
@@ -340,20 +340,20 @@ M.ChoreoFixes = {
 		{ t = 9.45, set = { LowerTorso = { 15, -16, -7 }, RightUpperLeg = { 12, -28, 35 }, RightLowerLeg = { -59, -2, -4 }, RightFoot = { 26, -27, -10 },
 			LeftUpperLeg = { 5, 0, -6 }, LeftLowerLeg = { -20, 0, 0 }, LeftFoot = { 5, 0, 0 } }, move = { LowerTorso = { 0, -0.87, 0 } } },
 	} } } },
-	-- RIIZE-Love 119 1 (D-946, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
+	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
 	-- 자세에서 다음 걷는 안무로 자연스럽게 이어지도록") the first pose is held still
 	-- (the capture sways 20° and shifts) until the walk (2) blends in over 0.9 s
 	[116659270658163] = { hold = { from = 0, to = 3.6 } },
-	-- 6 (D-946, user: 0:32 "회전 한 바퀴 자연스럽게"): 5 ends turning (-92° → -176°
+	-- 6 (D-962, user: 0:32 "회전 한 바퀴 자연스럽게"): 5 ends turning (-92° → -176°
 	-- in its last 0.9 s) and 6 starts at +15°, blending over 1 s (the blend
 	-- turned the short way back, 178° in a frame): one even turn on the same
 	-- way round, from where 5 ended to 6's facing at 1.2 s
 	[75370013537988] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = -1, ease = "both" } },
-	-- 11, 12 (D-946, user: "1:00-1:01 캐릭터 갑자기 앞으로 이동"): the feet slide
+	-- 11, 12 (D-962, user: "1:00-1:01 캐릭터 갑자기 앞으로 이동"): the feet slide
 	-- 0.6-2 studs at 4.6-5.9 and in 12 (1.2 s): in place
 	[79064359810628] = { still = { { from = 4.6, to = 5.9 } } },
 	[103495705227564] = { still = { { from = 0, to = 1.2 } } },
-	-- 18 (D-946, user: "1:27 회전"): 17 ends facing -89°, 18 starts at +64° and
+	-- 18 (D-962, user: "1:27 회전"): 17 ends facing -89°, 18 starts at +64° and
 	-- spins once with a lurch (+50° a keyframe at 0.9-1.1 s): one even turn
 	-- from where 17 ended, over the seam, to 18's facing at 2.1 s
 	[107611961518863] = { spin = { from = 0, to = 2.1, fromPrev = true, dir = 1, turns = 1, ease = "both" } },

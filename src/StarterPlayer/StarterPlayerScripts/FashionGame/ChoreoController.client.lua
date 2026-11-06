@@ -249,7 +249,7 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 		if here then
 			local before = lastHips[t]
 			lastHips[t] = here
-			-- (D-946) a `warp` or a `hold` letting go jumped the piece to another
+			-- (D-962) a `warp` or a `hold` letting go jumped the piece to another
 			-- moment: no travel for that jump
 			if following.seeked then before = nil end
 			-- (a jump in the track's time, e.g. re-synced to the song: no move)
@@ -304,7 +304,7 @@ end
 -- seconds. A cross-fade between two poses nearly back to back flips the body
 -- round in a frame; this sets the hips' facing itself instead.
 local turnFixes: {[string]: { prev: string, seconds: number, easeOut: boolean }} = {}
-local prevPiece: {[string]: string} = {} -- (D-946, spin `fromPrev`)
+local prevPiece: {[string]: string} = {} -- (D-962, spin `fromPrev`)
 for _, t in ipairs(ClubConfig.Playlist) do
 	local before: string? = nil
 	for _, entry in ipairs(t.choreo or {}) do
@@ -338,7 +338,7 @@ local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {Animation
 		else
 			spinWait[t] = nil
 		end
-		-- (D-946) a list of spins; `fromPrev` starts from where the piece before
+		-- (D-962) a list of spins; `fromPrev` starts from where the piece before
 		-- ended (a spin over the seam), even while the two still blend
 		local spin = nil
 		if spins then
@@ -421,7 +421,7 @@ RunService.PreSimulation:Connect(function(dt)
 						for _, j in pairs(joints) do pose[j] = j.Transform end
 						following.heldPose = pose
 					elseif following.unheldAt and following.heldPose then
-						-- (D-946) `hold.ease` / `warp.ease` seconds, 0.25 if not given
+						-- (D-962) `hold.ease` / `warp.ease` seconds, 0.25 if not given
 						local f = (os.clock() - following.unheldAt) / (following.easeSeconds or 0.25)
 						if f >= 1 then
 							following.unheldAt, following.heldPose, following.easeSeconds = nil, nil, nil
@@ -433,7 +433,7 @@ RunService.PreSimulation:Connect(function(dt)
 							end
 						end
 					end
-					-- (D-946) the pose drawn this frame, to ease from when a `warp`
+					-- (D-962) the pose drawn this frame, to ease from when a `warp`
 					-- makes the piece jump to another moment
 					local last = {}
 					for _, j in pairs(joints) do last[j] = j.Transform end
@@ -561,7 +561,7 @@ local function startFollowing(track: ClubConfig.Track)
 		local slowOut = if typeof(entry) == "table" and typeof(entry.slowOut) == "table" then entry.slowOut else nil
 		local animation = Instance.new("Animation")
 		animation.AnimationId = "rbxassetid://" .. tostring(id)
-		-- (D-946) read every piece's path now: a spin or turn over a seam needs
+		-- (D-962) read every piece's path now: a spin or turn over a seam needs
 		-- the next piece's facing the moment it starts (it took about 0.4 s)
 		ChoreoSmooth.load(animation.AnimationId)
 		local ok, loaded = pcall(function() return anim:LoadAnimation(animation) end)
@@ -783,7 +783,7 @@ RunService.PreAnimation:Connect(function()
 			if t >= hold.from and t < hold.to then held = true t = hold.from following.holdEase = hold.ease break end
 		end
 	end
-	-- (D-946, user: NEON 0:04 "팔 내리면서 뒤도는 거 슬로우 걸어서 자연스럽게
+	-- (D-962, user: NEON 0:04 "팔 내리면서 뒤도는 거 슬로우 걸어서 자연스럽게
 	-- 이어지게", Get A Guitar 1:38 / 1:52 slower knee and leg moves without the
 	-- dance falling behind) ChoreoFixes `warp = { { from, to, play = { a, b } } }`:
 	-- the stretch from..to of the piece's own clock plays the animation's a..b
