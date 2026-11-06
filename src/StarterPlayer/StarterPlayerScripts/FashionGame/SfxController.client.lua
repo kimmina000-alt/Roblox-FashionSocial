@@ -25,6 +25,7 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local SoundConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("SoundConfig"))
 local Sfx = require(script.Parent:WaitForChild("Sfx"))
+local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("ClubConfig")) -- (D-946)
 
 local function asset(id: number): string return "rbxassetid://" .. id end
 
@@ -207,9 +208,16 @@ RunService.Heartbeat:Connect(function()
 	if now < nextAt then return end
 	nextAt = now + 0.2
 	local pos = camera.CFrame.Position
-	local inClub = weight(CLUB_BOX, pos, 1) > 0 and pos.Y < 120
-	local waves = math.clamp(1 - math.max(0, pos.X - SHORE_X) / 220, 0, 1)
-	local birds = most(BIRD_BOXES, pos, 50)
+	-- (D-946, user 2026-11-06: "락커룸에서 야외 배경 소리 들려. 새소리 나는 그 음원.
+	-- 안 들리게 해. 클럽 구역으로 지정해.") the club area = the club box, or where
+	-- ClubConfig counts as inside the club (the club rooms and the locker room
+	-- with its passage, ExtraZones), by the camera or by the character: no
+	-- outdoor sound at all in there (birds, waves and street)
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	local inClub = (weight(CLUB_BOX, pos, 1) > 0 and pos.Y < 120) or ClubConfig.isInClub(pos)
+		or (root ~= nil and root:IsA("BasePart") and ClubConfig.isInClub(root.Position))
+	local waves = if inClub then 0 else math.clamp(1 - math.max(0, pos.X - SHORE_X) / 220, 0, 1)
+	local birds = if inClub then 0 else most(BIRD_BOXES, pos, 50)
 	local target = {
 		waves = waves,
 		birds = birds,
