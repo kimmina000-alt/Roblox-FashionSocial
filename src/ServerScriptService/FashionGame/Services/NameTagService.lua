@@ -10,6 +10,8 @@ local FashionGame = game:GetService("ReplicatedStorage"):WaitForChild("FashionGa
 local NameTagService = {}
 
 local TAG_NAME = "OHUNameTag"
+-- (D-948) the name tag's size in studs (a character is about 5 tall)
+local TAG_W, TAG_H = 3.2, 0.74
 
 local function formatXp(value: any): string
 	local xp = if typeof(value) == "number" then math.floor(value) else 0
@@ -36,7 +38,11 @@ local function build(player: Player, character: Model)
 
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = TAG_NAME
-	billboard.Size = UDim2.fromOffset(200, 46)
+	-- (D-948, user 2026-11-07: "머리 위에 닉네임 뜨는 거 너무 커 모바일에서는 더 큼.
+	-- 잘 안 보여도 되니까 크기 고정해.") a size in studs, not pixels: the tag is
+	-- as big as the character everywhere and smaller far away (200 x 46 px
+	-- before, the same on any screen and at any distance, so big on phones)
+	billboard.Size = UDim2.fromScale(TAG_W, TAG_H)
 	billboard.StudsOffset = Vector3.new(0, 2.4, 0)
 	billboard.MaxDistance = 90
 	billboard.LightInfluence = 0
@@ -147,7 +153,9 @@ local function refreshRoles(player: Player)
 		local g = Instance.new("BillboardGui")
 		g.Name = ROLE_TAG
 		-- (half size, user 2026-10-30: was 110 x 26); wide enough for all four
-		g.Size = UDim2.fromOffset(150, ROW_H)
+		-- (D-948) in studs too, in the name tag's proportions (150 x 13 px
+		-- against its 200 x 46 px before)
+		g.Size = UDim2.fromScale(TAG_W * 150 / 200, TAG_H * ROW_H / 46)
 		g.StudsOffset = Vector3.new(0, 2.4, 0)
 		-- right over the name tag (id + XP, 46 px tall on the same anchor): one
 		-- badge height and a half up, so 23 px over its middle like before
@@ -160,14 +168,14 @@ local function refreshRoles(player: Player)
 		list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 		list.VerticalAlignment = Enum.VerticalAlignment.Center
 		list.SortOrder = Enum.SortOrder.LayoutOrder
-		list.Padding = UDim.new(0, 4)
+		list.Padding = UDim.new(4 / 150, 0) -- (D-948: parts of the row, not pixels)
 		list.Parent = g
 		for _, spec in ipairs(ROLES) do
 			local l = Instance.new("TextLabel")
 			l.Name = spec[1]
 			l.LayoutOrder = spec[2]
 			l.BackgroundTransparency = 1
-			l.Size = UDim2.new(0, spec[3], 1, 0)
+			l.Size = UDim2.new(spec[3] / 150, 0, 1, 0) -- (D-948: the px widths as parts of the 150 px row)
 			l.TextScaled = true
 			l.Text = spec[5]
 			l.TextColor3 = Color3.new(1, 1, 1)
