@@ -645,3 +645,4 @@
 
 - 안무 3곡 추가: 키키-Pop Off 21조각, RESCENE-Pretty Girl 26조각, RIIZE-Love 119 32조각(27번 업로드가 26번 복사본이라 뺌); CRASH 1번 새 id는 ANIMAL 25번 복사본이라 안 넣음 (D-936..D-938).
 - CRASH 1번 · Love 119 27번 다시 올린 것 추가 → 두 곡 모두 곡 전체 안무 (D-918, D-938).
+- NEON / Get A Guitar / Love 119 안무 20곳 수정(회전, 제자리, 떨림, 느린 동작) (D-946).
