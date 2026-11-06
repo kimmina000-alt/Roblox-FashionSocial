@@ -32,14 +32,17 @@ local TRACKS = {
 	-- the user's uploads, each with its club value
 	{ title = "ATEEZ-BAD", id = 134942349436280, club = { 0.333, 2.5, 0, 0, 0 } },
 	{ title = "소녀시대-소원을 말해봐(Genie)", id = 128270208751659, club = { 0.334, 2.5, -5, 2, 0 } },
+	{ title = "소원2", id = 100752194799727 }, -- user 2026-11-06, song 3:48
 	{ title = "현아-Bubble Pop", id = 76388700698178, club = { 0.333, 2.5, -6, 0.5, -7 } },
-	{ title = "RIIZE-Get A Guitar", id = 91762270038050, club = { 0.333, 3, -7, -3, 1.5 } },
+	-- (user 2026-11-06) new upload, replaces 91762270038050 (a 3× file)
+	{ title = "RIIZE-Get A Guitar", id = 133586602463513 },
 	{ title = "RIIZE-Love 119", id = 119473981131981, club = { 0.333, 3, -7, -3, 1.5 } },
 	{ title = "YENA-Catch Catch", id = 80583279340768, club = { 0.34, 3, -13, 2.5, 4 } },
 	{ title = "Hearts2Hearts-Lemon Tang", id = 97032815457241, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "Hearts2Hearts-Next Chapter", id = 113170325006427 }, -- user 2026-11-06, x1 file, song 2:52
 	{ title = "aespa-Lemonade", id = 132067415333401, club = { 0.333, 3, -11, 0, -2.5 } },
 	{ title = "IVE-Mirror", id = 139326796173276, club = { 0.332, 3, -10.5, 5, 4.5 } },
-	{ title = "A2O LITE-NEON", id = 97511700575810, club = { 0.332, 3, -3, 2, 0 } },
+	{ title = "A2O LITE-NEON", id = 74988982712396 }, -- new upload (user 2026-11-06, x1 file 201.2 s, song 3:41); was 97511700575810
 	{ title = "SOYEON-퇴사할게여", id = 96358497474432, club = { 0.334, 3, -3, 2, 0 } },
 	{ title = "ILLIT-체포하겠어", id = 139044453511745, club = { 0.335, 3, -3, 2, 0 } },
 	{ title = "RESCENE-LOVE-ATTACK", id = 71873496902418, club = { 0.334, 3, -3, 2, 0 } },
@@ -49,14 +52,11 @@ local TRACKS = {
 	{ title = "IVE-Looks Can Kill", id = 135553051649506, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "IOI-갑자기", id = 73546697163709, club = { 0.333, 2.4, -9.5, 6, 0 } },
 	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 107782871991364, club = { 0.333, 3, -3, 2, 0 } },
-	{ title = "NCT WISH-I SPY", id = 90694654380166, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "IU-이 별로부터", id = 96396723842714, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "CORTIS-REDRED", id = 125703446596781, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "BIG Naughty-노스탈지아", id = 116539470869444, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "BIGBANG-BiiiG", id = 113809029583519, club = { 0.334, 3, -3, 2, 0 } },
 	{ title = "BOYNEXTDOOR-ANIMAL", id = 130804487358433, club = { 0.29, 3, -3, 2, 0 } },
-	-- lab only (user 2026-11-03)
-	{ title = "헤이즈 테스트", id = 91382298830000 },
 	-- joined songs (user 2026-11-03): one song uploaded as clips cut by
 	-- tools/audio/split_for_crossfade.ps1, played as one by JoinedSongPlayer
 	{ title = "녹음본 (8구간 이어 붙임)", joined = { parts = { 81568082292649, 130739295576800, 136055998058951, 101406045735531, 115474783735573, 101362036297281, 107766734212525, 139626977220244 }, segLen = 30, tail = 4, total = 225.05, lead = 0.09 } },
@@ -70,6 +70,49 @@ local TRACKS = {
 	{ title = "녹음 구간 6 (150~180초)", id = 101362036297281, seg = 6 },
 	{ title = "녹음 구간 7 (180~210초)", id = 107766734212525, seg = 7 },
 	{ title = "녹음 구간 8 (210~225초)", id = 139626977220244, seg = 8 },
+	-- user 2026-11-05: 30 uploads (3× files); tempo = x1 length ÷ song length,
+	-- saved per track in the DataStore
+	{ title = "ALLDAY-PROJECT-올데이-프로젝트-CRASH", id = 104827635407586 },
+	{ title = "RESCENE-리센느-Pretty-Girl", id = 89634330677538 },
+	{ title = "KiiiKiii-키키-Pop-Off-Pop-Off", id = 129996145931101 },
+	{ title = "CAR-THE-GARDEN-카더가든-Stay", id = 105952476684202 },
+	{ title = "이하이-손을-잡아줘요", id = 103445673482116 },
+	{ title = "Even-if-it-s-slightly-off", id = 133127589723955 },
+	{ title = "Lee-Mujin-이무진-Come-Rest-With-Me-그대-잠시-내게", id = 129938231085858 }, -- the old "B" upload (user 2026-11-05)
+	{ title = "kennytheking-케니더킹-morae", id = 84098562212174 },
+	{ title = "When-We-re-Together", id = 137002175061093 },
+	{ title = "송유진-I-Miss-You-지금-헤어지는-중입니다-OST-Part-5", id = 130599662472578 },
+	{ title = "20-Years-of-Age-스무살-Your-Season-너라는-계절", id = 75344952904705 },
+	{ title = "거리-어반자카파-URBAN-ZAKAPA", id = 133185418054871 },
+	{ title = "이민혁-보라미유-사랑일지도-몰라 (지금 헤어지는 중입니다 OST Part 7)", id = 72768669123530 },
+	{ title = "정승환-푸르른-계절도-내겐-의미-없어요 (지금 헤어지는 중입니다 OST Part 4)", id = 86350230390947 },
+	{ title = "백호-나는 너라서", id = 136466157907135 },
+	{ title = "Davichi-다비치-The-Only-Reason-오로지-그대", id = 78526138384885 },
+	{ title = "Avril-Ask-You-Out", id = 103787057077249 },
+	{ title = "Just-Another-Love-Song", id = 80301177020545 },
+	{ title = "EVAN-에반-Ride-or-Die", id = 133999600898465 },
+	{ title = "YOHAN-요한-Song-for-you", id = 103541991193404 },
+	{ title = "nia-becoming-a-star", id = 86981648186781 },
+	{ title = "&TEAM-Run Wild", id = 70916137137443 },
+	{ title = "아이엠발라더-그사람", id = 126452182135370 },
+	{ title = "Isla Hart-All On Me", id = 108408461588260 },
+	{ title = "Jace Monroe-Runaway Light", id = 76499736085724 },
+	{ title = "Jace Monroe-Small Town Ghost", id = 120750538041422 },
+	{ title = "Kai-Secrtet Us", id = 128723787907471 },
+	{ title = "Leo Hart-Can't Slow Down", id = 70590746014828 },
+	{ title = "Luna-Run the night", id = 126980667502605 },
+	{ title = "Noah Blaze-Light it Up", id = 125858610081422 },
+	{ title = "잠자기전", id = 83921467202322 }, -- user 2026-11-06
+	-- (user 2026-11-06) new tracks go at the bottom, in the order given
+	{ title = "AND2BLE-French Kissing", id = 120866427099057 }, -- x1 file 177.4 s, song 3:15
+	{ title = "RESCENE-With", id = 120039092597099 }, -- x1 file 171.7 s, song 3:09
+	{ title = "K/DA - FIRESTARTER (Feat. Sophie Powers, MIYEON, SOYEON)", id = 102216920231649 },
+	{ title = "K/DA - NEVER GOING BACK (Feat. SOYEON, MIYEON)", id = 113680653484321 }, -- song 3:16
+	{ title = "LISA - Tarantino", id = 102033386205095 }, -- x1 file 151.8 s, song 2:47
+	{ title = "K/DA - GIRLS (Feat. Sorana, Royal & the Serpent)", id = 127811970673239 }, -- file 112.3 s, song 2:16
+	{ title = "izna - ROCK, PAPER, SCISSORS", id = 132951659748689 }, -- file 105.5 s, song 2:21
+	{ title = "LISA - Cobra", id = 95502375387883 }, -- file 131.6 s, song 2:25
+	{ title = "ALLDAY PROJECT - NO 한도", id = 81251273866025 }, -- file 131.7 s, song 2:25
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
@@ -93,6 +136,9 @@ local PARAMS = {
 	-- (user 2026-11-01) Volume stops at 10 even from code; a SoundGroup (an
 	-- AudioFader on the new engine) multiplies it: up to 10 × 10 = 100
 	{ key = "boost", name = "볼륨 부스트", sub = "Volume에 곱해요 (SoundGroup) · 합계 최대 100", min = 0, max = 10, log = false, default = 1, prefix = "x" },
+	-- (user 2026-11-05) 오후's lab.boost2 (D-892): a second SoundGroup above
+	-- the first, so heard = volume × boost × boost2 (up to 1000)
+	{ key = "boost2", name = "볼륨 부스트 2", sub = "부스트에 한 번 더 곱해요 (위 SoundGroup) · 오후 lab.boost2", min = 0, max = 10, log = false, default = 1, prefix = "x" },
 	{ key = "octave", name = "PitchShift Octave", sub = "음높이만 (템포 그대로)", min = 0.05, max = 20, log = true, default = 1, prefix = "x" },
 	{ key = "low", name = "EQ Low", sub = "저음 (~400 Hz)", min = -40, max = 10, default = 0, fixedStep = 0.5, unit = " dB",
 		header = "🎚 EQ (EqualizerSoundEffect) · 한 번에 0.5 dB" },
@@ -109,7 +155,7 @@ local PARAMS = {
 	{ key = "gate", name = "노이즈 게이트", sub = "이보다 작은 소리는 묵음 · −80 = 끔", min = -80, max = -10, default = -80, fixedStep = 1, unit = " dB" },
 }
 local STEPS = { 0.005, 0.01, 0.05, 0.1, 0.5 } -- (0.005: user 2026-11-03)
-local values = { speed = 1, tempo = 1, volume = 1, boost = 1, octave = 1, low = 0, mid = 0, high = 0, humHz = 20, hissHz = 20000, gate = -80 }
+local values = { speed = 1, tempo = 1, volume = 1, boost = 1, boost2 = 1, octave = 1, low = 0, mid = 0, high = 0, humHz = 20, hissHz = 20000, gate = -80 }
 -- "sound" = Sound with SoundEffects (what 오후 uses); "audio" = the new API:
 -- AudioPlayer → pitch shifters → EQ → filters → gate → device output
 local engine = "sound"
@@ -130,9 +176,13 @@ local looped = true
 -- `gain` is the crossfade level (0..1) on top of the track's volume.
 --------------------------------------------------------------------------
 local function makeDeck(name: string, groupName: string): any
+	-- boost2 = a second group above the boost group (as in 오후)
+	local group2 = Instance.new("SoundGroup")
+	group2.Name = groupName .. "2"
+	group2.Parent = SoundService
 	local group = Instance.new("SoundGroup")
 	group.Name = groupName
-	group.Parent = SoundService
+	group.Parent = group2
 	local s = Instance.new("Sound")
 	s.Name = name
 	s.Looped = looped
@@ -153,7 +203,7 @@ local function makeDeck(name: string, groupName: string): any
 	e.LowGain, e.MidGain, e.HighGain = 0, 0, 0
 	e.Enabled = false
 	e.Parent = s
-	return { snd = s, group = group, shifters = fxs, eq = e, gain = 1 }
+	return { snd = s, group = group, group2 = group2, shifters = fxs, eq = e, gain = 1 }
 end
 local deck = makeDeck("LabTrack", "LabBoost")
 local otherDeck = makeDeck("LabTrackNext", "LabBoostNext")
@@ -183,11 +233,12 @@ local hissFilter = mkAudio("AudioFilter", "HissCut")
 hissFilter.FilterType = Enum.AudioFilterType.Lowpass24dB
 local gate = mkAudio("AudioGate", "Gate")
 local boostFader = mkAudio("AudioFader", "Boost")
+local boostFader2 = mkAudio("AudioFader", "Boost2")
 local out = mkAudio("AudioDeviceOutput", "Out")
 do
 	local nodes = { ap }
 	for _, s in ipairs(apShifters) do table.insert(nodes, s) end
-	for _, n in ipairs({ apEq, humFilter, hissFilter, gate, boostFader, out }) do table.insert(nodes, n) end
+	for _, n in ipairs({ apEq, humFilter, hissFilter, gate, boostFader, boostFader2, out }) do table.insert(nodes, n) end
 	for i = 1, #nodes - 1 do
 		local w = Instance.new("Wire")
 		w.SourceInstance = nodes[i]
@@ -203,6 +254,11 @@ chain.Parent = SoundService
 local JoinedSongPlayer = require(game:GetService("ReplicatedStorage"):WaitForChild("JoinedSongPlayer"))
 local joined = JoinedSongPlayer.new(SoundService)
 local joinedActive = false
+-- boost2 for a joined song: its two clip groups go under one more group
+local joinedBoost2 = Instance.new("SoundGroup")
+joinedBoost2.Name = "LabJoinedBoost2"
+joinedBoost2.Parent = SoundService
+for _, d in ipairs(joined.decks) do d.group.Parent = joinedBoost2 end
 
 -- one face for both engines: the transport code below talks to `sound` as
 -- if it were a Sound; on the new engine Pause / Resume are Stop / Play
@@ -297,6 +353,7 @@ local function applyDeck(d: any, v: any)
 	d.snd.PlaybackSpeed = playSpeed
 	d.snd.Volume = v.volume * d.gain
 	d.group.Volume = v.boost
+	d.group2.Volume = v.boost2 or 1
 	local split = if math.abs(octave - 1) < 1e-4 then {} else octaveParts(octave)
 	-- the raw test is for PitchShiftSoundEffect only (AudioPitchShifter cuts at 2)
 	local parts = if rawOctave and #split > 0 then { octave } else split
@@ -316,6 +373,8 @@ local function apply()
 	ap.PlaybackSpeed = playSpeed
 	ap.Volume = values.volume
 	boostFader.Volume = values.boost
+	boostFader2.Volume = values.boost2
+	joinedBoost2.Volume = values.boost2
 	local split = if math.abs(octave - 1) < 1e-4 then {} else octaveParts(octave)
 	for i, fx in ipairs(apShifters) do
 		fx.Pitch = split[i] or 1
@@ -563,8 +622,11 @@ local function refreshAll()
 	-- 오후 plays them the way this lab does, see HANDOFF_PROMPT.md); the
 	-- denoise only when it is heard (new engine)
 	local parts = {}
-	for _, k in ipairs({ "speed", "tempo", "volume", "boost", "octave", "low", "mid", "high" }) do
-		table.insert(parts, k .. " = " .. fmt(values[k]))
+	for _, k in ipairs({ "speed", "tempo", "volume", "boost", "boost2", "octave", "low", "mid", "high" }) do
+		-- boost2 only when it is not x1 (오후 leaves it out then)
+		if k ~= "boost2" or math.abs(values.boost2 - 1) > 1e-6 then
+			table.insert(parts, k .. " = " .. fmt(values[k]))
+		end
 	end
 	table.insert(parts, 'engine = "' .. engine .. '"')
 	if engine == "audio" then
@@ -577,7 +639,7 @@ local function refreshAll()
 	local partText = {}
 	for i, v in ipairs(parts) do partText[i] = fmt(v) end
 	infoLabel.Text = string.format("들리는 템포 x%s (실제 PlaybackSpeed) · 들리는 음높이 x%s · 볼륨 합계 %s\n%s 효과: %s",
-		fmt(playSpeed), fmt(playSpeed * octave), fmt(values.volume * values.boost),
+		fmt(playSpeed), fmt(playSpeed * octave), fmt(values.volume * values.boost * values.boost2),
 		if engine == "sound" then "PitchShift" else "AudioPitchShifter",
 		if #parts == 0 then "꺼짐" else table.concat(partText, " × ") .. string.format(" (%d개)", #parts))
 end
@@ -776,7 +838,7 @@ local function refreshTrack()
 		if savedFor(key) then
 			table.insert(tags, "💾 저장됨")
 		elseif not t.joined then
-			table.insert(tags, if t.club then "클럽 값 있음" elseif t.seg then "녹음 구간" elseif t.id == 91382298830000 then "랩 전용" else "클럽: 기본")
+			table.insert(tags, if t.club then "클럽 값 있음" elseif t.seg then "녹음 구간" else "클럽: 기본")
 		end
 		listTags[i].Text = table.concat(tags, " · ")
 		listTags[i].TextColor3 = if savedFor(key) then Color3.fromRGB(120, 230, 150) else DIM
@@ -1139,7 +1201,7 @@ local function openPicker()
 			}, picker)
 			corner(b, 5)
 			label(b, titleOf(id), UDim2.new(1, -150, 1, 0), UDim2.fromOffset(8, 0), { TextSize = 13 })
-			label(b, string.format("x%s · 템포 x%s · vol %s", fmt(entry.speed or 1), fmt(entry.tempo or 1), fmt((entry.volume or 1) * (entry.boost or 1))),
+			label(b, string.format("x%s · 템포 x%s · vol %s", fmt(entry.speed or 1), fmt(entry.tempo or 1), fmt((entry.volume or 1) * (entry.boost or 1) * (entry.boost2 or 1))),
 				UDim2.fromOffset(140, 28), UDim2.new(1, -144, 0, 0), { TextSize = 11, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right })
 			b.MouseButton1Click:Connect(function()
 				for _, p in ipairs(PARAMS) do
