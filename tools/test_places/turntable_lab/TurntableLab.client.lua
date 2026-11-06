@@ -49,6 +49,7 @@ local TRACKS = {
 	{ title = "ILLIT-체포하겠어", id = 139044453511745, club = { 0.335, 3, -3, 2, 0 } },
 	{ title = "체포하겠어 새 음원", id = 102827134450527 }, -- file 173.3 s, song 3:01
 	{ title = "RESCENE-LOVE-ATTACK", id = 71873496902418, club = { 0.334, 3, -3, 2, 0 } },
+	{ title = "LOVE-ATTACK 새 음원", id = 139330220515727 }, -- file 173.0 s, song 3:01
 	{ title = "MY:RAKL-오색 낙원", id = 108027306922001, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "Darla Jean-Dam Da Dee", id = 78077595750886, club = { 0.335, 3, -3, 2, 0 } },
 	{ title = "머무르-꿈꾸던 어른이 되었나요", id = 120160897793669, club = { 0.334, 3, -3, 2, 0 } },
