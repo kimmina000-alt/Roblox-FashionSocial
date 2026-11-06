@@ -2640,3 +2640,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 컷 목록은 새 도구 tools/choreo/stagecam/shots_to_lua.py로 만듦: shots.py 결과에서 각 컷 샘플 3장의 가장 큰 멤버 포즈로 크기(발목 보임 = full/wide/xwide 키 비율, 무릎 = knee, 엉덩이 = waist, 나머지 bust), 컷 안에서 크기가 바뀌면 그 사이에서 나눔(놓친 부드러운 컷), 줌 인/아웃 1.4배 이상 = 	o, 큰 팬 = 작은 yaw, wide/xwide는 크레인 pitch 5/8, 0.35초 미만 번쩍임은 뺌. 곡 초 단위 cutList: CRASH 113, Love 119 93, Pop Off 89, Pretty Girl 109컷.
 - 사람이 0.5초 띠로 하나하나 읽던 앞의 곡들보다 거칠 수 있음(크기 판정은 자동). Play 비교와 모바일 2P 테스트 전.- PC Play 확인(Studio 다시 켠 뒤, 클럽 무대, 22시): 4곡 모두 🎥이 켜지고 Scriptable 카메라가 컷 목록대로 움직임 — CRASH 4.6초 bust / 19.6초 full, Love 119 50.8초 xwide 크레인, Pop Off 30초 waist, Pretty Girl 12초대 bust. 게임 오류 없음(93308695817877 승인 오류는 상관없음). Studio 원본 = 브랜치 파일(64,080 바이트). 모바일 2P 테스트 전.
 - 모바일 2P 테스트 통과(2026-11-06, Player1 / Player2, 폰 화면 801×413 터치, 클럽 무대, 22시): Player1이 CRASH를 틀고 🎥(ClubStageCam 버튼, SelectedObject + Return)을 켜면 Player1만 Scriptable(FOV 30), 켜지 않은 Player2는 Custom 그대로. Player2도 켜면 자기 아바타를 따라감(44초 bust). 곡을 Pop Off로 바꾸면 Player2 카메라가 새 곡 컷으로 이어짐(FOV 31.9). Player1이 끄면 Custom / FOV 70으로 돌아옴. 스크립트 오류 없음(93308695817877 승인 오류, 테스트 플레이어 아바타 rbxassethash 권한 오류는 상관없음).
+
+## D-951 야광봉: 색 다섯 개 다음에 깜빡이는 레인보우 (2026-11-07)
+- 사용자: "야광봉 깜빡깜빡 레인보우 기능 지금 누를 때마다 색 바뀌는데 색 마지막 순서에 레인보우 넣어. 거기에서 한 번 더 누르면 다시 첫 번째 색 되는 거."
+- SparkleService.giveGlowstick: 누를 때마다 초록 → 분홍 → 파랑 → 노랑 → 주황 → 레인보우 → 다시 초록. 레인보우 = 1.5초에 색상환 한 바퀴, 0.18초 켜짐 / 0.06초 꺼짐(꺼질 때 Neon → SmoothPlastic, 빛 꺼짐), 0.06초마다 한 번(서버가 모두에게 보내는 양). 다음 탭에서 멈춤.
+- 확인(PC Play, StudioGlowstick): 탭 1~4 = 분홍 / 파랑 / 노랑 / 주황, 5 = 레인보우(0.25초 사이 (168,255,0) → (0,255,102)), 6 = 초록(0,255,140), 7 = 분홍.

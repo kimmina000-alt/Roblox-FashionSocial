@@ -878,11 +878,43 @@ local function giveGlowstick(player: Player)
 	light.Range = 9
 	light.Brightness = 1.5
 	light.Parent = glowing[1] or handle
+	-- (D-951, user 2026-11-07: "야광봉 깜빡깜빡 레인보우 기능 지금 누를 때마다 색
+	-- 바뀌는데 색 마지막 순서에 레인보우 넣어. 거기에서 한 번 더 누르면 다시 첫 번째
+	-- 색 되는 거.") a tap goes to the next colour; after the last one comes the
+	-- rainbow (the colour runs round the hues and blinks), one more tap and it
+	-- is back to the first colour
 	local index = 1
+	local rainbowRun = 0
+	local function paint(color: Color3, glow: boolean)
+		for _, p in ipairs(glowing) do
+			p.Color = color
+			p.Material = if glow then Enum.Material.Neon else Enum.Material.SmoothPlastic
+		end
+		light.Color = color
+		light.Enabled = glow
+	end
+	local function rainbow()
+		rainbowRun += 1
+		local run = rainbowRun
+		task.spawn(function()
+			local t0 = os.clock()
+			while rainbowRun == run and tool.Parent do
+				local t = os.clock() - t0
+				-- round the hues once a second and a half, on 0.18 s / off 0.06 s
+				-- (a step every 0.06 s: the server sends each change to everyone)
+				paint(Color3.fromHSV((t / 1.5) % 1, 1, 1), (t % 0.24) < 0.18)
+				task.wait(0.06)
+			end
+		end)
+	end
 	tool.Activated:Connect(function()
-		index = index % #GLOW_COLORS + 1
-		for _, p in ipairs(glowing) do p.Color = GLOW_COLORS[index] end
-		light.Color = GLOW_COLORS[index]
+		index = index % (#GLOW_COLORS + 1) + 1
+		if index > #GLOW_COLORS then
+			rainbow()
+		else
+			rainbowRun += 1 -- (stops the rainbow)
+			paint(GLOW_COLORS[index], true)
+		end
 	end)
 	tool.Parent = backpack
 end
