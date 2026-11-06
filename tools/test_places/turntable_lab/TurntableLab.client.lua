@@ -56,7 +56,9 @@ local TRACKS = {
 	{ title = "머무르-꿈꾸던 어른이 되었나요", id = 120160897793669, club = { 0.334, 3, -3, 2, 0 } },
 	{ title = "IVE-Looks Can Kill", id = 135553051649506, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "IOI-갑자기", id = 73546697163709, club = { 0.333, 2.4, -9.5, 6, 0 } },
+	{ title = "갑자기 새 음원", id = 75344866720031 }, -- file 185.8 s, song 3:15
 	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 107782871991364, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "I SPY 새 음원", id = 98124521559769 }, -- file 176.3 s, song 3:05 (where NCT WISH-I SPY was)
 	{ title = "IU-이 별로부터", id = 96396723842714, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "CORTIS-REDRED", id = 125703446596781, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "BIG Naughty-노스탈지아", id = 116539470869444, club = { 0.333, 3, -3, 2, 0 } },
