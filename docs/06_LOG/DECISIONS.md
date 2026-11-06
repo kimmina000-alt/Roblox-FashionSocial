@@ -2632,3 +2632,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - EdmController는 그대로(사슬 맨 위까지 올라가 EdmSongMute 아래에 검), 주석만. 이어 붙인 곡의 ClipA/ClipBBoost도 ClubMusicBoost 아래라 새 층을 지나감. `Lab` 타입에 `boost4: number?`. 곡 값은 아직 없음(따로 받음).
 - PC Play 확인: 사슬 순서, Get A Guitar 10 × 5 × 5 × 1, boost3/4 없는 곡(ATEEZ-BAD, Next Chapter)은 3·4층 1(예전과 같음), DJ 볼륨 5가 EdmSongMute에, EDM 1번 재생, 이어 붙인 곡(IU-이 별로부터) 두 클립이 같은 사슬. PlaybackLoudness는 이 Play에서 곡마다 0 근처(예전에도 있던 Studio 현상, EDM은 226).
 - 모바일 2P 테스트 통과(2026-11-06, Player1 DJ / Player2, 폰 화면 801×413, 클럽 안): Get A Guitar는 두 폰 모두 10 × 5 × 5 × 1, ATEEZ-BAD는 10 × 10 × 1 × 1(예전과 같음), DJ 볼륨 x2 → 두 폰의 EdmSongMute 2, EDM 2번 켜면 두 폰에서 재생 / 끄면 멈춤, 이어 붙인 곡(47번) 두 폰에서 두 클립이 같은 사슬로 재생. 오류 없음(93308695817877 승인 오류는 상관없음).
+
+## D-944 무대 카메라 4곡 한 번에: CRASH / Love 119 / Pop Off / Pretty Girl (2026-11-06)
+- 사용자가 무대 영상 4개를 보냄(내려받기 허락): ALLDAY PROJECT-CRASH = M COUNTDOWN 2026-10-01 (XCZcd7BAup0), RIIZE-Love 119 = 인기가요 2024-01-14 (w11AQwiT07g), 키키-Pop Off = 뮤직뱅크 2026-08-14 (bpYdX73przc), RESCENE-Pretty Girl = 음악중심 2026-07-11 (j4LlqGxOr2E).
+- Studio MCP 클라이언트에 닿지 않아(Play 중 "Target is not reachable") 게임 소리를 녹음하지 못함. 대신 원곡 mp3의 소리 크기(tools/choreo/stagecam/mp3_loudness.py)를 썼고, 먼저 mp3 ↔ 연습 영상 차이가 안무 세션의 값과 같은지 확인함: CRASH +2.50 / +2.50, Pop Off +0.30 / +0.30, Pretty Girl +0.10 / +0.12 → mp3 시계 = 게임 곡 시계.
+- 시작 지점(영상 = 곡 + 오프셋): CRASH +35.8 (모든 창 같음, 곡 앞 인트로 약 34초), Pretty Girl +7.6, Pop Off +7.0 (소리로는 +7.0 / +5.2가 번갈아 나옴 → tools/choreo/stagecam/pose_pick.py로 곡 30초의 머리 위 손 동작이 +7.0에서 맞음), Love 119: 영상 = mp3 − 0.85, 이 음원은 원곡의 1.00496배(안무 세션: orig = −0.375 + 1.00496 × 곡) → 곡 = (영상 + 1.225) ÷ 1.00496 (90초 두 명 마주 보는 동작으로 확인).
+- 컷 목록은 새 도구 tools/choreo/stagecam/shots_to_lua.py로 만듦: shots.py 결과에서 각 컷 샘플 3장의 가장 큰 멤버 포즈로 크기(발목 보임 = full/wide/xwide 키 비율, 무릎 = knee, 엉덩이 = waist, 나머지 bust), 컷 안에서 크기가 바뀌면 그 사이에서 나눔(놓친 부드러운 컷), 줌 인/아웃 1.4배 이상 = 	o, 큰 팬 = 작은 yaw, wide/xwide는 크레인 pitch 5/8, 0.35초 미만 번쩍임은 뺌. 곡 초 단위 cutList: CRASH 113, Love 119 93, Pop Off 89, Pretty Girl 109컷.
+- 사람이 0.5초 띠로 하나하나 읽던 앞의 곡들보다 거칠 수 있음(크기 판정은 자동). Play 비교와 모바일 2P 테스트 전.
