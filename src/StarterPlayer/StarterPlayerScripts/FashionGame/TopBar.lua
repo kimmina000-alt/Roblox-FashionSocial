@@ -37,6 +37,8 @@ local MENU: {[number]: number} = {}
 local ROUND = { [1] = true, [2] = true, [3] = true, [4] = true } -- styled like ♥ here
 local LINE_GAP = 8 -- between two rows
 local rowsBottom = 0 -- bottom edge of the last row (TopBar.bottom)
+local firstRowLeft = math.huge -- left edge (px) of the first row's leftmost button (TopBar.firstRow)
+local firstRowY = 28 -- the first row's centre line
 -- fired when TopBar.bottom() moves (a second row comes or goes): windows that
 -- stay on screen lay themselves out again (D-729)
 local bottomChanged = Instance.new("BindableEvent")
@@ -125,6 +127,9 @@ layout = function()
 	-- out under TopBar.bottom() then, in the middle of the screen
 	if screenW < 300 then leftLimit = -math.huge end
 	local oldBottom = rowsBottom
+	local oldLeft = firstRowLeft
+	firstRowLeft = screenW
+	firstRowY = centerY
 	local x = rightX
 	local y = centerY
 	local inRow = 0
@@ -148,10 +153,11 @@ layout = function()
 		b.Position = UDim2.new(1, x, 0, y)
 		if entry.order == 20 then moreX = x - MENU_W / 2 end
 		rowsBottom = math.max(rowsBottom, y + SMALL / 2)
+		if y == centerY then firstRowLeft = math.min(firstRowLeft, screenW + x - w) end
 		x -= w + gapLeft
 		inRow += 1
 	end
-	if rowsBottom ~= oldBottom then bottomChanged:Fire() end
+	if rowsBottom ~= oldBottom or firstRowLeft ~= oldLeft then bottomChanged:Fire() end
 	-- menu below ⋯
 	local items = sorted(MENU)
 	local top = centerY + SMALL / 2 + 6
@@ -217,6 +223,16 @@ function TopBar.add(button: GuiObject, order: number)
 		end)
 	end
 	layout()
+end
+
+-- (D-926) the free stretch of the first row, between Roblox's own buttons on
+-- the left and ours on the right: left x, right x, centre y (px, IgnoreGuiInset
+-- space). The club's song banner sits there when it fits.
+function TopBar.firstRow(): (number, number, number)
+	local inset = GuiService.TopbarInset
+	-- (no inset (some phones): Roblox's buttons still take about the first 160 px)
+	local left = if inset.Height > 0 and inset.Min.X > 0 then inset.Min.X + 8 else 160
+	return left, firstRowLeft - 8, firstRowY
 end
 
 -- The button added with this order (the first-time tips point at them, D-713).
