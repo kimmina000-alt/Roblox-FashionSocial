@@ -44,6 +44,7 @@ local TRACKS = {
 	{ title = "aespa-Lemonade", id = 132067415333401, club = { 0.333, 3, -11, 0, -2.5 } },
 	{ title = "IVE-Mirror", id = 139326796173276, club = { 0.332, 3, -10.5, 5, 4.5 } },
 	{ title = "A2O LITE-NEON", id = 74988982712396 }, -- new upload (user 2026-11-06, x1 file 201.2 s, song 3:41); was 97511700575810
+	{ title = "NEON 새 음원", id = 140713297574648 }, -- file 210.8 s, song 3:41
 	{ title = "SOYEON-퇴사할게여", id = 96358497474432, club = { 0.334, 3, -3, 2, 0 } },
 	{ title = "ILLIT-체포하겠어", id = 139044453511745, club = { 0.335, 3, -3, 2, 0 } },
 	{ title = "RESCENE-LOVE-ATTACK", id = 71873496902418, club = { 0.334, 3, -3, 2, 0 } },
