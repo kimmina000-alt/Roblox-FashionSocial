@@ -165,7 +165,10 @@ local QUIET = { bagel = true, saltbread = true } -- their bite at half volume
 -- (D-956, user 2026-11-07 (2): "국밥 먹는 소리 10배로 키워") 10× the volumes from
 -- before D-952: pork 14, the others 7. A Sound stops at volume 10, so above that
 -- the rest goes on a SoundGroup (Sound 10 × group 1.4).
-local LOUD = { pork = 14, sundae = 7, beef = 7 }
+-- (D-957, user 2026-11-07 (3): "국밥 소리 다 14로 통일 / 수육 먹는 소리도 최대로
+-- 키워") all three 국밥 14; 수육 at the most the engine plays: Sound 10 × its
+-- SoundGroup 10
+local LOUD = { pork = 14, sundae = 14, beef = 14, suyuk = 100 }
 local function setVolume(sound: Sound, volume: number)
 	if volume <= 10 then
 		sound.Volume = volume
