@@ -23,7 +23,7 @@ local EdmService = {}
 type State = { on: boolean, track: number, speed: number, volume: number, pos: number, at: number }
 
 local function fresh(): State
-	return { on = false, track = 1, speed = 1, volume = 1, pos = 0, at = workspace:GetServerTimeNow() }
+	return { on = false, track = 1, speed = 1, volume = EdmConfig.EdmVolumeDefault or 1, pos = 0, at = workspace:GetServerTimeNow() } -- (D-933: 0.5)
 end
 local state: State = fresh()
 

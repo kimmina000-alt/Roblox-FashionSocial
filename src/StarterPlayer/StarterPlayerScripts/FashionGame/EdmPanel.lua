@@ -87,7 +87,7 @@ function EdmPanel.new(parent: Instance): Panel
 	create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, resetButton)
 	resetButton.Activated:Connect(function()
 		call("Edm", { k = "speed", v = 1 })
-		call("Edm", { k = "volume", v = 1 })
+		call("Edm", { k = "volume", v = EdmConfig.EdmVolumeDefault or 1 }) -- (D-933: 0.5)
 		call("MusicSpeed", 1)
 		call("MusicVolume", 1)
 	end)
@@ -171,7 +171,7 @@ function EdmPanel.new(parent: Instance): Panel
 			button.BackgroundColor3 = if on and (st.track or 1) == i then ON else OFF
 		end
 		showSlider("edm", if typeof(st.speed) == "number" then st.speed else 1)
-		showSlider("edmVolume", if typeof(st.volume) == "number" then st.volume else 1)
+		showSlider("edmVolume", if typeof(st.volume) == "number" then st.volume else EdmConfig.EdmVolumeDefault or 1)
 		showSlider("song", num("ClubMusicSpeed", 1))
 		showSlider("volume", num("ClubMusicVolume", 1))
 	end
