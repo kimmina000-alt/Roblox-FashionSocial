@@ -6,7 +6,7 @@
 local DataStoreService = game:GetService("DataStoreService")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
-local KEYS = { "speed", "tempo", "volume", "boost", "boost2", "octave", "low", "mid", "high", "humHz", "hissHz", "gate" }
+local KEYS = { "speed", "tempo", "volume", "boost", "boost2", "boost3", "boost4", "octave", "low", "mid", "high", "humHz", "hissHz", "gate" }
 local store = DataStoreService:GetDataStore("TurntableLabSettings")
 
 local remote = Instance.new("RemoteFunction")

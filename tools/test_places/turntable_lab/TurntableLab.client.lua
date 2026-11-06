@@ -140,6 +140,10 @@ local PARAMS = {
 	-- (user 2026-11-05) 오후's lab.boost2 (D-892): a second SoundGroup above
 	-- the first, so heard = volume × boost × boost2 (up to 1000)
 	{ key = "boost2", name = "볼륨 부스트 2", sub = "부스트에 한 번 더 곱해요 (위 SoundGroup) · 오후 lab.boost2", min = 0, max = 10, log = false, default = 1, prefix = "x" },
+	-- (user 2026-11-06) two more groups stacked on top the same way:
+	-- heard = volume × boost × boost2 × boost3 × boost4
+	{ key = "boost3", name = "볼륨 부스트 3", sub = "부스트 2에 한 번 더 곱해요 (그 위 SoundGroup)", min = 0, max = 10, log = false, default = 1, prefix = "x" },
+	{ key = "boost4", name = "볼륨 부스트 4", sub = "부스트 3에 한 번 더 곱해요 (맨 위 SoundGroup)", min = 0, max = 10, log = false, default = 1, prefix = "x" },
 	{ key = "octave", name = "PitchShift Octave", sub = "음높이만 (템포 그대로)", min = 0.05, max = 20, log = true, default = 1, prefix = "x" },
 	{ key = "low", name = "EQ Low", sub = "저음 (~400 Hz)", min = -40, max = 10, default = 0, fixedStep = 0.5, unit = " dB",
 		header = "🎚 EQ (EqualizerSoundEffect) · 한 번에 0.5 dB" },
@@ -156,7 +160,7 @@ local PARAMS = {
 	{ key = "gate", name = "노이즈 게이트", sub = "이보다 작은 소리는 묵음 · −80 = 끔", min = -80, max = -10, default = -80, fixedStep = 1, unit = " dB" },
 }
 local STEPS = { 0.005, 0.01, 0.05, 0.1, 0.5 } -- (0.005: user 2026-11-03)
-local values = { speed = 1, tempo = 1, volume = 1, boost = 1, boost2 = 1, octave = 1, low = 0, mid = 0, high = 0, humHz = 20, hissHz = 20000, gate = -80 }
+local values = { speed = 1, tempo = 1, volume = 1, boost = 1, boost2 = 1, boost3 = 1, boost4 = 1, octave = 1, low = 0, mid = 0, high = 0, humHz = 20, hissHz = 20000, gate = -80 }
 -- "sound" = Sound with SoundEffects (what 오후 uses); "audio" = the new API:
 -- AudioPlayer → pitch shifters → EQ → filters → gate → device output
 local engine = "sound"
@@ -177,10 +181,17 @@ local looped = true
 -- `gain` is the crossfade level (0..1) on top of the track's volume.
 --------------------------------------------------------------------------
 local function makeDeck(name: string, groupName: string): any
-	-- boost2 = a second group above the boost group (as in 오후)
+	-- boost2 = a second group above the boost group (as in 오후);
+	-- boost3 / boost4 = two more above that (user 2026-11-06)
+	local group4 = Instance.new("SoundGroup")
+	group4.Name = groupName .. "4"
+	group4.Parent = SoundService
+	local group3 = Instance.new("SoundGroup")
+	group3.Name = groupName .. "3"
+	group3.Parent = group4
 	local group2 = Instance.new("SoundGroup")
 	group2.Name = groupName .. "2"
-	group2.Parent = SoundService
+	group2.Parent = group3
 	local group = Instance.new("SoundGroup")
 	group.Name = groupName
 	group.Parent = group2
@@ -204,7 +215,7 @@ local function makeDeck(name: string, groupName: string): any
 	e.LowGain, e.MidGain, e.HighGain = 0, 0, 0
 	e.Enabled = false
 	e.Parent = s
-	return { snd = s, group = group, group2 = group2, shifters = fxs, eq = e, gain = 1 }
+	return { snd = s, group = group, group2 = group2, group3 = group3, group4 = group4, shifters = fxs, eq = e, gain = 1 }
 end
 local deck = makeDeck("LabTrack", "LabBoost")
 local otherDeck = makeDeck("LabTrackNext", "LabBoostNext")
@@ -235,11 +246,13 @@ hissFilter.FilterType = Enum.AudioFilterType.Lowpass24dB
 local gate = mkAudio("AudioGate", "Gate")
 local boostFader = mkAudio("AudioFader", "Boost")
 local boostFader2 = mkAudio("AudioFader", "Boost2")
+local boostFader3 = mkAudio("AudioFader", "Boost3")
+local boostFader4 = mkAudio("AudioFader", "Boost4")
 local out = mkAudio("AudioDeviceOutput", "Out")
 do
 	local nodes = { ap }
 	for _, s in ipairs(apShifters) do table.insert(nodes, s) end
-	for _, n in ipairs({ apEq, humFilter, hissFilter, gate, boostFader, boostFader2, out }) do table.insert(nodes, n) end
+	for _, n in ipairs({ apEq, humFilter, hissFilter, gate, boostFader, boostFader2, boostFader3, boostFader4, out }) do table.insert(nodes, n) end
 	for i = 1, #nodes - 1 do
 		local w = Instance.new("Wire")
 		w.SourceInstance = nodes[i]
@@ -256,9 +269,15 @@ local JoinedSongPlayer = require(game:GetService("ReplicatedStorage"):WaitForChi
 local joined = JoinedSongPlayer.new(SoundService)
 local joinedActive = false
 -- boost2 for a joined song: its two clip groups go under one more group
+local joinedBoost4 = Instance.new("SoundGroup")
+joinedBoost4.Name = "LabJoinedBoost4"
+joinedBoost4.Parent = SoundService
+local joinedBoost3 = Instance.new("SoundGroup")
+joinedBoost3.Name = "LabJoinedBoost3"
+joinedBoost3.Parent = joinedBoost4
 local joinedBoost2 = Instance.new("SoundGroup")
 joinedBoost2.Name = "LabJoinedBoost2"
-joinedBoost2.Parent = SoundService
+joinedBoost2.Parent = joinedBoost3
 for _, d in ipairs(joined.decks) do d.group.Parent = joinedBoost2 end
 
 -- one face for both engines: the transport code below talks to `sound` as
@@ -355,6 +374,8 @@ local function applyDeck(d: any, v: any)
 	d.snd.Volume = v.volume * d.gain
 	d.group.Volume = v.boost
 	d.group2.Volume = v.boost2 or 1
+	d.group3.Volume = v.boost3 or 1
+	d.group4.Volume = v.boost4 or 1
 	local split = if math.abs(octave - 1) < 1e-4 then {} else octaveParts(octave)
 	-- the raw test is for PitchShiftSoundEffect only (AudioPitchShifter cuts at 2)
 	local parts = if rawOctave and #split > 0 then { octave } else split
@@ -376,6 +397,10 @@ local function apply()
 	boostFader.Volume = values.boost
 	boostFader2.Volume = values.boost2
 	joinedBoost2.Volume = values.boost2
+	boostFader3.Volume = values.boost3
+	joinedBoost3.Volume = values.boost3
+	boostFader4.Volume = values.boost4
+	joinedBoost4.Volume = values.boost4
 	local split = if math.abs(octave - 1) < 1e-4 then {} else octaveParts(octave)
 	for i, fx in ipairs(apShifters) do
 		fx.Pitch = split[i] or 1
@@ -623,9 +648,9 @@ local function refreshAll()
 	-- 오후 plays them the way this lab does, see HANDOFF_PROMPT.md); the
 	-- denoise only when it is heard (new engine)
 	local parts = {}
-	for _, k in ipairs({ "speed", "tempo", "volume", "boost", "boost2", "octave", "low", "mid", "high" }) do
-		-- boost2 only when it is not x1 (오후 leaves it out then)
-		if k ~= "boost2" or math.abs(values.boost2 - 1) > 1e-6 then
+	for _, k in ipairs({ "speed", "tempo", "volume", "boost", "boost2", "boost3", "boost4", "octave", "low", "mid", "high" }) do
+		-- boost2..4 only when not x1 (오후 leaves them out then)
+		if (k ~= "boost2" and k ~= "boost3" and k ~= "boost4") or math.abs(values[k] - 1) > 1e-6 then
 			table.insert(parts, k .. " = " .. fmt(values[k]))
 		end
 	end
@@ -640,7 +665,7 @@ local function refreshAll()
 	local partText = {}
 	for i, v in ipairs(parts) do partText[i] = fmt(v) end
 	infoLabel.Text = string.format("들리는 템포 x%s (실제 PlaybackSpeed) · 들리는 음높이 x%s · 볼륨 합계 %s\n%s 효과: %s",
-		fmt(playSpeed), fmt(playSpeed * octave), fmt(values.volume * values.boost * values.boost2),
+		fmt(playSpeed), fmt(playSpeed * octave), fmt(values.volume * values.boost * values.boost2 * values.boost3 * values.boost4),
 		if engine == "sound" then "PitchShift" else "AudioPitchShifter",
 		if #parts == 0 then "꺼짐" else table.concat(partText, " × ") .. string.format(" (%d개)", #parts))
 end
@@ -1202,7 +1227,7 @@ local function openPicker()
 			}, picker)
 			corner(b, 5)
 			label(b, titleOf(id), UDim2.new(1, -150, 1, 0), UDim2.fromOffset(8, 0), { TextSize = 13 })
-			label(b, string.format("x%s · 템포 x%s · vol %s", fmt(entry.speed or 1), fmt(entry.tempo or 1), fmt((entry.volume or 1) * (entry.boost or 1) * (entry.boost2 or 1))),
+			label(b, string.format("x%s · 템포 x%s · vol %s", fmt(entry.speed or 1), fmt(entry.tempo or 1), fmt((entry.volume or 1) * (entry.boost or 1) * (entry.boost2 or 1) * (entry.boost3 or 1) * (entry.boost4 or 1))),
 				UDim2.fromOffset(140, 28), UDim2.new(1, -144, 0, 0), { TextSize = 11, TextColor3 = DIM, TextXAlignment = Enum.TextXAlignment.Right })
 			b.MouseButton1Click:Connect(function()
 				for _, p in ipairs(PARAMS) do
