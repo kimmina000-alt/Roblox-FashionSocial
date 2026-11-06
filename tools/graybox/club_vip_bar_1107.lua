@@ -2,6 +2,8 @@
 -- Club: the north VIP balcony shorter, buckets on the bar shelves (D-954,
 -- user 2026-11-07), run in Edit mode LAST in the layout chain (after
 -- club_locker_1103). World coordinates; running it again gives the same result.
+--   (2026-11-07 (3): dividers, 2 × tier 2 / 2 × tier 3 on the bottom row,
+--   bottles back on the second row, tier 3 at 1.5×, no VIP letters: see 2.)
 --   (2026-11-07 (2): the south balcony too, the wall edge lights cut, the
 --   buckets face the room, no bottles on the bucket rows.)
 --   1. "vip zone 원통형 전광판쪽에 있는 공간 삭제. 빨간선까지만 구현하고 오른쪽에
@@ -101,52 +103,83 @@ for _, side in ipairs(SIDES) do
 end
 
 ------------------------------------------------------------------
--- 2. buckets on the bar's two lowest shelf rows
+-- 2. the bar's back shelves: VIP bay, bucket row, dividers
 ------------------------------------------------------------------
+-- (user 2026-11-07 (3), photo with red lines: "빨간선 그려진 것처럼 선반 세로 칸도
+-- 만들어 줘 / 제일 아래 칸, 왼쪽에는 2단계 버켓만 두 개 오른쪽에는 3단계 버켓만 두
+-- 개 진열 / 아래에서 두 번째 칸은 음료수 병 진열. / 3단계 버켓 1.5배 키우기 /
+-- VIP버켓 위에 VIP 글자 삭제") Seen from the bar counter (+X looking -X) the left
+-- is +Z: bottom row left bay (z -172..-158) two tier-2 buckets, right bay
+-- (z -200..-186) two tier-3 buckets at 1.5× their table size (0.9 × 1.5; on the
+-- round tables, 4.4 across, they stay 0.9); the second row has the club bottles
+-- again (BarShelfService); the middle bay stays one tall bay with the VIP ice
+-- box, its VIP letters off. Vertical boards: at both ends from the bottom board
+-- up to the light rail, between the bays from the bottom board to the y -3.7
+-- board.
 local Z0, Z1 = -200, -158 -- the shelves' run
 local BAY = (Z1 - Z0) / 3 -- 14
 local MID0, MID1 = Z0 + BAY, Z0 + 2 * BAY -- -186 .. -172
-local LOW_TOP, MID_TOP = -15.4, -9.4 -- the tops of the y -15.7 and -9.7 shelves
-local ROW_H = 5.4 -- room above a shelf top to the next shelf
--- the y -9.7 shelf: two pieces, the middle bay open
+local LOW_TOP, MID_TOP = -15.4, -9.4 -- the tops of the y -15.7 and -9.7 boards
+local ROW_H = 5.4 -- room above a board's top to the next board
+local BOTTOM, UNDER_TOP, RAIL_TOP = -16.0, -4.0, 8.45 -- (the y -3.7 board's underside; BarShelfService's light rail at y 8.3)
+-- the y -9.7 board: two pieces, the middle bay open
 local midShelves = {}
 for _, d in ipairs(club:GetChildren()) do
 	if d:IsA("BasePart") and d.Name == "BarShelf" and math.abs(d.Position.Y - (-9.7)) < 0.2 then table.insert(midShelves, d) end
 end
 assert(#midShelves > 0, "no bar shelf at y -9.7")
-local proto = midShelves[1]
-local function shelfPiece(z0: number, z1: number)
-	local p = proto:Clone()
-	-- (the shelf runs along world Z: size the local axis that points that way)
-	local c = proto.CFrame
+local proto = midShelves[1]:Clone() -- (a copy: the originals are destroyed below)
+proto:ClearAllChildren()
+-- the local axis of a board that runs along world Z gets `len`
+local function alongZ(c: CFrame, s: Vector3, len: number): Vector3
 	local axes = { { v = c.XVector, i = 1 }, { v = c.YVector, i = 2 }, { v = c.ZVector, i = 3 } }
 	table.sort(axes, function(a, b) return math.abs(a.v.Z) > math.abs(b.v.Z) end)
-	local s, len = proto.Size, z1 - z0
-	p.Size = if axes[1].i == 1 then Vector3.new(len, s.Y, s.Z) elseif axes[1].i == 2 then Vector3.new(s.X, len, s.Z) else Vector3.new(s.X, s.Y, len)
-	p.CFrame = c.Rotation + Vector3.new(c.X, c.Y, (z0 + z1) / 2)
+	return if axes[1].i == 1 then Vector3.new(len, s.Y, s.Z) elseif axes[1].i == 2 then Vector3.new(s.X, len, s.Z) else Vector3.new(s.X, s.Y, len)
+end
+local function shelfPiece(z0: number, z1: number)
+	local p = proto:Clone()
+	p.Size = alongZ(proto.CFrame, proto.Size, z1 - z0)
+	p.CFrame = proto.CFrame.Rotation + Vector3.new(proto.Position.X, proto.Position.Y, (z0 + z1) / 2)
 	p.Parent = club
 end
 shelfPiece(Z0, MID0)
 shelfPiece(MID1, Z1)
 for _, d in ipairs(midShelves) do d:Destroy() end
--- the bucket rows carry no bottles: BarShelfService (which puts the club bottles
--- and their light pucks on every BarShelf at server start) skips the boards
--- marked BarBuckets (user 2026-11-07 (2): "기존에 있는 음료수병들은 삭제")
+-- only the bottom board carries buckets: BarShelfService (the club bottles and
+-- their light pucks on every BarShelf at server start) skips boards marked
+-- BarBuckets
 for _, d in ipairs(club:GetChildren()) do
 	if d:IsA("BasePart") and d.Name == "BarShelf" then
-		d:SetAttribute("BarBuckets", if d.Position.Y < -6 then true else nil)
+		d:SetAttribute("BarBuckets", if d.Position.Y < -12 then true else nil)
 	end
 end
--- the bottles of the two lowest rows go
--- (BarBottle parts, lying on the shelves at y -13.6 / -7.6 / -1.6: the top row stays)
-local gone = 0
+-- the old graybox stand-in bottles of the two lowest rows
 for _, d in ipairs(club:GetChildren()) do
 	if d:IsA("BasePart") and d.Name == "BarBottle" and d.Position.Y > LOW_TOP and d.Position.Y < MID_TOP + ROW_H - 0.6
 		and d.Position.Z > Z0 and d.Position.Z < Z1 then
 		d:Destroy()
-		gone += 1
 	end
 end
+-- the vertical boards (the shelf's own look, 0.3 thick)
+local oldDiv = club:FindFirstChild("BarShelfDividers")
+if oldDiv then oldDiv:Destroy() end
+local dividers = Instance.new("Folder")
+dividers.Name = "BarShelfDividers"
+dividers.Parent = club
+local THICK = 0.3
+local depth = 3 -- (the boards' depth, x 69.5..72.5)
+local function divider(z: number, y0: number, y1: number)
+	local p = proto:Clone()
+	p.Name = "BarShelfDivider"
+	p:SetAttribute("BarBuckets", nil)
+	p.Size = Vector3.new(depth, y1 - y0, THICK)
+	p.CFrame = CFrame.new(proto.Position.X, (y0 + y1) / 2, z)
+	p.Parent = dividers
+end
+divider(Z0 + THICK / 2, BOTTOM, RAIL_TOP)
+divider(Z1 - THICK / 2, BOTTOM, RAIL_TOP)
+divider(MID0, LOW_TOP, UNDER_TOP)
+divider(MID1, LOW_TOP, UNDER_TOP)
 -- the buckets
 local DrinkBucket = require(game:GetService("ServerScriptService").FashionGame.Services.DrinkBucket)
 local Drinks = require(game:GetService("ReplicatedStorage").FashionGame.Shared.ClubConfig).Drinks
@@ -154,12 +187,10 @@ local function drinkOf(test: (any) -> boolean): any
 	for _, d in ipairs(Drinks) do if test(d) then return d end end
 	return { key = "cider", color = Color3.fromRGB(200, 255, 200) }
 end
-local TIERS = {
-	{ kind = "acrylic", scale = 0.9, drink = drinkOf(function(d) return d.tier == 3 and not d.vipOnly end) }, -- (stack_hydro)
-	{ kind = "steel", scale = 0.9 * 1.5, drink = drinkOf(function(d) return d.tier == 2 and not d.vipOnly end) },
-	{ kind = "bottle", scale = 0.8, drink = drinkOf(function(d) return d.tier == 1 and d.key ~= "water" end) },
-}
-local VIP = { kind = "icebox", scale = 1.4, drink = drinkOf(function(d) return d.vipOnly == true end) }
+-- (the table sizes of DrinkService: steel 0.9 × 1.5; acrylic 0.9, here × 1.5)
+local TIER2 = { kind = "steel", scale = 0.9 * 1.5, name = "BarBucket_Tier2", drink = drinkOf(function(d) return d.tier == 2 and not d.vipOnly end) }
+local TIER3 = { kind = "acrylic", scale = 0.9 * 1.5, name = "BarBucket_Tier3", drink = drinkOf(function(d) return d.tier == 3 and not d.vipOnly end) }
+local VIP = { kind = "icebox", scale = 1.4, name = "BarBucket_VIP", drink = drinkOf(function(d) return d.vipOnly == true end) }
 local old = club:FindFirstChild("BarBucketDisplay")
 if old then old:Destroy() end
 local display = Instance.new("Folder")
@@ -172,7 +203,8 @@ local function still(m: Model)
 		elseif p:IsA("LuaSourceContainer") or p:IsA("ProximityPrompt") or p:IsA("ClickDetector") then p:Destroy() end
 	end
 end
-local function lowestY(m: Model): (number, number)
+-- the lowest and highest point of a model (world)
+local function spanY(m: Model): (number, number)
 	local lo, hi = math.huge, -math.huge
 	for _, p in ipairs(m:GetDescendants()) do
 		if p:IsA("BasePart") then
@@ -183,60 +215,64 @@ local function lowestY(m: Model): (number, number)
 	end
 	return lo, hi
 end
--- one bucket standing on `topY` at z, front to the room, no taller than `room`
+-- its run along the shelf (world Z)
+local function spanZ(m: Model): (number, number)
+	local lo, hi = math.huge, -math.huge
+	for _, p in ipairs(m:GetDescendants()) do
+		if p:IsA("BasePart") then
+			local c, h = p.CFrame, p.Size / 2
+			local ez = math.abs(c.XVector.Z) * h.X + math.abs(c.YVector.Z) * h.Y + math.abs(c.ZVector.Z) * h.Z
+			lo, hi = math.min(lo, p.Position.Z - ez), math.max(hi, p.Position.Z + ez)
+		end
+	end
+	return lo, hi
+end
+local function sit(m: Model, topY: number)
+	local lo = spanY(m)
+	m:PivotTo(m:GetPivot() + (topY + 0.01 - lo) * Vector3.yAxis)
+end
+-- one bucket standing on `topY` at z, its front to the room (+X), no taller than `room`
 local function bucket(spec, z: number, topY: number, room: number): Model
-	-- (fronts to the room, as on a table in front of a player: the boxes then
-	-- lie along the shelf; user 2026-11-07 (2): turned sideways they looked wrong)
 	local at = CFrame.lookAt(Vector3.new(X, topY, z), Vector3.new(X + 1, topY, z))
 	local m = DrinkBucket.build(spec.kind, { spec.drink.color }, at, spec.drink.key)
+	m.Name = spec.name
 	m.PrimaryPart = nil
 	m.WorldPivot = at
 	if spec.scale ~= 1 then m:ScaleTo(spec.scale) end
-	local lo, hi = lowestY(m)
-	if hi - lo > room - 0.3 then m:ScaleTo(m:GetScale() * (room - 0.3) / (hi - lo)) lo, hi = lowestY(m) end
-	m:PivotTo(m:GetPivot() + (topY + 0.01 - lo) * Vector3.yAxis)
+	local lo, hi = spanY(m)
+	if hi - lo > room - 0.3 then m:ScaleTo(m:GetScale() * (room - 0.3) / (hi - lo)) end
+	sit(m, topY)
 	still(m)
 	m.Parent = display
 	return m
 end
--- its length along the shelf (world Z)
-local function zLength(m: Model): number
-	local _, size = m:GetBoundingBox()
-	local cf = m:GetBoundingBox()
-	return math.abs(cf.XVector.Z) * size.X + math.abs(cf.YVector.Z) * size.Y + math.abs(cf.ZVector.Z) * size.Z
+-- the VIP ice box in the tall middle bay, without its VIP letters
+local vip = bucket(VIP, (MID0 + MID1) / 2, LOW_TOP, UNDER_TOP - LOW_TOP)
+for _, d in ipairs(vip:GetDescendants()) do
+	if d:IsA("BasePart") and (d.Name == "VIPLetter" or d.Name == "VIPSignLight") then d:Destroy() end
 end
--- the VIP ice box in the tall middle bay
-local vip = bucket(VIP, (MID0 + MID1) / 2, LOW_TOP, (MID_TOP + ROW_H) - LOW_TOP)
-vip.Name = "BarBucket_VIP"
--- the side bays: tier 3, 2, 1 from the VIP bay outward, in both rows
-local built = 1
-for _, topY in ipairs({ LOW_TOP, MID_TOP }) do
-	for _, side in ipairs({ -1, 1 }) do
-		-- (side -1: the bay z -200..-186, its inner edge -186, outward = -Z; side 1: -172..-158, inner edge -172, outward = +Z)
-		local inner = if side < 0 then MID0 else MID1
-		local models = {}
-		local total = 0
-		for i, spec in ipairs(TIERS) do
-			local m = bucket(spec, inner, topY, ROW_H)
-			m.Name = "BarBucket_Tier" .. (4 - i)
-			models[i] = m
-			total += zLength(m)
-		end
-		-- spread over the bay: equal gaps, tier 3 next to the VIP bay
-		local gap = math.max((BAY - total) / 4, 0.2)
-		local k = if total + gap * 4 > BAY then BAY / (total + gap * 4) else 1
-		local z = inner + side * gap * k
-		for _, m in ipairs(models) do
-			if k < 1 then m:ScaleTo(m:GetScale() * k) local lo = lowestY(m) m:PivotTo(m:GetPivot() + (topY + 0.01 - lo) * Vector3.yAxis) end
-			local len = zLength(m)
-			local cf = m:GetBoundingBox()
-			local centre = z + side * len / 2
-			m:PivotTo(m:GetPivot() + Vector3.new(0, 0, centre - cf.Z))
-			z = centre + side * (len / 2 + gap * k)
-			built += 1
-		end
+-- two of a kind spread over a bay (inside its boards), shrunk only if they cannot fit
+local function pair(spec, b0: number, b1: number): number
+	local inner0, inner1 = b0 + THICK, b1 - THICK
+	local width = inner1 - inner0
+	local a = bucket(spec, (inner0 * 3 + inner1) / 4, LOW_TOP, ROW_H)
+	local b = bucket(spec, (inner0 + inner1 * 3) / 4, LOW_TOP, ROW_H)
+	local z0, z1 = spanZ(a)
+	local len = z1 - z0
+	local k = math.min(1, width / (2 * len + 3 * 0.4)) -- (at least 0.4 between and at the ends)
+	for _, m in ipairs({ a, b }) do
+		if k < 1 then m:ScaleTo(m:GetScale() * k) sit(m, LOW_TOP) end
 	end
+	local gap = (width - 2 * len * k) / 3
+	for i, m in ipairs({ a, b }) do
+		local lo, hi = spanZ(m)
+		local want = inner0 + gap * i + len * k * (i - 0.5)
+		m:PivotTo(m:GetPivot() + Vector3.new(0, 0, want - (lo + hi) / 2))
+	end
+	return k
 end
-table.insert(log, string.format("bar: y -9.7 shelf open over z %.0f..%.0f, %d bottle parts removed, %d buckets (VIP %s, tiers %s / %s / %s)",
-	MID0, MID1, gone, built, VIP.drink.key, TIERS[1].drink.key, TIERS[2].drink.key, TIERS[3].drink.key))
+local k2 = pair(TIER2, MID1, Z1) -- (left from the counter)
+local k3 = pair(TIER3, Z0, MID0) -- (right)
+table.insert(log, string.format("bar: dividers 4, VIP letters off, bottom row: 2 × tier 2 (%s, ×%.2f fit) left, 2 × tier 3 (%s, ×%.2f fit) right, bottles on the second row",
+	TIER2.drink.key, k2, TIER3.drink.key, k3))
 return table.concat(log, "\n")
