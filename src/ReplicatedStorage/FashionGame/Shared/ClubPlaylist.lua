@@ -158,7 +158,7 @@ M.Playlist = {
 	-- the lab values of the D-927 entry (tempo 0.906, high -20 → -28 → -20 the same day), which is gone
 	-- (D-933, user 2026-11-06: boost3 5, high -28)
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
-		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34 } },
+		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 3, octave = 1, low = -34, mid = -20, high = -34 } }, -- (boost3 5 → 3, user 2026-11-07)
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);

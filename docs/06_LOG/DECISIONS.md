@@ -2654,3 +2654,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
   - CORTIS-REDRED 76034005809699: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
   - BOYNEXTDOOR-ANIMAL 94774089824958: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
 - (D-943 이어서) 사용자 "러브어택 부스트3 다른 곡이랑 통일": RESCENE-LOVE-ATTACK boost3 5 (다른 새 음원과 같게; 갑자기만 3). 같은 때 "love 119 설정용 삭제": D-942의 RIIZE-Love 119 (설정2)는 Studio에서 지우고 feat/love119-b-1106은 머지하지 않음.
+- (D-943 이어서, 2026-11-07) 사용자 "러브 119 볼륨 부스터 3을 5면 3으로 수정": RIIZE-Love 119 boost3 5 → 3.
