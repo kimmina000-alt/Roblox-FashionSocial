@@ -34,14 +34,10 @@ local TRACKS = {
 	{ title = "소녀시대-소원을 말해봐(Genie)", id = 128270208751659, club = { 0.334, 2.5, -5, 2, 0 } },
 	{ title = "소원2", id = 100752194799727 }, -- user 2026-11-06, song 3:48
 	{ title = "현아-Bubble Pop", id = 76388700698178, club = { 0.333, 2.5, -6, 0.5, -7 } },
-	-- (user 2026-11-06) new upload, replaces 91762270038050 (a 3× file)
-	{ title = "RIIZE-Get A Guitar", id = 133586602463513 },
-	{ title = "새 음원 70738014182544", id = 70738014182544 }, -- file 153.0 s, song 2:40 (user 2026-11-06: below Get A Guitar)
-	{ title = "새 음원 105707015510642", id = 105707015510642 }, -- file 153.0 s, song 2:40
-	{ title = "새 음원 103869296022453", id = 103869296022453 }, -- file 107.1 s, song 2:40
-	{ title = "새 음원 78446187359118", id = 78446187359118 }, -- file 160.7 s, song 2:40
-	{ title = "RIIZE-Love 119", id = 119473981131981, club = { 0.333, 3, -7, -3, 1.5 } },
-	{ title = "새 음원 85204387077332", id = 85204387077332 }, -- file 157.7 s, song 2:54 (as the Love 119 above plays)
+	-- (user 2026-11-06) chosen upload, replaces 133586602463513 / 91762270038050
+	{ title = "RIIZE-Get A Guitar", id = 70738014182544 }, -- file 153.0 s, song 2:40
+	-- (user 2026-11-06) new upload, replaces 119473981131981 (a 3× file)
+	{ title = "RIIZE-Love 119", id = 85204387077332 }, -- file 157.7 s, song 2:54
 	{ title = "YENA-Catch Catch", id = 80583279340768, club = { 0.34, 3, -13, 2.5, 4 } },
 	{ title = "Hearts2Hearts-Lemon Tang", id = 97032815457241, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "Hearts2Hearts-Next Chapter", id = 113170325006427 }, -- user 2026-11-06, x1 file, song 2:52
