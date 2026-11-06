@@ -39,7 +39,6 @@ local TRACKS = {
 	{ title = "RIIZE-Get A Guitar 2", id = 70738014182544, slot = 2 }, -- same file, its own saved values (user 2026-11-06)
 	-- (user 2026-11-06) new upload, replaces 119473981131981 (a 3× file)
 	{ title = "RIIZE-Love 119", id = 85204387077332 }, -- file 157.7 s, song 2:54
-	{ title = "RIIZE-Love 119 2", id = 85204387077332, slot = 2 }, -- same file, its own saved values (user 2026-11-06)
 	{ title = "YENA-Catch Catch", id = 80583279340768, club = { 0.34, 3, -13, 2.5, 4 } },
 	{ title = "Hearts2Hearts-Lemon Tang", id = 97032815457241, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "Hearts2Hearts-Next Chapter", id = 113170325006427 }, -- user 2026-11-06, x1 file, song 2:52
