@@ -32,7 +32,6 @@ local TRACKS = {
 	-- the user's uploads, each with its club value
 	{ title = "ATEEZ-BAD", id = 134942349436280, club = { 0.333, 2.5, 0, 0, 0 } },
 	{ title = "소녀시대-소원을 말해봐(Genie)", id = 128270208751659, club = { 0.334, 2.5, -5, 2, 0 } },
-	{ title = "소원2", id = 100752194799727 }, -- user 2026-11-06, song 3:48
 	{ title = "현아-Bubble Pop", id = 76388700698178, club = { 0.333, 2.5, -6, 0.5, -7 } },
 	-- (user 2026-11-06) chosen upload, replaces 133586602463513 / 91762270038050
 	{ title = "RIIZE-Get A Guitar", id = 70738014182544 }, -- file 153.0 s, song 2:40
@@ -105,7 +104,6 @@ local TRACKS = {
 	{ title = "Leo Hart-Can't Slow Down", id = 70590746014828 },
 	{ title = "Luna-Run the night", id = 126980667502605 },
 	{ title = "Noah Blaze-Light it Up", id = 125858610081422 },
-	{ title = "잠자기전", id = 83921467202322 }, -- user 2026-11-06
 	-- (user 2026-11-06) new tracks go at the bottom, in the order given
 	{ title = "AND2BLE-French Kissing", id = 120866427099057 }, -- x1 file 177.4 s, song 3:15
 	{ title = "RESCENE-With", id = 120039092597099 }, -- x1 file 171.7 s, song 3:09
