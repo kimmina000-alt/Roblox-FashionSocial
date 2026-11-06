@@ -2631,3 +2631,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - DanceController: `ClubMusicBoost4` 그룹을 ClubMusicBoost3 위에 둠(사슬 맨 위). `lab.boost4`(숫자 아니면 1, 0..10). 사슬 = 곡 → ClubMusicBoost → ClubMusicBoost2 → ClubMusicBoost3 → ClubMusicBoost4 → EdmSongMute, 들리는 크기 = volume × boost × boost2 × boost3 × boost4.
 - EdmController는 그대로(사슬 맨 위까지 올라가 EdmSongMute 아래에 검), 주석만. 이어 붙인 곡의 ClipA/ClipBBoost도 ClubMusicBoost 아래라 새 층을 지나감. `Lab` 타입에 `boost4: number?`. 곡 값은 아직 없음(따로 받음).
 - PC Play 확인: 사슬 순서, Get A Guitar 10 × 5 × 5 × 1, boost3/4 없는 곡(ATEEZ-BAD, Next Chapter)은 3·4층 1(예전과 같음), DJ 볼륨 5가 EdmSongMute에, EDM 1번 재생, 이어 붙인 곡(IU-이 별로부터) 두 클립이 같은 사슬. PlaybackLoudness는 이 Play에서 곡마다 0 근처(예전에도 있던 Studio 현상, EDM은 226).
+- 모바일 2P 테스트 통과(2026-11-06, Player1 DJ / Player2, 폰 화면 801×413, 클럽 안): Get A Guitar는 두 폰 모두 10 × 5 × 5 × 1, ATEEZ-BAD는 10 × 10 × 1 × 1(예전과 같음), DJ 볼륨 x2 → 두 폰의 EdmSongMute 2, EDM 2번 켜면 두 폰에서 재생 / 끄면 멈춤, 이어 붙인 곡(47번) 두 폰에서 두 클립이 같은 사슬로 재생. 오류 없음(93308695817877 승인 오류는 상관없음).
