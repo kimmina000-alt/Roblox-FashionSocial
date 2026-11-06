@@ -243,7 +243,7 @@ M.Playlist = {
 	-- (D-932, user 2026-11-06: was 71873496902418, a 3× file; the D-931 upload 139330220515727 moved in here,
 	-- its entry removed: fileSpeed 1.05, `at` and the stage camera keep the song clock)
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 139330220515727, length = 172.955, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
+		lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
 		-- D-903: LoveAttack1..27 (practice video nXDQPm_HnFc, video = song + 0.45 s)
 		choreo = { { id = 109011245162387, from = 0.45 }, { id = 77108502823118, at = 1.48, blend = 0.82 }, { id = 86687841705348, at = 5.12, blend = 1 },
 		{ id = 131382757802821, at = 8.95, blend = 0.52 }, { id = 137275968003632, at = 10.18, blend = 0.53 }, { id = 110961201759433, at = 14.82, blend = 1 },
