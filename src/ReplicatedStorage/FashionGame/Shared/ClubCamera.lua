@@ -891,4 +891,55 @@ ClubCamera.Songs[89634330677538] = {
 		{ 200.9, "xwide", 0, 8 }, { 201.88, "wide", 0, 5 }, { 205.84, "bust" },
 	}),
 }
+-- (D-969) IOI-갑자기: MBC Show! Music Core 2026-05-23 (youtube 5olSAzpqZsQ), video =
+-- song - 0.3 s: the original mp3's loudness (on the game clock: mp3 vs practice
+-- video +0.30 = the choreography's offset) lined up with the stage; the sound
+-- also allowed -1.3 (two beats), and the poses at song 25 / 33 / 155 s pick -0.3.
+-- Shot list made by shots_to_lua.py (D-944).
+ClubCamera.Songs[75344866720031] = {
+	video = "MBC Show! Music Core 2026-05-23, youtube 5olSAzpqZsQ",
+	offset = -0.3,
+	shots = cutList({
+		{ 0, "bust" }, { 2.25, "wide", 0, 5 }, { 4.16, "waist" }, { 10.63, "waist", 0, 0, { size = "bust" } },
+		{ 12.1, "bust" }, { 12.5, "xwide", 0, 8, { size = "wide" } }, { 14.1, "knee" }, { 14.67, "waist" },
+		{ 15.53, "bust" }, { 16.13, "bust", 0, 0, { size = "waist" } }, { 16.73, "wide", 0, 5 },
+		{ 17.23, "bust", 0, 0, { size = "close" } }, { 18.2, "bust" }, { 19.2, "wide", 0, 5, { size = "full" } },
+		{ 20.33, "bust", 0, 0, { size = "close" } }, { 20.9, "waist", 0, 0, { size = "bust" } },
+		{ 22.37, "waist", 0, 0, { size = "knee" } }, { 22.93, "wide", 0, 5 }, { 24.4, "waist" },
+		{ 24.93, "waist", 0, 0, { size = "knee" } }, { 29.03, "bust" }, { 31.63, "xwide", 0, 8, { size = "wide" } },
+		{ 33.4, "wide", 10, 5 }, { 35.47, "knee" }, { 35.97, "waist" }, { 37, "bust" }, { 38.03, "wide", 0, 5 },
+		{ 39.13, "bust" }, { 40.52, "waist" }, { 42.9, "bust" }, { 43.47, "wide", -5, 5, { size = "full" } },
+		{ 44.93, "waist", 0, 0, { size = "bust" } }, { 45.97, "bust" }, { 48.04, "wide", 0, 5 }, { 48.9, "full" },
+		{ 50.03, "waist", 0, 0, { size = "bust" } }, { 51.7, "wide", 0, 5 },
+		{ 52.13, "wide", 0, 5, { size = "full" } }, { 53.13, "full", 0, 0, { size = "knee" } }, { 54.17, "bust" },
+		{ 55.22, "wide", 0, 5 }, { 56.45, "bust" }, { 59.77, "wide", 0, 5, { size = "full" } },
+		{ 61.37, "full", 0, 0, { size = "knee" } }, { 62.37, "waist", 0, 0, { size = "bust" } },
+		{ 63.4, "bust", -10, 0, { size = "waist" } }, { 64.43, "knee", 0, 0, { size = "full" } }, { 65.37, "bust" },
+		{ 67.93, "wide", 0, 5, { size = "full" } }, { 69.1, "waist", 0, 0, { size = "bust" } }, { 70.13, "waist" },
+		{ 71.3, "full" }, { 71.93, "waist" }, { 73.19, "bust" }, { 73.87, "wide", -5, 5, { size = "full" } },
+		{ 76.33, "full" }, { 79.62, "waist" }, { 83.2, "bust" }, { 84.5, "bust", 0, 0, { size = "close" } },
+		{ 86.03, "knee" }, { 87.2, "bust" }, { 92.5, "knee" }, { 93.98, "wide", 0, 5 }, { 96.67, "bust" },
+		{ 97.83, "waist" }, { 98.8, "full" }, { 99.9, "waist", -5 }, { 101.07, "bust" },
+		{ 101.43, "waist", 0, 0, { size = "knee" } }, { 102.9, "bust" }, { 107.13, "xwide", 0, 8 },
+		{ 107.99, "full" }, { 108.69, "waist" }, { 109.57, "bust" }, { 112.08, "wide", 0, 5 }, { 113.03, "bust" },
+		{ 116.23, "xwide", 0, 8 }, { 116.7, "wide", 0, 5, { size = "full" } }, { 118.83, "waist" },
+		{ 122.38, "wide", 0, 5 }, { 124.67, "bust" }, { 127.37, "waist" },
+		{ 128.03, "wide", 0, 5, { size = "full" } }, { 129.03, "knee" }, { 129.85, "waist" },
+		{ 131.17, "wide", 0, 5 }, { 132.13, "full" }, { 132.83, "bust", 0, 0, { size = "waist" } },
+		{ 134.17, "knee" }, { 135.2, "full" }, { 137.1, "waist" }, { 138.27, "knee" }, { 139.3, "wide", 0, 5 },
+		{ 139.77, "waist" }, { 141.32, "bust" }, { 141.97, "wide", 0, 5 }, { 144.09, "full" }, { 147.33, "knee" },
+		{ 148.44, "bust" }, { 151.97, "wide", 0, 5 }, { 153.52, "waist" }, { 154.78, "wide", 0, 5 },
+		{ 156.1, "full" }, { 157.05, "waist" }, { 158.33, "waist", 0, 0, { size = "knee" } }, { 160.27, "bust" },
+		{ 162.37, "wide", 0, 5 }, { 165.37, "knee" }, { 166.63, "waist" },
+		{ 167.13, "bust", 0, 0, { size = "waist" } }, { 167.63, "waist" },
+		{ 169.2, "full", 0, 0, { size = "knee" } }, { 169.7, "waist", 0, 0, { size = "bust" } }, { 170.53, "knee" },
+		{ 171.23, "bust" }, { 171.73, "waist" }, { 172.27, "full", 0, 0, { size = "wide" } }, { 173.43, "bust" },
+		{ 174.53, "full", 0, 0, { size = "knee" } }, { 175.33, "knee" },
+		{ 175.87, "waist", 0, 0, { size = "knee" } }, { 176.67, "waist" }, { 178.67, "wide", 0, 5 },
+		{ 179.3, "wide", 0, 5, { size = "full" } }, { 179.8, "knee", 0, 0, { size = "waist" } },
+		{ 181.33, "waist", 0, 0, { size = "knee" } }, { 181.87, "full", 0, 0, { size = "wide" } },
+		{ 182.87, "bust", 10 }, { 183.4, "waist", 10, 0, { size = "knee" } }, { 184.97, "wide", 0, 5 },
+		{ 186.5, "full" }, { 186.9, "bust" }, { 188.93, "full" }, { 192.43, "waist" }, { 194.44, "bust" },
+	}),
+}
 return ClubCamera
