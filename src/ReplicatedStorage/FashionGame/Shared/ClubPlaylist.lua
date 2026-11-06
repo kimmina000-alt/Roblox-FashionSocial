@@ -290,7 +290,17 @@ M.Playlist = {
 	-- (D-930, user 2026-11-06: "갑자기 새 음원 75344866720031") was 73546697163709, a 3× file of 65.016 s:
 	-- the new 185.760 s file = 3 × 65.016 ÷ 185.760 = 1.0500 faster than the song; tempo 0.953 × 1.05 = 1.001
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 75344866720031, length = 185.76, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20 } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20 },
+		-- D-964: Suddenly new 1..25 without 4 (no upload) and 7 (its upload is a copy of 6): default dance 16.7-23.5 and 46.0-56.4.
+		-- Practice video YzQ0rD3htMo, video = song + 0.30 s (mp3 and the game file), `at` = clip start - 0.30; piece 1 `from = 0.3`
+		choreo = { { id = 72001429900652, from = 0.3 }, { id = 84372825286978, at = 7.33, blend = 1 }, { id = 140529283375287, at = 8.5, blend = 1 },
+		{ id = 121160569929367, at = 23.5 }, { id = 109571265510769, at = 36.33, blend = 1 }, { id = 76645919052139, at = 56.4 },
+		{ id = 72886571801726, at = 63.5, blend = 0.7 }, { id = 104001486192661, at = 74.7, blend = 0.87 }, { id = 71879139866517, at = 83.07 },
+		{ id = 72291044078776, at = 92.7, blend = 1 }, { id = 112457407974304, at = 99.33, blend = 1 }, { id = 128759413181742, at = 106.1, blend = 0.47 },
+		{ id = 121913954340036, at = 115.77, blend = 0.69 }, { id = 139341321382250, at = 123.5, blend = 0.85 }, { id = 84100214173726, at = 131.97, blend = 0.68 },
+		{ id = 118835663786601, at = 140.7, blend = 0.6 }, { id = 136490889932903, at = 143.7, blend = 1 }, { id = 78855026719716, at = 146.7, blend = 0.91 },
+		{ id = 123714434236489, at = 149.7, blend = 0.99 }, { id = 111512315445927, at = 163.7, blend = 0.64 }, { id = 92331354114542, at = 166.7, blend = 1 },
+		{ id = 82782712192367, at = 172.7, blend = 1 }, { id = 129257680770934, at = 180.7 } }, autoChoreo = true },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-929, user 2026-11-06: "I SPY 새 음원 98124521559769") was 90694654380166, a 3× file of 61.695 s:
