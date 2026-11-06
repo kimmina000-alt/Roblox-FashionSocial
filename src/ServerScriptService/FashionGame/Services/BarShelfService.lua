@@ -117,6 +117,8 @@ function BarShelfService.Start()
 			p.CastShadow = false
 			p.Material = Enum.Material.Neon
 			p.Color = UPLIGHT_COLOR
+			-- (D-960, user 2026-11-07: "선반에 원형 조명 달아 놓은 거 투명도 50 줘")
+			p.Transparency = 0.5
 			p.Size = Vector3.new(PUCK_HEIGHT, PUCK_SIZE, PUCK_SIZE)
 			-- (the cylinder's axis is its X: turned to point up, or down for the top one)
 			p.CFrame = CFrame.new(at) * CFrame.Angles(0, 0, math.rad(if down then -90 else 90))

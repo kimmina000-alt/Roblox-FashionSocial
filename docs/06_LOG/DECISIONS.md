@@ -2667,3 +2667,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 판: BarShelf 0.6 → 0.25(윗면 높이 그대로라 병 · 버켓 높이 같음), 세로 판 0.3 → 0.15, 모두 검은색(14, 14, 17) SmoothPlastic. 맨 위 판과 조명 레일은 BarShelfService가 y -3.7 판을 복사해 만들어 같이 얇고 검게(Play 확인: 레일 두께 0.12, 검정).
 - 버켓 속 음료: 네 개가 모두 그 단계 첫 음료(ginger_brew, stack_hydro)였음 → 2단계 monte · golden_apple, 3단계 pastel_splash · skull_water. 3단계는 칸이 넓어져 1.35 × 0.95.
 - 오른쪽 병: 두 번째 줄 오른쪽 칸(카운터에서 보아, z -200..-186 조각)에 속성 ReverseBottles → BarShelfService가 그 판의 병을 거꾸로 놓음(3개라 1번 ↔ 3번). Play 확인: 왼쪽 칸 순서 그대로, 오른쪽 칸만 바뀜. 화면 캡처는 시간 초과로 못 찍음.
+
+## D-960 바 선반 원형 조명 투명도 0.5 (2026-11-07)
+- 사용자: "선반에 원형 조명 달아 놓은 거 투명도 50 줘"
+- BarShelfService의 BarUplight(병 밑 · 위 판 밑의 원판, Neon) Transparency 0.5. 빛(SpotLight)은 그대로. Play 확인: 56개 모두 0.5.
