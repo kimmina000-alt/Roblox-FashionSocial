@@ -124,9 +124,9 @@ M.Playlist = {
 	-- (D-919, user 2026-11-06: new upload, tuned in the lab; was 91762270038050, a 3× file of 53.553 s)
 	-- the D-919 file 133586602463513 was the same edit at 1.0908× (3 × 53.553 ÷ 147.285; loudness of both matched,
 	-- same start, no drift), so `at` and the stage camera keep the old song clock
-	-- (D-925, user 2026-11-06: new upload 70738014182544 with these lab values; high -27 → -7 → -20 the same day) a 153.008 s file:
+	-- (D-925, user 2026-11-06: new upload 70738014182544 with these lab values; high -27 → -7 → -20 → -28 and low -3 the same day) a 153.008 s file:
 	-- 3 × 53.553 ÷ 153.008 = 1.0500, and the user's tempo 0.956 × 1.05 = 1.004 (heard ≈ the original)
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20 }, choreo = {
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, octave = 1, low = -3, mid = 0, high = -28 }, choreo = {
 		-- (D-807, user: "이음새도 맞춰") blend = seconds to ease from the last pose
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
 		-- (D-878, user: "겟어기타 안무 수정", practice video u_u21u8zIIs, mirrored
@@ -150,7 +150,7 @@ M.Playlist = {
 	-- (D-927, user 2026-11-06: "러브119 아래 음원 추가. 이름 아이디로") an upload of 157.727 s, the user's values;
 	-- the song is 2:53 (user): fileSpeed = 173 ÷ 157.727 = 1.0968; heard 157.727 ÷ 0.906 = 2:54
 	{ channel = "K-POP", title = "85204387077332", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
-		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20 } }, -- (high -20, user the same day)
+		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -28 } }, -- (high -20 → -28, user the same day)
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);
