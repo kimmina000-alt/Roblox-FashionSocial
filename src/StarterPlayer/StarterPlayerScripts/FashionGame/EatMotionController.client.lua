@@ -70,6 +70,29 @@ local function farEnd(character: Model, hand: BasePart): Vector3?
 	return best
 end
 
+-- (D-956, user 2026-11-07: "수육 먹을 때 모션 확인하고 수정해": in the video the
+-- far corner of the slice went to the lips, the slice standing in front of the
+-- eyes) A tool can name the part that is eaten (attribute EatPart, the 수육
+-- slice "Fill"): then the end of that part, on the line from the hand through
+-- it, goes to the lips. Hand space.
+local function eatPoint(character: Model, hand: BasePart): Vector3?
+	local tool = character:FindFirstChildOfClass("Tool")
+	local name = tool and tool:GetAttribute("EatPart")
+	local handle = tool and tool:FindFirstChild("Handle")
+	local p = tool and typeof(name) == "string" and tool:FindFirstChild(name, true)
+	if not handle or not handle:IsA("BasePart") or not p or not p:IsA("BasePart") then return nil end
+	local grip = hand:FindFirstChild("RightGripAttachment") :: Attachment?
+	local gripCF = if grip then grip.CFrame else CFrame.new(0, -hand.Size.Y / 2, 0)
+	local inHand = gripCF * tool.Grip:Inverse() * handle.CFrame:ToObjectSpace(p.CFrame)
+	local centre = inHand.Position
+	if centre.Magnitude < 0.05 then return nil end
+	local along = centre.Unit
+	-- (how far the part reaches on along that line from its centre)
+	local h = p.Size / 2
+	local reach = math.abs(inHand.XVector:Dot(along)) * h.X + math.abs(inHand.YVector:Dot(along)) * h.Y + math.abs(inHand.ZVector:Dot(along)) * h.Z
+	return centre + along * reach * 0.8
+end
+
 -- the turn that takes direction a onto direction b (shortest way)
 local function turnBetween(a: Vector3, b: Vector3): CFrame
 	a, b = a.Unit, b.Unit
@@ -109,7 +132,7 @@ local function start(character: Model)
 	pole.Name = "Pole"
 	pole.Parent = holder
 	-- what is held, and how the hand must turn so it points at the mouth
-	local tip = farEnd(character, hand) or Vector3.new(0, -0.3, 0)
+	local tip = eatPoint(character, hand) or farEnd(character, hand) or Vector3.new(0, -0.3, 0)
 	local tipWorldDir = hand.CFrame:VectorToWorldSpace(tip)
 	local turned = turnBetween(tipWorldDir, head.CFrame:VectorToWorldSpace(TOWARD_MOUTH)) * hand.CFrame.Rotation
 	local ik = Instance.new("IKControl")
