@@ -159,7 +159,7 @@ M.Playlist = {
 	-- (D-933, user 2026-11-06: boost3 5, high -28)
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
 		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -28 },
-		-- D-938: Love119 1..33 without 27 (the upload of 27 is a copy of 26; default dance 118.2-127.0). Practice video hYEy_patW5s;
+		-- D-938: Love119 1..33 (piece 27 = re-upload 81083928741520, the first upload was a copy of 26). Practice video hYEy_patW5s;
 		-- this song's clock (fileSpeed 1.0968) runs 0.5 % slow against the original: video = -0.375 + 1.00496 x song, `at` = (clip start + 0.375) / 1.00496
 		choreo = { { id = 116659270658163, at = 0.37 }, { id = 84899474236257, at = 3.94, blend = 0.6 }, { id = 77269060609340, at = 9.26, blend = 1 },
 		{ id = 84913058689124, at = 12.31, blend = 0.41 }, { id = 101539030624816, at = 21.77, blend = 0.77 }, { id = 75370013537988, at = 31.64, blend = 1 },
@@ -169,7 +169,7 @@ M.Playlist = {
 		{ id = 103134109095683, at = 76, blend = 0.6 }, { id = 83720687579594, at = 79.03, blend = 1 }, { id = 107611961518863, at = 86.38, blend = 1 },
 		{ id = 79402676603023, at = 90.05, blend = 0.6 }, { id = 112123988214223, at = 95.23, blend = 0.98 }, { id = 128563000052459, at = 97.92, blend = 0.75 },
 		{ id = 109633407896106, at = 103.79, blend = 0.48 }, { id = 103715482617737, at = 108.81, blend = 0.97 }, { id = 128397106319046, at = 110.21, blend = 0.46 },
-		{ id = 123213110930819, at = 113.09, blend = 0.61 }, { id = 84387354167133, at = 117.21, blend = 0.77 }, { id = 132463155617727, at = 127 },
+		{ id = 123213110930819, at = 113.09, blend = 0.61 }, { id = 84387354167133, at = 117.21, blend = 0.77 }, { id = 81083928741520, at = 118.22, blend = 0.54 }, { id = 132463155617727, at = 127, blend = 0.41 },
 		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
 		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
@@ -356,8 +356,8 @@ M.Playlist = {
 	-- (D-917, user 2026-11-05: "음원 테스트에서 설정값 받아서" 3 songs; values saved in the lab place, length = the file's seconds)
 	{ channel = "K-POP", title = "ALLDAY PROJECT-CRASH", soundId = 104827635407586, length = 57.68,
 		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" },
-		-- D-918: Crash2..20 (practice video ljFL31qEn6M, video = song + 2.50 s, `at` = clip start - 2.50; clip 1 = song 0.1-11.3 s has no upload: default dance until 11.31)
-		choreo = { { id = 103881583439894, at = 11.31 }, { id = 110262357944188, at = 16.95, blend = 0.99 }, { id = 85184392148752, at = 23.06, blend = 1 },
+		-- D-918: Crash1..20 (practice video ljFL31qEn6M, video = song + 2.50 s, `at` = clip start - 2.50; piece 1 = re-upload 92063442221105, added 2026-11-06)
+		choreo = { { id = 92063442221105, at = 0.1 }, { id = 103881583439894, at = 11.31, blend = 1 }, { id = 110262357944188, at = 16.95, blend = 0.99 }, { id = 85184392148752, at = 23.06, blend = 1 },
 		{ id = 86200130207984, at = 31.57, blend = 0.65 }, { id = 109096810120786, at = 39.38 }, { id = 108547801175160, at = 51.62, blend = 0.57 },
 		{ id = 119507357461993, at = 61 }, { id = 86220019327088, at = 73.91, blend = 1 }, { id = 103539561583468, at = 75.61, blend = 0.65 },
 		{ id = 116383725353409, at = 78.98, blend = 0.82 }, { id = 124516959620423, at = 88.76, blend = 0.81 }, { id = 124646840847010, at = 94.3 },
