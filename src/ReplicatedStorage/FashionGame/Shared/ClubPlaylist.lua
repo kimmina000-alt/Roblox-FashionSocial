@@ -158,7 +158,20 @@ M.Playlist = {
 	-- the lab values of the D-927 entry (tempo 0.906, high -20 → -28 → -20 the same day), which is gone
 	-- (D-933, user 2026-11-06: boost3 5, high -28)
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
-		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -28 } },
+		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -28 },
+		-- D-938: Love119 1..33 (piece 27 = re-upload 81083928741520, the first upload was a copy of 26). Practice video hYEy_patW5s;
+		-- this song's clock (fileSpeed 1.0968) runs 0.5 % slow against the original: video = -0.375 + 1.00496 x song, `at` = (clip start + 0.375) / 1.00496
+		choreo = { { id = 116659270658163, at = 0.37 }, { id = 84899474236257, at = 3.94, blend = 0.6 }, { id = 77269060609340, at = 9.26, blend = 1 },
+		{ id = 84913058689124, at = 12.31, blend = 0.41 }, { id = 101539030624816, at = 21.77, blend = 0.77 }, { id = 75370013537988, at = 31.64, blend = 1 },
+		{ id = 107740496143451, at = 38.46, blend = 0.54 }, { id = 140553219106220, at = 42.99 }, { id = 96534907636929, at = 46.37, blend = 0.67 },
+		{ id = 133820711201781, at = 51.9, blend = 0.45 }, { id = 79064359810628, at = 55.33, blend = 0.71 }, { id = 103495705227564, at = 61.2, blend = 0.98 },
+		{ id = 119064865727357, at = 62.44, blend = 0.68 }, { id = 127521799015186, at = 65.58, blend = 0.47 }, { id = 131229132989104, at = 71.02, blend = 0.4 },
+		{ id = 103134109095683, at = 76, blend = 0.6 }, { id = 83720687579594, at = 79.03, blend = 1 }, { id = 107611961518863, at = 86.38, blend = 1 },
+		{ id = 79402676603023, at = 90.05, blend = 0.6 }, { id = 112123988214223, at = 95.23, blend = 0.98 }, { id = 128563000052459, at = 97.92, blend = 0.75 },
+		{ id = 109633407896106, at = 103.79, blend = 0.48 }, { id = 103715482617737, at = 108.81, blend = 0.97 }, { id = 128397106319046, at = 110.21, blend = 0.46 },
+		{ id = 123213110930819, at = 113.09, blend = 0.61 }, { id = 84387354167133, at = 117.21, blend = 0.77 }, { id = 81083928741520, at = 118.22, blend = 0.54 }, { id = 132463155617727, at = 127, blend = 0.41 },
+		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
+		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);
@@ -343,8 +356,8 @@ M.Playlist = {
 	-- (D-917, user 2026-11-05: "음원 테스트에서 설정값 받아서" 3 songs; values saved in the lab place, length = the file's seconds)
 	{ channel = "K-POP", title = "ALLDAY PROJECT-CRASH", soundId = 104827635407586, length = 57.68,
 		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" },
-		-- D-918: Crash2..20 (practice video ljFL31qEn6M, video = song + 2.50 s, `at` = clip start - 2.50; clip 1 = song 0.1-11.3 s has no upload: default dance until 11.31)
-		choreo = { { id = 103881583439894, at = 11.31 }, { id = 110262357944188, at = 16.95, blend = 0.99 }, { id = 85184392148752, at = 23.06, blend = 1 },
+		-- D-918: Crash1..20 (practice video ljFL31qEn6M, video = song + 2.50 s, `at` = clip start - 2.50; piece 1 = re-upload 92063442221105, added 2026-11-06)
+		choreo = { { id = 92063442221105, at = 0.1 }, { id = 103881583439894, at = 11.31, blend = 1 }, { id = 110262357944188, at = 16.95, blend = 0.99 }, { id = 85184392148752, at = 23.06, blend = 1 },
 		{ id = 86200130207984, at = 31.57, blend = 0.65 }, { id = 109096810120786, at = 39.38 }, { id = 108547801175160, at = 51.62, blend = 0.57 },
 		{ id = 119507357461993, at = 61 }, { id = 86220019327088, at = 73.91, blend = 1 }, { id = 103539561583468, at = 75.61, blend = 0.65 },
 		{ id = 116383725353409, at = 78.98, blend = 0.82 }, { id = 124516959620423, at = 88.76, blend = 0.81 }, { id = 124646840847010, at = 94.3 },
@@ -352,9 +365,27 @@ M.Playlist = {
 		{ id = 130905271100211, at = 136.91, blend = 0.98 }, { id = 83612611749583, at = 138.71, blend = 1 }, { id = 128860681514235, at = 152.25, blend = 0.63 },
 		{ id = 140259213928051, at = 163.1, blend = 0.45 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "RESCENE-Pretty Girl", soundId = 89634330677538, length = 70.01,
-		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" },
+		-- D-937: PrettyGirl1..26 (practice video IrqXrM4CaiE, video = song + 0.12 s, `at` = clip start - 0.12; piece 1 `from = 0.12`)
+		choreo = { { id = 100082879569115, from = 0.12 }, { id = 104009711978824, at = 5.5 }, { id = 108961429650022, at = 15.11, blend = 1 },
+		{ id = 97208831163609, at = 26.25 }, { id = 123817870898356, at = 36.33, blend = 1 }, { id = 112928130718608, at = 44.61, blend = 0.74 },
+		{ id = 71674700089963, at = 50.01, blend = 0.91 }, { id = 78155856168233, at = 51.31, blend = 0.98 }, { id = 119100545362264, at = 58.03, blend = 0.97 },
+		{ id = 108885997292893, at = 69.61 }, { id = 118658921583531, at = 79.58, blend = 0.48 }, { id = 74902277201730, at = 91.51, blend = 0.4 },
+		{ id = 110044834729128, at = 105.01, blend = 0.67 }, { id = 126827294531161, at = 112.16, blend = 1 }, { id = 86500685186308, at = 119.11 },
+		{ id = 111523452675311, at = 132.96, blend = 1 }, { id = 92430457423477, at = 135.53, blend = 1 }, { id = 93265378210483, at = 137.41, blend = 0.81 },
+		{ id = 114627519168898, at = 139.71, blend = 1 }, { id = 90231422396171, at = 143.88, blend = 0.47 }, { id = 121645451915137, at = 153.75 },
+		{ id = 79626676434376, at = 161.4, blend = 0.46 }, { id = 81645905885514, at = 175.33, blend = 1 }, { id = 100595958841043, at = 185.36, blend = 0.4 },
+		{ id = 84166534427168, at = 186.86, blend = 0.7 }, { id = 117439090388503, at = 194.48 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "키키-Pop Off", soundId = 129996145931101, length = 47.11,
-		lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.334, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" },
+		-- D-936: PopOff1..21 (practice video x22oELcVsVU, video = song + 0.30 s, `at` = clip start - 0.30; piece 1 `from = 0.3`)
+		choreo = { { id = 138378577601803, from = 0.3 }, { id = 79453984815360, at = 1.17, blend = 0.46 }, { id = 133580607498914, at = 9.68, blend = 1 },
+		{ id = 137960851963972, at = 14.95, blend = 0.93 }, { id = 74191504239507, at = 20.62, blend = 1 }, { id = 114899602408190, at = 21.72, blend = 1 },
+		{ id = 82593368218356, at = 35.75, blend = 0.25 }, { id = 89349893602236, at = 45.3, blend = 0.67 }, { id = 89756644797564, at = 54.28, blend = 0.25 },
+		{ id = 93822640757068, at = 60.07 }, { id = 82985939493186, at = 72.25, blend = 0.84 }, { id = 89496459962506, at = 74.07, blend = 0.52 },
+		{ id = 106148688158261, at = 84.73 }, { id = 129561476080724, at = 91.57 }, { id = 126423548513152, at = 95.63, blend = 0.41 },
+		{ id = 77783806123063, at = 102.05, blend = 0.57 }, { id = 81082889837351, at = 109.88, blend = 0.58 }, { id = 105511127677230, at = 116.42, blend = 0.48 },
+		{ id = 87535109402600, at = 123.55, blend = 0.56 }, { id = 114431038976349, at = 132.72, blend = 1 }, { id = 77209641618863, at = 137.23, blend = 0.97 } }, autoChoreo = true },
 
 } :: {Track}
 
