@@ -148,8 +148,8 @@ M.Playlist = {
 		{ id = 80874196383963, at = 156.61, blend = 0.45 } }, autoChoreo = true }, -- (D-810, user: 2 s of 9 cut at 1:10)
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-927, user 2026-11-06: "러브119 아래 음원 추가. 이름 아이디로") an upload of 157.727 s, the user's values;
-	-- fileSpeed ≈ 1 ÷ tempo (no song length given; no choreography or stage camera uses it)
-	{ channel = "K-POP", title = "85204387077332", soundId = 85204387077332, length = 157.727, fileSpeed = 1.1038,
+	-- the song is 2:53 (user): fileSpeed = 173 ÷ 157.727 = 1.0968; heard 157.727 ÷ 0.906 = 2:54
+	{ channel = "K-POP", title = "85204387077332", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
 		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0 } },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
