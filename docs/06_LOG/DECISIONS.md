@@ -2632,3 +2632,12 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - EdmController는 그대로(사슬 맨 위까지 올라가 EdmSongMute 아래에 검), 주석만. 이어 붙인 곡의 ClipA/ClipBBoost도 ClubMusicBoost 아래라 새 층을 지나감. `Lab` 타입에 `boost4: number?`. 곡 값은 아직 없음(따로 받음).
 - PC Play 확인: 사슬 순서, Get A Guitar 10 × 5 × 5 × 1, boost3/4 없는 곡(ATEEZ-BAD, Next Chapter)은 3·4층 1(예전과 같음), DJ 볼륨 5가 EdmSongMute에, EDM 1번 재생, 이어 붙인 곡(IU-이 별로부터) 두 클립이 같은 사슬. PlaybackLoudness는 이 Play에서 곡마다 0 근처(예전에도 있던 Studio 현상, EDM은 226).
 - 모바일 2P 테스트 통과(2026-11-06, Player1 DJ / Player2, 폰 화면 801×413, 클럽 안): Get A Guitar는 두 폰 모두 10 × 5 × 5 × 1, ATEEZ-BAD는 10 × 10 × 1 × 1(예전과 같음), DJ 볼륨 x2 → 두 폰의 EdmSongMute 2, EDM 2번 켜면 두 폰에서 재생 / 끄면 멈춤, 이어 붙인 곡(47번) 두 폰에서 두 클립이 같은 사슬로 재생. 오류 없음(93308695817877 승인 오류는 상관없음).
+
+## D-935 오늘 고친 9곡 최종 값과 맞춤 (2026-11-06)
+- 사용자가 오늘 고친 음원 9곡의 최종 lab 값을 보냄("비교 분석해서 다른 부분 수정해"). git(catalog-ui-redesign)과 Studio 둘 다 같은 5곳이 달라 고침:
+  - A2O LITE-NEON 140713297574648: boost3 5 추가.
+  - ILLIT-체포하겠어 139044453511745: tempo 0.335 → 0.333 (61초 3배 파일, 들리는 길이 ≈ 3:03).
+  - IOI-갑자기 75344866720031: boost3 3 추가.
+  - NCT WISH-I SPY 98124521559769: boost3 5 추가.
+  - CORTIS-REDRED 76034005809699: boost3 5 추가.
+- Get A Guitar / Love 119 / LOVE-ATTACK / ANIMAL은 이미 같음. 보낸 줄에 없는 `engine = "sound"`는 그대로 둠. Play로 들어 보지는 않음.

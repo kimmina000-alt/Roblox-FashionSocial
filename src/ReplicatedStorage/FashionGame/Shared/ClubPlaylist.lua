@@ -197,7 +197,8 @@ M.Playlist = {
 	-- drift), so `at` and the stage camera keep the old song clock
 	-- (D-932, user 2026-11-06: the D-931 upload 140713297574648 moved in here, its entry removed:
 	-- 3 × 73.770 ÷ 210.771 = 1.0500, `at` and the stage camera keep the song clock)
-	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 140713297574648, length = 210.771, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20, engine = "sound" }, choreo = {
+	-- (D-935, user 2026-11-06 final values: boost3 5)
+	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 140713297574648, length = 210.771, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -20, engine = "sound" }, choreo = {
 		-- (D-809, user: 22 pieces, blends from tools/choreo/choreo_check.lua)
 		-- (D-868 → D-869, user: "서 있는 앞 3.3초 이거 안무임 다시 추가해서 수정해")
 		-- the pieces were cut from the stage fancam n9HYtcN6W4w on its own clock
@@ -229,7 +230,8 @@ M.Playlist = {
 		{ id = 73851407273132, at = 172.18, blend = 1 }, { id = 71570705300325, at = 180.79, blend = 1 }, { id = 121393866689759, at = 202.51, blend = 0.54 },
 		{ id = 114419952125075, at = 210.11 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
 	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
-	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.335, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+	-- (D-935, user 2026-11-06 final values: tempo 0.335 → 0.333)
+	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
 		-- D-914: Arrest1..21 (practice video 3nBkzv0TNDk, video = song + 2.38 s; piece 21 is the re-upload 113936517496560, the first Arrest21 upload was a copy of Arrest20)
 		choreo = { { id = 110040253056586, from = 2.38 }, { id = 116782676046427, at = 11.12 }, { id = 91788521477193, at = 20.12, blend = 0.39 },
 		{ id = 130744405360835, at = 26.09, blend = 0.46 }, { id = 75102459386899, at = 32.95, blend = 0.7 }, { id = 128174978668663, at = 38.69, blend = 0.61 },
@@ -276,15 +278,17 @@ M.Playlist = {
 		{ id = 76585975326316, at = 162.05, blend = 0.67 }, { id = 128909786311122, at = 172.23 }, { id = 74039257328689, at = 178.8 }, { id = 79871898776208, at = 188.18, blend = 0.88 } }, autoChoreo = true },
 	-- (D-930, user 2026-11-06: "갑자기 새 음원 75344866720031") was 73546697163709, a 3× file of 65.016 s:
 	-- the new 185.760 s file = 3 × 65.016 ÷ 185.760 = 1.0500 faster than the song; tempo 0.953 × 1.05 = 1.001
+	-- (D-935, user 2026-11-06 final values: boost3 3)
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 75344866720031, length = 185.76, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20 } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, octave = 1, low = 0, mid = 0, high = -20 } },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-929, user 2026-11-06: "I SPY 새 음원 98124521559769") was 90694654380166, a 3× file of 61.695 s:
 	-- the new 176.273 s file = 3 × 61.695 ÷ 176.273 = 1.0500 faster than the song; tempo 0.953 × 1.05 = 1.001.
 	-- `at` and the stage camera (D-913) keep the song clock
+	-- (D-935, user 2026-11-06 final values: boost3 5)
 	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 98124521559769, length = 176.273, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -23 },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -23 },
 		-- D-912: ISPY1..30 (practice video ILeBVk4x_XQ, video = song - 1.50 s; ISPY12 / ISPY15 were uploaded twice, the first id of each is used)
 		choreo = { { id = 83299308409543, at = 1.5 }, { id = 107073213896668, at = 4.9, blend = 0.93 }, { id = 88558817308286, at = 8.82, blend = 0.92 },
 		{ id = 98909637894188, at = 10.3, blend = 0.79 }, { id = 97906912240537, at = 15.32, blend = 0.46 }, { id = 114940315235555, at = 20.78, blend = 0.67 },
@@ -300,8 +304,9 @@ M.Playlist = {
 	-- D-794: IU-이 별로부터 96396723842714 removed, user)
 	-- (D-932, user 2026-11-06: was 125703446596781, a 3× file of 54.35 s; the D-931 upload 76034005809699 moved
 	-- in here, its entry removed: 3 × 54.35 ÷ 153.821 = 1.06, `at` and the stage camera keep the song clock)
+	-- (D-935, user 2026-11-06 final values: boost3 5)
 	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 76034005809699, length = 153.821, fileSpeed = 1.06,
-		lab = { speed = 1, tempo = 0.944, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20, engine = "sound" }, choreo = {
+		lab = { speed = 1, tempo = 0.944, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -20, engine = "sound" }, choreo = {
 		-- (D-879, user: 24 pieces from the practice video u_vusNeo6xI, mirrored,
 		-- clips 1-24 of D:\Roblox\영상\CORTIS_REDRED_centercut) each starts where its
 		-- clip starts in the video, less 0.40 s: the video runs 0.40 s behind the
