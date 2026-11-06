@@ -420,6 +420,63 @@ local function weldAll(handle: BasePart, m: Instance)
 	end
 end
 
+-- (D-950, user 2026-11-07: "음식 사이즈 1.5배 키우기") every food and drink in
+-- the hand (and so on a table) is built, then made this much bigger round its
+-- handle: part sizes, where the pieces sit, welds, attachments, file meshes
+-- and the grip, before the bite bands are measured (markEdible)
+local FOOD_SCALE = 1.5
+-- how far round its middle a food reaches over a table top (studs)
+local function footprintOf(handle: BasePart): number
+	local r = math.max(handle.Size.X, handle.Size.Z) / 2
+	for _, d in ipairs(handle:GetDescendants()) do
+		if d:IsA("BasePart") and d.Transparency < 0.95 then
+			-- (a tool not yet in the world has its pieces only on their welds:
+			-- their CFrames are not kept up, so the weld offset is used)
+			local offset: CFrame? = nil
+			for _, j in ipairs(d:GetChildren()) do
+				if j:IsA("JointInstance") and j.Part0 == handle and j.Part1 == d then offset = j.C0 * j.C1:Inverse() end
+			end
+			local p = if offset then offset.Position else handle.CFrame:PointToObjectSpace(d.Position)
+			r = math.max(r, Vector2.new(p.X, p.Z).Magnitude + math.max(d.Size.X, d.Size.Z) / 2)
+		end
+	end
+	return math.min(r, 3)
+end
+local function scaleTool(tool: Tool, handle: BasePart, k: number)
+	local function grow(cf: CFrame): CFrame return CFrame.new(cf.Position * k) * cf.Rotation end
+	local constraints = {}
+	for _, d in ipairs(handle:GetDescendants()) do
+		if d:IsA("WeldConstraint") and d.Enabled then d.Enabled = false table.insert(constraints, d) end
+	end
+	for _, d in ipairs(handle:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.CFrame = handle.CFrame * grow(handle.CFrame:ToObjectSpace(d.CFrame))
+		end
+	end
+	for _, d in ipairs({ handle, unpack(handle:GetDescendants()) }) do
+		if d:IsA("BasePart") then
+			d.Size *= k
+			-- (FoodShapes keeps these for its "Scale" bites: grown too, or the
+			-- first bite put the piece back to its old size)
+			local s0, c00 = d:GetAttribute("EatSize0"), d:GetAttribute("EatC00")
+			if typeof(s0) == "Vector3" then d:SetAttribute("EatSize0", s0 * k) end
+			if typeof(c00) == "CFrame" then d:SetAttribute("EatC00", grow(c00)) end
+		elseif d:IsA("JointInstance") then
+			d.C0, d.C1 = grow(d.C0), grow(d.C1)
+		elseif d:IsA("Attachment") then
+			d.Position *= k
+		elseif d:IsA("SpecialMesh") and d.MeshType == Enum.MeshType.FileMesh then
+			d.Scale *= k
+			d.Offset *= k
+		elseif d:IsA("Texture") then
+			d.StudsPerTileU *= k
+			d.StudsPerTileV *= k
+		end
+	end
+	for _, c in ipairs(constraints) do c.Enabled = true end
+	tool.Grip = grow(tool.Grip)
+end
+
 -- The hand-held model of each kind of item. The main edible piece is "Fill"
 -- (it shrinks with every bite).
 local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
@@ -603,11 +660,19 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	sip.Volume = if COFFEE[item.key] then 0.9 elseif QUIET[item.key] then 0.35 else LOUD[item.key] or 0.7
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
+	scaleTool(tool, handle, FOOD_SCALE) -- (D-950)
 	markEdible(tool, handle)
 	-- soup and noodles: the surface sinks a third of the bowl per bite
 	local surface = (kind == "bowl" or kind == "ricebowl" or kind == "noodle") and handle:FindFirstChild("Fill")
-	if surface then surface:SetAttribute("EatDrop", if kind == "noodle" then 0.5 else 0.3) end
+	if surface then surface:SetAttribute("EatDrop", (if kind == "noodle" then 0.5 else 0.3) * FOOD_SCALE) end
+	-- (D-950) a click / tap is not a bite by itself any more: SnackController
+	-- decides (over a food table it puts the food down there, elsewhere it
+	-- calls tool:Activate(), the bite)
+	tool.ManualActivationOnly = true
 	tool.Activated:Connect(function() bite(tool, item) end)
+	-- (D-950) how much of a table top it takes, for the silhouette and the
+	-- overlap check (국밥 goes down as its tray set, 3.4 × 1.5 studs across)
+	tool:SetAttribute("PlaceRadius", if kind == "bowl" then 3.4 * FOOD_SCALE / 2 else footprintOf(handle))
 	return tool
 end
 
@@ -1228,7 +1293,19 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	end
 	if left <= 0 then model:Destroy() end
 end
-local function putDown(player: Player, tablePart: any): (boolean, string?)
+-- (D-950) the food on the tables: model → its tool waiting aside, for a
+-- spoonful and for taking it back (no buttons on the food any more)
+type Placed = { player: Player, tool: Tool, item: SnackConfig.Item?, copy: BasePart, soup: boolean }
+local placedFood: {[Model]: Placed} = {}
+local function footprint(tool: Tool, handle: BasePart): number
+	local r = tool:GetAttribute("PlaceRadius")
+	return if typeof(r) == "number" then r else footprintOf(handle)
+end
+-- (shared with SnackController: a spot is free when another food's middle is
+-- farther than this part of the two reaches)
+local OVERLAP = 0.85
+
+local function putDown(player: Player, tablePart: any, at: any): (boolean, string?)
 	if typeof(tablePart) ~= "Instance" or not tablePart:IsA("BasePart") or not tablePart:IsDescendantOf(workspace) then
 		return false, "테이블을 찾을 수 없어요."
 	end
@@ -1254,6 +1331,32 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 	local flat = Vector3.new(root.Position.X - cf.X, 0, root.Position.Z - cf.Z)
 	local offset = if flat.Magnitude > 0.01 then flat.Unit * math.min(flat.Magnitude, inner) else Vector3.zero
 	local spot = Vector3.new(cf.X, 0, cf.Z) + offset
+	-- (D-950, user 2026-11-07: "음식 들고 테이블 위로 드래그하면 음식 실루엣으로
+	-- 테이블 위에 배치 ... 배치할 수 없는 곳이면 빨간색") the spot the player
+	-- pointed at (SnackController's green silhouette), checked again here:
+	-- on the top, the food inside its edges, not on another food
+	local radius = footprint(tool, handle)
+	if typeof(at) == "Vector3" then
+		local here = cf:PointToObjectSpace(at)
+		local half = tablePart.Size / 2
+		if math.abs(here.X) > half.X - radius * 0.5 or math.abs(here.Z) > half.Z - radius * 0.5 then
+			return false, "테이블 가장자리라 놓을 수 없어요."
+		end
+		if Vector3.new(at.X - root.Position.X, 0, at.Z - root.Position.Z).Magnitude > 9 then
+			return false, "테이블 가까이 가 주세요."
+		end
+		for other, entry in pairs(placedFood) do
+			if other.Parent == tablePart then
+				local p = entry.copy.Position
+				local otherR = other:GetAttribute("Radius")
+				local r2 = if typeof(otherR) == "number" then otherR else 0.8
+				if Vector3.new(p.X - at.X, 0, p.Z - at.Z).Magnitude < (radius + r2) * OVERLAP then
+					return false, "다른 음식과 너무 가까워요."
+				end
+			end
+		end
+		spot = Vector3.new(at.X, 0, at.Z)
+	end
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Include
 	params.FilterDescendantsInstances = { tablePart }
@@ -1300,7 +1403,7 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 		local t = tray:Clone()
 		local _, tsize = t:GetBoundingBox()
 		-- (its bowl as big as the one in the hand, user 2026-10-27: was smaller)
-		t:ScaleTo(t:GetScale() * 3.4 / math.max(tsize.X, tsize.Z))
+		t:ScaleTo(t:GetScale() * 3.4 * FOOD_SCALE / math.max(tsize.X, tsize.Z)) -- (D-950: 1.5×, as the bowl)
 		local tb, ts = t:GetBoundingBox()
 		t:PivotTo(t:GetPivot() + (Vector3.new(hit.Position.X, hit.Position.Y + 0.02 + ts.Y / 2, hit.Position.Z) - tb.Position))
 		for _, p in ipairs(t:GetDescendants()) do
@@ -1320,40 +1423,19 @@ local function putDown(player: Player, tablePart: any): (boolean, string?)
 	tool.Parent = keptFolder
 	local item = itemByKey(tool:GetAttribute("Snack"))
 	local soup = item ~= nil and (item.kind == "bowl" or item.kind == "ricebowl" or item.kind == "noodle") -- (컵라면 too: chopsticks, 2026-10-27)
-	if soup and item then
-		-- 국밥 stays on the table (user 2026-10-26): eaten from there with a
-		-- spoon, never picked up again.
-		-- (D-947, user 2026-11-07: "모든 음식 테이블에 둔 다음 E떠먹기 뜨는 거 없애",
-		-- then "화면 터치로 먹기") no E 떠먹기 / 먹기 button: a click or a tap on
-		-- the bowl (its tray too) is one spoonful
-		-- (the food parts are made with CanQuery off: a click must find them)
-		for _, p in ipairs(model:GetDescendants()) do
-			if p:IsA("BasePart") then p.CanQuery = true end
-		end
-		local detector = Instance.new("ClickDetector")
-		detector.MaxActivationDistance = 12
-		detector.Parent = model
-		detector.MouseClick:Connect(function(who)
-			if who ~= player or not model.Parent then return end
-			spoonful(player, model, copy, tool, item)
-		end)
-	else
-		local prompt = Instance.new("ProximityPrompt")
-		prompt.ActionText = "다시 들기"
-		prompt.ObjectText = tool.Name
-		prompt.MaxActivationDistance = 8
-		prompt.RequiresLineOfSight = false
-		prompt.Parent = copy
-		prompt.Triggered:Connect(function(who)
-			if who ~= player or not model.Parent then return end
-			if giveTool(player, tool) then
-				tool:SetAttribute("KeptBy", nil)
-				model:Destroy()
-			end
-		end)
+	-- (D-947 → D-950) no buttons on the food: SnackController finds a tap on
+	-- it (so its parts answer raycasts; they are made with CanQuery off) and
+	-- asks "Spoon" (a short tap on a 국밥 / 공깃밥 / 컵라면: one spoonful) or
+	-- "PickUp" (a long press on any food: back into the backpack as it is)
+	for _, p in ipairs(model:GetDescendants()) do
+		if p:IsA("BasePart") then p.CanQuery = true end
 	end
+	model:SetAttribute("Soup", soup)
+	model:SetAttribute("Radius", radius)
+	placedFood[model] = { player = player, tool = tool, item = item, copy = copy, soup = soup }
 	model.Parent = tablePart
 	model.Destroying:Connect(function()
+		placedFood[model] = nil
 		if tool.Parent == keptFolder then tool:Destroy() end
 	end)
 	-- (a bowl left behind goes sooner: its owner may have walked off, user 2026-10-26)
@@ -1516,13 +1598,59 @@ local function buildFoodPreviews()
 	folder.Parent = FashionGame
 end
 
+-- (D-950) a food on a table the player owns and can reach
+local function ownPlaced(player: Player, model: any): Placed?
+	if typeof(model) ~= "Instance" or not model:IsA("Model") or not model.Parent then return nil end
+	local entry = placedFood[model]
+	if not entry or entry.player ~= player then return nil end
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not root or (root.Position - entry.copy.Position).Magnitude > 14 then return nil end
+	return entry
+end
+
+-- a short tap on a 국밥 / 공깃밥 / 컵라면 on the table: one spoonful
+local function spoonFromTable(player: Player, model: any): (boolean, string?)
+	local entry = ownPlaced(player, model)
+	if not entry or not entry.soup or not entry.item then return false, nil end
+	task.spawn(spoonful, player, model, entry.copy, entry.tool, entry.item)
+	return true, nil
+end
+
+-- (D-950, user 2026-11-07: "꾹 누르면 먹던 거면 먹던 그 상태로 인벤토리로 다시
+-- 들어오게 해") a long press on any food on the table: back into the backpack
+-- with the bites it has left (a bowl shows the spoonfuls eaten at the table)
+local function pickUp(player: Player, model: any): (boolean, string?)
+	local entry = ownPlaced(player, model)
+	if not entry then return false, nil end
+	if (model :: Model):GetAttribute("Busy") then return false, "먹는 중이에요." end
+	local tool = entry.tool
+	-- (into the backpack, not the hand: giveTool would equip it)
+	local backpack = player:FindFirstChildOfClass("Backpack")
+	if not backpack then return false, nil end
+	tool.Parent = backpack
+	tool:SetAttribute("KeptBy", nil)
+	local item = entry.item
+	local handle = tool:FindFirstChild("Handle")
+	local left = tool:GetAttribute("Bites")
+	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
+	if entry.soup and item and handle and handle:IsA("BasePart") and typeof(left) == "number" and typeof(lo) == "number" and typeof(hi) == "number" then
+		local total = bitesOf(item)
+		if left < total then eatDownTo(handle, lo, hi, left, total) end
+	end
+	placedFood[model :: Model] = nil
+	;(model :: Model):Destroy()
+	return true, nil
+end
+
 function SnackService.Start(economyService: any)
 	economy = economyService
 	task.spawn(buildFoodPreviews)
 	local remote = Remotes:WaitForChild("Snack") :: RemoteFunction
 	remote.OnServerInvoke = function(player: Player, action: any, shopKey: any, itemKey: any)
 		if action == "Buy" then return buy(player, shopKey, itemKey) end
-		if action == "PutDown" then return putDown(player, shopKey) end
+		if action == "PutDown" then return putDown(player, shopKey, itemKey) end -- (D-950: itemKey = the spot)
+		if action == "Spoon" then return spoonFromTable(player, shopKey) end
+		if action == "PickUp" then return pickUp(player, shopKey) end
 		return false, nil
 	end
 	-- food left on a table goes when its owner leaves
