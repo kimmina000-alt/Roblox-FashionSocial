@@ -352,6 +352,9 @@ M.ChoreoFixes = {
 	-- 11, 12 (D-962, user: "1:00-1:01 캐릭터 갑자기 앞으로 이동"): the feet slide
 	-- 0.6-2 studs at 4.6-5.9 and in 12 (1.2 s): in place
 	[79064359810628] = { still = { { from = 4.6, to = 5.9 } } },
+	-- 8 (D-964, found by tools/choreo/play_record.lua): the capture's hips dash
+	-- 2 studs off in its last 0.3 s (0:46.1-46.35): in place
+	[140553219106220] = { still = { { from = 2.9, to = 3.4 } } },
 	[103495705227564] = { still = { { from = 0, to = 1.2 } } },
 	-- 18 (D-962, user: "1:27 회전"): 17 ends facing -89°, 18 starts at +64° and
 	-- spins once with a lurch (+50° a keyframe at 0.9-1.1 s): one even turn
