@@ -43,29 +43,23 @@ local TRACKS = {
 	{ title = "Hearts2Hearts-Next Chapter", id = 113170325006427 }, -- user 2026-11-06, x1 file, song 2:52
 	{ title = "aespa-Lemonade", id = 132067415333401, club = { 0.333, 3, -11, 0, -2.5 } },
 	{ title = "IVE-Mirror", id = 139326796173276, club = { 0.332, 3, -10.5, 5, 4.5 } },
-	{ title = "A2O LITE-NEON", id = 74988982712396 }, -- new upload (user 2026-11-06, x1 file 201.2 s, song 3:41); was 97511700575810
-	{ title = "NEON 새 음원", id = 140713297574648 }, -- file 210.8 s, song 3:41
+	{ title = "A2O LITE-NEON", id = 140713297574648 }, -- new upload (user 2026-11-06, file 210.8 s, song 3:41); was 74988982712396, 97511700575810
 	{ title = "SOYEON-퇴사할게여", id = 96358497474432, club = { 0.334, 3, -3, 2, 0 } },
-	{ title = "ILLIT-체포하겠어", id = 139044453511745, club = { 0.335, 3, -3, 2, 0 } },
-	{ title = "체포하겠어 새 음원", id = 102827134450527 }, -- file 173.3 s, song 3:01
-	{ title = "RESCENE-LOVE-ATTACK", id = 71873496902418, club = { 0.334, 3, -3, 2, 0 } },
-	{ title = "LOVE-ATTACK 새 음원", id = 139330220515727 }, -- file 173.0 s, song 3:01
+	{ title = "ILLIT-체포하겠어", id = 102827134450527 }, -- new upload (user 2026-11-06, file 173.3 s, song 3:01); was 139044453511745
+	{ title = "RESCENE-LOVE-ATTACK", id = 139330220515727 }, -- new upload (user 2026-11-06, file 173.0 s, song 3:01); was 71873496902418
 	{ title = "MY:RAKL-오색 낙원", id = 108027306922001, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "Darla Jean-Dam Da Dee", id = 78077595750886, club = { 0.335, 3, -3, 2, 0 } },
 	{ title = "머무르-꿈꾸던 어른이 되었나요", id = 120160897793669, club = { 0.334, 3, -3, 2, 0 } },
 	{ title = "IVE-Looks Can Kill", id = 135553051649506, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "Looks Can Kill 새 음원", id = 126313127049455 }, -- song 3:13; did not load yet 2026-11-06 (review?), tempo to set when it loads
-	{ title = "IOI-갑자기", id = 73546697163709, club = { 0.333, 2.4, -9.5, 6, 0 } },
-	{ title = "갑자기 새 음원", id = 75344866720031 }, -- file 185.8 s, song 3:15
+	{ title = "IOI-갑자기", id = 75344866720031 }, -- new upload (user 2026-11-06, file 185.8 s, song 3:15); was 73546697163709
 	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 107782871991364, club = { 0.333, 3, -3, 2, 0 } },
-	{ title = "I SPY 새 음원", id = 98124521559769 }, -- file 176.3 s, song 3:05 (where NCT WISH-I SPY was)
+	{ title = "NCT WISH-I SPY", id = 98124521559769 }, -- new upload (user 2026-11-06, file 176.3 s, song 3:05); was 90694654380166
 	{ title = "IU-이 별로부터", id = 96396723842714, club = { 0.333, 3, -3, 2, 0 } },
-	{ title = "CORTIS-REDRED", id = 125703446596781, club = { 0.333, 3, -3, 2, 0 } },
-	{ title = "REDRED 새 음원", id = 76034005809699 }, -- file 153.8 s, song 2:43
+	{ title = "CORTIS-REDRED", id = 76034005809699 }, -- new upload (user 2026-11-06, file 153.8 s, song 2:43); was 125703446596781
 	{ title = "BIG Naughty-노스탈지아", id = 116539470869444, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "BIGBANG-BiiiG", id = 113809029583519, club = { 0.334, 3, -3, 2, 0 } },
-	{ title = "BOYNEXTDOOR-ANIMAL", id = 130804487358433, club = { 0.29, 3, -3, 2, 0 } },
-	{ title = "ANIMAL 새 음원", id = 94774089824958 }, -- file 136.1 s, song 2:22
+	{ title = "BOYNEXTDOOR-ANIMAL", id = 94774089824958 }, -- new upload (user 2026-11-06, file 136.1 s, song 2:22); was 130804487358433
 	-- joined songs (user 2026-11-03): one song uploaded as clips cut by
 	-- tools/audio/split_for_crossfade.ps1, played as one by JoinedSongPlayer
 	{ title = "녹음본 (8구간 이어 붙임)", joined = { parts = { 81568082292649, 130739295576800, 136055998058951, 101406045735531, 115474783735573, 101362036297281, 107766734212525, 139626977220244 }, segLen = 30, tail = 4, total = 225.05, lead = 0.09 } },
