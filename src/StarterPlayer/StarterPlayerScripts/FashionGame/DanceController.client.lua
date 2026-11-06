@@ -336,7 +336,7 @@ local bannerToggle = create("TextButton", {
 	Size = UDim2.fromOffset(26, 26),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 	BackgroundTransparency = 0.45,
-	Text = "−",
+	Text = "<", -- (D-953: "<" open, ">" folded; "−" / "+" before)
 	TextColor3 = Color3.new(1, 1, 1),
 	TextSize = 20,
 	Font = Enum.Font.GothamBold,
@@ -346,7 +346,9 @@ local bannerToggle = create("TextButton", {
 corner(bannerToggle, 13)
 bannerToggle.Activated:Connect(function()
 	bannerFolded = not bannerFolded
-	bannerToggle.Text = if bannerFolded then "+" else "−"
+	-- (D-953, user 2026-11-07: "+ , - 로 접었다 폈다 할 수 있는데 > , < 이걸로 변경. 접혀
+	-- 있을 때는 > , 펼쳐져 있을 땐 <")
+	bannerToggle.Text = if bannerFolded then ">" else "<"
 	if bannerFolded then banner.Visible = false end
 end)
 
