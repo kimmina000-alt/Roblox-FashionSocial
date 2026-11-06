@@ -172,7 +172,15 @@ M.Playlist = {
 		{ id = 123213110930819, at = 113.09, blend = 0.61 }, { id = 84387354167133, at = 117.21, blend = 0.77 }, { id = 81083928741520, at = 118.22, blend = 0.54 }, { id = 132463155617727, at = 127, blend = 0.41 },
 		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
 		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+		-- D-965: CatchCatch 1..23 without 3, 6, 15, 19, 22 (each of those uploads is a copy of the piece before it): default dance in their spots.
+		-- Practice video 49NEjM_fJcc, video = song - 0.70 s (game song at 0-20 s and 150-170 s), `at` = clip start + 0.70
+		choreo = { { id = 75443608985712, at = 0.7 }, { id = 75353020147525, at = 5.53, blend = 1 }, { id = 98686361929027, at = 18.27 },
+		{ id = 112551530516434, at = 28.7, blend = 0.73 }, { id = 74567972410299, at = 48.27 }, { id = 110540650870002, at = 62.77 },
+		{ id = 130984178299080, at = 76.97, blend = 0.62 }, { id = 128412578867487, at = 83.03 }, { id = 122624428391289, at = 92.97, blend = 1 },
+		{ id = 126013496400815, at = 96.83, blend = 1 }, { id = 107833429874111, at = 98.17, blend = 0.83 }, { id = 138852020855643, at = 104.4, blend = 0.42 },
+		{ id = 109149196328464, at = 123.03 }, { id = 113094829637212, at = 124.5, blend = 0.81 }, { id = 86199642425885, at = 128.87, blend = 1 },
+		{ id = 111787124658928, at = 143.2 }, { id = 104636507093618, at = 149.17, blend = 0.47 }, { id = 116715438780373, at = 172.17 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);
 	-- fileSpeed 1: a track with `lab` counts as a 3× upload otherwise (ClubConfig.fileSpeed)
