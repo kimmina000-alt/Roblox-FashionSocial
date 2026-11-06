@@ -61,6 +61,7 @@ local TRACKS = {
 	{ title = "I SPY 새 음원", id = 98124521559769 }, -- file 176.3 s, song 3:05 (where NCT WISH-I SPY was)
 	{ title = "IU-이 별로부터", id = 96396723842714, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "CORTIS-REDRED", id = 125703446596781, club = { 0.333, 3, -3, 2, 0 } },
+	{ title = "REDRED 새 음원", id = 76034005809699 }, -- file 153.8 s, song 2:43
 	{ title = "BIG Naughty-노스탈지아", id = 116539470869444, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "BIGBANG-BiiiG", id = 113809029583519, club = { 0.334, 3, -3, 2, 0 } },
 	{ title = "BOYNEXTDOOR-ANIMAL", id = 130804487358433, club = { 0.29, 3, -3, 2, 0 } },
