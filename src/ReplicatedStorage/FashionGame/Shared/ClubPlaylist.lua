@@ -173,7 +173,7 @@ M.Playlist = {
 		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
 		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
-		-- D-965: CatchCatch 1..23 without 3, 6, 15, 19, 22 (each of those uploads is a copy of the piece before it): default dance in their spots.
+		-- D-968: CatchCatch 1..23 without 3, 6, 15, 19, 22 (each of those uploads is a copy of the piece before it): default dance in their spots.
 		-- Practice video 49NEjM_fJcc, video = song - 0.70 s (game song at 0-20 s and 150-170 s), `at` = clip start + 0.70
 		choreo = { { id = 75443608985712, at = 0.7 }, { id = 75353020147525, at = 5.53, blend = 1 }, { id = 98686361929027, at = 18.27 },
 		{ id = 112551530516434, at = 28.7, blend = 0.73 }, { id = 74567972410299, at = 48.27 }, { id = 110540650870002, at = 62.77 },
@@ -299,7 +299,7 @@ M.Playlist = {
 	-- the new 185.760 s file = 3 × 65.016 ÷ 185.760 = 1.0500 faster than the song; tempo 0.953 × 1.05 = 1.001
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 75344866720031, length = 185.76, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20 },
-		-- D-964: Suddenly new 1..25 without 4 (no upload) and 7 (its upload is a copy of 6): default dance 16.7-23.5 and 46.0-56.4.
+		-- D-967: Suddenly new 1..25 without 4 (no upload) and 7 (its upload is a copy of 6): default dance 16.7-23.5 and 46.0-56.4.
 		-- Practice video YzQ0rD3htMo, video = song + 0.30 s (mp3 and the game file), `at` = clip start - 0.30; piece 1 `from = 0.3`
 		choreo = { { id = 72001429900652, from = 0.3 }, { id = 84372825286978, at = 7.33, blend = 1 }, { id = 140529283375287, at = 8.5, blend = 1 },
 		{ id = 121160569929367, at = 23.5 }, { id = 109571265510769, at = 36.33, blend = 1 }, { id = 76645919052139, at = 56.4 },
