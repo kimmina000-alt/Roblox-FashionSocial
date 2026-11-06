@@ -55,6 +55,17 @@ function BarShelfService.Start()
 		end
 		if #shelves == 0 then return end
 		table.sort(shelves, function(a, b) return a.Position.Y < b.Position.Y end)
+		-- (D-955) a board cut in pieces counts as one row: each shelf takes the row
+		-- of its height, so the rows above keep their drinks
+		local levels: { number } = {}
+		local function levelOf(shelf: BasePart): number
+			for i, y in ipairs(levels) do
+				if math.abs(y - shelf.Position.Y) < 0.5 then return i end
+			end
+			table.insert(levels, shelf.Position.Y)
+			return #levels
+		end
+		for _, shelf in ipairs(shelves) do levelOf(shelf) end
 		local rows = {
 			row(function(d) return d.tier == 2 and not d.vipOnly end),
 			row(function(d) return d.tier == 3 and not d.vipOnly end),
@@ -120,7 +131,10 @@ function BarShelfService.Start()
 			beam.Parent = p
 		end
 		for i, shelf in ipairs(shelves) do
-			local drinks = rows[math.min(i, #rows)]
+			-- (D-955, user 2026-11-07: the two lowest rows hold the drink buckets of
+			-- tools/graybox/club_vip_bar_1107.lua, no bottles or light pucks there)
+			if shelf:GetAttribute("BarBuckets") then continue end
+			local drinks = rows[math.min(levelOf(shelf), #rows)]
 			if #drinks == 0 then continue end
 			-- the shelf's long side, and which way is the bar
 			local along = if shelf.Size.X >= shelf.Size.Z then shelf.CFrame.RightVector else shelf.CFrame.LookVector

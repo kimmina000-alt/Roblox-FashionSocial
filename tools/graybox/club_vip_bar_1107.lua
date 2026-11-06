@@ -2,6 +2,8 @@
 -- Club: the north VIP balcony shorter, buckets on the bar shelves (D-954,
 -- user 2026-11-07), run in Edit mode LAST in the layout chain (after
 -- club_locker_1103). World coordinates; running it again gives the same result.
+--   (2026-11-07 (2): the south balcony too, the wall edge lights cut, the
+--   buckets face the room, no bottles on the bucket rows.)
 --   1. "vip zone 원통형 전광판쪽에 있는 공간 삭제. 빨간선까지만 구현하고 오른쪽에
 --      있는 것들 삭제. 빈 공간으로 두기." The north VIP balcony (x 158..191, the
 --      side of the LED pillar at x 171) ended at z -152 right in front of the
@@ -24,62 +26,79 @@ assert(club, "run the layout chain first")
 local log = {}
 
 ------------------------------------------------------------------
--- 1. north VIP balcony ends at z -181.5
+-- 1. both VIP balconies end at z -181.5 (the partitions' line)
 ------------------------------------------------------------------
+-- (user 2026-11-07 (2): "반대쪽 vip 발코니도 똑같이 비워 / vip 발코니 없앤 부분은
+-- 조명선 지워": the south balcony (x 66.5..89, LED pillar x 82.5) the same way, and
+-- the floor edge light strips along the walls (VIP_Partitions.VIP_FloorEdgeLight)
+-- stop at the cut too)
 local CUT = -181.5
-local function inBalconyEnd(pos: Vector3): boolean
-	return pos.X > 158 and pos.X < 191 and pos.Y > 17 and pos.Y < 50 and pos.Z > CUT and pos.Z < -140
-end
+local SIDES = {
+	{ name = "north", x0 = 158, x1 = 191, endRail = "VIP_Rail_NE", endX = 176.2 },
+	{ name = "south", x0 = 66, x1 = 89.5, endRail = "VIP_Rail_SE", endX = 77.5 },
+}
 -- never: the pillar, the walls and the hall's own boxes (zones, interior)
 local function protected(name: string): boolean
 	return name == "LEDPillar" or name:find("^Wall") ~= nil or name:find("^ClubZone") ~= nil or name == "ClubInterior"
 		or name == "Ceiling" or name:find("^Laser") ~= nil or name:find("^Moving") ~= nil or name:find("^Wash") ~= nil
+		or name == "VIP_Partitions" or name == "BarBucketDisplay" or name == "BarShelfBottles"
 end
 local function zExtent(p: BasePart): (number, number)
 	local c, h = p.CFrame, p.Size / 2
 	local ez = math.abs(c.XVector.Z) * h.X + math.abs(c.YVector.Z) * h.Y + math.abs(c.ZVector.Z) * h.Z
 	return p.Position.Z - ez, p.Position.Z + ez
 end
--- the end rail (and its glass block) at z -152.2 move to the new end
-local endParts = {}
-for _, d in ipairs(club:GetChildren()) do
-	if d:IsA("BasePart") and (d.Name == "VIP_Rail_NE" or (d.Name == "VIP_RailBlock" and d.Position.X > 170 and d.Position.X < 182 and math.abs(d.Position.X - 176.2) < 1)) then
-		local z0, z1 = zExtent(d)
-		if z1 - z0 < 2 then table.insert(endParts, d) end -- (the end rails run along X: thin in Z)
-	end
-end
-local removed = 0
-for _, d in ipairs(club:GetChildren()) do
-	local pos = if d:IsA("BasePart") then d.Position elseif d:IsA("Model") then d:GetPivot().Position else nil
-	if pos and not protected(d.Name) and not table.find(endParts, d) and inBalconyEnd(pos) then
-		d:Destroy()
-		removed += 1
-	end
-end
-for _, d in ipairs(endParts) do
+-- a part that runs on past the cut stops at it (the local axis along world Z)
+local function trimAt(d: BasePart): boolean
 	local z0, z1 = zExtent(d)
-	d.Position = Vector3.new(d.Position.X, d.Position.Y, CUT - (z1 - z0) / 2)
+	if not (z0 < CUT and z1 > CUT + 0.01) then return false end
+	local c = d.CFrame
+	local axes = { { v = c.XVector, i = 1 }, { v = c.YVector, i = 2 }, { v = c.ZVector, i = 3 } }
+	table.sort(axes, function(a, b) return math.abs(a.v.Z) > math.abs(b.v.Z) end)
+	local len, s = CUT - z0, d.Size
+	d.Size = if axes[1].i == 1 then Vector3.new(len, s.Y, s.Z) elseif axes[1].i == 2 then Vector3.new(s.X, len, s.Z) else Vector3.new(s.X, s.Y, len)
+	d.CFrame = c.Rotation + Vector3.new(c.X, c.Y, (z0 + CUT) / 2)
+	return true
 end
--- the long pieces that ran on past the cut stop at it
-local TRIM = { VIP_Floor_N = true, VIP_Rail_N = true, VIP_RailBlock = true, VIP_RailNeon_N = true, VIP_RailNeonLow = true, VIP_Region_N = true }
-local trimmed = 0
-for _, d in ipairs(club:GetChildren()) do
-	if d:IsA("BasePart") and TRIM[d.Name] and not table.find(endParts, d) and d.Position.X > 158 and d.Position.X < 191 and d.Position.Y > 17 and d.Position.Y < 50 then
-		local z0, z1 = zExtent(d)
-		if z0 < CUT and z1 > CUT + 0.01 then
-			-- the local axis that runs along world Z
-			local c = d.CFrame
-			local axes = { { v = c.XVector, i = 1 }, { v = c.YVector, i = 2 }, { v = c.ZVector, i = 3 } }
-			table.sort(axes, function(a, b) return math.abs(a.v.Z) > math.abs(b.v.Z) end)
-			local len = CUT - z0
-			local s = d.Size
-			d.Size = if axes[1].i == 1 then Vector3.new(len, s.Y, s.Z) elseif axes[1].i == 2 then Vector3.new(s.X, len, s.Z) else Vector3.new(s.X, s.Y, len)
-			d.CFrame = c.Rotation + Vector3.new(c.X, c.Y, (z0 + CUT) / 2)
-			trimmed += 1
+local TRIM = { VIP_Floor_N = true, VIP_Floor_S = true, VIP_Rail_N = true, VIP_Rail_S = true, VIP_RailBlock = true,
+	VIP_RailNeon_N = true, VIP_RailNeon_S = true, VIP_RailNeonLow = true, VIP_Region_N = true, VIP_Region_S = true }
+for _, side in ipairs(SIDES) do
+	local function inSide(pos: Vector3): boolean
+		return pos.X > side.x0 and pos.X < side.x1 and pos.Y > 17 and pos.Y < 50
+	end
+	-- the end rail (and its glass block) at z -152.2 move to the new end
+	local endParts = {}
+	for _, d in ipairs(club:GetChildren()) do
+		if d:IsA("BasePart") and inSide(d.Position) and (d.Name == side.endRail or (d.Name == "VIP_RailBlock" and math.abs(d.Position.X - side.endX) < 1)) then
+			local z0, z1 = zExtent(d)
+			if z1 - z0 < 2 then table.insert(endParts, d) end -- (the end rails run along X: thin in Z)
 		end
 	end
+	local removed = 0
+	for _, d in ipairs(club:GetChildren()) do
+		local pos = if d:IsA("BasePart") then d.Position elseif d:IsA("Model") then d:GetPivot().Position else nil
+		if pos and not protected(d.Name) and not table.find(endParts, d) and inSide(pos) and pos.Z > CUT and pos.Z < -140 then
+			d:Destroy()
+			removed += 1
+		end
+	end
+	for _, d in ipairs(endParts) do
+		local z0, z1 = zExtent(d)
+		d.Position = Vector3.new(d.Position.X, d.Position.Y, CUT - (z1 - z0) / 2)
+	end
+	local trimmed = 0
+	for _, d in ipairs(club:GetChildren()) do
+		if d:IsA("BasePart") and TRIM[d.Name] and not table.find(endParts, d) and inSide(d.Position) and trimAt(d) then trimmed += 1 end
+	end
+	-- the floor edge light strip along the wall
+	local parts = club:FindFirstChild("VIP_Partitions")
+	if parts then
+		for _, d in ipairs(parts:GetDescendants()) do
+			if d:IsA("BasePart") and d.Name == "VIP_FloorEdgeLight" and inSide(d.Position) and trimAt(d) then trimmed += 1 end
+		end
+	end
+	table.insert(log, string.format("VIP %s balcony: %d removed, %d cut at z %.1f, end rail %d", side.name, removed, trimmed, CUT, #endParts))
 end
-table.insert(log, string.format("VIP north balcony: %d parts removed, %d cut at z %.1f, end rail %d", removed, trimmed, CUT, #endParts))
 
 ------------------------------------------------------------------
 -- 2. buckets on the bar's two lowest shelf rows
@@ -110,6 +129,14 @@ end
 shelfPiece(Z0, MID0)
 shelfPiece(MID1, Z1)
 for _, d in ipairs(midShelves) do d:Destroy() end
+-- the bucket rows carry no bottles: BarShelfService (which puts the club bottles
+-- and their light pucks on every BarShelf at server start) skips the boards
+-- marked BarBuckets (user 2026-11-07 (2): "기존에 있는 음료수병들은 삭제")
+for _, d in ipairs(club:GetChildren()) do
+	if d:IsA("BasePart") and d.Name == "BarShelf" then
+		d:SetAttribute("BarBuckets", if d.Position.Y < -6 then true else nil)
+	end
+end
 -- the bottles of the two lowest rows go
 -- (BarBottle parts, lying on the shelves at y -13.6 / -7.6 / -1.6: the top row stays)
 local gone = 0
@@ -158,9 +185,9 @@ local function lowestY(m: Model): (number, number)
 end
 -- one bucket standing on `topY` at z, front to the room, no taller than `room`
 local function bucket(spec, z: number, topY: number, room: number): Model
-	-- (the boxes are long along their own Z: turned so the long side runs along the shelf)
-	local long = spec.kind == "icebox" or spec.kind == "acrylic"
-	local at = CFrame.lookAt(Vector3.new(X, topY, z), Vector3.new(X, topY, z) + (if long then Vector3.zAxis else Vector3.xAxis))
+	-- (fronts to the room, as on a table in front of a player: the boxes then
+	-- lie along the shelf; user 2026-11-07 (2): turned sideways they looked wrong)
+	local at = CFrame.lookAt(Vector3.new(X, topY, z), Vector3.new(X + 1, topY, z))
 	local m = DrinkBucket.build(spec.kind, { spec.drink.color }, at, spec.drink.key)
 	m.PrimaryPart = nil
 	m.WorldPivot = at
