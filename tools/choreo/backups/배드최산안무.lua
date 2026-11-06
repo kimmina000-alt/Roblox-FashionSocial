@@ -1,4 +1,4 @@
--- 배드최산안무 (D-945 backup, 2026-11-07, user: "배드 가슴 튕기는 안무 따로 백업해 놔
+-- 배드최산안무 (D-961 backup, 2026-11-07, user: "배드 가슴 튕기는 안무 따로 백업해 놔
 -- … 그 부분은 지금 만들어 놓은 걸로 쓸 수 있게 / 이름 배드최산안무")
 --
 -- ATEEZ-BAD piece 21: chest pops in the arm-across pose, then hands on the
