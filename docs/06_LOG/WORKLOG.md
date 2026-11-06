@@ -3552,3 +3552,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - PC Play 확인(사진). 폰 세로 탭 화면은 2인 테스트에서.
 
 ![](images/2026-11-06/dj_window_pc.jpg)
+- (D-934) DJ 곡 버튼 ▶ ⏫ ➕ 작은 원, EDM 켤 때마다 x0.5.
+
+![](images/2026-11-06/dj_round_buttons.jpg)

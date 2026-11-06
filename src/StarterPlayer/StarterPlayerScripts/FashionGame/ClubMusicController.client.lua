@@ -821,10 +821,13 @@ local function renderTracks()
 		}, trackList)
 		corner(row, 8)
 		-- (D-933) the DJ's three buttons: 지금 / 우선예약 / 예약
-		local buttonW = if compactNow then 44 else 56
+		-- (D-934, user 2026-11-06: "글씨 빼고 그냥 작은 원 버튼으로 변경해서 노래 제목
+		-- 보이게") small round icon buttons: ▶ 지금, ⏫ 우선예약, ➕ 예약 (the list
+		-- title says which is which)
+		local buttonW = 28
 		create("TextLabel", {
 			Position = UDim2.fromOffset(8, 0),
-			Size = UDim2.new(1, if dj then -(3 * buttonW + 20) else (if compactNow then -62 else -86), 1, 0),
+			Size = UDim2.new(1, if dj then -(3 * buttonW + 26) else (if compactNow then -62 else -86), 1, 0),
 			BackgroundTransparency = 1,
 			Text = ClubConfig.showTitle(track, 14) .. "  ·  " .. track.channel, -- (🎵 = a choreography, D-731)
 			RichText = true,
@@ -838,11 +841,12 @@ local function renderTracks()
 			Font = Enum.Font.GothamMedium,
 		}, row)
 		local function rowButton(name: string, text: string, x: number, w: number, color: Color3, onClick: () -> ())
+			local round = w <= 30
 			local button = create("TextButton", {
 				Name = name,
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, x, 0.5, 0),
-				Size = UDim2.fromOffset(w, 28),
+				Size = UDim2.fromOffset(w, if round then w else 28),
 				BackgroundColor3 = color,
 				Text = text,
 				TextColor3 = COLORS.text,
@@ -850,17 +854,18 @@ local function renderTracks()
 				Font = Enum.Font.GothamBold,
 			}, row)
 			corner(button, 14)
-			create("UITextSizeConstraint", { MaxTextSize = 13 }, button)
-			create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, button)
+			create("UITextSizeConstraint", { MaxTextSize = if round then 18 else 13 }, button)
+			create("UIPadding", { PaddingLeft = UDim.new(0, if round then 4 else 3), PaddingRight = UDim.new(0, if round then 4 else 3),
+				PaddingTop = UDim.new(0, if round then 4 else 0), PaddingBottom = UDim.new(0, if round then 4 else 0) }, button)
 			button.MouseButton1Click:Connect(onClick)
 		end
 		if dj then
 			-- (D-933, user 2026-11-06: "디제이 음악창 지금/우선예약/예약으로 버튼 추가")
 			--   지금: plays now; 우선예약: first in the list of next songs ("Queue");
 			--   예약: at the end of it, in the order they were pressed ("Request")
-			rowButton("Play", "지금", -(2 * buttonW + 12), buttonW, COLORS.dj, function() call("Play", index) end)
-			rowButton("Queue", "우선예약", -(buttonW + 8), buttonW, COLORS.accent, function() call("Queue", index) end)
-			rowButton("Reserve", "예약", -4, buttonW, COLORS.card, function() call("Request", index) end)
+			rowButton("Play", "▶", -(2 * buttonW + 16), buttonW, COLORS.dj, function() call("Play", index) end)
+			rowButton("Queue", "⏫", -(buttonW + 10), buttonW, COLORS.accent, function() call("Queue", index) end)
+			rowButton("Reserve", "➕", -4, buttonW, COLORS.robux, function() call("Request", index) end)
 		elseif not otherDJ then
 			rowButton("Request", "신청", -4, if compactNow then 48 else 64, COLORS.accent, function() call("Request", index) end)
 		end
@@ -909,7 +914,7 @@ local function refresh()
 	end
 	layout()
 	listTitle.Text = if dj and showGuests then "DJ 존 초대 (초대한 사람만 올라올 수 있어요)"
-		elseif dj then "곡 고르기 (지금 / 우선예약 / 예약)" elseif djId ~= 0 then "DJ가 곡을 고르는 중 (DJ만 곡을 골라요)" else "곡 신청 (한 번에 한 곡)"
+		elseif dj then "▶ 지금 · ⏫ 우선예약 · ➕ 예약" elseif djId ~= 0 then "DJ가 곡을 고르는 중 (DJ만 곡을 골라요)" else "곡 신청 (한 번에 한 곡)"
 	guestsButton.Text = if showGuests then "🎵 곡 목록" else "👥 초대"
 	local speed = FashionGame:GetAttribute("ClubLightSpeed")
 	speedButton.Text = "⚡x" .. tostring(if typeof(speed) == "number" then speed else 1)
