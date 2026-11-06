@@ -146,11 +146,11 @@ M.Playlist = {
 		{ id = 129447992418977, at = 97.15 }, { id = 82252722293006, at = 116.21, blend = 0.55 }, { id = 108611133102309, at = 123.78 },
 		{ id = 117244778152210, at = 130.88 }, { id = 113505968174557, at = 141.55 }, { id = 112498417388469, at = 149.48 },
 		{ id = 80874196383963, at = 156.61, blend = 0.45 } }, autoChoreo = true }, -- (D-810, user: 2 s of 9 cut at 1:10)
-	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 119473981131981, length = 58, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
-	-- (D-927, user 2026-11-06: "러브119 아래 음원 추가. 이름 아이디로") an upload of 157.727 s, the user's values;
-	-- the song is 2:53 (user): fileSpeed = 173 ÷ 157.727 = 1.0968; heard 157.727 ÷ 0.906 = 2:54
-	{ channel = "K-POP", title = "85204387077332", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
-		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -28 } }, -- (high -20 → -28, user the same day)
+	-- (D-928, user 2026-11-06: "러브119 아이디 변경 85204387077332 하면서 설정값 가지고 갈 것") was 119473981131981,
+	-- a 3× file of 58 s; the new upload is 157.727 s of the 2:53 song: fileSpeed = 173 ÷ 157.727 = 1.0968,
+	-- the lab values of the D-927 entry (tempo 0.906, high -20 → -28 the same day), which is gone
+	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
+		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -28 } },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);
