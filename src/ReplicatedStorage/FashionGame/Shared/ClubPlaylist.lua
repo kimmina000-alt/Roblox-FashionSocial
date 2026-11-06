@@ -133,7 +133,7 @@ M.Playlist = {
 	-- (D-925, user 2026-11-06: new upload 70738014182544 with these lab values; high -27 → -7 → -20 → -28 → -20, low -3 → 0 the same day) a 153.008 s file:
 	-- 3 × 53.553 ÷ 153.008 = 1.0500, and the user's tempo 0.956 × 1.05 = 1.004 (heard ≈ the original)
 	-- (D-933, user 2026-11-06: boost3 5, low -3, high -28)
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -3, mid = 0, high = -28 }, choreo = {
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34 }, choreo = {
 		-- (D-807, user: "이음새도 맞춰") blend = seconds to ease from the last pose
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
 		-- (D-878, user: "겟어기타 안무 수정", practice video u_u21u8zIIs, mirrored
@@ -158,7 +158,7 @@ M.Playlist = {
 	-- the lab values of the D-927 entry (tempo 0.906, high -20 → -28 → -20 the same day), which is gone
 	-- (D-933, user 2026-11-06: boost3 5, high -28)
 	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
-		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -28 } },
+		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34 } },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);
@@ -198,7 +198,7 @@ M.Playlist = {
 	-- (D-932, user 2026-11-06: the D-931 upload 140713297574648 moved in here, its entry removed:
 	-- 3 × 73.770 ÷ 210.771 = 1.0500, `at` and the stage camera keep the song clock)
 	-- (D-935, user 2026-11-06 final values: boost3 5)
-	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 140713297574648, length = 210.771, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -20, engine = "sound" }, choreo = {
+	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 140713297574648, length = 210.771, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
 		-- (D-809, user: 22 pieces, blends from tools/choreo/choreo_check.lua)
 		-- (D-868 → D-869, user: "서 있는 앞 3.3초 이거 안무임 다시 추가해서 수정해")
 		-- the pieces were cut from the stage fancam n9HYtcN6W4w on its own clock
@@ -243,7 +243,7 @@ M.Playlist = {
 	-- (D-932, user 2026-11-06: was 71873496902418, a 3× file; the D-931 upload 139330220515727 moved in here,
 	-- its entry removed: fileSpeed 1.05, `at` and the stage camera keep the song clock)
 	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 139330220515727, length = 172.955, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = -20, engine = "sound" },
+		lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
 		-- D-903: LoveAttack1..27 (practice video nXDQPm_HnFc, video = song + 0.45 s)
 		choreo = { { id = 109011245162387, from = 0.45 }, { id = 77108502823118, at = 1.48, blend = 0.82 }, { id = 86687841705348, at = 5.12, blend = 1 },
 		{ id = 131382757802821, at = 8.95, blend = 0.52 }, { id = 137275968003632, at = 10.18, blend = 0.53 }, { id = 110961201759433, at = 14.82, blend = 1 },
@@ -280,7 +280,7 @@ M.Playlist = {
 	-- the new 185.760 s file = 3 × 65.016 ÷ 185.760 = 1.0500 faster than the song; tempo 0.953 × 1.05 = 1.001
 	-- (D-935, user 2026-11-06 final values: boost3 3)
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 75344866720031, length = 185.76, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, octave = 1, low = 0, mid = 0, high = -20 } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, octave = 1, low = -34, mid = -20, high = -34 } },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-929, user 2026-11-06: "I SPY 새 음원 98124521559769") was 90694654380166, a 3× file of 61.695 s:
@@ -288,7 +288,7 @@ M.Playlist = {
 	-- `at` and the stage camera (D-913) keep the song clock
 	-- (D-935, user 2026-11-06 final values: boost3 5)
 	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 98124521559769, length = 176.273, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -23 },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34 },
 		-- D-912: ISPY1..30 (practice video ILeBVk4x_XQ, video = song - 1.50 s; ISPY12 / ISPY15 were uploaded twice, the first id of each is used)
 		choreo = { { id = 83299308409543, at = 1.5 }, { id = 107073213896668, at = 4.9, blend = 0.93 }, { id = 88558817308286, at = 8.82, blend = 0.92 },
 		{ id = 98909637894188, at = 10.3, blend = 0.79 }, { id = 97906912240537, at = 15.32, blend = 0.46 }, { id = 114940315235555, at = 20.78, blend = 0.67 },
@@ -306,7 +306,7 @@ M.Playlist = {
 	-- in here, its entry removed: 3 × 54.35 ÷ 153.821 = 1.06, `at` and the stage camera keep the song clock)
 	-- (D-935, user 2026-11-06 final values: boost3 5)
 	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 76034005809699, length = 153.821, fileSpeed = 1.06,
-		lab = { speed = 1, tempo = 0.944, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -20, engine = "sound" }, choreo = {
+		lab = { speed = 1, tempo = 0.944, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
 		-- (D-879, user: 24 pieces from the practice video u_vusNeo6xI, mirrored,
 		-- clips 1-24 of D:\Roblox\영상\CORTIS_REDRED_centercut) each starts where its
 		-- clip starts in the video, less 0.40 s: the video runs 0.40 s behind the
@@ -326,7 +326,7 @@ M.Playlist = {
 	-- (D-933, user 2026-11-06: "ANIMAL 새 음원 94774089824958" with its lab values) was 94498201288355, a 3× file of 47.632 s;
 	-- the new upload is 136.107 s: fileSpeed = 3 × 47.632 ÷ 136.107 = 1.05 (tempo 0.958 × 1.05 = 1.006), so `at` keeps the song clock
 	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 94774089824958, length = 136.107, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.958, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -20, engine = "sound" },
+		lab = { speed = 1, tempo = 0.958, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
 		-- D-916: ANIMAL1..25 (practice video Gl1VZ3UPeZU, video = song - 0.23 s, `at` = clip start + 0.23)
 		choreo = { { id = 129402890751712, at = 0.23 }, { id = 80772039533772, at = 2.03, blend = 0.73 }, { id = 112166541341442, at = 4.51, blend = 0.74 },
 		{ id = 80410028707124, at = 6.36, blend = 0.48 }, { id = 105018508412110, at = 11.01, blend = 1 }, { id = 130036196270388, at = 13.41, blend = 1 },

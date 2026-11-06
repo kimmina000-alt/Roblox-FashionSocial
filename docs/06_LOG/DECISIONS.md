@@ -2641,3 +2641,15 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
   - NCT WISH-I SPY 98124521559769: boost3 5 추가.
   - CORTIS-REDRED 76034005809699: boost3 5 추가.
 - Get A Guitar / Love 119 / LOVE-ATTACK / ANIMAL은 이미 같음. 보낸 줄에 없는 `engine = "sound"`는 그대로 둠. Play로 들어 보지는 않음.
+
+## D-943 새 음원 8곡 EQ low -34 / mid -20 / high -34 (2026-11-06)
+- 사용자(표 사진: Get A Guitar 70738014182544, Love 119 85204387077332, NEON 140713297574648, LOVE-ATTACK 139330220515727, 갑자기 75344866720031, I SPY 98124521559769, REDRED 76034005809699, ANIMAL 94774089824958): "사진 속 음원들 설정값 수정 low = -34, mid = -20, high = -34".
+- 각 곡의 lab에서 low / mid / high만 바꿈(다른 값 그대로). feat/songs-1106c(D-935) 위에서 작업. RIIZE-Love 119 (설정2, D-942)는 표에 없어 그대로.
+  - RIIZE-Get A Guitar 70738014182544: `low = -3, mid = 0, high = -28` → low -34 / mid -20 / high -34
+  - RIIZE-Love 119 85204387077332: `low = 0, mid = 0, high = -28` → low -34 / mid -20 / high -34
+  - A2O LITE-NEON 140713297574648: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
+  - RESCENE-LOVE-ATTACK 139330220515727: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
+  - IOI-갑자기 75344866720031: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
+  - NCT WISH-I SPY 98124521559769: `low = 0, mid = 0, high = -23` → low -34 / mid -20 / high -34
+  - CORTIS-REDRED 76034005809699: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
+  - BOYNEXTDOOR-ANIMAL 94774089824958: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34

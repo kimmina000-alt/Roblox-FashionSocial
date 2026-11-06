@@ -641,3 +641,4 @@
 - NEON / LOVE-ATTACK / REDRED 원래 곡에 새 음원과 값을 넣고 "(새 음원)" 줄 삭제, I SPY 중복 삭제 (D-932).
 - 볼륨 부스트 3(boost3) 지원, Get A Guitar / Love 119 boost3 5 · 고음 -28 (Get A Guitar 저음 -3), ANIMAL 새 음원 94774089824958 fileSpeed 1.05 (D-933).
 - 오늘 고친 9곡을 최종 값과 맞춤: NEON / I SPY / REDRED boost3 5, 갑자기 boost3 3, 체포하겠어 tempo 0.333 (D-935).
+- 새 음원 8곡 EQ low -34 / mid -20 / high -34 (D-943).
