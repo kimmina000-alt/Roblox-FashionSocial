@@ -38,7 +38,8 @@ local TRACKS = {
 	{ title = "RIIZE-Get A Guitar", id = 133586602463513 },
 	{ title = "새 음원 90459460126924", id = 90459460126924 }, -- file 147.3 s, song 2:40 (user 2026-11-06: below Get A Guitar)
 	{ title = "새 음원 121469080503848", id = 121469080503848 }, -- file 146.1 s, song 2:40
-	{ title = "새 음원 70738014182544", id = 70738014182544 }, -- file 153.0 s, song 2:40 (user 2026-11-06: below Get A Guitar)
+	{ title = "새 음원 70738014182544", id = 70738014182544 }, -- file 153.0 s, song 2:40
+	{ title = "새 음원 85056523453847", id = 85056523453847 }, -- file 160.7 s, song 2:40 (user 2026-11-06: below Get A Guitar)
 	{ title = "RIIZE-Love 119", id = 119473981131981, club = { 0.333, 3, -7, -3, 1.5 } },
 	{ title = "YENA-Catch Catch", id = 80583279340768, club = { 0.34, 3, -13, 2.5, 4 } },
 	{ title = "Hearts2Hearts-Lemon Tang", id = 97032815457241, club = { 0.333, 3, -3, 2, 0 } },
