@@ -328,7 +328,11 @@ M.ChoreoFixes = {
 	-- stretched straight out to the side by 9.05 and dragged back in by 9.45;
 	-- the hips held as at 8.6 too (their turn set, their height by `move`:
 	-- `set` takes the joint's own offset away), so the right foot stays put
-	[88430566939812] = { still = { { from = 8.55, to = 9.47 } }, pose = { { from = 8.55, to = 9.47, ease = 0.12, keys = {
+	-- (D-966, user: "1:20 팔 움직임이 뚝 끊김 앞에 안무와 이어지도록") the hips turned
+	-- 45° to the held angle and back in 0.12 s each way, throwing the arms
+	-- round: it eases in over 0.35 s from 8.2 and does not ease out (to is
+	-- past the end), so 12's blend (0.7 s) carries it on
+	[88430566939812] = { still = { { from = 8.55, to = 9.47 } }, pose = { { from = 8.2, to = 9.9, ease = 0.35, keys = {
 		{ t = 8.62, set = { LowerTorso = { 15, -16, -7 }, RightUpperLeg = { 12, -28, 35 }, RightLowerLeg = { -59, -2, -4 }, RightFoot = { 26, -27, -10 },
 			LeftUpperLeg = { 30, 10, -8 }, LeftLowerLeg = { -50, 4, 0 }, LeftFoot = { 5, 0, -3 } }, move = { LowerTorso = { 0, -0.87, 0 } } },
 		{ t = 8.8, set = { LowerTorso = { 15, -16, -7 }, RightUpperLeg = { 12, -28, 35 }, RightLowerLeg = { -59, -2, -4 }, RightFoot = { 26, -27, -10 },
@@ -352,7 +356,7 @@ M.ChoreoFixes = {
 	-- 11, 12 (D-962, user: "1:00-1:01 캐릭터 갑자기 앞으로 이동"): the feet slide
 	-- 0.6-2 studs at 4.6-5.9 and in 12 (1.2 s): in place
 	[79064359810628] = { still = { { from = 4.6, to = 5.9 } } },
-	-- 8 (D-964, found by tools/choreo/play_record.lua): the capture's hips dash
+	-- 8 (D-965, found by tools/choreo/play_record.lua): the capture's hips dash
 	-- 2 studs off in its last 0.3 s (0:46.1-46.35): in place
 	[140553219106220] = { still = { { from = 2.9, to = 3.4 } } },
 	[103495705227564] = { still = { { from = 0, to = 1.2 } } },

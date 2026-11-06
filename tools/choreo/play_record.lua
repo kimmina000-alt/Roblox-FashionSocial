@@ -1,4 +1,4 @@
--- Choreography Play recorder (D-964, docs/01_SYSTEMS/CHOREOGRAPHY.md §16).
+-- Choreography Play recorder (D-965, docs/01_SYSTEMS/CHOREOGRAPHY.md §16).
 -- Paste into Studio's MCP execute_luau in the CLIENT datamodel while Play
 -- runs (the player in the club: server attribute ClockOverride 22, character
 -- at CFrame(118, -19, -205)). It defines _G helpers, then
@@ -51,7 +51,9 @@ _G.rec = function(s0, s1)
 				local function yaw(cf) local l = cf.LookVector return math.deg(math.atan2(-l.X, -l.Z)) end
 				local rel = root.CFrame:Inverse()
 				local lf, rf = rel * ch.LeftFoot.Position, rel * ch.RightFoot.Position
-				table.insert(_G.rows, { s, root.Position.X, root.Position.Z, yaw(lt.CFrame), yaw(ut.CFrame), lf.Y, rf.Y, lf.X, lf.Z, rf.X, rf.Z, (rel * lt.Position).Y })
+				-- (D-966) hands, feet and head in the world, for snaps and jumps
+				local limbs = { ch.LeftHand.Position, ch.RightHand.Position, ch.LeftFoot.Position, ch.RightFoot.Position, ch.Head.Position }
+				table.insert(_G.rows, { s, root.Position.X, root.Position.Z, yaw(lt.CFrame), yaw(ut.CFrame), lf.Y, rf.Y, lf.X, lf.Z, rf.X, rf.Z, (rel * lt.Position).Y, limbs })
 			end
 		end
 		done = true
@@ -112,8 +114,9 @@ _G.flagSong = function(index, fromSong, toSong)
 	local rows, out = _G.rows, {}
 	local lastSay = {}
 	local function say(kind, s, text)
-		if lastSay[kind] and s - lastSay[kind] < 0.4 then return end
-		lastSay[kind] = s
+		local key = kind .. (text:match("^%a+") or "")
+		if lastSay[key] and s - lastSay[key] < 0.4 then return end
+		lastSay[key] = s
 		table.insert(out, string.format("%d:%05.2f %s %s", math.floor(s / 60), s % 60, kind, text))
 	end
 	-- (per second, so a Studio hitch of several frames is not a lurch)
@@ -124,6 +127,55 @@ _G.flagSong = function(index, fromSong, toSong)
 		if d > 600 then say("SPIN", r[1], string.format("%d°/s (%d° a frame)", math.floor(d), math.floor(d / 60))) end
 		local move = math.sqrt((r[2] - p[2]) ^ 2 + (r[3] - p[3]) ^ 2) / dt
 		if move > 12 then say("JUMP", r[1], string.format("%.1f stud/s", move)) end
+	end
+	-- (D-966, user: "프레임 뚝뚝 끊기는 부분", "3 스터드 떨어진 곳으로 발이나 손
+	-- 위치 바뀔 경우" → "3스터드는 예시야 1 스터드도 티 날 것 같아") SNAP: a hand /
+	-- foot / head moving 10 stud/s+ and 3x faster than in the 0.1 s either
+	-- side (a one-frame jump, not a fast move); TELEPORT: the body (root) 1
+	-- stud+ away within 0.3 s, or a hand / foot / head 1 stud+ within one
+	-- or two frames at 3x the speed around it
+	local names = { "LeftHand", "RightHand", "LeftFoot", "RightFoot", "Head" }
+	local speeds = {}
+	for i = 2, #rows do
+		local dt = math.max(rows[i][1] - rows[i - 1][1], 1 / 60)
+		speeds[i] = {}
+		for q = 1, 5 do speeds[i][q] = (rows[i][13][q] - rows[i - 1][13][q]).Magnitude / dt end
+	end
+	for i = 8, #rows - 6 do
+		for q = 1, 5 do
+			local v = speeds[i][q]
+			if v > 10 then
+				local around = {}
+				for j = i - 6, i + 6 do if j ~= i and math.abs(j - i) > 1 then table.insert(around, speeds[j][q]) end end
+				table.sort(around)
+				local median = around[math.ceil(#around / 2)]
+				if v > 3 * median then
+					local step = (rows[i][13][q] - rows[i - 1][13][q]).Magnitude + (rows[i + 1][13][q] - rows[i][13][q]).Magnitude
+					say(if step > 1 then "TELEPORT" else "SNAP", rows[i][1], string.format("%s %.0f stud/s (around %.0f), %.2f stud in 2 frames", names[q], v, median, step))
+				end
+			end
+		end
+		local j = i
+		while j < #rows and rows[j + 1][1] <= rows[i][1] + 0.3 do j += 1 end
+		local body = math.sqrt((rows[j][2] - rows[i][2]) ^ 2 + (rows[j][3] - rows[i][3]) ^ 2)
+		if body > 1 then say("TELEPORT", rows[i][1], string.format("body %.1f stud in %.2f s", body, rows[j][1] - rows[i][1])) end
+	end
+	-- (D-966, user: "바들바들 떠는 부분 … 이거 완전 중요") JITTER: a hand / foot /
+	-- head that turns back on its own path 8+ times in 0.5 s (steps over 0.01
+	-- stud): a tremble even while the dance goes on (a real move turns back
+	-- a few times a second at most)
+	for q = 1, 5 do
+		local count, startK = 0, nil
+		for i = 3, #rows do
+			local k = math.floor(rows[i][1] * 2) / 2
+			if k ~= startK then
+				if count >= 8 then say("JITTER", startK, string.format("%s turns back %d times in 0.5 s", names[q], count)) end
+				startK, count = k, 0
+			end
+			local a = rows[i - 1][13][q] - rows[i - 2][13][q]
+			local b = rows[i][13][q] - rows[i - 1][13][q]
+			if a.Magnitude > 0.01 and b.Magnitude > 0.01 and a:Dot(b) < 0 then count += 1 end
+		end
 	end
 	-- SLIDE / SHAKE by half seconds
 	local _, buckets = _G.shake()

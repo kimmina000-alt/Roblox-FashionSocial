@@ -10,7 +10,7 @@
 
 local STANCE, LIFT, NET, PATH = 0.25, 0.2, 0.4, 0.5
 
--- (D-964) the whole Shared folder is cloned: since D-888 ClubConfig requires
+-- (D-965) the whole Shared folder is cloned: since D-888 ClubConfig requires
 -- its siblings, and a clone of it alone waits for them forever; a fresh clone
 -- also reads the current values (the command bar caches modules)
 local ClubConfig = require(game:GetService("ReplicatedStorage").FashionGame.Shared:Clone().ClubConfig)

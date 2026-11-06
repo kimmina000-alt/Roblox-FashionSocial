@@ -1,4 +1,4 @@
--- Choreography motion scan (D-964, docs/01_SYSTEMS/CHOREOGRAPHY.md §16).
+-- Choreography motion scan (D-965, docs/01_SYSTEMS/CHOREOGRAPHY.md §16).
 -- Run in Studio (Edit) after adding or changing a choreography, with TITLE
 -- set to the song (or nil for every song with a choreography). It reads the
 -- captures' keyframes on a plain R15 body and lists, in SONG seconds (the
@@ -22,7 +22,7 @@
 local TITLES: {[string]: boolean}? = nil -- e.g. { ["A2O LITE-NEON"] = true }; nil = every song
 local IGNORE_FIXES = false -- true: list everything, as if no ChoreoFixes were set
 
--- (D-964) the whole Shared folder is cloned: since D-888 ClubConfig requires
+-- (D-965) the whole Shared folder is cloned: since D-888 ClubConfig requires
 -- its siblings, and a clone of it alone waits for them forever; a fresh clone
 -- also reads the current values (the command bar caches modules)
 local ClubConfig = require(game:GetService("ReplicatedStorage").FashionGame.Shared:Clone().ClubConfig)
