@@ -146,8 +146,10 @@ function BarShelfService.Start()
 			local y = topOf(shelf)
 			local above = shelves[i + 1] or rail
 			local underside = 2 * above.Position.Y - topOf(above)
+			-- (D-959) a board marked ReverseBottles puts them the other way round
+			local reverse = shelf:GetAttribute("ReverseBottles") == true
 			for k = 1, count do
-				local e = drinks[(k - 1) % #drinks + 1]
+				local e = drinks[((if reverse then count - k + 1 else k) - 1) % #drinks + 1]
 				local at = Vector3.new(shelf.Position.X, y, shelf.Position.Z) + along * (-(count - 1) / 2 + (k - 1)) * GAP
 				puck(at + Vector3.new(0, PUCK_HEIGHT / 2, 0), false)
 				puck(Vector3.new(at.X, underside - PUCK_HEIGHT / 2, at.Z), true)

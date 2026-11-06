@@ -2,6 +2,8 @@
 -- Club: the north VIP balcony shorter, buckets on the bar shelves (D-954,
 -- user 2026-11-07), run in Edit mode LAST in the layout chain (after
 -- club_locker_1103). World coordinates; running it again gives the same result.
+--   (2026-11-07 (4): thin black boards and dividers, a different drink in
+--   every bucket, the right bay's bottles in reverse order: see 2.)
 --   (2026-11-07 (3): dividers, 2 × tier 2 / 2 × tier 3 on the bottom row,
 --   bottles back on the second row, tier 3 at 1.5×, no VIP letters: see 2.)
 --   (2026-11-07 (2): the south balcony too, the wall edge lights cut, the
@@ -121,11 +123,17 @@ local BAY = (Z1 - Z0) / 3 -- 14
 local MID0, MID1 = Z0 + BAY, Z0 + 2 * BAY -- -186 .. -172
 local LOW_TOP, MID_TOP = -15.4, -9.4 -- the tops of the y -15.7 and -9.7 boards
 local ROW_H = 5.4 -- room above a board's top to the next board
-local BOTTOM, UNDER_TOP, RAIL_TOP = -16.0, -4.0, 8.45 -- (the y -3.7 board's underside; BarShelfService's light rail at y 8.3)
+-- (user 2026-11-07 (4): "선반 프레임 두께 더 얇게 하고 검은색으로 변경") the boards
+-- 0.6 → 0.25 thick with their tops where they were (the bottles and buckets stand
+-- on the same heights), the dividers 0.3 → 0.15, all black; BarShelfService's
+-- top board and light rail are copies of the y -3.7 board, so they follow
+local BOARD, THICK = 0.25, 0.15
+local BLACK = Color3.fromRGB(14, 14, 17)
+local BOTTOM, UNDER_TOP, RAIL_TOP = LOW_TOP - BOARD, -3.4 - BOARD, 8.55 -- (the y -3.7 board's underside; the light rail's top)
 -- the y -9.7 board: two pieces, the middle bay open
 local midShelves = {}
 for _, d in ipairs(club:GetChildren()) do
-	if d:IsA("BasePart") and d.Name == "BarShelf" and math.abs(d.Position.Y - (-9.7)) < 0.2 then table.insert(midShelves, d) end
+	if d:IsA("BasePart") and d.Name == "BarShelf" and math.abs(d.Position.Y - (-9.7)) < 0.4 then table.insert(midShelves, d) end
 end
 assert(#midShelves > 0, "no bar shelf at y -9.7")
 local proto = midShelves[1]:Clone() -- (a copy: the originals are destroyed below)
@@ -145,6 +153,20 @@ end
 shelfPiece(Z0, MID0)
 shelfPiece(MID1, Z1)
 for _, d in ipairs(midShelves) do d:Destroy() end
+-- thin black boards, tops kept
+for _, d in ipairs(club:GetChildren()) do
+	if d:IsA("BasePart") and d.Name == "BarShelf" then
+		local top = d.Position.Y + d.Size.Y / 2
+		d.Size = Vector3.new(d.Size.X, BOARD, d.Size.Z)
+		d.Position = Vector3.new(d.Position.X, top - BOARD / 2, d.Position.Z)
+		d.Color = BLACK
+		d.Material = Enum.Material.SmoothPlastic
+		-- (user 2026-11-07 (4): "오른쪽 음료수병 1번이랑 3번 서로 위치 바꾸기": the
+		-- second row's right bay, seen from the counter = the -Z piece, puts its
+		-- bottles the other way round, BarShelfService)
+		d:SetAttribute("ReverseBottles", if math.abs(d.Position.Y - (-9.4 - BOARD / 2)) < 0.3 and d.Position.Z < MID0 then true else nil)
+	end
+end
 -- only the bottom board carries buckets: BarShelfService (the club bottles and
 -- their light pucks on every BarShelf at server start) skips boards marked
 -- BarBuckets
@@ -160,18 +182,20 @@ for _, d in ipairs(club:GetChildren()) do
 		d:Destroy()
 	end
 end
--- the vertical boards (the shelf's own look, 0.3 thick)
+-- the vertical boards (black, THICK thick)
 local oldDiv = club:FindFirstChild("BarShelfDividers")
 if oldDiv then oldDiv:Destroy() end
 local dividers = Instance.new("Folder")
 dividers.Name = "BarShelfDividers"
 dividers.Parent = club
-local THICK = 0.3
 local depth = 3 -- (the boards' depth, x 69.5..72.5)
 local function divider(z: number, y0: number, y1: number)
 	local p = proto:Clone()
 	p.Name = "BarShelfDivider"
 	p:SetAttribute("BarBuckets", nil)
+	p:SetAttribute("ReverseBottles", nil)
+	p.Color = BLACK
+	p.Material = Enum.Material.SmoothPlastic
 	p.Size = Vector3.new(depth, y1 - y0, THICK)
 	p.CFrame = CFrame.new(proto.Position.X, (y0 + y1) / 2, z)
 	p.Parent = dividers
@@ -188,8 +212,14 @@ local function drinkOf(test: (any) -> boolean): any
 	return { key = "cider", color = Color3.fromRGB(200, 255, 200) }
 end
 -- (the table sizes of DrinkService: steel 0.9 × 1.5; acrylic 0.9, here × 1.5)
-local TIER2 = { kind = "steel", scale = 0.9 * 1.5, name = "BarBucket_Tier2", drink = drinkOf(function(d) return d.tier == 2 and not d.vipOnly end) }
-local TIER3 = { kind = "acrylic", scale = 0.9 * 1.5, name = "BarBucket_Tier3", drink = drinkOf(function(d) return d.tier == 3 and not d.vipOnly end) }
+-- (user 2026-11-07 (4): "2단계 버켓, 3단계 버켓 안에 음료수병 다른 걸로 수정") a
+-- different drink in each of the four (they all had the first drink of their
+-- tier: ginger_brew, stack_hydro)
+local function drinkKey(key: string): any
+	return drinkOf(function(d) return d.key == key end)
+end
+local TIER2 = { kind = "steel", scale = 0.9 * 1.5, name = "BarBucket_Tier2", drinks = { drinkKey("monte"), drinkKey("golden_apple") } }
+local TIER3 = { kind = "acrylic", scale = 0.9 * 1.5, name = "BarBucket_Tier3", drinks = { drinkKey("pastel_splash"), drinkKey("skull_water") } }
 local VIP = { kind = "icebox", scale = 1.4, name = "BarBucket_VIP", drink = drinkOf(function(d) return d.vipOnly == true end) }
 local old = club:FindFirstChild("BarBucketDisplay")
 if old then old:Destroy() end
@@ -232,9 +262,13 @@ local function sit(m: Model, topY: number)
 	m:PivotTo(m:GetPivot() + (topY + 0.01 - lo) * Vector3.yAxis)
 end
 -- one bucket standing on `topY` at z, its front to the room (+X), no taller than `room`
-local function bucket(spec, z: number, topY: number, room: number): Model
+local function colorOf(drink: any): Color3
+	return drink.color or (drink.variants and drink.variants[1].color) or Color3.fromRGB(200, 255, 200)
+end
+local function bucket(spec, z: number, topY: number, room: number, drink: any?): Model
 	local at = CFrame.lookAt(Vector3.new(X, topY, z), Vector3.new(X + 1, topY, z))
-	local m = DrinkBucket.build(spec.kind, { spec.drink.color }, at, spec.drink.key)
+	local d = drink or spec.drink
+	local m = DrinkBucket.build(spec.kind, { colorOf(d) }, at, d.key)
 	m.Name = spec.name
 	m.PrimaryPart = nil
 	m.WorldPivot = at
@@ -255,8 +289,8 @@ end
 local function pair(spec, b0: number, b1: number): number
 	local inner0, inner1 = b0 + THICK, b1 - THICK
 	local width = inner1 - inner0
-	local a = bucket(spec, (inner0 * 3 + inner1) / 4, LOW_TOP, ROW_H)
-	local b = bucket(spec, (inner0 + inner1 * 3) / 4, LOW_TOP, ROW_H)
+	local a = bucket(spec, (inner0 * 3 + inner1) / 4, LOW_TOP, ROW_H, spec.drinks[1])
+	local b = bucket(spec, (inner0 + inner1 * 3) / 4, LOW_TOP, ROW_H, spec.drinks[2])
 	local z0, z1 = spanZ(a)
 	local len = z1 - z0
 	local k = math.min(1, width / (2 * len + 3 * 0.4)) -- (at least 0.4 between and at the ends)
@@ -273,6 +307,6 @@ local function pair(spec, b0: number, b1: number): number
 end
 local k2 = pair(TIER2, MID1, Z1) -- (left from the counter)
 local k3 = pair(TIER3, Z0, MID0) -- (right)
-table.insert(log, string.format("bar: dividers 4, VIP letters off, bottom row: 2 × tier 2 (%s, ×%.2f fit) left, 2 × tier 3 (%s, ×%.2f fit) right, bottles on the second row",
-	TIER2.drink.key, k2, TIER3.drink.key, k3))
+table.insert(log, string.format("bar: thin black boards, dividers 4, VIP letters off, bottom row: tier 2 %s + %s (×%.2f fit) left, tier 3 %s + %s (×%.2f fit) right",
+	TIER2.drinks[1].key, TIER2.drinks[2].key, k2, TIER3.drinks[1].key, TIER3.drinks[2].key, k3))
 return table.concat(log, "\n")
