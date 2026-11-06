@@ -51,7 +51,6 @@ local TRACKS = {
 	{ title = "Darla Jean-Dam Da Dee", id = 78077595750886, club = { 0.335, 3, -3, 2, 0 } },
 	{ title = "머무르-꿈꾸던 어른이 되었나요", id = 120160897793669, club = { 0.334, 3, -3, 2, 0 } },
 	{ title = "IVE-Looks Can Kill", id = 135553051649506, club = { 0.333, 3, -3, 2, 0 } },
-	{ title = "Looks Can Kill 새 음원", id = 126313127049455 }, -- song 3:13; did not load yet 2026-11-06 (review?), tempo to set when it loads
 	{ title = "IOI-갑자기", id = 75344866720031 }, -- new upload (user 2026-11-06, file 185.8 s, song 3:15); was 73546697163709
 	{ title = "NMIXX-긴 소원(Birthday Wish)", id = 107782871991364, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "NCT WISH-I SPY", id = 98124521559769 }, -- new upload (user 2026-11-06, file 176.3 s, song 3:05); was 90694654380166
