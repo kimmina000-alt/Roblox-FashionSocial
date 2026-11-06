@@ -65,6 +65,7 @@ local TRACKS = {
 	{ title = "BIG Naughty-노스탈지아", id = 116539470869444, club = { 0.333, 3, -3, 2, 0 } },
 	{ title = "BIGBANG-BiiiG", id = 113809029583519, club = { 0.334, 3, -3, 2, 0 } },
 	{ title = "BOYNEXTDOOR-ANIMAL", id = 130804487358433, club = { 0.29, 3, -3, 2, 0 } },
+	{ title = "ANIMAL 새 음원", id = 94774089824958 }, -- file 136.1 s, song 2:22
 	-- joined songs (user 2026-11-03): one song uploaded as clips cut by
 	-- tools/audio/split_for_crossfade.ps1, played as one by JoinedSongPlayer
 	{ title = "녹음본 (8구간 이어 붙임)", joined = { parts = { 81568082292649, 130739295576800, 136055998058951, 101406045735531, 115474783735573, 101362036297281, 107766734212525, 139626977220244 }, segLen = 30, tail = 4, total = 225.05, lead = 0.09 } },
