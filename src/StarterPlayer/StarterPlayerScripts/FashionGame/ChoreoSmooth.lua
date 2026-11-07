@@ -56,12 +56,16 @@ for _, track in ipairs(ClubConfig.Playlist or {}) do
 	end
 end
 -- (D-1000) a song's `frontLock = { snap, keep }` for each of its pieces
+-- (D-1001, user: "모든 안무에 적용 … 앞으로 추가하는 안무에도 필수 적용") every choreography
+-- song uses ClubConfig.ChoreoFrontLock unless it gives its own (false turns it off)
 local frontLocks: {[number]: any} = {}
 for _, track in ipairs(ClubConfig.Playlist or {}) do
-	if (track :: any).frontLock and track.choreo then
+	local lock = (track :: any).frontLock
+	if lock == nil then lock = ClubConfig.ChoreoFrontLock end
+	if lock and track.choreo then
 		for _, entry in ipairs(track.choreo) do
 			local id = if typeof(entry) == "table" then entry.id else entry
-			if typeof(id) == "number" then frontLocks[id] = (track :: any).frontLock end
+			if typeof(id) == "number" then frontLocks[id] = lock end
 		end
 	end
 end

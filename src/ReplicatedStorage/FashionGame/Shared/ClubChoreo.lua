@@ -21,6 +21,13 @@ M.ChoreoSmoothing = { maxStep = 8, passes = 4 } :: { maxStep: number, passes: nu
 -- in time (Gaussian, seconds; ChoreoSmooth.dejitter): the wobble that made feet and legs
 -- tremble goes, beat-sized moves keep about 93 % of their size (0 turns it off)
 M.ChoreoDejitter = { sigma = 0.03 } :: { sigma: number }?
+-- (D-1001, user: "아래 사항 모든 안무에 적용. 앞으로 추가하는 안무에도 필수 적용") for every
+-- choreography song (a track's own `home` / `frontLock` replaces these, false turns it off):
+-- the dance eases back toward where it began (`settle` s) and glides home when it ends
+-- (`back` s); facings within `snap`° of the front go to the front, eased up to `keep`°,
+-- side / back facings and turns stay as danced
+M.ChoreoHome = { settle = 2.5, back = 1.5 } :: any
+M.ChoreoFrontLock = { snap = 30, keep = 55 } :: any
 -- (D-998, user: "손목·발목은 다듬지 않기") parts the automatic tremble clean-ups leave as captured
 M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {string}?
 M.ChoreoRetarget = true

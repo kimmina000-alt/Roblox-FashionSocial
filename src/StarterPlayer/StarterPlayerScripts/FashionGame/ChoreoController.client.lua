@@ -896,7 +896,9 @@ local function startFollowing(track: ClubConfig.Track)
 	if #tracks == 0 then return end
 	holdCamera()
 	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, blends = blends, froms = froms,
-		slowIns = slowIns, slowOuts = slowOuts, playing = nil, speed = nil, homeCfg = (track :: any).home }
+		slowIns = slowIns, slowOuts = slowOuts, playing = nil, speed = nil,
+		-- (D-1001) every song comes back home (ClubConfig.ChoreoHome) unless it gives its own `home` (false: off)
+		homeCfg = if (track :: any).home == nil then ClubConfig.ChoreoHome elseif (track :: any).home == false then nil else (track :: any).home }
 	button.Text = "⏹ 그만 추기"
 	player:SetAttribute("ChoreoFollowing", true)
 end
