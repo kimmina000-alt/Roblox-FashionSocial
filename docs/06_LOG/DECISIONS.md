@@ -2868,7 +2868,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 안무 23개의 `at`은 그대로(곡 시계 같음). 무대 카메라 `ClubCamera.Songs` 키만 134942349436280 → 120615582016729. `engine = "sound"`는 그대로.
 - Play로 들어 보지는 않음.
 
-## D-993 ATEEZ-BAD 2: 같은 음원에 두 번째 안무 20개 (2026-11-07)
+## D-994 ATEEZ-BAD 2: 같은 음원에 두 번째 안무 20개 (2026-11-07)
 - 사용자: "기존 배드 음원을 제목 배드 2로 하나 더 만들어서 배드 2에 안무 추가" + 애니메이션 id 20개(D:\Roblox\영상\ATEEZ_BAD_Mirrored_centercut\clips\ATEEZ_BAD_2__ids.txt 순서).
 - ClubPlaylist에 "ATEEZ-BAD 2" 트랙을 ATEEZ-BAD 바로 다음에 새로 넣음: 같은 음원 120615582016729, length 139.674, fileSpeed 1.1, lab 값 그대로(D-975). ChoreoController는 재생 중인 트랙 번호(ClubTrack)로 안무를 찾아서 같은 soundId라도 따로 돎. 무대 카메라는 soundId가 키라 ATEEZ-BAD 카메라를 같이 씀.
 - id 20개 모두 Vantablack_Dev 소유, 길이가 클립과 맞음(앞 조각 복사본 없음).

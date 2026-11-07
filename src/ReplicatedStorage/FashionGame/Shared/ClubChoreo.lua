@@ -406,7 +406,7 @@ M.ChoreoFixes = {
 	[122624428391289] = { spin = { from = 0.5, to = 1.15, ease = "both" } }, -- 11 (1:34)
 	[126013496400815] = { spin = { from = 0.6, to = 1.27, ease = "both" } }, -- 12 (1:38, to the piece end)
 	[107833429874111] = { spin = { from = 5.75, to = 6.17, ease = "both" } }, -- 13 (1:44, to the piece end)
-	-- ATEEZ-BAD 2 (D-993): Play scan SPIN 642°/s at 1:43, a 270° turn (song 102.8-103.9) spread evenly
+	-- ATEEZ-BAD 2 (D-994): Play scan SPIN 642°/s at 1:43, a 270° turn (song 102.8-103.9) spread evenly
 	[114907255207310] = { spin = { from = 8.15, to = 9.25, ease = "both" } }, -- 14
 } ::{[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
 	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
@@ -544,7 +544,7 @@ M.ChoreoSlideStill = {
 	[135759185323713] = { { 5.4, 6.0 } }, [138502286160157] = { { 1.6, 2.3 } }, [107439323698577] = { { 1.3, 2.1 }, { 9.0, 9.6 } },
 	[138612452549442] = { { 1.6, 2.3 }, { 2.5, 3.0 } }, [118124487485279] = { { 1.4, 2.0 }, { 7.9, 8.9 } },
 	[82680550952125] = { { 0.7, 1.4 }, { 2.9, 3.6 }, { 8.2, 9.7 } },
-	-- ATEEZ-BAD 2 (D-993)
+	-- ATEEZ-BAD 2 (D-994)
 	[101690327843945] = { { 0.4, 1.0 } }, [106954590912232] = { { 5.1, 5.8 } }, [73352408497618] = { { 6.7, 7.4 } },
 	[91647545899849] = { { 2.9, 3.6 }, { 5.5, 6.6 } }, [86108317246080] = { { 2.0, 3.3 }, { 4.2, 4.9 } },
 	[79044145915210] = { { 3.9, 4.5 } }, [90945372575300] = { { 2.8, 3.6 } }, [127427471547985] = { { 6.3, 6.9 } },
@@ -581,7 +581,7 @@ M.ChoreoGlideStill = {
 	[99354632184083] = { { 0.5, 1.1 } },
 	-- YENA-Catch Catch (D-968, Play scan 0:39 SLIDE 1.1 stud)
 	[98514844125325] = { { 2.4, 3.1 } },
-	-- ATEEZ-BAD 2 (D-993, Play scan 0:13.45 glide 1.0 stud with feet 0.1, 0:54.61 1.0 with 0.2)
+	-- ATEEZ-BAD 2 (D-994, Play scan 0:13.45 glide 1.0 stud with feet 0.1, 0:54.61 1.0 with 0.2)
 	[101690327843945] = { { 9.4, 10.0 } }, [86108317246080] = { { 1.5, 2.1 } },
 } ::{[number]: {{number}}}
 M.ChoreoAutoSteady = {

@@ -118,7 +118,7 @@ M.Playlist = {
 		{ id = 129415986484255, at = 95.04, blend = 0.53 }, { id = 87606540400975, at = 103.38, blend = 1 }, { id = 121775933093308, at = 110.44, blend = 0.95 },
 		{ id = 138549092776506, at = 121.91, blend = 0.73 }, { id = 88428525489460, at = 132.18 }, { id = 82346668311878, at = 136.5, blend = 0.7 },
 		{ id = 134748500609652, at = 143.58 }, { id = 70571634425422, at = 151.51 } }, autoChoreo = true },
-	-- (D-993, user 2026-11-07: "기존 배드 음원을 제목 배드 2로 하나 더 만들어서 배드 2에 안무 추가")
+	-- (D-994, user 2026-11-07: "기존 배드 음원을 제목 배드 2로 하나 더 만들어서 배드 2에 안무 추가")
 	-- the same upload as ATEEZ-BAD with a second choreography: 20 pieces cut from the
 	-- mirrored practice video (D:\Roblox\영상\ATEEZ_BAD_Mirrored_centercut), which runs
 	-- with the song (video = song + 0.00 s, loudness matched at the start and at 120-140 s),
