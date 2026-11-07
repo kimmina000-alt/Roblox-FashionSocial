@@ -215,11 +215,14 @@ M.Playlist = {
 	{ channel = "K-POP", title = "ALLDAY PROJECT - NO 한도", soundId = 81251273866025, length = 131.699, fileSpeed = 1.101,
 		lab = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+		-- (D-992, user: "안무 추면서 이동해도 결국 처음 서 있던 위치를 중심으로 두고 끝나면 돌아오게 … 레모네이드에만 먼저"):
+		-- the travel eases back toward the start in 2.5 s (instead of 8) and the dancer glides home over 1.5 s at the end
+		home = { settle = 2.5, back = 1.5 },
 		-- D-970: Lemonade_v2 1..22 (20 and 21 uploaded D-979; D-982: 2:17-2:26 = the red-box floor member's clip 113734305009959 at 136.22 in place of clip 17, clip 16 stops there); clip 8 = re-upload 99169381541568 (D-978, the first one was a copy of 7).
 		-- Clip 1 = mirror cover b3C-M5lDRHE (video = song + 1.45 s, `from = 1.45`); clips 2..22 = practice video NJx2IGeS8CQ (video = song + 1.08 s, `at` = clip start - 1.08)
 		choreo = { { id = 76917634239098, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
 		{ id = 123559029471758, at = 22.84 }, { id = 139260290712979, at = 31.92, blend = 1 }, { id = 131526768823490, at = 39.2 },
-		{ id = 99422937735141, at = 47.49, blend = 0.51 }, { id = 99169381541568, at = 55.92, blend = 0.5 }, { id = 100397079318559, at = 67.05 }, { id = 135759185323713, at = 76.35 },
+		{ id = 99422937735141, at = 47.49, blend = 0.51 }, { id = 99169381541568, at = 55.92, blend = 0.5 }, { id = 100397079318559, at = 67.05 }, { id = 135759185323713, at = 76.35, slowOut = { 0.4, 0.15 } },
 		{ id = 83846438884132, at = 85.92, blend = 1 }, { id = 138502286160157, at = 94.39, blend = 1 }, { id = 107439323698577, at = 100.92, blend = 0.81 },
 		{ id = 138612452549442, at = 111.39, blend = 0.43 }, { id = 118124487485279, at = 114.92, blend = 0.75 }, { id = 82680550952125, at = 127.65, blend = 0.43, stop = 136.22 },
 		{ id = 113734305009959, at = 136.22, blend = 0.5 }, { id = 76195346888656, at = 145.92, blend = 1 }, { id = 116980798181063, at = 150.92, blend = 0.88 },

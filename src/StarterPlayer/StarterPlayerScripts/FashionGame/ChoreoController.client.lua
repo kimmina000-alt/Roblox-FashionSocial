@@ -102,7 +102,7 @@ end
 -- froms[i] = its `from` (D-810, seconds into the animation) or 0;
 -- home = where the root was when the dance began (D-817)
 local following: { soundId: number, tracks: {AnimationTrack}, starts: {number?}, stops: {number?}, blends: {number?}, froms: {number}, playing: AnimationTrack?, speed: number?, home: Vector3?,
-	held: boolean?, heldPose: {[Instance]: CFrame}?, unheldAt: number? }? = nil
+	held: boolean?, heldPose: {[Instance]: CFrame}?, unheldAt: number?, homeCfg: any?, glided: boolean? }? = nil
 
 -- (D-802, user: "앵글 움직이는 부분 다 고쳐") the segments carry the dancer's
 -- travel in the hips (Get A Guitar 2 ends 11 studs forward, then 3 starts
@@ -231,6 +231,8 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 							end
 						end
 					end
+				end
+				do
 					-- (D-986, user: Catch Catch 0:35 "다리는 수직 유지하고 상체만 숙이기")
 					-- ChoreoFixes `upright = { from, to, ease? }`: the hips stay level
 					-- there (their turn round kept) and their lean goes to the waist,
@@ -249,6 +251,26 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 								local shown = hips:Lerp(level, e)
 								lt.Transform = shown
 								ut.Transform = (shown.Rotation:Inverse() * hips.Rotation) * ut.Transform
+							end
+						end
+					end
+					-- (the upright / torsoUp blocks sat inside `if amps then` until D-992: they only
+					-- ran on pieces that also had `amp`)
+					-- (D-992, user: Lemonade 1:38 "상체 일자로 세워. 수직으로", 2:23 "앉아 있는
+					-- 자세에서 상체 수직으로") ChoreoFixes `torsoUp = { from, to, ease? }`: the
+					-- upper body stands straight up there whatever the hips do (it keeps
+					-- facing the way the hips face)
+					local tups = fx and fx.torsoUp
+					if tups and lt and ut then
+						for _, u in ipairs(if tups.from then { tups } else tups) do
+							local tt = t.TimePosition
+							if tt > u.from and tt < u.to then
+								local e = math.clamp(math.min(tt - u.from, u.to - tt) / (u.ease or 0.3), 0, 1)
+								e = e * e * (3 - 2 * e) * weight
+								local hips = lt.Transform
+								local r = hips.RightVector
+								local want = hips.Rotation:Inverse() * CFrame.Angles(0, math.atan2(-r.Z, r.X), 0)
+								ut.Transform = ut.Transform:Lerp(CFrame.new(ut.Transform.Position) * want, e)
 							end
 						end
 					end
@@ -313,7 +335,9 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 	-- is eased back toward where the dance began, slowly (ChoreoDriftReturn
 	-- seconds): a few seconds of travel inside a piece still shows, the
 	-- build-up over the song does not
-	local settle = ClubConfig.ChoreoDriftReturn
+	-- (D-992, user: "안무 추면서 이동해도 결국 처음 서 있던 위치를 중심으로 두고 끝나면
+	-- 돌아오게") a song with `home = { settle, back }` eases back faster (`settle` s)
+	local settle = (following.homeCfg and following.homeCfg.settle) or ClubConfig.ChoreoDriftReturn
 	local home = following.home
 	-- (D-852: not while a `still` stretch keeps the dancer in place;
 	-- D-863, user: "가만히 서 있는데 이동함": only while the dance itself is
@@ -519,6 +543,9 @@ local function limitSnaps(character: Model, choreo: {AnimationTrack}, dt: number
 	end
 end
 
+-- (D-992) per character, per `freeze` stretch: the pose kept
+local frozenPoses: {[Model]: {[any]: {[string]: CFrame}}} = setmetatable({}, { __mode = "k" }) :: any
+
 -- after the animator, before the frame is drawn
 RunService.PreSimulation:Connect(function(dt)
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -550,6 +577,41 @@ RunService.PreSimulation:Connect(function(dt)
 				turnHips(joint, choreo)
 				local hips = joint.Transform
 				joint.Transform = CFrame.new(0, hips.Y, 0) * hips.Rotation
+				-- (D-992, user: Lemonade 2:17 "자세를 기본으로 누운 다음, 다른 곳 움직이지
+				-- 말고 왼쪽 다리만 쭉 뻗는 걸로") ChoreoFixes `freeze = { from, to, ease?,
+				-- except = { parts } }`: the pose at `from` is kept for every joint but
+				-- `except` (which go on, with their `pose` keys) until `to`
+				do
+					local joints = bodyJoints(character)
+					local store = frozenPoses[character]
+					if not store then store = {} frozenPoses[character] = store end
+					for _, t in ipairs(choreo) do
+						local fx = t.Animation and ChoreoSmooth.fixes(t.Animation.AnimationId)
+						local fz = fx and fx.freeze
+						if fz and t.WeightCurrent > 0.5 then
+							for _, f in ipairs(if fz.from then { fz } else fz) do
+								local tt = t.TimePosition
+								if tt >= f.from and tt < f.to then
+									local pose = store[f]
+									if not pose then
+										pose = {}
+										for part, j in pairs(joints) do pose[part] = j.Transform end
+										store[f] = pose
+									end
+									local e = math.clamp(math.min(tt - f.from, f.to - tt) / (f.ease or 0.3), 0, 1)
+									e = e * e * (3 - 2 * e)
+									for part, j in pairs(joints) do
+										if pose[part] and not (f.except and table.find(f.except, part)) then
+											j.Transform = j.Transform:Lerp(pose[part], e)
+										end
+									end
+								else
+									store[f] = nil
+								end
+							end
+						end
+					end
+				end
 				-- (D-852) a `hold` keeps one pose; when it lets go the body eases
 				-- from that pose into the dance again over 0.25 s instead of snapping
 				if p == player and following then
@@ -643,8 +705,36 @@ local function releaseCamera()
 	end)
 end
 
+-- (D-992) a `home` song: when its dance ends, the dancer glides back to where
+-- it began over `back` seconds (stops if the player walks)
+local function glideHome()
+	local cfg = following and following.homeCfg
+	local home = following and following.home
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+	if not cfg or not home or not root or not humanoid or following.glided then return end
+	following.glided = true
+	local from = root.Position
+	local away = Vector3.new(home.X - from.X, 0, home.Z - from.Z)
+	if away.Magnitude < 0.2 or away.Magnitude > 20 then return end
+	task.spawn(function()
+		local seconds = cfg.back or 1.5
+		local t0, done = os.clock(), 0
+		while os.clock() - t0 < seconds do
+			RunService.Heartbeat:Wait()
+			if humanoid.MoveDirection.Magnitude > 0.1 or not root.Parent then return end
+			local f = math.clamp((os.clock() - t0) / seconds, 0, 1)
+			f = f * f * (3 - 2 * f)
+			root.CFrame += away * (f - done)
+			done = f
+		end
+	end)
+end
+
 local function stopFollowing()
 	if not following then return end
+	glideHome()
 	releaseCamera()
 	for _, t in ipairs(following.tracks) do
 		t:Stop(0.25)
@@ -723,7 +813,7 @@ local function startFollowing(track: ClubConfig.Track)
 	if #tracks == 0 then return end
 	holdCamera()
 	following = { soundId = track.soundId, tracks = tracks, starts = starts, stops = stops, blends = blends, froms = froms,
-		slowIns = slowIns, slowOuts = slowOuts, playing = nil, speed = nil }
+		slowIns = slowIns, slowOuts = slowOuts, playing = nil, speed = nil, homeCfg = (track :: any).home }
 	button.Text = "⏹ 그만 추기"
 	player:SetAttribute("ChoreoFollowing", true)
 end
@@ -907,6 +997,9 @@ RunService.PreAnimation:Connect(function()
 		if following.playing then
 			following.playing:Stop(0.3)
 			following.playing = nil
+			-- (D-992) past the last piece: back to where the dance began
+			local lastAt = following.starts[#following.tracks]
+			if lastAt and songTime > lastAt then glideHome() end
 		end
 		return
 	end
@@ -977,7 +1070,11 @@ RunService.PreAnimation:Connect(function()
 	-- (D-798) a segment a moment ahead of the song holds its last pose
 	-- instead of ending (and fading back to the root) before the next one
 	local speed = if paused or held or seg.TimePosition >= seg.Length - 0.05 then 0 else songRate * rate
-	if following.speed ~= speed then
+	-- (D-992, user: Lemonade 1:25 / Catch Catch 2:06 "잠깐 멈추는 구간") a piece drifted up
+	-- to 0.3 s ahead of the song before it was put back, so it ran out early and
+	-- stood still until the next one: its speed now leans toward the song clock
+	if speed > 0 then speed *= 1 + math.clamp((t - seg.TimePosition) * 2, -0.3, 0.3) end
+	if following.speed == nil or math.abs(following.speed - speed) > 0.01 or (speed == 0) ~= (following.speed == 0) then
 		seg:AdjustSpeed(speed)
 		following.speed = speed
 	end
