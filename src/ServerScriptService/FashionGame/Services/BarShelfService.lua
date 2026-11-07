@@ -55,6 +55,17 @@ function BarShelfService.Start()
 		end
 		if #shelves == 0 then return end
 		table.sort(shelves, function(a, b) return a.Position.Y < b.Position.Y end)
+		-- (D-955) a board cut in pieces counts as one row: each shelf takes the row
+		-- of its height, so the rows above keep their drinks
+		local levels: { number } = {}
+		local function levelOf(shelf: BasePart): number
+			for i, y in ipairs(levels) do
+				if math.abs(y - shelf.Position.Y) < 0.5 then return i end
+			end
+			table.insert(levels, shelf.Position.Y)
+			return #levels
+		end
+		for _, shelf in ipairs(shelves) do levelOf(shelf) end
 		local rows = {
 			row(function(d) return d.tier == 2 and not d.vipOnly end),
 			row(function(d) return d.tier == 3 and not d.vipOnly end),
@@ -106,6 +117,8 @@ function BarShelfService.Start()
 			p.CastShadow = false
 			p.Material = Enum.Material.Neon
 			p.Color = UPLIGHT_COLOR
+			-- (D-960, user 2026-11-07: "선반에 원형 조명 달아 놓은 거 투명도 50 줘")
+			p.Transparency = 0.5
 			p.Size = Vector3.new(PUCK_HEIGHT, PUCK_SIZE, PUCK_SIZE)
 			-- (the cylinder's axis is its X: turned to point up, or down for the top one)
 			p.CFrame = CFrame.new(at) * CFrame.Angles(0, 0, math.rad(if down then -90 else 90))
@@ -120,7 +133,10 @@ function BarShelfService.Start()
 			beam.Parent = p
 		end
 		for i, shelf in ipairs(shelves) do
-			local drinks = rows[math.min(i, #rows)]
+			-- (D-955, user 2026-11-07: the two lowest rows hold the drink buckets of
+			-- tools/graybox/club_vip_bar_1107.lua, no bottles or light pucks there)
+			if shelf:GetAttribute("BarBuckets") then continue end
+			local drinks = rows[math.min(levelOf(shelf), #rows)]
 			if #drinks == 0 then continue end
 			-- the shelf's long side, and which way is the bar
 			local along = if shelf.Size.X >= shelf.Size.Z then shelf.CFrame.RightVector else shelf.CFrame.LookVector
@@ -132,8 +148,10 @@ function BarShelfService.Start()
 			local y = topOf(shelf)
 			local above = shelves[i + 1] or rail
 			local underside = 2 * above.Position.Y - topOf(above)
+			-- (D-959) a board marked ReverseBottles puts them the other way round
+			local reverse = shelf:GetAttribute("ReverseBottles") == true
 			for k = 1, count do
-				local e = drinks[(k - 1) % #drinks + 1]
+				local e = drinks[((if reverse then count - k + 1 else k) - 1) % #drinks + 1]
 				local at = Vector3.new(shelf.Position.X, y, shelf.Position.Z) + along * (-(count - 1) / 2 + (k - 1)) * GAP
 				puck(at + Vector3.new(0, PUCK_HEIGHT / 2, 0), false)
 				puck(Vector3.new(at.X, underside - PUCK_HEIGHT / 2, at.Z), true)
