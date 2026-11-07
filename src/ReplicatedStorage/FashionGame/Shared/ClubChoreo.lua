@@ -401,6 +401,11 @@ M.ChoreoFixes = {
 	-- NCT WISH-I SPY (D-912, the mirrored practice video ILeBVk4x_XQ): `still` where
 	-- the clip's member stands in the video (still_from_video.py)
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
+	-- YENA-Catch Catch (D-968): Play scan SPIN 626-666°/s = fast real turns (one way, 155-210°), spread evenly
+	[98686361929027] = { spin = { from = 8.6, to = 9.5, ease = "both" } }, -- 4 (0:27)
+	[122624428391289] = { spin = { from = 0.5, to = 1.15, ease = "both" } }, -- 11 (1:34)
+	[126013496400815] = { spin = { from = 0.6, to = 1.27, ease = "both" } }, -- 12 (1:38, to the piece end)
+	[107833429874111] = { spin = { from = 5.75, to = 6.17, ease = "both" } }, -- 13 (1:44, to the piece end)
 } :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
 	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: any?, turnEase: string?,
@@ -530,6 +535,7 @@ M.ChoreoSlideStill = {
 	[107833429874111] = { { 3.9, 4.5 }, { 5.0, 5.6 } }, [138852020855643] = { { 0.4, 1.0 } }, [111787124658928] = { { 2.1, 2.8 } },
 	[113094829637212] = { { 0.4, 1.0 }, { 2.1, 2.8 }, { 2.9, 3.5 } }, [104636507093618] = { { 1.8, 2.4 } },
 	[116715438780373] = { { 0.0, 1.4 }, { 1.6, 2.2 }, { 5.9, 6.9 } },
+	[98063579481098] = { { 3.3, 3.9 }, { 8.0, 8.6 } },
 	-- aespa-Lemonade (D-970)
 	[74096523961866] = { { 3.0, 3.8 }, { 4.7, 5.4 } }, [123559029471758] = { { 5.2, 6.5 } }, [139260290712979] = { { 6.5, 7.2 } },
 	[131526768823490] = { { 3.7, 4.4 }, { 6.2, 6.9 } }, [99422937735141] = { { 5.9, 6.8 } }, [100397079318559] = { { 6.3, 7.1 }, { 8.0, 9.3 } },
@@ -566,6 +572,8 @@ M.ChoreoGlideStill = {
 	[80284068432208] = { { 0.7, 1.3 } }, [82506858822635] = { { 4.7, 5.3 } }, [85184392148752] = { { 4.4, 5.0 } },
 	[86500685186308] = { { 5.1, 6.3 } }, [89496459962506] = { { 6.0, 6.6 } }, [92331354114542] = { { 5.1, 5.7 } },
 	[99354632184083] = { { 0.5, 1.1 } },
+	-- YENA-Catch Catch (D-968, Play scan 0:39 SLIDE 1.1 stud)
+	[98514844125325] = { { 2.4, 3.1 } },
 } :: {[number]: {{number}}}
 M.ChoreoAutoSteady = {
 	[118832898913501] = { { 5.5, 6.4 } }, [122624428391289] = { { 2.3, 3.2 } }, [129415986484255] = { { 6.8, 7.7 } },

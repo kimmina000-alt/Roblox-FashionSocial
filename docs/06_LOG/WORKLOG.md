@@ -3588,3 +3588,4 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 
 ## 2026-11-07 모션 깔끔하게 (D-966)
 - 모든 안무에 관절 끊김 보정 + 몸 이동 속도 한계, 9곡 전체 Play 검사로 미끄러짐 19곳 still · 떨림 6곳 steady, Get A Guitar 1:20 이음 · 1:52 다음 회전 정리. 자세한 값: DECISIONS D-966. 남은 8곡 다시 검사, 모바일 2P 테스트 전.
+- Catch Catch 3 · 6 · 15 · 19 · 22번 다시 올린 것 추가 → 23조각(D-968). 곡 전체 Play 검사(play_record scanAll): SPIN 4 → 0, SLIDE 1 → 0, SNAP · SHAKE · JITTER 0, TELEPORT 10은 발을 딛는 이동이라 그대로. 회전 크기 그대로.
