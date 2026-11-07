@@ -362,6 +362,75 @@ M.ChoreoFixes = {
 	-- capture spins one and a half turns in 0.8 s (up to 40° a frame) and turns
 	-- half back: one even turn over 1.7 s (2:18.2-2:19.9) to where it ends
 	[77209641618863] = { spin = { from = 1.0, to = 2.7, ease = "both" } },
+	-- YENA-Catch Catch 9 / 10 (D-974, user: "1:16~1:23 안무 앉아서 팔 움직임 적음": 1:16
+	-- 기도하는 자세로 고개 숙이기, 1:18 고개 들기, 1:19 얼굴 양 옆으로 팔 90도로 들고
+	-- 고개 까딱, 1:20 손으로 볼 감싸는 제스처 → 고개랑 팔 함께 옆 잠깐 봤다가 돌아오기,
+	-- 1:22 팔 그대로 들고 손으로 볼 톡톡, 1:23 사선으로 팔과 고개 올려다봤다가 돌아오기;
+	-- practice video P3j4RexyOBI, song = video + 0.74): the arms and head set
+	-- to each pose (angles found on the avatar in Play, screen shots), the
+	-- kneel left to the capture; piece 9 (from 76.97) runs on into 10's blend
+	[130984178299080] = { pose = { { from = 0, to = 6.5, ease = 0.3, keys = {
+		{ t = 0.15, set = { LeftUpperArm = { 10, -43, -8 }, LeftLowerArm = { 103, -7, 21 }, LeftHand = { 13, -14, -23 },
+			RightUpperArm = { 5, 38, 3 }, RightLowerArm = { 104, 16, -20 }, RightHand = { 16, 12, 29 }, Head = { -35, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 1.45, set = { LeftUpperArm = { 10, -43, -8 }, LeftLowerArm = { 103, -7, 21 }, LeftHand = { 13, -14, -23 },
+			RightUpperArm = { 5, 38, 3 }, RightLowerArm = { 104, 16, -20 }, RightHand = { 16, 12, 29 }, Head = { -35, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 1.85, set = { LeftUpperArm = { 60, -15, -30 }, LeftLowerArm = { 125, 0, 25 }, LeftHand = { 0, 0, 0 },
+			RightUpperArm = { 60, 15, 30 }, RightLowerArm = { 125, 0, -25 }, RightHand = { 0, 0, 0 }, Head = { 5, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 2.45, set = { LeftUpperArm = { 60, -15, -30 }, LeftLowerArm = { 125, 0, 25 }, LeftHand = { 0, 0, 0 },
+			RightUpperArm = { 60, 15, 30 }, RightLowerArm = { 125, 0, -25 }, RightHand = { 0, 0, 0 }, Head = { 5, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 2.8, set = { LeftUpperArm = { 0, 0, -85 }, LeftLowerArm = { 0, 0, -105 }, LeftHand = { 0, 0, 0 },
+			RightUpperArm = { 0, 0, 85 }, RightLowerArm = { 0, 0, 105 }, RightHand = { 0, 0, 0 }, Head = { 0, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 2.97, set = { LeftUpperArm = { 0, 0, -85 }, LeftLowerArm = { 0, 0, -105 }, LeftHand = { 0, 0, 0 },
+			RightUpperArm = { 0, 0, 85 }, RightLowerArm = { 0, 0, 105 }, RightHand = { 0, 0, 0 }, Head = { 0, 0, 16 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 3.17, set = { LeftUpperArm = { 0, 0, -85 }, LeftLowerArm = { 0, 0, -105 }, LeftHand = { 0, 0, 0 },
+			RightUpperArm = { 0, 0, 85 }, RightLowerArm = { 0, 0, 105 }, RightHand = { 0, 0, 0 }, Head = { 0, 0, -6 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 3.35, set = { LeftUpperArm = { 0, 0, -85 }, LeftLowerArm = { 0, 0, -105 }, LeftHand = { 0, 0, 0 },
+			RightUpperArm = { 0, 0, 85 }, RightLowerArm = { 0, 0, 105 }, RightHand = { 0, 0, 0 }, Head = { 0, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 3.8, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 135, 0, 15 }, LeftHand = { -10, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 0, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 4.25, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 135, 0, 15 }, LeftHand = { -10, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 0, 28, 0 } }, add = { UpperTorso = { 0, 18, 0 } } },
+		{ t = 4.75, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 135, 0, 15 }, LeftHand = { -10, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 0, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 5.6, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 135, 0, 15 }, LeftHand = { -10, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 0, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 5.75, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 143, 0, 15 }, LeftHand = { -30, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 143, 0, -15 }, RightHand = { -30, 0, -25 }, Head = { 0, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 5.9, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 135, 0, 15 }, LeftHand = { -10, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 0, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+		{ t = 6.05, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 143, 0, 15 }, LeftHand = { -30, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 143, 0, -15 }, RightHand = { -30, 0, -25 }, Head = { 0, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
+	} } } },
+	[128412578867487] = { pose = { { from = 0, to = 1.85, ease = 0.2, keys = {
+		{ t = 0.0, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 143, 0, 15 }, LeftHand = { -30, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 143, 0, -15 }, RightHand = { -30, 0, -25 }, Head = { 0, 0, 0 } } },
+		{ t = 0.15, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 135, 0, 15 }, LeftHand = { -10, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 0, 0, 0 } } },
+		{ t = 0.3, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 143, 0, 15 }, LeftHand = { -30, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 143, 0, -15 }, RightHand = { -30, 0, -25 }, Head = { 0, 0, 0 } } },
+		{ t = 0.45, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 135, 0, 15 }, LeftHand = { -10, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 0, 0, 0 } } },
+		{ t = 0.85, set = { LeftUpperArm = { 20, 0, -145 }, LeftLowerArm = { 20, 0, 0 }, LeftHand = { 0, 0, 0 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 22, 0, 12 } } },
+		{ t = 1.2, set = { LeftUpperArm = { 20, 0, -145 }, LeftLowerArm = { 20, 0, 0 }, LeftHand = { 0, 0, 0 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 22, 0, 12 } } },
+		{ t = 1.6, set = { LeftUpperArm = { 90, 0, -20 }, LeftLowerArm = { 135, 0, 15 }, LeftHand = { -10, 0, 25 },
+			RightUpperArm = { 90, 0, 20 }, RightLowerArm = { 135, 0, -15 }, RightHand = { -10, 0, -25 }, Head = { 0, 0, 0 } } },
+	} } } },
+	-- YENA-Catch Catch 1 (D-974, user: "처음에 무릎 꿇고 있을 때 떨어"): every joint turned
+	-- back 3-5 times in 0.5 s in the kneel and the body crept 0.2 stud
+	[75443608985712] = { still = { { from = 0, to = 4.85 } }, steady = { from = 0, to = 4.85, passes = 8 } },
+	-- 3 / 8 (D-974, user: "0:13 팔 교차", "1:09 팔 교차 너무 교차되는데", "1:15 팔 교차"; "팔 교차과
+	-- 몸통 통과는 신체에 따라 다른 듯"): the members hold the fists up in front of the
+	-- shoulders; the capture's forearm crossed over to the other side (through
+	-- a broad body): the upper arms twisted 25° and swung 8° outward there
+	[98063579481098] = { pose = { { from = 6.1, to = 7.4, ease = 0.25, add = { LeftUpperArm = { 0, 25, -8 }, RightUpperArm = { 0, -25, 8 } }, keys = { { t = 6.1 } } } } },
+	[110540650870002] = { pose = {
+		{ from = 6.4, to = 7.5, ease = 0.25, add = { LeftUpperArm = { 0, 25, -8 }, RightUpperArm = { 0, -25, 8 } }, keys = { { t = 6.4 } } },
+		{ from = 12.4, to = 13.5, ease = 0.25, add = { LeftUpperArm = { 0, 25, -8 }, RightUpperArm = { 0, -25, 8 } }, keys = { { t = 12.4 } } } } },
+	-- 6 (D-974, user: "0:38 안무 약한 게 맞는지"): the members stand wide with the arms
+	-- out to the sides; the capture kept them by the body: 25° further out
+	[98514844125325] = { pose = { { from = 1.5, to = 3.1, ease = 0.35, add = { LeftUpperArm = { 0, 0, -25 }, RightUpperArm = { 0, 0, 25 } }, keys = { { t = 1.5 } } } } },
 	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
 	-- 자세에서 다음 걷는 안무로 자연스럽게 이어지도록") the first pose is held still
 	-- (the capture sways 20° and shifts) until the walk (2) blends in over 0.9 s
