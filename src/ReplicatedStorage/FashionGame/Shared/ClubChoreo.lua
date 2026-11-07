@@ -369,7 +369,7 @@ M.ChoreoFixes = {
 	-- practice video P3j4RexyOBI, song = video + 0.74): the arms and head set
 	-- to each pose (angles found on the avatar in Play, screen shots), the
 	-- kneel left to the capture; piece 9 (from 76.97) runs on into 10's blend
-	[130984178299080] = { pose = { { from = 0, to = 6.5, ease = 0.3, keys = {
+	[130984178299080] = { steady = { from = 3.6, to = 6.2, parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }, passes = 8 }, pose = { { from = 0, to = 6.5, ease = 0.3, keys = {
 		{ t = 0.15, set = { LeftUpperArm = { 10, -43, -8 }, LeftLowerArm = { 103, -7, 21 }, LeftHand = { 13, -14, -23 },
 			RightUpperArm = { 5, 38, 3 }, RightLowerArm = { 104, 16, -20 }, RightHand = { 16, 12, 29 }, Head = { -35, 0, 0 } }, add = { UpperTorso = { 0, 0, 0 } } },
 		{ t = 1.45, set = { LeftUpperArm = { 10, -43, -8 }, LeftLowerArm = { 103, -7, 21 }, LeftHand = { 13, -14, -23 },
@@ -456,7 +456,23 @@ M.ChoreoFixes = {
 	-- one way, then 141° back in 0.16 s, inside its 1 s blend: one even turn
 	-- the short way round from where 17 ended, 0-1.3 s, during the blend too)
 	[76195346888656] = { steady = { from = 0, to = 5.0, passes = 8 }, spin = { from = 0, to = 1.3, fromPrev = true, dir = 1, ease = "both" } },
-	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
+	-- Catch Catch v2 centre pieces (D-981, the user's list of 2026-11-08 on the pieces
+	-- choreo-add cut again, D-980). v2 12 (song 107.77): 1:50 "팔 드는 거 조금 더 올리게 해 줘
+	-- 부드럽게 웨이브하듯이": she opens both arms out and up at song 111.6-112.3, the capture
+	-- only to the waist; the upper arms turn 1.5x as far there
+	[88923183102495] = { amp = { from = 3.7, to = 5.2, ease = 0.4, parts = { LeftUpperArm = 1.5, RightUpperArm = 1.5 } } },
+	-- v2 17 (song 143.2): 2:26 the walk into the circle turned 31° back, flicked
+	-- round at 720°/s, stopped, then turned on: one even turn (piece 2.45-3.6 s);
+	-- the pops stand still and calm (still + steady) so they show
+	-- 2:28 "팔 들다가 맘. 팔 들지 말고 배드에 가슴 튕기는 안무 참고해서 상체 튕기는 안무로 …
+	-- 이후에 한박자 쉬고 두 번 더 튕김": the arms stay down (the capture raised the
+	-- right arm at song 148.0 and the left at 149.1) and the chest pops on the
+	-- music's hits: song 148.13, (148.56 rest), 149.0, 149.44 (beats 0.434 s)
+	[115248452065042] = { spin = { from = 2.45, to = 3.6, ease = "both" }, still = { from = 4.6, to = 6.7 }, steady = { from = 4.6, to = 6.7, passes = 8 },
+		pops = { at = { 4.93, 5.80, 6.24 }, push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.35 },
+		pose = { from = 4.5, to = 6.7, ease = 0.3, keys = {
+			{ t = 4.5, set = { LeftUpperArm = { 0, 0, -6 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 6 }, RightLowerArm = { 10, 0, 0 } } },
+		} } },	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
 	-- 자세에서 다음 걷는 안무로 자연스럽게 이어지도록") the first pose is held still
 	-- (the capture sways 20° and shifts) until the walk (2) blends in over 0.9 s
 	[116659270658163] = { hold = { from = 0, to = 3.6 } },
