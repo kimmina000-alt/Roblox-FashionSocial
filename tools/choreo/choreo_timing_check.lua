@@ -17,7 +17,10 @@
 -- Times are in the original song's seconds (the video's clock).
 
 -- (a clone: the command bar keeps the first copy it required, edits or not)
-local ClubConfig = require(game:GetService("ReplicatedStorage").FashionGame.Shared.ClubConfig:Clone())
+-- (D-965) the whole Shared folder is cloned: since D-888 ClubConfig requires
+-- its siblings, and a clone of it alone waits for them forever; a fresh clone
+-- also reads the current values (the command bar caches modules)
+local ClubConfig = require(game:GetService("ReplicatedStorage").FashionGame.Shared:Clone().ClubConfig)
 local KeyframeSequenceProvider = game:GetService("KeyframeSequenceProvider")
 
 local lengths: {[number]: number} = {}

@@ -161,7 +161,7 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = 0, mid = 0, high = -28 },
 		-- D-938: Love119 1..33 (piece 27 = re-upload 81083928741520, the first upload was a copy of 26). Practice video hYEy_patW5s;
 		-- this song's clock (fileSpeed 1.0968) runs 0.5 % slow against the original: video = -0.375 + 1.00496 x song, `at` = (clip start + 0.375) / 1.00496
-		choreo = { { id = 116659270658163, at = 0.37 }, { id = 84899474236257, at = 3.94, blend = 0.6 }, { id = 77269060609340, at = 9.26, blend = 1 },
+		choreo = { { id = 116659270658163, at = 0.37 }, { id = 84899474236257, at = 3.94, blend = 0.9 }, { id = 77269060609340, at = 9.26, blend = 1 },
 		{ id = 84913058689124, at = 12.31, blend = 0.41 }, { id = 101539030624816, at = 21.77, blend = 0.77 }, { id = 75370013537988, at = 31.64, blend = 1 },
 		{ id = 107740496143451, at = 38.46, blend = 0.54 }, { id = 140553219106220, at = 42.99 }, { id = 96534907636929, at = 46.37, blend = 0.67 },
 		{ id = 133820711201781, at = 51.9, blend = 0.45 }, { id = 79064359810628, at = 55.33, blend = 0.71 }, { id = 103495705227564, at = 61.2, blend = 0.98 },
