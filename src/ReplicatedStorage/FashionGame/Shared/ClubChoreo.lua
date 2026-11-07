@@ -470,9 +470,11 @@ M.ChoreoFixes = {
 	-- music's hits: song 148.13, (148.56 rest), 149.0, 149.44 (beats 0.434 s)
 	[115248452065042] = { spin = { from = 2.45, to = 3.6, ease = "both" }, still = { from = 4.6, to = 6.7 }, steady = { from = 4.6, to = 6.7, passes = 8 },
 		pops = { at = { 4.93, 5.80, 6.24 }, push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.35 },
-		pose = { from = 4.5, to = 6.7, ease = 0.3, keys = {
+		pose = { { from = 4.5, to = 6.7, ease = 0.3, keys = {
 			{ t = 4.5, set = { LeftUpperArm = { 0, 0, -6 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 6 }, RightLowerArm = { 10, 0, 0 } } },
-		} } },	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
+		} },
+		-- (D-983) play bar 2:20 the left hand still across the body from v2 16: arm out of the body
+		{ from = -1, to = 0.7, ease = 0.3, keys = { { t = 0, add = { LeftUpperArm = { 10, 25, -8 } } } } } } },	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
 	-- 자세에서 다음 걷는 안무로 자연스럽게 이어지도록") the first pose is held still
 	-- (the capture sways 20° and shifts) until the walk (2) blends in over 0.9 s
 	[116659270658163] = { hold = { from = 0, to = 3.6 } },
