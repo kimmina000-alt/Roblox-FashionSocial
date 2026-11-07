@@ -91,7 +91,8 @@ end
 local function wanted(): (ClubConfig.Track?, ClubCamera.Song?)
 	if player:GetAttribute("StageCamera") ~= true then return nil, nil end
 	local r = root()
-	if not r or not ClubConfig.isInClub(r.Position) then return nil, nil end
+	-- (D-993) wherever the club music is heard, not only in the club
+	if not r or not (ClubConfig.isInClub(r.Position) or player:GetAttribute("HearsClub") == true) then return nil, nil end
 	local track = playingTrack()
 	local song = track and ClubCamera.forTrack(track)
 	if not track or not song then return nil, nil end
