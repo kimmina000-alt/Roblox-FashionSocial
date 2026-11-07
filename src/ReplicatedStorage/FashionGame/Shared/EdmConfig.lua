@@ -26,7 +26,7 @@ return {
 	-- MusicVolumes steps on the server)
 	EdmSpeed = { min = 0.5, max = 2, step = 0.05 },
 	EdmVolume = { min = 0, max = 3, step = 0.1 }, -- (D-764: the EDM track alone)
-	-- (D-933, user 2026-11-06: "edm 소리 볼륨 0.5") where the EDM volume starts,
+	-- (D-940, user 2026-11-06: "edm 소리 볼륨 0.5") where the EDM volume starts,
 	-- and where 🔄 초기화 puts it back (1 before)
 	EdmVolumeDefault = 0.5,
 	SongSpeed = { min = 0.5, max = 2, step = 0.05 },

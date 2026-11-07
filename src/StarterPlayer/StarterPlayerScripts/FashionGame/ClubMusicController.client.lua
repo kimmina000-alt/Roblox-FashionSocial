@@ -144,7 +144,7 @@ local iconSlot = create("Frame", { Name = "IconSlot", BackgroundTransparency = 1
 local barSlot = create("Frame", { Name = "PlayBarSlot", BackgroundTransparency = 1 }, panel)
 local ICON_W, BAR_H = 44, 18
 
--- (D-933, user 2026-11-06: "디제잉 창에서 삐져나옴") everything under the song
+-- (D-940, user 2026-11-06: "디제잉 창에서 삐져나옴") everything under the song
 -- line scrolls inside the window when it is taller than the window
 local body = create("ScrollingFrame", {
 	Name = "Body",
@@ -384,7 +384,7 @@ local searchBox = create("TextBox", {
 }, panel)
 corner(searchBox, 8)
 create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, searchBox)
--- (D-933, user 2026-11-06: "음악 리스트 창 하단에 다음곡 뜨는 거 음악 팝업창 2:1로
+-- (D-940, user 2026-11-06: "음악 리스트 창 하단에 다음곡 뜨는 거 음악 팝업창 2:1로
 -- 나눠서 아래 칸 자리 줘서 기기 사이즈에 맞춰서 비율로") the next songs get the
 -- bottom third of the song window (the list the top two thirds), on every
 -- screen; it scrolls when the list is long
@@ -420,7 +420,7 @@ local listPanel = create("Frame", {
 	BackgroundColor3 = COLORS.panel,
 	BackgroundTransparency = 0.08,
 	Visible = false,
-	-- (D-933: made after the 디제잉 window, so it is drawn on top of it when both
+	-- (D-940: made after the 디제잉 window, so it is drawn on top of it when both
 	-- share one place; no ZIndex: this ScreenGui is Global, a higher one covered
 	-- its own contents)
 	Active = true, -- (taps on it do not reach the window under it)
@@ -468,7 +468,7 @@ local listNow = create("TextLabel", {
 }, listPanel)
 local compactNow = false
 
--- (D-933, user 2026-11-06: "화면 좁아지니까 겹침 / 좁아지면 팝업 하나에 디제잉, 음악
+-- (D-940, user 2026-11-06: "화면 좁아지니까 겹침 / 좁아지면 팝업 하나에 디제잉, 음악
 -- 카테고리 나누기. 카탈로그에서 버튼 누르면 아래 해당하는 창 떴던 것처럼") when the
 -- two windows do not fit side by side, they share one place and two tabs at
 -- the top of each switch between them: [🎧 디제잉] [🎵 음악]
@@ -548,7 +548,7 @@ layout = function()
 	local compact = viewport.Y < 450
 	compactNow = compact
 	local width = if compact then math.clamp(math.floor(viewport.X * 0.3), 210, 300) else math.clamp(math.floor(viewport.X * 0.36), 260, 340)
-	-- (D-933) the two windows side by side need 12 + width + 12 + width + 12;
+	-- (D-940) the two windows side by side need 12 + width + 12 + width + 12;
 	-- narrower screens (phones held upright, small windows) get one window
 	-- with the two tabs
 	local tabbed = viewport.X < 2 * width + 36
@@ -577,7 +577,7 @@ layout = function()
 	for _, item in ipairs({ listTitle, searchBox, trackList, queueBox } :: {GuiObject}) do
 		if item.Parent ~= listPanel then item.Parent = listPanel end
 	end
-	-- (D-933) tabbed: the song window lies over the 디제잉 window while 🎵 음악
+	-- (D-940) tabbed: the song window lies over the 디제잉 window while 🎵 음악
 	-- is picked (the 디제잉 window stays open under it: the banner and the
 	-- quick bar go by its Visible)
 	listPanel.Visible = panel.Visible and (not tabbed or activeTab == "music")
@@ -609,7 +609,7 @@ layout = function()
 	iconSlot.Size = UDim2.fromOffset(ICON_W, nowH)
 	barSlot.Position = UDim2.fromOffset(0, nowY + nowH + 2)
 	barSlot.Size = UDim2.fromOffset(leftW, BAR_H - 4)
-	-- (D-933) the rest scrolls in `body`: positions from its top
+	-- (D-940) the rest scrolls in `body`: positions from its top
 	local bodyTop = nowY + nowH + BAR_H + 4
 	local function placeBody(w: number): number
 		local y = 0
@@ -820,8 +820,8 @@ local function renderTracks()
 			BackgroundColor3 = if index == current then COLORS.accent else COLORS.card,
 		}, trackList)
 		corner(row, 8)
-		-- (D-933) the DJ's three buttons: 지금 / 우선예약 / 예약
-		-- (D-934, user 2026-11-06: "글씨 빼고 그냥 작은 원 버튼으로 변경해서 노래 제목
+		-- (D-940) the DJ's three buttons: 지금 / 우선예약 / 예약
+		-- (D-941, user 2026-11-06: "글씨 빼고 그냥 작은 원 버튼으로 변경해서 노래 제목
 		-- 보이게") small round icon buttons: ▶ 지금, ⏫ 우선예약, ➕ 예약 (the list
 		-- title says which is which)
 		local buttonW = 28
@@ -860,7 +860,7 @@ local function renderTracks()
 			button.MouseButton1Click:Connect(onClick)
 		end
 		if dj then
-			-- (D-933, user 2026-11-06: "디제이 음악창 지금/우선예약/예약으로 버튼 추가")
+			-- (D-940, user 2026-11-06: "디제이 음악창 지금/우선예약/예약으로 버튼 추가")
 			--   지금: plays now; 우선예약: first in the list of next songs ("Queue");
 			--   예약: at the end of it, in the order they were pressed ("Request")
 			rowButton("Play", "▶", -(2 * buttonW + 16), buttonW, COLORS.dj, function() call("Play", index) end)
@@ -930,7 +930,7 @@ local function refresh()
 	local lines = {}
 	for position, entry in ipairs(requests()) do
 		local queued = ClubConfig.Playlist[entry.i]
-		if queued then -- (D-933: all of them; the box scrolls)
+		if queued then -- (D-940: all of them; the box scrolls)
 			table.insert(lines, string.format("%d. %s · %s", position, ClubConfig.showTitle(queued, 13), ClubConfig.escapeRich(nameOf(entry.u))))
 		end
 	end
@@ -945,7 +945,7 @@ local function setPanelOpen(open: boolean)
 	listPanel.Visible = open -- (PC too since D-757)
 	if not open then Popups.closed("ClubMusic") end
 	if open then
-		-- (D-933) one window with tabs: the DJ starts on 🎧 디제잉, others on 🎵 음악
+		-- (D-940) one window with tabs: the DJ starts on 🎧 디제잉, others on 🎵 음악
 		activeTab = if isDJ() then "dj" else "music"
 		openedClock = os.clock()
 		Popups.opened("ClubMusic", function() setPanelOpen(false) end)
@@ -1065,7 +1065,7 @@ for _, console in ipairs(CollectionService:GetTagged("DJConsole")) do watchConso
 CollectionService:GetInstanceAddedSignal("DJConsole"):Connect(watchConsole)
 guestsButton.MouseButton1Click:Connect(function()
 	showGuests = not showGuests
-	if showGuests and tabbedNow then activeTab = "music" end -- (D-933: the list is in the 🎵 tab)
+	if showGuests and tabbedNow then activeTab = "music" end -- (D-940: the list is in the 🎵 tab)
 	refresh()
 	renderTracks()
 end)

@@ -87,7 +87,7 @@ function EdmPanel.new(parent: Instance): Panel
 	create("UIPadding", { PaddingLeft = UDim.new(0, 3), PaddingRight = UDim.new(0, 3) }, resetButton)
 	resetButton.Activated:Connect(function()
 		call("Edm", { k = "speed", v = 1 })
-		call("Edm", { k = "volume", v = EdmConfig.EdmVolumeDefault or 1 }) -- (D-933: 0.5)
+		call("Edm", { k = "volume", v = EdmConfig.EdmVolumeDefault or 1 }) -- (D-940: 0.5)
 		call("MusicSpeed", 1)
 		call("MusicVolume", 1)
 	end)

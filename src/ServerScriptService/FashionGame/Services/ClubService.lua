@@ -196,7 +196,7 @@ end
 local HttpService = game:GetService("HttpService")
 local DjService = require(script.Parent.DjService)
 
-local MAX_REQUESTS = 20 -- (10 until D-933: the DJ's 예약 list)
+local MAX_REQUESTS = 20 -- (10 until D-940: the DJ's 예약 list)
 local requests: {{i: number, u: number}} = {}
 local trackIndex = 0
 local trackEnds = 0
@@ -432,7 +432,7 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		if #requests >= MAX_REQUESTS then return false, "신청곡이 가득 찼어요." end
 		table.insert(requests, { i = index, u = player.UserId })
 		publishRequests()
-		-- (D-933) the DJ's 예약: at the end of the next songs, in the order pressed
+		-- (D-940) the DJ's 예약: at the end of the next songs, in the order pressed
 		if isDJ then return true, string.format("예약했어요. %d번째로 나와요.", #requests) end
 		return true, string.format("신청 완료! %d번째로 나와요.", #requests)
 	end
@@ -458,7 +458,7 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	elseif action == "Queue" then
 		local index = validTrack(payload)
 		if not index then return false, "없는 곡입니다." end
-		-- (D-933: the 우선예약 button) first in the next songs
+		-- (D-940: the 우선예약 button) first in the next songs
 		if #requests >= MAX_REQUESTS then return false, "예약이 가득 찼어요." end
 		table.insert(requests, 1, { i = index, u = player.UserId })
 		publishRequests()
