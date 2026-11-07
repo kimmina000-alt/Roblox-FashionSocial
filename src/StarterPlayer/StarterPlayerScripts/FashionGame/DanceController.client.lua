@@ -333,12 +333,14 @@ local bannerFolded = false
 local bannerToggle = create("TextButton", {
 	Name = "NowPlayingToggle",
 	AnchorPoint = Vector2.new(0, 0.5),
-	Size = UDim2.fromOffset(26, 26),
+	-- (D-972, user 2026-11-07: "접혀 있을 때는 > , 펼쳐져 있을 땐 < 인데 앞에 음표
+	-- 넣기") a note in front: a pill 42 wide instead of the 26 circle
+	Size = UDim2.fromOffset(42, 26),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 	BackgroundTransparency = 0.45,
-	Text = "<", -- (D-953: "<" open, ">" folded; "−" / "+" before)
+	Text = "♪<", -- (D-953: "<" open, ">" folded; "−" / "+" before; D-972: ♪ in front)
 	TextColor3 = Color3.new(1, 1, 1),
-	TextSize = 20,
+	TextSize = 17,
 	Font = Enum.Font.GothamBold,
 	AutoButtonColor = true,
 	Visible = false,
@@ -348,7 +350,7 @@ bannerToggle.Activated:Connect(function()
 	bannerFolded = not bannerFolded
 	-- (D-953, user 2026-11-07: "+ , - 로 접었다 폈다 할 수 있는데 > , < 이걸로 변경. 접혀
 	-- 있을 때는 > , 펼쳐져 있을 땐 <")
-	bannerToggle.Text = if bannerFolded then ">" else "<"
+	bannerToggle.Text = if bannerFolded then "♪>" else "♪<" -- (D-972: ♪ in front)
 	if bannerFolded then banner.Visible = false end
 end)
 
@@ -509,7 +511,7 @@ local function layoutPanel()
 	-- under the top row at the left edge (phones held upright). Its − / + in
 	-- front, the play bar under it (ClubQuickBar), the skip count after it.
 	-- The dance panel, sync pill and player card start below it.
-	local TOGGLE_W, SKIP_W, GROUP_H = 32, 42, 47 -- (− / + and gap, skip count, banner 30 + bar 17)
+	local TOGGLE_W, SKIP_W, GROUP_H = 48, 42, 47 -- (♪< / ♪> 42 and gap (32 before D-972), skip count, banner 30 + bar 17)
 	local rowLeft, rowRight, rowY = require(script.Parent:WaitForChild("TopBar")).firstRow()
 	local roomInRow = rowRight - rowLeft - TOGGLE_W - SKIP_W
 	local bannerX, bannerY, bannerW
