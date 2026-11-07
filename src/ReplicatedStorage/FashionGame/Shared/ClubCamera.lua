@@ -333,8 +333,11 @@ ClubCamera.Songs[140713297574648] = {
 		take({ { 43.53, "bust" }, { 44.4, "waist", yaw = -10 } }),
 		take({ { 44.77, "bust", roll = -6 }, { 45.5, "knee" }, { 46.0, "wide", pitch = 6 }, { 46.6, "full" } }),
 		{ at = 47.2, size = "waist", yaw = 15 },
-		take({ { 48.3, "full", yaw = 20 }, { 49.0, "knee", yaw = 10 }, { 50.5, "knee" } }),
-		take({ { 51.0, "wide", pitch = 15 }, { 51.6, "wide", pitch = 15 }, { 52.0, "close", roll = -15 }, { 52.6, "bust" }, { 53.0, "xwide", pitch = 4 },
+		-- (D-963, user 2026-11-07: "0:50 무릎 꿇고 멈춰 있을 때 얼굴 위주로, 천천히 조금만
+		-- 돌기") piece 5 kneels still from 49.8 to 52.0 (feat/choreo-fixes-1107): in to the face
+		-- while kneeling down, then a slow small turn until it gets up
+		take({ { 48.3, "full", yaw = 20 }, { 49.8, "close", yaw = -6 }, { 52.0, "close", yaw = 6 } }),
+		take({ { 52.0, "close", roll = -15 }, { 52.6, "bust" }, { 53.0, "xwide", pitch = 4 },
 			{ 55.6, "xwide", pitch = 4 }, { 56.0, "full" }, { 56.6, "full", yaw = 10 }, { 57.0, "waist" }, { 57.5, "bust" }, { 58.0, "waist" } }),
 		{ at = 58.5, size = "xwide", pitch = 20 },
 		-- chorus 1
@@ -372,10 +375,12 @@ ClubCamera.Songs[140713297574648] = {
 			{ 140.2, "wide", pitch = 6 }, { 140.6, "knee" }, { 141.0, "full" }, { 141.5, "knee" }, { 142.0, "waist" } }),
 		take({ { 142.23, "wide", pitch = 6 }, { 143.0, "wide", pitch = 6 }, { 143.5, "knee" }, { 144.0, "waist" }, { 144.5, "wide", pitch = 5 },
 			{ 145.0, "wide", pitch = 5 }, { 145.5, "waist" } }),
-		take({ { 145.93, "waist" }, { 146.5, "knee" }, { 147.0, "wide", pitch = 6 }, { 148.6, "wide", yaw = 10, pitch = 6 }, { 149.0, "knee" }, { 149.5, "waist" } }),
-		-- bridge
-		take({ { 149.7, "knee" }, { 152.6, "knee", yaw = 10 } }),
-		take({ { 152.93, "knee", roll = -6 }, { 153.5, "wide", pitch = 6 }, { 154.0, "full" }, { 155.0, "full", yaw = -10 }, { 155.5, "knee" }, { 156.5, "knee" } }),
+		-- bridge: (D-963, user 2026-11-07: "2:33 허리 숙이고 멈춰 있을 때 카메라가 천천히
+		-- 멀어지게, 앞뒤와 자연스럽게") piece 17 stays bent over from 149.3 to 155.2
+		-- (feat/choreo-fixes-1107): one take from the waist shot slowly back to a wide, then in to
+		-- the knee shot the next take starts with (no cut on either side)
+		take({ { 145.93, "waist" }, { 146.5, "knee" }, { 147.0, "wide", pitch = 6 }, { 148.6, "wide", yaw = 10, pitch = 6 }, { 149.3, "waist" },
+			{ 155.2, "wide", pitch = 6 }, { 156.73, "knee" } }),
 		take({ { 156.73, "knee" }, { 157.5, "full" }, { 158.0, "wide", pitch = 6 }, { 158.6, "wide", pitch = 6 }, { 159.0, "knee" }, { 159.6, "knee", yaw = 10 },
 			{ 160.0, "waist" }, { 160.5, "waist", roll = -10 }, { 161.0, "knee" }, { 161.5, "wide", pitch = 6 }, { 164.0, "wide", yaw = 10, pitch = 6 } }),
 		{ at = 164.4, size = "bust" },
@@ -789,8 +794,14 @@ ClubCamera.Songs[104827635407586] = {
 ClubCamera.Songs[85204387077332] = {
 	video = "SBS Inkigayo 2024-01-14, youtube w11AQwiT07g",
 	offset = -1.225,
-	shots = cutList({
-		{ 0, "bust" }, { 4.64, "knee" }, { 8.73, "wide", 0, 5 }, { 10.6, "bust" }, { 11.9, "wide", 0, 5 },
+	shots = ClubCamera.join({
+		-- (D-963, user 2026-11-07: start = the first pose held still, the camera
+		-- on the face turning round it, then flowing into the walk) the game
+		-- holds the first pose from 0.7 to 3.9 s and walks from 3.94 s (feat/choreo-fixes-1107):
+		-- one take orbiting the face to 3.9 s, then easing out to the knee shot
+		-- while the walk blends in, held until the stage's next cut at 8.73
+		take({ { 0, "close", yaw = -40 }, { 3.9, "close", yaw = 25 }, { 5.6, "knee" } }),
+		cutList({ { 8.73, "wide", 0, 5 }, { 10.6, "bust" }, { 11.9, "wide", 0, 5 },
 		{ 12.47, "waist" }, { 13.53, "knee" }, { 15.62, "full" }, { 16.74, "waist" },
 		{ 17.97, "xwide", 0, 8, { size = "wide" } }, { 19.63, "bust" }, { 21.52, "wide", 0, 5, { size = "full" } },
 		{ 24.63, "waist" }, { 28.33, "wide", 0, 5 }, { 29.45, "waist" }, { 31.84, "xwide", 0, 8, { size = "wide" } },
@@ -814,6 +825,7 @@ ClubCamera.Songs[85204387077332] = {
 		{ 153.94, "wide", 0, 5 }, { 155.26, "full" }, { 159.5, "wide", 0, 5 }, { 160.14, "bust" },
 		{ 162.35, "bust", 5, 0, { size = "waist" } }, { 163.44, "waist" }, { 164.78, "full" }, { 165.8, "bust" },
 		{ 167.69, "wide", 0, 5 }, { 170.29, "full" }, { 171.54, "bust" },
+		}),
 	}),
 }
 -- 키키-Pop Off: KBS Music Bank 2026-08-14 (youtube bpYdX73przc), video = song + 7.0 s
@@ -877,6 +889,129 @@ ClubCamera.Songs[89634330677538] = {
 		{ 186.67, "waist" }, { 187.67, "bust" }, { 189.25, "wide", 0, 5 }, { 192.17, "waist" },
 		{ 194.68, "wide", 0, 5 }, { 198.87, "waist" }, { 200.5, "waist", 0, 0, { size = "bust" } },
 		{ 200.9, "xwide", 0, 8 }, { 201.88, "wide", 0, 5 }, { 205.84, "bust" },
+	}),
+}
+-- (D-969) IOI-갑자기: MBC Show! Music Core 2026-05-23 (youtube 5olSAzpqZsQ), video =
+-- song - 0.3 s: the original mp3's loudness (on the game clock: mp3 vs practice
+-- video +0.30 = the choreography's offset) lined up with the stage; the sound
+-- also allowed -1.3 (two beats), and the poses at song 25 / 33 / 155 s pick -0.3.
+-- Shot list made by shots_to_lua.py (D-944).
+ClubCamera.Songs[75344866720031] = {
+	video = "MBC Show! Music Core 2026-05-23, youtube 5olSAzpqZsQ",
+	offset = -0.3,
+	shots = cutList({
+		{ 0, "bust" }, { 2.25, "wide", 0, 5 }, { 4.16, "waist" }, { 10.63, "waist", 0, 0, { size = "bust" } },
+		{ 12.1, "bust" }, { 12.5, "xwide", 0, 8, { size = "wide" } }, { 14.1, "knee" }, { 14.67, "waist" },
+		{ 15.53, "bust" }, { 16.13, "bust", 0, 0, { size = "waist" } }, { 16.73, "wide", 0, 5 },
+		{ 17.23, "bust", 0, 0, { size = "close" } }, { 18.2, "bust" }, { 19.2, "wide", 0, 5, { size = "full" } },
+		{ 20.33, "bust", 0, 0, { size = "close" } }, { 20.9, "waist", 0, 0, { size = "bust" } },
+		{ 22.37, "waist", 0, 0, { size = "knee" } }, { 22.93, "wide", 0, 5 }, { 24.4, "waist" },
+		{ 24.93, "waist", 0, 0, { size = "knee" } }, { 29.03, "bust" }, { 31.63, "xwide", 0, 8, { size = "wide" } },
+		{ 33.4, "wide", 10, 5 }, { 35.47, "knee" }, { 35.97, "waist" }, { 37, "bust" }, { 38.03, "wide", 0, 5 },
+		{ 39.13, "bust" }, { 40.52, "waist" }, { 42.9, "bust" }, { 43.47, "wide", -5, 5, { size = "full" } },
+		{ 44.93, "waist", 0, 0, { size = "bust" } }, { 45.97, "bust" }, { 48.04, "wide", 0, 5 }, { 48.9, "full" },
+		{ 50.03, "waist", 0, 0, { size = "bust" } }, { 51.7, "wide", 0, 5 },
+		{ 52.13, "wide", 0, 5, { size = "full" } }, { 53.13, "full", 0, 0, { size = "knee" } }, { 54.17, "bust" },
+		{ 55.22, "wide", 0, 5 }, { 56.45, "bust" }, { 59.77, "wide", 0, 5, { size = "full" } },
+		{ 61.37, "full", 0, 0, { size = "knee" } }, { 62.37, "waist", 0, 0, { size = "bust" } },
+		{ 63.4, "bust", -10, 0, { size = "waist" } }, { 64.43, "knee", 0, 0, { size = "full" } }, { 65.37, "bust" },
+		{ 67.93, "wide", 0, 5, { size = "full" } }, { 69.1, "waist", 0, 0, { size = "bust" } }, { 70.13, "waist" },
+		{ 71.3, "full" }, { 71.93, "waist" }, { 73.19, "bust" }, { 73.87, "wide", -5, 5, { size = "full" } },
+		{ 76.33, "full" }, { 79.62, "waist" }, { 83.2, "bust" }, { 84.5, "bust", 0, 0, { size = "close" } },
+		{ 86.03, "knee" }, { 87.2, "bust" }, { 92.5, "knee" }, { 93.98, "wide", 0, 5 }, { 96.67, "bust" },
+		{ 97.83, "waist" }, { 98.8, "full" }, { 99.9, "waist", -5 }, { 101.07, "bust" },
+		{ 101.43, "waist", 0, 0, { size = "knee" } }, { 102.9, "bust" }, { 107.13, "xwide", 0, 8 },
+		{ 107.99, "full" }, { 108.69, "waist" }, { 109.57, "bust" }, { 112.08, "wide", 0, 5 }, { 113.03, "bust" },
+		{ 116.23, "xwide", 0, 8 }, { 116.7, "wide", 0, 5, { size = "full" } }, { 118.83, "waist" },
+		{ 122.38, "wide", 0, 5 }, { 124.67, "bust" }, { 127.37, "waist" },
+		{ 128.03, "wide", 0, 5, { size = "full" } }, { 129.03, "knee" }, { 129.85, "waist" },
+		{ 131.17, "wide", 0, 5 }, { 132.13, "full" }, { 132.83, "bust", 0, 0, { size = "waist" } },
+		{ 134.17, "knee" }, { 135.2, "full" }, { 137.1, "waist" }, { 138.27, "knee" }, { 139.3, "wide", 0, 5 },
+		{ 139.77, "waist" }, { 141.32, "bust" }, { 141.97, "wide", 0, 5 }, { 144.09, "full" }, { 147.33, "knee" },
+		{ 148.44, "bust" }, { 151.97, "wide", 0, 5 }, { 153.52, "waist" }, { 154.78, "wide", 0, 5 },
+		{ 156.1, "full" }, { 157.05, "waist" }, { 158.33, "waist", 0, 0, { size = "knee" } }, { 160.27, "bust" },
+		{ 162.37, "wide", 0, 5 }, { 165.37, "knee" }, { 166.63, "waist" },
+		{ 167.13, "bust", 0, 0, { size = "waist" } }, { 167.63, "waist" },
+		{ 169.2, "full", 0, 0, { size = "knee" } }, { 169.7, "waist", 0, 0, { size = "bust" } }, { 170.53, "knee" },
+		{ 171.23, "bust" }, { 171.73, "waist" }, { 172.27, "full", 0, 0, { size = "wide" } }, { 173.43, "bust" },
+		{ 174.53, "full", 0, 0, { size = "knee" } }, { 175.33, "knee" },
+		{ 175.87, "waist", 0, 0, { size = "knee" } }, { 176.67, "waist" }, { 178.67, "wide", 0, 5 },
+		{ 179.3, "wide", 0, 5, { size = "full" } }, { 179.8, "knee", 0, 0, { size = "waist" } },
+		{ 181.33, "waist", 0, 0, { size = "knee" } }, { 181.87, "full", 0, 0, { size = "wide" } },
+		{ 182.87, "bust", 10 }, { 183.4, "waist", 10, 0, { size = "knee" } }, { 184.97, "wide", 0, 5 },
+		{ 186.5, "full" }, { 186.9, "bust" }, { 188.93, "full" }, { 192.43, "waist" }, { 194.44, "bust" },
+	}),
+}
+-- (D-971) aespa-Lemonade: MBC Show! Music Core 2026-05-30 (youtube r2eoeCk171I),
+-- video = song - 0.12 s (no mp3: the practice video's sound, = song + 1.08 by the
+-- choreography, lined up with the stage: stage = practice - 1.20 in every window).
+-- YENA-Catch Catch: MBC Show! Music Core 2026-03-21 (youtube erNe2L0beR0), video =
+-- song - 0.70 s (practice video = song - 0.70, stage = practice + 0.00 throughout).
+-- Shot lists made by shots_to_lua.py (D-944).
+ClubCamera.Songs[132067415333401] = {
+	video = "MBC Show! Music Core 2026-05-30, youtube r2eoeCk171I",
+	offset = -0.12,
+	shots = cutList({
+		{ 0, "xwide", 0, 8 }, { 2.64, "wide", 0, 5 }, { 4.05, "bust" }, { 5.71, "waist" }, { 6.96, "bust" },
+		{ 8.34, "waist" }, { 10.29, "waist", 0, 0, { size = "bust" } }, { 11.39, "xwide", 0, 8 }, { 12.75, "waist" },
+		{ 16.12, "wide", 0, 5 }, { 20.89, "knee" }, { 22.13, "bust" }, { 24.62, "xwide", 0, 8 }, { 25.05, "knee" },
+		{ 25.55, "wide", 0, 5 }, { 25.99, "knee" }, { 26.45, "bust" }, { 28.32, "waist" }, { 29.25, "bust" },
+		{ 29.72, "full", 0, 0, { size = "wide" } }, { 30.22, "wide", 0, 5 }, { 30.65, "full" },
+		{ 31.15, "waist", 5 }, { 31.59, "waist" }, { 32.09, "full" }, { 32.55, "knee" }, { 33.02, "waist" },
+		{ 33.49, "bust" }, { 33.95, "waist" }, { 34.42, "knee" }, { 34.89, "waist" }, { 35.82, "wide", 0, 5 },
+		{ 36.29, "full" }, { 36.75, "waist" }, { 37.22, "bust" }, { 38.65, "knee", 0, 0, { size = "full" } },
+		{ 39.09, "wide", 0, 5, { size = "xwide" } }, { 39.65, "wide", 0, 5 }, { 41, "full" }, { 42.59, "bust" },
+		{ 44.32, "waist" }, { 45.19, "wide", 0, 5 }, { 46.12, "full", 0, 0, { size = "knee" } }, { 46.59, "waist" },
+		{ 47.52, "bust" }, { 48.45, "waist" }, { 48.92, "bust" }, { 49.42, "knee", 0, 0, { size = "full" } },
+		{ 50.85, "waist" }, { 51.32, "bust" }, { 51.79, "waist", 0, 0, { size = "knee" } }, { 53.65, "bust" },
+		{ 55.91, "waist" }, { 57.59, "bust" }, { 58.21, "knee" }, { 59.11, "wide", 0, 5 },
+		{ 60.09, "waist", 0, 0, { size = "bust" } }, { 62.29, "wide", 0, 5 }, { 64.21, "bust" },
+		{ 65.31, "wide", 0, 5 }, { 67.69, "knee" }, { 68.96, "bust" }, { 73.15, "wide", 0, 5 }, { 75.02, "waist" },
+		{ 77.32, "wide", 0, 5 }, { 79.97, "knee" }, { 81.4, "waist" }, { 84.49, "wide", 0, 5 }, { 85.63, "bust" },
+		{ 86.52, "wide", 0, 5 }, { 87.49, "full" }, { 88.42, "knee" }, { 88.85, "waist" }, { 89.79, "bust" },
+		{ 90.29, "waist" }, { 90.72, "full", 0, 0, { size = "wide" } }, { 91.22, "wide", 0, 5 }, { 92.15, "waist" },
+		{ 93.99, "wide", 0, 5, { size = "full" } }, { 94.49, "full" }, { 94.95, "knee" }, { 95.42, "waist" },
+		{ 96.35, "bust" }, { 96.82, "bust", 0, 0, { size = "waist" } }, { 98.22, "waist" }, { 98.72, "full" },
+		{ 99.65, "knee" }, { 100.09, "bust" }, { 101.45, "wide", 0, 5, { size = "full" } }, { 102.52, "waist" },
+		{ 103.58, "bust" }, { 105.49, "full" }, { 106.54, "waist" }, { 108.09, "bust" }, { 112.03, "wide", 0, 5 },
+		{ 114.45, "bust" }, { 116.25, "xwide", 0, 8 }, { 118.49, "bust" },
+		{ 121.92, "bust", 0, 0, { size = "close" } }, { 123.79, "wide", 0, 5 }, { 124.75, "knee" },
+		{ 127.85, "bust" }, { 129.17, "waist" }, { 131.42, "xwide", 0, 8 }, { 133.29, "bust" }, { 134.71, "knee" },
+		{ 137.09, "bust" }, { 138.33, "full" }, { 141.59, "waist" }, { 144.72, "wide", 0, 5, { size = "full" } },
+		{ 146.72, "bust" }, { 147.19, "full" }, { 148.12, "knee", 0, 0, { size = "waist" } },
+		{ 148.59, "bust", 0, 0, { size = "close" } }, { 151.25, "waist", 0, 0, { size = "bust" } },
+		{ 153.95, "waist" }, { 154.65, "wide", 0, 5 }, { 157.42, "bust" }, { 159.68, "wide", 0, 5 },
+		{ 165.14, "bust" }, { 166.85, "waist" }, { 172.85, "wide", 0, 5 }, { 174.52, "bust" },
+		{ 175.43, "wide", 0, 5 }, { 178.23, "knee" }, { 179.39, "wide", 0, 5 }, { 181.89, "bust" },
+	}),
+}
+ClubCamera.Songs[80583279340768] = {
+	video = "MBC Show! Music Core 2026-03-21, youtube erNe2L0beR0",
+	offset = -0.7,
+	shots = cutList({
+		{ 0, "waist" }, { 2.13, "knee" }, { 3.11, "bust" }, { 3.87, "knee" }, { 7.85, "full" }, { 10.18, "bust" },
+		{ 19.46, "waist" }, { 22.2, "wide", 0, 5 }, { 22.8, "wide", 0, 5, { size = "full" } }, { 24.1, "knee" },
+		{ 25.52, "bust" }, { 26.89, "knee" }, { 28.84, "bust" }, { 29.9, "full" }, { 30.98, "bust" },
+		{ 32.3, "wide", 0, 5 }, { 39.29, "bust" }, { 41.24, "xwide", 0, 8 },
+		{ 43.7, "wide", 0, 5, { size = "full" } }, { 45.8, "waist", 0, 0, { size = "knee" } }, { 49.97, "bust" },
+		{ 50.57, "bust", 0, 0, { size = "close" } }, { 53.97, "wide", 0, 5 }, { 55.26, "knee" }, { 56.97, "bust" },
+		{ 57.73, "wide", 0, 5 }, { 58.83, "full" }, { 59.67, "waist" }, { 60.78, "knee" }, { 61.95, "wide", 0, 5 },
+		{ 62.67, "bust" }, { 64.57, "wide", -5, 5, { size = "full" } }, { 65.97, "waist" }, { 66.96, "bust" },
+		{ 68.14, "wide", 0, 5 }, { 69.63, "bust", 0, 0, { size = "close" } },
+		{ 71.53, "waist", 5, 0, { size = "bust" } }, { 76.43, "waist" }, { 78.19, "wide", 0, 5 }, { 80.46, "bust" },
+		{ 82.1, "full" }, { 82.96, "waist" }, { 84.53, "wide", 0, 5 }, { 87.37, "waist" }, { 89.37, "knee" },
+		{ 91.22, "wide", 0, 5 }, { 92.37, "waist" }, { 93.63, "full" }, { 95.04, "bust" }, { 97.4, "xwide", 0, 8 },
+		{ 99.57, "bust" }, { 102.7, "full" }, { 103.66, "waist" }, { 105.79, "wide", 0, 5 }, { 108.03, "bust" },
+		{ 109.53, "waist" }, { 112.5, "xwide", 0, 8 }, { 113.3, "wide", 0, 5 }, { 114.12, "waist" },
+		{ 115.5, "bust" }, { 117.63, "wide", 0, 5 }, { 119.2, "waist", 0, 0, { size = "knee" } },
+		{ 120.1, "wide", 0, 5 }, { 120.58, "full" }, { 121.35, "knee" }, { 122.13, "full" },
+		{ 122.67, "full", 0, 0, { size = "knee" } }, { 125.17, "full" }, { 127.23, "wide", 0, 5, { size = "full" } },
+		{ 128.53, "full" }, { 129.26, "bust" }, { 130.06, "wide", 0, 5 }, { 132.27, "bust" },
+		{ 134.07, "wide", 0, 5 }, { 139.03, "waist" }, { 140.72, "wide", 0, 5 }, { 144.3, "bust" },
+		{ 144.8, "wide", 0, 5 }, { 146.68, "bust" }, { 147.79, "wide", 0, 5 }, { 149.17, "bust" },
+		{ 154.29, "wide", 0, 5 }, { 160.44, "bust" }, { 163.7, "wide", 0, 5 }, { 165.1, "full" },
+		{ 167.31, "wide", 0, 5 }, { 168.67, "bust" }, { 170.63, "full" }, { 172.31, "bust" },
+		{ 177.53, "wide", 0, 5, { size = "full" } }, { 178.23, "full", 0, 0, { size = "knee" } },
 	}),
 }
 return ClubCamera
