@@ -180,7 +180,8 @@ end
 -- song + 12.15 s (loudness matched over the whole song, no drift, D-896).
 -- 97 shots: cuts from the video (hard cuts, plus the soft ones of the
 -- whips / flashes checked by eye), sizes and moves read from the frames.
-ClubCamera.Songs[134942349436280] = {
+-- (D-973) now 120615582016729 (fileSpeed 1.1): same song clock; was 134942349436280
+ClubCamera.Songs[120615582016729] = {
 	video = "SBS Inkigayo 2026-06-28, youtube R9hv2cLYK-w",
 	offset = 12.15,
 	shots = {
