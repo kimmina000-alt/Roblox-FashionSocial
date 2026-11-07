@@ -410,17 +410,16 @@ M.ChoreoFixes = {
 	[114907255207310] = { spin = { from = 8.15, to = 9.25, ease = "both" } }, -- 14
 	-- ATEEZ-BAD 2 faceOffset (D-1002 way, tools/choreo/faceoffset): the capture's facing at the
 	-- clip frames where the member faces the camera, median off 6°+ with a spread under 20°
-	-- (front frames, capture median, spread). Not set: 9 (its 6 "front" frames are another
-	-- dancer in front of him; he walks side-on), 6 / 19 / 20 (spread 21-26°), the rest under 6°
+	-- (front frames, capture median, spread). Not set (measured again with the fixed tool, 8e0a93b): 9 and 13 (under 12 front frames;
+	-- 9's were another dancer passing in front, 13 faces the camera at 3.4 and 5.0 s where the
+	-- capture is -16° and +26°: no steady offset), 6 (no front), 19 / 20 (spread 21-26°), the rest under 6°
 	[86769053357907] = { faceOffset = -10 }, -- 4 (28, +10°, 12°)
 	[85294537563206] = { faceOffset = 24 }, -- 5 (32, -24°, 10°)
 	[140073525951941] = { faceOffset = 40 }, -- 7 (19, -40°, 2°)
-	[92410075296555] = { faceOffset = -10 }, -- 10 (22, +10°, 4°)
+	[92410075296555] = { faceOffset = -9 }, -- 10 (21, +9°, 3°)
 	[99913080692802] = { faceOffset = 12 }, -- 12 (44, -12°, 7°)
-	[130897128636432] = { faceOffset = 16 }, -- 13 (11, -16°, 1°)
 	[79044145915210] = { faceOffset = 12 }, -- 15 (61, -12°, 9°)
-	[138182761294826] = { faceOffset = -16 }, -- 16 (28, +16°, 8°)
-	[90945372575300] = { faceOffset = -6 }, -- 17 (32, +6°, 14°)
+	[138182761294826] = { faceOffset = -15 }, -- 16 (27, +15°, 8°)
 } ::{[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
 	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: any?, turnEase: string?,
