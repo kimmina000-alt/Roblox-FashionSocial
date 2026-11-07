@@ -95,6 +95,13 @@ local function inClub(): boolean
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	return root ~= nil and ClubConfig.isInClub(root.Position)
 end
+-- (D-993, user 2026-11-08: "밖에서도 노래 듣고 춤출 수 있음 / 밖에서도 안무 버튼")
+-- a choreography can be danced wherever the club music is heard (outside the
+-- club after a dance or 춤 멈추기: LocalPlayer attribute HearsClub,
+-- DanceController); by itself (자동) only in the club
+local function canDance(): boolean
+	return inClub() or player:GetAttribute("HearsClub") == true
+end
 
 -- the segments of the track being followed, loaded on this character;
 -- starts[i] = its `at` (seconds into the song) or nil (after the one before);
@@ -358,7 +365,7 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 	if following.moveDebt.Magnitude > 3 then following.moveDebt = Vector3.zero end -- (not a backlog)
 	if worldMove.Magnitude < 1e-4 then return end
 	local target = root.Position + worldMove
-	if not ClubConfig.isInClub(target) then return end
+	if not ClubConfig.isInClub(target) and not canDance() then return end
 	local skip = {}
 	for _, p in ipairs(Players:GetPlayers()) do
 		if p.Character then table.insert(skip, p.Character) end
@@ -884,7 +891,7 @@ local function tap()
 		restoreDance()
 		return
 	end
-	if track and track.choreo and inClub() then
+	if track and track.choreo and canDance() then
 		optOut, manual = false, true
 		rememberDance()
 		startFollowing(track)
@@ -909,7 +916,7 @@ RunService.Heartbeat:Connect(function(dt)
 	if accumulator < 0.1 then return end
 	accumulator = 0
 	local track = playingTrack()
-	local here = inClub()
+	local here = canDance()
 	-- (hidden since D-717, user: the dance menu is the way in; the following
 	-- code stays for later)
 	button.Visible = false and here and track ~= nil and track.choreo ~= nil
@@ -928,7 +935,7 @@ RunService.Heartbeat:Connect(function(dt)
 	-- (D-839, user) for every song with one, by itself while 안무 자동 따라하기
 	-- is on (from the song's start even over a menu dance, given back by the
 	-- 🎵), or after the 🎵 was tapped for this song
-	local wanted = not optOut and (manual or autoOn())
+	local wanted = not optOut and (manual or (autoOn() and inClub())) -- (D-993: 자동 in the club only)
 	local dancing = character ~= nil and (character :: Model):GetAttribute("DanceKey") ~= nil
 	if not following and wanted and track and track.choreo and here and humanoid
 		and humanoid.MoveDirection.Magnitude <= 0.1 and not humanoid.Sit and not humanoid.PlatformStand
