@@ -27,6 +27,7 @@ export type DrinkVariant = ClubDrinks.DrinkVariant
 export type Drink = ClubDrinks.Drink
 ClubConfig.ChoreoSmoothing = ClubChoreo.ChoreoSmoothing
 ClubConfig.ChoreoRetarget = ClubChoreo.ChoreoRetarget
+ClubConfig.ChoreoDejitter = ClubChoreo.ChoreoDejitter
 ClubConfig.ChoreoDriftReturn = ClubChoreo.ChoreoDriftReturn
 ClubConfig.ChoreoFixes = ClubChoreo.ChoreoFixes
 ClubConfig.ChoreoCalm = ClubChoreo.ChoreoCalm

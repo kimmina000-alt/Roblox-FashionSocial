@@ -199,11 +199,11 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 			-- turned by it, easing in and out (after the clavicles, so the set
 			-- turn is the whole shoulder)
 			if smooth then
-				local set, add, amount = ChoreoSmooth.pose(id, t.TimePosition)
+				local set, add, amount, fade = ChoreoSmooth.pose(id, t.TimePosition)
 				if set and add and amount > 0 then
 					for part, target in pairs(set) do
 						local j = joints[part]
-						if j then j.Transform = j.Transform:Lerp(target, amount * weight) end
+						if j then j.Transform = j.Transform:Lerp(target, amount * weight * (if fade and fade[part] then fade[part] else 1)) end
 					end
 					for part, turn in pairs(add) do
 						local j = joints[part]
@@ -228,6 +228,27 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 									local axis, angle = j.Transform:ToAxisAngle()
 									j.Transform = CFrame.new(j.Transform.Position) * CFrame.fromAxisAngle(axis, angle * (1 + (factor - 1) * e))
 								end
+							end
+						end
+					end
+					-- (D-986, user: Catch Catch 0:35 "다리는 수직 유지하고 상체만 숙이기")
+					-- ChoreoFixes `upright = { from, to, ease? }`: the hips stay level
+					-- there (their turn round kept) and their lean goes to the waist,
+					-- so the legs stand straight and only the upper body bends
+					local ups = fx and fx.upright
+					local lt, ut = joints.LowerTorso, joints.UpperTorso
+					if ups and lt and ut then
+						for _, u in ipairs(if ups.from then { ups } else ups) do
+							local tt = t.TimePosition
+							if tt > u.from and tt < u.to then
+								local e = math.clamp(math.min(tt - u.from, u.to - tt) / (u.ease or 0.3), 0, 1)
+								e = e * e * (3 - 2 * e) * weight
+								local hips = lt.Transform
+								local r = hips.RightVector
+								local level = CFrame.new(hips.Position) * CFrame.Angles(0, math.atan2(-r.Z, r.X), 0)
+								local shown = hips:Lerp(level, e)
+								lt.Transform = shown
+								ut.Transform = (shown.Rotation:Inverse() * hips.Rotation) * ut.Transform
 							end
 						end
 					end
@@ -511,6 +532,19 @@ RunService.PreSimulation:Connect(function(dt)
 				if t.Animation and choreoAnimations[t.Animation.AnimationId] then table.insert(choreo, t) end
 			end
 			if #choreo > 0 then
+				-- (D-985, user: Catch Catch "전체적으로 좌우 반전") a `mirror` song: the
+				-- animator's pose seen in a mirror (each joint takes the other side's
+				-- turn, mirrored); ChoreoSmooth reads its keyframes mirrored too
+				local first = choreo[1].Animation
+				if first and ChoreoSmooth.isMirrored(first.AnimationId) then
+					local joints = bodyJoints(character)
+					local poses = {}
+					for part, j in pairs(joints) do poses[part] = j.Transform end
+					for part, j in pairs(joints) do
+						local other = poses[ChoreoSmooth.otherSide(part)]
+						if other then j.Transform = ChoreoSmooth.mirrorPose(other) end
+					end
+				end
 				if p == player and following then moveAlong(character, joint, choreo, dt) end
 				smoothJoints(character, choreo)
 				turnHips(joint, choreo)

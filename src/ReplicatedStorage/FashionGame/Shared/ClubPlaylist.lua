@@ -173,6 +173,8 @@ M.Playlist = {
 		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
 		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+		-- (D-985, user: "전체적으로 좌우 반전") the pieces come from the mirrored video: danced as their mirror image
+		mirror = true,
 		-- D-968: CatchCatch 1..23 (3, 6, 15, 19, 22 = re-uploads 2026-11-07; the first uploads were copies of the piece before).
 		-- Practice video 49NEjM_fJcc, video = song - 0.70 s (game song at 0-20 s and 150-170 s), `at` = clip start + 0.70
 		choreo = { { id = 75443608985712, at = 0.7 }, { id = 75353020147525, at = 5.53, blend = 1 }, { id = 98063579481098, at = 7.03, blend = 1 },
