@@ -172,7 +172,17 @@ M.Playlist = {
 		{ id = 123213110930819, at = 113.09, blend = 0.61 }, { id = 84387354167133, at = 117.21, blend = 0.77 }, { id = 81083928741520, at = 118.22, blend = 0.54 }, { id = 132463155617727, at = 127, blend = 0.41 },
 		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
 		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+		-- D-968: CatchCatch 1..23 (3, 6, 15, 19, 22 = re-uploads 2026-11-07; the first uploads were copies of the piece before).
+		-- Practice video 49NEjM_fJcc, video = song - 0.70 s (game song at 0-20 s and 150-170 s), `at` = clip start + 0.70
+		choreo = { { id = 75443608985712, at = 0.7 }, { id = 75353020147525, at = 5.53, blend = 1 }, { id = 98063579481098, at = 7.03, blend = 1 },
+		{ id = 98686361929027, at = 18.27, blend = 0.75 }, { id = 112551530516434, at = 28.7, blend = 0.73 }, { id = 98514844125325, at = 36.5, blend = 0.61 },
+		{ id = 74567972410299, at = 48.27 }, { id = 110540650870002, at = 62.77 }, { id = 130984178299080, at = 76.97, blend = 0.62 },
+		{ id = 128412578867487, at = 83.03 }, { id = 122624428391289, at = 92.97, blend = 0.5 }, { id = 126013496400815, at = 96.83, blend = 0.6 },
+		{ id = 107833429874111, at = 98.17, blend = 0.83 }, { id = 138852020855643, at = 104.4, blend = 0.42 }, { id = 133140087774108, at = 110.9 },
+		{ id = 109149196328464, at = 123.03, blend = 1 }, { id = 113094829637212, at = 124.5, blend = 0.81 }, { id = 86199642425885, at = 128.87, blend = 1 },
+		{ id = 125735897885259, at = 131.9, blend = 1 }, { id = 111787124658928, at = 143.2 }, { id = 104636507093618, at = 149.17, blend = 0.47 },
+		{ id = 139313615573620, at = 161.03 }, { id = 116715438780373, at = 172.17, blend = 0.35 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);
 	-- fileSpeed 1: a track with `lab` counts as a 3× upload otherwise (ClubConfig.fileSpeed)
@@ -202,7 +212,16 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "ALLDAY PROJECT - NO 한도", soundId = 81251273866025, length = 131.699, fileSpeed = 1.101,
 		lab = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
-	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+		-- D-970: Lemonade_v2 1..22 without 8 (its upload is a copy of 7), 20 and 21 (no upload): default dance in their spots.
+		-- Clip 1 = mirror cover b3C-M5lDRHE (video = song + 1.45 s, `from = 1.45`); clips 2..22 = practice video NJx2IGeS8CQ (video = song + 1.08 s, `at` = clip start - 1.08)
+		choreo = { { id = 76917634239098, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92 },
+		{ id = 123559029471758, at = 22.84 }, { id = 139260290712979, at = 31.92, blend = 1 }, { id = 131526768823490, at = 39.2 },
+		{ id = 99422937735141, at = 47.49, blend = 0.51 }, { id = 100397079318559, at = 67.05 }, { id = 135759185323713, at = 76.35 },
+		{ id = 83846438884132, at = 85.92, blend = 1 }, { id = 138502286160157, at = 94.39, blend = 1 }, { id = 107439323698577, at = 100.92, blend = 0.81 },
+		{ id = 138612452549442, at = 111.39, blend = 0.43 }, { id = 118124487485279, at = 114.92, blend = 0.75 }, { id = 82680550952125, at = 127.65, blend = 0.43 },
+		{ id = 132337331292488, at = 137.92, blend = 0.47 }, { id = 76195346888656, at = 145.92, blend = 1 }, { id = 116980798181063, at = 150.92, blend = 0.88 },
+		{ id = 89070118321317, at = 177.49 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
 	-- (D-922, user 2026-11-06: new upload from the lab; was 97511700575810, a 3× file of 73.770 s) the new
@@ -293,7 +312,17 @@ M.Playlist = {
 	-- the new 185.760 s file = 3 × 65.016 ÷ 185.760 = 1.0500 faster than the song; tempo 0.953 × 1.05 = 1.001
 	-- (D-935, user 2026-11-06 final values: boost3 3)
 	{ channel = "K-POP", title = "IOI-갑자기", soundId = 75344866720031, length = 185.76, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, octave = 1, low = -34, mid = -20, high = -34 } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, octave = 1, low = -34, mid = -20, high = -34 },  -- (EQ -34 / -20 / -34, D-943; boost3 3, D-935)
+		-- D-967: Suddenly new 1..25 (4 = 81367674902881 and 7 = 84783409830169 uploaded again 2026-11-07; the first 7 was a copy of 6).
+		-- Practice video YzQ0rD3htMo, video = song + 0.30 s (mp3 and the game file), `at` = clip start - 0.30; piece 1 `from = 0.3`
+		choreo = { { id = 72001429900652, from = 0.3 }, { id = 84372825286978, at = 7.33, blend = 1 }, { id = 140529283375287, at = 8.5, blend = 1 }, { id = 81367674902881, at = 16.7, blend = 1 },
+		{ id = 121160569929367, at = 23.5, blend = 0.6 }, { id = 109571265510769, at = 36.33, blend = 1 }, { id = 84783409830169, at = 46.03 }, { id = 76645919052139, at = 56.4, blend = 0.62 },
+		{ id = 72886571801726, at = 63.5, blend = 0.7 }, { id = 104001486192661, at = 74.7, blend = 0.87 }, { id = 71879139866517, at = 83.07 },
+		{ id = 72291044078776, at = 92.7, blend = 1 }, { id = 112457407974304, at = 99.33, blend = 1 }, { id = 128759413181742, at = 106.1, blend = 0.47 },
+		{ id = 121913954340036, at = 115.77, blend = 0.69 }, { id = 139341321382250, at = 123.5, blend = 0.85 }, { id = 84100214173726, at = 131.97, blend = 0.68 },
+		{ id = 118835663786601, at = 140.7, blend = 0.6 }, { id = 136490889932903, at = 143.7, blend = 1 }, { id = 78855026719716, at = 146.7, blend = 0.91 },
+		{ id = 123714434236489, at = 149.7, blend = 0.99 }, { id = 111512315445927, at = 163.7, blend = 0.64 }, { id = 92331354114542, at = 166.7, blend = 1 },
+		{ id = 82782712192367, at = 172.7, blend = 1 }, { id = 129257680770934, at = 180.7 } }, autoChoreo = true },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-929, user 2026-11-06: "I SPY 새 음원 98124521559769") was 90694654380166, a 3× file of 61.695 s:
