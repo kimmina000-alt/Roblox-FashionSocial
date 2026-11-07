@@ -10,6 +10,11 @@ local FashionGame = game:GetService("ReplicatedStorage"):WaitForChild("FashionGa
 local NameTagService = {}
 
 local TAG_NAME = "OHUNameTag"
+-- (D-948, user 2026-11-07, second try: "기존 가드 vip dj 크기는 그대로 두고 그
+-- 크기에 맞춰") the name tag in pixels again, at the role badges' size: the
+-- name as tall as a badge (13 px), the XP line under it a little smaller
+-- (200 x 46 px before: the name 27 px tall)
+local TAG_W, TAG_H = 150, 26
 
 local function formatXp(value: any): string
 	local xp = if typeof(value) == "number" then math.floor(value) else 0
@@ -36,7 +41,9 @@ local function build(player: Player, character: Model)
 
 	local billboard = Instance.new("BillboardGui")
 	billboard.Name = TAG_NAME
-	billboard.Size = UDim2.fromOffset(200, 46)
+	-- (D-948, user 2026-11-07: "머리 위에 닉네임 뜨는 거 너무 커 모바일에서는 더 큼.
+	-- 잘 안 보여도 되니까 크기 고정해.") smaller, at the badges' size (above)
+	billboard.Size = UDim2.fromOffset(TAG_W, TAG_H)
 	billboard.StudsOffset = Vector3.new(0, 2.4, 0)
 	billboard.MaxDistance = 90
 	billboard.LightInfluence = 0
@@ -47,7 +54,7 @@ local function build(player: Player, character: Model)
 	local name = Instance.new("TextLabel")
 	name.Name = "DisplayName"
 	name.BackgroundTransparency = 1
-	name.Size = UDim2.new(1, 0, 0.58, 0)
+	name.Size = UDim2.new(1, 0, 0.54, 0) -- (14 px)
 	name.Font = Enum.Font.GothamBold
 	name.TextScaled = true
 	name.TextColor3 = Color3.new(1, 1, 1)
@@ -59,7 +66,7 @@ local function build(player: Player, character: Model)
 	xp.Name = "XP"
 	xp.BackgroundTransparency = 1
 	xp.Position = UDim2.fromScale(0, 0.6)
-	xp.Size = UDim2.new(1, 0, 0.4, 0)
+	xp.Size = UDim2.new(1, 0, 0.4, 0) -- (10 px)
 	xp.Font = Enum.Font.GothamBold
 	xp.TextScaled = true
 	xp.TextColor3 = Color3.fromRGB(255, 214, 90)
@@ -151,7 +158,8 @@ local function refreshRoles(player: Player)
 		g.StudsOffset = Vector3.new(0, 2.4, 0)
 		-- right over the name tag (id + XP, 46 px tall on the same anchor): one
 		-- badge height and a half up, so 23 px over its middle like before
-		g.SizeOffset = Vector2.new(0, 2.27)
+		-- (D-948: the name tag is 26 px tall now: 13 + 2 + 6.5 = 21.5 px up)
+		g.SizeOffset = Vector2.new(0, 21.5 / ROW_H)
 		g.MaxDistance = 90
 		g.LightInfluence = 0
 		g.Adornee = head
