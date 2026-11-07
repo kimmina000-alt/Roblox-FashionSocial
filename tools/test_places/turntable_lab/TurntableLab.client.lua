@@ -31,6 +31,7 @@ local TRACKS = {
 	{ title = "Euphoria Dance", id = 76814968175069 },
 	-- the user's uploads, each with its club value
 	{ title = "ATEEZ-BAD", id = 134942349436280, club = { 0.333, 2.5, 0, 0, 0 } },
+	{ title = "ATEEZ-BAD (new)", id = 120615582016729 }, -- new upload (user 2026-11-07), song 2:32
 	{ title = "소녀시대-소원을 말해봐(Genie)", id = 128270208751659, club = { 0.334, 2.5, -5, 2, 0 } },
 	{ title = "현아-Bubble Pop", id = 76388700698178, club = { 0.333, 2.5, -6, 0.5, -7 } },
 	-- (user 2026-11-06) chosen upload, replaces 133586602463513 / 91762270038050
