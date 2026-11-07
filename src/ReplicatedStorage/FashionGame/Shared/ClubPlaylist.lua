@@ -370,7 +370,7 @@ M.Playlist = {
 	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 94774089824958, length = 136.107, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.958, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
 		-- D-916: ANIMAL1..25 (practice video Gl1VZ3UPeZU, video = song - 0.23 s, `at` = clip start + 0.23)
-		choreo = { { id = 129402890751712, at = 0.23 }, { id = 80772039533772, at = 2.03, blend = 0.73 }, { id = 112166541341442, at = 4.51, blend = 0.74 },
+		choreo = { { id = 129402890751712, at = 0.23 }, { id = 80772039533772, at = 1.88, blend = 0 }, { id = 112166541341442, at = 4.51, blend = 0.74 },
 		{ id = 80410028707124, at = 6.36, blend = 0.48 }, { id = 105018508412110, at = 11.01, blend = 1 }, { id = 130036196270388, at = 13.41, blend = 1 },
 		{ id = 106354393645678, at = 18.91, blend = 1 }, { id = 78895444151768, at = 27.9, blend = 0.61 }, { id = 97744184558515, at = 29.03, blend = 0.95 },
 		{ id = 136955392986245, at = 39.86, blend = 0.66 }, { id = 100329215645751, at = 43.98 }, { id = 78840320722064, at = 53.01, blend = 0.45 },

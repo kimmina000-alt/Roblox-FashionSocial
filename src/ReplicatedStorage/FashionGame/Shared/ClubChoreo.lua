@@ -523,6 +523,48 @@ M.ChoreoFixes = {
 -- a turn back between two swings of at most maxLen keyframes and maxSwing
 -- degrees is eased, passes times, never more than cap degrees off the
 -- capture (NEON 1: 118 such swings → 51, about what other pieces have)
+-- (D-977, user: ANIMAL "0:00~0:04 까지 한쪽 팔 살짝 굽히고 서 있는 상태에서 고개만
+-- 박자 타면서 까딱거리기", the member in the white tee) pieces 1 and 2 stand still,
+-- right arm a little bent, and the head nods on every beat (practice video beats at
+-- 0.06 + 0.4105 k s, 146 bpm; piece 1 starts at video 0; piece 2 starts at video 1.65, song 1.88,
+-- because piece 1's clip is only 1.77 s and the head stopped before 2.03)
+do
+	local stand = {
+		LowerTorso = { 0, 0, 0 }, UpperTorso = { 0, 0, 0 },
+		LeftUpperArm = { 0, 0, -4 }, LeftLowerArm = { 8, 0, 0 }, LeftHand = { 0, 0, 0 },
+		RightUpperArm = { -15, 0, 14 }, RightLowerArm = { 55, 0, 0 }, RightHand = { 0, 0, 0 },
+		LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 0, 0, 0 },
+		RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 },
+	}
+	-- `first`: the piece takes over a little after its start (piece 1 holds its
+	-- last frame down to song 2.06), so it starts with the head down there and
+	-- its first rise is a little quicker
+	local function nods(offset: number, length: number, first: number?)
+		local keys = {}
+		if first then
+			local set = table.clone(stand)
+			set.Head = { -12, 0, 0 }
+			table.insert(keys, { t = first, set = set })
+		end
+		local beat = 0.06
+		while beat - offset < length + 0.5 do
+			for _, k in ipairs({ { beat, -12 }, { beat + 0.205, 3 } }) do
+				local t = k[1] - offset
+				if first and t < first + 0.13 then t = if k[2] > 0 and t > first then first + 0.13 else -1 end
+				if t >= 0 and t <= length then
+					local set = table.clone(stand)
+					set.Head = { k[2], 0, 0 }
+					table.insert(keys, { t = t, set = set })
+				end
+			end
+			beat += 0.4105
+		end
+		return keys
+	end
+	M.ChoreoFixes[129402890751712] = { still = { from = 0, to = 10 }, pose = { from = -1, to = 10, ease = 0.3, keys = nods(0, 2.6) } }
+	M.ChoreoFixes[80772039533772] = { still = { from = 0, to = 10 }, pose = { from = -1, to = 10, ease = 0.3, keys = nods(1.65, 2.5, 0.2) } }
+end
+
 M.ChoreoCalm = { maxSwing = 10, maxLen = 4, passes = 6, cap = 5 }
 
 -- (D-881, user: NEON 2:33 "벌벌 떠는 움직임 … 다른 부분에도 이런 달달 떨림 발견해서
