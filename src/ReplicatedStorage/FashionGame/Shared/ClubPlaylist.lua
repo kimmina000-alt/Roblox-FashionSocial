@@ -118,6 +118,19 @@ M.Playlist = {
 		{ id = 129415986484255, at = 95.04, blend = 0.53 }, { id = 87606540400975, at = 103.38, blend = 1 }, { id = 121775933093308, at = 110.44, blend = 0.95 },
 		{ id = 138549092776506, at = 121.91, blend = 0.73 }, { id = 88428525489460, at = 132.18 }, { id = 82346668311878, at = 136.5, blend = 0.7 },
 		{ id = 134748500609652, at = 143.58 }, { id = 70571634425422, at = 151.51 } }, autoChoreo = true },
+	-- (D-993, user 2026-11-07: "기존 배드 음원을 제목 배드 2로 하나 더 만들어서 배드 2에 안무 추가")
+	-- the same upload as ATEEZ-BAD with a second choreography: 20 pieces cut from the
+	-- mirrored practice video (D:\Roblox\영상\ATEEZ_BAD_Mirrored_centercut), which runs
+	-- with the song (video = song + 0.00 s, loudness matched at the start and at 120-140 s),
+	-- so `at` = the clip's start; blends from choreo_check (none where the seam matches)
+	{ channel = "K-POP", title = "ATEEZ-BAD 2", soundId = 120615582016729, length = 139.674, fileSpeed = 1.1, lab = { speed = 1, tempo = 0.909, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -40, mid = -30, high = -40, engine = "sound" }, choreo = {
+		{ id = 99917032910194, at = 0 }, { id = 101690327843945, at = 4, blend = 1 }, { id = 106954590912232, at = 16, blend = 0.89 },
+		{ id = 86769053357907, at = 22, blend = 0.56 }, { id = 85294537563206, at = 25.97, blend = 0.63 }, { id = 73352408497618, at = 29.83, blend = 0.68 },
+		{ id = 140073525951941, at = 38.17, blend = 0.25 }, { id = 91647545899849, at = 45.78, blend = 0.74 }, { id = 86108317246080, at = 53, blend = 0.68 },
+		{ id = 92410075296555, at = 57.9, blend = 0.37 }, { id = 112518247434645, at = 68, blend = 0.98 }, { id = 99913080692802, at = 76.58 },
+		{ id = 130897128636432, at = 88.87, blend = 0.6 }, { id = 114907255207310, at = 94.68, blend = 0.61 }, { id = 79044145915210, at = 103.9, blend = 0.91 },
+		{ id = 138182761294826, at = 110, blend = 1 }, { id = 90945372575300, at = 118 }, { id = 127427471547985, at = 125.3 },
+		{ id = 95469533767642, at = 137.25, blend = 0.76 }, { id = 138812417192850, at = 148.37 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
 		-- D-897: Genie1..26 (video = song - 13.55 s, the cover video cut the intro)
 		choreo = { { id = 122991710923104, at = 13.82 }, { id = 118462778307290, at = 20.62, blend = 0.56 }, { id = 127323208506008, at = 26.83, blend = 0.53 },

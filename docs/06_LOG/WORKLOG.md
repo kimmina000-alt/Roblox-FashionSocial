@@ -3615,3 +3615,11 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 남은 것: 클라이언트 경고 rbxassetid://93308695817877 "Asset is not approved"(코드에 없는 장소 에셋), 폰 실제 터치(끌어서 놓기)는 사용자 확인.
 
 ![바 선반 P1](images/2026-11-07/2p_bar_p1.jpg) ![IOI P1](images/2026-11-07/2p_ioi_p1.jpg) ![IOI P2](images/2026-11-07/2p_ioi_p2.jpg) ![무대 카메라 P2](images/2026-11-07/2p_stagecam_p2.jpg)
+
+### 2026-11-07 ATEEZ-BAD 2 안무 (D-993)
+- 사용자: "기존 배드 음원을 제목 배드 2로 하나 더 만들어서 배드 2에 안무 추가" + id 20개. 브랜치 feat/bad2-choreo-1107(feat/bad-upload-1107 위: BAD 새 음원 120615582016729가 아직 catalog-ui-redesign에 없음).
+- 트랙: ATEEZ-BAD 줄 복사(음원 · lab · fileSpeed 1.1), 제목 ATEEZ-BAD 2, 안무 20개 `at` = 클립 시작(영상 = 곡 + 0.00초, 소리 맞춤), 이음새 blend, 미끄러짐 ChoreoSlideStill 9개 조각.
+- Play 스캔(곡 전체) → 14번 회전 spin, 2번 · 9번 미끄러짐 ChoreoGlideStill → 다시 재서 해결. 몸 바꾸기 테스트 통과. 모바일 2인 테스트는 아직.
+- 같이 한 일: feat/choreo-batch-1106 d0b8f04 — d7e8f59에서 ClubPlaylist의 `{`가 다 빠졌던 것 되살림(Studio는 괜찮았음), 빠졌던 Catch Catch 2:06 줄 + 빈 구간 클립 132719886087176(at 92.36, from 1.0).
+
+![BAD 2 비교: 연습 영상 0:41 / 게임](images/2026-11-07/bad2_compare_041.jpg)
