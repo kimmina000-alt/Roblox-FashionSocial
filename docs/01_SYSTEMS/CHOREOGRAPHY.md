@@ -291,3 +291,4 @@ D-962(NEON · Get A Guitar · Love 119, 20곳)를 고치며 나온 유형이다.
 - 사용자가 "따로 백업해 놔"라고 한 조각은 `tools/choreo/backups/<이름>.lua`에 그대로 복사해 둔다(게임은 읽지 않음). 파일 안에: 애니메이션 id, `at`, `blend`, ChoreoFixes 항목 전체(주석 포함), ChoreoSlideStill 값, 되돌리는 방법.
 - 되돌릴 때: 곡 목록 줄 + ChoreoFixes 항목 + SlideStill 값을 다시 넣고 타이밍 검사(§9.4-5)와 동작 테스트(§9.4-6).
 - 백업 목록: **배드최산안무** = ATEEZ-BAD 21번(가슴 튕김 → 손 허리 → 넓은 스쿼트), id 82346668311878, `at` 136.5, `blend` 0.7.
+- (D-973) 회전 옵션 더: `ease = "linear"`(한 속도) / `"out"`(빠르게 시작해 멈춤), `add`(도, 캡처보다 더 돌기), `till`(끝 방향을 그때까지 유지: 다음 조각이 들리는 노래 지연만큼 늦게 이어받음), `fromPrev`는 앞 조각 spin이 남긴 방향에서 이어받는다. 한 회전이 두 조각에 걸치면 앞 조각 linear + 다음 조각 fromPrev out으로 한 속도로 잇는다(Pretty Girl 0:36).

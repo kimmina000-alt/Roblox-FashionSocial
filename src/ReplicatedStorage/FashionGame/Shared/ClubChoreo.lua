@@ -356,7 +356,7 @@ M.ChoreoFixes = {
 	-- instead, 34.25-36.33 linear with 125° more than the capture's own half,
 	-- then the next piece carries on from there and slows to its own facing by
 	-- 1.1 s (37.4), so its dance starts on time
-	[97208831163609] = { spin = { from = 8.0, to = 10.08, add = -125, ease = "linear" } },
+	[97208831163609] = { spin = { from = 8.0, to = 10.2, till = 10.9, add = -125, ease = "linear" } },
 	[123817870898356] = { spin = { from = 0, to = 1.1, fromPrev = true, dir = -1, ease = "out" } },
 	-- 키키-Pop Off last piece (D-973, user: "pop off 마지막 부분 확인 후 수정"): the
 	-- capture spins one and a half turns in 0.8 s (up to 40° a frame) and turns

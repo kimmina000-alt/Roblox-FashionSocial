@@ -353,7 +353,10 @@ local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {Animation
 		local spin = nil
 		if spins then
 			for _, s in ipairs(if spins.from then { spins } else spins) do
-				if at >= s.from and at <= s.to + 0.1 and (t.WeightCurrent > 0.99 or s.fromPrev) then spin = s break end
+				-- (D-973) `till`: keep the end facing until then (the next piece
+				-- takes the turn on a moment later: heard-song lag, Pretty Girl
+				-- 0:36 turned 24° back in the 0.15 s between)
+				if at >= s.from and at <= (s.till or s.to + 0.1) and (t.WeightCurrent > 0.99 or s.fromPrev) then spin = s break end
 			end
 		end
 		if spin then
