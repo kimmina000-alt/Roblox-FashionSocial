@@ -431,6 +431,31 @@ M.ChoreoFixes = {
 	-- 6 (D-974, user: "0:38 안무 약한 게 맞는지"): the members stand wide with the arms
 	-- out to the sides; the capture kept them by the body: 25° further out
 	[98514844125325] = { pose = { { from = 1.5, to = 3.1, ease = 0.35, add = { LeftUpperArm = { 0, 0, -25 }, RightUpperArm = { 0, 0, 25 } }, keys = { { t = 1.5 } } } } },
+	-- aespa-Lemonade (D-976, user list; practice video NJx2IGeS8CQ, song = video - 1.08)
+	-- 3 (from 15.92): "0:19 버벅거림" the piece starts with a wobble (38 → 25 → 45 → 20°)
+	-- then turns 280° in 1 s: one even turn from 0.45 s; "0:22 팔 섞는 모션 섬세하게.
+	-- 왼쪽 팔 돌리는 거 더 크게 돌리기" the left arm's rolls 1.35x as far (song 19.5-22.5)
+	[74096523961866] = { spin = { from = 0.45, to = 2.0, ease = "both" },
+		amp = { { from = 3.6, to = 6.6, ease = 0.4, parts = { LeftUpperArm = 1.35, LeftLowerArm = 1.35 } } } },
+	-- 13 (from 100.92): "1:42~1:43 … 오른쪽은 머리 뒤로 들고 있고 왼쪽팔 앞으로 쭉 뻗은
+	-- 상태로 앞으로 자연스럽게 걸어 나가기", "1:43~1:44 … 잠깐 그냥 서 있는데 이어지는
+	-- 동작으로", "1:45 … 회전 짧게 두 번 돌면서 버벅거리는데 한 번으로": the arms held
+	-- so (angles checked on the avatar) through the walk and the turn; the capture
+	-- only twisted ±50° twice: one even turn the same way from 1.2 to 4.3 s
+	-- (song 102.1-105.2), filling the stand-still
+	[107439323698577] = { spin = { from = 1.2, to = 4.3, turns = 1, ease = "both" },
+		pose = { { from = 0, to = 4.6, ease = 0.35, keys = {
+			{ t = 0.3, set = { LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
+				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 } } },
+		} } } },
+	-- 16 / 17 / 18 (from 127.65): "2:10~ 버벅거리고 떰. 프레임 튀듯이", "~2:26까지 계속
+	-- 떨어": 10-27 joint turn-backs in 0.5 s all through; smoothed (the moves kept)
+	[82680550952125] = { steady = { from = 0, to = 10.3, passes = 8 } },
+	[132337331292488] = { steady = { from = 0, to = 8.0, passes = 8 } },
+	-- (2:26 "일어나면서 몸 돌리는데 두 번 돌림. 한 번으로 깔끔하게": the capture turns 55°
+	-- one way, then 141° back in 0.16 s, inside its 1 s blend: one even turn
+	-- the short way round from where 17 ended, 0-1.3 s, during the blend too)
+	[76195346888656] = { steady = { from = 0, to = 5.0, passes = 8 }, spin = { from = 0, to = 1.3, fromPrev = true, dir = 1, ease = "both" } },
 	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
 	-- 자세에서 다음 걷는 안무로 자연스럽게 이어지도록") the first pose is held still
 	-- (the capture sways 20° and shifts) until the walk (2) blends in over 0.9 s

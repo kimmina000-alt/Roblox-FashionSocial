@@ -210,6 +210,28 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 						if j then j.Transform = j.Transform * CFrame.identity:Lerp(turn, amount * weight) end
 					end
 				end
+				-- (D-976, user: Lemonade 0:22 "왼쪽 팔 돌리는 거 더 크게 돌리기")
+				-- ChoreoFixes `amp = { { from, to, ease, parts = { Name = factor } } }`:
+				-- those joints turn `factor` times as far as the capture has them
+				-- (easing in and out), so a small move shows bigger
+				local fx = ChoreoSmooth.fixes(id)
+				local amps = fx and fx.amp
+				if amps then
+					for _, a in ipairs(if amps.from then { amps } else amps) do
+						local tt = t.TimePosition
+						if tt > a.from and tt < a.to then
+							local e = math.clamp(math.min(tt - a.from, a.to - tt) / (a.ease or 0.3), 0, 1)
+							e = e * e * (3 - 2 * e) * weight
+							for part, factor in pairs(a.parts) do
+								local j = joints[part]
+								if j then
+									local axis, angle = j.Transform:ToAxisAngle()
+									j.Transform = CFrame.new(j.Transform.Position) * CFrame.fromAxisAngle(axis, angle * (1 + (factor - 1) * e))
+								end
+							end
+						end
+					end
+				end
 			end
 		end
 	end
