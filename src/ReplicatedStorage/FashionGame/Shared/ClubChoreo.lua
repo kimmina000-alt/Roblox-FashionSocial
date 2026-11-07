@@ -449,7 +449,8 @@ M.ChoreoFixes = {
 	-- then turns 280° in 1 s: one even turn from 0.45 s; "0:22 팔 섞는 모션 섬세하게.
 	-- 왼쪽 팔 돌리는 거 더 크게 돌리기" the left arm's rolls 1.35x as far (song 19.5-22.5)
 	[74096523961866] = { spin = { from = 0.45, to = 2.0, ease = "both" },
-		amp = { { from = 4.9, to = 6.6, ease = 0.4, parts = { LeftUpperArm = 1.35, LeftLowerArm = 1.35 } } },
+		-- (D-1000, user: "0:22 안무에 팔 떨림 잡은 거 복구 (1:00 안무랑 비교해 봐 같은 안무지. 1:00처럼"):
+		-- the D-976 left-arm amp (1.35x) taken out, so 0:22 dances as 1:00 does
 		-- (D-988, user: "0:19 팔 내리는 안무 중간에 멈췄다가 두 번 내리는 것처럼 보이는데
 		-- 스무스하게 한 번 내리는 걸로"): the arms came down from song 18.5, stopped at
 		-- the chest 18.85-19.3, came down again and bounced (19.6-20.3): the arms go

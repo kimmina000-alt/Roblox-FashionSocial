@@ -55,6 +55,19 @@ for _, track in ipairs(ClubConfig.Playlist or {}) do
 		end
 	end
 end
+-- (D-1000) a song's `frontLock = { snap, keep }` for each of its pieces
+local frontLocks: {[number]: any} = {}
+for _, track in ipairs(ClubConfig.Playlist or {}) do
+	if (track :: any).frontLock and track.choreo then
+		for _, entry in ipairs(track.choreo) do
+			local id = if typeof(entry) == "table" then entry.id else entry
+			if typeof(id) == "number" then frontLocks[id] = (track :: any).frontLock end
+		end
+	end
+end
+function ChoreoSmooth.frontLock(animationId: string): any
+	return frontLocks[tonumber(animationId:match("%d+")) or 0]
+end
 function ChoreoSmooth.isMirrored(animationId: string): boolean
 	return mirrored[tonumber(animationId:match("%d+")) or 0] == true
 end

@@ -550,6 +550,9 @@ local function limitSnaps(character: Model, choreo: {AnimationTrack}, dt: number
 	end
 end
 
+-- (D-1000) per character: how much the front lock holds (0 while turning)
+local frontWeight: {[Model]: number} = setmetatable({}, { __mode = "k" }) :: any
+
 -- (D-992) per character, per `freeze` stretch: the pose kept
 local frozenPoses: {[Model]: {[any]: {[string]: CFrame}}} = setmetatable({}, { __mode = "k" }) :: any
 
@@ -623,6 +626,34 @@ RunService.PreSimulation:Connect(function(dt)
 				if p == player and following then moveAlong(character, joint, choreo, dt) end
 				smoothJoints(character, choreo)
 				turnHips(joint, choreo)
+				-- (D-1000, user: Lemonade "안무 동영상에서 정면은 하나로 정해진 것처럼 안무도
+				-- 정면 한 곳으로 … 등돌리는 안무는 등 보이는 게 맞음") a song's `frontLock =
+				-- { snap, keep }`: while the dancer is not turning, hips facing within
+				-- `snap`° of the front are brought to the front, the in-between eased
+				-- up to `keep`°; side and back facings and every turn stay as danced
+				do
+					local main = choreo[1]
+					for _, t in ipairs(choreo) do if t.WeightCurrent > main.WeightCurrent then main = t end end
+					local id = main.Animation and main.Animation.AnimationId
+					local lock = id and ChoreoSmooth.frontLock(id)
+					if lock then
+						local f0 = ChoreoSmooth.facing(id, main.TimePosition - 0.15)
+						local f1 = ChoreoSmooth.facing(id, main.TimePosition + 0.15)
+						local turning = if f0 and f1 then math.abs(math.deg(f1 - f0)) / 0.3 else 0
+						local calm = math.clamp(1 - (turning - 60) / 120, 0, 1)
+						local w = frontWeight[character] or calm
+						w += (calm - w) * math.min(dt * 6, 1)
+						frontWeight[character] = w
+						local cf = joint.Transform
+						local tilt, yaw, roll = cf:ToEulerAnglesYXZ()
+						local away = math.abs(math.deg(yaw))
+						local k = math.clamp((away - lock.snap) / (lock.keep - lock.snap), 0, 1)
+						k = k * k * (3 - 2 * k)
+						joint.Transform = CFrame.new(cf.Position) * CFrame.fromEulerAnglesYXZ(tilt, yaw * (1 - w * (1 - k)), roll)
+					else
+						frontWeight[character] = nil
+					end
+				end
 				local hips = joint.Transform
 				-- (D-995) lifted off the floor if the body went into it last frame
 				dancingNow[character] = true
