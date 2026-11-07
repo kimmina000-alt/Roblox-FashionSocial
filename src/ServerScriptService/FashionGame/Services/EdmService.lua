@@ -23,7 +23,7 @@ local EdmService = {}
 type State = { on: boolean, track: number, speed: number, volume: number, pos: number, at: number }
 
 local function fresh(): State
-	return { on = false, track = 1, speed = 1, volume = 1, pos = 0, at = workspace:GetServerTimeNow() }
+	return { on = false, track = 1, speed = 1, volume = EdmConfig.EdmVolumeDefault or 1, pos = 0, at = workspace:GetServerTimeNow() } -- (D-933: 0.5)
 end
 local state: State = fresh()
 
@@ -44,7 +44,12 @@ DjService.Actions.Edm = function(_dj: Player, payload: any): (boolean, any)
 		local track = if v == true then 1 elseif typeof(v) == "number" and EdmConfig.Tracks[v] then v else nil
 		local on = track ~= nil
 		-- (from the top each time it goes on, or another track is picked)
-		if on and (not state.on or state.track ~= track) then state.pos = 0 end
+		if on and (not state.on or state.track ~= track) then
+			state.pos = 0
+			-- (D-934, user 2026-11-06: "edm 볼륨은 음원 추가할 때 볼륨 x0.5로 해") each
+			-- EDM track starts at x0.5 when it is put on
+			state.volume = EdmConfig.EdmVolumeDefault or 1
+		end
 		state.on = on
 		if track then state.track = track end
 		state.at = now

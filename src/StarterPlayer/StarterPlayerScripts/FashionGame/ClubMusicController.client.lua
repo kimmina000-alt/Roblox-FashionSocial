@@ -144,13 +144,24 @@ local iconSlot = create("Frame", { Name = "IconSlot", BackgroundTransparency = 1
 local barSlot = create("Frame", { Name = "PlayBarSlot", BackgroundTransparency = 1 }, panel)
 local ICON_W, BAR_H = 44, 18
 
+-- (D-933, user 2026-11-06: "디제잉 창에서 삐져나옴") everything under the song
+-- line scrolls inside the window when it is taller than the window
+local body = create("ScrollingFrame", {
+	Name = "Body",
+	BackgroundTransparency = 1,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 4,
+	ScrollingDirection = Enum.ScrollingDirection.Y,
+	CanvasSize = UDim2.new(),
+}, panel)
+
 -- DJ status row
 local djRow = create("Frame", {
 	Name = "DJRow",
 	Position = UDim2.fromOffset(0, 58),
 	Size = UDim2.new(1, 0, 0, 40),
 	BackgroundColor3 = COLORS.card,
-}, panel)
+}, body)
 corner(djRow, 10)
 local djLabel = create("TextLabel", {
 	Name = "DJLabel",
@@ -183,7 +194,7 @@ local djTools = create("Frame", {
 	Size = UDim2.new(1, 0, 0, 30),
 	BackgroundTransparency = 1,
 	Visible = false,
-}, panel)
+}, body)
 create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, djTools)
 local djToolCount = 0
 local function djToolButton(name: string, text: string, enabled: boolean): TextButton
@@ -255,7 +266,7 @@ local djSound = create("Frame", {
 	Name = "DJSound",
 	BackgroundTransparency = 1,
 	Visible = false,
-}, panel)
+}, body)
 create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, djSound)
 local function djRowButton(name: string, text: string, order: number, color: Color3): TextButton
 	local b = create("TextButton", {
@@ -304,7 +315,7 @@ local function divider(name: string): Frame
 	return create("Frame", {
 		Name = name, BackgroundColor3 = Color3.fromRGB(120, 150, 230), BackgroundTransparency = 0.5,
 		BorderSizePixel = 0, Size = UDim2.new(1, 0, 0, 1), Visible = false,
-	}, panel)
+	}, body)
 end
 local dividerTop = divider("DividerTools")
 local dividerEdm = divider("DividerEdm")
@@ -314,7 +325,7 @@ local colorRow = create("Frame", {
 	Name = "LightColors",
 	BackgroundTransparency = 1,
 	Visible = false,
-}, panel)
+}, body)
 local colorGrid = create("UIGridLayout", { CellPadding = UDim2.fromOffset(4, 4), SortOrder = Enum.SortOrder.LayoutOrder }, colorRow)
 local colorButtons: {[string]: TextButton} = {}
 for index, entry in ipairs(ClubConfig.LightColors) do
@@ -334,7 +345,7 @@ for index, entry in ipairs(ClubConfig.LightColors) do
 end
 
 -- 🎛 EDM effects (DJ only, D-733): EdmPanel lays itself out under the colours
-local edmPanel = require(script.Parent:WaitForChild("EdmPanel")).new(panel)
+local edmPanel = require(script.Parent:WaitForChild("EdmPanel")).new(body)
 
 local listTitle = create("TextLabel", {
 	Name = "ListTitle",
@@ -373,11 +384,26 @@ local searchBox = create("TextBox", {
 }, panel)
 corner(searchBox, 8)
 create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, searchBox)
+-- (D-933, user 2026-11-06: "음악 리스트 창 하단에 다음곡 뜨는 거 음악 팝업창 2:1로
+-- 나눠서 아래 칸 자리 줘서 기기 사이즈에 맞춰서 비율로") the next songs get the
+-- bottom third of the song window (the list the top two thirds), on every
+-- screen; it scrolls when the list is long
+local queueBox = create("ScrollingFrame", {
+	Name = "QueueBox",
+	BackgroundColor3 = COLORS.card,
+	BackgroundTransparency = 0.55,
+	BorderSizePixel = 0,
+	ScrollBarThickness = 4,
+	ScrollingDirection = Enum.ScrollingDirection.Y,
+	AutomaticCanvasSize = Enum.AutomaticSize.Y,
+	CanvasSize = UDim2.new(),
+}, panel)
+corner(queueBox, 8)
+create("UIPadding", { PaddingTop = UDim.new(0, 4), PaddingBottom = UDim.new(0, 4), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }, queueBox)
 local queueLabel = create("TextLabel", {
 	Name = "QueueLabel",
-	AnchorPoint = Vector2.new(0, 1),
-	Position = UDim2.new(0, 0, 1, 0),
-	Size = UDim2.new(1, 0, 0, 70),
+	Size = UDim2.new(1, -4, 0, 0),
+	AutomaticSize = Enum.AutomaticSize.Y,
 	BackgroundTransparency = 1,
 	TextXAlignment = Enum.TextXAlignment.Left,
 	TextYAlignment = Enum.TextYAlignment.Top,
@@ -386,7 +412,7 @@ local queueLabel = create("TextLabel", {
 	TextSize = 13,
 	RichText = true, -- (the smaller 🎵, D-756)
 	Font = Enum.Font.GothamMedium,
-}, panel)
+}, queueBox)
 
 -- right-hand popup for the song list (phones, and PC since D-757; the list moves in here)
 local listPanel = create("Frame", {
@@ -394,7 +420,12 @@ local listPanel = create("Frame", {
 	BackgroundColor3 = COLORS.panel,
 	BackgroundTransparency = 0.08,
 	Visible = false,
+	-- (D-933: made after the 디제잉 window, so it is drawn on top of it when both
+	-- share one place; no ZIndex: this ScreenGui is Global, a higher one covered
+	-- its own contents)
+	Active = true, -- (taps on it do not reach the window under it)
 }, gui)
+panel.Active = true
 corner(listPanel, 15)
 create("UIPadding", {
 	PaddingTop = UDim.new(0, 10), PaddingBottom = UDim.new(0, 10),
@@ -437,6 +468,43 @@ local listNow = create("TextLabel", {
 }, listPanel)
 local compactNow = false
 
+-- (D-933, user 2026-11-06: "화면 좁아지니까 겹침 / 좁아지면 팝업 하나에 디제잉, 음악
+-- 카테고리 나누기. 카탈로그에서 버튼 누르면 아래 해당하는 창 떴던 것처럼") when the
+-- two windows do not fit side by side, they share one place and two tabs at
+-- the top of each switch between them: [🎧 디제잉] [🎵 음악]
+local activeTab = "dj" -- "dj" | "music"
+local tabbedNow = false
+local layout: () -> ()
+local tabButtons: {{ key: string, button: TextButton }} = {}
+local function makeTabs(parent: Instance): Frame
+	local row = create("Frame", { Name = "Tabs", BackgroundTransparency = 1, Visible = false }, parent)
+	create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, row)
+	for order, entry in ipairs({ { "dj", "🎧 디제잉" }, { "music", "🎵 음악" } }) do
+		local key = entry[1]
+		local button = create("TextButton", {
+			Name = "Tab_" .. key,
+			LayoutOrder = order,
+			Size = UDim2.new(0.5, -3, 1, 0),
+			BackgroundColor3 = COLORS.card,
+			Text = entry[2],
+			TextColor3 = COLORS.text,
+			TextScaled = true,
+			Font = Enum.Font.GothamBold,
+		}, row)
+		corner(button, 12)
+		create("UITextSizeConstraint", { MaxTextSize = 15 }, button)
+		create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, button)
+		button.MouseButton1Click:Connect(function()
+			activeTab = key
+			layout()
+		end)
+		table.insert(tabButtons, { key = key, button = button })
+	end
+	return row
+end
+local djTabs = makeTabs(panel)
+local listTabs = makeTabs(listPanel)
+
 local toastLabel = create("TextLabel", {
 	Name = "Toast",
 	AnchorPoint = Vector2.new(0.5, 1),
@@ -467,7 +535,7 @@ djSparkButton.MouseButton1Click:Connect(function()
 	if ok and okServer then toast("🎆 불꽃 쇼 발사!") elseif ok then toast(message) end
 end)
 
-local function layout()
+layout = function()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	local viewport = camera.ViewportSize
@@ -480,6 +548,12 @@ local function layout()
 	local compact = viewport.Y < 450
 	compactNow = compact
 	local width = if compact then math.clamp(math.floor(viewport.X * 0.3), 210, 300) else math.clamp(math.floor(viewport.X * 0.36), 260, 340)
+	-- (D-933) the two windows side by side need 12 + width + 12 + width + 12;
+	-- narrower screens (phones held upright, small windows) get one window
+	-- with the two tabs
+	local tabbed = viewport.X < 2 * width + 36
+	tabbedNow = tabbed
+	if tabbed then width = math.max(math.min(viewport.X - 24, 420), 200) end
 	local height = math.min(viewport.Y - top - 8, 560)
 	-- (D-757, user: on PC too, as on phones) two windows: 디제잉 at the left
 	-- edge, the song list (🎵 음악) at the right edge. (Before, the PC window
@@ -489,21 +563,44 @@ local function layout()
 	-- (D-763, user: the DJ tip's grow ran off the right edge) the list window at
 	-- the right edge hangs from its right corner, so Spotlight's UIScale grows it
 	-- leftwards (as D-737 did for the old one-window PC layout)
-	listPanel.AnchorPoint = Vector2.new(1, 0)
-	listPanel.Position = UDim2.new(1, -12, 0, top)
+	if tabbed then
+		listPanel.AnchorPoint = Vector2.zero
+		listPanel.Position = UDim2.new(0, 12, 0, top)
+	else
+		listPanel.AnchorPoint = Vector2.new(1, 0)
+		listPanel.Position = UDim2.new(1, -12, 0, top)
+	end
 	listPanel.Size = UDim2.fromOffset(width, height)
 	panel.Size = UDim2.fromOffset(width, height)
 	local W, H = width - 20, height - 20
 	local leftW = W
-	for _, item in ipairs({ listTitle, searchBox, trackList, queueLabel } :: {GuiObject}) do
+	for _, item in ipairs({ listTitle, searchBox, trackList, queueBox } :: {GuiObject}) do
 		if item.Parent ~= listPanel then item.Parent = listPanel end
 	end
-	listPanel.Visible = panel.Visible
+	-- (D-933) tabbed: the song window lies over the 디제잉 window while 🎵 음악
+	-- is picked (the 디제잉 window stays open under it: the banner and the
+	-- quick bar go by its Visible)
+	listPanel.Visible = panel.Visible and (not tabbed or activeTab == "music")
 	local nowLabel = panel:FindFirstChild("NowLabel") :: TextLabel
 	local header = panel:FindFirstChild("Header") :: TextLabel
+	local listHeader = listPanel:FindFirstChild("Header") :: TextLabel
 	header.Size = UDim2.new(0, leftW - 68, 0, 24) -- (room for ? and X)
 	header.Text = "🎧 디제잉"
+	header.Visible = not tabbed
+	listHeader.Visible = not tabbed
+	djTabs.Visible = tabbed
+	listTabs.Visible = tabbed
+	djTabs.Position = UDim2.fromOffset(0, 0)
+	djTabs.Size = UDim2.fromOffset(leftW - 68, 26)
+	listTabs.Position = UDim2.fromOffset(0, 0)
+	listTabs.Size = UDim2.fromOffset(W - 34, 26)
+	for _, entry in ipairs(tabButtons) do
+		local on = entry.key == activeTab
+		entry.button.BackgroundColor3 = if on then COLORS.dj else COLORS.card
+		entry.button.TextColor3 = if on then COLORS.text else COLORS.sub
+	end
 	local nowY, nowH = (if compact then 26 else 32), (if compact then 18 else 22)
+	if tabbed then nowY = math.max(nowY, 30) end
 	nowLabel.Position = UDim2.fromOffset(0, nowY)
 	nowLabel.Size = UDim2.fromOffset(leftW - ICON_W, nowH)
 	nowLabel.TextSize = if compact then 13 else 16
@@ -512,61 +609,80 @@ local function layout()
 	iconSlot.Size = UDim2.fromOffset(ICON_W, nowH)
 	barSlot.Position = UDim2.fromOffset(0, nowY + nowH + 2)
 	barSlot.Size = UDim2.fromOffset(leftW, BAR_H - 4)
-	local y = (if compact then 48 else 58) + BAR_H
-	djRow.Position = UDim2.fromOffset(0, y)
-	djRow.Size = UDim2.fromOffset(leftW, if compact then 58 else 40)
-	if compact then
-		djLabel.Position = UDim2.fromOffset(6, 2)
-		djLabel.Size = UDim2.new(1, -12, 0, 26)
-		djButton.AnchorPoint = Vector2.new(1, 1)
-		djButton.Position = UDim2.new(1, -4, 1, -4)
-		-- (the 📺 button moved to the DJ row below, user 2026-11-01)
-		djButton.Size = UDim2.fromOffset(math.min(150, leftW - 8), 24)
+	-- (D-933) the rest scrolls in `body`: positions from its top
+	local bodyTop = nowY + nowH + BAR_H + 4
+	local function placeBody(w: number): number
+		local y = 0
+		djRow.Position = UDim2.fromOffset(0, y)
+		djRow.Size = UDim2.fromOffset(w, if compact then 58 else 40)
+		if compact then
+			djLabel.Position = UDim2.fromOffset(6, 2)
+			djLabel.Size = UDim2.new(1, -12, 0, 26)
+			djButton.AnchorPoint = Vector2.new(1, 1)
+			djButton.Position = UDim2.new(1, -4, 1, -4)
+			-- (the 📺 button moved to the DJ row below, user 2026-11-01)
+			djButton.Size = UDim2.fromOffset(math.min(150, w - 8), 24)
+		else
+			djLabel.Position = UDim2.fromOffset(10, 0)
+			djLabel.Size = UDim2.new(1, -120, 1, 0)
+			djButton.AnchorPoint = Vector2.new(1, 0.5)
+			djButton.Position = UDim2.new(1, -6, 0.5, 0)
+			djButton.Size = UDim2.fromOffset(104, 30)
+		end
+		y += (if compact then 58 else 40) + 6
+		if dj then
+			djTools.Position = UDim2.fromOffset(0, y)
+			djTools.Size = UDim2.fromOffset(w, if compact then 26 else 30)
+			y += (if compact then 26 else 30) + 5
+			dividerTop.Position = UDim2.fromOffset(0, y)
+			dividerTop.Size = UDim2.fromOffset(w, 1)
+			y += 1 + 5
+			djSound.Position = UDim2.fromOffset(0, y)
+			djSound.Size = UDim2.fromOffset(w, if compact then 26 else 30)
+			y += (if compact then 26 else 30) + 6
+			local perRow = 8 -- (one row on phones too since D-733: room for the EDM controls)
+			local rows = math.ceil(#ClubConfig.LightColors / perRow)
+			local cellH = if compact then 22 else 24
+			colorGrid.CellSize = UDim2.fromOffset(math.floor((w - (perRow - 1) * 4) / perRow), cellH)
+			colorRow.Position = UDim2.fromOffset(0, y)
+			colorRow.Size = UDim2.fromOffset(w, rows * (cellH + 4))
+			y += rows * (cellH + 4) + 2
+			dividerEdm.Position = UDim2.fromOffset(0, y)
+			dividerEdm.Size = UDim2.fromOffset(w, 1)
+			y += 1 + 6
+			y += edmPanel.place(y, w, compact) + 6
+		end
+		return y
+	end
+	local bodyRoom = H - bodyTop
+	local contentH = placeBody(leftW)
+	-- (taller than the window: room for the scroll bar at the right)
+	if contentH > bodyRoom then contentH = placeBody(leftW - 8) end
+	body.Position = UDim2.fromOffset(0, bodyTop)
+	body.CanvasSize = UDim2.fromOffset(0, contentH)
+	if not compact and not tabbed then
+		-- (PC side by side: the 디제잉 window only as tall as what it holds)
+		local used = math.min(H, bodyTop + contentH)
+		panel.Size = UDim2.fromOffset(width, used + 20)
+		body.Size = UDim2.fromOffset(leftW, used - bodyTop)
 	else
-		djLabel.Position = UDim2.fromOffset(10, 0)
-		djLabel.Size = UDim2.new(1, -120, 1, 0)
-		djButton.AnchorPoint = Vector2.new(1, 0.5)
-		djButton.Position = UDim2.new(1, -6, 0.5, 0)
-		djButton.Size = UDim2.fromOffset(104, 30)
+		body.Size = UDim2.fromOffset(leftW, math.max(bodyRoom, 0))
 	end
-	y += (if compact then 58 else 40) + 6
-	if dj then
-		djTools.Position = UDim2.fromOffset(0, y)
-		djTools.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
-		y += (if compact then 26 else 30) + 5
-		dividerTop.Position = UDim2.fromOffset(0, y)
-		dividerTop.Size = UDim2.fromOffset(leftW, 1)
-		y += 1 + 5
-		djSound.Position = UDim2.fromOffset(0, y)
-		djSound.Size = UDim2.fromOffset(leftW, if compact then 26 else 30)
-		y += (if compact then 26 else 30) + 6
-		local perRow = 8 -- (one row on phones too since D-733: room for the EDM controls)
-		local rows = math.ceil(#ClubConfig.LightColors / perRow)
-		local cellH = if compact then 22 else 24
-		colorGrid.CellSize = UDim2.fromOffset(math.floor((leftW - (perRow - 1) * 4) / perRow), cellH)
-		colorRow.Position = UDim2.fromOffset(0, y)
-		colorRow.Size = UDim2.fromOffset(leftW, rows * (cellH + 4))
-		y += rows * (cellH + 4) + 2
-		dividerEdm.Position = UDim2.fromOffset(0, y)
-		dividerEdm.Size = UDim2.fromOffset(leftW, 1)
-		y += 1 + 6
-		y += edmPanel.place(y, leftW, compact) + 6
-	end
-	-- (the playing song at 26, D-762)
-	listTitle.Position = UDim2.fromOffset(0, 46)
+	-- song window: header (or tabs), the playing song at 26 (D-762), the list
+	-- title, 🔍, then the list on top (2 / 3) and the next songs below (1 / 3)
+	local listTop = if tabbed then 4 else 0
+	listNow.Position = UDim2.fromOffset(0, 26 + listTop)
+	listTitle.Position = UDim2.fromOffset(0, 46 + listTop)
 	listTitle.Size = UDim2.new(1, 0, 0, 18)
-	searchBox.Position = UDim2.fromOffset(0, 66)
-	trackList.Position = UDim2.fromOffset(0, 96)
-	if compact then
-		trackList.Size = UDim2.new(1, 0, 1, -96)
-		queueLabel.Visible = false
-	else
-		-- (PC: room for the next songs under the list; the 디제잉 window only as
-		-- tall as what it holds)
-		trackList.Size = UDim2.new(1, 0, 1, -96 - 74)
-		queueLabel.Visible = true
-		panel.Size = UDim2.fromOffset(width, math.min(height, y + 20))
-	end
+	searchBox.Position = UDim2.fromOffset(0, 66 + listTop)
+	local listY = 96 + listTop
+	local room = math.max(H - listY, 60)
+	local queueH = math.floor(room / 3)
+	trackList.Position = UDim2.fromOffset(0, listY)
+	trackList.Size = UDim2.new(1, 0, 0, room - queueH - 6)
+	queueBox.Position = UDim2.fromOffset(0, listY + room - queueH)
+	queueBox.Size = UDim2.new(1, 0, 0, queueH)
+	queueBox.Visible = true
 end
 layout()
 if workspace.CurrentCamera then
@@ -704,9 +820,14 @@ local function renderTracks()
 			BackgroundColor3 = if index == current then COLORS.accent else COLORS.card,
 		}, trackList)
 		corner(row, 8)
+		-- (D-933) the DJ's three buttons: 지금 / 우선예약 / 예약
+		-- (D-934, user 2026-11-06: "글씨 빼고 그냥 작은 원 버튼으로 변경해서 노래 제목
+		-- 보이게") small round icon buttons: ▶ 지금, ⏫ 우선예약, ➕ 예약 (the list
+		-- title says which is which)
+		local buttonW = 28
 		create("TextLabel", {
 			Position = UDim2.fromOffset(8, 0),
-			Size = UDim2.new(1, if dj then (if compactNow then -110 else -150) else (if compactNow then -62 else -86), 1, 0),
+			Size = UDim2.new(1, if dj then -(3 * buttonW + 26) else (if compactNow then -62 else -86), 1, 0),
 			BackgroundTransparency = 1,
 			Text = ClubConfig.showTitle(track, 14) .. "  ·  " .. track.channel, -- (🎵 = a choreography, D-731)
 			RichText = true,
@@ -719,26 +840,34 @@ local function renderTracks()
 			TextSize = 14,
 			Font = Enum.Font.GothamMedium,
 		}, row)
-		local function rowButton(name: string, text: string, x: number, color: Color3, onClick: () -> ())
+		local function rowButton(name: string, text: string, x: number, w: number, color: Color3, onClick: () -> ())
+			local round = w <= 30
 			local button = create("TextButton", {
 				Name = name,
 				AnchorPoint = Vector2.new(1, 0.5),
 				Position = UDim2.new(1, x, 0.5, 0),
-				Size = UDim2.fromOffset(if compactNow then 48 else 64, 28),
+				Size = UDim2.fromOffset(w, if round then w else 28),
 				BackgroundColor3 = color,
 				Text = text,
 				TextColor3 = COLORS.text,
-				TextSize = 13,
+				TextScaled = true,
 				Font = Enum.Font.GothamBold,
 			}, row)
 			corner(button, 14)
+			create("UITextSizeConstraint", { MaxTextSize = if round then 18 else 13 }, button)
+			create("UIPadding", { PaddingLeft = UDim.new(0, if round then 4 else 3), PaddingRight = UDim.new(0, if round then 4 else 3),
+				PaddingTop = UDim.new(0, if round then 4 else 0), PaddingBottom = UDim.new(0, if round then 4 else 0) }, button)
 			button.MouseButton1Click:Connect(onClick)
 		end
 		if dj then
-			rowButton("Play", "지금", if compactNow then -56 else -72, COLORS.dj, function() call("Play", index) end)
-			rowButton("Queue", "다음", -4, COLORS.card, function() call("Queue", index) end)
+			-- (D-933, user 2026-11-06: "디제이 음악창 지금/우선예약/예약으로 버튼 추가")
+			--   지금: plays now; 우선예약: first in the list of next songs ("Queue");
+			--   예약: at the end of it, in the order they were pressed ("Request")
+			rowButton("Play", "▶", -(2 * buttonW + 16), buttonW, COLORS.dj, function() call("Play", index) end)
+			rowButton("Queue", "⏫", -(buttonW + 10), buttonW, COLORS.accent, function() call("Queue", index) end)
+			rowButton("Reserve", "➕", -4, buttonW, COLORS.robux, function() call("Request", index) end)
 		elseif not otherDJ then
-			rowButton("Request", "신청", -4, COLORS.accent, function() call("Request", index) end)
+			rowButton("Request", "신청", -4, if compactNow then 48 else 64, COLORS.accent, function() call("Request", index) end)
 		end
 	end
 end
@@ -785,7 +914,7 @@ local function refresh()
 	end
 	layout()
 	listTitle.Text = if dj and showGuests then "DJ 존 초대 (초대한 사람만 올라올 수 있어요)"
-		elseif dj then "곡 고르기 (지금 / 다음)" elseif djId ~= 0 then "DJ가 곡을 고르는 중" else "곡 신청 (한 번에 한 곡)"
+		elseif dj then "▶ 지금 · ⏫ 우선예약 · ➕ 예약" elseif djId ~= 0 then "DJ가 곡을 고르는 중 (DJ만 곡을 골라요)" else "곡 신청 (한 번에 한 곡)"
 	guestsButton.Text = if showGuests then "🎵 곡 목록" else "👥 초대"
 	local speed = FashionGame:GetAttribute("ClubLightSpeed")
 	speedButton.Text = "⚡x" .. tostring(if typeof(speed) == "number" then speed else 1)
@@ -801,7 +930,7 @@ local function refresh()
 	local lines = {}
 	for position, entry in ipairs(requests()) do
 		local queued = ClubConfig.Playlist[entry.i]
-		if queued and position <= 4 then
+		if queued then -- (D-933: all of them; the box scrolls)
 			table.insert(lines, string.format("%d. %s · %s", position, ClubConfig.showTitle(queued, 13), ClubConfig.escapeRich(nameOf(entry.u))))
 		end
 	end
@@ -816,6 +945,8 @@ local function setPanelOpen(open: boolean)
 	listPanel.Visible = open -- (PC too since D-757)
 	if not open then Popups.closed("ClubMusic") end
 	if open then
+		-- (D-933) one window with tabs: the DJ starts on 🎧 디제잉, others on 🎵 음악
+		activeTab = if isDJ() then "dj" else "music"
 		openedClock = os.clock()
 		Popups.opened("ClubMusic", function() setPanelOpen(false) end)
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
@@ -934,6 +1065,7 @@ for _, console in ipairs(CollectionService:GetTagged("DJConsole")) do watchConso
 CollectionService:GetInstanceAddedSignal("DJConsole"):Connect(watchConsole)
 guestsButton.MouseButton1Click:Connect(function()
 	showGuests = not showGuests
+	if showGuests and tabbedNow then activeTab = "music" end -- (D-933: the list is in the 🎵 tab)
 	refresh()
 	renderTracks()
 end)
