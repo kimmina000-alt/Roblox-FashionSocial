@@ -3597,3 +3597,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-07 모션 깔끔하게 (D-966)
 - 모든 안무에 관절 끊김 보정 + 몸 이동 속도 한계, 9곡 전체 Play 검사로 미끄러짐 19곳 still · 떨림 6곳 steady, Get A Guitar 1:20 이음 · 1:52 다음 회전 정리. 자세한 값: DECISIONS D-966. 남은 8곡 다시 검사, 모바일 2P 테스트 전.
 - Catch Catch 3 · 6 · 15 · 19 · 22번 다시 올린 것 추가 → 23조각(D-968). 곡 전체 Play 검사(play_record scanAll): SPIN 4 → 0, SLIDE 1 → 0, SNAP · SHAKE · JITTER 0, TELEPORT 10은 발을 딛는 이동이라 그대로. 회전 크기 그대로.
+
+## 2026-11-07 배드최산안무 백업 (D-961)
+- BAD 가슴 튕김 조각(21번)의 지금 안무 값을 `tools/choreo/backups/배드최산안무.lua`로 따로 저장. 안무를 고친 뒤에도 이 부분만 그대로 되돌려 쓸 수 있음(방법은 파일 머리말과 CHOREOGRAPHY.md §14). 게임 코드·Studio는 바뀌지 않음.
