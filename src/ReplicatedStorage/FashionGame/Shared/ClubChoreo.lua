@@ -489,6 +489,15 @@ M.ChoreoFixes = {
 	-- 16 / 17 / 18 (from 127.65): "2:10~ 버벅거리고 떰. 프레임 튀듯이", "~2:26까지 계속
 	-- 떨어": 10-27 joint turn-backs in 0.5 s all through; smoothed (the moves kept)
 	[82680550952125] = { steady = { from = 0, to = 10.3, passes = 8 } },
+	-- 17b red-box floor member (from 136.22) (D-991, user's screen recording of the
+	-- KBS stage, "2:20 전후로 누워서 하는 안무 이 영상이 더 잘 보인다. 참고해서 수정"):
+	-- on the stage she lies propped on her right forearm, the upper body raised and
+	-- the head up; the capture lay nearly flat (chest 1.5 studs up, the forearm
+	-- off the floor): the waist lifted 25°, the right upper arm down onto the
+	-- forearm (on the floor in Play), the head up (song 136.8-140.8)
+	[113734305009959] = { pose = { from = 0.5, to = 4.6, ease = 0.4, keys = {
+		{ t = 0.5, add = { UpperTorso = { -25, 0, 0 }, Head = { 15, 0, 0 }, RightUpperArm = { -20, 0, -25 } } },
+	} } },
 	[132337331292488] = { steady = { from = 0, to = 8.0, passes = 8 } },
 	-- (2:26 "일어나면서 몸 돌리는데 두 번 돌림. 한 번으로 깔끔하게": the capture turns 55°
 	-- one way, then 141° back in 0.16 s, inside its 1 s blend: one even turn
