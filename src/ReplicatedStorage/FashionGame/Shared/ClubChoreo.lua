@@ -349,6 +349,19 @@ M.ChoreoFixes = {
 		{ t = 9.45, set = { LowerTorso = { 15, -16, -7 }, RightUpperLeg = { 12, -28, 35 }, RightLowerLeg = { -59, -2, -4 }, RightFoot = { 26, -27, -10 },
 			LeftUpperLeg = { 5, 0, -6 }, LeftLowerLeg = { -20, 0, 0 }, LeftFoot = { 5, 0, 0 } }, move = { LowerTorso = { 0, -0.87, 0 } } },
 	} } } },
+	-- RESCENE-Pretty Girl (D-973, user: "36초 회전 매끄럽게 앞뒤 동작 빠르게 하든
+	-- 조절해서 시간 안에 뒤에 안무 안 밀리게"): the piece at 26.25 turns half way
+	-- (34.3-35.8), stalls 0.6 s on its last pose, and the next piece's 1 s blend
+	-- whips the other half round (12.5° a frame): one turn at one speed
+	-- instead, 34.25-36.33 linear with 125° more than the capture's own half,
+	-- then the next piece carries on from there and slows to its own facing by
+	-- 1.1 s (37.4), so its dance starts on time
+	[97208831163609] = { spin = { from = 8.0, to = 10.08, add = -125, ease = "linear" } },
+	[123817870898356] = { spin = { from = 0, to = 1.1, fromPrev = true, dir = -1, ease = "out" } },
+	-- 키키-Pop Off last piece (D-973, user: "pop off 마지막 부분 확인 후 수정"): the
+	-- capture spins one and a half turns in 0.8 s (up to 40° a frame) and turns
+	-- half back: one even turn over 1.7 s (2:18.2-2:19.9) to where it ends
+	[77209641618863] = { spin = { from = 1.0, to = 2.7, ease = "both" } },
 	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
 	-- 자세에서 다음 걷는 안무로 자연스럽게 이어지도록") the first pose is held still
 	-- (the capture sways 20° and shifts) until the walk (2) blends in over 0.9 s

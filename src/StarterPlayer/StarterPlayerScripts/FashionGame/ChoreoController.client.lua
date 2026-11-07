@@ -325,6 +325,8 @@ for _, t in ipairs(ClubConfig.Playlist) do
 end
 
 local spinWait: {[AnimationTrack]: number} = setmetatable({}, { __mode = "k" }) :: any
+local spinFrom: {[AnimationTrack]: number} = setmetatable({}, { __mode = "k" }) :: any -- (D-973)
+local spinMemory: {[any]: { yaw: number, id: string, at: number }} = setmetatable({}, { __mode = "k" }) :: any
 local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {AnimationTrack})
 	-- (Studio only: ChoreoSmoothingOff compares without the spot fixes too)
 	if RunService:IsStudio() and FashionGame:GetAttribute("ChoreoSmoothingOff") then return end
@@ -357,8 +359,21 @@ local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {Animation
 		if spin then
 			local a, b = ChoreoSmooth.facing(id, spin.from), ChoreoSmooth.facing(id, spin.to)
 			if spin.fromPrev and prevPiece[id] then
-				ChoreoSmooth.load(prevPiece[id])
-				a = ChoreoSmooth.endFacing(prevPiece[id])
+				-- (D-973) from where the spin of the piece before left the hips,
+				-- when it was one (that facing is its own plus `add`), else from
+				-- that piece's last facing; read once when this spin begins
+				local from = spinFrom[t]
+				if not from then
+					local memory = spinMemory[joint]
+					if memory and memory.id == prevPiece[id] and os.clock() - memory.at < 0.5 then
+						from = memory.yaw
+					else
+						ChoreoSmooth.load(prevPiece[id])
+						from = ChoreoSmooth.endFacing(prevPiece[id])
+					end
+					spinFrom[t] = from
+				end
+				a = from
 				-- (the two pieces count their turns apart: the way round is
 				-- `dir`, +1 or -1, plus `turns`)
 				if a and b then
@@ -370,15 +385,25 @@ local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {Animation
 			if a and b then
 				-- (D-873) `turns`: whole turns to add, for a capture that turned
 				-- half way and back where the dancer spins all the way round;
-				-- ease = "both" starts and ends gently
-				b += (spin.turns or 0) * 2 * math.pi
+				-- (D-973) `add` degrees more, for a piece whose turn the next
+				-- piece's capture finishes (Pretty Girl 0:36);
+				-- ease = "both" starts and ends gently, "linear" keeps one speed,
+				-- "out" starts at full speed and slows (to carry a turn on), the
+				-- default starts gently and ends at full speed
+				b += (spin.turns or 0) * 2 * math.pi + math.rad(spin.add or 0)
 				local f = math.min((at - spin.from) / (spin.to - spin.from), 1)
-				local yaw = a + (b - a) * (if spin.ease == "both" then f * f * (3 - 2 * f) else f * f * (2 - f))
+				local e = if spin.ease == "both" then f * f * (3 - 2 * f)
+					elseif spin.ease == "linear" then f
+					elseif spin.ease == "out" then f * (2 - f)
+					else f * f * (2 - f)
+				local yaw = a + (b - a) * e
 				local tilt, _, roll = joint.Transform:ToEulerAnglesYXZ()
 				joint.Transform = CFrame.new(joint.Transform.Position) * CFrame.fromEulerAnglesYXZ(tilt, yaw, roll)
+				spinMemory[joint] = { yaw = yaw, id = id, at = os.clock() }
 			end
 			return
 		end
+		spinFrom[t] = nil
 		local fix = id and turnFixes[id]
 		if id and fix and t.WeightCurrent > 0.01 and t.TimePosition < fix.seconds then
 			ChoreoSmooth.load(fix.prev)
