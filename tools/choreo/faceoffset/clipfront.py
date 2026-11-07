@@ -1,4 +1,4 @@
-﻿import sys, json, math
+import sys, json, math
 from pathlib import Path
 from ultralytics import YOLO
 import cv2
@@ -11,7 +11,7 @@ for name in names:
     if not p.exists(): continue
     cap = cv2.VideoCapture(str(p)); fps = cap.get(cv2.CAP_PROP_FPS) or 30
     w = cap.get(cv2.CAP_PROP_FRAME_WIDTH); h = cap.get(cv2.CAP_PROP_FRAME_HEIGHT)
-    rows = []; f = 0
+    rows = []; f = 0; prev = None; prevArea = None
     while True:
         ok, img = cap.read()
         if not ok: break
@@ -21,10 +21,16 @@ for name in names:
             if r.keypoints is not None and len(r.boxes) > 0:
                 for i in range(len(r.boxes)):
                     x1, y1, x2, y2 = r.boxes.xyxy[i].tolist()
-                    cx = (x1 + x2) / 2; area = (x2 - x1) * (y2 - y1)
-                    score = area / (1 + abs(cx - w / 2) / w * 6)
-                    if best is None or score > best[0]: best = (score, i)
+                    cx = (x1 + x2) / 2; cy = (y1 + y2) / 2; area = (x2 - x1) * (y2 - y1)
+                    # (D-1002) follow the member picked in the frames before: a dancer crossing
+                    # in front is not taken for her (BAD 2 clip 9: a red cap passing by)
+                    ref = prev if prev else (w / 2, h / 2)
+                    score = area / (1 + math.hypot(cx - ref[0], cy - ref[1]) / w * 8)
+                    if best is None or score > best[0]: best = (score, i, cx, cy, area)
+            if best and prev and best[4] > 0 and prevArea and (best[4] < prevArea * 0.5 or best[4] > prevArea * 2):
+                best = None  # (a jump in size: someone else, skip the frame)
             if best:
+                prev = (best[2], best[3]); prevArea = best[4]
                 kp = r.keypoints.data[best[1]].tolist()
                 ls, rs, lh, rh, nose = kp[5], kp[6], kp[11], kp[12], kp[0]
                 if min(ls[2], rs[2], lh[2], rh[2]) > 0.5:

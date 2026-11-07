@@ -1,4 +1,4 @@
-﻿import json, sys, math
+import json, sys, math
 pose = json.load(open(sys.argv[1]))
 cap = {}
 for line in open(sys.argv[2], encoding="utf-8-sig"):
@@ -21,7 +21,7 @@ for name in sorted(pose, key=lambda x: int(x.split(".")[0])):
     if len(pos) < 10: print(name, "no front at all"); continue
     rmax = pos[int(len(pos) * 0.95) - 1]
     front = [r for r in rows if r[1] > 0.85 * rmax and r[2] > 0.5 and abs(r[3]) < 0.12]
-    if len(front) < 5: print(name, "few front frames", len(front)); continue
+    if len(front) < 12: print(name, "few front frames (check by eye)", len(front)); continue
     ys = sorted(wrap(capat(cap[name], r[0])) for r in front)
     med = ys[len(ys) // 2]
     mad = sorted(abs(wrap(y - med)) for y in ys)[len(ys) // 2]
