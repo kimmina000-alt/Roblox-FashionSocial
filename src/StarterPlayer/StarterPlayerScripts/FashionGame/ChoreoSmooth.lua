@@ -297,13 +297,18 @@ function ChoreoSmooth.load(animationId: string)
 		local final: {[string]: {CFrame}} = {} -- (each part's poses after the clean-up, D-843)
 		for part, s in pairs(series) do
 			final[part] = s.raw
-			local cleaned = if settings then clean(s.raw, settings.maxStep, settings.passes) else nil
+			-- (D-998, user: "떨림에서 손목이랑 발목만 예외로" → "손목·발목은 다듬지 않기") the wrists and
+			-- ankles keep their own small moves: none of the automatic clean-ups below
+			-- touch the parts in ClubConfig.ChoreoKeepDetail (a `steady` the user asked
+			-- for still does)
+			local keep = ClubConfig.ChoreoKeepDetail ~= nil and table.find(ClubConfig.ChoreoKeepDetail, part) ~= nil
+			local cleaned = if settings and not keep then clean(s.raw, settings.maxStep, settings.passes) else nil
 			-- (D-851) pieces the user saw tremble: the slower wobble too
-			if fixes and fixes.calm and ClubConfig.ChoreoCalm and part ~= "LowerTorso" then
+			if fixes and fixes.calm and ClubConfig.ChoreoCalm and part ~= "LowerTorso" and not keep then
 				cleaned = calm(cleaned or s.raw, s.raw, ClubConfig.ChoreoCalm) or cleaned
 			end
 			-- (D-881) whatever still shakes, found by itself in every piece
-			if ClubConfig.ChoreoShake and part ~= "LowerTorso" then
+			if ClubConfig.ChoreoShake and part ~= "LowerTorso" and not keep then
 				cleaned = shaky(cleaned or s.raw, s.times, ClubConfig.ChoreoShake) or cleaned
 			end
 			-- (D-840) a spot the user picked (a shaky arm): these parts smoothed
@@ -337,7 +342,7 @@ function ChoreoSmooth.load(animationId: string)
 			-- (Gaussian, ClubConfig.ChoreoDejitter.sigma s, centred so nothing lags);
 			-- the beat-sized moves keep their size, the 6-10 per-second wobble goes
 			local dj = ClubConfig.ChoreoDejitter
-			if dj and dj.sigma > 0 and not (fixes and fixes.sharp) then
+			if dj and dj.sigma > 0 and not (fixes and fixes.sharp) and not keep then
 				cleaned = dejitter(cleaned or s.raw, s.times, dj.sigma, part == "LowerTorso")
 			end
 			if cleaned then

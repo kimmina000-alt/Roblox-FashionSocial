@@ -21,6 +21,8 @@ M.ChoreoSmoothing = { maxStep = 8, passes = 4 } :: { maxStep: number, passes: nu
 -- in time (Gaussian, seconds; ChoreoSmooth.dejitter): the wobble that made feet and legs
 -- tremble goes, beat-sized moves keep about 93 % of their size (0 turns it off)
 M.ChoreoDejitter = { sigma = 0.03 } :: { sigma: number }?
+-- (D-998, user: "손목·발목은 다듬지 않기") parts the automatic tremble clean-ups leave as captured
+M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {string}?
 M.ChoreoRetarget = true
 
 -- (D-817) a dancer following a choreography walks its dance path (D-813),
