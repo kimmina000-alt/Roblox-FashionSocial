@@ -403,7 +403,7 @@ M.ChoreoFixes = {
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
 	-- YENA-Catch Catch v2 centre clips (D-980): Play scan SPIN 641-723°/s, spread evenly
 	[79075546317269] = { spin = { from = 9.2, to = 9.55, ease = "both" } }, -- v2 11 (1:44)
-	[108680095506820] = { spin = { { from = 0.65, to = 1.0, ease = "both" }, { from = 1.8, to = 2.4, ease = "both" } } }, -- v2 19 (2:43, a full turn in two)
+	[108680095506820] = { spin = { from = 0.65, to = 2.4, ease = "both" } }, -- v2 19 (bar 2:40-2:42; user "2:40초까지 다리 벌벌 떨어": one even turn, the two short ones whipped the legs and hands)
 	[114010461044470] = { spin = { from = 9.3, to = 9.85, ease = "both" }, -- v2 16 (2:21, +140° turn)
 		-- (D-983, user: play bar 2:19 "팔 몸통 통과") the arms folded across the chest at song
 		-- 141.5-142.3 sank into the body: upper arms turned 25° out, 8° open, 10° forward
