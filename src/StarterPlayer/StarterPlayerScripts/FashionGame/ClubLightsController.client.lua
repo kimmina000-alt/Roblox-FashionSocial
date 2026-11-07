@@ -304,12 +304,19 @@ local function buildClones(pillar: Pillar, character: Model): boolean
 			end
 		end
 	end
-	-- Camera: fit the standing avatar into the full height of the picture.
+	-- Camera: fit the standing avatar into the picture.
+	-- (D-945, user 2026-11-06: "원통 전광판 공간 다 쓰려고 하니까 너무 커서 안 보임.
+	-- 전광판 위에 여유 공간 좀 둬. 캐릭터 좀 밑으로 내려 사이즈 줄여서") the avatar
+	-- fills about two thirds of the picture's height (half height 0.75 of the
+	-- avatar, 0.6 before) and stands near its bottom: the camera looks 0.19 of
+	-- the avatar's height above its middle, so the top third stays free
 	local size = template:GetExtentsSize()
 	local height = math.max(size.Y, 4)
 	local centerY = template:GetBoundingBox().Position.Y - root.Position.Y
-	local distance = (height * 0.6) / math.tan(math.rad(VIEW_FOV / 2))
-	local cameraCFrame = CFrame.lookAt(Vector3.new(0, centerY, -distance), Vector3.new(0, centerY, 0))
+	local VIEW_HALF, VIEW_LIFT = 0.75, 0.19
+	local distance = (height * VIEW_HALF) / math.tan(math.rad(VIEW_FOV / 2))
+	local aimY = centerY + height * VIEW_LIFT
+	local cameraCFrame = CFrame.lookAt(Vector3.new(0, aimY, -distance), Vector3.new(0, aimY, 0))
 	for index, panel in ipairs(pillar.panels) do
 		local copy = if index == 1 then template else template:Clone()
 		local map = if index == 1 then templateParts else partsByPath(copy)
