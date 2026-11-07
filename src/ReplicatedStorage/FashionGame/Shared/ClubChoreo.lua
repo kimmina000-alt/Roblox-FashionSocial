@@ -904,10 +904,11 @@ end
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
 	-- aespa-Lemonade (practice video NJx2IGeS8CQ, clips 2..22; clip 1 / 17b other videos)
+	[74096523961866] = -11, -- 3 (40 front frames, capture +11°, spread 15°; re-measured with the member followed)
 	[123559029471758] = 13, -- 4 (39 front frames, capture -13°, spread 6°)
 	[99422937735141] = -25, -- 7 (88, +25°, 18°)
 	[99169381541568] = -12, -- 8 (65, +12°, 7°)
-	[107439323698577] = -8, -- 13 (36, +8°, 8°)
+	[107439323698577] = -10, -- 13 (43, +10°, 6°)
 	[118124487485279] = 6, -- 15 (107, -6°, 10°)
 	[76195346888656] = -15, -- 18 (23, +15°, 9°)
 	[76826604804095] = -6, -- 21 (83, +6°, 4°)
