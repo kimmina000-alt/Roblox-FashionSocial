@@ -626,6 +626,27 @@ RunService.PreSimulation:Connect(function(dt)
 				if p == player and following then moveAlong(character, joint, choreo, dt) end
 				smoothJoints(character, choreo)
 				turnHips(joint, choreo)
+				-- (D-1002, user: "30도로 정의하면 안 됨 … 안무 영상 보면서 일일이 비교해서 적용") a
+				-- piece's ChoreoFixes `faceOffset` (degrees, measured against its video:
+				-- the capture's facing where the member faces the camera) turns the
+				-- whole piece by that much, so its own angled, side and back facings and
+				-- its turns keep their shape; blended pieces mix their offsets by weight
+				do
+					local sum, total = 0, 0
+					for _, t in ipairs(choreo) do
+						local fx = t.Animation and ChoreoSmooth.fixes(t.Animation.AnimationId)
+						local w = math.min(t.WeightCurrent, 1)
+						if w > 0.01 then
+							sum += ((fx and fx.faceOffset) or 0) * w
+							total += w
+						end
+					end
+					local offset = if total > 0 then sum / total else 0
+					if math.abs(offset) > 0.05 then
+						local cf = joint.Transform
+						joint.Transform = CFrame.new(cf.Position) * CFrame.Angles(0, math.rad(offset), 0) * cf.Rotation
+					end
+				end
 				-- (D-1000, user: Lemonade "안무 동영상에서 정면은 하나로 정해진 것처럼 안무도
 				-- 정면 한 곳으로 … 등돌리는 안무는 등 보이는 게 맞음") a song's `frontLock =
 				-- { snap, keep }`: while the dancer is not turning, hips facing within

@@ -27,7 +27,10 @@ M.ChoreoDejitter = { sigma = 0.03 } :: { sigma: number }?
 -- (`back` s); facings within `snap`° of the front go to the front, eased up to `keep`°,
 -- side / back facings and turns stay as danced
 M.ChoreoHome = { settle = 2.5, back = 1.5 } :: any
-M.ChoreoFrontLock = { snap = 30, keep = 55 } :: any
+-- (D-1002, user: "30도로 정의하면 안 됨. 안무 자체가 30도 틀어진 안무면 안무 유지 … 옆을 보고
+-- 추는 안무면 옆 모습 … 안무 영상 보면서 일일이 비교해서 적용"): no fixed snap to the front;
+-- each piece gets its own facing correction measured against its video (`faceOffset`)
+M.ChoreoFrontLock = nil :: any
 -- (D-998, user: "손목·발목은 다듬지 않기") parts the automatic tremble clean-ups leave as captured
 M.ChoreoKeepDetail = { "LeftHand", "RightHand", "LeftFoot", "RightFoot" } :: {string}?
 M.ChoreoRetarget = true
@@ -891,6 +894,29 @@ for id, stretches in pairs(M.ChoreoAutoSteady) do
 	local steady = if fix.steady == nil then {} elseif fix.steady.from then { fix.steady } else table.clone(fix.steady)
 	for _, s in ipairs(stretches) do table.insert(steady, { from = s[1], to = s[2], passes = 8 }) end
 	fix.steady = steady
+end
+
+-- (D-1002, user: "안무 영상 보면서 일일이 비교해서 적용") per piece: degrees the whole piece is
+-- turned (ChoreoFixes `faceOffset`), measured with tools/choreo/faceoffset: in the piece's
+-- clip, the frames where the member faces the camera (shoulders at their widest, nose
+-- centred) against the capture's hips facing at the same moments; set where the
+-- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
+-- where it only wobbles. Their own angled, side and back facings and turns stay.
+M.ChoreoFaceOffset = {
+	-- aespa-Lemonade (practice video NJx2IGeS8CQ, clips 2..22; clip 1 / 17b other videos)
+	[123559029471758] = 13, -- 4 (39 front frames, capture -13°, spread 6°)
+	[99422937735141] = -25, -- 7 (88, +25°, 18°)
+	[99169381541568] = -12, -- 8 (65, +12°, 7°)
+	[107439323698577] = -8, -- 13 (36, +8°, 8°)
+	[118124487485279] = 6, -- 15 (107, -6°, 10°)
+	[76195346888656] = -15, -- 18 (23, +15°, 9°)
+	[76826604804095] = -6, -- 21 (83, +6°, 4°)
+	[89070118321317] = -31, -- 22 (93, +31°, 3°)
+} :: {[number]: number}
+for id, degrees in pairs(M.ChoreoFaceOffset) do
+	local fix = (M.ChoreoFixes[id] or {}) :: any
+	M.ChoreoFixes[id] = fix
+	fix.faceOffset = degrees
 end
 
 return M

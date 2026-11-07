@@ -218,8 +218,6 @@ M.Playlist = {
 		-- (D-992, user: "안무 추면서 이동해도 결국 처음 서 있던 위치를 중심으로 두고 끝나면 돌아오게 … 레모네이드에만 먼저"):
 		-- the travel eases back toward the start in 2.5 s (instead of 8) and the dancer glides home over 1.5 s at the end
 		home = { settle = 2.5, back = 1.5 },
-		-- (D-1000, user: "원본 영상 보고 사람이 앞 보고 추는 춤은 정면 한 곳으로 고정"): facings within 30° of the front go to it, eased to 55°
-		frontLock = { snap = 30, keep = 55 },
 		-- D-970: Lemonade_v2 1..22 (20 and 21 uploaded D-979; D-982: 2:17-2:26 = the red-box floor member's clip 113734305009959 at 136.22 in place of clip 17, clip 16 stops there); clip 8 = re-upload 99169381541568 (D-978, the first one was a copy of 7).
 		-- Clip 1 = mirror cover b3C-M5lDRHE (video = song + 1.45 s, `from = 1.45`); clips 2..22 = practice video NJx2IGeS8CQ (video = song + 1.08 s, `at` = clip start - 1.08)
 		choreo = { { id = 76917634239098, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
