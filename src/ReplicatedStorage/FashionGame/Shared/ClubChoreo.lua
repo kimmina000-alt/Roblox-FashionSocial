@@ -404,6 +404,7 @@ M.ChoreoFixes = {
 	-- YENA-Catch Catch v2 centre clips (D-980): Play scan SPIN 641-723°/s, spread evenly
 	[79075546317269] = { spin = { from = 9.2, to = 9.55, ease = "both" } }, -- v2 11 (1:44)
 	[108680095506820] = { spin = { { from = 0.65, to = 1.0, ease = "both" }, { from = 1.8, to = 2.4, ease = "both" } } }, -- v2 19 (2:43, a full turn in two)
+	[114010461044470] = { spin = { from = 9.3, to = 9.85, ease = "both" } }, -- v2 16 (2:21, +140° turn)
 	-- YENA-Catch Catch (D-968): Play scan SPIN 626-666°/s = fast real turns (one way, 155-210°), spread evenly
 	[98686361929027] = { spin = { from = 8.6, to = 9.5, ease = "both" } }, -- 4 (0:27)
 	[122624428391289] = { spin = { from = 0.5, to = 1.15, ease = "both" } }, -- 11 (1:34)

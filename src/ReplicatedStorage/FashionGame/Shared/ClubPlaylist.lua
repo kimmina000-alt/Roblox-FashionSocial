@@ -180,9 +180,9 @@ M.Playlist = {
 		{ id = 74567972410299, at = 48.27 }, { id = 110540650870002, at = 62.77 }, { id = 130984178299080, at = 76.97, blend = 0.62 },
 		{ id = 128412578867487, at = 83.03, stop = 84.7 },
 		-- D-980: from 1:24 the user's centre picks, new clips YENA_CatchCatch_v2_centercut 10..20 (mirror video, `at` = clip start + 0.70); v2 10 starts at 82.333 but plays
-		-- from 84.7 (`from = 1.67`, piece 10 keeps the user's 1:22-1:23 moves) and its upload ends 2.3 s early (capture lost her in the cluster); v2 16 not in (its upload is a copy of 15)
+		-- from 84.7 (`from = 1.67`, piece 10 keeps the user's 1:22-1:23 moves) and its upload ends 2.3 s early (capture lost her in the cluster); v2 16 = re-upload 114010461044470 (the first upload was a copy of 15)
 		{ id = 74369407507020, at = 84.7, from = 1.67, blend = 1 }, { id = 79075546317269, at = 94.63 }, { id = 88923183102495, at = 107.77 },
-		{ id = 73949956743570, at = 121, blend = 1 }, { id = 89344916640647, at = 128.83, blend = 1 }, { id = 110910446284849, at = 130.27, blend = 0.49 },
+		{ id = 73949956743570, at = 121, blend = 1 }, { id = 89344916640647, at = 128.83, blend = 1 }, { id = 110910446284849, at = 130.27, blend = 0.49 }, { id = 114010461044470, at = 131.5, blend = 0.58 },
 		{ id = 115248452065042, at = 143.2 }, { id = 124345431625014, at = 151.73 }, { id = 108680095506820, at = 162.33, blend = 0.61 },
 		{ id = 127455820218376, at = 169.73, blend = 0.42 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
