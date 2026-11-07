@@ -2640,3 +2640,25 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 컷 목록은 새 도구 tools/choreo/stagecam/shots_to_lua.py로 만듦: shots.py 결과에서 각 컷 샘플 3장의 가장 큰 멤버 포즈로 크기(발목 보임 = full/wide/xwide 키 비율, 무릎 = knee, 엉덩이 = waist, 나머지 bust), 컷 안에서 크기가 바뀌면 그 사이에서 나눔(놓친 부드러운 컷), 줌 인/아웃 1.4배 이상 = 	o, 큰 팬 = 작은 yaw, wide/xwide는 크레인 pitch 5/8, 0.35초 미만 번쩍임은 뺌. 곡 초 단위 cutList: CRASH 113, Love 119 93, Pop Off 89, Pretty Girl 109컷.
 - 사람이 0.5초 띠로 하나하나 읽던 앞의 곡들보다 거칠 수 있음(크기 판정은 자동). Play 비교와 모바일 2P 테스트 전.- PC Play 확인(Studio 다시 켠 뒤, 클럽 무대, 22시): 4곡 모두 🎥이 켜지고 Scriptable 카메라가 컷 목록대로 움직임 — CRASH 4.6초 bust / 19.6초 full, Love 119 50.8초 xwide 크레인, Pop Off 30초 waist, Pretty Girl 12초대 bust. 게임 오류 없음(93308695817877 승인 오류는 상관없음). Studio 원본 = 브랜치 파일(64,080 바이트). 모바일 2P 테스트 전.
 - 모바일 2P 테스트 통과(2026-11-06, Player1 / Player2, 폰 화면 801×413 터치, 클럽 무대, 22시): Player1이 CRASH를 틀고 🎥(ClubStageCam 버튼, SelectedObject + Return)을 켜면 Player1만 Scriptable(FOV 30), 켜지 않은 Player2는 Custom 그대로. Player2도 켜면 자기 아바타를 따라감(44초 bust). 곡을 Pop Off로 바꾸면 Player2 카메라가 새 곡 컷으로 이어짐(FOV 31.9). Player1이 끄면 Custom / FOV 70으로 돌아옴. 스크립트 오류 없음(93308695817877 승인 오류, 테스트 플레이어 아바타 rbxassethash 권한 오류는 상관없음).
+## D-935 오늘 고친 9곡 최종 값과 맞춤 (2026-11-06)
+- 사용자가 오늘 고친 음원 9곡의 최종 lab 값을 보냄("비교 분석해서 다른 부분 수정해"). git(catalog-ui-redesign)과 Studio 둘 다 같은 5곳이 달라 고침:
+  - A2O LITE-NEON 140713297574648: boost3 5 추가.
+  - ILLIT-체포하겠어 139044453511745: tempo 0.335 → 0.333 (61초 3배 파일, 들리는 길이 ≈ 3:03).
+  - IOI-갑자기 75344866720031: boost3 3 추가.
+  - NCT WISH-I SPY 98124521559769: boost3 5 추가.
+  - CORTIS-REDRED 76034005809699: boost3 5 추가.
+- Get A Guitar / Love 119 / LOVE-ATTACK / ANIMAL은 이미 같음. 보낸 줄에 없는 `engine = "sound"`는 그대로 둠. Play로 들어 보지는 않음.
+
+## D-943 새 음원 8곡 EQ low -34 / mid -20 / high -34 (2026-11-06)
+- 사용자(표 사진: Get A Guitar 70738014182544, Love 119 85204387077332, NEON 140713297574648, LOVE-ATTACK 139330220515727, 갑자기 75344866720031, I SPY 98124521559769, REDRED 76034005809699, ANIMAL 94774089824958): "사진 속 음원들 설정값 수정 low = -34, mid = -20, high = -34".
+- 각 곡의 lab에서 low / mid / high만 바꿈(다른 값 그대로). feat/songs-1106c(D-935) 위에서 작업. RIIZE-Love 119 (설정2, D-942)는 표에 없어 그대로.
+  - RIIZE-Get A Guitar 70738014182544: `low = -3, mid = 0, high = -28` → low -34 / mid -20 / high -34
+  - RIIZE-Love 119 85204387077332: `low = 0, mid = 0, high = -28` → low -34 / mid -20 / high -34
+  - A2O LITE-NEON 140713297574648: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
+  - RESCENE-LOVE-ATTACK 139330220515727: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
+  - IOI-갑자기 75344866720031: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
+  - NCT WISH-I SPY 98124521559769: `low = 0, mid = 0, high = -23` → low -34 / mid -20 / high -34
+  - CORTIS-REDRED 76034005809699: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
+  - BOYNEXTDOOR-ANIMAL 94774089824958: `low = 0, mid = 0, high = -20` → low -34 / mid -20 / high -34
+- (D-943 이어서) 사용자 "러브어택 부스트3 다른 곡이랑 통일": RESCENE-LOVE-ATTACK boost3 5 (다른 새 음원과 같게; 갑자기만 3). 같은 때 "love 119 설정용 삭제": D-942의 RIIZE-Love 119 (설정2)는 Studio에서 지우고 feat/love119-b-1106은 머지하지 않음.
+- (D-943 이어서, 2026-11-07) 사용자 "러브 119 볼륨 부스터 3을 5면 3으로 수정": RIIZE-Love 119 boost3 5 → 3.
