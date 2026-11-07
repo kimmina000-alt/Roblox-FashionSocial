@@ -3605,3 +3605,13 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - NEON 0:50 / 2:33, Love 119 시작을 안무가 멈춰 있는 시간(안무 편집 세션이 잼)에 맞춰 take로 바꿈. PC Play에서 카메라 거리 / 각도 기록으로 확인. 자세한 값: DECISIONS D-963.
 - IOI-갑자기 무대 카메라: 음악중심 영상, 원곡 mp3 소리 + 안무 포즈로 영상 = 곡 − 0.3초, 컷 목록 자동 135컷 (D-969).
 - aespa-Lemonade / YENA-Catch Catch 무대 카메라: 원곡 mp3 대신 연습 영상 소리로 시작 지점, 컷 목록 자동 (D-971).
+
+### 2026-11-07 전체 머지 + 모바일 2인 테스트
+- 사용자: "2인 테스트하고 머지해" (관리 세션: 모든 작업 세션 브랜치 포함).
+- 머지한 브랜치 14개: feat/eq-34-1106(feat/songs-1106c 포함), feat/dj-window-1106, feat/pillar-fit-1106, fix/locker-ambience-1106, fix/name-tag-size-1107, feat/eat-motion-1107, feat/glow-rainbow-1107, fix/banner-arrow-1107, feat/plate-place-1107(fix/table-food-tap-1107, feat/food-place-1107 포함), feat/club-vip-bar-1107, feat/choreo-fixes-1107, feat/choreo-batch-1106, feat/bad-backup-1107, feat/stage-camera-edits-1107. 안 넣은 것: feat/love119-b-1106(비교용, 버림), lab/turntable-1106(테스트 장소), feat/ispy-choreo-1105 · feat/genie-choreo-1105(예전 브랜치).
+- 충돌: ClubPlaylist의 RIIZE-Love 119 · IOI-갑자기 lab 줄(EQ -34/-20/-34, boost3 3)과 안무 목록 → 둘 다 살림. CHOREOGRAPHY.md §14(백업)와 §15~17 → 둘 다. dj-window의 D-933/D-934는 boost3/boost4가 이미 써서 D-940/D-941로.
+- Studio를 머지 결과와 맞춤(129개 스크립트 비교: ClubCamera에 Lemonade · Catch Catch 카메라 넣음, 나머지는 주석 차이).
+- 모바일 2인 테스트(서버 + Player1/Player2, 801×413, 터치, 22시): 스크립트 오류 0. 바 선반(검은 얇은 판, 칸막이, 아래 칸 버켓, 두 번째 칸 병, 배너 <), 두 화면 음악 위치 차이 0.02초, Player1(DJ)이 IOI-갑자기 재생 → 두 화면 모두 같은 안무 조각(3번, 차이 0.08초), 🎥 무대 카메라 켜짐, 이름표 작은 크기. 국밥집: 수육 접시 놓기 → 한 점 받기 → Player1이 먹을 때 Player2 화면에서 고기가 입 앞 0.2, 수육 소리 10 × 그룹 10. 순간이동하다 의자에 앉은 채로는 안무가 안 시작됨(정상 동작).
+- 남은 것: 클라이언트 경고 rbxassetid://93308695817877 "Asset is not approved"(코드에 없는 장소 에셋), 폰 실제 터치(끌어서 놓기)는 사용자 확인.
+
+![바 선반 P1](images/2026-11-07/2p_bar_p1.jpg) ![IOI P1](images/2026-11-07/2p_ioi_p1.jpg) ![IOI P2](images/2026-11-07/2p_ioi_p2.jpg) ![무대 카메라 P2](images/2026-11-07/2p_stagecam_p2.jpg)
