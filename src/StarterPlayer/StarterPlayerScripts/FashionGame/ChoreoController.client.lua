@@ -249,6 +249,9 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 		if here then
 			local before = lastHips[t]
 			lastHips[t] = here
+			-- (D-962) a `warp` or a `hold` letting go jumped the piece to another
+			-- moment: no travel for that jump
+			if following.seeked then before = nil end
 			-- (a jump in the track's time, e.g. re-synced to the song: no move)
 			if before and (here - before).Magnitude < 1.5 and not staying then
 				move += (here - before) * math.min(t.WeightCurrent, 1)
@@ -260,6 +263,7 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 			end
 		end
 	end
+	following.seeked = nil
 	local worldMove = root.CFrame:VectorToWorldSpace(move * travelScale)
 	-- (D-817, user: "쏠림만 빼기 … 이걸로 한번 보자") the pieces add up to a
 	-- drift one way (Get A Guitar: about 30 studs over the song), so the dancer
@@ -277,6 +281,14 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 		local away = (root.Position - home) * Vector3.new(1, 0, 1)
 		worldMove -= away * math.min(dt / settle, 1) * travelling
 	end
+	-- (D-966, user: "캐릭터 위치 갑자기 이동하면 이상해 보임 … 1 스터드도 티 날 것
+	-- 같아") a capture's hips that dash (13 stud/s in a frame, NEON 0:49 / 0:55)
+	-- move the body at most 8 stud/s; the rest follows over the next frames
+	following.moveDebt = (following.moveDebt or Vector3.zero) + worldMove
+	local most = 8 * dt
+	worldMove = if following.moveDebt.Magnitude > most then following.moveDebt.Unit * most else following.moveDebt
+	following.moveDebt -= worldMove
+	if following.moveDebt.Magnitude > 3 then following.moveDebt = Vector3.zero end -- (not a backlog)
 	if worldMove.Magnitude < 1e-4 then return end
 	local target = root.Position + worldMove
 	if not ClubConfig.isInClub(target) then return end
@@ -300,12 +312,14 @@ end
 -- seconds. A cross-fade between two poses nearly back to back flips the body
 -- round in a frame; this sets the hips' facing itself instead.
 local turnFixes: {[string]: { prev: string, seconds: number, easeOut: boolean }} = {}
+local prevPiece: {[string]: string} = {} -- (D-962, spin `fromPrev`)
 for _, t in ipairs(ClubConfig.Playlist) do
 	local before: string? = nil
 	for _, entry in ipairs(t.choreo or {}) do
 		local id = "rbxassetid://" .. tostring(if typeof(entry) == "table" then entry.id else entry)
 		local fixes = ClubConfig.ChoreoFixes and ClubConfig.ChoreoFixes[tonumber(id:match("%d+")) or 0]
 		if fixes and fixes.turn and before then turnFixes[id] = { prev = before, seconds = fixes.turn, easeOut = fixes.turnEase == "out" } end
+		if before and before ~= id then prevPiece[id] = before end
 		before = id
 	end
 end
@@ -321,19 +335,38 @@ local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {Animation
 		-- 94° in one keyframe, then slows) turns evenly instead, starting
 		-- gently and ending at full speed, from its facing at `from` to `to`
 		-- (only while that piece plays alone: the next one's `turn` takes over)
-		local spin = id and t.WeightCurrent > 0.99 and ChoreoSmooth.fixes(id)
-		spin = spin and spin.spin
+		local spins = id and t.WeightCurrent > 0.01 and ChoreoSmooth.fixes(id)
+		spins = spins and spins.spin
 		-- (a piece waits on its last pose until the next one starts, D-798: the
 		-- spin keeps going with the clock meanwhile, so it does not stall)
 		local at = t.TimePosition
-		if spin and at >= t.Length - 0.06 and FashionGame:GetAttribute("ClubMusicPaused") ~= true then
+		if spins and at >= t.Length - 0.06 and FashionGame:GetAttribute("ClubMusicPaused") ~= true then
 			spinWait[t] = spinWait[t] or os.clock()
 			at += os.clock() - spinWait[t]
 		else
 			spinWait[t] = nil
 		end
-		if spin and at >= spin.from and at <= spin.to + 0.1 then
+		-- (D-962) a list of spins; `fromPrev` starts from where the piece before
+		-- ended (a spin over the seam), even while the two still blend
+		local spin = nil
+		if spins then
+			for _, s in ipairs(if spins.from then { spins } else spins) do
+				if at >= s.from and at <= s.to + 0.1 and (t.WeightCurrent > 0.99 or s.fromPrev) then spin = s break end
+			end
+		end
+		if spin then
 			local a, b = ChoreoSmooth.facing(id, spin.from), ChoreoSmooth.facing(id, spin.to)
+			if spin.fromPrev and prevPiece[id] then
+				ChoreoSmooth.load(prevPiece[id])
+				a = ChoreoSmooth.endFacing(prevPiece[id])
+				-- (the two pieces count their turns apart: the way round is
+				-- `dir`, +1 or -1, plus `turns`)
+				if a and b then
+					local d = (b - a) % (2 * math.pi)
+					if spin.dir and spin.dir < 0 then d -= 2 * math.pi end
+					b = a + d
+				end
+			end
 			if a and b then
 				-- (D-873) `turns`: whole turns to add, for a capture that turned
 				-- half way and back where the dancer spins all the way round;
@@ -369,6 +402,52 @@ local function turnHips(joint: Motor6D | AnimationConstraint, tracks: {Animation
 	end
 end
 
+-- (D-966, user: "모든 안무에서 프레임 뚝뚝 끊기는 부분들 부드럽게 … 액션 크고
+-- 확실하게") a joint that jumps in one frame (a capture keyframe gap, a seam,
+-- a fix stepping in) far faster than it has been moving is carried over a
+-- few frames instead: each frame a joint may turn at most max(360°/s, 1.6x
+-- its speed of the last ~0.1 s) and move max(6, 1.6x) stud/s, and what is
+-- left over comes in the next frames. A move that speeds up over a few
+-- frames passes as it is (the limit rises with it) and every move still
+-- reaches its full pose, so actions keep their size. ChoreoFixes `sharp`
+-- turns it off for a piece (BAD 21's chest pops are meant to snap).
+-- (NEON 0:48: an upper arm 34° in one frame among 11° ones passed at 2.5x)
+local SNAP_TURN, SNAP_MOVE, SNAP_FACTOR = math.rad(360), 6, 1.6
+local snapState: {[Model]: {[any]: { cf: CFrame, turn: number, move: number }}} = setmetatable({}, { __mode = "k" }) :: any
+local function limitSnaps(character: Model, choreo: {AnimationTrack}, dt: number)
+	if RunService:IsStudio() and FashionGame:GetAttribute("ChoreoSnapOff") then snapState[character] = nil return end
+	for _, t in ipairs(choreo) do
+		local fixes = t.WeightCurrent > 0.5 and t.Animation and ChoreoSmooth.fixes(t.Animation.AnimationId)
+		if fixes and fixes.sharp then snapState[character] = nil return end
+	end
+	dt = math.max(dt, 1 / 240)
+	local state = snapState[character]
+	if not state then state = {} snapState[character] = state end
+	for _, j in pairs(bodyJoints(character)) do
+		local target = j.Transform
+		local s = state[j]
+		if not s then
+			state[j] = { cf = target, turn = 0, move = 0 }
+		else
+			local _, angle = (s.cf:Inverse() * target):ToAxisAngle()
+			local turn = math.abs(angle) / dt
+			local move = (target.Position - s.cf.Position).Magnitude / dt
+			local turnLimit = math.max(SNAP_TURN, s.turn * SNAP_FACTOR)
+			local moveLimit = math.max(SNAP_MOVE, s.move * SNAP_FACTOR)
+			local f = 1
+			if turn > turnLimit then f = turnLimit / turn end
+			if move > moveLimit then f = math.min(f, moveLimit / move) end
+			local shown = if f < 1 then s.cf:Lerp(target, f) else target
+			j.Transform = shown
+			-- (the speed shown, over about 0.1 s)
+			local k = math.min(dt * 10, 1)
+			s.turn += (math.min(turn, turnLimit) - s.turn) * k
+			s.move += (math.min(move, moveLimit) - s.move) * k
+			s.cf = shown
+		end
+	end
+end
+
 -- after the animator, before the frame is drawn
 RunService.PreSimulation:Connect(function(dt)
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -396,9 +475,10 @@ RunService.PreSimulation:Connect(function(dt)
 						for _, j in pairs(joints) do pose[j] = j.Transform end
 						following.heldPose = pose
 					elseif following.unheldAt and following.heldPose then
-						local f = (os.clock() - following.unheldAt) / 0.25
+						-- (D-962) `hold.ease` / `warp.ease` seconds, 0.25 if not given
+						local f = (os.clock() - following.unheldAt) / (following.easeSeconds or 0.25)
 						if f >= 1 then
-							following.unheldAt, following.heldPose = nil, nil
+							following.unheldAt, following.heldPose, following.easeSeconds = nil, nil, nil
 						else
 							f = f * f * (3 - 2 * f)
 							for _, j in pairs(joints) do
@@ -407,7 +487,15 @@ RunService.PreSimulation:Connect(function(dt)
 							end
 						end
 					end
+					-- (D-962) the pose drawn this frame, to ease from when a `warp`
+					-- makes the piece jump to another moment
+					local last = {}
+					for _, j in pairs(joints) do last[j] = j.Transform end
+					following.lastPose = last
 				end
+				limitSnaps(character, choreo, dt)
+			else
+				snapState[character] = nil
 			end
 		end
 	end
@@ -530,6 +618,9 @@ local function startFollowing(track: ClubConfig.Track)
 		local slowOut = if typeof(entry) == "table" and typeof(entry.slowOut) == "table" then entry.slowOut else nil
 		local animation = Instance.new("Animation")
 		animation.AnimationId = "rbxassetid://" .. tostring(id)
+		-- (D-962) read every piece's path now: a spin or turn over a seam needs
+		-- the next piece's facing the moment it starts (it took about 0.4 s)
+		ChoreoSmooth.load(animation.AnimationId)
 		local ok, loaded = pcall(function() return anim:LoadAnimation(animation) end)
 		if ok and loaded then
 			loaded.Priority = Enum.AnimationPriority.Action2
@@ -746,10 +837,46 @@ RunService.PreAnimation:Connect(function()
 	local holds = fixes and fixes.hold
 	if holds then
 		for _, hold in ipairs(if holds.from then { holds } else holds) do
-			if t >= hold.from and t < hold.to then held = true t = hold.from break end
+			if t >= hold.from and t < hold.to then held = true t = hold.from following.holdEase = hold.ease break end
 		end
 	end
-	if following.held and not held then following.unheldAt = os.clock() end
+	-- (D-962, user: NEON 0:04 "팔 내리면서 뒤도는 거 슬로우 걸어서 자연스럽게
+	-- 이어지게", Get A Guitar 1:38 / 1:52 slower knee and leg moves without the
+	-- dance falling behind) ChoreoFixes `warp = { { from, to, play = { a, b } } }`:
+	-- the stretch from..to of the piece's own clock plays the animation's a..b
+	-- instead (slower or faster); a stretch that starts somewhere else eases
+	-- in from the last pose over `ease` seconds
+	local warps = not held and fixes and fixes.warp
+	local warpedBy = nil
+	if warps then
+		for _, w in ipairs(if warps.from then { warps } else warps) do
+			if t >= w.from and t < w.to then
+				local k = (w.play[2] - w.play[1]) / (w.to - w.from)
+				t = w.play[1] + (t - w.from) * k
+				rate *= k
+				warpedBy = w
+				break
+			end
+		end
+	end
+	local forceSeek = false
+	if following.warpedBy ~= warpedBy then
+		-- (a jump to another moment of the animation eases from the pose drawn)
+		local jump = following.playing == seg and math.abs(seg.TimePosition - t) > 0.1
+		forceSeek = following.playing == seg
+		if jump then following.seeked = true end
+		if jump and following.lastPose then
+			following.heldPose = following.lastPose
+			following.unheldAt = os.clock()
+			following.easeSeconds = (warpedBy and warpedBy.ease) or (following.warpedBy and following.warpedBy.ease) or 0.25
+		end
+		following.warpedBy = warpedBy
+	end
+	if following.held and not held then
+		following.unheldAt = os.clock()
+		following.easeSeconds = following.holdEase
+		following.seeked = true
+	end
 	following.held = held
 	if following.playing ~= seg then
 		-- (D-807) the last pose eases into the first one over the entry's
@@ -760,7 +887,7 @@ RunService.PreAnimation:Connect(function()
 		following.playing = seg
 		following.speed = nil
 		seg.TimePosition = t
-	elseif math.abs(seg.TimePosition - t) > (if held then 0.01 else 0.3) then
+	elseif forceSeek or math.abs(seg.TimePosition - t) > (if held then 0.01 else 0.3) then
 		seg.TimePosition = t
 	end
 	-- (D-798) a segment a moment ahead of the song holds its last pose
