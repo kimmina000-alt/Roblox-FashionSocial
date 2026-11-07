@@ -577,6 +577,24 @@ M.ChoreoFixes = {
 	-- 자세에서 다음 걷는 안무로 자연스럽게 이어지도록") the first pose is held still
 	-- (the capture sways 20° and shifts) until the walk (2) blends in over 0.9 s
 	[116659270658163] = { hold = { from = 0, to = 3.6 } },
+	-- IOI-갑자기 (D-996, the user's list of 2026-11-08, play-bar times = song seconds, rate 1.001)
+	-- 3 (from 8.5) "0:10 떨어": the legs smoothed through 9.0-12.5
+	[140529283375287] = { steady = { from = 0.5, to = 4.0, parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }, passes = 8 } },
+	-- 10 (from 74.7) "1:20 부터 걷는 모션 상체가 뒤로 기울어서 이상함. 기본 걷는 모션으로": the
+	-- upper body leaned back up to 42° at 75.9-78.9 and through the walk to 81.1: straight up
+	[104001486192661] = { torsoUp = { from = 0.9, to = 6.6, ease = 0.4 } },
+	-- 11 (from 83.07) "1:26 떨어": the left foot and the body shook at 85.9
+	[71879139866517] = { steady = { { from = 2.3, to = 3.8, parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }, passes = 8 }, { from = 2.6, to = 3.3, passes = 8 } } },
+	-- 18 / 19 (from 140.7 / 143.7) "2:21 다리 떨어", "2:23 회전 두 번으로 끊기면서 도는 것처럼 보임
+	-- 한 번 도는 동작으로": 18 twisted 105° one way and back (141.0-142.8) and 19 flicked
+	-- round 190° with a wobble in its blend: 18 keeps its facing (legs smoothed), 19
+	-- turns once, the way the capture went, from where 18 ended
+	[118835663786601] = { spin = { from = 0.3, to = 2.95, ease = "both" }, steady = { from = 0.3, to = 3.0, parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }, passes = 8 } },
+	[136490889932903] = { spin = { from = 0, to = 0.6, fromPrev = true, dir = -1, ease = "both" } },
+	-- 21 (from 149.7) "2:42 팔 들면서 바들바들 떨어": the arms smoothed 159-163.6
+	[123714434236489] = { steady = { from = 9.3, to = 13.9, parts = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }, passes = 8 } },
+	-- 25 (from 180.7) "3:02 걸어갈 때 상체 뒤로 눕는 거 수정": straight up through the walk
+	[129257680770934] = { torsoUp = { from = 0.3, to = 6.0, ease = 0.4 } },
 	-- 6 (D-962, user: 0:32 "회전 한 바퀴 자연스럽게"): 5 ends turning (-92° → -176°
 	-- in its last 0.9 s) and 6 starts at +15°, blending over 1 s (the blend
 	-- turned the short way back, 178° in a frame): one even turn on the same
@@ -840,6 +858,8 @@ M.ChoreoGlideStill = {
 	[99354632184083] = { { 0.5, 1.1 } },
 	-- YENA-Catch Catch (D-968, Play scan 0:39 SLIDE 1.1 stud)
 	[98514844125325] = { { 2.4, 3.1 } },
+	-- IOI-갑자기 7 / 8 (D-996, user: "0:56 캐릭터 이동"): the body slid at song 55.7-57.1
+	[84783409830169] = { { 9.5, 10.5 } }, [76645919052139] = { { 0, 0.9 } },
 	-- aespa-Lemonade 5 / 6 (D-988, user: "0:39에서 캐릭터 이동 보임"): the body slid 1 stud at song
 	-- 37.6-38.2 and 40.4-40.6 with the feet still on the body
 	[139260290712979] = { { 5.6, 6.4 } }, [131526768823490] = { { 1.1, 1.6 } },

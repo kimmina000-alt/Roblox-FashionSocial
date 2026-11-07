@@ -546,6 +546,47 @@ end
 -- (D-992) per character, per `freeze` stretch: the pose kept
 local frozenPoses: {[Model]: {[any]: {[string]: CFrame}}} = setmetatable({}, { __mode = "k" }) :: any
 
+-- (D-995, user: 갑자기 2:05 "땅 밑으로 내려감 / 모든 안무 땅 뚫고 내려가면 안 됨") after each
+-- frame the lowest point of a dancing body is compared with the floor under it;
+-- whatever went below it lifts the hips by that much from the next frame on
+-- (at once going up, easing back down when there is room again)
+local floorLift: {[Model]: number} = setmetatable({}, { __mode = "k" }) :: any
+local floorCache: {[Model]: { y: number, at: number }} = setmetatable({}, { __mode = "k" }) :: any
+local LOW_PARTS = { "LeftFoot", "RightFoot", "LeftLowerLeg", "RightLowerLeg", "LeftUpperLeg", "RightUpperLeg",
+	"LeftHand", "RightHand", "LeftLowerArm", "RightLowerArm", "LowerTorso", "UpperTorso", "Head" }
+local dancingNow: {[Model]: boolean} = setmetatable({}, { __mode = "k" }) :: any
+RunService.Heartbeat:Connect(function()
+	for character in pairs(dancingNow) do
+		local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if not root or not character.Parent then dancingNow[character] = nil continue end
+		local cached = floorCache[character]
+		if not cached or os.clock() - cached.at > 0.25 then
+			local params = RaycastParams.new()
+			params.FilterType = Enum.RaycastFilterType.Exclude
+			local skip = {}
+			for _, p in ipairs(Players:GetPlayers()) do if p.Character then table.insert(skip, p.Character) end end
+			params.FilterDescendantsInstances = skip
+			params.RespectCanCollide = true
+			local hit = workspace:Raycast(root.Position, Vector3.new(0, -14, 0), params)
+			cached = { y = if hit then hit.Position.Y else -math.huge, at = os.clock() }
+			floorCache[character] = cached
+		end
+		local low = math.huge
+		for _, name in ipairs(LOW_PARTS) do
+			local part = character:FindFirstChild(name) :: BasePart?
+			if part then
+				local cf, size = part.CFrame, part.Size
+				local half = math.abs(cf.RightVector.Y) * size.X / 2 + math.abs(cf.UpVector.Y) * size.Y / 2 + math.abs(cf.LookVector.Y) * size.Z / 2
+				low = math.min(low, part.Position.Y - half)
+			end
+		end
+		local lift = floorLift[character] or 0
+		local target = math.max(0, lift + (cached.y - 0.05) - low)
+		if target > lift then lift = target else lift += (target - lift) * 0.12 end
+		floorLift[character] = if lift < 0.005 then nil else lift
+	end
+end)
+
 -- after the animator, before the frame is drawn
 RunService.PreSimulation:Connect(function(dt)
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -576,7 +617,9 @@ RunService.PreSimulation:Connect(function(dt)
 				smoothJoints(character, choreo)
 				turnHips(joint, choreo)
 				local hips = joint.Transform
-				joint.Transform = CFrame.new(0, hips.Y, 0) * hips.Rotation
+				-- (D-995) lifted off the floor if the body went into it last frame
+				dancingNow[character] = true
+				joint.Transform = CFrame.new(0, hips.Y + (floorLift[character] or 0), 0) * hips.Rotation
 				-- (D-992, user: Lemonade 2:17 "자세를 기본으로 누운 다음, 다른 곳 움직이지
 				-- 말고 왼쪽 다리만 쭉 뻗는 걸로") ChoreoFixes `freeze = { from, to, ease?,
 				-- except = { parts } }`: the pose at `from` is kept for every joint but
@@ -642,6 +685,8 @@ RunService.PreSimulation:Connect(function(dt)
 				limitSnaps(character, choreo, dt)
 			else
 				snapState[character] = nil
+				dancingNow[character] = nil
+				floorLift[character] = nil
 			end
 		end
 	end
