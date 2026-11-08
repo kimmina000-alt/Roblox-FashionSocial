@@ -41,6 +41,51 @@ local retargets: {[string]: Retarget} = {}
 
 local ChoreoSmooth = {}
 
+-- (D-985, user: Catch Catch "전체적으로 좌우 반전") a song with `mirror = true`
+-- dances its pieces as their mirror image: the keyframes are read with left and
+-- right swapped and turned across the body's own left / right plane, so the
+-- clean-ups, the travel path and the facing are all of the mirrored dance, and
+-- ChoreoController mirrors the animator's pose the same way each frame
+local mirrored: {[number]: boolean} = {}
+for _, track in ipairs(ClubConfig.Playlist or {}) do
+	if track.mirror and track.choreo then
+		for _, entry in ipairs(track.choreo) do
+			local id = if typeof(entry) == "table" then entry.id else entry
+			if typeof(id) == "number" then mirrored[id] = true end
+		end
+	end
+end
+-- (D-1000) a song's `frontLock = { snap, keep }` for each of its pieces
+-- (D-1001, user: "모든 안무에 적용 … 앞으로 추가하는 안무에도 필수 적용") every choreography
+-- song uses ClubConfig.ChoreoFrontLock unless it gives its own (false turns it off)
+local frontLocks: {[number]: any} = {}
+for _, track in ipairs(ClubConfig.Playlist or {}) do
+	local lock = (track :: any).frontLock
+	if lock == nil then lock = ClubConfig.ChoreoFrontLock end
+	if lock and track.choreo then
+		for _, entry in ipairs(track.choreo) do
+			local id = if typeof(entry) == "table" then entry.id else entry
+			if typeof(id) == "number" then frontLocks[id] = lock end
+		end
+	end
+end
+function ChoreoSmooth.frontLock(animationId: string): any
+	return frontLocks[tonumber(animationId:match("%d+")) or 0]
+end
+function ChoreoSmooth.isMirrored(animationId: string): boolean
+	return mirrored[tonumber(animationId:match("%d+")) or 0] == true
+end
+-- a joint pose seen in a mirror across the body's left / right plane (local x → −x)
+function ChoreoSmooth.mirrorPose(t: CFrame): CFrame
+	local x, y, z, r00, r01, r02, r10, r11, r12, r20, r21, r22 = t:GetComponents()
+	return CFrame.new(-x, y, z, r00, -r01, -r02, -r10, r11, r12, -r20, r21, r22)
+end
+function ChoreoSmooth.otherSide(name: string): string
+	if name:find("Left") then return (name:gsub("Left", "Right")) end
+	if name:find("Right") then return (name:gsub("Right", "Left")) end
+	return name
+end
+
 local function step(a: CFrame, b: CFrame): Vector3
 	local axis, angle = (a.Rotation:Inverse() * b.Rotation):ToAxisAngle()
 	return axis * math.deg(angle)
@@ -193,6 +238,28 @@ local function shaky(poses: {CFrame}, times: {number}, settings: {[string]: numb
 	return out
 end
 
+-- (D-984) each pose averaged with the poses within 3 sigma seconds either side,
+-- weighted exp(-d²/2σ²); `turnOnly` keeps each pose's own position (the hips' travel)
+local function dejitter(poses: {CFrame}, times: {number}, sigma: number, turnOnly: boolean): {CFrame}
+	local out = {}
+	local reach = 3 * sigma
+	for k = 1, #poses do
+		local mean, total = poses[k], 1
+		local function add(i: number)
+			local d = times[i] - times[k]
+			local w = math.exp(-(d * d) / (2 * sigma * sigma))
+			total += w
+			mean = mean:Lerp(poses[i], w / total)
+		end
+		local i = k - 1
+		while i >= 1 and times[k] - times[i] <= reach do add(i) i -= 1 end
+		i = k + 1
+		while i <= #poses and times[i] - times[k] <= reach do add(i) i += 1 end
+		out[k] = if turnOnly then CFrame.new(poses[k].Position) * mean.Rotation else mean
+	end
+	return out
+end
+
 function ChoreoSmooth.load(animationId: string)
 	if cache[animationId] then return end
 	cache[animationId] = {}
@@ -219,6 +286,16 @@ function ChoreoSmooth.load(animationId: string)
 				end
 			end
 		end
+		-- (D-985) a mirrored song: each part's poses become the other side's, mirrored
+		if ChoreoSmooth.isMirrored(animationId) then
+			local swapped = {}
+			for part, s in pairs(series) do
+				local m = {}
+				for k, c in ipairs(s.raw) do m[k] = ChoreoSmooth.mirrorPose(c) end
+				swapped[ChoreoSmooth.otherSide(part)] = { times = s.times, raw = m }
+			end
+			series = swapped
+		end
 		local hips = series.LowerTorso
 		if hips then
 			local at, facing = {}, {}
@@ -237,13 +314,18 @@ function ChoreoSmooth.load(animationId: string)
 		local final: {[string]: {CFrame}} = {} -- (each part's poses after the clean-up, D-843)
 		for part, s in pairs(series) do
 			final[part] = s.raw
-			local cleaned = if settings then clean(s.raw, settings.maxStep, settings.passes) else nil
+			-- (D-998, user: "떨림에서 손목이랑 발목만 예외로" → "손목·발목은 다듬지 않기") the wrists and
+			-- ankles keep their own small moves: none of the automatic clean-ups below
+			-- touch the parts in ClubConfig.ChoreoKeepDetail (a `steady` the user asked
+			-- for still does)
+			local keep = ClubConfig.ChoreoKeepDetail ~= nil and table.find(ClubConfig.ChoreoKeepDetail, part) ~= nil
+			local cleaned = if settings and not keep then clean(s.raw, settings.maxStep, settings.passes) else nil
 			-- (D-851) pieces the user saw tremble: the slower wobble too
-			if fixes and fixes.calm and ClubConfig.ChoreoCalm and part ~= "LowerTorso" then
+			if fixes and fixes.calm and ClubConfig.ChoreoCalm and part ~= "LowerTorso" and not keep then
 				cleaned = calm(cleaned or s.raw, s.raw, ClubConfig.ChoreoCalm) or cleaned
 			end
 			-- (D-881) whatever still shakes, found by itself in every piece
-			if ClubConfig.ChoreoShake and part ~= "LowerTorso" then
+			if ClubConfig.ChoreoShake and part ~= "LowerTorso" and not keep then
 				cleaned = shaky(cleaned or s.raw, s.times, ClubConfig.ChoreoShake) or cleaned
 			end
 			-- (D-840) a spot the user picked (a shaky arm): these parts smoothed
@@ -268,6 +350,17 @@ function ChoreoSmooth.load(animationId: string)
 					end
 					cleaned = out
 				end
+			end
+			-- (D-984, user: Catch Catch 2:35 "벌벌 떨어. 떠는 이유가 뭐야. 프레임 끊기는 거임?
+			-- 이런 부분 모두 찾아서 수정해") the tremble left was the hips: the clean-ups
+			-- above all skip LowerTorso, and a few degrees of hip wobble swing the
+			-- feet 0.1-0.3 studs out and back in 3-4 frames. Every part, the hips'
+			-- turn too (not their travel), is averaged with its neighbours in time
+			-- (Gaussian, ClubConfig.ChoreoDejitter.sigma s, centred so nothing lags);
+			-- the beat-sized moves keep their size, the 6-10 per-second wobble goes
+			local dj = ClubConfig.ChoreoDejitter
+			if dj and dj.sigma > 0 and not (fixes and fixes.sharp) and not keep then
+				cleaned = dejitter(cleaned or s.raw, s.times, dj.sigma, part == "LowerTorso")
 			end
 			if cleaned then
 				final[part] = cleaned
@@ -386,7 +479,7 @@ end
 local function angles(a: {number}): CFrame
 	return CFrame.Angles(math.rad(a[1]), math.rad(a[2]), math.rad(a[3]))
 end
-function ChoreoSmooth.pose(animationId: string, t: number): ({[string]: CFrame}?, {[string]: CFrame}?, number)
+function ChoreoSmooth.pose(animationId: string, t: number): ({[string]: CFrame}?, {[string]: CFrame}?, number, {[string]: number}?)
 	local fixes = ChoreoSmooth.fixes(animationId)
 	-- (D-860) `pose` may be a list of poses for different stretches
 	local list = fixes and fixes.pose
@@ -412,6 +505,11 @@ function ChoreoSmooth.pose(animationId: string, t: number): ({[string]: CFrame}?
 	for part, value in pairs(a.set or {}) do
 		set[part] = angles(value):Lerp(angles((b.set or {})[part] or value), k)
 	end
+	-- (D-988) a part first set by the next key fades in from the dance on the way
+	local fade = {}
+	for part, value in pairs(b.set or {}) do
+		if not set[part] and b.t > a.t then set[part] = angles(value) fade[part] = k end
+	end
 	local add = {}
 	for part, value in pairs(pose.add or {}) do add[part] = angles(value) end
 	-- (D-860) keys may carry their own `add` turns, eased between keys too
@@ -425,7 +523,7 @@ function ChoreoSmooth.pose(animationId: string, t: number): ({[string]: CFrame}?
 		local shift = CFrame.new(Vector3.new(value[1], value[2], value[3]):Lerp(Vector3.new(other[1], other[2], other[3]), k))
 		add[part] = if add[part] then add[part] * shift else shift
 	end
-	return set, add, f * f * (3 - 2 * f)
+	return set, add, f * f * (3 - 2 * f), fade
 end
 
 function ChoreoSmooth.correction(animationId: string, part: string, t: number): CFrame?

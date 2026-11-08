@@ -217,4 +217,50 @@ _G.scanAll = function(list)
 	return "started"
 end
 
+-- (D-984, user: "2:35 벌벌 떨어 … 프레임 끊기는 거임? 이런 부분 모두 찾아서 수정해 …
+-- 제대로 확인해") what the eye sees: a hand, foot, the head or the chest that
+-- goes out and comes back within three frames. Joint-angle counts (TREM /
+-- SHAKE above) missed the hips: a few degrees of hip wobble swing the feet
+-- 0.1-0.3 studs. _G.scan(fromSong, toSong) after _G.go(index, fromSong - 1):
+-- events where |p(t) - (p(t-1) + p(t+1)) / 2| > 0.03 stud and the motion turns
+-- back, grouped per part (within 0.6 s); listed when 3+ in a group or one
+-- over 0.1 stud. Frames after a hitch (dt > 0.05) are skipped. Clean dancing
+-- gives single events; a tremble gives groups (Catch Catch 2:37 before
+-- D-984: RightFoot x7 0.08).
+_G.scan = function(s0, s1)
+	local ch = game.Players.LocalPlayer.Character
+	local parts = { "LeftFoot", "RightFoot", "LeftHand", "RightHand", "Head", "UpperTorso" }
+	local hist, ev = {}, {}
+	local hb = game:GetService("RunService").Heartbeat
+	local t0 = os.clock()
+	while os.clock() - t0 < 48 do
+		local dt = hb:Wait()
+		local s = _G.song()
+		if s > s1 then break end
+		if dt > 0.05 then hist = {} end
+		if s >= s0 then
+			for _, n in ipairs(parts) do
+				local h = hist[n] or {}
+				hist[n] = h
+				table.insert(h, ch[n].Position)
+				if #h > 3 then table.remove(h, 1) end
+				if #h == 3 then
+					local d = h[2] - (h[1] + h[3]) / 2
+					if d.Magnitude > 0.03 and (h[2] - h[1]):Dot(h[3] - h[2]) < 0 then table.insert(ev, { s, n, d.Magnitude }) end
+				end
+			end
+		end
+	end
+	local out, last = {}, {}
+	for _, e in ipairs(ev) do
+		local g = last[e[2]]
+		if g and e[1] - g.t1 < 0.6 then g.t1 = e[1] g.n += 1 g.max = math.max(g.max, e[3])
+		else g = { t0 = e[1], t1 = e[1], n = 1, max = e[3], part = e[2] } last[e[2]] = g table.insert(out, g) end
+	end
+	local lines = {}
+	for _, g in ipairs(out) do if g.n >= 3 or g.max > 0.1 then table.insert(lines, string.format("%.1f-%.1f %s x%d %.2f", g.t0, g.t1, g.part, g.n, g.max)) end end
+	table.sort(lines)
+	return #ev .. " events; notable:\n" .. table.concat(lines, "\n")
+end
+
 return "play_record ready"

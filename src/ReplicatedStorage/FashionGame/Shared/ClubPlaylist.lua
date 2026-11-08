@@ -173,11 +173,13 @@ M.Playlist = {
 		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
 		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+		-- (D-985, user: "전체적으로 좌우 반전") the pieces come from the mirrored video: danced as their mirror image
+		mirror = true,
 		-- D-968: CatchCatch 1..23 (3, 6, 15, 19, 22 = re-uploads 2026-11-07; the first uploads were copies of the piece before).
 		-- Practice video 49NEjM_fJcc, video = song - 0.70 s (game song at 0-20 s and 150-170 s), `at` = clip start + 0.70
 		choreo = { { id = 75443608985712, at = 0.7 }, { id = 75353020147525, at = 5.53, blend = 1 }, { id = 98063579481098, at = 7.03, blend = 1 },
 		{ id = 98686361929027, at = 18.27, blend = 0.75 }, { id = 112551530516434, at = 28.7, blend = 0.73 }, { id = 98514844125325, at = 36.5, blend = 0.61 },
-		{ id = 74567972410299, at = 48.27 }, { id = 110540650870002, at = 62.77 }, { id = 130984178299080, at = 76.97, blend = 0.62 },
+		{ id = 74567972410299, at = 48.27, blend = 0.6 }, { id = 110540650870002, at = 62.77 }, { id = 130984178299080, at = 76.97, blend = 0.62 },
 		{ id = 128412578867487, at = 83.03 }, { id = 122624428391289, at = 92.97, blend = 0.5 }, { id = 126013496400815, at = 96.83, blend = 0.6 },
 		{ id = 107833429874111, at = 98.17, blend = 0.83 }, { id = 138852020855643, at = 104.4, blend = 0.42 }, { id = 133140087774108, at = 110.9 },
 		{ id = 109149196328464, at = 123.03, blend = 1 }, { id = 113094829637212, at = 124.5, blend = 0.81 }, { id = 86199642425885, at = 128.87, blend = 1 },
@@ -213,14 +215,18 @@ M.Playlist = {
 	{ channel = "K-POP", title = "ALLDAY PROJECT - NO 한도", soundId = 81251273866025, length = 131.699, fileSpeed = 1.101,
 		lab = { speed = 1, tempo = 0.908, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
-		-- D-970: Lemonade_v2 1..22 without 8 (its upload is a copy of 7), 20 and 21 (no upload): default dance in their spots.
+		-- (D-992, user: "안무 추면서 이동해도 결국 처음 서 있던 위치를 중심으로 두고 끝나면 돌아오게 … 레모네이드에만 먼저"):
+		-- the travel eases back toward the start in 2.5 s (instead of 8) and the dancer glides home over 1.5 s at the end
+		home = { settle = 2.5, back = 1.5 },
+		-- D-970: Lemonade_v2 1..22 (20 and 21 uploaded D-979; D-982: 2:17-2:26 = the red-box floor member's clip 113734305009959 at 136.22 in place of clip 17, clip 16 stops there); clip 8 = re-upload 99169381541568 (D-978, the first one was a copy of 7).
 		-- Clip 1 = mirror cover b3C-M5lDRHE (video = song + 1.45 s, `from = 1.45`); clips 2..22 = practice video NJx2IGeS8CQ (video = song + 1.08 s, `at` = clip start - 1.08)
-		choreo = { { id = 76917634239098, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92 },
+		choreo = { { id = 76917634239098, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
 		{ id = 123559029471758, at = 22.84 }, { id = 139260290712979, at = 31.92, blend = 1 }, { id = 131526768823490, at = 39.2 },
-		{ id = 99422937735141, at = 47.49, blend = 0.51 }, { id = 100397079318559, at = 67.05 }, { id = 135759185323713, at = 76.35 },
+		{ id = 99422937735141, at = 47.49, blend = 0.51, stop = 55.75 }, { id = 99169381541568, at = 55.92, blend = 0.35, slowIn = { 0.35, 0.17 } }, { id = 100397079318559, at = 67.05 }, { id = 135759185323713, at = 76.35, slowOut = { 0.4, 0.15 } },
 		{ id = 83846438884132, at = 85.92, blend = 1 }, { id = 138502286160157, at = 94.39, blend = 1 }, { id = 107439323698577, at = 100.92, blend = 0.81 },
-		{ id = 138612452549442, at = 111.39, blend = 0.43 }, { id = 118124487485279, at = 114.92, blend = 0.75 }, { id = 82680550952125, at = 127.65, blend = 0.43 },
-		{ id = 132337331292488, at = 137.92, blend = 0.47 }, { id = 76195346888656, at = 145.92, blend = 1 }, { id = 116980798181063, at = 150.92, blend = 0.88 },
+		{ id = 138612452549442, at = 111.39, blend = 0.43 }, { id = 118124487485279, at = 114.92, blend = 0.75 }, { id = 82680550952125, at = 127.65, blend = 0.43, stop = 136.22 },
+		{ id = 113734305009959, at = 136.22, blend = 0.5 }, { id = 76195346888656, at = 145.92, blend = 1 }, { id = 116980798181063, at = 150.92, blend = 0.88 },
+		{ id = 118071176218932, at = 160.92, blend = 0.5 }, { id = 76826604804095, at = 168.42, blend = 0.5 },
 		{ id = 89070118321317, at = 177.49 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "IVE-Mirror", soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
@@ -370,7 +376,7 @@ M.Playlist = {
 	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 94774089824958, length = 136.107, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.958, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
 		-- D-916: ANIMAL1..25 (practice video Gl1VZ3UPeZU, video = song - 0.23 s, `at` = clip start + 0.23)
-		choreo = { { id = 129402890751712, at = 0.23 }, { id = 80772039533772, at = 2.03, blend = 0.73 }, { id = 112166541341442, at = 4.51, blend = 0.74 },
+		choreo = { { id = 129402890751712, at = 0.23 }, { id = 80772039533772, at = 1.88, blend = 0 }, { id = 112166541341442, at = 4.51, blend = 0.74 },
 		{ id = 80410028707124, at = 6.36, blend = 0.48 }, { id = 105018508412110, at = 11.01, blend = 1 }, { id = 130036196270388, at = 13.41, blend = 1 },
 		{ id = 106354393645678, at = 18.91, blend = 1 }, { id = 78895444151768, at = 27.9, blend = 0.61 }, { id = 97744184558515, at = 29.03, blend = 0.95 },
 		{ id = 136955392986245, at = 39.86, blend = 0.66 }, { id = 100329215645751, at = 43.98 }, { id = 78840320722064, at = 53.01, blend = 0.45 },
