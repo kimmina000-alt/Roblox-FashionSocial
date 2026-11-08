@@ -2809,25 +2809,32 @@ do
 		-- runs on the cells that are not lawn
 		local CELL = 2
 		local PAVE2 = Color3.fromRGB(226, 216, 190)
+		-- (D-1015, user 2026-11-08: "광화문 앞에 땅 수정했거든. 수정한 값 저장해" /
+		-- "광화문 앞에 땅 수정하고 빈 부분 옆에 잔디 땅으로 채워") the paving in front
+		-- of the gate is the user's one slab, made by hand in Studio in place of the
+		-- 2-stud runs (which reached the sidewalk and left a bare triangle when cut
+		-- back); every yard cell it does not cover all over is lawn
+		local slab = part("PlazaStone", Vector3.new(113, 0.3, 115), CFrame.new(122.77281188964844, 0.15000000596046448, 174.6353759765625,
+			0.8701031804084778, 0, -0.4928695857524872, 0, 1, 0, 0.4928695857524872, 0, 0.8701031804084778), PAVE2, { parent = G, material = Enum.Material.Slate })
+		slab.CastShadow = false
+		local function covered(x: number, z: number): boolean
+			for _, c in ipairs({ { -1, -1 }, { 1, -1 }, { -1, 1 }, { 1, 1 } }) do
+				local lp = slab.CFrame:PointToObjectSpace(Vector3.new(x + c[1] * CELL / 2, slab.Position.Y, z + c[2] * CELL / 2))
+				if math.abs(lp.X) > slab.Size.X / 2 or math.abs(lp.Z) > slab.Size.Z / 2 then return false end
+			end
+			return true
+		end
 		for x = 47 + CELL / 2, 277 - CELL / 2, CELL do
 			local runStart, runLawn = nil, nil
 			local function close(zEnd)
 				if runStart == nil then return end
 				if runLawn then
 					T2:FillBlock(CFrame.new(x, -2, (runStart + zEnd) / 2), Vector3.new(CELL, 4, zEnd - runStart), Enum.Material.Grass)
-				else
-					local p = box("PlazaStone", x - CELL / 2, 0, runStart, x + CELL / 2, 0.3, zEnd, PAVE2, { parent = G, material = Enum.Material.Slate })
-					p.CastShadow = false
 				end
 			end
 			for z = 47, 387 - CELL, CELL do
 				local zc = z + CELL / 2
-				local lawn = false
-				if inside(x, zc) then
-					local rel = Vector3.new(x, 0, zc) - GATE_C
-					local al, ou = rel:Dot(GATE_ALONG), rel:Dot(GATE_OUT)
-					lawn = not (math.abs(al) < GATE_HL + 0.5 and ou > -GATE_HD - 1)
-				end
+				local lawn = inside(x, zc) and not covered(x, zc)
 				if runStart == nil or lawn ~= runLawn then close(z) runStart, runLawn = z, lawn end
 			end
 			close(387)

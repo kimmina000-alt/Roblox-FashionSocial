@@ -38,9 +38,6 @@ export type Track = {
 	-- (D-726) dance the choreography by itself: everyone in the club standing
 	-- still (not seated, not in a menu dance) follows it while the song plays
 	autoChoreo: boolean?,
-	-- (D-1010, user 2026-11-08: "음원 잠금") shown with 🔒 in the music window, never
-	-- played: not by the DJ, not requested or queued, left out of the rotation
-	locked: boolean?,
 }
 export type Lab = {
 	speed: number, tempo: number, volume: number, boost: number, octave: number,
@@ -147,8 +144,6 @@ M.Playlist = {
 		{ id = 98754942494305, at = 161.5, blend = 0.6 }, { id = 105066453794976, at = 170.27, blend = 0.49 }, { id = 130670560182985, at = 171.27, blend = 0.6 },
 		{ id = 125902811896005, at = 179.22, blend = 1 }, { id = 105428606733839, at = 188.56, blend = 0.84 }, { id = 127287424998997, at = 200.44, blend = 0.71 },
 		{ id = 115574620758490, at = 201.47, blend = 0.48 }, { id = 127828014236660, at = 210.11, blend = 0.94 } }, autoChoreo = true },
-	-- (D-1010, user 2026-11-08: "음원 잠금") 🔒 in the music window, not played, requested or queued
-	{ channel = "K-POP", title = "현아-Bubble Pop", locked = true, soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
 	-- (D-919, user 2026-11-06: new upload, tuned in the lab; was 91762270038050, a 3× file of 53.553 s)
 	-- the D-919 file 133586602463513 was the same edit at 1.0908× (3 × 53.553 ÷ 147.285; loudness of both matched,
 	-- same start, no drift), so `at` and the stage camera keep the old song clock
@@ -211,13 +206,6 @@ M.Playlist = {
 		{ id = 73949956743570, at = 121, blend = 1, stop = 128.6 }, { id = 89344916640647, at = 128.5, blend = 0.45, slowOut = { 0.5, 0.33 } }, { id = 110910446284849, at = 130.27, blend = 0.49 }, { id = 114010461044470, at = 131.5, blend = 0.58 },
 		{ id = 115248452065042, at = 143.2 }, { id = 124345431625014, at = 151.73 }, { id = 108680095506820, at = 162.33, blend = 0.61 },
 		{ id = 127455820218376, at = 169.73, blend = 0.42 } }, autoChoreo = true },
-	-- (D-1010, user 2026-11-08: "음원 잠금") 🔒 in the music window, not played, requested or queued
-	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", locked = true, soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
-	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);
-	-- fileSpeed 1: a track with `lab` counts as a 3× upload otherwise (ClubConfig.fileSpeed)
-	-- (D-1010, user 2026-11-08: "음원 잠금") 🔒 in the music window, not played, requested or queued
-	{ channel = "K-POP", title = "Hearts2Hearts-Next Chapter", locked = true, soundId = 113170325006427, length = 172.366, fileSpeed = 1,
-		lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	-- (D-921, user 2026-11-06: "지금까지 추가한 거 오후에 전달") 4 uploads from the lab, values as saved there;
 	-- length = file seconds. Each file runs about 1.1× the song: fileSpeed = song length ÷ file length
 	-- (song lengths in whole seconds, only the choreography / stage camera clock uses it: measure it,
@@ -242,8 +230,6 @@ M.Playlist = {
 		{ id = 113734305009959, at = 136.22, blend = 0.5 }, { id = 76195346888656, at = 145.92, blend = 1 }, { id = 116980798181063, at = 150.92, blend = 0.88 },
 		{ id = 118071176218932, at = 160.92, blend = 0.5 }, { id = 76826604804095, at = 168.42, blend = 0.5 },
 		{ id = 89070118321317, at = 177.49 } }, autoChoreo = true },
-	-- (D-1010, user 2026-11-08: "음원 잠금") 🔒 in the music window, not played, requested or queued
-	{ channel = "K-POP", title = "IVE-Mirror", locked = true, soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
 	-- (D-922, user 2026-11-06: new upload from the lab; was 97511700575810, a 3× file of 73.770 s) the new
 	-- file is the same edit at 1.1000× (3 × 73.770 ÷ 201.19; loudness of both matched, start -0.03 s, no
@@ -342,8 +328,6 @@ M.Playlist = {
 		{ id = 123714434236489, at = 149.7, blend = 0.99 }, { id = 111512315445927, at = 163.7, blend = 0.64 }, { id = 92331354114542, at = 166.7, blend = 1 },
 		{ id = 82782712192367, at = 172.7, blend = 1 }, { id = 129257680770934, at = 180.7 } }, autoChoreo = true },
 	-- (D-768, user 2026-11-03: new uploads; tempo = x1 length ÷ heard length 3:20 / 3:05)
-	-- (D-1010, user 2026-11-08: "음원 잠금") 🔒 in the music window, not played, requested or queued
-	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", locked = true, soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-929, user 2026-11-06: "I SPY 새 음원 98124521559769") was 90694654380166, a 3× file of 61.695 s:
 	-- the new 176.273 s file = 3 × 61.695 ÷ 176.273 = 1.0500 faster than the song; tempo 0.953 × 1.05 = 1.001.
 	-- `at` and the stage camera (D-913) keep the song clock

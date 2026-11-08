@@ -822,6 +822,10 @@ if L and not L:FindFirstChild("ClubBedFill") then
 			copy:SetAttribute("PropId", nil)
 			local p = tree:GetPivot()
 			copy:PivotTo(p + Vector3.new(c.X - p.Position.X, 0, -190 - p.Position.Z))
+			-- (D-1015, user 2026-11-08: "스튜디오에서 나무 위치 수정 … 수정한 값 저장해")
+			-- moved by hand in Studio to z -173.3, where the street's own tree was taken out
+			copy:PivotTo(CFrame.new(26.88549041748047, 0.8497123718261719, -173.347412109375,
+				-0.6020119190216064, 0, 0.79848712682724, 0, 1, 0, -0.79848712682724, 0, -0.6020119190216064))
 			copy.Parent = fill
 		end
 		table.insert(log, "club beds 2 (" .. #group .. " pieces each)" .. (if tree then ", tree at -190" else ""))

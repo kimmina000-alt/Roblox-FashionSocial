@@ -170,3 +170,15 @@ local LAB = {
 | RESCENE-LOVE-ATTACK (새 음원) | 139330220515727 | 172.955 | 1.05 | tempo 0.956, boost 10, boost2 5, octave 1, high -20 |
 | NCT WISH-I SPY (새 음원) | 98124521559769 | 176.273 | 1.05 | tempo 0.953, boost 10, boost2 5, octave 1, high -23 |
 | A2O LITE-NEON (새 음원) | 140713297574648 | 210.771 | 1.05 | tempo 0.954, boost 10, boost2 5, octave 1, high -20 |
+
+## 뺀 곡 (D-1016, 2026-11-08: 잠금 기능 삭제와 함께)
+D-1010에서 잠갔던 다섯 곡. 다시 넣을 때는 아래 줄을 ClubPlaylist.lua에 그대로 넣으면 돼요.
+
+```lua
+	{ channel = "K-POP", title = "현아-Bubble Pop", locked = true, soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
+	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", locked = true, soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	{ channel = "K-POP", title = "Hearts2Hearts-Next Chapter", locked = true, soundId = 113170325006427, length = 172.366, fileSpeed = 1,
+		lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "IVE-Mirror", locked = true, soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", locked = true, soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+```
