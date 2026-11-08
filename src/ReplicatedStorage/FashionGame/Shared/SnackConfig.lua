@@ -111,7 +111,12 @@ SnackConfig.Shops = {
 			{ key = "bananamilk", name = "바나나우유", kind = "bottle", color = Color3.fromRGB(255, 225, 110), coins = 3, section = "💰 3" },
 			{ key = "soda", name = "탄산음료 캔", kind = "bottle", color = Color3.fromRGB(220, 50, 60), coins = 3, section = "💰 3" },
 			{ key = "samgak", name = "삼각김밥", kind = "rice", color = Color3.fromRGB(250, 250, 245), coins = 3, section = "💰 3" },
-			{ key = "cupnoodle", name = "컵라면", kind = "noodle", color = Color3.fromRGB(240, 80, 50), coins = 4, bites = 3, section = "💰 4" }, -- (D-1053: the user's model, three bites)
+			-- (D-1053: the user's four cup ramen models, three bites each; "cupnoodle"
+			-- kept as the key of the first so bags saved before still give one back)
+			{ key = "cupnoodle", name = "맵라면", kind = "noodle", color = Color3.fromRGB(225, 40, 35), coins = 4, bites = 3, section = "💰 4" },
+			{ key = "ramen_sesame", name = "참깨라멘", kind = "noodle", color = Color3.fromRGB(190, 215, 60), coins = 4, bites = 3, section = "💰 4" },
+			{ key = "ramen_lava", name = "용암꼬꼬면", kind = "noodle", color = Color3.fromRGB(40, 35, 35), coins = 4, bites = 3, section = "💰 4" },
+			{ key = "ramen_yukgae", name = "육개그", kind = "noodle", color = Color3.fromRGB(200, 120, 60), coins = 4, bites = 3, section = "💰 4" },
 		},
 	},
 	-- 국밥집 "오후 돼지국밥" (D-311, D-314): a bowl to eat at the table

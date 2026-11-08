@@ -30,6 +30,7 @@ local DrinkBucket = require(script.Parent.DrinkBucket)
 local BottleShapes = require(FashionGame:WaitForChild("Shared"):WaitForChild("BottleShapes"))
 local SoundConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("SoundConfig"))
 local NpcLooks = require(FashionGame:WaitForChild("Shared"):WaitForChild("NpcLooks"))
+local NpcWander = require(script.Parent:WaitForChild("NpcWander")) -- (D-1055)
 
 local DrinkService = {}
 
@@ -924,6 +925,13 @@ local function spawnStaff(spot: BasePart, name: string, title: string, offset: C
 	prompt.RequiresLineOfSight = false
 	prompt.Parent = root or model.PrimaryPart
 	model.Parent = spot
+	-- (D-1055) the staff walk about their box (the bartender behind the bar, the
+	-- 불꽃 판매원 before the stair hall door, nodding to a beat: NpcNodController)
+	local spec = look and NpcLooks.Looks[look]
+	if styled and spec and spec.wander and humanoid and root and root:IsA("BasePart") then
+		if spec.nod then game:GetService("CollectionService"):AddTag(model, "NodBeat") end
+		task.spawn(NpcWander.run, model, humanoid, root, spot, spec.wander)
+	end
 end
 
 local function spawnBartender(spot: Instance)

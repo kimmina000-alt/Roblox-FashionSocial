@@ -1324,6 +1324,9 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	giveTool(player, makeTool(item))
 	payBeep(player, shop.key)
 	local drink = item.kind == "cup" or item.kind == "bottle"
+	if item.kind == "noodle" then -- (D-1053: its own steps)
+		return true, item.name .. " 나왔어요! 눌러서 뚜껑 열기 → 온수기 눌러 물 붓기 → 10초 뒤에 눌러서 먹어요."
+	end
 	return true, string.format("%s 나왔어요! 클릭(터치)해서 %s. 자리에 앉아서 즐겨도 돼요.", item.name, if drink then "마셔요" else "먹어요")
 end
 

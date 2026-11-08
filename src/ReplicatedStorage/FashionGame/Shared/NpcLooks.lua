@@ -6,7 +6,13 @@
 local Players = game:GetService("Players")
 
 export type Look = {
-	bodyOutfit: number, -- the body bundle's outfit id (body parts + colours)
+	bodyOutfit: number?, -- the body bundle's outfit id (body parts + colours)
+	-- (D-1055) or a whole outfit the user saved in the game's 옷장 (OutfitSnapshot
+	-- JSON: assets, accessories, colours, scales), copied here
+	snapshot: string?,
+	-- walks about a box (NpcWander), in the coordinates of the part it stands on
+	wander: { min: Vector3, max: Vector3, speed: number? }?,
+	nod: boolean?, -- nods its head to a beat while it walks (NpcNodController)
 	head: number?,
 	hair: number?,
 	layered: {{id: number, kind: Enum.AccessoryType}}, -- inside → outside
@@ -99,11 +105,37 @@ NpcLooks.Looks.Guide = {
 	pose = 507766388, -- the standard R15 idle
 }
 
+-- (D-1055) a HumanoidDescription from a saved 옷장 outfit (OutfitSnapshot form)
+local function fromSnapshot(json: string): HumanoidDescription?
+	local ok, snap = pcall(function() return game:GetService("HttpService"):JSONDecode(json) end)
+	if not ok or typeof(snap) ~= "table" then return nil end
+	local d = Instance.new("HumanoidDescription")
+	for property, id in pairs(snap.assets or {}) do
+		pcall(function() (d :: any)[property] = id end)
+	end
+	for property, hex in pairs(snap.colors or {}) do
+		pcall(function() (d :: any)[property] = Color3.fromHex(hex) end)
+	end
+	for property, value in pairs(snap.scales or {}) do
+		pcall(function() (d :: any)[property] = value end)
+	end
+	local list = {}
+	for _, a in ipairs(snap.accessories or {}) do
+		local kind = (Enum.AccessoryType :: any)[a.t]
+		if kind then
+			table.insert(list, { AssetId = a.id, AccessoryType = kind, IsLayered = a.l == true, Order = if a.l then a.o else nil })
+		end
+	end
+	pcall(function() d:SetAccessories(list, true) end)
+	return d
+end
+
 function NpcLooks.describe(key: string): HumanoidDescription?
 	local look = NpcLooks.Looks[key]
 	if not look then return nil end
+	if look.snapshot then return fromSnapshot(look.snapshot) end
 	local ok, description = pcall(function()
-		return Players:GetHumanoidDescriptionFromOutfitId(look.bodyOutfit)
+		return Players:GetHumanoidDescriptionFromOutfitId(look.bodyOutfit :: number)
 	end)
 	if not ok or not description then return nil end
 	if look.head then description.Head = look.head end
@@ -131,5 +163,30 @@ function NpcLooks.describe(key: string): HumanoidDescription?
 	description:SetAccessories(list, true)
 	return description
 end
+
+-- (D-1055, user 2026-11-09: "카탈로그에 있는 \"아랄\", \"마노\" 아바타를 npc로 만들어 줘.
+-- 마노는 불꽃 판매원 npc로 쓰고 아랄은 바텐더로 사용해. 불꽃 판매원이랑 바텐더도
+-- 안내원처럼 주변 배회하는 것처럼 만들어 줘. 바텐더는 바 안에서만 왔다갔다 하고
+-- 불꽃판매원은 박자 타는 것처럼 고개 까딱거리면서 걸어다니게 해") the two outfits
+-- the user saved in the game's 옷장 (Vantablack_Dev), as saved 2026-11-09.
+-- The old looks (Character A based) stay above for the record.
+-- Wander boxes, in BartenderSpot's space (its -Z looks to world +X): the
+-- bartender in the corridor behind the bar (world x 71.5..77.5, z -194..-165),
+-- the seller on the floor before the VIP stair hall door (x 120..136, z -268..-258).
+local MANO = [[{"scales":{"BodyTypeScale":1,"DepthScale":1,"HeadScale":1,"HeightScale":1.05,"WidthScale":1,"ProportionScale":0},"assets":{"RightLeg":78612455851057,"RightArm":99893444151857,"Shirt":79181697649041,"Head":127877713775017,"MoodAnimation":14618207727,"Torso":96849800222415,"LeftArm":119615240551922,"LeftLeg":87648388126478},"accessories":[{"l":false,"id":81925899554541,"t":"Hair","o":0},{"l":false,"id":113547626506365,"t":"Hair","o":0},{"l":true,"id":124097620724692,"t":"Shirt","o":7},{"l":true,"id":89712522411590,"t":"Shirt","o":7},{"l":true,"id":102661930700515,"t":"Pants","o":4},{"l":true,"id":109327049739669,"t":"LeftShoe","o":2},{"l":true,"id":99148738190585,"t":"RightShoe","o":2},{"l":false,"id":83090048744955,"t":"Hat","o":0},{"l":true,"id":95607422794942,"t":"Jacket","o":10},{"l":false,"id":140396507416761,"t":"Hat","o":0},{"l":false,"id":17840354692,"t":"Neck","o":0}],"colors":{"HeadColor":"564236","TorsoColor":"564236","LeftArmColor":"564236","RightLegColor":"564236","LeftLegColor":"564236","RightArmColor":"564236"}}]]
+local ARAL = [[{"scales":{"BodyTypeScale":1,"DepthScale":1,"HeadScale":1,"HeightScale":1.05,"WidthScale":1,"ProportionScale":0},"assets":{"RightLeg":78612455851057,"RightArm":99893444151857,"Shirt":99334947837858,"Head":101658325697467,"MoodAnimation":14618207727,"Torso":96849800222415,"LeftArm":119615240551922,"LeftLeg":87648388126478},"accessories":[{"l":false,"id":89616122151377,"t":"Face","o":0},{"l":false,"id":134721172715164,"t":"Face","o":0},{"l":true,"id":75973424534143,"t":"Shirt","o":4},{"l":false,"id":13905362287,"t":"Neck","o":0},{"l":false,"id":13580738522,"t":"Hair","o":0},{"l":false,"id":107966977497481,"t":"Hat","o":0},{"l":false,"id":109192743730128,"t":"Face","o":0},{"l":true,"id":90193253096556,"t":"TShirt","o":3},{"l":true,"id":120447811356556,"t":"Jacket","o":5},{"l":true,"id":73476274706538,"t":"Pants","o":2},{"l":true,"id":99674854011177,"t":"Shorts","o":1},{"l":false,"id":115502408928745,"t":"Face","o":0}],"colors":{"HeadColor":"eab892","TorsoColor":"eab892","LeftArmColor":"eab892","RightLegColor":"eab892","LeftLegColor":"eab892","RightArmColor":"eab892"}}]]
+NpcLooks.Looks.Bartender = {
+	snapshot = ARAL,
+	pose = NpcLooks.Looks.Bartender.pose,
+	holds = NpcLooks.Looks.Bartender.holds,
+	wander = { min = Vector3.new(-16, 0, -1.5), max = Vector3.new(13, 0, 4.5), speed = 5 },
+}
+NpcLooks.Looks.ItemSeller = {
+	snapshot = MANO,
+	pose = NpcLooks.Looks.ItemSeller.pose,
+	holds = NpcLooks.Looks.ItemSeller.holds,
+	wander = { min = Vector3.new(-90, 0, -60), max = Vector3.new(-80, 0, -44), speed = 6 },
+	nod = true,
+}
 
 return NpcLooks
