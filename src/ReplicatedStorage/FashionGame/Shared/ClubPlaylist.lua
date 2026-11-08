@@ -335,8 +335,9 @@ M.Playlist = {
 	-- the new 176.273 s file = 3 × 61.695 ÷ 176.273 = 1.0500 faster than the song; tempo 0.953 × 1.05 = 1.001.
 	-- `at` and the stage camera (D-913) keep the song clock
 	-- (D-935, user 2026-11-06 final values: boost3 5)
+	-- (D-1047, user 2026-11-09: boost4 5)
 	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 98124521559769, length = 176.273, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34 },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -34, mid = -20, high = -34 },
 		-- D-912: ISPY1..30 (practice video ILeBVk4x_XQ, video = song - 1.50 s; ISPY12 / ISPY15 were uploaded twice, the first id of each is used)
 		choreo = { { id = 83299308409543, at = 1.5 }, { id = 107073213896668, at = 4.9, blend = 0.93 }, { id = 88558817308286, at = 8.82, blend = 0.92 },
 		{ id = 98909637894188, at = 10.3, blend = 0.79 }, { id = 97906912240537, at = 15.32, blend = 0.46 }, { id = 114940315235555, at = 20.78, blend = 0.67 },
