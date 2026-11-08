@@ -656,6 +656,13 @@ M.ChoreoFixes = {
 	-- NCT WISH-I SPY (D-912, the mirrored practice video ILeBVk4x_XQ): `still` where
 	-- the clip's member stands in the video (still_from_video.py)
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
+	-- YENA-Catch Catch v2 centre clips (D-980): Play scan SPIN 641-723°/s, spread evenly
+	[79075546317269] = { spin = { from = 9.2, to = 9.55, ease = "both" } }, -- v2 11 (1:44)
+	[108680095506820] = { spin = { from = 0.65, to = 2.4, ease = "both" } }, -- v2 19 (bar 2:40-2:42; user "2:40초까지 다리 벌벌 떨어": one even turn, the two short ones whipped the legs and hands)
+	[114010461044470] = { spin = { from = 9.3, to = 9.85, ease = "both" }, -- v2 16 (2:21, +140° turn)
+		-- (D-983, user: play bar 2:19 "팔 몸통 통과") the arms folded across the chest at song
+		-- 141.5-142.3 sank into the body: upper arms turned 25° out, 8° open, 10° forward
+		pose = { from = 9.75, to = 12, ease = 0.3, keys = { { t = 9.75, add = { LeftUpperArm = { 10, 25, -8 }, RightUpperArm = { 10, -25, 8 } } } } } },
 	-- YENA-Catch Catch (D-968): Play scan SPIN 626-666°/s = fast real turns (one way, 155-210°), spread evenly
 	[98686361929027] = { spin = { from = 8.6, to = 9.5, ease = "both" } }, -- 4 (0:27)
 	[122624428391289] = { spin = { from = 0.5, to = 1.15, ease = "both" } }, -- 11 (1:34)
@@ -833,6 +840,10 @@ M.ChoreoSlideStill = {
 	[113094829637212] = { { 0.4, 1.0 }, { 2.1, 2.8 }, { 2.9, 3.5 } }, [104636507093618] = { { 1.8, 2.4 } },
 	[116715438780373] = { { 0.0, 1.4 }, { 1.6, 2.2 }, { 5.9, 6.9 } },
 	[98063579481098] = { { 3.3, 3.9 }, { 8.0, 8.6 } },
+	-- YENA-Catch Catch v2 centre clips (D-980)
+	[79075546317269] = { { 5.1, 5.7 }, { 6.0, 6.9 }, { 8.0, 8.6 }, { 10.0, 10.9 }, { 10.9, 11.5 } }, [73949956743570] = { { 5.7, 6.4 }, { 6.4, 7.0 } },
+	[89344916640647] = { { 0.2, 0.8 } }, [124345431625014] = { { 7.4, 8.1 } }, [108680095506820] = { { 5.2, 6.1 } },
+	[127455820218376] = { { 1.2, 1.8 }, { 2.4, 3.4 }, { 4.1, 4.8 } },
 	-- aespa-Lemonade (D-970)
 	[74096523961866] = { { 3.0, 3.8 }, { 4.7, 5.4 } }, [123559029471758] = { { 5.2, 6.5 } }, [139260290712979] = { { 6.5, 7.2 } },
 	[131526768823490] = { { 3.7, 4.4 }, { 6.2, 6.9 } }, [99422937735141] = { { 5.9, 6.8 } }, [100397079318559] = { { 6.3, 7.1 }, { 8.0, 9.3 } },
@@ -876,6 +887,7 @@ M.ChoreoGlideStill = {
 	-- aespa-Lemonade 5 / 6 (D-988, user: "0:39에서 캐릭터 이동 보임"): the body slid 1 stud at song
 	-- 37.6-38.2 and 40.4-40.6 with the feet still on the body
 	[139260290712979] = { { 5.6, 6.4 } }, [131526768823490] = { { 1.1, 1.6 } },
+	[79075546317269] = { { 5.6, 6.2 } }, -- v2 11 (1:40.4 glide, D-980)
 } :: {[number]: {{number}}}
 M.ChoreoAutoSteady = {
 	[118832898913501] = { { 5.5, 6.4 } }, [122624428391289] = { { 2.3, 3.2 } }, [129415986484255] = { { 6.8, 7.7 } },

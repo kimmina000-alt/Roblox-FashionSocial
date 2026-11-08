@@ -180,11 +180,13 @@ M.Playlist = {
 		choreo = { { id = 75443608985712, at = 0.7 }, { id = 75353020147525, at = 5.53, blend = 1 }, { id = 98063579481098, at = 7.03, blend = 1 },
 		{ id = 98686361929027, at = 18.27, blend = 0.75 }, { id = 112551530516434, at = 28.7, blend = 0.73 }, { id = 98514844125325, at = 36.5, blend = 0.61 },
 		{ id = 74567972410299, at = 48.27, blend = 0.6 }, { id = 110540650870002, at = 62.77 }, { id = 130984178299080, at = 76.97, blend = 0.62 },
-		{ id = 128412578867487, at = 83.03 }, { id = 122624428391289, at = 92.97, blend = 0.5 }, { id = 126013496400815, at = 96.83, blend = 0.6 },
-		{ id = 107833429874111, at = 98.17, blend = 0.83 }, { id = 138852020855643, at = 104.4, blend = 0.42 }, { id = 133140087774108, at = 110.9 },
-		{ id = 109149196328464, at = 123.03, blend = 1 }, { id = 113094829637212, at = 124.5, blend = 0.81 }, { id = 86199642425885, at = 128.87, blend = 1 },
-		{ id = 125735897885259, at = 131.9, blend = 1 }, { id = 111787124658928, at = 143.2 }, { id = 104636507093618, at = 149.17, blend = 0.47 },
-		{ id = 139313615573620, at = 161.03 }, { id = 116715438780373, at = 172.17, blend = 0.35 } }, autoChoreo = true },
+		{ id = 128412578867487, at = 83.03, stop = 84.7 },
+		-- D-980: from 1:24 the user's centre picks, new clips YENA_CatchCatch_v2_centercut 10..20 (mirror video, `at` = clip start + 0.70); v2 10 starts at 82.333 but plays
+		-- from 84.7 (`from = 1.67`, piece 10 keeps the user's 1:22-1:23 moves) and its upload ends 2.3 s early (capture lost her in the cluster); the gap 92.36-94.63 is a short clip of the same moves (132719886087176, from 1.0, 3.23 s); v2 16 = re-upload 114010461044470 (the first upload was a copy of 15)
+		{ id = 74369407507020, at = 84.7, from = 1.67, blend = 1 }, { id = 132719886087176, at = 92.36, from = 1.0 }, { id = 79075546317269, at = 94.63 }, { id = 88923183102495, at = 107.77 },
+		{ id = 73949956743570, at = 121, blend = 1, stop = 128.6 }, { id = 89344916640647, at = 128.5, blend = 0.45, slowOut = { 0.5, 0.33 } }, { id = 110910446284849, at = 130.27, blend = 0.49 }, { id = 114010461044470, at = 131.5, blend = 0.58 },
+		{ id = 115248452065042, at = 143.2 }, { id = 124345431625014, at = 151.73 }, { id = 108680095506820, at = 162.33, blend = 0.61 },
+		{ id = 127455820218376, at = 169.73, blend = 0.42 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-920, user 2026-11-06: "템포 1로 해서 오후에 넘겨") an x1 upload (172.366 s = the 2:52 song), the lab values as saved (changed by the user the same day: volume 10 / boost 10 / boost2 5);
 	-- fileSpeed 1: a track with `lab` counts as a 3× upload otherwise (ClubConfig.fileSpeed)
