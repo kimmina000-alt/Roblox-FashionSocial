@@ -458,9 +458,10 @@ local ASSET_FOODS: {[string]: {any}} = {
 	yakgwa = { "Cookie", 0.7 },       -- #20
 	-- (D-1065) the user's 삼각김밥 (samgaggimbab_chamchi / _bibim.glb, Foods.SamgakTunaBites /
 	-- SamgakBibimBites: Bite1 = the wrapper, Bite2..4 = the bites), stood up from lying flat;
-	-- the store's Onigiri before (#23)
-	samgak = { "SamgakTuna", 0.85, CFrame.Angles(math.rad(90), 0, 0) },
-	samgak_bibim = { "SamgakBibim", 0.85, CFrame.Angles(math.rad(90), 0, 0) },
+	-- the store's Onigiri before (#23); -90 = the point up and the label the right
+	-- way round (checked in Play)
+	samgak = { "SamgakTuna", 0.85, CFrame.Angles(math.rad(-90), 0, 0) },
+	samgak_bibim = { "SamgakBibim", 0.85, CFrame.Angles(math.rad(-90), 0, 0) },
 	chips = { "Chips", 0.95 },        -- #32
 	soda = { "Can", 0.8 },            -- #36
 	icebar = { "IceBar", 1.1 },       -- #42
