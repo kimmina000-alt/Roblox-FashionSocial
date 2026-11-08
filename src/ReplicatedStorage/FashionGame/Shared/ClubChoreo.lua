@@ -75,6 +75,15 @@ M.ChoreoDriftReturn = 8 :: number?
 --     with their own `add` turns (eased between keys), D-860
 --   (steady without `parts` = the whole body, D-852)
 M.ChoreoFixes = {
+	-- Hearts2Hearts-Lemon Tang (D-1040): Play scan SPIN 617-777°/s, each turn made one even turn
+	-- (song times; yaw read every 0.08 s in Play). 9 (1:00.7): over its 1 s blend the hips went
+	-- 72° one way and 240° back: one turn from where 8 ended. 17 (1:48.9): a full turn with a
+	-- stop half way. 21 (2:07.6): 20 turns into it, 323° over the seam; 21 again at 2:20.5
+	-- (139.6-140.85). 23 (2:28.1): 400° in 1.5 s with a lurch
+	[115675906513114] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = 1, ease = "both" } }, -- 9
+	[86206068065508] = { spin = { from = 0, to = 1.4, fromPrev = true, dir = 1, turns = 1, ease = "both" } }, -- 17
+	[115787352538480] = { spin = { { from = 0, to = 0.9, fromPrev = true, dir = 1, ease = "both" }, { from = 12.55, to = 13.8, ease = "both" } } }, -- 21
+	[99840608563579] = { spin = { from = 2.7, to = 4.25, ease = "both" } }, -- 23
 	-- ATEEZ-BAD 2 (D-994): Play scan SPIN 642°/s at 1:43, a 270° turn (song 102.8-103.9) spread evenly
 	[114907255207310] = { spin = { from = 8.15, to = 9.25, ease = "both" } }, -- 14
 	-- IVE-Looks Can Kill (D-871, from the practice video LvRTCcTPgsY): `still`
@@ -769,6 +778,11 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- Hearts2Hearts-Lemon Tang (D-1040)
+	[100331751999626] = { { 1.9, 2.6 }, { 2.7, 3.4 } }, [70997868814427] = { { 4.7, 5.5 }, { 6.7, 7.3 } }, [94645609133900] = { { 0.5, 1.1 }, { 3.7, 4.4 } },
+	[124676885767926] = { { 0.9, 1.5 } }, [119643676032061] = { { 3.0, 3.8 } }, [88699205496882] = { { 8.0, 8.6 } }, [125963510042067] = { { 0.0, 0.5 } },
+	[81450928736064] = { { 0.7, 1.4 } }, [77958598718744] = { { 0.3, 1.3 } }, [83504291197334] = { { 0.1, 0.7 } }, [115787352538480] = { { 9.3, 10.0 } },
+	[99840608563579] = { { 1.4, 2.2 }, { 5.1, 5.8 } }, [134866535240552] = { { 0.2, 0.8 } },
 	-- ATEEZ-BAD 2 (D-994)
 	[101690327843945] = { { 0.4, 1.0 } }, [106954590912232] = { { 5.1, 5.8 } }, [73352408497618] = { { 6.7, 7.4 } },
 	[91647545899849] = { { 2.9, 3.6 }, { 5.5, 6.6 } }, [86108317246080] = { { 2.0, 3.3 }, { 4.2, 4.9 } },
@@ -903,6 +917,8 @@ end
 -- it (or slides with both feet still) → `still`; ChoreoAutoSteady = a held
 -- pose with 10-16 turn-backs in 0.5 s → `steady` (passes 8). Piece seconds.
 M.ChoreoGlideStill = {
+	-- Hearts2Hearts-Lemon Tang (D-1040, Play scan 1:20.0 SLIDE 0.5 stud, feet still)
+	[110925421163686] = { { 6.9, 7.5 } },
 	-- ATEEZ-BAD 2 (D-994, Play scan 0:13.45 glide 1.0 stud with feet 0.1, 0:54.61 1.0 with 0.2)
 	[101690327843945] = { { 9.4, 10.0 } }, [86108317246080] = { { 1.5, 2.1 } },
 	[101676644495491] = { { 4.8, 5.4 } }, [104212164342204] = { { 4.4, 5.0 }, { 5.8, 6.4 }, { 11.0, 11.6 } },
@@ -953,6 +969,24 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- Hearts2Hearts-Lemon Tang (D-1040; practice video 9nZuuZRsDfo, clips 2..27). Not set: 4 / 16
+	-- (spread 22-26°), 9 / 20 / 27 (under 12 front frames), 6 / 10 / 13 / 22 (under 6°)
+	[100331751999626] = -7, -- clip 2 (52 front frames, capture +7°, spread 4°)
+	[131067900968920] = -25, -- 3 (40, +25°, 11°; same member, front at 0.3-3.0 s by eye)
+	[70997868814427] = 6, -- 5 (21, -6°, 16°)
+	[124676885767926] = -12, -- 7 (48, +12°, 7°)
+	[72328693870219] = -10, -- 8 (59, +10°, 10°)
+	[74892270940916] = -16, -- 11 (17, +16°, 8°)
+	[119643676032061] = -8, -- 12 (63, +8°, 8°)
+	[88699205496882] = -16, -- 14 (44, +16°, 7°)
+	[112515342357817] = -10, -- 17 (30, +10°, 6°)
+	[125963510042067] = 11, -- 18 (17, -11°, 2°)
+	[86206068065508] = 9, -- 19 (35, -9°, 6°)
+	[77958598718744] = -8, -- 21 (28, +8°, 5°)
+	[115787352538480] = -11, -- 23 (100, +11°, 12°)
+	[97075080696819] = -8, -- 24 (20, +8°, 13°)
+	[99840608563579] = -12, -- 25 (28, +12°, 12°)
+	[134866535240552] = -8, -- 26 (66, +8°, 5°)
 	-- aespa-Lemonade (practice video NJx2IGeS8CQ, clips 2..22; clip 1 / 17b other videos)
 	[74096523961866] = -11, -- 3 (40 front frames, capture +11°, spread 15°; re-measured with the member followed)
 	[123559029471758] = 13, -- 4 (39 front frames, capture -13°, spread 6°)

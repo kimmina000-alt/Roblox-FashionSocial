@@ -56,6 +56,7 @@
 | 27 | izna - ROCK, PAPER, SCISSORS | 132951659748689 | 105.5 | 2:21 | lab tempo 0.748 / volume 10 / boost 10 / boost2 5, fileSpeed ≈ 1.3365 (D-924) |
 | 28 | LISA - Cobra | 95502375387883 | 131.638 | 2:25 | lab tempo 0.908 / volume 10 / boost 10 / boost2 5, fileSpeed ≈ 1.1015 (D-924) |
 | 29 | ALLDAY PROJECT - NO 한도 | 81251273866025 | 131.699 | 2:25 | lab tempo 0.908 / volume 10 / boost 10 / boost2 5, fileSpeed ≈ 1.101 (D-924) |
+| 29-2 | Hearts2Hearts-Lemon Tang | 97032815457241 | 54 | 2:42 | 다시 넣음(D-1040, 잠금 없이). 안무 25개(클립 2~27, 1 · 15번 없음), 자동 🎵, 연습 영상 9nZuuZRsDfo, `at` = 클립 시작(영상 = 곡 + 0.00초), 이음새 blend, 회전 spin 4조각, 정면 faceOffset 16조각 |
 | 30 | aespa-Lemonade | 132067415333401 | 62 | 3:05 | 안무 19개(8 · 20 · 21번 없음), 자동 🎵, 1번 커버 영상(+1.45초) · 2번부터 연습 영상(`at` = 영상 − 1.08초) (D-970) |
 | 31 | IVE-Mirror | 139326796173276 | 67 | 3:20 | |
 | 32 | A2O LITE-NEON (다섯시사십칠분) | 74988982712396 | 201.19 | 3:42 | 새 업로드(D-922, 옛 3배 파일 97511700575810 대신): 원곡의 1.1배 파일(fileSpeed 1.1), lab tempo 0.91 / boost2 5. 22개, 자동 🎵, 이음새 blend (D-809) , 무대 카메라 (D-898) |

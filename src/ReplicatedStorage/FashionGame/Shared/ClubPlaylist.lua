@@ -222,6 +222,22 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	-- (D-923, user 2026-11-06: "오후 전달") 2 more from the lab, the same way as D-921 (fileSpeed = song ÷ file, approximate)
 	-- (D-924, user 2026-11-06: "오후에 전달") 3 more from the lab, the same way as D-921 (fileSpeed = song ÷ file, approximate)
+	-- (D-1040, user 2026-11-09: "레몬탱 안무 추가"; the track taken out in D-1016 is back without
+	-- the lock) LemonTang 2..28 from the practice video 9nZuuZRsDfo (D:\Roblox\영상\
+	-- Hearts2Hearts_LemonTang_centercut): video = song + 0.00 s (game loudness at 60-90 s
+	-- and 124-150 s), so `at` = the clip's start. Clip 1 (0-8.53) has no upload: the default
+	-- dance until 8.53. Clip 15 (92.0-96.23) has none either: 13 holds its last pose. The upload
+	-- ends at 161.9 s (the video runs to 169), so clip 28 (168.45) is left out.
+	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
+		{ id = 100331751999626, at = 8.53 }, { id = 131067900968920, at = 13.02, blend = 1 }, { id = 79127181604364, at = 16.65, blend = 0.8 },
+		{ id = 101333518191621, at = 24.37, blend = 0.8 }, { id = 70997868814427, at = 26.97, blend = 1 }, { id = 94645609133900, at = 40.17, blend = 0.6 },
+		{ id = 124676885767926, at = 49.8, blend = 0.84 }, { id = 72328693870219, at = 56.03, blend = 0.88 }, { id = 115675906513114, at = 60.02, blend = 1 },
+		{ id = 74892270940916, at = 65, blend = 0.94 }, { id = 119643676032061, at = 68, blend = 0.83 }, { id = 110925421163686, at = 73.07, blend = 0.5 },
+		{ id = 88699205496882, at = 81, blend = 1 }, { id = 118088106367753, at = 96.23, blend = 0.77 }, { id = 112515342357817, at = 102.07, blend = 0.7 },
+		{ id = 125963510042067, at = 105, blend = 0.66 }, { id = 86206068065508, at = 108, blend = 0.99 }, { id = 81450928736064, at = 114, blend = 1 },
+		{ id = 77958598718744, at = 116.58, blend = 0.6 }, { id = 83504291197334, at = 119.38, blend = 1 }, { id = 115787352538480, at = 127.05, blend = 0.61 },
+		{ id = 97075080696819, at = 140.88, blend = 1 }, { id = 99840608563579, at = 144.33, blend = 1 }, { id = 134866535240552, at = 151.87, blend = 0.66 },
+		{ id = 98315614070332, at = 159.1, blend = 0.61 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
 		-- (D-992, user: "안무 추면서 이동해도 결국 처음 서 있던 위치를 중심으로 두고 끝나면 돌아오게 … 레모네이드에만 먼저"):
 		-- the travel eases back toward the start in 2.5 s (instead of 8) and the dancer glides home over 1.5 s at the end
