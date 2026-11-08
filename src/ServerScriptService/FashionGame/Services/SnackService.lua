@@ -850,7 +850,7 @@ local function cakeDeco(cake: SnackConfig.Cake, slice: BasePart, centre: CFrame,
 end
 
 -- (D-952) a tap on a shared plate takes a piece (SnackController asks "TakePiece")
-local sharedPlates: {[Model]: (Player) -> ()} = {}
+local sharedPlates: {[Model]: (Player, any) -> ()} = {}
 local PLATE_RADIUS = 1.1 -- (the dish: 2.2 across)
 
 local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item, spot: Vector3?)
@@ -1008,7 +1008,7 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 	local pieceWord = if item.kind == "cake" then "조각" else "점"
 	local baseName = string.gsub(item.name, "%s*%(.*%)", "")
 	local function refresh() end
-	local function take(who: Player)
+	local function take(who: Player, chosen: any)
 		if handsFull(who) then
 			local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
 			if notify then notify:FireClient(who, "Toast", string.format("손에 %d개까지 들 수 있어요. 먼저 드세요!", SnackConfig.MaxCarried)) end
@@ -1017,7 +1017,11 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		local left = (plate:GetAttribute("Servings") :: number) - 1
 		if left < 0 then return end
 		plate:SetAttribute("Servings", left)
-		local piece = table.remove(pieces)
+		-- (D-1035, user 2026-11-09: "순서대로 말고 그릇 위에 있는 바이트 중에 마우스
+		-- 올려서 선택되는 바이트를 먹게 해") the piece pointed at, when it is one of
+		-- this plate's; otherwise the next in line
+		local at = if typeof(chosen) == "Instance" then table.find(pieces, chosen) else nil
+		local piece = if at then table.remove(pieces, at) else table.remove(pieces)
 		local pieceName = piece and piece.Name
 		if piece then piece:Destroy() end
 		-- the lettering goes with the first cut
@@ -1050,13 +1054,14 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 end
 
 -- (D-952) a tap on a shared plate: a piece for whoever tapped, if they are near
-local function takePiece(player: Player, plate: any): (boolean, string?)
+local function takePiece(player: Player, plate: any, piece: any): (boolean, string?)
 	if typeof(plate) ~= "Instance" or not plate:IsA("Model") or not plate.Parent then return false, nil end
 	local take = sharedPlates[plate]
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	if not take or not root then return false, nil end
 	if (root.Position - plate:GetBoundingBox().Position).Magnitude > 12 then return false, "접시 가까이 가 주세요." end
-	take(player)
+	-- (D-1035) the piece tapped / clicked (SnackController), checked by take
+	take(player, if typeof(piece) == "Instance" and piece:IsDescendantOf(plate) then piece else nil)
 	return true, nil
 end
 
@@ -1770,7 +1775,7 @@ function SnackService.Start(economyService: any)
 		if action == "PutDown" then return putDown(player, shopKey, itemKey) end -- (D-950: itemKey = the spot)
 		if action == "Spoon" then return spoonFromTable(player, shopKey) end
 		if action == "PickUp" then return pickUp(player, shopKey) end
-		if action == "TakePiece" then return takePiece(player, shopKey) end -- (D-952)
+		if action == "TakePiece" then return takePiece(player, shopKey, itemKey) end -- (D-952; itemKey = the piece pointed at, D-1035)
 		return false, nil
 	end
 	-- food left on a table goes when its owner leaves

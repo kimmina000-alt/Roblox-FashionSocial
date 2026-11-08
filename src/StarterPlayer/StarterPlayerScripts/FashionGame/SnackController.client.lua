@@ -456,18 +456,42 @@ do
 		end)
 	end
 
+	-- (D-1035, user 2026-11-09: "그릇 위에 있는 바이트 중에 마우스 올려서 선택되는
+	-- 바이트를 먹게 해") a piece of a model plate (수육 Bite1..Bite14) under the
+	-- pointer: that one is taken; on a PC it lights up while the mouse is over it
+	local function pieceOf(part: Instance?): BasePart?
+		if part and part:IsA("BasePart") and part.Name:match("^Bite%d+$") and sharedPlateOf(part) then return part end
+		return nil
+	end
+	local hover = Instance.new("Highlight")
+	hover.Name = "PieceHover"
+	hover.FillColor = Color3.fromRGB(255, 236, 170)
+	hover.FillTransparency = 0.55
+	hover.OutlineColor = Color3.new(1, 1, 1)
+	hover.OutlineTransparency = 0
+	hover.DepthMode = Enum.HighlightDepthMode.Occluded
+
 	-- PC: the silhouette follows the mouse while food is in hand
 	RunService.RenderStepped:Connect(function()
 		if UserInputService.TouchEnabled and not UserInputService.MouseEnabled then return end
 		if heldFood() then
 			showGhost(UserInputService:GetMouseLocation())
-		elseif ghost.Parent then
-			ghost.Parent = nil
+			hover.Parent = nil
+		else
+			if ghost.Parent then ghost.Parent = nil end
+			local hit = rayAt(UserInputService:GetMouseLocation())
+			local piece = hit and pieceOf(hit.Instance)
+			if piece then
+				hover.Adornee = piece
+				hover.Parent = piece
+			elseif hover.Parent then
+				hover.Parent = nil
+			end
 		end
 	end)
 
 	-- one press (mouse button or finger): what it lands on decides
-	type Press = { input: InputObject, start: Vector2, at: number, placed: Model?, plate: Model?, moved: boolean, done: boolean }
+	type Press = { input: InputObject, start: Vector2, at: number, placed: Model?, plate: Model?, piece: BasePart?, moved: boolean, done: boolean }
 	local press: Press? = nil
 	local function pointOf(input: InputObject): Vector2
 		-- (mouse: GetMouseLocation counts the inset like the viewport rays)
@@ -481,7 +505,7 @@ do
 		local hit = rayAt(screen)
 		local placed = hit and placedOf(hit.Instance)
 		if placed and placed:GetAttribute("Owner") ~= player.UserId then placed = nil end
-		local p: Press = { input = input, start = screen, at = os.clock(), placed = placed, plate = hit and sharedPlateOf(hit.Instance), moved = false, done = false }
+		local p: Press = { input = input, start = screen, at = os.clock(), placed = placed, plate = hit and sharedPlateOf(hit.Instance), piece = hit and pieceOf(hit.Instance), moved = false, done = false }
 		press = p
 		if heldFood() then showGhost(screen) end
 		-- a long press on my food on the table takes it back
@@ -522,7 +546,7 @@ do
 		end
 		-- (D-952) a short tap on a shared plate (cake / 수육): a piece of it
 		if p.plate and short and not p.moved and p.plate.Parent then
-			ask("TakePiece", p.plate)
+			ask("TakePiece", p.plate, p.piece) -- (D-1035: the piece tapped, if any)
 			return
 		end
 		local eat = heldAny()

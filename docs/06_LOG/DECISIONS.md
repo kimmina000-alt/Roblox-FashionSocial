@@ -3215,3 +3215,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 확인(Studio Play): 접시 Bite 14개, Servings 14, 누른 순서 Bite1, Bite2 … Bite14, 14번째에 가운데 14번 오브젝트가 젓가락에, 다 먹으면 접시 없어짐. 오류 0.
 
 ![놓인 접시](images/2026-11-09/suyuk14_plate.jpg) ![1번](images/2026-11-09/suyuk14_bite1.jpg) ![14번](images/2026-11-09/suyuk14_bite14.jpg)
+
+## D-1035 수육 조각은 가리킨 것을 집기 (2026-11-09)
+- 사용자: "순서대로 말고 그릇 위에 있는 바이트 중에 마우스 올려서 선택되는 바이트를 먹게 해"
+- SnackController: 모델 접시의 조각(Bite<n>)에 마우스를 올리면 그 조각이 밝게(Highlight, 노란 채움 + 흰 테두리) 보이고, 누르거나(폰은 터치) 한 그 조각을 TakePiece로 보냄. SnackService take(who, chosen): 그 접시의 조각이면 그것을, 아니면 전처럼 다음 순서 것을.
+- 확인(Studio Play, 실제 마우스): Bite7 위에서 Bite7만 밝아짐 → 클릭 → 손에 Bite7, 접시에 1~6, 8~14 남음. 이어 가운데를 클릭 → Bite14. 오류 0.
+
+![가리킨 조각](images/2026-11-09/suyuk_hover.jpg)
