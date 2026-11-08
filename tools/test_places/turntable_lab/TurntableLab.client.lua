@@ -29,11 +29,11 @@ local TRACKS = {
 	{ title = "Disco Inferno", id = 87243738678545 },
 	{ title = "Festival Fever", id = 136228548293465 },
 	{ title = "Euphoria Dance", id = 76814968175069 },
-
+	
 	-- the user's uploads, each with its club value
 	{ title = "ATEEZ-BAD", id = 134942349436280, club = { 0.333, 2.5, 0, 0, 0 } },
 	{ title = "ATEEZ-BAD2", id = 120615582016729, club = { 0.97385, 2.5, 0, 0, 0 } },
-
+	
 	{ title = "소녀시대-소원을 말해봐(Genie)", id = 128270208751659, club = { 0.334, 2.5, -5, 2, 0 } },
 	{ title = "현아-Bubble Pop", id = 76388700698178, club = { 0.333, 2.5, -6, 0.5, -7 } },
 	-- (user 2026-11-06) chosen upload, replaces 133586602463513 / 91762270038050
