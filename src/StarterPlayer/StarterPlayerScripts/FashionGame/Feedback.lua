@@ -310,15 +310,62 @@ if FeedbackConfig.TopButton then
 	end)
 end
 
--- (D-1031, user 2026-11-09: "20분 지나면 의견 묻는 창 다시 띄워") after
--- FeedbackConfig.NudgeMinutes of this visit the window opens by itself, once a
--- visit (the old one-time tip went with every first-time tip, D-850). Not when
--- something was sent already this visit; it waits while another window is open.
+-- (D-1031, user 2026-11-09: "20분 지나면 의견 묻는 창 다시 띄워" / "처음 접속했을
+-- 때 한 번만 띄우고 안 보내도 다음 접속 때 또 띄우지 마") after
+-- FeedbackConfig.NudgeMinutes of a visit the window opens by itself ONCE per
+-- player, ever: saved as the tip "feedbackAsk" (GuideService wallet.tips, player
+-- attribute TipsSeen; the old D-725 tip used the same key, so players who saw
+-- that one are not asked again). Sending anything also counts. It waits while
+-- another window is open.
+local ASK_KEY = "feedbackAsk"
+local guideRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Guide") :: RemoteFunction
+local function asked(): boolean
+	local raw = player:GetAttribute("TipsSeen")
+	if typeof(raw) ~= "string" then return false end
+	local ok, keys = pcall(function() return game:GetService("HttpService"):JSONDecode(raw) end)
+	return ok and typeof(keys) == "table" and table.find(keys, ASK_KEY) ~= nil
+end
+local function markAsked()
+	task.spawn(function() pcall(function() guideRemote:InvokeServer("TipSeen", ASK_KEY) end) end)
+end
+player:GetAttributeChangedSignal("FeedbackSentThisVisit"):Connect(function()
+	if not asked() then markAsked() end
+end)
+
+-- (user: "그냥 끄기 누르면 오른쪽 상단에 있는 버튼 아래 텍스트 안내 문구 띄워 짧게
+-- 활동은 막지 말고") closing the asked window without sending: a short line
+-- under the 💬 button for a few seconds; it takes no taps or clicks
+local function hintUnderButton()
+	local topButton = TopBar.button and TopBar.button(2)
+	local holder = topButton and topButton:FindFirstAncestorOfClass("ScreenGui")
+	if not topButton or not holder then return end
+	local at = topButton.AbsolutePosition - holder.AbsolutePosition
+	local hint = create("TextLabel", {
+		Name = "FeedbackHint", AnchorPoint = Vector2.new(1, 0), Active = false, Interactable = false,
+		Position = UDim2.fromOffset(at.X + topButton.AbsoluteSize.X, at.Y + topButton.AbsoluteSize.Y + 6),
+		Size = UDim2.fromOffset(0, 26), AutomaticSize = Enum.AutomaticSize.X,
+		BackgroundColor3 = Color3.fromRGB(18, 18, 21), BackgroundTransparency = 0.25,
+		Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = Color3.new(1, 1, 1),
+		Text = "의견은 언제든 💬 버튼으로 보낼 수 있어요", ZIndex = 50,
+	}, holder)
+	corner(hint, 13)
+	create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10) }, hint)
+	task.delay(3.5, function() hint:Destroy() end)
+end
+
 if (FeedbackConfig.NudgeMinutes or 0) > 0 then
 	task.delay(FeedbackConfig.NudgeMinutes * 60, function()
 		while Popups.anyOpen() do task.wait(5) end
-		if player:GetAttribute("FeedbackSentThisVisit") or window.Visible then return end
+		if asked() or player:GetAttribute("FeedbackSentThisVisit") or window.Visible then return end
+		markAsked()
 		Feedback.open()
+		-- closed without sending → the hint
+		local sentBefore = player:GetAttribute("FeedbackSentThisVisit") == true
+		window:GetPropertyChangedSignal("Visible"):Once(function()
+			if not window.Visible and not (player:GetAttribute("FeedbackSentThisVisit") == true and not sentBefore) then
+				hintUnderButton()
+			end
+		end)
 	end)
 end
 
