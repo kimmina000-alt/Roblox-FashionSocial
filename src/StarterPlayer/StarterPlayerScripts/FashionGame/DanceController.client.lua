@@ -542,15 +542,25 @@ end
 -- chat was ever opened its size reads 0: then the size it opens with on a
 -- phone held sideways (measured: 89 high, 12 below the top bar).
 local chatWindow = game:GetService("TextChatService"):FindFirstChildOfClass("ChatWindowConfiguration")
+-- (D-1045, user 2026-11-09, PC shot: the banner sat behind the chat's typing
+-- bar) the typing bar is its own box under the messages
+-- (ChatInputBarConfiguration): the lower of the two, as each device lays it out
+local chatInput = game:GetService("TextChatService"):FindFirstChildOfClass("ChatInputBarConfiguration")
 local lastChatBottom: number? = nil
 local function chatWindowBottom(): number?
 	if not chatWindow or not chatWindow.Enabled then return nil end
 	local inset = game:GetService("GuiService"):GetGuiInset().Y
-	local size, pos = chatWindow.AbsoluteSize, chatWindow.AbsolutePosition
-	if size.Y > 0 then
-		lastChatBottom = inset + pos.Y + size.Y
+	local bottom = 0
+	for _, box in ipairs({ chatWindow :: any, chatInput :: any }) do
+		if box then
+			local ok, size, pos = pcall(function() return box.AbsoluteSize, box.AbsolutePosition end)
+			if ok and size.Y > 0 then bottom = math.max(bottom, inset + pos.Y + size.Y) end
+		end
 	end
-	return lastChatBottom or (inset + 12 + 89)
+	if bottom > 0 then lastChatBottom = bottom end
+	-- (never opened yet: where it opens on a phone held sideways, messages 89
+	-- high 12 below the top bar, the typing bar about 40 under them)
+	return lastChatBottom or (inset + 12 + 89 + 40)
 end
 
 local function layoutPanel()
@@ -631,9 +641,13 @@ end
 -- (D-729: the top row's height can change after this ran)
 require(script.Parent:WaitForChild("TopBar")).BottomChanged:Connect(layoutPanel)
 -- (D-1033) the chat window opening, closing or changing size
-if chatWindow then
-	chatWindow:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutPanel)
-	chatWindow:GetPropertyChangedSignal("AbsolutePosition"):Connect(layoutPanel)
+for _, box in ipairs({ chatWindow :: any, chatInput :: any }) do
+	if box then
+		pcall(function()
+			box:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutPanel)
+			box:GetPropertyChangedSignal("AbsolutePosition"):Connect(layoutPanel)
+		end)
+	end
 end
 
 --------------------------------------------------
