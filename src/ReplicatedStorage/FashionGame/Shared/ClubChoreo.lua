@@ -668,7 +668,21 @@ M.ChoreoFixes = {
 	[122624428391289] = { spin = { from = 0.5, to = 1.15, ease = "both" } }, -- 11 (1:34)
 	[126013496400815] = { spin = { from = 0.6, to = 1.27, ease = "both" } }, -- 12 (1:38, to the piece end)
 	[107833429874111] = { spin = { from = 5.75, to = 6.17, ease = "both" } }, -- 13 (1:44, to the piece end)
-} :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
+	-- ATEEZ-BAD 2 (D-994): Play scan SPIN 642°/s at 1:43, a 270° turn (song 102.8-103.9) spread evenly
+	[114907255207310] = { spin = { from = 8.15, to = 9.25, ease = "both" } }, -- 14
+	-- ATEEZ-BAD 2 faceOffset (D-1002 way, tools/choreo/faceoffset): the capture's facing at the
+	-- clip frames where the member faces the camera, median off 6°+ with a spread under 20°
+	-- (front frames, capture median, spread). Not set (measured again with the fixed tool, 8e0a93b): 9 and 13 (under 12 front frames;
+	-- 9's were another dancer passing in front, 13 faces the camera at 3.4 and 5.0 s where the
+	-- capture is -16° and +26°: no steady offset), 6 (no front), 19 / 20 (spread 21-26°), the rest under 6°
+	[86769053357907] = { faceOffset = -10 }, -- 4 (28, +10°, 12°)
+	[85294537563206] = { faceOffset = 24 }, -- 5 (32, -24°, 10°)
+	[140073525951941] = { faceOffset = 40 }, -- 7 (19, -40°, 2°)
+	[92410075296555] = { faceOffset = -9 }, -- 10 (21, +9°, 3°)
+	[99913080692802] = { faceOffset = 12 }, -- 12 (44, -12°, 7°)
+	[79044145915210] = { faceOffset = 12 }, -- 15 (61, -12°, 9°)
+	[138182761294826] = { faceOffset = -15 }, -- 16 (27, +15°, 8°)
+} ::{[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
 	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: any?, turnEase: string?,
 	spin: { from: number, to: number }?,
@@ -850,6 +864,11 @@ M.ChoreoSlideStill = {
 	[135759185323713] = { { 5.4, 6.0 } }, [138502286160157] = { { 1.6, 2.3 } }, [107439323698577] = { { 1.3, 2.1 }, { 9.0, 9.6 } },
 	[138612452549442] = { { 1.6, 2.3 }, { 2.5, 3.0 } }, [118124487485279] = { { 1.4, 2.0 }, { 7.9, 8.9 } },
 	[82680550952125] = { { 0.7, 1.4 }, { 2.9, 3.6 }, { 8.2, 9.7 } },
+	-- ATEEZ-BAD 2 (D-994)
+	[101690327843945] = { { 0.4, 1.0 } }, [106954590912232] = { { 5.1, 5.8 } }, [73352408497618] = { { 6.7, 7.4 } },
+	[91647545899849] = { { 2.9, 3.6 }, { 5.5, 6.6 } }, [86108317246080] = { { 2.0, 3.3 }, { 4.2, 4.9 } },
+	[79044145915210] = { { 3.9, 4.5 } }, [90945372575300] = { { 2.8, 3.6 } }, [127427471547985] = { { 6.3, 6.9 } },
+	[138812417192850] = { { 2.0, 2.6 } },
 } :: {[number]: {{number}}}
 for id, stretches in pairs(M.ChoreoSlideStill) do
 	local fix = (M.ChoreoFixes[id] or {}) :: any
@@ -888,6 +907,8 @@ M.ChoreoGlideStill = {
 	-- 37.6-38.2 and 40.4-40.6 with the feet still on the body
 	[139260290712979] = { { 5.6, 6.4 } }, [131526768823490] = { { 1.1, 1.6 } },
 	[79075546317269] = { { 5.6, 6.2 } }, -- v2 11 (1:40.4 glide, D-980)
+	-- ATEEZ-BAD 2 (D-994, Play scan 0:13.45 glide 1.0 stud with feet 0.1, 0:54.61 1.0 with 0.2)
+	[101690327843945] = { { 9.4, 10.0 } }, [86108317246080] = { { 1.5, 2.1 } },
 } :: {[number]: {{number}}}
 M.ChoreoAutoSteady = {
 	[118832898913501] = { { 5.5, 6.4 } }, [122624428391289] = { { 2.3, 3.2 } }, [129415986484255] = { { 6.8, 7.7 } },
