@@ -2861,3 +2861,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자가 무대 영상 2개를 보냄(내려받기 허락): Lemonade = MBC 음악중심 2026-05-30 (r2eoeCk171I), Catch Catch = MBC 음악중심 2026-03-21 (erNe2L0beR0). 안무는 안무 추가 세션(D-965 / D-970, feat/choreo-batch-1106).
 - 원곡 mp3가 없어서 연습 영상 소리를 기준으로 씀(연습 영상 ↔ 곡 차이는 안무 세션 값): Lemonade 연습 = 곡 + 1.08, 무대 = 연습 − 1.20(모든 창 같음) → 영상 = 곡 − 0.12초. Catch Catch 연습 = 곡 − 0.70, 무대 = 연습 + 0.00(모든 창) → 영상 = 곡 − 0.70초.
 - 컷 목록: shots_to_lua.py(D-944 방식), Lemonade 127컷(곡 186초까지), Catch Catch 91컷(곡 183초까지, 첫 컷을 0초로).
+
+## D-1010 클럽 곡 14곡 삭제, 5곡 잠금, Get A Guitar · Love 119 부스터4 5 (2026-11-08)
+- 사용자: "(음원 삭제) LUMIN-88 / MY:RAKL-오색 낙원 / Darla Jean-Dam Da Dee / 머무르-꿈꾸던 어른이 되었나요 / BIG Naughty-노스탈지아 / BIGBANG-BiiiG / 이무진-그대 잠시 내게 / K/DA 들어간 곡 전부 / LISA 곡 전부 / izna / ALLDAY PROJECT / (음원 잠금) NMIXX-긴 소원(Birthday Wish) / IVE-Mirror / Hearts2Hearts-Lemon Tang / Hearts2Hearts-Next Chapter / 현아-Bubble Pop / (수정) 겟어기타 부스터4: 5 / Love 119 부스터4: 5"
+- 삭제 14곡: MY:RAKL-오색 낙원, Darla Jean-Dam Da Dee, 머무르-꿈꾸던 어른이 되었나요, BIG Naughty-노스탈지아, BIGBANG-BiiiG, 이무진-그대 잠시 내게, K/DA 3곡(FIRESTARTER, NEVER GOING BACK, GIRLS), LISA 2곡(Tarantino, Cobra), izna - ROCK, PAPER, SCISSORS, ALLDAY PROJECT 2곡(NO 한도, CRASH: 안무 19조각 · 무대 카메라도 같이 빠짐, git 기록에 남음). LUMIN-88은 곡 목록에 없었음. 51 → 37곡(catalog 기준, Studio는 BAD 2 포함 38).
+- 잠금(새 기능, Track.locked): NMIXX-긴 소원, IVE-Mirror, Hearts2Hearts-Lemon Tang, Hearts2Hearts-Next Chapter, 현아-Bubble Pop. 음악 창에서 🔒와 흐린 글씨, 버튼 없음. 서버(ClubService)가 Play / Request / Queue를 "🔒 잠긴 곡이에요."로 거절, 자동 순서와 안무 테스트 곡에서도 뺌.
+- RIIZE-Get A Guitar boost4 5, RIIZE-Love 119 boost4 5.
+- 확인(PC Play): 곡 38(Studio), 잠긴 Bubble Pop을 DJ 지금 / 신청 / 우선예약 → 모두 거절, 두 곡 boost4 5, Get A Guitar 재생, 음악 창 잠긴 5곡 🔒 · 버튼 0. 다른 브랜치(feat/bad-upload-1107, feat/bad2-choreo-1107, feat/choreo-batch-1106 등)도 ClubPlaylist를 바꾸므로 머지 때 겹침 확인.
