@@ -3297,6 +3297,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1056 손목도 영상만큼 + 고개 6곡 더 (2026-11-09)
 - 사용자: "ANIMAL도 해 / 손목도 하고 고개도 해 둘 다 했어야지 다시 해". 사용자가 ANIMAL 영상 위치를 알려 줌 → D-916 기록대로 클립은 `D:\Roblox\오후\영상\BOYNEXTDOOR_ANIMAL_centercut`. 같은 폴더에 체포하겠어, Genie, LOVE ATTACK, I SPY, REDRED 클립도 있어서 같이 함.
 - 손목: 손이 크고 또렷한 프레임만(MediaPipe 손 모델, 15px 이상, 팔뚝의 0.3배 이상, 2프레임 이상 일치) 0.2초마다 손 대 팔뚝 화면 각도 → 캡처의 같은 각도와 비교(head_misses.lua `_G.wristMisses`). 영상 확인: 레몬탱 18번 0.25~0.75초 두 손 손바닥 젖힘(약 70~90°)을 캡처는 3° 안팎.
-- 결과: `ChoreoWristBend` 41조각(레모네이드 4, BAD 2 5, 레몬탱 9, 갑자기 1, Genie 4, LOVE ATTACK 3, I SPY 3, REDRED 2, Pop Off 5, Pretty Girl 5, Love 119 2; CRASH · ANIMAL · 체포하겠어 · Catch Catch는 기준을 넘는 곳 없음). 고개 `ChoreoHeadTilt`에 6곡 57조각 추가(ANIMAL 7, 체포하겠어 15, Genie 13, LOVE ATTACK 9, I SPY 10, REDRED 5) → 고개 모두 129조각. 고개와 손목은 조각마다 한 `bend` 목록으로 합침.
+- 결과: `ChoreoWristBend` 42조각(레모네이드 4, BAD 2 5, 레몬탱 8, 갑자기 1, Genie 4, LOVE ATTACK 3, I SPY 3, REDRED 2, Pop Off 5, Pretty Girl 5, Love 119 2; CRASH · ANIMAL · 체포하겠어 · Catch Catch는 기준을 넘는 곳 없음). 고개 `ChoreoHeadTilt`에 6곡 57조각 추가(ANIMAL 7, 체포하겠어 15, Genie 13, LOVE ATTACK 9, I SPY 10, REDRED 5) → 고개 모두 129조각. 고개와 손목은 조각마다 한 `bend` 목록으로 합침.
 - Play(레몬탱 18번 곡 105.3~107.6초, 보정 켬/끔 비교): 105.9초 오른손 -34° (끔 5°), 고개 35° (끔 11°), 프레임당 최대 손 8.6° / 고개 4.0°.
 - 못 한 곡: Looks Can Kill(클립과 조각 순서가 다름), BAD 원본 클립(같은 안무를 BAD 2로 처리).
