@@ -132,7 +132,11 @@ M.Playlist = {
 		{ id = 92410075296555, at = 57.9, blend = 0.37 }, { id = 112518247434645, at = 68, blend = 0.98 }, { id = 99913080692802, at = 76.58 },
 		{ id = 130897128636432, at = 88.87, blend = 0.6 }, { id = 114907255207310, at = 94.68, blend = 0.61 }, { id = 79044145915210, at = 103.9, blend = 0.91 },
 		{ id = 138182761294826, at = 110, blend = 1 }, { id = 90945372575300, at = 118 }, { id = 127427471547985, at = 125.3 },
-		{ id = 95469533767642, at = 137.25, blend = 0.76 }, { id = 138812417192850, at = 148.37 } }, autoChoreo = true },
+		-- (D-1022, user: "BAD2에 넣은 안무 중 가슴튕기는안무 부분 찾아서 BAD에 있는 가슴 튕기는 안무로 수정"): 19's chest bounce
+		-- (its 0.8-4.5 s, arm across the chest, hand to the waist) = ATEEZ-BAD's piece 21 with its fixes (pops, arm pose, sharp) on
+		-- the same song clock (`from = 0.75`) until 141.25, then 19 goes on from its 4.0 s. BAD crosses the right arm, BAD 2 (mirrored video) the left
+		{ id = 82346668311878, at = 137.25, from = 0.75, blend = 0.76, stop = 141.25 }, { id = 95469533767642, at = 141.25, from = 4.0, blend = 0.5 },
+		{ id = 138812417192850, at = 148.37 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
 		-- D-897: Genie1..26 (video = song - 13.55 s, the cover video cut the intro)
 		choreo = { { id = 122991710923104, at = 13.82 }, { id = 118462778307290, at = 20.62, blend = 0.56 }, { id = 127323208506008, at = 26.83, blend = 0.53 },
