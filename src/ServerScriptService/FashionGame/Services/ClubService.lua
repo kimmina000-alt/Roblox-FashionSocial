@@ -345,7 +345,8 @@ local function playNext()
 	-- (user 2026-10-30) a random song each time, not the one just played,
 	-- skipping songs that cannot play
 	local order = {}
-	for i = 1, count do if i ~= trackIndex then table.insert(order, math.random(1, #order + 1), i) end end
+	-- (D-1010) locked songs ("음원 잠금") are left out
+	for i = 1, count do if i ~= trackIndex and not ClubConfig.Playlist[i].locked then table.insert(order, math.random(1, #order + 1), i) end end
 	if #order == 0 then order = { trackIndex } end
 	for _, i in ipairs(order) do
 		if playable(i) then playTrack(i, 0) return end
@@ -372,9 +373,12 @@ local function runPlaylist()
 	end
 end
 
-local function validTrack(index: any): number?
-	if typeof(index) ~= "number" or index % 1 ~= 0 or not ClubConfig.Playlist[index] then return nil end
-	return index
+local function validTrack(index: any): (number?, string?)
+	if typeof(index) ~= "number" or index % 1 ~= 0 or not ClubConfig.Playlist[index] then return nil, nil end
+	-- (D-1010, user 2026-11-08: "음원 잠금") a locked song is shown with 🔒 and
+	-- cannot be played, requested or queued (the playlist rotation skips it too)
+	if ClubConfig.Playlist[index].locked then return nil, "🔒 잠긴 곡이에요." end
+	return index, nil
 end
 
 local function onMusic(player: Player, action: any, payload: any): (boolean, any)
@@ -385,7 +389,7 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	if action == "TestChoreoSong" then
 		if not ClubConfig.canTestChoreo(player) then return false, "테스트 전용이에요." end
 		for index, track in ipairs(ClubConfig.Playlist) do
-			if track.choreo then -- (the first song with a choreography; Bubble Pop)
+			if track.choreo and not track.locked then -- (the first song with a choreography; Bubble Pop until it was locked, D-1010)
 				playTrack(index, player.UserId)
 				return true, nil
 			end
@@ -417,8 +421,8 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		return true, nil
 	end
 	if action == "Request" then
-		local index = validTrack(payload)
-		if not index then return false, "없는 곡입니다." end
+		local index, why = validTrack(payload)
+		if not index then return false, why or "없는 곡입니다." end
 		if DjService.CurrentDJ() ~= 0 and not isDJ then
 			return false, "지금은 DJ가 곡을 고르고 있어요."
 		end
@@ -450,14 +454,14 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		end
 	end
 	if action == "Play" then
-		local index = validTrack(payload)
-		if not index then return false, "없는 곡입니다." end
+		local index, why = validTrack(payload)
+		if not index then return false, why or "없는 곡입니다." end
 		if not playable(index) then return false, "이 곡은 아직 재생할 수 없어요. (로블록스 승인 전)" end
 		playTrack(index, player.UserId)
 		return true, nil
 	elseif action == "Queue" then
-		local index = validTrack(payload)
-		if not index then return false, "없는 곡입니다." end
+		local index, why = validTrack(payload)
+		if not index then return false, why or "없는 곡입니다." end
 		-- (D-940: the 우선예약 button) first in the next songs
 		if #requests >= MAX_REQUESTS then return false, "예약이 가득 찼어요." end
 		table.insert(requests, 1, { i = index, u = player.UserId })
