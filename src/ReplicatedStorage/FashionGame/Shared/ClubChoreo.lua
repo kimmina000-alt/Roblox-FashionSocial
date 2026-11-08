@@ -75,6 +75,8 @@ M.ChoreoDriftReturn = 8 :: number?
 --     with their own `add` turns (eased between keys), D-860
 --   (steady without `parts` = the whole body, D-852)
 M.ChoreoFixes = {
+	-- ATEEZ-BAD 2 (D-994): Play scan SPIN 642°/s at 1:43, a 270° turn (song 102.8-103.9) spread evenly
+	[114907255207310] = { spin = { from = 8.15, to = 9.25, ease = "both" } }, -- 14
 	-- IVE-Looks Can Kill (D-871, from the practice video LvRTCcTPgsY): `still`
 	-- where the member the piece was cut from stands in the video (hips and
 	-- feet under 0.12 body heights a second for 0.6 s or more) but the piece
@@ -385,7 +387,7 @@ M.ChoreoFixes = {
 	-- practice video P3j4RexyOBI, song = video + 0.74): the arms and head set
 	-- to each pose (angles found on the avatar in Play, screen shots), the
 	-- kneel left to the capture; piece 9 (from 76.97) runs on into 10's blend
-		-- (D-989, user: 1:21 "볼 툭툭 치는 모션을 팔을 빨간선처럼 어깨 말고 팔꿈치만 살짝 폈다가 다시
+	-- (D-989, user: 1:21 "볼 툭툭 치는 모션을 팔을 빨간선처럼 어깨 말고 팔꿈치만 살짝 폈다가 다시
 	-- 굽히는 모션으로"): each tap opens the elbows 17° (the forearms out along the cheeks)
 	-- and folds them back, the wrists and the upper body still (steady) so only the elbows move
 	[130984178299080] = { steady = { { from = 3.6, to = 6.2, parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }, passes = 8 },
@@ -510,7 +512,7 @@ M.ChoreoFixes = {
 			{ t = 6.4, add = { Head = { 0, 0, 0 } } }, { t = 6.6, add = { Head = { -9, 0, 0 } } }, { t = 6.93, add = { Head = { 2, 0, 0 } } },
 			{ t = 7.27, add = { Head = { -9, 0, 0 } } }, { t = 7.6, add = { Head = { 2, 0, 0 } } },
 		} } },
-	-- 16 / 17 / 18 (from 127.65): "2:10~ 버벅거리고 떰. 프레임 튀듯이", "~2:26까지 계속
+	-- 16 / 17 / 18 (from 127.65): "2:10~ 버벅거리고 떠. 프레임 튀듯이", "~2:26까지 계속
 	-- 떨어": 10-27 joint turn-backs in 0.5 s all through; smoothed (the moves kept)
 	[82680550952125] = { steady = { from = 0, to = 10.3, passes = 8 } },
 	-- 17b red-box floor member (from 136.22) (D-991, user's screen recording of the
@@ -586,7 +588,8 @@ M.ChoreoFixes = {
 		end)() },
 		{ from = 7.0, to = 8.2, ease = 0.3, keys = { { t = 7.0, add = { Head = { 10, 0, 0 }, UpperTorso = { 6, 0, 0 }, LeftUpperArm = { -8, 0, -4 }, RightUpperArm = { -8, 0, 4 } } } } },
 		-- (D-983) play bar 2:20 the left hand still across the body from v2 16: arm out of the body
-		{ from = -1, to = 0.7, ease = 0.3, keys = { { t = 0, add = { LeftUpperArm = { 10, 25, -8 } } } } } } },-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
+		{ from = -1, to = 0.7, ease = 0.3, keys = { { t = 0, add = { LeftUpperArm = { 10, 25, -8 } } } } } } },
+	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
 	-- 자세에서 다음 걷는 안무로 자연스럽게 이어지도록") the first pose is held still
 	-- (the capture sways 20° and shifts) until the walk (2) blends in over 0.9 s
 	[116659270658163] = { hold = { from = 0, to = 3.6 } },
@@ -668,21 +671,7 @@ M.ChoreoFixes = {
 	[122624428391289] = { spin = { from = 0.5, to = 1.15, ease = "both" } }, -- 11 (1:34)
 	[126013496400815] = { spin = { from = 0.6, to = 1.27, ease = "both" } }, -- 12 (1:38, to the piece end)
 	[107833429874111] = { spin = { from = 5.75, to = 6.17, ease = "both" } }, -- 13 (1:44, to the piece end)
-	-- ATEEZ-BAD 2 (D-994): Play scan SPIN 642°/s at 1:43, a 270° turn (song 102.8-103.9) spread evenly
-	[114907255207310] = { spin = { from = 8.15, to = 9.25, ease = "both" } }, -- 14
-	-- ATEEZ-BAD 2 faceOffset (D-1002 way, tools/choreo/faceoffset): the capture's facing at the
-	-- clip frames where the member faces the camera, median off 6°+ with a spread under 20°
-	-- (front frames, capture median, spread). Not set (measured again with the fixed tool, 8e0a93b): 9 and 13 (under 12 front frames;
-	-- 9's were another dancer passing in front, 13 faces the camera at 3.4 and 5.0 s where the
-	-- capture is -16° and +26°: no steady offset), 6 (no front), 19 / 20 (spread 21-26°), the rest under 6°
-	[86769053357907] = { faceOffset = -10 }, -- 4 (28, +10°, 12°)
-	[85294537563206] = { faceOffset = 24 }, -- 5 (32, -24°, 10°)
-	[140073525951941] = { faceOffset = 40 }, -- 7 (19, -40°, 2°)
-	[92410075296555] = { faceOffset = -9 }, -- 10 (21, +9°, 3°)
-	[99913080692802] = { faceOffset = 12 }, -- 12 (44, -12°, 7°)
-	[79044145915210] = { faceOffset = 12 }, -- 15 (61, -12°, 9°)
-	[138182761294826] = { faceOffset = -15 }, -- 16 (27, +15°, 8°)
-} ::{[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
+} :: {[number]: { steady: { from: number, to: number, parts: {string}?, passes: number? }?, turn: number?,
 	pops: { at: {number}, sizes: {number}?, push: number, lift: number?, arch: number, out: number?, back: number?, sink: boolean? }?, calm: boolean?,
 	hold: { from: number, to: number }?, still: any?, turnEase: string?,
 	spin: { from: number, to: number }?,
@@ -753,6 +742,11 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- ATEEZ-BAD 2 (D-994)
+	[101690327843945] = { { 0.4, 1.0 } }, [106954590912232] = { { 5.1, 5.8 } }, [73352408497618] = { { 6.7, 7.4 } },
+	[91647545899849] = { { 2.9, 3.6 }, { 5.5, 6.6 } }, [86108317246080] = { { 2.0, 3.3 }, { 4.2, 4.9 } },
+	[79044145915210] = { { 3.9, 4.5 } }, [90945372575300] = { { 2.8, 3.6 } }, [127427471547985] = { { 6.3, 6.9 } },
+	[138812417192850] = { { 2.0, 2.6 } },
 	-- A2O LITE-NEON
 	[95449015545787] = { { 4.0, 4.6 } }, [93933273398995] = { { 4.0, 4.7 }, { 5.5, 6.1 } }, [128256391320572] = { { 12.0, 12.6 } },
 	[114466589507598] = { { 3.5, 4.2 }, { 6.2, 6.8 } }, [124518142645731] = { { 0.5, 1.1 } }, [76437753036430] = { { 0.6, 1.3 } },
@@ -864,11 +858,6 @@ M.ChoreoSlideStill = {
 	[135759185323713] = { { 5.4, 6.0 } }, [138502286160157] = { { 1.6, 2.3 } }, [107439323698577] = { { 1.3, 2.1 }, { 9.0, 9.6 } },
 	[138612452549442] = { { 1.6, 2.3 }, { 2.5, 3.0 } }, [118124487485279] = { { 1.4, 2.0 }, { 7.9, 8.9 } },
 	[82680550952125] = { { 0.7, 1.4 }, { 2.9, 3.6 }, { 8.2, 9.7 } },
-	-- ATEEZ-BAD 2 (D-994)
-	[101690327843945] = { { 0.4, 1.0 } }, [106954590912232] = { { 5.1, 5.8 } }, [73352408497618] = { { 6.7, 7.4 } },
-	[91647545899849] = { { 2.9, 3.6 }, { 5.5, 6.6 } }, [86108317246080] = { { 2.0, 3.3 }, { 4.2, 4.9 } },
-	[79044145915210] = { { 3.9, 4.5 } }, [90945372575300] = { { 2.8, 3.6 } }, [127427471547985] = { { 6.3, 6.9 } },
-	[138812417192850] = { { 2.0, 2.6 } },
 } :: {[number]: {{number}}}
 for id, stretches in pairs(M.ChoreoSlideStill) do
 	local fix = (M.ChoreoFixes[id] or {}) :: any
@@ -886,6 +875,8 @@ end
 -- it (or slides with both feet still) → `still`; ChoreoAutoSteady = a held
 -- pose with 10-16 turn-backs in 0.5 s → `steady` (passes 8). Piece seconds.
 M.ChoreoGlideStill = {
+	-- ATEEZ-BAD 2 (D-994, Play scan 0:13.45 glide 1.0 stud with feet 0.1, 0:54.61 1.0 with 0.2)
+	[101690327843945] = { { 9.4, 10.0 } }, [86108317246080] = { { 1.5, 2.1 } },
 	[101676644495491] = { { 4.8, 5.4 } }, [104212164342204] = { { 4.4, 5.0 }, { 5.8, 6.4 }, { 11.0, 11.6 } },
 	[111932052760637] = { { 5.5, 6.1 } }, [115574620758490] = { { 0.6, 1.2 } }, [119819611123433] = { { 3.9, 4.5 } },
 	[128174978668663] = { { 9.1, 9.7 } }, [128412578867487] = { { 5.1, 5.7 }, { 8.9, 9.5 } }, [129447992418977] = { { 9.8, 10.4 } },
@@ -907,8 +898,6 @@ M.ChoreoGlideStill = {
 	-- 37.6-38.2 and 40.4-40.6 with the feet still on the body
 	[139260290712979] = { { 5.6, 6.4 } }, [131526768823490] = { { 1.1, 1.6 } },
 	[79075546317269] = { { 5.6, 6.2 } }, -- v2 11 (1:40.4 glide, D-980)
-	-- ATEEZ-BAD 2 (D-994, Play scan 0:13.45 glide 1.0 stud with feet 0.1, 0:54.61 1.0 with 0.2)
-	[101690327843945] = { { 9.4, 10.0 } }, [86108317246080] = { { 1.5, 2.1 } },
 } :: {[number]: {{number}}}
 M.ChoreoAutoSteady = {
 	[118832898913501] = { { 5.5, 6.4 } }, [122624428391289] = { { 2.3, 3.2 } }, [129415986484255] = { { 6.8, 7.7 } },
@@ -1003,6 +992,15 @@ M.ChoreoFaceOffset = {
 	[124345431625014] = -13, -- v2 18: n20 mad5
 	[108680095506820] = -7, -- v2 19: n40 mad3
 	[127455820218376] = -20, -- v2 20: n21 mad12
+	-- ATEEZ-BAD 2 (D-994; mirrored practice video, clips 1..20). Not set (measured again, 8e0a93b tool):
+	-- 9 / 13 (under 12 front frames; 13 faces the camera where the capture is -16° and +26°), 6 (no front), 19 / 20 (spread 21-26°)
+	[86769053357907] = -10, -- 4 (28, +10°, 12°)
+	[85294537563206] = 24, -- 5 (32, -24°, 10°)
+	[140073525951941] = 40, -- 7 (19, -40°, 2°)
+	[92410075296555] = -9, -- 10 (21, +9°, 3°)
+	[99913080692802] = 12, -- 12 (44, -12°, 7°)
+	[79044145915210] = 12, -- 15 (61, -12°, 9°)
+	[138182761294826] = -15, -- 16 (27, +15°, 8°)
 } :: {[number]: number}
 for id, degrees in pairs(M.ChoreoFaceOffset) do
 	local fix = (M.ChoreoFixes[id] or {}) :: any
