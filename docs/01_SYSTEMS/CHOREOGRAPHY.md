@@ -318,3 +318,5 @@ D-962(NEON · Get A Guitar · Love 119, 20곳)를 고치며 나온 유형이다.
 - 기준: 영상 15° 이상, 캡처가 같은 쪽으로 12° 이상 덜 기울고, 0.2초 간격 2개 이상 연속. 차이의 0.8배(최대 30°)를 고개 앞뒤 축으로 더하고 0.2초에 걸쳐 들어가고 빠진다(ChoreoFixes `bend`).
 - 캡처를 영상 화면에 맞추는 투영: 애니메이션 x = -X, y = -Y (팔뚝 방향으로 맞춰 봄, 중앙값 17° 차이).
 - 새 안무를 넣을 때도 이 검사를 돌린다. 반전 곡(Catch Catch)은 보정 방향이 반대(z 부호 반대, headMisses의 mirror).
+- 손목도 같은 방법(D-1056): `tools/choreo/wrist/hand_video.py`(MediaPipe 손 모델 `tools/choreo/centercut/models/hand_landmarker.task`, 손이 15px 이상이고 팔뚝의 0.3배 이상, 2프레임 이상 일치할 때만) → `_G.wristMisses(줄들, ids, 반전곡, "곡")` → `ClubChoreo.ChoreoWristBend`. 기준: 영상 25° 이상, 캡처가 같은 쪽으로 20° 이상 덜 꺾임, 2개 이상 연속 → 손의 x / z 축 중 화면 각도가 더 잘 바뀌는 축으로 차이의 0.8배(최대 40°). 반전 곡은 반대 손, y / z 부호 반대.
+- 클립 위치: `D:\Roblox\영상\*_centercut\clips`(ids_번호.txt로 클립 → 애니메이션 ID), 미러 연습 영상 곡(ANIMAL, 체포하겠어, Genie, LOVE ATTACK, I SPY, REDRED)은 `D:\Roblox\오후\영상\*_centercut\clips`(클립 번호 = 플레이리스트 조각 순서). Looks Can Kill은 클립과 조각 순서가 달라서 아직 안 함.

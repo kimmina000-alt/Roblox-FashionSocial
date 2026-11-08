@@ -127,4 +127,79 @@ _G.headMisses = function(text, ids, mirror, label)
 	return table.concat(out, "\n")
 end
 
+-- (D-1056) wrist bends the capture made too small, the same way as the head:
+-- text = hand_video.py's lines ("name L:t=b,t=b R:t=b,..."), the hand against the
+-- forearm in the picture. Where the video bends 25+ deg and the capture 20+ deg less
+-- the same way, 2+ samples 0.2 s apart, the hand turns about whichever of its own
+-- x / z axes moves the picture bend most, 0.8 of the gap (at most 40 deg), easing in
+-- and out over 0.2 s. A mirrored track gets the other hand, its y / z turns negated
+local function bend2(series, side, t, ax, add)
+	local ch = if side == "L" then { "LowerTorso", "UpperTorso", "LeftUpperArm", "LeftLowerArm", "LeftHand" } else { "LowerTorso", "UpperTorso", "RightUpperArm", "RightLowerArm", "RightHand" }
+	local r, fa, hd = CFrame.identity, nil, nil
+	for i, n in ipairs(ch) do
+		r = r * at(series, n, t)
+		if i == 5 and add then r = r * (if ax == "x" then CFrame.Angles(math.rad(add), 0, 0) else CFrame.Angles(0, 0, math.rad(add))) end
+		local v = r:VectorToWorldSpace(Vector3.new(0, -1, 0))
+		if i == 4 then fa = v elseif i == 5 then hd = v end
+	end
+	local f2, h2 = Vector2.new(-fa.X, -fa.Y), Vector2.new(-hd.X, -hd.Y)
+	if f2.Magnitude < 0.35 or h2.Magnitude < 0.35 then return nil end
+	return (math.deg(math.atan2(h2.Y, h2.X)) - math.deg(math.atan2(f2.Y, f2.X)) + 180) % 360 - 180
+end
+_G.wristMisses = function(text, ids, mirror, label)
+	local out = {}
+	for line in text:gmatch("[^\n]+") do
+		local name, l, r = line:match("^(%S+)%s+L:(%S*)%s+R:(%S*)")
+		local id = name and ids[name]
+		if id then
+			local series = load(id)
+			local entries = {}
+			for _, sd in ipairs({ { "L", l }, { "R", r } }) do
+				local side, list = sd[1], sd[2]
+				local pts = {}
+				for t, v in list:gmatch("([%d%.]+)=(%-?%d+)") do
+					t, v = tonumber(t), tonumber(v)
+					if t <= series.len then
+						local c = bend2(series, side, t)
+						if c then
+							local d = (v - c + 180) % 360 - 180
+							if math.abs(d) >= 20 and d * v > 0 then
+								local best
+								for _, ax in ipairs({ "x", "z" }) do
+									local c2 = bend2(series, side, t, ax, 10)
+									local slope = c2 and ((c2 - c + 180) % 360 - 180) / 10 or 0
+									if math.abs(slope) > 0.3 and (not best or math.abs(slope) > math.abs(best[2])) then best = { ax, slope } end
+								end
+								if best then table.insert(pts, { t, best[1], math.clamp(d * 0.8 / best[2], -40, 40) }) end
+							end
+						end
+					end
+				end
+				local runs, run = {}, {}
+				for _, p in ipairs(pts) do
+					local q = run[#run]
+					if q and math.abs(p[1] - q[1] - 0.2) < 0.05 and p[2] == q[2] and p[3] * q[3] > 0 then table.insert(run, p)
+					else if #run >= 2 then table.insert(runs, run) end run = { p } end
+				end
+				if #run >= 2 then table.insert(runs, run) end
+				for _, rr in ipairs(runs) do
+					local part = (if (side == "L") ~= (mirror == true) then "LeftHand" else "RightHand")
+					local function key(t, a)
+						local x, z = 0, 0
+						if rr[1][2] == "x" then x = a else z = if mirror then -a else a end
+						return string.format("{ %.2f, %d, 0, %d }", t, math.floor(x + 0.5), math.floor(z + 0.5))
+					end
+					local keys = {}
+					if rr[1][1] >= 0.2 then table.insert(keys, key(rr[1][1] - 0.2, 0)) end
+					for _, p in ipairs(rr) do table.insert(keys, key(p[1], p[3])) end
+					-- (a run reaching the piece end comes back to 0 on its last sample)
+					if rr[#rr][1] + 0.2 <= series.len then table.insert(keys, key(rr[#rr][1] + 0.2, 0)) else keys[#keys] = key(rr[#rr][1], 0) end
+					if #keys >= 3 then table.insert(entries, "{ part = \"" .. part .. "\", keys = { " .. table.concat(keys, ", ") .. " } }") end
+				end
+			end
+			if #entries > 0 then table.insert(out, string.format("\t[%d] = { %s }, -- %s %s", id, table.concat(entries, ", "), label or "", name)) end
+		end
+	end
+	return table.concat(out, "\n")
+end
 return "head_misses ready"
