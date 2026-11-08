@@ -471,13 +471,30 @@ local ASSET_FOODS: {[string]: {any}} = {
 	bluelemonade = { "IcedGlass", 0.95 },
 	frappe = { "IcedGlass", 0.95 },
 }
-local function fromAsset(item: any): (Part?, CFrame?)
+local function fromAsset(item: any): (Part?, CFrame?, boolean?)
 	local spec = ASSET_FOODS[item.key]
 	local art = spec and game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local folder = art and art:FindFirstChild("Foods")
-	local src = folder and folder:FindFirstChild(spec[1] :: string)
+	-- (D-1036, user 2026-11-09: the user's own 국밥 models, Blender → Gukbap_<kind>.glb)
+	-- "<name>Bites": a bowl "Plate" and pieces "Bite1".."BiteN" that go one per
+	-- spoonful (SnackService, EatMode "Bites"); the store model is the fallback
+	local bitesSrc = folder and folder:FindFirstChild((spec[1] :: string) .. "Bites")
+	local src = bitesSrc or (folder and folder:FindFirstChild(spec[1] :: string))
 	if not src then return nil, nil end
 	local m = src:Clone()
+	if bitesSrc then
+		-- each part remembers its piece number (the BiteN containers go below)
+		for _, p in ipairs(m:GetDescendants()) do
+			if p:IsA("BasePart") then
+				local node: Instance? = p
+				while node and node ~= m do
+					local n = tonumber(string.match(node.Name, "^Bite(%d+)$"))
+					if n then p:SetAttribute("Bite", n) break end
+					node = node.Parent
+				end
+			end
+		end
+	end
 	local holder = Instance.new("Model")
 	if m:IsA("Model") then holder = m else m.Parent = holder end
 	if spec[3] then holder:PivotTo(holder:GetPivot() * spec[3]) end -- (turned to how it is held)
@@ -514,7 +531,7 @@ local function fromAsset(item: any): (Part?, CFrame?)
 		end
 	end
 	h.CFrame = CFrame.new()
-	return h, CFrame.new(0, 0, 0)
+	return h, CFrame.new(0, 0, 0), bitesSrc ~= nil
 end
 
 -- Cafe and 국밥집 cups (user pick 2026-10-27, "Water in glass" by Toffyxaza_TH):
@@ -561,6 +578,27 @@ local function builderFor(item: any): Builder?
 	return B[item.key]
 end
 
+-- (D-1036) how many pieces ("Bite1".."BiteN") the user's model of this item
+-- has, or nil when it has none (SnackService: one bite per piece)
+local biteCounts: {[string]: number | false} = {}
+function FoodShapes.biteCount(item: any): number?
+	local spec = ASSET_FOODS[item.key]
+	if not spec then return nil end
+	local cached = biteCounts[item.key]
+	if cached ~= nil then return if cached then cached else nil end
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local src = art and art:FindFirstChild("Foods") and art.Foods:FindFirstChild((spec[1] :: string) .. "Bites")
+	local count = 0
+	if src then
+		for _, d in ipairs(src:GetDescendants()) do
+			local n = tonumber(string.match(d.Name, "^Bite(%d+)$"))
+			if n then count = math.max(count, n) end
+		end
+	end
+	biteCounts[item.key] = if count > 0 then count else false
+	return if count > 0 then count else nil
+end
+
 function FoodShapes.build(item: any): (Part?, CFrame?, string?)
 	-- (user 2026-10-27: water is the 삼다수 bottle everywhere, cafes and 국밥집 too)
 	if item.kind == "cup" and item.key ~= "water" and not ASSET_FOODS[item.key] then
@@ -568,8 +606,8 @@ function FoodShapes.build(item: any): (Part?, CFrame?, string?)
 		if h then return h, grip, nil end
 	end
 	if ASSET_FOODS[item.key] then
-		local h, grip = fromAsset(item)
-		if h then return h, grip, "Scale" end -- (falls back to the part model when the asset is missing)
+		local h, grip, bites = fromAsset(item)
+		if h then return h, grip, if bites then "Bites" else "Scale" end -- (falls back to the part model when the asset is missing)
 	end
 	local builder = builderFor(item)
 	if not builder then return nil, nil, nil end

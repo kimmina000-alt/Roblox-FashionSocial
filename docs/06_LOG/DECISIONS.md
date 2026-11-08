@@ -3222,3 +3222,12 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 확인(Studio Play, 실제 마우스): Bite7 위에서 Bite7만 밝아짐 → 클릭 → 손에 Bite7, 접시에 1~6, 8~14 남음. 이어 가운데를 클릭 → Bite14. 오류 0.
 
 ![가리킨 조각](images/2026-11-09/suyuk_hover.jpg)
+
+## D-1036 국밥 3종 = 사용자 3D 모델, 한 숟갈에 조각 하나 (2026-11-09)
+- 사용자: Gukbap_Pork / Sundae / Beef.glb "스튜디오에도 올렸어 국밥도 업데이트" (원칙은 D-1034: 먹을 때마다 오브젝트 하나씩)
+- 모델(docs/04_ART/models/에 사본): Studio 가져오기가 셋 다 이름 Scene → 조각 모양으로 구분해 ServerStorage.ArtAssets.Foods.GukbapBeefBites(Bite1~6: 고기 5 + 파), GukbapPorkBites(Bite1~7), GukbapSundaeBites(Bite1~9). 가져오기가 텍스처 없는 재질 색을 버려서(전부 회색) glb의 baseColorFactor 값을 크기로 맞춰 칠함: 뚝배기 36,18,7 / 국물 205,181,169 · 205,153,112 · 205,198,176 / 파 96,231,69 · 61,166,73 / 돼지 다대기 107,20,36. 빈 Scene 모델 2개(처음 빈 glb를 가져온 것)는 Workspace에 그대로.
+- FoodShapes: ASSET_FOODS의 GukbapX 대신 "GukbapXBites"가 있으면 그것(조각 부품에 Bite = 번호 속성), EatMode "Bites", biteCount = 조각 수. SnackService bitesOf: 모델 국밥은 조각 수만큼(소고기 6, 돼지 7, 순대 9; 다른 음식은 그대로 3).
+- 한 입(손에서) · 한 숟갈(테이블에서)마다 Bite1부터 하나씩 사라짐(showBitesLeft). 테이블에서는 숟가락에 그 조각이 작게(0.26) 국물 자리에 올라감. 테이블 쟁반 세트는 그대로, 쟁반 뚝배기만 빼고 그 자리에 사용자 모델. 다시 집기(꾹 누르기) · 재접속 가방도 먹은 만큼 빠진 채.
+- 확인(Studio Play): 소고기 쟁반 놓기 → 숟갈 6번에 남은 조각 2..6, 3..6, … 6, 그릇 없어짐. 돼지 7 → 6, 순대 9 → 8. 오류 0. 새 메시 · 텍스처는 Roblox 처리 중("being generated")이라 잠시 회색일 수 있음.
+
+![소고기 쟁반](images/2026-11-09/gukbap_beef_tray.jpg) ![순대 · 돼지](images/2026-11-09/gukbap_pork_sundae.jpg)

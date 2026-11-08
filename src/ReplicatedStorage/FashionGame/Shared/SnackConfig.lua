@@ -123,8 +123,8 @@ SnackConfig.Shops = {
 		items = {
 			{ key = "water", name = "물", kind = "cup", color = Color3.fromRGB(205, 230, 245), section = FREE },
 			{ key = "rice", name = "공깃밥", kind = "ricebowl", color = Color3.fromRGB(252, 252, 248), section = FREE },
-			{ key = "pork", name = "돼지국밥", kind = "bowl", color = Color3.fromRGB(235, 225, 205), coins = 20, bites = 6, section = T3 },
-			{ key = "sundae", name = "순대국밥", kind = "bowl", color = Color3.fromRGB(205, 160, 130), coins = 20, bites = 6, section = T3 },
+			{ key = "pork", name = "돼지국밥", kind = "bowl", color = Color3.fromRGB(235, 225, 205), coins = 20, bites = 7, section = T3 }, -- (7: one per piece of the user's model, D-1036)
+			{ key = "sundae", name = "순대국밥", kind = "bowl", color = Color3.fromRGB(205, 160, 130), coins = 20, bites = 9, section = T3 }, -- (9: one per piece, D-1036)
 			{ key = "beef", name = "소고기국밥", kind = "bowl", color = Color3.fromRGB(190, 60, 40), coins = 20, bites = 6, section = T3 },
 			{ key = "suyuk", name = "수육 한 접시 (14점)", kind = "plate", color = Color3.fromRGB(235, 205, 185), topping = Color3.fromRGB(150, 90, 70), product = "Gukbap_Suyuk", share = 14, section = RB }, -- (14: the user's model plate, D-1034)
 		},

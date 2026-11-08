@@ -114,7 +114,9 @@ end
 -- (user 2026-10-26). Soup and noodles drop their level instead.
 local EAT_STEPS = 3
 local function bitesOf(item: SnackConfig.Item): number
-	return (item :: any).oneBite and 1 or EAT_STEPS
+	if (item :: any).oneBite then return 1 end
+	-- (D-1036) the user's 국밥 models: one spoonful per piece
+	return FoodShapes.biteCount(item) or EAT_STEPS
 end
 
 -- containers and tools that stay in the hand
@@ -291,6 +293,41 @@ local function eatDownTo(handle: BasePart, lo: number, hi: number, left: number,
 	end
 end
 
+-- (D-1036, user 2026-11-09: "국밥도 업데이트") the user's 국밥 models: the parts of
+-- piece n carry the attribute Bite = n (FoodShapes). With `left` of `total`
+-- bites left, the first pieces in order are gone (hidden, so a copy on the
+-- table and the tool stay part for part alike). The number of the next piece.
+local function bitePieces(root: Instance): {[number]: {BasePart}}
+	local by: {[number]: {BasePart}} = {}
+	for _, p in ipairs(root:GetDescendants()) do
+		local n = p:IsA("BasePart") and p:GetAttribute("Bite")
+		if typeof(n) == "number" then
+			by[n] = by[n] or {}
+			table.insert(by[n], p :: BasePart)
+		end
+	end
+	return by
+end
+local function showBitesLeft(root: Instance, left: number, total: number): number?
+	local by = bitePieces(root)
+	local count = 0
+	for n in pairs(by) do count = math.max(count, n) end
+	if count == 0 then return nil end
+	-- (as many pieces as bites: one each; else spread over the bites)
+	local gone = math.clamp(math.round(count * (total - left) / math.max(total, 1)), 0, count)
+	for n, parts in pairs(by) do
+		for _, p in ipairs(parts) do
+			local t0 = p:GetAttribute("BiteT0")
+			if typeof(t0) ~= "number" then t0 = p.Transparency p:SetAttribute("BiteT0", t0) end
+			p.Transparency = if n <= gone then 1 else t0 :: number
+			for _, d in ipairs(p:GetChildren()) do
+				if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = if n <= gone then 1 else 0 end
+			end
+		end
+	end
+	return if gone < count then gone + 1 else nil
+end
+
 local function bite(tool: Tool, item: SnackConfig.Item)
 	-- a cup the cafe staff is carrying to a customer is not theirs to drink
 	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return end
@@ -363,7 +400,9 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	-- a third of it is gone, from the top
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
 	local zlo, zhi = tool:GetAttribute("EatZLo"), tool:GetAttribute("EatZHi")
-	if handle and handle:IsA("BasePart") and tool:GetAttribute("EatMode") == "Scale" and left > 0 then
+	if handle and handle:IsA("BasePart") and tool:GetAttribute("EatMode") == "Bites" then
+		showBitesLeft(handle, left, total) -- (D-1036: the next piece goes)
+	elseif handle and handle:IsA("BasePart") and tool:GetAttribute("EatMode") == "Scale" and left > 0 then
 		-- a store mesh cannot be cut: the whole thing gets smaller each bite
 		local k = 0.45 + 0.55 * left / total
 		for _, piece in ipairs(handle:GetChildren()) do
@@ -533,7 +572,8 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		handle.Parent = tool
 		tool.Grip = customGrip or CFrame.new()
 		if eatMode == "Z" then tool:SetAttribute("EatAlong", "Z")
-		elseif eatMode == "Scale" then tool:SetAttribute("EatMode", "Scale") end
+		elseif eatMode == "Scale" then tool:SetAttribute("EatMode", "Scale")
+		elseif eatMode == "Bites" then tool:SetAttribute("EatMode", "Bites") end -- (D-1036: the user's 국밥 models)
 	elseif kind == "cone" then
 		-- waffle cone (pointing down) with a scoop on top
 		handle = part("Handle", Vector3.new(0.45, 0.9, 0.45), Color3.fromRGB(215, 160, 90))
@@ -1339,6 +1379,42 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 		end
 	end
 	spoon.Grip = CFrame.new(0, -0.3, 0)
+	-- (D-1036) the user's 국밥 model: the next piece (meat, 순대, green onions)
+	-- comes up on the spoon, small, in place of the soup, and is gone from the bowl
+	local bitesTotal = bitesOf(item)
+	local bitesNow = (tool:GetAttribute("Bites") :: number?) or bitesTotal
+	if tool:GetAttribute("EatMode") == "Bites" then
+		local nextPiece = showBitesLeft(copy, bitesNow, bitesTotal)
+		local parts = nextPiece and bitePieces(copy)[nextPiece]
+		if parts and #parts > 0 then
+			local soup = handle:FindFirstChild("Soup")
+			local holder = Instance.new("Model")
+			for _, p in ipairs(parts) do
+				local c = p:Clone()
+				for _, d in ipairs(c:GetChildren()) do if not (d:IsA("Decal") or d:IsA("Texture")) then d:Destroy() end end
+				c.Transparency = (p:GetAttribute("BiteT0") :: number?) or 0
+				c.Anchored = true
+				c.Parent = holder
+			end
+			local _, size = holder:GetBoundingBox()
+			holder:ScaleTo(holder:GetScale() * 0.26 / math.max(size.X, size.Y, size.Z, 0.01))
+			local cf = holder:GetBoundingBox()
+			-- (where the soup sat in the spoon; the piece keeps the way it lay in the bowl)
+			local at: Vector3 = if soup and soup:IsA("BasePart") then soup.Position else (handle.CFrame * Vector3.new(0, 0.4, 0.03))
+			for _, c in ipairs(holder:GetChildren()) do
+				if c:IsA("BasePart") then
+					c.CFrame = c.CFrame + (at - cf.Position)
+					c.Name = "BitePiece"
+					c.Anchored = false
+					c.CanCollide, c.CanQuery, c.CanTouch, c.Massless = false, false, false, true
+					attach(handle, c, handle.CFrame:ToObjectSpace(c.CFrame))
+				end
+			end
+			holder:Destroy()
+			if soup then soup:Destroy() end
+			showBitesLeft(copy, bitesNow - 1, bitesTotal)
+		end
+	end
 	local sound = Instance.new("Sound")
 	sound.SoundId = "rbxassetid://" .. tostring((if item.kind == "bowl" then gukbapClip() else nil) or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
 	setVolume(sound, LOUD[item.key] or 0.7)
@@ -1374,7 +1450,12 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
 	tool:SetAttribute("Bites", left)
 	local fill = copy:FindFirstChild("Fill")
-	if fill and fill:IsA("BasePart") then
+	if tool:GetAttribute("EatMode") == "Bites" then
+		-- (D-1036) the tool in waiting shows the same pieces gone (picked up later)
+		showBitesLeft(copy, left, total)
+		local held = tool:FindFirstChild("Handle")
+		if held then showBitesLeft(held, left, total) end
+	elseif fill and fill:IsA("BasePart") then
 		local drop = (fill:GetAttribute("EatDrop") :: number?) or 0.3
 		fill.CFrame -= Vector3.new(0, drop / total, 0)
 	end
@@ -1519,10 +1600,15 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	local placedItem = itemByKey(tool:GetAttribute("Snack"))
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local tray = placedItem and placedItem.kind == "bowl" and art and art:FindFirstChild("Foods") and art.Foods:FindFirstChild("GukbapTray")
+	-- (D-1036) the user's 국밥 model stays in sight: it takes the place of the
+	-- tray's own bowl (rice, side dishes and the rest of the tray stay)
+	local ownBowl = tool:GetAttribute("EatMode") == "Bites"
 	if tray then
-		for _, p in ipairs(parts) do
-			p.Transparency = 1
-			for _, d in ipairs(p:GetDescendants()) do if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end end
+		if not ownBowl then
+			for _, p in ipairs(parts) do
+				p.Transparency = 1
+				for _, d in ipairs(p:GetDescendants()) do if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end end
+			end
 		end
 		local t = tray:Clone()
 		local _, tsize = t:GetBoundingBox()
@@ -1532,6 +1618,32 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 		t:PivotTo(t:GetPivot() + (Vector3.new(hit.Position.X, hit.Position.Y + 0.02 + ts.Y / 2, hit.Position.Z) - tb.Position))
 		for _, p in ipairs(t:GetDescendants()) do
 			if p:IsA("BasePart") then p.Anchored = true p.CanCollide = false p.CanTouch = false end
+		end
+		if ownBowl then
+			-- the tray's 뚝배기 (a round union about 1.94 × 0.72 at its size) and
+			-- everything round it in the bowl go; our bowl sits in their place
+			local bowl: BasePart? = nil
+			local k = t:GetScale()
+			for _, p in ipairs(t:GetDescendants()) do
+				if p:IsA("BasePart") and math.abs(p.Size.X / k - 1.94) < 0.15 and math.abs(p.Size.Y / k - 0.72) < 0.1 then bowl = p end
+			end
+			if bowl then
+				local r = bowl.Size.X / 2 + 0.05
+				for _, p in ipairs(t:GetDescendants()) do
+					if p:IsA("BasePart") and math.max(p.Size.X, p.Size.Z) < bowl.Size.X * 1.2 then
+						local d = Vector3.new(p.Position.X - bowl.Position.X, 0, p.Position.Z - bowl.Position.Z).Magnitude
+						if d < r then p:Destroy() end
+					end
+				end
+				local holder = Instance.new("Model")
+				copy.Parent = holder
+				local _, csize = holder:GetBoundingBox()
+				holder:ScaleTo(holder:GetScale() * bowl.Size.X / math.max(csize.X, csize.Z, 0.01))
+				local cb, cs = holder:GetBoundingBox()
+				holder:PivotTo(holder:GetPivot() + (Vector3.new(bowl.Position.X, bowl.Position.Y - bowl.Size.Y / 2 + cs.Y / 2, bowl.Position.Z) - cb.Position))
+				copy.Parent = model
+				holder:Destroy()
+			end
 		end
 		t.Name = "Tray"
 		t.Parent = model
@@ -1627,6 +1739,11 @@ function SnackService.BagRestore(player: Player, e: any): boolean
 		if e.slice then tool:SetAttribute("SliceName", e.slice) end
 	end
 	if typeof(e.bites) == "number" then tool:SetAttribute("Bites", math.max(1, math.floor(e.bites))) end
+	-- (D-1036) a 국밥 model shows the pieces already eaten
+	local held = tool:FindFirstChild("Handle")
+	if held and tool:GetAttribute("EatMode") == "Bites" and typeof(e.bites) == "number" then
+		showBitesLeft(held, math.max(1, math.floor(e.bites)), bitesOf(use))
+	end
 	tool.Parent = backpack
 	return true
 end
@@ -1757,7 +1874,9 @@ local function pickUp(player: Player, model: any): (boolean, string?)
 	local handle = tool:FindFirstChild("Handle")
 	local left = tool:GetAttribute("Bites")
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
-	if entry.soup and item and handle and handle:IsA("BasePart") and typeof(left) == "number" and typeof(lo) == "number" and typeof(hi) == "number" then
+	if item and handle and handle:IsA("BasePart") and typeof(left) == "number" and tool:GetAttribute("EatMode") == "Bites" then
+		showBitesLeft(handle, left, bitesOf(item)) -- (D-1036)
+	elseif entry.soup and item and handle and handle:IsA("BasePart") and typeof(left) == "number" and typeof(lo) == "number" and typeof(hi) == "number" then
 		local total = bitesOf(item)
 		if left < total then eatDownTo(handle, lo, hi, left, total) end
 	end
