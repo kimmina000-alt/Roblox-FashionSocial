@@ -25,6 +25,7 @@ local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("Club
 local EconomyConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("EconomyConfig"))
 local MonetizationService = require(script.Parent.MonetizationService)
 local FoodShapes = require(script.Parent.FoodShapes)
+local RamenCup = require(script.Parent:WaitForChild("RamenCup")) -- (D-1053: the user's cup ramen)
 
 local SnackService = {}
 local economy: any = nil
@@ -412,12 +413,22 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 			end
 		end
 		-- a bundle of noodles at the chopstick tips
-		local bundle = part("NoodleBite", Vector3.new(0.16, 0.3, 0.12), Color3.fromRGB(245, 215, 130))
-		local mesh = Instance.new("SpecialMesh") mesh.MeshType = Enum.MeshType.Sphere mesh.Parent = bundle
-		attach(handle, bundle, CFrame.new(0.3, 0.05, 0))
+		-- (D-1053: the user's cup ramen: red noodle strands from the cup up to the
+		-- sticks instead, stretching to the mouth, RamenCup.strands)
+		local bundle: BasePart? = nil
+		local strandsDone: (() -> ())? = nil
+		if tool:GetAttribute("Ramen") then
+			strandsDone = RamenCup.strands(handle, cup)
+			task.wait(0.1) -- (the sticks' new pose reaches the clients before the arm lifts them)
+		else
+			bundle = part("NoodleBite", Vector3.new(0.16, 0.3, 0.12), Color3.fromRGB(245, 215, 130))
+			local mesh = Instance.new("SpecialMesh") mesh.MeshType = Enum.MeshType.Sphere mesh.Parent = bundle :: BasePart
+			attach(handle, bundle :: BasePart, CFrame.new(0.3, 0.05, 0))
+		end
 		restore = function()
 			cup:Destroy()
-			bundle:Destroy()
+			if bundle then bundle:Destroy() end
+			if strandsDone then strandsDone() end
 			for d, t in pairs(hidden) do (d :: any).Transparency = t end
 		end
 	end
@@ -443,7 +454,9 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	-- a third of it is gone, from the top
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
 	local zlo, zhi = tool:GetAttribute("EatZLo"), tool:GetAttribute("EatZHi")
-	if handle and handle:IsA("BasePart") and tool:GetAttribute("EatMode") == "Bites" then
+	if handle and handle:IsA("BasePart") and tool:GetAttribute("Ramen") then
+		RamenCup.afterBite(tool, handle, left, total) -- (D-1053: the broth sinks a step)
+	elseif handle and handle:IsA("BasePart") and tool:GetAttribute("EatMode") == "Bites" then
 		-- (D-1036: the next piece goes; D-1037: the lowest one still there)
 		local set = eatenOf(tool)
 		local n = nextBite(handle, set, nil)
@@ -621,7 +634,8 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		tool.Grip = customGrip or CFrame.new()
 		if eatMode == "Z" then tool:SetAttribute("EatAlong", "Z")
 		elseif eatMode == "Scale" then tool:SetAttribute("EatMode", "Scale")
-		elseif eatMode == "Bites" then tool:SetAttribute("EatMode", "Bites") end -- (D-1036: the user's 국밥 models)
+		elseif eatMode == "Bites" then tool:SetAttribute("EatMode", "Bites") -- (D-1036: the user's 국밥 models)
+		elseif eatMode == "Ramen" then RamenCup.setup(tool, handle) end -- (D-1053: lid, hot water, chopsticks)
 	elseif kind == "cone" then
 		-- waffle cone (pointing down) with a scoop on top
 		handle = part("Handle", Vector3.new(0.45, 0.9, 0.45), Color3.fromRGB(215, 160, 90))
@@ -816,6 +830,7 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
 	scaleTool(tool, handle, FOOD_SCALE) -- (D-950)
+	if tool:GetAttribute("Ramen") then RamenCup.scaled(handle, FOOD_SCALE) end
 	markEdible(tool, handle)
 	-- soup and noodles: the surface sinks a third of the bowl per bite
 	local surface = (kind == "bowl" or kind == "ricebowl" or kind == "noodle") and handle:FindFirstChild("Fill")
@@ -824,7 +839,8 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	-- decides (over a food table it puts the food down there, elsewhere it
 	-- calls tool:Activate(), the bite)
 	tool.ManualActivationOnly = true
-	tool.Activated:Connect(function() bite(tool, item) end)
+	-- (D-1053) the cup ramen's taps go through RamenCup (SnackController asks "Ramen")
+	tool.Activated:Connect(function() if not tool:GetAttribute("Ramen") then bite(tool, item) end end)
 	-- (D-950) how much of a table top it takes, for the silhouette and the
 	-- overlap check (국밥 goes down as its tray set, 3.4 × 1.5 studs across)
 	-- (D-1038, user 2026-11-09: "국밥 놓을 때 원 너무 크다. 국밥 크기에 맞춰"): the
@@ -1683,6 +1699,7 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	tool.Parent = keptFolder
 	local item = itemByKey(tool:GetAttribute("Snack"))
 	local soup = item ~= nil and (item.kind == "bowl" or item.kind == "ricebowl" or item.kind == "noodle") -- (컵라면 too: chopsticks, 2026-10-27)
+		and not tool:GetAttribute("Ramen") -- (D-1053: the user's cup ramen goes back to the hand, its own steps)
 	-- (D-947 → D-950) no buttons on the food: SnackController finds a tap on
 	-- it (so its parts answer raycasts; they are made with CanQuery off) and
 	-- asks "Spoon" (a short tap on a 국밥 / 공깃밥 / 컵라면: one spoonful) or
@@ -1902,7 +1919,12 @@ local function spoonFromTable(player: Player, model: any, piece: any): (boolean,
 		humanoid:EquipTool(tool)
 		local item = entry.item
 		task.delay(0.35, function()
-			if tool.Parent == character then bite(tool, item) end
+			if tool.Parent ~= character then return end
+			if tool:GetAttribute("Ramen") then
+				RamenCup.tap(player, tool, function() bite(tool, item) end) -- (D-1053)
+			else
+				bite(tool, item)
+			end
 		end)
 		return true, nil
 	end
@@ -1949,6 +1971,14 @@ function SnackService.Start(economyService: any)
 		if action == "PutDown" then return putDown(player, shopKey, itemKey) end -- (D-950: itemKey = the spot)
 		if action == "Spoon" then return spoonFromTable(player, shopKey, itemKey) end -- (D-1037: itemKey = the piece tapped)
 		if action == "PickUp" then return pickUp(player, shopKey) end
+		-- (D-1053) the cup ramen: a tap on it in the hand, or on the hot water dispenser
+		if action == "Ramen" then
+			local tool = shopKey
+			local item = if typeof(tool) == "Instance" and tool:IsA("Tool") then itemByKey(tool:GetAttribute("Snack")) else nil
+			if not item then return false, nil end
+			return RamenCup.tap(player, tool, function() bite(tool, item :: SnackConfig.Item) end)
+		end
+		if action == "HotWater" then return RamenCup.pour(player, shopKey) end
 		if action == "TakePiece" then return takePiece(player, shopKey, itemKey) end -- (D-952; itemKey = the piece pointed at, D-1035)
 		return false, nil
 	end
@@ -1978,6 +2008,7 @@ function SnackService.Start(economyService: any)
 			end
 		end
 	end
+	RamenCup.Start() -- (D-1053: the OH24 hot water dispenser)
 	for _, shopPart in ipairs(CollectionService:GetTagged("SnackShop")) do addPrompt(shopPart) end
 	CollectionService:GetInstanceAddedSignal("SnackShop"):Connect(addPrompt)
 end

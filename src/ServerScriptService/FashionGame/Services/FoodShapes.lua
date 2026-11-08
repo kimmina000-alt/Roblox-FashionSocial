@@ -443,6 +443,9 @@ local ASSET_FOODS: {[string]: {any}} = {
 	pork = { "GukbapPork", 1.0 },
 	sundae = { "GukbapSundae", 1.0 },
 	beef = { "GukbapBeef", 1.0 },
+	-- (D-1053, user 2026-11-09) the user's cup ramen (cupraman3.glb: Plate, Bite1 lid,
+	-- Bite2 dry noodles, Soup); RamenCup does the lid / hot water / broth steps
+	cupnoodle = { "CupRamen", 0.85 },
 	saltbread = { "SaltBread", 0.8 }, -- AI mesh from the user's photo (2026-10-27)
 	water = { "Samdasu", 0.95 },      -- user's pick (삼다수 by thuxjibuy)
 	bagel = { "Bagel", 0.75 },       -- #7
@@ -607,7 +610,7 @@ function FoodShapes.build(item: any): (Part?, CFrame?, string?)
 	end
 	if ASSET_FOODS[item.key] then
 		local h, grip, bites = fromAsset(item)
-		if h then return h, grip, if bites then "Bites" else "Scale" end -- (falls back to the part model when the asset is missing)
+		if h then return h, grip, if bites then "Bites" elseif item.key == "cupnoodle" then "Ramen" else "Scale" end -- (falls back to the part model when the asset is missing)
 	end
 	local builder = builderFor(item)
 	if not builder then return nil, nil, nil end

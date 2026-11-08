@@ -102,7 +102,7 @@ SnackConfig.Shops = {
 		key = "OH24",
 		title = "OH24 편의점",
 		prompt = "계산하기",
-		hint = "고른 상품을 바로 손에 들려 줘요. 컵라면은 창가 테이블에서 드세요!",
+		hint = "고른 상품을 바로 손에 들려 줘요. 컵라면은 눌러서 뚜껑 열기 → 온수기 눌러 물 붓기 → 10초 뒤 눌러서 먹기!",
 		items = {
 			{ key = "water", name = "생수", kind = "bottle", color = Color3.fromRGB(190, 225, 250), coins = 1, section = "💰 1" },
 			{ key = "icebar", name = "아이스크림 바", kind = "bar", color = Color3.fromRGB(255, 200, 215), topping = Color3.fromRGB(110, 70, 45), coins = 3, section = "💰 3" },
@@ -111,7 +111,7 @@ SnackConfig.Shops = {
 			{ key = "bananamilk", name = "바나나우유", kind = "bottle", color = Color3.fromRGB(255, 225, 110), coins = 3, section = "💰 3" },
 			{ key = "soda", name = "탄산음료 캔", kind = "bottle", color = Color3.fromRGB(220, 50, 60), coins = 3, section = "💰 3" },
 			{ key = "samgak", name = "삼각김밥", kind = "rice", color = Color3.fromRGB(250, 250, 245), coins = 3, section = "💰 3" },
-			{ key = "cupnoodle", name = "컵라면", kind = "noodle", color = Color3.fromRGB(240, 80, 50), coins = 4, bites = 5, section = "💰 4" },
+			{ key = "cupnoodle", name = "컵라면", kind = "noodle", color = Color3.fromRGB(240, 80, 50), coins = 4, bites = 3, section = "💰 4" }, -- (D-1053: the user's model, three bites)
 		},
 	},
 	-- 국밥집 "오후 돼지국밥" (D-311, D-314): a bowl to eat at the table

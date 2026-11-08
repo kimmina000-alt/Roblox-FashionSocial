@@ -555,6 +555,19 @@ do
 			return
 		end
 		local eat = heldAny()
+		-- (D-1053) the cup ramen: a tap on the OH24 hot water dispenser pours, any
+		-- other tap is its next step (lid off, wait, eat: SnackService / RamenCup)
+		if eat and eat:GetAttribute("Ramen") then
+			if short and not p.moved then
+				local hit = rayAt(screen)
+				if hit and CollectionService:HasTag(hit.Instance, "HotWater") then
+					ask("HotWater", hit.Instance)
+				else
+					ask("Ramen", eat)
+				end
+			end
+			return
+		end
 		if eat and eat:GetAttribute("Snack") then
 			-- anywhere else: a bite (a short tap or click, not a camera drag)
 			if short and not p.moved then eat:Activate() end
