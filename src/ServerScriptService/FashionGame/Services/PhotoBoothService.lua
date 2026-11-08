@@ -66,6 +66,7 @@ type Session = {
 	shots: {any},
 	saved: {[Player]: boolean},
 	startNow: boolean,
+	waitUntil: number?, -- (D-1011) when shooting starts; joining moves it
 	-- Picking (user, 2026-10-22): only the picker (the host; the next person
 	-- if the host leaves) chooses the shots and the frame; the others watch
 	-- live. Then everyone chooses how many copies to keep.
@@ -489,10 +490,10 @@ local function runSession(session: Session)
 		endSession(session, "부스를 찾을 수 없어요.")
 		return
 	end
-	-- Waiting for friends.
-	local waitUntil = now() + (if session.mode == "solo" then PhotoConfig.SoloWaitSeconds else PhotoConfig.WaitSeconds)
-	booth:SetAttribute("WaitUntil", waitUntil)
-	while sessions[booth] == session and now() < waitUntil and not session.startNow do
+	-- Waiting for friends. (D-1011) the end moves when someone joins (join())
+	session.waitUntil = now() + (if session.mode == "solo" then PhotoConfig.SoloWaitSeconds else PhotoConfig.WaitSeconds)
+	booth:SetAttribute("WaitUntil", session.waitUntil)
+	while sessions[booth] == session and now() < (session.waitUntil :: number) and not session.startNow do
 		task.wait(0.2)
 	end
 	if sessions[booth] ~= session then return end
@@ -703,6 +704,16 @@ local function join(player: Player, payload: any): (boolean, string?)
 	if full then return false, full end
 	table.insert(session.people, player)
 	enter(session, player)
+	-- (D-1011) a moment for the next person: at least JoinExtraSeconds left
+	-- after each join; a full booth starts FullStartSeconds later
+	if typeof(session.waitUntil) == "number" then
+		if #session.people >= PhotoConfig.MaxPeople then
+			session.waitUntil = math.min(session.waitUntil, now() + PhotoConfig.FullStartSeconds)
+		else
+			session.waitUntil = math.max(session.waitUntil, now() + PhotoConfig.JoinExtraSeconds)
+		end
+		booth:SetAttribute("WaitUntil", session.waitUntil)
+	end
 	publish(session, booth)
 	toast(session.host, player.DisplayName .. "님이 함께 찍어요!")
 	return true, nil

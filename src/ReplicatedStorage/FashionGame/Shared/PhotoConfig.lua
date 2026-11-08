@@ -27,7 +27,13 @@ PhotoConfig.ShotCount = 8          -- photos taken per session
 PhotoConfig.PickCount = 4          -- photos kept (4컷)
 PhotoConfig.ShotSeconds = 10       -- countdown per photo
 PhotoConfig.FirstShotSeconds = 8   -- a little longer to pick the first pose
-PhotoConfig.WaitSeconds = 10       -- waiting for friends (친구와 / 모두와)
+-- (D-1011, user 2026-11-08: "어제 오후네컷 네 명이 찍으려고 하니까 안 된다는 의견 있었는데 동시에 들어가지 말고 시간차 두고 입장하고 네 명 초과하면 입장 안 되는지 세세한 부분 체크") the 7-player test: by the time the
+-- others had walked up and tapped 같이 찍기, the 10 s were over and the host
+-- shot alone. Now 30 s; each person who joins gives everyone at least 15 s
+-- more; a full booth (4) starts 5 s later. The host can still tap 바로 시작.
+PhotoConfig.WaitSeconds = 30       -- waiting for friends (친구와 / 모두와; 10 until D-1011)
+PhotoConfig.JoinExtraSeconds = 15  -- after someone joins, at least this long before shooting
+PhotoConfig.FullStartSeconds = 5   -- 4 people in: shooting starts this soon
 PhotoConfig.SoloWaitSeconds = 3
 PhotoConfig.PickSeconds = 120      -- time for the host to pick 4 + a frame
 -- Copies (user, 2026-10-22): after the host chose the frame, each person picks

@@ -3075,3 +3075,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 잠금(새 기능, Track.locked): NMIXX-긴 소원, IVE-Mirror, Hearts2Hearts-Lemon Tang, Hearts2Hearts-Next Chapter, 현아-Bubble Pop. 음악 창에서 🔒와 흐린 글씨, 버튼 없음. 서버(ClubService)가 Play / Request / Queue를 "🔒 잠긴 곡이에요."로 거절, 자동 순서와 안무 테스트 곡에서도 뺌.
 - RIIZE-Get A Guitar boost4 5, RIIZE-Love 119 boost4 5.
 - 확인(PC Play): 곡 38(Studio), 잠긴 Bubble Pop을 DJ 지금 / 신청 / 우선예약 → 모두 거절, 두 곡 boost4 5, Get A Guitar 재생, 음악 창 잠긴 5곡 🔒 · 버튼 0. 다른 브랜치(feat/bad-upload-1107, feat/bad2-choreo-1107, feat/choreo-batch-1106 등)도 ClubPlaylist를 바꾸므로 머지 때 겹침 확인.
+
+## D-1011 오후네컷 같이 찍기 대기 10초 → 30초, 들어올 때마다 15초 더, 4명 차면 5초 뒤 시작 (2026-11-08)
+- 사용자: "7명으로 테스트해 봐 / 어제 오후네컷 네 명이 찍으려고 하니까 안 된다는 의견 있었는데 동시에 들어가지 말고 시간차 두고 입장하고 네 명 초과하면 입장 안 되는지 세세한 부분 체크"
+- 7인 테스트(서버 + Player1..7, 폰 801×413): P1이 모두와로 열고 P2 · P3 · P4가 3초 간격으로 진짜 같이 찍기 버튼(JoinPrompt) → P2가 누르기 전에 10초(PhotoConfig.WaitSeconds)가 지나 P1 혼자 촬영 시작, 이후 버튼이 꺼져 아무도 못 들어감. 휴대폰으로 걸어와 누르기엔 10초가 짧음 = 어제 의견의 원인으로 봄.
+- 그 밖은 정상: 4명 뒤 5 · 6번째는 "자리가 다 찼어요 (최대 4명)."(버튼 꺼짐), 촬영 중 나가기 됨 · 촬영 중 들어오기는 "지금은 함께할 수 없어요.", 친구와 모드에서 친구 아닌 사람 "…님의 친구만 함께할 수 있어요.", 다른 부스에 들어가 있으면 "이미 촬영 중이에요.", PINK · WHITE · SKY 동시 사용 됨. 같은 테스트에서 7명 클럽 노래 위치 차이 0.05초 안, 오류 0.
+- 고침: WaitSeconds 10 → 30. 누가 들어올 때마다 남은 시간이 JoinExtraSeconds(15)보다 적으면 15초로(다음 사람이 올 시간), 4명이 다 차면 FullStartSeconds(5) 뒤 시작. 호스트의 "바로 시작"은 그대로. 대기 화면의 "📸 N초 후 촬영 시작 · x/4명"이 WaitUntil을 따라 늘어남(PhotoBoothService session.waitUntil).
+- 남은 확인: 여러 명 테스트로 시간차 입장 · 대기 중 빈자리 채우기 · 4명 차면 5초 뒤 시작.
