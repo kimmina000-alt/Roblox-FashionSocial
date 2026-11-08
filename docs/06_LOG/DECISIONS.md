@@ -3363,6 +3363,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - OH24 메뉴: 참치마요 삼각김밥(키 samgak, 예전 가방 호환), 전주비빔 삼각김밥(samgak_bibim), 💰 3. 모델 = ServerStorage.ArtAssets.Foods.SamgakTunaBites / SamgakBibimBites(사용자가 3D 가져오기, Bite1 포장 + Bite2~4), 누워 있는 모델을 세워 듦. 첫 누르기 = Bite1 숨김 + 비닐 소리(먹는 동작 없음), 그다음 국밥처럼 남은 조각 중 가장 낮은 번호부터 한 입씩. glb 사본 docs/04_ART/models/SamgakTuna.glb / SamgakBibim.glb.
 - 상태: 코드는 넣었고, 모델이 Studio에 들어오면 바로 쓰임(없으면 예전 모양).
 
+- 2026-11-09 (2): 사용자가 glb 두 개를 가져옴 → Workspace의 Scene 둘을 포장 색으로 구분(파랑 = 참치, 빨강 = 비빔) 해 ServerStorage.ArtAssets.Foods.SamgakTunaBites / SamgakBibimBites로 옮김(Anchored, CanCollide/CanTouch/CastShadow 끔). 가져오기에서 빠진 색은 glb 재질 값으로: 김 (23, 0, 23), 속 참치 (255, 213, 157) / 비빔 (152, 50, 35). 손에서 거꾸로 서 있어 회전 90° → -90°(뾰족한 쪽 위, 글씨 바로). Play: 탭 1 = 포장 사라짐, 2·3 = 한 입씩, 4 = 다 먹음. 사진 samgak_bibim_held.jpg. 모델은 place에만 있음(Ctrl+S).
+
 ## D-1067 OH24 전광판: 테스트 후원 숨김 (2026-11-09)
 - 사용자: "건물 전광판에 지금 뜨는 테스트로 한 기부자 지우고 광고 이미지만 띄워. 이후에 기부자 생기면 기부자 띄워."
 - RecentSupport/list의 3개 = 사장님 Studio 테스트(2026-11-01, 11-04, 10 R$, "테스트"). 라이브 데이터 직접 지우기는 권한상 막혀서 코드로: 2026-11-05 00:00 KST 전 후원은 전광판에 안 띄움(RankingService.RECENT_FROM), Studio에서 한 후원은 라이브 목록에 저장 안 함. 후원이 없으면 광고만 돎(RankingBoards 원래 동작).
