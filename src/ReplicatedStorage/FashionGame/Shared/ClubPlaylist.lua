@@ -229,13 +229,15 @@ M.Playlist = {
 		-- D-970: Lemonade_v2 1..22 (20 and 21 uploaded D-979; D-982: 2:17-2:26 = the red-box floor member's clip 113734305009959 at 136.22 in place of clip 17, clip 16 stops there); clip 8 = re-upload 99169381541568 (D-978, the first one was a copy of 7).
 		-- (D-1019, user: "레모네이드 파일 교체 1:107871857436267 17:123236589131931") clip 1 = the user's new upload (same 8.30 s clip, same `from`);
 		-- clip 17 = the user's hand-keyed clip 17 (7.97 s, practice clip 139.0-147.0 → at 137.92) in place of the red-box clip, clip 16 plays to its end
+		-- (D-1044, user 2026-11-09: "레모네이드 17번 원래 걸로 수정") clip 17 = the original practice clip 132337331292488 again (as in D-970);
+		-- the hand-keyed 123236589131931 and its fixes stay in ClubChoreo, unused
 		-- Clip 1 = mirror cover b3C-M5lDRHE (video = song + 1.45 s, `from = 1.45`); clips 2..22 = practice video NJx2IGeS8CQ (video = song + 1.08 s, `at` = clip start - 1.08)
 		choreo = { { id = 107871857436267, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
 		{ id = 123559029471758, at = 22.84 }, { id = 139260290712979, at = 31.92, blend = 1 }, { id = 131526768823490, at = 39.2 },
 		{ id = 99422937735141, at = 47.49, blend = 0.51, stop = 55.75 }, { id = 99169381541568, at = 55.92, blend = 0.35, slowIn = { 0.35, 0.17 } }, { id = 100397079318559, at = 67.05 }, { id = 135759185323713, at = 76.35, slowOut = { 0.4, 0.15 } },
 		{ id = 83846438884132, at = 85.92, blend = 1 }, { id = 138502286160157, at = 94.39, blend = 1 }, { id = 107439323698577, at = 100.92, blend = 0.81 },
 		{ id = 138612452549442, at = 111.39, blend = 0.43 }, { id = 118124487485279, at = 114.92, blend = 0.75 }, { id = 82680550952125, at = 127.65, blend = 0.43 },
-		{ id = 123236589131931, at = 137.92, blend = 0.5 }, { id = 76195346888656, at = 145.92, blend = 1 }, { id = 116980798181063, at = 150.92, blend = 0.88 },
+		{ id = 132337331292488, at = 137.92, blend = 0.47 }, { id = 76195346888656, at = 145.92, blend = 1 }, { id = 116980798181063, at = 150.92, blend = 0.88 },
 		{ id = 118071176218932, at = 160.92, blend = 0.5 }, { id = 76826604804095, at = 168.42, blend = 0.5 },
 		{ id = 89070118321317, at = 177.49 } }, autoChoreo = true },
 	-- (D-779, user 2026-11-03: new uploads "다섯시…분1102"; tempo = x1 length ÷ heard length, boost 3, -3/2/0)
