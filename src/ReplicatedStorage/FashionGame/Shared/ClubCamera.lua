@@ -1024,4 +1024,36 @@ ClubCamera.Songs[131620527618857] = ClubCamera.Songs[129996145931101]
 -- the same song clock as the old 3× file 104827635407586, feat/crash-choreo-1109)
 ClubCamera.Songs[86115718533153] = ClubCamera.Songs[104827635407586]
 
+-- (D-1046) Hearts2Hearts-Lemon Tang: MBC Show! Music Core 2026-06-27 (youtube a8tzYxhBjOg),
+-- video = song + 10.0 s (no mp3: the practice video's sound, = song + 0.00 by the
+-- choreography D-1040, lined up with the stage: +10.00 in every window).
+-- Shot list made by shots_to_lua.py (D-944), to the song's end at 161.9 s.
+ClubCamera.Songs[97032815457241] = {
+	video = "MBC Show! Music Core 2026-06-27, youtube a8tzYxhBjOg",
+	offset = 10.0,
+	shots = cutList({
+		{ 0, "bust" }, { 1.9, "wide", 0, 5 }, { 4.33, "bust" }, { 5.26, "waist" }, { 10.13, "wide", 0, 5 },
+		{ 11.57, "bust" }, { 13.42, "knee" }, { 14.52, "bust" }, { 15.83, "knee" }, { 17.61, "waist" },
+		{ 19.07, "bust" }, { 22.07, "waist" }, { 23.13, "full" }, { 24.51, "bust" }, { 26.47, "xwide", 0, 8 },
+		{ 28.29, "bust" }, { 32.48, "wide", 0, 5 }, { 33.49, "full" }, { 34.93, "bust" }, { 36.71, "wide", 0, 5 },
+		{ 38.93, "knee", 0, 0, { size = "waist" } }, { 40.8, "bust" }, { 42.47, "wide", 0, 5 }, { 44.84, "knee" },
+		{ 45.73, "bust" }, { 46.17, "wide", 5, 5, { size = "full" } }, { 48.07, "bust" }, { 48.88, "waist" },
+		{ 50.11, "wide", 0, 5 }, { 50.6, "waist" }, { 55, "bust" }, { 56.07, "bust", 0, 0, { size = "close" } },
+		{ 58, "bust" }, { 61.02, "full" }, { 62.69, "bust" }, { 66.62, "full" }, { 68.04, "bust" },
+		{ 71.67, "wide", 0, 5 }, { 73.55, "knee" }, { 75.4, "wide", 0, 5 }, { 77.63, "knee" }, { 79.24, "waist" },
+		{ 81.13, "wide", 0, 5 }, { 83.37, "bust" }, { 85.1, "knee" }, { 86.8, "bust" },
+		{ 88.73, "wide", 0, 5, { size = "full" } }, { 91.23, "waist" }, { 91.77, "bust" },
+		{ 92.23, "wide", 0, 5, { size = "full" } }, { 94.03, "bust" }, { 95.2, "bust", 0, 0, { size = "close" } },
+		{ 100.53, "waist" }, { 101.65, "bust" }, { 102.3, "wide", 0, 5 }, { 103.37, "bust" }, { 105.07, "full" },
+		{ 106.5, "bust" }, { 107.97, "wide", 0, 5 }, { 109.1, "waist" }, { 110.17, "bust" },
+		{ 111.93, "wide", 0, 5 }, { 113, "bust" }, { 113.82, "wide", 0, 5 }, { 115.7, "bust" }, { 118.63, "waist" },
+		{ 119.07, "wide", 0, 5 }, { 119.53, "wide", 0, 5, { size = "full" } }, { 123.37, "bust" },
+		{ 125.2, "full", 0, 0, { size = "knee" } }, { 129.17, "bust" }, { 131.53, "knee" },
+		{ 133.5, "wide", 0, 5, { size = "full" } }, { 134.93, "knee" }, { 135.57, "xwide", 0, 8, { size = "wide" } },
+		{ 136.6, "wide", 0, 5 }, { 137.86, "waist" }, { 138.57, "wide", 0, 5 }, { 140.67, "waist" },
+		{ 144.07, "wide", 0, 5, { size = "full" } }, { 148.27, "waist", 0, 0, { size = "bust" } },
+		{ 149.83, "bust" }, { 151.07, "wide", 0, 5, { size = "full" } }, { 155.83, "waist" },
+		{ 157.2, "wide", 0, 5, { size = "full" } }, { 159.37, "bust" },
+	}),
+}
 return ClubCamera
