@@ -60,6 +60,7 @@ BusAdService.Start()
 require(script.Parent.Services.BarShelfService).Start()
 require(script.Parent.Services.BakeryDisplayService).Start()
 require(script.Parent.Services.GuardService).Start()
+require(script.Parent.Services.BeachBallService).Start() -- (beach balls to pick up and throw, D-1029)
 -- carried items back after a rejoin or a respawn (D-790)
 require(script.Parent.Services.BagService).Start(PlayerDataService, SnackService, DrinkService, SparkleService)
 
