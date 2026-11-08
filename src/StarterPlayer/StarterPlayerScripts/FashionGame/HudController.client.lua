@@ -9,6 +9,10 @@ local TweenService = game:GetService("TweenService")
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
+-- (D-1012, user 2026-11-08: "고객 의견 듣는 버튼 복구") the 💬 의견 보내기 button is made
+-- when the Feedback module loads; only the first-time tips (gone since D-845 /
+-- D-850) loaded it at start, so it was missing until the guide NPC opened it
+task.defer(function() require(script.Parent:WaitForChild("Feedback")) end)
 
 local gui = Instance.new("ScreenGui")
 gui.Name = "FashionHudGui"
