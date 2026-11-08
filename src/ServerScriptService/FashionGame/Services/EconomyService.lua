@@ -164,6 +164,14 @@ function EconomyService.Spend(player: Player, amount: number): boolean
 	return true
 end
 
+-- (D-1013) coins given by the game's owner (a reward for feedback), with a toast;
+-- not doubled by the x2 pass, no daily cap
+function EconomyService.Gift(player: Player, amount: number, text: string)
+	if amount <= 0 or not player.Parent then return end
+	add(player, math.floor(amount))
+	toast(player, string.format("%s +%d %s · %s", EconomyConfig.Icon, math.floor(amount), EconomyConfig.CurrencyName, text))
+end
+
 -- Coins back for something paid and not given (a cafe order cancelled, D-772).
 function EconomyService.Refund(player: Player, amount: number)
 	if amount > 0 and player.Parent then add(player, math.floor(amount)) end

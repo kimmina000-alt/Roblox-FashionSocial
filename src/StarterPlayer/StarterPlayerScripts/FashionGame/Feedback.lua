@@ -74,7 +74,8 @@ local form = create("Frame", { Position = UDim2.fromOffset(14, 46), Size = UDim2
 create("TextLabel", {
 	Size = UDim2.new(1, 0, 0, 36), BackgroundTransparency = 1, Font = Enum.Font.GothamMedium, TextSize = 14,
 	TextColor3 = GREY, TextWrapped = true, TextXAlignment = Enum.TextXAlignment.Left,
-	Text = "버그, 불편한 점, 있었으면 하는 것… 무엇이든 적어 주세요. 개발자가 하나하나 직접 읽어요!",
+	-- (D-1013) the reward, said where people write
+	Text = string.format("버그, 불편한 점, 바라는 것 무엇이든 적어 주세요. 좋은 의견은 확인 후 %d코인을 드려요! 🎁", FeedbackConfig.RewardCoins or 0),
 }, form)
 local chips = create("Frame", { Position = UDim2.fromOffset(0, 40), Size = UDim2.new(1, 0, 0, 34), BackgroundTransparency = 1 }, form)
 create("UIListLayout", { FillDirection = Enum.FillDirection.Horizontal, Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, chips)
@@ -198,7 +199,7 @@ local function fillInbox()
 		local where = if typeof(row.x) == "number" then string.format(" · (%d, %d)", row.x, row.z or 0) else ""
 		local head = create("Frame", { LayoutOrder = 1, Size = UDim2.new(1, 0, 0, 22), BackgroundTransparency = 1 }, card)
 		create("TextLabel", {
-			Size = UDim2.new(1, -66, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 13,
+			Size = UDim2.new(1, -130, 1, 0), BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 13,
 			TextColor3 = ORANGE, TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd,
 			Text = string.format("%s · %s · %s%s", KIND_LABEL[row.k] or "", tostring(row.n), when, where),
 		}, head)
@@ -217,6 +218,33 @@ local function fillInbox()
 			task.spawn(function()
 				pcall(function() remote:InvokeServer("Done", row.key) end)
 				card:Destroy()
+			end)
+		end)
+		-- (D-1013) 🎁 the sender's coins, once per message
+		local given = row.r == true
+		local giftButton = button(head, if given then "지급됨" else string.format("🎁 %d", FeedbackConfig.RewardCoins or 0),
+			if given then CHIP else ORANGE, if given then GREY else Color3.new(1, 1, 1))
+		giftButton.AnchorPoint = Vector2.new(1, 0)
+		giftButton.Position = UDim2.new(1, -64, 0, 0)
+		giftButton.Size = UDim2.fromOffset(60, 22)
+		giftButton.TextSize = 12
+		local busy = false
+		giftButton.Activated:Connect(function()
+			if given or busy then return end
+			busy = true
+			giftButton.Text = "…"
+			task.spawn(function()
+				local ok, sent, message = pcall(function() return remote:InvokeServer("Reward", row.key) end)
+				busy = false
+				if ok and sent then
+					given = true
+					giftButton.Text = "지급됨"
+					giftButton.BackgroundColor3 = CHIP
+					giftButton.TextColor3 = GREY
+				else
+					giftButton.Text = string.format("🎁 %d", FeedbackConfig.RewardCoins or 0)
+				end
+				if ok and typeof(message) == "string" then showSent(message) end
 			end)
 		end)
 	end

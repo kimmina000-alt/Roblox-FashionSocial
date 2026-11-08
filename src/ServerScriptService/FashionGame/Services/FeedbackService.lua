@@ -3,6 +3,9 @@
 --   "Send", { kind, text }  → true / false, message
 --   "List"                  → the newest messages (the game's owner only)
 --   "Done", key             → the owner marks one handled (hidden from the list)
+--   "Reward", key           → (D-1013) the owner gives the sender FeedbackConfig.RewardCoins,
+--                             once per message (value.r); offline senders get them on
+--                             their next visit (DataStore "FeedbackRewards_v1", u_<userId>)
 -- Each message is one key in the DataStore "Feedback_v1" (u, n, k, t, at,
 -- x, z, done); the OrderedDataStore "FeedbackTimes" keeps key → time for the
 -- newest-first list. Every message is printed in the server output too.
@@ -17,14 +20,17 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local FeedbackConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("FeedbackConfig"))
+local EconomyService = require(script.Parent.EconomyService)
 
 local FeedbackService = {}
 
 local store: DataStore? = nil
 local times: OrderedDataStore? = nil
+local pending: DataStore? = nil -- (D-1013) coins waiting for a sender who was offline
 pcall(function()
 	store = DataStoreService:GetDataStore("Feedback_v1")
 	times = DataStoreService:GetOrderedDataStore("FeedbackTimes")
+	pending = DataStoreService:GetDataStore("FeedbackRewards_v1")
 end)
 
 local lastSent: {[Player]: number} = {}
@@ -95,7 +101,7 @@ local function list(player: Player): {any}
 	local out = {}
 	for _, entry in ipairs(session) do
 		if not entry.value.done then
-			table.insert(out, { key = entry.key, n = entry.value.n, k = entry.value.k, at = entry.value.at, t = entry.value.t, x = entry.value.x, z = entry.value.z })
+			table.insert(out, { key = entry.key, n = entry.value.n, k = entry.value.k, at = entry.value.at, t = entry.value.t, x = entry.value.x, z = entry.value.z, r = entry.value.r })
 		end
 	end
 	pcall(function()
@@ -103,7 +109,7 @@ local function list(player: Player): {any}
 		for _, row in ipairs(page) do
 			local value = (store :: DataStore):GetAsync(row.key)
 			if typeof(value) == "table" and not value.done then
-				table.insert(out, { key = row.key, n = value.n, k = value.k, at = value.at, t = filtered(value.t, value.u, player), x = value.x, z = value.z })
+				table.insert(out, { key = row.key, n = value.n, k = value.k, at = value.at, t = filtered(value.t, value.u, player), x = value.x, z = value.z, r = value.r })
 			end
 		end
 	end)
@@ -126,17 +132,79 @@ local function done(player: Player, key: any): boolean
 	return ok
 end
 
+-- (D-1013) the sender's coins: now when they are in this server with their data
+-- loaded (the Coins attribute is set then), else kept for their next visit
+local THANKS = "의견 고마워요!"
+local function give(userId: number, amount: number): string
+	local target = Players:GetPlayerByUserId(userId)
+	if target and target:GetAttribute("Coins") ~= nil then
+		EconomyService.Gift(target, amount, THANKS)
+		return string.format("🎁 %s 님에게 %d코인을 보냈어요.", target.DisplayName, amount)
+	end
+	local ok = pcall(function()
+		(pending :: DataStore):UpdateAsync("u_" .. userId, function(old)
+			return (if typeof(old) == "number" then old else 0) + amount
+		end)
+	end)
+	return if ok then string.format("🎁 %d코인을 다음 접속 때 받아요.", amount) else "지금은 보낼 수 없어요. 잠시 뒤에 다시 해 주세요."
+end
+
+local function reward(player: Player, key: any): (boolean, string?)
+	if not isAdmin(player) or typeof(key) ~= "string" or #key > 64 then return false, nil end
+	local amount = FeedbackConfig.RewardCoins or 0
+	if amount <= 0 then return false, nil end
+	for _, entry in ipairs(session) do
+		if entry.key == key then
+			if entry.value.r then return false, "이미 코인을 보냈어요." end
+			entry.value.r = true
+			return true, give(entry.value.u, amount)
+		end
+	end
+	-- (once per message: the flag is set in the same update that finds it unset)
+	local sender: number? = nil
+	local ok = pcall(function()
+		(store :: DataStore):UpdateAsync(key, function(value)
+			if typeof(value) ~= "table" or value.r then return nil end
+			value.r = true
+			sender = value.u
+			return value
+		end)
+	end)
+	if not ok then return false, "지금은 보낼 수 없어요. 잠시 뒤에 다시 해 주세요." end
+	if typeof(sender) ~= "number" then return false, "이미 코인을 보냈어요." end
+	return true, give(sender :: number, amount)
+end
+
+-- coins kept for someone who was offline when the owner gave them
+local function claim(player: Player)
+	if not pending then return end
+	local t0 = os.clock()
+	while player.Parent and player:GetAttribute("Coins") == nil and os.clock() - t0 < 30 do task.wait(0.5) end
+	if not player.Parent or player:GetAttribute("Coins") == nil then return end
+	local amount = 0
+	pcall(function()
+		(pending :: DataStore):UpdateAsync("u_" .. player.UserId, function(old)
+			if typeof(old) ~= "number" or old <= 0 then return nil end
+			amount = old
+			return 0
+		end)
+	end)
+	if amount > 0 then EconomyService.Gift(player, amount, THANKS) end
+end
+
 function FeedbackService.Start()
 	local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("Feedback") :: RemoteFunction
 	remote.OnServerInvoke = function(player: Player, action: any, payload: any)
 		if action == "Send" then return send(player, payload)
 		elseif action == "List" then return list(player)
 		elseif action == "Done" then return done(player, payload)
+		elseif action == "Reward" then return reward(player, payload)
 		end
 		return false
 	end
 	local function tell(player: Player)
 		if isAdmin(player) then player:SetAttribute("FeedbackAdmin", true) end
+		task.spawn(claim, player)
 	end
 	Players.PlayerAdded:Connect(tell)
 	for _, player in ipairs(Players:GetPlayers()) do tell(player) end
