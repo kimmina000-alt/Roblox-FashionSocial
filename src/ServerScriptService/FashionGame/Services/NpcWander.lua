@@ -15,8 +15,9 @@ local NpcWander = {}
 
 local STOP_DISTANCE = 7 -- studs: a player this close, the NPC stays and looks at them
 
-local function walkTrack(humanoid: Humanoid): AnimationTrack?
-	local id = GuideConfig.Npc.walkAnimation
+local function walkTrack(humanoid: Humanoid, own: number?): AnimationTrack?
+	-- (D-1059) each NPC's own animation pack walk, else the guide's
+	local id = own or GuideConfig.Npc.walkAnimation
 	if not id then return nil end
 	local animator = humanoid:FindFirstChildOfClass("Animator") or Instance.new("Animator", humanoid)
 	local animation = Instance.new("Animation")
@@ -29,11 +30,11 @@ local function walkTrack(humanoid: Humanoid): AnimationTrack?
 end
 
 -- box: { min, max } in base's space (Y ignored); speed: walk speed
-function NpcWander.run(model: Model, humanoid: Humanoid, root: BasePart, base: BasePart, box: { min: Vector3, max: Vector3, speed: number? })
+function NpcWander.run(model: Model, humanoid: Humanoid, root: BasePart, base: BasePart, box: { min: Vector3, max: Vector3, speed: number?, walk: number? })
 	humanoid.WalkSpeed = box.speed or 5
 	root.Anchored = false
 	pcall(function() root:SetNetworkOwner(nil) end)
-	local walk = walkTrack(humanoid)
+	local walk = walkTrack(humanoid, box.walk)
 	humanoid.Running:Connect(function(speed)
 		if not walk then return end
 		if speed > 0.5 and not walk.IsPlaying then walk:Play(0.2) elseif speed <= 0.5 and walk.IsPlaying then walk:Stop(0.2) end

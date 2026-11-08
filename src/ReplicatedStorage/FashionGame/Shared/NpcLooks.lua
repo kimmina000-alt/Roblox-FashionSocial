@@ -11,7 +11,7 @@ export type Look = {
 	-- JSON: assets, accessories, colours, scales), copied here
 	snapshot: string?,
 	-- walks about a box (NpcWander), in the coordinates of the part it stands on
-	wander: { min: Vector3, max: Vector3, speed: number? }?,
+	wander: { min: Vector3, max: Vector3, speed: number?, walk: number? }?, -- walk: its walk animation
 	nod: boolean?, -- nods its head to a beat while it walks (NpcNodController)
 	head: number?,
 	hair: number?,
@@ -175,17 +175,22 @@ end
 -- the seller on the floor before the VIP stair hall door (x 120..136, z -268..-258).
 local MANO = [[{"scales":{"BodyTypeScale":1,"DepthScale":1,"HeadScale":1,"HeightScale":1.05,"WidthScale":1,"ProportionScale":0},"assets":{"RightLeg":78612455851057,"RightArm":99893444151857,"Shirt":79181697649041,"Head":127877713775017,"MoodAnimation":14618207727,"Torso":96849800222415,"LeftArm":119615240551922,"LeftLeg":87648388126478},"accessories":[{"l":false,"id":81925899554541,"t":"Hair","o":0},{"l":false,"id":113547626506365,"t":"Hair","o":0},{"l":true,"id":124097620724692,"t":"Shirt","o":7},{"l":true,"id":89712522411590,"t":"Shirt","o":7},{"l":true,"id":102661930700515,"t":"Pants","o":4},{"l":true,"id":109327049739669,"t":"LeftShoe","o":2},{"l":true,"id":99148738190585,"t":"RightShoe","o":2},{"l":false,"id":83090048744955,"t":"Hat","o":0},{"l":true,"id":95607422794942,"t":"Jacket","o":10},{"l":false,"id":140396507416761,"t":"Hat","o":0},{"l":false,"id":17840354692,"t":"Neck","o":0}],"colors":{"HeadColor":"564236","TorsoColor":"564236","LeftArmColor":"564236","RightLegColor":"564236","LeftLegColor":"564236","RightArmColor":"564236"}}]]
 local ARAL = [[{"scales":{"BodyTypeScale":1,"DepthScale":1,"HeadScale":1,"HeightScale":1.05,"WidthScale":1,"ProportionScale":0},"assets":{"RightLeg":78612455851057,"RightArm":99893444151857,"Shirt":99334947837858,"Head":101658325697467,"MoodAnimation":14618207727,"Torso":96849800222415,"LeftArm":119615240551922,"LeftLeg":87648388126478},"accessories":[{"l":false,"id":89616122151377,"t":"Face","o":0},{"l":false,"id":134721172715164,"t":"Face","o":0},{"l":true,"id":75973424534143,"t":"Shirt","o":4},{"l":false,"id":13905362287,"t":"Neck","o":0},{"l":false,"id":13580738522,"t":"Hair","o":0},{"l":false,"id":107966977497481,"t":"Hat","o":0},{"l":false,"id":109192743730128,"t":"Face","o":0},{"l":true,"id":90193253096556,"t":"TShirt","o":3},{"l":true,"id":120447811356556,"t":"Jacket","o":5},{"l":true,"id":73476274706538,"t":"Pants","o":2},{"l":true,"id":99674854011177,"t":"Shorts","o":1},{"l":false,"id":115502408928745,"t":"Face","o":0}],"colors":{"HeadColor":"eab892","TorsoColor":"eab892","LeftArmColor":"eab892","RightLegColor":"eab892","LeftLegColor":"eab892","RightArmColor":"eab892"}}]]
+-- (D-1059, user 2026-11-09: "마노 아랄한테 순서대로 애니메이션팩 적용해서 걷는 모션
+-- 다르게 해", with two packs shown in the catalog, in this order) 마노 = "무감정한"
+-- (Nonchalant by 55Epaa, bundle 113981103573113), 아랄 = "무감정한 학교 소년"
+-- (Nonchalant School Boy by Benere & Chenere's UGC, bundle 198542201057320):
+-- their Walk and Idle animations (read with InsertService from the pack's assets)
 NpcLooks.Looks.Bartender = {
 	snapshot = ARAL,
-	pose = NpcLooks.Looks.Bartender.pose,
+	pose = 138428331917859, -- School Boy idle (asset 137455194395454)
 	holds = NpcLooks.Looks.Bartender.holds,
-	wander = { min = Vector3.new(-16, 0, -1.5), max = Vector3.new(13, 0, 4.5), speed = 5 },
+	wander = { min = Vector3.new(-16, 0, -1.5), max = Vector3.new(13, 0, 4.5), speed = 5, walk = 80970435798081 }, -- School Boy walk (asset 114762832908181)
 }
 NpcLooks.Looks.ItemSeller = {
 	snapshot = MANO,
-	pose = NpcLooks.Looks.ItemSeller.pose,
+	pose = 103551093140086, -- Nonchalant idle (asset 89470439129000)
 	holds = NpcLooks.Looks.ItemSeller.holds,
-	wander = { min = Vector3.new(-90, 0, -60), max = Vector3.new(-80, 0, -44), speed = 6 },
+	wander = { min = Vector3.new(-90, 0, -60), max = Vector3.new(-80, 0, -44), speed = 6, walk = 76458754461389 }, -- Nonchalant walk (asset 89554541453975)
 	nod = true,
 }
 

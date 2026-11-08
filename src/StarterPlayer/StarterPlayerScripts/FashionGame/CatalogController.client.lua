@@ -926,11 +926,12 @@ local backToPacksButton = create("TextButton", {
 	Size = UDim2.fromOffset(145, 28),
 	Position = UDim2.fromOffset(20, 160),
 	BackgroundColor3 = Color3.fromRGB(55, 55, 65),
-	Text = "← BACK TO PACKS",
+	Text = "← 애니메이션 팩",
 	TextColor3 = Color3.fromRGB(255, 255, 255),
-	TextSize = 11,
+	TextSize = 13,
 	Font = Enum.Font.GothamBold,
 	Visible = false,
+	ZIndex = 5,
 })
 backToPacksButton.Parent = mainFrame
 create("UICorner", { CornerRadius = UDim.new(0, 7) }).Parent = backToPacksButton
@@ -2805,6 +2806,10 @@ showBundleContents = function(bundleId: number, bundleName: string)
 	searchBusy = true
 	bundleContentsOpen = true
 	backToPacksButton.Visible = true
+	-- (D-1061, user 2026-11-09: "애니메이션팩 눌러서 봤다가 뒤로 돌아가는 버튼 넣어 줘")
+	-- the button was there but the layout was not redone: it stayed behind the
+	-- results at its first place; now it sits above them and they move down
+	updateCatalogLayout()
 	statusLabel.Text = "Loading contents: " .. bundleName
 	wornButtonUpdaters = {}
 	table.clear(cardContentUIScales)
@@ -2883,6 +2888,7 @@ backToPacksButton.MouseButton1Click:Connect(function()
 	end
 	bundleContentsOpen = false
 	backToPacksButton.Visible = false
+	updateCatalogLayout() -- (D-1061)
 	renderCurrentPage()
 	statusLabel.Text = "Returned to animation packs."
 end)
