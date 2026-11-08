@@ -233,3 +233,5 @@ D-1010에서 잠갔던 다섯 곡. 다시 넣을 때는 아래 줄을 ClubPlayli
 	{ channel = "K-POP", title = "IVE-Mirror", locked = true, soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", locked = true, soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 ```
+
+- ALLDAY PROJECT-CRASH(새 음원 86115718533153): 안무 20개 다시(D-1041), D-918과 같은 `at`(영상 = 곡 + 2.50초), 1번 = 92063442221105.

@@ -75,6 +75,9 @@ M.ChoreoDriftReturn = 8 :: number?
 --     with their own `add` turns (eased between keys), D-860
 --   (steady without `parts` = the whole body, D-852)
 M.ChoreoFixes = {
+	-- ALLDAY PROJECT-CRASH 14 (D-1041, Play scan 1:49.4 SPIN 636°/s): the hips whip 100° back
+	-- (song 109.2-109.6) and settle: one even turn
+	[109278338620404] = { spin = { from = 5.55, to = 6.0, ease = "both" } },
 	-- ATEEZ-BAD 2 (D-994): Play scan SPIN 642°/s at 1:43, a 270° turn (song 102.8-103.9) spread evenly
 	[114907255207310] = { spin = { from = 8.15, to = 9.25, ease = "both" } }, -- 14
 	-- IVE-Looks Can Kill (D-871, from the practice video LvRTCcTPgsY): `still`
@@ -903,6 +906,9 @@ end
 -- it (or slides with both feet still) → `still`; ChoreoAutoSteady = a held
 -- pose with 10-16 turn-backs in 0.5 s → `steady` (passes 8). Piece seconds.
 M.ChoreoGlideStill = {
+	-- ALLDAY PROJECT-CRASH (D-1041, Play scan on the new upload: 1:16.7, 1:21.8, 2:18.3, 2:31.1, the body
+	-- going 1-2 studs while the feet step a fifth of it or less)
+	[103539561583468] = { { 1.0, 1.6 } }, [116383725353409] = { { 2.8, 3.4 } }, [130905271100211] = { { 1.3, 1.8 } }, [83612611749583] = { { 12.3, 12.9 } },
 	-- ATEEZ-BAD 2 (D-994, Play scan 0:13.45 glide 1.0 stud with feet 0.1, 0:54.61 1.0 with 0.2)
 	[101690327843945] = { { 9.4, 10.0 } }, [86108317246080] = { { 1.5, 2.1 } },
 	[101676644495491] = { { 4.8, 5.4 } }, [104212164342204] = { { 4.4, 5.0 }, { 5.8, 6.4 }, { 11.0, 11.6 } },
