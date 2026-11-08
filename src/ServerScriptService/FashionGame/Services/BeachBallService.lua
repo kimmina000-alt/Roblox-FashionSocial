@@ -8,8 +8,18 @@
 -- point pressed (BeachBallController sends it). The thrown ball is a real
 -- physics ball (server owned, light and bouncy, it floats on the water); a
 -- person it hits at speed falls over for a moment (their own client does it,
--- remote BeachBall "Hit") with "퐁!" over their head for everyone. A thrown
--- ball can be picked up again; after 15 s left alone it goes back on the sea.
+-- remote BeachBall "Hit"). A thrown ball can be picked up again; after 15 s
+-- left alone it goes back on the sea.
+-- (D-1048, user 2026-11-09: "비치볼 꾹 누르고 있으면 누르고 있는만큼 멀리 힘있게
+-- 날아가게 해 줘. 포물선 그리면서 실제 비치볼 던졌을 때 보이는 물리적 액션과 모션
+-- 적용해. 다른 사람 맞았을 때 보이는 퐁! 글씨 삭제") Press = "Charge" (the arm
+-- winds up, character attribute BallCharge), let go = "Throw": the power is
+-- how long it was held (server clock, full at CHARGE_FULL s), from a soft
+-- toss of about 7 studs to about 60. The ball leaves the hand at the end of
+-- the swing (RELEASE_DELAY, attribute BallThrow / BallPower for the swing on
+-- every screen) and flies like a real beach ball: light, so the air slows it
+-- (drag ∝ v², terminal speed DRAG_VT) and it falls softly (FLOAT_G instead of
+-- the world's gravity), spinning backward, then bounces and rolls. No "퐁!".
 -- Not saved in the bag (BagService only keeps its own items), and it goes back
 -- when the holder leaves, dies or goes into the club.
 
@@ -21,8 +31,13 @@ local Remote = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Remot
 local BeachBallService = {}
 
 local SHOWN = 0.25 -- (polish_1030: the balls' see-through)
-local SPEED = 62 -- studs/s along the aim
-local LIFT = 9 -- a little extra up so it flies in an arc
+-- (D-1048) launch speed by power 0..1; simulated with FLOAT_G / DRAG_VT at 35°:
+-- 18 → 7 studs, 50 → 30, 100 → 62 (top 16, 1.5 s in the air)
+local SPEED_MIN, SPEED_MAX = 18, 100
+local CHARGE_FULL = 1.5 -- seconds held for full power
+local RELEASE_DELAY = 0.12 -- the swing before the ball leaves the hand
+local FLOAT_G = 55 -- the ball's own fall (the world pulls 196.2)
+local DRAG_VT = 55 -- the speed the air holds it to when falling
 local REST_SECONDS = 15 -- a thrown ball nobody picked up goes back to the sea
 local HIT_SPEED = 14 -- slower than this it only rolls into you
 
@@ -36,6 +51,7 @@ type Ball = {
 	thrownAt: number,
 	thrower: Player?,
 	hits: {[Instance]: boolean},
+	chargeAt: number?,
 }
 local balls: {Ball} = {}
 local holding: {[Player]: Ball} = {}
@@ -57,7 +73,8 @@ local function putBack(ball: Ball)
 	if ball.tool then ball.tool:Destroy() end
 	if ball.thrown then ball.thrown:Destroy() end
 	if ball.holder and holding[ball.holder] == ball then holding[ball.holder] = nil end
-	ball.tool, ball.thrown, ball.holder, ball.thrower = nil, nil, nil, nil
+	if ball.holder and ball.holder.Character then ball.holder.Character:SetAttribute("BallCharge", nil) end
+	ball.tool, ball.thrown, ball.holder, ball.thrower, ball.chargeAt = nil, nil, nil, nil, nil
 	ball.part.Transparency = SHOWN
 	ball.prompt.Enabled = true
 	ball.model:SetAttribute("Out", nil)
@@ -74,7 +91,7 @@ local function give(ball: Ball, player: Player)
 	ball.model:SetAttribute("Out", true)
 	local tool = Instance.new("Tool")
 	tool.Name = "비치볼"
-	tool.ToolTip = "누른 곳으로 던지기"
+	tool.ToolTip = "꾹 누를수록 멀리 던지기"
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool:SetAttribute("BeachBall", true)
@@ -113,44 +130,49 @@ local function hitSomeone(ball: Ball, hitPart: BasePart, velocity: Vector3)
 	ball.hits[model] = true
 	local dir = Vector3.new(velocity.X, 0, velocity.Z)
 	dir = if dir.Magnitude > 0.1 then dir.Unit else Vector3.new(0, 0, -1)
-	if victim then Remote:FireClient(victim, "Hit", dir) end
-	-- "퐁!" over the head, for everyone
-	local head = model:FindFirstChild("Head")
-	if head and head:IsA("BasePart") then
-		local gui = Instance.new("BillboardGui")
-		gui.Name = "BeachBallPong"
-		gui.Size = UDim2.fromOffset(90, 40)
-		gui.StudsOffset = Vector3.new(0, 2.6, 0)
-		gui.AlwaysOnTop = true
-		gui.LightInfluence = 0
-		local label = Instance.new("TextLabel")
-		label.Size = UDim2.fromScale(1, 1)
-		label.BackgroundTransparency = 1
-		label.Text = "퐁!"
-		label.TextScaled = true
-		label.Font = Enum.Font.FredokaOne
-		label.TextColor3 = Color3.fromRGB(255, 120, 150)
-		label.TextStrokeTransparency = 0.2
-		label.TextStrokeColor3 = Color3.new(1, 1, 1)
-		label.Parent = gui
-		gui.Adornee = head
-		gui.Parent = head
-		game:GetService("Debris"):AddItem(gui, 1.2)
-	end
+	if victim then Remote:FireClient(victim, "Hit", dir, velocity.Magnitude) end
 end
+
+-- (D-1048) the air on every flying ball: lift most of the world's gravity
+-- off (it falls at FLOAT_G) and slow it by drag ∝ v²
+local flying: {[BasePart]: VectorForce} = {}
+local DRAG_K = FLOAT_G / (DRAG_VT * DRAG_VT)
+game:GetService("RunService").Heartbeat:Connect(function()
+	for p, force in pairs(flying) do
+		if not p.Parent then flying[p] = nil continue end
+		local m = p.AssemblyMass
+		local v = p.AssemblyLinearVelocity
+		force.Force = Vector3.new(0, m * (workspace.Gravity - FLOAT_G), 0) - v * (v.Magnitude * DRAG_K * m)
+	end
+end)
 
 local function throw(ball: Ball, player: Player, target: Vector3)
 	local character = player.Character
 	local head = character and character:FindFirstChild("Head")
 	local root = character and character:FindFirstChild("HumanoidRootPart")
-	if not head or not head:IsA("BasePart") or not root or not root:IsA("BasePart") then return end
-	local from = head.Position
-	local aim = target - from
-	if aim.Magnitude < 1 or aim.Magnitude > 400 then aim = root.CFrame.LookVector end
-	local dir = aim.Unit
-	if ball.tool then ball.tool:Destroy() ball.tool = nil end
+	if not character or not head or not head:IsA("BasePart") or not root or not root:IsA("BasePart") then return end
+	local power = if ball.chargeAt then math.clamp((os.clock() - ball.chargeAt) / CHARGE_FULL, 0, 1) else 0
+	ball.chargeAt = nil
+	-- the swing on every screen (BeachBallController), then the ball leaves the hand
+	character:SetAttribute("BallCharge", nil)
+	character:SetAttribute("BallPower", power)
+	character:SetAttribute("BallThrow", workspace:GetServerTimeNow())
+	local tool = ball.tool
 	holding[player] = nil
 	ball.holder = nil
+	task.wait(RELEASE_DELAY)
+	if ball.tool ~= tool or not root.Parent then return end
+	if tool then tool:Destroy() end
+	ball.tool = nil
+	-- which way: toward the point pressed, level; up by the aim + 25° (a
+	-- thrower aims a bit over what they want to hit), 12°..60°
+	local aim = target - head.Position
+	if aim.Magnitude < 1 or aim.Magnitude > 400 then aim = root.CFrame.LookVector * 20 end
+	local flat = Vector3.new(aim.X, 0, aim.Z)
+	flat = if flat.Magnitude > 0.1 then flat.Unit else Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z).Unit
+	local pitch = math.clamp(math.atan2(aim.Y, math.max(1, Vector3.new(aim.X, 0, aim.Z).Magnitude)) + math.rad(25), math.rad(12), math.rad(60))
+	local dir = flat * math.cos(pitch) + Vector3.yAxis * math.sin(pitch)
+	local speed = SPEED_MIN + (SPEED_MAX - SPEED_MIN) * power
 	local p = ball.part:Clone()
 	for _, d in ipairs(p:GetChildren()) do d:Destroy() end
 	p.Name = "ThrownBeachBall"
@@ -161,11 +183,24 @@ local function throw(ball: Ball, player: Player, target: Vector3)
 	-- light and bouncy (density low enough to float on the sea)
 	-- (friction 0.35 rolled it 25 studs over the sand after a hit: 1 with full weight)
 	p.CustomPhysicalProperties = PhysicalProperties.new(0.08, 1, 0.55, 100, 1)
-	p.CFrame = CFrame.new(from + dir * 2.6 + Vector3.new(0, 0.3, 0))
+	-- from over the right shoulder, where the swing lets go of it, a little ahead
+	p.CFrame = CFrame.new((root.CFrame * CFrame.new(0.9, 1.9, 0)).Position + flat * 2.2)
 	p.Parent = workspace
 	p:SetNetworkOwner(nil)
-	p.AssemblyLinearVelocity = dir * SPEED + Vector3.new(0, LIFT, 0)
-	p.AssemblyAngularVelocity = Vector3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5) * 8
+	local at = Instance.new("Attachment")
+	at.Parent = p
+	local force = Instance.new("VectorForce")
+	force.Attachment0 = at
+	force.RelativeTo = Enum.ActuatorRelativeTo.World
+	force.ApplyAtCenterOfMass = true
+	force.Force = Vector3.zero
+	force.Parent = p
+	flying[p] = force
+	p.AssemblyLinearVelocity = dir * speed
+	-- spinning backward off the fingers (a thrown ball turns over its top
+	-- toward the thrower), harder with more power, a little wobble
+	local back = flat:Cross(Vector3.yAxis)
+	p.AssemblyAngularVelocity = back * (4 + 10 * power) + Vector3.new(math.random() - 0.5, math.random() - 0.5, math.random() - 0.5) * 3
 	ball.thrown, ball.thrownAt, ball.thrower = p, os.clock(), player
 	ball.hits = {}
 	local prompt = makePrompt(p)
@@ -191,10 +226,16 @@ function BeachBallService.Start()
 	workspace.DescendantAdded:Connect(add)
 
 	Remote.OnServerEvent:Connect(function(player, action, target)
-		if action ~= "Throw" or typeof(target) ~= "Vector3" or target ~= target then return end
 		local ball = holding[player]
 		local character = player.Character
 		if not ball or not ball.tool or not character or ball.tool.Parent ~= character then return end
+		if action == "Charge" then
+			-- (D-1048) pressed: the power grows from now
+			ball.chargeAt = os.clock()
+			character:SetAttribute("BallCharge", workspace:GetServerTimeNow())
+			return
+		end
+		if action ~= "Throw" or typeof(target) ~= "Vector3" or target ~= target then return end
 		throw(ball, player, target)
 	end)
 	Players.PlayerRemoving:Connect(function(player)
