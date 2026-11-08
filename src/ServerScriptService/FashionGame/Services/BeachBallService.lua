@@ -135,14 +135,26 @@ end
 
 -- (D-1048) the air on every flying ball: lift most of the world's gravity
 -- off (it falls at FLOAT_G) and slow it by drag ∝ v²
+-- (Play test: a soft toss landed 10 studs out and then rolled 19 more over the
+-- sand) on the ground it also slows like a ball on sand: ROLL_K per second
 local flying: {[BasePart]: VectorForce} = {}
 local DRAG_K = FLOAT_G / (DRAG_VT * DRAG_VT)
-game:GetService("RunService").Heartbeat:Connect(function()
+local ROLL_K = 2.2
+local groundRay = RaycastParams.new()
+groundRay.FilterType = Enum.RaycastFilterType.Exclude
+groundRay.RespectCanCollide = true
+game:GetService("RunService").Heartbeat:Connect(function(dt)
 	for p, force in pairs(flying) do
 		if not p.Parent then flying[p] = nil continue end
 		local m = p.AssemblyMass
 		local v = p.AssemblyLinearVelocity
-		force.Force = Vector3.new(0, m * (workspace.Gravity - FLOAT_G), 0) - v * (v.Magnitude * DRAG_K * m)
+		local f = Vector3.new(0, m * (workspace.Gravity - FLOAT_G), 0) - v * (v.Magnitude * DRAG_K * m)
+		groundRay.FilterDescendantsInstances = { p }
+		if workspace:Raycast(p.Position, Vector3.new(0, -(p.Size.Y / 2 + 0.35), 0), groundRay) then
+			f -= Vector3.new(v.X, 0, v.Z) * (ROLL_K * m)
+			p.AssemblyAngularVelocity *= math.max(0, 1 - ROLL_K * dt)
+		end
+		force.Force = f
 	end
 end)
 

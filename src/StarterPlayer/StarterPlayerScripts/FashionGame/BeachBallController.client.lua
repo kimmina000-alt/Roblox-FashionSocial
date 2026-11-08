@@ -153,7 +153,9 @@ local function makeRig(character: Model): Rig?
 	bodyGoal.Parent = holder
 	local arm = Instance.new("IKControl")
 	arm.Name = "BallThrowArm"
-	arm.Type = Enum.IKControlType.Transform
+	-- (Position: with Transform the hand kept the held-out turn, so behind the
+	-- shoulder the arm locked straight back like a stick in the first Play test)
+	arm.Type = Enum.IKControlType.Position
 	arm.ChainRoot = upper
 	arm.EndEffector = hand
 	arm.Target = goal
@@ -212,10 +214,10 @@ end
 for _, other in ipairs(Players:GetPlayers()) do watchPlayer(other) end
 Players.PlayerAdded:Connect(watchPlayer)
 
--- root space hand positions (the root looks to -Z, right is +X); the hand
--- keeps the turn it had holding the ball out, so the ball stays on the palm
--- wound up: up behind the right shoulder
-local WIND = Vector3.new(1.25, 1.75, 1.35)
+-- root space hand positions (the root looks to -Z, right is +X)
+-- wound up: up beside and a little behind the head on the right, elbow bent
+-- out to the side (the pole), like a ball held back for a throw
+local WIND = Vector3.new(1.5, 2.4, 1.0) -- (1.2, 2.5, 0.8: the ball sat on the head)
 -- the top of the swing, over the shoulder
 local OVER = Vector3.new(0.8, 2.3, -0.4)
 -- let go: through, the arm long in front, a little down
@@ -255,7 +257,7 @@ RunService.Heartbeat:Connect(function(dt)
 			local strain = if held >= CHARGE_FULL then math.sin(now * 40) * 0.04 else 0
 			handGoal = rig.rest:Lerp(at(rig, WIND), rig.wind) * CFrame.new(0, strain, 0)
 			rig.arm.Weight = 1
-			twist, lean, bodyW = math.rad(-30) * rig.wind, math.rad(8) * rig.wind, 0.8
+			twist, lean, bodyW = math.rad(-22) * rig.wind, math.rad(8) * rig.wind, 0.8
 			rig.from = nil
 		elseif swingT < SWING + FOLLOW then
 			local p = if typeof(power) == "number" then power else 0
@@ -270,7 +272,7 @@ RunService.Heartbeat:Connect(function(dt)
 				local k = swingT / SWING
 				k = k * k
 				handGoal = if k < 0.5 then from:Lerp(at(rig, OVER), k * 2) else at(rig, OVER):Lerp(at(rig, THROUGH), (k - 0.5) * 2)
-				twist = math.rad(-30) * rig.wind * (1 - k) + math.rad(20) * (0.5 + 0.5 * p) * k
+				twist = math.rad(-22) * rig.wind * (1 - k) + math.rad(20) * (0.5 + 0.5 * p) * k
 				lean = math.rad(8) * rig.wind * (1 - k) + math.rad(-14) * (0.5 + 0.5 * p) * k
 			else
 				-- the follow-through, then down
@@ -287,7 +289,8 @@ RunService.Heartbeat:Connect(function(dt)
 			continue
 		end
 		rig.goal.WorldCFrame = root.CFrame * handGoal
-		rig.pole.WorldPosition = (root.CFrame * CFrame.new(2.4, 0.4, 1.2)).Position
+		-- the elbow out to the right and a little back (down in the follow-through)
+		rig.pole.WorldPosition = (root.CFrame * CFrame.new(3, if typeof(chargeAt) == "number" then 1.4 else 0.2, 1.0)).Position
 		if rig.body then
 			rig.body.Weight = bodyW
 			rig.bodyGoal.WorldCFrame = root.CFrame.Rotation * CFrame.Angles(lean, twist, 0) + root.Position
