@@ -3683,3 +3683,15 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 같이 한 일: feat/choreo-batch-1106 d0b8f04 — d7e8f59에서 ClubPlaylist의 `{`가 다 빠졌던 것 되살림(Studio는 괜찮았음), 빠졌던 Catch Catch 2:06 줄 + 빈 구간 클립 132719886087176(at 92.36, from 1.0).
 
 ![BAD 2 비교: 연습 영상 0:41 / 게임](images/2026-11-07/bad2_compare_041.jpg)
+
+### 2026-11-08 전체 머지 + 모바일 4인 테스트
+- 사용자: "모바일 4인 테스트하고 이상 없으면 머지해 / 네 명이서 사진 찍는 거 되는지 노래 다 잘 들리는지 모든 기능 확인 / 캐릭터 다 다르게 해서 구분할 수 있게 해"
+- 머지한 브랜치 7개: fix/banner-note-1107(D-972), feat/choreo-check-1108(안무 수정 · 정면 맞춤, D-963..D-1003), feat/outside-music-1108(D-993), feat/choreo-batch-1106(Catch Catch 등), feat/bad-upload-1107(D-975), feat/bad2-choreo-1107(D-994), feat/playlist-trim-1108(D-1010). 안 넣은 것: lab/turntable-1106(테스트 장소).
+- 충돌: DanceController(D-972 위의 D-993 = outside-music 쪽), ClubPlaylist Catch Catch(choreo-batch의 v2 목록 + choreo-check의 48.27 blend 0.6), ClubChoreo(양쪽 줄 모두; 최종은 Studio와 같게: BAD 2 정면 보정은 ChoreoFaceOffset, 머지가 붙여 버린 주석 줄 복구), 곡 정리는 합친 목록에 같은 규칙으로 다시 적용(38곡, 잠금 5, 삭제 14).
+- Studio를 머지 결과와 맞춤(129개 스크립트: 125개 같음, ClubPlaylist 주석 한 줄 · ClubChoreo 재구성, LoadingScreen / ClubCamera는 예전부터의 공백 차이).
+- 모바일 4인 테스트(서버 + Player1..4, 801×413, 터치, 22시, 캐릭터 색 P1 빨강 · P2 파랑 · P3 초록 · P4 노랑):
+  - 오후네컷 PINK: P1이 2×2 · 모두와로 열고 P2 · P3 · P4가 같이 찍기 → 네 명이 부스 안에 서서 8장 촬영 → P1이 4장 고르는 동안 P3 화면은 "Player1님이 사진을 고르는 중" → 확정 → 네 명 모두 장수 화면 · 1장 인화 → 부스 밖으로, P3 앨범에 사진 1장(컷에 4명).
+  - 클럽: P1(DJ)이 IOI-갑자기 → 네 화면 같은 음원 · 같은 위치(서버 시간 기준 차이 0.01초 안), 음량 10, 네 명 모두 같은 안무 조각. P3 🎥 무대 카메라 켜짐. P4 클럽 밖에서 춤 → 노래 6, 배너에 🎵 🎥(≡ 없음). P2 잠긴 곡(IVE-Mirror) 신청 → "🔒 잠긴 곡이에요.".
+  - 서버 · 네 클라이언트 오류 0(경고는 승인 안 된 장소 에셋만).
+
+![촬영](images/2026-11-08/4p_booth_shooting.jpg) ![고르기](images/2026-11-08/4p_booth_picking.jpg) ![장수](images/2026-11-08/4p_booth_copies.jpg) ![무대 카메라](images/2026-11-08/4p_stagecam_p3.jpg) ![클럽](images/2026-11-08/4p_club_p2.jpg)
