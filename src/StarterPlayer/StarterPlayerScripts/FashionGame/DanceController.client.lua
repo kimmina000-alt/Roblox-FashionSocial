@@ -137,7 +137,7 @@ label({
 local nowLabel = label({
 	Name = "NowLabel",
 	Position = UDim2.fromOffset(34, 0),
-	Size = UDim2.new(1, -34 - 76 - 34 - 86, 0, 28), -- (room for 안무 자동, D-839)
+	Size = UDim2.new(1, -34 - 34 - 92 - 6 - 84, 0, 28), -- (room for 춤 멈추기 and 음소거, D-993)
 	Text = "춤을 고르세요",
 	TextXAlignment = Enum.TextXAlignment.Left,
 	TextColor3 = COLORS.sub,
@@ -149,9 +149,9 @@ local stopButton = button({
 	Name = "StopButton",
 	AnchorPoint = Vector2.new(1, 0),
 	Position = UDim2.new(1, -34, 0, 0),
-	Size = UDim2.fromOffset(72, 28),
-	Text = "■ 멈추기",
-	TextSize = 14,
+	Size = UDim2.fromOffset(92, 28),
+	Text = "■ 춤 멈추기", -- (D-993: the music goes on)
+	TextSize = 13,
 }, panel)
 local closeButton = button({
 	Name = "CloseButton",
@@ -162,28 +162,32 @@ local closeButton = button({
 	Text = "X",
 	TextSize = 15,
 }, panel, 14)
--- (D-839, user) 안무 자동 따라하기 on/off at the top of the dance window: on
--- (the default), a song with a choreography is danced from its start by
--- itself (ChoreoController; LocalPlayer attribute ChoreoAuto, false = off)
-do
-	local autoButton = button({
-		Name = "ChoreoAuto",
-		AnchorPoint = Vector2.new(1, 0),
-		Position = UDim2.new(1, -34 - 76, 0, 0),
-		Size = UDim2.fromOffset(82, 28),
-		TextSize = 12,
-	}, panel)
-	local function paint()
-		local on = player:GetAttribute("ChoreoAuto") ~= false
-		autoButton.BackgroundColor3 = if on then COLORS.accent else COLORS.card
-		autoButton.Text = if on then "🎵 자동 ON" else "🎵 자동 OFF"
-	end
-	autoButton.MouseButton1Click:Connect(function()
-		player:SetAttribute("ChoreoAuto", player:GetAttribute("ChoreoAuto") == false)
-	end)
-	player:GetAttributeChangedSignal("ChoreoAuto"):Connect(paint)
-	paint()
+-- (D-993, user 2026-11-08: "밖에서도 노래 듣고 춤출 수 있음 / 밖에서도 안무 버튼/ 카메라 버튼 보이게 할 것 / 음악 신청만 불가능 / 노래만 들을 수 있게 변경. 재생 중인 노래 보여 주는 칸에 안무 버튼 있으니까 자동 ON 삭제. 춤 멈추기(노래만 들을 수 있음)/음소거(노래 안 들리게 하기) 버튼으로 변경")
+-- The 안무 자동 ON switch (D-839) is gone: the banner's 🎵 starts and stops a
+-- choreography. In its place 음소거: the club music (and the EDM track, which
+-- follows its level) silent for this player, anywhere, until tapped again
+-- (LocalPlayer attribute ClubMuted). 춤 멈추기 stops the dance and keeps the
+-- music: outside the club the music plays while listening (below).
+local muted = false
+local listening = false -- (outside the club: the music keeps playing after a dance)
+local muteButton = button({
+	Name = "MuteButton",
+	AnchorPoint = Vector2.new(1, 0),
+	Position = UDim2.new(1, -34 - 92 - 6, 0, 0),
+	Size = UDim2.fromOffset(84, 28),
+	TextSize = 13,
+}, panel)
+local function paintMute()
+	muteButton.Text = if muted then "🔊 소리 켜기" else "🔇 음소거"
+	muteButton.BackgroundColor3 = if muted then COLORS.accent else COLORS.card
 end
+muteButton.MouseButton1Click:Connect(function()
+	muted = not muted
+	if not muted then listening = true end -- (sound on again: heard outside too)
+	player:SetAttribute("ClubMuted", if muted then true else nil)
+	paintMute()
+end)
+paintMute()
 
 -- Row 2: tempo
 local tempoRow = create("Frame", {
@@ -333,24 +337,58 @@ local bannerFolded = false
 local bannerToggle = create("TextButton", {
 	Name = "NowPlayingToggle",
 	AnchorPoint = Vector2.new(0, 0.5),
-	-- (D-972, user 2026-11-07: "접혀 있을 때는 > , 펼쳐져 있을 땐 < 인데 앞에 음표
-	-- 넣기") a note in front: a pill 42 wide instead of the 26 circle
-	Size = UDim2.fromOffset(42, 26),
+	-- (D-993, user 2026-11-08: "재생 중인 노래 앞에 있는 음표 모양 사용 / 접혀있을 때:
+	-- 🎵 > / 펼쳐져 있을 때: <") open: a round "<"; folded: a pill with the
+	-- banner's white ♫ (the one in front of the title, ClubQuickBar) and ">"
+	-- (D-972's ♪< / ♪> before)
+	Size = UDim2.fromOffset(26, 26),
 	BackgroundColor3 = Color3.fromRGB(0, 0, 0),
 	BackgroundTransparency = 0.45,
-	Text = "♪<", -- (D-953: "<" open, ">" folded; "−" / "+" before; D-972: ♪ in front)
+	Text = "<",
 	TextColor3 = Color3.new(1, 1, 1),
-	TextSize = 17,
+	TextSize = 20,
 	Font = Enum.Font.GothamBold,
 	AutoButtonColor = true,
 	Visible = false,
 }, gui)
 corner(bannerToggle, 13)
+local togglePad = create("UIPadding", {}, bannerToggle)
+-- the ♫ drawn from small shapes like ClubQuickBar's (the same proportions)
+local toggleNote = create("Frame", {
+	Name = "Note",
+	AnchorPoint = Vector2.new(0, 0.5),
+	Position = UDim2.new(0, 8, 0.5, 0),
+	Size = UDim2.fromOffset(14, 14),
+	BackgroundTransparency = 1,
+	Visible = false,
+}, bannerToggle)
+for _, s in ipairs({
+	{ 0.25, 0.79, 0.36, 0.26, -20, true }, { 0.73, 0.69, 0.36, 0.26, -20, true }, -- heads
+	{ 0.40, 0.49, 0.08, 0.60, 0, false }, { 0.88, 0.39, 0.08, 0.60, 0, false }, -- stems
+	{ 0.64, 0.19, 0.58, 0.13, -12, false }, -- beam
+}) do
+	local part = create("Frame", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(s[1], s[2]),
+		Size = UDim2.fromScale(s[3], s[4]),
+		Rotation = s[5],
+		BorderSizePixel = 0,
+		BackgroundColor3 = Color3.new(1, 1, 1),
+	}, toggleNote)
+	if s[6] then corner(part, 99) end
+end
+local function paintToggle()
+	toggleNote.Visible = bannerFolded
+	bannerToggle.Size = UDim2.fromOffset(if bannerFolded then 44 else 26, 26)
+	bannerToggle.Text = if bannerFolded then ">" else "<"
+	bannerToggle.TextXAlignment = if bannerFolded then Enum.TextXAlignment.Right else Enum.TextXAlignment.Center
+	togglePad.PaddingRight = UDim.new(0, if bannerFolded then 9 else 0)
+end
 bannerToggle.Activated:Connect(function()
 	bannerFolded = not bannerFolded
 	-- (D-953, user 2026-11-07: "+ , - 로 접었다 폈다 할 수 있는데 > , < 이걸로 변경. 접혀
 	-- 있을 때는 > , 펼쳐져 있을 땐 <")
-	bannerToggle.Text = if bannerFolded then "♪>" else "♪<" -- (D-972: ♪ in front)
+	paintToggle() -- (D-993: 🎵 > folded, < open)
 	if bannerFolded then banner.Visible = false end
 end)
 
@@ -511,7 +549,7 @@ local function layoutPanel()
 	-- under the top row at the left edge (phones held upright). Its − / + in
 	-- front, the play bar under it (ClubQuickBar), the skip count after it.
 	-- The dance panel, sync pill and player card start below it.
-	local TOGGLE_W, SKIP_W, GROUP_H = 48, 42, 47 -- (♪< / ♪> 42 and gap (32 before D-972), skip count, banner 30 + bar 17)
+	local TOGGLE_W, SKIP_W, GROUP_H = 32, 42, 47 -- (the open "<" 26 and gap (48 for D-972's ♪<), skip count, banner 30 + bar 17)
 	local rowLeft, rowRight, rowY = require(script.Parent:WaitForChild("TopBar")).firstRow()
 	local roomInRow = rowRight - rowLeft - TOGGLE_W - SKIP_W
 	local bannerX, bannerY, bannerW
@@ -936,6 +974,16 @@ minusButton.MouseButton1Click:Connect(function() setTempo(tempo - ClubConfig.Tem
 plusButton.MouseButton1Click:Connect(function() setTempo(tempo + ClubConfig.TempoStep, true) end)
 
 stopButton.MouseButton1Click:Connect(function()
+	-- (D-993) the dance stops, the music goes on (outside the club too)
+	listening = true
+	if player:GetAttribute("ChoreoFollowing") then
+		-- (stops the choreography, ChoreoController; it gives back the dance from
+		-- before it, so that one is stopped a moment later too)
+		require(script.Parent:WaitForChild("UiBus")).ChoreoTap:Fire()
+		task.delay(0.6, function()
+			if current.key or joinedPlayer() then requestStop() end
+		end)
+	end
 	if current.key or joinedPlayer() then requestStop() end
 end)
 syncLeave.MouseButton1Click:Connect(leaveSync)
@@ -1459,9 +1507,15 @@ RunService.RenderStepped:Connect(function(dt)
 		local level = musicLevel(position)
 		-- outside the club only the people dancing hear the music (their own
 		-- client plays it; user 2026-10-26)
-		if current.key ~= nil then level = math.max(level, OUTSIDE_DANCE_LEVEL) end
+		-- (D-993) after 춤 멈추기 (listening) and while following a choreography too
+		if current.key ~= nil or listening or player:GetAttribute("ChoreoFollowing") then level = math.max(level, OUTSIDE_DANCE_LEVEL) end
 		-- poses in the photo booth are dances too, but silent there (user 2026-10-27)
 		if player.Character and player.Character:GetAttribute("PhotoBooth") ~= nil then level = 0 end
+		-- (D-993) heard here, before the 음소거: the banner, its 🎵 🎥 and following
+		-- a choreography outside go by this (LocalPlayer attribute HearsClub)
+		local heard = level
+		if player:GetAttribute("HearsClub") ~= (heard > 0 or nil) then player:SetAttribute("HearsClub", if heard > 0 then true else nil) end
+		if muted then level = 0 end
 		-- (a track may set its own volume, ClubConfig Track.volume)
 		local playing = ClubConfig.Playlist[currentTrack]
 		-- (times the DJ's volume, ClubMusicVolume: 0 .. x2, user 2026-11-01)
@@ -1485,7 +1539,7 @@ RunService.RenderStepped:Connect(function(dt)
 		local musicPanel = musicGui and musicGui:FindFirstChild("MusicPanel")
 		-- (D-757: on PC too, now that its DJ window is two windows at the top)
 		local djWindowOnPhone = musicPanel ~= nil and (musicPanel :: GuiObject).Visible
-		local wanted = level > 0 and banner.Text ~= "" and not djWindowOnPhone
+		local wanted = heard > 0 and banner.Text ~= "" and not djWindowOnPhone
 		banner.Visible = wanted and not bannerFolded
 		bannerToggle.Visible = wanted -- (D-906)
 	end

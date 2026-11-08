@@ -410,10 +410,15 @@ RunService.RenderStepped:Connect(function()
 		return
 	end
 	playBar.AnchorPoint = Vector2.new(0.5, 0)
-	local shown = inClub and banner.Visible
+	-- (D-993, user 2026-11-08: "밖에서도 안무 버튼/ 카메라 버튼 보이게 할 것 / 음악
+	-- 신청만 불가능") the 🎵 🎥 and the play bar wherever the banner shows (the
+	-- music is heard there); the ≡ (the music window, requests) and the › skip
+	-- vote inside the club only
+	local shown = banner.Visible
+	local requests = inClub and shown
 	local djOn = (FashionGame:GetAttribute("ClubDJ") or 0) ~= 0
 	local votes = FashionGame:GetAttribute("ClubSkipVotes")
-	listButton.Visible = shown
+	listButton.Visible = requests
 	-- the 🎵 sits just in front of the title (centred in the banner; the title
 	-- of a choreography song is shown without its ♪, DanceController)
 	local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
@@ -430,7 +435,7 @@ RunService.RenderStepped:Connect(function()
 		local textRight = math.min((inner + banner.TextBounds.X) / 2, inner - 24)
 		camButton.Position = UDim2.new(0, textRight + 6, 0.5, 0)
 	end
-	skipButton.Visible = shown and not djOn
+	skipButton.Visible = requests and not djOn
 	skipCount.Visible = skipButton.Visible and typeof(votes) == "string" and votes:sub(1, 2) ~= "0/"
 	skipCount.Text = if typeof(votes) == "string" then votes else ""
 	-- (AbsolutePosition leaves out the top bar inset; this ScreenGui ignores it)
@@ -455,12 +460,13 @@ RunService.RenderStepped:Connect(function()
 	toast.Position = UDim2.fromOffset(p.X + s.X / 2, p.Y + s.Y + 20)
 end)
 
--- inside the club only
+-- inside the club (the ≡ and the skip); the 🎵 🎥 and the bar wherever the
+-- music is heard (D-993)
 task.spawn(function()
 	while true do
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		inClub = root ~= nil and ClubConfig.isInClub(root.Position)
-		gui.Enabled = inClub
+		gui.Enabled = inClub or player:GetAttribute("HearsClub") == true
 		task.wait(0.5)
 	end
 end)
