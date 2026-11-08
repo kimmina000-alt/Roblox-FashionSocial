@@ -311,3 +311,32 @@ D-962(NEON · Get A Guitar · Love 119, 20곳)를 고치며 나온 유형이다.
 - 새 안무를 넣을 때: `home = false`를 쓰지 않는다. tools/choreo/faceoffset을 돌려 조각별 faceOffset을 넣고, Play에서 영상이 정면인 순간 엉덩이 방향(루트 기준)이 0° 근처인지 확인한다.
 - `glide = { from, to }` (D-1020): 그 구간에서 캡처 엉덩이가 끊어서 이동하면, 같은 방향·같은 거리를 고른 속도로 이동(양 끝 부드럽게). 그 조각의 자동 `still`(ChoreoSlideStill)과 겹치면 still을 뺀다.
 - `freeze`의 시간은 `warp` 뒤의 애니메이션 시간이다(D-1019). freeze는 조각 무게에 따라 풀리고, 고정 중에도 바닥 들어올림을 받는다.
+
+## 20. 필수: 고개 · 손목은 영상만큼 (D-1054 / D-1056, 사용자: "앞으로 안무 추가할 때 고개와 손목 움직임도 자세하게 조사하고 구현할 것")
+
+캡처(애니메이션 생성기)는 고개 옆 기울기와 손목 꺾임을 영상보다 작게 만든다(12곡 조사: 고개 129조각, 손목 42조각이 모자랐음. 예: 레몬탱 18번 손바닥 젖힘 70~90° → 캡처 3°). 그래서 새 안무를 넣을 때마다 아래를 반드시 한다. 결과는 조각마다 ChoreoFixes `bend`(관절에 시간별 회전을 더함, 키 사이 부드럽게, 처음·끝 키는 0)로 들어간다.
+
+### 20.1 준비
+- 클립 → 애니메이션 ID 목록(`clips\<곡>_ids_번호.txt`, 없으면 플레이리스트 조각 순서 = 클립 번호인지 확인). 반전 곡(`mirror = true`)인지 확인.
+- 도구: `tools/choreo/wrist/head_video.py`(고개), `hand_video.py`(손목, MediaPipe 손 모델 `tools/choreo/centercut/models/hand_landmarker.task`), `head_misses.lua`(Studio 비교), `overlay_sheet.py` + `arm_angles.py`(눈으로 확인). centercut 가상환경 파이썬으로 실행.
+
+### 20.2 영상에서 재기 (백그라운드)
+- 고개: `head_video.py <yolo pose> <clips 폴더> 1.mp4,2.mp4,...` → 줄마다 `클립 t=각도 ...` (0.2초 간격, 눈 선 대 어깨 선, 정면일 때만, 15° 이상만).
+- 손목: `hand_video.py <yolo pose> <hand_landmarker.task> <clips 폴더> 클립들` → `클립 L:t=각도,... R:t=각도,...` (손 대 팔뚝 화면 각도, 손이 15px 이상 · 팔뚝의 0.3배 이상 · 2프레임 이상 일치할 때만, 25° 이상만).
+- PowerShell 스크립트로 돌릴 때 한글 경로가 깨지지 않게 .ps1은 UTF-8 BOM으로 저장.
+
+### 20.3 캡처와 비교 (Studio Edit)
+- `head_misses.lua`를 execute_luau로 붙인 뒤 `_G.headMisses(고개 줄들, { ["1.mp4"] = id, ... }, 반전곡, "곡")`, `_G.wristMisses(손목 줄들, ids, 반전곡, "곡")`. 곡 하나씩, `task.spawn`으로 돌리고 결과를 _G에 받아 짧게 읽는다(한 번에 여러 곡을 돌리면 MCP가 시간 초과로 끊김).
+- 투영: 애니메이션 x = -X, y = -Y가 영상 화면(팔뚝 방향으로 검증, 중앙값 17°).
+- 고개 기준: 영상 15° 이상, 캡처가 같은 쪽으로 12° 이상 덜 기울고 0.2초 간격 2개 이상 연속 → 고개 앞뒤 축으로 차이의 0.8배(최대 30°).
+- 손목 기준: 영상 25° 이상, 캡처가 같은 쪽으로 20° 이상 덜 꺾이고 2개 이상 연속 → 손의 x / z 축 중 화면 각도가 더 잘 바뀌는 축으로 차이의 0.8배(최대 40°).
+- 반전 곡: 고개는 z 부호 반대, 손목은 반대 손 + y / z 부호 반대(함수의 mirror 인자가 처리).
+
+### 20.4 넣기
+- 결과 줄을 `ClubChoreo.ChoreoHeadTilt` / `ChoreoWristBend`에 넣는다(같은 id가 두 표에 있어도 됨: 파일 끝에서 한 `bend` 목록으로 합침). 같은 표 안에서 id가 겹치면 안 됨(뒤의 것이 앞을 지움).
+- 확인할 것: 마지막 키가 0이 아니면(조각 끝에 걸린 구간) 0으로 바꾼다. 줄이 이어 붙어 주석 안으로 들어가지 않았는지(`-- 주석<TAB>[id]`) 확인.
+- 넣기 전에 몇 곳은 `overlay_sheet.py`(영상 손 + 캡처 손 방향 초록 선) 또는 프레임 사진으로 실제로 꺾이는지 눈으로 본다.
+
+### 20.5 Play 확인
+- 보정이 들어간 구간 하나 이상을 `ChoreoSmoothingOff`(Studio, FashionGame 속성) 켬/끔으로 비교: 관절 각도가 기대만큼 바뀌고, 프레임당 회전이 튀지 않는지(손 10° · 고개 5° 안팎).
+- 클립 위치: `D:\Roblox\영상\*_centercut\clips`, 미러 연습 영상 곡(ANIMAL, 체포하겠어, Genie, LOVE ATTACK, I SPY, REDRED, BAD 원본 등)은 `D:\Roblox\오후\영상\*_centercut\clips`. Looks Can Kill은 클립과 조각 순서가 달라 아직 안 함.
