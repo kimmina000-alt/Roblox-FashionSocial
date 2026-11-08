@@ -829,9 +829,7 @@ local function renderTracks()
 			Position = UDim2.fromOffset(8, 0),
 			Size = UDim2.new(1, if dj then -(3 * buttonW + 26) else (if compactNow then -62 else -86), 1, 0),
 			BackgroundTransparency = 1,
-			-- (D-1010) a locked song: 🔒 in front, greyed, no buttons
-			Text = (if track.locked then "🔒 " else "") .. ClubConfig.showTitle(track, 14) .. "  ·  " .. track.channel, -- (🎵 = a choreography, D-731)
-			TextTransparency = if track.locked then 0.45 else 0,
+			Text = ClubConfig.showTitle(track, 14) .. "  ·  " .. track.channel, -- (🎵 = a choreography, D-731)
 			RichText = true,
 			TextXAlignment = Enum.TextXAlignment.Left,
 			-- (D-905, user 2026-11-05: a long title is just cut at the edge, no "…":
@@ -861,9 +859,7 @@ local function renderTracks()
 				PaddingTop = UDim.new(0, if round then 4 else 0), PaddingBottom = UDim.new(0, if round then 4 else 0) }, button)
 			button.MouseButton1Click:Connect(onClick)
 		end
-		if track.locked then
-			-- (D-1010, user 2026-11-08: "음원 잠금") nothing to press
-		elseif dj then
+		if dj then
 			-- (D-940, user 2026-11-06: "디제이 음악창 지금/우선예약/예약으로 버튼 추가")
 			--   지금: plays now; 우선예약: first in the list of next songs ("Queue");
 			--   예약: at the end of it, in the order they were pressed ("Request")

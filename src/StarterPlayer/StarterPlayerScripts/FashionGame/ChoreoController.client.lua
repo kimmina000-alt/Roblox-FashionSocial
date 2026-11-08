@@ -318,6 +318,23 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 			end
 		end
 		if staying and t.WeightCurrent > 0.5 then stayingAny = true end
+		-- (D-1020, user: IOI-갑자기 2:22 "앞으로 삐걱거림. 매끄럽게") ChoreoFixes `glide = { from, to }`:
+		-- the capture's hips travel in dashes there (0.5 / 1 / 0.6 stud in 0.3 s each); the body
+		-- goes the same way, as far, but at an even pace (eased at both ends)
+		local glide = here and fixes and fixes.glide
+		if glide then
+			local tp = t.TimePosition
+			for _, g in ipairs(if glide.from then { glide } else glide) do
+				if tp >= g.from and tp <= g.to then
+					local a, b = ChoreoSmooth.hips(id, g.from), ChoreoSmooth.hips(id, g.to)
+					if a and b then
+						local f = (tp - g.from) / (g.to - g.from)
+						here = a:Lerp(b, f * f * (3 - 2 * f))
+					end
+					break
+				end
+			end
+		end
 		if here then
 			local before = lastHips[t]
 			lastHips[t] = here
@@ -690,21 +707,30 @@ RunService.PreSimulation:Connect(function(dt)
 					for _, t in ipairs(choreo) do
 						local fx = t.Animation and ChoreoSmooth.fixes(t.Animation.AnimationId)
 						local fz = fx and fx.freeze
-						if fz and t.WeightCurrent > 0.5 then
+						-- (D-1019) faded with the piece's weight while the next one blends in
+						-- (it let go all at once at weight 0.5: Lemonade 17 → 18 jumped)
+						if fz and t.WeightCurrent > 0.01 then
 							for _, f in ipairs(if fz.from then { fz } else fz) do
 								local tt = t.TimePosition
 								if tt >= f.from and tt < f.to then
 									local pose = store[f]
+									-- (D-1019, Lemonade 17: the body shot 4 studs up when a freeze let go)
+									-- the hips are kept without the floor lift and get this frame's lift:
+									-- a frozen pose under the floor otherwise kept the lift growing every
+									-- frame (it could not move the hips) and all of it came at once after
+									local lift = floorLift[character] or 0
 									if not pose then
 										pose = {}
 										for part, j in pairs(joints) do pose[part] = j.Transform end
+										if pose.LowerTorso then pose.LowerTorso = CFrame.new(0, -lift, 0) * pose.LowerTorso end
 										store[f] = pose
 									end
 									local e = math.clamp(math.min(tt - f.from, f.to - tt) / (f.ease or 0.3), 0, 1)
-									e = e * e * (3 - 2 * e)
+									e = e * e * (3 - 2 * e) * math.min(t.WeightCurrent, 1)
 									for part, j in pairs(joints) do
 										if pose[part] and not (f.except and table.find(f.except, part)) then
-											j.Transform = j.Transform:Lerp(pose[part], e)
+											local want = if part == "LowerTorso" then CFrame.new(0, lift, 0) * pose[part] else pose[part]
+											j.Transform = j.Transform:Lerp(want, e)
 										end
 									end
 								else

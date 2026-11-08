@@ -171,7 +171,7 @@ local LAB = {
 | NCT WISH-I SPY (새 음원) | 98124521559769 | 176.273 | 1.05 | tempo 0.953, boost 10, boost2 5, octave 1, high -23 |
 | A2O LITE-NEON (새 음원) | 140713297574648 | 210.771 | 1.05 | tempo 0.954, boost 10, boost2 5, octave 1, high -20 |
 
-### 새 음원 46곡 (D-1021, 2026-11-08, 목록 끝)
+### 새 음원 46곡 (D-1021, 2026-11-08, 목록 끝) → 43곡 (D-1023: 중복 2곡 빼고 KiiiKiii-Pop Off는 키키-Pop Off로)
 
 모두 volume 10 / boost 10 / boost2 5 / boost3 5 / octave 1 / EQ -34 -20 -34. tempo = 파일 ÷ 곡 길이, fileSpeed = 곡 길이 ÷ 파일.
 
@@ -212,7 +212,7 @@ local LAB = {
 | Color Me Home | 131785918775462 | 3:04 | 175.235 | 0.952 | 1.05 |
 | Light It Up | 110137761725603 | 3:18 | 188.997 | 0.955 | 1.0476 |
 | ALLDAY PROJECT-CRASH | 86115718533153 | 2:53 | 164.773 | 0.952 | 1.0499 |
-| KiiiKiii-Pop Off | 131620527618857 | 2:21 | 134.588 | 0.955 | 1.0476 |
+| KiiiKiii-Pop Off | 131620527618857 | 2:21 | 134.588 | 0.955 | 1.0476 ← D-1023: 이 음원 · 값은 안무 있는 '키키-Pop Off' 줄로 옮김(이 줄은 목록에서 뺌) |
 | 그사람 | 139646189327476 | 3:55 | 224.251 | 0.954 | 1.0479 |
 | CAR, THE GARDEN-Stay | 140222834511413 | 4:00 | 228.605 | 0.953 | 1.0498 |
 | 이하이-손을 잡아줘요 | 78224880948150 | 3:30 | 200.36 | 0.954 | 1.0481 |
@@ -220,6 +220,16 @@ local LAB = {
 | Small Town Ghost | 121184160009188 | 2:45 | 156.907 | 0.951 | 1.0516 |
 | All On Me | 112267422115842 | 2:32 | 145.121 | 0.955 | 1.0474 |
 | Secret Us | 82537293207913 | 2:08 | 122.199 | 0.955 | 1.0475 |
-| ALLDAY PROJECT-CRASH | 127388006729309 | 2:53 | 164.773 | 0.952 | 1.0499 |
 | BIGBANG-BiiiG BiiiG | 117439533883778 | 2:44 | 156.414 | 0.954 | 1.0485 |
-| KiiiKiii-Pop Off | 122860036531672 | 2:21 | 134.588 | 0.955 | 1.0476 |
+
+## 뺀 곡 (D-1016, 2026-11-08: 잠금 기능 삭제와 함께)
+D-1010에서 잠갔던 다섯 곡. 다시 넣을 때는 아래 줄을 ClubPlaylist.lua에 그대로 넣으면 돼요.
+
+```lua
+	{ channel = "K-POP", title = "현아-Bubble Pop", locked = true, soundId = 76388700698178, length = 71, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = { 100736920067826, 133384041896194, 83466816721074, 133279932519664, 106558407160210, 80189218624271, 74977996210534, 128213782788357, 133713883432071, 79851078896686, 85867632664929 } },
+	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", locked = true, soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	{ channel = "K-POP", title = "Hearts2Hearts-Next Chapter", locked = true, soundId = 113170325006427, length = 172.366, fileSpeed = 1,
+		lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "IVE-Mirror", locked = true, soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", locked = true, soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+```

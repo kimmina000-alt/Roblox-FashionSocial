@@ -33,6 +33,13 @@ CafeJobConfig.WorkArea = 25
 -- NPC customers (only while someone works at that cafe; PERFORMANCE.md: few)
 CafeJobConfig.NpcMax = 3
 CafeJobConfig.NpcEverySeconds = 36 -- (18 → 36, D-772, user: half as often)
+-- (D-1025, user 2026-11-08: "불규칙적으로 등장하게 해") each next customer comes
+-- after a random gap between these (about 36 s on average, as before)
+CafeJobConfig.NpcGapMin = 12
+CafeJobConfig.NpcGapMax = 60
+function CafeJobConfig.npcGap(): number
+	return CafeJobConfig.NpcGapMin + math.random() * (CafeJobConfig.NpcGapMax - CafeJobConfig.NpcGapMin)
+end
 CafeJobConfig.NpcStaySeconds = 20 -- drinking after being served, then leaves
 -- opening hours by the game clock (user 2026-10-30): customers come
 -- 10:00-15:00, half as often 15:00-21:00, none 21:00-10:00

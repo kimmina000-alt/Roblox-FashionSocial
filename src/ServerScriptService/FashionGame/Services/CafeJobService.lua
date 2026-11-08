@@ -55,6 +55,7 @@ local staff: {[Player]: string} = {}
 local lastOrderAt: {[number]: number} = {} -- player customer → time
 local lastPaidPair: {[string]: number} = {} -- "staff:customer" → time
 local lastNpcAt: {[string]: number} = {}
+local npcGap: {[string]: number} = {} -- (D-1025) seconds until the next NPC, random each time
 
 local function isJobShop(shopKey: string): boolean
 	return table.find(CafeJobConfig.Shops, shopKey) ~= nil
@@ -683,6 +684,7 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 	end
 	staff[player] = shopKey
 	lastNpcAt[shopKey] = os.clock() - CafeJobConfig.NpcEverySeconds + 4 -- first NPC soon
+	npcGap[shopKey] = nil -- (D-1025: the first gap is NpcEverySeconds, so 4 s from here)
 	if player.Character then
 		player.Character:SetAttribute("CafeJob", shopKey)
 		setStaffTag(player.Character, shopKey)
@@ -861,8 +863,9 @@ local function tick()
 			for _, order in pairs(orders) do
 				if order.shop == shopKey and order.kind == "npc" then npcs += 1 end
 			end
-			if npcs < CafeJobConfig.NpcMax and now - (lastNpcAt[shopKey] or 0) >= CafeJobConfig.NpcEverySeconds / rate then
+			if npcs < CafeJobConfig.NpcMax and now - (lastNpcAt[shopKey] or 0) >= (npcGap[shopKey] or CafeJobConfig.NpcEverySeconds) / rate then
 				lastNpcAt[shopKey] = now
+				npcGap[shopKey] = CafeJobConfig.npcGap() -- (D-1025) the next one at a random time
 				task.spawn(spawnNpc, shopKey)
 			end
 		end

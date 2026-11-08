@@ -822,6 +822,10 @@ if L and not L:FindFirstChild("ClubBedFill") then
 			copy:SetAttribute("PropId", nil)
 			local p = tree:GetPivot()
 			copy:PivotTo(p + Vector3.new(c.X - p.Position.X, 0, -190 - p.Position.Z))
+			-- (D-1015, user 2026-11-08: "스튜디오에서 나무 위치 수정 … 수정한 값 저장해")
+			-- moved by hand in Studio to z -173.3, where the street's own tree was taken out
+			copy:PivotTo(CFrame.new(26.88549041748047, 0.8497123718261719, -173.347412109375,
+				-0.6020119190216064, 0, 0.79848712682724, 0, 1, 0, -0.79848712682724, 0, -0.6020119190216064))
 			copy.Parent = fill
 		end
 		table.insert(log, "club beds 2 (" .. #group .. " pieces each)" .. (if tree then ", tree at -190" else ""))
@@ -1384,6 +1388,118 @@ if store15 and not store15:GetAttribute("Polish1030_23") then
 		tri("PizzaAwningCornerN", Vector3.new(T.X, B.Y, B.Z), T, B)
 		table.insert(log, "pizza awning corner mitred")
 	end
+end
+
+---------------------------------------------------------------- 24. tube stripes + beach balls (D-1027, user 2026-11-08)
+-- "튜브 무늬 넣기": white bands around each float tube (8 segments, like a
+-- swim ring), parts of the tube model, so ParkRidesController moves them with
+-- it. "고무오리처럼 반투명한 비치볼 배치": beach balls floating like the ducks
+-- (tag FloatDeco, same Base / Drift / Period / Phase), six coloured gores cut
+-- from one sphere (CSG, kept as ArtAssets.BeachBall), see-through 0.25.
+if beach then
+	local nt, nb = 0, 0
+	local BAND = { Color3.new(1, 1, 1), Color3.fromRGB(255, 250, 235) }
+	for _, m in ipairs(beach:GetChildren()) do
+		local mesh = m:IsA("Model") and m.Name:match("^Tube%d+$") and m:FindFirstChild("TubeMesh")
+		if mesh and not m:GetAttribute("TubeBands2") then
+			for _, d in ipairs(m:GetChildren()) do
+				if d.Name == "TubeBand" then d:Destroy() end
+			end
+			local cf, size = mesh.CFrame, mesh.Size
+			local thick = size.Y
+			local rx, rz = size.X / 2 - thick / 2, size.Z / 2 - thick / 2
+			-- every other eighth of the ring is white, each made of 4 short
+			-- cylinders along the curve (one long one stuck out straight)
+			for k = 0, 7, 2 do
+				for j = 0, 3 do
+					local a = (k + (j + 0.5) / 4) / 8 * 2 * math.pi
+					local at = cf * Vector3.new(math.cos(a) * rx, 0, math.sin(a) * rz)
+					local tangent = cf:VectorToWorldSpace(Vector3.new(-math.sin(a) * rx, 0, math.cos(a) * rz))
+					local len = tangent.Magnitude * (2 * math.pi / 32) + 0.04
+					-- a cylinder's axis is its X: lay it along the ring
+					local band = part("TubeBand", Vector3.new(len, thick * 1.04, thick * 1.04),
+						CFrame.lookAt(at, at + tangent.Unit) * CFrame.Angles(0, math.rad(90), 0), BAND[1], m,
+						{ shape = Enum.PartType.Cylinder, noshadow = true })
+					band.CanQuery = false
+					band.Massless = true
+				end
+			end
+			m:SetAttribute("TubeBands2", true)
+			nt += 1
+		end
+	end
+	-- the ball (made once, then copied)
+	local ball = ART and ART:FindFirstChild("BeachBall")
+	if not ball and ART then
+		local D = 2.4
+		local GORE = { Color3.fromRGB(255, 80, 90), Color3.new(1, 1, 1), Color3.fromRGB(60, 150, 255), Color3.fromRGB(255, 215, 60),
+			Color3.fromRGB(80, 210, 120), Color3.fromRGB(255, 140, 60) }
+		local pieces = {}
+		local temp = Instance.new("Folder")
+		temp.Parent = workspace
+		for k = 0, 5 do
+			local s = part("Gore", Vector3.new(D, D, D), CFrame.new(), GORE[k + 1], temp, { shape = Enum.PartType.Ball })
+			local cuts = {}
+			for _, edge in ipairs({ k / 6 * 2 * math.pi, (k + 1) / 6 * 2 * math.pi }) do
+				-- a box filling the half-space on the far side of the plane through the
+				-- vertical axis at angle `edge` (normal pointing out of the gore)
+				local inward = (if edge == k / 6 * 2 * math.pi then 1 else -1)
+				local n = Vector3.new(-math.sin(edge), 0, math.cos(edge)) * -inward
+				local box = part("Cut", Vector3.new(D * 3, D * 3, D * 3), CFrame.new(n * D * 1.5) * CFrame.lookAt(Vector3.zero, n).Rotation, GORE[1], temp)
+				table.insert(cuts, box)
+			end
+			local ok, gore = pcall(function() return s:SubtractAsync(cuts) end)
+			if ok and gore then
+				gore.UsePartColor = true
+				gore.Color = GORE[k + 1]
+				gore.Parent = temp
+				table.insert(pieces, gore)
+			end
+		end
+		-- white caps on the two poles
+		for _, y in ipairs({ 1, -1 }) do
+			local cap = part("Cap", Vector3.new(0.12, D * 0.3, D * 0.3), CFrame.new(0, y * (D / 2 - 0.03), 0) * CFrame.Angles(0, 0, math.rad(90)), Color3.new(1, 1, 1), temp,
+				{ shape = Enum.PartType.Cylinder })
+			table.insert(pieces, cap)
+		end
+		if #pieces >= 7 then
+			local first = table.remove(pieces, 1)
+			local ok, union = pcall(function() return first:UnionAsync(pieces) end)
+			if ok and union then
+				union.UsePartColor = false
+				union.Name = "BeachBall"
+				union.Anchored, union.CanCollide, union.CanTouch, union.CanQuery = true, false, false, false
+				union.CastShadow = false
+				union.Transparency = 0.25 -- (0.35 washed the colours out on the water)
+				union.Material = Enum.Material.SmoothPlastic
+				union.Parent = ART
+				ball = union
+			end
+		end
+		temp:Destroy()
+	end
+	if ball then
+		for i, b in ipairs({ Vector3.new(-298, -2.4, -160), Vector3.new(-287, -2.4, 60), Vector3.new(-306, -2.4, -30),
+			Vector3.new(-306, -2.4, -240), Vector3.new(-296, -2.4, -300) }) do
+			local name = "BeachBall" .. i
+			if beach:FindFirstChild(name) then continue end
+			local m = Instance.new("Model")
+			m.Name = name
+			m:SetAttribute("Base", b)
+			m:SetAttribute("Drift", 3 + i % 3)
+			m:SetAttribute("Period", 60 + i * 8)
+			m:SetAttribute("Phase", i * 1.1)
+			local copy = ball:Clone()
+			copy.Name = "Ball"
+			copy.CFrame = CFrame.new(b + Vector3.new(0, copy.Size.Y * 0.35, 0)) * CFrame.Angles(0, i * 1.3, math.rad(20))
+			copy.Parent = m
+			m.WorldPivot = CFrame.new(b)
+			m.Parent = beach
+			game:GetService("CollectionService"):AddTag(m, "FloatDeco")
+			nb += 1
+		end
+	end
+	table.insert(log, string.format("tube bands %d, beach balls %d%s", nt, nb, if ball then "" else " (no ball: CSG failed)"))
 end
 
 return table.concat(log, " | ")

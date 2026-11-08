@@ -547,6 +547,30 @@ M.ChoreoFixes = {
 			{ t = 4.55, add = { UpperTorso = { -25, 0, 0 }, Head = { 15, 0, 0 }, RightUpperArm = { -20, 0, -25 } },
 				set = { LeftUpperLeg = { 39, -22, -12 }, LeftLowerLeg = { -142, -8, -3 }, LeftFoot = { 8, -28, 7 } } },
 		} } },
+	-- 17 = the user's hand-keyed clip 17 (D-1019, at 137.92 = practice video 139.0-147.0) (user: "17번 원본
+	-- 영상 보면서 프레임 단위로 노래랑 맞추고 그동안 안무 편집하면서 적용했던 보정값들 똑같이 적용해").
+	-- `warp`: its keys put on the video's frames (60 fps pose track of clip 17): the centre switches to the
+	-- lying member at 0.47 (the drop, 0.29-0.90 of the keys, now ends at 0.65), she lies still until the left
+	-- leg kicks up at 1.63-1.70 and stays up to 2.33, comes down by 2.75; the rest runs at its own pace, but it
+	-- ends seated (its own quick stand-up at 7.5-7.97 is left out): 18 stands her up over its 1 s blend.
+	-- The red-box clip's fixes (above, D-992) moved by its song time (-1.70 s): the lying pose kept but the left
+	-- leg (from where she is down), the body on its spot, the upper body straight up at 142.42-144.12, the
+	-- sitting pose kept until 18 stands her up. Its `pose` adds (waist, head, right arm on the forearm) too;
+	-- its left-leg `set` keys not: the user's own leg keys are on the video's frames
+	[123236589131931] = {
+		warp = { { from = 0, to = 0.30, play = { 0, 0.29 } }, { from = 0.30, to = 0.65, play = { 0.29, 0.90 } },
+			{ from = 0.65, to = 1.52, play = { 0.90, 0.97 } }, { from = 1.52, to = 1.70, play = { 0.97, 1.933 } },
+			{ from = 1.70, to = 2.33, play = { 1.933, 2.267 } }, { from = 2.33, to = 2.75, play = { 2.267, 2.70 } },
+			{ from = 2.75, to = 7.55, play = { 2.70, 7.50 } }, { from = 7.55, to = 8.0, play = { 7.50, 7.508 } } },
+		-- (the times below are the animation's own, after the warp: song 138.58-140.90, 142.42-144.12, 143.92 to the end)
+		freeze = { { from = 0.9, to = 2.93, ease = 0.3, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot" } },
+			{ from = 5.96, to = 8.5, ease = 0.4 } },
+		still = { { from = 0.29, to = 3.05 }, { from = 5.76, to = 8.5 } },
+		torsoUp = { from = 4.46, to = 6.16, ease = 0.4 },
+		pose = { from = 0.9, to = 2.85, ease = 0.4, keys = {
+			{ t = 0.9, add = { UpperTorso = { -25, 0, 0 }, Head = { 15, 0, 0 }, RightUpperArm = { -20, 0, -25 } } },
+			{ t = 2.8, add = { UpperTorso = { -25, 0, 0 }, Head = { 15, 0, 0 }, RightUpperArm = { -20, 0, -25 } } },
+		} } },
 	-- 12 (from 94.39) (D-992, user: "1:38~1:40 앞으로 걸어가는 안무할 때 상체가 너무 뒤로 기울어져
 	-- 있음. 상체 일자로 세워. 수직으로"): the upper body straight up through the walk
 	[138502286160157] = { torsoUp = { from = 3.4, to = 6.6, ease = 0.4 } },
@@ -605,7 +629,10 @@ M.ChoreoFixes = {
 	-- 한 번 도는 동작으로": 18 twisted 105° one way and back (141.0-142.8) and 19 flicked
 	-- round 190° with a wobble in its blend: 18 keeps its facing (legs smoothed), 19
 	-- turns once, the way the capture went, from where 18 ended
-	[118835663786601] = { spin = { from = 0.3, to = 2.95, ease = "both" }, steady = { from = 0.3, to = 3.0, parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }, passes = 8 } },
+	-- (D-1020, user: "2:22 앞으로 삐걱거림. 매끄럽게 수정"): its hips went forward in three dashes
+	-- (0.63-0.92, 1.04-1.34, 1.67-1.92; up to 7 stud/s in Play, then a stop): one even glide 141.2-143.67
+	[118835663786601] = { spin = { from = 0.3, to = 2.95, ease = "both" }, steady = { from = 0.3, to = 3.0, parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }, passes = 8 },
+		glide = { from = 0.5, to = 2.97 } },
 	[136490889932903] = { spin = { from = 0, to = 0.6, fromPrev = true, dir = -1, ease = "both" } },
 	-- 21 (from 149.7) "2:42 팔 들면서 바들바들 떨어": the arms smoothed 159-163.6
 	[123714434236489] = { steady = { from = 9.3, to = 13.9, parts = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }, passes = 8 } },
@@ -838,7 +865,8 @@ M.ChoreoSlideStill = {
 	[72001429900652] = { { 6.0, 6.7 } }, [140529283375287] = { { 3.9, 4.9 } }, [121160569929367] = { { 10.5, 11.2 } },
 	[76645919052139] = { { 2.6, 3.7 }, { 4.1, 4.9 } }, [72886571801726] = { { 3.4, 4.1 } }, [72291044078776] = { { 4.7, 5.4 } },
 	[128759413181742] = { { 2.6, 3.3 }, { 7.8, 8.4 } }, [121913954340036] = { { 3.5, 4.1 } }, [84100214173726] = { { 0.6, 1.4 }, { 3.7, 4.4 } },
-	[118835663786601] = { { 0.7, 1.4 } }, [136490889932903] = { { 1.9, 2.5 } }, [92331354114542] = { { 1.7, 2.5 } },
+	-- (18's 0.7-1.4 taken out, D-1020: it stopped the walk there and the rest came as a dash; its `glide` evens it)
+	[136490889932903] = { { 1.9, 2.5 } }, [92331354114542] = { { 1.7, 2.5 } },
 	[123714434236489] = { { 0.7, 1.6 }, { 9.1, 9.8 }, { 10.8, 11.5 }, { 13.0, 14.1 } }, [82782712192367] = { { 2.7, 3.8 }, { 4.3, 5.0 } },
 	[129257680770934] = { { 5.8, 6.8 }, { 10.2, 10.8 } },
 	[81367674902881] = { { 0.4, 1.2 }, { 1.9, 2.5 }, { 2.9, 3.6 } }, [84783409830169] = { { 1.3, 1.9 }, { 3.3, 3.9 } },
