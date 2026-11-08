@@ -200,9 +200,10 @@ M.Playlist = {
 		{ id = 98686361929027, at = 18.27, blend = 0.75 }, { id = 112551530516434, at = 28.7, blend = 0.73 }, { id = 98514844125325, at = 36.5, blend = 0.61 },
 		{ id = 74567972410299, at = 48.27, blend = 0.6 }, { id = 110540650870002, at = 62.77 }, { id = 130984178299080, at = 76.97, blend = 0.62 },
 		{ id = 128412578867487, at = 83.03, stop = 84.7 },
-		-- D-980: from 1:24 the user's centre picks, new clips YENA_CatchCatch_v2_centercut 10..20 (mirror video, `at` = clip start + 0.70); v2 10 starts at 82.333 but plays
+		-- (D-1018, user: "1:26 캐치캐치 가만히 있음") v2 10's capture stands still from its 7.25 s (song 90.3): it stops at 90.36 and the gap clip
+		-- plays from its start (song 91.36, was `from = 1.0`), its first 0.75 s slowed over 1.75 s from 90.36		-- D-980: from 1:24 the user's centre picks, new clips YENA_CatchCatch_v2_centercut 10..20 (mirror video, `at` = clip start + 0.70); v2 10 starts at 82.333 but plays
 		-- from 84.7 (`from = 1.67`, piece 10 keeps the user's 1:22-1:23 moves) and its upload ends 2.3 s early (capture lost her in the cluster); the gap 92.36-94.63 is a short clip of the same moves (132719886087176, from 1.0, 3.23 s); v2 16 = re-upload 114010461044470 (the first upload was a copy of 15)
-		{ id = 74369407507020, at = 84.7, from = 1.67, blend = 1 }, { id = 132719886087176, at = 92.36, from = 1.0 }, { id = 79075546317269, at = 94.63 }, { id = 88923183102495, at = 107.77 },
+		{ id = 74369407507020, at = 84.7, from = 1.67, blend = 1, stop = 90.36 }, { id = 132719886087176, at = 91.36, slowIn = { 0.75, 1.0 } }, { id = 79075546317269, at = 94.63 }, { id = 88923183102495, at = 107.77 },
 		{ id = 73949956743570, at = 121, blend = 1, stop = 128.6 }, { id = 89344916640647, at = 128.5, blend = 0.45, slowOut = { 0.5, 0.33 } }, { id = 110910446284849, at = 130.27, blend = 0.49 }, { id = 114010461044470, at = 131.5, blend = 0.58 },
 		{ id = 115248452065042, at = 143.2 }, { id = 124345431625014, at = 151.73 }, { id = 108680095506820, at = 162.33, blend = 0.61 },
 		{ id = 127455820218376, at = 169.73, blend = 0.42 } }, autoChoreo = true },
