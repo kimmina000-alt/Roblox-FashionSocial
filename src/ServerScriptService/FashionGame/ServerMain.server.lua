@@ -195,6 +195,9 @@ local function publishHistory(player: Player)
 	player:SetAttribute("AvatarRedo", #h.redo)
 end
 Players.PlayerRemoving:Connect(function(player) history[player] = nil end)
+-- (D-1032) each player's own Roblox avatar (OutfitSnapshot), taken when a character loads
+local originalLook: {[Player]: any} = {}
+Players.PlayerRemoving:Connect(function(player) originalLook[player] = nil end)
 local function sameLook(a: any, b: any): boolean
 	local okA, ja = pcall(HttpService.JSONEncode, HttpService, a)
 	local okB, jb = pcall(HttpService.JSONEncode, HttpService, b)
@@ -384,6 +387,16 @@ TryOnItem.OnServerInvoke = function(
 		end)
 	end
 
+	-- (D-1032) the catalog's 초기화: back to the player's own Roblox avatar, the
+	-- look their character first loaded with this visit (originalLook below)
+	if action == "ResetLook" then
+		local original = originalLook[player]
+		if not original then return false, "원래 캐릭터를 아직 불러오지 못했어요." end
+		return runTracked(player, function()
+			return AvatarService.RestoreSnapshot(player, original)
+		end)
+	end
+
 	if action == "GetAnimationPreview" then
 		return AvatarService.GetAnimationPreview(player, payload)
 	end
@@ -413,10 +426,22 @@ end
 
 -- Remember each character's own body so a worn body part can be removed.
 local function watchAppearance(player: Player)
+	local firstOfVisit = true
 	player.CharacterAppearanceLoaded:Connect(function()
 		AvatarService.RememberSpawnLook(player)
-		-- (D-771, user: "재접속시 마지막 착장") the last look worn here, on every
-		-- new character: after joining again and after a respawn
+		-- (D-1032) the player's own Roblox avatar, as the character loads with it
+		-- (before any look of ours goes on): the catalog's 초기화 and respawns
+		local okOwn, own = AvatarService.CaptureSnapshot(player)
+		if okOwn then originalLook[player] = own end
+		if not firstOfVisit then
+			-- (D-1032, user 2026-11-09: "리스폰하면 원래 캐릭터로 태어나게 해") a
+			-- respawn keeps the own avatar; the next visit starts with it too
+			if okOwn then PlayerDataService.SetLook(player, own) end
+			return
+		end
+		firstOfVisit = false
+		-- (D-771, user: "재접속시 마지막 착장") the last look worn here, when
+		-- joining again (since D-1032 only then, not after a respawn)
 		local look = PlayerDataService.GetLook(player)
 		if look and player.Parent then
 			runExclusive(player, function()

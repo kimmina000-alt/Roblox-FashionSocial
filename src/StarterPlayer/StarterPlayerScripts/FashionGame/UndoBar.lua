@@ -42,8 +42,8 @@ function UndoBar.new(parent: GuiObject, remote: RemoteFunction, onChanged: () ->
 	end
 	player:GetAttributeChangedSignal("AvatarUndo"):Connect(refresh)
 	player:GetAttributeChangedSignal("AvatarRedo"):Connect(refresh)
-	local function step(action: string)
-		if busy then return end
+	local function step(action: string): boolean
+		if busy then return false end
 		busy = true
 		refresh()
 		local okCall, ok, message = pcall(function() return remote:InvokeServer(action, nil) end)
@@ -52,22 +52,38 @@ function UndoBar.new(parent: GuiObject, remote: RemoteFunction, onChanged: () ->
 		if okCall and ok == true then
 			task.wait(0.2)
 			onChanged()
+			return true
 		elseif okCall and typeof(message) == "string" then
 			toast(message)
 		end
+		return false
 	end
 	back.MouseButton1Click:Connect(function() if back.Active then step("Undo") end end)
 	forward.MouseButton1Click:Connect(function() if forward.Active then step("Redo") end end)
+	-- (D-1032, user 2026-11-09: "카탈로그에 원래 본인 캐릭터로 돌아갈 수 있는 초기화
+	-- 버튼") back to the player's own Roblox avatar (TryOnItem "ResetLook"); "<"
+	-- takes it back like any other change
+	local reset = button("ResetLookButton", "초기화")
+	reset.BackgroundColor3 = Color3.fromRGB(85, 60, 70)
+	reset.MouseButton1Click:Connect(function()
+		if busy then return end
+		if step("ResetLook") then toast("원래 캐릭터로 돌아왔어요. < 로 되돌릴 수 있어요.") end
+	end)
 	refresh()
 	return {
-		-- places both buttons right-aligned at `right`; returns their left edge
+		-- places the buttons right-aligned at `right`; returns their left edge
 		layout = function(right: number, y: number, size: number, textSize: number): number
 			for i, b in ipairs({ forward, back }) do
 				b.Size = UDim2.fromOffset(size, size)
 				b.Position = UDim2.fromOffset(right - size * i - 6 * (i - 1), y)
 				b.TextSize = textSize
 			end
-			return right - size * 2 - 6
+			local left = right - size * 2 - 6
+			local w = math.floor(size * 1.9)
+			reset.Size = UDim2.fromOffset(w, size)
+			reset.Position = UDim2.fromOffset(left - 6 - w, y)
+			reset.TextSize = math.max(11, textSize - 4)
+			return left - 6 - w
 		end,
 	}
 end

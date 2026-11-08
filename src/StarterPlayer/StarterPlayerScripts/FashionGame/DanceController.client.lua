@@ -537,6 +537,22 @@ local function topY(): number
 	return require(script.Parent:WaitForChild("TopBar")).bottom() + 6
 end
 
+-- (D-1033) the bottom edge of Roblox's chat window in screen pixels (this gui
+-- ignores the top bar inset; the chat box is measured below it). Before the
+-- chat was ever opened its size reads 0: then the size it opens with on a
+-- phone held sideways (measured: 89 high, 12 below the top bar).
+local chatWindow = game:GetService("TextChatService"):FindFirstChildOfClass("ChatWindowConfiguration")
+local lastChatBottom: number? = nil
+local function chatWindowBottom(): number?
+	if not chatWindow or not chatWindow.Enabled then return nil end
+	local inset = game:GetService("GuiService"):GetGuiInset().Y
+	local size, pos = chatWindow.AbsoluteSize, chatWindow.AbsolutePosition
+	if size.Y > 0 then
+		lastChatBottom = inset + pos.Y + size.Y
+	end
+	return lastChatBottom or (inset + 12 + 89)
+end
+
 local function layoutPanel()
 	local camera = workspace.CurrentCamera
 	if not camera then return end
@@ -553,7 +569,14 @@ local function layoutPanel()
 	local rowLeft, rowRight, rowY = require(script.Parent:WaitForChild("TopBar")).firstRow()
 	local roomInRow = rowRight - rowLeft - TOGGLE_W - SKIP_W
 	local bannerX, bannerY, bannerW
-	if roomInRow >= 200 then
+	-- (D-1033, user 2026-11-09: "재생중인 노래 창 채팅창 아래로 내려") under Roblox's
+	-- chat window at the left: its box (TextChatService ChatWindowConfiguration,
+	-- measured below the top bar) when it has been open, else where it opens
+	local chatBottom = chatWindowBottom()
+	if chatBottom then
+		bannerW = math.clamp(viewport.X - 20 - TOGGLE_W - SKIP_W, 160, 300)
+		bannerX, bannerY = 10, math.max(top, chatBottom + 6)
+	elseif roomInRow >= 200 then
 		bannerW = math.min(300, roomInRow)
 		bannerX, bannerY = rowLeft, math.floor(rowY - 15)
 	else
@@ -607,6 +630,11 @@ if workspace.CurrentCamera then
 end
 -- (D-729: the top row's height can change after this ran)
 require(script.Parent:WaitForChild("TopBar")).BottomChanged:Connect(layoutPanel)
+-- (D-1033) the chat window opening, closing or changing size
+if chatWindow then
+	chatWindow:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutPanel)
+	chatWindow:GetPropertyChangedSignal("AbsolutePosition"):Connect(layoutPanel)
+end
 
 --------------------------------------------------
 -- Dance state (local view)
