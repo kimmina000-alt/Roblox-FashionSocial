@@ -327,6 +327,49 @@ local function showBitesLeft(root: Instance, left: number, total: number): numbe
 	end
 	return if gone < count then gone + 1 else nil
 end
+-- (D-1037, user 2026-11-09: "국밥도 선택한 바이트 먹을 수 있게") which pieces are
+-- eaten, in any order: the tool's attribute BitesEaten, ",3,1,5,"
+local function eatenOf(tool: Tool): {[number]: boolean}
+	local set = {}
+	local raw = tool:GetAttribute("BitesEaten")
+	if typeof(raw) == "string" then
+		for n in string.gmatch(raw, "%d+") do set[tonumber(n) :: number] = true end
+	end
+	return set
+end
+local function setEaten(tool: Tool, set: {[number]: boolean})
+	local list = {}
+	for n in pairs(set) do table.insert(list, n) end
+	table.sort(list)
+	tool:SetAttribute("BitesEaten", "," .. table.concat(list, ",") .. ",")
+end
+-- hide the eaten pieces (and let taps go through them)
+local function applyEaten(root: Instance, set: {[number]: boolean})
+	for n, parts in pairs(bitePieces(root)) do
+		for _, p in ipairs(parts) do
+			local t0 = p:GetAttribute("BiteT0")
+			if typeof(t0) ~= "number" then t0 = p.Transparency p:SetAttribute("BiteT0", t0) end
+			local q0 = p:GetAttribute("BiteQ0")
+			if typeof(q0) ~= "boolean" then q0 = p.CanQuery p:SetAttribute("BiteQ0", q0) end
+			local gone = set[n] == true
+			p.Transparency = if gone then 1 else t0 :: number
+			p.CanQuery = if gone then false else q0 :: boolean
+			for _, d in ipairs(p:GetChildren()) do
+				if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = if gone then 1 else 0 end
+			end
+		end
+	end
+end
+-- the piece to eat now: the one asked for when it is still there, else the lowest left
+local function nextBite(root: Instance, set: {[number]: boolean}, wanted: number?): number?
+	local by = bitePieces(root)
+	if wanted and by[wanted] and not set[wanted] then return wanted end
+	local best: number? = nil
+	for n in pairs(by) do
+		if not set[n] and (best == nil or n < best) then best = n end
+	end
+	return best
+end
 
 local function bite(tool: Tool, item: SnackConfig.Item)
 	-- a cup the cafe staff is carrying to a customer is not theirs to drink
@@ -401,7 +444,12 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
 	local zlo, zhi = tool:GetAttribute("EatZLo"), tool:GetAttribute("EatZHi")
 	if handle and handle:IsA("BasePart") and tool:GetAttribute("EatMode") == "Bites" then
-		showBitesLeft(handle, left, total) -- (D-1036: the next piece goes)
+		-- (D-1036: the next piece goes; D-1037: the lowest one still there)
+		local set = eatenOf(tool)
+		local n = nextBite(handle, set, nil)
+		if n then set[n] = true end
+		setEaten(tool, set)
+		applyEaten(handle, set)
 	elseif handle and handle:IsA("BasePart") and tool:GetAttribute("EatMode") == "Scale" and left > 0 then
 		-- a store mesh cannot be cut: the whole thing gets smaller each bite
 		local k = 0.45 + 0.55 * left / total
@@ -1337,7 +1385,7 @@ end
 -- One spoonful from a bowl on the table: a spoon with soup on it comes up to
 -- the mouth (the bowl's own spoon is gone meanwhile), the soup sinks a step;
 -- the empty bowl goes.
-local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool, item: SnackConfig.Item)
+local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool, item: SnackConfig.Item, wanted: number?)
 	if model:GetAttribute("Busy") then return end
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
@@ -1381,10 +1429,10 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	spoon.Grip = CFrame.new(0, -0.3, 0)
 	-- (D-1036) the user's 국밥 model: the next piece (meat, 순대, green onions)
 	-- comes up on the spoon, small, in place of the soup, and is gone from the bowl
-	local bitesTotal = bitesOf(item)
-	local bitesNow = (tool:GetAttribute("Bites") :: number?) or bitesTotal
 	if tool:GetAttribute("EatMode") == "Bites" then
-		local nextPiece = showBitesLeft(copy, bitesNow, bitesTotal)
+		-- (D-1037) the piece tapped on the table, else the lowest one left
+		local set = eatenOf(tool)
+		local nextPiece = nextBite(copy, set, wanted)
 		local parts = nextPiece and bitePieces(copy)[nextPiece]
 		if parts and #parts > 0 then
 			local soup = handle:FindFirstChild("Soup")
@@ -1412,8 +1460,10 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 			end
 			holder:Destroy()
 			if soup then soup:Destroy() end
-			showBitesLeft(copy, bitesNow - 1, bitesTotal)
 		end
+		if nextPiece then set[nextPiece] = true end
+		setEaten(tool, set)
+		applyEaten(copy, set)
 	end
 	local sound = Instance.new("Sound")
 	sound.SoundId = "rbxassetid://" .. tostring((if item.kind == "bowl" then gukbapClip() else nil) or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
@@ -1452,9 +1502,10 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	local fill = copy:FindFirstChild("Fill")
 	if tool:GetAttribute("EatMode") == "Bites" then
 		-- (D-1036) the tool in waiting shows the same pieces gone (picked up later)
-		showBitesLeft(copy, left, total)
+		local set = eatenOf(tool)
+		applyEaten(copy, set)
 		local held = tool:FindFirstChild("Handle")
-		if held then showBitesLeft(held, left, total) end
+		if held then applyEaten(held, set) end
 	elseif fill and fill:IsA("BasePart") then
 		local drop = (fill:GetAttribute("EatDrop") :: number?) or 0.3
 		fill.CFrame -= Vector3.new(0, drop / total, 0)
@@ -1594,56 +1645,26 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	local box, size = model:GetBoundingBox()
 	local lift = hit.Position.Y + 0.02 - (box.Y - size.Y / 2)
 	for _, p in ipairs(parts) do p.CFrame += Vector3.new(0, lift, 0) end
-	-- 국밥 on the table is the tray set (user 2026-10-27: store #2, rice and
-	-- side dishes round the bowl); the copy stays as the invisible holder of
-	-- the prompt
+	-- (D-1037, user 2026-11-09: "테이블에 놓을 때 국밥만 올라가게 변경. 기존에 에셋
+	-- 삭제") the 국밥 goes down as itself, the bowl in the hand (the user's model,
+	-- D-1036); the store tray set (GukbapTray, user pick 2026-10-27) is gone from
+	-- ArtAssets. The old way stays for a store bowl with the tray still there.
 	local placedItem = itemByKey(tool:GetAttribute("Snack"))
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
-	local tray = placedItem and placedItem.kind == "bowl" and art and art:FindFirstChild("Foods") and art.Foods:FindFirstChild("GukbapTray")
-	-- (D-1036) the user's 국밥 model stays in sight: it takes the place of the
-	-- tray's own bowl (rice, side dishes and the rest of the tray stay)
 	local ownBowl = tool:GetAttribute("EatMode") == "Bites"
+	local tray = not ownBowl and placedItem and placedItem.kind == "bowl" and art and art:FindFirstChild("Foods") and art.Foods:FindFirstChild("GukbapTray")
 	if tray then
-		if not ownBowl then
-			for _, p in ipairs(parts) do
-				p.Transparency = 1
-				for _, d in ipairs(p:GetDescendants()) do if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end end
-			end
+		for _, p in ipairs(parts) do
+			p.Transparency = 1
+			for _, d in ipairs(p:GetDescendants()) do if d:IsA("Decal") or d:IsA("Texture") then d.Transparency = 1 end end
 		end
 		local t = tray:Clone()
 		local _, tsize = t:GetBoundingBox()
-		-- (its bowl as big as the one in the hand, user 2026-10-27: was smaller)
 		t:ScaleTo(t:GetScale() * 3.4 * FOOD_SCALE / math.max(tsize.X, tsize.Z)) -- (D-950: 1.5×, as the bowl)
 		local tb, ts = t:GetBoundingBox()
 		t:PivotTo(t:GetPivot() + (Vector3.new(hit.Position.X, hit.Position.Y + 0.02 + ts.Y / 2, hit.Position.Z) - tb.Position))
 		for _, p in ipairs(t:GetDescendants()) do
 			if p:IsA("BasePart") then p.Anchored = true p.CanCollide = false p.CanTouch = false end
-		end
-		if ownBowl then
-			-- the tray's 뚝배기 (a round union about 1.94 × 0.72 at its size) and
-			-- everything round it in the bowl go; our bowl sits in their place
-			local bowl: BasePart? = nil
-			local k = t:GetScale()
-			for _, p in ipairs(t:GetDescendants()) do
-				if p:IsA("BasePart") and math.abs(p.Size.X / k - 1.94) < 0.15 and math.abs(p.Size.Y / k - 0.72) < 0.1 then bowl = p end
-			end
-			if bowl then
-				local r = bowl.Size.X / 2 + 0.05
-				for _, p in ipairs(t:GetDescendants()) do
-					if p:IsA("BasePart") and math.max(p.Size.X, p.Size.Z) < bowl.Size.X * 1.2 then
-						local d = Vector3.new(p.Position.X - bowl.Position.X, 0, p.Position.Z - bowl.Position.Z).Magnitude
-						if d < r then p:Destroy() end
-					end
-				end
-				local holder = Instance.new("Model")
-				copy.Parent = holder
-				local _, csize = holder:GetBoundingBox()
-				holder:ScaleTo(holder:GetScale() * bowl.Size.X / math.max(csize.X, csize.Z, 0.01))
-				local cb, cs = holder:GetBoundingBox()
-				holder:PivotTo(holder:GetPivot() + (Vector3.new(bowl.Position.X, bowl.Position.Y - bowl.Size.Y / 2 + cs.Y / 2, bowl.Position.Z) - cb.Position))
-				copy.Parent = model
-				holder:Destroy()
-			end
 		end
 		t.Name = "Tray"
 		t.Parent = model
@@ -1664,8 +1685,13 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- asks "Spoon" (a short tap on a 국밥 / 공깃밥 / 컵라면: one spoonful) or
 	-- "PickUp" (a long press on any food: back into the backpack as it is)
 	for _, p in ipairs(model:GetDescendants()) do
-		if p:IsA("BasePart") then p.CanQuery = true end
+		if p:IsA("BasePart") then
+			p.CanQuery = true
+			p:SetAttribute("BiteQ0", nil) -- (D-1037: on the table the pieces answer taps)
+		end
 	end
+	-- (D-1037) the pieces already eaten from the hand stay gone, and let taps through
+	if ownBowl then applyEaten(copy, eatenOf(tool)) end
 	model:SetAttribute("Soup", soup)
 	model:SetAttribute("Radius", radius)
 	placedFood[model] = { player = player, tool = tool, item = item, copy = copy, soup = soup }
@@ -1700,6 +1726,7 @@ function SnackService.BagEntries(player: Player): {any}
 			k = "snack", key = key, bites = bites, name = tool.Name,
 			piece = tool:GetAttribute("Piece"), tex = tool:GetAttribute("SliceTexture"),
 			model = tool:GetAttribute("SliceModel"), slice = tool:GetAttribute("SliceName"),
+			eaten = tool:GetAttribute("BitesEaten"), -- (D-1037)
 		})
 	end
 	for _, where in ipairs({ player:FindFirstChildOfClass("Backpack"), player.Character }) do
@@ -1741,8 +1768,13 @@ function SnackService.BagRestore(player: Player, e: any): boolean
 	if typeof(e.bites) == "number" then tool:SetAttribute("Bites", math.max(1, math.floor(e.bites))) end
 	-- (D-1036) a 국밥 model shows the pieces already eaten
 	local held = tool:FindFirstChild("Handle")
-	if held and tool:GetAttribute("EatMode") == "Bites" and typeof(e.bites) == "number" then
-		showBitesLeft(held, math.max(1, math.floor(e.bites)), bitesOf(use))
+	if held and tool:GetAttribute("EatMode") == "Bites" then
+		if typeof(e.eaten) == "string" then
+			tool:SetAttribute("BitesEaten", e.eaten) -- (D-1037: the very pieces eaten)
+			applyEaten(held, eatenOf(tool))
+		elseif typeof(e.bites) == "number" then
+			showBitesLeft(held, math.max(1, math.floor(e.bites)), bitesOf(use))
+		end
 	end
 	tool.Parent = backpack
 	return true
@@ -1850,10 +1882,30 @@ local function ownPlaced(player: Player, model: any): Placed?
 end
 
 -- a short tap on a 국밥 / 공깃밥 / 컵라면 on the table: one spoonful
-local function spoonFromTable(player: Player, model: any): (boolean, string?)
+local function spoonFromTable(player: Player, model: any, piece: any): (boolean, string?)
 	local entry = ownPlaced(player, model)
-	if not entry or not entry.soup or not entry.item then return false, nil end
-	task.spawn(spoonful, player, model, entry.copy, entry.tool, entry.item)
+	if not entry or not entry.item then return false, nil end
+	if not entry.soup then
+		-- (D-1037, user 2026-11-09: "물 테이블에 설치하면 못 먹음") a tap on a drink
+		-- or a snack on the table: back into the hand and one sip / bite at once
+		local tool = entry.tool
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if not humanoid or (model :: Model):GetAttribute("Busy") then return false, nil end
+		placedFood[model :: Model] = nil
+		tool:SetAttribute("KeptBy", nil)
+		tool.Parent = player:FindFirstChildOfClass("Backpack")
+		;(model :: Model):Destroy()
+		humanoid:EquipTool(tool)
+		local item = entry.item
+		task.delay(0.35, function()
+			if tool.Parent == character then bite(tool, item) end
+		end)
+		return true, nil
+	end
+	-- (D-1037) the piece of a 국밥 model tapped (SnackController), if any
+	local wanted = if typeof(piece) == "Instance" and piece:IsDescendantOf(model) then piece:GetAttribute("Bite") else nil
+	task.spawn(spoonful, player, model, entry.copy, entry.tool, entry.item, if typeof(wanted) == "number" then wanted else nil)
 	return true, nil
 end
 
@@ -1874,8 +1926,8 @@ local function pickUp(player: Player, model: any): (boolean, string?)
 	local handle = tool:FindFirstChild("Handle")
 	local left = tool:GetAttribute("Bites")
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
-	if item and handle and handle:IsA("BasePart") and typeof(left) == "number" and tool:GetAttribute("EatMode") == "Bites" then
-		showBitesLeft(handle, left, bitesOf(item)) -- (D-1036)
+	if item and handle and handle:IsA("BasePart") and tool:GetAttribute("EatMode") == "Bites" then
+		applyEaten(handle, eatenOf(tool)) -- (D-1036 / D-1037)
 	elseif entry.soup and item and handle and handle:IsA("BasePart") and typeof(left) == "number" and typeof(lo) == "number" and typeof(hi) == "number" then
 		local total = bitesOf(item)
 		if left < total then eatDownTo(handle, lo, hi, left, total) end
@@ -1892,7 +1944,7 @@ function SnackService.Start(economyService: any)
 	remote.OnServerInvoke = function(player: Player, action: any, shopKey: any, itemKey: any)
 		if action == "Buy" then return buy(player, shopKey, itemKey) end
 		if action == "PutDown" then return putDown(player, shopKey, itemKey) end -- (D-950: itemKey = the spot)
-		if action == "Spoon" then return spoonFromTable(player, shopKey) end
+		if action == "Spoon" then return spoonFromTable(player, shopKey, itemKey) end -- (D-1037: itemKey = the piece tapped)
 		if action == "PickUp" then return pickUp(player, shopKey) end
 		if action == "TakePiece" then return takePiece(player, shopKey, itemKey) end -- (D-952; itemKey = the piece pointed at, D-1035)
 		return false, nil

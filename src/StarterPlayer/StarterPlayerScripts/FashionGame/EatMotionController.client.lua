@@ -28,6 +28,13 @@ type Rig = {
 	tip: Vector3, -- the far end of the held item, in the hand's space
 	turn: CFrame, -- the hand's turn in the head's space
 	fix: Vector3, -- head space: where the IK ends short of the goal, made up for
+	-- (D-1037, user 2026-11-09: "뭐 먹을 때 팔 굽혔다 폈다 존나 반복하는 거 고쳐")
+	-- an IKControl blends from the arm's rest pose, not from the tool-holding
+	-- pose: at weight 0 the arm dropped straight down, then rose (measured: the
+	-- hand 1.15 → 2.37 under the head, then up), every bite. Now the IK is at
+	-- full weight from the start and its goal travels from where the hand was
+	-- (rest, root space) to the mouth and back (up = 0..1, eased).
+	rest: CFrame, up: number, fixFrames: number,
 }
 local rigs: {[Model]: Rig} = {}
 local RATE = 1 / 0.3 -- weight per second: up or down in 0.3 s
@@ -110,6 +117,7 @@ local function start(character: Model)
 	local rig = rigs[character]
 	if rig then
 		rig.want = 1 -- (a new bite while the arm was still going down)
+		rig.fixFrames = 0
 		return
 	end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -135,6 +143,12 @@ local function start(character: Model)
 	local tip = eatPoint(character, hand) or farEnd(character, hand) or Vector3.new(0, -0.3, 0)
 	local tipWorldDir = hand.CFrame:VectorToWorldSpace(tip)
 	local turned = turnBetween(tipWorldDir, head.CFrame:VectorToWorldSpace(TOWARD_MOUTH)) * hand.CFrame.Rotation
+	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local rest = if root then root.CFrame:ToObjectSpace(hand.CFrame) else CFrame.identity
+	-- (the goal starts on the hand as it is: full weight, no drop)
+	holder.CFrame = CFrame.identity
+	goal.WorldCFrame = hand.CFrame
+	pole.WorldPosition = (head.CFrame * CFrame.new(1.6 * head.Size.Y, -2.2 * head.Size.Y, 0.6 * head.Size.Y)).Position
 	local ik = Instance.new("IKControl")
 	ik.Name = "EatHand"
 	ik.Type = Enum.IKControlType.Transform
@@ -142,12 +156,14 @@ local function start(character: Model)
 	ik.EndEffector = hand
 	ik.Target = goal
 	ik.Pole = pole
-	ik.SmoothTime = 0.08
-	ik.Weight = 0
+	-- (D-1037: its own smoothing started from the straight arm too: 0, the goal is eased here)
+	ik.SmoothTime = 0
+	ik.Weight = 1
 	ik.Parent = humanoid
 	rigs[character] = {
 		ik = ik, holder = holder, goal = goal, pole = pole, want = 1,
 		tip = tip, turn = head.CFrame.Rotation:Inverse() * turned, fix = Vector3.zero,
+		rest = rest, up = 0, fixFrames = 0,
 	}
 end
 
@@ -198,22 +214,29 @@ RunService.Heartbeat:Connect(function(dt)
 		-- arm is up, where the end really is is measured each frame and the
 		-- goal moves by what is missing, a third per frame, at most a stud)
 		local hand = character:FindFirstChild("RightHand") :: BasePart?
-		if hand and rig.ik.Weight > 0.9 and rig.want > 0 then
+		-- (D-1037) the correction is measured for a short while once the hand is up
+		-- (10 frames), then held: measured every frame it chased the IK's own lag
+		-- and the hand bobbed up and down at the mouth
+		if hand and rig.up > 0.97 and rig.want > 0 and rig.fixFrames < 10 then
+			rig.fixFrames += 1
 			local miss = head.CFrame:VectorToObjectSpace(lips - hand.CFrame * rig.tip)
 			local fix = rig.fix + miss * 0.33
 			rig.fix = if fix.Magnitude > 1 then fix.Unit else fix
 		end
 		local handPos = lips - turn:VectorToWorldSpace(rig.tip) + head.CFrame:VectorToWorldSpace(rig.fix)
-		rig.goal.WorldCFrame = CFrame.new(handPos) * turn
+		local mouth = CFrame.new(handPos) * turn
+		-- (D-1037) from where the hand was to the mouth, eased; back the same way
+		if rig.up < rig.want then
+			rig.up = math.min(rig.want, rig.up + dt * RATE)
+		elseif rig.up > rig.want then
+			rig.up = math.max(rig.want, rig.up - dt * RATE)
+		end
+		local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		local restWorld = if root then root.CFrame * rig.rest else mouth
+		local a = rig.up * rig.up * (3 - 2 * rig.up)
+		rig.goal.WorldCFrame = restWorld:Lerp(mouth, a)
 		-- the elbow out to the right and down, a little behind the arm
 		rig.pole.WorldPosition = (head.CFrame * CFrame.new(1.6 * s, -2.2 * s, 0.6 * s)).Position
-		local w = rig.ik.Weight
-		if w < rig.want then
-			rig.ik.Weight = math.min(rig.want, w + dt * RATE)
-		elseif w > rig.want then
-			w = math.max(rig.want, w - dt * RATE)
-			rig.ik.Weight = w
-			if w <= 0 then remove(character) end
-		end
+		if rig.want <= 0 and rig.up <= 0 then remove(character) end
 	end
 end)

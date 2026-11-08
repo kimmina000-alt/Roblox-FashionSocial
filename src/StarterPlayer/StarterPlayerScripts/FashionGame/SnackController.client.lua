@@ -461,6 +461,11 @@ do
 	-- pointer: that one is taken; on a PC it lights up while the mouse is over it
 	local function pieceOf(part: Instance?): BasePart?
 		if part and part:IsA("BasePart") and part.Name:match("^Bite%d+$") and sharedPlateOf(part) then return part end
+		-- (D-1037) a piece of my 국밥 on the table (its parts carry Bite = n)
+		if part and part:IsA("BasePart") and typeof(part:GetAttribute("Bite")) == "number" and part.Transparency < 1 then
+			local placed = placedOf(part)
+			if placed and placed:GetAttribute("Owner") == player.UserId then return part end
+		end
 		return nil
 	end
 	local hover = Instance.new("Highlight")
@@ -556,9 +561,11 @@ do
 			return
 		end
 		if eat then return end -- (a plate in hand: nothing off the tables)
-		-- empty hands: a short tap on my 국밥 on the table is a spoonful
-		if p.placed and short and not p.moved and p.placed:GetAttribute("Soup") then
-			ask("Spoon", p.placed)
+		-- empty hands: a short tap on my 국밥 on the table is a spoonful (of the
+		-- piece tapped, D-1037); on my drink or snack there: back in the hand
+		-- and a sip / bite (D-1037, user: "물 테이블에 설치하면 못 먹음")
+		if p.placed and short and not p.moved then
+			ask("Spoon", p.placed, p.piece)
 		end
 	end)
 	local function watch(character: Model)
