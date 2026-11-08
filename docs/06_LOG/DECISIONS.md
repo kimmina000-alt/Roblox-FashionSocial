@@ -3300,3 +3300,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 결과: `ChoreoWristBend` 42조각(레모네이드 4, BAD 2 5, 레몬탱 8, 갑자기 1, Genie 4, LOVE ATTACK 3, I SPY 3, REDRED 2, Pop Off 5, Pretty Girl 5, Love 119 2; CRASH · ANIMAL · 체포하겠어 · Catch Catch는 기준을 넘는 곳 없음). 고개 `ChoreoHeadTilt`에 6곡 57조각 추가(ANIMAL 7, 체포하겠어 15, Genie 13, LOVE ATTACK 9, I SPY 10, REDRED 5) → 고개 모두 129조각. 고개와 손목은 조각마다 한 `bend` 목록으로 합침.
 - Play(레몬탱 18번 곡 105.3~107.6초, 보정 켬/끔 비교): 105.9초 오른손 -34° (끔 5°), 고개 35° (끔 11°), 프레임당 최대 손 8.6° / 고개 4.0°.
 - 못 한 곡: Looks Can Kill(클립과 조각 순서가 다름), BAD 원본 클립(같은 안무를 BAD 2로 처리).
+- 규칙(사용자 2026-11-09: "앞으로 안무 추가할 때 고개와 손목 움직임도 자세하게 조사하고 구현할 것"): 새 안무·안무 수정 때마다 고개와 손목을 함께 영상과 비교해서 넣는다. 절차는 CHOREOGRAPHY.md §20(필수).
