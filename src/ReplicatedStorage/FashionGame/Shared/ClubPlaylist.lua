@@ -93,7 +93,10 @@ M.Playlist = {
 	-- choreographies, and 20 new. length = seconds at x1 (heard: ÷ 0.335).
 	-- (D-766: the user's per-track lab values on 10; D-767: 16 uploads taken out,
 	-- 13 left)
-	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
+	-- (D-975, user 2026-11-07: "ATEEZ-BAD NEW 120615582016729" with its lab values) was 134942349436280, a 3× file
+	-- of 51.208 s; the new upload is 139.674 s: fileSpeed = 3 × 51.208 ÷ 139.674 = 1.10 (tempo 0.909 × 1.1 = 1.000),
+	-- so `at` and the stage camera keep the song clock
+	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 120615582016729, length = 139.674, fileSpeed = 1.1, lab = { speed = 1, tempo = 0.909, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -40, mid = -30, high = -40, engine = "sound" }, choreo = {
 		-- (D-844, user: 23 pieces, blends from tools/choreo/choreo_check.lua; a short
 		-- piece's blend is at most half its length; 10, 12 and 17 turn (ChoreoFixes);
 		-- 4, 5 and 6 captured again from the user's new clips (D-847); 21 pops its chest (ChoreoFixes);
