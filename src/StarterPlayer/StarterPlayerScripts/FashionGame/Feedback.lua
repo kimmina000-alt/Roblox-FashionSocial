@@ -158,6 +158,7 @@ sendButton.Activated:Connect(function()
 		sending = false
 		sendButton.Text = "보내기 ▶"
 		if ok and sent then
+			player:SetAttribute("FeedbackSentThisVisit", true) -- (D-1031: no 20-minute ask after this)
 			box.Text = ""
 			showSent(if typeof(message) == "string" then message else "소중한 의견이 잘 접수되었어요.")
 			return
@@ -306,6 +307,18 @@ if FeedbackConfig.TopButton then
 	TopBar.add(topButton, 2)
 	topButton.Activated:Connect(function()
 		if window.Visible then close() else Feedback.open() end
+	end)
+end
+
+-- (D-1031, user 2026-11-09: "20분 지나면 의견 묻는 창 다시 띄워") after
+-- FeedbackConfig.NudgeMinutes of this visit the window opens by itself, once a
+-- visit (the old one-time tip went with every first-time tip, D-850). Not when
+-- something was sent already this visit; it waits while another window is open.
+if (FeedbackConfig.NudgeMinutes or 0) > 0 then
+	task.delay(FeedbackConfig.NudgeMinutes * 60, function()
+		while Popups.anyOpen() do task.wait(5) end
+		if player:GetAttribute("FeedbackSentThisVisit") or window.Visible then return end
+		Feedback.open()
 	end)
 end
 

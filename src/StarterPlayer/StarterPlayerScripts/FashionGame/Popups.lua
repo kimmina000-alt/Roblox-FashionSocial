@@ -33,4 +33,9 @@ function Popups.isOpen(name: string): boolean
 	return current ~= nil and current.name == name
 end
 
+-- (D-1031) any window open now (the 20-minute 의견 ask waits for none)
+function Popups.anyOpen(): boolean
+	return current ~= nil
+end
+
 return Popups

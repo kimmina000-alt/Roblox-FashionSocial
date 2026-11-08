@@ -4,7 +4,8 @@
 -- a DataStore, the owner's 📥 tab in the same window lists them).
 -- Opened from three places: the 💬 button in the top row (TopButton, for the
 -- first weeks: set false to hide it later), the guide NPC's question list
--- and a one-time ask after NudgeMinutes of play (GuideTips, tip "feedbackAsk").
+-- and, after NudgeMinutes of a visit, the window opening by itself once
+-- (D-1031; the first one-time tip in GuideTips went with D-850).
 
 return {
 	TopButton = true,
