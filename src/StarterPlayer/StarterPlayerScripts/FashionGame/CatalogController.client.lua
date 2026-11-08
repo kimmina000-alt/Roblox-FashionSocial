@@ -1630,7 +1630,7 @@ updateCatalogLayout = function()
 	searchBox.Position = UDim2.fromOffset(searchX, searchY)
 	searchBox.Size = UDim2.fromOffset(searchWidth, rowH)
 	searchBox.TextSize = if expandedPanel then 12 elseif phoneCompact then 9 else 10
-	searchBox.PlaceholderText = if phoneCompact then "Search..." else "Search Roblox catalog..."
+	searchBox.PlaceholderText = if phoneCompact then "검색 · ID" else "이름 또는 아이템 ID로 검색" -- (D-1073)
 	searchButton.Visible = true
 	searchButton.Text = if phoneCompact then "🔍" else "SEARCH"
 	searchButton.Position = UDim2.fromOffset(searchX + searchWidth + 4, searchY)
@@ -3006,9 +3006,56 @@ renderLocalMode = function()
 
 	local count = 0
 	local layerNumber = 0
+	-- (D-1073, user 2026-11-09 from the KOYA list: "입은 아이템을 액세서리 / 의상 /
+	-- 애니메이션 / 몸 칸으로 나누고") 착용 중 in four groups, each after a small
+	-- heading tile (the layered clothes stay in their order inside 의상, so the
+	-- drag that sorts them still works)
+	local sectionOf: ((any, any) -> number)? = nil
+	local SECTION_NAMES = { "💍 액세서리", "👕 의상", "🕺 애니메이션", "🧍 몸" }
+	if mode == "Wearing" then
+		local BODY = { Head = true, Torso = true, LeftArm = true, RightArm = true, LeftLeg = true, RightLeg = true, DynamicHead = true, Face = true }
+		local CLOTHES = { Shirt = true, Pants = true, TShirt = true, TShirtAccessory = true, ShirtAccessory = true, PantsAccessory = true, JacketAccessory = true, SweaterAccessory = true, ShortsAccessory = true, DressSkirtAccessory = true, LeftShoeAccessory = true, RightShoeAccessory = true }
+		sectionOf = function(entry, detail): number
+			local t = tostring(detail.AssetType or detail.BundleType or "")
+			if entry.itemType == "Bundle" or BODY[t] or string.find(t, "Makeup") then return 4 end
+			if string.find(t, "Animation") then return 3 end
+			if CLOTHES[t] or wornGroup(entry.id) == 1 then return 2 end
+			return 1
+		end
+		local indexed = {}
+		for i, entry in ipairs(entries) do
+			local detail = details[itemKey(entry.itemType, entry.id)]
+			indexed[i] = { entry = entry, s = if detail then (sectionOf :: any)(entry, detail) else 5, i = i }
+		end
+		table.sort(indexed, function(x, y) if x.s ~= y.s then return x.s < y.s end return x.i < y.i end)
+		entries = {}
+		for i, e in ipairs(indexed) do entries[i] = e.entry end
+	end
+	local lastSection = 0
 	for _, entry in ipairs(entries) do
 		local detail = details[itemKey(entry.itemType, entry.id)]
 		if detail and passesLocalFilters(detail) then
+			local sec = if sectionOf then sectionOf(entry, detail) else 0
+			if sectionOf and sec ~= lastSection and SECTION_NAMES[sec] then
+				lastSection = sec
+				count += 1
+				local head = Instance.new("Frame")
+				head.Name = "SectionHead"
+				head.LayoutOrder = count
+				head.BackgroundColor3 = Color3.fromRGB(32, 32, 40)
+				head.BackgroundTransparency = 0.2
+				head.Parent = resultsFrame
+				local hc = Instance.new("UICorner") hc.CornerRadius = UDim.new(0, 8) hc.Parent = head
+				local hl = Instance.new("TextLabel")
+				hl.Size = UDim2.fromScale(1, 1)
+				hl.BackgroundTransparency = 1
+				hl.Font = Enum.Font.GothamBold
+				hl.TextScaled = true
+				hl.TextColor3 = Color3.fromRGB(235, 235, 240)
+				hl.Text = SECTION_NAMES[sec]
+				local pad = Instance.new("UIPadding") pad.PaddingLeft = UDim.new(0.12, 0) pad.PaddingRight = UDim.new(0.12, 0) pad.PaddingTop = UDim.new(0.38, 0) pad.PaddingBottom = UDim.new(0.38, 0) pad.Parent = hl
+				hl.Parent = head
+			end
 			count += 1
 			local card = createItemCard(detail, count)
 			if card and mode == "Wearing" and wornGroup(entry.id) == 1 then
@@ -3113,6 +3160,32 @@ searchCatalog = function()
 	currentKeyword = searchBox.Text
 	bundleContentsOpen = false
 	backToPacksButton.Visible = false
+
+	-- (D-1073, user 2026-11-09 from the KOYA list: "아이템 ID 입력으로 바로 입기") a
+	-- number in the search box is an item id: that item (or bundle) on its own
+	-- card, WEAR right there; it then shows in 최근 like any item tried on
+	local typedId = tonumber(string.match(currentKeyword, "^%s*(%d%d%d%d%d+)%s*$") or "")
+	if typedId then
+		catalogPages = nil
+		wornButtonUpdaters = {}
+		table.clear(cardContentUIScales)
+		clearContainer(resultsFrame)
+		local details = fetchItemDetails({ { id = typedId, itemType = "Asset" }, { id = typedId, itemType = "Bundle" } })
+		if generation ~= resultsFrame:GetAttribute("SearchGeneration") then return end
+		local n = 0
+		for _, kind in ipairs({ "Asset", "Bundle" }) do
+			local detail = details[itemKey(kind, typedId)]
+			if detail then
+				n += 1
+				createItemCard(detail, n)
+			end
+		end
+		for _, contentScale in ipairs(cardContentUIScales) do contentScale.Scale = cardContentScale end
+		setResultsMessage(if n == 0 then "그 ID의 아이템을 찾지 못했어요." else nil)
+		pageLabel.Text = "ID " .. tostring(typedId)
+		searchBusy = false
+		return
+	end
 
 	local minPrice = tonumber(minPriceBox.Text)
 	local maxPrice = tonumber(maxPriceBox.Text)

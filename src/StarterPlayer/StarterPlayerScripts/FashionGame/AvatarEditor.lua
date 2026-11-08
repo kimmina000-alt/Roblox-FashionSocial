@@ -171,17 +171,45 @@ local function createSlider(parent: Instance, label: string, minValue: number, m
 	}, row)
 	local fillColor = accent or COLORS.fill
 	local resetWidth = if onReset then 26 else 0
-	local valueLabel = make("TextLabel", {
-		Size = UDim2.fromOffset(52, 30),
-		Position = UDim2.new(1, -52 - resetWidth, 0, 0),
-		BackgroundTransparency = 1,
-		TextColor3 = COLORS.dim,
+	-- (D-1071, user 2026-11-09 from the KOYA list: "축마다 −/+ 미세 조정 버튼과 숫자
+	-- 직접 입력(폰에서 0.01 단위 맞추기가 어려움)") − [value] + after the bar: a
+	-- tap moves one step, the box takes a typed number
+	local FINE = 22 -- each of − / +
+	local BOX = 50
+	local fineWidth = FINE * 2 + BOX + 6
+	local minus = make("TextButton", {
+		Size = UDim2.fromOffset(FINE, 22),
+		Position = UDim2.new(1, -fineWidth - resetWidth, 0, 4),
+		BackgroundColor3 = COLORS.row,
+		Text = "−",
+		TextColor3 = COLORS.text,
+		TextSize = 16,
+		Font = Enum.Font.GothamBold,
+	}, row)
+	corner(minus, 6)
+	local valueLabel = make("TextBox", {
+		Size = UDim2.fromOffset(BOX, 22),
+		Position = UDim2.new(1, -fineWidth - resetWidth + FINE + 3, 0, 4),
+		BackgroundColor3 = Color3.fromRGB(36, 36, 44),
+		TextColor3 = COLORS.text,
 		TextSize = 11,
 		Font = Enum.Font.Gotham,
-		TextXAlignment = Enum.TextXAlignment.Right,
+		ClearTextOnFocus = false,
+		TextXAlignment = Enum.TextXAlignment.Center,
 	}, row)
+	corner(valueLabel, 6)
+	local plus = make("TextButton", {
+		Size = UDim2.fromOffset(FINE, 22),
+		Position = UDim2.new(1, -FINE - resetWidth - 4, 0, 4),
+		BackgroundColor3 = COLORS.row,
+		Text = "+",
+		TextColor3 = COLORS.text,
+		TextSize = 16,
+		Font = Enum.Font.GothamBold,
+	}, row)
+	corner(plus, 6)
 	local track = make("TextButton", {
-		Size = UDim2.new(1, -(46 + 52 + resetWidth + 14), 0, 6),
+		Size = UDim2.new(1, -(46 + fineWidth + resetWidth + 14), 0, 6),
 		Position = UDim2.fromOffset(52, 12),
 		BackgroundColor3 = COLORS.track,
 		Text = "",
@@ -242,6 +270,26 @@ local function createSlider(parent: Instance, label: string, minValue: number, m
 			setFromX(input.Position.X)
 		end
 	end)
+	-- (D-1071) one step either way, and a typed value (the % rows take 105 for 1.05)
+	local function setValue(v: number)
+		local snapped = math.clamp(math.floor(v / step + 0.5) * step, minValue, maxValue)
+		if math.abs(snapped - value) > step * 0.01 then
+			value = snapped
+			render()
+			onChange(value)
+		else
+			render()
+		end
+	end
+	minus.Activated:Connect(function() if enabled then setValue(value - step) end end)
+	plus.Activated:Connect(function() if enabled then setValue(value + step) end end)
+	valueLabel.FocusLost:Connect(function()
+		local text = valueLabel.Text
+		local n = tonumber((string.gsub(text, "[^%d%.%-]", "")))
+		if not enabled or not n then render() return end
+		if string.find(text, "%%") or (maxValue <= 3 and math.abs(n) > 3 and string.find(format(value), "%%")) then n = n / 100 end
+		setValue(n)
+	end)
 	render()
 	return {
 		frame = row,
@@ -253,6 +301,8 @@ local function createSlider(parent: Instance, label: string, minValue: number, m
 			enabled = state
 			fill.BackgroundColor3 = if state then fillColor else COLORS.track
 			knob.BackgroundTransparency = if state then 0 else 0.6
+			valueLabel.TextEditable = state
+			minus.AutoButtonColor, plus.AutoButtonColor = state, state
 		end,
 	}
 end
