@@ -827,7 +827,10 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	tool.Activated:Connect(function() bite(tool, item) end)
 	-- (D-950) how much of a table top it takes, for the silhouette and the
 	-- overlap check (국밥 goes down as its tray set, 3.4 × 1.5 studs across)
-	tool:SetAttribute("PlaceRadius", if kind == "bowl" then 3.4 * FOOD_SCALE / 2 else footprintOf(handle))
+	-- (D-1038, user 2026-11-09: "국밥 놓을 때 원 너무 크다. 국밥 크기에 맞춰"): the
+	-- user's 국밥 model goes down alone (D-1037), so its own size; the tray size only
+	-- for a store bowl that still goes down with the tray
+	tool:SetAttribute("PlaceRadius", if kind == "bowl" and tool:GetAttribute("EatMode") ~= "Bites" then 3.4 * FOOD_SCALE / 2 else footprintOf(handle))
 	return tool
 end
 

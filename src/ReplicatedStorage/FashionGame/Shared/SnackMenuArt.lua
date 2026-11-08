@@ -13,6 +13,10 @@ SnackMenuArt.Photos = {
 	-- with the table, 123327521135180)
 	-- (D-1034, user 2026-11-09) the user's 14-piece model plate, shot in the game on green and cut out
 	suyuk = "rbxassetid://88864543431415", -- gukbap_suyuk14_cutout.png (was 98888580171981, gukbap_suyuk_cutout.png)
+	-- (D-1038, user 2026-11-09: "국밥도 누끼 이미지 따서 ui에 넣고") the user's 국밥 models, shot in the game on magenta and cut out
+	pork = "rbxassetid://133591259658865", -- gukbap_pork_cutout.png
+	sundae = "rbxassetid://111308312027162", -- gukbap_sundae_cutout.png
+	beef = "rbxassetid://85511957052010", -- gukbap_beef_cutout.png
 }
 
 SnackMenuArt.Icons = {
@@ -42,9 +46,9 @@ SnackMenuArt.Icons = {
 	greentea = "rbxassetid://124472440536755",
 	injeolmi = "rbxassetid://136612208449015",
 	rice = "rbxassetid://121528714601846",
-	pork = "rbxassetid://129225504092655",
-	sundae = "rbxassetid://134665477374241",
-	beef = "rbxassetid://130774465841494",
+	pork = "rbxassetid://133591259658865", -- (D-1038; was 129225504092655)
+	sundae = "rbxassetid://111308312027162", -- (D-1038; was 134665477374241)
+	beef = "rbxassetid://85511957052010", -- (D-1038; was 130774465841494)
 	suyuk = "rbxassetid://88864543431415", -- (D-1034; was 86722270080544)
 }
 

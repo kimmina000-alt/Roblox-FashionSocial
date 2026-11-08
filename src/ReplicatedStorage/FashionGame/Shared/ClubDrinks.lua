@@ -119,6 +119,8 @@ end
 -- in the backpack; only cafe staff on shift keep a two-in-hand limit)
 M.MaxBottlesCarried = 99
 M.BottleServings = 6        -- cups per bottle
+-- (D-1038: no longer used; a bottle stays on its table until it is drunk up or
+-- its owner has been gone 3 min, DrinkService)
 M.BottleLifetime = 600      -- seconds on a table before it is cleared (tier 1)
 -- (user 2026-10-30) the dearer the drink, the longer it stays: tier 1 10 min,
 -- tier 2 20, tier 3 30, VIP drinks 1 hour (still gone when the owner leaves)

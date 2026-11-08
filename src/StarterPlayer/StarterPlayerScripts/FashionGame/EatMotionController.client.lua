@@ -35,7 +35,15 @@ type Rig = {
 	-- full weight from the start and its goal travels from where the hand was
 	-- (rest, root space) to the mouth and back (up = 0..1, eased).
 	rest: CFrame, up: number, fixFrames: number,
+	-- (D-1038, user 2026-11-09: "먹을 때 고개를 약하게 숙였다 폈다 반복하는 모션
+	-- 넣어") the head nods a little while the food is at the mouth: a LookAt IK
+	-- on the neck (UpperTorso → Head) at a point ahead that dips and rises
+	nod: IKControl?, nodGoal: Attachment?, nodT: number,
 }
+local NOD_PERIOD = 0.7 -- seconds, down and up once
+-- how far the head bows, between (4° → 16° at weight 0.8 moved it only 7° in
+-- Play: the LookAt does not turn the neck all the way; 6° → 28° at 0.9)
+local NOD_MIN, NOD_MAX = math.rad(6), math.rad(28)
 local rigs: {[Model]: Rig} = {}
 local RATE = 1 / 0.3 -- weight per second: up or down in 0.3 s
 -- the way the held item points, hand → its far end, in the head's space (the
@@ -160,10 +168,30 @@ local function start(character: Model)
 	ik.SmoothTime = 0
 	ik.Weight = 1
 	ik.Parent = humanoid
+	-- (D-1038) the nod: the neck only (UpperTorso → Head), weight follows the arm
+	local torso = character:FindFirstChild("UpperTorso")
+	local nod: IKControl? = nil
+	local nodGoal: Attachment? = nil
+	if torso and torso:IsA("BasePart") then
+		nodGoal = Instance.new("Attachment")
+		nodGoal.Name = "NodGoal"
+		nodGoal.Parent = holder
+		local n = Instance.new("IKControl")
+		n.Name = "EatNod"
+		n.Type = Enum.IKControlType.LookAt
+		n.ChainRoot = torso
+		n.EndEffector = head
+		n.Target = nodGoal
+		n.SmoothTime = 0
+		n.Weight = 0
+		n.Parent = humanoid
+		nod = n
+	end
 	rigs[character] = {
 		ik = ik, holder = holder, goal = goal, pole = pole, want = 1,
 		tip = tip, turn = head.CFrame.Rotation:Inverse() * turned, fix = Vector3.zero,
 		rest = rest, up = 0, fixFrames = 0,
+		nod = nod, nodGoal = nodGoal, nodT = 0,
 	}
 end
 
@@ -172,6 +200,7 @@ local function remove(character: Model)
 	if not rig then return end
 	rigs[character] = nil
 	rig.ik:Destroy()
+	if rig.nod then rig.nod:Destroy() end
 	rig.holder:Destroy()
 end
 
@@ -235,6 +264,19 @@ RunService.Heartbeat:Connect(function(dt)
 		local restWorld = if root then root.CFrame * rig.rest else mouth
 		local a = rig.up * rig.up * (3 - 2 * rig.up)
 		rig.goal.WorldCFrame = restWorld:Lerp(mouth, a)
+		-- (D-1038) the nod: a point 4 studs ahead of the neck, bowed down by an
+		-- angle going NOD_MIN → NOD_MAX → NOD_MIN, seen from the torso (not the
+		-- head, which the IK turns); it fades in and out with the arm
+		local torso = character:FindFirstChild("UpperTorso") :: BasePart?
+		if rig.nod and rig.nodGoal and torso and root then
+			rig.nodT += dt
+			local k = 0.5 - 0.5 * math.cos((rig.nodT % NOD_PERIOD) / NOD_PERIOD * 2 * math.pi)
+			local bow = NOD_MIN + (NOD_MAX - NOD_MIN) * k
+			local neck = torso.CFrame * Vector3.new(0, torso.Size.Y / 2 + head.Size.Y / 2, 0)
+			local ahead = root.CFrame.LookVector
+			rig.nodGoal.WorldPosition = neck + (ahead * math.cos(bow) - Vector3.yAxis * math.sin(bow)) * 4
+			rig.nod.Weight = a * 0.9
+		end
 		-- the elbow out to the right and down, a little behind the arm
 		rig.pole.WorldPosition = (head.CFrame * CFrame.new(1.6 * s, -2.2 * s, 0.6 * s)).Position
 		if rig.want <= 0 and rig.up <= 0 then remove(character) end

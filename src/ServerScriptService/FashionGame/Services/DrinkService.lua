@@ -689,9 +689,10 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	clink.Parent = tablePart
 	clink:Play()
 	game:GetService("Debris"):AddItem(clink, 4)
-	task.delay(ClubConfig.bottleLifetime(drink), function()
-		if bottle.Parent then removeBottle(bottle) end
-	end)
+	-- (D-1038, user 2026-11-09: "버켓 사람 있으면 안 사라지게 변경. 다 마실 경우에만
+	-- 사라짐") no time limit on the table any more (it was ClubConfig.bottleLifetime:
+	-- 10 / 20 / 30 min, VIP 1 h): a bottle or bucket goes when its last cup is
+	-- poured, or 3 min after its owner left the server (TableKeepSeconds, D-770)
 	return true, nil
 end
 
