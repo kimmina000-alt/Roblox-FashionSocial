@@ -686,6 +686,12 @@ M.ChoreoFixes = {
 	-- NCT WISH-I SPY (D-912, the mirrored practice video ILeBVk4x_XQ): `still` where
 	-- the clip's member stands in the video (still_from_video.py)
 	[97906912240537] = { still = { from = 1.07, to = 1.8 } }, -- 5
+	-- (D-1030, user: "ISPY 1:20 이 부근에 휙 도는 거") piece 15 starts in the middle of a
+	-- turn (hips 152° → 326° over its first 0.67 s, piece 14 ended at 74° still turning
+	-- the same way); the cross-fade went the short way once the gap passed 180° and
+	-- whipped back 170° in 0.25 s (841°/s) at song 77.95-78.15. One even turn the
+	-- same way instead, from where piece 14 left the hips
+	[135074521559748] = { spin = { from = 0, to = 0.8, ease = "both", fromPrev = true, dir = 1 } }, -- 15 (1:18)
 	-- YENA-Catch Catch v2 centre clips (D-980): Play scan SPIN 641-723°/s, spread evenly
 	[79075546317269] = { spin = { from = 9.2, to = 9.55, ease = "both" } }, -- v2 11 (1:44)
 	[108680095506820] = { spin = { from = 0.65, to = 2.4, ease = "both" } }, -- v2 19 (bar 2:40-2:42; user "2:40초까지 다리 벌벌 떨어": one even turn, the two short ones whipped the legs and hands)
