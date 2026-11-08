@@ -1015,4 +1015,8 @@ ClubCamera.Songs[80583279340768] = {
 		{ 177.53, "wide", 0, 5, { size = "full" } }, { 178.23, "full", 0, 0, { size = "knee" } },
 	}),
 }
+-- (D-1014) ATEEZ-BAD is on the old 3× file again (ATEEZ-BAD 2 keeps 120615582016729):
+-- both files run on the same song clock, so both get the same shots
+ClubCamera.Songs[134942349436280] = ClubCamera.Songs[120615582016729]
+
 return ClubCamera
