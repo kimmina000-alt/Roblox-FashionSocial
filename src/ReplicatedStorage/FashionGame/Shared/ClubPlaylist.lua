@@ -99,33 +99,10 @@ M.Playlist = {
 	-- (D-1014, user 2026-11-08: "음원 아이디랑 설정값 아래로 변경" … "배드 2: 120615582016729") ATEEZ-BAD back
 	-- on the old 3× file 134942349436280 with the user's values; ATEEZ-BAD 2 keeps the new upload
 	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
-		-- (D-844, user: 23 pieces, blends from tools/choreo/choreo_check.lua; a short
-		-- piece's blend is at most half its length; 10, 12 and 17 turn (ChoreoFixes);
-		-- 4, 5 and 6 captured again from the user's new clips (D-847); 21 pops its chest (ChoreoFixes);
-		-- 11 skips its first 1.3 s, a spin of about 200° into place (user); the
-		-- last piece runs past the song end, about 153 s heard)
-		-- (D-861, user: "21번 안무가 영상보다 빠르게 나와서 노래랑 타이밍이 안 맞아 … 약
-		-- 3초") each piece starts where its clip starts in the practice video
-		-- (D:\Roblox\영상\ATEEZ_BAD_centercut\clips.json), less 0.16 s: the song
-		-- runs 0.16 s ahead of that video (loudness envelopes matched, Studio
-		-- PlaybackLoudness vs the video's audio). Run back to back, the captures
-		-- (a little shorter than their clips) and 11's skipped 1.3 s had pulled
-		-- 21 2.5 s and 23 2.6 s early; a short gap before the next `at` holds
-		-- the last pose (ChoreoController)
-		{ id = 82278370960435, from = 0.16 }, { id = 120748822938478, at = 6.6, blend = 0.9 }, { id = 110345323270713, at = 17.2, blend = 0.75 },
-		{ id = 128919651219199, at = 23.44, blend = 0.9 }, { id = 82580725724862, at = 25.34, blend = 0.37 }, { id = 102168077584280, at = 32.08, blend = 0.59 },
-		{ id = 122397631727855, at = 33.84, blend = 0.41 }, { id = 96766863219484, at = 39.24, blend = 0.47 }, { id = 116077835257285, at = 46.47, blend = 0.75 },
-		{ id = 78517242404651, at = 58.47, blend = 0.99 }, { id = 135462564673113, at = 67.17, from = 1.3, blend = 0.45 }, { id = 130559113363194, at = 70.87, blend = 1 },
-		{ id = 79303516060999, at = 72.94, blend = 0.61 }, { id = 94325256666159, at = 83.38 }, { id = 111913125032810, at = 88.24, blend = 1 },
-		{ id = 129415986484255, at = 95.04, blend = 0.53 }, { id = 87606540400975, at = 103.38, blend = 1 }, { id = 121775933093308, at = 110.44, blend = 0.95 },
-		{ id = 138549092776506, at = 121.91, blend = 0.73 }, { id = 88428525489460, at = 132.18 }, { id = 82346668311878, at = 136.5, blend = 0.7 },
-		{ id = 134748500609652, at = 143.58 }, { id = 70571634425422, at = 151.51 } }, autoChoreo = true },
-	-- (D-994, user 2026-11-07: "기존 배드 음원을 제목 배드 2로 하나 더 만들어서 배드 2에 안무 추가")
-	-- the same upload as ATEEZ-BAD with a second choreography: 20 pieces cut from the
-	-- mirrored practice video (D:\Roblox\영상\ATEEZ_BAD_Mirrored_centercut), which runs
-	-- with the song (video = song + 0.00 s, loudness matched at the start and at 120-140 s),
-	-- so `at` = the clip's start; blends from choreo_check (none where the seam matches)
-	{ channel = "K-POP", title = "ATEEZ-BAD 2", soundId = 120615582016729, length = 139.674, fileSpeed = 1.1, lab = { speed = 1, tempo = 0.909, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -40, mid = -30, high = -40, engine = "sound" }, choreo = {
+		-- (D-1039, user 2026-11-09: "BAD2에 있는 안무 BAD로 옮겨. BAD에 있던 안무 삭제. BAD2 음원 삭제.")
+		-- ATEEZ-BAD 2's choreography (D-994: 20 pieces from the mirrored practice video, video = song + 0.00 s,
+		-- with D-1022's chest bounce) on this track: both files ran on the same song clock (D-975 / D-1014),
+		-- so the `at` stay. BAD's own 23 pieces (D-844 ...) and the ATEEZ-BAD 2 track are out (docs/04_ART/CLUB_PLAYLIST.md)
 		{ id = 99917032910194, at = 0 }, { id = 101690327843945, at = 4, blend = 1 }, { id = 106954590912232, at = 16, blend = 0.89 },
 		{ id = 86769053357907, at = 22, blend = 0.56 }, { id = 85294537563206, at = 25.97, blend = 0.63 }, { id = 73352408497618, at = 29.83, blend = 0.68 },
 		{ id = 140073525951941, at = 38.17, blend = 0.25 }, { id = 91647545899849, at = 45.78, blend = 0.74 }, { id = 86108317246080, at = 53, blend = 0.68 },

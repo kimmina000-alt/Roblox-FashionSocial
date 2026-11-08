@@ -233,3 +233,48 @@ D-1010에서 잠갔던 다섯 곡. 다시 넣을 때는 아래 줄을 ClubPlayli
 	{ channel = "K-POP", title = "IVE-Mirror", locked = true, soundId = 139326796173276, length = 67, lab = { speed = 1, tempo = 0.332, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	{ channel = "K-POP", title = "NMIXX-긴 소원(Birthday Wish)", locked = true, soundId = 107782871991364, length = 67, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 ```
+
+## 뺀 안무 · 곡 (D-1039, 2026-11-09: BAD 2 안무를 BAD로, BAD 안무와 BAD 2 곡 삭제)
+예전 ATEEZ-BAD 줄(23조각 안무)과 ATEEZ-BAD 2 줄. 되살릴 때는 아래를 ClubPlaylist.lua에 그대로.
+
+```lua
+	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
+		-- (D-844, user: 23 pieces, blends from tools/choreo/choreo_check.lua; a short
+		-- piece's blend is at most half its length; 10, 12 and 17 turn (ChoreoFixes);
+		-- 4, 5 and 6 captured again from the user's new clips (D-847); 21 pops its chest (ChoreoFixes);
+		-- 11 skips its first 1.3 s, a spin of about 200° into place (user); the
+		-- last piece runs past the song end, about 153 s heard)
+		-- (D-861, user: "21번 안무가 영상보다 빠르게 나와서 노래랑 타이밍이 안 맞아 … 약
+		-- 3초") each piece starts where its clip starts in the practice video
+		-- (D:\Roblox\영상\ATEEZ_BAD_centercut\clips.json), less 0.16 s: the song
+		-- runs 0.16 s ahead of that video (loudness envelopes matched, Studio
+		-- PlaybackLoudness vs the video's audio). Run back to back, the captures
+		-- (a little shorter than their clips) and 11's skipped 1.3 s had pulled
+		-- 21 2.5 s and 23 2.6 s early; a short gap before the next `at` holds
+		-- the last pose (ChoreoController)
+		{ id = 82278370960435, from = 0.16 }, { id = 120748822938478, at = 6.6, blend = 0.9 }, { id = 110345323270713, at = 17.2, blend = 0.75 },
+		{ id = 128919651219199, at = 23.44, blend = 0.9 }, { id = 82580725724862, at = 25.34, blend = 0.37 }, { id = 102168077584280, at = 32.08, blend = 0.59 },
+		{ id = 122397631727855, at = 33.84, blend = 0.41 }, { id = 96766863219484, at = 39.24, blend = 0.47 }, { id = 116077835257285, at = 46.47, blend = 0.75 },
+		{ id = 78517242404651, at = 58.47, blend = 0.99 }, { id = 135462564673113, at = 67.17, from = 1.3, blend = 0.45 }, { id = 130559113363194, at = 70.87, blend = 1 },
+		{ id = 79303516060999, at = 72.94, blend = 0.61 }, { id = 94325256666159, at = 83.38 }, { id = 111913125032810, at = 88.24, blend = 1 },
+		{ id = 129415986484255, at = 95.04, blend = 0.53 }, { id = 87606540400975, at = 103.38, blend = 1 }, { id = 121775933093308, at = 110.44, blend = 0.95 },
+		{ id = 138549092776506, at = 121.91, blend = 0.73 }, { id = 88428525489460, at = 132.18 }, { id = 82346668311878, at = 136.5, blend = 0.7 },
+		{ id = 134748500609652, at = 143.58 }, { id = 70571634425422, at = 151.51 } }, autoChoreo = true },
+	-- (D-994, user 2026-11-07: "기존 배드 음원을 제목 배드 2로 하나 더 만들어서 배드 2에 안무 추가")
+	-- the same upload as ATEEZ-BAD with a second choreography: 20 pieces cut from the
+	-- mirrored practice video (D:\Roblox\영상\ATEEZ_BAD_Mirrored_centercut), which runs
+	-- with the song (video = song + 0.00 s, loudness matched at the start and at 120-140 s),
+	-- so `at` = the clip's start; blends from choreo_check (none where the seam matches)
+	{ channel = "K-POP", title = "ATEEZ-BAD 2", soundId = 120615582016729, length = 139.674, fileSpeed = 1.1, lab = { speed = 1, tempo = 0.909, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -40, mid = -30, high = -40, engine = "sound" }, choreo = {
+		{ id = 99917032910194, at = 0 }, { id = 101690327843945, at = 4, blend = 1 }, { id = 106954590912232, at = 16, blend = 0.89 },
+		{ id = 86769053357907, at = 22, blend = 0.56 }, { id = 85294537563206, at = 25.97, blend = 0.63 }, { id = 73352408497618, at = 29.83, blend = 0.68 },
+		{ id = 140073525951941, at = 38.17, blend = 0.25 }, { id = 91647545899849, at = 45.78, blend = 0.74 }, { id = 86108317246080, at = 53, blend = 0.68 },
+		{ id = 92410075296555, at = 57.9, blend = 0.37 }, { id = 112518247434645, at = 68, blend = 0.98 }, { id = 99913080692802, at = 76.58 },
+		{ id = 130897128636432, at = 88.87, blend = 0.6 }, { id = 114907255207310, at = 94.68, blend = 0.61 }, { id = 79044145915210, at = 103.9, blend = 0.91 },
+		{ id = 138182761294826, at = 110, blend = 1 }, { id = 90945372575300, at = 118 }, { id = 127427471547985, at = 125.3 },
+		-- (D-1022, user: "BAD2에 넣은 안무 중 가슴튕기는안무 부분 찾아서 BAD에 있는 가슴 튕기는 안무로 수정"): 19's chest bounce
+		-- (its 0.8-4.5 s, arm across the chest, hand to the waist) = ATEEZ-BAD's piece 21 with its fixes (pops, arm pose, sharp) on
+		-- the same song clock (`from = 0.75`) until 141.25, then 19 goes on from its 4.0 s. BAD crosses the right arm, BAD 2 (mirrored video) the left
+		{ id = 82346668311878, at = 137.25, from = 0.75, blend = 0.76, stop = 141.25 }, { id = 95469533767642, at = 141.25, from = 4.0, blend = 0.5 },
+		{ id = 138812417192850, at = 148.37 } }, autoChoreo = true },
+```

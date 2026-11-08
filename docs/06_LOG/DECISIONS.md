@@ -3251,3 +3251,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 확인(Studio Play): 국밥 3종 PlaceRadius 0.79 / 0.75 / 0.75, 소금빵 한 입에 고개 끄덕임, 국밥집 주문 창에 새 그림 3장. 오류 0.
 
 ![국밥 그림](images/2026-11-09/gukbap_menu_cutouts.jpg)
+
+## D-1039 BAD 2 안무를 BAD로, BAD 2 곡 삭제 · 돼지 / 순대국밥 조각 다시 묶기 (2026-11-09)
+- 사용자: "BAD2에 있는 안무 BAD로 옮겨. BAD에 있던 안무 삭제. BAD2 음원 삭제." / "돼지국밥이랑 순대국밥 바이트 수정했어" (Gukbap_Pork / Sundae.glb 다시 내보냄)
+- ATEEZ-BAD(134942349436280, 3배 파일)에 ATEEZ-BAD 2의 안무 21줄(D-994 20조각 + D-1022 가슴 튕기기)을 그대로: 두 파일이 같은 곡 시간(D-975 / D-1014)이라 `at` 그대로. BAD의 예전 23조각 안무와 ATEEZ-BAD 2 곡 줄은 뺌(되살릴 줄은 docs/04_ART/CLUB_PLAYLIST.md 끝). 무대 카메라는 BAD가 그대로 씀(ClubCamera 별칭). ChoreoFixes 등 애니메이션 id로 붙은 값은 그대로 둠.
+- Studio: ClubPlaylist에서 BAD 블록만 표시로 찾아 바꿈(안무 추가 세션의 Lemon Tang 줄 · 안무 D-1040은 그대로, 그 줄은 이 브랜치에 넣지 않음: feat/lemontang-choreo-1109).
+- 국밥 조각: 새 glb는 모양은 같고 묶음만 바뀜 → 다시 가져오지 않고 Studio 모델을 같은 묶음으로(색 유지). 돼지 = 고기 Bite1~7 + Bite8 파(두 겹) + Bite9 다대기 = 9조각, 순대 = Bite1 초록 줄기 + Bite2~10 순대 + Bite11 파 = 11조각(그릇 Plate에는 뚝배기 · 국물만). 한 숟갈에 한 조각이라 돼지 9입 · 순대 11입 · 소고기 6입. glb 사본은 docs/04_ART/models/.
+- 확인(Studio Play): 곡 76곡, ATEEZ-BAD 2 없음, ATEEZ-BAD 안무 21줄(첫 99917032910194 · 끝 138812417192850), BAD 33.1초에 29.83초 조각 73352408497618. 가방의 돼지 9 · 순대 11 · 소고기 6입. 오류 0.
