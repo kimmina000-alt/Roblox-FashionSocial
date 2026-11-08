@@ -483,8 +483,19 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "Light It Up", soundId = 110137761725603, length = 188.997, fileSpeed = 1.0476,
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
+	-- (D-1041, user 2026-11-09: "Crash 안무 추가") the new upload keeps the old song clock: video = song
+	-- + 2.45-2.50 s (game loudness at 30-55 s and 130-155 s against the practice video ljFL31qEn6M), so the
+	-- D-918 list comes back as it was; piece 1 = the re-upload 92063442221105 (80997055634037 in
+	-- Crash_ids.txt is 1.23 s long, not clip 1's 11.2 s). Its ChoreoFixes / slide stills / face offsets stayed in ClubChoreo
 	{ channel = "K-POP", title = "ALLDAY PROJECT-CRASH", soundId = 86115718533153, length = 164.773, fileSpeed = 1.0499,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
+		{ id = 92063442221105, at = 0.1 }, { id = 103881583439894, at = 11.31, blend = 1 }, { id = 110262357944188, at = 16.95, blend = 0.99 }, { id = 85184392148752, at = 23.06, blend = 1 },
+		{ id = 86200130207984, at = 31.57, blend = 0.65 }, { id = 109096810120786, at = 39.38 }, { id = 108547801175160, at = 51.62, blend = 0.57 },
+		{ id = 119507357461993, at = 61 }, { id = 86220019327088, at = 73.91, blend = 1 }, { id = 103539561583468, at = 75.61, blend = 0.65 },
+		{ id = 116383725353409, at = 78.98, blend = 0.82 }, { id = 124516959620423, at = 88.76, blend = 0.81 }, { id = 124646840847010, at = 94.3 },
+		{ id = 109278338620404, at = 103.61, blend = 0.54 }, { id = 92004530682011, at = 114.08, blend = 0.51 }, { id = 84989603326490, at = 128.33 },
+		{ id = 130905271100211, at = 136.91, blend = 0.98 }, { id = 83612611749583, at = 138.71, blend = 1 }, { id = 128860681514235, at = 152.25, blend = 0.63 },
+		{ id = 140259213928051, at = 163.1, blend = 0.45 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "그사람", soundId = 139646189327476, length = 224.251, fileSpeed = 1.0479,
 		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "CAR, THE GARDEN-Stay", soundId = 140222834511413, length = 228.605, fileSpeed = 1.0498,
