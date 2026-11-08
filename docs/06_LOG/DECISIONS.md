@@ -3113,3 +3113,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - D-1010에서 잠근 5곡을 플레이리스트에서 뺌: 현아-Bubble Pop, Hearts2Hearts-Lemon Tang, Hearts2Hearts-Next Chapter, IVE-Mirror, NMIXX-긴 소원(Birthday Wish). 그 줄들은 docs/04_ART/CLUB_PLAYLIST.md 맨 끝에 남김(다시 넣을 때 그대로 복사).
 - 잠금 코드 삭제: ClubPlaylist `locked` 필드, ClubService(돌려 틀기에서 빼기 · "🔒 잠긴 곡이에요." · 🧪 테스트 곡 조건), ClubMusicController(🔒 · 흐리게 · 버튼 없음).
 - 확인(Studio Play): 플레이리스트 33곡, 다섯 곡 없음, 🔒 글자 0, 오류 0.
+
+## D-1017 국밥집 블록 손 편집 저장 (2026-11-08)
+- 사용자: "국밥집 블록도 수정함"
+- 찾은 것(스크립트 build_gukbap.lua로 새로 만든 값과 부품별 비교): 건물 동쪽 끝 x 158 → 134.6(홀 동쪽 벽까지, 뒷벽 Wall_Back 삭제) — Floor 86.6 × 82, Roof 86.9 × 82.6, Wall_N 86, Wall_S 85.4. 천장은 홀 위만 덮는 회반죽 판 하나(Wall_S를 눕힌 것, 85.4 × 56.5 × 0.6, y 22.04, z -350.1 ~ -293.6), 원래 Ceiling 삭제. 간판 그림(SignBandImage) 길이 54.4 → 56.6(띠 전체). 세로 간판 2칸 더 밖(x 43.9), 팔 길이 0.6 → 2.6, 팔 두 개(y 28.2 · 33.6). 그 밖의 부품은 그대로.
+- 편집 중 Gukbap 모델이 풀려(그룹 해제) 부품 372개가 Hongdae_Layout 바로 아래, 천장 판과 위쪽 팔은 Workspace에 있었음 → 위치 그대로 Hongdae_Layout.Gukbap 모델로 다시 묶음(build_gukbap가 옛 모델을 지우고 scale_furniture가 그 모델을 찾음: 그대로 두면 다음 체인 때 국밥집이 두 채 생김). 천장 판 이름은 Ceiling.
+- 저장: build_gukbap.lua 끝에 사용자 값 그대로(크기 · 위치) 적용하는 블록. 동쪽 x 134.6 ~ 158 빈 틈은 건물 사이 막힌 곳이라 들어갈 수 없음(Play 화면 확인). 체인 전체 재실행은 아직 안 함.

@@ -602,6 +602,39 @@ for _, p in ipairs({ { 68.5, -344.5 }, { 86, -344.5 }, { 102, -344.5 }, { 86, -3
 	gukbapTable(p[1], p[2])
 end
 
+-- (D-1017, user 2026-11-08: "국밥집 블록도 수정함", edited by hand in Studio and
+-- saved here as it was): the block ends at the hall's east wall (x 134.6, the
+-- strip behind it and the back wall gone), the ceiling is one plaster slab over
+-- the hall only, the sign band picture runs the band's length, the vertical sign
+-- stands 2 further out on two arms
+do
+	local function edit(name: string, size: Vector3?, pos: Vector3)
+		local p = M:FindFirstChild(name) :: BasePart
+		if not p then return nil end
+		if size then p.Size = size end
+		p.CFrame = CFrame.new(pos)
+		return p
+	end
+	edit("Floor", Vector3.new(86.6, 0.6, 82), Vector3.new(91.3, 0.3, -334))
+	edit("Roof", Vector3.new(86.9, 0.8, 82.6), Vector3.new(91.15, 39.5, -334))
+	edit("Wall_N", Vector3.new(86, 39.1, 0.6), Vector3.new(91.6, 19.55, -374.7))
+	edit("Wall_S", Vector3.new(85.4, 39.1, 0.6), Vector3.new(91.3, 19.55, -293.3))
+	edit("SignBandImage", Vector3.new(0.05, 6.4, 56.6), Vector3.new(46.875, 21.5, -321.7))
+	edit("VerticalSign", nil, Vector3.new(43.9, 30.164675, -293.7))
+	local arm = edit("VerticalSignArm", Vector3.new(2.6, 0.4, 0.2), Vector3.new(46.7, 28.2, -293.7))
+	if arm then
+		local arm2 = arm:Clone()
+		arm2.CFrame = CFrame.new(46.7, 33.6, -293.7)
+		arm2.Parent = M
+	end
+	for _, n in ipairs({ "Wall_Back", "Ceiling" }) do
+		local p = M:FindFirstChild(n)
+		if p then p:Destroy() end
+	end
+	local ceil = part("Ceiling", Vector3.new(85.4, 56.5, 0.6), CFrame.new(91.3, 22.0392, -321.85, 1, 0, 0, 0, 0, 1, 0, -1, 0), WALL, { material = Enum.Material.Plaster })
+	ceil.CastShadow = true
+end
+
 M.Parent = T
 local n = 0
 for _, d in ipairs(M:GetDescendants()) do if d:IsA("BasePart") then n += 1 end end
