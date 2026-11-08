@@ -143,7 +143,7 @@ MonetizationConfig.Products = {
 	Cafe_CakeBasque = { sku = "CAFE-DP-CAKE-BASQUE", id = 3722468449, name = "바스크 치즈케이크", price = 25, status = "live",
 		description = "테이블에 놓는 홀케이크. 6조각을 모두 함께 나눠 먹어요." },
 	Gukbap_Suyuk = { sku = "GUKBAP-DP-SUYUK", id = 3722468485, name = "수육 한 접시", price = 19, status = "live",
-		description = "국밥집 테이블에 놓는 수육 한 접시. 6점을 모두 함께 나눠 먹어요." },
+		description = "국밥집 테이블에 놓는 수육 한 접시. 14점을 모두 함께 나눠 먹어요." },
 	-- 인생네컷 album +10 slots (first 10 are free, D-064).
 	AlbumSlots = { sku = "PHOTO-DP-ALBUM10", id = 3722464659, name = "사진첩 +10장", price = 25, status = "live",
 		description = "인생네컷 사진첩 칸을 10장 늘려요." },

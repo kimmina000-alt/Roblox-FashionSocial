@@ -11,7 +11,8 @@ local SnackMenuArt = {}
 SnackMenuArt.Photos = {
 	-- (the plate cut out on a clear ground, user 2026-11-01; was the photo
 	-- with the table, 123327521135180)
-	suyuk = "rbxassetid://98888580171981", -- gukbap_suyuk_cutout.png
+	-- (D-1034, user 2026-11-09) the user's 14-piece model plate, shot in the game on green and cut out
+	suyuk = "rbxassetid://88864543431415", -- gukbap_suyuk14_cutout.png (was 98888580171981, gukbap_suyuk_cutout.png)
 }
 
 SnackMenuArt.Icons = {
@@ -44,7 +45,7 @@ SnackMenuArt.Icons = {
 	pork = "rbxassetid://129225504092655",
 	sundae = "rbxassetid://134665477374241",
 	beef = "rbxassetid://130774465841494",
-	suyuk = "rbxassetid://86722270080544",
+	suyuk = "rbxassetid://88864543431415", -- (D-1034; was 86722270080544)
 }
 
 SnackMenuArt.Descriptions = {
@@ -77,7 +78,7 @@ SnackMenuArt.Descriptions = {
 	pork = "뽀얀 사골 국물에 돼지고기 듬뿍",
 	sundae = "순대와 머릿고기가 든 국밥",
 	beef = "얼큰한 소고기 국밥",
-	suyuk = "6점 · 테이블에 놓고 함께 먹어요",
+	suyuk = "14점 · 테이블에 놓고 함께 먹어요",
 }
 
 -- the window looks. (2026-10-31, later) the windows are the club shop's dark

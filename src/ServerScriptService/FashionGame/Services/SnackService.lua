@@ -409,14 +409,25 @@ local CAKE_MODELS = {
 	tiramisu = "TiramisuCakeSliced",
 	basque = "BasqueCheesecakeSliced",
 	strawberry = "StrawberryCreamCakeSliced",
+	-- (D-1034, user 2026-11-09) the user's 수육 plate (Blender → Gukbap_Suyuk.glb):
+	-- "Plate" stays, "Bite1".."Bite14" go one per tap in that order
+	suyuk = "GukbapSuyuk",
 }
+-- the pieces of a model plate are "Slice<n>" (cakes) or "Bite<n>" (D-1034)
+local function pieceWordOf(m: Instance): string?
+	if m:FindFirstChild("Slice1", true) then return "Slice" end
+	if m:FindFirstChild("Bite1", true) then return "Bite" end
+	return nil
+end
 local function cakeModel(key: string?): Model?
 	local name = key and CAKE_MODELS[key]
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local foods = art and art:FindFirstChild("Foods")
 	local m = name and foods and foods:FindFirstChild(name)
-	return if m and m:IsA("Model") and m:FindFirstChild("Slice1", true) then m else nil
+	return if m and m:IsA("Model") and pieceWordOf(m) then m else nil
 end
+-- (D-1034) how wide the 수육 model plate sits on a table (studs)
+local SUYUK_PLATE_W = 2.8
 -- a copy `width` studs across (the board's width), no collisions
 local function cakeCopy(src: Model, width: number): Model
 	local m = src:Clone()
@@ -661,14 +672,35 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		-- metal stick (0.05 wood before; 0.03 after the 1.5× of D-950)
 		handle = part("Handle", Vector3.new(0.02, 0.02, 1.0), Color3.fromRGB(150, 152, 158), Enum.Material.Metal)
 		handle.Parent = tool
-		local slice = part("Fill", Vector3.new(0.5, 0.07, 0.32), item.color)
-		local stex = Instance.new("Texture")
-		stex.Texture = SUYUK_TEX
-		stex.Face = Enum.NormalId.Top
-		stex.StudsPerTileU = 0.5
-		stex.StudsPerTileV = 0.32
-		stex.Parent = slice
-		attach(handle, slice, CFrame.new(0, 0.05, -0.45))
+		-- (D-1034, user 2026-11-09: "1~13은 먹을 때 젓가락에 3d에 있는 수육 오브젝트
+		-- 들고 있게 하고 마지막 14 먹을 때는 14오브젝트 들고 먹게 해") a piece taken
+		-- off the model plate is that very piece on the sticks, the size it has on
+		-- the plate (the tool is made FOOD_SCALE bigger afterwards, so 1 / FOOD_SCALE here)
+		local model = cakeModel((item :: any).cakeModel)
+		local mine = model and model:FindFirstChild((item :: any).sliceName or "Bite1", true)
+		if mine and mine:IsA("BasePart") then
+			local whole = cakeCopy(model, SUYUK_PLATE_W / FOOD_SCALE)
+			local p = whole:FindFirstChild(mine.Name, true) :: BasePart
+			p.Name = "Fill"
+			-- its middle at the sticks' far end, lying as it lay on the plate
+			p.CFrame = handle.CFrame * CFrame.new(0, 0.03 + p.Size.Y / 2, -0.45) * p.CFrame.Rotation
+			local offset = handle.CFrame:ToObjectSpace(p.CFrame)
+			p.Anchored = false
+			p.Parent = handle
+			local weld = Instance.new("Weld")
+			weld.Part0, weld.Part1, weld.C0 = handle, p, offset
+			weld.Parent = p
+			whole:Destroy()
+		else
+			local slice = part("Fill", Vector3.new(0.5, 0.07, 0.32), item.color)
+			local stex = Instance.new("Texture")
+			stex.Texture = SUYUK_TEX
+			stex.Face = Enum.NormalId.Top
+			stex.StudsPerTileU = 0.5
+			stex.StudsPerTileV = 0.32
+			stex.Parent = slice
+			attach(handle, slice, CFrame.new(0, 0.05, -0.45))
+		end
 		-- (D-956, user 2026-11-07: "수육 먹을 때 모션 확인하고 수정해") held up from
 		-- the fist like the 국밥 spoon (the sticks' far end at the grip's +Y, 0.3 of
 		-- them below the hand's middle), so the eating motion lifts them the
@@ -851,25 +883,34 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 	dish.Parent = plate
 	local pieces: {BasePart} = {}
 	local lettering: BasePart? = nil
-	local model = cakeModel(item.cake)
+	-- (D-1034) the 수육 plate is a model too (its key in CAKE_MODELS)
+	local modelKey = item.cake or (if item.kind == "plate" then item.key else nil)
+	local model = cakeModel(modelKey)
 	if model then
 		-- the user's own cake (user 2026-10-30): the model on its board, six
 		-- slices that go one by one, each leaving the cut faces of its
 		-- neighbours to see
-		local copy = cakeCopy(model, CAKE_R * 2 + 0.7)
+		local copy = cakeCopy(model, if item.kind == "plate" then SUYUK_PLATE_W else CAKE_R * 2 + 0.7)
 		local cf, size = copy:GetBoundingBox()
 		copy:PivotTo(copy:GetPivot() + (top + Vector3.new(0, size.Y / 2 + 0.01, 0) - cf.Position))
 		for _, d in ipairs(copy:GetDescendants()) do if d:IsA("BasePart") then d.Anchored = true end end
 		copy.Name = "Cake"
 		copy.Parent = plate
 		dish.Transparency = 1 -- (the board is the plate; the dish stays for the prompt)
+		local word = pieceWordOf(copy) or "Slice"
 		for i = 1, servings do
-			local s = copy:FindFirstChild("Slice" .. i, true)
+			local s = copy:FindFirstChild(word .. i, true)
 			if s and s:IsA("BasePart") then table.insert(pieces, s) end
+		end
+		-- (D-1034) a tap takes the last of the list: Bite1 first, Bite14 last
+		if word == "Bite" then
+			local reversed = {}
+			for i = #pieces, 1, -1 do table.insert(reversed, pieces[i]) end
+			pieces = reversed
 		end
 		cake = nil
 		texture = nil
-		plate:SetAttribute("CakeModel", item.cake)
+		plate:SetAttribute("CakeModel", modelKey)
 	end
 	if cake and texture then
 		dish.Size = Vector3.new(0.12, CAKE_R * 2 + 0.4, CAKE_R * 2 + 0.4)
@@ -1028,7 +1069,8 @@ local function plateTool(player: Player, item: SnackConfig.Item): Tool
 	tool:SetAttribute("Plate", item.key) -- (D-790: BagService)
 	local handle = part("Handle", Vector3.new(1.4, 0.4, 1.4), item.color)
 	handle.Parent = tool
-	local model = cakeModel(item.cake)
+	-- (D-1034) the 수육 model plate in the hands too
+	local model = cakeModel(item.cake or (if item.kind == "plate" then item.key else nil))
 	if model then
 		-- (user 2026-10-30) the cake itself in the hands, not a box
 		handle.Transparency = 1

@@ -3205,3 +3205,13 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "재생중인 노래 창 채팅창 아래로 내려"
 - DanceController layoutPanel: 노래 창(< 접기 · 재생바 포함)을 왼쪽, 로블록스 채팅창(TextChatService ChatWindowConfiguration) 바로 아래 6px에. 채팅창을 연 적이 없으면(크기 0) 열렸을 때 자리(상단 바 아래 12 + 89)를 기준으로. 채팅창 크기 · 위치가 바뀌면 다시 맞춤. 춤 창 · 같이 추기 · 플레이어 카드는 전처럼 노래 창 아래.
 - 확인(Studio Play, 폰 가로 801 × 413): 채팅창 화면 y 70~159, 노래 창 164~194.
+
+## D-1034 수육 = 사용자 3D 모델 접시(14점), 상점 그림도 새로 (2026-11-09)
+- 사용자: "수육 먼저 넣어 봐. 바이트 14개야. 1~13은 먹을 때 젓가락에 3d에 있는 수육 오브젝트 들고 있게 하고 마지막 14 먹을 때는 14오브젝트 들고 먹게 해" / "상점에 ui에 뜨는 이미지도 바꾸고 싶어 … 니가 누끼 따서 넣어"
+- 모델: 사용자의 Blender 파일 Gukbap_Suyuk.glb(docs/04_ART/models/에 사본) → Studio 3D 가져오기 → ServerStorage.ArtAssets.Foods.GukbapSuyuk. 가져오기가 조각마다 모델로 한 겹 감싸서(Bite1 안에 Cube.001) MeshPart를 Bite1..Bite14, Plate 이름으로 펴서 넣음.
+- SnackService: CAKE_MODELS에 suyuk = GukbapSuyuk(조각 이름 Slice<n> 또는 Bite<n>, pieceWordOf). 테이블에 놓으면 모델 그대로(폭 2.8), 누를 때마다 Bite1부터 Bite14까지 차례로 하나씩 없어지고 그 조각이 젓가락 끝에(접시에서와 같은 크기), 다 먹으면 접시 치움. 손에 든 접시(놓기 전)도 모델. 모델이 없으면 예전 블록 조각.
+- SnackConfig 수육 share 6 → 14, 이름 "수육 한 접시 (14점)", 메뉴 설명 · 상품 설명(MonetizationConfig) "14점". 대시보드 상품 설명도 바꾸려면 사용자가 Creator Dashboard에서.
+- 상점 그림: 게임 안에서 초록 네온 바닥 위에 모델을 놓고 찍어 누끼(tools 없이 Python 크로마키, docs/04_ART/shop_photos/gukbap_suyuk14_cutout.png, 512px) → 업로드 rbxassetid://88864543431415 → SnackMenuArt.Photos.suyuk · Icons.suyuk. 업로드 직후엔 Roblox 검토 중이라 빈 칸(몇 분 뒤 보임).
+- 확인(Studio Play): 접시 Bite 14개, Servings 14, 누른 순서 Bite1, Bite2 … Bite14, 14번째에 가운데 14번 오브젝트가 젓가락에, 다 먹으면 접시 없어짐. 오류 0.
+
+![놓인 접시](images/2026-11-09/suyuk14_plate.jpg) ![1번](images/2026-11-09/suyuk14_bite1.jpg) ![14번](images/2026-11-09/suyuk14_bite14.jpg)
