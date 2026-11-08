@@ -239,6 +239,30 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 						end
 					end
 				end
+				-- (D-1054, user: "고개 꺾임 확인해") ChoreoFixes
+				-- `bend = { { part = "Head", keys = { { t, x, y, z }, ... } } }`: a turn the
+				-- capture made too small (the head tilted less than in the video), measured
+				-- in the video (tools/choreo/wrist/head_video.py), added onto that joint;
+				-- eased between keys, nothing before the first or after the last (they carry 0)
+				local bends = fx and fx.bend
+				if bends then
+					local tt = t.TimePosition
+					for _, wb in ipairs(bends) do
+						local keys, j = wb.keys, joints[wb.part]
+						if j and tt > keys[1][1] and tt < keys[#keys][1] then
+							for i = 1, #keys - 1 do
+								local a, b = keys[i], keys[i + 1]
+								if tt >= a[1] and tt <= b[1] then
+									local k = if b[1] > a[1] then (tt - a[1]) / (b[1] - a[1]) else 0
+									k = k * k * (3 - 2 * k)
+									local x, y, z = a[2] + (b[2] - a[2]) * k, a[3] + (b[3] - a[3]) * k, a[4] + (b[4] - a[4]) * k
+									j.Transform = j.Transform * CFrame.identity:Lerp(CFrame.Angles(math.rad(x), math.rad(y), math.rad(z)), weight)
+									break
+								end
+							end
+						end
+					end
+				end
 				do
 					-- (D-986, user: Catch Catch 0:35 "다리는 수직 유지하고 상체만 숙이기")
 					-- ChoreoFixes `upright = { from, to, ease? }`: the hips stay level

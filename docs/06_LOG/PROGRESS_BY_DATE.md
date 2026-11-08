@@ -741,3 +741,4 @@
 - Lemonade 17번 원래 연습 영상 클립으로 (D-1044).
 - Hearts2Hearts-Lemon Tang 다시 넣음(잠금 없이) + 안무 25조각, 회전 5곳 고르게, 미끄러짐 고정, 조각별 정면 각도 16개 (D-1040).
 - 2인 테스트 통과, fix/feedback-ask-1109 + fix/ispy-spin-1109 + feat/lemontang-choreo-1109를 catalog-ui-redesign에 머지.
+- 안무 고개 기울기를 영상만큼(72조각, D-1054). 손목은 캡처가 이미 따라가서 그대로.
