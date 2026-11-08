@@ -200,13 +200,26 @@ local function show(shopKey: string)
 			Text = "",
 		}, list)
 		round(button, 12)
-		make("Frame", {
-			Position = UDim2.fromOffset(10, 10),
-			Size = UDim2.fromOffset(20, 20),
-			BackgroundColor3 = item.color,
-		}, button).Name = "Swatch"
+		-- (D-1063) a cut-out picture of the item when there is one (the OH24 cup
+		-- ramen), else its colour square
+		local icon = SnackMenuArt.Icons[item.key]
+		if icon then
+			make("ImageLabel", {
+				Position = UDim2.fromOffset(4, 2),
+				Size = UDim2.fromOffset(36, 36),
+				BackgroundTransparency = 1,
+				Image = icon,
+				ScaleType = Enum.ScaleType.Fit,
+			}, button).Name = "Swatch"
+		else
+			make("Frame", {
+				Position = UDim2.fromOffset(10, 10),
+				Size = UDim2.fromOffset(20, 20),
+				BackgroundColor3 = item.color,
+			}, button).Name = "Swatch"
+		end
 		make("TextLabel", {
-			Position = UDim2.fromOffset(40, 0),
+			Position = UDim2.fromOffset(if icon then 46 else 40, 0),
 			Size = UDim2.new(1, if item.coins and item.product then -170 else -120, 1, 0),
 			TextScaled = item.coins ~= nil and item.product ~= nil,
 			BackgroundTransparency = 1,

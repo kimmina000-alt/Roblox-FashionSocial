@@ -23,6 +23,25 @@ local DISPENSER_NAMES = { HotWaterTap = true, HotWater = true, HotWaterTray = tr
 local DISPENSER_REACH = 14 -- studs from the player to the dispenser
 local STRANDS = 7
 local NOODLE = Color3.fromRGB(205, 70, 45) -- red (spicy broth on the noodles)
+-- (D-1063, user 2026-11-09) the sounds the user picked
+local SOUND_LID = 75936211172606 -- 컵라면 뚜껑 뜯는 소리 (the lid off)
+local SOUND_WATER = 9119158299 -- the beach 음수대's water (FountainTap), while the water pours
+local SOUND_BROTH = 133241476322672 -- 국물 마시는 소리 (the last sip: the cup to the mouth)
+-- (the noodle bite itself: SnackService's Sip sound, 117267927001796 from 1 s in)
+RamenCup.EatSound = 117267927001796
+RamenCup.EatFrom = 1
+
+local function playOnce(parent: Instance, id: number, volume: number, from: number?)
+	local snd = Instance.new("Sound")
+	snd.SoundId = "rbxassetid://" .. tostring(id)
+	snd.Volume = volume
+	snd.RollOffMaxDistance = 40
+	snd.Parent = parent
+	if from then snd.TimePosition = from end
+	snd:Play()
+	task.delay(8, function() snd:Destroy() end)
+	return snd
+end
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -69,7 +88,8 @@ local function steam(p: BasePart, rate: number, size: number)
 	e.Texture = "rbxasset://textures/particles/smoke_main.dds"
 	e.Color = ColorSequence.new(Color3.new(1, 1, 1))
 	e.LightEmission = 0.15
-	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.2, 0.72), NumberSequenceKeypoint.new(1, 1) })
+	-- (D-1063, user: "라면에 김 올라오는 거 더 진하게 넣어 줘 잘 안 보임") thicker: 0.72 → 0.35 at its densest
+	e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.15, 0.35), NumberSequenceKeypoint.new(0.6, 0.6), NumberSequenceKeypoint.new(1, 1) })
 	e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, size * 0.3), NumberSequenceKeypoint.new(1, size) })
 	e.Lifetime = NumberRange.new(1.2, 2.0)
 	e.Rate = rate
@@ -132,8 +152,19 @@ function RamenCup.setup(tool: Tool, handle: BasePart)
 	end
 	tool:SetAttribute("EatPart", "ChopTip")
 	tool:SetAttribute("Ramen", "closed")
+	-- (D-1063) three bites with the chopsticks, then the broth from the cup
+	tool:SetAttribute("Bites", 4)
 	tool.ToolTip = "눌러서 뚜껑 열기"
 	paint(handle, "closed")
+	tool.Equipped:Connect(function() task.defer(RamenCup.hold, tool, true) end)
+	tool.Unequipped:Connect(function()
+		-- (the copy is on the character; the tool is in the backpack or on a table by now)
+		local owner = tool:GetAttribute("RamenOwner")
+		local plr = if typeof(owner) == "number" then Players:GetPlayerByUserId(owner) else nil
+		local cup = plr and plr.Character and plr.Character:FindFirstChild("RamenLeftCup")
+		if cup then cup:Destroy() end
+		RamenCup.hold(tool, false)
+	end)
 end
 
 -- (scaled with the tool: the chopsticks' poses grow with it, SnackService scaleTool)
@@ -173,6 +204,7 @@ function RamenCup.tap(player: Player, tool: Tool, eat: () -> ()): (boolean, stri
 		tool:SetAttribute("Ramen", "open")
 		tool.ToolTip = "편의점 온수기를 눌러 물 붓기"
 		paint(handle, "open")
+		playOnce(handle, SOUND_LID, 0.8)
 		return false, "뚜껑을 열었어요. 편의점 온수기를 눌러 뜨거운 물을 부어 주세요."
 	elseif state == "open" then
 		return false, "편의점 온수기를 눌러 뜨거운 물을 부어 주세요."
@@ -188,9 +220,10 @@ function RamenCup.tap(player: Player, tool: Tool, eat: () -> ()): (boolean, stri
 			if e:IsA("ParticleEmitter") and e.Name == "LidSteam" then e:Destroy() end
 		end
 		local soup = handle:FindFirstChild("Soup", true) :: BasePart?
-		if soup and not soup:FindFirstChild("Steam") then steam(soup, 7, math.max(soup.Size.X, soup.Size.Z) * 0.55) end
-		pose(handle, "Stand")
+		if soup and not soup:FindFirstChild("Steam") then steam(soup, 22, math.max(soup.Size.X, soup.Size.Z) * 0.75) end
 		paint(handle, "ready")
+		playOnce(handle, SOUND_LID, 0.8)
+		RamenCup.hold(tool, true)
 		return true, nil
 	elseif state == "ready" then
 		task.spawn(eat)
@@ -231,7 +264,9 @@ function RamenCup.pour(player: Player, target: any): (boolean, string?)
 	stream.CFrame = CFrame.lookAt((from + to) / 2, to) * CFrame.Angles(0, math.rad(90), 0)
 	stream.Parent = workspace
 	steam(stream, 4, 0.4)
+	local water = playOnce(stream, SOUND_WATER, 0.6)
 	task.delay(1.4, function()
+		water:Stop()
 		stream:Destroy()
 		if tool.Parent == nil then return end
 		tool:SetAttribute("Busy", nil)
@@ -244,7 +279,7 @@ function RamenCup.pour(player: Player, target: any): (boolean, string?)
 			if tool.Parent == nil or tool:GetAttribute("Ramen") ~= "cooking" then return end
 			tool.ToolTip = "다 익었어요! 눌러서 열기"
 			for _, lid in ipairs(parts(handle, "Bite1")) do
-				local e = steam(lid, 3, math.max(lid.Size.X, lid.Size.Z) * 0.35)
+				local e = steam(lid, 8, math.max(lid.Size.X, lid.Size.Z) * 0.45)
 				e.Name = "LidSteam"
 			end
 		end)
@@ -311,7 +346,6 @@ function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
 	end)
 	return function()
 		for _, d in ipairs(made) do d:Destroy() end
-		pose(handle, "Stand")
 	end
 end
 
@@ -325,12 +359,131 @@ function RamenCup.afterBite(tool: Tool, handle: BasePart, left: number, total: n
 		if w then w.C0 = w.C0 * CFrame.new(0, -depth, 0) end
 		soup.Size = Vector3.new(soup.Size.X * 0.95, soup.Size.Y, soup.Size.Z * 0.95)
 	end
-	-- the chopsticks go down with it
+	-- the chopsticks (standing in it on a table) go down with it
 	for _, stick in ipairs(parts(handle, "Chopsticks")) do
 		local cf = stick:GetAttribute("Stand")
 		if typeof(cf) == "CFrame" then stick:SetAttribute("Stand", cf * CFrame.new(0, -depth, 0)) end
 	end
-	pose(handle, "Stand")
+	-- the cup in the left hand shows the new level
+	local tool = handle.Parent
+	if tool and tool:IsA("Tool") then
+		RamenCup.hold(tool, false)
+		RamenCup.hold(tool, true)
+	end
+end
+
+-- (D-1063, user 2026-11-09: "라면 왼손에 들고 있고 오른손에 젓가락 들고 라면 먹는
+-- 모션으로 수정") once it is ready and in the hand: the cup in the left hand (a
+-- copy welded to it), only the chopsticks in the right (the tool's handle);
+-- back into the one hand when it is put away or on a table
+local function leftGrip(character: Model): Attachment?
+	local hand = character:FindFirstChild("LeftHand") or character:FindFirstChild("Left Arm")
+	return hand and hand:FindFirstChild("LeftGripAttachment") :: Attachment?
+end
+function RamenCup.hold(tool: Tool, on: boolean)
+	local character = tool.Parent
+	local handle = tool:FindFirstChild("Handle") :: BasePart?
+	if not handle then return end
+	local old = character and character:IsA("Model") and character:FindFirstChild("RamenLeftCup")
+	if old then old:Destroy() end
+	local ready = tool:GetAttribute("Ramen") == "ready"
+	local grip = character and character:IsA("Model") and leftGrip(character)
+	if not on or not ready or not grip then
+		-- one hand again: the whole cup on the handle, the sticks standing in it
+		for _, d in ipairs(handle:GetDescendants()) do
+			if d:IsA("BasePart") and d:GetAttribute("RamenHeld") then
+				d:SetAttribute("RamenHeld", nil)
+				d.LocalTransparencyModifier = 0
+				d.Transparency = d:GetAttribute("RamenHeldT") :: number? or d.Transparency
+			end
+		end
+		if ready then
+			paint(handle, "ready")
+			pose(handle, "Stand")
+		end
+		return
+	end
+	local cup = handle:Clone()
+	for _, d in ipairs(cup:GetDescendants()) do
+		if d:IsA("BasePart") and (d.Name == "Chopsticks" or d.Name == "ChopTip") then d:Destroy()
+		elseif d:IsA("Sound") then d:Destroy() end
+	end
+	for _, d in ipairs(cup:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.Anchored = false
+			-- (what was hidden on the handle for the hold is shown on the copy)
+			local t = d:GetAttribute("RamenHeldT")
+			if typeof(t) == "number" then d.Transparency = t d:SetAttribute("RamenHeld", nil) end
+		end
+	end
+	for _, e in ipairs(cup:GetDescendants()) do
+		if e:IsA("ParticleEmitter") and e:GetAttribute("On") then e.Enabled = true end
+	end
+	cup.Name = "RamenLeftCup"
+	cup.Anchored = false
+	-- every piece moved with it (moving only the root, its welded pieces pulled it
+	-- back to where the right hand held it: the cup hung 5 studs off the left hand)
+	-- (upright, as the body stands: the left grip's own turn tipped it over in Play)
+	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local upright = if root then CFrame.new(grip.WorldPosition) * root.CFrame.Rotation * CFrame.new(0, 0.15, -0.1)
+		else grip.WorldCFrame * tool.Grip:Inverse()
+	local move = upright * handle.CFrame:Inverse()
+	for _, d in ipairs({ cup, unpack(cup:GetDescendants()) }) do
+		if d:IsA("BasePart") then d.CFrame = move * d.CFrame end
+	end
+	local w = Instance.new("WeldConstraint")
+	w.Part0 = grip.Parent :: BasePart
+	w.Part1 = cup
+	w.Parent = cup
+	cup.Parent = character
+	local plr = Players:GetPlayerFromCharacter(character)
+	if plr then tool:SetAttribute("RamenOwner", plr.UserId) end
+	-- the handle keeps only the chopsticks, held out of the right fist
+	for _, d in ipairs(handle:GetDescendants()) do
+		if d:IsA("BasePart") and d.Name ~= "Chopsticks" and d.Name ~= "ChopTip" and d.Transparency < 1 then
+			d:SetAttribute("RamenHeldT", d.Transparency)
+			d:SetAttribute("RamenHeld", true)
+			d.Transparency = 1
+		end
+		if d:IsA("ParticleEmitter") and d:IsDescendantOf(handle) then d.Enabled = false end
+	end
+	pose(handle, "Held")
+end
+
+-- the cup held in the left hand now (the bite's strands go down into it)
+function RamenCup.leftCup(tool: Tool): Instance?
+	local character = tool.Parent
+	return character and character:IsA("Model") and character:FindFirstChild("RamenLeftCup") or nil
+end
+
+-- (D-1063, user: "컵라면 bite 다 먹은 후 컵라면 자체를 들고 입에 가져다 대면서
+-- 마시는 모션, 그때 국물 마시는 소리") the last tap: the cup back in the right
+-- hand, no chopsticks, the rim to the mouth (EatMotionController: no EatPart →
+-- the farthest point of what is held), the broth sound. Returns the clean-up.
+function RamenCup.drinkStart(tool: Tool, handle: BasePart): () -> ()
+	RamenCup.hold(tool, false)
+	showAll(handle, "Chopsticks", false)
+	tool:SetAttribute("EatPart", nil)
+	playOnce(handle, SOUND_BROTH, 1.2)
+	return function() end
+end
+
+-- a copy put on a table: the whole cup as it is now, the sticks standing in it
+function RamenCup.tableLook(copy: BasePart, tool: Tool)
+	for _, d in ipairs(copy:GetDescendants()) do
+		if d:IsA("BasePart") then
+			local t = d:GetAttribute("RamenHeldT")
+			if typeof(t) == "number" then d.Transparency = t end
+			d:SetAttribute("RamenHeld", nil)
+			d:SetAttribute("RamenHeldT", nil)
+			if d.Name == "Chopsticks" then
+				local stand = d:GetAttribute("Stand")
+				if typeof(stand) == "CFrame" then d.CFrame = copy.CFrame * stand end
+			end
+		end
+	end
+	local state = tool:GetAttribute("Ramen")
+	if typeof(state) == "string" then paint(copy, state) end
 end
 
 function RamenCup.Start()

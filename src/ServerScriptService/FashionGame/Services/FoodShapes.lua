@@ -456,7 +456,11 @@ local ASSET_FOODS: {[string]: {any}} = {
 	croissant = { "Croissant", 1.0 }, -- #8
 	injeolmi = { "Toast", 0.8, CFrame.Angles(0, 0, math.rad(90)) }, -- #17, laid flat in the hand
 	yakgwa = { "Cookie", 0.7 },       -- #20
-	samgak = { "Onigiri", 0.75 },     -- #23
+	-- (D-1065) the user's 삼각김밥 (samgaggimbab_chamchi / _bibim.glb, Foods.SamgakTunaBites /
+	-- SamgakBibimBites: Bite1 = the wrapper, Bite2..4 = the bites), stood up from lying flat;
+	-- the store's Onigiri before (#23)
+	samgak = { "SamgakTuna", 0.85, CFrame.Angles(math.rad(90), 0, 0) },
+	samgak_bibim = { "SamgakBibim", 0.85, CFrame.Angles(math.rad(90), 0, 0) },
 	chips = { "Chips", 0.95 },        -- #32
 	soda = { "Can", 0.8 },            -- #36
 	icebar = { "IceBar", 1.1 },       -- #42

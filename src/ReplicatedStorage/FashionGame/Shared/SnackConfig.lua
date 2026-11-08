@@ -26,6 +26,7 @@ export type Item = {
 	section: string?,
 	cake: string?, -- whole cake drawn from slice meshes: a key of SnackConfig.Cakes
 	comingSoon: boolean?, -- shown locked as 개발 중 (3D design not final yet, user 2026-10-31)
+	wrapped: boolean?, -- (D-1065) the first tap tears its wrapper off (piece Bite1 of the model), then the bites
 }
 export type Shop = { key: string, title: string, prompt: string, hint: string?, items: {Item} }
 
@@ -110,7 +111,11 @@ SnackConfig.Shops = {
 			{ key = "chocosnack", name = "초코 과자", kind = "bag", color = Color3.fromRGB(150, 60, 50), coins = 3, section = "💰 3" },
 			{ key = "bananamilk", name = "바나나우유", kind = "bottle", color = Color3.fromRGB(255, 225, 110), coins = 3, section = "💰 3" },
 			{ key = "soda", name = "탄산음료 캔", kind = "bottle", color = Color3.fromRGB(220, 50, 60), coins = 3, section = "💰 3" },
-			{ key = "samgak", name = "삼각김밥", kind = "rice", color = Color3.fromRGB(250, 250, 245), coins = 3, section = "💰 3" },
+			-- (D-1065, user 2026-11-09: "삼각김밥 추가. bibim: 전주비빔 삼각김밥 / chamchi:
+			-- 참치마요 삼각김밥") the user's two models: the wrapper off, then three bites;
+			-- "samgak" kept as the key of the first so bags saved before still give one back
+			{ key = "samgak", name = "참치마요 삼각김밥", kind = "rice", color = Color3.fromRGB(250, 250, 245), coins = 3, wrapped = true, section = "💰 3" },
+			{ key = "samgak_bibim", name = "전주비빔 삼각김밥", kind = "rice", color = Color3.fromRGB(235, 120, 70), coins = 3, wrapped = true, section = "💰 3" },
 			-- (D-1053: the user's four cup ramen models, three bites each; "cupnoodle"
 			-- kept as the key of the first so bags saved before still give one back)
 			{ key = "cupnoodle", name = "맵라면", kind = "noodle", color = Color3.fromRGB(225, 40, 35), coins = 4, bites = 3, section = "💰 4" },

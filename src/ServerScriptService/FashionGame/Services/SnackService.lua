@@ -132,7 +132,7 @@ for name in pairs(FoodShapes.NotEdible) do NOT_EDIBLE[name] = true end
 local EAT_SOUND = {
 	cup = 9114171855, bottle = 9114171855, -- gulp
 	parfait = 137096768206416, -- crunchy, like the bread (user 2026-10-30: was the gulp)
-	bowl = 140514526743537, noodle = 140514526743537, -- "Sipping" (blixxitry)
+	bowl = 133241476322672, noodle = 140514526743537, -- (D-1063: 국밥 = the user's clip; 140514526743537 "Sipping" by blixxitry before)
 	ricebowl = 113253562957164, -- 공깃밥: its own clip (user 2026-10-30)
 	bag = 137096768206416, bread = 137096768206416, rice = 137096768206416, -- crunchy / bready
 	cake = 95249450082163, cone = 95249450082163, bar = 95249450082163, -- soft
@@ -143,7 +143,8 @@ local EAT_SOUND = {
 -- docs/04_ART/sounds/gukbap_eat_1..3.mp3, uploaded on Vantablack_Dev). 0 = the old clip.
 -- (user 2026-10-30, later) one Creator Store clip instead: "Sipping"
 -- (140514526743537, 3.1 s); the own clips were 98804537108952, 105506248237925, 115770485617090
-local GUKBAP_CLIPS = { 140514526743537 }
+-- (D-1063, user 2026-11-09: "국밥 먹는 소리: 133241476322672"; was 140514526743537)
+local GUKBAP_CLIPS = { 133241476322672 }
 local lastGukbap = 0
 local function gukbapClip(): number?
 	local ready = {}
@@ -372,9 +373,31 @@ local function nextBite(root: Instance, set: {[number]: boolean}, wanted: number
 	return best
 end
 
+local SOUND_WRAPPER = 75383018229679 -- (D-1065) 삼각김밥 포장 비닐 뜯는 소리
 local function bite(tool: Tool, item: SnackConfig.Item)
 	-- a cup the cafe staff is carrying to a customer is not theirs to drink
 	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return end
+	-- (D-1065) a wrapped 삼각김밥: the first tap tears the wrapper (piece 1) off
+	if tool:GetAttribute("Wrapped") then
+		tool:SetAttribute("Wrapped", nil)
+		local h = tool:FindFirstChild("Handle")
+		if h and h:IsA("BasePart") then
+			local set = eatenOf(tool)
+			set[1] = true
+			setEaten(tool, set)
+			applyEaten(h, set)
+			local snd = Instance.new("Sound")
+			snd.SoundId = "rbxassetid://" .. tostring(SOUND_WRAPPER)
+			snd.Volume = 0.9
+			snd.RollOffMaxDistance = 40
+			snd.Parent = h
+			snd:Play()
+			Debris:AddItem(snd, 6)
+		end
+		tool:SetAttribute("Bites", ((tool:GetAttribute("Bites") :: number?) or bitesOf(item)) - 1)
+		tool.ToolTip = "클릭(터치)해서 먹기"
+		return
+	end
 	local character = tool.Parent
 	if not character or not character:IsA("Model") then return end
 	tool:SetAttribute("Busy", true)
@@ -388,7 +411,22 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	-- left hand for the bite, the right hand takes the chopsticks with noodles
 	local restore: (() -> ())? = nil
 	local leftGrip = character:FindFirstChild("LeftHand") and (character :: any).LeftHand:FindFirstChild("LeftGripAttachment") :: Attachment?
-	if item.kind == "noodle" and ik and leftGrip and handle and handle:IsA("BasePart") then
+	local ramenDrink = tool:GetAttribute("Ramen") ~= nil and tool:GetAttribute("Bites") == 1
+	if tool:GetAttribute("Ramen") and handle and handle:IsA("BasePart") then
+		-- (D-1063) the user's cup ramen: the cup is already in the left hand
+		-- (RamenCup.hold), the strands go down into it; the last tap drinks the broth
+		if ramenDrink then
+			restore = RamenCup.drinkStart(tool, handle)
+		else
+			local cup = RamenCup.leftCup(tool)
+			if not cup then
+				RamenCup.hold(tool, true)
+				cup = RamenCup.leftCup(tool)
+			end
+			if cup then restore = RamenCup.strands(handle, cup) end
+		end
+		task.wait(0.1) -- (the sticks' pose reaches the clients before the arm lifts them)
+	elseif item.kind == "noodle" and ik and leftGrip and handle and handle:IsA("BasePart") then
 		local cup = handle:Clone()
 		for _, d in ipairs(cup:GetDescendants()) do
 			if d:IsA("BasePart") then
@@ -436,6 +474,15 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	local up = if ik then nil else mouthGrip(character, if item.kind == "cone" or item.kind == "bar" then -0.2 else 0)
 	if up then TweenService:Create(tool, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Grip = up }):Play() end
 	local sound = handle and handle:FindFirstChild("Sip") :: Sound?
+	-- (D-1063) the cup ramen: its noodle sound from 1 s in; the broth plays its own
+	if sound and tool:GetAttribute("Ramen") then
+		if ramenDrink then
+			sound = nil
+		else
+			sound.SoundId = "rbxassetid://" .. tostring(RamenCup.EatSound)
+			sound.TimePosition = RamenCup.EatFrom
+		end
+	end
 	if sound and item.kind == "bowl" then
 		local id = gukbapClip()
 		if id then sound.SoundId = "rbxassetid://" .. id end
@@ -636,6 +683,11 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		elseif eatMode == "Scale" then tool:SetAttribute("EatMode", "Scale")
 		elseif eatMode == "Bites" then tool:SetAttribute("EatMode", "Bites") -- (D-1036: the user's 국밥 models)
 		elseif eatMode == "Ramen" then RamenCup.setup(tool, handle) end -- (D-1053: lid, hot water, chopsticks)
+		-- (D-1065) a wrapped 삼각김밥 model: the first tap tears the wrapper off
+		if item.wrapped and eatMode == "Bites" then
+			tool:SetAttribute("Wrapped", true)
+			tool.ToolTip = "클릭(터치)해서 포장 뜯기"
+		end
 	elseif kind == "cone" then
 		-- waffle cone (pointing down) with a scoop on top
 		handle = part("Handle", Vector3.new(0.45, 0.9, 0.45), Color3.fromRGB(215, 160, 90))
@@ -1660,6 +1712,8 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	for i, original in ipairs(originals) do
 		if copies[i] then fix(original, copies[i]) end
 	end
+	-- (D-1063) the cup ramen held in two hands: the whole cup on the table, sticks in it
+	if tool:GetAttribute("Ramen") then RamenCup.tableLook(copy, tool) end
 	local model = Instance.new("Model")
 	model.Name = "PlacedFood"
 	copy.Parent = model

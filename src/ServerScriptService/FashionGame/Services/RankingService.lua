@@ -223,6 +223,12 @@ local todayLooks: {[number]: any} = {}
 -- Live supporters (user 2026-10-25, D-294): the screen on the tower over OH24
 -- shows the latest supporter gifts, newest first, shared by all servers.
 local RECENT_MAX = 6
+-- (D-1067, user 2026-11-09: "건물 전광판에 지금 뜨는 테스트로 한 기부자 지우고 광고
+-- 이미지만 띄워. 이후에 기부자 생기면 기부자 띄워.") the three gifts on the list were
+-- the owner's Studio tests (2026-11-01 / 11-04): gifts before this time are not
+-- shown (2026-11-05 00:00 KST, after the last test), and a gift made in Studio is never saved for
+-- the live servers
+local RECENT_FROM = 1793804400
 local recentStore: DataStore? = nil
 do
 	local ok, store = pcall(function() return DataStoreService:GetDataStore("RecentSupport") end)
@@ -287,7 +293,7 @@ local function publish()
 	data.recent = {}
 	recentLooks = {}
 	for _, entry in ipairs(recent) do
-		if not hidden[entry.u] and not excluded[entry.u] and not EXCLUDED_NAMES[string.lower(tostring(entry.n))] then
+		if (entry.at or 0) >= RECENT_FROM and not hidden[entry.u] and not excluded[entry.u] and not EXCLUDED_NAMES[string.lower(tostring(entry.n))] then
 			local look = lookOf(entry.u)
 			recentLooks[entry.u] = look
 			local votes = VoteService.State("supporter", tostring(entry.u), VoteService.Version(look))
@@ -327,7 +333,7 @@ function RankingService.NoteSupport(player: Player, amount: number, message: str
 	end
 	recent = push(recent)
 	task.spawn(function()
-		if recentStore then
+		if recentStore and not game:GetService("RunService"):IsStudio() then
 			local ok, result = pcall(function()
 				return (recentStore :: DataStore):UpdateAsync("list", function(old) return push(old) end)
 			end)

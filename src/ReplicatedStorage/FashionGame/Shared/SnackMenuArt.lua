@@ -50,6 +50,13 @@ SnackMenuArt.Icons = {
 	sundae = "rbxassetid://111308312027162", -- (D-1038; was 134665477374241)
 	beef = "rbxassetid://85511957052010", -- (D-1038; was 130774465841494)
 	suyuk = "rbxassetid://88864543431415", -- (D-1034; was 86722270080544)
+	-- (D-1063, user 2026-11-09: "편의점 상점에 컵라면 만든 거 누끼 따서 넣기") the
+	-- user's four cup ramen models, shot in the game on magenta and cut out
+	-- (docs/04_ART/shop_photos/ramen_*_cutout.png)
+	cupnoodle = "rbxassetid://113493189993075", -- 맵라면
+	ramen_sesame = "rbxassetid://98643130769596", -- 참깨라멘
+	ramen_lava = "rbxassetid://124866904655046", -- 용암꼬꼬면
+	ramen_yukgae = "rbxassetid://113229406579037", -- 육개그
 }
 
 SnackMenuArt.Descriptions = {
