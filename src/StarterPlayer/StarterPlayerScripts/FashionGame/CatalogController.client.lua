@@ -1008,9 +1008,10 @@ create("UIListLayout", {
 }).Parent = discoveryBar
 
 local discoveryButtons = {}
--- Minimized strip order (D-022): 최근 / 인기 / 즐겨찾기 / 착용 중 / ⚙ / 옷장.
--- In expanded mode ⚙ and 옷장 live at the top of the avatar preview box instead.
-local COMPACT_ONLY_DISCOVERY = {["⚙"] = true, ["옷장"] = true}
+-- Strip order (D-022): 최근 / 인기 / 즐겨찾기 / 착용 중 / ⚙ / 옷장.
+-- (D-1050, user 2026-11-09: "최대화 카탈로그에 있는 아바타 에디터 버튼이랑 저장
+-- 버튼 최소화에 있는 위치로 수정. 통일.") the expanded catalog has them in the
+-- same strip now (they were ⚙ / ▣ in the corner of the avatar preview box).
 for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
 	local b = create("TextButton", {
 		Name = "Discovery_" .. tostring(index),
@@ -1530,10 +1531,9 @@ updateCatalogLayout = function()
 		-- sit inside its top-left corner, stacked vertically (2026-10-19 feedback).
 		avatarViewport.Position = UDim2.fromOffset(8, 8)
 		avatarViewport.Size = UDim2.new(1, -16, 1, -132)
-		avatarEditorButton.Position = UDim2.fromOffset(14, 14)
-		wardrobeButton.Position = UDim2.fromOffset(14, 52)
-		avatarEditorButton.Size = UDim2.fromOffset(32, 32)
-		wardrobeButton.Size = UDim2.fromOffset(32, 32)
+		-- (D-1050) ⚙ / ▣ moved into the strip like the minimized catalog
+		avatarEditorButton.Visible = false
+		wardrobeButton.Visible = false
 		currentOutfitFrame.Visible = true
 		currentOutfitFrame.Position = UDim2.new(0, 8, 1, -116)
 		currentOutfitFrame.Size = UDim2.new(1, -16, 0, 108)
@@ -1570,19 +1570,24 @@ updateCatalogLayout = function()
 		discoveryX, discoveryY = x, headerY + 36
 		discoveryWidth = innerWidth
 	else
-		discoveryWidth = math.max(1, math.min(360, controlsLeft - 8 - (x + titleLabel.Size.X.Offset)))
+		-- (D-1050: six buttons now, ⚙ and 옷장 too)
+		discoveryWidth = math.max(1, math.min(500, controlsLeft - 8 - (x + titleLabel.Size.X.Offset)))
 		discoveryX, discoveryY = controlsLeft - 6 - discoveryWidth, headerY
 	end
 	discoveryBar.Visible = true
 	discoveryBar.Position = UDim2.fromOffset(discoveryX, discoveryY)
 	discoveryBar.Size = UDim2.fromOffset(discoveryWidth, controlSize)
 	local visibleDiscovery = 0
-	for label, button in pairs(discoveryButtons) do
-		button.Visible = compact or not COMPACT_ONLY_DISCOVERY[label]
-		if button.Visible then visibleDiscovery += 1 end
+	for _, button in pairs(discoveryButtons) do
+		button.Visible = true
+		visibleDiscovery += 1
 	end
-	local perRow = if expandedPanel then visibleDiscovery else 4
-	local discoveryButtonWidth = math.max(44, math.floor((discoveryWidth - 5 * (perRow - 1)) / perRow))
+	-- (D-1050) all six in view (the minimized one scrolled ⚙ / 옷장 off the
+	-- right end); the narrow phone strip still scrolls. ⚙ is a 36 px icon.
+	local perRow = if phoneCompact then 4 else visibleDiscovery
+	local discoveryButtonWidth = if phoneCompact
+		then math.max(44, math.floor((discoveryWidth - 5 * (perRow - 1)) / perRow))
+		else math.max(44, math.floor((discoveryWidth - 36 - 5 * (perRow - 1)) / (perRow - 1)))
 	for label, button in pairs(discoveryButtons) do
 		local iconOnly = label == "⚙"
 		local buttonWidth = if iconOnly then math.min(discoveryButtonWidth, 36) else discoveryButtonWidth
@@ -3539,6 +3544,10 @@ searchBox.FocusLost:Connect(function(enterPressed)
 		searchCatalog()
 	end
 end)
+-- (D-1049) ✕ in the search box (empties it and searches again) and in the
+-- filter's creator name box (empties it; 적용 runs the search)
+require(script.Parent:WaitForChild("ClearButton")).attach(searchBox, function() searchCatalog() end)
+require(script.Parent:WaitForChild("ClearButton")).attach(creatorNameBox)
 
 minPriceBox.FocusLost:Connect(function(enterPressed)
 	if enterPressed then

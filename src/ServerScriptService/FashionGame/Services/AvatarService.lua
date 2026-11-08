@@ -1479,13 +1479,11 @@ function AvatarService.ApplyEdit(player: Player, draft: any)
 	end
 
 	if typeof(draft.colors) == "table" then
-		local allowed = paletteHexSet(rules)
+		-- (D-1051) any shade: the editor's shade bar goes between the palette's
+		-- colours (only the palette was allowed before)
 		for part, color in pairs(draft.colors) do
 			local property = BODY_COLOR_PROPERTIES[part]
 			if property and typeof(color) == "Color3" then
-				if not allowed[colorToHex(color)] then
-					return false, "That skin colour is not in the Roblox palette."
-				end
 				description[property] = color
 			end
 		end

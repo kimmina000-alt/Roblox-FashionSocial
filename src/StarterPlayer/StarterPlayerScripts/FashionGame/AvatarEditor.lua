@@ -101,6 +101,32 @@ local function colorEqual(a: Color3, b: Color3): boolean
 	return math.abs(a.R - b.R) < 1e-3 and math.abs(a.G - b.G) < 1e-3 and math.abs(a.B - b.B) < 1e-3
 end
 
+-- (D-1052) the skin colours on this player's own character, on this screen
+-- only until 적용 (the server's colours come back on close without it)
+local function liveSkin(colors: {[string]: Color3}?)
+	local character = Players.LocalPlayer.Character
+	local bodyColors = character and character:FindFirstChildOfClass("BodyColors")
+	if not colors or not bodyColors then return end
+	for key, value in pairs(colors) do
+		local property = COLOR_PROPERTY[key]
+		if property and typeof(value) == "Color3" then (bodyColors :: any)[property .. "3"] = value end
+	end
+end
+
+-- (D-1051) a shade of a skin colour: t 0 = deep (a third as bright), 0.5 =
+-- the colour, 1 = pale (most of the way to white), same hue throughout.
+-- Snapped to whole RGB steps, as Roblox keeps body colours.
+local function skinShade(base: Color3, t: number): Color3
+	local c: Color3
+	if t < 0.5 then
+		local deep = Color3.new(base.R * 0.32, base.G * 0.32, base.B * 0.32)
+		c = base:Lerp(deep, (0.5 - t) * 2)
+	else
+		c = base:Lerp(base:Lerp(Color3.new(1, 1, 1), 0.82), (t - 0.5) * 2)
+	end
+	return Color3.fromRGB(math.floor(c.R * 255 + 0.5), math.floor(c.G * 255 + 0.5), math.floor(c.B * 255 + 0.5))
+end
+
 --------------------------------------------------
 -- SLIDER
 --------------------------------------------------
@@ -624,6 +650,8 @@ function AvatarEditor:_nudgePreview()
 		local character = Players.LocalPlayer.Character
 		local live = character and character:FindFirstChildOfClass("Humanoid")
 		if live then HairFit.apply(live, self.draft.hair) end
+		-- (D-1052) and the skin colour, as the shade bar moves
+		liveSkin(self.draft.colors)
 	end
 	local clone = self.previewClone
 	if not clone or not clone.Parent or not self.draft or not self.isOpenFlag then return end
@@ -704,6 +732,7 @@ function AvatarEditor:_close()
 		local live = character and character:FindFirstChildOfClass("Humanoid")
 		if live then HairFit.apply(live, self.baseline.hair) end
 	end
+	if self.baseline and self.baseline.Colors then liveSkin(self.baseline.Colors) end
 	self.root.Visible = false
 	self.overlay.Visible = false
 	self.makeupDrag:cancel()
@@ -1172,18 +1201,82 @@ function AvatarEditor:_renderSkin()
 			make("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 2 }, chip)
 		end
 		chip.MouseButton1Click:Connect(function()
-			if self.colorTarget == "All" then
-				for _, part in ipairs(BODY_PARTS) do
-					self.draft.colors[part.key] = entry.Color
-				end
-			else
-				self.draft.colors[self.colorTarget] = entry.Color
-			end
+			-- (D-1051) the chip is the middle of the shade bar below
+			self.skinBase, self.skinShade = entry.Color, 0.5
+			self:_setSkin(entry.Color)
 			self:_render()
-			self:_changed()
 		end)
 	end
-	noteLabel(content, "색상은 Roblox 공식 기본 피부색 팔레트(GetAvatarRules · BasicBodyColorsPalette)입니다. 신체 부위 색만 바뀌고 의상·액세서리 색은 바뀌지 않습니다. 초기화는 편집을 시작한 시점의 색으로 되돌립니다.", 5)
+
+	-- (D-1051, user 2026-11-09: "스킨색 더 섬세하게 조절할 수 있게 수정. (동영상
+	-- 참고)") under the palette a bar from a deep shade of the picked colour
+	-- (left) through the colour itself (middle) to a pale one (right); dragging
+	-- it sets any shade in between, shown on the preview at once
+	local base = self.skinBase or selectedColor or palette[1].Color
+	local shadeRow = make("Frame", {
+		Size = UDim2.new(1, 0, 0, 34),
+		BackgroundTransparency = 1,
+		LayoutOrder = 5,
+	}, content)
+	local bar = make("TextButton", {
+		Size = UDim2.new(1, -8, 0, 16),
+		Position = UDim2.fromOffset(4, 9),
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		Text = "",
+		AutoButtonColor = false,
+	}, shadeRow)
+	corner(bar, 8)
+	make("UIGradient", {
+		Color = ColorSequence.new({
+			ColorSequenceKeypoint.new(0, skinShade(base, 0)),
+			ColorSequenceKeypoint.new(0.5, base),
+			ColorSequenceKeypoint.new(1, skinShade(base, 1)),
+		}),
+	}, bar)
+	local knob = make("Frame", {
+		Size = UDim2.fromOffset(20, 20),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(self.skinShade or 0.5, 0.5),
+		BackgroundColor3 = Color3.new(1, 1, 1),
+		ZIndex = 2,
+	}, bar)
+	corner(knob, 10)
+	make("UIStroke", { Color = Color3.fromRGB(40, 40, 48), Thickness = 1.5 }, knob)
+	local function setFromX(x: number)
+		local t = math.clamp((x - bar.AbsolutePosition.X) / math.max(1, bar.AbsoluteSize.X), 0, 1)
+		if self.skinShade and math.abs(t - self.skinShade) < 0.002 then return end
+		self.skinBase, self.skinShade = base, t
+		knob.Position = UDim2.fromScale(t, 0.5)
+		self:_setSkin(skinShade(base, t))
+	end
+	bar.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+			activeSlider = { input = input, setFromX = setFromX }
+			setFromX(input.Position.X)
+		end
+	end)
+	noteLabel(content, "팔레트에서 색을 고른 뒤 아래 막대로 더 어둡게(왼쪽) · 더 밝게(오른쪽) 조절합니다. 신체 부위 색만 바뀌고 의상·액세서리 색은 바뀌지 않습니다. 초기화는 편집을 시작한 시점의 색으로 되돌립니다.", 6)
+end
+
+-- (D-1051) the draft skin colour for the chosen parts; the preview copy's
+-- body colours change at once (no rebuild while the shade bar is dragged)
+function AvatarEditor:_setSkin(color: Color3)
+	if self.colorTarget == "All" then
+		for _, part in ipairs(BODY_PARTS) do
+			self.draft.colors[part.key] = color
+		end
+	else
+		self.draft.colors[self.colorTarget] = color
+	end
+	local clone = self.previewClone
+	local bodyColors = clone and clone.Parent and clone:FindFirstChildOfClass("BodyColors")
+	if bodyColors then
+		for key, value in pairs(self.draft.colors) do
+			local property = COLOR_PROPERTY[key]
+			if property then (bodyColors :: any)[property .. "3"] = value end
+		end
+	end
+	self:_changed()
 end
 
 function AvatarEditor:_renderMakeup()

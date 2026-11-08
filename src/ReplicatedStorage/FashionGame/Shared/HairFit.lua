@@ -20,6 +20,8 @@
 
 local HairFit = {}
 
+local IS_SERVER = game:GetService("RunService"):IsServer()
+
 HairFit.Position = { Min = Vector3.new(-1, -1, -1), Max = Vector3.new(1, 1, 1) }
 HairFit.Rotation = { Min = Vector3.new(-45, -45, -45), Max = Vector3.new(45, 45, 45) }
 HairFit.Scale = { Min = 0.5, Max = 2 }
@@ -199,8 +201,23 @@ function HairFit.apply(humanoid: Humanoid, offsets: {[number]: Offset})
 				if ok and instance and instance:IsA("Accessory") and instance.Parent == character then
 					matched[instance] = true
 					HairFit.set(instance, offsets[child.AssetId])
+					-- (D-1052) the server names each accessory's asset id for the clients
+					if IS_SERVER and instance:GetAttribute("HairFitId") ~= child.AssetId then
+						instance:SetAttribute("HairFitId", child.AssetId)
+					end
 				end
 			end
+		end
+	end
+	-- (D-1052, user 2026-11-09, KOYA video: "실시간으로 아이템 위치 조절할 때 반영
+	-- 잘 되는 점") on a client GetAppliedInstance finds nothing on the live
+	-- character, so the avatar editor's sliders moved only the preview copy (and
+	-- one hair): the live accessories are found by the id the server put on them
+	for _, accessory in ipairs(character:GetChildren()) do
+		local id = accessory:GetAttribute("HairFitId")
+		if accessory:IsA("Accessory") and not matched[accessory] and typeof(id) == "number" then
+			matched[accessory] = true
+			HairFit.set(accessory, offsets[id])
 		end
 	end
 	if next(matched) == nil and hairIds == 1 then
