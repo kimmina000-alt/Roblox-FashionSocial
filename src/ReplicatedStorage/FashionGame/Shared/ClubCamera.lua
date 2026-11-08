@@ -1020,5 +1020,8 @@ ClubCamera.Songs[80583279340768] = {
 ClubCamera.Songs[134942349436280] = ClubCamera.Songs[120615582016729]
 -- (D-1023) 키키-Pop Off is on the x1 upload 131620527618857 now (old 3× file 129996145931101)
 ClubCamera.Songs[131620527618857] = ClubCamera.Songs[129996145931101]
+-- (D-1042) ALLDAY PROJECT-CRASH is on the new upload 86115718533153 (fileSpeed 1.0499,
+-- the same song clock as the old 3× file 104827635407586, feat/crash-choreo-1109)
+ClubCamera.Songs[86115718533153] = ClubCamera.Songs[104827635407586]
 
 return ClubCamera
