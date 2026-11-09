@@ -343,6 +343,77 @@ skipButton.Activated:Connect(function()
 	if typeof(message) == "string" then showToast(message) elseif not ok then showToast("지금은 투표할 수 없어요.") end
 end)
 
+-- (D-1121, user 2026-11-09: "노래 스킵 누르면 사진처럼 재생중인 바 아래에 스킵 투표
+-- 받는 창 띄우자") the vote round (ClubService): under the play bar, a dark card
+-- with the time left as a green bar, "투표 건너뛰기 — 28초", the 예 / 아니요 counts
+-- and the two buttons (the picked one stays lit). Everyone in the club sees it.
+local votePanel = Instance.new("Frame")
+votePanel.Name = "SkipVotePanel"
+votePanel.AnchorPoint = Vector2.new(0.5, 0)
+votePanel.Size = UDim2.fromOffset(330, 74)
+votePanel.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
+votePanel.BackgroundTransparency = 0.1
+votePanel.Visible = false
+Instance.new("UICorner", votePanel).CornerRadius = UDim.new(0, 14)
+local voteTrack = Instance.new("Frame")
+voteTrack.Position = UDim2.fromOffset(14, 10)
+voteTrack.Size = UDim2.new(1, -190, 0, 5)
+voteTrack.BackgroundColor3 = Color3.fromRGB(50, 50, 58)
+voteTrack.BorderSizePixel = 0
+voteTrack.Parent = votePanel
+Instance.new("UICorner", voteTrack).CornerRadius = UDim.new(1, 0)
+local voteFill = Instance.new("Frame")
+voteFill.Size = UDim2.fromScale(1, 1)
+voteFill.BackgroundColor3 = Color3.fromRGB(80, 230, 110)
+voteFill.BorderSizePixel = 0
+voteFill.Parent = voteTrack
+Instance.new("UICorner", voteFill).CornerRadius = UDim.new(1, 0)
+local voteTitle = Instance.new("TextLabel")
+voteTitle.Position = UDim2.fromOffset(14, 20)
+voteTitle.Size = UDim2.new(1, -190, 0, 24)
+voteTitle.BackgroundTransparency = 1
+voteTitle.Font = Enum.Font.GothamBold
+voteTitle.TextSize = 15
+voteTitle.TextColor3 = Color3.new(1, 1, 1)
+voteTitle.TextXAlignment = Enum.TextXAlignment.Left
+voteTitle.Parent = votePanel
+local voteCount = Instance.new("TextLabel")
+voteCount.Position = UDim2.fromOffset(14, 46)
+voteCount.Size = UDim2.new(1, -190, 0, 18)
+voteCount.BackgroundTransparency = 1
+voteCount.Font = Enum.Font.GothamBold
+voteCount.TextSize = 13
+voteCount.TextColor3 = Color3.fromRGB(210, 210, 218)
+voteCount.TextXAlignment = Enum.TextXAlignment.Left
+voteCount.Parent = votePanel
+local function voteButton(text: string, color: Color3, textColor: Color3, x: number): TextButton
+	local b = Instance.new("TextButton")
+	b.AnchorPoint = Vector2.new(1, 0.5)
+	b.Position = UDim2.new(1, x, 0.5, 0)
+	b.Size = UDim2.fromOffset(78, 46)
+	b.BackgroundColor3 = color
+	b.Text = text
+	b.TextColor3 = textColor
+	b.Font = Enum.Font.GothamBold
+	b.TextSize = 15
+	b.AutoButtonColor = true
+	b.Parent = votePanel
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
+	local stroke = Instance.new("UIStroke") -- (D-910: kept off)
+	stroke.Enabled = false
+	stroke.Parent = b
+	return b
+end
+local GREEN, RED = Color3.fromRGB(80, 230, 110), Color3.fromRGB(235, 70, 60)
+local yesButton = voteButton("예", GREEN, Color3.fromRGB(10, 30, 14), -96)
+local noButton = voteButton("아니요", RED, Color3.new(1, 1, 1), -12)
+local function vote(answer: string)
+	local ok, message = musicRemote:InvokeServer("VoteSkip", answer)
+	if typeof(message) == "string" then showToast(message) elseif not ok then showToast("지금은 투표할 수 없어요.") end
+end
+yesButton.Activated:Connect(function() vote("yes") end)
+noButton.Activated:Connect(function() vote("no") end)
+
 -- (D-910) the DJ window's thin-edge rule strokes every TextButton put in it:
 -- these keep a switched-off stroke so they stay plain white marks there
 for _, b in ipairs({ choreoButton, camButton, barHit, pauseButton } :: {GuiObject}) do
@@ -363,7 +434,7 @@ RunService.RenderStepped:Connect(function()
 	local iconSlot = musicPanel and musicPanel:FindFirstChild("IconSlot") :: Frame?
 	local barSlot = musicPanel and musicPanel:FindFirstChild("PlayBarSlot") :: Frame?
 	local inPanel = inClub and musicPanel ~= nil and musicPanel.Visible and iconSlot ~= nil and barSlot ~= nil
-	for _, item in ipairs({ skipCount, toast } :: {GuiObject}) do
+	for _, item in ipairs({ skipCount, toast, votePanel } :: {GuiObject}) do
 		if item.Parent ~= danceGui then item.Parent = danceGui end
 	end
 	local barHome = if inPanel then barSlot else danceGui
@@ -407,6 +478,7 @@ RunService.RenderStepped:Connect(function()
 			timeAll.Text = clock(total)
 		end
 		listButton.Visible, skipButton.Visible, skipCount.Visible = false, false, false
+		votePanel.Visible = false
 		return
 	end
 	playBar.AnchorPoint = Vector2.new(0.5, 0)
@@ -457,7 +529,28 @@ RunService.RenderStepped:Connect(function()
 		timeNow.Text = clock(if dragging then dragging * total else heard)
 		timeAll.Text = clock(total)
 	end
-	toast.Position = UDim2.fromOffset(p.X + s.X / 2, p.Y + s.Y + 20)
+	-- (D-1121) the vote round under the play bar (the toast goes under it)
+	local ends = FashionGame:GetAttribute("ClubSkipEnds")
+	local left = if typeof(ends) == "number" then ends - workspace:GetServerTimeNow() else 0
+	votePanel.Visible = requests and not djOn and left > 0
+	local below = p.Y + s.Y + (if playBar.Visible then 22 else 4)
+	if votePanel.Visible then
+		votePanel.Position = UDim2.fromOffset(p.X + s.X / 2, below)
+		voteFill.Size = UDim2.fromScale(math.clamp(left / 30, 0, 1), 1)
+		voteTitle.Text = string.format("투표 건너뛰기 — %d초", math.ceil(left))
+		local yes, needed = 0, 0
+		if typeof(votes) == "string" then
+			local a, b = votes:match("^(%d+)/(%d+)$")
+			yes, needed = tonumber(a) or 0, tonumber(b) or 0
+		end
+		voteCount.Text = string.format("%d/%d 예     %d 아니요", yes, needed, FashionGame:GetAttribute("ClubSkipNo") or 0)
+		local mine = player:GetAttribute("ClubSkipMine")
+		yesButton.BackgroundTransparency = if mine == "no" then 0.6 else 0
+		noButton.BackgroundTransparency = if mine == "yes" then 0.6 else 0
+		skipCount.Visible = false
+		below += 80
+	end
+	toast.Position = UDim2.fromOffset(p.X + s.X / 2, below)
 end)
 
 -- inside the club (the ≡ and the skip); the 🎵 🎥 and the bar wherever the

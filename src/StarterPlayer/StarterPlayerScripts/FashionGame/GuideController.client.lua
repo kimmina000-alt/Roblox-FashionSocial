@@ -179,6 +179,10 @@ local list = create("ScrollingFrame", {
 	CanvasSize = UDim2.new(), ScrollBarImageColor3 = ORANGE,
 }, window)
 create("UIListLayout", { Padding = UDim.new(0, 6), SortOrder = Enum.SortOrder.LayoutOrder }, list)
+-- (D-1120, user 2026-11-09: "제일 위 버튼의 윗부분 선 씹히고 각 버튼 왼쪽 선도 씹혀")
+-- the rows' edge is drawn just outside them and the list cut it off at its top
+-- and left side: room for it on every side
+create("UIPadding", { PaddingTop = UDim.new(0, 2), PaddingLeft = UDim.new(0, 2), PaddingBottom = UDim.new(0, 2) }, list)
 
 local answer = create("Frame", { Position = UDim2.fromOffset(14, 50), Size = UDim2.new(1, -28, 1, -64), BackgroundTransparency = 1, Visible = false }, window)
 local answerQ = create("TextLabel", {
@@ -224,9 +228,10 @@ local function showAnswer(faq: GuideConfig.Faq)
 	answer.Visible = true
 end
 for i, faq in ipairs(GuideConfig.Faq) do
-	local b = button(list, faq.q, ROW, BROWN)
+	-- (D-1120, user: "각 질문 앞에 1 2 3 숫자 붙이고") numbered
+	local b = button(list, string.format("%d. %s", i, faq.q), ROW, BROWN)
 	b.LayoutOrder = i
-	b.Size = UDim2.new(1, -6, 0, 44)
+	b.Size = UDim2.new(1, -10, 0, 44)
 	b.TextXAlignment = Enum.TextXAlignment.Left
 	b.TextWrapped = true
 	create("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 10) }, b)

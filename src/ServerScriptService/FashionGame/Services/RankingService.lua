@@ -300,7 +300,11 @@ local function publish()
 	data.recent = {}
 	recentLooks = {}
 	for _, entry in ipairs(recent) do
-		if (entry.at or 0) >= RECENT_FROM and not hidden[entry.u] and not excluded[entry.u] and not EXCLUDED_NAMES[string.lower(tostring(entry.n))] then
+		-- (D-1119, user 2026-11-09: "건물 전광판에 내 캐릭터 뜨는 거 지우고 광고용 이미지만
+		-- 띄워 이후 후원자는 기존 기획대로 띄워") the game owner's own gifts (tests on
+		-- the live game, 2026-11-05) are never on the screen: with no other gifts it
+		-- shows the ads only
+		if (entry.at or 0) >= RECENT_FROM and entry.u ~= game.CreatorId and not hidden[entry.u] and not excluded[entry.u] and not EXCLUDED_NAMES[string.lower(tostring(entry.n))] then
 			local look = lookOf(entry.u)
 			recentLooks[entry.u] = look
 			local votes = VoteService.State("supporter", tostring(entry.u), VoteService.Version(look))
