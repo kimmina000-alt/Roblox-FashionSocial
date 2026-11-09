@@ -74,6 +74,14 @@ M.ChoreoDriftReturn = 8 :: number?
 --     `ease` s (D-855); a list of such poses for different stretches, and keys
 --     with their own `add` turns (eased between keys), D-860
 --   (steady without `parts` = the whole body, D-852)
+-- (D-1068) Lemonade 2:16 side sit (the user's photo mirrored): set by 16 and held into 17's start
+M.LemonadeSideSit = {
+	LeftUpperLeg = { 0, -50, -90 }, LeftLowerLeg = { -120, 0, 0 }, LeftFoot = { 20, 0, 0 },
+	RightUpperLeg = { 30, -80, -60 }, RightLowerLeg = { -90, 0, 0 }, RightFoot = { 20, 0, 0 },
+	UpperTorso = { 5, 0, -20 }, Head = { 0, 0, 12 },
+	RightUpperArm = { -20, 0, 20 }, RightLowerArm = { 0, 0, 0 },
+	LeftUpperArm = { 30, 0, -10 }, LeftLowerArm = { 30, 0, 0 },
+}
 M.ChoreoFixes = {
 	-- Hearts2Hearts-Lemon Tang (D-1040): Play scan SPIN 617-777°/s, each turn made one even turn
 	-- (song times; yaw read every 0.08 s in Play). 9 (1:00.7): over its 1 s blend the hips went
@@ -570,13 +578,27 @@ M.ChoreoFixes = {
 	-- 16 stood from song 134 to 17's drop at 138.3; from 134.0 the knees bend into the squat, full
 	-- at 136.0 and held until 17 lies down (17 starts in the same squat). `to` far past the end:
 	-- the piece waits on its last frame (10.2 s) until 17 starts (hips 2.35 down: the feet on the floor, checked in Play)
+	-- (D-1068, user 2026-11-10: "2:12 회전 멈추기 더 돌아가지 마. 이 상태에서 내려가면서 앉는 자세로 이어지게",
+	-- "2:16 … 정면 아니고 측면으로 보여야 함. 앉은 다음 몸 전체가 흔들리는 거 잡아 주기 -> 엉덩이 땅에 붙이고
+	-- 첨부한 사진(좌우 반전)처럼 앉아 있는 자세로 연결" + a photo of a side sit): the turn stops where it is
+	-- at song 132.0 (4.35 s, side on) and the facing is kept; the knees bend (half squat by 7.3 s) into a
+	-- side sit by 8.3 s (song 135.95): the hips on the floor, both legs folded to the left (the left
+	-- thigh out to the left-front, its shin back; the right knee forward, its shin across to the left),
+	-- the upper body leaning right onto the right hand on the floor, the left hand on the lap (leg angles
+	-- found by forward kinematics on the R15 joints). From 8.45 s the whole pose is kept and the body
+	-- does not travel (`freeze`, `still`) until 17 lies down
 	[82680550952125] = { steady = { from = 0, to = 10.3, passes = 8 },
-		pose = { from = 6.35, to = 30, ease = 1.9, keys = { { t = 8.3, set = {
-			LeftUpperLeg = { 100, 0, 0 }, LeftLowerLeg = { -140, 0, 0 }, LeftFoot = { 40, 0, 0 },
-			RightUpperLeg = { 100, 0, 0 }, RightLowerLeg = { -140, 0, 0 }, RightFoot = { 40, 0, 0 },
-			UpperTorso = { -35, 0, 0 }, Head = { -15, 0, 0 },
-			LeftUpperArm = { 25, 0, 0 }, LeftLowerArm = { 15, 0, 0 }, RightUpperArm = { 25, 0, 0 }, RightLowerArm = { 15, 0, 0 } },
-			move = { LowerTorso = { 0, -2.35, 0 } } } } } },
+		spin = { from = 4.35, to = 4.45, till = 30 },
+		still = { from = 8.3, to = 30 },
+		freeze = { from = 8.45, to = 30, ease = 0.15 },
+		pose = { from = 6.35, to = 30, ease = 1.9, keys = {
+			{ t = 7.3, set = {
+				LeftUpperLeg = { 70, 0, 0 }, LeftLowerLeg = { -100, 0, 0 }, LeftFoot = { 30, 0, 0 },
+				RightUpperLeg = { 70, 0, 0 }, RightLowerLeg = { -100, 0, 0 }, RightFoot = { 30, 0, 0 },
+				UpperTorso = { -15, 0, 0 }, Head = { -5, 0, 0 },
+				LeftUpperArm = { 25, 0, 0 }, LeftLowerArm = { 15, 0, 0 }, RightUpperArm = { 10, 0, 0 }, RightLowerArm = { 10, 0, 0 } },
+				move = { LowerTorso = { 0, -1.5, 0 } } },
+			{ t = 8.3, set = M.LemonadeSideSit, move = { LowerTorso = { 0, -3.44, 0 } } } } } },
 	-- 17b red-box floor member (from 136.22) (D-991, user's screen recording of the
 	-- KBS stage, "2:20 전후로 누워서 하는 안무 이 영상이 더 잘 보인다. 참고해서 수정"):
 	-- on the stage she lies propped on her right forearm, the upper body raised and
@@ -659,14 +681,15 @@ M.ChoreoFixes = {
 		-- lying, the body turns 55° about its spine so the chest faces the front, not the ceiling (found in
 		-- Play: chest 0.75 up → 0.89 to the front); the thighs straight in line with the body and the calves
 		-- folded back; the left leg's kick (1.5-2.5 s, song 139.4-140.4) goes up with the knee straight
-		bend = { { part = "LowerTorso", keys = { { 0.4, 0, 0, 0 }, { 0.7, 0, -55, 0 }, { 2.75, 0, -55, 0 }, { 3.0, 0, 0, 0 } } } },
+		-- (D-1068, user: "2:20에 상체 너무 누워 있는데 빨간 선 표시한 위치로 세워") lying on her right side, the
+		-- upper body is raised from the waist (bent toward her left = up) onto the right arm; 17 starts in
+		-- 16's side sit (D-1068) and turns from 16's kept facing to its own while it lies down (0-0.8 s)
+		spin = { from = 0, to = 0.8, fromPrev = true, dir = -1, ease = "both" },
+		bend = { { part = "LowerTorso", keys = { { 0.4, 0, 0, 0 }, { 0.7, 0, -55, 0 }, { 2.75, 0, -55, 0 }, { 3.0, 0, 0, 0 } } },
+			{ part = "UpperTorso", keys = { { 0.45, 0, 0, 0 }, { 0.72, 0, 0, 45 }, { 2.75, 0, 0, 45 }, { 3.0, 0, 0, 0 } } } },
 		pose = {
-			{ from = 0, to = 0.6, ease = 0.25, keys = { { t = 0, set = {
-				LeftUpperLeg = { 100, 0, 0 }, LeftLowerLeg = { -140, 0, 0 }, LeftFoot = { 40, 0, 0 },
-				RightUpperLeg = { 100, 0, 0 }, RightLowerLeg = { -140, 0, 0 }, RightFoot = { 40, 0, 0 },
-				UpperTorso = { -35, 0, 0 }, Head = { -15, 0, 0 },
-				LeftUpperArm = { 25, 0, 0 }, LeftLowerArm = { 15, 0, 0 }, RightUpperArm = { 25, 0, 0 }, RightLowerArm = { 15, 0, 0 } },
-				move = { LowerTorso = { 0, -2.35, 0 } } } } },
+			{ from = 0, to = 0.6, ease = 0.25, keys = { { t = 0, set = M.LemonadeSideSit,
+				move = { LowerTorso = { 0, -3.44, 0 } } } } },
 			{ from = 0.6, to = 1.5, ease = 0.2, keys = { { t = 0.8, set = {
 				LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { -95, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
 			{ from = 1.5, to = 2.55, ease = 0.15, keys = { { t = 1.6, set = {
