@@ -211,12 +211,84 @@ local viewerClose = make("TextButton", {
 	ZIndex = 60,
 }, viewer)
 round(viewerClose, 20)
+-- (D-1109, user 2026-11-09: "사진 클릭해서 크게 보고 컴퓨터는 휠 굴려서 모바일은
+-- 두 손가락으로 확대, 축소해서 더 크게 볼 수 있게 해") zoom 1x .. 5x about the
+-- pointer (the wheel) or the middle of the two fingers (a pinch); once zoomed in,
+-- one finger / the mouse drags it around. A tap closes it at 1x; zoomed in, a tap
+-- goes back to 1x. ✕ always closes. The wheel does not move the game camera
+-- while it is open.
+local ContextActionService = game:GetService("ContextActionService")
+local ZOOM_MAX = 5
+local zoom = { z = 1, x = 0, y = 0, baseW = 0, baseH = 0, pinchFrom = 1, pinched = false }
+local function applyZoom()
+	local w, h = zoom.baseW * zoom.z, zoom.baseH * zoom.z
+	-- keep some of the photo on the screen
+	zoom.x = math.clamp(zoom.x, -w / 2, w / 2)
+	zoom.y = math.clamp(zoom.y, -h / 2, h / 2)
+	if zoom.z <= 1.001 then zoom.x, zoom.y = 0, 0 end
+	viewerBox.Size = UDim2.fromOffset(w, h)
+	viewerBox.Position = UDim2.new(0.5, zoom.x, 0.5, zoom.y)
+	viewerClose.Visible = true
+end
+-- zoom to z, the screen point `at` staying where it is
+local function zoomTo(z: number, at: Vector2?)
+	z = math.clamp(z, 1, ZOOM_MAX)
+	if at then
+		local vp = viewer.AbsoluteSize
+		local cx, cy = vp.X / 2 + zoom.x, vp.Y / 2 + zoom.y
+		local k = z / zoom.z
+		zoom.x += (at.X - cx) * (1 - k)
+		zoom.y += (at.Y - cy) * (1 - k)
+	end
+	zoom.z = z
+	applyZoom()
+end
 local function closeViewer()
 	viewer.Visible = false
+	ContextActionService:UnbindAction("PhotoViewerWheel")
 	for _, child in ipairs(viewerBox:GetChildren()) do child:Destroy() end
 end
-viewer.Activated:Connect(closeViewer)
 viewerClose.Activated:Connect(closeViewer)
+-- taps and drags on the dark screen and the photo
+do
+	local press: { input: InputObject, at: Vector3, last: Vector3, moved: boolean }? = nil
+	viewer.InputBegan:Connect(function(input)
+		local t = input.UserInputType
+		if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then return end
+		if press and t == Enum.UserInputType.Touch then return end -- (the second finger: a pinch)
+		zoom.pinched = false
+		press = { input = input, at = input.Position, last = input.Position, moved = false }
+	end)
+	UserInputService.InputChanged:Connect(function(input)
+		local p = press
+		if not p or not viewer.Visible then return end
+		local moving = input == p.input or (input.UserInputType == Enum.UserInputType.MouseMovement and p.input.UserInputType == Enum.UserInputType.MouseButton1)
+		if not moving then return end
+		if (input.Position - p.at).Magnitude > 8 then p.moved = true end
+		if zoom.z > 1.001 and not zoom.pinched then
+			local d = input.Position - p.last
+			zoom.x += d.X
+			zoom.y += d.Y
+			applyZoom()
+		end
+		p.last = input.Position
+	end)
+	UserInputService.InputEnded:Connect(function(input)
+		local p = press
+		if not p or input ~= p.input then return end
+		press = nil
+		if p.moved or zoom.pinched or not viewer.Visible then return end
+		if zoom.z > 1.001 then zoomTo(1) else closeViewer() end
+	end)
+	UserInputService.TouchPinch:Connect(function(positions, scale, _, state)
+		if not viewer.Visible then return end
+		zoom.pinched = true
+		if state == Enum.UserInputState.Begin then zoom.pinchFrom = zoom.z end
+		local mid = nil
+		if #positions >= 2 then mid = (positions[1] + positions[2]) / 2 end
+		zoomTo(zoom.pinchFrom * scale, mid)
+	end)
+end
 local placing: { wall: BasePart, photo: any, ghost: BasePart }? = nil
 local heldWallTap: ((BasePart, number, number) -> ())? = nil -- (D-1108, set below)
 local function openViewer(photo: any)
@@ -227,13 +299,21 @@ local function openViewer(photo: any)
 	local aspect = PhotoRender.stripAspect(photo.layout)
 	-- as big as fits: 86 % of the screen's height (or its width)
 	local h = math.min(vp.Y * 0.86, vp.X * 0.9 / aspect)
-	viewerBox.Size = UDim2.fromOffset(h * aspect, h)
-	viewerClose.Position = UDim2.new(0.5, h * aspect / 2 + 4, 0.5, -h / 2)
+	zoom.z, zoom.x, zoom.y, zoom.baseW, zoom.baseH = 1, 0, 0, h * aspect, h
+	applyZoom()
+	viewerClose.Position = UDim2.new(1, -16, 0, 16 + require(script.Parent:WaitForChild("TopBar")).bottom())
 	PhotoRender.drawPhoto(viewerBox, photo)
 	for _, d in ipairs(viewerBox:GetDescendants()) do
 		if d:IsA("GuiObject") then d.ZIndex = math.max(d.ZIndex, 52) end
 	end
 	viewer.Visible = true
+	ContextActionService:BindActionAtPriority("PhotoViewerWheel", function(_, state, input)
+		if state == Enum.UserInputState.Change and input.UserInputType == Enum.UserInputType.MouseWheel then
+			local m = UserInputService:GetMouseLocation()
+			zoomTo(zoom.z * (if input.Position.Z > 0 then 1.2 else 1 / 1.2), Vector2.new(m.X, m.Y))
+		end
+		return Enum.ContextActionResult.Sink
+	end, false, Enum.ContextActionPriority.High.Value, Enum.UserInputType.MouseWheel)
 end
 
 local function drawEntry(entry: Entry, order: number)
