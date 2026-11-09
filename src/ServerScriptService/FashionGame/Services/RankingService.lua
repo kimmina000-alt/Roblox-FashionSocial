@@ -307,6 +307,15 @@ local function publish()
 	FashionGame:SetAttribute("Rankings", HttpService:JSONEncode(data))
 end
 
+-- (D-1097) the owner in 관전 mode: off the boards for now (not saved)
+local spectating: {[number]: boolean} = {}
+function RankingService.SetSpectating(player: Player, on: boolean)
+	spectating[player.UserId] = if on then true else nil
+	if on then hidden[player.UserId] = true
+	elseif player:GetAttribute("RankHidden") ~= true then hidden[player.UserId] = nil end
+	task.spawn(publish)
+end
+
 function RankingService.SetHidden(player: Player, hide: boolean)
 	hidden[player.UserId] = hide or nil
 	player:SetAttribute("RankHidden", hide)

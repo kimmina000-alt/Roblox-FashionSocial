@@ -3447,6 +3447,14 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Play: 복도 북쪽 벽 아래쪽(높이 3)을 클릭 → 사진첩 열림.
 ## D-1095 Roblox 코디: 최근 저장한 것부터 (2026-11-09)
 - 사용자: "로블록스 코디 최근에 저장한 순서대로 나오게 해". Roblox 목록에는 저장 날짜가 없지만 코디 id는 새로 만들수록 커짐 → id 큰 것부터(WardrobeView.readRobloxOutfits). Studio 테스트 계정은 목록을 못 읽어 라이브에서 확인 필요.
+## D-1096 구역별 머문 시간 (Roblox 애널리틱스 커스텀 이벤트) (2026-11-09)
+- 사용자: "사람들이 어느 장소에서 많이 머무르는지 알 수 있는 방법" → "둘 다 만들어 줘".
+- 새 ZoneAnalyticsService: 1분마다 플레이어마다 `AnalyticsService:LogCustomEvent(player, "ZoneMinute", 1, { CustomField01 = 구역 })`. 구역: 클럽(ClubInside 또는 ClubConfig.isInClub) → 오후네컷 / OH24 편의점 / 국밥집 / 해변 카페 / 놀이공원 / 포켓 공원 / 광화문·한옥(땅 위 x·z 네모, 먼저 맞는 것) → 해변(x < -198) → 거리. 관전 중인 주인은 빼고, Studio에서는 보내지 않음(Roblox도 Studio 기록은 안 받음).
+- 보는 곳: Creator Dashboard → 애널리틱스 → 커스텀 이벤트(이벤트가 들어와야 메뉴가 생김, 몇 시간~하루 늦음), 또는 사용자 지정 대시보드에 ZoneMinute 차트. 값 합계 = 그 구역의 플레이어·분.
+## D-1097 주인 관전 모드 /관전 (2026-11-09)
+- 사용자: "개발자 존재 숨기고 지켜볼 수 없음? 사람들 실시간으로 즐기는 거 보고 싶은데" → "둘 다 만들어 줘".
+- 새 SpectateService: 채팅에 `/관전`(또는 `/spectate`, TextChatCommand라 채팅에 안 올라감) → 주인 캐릭터의 모든 부품 · 얼굴 · 액세서리 · 든 물건 투명, 이름표 · 역할 표 끔, 부딪힘 · 맞음(비치볼) · 클릭 없음, 순위표에서 잠깐 빠짐(RankingService.SetSpectating, 저장 안 함), 구역 기록에서 빠짐. 다시 `/관전`이면 원래대로. 둘러보기는 Roblox 자유 카메라(PC Shift + P, 게임 주인은 라이브 서버에서 쓸 수 있음). Roblox 기본 플레이어 목록의 이름은 숨길 수 없음. 주인(game.CreatorId)과 Studio만.
+- Play: /관전 → 보이는 부품 0/19, 이름표 꺼짐; 다시 /관전 → 18/19(HumanoidRootPart는 원래 투명), 이름표 켜짐, 충돌 원래대로. 스크립트 오류 없음.
 
 - 투명한 곳을 검은색(14, 14, 16)으로 채운 그림을 새로 올림: 비빔 133230144298972, 참치 116182874846347 → ServerStorage.ArtAssets.Foods.Samgak*Bites.Bite1 TextureID (장소에만 있음, 저장 필요). 참고: 참치 예전 그림 86893647001276은 계속 "content representation is being generated"(처리 안 끝남)였음.
 ## D-1042 무대 카메라: CRASH 새 음원에 별칭 (2026-11-09)
