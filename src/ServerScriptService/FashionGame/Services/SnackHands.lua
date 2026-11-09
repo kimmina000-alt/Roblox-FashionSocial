@@ -44,9 +44,16 @@ function SnackHands.pullStick(tool: Tool, handle: BasePart, character: Model, le
 	box.Anchored = false
 	box.Name = "BoxInLeftHand"
 	box.CFrame = leftGrip.WorldCFrame * tool.Grip:Inverse()
-	local w = Instance.new("WeldConstraint")
+	-- (D-1144, user 2026-11-10: the box floated by the right arm) a Weld fixed to
+	-- the hand's grip, not a WeldConstraint: that one keeps the offset it saw on
+	-- the server, where the hand is not where the player's screen moves it
+	local w = Instance.new("Weld")
 	w.Part0 = leftGrip.Parent :: BasePart
 	w.Part1 = box
+	-- (the left arm hangs down, the right one is held out: stood up 90° so the
+	-- box is upright in the hand)
+	w.C0 = CFrame.new(leftGrip.Position) * CFrame.Angles(math.rad(90), 0, 0) * leftGrip.CFrame.Rotation
+	w.C1 = tool.Grip
 	w.Parent = box
 	box.Parent = character
 	-- the right hand: only the stick, held near its lower end

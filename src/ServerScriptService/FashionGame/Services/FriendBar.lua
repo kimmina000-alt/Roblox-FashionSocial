@@ -127,9 +127,12 @@ local function holdLeft(owner: Player, half: Tool, a: Tool): (() -> ())?
 	end
 	copy.Anchored = false
 	copy.CFrame = grip.WorldCFrame * half.Grip:Inverse()
-	local weld = Instance.new("WeldConstraint")
+	-- (D-1144) fixed to the hand's grip (a WeldConstraint keeps the server's offset)
+	local weld = Instance.new("Weld")
 	weld.Part0 = grip.Parent :: BasePart
 	weld.Part1 = copy
+	weld.C0 = CFrame.new(grip.Position) * CFrame.Angles(math.rad(90), 0, 0) * grip.CFrame.Rotation -- (upright in the hanging hand)
+	weld.C1 = half.Grip
 	weld.Parent = copy
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.Name = "FriendBarTake"
