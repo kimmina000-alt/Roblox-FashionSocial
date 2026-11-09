@@ -21,10 +21,15 @@ local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 
-local PEACH = Color3.fromRGB(255, 248, 240)
-local ORANGE = Color3.fromRGB(255, 140, 70)
-local BROWN = Color3.fromRGB(80, 50, 35)
-local GREY = Color3.fromRGB(150, 135, 125)
+-- (D-1088, user 2026-11-09: "안내원 디자인 블랙 앤 화이트로 수정. 순위표처럼.")
+-- the ranking boards' look: a near-black window with a white edge, white
+-- letters, dark grey rows (was peach / orange / brown)
+local PEACH = Color3.fromRGB(14, 14, 18) -- (the window)
+local ORANGE = Color3.fromRGB(255, 255, 255) -- (edges, the question, the main button)
+local BROWN = Color3.fromRGB(240, 240, 245) -- (text)
+local GREY = Color3.fromRGB(150, 150, 158)
+local ROW = Color3.fromRGB(30, 30, 36)
+local ROW_EDGE = Color3.fromRGB(70, 70, 80)
 
 local function create(className: string, props: {[string]: any}, parent: Instance?): any
 	local instance = Instance.new(className)
@@ -127,7 +132,7 @@ local function guideTo(place: GuideConfig.Place)
 	}, playerGui)
 	local label = create("TextButton", {
 		Size = UDim2.fromScale(1, 1), BackgroundColor3 = ORANGE, BackgroundTransparency = 0.1, AutoButtonColor = true,
-		Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = Color3.new(1, 1, 1), Text = "",
+		Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = Color3.new(0, 0, 0), Text = "",
 	}, board)
 	corner(label, 14)
 	label.Activated:Connect(clearWaypoint)
@@ -162,7 +167,7 @@ create("TextLabel", {
 	Font = Enum.Font.GothamBlack, TextSize = 19, TextColor3 = BROWN, TextXAlignment = Enum.TextXAlignment.Left,
 	Text = "🙋 " .. GuideConfig.Npc.name .. " · 무엇이든 물어보세요",
 }, window)
-local closeButton = button(window, "X", Color3.new(1, 1, 1), BROWN)
+local closeButton = button(window, "X", Color3.new(1, 1, 1), Color3.new(0, 0, 0))
 closeButton.AnchorPoint = Vector2.new(1, 0)
 closeButton.Position = UDim2.new(1, -12, 0, 10)
 closeButton.Size = UDim2.fromOffset(34, 34)
@@ -185,15 +190,15 @@ local answerA = create("TextLabel", {
 	Font = Enum.Font.GothamMedium, TextSize = 16, TextColor3 = BROWN, TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, answer)
-local backButton = button(answer, "◀ 목록", Color3.fromRGB(235, 225, 215), BROWN)
+local backButton = button(answer, "◀ 목록", ROW, BROWN)
 backButton.AnchorPoint = Vector2.new(0, 1)
 backButton.Position = UDim2.new(0, 0, 1, 0)
 backButton.Size = UDim2.new(0.28, -6, 0, 42)
-local showButton = button(answer, "👀 보여 주기", Color3.fromRGB(255, 205, 160), BROWN)
+local showButton = button(answer, "👀 보여 주기", Color3.fromRGB(56, 56, 64), BROWN)
 showButton.AnchorPoint = Vector2.new(0, 1)
 showButton.Position = UDim2.new(0.28, 0, 1, 0)
 showButton.Size = UDim2.new(0.34, -6, 0, 42)
-local goButton = button(answer, "📍 길 안내", ORANGE, Color3.new(1, 1, 1))
+local goButton = button(answer, "📍 길 안내", ORANGE, Color3.new(0, 0, 0))
 goButton.AnchorPoint = Vector2.new(1, 1)
 goButton.Position = UDim2.new(1, 0, 1, 0)
 goButton.Size = UDim2.new(0.38, 0, 0, 42)
@@ -219,13 +224,13 @@ local function showAnswer(faq: GuideConfig.Faq)
 	answer.Visible = true
 end
 for i, faq in ipairs(GuideConfig.Faq) do
-	local b = button(list, faq.q, Color3.new(1, 1, 1), BROWN)
+	local b = button(list, faq.q, ROW, BROWN)
 	b.LayoutOrder = i
 	b.Size = UDim2.new(1, -6, 0, 44)
 	b.TextXAlignment = Enum.TextXAlignment.Left
 	b.TextWrapped = true
 	create("UIPadding", { PaddingLeft = UDim.new(0, 14), PaddingRight = UDim.new(0, 10) }, b)
-	create("UIStroke", { Color = Color3.fromRGB(240, 210, 185), Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
+	create("UIStroke", { Color = ROW_EDGE, Thickness = 1, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, b)
 	b.Activated:Connect(function() showAnswer(faq) end)
 end
 

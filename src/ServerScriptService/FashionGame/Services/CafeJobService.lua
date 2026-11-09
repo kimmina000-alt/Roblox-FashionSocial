@@ -193,7 +193,9 @@ local function setBubble(model: Model?, text: string?, shopKey: string?, custome
 	if not text then return end
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "CafeOrderBubble"
-	gui.Size = UDim2.fromOffset(230, 34) -- (wide enough for “아이스 바닐라 라떼 주세요.”)
+	-- (wide enough for “아이스 바닐라 라떼 주세요.”; D-1077, user 2026-11-09: "카페 손님
+	-- 주문 텍스트 크기 반으로 줄이기" 34 → 17 high, letters 15 → 8)
+	gui.Size = UDim2.fromOffset(230, 17)
 	gui.StudsOffset = Vector3.new(0, 2.6, 0)
 	gui.AlwaysOnTop = true
 	gui.MaxDistance = 70
@@ -210,10 +212,10 @@ local function setBubble(model: Model?, text: string?, shopKey: string?, custome
 	label.Text = text
 	local edge = Instance.new("UIStroke")
 	edge.Color = Color3.new(1, 1, 1)
-	edge.Thickness = 2
+	edge.Thickness = 1
 	edge.Parent = label
 	local limit = Instance.new("UITextSizeConstraint")
-	limit.MaxTextSize = 15
+	limit.MaxTextSize = 8
 	limit.Parent = label
 	label.Parent = gui
 	gui.Parent = head

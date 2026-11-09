@@ -557,10 +557,18 @@ local function chatWindowBottom(): number?
 			if ok and size.Y > 0 then bottom = math.max(bottom, inset + pos.Y + size.Y) end
 		end
 	end
-	if bottom > 0 then lastChatBottom = bottom end
+	if bottom > 0 then lastChatBottom = math.max(lastChatBottom or 0, bottom) end
 	-- (never opened yet: where it opens on a phone held sideways, messages 89
 	-- high 12 below the top bar, the typing bar about 40 under them)
-	return lastChatBottom or (inset + 12 + 89 + 40)
+	-- (D-1087, user 2026-11-09: "재생중인 바 처음에는 위에 있다가 채팅창 누르면
+	-- 내려오는데 처음부터 내려간 위치에 고정. 모바일 피시 둘 다") on a PC the window
+	-- opens much taller (measured in Studio: 213.75 high 12 below the top bar,
+	-- the typing bar 47 under it), so the banner started high and jumped down
+	-- when the chat was first opened: the opened size for each kind of device from
+	-- the start, and the banner never moves up again once lower
+	local touch = game:GetService("UserInputService").TouchEnabled
+	local guess = if touch then inset + 12 + 89 + 40 else inset + 12 + 213.75 + 47
+	return math.max(lastChatBottom or 0, guess)
 end
 
 local function layoutPanel()
@@ -649,6 +657,31 @@ for _, box in ipairs({ chatWindow :: any, chatInput :: any }) do
 		end)
 	end
 end
+-- (D-1087) the chat never opened yet reads size 0: open it once for a moment
+-- right after joining (under the loading screen) to measure where it really
+-- ends on this device, then close it again, so the banner is in its place from
+-- the start and does not jump when the player first opens the chat
+task.spawn(function()
+	task.wait(1)
+	if not chatWindow or not chatWindow.Enabled then return end
+	local function windowHigh(): number
+		local ok, size = pcall(function() return (chatWindow :: any).AbsoluteSize end)
+		return if ok then size.Y else 0
+	end
+	if windowHigh() > 0 then return end
+	local StarterGui = game:GetService("StarterGui")
+	if not pcall(function() StarterGui:SetCore("ChatActive", true) end) then return end
+	for _ = 1, 30 do
+		task.wait(0.05)
+		if windowHigh() > 0 then
+			task.wait(0.1) -- (the typing bar settles under it)
+			chatWindowBottom()
+			break
+		end
+	end
+	pcall(function() StarterGui:SetCore("ChatActive", false) end)
+	layoutPanel()
+end)
 
 --------------------------------------------------
 -- Dance state (local view)

@@ -119,4 +119,62 @@ if not S:GetAttribute("OH24Deck1109") then
 	S:SetAttribute("OH24Deck1109", true)
 	table.insert(log, string.format("deck table set gone (%d parts), deck top 2.2", gone))
 end
+
+-- 4. (D-1078, user 2026-11-09: "편의점 의자 위치 바꿨더니 앉는 위치가 달라 의자
+-- 위치로 수정하고 ... 스툴 삭제한 부분에 앉는 블록 있으면 그거 삭제") each window
+-- stool's seat (the invisible WindowStool Seat) right on top of its stool model
+-- (ClubStool, 1.05 west of the seats); a seat with no stool under it goes.
+-- Every run (it only follows the stools).
+do
+	local stools = {}
+	for _, m in ipairs(S:GetChildren()) do
+		if m:IsA("Model") and m.Name:match("Stool") then table.insert(stools, m) end
+	end
+	local moved, gone = 0, 0
+	for _, seat in ipairs(S:GetChildren()) do
+		if seat:IsA("Seat") and seat.Name == "WindowStool" then
+			local best, bestD = nil, 3
+			for _, m in ipairs(stools) do
+				local cf = m:GetBoundingBox()
+				local d = Vector2.new(cf.X - seat.Position.X, cf.Z - seat.Position.Z).Magnitude
+				if d < bestD then best, bestD = m, d end
+			end
+			if best then
+				local cf, size = best:GetBoundingBox()
+				local to = Vector3.new(cf.X, cf.Y + size.Y / 2 - seat.Size.Y / 2, cf.Z)
+				if (to - seat.Position).Magnitude > 0.01 then
+					seat.CFrame = CFrame.new(to) * seat.CFrame.Rotation
+					moved += 1
+				end
+			else
+				seat:Destroy()
+				gone += 1
+			end
+		end
+	end
+	table.insert(log, string.format("window stool seats: %d moved onto their stools, %d without a stool gone", moved, gone))
+end
+
+-- 5. (D-1083, user 2026-11-09: "편의점 계산기 국밥집 크기로 수정하고 편의점 계산대
+-- 위로 위치 수정") the till (Register37) was 28 studs west of the counter (x
+-- -98.8) and 2/3 of the 국밥집's: the 국밥집 till's size, standing on the counter's
+-- PosBase. Every run (it only follows the counter and the 국밥집 till).
+do
+	local reg = S:FindFirstChild("Register37")
+	local base = S:FindFirstChild("PosBase")
+	local G = L:FindFirstChild("Gukbap")
+	local ref = G and G:FindFirstChild("Register37")
+	if reg and reg:IsA("Model") and base and base:IsA("BasePart") then
+		if ref and ref:IsA("Model") then
+			local _, rs = ref:GetBoundingBox()
+			local _, ms = reg:GetBoundingBox()
+			local k = math.max(rs.X, rs.Y, rs.Z) / math.max(ms.X, ms.Y, ms.Z)
+			if math.abs(k - 1) > 0.01 then reg:ScaleTo(reg:GetScale() * k) end
+		end
+		local cf, size = reg:GetBoundingBox()
+		local top = base.Position.Y + base.Size.Y / 2
+		reg:PivotTo(reg:GetPivot() + (Vector3.new(base.Position.X, top + size.Y / 2, base.Position.Z) - cf.Position))
+		table.insert(log, "till on the counter")
+	end
+end
 return table.concat(log, "\n")

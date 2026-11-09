@@ -149,7 +149,7 @@ local function add(board: Board, userId: number, amount: number)
 		pendingMinutes[userId] = 0
 	end
 	local store = ordered(board)
-	if not store then return end
+	if not store or userId <= 0 then return end -- (D-1086: no Studio test players)
 	task.spawn(function()
 		local ok, total = pcall(function()
 			return (store :: OrderedDataStore):IncrementAsync(tostring(userId), math.floor(amount))
@@ -203,7 +203,10 @@ local function top(board: Board): {{ name: string, value: number, id: number }}
 	end
 	local list = {}
 	for id, value in pairs(merged) do
-		if value > 0 and not hidden[id] then table.insert(list, { id = id, value = value }) end
+		-- (D-1086, user 2026-11-09: "물음표는 뭐야?") the two "?" rows were the
+		-- Studio test players (UserId -1 / -2, no name to look up), saved to the
+		-- shared store by 2-player tests: never a real player, left out
+		if value > 0 and id > 0 and not hidden[id] then table.insert(list, { id = id, value = value }) end
 	end
 	table.sort(list, function(a, b) return a.value > b.value end)
 	local out = {}
@@ -247,7 +250,7 @@ end
 -- attribute "XP"): the board keeps the latest value and saves it now and then
 local function saveLevel(player: Player)
 	local xp = player:GetAttribute("XP")
-	if typeof(xp) ~= "number" or xp <= 0 then return end
+	if typeof(xp) ~= "number" or xp <= 0 or player.UserId <= 0 then return end -- (D-1086)
 	local store = ordered("level")
 	if not store then return end
 	task.spawn(function()

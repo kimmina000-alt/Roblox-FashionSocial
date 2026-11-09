@@ -178,6 +178,63 @@ local function findWall(key: string): BasePart?
 	return nil
 end
 
+-- (D-1085, user 2026-11-09: "벽에 붙인 스티커 사진 클릭하면 해당 사진 크게
+-- 고화질로 볼 수 있게 하기") a tap on a photo on the wall shows it big on the
+-- screen: drawn again from the photo itself (the same 3D shots, not a picture
+-- of the small one), so it is sharp at that size. A tap anywhere else or ✕ closes.
+local viewer = make("TextButton", {
+	Name = "PhotoViewer",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundColor3 = Color3.new(0, 0, 0),
+	BackgroundTransparency = 0.25,
+	AutoButtonColor = false,
+	Text = "",
+	Visible = false,
+	ZIndex = 50,
+}, gui)
+local viewerBox = make("Frame", {
+	Name = "Photo",
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.fromScale(0.5, 0.5),
+	BackgroundTransparency = 1,
+	ZIndex = 51,
+}, viewer)
+local viewerClose = make("TextButton", {
+	Name = "Close",
+	AnchorPoint = Vector2.new(1, 0),
+	Size = UDim2.fromOffset(40, 40),
+	BackgroundColor3 = Color3.new(1, 1, 1),
+	Text = "✕",
+	TextColor3 = Color3.new(0, 0, 0),
+	TextSize = 20,
+	Font = Enum.Font.GothamBold,
+	ZIndex = 60,
+}, viewer)
+round(viewerClose, 20)
+local function closeViewer()
+	viewer.Visible = false
+	for _, child in ipairs(viewerBox:GetChildren()) do child:Destroy() end
+end
+viewer.Activated:Connect(closeViewer)
+viewerClose.Activated:Connect(closeViewer)
+local placing: { wall: BasePart, photo: any, ghost: BasePart }? = nil
+local function openViewer(photo: any)
+	if placing then return end
+	closeViewer()
+	local camera = workspace.CurrentCamera
+	local vp = if camera then camera.ViewportSize else Vector2.new(1280, 720)
+	local aspect = PhotoRender.stripAspect(photo.layout)
+	-- as big as fits: 86 % of the screen's height (or its width)
+	local h = math.min(vp.Y * 0.86, vp.X * 0.9 / aspect)
+	viewerBox.Size = UDim2.fromOffset(h * aspect, h)
+	viewerClose.Position = UDim2.new(0.5, h * aspect / 2 + 4, 0.5, -h / 2)
+	PhotoRender.drawPhoto(viewerBox, photo)
+	for _, d in ipairs(viewerBox:GetDescendants()) do
+		if d:IsA("GuiObject") then d.ZIndex = math.max(d.ZIndex, 52) end
+	end
+	viewer.Visible = true
+end
+
 local function drawEntry(entry: Entry, order: number)
 	if drawn[entry.id] then return end
 	local wall = findWall(entry.wall)
@@ -195,6 +252,15 @@ local function drawEntry(entry: Entry, order: number)
 		ZIndex = order,
 	}, holder)
 	PhotoRender.drawPhoto(frame, entry.photo)
+	-- (D-1085) tap to see it big
+	local tap = make("TextButton", {
+		Name = "Tap",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundTransparency = 1,
+		Text = "",
+		ZIndex = 1000,
+	}, frame)
+	tap.Activated:Connect(function() openViewer(entry.photo) end)
 	drawn[entry.id] = frame
 	drawnWall[entry.id] = wall
 end
@@ -306,11 +372,19 @@ local cancelButton = make("TextButton", {
 }, gui)
 round(cancelButton, 17)
 
-local placing: { wall: BasePart, photo: any, ghost: BasePart }? = nil
+-- (D-1085) while a photo is being stuck on, the photos' tap buttons stand aside
+-- (they would take the tap that sticks it)
+local function setTaps(on: boolean)
+	for _, frame in pairs(drawn) do
+		local tap = frame:FindFirstChild("Tap")
+		if tap and tap:IsA("GuiButton") then tap.Visible = on end
+	end
+end
 
 local function stopPlacing()
 	if placing then placing.ghost:Destroy() end
 	placing = nil
+	setTaps(true)
 	hint.Visible = false
 	cancelButton.Visible = false
 end
@@ -332,6 +406,7 @@ local function startPlacing(wall: BasePart, photo: any)
 		CFrame = wallCFrame(wall, 0.5, 0.5),
 	}, workspace)
 	placing = { wall = wall, photo = photo, ghost = ghost }
+	setTaps(false)
 	local top = require(script.Parent:WaitForChild("TopBar")).bottom() + 10
 	hint.Position = UDim2.new(0.5, 0, 0, top)
 	cancelButton.Position = UDim2.new(0.5, 0, 0, top + 46)

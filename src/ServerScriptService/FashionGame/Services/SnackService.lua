@@ -394,7 +394,8 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 			snd.RollOffMaxDistance = 40
 			snd.Parent = h
 			snd:Play()
-			Debris:AddItem(snd, 6)
+			-- (D-1080, user 2026-11-09: "삼각김밥 처음에 포장 뜯을 때 소리 1.5초만 쓰기")
+			task.delay(1.5, function() if snd.Parent then snd:Stop() snd:Destroy() end end)
 		end
 		tool:SetAttribute("Bites", ((tool:GetAttribute("Bites") :: number?) or bitesOf(item)) - 1)
 		tool.ToolTip = "클릭(터치)해서 먹기"
@@ -579,7 +580,8 @@ local function cakeModel(key: string?): Model?
 	return if m and m:IsA("Model") and pieceWordOf(m) then m else nil
 end
 -- (D-1034) how wide the 수육 model plate sits on a table (studs)
-local SUYUK_PLATE_W = 2.8
+-- (D-1079, user 2026-11-09: "수육도 1.5배 키우기") 2.8 → 4.2
+local SUYUK_PLATE_W = 4.2
 -- a copy `width` studs across (the board's width), no collisions
 local function cakeCopy(src: Model, width: number): Model
 	local m = src:Clone()
@@ -886,12 +888,14 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	setVolume(sip, if COFFEE[item.key] then 0.9 elseif QUIET[item.key] then 0.35 else LOUD[item.key] or 0.7)
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
-	scaleTool(tool, handle, FOOD_SCALE) -- (D-950)
-	if tool:GetAttribute("Ramen") then RamenCup.scaled(handle, FOOD_SCALE) end
+	-- (D-1079, user 2026-11-09: "국밥 크기 1.5배 키우기") the three 국밥 once more 1.5×
+	local k = FOOD_SCALE * (if kind == "bowl" then 1.5 else 1)
+	scaleTool(tool, handle, k) -- (D-950)
+	if tool:GetAttribute("Ramen") then RamenCup.scaled(handle, k) end
 	markEdible(tool, handle)
 	-- soup and noodles: the surface sinks a third of the bowl per bite
 	local surface = (kind == "bowl" or kind == "ricebowl" or kind == "noodle") and handle:FindFirstChild("Fill")
-	if surface then surface:SetAttribute("EatDrop", (if kind == "noodle" then 0.5 else 0.3) * FOOD_SCALE) end
+	if surface then surface:SetAttribute("EatDrop", (if kind == "noodle" then 0.5 else 0.3) * k) end
 	-- (D-950) a click / tap is not a bite by itself any more: SnackController
 	-- decides (over a food table it puts the food down there, elsewhere it
 	-- calls tool:Activate(), the bite)
@@ -903,7 +907,7 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	-- (D-1038, user 2026-11-09: "국밥 놓을 때 원 너무 크다. 국밥 크기에 맞춰"): the
 	-- user's 국밥 model goes down alone (D-1037), so its own size; the tray size only
 	-- for a store bowl that still goes down with the tray
-	tool:SetAttribute("PlaceRadius", if kind == "bowl" and tool:GetAttribute("EatMode") ~= "Bites" then 3.4 * FOOD_SCALE / 2 else footprintOf(handle))
+	tool:SetAttribute("PlaceRadius", if kind == "bowl" and tool:GetAttribute("EatMode") ~= "Bites" then 3.4 * k / 2 else footprintOf(handle))
 	return tool
 end
 

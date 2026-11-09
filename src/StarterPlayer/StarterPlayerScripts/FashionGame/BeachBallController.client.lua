@@ -13,107 +13,267 @@
 -- then swings over the shoulder and through toward the front, and the ball
 -- leaves the hand at the end of the swing (the server's RELEASE_DELAY).
 
+-- (D-1089, user 2026-11-09: "비치볼 잡아서 던지는 거 모바일 버전에서 제대로 안 됨.
+-- 화면 꾹 누르면 던지는 강도 올라가는 바 보여지게 하기. 던질 곳 + 이런 총 쏠 때
+-- 보여주는 것처럼 던져질 곳 표시하기. 총 쏘거나 물건 던져서 사람이나 목표물 맞히는
+-- 게임 조사해서 참고해서 그대로 매끄럽게 구현할 것") The tool's own Activated /
+-- Deactivated did not give a hold on phones (a tap is both at once). Now, like
+-- mobile shooters and grenade throws in other games:
+--   * with the ball in hand the aim is shown all the time: a "+" in the middle
+--     of the screen on phones (drag the screen to turn the camera = aim), the
+--     mouse pointer on PC; the arc the ball will fly (dots) and a ring where it
+--     will land, drawn from the very launch the server uses (BeachBallConfig)
+--   * press and hold anywhere that is not a button or the move stick: a power
+--     bar at the bottom of the screen fills (1.5 s to full) and the arc grows
+--     with it; let go: thrown, with that power, toward the aim
+-- The press is read here (UserInputService), the tool takes no taps itself
+-- (ManualActivationOnly, BeachBallService).
+
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local mouse = player:GetMouse()
-local Remote = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Remotes"):WaitForChild("BeachBall") :: RemoteEvent
+local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
+local Remote = FashionGame:WaitForChild("Remotes"):WaitForChild("BeachBall") :: RemoteEvent
+local BeachBallConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("BeachBallConfig"))
 local Sfx = require(script.Parent:WaitForChild("Sfx"))
 
-local CHARGE_FULL = 1.5 -- (BeachBallService)
+local CHARGE_FULL = BeachBallConfig.CHARGE_FULL
 local SWING = 0.14 -- seconds: wind-up → through, the ball goes at its end
 local FOLLOW = 0.45 -- seconds after the swing: the arm comes back down
+local DOTS = 22 -- dots along the arc
+local AIM_COLOR = Color3.fromRGB(255, 255, 255)
+local HOT_COLOR = Color3.fromRGB(255, 90, 80)
 
 -- ---------------------------------------------------------------------------
--- the power bar (this screen only)
-local gauge: BillboardGui? = nil
-local gaugeFill: Frame? = nil
-local chargingSince: number? = nil
+-- the screen parts: power bar (bottom middle), "+" (phones)
+local screen = Instance.new("ScreenGui")
+screen.Name = "BeachBallAim"
+screen.ResetOnSpawn = false
+screen.IgnoreGuiInset = true
+screen.DisplayOrder = 30
+screen.Enabled = false
+screen.Parent = player:WaitForChild("PlayerGui")
 
-local function showGauge(on: boolean)
-	if not on then
-		if gauge then gauge:Destroy() end
-		gauge, gaugeFill = nil, nil
-		return
+local bar = Instance.new("Frame")
+bar.Name = "Power"
+bar.AnchorPoint = Vector2.new(0.5, 1)
+bar.Position = UDim2.new(0.5, 0, 1, -118)
+bar.Size = UDim2.fromOffset(240, 18)
+bar.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+bar.BackgroundTransparency = 0.2
+bar.Visible = false
+bar.Parent = screen
+do
+	local c = Instance.new("UICorner") c.CornerRadius = UDim.new(1, 0) c.Parent = bar
+	local s = Instance.new("UIStroke") s.Color = Color3.new(1, 1, 1) s.Thickness = 2 s.Parent = bar
+end
+local barFill = Instance.new("Frame")
+barFill.Name = "Fill"
+barFill.Size = UDim2.fromScale(0, 1)
+barFill.BorderSizePixel = 0
+barFill.BackgroundColor3 = Color3.fromRGB(255, 220, 90)
+barFill.Parent = bar
+do local c = Instance.new("UICorner") c.CornerRadius = UDim.new(1, 0) c.Parent = barFill end
+local barText = Instance.new("TextLabel")
+barText.AnchorPoint = Vector2.new(0.5, 1)
+barText.Position = UDim2.new(0.5, 0, 0, -4)
+barText.Size = UDim2.fromOffset(240, 18)
+barText.BackgroundTransparency = 1
+barText.Font = Enum.Font.GothamBlack
+barText.TextSize = 14
+barText.TextColor3 = Color3.new(1, 1, 1)
+barText.TextStrokeTransparency = 0.4
+barText.Text = "힘"
+barText.Parent = bar
+
+local cross = Instance.new("TextLabel")
+cross.Name = "Cross"
+cross.AnchorPoint = Vector2.new(0.5, 0.5)
+cross.Position = UDim2.fromScale(0.5, 0.5)
+cross.Size = UDim2.fromOffset(36, 36)
+cross.BackgroundTransparency = 1
+cross.Font = Enum.Font.GothamBold
+cross.TextSize = 34
+cross.TextColor3 = AIM_COLOR
+cross.TextStrokeTransparency = 0.3
+cross.Text = "+"
+cross.Visible = false
+cross.Parent = screen
+
+-- the arc and the landing ring (in the world, this screen only)
+local marks = Instance.new("Folder")
+marks.Name = "BeachBallAimMarks"
+local dots: {BasePart} = {}
+for i = 1, DOTS do
+	local d = Instance.new("Part")
+	d.Name = "Dot"
+	d.Shape = Enum.PartType.Ball
+	d.Size = Vector3.one * 0.32
+	d.Anchored, d.CanCollide, d.CanQuery, d.CanTouch, d.CastShadow = true, false, false, false, false
+	d.Material = Enum.Material.Neon
+	d.Color = AIM_COLOR
+	d.Transparency = 1
+	d.Parent = marks
+	dots[i] = d
+end
+local ring = Instance.new("Part")
+ring.Name = "Landing"
+ring.Shape = Enum.PartType.Cylinder
+ring.Size = Vector3.new(0.12, 3.2, 3.2)
+ring.Anchored, ring.CanCollide, ring.CanQuery, ring.CanTouch, ring.CastShadow = true, false, false, false, false
+ring.Material = Enum.Material.Neon
+ring.Color = AIM_COLOR
+ring.Transparency = 1
+ring.Parent = marks
+local ringInner = ring:Clone()
+ringInner.Name = "LandingInner"
+ringInner.Size = Vector3.new(0.14, 2.5, 2.5)
+ringInner.Color = Color3.fromRGB(20, 20, 26)
+ringInner.Parent = marks
+marks.Parent = workspace
+
+local function hideMarks()
+	for _, d in ipairs(dots) do d.Transparency = 1 end
+	ring.Transparency, ringInner.Transparency = 1, 1
+end
+
+-- ---------------------------------------------------------------------------
+local heldTool: Tool? = nil
+local chargingSince: number? = nil
+local pressInput: InputObject? = nil
+
+local function touchMode(): boolean
+	return UserInputService.TouchEnabled and not UserInputService.MouseEnabled
+end
+
+-- where the throw aims: the middle of the screen on phones, the mouse on PC
+local function aimPoint(): Vector3
+	local camera = workspace.CurrentCamera
+	local ray
+	if touchMode() then
+		local vp = camera.ViewportSize
+		ray = camera:ViewportPointToRay(vp.X / 2, vp.Y / 2)
+	else
+		ray = mouse.UnitRay
 	end
-	local head = player.Character and player.Character:FindFirstChild("Head")
-	if not head or not head:IsA("BasePart") then return end
-	if gauge then gauge:Destroy() end
-	local gui = Instance.new("BillboardGui")
-	gui.Name = "BeachBallPower"
-	gui.Size = UDim2.fromOffset(84, 12)
-	gui.StudsOffset = Vector3.new(0, 3.4, 0)
-	gui.AlwaysOnTop = true
-	gui.LightInfluence = 0
-	gui.ResetOnSpawn = false
-	local back = Instance.new("Frame")
-	back.Size = UDim2.fromScale(1, 1)
-	back.BackgroundColor3 = Color3.fromRGB(25, 25, 35)
-	back.BackgroundTransparency = 0.25
-	back.BorderSizePixel = 0
-	back.Parent = gui
-	local c = Instance.new("UICorner")
-	c.CornerRadius = UDim.new(1, 0)
-	c.Parent = back
-	local s = Instance.new("UIStroke")
-	s.Color = Color3.new(1, 1, 1)
-	s.Thickness = 1.5
-	s.Parent = back
-	local fill = Instance.new("Frame")
-	fill.Size = UDim2.fromScale(0, 1)
-	fill.BorderSizePixel = 0
-	fill.BackgroundColor3 = Color3.fromRGB(255, 220, 90)
-	fill.Parent = back
-	local c2 = Instance.new("UICorner")
-	c2.CornerRadius = UDim.new(1, 0)
-	c2.Parent = fill
-	gui.Adornee = head
-	gui.Parent = player:WaitForChild("PlayerGui")
-	gauge, gaugeFill = gui, fill
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { player.Character :: Instance, marks }
+	local hit = workspace:Raycast(ray.Origin, ray.Direction * 300, params)
+	if hit then return hit.Position end
+	-- (the sky) far ahead along the aim
+	return ray.Origin + ray.Direction * 80
+end
+
+local function power(): number
+	return if chargingSince then math.clamp((os.clock() - chargingSince) / CHARGE_FULL, 0, 1) else 0
+end
+
+local function setHeld(tool: Tool?)
+	heldTool = tool
+	chargingSince, pressInput = nil, nil
+	screen.Enabled = tool ~= nil
+	bar.Visible = false
+	cross.Visible = tool ~= nil and touchMode()
+	if not tool then hideMarks() end
 end
 
 local function hook(tool: Instance)
 	if not tool:IsA("Tool") or not tool:GetAttribute("BeachBall") or tool:GetAttribute("Hooked") then return end
 	tool:SetAttribute("Hooked", true)
-	tool.Activated:Connect(function()
-		if chargingSince then return end
-		chargingSince = os.clock()
-		showGauge(true)
-		Remote:FireServer("Charge")
+	tool.Equipped:Connect(function() setHeld(tool) end)
+	tool.Unequipped:Connect(function() if heldTool == tool then setHeld(nil) end end)
+	tool.AncestryChanged:Connect(function()
+		if heldTool == tool and tool.Parent ~= player.Character then setHeld(nil) end
 	end)
-	local function release()
-		local since = chargingSince
-		if not since then return end
-		chargingSince = nil
-		showGauge(false)
-		if tool.Parent ~= player.Character then return end
-		-- the point under the tap / the mouse; nothing there (the sky) → far ahead
-		local camera = workspace.CurrentCamera
-		local target = mouse.Hit.Position
-		if (target - camera.CFrame.Position).Magnitude > 300 then
-			target = camera.CFrame.Position + mouse.UnitRay.Direction * 80
-		end
-		local power = math.clamp((os.clock() - since) / CHARGE_FULL, 0, 1)
-		task.delay(SWING * 0.6, function() Sfx.play("whoosh", 0.25 + 0.3 * power) end)
-		Remote:FireServer("Throw", target)
-	end
-	tool.Deactivated:Connect(release)
-	tool.Unequipped:Connect(function()
-		chargingSince = nil
-		showGauge(false)
-	end)
+	if tool.Parent == player.Character then setHeld(tool) end
 end
 
 local function onCharacter(character: Model)
-	chargingSince = nil
-	showGauge(false)
+	setHeld(nil)
 	for _, d in ipairs(character:GetChildren()) do hook(d) end
 	character.ChildAdded:Connect(hook)
 end
 if player.Character then onCharacter(player.Character) end
 player.CharacterAdded:Connect(onCharacter)
+
+-- press: anywhere that is not a button / the move stick (processed)
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed or not heldTool or chargingSince then return end
+	local t = input.UserInputType
+	if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then return end
+	chargingSince = os.clock()
+	pressInput = input
+	bar.Visible = true
+	Remote:FireServer("Charge")
+end)
+local function release()
+	local tool = heldTool
+	if not chargingSince or not tool then return end
+	local p = power()
+	chargingSince, pressInput = nil, nil
+	bar.Visible = false
+	if tool.Parent ~= player.Character then return end
+	task.delay(SWING * 0.6, function() Sfx.play("whoosh", 0.25 + 0.3 * p) end)
+	Remote:FireServer("Throw", aimPoint(), p)
+	hideMarks()
+end
+UserInputService.InputEnded:Connect(function(input)
+	if not chargingSince then return end
+	if input == pressInput or (pressInput and input.UserInputType == pressInput.UserInputType and input.UserInputType == Enum.UserInputType.MouseButton1) then
+		release()
+	end
+end)
+
+-- the aim, the arc and the bar every frame while the ball is in hand
+RunService.RenderStepped:Connect(function()
+	local tool = heldTool
+	local character = player.Character
+	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local head = character and character:FindFirstChild("Head") :: BasePart?
+	if not tool or not root or not head then return end
+	local p = power()
+	if chargingSince then
+		barFill.Size = UDim2.fromScale(math.max(p, 0.02), 1)
+		barFill.BackgroundColor3 = if p < 0.5
+			then Color3.fromRGB(255, 220, 90):Lerp(Color3.fromRGB(255, 150, 60), p * 2)
+			else Color3.fromRGB(255, 150, 60):Lerp(HOT_COLOR, (p - 0.5) * 2)
+		barText.Text = if p >= 1 then "최대!" else string.format("힘 %d%%", math.floor(p * 100))
+	end
+	-- the arc of a throw with this power now (a soft toss while not pressed)
+	local from, velocity = BeachBallConfig.launch(root.CFrame, head.Position, aimPoint(), p)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { character :: Instance, marks }
+	local points, hit = BeachBallConfig.path(from, velocity, params, 0.05, 4)
+	local color = if chargingSince then AIM_COLOR:Lerp(HOT_COLOR, p) else AIM_COLOR
+	local n = #points
+	for i, d in ipairs(dots) do
+		-- spread over the whole arc, fading toward its end; fainter when not pressed
+		local k = (i - 1) / (DOTS - 1)
+		local at = points[math.clamp(1 + math.floor(k * (n - 1) + 0.5), 1, n)]
+		d.Position = at
+		d.Color = color
+		d.Transparency = (if chargingSince then 0.15 else 0.55) + 0.35 * k
+	end
+	if hit then
+		local up = hit.Normal
+		local side = if math.abs(up.Y) < 0.95 then up:Cross(Vector3.yAxis).Unit else Vector3.xAxis
+		-- (a cylinder's round faces are on its X axis: X along the surface's normal)
+		local cf = CFrame.fromMatrix(hit.Position + up * 0.08, up, side)
+		ring.CFrame = cf
+		ringInner.CFrame = cf * CFrame.new(0.01, 0, 0)
+		ring.Color = color
+		ring.Transparency = if chargingSince then 0.1 else 0.45
+		ringInner.Transparency = ring.Transparency
+	else
+		ring.Transparency, ringInner.Transparency = 1, 1
+	end
+end)
 
 -- ---------------------------------------------------------------------------
 -- the throwing arm (every character)
@@ -230,14 +390,6 @@ local function at(rig: Rig, pos: Vector3): CFrame
 end
 
 RunService.Heartbeat:Connect(function(dt)
-	-- this screen's power bar: yellow → orange → red, full at CHARGE_FULL
-	if chargingSince and gaugeFill then
-		local p = math.clamp((os.clock() - chargingSince) / CHARGE_FULL, 0, 1)
-		gaugeFill.Size = UDim2.fromScale(p, 1)
-		gaugeFill.BackgroundColor3 = if p < 0.5
-			then Color3.fromRGB(255, 220, 90):Lerp(Color3.fromRGB(255, 150, 60), p * 2)
-			else Color3.fromRGB(255, 150, 60):Lerp(Color3.fromRGB(255, 70, 80), (p - 0.5) * 2)
-	end
 	local now = workspace:GetServerTimeNow()
 	for character, rig in pairs(rigs) do
 		local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
