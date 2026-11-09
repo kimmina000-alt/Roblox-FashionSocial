@@ -11,7 +11,8 @@
 --      wall z 59..139, 1.2..18.8 high under a 21.3 ceiling). Measured from the
 --      store's own parts, so it does not care where the store stands.
 -- Last step of the layout chain (after oh24_door_1109). Each part runs once
--- (attributes OH24Moved1109 / OH24Fridge1109 on OH24Store).
+-- (attributes OH24Moved1109 / OH24Fridge1109 / OH24Deck1109 on OH24Store).
+--   3. the deck without its table set, at the height the user set (D-1074).
 
 local L = workspace:FindFirstChild("Hongdae_Layout")
 local S = L and L:FindFirstChild("OH24Store")
@@ -94,5 +95,28 @@ if not S:GetAttribute("OH24Fridge1109") then
 	end
 	S:SetAttribute("OH24Fridge1109", true)
 	table.insert(log, string.format("freezer z %.1f..%.1f → %.1f..%.1f, top %.1f → %.1f (%d parts)", z0, z1, Z0, Z1, y1, Y1, #parts))
+end
+
+-- 3. (D-1074, user 2026-11-09: "스튜디오에서 편의점 테이블 삭제하고 데크 높이
+-- 변경함 저장") the deck's table set gone (DeckTable, its legs, the deck stools
+-- and their legs, the deck step), the deck as the user left it: top 2.2 (1.0 over
+-- the store floor at 1.2), x -85.4..-60.4, z 59.5..89.1. Runs after the move, so
+-- these are world numbers of the store where it now stands.
+if not S:GetAttribute("OH24Deck1109") then
+	local gone = 0
+	for _, d in ipairs(S:GetChildren()) do
+		local n = d.Name
+		if n == "DeckTable" or n == "DeckTableLeg" or n == "DeckStool" or n == "StoolLeg" or n == "DeckStep" then
+			d:Destroy()
+			gone += 1
+		end
+	end
+	local deck = S:FindFirstChild("Deck")
+	if deck and deck:IsA("BasePart") then
+		deck.Size = Vector3.new(25, 1.5, 29.6)
+		deck.CFrame = CFrame.new(-72.9, 1.45, 74.3)
+	end
+	S:SetAttribute("OH24Deck1109", true)
+	table.insert(log, string.format("deck table set gone (%d parts), deck top 2.2", gone))
 end
 return table.concat(log, "\n")
