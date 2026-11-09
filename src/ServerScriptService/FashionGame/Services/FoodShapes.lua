@@ -33,6 +33,10 @@ FoodShapes.NotEdible = { Bag = true, Box = true, Label = true, Seam = true, Plat
 FoodShapes.AlongZ = { bagel = true, croissant = true, yakgwa = true, injeolmi = true }
 -- (D-1142) drinks whose level sinks sip by sip (parts with DropStuds move down by it)
 FoodShapes.Level = { iceamericano = true, hotamericano = true }
+-- (D-1147, user 2026-11-10: "딸기파르페 … 테이블에 놓고 숟가락으로 떠먹는 액션 / 허니카라멜
+-- 브레드 테이블에 놓고 포크로 찍어 먹는 액션") eaten on the table with this, a piece
+-- ("Bite<n>" of the item's "<Name>Bites" model) per tap, like a 국밥 spoonful
+FoodShapes.TableEat = { parfait = "spoon", honeybread = "fork" }
 
 local UP = CFrame.Angles(0, 0, math.rad(90)) -- a Part cylinder runs along X: this stands it up
 
@@ -477,7 +481,9 @@ local ASSET_FOODS: {[string]: {any}} = {
 	chocosnack = { "Bbabbaro", 1.0, CFrame.Angles(math.rad(-90), 0, 0) },         -- 빼쭉이
 	-- the user's own models (STL 2026-10-29, reduced to ~5,400 triangles each by
 	-- tools/art/StlTool.cs, docs/04_ART/models/*.obj; one MeshPart per colour)
-	honeybread = { "HoneyBread", 1.1 },
+	-- (D-1148, user 2026-11-10: "허니카라멜브레드 아래 그릇 잡게 아이템 더 올려") the hand
+	-- under the white plate, not in the bread (4th value: the grip that far below the middle)
+	honeybread = { "HoneyBread", 1.1, nil, 0.24 },
 	parfait = { "StrawberryParfait", 1.875 }, -- (1.5x, user 2026-10-29 (37))
 	-- cafe drinks (user 2026-10-29 (16)): the hot coffees in one take-away cup
 	-- ("Coffee Cup" by LittleWorlds, one mesh: the lightest of the look-alikes of

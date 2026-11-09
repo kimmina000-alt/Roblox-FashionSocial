@@ -1257,7 +1257,8 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 			pieceItem.sliceName = pieceName
 		end
 		-- (a 수육 slice is one bite: six bites a plate, user 2026-10-27)
-		if item.kind == "plate" then pieceItem.oneBite = true end
+		-- (D-1146, user 2026-11-10: "케이크는 한 조각 떼면 그냥 한입에 먹기") a cake slice too
+		if item.kind == "plate" or item.cake ~= nil then pieceItem.oneBite = true end
 		local pieceTool = makeTool(pieceItem, baseName .. " 한 " .. pieceWord)
 		-- (D-1103) the piece takes its part of the plate's XP (whoever eats it)
 		if economy then economy.SplitXP(plate, pieceTool, left + 1) end
@@ -1573,6 +1574,22 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 			if tool:GetAttribute("Ramen") then RamenCup.noodleColor(tool:GetAttribute("Snack")) else Color3.fromRGB(245, 215, 130))
 		local mesh = Instance.new("SpecialMesh") mesh.MeshType = Enum.MeshType.Sphere mesh.Parent = bundle
 		attach(handle, bundle, CFrame.new(0.03, 0.42, -0.02))
+	elseif FoodShapes.TableEat[item.key] == "fork" then
+		-- (D-1147) a dessert fork for the honey bread: a thin steel handle, a
+		-- flat head and four tines at +Y; the piece goes on the tines below
+		spoon.Name = "포크"
+		local STEEL = Color3.fromRGB(215, 218, 222)
+		handle = part("Handle", Vector3.new(0.06, 0.6, 0.03), STEEL, Enum.Material.Metal)
+		handle.Parent = spoon
+		attach(handle, part("Neck", Vector3.new(0.09, 0.1, 0.025), STEEL, Enum.Material.Metal), CFrame.new(0, 0.33, 0))
+		attach(handle, part("Head", Vector3.new(0.15, 0.06, 0.025), STEEL, Enum.Material.Metal), CFrame.new(0, 0.39, 0))
+		for k = 0, 3 do
+			attach(handle, part("Tine", Vector3.new(0.022, 0.16, 0.022), STEEL, Enum.Material.Metal), CFrame.new(-0.057 + k * 0.038, 0.5, 0))
+		end
+		-- (where the piece sits: speared on the tines; the "Soup" mark is only a place)
+		local at = part("Soup", Vector3.new(0.05, 0.05, 0.05), STEEL)
+		at.Transparency = 1
+		attach(handle, at, CFrame.new(0, 0.52, 0))
 	else
 		spoon.Name = "숟가락"
 		handle = part("Handle", Vector3.new(0.07, 0.75, 0.05), Color3.fromRGB(215, 218, 222), Enum.Material.Metal)
@@ -1873,6 +1890,8 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	local item = itemByKey(tool:GetAttribute("Snack"))
 	local soup = item ~= nil and (item.kind == "bowl" or item.kind == "ricebowl" or item.kind == "noodle") -- (컵라면 too: chopsticks, 2026-10-27)
 		and not tool:GetAttribute("Ramen") -- (D-1053: the user's cup ramen goes back to the hand, its own steps)
+	-- (D-1147) the parfait / honey bread pieces with a spoon / fork on the table
+	if item ~= nil and ownBowl and FoodShapes.TableEat[item.key] then soup = true end
 	-- (D-947 → D-950) no buttons on the food: SnackController finds a tap on
 	-- it (so its parts answer raycasts; they are made with CanQuery off) and
 	-- asks "Spoon" (a short tap on a 국밥 / 공깃밥 / 컵라면: one spoonful) or
@@ -1954,7 +1973,7 @@ function SnackService.BagRestore(player: Player, e: any): boolean
 		use.sliceTexture = e.tex
 		use.cakeModel = e.model
 		use.sliceName = e.slice
-		if item.kind == "plate" then use.oneBite = true end
+		if item.kind == "plate" or item.cake ~= nil then use.oneBite = true end -- (D-1146: a cake slice too)
 	end
 	local tool = makeTool(use, if typeof(e.name) == "string" then e.name else nil)
 	if e.piece then
