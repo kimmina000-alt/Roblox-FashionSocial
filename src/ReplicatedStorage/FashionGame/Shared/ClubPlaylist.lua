@@ -193,9 +193,9 @@ M.Playlist = {
 	-- length = file seconds. Each file runs about 1.1× the song: fileSpeed = song length ÷ file length
 	-- (song lengths in whole seconds, only the choreography / stage camera clock uses it: measure it,
 	-- as for Get A Guitar D-919, before adding either)
-	{ channel = "K-POP", title = "AND2BLE-French Kissing", soundId = 120866427099057, length = 177.422, fileSpeed = 1.0991,
+	{ channel = "K-POP", title = "1 AND2BLE-French Kissing", soundId = 120866427099057, length = 177.422, fileSpeed = 1.0991,
 		lab = { speed = 1, tempo = 0.91, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
-	{ channel = "K-POP", title = "RESCENE-With", soundId = 120039092597099, length = 171.659, fileSpeed = 1.101,
+	{ channel = "K-POP", title = "1 RESCENE-With", soundId = 120039092597099, length = 171.659, fileSpeed = 1.101,
 		lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	-- (D-923, user 2026-11-06: "오후 전달") 2 more from the lab, the same way as D-921 (fileSpeed = song ÷ file, approximate)
 	-- (D-924, user 2026-11-06: "오후에 전달") 3 more from the lab, the same way as D-921 (fileSpeed = song ÷ file, approximate)
@@ -422,7 +422,7 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "ALLDAY PROJECT-NO LIMIT", soundId = 79664669248816, length = 137.95, fileSpeed = 1.0511,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
-	{ channel = "K-POP", title = "RESCENE-With", soundId = 112509101263761, length = 179.843, fileSpeed = 1.0509,
+	{ channel = "K-POP", title = "2 RESCENE-With", soundId = 112509101263761, length = 179.843, fileSpeed = 1.0509,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "K-DA-FIRESTARTER", soundId = 94925181116487, length = 190.271, fileSpeed = 1.0511,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
@@ -430,7 +430,7 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "LUMIN-HIDE", soundId = 93397731217867, length = 221.449, fileSpeed = 1.0522,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
-	{ channel = "K-POP", title = "AND2BLE-French Kissing", soundId = 88604783778178, length = 185.849, fileSpeed = 1.0492,
+	{ channel = "K-POP", title = "2 AND2BLE-French Kissing", soundId = 88604783778178, length = 185.849, fileSpeed = 1.0492,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "헤이즈-빈틈을 채워 준 너에게", soundId = 79978358676881, length = 233.453, fileSpeed = 1.0495,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
