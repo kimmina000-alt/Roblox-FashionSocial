@@ -3462,3 +3462,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 모바일 2P 테스트(느린 창)에서 레모네이드 2:22 다리가 바닥에 닿는 순간 고정된 엉덩이가 한 프레임에 0.3칸 올라감(D-1062는 가장 높은 들어 올림을 바로 씀).
 - ChoreoController: freeze 동안 유지하는 들어 올림이 초당 0.4칸까지만 오름(내려가지 않음 그대로).
 - 2P 다시: P1 · P2 모두 141.3~142.8 프레임당 최대 0.007 / 0.009칸, 1.95 → 2.28로 천천히.
+
+## D-1100 업로드 곡 음색(low / mid / high) 정리: 새 값 8곡, 비교용 1·2 17곡, 2곡 삭제 (2026-11-09)
+- 사용자가 업로드 43곡의 lab 리스트를 보냄 → 비교해 보니 음원 id · tempo · boost는 모두 같고 low / mid / high만 다름(지금은 모두 -34 / -20 / -34). 사용자가 비교표 캡처에 네모로 고를 값을 표시함.
+- 새 값으로: K-DA-FIRESTARTER -5.5/-6/-31.5, 2 AND2BLE-French Kissing -5/-9.5/-29.5, 헤이즈-빈틈을 채워 준 너에게 -1.5/-10.5/-29, TAEYEON-만찬가 -4/-17/-26, Lee Mujin-Come Rest With Me -2/-14.5/-31.5, 그사람 -15.5/-7/-23, CAR, THE GARDEN-Stay -12.5/-6.5/-22, 이하이-손을 잡아줘요 -8.5/-5.5/-22.5.
+- 둘 다 네모(비교용): 원래 줄 제목 앞에 "1 "(지금 값 -34/-20/-34), 바로 아래에 같은 줄을 "2 " 제목과 새 값으로 추가(안무 · fileSpeed 등 나머지 그대로): 머무르-꿈꾸던 어른이 되었나요 -7/-18/-29, NMIXX-Birthday Wish -6.5/-10.5/-30, kennytheking-morae -9.5/-18.5/-30.5, When We're Together -8/-18/-31, 송유진-I Miss You -8.5/-16.5/-29.5, URBAN ZAKAPA-거리 -5.5/-13.5/-31, 20 Years of Age-Your Season -16.5/-17/-25, 이민혁·보라미유-사랑일지도 몰라 -15.5/-5.5/-24.5, 정승환-푸르른 계절도 내겐 의미 없어요 -8.5/-3/-24, 나는 너라서 -11/-4/-21.5, YOHAN-Song for you -9/-5/-25.5, becoming a star -14.5/-5/-20.5, Light It Up -8.5/-4.5/-22, ALLDAY PROJECT-CRASH -9.5/-3.5/-14(안무 · 무대 카메라는 1 · 2 둘 다), Runaway Lights -4/-4.5/-20.5, Small Town Ghost -4/-3/-18.5, All On Me -3/-4/-18.5.
+- 지금 값 그대로(16곡): K-DA-GIRLS, ROCK PAPER SCISSORS, ALLDAY PROJECT-NO LIMIT, 2 RESCENE-With, K-DA-NEVER GOING BACK, LUMIN-HIDE, Dam Da Dee, LUMIN-88, BIG Naughty-노스탈지아, 송하영-처음 그 자리에, Even if it's slightly off, Just Another Love Song, Lionel Richie-Can't Slow Down, Color Me Home, Secret Us, BIGBANG-BiiiG BiiiG.
+- 삭제(선 그음): Run the Night 94663574971399, Adrian Macéus-Ask You Out 76084016769694.
+- 곡 수 +17 −2. Play로 들어 보지는 않음.
