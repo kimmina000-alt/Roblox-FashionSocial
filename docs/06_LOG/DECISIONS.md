@@ -3470,3 +3470,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 지금 값 그대로(16곡): K-DA-GIRLS, ROCK PAPER SCISSORS, ALLDAY PROJECT-NO LIMIT, 2 RESCENE-With, K-DA-NEVER GOING BACK, LUMIN-HIDE, Dam Da Dee, LUMIN-88, BIG Naughty-노스탈지아, 송하영-처음 그 자리에, Even if it's slightly off, Just Another Love Song, Lionel Richie-Can't Slow Down, Color Me Home, Secret Us, BIGBANG-BiiiG BiiiG.
 - 삭제(선 그음): Run the Night 94663574971399, Adrian Macéus-Ask You Out 76084016769694.
 - 곡 수 +17 −2. Play로 들어 보지는 않음.
+
+## D-1101 1 · 2 비교 곡: 1 삭제, 2만 남기고 제목의 "2 " 삭제 (2026-11-09)
+- 사용자: "1, 2 두 개 있는 노래들 모두 1삭제하고 2만 남겨 놓고 이름 앞에 2 삭제".
+- D-1100의 비교용 17곡(머무르-꿈꾸던 어른이 되었나요, NMIXX-Birthday Wish, kennytheking-morae, When We're Together, 송유진-I Miss You, URBAN ZAKAPA-거리, 20 Years of Age-Your Season, 이민혁·보라미유-사랑일지도 몰라, 정승환-푸르른 계절도 내겐 의미 없어요, 나는 너라서, YOHAN-Song for you, becoming a star, Light It Up, ALLDAY PROJECT-CRASH, Runaway Lights, Small Town Ghost, All On Me): "1"(옛 음색 -34/-20/-34) 줄 삭제, "2"(새 음색) 줄만 남기고 제목 앞 "2 " 삭제. CRASH는 안무 20개 · 무대 카메라 그대로.
+- 예전부터 있던 1 · 2 두 쌍도 같이: AND2BLE-French Kissing(1 = 옛 업로드 120866427099057 삭제, 남는 곡 = 88604783778178), RESCENE-With(1 = 옛 업로드 120039092597099 삭제, 남는 곡 = 112509101263761). 둘 다 1에 안무 · 무대 카메라 없음.
+- 곡 수 91 → 72. Play로 들어 보지는 않음.
