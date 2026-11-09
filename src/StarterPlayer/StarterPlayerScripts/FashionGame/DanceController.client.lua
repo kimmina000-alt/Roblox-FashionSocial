@@ -1310,6 +1310,31 @@ local JoinedSongPlayer = require(FashionGame:WaitForChild("Shared"):WaitForChild
 local joinedPlayer = JoinedSongPlayer.new(script)
 for _, d in ipairs(joinedPlayer.decks) do d.group.Parent = labGroup end
 local joinedIndex = 0 -- the playlist index loaded on it (0 = none)
+-- (D-1118) live clean-up for a song with Track.clean (user 2026-11-09, a test
+-- on "2 머무르"): a low cut (EQ low band, below ~400 Hz), a voice lift (mid
+-- band) and a compressor evening the loudness, on top of the lab EQ / boosts;
+-- off for every other song. On ClubMusic and on both joined-song decks.
+local cleanFx = {}
+local function addClean(snd: Sound)
+	table.insert(cleanFx, {
+		eq = create("EqualizerSoundEffect", { Name = "CleanEQ", LowGain = 0, MidGain = 0, HighGain = 0, Enabled = false, Priority = 9 }, snd),
+		comp = create("CompressorSoundEffect", { Name = "CleanComp", Threshold = -18, Ratio = 3, Attack = 0.01, Release = 0.2, GainMakeup = 0, Enabled = false, Priority = -10 }, snd),
+	})
+end
+addClean(music)
+for _, d in ipairs(joinedPlayer.decks) do addClean(d.snd) end
+local function applyClean(track: ClubConfig.Track?)
+	local c: any = track and (track :: any).clean
+	for _, fx in ipairs(cleanFx) do
+		fx.eq.Enabled = c ~= nil
+		fx.comp.Enabled = c ~= nil
+		if c then
+			fx.eq.LowGain, fx.eq.MidGain, fx.eq.HighGain = c.low or 0, c.mid or 0, c.high or 0
+			fx.comp.Threshold, fx.comp.Ratio = c.threshold or -18, c.ratio or 3
+			fx.comp.Attack, fx.comp.Release, fx.comp.GainMakeup = c.attack or 0.01, c.release or 0.2, c.makeup or 0
+		end
+	end
+end
 -- the track's lab values with the DJ's speed and pitch on top
 local function joinedLab(track: ClubConfig.Track): any
 	local lab: any = track.lab or { speed = 1, tempo = 1, volume = 10, boost = 1, octave = 1, low = 0, mid = 0, high = 0 }
@@ -1394,6 +1419,7 @@ do
 																																				
 		labEq.LowGain, labEq.MidGain, labEq.HighGain = if lab then lab.low else 0, if lab then lab.mid else 0, if lab then lab.high else 0
 		labEq.Enabled = lab ~= nil and (lab.low ~= 0 or lab.mid ~= 0 or lab.high ~= 0)
+		applyClean(track) -- (D-1118)
 	end
 	FashionGame:GetAttributeChangedSignal("ClubMusicPitch"):Connect(syncPitch)
 	FashionGame:GetAttributeChangedSignal("ClubTrack"):Connect(syncPitch)

@@ -3560,7 +3560,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 검토 의견 중 "Journey 분석"은 AnalyticsService에 따로 있는 API를 찾지 못해 사용자 정의 이벤트(FirstAction)로 대신함. 사진관 순서는 실제 코드 흐름대로(입장 → 촬영 → 컷·프레임 고름 → 저장). wallet.welcome은 이제 선물이 없어도 "와 본 적 있음"으로 씀(FirstVisit 속성).
 - 정리: docs/01_SYSTEMS/ANALYTICS.md. Play(Studio 출력): PlaceEnter OH24 · 클럽, Economy Sink Snack_OH24_samgak / Drink_cider, Interact Buy / Eat / Dance, ClubVisit 1 → 2, ClubShop 1 → 2 → 3. 처음 온 사람 쪽(온보딩, FirstAction)과 사진관 퍼널은 Studio 계정이 재방문이라 실제 게임에서 확인.
 ## D-1123 편의점 카운터 뒤 진열장 그림 (2026-11-10)
-- 사용자: "편의점 카운터 뒤에 파트에도 진열장 같은 이미지 넣어". 담배 대신(D-311) 직접 그린 진열장: 사탕 · 껌 상자, 초콜릿, 사탕 병, 젤리 · 과자 봉지, 걸어 둔 충전기 · 건전지 · 이어폰 · 상품권 카드, 선반 조명 · 가격표, 위에 OH24 색 간판 두 개(tools/art/oh24_counter_shelf.py → docs/04_ART/textures/props/oh24_shelf_counter.png, 88807195595964). Workspace.front 앞면에 한 장(2:1). oh24_store_1109.lua 7번에 넣음. Studio 적용, 스샷 확인. (D-1122는 노래 세션도 썼음: feat/murmur-clean-1109.)
+- 사용자: "편의점 카운터 뒤에 파트에도 진열장 같은 이미지 넣어". 담배 대신(D-311) 직접 그린 진열장: 사탕 · 껌 상자, 초콜릿, 사탕 병, 젤리 · 과자 봉지, 걸어 둔 충전기 · 건전지 · 이어폰 · 상품권 카드, 선반 조명 · 가격표, 위에 OH24 색 간판 두 개(tools/art/oh24_counter_shelf.py → docs/04_ART/textures/props/oh24_shelf_counter.png, 88807195595964). Workspace.front 앞면에 한 장(2:1). oh24_store_1109.lua 7번에 넣음. Studio 적용, 스샷 확인. (노래 세션의 같은 번호는 머지 때 D-1128로 바꿈.)
 ## D-1122 가방 카드 테두리 안 잘리게 (2026-11-09)
 - 사용자(폰 스샷): "가방도 선 씹힘 깔끔하게 수정". InventoryController scroller(소지품 · 사진 목록)에 UIPadding 위 · 왼쪽 · 아래 3, 오른쪽 8(스크롤바). 스샷 확인.
 - 같이 물어봄: "로블록스 스타일에 있는 거 게임 속에서 불러올 수 있어?" → 앱의 스타일 탐색(Looks)은 엔진 / Open Cloud 지원이 없음(로그인 쿠키가 필요한 비공식 웹 API뿐이라 쓰지 않음). 대신 그 안의 아이템은 카탈로그 검색으로 하나씩, 또는 우리가 고른 추천 코디 세트를 만들 수 있다고 답함.
@@ -3656,3 +3656,36 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 2:18: 17번(132337331292488)은 같은 앉은 자세로 시작, `spin fromPrev` 0~0.8초 dir -1로 16번 방향에서 자기 방향(-38°)으로 돌며 누움(최대 589°/s).
 - 2:19~2:20: 17번 UpperTorso `bend` z +45°(0.45~3.0) → 오른팔로 짚고 상체 세움(가슴 위 0.18 → 0.82).
 - Play: 앉기 관절 프레임당 최대 6.7°, 화면 확인(images/2026-11-10).
+
+## D-1100 업로드 곡 음색(low / mid / high) 정리: 새 값 8곡, 비교용 1·2 17곡, 2곡 삭제 (2026-11-09)
+- 사용자가 업로드 43곡의 lab 리스트를 보냄 → 비교해 보니 음원 id · tempo · boost는 모두 같고 low / mid / high만 다름(지금은 모두 -34 / -20 / -34). 사용자가 비교표 캡처에 네모로 고를 값을 표시함.
+- 새 값으로: K-DA-FIRESTARTER -5.5/-6/-31.5, 2 AND2BLE-French Kissing -5/-9.5/-29.5, 헤이즈-빈틈을 채워 준 너에게 -1.5/-10.5/-29, TAEYEON-만찬가 -4/-17/-26, Lee Mujin-Come Rest With Me -2/-14.5/-31.5, 그사람 -15.5/-7/-23, CAR, THE GARDEN-Stay -12.5/-6.5/-22, 이하이-손을 잡아줘요 -8.5/-5.5/-22.5.
+- 둘 다 네모(비교용): 원래 줄 제목 앞에 "1 "(지금 값 -34/-20/-34), 바로 아래에 같은 줄을 "2 " 제목과 새 값으로 추가(안무 · fileSpeed 등 나머지 그대로): 머무르-꿈꾸던 어른이 되었나요 -7/-18/-29, NMIXX-Birthday Wish -6.5/-10.5/-30, kennytheking-morae -9.5/-18.5/-30.5, When We're Together -8/-18/-31, 송유진-I Miss You -8.5/-16.5/-29.5, URBAN ZAKAPA-거리 -5.5/-13.5/-31, 20 Years of Age-Your Season -16.5/-17/-25, 이민혁·보라미유-사랑일지도 몰라 -15.5/-5.5/-24.5, 정승환-푸르른 계절도 내겐 의미 없어요 -8.5/-3/-24, 나는 너라서 -11/-4/-21.5, YOHAN-Song for you -9/-5/-25.5, becoming a star -14.5/-5/-20.5, Light It Up -8.5/-4.5/-22, ALLDAY PROJECT-CRASH -9.5/-3.5/-14(안무 · 무대 카메라는 1 · 2 둘 다), Runaway Lights -4/-4.5/-20.5, Small Town Ghost -4/-3/-18.5, All On Me -3/-4/-18.5.
+- 지금 값 그대로(16곡): K-DA-GIRLS, ROCK PAPER SCISSORS, ALLDAY PROJECT-NO LIMIT, 2 RESCENE-With, K-DA-NEVER GOING BACK, LUMIN-HIDE, Dam Da Dee, LUMIN-88, BIG Naughty-노스탈지아, 송하영-처음 그 자리에, Even if it's slightly off, Just Another Love Song, Lionel Richie-Can't Slow Down, Color Me Home, Secret Us, BIGBANG-BiiiG BiiiG.
+- 삭제(선 그음): Run the Night 94663574971399, Adrian Macéus-Ask You Out 76084016769694.
+- 곡 수 +17 −2. Play로 들어 보지는 않음.
+
+## D-1127 1 · 2 비교 곡: 1 삭제, 2만 남기고 제목의 "2 " 삭제 (2026-11-09)
+- (번호: 노래 세션에서 D-1101 / D-1122로 썼으나 OH24 세션 것과 겹쳐 머지 때 D-1127 / D-1128로 바꿈)
+- 사용자: "1, 2 두 개 있는 노래들 모두 1삭제하고 2만 남겨 놓고 이름 앞에 2 삭제".
+- D-1100의 비교용 17곡(머무르-꿈꾸던 어른이 되었나요, NMIXX-Birthday Wish, kennytheking-morae, When We're Together, 송유진-I Miss You, URBAN ZAKAPA-거리, 20 Years of Age-Your Season, 이민혁·보라미유-사랑일지도 몰라, 정승환-푸르른 계절도 내겐 의미 없어요, 나는 너라서, YOHAN-Song for you, becoming a star, Light It Up, ALLDAY PROJECT-CRASH, Runaway Lights, Small Town Ghost, All On Me): "1"(옛 음색 -34/-20/-34) 줄 삭제, "2"(새 음색) 줄만 남기고 제목 앞 "2 " 삭제. CRASH는 안무 20개 · 무대 카메라 그대로.
+- 예전부터 있던 1 · 2 두 쌍도 같이: AND2BLE-French Kissing(1 = 옛 업로드 120866427099057 삭제, 남는 곡 = 88604783778178), RESCENE-With(1 = 옛 업로드 120039092597099 삭제, 남는 곡 = 112509101263761). 둘 다 1에 안무 · 무대 카메라 없음.
+- 곡 수 91 → 72. Play로 들어 보지는 않음.
+
+## D-1118 "2 머무르": 게임 안 실시간 음질 보정 3가지 비교용 곡 (2026-11-09)
+- 사용자: "게임 안 실시간 3가지로 머무르 음원 아이디랑 설정값으로 2 붙여서 비교할 수 있게 머무르 노래에만 적용해 봐". (노이즈 감소 · WAV 저장은 게임 안에서 안 돼서 빼고, 저음 컷 · 목소리 EQ · 음량 보정 3가지.)
+- 머무르-꿈꾸던 어른이 되었나요 바로 아래에 "2 머무르-꿈꾸던 어른이 되었나요"(같은 음원 95913746283492, 같은 lab) + `clean = { low = -4, mid = 3, high = 0, threshold = -18, ratio = 3, attack = 0.01, release = 0.2, makeup = 3 }`.
+- DanceController: ClubMusic과 조인 곡 덱 두 개에 CleanEQ(EqualizerSoundEffect, Priority 9, LabEQ 다음) + CleanComp(CompressorSoundEffect, Priority -10, 맨 끝). 지금 곡에 `clean`이 있을 때만 켜고, 다른 곡이면 끔(syncPitch → applyClean).
+- 저음 컷: 이 효과에는 진짜 고역 필터도 MidRange도 없음(MidRange는 EqualizerSoundEffect에 없는 속성) → 고정 low 밴드(약 400 Hz 아래) -4 dB. 목소리: mid 밴드 +3 dB.
+- Play에서 PlaybackLoudness로 잼: EQ만 켜면 -2.9 dB → makeup 3 dB로 원곡과 맞춤(곡 처음 부분에서 보정 켬/끔 비교 -0.6 dB). 압축기는 이 곡 신호에서 거의 반응하지 않음(Threshold -18 ~ -80, Ratio 3 ~ 40에서도 평균 차이 1 dB 안쪽: LabEQ가 먼저 크게 깎아서 압축기에 들어가는 소리가 작음) → 사실상 makeup으로 음량만 맞춰 주는 상태. 귀로 들어 보고 필요하면 값을 조정.
+- 귀로 들어 보지는 않음.
+
+## D-1128 음색 변경 4곡 + "2 머무르" 삭제 (2026-11-09)
+- 사용자: "저음 중음 고음 부스트2 순서 / 캐치캐치 -19.5 0 -10 부스트2 x2 / 소원을 말해봐 -28 -13.5 -4 부스트2 x2 / 레모네이드 -21 -0 -0.5 부스트2 x2 / 겟어기타 -3 -6.5 -28 / 머무르 2로 넣은 곡 삭제". "부스트2 x2" = boost2 2 (사용자 확인, 10 → 2).
+- YENA-Catch Catch low -19.5 / mid 0 / high -10, boost2 2 (전: -40/-25/-40, boost2 10).
+- 소녀시대-소원을 말해봐(Genie) -28 / -13.5 / -4, boost2 2 (전: -40/-25/-40, boost2 10).
+- aespa-Lemonade -21 / 0 / -0.5, boost2 2 (전: -40/-25/-40, boost2 10).
+- RIIZE-Get A Guitar -3 / -6.5 / -28 (전: -34/-20/-34), boost는 그대로.
+- D-1118의 "2 머무르-꿈꾸던 어른이 되었나요" 곡 삭제(원곡 머무르는 그대로). Track.clean 코드(DanceController applyClean)는 남겨 둠: clean 있는 곡이 없으면 효과는 계속 꺼져 있음.
+- Play로 들어 보지는 않음.
+- (2026-11-10) 사용자: "겟어기타, 레모네이드 수정 전으로 복구" → RIIZE-Get A Guitar -34/-20/-34, aespa-Lemonade -40/-25/-40 boost2 10으로 되돌림. 남은 변경: Catch Catch, 소원을 말해봐.
