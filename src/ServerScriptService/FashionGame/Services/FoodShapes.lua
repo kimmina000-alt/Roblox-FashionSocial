@@ -489,7 +489,9 @@ local ASSET_FOODS: {[string]: {any}} = {
 	-- (FoodShapes.Level: the hot one's surface "Coffee" goes down into the mug; the
 	-- iced one's coffee gets lower, its "Ice" goes down with it)
 	iceamericano = { "AmericanoIce", 0.95 },
-	hotamericano = { "AmericanoHot", 0.85 },
+	-- (D-1143, user: "엄지 잡는 위치 고치고") the hand on the mug's handle (-X), the cup
+	-- turned out to the front so no finger goes into it
+	hotamericano = { "AmericanoHot", 0.85, nil, nil, CFrame.new(-0.36, 0, 0) * CFrame.Angles(0, math.pi, 0) },
 	latte = { "CoffeeCupToGo", 0.85 },
 	caramel = { "CoffeeCupToGo", 0.85 },
 	cappuccino = { "CoffeeCupToGo", 0.85 },
@@ -566,6 +568,8 @@ local function fromAsset(item: any): (Part?, CFrame?, boolean?)
 	h.CFrame = CFrame.new()
 	-- (D-1129) held low on the stick
 	local low = if typeof(spec[4]) == "number" then -(spec[4] :: number) * (spec[2] :: number) else 0
+	-- (D-1143) 5th value: a grip of its own (the mug held by its handle)
+	if typeof(spec[5]) == "CFrame" then return h, spec[5], bitesSrc ~= nil end
 	return h, CFrame.new(0, low, 0), bitesSrc ~= nil
 end
 

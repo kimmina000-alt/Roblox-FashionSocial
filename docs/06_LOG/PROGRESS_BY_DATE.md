@@ -790,3 +790,4 @@
 - 플레이어 반응 기록 문서 `docs/00_PROJECT/PLAYER_FEEDBACK.md` (11-08 "힐링된다" · 오후네컷, 11-09 클럽 최신곡 · 안무 / 오후네컷) + 개선 후보.
 - 사용자 "머지해": feat/oh24-snacks-1110(D-1129..D-1141) + docs/player-feedback-1110을 catalog-ui-redesign에 머지.
 - 카페 아메리카노 HOT · ICE 사용자 모델로 추가, 마실 때 커피 높이가 내려감 (D-1142).
+- 핫 아메리카노 머그를 손잡이로 잡기 (D-1143). 사용자 "머지해": feat/americano-1110 → catalog-ui-redesign.

@@ -3778,3 +3778,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 모델: ServerStorage.ArtAssets.Foods.AmericanoHot (Plate = 머그, Soup/Coffee = 크레마 표면, DropStuds 0.66), AmericanoIce (Plate = 유리잔 투명 0.6, Soup/Coffee = 커피, Soup/Ice = 얼음, DropStuds 1.7). 원본은 Foods._Imports_cafe_1110 (place 전용, Ctrl+S 필요).
 - 코드: FoodShapes iceamericano / hotamericano + FoodShapes.Level (마실 때 Soup 부분만 DropStuds × 크기만큼 내려감, 잔은 그대로), SnackService COFFEE에 hotamericano, SnackConfig CAFE_ITEMS 에 "아메리카노 (HOT)" 5코인 추가 (아이스 아메리카노는 기존 항목이 새 모델을 씀).
 - Play 확인: 두 잔 구매, 손에 듦, 3모금에 다 마심, 모금마다 커피 높이가 내려감. 위에서 보면 엄지가 머그 안쪽에 살짝 걸침 (정면에서는 안 보임).
+## D-1143 핫 아메리카노 머그는 손잡이를 잡기 (2026-11-10)
+- 사용자: "엄지 잡는 위치 고치고 머지해". 머그 한가운데를 잡아 위에서 보면 엄지가 잔 안에 들어갔음.
+- FoodShapes ASSET_FOODS 5번째 값 = 아이템 전용 Grip. hotamericano = CFrame.new(-0.36, 0, 0) * 180° (손이 -X 쪽 손잡이를 잡고 잔은 바깥쪽). Play에서 90° / -90° / 180° 비교 후 180° 선택, 마시는 동작도 확인.
