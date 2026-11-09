@@ -3772,3 +3772,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 원인: 해변 카페의 둥근 테이블은 X축으로 서 있는 원기둥(두께 0.38, 지름 4.9). 놓기 판정(SnackController · SnackService)이 부품의 Y면을 윗면으로 보고 X 방향 반폭(0.19)과 비교해서, 이 테이블에서는 케이크뿐 아니라 모든 음식이 늘 빨강 / "가장자리".
 - 고침: SnackConfig.onTable(테이블, 점, 반지름): 위를 향한 축을 윗면으로, 서 있는 원기둥은 원으로 재고, 윗면의 점을 돌려줌. 클라이언트 실루엣과 서버(케이크 접시 · 음식 둘 다) 같은 판정.
 - Play: 해변 카페 둥근 테이블 한가운데 — 예전 판정 false, 새 판정 true, 케이크 PutDown → 테이블에 SharedPlate.
+
+## D-1142 카페 아메리카노 HOT · ICE (2026-11-10)
+- 사용자: "카페에 아메리카노 핫이랑 아이스로 올려 봐 / Plate Bite 구분해 놨어" (D:\Roblox\오후\3D 물\CAFE_AMERICANO.glb, CAFE_AMERICANO_ice.glb).
+- 모델: ServerStorage.ArtAssets.Foods.AmericanoHot (Plate = 머그, Soup/Coffee = 크레마 표면, DropStuds 0.66), AmericanoIce (Plate = 유리잔 투명 0.6, Soup/Coffee = 커피, Soup/Ice = 얼음, DropStuds 1.7). 원본은 Foods._Imports_cafe_1110 (place 전용, Ctrl+S 필요).
+- 코드: FoodShapes iceamericano / hotamericano + FoodShapes.Level (마실 때 Soup 부분만 DropStuds × 크기만큼 내려감, 잔은 그대로), SnackService COFFEE에 hotamericano, SnackConfig CAFE_ITEMS 에 "아메리카노 (HOT)" 5코인 추가 (아이스 아메리카노는 기존 항목이 새 모델을 씀).
+- Play 확인: 두 잔 구매, 손에 듦, 3모금에 다 마심, 모금마다 커피 높이가 내려감. 위에서 보면 엄지가 머그 안쪽에 살짝 걸침 (정면에서는 안 보임).

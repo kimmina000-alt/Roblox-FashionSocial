@@ -167,7 +167,7 @@ end
 -- (was 9119949556 "Tea Cup Up And Down 10"); (user 2026-10-30, later) the
 -- Creator Store "Water Gulp/Drink Sound" (1481574895, 1.6 s), was 77555451916623
 local COFFEE_SIP = 1481574895
-local COFFEE = { iceamericano = true, latte = true, caramel = true, cappuccino = true, water = true }
+local COFFEE = { iceamericano = true, hotamericano = true, latte = true, caramel = true, cappuccino = true, water = true }
 local QUIET = { bagel = true, saltbread = true } -- their bite at half volume
 -- (D-909, user 2026-11-05: "돼지국밥 먹는 소리 2배로 키워") 0.7 → 1.4
 -- (D-952, user 2026-11-07: "국밥 먹는 소리 3배로 키워") the three 국밥 at 3×
@@ -927,6 +927,24 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	scaleTool(tool, handle, k) -- (D-950)
 	if tool:GetAttribute("Ramen") then RamenCup.scaled(handle, k) end
 	markEdible(tool, handle)
+	-- (D-1142) the americanos (eatMode "Level"): parts with DropStuds sink by it over
+	-- the sips; a cup whose only drink part is a flat surface gets its range from it
+	if eatMode == "Level" then
+		local top, drop = nil :: number?, 0
+		for _, p in ipairs(handle:GetChildren()) do
+			local d = p:GetAttribute("DropStuds")
+			if typeof(d) == "number" and p:IsA("BasePart") then
+				p:SetAttribute("EatDrop", d * k)
+				local y1 = p:GetAttribute("EatY1")
+				if typeof(y1) == "number" then top = math.max(top or -math.huge, y1) drop = math.max(drop, d * k) end
+			end
+		end
+		local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
+		if top and (typeof(lo) ~= "number" or typeof(hi) ~= "number" or (hi :: number) - (lo :: number) < 0.05) then
+			tool:SetAttribute("EatLo", top - drop)
+			tool:SetAttribute("EatHi", top)
+		end
+	end
 	-- soup and noodles: the surface sinks a third of the bowl per bite
 	local surface = (kind == "bowl" or kind == "ricebowl" or kind == "noodle") and handle:FindFirstChild("Fill")
 	if surface then surface:SetAttribute("EatDrop", (if kind == "noodle" then 0.5 else 0.3) * k) end

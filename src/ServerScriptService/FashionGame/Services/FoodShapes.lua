@@ -31,6 +31,8 @@ local FoodShapes = {}
 FoodShapes.NotEdible = { Bag = true, Box = true, Label = true, Seam = true, Plate = true, Lid = true, Wrap = true, Stick = true }
 -- breads are bitten from the front end (user 2026-10-26); the rest top-down
 FoodShapes.AlongZ = { bagel = true, croissant = true, yakgwa = true, injeolmi = true }
+-- (D-1142) drinks whose level sinks sip by sip (parts with DropStuds move down by it)
+FoodShapes.Level = { iceamericano = true, hotamericano = true }
 
 local UP = CFrame.Angles(0, 0, math.rad(90)) -- a Part cylinder runs along X: this stands it up
 
@@ -481,7 +483,13 @@ local ASSET_FOODS: {[string]: {any}} = {
 	-- ("Coffee Cup" by LittleWorlds, one mesh: the lightest of the look-alikes of
 	-- the user's pick), the cold drinks in one iced glass ("LIMEONADE" by
 	-- R0bbie44321, the user's pick); its "Liquid" parts take the drink colour
-	iceamericano = { "CoffeeCupToGo", 0.85 },
+	-- (D-1142, user 2026-11-10: "카페에 아메리카노 핫이랑 아이스로 올려 봐 / Plate Bite 구분해
+	-- 놨어") the user's americanos (CAFE_AMERICANO(_ice).glb → Foods.AmericanoHot /
+	-- AmericanoIce): the cup "Plate" stays, the coffee level sinks a step a sip
+	-- (FoodShapes.Level: the hot one's surface "Coffee" goes down into the mug; the
+	-- iced one's coffee gets lower, its "Ice" goes down with it)
+	iceamericano = { "AmericanoIce", 0.95 },
+	hotamericano = { "AmericanoHot", 0.85 },
 	latte = { "CoffeeCupToGo", 0.85 },
 	caramel = { "CoffeeCupToGo", 0.85 },
 	cappuccino = { "CoffeeCupToGo", 0.85 },
@@ -518,7 +526,13 @@ local function fromAsset(item: any): (Part?, CFrame?, boolean?)
 	if m:IsA("Model") then holder = m else m.Parent = holder end
 	if spec[3] then holder:PivotTo(holder:GetPivot() * spec[3]) end -- (turned to how it is held)
 	local _, size = holder:GetBoundingBox()
-	holder:ScaleTo(holder:GetScale() * (spec[2] :: number) / math.max(size.X, size.Y, size.Z))
+	local fit = (spec[2] :: number) / math.max(size.X, size.Y, size.Z)
+	holder:ScaleTo(holder:GetScale() * fit)
+	-- (D-1142) how far a sinking part goes, in the model's own units: scaled the same
+	for _, p in ipairs(holder:GetDescendants()) do
+		local d = p:GetAttribute("DropStuds")
+		if typeof(d) == "number" then p:SetAttribute("DropStuds", d * fit) end
+	end
 	local cf = holder:GetBoundingBox()
 	local h = newHandle(Vector3.new(0.3, 0.3, 0.3))
 	h.CFrame = CFrame.new(cf.Position)
@@ -628,7 +642,7 @@ function FoodShapes.build(item: any): (Part?, CFrame?, string?)
 	end
 	if ASSET_FOODS[item.key] then
 		local h, grip, bites = fromAsset(item)
-		if h then return h, grip, if bites then "Bites" elseif item.kind == "noodle" then "Ramen" else "Scale" end -- (falls back to the part model when the asset is missing)
+		if h then return h, grip, if bites then "Bites" elseif item.kind == "noodle" then "Ramen" elseif FoodShapes.Level[item.key] then "Level" else "Scale" end -- (falls back to the part model when the asset is missing)
 	end
 	local builder = builderFor(item)
 	if not builder then return nil, nil, nil end

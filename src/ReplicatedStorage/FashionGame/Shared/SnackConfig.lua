@@ -47,6 +47,9 @@ local FREE, T1, T2, T3, RB = "무료", "💰 5", "💰 10", "💰 20", "Robux ·
 local CAFE_ITEMS: {Item} = {
 	{ key = "water", name = "물", kind = "cup", color = Color3.fromRGB(205, 230, 245), section = FREE },
 	{ key = "iceamericano", name = "아이스 아메리카노", kind = "cup", color = Color3.fromRGB(70, 40, 25), coins = 5, section = T1 }, -- (free until D-746)
+	-- (D-1142, user 2026-11-10: "카페에 아메리카노 핫이랑 아이스로 올려 봐") the hot one too, the
+	-- same price; both are the user's own models (FoodShapes)
+	{ key = "hotamericano", name = "아메리카노 (HOT)", kind = "cup", color = Color3.fromRGB(70, 40, 25), coins = 5, section = T1 },
 	{ key = "latte", name = "카페라테", kind = "cup", color = Color3.fromRGB(210, 175, 135), coins = 10, section = T2 },
 	{ key = "caramel", name = "카라멜 마끼아또", kind = "cup", color = Color3.fromRGB(200, 140, 80), coins = 10, section = T2 },
 	{ key = "cappuccino", name = "카푸치노", kind = "cup", color = Color3.fromRGB(190, 150, 115), coins = 10, section = T2 },
