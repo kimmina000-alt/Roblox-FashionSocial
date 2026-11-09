@@ -9,6 +9,7 @@
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local UserInputService = game:GetService("UserInputService")
 
 local player = Players.LocalPlayer
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
@@ -16,6 +17,7 @@ local Popups = require(script.Parent:WaitForChild("Popups"))
 local BagSignals = require(script.Parent:WaitForChild("BagSignals"))
 local PhotoFlowUI = require(script.Parent:WaitForChild("PhotoFlowUI"))
 local PhotoRender = require(script.Parent:WaitForChild("PhotoRender"))
+local Hotbar = require(script.Parent:WaitForChild("Hotbar")) -- (D-1130: the bar at the bottom, drag in / out)
 local PhotoConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("PhotoConfig"))
 local boothRemote = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Remotes"):WaitForChild("PhotoBooth") :: RemoteFunction
 
@@ -93,7 +95,7 @@ local hint = Instance.new("TextLabel")
 hint.Position = UDim2.fromOffset(16, 76)
 hint.Size = UDim2.new(1, -32, 0, 18)
 hint.BackgroundTransparency = 1
-hint.Text = "누르면 손에 들어요 · 든 것을 다시 누르면 넣어요"
+hint.Text = "누르면 손에 들어요 · 아래 칸으로 끌어 꺼내고, 아래 칸에서 끌어 넣어요"
 hint.TextColor3 = Color3.fromRGB(190, 190, 205)
 hint.TextSize = 13
 hint.Font = Enum.Font.GothamMedium
@@ -142,6 +144,19 @@ local function scroller(cell: Vector2): ScrollingFrame
 	return list
 end
 local list = scroller(Vector2.new(88, 100))
+-- (D-1130, user 2026-11-10: "한 화면에 아이템 4열?로 보이도록 모바일에서 폰 기종에 따라
+-- 사이즈 달라져도 4개가 균일하게 정렬돼서 보이도록 퍼센트로 사이즈 결정. pc에서는 8개로")
+-- the item cards: 4 a row on phones, 8 on PC, each a share of the width (the
+-- height follows by a fixed ratio); no limit on how many, the list scrolls
+local PHONE = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+local COLS = if PHONE then 4 else 8
+do
+	local grid = list:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
+	grid.CellSize = UDim2.new(1 / COLS, -8, 0, 100)
+	local ratio = Instance.new("UIAspectRatioConstraint")
+	ratio.AspectRatio = 88 / 100
+	ratio.Parent = grid
+end
 local photoList = scroller(Vector2.new(88, 190))
 
 local empty = Instance.new("TextLabel")
@@ -156,16 +171,8 @@ empty.Font = Enum.Font.GothamMedium
 empty.Visible = false
 empty.Parent = panel
 
--- the leading emoji of a tool name ("🎇 스파클러") as its picture
-local function split(name: string): (string, string)
-	local first, rest = string.match(name, "^(%S+)%s+(.+)$")
-	-- (emoji start with byte F0 (🎇) or E2 (✨); Hangul is EA..ED)
-	local b = first and string.byte(first, 1) or 0
-	if first and (b >= 0xF0 or b == 0xE2) and utf8.len(first) and (utf8.len(first) :: number) <= 3 then
-		return first, rest :: string
-	end
-	return "🎁", name
-end
+-- the leading emoji of a tool name ("🎇 스파클러") as its picture (Hotbar.split since D-1130)
+local split = Hotbar.split
 
 local function tools(): {Tool}
 	local out = {}
@@ -204,62 +211,11 @@ local function refreshItems()
 		s.Thickness = if held then 2 else 1
 		s.Parent = cell
 		local icon, name = split(tool.Name)
-		-- the item itself in a little 3D window (its parts, nothing that runs)
-		local look = Instance.new("Model")
-		for _, d in ipairs(tool:GetChildren()) do
-			if d:IsA("BasePart") or d:IsA("Model") then
-				local c = d:Clone()
-				for _, x in ipairs(c:GetDescendants()) do
-					if x:IsA("LuaSourceContainer") or x:IsA("Sound") or x:IsA("ParticleEmitter") or x:IsA("Light")
-						or x:IsA("JointInstance") or x:IsA("WeldConstraint") or x:IsA("GuiBase") then x:Destroy() end
-				end
-				c.Parent = look
-			end
-		end
-		local visible = false
-		for _, p in ipairs(look:GetDescendants()) do
-			if p:IsA("BasePart") and p.Transparency < 0.95 then visible = true end
-		end
-		if tool.TextureId == "" and visible then
-			local vp = Instance.new("ViewportFrame")
-			vp.Position = UDim2.fromOffset(14, 4)
-			vp.Size = UDim2.fromOffset(60, 60)
-			vp.BackgroundTransparency = 1
-			vp.Ambient = Color3.fromRGB(190, 190, 205)
-			vp.LightDirection = Vector3.new(-0.4, -0.6, -1)
-			vp.Parent = cell
-			local world = Instance.new("WorldModel")
-			world.Parent = vp
-			look.Parent = world
-			local cf, sz = look:GetBoundingBox()
-			local cam = Instance.new("Camera")
-			cam.FieldOfView = 30
-			local dist = math.max(sz.X, sz.Y, sz.Z) / 2 / math.tan(math.rad(15)) * 1.15
-			cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(dist * 0.3, dist * 0.25, -dist), cf.Position)
-			cam.Parent = vp
-			vp.CurrentCamera = cam
-		elseif tool.TextureId ~= "" then
-			local img = Instance.new("ImageLabel")
-			img.Position = UDim2.fromOffset(16, 6)
-			img.Size = UDim2.fromOffset(56, 56)
-			img.BackgroundTransparency = 1
-			img.Image = tool.TextureId
-			img.ScaleType = Enum.ScaleType.Fit
-			img.Parent = cell
-		else
-			local e = Instance.new("TextLabel")
-			e.Position = UDim2.fromOffset(16, 8)
-			e.Size = UDim2.fromOffset(56, 50)
-			e.BackgroundTransparency = 1
-			e.Text = icon
-			e.TextScaled = true
-			e.Font = Enum.Font.GothamBold
-			e.Parent = cell
-		end
+		Hotbar.look(tool, cell, icon, UDim2.fromScale(0.66, 0.6), UDim2.fromScale(0.5, 0.04)) -- (D-1130: in scale)
 		local count = tool:GetAttribute("Count")
 		local l = Instance.new("TextLabel")
-		l.Position = UDim2.fromOffset(4, 64)
-		l.Size = UDim2.new(1, -8, 0, 30)
+		l.Position = UDim2.fromScale(0.05, 0.64)
+		l.Size = UDim2.fromScale(0.9, 0.3)
 		l.BackgroundTransparency = 1
 		l.Text = name .. (if typeof(count) == "number" and count > 1 then (" ×" .. count) else "")
 		l.TextColor3 = Color3.new(1, 1, 1)
@@ -268,7 +224,21 @@ local function refreshItems()
 		l.Font = Enum.Font.GothamMedium
 		l.Parent = cell
 		Instance.new("UITextSizeConstraint", l).MaxTextSize = 13
-		cell.MouseButton1Click:Connect(function()
+		-- (D-1130) its slot in the bar at the bottom, if it has one
+		local slotNo = Hotbar.indexOf(tool)
+		if slotNo then
+			local k = Instance.new("TextLabel")
+			k.Position = UDim2.fromOffset(5, 3)
+			k.Size = UDim2.fromOffset(14, 14)
+			k.BackgroundTransparency = 1
+			k.Text = tostring(slotNo)
+			k.TextColor3 = Color3.fromRGB(200, 200, 215)
+			k.TextSize = 11
+			k.Font = Enum.Font.GothamBold
+			k.Parent = cell
+		end
+		-- tap = hold it / put it away; drag onto the bar at the bottom = into that slot
+		Hotbar.pressable(cell, function() return tool end, function()
 			local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 			if not humanoid then return end
 			if tool.Parent == player.Character then
@@ -336,7 +306,7 @@ local function showTab(which: string)
 		local gate = boothRemote.Parent and boothRemote.Parent:FindFirstChild("AnalyticsStep")
 		if gate and gate:IsA("RemoteEvent") then gate:FireServer("AlbumOpen") end
 	else
-		hint.Text = "누르면 손에 들어요 · 든 것을 다시 누르면 넣어요"
+		hint.Text = "누르면 손에 들어요 · 아래 칸으로 끌어 꺼내고, 아래 칸에서 끌어 넣어요"
 		refreshItems()
 	end
 end
@@ -344,13 +314,23 @@ end
 local function refresh()
 	if panel.Visible and tab == "items" then refreshItems() end
 end
+-- (D-1130) a slot of the bar dropped on the open bag: into the bag, out of the bar
+Hotbar.addZone(panel, function(tool: Tool): boolean
+	if not panel.Visible then return false end
+	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+	if humanoid and tool.Parent == player.Character then humanoid:UnequipTools() end
+	Hotbar.stow(tool)
+	return true
+end)
+Hotbar.changed.Event:Connect(function() task.defer(refresh) end)
 
 local function setOpen(open: boolean, which: string?)
 	panel.Visible = open
 	if open then
 		local vp = if workspace.CurrentCamera then workspace.CurrentCamera.ViewportSize else Vector2.new(1000, 700)
 		panel.Position = UDim2.new(0.5, 0, 0, TopBar.bottom() + 8)
-		panel.Size = UDim2.fromOffset(math.min(408, vp.X - 24), math.min(400, vp.Y - TopBar.bottom() - 20))
+		-- (D-1130: wider on PC for its 8 a row; room left below for the bar)
+		panel.Size = UDim2.fromOffset(math.min(if PHONE then 408 else 760, vp.X - 24), math.min(400, vp.Y - TopBar.bottom() - 20 - (if PHONE then 70 else 76)))
 		Popups.opened("Bag", function() panel.Visible = false end)
 		showTab(which or tab)
 	else

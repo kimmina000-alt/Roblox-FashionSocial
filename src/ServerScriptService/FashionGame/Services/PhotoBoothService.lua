@@ -270,7 +270,15 @@ local function release(session: Session, player: Player)
 	if byPlayer[player] == session then byPlayer[player] = nil end
 	clearProps(player)
 	local character = player.Character
-	if character then character:SetAttribute("PhotoBooth", nil) end
+	if character then
+		character:SetAttribute("PhotoBooth", nil)
+		-- (D-1132, user 2026-11-10: "사진 찍을 때 포즈 잡다가 나가기 눌러서 나오면 포즈 잡은
+		-- 거 풀려야 함") out of the booth the pose (a dance, frozen with ⏸) ends
+		-- (the attributes ClubService's dance sets; DanceController stops it)
+		for _, name in ipairs({ "DanceKey", "DanceStart", "DanceSpeed", "DancePause", "DanceJoined" }) do
+			character:SetAttribute(name, nil)
+		end
+	end
 	moveOutside(session.booth, player)
 end
 

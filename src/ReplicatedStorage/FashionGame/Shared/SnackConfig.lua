@@ -28,6 +28,7 @@ export type Item = {
 	comingSoon: boolean?, -- shown locked as 개발 중 (3D design not final yet, user 2026-10-31)
 	wrapped: boolean?, -- (D-1065) the first tap tears its wrapper off (piece Bite1 of the model), then the bites
 	pair: boolean?, -- (D-1129) 친구바: the first tap splits it in two, one half for a friend (FriendBar)
+	stickOut: boolean?, -- (D-1131) 빼쭉이: each bite one stick out into the other hand (SnackHands)
 }
 export type Shop = { key: string, title: string, prompt: string, hint: string?, items: {Item} }
 
@@ -116,7 +117,7 @@ SnackConfig.Shops = {
 			{ key = "icebar_subak", name = "수박아이스", kind = "bar", color = Color3.fromRGB(235, 60, 70), coins = 3, section = "💰 3" },
 			{ key = "icebar_ssang", name = "친구바", kind = "bar", color = Color3.fromRGB(90, 53, 19), coins = 3, pair = true, section = "💰 3" },
 			{ key = "chips", name = "감자칩", kind = "bag", color = Color3.fromRGB(250, 205, 50), coins = 3, section = "💰 3" },
-			{ key = "chocosnack", name = "빼쭉이", kind = "bag", color = Color3.fromRGB(150, 60, 50), coins = 3, wrapped = true, section = "💰 3" },
+			{ key = "chocosnack", name = "빼쭉이", kind = "bag", color = Color3.fromRGB(150, 60, 50), coins = 3, wrapped = true, stickOut = true, section = "💰 3" },
 			{ key = "bananamilk", name = "바나나우유", kind = "bottle", color = Color3.fromRGB(255, 225, 110), coins = 3, section = "💰 3" },
 			{ key = "soda", name = "탄산음료 캔", kind = "bottle", color = Color3.fromRGB(220, 50, 60), coins = 3, section = "💰 3" },
 			-- (D-1065, user 2026-11-09: "삼각김밥 추가. bibim: 전주비빔 삼각김밥 / chamchi:

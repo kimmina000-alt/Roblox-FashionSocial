@@ -29,6 +29,7 @@ local RamenCup = require(script.Parent:WaitForChild("RamenCup")) -- (D-1053: the
 local Microwave = require(script.Parent:WaitForChild("Microwave")) -- (D-1104: 삼각김밥 warmed in the OH24 microwave)
 local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124)
 local FriendBar = require(script.Parent:WaitForChild("FriendBar")) -- (D-1129: 친구바, split in two)
+local SnackHands = require(script.Parent:WaitForChild("SnackHands")) -- (D-1131: 빼쭉이, one stick at a time in the other hand)
 
 local SnackService = {}
 local economy: any = nil
@@ -492,6 +493,10 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 			if strandsDone then strandsDone() end
 			for d, t in pairs(hidden) do (d :: any).Transparency = t end
 		end
+	elseif (item :: any).stickOut and ik and leftGrip and handle and handle:IsA("BasePart") then
+		-- (D-1131) 빼쭉이: the box into the left hand, one stick in the right to the mouth
+		restore = SnackHands.pullStick(tool, handle, character, leftGrip)
+		task.wait(0.1) -- (the new grip reaches the clients before the arm lifts it)
 	end
 	character:SetAttribute("Eating", true)
 	local up = if ik then nil else mouthGrip(character, if item.kind == "cone" or item.kind == "bar" then -0.2 else 0)

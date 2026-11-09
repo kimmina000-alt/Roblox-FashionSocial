@@ -69,6 +69,7 @@ Analytics.Start(ZoneAnalyticsService.ZoneOf, EconomyService.Balance)
 require(script.Parent.Services.SpectateService).Start(RankingService) -- (the owner's /관전, D-1097)
 require(script.Parent.Services.ChatCommandService).Start() -- (/re, /sit, D-1107)
 task.defer(require(script.Parent.Services.DoorHeadroomService).Start) -- (room over doorways, D-1111)
+task.defer(require(script.Parent.Services.TrashService).Start) -- (trash cans "Trashcan", D-1133)
 -- carried items back after a rejoin or a respawn (D-790)
 require(script.Parent.Services.BagService).Start(PlayerDataService, SnackService, DrinkService, SparkleService)
 

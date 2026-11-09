@@ -41,6 +41,8 @@ function FriendBar.init(d: Deps)
 end
 
 FriendBar.TakeDistance = 10
+-- (D-1131, user 2026-11-10: "친구바 갈라질 때 소리 id: 77063346244597")
+FriendBar.SplitSound = 77063346244597
 FriendBar.HalfName = "친구바 (반쪽)"
 
 -- where the halves wait while they are in a left hand (BagService saves them: KeptBy)
@@ -214,6 +216,14 @@ function FriendBar.split(tool: Tool, item: any)
 	local bHandle = half:FindFirstChild("Handle") :: BasePart?
 	if not bHandle then half:Destroy() return end
 	d.splitXP(tool, half, 2) -- (포인트도 반으로)
+	local snd = Instance.new("Sound")
+	snd.SoundId = "rbxassetid://" .. tostring(FriendBar.SplitSound)
+	snd.Volume = 1
+	snd.RollOffMaxDistance = 40
+	snd.Parent = handle
+	snd:Play()
+	snd.Ended:Connect(function() snd:Destroy() end)
+	task.delay(6, function() if snd.Parent then snd:Destroy() end end)
 	FriendBar.applyHalf(tool, handle, 1, moved)
 	FriendBar.applyHalf(half, bHandle, 2, moved)
 	half:SetAttribute("KeptBy", owner.UserId)
