@@ -784,6 +784,37 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 		if player.Character then watch(player.Character) end
 		player.CharacterAdded:Connect(watch)
 	end
+	-- (D-1136) 높이 맞추기 for tall avatars cut at the neck near the camera: ▼ / ▲
+	-- one PhotoConfig.HeightStep a press, the height so far on the button; 🧍
+	-- 일어서기 back to normal (and out of the kneel)
+	do
+		local down = add("▼ 내려가기", function()
+			local ok, message = invoke("Down")
+			if not ok and typeof(message) == "string" then toast(message) end
+		end)
+		local up = add("▲ 올라가기", function()
+			local ok, message = invoke("Up")
+			if not ok and typeof(message) == "string" then toast(message) end
+		end)
+		local stand = add("🧍 일어서기", function() invoke("StandUp") end)
+		local function paint()
+			local character = player.Character
+			local h = character and character:GetAttribute("BoothHeight")
+			local moved = typeof(h) == "number" and h ~= 0
+			down.Text = if moved and (h :: number) < 0 then string.format("▼ 내려가기 (%s)", tostring(h)) else "▼ 내려가기"
+			up.Text = if moved and (h :: number) > 0 then string.format("▲ 올라가기 (+%s)", tostring(h)) else "▲ 올라가기"
+			local on = moved or (character ~= nil and character:GetAttribute("BoothKneel") == true)
+			stand.BackgroundColor3 = if on then COLORS.pink else SKY_BUTTON
+			stand.TextColor3 = if on then Color3.new(1, 1, 1) else SKY_TEXT
+		end
+		local function watch(character: Model)
+			character:GetAttributeChangedSignal("BoothHeight"):Connect(paint)
+			character:GetAttributeChangedSignal("BoothKneel"):Connect(paint)
+			paint()
+		end
+		if player.Character then watch(player.Character) end
+		player.CharacterAdded:Connect(watch)
+	end
 	for _, category in ipairs(PhotoConfig.PoseCategoryOrder) do
 		for _, dance in ipairs(ClubConfig.Dances) do
 			if dance.category == category then

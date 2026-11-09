@@ -260,6 +260,12 @@ local function clearProps(player: Player)
 	if not character then return end
 	character:SetAttribute("BoothKneel", nil)
 	character:SetAttribute("BoothStep", nil)
+	-- (D-1136) the height back to normal
+	local hip0 = character:GetAttribute("BoothHip0")
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if typeof(hip0) == "number" and humanoid then humanoid.HipHeight = hip0 end
+	character:SetAttribute("BoothHip0", nil)
+	character:SetAttribute("BoothHeight", nil)
 	for _, child in ipairs(character:GetChildren()) do
 		if child:IsA("Accessory") and child:GetAttribute("PhotoProp") then child:Destroy() end
 	end
@@ -798,6 +804,31 @@ local function toggleHelper(player: Player, which: string): (boolean, any)
 		character:SetAttribute("BoothKneel", if on then true else nil)
 		return true, on
 	end
+	-- (D-1136) 높이 맞추기: ▼ / ▲ one PhotoConfig.HeightStep a press (the hip height
+	-- of the avatar, so the body sinks into / rises off the floor and the photo
+	-- keeps it: it stores the root's height), 🧍 일어서기 = normal height, kneel off
+	if which == "Down" or which == "Up" or which == "StandUp" then
+		local humanoid = character:FindFirstChildOfClass("Humanoid")
+		if not humanoid then return false, nil end
+		local hip0 = character:GetAttribute("BoothHip0")
+		if typeof(hip0) ~= "number" then
+			hip0 = humanoid.HipHeight
+			character:SetAttribute("BoothHip0", hip0)
+		end
+		local now = (character:GetAttribute("BoothHeight") :: number?) or 0
+		local step = PhotoConfig.HeightStep
+		local want = if which == "StandUp" then 0
+			elseif which == "Down" then now - step else now + step
+		want = math.clamp(math.floor(want / step + 0.5) * step, PhotoConfig.HeightMin, PhotoConfig.HeightMax)
+		if which == "StandUp" then character:SetAttribute("BoothKneel", nil) end
+		if want == now and which ~= "StandUp" then
+			return false, if which == "Down" then "더 내려갈 수 없어요." else "더 올라갈 수 없어요."
+		end
+		sitUp(character)
+		humanoid.HipHeight = math.max(0, (hip0 :: number) + want)
+		character:SetAttribute("BoothHeight", if want ~= 0 then want else nil)
+		return true, want
+	end
 	local old = steps[player]
 	if old then
 		steps[player] = nil
@@ -1160,7 +1191,7 @@ local function handle(player: Player, action: any, payload: any): (boolean, any)
 		return kick(player, payload)
 	elseif action == "Prop" then
 		return toggleProp(player, payload)
-	elseif action == "Kneel" or action == "Step" then
+	elseif action == "Kneel" or action == "Step" or action == "Down" or action == "Up" or action == "StandUp" then
 		return toggleHelper(player, action)
 	elseif action == "PickUpdate" then
 		return pickUpdate(player, payload)

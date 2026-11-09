@@ -401,6 +401,24 @@ TryOnItem.OnServerInvoke = function(
 		end)
 	end
 
+	-- (D-1137) 코디 코드: the look worn now under a short code, and a code's look put on
+	if action == "ShareCode" then
+		local ok, snapshot = runExclusive(player, function()
+			return AvatarService.CaptureSnapshot(player)
+		end)
+		if not ok then return false, snapshot end
+		return require(script.Parent.Services.OutfitCodeService).make(player, snapshot)
+	end
+	if action == "WearCode" then
+		local found, snapshot = require(script.Parent.Services.OutfitCodeService).find(player, payload)
+		if not found then return false, snapshot end
+		local ok, result = runTracked(player, function()
+			return AvatarService.RestoreSnapshot(player, snapshot)
+		end)
+		if ok then Analytics.interact(player, "OutfitCode") end
+		return ok, result
+	end
+
 	-- (D-1032) the catalog's 초기화: back to the player's own Roblox avatar, the
 	-- look their character first loaded with this visit (originalLook below)
 	if action == "ResetLook" then

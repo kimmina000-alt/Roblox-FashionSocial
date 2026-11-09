@@ -32,6 +32,14 @@ PhotoConfig.FirstShotSeconds = 8   -- a little longer to pick the first pose
 -- 1 s still) = 24 s; 7 s would be 32 s (cut off) and would also show the end of
 -- the previous shot (countdown 8-10 s).
 PhotoConfig.MotionClipSeconds = 5
+-- (D-1136, user 2026-11-10: "오후네컷 키 큰 캐릭터들 목 잘리니까 아래로 내려갈 수 있게 하자..
+-- 위 아래 화살표 넣어서 캐릭터 위치 변경할 수 있게 해 ... 누를 때마다 내려가게 수치 조절할
+-- 수 있게 하고. 한 번에 일어설 수 있는 버튼도") 높이 맞추기 in the pose list: ▼ / ▲ move the
+-- person this many studs per press (an R15 avatar is about 5 studs tall: 0.5 = a
+-- tenth of it), down to HeightMin, up to HeightMax; 🧍 일어서기 puts it back.
+PhotoConfig.HeightStep = 0.5
+PhotoConfig.HeightMin = -6
+PhotoConfig.HeightMax = 2
 -- (D-1011, user 2026-11-08: "어제 오후네컷 네 명이 찍으려고 하니까 안 된다는 의견 있었는데 동시에 들어가지 말고 시간차 두고 입장하고 네 명 초과하면 입장 안 되는지 세세한 부분 체크") the 7-player test: by the time the
 -- others had walked up and tapped 같이 찍기, the 10 s were over and the host
 -- shot alone. Now 30 s; each person who joins gives everyone at least 15 s

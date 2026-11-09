@@ -68,7 +68,153 @@ function WardrobeView.new(ctx: Context)
 	self.renderQueue = {} :: {any}
 	self.rendering = false
 	self:_buildPrompt()
+	self:_buildCodeWindow()
 	return self
+end
+
+--------------------------------------------------
+-- (D-1137) 코디 코드: share the look worn now as a code, put a code's look on
+--------------------------------------------------
+
+function WardrobeView:_buildCodeWindow()
+	local overlay = make("TextButton", {
+		Name = "OutfitCodeWindow",
+		Size = UDim2.fromScale(1, 1),
+		BackgroundColor3 = Color3.new(0, 0, 0),
+		BackgroundTransparency = 0.45,
+		Text = "",
+		AutoButtonColor = false,
+		Visible = false,
+		ZIndex = 400,
+	}, self.ctx.screenGui)
+	local box = make("Frame", {
+		Size = UDim2.fromOffset(300, 268),
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		BackgroundColor3 = Color3.fromRGB(30, 30, 38),
+		ZIndex = 401,
+	}, overlay)
+	corner(box, 12)
+	local function label(text: string, y: number, size: number, color: Color3, bold: boolean): TextLabel
+		return make("TextLabel", {
+			Size = UDim2.new(1, -24, 0, size + 6),
+			Position = UDim2.fromOffset(12, y),
+			BackgroundTransparency = 1,
+			Text = text,
+			TextColor3 = color,
+			TextSize = size,
+			TextWrapped = true,
+			Font = if bold then Enum.Font.GothamBold else Enum.Font.Gotham,
+			TextXAlignment = Enum.TextXAlignment.Left,
+			ZIndex = 402,
+		}, box)
+	end
+	local function btn(text: string, x: UDim, y: number, w: UDim, color: Color3): TextButton
+		local b = make("TextButton", {
+			Size = UDim2.new(w.Scale, w.Offset, 0, 32),
+			Position = UDim2.new(x.Scale, x.Offset, 0, y),
+			BackgroundColor3 = color,
+			Text = text,
+			TextColor3 = COLORS.text,
+			TextSize = 14,
+			Font = Enum.Font.GothamBold,
+			ZIndex = 402,
+		}, box)
+		corner(b, 8)
+		return b
+	end
+	local function field(y: number, placeholder: string): TextBox
+		local t = make("TextBox", {
+			Size = UDim2.new(1, -24, 0, 34),
+			Position = UDim2.fromOffset(12, y),
+			BackgroundColor3 = Color3.fromRGB(45, 45, 56),
+			PlaceholderText = placeholder,
+			PlaceholderColor3 = COLORS.subtext,
+			Text = "",
+			TextColor3 = COLORS.text,
+			TextSize = 18,
+			Font = Enum.Font.GothamBold,
+			ClearTextOnFocus = false,
+			ZIndex = 402,
+		}, box)
+		corner(t, 8)
+		return t
+	end
+	label("🔗 코디 코드", 10, 16, COLORS.text, true)
+	local close = make("TextButton", {
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.new(1, -10, 0, 8),
+		Size = UDim2.fromOffset(28, 28),
+		BackgroundColor3 = COLORS.button,
+		Text = "X",
+		TextColor3 = COLORS.text,
+		TextSize = 14,
+		Font = Enum.Font.GothamBold,
+		ZIndex = 402,
+	}, box)
+	corner(close, 14)
+	label("지금 입은 코디를 코드로 만들어 친구에게 알려 주세요.", 38, 12, COLORS.subtext, false)
+	local makeButton = btn("코드 만들기", UDim.new(0, 12), 60, UDim.new(1, -24), COLORS.accent)
+	-- the code shown here can be selected and copied (it springs back if edited)
+	local mine = field(98, "여기에 코드가 나와요")
+	local shown = ""
+	mine:GetPropertyChangedSignal("Text"):Connect(function()
+		if mine.Text ~= shown then mine.Text = shown end
+	end)
+	label("친구가 알려 준 코드로 그 코디를 입어요.", 144, 12, COLORS.subtext, false)
+	local input = field(166, "코드 6자리")
+	input:GetPropertyChangedSignal("Text"):Connect(function()
+		local up = string.upper(input.Text)
+		if #up > 12 then up = string.sub(up, 1, 12) end
+		if up ~= input.Text then input.Text = up end
+	end)
+	local wear = btn("입기", UDim.new(0, 12), 214, UDim.new(1, -24), COLORS.accent)
+	local busy = false
+	makeButton.MouseButton1Click:Connect(function()
+		if busy then return end
+		if self.ctx.editorDirty() then
+			self.ctx.showToast("아바타 편집에서 적용하지 않은 변경은 코드에 들어가지 않아요.")
+		end
+		busy = true
+		makeButton.Text = "만드는 중..."
+		local ok, success, result = pcall(function() return self.ctx.TryOnItem:InvokeServer("ShareCode") end)
+		busy = false
+		makeButton.Text = "코드 만들기"
+		if ok and success == true and typeof(result) == "string" then
+			shown = result
+			mine.Text = result
+			self.ctx.showToast("코디 코드 " .. result .. " · 친구에게 알려 주세요!")
+		else
+			self.ctx.showToast(if typeof(result) == "string" then result else "코드를 만들지 못했어요.")
+		end
+	end)
+	local function doWear()
+		if busy or self.restoring or not self.ctx.canChangeAvatar() then return end
+		local code = input.Text
+		if code == "" then self.ctx.showToast("코드를 입력하세요.") return end
+		busy = true
+		self.restoring = true
+		self.ctx.setBusy(true)
+		wear.Text = "입는 중..."
+		local ok, success, result = pcall(function() return self.ctx.TryOnItem:InvokeServer("WearCode", code) end)
+		self.ctx.setBusy(false)
+		self.restoring = false
+		busy = false
+		wear.Text = "입기"
+		if ok and success == true then
+			local skipped = if typeof(result) == "table" and typeof(result.skipped) == "table" then #result.skipped else 0
+			self.ctx.showToast("코드 " .. string.upper(code) .. " 코디로 갈아입었어요."
+				.. (if skipped > 0 then " (아이템 " .. skipped .. "개는 입을 수 없어 뺐어요)" else ""))
+			overlay.Visible = false
+		else
+			self.ctx.showToast(if typeof(result) == "string" then result else "코디를 입지 못했어요.")
+		end
+		self.ctx.onRestored()
+	end
+	wear.MouseButton1Click:Connect(doWear)
+	input.FocusLost:Connect(function(enter) if enter then doWear() end end)
+	close.MouseButton1Click:Connect(function() overlay.Visible = false end)
+	self.codeWindow = overlay
 end
 
 --------------------------------------------------
@@ -338,6 +484,10 @@ function WardrobeView:render()
 	self:_bigCard("WardrobeRoblox", 0, "☁️", "Roblox 코디", "계정에 저장한 코디", function()
 		self.robloxMode = true
 		self:render()
+	end)
+	-- (D-1137) 코디 코드: share the look as a code / put a friend's code on
+	self:_bigCard("WardrobeCode", 0, "🔗", "코디 코드", "코드로 공유 · 입기", function()
+		self.codeWindow.Visible = true
 	end)
 
 	for index, outfit in ipairs(self.outfits) do

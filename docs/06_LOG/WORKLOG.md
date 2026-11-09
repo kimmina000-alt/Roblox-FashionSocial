@@ -3789,3 +3789,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 | 가방 8열 + 하단 칸 | 쓰레기통 | 빼쭉이 막대 하나 | 락커룸 새 문 |
 |---|---|---|---|
 | ![](images/2026-11-10/bag_8cols_hotbar.jpg) | ![](images/2026-11-10/trash_window.jpg) | ![](images/2026-11-10/bbabbaro_stick_out.jpg) | ![](images/2026-11-10/locker_door_moved.jpg) |
+
+## 2026-11-10 높이 맞추기 · 코디 코드 (D-1136, D-1137)
+| 부스에서 -2 | 코디 코드 창 |
+|---|---|
+| ![](images/2026-11-10/booth_lowered_2.jpg) | ![](images/2026-11-10/outfit_code_window.jpg) |
