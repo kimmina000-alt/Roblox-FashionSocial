@@ -201,7 +201,20 @@ do
 	local ASPECT = 637 / 609
 	for _, d in ipairs(workspace:GetChildren()) do
 		if d:IsA("BasePart") and (d.Name == "cold" or d.Name == "front") then d.Anchored = true end
-		if d:IsA("BasePart") and d.Name == "front" and d:FindFirstChild("OH24Shelf1") then d.OH24Shelf1:Destroy() end
+		-- (D-1123, user 2026-11-10: "편의점 카운터 뒤에 파트에도 진열장 같은 이미지 넣어")
+		-- the counter-back block: a drawn shelf of small goods (candy, gum,
+		-- chocolate, jelly, chargers, gift cards; no tobacco), tools/art/
+		-- oh24_counter_shelf.py → docs/04_ART/textures/props/oh24_shelf_counter.png
+		-- (88807195595964), the whole face once (2:1, like the block)
+		if d:IsA("BasePart") and d.Name == "front" then
+			local t = d:FindFirstChild("OH24Shelf1") or Instance.new("Texture")
+			t.Name = "OH24Shelf1"
+			t.Texture = "rbxassetid://88807195595964"
+			t.Face = Enum.NormalId.Front
+			t.StudsPerTileU = d.Size.X
+			t.StudsPerTileV = d.Size.Y
+			t.Parent = d
+		end
 		if d:IsA("BasePart") and d.Name == "cold" then
 			local len, h = d.Size.X, d.Size.Y
 			local n = math.max(1, math.floor(len / (h * ASPECT) + 0.5))
