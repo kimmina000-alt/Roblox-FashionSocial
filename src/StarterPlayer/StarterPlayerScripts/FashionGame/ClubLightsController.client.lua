@@ -20,9 +20,13 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 
-local DRAW_DISTANCE = 260
+-- (D-1156) 260 → 150: the club is underground; from the streets around it the
+-- lights were still moved 30 times a second
+local DRAW_DISTANCE = 150
 
 local function inRange(position: Vector3): boolean
+	-- (D-1156) inside the club everything (the hall is ~210 studs corner to corner)
+	if game:GetService("Players").LocalPlayer:GetAttribute("InClubLocal") then return true end -- (SurfaceGuiDistance)
 	local camera = workspace.CurrentCamera
 	return camera ~= nil and (camera.CFrame.Position - position).Magnitude < DRAW_DISTANCE
 end

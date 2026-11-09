@@ -796,7 +796,11 @@ ClubNotify.OnClientEvent:Connect(function(kind: any, value: any)
 end)
 
 RunService.RenderStepped:Connect(function()
-	for _, entry in pairs(boards) do
-		if entry.tick then entry.tick() end
+	-- (D-1156) the scrolling / sweeping only on boards near the camera (they are
+	-- not drawn farther: SurfaceGuiDistance)
+	local camera = workspace.CurrentCamera
+	local at = camera and camera.CFrame.Position
+	for part, entry in pairs(boards) do
+		if entry.tick and at and (part.Position - at).Magnitude < 260 then entry.tick() end
 	end
 end)

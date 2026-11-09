@@ -28,9 +28,33 @@ local PhotoRender = {}
 -- Kneeling rigs (entry.kn): the pose is set after the animator every step
 -- while the rig is shown.
 local kneeling: {[Model]: boolean} = {}
+-- (D-1156) only the rigs on a screen near the camera (or on the player's own
+-- screen): the photo walls hold dozens of kneeling rigs that were posed every
+-- frame from anywhere on the map; checked twice a second
+local kneelNear: {[Model]: boolean} = {}
+local nextCheck = 0
 RunService.Stepped:Connect(function()
+	local now = os.clock()
+	if now >= nextCheck then
+		nextCheck = now + 0.5
+		local camera = workspace.CurrentCamera
+		for rig in pairs(kneeling) do
+			local gui = rig:FindFirstAncestorWhichIsA("LayerCollector")
+			local near = true
+			if gui and gui:IsA("SurfaceGui") then
+				local a = gui.Adornee
+				near = gui.Enabled and (not (a and a:IsA("BasePart")) or (camera ~= nil and (camera.CFrame.Position - (a :: BasePart).Position).Magnitude < 80))
+			end
+			kneelNear[rig] = near
+		end
+	end
 	for rig in pairs(kneeling) do
-		if rig.Parent then BoothPose.kneel(rig) else kneeling[rig] = nil end
+		if not rig.Parent then
+			kneeling[rig] = nil
+			kneelNear[rig] = nil
+		elseif kneelNear[rig] ~= false then
+			BoothPose.kneel(rig)
+		end
 	end
 end)
 

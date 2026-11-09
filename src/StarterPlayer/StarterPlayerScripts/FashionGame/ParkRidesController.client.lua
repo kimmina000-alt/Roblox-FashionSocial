@@ -46,9 +46,13 @@ local function ownHumanoid(): Humanoid?
 	return character and character:FindFirstChildOfClass("Humanoid")
 end
 
-local function cameraNear(position: Vector3): boolean
+-- (D-1156) small things (tubes, ducks, swings, spring riders) only within 160
+-- studs: at 450 every tube and duck in the sea was moved every frame from
+-- anywhere on the map; the Ferris wheel and the carousel (seen from afar) keep 450
+local NEAR_DISTANCE = 160
+local function cameraNear(position: Vector3, far: boolean?): boolean
 	local camera = workspace.CurrentCamera
-	return camera ~= nil and (camera.CFrame.Position - position).Magnitude < DRAW_DISTANCE
+	return camera ~= nil and (camera.CFrame.Position - position).Magnitude < (if far then DRAW_DISTANCE else NEAR_DISTANCE)
 end
 
 local function attrNumber(instance: Instance, name: string, default: number): number
@@ -316,7 +320,7 @@ local function animate(t: number, dt: number)
 	local running = ridesRunning()
 	for _, wheel in ipairs(running and wheels or {}) do
 		local hub = hubCFrame(wheel.model, "Hub")
-		if hub and cameraNear(hub.Position) then
+		if hub and cameraNear(hub.Position, true) then
 			if wheel.rotor then
 				wheel.rotor:PivotTo(hub * CFrame.Angles(ParkConfig.wheelAngle(wheel.model, t), 0, 0) * wheel.rel)
 			end
@@ -329,7 +333,7 @@ local function animate(t: number, dt: number)
 	end
 	for _, carousel in ipairs(running and carousels or {}) do
 		local center = hubCFrame(carousel.model, "Center")
-		if center and cameraNear(center.Position) then
+		if center and cameraNear(center.Position, true) then
 			if carousel.rotor then
 				carousel.rotor:PivotTo(center * CFrame.Angles(0, ParkConfig.carouselAngle(carousel.model, t), 0) * carousel.rel)
 			end

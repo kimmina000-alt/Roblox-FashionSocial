@@ -22,7 +22,10 @@ local playerGui = player:WaitForChild("PlayerGui")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 
-local DRAW_DISTANCE = 320
+-- (D-1156) 320 → 150: the screen is inside the underground club; from the
+-- streets above it was drawn and animated every frame
+local DRAW_DISTANCE = 150
+local findAt = 0 -- (not found: look again a second later, not every frame)
 
 local function create(className: string, props: {[string]: any}, parent: Instance?): any
 	local instance = Instance.new(className)
@@ -242,12 +245,16 @@ end
 RunService.RenderStepped:Connect(function()
 	if not screen or not screen.part.Parent then
 		screen = nil
+		if os.clock() < findAt then return end
+		findAt = os.clock() + 1
 		find()
 		if not screen then return end
 	end
 	local s = screen :: Screen
 	local camera = workspace.CurrentCamera
-	if not camera or (camera.CFrame.Position - s.part.Position).Magnitude > DRAW_DISTANCE then
+	-- (D-1156) inside the club always; from outside only within DRAW_DISTANCE
+	local inside = game:GetService("Players").LocalPlayer:GetAttribute("InClubLocal") -- (SurfaceGuiDistance)
+	if not camera or (not inside and (camera.CFrame.Position - s.part.Position).Magnitude > DRAW_DISTANCE) then
 		s.gui.Enabled = false
 		if desk then desk.gui.Enabled = false end
 		return
