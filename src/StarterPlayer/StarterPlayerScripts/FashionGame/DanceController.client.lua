@@ -584,23 +584,13 @@ local function layoutPanel()
 	-- front, the play bar under it (ClubQuickBar), the skip count after it.
 	-- The dance panel, sync pill and player card start below it.
 	local TOGGLE_W, SKIP_W, GROUP_H = 32, 42, 47 -- (the open "<" 26 and gap (48 for D-972's ♪<), skip count, banner 30 + bar 17)
-	local rowLeft, rowRight, rowY = require(script.Parent:WaitForChild("TopBar")).firstRow()
-	local roomInRow = rowRight - rowLeft - TOGGLE_W - SKIP_W
-	local bannerX, bannerY, bannerW
-	-- (D-1033, user 2026-11-09: "재생중인 노래 창 채팅창 아래로 내려") under Roblox's
-	-- chat window at the left: its box (TextChatService ChatWindowConfiguration,
-	-- measured below the top bar) when it has been open, else where it opens
-	local chatBottom = chatWindowBottom()
-	if chatBottom then
-		bannerW = math.clamp(viewport.X - 20 - TOGGLE_W - SKIP_W, 160, 300)
-		bannerX, bannerY = 10, math.max(top, chatBottom + 6)
-	elseif roomInRow >= 200 then
-		bannerW = math.min(300, roomInRow)
-		bannerX, bannerY = rowLeft, math.floor(rowY - 15)
-	else
-		bannerW = math.clamp(viewport.X - 20 - TOGGLE_W - SKIP_W, 160, 300)
-		bannerX, bannerY = 10, top
-	end
+	-- (D-1033 / D-1087 had it under Roblox's chat window at the left)
+	-- (D-1093, user 2026-11-09: "재생중인 바 중앙 위로 올려") the top middle of the
+	-- screen, right under the top row, the same on phones and PCs; the toggle,
+	-- the banner and the skip count centred as one group
+	local bannerW = math.clamp(viewport.X - 20 - TOGGLE_W - SKIP_W, 160, 300)
+	local bannerX = math.floor(viewport.X / 2 - (TOGGLE_W + bannerW + SKIP_W) / 2)
+	local bannerY = top
 	bannerToggle.Position = UDim2.fromOffset(bannerX, bannerY + 15)
 	banner.Position = UDim2.fromOffset(bannerX + TOGGLE_W + bannerW / 2, bannerY)
 	banner.Size = UDim2.fromOffset(bannerW, banner.Size.Y.Offset)
@@ -657,31 +647,8 @@ for _, box in ipairs({ chatWindow :: any, chatInput :: any }) do
 		end)
 	end
 end
--- (D-1087) the chat never opened yet reads size 0: open it once for a moment
--- right after joining (under the loading screen) to measure where it really
--- ends on this device, then close it again, so the banner is in its place from
--- the start and does not jump when the player first opens the chat
-task.spawn(function()
-	task.wait(1)
-	if not chatWindow or not chatWindow.Enabled then return end
-	local function windowHigh(): number
-		local ok, size = pcall(function() return (chatWindow :: any).AbsoluteSize end)
-		return if ok then size.Y else 0
-	end
-	if windowHigh() > 0 then return end
-	local StarterGui = game:GetService("StarterGui")
-	if not pcall(function() StarterGui:SetCore("ChatActive", true) end) then return end
-	for _ = 1, 30 do
-		task.wait(0.05)
-		if windowHigh() > 0 then
-			task.wait(0.1) -- (the typing bar settles under it)
-			chatWindowBottom()
-			break
-		end
-	end
-	pcall(function() StarterGui:SetCore("ChatActive", false) end)
-	layoutPanel()
-end)
+-- (D-1087's opening of the chat for a moment to measure it is gone with D-1093:
+-- the banner no longer sits under the chat)
 
 --------------------------------------------------
 -- Dance state (local view)

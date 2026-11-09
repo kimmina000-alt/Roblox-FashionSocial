@@ -517,10 +517,7 @@ local function heldPhotoId(): string?
 	return if typeof(id) == "string" then id else nil
 end
 
-ProximityPromptService.PromptTriggered:Connect(function(prompt)
-	if prompt.Name ~= "WallPrompt" then return end
-	local wall = prompt.Parent
-	if not wall or not wall:IsA("BasePart") or not CollectionService:HasTag(wall, "PhotoWall") then return end
+local function useWall(wall: BasePart)
 	-- Holding a photo item: stick that one; otherwise choose from the album.
 	local held = heldPhotoId()
 	if held then
@@ -535,7 +532,49 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt)
 		end
 	end
 	openPicker(wall)
+end
+ProximityPromptService.PromptTriggered:Connect(function(prompt)
+	if prompt.Name ~= "WallPrompt" then return end
+	local wall = prompt.Parent
+	if not wall or not wall:IsA("BasePart") or not CollectionService:HasTag(wall, "PhotoWall") then return end
+	useWall(wall)
 end)
+
+-- (D-1094, user 2026-11-09: "... e 사진 붙이기만 띄우지 말고") a short tap / click
+-- straight on a photo wall nearby opens the album too (the E prompt sits in the
+-- middle of a wall, far from the ends of the long ones). Not while placing, a
+-- window is open, or something is in the hand (that tap is a bite / a throw).
+do
+	local downAt: {[InputObject]: { t: number, p: Vector3 }} = {}
+	UserInputService.InputBegan:Connect(function(input, processed)
+		if processed or placing then return end -- (a tap that sticks a photo is not this)
+		local t = input.UserInputType
+		if t == Enum.UserInputType.MouseButton1 or t == Enum.UserInputType.Touch then
+			downAt[input] = { t = os.clock(), p = input.Position }
+		end
+	end)
+	UserInputService.InputEnded:Connect(function(input, processed)
+		local d = downAt[input]
+		downAt[input] = nil
+		if not d or processed or placing or picker.Visible or viewer.Visible then return end
+		if os.clock() - d.t > 0.4 or (input.Position - d.p).Magnitude > 12 then return end
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if not root or character:FindFirstChildOfClass("Tool") then return end
+		local camera = workspace.CurrentCamera
+		local touch = input.UserInputType == Enum.UserInputType.Touch
+		local ray = if touch then camera:ScreenPointToRay(input.Position.X, input.Position.Y)
+			else camera:ViewportPointToRay(input.Position.X, input.Position.Y)
+		local params = RaycastParams.new()
+		params.FilterType = Enum.RaycastFilterType.Exclude
+		params.FilterDescendantsInstances = { character }
+		local hit = workspace:Raycast(ray.Origin, ray.Direction * 120, params)
+		local wall = hit and hit.Instance
+		if not wall or not wall:IsA("BasePart") or not CollectionService:HasTag(wall, "PhotoWall") then return end
+		if (hit.Position - root.Position).Magnitude > 20 then return end
+		useWall(wall)
+	end)
+end
 
 --------------------------------------------------
 -- Booth barrier (local)
