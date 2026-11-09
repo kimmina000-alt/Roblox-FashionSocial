@@ -145,6 +145,30 @@ function EconomyService.AddJobXP(player: Player, job: string, field: string, xp:
 	return record.xp
 end
 
+-- (D-1100) XP for food bought: half the coin price (at least 1), a flat amount
+-- for a Robux item, nothing for free ones; capped per day (EconomyConfig.FoodXP).
+-- Returns the XP given.
+function EconomyService.AddFoodXP(player: Player, item: any, paidRobux: boolean?): number
+	local cfg = EconomyConfig.FoodXP
+	if not cfg or not cfg.Enabled or not EconomyConfig.XPEnabled or player.UserId == 0 then return 0 end
+	local coins = if typeof(item) == "table" and typeof(item.coins) == "number" then item.coins else 0
+	local want = if paidRobux then cfg.Robux
+		elseif coins > 0 then math.max(cfg.Min, math.floor(coins * cfg.Rate + 0.5))
+		else 0
+	if want <= 0 then return 0 end
+	local w = wallet(player)
+	local got = w.daily.counts.FoodXP or 0
+	local given = math.max(0, math.min(want, cfg.DailyCap - got))
+	if given <= 0 then return 0 end
+	w.daily.counts.FoodXP = got + given
+	w.xp = (w.xp or 0) + given
+	playerData.MarkDirty(player)
+	player:SetAttribute("XP", w.xp)
+	local name = if typeof(item) == "table" and typeof(item.name) == "string" then item.name else "음식"
+	toast(player, string.format("⭐ +%d XP · %s", given, (string.gsub(name, " %(.-%)$", ""))))
+	return given
+end
+
 function EconomyService.JobXP(player: Player, job: string): number
 	local jobs = playerData.Wallet(player).jobs
 	return if jobs and jobs[job] then jobs[job].xp else 0
