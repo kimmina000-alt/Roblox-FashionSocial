@@ -1982,7 +1982,7 @@ function SnackService.BagRestore(player: Player, e: any): boolean
 		if e.model then tool:SetAttribute("SliceModel", e.model) end
 		if e.slice then tool:SetAttribute("SliceName", e.slice) end
 	end
-	if typeof(e.bites) == "number" then tool:SetAttribute("Bites", math.max(1, math.floor(e.bites))) end
+	if typeof(e.bites) == "number" and not use.oneBite then tool:SetAttribute("Bites", math.max(1, math.floor(e.bites))) end -- (D-1146: a slice saved with 3 bites is one bite now)
 	-- (D-1036) a 국밥 model shows the pieces already eaten
 	local held = tool:FindFirstChild("Handle")
 	if held and tool:GetAttribute("EatMode") == "Bites" then
