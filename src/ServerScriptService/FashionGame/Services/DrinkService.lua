@@ -967,6 +967,9 @@ local function buyWithCoins(player: Player, drink: ClubConfig.Drink, variantKey:
 	local ok, message = giveBottle(player, drink.key, nil, variantKey)
 	if not ok then return false, message end
 	EconomyService.Spend(player, price)
+	-- (D-1102, user 2026-11-09: "클럽 음료도 XP 넣어 줘") the food rule: half the
+	-- price paid (the VIP price for VIPs), the same daily cap as food
+	EconomyService.AddFoodXP(player, { coins = price, name = drink.name })
 	return true, message
 end
 
@@ -1051,6 +1054,7 @@ function DrinkService.Start()
 		local ok, message = giveBottle(player, drink.key, nil, picked)
 		if ok then
 			toast(player, message or "")
+			EconomyService.AddFoodXP(player, { name = drink.name }, true) -- (D-1102: Robux = the flat amount)
 			return true, nil
 		end
 		-- Hands full: still grant (the purchase went through) by

@@ -27,7 +27,7 @@ EconomyConfig.WelcomeCoins = 50 -- (100 until D-758, user: not much to spend coi
 -- shown under the player's id above the avatar (NameTagService).
 EconomyConfig.XPEnabled = true
 
--- (D-1100, user 2026-11-09: "음식 사 먹으면 xp 올라가는 시스템 추가. 몇씩 오르게
+-- (D-1101, user 2026-11-09: "음식 사 먹으면 xp 올라가는 시스템 추가. 몇씩 오르게
 -- 하는 게 좋을지 게임 시스템 분석해서 논리적으로 계산해서 제안할 것")
 -- XP for buying food and drinks, on top of 1 XP a minute online:
 --   coin foods: half the price in XP, at least 1 (a coin is a minute online,

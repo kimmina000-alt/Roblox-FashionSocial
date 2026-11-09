@@ -145,7 +145,7 @@ function EconomyService.AddJobXP(player: Player, job: string, field: string, xp:
 	return record.xp
 end
 
--- (D-1100) XP for food bought: half the coin price (at least 1), a flat amount
+-- (D-1101) XP for food bought: half the coin price (at least 1), a flat amount
 -- for a Robux item, nothing for free ones; capped per day (EconomyConfig.FoodXP).
 -- Returns the XP given.
 function EconomyService.AddFoodXP(player: Player, item: any, paidRobux: boolean?): number

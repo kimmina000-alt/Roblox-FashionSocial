@@ -1362,7 +1362,7 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 		end
 		grantProduct(player, item)
 		payBeep(player, shop.key)
-		if economy and economy.AddFoodXP then economy.AddFoodXP(player, item) end -- (D-1100)
+		if economy and economy.AddFoodXP then economy.AddFoodXP(player, item) end -- (D-1101)
 		return true, nil
 	end
 	if handsFull(player) then
@@ -1375,7 +1375,7 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	if orderHandler and not item.product then
 		local handled, message = orderHandler(player, shop, item)
 		if handled then
-			if economy and economy.AddFoodXP then economy.AddFoodXP(player, item) end -- (D-1100: paid to the staff)
+			if economy and economy.AddFoodXP then economy.AddFoodXP(player, item) end -- (D-1101: paid to the staff)
 			return true, message
 		end
 	end
@@ -1388,7 +1388,7 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	end
 	giveTool(player, makeTool(item))
 	payBeep(player, shop.key)
-	if economy and economy.AddFoodXP then economy.AddFoodXP(player, item) end -- (D-1100)
+	if economy and economy.AddFoodXP then economy.AddFoodXP(player, item) end -- (D-1101)
 	local drink = item.kind == "cup" or item.kind == "bottle"
 	if item.kind == "noodle" then -- (D-1053: its own steps)
 		return true, item.name .. " 나왔어요! 눌러서 뚜껑 열기 → 온수기 눌러 물 붓기 → 10초 뒤에 눌러서 먹어요."
@@ -2103,7 +2103,7 @@ function SnackService.Start(economyService: any)
 				registered[key] = true
 				MonetizationService.RegisterProduct(key, function(player: Player)
 					local ok, message = grantProduct(player, item)
-					if ok and economy and economy.AddFoodXP then economy.AddFoodXP(player, item, true) end -- (D-1100)
+					if ok and economy and economy.AddFoodXP then economy.AddFoodXP(player, item, true) end -- (D-1101)
 					return ok, message
 				end)
 			end
