@@ -556,16 +556,30 @@ do
 		-- (D-1104) the OH24 microwave: a tap on it with a 삼각김밥 in the hand
 		-- warms it; a tap on the 삼각김밥 inside (door open) takes it back
 		if short and not p.moved then
-			local hit = rayAt(screen)
-			if hit and CollectionService:HasTag(hit.Instance, "MicrowaveFood") then
-				ask("MicrowaveTake", hit.Instance)
-				return
+			-- (D-1113) both rays (with and without the top bar inset): the first one
+			-- often landed on the microwave's frame, not the small 삼각김밥 inside
+			local hit: RaycastResult? = nil
+			local camera = workspace.CurrentCamera
+			if camera then
+				local params = RaycastParams.new()
+				params.FilterType = Enum.RaycastFilterType.Exclude
+				params.FilterDescendantsInstances = { player.Character :: Instance, ghost }
+				for _, ray in ipairs({ camera:ScreenPointToRay(screen.X, screen.Y), camera:ViewportPointToRay(screen.X, screen.Y) }) do
+					local h = workspace:Raycast(ray.Origin, ray.Direction * 150, params)
+					if h and (CollectionService:HasTag(h.Instance, "MicrowaveFood") or CollectionService:HasTag(h.Instance, "Microwave")) then
+						if not hit or CollectionService:HasTag(h.Instance, "MicrowaveFood") then hit = h end
+					end
+				end
 			end
-			local held = heldAny()
-			local key = held and held:GetAttribute("Snack")
-			if hit and CollectionService:HasTag(hit.Instance, "Microwave") and typeof(key) == "string" and string.sub(key, 1, 6) == "samgak" then
+			if hit then
+				local held = heldAny()
+				local key = held and held:GetAttribute("Snack")
 				if input.UserInputType == Enum.UserInputType.Touch then ghost.Parent = nil end
-				ask("Microwave", hit.Instance)
+				if typeof(key) == "string" and string.sub(key, 1, 6) == "samgak" then
+					ask("Microwave", hit.Instance) -- (the server takes one out first when it is done)
+				else
+					ask("MicrowaveTake", hit.Instance) -- (a tap on the open microwave or on it)
+				end
 				return
 			end
 		end

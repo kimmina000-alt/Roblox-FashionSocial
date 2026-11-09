@@ -298,6 +298,11 @@ end
 function Microwave.heat(player: Player, target: any): (boolean, string?)
 	local rig = rigOf(target)
 	if not rig then return false, nil end
+	-- (D-1113) theirs is done and waiting: out it comes first
+	if rig.state == "open" and rig.owner == player and near(player, rig) then
+		giveBack(rig)
+		return true, nil
+	end
 	local character = player.Character
 	local tool = character and character:FindFirstChildOfClass("Tool")
 	local key = tool and tool:GetAttribute("Snack")
@@ -343,8 +348,12 @@ function Microwave.heat(player: Player, target: any): (boolean, string?)
 	return true, nil
 end
 
+-- (D-1113, user 2026-11-09: "전자레인지 다 돌아가고 삼각김밥 안 꺼내짐") a tap on
+-- the 삼각김밥 or on any part of the open microwave takes it out (the small
+-- 삼각김밥 was hard to hit; the tap usually landed on the frame round it)
 function Microwave.take(player: Player, target: any): (boolean, string?)
-	if typeof(target) ~= "Instance" or not CollectionService:HasTag(target, "MicrowaveFood") then return false, nil end
+	if typeof(target) ~= "Instance" then return false, nil end
+	if not CollectionService:HasTag(target, "MicrowaveFood") and not CollectionService:HasTag(target, "Microwave") then return false, nil end
 	local rig = rigOf(target)
 	if not rig or rig.state ~= "open" then return false, nil end
 	if rig.owner ~= player then return false, "다른 사람이 데운 삼각김밥이에요." end

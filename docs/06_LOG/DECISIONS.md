@@ -3519,6 +3519,12 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "클럽 dj 뒤 전광판에 dj 없을 때는 춤추고 있는 플레이어 랜덤으로 띄우자. 계속 띄우지 말고 여기는 간헐적으로. 사이에 안 뜰 떄도 있음"
 - ClubScreenService: 25–60초 쉬고, DJ가 없고 클럽 안에 춤추는 사람(캐릭터 속성 DanceKey)이 있으면 30 % 확률로 건너뛰고, 아니면 한 명을 골라(바로 전 사람은 빼고) 12–18초 ReplicatedStorage.FashionGame 속성 ClubWallShow = UserId. 그 사람이 클럽을 나가거나 DJ가 생기면 바로 끔. DJScreenController: DJ가 없을 때 ClubWallShow의 사람을 DJ와 같은 방식(허리 위, 실시간 자세)으로, 이름 앞에 💃.
 - Play: (Studio는 내가 테스트 DJ라 ClubDJ를 잠깐 0으로) ClubWallShow = 나 → 전광판에 "💃 Vantablack_Dev" + 아바타. 고르는 주기는 시간이 길어 Studio에서 기다려 보지 않음.
+## D-1113 전자레인지에서 삼각김밥 꺼내기 고침 (2026-11-09)
+- 사용자: "전자레인지 다 돌아가고 삼각김밥 안 꺼내짐".
+- 원인: SnackController의 rayAt이 상단 바 높이만큼 어긋난 레이(ViewportPointToRay)를 먼저 써서 탭이 작은 삼각김밥 대신 전자레인지 틀에 맞음 → 꺼내기 요청이 안 감. 고침: 두 레이(ScreenPointToRay / ViewportPointToRay)를 다 보고 삼각김밥을 먼저; 문 열린 전자레인지의 아무 부분을 탭해도 주인이면 꺼냄(Microwave.take가 Microwave 태그도 받음). 다른 삼각김밥을 든 채 탭해도 다 된 것부터 꺼냄.
+- Play: 데운 뒤 빈손으로 전자레인지 윗판(삼각김밥 아님)을 마우스 클릭 → 가방으로 들어옴.
+## D-1114 의견 보내기 창 블랙 앤 화이트 (2026-11-09)
+- 사용자: "의견 보내기 ui도 블랙앤화이트". Feedback.lua 색을 안내원(D-1088)과 같게: 거의 검은 창 + 흰 테두리, 흰 글씨, 어두운 회색 칩 · 입력칸 · 받은 의견 카드, 흰 버튼(골라진 칩, 보내기, 🎁)은 검은 글씨. 스샷 확인.
 
 - 투명한 곳을 검은색(14, 14, 16)으로 채운 그림을 새로 올림: 비빔 133230144298972, 참치 116182874846347 → ServerStorage.ArtAssets.Foods.Samgak*Bites.Bite1 TextureID (장소에만 있음, 저장 필요). 참고: 참치 예전 그림 86893647001276은 계속 "content representation is being generated"(처리 안 끝남)였음.
 ## D-1042 무대 카메라: CRASH 새 음원에 별칭 (2026-11-09)
