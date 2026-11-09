@@ -95,6 +95,9 @@ M.ChoreoFixes = {
 	-- member hidden by a passer-by at 3.5 s: the turn there and back each made even)
 	[122848199967536] = { spin = { from = 7.5, to = 8.2, turns = 1, ease = "both" } }, -- 1
 	[98655639854740] = { spin = { { from = 0, to = 0.9, fromPrev = true, dir = -1, ease = "both" }, { from = 3.2, to = 3.6, ease = "both" }, { from = 3.6, to = 4.2, ease = "both" } } }, -- 15
+	-- (D-1064) 19 cut again: side → back → front, one full turn the same way (0.8-1.6 s, the member blurred
+	-- at 0.9-1.5 in the clip); the capture turned to her back and whipped back 150° (796°/s at 108.76)
+	[128761870790634] = { spin = { from = 0.3, to = 1.8, turns = 1, ease = "out" } }, -- 19 (capture wraps back 150° at 1.0-1.2: one even lap, carried on from the blend)
 	-- (D-1058, user: "1:22 버벅 / 이후로 덜덜 떨림 깔끔하게 큰 모션 위주로 정돈") 13 = clip 14, where the
 	-- centre cut lost the member for whole stretches (the picture all blurred at 1.0, 3.5-5.0, 6.0,
 	-- 7.5-8.0 s): its capture trembles throughout. Smoothed hard (24 passes, about 0.2 s), the
@@ -531,6 +534,10 @@ M.ChoreoFixes = {
 	-- the head circled 0.4-0.9 stud round the axis: torso straight up, head straight
 	[107439323698577] = { spin = { from = 1.2, to = 4.3, turns = 1, ease = "both" }, still = { from = 1.0, to = 4.5 }, upright = { from = 1.0, to = 4.5, ease = 0.3 },
 		torsoUp = { from = 1.0, to = 4.5, ease = 0.3 },
+		-- (D-1062, user: "1:47 동작도 0:21 동작에서 손목 돌리는 거 반영") the left arm is in the ㄱ again at
+		-- song 107.2-107.4 and 108.1-108.7: a wrist circle on the beats 107.29 and 108.23 (keys 0.09 s early)
+		bend = { { part = "LeftHand", keys = { { 6.19, 0, 0, 0 }, { 6.27, 30, 0, 0 }, { 6.39, 0, 0, 30 }, { 6.50, -30, 0, 0 }, { 6.62, 0, 0, -30 }, { 6.70, 0, 0, 0 },
+			{ 7.22, 0, 0, 0 }, { 7.30, 30, 0, 0 }, { 7.42, 0, 0, 30 }, { 7.53, -30, 0, 0 }, { 7.65, 0, 0, -30 }, { 7.73, 0, 0, 0 } } } },
 		pose = { { from = 0, to = 4.6, ease = 0.35, keys = {
 			{ t = 0.3, set = { LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
 				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 } } },
@@ -558,7 +565,18 @@ M.ChoreoFixes = {
 		} } },
 	-- 16 / 17 / 18 (from 127.65): "2:10~ 버벅거리고 떠. 프레임 튀듯이", "~2:26까지 계속
 	-- 떨어": 10-27 joint turn-backs in 0.5 s all through; smoothed (the moves kept)
-	[82680550952125] = { steady = { from = 0, to = 10.3, passes = 8 } },
+	-- (D-1062, user: "2:14~2:16 서 있다가 무릎 굽히고 앉는 자세로 수정" + a photo of a deep squat: knees
+	-- forward, heels down, the hips back and low, the upper body leaning forward, the head forward):
+	-- 16 stood from song 134 to 17's drop at 138.3; from 134.0 the knees bend into the squat, full
+	-- at 136.0 and held until 17 lies down (17 starts in the same squat). `to` far past the end:
+	-- the piece waits on its last frame (10.2 s) until 17 starts (hips 2.35 down: the feet on the floor, checked in Play)
+	[82680550952125] = { steady = { from = 0, to = 10.3, passes = 8 },
+		pose = { from = 6.35, to = 30, ease = 1.9, keys = { { t = 8.3, set = {
+			LeftUpperLeg = { 100, 0, 0 }, LeftLowerLeg = { -140, 0, 0 }, LeftFoot = { 40, 0, 0 },
+			RightUpperLeg = { 100, 0, 0 }, RightLowerLeg = { -140, 0, 0 }, RightFoot = { 40, 0, 0 },
+			UpperTorso = { -35, 0, 0 }, Head = { -15, 0, 0 },
+			LeftUpperArm = { 25, 0, 0 }, LeftLowerArm = { 15, 0, 0 }, RightUpperArm = { 25, 0, 0 }, RightLowerArm = { 15, 0, 0 } },
+			move = { LowerTorso = { 0, -2.35, 0 } } } } } },
 	-- 17b red-box floor member (from 136.22) (D-991, user's screen recording of the
 	-- KBS stage, "2:20 전후로 누워서 하는 안무 이 영상이 더 잘 보인다. 참고해서 수정"):
 	-- on the stage she lies propped on her right forearm, the upper body raised and
@@ -629,8 +647,33 @@ M.ChoreoFixes = {
 	[132337331292488] = { steady = { { from = 0, to = 8.0, passes = 8 }, { from = 0.6, to = 3.2, passes = 16 } },
 		warp = { { from = 0, to = 3.3, play = { 0, 3.3 } }, { from = 3.3, to = 5.3, play = { 3.3, 4.8 } },
 			{ from = 5.3, to = 6.4, play = { 4.8, 6.4 } }, { from = 6.4, to = 9.0, play = { 6.4, 9.0 } } },
-		freeze = { from = 0.75, to = 3.0, ease = 0.3, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" } },
-		amp = { from = 3.4, to = 4.8, ease = 0.3, parts = { LeftUpperLeg = 1.4, RightUpperLeg = 1.4 } } },
+		-- (D-1062, user: "2:22~ 다리 뻗고 회전할 때 엉덩이랑 상체 고정. 흔들림") the hips and upper body are
+		-- kept as at 3.1 s through the stretched leg swing (3.1-4.85, song 141.0-143.3), the legs move on;
+		-- the hips keep the highest floor lift the freeze has needed (ChoreoController), so they do not bob
+		freeze = { { from = 0.75, to = 3.0, ease = 0.3, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" } },
+			{ from = 3.1, to = 4.85, ease = 0.3, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" } } },
+		still = { from = 3.3, to = 4.85 },
+		amp = { from = 3.4, to = 4.8, ease = 0.3, parts = { LeftUpperLeg = 1.4, RightUpperLeg = 1.4 } },
+		-- (D-1062, user: "2:19에 천장 보고 있는데 정면 보도록 회전. 다리 허벅지는 쭉 뻗고 종아리 뒤로", "2:20 다리 더
+		-- 쭉 직선으로 뻗기", with the 2:14 squat): 17 starts in 16's squat (0-0.6 s, fading into the drop);
+		-- lying, the body turns 55° about its spine so the chest faces the front, not the ceiling (found in
+		-- Play: chest 0.75 up → 0.89 to the front); the thighs straight in line with the body and the calves
+		-- folded back; the left leg's kick (1.5-2.5 s, song 139.4-140.4) goes up with the knee straight
+		bend = { { part = "LowerTorso", keys = { { 0.4, 0, 0, 0 }, { 0.7, 0, -55, 0 }, { 2.75, 0, -55, 0 }, { 3.0, 0, 0, 0 } } } },
+		pose = {
+			{ from = 0, to = 0.6, ease = 0.25, keys = { { t = 0, set = {
+				LeftUpperLeg = { 100, 0, 0 }, LeftLowerLeg = { -140, 0, 0 }, LeftFoot = { 40, 0, 0 },
+				RightUpperLeg = { 100, 0, 0 }, RightLowerLeg = { -140, 0, 0 }, RightFoot = { 40, 0, 0 },
+				UpperTorso = { -35, 0, 0 }, Head = { -15, 0, 0 },
+				LeftUpperArm = { 25, 0, 0 }, LeftLowerArm = { 15, 0, 0 }, RightUpperArm = { 25, 0, 0 }, RightLowerArm = { 15, 0, 0 } },
+				move = { LowerTorso = { 0, -2.35, 0 } } } } },
+			{ from = 0.6, to = 1.5, ease = 0.2, keys = { { t = 0.8, set = {
+				LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { -95, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
+			{ from = 1.5, to = 2.55, ease = 0.15, keys = { { t = 1.6, set = {
+				LeftLowerLeg = { 0, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
+			{ from = 2.55, to = 3.0, ease = 0.15, keys = { { t = 2.6, set = {
+				LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { -95, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
+		} },
 	-- (2:26 "일어나면서 몸 돌리는데 두 번 돌림. 한 번으로 깔끔하게": the capture turns 55°
 	-- one way, then 141° back in 0.16 s, inside its 1 s blend: one even turn
 	-- the short way round from where 17 ended, 0-1.3 s, during the blend too)
@@ -640,8 +683,10 @@ M.ChoreoFixes = {
 	-- in Play the turns came 0.09-0.12 s late, the animation's clock running that much behind the song)
 	-- 7 (from 47.49): "0:55 팔 뻗고 상체 옆으로 숙일 때 끊김 없애기 부드럽게 이어지도록": the capture
 	-- stands nearly still at song 55.0-55.75 (its last 0.8 s) before 8 blends in: its last moving
-	-- part (6.6-7.5 s) is played slower to the end of the piece (55.92), so it flows into 8
-	[99422937735141] = { warp = { { from = 0, to = 6.6, play = { 0, 6.6 } }, { from = 6.6, to = 8.6, play = { 6.6, 7.5 } } } },
+	-- part (6.6-7.5 s) was played slower to the end of the piece (55.92) (undone in D-1062, below)
+	-- (D-1062, user: "0:55 앞에 동작을 느리게 한 거 취소하고 뒤에 훅 내려가는 걸 없애. 앞에 동작을 뒤에 훅
+	-- 내려가는 부분 삭제한 곳까지 이어지게 해"): the slowing taken out; 8's deep bow at its start
+	-- (0.1-0.85 s, song 56.0-56.8) is skipped (ClubPlaylist: 8 from 0.9 at 56.82), 7 keeps its pose until then
 	-- 8 (from 55.92): "1:01 0:21이랑 같은 자세인 것 확인 후 손목 돌리기 추가": the left arm is in the
 	-- same ㄱ (upper arm 86-91° up, elbow ~94°) at song 61.0-61.9: two circles, one a beat (60.79-61.73)
 	[99169381541568] = { bend = { { part = "LeftHand", keys = { { 4.70, 0, 0, 0 }, { 4.78, 30, 0, 0 }, { 4.90, 0, 0, 30 }, { 5.01, -30, 0, 0 },
@@ -1061,6 +1106,9 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-1064) Lemon Tang clips 19 and 23 cut again (tools/choreo/faceoffset: front frames 22 / 68, capture +12°, MAD 4 / 14)
+	[128761870790634] = -12, -- Lemon Tang 19
+	[110433660488854] = -12, -- Lemon Tang 23
 	-- Hearts2Hearts-Lemon Tang (D-1040; practice video 9nZuuZRsDfo, clips 2..27). Not set: 4 / 16
 	-- (spread 22-26°), 9 / 20 / 27 (under 12 front frames), 6 / 10 / 13 / 22 (under 6°)
 	[100331751999626] = -7, -- clip 2 (52 front frames, capture +7°, spread 4°)
@@ -1206,6 +1254,11 @@ M.ChoreoHeadTilt = {
 	[83504291197334] = { { part = "Head", keys = { { 1.20, 0, 0, 0 }, { 1.40, 0, 0, 30 }, { 1.60, 0, 0, 21 }, { 1.80, 0, 0, 0 } } }, { part = "Head", keys = { { 1.80, 0, 0, 0 }, { 2.00, 0, 0, 19 }, { 2.20, 0, 0, 21 }, { 2.40, 0, 0, 0 } } } }, -- Lemon Tang 22
 	[115787352538480] = { { part = "Head", keys = { { 9.40, 0, 0, 0 }, { 9.60, 0, 0, 10 }, { 9.80, 0, 0, 11 }, { 10.00, 0, 0, 0 } } } }, -- Lemon Tang 23
 	[122848199967536] = { { part = "Head", keys = { { 7.00, 0, 0, 0 }, { 7.20, 0, 0, -8 }, { 7.40, 0, 0, -12 }, { 7.60, 0, 0, 0 } } } }, -- Lemon Tang 1 (D-1060)
+	-- (D-1064) Lemon Tang clips 19-24 cut again: the same head check
+	[128761870790634] = { { part = "Head", keys = { { 2.80, 0, 0, 0 }, { 3.00, 0, 0, 25 }, { 3.20, 0, 0, 14 }, { 3.40, 0, 0, 0 } } } }, -- Lemon Tang 19
+	[92757942038731] = { { part = "Head", keys = { { 1.40, 0, 0, 0 }, { 1.60, 0, 0, 23 }, { 1.80, 0, 0, 30 }, { 2.00, 0, 0, 20 }, { 2.20, 0, 0, 15 }, { 2.40, 0, 0, 0 } } } }, -- Lemon Tang 22
+	[110433660488854] = { { part = "Head", keys = { { 2.60, 0, 0, 0 }, { 2.80, 0, 0, 16 }, { 3.00, 0, 0, 28 }, { 3.20, 0, 0, 14 }, { 3.40, 0, 0, 0 } } }, { part = "Head", keys = { { 5.40, 0, 0, 0 }, { 5.60, 0, 0, 10 }, { 5.80, 0, 0, 11 }, { 6.00, 0, 0, 0 } } } }, -- Lemon Tang 23
+	[87039448079710] = { { part = "Head", keys = { { 0.80, 0, 0, 0 }, { 1.00, 0, 0, 20 }, { 1.20, 0, 0, 20 }, { 1.40, 0, 0, 0 } } }, { part = "Head", keys = { { 6.80, 0, 0, 0 }, { 7.00, 0, 0, -9 }, { 7.20, 0, 0, -11 }, { 7.40, 0, 0, 0 } } }, { part = "Head", keys = { { 7.80, 0, 0, 0 }, { 8.00, 0, 0, -15 }, { 8.20, 0, 0, -14 }, { 8.30, 0, 0, 0 } } } }, -- Lemon Tang 24
 	[109571265510769] = { { part = "Head", keys = { { 2.40, 0, 0, 0 }, { 2.60, 0, 0, 24 }, { 2.80, 0, 0, 30 }, { 3.00, 0, 0, 29 }, { 3.20, 0, 0, 30 }, { 3.40, 0, 0, 24 }, { 3.60, 0, 0, 0 } } }, { part = "Head", keys = { { 6.40, 0, 0, 0 }, { 6.60, 0, 0, 15 }, { 6.80, 0, 0, 18 }, { 7.00, 0, 0, 0 } } } }, -- 갑자기 6
 	[72886571801726] = { { part = "Head", keys = { { 0.00, 0, 0, 19 }, { 0.20, 0, 0, 18 }, { 0.40, 0, 0, 0 } } }, { part = "Head", keys = { { 4.60, 0, 0, 0 }, { 4.80, 0, 0, 19 }, { 5.00, 0, 0, 29 }, { 5.20, 0, 0, 21 }, { 5.40, 0, 0, 13 }, { 5.60, 0, 0, 0 } } } }, -- 갑자기 9
 	[104001486192661] = { { part = "Head", keys = { { 7.00, 0, 0, 0 }, { 7.20, 0, 0, -13 }, { 7.40, 0, 0, -12 }, { 7.60, 0, 0, 0 } } } }, -- 갑자기 10
@@ -1329,6 +1382,7 @@ M.ChoreoWristBend = {
 	[115787352538480] = { { part = "LeftHand", keys = { { 0.60, 0, 0, 0 }, { 0.80, 0, 0, 38 }, { 1.00, 0, 0, 40 }, { 1.20, 0, 0, 0 } } }, { part = "RightHand", keys = { { 4.20, 0, 0, 0 }, { 4.40, -28, 0, 0 }, { 4.60, -40, 0, 0 }, { 4.80, 0, 0, 0 } } } }, -- Lemon Tang 23
 	[99840608563579] = { { part = "LeftHand", keys = { { 5.40, 0, 0, 0 }, { 5.60, 40, 0, 0 }, { 5.80, 40, 0, 0 }, { 6.00, 0, 0, 0 } } } }, -- Lemon Tang 25
 	[98315614070332] = { { part = "LeftHand", keys = { { 4.60, 0, 0, 0 }, { 4.80, 0, 0, 39 }, { 5.00, 0, 0, 40 }, { 5.20, 0, 0, 37 }, { 5.40, 0, 0, 0 } } } }, -- Lemon Tang 27
+	[92757942038731] = { { part = "LeftHand", keys = { { 3.60, 0, 0, 0 }, { 3.80, 35, 0, 0 }, { 4.00, 22, 0, 0 }, { 4.20, 30, 0, 0 }, { 4.40, 0, 0, 0 } } }, { part = "LeftHand", keys = { { 5.60, 0, 0, 0 }, { 5.80, 40, 0, 0 }, { 6.00, 40, 0, 0 }, { 6.20, 0, 0, 0 } } } }, -- Lemon Tang 22 (D-1064)
 	[140529283375287] = { { part = "LeftHand", keys = { { 3.00, 0, 0, 0 }, { 3.20, 0, 0, 40 }, { 3.40, 0, 0, 40 }, { 3.60, 0, 0, 40 }, { 3.80, 0, 0, 0 } } } }, -- 갑자기 3
 	[127323208506008] = { { part = "RightHand", keys = { { 0.60, 0, 0, 0 }, { 0.80, 40, 0, 0 }, { 1.00, 38, 0, 0 }, { 1.20, 0, 0, 0 } } }, { part = "RightHand", keys = { { 2.20, 0, 0, 0 }, { 2.40, 22, 0, 0 }, { 2.60, 27, 0, 0 }, { 2.80, 30, 0, 0 }, { 3.00, 19, 0, 0 }, { 3.20, 33, 0, 0 }, { 3.40, 0, 0, 0 } } } }, -- Genie 3
 	[105545108302127] = { { part = "RightHand", keys = { { 6.60, 0, 0, 0 }, { 6.80, 0, 0, 36 }, { 7.00, 0, 0, 37 }, { 7.20, 0, 0, 0 } } } }, -- Genie 6

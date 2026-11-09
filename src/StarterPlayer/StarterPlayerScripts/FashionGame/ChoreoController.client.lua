@@ -759,6 +759,15 @@ RunService.PreSimulation:Connect(function(dt)
 									end
 									local e = math.clamp(math.min(tt - f.from, f.to - tt) / (f.ease or 0.3), 0, 1)
 									e = e * e * (3 - 2 * e) * math.min(t.WeightCurrent, 1)
+									-- (D-1062, user: Lemonade 2:22 "엉덩이랑 상체 고정. 흔들림") with the legs free, each
+									-- leg dipping under the floor lifted the frozen hips and they sank back as
+									-- the lift eased off (2.02 → 1.50 and up again): once the freeze is in, the
+									-- hips keep the highest lift it has needed, so they stay put
+									if tt >= f.from + (f.ease or 0.3) then
+										local key = "lift:" .. tostring(f)
+										lift = math.max(store[key] or 0, lift)
+										store[key] = lift
+									end
 									for part, j in pairs(joints) do
 										if pose[part] and not (f.except and table.find(f.except, part)) then
 											local want = if part == "LowerTorso" then CFrame.new(0, lift, 0) * pose[part] else pose[part]
@@ -767,6 +776,7 @@ RunService.PreSimulation:Connect(function(dt)
 									end
 								else
 									store[f] = nil
+									store["lift:" .. tostring(f)] = nil
 								end
 							end
 						end
