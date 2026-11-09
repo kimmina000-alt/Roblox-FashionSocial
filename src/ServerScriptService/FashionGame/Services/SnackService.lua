@@ -1576,6 +1576,15 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 			if tool:GetAttribute("Ramen") then RamenCup.noodleColor(tool:GetAttribute("Snack")) else Color3.fromRGB(245, 215, 130))
 		local mesh = Instance.new("SpecialMesh") mesh.MeshType = Enum.MeshType.Sphere mesh.Parent = bundle
 		attach(handle, bundle, CFrame.new(0.03, 0.42, -0.02))
+	elseif FoodShapes.TableEat[item.key] == "hand" then
+		-- (D-1154) a bread piece taken by hand: an unseen handle, the piece on it below
+		spoon.Name = item.name
+		handle = part("Handle", Vector3.new(0.2, 0.2, 0.2), item.color)
+		handle.Transparency = 1
+		handle.Parent = spoon
+		local at = part("Soup", Vector3.new(0.05, 0.05, 0.05), item.color)
+		at.Transparency = 1
+		attach(handle, at, CFrame.new(0, 0.12, 0))
 	elseif FoodShapes.TableEat[item.key] == "fork" then
 		-- (D-1147) a dessert fork for the honey bread: a thin steel handle, a
 		-- flat head and four tines at +Y; the piece goes on the tines below
@@ -1634,7 +1643,9 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 				c.Parent = holder
 			end
 			local _, size = holder:GetBoundingBox()
-			holder:ScaleTo(holder:GetScale() * 0.26 / math.max(size.X, size.Y, size.Z, 0.01))
+			-- (on a spoon or a fork a small bite; by hand the piece as it lay on the plate, D-1154)
+			local fit = if FoodShapes.TableEat[item.key] == "hand" then 1 else 0.26 / math.max(size.X, size.Y, size.Z, 0.01)
+			holder:ScaleTo(holder:GetScale() * fit)
 			local cf = holder:GetBoundingBox()
 			-- (where the soup sat in the spoon; the piece keeps the way it lay in the bowl)
 			local at: Vector3 = if soup and soup:IsA("BasePart") then soup.Position else (handle.CFrame * Vector3.new(0, 0.4, 0.03))

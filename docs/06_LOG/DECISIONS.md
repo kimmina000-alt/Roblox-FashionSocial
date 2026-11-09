@@ -3825,3 +3825,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "허니브레드 파일 보냄. 이것도 국밥처럼 클릭한 조각 먹게 해." (D:\Roblox\오후\3D 물\HoneyBread.glb, Studio에 가져옴).
 - ServerStorage.ArtAssets.Foods.HoneyBreadBites (place 전용) = Plate (흰 접시) + Bite1..Bite9 (조각마다 Cream (254,252,249) + Bread (239,207,150): 파일의 재질 색을 sRGB로). D-1147의 임시 모델 (크림 → 빵 2조각)을 바꿈. 원본: Foods._Imports_cafe_1110.HoneyBread_glb_1110.
 - 코드는 그대로: 테이블에서 누른 조각 (SnackController가 조각을 찾아 "Spoon"에 넘김, D-1037)을 포크로, 손에서는 Bite1부터. Play 확인: 테이블에서 모서리 조각 (3번)을 누르면 그 조각만 사라짐.
+## D-1154 카페 빵 3종 조각 모델 + 테이블에서 누른 조각 손으로 (2026-11-10)
+- 사용자: 소금빵 / 베이글 / 크루아상을 Bite1..3으로 나눈 파일 (D:\Roblox\오후\3D 물\CAFE_SaltBread.glb, CAFE_bagel.glb, CAFE_STRAWBERRY CROISSANT.glb → 이미지 1024를 512로 줄인 CAFE_STRAWBERRY CROISSANT_512.glb), "가져오기 했음. 테이블에서 누른 조각 먹게도 해".
+- 소금빵 원본은 Studio에서 꺼내 줌: EditableMesh로 정점 / UV / 면을 읽어 압축 (localhost 전송은 Studio Assistant가 막음) → D:\Roblox\오후\3D 물\export_SaltBread.glb (2,978면, 이미지 docs/04_ART/textures/props/saltbread_color.png를 512로). 베이글 (Creator Store 에셋)은 권한이 없어 못 꺼냄 → 사용자가 새로 만듦.
+- ServerStorage.ArtAssets.Foods (place 전용): SaltBreadBites, BagelBites, CroissantBites = Bite1..3 (부품 이름 Bread, 색 흰색: 가져오기의 회색 기본색이 이미지를 어둡게 함). 원본은 Foods._Imports_cafe_1110.*_glb_1110. 손에서는 크기 그대로 Bite1부터 한 조각씩 (EatMode Bites).
+- FoodShapes.TableEat saltbread / bagel / croissant = "hand": 테이블에서 누른 조각을 숟가락 / 포크 없이 손으로 (보이지 않는 손잡이에 그 조각을 테이블에 있던 크기 그대로), 입으로.
+- Play 확인: 세 빵 모두 Bites 3, 베이글을 테이블에 놓고 2번 조각을 누르면 그 조각을 손에 들고 먹음. 크루아상은 아직 회색 임시 모양으로 보임 (Roblox가 새 메시 / 이미지를 처리하는 중으로 보임: Studio에서는 UV 4,116개, 이미지 512 정상. 소금빵도 처음엔 회색이었다가 나옴). 따로 올린 512 이미지 88369617984548 도 있음.

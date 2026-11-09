@@ -38,7 +38,10 @@ FoodShapes.Level = { iceamericano = true, hotamericano = true,
 -- (D-1147, user 2026-11-10: "딸기파르페 … 테이블에 놓고 숟가락으로 떠먹는 액션 / 허니카라멜
 -- 브레드 테이블에 놓고 포크로 찍어 먹는 액션") eaten on the table with this, a piece
 -- ("Bite<n>" of the item's "<Name>Bites" model) per tap, like a 국밥 spoonful
-FoodShapes.TableEat = { parfait = "spoon", honeybread = "fork" }
+FoodShapes.TableEat = { parfait = "spoon", honeybread = "fork",
+	-- (D-1154, user 2026-11-10: "테이블에서 누른 조각 먹게도 해") the breads: the piece
+	-- tapped is picked up by hand, as it is, and eaten
+	saltbread = "hand", bagel = "hand", croissant = "hand" }
 
 local UP = CFrame.Angles(0, 0, math.rad(90)) -- a Part cylinder runs along X: this stands it up
 
