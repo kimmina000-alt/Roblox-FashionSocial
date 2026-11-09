@@ -27,6 +27,11 @@ PhotoConfig.ShotCount = 8          -- photos taken per session
 PhotoConfig.PickCount = 4          -- photos kept (4컷)
 PhotoConfig.ShotSeconds = 10       -- countdown per photo
 PhotoConfig.FirstShotSeconds = 8   -- a little longer to pick the first pose
+-- (D-1126) the motion video of the picked cuts (PhotoMotionReel): seconds
+-- before each shot. A Roblox video capture is 30 s at most: 4 cuts x (5 s +
+-- 1 s still) = 24 s; 7 s would be 32 s (cut off) and would also show the end of
+-- the previous shot (countdown 8-10 s).
+PhotoConfig.MotionClipSeconds = 5
 -- (D-1011, user 2026-11-08: "어제 오후네컷 네 명이 찍으려고 하니까 안 된다는 의견 있었는데 동시에 들어가지 말고 시간차 두고 입장하고 네 명 초과하면 입장 안 되는지 세세한 부분 체크") the 7-player test: by the time the
 -- others had walked up and tapped 같이 찍기, the 10 s were over and the host
 -- shot alone. Now 30 s; each person who joins gives everyone at least 15 s
