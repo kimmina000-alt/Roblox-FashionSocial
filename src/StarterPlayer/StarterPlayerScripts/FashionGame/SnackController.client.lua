@@ -553,6 +553,22 @@ do
 		local screen = pointOf(input)
 		local tool = heldFood()
 		local short = os.clock() - p.at < HOLD
+		-- (D-1104) the OH24 microwave: a tap on it with a 삼각김밥 in the hand
+		-- warms it; a tap on the 삼각김밥 inside (door open) takes it back
+		if short and not p.moved then
+			local hit = rayAt(screen)
+			if hit and CollectionService:HasTag(hit.Instance, "MicrowaveFood") then
+				ask("MicrowaveTake", hit.Instance)
+				return
+			end
+			local held = heldAny()
+			local key = held and held:GetAttribute("Snack")
+			if hit and CollectionService:HasTag(hit.Instance, "Microwave") and typeof(key) == "string" and string.sub(key, 1, 6) == "samgak" then
+				if input.UserInputType == Enum.UserInputType.Touch then ghost.Parent = nil end
+				ask("Microwave", hit.Instance)
+				return
+			end
+		end
 		if tool then
 			local tablePart, spot, ok = spotFor(screen, tool)
 			if input.UserInputType == Enum.UserInputType.Touch then ghost.Parent = nil end

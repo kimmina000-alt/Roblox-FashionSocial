@@ -26,6 +26,7 @@ local EconomyConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("E
 local MonetizationService = require(script.Parent.MonetizationService)
 local FoodShapes = require(script.Parent.FoodShapes)
 local RamenCup = require(script.Parent:WaitForChild("RamenCup")) -- (D-1053: the user's cup ramen)
+local Microwave = require(script.Parent:WaitForChild("Microwave")) -- (D-1104: 삼각김밥 warmed in the OH24 microwave)
 
 local SnackService = {}
 local economy: any = nil
@@ -383,19 +384,31 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	if tool:GetAttribute("Wrapped") then
 		tool:SetAttribute("Wrapped", nil)
 		local h = tool:FindFirstChild("Handle")
+		-- (D-1105, user 2026-11-09: "삼각김밥 처음에 포장 뜯을 때 양 손으로 뜯는 모션
+		-- 추가") the character attribute "Unwrap" (a count) starts the two-hand
+		-- tear on every client (EatMotionController): both hands come together in
+		-- front of the chest (0.35 s), the left one pulls the wrapper off to the side
+		-- (it goes with that hand, a copy on each client) and the arms go down
+		-- (1.3 s in all). The wrapper on the item goes when the pull starts.
+		local character = tool.Parent
+		if character and character:IsA("Model") then
+			character:SetAttribute("Unwrap", ((character:GetAttribute("Unwrap") :: number?) or 0) + 1)
+		end
+		tool:SetAttribute("Busy", true)
+		task.delay(1.3, function() if tool.Parent then tool:SetAttribute("Busy", nil) end end)
 		if h and h:IsA("BasePart") then
 			local set = eatenOf(tool)
 			set[1] = true
 			setEaten(tool, set)
-			applyEaten(h, set)
+			task.delay(0.45, function() if h.Parent then applyEaten(h, set) end end)
 			local snd = Instance.new("Sound")
 			snd.SoundId = "rbxassetid://" .. tostring(SOUND_WRAPPER)
 			snd.Volume = 0.9
 			snd.RollOffMaxDistance = 40
 			snd.Parent = h
-			snd:Play()
+			task.delay(0.3, function() if snd.Parent then snd:Play() end end)
 			-- (D-1080, user 2026-11-09: "삼각김밥 처음에 포장 뜯을 때 소리 1.5초만 쓰기")
-			task.delay(1.5, function() if snd.Parent then snd:Stop() snd:Destroy() end end)
+			task.delay(1.8, function() if snd.Parent then snd:Stop() snd:Destroy() end end)
 		end
 		tool:SetAttribute("Bites", ((tool:GetAttribute("Bites") :: number?) or bitesOf(item)) - 1)
 		tool.ToolTip = "클릭(터치)해서 먹기"
@@ -1684,7 +1697,8 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- from a shared plate is eaten from the hand, never put down
 	if tool and tool:GetAttribute("Piece") then return false, nil end
 	if not root or not tool or not tool:GetAttribute("Snack") then return false, "손에 든 음식이 없어요." end
-	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return false, "먹는 중이에요." end
+	-- (D-1106, user 2026-11-09: "먹는 중이에요. 삭제") nothing on the screen
+	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return false, nil end
 	local handle = tool:FindFirstChild("Handle")
 	if not handle or not handle:IsA("BasePart") then return false, nil end
 	local reach = math.max(tablePart.Size.X, tablePart.Size.Y, tablePart.Size.Z) / 2 + 8
@@ -2048,7 +2062,7 @@ end
 local function pickUp(player: Player, model: any): (boolean, string?)
 	local entry = ownPlaced(player, model)
 	if not entry then return false, nil end
-	if (model :: Model):GetAttribute("Busy") then return false, "먹는 중이에요." end
+	if (model :: Model):GetAttribute("Busy") then return false, nil end -- (D-1106: no "먹는 중이에요.")
 	local tool = entry.tool
 	-- (into the backpack, not the hand: giveTool would equip it)
 	local backpack = player:FindFirstChildOfClass("Backpack")
@@ -2073,6 +2087,7 @@ end
 function SnackService.Start(economyService: any)
 	economy = economyService
 	task.spawn(buildFoodPreviews)
+	task.spawn(Microwave.Start) -- (D-1104)
 	local remote = Remotes:WaitForChild("Snack") :: RemoteFunction
 	remote.OnServerInvoke = function(player: Player, action: any, shopKey: any, itemKey: any)
 		if action == "Buy" then return buy(player, shopKey, itemKey) end
@@ -2087,6 +2102,8 @@ function SnackService.Start(economyService: any)
 			return RamenCup.tap(player, tool, function() bite(tool, item :: SnackConfig.Item) end)
 		end
 		if action == "HotWater" then return RamenCup.pour(player, shopKey) end
+		if action == "Microwave" then return Microwave.heat(player, shopKey) end -- (D-1104)
+		if action == "MicrowaveTake" then return Microwave.take(player, shopKey) end
 		if action == "TakePiece" then return takePiece(player, shopKey, itemKey) end -- (D-952; itemKey = the piece pointed at, D-1035)
 		return false, nil
 	end

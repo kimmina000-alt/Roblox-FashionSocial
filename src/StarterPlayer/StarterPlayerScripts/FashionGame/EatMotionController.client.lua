@@ -201,7 +201,226 @@ local function start(character: Model)
 	}
 end
 
+-- (D-1105, user 2026-11-09: "삼각김밥 처음에 포장 뜯을 때 양 손으로 뜯는 모션
+-- 추가") the two-hand tear of a 삼각김밥 wrapper. SnackService counts up the
+-- character attribute "Unwrap"; then both arms come up (the right hand holds
+-- the 삼각김밥 in front of the chest, the left hand meets its top corner), the
+-- left hand pulls off to the side and down with the wrapper (a copy of the
+-- wrapper pieces welded to that hand, here only; the server hides the real one
+-- at the same moment) and both arms go down. Poses found once per tear, like
+-- the bite pose, with a coarser search (six joints, two poses).
+type ArmJoints = { sh: Joint, el: Joint, wr: Joint }
+local T_MEET, T_PULL, T_PULLED, T_DOWN, T_END = 0.3, 0.45, 0.85, 1.0, 1.3
+type Tear = {
+	t0: number, joints: {Joint}, a: {[Joint]: CFrame}, b: {[Joint]: CFrame},
+	base: {[Joint]: CFrame}, last: {[Joint]: CFrame}, copied: boolean, copy: {BasePart},
+}
+local tears: {[Model]: Tear} = {}
+
+local function arm(character: Model, side: string): ArmJoints?
+	local sh = joint(character, side .. "UpperArm", side .. "Shoulder")
+	local el = joint(character, side .. "LowerArm", side .. "Elbow")
+	local wr = joint(character, side .. "Hand", side .. "Wrist")
+	if not sh or not el or not wr then return nil end
+	return { sh = sh, el = el, wr = wr }
+end
+
+-- the three joint rotations that bring `point` (in hand space) to `target`
+-- (UpperTorso space); `out` = +1 for the right arm (its elbow out to +X), -1 left
+local function reach(j: ArmJoints, point: CFrame, target: Vector3, out: number, s: number): (CFrame, CFrame, CFrame)
+	local C0s, C1s = frames(j.sh)
+	local C0e, C1e = frames(j.el)
+	local C0w, C1w = frames(j.wr)
+	C1s, C1e, C1w = C1s:Inverse(), C1e:Inverse(), C1w:Inverse()
+	local R = math.rad
+	local function fk(sp: number, sy: number, sz: number, e: number, w: number)
+		local s1 = CFrame.Angles(0, R(sy), 0) * CFrame.Angles(R(sp), 0, R(sz))
+		local e1 = CFrame.Angles(R(e), 0, 0)
+		local w1 = CFrame.Angles(R(w), 0, 0)
+		local upper = C0s * s1 * C1s
+		local lower = upper * C0e * e1 * C1e
+		local h = lower * C0w * w1 * C1w
+		return (h * point).Position, lower.Position, h.Position, s1, e1, w1
+	end
+	local function cost(sp: number, sy: number, sz: number, e: number, w: number): number
+		local p, elbow, h = fk(sp, sy, sz, e, w)
+		local c = (p - target).Magnitude / s
+		c += math.max(0, (h.X - elbow.X) * out + 0.15 * s) * 0.4 / s -- (elbow out)
+		c += math.max(0, elbow.Y - h.Y) * 0.4 / s -- (elbow below the hand)
+		c += math.abs(w) / 300 + math.abs(sy) / 400
+		return c
+	end
+	local best, b = math.huge, { 50, 0, 0, 90, 0 }
+	for sp = 0, 120, 20 do
+		for sy = -40, 40, 20 do
+			for sz = -40, 40, 20 do
+				for e = 0, 140, 20 do
+					local c = cost(sp, sy, sz, e, 0)
+					if c < best then best, b = c, { sp, sy, sz, e, 0 } end
+				end
+			end
+		end
+	end
+	for _, step in ipairs({ 10, 5, 2.5 }) do
+		local c0 = table.clone(b)
+		for dsp = -1, 1 do
+			for dsy = -1, 1 do
+				for dsz = -1, 1 do
+					for de = -1, 1 do
+						for dw = -1, 1 do
+							local q = { c0[1] + dsp * step, c0[2] + dsy * step, c0[3] + dsz * step, c0[4] + de * step, c0[5] + dw * step * 2 }
+							local c = cost(q[1], q[2], q[3], q[4], q[5])
+							if c < best then best, b = c, q end
+						end
+					end
+				end
+			end
+		end
+	end
+	local _, _, _, s1, e1, w1 = fk(b[1], b[2], b[3], b[4], b[5])
+	return s1, e1, w1
+end
+
+local function startTear(character: Model)
+	local torso = character:FindFirstChild("UpperTorso") :: BasePart?
+	local head = character:FindFirstChild("Head") :: BasePart?
+	local rhand = character:FindFirstChild("RightHand") :: BasePart?
+	local right, left = arm(character, "Right"), arm(character, "Left")
+	if not torso or not head or not rhand or not right or not left then return end
+	local s = head.Size.Y
+	local tool = character:FindFirstChildOfClass("Tool")
+	local handle = tool and tool:FindFirstChild("Handle")
+	local gripAtt = rhand:FindFirstChild("RightGripAttachment") :: Attachment?
+	local grip = if gripAtt then gripAtt.CFrame else CFrame.new(0, -rhand.Size.Y / 2, 0)
+	-- the middle and the size of what the right hand holds (hand space)
+	local centre, size = grip, Vector3.one * 0.6
+	if tool and handle and handle:IsA("BasePart") then
+		local _, _, sz = heldPoint(tool, handle, grip)
+		local lo, hi = Vector3.one * math.huge, -Vector3.one * math.huge
+		for _, p in ipairs(tool:GetDescendants()) do
+			if p:IsA("BasePart") and p.Transparency < 0.95 then
+				local rel = handle.CFrame:ToObjectSpace(p.CFrame)
+				lo, hi = lo:Min(rel.Position), hi:Max(rel.Position)
+			end
+		end
+		centre = grip * tool.Grip:Inverse() * CFrame.new((lo + hi) / 2)
+		size = sz
+	end
+	local front = -(torso.Size.Z / 2 + 0.75 * s)
+	-- the 삼각김밥 in front of the chest (from the head down: torsos differ in length)
+	local headAt = torso.CFrame:PointToObjectSpace(head.Position)
+	local item = Vector3.new(0.12 * s, headAt.Y - 1.05 * s, front)
+	local lift = math.max(size.Y, 0.5) / 2
+	local lhand = character:FindFirstChild("LeftHand") :: BasePart?
+	local lgrip = if lhand then CFrame.new(0, -lhand.Size.Y / 2, 0) else CFrame.identity
+	local ra = { reach(right, centre, item, 1, s) }
+	local la = { reach(left, lgrip, item + Vector3.new(-0.12 * s, lift + 0.05 * s, 0.05 * s), -1, s) }
+	local rb = { reach(right, centre, item + Vector3.new(0.3 * s, -0.05 * s, 0), 1, s) }
+	local lb = { reach(left, lgrip, item + Vector3.new(-0.85 * s, -0.15 * s, 0.15 * s), -1, s) }
+	local joints = { right.sh, right.el, right.wr, left.sh, left.el, left.wr }
+	local a, b = {}, {}
+	for i, j in ipairs(joints) do
+		a[j] = if i <= 3 then ra[i] else la[i - 3]
+		b[j] = if i <= 3 then rb[i] else lb[i - 3]
+	end
+	local old = tears[character]
+	if old then for _, c in ipairs(old.copy) do c:Destroy() end end
+	tears[character] = { t0 = os.clock(), joints = joints, a = a, b = b, base = if old then old.base else {}, last = if old then old.last else {}, copied = false, copy = {} }
+end
+
+-- the wrapper pieces (attribute Bite = 1) copied into the left hand
+local function wrapperToHand(character: Model, tear: Tear)
+	tear.copied = true
+	local tool = character:FindFirstChildOfClass("Tool")
+	local lhand = character:FindFirstChild("LeftHand") :: BasePart?
+	if not tool or not lhand then return end
+	for _, p in ipairs(tool:GetDescendants()) do
+		if p:IsA("BasePart") and p:GetAttribute("Bite") == 1 then
+			local c = p:Clone()
+			for _, ch in ipairs(c:GetChildren()) do
+				if ch:IsA("Decal") or ch:IsA("Texture") then
+					ch.Transparency = 0
+				elseif not (ch:IsA("SpecialMesh") or ch:IsA("SurfaceAppearance")) then
+					ch:Destroy()
+				end
+			end
+			local t0 = p:GetAttribute("BiteT0")
+			c.Transparency = if typeof(t0) == "number" then t0 else p.Transparency
+			c.Anchored = false
+			c.CanCollide = false
+			c.CanQuery = false
+			c.CanTouch = false
+			c.Massless = true
+			c.CFrame = p.CFrame
+			c.Parent = workspace
+			local w = Instance.new("WeldConstraint")
+			w.Part0 = lhand
+			w.Part1 = c
+			w.Parent = c
+			table.insert(tear.copy, c)
+		end
+	end
+end
+
+local function smooth(x: number): number
+	x = math.clamp(x, 0, 1)
+	return x * x * (3 - 2 * x)
+end
+
+RunService.PreSimulation:Connect(function()
+	for character, tear in pairs(tears) do
+		local t = os.clock() - tear.t0
+		if not character.Parent then
+			for _, c in ipairs(tear.copy) do c:Destroy() end
+			tears[character] = nil
+			continue
+		end
+		if t >= T_PULL and not tear.copied then wrapperToHand(character, tear) end
+		-- the wrapper copy fades once it is off
+		if t > T_PULLED then
+			local f = math.clamp((t - T_PULLED) / (T_END - T_PULLED), 0, 1)
+			for _, c in ipairs(tear.copy) do
+				c.LocalTransparencyModifier = f
+				for _, ch in ipairs(c:GetChildren()) do
+					if ch:IsA("Decal") or ch:IsA("Texture") then ch.Transparency = f end
+				end
+			end
+		end
+		local done = t >= T_END
+		for _, j in ipairs(tear.joints) do
+			if not j.Parent then done = true break end
+			local now = j.Transform
+			local last = tear.last[j]
+			if not last or not now:FuzzyEq(last, 1e-4) then tear.base[j] = now end
+			local base = tear.base[j] or now
+			local out
+			if done then
+				out = base
+			elseif t < T_MEET then
+				out = base:Lerp(tear.a[j], smooth(t / T_MEET))
+			elseif t < T_PULL then
+				out = tear.a[j]
+			elseif t < T_PULLED then
+				out = tear.a[j]:Lerp(tear.b[j], smooth((t - T_PULL) / (T_PULLED - T_PULL)))
+			elseif t < T_DOWN then
+				out = tear.b[j]
+			else
+				out = tear.b[j]:Lerp(base, smooth((t - T_DOWN) / (T_END - T_DOWN)))
+			end
+			j.Transform = out
+			tear.last[j] = out
+		end
+		if done then
+			for _, c in ipairs(tear.copy) do c:Destroy() end
+			tears[character] = nil
+		end
+	end
+end)
+
 local function watch(character: Model)
+	character:GetAttributeChangedSignal("Unwrap"):Connect(function()
+		if character:FindFirstChild("UpperTorso") then startTear(character) end
+	end)
 	local function update()
 		if character:GetAttribute("Eating") then
 			start(character)
