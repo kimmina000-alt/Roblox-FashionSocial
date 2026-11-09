@@ -218,6 +218,7 @@ end
 viewer.Activated:Connect(closeViewer)
 viewerClose.Activated:Connect(closeViewer)
 local placing: { wall: BasePart, photo: any, ghost: BasePart }? = nil
+local heldWallTap: ((BasePart, number, number) -> ())? = nil -- (D-1108, set below)
 local function openViewer(photo: any)
 	if placing then return end
 	closeViewer()
@@ -260,7 +261,17 @@ local function drawEntry(entry: Entry, order: number)
 		Text = "",
 		ZIndex = 1000,
 	}, frame)
-	tap.Activated:Connect(function() openViewer(entry.photo) end)
+	-- (D-1108) with a photo in the hand the tap is a spot to stick it; with
+	-- empty hands it shows this one big; anything else in the hand: nothing
+	tap.Activated:Connect(function()
+		local character = player.Character
+		local tool = character and character:FindFirstChildOfClass("Tool")
+		if tool and typeof(tool:GetAttribute("PhotoId")) == "string" then
+			if heldWallTap then heldWallTap(wall, entry.u, entry.v) end
+		elseif not tool then
+			openViewer(entry.photo)
+		end
+	end)
 	drawn[entry.id] = frame
 	drawnWall[entry.id] = wall
 end
@@ -277,11 +288,23 @@ local function redrawAll()
 	for index, entry in ipairs(entries) do drawEntry(entry, index) end
 end
 
+-- (D-1108) the server loads the wall from the DataStore when it starts: the
+-- first player of a new server (and every Studio test) asked before that and
+-- got an empty wall for good. Asked again a few times while it is empty.
 task.spawn(function()
-	local ok, list = invoke("GetWall", nil)
-	if ok and typeof(list) == "table" then
-		for _, entry in ipairs(list) do table.insert(entries, entry) end
-		redrawAll()
+	for _, delay in ipairs({ 0, 4, 10, 25 }) do
+		task.wait(delay)
+		local ok, list = invoke("GetWall", nil)
+		if ok and typeof(list) == "table" and #list > 0 then
+			local have = {}
+			for _, e in ipairs(entries) do have[e.id] = true end
+			for _, entry in ipairs(list) do
+				if not have[entry.id] then table.insert(entries, entry) end
+			end
+			table.sort(entries, function(a, b) return (a.at or 0) < (b.at or 0) end)
+			redrawAll()
+			return
+		end
 	end
 end)
 
@@ -389,7 +412,7 @@ local function stopPlacing()
 	cancelButton.Visible = false
 end
 
-local function startPlacing(wall: BasePart, photo: any)
+local function startPlacing(wall: BasePart, photo: any, u0: number?, v0: number?)
 	stopPlacing()
 	local size = photoSize(photo.layout)
 	local frameInfo = PhotoConfig.findFrame(photo.frame) or PhotoConfig.Frames[2]
@@ -403,7 +426,7 @@ local function startPlacing(wall: BasePart, photo: any)
 		Color = frameInfo.color,
 		Material = Enum.Material.Neon,
 		Transparency = 0.35,
-		CFrame = wallCFrame(wall, 0.5, 0.5),
+		CFrame = wallCFrame(wall, u0 or 0.5, v0 or 0.5), -- (D-1108: where the wall was tapped)
 	}, workspace)
 	placing = { wall = wall, photo = photo, ghost = ghost }
 	setTaps(false)
@@ -436,18 +459,35 @@ local function pointerUV(screen: Vector2, touch: boolean?): (number?, number?)
 	return math.clamp(u, mu, 1 - mu), math.clamp(v, mv, 1 - mv)
 end
 
+-- (D-1108) the preview follows the mouse; on a phone it stays where the wall
+-- was tapped and follows a finger moving over the wall
 RunService.RenderStepped:Connect(function()
 	local state = placing
-	if not state then return end
+	if not state or not UserInputService.MouseEnabled then return end
 	local u, v = pointerUV(UserInputService:GetMouseLocation())
 	if u and v then state.ghost.CFrame = wallCFrame(state.wall, u, v) end
 end)
-
-local posting = false
-UserInputService.InputBegan:Connect(function(input, processed)
+UserInputService.InputChanged:Connect(function(input)
 	local state = placing
-	if not state or processed or posting then return end
+	if not state or input.UserInputType ~= Enum.UserInputType.Touch then return end
+	local u, v = pointerUV(Vector2.new(input.Position.X, input.Position.Y), true)
+	if u and v then state.ghost.CFrame = wallCFrame(state.wall, u, v) end
+end)
+
+-- (D-1108) a short tap (not a drag) on the wall sticks it there
+local posting = false
+local placeDown: {[InputObject]: { t: number, p: Vector3 }} = {}
+UserInputService.InputBegan:Connect(function(input, processed)
+	if not placing or processed then return end
 	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
+	placeDown[input] = { t = os.clock(), p = input.Position }
+end)
+UserInputService.InputEnded:Connect(function(input, processed)
+	local d = placeDown[input]
+	placeDown[input] = nil
+	local state = placing
+	if not d or not state or processed or posting then return end
+	if os.clock() - d.t > 0.5 or (input.Position - d.p).Magnitude > 14 then return end
 	local touch = input.UserInputType == Enum.UserInputType.Touch
 	local position = if touch
 		then Vector2.new(input.Position.X, input.Position.Y)
@@ -517,33 +557,31 @@ local function heldPhotoId(): string?
 	return if typeof(id) == "string" then id else nil
 end
 
-local function useWall(wall: BasePart)
-	-- Holding a photo item: stick that one; otherwise choose from the album.
+-- (D-1108, user 2026-11-09: "벽에 붙이기 안내창 뜨는 거 지우고 사진 손에 들고 벽
+-- 눌러야 붙일 수 있게 위치 잡을 수 있게 하고 빈손으로 사진 누르면 크게 보는 걸로
+-- 하자") only the photo in the hand is stuck on: a tap on the wall with it puts
+-- its preview there (the next tap sticks it); no E prompt, no album window.
+-- With empty hands a tap on a photo shows it big (drawEntry's Tap button).
+local function useWall(wall: BasePart, u: number?, v: number?)
 	local held = heldPhotoId()
-	if held then
-		local ok, data = invoke("GetAlbum", nil)
-		if ok and typeof(data) == "table" then
-			for _, photo in ipairs(data.photos or {}) do
-				if photo.id == held then
-					startPlacing(wall, photo)
-					return
-				end
+	if not held then return end
+	local ok, data = invoke("GetAlbum", nil)
+	if ok and typeof(data) == "table" then
+		for _, photo in ipairs(data.photos or {}) do
+			if photo.id == held then
+				startPlacing(wall, photo, u, v)
+				return
 			end
 		end
 	end
-	openPicker(wall)
+	toast("사진첩에 없는 사진이에요.")
 end
-ProximityPromptService.PromptTriggered:Connect(function(prompt)
-	if prompt.Name ~= "WallPrompt" then return end
-	local wall = prompt.Parent
-	if not wall or not wall:IsA("BasePart") or not CollectionService:HasTag(wall, "PhotoWall") then return end
-	useWall(wall)
-end)
+heldWallTap = function(wall: BasePart, u: number, v: number)
+	useWall(wall, u, v)
+end
 
--- (D-1094, user 2026-11-09: "... e 사진 붙이기만 띄우지 말고") a short tap / click
--- straight on a photo wall nearby opens the album too (the E prompt sits in the
--- middle of a wall, far from the ends of the long ones). Not while placing, a
--- window is open, or something is in the hand (that tap is a bite / a throw).
+-- (D-1094) a short tap / click straight on a photo wall nearby, with a photo in
+-- the hand (D-1108). Not while placing or a window is open.
 do
 	local downAt: {[InputObject]: { t: number, p: Vector3 }} = {}
 	UserInputService.InputBegan:Connect(function(input, processed)
@@ -560,7 +598,7 @@ do
 		if os.clock() - d.t > 0.4 or (input.Position - d.p).Magnitude > 12 then return end
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if not root or character:FindFirstChildOfClass("Tool") then return end
+		if not root or not heldPhotoId() then return end
 		local camera = workspace.CurrentCamera
 		local touch = input.UserInputType == Enum.UserInputType.Touch
 		local ray = if touch then camera:ScreenPointToRay(input.Position.X, input.Position.Y)
@@ -572,7 +610,8 @@ do
 		local wall = hit and hit.Instance
 		if not wall or not wall:IsA("BasePart") or not CollectionService:HasTag(wall, "PhotoWall") then return end
 		if (hit.Position - root.Position).Magnitude > 20 then return end
-		useWall(wall)
+		local u, v = uvOf(wall, hit.Position)
+		useWall(wall, u, v)
 	end)
 end
 

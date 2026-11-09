@@ -1101,16 +1101,12 @@ local function seedPhotos(player: Player)
 	end
 end
 
+-- (D-1108, user 2026-11-09: "벽에 붙이기 안내창 뜨는 거 지우고") no "사진 붙이기"
+-- prompt on the walls any more: a photo in the hand + a tap on the wall
+-- (PhotoWallController); one left from before (a saved place) is removed
 local function setupWall(wall: Instance)
-	if not wall:IsA("BasePart") or wall:FindFirstChild("WallPrompt") then return end
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "WallPrompt"
-	prompt.ActionText = "사진 붙이기"
-	prompt.ObjectText = "포토월"
-	prompt.MaxActivationDistance = 16
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = wall
-	-- The client opens the album picker and the placement mode.
+	local old = wall:FindFirstChild("WallPrompt")
+	if old then old:Destroy() end
 end
 
 local function handle(player: Player, action: any, payload: any): (boolean, any)
