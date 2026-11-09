@@ -504,6 +504,9 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	local total = bitesOf(item)
 	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
 	tool:SetAttribute("Bites", left)
+	-- (D-1103) this bite's part of the food's XP, to the one eating
+	local eater = Players:GetPlayerFromCharacter(character)
+	if eater and economy then economy.EatXP(eater, tool, left + 1) end
 	-- a third of it is gone, from the top
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
 	local zlo, zhi = tool:GetAttribute("EatZLo"), tool:GetAttribute("EatZHi")
@@ -1021,7 +1024,7 @@ end
 local sharedPlates: {[Model]: (Player, any) -> ()} = {}
 local PLATE_RADIUS = 1.1 -- (the dish: 2.2 across)
 
-local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item, spot: Vector3?)
+local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item, spot: Vector3?, xp: number?)
 	local servings = item.share or 6
 	-- (the real top: round tables are turned cylinders, whose Size.Y is the
 	-- diameter, so a cake floated above them, user 2026-10-27)
@@ -1207,6 +1210,8 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		-- (a 수육 slice is one bite: six bites a plate, user 2026-10-27)
 		if item.kind == "plate" then pieceItem.oneBite = true end
 		local pieceTool = makeTool(pieceItem, baseName .. " 한 " .. pieceWord)
+		-- (D-1103) the piece takes its part of the plate's XP (whoever eats it)
+		if economy then economy.SplitXP(plate, pieceTool, left + 1) end
 		-- (D-790) what it takes to make this piece again after a rejoin
 		pieceTool:SetAttribute("Piece", true)
 		if pieceItem.sliceTexture then pieceTool:SetAttribute("SliceTexture", pieceItem.sliceTexture) end
@@ -1216,6 +1221,7 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		if left <= 0 then plate:Destroy() else refresh() end
 	end
 	sharedPlates[plate] = take
+	plate:SetAttribute("FoodXP", xp) -- (D-1103)
 	plate.Destroying:Connect(function() sharedPlates[plate] = nil end)
 	plate.Parent = tablePart
 	Debris:AddItem(plate, SnackConfig.PlateSeconds)
@@ -1290,25 +1296,29 @@ local function plateTool(player: Player, item: SnackConfig.Item): Tool
 end
 
 -- the developer product of a Robux item was paid
-local function grantProduct(player: Player, item: SnackConfig.Item): (boolean, string?)
+local function grantProduct(player: Player, item: SnackConfig.Item, xp: number?): (boolean, string?)
 	local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
 	if item.share then
 		-- 수육 goes to the backpack first; the buyer puts it on a table by
 		-- clicking next to one (user 2026-10-30: "why is it on the table at once")
 		local t = if item.kind == "plate" then nil else nearestTable(player)
 		if t then
-			placePlate(player, t, item)
+			placePlate(player, t, item, nil, xp)
 			if notify then notify:FireClient(player, "Toast", "🍰 테이블에 놓았어요! 모두 한 조각씩 가져갈 수 있어요.") end
 		else
 			local backpack = player:FindFirstChildOfClass("Backpack")
 			if not backpack then return false, nil end
-			plateTool(player, item).Parent = backpack
+			local held = plateTool(player, item)
+			held:SetAttribute("FoodXP", xp) -- (D-1103: onto the plate when it goes down)
+			held.Parent = backpack
 			if notify then notify:FireClient(player, "Toast", item.name .. " 인벤토리에 넣었어요! 테이블 옆에서 클릭하면 접시를 놓아요.") end
 		end
 		return true, nil
 	end
 	-- a single serving (the parfait): it may go over the hand limit, it is paid
-	if not giveTool(player, makeTool(item)) then return false, nil end
+	local single = makeTool(item)
+	single:SetAttribute("FoodXP", xp) -- (D-1103)
+	if not giveTool(player, single) then return false, nil end
 	if notify then notify:FireClient(player, "Toast", item.name .. " 나왔어요!") end
 	return true, nil
 end
@@ -1360,9 +1370,8 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 			local balance = if economy then economy.Balance(player) else 0
 			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
 		end
-		grantProduct(player, item)
+		grantProduct(player, item, if economy then economy.FoodXPFor(price) else 0) -- (D-1103: XP on the plate)
 		payBeep(player, shop.key)
-		if economy and economy.AddFoodXP then economy.AddFoodXP(player, item) end -- (D-1101)
 		return true, nil
 	end
 	if handsFull(player) then
@@ -1374,10 +1383,7 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	-- coins are paid when ordering, CafeJobService)
 	if orderHandler and not item.product then
 		local handled, message = orderHandler(player, shop, item)
-		if handled then
-			if economy and economy.AddFoodXP then economy.AddFoodXP(player, item) end -- (D-1101: paid to the staff)
-			return true, message
-		end
+		if handled then return true, message end -- (D-1103: CafeJobService puts the XP on the cup it serves)
 	end
 	local price = item.coins or 0
 	if price > 0 then
@@ -1386,9 +1392,11 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
 		end
 	end
-	giveTool(player, makeTool(item))
+	local bought = makeTool(item)
+	-- (D-1103) the XP it is worth, given bite by bite while it is eaten
+	if economy then bought:SetAttribute("FoodXP", economy.FoodXPFor(price)) end
+	giveTool(player, bought)
 	payBeep(player, shop.key)
-	if economy and economy.AddFoodXP then economy.AddFoodXP(player, item) end -- (D-1101)
 	local drink = item.kind == "cup" or item.kind == "bottle"
 	if item.kind == "noodle" then -- (D-1053: its own steps)
 		return true, item.name .. " 나왔어요! 눌러서 뚜껑 열기 → 온수기 눌러 물 붓기 → 10초 뒤에 눌러서 먹어요."
@@ -1604,6 +1612,7 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	local total = bitesOf(item)
 	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
 	tool:SetAttribute("Bites", left)
+	if economy then economy.EatXP(player, tool, left + 1) end -- (D-1103: a spoonful from the table)
 	local fill = copy:FindFirstChild("Fill")
 	if tool:GetAttribute("EatMode") == "Bites" then
 		-- (D-1036) the tool in waiting shows the same pieces gone (picked up later)
@@ -1667,7 +1676,7 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 				end
 			end
 		end
-		placePlate(player, tablePart, item, at)
+		placePlate(player, tablePart, item, at, tool:GetAttribute("FoodXP") :: number?)
 		tool:Destroy()
 		return true, nil
 	end
@@ -2102,9 +2111,7 @@ function SnackService.Start(economyService: any)
 			if key and not registered[key] then
 				registered[key] = true
 				MonetizationService.RegisterProduct(key, function(player: Player)
-					local ok, message = grantProduct(player, item)
-					if ok and economy and economy.AddFoodXP then economy.AddFoodXP(player, item, true) end -- (D-1101)
-					return ok, message
+					return grantProduct(player, item, if economy then economy.FoodXPFor(nil, true) else 0) -- (D-1103)
 				end)
 			end
 		end

@@ -414,7 +414,8 @@ local function selfServe(order: Order, message: string)
 	local item = itemOf(order)
 	removeOrder(order)
 	if customer and item then
-		snack.Give(customer, item)
+		local served = snack.Give(customer, item)
+		if served and economy.FoodXPFor then served:SetAttribute("FoodXP", economy.FoodXPFor(item.coins)) end -- (D-1103)
 		toast(customer, message)
 	end
 end
@@ -786,7 +787,9 @@ local function serve(player: Player, id: any): (boolean, string?)
 	else
 		removeOrder(order)
 		if customer then
-			snack.Give(customer, item)
+			local served = snack.Give(customer, item)
+			-- (D-1103) the XP of what they paid for, given as they drink / eat it
+			if served and economy.FoodXPFor then served:SetAttribute("FoodXP", economy.FoodXPFor(item.coins)) end
 			toast(customer, string.format("☕ %s님이 %s 가져다 줬어요!", player.DisplayName, item.name))
 		end
 	end

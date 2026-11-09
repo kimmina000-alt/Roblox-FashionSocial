@@ -35,7 +35,9 @@ EconomyConfig.XPEnabled = true
 --   Robux foods: a flat 10 (paying is not a way up the level board);
 --   free items: none (water, rice, barley tea: no farming by tapping);
 --   at most DailyCap XP a day from food (= the XP of 50 minutes online).
--- Given when the order is paid (to the cafe staff too). Days are UTC.
+-- (D-1103) put on the food when it is paid and given while it is eaten, bite
+-- by bite (sip by sip, piece by piece, cup by cup), to whoever eats it, with
+-- nothing shown on the screen. Days are UTC.
 EconomyConfig.FoodXP = {
 	Enabled = true,
 	Rate = 0.5, -- XP per coin of the price

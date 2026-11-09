@@ -145,28 +145,50 @@ function EconomyService.AddJobXP(player: Player, job: string, field: string, xp:
 	return record.xp
 end
 
--- (D-1101) XP for food bought: half the coin price (at least 1), a flat amount
--- for a Robux item, nothing for free ones; capped per day (EconomyConfig.FoodXP).
--- Returns the XP given.
-function EconomyService.AddFoodXP(player: Player, item: any, paidRobux: boolean?): number
+-- (D-1101) the XP a food or drink is worth: half the coin price paid (at
+-- least 1), a flat amount for a Robux item, nothing for free ones
+-- (EconomyConfig.FoodXP)
+function EconomyService.FoodXPFor(coins: any, paidRobux: boolean?): number
+	local cfg = EconomyConfig.FoodXP
+	if not cfg or not cfg.Enabled or not EconomyConfig.XPEnabled then return 0 end
+	if paidRobux then return cfg.Robux end
+	if typeof(coins) == "number" and coins > 0 then return math.max(cfg.Min, math.floor(coins * cfg.Rate + 0.5)) end
+	return 0
+end
+
+-- (D-1103, user 2026-11-09: "결제 되는 순간 +2xp 이러지 말고 먹을 때 경험치 오르게
+-- 해. 화면에 글씨 띄우지는 마.") the XP is put on the bought food (attribute
+-- FoodXP on the tool, plate or table bottle) and given while it is eaten: each
+-- bite / sip / piece takes its part (what is left ÷ the bites left), the eater
+-- gets it, nothing on the screen; the daily cap of food XP still holds.
+-- `holder` = what carries the XP, `units` = bites / sips / pieces left before
+-- this one. Returns the XP given.
+function EconomyService.EatXP(player: Player, holder: Instance, units: number): number
+	local xp = holder:GetAttribute("FoodXP")
+	if typeof(xp) ~= "number" or xp <= 0 then return 0 end
+	local part = math.ceil(xp / math.max(1, units))
+	holder:SetAttribute("FoodXP", xp - part)
 	local cfg = EconomyConfig.FoodXP
 	if not cfg or not cfg.Enabled or not EconomyConfig.XPEnabled or player.UserId == 0 then return 0 end
-	local coins = if typeof(item) == "table" and typeof(item.coins) == "number" then item.coins else 0
-	local want = if paidRobux then cfg.Robux
-		elseif coins > 0 then math.max(cfg.Min, math.floor(coins * cfg.Rate + 0.5))
-		else 0
-	if want <= 0 then return 0 end
 	local w = wallet(player)
 	local got = w.daily.counts.FoodXP or 0
-	local given = math.max(0, math.min(want, cfg.DailyCap - got))
+	local given = math.max(0, math.min(part, cfg.DailyCap - got))
 	if given <= 0 then return 0 end
 	w.daily.counts.FoodXP = got + given
 	w.xp = (w.xp or 0) + given
 	playerData.MarkDirty(player)
 	player:SetAttribute("XP", w.xp)
-	local name = if typeof(item) == "table" and typeof(item.name) == "string" then item.name else "음식"
-	toast(player, string.format("⭐ +%d XP · %s", given, (string.gsub(name, " %(.-%)$", ""))))
 	return given
+end
+
+-- a part of the XP moved from one holder to another (a cup poured from a
+-- table bottle, a piece taken off a shared plate)
+function EconomyService.SplitXP(from: Instance, to: Instance, units: number)
+	local xp = from:GetAttribute("FoodXP")
+	if typeof(xp) ~= "number" or xp <= 0 then return end
+	local part = math.ceil(xp / math.max(1, units))
+	from:SetAttribute("FoodXP", xp - part)
+	to:SetAttribute("FoodXP", part)
 end
 
 function EconomyService.JobXP(player: Player, job: string): number
