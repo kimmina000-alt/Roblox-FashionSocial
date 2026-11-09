@@ -3445,6 +3445,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 전에는 곡선 벽 가운데 띠(SHOP2, 높이 8) 하나뿐. 새 `tools/graybox/ohucuts_walls_1109.lua`(체인 맨 마지막): 곧은 실내 벽 9면(스튜디오 북 · 서, 복도 북 · 남 · 동 끝, 방 칸막이 두 개의 양쪽)에 바닥 0.3 위부터 높이 15.7의 투명 사진 판(PhotoWall, Face Front = 방 쪽, 키 OHU_STUDIO_N 등 고정). 곡선 벽 · 문 위 짧은 조각은 제외.
 - PhotoWallController: E 프롬프트 말고도 가까운(20 안) 사진 벽을 짧게 누르면/클릭하면 사진첩이 열림(손에 든 게 없을 때, 사진 붙이는 중 아닐 때).
 - Play: 복도 북쪽 벽 아래쪽(높이 3)을 클릭 → 사진첩 열림.
+## D-1095 Roblox 코디: 최근 저장한 것부터 (2026-11-09)
+- 사용자: "로블록스 코디 최근에 저장한 순서대로 나오게 해". Roblox 목록에는 저장 날짜가 없지만 코디 id는 새로 만들수록 커짐 → id 큰 것부터(WardrobeView.readRobloxOutfits). Studio 테스트 계정은 목록을 못 읽어 라이브에서 확인 필요.
 
 - 투명한 곳을 검은색(14, 14, 16)으로 채운 그림을 새로 올림: 비빔 133230144298972, 참치 116182874846347 → ServerStorage.ArtAssets.Foods.Samgak*Bites.Bite1 TextureID (장소에만 있음, 저장 필요). 참고: 참치 예전 그림 86893647001276은 계속 "content representation is being generated"(처리 안 끝남)였음.
 ## D-1042 무대 카메라: CRASH 새 음원에 별칭 (2026-11-09)

@@ -423,6 +423,14 @@ local function readRobloxOutfits(): (boolean, any)
 		end
 		if not advanced then break end -- (keep what came in)
 	end
+	-- (D-1095, user 2026-11-09: "로블록스 코디 최근에 저장한 순서대로 나오게 해")
+	-- Roblox gives no saved date, but an outfit's id grows with every new one:
+	-- the highest id first = the latest saved first
+	table.sort(list, function(a, b)
+		local ia = if typeof(a) == "table" and typeof(a.Id) == "number" then a.Id else 0
+		local ib = if typeof(b) == "table" and typeof(b.Id) == "number" then b.Id else 0
+		return ia > ib
+	end)
 	return true, list
 end
 
