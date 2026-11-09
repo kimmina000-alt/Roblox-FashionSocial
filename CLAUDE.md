@@ -54,6 +54,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - 2026-10-30 (late): `feat/footstep-default-1030` merged into `catalog-ui-redesign` (fast-forward, user asked: merge if the mobile 2P test shows no errors; passed, up to D-586). Layout chain now ends with polish_1030 (assets ServerStorage.NewAssets1030). Open: DJ-invite guest sweep untestable in Studio (DJ product has a real id); dashboard: Frame Pack 149 + name, VIP drink name 메종 드 루미에르, cold spark description 30 s. New work: branch off catalog-ui-redesign.
 
 ## Key docs
+- `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
 - `docs/06_LOG/DECISIONS.md`: D-001 to D-309. Shop/pricing: `docs/01_SYSTEMS/CLUB_SHOP_PRICING.md`.
 - `docs/04_ART/REFERENCES.md` + `docs/04_ART/references/`: the user's photos/videos. Art direction = build realistically from these (D-102); save new references there.
