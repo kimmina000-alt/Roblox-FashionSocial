@@ -1,15 +1,16 @@
 --!nocheck
--- Beach cafe pastry case v2 (D-1149, user 2026-11-10: "진열장에 다른 케이크들도 넣어.
--- 케이크 크기가 크니까 진열장도 키워."), run in Edit mode LAST in the layout chain
--- (after ohucuts_walls_1109). World coordinates; running it again gives the same result.
---   The case on the counter (x -240.73..-226.88, glass front at z 292.8) keeps
---   its footprint and gets taller: the tiers 2.2 apart (were 1.75, polish_1030
---   step 2), the glass, frames and top with them. The cake slices and the one
---   column of vintage cakes (cafe_layout_v4 step 3, polish_1030 step 20) give
---   way to the four whole cakes sold here, one kind per column, the same kind
---   on all three tiers: vintage lettering (next to the till), strawberry cream,
---   tiramisu, basque. The cakes are the game's own models (ServerStorage.
---   ArtAssets.Foods: VintageLetteringCake, <Kind>CakeSliced), 2.5 across.
+-- Beach cafe pastry case v3 (D-1149 → D-1151), run in Edit mode LAST in the layout
+-- chain (after ohucuts_walls_1109). World coordinates; running it again gives the
+-- same result.
+--   D-1149 (user 2026-11-10: "진열장에 다른 케이크들도 넣어. 케이크 크기가 크니까 진열장도
+--   키워."): the four whole cakes sold here instead of the slices.
+--   D-1151 (user 2026-11-10: "케이크 플레이트는 진열장에 있는 케이크 올리는 용도로 써 /
+--   진열장 3층인데 1층만 두고 케이크 플레이트 위에 케이크 올려서 원래 크기로."): one tier
+--   only (the two upper shelves go), each cake on the user's cake stand
+--   (ServerStorage.ArtAssets.Foods.CakeStand, CAFE_cake_plate glb.glb) at the
+--   size it has on a table (2.6 across, SnackService CAKE_R * 2 + 0.7), from the
+--   till along the case: vintage lettering, strawberry cream, tiramisu, basque.
+--   The glass, frames and top come down to just over the tallest cake.
 local G = workspace:FindFirstChild("Graybox_MainSocial")
 local beach = G and G:FindFirstChild("04_Beach_Aquarium")
 local cafe = beach and beach:FindFirstChild("BeachCafe")
@@ -19,24 +20,75 @@ foods = foods and foods:FindFirstChild("Foods")
 assert(foods, "ServerStorage.ArtAssets.Foods missing")
 local log = {}
 
------------------------------------------------------------------- 1. taller case
-local GAP = 2.2
+local CAKE_W = 2.6   -- a whole cake on a table (studs across)
+local STAND_W = 3.1  -- the stand's plate, a little wider than the cake
+local ROOM_OVER = 0.45 -- glass top over the tallest cake
+
+------------------------------------------------------------------ 1. one tier
 local base, shelves = nil, {}
 for _, d in ipairs(cafe:GetChildren()) do
 	if d:IsA("BasePart") then
 		if d.Name == "CaseBase" then base = d elseif d.Name == "CaseShelf" then table.insert(shelves, d) end
 	end
 end
-assert(base and #shelves == 3, "pastry case not found (CaseBase + 3 CaseShelf)")
+assert(base and #shelves >= 1, "pastry case not found (CaseBase + CaseShelf)")
 table.sort(shelves, function(a, b) return a.Position.Y < b.Position.Y end)
 local baseTop = base.Position.Y + base.Size.Y / 2
-local tops = {}
-for i, s in ipairs(shelves) do
-	local y0 = baseTop + (i - 1) * GAP
-	s.CFrame = s.CFrame.Rotation + Vector3.new(s.Position.X, y0 + s.Size.Y / 2, s.Position.Z)
-	tops[i] = y0 + s.Size.Y
+local shelf = shelves[1]
+shelf.CFrame = shelf.CFrame.Rotation + Vector3.new(shelf.Position.X, baseTop + shelf.Size.Y / 2, shelf.Position.Z)
+for i = 2, #shelves do shelves[i]:Destroy() end
+local floorY = baseTop + shelf.Size.Y
+
+------------------------------------------------------------------ 2. cakes on stands
+local x0, x1 = shelf.Position.X - shelf.Size.X / 2, shelf.Position.X + shelf.Size.X / 2
+local zMid = shelf.Position.Z - 0.06
+local removed = 0
+for _, d in ipairs(cafe:GetChildren()) do
+	if d.Name == "CakeDisplay" or d.Name == "CaseVintageCake" or d.Name == "CaseCake" or d.Name == "CaseCakeStand" then d:Destroy() removed += 1 end
 end
-local caseTopY = baseTop + 3 * GAP + 0.1
+local function still(m: Instance)
+	for _, d in ipairs(m:GetDescendants()) do
+		if d:IsA("LuaSourceContainer") then d:Destroy()
+		elseif d:IsA("BasePart") then d.Anchored, d.CanCollide, d.CanQuery, d.CanTouch, d.CastShadow = true, false, false, false, false end
+	end
+end
+local KINDS = { "VintageLetteringCake", "StrawberryCreamCakeSliced", "TiramisuCakeSliced", "BasqueCheesecakeSliced" }
+local standSrc = foods:FindFirstChild("CakeStand")
+local step = (x1 - x0) / #KINDS
+local tallest = 0
+for k, name in ipairs(KINDS) do
+	local src = foods:FindFirstChild(name)
+	if not src then table.insert(log, "missing Foods." .. name) continue end
+	local x = x1 - step * (k - 0.5)
+	local standTop = floorY
+	if standSrc then
+		local st = standSrc:Clone()
+		still(st)
+		local _, s0 = st:GetBoundingBox()
+		st:ScaleTo(st:GetScale() * STAND_W / math.max(s0.X, s0.Z))
+		local cf, s = st:GetBoundingBox()
+		st:PivotTo(st:GetPivot() + Vector3.new(x - cf.X, floorY + s.Y / 2 - cf.Y, zMid - cf.Z))
+		st.Name = "CaseCakeStand"
+		st.Parent = cafe
+		standTop = floorY + s.Y
+	end
+	local m = src:Clone()
+	still(m)
+	local _, s0 = m:GetBoundingBox()
+	m:ScaleTo(m:GetScale() * CAKE_W / math.max(s0.X, s0.Z))
+	-- a little turned, each its own way (the lettering / cut side toward the room)
+	m:PivotTo(CFrame.new(m:GetPivot().Position) * m:GetPivot().Rotation * CFrame.Angles(0, math.rad(-15 + 10 * k), 0))
+	local cf, s = m:GetBoundingBox()
+	m:PivotTo(m:GetPivot() + Vector3.new(x - cf.X, standTop - 0.02 + s.Y / 2 - cf.Y, zMid - cf.Z))
+	m.Name = "CaseCake"
+	m:SetAttribute("Kind", name)
+	m.Parent = cafe
+	tallest = math.max(tallest, standTop - 0.02 + s.Y - floorY)
+end
+table.insert(log, string.format("cakes: %d old removed, %d on stands, %.1f across, tallest %.2f", removed, #KINDS, CAKE_W, tallest))
+
+------------------------------------------------------------------ 3. glass height
+local caseTopY = floorY + tallest + ROOM_OVER
 for _, d in ipairs(cafe:GetChildren()) do
 	if d:IsA("BasePart") then
 		local c = d.Position
@@ -48,45 +100,5 @@ for _, d in ipairs(cafe:GetChildren()) do
 		end
 	end
 end
-table.insert(log, string.format("case tiers %.2f / %.2f / %.2f, top %.2f", tops[1], tops[2], tops[3], caseTopY))
-
------------------------------------------------------------------- 2. whole cakes
-local shelf = shelves[1]
-local x0, x1 = shelf.Position.X - shelf.Size.X / 2, shelf.Position.X + shelf.Size.X / 2
-local zMid = shelf.Position.Z - 0.06 -- (where the slices stood)
-local removed = 0
-for _, d in ipairs(cafe:GetChildren()) do
-	if d.Name == "CakeDisplay" or d.Name == "CaseVintageCake" or d.Name == "CaseCake" then d:Destroy() removed += 1 end
-end
--- from the till (high x) along the case
-local KINDS = { "VintageLetteringCake", "StrawberryCreamCakeSliced", "TiramisuCakeSliced", "BasqueCheesecakeSliced" }
-local WIDTH = 2.5
-local ROOM = GAP - shelf.Size.Y - 0.25 -- (height a cake may take under the next tier)
-local step = (x1 - x0) / #KINDS
-local made = 0
-for k, name in ipairs(KINDS) do
-	local src = foods:FindFirstChild(name)
-	if not src then table.insert(log, "missing Foods." .. name) continue end
-	local x = x1 - step * (k - 0.5)
-	for tier = 1, 3 do
-		local m = src:Clone()
-		for _, d in ipairs(m:GetDescendants()) do
-			if d:IsA("LuaSourceContainer") then d:Destroy()
-			elseif d:IsA("BasePart") then d.Anchored, d.CanCollide, d.CanQuery, d.CanTouch, d.CastShadow = true, false, false, false, false end
-		end
-		local _, s0 = m:GetBoundingBox()
-		local fit = WIDTH / math.max(s0.X, s0.Z)
-		if s0.Y * fit > ROOM then fit = ROOM / s0.Y end
-		m:ScaleTo(m:GetScale() * fit)
-		-- a little turned, every tier a different way (the cut side never in front)
-		m:PivotTo(CFrame.new(m:GetPivot().Position) * CFrame.Angles(0, math.rad(20 + 35 * tier + 50 * k), 0))
-		local cf, s = m:GetBoundingBox()
-		m:PivotTo(m:GetPivot() + Vector3.new(x - cf.X, tops[tier] + s.Y / 2 - cf.Y, zMid - cf.Z))
-		m.Name = "CaseCake"
-		m:SetAttribute("Kind", name)
-		m.Parent = cafe
-		made += 1
-	end
-end
-table.insert(log, string.format("cakes: %d old removed, %d whole cakes (%d kinds x 3 tiers), %.1f across", removed, made, #KINDS, WIDTH))
+table.insert(log, string.format("one tier at %.2f, case top %.2f", floorY, caseTopY))
 return table.concat(log, "\n")

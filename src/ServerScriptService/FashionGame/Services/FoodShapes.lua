@@ -28,11 +28,13 @@
 local FoodShapes = {}
 
 -- containers and parts that stay in the hand
-FoodShapes.NotEdible = { Bag = true, Box = true, Label = true, Seam = true, Plate = true, Lid = true, Wrap = true, Stick = true }
+FoodShapes.NotEdible = { Bag = true, Box = true, Label = true, Seam = true, Plate = true, Lid = true, Wrap = true, Stick = true,
+	Tag = true, String = true, Lemon = true } -- (D-1150: the tea bag tag and string, the lemon slice on the rim)
 -- breads are bitten from the front end (user 2026-10-26); the rest top-down
 FoodShapes.AlongZ = { bagel = true, croissant = true, yakgwa = true, injeolmi = true }
 -- (D-1142) drinks whose level sinks sip by sip (parts with DropStuds move down by it)
-FoodShapes.Level = { iceamericano = true, hotamericano = true }
+FoodShapes.Level = { iceamericano = true, hotamericano = true,
+	latte = true, caramel = true, cappuccino = true, tea = true, smoothie = true, bluelemonade = true, frappe = true } -- (D-1150)
 -- (D-1147, user 2026-11-10: "딸기파르페 … 테이블에 놓고 숟가락으로 떠먹는 액션 / 허니카라멜
 -- 브레드 테이블에 놓고 포크로 찍어 먹는 액션") eaten on the table with this, a piece
 -- ("Bite<n>" of the item's "<Name>Bites" model) per tap, like a 국밥 spoonful
@@ -499,13 +501,17 @@ local ASSET_FOODS: {[string]: {any}} = {
 	-- turned out to the front so no finger goes into it
 	-- (D-1145, user: "아메리카노 핫 사이즈 80% 줄여") 0.85 → 0.68, the grip with it
 	hotamericano = { "AmericanoHot", 0.68, nil, nil, CFrame.new(-0.288, 0, 0) * CFrame.Angles(0, math.pi, 0) },
-	latte = { "CoffeeCupToGo", 0.85 },
-	caramel = { "CoffeeCupToGo", 0.85 },
-	cappuccino = { "CoffeeCupToGo", 0.85 },
-	tea = { "IcedGlass", 0.95 },
-	smoothie = { "IcedGlass", 0.95 },
-	bluelemonade = { "IcedGlass", 0.95 },
-	frappe = { "IcedGlass", 0.95 },
+	-- (D-1150, user 2026-11-10: "다른 커피도 등록해") the user's glasses (CAFE_*.glb →
+	-- Foods.Cafe*): "Glass" stays, "Drink" is cut down sip by sip, "Ice" sinks with it
+	-- (DropStuds), "Tag" / "String" (tea bag), "Straw" and "Lemon" stay. Sizes keep
+	-- every glass the same height (2.56 model units → 0.95 studs).
+	latte = { "CafeLatte", 0.95 },
+	caramel = { "CafeCaramel", 1.02 },
+	cappuccino = { "CafeCappuccino", 1.08 },
+	tea = { "CafeEarlGrey", 0.98 },
+	smoothie = { "CafeStrawberry", 1.45 },
+	bluelemonade = { "CafeBlueLemonade", 1.41 },
+	frappe = { "CafeFrappe", 1.47 },
 }
 local function fromAsset(item: any): (Part?, CFrame?, boolean?)
 	local spec = ASSET_FOODS[item.key]

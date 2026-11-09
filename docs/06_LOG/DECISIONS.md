@@ -3804,3 +3804,15 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1149 카페 진열장 v2: 통케이크 4종 (2026-11-10)
 - 사용자: "진열장에 다른 케이크들도 넣어. 케이크 크기가 크니까 진열장도 키워."
 - tools/graybox/cafe_case_1110.lua (레이아웃 체인 맨 끝): 칸 간격 1.75 → 2.2 (칸 윗면 4.78 / 6.98 / 9.18, 진열장 위 11.40), 유리·틀·윗판 같이. 조각 케이크 15개 + 빈티지 3개 대신 통케이크 4종 × 3단 (계산대 쪽부터 빈티지 레터링, 딸기 생크림, 티라미수, 바스크), 지름 2.5, 칸마다 조금씩 돌려 놓음.- (2인 테스트에서) 바꾸기 전에 가방에 저장된 케이크 조각은 3입으로 돌아왔음: BagRestore가 oneBite 조각에는 저장된 Bites를 쓰지 않게 고침 (다음 테스트부터 적용).
+
+## D-1150 카페 음료 7종을 사용자 모델로 + 아이스 아메리카노 더 진하게 (2026-11-10)
+- 사용자: "아메리카노 아이스 색 더 진하게 해 줘. 다른 커피도 등록해. 가져오기 했음." (D:\Roblox\오후\3D 물\CAFE_cafelatte / caramel / capuchino / earlgrey / strawbarry / frappuccino / blueremon .glb, Studio에 Scene 모델로 가져옴).
+- ServerStorage.ArtAssets.Foods (place 전용): CafeLatte, CafeCaramel, CafeCappuccino, CafeEarlGrey, CafeStrawberry, CafeBlueLemonade, CafeFrappe. 원본은 Foods._Imports_cafe_1110.CAFE_*. 가져오기에서 빠진 재질 색을 다시 칠함: Glass (245,248,252) 투명 0.82 (0.6이면 음료 색이 뿌옇게 죽음), 텍스처 음료 Drink 흰색, 얼그레이 Drink (208,118,42) 0.12 + Tag / String + Ice, 블루레몬 Drink (40,150,230) 0.1 + Straw + Lemon + Ice. Ice는 DropStuds 1.6 (음료와 같이 내려감).
+- 이미지: 프라푸치노 900×940, 딸기 800×800을 512×512로 줄여 다시 올림 (101590285318294, 114287806912438). 나머지는 이미 512 이하라 그대로.
+- 코드: FoodShapes ASSET_FOODS latte / caramel / cappuccino / tea / smoothie / bluelemonade / frappe → Cafe* (크기는 유리 높이가 모두 같게 0.95..1.47), FoodShapes.Level에 7종 (Drink는 모금마다 위에서 잘리고 Ice는 내려감), NotEdible에 Tag / String / Lemon.
+- 아이스 아메리카노: Foods.AmericanoIce Coffee (66,31,21) → (34,16,10).
+- Play 확인 (낮 13시): 7종 구매, 손에 든 모습, 블루레몬 한 모금에 Drink 1.23 → 0.92, Ice 0.3 내려감.
+
+## D-1151 진열장 1단 + 케이크 받침 (2026-11-10)
+- 사용자: "케이크 플레이트는 진열장에 있는 케이크 올리는 용도로 써. 진열장 3층인데 1층만 두고 케이크 플레이트 위에 케이크 올려서 원래 크기로."
+- Foods.CakeStand (CAFE_cake_plate glb.glb, 흰색 (250,250,248)). tools/graybox/cafe_case_1110.lua v3: 윗 칸 2개 삭제, 아래 칸 하나에 받침 4개 (지름 3.1) + 통케이크 4종을 테이블과 같은 크기 (지름 2.6, SnackService CAKE_R * 2 + 0.7)로, 유리 · 틀 · 윗판은 가장 높은 케이크 위 0.45까지 (진열장 위 7.59).
