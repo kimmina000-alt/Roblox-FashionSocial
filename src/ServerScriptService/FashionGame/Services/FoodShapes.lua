@@ -464,8 +464,15 @@ local ASSET_FOODS: {[string]: {any}} = {
 	samgak_bibim = { "SamgakBibim", 0.85, CFrame.Angles(math.rad(-90), 0, 0) },
 	chips = { "Chips", 0.95 },        -- #32
 	soda = { "Can", 0.8 },            -- #36
-	icebar = { "IceBar", 1.1 },       -- #42
-	chocosnack = { "Pepero", 0.9 },   -- #51
+	-- (D-1129, user 2026-11-10) the user's OH24 bars and 빼쭉이 (oh24_*.glb → Foods.MeronaBites,
+	-- SubakbarBites, SsangBites, BbabbaroBites); the store's IceBar (#42) / Pepero (#51) before.
+	-- The bars lie along Z, the stick at +Z: -90° about X stands them up, stick
+	-- down (checked in Play); held low on the stick (4th value: the grip that far
+	-- below the middle, × the size)
+	icebar = { "Merona", 1.1, CFrame.Angles(math.rad(-90), 0, 0), 0.33 },        -- 메롱바
+	icebar_subak = { "Subakbar", 1.1, CFrame.Angles(math.rad(-90), 0, 0), 0.33 }, -- 수박아이스
+	icebar_ssang = { "Ssang", 1.1, CFrame.Angles(math.rad(-90), 0, 0), 0.33 },    -- 친구바
+	chocosnack = { "Bbabbaro", 1.0, CFrame.Angles(math.rad(-90), 0, 0) },         -- 빼쭉이
 	-- the user's own models (STL 2026-10-29, reduced to ~5,400 triangles each by
 	-- tools/art/StlTool.cs, docs/04_ART/models/*.obj; one MeshPart per colour)
 	honeybread = { "HoneyBread", 1.1 },
@@ -543,7 +550,9 @@ local function fromAsset(item: any): (Part?, CFrame?, boolean?)
 		end
 	end
 	h.CFrame = CFrame.new()
-	return h, CFrame.new(0, 0, 0), bitesSrc ~= nil
+	-- (D-1129) held low on the stick
+	local low = if typeof(spec[4]) == "number" then -(spec[4] :: number) * (spec[2] :: number) else 0
+	return h, CFrame.new(0, low, 0), bitesSrc ~= nil
 end
 
 -- Cafe and 국밥집 cups (user pick 2026-10-27, "Water in glass" by Toffyxaza_TH):

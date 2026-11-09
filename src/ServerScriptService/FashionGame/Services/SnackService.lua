@@ -28,6 +28,7 @@ local FoodShapes = require(script.Parent.FoodShapes)
 local RamenCup = require(script.Parent:WaitForChild("RamenCup")) -- (D-1053: the user's cup ramen)
 local Microwave = require(script.Parent:WaitForChild("Microwave")) -- (D-1104: 삼각김밥 warmed in the OH24 microwave)
 local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124)
+local FriendBar = require(script.Parent:WaitForChild("FriendBar")) -- (D-1129: 친구바, split in two)
 
 local SnackService = {}
 local economy: any = nil
@@ -415,6 +416,11 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 		tool.ToolTip = "클릭(터치)해서 먹기"
 		return
 	end
+	-- (D-1129) 친구바: the first tap splits it, the other half into the left hand for a friend
+	if tool:GetAttribute("Pair") then
+		FriendBar.split(tool, item)
+		return
+	end
 	local character = tool.Parent
 	if not character or not character:IsA("Model") then return end
 	tool:SetAttribute("Busy", true)
@@ -712,6 +718,11 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		if item.wrapped and eatMode == "Bites" then
 			tool:SetAttribute("Wrapped", true)
 			tool.ToolTip = "클릭(터치)해서 포장 뜯기"
+		end
+		-- (D-1129) 친구바: the first tap splits it in two (FriendBar)
+		if (item :: any).pair and eatMode == "Bites" then
+			tool:SetAttribute("Pair", true)
+			tool.ToolTip = "클릭(터치)해서 반으로 나누기"
 		end
 	elseif kind == "cone" then
 		-- waffle cone (pointing down) with a scoop on top
@@ -1868,6 +1879,7 @@ function SnackService.BagEntries(player: Player): {any}
 			piece = tool:GetAttribute("Piece"), tex = tool:GetAttribute("SliceTexture"),
 			model = tool:GetAttribute("SliceModel"), slice = tool:GetAttribute("SliceName"),
 			eaten = tool:GetAttribute("BitesEaten"), -- (D-1037)
+			half = tool:GetAttribute("Half"), moved = tool:GetAttribute("PairMoved"), -- (D-1129: a 친구바 half)
 		})
 	end
 	for _, where in ipairs({ player:FindFirstChildOfClass("Backpack"), player.Character }) do
@@ -1877,6 +1889,10 @@ function SnackService.BagEntries(player: Player): {any}
 		for _, t in ipairs(keptFolder:GetChildren()) do
 			if t:GetAttribute("KeptBy") == player.UserId then note(t) end
 		end
+	end
+	-- (D-1129) the other half of a 친구바 still in the left hand
+	for _, t in ipairs(FriendBar.keptTools()) do
+		if t:GetAttribute("KeptBy") == player.UserId then note(t) end
 	end
 	return list
 end
@@ -1913,8 +1929,18 @@ function SnackService.BagRestore(player: Player, e: any): boolean
 		if typeof(e.eaten) == "string" then
 			tool:SetAttribute("BitesEaten", e.eaten) -- (D-1037: the very pieces eaten)
 			applyEaten(held, eatenOf(tool))
+			-- (D-1129) the wrapper already off (it came back on before)
+			if tool:GetAttribute("Wrapped") and eatenOf(tool)[1] then
+				tool:SetAttribute("Wrapped", nil)
+				tool.ToolTip = "클릭(터치)해서 먹기"
+			end
 		elseif typeof(e.bites) == "number" then
 			showBitesLeft(held, math.max(1, math.floor(e.bites)), bitesOf(use))
+		end
+		-- (D-1129) a 친구바 half: the other half hidden again
+		if (e.half == 1 or e.half == 2) and held:IsA("BasePart") then
+			FriendBar.applyHalf(tool, held, e.half, if typeof(e.moved) == "number" then e.moved else 0)
+			if typeof(e.bites) == "number" then tool:SetAttribute("Bites", math.max(1, math.floor(e.bites))) end
 		end
 	end
 	tool.Parent = backpack
@@ -2091,6 +2117,15 @@ end
 
 function SnackService.Start(economyService: any)
 	economy = economyService
+	FriendBar.init({ -- (D-1129)
+		makeTool = function(item: any) return makeTool(item) end,
+		eatenOf = eatenOf,
+		setEaten = setEaten,
+		applyEaten = applyEaten,
+		giveTool = giveTool,
+		splitXP = function(from: Instance, to: Instance, units: number) if economy then economy.SplitXP(from, to, units) end end,
+		analytics = function(player: Player, what: string) Analytics.interact(player, what) end,
+	})
 	task.spawn(buildFoodPreviews)
 	task.spawn(Microwave.Start) -- (D-1104)
 	local remote = Remotes:WaitForChild("Snack") :: RemoteFunction

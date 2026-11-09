@@ -27,6 +27,7 @@ export type Item = {
 	cake: string?, -- whole cake drawn from slice meshes: a key of SnackConfig.Cakes
 	comingSoon: boolean?, -- shown locked as 개발 중 (3D design not final yet, user 2026-10-31)
 	wrapped: boolean?, -- (D-1065) the first tap tears its wrapper off (piece Bite1 of the model), then the bites
+	pair: boolean?, -- (D-1129) 친구바: the first tap splits it in two, one half for a friend (FriendBar)
 }
 export type Shop = { key: string, title: string, prompt: string, hint: string?, items: {Item} }
 
@@ -106,9 +107,16 @@ SnackConfig.Shops = {
 		hint = "고른 상품을 바로 손에 들려 줘요. 컵라면은 눌러서 뚜껑 열기 → 온수기 눌러 물 붓기 → 10초 뒤 눌러서 먹기!",
 		items = {
 			{ key = "water", name = "생수", kind = "bottle", color = Color3.fromRGB(190, 225, 250), coins = 1, section = "💰 1" },
-			{ key = "icebar", name = "아이스크림 바", kind = "bar", color = Color3.fromRGB(255, 200, 215), topping = Color3.fromRGB(110, 70, 45), coins = 3, section = "💰 3" },
+			-- (D-1129, user 2026-11-10: "편의점 아이템 추가") the user's models: three ice cream
+			-- bars and the chocolate stick box. "icebar" / "chocosnack" kept as keys so bags
+			-- saved before still give one back. 메롱바 / 수박아이스: the stick stays, three
+			-- bites. 친구바: the first tap splits it, one half for a friend (FriendBar).
+			-- 빼쭉이: the first tap takes the box sleeve off, then the eight sticks.
+			{ key = "icebar", name = "메롱바", kind = "bar", color = Color3.fromRGB(41, 231, 17), coins = 3, section = "💰 3" },
+			{ key = "icebar_subak", name = "수박아이스", kind = "bar", color = Color3.fromRGB(235, 60, 70), coins = 3, section = "💰 3" },
+			{ key = "icebar_ssang", name = "친구바", kind = "bar", color = Color3.fromRGB(90, 53, 19), coins = 3, pair = true, section = "💰 3" },
 			{ key = "chips", name = "감자칩", kind = "bag", color = Color3.fromRGB(250, 205, 50), coins = 3, section = "💰 3" },
-			{ key = "chocosnack", name = "초코 과자", kind = "bag", color = Color3.fromRGB(150, 60, 50), coins = 3, section = "💰 3" },
+			{ key = "chocosnack", name = "빼쭉이", kind = "bag", color = Color3.fromRGB(150, 60, 50), coins = 3, wrapped = true, section = "💰 3" },
 			{ key = "bananamilk", name = "바나나우유", kind = "bottle", color = Color3.fromRGB(255, 225, 110), coins = 3, section = "💰 3" },
 			{ key = "soda", name = "탄산음료 캔", kind = "bottle", color = Color3.fromRGB(220, 50, 60), coins = 3, section = "💰 3" },
 			-- (D-1065, user 2026-11-09: "삼각김밥 추가. bibim: 전주비빔 삼각김밥 / chamchi:

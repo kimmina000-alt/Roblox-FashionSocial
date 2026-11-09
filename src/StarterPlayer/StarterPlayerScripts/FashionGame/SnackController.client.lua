@@ -633,6 +633,20 @@ do
 	player.CharacterAdded:Connect(watch)
 end
 
+-- (D-1129) the other half of my 친구바 in my left hand: its "반쪽 받기" is for
+-- the others, not for me (FriendBar)
+do
+	local function hideOwn(d: Instance)
+		if d:IsA("ProximityPrompt") and d.Name == "FriendBarTake" then d.Enabled = false end
+	end
+	local function watchHalf(character: Model)
+		for _, d in ipairs(character:GetDescendants()) do hideOwn(d) end
+		character.DescendantAdded:Connect(hideOwn)
+	end
+	if player.Character then watchHalf(player.Character) end
+	player.CharacterAdded:Connect(watchHalf)
+end
+
 -- Close when the player walks away from the counter.
 task.spawn(function()
 	while true do

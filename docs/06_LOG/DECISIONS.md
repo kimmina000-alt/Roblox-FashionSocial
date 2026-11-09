@@ -3689,3 +3689,14 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - D-1118의 "2 머무르-꿈꾸던 어른이 되었나요" 곡 삭제(원곡 머무르는 그대로). Track.clean 코드(DanceController applyClean)는 남겨 둠: clean 있는 곡이 없으면 효과는 계속 꺼져 있음.
 - Play로 들어 보지는 않음.
 - (2026-11-10) 사용자: "겟어기타, 레모네이드 수정 전으로 복구" → RIIZE-Get A Guitar -34/-20/-34, aespa-Lemonade -40/-25/-40 boost2 10으로 되돌림. 남은 변경: Catch Catch, 소원을 말해봐.
+
+## D-1129 편의점 새 상품: 빼쭉이, 메롱바, 수박아이스, 친구바 (2026-11-10)
+- 사용자: "편의점 아이템 추가 / 스튜디오에 가져오기 했어" + oh24_bbabbaro / oh24_merona / oh24_subakbar / oh24_ssang.glb (D:\Roblox\오후\3D 물).
+- 모델: Studio로 가져온 4개를 ServerStorage.ArtAssets.Foods의 BbabbaroBites / MeronaBites / SubakbarBites / SsangBites로 정리(원본은 Foods._Imports_oh24_1110). 그림 없는 조각은 glb 색(sRGB): 메롱바 (41, 231, 17), 친구바 초코 (90, 53, 19), 막대 (236, 203, 160); 그림 있는 조각은 흰색(그림 그대로). 막대가 +Z라 -90° 세워 막대가 아래, 막대 아래쪽을 잡음(FoodShapes 4번째 값 0.33).
+- 빼쭉이(키 chocosnack, 예전 "초코 과자"): 처음 누르면 바깥 상자(사용자 Plate → Bite1)가 삼각김밥 포장처럼 양손으로 벗겨지고(wrapped), 막대 Bite1~8(→ Bite2~9)을 차례로 먹음. 열린 상자(Plate2 → Plate)는 마지막 막대까지 남고 다 먹으면 같이 사라짐.
+- 메롱바(키 icebar, 예전 "아이스크림 바") / 수박아이스(icebar_subak): Plate(막대)는 안 먹고 Bite1~3만.
+- 친구바(icebar_ssang, FriendBar.lua): 처음 누르면 둘로 나뉨. A(Bite1-1~1-3, Plate1)는 오른손, B(Bite2-x, Plate2)는 왼손에 들리고 근처 사람에게 "반쪽 받기(E)"가 뜸(내 화면에는 안 뜸). 받은 사람은 B를 손에 듦. XP(포인트)는 반씩(SplitXP). 반으로 나눌 때 반은 그대로, 1/4은 Bite1-1이 B에, 1/4은 Bite2-1이 A에 붙음. 각 반쪽은 위 조각부터 1-1 → 1-2 → 1-3 순서로 먹음. 아무도 안 받으면: A를 다 먹었을 때 B가 오른손으로, A를 가방 / 테이블에 넣으면 B는 가방으로. 가방 저장(재접속)도 반쪽 그대로(Half, PairMoved).
+- "친구"는 Roblox 친구만이 아니라 근처 아무나 받을 수 있게 함(Studio 테스트 플레이어는 친구가 아니어서 확인도 못 하고, 모르는 사람끼리 나눠 먹는 것도 소통이라서). 친구만으로 바꾸려면 FriendBar 프롬프트에서 IsFriendsWith 검사 추가.
+- 가격은 모두 3코인(예전 아이스크림 바 · 초코 과자와 같음).
+- 같이 고친 것: 가방에서 다시 꺼낸 삼각김밥 · 빼쭉이는 포장을 이미 뜯었으면 다시 뜯지 않음(전에는 Wrapped가 다시 켜졌음).
+- Play 확인(혼자): 네 가지 구매 · 손에 듦(사진 docs/06_LOG/images/2026-11-10/oh24_*.jpg), 친구바 나누기 → A 1·3·5 순서로 먹음 → 다 먹자 B가 오른손으로(XP 2 → 1 / 1), 빼쭉이 상자 벗기기 → 막대 한 개씩, 메롱바 한 입. 스크립트 오류 없음. 다른 사람이 B 받는 건 2인 테스트 전.
