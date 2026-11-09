@@ -188,24 +188,33 @@ do
 	table.insert(log, string.format("window stools on the long bar: %d moved", moved))
 end
 
--- 7. (D-1115, user 2026-11-09: "카운터 뒤에 있는 블록에 편의점_진열장_1 이미지 두 개
--- 붙여서 넣고") the block the user put behind the counter (Workspace.front,
--- 20 x 10): the drinks fridge picture (docs/04_ART/textures/props/
--- oh24_shelf_1_fridge.jpg, 93988306265362) twice side by side on its face to the
--- store; anchored (it was left loose). Every run.
+-- 7. (D-1115 / D-1117, user 2026-11-09: "빨간색 칠해 놓은 블록에는 편의점_진열장_2
+-- 이미지 여러개 이어 붙여서 넣어" / "그게 편의점_진열장_2 이 사진이었는데") the
+-- drinks fridge picture (편의점_진열장_2, docs/04_ART/textures/props/
+-- oh24_shelf_1_fridge.jpg, 93988306265362) along the blocks the user put on the
+-- west and south walls (Workspace "cold" parts): the full block height, as
+-- many across as fit at the picture's shape (637 x 609). The user's loose
+-- blocks (cold, front) anchored. Every run. (편의점_진열장_1 for the block
+-- behind the counter, Workspace.front, was a cigarette display: not used, no
+-- tobacco in the game, D-311.)
 do
-	local block = workspace:FindFirstChild("front")
-	if block and block:IsA("BasePart") then
-		block.Anchored = true
-		local tex = block:FindFirstChild("OH24Shelf1") or Instance.new("Texture")
-		tex.Name = "OH24Shelf1"
-		tex.Texture = "rbxassetid://93988306265362"
-		tex.Face = Enum.NormalId.Front
-		tex.StudsPerTileU = block.Size.X / 2
-		tex.StudsPerTileV = block.Size.Y
-		tex.Parent = block
-		table.insert(log, "fridge picture x2 on the counter back block")
+	local ASPECT = 637 / 609
+	for _, d in ipairs(workspace:GetChildren()) do
+		if d:IsA("BasePart") and (d.Name == "cold" or d.Name == "front") then d.Anchored = true end
+		if d:IsA("BasePart") and d.Name == "front" and d:FindFirstChild("OH24Shelf1") then d.OH24Shelf1:Destroy() end
+		if d:IsA("BasePart") and d.Name == "cold" then
+			local len, h = d.Size.X, d.Size.Y
+			local n = math.max(1, math.floor(len / (h * ASPECT) + 0.5))
+			local t = d:FindFirstChild("OH24Shelf2") or Instance.new("Texture")
+			t.Name = "OH24Shelf2"
+			t.Texture = "rbxassetid://93988306265362"
+			t.Face = Enum.NormalId.Front
+			t.StudsPerTileU = len / n
+			t.StudsPerTileV = h
+			t.Parent = d
+		end
 	end
+	table.insert(log, "fridge pictures on the west / south wall blocks")
 end
 
 -- 4. (D-1078, user 2026-11-09: "편의점 의자 위치 바꿨더니 앉는 위치가 달라 의자
