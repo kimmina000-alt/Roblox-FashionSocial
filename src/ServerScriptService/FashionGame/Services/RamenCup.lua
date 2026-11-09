@@ -292,18 +292,15 @@ end
 -- (bite) the noodle strands: from the chopstick tip (right hand) down to the
 -- broth of the cup in the left hand; they stretch as the arm lifts the sticks
 -- to the mouth, then are slurped up into the tip. Returns the clean-up.
-function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
-	pose(handle, "Held")
-	local tip = handle:FindFirstChild("ChopTip", true) :: BasePart?
-	local soup = cup:FindFirstChild("Soup", true) :: BasePart?
+-- (D-1099) the strands themselves, from `tip` down to `soup`, slurped up into the
+-- tip after `slurpAfter` seconds; shared by the bite in the hand and the bite
+-- taken from the cup on a table. Returns the clean-up.
+local function makeStrands(tip: BasePart, soup: BasePart, key: any, slurpAfter: number): () -> ()
 	local made: {Instance} = {}
 	local lower: {Attachment} = {}
-	if not tip or not soup then return function() pose(handle, "Stand") end end
 	local r = Random.new()
 	-- (D-1081, user 2026-11-09: "용감꼬꼬면이랑 맵라면만 라면 선 붉은색으로 하고
 	-- 참깨라면이랑 육개그는 노란색으로") the strands' colour by the ramen
-	local tool = handle:FindFirstAncestorOfClass("Tool")
-	local key = tool and tool:GetAttribute("Snack")
 	local yellow = key == "ramen_sesame" or key == "ramen_yukgae"
 	local base = if yellow then NOODLE_YELLOW else NOODLE
 	local light = if yellow then Color3.fromRGB(255, 235, 150) else Color3.fromRGB(240, 120, 70)
@@ -333,7 +330,7 @@ function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
 		table.insert(lower, a1)
 	end
 	-- slurp: the lower ends come off the broth and run up into the tip
-	task.delay(0.95, function()
+	task.delay(slurpAfter, function()
 		if not tip.Parent then return end
 		local starts = {}
 		for i, a1 in ipairs(lower) do
@@ -356,6 +353,25 @@ function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
 	return function()
 		for _, d in ipairs(made) do d:Destroy() end
 	end
+end
+
+function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
+	pose(handle, "Held")
+	local tip = handle:FindFirstChild("ChopTip", true) :: BasePart?
+	local soup = cup:FindFirstChild("Soup", true) :: BasePart?
+	if not tip or not soup then return function() pose(handle, "Stand") end end
+	local tool = handle:FindFirstAncestorOfClass("Tool")
+	return makeStrands(tip, soup, tool and tool:GetAttribute("Snack"), 0.95)
+end
+
+-- (D-1099, user 2026-11-09: "컵라면 테이블에 두고 먹을 때도 면 길게 이어지는 거
+-- 넣어 줘") a bite from the cup on a table: the strands from the noodles on the
+-- loose chopsticks (`tip`) down to the broth of the cup on the table (`copy`),
+-- stretching as the hand lifts them, slurped up at the mouth
+function RamenCup.tableStrands(tip: BasePart, copy: Instance, key: any, slurpAfter: number): () -> ()
+	local soup = copy:FindFirstChild("Soup", true) :: BasePart?
+	if not soup then return function() end end
+	return makeStrands(tip, soup, key, slurpAfter)
 end
 
 -- (bite done) the broth a step lower, a little narrower (the cup narrows down)

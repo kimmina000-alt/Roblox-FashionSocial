@@ -3460,6 +3460,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 저장소를 읽어 보니: "?" 두 줄(608 XP)은 Studio 테스트 플레이어 -1 / -2(D-1086으로 게시 후 안 보임). kr_ohu(11886390086) · arallll(438214973)은 지금 상위 기록에 없음. 숨김 목록에는 'arrrrall'(오타, 11931560912)만 있었음.
 - RankingService: EXCLUDED_NAMES에 arallll 추가, 세 계정의 id를 코드에 직접 적어 이름 조회가 실패해도 "?"로 안 나옴, 이 계정들(과 0 이하 id)은 순위 저장소에 쓰지 않음.
 - 저장소의 기존 기록 삭제(RemoveAsync: 두 계정과 -1 / -2)는 자동 권한 검사에서 막혀 하지 않음 — 사용자 허락 필요.
+## D-1099 테이블 컵라면도 면 가닥 (2026-11-09)
+- 사용자: "컵라면 테이블에 두고 먹을 때도 면 길게 이어지는 거 넣어 줘".
+- RamenCup: 면 가닥 만들기를 makeStrands(tip, soup, key, slurpAfter)로 나눠 손(strands, 0.95초)과 테이블(tableStrands)이 같이 씀. 테이블 한 입(SnackService spoonful): 젓가락의 면 뭉치에서 테이블 컵 국물까지 7가닥(라면 색), 입에 닿는 1.0초에 후루룩 올라감, 젓가락이 없어질 때 정리.
+- Play: 맵라면을 창가 바에 두고 누름 → 가닥 7개, 컵에서 입 앞 젓가락까지 이어짐.
 
 - 투명한 곳을 검은색(14, 14, 16)으로 채운 그림을 새로 올림: 비빔 133230144298972, 참치 116182874846347 → ServerStorage.ArtAssets.Foods.Samgak*Bites.Bite1 TextureID (장소에만 있음, 저장 필요). 참고: 참치 예전 그림 86893647001276은 계속 "content representation is being generated"(처리 안 끝남)였음.
 ## D-1042 무대 카메라: CRASH 새 음원에 별칭 (2026-11-09)

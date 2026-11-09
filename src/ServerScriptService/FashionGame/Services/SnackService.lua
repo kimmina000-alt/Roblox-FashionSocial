@@ -1572,6 +1572,13 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	end
 	humanoid:UnequipTools()
 	spoon.Parent = character
+	-- (D-1099) the cup ramen on the table: long noodle strands from the sticks'
+	-- bundle down into the cup, slurped up when the sticks are at the mouth
+	local strandsDone: (() -> ())? = nil
+	if tool:GetAttribute("Ramen") then
+		local bundle = handle:FindFirstChild("Noodles", true) :: BasePart?
+		if bundle then strandsDone = RamenCup.tableStrands(bundle, copy, tool:GetAttribute("Snack"), 1.0) end
+	end
 	-- the hand takes the spoon up to the mouth (IK, see bite); R6: the spoon moves
 	local ik = character:FindFirstChild("RightUpperArm") ~= nil
 	local up = if ik then nil else mouthGrip(character, 0)
@@ -1585,6 +1592,7 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	character:SetAttribute("Eating", nil)
 	if up and spoon.Parent then TweenService:Create(spoon, TweenInfo.new(0.3), { Grip = CFrame.new(0, -0.3, 0) }):Play() end
 	task.wait(0.4)
+	if strandsDone then strandsDone() end
 	spoon:Destroy()
 	for _, d in ipairs(own) do d.Transparency = 0 end
 	model:SetAttribute("Busy", nil)
