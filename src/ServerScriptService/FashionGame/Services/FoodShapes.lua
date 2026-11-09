@@ -491,7 +491,8 @@ local ASSET_FOODS: {[string]: {any}} = {
 	iceamericano = { "AmericanoIce", 0.95 },
 	-- (D-1143, user: "엄지 잡는 위치 고치고") the hand on the mug's handle (-X), the cup
 	-- turned out to the front so no finger goes into it
-	hotamericano = { "AmericanoHot", 0.85, nil, nil, CFrame.new(-0.36, 0, 0) * CFrame.Angles(0, math.pi, 0) },
+	-- (D-1145, user: "아메리카노 핫 사이즈 80% 줄여") 0.85 → 0.68, the grip with it
+	hotamericano = { "AmericanoHot", 0.68, nil, nil, CFrame.new(-0.288, 0, 0) * CFrame.Angles(0, math.pi, 0) },
 	latte = { "CoffeeCupToGo", 0.85 },
 	caramel = { "CoffeeCupToGo", 0.85 },
 	cappuccino = { "CoffeeCupToGo", 0.85 },
