@@ -120,6 +120,70 @@ if not S:GetAttribute("OH24Deck1109") then
 	table.insert(log, string.format("deck table set gone (%d parts), deck top 2.2", gone))
 end
 
+-- 6. (D-1115, user 2026-11-09: "편의점 휴게공간에 스툴 위치 사진 위치로 변경. 앉았을
+-- 때 바라보는 방향도 테이블에 맞추기.") the three window stools (ClubStool models
+-- with their WindowStool seats) moved from the short bar by the machines to
+-- the long window bar (z 61.65, its front edge z 64.0), on the deck, facing it
+-- (-Z). Before step 4 (which keeps each seat on its stool). Every run: the
+-- spots are fixed world numbers, the stools taken in order (by z, then x
+-- from the east), so a second run leaves them where they are.
+do
+	local SPOTS = { Vector3.new(-71.5, 0, 65.6), Vector3.new(-81.5, 0, 65.6), Vector3.new(-91, 0, 65.6) }
+	local stools = {}
+	for _, m in ipairs(S:GetChildren()) do
+		if m:IsA("Model") and m.Name == "ClubStool" then table.insert(stools, m) end
+	end
+	table.sort(stools, function(a, b)
+		local pa, pb = a:GetPivot().Position, b:GetPivot().Position
+		if math.abs(pa.Z - pb.Z) > 0.5 then return pa.Z < pb.Z end
+		return pa.X > pb.X
+	end)
+	local seats = {}
+	for _, s in ipairs(S:GetChildren()) do
+		if s:IsA("Seat") and s.Name == "WindowStool" then table.insert(seats, s) end
+	end
+	local moved = 0
+	for i, m in ipairs(stools) do
+		local spot = SPOTS[i]
+		if not spot then break end
+		local cf = m:GetBoundingBox()
+		-- its seat (the nearest, within 3 studs), before the stool moves
+		local seat, best = nil, 3
+		for _, s in ipairs(seats) do
+			local d = Vector2.new(s.Position.X - cf.X, s.Position.Z - cf.Z).Magnitude
+			if d < best then seat, best = s, d end
+		end
+		local delta = Vector3.new(spot.X - cf.X, 0, spot.Z - cf.Z)
+		if delta.Magnitude > 0.01 then
+			m:PivotTo(m:GetPivot() + delta)
+			moved += 1
+		end
+		-- the seat over it, facing the bar (a Seat sits its rider facing its front)
+		if seat then seat.CFrame = CFrame.new(seat.Position + delta) end
+	end
+	table.insert(log, string.format("window stools on the long bar: %d moved", moved))
+end
+
+-- 7. (D-1115, user 2026-11-09: "카운터 뒤에 있는 블록에 편의점_진열장_1 이미지 두 개
+-- 붙여서 넣고") the block the user put behind the counter (Workspace.front,
+-- 20 x 10): the drinks fridge picture (docs/04_ART/textures/props/
+-- oh24_shelf_1_fridge.jpg, 93988306265362) twice side by side on its face to the
+-- store; anchored (it was left loose). Every run.
+do
+	local block = workspace:FindFirstChild("front")
+	if block and block:IsA("BasePart") then
+		block.Anchored = true
+		local tex = block:FindFirstChild("OH24Shelf1") or Instance.new("Texture")
+		tex.Name = "OH24Shelf1"
+		tex.Texture = "rbxassetid://93988306265362"
+		tex.Face = Enum.NormalId.Front
+		tex.StudsPerTileU = block.Size.X / 2
+		tex.StudsPerTileV = block.Size.Y
+		tex.Parent = block
+		table.insert(log, "fridge picture x2 on the counter back block")
+	end
+end
+
 -- 4. (D-1078, user 2026-11-09: "편의점 의자 위치 바꿨더니 앉는 위치가 달라 의자
 -- 위치로 수정하고 ... 스툴 삭제한 부분에 앉는 블록 있으면 그거 삭제") each window
 -- stool's seat (the invisible WindowStool Seat) right on top of its stool model
