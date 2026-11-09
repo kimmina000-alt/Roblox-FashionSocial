@@ -3476,3 +3476,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - D-1100의 비교용 17곡(머무르-꿈꾸던 어른이 되었나요, NMIXX-Birthday Wish, kennytheking-morae, When We're Together, 송유진-I Miss You, URBAN ZAKAPA-거리, 20 Years of Age-Your Season, 이민혁·보라미유-사랑일지도 몰라, 정승환-푸르른 계절도 내겐 의미 없어요, 나는 너라서, YOHAN-Song for you, becoming a star, Light It Up, ALLDAY PROJECT-CRASH, Runaway Lights, Small Town Ghost, All On Me): "1"(옛 음색 -34/-20/-34) 줄 삭제, "2"(새 음색) 줄만 남기고 제목 앞 "2 " 삭제. CRASH는 안무 20개 · 무대 카메라 그대로.
 - 예전부터 있던 1 · 2 두 쌍도 같이: AND2BLE-French Kissing(1 = 옛 업로드 120866427099057 삭제, 남는 곡 = 88604783778178), RESCENE-With(1 = 옛 업로드 120039092597099 삭제, 남는 곡 = 112509101263761). 둘 다 1에 안무 · 무대 카메라 없음.
 - 곡 수 91 → 72. Play로 들어 보지는 않음.
+
+## D-1118 "2 머무르": 게임 안 실시간 음질 보정 3가지 비교용 곡 (2026-11-09)
+- 사용자: "게임 안 실시간 3가지로 머무르 음원 아이디랑 설정값으로 2 붙여서 비교할 수 있게 머무르 노래에만 적용해 봐". (노이즈 감소 · WAV 저장은 게임 안에서 안 돼서 빼고, 저음 컷 · 목소리 EQ · 음량 보정 3가지.)
+- 머무르-꿈꾸던 어른이 되었나요 바로 아래에 "2 머무르-꿈꾸던 어른이 되었나요"(같은 음원 95913746283492, 같은 lab) + `clean = { low = -4, mid = 3, high = 0, threshold = -18, ratio = 3, attack = 0.01, release = 0.2, makeup = 3 }`.
+- DanceController: ClubMusic과 조인 곡 덱 두 개에 CleanEQ(EqualizerSoundEffect, Priority 9, LabEQ 다음) + CleanComp(CompressorSoundEffect, Priority -10, 맨 끝). 지금 곡에 `clean`이 있을 때만 켜고, 다른 곡이면 끔(syncPitch → applyClean).
+- 저음 컷: 이 효과에는 진짜 고역 필터도 MidRange도 없음(MidRange는 EqualizerSoundEffect에 없는 속성) → 고정 low 밴드(약 400 Hz 아래) -4 dB. 목소리: mid 밴드 +3 dB.
+- Play에서 PlaybackLoudness로 잼: EQ만 켜면 -2.9 dB → makeup 3 dB로 원곡과 맞춤(곡 처음 부분에서 보정 켬/끔 비교 -0.6 dB). 압축기는 이 곡 신호에서 거의 반응하지 않음(Threshold -18 ~ -80, Ratio 3 ~ 40에서도 평균 차이 1 dB 안쪽: LabEQ가 먼저 크게 깎아서 압축기에 들어가는 소리가 작음) → 사실상 makeup으로 음량만 맞춰 주는 상태. 귀로 들어 보고 필요하면 값을 조정.
+- 귀로 들어 보지는 않음.

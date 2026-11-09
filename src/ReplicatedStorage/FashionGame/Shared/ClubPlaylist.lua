@@ -38,6 +38,10 @@ export type Track = {
 	-- (D-726) dance the choreography by itself: everyone in the club standing
 	-- still (not seated, not in a menu dance) follows it while the song plays
 	autoChoreo: boolean?,
+	-- (D-1118) live clean-up on top of the lab (DanceController): low / mid /
+	-- high = an extra EQ in dB (low band below ~400 Hz, mid ~400 Hz..4 kHz),
+	-- threshold / ratio / attack / release / makeup = a CompressorSoundEffect
+	clean: { low: number?, mid: number?, high: number?, threshold: number?, ratio: number?, attack: number?, release: number?, makeup: number? }?,
 }
 export type Lab = {
 	speed: number, tempo: number, volume: number, boost: number, octave: number,
@@ -447,6 +451,11 @@ M.Playlist = {
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1101: the old "1" entry removed, kept as one)
 	{ channel = "K-POP", title = "머무르-꿈꾸던 어른이 되었나요", soundId = 95913746283492, length = 197.635, fileSpeed = 1.0524,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -7, mid = -18, high = -29, engine = "sound" } },
+	-- (D-1118, user 2026-11-09: "게임 안 실시간 3가지로 ... 2 붙여서 비교") the same upload and lab with the live
+	-- clean-up on top (Track.clean: low cut / voice lift / compressor, DanceController), to compare with the song above
+	{ channel = "K-POP", title = "2 머무르-꿈꾸던 어른이 되었나요", soundId = 95913746283492, length = 197.635, fileSpeed = 1.0524,
+		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -7, mid = -18, high = -29, engine = "sound" },
+		clean = { low = -4, mid = 3, high = 0, threshold = -18, ratio = 3, attack = 0.01, release = 0.2, makeup = 3 } },
 	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 138668506442693, length = 185.738, fileSpeed = 1.0499,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
