@@ -130,6 +130,15 @@ local function scroller(cell: Vector2): ScrollingFrame
 	grid.CellPadding = UDim2.fromOffset(8, 8)
 	grid.SortOrder = Enum.SortOrder.LayoutOrder
 	grid.Parent = list
+	-- (D-1122, user 2026-11-09: "가방도 선 씹힘 깔끔하게 수정") the cards' edge (2 when
+	-- held) is drawn just outside them: room on every side so the list does not
+	-- cut it off (top row, left column), and the scroll bar's width on the right
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 3)
+	pad.PaddingLeft = UDim.new(0, 3)
+	pad.PaddingBottom = UDim.new(0, 3)
+	pad.PaddingRight = UDim.new(0, 8)
+	pad.Parent = list
 	return list
 end
 local list = scroller(Vector2.new(88, 100))
