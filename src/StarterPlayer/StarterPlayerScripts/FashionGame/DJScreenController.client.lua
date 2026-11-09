@@ -275,12 +275,17 @@ RunService.RenderStepped:Connect(function()
 		local spot = s.part.Parent:FindFirstChild("DJSpot")
 		if spot and spot:IsA("BasePart") then buildDesk(s.part.Parent, spot) end
 	end
-	-- DJ on the screen
+	-- DJ on the screen; with no DJ, now and then a dancer (D-1112, ClubScreenService)
 	local id = djUserId()
+	local isDJ = id ~= 0
+	if not isDJ then
+		local w = FashionGame:GetAttribute("ClubWallShow")
+		if typeof(w) == "number" and w ~= 0 then id = w end
+	end
 	local dj = if id ~= 0 then Players:GetPlayerByUserId(id) else nil
 	local character = dj and dj.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	local show = dj ~= nil and root ~= nil and FashionGame:GetAttribute("ClubDJScreen") ~= false
+	local show = dj ~= nil and root ~= nil and (not isDJ or FashionGame:GetAttribute("ClubDJScreen") ~= false)
 	s.logo.Visible = not show
 	s.viewport.Visible = show
 	s.nameLabel.Visible = show
@@ -292,8 +297,8 @@ RunService.RenderStepped:Connect(function()
 	if s.sourceUserId ~= id or outfitChanged or not s.clone or not s.clone.Parent then
 		makeClone(s, character)
 		s.sourceUserId = id
-		s.nameLabel.Text = "🎧 DJ " .. dj.DisplayName
 	end
+	s.nameLabel.Text = if isDJ then "🎧 DJ " .. dj.DisplayName else "💃 " .. dj.DisplayName
 	-- copy the pose relative to the root; the copy faces -Z at the origin
 	local rootCf = root.CFrame
 	local top, bottom = -math.huge, math.huge

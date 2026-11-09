@@ -64,7 +64,63 @@ local function refreshOrder(inClub: {Player}): boolean
 	return true
 end
 
+-- (D-1112, user 2026-11-09: "클럽 dj 뒤 전광판에 dj 없을 때는 춤추고 있는 플레이어
+-- 랜덤으로 띄우자. 계속 띄우지 말고 여기는 간헐적으로. 사이에 안 뜰 때도 있음")
+-- the big LED wall behind the DJ: with no DJ, now and then one player who is
+-- dancing in the club (character attribute DanceKey) is shown on it for a
+-- while, then the club visuals again for a longer while; some turns show
+-- nobody. ReplicatedStorage.FashionGame attribute ClubWallShow = their UserId
+-- (0 = nobody); DJScreenController draws them like the DJ.
+local WALL_GAP = { 25, 60 } -- seconds of visuals between two
+local WALL_SHOW = { 12, 18 } -- seconds on the wall
+local WALL_SKIP = 0.3 -- a turn that shows nobody
+local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
+
+local function hasDJ(): boolean
+	local id = FashionGame:GetAttribute("ClubDJ")
+	local untilTime = FashionGame:GetAttribute("ClubDJUntil")
+	return typeof(id) == "number" and id ~= 0 and typeof(untilTime) == "number" and untilTime > workspace:GetServerTimeNow()
+end
+
+local function dancers(): {Player}
+	local list = {}
+	for _, player in ipairs(clubPlayers()) do
+		local character = player.Character
+		if character and character:GetAttribute("DanceKey") ~= nil then table.insert(list, player) end
+	end
+	return list
+end
+
+local function wallLoop()
+	local last = 0
+	FashionGame:SetAttribute("ClubWallShow", 0)
+	while true do
+		task.wait(math.random(WALL_GAP[1], WALL_GAP[2]))
+		local list = dancers()
+		if not hasDJ() and #list > 0 and math.random() >= WALL_SKIP then
+			-- not the same one twice in a row when there is a choice
+			if #list > 1 then
+				for i, p in ipairs(list) do
+					if p.UserId == last then table.remove(list, i) break end
+				end
+			end
+			local pick = list[math.random(1, #list)]
+			last = pick.UserId
+			FashionGame:SetAttribute("ClubWallShow", pick.UserId)
+			local stop = os.clock() + math.random(WALL_SHOW[1], WALL_SHOW[2])
+			-- off early when they leave the club or a DJ starts
+			while os.clock() < stop do
+				task.wait(1)
+				local root = pick.Character and pick.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+				if not pick.Parent or not root or not ClubConfig.isInClub(root.Position) or hasDJ() then break end
+			end
+			FashionGame:SetAttribute("ClubWallShow", 0)
+		end
+	end
+end
+
 function ClubScreenService.Start()
+	task.spawn(wallLoop)
 	task.spawn(function()
 		local since = os.clock()
 		while true do

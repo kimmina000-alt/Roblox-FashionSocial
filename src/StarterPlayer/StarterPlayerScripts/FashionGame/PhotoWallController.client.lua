@@ -228,7 +228,8 @@ local function applyZoom()
 	if zoom.z <= 1.001 then zoom.x, zoom.y = 0, 0 end
 	viewerBox.Size = UDim2.fromOffset(w, h)
 	viewerBox.Position = UDim2.new(0.5, zoom.x, 0.5, zoom.y)
-	viewerClose.Visible = true
+	-- (D-1110, user 2026-11-09: "오른쪽 상단에 끄는 버튼 없애") a tap closes it
+	viewerClose.Visible = false
 end
 -- zoom to z, the screen point `at` staying where it is
 local function zoomTo(z: number, at: Vector2?)
@@ -333,25 +334,7 @@ local function drawEntry(entry: Entry, order: number)
 		ZIndex = order,
 	}, holder)
 	PhotoRender.drawPhoto(frame, entry.photo)
-	-- (D-1085) tap to see it big
-	local tap = make("TextButton", {
-		Name = "Tap",
-		Size = UDim2.fromScale(1, 1),
-		BackgroundTransparency = 1,
-		Text = "",
-		ZIndex = 1000,
-	}, frame)
-	-- (D-1108) with a photo in the hand the tap is a spot to stick it; with
-	-- empty hands it shows this one big; anything else in the hand: nothing
-	tap.Activated:Connect(function()
-		local character = player.Character
-		local tool = character and character:FindFirstChildOfClass("Tool")
-		if tool and typeof(tool:GetAttribute("PhotoId")) == "string" then
-			if heldWallTap then heldWallTap(wall, entry.u, entry.v) end
-		elseif not tool then
-			openViewer(entry.photo)
-		end
-	end)
+	-- (a tap on it: found by a ray in the world, D-1110, not a button here)
 	drawn[entry.id] = frame
 	drawnWall[entry.id] = wall
 end
@@ -660,8 +643,73 @@ heldWallTap = function(wall: BasePart, u: number, v: number)
 	useWall(wall, u, v)
 end
 
--- (D-1094) a short tap / click straight on a photo wall nearby, with a photo in
--- the hand (D-1108). Not while placing or a window is open.
+-- (D-1110, user 2026-11-09: "하늘색 벽에 붙어 있는 사진들은 크게 보는 거 안 됨")
+-- the photos are found by a ray in the world, not by buttons on the walls'
+-- SurfaceGuis: the sky-blue niche (SHOP) sits behind the invisible hall panel
+-- (OHU_HALL_N), which took every tap first. The ray goes through the photo
+-- walls (they are invisible panels or wall faces) up to the first solid part
+-- that can be seen; every photo wall on the way is a candidate, nearest first.
+type WallHit = { wall: BasePart, at: Vector3 }
+local function pick(ray: Ray, character: Model): {WallHit}
+	local photoWalls = {}
+	for _, w in ipairs(CollectionService:GetTagged("PhotoWall")) do
+		if w:IsA("BasePart") and w:IsDescendantOf(workspace) then table.insert(photoWalls, w) end
+	end
+	-- the first thing seen that is not a photo wall (see-through parts skipped)
+	local ignore: {Instance} = { character }
+	for _, w in ipairs(photoWalls) do table.insert(ignore, w) end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local solid = 120
+	for _ = 1, 8 do
+		params.FilterDescendantsInstances = ignore
+		local h = workspace:Raycast(ray.Origin, ray.Direction * 120, params)
+		if not h then break end
+		local p = h.Instance
+		if p:IsA("BasePart") and (p.Transparency >= 0.95 or not p.CanCollide and p.Transparency > 0.5) then
+			table.insert(ignore, p)
+		else
+			solid = (h.Position - ray.Origin).Magnitude
+			break
+		end
+	end
+	-- the photo walls before it
+	local out: {WallHit} = {}
+	local only = RaycastParams.new()
+	only.FilterType = Enum.RaycastFilterType.Include
+	local left = table.clone(photoWalls)
+	for _ = 1, 6 do
+		if #left == 0 then break end
+		only.FilterDescendantsInstances = left
+		local h = workspace:Raycast(ray.Origin, ray.Direction * 120, only)
+		if not h then break end
+		if (h.Position - ray.Origin).Magnitude > solid + 0.8 then break end
+		table.insert(out, { wall = h.Instance :: BasePart, at = h.Position })
+		local i = table.find(left, h.Instance)
+		if i then table.remove(left, i) end
+	end
+	return out
+end
+-- the newest photo on that wall under that point
+local function photoAt(wall: BasePart, at: Vector3): Entry?
+	local u, v = uvOf(wall, at)
+	local best: Entry? = nil
+	local bestAt = -math.huge
+	for _, entry in ipairs(entries) do
+		if drawnWall[entry.id] == wall then
+			local size = photoSize(entry.photo.layout)
+			local hu, hv = size.X / 2 / wall.Size.X, size.Y / 2 / wall.Size.Y
+			if math.abs(u - entry.u) <= hu and math.abs(v - entry.v) <= hv and (entry.at or 0) > bestAt then
+				best, bestAt = entry, entry.at or 0
+			end
+		end
+	end
+	return best
+end
+
+-- (D-1094) a short tap / click on a photo wall nearby: with a photo in the hand
+-- it is a spot to stick it (D-1108), with empty hands the photo there is shown
+-- big (D-1110). Not while placing or a window is open.
 do
 	local downAt: {[InputObject]: { t: number, p: Vector3 }} = {}
 	UserInputService.InputBegan:Connect(function(input, processed)
@@ -678,20 +726,28 @@ do
 		if os.clock() - d.t > 0.4 or (input.Position - d.p).Magnitude > 12 then return end
 		local character = player.Character
 		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if not root or not heldPhotoId() then return end
+		if not root then return end
+		local tool = character:FindFirstChildOfClass("Tool")
+		local held = heldPhotoId()
+		if tool and not held then return end -- (food etc. in the hand: its own tap)
 		local camera = workspace.CurrentCamera
-		local touch = input.UserInputType == Enum.UserInputType.Touch
-		local ray = if touch then camera:ScreenPointToRay(input.Position.X, input.Position.Y)
-			else camera:ViewportPointToRay(input.Position.X, input.Position.Y)
-		local params = RaycastParams.new()
-		params.FilterType = Enum.RaycastFilterType.Exclude
-		params.FilterDescendantsInstances = { character }
-		local hit = workspace:Raycast(ray.Origin, ray.Direction * 120, params)
-		local wall = hit and hit.Instance
-		if not wall or not wall:IsA("BasePart") or not CollectionService:HasTag(wall, "PhotoWall") then return end
-		if (hit.Position - root.Position).Magnitude > 20 then return end
-		local u, v = uvOf(wall, hit.Position)
-		useWall(wall, u, v)
+		-- (InputObject.Position is below the top bar inset for the mouse too)
+		local ray = camera:ScreenPointToRay(input.Position.X, input.Position.Y)
+		local walls = pick(ray, character)
+		if #walls == 0 then return end
+		if held then
+			-- the wall surface itself: the last photo wall before the solid one
+			local w = walls[#walls]
+			if (w.at - root.Position).Magnitude > 20 then return end
+			local u, v = uvOf(w.wall, w.at)
+			useWall(w.wall, u, v)
+			return
+		end
+		-- (D-1085 / D-1108) empty hands: the photo under the tap, big
+		for _, w in ipairs(walls) do
+			local entry = photoAt(w.wall, w.at)
+			if entry then openViewer(entry.photo) return end
+		end
 	end)
 end
 
