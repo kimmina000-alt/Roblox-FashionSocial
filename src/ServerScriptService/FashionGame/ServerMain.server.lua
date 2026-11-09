@@ -29,6 +29,7 @@ local ClubService = require(
 )
 local ClubScreenService = require(script.Parent.Services.ClubScreenService)
 local EconomyService = require(script.Parent.Services.EconomyService)
+local Analytics = require(script.Parent.Services.Analytics) -- (D-1124)
 local PhotoBoothService = require(script.Parent.Services.PhotoBoothService)
 MonetizationService.Start()
 EconomyService.Start(PlayerDataService)
@@ -61,7 +62,10 @@ require(script.Parent.Services.BarShelfService).Start()
 require(script.Parent.Services.BakeryDisplayService).Start()
 require(script.Parent.Services.GuardService).Start()
 require(script.Parent.Services.BeachBallService).Start() -- (beach balls to pick up and throw, D-1029)
-require(script.Parent.Services.ZoneAnalyticsService).Start() -- (minutes per place for the dashboard, D-1096)
+local ZoneAnalyticsService = require(script.Parent.Services.ZoneAnalyticsService)
+ZoneAnalyticsService.Start() -- (minutes per place for the dashboard, D-1096)
+-- (D-1124) onboarding, places entered vs things done, the booth / club funnels, coins
+Analytics.Start(ZoneAnalyticsService.ZoneOf, EconomyService.Balance)
 require(script.Parent.Services.SpectateService).Start(RankingService) -- (the owner's /관전, D-1097)
 require(script.Parent.Services.ChatCommandService).Start() -- (/re, /sit, D-1107)
 task.defer(require(script.Parent.Services.DoorHeadroomService).Start) -- (room over doorways, D-1111)
@@ -320,18 +324,22 @@ TryOnItem.OnServerInvoke = function(
 		if not id then
 			return false, "Invalid item."
 		end
-		return runTracked(player, function()
+		local ok, result = runTracked(player, function()
 			if itemType == "Bundle" then
 				return AvatarService.WearBundle(player, id)
 			end
 			return AvatarService.TryOnItem(player, id)
 		end)
+		if ok then Analytics.interact(player, "Outfit") end -- (D-1124: trying clothes on)
+		return ok, result
 	end
 
 	if action == "WearBundle" or action == "WearShoeBundle" then
-		return runTracked(player, function()
+		local ok, result = runTracked(player, function()
 			return AvatarService.WearBundle(player, payload)
 		end)
+		if ok then Analytics.interact(player, "Outfit") end
+		return ok, result
 	end
 
 	if action == "Remove" then

@@ -21,6 +21,8 @@ local EconomyConfig = require(Shared:WaitForChild("EconomyConfig"))
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
 local ClubConfig = require(Shared:WaitForChild("ClubConfig"))
 
+local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124: coin flows)
+
 local EconomyService = {}
 
 local playerData: any = nil
@@ -106,6 +108,7 @@ function EconomyService.Award(player: Player, key: string): number
 	playerData.MarkDirty(player)
 	if amount > 0 then
 		add(player, amount)
+		Analytics.coins(player, "Source", amount, w.coins, "Gameplay", "Bonus_" .. key)
 		toast(player, string.format("%s +%d %s · %s", EconomyConfig.Icon, amount, EconomyConfig.CurrencyName, bonus.text))
 	end
 	return amount
@@ -124,6 +127,7 @@ function EconomyService.Earn(player: Player, amount: number, capKey: string, cap
 	w.daily.counts[capKey] = earned + given
 	playerData.MarkDirty(player)
 	add(player, given)
+	Analytics.coins(player, "Source", given, w.coins, "Gameplay", capKey) -- (D-1124: e.g. CafeJob)
 	toast(player, string.format("%s +%d %s · %s", EconomyConfig.Icon, given, EconomyConfig.CurrencyName, text))
 	return given
 end
@@ -200,13 +204,16 @@ function EconomyService.Earned(player: Player, capKey: string): number
 	return wallet(player).daily.counts[capKey] or 0
 end
 
-function EconomyService.Spend(player: Player, amount: number): boolean
+-- (D-1124) sku: a fixed item code for the analytics (Snack_<shop>_<item>,
+-- Drink_<key>, Frame_<key>, Cafe_<item>, Photo_ExtraCopy); logged once paid
+function EconomyService.Spend(player: Player, amount: number, sku: string?): boolean
 	if amount <= 0 then return true end
 	local w = wallet(player)
 	if w.coins < amount then return false end
 	w.coins -= amount
 	playerData.MarkDirty(player)
 	publish(player)
+	Analytics.coins(player, "Sink", amount, w.coins, Enum.AnalyticsEconomyTransactionType.Shop.Name, sku or "Other")
 	return true
 end
 
@@ -215,12 +222,16 @@ end
 function EconomyService.Gift(player: Player, amount: number, text: string)
 	if amount <= 0 or not player.Parent then return end
 	add(player, math.floor(amount))
+	Analytics.coins(player, "Source", math.floor(amount), EconomyService.Balance(player), "Gameplay", "FeedbackReward")
 	toast(player, string.format("%s +%d %s · %s", EconomyConfig.Icon, math.floor(amount), EconomyConfig.CurrencyName, text))
 end
 
 -- Coins back for something paid and not given (a cafe order cancelled, D-772).
 function EconomyService.Refund(player: Player, amount: number)
-	if amount > 0 and player.Parent then add(player, math.floor(amount)) end
+	if amount > 0 and player.Parent then
+		add(player, math.floor(amount))
+		Analytics.coins(player, "Source", math.floor(amount), EconomyService.Balance(player), "Refund", "Refund")
+	end
 end
 
 -- Studio play tests only (never on live servers): give test coins.
@@ -246,7 +257,7 @@ function EconomyService.BuyFrame(player: Player, key: any): (boolean, string?)
 	if not frame then return false, "없는 프레임이에요." end
 	if EconomyService.OwnsFrame(player, frame.key) then return true, "이미 가지고 있는 프레임이에요." end
 	if frame.price ~= "coins" or not frame.coins then return false, "프레임 팩으로 살 수 있어요." end
-	if not EconomyService.Spend(player, frame.coins) then
+	if not EconomyService.Spend(player, frame.coins, "Frame_" .. frame.key) then
 		return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, frame.coins, EconomyService.Balance(player))
 	end
 	table.insert(playerData.Wallet(player).frames, frame.key)
@@ -307,7 +318,9 @@ local function passiveTick()
 			local minutes = w.daily.counts.Passive or 0
 			w.daily.counts.Passive = minutes + 1
 			local amount = if minutes < EconomyConfig.PassiveFullMinutes then EconomyConfig.PassiveAmount else EconomyConfig.PassiveReducedAmount
+			local before = w.coins
 			add(player, amount * multiplier(player))
+			Analytics.playtimeCoins(player, w.coins - before) -- (D-1124: what was really given, sent per 5 min)
 		end
 		-- the boost runs down only while online
 		local w = playerData.Wallet(player)
@@ -328,12 +341,21 @@ function EconomyService.Start(dataService: any)
 			-- EconomyConfig.WelcomeCoins is set (wallet.welcome remembers it)
 			local gift = EconomyConfig.WelcomeCoins
 			local w = wallet(player)
-			if gift and not w.welcome then
+			-- (D-1124) wallet.welcome also marks "has been here before": the
+			-- player attribute FirstVisit tells the analytics a new player (New)
+			-- from a returning one (Back); set even without the gift
+			local firstVisit = not w.welcome
+			if firstVisit then
 				w.welcome = true
-				w.coins = math.min(EconomyConfig.MaxBalance, (w.coins or 0) + gift)
+				if gift then
+					local before = w.coins or 0
+					w.coins = math.min(EconomyConfig.MaxBalance, before + gift)
+					Analytics.coins(player, "Source", w.coins - before, w.coins, Enum.AnalyticsEconomyTransactionType.Onboarding.Name, "WelcomeGift")
+					task.delay(8, toast, player, string.format("🎉 오픈 기념 %d 코인을 드렸어요!", gift))
+				end
 				playerData.MarkDirty(player)
-				task.delay(8, toast, player, string.format("🎉 오픈 기념 %d 코인을 드렸어요!", gift))
 			end
+			player:SetAttribute("FirstVisit", firstVisit)
 			publish(player)
 			-- (attendance coins D-775 and their stamp card D-801: removed, D-803, user)
 			-- the saved XP on the name tag from the start (it grows once a minute)

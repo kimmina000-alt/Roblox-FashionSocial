@@ -432,7 +432,8 @@ local function playerOrder(player: Player, shop: SnackConfig.Shop, item: SnackCo
 	if last and os.clock() - last < CafeJobConfig.PlayerOrderGap then return false, nil end
 	-- (D-772) coin items too: paid now (not enough → SnackService says so)
 	local price = item.coins or 0
-	if price > 0 and not economy.Spend(player, price) then return false, nil end
+	-- (D-1124) the same item code as a counter order (SnackService)
+	if price > 0 and not economy.Spend(player, price, "Snack_" .. shop.key .. "_" .. item.key) then return false, nil end
 	lastOrderAt[player.UserId] = os.clock()
 	nextId += 1
 	orders[nextId] = {
@@ -688,6 +689,7 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 	staff[player] = shopKey
 	lastNpcAt[shopKey] = os.clock() - CafeJobConfig.NpcEverySeconds + 4 -- first NPC soon
 	npcGap[shopKey] = nil -- (D-1025: the first gap is NpcEverySeconds, so 4 s from here)
+	require(script.Parent:WaitForChild("Analytics")).interact(player, "Job") -- (D-1124: a shift started)
 	if player.Character then
 		player.Character:SetAttribute("CafeJob", shopKey)
 		setStaffTag(player.Character, shopKey)

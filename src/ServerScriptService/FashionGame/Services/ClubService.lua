@@ -50,6 +50,11 @@ end
 -- DancePause (number, optional): clip time the dance is frozen at (인생네컷
 -- ⏸ button, user 2026-10-20). nil = playing.
 local function setDance(character: Model, key: string?, start: number?, speed: number?, pause: number?)
+	-- (D-1124) a dance started (anywhere; in the club also the ClubVisit funnel's step 2)
+	if key and character:GetAttribute("DanceKey") == nil then
+		local who = Players:GetPlayerFromCharacter(character)
+		if who then require(script.Parent:WaitForChild("Analytics")).interact(who, "Dance") end
+	end
 	character:SetAttribute("DanceKey", key)
 	character:SetAttribute("DanceStart", start)
 	character:SetAttribute("DanceSpeed", speed)
@@ -441,6 +446,7 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		end
 		skipVotes[player.UserId] = yes
 		player:SetAttribute("ClubSkipMine", if yes then "yes" else "no")
+		require(script.Parent:WaitForChild("Analytics")).interact(player, "SkipVote") -- (D-1124)
 		local votes, needed = publishSkipVotes()
 		if votes >= needed then
 			playNext()

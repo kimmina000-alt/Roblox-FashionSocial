@@ -27,6 +27,7 @@ local MonetizationService = require(script.Parent.MonetizationService)
 local FoodShapes = require(script.Parent.FoodShapes)
 local RamenCup = require(script.Parent:WaitForChild("RamenCup")) -- (D-1053: the user's cup ramen)
 local Microwave = require(script.Parent:WaitForChild("Microwave")) -- (D-1104: 삼각김밥 warmed in the OH24 microwave)
+local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124)
 
 local SnackService = {}
 local economy: any = nil
@@ -520,6 +521,7 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	-- (D-1103) this bite's part of the food's XP, to the one eating
 	local eater = Players:GetPlayerFromCharacter(character)
 	if eater and economy then economy.EatXP(eater, tool, left + 1) end
+	if eater then Analytics.interact(eater, if item.kind == "cup" or item.kind == "bottle" then "Drink" else "Eat") end -- (D-1124)
 	-- a third of it is gone, from the top
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
 	local zlo, zhi = tool:GetAttribute("EatZLo"), tool:GetAttribute("EatZHi")
@@ -1379,12 +1381,13 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	-- a shared cake bought with coins (the strawberry cake: 💰 or R$)
 	if item.share then
 		local price = item.coins or 0
-		if not economy or not economy.Spend(player, price) then
+		if not economy or not economy.Spend(player, price, "Snack_" .. shop.key .. "_" .. item.key) then
 			local balance = if economy then economy.Balance(player) else 0
 			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
 		end
 		grantProduct(player, item, if economy then economy.FoodXPFor(price) else 0) -- (D-1103: XP on the plate)
 		payBeep(player, shop.key)
+		Analytics.interact(player, "Buy") -- (D-1124)
 		return true, nil
 	end
 	if handsFull(player) then
@@ -1400,11 +1403,12 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	end
 	local price = item.coins or 0
 	if price > 0 then
-		if not economy or not economy.Spend(player, price) then
+		if not economy or not economy.Spend(player, price, "Snack_" .. shop.key .. "_" .. item.key) then
 			local balance = if economy then economy.Balance(player) else 0
 			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
 		end
 	end
+	Analytics.interact(player, "Buy") -- (D-1124: free ones too)
 	local bought = makeTool(item)
 	-- (D-1103) the XP it is worth, given bite by bite while it is eaten
 	if economy then bought:SetAttribute("FoodXP", economy.FoodXPFor(price)) end
@@ -1626,6 +1630,7 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
 	tool:SetAttribute("Bites", left)
 	if economy then economy.EatXP(player, tool, left + 1) end -- (D-1103: a spoonful from the table)
+	Analytics.interact(player, "Eat") -- (D-1124)
 	local fill = copy:FindFirstChild("Fill")
 	if tool:GetAttribute("EatMode") == "Bites" then
 		-- (D-1036) the tool in waiting shows the same pieces gone (picked up later)
@@ -2128,6 +2133,7 @@ function SnackService.Start(economyService: any)
 			if key and not registered[key] then
 				registered[key] = true
 				MonetizationService.RegisterProduct(key, function(player: Player)
+					Analytics.interact(player, "Buy") -- (D-1124)
 					return grantProduct(player, item, if economy then economy.FoodXPFor(nil, true) else 0) -- (D-1103)
 				end)
 			end

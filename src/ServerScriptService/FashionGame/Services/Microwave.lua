@@ -312,6 +312,7 @@ function Microwave.heat(player: Player, target: any): (boolean, string?)
 	if tool:GetAttribute("Busy") then return false, nil end
 	if not near(player, rig) then return false, "전자레인지 가까이에서 눌러 주세요." end
 	if rig.state ~= "idle" then return false, "전자레인지를 쓰고 있어요." end
+	require(script.Parent:WaitForChild("Analytics")).interact(player, "Microwave") -- (D-1124)
 	rig.token += 1
 	local token = rig.token
 	rig.state = "heating"

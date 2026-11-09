@@ -91,6 +91,7 @@ local function give(ball: Ball, player: Player)
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not humanoid or humanoid.Health <= 0 or not backpack or holding[player] then return end
+	require(script.Parent:WaitForChild("Analytics")).interact(player, "BeachBall") -- (D-1124)
 	if ball.thrown then ball.thrown:Destroy() ball.thrown = nil end
 	ball.part.Transparency = 1
 	ball.prompt.Enabled = false

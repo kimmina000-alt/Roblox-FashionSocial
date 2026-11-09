@@ -26,6 +26,7 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local MonetizationService = require(script.Parent.MonetizationService)
 local EconomyService = require(script.Parent.EconomyService)
+local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124)
 local DrinkBucket = require(script.Parent.DrinkBucket)
 local BottleShapes = require(FashionGame:WaitForChild("Shared"):WaitForChild("BottleShapes"))
 local SoundConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("SoundConfig"))
@@ -181,7 +182,10 @@ local function drinkFrom(tool: Tool)
 	task.wait(0.3)
 	-- (D-1103) the cup's XP to the one drinking it
 	local drinker = Players:GetPlayerFromCharacter(character)
-	if drinker then EconomyService.EatXP(drinker, tool, 1) end
+	if drinker then
+		EconomyService.EatXP(drinker, tool, 1)
+		Analytics.interact(drinker, "Drink") -- (D-1124)
+	end
 	tool:Destroy()
 end
 
@@ -772,6 +776,7 @@ local function swig(player: Player): (boolean, string?)
 	down()
 	task.wait(0.3)
 	EconomyService.EatXP(player, tool, left + 1) -- (D-1103: this swig's part)
+	Analytics.interact(player, "Drink") -- (D-1124)
 	if left <= 0 then
 		tool:Destroy()
 		return true, "다 마셨어요!"
@@ -976,7 +981,7 @@ local function buyWithCoins(player: Player, drink: ClubConfig.Drink, variantKey:
 	end
 	local ok, message, tool = giveBottle(player, drink.key, nil, variantKey)
 	if not ok then return false, message end
-	EconomyService.Spend(player, price)
+	EconomyService.Spend(player, price, "Drink_" .. drink.key) -- (D-1124: item code)
 	-- (D-1102, user 2026-11-09: "클럽 음료도 XP 넣어 줘") the food rule: half the
 	-- price paid (the VIP price for VIPs), the same daily cap as food;
 	-- (D-1103) on the bottle, given sip by sip (cup by cup) as it is drunk
@@ -984,7 +989,17 @@ local function buyWithCoins(player: Player, drink: ClubConfig.Drink, variantKey:
 	return true, message
 end
 
+local handleAction: (Player, string, any) -> (boolean, any)
+-- (D-1124) a drink handed over from the menu: the ClubShop funnel's step 3
 function DrinkService.Handle(player: Player, action: string, payload: any): (boolean, any)
+	local ok, result = handleAction(player, action, payload)
+	if ok and (action == "Order" or action == "OrderCoins") then
+		Analytics.clubShop(player, 3)
+		Analytics.interact(player, "Buy")
+	end
+	return ok, result
+end
+handleAction = function(player: Player, action: string, payload: any): (boolean, any)
 	if action == "Order" then
 		-- tier 1: free, or a few coins
 		local drink, variantKey = readOrder(payload)
@@ -1066,6 +1081,8 @@ function DrinkService.Start()
 		if ok then
 			toast(player, message or "")
 			if tool then tool:SetAttribute("FoodXP", EconomyService.FoodXPFor(nil, true)) end -- (D-1102 / D-1103: Robux = the flat amount)
+			Analytics.clubShop(player, 3) -- (D-1124)
+			Analytics.interact(player, "Buy")
 			return true, nil
 		end
 		-- Hands full: still grant (the purchase went through) by

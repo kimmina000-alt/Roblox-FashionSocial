@@ -3544,6 +3544,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ClubService: › 탭 = 30초 투표 시작(SKIP_ROUND), 예 / 아니요(payload "no"), 예가 skipVotesNeeded에 닿으면 바로 다음 곡, 시간이 다 되면 투표 지움. 속성 ClubSkipVotes(예/필요), ClubSkipNo, ClubSkipEnds, 플레이어 ClubSkipMine. 진행 중이 아닐 때 아니요는 무시. 예전의 "두 번 누르면 취소"는 예 / 아니요로 바뀜.
 - ClubQuickBar: 재생 바 아래 어두운 카드 = 남은 시간 초록 막대, "투표 건너뛰기 — 28초", "6/17 예  0 아니요", 예(초록) / 아니요(빨강), 고른 쪽만 밝게. 클럽 안 · DJ 없을 때만. 토스트는 그 아래로.
 - Play(StudioDJ 속성을 잠깐 끄고): 진행 없이 아니요 → 무시, 화면 스샷(참고 사진과 같은 모양), 혼자일 때 예 → 다음 곡(46 → 23), 투표 지워짐. StudioDJ 속성 되돌림.
+## D-1124 분석 이벤트: 온보딩 · 첫 행동 · 실제 활동 · 반복 퍼널 · 코인 (2026-11-10)
+- 사용자: 대시보드 "유입 경로" 화면의 rbx-instrument-analytics 스킬 진행 → 계획을 보여 줌 → 사용자가 검토 의견을 붙여 넣음(자유로운 첫 행동은 순차 퍼널에 넣지 말 것, 반복 퍼널에 세션 ID, 장소 입장과 실제 활동 구분, 첫 1~3분, 고정 상품 코드, 실패가 게임에 영향 없게).
+- 검토대로 고친 설계를 넣음: Services/Analytics.lua 한 곳에서 보냄(pcall, Studio는 출력만). 온보딩은 1 접속 → 2 첫 상호작용만. 첫 행동 경로는 사용자 정의 FirstAction(행동 / 순서 / 걸린 시간). PlaceEnter와 Interact로 입장과 활동을 나눔(필드: 장소, New·Back, Solo·Friends). FirstInteractSecs, FirstSession 3분 / 10분. 반복 퍼널 PhotoBooth(부스 세션 ID) · ClubVisit(입장마다) · ClubShop(메뉴 열 때마다; 클라이언트 단계는 AnalyticsStep RemoteEvent, 1초 제한, 두 이름만). 코인: EconomyService.Spend(player, amount, sku)에 상품 코드, Earn / Gift / Refund / 오픈 선물 / 접속 코인(5분 묶음, 나갈 때 나머지) 기록, 잔액은 거래 뒤 값.
+- 검토 의견 중 "Journey 분석"은 AnalyticsService에 따로 있는 API를 찾지 못해 사용자 정의 이벤트(FirstAction)로 대신함. 사진관 순서는 실제 코드 흐름대로(입장 → 촬영 → 컷·프레임 고름 → 저장). wallet.welcome은 이제 선물이 없어도 "와 본 적 있음"으로 씀(FirstVisit 속성).
+- 정리: docs/01_SYSTEMS/ANALYTICS.md. Play(Studio 출력): PlaceEnter OH24 · 클럽, Economy Sink Snack_OH24_samgak / Drink_cider, Interact Buy / Eat / Dance, ClubVisit 1 → 2, ClubShop 1 → 2 → 3. 처음 온 사람 쪽(온보딩, FirstAction)과 사진관 퍼널은 Studio 계정이 재방문이라 실제 게임에서 확인.
 ## D-1123 편의점 카운터 뒤 진열장 그림 (2026-11-10)
 - 사용자: "편의점 카운터 뒤에 파트에도 진열장 같은 이미지 넣어". 담배 대신(D-311) 직접 그린 진열장: 사탕 · 껌 상자, 초콜릿, 사탕 병, 젤리 · 과자 봉지, 걸어 둔 충전기 · 건전지 · 이어폰 · 상품권 카드, 선반 조명 · 가격표, 위에 OH24 색 간판 두 개(tools/art/oh24_counter_shelf.py → docs/04_ART/textures/props/oh24_shelf_counter.png, 88807195595964). Workspace.front 앞면에 한 장(2:1). oh24_store_1109.lua 7번에 넣음. Studio 적용, 스샷 확인. (D-1122는 노래 세션도 썼음: feat/murmur-clean-1109.)
 ## D-1122 가방 카드 테두리 안 잘리게 (2026-11-09)
