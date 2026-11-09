@@ -118,7 +118,8 @@ M.Playlist = {
 		-- the same song clock (`from = 0.75`) until 141.25, then 19 goes on from its 4.0 s. BAD crosses the right arm, BAD 2 (mirrored video) the left
 		{ id = 82346668311878, at = 137.25, from = 0.75, blend = 0.76, stop = 141.25 }, { id = 95469533767642, at = 141.25, from = 4.0, blend = 0.5 },
 		{ id = 138812417192850, at = 148.37 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+	-- (D-1122, user 2026-11-09: low / mid / high / boost2 from the user)
+	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 2, octave = 0.5, low = -28, mid = -13.5, high = -4, engine = "sound" },
 		-- D-897: Genie1..26 (video = song - 13.55 s, the cover video cut the intro)
 		choreo = { { id = 122991710923104, at = 13.82 }, { id = 118462778307290, at = 20.62, blend = 0.56 }, { id = 127323208506008, at = 26.83, blend = 0.53 },
 		{ id = 121572726416294, at = 34.07, blend = 0.91 }, { id = 101676644495491, at = 45.32 }, { id = 105545108302127, at = 58.39 },
@@ -136,7 +137,8 @@ M.Playlist = {
 	-- 3 × 53.553 ÷ 153.008 = 1.0500, and the user's tempo 0.956 × 1.05 = 1.004 (heard ≈ the original)
 	-- (D-933, user 2026-11-06: boost3 5, low -3, high -28)
 	-- (D-1010, user 2026-11-08: "부스터4: 5")
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -34, mid = -20, high = -34 }, choreo = {
+	-- (D-1122, user 2026-11-09: low / mid / high from the user)
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -3, mid = -6.5, high = -28 }, choreo = {
 		-- (D-807, user: "이음새도 맞춰") blend = seconds to ease from the last pose
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
 		-- (D-878, user: "겟어기타 안무 수정", practice video u_u21u8zIIs, mirrored
@@ -176,7 +178,8 @@ M.Playlist = {
 		{ id = 123213110930819, at = 113.09, blend = 0.61 }, { id = 84387354167133, at = 117.21, blend = 0.77 }, { id = 81083928741520, at = 118.22, blend = 0.54 }, { id = 132463155617727, at = 127, blend = 0.41 },
 		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
 		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+	-- (D-1122, user 2026-11-09: low / mid / high / boost2 from the user)
+	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 2, octave = 0.5, low = -19.5, mid = 0, high = -10, engine = "sound" },
 		-- (D-985, user: "전체적으로 좌우 반전") the pieces come from the mirrored video: danced as their mirror image
 		mirror = true,
 		-- D-968: CatchCatch 1..23 (3, 6, 15, 19, 22 = re-uploads 2026-11-07; the first uploads were copies of the piece before).
@@ -219,7 +222,8 @@ M.Playlist = {
 		{ id = 93178194866716, at = 115, blend = 0.6 }, { id = 92757942038731, at = 119, blend = 0.6 }, { id = 110433660488854, at = 128.43, blend = 0.6 },
 		{ id = 87039448079710, at = 136, blend = 0.6 }, { id = 99840608563579, at = 144.33, blend = 1 }, { id = 134866535240552, at = 151.87, blend = 0.66 },
 		{ id = 98315614070332, at = 159.1, blend = 0.61 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+	-- (D-1122, user 2026-11-09: low / mid / high / boost2 from the user)
+	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 2, octave = 0.5, low = -21, mid = 0, high = -0.5, engine = "sound" },
 		-- (D-992, user: "안무 추면서 이동해도 결국 처음 서 있던 위치를 중심으로 두고 끝나면 돌아오게 … 레모네이드에만 먼저"):
 		-- the travel eases back toward the start in 2.5 s (instead of 8) and the dancer glides home over 1.5 s at the end
 		home = { settle = 2.5, back = 1.5 },
@@ -451,11 +455,6 @@ M.Playlist = {
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1101: the old "1" entry removed, kept as one)
 	{ channel = "K-POP", title = "머무르-꿈꾸던 어른이 되었나요", soundId = 95913746283492, length = 197.635, fileSpeed = 1.0524,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -7, mid = -18, high = -29, engine = "sound" } },
-	-- (D-1118, user 2026-11-09: "게임 안 실시간 3가지로 ... 2 붙여서 비교") the same upload and lab with the live
-	-- clean-up on top (Track.clean: low cut / voice lift / compressor, DanceController), to compare with the song above
-	{ channel = "K-POP", title = "2 머무르-꿈꾸던 어른이 되었나요", soundId = 95913746283492, length = 197.635, fileSpeed = 1.0524,
-		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -7, mid = -18, high = -29, engine = "sound" },
-		clean = { low = -4, mid = 3, high = 0, threshold = -18, ratio = 3, attack = 0.01, release = 0.2, makeup = 3 } },
 	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 138668506442693, length = 185.738, fileSpeed = 1.0499,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
