@@ -1649,6 +1649,9 @@ local function renderAlbum()
 		if child:IsA("GuiObject") then child:Destroy() end
 	end
 	albumSub.Text = "불러오는 중..."
+	-- (D-1125) the album opened: "사진을 다시 확인" for the analytics (AnalyticsStep)
+	local gate = Remotes:FindFirstChild("AnalyticsStep")
+	if gate and gate:IsA("RemoteEvent") then gate:FireServer("AlbumOpen") end
 	local ok, data = invoke("GetAlbum", nil)
 	if generation ~= albumGeneration then return end
 	if not ok or typeof(data) ~= "table" then

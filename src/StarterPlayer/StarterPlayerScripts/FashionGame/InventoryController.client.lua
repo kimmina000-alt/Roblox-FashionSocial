@@ -332,6 +332,9 @@ local function showTab(which: string)
 	deleteAll.Visible = false
 	if photosOn then
 		task.spawn(refreshPhotos)
+		-- (D-1125) the album opened: "사진을 다시 확인" for the analytics
+		local gate = boothRemote.Parent and boothRemote.Parent:FindFirstChild("AnalyticsStep")
+		if gate and gate:IsA("RemoteEvent") then gate:FireServer("AlbumOpen") end
 	else
 		hint.Text = "누르면 손에 들어요 · 든 것을 다시 누르면 넣어요"
 		refreshItems()

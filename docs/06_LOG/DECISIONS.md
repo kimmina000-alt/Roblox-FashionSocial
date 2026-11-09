@@ -3544,6 +3544,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ClubService: › 탭 = 30초 투표 시작(SKIP_ROUND), 예 / 아니요(payload "no"), 예가 skipVotesNeeded에 닿으면 바로 다음 곡, 시간이 다 되면 투표 지움. 속성 ClubSkipVotes(예/필요), ClubSkipNo, ClubSkipEnds, 플레이어 ClubSkipMine. 진행 중이 아닐 때 아니요는 무시. 예전의 "두 번 누르면 취소"는 예 / 아니요로 바뀜.
 - ClubQuickBar: 재생 바 아래 어두운 카드 = 남은 시간 초록 막대, "투표 건너뛰기 — 28초", "6/17 예  0 아니요", 예(초록) / 아니요(빨강), 고른 쪽만 밝게. 클럽 안 · DJ 없을 때만. 토스트는 그 아래로.
 - Play(StudioDJ 속성을 잠깐 끄고): 진행 없이 아니요 → 무시, 화면 스샷(참고 사진과 같은 모양), 혼자일 때 예 → 다음 곡(46 → 23), 투표 지워짐. StudioDJ 속성 되돌림.
+## D-1125 사진 지표 세 가지 (2026-11-10)
+- 사용자: "빠진 사진 지표 지금 넣어" (GROWTH_DIRECTION.md §1: 1인당 촬영 횟수, 친구 동반 촬영률, 촬영 후 체류, 사진 다시 확인).
+- Analytics: PhotoSaved(저장마다, 인원 1명 / 2명 / 3-4명, 사진 속에 로블록스 친구 있음 Friends / Solo, New / Back), AlbumOpen(저장 후 / 저장 전, New / Back, 1분 제한), AfterPhotoMins(나갈 때, 마지막 저장 뒤 분), PhotoBooth 퍼널 5 "다시 확인"(저장 뒤 처음 사진첩을 열 때, 그 부스 세션에 한 번). 사진첩 열기는 클라이언트 두 곳(가방 사진 탭, 부스 앨범 창)이 AnalyticsStep "AlbumOpen"으로 알림.
+- 이벤트 이름 9개(한도 100). Studio 반영은 2인 테스트가 끝난 뒤.
 ## D-1124 분석 이벤트: 온보딩 · 첫 행동 · 실제 활동 · 반복 퍼널 · 코인 (2026-11-10)
 - 사용자: 대시보드 "유입 경로" 화면의 rbx-instrument-analytics 스킬 진행 → 계획을 보여 줌 → 사용자가 검토 의견을 붙여 넣음(자유로운 첫 행동은 순차 퍼널에 넣지 말 것, 반복 퍼널에 세션 ID, 장소 입장과 실제 활동 구분, 첫 1~3분, 고정 상품 코드, 실패가 게임에 영향 없게).
 - 검토대로 고친 설계를 넣음: Services/Analytics.lua 한 곳에서 보냄(pcall, Studio는 출력만). 온보딩은 1 접속 → 2 첫 상호작용만. 첫 행동 경로는 사용자 정의 FirstAction(행동 / 순서 / 걸린 시간). PlaceEnter와 Interact로 입장과 활동을 나눔(필드: 장소, New·Back, Solo·Friends). FirstInteractSecs, FirstSession 3분 / 10분. 반복 퍼널 PhotoBooth(부스 세션 ID) · ClubVisit(입장마다) · ClubShop(메뉴 열 때마다; 클라이언트 단계는 AnalyticsStep RemoteEvent, 1초 제한, 두 이름만). 코인: EconomyService.Spend(player, amount, sku)에 상품 코드, Earn / Gift / Refund / 오픈 선물 / 접속 코인(5분 묶음, 나갈 때 나머지) 기록, 잔액은 거래 뒤 값.

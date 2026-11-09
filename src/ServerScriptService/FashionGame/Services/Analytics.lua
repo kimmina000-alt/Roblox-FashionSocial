@@ -76,6 +76,8 @@ type State = {
 	clubSession: string?, clubDanced: boolean, clubVisits: number,
 	shopSession: string?, shopStep: number, shopOpens: number,
 	playtime: number, dwell3: boolean, dwell10: boolean,
+	-- (D-1125) photos: the last save (time, booth session), whether that run was opened again
+	lastSaveAt: number?, lastBooth: string?, recheckedBooth: string?, lastAlbum: number,
 }
 local states: {[Player]: State} = {}
 local friends: {[number]: {[number]: boolean}} = {}
@@ -185,6 +187,49 @@ function Analytics.clubShop(player: Player, step: number)
 	end
 end
 
+-- photos (D-1125, user 2026-11-10: "빠진 사진 지표 지금 넣어" — GROWTH_DIRECTION.md §1)
+-- PhotoSaved   every save (not throttled): people in the photo (1명 / 2명 / 3-4명)
+--              / a Roblox friend in it (Friends | Solo) / New | Back
+--              → photos per player, share of group / friend photos
+-- PhotoBooth funnel step 5 "다시 확인": the album opened after that save
+-- AlbumOpen    the album opened: 저장 후 (a photo saved this visit) | 저장 전 / New | Back
+-- AfterPhotoMins (value = minutes) when leaving after a save: how long they
+--              stayed after their last photo
+function Analytics.photoSaved(player: Player, boothSession: string, people: {number})
+	local s = states[player]
+	if not s then return end
+	local n = math.max(1, #people)
+	local mine = friends[player.UserId] or {}
+	local withFriend = false
+	for _, userId in ipairs(people) do
+		if userId ~= player.UserId and mine[userId] then withFriend = true end
+	end
+	s.lastSaveAt = os.clock()
+	s.lastBooth = boothSession
+	custom(player, "PhotoSaved", 1, fields(if n == 1 then "1명" elseif n == 2 then "2명" else "3-4명",
+		if withFriend then "Friends" else "Solo", visitor(player)))
+end
+
+function Analytics.albumOpen(player: Player)
+	local s = states[player]
+	if not s then return end
+	local now = os.clock()
+	-- the album's "다시 확인" for the last booth run, once
+	if s.lastBooth and s.recheckedBooth ~= s.lastBooth then
+		s.recheckedBooth = s.lastBooth
+		Analytics.funnel(player, "PhotoBooth", s.lastBooth, 5, "다시 확인")
+	end
+	if now - s.lastAlbum < 60 then return end
+	s.lastAlbum = now
+	custom(player, "AlbumOpen", 1, fields(if s.lastSaveAt then "저장 후" else "저장 전", visitor(player)))
+end
+
+local function afterPhoto(player: Player)
+	local s = states[player]
+	if not s or not s.lastSaveAt then return end
+	custom(player, "AfterPhotoMins", math.floor((os.clock() - s.lastSaveAt) / 60), fields(visitor(player)))
+end
+
 -- economy ----------------------------------------------------------------------
 
 -- coins that really moved (amount > 0), with the balance after
@@ -221,6 +266,7 @@ local function onPlayer(player: Player)
 		clubSession = nil, clubDanced = false, clubVisits = 0,
 		shopSession = nil, shopStep = 0, shopOpens = 0,
 		playtime = 0, dwell3 = false, dwell10 = false,
+		lastSaveAt = nil, lastBooth = nil, recheckedBooth = nil, lastAlbum = -math.huge,
 	}
 	states[player] = s
 	task.spawn(function()
@@ -266,6 +312,7 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 	for _, p in ipairs(Players:GetPlayers()) do onPlayer(p) end
 	Players.PlayerRemoving:Connect(function(player)
 		flushPlaytime(player)
+		afterPhoto(player) -- (D-1125)
 		states[player] = nil
 		friends[player.UserId] = nil
 		for _, list in pairs(friends) do list[player.UserId] = nil end
@@ -284,7 +331,8 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 		if lastStep[player] and now - lastStep[player] < 1 then return end
 		lastStep[player] = now
 		if step == "ClubShopOpen" then Analytics.clubShop(player, 1)
-		elseif step == "ClubShopPick" then Analytics.clubShop(player, 2) end
+		elseif step == "ClubShopPick" then Analytics.clubShop(player, 2)
+		elseif step == "AlbumOpen" then Analytics.albumOpen(player) end -- (D-1125)
 	end)
 	-- places entered (2 s), first-visit time, time-online coins (5 min)
 	task.spawn(function()

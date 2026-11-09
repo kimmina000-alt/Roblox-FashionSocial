@@ -484,6 +484,12 @@ local function saveCopies(session: Session, player: Player, copies: number): (bo
 	-- (D-1124) the booth funnel's last step, and a photo taken
 	Analytics.funnel(player, "PhotoBooth", tostring(session.id), 4, "저장")
 	Analytics.interact(player, "Photo")
+	-- (D-1125) every save: who was in the photo
+	local inPhoto = {}
+	for _, who in ipairs(if firstPhoto then firstPhoto.people else {}) do
+		if typeof(who) == "table" and typeof(who.u) == "number" then table.insert(inPhoto, who.u) end
+	end
+	Analytics.photoSaved(player, tostring(session.id), inPhoto)
 	return true, { photo = firstPhoto, copies = copies, count = #last.photos, max = last.max, persistent = last.persistent, note = last.note }
 end
 
