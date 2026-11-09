@@ -179,12 +179,17 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 		end
 	end
 	local hiddenParts: {[BasePart]: number} = {}
+	local hiddenTags: {BillboardGui} = {}
 	for _, other in ipairs(Players:GetPlayers()) do
 		if other.Character then
 			for _, d in ipairs(other.Character:GetDescendants()) do
 				if d:IsA("BasePart") then
 					hiddenParts[d] = d.LocalTransparencyModifier
 					d.LocalTransparencyModifier = 1
+				elseif d:IsA("BillboardGui") and d.Enabled then
+					-- (the name tags would float over the empty spot)
+					d.Enabled = false
+					table.insert(hiddenTags, d)
 				end
 			end
 		end
@@ -299,6 +304,7 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 		if part.Parent then part.LocalTransparencyModifier = value end
 	end
 	for _, g in ipairs(hiddenGuis) do g.Enabled = true end
+	for _, tag in ipairs(hiddenTags) do if tag.Parent then tag.Enabled = true end end
 	playing = false
 	onDone(message)
 end
