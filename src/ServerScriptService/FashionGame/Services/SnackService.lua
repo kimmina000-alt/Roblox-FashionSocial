@@ -145,6 +145,8 @@ local EAT_SOUND = {
 -- (140514526743537, 3.1 s); the own clips were 98804537108952, 105506248237925, 115770485617090
 -- (D-1063, user 2026-11-09: "국밥 먹는 소리: 133241476322672"; was 140514526743537)
 local GUKBAP_CLIPS = { 133241476322672 }
+-- (D-1075, user 2026-11-09: "국밥 먹는 소리 앞에 0.5초 더 잘라") the clip from 0.5 s in
+local GUKBAP_FROM = 0.5
 local lastGukbap = 0
 local function gukbapClip(): number?
 	local ready = {}
@@ -485,7 +487,10 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	end
 	if sound and item.kind == "bowl" then
 		local id = gukbapClip()
-		if id then sound.SoundId = "rbxassetid://" .. id end
+		if id then
+			sound.SoundId = "rbxassetid://" .. id
+			sound.TimePosition = GUKBAP_FROM
+		end
 	end
 	if sound then sound:Play() end
 	task.wait(1.4)
@@ -1540,7 +1545,9 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 		applyEaten(copy, set)
 	end
 	local sound = Instance.new("Sound")
-	sound.SoundId = "rbxassetid://" .. tostring((if item.kind == "bowl" then gukbapClip() else nil) or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
+	local gukbap = if item.kind == "bowl" then gukbapClip() else nil
+	sound.SoundId = "rbxassetid://" .. tostring(gukbap or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
+	if gukbap then sound.TimePosition = GUKBAP_FROM end
 	setVolume(sound, LOUD[item.key] or 0.7)
 	sound.RollOffMaxDistance = 40
 	-- (on the character, not the spoon: the spoon goes 1.5 s after the bite and
