@@ -166,7 +166,8 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 	for _, entry in ipairs(shot.people or {}) do
 		local s = entry.s -- 키높이 발판: { x, y, z, width, height } in stand space
 		if typeof(s) == "table" and #s == 5 then
-			setPart(world, Vector3.new(s[4], s[5], s[4]), CFrame.new(s[1], s[2], s[3]), back:Lerp(Color3.new(0, 0, 0), 0.12))
+			-- (D-1139) the stool the booth gives (BoothPose.stool), as in the booth
+			BoothPose.stool(world, CFrame.new(s[1], s[2], s[3]), s[4], s[5], s[4] * 0.75)
 		end
 	end
 	for _, entry in ipairs(shot.people or {}) do

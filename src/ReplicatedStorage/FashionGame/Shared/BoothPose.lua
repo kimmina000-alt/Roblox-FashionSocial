@@ -45,6 +45,44 @@ function BoothPose.kneel(model: Model): boolean
 	return true
 end
 
+-- (D-1139, user 2026-11-10: "키높이 발판 버튼 누르면 올라오는 블록을 저 동그라미 속 발판
+-- 모양으로 수정") the step looks like the booth's own stools: a dark top
+-- (StoolTop 0.25 thick), four white metal legs (0.15) set in from the corners,
+-- a rail low on each side. Parts in `parent`, laid out round `cf` (the middle
+-- of the whole stool), `w` × `h` × `d` studs; only the top collides.
+function BoothPose.stool(parent: Instance, cf: CFrame, w: number, h: number, d: number): {BasePart}
+	local made = {}
+	local function piece(name: string, size: Vector3, offset: Vector3, color: Color3, material: Enum.Material, collide: boolean)
+		local p = Instance.new("Part")
+		p.Name = name
+		p.Size = size
+		p.CFrame = cf * CFrame.new(offset)
+		p.Color = color
+		p.Material = material
+		p.Anchored = true
+		p.CanCollide = collide
+		p.CanTouch = false
+		p.CanQuery = collide
+		p.TopSurface = Enum.SurfaceType.Smooth
+		p.BottomSurface = Enum.SurfaceType.Smooth
+		p.Parent = parent
+		table.insert(made, p)
+	end
+	local TOP = 0.25
+	local DARK = Color3.fromRGB(28, 28, 30)
+	local WHITE = Color3.fromRGB(245, 245, 245)
+	piece("StoolTop", Vector3.new(w, TOP, d), Vector3.new(0, h / 2 - TOP / 2, 0), DARK, Enum.Material.SmoothPlastic, true)
+	local legH = h - TOP
+	local lx, lz = w / 2 - 0.35, d / 2 - 0.3
+	for _, sx in ipairs({ -1, 1 }) do
+		for _, sz in ipairs({ -1, 1 }) do
+			piece("StoolLeg", Vector3.new(0.15, legH, 0.15), Vector3.new(sx * lx, -h / 2 + legH / 2, sz * lz), WHITE, Enum.Material.Metal, false)
+		end
+		piece("StoolRail", Vector3.new(0.12, 0.12, lz * 2), Vector3.new(sx * lx, -h / 2 + legH * 0.3, 0), WHITE, Enum.Material.Metal, false)
+	end
+	return made
+end
+
 -- Back to rest (the animations take over from there).
 function BoothPose.stand(model: Model)
 	for _, joint in ipairs({

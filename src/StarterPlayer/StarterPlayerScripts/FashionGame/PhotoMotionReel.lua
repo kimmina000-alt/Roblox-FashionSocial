@@ -194,6 +194,7 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 			end
 		end
 	end
+	Reel.hideStools(stoolBooth, true) -- (D-1139)
 	local cam = workspace.CurrentCamera
 	local oldType, oldCFrame, oldFov = cam.CameraType, cam.CFrame, cam.FieldOfView
 	cam.CameraType = Enum.CameraType.Scriptable
@@ -305,8 +306,32 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	end
 	for _, g in ipairs(hiddenGuis) do g.Enabled = true end
 	for _, tag in ipairs(hiddenTags) do if tag.Parent then tag.Enabled = true end end
+	Reel.hideStools(nil, false)
 	playing = false
 	onDone(message)
+end
+
+-- (D-1139, user 2026-11-10: "동그라미 속 발판 부스 안 공간에는 있지만 사진 찍기 시작하면 저
+-- 화면에서 안 보이게 해. 사진 찍을 때까지 기다리는 처음 10초에는 공간 다 보이지만 찍기
+-- 시작하면 안 보이게.") the booth's two stools (StoolTop / StoolLeg / StoolRail) are
+-- hidden on this screen while it shoots (and in the motion video), shown again after
+local hiddenStools: {[BasePart]: boolean} = {}
+local stoolBooth: Instance? = nil -- (the booth last shot in: the video hides its stools too)
+function Reel.hideStools(booth: Instance?, hide: boolean)
+	if booth then stoolBooth = booth end
+	if hide and booth then
+		for _, p in ipairs(booth:GetChildren()) do
+			if p:IsA("BasePart") and string.match(p.Name, "^Stool") and not hiddenStools[p] then
+				hiddenStools[p] = true
+				p.LocalTransparencyModifier = 1
+			end
+		end
+	elseif not hide then
+		for p in pairs(hiddenStools) do
+			if p.Parent then p.LocalTransparencyModifier = 0 end
+		end
+		table.clear(hiddenStools)
+	end
 end
 
 function Reel.isPlaying(): boolean

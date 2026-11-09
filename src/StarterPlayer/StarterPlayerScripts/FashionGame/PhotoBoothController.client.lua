@@ -1427,6 +1427,7 @@ local function closeAllFlow()
 	waitBar.Visible = false
 	liftTouchGui(false)
 	restoreCamera()
+	require(script.Parent:WaitForChild("PhotoMotionReel")).hideStools(nil, false) -- (D-1139)
 	state.stage = "none"
 	state.shots = nil
 	previewStrip = nil
@@ -1867,6 +1868,7 @@ local function update()
 			table.clear(cutCaptures)
 			cutCount = 0
 			require(script.Parent:WaitForChild("PhotoMotionReel")).begin((booth :: Model):GetPivot().Position) -- (D-1126: the moves before each shot)
+			require(script.Parent:WaitForChild("PhotoMotionReel")).hideStools(booth, true) -- (D-1139: the booth's stools out of the shots)
 			layoutShoot()
 			shoot.Visible = true
 			liftTouchGui(true)
@@ -1888,11 +1890,16 @@ local function update()
 		boothSound.lastTick = sec
 	elseif phase == "picking" then
 		waitBar.Visible = false
+		-- (D-1139) shooting is over even when the pick screen opened first ("Shots"):
+		-- the booth's stools back, the motion recording stopped
+		require(script.Parent:WaitForChild("PhotoMotionReel")).hideStools(nil, false)
+		require(script.Parent:WaitForChild("PhotoMotionReel")).stop()
 		if state.stage == "shooting" then
 			shoot.Visible = false
 			liftTouchGui(false)
 			restoreCamera()
 			require(script.Parent:WaitForChild("PhotoMotionReel")).stop() -- (D-1126)
+			require(script.Parent:WaitForChild("PhotoMotionReel")).hideStools(nil, false) -- (D-1139)
 		end
 		if state.stage == "picking" or state.stage == "frame" then
 			local left = math.max(0, math.ceil((booth :: Model):GetAttribute("WaitUntil") - workspace:GetServerTimeNow()))

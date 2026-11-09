@@ -840,14 +840,19 @@ local function toggleHelper(player: Player, which: string): (boolean, any)
 	local rel = stand.CFrame:PointToObjectSpace(root.Position)
 	local backdrop = part(session.booth, "Backdrop")
 	local color = if backdrop then backdrop.Color else Color3.fromRGB(255, 205, 220)
+	-- (D-1139) shaped like the booth's stools (BoothPose.stool): an invisible box
+	-- the size of it (what the photo stores) holding the stool's parts
 	local step = Instance.new("Part")
 	step.Name = "BoothStep"
-	step.Size = Vector3.new(2.6, h, 2.6)
+	step.Size = Vector3.new(2.6, h, 2.6 * 0.75)
 	step.CFrame = stand.CFrame * CFrame.new(rel.X, -stand.Size.Y / 2 + h / 2, rel.Z)
-	step.Color = color:Lerp(Color3.new(0, 0, 0), 0.12)
-	step.Material = Enum.Material.SmoothPlastic
-	step.TopSurface = Enum.SurfaceType.Smooth
+	step.Transparency = 1
+	step.CanCollide = false
+	step.CanQuery = false
+	step.CanTouch = false
 	step.Anchored = true
+	BoothPose.stool(step, step.CFrame, step.Size.X, h, step.Size.Z)
+	step:SetAttribute("Color", color) -- (no longer drawn in it)
 	step.Parent = session.booth
 	steps[player] = step
 	character:SetAttribute("BoothStep", true)

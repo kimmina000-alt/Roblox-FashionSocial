@@ -3794,3 +3794,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 | 부스에서 -2 | 코디 코드 창 |
 |---|---|
 | ![](images/2026-11-10/booth_lowered_2.jpg) | ![](images/2026-11-10/outfit_code_window.jpg) |
+
+## 2026-11-10 부스 의자 · 먼 바다 · 둥근 테이블 (D-1139..D-1141)
+| 키높이 발판 = 의자 | 12시 전 | 12시 후 | 0시 전 | 0시 후 |
+|---|---|---|---|---|
+| ![](images/2026-11-10/booth_step_stool.jpg) | ![](images/2026-11-10/sea_noon_before.jpg) | ![](images/2026-11-10/sea_noon_after.jpg) | ![](images/2026-11-10/sea_night_before.jpg) | ![](images/2026-11-10/sea_night_after.jpg) |

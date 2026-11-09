@@ -186,6 +186,36 @@ function SnackConfig.find(shopKey: any, itemKey: any): (Shop?, Item?)
 	return shop, nil
 end
 
+-- (D-1141, user 2026-11-10: "케이크 사면 테이블에 놓는 거 안 됨") whether a food of
+-- `radius` fits at `at` on the table's top, and that point on the top. The top
+-- is the side facing up, whichever of the part's axes that is: the beach cafe's
+-- round tables are cylinders standing on their X axis (0.38 thick), and the
+-- old check took the part's Y side as the top, so nothing ever fitted there.
+-- A standing cylinder is measured as a circle, anything else as a box.
+function SnackConfig.onTable(t: BasePart, at: Vector3, radius: number): (boolean, Vector3)
+	local cf, size = t.CFrame, t.Size
+	local axes = { { cf.XVector, size.X }, { cf.YVector, size.Y }, { cf.ZVector, size.Z } }
+	local ui = 1
+	for i = 2, 3 do
+		if math.abs(axes[i][1].Y) > math.abs(axes[ui][1].Y) then ui = i end
+	end
+	local up, thick = axes[ui][1], axes[ui][2]
+	if up.Y < 0 then up = -up end
+	local rel = at - cf.Position
+	local flat = rel - up * rel:Dot(up)
+	local top = cf.Position + flat + up * thick / 2
+	local others = {}
+	for i = 1, 3 do if i ~= ui then table.insert(others, axes[i]) end end
+	local ok
+	if ui == 1 and t:IsA("Part") and t.Shape == Enum.PartType.Cylinder then
+		ok = flat.Magnitude <= math.min(others[1][2], others[2][2]) / 2 - radius * 0.5
+	else
+		ok = math.abs(flat:Dot(others[1][1])) <= others[1][2] / 2 - radius * 0.5
+			and math.abs(flat:Dot(others[2][1])) <= others[2][2] / 2 - radius * 0.5
+	end
+	return ok, top
+end
+
 -- The shop and item a Robux product gives.
 function SnackConfig.findProduct(productKey: string): (Shop?, Item?)
 	for _, shop in pairs(SnackConfig.Shops) do

@@ -414,11 +414,9 @@ do
 		local tablePart = foodTableOf(hit.Instance)
 		if not tablePart then return nil, nil, false end
 		local radius = radiusOf(tool)
-		local top = tablePart.CFrame:PointToObjectSpace(hit.Position)
-		local half = tablePart.Size / 2
-		local spot = tablePart.CFrame:PointToWorldSpace(Vector3.new(top.X, half.Y, top.Z))
-		local ok = placedOf(hit.Instance) == nil and sharedPlateOf(hit.Instance) == nil
-			and math.abs(top.X) <= half.X - radius * 0.5 and math.abs(top.Z) <= half.Z - radius * 0.5
+		-- (D-1141) the top whichever side faces up (round tables are standing cylinders)
+		local fits, spot = SnackConfig.onTable(tablePart, hit.Position, radius)
+		local ok = placedOf(hit.Instance) == nil and sharedPlateOf(hit.Instance) == nil and fits
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
 		if ok and root and root:IsA("BasePart") then
 			ok = Vector3.new(spot.X - root.Position.X, 0, spot.Z - root.Position.Z).Magnitude <= REACH

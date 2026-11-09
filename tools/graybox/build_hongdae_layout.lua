@@ -5530,7 +5530,11 @@ do
 	-- them; where the terrain water has not streamed in they carry the sea on
 	local EDGES = { -270 }
 	for k = 1, 26 do table.insert(EDGES, -270 - 4130 * (k / 26) ^ 1.8) end
-	local NEAR, FAR = Color3.fromRGB(70, 184, 198), Color3.fromRGB(24, 86, 142)
+	-- (D-1140, user 2026-11-10, a screenshot zoomed far out over the beach: "화면 멀리
+	-- 키우면 바다에 저런 거 보임 확인 후 삭제하거나 정돈") the light teal bands showed
+	-- as a flat rectangle with notched edges round the streamed terrain water
+	-- (deep blue from above): now a deep blue like the water (was 70,184,198 → 24,86,142)
+	local NEAR, FAR = Color3.fromRGB(30, 70, 150), Color3.fromRGB(22, 58, 120)
 	local DOME = nil -- (the Dream Aquarium dome is gone, user 2026-10-24: no hole in the sea any more)
 	for i = 1, #EDGES - 1 do
 		local xa, xb = EDGES[i + 1], EDGES[i]

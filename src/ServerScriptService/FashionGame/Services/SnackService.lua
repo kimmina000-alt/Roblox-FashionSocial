@@ -1716,9 +1716,8 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 		local item = itemByKey(plateKey)
 		if not item then return false, nil end
 		if typeof(at) ~= "Vector3" then return false, nil end
-		local here = tablePart.CFrame:PointToObjectSpace(at)
-		local half = tablePart.Size / 2
-		if math.abs(here.X) > half.X - PLATE_RADIUS * 0.5 or math.abs(here.Z) > half.Z - PLATE_RADIUS * 0.5 then
+		-- (D-1141) the top whichever side faces up (round tables are standing cylinders)
+		if not (SnackConfig.onTable(tablePart, at, PLATE_RADIUS)) then
 			return false, "테이블 가장자리라 놓을 수 없어요."
 		end
 		if Vector3.new(at.X - root.Position.X, 0, at.Z - root.Position.Z).Magnitude > 9 then return false, "테이블 가까이 가 주세요." end
@@ -1759,9 +1758,7 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- on the top, the food inside its edges, not on another food
 	local radius = footprint(tool, handle)
 	if typeof(at) == "Vector3" then
-		local here = cf:PointToObjectSpace(at)
-		local half = tablePart.Size / 2
-		if math.abs(here.X) > half.X - radius * 0.5 or math.abs(here.Z) > half.Z - radius * 0.5 then
+		if not (SnackConfig.onTable(tablePart, at, radius)) then -- (D-1141)
 			return false, "테이블 가장자리라 놓을 수 없어요."
 		end
 		if Vector3.new(at.X - root.Position.X, 0, at.Z - root.Position.Z).Magnitude > 9 then
