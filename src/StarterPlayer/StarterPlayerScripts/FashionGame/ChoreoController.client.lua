@@ -763,10 +763,18 @@ RunService.PreSimulation:Connect(function(dt)
 									-- leg dipping under the floor lifted the frozen hips and they sank back as
 									-- the lift eased off (2.02 → 1.50 and up again): once the freeze is in, the
 									-- hips keep the highest lift it has needed, so they stay put
+									-- (D-1066) and it climbs at most 0.4 studs a second: in the mobile 2P
+									-- test a leg touching the floor stepped the hips up 0.3 in one frame
 									if tt >= f.from + (f.ease or 0.3) then
-										local key = "lift:" .. tostring(f)
-										lift = math.max(store[key] or 0, lift)
-										store[key] = lift
+										local key, keyT, now = "lift:" .. tostring(f), "liftT:" .. tostring(f), os.clock()
+										local held = store[key]
+										if held == nil then
+											held = lift
+										elseif lift > held then
+											held = math.min(lift, held + 0.4 * math.min(now - (store[keyT] or now), 0.1))
+										end
+										store[key], store[keyT] = held, now
+										lift = held
 									end
 									for part, j in pairs(joints) do
 										if pose[part] and not (f.except and table.find(f.except, part)) then
@@ -777,6 +785,7 @@ RunService.PreSimulation:Connect(function(dt)
 								else
 									store[f] = nil
 									store["lift:" .. tostring(f)] = nil
+									store["liftT:" .. tostring(f)] = nil
 								end
 							end
 						end
