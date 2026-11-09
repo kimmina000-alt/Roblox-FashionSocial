@@ -477,6 +477,27 @@ function RamenCup.drinkStart(tool: Tool, handle: BasePart): () -> ()
 	return function() end
 end
 
+-- (D-1090) the noodles' colour of this ramen (red; 참깨라멘 / 육개그 yellow)
+function RamenCup.noodleColor(key: any): Color3
+	return if key == "ramen_sesame" or key == "ramen_yukgae" then NOODLE_YELLOW else NOODLE
+end
+
+-- (D-1090, user 2026-11-09: "컵라면 테이블 위에 두면 테이블에 있는 상태에서
+-- 젓가락으로 먹게 하고") a bite taken from the cup on the table: the copy's
+-- broth a step lower (like afterBite in the hand), its sticks with it
+function RamenCup.tableBite(copy: BasePart, left: number)
+	if left <= 0 then return end
+	local plate = copy:FindFirstChild("Plate", true) :: BasePart?
+	local depth = (if plate then plate.Size.Y else 0.8) * 0.17
+	for _, soup in ipairs(parts(copy, "Soup")) do
+		soup.CFrame -= Vector3.new(0, depth, 0)
+		soup.Size = Vector3.new(soup.Size.X * 0.95, soup.Size.Y, soup.Size.Z * 0.95)
+	end
+	for _, stick in ipairs(parts(copy, "Chopsticks")) do
+		stick.CFrame -= Vector3.new(0, depth, 0)
+	end
+end
+
 -- a copy put on a table: the whole cup as it is now, the sticks standing in it
 function RamenCup.tableLook(copy: BasePart, tool: Tool)
 	for _, d in ipairs(copy:GetDescendants()) do

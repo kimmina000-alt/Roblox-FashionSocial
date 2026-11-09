@@ -1483,7 +1483,9 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 		handle = part("Handle", Vector3.new(0.035, 0.9, 0.035), Color3.fromRGB(205, 175, 125), Enum.Material.Wood)
 		handle.Parent = spoon
 		attach(handle, part("Stick", Vector3.new(0.035, 0.9, 0.035), Color3.fromRGB(205, 175, 125), Enum.Material.Wood), CFrame.new(0.05, 0, 0) * CFrame.Angles(0, 0, math.rad(-4)))
-		local bundle = part("Noodles", Vector3.new(0.16, 0.3, 0.12), Color3.fromRGB(245, 215, 130))
+		-- (D-1090) the user's cup ramen: its own noodles' colour
+		local bundle = part("Noodles", Vector3.new(0.16, 0.3, 0.12),
+			if tool:GetAttribute("Ramen") then RamenCup.noodleColor(tool:GetAttribute("Snack")) else Color3.fromRGB(245, 215, 130))
 		local mesh = Instance.new("SpecialMesh") mesh.MeshType = Enum.MeshType.Sphere mesh.Parent = bundle
 		attach(handle, bundle, CFrame.new(0.03, 0.42, -0.02))
 	else
@@ -1552,6 +1554,11 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	local gukbap = if item.kind == "bowl" then gukbapClip() else nil
 	sound.SoundId = "rbxassetid://" .. tostring(gukbap or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
 	if gukbap then sound.TimePosition = GUKBAP_FROM end
+	if tool:GetAttribute("Ramen") then
+		-- (D-1090) the cup ramen's own noodle sound, as in the hand
+		sound.SoundId = "rbxassetid://" .. tostring(RamenCup.EatSound)
+		sound.TimePosition = RamenCup.EatFrom
+	end
 	setVolume(sound, LOUD[item.key] or 0.7)
 	sound.RollOffMaxDistance = 40
 	-- (on the character, not the spoon: the spoon goes 1.5 s after the bite and
@@ -1591,6 +1598,11 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 		applyEaten(copy, set)
 		local held = tool:FindFirstChild("Handle")
 		if held then applyEaten(held, set) end
+	elseif tool:GetAttribute("Ramen") then
+		-- (D-1090) the broth a step lower on the table and in the tool waiting aside
+		RamenCup.tableBite(copy, left)
+		local held = tool:FindFirstChild("Handle")
+		if held and held:IsA("BasePart") then RamenCup.afterBite(tool, held, left, total) end
 	elseif fill and fill:IsA("BasePart") then
 		local drop = (fill:GetAttribute("EatDrop") :: number?) or 0.3
 		fill.CFrame -= Vector3.new(0, drop / total, 0)
@@ -1973,7 +1985,13 @@ end
 local function spoonFromTable(player: Player, model: any, piece: any): (boolean, string?)
 	local entry = ownPlaced(player, model)
 	if not entry or not entry.item then return false, nil end
-	if not entry.soup then
+	-- (D-1090, user 2026-11-09: "컵라면 테이블 위에 두면 테이블에 있는 상태에서
+	-- 젓가락으로 먹게 하고 들고 있을 땐 왼손에 들고 먹는 걸로") a cooked cup ramen
+	-- on the table is eaten there with chopsticks; before it is cooked (lid, hot
+	-- water) and for the last sip of broth it comes back to the hand as before
+	local ramen = entry.tool:GetAttribute("Ramen")
+	local onTable = entry.soup or (ramen == "ready" and ((entry.tool:GetAttribute("Bites") :: number?) or 0) > 1)
+	if not onTable then
 		-- (D-1037, user 2026-11-09: "물 테이블에 설치하면 못 먹음") a tap on a drink
 		-- or a snack on the table: back into the hand and one sip / bite at once
 		local tool = entry.tool
