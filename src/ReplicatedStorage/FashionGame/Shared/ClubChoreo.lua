@@ -88,6 +88,13 @@ M.ChoreoFixes = {
 	-- turns on at one speed, ~220°/s as 20 came in (linear, 0-1.1 s)
 	[115787352538480] = { spin = { { from = 0, to = 1.1, fromPrev = true, dir = 1, ease = "linear" }, { from = 12.55, to = 13.8, ease = "both" } } }, -- 21
 	[99840608563579] = { spin = { from = 2.7, to = 4.25, ease = "both" } }, -- 23
+	-- (D-1060) the new uploads 1 and 15: Play scan SPIN at 7.85 (1: the centre cut switches to
+	-- another member at 7.6-8.0 s and the capture spun 330° the wrong way; she turns 30°: one even
+	-- turn the short way, `turns = 1` undoing the wrong-way lap) and 92.48 (15: a 140° turn in
+	-- 0.3 s at the start, inside its blend: one even turn from where 13 left the hips; then 95.54, the
+	-- member hidden by a passer-by at 3.5 s: the turn there and back each made even)
+	[122848199967536] = { spin = { from = 7.5, to = 8.2, turns = 1, ease = "both" } }, -- 1
+	[98655639854740] = { spin = { { from = 0, to = 0.9, fromPrev = true, dir = -1, ease = "both" }, { from = 3.2, to = 3.6, ease = "both" }, { from = 3.6, to = 4.2, ease = "both" } } }, -- 15
 	-- (D-1058, user: "1:22 버벅 / 이후로 덜덜 떨림 깔끔하게 큰 모션 위주로 정돈") 13 = clip 14, where the
 	-- centre cut lost the member for whole stretches (the picture all blurred at 1.0, 3.5-5.0, 6.0,
 	-- 7.5-8.0 s): its capture trembles throughout. Smoothed hard (24 passes, about 0.2 s), the
@@ -1198,6 +1205,7 @@ M.ChoreoHeadTilt = {
 	[86206068065508] = { { part = "Head", keys = { { 2.80, 0, 0, 0 }, { 3.00, 0, 0, 29 }, { 3.20, 0, 0, 15 }, { 3.40, 0, 0, 0 } } } }, -- Lemon Tang 19
 	[83504291197334] = { { part = "Head", keys = { { 1.20, 0, 0, 0 }, { 1.40, 0, 0, 30 }, { 1.60, 0, 0, 21 }, { 1.80, 0, 0, 0 } } }, { part = "Head", keys = { { 1.80, 0, 0, 0 }, { 2.00, 0, 0, 19 }, { 2.20, 0, 0, 21 }, { 2.40, 0, 0, 0 } } } }, -- Lemon Tang 22
 	[115787352538480] = { { part = "Head", keys = { { 9.40, 0, 0, 0 }, { 9.60, 0, 0, 10 }, { 9.80, 0, 0, 11 }, { 10.00, 0, 0, 0 } } } }, -- Lemon Tang 23
+	[122848199967536] = { { part = "Head", keys = { { 7.00, 0, 0, 0 }, { 7.20, 0, 0, -8 }, { 7.40, 0, 0, -12 }, { 7.60, 0, 0, 0 } } } }, -- Lemon Tang 1 (D-1060)
 	[109571265510769] = { { part = "Head", keys = { { 2.40, 0, 0, 0 }, { 2.60, 0, 0, 24 }, { 2.80, 0, 0, 30 }, { 3.00, 0, 0, 29 }, { 3.20, 0, 0, 30 }, { 3.40, 0, 0, 24 }, { 3.60, 0, 0, 0 } } }, { part = "Head", keys = { { 6.40, 0, 0, 0 }, { 6.60, 0, 0, 15 }, { 6.80, 0, 0, 18 }, { 7.00, 0, 0, 0 } } } }, -- 갑자기 6
 	[72886571801726] = { { part = "Head", keys = { { 0.00, 0, 0, 19 }, { 0.20, 0, 0, 18 }, { 0.40, 0, 0, 0 } } }, { part = "Head", keys = { { 4.60, 0, 0, 0 }, { 4.80, 0, 0, 19 }, { 5.00, 0, 0, 29 }, { 5.20, 0, 0, 21 }, { 5.40, 0, 0, 13 }, { 5.60, 0, 0, 0 } } } }, -- 갑자기 9
 	[104001486192661] = { { part = "Head", keys = { { 7.00, 0, 0, 0 }, { 7.20, 0, 0, -13 }, { 7.40, 0, 0, -12 }, { 7.60, 0, 0, 0 } } } }, -- 갑자기 10
