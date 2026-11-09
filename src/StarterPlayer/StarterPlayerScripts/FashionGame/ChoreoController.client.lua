@@ -622,18 +622,26 @@ RunService.Heartbeat:Connect(function()
 			cached = { y = if hit then hit.Position.Y else -math.huge, at = os.clock() }
 			floorCache[character] = cached
 		end
-		local low = math.huge
+		-- (D-1058, user: Lemonade 2:19 "엉덩이랑 하체 땅 아래로 들어가지 않게 하고 팔도 땅 아래로
+		-- 들어가지 말고 땅 위까지") the feet may sink 0.05 into the floor (they look planted),
+		-- every other part stays 0.03 above it (a body lying down showed its hips, legs
+		-- and arms 0.05-0.13 inside the floor)
+		local lowFeet, lowBody = math.huge, math.huge
 		for _, name in ipairs(LOW_PARTS) do
 			local part = character:FindFirstChild(name) :: BasePart?
 			if part then
 				local cf, size = part.CFrame, part.Size
 				local half = math.abs(cf.RightVector.Y) * size.X / 2 + math.abs(cf.UpVector.Y) * size.Y / 2 + math.abs(cf.LookVector.Y) * size.Z / 2
-				low = math.min(low, part.Position.Y - half)
+				if name == "LeftFoot" or name == "RightFoot" then lowFeet = math.min(lowFeet, part.Position.Y - half)
+				else lowBody = math.min(lowBody, part.Position.Y - half) end
 			end
 		end
 		local lift = floorLift[character] or 0
-		local target = math.max(0, lift + (cached.y - 0.05) - low)
-		if target > lift then lift = target else lift += (target - lift) * 0.12 end
+		local target = math.max(0, lift + (cached.y - 0.05) - lowFeet, lift + (cached.y + 0.03) - lowBody)
+		-- (D-1058, user: Lemonade "시작할 때 점프함") after a low pose (the song before ended
+		-- kneeling) the lift came down at 12 % a frame while the new pose rose, so the
+		-- body shot 0.25 above the floor: with that much room it comes down at 35 %
+		if target > lift then lift = target else lift += (target - lift) * (if lift - target > 0.15 then 0.35 else 0.12) end
 		floorLift[character] = if lift < 0.005 then nil else lift
 	end
 end)

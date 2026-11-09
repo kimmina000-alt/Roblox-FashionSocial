@@ -82,8 +82,25 @@ M.ChoreoFixes = {
 	-- (139.6-140.85). 23 (2:28.1): 400° in 1.5 s with a lurch
 	[115675906513114] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = 1, ease = "both" } }, -- 9
 	[86206068065508] = { spin = { from = 0, to = 1.4, fromPrev = true, dir = 1, turns = 1, ease = "both" } }, -- 17
-	[115787352538480] = { spin = { { from = 0, to = 0.9, fromPrev = true, dir = 1, ease = "both" }, { from = 12.55, to = 13.8, ease = "both" } } }, -- 21
+	-- (D-1058, user: "2:07 회전") 20 was still turning at ~210°/s when 21 took over, and 21's turn
+	-- started gently (ease both): it stalled at song 127.0-127.3 and whipped on (169° in 0.5 s).
+	-- 20 now plays its last 0.4 s over 0.52 s up to 21 (the 0.1 s hold before 21 started gone) and 21
+	-- turns on at one speed, ~220°/s as 20 came in (linear, 0-1.1 s)
+	[115787352538480] = { spin = { { from = 0, to = 1.1, fromPrev = true, dir = 1, ease = "linear" }, { from = 12.55, to = 13.8, ease = "both" } } }, -- 21
 	[99840608563579] = { spin = { from = 2.7, to = 4.25, ease = "both" } }, -- 23
+	-- (D-1058, user: "1:22 버벅 / 이후로 덜덜 떨림 깔끔하게 큰 모션 위주로 정돈") 13 = clip 14, where the
+	-- centre cut lost the member for whole stretches (the picture all blurred at 1.0, 3.5-5.0, 6.0,
+	-- 7.5-8.0 s): its capture trembles throughout. Smoothed hard (24 passes, about 0.2 s), the
+	-- slower wobble eased too (calm): the big moves stay
+	[88699205496882] = { steady = { from = 0, to = 11.2, passes = 24 }, calm = true }, -- 13 (1:21-1:32)
+	-- (D-1058, user: "2:41 무릎 꿇으면서 손목 앞으로 꺽고 고개 옆으로 갸웃") 25 (from 159.1): kneeling, both
+	-- hands at the cheeks; in the video (clip 27) from 1.6 s the wrists bend forward and the head tilts
+	-- to her right, held to the end of the song (161.87) (x -35 = the fingers forward, checked in Play)
+	[98315614070332] = { bend = {
+		{ part = "Head", keys = { { 1.45, 0, 0, 0 }, { 1.85, 0, 0, -18 }, { 2.77, 0, 0, -18 } } },
+		{ part = "LeftHand", keys = { { 1.45, 0, 0, 0 }, { 1.85, -35, 0, 0 }, { 2.77, -35, 0, 0 } } },
+		{ part = "RightHand", keys = { { 1.45, 0, 0, 0 }, { 1.85, -35, 0, 0 }, { 2.77, -35, 0, 0 } } },
+	} }, -- 25 (2:40.5-)
 	-- ALLDAY PROJECT-CRASH 14 (D-1041, Play scan 1:49.4 SPIN 636°/s): the hips whip 100° back
 	-- (song 109.2-109.6) and settle: one even turn
 	[109278338620404] = { spin = { from = 5.55, to = 6.0, ease = "both" } },
@@ -473,6 +490,11 @@ M.ChoreoFixes = {
 	-- then turns 280° in 1 s: one even turn from 0.45 s; "0:22 팔 섞는 모션 섬세하게.
 	-- 왼쪽 팔 돌리는 거 더 크게 돌리기" the left arm's rolls 1.35x as far (song 19.5-22.5)
 	[74096523961866] = { spin = { from = 0.45, to = 2.0, ease = "both" },
+		-- (D-1058, user: "0:21 왼쪽 팔 ㄱ 모양으로 굽힌 안무에서 손목 돌리기 추가") the left arm is bent in
+		-- an ㄱ (upper arm 70-76° up, elbow 88-90°, read in Play) at song 21.8-22.6: the left hand
+		-- circles twice, one circle a beat (127.7 bpm, beats at song 21.80 / 22.27 / 22.74)
+		bend = { { part = "LeftHand", keys = { { 5.71, 0, 0, 0 }, { 5.79, 30, 0, 0 }, { 5.91, 0, 0, 30 }, { 6.02, -30, 0, 0 },
+			{ 6.14, 0, 0, -30 }, { 6.26, 30, 0, 0 }, { 6.38, 0, 0, 30 }, { 6.49, -30, 0, 0 }, { 6.61, 0, 0, -30 }, { 6.73, 0, 0, 0 } } } },
 		-- (D-1000, user: "0:22 안무에 팔 떨림 잡은 거 복구 (1:00 안무랑 비교해 봐 같은 안무지. 1:00처럼"):
 		-- the D-976 left-arm amp (1.35x) taken out, so 0:22 dances as 1:00 does
 		-- (D-988, user: "0:19 팔 내리는 안무 중간에 멈췄다가 두 번 내리는 것처럼 보이는데
@@ -507,14 +529,17 @@ M.ChoreoFixes = {
 				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 } } },
 			{ t = 0.9, set = { LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
 				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 } } },
+			-- (D-1058, user: "1:42 한바퀴 돌기 시작할 때 1:46처럼 다리 교차해서 도는 걸로 수정") the legs
+			-- during the turn take the crossed stance of 1:46 (read in Play at song 106.2: the
+			-- left leg in front of the right) instead of standing straight side by side
 			{ t = 1.2, set = { LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
 				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 },
-				LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 0, 0, 0 },
-				RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 }, Head = { 0, 0, 0 } } },
+				LeftUpperLeg = { 17, 16, 2 }, LeftLowerLeg = { -36, 7, 6 }, LeftFoot = { 17, 12, -13 },
+				RightUpperLeg = { -13, -11, -10 }, RightLowerLeg = { -17, 6, 4 }, RightFoot = { 15, 8, 5 }, Head = { 0, 0, 0 } } },
 			{ t = 4.3, set = { LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
 				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 },
-				LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 0, 0, 0 },
-				RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 }, Head = { 0, 0, 0 } } },
+				LeftUpperLeg = { 17, 16, 2 }, LeftLowerLeg = { -36, 7, 6 }, LeftFoot = { 17, 12, -13 },
+				RightUpperLeg = { -13, -11, -10 }, RightLowerLeg = { -17, 6, 4 }, RightFoot = { 15, 8, 5 }, Head = { 0, 0, 0 } } },
 		} } } },
 	-- (D-988, user: "1:23~24 가만히 서 있는 장면 떨림 수정. 천천히 고개만 까딱이는 걸로"):
 	-- 9 (from 76.35) stands still at song 82.8-84.1: held calm, the head nodding
@@ -586,11 +611,59 @@ M.ChoreoFixes = {
 	-- 12 (from 94.39) (D-992, user: "1:38~1:40 앞으로 걸어가는 안무할 때 상체가 너무 뒤로 기울어져
 	-- 있음. 상체 일자로 세워. 수직으로"): the upper body straight up through the walk
 	[138502286160157] = { torsoUp = { from = 3.4, to = 6.6, ease = 0.4 } },
-	[132337331292488] = { steady = { from = 0, to = 8.0, passes = 8 } },
+	-- 17 (from 137.92, the original practice clip since D-1044) (D-1058, user: "2:19 고질 부분.. 엉덩이랑
+	-- 하체 땅 아래로 들어가지 않게 하고 팔도 땅 아래로 들어가지 말고 땅 위까지 고정 상체 벌벌 떠는 거
+	-- 잡기. 상체 눕힌 상태 고정", "2:22는 좋은데 다리 뻗고 돌리는 범위 좀 더 넓히기 0.5초 더 길게"):
+	-- lying at song 138.6-140.9 the hips crept up 0.7 → 1.5 and the chest wobbled: the lying pose of
+	-- 138.67 is kept to 140.92 but the legs (the kick goes on), smoothed harder there; the floor
+	-- check keeps every part but the feet above the floor (ChoreoController). The leg stretched
+	-- and swung at song 141.3-142.7 (3.3-4.8 s) plays 0.5 s longer (2.0 s; the seated pause after
+	-- it makes the time up) and the upper legs swing 1.4x as far
+	[132337331292488] = { steady = { { from = 0, to = 8.0, passes = 8 }, { from = 0.6, to = 3.2, passes = 16 } },
+		warp = { { from = 0, to = 3.3, play = { 0, 3.3 } }, { from = 3.3, to = 5.3, play = { 3.3, 4.8 } },
+			{ from = 5.3, to = 6.4, play = { 4.8, 6.4 } }, { from = 6.4, to = 9.0, play = { 6.4, 9.0 } } },
+		freeze = { from = 0.75, to = 3.0, ease = 0.3, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" } },
+		amp = { from = 3.4, to = 4.8, ease = 0.3, parts = { LeftUpperLeg = 1.4, RightUpperLeg = 1.4 } } },
 	-- (2:26 "일어나면서 몸 돌리는데 두 번 돌림. 한 번으로 깔끔하게": the capture turns 55°
 	-- one way, then 141° back in 0.16 s, inside its 1 s blend: one even turn
 	-- the short way round from where 17 ended, 0-1.3 s, during the blend too)
 	[76195346888656] = { steady = { from = 0, to = 5.0, passes = 8 }, spin = { from = 0, to = 1.3, fromPrev = true, dir = 1, ease = "both" } },
+	-- (D-1058, user's Lemonade list of 2026-11-09; beats from the practice video's sound: 127.7 bpm,
+	-- song beats at 68.31 + 0.4698 k; arm angles read in Play; every beat key is 0.09 s before the beat:
+	-- in Play the turns came 0.09-0.12 s late, the animation's clock running that much behind the song)
+	-- 7 (from 47.49): "0:55 팔 뻗고 상체 옆으로 숙일 때 끊김 없애기 부드럽게 이어지도록": the capture
+	-- stands nearly still at song 55.0-55.75 (its last 0.8 s) before 8 blends in: its last moving
+	-- part (6.6-7.5 s) is played slower to the end of the piece (55.92), so it flows into 8
+	[99422937735141] = { warp = { { from = 0, to = 6.6, play = { 0, 6.6 } }, { from = 6.6, to = 8.6, play = { 6.6, 7.5 } } } },
+	-- 8 (from 55.92): "1:01 0:21이랑 같은 자세인 것 확인 후 손목 돌리기 추가": the left arm is in the
+	-- same ㄱ (upper arm 86-91° up, elbow ~94°) at song 61.0-61.9: two circles, one a beat (60.79-61.73)
+	[99169381541568] = { bend = { { part = "LeftHand", keys = { { 4.70, 0, 0, 0 }, { 4.78, 30, 0, 0 }, { 4.90, 0, 0, 30 }, { 5.01, -30, 0, 0 },
+		{ 5.13, 0, 0, -30 }, { 5.25, 30, 0, 0 }, { 5.37, 0, 0, 30 }, { 5.48, -30, 0, 0 }, { 5.60, 0, 0, -30 }, { 5.72, 0, 0, 0 } } } } },
+	-- 9 (from 67.05): "1:10 팔 몸 앞에 들고 흔드는 안무에서 손목 90도 돌렸다가 돌아오는 반복 빠르게 박자에
+	-- 맞춰서": the left forearm is up in front (elbow ~90°) at song 69.6-72.0: on each beat (69.72 ...
+	-- 71.60) the hand turns 80° about the forearm and back by the half beat
+	[100397079318559] = { bend = { { part = "LeftHand", keys = { { 2.58, 0, 0, 0 }, { 2.71, 0, 80, 0 }, { 2.90, 0, 0, 0 }, { 3.05, 0, 0, 0 },
+		{ 3.18, 0, 80, 0 }, { 3.37, 0, 0, 0 }, { 3.52, 0, 0, 0 }, { 3.65, 0, 80, 0 }, { 3.84, 0, 0, 0 }, { 3.99, 0, 0, 0 }, { 4.12, 0, 80, 0 },
+		{ 4.31, 0, 0, 0 }, { 4.46, 0, 0, 0 }, { 4.59, 0, 80, 0 }, { 4.78, 0, 0, 0 } } } } },
+	-- 11 (from 85.92): "1:25 처음에 팔 크게 내리고 두 번째 엄청 미세하게 내리는데 두 번째 내리는 것도 아예
+	-- 아래로 크게 내리기": the second time (song 86.2-86.9) the left arm came down with the elbow still
+	-- bent 55-65° (the hand at the waist): the elbow straightens, the arm all the way down
+	[83846438884132] = { pose = { from = 0.25, to = 1.0, ease = 0.2, keys = { { t = 0.4, set = { LeftLowerArm = { 0, 0, 0 } } } } } },
+	-- 15 (from 114.92): "1:57 1:10과 동일": the same forearm-up shake at song 116.4-119.1: the same
+	-- hand turns on the beats 116.70 ... 118.58
+	[118124487485279] = { bend = { { part = "LeftHand", keys = { { 1.69, 0, 0, 0 }, { 1.82, 0, 80, 0 }, { 2.01, 0, 0, 0 }, { 2.16, 0, 0, 0 },
+		{ 2.29, 0, 80, 0 }, { 2.48, 0, 0, 0 }, { 2.63, 0, 0, 0 }, { 2.76, 0, 80, 0 }, { 2.95, 0, 0, 0 }, { 3.10, 0, 0, 0 }, { 3.23, 0, 80, 0 },
+		{ 3.42, 0, 0, 0 }, { 3.57, 0, 0, 0 }, { 3.70, 0, 80, 0 }, { 3.89, 0, 0, 0 } } } } },
+	-- 21 (from 168.42): "2:49 손목 90도로 돌리기 반복": both forearms up in front at song 169.0-170.8:
+	-- both hands turn on the beats 169.32 / 169.79 / 170.26 (the right one the mirror way)
+	[76826604804095] = { bend = {
+		{ part = "LeftHand", keys = { { 0.81, 0, 0, 0 }, { 0.94, 0, 80, 0 }, { 1.13, 0, 0, 0 }, { 1.28, 0, 0, 0 }, { 1.41, 0, 80, 0 },
+			{ 1.60, 0, 0, 0 }, { 1.75, 0, 0, 0 }, { 1.88, 0, 80, 0 }, { 2.07, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 0.81, 0, 0, 0 }, { 0.94, 0, -80, 0 }, { 1.13, 0, 0, 0 }, { 1.28, 0, 0, 0 }, { 1.41, 0, -80, 0 },
+			{ 1.60, 0, 0, 0 }, { 1.75, 0, 0, 0 }, { 1.88, 0, -80, 0 }, { 2.07, 0, 0, 0 } } } } },
+	-- 22 (from 177.49): "3:5에 고개 숙였다가 턱 들고 다시 원위치. 박자에 맞춰서": the head drops on the
+	-- beat 184.82, the chin comes up on 185.29 and the head is back on 185.76
+	[89070118321317] = { bend = { { part = "Head", keys = { { 7.04, 0, 0, 0 }, { 7.24, -25, 0, 0 }, { 7.71, 18, 0, 0 }, { 8.18, 0, 0, 0 } } } } },
 	-- Catch Catch v2 centre pieces (D-981, the user's list of 2026-11-08 on the pieces
 	-- choreo-add cut again, D-980). v2 12 (song 107.77): 1:50 "팔 드는 거 조금 더 올리게 해 줘
 	-- 부드럽게 웨이브하듯이": she opens both arms out and up at song 111.6-112.3, the capture

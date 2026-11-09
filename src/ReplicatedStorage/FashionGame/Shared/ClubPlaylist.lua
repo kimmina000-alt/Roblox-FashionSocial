@@ -212,7 +212,7 @@ M.Playlist = {
 		{ id = 74892270940916, at = 65, blend = 0.94 }, { id = 119643676032061, at = 68, blend = 0.83 }, { id = 110925421163686, at = 73.07, blend = 0.5 },
 		{ id = 88699205496882, at = 81, blend = 1 }, { id = 118088106367753, at = 96.23, blend = 0.77 }, { id = 112515342357817, at = 102.07, blend = 0.7 },
 		{ id = 125963510042067, at = 105, blend = 0.66 }, { id = 86206068065508, at = 108, blend = 0.99 }, { id = 81450928736064, at = 114, blend = 1 },
-		{ id = 77958598718744, at = 116.58, blend = 0.6 }, { id = 83504291197334, at = 119.38, blend = 1 }, { id = 115787352538480, at = 127.05, blend = 0.61 },
+		{ id = 77958598718744, at = 116.58, blend = 0.6 }, { id = 83504291197334, at = 119.38, blend = 1, slowOut = { 0.4, 0.12 } }, { id = 115787352538480, at = 127.05, blend = 0.61 },
 		{ id = 97075080696819, at = 140.88, blend = 1 }, { id = 99840608563579, at = 144.33, blend = 1 }, { id = 134866535240552, at = 151.87, blend = 0.66 },
 		{ id = 98315614070332, at = 159.1, blend = 0.61 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
@@ -227,8 +227,10 @@ M.Playlist = {
 		-- Clip 1 = mirror cover b3C-M5lDRHE (video = song + 1.45 s, `from = 1.45`); clips 2..22 = practice video NJx2IGeS8CQ (video = song + 1.08 s, `at` = clip start - 1.08)
 		choreo = { { id = 107871857436267, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
 		{ id = 123559029471758, at = 22.84 }, { id = 139260290712979, at = 31.92, blend = 1 }, { id = 131526768823490, at = 39.2 },
-		{ id = 99422937735141, at = 47.49, blend = 0.51, stop = 55.75 }, { id = 99169381541568, at = 55.92, blend = 0.35, slowIn = { 0.35, 0.17 } }, { id = 100397079318559, at = 67.05 }, { id = 135759185323713, at = 76.35, slowOut = { 0.4, 0.15 } },
-		{ id = 83846438884132, at = 85.92, blend = 1 }, { id = 138502286160157, at = 94.39, blend = 1 }, { id = 107439323698577, at = 100.92, blend = 0.81 },
+		-- (D-1058: 7 plays up to 8's start, its last moving part slowed by ChoreoFixes warp; was stop = 55.75;
+		-- 11 blends in over 0.5 s, was 1, so its straightened left arm at 86.3-86.9 shows in full)
+		{ id = 99422937735141, at = 47.49, blend = 0.51, stop = 55.92 }, { id = 99169381541568, at = 55.92, blend = 0.35, slowIn = { 0.35, 0.17 } }, { id = 100397079318559, at = 67.05 }, { id = 135759185323713, at = 76.35, slowOut = { 0.4, 0.15 } },
+		{ id = 83846438884132, at = 85.92, blend = 0.5 }, { id = 138502286160157, at = 94.39, blend = 1 }, { id = 107439323698577, at = 100.92, blend = 0.81 },
 		{ id = 138612452549442, at = 111.39, blend = 0.43 }, { id = 118124487485279, at = 114.92, blend = 0.75 }, { id = 82680550952125, at = 127.65, blend = 0.43 },
 		{ id = 132337331292488, at = 137.92, blend = 0.47 }, { id = 76195346888656, at = 145.92, blend = 1 }, { id = 116980798181063, at = 150.92, blend = 0.88 },
 		{ id = 118071176218932, at = 160.92, blend = 0.5 }, { id = 76826604804095, at = 168.42, blend = 0.5 },
