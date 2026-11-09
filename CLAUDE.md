@@ -63,6 +63,7 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 - `docs/02_WORLDS/HONGDAE_LAYOUT.md` (current layout v7b + history), `MAIN_SOCIAL_LAYOUT_PROPOSAL.md`, `CLUB_AREA.md`.
 
 ## Rules learned
+- GuiObject.AbsolutePosition leaves out the top-bar inset even in an IgnoreGuiInset ScreenGui: screen (viewport) position = AbsolutePosition + GuiService:GetGuiInset() (D-1138).
 - Roblox's own backpack hotbar is OFF (D-1130): the bottom bar is HotbarController / Hotbar.lua; the 🎒 bag drags into / out of it.
 - Content maturity: no alcohol (drinks are non-alcoholic), no small enclosed private rooms, no romance features.
 - Luau 200-local-register limit in CatalogController: put new code in modules.

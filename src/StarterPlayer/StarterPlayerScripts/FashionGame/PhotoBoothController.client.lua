@@ -231,10 +231,31 @@ local function applyShootCamera()
 		state.cameraSaved = true
 	end
 	camera.CameraType = Enum.CameraType.Scriptable
-	camera.CFrame = cf
 	local vp = viewport()
-	local half = math.tan(math.rad(PhotoRender.FieldOfView / 2)) * vp.Y / math.max(shootWindow.h, 1)
-	camera.FieldOfView = math.clamp(math.deg(2 * math.atan(half)), 20, 110)
+	-- (D-1138, user 2026-11-10: "최종 사진 찍어서 프레임에 담기는 컷이랑 사진 찍을 때 저 네모 칸이랑
+	-- 동일한지 비교해") the window's middle is not the screen's middle (top bar,
+	-- buttons: on a phone it sits below it), so it did not show what the photo
+	-- takes (measured, 801×413: window +20.4° / -34.7°, photo ±28°). The camera
+	-- is now turned and zoomed so the window's edges are the photo's edges
+	-- (measured after: ±28.00° / ±35.5°, photo ±28° / ±35.3°).
+	-- The window's top and bottom edges, as rays from the camera: u = how far
+	-- from the screen's middle (in half screen heights). The zoom (tan of half
+	-- the vertical FOV) is found so the edges are the photo's full 56° apart,
+	-- then the turn puts them at +28° / -28° (likewise left / right).
+	local hy = vp.Y / 2
+	local uT, uB = (hy - shootWindow.y) / hy, (hy - (shootWindow.y + shootWindow.h)) / hy
+	local uL, uR = (shootWindow.x - vp.X / 2) / hy, (shootWindow.x + shootWindow.w - vp.X / 2) / hy
+	local want = math.rad(PhotoRender.FieldOfView)
+	local lo, hi = 0.05, 5
+	for _ = 1, 40 do
+		local t = (lo + hi) / 2
+		if math.atan(uT * t) - math.atan(uB * t) < want then lo = t else hi = t end
+	end
+	local tanHalf = (lo + hi) / 2
+	camera.FieldOfView = math.clamp(math.deg(2 * math.atan(tanHalf)), 20, 110)
+	local pitch = -(math.atan(uT * tanHalf) + math.atan(uB * tanHalf)) / 2
+	local yaw = (math.atan(uL * tanHalf) + math.atan(uR * tanHalf)) / 2
+	camera.CFrame = cf * CFrame.Angles(pitch, yaw, 0)
 end
 
 local function restoreCamera()
