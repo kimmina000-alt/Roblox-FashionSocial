@@ -105,8 +105,12 @@ local names: {[number]: string} = {}
 local hidden: {[number]: boolean} = {}
 -- (D-836, user) left off every board, matched by account name or nickname
 -- (lower case); their account ids are looked up once at start
-local EXCLUDED_NAMES = { kr_ohu = true, arrrrall = true }
-local excluded: {[number]: boolean} = {}
+-- (D-1098, user 2026-11-09: "kr_ohu, arallll 이 둘만 감추고 다른 사람들은 보여 줘.
+-- 이 둘은 물음표로도 두지 말고") arallll added (arrrrall was a misspelling, kept);
+-- their account ids written down too, so a failed name look-up can never show
+-- them as a "?" row
+local EXCLUDED_NAMES = { kr_ohu = true, arallll = true, arrrrall = true }
+local excluded: {[number]: boolean} = { [11886390086] = true, [438214973] = true, [11931560912] = true }
 task.spawn(function()
 	for name in pairs(EXCLUDED_NAMES) do
 		local ok, id = pcall(function() return Players:GetUserIdFromNameAsync(name) end)
@@ -149,7 +153,7 @@ local function add(board: Board, userId: number, amount: number)
 		pendingMinutes[userId] = 0
 	end
 	local store = ordered(board)
-	if not store or userId <= 0 then return end -- (D-1086: no Studio test players)
+	if not store or userId <= 0 or excluded[userId] then return end -- (D-1086: no Studio test players; D-1098: nor the hidden accounts)
 	task.spawn(function()
 		local ok, total = pcall(function()
 			return (store :: OrderedDataStore):IncrementAsync(tostring(userId), math.floor(amount))
@@ -250,7 +254,7 @@ end
 -- attribute "XP"): the board keeps the latest value and saves it now and then
 local function saveLevel(player: Player)
 	local xp = player:GetAttribute("XP")
-	if typeof(xp) ~= "number" or xp <= 0 or player.UserId <= 0 then return end -- (D-1086)
+	if typeof(xp) ~= "number" or xp <= 0 or player.UserId <= 0 or excluded[player.UserId] then return end -- (D-1086, D-1098)
 	local store = ordered("level")
 	if not store then return end
 	task.spawn(function()
