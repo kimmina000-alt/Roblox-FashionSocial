@@ -127,11 +127,35 @@ end
 -- (-Z). Before step 4 (which keeps each seat on its stool). Every run: the
 -- spots are fixed world numbers, the stools taken in order (by z, then x
 -- from the east), so a second run leaves them where they are.
+-- (D-1116, user: "스툴 네개로 하고 정렬") four, 7.5 apart along the bar
+-- (x -68 .. -90.5, clear of the short bar's corner): a missing one is a copy
+-- of the first stool and its seat.
 do
-	local SPOTS = { Vector3.new(-71.5, 0, 65.6), Vector3.new(-81.5, 0, 65.6), Vector3.new(-91, 0, 65.6) }
+	local SPOTS = { Vector3.new(-68, 0, 65.6), Vector3.new(-75.5, 0, 65.6), Vector3.new(-83, 0, 65.6), Vector3.new(-90.5, 0, 65.6) }
 	local stools = {}
 	for _, m in ipairs(S:GetChildren()) do
 		if m:IsA("Model") and m.Name == "ClubStool" then table.insert(stools, m) end
+	end
+	if #stools > 0 and #stools < #SPOTS then
+		local first = stools[1]
+		local fcf = first:GetBoundingBox()
+		local fseat = nil
+		for _, s in ipairs(S:GetChildren()) do
+			if s:IsA("Seat") and s.Name == "WindowStool" and Vector2.new(s.Position.X - fcf.X, s.Position.Z - fcf.Z).Magnitude < 3 then fseat = s end
+		end
+		for i = #stools + 1, #SPOTS do
+			-- beside the last spot for now; the loop below puts it in its place
+			local off = Vector3.new(-3 * i, 0, 8)
+			local copy = first:Clone()
+			copy.Parent = S
+			copy:PivotTo(first:GetPivot() + off)
+			table.insert(stools, copy)
+			if fseat then
+				local s2 = fseat:Clone()
+				s2.Parent = S
+				s2.CFrame = fseat.CFrame + off
+			end
+		end
 	end
 	table.sort(stools, function(a, b)
 		local pa, pb = a:GetPivot().Position, b:GetPivot().Position
