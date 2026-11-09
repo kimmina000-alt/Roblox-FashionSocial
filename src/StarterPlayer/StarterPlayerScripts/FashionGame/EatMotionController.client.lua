@@ -56,7 +56,7 @@ end
 -- whether it is a big dish. The parts are taken where they sit against the
 -- handle (the spoon is put in the hand just before the bite, so on this client
 -- it may not be welded to the hand yet).
-local function heldPoint(tool: Tool, handle: BasePart, grip: CFrame): (Vector3, boolean, Vector3)
+local function heldPoint(tool: Tool, handle: BasePart, grip: CFrame): (Vector3, boolean, Vector3, boolean?)
 	local named = tool:GetAttribute("EatPart")
 	local eatPart = if typeof(named) == "string" then tool:FindFirstChild(named, true) else nil
 	local lo, hi = Vector3.one * math.huge, -Vector3.one * math.huge
@@ -79,6 +79,22 @@ local function heldPoint(tool: Tool, handle: BasePart, grip: CFrame): (Vector3, 
 		end
 	end
 	local size = hi - lo
+	-- (D-1152, user 2026-11-10, screenshots: the blue lemonade went to the ear on
+	-- its side: its farthest corner was the glass bottom) a drink with a straw
+	-- (tool attribute EatStraw): the straw's top end to the lips, the glass upright
+	local straw = if tool:GetAttribute("EatStraw") then tool:FindFirstChild("Straw", true) else nil
+	if straw and straw:IsA("BasePart") then
+		local rel = handle.CFrame:ToObjectSpace(straw.CFrame)
+		local h = straw.Size / 2
+		local best: Vector3? = nil
+		for _, v in ipairs({ Vector3.new(h.X, 0, 0), Vector3.new(0, h.Y, 0), Vector3.new(0, 0, h.Z) }) do
+			for _, sgn in ipairs({ -1, 1 }) do
+				local p = rel * (v * sgn)
+				if best == nil or p.Y > best.Y then best = p end
+			end
+		end
+		return best :: Vector3, false, size, true
+	end
 	if eatPart and eatPart:IsA("BasePart") then
 		-- (D-956) the end of that part on the line from the hand through it
 		local rel = handle.CFrame:ToObjectSpace(eatPart.CFrame)
@@ -110,16 +126,20 @@ local function solve(character: Model): Pose?
 	local handle = tool and tool:FindFirstChild("Handle")
 	local gripAtt = hand:FindFirstChild("RightGripAttachment") :: Attachment?
 	local grip = if gripAtt then gripAtt.CFrame else CFrame.new(0, -hand.Size.Y / 2, 0)
-	local point, big, size = Vector3.zero, false, Vector3.zero
+	local point, big, size, upright = Vector3.zero, false, Vector3.zero, nil :: boolean?
 	local handleInHand = CFrame.identity
 	if tool and handle and handle:IsA("BasePart") then
-		point, big, size = heldPoint(tool, handle, grip)
+		point, big, size, upright = heldPoint(tool, handle, grip)
 		handleInHand = grip * tool.Grip:Inverse()
 	else
 		handleInHand = grip
 	end
 	local target, wantUp
-	if big then
+	if upright then
+		-- (D-1152) the straw just at the lips, the glass standing (a hair toward the face)
+		target = mouth + Vector3.new(0, -0.02 * s, -0.05 * s)
+		wantUp = Vector3.new(0, 1, 0.12).Unit
+	elseif big then
 		target = mouth + Vector3.new(0.3 * s, -0.55 * s, -(size.Z / 2 + 0.1 * s))
 		wantUp = Vector3.new(0, 0.9, 0.44).Unit
 	else

@@ -719,6 +719,8 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		elseif eatMode == "Scale" then tool:SetAttribute("EatMode", "Scale")
 		elseif eatMode == "Bites" then tool:SetAttribute("EatMode", "Bites") -- (D-1036: the user's 국밥 models)
 		elseif eatMode == "Ramen" then RamenCup.setup(tool, handle) end -- (D-1053: lid, hot water, chopsticks)
+		-- (D-1152) a glass with a straw is drunk through it (EatMotionController)
+		if eatMode == "Level" and handle:FindFirstChild("Straw") then tool:SetAttribute("EatStraw", true) end
 		-- (D-1065) a wrapped 삼각김밥 model: the first tap tears the wrapper off
 		if item.wrapped and eatMode == "Bites" then
 			tool:SetAttribute("Wrapped", true)

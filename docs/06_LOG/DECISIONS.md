@@ -3816,3 +3816,12 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1151 진열장 1단 + 케이크 받침 (2026-11-10)
 - 사용자: "케이크 플레이트는 진열장에 있는 케이크 올리는 용도로 써. 진열장 3층인데 1층만 두고 케이크 플레이트 위에 케이크 올려서 원래 크기로."
 - Foods.CakeStand (CAFE_cake_plate glb.glb, 흰색 (250,250,248)). tools/graybox/cafe_case_1110.lua v3: 윗 칸 2개 삭제, 아래 칸 하나에 받침 4개 (지름 3.1) + 통케이크 4종을 테이블과 같은 크기 (지름 2.6, SnackService CAKE_R * 2 + 0.7)로, 유리 · 틀 · 윗판은 가장 높은 케이크 위 0.45까지 (진열장 위 7.59).
+## D-1152 빨대 음료는 빨대로 마시기 (2026-11-10)
+- 사용자 (스크린샷 3장: 블루레모네이드를 마실 때 잔이 옆으로 누워 귀 / 얼굴 옆으로 감): "블루레모네이드 마실 때 위치 수정해야겠다".
+- 원인: EatMotionController가 손에서 가장 먼 꼭짓점(키 큰 잔의 바닥 모서리)을 입으로 보냄.
+- 고침: 잔에 "Straw" 부품이 있는 Level 음료는 tool 속성 EatStraw (SnackService makeTool). EatMotionController는 빨대의 위 끝을 입술 앞으로, 잔은 거의 세운 채로 (wantUp (0, 1, 0.12)). Play 확인: 빨대가 입에 닿고 잔은 서 있음.
+
+## D-1153 허니브레드 조각 모델: 누른 조각을 포크로 (2026-11-10)
+- 사용자: "허니브레드 파일 보냄. 이것도 국밥처럼 클릭한 조각 먹게 해." (D:\Roblox\오후\3D 물\HoneyBread.glb, Studio에 가져옴).
+- ServerStorage.ArtAssets.Foods.HoneyBreadBites (place 전용) = Plate (흰 접시) + Bite1..Bite9 (조각마다 Cream (254,252,249) + Bread (239,207,150): 파일의 재질 색을 sRGB로). D-1147의 임시 모델 (크림 → 빵 2조각)을 바꿈. 원본: Foods._Imports_cafe_1110.HoneyBread_glb_1110.
+- 코드는 그대로: 테이블에서 누른 조각 (SnackController가 조각을 찾아 "Spoon"에 넘김, D-1037)을 포크로, 손에서는 Bite1부터. Play 확인: 테이블에서 모서리 조각 (3번)을 누르면 그 조각만 사라짐.
