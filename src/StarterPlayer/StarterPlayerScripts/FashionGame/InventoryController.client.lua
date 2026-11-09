@@ -130,6 +130,15 @@ local function scroller(cell: Vector2): ScrollingFrame
 	grid.CellPadding = UDim2.fromOffset(8, 8)
 	grid.SortOrder = Enum.SortOrder.LayoutOrder
 	grid.Parent = list
+	-- (D-1122, user 2026-11-09: "가방도 선 씹힘 깔끔하게 수정") the cards' edge (2 when
+	-- held) is drawn just outside them: room on every side so the list does not
+	-- cut it off (top row, left column), and the scroll bar's width on the right
+	local pad = Instance.new("UIPadding")
+	pad.PaddingTop = UDim.new(0, 3)
+	pad.PaddingLeft = UDim.new(0, 3)
+	pad.PaddingBottom = UDim.new(0, 3)
+	pad.PaddingRight = UDim.new(0, 8)
+	pad.Parent = list
 	return list
 end
 local list = scroller(Vector2.new(88, 100))
@@ -323,6 +332,9 @@ local function showTab(which: string)
 	deleteAll.Visible = false
 	if photosOn then
 		task.spawn(refreshPhotos)
+		-- (D-1125) the album opened: "사진을 다시 확인" for the analytics
+		local gate = boothRemote.Parent and boothRemote.Parent:FindFirstChild("AnalyticsStep")
+		if gate and gate:IsA("RemoteEvent") then gate:FireServer("AlbumOpen") end
 	else
 		hint.Text = "누르면 손에 들어요 · 든 것을 다시 누르면 넣어요"
 		refreshItems()

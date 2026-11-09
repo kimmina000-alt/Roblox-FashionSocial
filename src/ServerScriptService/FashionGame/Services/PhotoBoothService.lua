@@ -49,6 +49,7 @@ local PhotoProps = require(Shared:WaitForChild("PhotoProps"))
 local OutfitSnapshot = require(Shared:WaitForChild("OutfitSnapshot"))
 local BoothPose = require(Shared:WaitForChild("BoothPose"))
 local EconomyService = require(script.Parent.EconomyService)
+local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124)
 local ClubService = require(script.Parent.ClubService)
 
 local PhotoBoothService = {}
@@ -458,7 +459,7 @@ local function saveCopies(session: Session, player: Player, copies: number): (bo
 	if limit < 1 then return false, "사진첩이 가득 찼어요." end
 	copies = math.min(copies, limit)
 	local cost = (copies - 1) * PhotoConfig.ExtraCopyCoins
-	if cost > 0 and not EconomyService.Spend(player, cost) then
+	if cost > 0 and not EconomyService.Spend(player, cost, "Photo_ExtraCopy") then
 		return false, string.format("코인이 부족해요 (%d 필요).", cost)
 	end
 	local last: any = nil
@@ -480,6 +481,15 @@ local function saveCopies(session: Session, player: Player, copies: number): (bo
 	publish(session, session.booth)
 	EconomyService.Award(player, "PhotoSaved")
 	if firstPhoto and #firstPhoto.people > 1 then EconomyService.Award(player, "PhotoGroup") end
+	-- (D-1124) the booth funnel's last step, and a photo taken
+	Analytics.funnel(player, "PhotoBooth", tostring(session.id), 4, "저장")
+	Analytics.interact(player, "Photo")
+	-- (D-1125) every save: who was in the photo
+	local inPhoto = {}
+	for _, who in ipairs(if firstPhoto then firstPhoto.people else {}) do
+		if typeof(who) == "table" and typeof(who.u) == "number" then table.insert(inPhoto, who.u) end
+	end
+	Analytics.photoSaved(player, tostring(session.id), inPhoto)
 	return true, { photo = firstPhoto, copies = copies, count = #last.photos, max = last.max, persistent = last.persistent, note = last.note }
 end
 
@@ -501,6 +511,7 @@ local function runSession(session: Session)
 	-- Shooting.
 	session.phase = "shooting"
 	for _, person in ipairs(session.people) do
+		Analytics.funnel(person, "PhotoBooth", tostring(session.id), 2, "촬영 시작") -- (D-1124)
 		local character = person.Character
 		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		if humanoid then
@@ -588,6 +599,7 @@ local function runSession(session: Session)
 	booth:SetAttribute("WaitUntil", now() + PhotoConfig.CopySeconds)
 	publish(session, booth)
 	for _, person in ipairs(session.people) do
+		if active(session, person) then Analytics.funnel(person, "PhotoBooth", tostring(session.id), 3, "컷·프레임 고름") end -- (D-1124)
 		if active(session, person) and event then
 			event:FireClient(person, "Copies", {
 				picks = (session.final :: any).picks,
@@ -1028,6 +1040,7 @@ local function wallPost(player: Player, payload: any): (boolean, string?)
 		task.delay(8, saveWall)
 	end
 	EconomyService.Award(player, "WallPost")
+	Analytics.interact(player, "WallPost") -- (D-1124)
 	return true, "포토월에 붙였어요!"
 end
 
@@ -1101,16 +1114,12 @@ local function seedPhotos(player: Player)
 	end
 end
 
+-- (D-1108, user 2026-11-09: "벽에 붙이기 안내창 뜨는 거 지우고") no "사진 붙이기"
+-- prompt on the walls any more: a photo in the hand + a tap on the wall
+-- (PhotoWallController); one left from before (a saved place) is removed
 local function setupWall(wall: Instance)
-	if not wall:IsA("BasePart") or wall:FindFirstChild("WallPrompt") then return end
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "WallPrompt"
-	prompt.ActionText = "사진 붙이기"
-	prompt.ObjectText = "포토월"
-	prompt.MaxActivationDistance = 16
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = wall
-	-- The client opens the album picker and the placement mode.
+	local old = wall:FindFirstChild("WallPrompt")
+	if old then old:Destroy() end
 end
 
 local function handle(player: Player, action: any, payload: any): (boolean, any)
@@ -1122,10 +1131,12 @@ local function handle(player: Player, action: any, payload: any): (boolean, any)
 		return false, "잠시 후 다시 시도하세요."
 	end
 	lastCall[player] = t
-	if action == "Open" then
-		return open(player, payload)
-	elseif action == "Join" then
-		return join(player, payload)
+	if action == "Open" or action == "Join" then
+		local ok, message = (if action == "Open" then open else join)(player, payload)
+		-- (D-1124) in a booth: the booth funnel starts (its session's id)
+		local session = byPlayer[player]
+		if ok and session then Analytics.funnel(player, "PhotoBooth", tostring(session.id), 1, "부스 입장") end
+		return ok, message
 	elseif action == "Start" then
 		local session = byPlayer[player]
 		if session and session.host == player and session.phase == "waiting" then

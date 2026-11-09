@@ -178,6 +178,145 @@ local function findWall(key: string): BasePart?
 	return nil
 end
 
+-- (D-1085, user 2026-11-09: "벽에 붙인 스티커 사진 클릭하면 해당 사진 크게
+-- 고화질로 볼 수 있게 하기") a tap on a photo on the wall shows it big on the
+-- screen: drawn again from the photo itself (the same 3D shots, not a picture
+-- of the small one), so it is sharp at that size. A tap anywhere else or ✕ closes.
+local viewer = make("TextButton", {
+	Name = "PhotoViewer",
+	Size = UDim2.fromScale(1, 1),
+	BackgroundColor3 = Color3.new(0, 0, 0),
+	BackgroundTransparency = 0.25,
+	AutoButtonColor = false,
+	Text = "",
+	Visible = false,
+	ZIndex = 50,
+}, gui)
+local viewerBox = make("Frame", {
+	Name = "Photo",
+	AnchorPoint = Vector2.new(0.5, 0.5),
+	Position = UDim2.fromScale(0.5, 0.5),
+	BackgroundTransparency = 1,
+	ZIndex = 51,
+}, viewer)
+local viewerClose = make("TextButton", {
+	Name = "Close",
+	AnchorPoint = Vector2.new(1, 0),
+	Size = UDim2.fromOffset(40, 40),
+	BackgroundColor3 = Color3.new(1, 1, 1),
+	Text = "✕",
+	TextColor3 = Color3.new(0, 0, 0),
+	TextSize = 20,
+	Font = Enum.Font.GothamBold,
+	ZIndex = 60,
+}, viewer)
+round(viewerClose, 20)
+-- (D-1109, user 2026-11-09: "사진 클릭해서 크게 보고 컴퓨터는 휠 굴려서 모바일은
+-- 두 손가락으로 확대, 축소해서 더 크게 볼 수 있게 해") zoom 1x .. 5x about the
+-- pointer (the wheel) or the middle of the two fingers (a pinch); once zoomed in,
+-- one finger / the mouse drags it around. A tap closes it at 1x; zoomed in, a tap
+-- goes back to 1x. ✕ always closes. The wheel does not move the game camera
+-- while it is open.
+local ContextActionService = game:GetService("ContextActionService")
+local ZOOM_MAX = 5
+local zoom = { z = 1, x = 0, y = 0, baseW = 0, baseH = 0, pinchFrom = 1, pinched = false }
+local function applyZoom()
+	local w, h = zoom.baseW * zoom.z, zoom.baseH * zoom.z
+	-- keep some of the photo on the screen
+	zoom.x = math.clamp(zoom.x, -w / 2, w / 2)
+	zoom.y = math.clamp(zoom.y, -h / 2, h / 2)
+	if zoom.z <= 1.001 then zoom.x, zoom.y = 0, 0 end
+	viewerBox.Size = UDim2.fromOffset(w, h)
+	viewerBox.Position = UDim2.new(0.5, zoom.x, 0.5, zoom.y)
+	-- (D-1110, user 2026-11-09: "오른쪽 상단에 끄는 버튼 없애") a tap closes it
+	viewerClose.Visible = false
+end
+-- zoom to z, the screen point `at` staying where it is
+local function zoomTo(z: number, at: Vector2?)
+	z = math.clamp(z, 1, ZOOM_MAX)
+	if at then
+		local vp = viewer.AbsoluteSize
+		local cx, cy = vp.X / 2 + zoom.x, vp.Y / 2 + zoom.y
+		local k = z / zoom.z
+		zoom.x += (at.X - cx) * (1 - k)
+		zoom.y += (at.Y - cy) * (1 - k)
+	end
+	zoom.z = z
+	applyZoom()
+end
+local function closeViewer()
+	viewer.Visible = false
+	ContextActionService:UnbindAction("PhotoViewerWheel")
+	for _, child in ipairs(viewerBox:GetChildren()) do child:Destroy() end
+end
+viewerClose.Activated:Connect(closeViewer)
+-- taps and drags on the dark screen and the photo
+do
+	local press: { input: InputObject, at: Vector3, last: Vector3, moved: boolean }? = nil
+	viewer.InputBegan:Connect(function(input)
+		local t = input.UserInputType
+		if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then return end
+		if press and t == Enum.UserInputType.Touch then return end -- (the second finger: a pinch)
+		zoom.pinched = false
+		press = { input = input, at = input.Position, last = input.Position, moved = false }
+	end)
+	UserInputService.InputChanged:Connect(function(input)
+		local p = press
+		if not p or not viewer.Visible then return end
+		local moving = input == p.input or (input.UserInputType == Enum.UserInputType.MouseMovement and p.input.UserInputType == Enum.UserInputType.MouseButton1)
+		if not moving then return end
+		if (input.Position - p.at).Magnitude > 8 then p.moved = true end
+		if zoom.z > 1.001 and not zoom.pinched then
+			local d = input.Position - p.last
+			zoom.x += d.X
+			zoom.y += d.Y
+			applyZoom()
+		end
+		p.last = input.Position
+	end)
+	UserInputService.InputEnded:Connect(function(input)
+		local p = press
+		if not p or input ~= p.input then return end
+		press = nil
+		if p.moved or zoom.pinched or not viewer.Visible then return end
+		if zoom.z > 1.001 then zoomTo(1) else closeViewer() end
+	end)
+	UserInputService.TouchPinch:Connect(function(positions, scale, _, state)
+		if not viewer.Visible then return end
+		zoom.pinched = true
+		if state == Enum.UserInputState.Begin then zoom.pinchFrom = zoom.z end
+		local mid = nil
+		if #positions >= 2 then mid = (positions[1] + positions[2]) / 2 end
+		zoomTo(zoom.pinchFrom * scale, mid)
+	end)
+end
+local placing: { wall: BasePart, photo: any, ghost: BasePart }? = nil
+local heldWallTap: ((BasePart, number, number) -> ())? = nil -- (D-1108, set below)
+local function openViewer(photo: any)
+	if placing then return end
+	closeViewer()
+	local camera = workspace.CurrentCamera
+	local vp = if camera then camera.ViewportSize else Vector2.new(1280, 720)
+	local aspect = PhotoRender.stripAspect(photo.layout)
+	-- as big as fits: 86 % of the screen's height (or its width)
+	local h = math.min(vp.Y * 0.86, vp.X * 0.9 / aspect)
+	zoom.z, zoom.x, zoom.y, zoom.baseW, zoom.baseH = 1, 0, 0, h * aspect, h
+	applyZoom()
+	viewerClose.Position = UDim2.new(1, -16, 0, 16 + require(script.Parent:WaitForChild("TopBar")).bottom())
+	PhotoRender.drawPhoto(viewerBox, photo)
+	for _, d in ipairs(viewerBox:GetDescendants()) do
+		if d:IsA("GuiObject") then d.ZIndex = math.max(d.ZIndex, 52) end
+	end
+	viewer.Visible = true
+	ContextActionService:BindActionAtPriority("PhotoViewerWheel", function(_, state, input)
+		if state == Enum.UserInputState.Change and input.UserInputType == Enum.UserInputType.MouseWheel then
+			local m = UserInputService:GetMouseLocation()
+			zoomTo(zoom.z * (if input.Position.Z > 0 then 1.2 else 1 / 1.2), Vector2.new(m.X, m.Y))
+		end
+		return Enum.ContextActionResult.Sink
+	end, false, Enum.ContextActionPriority.High.Value, Enum.UserInputType.MouseWheel)
+end
+
 local function drawEntry(entry: Entry, order: number)
 	if drawn[entry.id] then return end
 	local wall = findWall(entry.wall)
@@ -195,6 +334,7 @@ local function drawEntry(entry: Entry, order: number)
 		ZIndex = order,
 	}, holder)
 	PhotoRender.drawPhoto(frame, entry.photo)
+	-- (a tap on it: found by a ray in the world, D-1110, not a button here)
 	drawn[entry.id] = frame
 	drawnWall[entry.id] = wall
 end
@@ -211,11 +351,23 @@ local function redrawAll()
 	for index, entry in ipairs(entries) do drawEntry(entry, index) end
 end
 
+-- (D-1108) the server loads the wall from the DataStore when it starts: the
+-- first player of a new server (and every Studio test) asked before that and
+-- got an empty wall for good. Asked again a few times while it is empty.
 task.spawn(function()
-	local ok, list = invoke("GetWall", nil)
-	if ok and typeof(list) == "table" then
-		for _, entry in ipairs(list) do table.insert(entries, entry) end
-		redrawAll()
+	for _, delay in ipairs({ 0, 4, 10, 25 }) do
+		task.wait(delay)
+		local ok, list = invoke("GetWall", nil)
+		if ok and typeof(list) == "table" and #list > 0 then
+			local have = {}
+			for _, e in ipairs(entries) do have[e.id] = true end
+			for _, entry in ipairs(list) do
+				if not have[entry.id] then table.insert(entries, entry) end
+			end
+			table.sort(entries, function(a, b) return (a.at or 0) < (b.at or 0) end)
+			redrawAll()
+			return
+		end
 	end
 end)
 
@@ -306,16 +458,24 @@ local cancelButton = make("TextButton", {
 }, gui)
 round(cancelButton, 17)
 
-local placing: { wall: BasePart, photo: any, ghost: BasePart }? = nil
+-- (D-1085) while a photo is being stuck on, the photos' tap buttons stand aside
+-- (they would take the tap that sticks it)
+local function setTaps(on: boolean)
+	for _, frame in pairs(drawn) do
+		local tap = frame:FindFirstChild("Tap")
+		if tap and tap:IsA("GuiButton") then tap.Visible = on end
+	end
+end
 
 local function stopPlacing()
 	if placing then placing.ghost:Destroy() end
 	placing = nil
+	setTaps(true)
 	hint.Visible = false
 	cancelButton.Visible = false
 end
 
-local function startPlacing(wall: BasePart, photo: any)
+local function startPlacing(wall: BasePart, photo: any, u0: number?, v0: number?)
 	stopPlacing()
 	local size = photoSize(photo.layout)
 	local frameInfo = PhotoConfig.findFrame(photo.frame) or PhotoConfig.Frames[2]
@@ -329,9 +489,10 @@ local function startPlacing(wall: BasePart, photo: any)
 		Color = frameInfo.color,
 		Material = Enum.Material.Neon,
 		Transparency = 0.35,
-		CFrame = wallCFrame(wall, 0.5, 0.5),
+		CFrame = wallCFrame(wall, u0 or 0.5, v0 or 0.5), -- (D-1108: where the wall was tapped)
 	}, workspace)
 	placing = { wall = wall, photo = photo, ghost = ghost }
+	setTaps(false)
 	local top = require(script.Parent:WaitForChild("TopBar")).bottom() + 10
 	hint.Position = UDim2.new(0.5, 0, 0, top)
 	cancelButton.Position = UDim2.new(0.5, 0, 0, top + 46)
@@ -361,18 +522,35 @@ local function pointerUV(screen: Vector2, touch: boolean?): (number?, number?)
 	return math.clamp(u, mu, 1 - mu), math.clamp(v, mv, 1 - mv)
 end
 
+-- (D-1108) the preview follows the mouse; on a phone it stays where the wall
+-- was tapped and follows a finger moving over the wall
 RunService.RenderStepped:Connect(function()
 	local state = placing
-	if not state then return end
+	if not state or not UserInputService.MouseEnabled then return end
 	local u, v = pointerUV(UserInputService:GetMouseLocation())
 	if u and v then state.ghost.CFrame = wallCFrame(state.wall, u, v) end
 end)
-
-local posting = false
-UserInputService.InputBegan:Connect(function(input, processed)
+UserInputService.InputChanged:Connect(function(input)
 	local state = placing
-	if not state or processed or posting then return end
+	if not state or input.UserInputType ~= Enum.UserInputType.Touch then return end
+	local u, v = pointerUV(Vector2.new(input.Position.X, input.Position.Y), true)
+	if u and v then state.ghost.CFrame = wallCFrame(state.wall, u, v) end
+end)
+
+-- (D-1108) a short tap (not a drag) on the wall sticks it there
+local posting = false
+local placeDown: {[InputObject]: { t: number, p: Vector3 }} = {}
+UserInputService.InputBegan:Connect(function(input, processed)
+	if not placing or processed then return end
 	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
+	placeDown[input] = { t = os.clock(), p = input.Position }
+end)
+UserInputService.InputEnded:Connect(function(input, processed)
+	local d = placeDown[input]
+	placeDown[input] = nil
+	local state = placing
+	if not d or not state or processed or posting then return end
+	if os.clock() - d.t > 0.5 or (input.Position - d.p).Magnitude > 14 then return end
 	local touch = input.UserInputType == Enum.UserInputType.Touch
 	local position = if touch
 		then Vector2.new(input.Position.X, input.Position.Y)
@@ -442,25 +620,136 @@ local function heldPhotoId(): string?
 	return if typeof(id) == "string" then id else nil
 end
 
-ProximityPromptService.PromptTriggered:Connect(function(prompt)
-	if prompt.Name ~= "WallPrompt" then return end
-	local wall = prompt.Parent
-	if not wall or not wall:IsA("BasePart") or not CollectionService:HasTag(wall, "PhotoWall") then return end
-	-- Holding a photo item: stick that one; otherwise choose from the album.
+-- (D-1108, user 2026-11-09: "벽에 붙이기 안내창 뜨는 거 지우고 사진 손에 들고 벽
+-- 눌러야 붙일 수 있게 위치 잡을 수 있게 하고 빈손으로 사진 누르면 크게 보는 걸로
+-- 하자") only the photo in the hand is stuck on: a tap on the wall with it puts
+-- its preview there (the next tap sticks it); no E prompt, no album window.
+-- With empty hands a tap on a photo shows it big (drawEntry's Tap button).
+local function useWall(wall: BasePart, u: number?, v: number?)
 	local held = heldPhotoId()
-	if held then
-		local ok, data = invoke("GetAlbum", nil)
-		if ok and typeof(data) == "table" then
-			for _, photo in ipairs(data.photos or {}) do
-				if photo.id == held then
-					startPlacing(wall, photo)
-					return
-				end
+	if not held then return end
+	local ok, data = invoke("GetAlbum", nil)
+	if ok and typeof(data) == "table" then
+		for _, photo in ipairs(data.photos or {}) do
+			if photo.id == held then
+				startPlacing(wall, photo, u, v)
+				return
 			end
 		end
 	end
-	openPicker(wall)
-end)
+	toast("사진첩에 없는 사진이에요.")
+end
+heldWallTap = function(wall: BasePart, u: number, v: number)
+	useWall(wall, u, v)
+end
+
+-- (D-1110, user 2026-11-09: "하늘색 벽에 붙어 있는 사진들은 크게 보는 거 안 됨")
+-- the photos are found by a ray in the world, not by buttons on the walls'
+-- SurfaceGuis: the sky-blue niche (SHOP) sits behind the invisible hall panel
+-- (OHU_HALL_N), which took every tap first. The ray goes through the photo
+-- walls (they are invisible panels or wall faces) up to the first solid part
+-- that can be seen; every photo wall on the way is a candidate, nearest first.
+type WallHit = { wall: BasePart, at: Vector3 }
+local function pick(ray: Ray, character: Model): {WallHit}
+	local photoWalls = {}
+	for _, w in ipairs(CollectionService:GetTagged("PhotoWall")) do
+		if w:IsA("BasePart") and w:IsDescendantOf(workspace) then table.insert(photoWalls, w) end
+	end
+	-- the first thing seen that is not a photo wall (see-through parts skipped)
+	local ignore: {Instance} = { character }
+	for _, w in ipairs(photoWalls) do table.insert(ignore, w) end
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	local solid = 120
+	for _ = 1, 8 do
+		params.FilterDescendantsInstances = ignore
+		local h = workspace:Raycast(ray.Origin, ray.Direction * 120, params)
+		if not h then break end
+		local p = h.Instance
+		if p:IsA("BasePart") and (p.Transparency >= 0.95 or not p.CanCollide and p.Transparency > 0.5) then
+			table.insert(ignore, p)
+		else
+			solid = (h.Position - ray.Origin).Magnitude
+			break
+		end
+	end
+	-- the photo walls before it
+	local out: {WallHit} = {}
+	local only = RaycastParams.new()
+	only.FilterType = Enum.RaycastFilterType.Include
+	local left = table.clone(photoWalls)
+	for _ = 1, 6 do
+		if #left == 0 then break end
+		only.FilterDescendantsInstances = left
+		local h = workspace:Raycast(ray.Origin, ray.Direction * 120, only)
+		if not h then break end
+		if (h.Position - ray.Origin).Magnitude > solid + 0.8 then break end
+		table.insert(out, { wall = h.Instance :: BasePart, at = h.Position })
+		local i = table.find(left, h.Instance)
+		if i then table.remove(left, i) end
+	end
+	return out
+end
+-- the newest photo on that wall under that point
+local function photoAt(wall: BasePart, at: Vector3): Entry?
+	local u, v = uvOf(wall, at)
+	local best: Entry? = nil
+	local bestAt = -math.huge
+	for _, entry in ipairs(entries) do
+		if drawnWall[entry.id] == wall then
+			local size = photoSize(entry.photo.layout)
+			local hu, hv = size.X / 2 / wall.Size.X, size.Y / 2 / wall.Size.Y
+			if math.abs(u - entry.u) <= hu and math.abs(v - entry.v) <= hv and (entry.at or 0) > bestAt then
+				best, bestAt = entry, entry.at or 0
+			end
+		end
+	end
+	return best
+end
+
+-- (D-1094) a short tap / click on a photo wall nearby: with a photo in the hand
+-- it is a spot to stick it (D-1108), with empty hands the photo there is shown
+-- big (D-1110). Not while placing or a window is open.
+do
+	local downAt: {[InputObject]: { t: number, p: Vector3 }} = {}
+	UserInputService.InputBegan:Connect(function(input, processed)
+		if processed or placing then return end -- (a tap that sticks a photo is not this)
+		local t = input.UserInputType
+		if t == Enum.UserInputType.MouseButton1 or t == Enum.UserInputType.Touch then
+			downAt[input] = { t = os.clock(), p = input.Position }
+		end
+	end)
+	UserInputService.InputEnded:Connect(function(input, processed)
+		local d = downAt[input]
+		downAt[input] = nil
+		if not d or processed or placing or picker.Visible or viewer.Visible then return end
+		if os.clock() - d.t > 0.4 or (input.Position - d.p).Magnitude > 12 then return end
+		local character = player.Character
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if not root then return end
+		local tool = character:FindFirstChildOfClass("Tool")
+		local held = heldPhotoId()
+		if tool and not held then return end -- (food etc. in the hand: its own tap)
+		local camera = workspace.CurrentCamera
+		-- (InputObject.Position is below the top bar inset for the mouse too)
+		local ray = camera:ScreenPointToRay(input.Position.X, input.Position.Y)
+		local walls = pick(ray, character)
+		if #walls == 0 then return end
+		if held then
+			-- the wall surface itself: the last photo wall before the solid one
+			local w = walls[#walls]
+			if (w.at - root.Position).Magnitude > 20 then return end
+			local u, v = uvOf(w.wall, w.at)
+			useWall(w.wall, u, v)
+			return
+		end
+		-- (D-1085 / D-1108) empty hands: the photo under the tap, big
+		for _, w in ipairs(walls) do
+			local entry = photoAt(w.wall, w.at)
+			if entry then openViewer(entry.photo) return end
+		end
+	end)
+end
 
 --------------------------------------------------
 -- Booth barrier (local)

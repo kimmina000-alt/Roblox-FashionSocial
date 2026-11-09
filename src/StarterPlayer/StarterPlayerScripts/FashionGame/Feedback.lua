@@ -19,11 +19,16 @@ local player = Players.LocalPlayer
 local Feedback = {}
 
 -- the guide window's colours (GuideController)
-local PEACH = Color3.fromRGB(255, 248, 240)
-local ORANGE = Color3.fromRGB(255, 140, 70)
-local BROWN = Color3.fromRGB(80, 50, 35)
-local GREY = Color3.fromRGB(150, 135, 125)
-local CHIP = Color3.fromRGB(240, 228, 216)
+-- (D-1114, user 2026-11-09: "의견 보내기 ui도 블랙앤화이트") the guide's black and
+-- white (D-1088): a near-black window with a white edge, white letters, dark
+-- grey chips / boxes; white buttons carry dark letters (INK)
+local PEACH = Color3.fromRGB(14, 14, 18) -- (the window)
+local ORANGE = Color3.fromRGB(255, 255, 255) -- (edges, the picked chip, the main button)
+local BROWN = Color3.fromRGB(240, 240, 245) -- (text)
+local GREY = Color3.fromRGB(150, 150, 158)
+local CHIP = Color3.fromRGB(30, 30, 36)
+local EDGE = Color3.fromRGB(70, 70, 80)
+local INK = Color3.fromRGB(14, 14, 18) -- (letters on white)
 
 local function create(className: string, props: {[string]: any}, parent: Instance?): any
 	local instance = Instance.new(className)
@@ -57,7 +62,7 @@ local title = create("TextLabel", {
 	Font = Enum.Font.GothamBlack, TextSize = 19, TextColor3 = BROWN, TextXAlignment = Enum.TextXAlignment.Left,
 	Text = "💬 의견 보내기",
 }, window)
-local closeButton = button(window, "X", Color3.new(1, 1, 1), BROWN)
+local closeButton = button(window, "X", CHIP, BROWN)
 closeButton.AnchorPoint = Vector2.new(1, 0)
 closeButton.Position = UDim2.new(1, -12, 0, 10)
 closeButton.Size = UDim2.fromOffset(34, 34)
@@ -84,7 +89,7 @@ local chipButtons: {[string]: TextButton} = {}
 local function paintChips()
 	for key, b in pairs(chipButtons) do
 		b.BackgroundColor3 = if key == kind then ORANGE else CHIP
-		b.TextColor3 = if key == kind then Color3.new(1, 1, 1) else BROWN
+		b.TextColor3 = if key == kind then INK else BROWN
 	end
 end
 for i, k in ipairs(FeedbackConfig.Kinds) do
@@ -97,9 +102,9 @@ for i, k in ipairs(FeedbackConfig.Kinds) do
 end
 paintChips()
 
-local boxFrame = create("Frame", { Position = UDim2.fromOffset(0, 82), Size = UDim2.new(1, 0, 1, -136), BackgroundColor3 = Color3.new(1, 1, 1) }, form)
+local boxFrame = create("Frame", { Position = UDim2.fromOffset(0, 82), Size = UDim2.new(1, 0, 1, -136), BackgroundColor3 = CHIP }, form)
 corner(boxFrame, 12)
-create("UIStroke", { Color = Color3.fromRGB(240, 210, 185), Thickness = 1 }, boxFrame)
+create("UIStroke", { Color = EDGE, Thickness = 1 }, boxFrame)
 local box = create("TextBox", {
 	Name = "FeedbackText", Position = UDim2.fromOffset(10, 8), Size = UDim2.new(1, -20, 1, -16), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamMedium, TextSize = 15, TextColor3 = BROWN, PlaceholderColor3 = GREY,
@@ -112,7 +117,7 @@ local counter = create("TextLabel", {
 	Font = Enum.Font.GothamMedium, TextSize = 13, TextColor3 = GREY, TextXAlignment = Enum.TextXAlignment.Left,
 	TextWrapped = true, Text = "",
 }, form)
-local sendButton = button(form, "보내기 ▶", ORANGE, Color3.new(1, 1, 1))
+local sendButton = button(form, "보내기 ▶", ORANGE, INK)
 sendButton.AnchorPoint = Vector2.new(1, 1)
 sendButton.Position = UDim2.new(1, 0, 1, 0)
 sendButton.Size = UDim2.new(0.38, 0, 0, 42)
@@ -133,7 +138,7 @@ refreshCounter()
 local sentCard = create("TextLabel", {
 	Name = "SentCard", AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.5),
 	Size = UDim2.new(0.86, 0, 0, 64), BackgroundColor3 = ORANGE, Font = Enum.Font.GothamBold, TextSize = 16,
-	TextColor3 = Color3.new(1, 1, 1), TextWrapped = true, Text = "", Visible = false, ZIndex = 5,
+	TextColor3 = INK, TextWrapped = true, Text = "", Visible = false, ZIndex = 5,
 }, window)
 corner(sentCard, 14)
 create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12) }, sentCard)
@@ -192,8 +197,9 @@ local function fillInbox()
 		return
 	end
 	for i, row in ipairs(rows) do
-		local card = create("Frame", { LayoutOrder = i, Size = UDim2.new(1, -6, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundColor3 = Color3.new(1, 1, 1) }, inbox)
+		local card = create("Frame", { LayoutOrder = i, Size = UDim2.new(1, -6, 0, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundColor3 = CHIP }, inbox)
 		corner(card, 10)
+		create("UIStroke", { Color = EDGE, Thickness = 1 }, card)
 		create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8) }, card)
 		create("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, card)
 		local when = if typeof(row.at) == "number" then os.date("%m/%d %H:%M", row.at) else ""
@@ -224,7 +230,7 @@ local function fillInbox()
 		-- (D-1013) 🎁 the sender's coins, once per message
 		local given = row.r == true
 		local giftButton = button(head, if given then "지급됨" else string.format("🎁 %d", FeedbackConfig.RewardCoins or 0),
-			if given then CHIP else ORANGE, if given then GREY else Color3.new(1, 1, 1))
+			if given then CHIP else ORANGE, if given then GREY else INK)
 		giftButton.AnchorPoint = Vector2.new(1, 0)
 		giftButton.Position = UDim2.new(1, -64, 0, 0)
 		giftButton.Size = UDim2.fromOffset(60, 22)

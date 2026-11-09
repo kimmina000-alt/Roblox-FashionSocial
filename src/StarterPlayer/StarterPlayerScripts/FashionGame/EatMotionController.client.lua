@@ -1,221 +1,437 @@
 --!strict
--- Eating and drinking motion (user 2026-10-27: the food and the 국밥 spoon
--- floated up to the mouth while the arm stayed straight). SnackService sets
--- the character attribute "Eating" while a bite or a spoonful is at the mouth;
--- every client then bends that character's right arm with an IKControl so the
--- hand (and what it holds) comes up in front of the mouth, and lowers it again
--- after. Same way as the DJ motion: no animation asset needed. R15 only (IK
--- needs the arm chain; SnackService still moves the item itself on R6).
--- Driven from Heartbeat with its own easing (RenderStepped and tweens stop
--- while a Studio test window is in the background).
--- (D-949, user 2026-11-07: "음식 먹을 때 모션 좀 더 섬세하게 구현해. 팔꿈치 관절
--- 꺾으면서 손에 숟가락 들고 있고 숟가락이 얼굴의 입 부분에 닿게. 지금 얼굴 뚫고
--- 손 들어감.") the hand went to a point under the chin, whatever it held, so
--- with a short item the hand itself went into the face. Now:
---   * the far end of what is held (the spoon's bowl, the cup's rim, the end of
---     the bread: the point of the tool farthest from the hand) is found once
---     when the bite starts
---   * the IK moves the hand as a whole (Transform): turned so the tool points
---     at the mouth from the front and below, placed so that far end rests just
---     in front of the lips, the hand itself a tool's length away
---   * a pole beside and below the shoulder bends the elbow out and down
+-- Eating and drinking motion. SnackService / DrinkService set the character
+-- attribute "Eating" while a bite or a spoonful is at the mouth; every client
+-- then moves that character's right arm up to the mouth and down again.
+-- (D-1076, user 2026-11-09, with a screen recording: "음식 먹을 때 팔 모션
+-- 지저분해 다른 게임은 보통 어떻게 표현하는지 조사해서 그대로 구현해 고개
+-- 움직임도 지우고") The IK version (D-949 / D-1037 / D-1038) turned the hand every
+-- frame so the item's far end met the lips and nodded the head: the wrist
+-- twisted, the bowl swung across the face and the head bobbed. Games usually
+-- play one eating animation instead: the item stays as it is in the hand, the
+-- shoulder brings the arm forward and in, the elbow folds so the hand comes up
+-- in front of the mouth, held still there, then back down; the head stays still.
+-- The same here: one pose of the three right-arm joints per bite (no animation
+-- asset needed), their Motor6D.Transform set after the animations each frame
+-- (PreSimulation), blended from the animated pose (the tool hold) to that pose
+-- and back. The pose is found once when the bite starts, from the avatar's own
+-- joints (so it fits every size) and what the hand holds:
+--   * a big held dish (a 국밥 bowl, a cup of ramen; 1.2 studs or more across):
+--     its middle just under the chin in front of the mouth, its top tipped a
+--     little toward the face, the hand under it
+--   * anything smaller (bread, a spoon, chopsticks, a cup): its far end (or the
+--     tool's EatPart, the 수육 slice) just in front of the lips
+-- with the elbow low and out, the wrist bent as little as it can.
+-- R15 only (R6 has no elbow; SnackService still moves the item itself there).
 
 local Players = game:GetService("Players")
 local RunService = game:GetService("RunService")
 
-type Rig = {
-	ik: IKControl, holder: Part, goal: Attachment, pole: Attachment, want: number,
-	tip: Vector3, -- the far end of the held item, in the hand's space
-	turn: CFrame, -- the hand's turn in the head's space
-	fix: Vector3, -- head space: where the IK ends short of the goal, made up for
-	-- (D-1037, user 2026-11-09: "뭐 먹을 때 팔 굽혔다 폈다 존나 반복하는 거 고쳐")
-	-- an IKControl blends from the arm's rest pose, not from the tool-holding
-	-- pose: at weight 0 the arm dropped straight down, then rose (measured: the
-	-- hand 1.15 → 2.37 under the head, then up), every bite. Now the IK is at
-	-- full weight from the start and its goal travels from where the hand was
-	-- (rest, root space) to the mouth and back (up = 0..1, eased).
-	rest: CFrame, up: number, fixFrames: number,
-	-- (D-1038, user 2026-11-09: "먹을 때 고개를 약하게 숙였다 폈다 반복하는 모션
-	-- 넣어") the head nods a little while the food is at the mouth: a LookAt IK
-	-- on the neck (UpperTorso → Head) at a point ahead that dips and rises
-	nod: IKControl?, nodGoal: Attachment?, nodT: number,
-}
-local NOD_PERIOD = 0.7 -- seconds, down and up once
--- how far the head bows, between (4° → 16° at weight 0.8 moved it only 7° in
--- Play: the LookAt does not turn the neck all the way; 6° → 28° at 0.9)
-local NOD_MIN, NOD_MAX = math.rad(6), math.rad(28)
-local rigs: {[Model]: Rig} = {}
-local RATE = 1 / 0.3 -- weight per second: up or down in 0.3 s
--- the way the held item points, hand → its far end, in the head's space (the
--- face looks to -Z): back toward the face, up a little and in from the right
--- hand's side, so the hand stays in front of the chin and to the right
-local TOWARD_MOUTH = Vector3.new(-0.25, 0.45, 1).Unit
+local UP_TIME = 0.28 -- seconds up (and down)
+local BIG = 1.2 -- studs: a dish held under the chin
 
--- The far end of what the hand holds: of every visible corner of the tool's
--- parts, the one farthest from the hand (hand space). nil: nothing held.
--- (The spoon is put in the hand just before the bite, so on this client it
--- may not be welded to the hand yet and stand anywhere, the arm then reached
--- up over the head in the first Play test. So the parts are taken where the
--- grip will hold them: the handle at the hand's grip attachment × Grip⁻¹,
--- every other part where it sits against the handle.)
-local function farEnd(character: Model, hand: BasePart): Vector3?
-	local tool = character:FindFirstChildOfClass("Tool")
-	local handle = tool and tool:FindFirstChild("Handle")
-	if not tool or not handle or not handle:IsA("BasePart") then return nil end
-	local grip = hand:FindFirstChild("RightGripAttachment") :: Attachment?
-	local gripCF = if grip then grip.CFrame else CFrame.new(0, -hand.Size.Y / 2, 0)
-	local handleInHand = gripCF * tool.Grip:Inverse()
-	local best: Vector3? = nil
-	local bestD = 0.25 -- (smaller than this: the item is in the palm, use the hand)
+type Pose = { shoulder: CFrame, elbow: CFrame, wrist: CFrame }
+type Rig = {
+	shoulder: any, elbow: any, wrist: any?, pose: Pose,
+	want: number, up: number,
+	base: {[any]: CFrame}, last: {[any]: CFrame},
+}
+local rigs: {[Model]: Rig} = {}
+
+-- (current avatars join their limbs with an AnimationConstraint, older ones with
+-- a Motor6D; both have a Transform the animations write)
+type Joint = any
+local function joint(character: Model, part: string, name: string): Joint?
+	local p = character:FindFirstChild(part)
+	local m = p and p:FindFirstChild(name)
+	return if m and (m:IsA("Motor6D") or m:IsA("AnimationConstraint")) then m else nil
+end
+-- the joint's two frames: Part1 = Part0 * c0 * Transform * c1⁻¹
+local function frames(m: Joint): (CFrame, CFrame)
+	if m:IsA("Motor6D") then return m.C0, m.C1 end
+	local a0, a1 = m.Attachment0, m.Attachment1
+	return if a0 then a0.CFrame else CFrame.identity, if a1 then a1.CFrame else CFrame.identity
+end
+
+-- What the hand holds, in handle space: the point that goes to the mouth and
+-- whether it is a big dish. The parts are taken where they sit against the
+-- handle (the spoon is put in the hand just before the bite, so on this client
+-- it may not be welded to the hand yet).
+local function heldPoint(tool: Tool, handle: BasePart, grip: CFrame): (Vector3, boolean, Vector3)
+	local named = tool:GetAttribute("EatPart")
+	local eatPart = if typeof(named) == "string" then tool:FindFirstChild(named, true) else nil
+	local lo, hi = Vector3.one * math.huge, -Vector3.one * math.huge
+	local far, farD = nil :: Vector3?, 0.25
+	local handleInHand = grip * tool.Grip:Inverse()
 	for _, p in ipairs(tool:GetDescendants()) do
 		if p:IsA("BasePart") and p.Transparency < 0.95 then
-			local inHand = handleInHand * handle.CFrame:ToObjectSpace(p.CFrame)
+			local rel = handle.CFrame:ToObjectSpace(p.CFrame)
 			local h = p.Size / 2
 			for _, sx in ipairs({ -1, 1 }) do
 				for _, sy in ipairs({ -1, 1 }) do
 					for _, sz in ipairs({ -1, 1 }) do
-						local loc = inHand * Vector3.new(h.X * sx, h.Y * sy, h.Z * sz)
-						-- (a piece more than 3 studs off is not really in the hand)
-						if loc.Magnitude > bestD and loc.Magnitude < 3 then best, bestD = loc, loc.Magnitude end
+						local v = rel * Vector3.new(h.X * sx, h.Y * sy, h.Z * sz)
+						lo, hi = lo:Min(v), hi:Max(v)
+						local d = (handleInHand * v).Magnitude -- (from the hand)
+						if d > farD and d < 3 then far, farD = v, d end
 					end
 				end
 			end
 		end
 	end
-	return best
-end
-
--- (D-956, user 2026-11-07: "수육 먹을 때 모션 확인하고 수정해": in the video the
--- far corner of the slice went to the lips, the slice standing in front of the
--- eyes) A tool can name the part that is eaten (attribute EatPart, the 수육
--- slice "Fill"): then the end of that part, on the line from the hand through
--- it, goes to the lips. Hand space.
-local function eatPoint(character: Model, hand: BasePart): Vector3?
-	local tool = character:FindFirstChildOfClass("Tool")
-	local name = tool and tool:GetAttribute("EatPart")
-	local handle = tool and tool:FindFirstChild("Handle")
-	local p = tool and typeof(name) == "string" and tool:FindFirstChild(name, true)
-	if not handle or not handle:IsA("BasePart") or not p or not p:IsA("BasePart") then return nil end
-	local grip = hand:FindFirstChild("RightGripAttachment") :: Attachment?
-	local gripCF = if grip then grip.CFrame else CFrame.new(0, -hand.Size.Y / 2, 0)
-	local inHand = gripCF * tool.Grip:Inverse() * handle.CFrame:ToObjectSpace(p.CFrame)
-	local centre = inHand.Position
-	if centre.Magnitude < 0.05 then return nil end
-	local along = centre.Unit
-	-- (how far the part reaches on along that line from its centre)
-	local h = p.Size / 2
-	local reach = math.abs(inHand.XVector:Dot(along)) * h.X + math.abs(inHand.YVector:Dot(along)) * h.Y + math.abs(inHand.ZVector:Dot(along)) * h.Z
-	return centre + along * reach * 0.8
-end
-
--- the turn that takes direction a onto direction b (shortest way)
-local function turnBetween(a: Vector3, b: Vector3): CFrame
-	a, b = a.Unit, b.Unit
-	local axis = a:Cross(b)
-	local dot = math.clamp(a:Dot(b), -1, 1)
-	if axis.Magnitude < 1e-4 then
-		if dot > 0 then return CFrame.identity end
-		local other = if math.abs(a.X) < 0.9 then Vector3.xAxis else Vector3.yAxis
-		return CFrame.fromAxisAngle(a:Cross(other).Unit, math.pi)
+	local size = hi - lo
+	if eatPart and eatPart:IsA("BasePart") then
+		-- (D-956) the end of that part on the line from the hand through it
+		local rel = handle.CFrame:ToObjectSpace(eatPart.CFrame)
+		local centreInHand = handleInHand * rel.Position
+		if centreInHand.Magnitude > 0.05 then
+			local along = handleInHand:VectorToObjectSpace(centreInHand.Unit)
+			local h = eatPart.Size / 2
+			local reach = math.abs(rel.XVector:Dot(along)) * h.X + math.abs(rel.YVector:Dot(along)) * h.Y + math.abs(rel.ZVector:Dot(along)) * h.Z
+			return rel.Position + along * reach * 0.8, false, size
+		end
 	end
-	return CFrame.fromAxisAngle(axis.Unit, math.acos(dot))
+	if math.max(size.X, size.Z) >= BIG then return (lo + hi) / 2, true, size end
+	return far or (lo + hi) / 2, false, size
+end
+
+-- the pose for this bite (UpperTorso space)
+local function solve(character: Model): Pose?
+	local torso = character:FindFirstChild("UpperTorso") :: BasePart?
+	local head = character:FindFirstChild("Head") :: BasePart?
+	local hand = character:FindFirstChild("RightHand") :: BasePart?
+	local sh = joint(character, "RightUpperArm", "RightShoulder")
+	local el = joint(character, "RightLowerArm", "RightElbow")
+	local wr = joint(character, "RightHand", "RightWrist")
+	if not torso or not head or not hand or not sh or not el or not wr then return nil end
+	local s = head.Size.Y
+	local mouth = torso.CFrame:PointToObjectSpace((head.CFrame * CFrame.new(0, -0.25 * s, -head.Size.Z / 2)).Position)
+	local headAt = torso.CFrame:PointToObjectSpace(head.Position)
+	local tool = character:FindFirstChildOfClass("Tool")
+	local handle = tool and tool:FindFirstChild("Handle")
+	local gripAtt = hand:FindFirstChild("RightGripAttachment") :: Attachment?
+	local grip = if gripAtt then gripAtt.CFrame else CFrame.new(0, -hand.Size.Y / 2, 0)
+	local point, big, size = Vector3.zero, false, Vector3.zero
+	local handleInHand = CFrame.identity
+	if tool and handle and handle:IsA("BasePart") then
+		point, big, size = heldPoint(tool, handle, grip)
+		handleInHand = grip * tool.Grip:Inverse()
+	else
+		handleInHand = grip
+	end
+	local target, wantUp
+	if big then
+		target = mouth + Vector3.new(0.3 * s, -0.55 * s, -(size.Z / 2 + 0.1 * s))
+		wantUp = Vector3.new(0, 0.9, 0.44).Unit
+	else
+		target = mouth + Vector3.new(0.05 * s, 0, -0.15 * s)
+	end
+	local C0s, C1s = frames(sh)
+	local C0e, C1e = frames(el)
+	local C0w, C1w = frames(wr)
+	C1s, C1e, C1w = C1s:Inverse(), C1e:Inverse(), C1w:Inverse()
+	local R = math.rad
+	local function fk(sp: number, sy: number, sz: number, e: number, w: number)
+		local s1 = CFrame.Angles(0, R(sy), 0) * CFrame.Angles(R(sp), 0, R(sz))
+		local e1 = CFrame.Angles(R(e), 0, 0)
+		local w1 = CFrame.Angles(R(w), 0, 0)
+		local upper = C0s * s1 * C1s
+		local lower = upper * C0e * e1 * C1e
+		local h = lower * C0w * w1 * C1w
+		local held = h * handleInHand
+		return held * point, held.UpVector, lower.Position, h.Position, s1, e1, w1
+	end
+	local function cost(sp: number, sy: number, sz: number, e: number, w: number): number
+		local p, up, elbow, h = fk(sp, sy, sz, e, w)
+		local c = (p - target).Magnitude / s
+		if wantUp then c += (1 - up:Dot(wantUp)) * 1.5 end
+		-- the elbow out and below the hand; the hand out of the head
+		c += math.max(0, h.X + 0.2 * s - elbow.X) * 0.5 / s + math.max(0, elbow.Y - h.Y) * 0.5 / s
+		c += math.max(0, 0.75 * s - (h - headAt).Magnitude) * 2 / s
+		c += math.abs(w) / 300 + math.abs(sy) / 400
+		return c
+	end
+	-- coarse, then finer around the best
+	local best, b = math.huge, { 60, 20, 0, 100, 0 }
+	for sp = 20, 120, 10 do
+		for sy = 0, 40, 10 do
+			for sz = -20, 40, 15 do
+				for e = 40, 150, 10 do
+					for w = -60, 40, 20 do
+						local c = cost(sp, sy, sz, e, w)
+						if c < best then best, b = c, { sp, sy, sz, e, w } end
+					end
+				end
+			end
+		end
+	end
+	for _, step in ipairs({ 5, 2.5 }) do
+		local c0 = table.clone(b)
+		for dsp = -1, 1 do
+			for dsy = -1, 1 do
+				for dsz = -1, 1 do
+					for de = -1, 1 do
+						for dw = -1, 1 do
+							local q = { c0[1] + dsp * step, math.clamp(c0[2] + dsy * step, 0, 45), c0[3] + dsz * step * 2, c0[4] + de * step, c0[5] + dw * step * 2 }
+							local c = cost(q[1], q[2], q[3], q[4], q[5])
+							if c < best then best, b = c, q end
+						end
+					end
+				end
+			end
+		end
+	end
+	local _, _, _, _, s1, e1, w1 = fk(b[1], b[2], b[3], b[4], b[5])
+	return { shoulder = s1, elbow = e1, wrist = w1 }
 end
 
 local function start(character: Model)
 	local rig = rigs[character]
 	if rig then
 		rig.want = 1 -- (a new bite while the arm was still going down)
-		rig.fixFrames = 0
 		return
 	end
-	local humanoid = character:FindFirstChildOfClass("Humanoid")
-	local upper, hand = character:FindFirstChild("RightUpperArm"), character:FindFirstChild("RightHand")
-	local head = character:FindFirstChild("Head")
-	if not humanoid or not upper or not hand or not hand:IsA("BasePart") or not head or not head:IsA("BasePart") then return end
-	local holder = Instance.new("Part")
-	holder.Name = "EatMotionTarget"
-	holder.Anchored = true
-	holder.CanCollide = false
-	holder.CanQuery = false
-	holder.CanTouch = false
-	holder.Transparency = 1
-	holder.Size = Vector3.new(0.2, 0.2, 0.2)
-	holder.Parent = workspace
-	local goal = Instance.new("Attachment")
-	goal.Name = "Goal"
-	goal.Parent = holder
-	local pole = Instance.new("Attachment")
-	pole.Name = "Pole"
-	pole.Parent = holder
-	-- what is held, and how the hand must turn so it points at the mouth
-	local tip = eatPoint(character, hand) or farEnd(character, hand) or Vector3.new(0, -0.3, 0)
-	local tipWorldDir = hand.CFrame:VectorToWorldSpace(tip)
-	local turned = turnBetween(tipWorldDir, head.CFrame:VectorToWorldSpace(TOWARD_MOUTH)) * hand.CFrame.Rotation
-	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	local rest = if root then root.CFrame:ToObjectSpace(hand.CFrame) else CFrame.identity
-	-- (the goal starts on the hand as it is: full weight, no drop)
-	holder.CFrame = CFrame.identity
-	goal.WorldCFrame = hand.CFrame
-	pole.WorldPosition = (head.CFrame * CFrame.new(1.6 * head.Size.Y, -2.2 * head.Size.Y, 0.6 * head.Size.Y)).Position
-	local ik = Instance.new("IKControl")
-	ik.Name = "EatHand"
-	ik.Type = Enum.IKControlType.Transform
-	ik.ChainRoot = upper
-	ik.EndEffector = hand
-	ik.Target = goal
-	ik.Pole = pole
-	-- (D-1037: its own smoothing started from the straight arm too: 0, the goal is eased here)
-	ik.SmoothTime = 0
-	ik.Weight = 1
-	ik.Parent = humanoid
-	-- (D-1038) the nod: the neck only (UpperTorso → Head), weight follows the arm
-	local torso = character:FindFirstChild("UpperTorso")
-	local nod: IKControl? = nil
-	local nodGoal: Attachment? = nil
-	if torso and torso:IsA("BasePart") then
-		nodGoal = Instance.new("Attachment")
-		nodGoal.Name = "NodGoal"
-		nodGoal.Parent = holder
-		local n = Instance.new("IKControl")
-		n.Name = "EatNod"
-		n.Type = Enum.IKControlType.LookAt
-		n.ChainRoot = torso
-		n.EndEffector = head
-		n.Target = nodGoal
-		n.SmoothTime = 0
-		n.Weight = 0
-		n.Parent = humanoid
-		nod = n
-	end
+	local shoulder = joint(character, "RightUpperArm", "RightShoulder")
+	local elbow = joint(character, "RightLowerArm", "RightElbow")
+	if not shoulder or not elbow then return end
+	local pose = solve(character)
+	if not pose then return end
 	rigs[character] = {
-		ik = ik, holder = holder, goal = goal, pole = pole, want = 1,
-		tip = tip, turn = head.CFrame.Rotation:Inverse() * turned, fix = Vector3.zero,
-		rest = rest, up = 0, fixFrames = 0,
-		nod = nod, nodGoal = nodGoal, nodT = 0,
+		shoulder = shoulder, elbow = elbow, wrist = joint(character, "RightHand", "RightWrist"), pose = pose,
+		want = 1, up = 0, base = {}, last = {},
 	}
 end
 
-local function remove(character: Model)
-	local rig = rigs[character]
-	if not rig then return end
-	rigs[character] = nil
-	rig.ik:Destroy()
-	if rig.nod then rig.nod:Destroy() end
-	rig.holder:Destroy()
+-- (D-1105, user 2026-11-09: "삼각김밥 처음에 포장 뜯을 때 양 손으로 뜯는 모션
+-- 추가") the two-hand tear of a 삼각김밥 wrapper. SnackService counts up the
+-- character attribute "Unwrap"; then both arms come up (the right hand holds
+-- the 삼각김밥 in front of the chest, the left hand meets its top corner), the
+-- left hand pulls off to the side and down with the wrapper (a copy of the
+-- wrapper pieces welded to that hand, here only; the server hides the real one
+-- at the same moment) and both arms go down. Poses found once per tear, like
+-- the bite pose, with a coarser search (six joints, two poses).
+type ArmJoints = { sh: Joint, el: Joint, wr: Joint }
+local T_MEET, T_PULL, T_PULLED, T_DOWN, T_END = 0.3, 0.45, 0.85, 1.0, 1.3
+type Tear = {
+	t0: number, joints: {Joint}, a: {[Joint]: CFrame}, b: {[Joint]: CFrame},
+	base: {[Joint]: CFrame}, last: {[Joint]: CFrame}, copied: boolean, copy: {BasePart},
+}
+local tears: {[Model]: Tear} = {}
+
+local function arm(character: Model, side: string): ArmJoints?
+	local sh = joint(character, side .. "UpperArm", side .. "Shoulder")
+	local el = joint(character, side .. "LowerArm", side .. "Elbow")
+	local wr = joint(character, side .. "Hand", side .. "Wrist")
+	if not sh or not el or not wr then return nil end
+	return { sh = sh, el = el, wr = wr }
 end
 
+-- the three joint rotations that bring `point` (in hand space) to `target`
+-- (UpperTorso space); `out` = +1 for the right arm (its elbow out to +X), -1 left
+local function reach(j: ArmJoints, point: CFrame, target: Vector3, out: number, s: number): (CFrame, CFrame, CFrame)
+	local C0s, C1s = frames(j.sh)
+	local C0e, C1e = frames(j.el)
+	local C0w, C1w = frames(j.wr)
+	C1s, C1e, C1w = C1s:Inverse(), C1e:Inverse(), C1w:Inverse()
+	local R = math.rad
+	local function fk(sp: number, sy: number, sz: number, e: number, w: number)
+		local s1 = CFrame.Angles(0, R(sy), 0) * CFrame.Angles(R(sp), 0, R(sz))
+		local e1 = CFrame.Angles(R(e), 0, 0)
+		local w1 = CFrame.Angles(R(w), 0, 0)
+		local upper = C0s * s1 * C1s
+		local lower = upper * C0e * e1 * C1e
+		local h = lower * C0w * w1 * C1w
+		return (h * point).Position, lower.Position, h.Position, s1, e1, w1
+	end
+	local function cost(sp: number, sy: number, sz: number, e: number, w: number): number
+		local p, elbow, h = fk(sp, sy, sz, e, w)
+		local c = (p - target).Magnitude / s
+		c += math.max(0, (h.X - elbow.X) * out + 0.15 * s) * 0.4 / s -- (elbow out)
+		c += math.max(0, elbow.Y - h.Y) * 0.4 / s -- (elbow below the hand)
+		c += math.abs(w) / 300 + math.abs(sy) / 400
+		return c
+	end
+	local best, b = math.huge, { 50, 0, 0, 90, 0 }
+	for sp = 0, 120, 20 do
+		for sy = -40, 40, 20 do
+			for sz = -40, 40, 20 do
+				for e = 0, 140, 20 do
+					local c = cost(sp, sy, sz, e, 0)
+					if c < best then best, b = c, { sp, sy, sz, e, 0 } end
+				end
+			end
+		end
+	end
+	for _, step in ipairs({ 10, 5, 2.5 }) do
+		local c0 = table.clone(b)
+		for dsp = -1, 1 do
+			for dsy = -1, 1 do
+				for dsz = -1, 1 do
+					for de = -1, 1 do
+						for dw = -1, 1 do
+							local q = { c0[1] + dsp * step, c0[2] + dsy * step, c0[3] + dsz * step, c0[4] + de * step, c0[5] + dw * step * 2 }
+							local c = cost(q[1], q[2], q[3], q[4], q[5])
+							if c < best then best, b = c, q end
+						end
+					end
+				end
+			end
+		end
+	end
+	local _, _, _, s1, e1, w1 = fk(b[1], b[2], b[3], b[4], b[5])
+	return s1, e1, w1
+end
+
+local function startTear(character: Model)
+	local torso = character:FindFirstChild("UpperTorso") :: BasePart?
+	local head = character:FindFirstChild("Head") :: BasePart?
+	local rhand = character:FindFirstChild("RightHand") :: BasePart?
+	local right, left = arm(character, "Right"), arm(character, "Left")
+	if not torso or not head or not rhand or not right or not left then return end
+	local s = head.Size.Y
+	local tool = character:FindFirstChildOfClass("Tool")
+	local handle = tool and tool:FindFirstChild("Handle")
+	local gripAtt = rhand:FindFirstChild("RightGripAttachment") :: Attachment?
+	local grip = if gripAtt then gripAtt.CFrame else CFrame.new(0, -rhand.Size.Y / 2, 0)
+	-- the middle and the size of what the right hand holds (hand space)
+	local centre, size = grip, Vector3.one * 0.6
+	if tool and handle and handle:IsA("BasePart") then
+		local _, _, sz = heldPoint(tool, handle, grip)
+		local lo, hi = Vector3.one * math.huge, -Vector3.one * math.huge
+		for _, p in ipairs(tool:GetDescendants()) do
+			if p:IsA("BasePart") and p.Transparency < 0.95 then
+				local rel = handle.CFrame:ToObjectSpace(p.CFrame)
+				lo, hi = lo:Min(rel.Position), hi:Max(rel.Position)
+			end
+		end
+		centre = grip * tool.Grip:Inverse() * CFrame.new((lo + hi) / 2)
+		size = sz
+	end
+	local front = -(torso.Size.Z / 2 + 0.75 * s)
+	-- the 삼각김밥 in front of the chest (from the head down: torsos differ in length)
+	local headAt = torso.CFrame:PointToObjectSpace(head.Position)
+	local item = Vector3.new(0.12 * s, headAt.Y - 1.05 * s, front)
+	local lift = math.max(size.Y, 0.5) / 2
+	local lhand = character:FindFirstChild("LeftHand") :: BasePart?
+	local lgrip = if lhand then CFrame.new(0, -lhand.Size.Y / 2, 0) else CFrame.identity
+	local ra = { reach(right, centre, item, 1, s) }
+	local la = { reach(left, lgrip, item + Vector3.new(-0.12 * s, lift + 0.05 * s, 0.05 * s), -1, s) }
+	local rb = { reach(right, centre, item + Vector3.new(0.3 * s, -0.05 * s, 0), 1, s) }
+	local lb = { reach(left, lgrip, item + Vector3.new(-0.85 * s, -0.15 * s, 0.15 * s), -1, s) }
+	local joints = { right.sh, right.el, right.wr, left.sh, left.el, left.wr }
+	local a, b = {}, {}
+	for i, j in ipairs(joints) do
+		a[j] = if i <= 3 then ra[i] else la[i - 3]
+		b[j] = if i <= 3 then rb[i] else lb[i - 3]
+	end
+	local old = tears[character]
+	if old then for _, c in ipairs(old.copy) do c:Destroy() end end
+	tears[character] = { t0 = os.clock(), joints = joints, a = a, b = b, base = if old then old.base else {}, last = if old then old.last else {}, copied = false, copy = {} }
+end
+
+-- the wrapper pieces (attribute Bite = 1) copied into the left hand
+local function wrapperToHand(character: Model, tear: Tear)
+	tear.copied = true
+	local tool = character:FindFirstChildOfClass("Tool")
+	local lhand = character:FindFirstChild("LeftHand") :: BasePart?
+	if not tool or not lhand then return end
+	for _, p in ipairs(tool:GetDescendants()) do
+		if p:IsA("BasePart") and p:GetAttribute("Bite") == 1 then
+			local c = p:Clone()
+			for _, ch in ipairs(c:GetChildren()) do
+				if ch:IsA("Decal") or ch:IsA("Texture") then
+					ch.Transparency = 0
+				elseif not (ch:IsA("SpecialMesh") or ch:IsA("SurfaceAppearance")) then
+					ch:Destroy()
+				end
+			end
+			local t0 = p:GetAttribute("BiteT0")
+			c.Transparency = if typeof(t0) == "number" then t0 else p.Transparency
+			c.Anchored = false
+			c.CanCollide = false
+			c.CanQuery = false
+			c.CanTouch = false
+			c.Massless = true
+			c.CFrame = p.CFrame
+			c.Parent = workspace
+			local w = Instance.new("WeldConstraint")
+			w.Part0 = lhand
+			w.Part1 = c
+			w.Parent = c
+			table.insert(tear.copy, c)
+		end
+	end
+end
+
+local function smooth(x: number): number
+	x = math.clamp(x, 0, 1)
+	return x * x * (3 - 2 * x)
+end
+
+RunService.PreSimulation:Connect(function()
+	for character, tear in pairs(tears) do
+		local t = os.clock() - tear.t0
+		if not character.Parent then
+			for _, c in ipairs(tear.copy) do c:Destroy() end
+			tears[character] = nil
+			continue
+		end
+		if t >= T_PULL and not tear.copied then wrapperToHand(character, tear) end
+		-- the wrapper copy fades once it is off
+		if t > T_PULLED then
+			local f = math.clamp((t - T_PULLED) / (T_END - T_PULLED), 0, 1)
+			for _, c in ipairs(tear.copy) do
+				c.LocalTransparencyModifier = f
+				for _, ch in ipairs(c:GetChildren()) do
+					if ch:IsA("Decal") or ch:IsA("Texture") then ch.Transparency = f end
+				end
+			end
+		end
+		local done = t >= T_END
+		for _, j in ipairs(tear.joints) do
+			if not j.Parent then done = true break end
+			local now = j.Transform
+			local last = tear.last[j]
+			if not last or not now:FuzzyEq(last, 1e-4) then tear.base[j] = now end
+			local base = tear.base[j] or now
+			local out
+			if done then
+				out = base
+			elseif t < T_MEET then
+				out = base:Lerp(tear.a[j], smooth(t / T_MEET))
+			elseif t < T_PULL then
+				out = tear.a[j]
+			elseif t < T_PULLED then
+				out = tear.a[j]:Lerp(tear.b[j], smooth((t - T_PULL) / (T_PULLED - T_PULL)))
+			elseif t < T_DOWN then
+				out = tear.b[j]
+			else
+				out = tear.b[j]:Lerp(base, smooth((t - T_DOWN) / (T_END - T_DOWN)))
+			end
+			j.Transform = out
+			tear.last[j] = out
+		end
+		if done then
+			for _, c in ipairs(tear.copy) do c:Destroy() end
+			tears[character] = nil
+		end
+	end
+end)
+
 local function watch(character: Model)
+	character:GetAttributeChangedSignal("Unwrap"):Connect(function()
+		if character:FindFirstChild("UpperTorso") then startTear(character) end
+	end)
 	local function update()
 		if character:GetAttribute("Eating") then
 			start(character)
 		else
 			local rig = rigs[character]
-			if rig then rig.want = 0 end -- (lowered, then removed)
+			if rig then rig.want = 0 end -- (lowered, then let go)
 		end
 	end
 	character:GetAttributeChangedSignal("Eating"):Connect(update)
 	character.AncestryChanged:Connect(function()
-		if not character:IsDescendantOf(workspace) then remove(character) end
+		if not character:IsDescendantOf(workspace) then rigs[character] = nil end
 	end)
 	update()
 end
@@ -227,58 +443,33 @@ end
 for _, other in ipairs(Players:GetPlayers()) do watchPlayer(other) end
 Players.PlayerAdded:Connect(watchPlayer)
 
-RunService.Heartbeat:Connect(function(dt)
+-- after the Animator has written this frame's pose
+RunService.PreSimulation:Connect(function(dt)
 	for character, rig in pairs(rigs) do
-		local head = character:FindFirstChild("Head") :: BasePart?
-		if not head then continue end
-		local s = head.Size.Y
-		-- the lips: the middle of the face's front, a little under the middle
-		-- of the head, scaled with the head (big and small avatars); the far end
-		-- of the item stops just in front of them
-		local lips = head.CFrame * Vector3.new(0, -0.2 * s, -(head.Size.Z / 2 + 0.04 * s))
-		local turn = head.CFrame.Rotation * rig.turn
-		-- the hand so that hand * tip = lips
-		-- (the arm cannot always turn the hand all the way, then the item's end
-		-- stops off the lips, in the Play test above them by the eyes: once the
-		-- arm is up, where the end really is is measured each frame and the
-		-- goal moves by what is missing, a third per frame, at most a stud)
-		local hand = character:FindFirstChild("RightHand") :: BasePart?
-		-- (D-1037) the correction is measured for a short while once the hand is up
-		-- (10 frames), then held: measured every frame it chased the IK's own lag
-		-- and the hand bobbed up and down at the mouth
-		if hand and rig.up > 0.97 and rig.want > 0 and rig.fixFrames < 10 then
-			rig.fixFrames += 1
-			local miss = head.CFrame:VectorToObjectSpace(lips - hand.CFrame * rig.tip)
-			local fix = rig.fix + miss * 0.33
-			rig.fix = if fix.Magnitude > 1 then fix.Unit else fix
-		end
-		local handPos = lips - turn:VectorToWorldSpace(rig.tip) + head.CFrame:VectorToWorldSpace(rig.fix)
-		local mouth = CFrame.new(handPos) * turn
-		-- (D-1037) from where the hand was to the mouth, eased; back the same way
 		if rig.up < rig.want then
-			rig.up = math.min(rig.want, rig.up + dt * RATE)
+			rig.up = math.min(rig.want, rig.up + dt / UP_TIME)
 		elseif rig.up > rig.want then
-			rig.up = math.max(rig.want, rig.up - dt * RATE)
+			rig.up = math.max(rig.want, rig.up - dt / UP_TIME)
 		end
-		local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
-		local restWorld = if root then root.CFrame * rig.rest else mouth
 		local a = rig.up * rig.up * (3 - 2 * rig.up)
-		rig.goal.WorldCFrame = restWorld:Lerp(mouth, a)
-		-- (D-1038) the nod: a point 4 studs ahead of the neck, bowed down by an
-		-- angle going NOD_MIN → NOD_MAX → NOD_MIN, seen from the torso (not the
-		-- head, which the IK turns); it fades in and out with the arm
-		local torso = character:FindFirstChild("UpperTorso") :: BasePart?
-		if rig.nod and rig.nodGoal and torso and root then
-			rig.nodT += dt
-			local k = 0.5 - 0.5 * math.cos((rig.nodT % NOD_PERIOD) / NOD_PERIOD * 2 * math.pi)
-			local bow = NOD_MIN + (NOD_MAX - NOD_MIN) * k
-			local neck = torso.CFrame * Vector3.new(0, torso.Size.Y / 2 + head.Size.Y / 2, 0)
-			local ahead = root.CFrame.LookVector
-			rig.nodGoal.WorldPosition = neck + (ahead * math.cos(bow) - Vector3.yAxis * math.sin(bow)) * 4
-			rig.nod.Weight = a * 0.9
+		if not rig.shoulder.Parent or not rig.elbow.Parent then
+			rigs[character] = nil
+			continue
 		end
-		-- the elbow out to the right and down, a little behind the arm
-		rig.pole.WorldPosition = (head.CFrame * CFrame.new(1.6 * s, -2.2 * s, 0.6 * s)).Position
-		if rig.want <= 0 and rig.up <= 0 then remove(character) end
+		local done = rig.want <= 0 and rig.up <= 0
+		local function pose(m: Joint, target: CFrame)
+			-- (a joint no animation writes keeps what was set last frame: then
+			-- the pose from before is the base, or the arm would stay up)
+			local now = m.Transform
+			local last = rig.last[m]
+			if not last or not now:FuzzyEq(last, 1e-4) then rig.base[m] = now end
+			local out = if done then rig.base[m] or now else (rig.base[m] or now):Lerp(target, a)
+			m.Transform = out
+			rig.last[m] = out
+		end
+		pose(rig.shoulder, rig.pose.shoulder)
+		pose(rig.elbow, rig.pose.elbow)
+		if rig.wrist then pose(rig.wrist, rig.pose.wrist) end
+		if done then rigs[character] = nil end
 	end
 end)

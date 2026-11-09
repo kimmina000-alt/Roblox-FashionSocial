@@ -17,6 +17,11 @@ SnackMenuArt.Photos = {
 	pork = "rbxassetid://133591259658865", -- gukbap_pork_cutout.png
 	sundae = "rbxassetid://111308312027162", -- gukbap_sundae_cutout.png
 	beef = "rbxassetid://85511957052010", -- gukbap_beef_cutout.png
+	-- (D-1082) the OH24 cup ramen in the picture window too (the cut-outs of D-1063)
+	cupnoodle = "rbxassetid://113493189993075",
+	ramen_sesame = "rbxassetid://98643130769596",
+	ramen_lava = "rbxassetid://124866904655046",
+	ramen_yukgae = "rbxassetid://113229406579037",
 }
 
 SnackMenuArt.Icons = {
@@ -159,6 +164,30 @@ SnackMenuArt.Themes = {
 			{ name = "곁들임", icon = "🍚", kinds = { "ricebowl", "plate", "cup" } },
 		},
 	},
+	-- (D-1082, user 2026-11-09: "ui 구성 국밥집이랑 ui 통일") the OH24 store in the
+	-- same picture window as the 국밥집 (was a plain list): the real items in 3D
+	-- (the 삼각김밥 models too), the cup ramen as their cut-outs
+	oh24 = {
+		accent = Color3.fromRGB(40, 200, 190), -- (the store's teal counter)
+		icon = "🏪",
+		header = { Color3.fromRGB(20, 120, 115), Color3.fromRGB(40, 180, 170) },
+		headerIcon = "",
+		subtitle = "편의점 간식, 골라서 계산하세요",
+		body = { Color3.fromRGB(240, 250, 250), Color3.fromRGB(222, 240, 240) },
+		edge = Color3.fromRGB(150, 220, 215),
+		card = Color3.fromRGB(250, 255, 255),
+		cardEdge = Color3.fromRGB(200, 232, 230),
+		pick = Color3.fromRGB(20, 150, 140),
+		pickText = Color3.new(1, 1, 1),
+		tab = Color3.fromRGB(226, 244, 242),
+		text = Color3.fromRGB(30, 60, 60),
+		sub = Color3.fromRGB(90, 130, 128),
+		price = Color3.fromRGB(30, 60, 60),
+		tabs = {
+			{ name = "식사", icon = "🍙", kinds = { "rice", "noodle" } },
+			{ name = "간식·음료", icon = "🥤", kinds = { "bag", "bar", "bottle" } },
+		},
+	},
 } :: {[string]: Theme}
 
 -- which shops open the picture window, with which look
@@ -166,6 +195,7 @@ SnackMenuArt.ShopTheme = {
 	BeachCafe = "cafe",
 	HanokCafe = "cafe",
 	Gukbap = "gukbap",
+	OH24 = "oh24", -- (D-1082)
 }
 
 return SnackMenuArt

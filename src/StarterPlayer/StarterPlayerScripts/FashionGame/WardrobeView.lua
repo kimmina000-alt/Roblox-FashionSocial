@@ -391,17 +391,47 @@ end
 
 local AvatarEditorService = game:GetService("AvatarEditorService")
 
+-- (D-1092, user 2026-11-09: "로블록스 코디 불러오는 거 몇 개까지 가능한지 정해져
+-- 있나. 너무 많으면 안 불러와져.") Roblox gives the list a page at a time; one
+-- page that failed (busy / too many requests in a row) used to fail the whole
+-- list, so a player with many outfits saw none. Now each next page is tried
+-- three times a moment apart, and what has come in so far is kept and shown
+-- (up to MAX_ROBLOX_OUTFITS).
+local MAX_ROBLOX_OUTFITS = 100
 local function readRobloxOutfits(): (boolean, any)
-	return pcall(function()
-		local pages = AvatarEditorService:GetOutfits(Enum.OutfitSource.All, Enum.OutfitType.Avatar)
-		local list = {}
-		while true do
-			for _, item in ipairs(pages:GetCurrentPage()) do table.insert(list, item) end
-			if pages.IsFinished or #list >= 100 then break end
-			pages:AdvanceToNextPageAsync()
-		end
-		return list
+	local ok, pages = pcall(function()
+		return AvatarEditorService:GetOutfits(Enum.OutfitSource.All, Enum.OutfitType.Avatar)
 	end)
+	if not ok then return false, pages end
+	local list = {}
+	while true do
+		local okPage, page = pcall(function() return pages:GetCurrentPage() end)
+		if okPage then
+			for _, item in ipairs(page) do
+				if #list >= MAX_ROBLOX_OUTFITS then break end
+				table.insert(list, item)
+			end
+		end
+		if pages.IsFinished or #list >= MAX_ROBLOX_OUTFITS then break end
+		local advanced = false
+		for attempt = 1, 3 do
+			if pcall(function() pages:AdvanceToNextPageAsync() end) then
+				advanced = true
+				break
+			end
+			task.wait(attempt)
+		end
+		if not advanced then break end -- (keep what came in)
+	end
+	-- (D-1095, user 2026-11-09: "로블록스 코디 최근에 저장한 순서대로 나오게 해")
+	-- Roblox gives no saved date, but an outfit's id grows with every new one:
+	-- the highest id first = the latest saved first
+	table.sort(list, function(a, b)
+		local ia = if typeof(a) == "table" and typeof(a.Id) == "number" then a.Id else 0
+		local ib = if typeof(b) == "table" and typeof(b.Id) == "number" then b.Id else 0
+		return ia > ib
+	end)
+	return true, list
 end
 
 function WardrobeView:_renderRoblox(generation: number)

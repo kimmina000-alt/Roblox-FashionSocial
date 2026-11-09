@@ -557,10 +557,18 @@ local function chatWindowBottom(): number?
 			if ok and size.Y > 0 then bottom = math.max(bottom, inset + pos.Y + size.Y) end
 		end
 	end
-	if bottom > 0 then lastChatBottom = bottom end
+	if bottom > 0 then lastChatBottom = math.max(lastChatBottom or 0, bottom) end
 	-- (never opened yet: where it opens on a phone held sideways, messages 89
 	-- high 12 below the top bar, the typing bar about 40 under them)
-	return lastChatBottom or (inset + 12 + 89 + 40)
+	-- (D-1087, user 2026-11-09: "재생중인 바 처음에는 위에 있다가 채팅창 누르면
+	-- 내려오는데 처음부터 내려간 위치에 고정. 모바일 피시 둘 다") on a PC the window
+	-- opens much taller (measured in Studio: 213.75 high 12 below the top bar,
+	-- the typing bar 47 under it), so the banner started high and jumped down
+	-- when the chat was first opened: the opened size for each kind of device from
+	-- the start, and the banner never moves up again once lower
+	local touch = game:GetService("UserInputService").TouchEnabled
+	local guess = if touch then inset + 12 + 89 + 40 else inset + 12 + 213.75 + 47
+	return math.max(lastChatBottom or 0, guess)
 end
 
 local function layoutPanel()
@@ -576,23 +584,13 @@ local function layoutPanel()
 	-- front, the play bar under it (ClubQuickBar), the skip count after it.
 	-- The dance panel, sync pill and player card start below it.
 	local TOGGLE_W, SKIP_W, GROUP_H = 32, 42, 47 -- (the open "<" 26 and gap (48 for D-972's ♪<), skip count, banner 30 + bar 17)
-	local rowLeft, rowRight, rowY = require(script.Parent:WaitForChild("TopBar")).firstRow()
-	local roomInRow = rowRight - rowLeft - TOGGLE_W - SKIP_W
-	local bannerX, bannerY, bannerW
-	-- (D-1033, user 2026-11-09: "재생중인 노래 창 채팅창 아래로 내려") under Roblox's
-	-- chat window at the left: its box (TextChatService ChatWindowConfiguration,
-	-- measured below the top bar) when it has been open, else where it opens
-	local chatBottom = chatWindowBottom()
-	if chatBottom then
-		bannerW = math.clamp(viewport.X - 20 - TOGGLE_W - SKIP_W, 160, 300)
-		bannerX, bannerY = 10, math.max(top, chatBottom + 6)
-	elseif roomInRow >= 200 then
-		bannerW = math.min(300, roomInRow)
-		bannerX, bannerY = rowLeft, math.floor(rowY - 15)
-	else
-		bannerW = math.clamp(viewport.X - 20 - TOGGLE_W - SKIP_W, 160, 300)
-		bannerX, bannerY = 10, top
-	end
+	-- (D-1033 / D-1087 had it under Roblox's chat window at the left)
+	-- (D-1093, user 2026-11-09: "재생중인 바 중앙 위로 올려") the top middle of the
+	-- screen, right under the top row, the same on phones and PCs; the toggle,
+	-- the banner and the skip count centred as one group
+	local bannerW = math.clamp(viewport.X - 20 - TOGGLE_W - SKIP_W, 160, 300)
+	local bannerX = math.floor(viewport.X / 2 - (TOGGLE_W + bannerW + SKIP_W) / 2)
+	local bannerY = top
 	bannerToggle.Position = UDim2.fromOffset(bannerX, bannerY + 15)
 	banner.Position = UDim2.fromOffset(bannerX + TOGGLE_W + bannerW / 2, bannerY)
 	banner.Size = UDim2.fromOffset(bannerW, banner.Size.Y.Offset)
@@ -649,6 +647,8 @@ for _, box in ipairs({ chatWindow :: any, chatInput :: any }) do
 		end)
 	end
 end
+-- (D-1087's opening of the chat for a moment to measure it is gone with D-1093:
+-- the banner no longer sits under the chat)
 
 --------------------------------------------------
 -- Dance state (local view)

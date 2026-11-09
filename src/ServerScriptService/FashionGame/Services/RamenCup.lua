@@ -23,6 +23,7 @@ local DISPENSER_NAMES = { HotWaterTap = true, HotWater = true, HotWaterTray = tr
 local DISPENSER_REACH = 14 -- studs from the player to the dispenser
 local STRANDS = 7
 local NOODLE = Color3.fromRGB(205, 70, 45) -- red (spicy broth on the noodles)
+local NOODLE_YELLOW = Color3.fromRGB(235, 195, 95) -- (D-1081) 참깨라멘 / 육개그
 -- (D-1063, user 2026-11-09) the sounds the user picked
 local SOUND_LID = 75936211172606 -- 컵라면 뚜껑 뜯는 소리 (the lid off)
 local SOUND_WATER = 9119158299 -- the beach 음수대's water (FountainTap), while the water pours
@@ -260,7 +261,8 @@ function RamenCup.pour(player: Player, target: any): (boolean, string?)
 	stream.Color = Color3.fromRGB(200, 230, 255)
 	stream.Transparency = 0.35
 	stream.Shape = Enum.PartType.Cylinder
-	stream.Size = Vector3.new(len, 0.06, 0.06)
+	-- (D-1081, user 2026-11-09: "컵라면 물 받을 때 물줄기 더 두껍게") 0.06 → 0.16
+	stream.Size = Vector3.new(len, 0.16, 0.16)
 	stream.CFrame = CFrame.lookAt((from + to) / 2, to) * CFrame.Angles(0, math.rad(90), 0)
 	stream.Parent = workspace
 	steam(stream, 4, 0.4)
@@ -290,14 +292,18 @@ end
 -- (bite) the noodle strands: from the chopstick tip (right hand) down to the
 -- broth of the cup in the left hand; they stretch as the arm lifts the sticks
 -- to the mouth, then are slurped up into the tip. Returns the clean-up.
-function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
-	pose(handle, "Held")
-	local tip = handle:FindFirstChild("ChopTip", true) :: BasePart?
-	local soup = cup:FindFirstChild("Soup", true) :: BasePart?
+-- (D-1099) the strands themselves, from `tip` down to `soup`, slurped up into the
+-- tip after `slurpAfter` seconds; shared by the bite in the hand and the bite
+-- taken from the cup on a table. Returns the clean-up.
+local function makeStrands(tip: BasePart, soup: BasePart, key: any, slurpAfter: number): () -> ()
 	local made: {Instance} = {}
 	local lower: {Attachment} = {}
-	if not tip or not soup then return function() pose(handle, "Stand") end end
 	local r = Random.new()
+	-- (D-1081, user 2026-11-09: "용감꼬꼬면이랑 맵라면만 라면 선 붉은색으로 하고
+	-- 참깨라면이랑 육개그는 노란색으로") the strands' colour by the ramen
+	local yellow = key == "ramen_sesame" or key == "ramen_yukgae"
+	local base = if yellow then NOODLE_YELLOW else NOODLE
+	local light = if yellow then Color3.fromRGB(255, 235, 150) else Color3.fromRGB(240, 120, 70)
 	for i = 1, STRANDS do
 		local a0 = Instance.new("Attachment")
 		a0.Position = Vector3.new(r:NextNumber(-0.03, 0.03), r:NextNumber(-0.02, 0.02), r:NextNumber(-0.03, 0.03))
@@ -308,7 +314,7 @@ function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
 		local beam = Instance.new("Beam")
 		beam.Name = "Noodle"
 		beam.Attachment0, beam.Attachment1 = a0, a1
-		beam.Color = ColorSequence.new(NOODLE:Lerp(Color3.fromRGB(240, 120, 70), r:NextNumber(0, 0.5)))
+		beam.Color = ColorSequence.new(base:Lerp(light, r:NextNumber(0, 0.5)))
 		beam.Width0, beam.Width1 = 0.035, 0.045
 		beam.FaceCamera = true
 		beam.Segments = 12
@@ -324,7 +330,7 @@ function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
 		table.insert(lower, a1)
 	end
 	-- slurp: the lower ends come off the broth and run up into the tip
-	task.delay(0.95, function()
+	task.delay(slurpAfter, function()
 		if not tip.Parent then return end
 		local starts = {}
 		for i, a1 in ipairs(lower) do
@@ -347,6 +353,25 @@ function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
 	return function()
 		for _, d in ipairs(made) do d:Destroy() end
 	end
+end
+
+function RamenCup.strands(handle: BasePart, cup: Instance): () -> ()
+	pose(handle, "Held")
+	local tip = handle:FindFirstChild("ChopTip", true) :: BasePart?
+	local soup = cup:FindFirstChild("Soup", true) :: BasePart?
+	if not tip or not soup then return function() pose(handle, "Stand") end end
+	local tool = handle:FindFirstAncestorOfClass("Tool")
+	return makeStrands(tip, soup, tool and tool:GetAttribute("Snack"), 0.95)
+end
+
+-- (D-1099, user 2026-11-09: "컵라면 테이블에 두고 먹을 때도 면 길게 이어지는 거
+-- 넣어 줘") a bite from the cup on a table: the strands from the noodles on the
+-- loose chopsticks (`tip`) down to the broth of the cup on the table (`copy`),
+-- stretching as the hand lifts them, slurped up at the mouth
+function RamenCup.tableStrands(tip: BasePart, copy: Instance, key: any, slurpAfter: number): () -> ()
+	local soup = copy:FindFirstChild("Soup", true) :: BasePart?
+	if not soup then return function() end end
+	return makeStrands(tip, soup, key, slurpAfter)
 end
 
 -- (bite done) the broth a step lower, a little narrower (the cup narrows down)
@@ -466,6 +491,27 @@ function RamenCup.drinkStart(tool: Tool, handle: BasePart): () -> ()
 	tool:SetAttribute("EatPart", nil)
 	playOnce(handle, SOUND_BROTH, 1.2)
 	return function() end
+end
+
+-- (D-1090) the noodles' colour of this ramen (red; 참깨라멘 / 육개그 yellow)
+function RamenCup.noodleColor(key: any): Color3
+	return if key == "ramen_sesame" or key == "ramen_yukgae" then NOODLE_YELLOW else NOODLE
+end
+
+-- (D-1090, user 2026-11-09: "컵라면 테이블 위에 두면 테이블에 있는 상태에서
+-- 젓가락으로 먹게 하고") a bite taken from the cup on the table: the copy's
+-- broth a step lower (like afterBite in the hand), its sticks with it
+function RamenCup.tableBite(copy: BasePart, left: number)
+	if left <= 0 then return end
+	local plate = copy:FindFirstChild("Plate", true) :: BasePart?
+	local depth = (if plate then plate.Size.Y else 0.8) * 0.17
+	for _, soup in ipairs(parts(copy, "Soup")) do
+		soup.CFrame -= Vector3.new(0, depth, 0)
+		soup.Size = Vector3.new(soup.Size.X * 0.95, soup.Size.Y, soup.Size.Z * 0.95)
+	end
+	for _, stick in ipairs(parts(copy, "Chopsticks")) do
+		stick.CFrame -= Vector3.new(0, depth, 0)
+	end
 end
 
 -- a copy put on a table: the whole cup as it is now, the sticks standing in it

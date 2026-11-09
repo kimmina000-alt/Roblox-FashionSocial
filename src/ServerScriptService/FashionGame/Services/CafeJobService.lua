@@ -193,7 +193,9 @@ local function setBubble(model: Model?, text: string?, shopKey: string?, custome
 	if not text then return end
 	local gui = Instance.new("BillboardGui")
 	gui.Name = "CafeOrderBubble"
-	gui.Size = UDim2.fromOffset(230, 34) -- (wide enough for “아이스 바닐라 라떼 주세요.”)
+	-- (wide enough for “아이스 바닐라 라떼 주세요.”; D-1077, user 2026-11-09: "카페 손님
+	-- 주문 텍스트 크기 반으로 줄이기" 34 → 17 high, letters 15 → 8)
+	gui.Size = UDim2.fromOffset(230, 17)
 	gui.StudsOffset = Vector3.new(0, 2.6, 0)
 	gui.AlwaysOnTop = true
 	gui.MaxDistance = 70
@@ -210,10 +212,10 @@ local function setBubble(model: Model?, text: string?, shopKey: string?, custome
 	label.Text = text
 	local edge = Instance.new("UIStroke")
 	edge.Color = Color3.new(1, 1, 1)
-	edge.Thickness = 2
+	edge.Thickness = 1
 	edge.Parent = label
 	local limit = Instance.new("UITextSizeConstraint")
-	limit.MaxTextSize = 15
+	limit.MaxTextSize = 8
 	limit.Parent = label
 	label.Parent = gui
 	gui.Parent = head
@@ -412,7 +414,8 @@ local function selfServe(order: Order, message: string)
 	local item = itemOf(order)
 	removeOrder(order)
 	if customer and item then
-		snack.Give(customer, item)
+		local served = snack.Give(customer, item)
+		if served and economy.FoodXPFor then served:SetAttribute("FoodXP", economy.FoodXPFor(item.coins)) end -- (D-1103)
 		toast(customer, message)
 	end
 end
@@ -429,7 +432,8 @@ local function playerOrder(player: Player, shop: SnackConfig.Shop, item: SnackCo
 	if last and os.clock() - last < CafeJobConfig.PlayerOrderGap then return false, nil end
 	-- (D-772) coin items too: paid now (not enough → SnackService says so)
 	local price = item.coins or 0
-	if price > 0 and not economy.Spend(player, price) then return false, nil end
+	-- (D-1124) the same item code as a counter order (SnackService)
+	if price > 0 and not economy.Spend(player, price, "Snack_" .. shop.key .. "_" .. item.key) then return false, nil end
 	lastOrderAt[player.UserId] = os.clock()
 	nextId += 1
 	orders[nextId] = {
@@ -685,6 +689,7 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 	staff[player] = shopKey
 	lastNpcAt[shopKey] = os.clock() - CafeJobConfig.NpcEverySeconds + 4 -- first NPC soon
 	npcGap[shopKey] = nil -- (D-1025: the first gap is NpcEverySeconds, so 4 s from here)
+	require(script.Parent:WaitForChild("Analytics")).interact(player, "Job") -- (D-1124: a shift started)
 	if player.Character then
 		player.Character:SetAttribute("CafeJob", shopKey)
 		setStaffTag(player.Character, shopKey)
@@ -784,7 +789,9 @@ local function serve(player: Player, id: any): (boolean, string?)
 	else
 		removeOrder(order)
 		if customer then
-			snack.Give(customer, item)
+			local served = snack.Give(customer, item)
+			-- (D-1103) the XP of what they paid for, given as they drink / eat it
+			if served and economy.FoodXPFor then served:SetAttribute("FoodXP", economy.FoodXPFor(item.coins)) end
 			toast(customer, string.format("☕ %s님이 %s 가져다 줬어요!", player.DisplayName, item.name))
 		end
 	end

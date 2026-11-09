@@ -50,6 +50,11 @@ end
 -- DancePause (number, optional): clip time the dance is frozen at (인생네컷
 -- ⏸ button, user 2026-10-20). nil = playing.
 local function setDance(character: Model, key: string?, start: number?, speed: number?, pause: number?)
+	-- (D-1124) a dance started (anywhere; in the club also the ClubVisit funnel's step 2)
+	if key and character:GetAttribute("DanceKey") == nil then
+		local who = Players:GetPlayerFromCharacter(character)
+		if who then require(script.Parent:WaitForChild("Analytics")).interact(who, "Dance") end
+	end
 	character:SetAttribute("DanceKey", key)
 	character:SetAttribute("DanceStart", start)
 	character:SetAttribute("DanceSpeed", speed)
@@ -276,7 +281,18 @@ end
 -- Skip vote (user 2026-11-01, D-694): without a DJ the people in the club can
 -- vote the song away; it goes when ClubConfig.skipVotesNeeded(people in the
 -- club) have voted. Attribute ClubSkipVotes = "votes/needed". New song → reset.
+-- (D-1121, user 2026-11-09: "노래 스킵 누르면 사진처럼 재생중인 바 아래에 스킵 투표
+-- 받는 창 띄우자") a tap on › starts a vote round of SKIP_ROUND seconds that
+-- everyone in the club sees under the play bar with 예 / 아니요 (ClubQuickBar):
+-- skipVotes[userId] = true (예) / false (아니요). The song goes as soon as the 예
+-- reach ClubConfig.skipVotesNeeded; when the time is up without that, the
+-- round ends and the votes are cleared. Attributes: ClubSkipVotes "yes/needed"
+-- (as before), ClubSkipNo (아니요), ClubSkipEnds (server time, 0 = no round);
+-- player attribute ClubSkipMine "yes" / "no" (their own answer).
+local SKIP_ROUND = 30
 local skipVotes: {[number]: boolean} = {}
+local skipEnds = 0
+local skipRound = 0
 local function peopleInClub(): number
 	local n = 0
 	for _, p in ipairs(game:GetService("Players"):GetPlayers()) do
@@ -286,21 +302,37 @@ local function peopleInClub(): number
 	return n
 end
 local function publishSkipVotes()
-	local votes = 0
-	for userId in pairs(skipVotes) do
+	local votes, no = 0, 0
+	for userId, yes in pairs(skipVotes) do
 		local p = game:GetService("Players"):GetPlayerByUserId(userId)
 		local root = p and p.Character and p.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
-		if root and ClubConfig.isInClub(root.Position) then votes += 1 else skipVotes[userId] = nil end
+		if root and ClubConfig.isInClub(root.Position) then
+			if yes then votes += 1 else no += 1 end
+		else
+			skipVotes[userId] = nil
+			if p then p:SetAttribute("ClubSkipMine", nil) end
+		end
 	end
 	local needed = ClubConfig.skipVotesNeeded(peopleInClub())
 	FashionGame:SetAttribute("ClubSkipVotes", string.format("%d/%d", votes, needed))
+	FashionGame:SetAttribute("ClubSkipNo", no)
+	FashionGame:SetAttribute("ClubSkipEnds", skipEnds)
 	return votes, needed
+end
+local function clearSkipVotes()
+	for userId in pairs(skipVotes) do
+		local p = game:GetService("Players"):GetPlayerByUserId(userId)
+		if p then p:SetAttribute("ClubSkipMine", nil) end
+	end
+	table.clear(skipVotes)
+	skipEnds = 0
+	skipRound += 1
 end
 
 local function playTrack(index: number, by: number)
 	local track = ClubConfig.Playlist[index]
 	if not track then return end
-	table.clear(skipVotes)
+	clearSkipVotes()
 	publishSkipVotes()
 	trackIndex = index
 	FashionGame:SetAttribute("ClubMusicPaused", false) -- (a new song always plays)
@@ -396,18 +428,31 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		if DjService.CurrentDJ() ~= 0 then return false, "DJ가 곡을 고르는 중이에요." end
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		if not root or not ClubConfig.isInClub(root.Position) then return false, "클럽 안에서만 투표할 수 있어요." end
-		if skipVotes[player.UserId] then
-			skipVotes[player.UserId] = nil -- (a second tap takes the vote back)
-			publishSkipVotes()
-			return true, "스킵 투표를 취소했어요."
+		-- (D-1121) payload "no" = 아니요; anything else (the › button, 예) = 예
+		local yes = payload ~= "no"
+		local now = workspace:GetServerTimeNow()
+		if skipEnds <= now then
+			-- a new round: from now, SKIP_ROUND seconds
+			if not yes then return false, nil end -- (no round to say no to)
+			clearSkipVotes()
+			skipEnds = now + SKIP_ROUND
+			local round = skipRound
+			task.delay(SKIP_ROUND + 0.2, function()
+				if skipRound == round then
+					clearSkipVotes()
+					publishSkipVotes()
+				end
+			end)
 		end
-		skipVotes[player.UserId] = true
+		skipVotes[player.UserId] = yes
+		player:SetAttribute("ClubSkipMine", if yes then "yes" else "no")
+		require(script.Parent:WaitForChild("Analytics")).interact(player, "SkipVote") -- (D-1124)
 		local votes, needed = publishSkipVotes()
 		if votes >= needed then
 			playNext()
 			return true, "⏭ 투표로 다음 곡으로 넘어갔어요!"
 		end
-		return true, string.format("⏭ 스킵 투표 %d/%d", votes, needed)
+		return true, nil
 	end
 	if action == "Seek" then
 		-- (D-849, user: the DJ and the game's owner only)

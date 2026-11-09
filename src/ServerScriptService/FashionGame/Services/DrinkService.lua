@@ -26,6 +26,7 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local MonetizationService = require(script.Parent.MonetizationService)
 local EconomyService = require(script.Parent.EconomyService)
+local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124)
 local DrinkBucket = require(script.Parent.DrinkBucket)
 local BottleShapes = require(FashionGame:WaitForChild("Shared"):WaitForChild("BottleShapes"))
 local SoundConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("SoundConfig"))
@@ -124,7 +125,8 @@ local function giveBottle(player: Player, drinkKey: string, servings: number?, v
 	BottleShapes.add(tool, handle.CFrame * CFrame.new(0, -0.9, 0), drink.key, color, scale, handle)
 	tool.Grip = CFrame.new(0, -0.3, 0)
 	tool.Parent = backpack
-	return true, name .. " " .. containerName(drink) .. "을 받았어요! 테이블에 놓고 함께 마셔요."
+	-- (the tool too: D-1103 puts the paid XP on it)
+	return true, name .. " " .. containerName(drink) .. "을 받았어요! 테이블에 놓고 함께 마셔요.", tool
 end
 DrinkService.GiveBottle = giveBottle
 
@@ -178,6 +180,12 @@ local function drinkFrom(tool: Tool)
 	task.wait(ClubConfig.DrinkSeconds)
 	down()
 	task.wait(0.3)
+	-- (D-1103) the cup's XP to the one drinking it
+	local drinker = Players:GetPlayerFromCharacter(character)
+	if drinker then
+		EconomyService.EatXP(drinker, tool, 1)
+		Analytics.interact(drinker, "Drink") -- (D-1124)
+	end
 	tool:Destroy()
 end
 
@@ -270,7 +278,7 @@ local function giveCup(player: Player, drinkKey: string, variantKey: any?): (boo
 	local character = player.Character
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	if humanoid then humanoid:EquipTool(tool) end
-	return true, nil
+	return true, nil, tool -- (the cup too: D-1103 puts its part of the bottle's XP on it)
 end
 
 DrinkService.GiveCup = giveCup -- (SparkleService: cans from a sparkler bucket)
@@ -589,6 +597,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	servings = if typeof(servings) == "number" then math.clamp(servings, 1, ClubConfig.BottleServings) else ClubConfig.BottleServings
 	local variantKey = bottleTool:GetAttribute("Variant")
 	local drinkName, drinkColor = drinkLook(drink, variantKey)
+	local foodXP = bottleTool:GetAttribute("FoodXP") -- (D-1103: goes on with the bottle)
 	bottleTool:Destroy()
 	slot:SetAttribute("Occupied", true)
 	slot:SetAttribute("OwnerName", player.DisplayName) -- (D-797: nickname on the table sign)
@@ -610,6 +619,7 @@ local function placeBottle(player: Player, payload: any): (boolean, string?)
 	bottle:SetAttribute("Variant", variantKey)
 	bottle:SetAttribute("DrinkName", drinkName)
 	bottle:SetAttribute("Servings", servings)
+	bottle:SetAttribute("FoodXP", foodXP)
 	bottle:SetAttribute("Bucket", isBucket)
 	local ref = Instance.new("ObjectValue")
 	ref.Name = "SlotRef"
@@ -712,8 +722,9 @@ local function tapPlaced(player: Player, target: any): (boolean, string?)
 			return false, string.format("%s님의 병이에요.", tostring(bottle:GetAttribute("OwnerName")))
 		end
 		local left = bottle:GetAttribute("Servings") or 0
-		local ok, message = giveBottle(player, drink.key, left, variantKey)
+		local ok, message, back = giveBottle(player, drink.key, left, variantKey)
 		if not ok then return false, message end
+		if back then back:SetAttribute("FoodXP", bottle:GetAttribute("FoodXP")) end -- (D-1103)
 		removeBottle(bottle)
 		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 		local backpack = player:FindFirstChildOfClass("Backpack")
@@ -727,8 +738,10 @@ local function tapPlaced(player: Player, target: any): (boolean, string?)
 	if not mayPour(player, bottle) then
 		return false, string.format("%s님이 놓은 병이에요 (공개: %s).", tostring(bottle:GetAttribute("OwnerName")), visibilityName(bottle:GetAttribute("Visibility")))
 	end
-	local ok, message = giveCup(player, drink.key, variantKey)
+	local ok, message, cup = giveCup(player, drink.key, variantKey)
 	if not ok then return false, message end
+	-- (D-1103) the cup takes its part of the bottle's XP, for whoever drinks it
+	if cup then EconomyService.SplitXP(bottle, cup, bottle:GetAttribute("Servings") or 1) end
 	local left = (bottle:GetAttribute("Servings") or 1) - 1
 	bottle:SetAttribute("Servings", left)
 	if left <= 0 then removeBottle(bottle) else refreshBottleLabel(bottle) end
@@ -762,6 +775,8 @@ local function swig(player: Player): (boolean, string?)
 	task.wait(ClubConfig.DrinkSeconds)
 	down()
 	task.wait(0.3)
+	EconomyService.EatXP(player, tool, left + 1) -- (D-1103: this swig's part)
+	Analytics.interact(player, "Drink") -- (D-1124)
 	if left <= 0 then
 		tool:Destroy()
 		return true, "다 마셨어요!"
@@ -964,13 +979,27 @@ local function buyWithCoins(player: Player, drink: ClubConfig.Drink, variantKey:
 	if EconomyService.Balance(player) < price then
 		return false, string.format("코인이 부족해요 (%d 필요, 지금 %d).", price, EconomyService.Balance(player))
 	end
-	local ok, message = giveBottle(player, drink.key, nil, variantKey)
+	local ok, message, tool = giveBottle(player, drink.key, nil, variantKey)
 	if not ok then return false, message end
-	EconomyService.Spend(player, price)
+	EconomyService.Spend(player, price, "Drink_" .. drink.key) -- (D-1124: item code)
+	-- (D-1102, user 2026-11-09: "클럽 음료도 XP 넣어 줘") the food rule: half the
+	-- price paid (the VIP price for VIPs), the same daily cap as food;
+	-- (D-1103) on the bottle, given sip by sip (cup by cup) as it is drunk
+	if tool then tool:SetAttribute("FoodXP", EconomyService.FoodXPFor(price)) end
 	return true, message
 end
 
+local handleAction: (Player, string, any) -> (boolean, any)
+-- (D-1124) a drink handed over from the menu: the ClubShop funnel's step 3
 function DrinkService.Handle(player: Player, action: string, payload: any): (boolean, any)
+	local ok, result = handleAction(player, action, payload)
+	if ok and (action == "Order" or action == "OrderCoins") then
+		Analytics.clubShop(player, 3)
+		Analytics.interact(player, "Buy")
+	end
+	return ok, result
+end
+handleAction = function(player: Player, action: string, payload: any): (boolean, any)
 	if action == "Order" then
 		-- tier 1: free, or a few coins
 		local drink, variantKey = readOrder(payload)
@@ -1048,9 +1077,12 @@ function DrinkService.Start()
 	local function grant(player: Player, drink: ClubConfig.Drink): (boolean, string?)
 		-- (a VIP-only drink bought by someone who lost VIP is still given: it was paid)
 		local picked = pendingVariant[player.UserId] and pendingVariant[player.UserId][drink.key]
-		local ok, message = giveBottle(player, drink.key, nil, picked)
+		local ok, message, tool = giveBottle(player, drink.key, nil, picked)
 		if ok then
 			toast(player, message or "")
+			if tool then tool:SetAttribute("FoodXP", EconomyService.FoodXPFor(nil, true)) end -- (D-1102 / D-1103: Robux = the flat amount)
+			Analytics.clubShop(player, 3) -- (D-1124)
+			Analytics.interact(player, "Buy")
 			return true, nil
 		end
 		-- Hands full: still grant (the purchase went through) by

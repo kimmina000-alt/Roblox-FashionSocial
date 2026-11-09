@@ -26,6 +26,25 @@ EconomyConfig.WelcomeCoins = 50 -- (100 until D-758, user: not much to spend coi
 -- activity bonuses off. XP back on (user 2026-10-27): 1 XP per minute online,
 -- shown under the player's id above the avatar (NameTagService).
 EconomyConfig.XPEnabled = true
+
+-- (D-1101, user 2026-11-09: "음식 사 먹으면 xp 올라가는 시스템 추가. 몇씩 오르게
+-- 하는 게 좋을지 게임 시스템 분석해서 논리적으로 계산해서 제안할 것")
+-- XP for buying food and drinks, on top of 1 XP a minute online:
+--   coin foods: half the price in XP, at least 1 (a coin is a minute online,
+--   so spending every coin on food adds at most half again to the XP of time);
+--   Robux foods: a flat 10 (paying is not a way up the level board);
+--   free items: none (water, rice, barley tea: no farming by tapping);
+--   at most DailyCap XP a day from food (= the XP of 50 minutes online).
+-- (D-1103) put on the food when it is paid and given while it is eaten, bite
+-- by bite (sip by sip, piece by piece, cup by cup), to whoever eats it, with
+-- nothing shown on the screen. Days are UTC.
+EconomyConfig.FoodXP = {
+	Enabled = true,
+	Rate = 0.5, -- XP per coin of the price
+	Min = 1,
+	Robux = 10,
+	DailyCap = 50,
+}
 EconomyConfig.BonusesEnabled = false
 EconomyConfig.PassiveNeedsActivity = false
 

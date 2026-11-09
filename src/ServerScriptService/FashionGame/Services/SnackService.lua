@@ -26,6 +26,8 @@ local EconomyConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("E
 local MonetizationService = require(script.Parent.MonetizationService)
 local FoodShapes = require(script.Parent.FoodShapes)
 local RamenCup = require(script.Parent:WaitForChild("RamenCup")) -- (D-1053: the user's cup ramen)
+local Microwave = require(script.Parent:WaitForChild("Microwave")) -- (D-1104: 삼각김밥 warmed in the OH24 microwave)
+local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124)
 
 local SnackService = {}
 local economy: any = nil
@@ -145,6 +147,8 @@ local EAT_SOUND = {
 -- (140514526743537, 3.1 s); the own clips were 98804537108952, 105506248237925, 115770485617090
 -- (D-1063, user 2026-11-09: "국밥 먹는 소리: 133241476322672"; was 140514526743537)
 local GUKBAP_CLIPS = { 133241476322672 }
+-- (D-1075, user 2026-11-09: "국밥 먹는 소리 앞에 0.5초 더 잘라") the clip from 0.5 s in
+local GUKBAP_FROM = 0.5
 local lastGukbap = 0
 local function gukbapClip(): number?
 	local ready = {}
@@ -381,18 +385,31 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	if tool:GetAttribute("Wrapped") then
 		tool:SetAttribute("Wrapped", nil)
 		local h = tool:FindFirstChild("Handle")
+		-- (D-1105, user 2026-11-09: "삼각김밥 처음에 포장 뜯을 때 양 손으로 뜯는 모션
+		-- 추가") the character attribute "Unwrap" (a count) starts the two-hand
+		-- tear on every client (EatMotionController): both hands come together in
+		-- front of the chest (0.35 s), the left one pulls the wrapper off to the side
+		-- (it goes with that hand, a copy on each client) and the arms go down
+		-- (1.3 s in all). The wrapper on the item goes when the pull starts.
+		local character = tool.Parent
+		if character and character:IsA("Model") then
+			character:SetAttribute("Unwrap", ((character:GetAttribute("Unwrap") :: number?) or 0) + 1)
+		end
+		tool:SetAttribute("Busy", true)
+		task.delay(1.3, function() if tool.Parent then tool:SetAttribute("Busy", nil) end end)
 		if h and h:IsA("BasePart") then
 			local set = eatenOf(tool)
 			set[1] = true
 			setEaten(tool, set)
-			applyEaten(h, set)
+			task.delay(0.45, function() if h.Parent then applyEaten(h, set) end end)
 			local snd = Instance.new("Sound")
 			snd.SoundId = "rbxassetid://" .. tostring(SOUND_WRAPPER)
 			snd.Volume = 0.9
 			snd.RollOffMaxDistance = 40
 			snd.Parent = h
-			snd:Play()
-			Debris:AddItem(snd, 6)
+			task.delay(0.3, function() if snd.Parent then snd:Play() end end)
+			-- (D-1080, user 2026-11-09: "삼각김밥 처음에 포장 뜯을 때 소리 1.5초만 쓰기")
+			task.delay(1.8, function() if snd.Parent then snd:Stop() snd:Destroy() end end)
 		end
 		tool:SetAttribute("Bites", ((tool:GetAttribute("Bites") :: number?) or bitesOf(item)) - 1)
 		tool.ToolTip = "클릭(터치)해서 먹기"
@@ -485,7 +502,10 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	end
 	if sound and item.kind == "bowl" then
 		local id = gukbapClip()
-		if id then sound.SoundId = "rbxassetid://" .. id end
+		if id then
+			sound.SoundId = "rbxassetid://" .. id
+			sound.TimePosition = GUKBAP_FROM
+		end
 	end
 	if sound then sound:Play() end
 	task.wait(1.4)
@@ -498,6 +518,10 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 	local total = bitesOf(item)
 	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
 	tool:SetAttribute("Bites", left)
+	-- (D-1103) this bite's part of the food's XP, to the one eating
+	local eater = Players:GetPlayerFromCharacter(character)
+	if eater and economy then economy.EatXP(eater, tool, left + 1) end
+	if eater then Analytics.interact(eater, if item.kind == "cup" or item.kind == "bottle" then "Drink" else "Eat") end -- (D-1124)
 	-- a third of it is gone, from the top
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
 	local zlo, zhi = tool:GetAttribute("EatZLo"), tool:GetAttribute("EatZHi")
@@ -574,7 +598,8 @@ local function cakeModel(key: string?): Model?
 	return if m and m:IsA("Model") and pieceWordOf(m) then m else nil
 end
 -- (D-1034) how wide the 수육 model plate sits on a table (studs)
-local SUYUK_PLATE_W = 2.8
+-- (D-1079, user 2026-11-09: "수육도 1.5배 키우기") 2.8 → 4.2
+local SUYUK_PLATE_W = 4.2
 -- a copy `width` studs across (the board's width), no collisions
 local function cakeCopy(src: Model, width: number): Model
 	local m = src:Clone()
@@ -881,12 +906,14 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	setVolume(sip, if COFFEE[item.key] then 0.9 elseif QUIET[item.key] then 0.35 else LOUD[item.key] or 0.7)
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
-	scaleTool(tool, handle, FOOD_SCALE) -- (D-950)
-	if tool:GetAttribute("Ramen") then RamenCup.scaled(handle, FOOD_SCALE) end
+	-- (D-1079, user 2026-11-09: "국밥 크기 1.5배 키우기") the three 국밥 once more 1.5×
+	local k = FOOD_SCALE * (if kind == "bowl" then 1.5 else 1)
+	scaleTool(tool, handle, k) -- (D-950)
+	if tool:GetAttribute("Ramen") then RamenCup.scaled(handle, k) end
 	markEdible(tool, handle)
 	-- soup and noodles: the surface sinks a third of the bowl per bite
 	local surface = (kind == "bowl" or kind == "ricebowl" or kind == "noodle") and handle:FindFirstChild("Fill")
-	if surface then surface:SetAttribute("EatDrop", (if kind == "noodle" then 0.5 else 0.3) * FOOD_SCALE) end
+	if surface then surface:SetAttribute("EatDrop", (if kind == "noodle" then 0.5 else 0.3) * k) end
 	-- (D-950) a click / tap is not a bite by itself any more: SnackController
 	-- decides (over a food table it puts the food down there, elsewhere it
 	-- calls tool:Activate(), the bite)
@@ -898,7 +925,7 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	-- (D-1038, user 2026-11-09: "국밥 놓을 때 원 너무 크다. 국밥 크기에 맞춰"): the
 	-- user's 국밥 model goes down alone (D-1037), so its own size; the tray size only
 	-- for a store bowl that still goes down with the tray
-	tool:SetAttribute("PlaceRadius", if kind == "bowl" and tool:GetAttribute("EatMode") ~= "Bites" then 3.4 * FOOD_SCALE / 2 else footprintOf(handle))
+	tool:SetAttribute("PlaceRadius", if kind == "bowl" and tool:GetAttribute("EatMode") ~= "Bites" then 3.4 * k / 2 else footprintOf(handle))
 	return tool
 end
 
@@ -1012,7 +1039,7 @@ end
 local sharedPlates: {[Model]: (Player, any) -> ()} = {}
 local PLATE_RADIUS = 1.1 -- (the dish: 2.2 across)
 
-local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item, spot: Vector3?)
+local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig.Item, spot: Vector3?, xp: number?)
 	local servings = item.share or 6
 	-- (the real top: round tables are turned cylinders, whose Size.Y is the
 	-- diameter, so a cake floated above them, user 2026-10-27)
@@ -1198,6 +1225,8 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		-- (a 수육 slice is one bite: six bites a plate, user 2026-10-27)
 		if item.kind == "plate" then pieceItem.oneBite = true end
 		local pieceTool = makeTool(pieceItem, baseName .. " 한 " .. pieceWord)
+		-- (D-1103) the piece takes its part of the plate's XP (whoever eats it)
+		if economy then economy.SplitXP(plate, pieceTool, left + 1) end
 		-- (D-790) what it takes to make this piece again after a rejoin
 		pieceTool:SetAttribute("Piece", true)
 		if pieceItem.sliceTexture then pieceTool:SetAttribute("SliceTexture", pieceItem.sliceTexture) end
@@ -1207,6 +1236,7 @@ local function placePlate(player: Player, tablePart: BasePart, item: SnackConfig
 		if left <= 0 then plate:Destroy() else refresh() end
 	end
 	sharedPlates[plate] = take
+	plate:SetAttribute("FoodXP", xp) -- (D-1103)
 	plate.Destroying:Connect(function() sharedPlates[plate] = nil end)
 	plate.Parent = tablePart
 	Debris:AddItem(plate, SnackConfig.PlateSeconds)
@@ -1281,25 +1311,29 @@ local function plateTool(player: Player, item: SnackConfig.Item): Tool
 end
 
 -- the developer product of a Robux item was paid
-local function grantProduct(player: Player, item: SnackConfig.Item): (boolean, string?)
+local function grantProduct(player: Player, item: SnackConfig.Item, xp: number?): (boolean, string?)
 	local notify = Remotes:FindFirstChild("SnackNotify") :: RemoteEvent?
 	if item.share then
 		-- 수육 goes to the backpack first; the buyer puts it on a table by
 		-- clicking next to one (user 2026-10-30: "why is it on the table at once")
 		local t = if item.kind == "plate" then nil else nearestTable(player)
 		if t then
-			placePlate(player, t, item)
+			placePlate(player, t, item, nil, xp)
 			if notify then notify:FireClient(player, "Toast", "🍰 테이블에 놓았어요! 모두 한 조각씩 가져갈 수 있어요.") end
 		else
 			local backpack = player:FindFirstChildOfClass("Backpack")
 			if not backpack then return false, nil end
-			plateTool(player, item).Parent = backpack
+			local held = plateTool(player, item)
+			held:SetAttribute("FoodXP", xp) -- (D-1103: onto the plate when it goes down)
+			held.Parent = backpack
 			if notify then notify:FireClient(player, "Toast", item.name .. " 인벤토리에 넣었어요! 테이블 옆에서 클릭하면 접시를 놓아요.") end
 		end
 		return true, nil
 	end
 	-- a single serving (the parfait): it may go over the hand limit, it is paid
-	if not giveTool(player, makeTool(item)) then return false, nil end
+	local single = makeTool(item)
+	single:SetAttribute("FoodXP", xp) -- (D-1103)
+	if not giveTool(player, single) then return false, nil end
 	if notify then notify:FireClient(player, "Toast", item.name .. " 나왔어요!") end
 	return true, nil
 end
@@ -1347,12 +1381,13 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	-- a shared cake bought with coins (the strawberry cake: 💰 or R$)
 	if item.share then
 		local price = item.coins or 0
-		if not economy or not economy.Spend(player, price) then
+		if not economy or not economy.Spend(player, price, "Snack_" .. shop.key .. "_" .. item.key) then
 			local balance = if economy then economy.Balance(player) else 0
 			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
 		end
-		grantProduct(player, item)
+		grantProduct(player, item, if economy then economy.FoodXPFor(price) else 0) -- (D-1103: XP on the plate)
 		payBeep(player, shop.key)
+		Analytics.interact(player, "Buy") -- (D-1124)
 		return true, nil
 	end
 	if handsFull(player) then
@@ -1364,16 +1399,20 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	-- coins are paid when ordering, CafeJobService)
 	if orderHandler and not item.product then
 		local handled, message = orderHandler(player, shop, item)
-		if handled then return true, message end
+		if handled then return true, message end -- (D-1103: CafeJobService puts the XP on the cup it serves)
 	end
 	local price = item.coins or 0
 	if price > 0 then
-		if not economy or not economy.Spend(player, price) then
+		if not economy or not economy.Spend(player, price, "Snack_" .. shop.key .. "_" .. item.key) then
 			local balance = if economy then economy.Balance(player) else 0
 			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
 		end
 	end
-	giveTool(player, makeTool(item))
+	Analytics.interact(player, "Buy") -- (D-1124: free ones too)
+	local bought = makeTool(item)
+	-- (D-1103) the XP it is worth, given bite by bite while it is eaten
+	if economy then bought:SetAttribute("FoodXP", economy.FoodXPFor(price)) end
+	giveTool(player, bought)
 	payBeep(player, shop.key)
 	local drink = item.kind == "cup" or item.kind == "bottle"
 	if item.kind == "noodle" then -- (D-1053: its own steps)
@@ -1474,7 +1513,9 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 		handle = part("Handle", Vector3.new(0.035, 0.9, 0.035), Color3.fromRGB(205, 175, 125), Enum.Material.Wood)
 		handle.Parent = spoon
 		attach(handle, part("Stick", Vector3.new(0.035, 0.9, 0.035), Color3.fromRGB(205, 175, 125), Enum.Material.Wood), CFrame.new(0.05, 0, 0) * CFrame.Angles(0, 0, math.rad(-4)))
-		local bundle = part("Noodles", Vector3.new(0.16, 0.3, 0.12), Color3.fromRGB(245, 215, 130))
+		-- (D-1090) the user's cup ramen: its own noodles' colour
+		local bundle = part("Noodles", Vector3.new(0.16, 0.3, 0.12),
+			if tool:GetAttribute("Ramen") then RamenCup.noodleColor(tool:GetAttribute("Snack")) else Color3.fromRGB(245, 215, 130))
 		local mesh = Instance.new("SpecialMesh") mesh.MeshType = Enum.MeshType.Sphere mesh.Parent = bundle
 		attach(handle, bundle, CFrame.new(0.03, 0.42, -0.02))
 	else
@@ -1540,7 +1581,14 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 		applyEaten(copy, set)
 	end
 	local sound = Instance.new("Sound")
-	sound.SoundId = "rbxassetid://" .. tostring((if item.kind == "bowl" then gukbapClip() else nil) or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
+	local gukbap = if item.kind == "bowl" then gukbapClip() else nil
+	sound.SoundId = "rbxassetid://" .. tostring(gukbap or EAT_SOUND[item.kind] or EAT_SOUND.bowl)
+	if gukbap then sound.TimePosition = GUKBAP_FROM end
+	if tool:GetAttribute("Ramen") then
+		-- (D-1090) the cup ramen's own noodle sound, as in the hand
+		sound.SoundId = "rbxassetid://" .. tostring(RamenCup.EatSound)
+		sound.TimePosition = RamenCup.EatFrom
+	end
 	setVolume(sound, LOUD[item.key] or 0.7)
 	sound.RollOffMaxDistance = 40
 	-- (on the character, not the spoon: the spoon goes 1.5 s after the bite and
@@ -1554,6 +1602,13 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	end
 	humanoid:UnequipTools()
 	spoon.Parent = character
+	-- (D-1099) the cup ramen on the table: long noodle strands from the sticks'
+	-- bundle down into the cup, slurped up when the sticks are at the mouth
+	local strandsDone: (() -> ())? = nil
+	if tool:GetAttribute("Ramen") then
+		local bundle = handle:FindFirstChild("Noodles", true) :: BasePart?
+		if bundle then strandsDone = RamenCup.tableStrands(bundle, copy, tool:GetAttribute("Snack"), 1.0) end
+	end
 	-- the hand takes the spoon up to the mouth (IK, see bite); R6: the spoon moves
 	local ik = character:FindFirstChild("RightUpperArm") ~= nil
 	local up = if ik then nil else mouthGrip(character, 0)
@@ -1567,12 +1622,15 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	character:SetAttribute("Eating", nil)
 	if up and spoon.Parent then TweenService:Create(spoon, TweenInfo.new(0.3), { Grip = CFrame.new(0, -0.3, 0) }):Play() end
 	task.wait(0.4)
+	if strandsDone then strandsDone() end
 	spoon:Destroy()
 	for _, d in ipairs(own) do d.Transparency = 0 end
 	model:SetAttribute("Busy", nil)
 	local total = bitesOf(item)
 	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
 	tool:SetAttribute("Bites", left)
+	if economy then economy.EatXP(player, tool, left + 1) end -- (D-1103: a spoonful from the table)
+	Analytics.interact(player, "Eat") -- (D-1124)
 	local fill = copy:FindFirstChild("Fill")
 	if tool:GetAttribute("EatMode") == "Bites" then
 		-- (D-1036) the tool in waiting shows the same pieces gone (picked up later)
@@ -1580,6 +1638,11 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 		applyEaten(copy, set)
 		local held = tool:FindFirstChild("Handle")
 		if held then applyEaten(held, set) end
+	elseif tool:GetAttribute("Ramen") then
+		-- (D-1090) the broth a step lower on the table and in the tool waiting aside
+		RamenCup.tableBite(copy, left)
+		local held = tool:FindFirstChild("Handle")
+		if held and held:IsA("BasePart") then RamenCup.afterBite(tool, held, left, total) end
 	elseif fill and fill:IsA("BasePart") then
 		local drop = (fill:GetAttribute("EatDrop") :: number?) or 0.3
 		fill.CFrame -= Vector3.new(0, drop / total, 0)
@@ -1631,7 +1694,7 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 				end
 			end
 		end
-		placePlate(player, tablePart, item, at)
+		placePlate(player, tablePart, item, at, tool:GetAttribute("FoodXP") :: number?)
 		tool:Destroy()
 		return true, nil
 	end
@@ -1639,7 +1702,8 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- from a shared plate is eaten from the hand, never put down
 	if tool and tool:GetAttribute("Piece") then return false, nil end
 	if not root or not tool or not tool:GetAttribute("Snack") then return false, "손에 든 음식이 없어요." end
-	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return false, "먹는 중이에요." end
+	-- (D-1106, user 2026-11-09: "먹는 중이에요. 삭제") nothing on the screen
+	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return false, nil end
 	local handle = tool:FindFirstChild("Handle")
 	if not handle or not handle:IsA("BasePart") then return false, nil end
 	local reach = math.max(tablePart.Size.X, tablePart.Size.Y, tablePart.Size.Z) / 2 + 8
@@ -1962,7 +2026,13 @@ end
 local function spoonFromTable(player: Player, model: any, piece: any): (boolean, string?)
 	local entry = ownPlaced(player, model)
 	if not entry or not entry.item then return false, nil end
-	if not entry.soup then
+	-- (D-1090, user 2026-11-09: "컵라면 테이블 위에 두면 테이블에 있는 상태에서
+	-- 젓가락으로 먹게 하고 들고 있을 땐 왼손에 들고 먹는 걸로") a cooked cup ramen
+	-- on the table is eaten there with chopsticks; before it is cooked (lid, hot
+	-- water) and for the last sip of broth it comes back to the hand as before
+	local ramen = entry.tool:GetAttribute("Ramen")
+	local onTable = entry.soup or (ramen == "ready" and ((entry.tool:GetAttribute("Bites") :: number?) or 0) > 1)
+	if not onTable then
 		-- (D-1037, user 2026-11-09: "물 테이블에 설치하면 못 먹음") a tap on a drink
 		-- or a snack on the table: back into the hand and one sip / bite at once
 		local tool = entry.tool
@@ -1997,7 +2067,7 @@ end
 local function pickUp(player: Player, model: any): (boolean, string?)
 	local entry = ownPlaced(player, model)
 	if not entry then return false, nil end
-	if (model :: Model):GetAttribute("Busy") then return false, "먹는 중이에요." end
+	if (model :: Model):GetAttribute("Busy") then return false, nil end -- (D-1106: no "먹는 중이에요.")
 	local tool = entry.tool
 	-- (into the backpack, not the hand: giveTool would equip it)
 	local backpack = player:FindFirstChildOfClass("Backpack")
@@ -2022,6 +2092,7 @@ end
 function SnackService.Start(economyService: any)
 	economy = economyService
 	task.spawn(buildFoodPreviews)
+	task.spawn(Microwave.Start) -- (D-1104)
 	local remote = Remotes:WaitForChild("Snack") :: RemoteFunction
 	remote.OnServerInvoke = function(player: Player, action: any, shopKey: any, itemKey: any)
 		if action == "Buy" then return buy(player, shopKey, itemKey) end
@@ -2036,6 +2107,8 @@ function SnackService.Start(economyService: any)
 			return RamenCup.tap(player, tool, function() bite(tool, item :: SnackConfig.Item) end)
 		end
 		if action == "HotWater" then return RamenCup.pour(player, shopKey) end
+		if action == "Microwave" then return Microwave.heat(player, shopKey) end -- (D-1104)
+		if action == "MicrowaveTake" then return Microwave.take(player, shopKey) end
 		if action == "TakePiece" then return takePiece(player, shopKey, itemKey) end -- (D-952; itemKey = the piece pointed at, D-1035)
 		return false, nil
 	end
@@ -2060,7 +2133,8 @@ function SnackService.Start(economyService: any)
 			if key and not registered[key] then
 				registered[key] = true
 				MonetizationService.RegisterProduct(key, function(player: Player)
-					return grantProduct(player, item)
+					Analytics.interact(player, "Buy") -- (D-1124)
+					return grantProduct(player, item, if economy then economy.FoodXPFor(nil, true) else 0) -- (D-1103)
 				end)
 			end
 		end

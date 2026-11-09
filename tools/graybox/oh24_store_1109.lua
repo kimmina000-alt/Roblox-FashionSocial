@@ -11,7 +11,8 @@
 --      wall z 59..139, 1.2..18.8 high under a 21.3 ceiling). Measured from the
 --      store's own parts, so it does not care where the store stands.
 -- Last step of the layout chain (after oh24_door_1109). Each part runs once
--- (attributes OH24Moved1109 / OH24Fridge1109 on OH24Store).
+-- (attributes OH24Moved1109 / OH24Fridge1109 / OH24Deck1109 on OH24Store).
+--   3. the deck without its table set, at the height the user set (D-1074).
 
 local L = workspace:FindFirstChild("Hongdae_Layout")
 local S = L and L:FindFirstChild("OH24Store")
@@ -94,5 +95,196 @@ if not S:GetAttribute("OH24Fridge1109") then
 	end
 	S:SetAttribute("OH24Fridge1109", true)
 	table.insert(log, string.format("freezer z %.1f..%.1f → %.1f..%.1f, top %.1f → %.1f (%d parts)", z0, z1, Z0, Z1, y1, Y1, #parts))
+end
+
+-- 3. (D-1074, user 2026-11-09: "스튜디오에서 편의점 테이블 삭제하고 데크 높이
+-- 변경함 저장") the deck's table set gone (DeckTable, its legs, the deck stools
+-- and their legs, the deck step), the deck as the user left it: top 2.2 (1.0 over
+-- the store floor at 1.2), x -85.4..-60.4, z 59.5..89.1. Runs after the move, so
+-- these are world numbers of the store where it now stands.
+if not S:GetAttribute("OH24Deck1109") then
+	local gone = 0
+	for _, d in ipairs(S:GetChildren()) do
+		local n = d.Name
+		if n == "DeckTable" or n == "DeckTableLeg" or n == "DeckStool" or n == "StoolLeg" or n == "DeckStep" then
+			d:Destroy()
+			gone += 1
+		end
+	end
+	local deck = S:FindFirstChild("Deck")
+	if deck and deck:IsA("BasePart") then
+		deck.Size = Vector3.new(25, 1.5, 29.6)
+		deck.CFrame = CFrame.new(-72.9, 1.45, 74.3)
+	end
+	S:SetAttribute("OH24Deck1109", true)
+	table.insert(log, string.format("deck table set gone (%d parts), deck top 2.2", gone))
+end
+
+-- 6. (D-1115, user 2026-11-09: "편의점 휴게공간에 스툴 위치 사진 위치로 변경. 앉았을
+-- 때 바라보는 방향도 테이블에 맞추기.") the three window stools (ClubStool models
+-- with their WindowStool seats) moved from the short bar by the machines to
+-- the long window bar (z 61.65, its front edge z 64.0), on the deck, facing it
+-- (-Z). Before step 4 (which keeps each seat on its stool). Every run: the
+-- spots are fixed world numbers, the stools taken in order (by z, then x
+-- from the east), so a second run leaves them where they are.
+-- (D-1116, user: "스툴 네개로 하고 정렬") four, 7.5 apart along the bar
+-- (x -68 .. -90.5, clear of the short bar's corner): a missing one is a copy
+-- of the first stool and its seat.
+do
+	local SPOTS = { Vector3.new(-68, 0, 65.6), Vector3.new(-75.5, 0, 65.6), Vector3.new(-83, 0, 65.6), Vector3.new(-90.5, 0, 65.6) }
+	local stools = {}
+	for _, m in ipairs(S:GetChildren()) do
+		if m:IsA("Model") and m.Name == "ClubStool" then table.insert(stools, m) end
+	end
+	if #stools > 0 and #stools < #SPOTS then
+		local first = stools[1]
+		local fcf = first:GetBoundingBox()
+		local fseat = nil
+		for _, s in ipairs(S:GetChildren()) do
+			if s:IsA("Seat") and s.Name == "WindowStool" and Vector2.new(s.Position.X - fcf.X, s.Position.Z - fcf.Z).Magnitude < 3 then fseat = s end
+		end
+		for i = #stools + 1, #SPOTS do
+			-- beside the last spot for now; the loop below puts it in its place
+			local off = Vector3.new(-3 * i, 0, 8)
+			local copy = first:Clone()
+			copy.Parent = S
+			copy:PivotTo(first:GetPivot() + off)
+			table.insert(stools, copy)
+			if fseat then
+				local s2 = fseat:Clone()
+				s2.Parent = S
+				s2.CFrame = fseat.CFrame + off
+			end
+		end
+	end
+	table.sort(stools, function(a, b)
+		local pa, pb = a:GetPivot().Position, b:GetPivot().Position
+		if math.abs(pa.Z - pb.Z) > 0.5 then return pa.Z < pb.Z end
+		return pa.X > pb.X
+	end)
+	local seats = {}
+	for _, s in ipairs(S:GetChildren()) do
+		if s:IsA("Seat") and s.Name == "WindowStool" then table.insert(seats, s) end
+	end
+	local moved = 0
+	for i, m in ipairs(stools) do
+		local spot = SPOTS[i]
+		if not spot then break end
+		local cf = m:GetBoundingBox()
+		-- its seat (the nearest, within 3 studs), before the stool moves
+		local seat, best = nil, 3
+		for _, s in ipairs(seats) do
+			local d = Vector2.new(s.Position.X - cf.X, s.Position.Z - cf.Z).Magnitude
+			if d < best then seat, best = s, d end
+		end
+		local delta = Vector3.new(spot.X - cf.X, 0, spot.Z - cf.Z)
+		if delta.Magnitude > 0.01 then
+			m:PivotTo(m:GetPivot() + delta)
+			moved += 1
+		end
+		-- the seat over it, facing the bar (a Seat sits its rider facing its front)
+		if seat then seat.CFrame = CFrame.new(seat.Position + delta) end
+	end
+	table.insert(log, string.format("window stools on the long bar: %d moved", moved))
+end
+
+-- 7. (D-1115 / D-1117, user 2026-11-09: "빨간색 칠해 놓은 블록에는 편의점_진열장_2
+-- 이미지 여러개 이어 붙여서 넣어" / "그게 편의점_진열장_2 이 사진이었는데") the
+-- drinks fridge picture (편의점_진열장_2, docs/04_ART/textures/props/
+-- oh24_shelf_1_fridge.jpg, 93988306265362) along the blocks the user put on the
+-- west and south walls (Workspace "cold" parts): the full block height, as
+-- many across as fit at the picture's shape (637 x 609). The user's loose
+-- blocks (cold, front) anchored. Every run. (편의점_진열장_1 for the block
+-- behind the counter, Workspace.front, was a cigarette display: not used, no
+-- tobacco in the game, D-311.)
+do
+	local ASPECT = 637 / 609
+	for _, d in ipairs(workspace:GetChildren()) do
+		if d:IsA("BasePart") and (d.Name == "cold" or d.Name == "front") then d.Anchored = true end
+		-- (D-1123, user 2026-11-10: "편의점 카운터 뒤에 파트에도 진열장 같은 이미지 넣어")
+		-- the counter-back block: a drawn shelf of small goods (candy, gum,
+		-- chocolate, jelly, chargers, gift cards; no tobacco), tools/art/
+		-- oh24_counter_shelf.py → docs/04_ART/textures/props/oh24_shelf_counter.png
+		-- (88807195595964), the whole face once (2:1, like the block)
+		if d:IsA("BasePart") and d.Name == "front" then
+			local t = d:FindFirstChild("OH24Shelf1") or Instance.new("Texture")
+			t.Name = "OH24Shelf1"
+			t.Texture = "rbxassetid://88807195595964"
+			t.Face = Enum.NormalId.Front
+			t.StudsPerTileU = d.Size.X
+			t.StudsPerTileV = d.Size.Y
+			t.Parent = d
+		end
+		if d:IsA("BasePart") and d.Name == "cold" then
+			local len, h = d.Size.X, d.Size.Y
+			local n = math.max(1, math.floor(len / (h * ASPECT) + 0.5))
+			local t = d:FindFirstChild("OH24Shelf2") or Instance.new("Texture")
+			t.Name = "OH24Shelf2"
+			t.Texture = "rbxassetid://93988306265362"
+			t.Face = Enum.NormalId.Front
+			t.StudsPerTileU = len / n
+			t.StudsPerTileV = h
+			t.Parent = d
+		end
+	end
+	table.insert(log, "fridge pictures on the west / south wall blocks")
+end
+
+-- 4. (D-1078, user 2026-11-09: "편의점 의자 위치 바꿨더니 앉는 위치가 달라 의자
+-- 위치로 수정하고 ... 스툴 삭제한 부분에 앉는 블록 있으면 그거 삭제") each window
+-- stool's seat (the invisible WindowStool Seat) right on top of its stool model
+-- (ClubStool, 1.05 west of the seats); a seat with no stool under it goes.
+-- Every run (it only follows the stools).
+do
+	local stools = {}
+	for _, m in ipairs(S:GetChildren()) do
+		if m:IsA("Model") and m.Name:match("Stool") then table.insert(stools, m) end
+	end
+	local moved, gone = 0, 0
+	for _, seat in ipairs(S:GetChildren()) do
+		if seat:IsA("Seat") and seat.Name == "WindowStool" then
+			local best, bestD = nil, 3
+			for _, m in ipairs(stools) do
+				local cf = m:GetBoundingBox()
+				local d = Vector2.new(cf.X - seat.Position.X, cf.Z - seat.Position.Z).Magnitude
+				if d < bestD then best, bestD = m, d end
+			end
+			if best then
+				local cf, size = best:GetBoundingBox()
+				local to = Vector3.new(cf.X, cf.Y + size.Y / 2 - seat.Size.Y / 2, cf.Z)
+				if (to - seat.Position).Magnitude > 0.01 then
+					seat.CFrame = CFrame.new(to) * seat.CFrame.Rotation
+					moved += 1
+				end
+			else
+				seat:Destroy()
+				gone += 1
+			end
+		end
+	end
+	table.insert(log, string.format("window stool seats: %d moved onto their stools, %d without a stool gone", moved, gone))
+end
+
+-- 5. (D-1083, user 2026-11-09: "편의점 계산기 국밥집 크기로 수정하고 편의점 계산대
+-- 위로 위치 수정") the till (Register37) was 28 studs west of the counter (x
+-- -98.8) and 2/3 of the 국밥집's: the 국밥집 till's size, standing on the counter's
+-- PosBase. Every run (it only follows the counter and the 국밥집 till).
+do
+	local reg = S:FindFirstChild("Register37")
+	local base = S:FindFirstChild("PosBase")
+	local G = L:FindFirstChild("Gukbap")
+	local ref = G and G:FindFirstChild("Register37")
+	if reg and reg:IsA("Model") and base and base:IsA("BasePart") then
+		if ref and ref:IsA("Model") then
+			local _, rs = ref:GetBoundingBox()
+			local _, ms = reg:GetBoundingBox()
+			local k = math.max(rs.X, rs.Y, rs.Z) / math.max(ms.X, ms.Y, ms.Z)
+			if math.abs(k - 1) > 0.01 then reg:ScaleTo(reg:GetScale() * k) end
+		end
+		local cf, size = reg:GetBoundingBox()
+		local top = base.Position.Y + base.Size.Y / 2
+		reg:PivotTo(reg:GetPivot() + (Vector3.new(base.Position.X, top + size.Y / 2, base.Position.Z) - cf.Position))
+		table.insert(log, "till on the counter")
+	end
 end
 return table.concat(log, "\n")

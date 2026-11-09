@@ -426,9 +426,17 @@ local function withVariant(drink: any, chosen: string?, after: (variantKey: stri
 end
 
 -- method: "order" (free / tier-1 coins), "coins" (tier 2), "robux"
+-- (D-1124) the ClubShop funnel's first two steps happen here (menu opened, a
+-- drink picked); the server counts them (Analytics, AnalyticsStep)
+local function analyticsStep(step: string)
+	local remotes = FashionGame:FindFirstChild("Remotes")
+	local gate = remotes and remotes:FindFirstChild("AnalyticsStep")
+	if gate and gate:IsA("RemoteEvent") then gate:FireServer(step) end
+end
 local function purchase(drink: any, method: string, chosen: string?)
 	if handsFull() then return end
 	menu.Visible = false
+	analyticsStep("ClubShopPick")
 	if drink.vipOnly and not isVip() then
 		toast("VIP 전용 음료예요. VIP 패스로 열 수 있어요.")
 		buyPass("VIP")
@@ -534,6 +542,7 @@ local function openMenu()
 	layoutMenu()
 	buildMenu()
 	menu.Visible = true
+	analyticsStep("ClubShopOpen")
 	Popups.opened("ClubDrinkMenu", function() menu.Visible = false end)
 end
 player:GetAttributeChangedSignal("Pass_VIP"):Connect(function()

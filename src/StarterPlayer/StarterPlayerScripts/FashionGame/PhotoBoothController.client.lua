@@ -1357,7 +1357,8 @@ end
 local function resultButton(label: string, color: Color3, order: number, onClick: () -> ()): TextButton
 	local b = button({
 		LayoutOrder = order,
-		Size = UDim2.new(1 / 3, -6, 1, 0),
+		Size = UDim2.new(1 / 4, -6, 1, 0), -- (four since D-1126)
+		TextWrapped = true,
 		BackgroundColor3 = color,
 		Text = label,
 		TextSize = 14,
@@ -1398,11 +1399,20 @@ resultButton("📸 캡처 저장", COLORS.pink, 1, function()
 	end
 	captureToGallery({ resultButtons, resultTitle })
 end)
-resultButton("🎒 가방에서 보기", COLORS.card, 2, function()
+-- (D-1126, user 2026-11-10) the picked cuts as a video: the seconds before
+-- each shot from the booth camera, then the shot held still (PhotoMotionReel),
+-- recorded and offered to the device gallery to share
+resultButton("🎬 영상 저장", COLORS.pink, 2, function()
+	if require(script.Parent:WaitForChild("PhotoMotionReel")).isPlaying() then return end
+	require(script.Parent:WaitForChild("PhotoMotionReel")).play(state.picks or {}, function(message)
+		if message then toast(message) end
+	end)
+end)
+resultButton("🎒 가방에서 보기", COLORS.card, 3, function()
 	closeAllFlow()
 	require(script.Parent:WaitForChild("BagSignals")).openBag:Fire("photos")
 end)
-resultButton("닫기", COLORS.card, 3, closeAllFlow)
+resultButton("닫기", COLORS.card, 4, closeAllFlow)
 
 -- (user mock-up 2026-10-30) a soft card with a pink check in the middle,
 -- "사진이 저장되었어요!", and the three buttons in a row under it
@@ -1649,6 +1659,9 @@ local function renderAlbum()
 		if child:IsA("GuiObject") then child:Destroy() end
 	end
 	albumSub.Text = "불러오는 중..."
+	-- (D-1125) the album opened: "사진을 다시 확인" for the analytics (AnalyticsStep)
+	local gate = Remotes:FindFirstChild("AnalyticsStep")
+	if gate and gate:IsA("RemoteEvent") then gate:FireServer("AlbumOpen") end
 	local ok, data = invoke("GetAlbum", nil)
 	if generation ~= albumGeneration then return end
 	if not ok or typeof(data) ~= "table" then
@@ -1801,6 +1814,7 @@ local function update()
 			state.stage = "shooting"
 			table.clear(cutCaptures)
 			cutCount = 0
+			require(script.Parent:WaitForChild("PhotoMotionReel")).begin((booth :: Model):GetPivot().Position) -- (D-1126: the moves before each shot)
 			layoutShoot()
 			shoot.Visible = true
 			liftTouchGui(true)
@@ -1826,6 +1840,7 @@ local function update()
 			shoot.Visible = false
 			liftTouchGui(false)
 			restoreCamera()
+			require(script.Parent:WaitForChild("PhotoMotionReel")).stop() -- (D-1126)
 		end
 		if state.stage == "picking" or state.stage == "frame" then
 			local left = math.max(0, math.ceil((booth :: Model):GetAttribute("WaitUntil") - workspace:GetServerTimeNow()))
@@ -1880,7 +1895,10 @@ end)
 boothEvent.OnClientEvent:Connect(function(kind: any, value: any)
 	if kind == "Shot" then
 		cutCount += 1
-		if state.stage == "shooting" then task.spawn(captureCut, cutCount) end
+		if state.stage == "shooting" then
+			require(script.Parent:WaitForChild("PhotoMotionReel")).shot(cutCount) -- (D-1126: before the flash and the capture)
+			task.spawn(captureCut, cutCount)
+		end
 		flashShot()
 	elseif kind == "Shots" and typeof(value) == "table" then
 		openPick(value)

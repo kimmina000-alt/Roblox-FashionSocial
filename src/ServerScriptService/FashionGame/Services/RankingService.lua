@@ -105,8 +105,12 @@ local names: {[number]: string} = {}
 local hidden: {[number]: boolean} = {}
 -- (D-836, user) left off every board, matched by account name or nickname
 -- (lower case); their account ids are looked up once at start
-local EXCLUDED_NAMES = { kr_ohu = true, arrrrall = true }
-local excluded: {[number]: boolean} = {}
+-- (D-1098, user 2026-11-09: "kr_ohu, arallll 이 둘만 감추고 다른 사람들은 보여 줘.
+-- 이 둘은 물음표로도 두지 말고") arallll added (arrrrall was a misspelling, kept);
+-- their account ids written down too, so a failed name look-up can never show
+-- them as a "?" row
+local EXCLUDED_NAMES = { kr_ohu = true, arallll = true, arrrrall = true }
+local excluded: {[number]: boolean} = { [11886390086] = true, [438214973] = true, [11931560912] = true }
 task.spawn(function()
 	for name in pairs(EXCLUDED_NAMES) do
 		local ok, id = pcall(function() return Players:GetUserIdFromNameAsync(name) end)
@@ -149,7 +153,7 @@ local function add(board: Board, userId: number, amount: number)
 		pendingMinutes[userId] = 0
 	end
 	local store = ordered(board)
-	if not store then return end
+	if not store or userId <= 0 or excluded[userId] then return end -- (D-1086: no Studio test players; D-1098: nor the hidden accounts)
 	task.spawn(function()
 		local ok, total = pcall(function()
 			return (store :: OrderedDataStore):IncrementAsync(tostring(userId), math.floor(amount))
@@ -203,7 +207,10 @@ local function top(board: Board): {{ name: string, value: number, id: number }}
 	end
 	local list = {}
 	for id, value in pairs(merged) do
-		if value > 0 and not hidden[id] then table.insert(list, { id = id, value = value }) end
+		-- (D-1086, user 2026-11-09: "물음표는 뭐야?") the two "?" rows were the
+		-- Studio test players (UserId -1 / -2, no name to look up), saved to the
+		-- shared store by 2-player tests: never a real player, left out
+		if value > 0 and id > 0 and not hidden[id] then table.insert(list, { id = id, value = value }) end
 	end
 	table.sort(list, function(a, b) return a.value > b.value end)
 	local out = {}
@@ -247,7 +254,7 @@ end
 -- attribute "XP"): the board keeps the latest value and saves it now and then
 local function saveLevel(player: Player)
 	local xp = player:GetAttribute("XP")
-	if typeof(xp) ~= "number" or xp <= 0 then return end
+	if typeof(xp) ~= "number" or xp <= 0 or player.UserId <= 0 or excluded[player.UserId] then return end -- (D-1086, D-1098)
 	local store = ordered("level")
 	if not store then return end
 	task.spawn(function()
@@ -293,7 +300,11 @@ local function publish()
 	data.recent = {}
 	recentLooks = {}
 	for _, entry in ipairs(recent) do
-		if (entry.at or 0) >= RECENT_FROM and not hidden[entry.u] and not excluded[entry.u] and not EXCLUDED_NAMES[string.lower(tostring(entry.n))] then
+		-- (D-1119, user 2026-11-09: "건물 전광판에 내 캐릭터 뜨는 거 지우고 광고용 이미지만
+		-- 띄워 이후 후원자는 기존 기획대로 띄워") the game owner's own gifts (tests on
+		-- the live game, 2026-11-05) are never on the screen: with no other gifts it
+		-- shows the ads only
+		if (entry.at or 0) >= RECENT_FROM and entry.u ~= game.CreatorId and not hidden[entry.u] and not excluded[entry.u] and not EXCLUDED_NAMES[string.lower(tostring(entry.n))] then
 			local look = lookOf(entry.u)
 			recentLooks[entry.u] = look
 			local votes = VoteService.State("supporter", tostring(entry.u), VoteService.Version(look))
@@ -302,6 +313,15 @@ local function publish()
 		end
 	end
 	FashionGame:SetAttribute("Rankings", HttpService:JSONEncode(data))
+end
+
+-- (D-1097) the owner in 관전 mode: off the boards for now (not saved)
+local spectating: {[number]: boolean} = {}
+function RankingService.SetSpectating(player: Player, on: boolean)
+	spectating[player.UserId] = if on then true else nil
+	if on then hidden[player.UserId] = true
+	elseif player:GetAttribute("RankHidden") ~= true then hidden[player.UserId] = nil end
+	task.spawn(publish)
 end
 
 function RankingService.SetHidden(player: Player, hide: boolean)
