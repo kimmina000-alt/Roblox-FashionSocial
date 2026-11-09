@@ -63,6 +63,7 @@ require(script.Parent.Services.GuardService).Start()
 require(script.Parent.Services.BeachBallService).Start() -- (beach balls to pick up and throw, D-1029)
 require(script.Parent.Services.ZoneAnalyticsService).Start() -- (minutes per place for the dashboard, D-1096)
 require(script.Parent.Services.SpectateService).Start(RankingService) -- (the owner's /관전, D-1097)
+require(script.Parent.Services.ChatCommandService).Start() -- (/re, /sit, D-1107)
 -- carried items back after a rejoin or a respawn (D-790)
 require(script.Parent.Services.BagService).Start(PlayerDataService, SnackService, DrinkService, SparkleService)
 
