@@ -137,8 +137,7 @@ M.Playlist = {
 	-- 3 × 53.553 ÷ 153.008 = 1.0500, and the user's tempo 0.956 × 1.05 = 1.004 (heard ≈ the original)
 	-- (D-933, user 2026-11-06: boost3 5, low -3, high -28)
 	-- (D-1010, user 2026-11-08: "부스터4: 5")
-	-- (D-1122, user 2026-11-09: low / mid / high from the user)
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -3, mid = -6.5, high = -28 }, choreo = {
+	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -34, mid = -20, high = -34 }, choreo = {
 		-- (D-807, user: "이음새도 맞춰") blend = seconds to ease from the last pose
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
 		-- (D-878, user: "겟어기타 안무 수정", practice video u_u21u8zIIs, mirrored
@@ -222,8 +221,7 @@ M.Playlist = {
 		{ id = 93178194866716, at = 115, blend = 0.6 }, { id = 92757942038731, at = 119, blend = 0.6 }, { id = 110433660488854, at = 128.43, blend = 0.6 },
 		{ id = 87039448079710, at = 136, blend = 0.6 }, { id = 99840608563579, at = 144.33, blend = 1 }, { id = 134866535240552, at = 151.87, blend = 0.66 },
 		{ id = 98315614070332, at = 159.1, blend = 0.61 } }, autoChoreo = true },
-	-- (D-1122, user 2026-11-09: low / mid / high / boost2 from the user)
-	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 2, octave = 0.5, low = -21, mid = 0, high = -0.5, engine = "sound" },
+	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
 		-- (D-992, user: "안무 추면서 이동해도 결국 처음 서 있던 위치를 중심으로 두고 끝나면 돌아오게 … 레모네이드에만 먼저"):
 		-- the travel eases back toward the start in 2.5 s (instead of 8) and the dancer glides home over 1.5 s at the end
 		home = { settle = 2.5, back = 1.5 },
