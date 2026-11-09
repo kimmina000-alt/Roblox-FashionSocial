@@ -3784,3 +3784,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 | 친구바 | 나눈 뒤 (왼손 B) | 빼쭉이 상자 연 뒤 | 메롱바 | 수박아이스 |
 |---|---|---|---|---|
 | ![](images/2026-11-10/oh24_friendbar_whole.jpg) | ![](images/2026-11-10/oh24_friendbar_split.jpg) | ![](images/2026-11-10/oh24_bbabbaro_open.jpg) | ![](images/2026-11-10/oh24_merona.jpg) | ![](images/2026-11-10/oh24_subakbar.jpg) |
+
+## 2026-11-10 핫바 · 가방 · 쓰레기통 · 빼쭉이 · 락커룸 (D-1130..D-1134)
+| 가방 8열 + 하단 칸 | 쓰레기통 | 빼쭉이 막대 하나 | 락커룸 새 문 |
+|---|---|---|---|
+| ![](images/2026-11-10/bag_8cols_hotbar.jpg) | ![](images/2026-11-10/trash_window.jpg) | ![](images/2026-11-10/bbabbaro_stick_out.jpg) | ![](images/2026-11-10/locker_door_moved.jpg) |

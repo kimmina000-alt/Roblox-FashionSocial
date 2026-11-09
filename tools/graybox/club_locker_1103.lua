@@ -257,8 +257,15 @@ local function notGate(p) return p.Name ~= "VIP_GateNeon" end
 local function groundOnly(p) return p.Name == "Ground" or p.Name == "Sidewalk" end
 -- the locker room (D-824, user plan): a short passage north from the
 -- corridor's wall, the room at its end
-local LX0, LX1, LZ0, LZ1 = 131.6, 231, -365, -313 -- the room inside
-local PX0, PX1 = 132.5, 146.5 -- the passage inside (z LZ1 .. -292)
+-- (D-1134, user 2026-11-10: "락커룸 층고 높였음. 높이면서 국밥집이랑 겹쳐서 겹치는 부분
+-- 사이즈 조절하면서 벽 위치 이동함. 클럽 내부에서 락커룸 들어가는 짧은 복도랑 자동문이랑
+-- 문 프레임 위치 수정해야 함.") the user raised the room (ceiling y 10, was -3) and,
+-- as the higher room met the 국밥집 (x up to 134.6), moved its west wall to x 134
+-- (inside from 135.6, was 131.6); the passage, its door and frame went 5 east
+-- to stay inside the room (x 137.5..151.5, was 132.5..146.5), the corridor wall's
+-- opening with them. The user also took the lockers out.
+local LX0, LX1, LZ0, LZ1 = 135.6, 231, -365, -313 -- the room inside
+local PX0, PX1 = 137.5, 151.5 -- the passage inside (z LZ1 .. -292); 132.5..146.5 before D-1134
 local SX1 = 191 + (V - F) -- the top step's east edge (235)
 local HX1 = 255 -- the stair hall's inside east end (the landing 20 deep, D-824)
 local HTOP = 60 -- its roof (36 → 60, D-824: it felt low)
@@ -270,6 +277,30 @@ hole("stair hall door (corridor end)", 187.8, F - 0.5, -290, 190.4, F + 21, -275
 -- (from x 187.4: the lounge's floor-edge light line is cut across the doorway too, D-827)
 hole("stair hall door (2F lounge)", 187.4, V + 0.01, -273, 190.4, V + UDH, -259, wallOnly)
 hole("locker passage (corridor wall)", PX0, F - 0.5, -292.4, PX1, F + 21, -289.9, wallOnly)
+-- (D-1134) the corridor wall closed again where the opening was before (x 132.5..137.5),
+-- unless a wall already stands there (a freshly built club zone)
+do
+	local filled = false
+	for _, p in ipairs(club:GetChildren()) do
+		if p:IsA("BasePart") and p.Name == "Wall_W" then
+			local a, b = aabb(p)
+			if a.X <= 133 and b.X >= 137 and a.Y <= F + 1 and b.Y >= F + 10 and a.Z <= -291 and b.Z >= -291 then filled = true end
+		end
+	end
+	if not filled then
+		for _, p in ipairs(club:GetChildren()) do
+			if p:IsA("BasePart") and p.Name == "Wall_W" then
+				local a, b = aabb(p)
+				-- the piece ending at the old opening's west side: on to the new one
+				if math.abs(b.X - 132.5) < 0.05 and math.abs(a.Y - F) < 0.05 and a.Z <= -291 and b.Z >= -291 then
+					p.Size = Vector3.new(PX0 - a.X, p.Size.Y, p.Size.Z)
+					p.CFrame = CFrame.new((a.X + PX0) / 2, p.Position.Y, p.Position.Z)
+					table.insert(log, "corridor wall closed to x " .. PX0)
+				end
+			end
+		end
+	end
+end
 hole("ground: stair hall", 188.5, -16, -292.5, HX1 + 2.5, 0.6, -254.5, groundOnly)
 hole("ground: locker room", LX0 - 2.5, -16, LZ0 - 2.5, LX1 + 2.5, 0, -289.9, groundOnly) -- (to -289.9: a strip of ground showed at the passage, D-827)
 
@@ -408,18 +439,21 @@ do
 	R.Name = "LockerRoom"
 	R.Parent = A
 	local X0, X1, Z0, Z1 = LX0, LX1, LZ0, LZ1
-	local TOP = -3
+	local TOP = -3 -- the passage and the doorway (21 high)
+	local RTOP = 10 -- the room's ceiling (D-1134, the user: was -3)
 	local WHITE = Color3.fromRGB(246, 244, 240)
 	local PLASTER = { mat = Enum.Material.Plaster }
 	local wood = box("Floor", X0 - 1.6, F - 1, Z0 - 1.6, X1 + 1.6, F, Z1, Color3.fromRGB(214, 190, 156), R, { mat = Enum.Material.WoodPlanks })
 	wood.Reflectance = 0.05
-	box("Ceiling", X0 - 1.6, TOP, Z0 - 1.6, X1 + 1.6, 0, Z1 + 1.6, WHITE, R)
-	box("Wall_W", X0 - 1.6, F, Z0 - 1.6, X0, TOP, Z1 + 1.6, WHITE, R, PLASTER)
-	box("Wall_E", X1, F, Z0 - 1.6, X1 + 1.6, TOP, Z1 + 1.6, WHITE, R, PLASTER)
-	box("Wall_N", X0 - 1.6, F, Z0 - 1.6, X1 + 1.6, TOP, Z0, WHITE, R, PLASTER)
-	-- the south wall with the doorway from the passage, open up to the ceiling (D-827)
-	box("Wall_S", PX1, F, Z1, X1 + 1.6, TOP, Z1 + 1.6, WHITE, R, PLASTER)
-	box("Wall_S", X0 - 1.6, F, Z1, PX0, TOP, Z1 + 1.6, WHITE, R, PLASTER)
+	box("Ceiling", X0 - 1.6, RTOP, Z0 - 1.6, X1 + 1.6, RTOP + 3, Z1 + 1.6, WHITE, R)
+	box("Wall_W", X0 - 1.6, F, Z0 - 1.6, X0, RTOP, Z1 + 1.6, WHITE, R, PLASTER)
+	box("Wall_E", X1, F, Z0 - 1.6, X1 + 1.6, RTOP, Z1 + 1.6, WHITE, R, PLASTER)
+	box("Wall_N", X0 - 1.6, F, Z0 - 1.6, X1 + 1.6, RTOP, Z0, WHITE, R, PLASTER)
+	-- the south wall with the doorway from the passage (D-827); over the doorway
+	-- up to the raised ceiling (D-1134)
+	box("Wall_S", PX1, F, Z1, X1 + 1.6, RTOP, Z1 + 1.6, WHITE, R, PLASTER)
+	box("Wall_S", X0 - 1.6, F, Z1, PX0, RTOP, Z1 + 1.6, WHITE, R, PLASTER)
+	box("Wall_S", PX0, TOP, Z1, PX1, RTOP, Z1 + 1.6, WHITE, R, PLASTER)
 	-- THE PASSAGE from the corridor (D-824, user plan): dark like the club,
 	-- graffiti, the floor lines joining the corridor's (no ceiling light, D-827)
 	do
@@ -431,7 +465,8 @@ do
 		f.Reflectance = 0.15
 		box("Wall_W", PX0 - 1, F, pz0, PX0, TOP, -292, WALL_C, P)
 		box("Wall_E", PX1, F, pz0, PX1 + 1, TOP, -292, WALL_C, P)
-		box("Ceiling", PX0 - 1, TOP, pz0, PX1 + 1, 0, -292, DARK, P)
+		-- (from x 131.5, where the passage was before D-1134: the street above has no hole there)
+		box("Ceiling", math.min(PX0 - 1, 131.5), TOP, pz0, PX1 + 1, 0, -292, DARK, P)
 		graffiti(P, PX0, F, pz0, PX0 + 0.05, TOP, -292, Enum.NormalId.Right)
 		graffiti(P, PX1 - 0.05, F, pz0, PX1, TOP, -292, Enum.NormalId.Left)
 		for _, x in ipairs({ PX0 + 0.06, PX1 - 0.06 }) do
@@ -443,7 +478,7 @@ do
 		for k = 0, 1 do
 			local cx = X0 + (X1 - X0) * (i + 0.5) / 4
 			local cz = Z0 + (Z1 - Z0) * (k + 0.5) / 2
-			local p = box("LightPanel", cx - 5, TOP - 0.15, cz - 5, cx + 5, TOP, cz + 5, Color3.fromRGB(255, 252, 245), R, NEON())
+			local p = box("LightPanel", cx - 5, RTOP - 0.15, cz - 5, cx + 5, RTOP, cz + 5, Color3.fromRGB(255, 252, 245), R, NEON())
 			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 24 sl.Brightness = 2.2 sl.Angle = 120
 			sl.Color = Color3.fromRGB(255, 248, 238) sl.Shadows = false sl.Parent = p
 		end
@@ -462,8 +497,12 @@ do
 		box("LockerTop", x0, F + LH, z0, x1, F + LH + 0.3, z1, Color3.fromRGB(220, 220, 224), R, { mat = Enum.Material.Metal })
 		return b
 	end
-	lockers(X0 + 4, Z0, X1 - 4, Z0 + 1.8, Enum.NormalId.Back)
-	lockers(X1 - 1.8, Z0 + 4, X1, Z1 - 4, Enum.NormalId.Left)
+	-- (D-1134: the user took the lockers out when raising the ceiling; set true to have them back)
+	local LOCKERS = false
+	if LOCKERS then
+		lockers(X0 + 4, Z0, X1 - 4, Z0 + 1.8, Enum.NormalId.Back)
+		lockers(X1 - 1.8, Z0 + 4, X1, Z1 - 4, Enum.NormalId.Left)
+	end
 	-- (no mirrors, vanity, stools, rug, floor lines or name over the lockers:
 	-- all taken out, D-827, user) a few plants
 	local plant = game:GetService("ServerStorage"):FindFirstChild("ArtAssets") and game:GetService("ServerStorage").ArtAssets:FindFirstChild("CafePotPlant")
