@@ -2129,10 +2129,47 @@ local function ownPlaced(player: Player, model: any): Placed?
 	return entry
 end
 
+-- (D-1155) a food on the table near the player, whoever put it there
+local function nearPlaced(player: Player, model: any): Placed?
+	if typeof(model) ~= "Instance" or not model:IsA("Model") or not model.Parent then return nil end
+	local entry = placedFood[model]
+	if not entry then return nil end
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not root or (root.Position - entry.copy.Position).Magnitude > 14 then return nil end
+	return entry
+end
+local function toast(player: Player, message: string)
+	local notify = Remotes:FindFirstChild("ClubNotify")
+	if notify and notify:IsA("RemoteEvent") and player.Parent then notify:FireClient(player, "Toast", message) end
+end
+-- the name with 을 / 를 after it (by the last syllable's final consonant; a
+-- name ending in ")" like "아메리카노 (HOT)" looks at the word before it)
+local function withEul(name: string): string
+	local base = string.gsub(name, "%s*%b()%s*$", "")
+	local last: number? = nil
+	for _, c in utf8.codes(base) do last = c end
+	local batchim = last ~= nil and last >= 0xAC00 and last <= 0xD7A3 and (last - 0xAC00) % 28 ~= 0
+	return name .. (if batchim then "을" else "를")
+end
+
 -- a short tap on a 국밥 / 공깃밥 / 컵라면 on the table: one spoonful
 local function spoonFromTable(player: Player, model: any, piece: any): (boolean, string?)
-	local entry = ownPlaced(player, model)
+	-- (D-1155, user 2026-11-10: "테이블에 두면 다른 사람들도 먹을 수 있게 해 / 빼앗기고
+	-- 빼앗아먹는 재미 넣자") food eaten at the table (spoon, fork, a bread piece by
+	-- hand: entry.soup) is anyone's to take a piece of; the one who put it down is
+	-- told who took a bite, and the taker gets the XP of that bite. Drinks and
+	-- snacks that go back to the hand stay the owner's.
+	local entry = nearPlaced(player, model)
 	if not entry or not entry.item then return false, nil end
+	if entry.player ~= player then
+		if not entry.soup or (model :: Model):GetAttribute("Busy") then return false, nil end
+		local owner, item = entry.player, entry.item
+		task.spawn(spoonful, player, model, entry.copy, entry.tool, item, if typeof(piece) == "Instance" and piece:IsDescendantOf(model) and typeof(piece:GetAttribute("Bite")) == "number" then piece:GetAttribute("Bite") else nil)
+		toast(owner, string.format("😋 %s님이 내 %s 한 입 뺏어 먹었어요!", player.DisplayName, withEul(item.name)))
+		toast(player, string.format("😋 %s님의 %s 한 입 뺏어 먹었어요!", owner.DisplayName, withEul(item.name)))
+		Analytics.interact(player, "StealBite")
+		return true, nil
+	end
 	-- (D-1090, user 2026-11-09: "컵라면 테이블 위에 두면 테이블에 있는 상태에서
 	-- 젓가락으로 먹게 하고 들고 있을 땐 왼손에 들고 먹는 걸로") a cooked cup ramen
 	-- on the table is eaten there with chopsticks; before it is cooked (lid, hot

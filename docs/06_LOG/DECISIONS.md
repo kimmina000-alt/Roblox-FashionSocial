@@ -3831,3 +3831,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ServerStorage.ArtAssets.Foods (place 전용): SaltBreadBites, BagelBites, CroissantBites = Bite1..3 (부품 이름 Bread, 색 흰색: 가져오기의 회색 기본색이 이미지를 어둡게 함). 원본은 Foods._Imports_cafe_1110.*_glb_1110. 손에서는 크기 그대로 Bite1부터 한 조각씩 (EatMode Bites).
 - FoodShapes.TableEat saltbread / bagel / croissant = "hand": 테이블에서 누른 조각을 숟가락 / 포크 없이 손으로 (보이지 않는 손잡이에 그 조각을 테이블에 있던 크기 그대로), 입으로.
 - Play 확인: 세 빵 모두 Bites 3, 베이글을 테이블에 놓고 2번 조각을 누르면 그 조각을 손에 들고 먹음. 크루아상은 아직 회색 임시 모양으로 보임 (Roblox가 새 메시 / 이미지를 처리하는 중으로 보임: Studio에서는 UV 4,116개, 이미지 512 정상. 소금빵도 처음엔 회색이었다가 나옴). 따로 올린 512 이미지 88369617984548 도 있음.
+## D-1155 테이블 음식은 누구나 한 입씩 (뺏어 먹기) (2026-11-10)
+- 사용자: "테이블에 두면 다른 사람들도 먹을 수 있게 해. 빼앗기고 빼앗아먹는 재미 넣자."
+- 테이블에서 먹는 음식 (PlacedFood의 Soup: 국밥 · 공깃밥 · 컵라면, 파르페 숟가락, 허니브레드 포크, 빵 3종 손으로)은 근처(14 스터드)에 있는 누구나 탭해서 한 조각 / 한 숟갈 먹음 (SnackService nearPlaced, SnackController: 남의 음식도 조각 하이라이트 + 탭). 길게 눌러 가방에 되돌리기는 주인만. 손으로 되돌아가는 음료 · 과자는 계속 주인만.
+- 뺏어 먹으면 둘 다 알림 (ClubNotify Toast): 주인 "😋 OO님이 내 소금빵을 한 입 뺏어 먹었어요!", 먹은 사람 "😋 OO님의 소금빵을 한 입 뺏어 먹었어요!" (을 / 를은 받침으로). 그 한 입의 XP는 먹은 사람에게. Analytics "StealBite".
+- 확인 필요: 2인 테스트 (MCP는 여러 명 테스트를 켤 수 없음).

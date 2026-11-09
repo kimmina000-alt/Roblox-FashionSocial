@@ -475,7 +475,8 @@ do
 		-- (D-1037) a piece of my 국밥 on the table (its parts carry Bite = n)
 		if part and part:IsA("BasePart") and typeof(part:GetAttribute("Bite")) == "number" and part.Transparency < 1 then
 			local placed = placedOf(part)
-			if placed and placed:GetAttribute("Owner") == player.UserId then return part end
+			-- (D-1155) anyone's food eaten at the table (attribute Soup): a piece of it too
+			if placed and (placed:GetAttribute("Owner") == player.UserId or placed:GetAttribute("Soup")) then return part end
 		end
 		return nil
 	end
@@ -520,12 +521,16 @@ do
 		local screen = pointOf(input)
 		local hit = rayAt(screen)
 		local placed = hit and placedOf(hit.Instance)
-		if placed and placed:GetAttribute("Owner") ~= player.UserId then placed = nil end
+		-- (D-1155, user 2026-11-10: "테이블에 두면 다른 사람들도 먹을 수 있게 해 / 빼앗기고
+		-- 빼앗아먹는 재미") someone else's food eaten at the table (국밥, 파르페, 허니브레드,
+		-- 빵: attribute Soup) can be tapped for a piece; only my own goes back with a long press
+		local mine = placed ~= nil and placed:GetAttribute("Owner") == player.UserId
+		if placed and not mine and not placed:GetAttribute("Soup") then placed = nil end
 		local p: Press = { input = input, start = screen, at = os.clock(), placed = placed, plate = hit and sharedPlateOf(hit.Instance), piece = hit and pieceOf(hit.Instance), moved = false, done = false }
 		press = p
 		if heldFood() then showGhost(screen) end
 		-- a long press on my food on the table takes it back
-		if placed then
+		if placed and mine then
 			task.delay(HOLD, function()
 				if press == p and not p.done and not p.moved and placed.Parent then
 					p.done = true
