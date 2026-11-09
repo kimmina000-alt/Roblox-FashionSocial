@@ -117,6 +117,50 @@ local TRACKS = {
 	{ title = "izna - ROCK, PAPER, SCISSORS", id = 132951659748689 }, -- file 105.5 s, song 2:21
 	{ title = "LISA - Cobra", id = 95502375387883 }, -- file 131.6 s, song 2:25
 	{ title = "ALLDAY PROJECT - NO 한도", id = 81251273866025 }, -- file 131.7 s, song 2:25
+	-- (user 2026-11-09) 43 x1 uploads from 오후's ClubPlaylist, values saved in the store (tempo per line)
+	{ title = "K-DA-GIRLS", id = 133434812252990 }, -- 0.951
+	{ title = "ROCK PAPER SCISSORS", id = 108797026675247 }, -- 0.955
+	{ title = "ALLDAY PROJECT-NO LIMIT", id = 79664669248816 }, -- 0.951
+	{ title = "2 RESCENE-With", id = 112509101263761 }, -- 0.952
+	{ title = "K-DA-FIRESTARTER", id = 94925181116487 }, -- 0.951
+	{ title = "K-DA-NEVER GOING BACK", id = 136982561112199 }, -- 0.951
+	{ title = "LUMIN-HIDE", id = 93397731217867 }, -- 0.95
+	{ title = "2 AND2BLE-French Kissing", id = 88604783778178 }, -- 0.953
+	{ title = "헤이즈-빈틈을 채워 준 너에게", id = 79978358676881 }, -- 0.953
+	{ title = "Dam Da Dee", id = 92530611206857 }, -- 0.951
+	{ title = "LUMIN-88", id = 131856022019788 }, -- 0.955
+	{ title = "Run the Night", id = 94663574971399 }, -- 0.952
+	{ title = "머무르-꿈꾸던 어른이 되었나요", id = 95913746283492 }, -- 0.95
+	{ title = "BIG Naughty-노스탈지아", id = 138668506442693 }, -- 0.953
+	{ title = "TAEYEON-만찬가", id = 124367047209689 }, -- 0.953
+	{ title = "NMIXX-Birthday Wish", id = 127918504252740 }, -- 0.953
+	{ title = "송하영-처음 그 자리에", id = 85563793488474 }, -- 0.953
+	{ title = "Lee Mujin-Come Rest With Me", id = 97747873047145 }, -- 0.953
+	{ title = "kennytheking-morae", id = 112834468757050 }, -- 0.952
+	{ title = "Even if it's slightly off", id = 94547707613847 }, -- 0.951
+	{ title = "When We're Together", id = 113739077119161 }, -- 0.95
+	{ title = "송유진-I Miss You", id = 107465969275795 }, -- 0.953
+	{ title = "URBAN ZAKAPA-거리", id = 132434943798296 }, -- 0.952
+	{ title = "20 Years of Age-Your Season", id = 118999584170024 }, -- 0.953
+	{ title = "이민혁·보라미유-사랑일지도 몰라", id = 108346448346476 }, -- 0.953
+	{ title = "정승환-푸르른 계절도 내겐 의미 없어요", id = 88022342248077 }, -- 0.952
+	{ title = "나는 너라서", id = 120378159122290 }, -- 0.952
+	{ title = "YOHAN-Song for you", id = 108378947159567 }, -- 0.951
+	{ title = "Adrian Macéus-Ask You Out", id = 76084016769694 }, -- 0.95
+	{ title = "becoming a star", id = 78610966959610 }, -- 0.952
+	{ title = "Just Another Love Song", id = 73680886300915 }, -- 0.954
+	{ title = "Lionel Richie-Can't Slow Down", id = 119789957160678 }, -- 0.954
+	{ title = "Color Me Home", id = 131785918775462 }, -- 0.952
+	{ title = "Light It Up", id = 110137761725603 }, -- 0.955
+	{ title = "ALLDAY PROJECT-CRASH", id = 86115718533153 }, -- 0.952
+	{ title = "그사람", id = 139646189327476 }, -- 0.954
+	{ title = "CAR, THE GARDEN-Stay", id = 140222834511413 }, -- 0.953
+	{ title = "이하이-손을 잡아줘요", id = 78224880948150 }, -- 0.954
+	{ title = "Runaway Lights", id = 110210786180640 }, -- 0.952
+	{ title = "Small Town Ghost", id = 121184160009188 }, -- 0.951
+	{ title = "All On Me", id = 112267422115842 }, -- 0.955
+	{ title = "Secret Us", id = 82537293207913 }, -- 0.955
+	{ title = "BIGBANG-BiiiG BiiiG", id = 117439533883778 }, -- 0.954
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
