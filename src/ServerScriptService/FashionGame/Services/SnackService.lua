@@ -1410,6 +1410,24 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 		return false, string.format("손에 %d개까지 들 수 있어요. 먼저 드세요!", SnackConfig.MaxCarried)
 	end
 	if not player:FindFirstChildOfClass("Backpack") then return false, "잠시 후 다시 시도해 주세요." end
+	-- (D-1135) a club can: the club bar's own can (DrinkService), paid in coins here
+	local clubCan = (item :: any).clubCan
+	if clubCan and SnackService.canGiver then
+		local price = item.coins or 0
+		if price > 0 and (not economy or economy.Balance(player) < price) then
+			local balance = if economy then economy.Balance(player) else 0
+			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
+		end
+		local ok, message, can = SnackService.canGiver(player, clubCan, nil)
+		if not ok then return false, message end
+		if price > 0 and economy then economy.Spend(player, price, "Snack_" .. shop.key .. "_" .. item.key) end
+		if can and economy then can:SetAttribute("FoodXP", economy.FoodXPFor(price)) end
+		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		if humanoid and can then humanoid:EquipTool(can) end
+		payBeep(player, shop.key)
+		Analytics.interact(player, "Buy")
+		return true, item.name .. " 나왔어요! 누르면 캔째 마시고, 테이블을 누르면 올려놓고 같이 마셔요."
+	end
 	-- the cafe staff makes the order (free cups until D-772)
 	-- (D-772, user: everything but the Robux menu goes through the staff; the
 	-- coins are paid when ordering, CafeJobService)
@@ -1490,6 +1508,9 @@ SnackService.PlacePlate = function(owner: any, tablePart: BasePart, item: SnackC
 function SnackService.SetOrderHandler(handler: (Player, SnackConfig.Shop, SnackConfig.Item) -> (boolean, string?))
 	orderHandler = handler
 end
+
+-- (D-1135) who hands over a club can (DrinkService.GiveBottle: player, drink key, servings) → ok, message, tool
+SnackService.canGiver = nil :: ((Player, string, number?) -> (boolean, string?, Tool?))?
 
 function SnackService.SetFinishedHandler(handler: (Model, SnackConfig.Item) -> ())
 	finishedHandler = handler
@@ -1992,6 +2013,14 @@ local function buildFoodPreviews()
 								slice.Parent = m
 							end
 						end
+					elseif (item :: any).clubCan then
+						-- (D-1135) the club can's own shape (BottleShapes, as DrinkService draws it)
+						local BottleShapes = require(FashionGame:WaitForChild("Shared"):WaitForChild("BottleShapes"))
+						local key = (item :: any).clubCan
+						local h = part("Handle", Vector3.new(0.7, 1.8, 0.7), item.color)
+						h.Transparency = 1
+						h.Parent = m
+						BottleShapes.add(m, h.CFrame * CFrame.new(0, -0.9, 0), key, item.color, 1.9 / BottleShapes.height(key), h)
 					else
 						local tool = makeTool(item)
 						for _, d in ipairs(tool:GetChildren()) do d.Parent = m end

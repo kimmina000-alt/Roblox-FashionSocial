@@ -29,6 +29,7 @@ export type Item = {
 	wrapped: boolean?, -- (D-1065) the first tap tears its wrapper off (piece Bite1 of the model), then the bites
 	pair: boolean?, -- (D-1129) 친구바: the first tap splits it in two, one half for a friend (FriendBar)
 	stickOut: boolean?, -- (D-1131) 빼쭉이: each bite one stick out into the other hand (SnackHands)
+	clubCan: string?, -- (D-1135) the club bar's can of this drink (ClubDrinks key), handed over by DrinkService
 }
 export type Shop = { key: string, title: string, prompt: string, hint: string?, items: {Item} }
 
@@ -120,6 +121,14 @@ SnackConfig.Shops = {
 			{ key = "chocosnack", name = "빼쭉이", kind = "bag", color = Color3.fromRGB(150, 60, 50), coins = 3, wrapped = true, stickOut = true, section = "💰 3" },
 			{ key = "bananamilk", name = "바나나우유", kind = "bottle", color = Color3.fromRGB(255, 225, 110), coins = 3, section = "💰 3" },
 			{ key = "soda", name = "탄산음료 캔", kind = "bottle", color = Color3.fromRGB(220, 50, 60), coins = 3, section = "💰 3" },
+			-- (D-1135, user 2026-11-10: "편의점 탄산음료, 클럽에서 파는 캔 음료 모두 넣기" → 편의점에서
+			-- 팔기) the club bar's cans too, the very same can (6 cups: put it on a table
+			-- and share it, or drink from it), at the club's coin price (물 = 생수 above)
+			{ key = "can_cider", name = "사이다 캔", kind = "bottle", color = Color3.fromRGB(200, 255, 200), coins = 1, clubCan = "cider", section = "🥫 캔 음료" },
+			{ key = "can_cola", name = "콜라 캔", kind = "bottle", color = Color3.fromRGB(70, 35, 20), coins = 1, clubCan = "cola", section = "🥫 캔 음료" },
+			{ key = "can_orange", name = "오렌지 소다 캔", kind = "bottle", color = Color3.fromRGB(255, 140, 0), coins = 5, clubCan = "orange", section = "🥫 캔 음료" },
+			{ key = "can_lemonade", name = "레몬에이드 캔", kind = "bottle", color = Color3.fromRGB(255, 232, 110), coins = 5, clubCan = "lemonade", section = "🥫 캔 음료" },
+			{ key = "can_blueade", name = "블루에이드 캔", kind = "bottle", color = Color3.fromRGB(70, 160, 255), coins = 5, clubCan = "blueade", section = "🥫 캔 음료" },
 			-- (D-1065, user 2026-11-09: "삼각김밥 추가. bibim: 전주비빔 삼각김밥 / chamchi:
 			-- 참치마요 삼각김밥") the user's two models: the wrapper off, then three bites;
 			-- "samgak" kept as the key of the first so bags saved before still give one back
