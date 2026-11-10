@@ -1266,6 +1266,8 @@ M.ChoreoHeadTilt = {
 	[132337331292488] = { { part = "Head", keys = { { 3.60, 0, 0, 0 }, { 3.80, 0, 0, -30 }, { 4.00, 0, 0, -30 }, { 4.20, 0, 0, -30 }, { 4.40, 0, 0, -13 }, { 4.60, 0, 0, 0 } } }, { part = "Head", keys = { { 4.60, 0, 0, 0 }, { 4.80, 0, 0, 15 }, { 5.00, 0, 0, 12 }, { 5.20, 0, 0, 0 } } } }, -- Lemonade 17
 	[116980798181063] = { { part = "Head", keys = { { 6.80, 0, 0, 0 }, { 7.00, 0, 0, 14 }, { 7.20, 0, 0, 16 }, { 7.40, 0, 0, 11 }, { 7.60, 0, 0, 16 }, { 7.80, 0, 0, 10 }, { 8.00, 0, 0, 0 } } } }, -- Lemonade 19
 	[89070118321317] = { { part = "Head", keys = { { 0.60, 0, 0, 0 }, { 0.80, 0, 0, -19 }, { 1.00, 0, 0, -18 }, { 1.20, 0, 0, 0 } } }, { part = "Head", keys = { { 2.00, 0, 0, 0 }, { 2.20, 0, 0, -9 }, { 2.40, 0, 0, -16 }, { 2.60, 0, 0, 0 } } } }, -- Lemonade 22
+	-- (D-1263) CRASH 1 = the re-upload 92063442221105 (D-1041), measured 2026-11-10; keys 0.09 s early (animation clock lag)
+	[92063442221105] = { { part = "Head", keys = { { 2.91, 0, 0, 0 }, { 3.11, 0, 0, -9 }, { 3.31, 0, 0, -11 }, { 3.51, 0, 0, -17 }, { 3.71, 0, 0, -21 }, { 3.91, 0, 0, 0 } } } }, -- CRASH 1
 	[103881583439894] = { { part = "Head", keys = { { 2.20, 0, 0, 0 }, { 2.40, 0, 0, -17 }, { 2.60, 0, 0, -20 }, { 2.80, 0, 0, 0 } } } }, -- CRASH 2
 	[110262357944188] = { { part = "Head", keys = { { 2.60, 0, 0, 0 }, { 2.80, 0, 0, -19 }, { 3.00, 0, 0, -20 }, { 3.20, 0, 0, -18 }, { 3.40, 0, 0, 0 } } } }, -- CRASH 3
 	[108547801175160] = { { part = "Head", keys = { { 1.20, 0, 0, 0 }, { 1.40, 0, 0, -11 }, { 1.60, 0, 0, -15 }, { 1.80, 0, 0, 0 } } } }, -- CRASH 7
@@ -1444,6 +1446,18 @@ M.ChoreoWristBend = {
 	[90231422396171] = { { part = "RightHand", keys = { { 7.00, 0, 0, 0 }, { 7.20, 40, 0, 0 }, { 7.40, 40, 0, 0 }, { 7.60, 40, 0, 0 }, { 7.80, 0, 0, 0 } } } }, -- Pretty Girl 20
 	[109633407896106] = { { part = "RightHand", keys = { { 3.80, 0, 0, 0 }, { 4.00, 0, 0, -40 }, { 4.20, 0, 0, -40 }, { 4.40, 0, 0, -40 }, { 4.60, 0, 0, 0 } } } }, -- Love 119 22
 	[136973102149586] = { { part = "RightHand", keys = { { 0.00, -17, 0, 0 }, { 0.20, -24, 0, 0 }, { 0.40, 0, 0, 0 } } } }, -- Love 119 29
+	-- (D-1263, user 2026-11-10: "CRASH 고개 손목 확인해") hand_moves.py (MediaPipe hands, every 0.05 s) on all 20 clips → wristMisses,
+	-- checked by eye on frame sheets (left out: clip 3 left hand in the pocket, clip 19 hands clasped and hidden); keys 0.09 s early;
+	-- capture wrist + bend kept ≤ 73° (clip 12 / 13 cut to 25 / 22: the capture already bends 56-57°)
+	[110262357944188] = { { part = "RightHand", keys = { { 5.11, 0, 0, 0 }, { 5.31, 20, 0, 0 }, { 5.51, 18, 0, 0 }, { 5.71, 0, 0, 0 } } } }, -- CRASH 3 (22.3 s, palm up by the face)
+	-- (CRASH 4 at 30.6-31.2 s, the pointing hand bent down +40..+60 in the video, was tried with LeftHand x -40: in Play the hand
+	-- read -20 against the forearm, the wrong way, so it is left out)
+	[86200130207984] = { { part = "RightHand", keys = { { 3.31, 0, 0, 0 }, { 3.51, 0, 0, 29 }, { 3.71, 0, 0, 29 }, { 3.91, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 5.71, 0, 0, 0 }, { 5.91, -40, 0, 0 }, { 6.11, -40, 0, 0 }, { 6.31, -40, 0, 0 }, { 6.51, -40, 0, 0 }, { 6.71, -40, 0, 0 }, { 6.91, 0, 0, 0 } } } }, -- CRASH 5 (35.1 s X arms, 37.5-38.5 s palm bent back by the head)
+	[124516959620423] = { { part = "RightHand", keys = { { 4.91, 0, 0, 0 }, { 5.11, 25, 0, 0 }, { 5.30, 25, 0, 0 }, { 5.50, 0, 0, 0 } } } }, -- CRASH 12 (93.9 s raised claw hand bent back)
+	[124646840847010] = { { part = "RightHand", keys = { { 0.00, 22, 0, 0 }, { 0.11, 22, 0, 0 }, { 0.31, 0, 0, 0 } } } }, -- CRASH 13 (the same claw to 94.8 s)
+	[92004530682011] = { { part = "LeftHand", keys = { { 3.11, 0, 0, 0 }, { 3.31, 31, 0, 0 }, { 3.51, 40, 0, 0 }, { 3.71, 0, 0, 0 } } },
+		{ part = "LeftHand", keys = { { 3.71, 0, 0, 0 }, { 3.91, 0, 0, 35 }, { 4.11, 0, 0, 27 }, { 4.31, 0, 0, 0 } } } }, -- CRASH 15 (117.4-118.3 s arm across the face, hand bent)
 } :: {[number]: any}
 for _, tbl in ipairs({ M.ChoreoHeadTilt, M.ChoreoWristBend }) do
 	for id, list in pairs(tbl) do
