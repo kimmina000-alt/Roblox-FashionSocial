@@ -79,6 +79,7 @@ local UP = M.SavedLabs.userUpload
 -- K-POP uploads back after them, with the saved lab values.)
 -- (D-745, user: default sound, no lab values: they play as uploaded at
 -- ClubConfig.MusicVolume, the DJ's 🔊 slider on top)
+-- (D-1281, user 2026-11-11) titles are "song-artist" (were "artist-song")
 M.Playlist = {
 	{ channel = "K-POP", title = "K-Pop Party", soundId = 135361546383974, length = 145 },
 	{ channel = "K-POP", title = "K-pop Cute Crush", soundId = 121416896999522, length = 108 },
@@ -102,7 +103,7 @@ M.Playlist = {
 	-- so `at` and the stage camera keep the song clock
 	-- (D-1014, user 2026-11-08: "음원 아이디랑 설정값 아래로 변경" … "배드 2: 120615582016729") ATEEZ-BAD back
 	-- on the old 3× file 134942349436280 with the user's values; ATEEZ-BAD 2 keeps the new upload
-	{ channel = "K-POP", title = "ATEEZ-BAD", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
+	{ channel = "K-POP", title = "BAD-ATEEZ", soundId = 134942349436280, length = 51, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
 		-- (D-1039, user 2026-11-09: "BAD2에 있는 안무 BAD로 옮겨. BAD에 있던 안무 삭제. BAD2 음원 삭제.")
 		-- ATEEZ-BAD 2's choreography (D-994: 20 pieces from the mirrored practice video, video = song + 0.00 s,
 		-- with D-1022's chest bounce) on this track: both files ran on the same song clock (D-975 / D-1014),
@@ -122,7 +123,7 @@ M.Playlist = {
 		{ id = 82346668311878, at = 137.25, from = 0.75, blend = 0.76, stop = 141.25 }, { id = 95469533767642, at = 141.25, from = 4.0, blend = 0.5 },
 		{ id = 138812417192850, at = 148.37 } }, autoChoreo = true },
 	-- (D-1122, user 2026-11-09: low / mid / high / boost2 from the user)
-	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 2, octave = 0.5, low = -28, mid = -13.5, high = -4, engine = "sound" },
+	{ channel = "K-POP", title = "소원을 말해봐(Genie)-소녀시대", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 2, octave = 0.5, low = -28, mid = -13.5, high = -4, engine = "sound" },
 		-- D-897: Genie1..26 (video = song - 13.55 s, the cover video cut the intro); 10 slowIn (D-1192, user: "1:42~43 모션 거의 멈춰
 		-- 있는 것처럼 보임. 1:41 안무에서 1:44 안무로 이어지게": 9 stands at its end and 10 came in over 1 s: 10 starts 2 s early, slowed; 15 blend 0.08: its spin only works at full weight, then carries 14's turn on)
 		choreo = { { id = 122991710923104, at = 13.82 }, { id = 118462778307290, at = 20.62, blend = 0.56 }, { id = 127323208506008, at = 26.83, blend = 0.53 },
@@ -145,7 +146,7 @@ M.Playlist = {
 	-- 3 × 53.553 ÷ 153.008 = 1.0500, and the user's tempo 0.956 × 1.05 = 1.004 (heard ≈ the original)
 	-- (D-933, user 2026-11-06: boost3 5, low -3, high -28)
 	-- (D-1010, user 2026-11-08: "부스터4: 5")
-	{ channel = "K-POP", title = "RIIZE-Get A Guitar", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -34, mid = -20, high = -34 }, choreo = {
+	{ channel = "K-POP", title = "Get A Guitar-RIIZE", soundId = 70738014182544, length = 153.008, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -34, mid = -20, high = -34 }, choreo = {
 		-- (D-807, user: "이음새도 맞춰") blend = seconds to ease from the last pose
 		-- into this one, from tools/choreo/choreo_check.lua (0.25 if not given)
 		-- (D-878, user: "겟어기타 안무 수정", practice video u_u21u8zIIs, mirrored
@@ -170,7 +171,7 @@ M.Playlist = {
 	-- the lab values of the D-927 entry (tempo 0.906, high -20 → -28 → -20 the same day), which is gone
 	-- (D-933, user 2026-11-06: boost3 5, high -28)
 	-- (D-1010, user 2026-11-08: "부스터4: 5")
-	{ channel = "K-POP", title = "RIIZE-Love 119", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
+	{ channel = "K-POP", title = "Love 119-RIIZE", soundId = 85204387077332, length = 157.727, fileSpeed = 1.0968,
 		lab = { speed = 1, tempo = 0.906, volume = 10, boost = 10, boost2 = 5, boost3 = 3, boost4 = 5, octave = 1, low = -34, mid = -20, high = -34 },  -- (boost3 5 → 3, user 2026-11-07; EQ -34 / -20 / -34, D-943)
 		-- D-938: Love119 1..33 (piece 27 = re-upload 81083928741520, the first upload was a copy of 26). Practice video hYEy_patW5s;
 		-- this song's clock (fileSpeed 1.0968) runs 0.5 % slow against the original: video = -0.375 + 1.00496 x song, `at` = (clip start + 0.375) / 1.00496
@@ -186,7 +187,7 @@ M.Playlist = {
 		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
 		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
 	-- (D-1122, user 2026-11-10: "캐치캐치 저음 -20으로 수정", then "캐치캐치 중음 -15 고음 -30", then "캐치캐치 중음 -25", then "캐치캐치 저음 -30")
-	{ channel = "K-POP", title = "YENA-Catch Catch", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -30, mid = -25, high = -30, engine = "sound" },
+	{ channel = "K-POP", title = "Catch Catch-YENA", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -30, mid = -25, high = -30, engine = "sound" },
 		-- (D-985, user: "전체적으로 좌우 반전") the pieces come from the mirrored video: danced as their mirror image
 		mirror = true,
 		-- D-968: CatchCatch 1..23 (3, 6, 15, 19, 22 = re-uploads 2026-11-07; the first uploads were copies of the piece before).
@@ -215,7 +216,7 @@ M.Playlist = {
 	-- and 124-150 s), so `at` = the clip's start. Clip 1 (0-8.53) and clip 15 (92.0-96.23) had no upload;
 	-- (D-1060, user 2026-11-09: "레몬탱1 : 122848199967536, 레몬탱 15 : 98655639854740") now they have (8.50 / 4.20 s). The upload
 	-- ends at 161.9 s (the video runs to 169), so clip 28 (168.45) is left out.
-	{ channel = "K-POP", title = "Hearts2Hearts-Lemon Tang", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
+	{ channel = "K-POP", title = "Lemon Tang-Hearts2Hearts", soundId = 97032815457241, length = 54, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
 		{ id = 122848199967536, at = 0 }, { id = 100331751999626, at = 8.53, blend = 0.5 }, { id = 131067900968920, at = 13.02, blend = 1 }, { id = 79127181604364, at = 16.65, blend = 0.8 },
 		{ id = 101333518191621, at = 24.37, blend = 0.8 }, { id = 70997868814427, at = 26.97, blend = 1 }, { id = 94645609133900, at = 40.17, blend = 0.6 },
 		{ id = 124676885767926, at = 49.8, blend = 0.84 }, { id = 72328693870219, at = 56.03, blend = 0.88 }, { id = 115675906513114, at = 60.02, blend = 1 },
@@ -232,7 +233,7 @@ M.Playlist = {
 		{ id = 93178194866716, at = 115, blend = 0.6 }, { id = 92757942038731, at = 119, blend = 0.6 }, { id = 110433660488854, at = 128.43, blend = 0.6 },
 		{ id = 87039448079710, at = 136, blend = 0.6 }, { id = 99840608563579, at = 144.33, blend = 1 }, { id = 134866535240552, at = 151.87, blend = 0.66 },
 		{ id = 98315614070332, at = 159.1, blend = 0.61 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "aespa-Lemonade", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+	{ channel = "K-POP", title = "Lemonade-aespa", soundId = 132067415333401, length = 62, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
 		-- (D-992, user: "안무 추면서 이동해도 결국 처음 서 있던 위치를 중심으로 두고 끝나면 돌아오게 … 레모네이드에만 먼저"):
 		-- the travel eases back toward the start in 2.5 s (instead of 8) and the dancer glides home over 1.5 s at the end
 		home = { settle = 2.5, back = 1.5 },
@@ -263,7 +264,7 @@ M.Playlist = {
 	-- (D-932, user 2026-11-06: the D-931 upload 140713297574648 moved in here, its entry removed:
 	-- 3 × 73.770 ÷ 210.771 = 1.0500, `at` and the stage camera keep the song clock)
 	-- (D-935, user 2026-11-06 final values: boost3 5)
-	{ channel = "K-POP", title = "A2O LITE-NEON", soundId = 140713297574648, length = 210.771, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
+	{ channel = "K-POP", title = "NEON-A2O LITE", soundId = 140713297574648, length = 210.771, fileSpeed = 1.05, lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
 		-- (D-809, user: 22 pieces, blends from tools/choreo/choreo_check.lua)
 		-- (D-868 → D-869, user: "서 있는 앞 3.3초 이거 안무임 다시 추가해서 수정해")
 		-- the pieces were cut from the stage fancam n9HYtcN6W4w on its own clock
@@ -294,9 +295,9 @@ M.Playlist = {
 		{ id = 133401623277764, at = 134.3, blend = 0.7 }, { id = 96973609514230, at = 148.85, blend = 0.55 }, { id = 106546379406531, at = 164.88, blend = 1 },
 		{ id = 73851407273132, at = 172.18, blend = 1 }, { id = 71570705300325, at = 180.79, blend = 1 }, { id = 121393866689759, at = 202.51, blend = 0.54 },
 		{ id = 114419952125075, at = 210.11 } }, autoChoreo = true }, -- (D-795 / D-796 old single piece removed)
-	{ channel = "K-POP", title = "SOYEON-퇴사할게여", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
+	{ channel = "K-POP", title = "퇴사할게여-SOYEON", soundId = 96358497474432, length = 71, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" } },
 	-- (D-935, user 2026-11-06 final values: tempo 0.335 → 0.333)
-	{ channel = "K-POP", title = "ILLIT-체포하겠어", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
+	{ channel = "K-POP", title = "체포하겠어-ILLIT", soundId = 139044453511745, length = 61, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" },
 		-- D-914: Arrest1..21 (practice video 3nBkzv0TNDk, video = song + 2.38 s; piece 21 is the re-upload 113936517496560, the first Arrest21 upload was a copy of Arrest20)
 		choreo = { { id = 110040253056586, from = 2.38 }, { id = 116782676046427, at = 11.12 }, { id = 91788521477193, at = 20.12, blend = 0.39 },
 		{ id = 130744405360835, at = 26.09, blend = 0.46 }, { id = 75102459386899, at = 32.95, blend = 0.7 }, { id = 128174978668663, at = 38.69, blend = 0.61 },
@@ -307,7 +308,7 @@ M.Playlist = {
 		{ id = 127453915676688, at = 154.69 }, { id = 98926631193332, at = 164.52, blend = 1 }, { id = 113936517496560, at = 169.99 } }, autoChoreo = true },
 	-- (D-932, user 2026-11-06: was 71873496902418, a 3× file; the D-931 upload 139330220515727 moved in here,
 	-- its entry removed: fileSpeed 1.05, `at` and the stage camera keep the song clock)
-	{ channel = "K-POP", title = "RESCENE-LOVE-ATTACK", soundId = 139330220515727, length = 172.955, fileSpeed = 1.05,
+	{ channel = "K-POP", title = "LOVE-ATTACK-RESCENE", soundId = 139330220515727, length = 172.955, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.956, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
 		-- D-903: LoveAttack1..27 (practice video nXDQPm_HnFc, video = song + 0.45 s)
 		choreo = { { id = 109011245162387, from = 0.45 }, { id = 77108502823118, at = 1.48, blend = 0.82 }, { id = 86687841705348, at = 5.12, blend = 1 },
@@ -319,7 +320,7 @@ M.Playlist = {
 		{ id = 97954457634320, at = 93.88, blend = 0.34 }, { id = 76304830605030, at = 106.12, blend = 0.45 }, { id = 115786464203055, at = 117.72 },
 		{ id = 73284838254272, at = 124.55, blend = 0.42 }, { id = 80227668256511, at = 133.15, blend = 0.6 }, { id = 72915658378938, at = 138.48, blend = 0.61 },
 		{ id = 104212164342204, at = 145.55, blend = 0.53 }, { id = 83427493012714, at = 159.45, blend = 0.76 }, { id = 78989896538167, at = 168.32, blend = 1 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "IVE-Looks Can Kill", soundId = 135553051649506, length = 64, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
+	{ channel = "K-POP", title = "Looks Can Kill-IVE", soundId = 135553051649506, length = 64, lab = { speed = 1, tempo = 0.333, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -40, mid = -25, high = -40, engine = "sound" }, choreo = {
 		-- (D-826 the first 7 pieces, D-833 the other 25; blends from tools/choreo/choreo_check.lua)
 		-- (D-871) each piece starts where it is danced in the practice video
 		-- (D:\Roblox\영상\IVE_LooksCanKill_centercut\clips.json; 1-7, cut
@@ -341,7 +342,7 @@ M.Playlist = {
 	-- (D-930, user 2026-11-06: "갑자기 새 음원 75344866720031") was 73546697163709, a 3× file of 65.016 s:
 	-- the new 185.760 s file = 3 × 65.016 ÷ 185.760 = 1.0500 faster than the song; tempo 0.953 × 1.05 = 1.001
 	-- (D-935, user 2026-11-06 final values: boost3 3)
-	{ channel = "K-POP", title = "IOI-갑자기", soundId = 75344866720031, length = 185.76, fileSpeed = 1.05,
+	{ channel = "K-POP", title = "갑자기-IOI", soundId = 75344866720031, length = 185.76, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, octave = 1, low = -34, mid = -20, high = -34 },  -- (EQ -34 / -20 / -34, D-943; boost3 3, D-935)
 		-- D-967: Suddenly new 1..25 (4 = 81367674902881 and 7 = 84783409830169 uploaded again 2026-11-07; the first 7 was a copy of 6).
 		-- Practice video YzQ0rD3htMo, video = song + 0.30 s (mp3 and the game file), `at` = clip start - 0.30; piece 1 `from = 0.3`
@@ -359,7 +360,7 @@ M.Playlist = {
 	-- `at` and the stage camera (D-913) keep the song clock
 	-- (D-935, user 2026-11-06 final values: boost3 5)
 	-- (D-1047, user 2026-11-09: boost4 5)
-	{ channel = "K-POP", title = "NCT WISH-I SPY", soundId = 98124521559769, length = 176.273, fileSpeed = 1.05,
+	{ channel = "K-POP", title = "I SPY-NCT WISH", soundId = 98124521559769, length = 176.273, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 5, octave = 1, low = -34, mid = -20, high = -34 },
 		-- D-912: ISPY1..30 (practice video ILeBVk4x_XQ, video = song - 1.50 s; ISPY12 / ISPY15 were uploaded twice, the first id of each is used)
 		choreo = { { id = 83299308409543, at = 1.5 }, { id = 107073213896668, at = 4.9, blend = 0.93 }, { id = 88558817308286, at = 8.82, blend = 0.92 },
@@ -377,7 +378,7 @@ M.Playlist = {
 	-- (D-932, user 2026-11-06: was 125703446596781, a 3× file of 54.35 s; the D-931 upload 76034005809699 moved
 	-- in here, its entry removed: 3 × 54.35 ÷ 153.821 = 1.06, `at` and the stage camera keep the song clock)
 	-- (D-935, user 2026-11-06 final values: boost3 5)
-	{ channel = "K-POP", title = "CORTIS-REDRED", soundId = 76034005809699, length = 153.821, fileSpeed = 1.06,
+	{ channel = "K-POP", title = "REDRED-CORTIS", soundId = 76034005809699, length = 153.821, fileSpeed = 1.06,
 		lab = { speed = 1, tempo = 0.944, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
 		-- (D-879, user: 24 pieces from the practice video u_vusNeo6xI, mirrored,
 		-- clips 1-24 of D:\Roblox\영상\CORTIS_REDRED_centercut) each starts where its
@@ -395,7 +396,7 @@ M.Playlist = {
 	-- (user 2026-11-06, set in Studio: new upload 94498201288355, boost2 2; was 130804487358433. User: "2:22에 맞춰서 템포": the file is 47.63 s, 47.63 / 142 = 0.335)
 	-- (D-933, user 2026-11-06: "ANIMAL 새 음원 94774089824958" with its lab values) was 94498201288355, a 3× file of 47.632 s;
 	-- the new upload is 136.107 s: fileSpeed = 3 × 47.632 ÷ 136.107 = 1.05 (tempo 0.958 × 1.05 = 1.006), so `at` keeps the song clock
-	{ channel = "K-POP", title = "BOYNEXTDOOR-ANIMAL", soundId = 94774089824958, length = 136.107, fileSpeed = 1.05,
+	{ channel = "K-POP", title = "ANIMAL-BOYNEXTDOOR", soundId = 94774089824958, length = 136.107, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.958, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
 		-- D-916: ANIMAL1..25 (practice video Gl1VZ3UPeZU, video = song - 0.23 s, `at` = clip start + 0.23)
 		choreo = { { id = 129402890751712, at = 0.23 }, { id = 80772039533772, at = 1.88, blend = 0 }, { id = 112166541341442, at = 4.51, blend = 0.74 },
@@ -409,12 +410,12 @@ M.Playlist = {
 		{ id = 72908007597304, at = 141.9, blend = 0.77 } }, autoChoreo = true },
 
 --★★★음원 추가★★★--
-{ channel = "K-POP", title = "IU-이 별로부터(Unknown Planet)", soundId = 81568082292649, length = 225.05,
+{ channel = "K-POP", title = "이 별로부터(Unknown Planet)-IU", soundId = 81568082292649, length = 225.05,
 		joined = {  parts = { 81568082292649, 130739295576800, 136055998058951, 101406045735531, 115474783735573, 101362036297281, 107766734212525, 139626977220244}, segLen = 30, tail = 4, total = 225.05, lead = 0.09  },
 		lab = { speed = 1, tempo = 1, volume = 10, boost = 1, octave = 1, low = 0, mid = 0, high = 0 } },
 	-- (D-901, user 2026-11-05: new upload (uploaded as 새벽네시사십사분), tempo = 82.42 s file ÷ heard 4:07 = 0.334)
 	-- (D-917, user 2026-11-05: "음원 테스트에서 설정값 받아서" 3 songs; values saved in the lab place, length = the file's seconds)
-	{ channel = "K-POP", title = "RESCENE-Pretty Girl", soundId = 89634330677538, length = 70.01,
+	{ channel = "K-POP", title = "Pretty Girl-RESCENE", soundId = 89634330677538, length = 70.01,
 		lab = { speed = 1, tempo = 0.333, volume = 10, boost = 3, boost2 = 1, octave = 0.5, low = -18.5, mid = -4, high = -12.5, engine = "sound" },
 		-- D-937: PrettyGirl1..26 (practice video IrqXrM4CaiE, video = song + 0.12 s, `at` = clip start - 0.12; piece 1 `from = 0.12`)
 		choreo = { { id = 100082879569115, from = 0.12 }, { id = 104009711978824, at = 5.5 }, { id = 108961429650022, at = 15.11, blend = 1 },
@@ -426,7 +427,7 @@ M.Playlist = {
 		{ id = 114627519168898, at = 139.71, blend = 1 }, { id = 90231422396171, at = 143.88, blend = 0.47 }, { id = 121645451915137, at = 153.75 },
 		{ id = 79626676434376, at = 161.4, blend = 0.46 }, { id = 81645905885514, at = 175.33, blend = 1 }, { id = 100595958841043, at = 185.36, blend = 0.4 },
 		{ id = 84166534427168, at = 186.86, blend = 0.7 }, { id = 117439090388503, at = 194.48 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "키키-Pop Off", soundId = 131620527618857, length = 134.588, fileSpeed = 1.0476,
+	{ channel = "K-POP", title = "Pop Off-키키", soundId = 131620527618857, length = 134.588, fileSpeed = 1.0476,
 		-- (D-1023, user 2026-11-08: the upload and values of the KiiiKiii-Pop Off entry; old 3x file 129996145931101)
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
 		-- D-936: PopOff1..21 (practice video x22oELcVsVU, video = song + 0.30 s, `at` = clip start - 0.30; piece 1 `from = 0.3`)
@@ -439,49 +440,49 @@ M.Playlist = {
 		{ id = 87535109402600, at = 123.55, blend = 0.56 }, { id = 114431038976349, at = 132.72, blend = 1 }, { id = 77209641618863, at = 137.23, blend = 0.97 } }, autoChoreo = true },
 	-- (D-1021, user 2026-11-08: 46 uploads "음원 추가": tempo = file seconds ÷ song length (heard = the song), fileSpeed = song ÷ file,
 	-- volume 10 / boost 10 / boost2 5 / boost3 5, EQ -34 / -20 / -34, octave 1; length = the file's seconds, measured in Studio)
-	{ channel = "K-POP", title = "K-DA-GIRLS", soundId = 133434812252990, length = 129.391, fileSpeed = 1.0511,
+	{ channel = "K-POP", title = "GIRLS-K-DA", soundId = 133434812252990, length = 129.391, fileSpeed = 1.0511,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "ROCK PAPER SCISSORS", soundId = 108797026675247, length = 133.713, fileSpeed = 1.047,
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
-	{ channel = "K-POP", title = "ALLDAY PROJECT-NO LIMIT", soundId = 79664669248816, length = 137.95, fileSpeed = 1.0511,
+	{ channel = "K-POP", title = "NO LIMIT-ALLDAY PROJECT", soundId = 79664669248816, length = 137.95, fileSpeed = 1.0511,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
-	{ channel = "K-POP", title = "RESCENE-With", soundId = 112509101263761, length = 179.843, fileSpeed = 1.0509,
+	{ channel = "K-POP", title = "With-RESCENE", soundId = 112509101263761, length = 179.843, fileSpeed = 1.0509,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
-	{ channel = "K-POP", title = "K-DA-FIRESTARTER", soundId = 94925181116487, length = 190.271, fileSpeed = 1.0511,
+	{ channel = "K-POP", title = "FIRESTARTER-K-DA", soundId = 94925181116487, length = 190.271, fileSpeed = 1.0511,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -5.5, mid = -6, high = -31.5, engine = "sound" } },
-	{ channel = "K-POP", title = "K-DA-NEVER GOING BACK", soundId = 136982561112199, length = 186.49, fileSpeed = 1.051,
+	{ channel = "K-POP", title = "NEVER GOING BACK-K-DA", soundId = 136982561112199, length = 186.49, fileSpeed = 1.051,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
-	{ channel = "K-POP", title = "LUMIN-HIDE", soundId = 93397731217867, length = 221.449, fileSpeed = 1.0522,
+	{ channel = "K-POP", title = "HIDE-LUMIN", soundId = 93397731217867, length = 221.449, fileSpeed = 1.0522,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
-	{ channel = "K-POP", title = "AND2BLE-French Kissing", soundId = 88604783778178, length = 185.849, fileSpeed = 1.0492,
+	{ channel = "K-POP", title = "French Kissing-AND2BLE", soundId = 88604783778178, length = 185.849, fileSpeed = 1.0492,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -5, mid = -9.5, high = -29.5, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
-	{ channel = "K-POP", title = "헤이즈-빈틈을 채워 준 너에게", soundId = 79978358676881, length = 233.453, fileSpeed = 1.0495,
+	{ channel = "K-POP", title = "빈틈을 채워 준 너에게-헤이즈", soundId = 79978358676881, length = 233.453, fileSpeed = 1.0495,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -1.5, mid = -10.5, high = -29, engine = "sound" } },
 	{ channel = "K-POP", title = "Dam Da Dee", soundId = 92530611206857, length = 208.349, fileSpeed = 1.0511,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
-	{ channel = "K-POP", title = "LUMIN-88", soundId = 131856022019788, length = 156.627, fileSpeed = 1.0471,
+	{ channel = "K-POP", title = "88-LUMIN", soundId = 131856022019788, length = 156.627, fileSpeed = 1.0471,
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "머무르-꿈꾸던 어른이 되었나요", soundId = 95913746283492, length = 197.635, fileSpeed = 1.0524,
+	{ channel = "K-POP", title = "꿈꾸던 어른이 되었나요-머무르", soundId = 95913746283492, length = 197.635, fileSpeed = 1.0524,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -7, mid = -18, high = -29, engine = "sound" } },
-	{ channel = "K-POP", title = "BIG Naughty-노스탈지아", soundId = 138668506442693, length = 185.738, fileSpeed = 1.0499,
+	{ channel = "K-POP", title = "노스탈지아-BIG Naughty", soundId = 138668506442693, length = 185.738, fileSpeed = 1.0499,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
-	{ channel = "K-POP", title = "TAEYEON-만찬가", soundId = 124367047209689, length = 208.614, fileSpeed = 1.0498,
+	{ channel = "K-POP", title = "만찬가-TAEYEON", soundId = 124367047209689, length = 208.614, fileSpeed = 1.0498,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -4, mid = -17, high = -26, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "NMIXX-Birthday Wish", soundId = 127918504252740, length = 190.515, fileSpeed = 1.0498,
+	{ channel = "K-POP", title = "Birthday Wish-NMIXX", soundId = 127918504252740, length = 190.515, fileSpeed = 1.0498,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -6.5, mid = -10.5, high = -30, engine = "sound" } },
-	{ channel = "K-POP", title = "송하영-처음 그 자리에", soundId = 85563793488474, length = 221.991, fileSpeed = 1.0496,
+	{ channel = "K-POP", title = "처음 그 자리에-송하영", soundId = 85563793488474, length = 221.991, fileSpeed = 1.0496,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
-	{ channel = "K-POP", title = "Lee Mujin-Come Rest With Me", soundId = 97747873047145, length = 235.474, fileSpeed = 1.0489,
+	{ channel = "K-POP", title = "Come Rest With Me-Lee Mujin", soundId = 97747873047145, length = 235.474, fileSpeed = 1.0489,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -2, mid = -14.5, high = -31.5, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "kennytheking-morae", soundId = 112834468757050, length = 230.368, fileSpeed = 1.0505,
+	{ channel = "K-POP", title = "morae-kennytheking", soundId = 112834468757050, length = 230.368, fileSpeed = 1.0505,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -9.5, mid = -18.5, high = -30.5, engine = "sound" } },
 	{ channel = "K-POP", title = "Even if it's slightly off", soundId = 94547707613847, length = 192.973, fileSpeed = 1.052,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
@@ -489,32 +490,32 @@ M.Playlist = {
 	{ channel = "K-POP", title = "When We're Together", soundId = 113739077119161, length = 215.75, fileSpeed = 1.0521,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -8, mid = -18, high = -31, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "송유진-I Miss You", soundId = 107465969275795, length = 241.019, fileSpeed = 1.0497,
+	{ channel = "K-POP", title = "I Miss You-송유진", soundId = 107465969275795, length = 241.019, fileSpeed = 1.0497,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -8.5, mid = -16.5, high = -29.5, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "URBAN ZAKAPA-거리", soundId = 132434943798296, length = 348.425, fileSpeed = 1.0504,
+	{ channel = "K-POP", title = "거리-URBAN ZAKAPA", soundId = 132434943798296, length = 348.425, fileSpeed = 1.0504,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -5.5, mid = -13.5, high = -31, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "20 Years of Age-Your Season", soundId = 118999584170024, length = 210.575, fileSpeed = 1.0495,
+	{ channel = "K-POP", title = "Your Season-20 Years of Age", soundId = 118999584170024, length = 210.575, fileSpeed = 1.0495,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -16.5, mid = -17, high = -25, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "이민혁·보라미유-사랑일지도 몰라", soundId = 108346448346476, length = 229.723, fileSpeed = 1.0491,
+	{ channel = "K-POP", title = "사랑일지도 몰라-이민혁·보라미유", soundId = 108346448346476, length = 229.723, fileSpeed = 1.0491,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -15.5, mid = -5.5, high = -24.5, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "정승환-푸르른 계절도 내겐 의미 없어요", soundId = 88022342248077, length = 275.256, fileSpeed = 1.0499,
+	{ channel = "K-POP", title = "푸르른 계절도 내겐 의미 없어요-정승환", soundId = 88022342248077, length = 275.256, fileSpeed = 1.0499,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -8.5, mid = -3, high = -24, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
 	{ channel = "K-POP", title = "나는 너라서", soundId = 120378159122290, length = 205.559, fileSpeed = 1.0508,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -11, mid = -4, high = -21.5, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "YOHAN-Song for you", soundId = 108378947159567, length = 246.384, fileSpeed = 1.0512,
+	{ channel = "K-POP", title = "Song for you-YOHAN", soundId = 108378947159567, length = 246.384, fileSpeed = 1.0512,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -9, mid = -5, high = -25.5, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
 	{ channel = "K-POP", title = "becoming a star", soundId = 78610966959610, length = 199.919, fileSpeed = 1.0504,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -14.5, mid = -5, high = -20.5, engine = "sound" } },
 	{ channel = "K-POP", title = "Just Another Love Song", soundId = 73680886300915, length = 196.572, fileSpeed = 1.048,
 		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
-	{ channel = "K-POP", title = "Lionel Richie-Can't Slow Down", soundId = 119789957160678, length = 175.5, fileSpeed = 1.0484,
+	{ channel = "K-POP", title = "Can't Slow Down-Lionel Richie", soundId = 119789957160678, length = 175.5, fileSpeed = 1.0484,
 		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "Color Me Home", soundId = 131785918775462, length = 175.235, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
@@ -526,7 +527,7 @@ M.Playlist = {
 	-- D-918 list comes back as it was; piece 1 = the re-upload 92063442221105 (80997055634037 in
 	-- Crash_ids.txt is 1.23 s long, not clip 1's 11.2 s). Its ChoreoFixes / slide stills / face offsets stayed in ClubChoreo
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
-	{ channel = "K-POP", title = "ALLDAY PROJECT-CRASH", soundId = 86115718533153, length = 164.773, fileSpeed = 1.0499,
+	{ channel = "K-POP", title = "CRASH-ALLDAY PROJECT", soundId = 86115718533153, length = 164.773, fileSpeed = 1.0499,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -9.5, mid = -3.5, high = -14, engine = "sound" }, choreo = {
 		{ id = 92063442221105, at = 0.1 }, { id = 103881583439894, at = 11.31, blend = 1 }, { id = 110262357944188, at = 16.95, blend = 0.99 }, { id = 85184392148752, at = 23.06, blend = 1 },
 		{ id = 86200130207984, at = 31.57, blend = 0.65 }, { id = 109096810120786, at = 39.38 }, { id = 108547801175160, at = 51.62, blend = 0.57 },
@@ -539,10 +540,10 @@ M.Playlist = {
 	{ channel = "K-POP", title = "그사람", soundId = 139646189327476, length = 224.251, fileSpeed = 1.0479,
 		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -15.5, mid = -7, high = -23, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
-	{ channel = "K-POP", title = "CAR, THE GARDEN-Stay", soundId = 140222834511413, length = 228.605, fileSpeed = 1.0498,
+	{ channel = "K-POP", title = "Stay-CAR, THE GARDEN", soundId = 140222834511413, length = 228.605, fileSpeed = 1.0498,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -12.5, mid = -6.5, high = -22, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
-	{ channel = "K-POP", title = "이하이-손을 잡아줘요", soundId = 78224880948150, length = 200.36, fileSpeed = 1.0481,
+	{ channel = "K-POP", title = "손을 잡아줘요-이하이", soundId = 78224880948150, length = 200.36, fileSpeed = 1.0481,
 		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -8.5, mid = -5.5, high = -22.5, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
 	{ channel = "K-POP", title = "Runaway Lights", soundId = 110210786180640, length = 179.877, fileSpeed = 1.0507,
@@ -555,7 +556,7 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -3, mid = -4, high = -18.5, engine = "sound" } },
 	{ channel = "K-POP", title = "Secret Us", soundId = 82537293207913, length = 122.199, fileSpeed = 1.0475,
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
-	{ channel = "K-POP", title = "BIGBANG-BiiiG BiiiG", soundId = 117439533883778, length = 156.414, fileSpeed = 1.0485,
+	{ channel = "K-POP", title = "BiiiG BiiiG-BIGBANG", soundId = 117439533883778, length = 156.414, fileSpeed = 1.0485,
 		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 
 } :: {Track}
