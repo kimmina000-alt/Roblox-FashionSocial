@@ -494,9 +494,11 @@ local function startPlacing(wall: BasePart, photo: any, u0: number?, v0: number?
 	placing = { wall = wall, photo = photo, ghost = ghost }
 	setTaps(false)
 	local top = require(script.Parent:WaitForChild("TopBar")).bottom() + 10
+	-- (D-1256, user 2026-11-10: "포토월 안내 문구 삭제") only the 취소 button, where the
+	-- "포토월을 눌러 붙일 자리를 고르세요" line was
 	hint.Position = UDim2.new(0.5, 0, 0, top)
-	cancelButton.Position = UDim2.new(0.5, 0, 0, top + 46)
-	hint.Visible = true
+	cancelButton.Position = UDim2.new(0.5, 0, 0, top)
+	hint.Visible = false
 	cancelButton.Visible = true
 end
 cancelButton.MouseButton1Click:Connect(stopPlacing)

@@ -277,6 +277,24 @@ hole("stair hall door (corridor end)", 187.8, F - 0.5, -290, 190.4, F + 21, -275
 -- (from x 187.4: the lounge's floor-edge light line is cut across the doorway too, D-827)
 hole("stair hall door (2F lounge)", 187.4, V + 0.01, -273, 190.4, V + UDH, -259, wallOnly)
 hole("locker passage (corridor wall)", PX0, F - 0.5, -292.4, PX1, F + 21, -289.9, wallOnly)
+-- (D-1259, user 2026-11-10: "락커룸 복도 변경되면서 조명선 위치 어긋남 정리") the corridor's
+-- south floor light (CorridorNeon_W, z -289.9) still began at the old passage's
+-- east side (x 146.45): it crossed the new doorway (to 151.5). It begins at PX1
+-- now, where the passage's own east line (FloorLED) meets it; runs again safely.
+for _, p in ipairs(club:GetChildren()) do
+	if p:IsA("BasePart") and p.Name == "CorridorNeon_W" and math.abs(p.Position.Z - (-289.9)) < 0.6 then
+		local alongZ = p.Size.Z >= p.Size.X -- (which local axis is the long one)
+		local len = if alongZ then p.Size.Z else p.Size.X
+		local westX = p.Position.X - len / 2 -- (the line runs along world x)
+		local eastX = p.Position.X + len / 2
+		local startX = PX1 - 0.06
+		if westX < startX - 0.05 and eastX > startX + 1 then
+			local newLen = eastX - startX
+			p.CFrame = CFrame.new((eastX + startX) / 2, p.Position.Y, p.Position.Z) * p.CFrame.Rotation
+			p.Size = if alongZ then Vector3.new(p.Size.X, p.Size.Y, newLen) else Vector3.new(newLen, p.Size.Y, p.Size.Z)
+		end
+	end
+end
 -- (D-1134) the corridor wall closed again where the opening was before (x 132.5..137.5),
 -- unless a wall already stands there (a freshly built club zone)
 do
@@ -479,7 +497,10 @@ do
 			local cx = X0 + (X1 - X0) * (i + 0.5) / 4
 			local cz = Z0 + (Z1 - Z0) * (k + 0.5) / 2
 			local p = box("LightPanel", cx - 5, RTOP - 0.15, cz - 5, cx + 5, RTOP, cz + 5, Color3.fromRGB(255, 252, 245), R, NEON())
-			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 24 sl.Brightness = 2.2 sl.Angle = 120
+			-- (D-1258, user 2026-11-10: "락커룸 층고 높이면서 조명 빛이 아래는 안 닿아 아래까지 닿게
+			-- 수정") the room is ~34 high since D-1134: range 24 → 40 (SurfaceLight's
+			-- reach), a little brighter
+			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 40 sl.Brightness = 2.6 sl.Angle = 120
 			sl.Color = Color3.fromRGB(255, 248, 238) sl.Shadows = false sl.Parent = p
 		end
 	end

@@ -116,6 +116,14 @@ local function heldPoint(tool: Tool, handle: BasePart, grip: CFrame): (Vector3, 
 			return rel.Position + along * reach * 0.8, false, size
 		end
 	end
+	-- (D-1257, user 2026-11-10: "빨대 있는 음료 잘 마시고 있음 없는 음료 마시는 위치 얼굴
+	-- 하부로 수정 (모든 캐릭터 체형)", screenshot: the 카라멜 마끼아또 over the eyes) a
+	-- drink without a straw (SnackService marks cups and bottles "Drink", the club
+	-- cans have "Bottle"): the middle of its rim to the lower lip, tipped toward
+	-- the face; read from the head and face of each avatar, so any body works
+	if tool:GetAttribute("Drink") or tool:GetAttribute("Bottle") then
+		return Vector3.new((lo.X + hi.X) / 2, hi.Y, (lo.Z + hi.Z) / 2), false, size, "rim" :: any
+	end
 	-- (D-1159) a dish is low and wide: a tall cup (한옥 찻잔, 1.4 wide but 1.7 high)
 	-- and bread eaten from the hand go to the lips like the small things
 	local wide = math.max(size.X, size.Z)
@@ -140,15 +148,28 @@ local function solve(character: Model): Pose?
 	local gripAtt = hand:FindFirstChild("RightGripAttachment") :: Attachment?
 	local grip = if gripAtt then gripAtt.CFrame else CFrame.new(0, -hand.Size.Y / 2, 0)
 	local point, big, size, upright = Vector3.zero, false, Vector3.zero, nil :: boolean?
+	local rim = false -- (D-1257: a drink without a straw)
 	local handleInHand = CFrame.identity
 	if tool and handle and handle:IsA("BasePart") then
-		point, big, size, upright = heldPoint(tool, handle, grip)
+		local mode: any
+		point, big, size, mode = heldPoint(tool, handle, grip)
+		upright = mode == true
+		rim = mode == "rim"
 		handleInHand = grip * tool.Grip:Inverse()
 	else
 		handleInHand = grip
 	end
 	local target, wantUp
-	if upright then
+	if rim then
+		-- (D-1257) the rim's middle just in front of the lower lip (half the cup's
+		-- width out, so the near edge meets the lip), the top tipped back toward
+		-- the face like a sip
+		local ff = head:FindFirstChild("FaceFrontAttachment")
+		local faceZ = if ff and ff:IsA("Attachment") then ff.Position.Z else -head.Size.Z / 2
+		local r = math.min(size.X, size.Z) / 2
+		target = torso.CFrame:PointToObjectSpace((head.CFrame * CFrame.new(0, -0.32 * s, faceZ - r * 0.85)).Position)
+		wantUp = Vector3.new(0, 0.8, 0.6).Unit
+	elseif upright then
 		-- (D-1152) the straw just at the lips, the glass standing (a hair toward the face)
 		-- (D-1163: measured 0.1-0.2 studs in front of the lips: the head's box front
 		-- is ahead of the face; the face's own front, FaceFrontAttachment, a hair in)
@@ -182,7 +203,7 @@ local function solve(character: Model): Pose?
 	end
 	local function cost(sp: number, sy: number, sz: number, e: number, w: number): number
 		local p, up, elbow, h = fk(sp, sy, sz, e, w)
-		local c = (p - target).Magnitude / s * (if upright then 3 else 1) -- (D-1163: the straw on the lips first)
+		local c = (p - target).Magnitude / s * (if upright or rim then 3 else 1) -- (D-1163: the straw on the lips first; D-1257 the rim too)
 		if wantUp then c += (1 - up:Dot(wantUp)) * (if big then 0.8 else 1.5) end -- (D-1159: a dish near the chin first)
 		-- the elbow out and below the hand; the hand out of the head
 		c += math.max(0, h.X + 0.2 * s - elbow.X) * 0.5 / s + math.max(0, elbow.Y - h.Y) * 0.5 / s
@@ -194,7 +215,7 @@ local function solve(character: Model): Pose?
 	local best, b = math.huge, { 60, 20, 0, 100, 0 }
 	-- (D-1159, measured: a tall glass's straw top is 1.3 studs over the hand, so
 	-- the hand comes in low and across to the middle) wider for straw drinks only
-	local spLo, syHi = if upright then -20 else 20, if upright then 80 else 40
+	local spLo, syHi = if upright or rim then -20 else 20, if upright or rim then 80 else 40
 	for sp = spLo, 120, 10 do
 		for sy = 0, syHi, 10 do
 			for sz = -20, 40, 15 do
