@@ -245,7 +245,9 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 			l.Parent = card
 		end
 		text(16, 26, "🎬 영상 저장 안내", 19, true, Color3.fromRGB(60, 30, 45))
-		text(50, 116, "1. 영상을 끝까지 봐 주세요.\n2. 끝나면 공유 화면이 떠요.\n3. 공유 화면에서 \"저장\"을 눌러야\n    영상이 내 기기에 저장돼요.\n(공유하지 않고 닫으면 저장되지 않아요)", 14, false, Color3.fromRGB(80, 55, 70))
+		-- (D-1280, user 2026-11-11 on a phone: "동영상 나중에 공유 안 눌러도 저장됨") the
+		-- recording is kept by Roblox once the replay ends; sharing is only extra
+		text(50, 116, "1. 영상을 끝까지 봐 주세요.\n2. 다 보면 영상이 자동으로 저장돼요.\n    (공유를 누르지 않아도 돼요)\n3. 친구에게 보내고 싶으면\n    끝나고 뜨는 공유 화면을 쓰세요.", 14, false, Color3.fromRGB(80, 55, 70))
 		local go = Instance.new("TextButton")
 		go.AnchorPoint = Vector2.new(0.5, 1)
 		go.Position = UDim2.new(0.5, 0, 1, -14)
@@ -407,15 +409,16 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	-- (D-1180) the whole replay seen: the share sheet, and the note that sharing
 	-- is the only way to keep the video (pick 저장 there)
 	if video then
-		onDone("🎬 영상은 공유하기로만 저장할 수 있어요. 공유 화면에서 저장을 골라 주세요.")
+		-- (D-1280) saved already: the share sheet is only for sending it on
+		onDone("🎬 영상이 저장됐어요! 친구에게 보내려면 공유 화면을 쓰세요.")
 		local shared = pcall(function()
 			CaptureService:PromptShareCapture(Content.fromObject(video), "", function()
 				onDone("🎬 영상을 공유했어요!")
 			end, function()
-				onDone("공유하지 않아서 영상이 저장되지 않았어요. 🎬 영상 저장을 다시 눌러 주세요.")
+				onDone("🎬 영상은 저장돼 있어요. (공유는 하지 않았어요)")
 			end)
 		end)
-		if not shared then onDone("이 기기에서는 영상을 공유할 수 없어요.") end
+		if not shared then onDone("🎬 영상이 저장됐어요.") end
 		return
 	end
 	onDone(message)

@@ -156,7 +156,13 @@ local function boxRect(kind: string): (number, number, number, number)
 	local top = require(script.Parent:WaitForChild("TopBar")).bottom() + 6
 	local bottomRoom = 84 -- hotbar / inventory
 	local w, h
-	if vp.Y < 500 then
+	if vp.Y > vp.X and vp.X < 700 then
+		-- (D-1281) portrait phone: the full width, most of the height (above
+		-- the jump button)
+		bottomRoom = 150
+		w = vp.X - 16
+		h = math.min(math.max(320, math.floor(vp.Y * 0.62)), vp.Y - top - bottomRoom)
+	elseif vp.Y < 500 then
 		-- Phone (landscape, user mobile test 2026-10-22): no hotbar, little
 		-- height, so use almost all of it and more of the width.
 		bottomRoom = 8
@@ -267,6 +273,20 @@ local function restoreCamera()
 	camera.FieldOfView = 70
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if humanoid then camera.CameraSubject = humanoid end
+	-- (D-1282, user 2026-11-11 phone screenshot: "사진 다 찍고 위에 흰색 부분 무엇인지 확인 후 안
+	-- 보이게") the white band was the booth's ceiling: on a phone the shoot camera
+	-- is turned up (the window sits low on the screen, applyShootCamera) and the
+	-- player camera went on from that tilt. Now it starts level with the head,
+	-- a little above it and looking slightly down, on the same side as before
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if root and root:IsA("BasePart") then
+		local head = root.Position + Vector3.new(0, 1.5, 0)
+		local flat = Vector3.new(camera.CFrame.Position.X - head.X, 0, camera.CFrame.Position.Z - head.Z)
+		if flat.Magnitude < 0.5 then flat = -Vector3.new(camera.CFrame.LookVector.X, 0, camera.CFrame.LookVector.Z) end
+		if flat.Magnitude > 0.01 then
+			camera.CFrame = CFrame.lookAt(head + flat.Unit * math.clamp(flat.Magnitude, 6, 12) + Vector3.new(0, 2.5, 0), head)
+		end
+	end
 end
 
 --------------------------------------------------
@@ -936,13 +956,18 @@ end
 local function layoutShoot()
 	local vp = viewport()
 	local top = topY()
-	local panelW = math.clamp(math.floor(vp.X * 0.17), 112, 190)
-	local maxW = vp.X - 2 * (panelW + 20)
+	-- (D-1281, user 2026-11-11 phone screenshot: "ui 모바일 세로/가로 버전에서도 유동적으로
+	-- 바뀌도록 수정") a portrait phone: the camera window across the top, the
+	-- button row under it, then props (left) and poses / faces (right) side by
+	-- side, all above the move stick and the jump button
+	local portrait = vp.Y > vp.X and vp.X < 700
+	local panelW = if portrait then math.floor((vp.X - 24 - 8) / 2) else math.clamp(math.floor(vp.X * 0.17), 112, 190)
+	local maxW = if portrait then vp.X - 24 else vp.X - 2 * (panelW + 20)
 	local maxH = vp.Y - top - 50
 	local h = math.min(maxH, maxW * 3 / 4)
 	local w = h * 4 / 3
 	local x = (vp.X - w) / 2
-	local y = top + 38 + (maxH - h) / 2
+	local y = if portrait then top + 44 else top + 38 + (maxH - h) / 2
 	shootWindow = { x = x, y = y, w = w, h = h }
 	masks[1].Position = UDim2.fromOffset(0, 0)
 	masks[1].Size = UDim2.new(1, 0, 0, y)
@@ -966,10 +991,15 @@ local function layoutShoot()
 	-- 버튼 공간 때문에 포즈 선택하기 어려움" / "오른쪽 상단에 포즈 하단에 표정") the props on
 	-- the left; on the right the poses at the top and the faces under them, both
 	-- kept above the phone's jump button
-	local rightH = if touch then math.min(h, vp.Y - 110 - y) else h
+	-- (portrait: the panels start under the button row and stop above the
+	-- jump button / move stick)
+	local panelY = if portrait then y + h + 8 + 34 + 8 else y
+	local rightH = if portrait then math.max(150, vp.Y - (if touch then 160 else 12) - panelY)
+		elseif touch then math.min(h, vp.Y - 110 - y) else h
 	local poseH = math.max(80, math.floor((rightH - 8) * 0.6))
 	local faceH = math.max(70, rightH - 8 - poseH)
-	posePanel.Position = UDim2.fromOffset(x + w + 10, y)
+	local rightX = if portrait then x + panelW + 8 else x + w + 10
+	posePanel.Position = UDim2.fromOffset(rightX, panelY)
 	posePanel.Size = UDim2.fromOffset(panelW, poseH)
 	do -- (D-1269) two columns, scrolling down (D-1182 had it sideways)
 		local grid = poseList:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
@@ -977,31 +1007,32 @@ local function layoutShoot()
 		grid.CellSize = UDim2.fromOffset(math.floor((panelW - 12) / 2 - 3), 34)
 		local faces = shoot:FindFirstChild("Faces") :: Frame?
 		if faces then
-			faces.Position = UDim2.fromOffset(x + w + 10, y + poseH + 8)
+			faces.Position = UDim2.fromOffset(rightX, panelY + poseH + 8)
 			faces.Size = UDim2.fromOffset(panelW, faceH)
 			local faceGrid = (faces :: any).List:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
 			faceGrid.CellSize = UDim2.new(0.5, -3, 0, 34)
 		end
 	end
-	propPanel.Position = UDim2.fromOffset(x - panelW - 10, y)
+	propPanel.Position = UDim2.fromOffset(if portrait then x else x - panelW - 10, panelY)
 	do -- (D-1269, user 2026-11-11: "소품 창 소품 개수에 맞춰서 사이즈 줄이기") as tall as its buttons
 		local count = 0
 		for _, child in ipairs(propList:GetChildren()) do
 			if child:IsA("GuiButton") then count += 1 end
 		end
 		local rows = math.max(1, math.ceil(count / 2))
-		propPanel.Size = UDim2.fromOffset(panelW, math.min(h, 28 + rows * 38 + 6))
+		propPanel.Size = UDim2.fromOffset(panelW, math.min(if portrait then rightH else h, 28 + rows * 38 + 6))
 	end
 	tip.Position = UDim2.fromOffset(x, y + h - 24)
 	tip.Size = UDim2.fromOffset(w, 20)
 	do -- (D-1268) one row under the picture: 허리 숙이기 · 키높이 발판 · 정면 보기 · 멈춤
 		local row = { shoot:FindFirstChild("BoothKneel"), shoot:FindFirstChild("BoothStep"), faceFront, pauseButton }
-		local bw = math.floor(math.min(120, (w - 24 - 3 * 6) / 4))
+		-- (D-1281 portrait: under the window, the full width, a little taller)
+		local bw = if portrait then math.floor((w - 3 * 6) / 4) else math.floor(math.min(120, (w - 24 - 3 * 6) / 4))
 		local x0 = x + (w - (4 * bw + 3 * 6)) / 2
 		for i, b in ipairs(row) do
 			if b then
-				(b :: GuiObject).Position = UDim2.fromOffset(x0 + (i - 1) * (bw + 6), y + h - 58)
-				;(b :: GuiObject).Size = UDim2.fromOffset(bw, 30)
+				(b :: GuiObject).Position = UDim2.fromOffset(x0 + (i - 1) * (bw + 6), if portrait then y + h + 8 else y + h - 58)
+				;(b :: GuiObject).Size = UDim2.fromOffset(bw, if portrait then 34 else 30)
 				-- (narrow phone windows: the text shrinks to fit, at most 13)
 				;(b :: TextButton).TextScaled = true
 				if not b:FindFirstChildOfClass("UITextSizeConstraint") then
@@ -1173,7 +1204,9 @@ local function layoutPick()
 		local grid = list and list:FindFirstChildOfClass("UIGridLayout")
 		if grid then
 			local w, h = bw - 24, bh - areaTop - 62 - 40
-			grid.CellSize = UDim2.fromOffset(math.floor((w - 6 - 8 - 4 * 8) / 5), math.max(60, h - 18))
+			-- (D-1281) three to a row in a narrow (portrait) box
+			local n = if bw < 520 then 3 else 5
+			grid.CellSize = UDim2.fromOffset(math.floor((w - 6 - 8 - (n - 1) * 8) / n), math.max(60, h - 18))
 		end
 		return
 	end
@@ -1201,12 +1234,14 @@ local function layoutPick()
 	pickDone.AnchorPoint = Vector2.new(0, 1)
 	pickDone.Size = UDim2.fromOffset(previewW, 38)
 	pickDone.Position = UDim2.new(0, bw - previewW - 12, 1, -12)
-	-- 4 × 2 grid of 4:3 cells
+	-- 4 × 2 grid of 4:3 cells (D-1281: 2 × 4 in a narrow (portrait) box)
 	local gw = pickGrid.Size.X.Offset
-	local cellW = math.min((gw - 3 * 8) / 4, (areaH - 8) / 2 * 4 / 3)
+	local cols = if bw < 520 then 2 else 4
+	local rows = math.ceil(8 / cols)
+	local cellW = math.min((gw - (cols - 1) * 8) / cols, (areaH - (rows - 1) * 8) / rows * 4 / 3)
 	local cellH = cellW * 3 / 4
 	for index, cell in ipairs(pickCells) do
-		local col, row = (index - 1) % 4, math.floor((index - 1) / 4)
+		local col, row = (index - 1) % cols, math.floor((index - 1) / cols)
 		cell.Position = UDim2.fromOffset(col * (cellW + 8), row * (cellH + 8))
 		cell.Size = UDim2.fromOffset(cellW, cellH)
 	end
@@ -1805,7 +1840,8 @@ local function layoutAlbum()
 	albumList.Size = UDim2.fromOffset(bw - 24, bh - 66)
 	albumEmpty.Position = UDim2.fromOffset(0, 80)
 	-- four cards to a row; a card = the strip + date / time + trash
-	local cellW = math.floor((bw - 24 - 6 - 3 * 10) / 4)
+	local perRow = if bw < 520 then 2 else 4 -- (D-1281: two in a narrow (portrait) box)
+	local cellW = math.floor((bw - 24 - 6 - (perRow - 1) * 10) / perRow)
 	local cellH = math.clamp(math.floor(bh - 76), 170, 320)
 	albumGrid.CellSize = UDim2.fromOffset(cellW, cellH)
 	local buttonsW = math.floor(math.min(160, bw * 0.34))
