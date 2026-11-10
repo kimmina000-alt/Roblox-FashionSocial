@@ -606,14 +606,18 @@ local SOUNDS = {
 	-- and back the same day: "주문 들어온 거 만들 때 만드는 소리 안 들려")
 	make = { "rbxassetid://9113846434", 0.7 }, -- "Coffee Pot 2" (Pro Sound Effects)
 	-- (user 2026-10-30: a bright, quiet, glad "오~" for now; was "감사합니다 new" 132794698600617)
-	thanks = { "rbxassetid://104374771321764", 0.45 }, -- Creator Store, a short voice found under "ooh"
+	-- (D-1287, user 2026-11-11: "카페 알바할 때 커피 주면 손님이 내는 소리 아래 4개 사용
+	-- 랜덤으로"; was "ooh" 104374771321764) one of the four at random each time
+	thanks = { { "rbxassetid://90708954020888", "rbxassetid://109524186690054",
+		"rbxassetid://103423496956787", "rbxassetid://100906437230897" }, 0.45 },
 }
 local function playAt(parent: Instance?, key: string)
 	if not parent then return end
 	local def = SOUNDS[key]
 	local s = Instance.new("Sound")
 	s.Name = "CafeJob_" .. key
-	s.SoundId = def[1]
+	local id = def[1]
+	s.SoundId = if typeof(id) == "table" then id[math.random(1, #id)] else id
 	s.Volume = def[2]
 	s.RollOffMinDistance = 6
 	s.RollOffMaxDistance = 40
