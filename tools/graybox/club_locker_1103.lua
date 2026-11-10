@@ -288,9 +288,17 @@ for _, p in ipairs(club:GetChildren()) do
 		local westX = p.Position.X - len / 2 -- (the line runs along world x)
 		local eastX = p.Position.X + len / 2
 		local startX = PX1 - 0.06
+		local endX = PX0 + 0.06
 		if westX < startX - 0.05 and eastX > startX + 1 then
+			-- the east piece: from the passage's east line on
 			local newLen = eastX - startX
 			p.CFrame = CFrame.new((eastX + startX) / 2, p.Position.Y, p.Position.Z) * p.CFrame.Rotation
+			p.Size = if alongZ then Vector3.new(p.Size.X, p.Size.Y, newLen) else Vector3.new(newLen, p.Size.Y, p.Size.Z)
+		elseif eastX < PX0 and eastX > PX0 - 6 then
+			-- the west piece (x 65.5 .. 132.5, the old opening's west side): on to the
+			-- passage's west line, over the wall that closed the old opening
+			local newLen = endX - westX
+			p.CFrame = CFrame.new((westX + endX) / 2, p.Position.Y, p.Position.Z) * p.CFrame.Rotation
 			p.Size = if alongZ then Vector3.new(p.Size.X, p.Size.Y, newLen) else Vector3.new(newLen, p.Size.Y, p.Size.Z)
 		end
 	end
