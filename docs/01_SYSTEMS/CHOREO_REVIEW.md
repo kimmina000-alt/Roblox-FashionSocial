@@ -140,6 +140,7 @@ docs/01_SYSTEMS/CHOREOGRAPHY.md §9~§20 + CHOREO_REVIEW.md 1-3 검사를 모두
 - 새 규칙이 생기면 이 문서 + 메모리(choreo-lessons)에 적고 안무 추가 · 무대 카메라 세션에 보낸다(사용자 규칙 2026-11-10).
 - 커밋 전 `python -P -E tools/choreo/lua_balance.py <ClubChoreo.lua>` = "final 0", Studio 패치 뒤 `loadstring(src)` 확인(D-1194: 잘라내기 끝 표시가 어긋나 git에만 코드 찌꺼기가 남았음).
 - "한 바퀴만 슬로우로" = 팔 뻗은 시간 전체에 손목 한 바퀴(wristCircles 주기 = 그 길이). 굽힌 팔을 올릴 때 팔뚝 각도 = 150° − 위팔(아니면 손이 머리 뒤로).
+- (D-1263, 안무 추가 세션) 손목 `bend`를 넣은 뒤 Play에서 손 대 팔뚝 화면 각도(루트 기준 (-X,-Y) 투영)를 영상 값과 비교한다. wristMisses가 고른 방향이 게임에서 반대로 나올 수 있다(CRASH 4번: 영상 +50°, 게임 -20° → 뺌). 팔을 크게 돌리는 안무에서는 hand_moves의 반짝 · 돌리기가 대부분 팔 회전이니 프레임 사진으로 확인한다.
 - 영상 손목 자동 분석: `python -P -E tools/choreo/hand_moves.py <영상> --off <노래-영상 초> --from --to --step 0.05` (MediaPipe 손 모델). 사용자 시간을 받으면 먼저 이걸로 영상의 반짝 · 돌리기 · 꺾기 · 팔 뻗기 시간을 뽑고, 게임 팔 위치와 맞춘다(D-1192).
 - 클립 자를 때(무대 카메라 · 센터컷): 손목 · 손이 잘 보이는 장면을 고른다(화면 밖으로 잘림 · 흐림 · 다른 멤버에 가림 없음). 생성기가 손목을 작게 잡으므로 영상에서 보여야 `bend`로 잴 수 있다.
 - KeyframeSequence를 Destroy하지 않는다(빈 시퀀스가 옴). MCP 한 번 60초 안(길면 task.spawn + 짧게 읽기).
