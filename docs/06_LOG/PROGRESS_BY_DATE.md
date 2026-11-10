@@ -769,3 +769,4 @@
 - Catch Catch 저음 -20 (D-1122).
 - Catch Catch 중음 -15 · 고음 -30 (D-1122).
 - Catch Catch 중음 -25 (D-1122).
+- Catch Catch 저음 -30 (D-1122).
