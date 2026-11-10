@@ -2272,6 +2272,13 @@ local function spoonFromTable(player: Player, model: any, piece: any): (boolean,
 	-- on the table is eaten there with chopsticks; before it is cooked (lid, hot
 	-- water) and for the last sip of broth it comes back to the hand as before
 	local ramen = entry.tool:GetAttribute("Ramen")
+	-- (D-1189, user 2026-11-10: "컵라면 물 받은 후 테이블에 놓은 상태로 클릭하면 테이블에
+	-- 놓인 상태에서 뚜껑 열리게 해") water poured and on the table: the lid comes
+	-- off there (RamenCup.openOnTable), the cup stays put
+	if ramen == "cooking" then
+		if (model :: Model):GetAttribute("Busy") then return false, nil end
+		return RamenCup.openOnTable(entry.tool, entry.copy)
+	end
 	local onTable = entry.soup or (ramen == "ready" and ((entry.tool:GetAttribute("Bites") :: number?) or 0) > 1)
 	if not onTable then
 		-- (D-1037, user 2026-11-09: "물 테이블에 설치하면 못 먹음") a tap on a drink
