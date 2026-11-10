@@ -764,10 +764,11 @@ M.ChoreoFixes = {
 	-- now happens standing at 2:15 (7.3-8.1 = song 134.95-135.75), then she sits straight down (no half-squat hold, seated
 	-- by 10.0 = 137.65, just before 17 lies down at 138.3: seated by 136.65 left 1.7 s sitting still) with the knees together and the shins folded back (the photo's legs: no mermaid cross)
 	[82680550952125] = { steady = { from = 0, to = 10.3, passes = 8 },
-		spin = { from = 4.35, to = 4.45, till = 7.3 },
-		still = { from = 7.3, to = 30 },
+		-- (D-1200, user: "2:14 멈칫 끊김": the facing was held 134.0-135.0 before the turn: it turns from 6.4 now)
+		spin = { from = 4.35, to = 4.45, till = 6.4 },
+		still = { from = 6.4, to = 30 },
 		freeze = { from = 10.2, to = 30, ease = 0.15 },
-		bend = { { part = "LowerTorso", keys = { { 7.29, 0, 100, 0 }, { 7.3, 0, 100, 0 }, { 8.1, 0, 0, 0 }, { 8.15, 0, 0, 0 } } } },
+		bend = { { part = "LowerTorso", keys = { { 6.39, 0, 100, 0 }, { 6.4, 0, 100, 0 }, { 7.9, 0, 0, 0 }, { 7.95, 0, 0, 0 } } } },
 		pose = { from = 8.4, to = 30, ease = 1.2, keys = {
 			{ t = 10.0, set = (function() local s = { LowerTorso = { 0, 0, 0 } } for k, v in pairs(M.LemonadeSideSit) do s[k] = v end
 				s.LeftUpperLeg, s.LeftLowerLeg, s.RightUpperLeg, s.RightLowerLeg = { 0, 0, 0 }, { -95, 0, 0 }, { 0, 0, 0 }, { -95, 0, 0 }
@@ -849,7 +850,7 @@ M.ChoreoFixes = {
 	-- and 18's turn comes as before (song 145.9)
 	[132337331292488] = { steady = { { from = 0, to = 8.0, passes = 8 }, { from = 0.6, to = 3.2, passes = 16 } },
 		-- (let go over 0.9 s while the kneel comes in: a 0.3 s let-go swung the hips 35° and the right foot 2.7 studs)
-		freeze = { { from = 0.75, to = 3.6, ease = 0.3, easeOut = 0.9, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot" } } },
+		freeze = { { from = 0.9, to = 3.6, ease = 0.3, easeOut = 0.9, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot" } } },
 		still = { from = 2.8, to = 8.2 },
 		torsoUp = { from = 3.2, to = 8.2, ease = 0.4 },
 		-- (D-1062, user: "2:19에 천장 보고 있는데 정면 보도록 회전. 다리 허벅지는 쭉 뻗고 종아리 뒤로", "2:20 다리 더
@@ -861,32 +862,36 @@ M.ChoreoFixes = {
 		-- upper body is raised from the waist (bent toward her left = up) onto the right arm; 17 starts in
 		-- 16's side sit (D-1068) and turns from 16's kept facing to its own while it lies down (0-0.8 s)
 		-- (D-1190: 16 now ends facing the front, so 17 no longer turns from side on: its `spin fromPrev` is gone)
-		bend = { { part = "LowerTorso", keys = { { 0.4, 0, 0, 0 }, { 0.7, 0, -55, 0 }, { 2.75, 0, -55, 0 }, { 3.0, 0, 0, 0 } } },
-			{ part = "UpperTorso", keys = { { 0.45, 0, 0, 0 }, { 0.72, 0, 0, 45 }, { 2.75, 0, 0, 45 }, { 3.0, 0, 0, 0 } } } },
+		-- (D-1200, user: "2:19에 있는 상체 모션을 앞에 자세에서 회전하지 말고 상체만 각도 눕히기"): no 55° turn of the hips, the upper
+		-- body only leans down to her side (60°)
+		-- (the capture lies down flat on its back there (the old 55° turn made the chest face the front): she stays in the side
+		-- sit instead, the hips set upright, and only the upper body leans down to her right, 45° (the poses below))
 		pose = {
-			-- (D-1198: from the sit straight down onto the side: the hips go -3.44 → -4.2 by 0.7 s; letting go at 0.6
-			-- lifted them 0.9 stud first)
-			{ from = 0, to = 0.85, ease = 0.25, keys = (function() local s = {} for k, v in pairs(M.LemonadeSideSit) do s[k] = v end
-				s.LeftUpperLeg, s.LeftLowerLeg, s.RightUpperLeg, s.RightLowerLeg = { 0, 0, 0 }, { -95, 0, 0 }, { 0, 0, 0 }, { -95, 0, 0 }
-				return { { t = 0, set = s, move = { LowerTorso = { 0, -3.44, 0 } } }, { t = 0.7, set = s, move = { LowerTorso = { 0, -4.2, 0 } } } } end)() },
-			-- (knees together on the way down: the side sit's folded legs straighten without opening)
-			{ from = 0.4, to = 1.5, ease = 0.2, keys = { { t = 0.8, set = {
-				LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { -95, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
-			-- (D-1198, user: "2:20 다리 들 때 각도 변경" + side photo with the arrow: the leg goes up and over toward the head, not back)
-			{ from = 1.5, to = 2.55, ease = 0.15, keys = { { t = 1.6, set = {
-				LeftUpperLeg = { 120, 0, 0 }, LeftLowerLeg = { 0, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
-			{ from = 2.55, to = 3.0, ease = 0.15, keys = { { t = 2.6, set = {
-				LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { -95, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
-			-- kneel (on the heels) → hips up a little, the right leg out straight to the side, to 18's turn
-			{ from = 2.7, to = 9.0, ease = 0.9, keys = {
-				{ t = 3.9, set = { LeftUpperLeg = { 80, 0, 0 }, LeftLowerLeg = { -150, 0, 0 }, LeftFoot = { 70, 0, 0 },
-					RightUpperLeg = { 80, 0, 0 }, RightLowerLeg = { -150, 0, 0 }, RightFoot = { 70, 0, 0 } }, move = { LowerTorso = { 0, -3.0, 0 } } },
-				{ t = 5.4, set = { LeftUpperLeg = { 80, 0, 0 }, LeftLowerLeg = { -150, 0, 0 }, LeftFoot = { 70, 0, 0 },
-					RightUpperLeg = { 80, 0, 0 }, RightLowerLeg = { -150, 0, 0 }, RightFoot = { 70, 0, 0 } }, move = { LowerTorso = { 0, -3.0, 0 } } },
-				{ t = 6.4, set = { LeftUpperLeg = { 45, 0, 0 }, LeftLowerLeg = { -125, 0, 0 }, LeftFoot = { 50, 0, 0 },
-					-- (D-1198, user: "2:22 에서 오른쪽 다리만 앞으로 뻗기": straight forward, not to the side)
-					RightUpperLeg = { 85, 0, 0 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 } }, move = { LowerTorso = { 0, -2.3, 0 } } },
-			} },
+			-- (D-1200, user: "2:17 이 상태에서 무릎 위치 고정하고 무릎 접은 상태에서 옆으로 앉기"): from 16's kneel the hips go down to the
+			-- side of the heels (the knees stay, the shins folded: the side sit) by 0.7, and stay so while she lies (no legs together)
+			{ from = 0, to = 3.0, ease = 0.25, keys = (function() local k, s = {}, {} for a, v in pairs(M.LemonadeSideSit) do s[a] = v k[a] = v end
+				k.LeftUpperLeg, k.LeftLowerLeg, k.RightUpperLeg, k.RightLowerLeg = { 0, 0, 0 }, { -95, 0, 0 }, { 0, 0, 0 }, { -95, 0, 0 }
+				k.LowerTorso, s.LowerTorso, s.UpperTorso = { 0, 0, 0 }, { 0, 0, 0 }, { 5, 0, -45 }
+				-- (D-1200, user: "2:20 다리 아까보다 앞으로 더 뻗음. 반대 각도로 수정해서 일자로 세우기"): the left leg straight up along her side
+				-- (one window with the sit: two windows meeting at 1.5 let the foot drop through the floor for a moment)
+				local kick = {} for a, v in pairs(s) do kick[a] = v end
+				kick.LeftUpperLeg, kick.LeftLowerLeg = { 0, -50, -155 }, { 0, 0, 0 }
+				return { { t = 0, set = k, move = { LowerTorso = { 0, -3.44, 0 } } }, { t = 0.7, set = s, move = { LowerTorso = { 0, -4.0, 0 } } },
+					{ t = 1.45, set = s, move = { LowerTorso = { 0, -4.0, 0 } } }, { t = 1.65, set = kick, move = { LowerTorso = { 0, -4.0, 0 } } },
+					{ t = 2.4, set = kick, move = { LowerTorso = { 0, -4.0, 0 } } }, { t = 2.65, set = s, move = { LowerTorso = { 0, -4.0, 0 } } } } end)() },
+			-- (D-1200, user: "2:21 왼쪽 다리 고정. 오른쪽 다리 앞으로 뻗으면서 엉덩이 바닥에 붙이기 / 쭉 뻗은 오른쪽 다리 오른쪽으로 벌리면서
+			-- 회전"): the kneel by 3.9, then the left leg stays folded, the right leg goes straight forward with the hips down on the
+			-- floor (4.6-6.0), then the straight right leg opens out to the right into 18's turn (7.6)
+			{ from = 2.7, to = 9.0, ease = 0.9, keys = (function()
+				local kneelL = { LeftUpperLeg = { 80, 0, 0 }, LeftLowerLeg = { -150, 0, 0 }, LeftFoot = { 70, 0, 0 } }
+				local function with(a, b) local s = {} for k, v in pairs(a) do s[k] = v end for k, v in pairs(b) do s[k] = v end return s end
+				return {
+					{ t = 3.9, set = with(kneelL, { RightUpperLeg = { 80, 0, 0 }, RightLowerLeg = { -150, 0, 0 }, RightFoot = { 70, 0, 0 } }), move = { LowerTorso = { 0, -3.0, 0 } } },
+					{ t = 4.6, set = with(kneelL, { RightUpperLeg = { 85, 0, 0 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 } }), move = { LowerTorso = { 0, -3.6, 0 } } },
+					{ t = 6.0, set = with(kneelL, { RightUpperLeg = { 85, 0, 0 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 } }), move = { LowerTorso = { 0, -3.6, 0 } } },
+					{ t = 7.6, set = with(kneelL, { RightUpperLeg = { 20, 0, 75 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 } }), move = { LowerTorso = { 0, -3.4, 0 } } },
+				}
+			end)() },
 		} },
 	-- (2:26 "일어나면서 몸 돌리는데 두 번 돌림. 한 번으로 깔끔하게": the capture turns 55°
 	-- one way, then 141° back in 0.16 s, inside its 1 s blend: one even turn
