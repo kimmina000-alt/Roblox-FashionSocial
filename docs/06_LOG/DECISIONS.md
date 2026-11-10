@@ -4171,3 +4171,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "음원 현재 가수-노래제목으로 되어 있는데 노래제목-가수로 변경".
 - ClubPlaylist의 곡 제목만 바꿈(첫 "-" 앞 = 가수; K-DA는 이름에 "-"가 있어 따로): 예) ATEEZ-BAD → BAD-ATEEZ, RESCENE-LOVE-ATTACK → LOVE-ATTACK-RESCENE, K-DA-GIRLS → GIRLS-K-DA. 가수가 없는 곡(K-Pop Party / K-pop Cute Crush / K-Pop Uprising, ROCK PAPER SCISSORS, 그사람 등)은 그대로. 46곡.
 - 제목은 화면 표시용으로만 쓰임(안무 · 무대 카메라 · 락은 soundId / 목록 순서): 다른 코드는 그대로. 코드 주석과 문서 속 옛 제목은 그대로 둠.
+
+## D-1286 새 곡 3곡: Dragon-RESCENE, SHOCK-TREASURE, 백화요란-RESCENE (2026-11-11)
+- 사용자 요청(음원 테스트 세션의 lab 값, 매니저 세션 전달). 셋 다 x1 업로드, 안무 없음, 목록 끝(BiiiG BiiiG 다음)에 추가. 제목은 D-1281 순서(노래제목-가수).
+- Dragon-RESCENE 82349082640186: 209.555 s(Studio에서 잼), fileSpeed 1.0498, tempo 0.953 (× = 1.000), boost 10 / boost2 5 / boost3 2, EQ 0/0/0. 곡 3:40.
+- SHOCK-TREASURE 94024099429072: 160.832 s, fileSpeed 1.0446, tempo 0.957 (× = 1.000), boost 10 / 5 / 2, EQ 0/0/0. 곡 2:48.
+- 백화요란-RESCENE 74619423082896: 200.975 s, fileSpeed 1.0499, tempo 0.952 (× = 0.999), boost 10 / 5 / 2, EQ -4.5/-1/-10.5. 곡 3:31.
+- boost4는 셋 다 1이라 뺌. Play로 들어 보지는 않음.

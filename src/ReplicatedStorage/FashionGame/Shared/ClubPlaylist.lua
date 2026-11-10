@@ -558,6 +558,15 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "BiiiG BiiiG-BIGBANG", soundId = 117439533883778, length = 156.414, fileSpeed = 1.0485,
 		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
+	-- (D-1286, user 2026-11-11: three x1 uploads with their lab values, no choreography) song 3:40
+	{ channel = "K-POP", title = "Dragon-RESCENE", soundId = 82349082640186, length = 209.555, fileSpeed = 1.0498,
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (D-1286) song 2:48
+	{ channel = "K-POP", title = "SHOCK-TREASURE", soundId = 94024099429072, length = 160.832, fileSpeed = 1.0446,
+		lab = { speed = 1, tempo = 0.957, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (D-1286) song 3:31
+	{ channel = "K-POP", title = "백화요란-RESCENE", soundId = 74619423082896, length = 200.975, fileSpeed = 1.0499,
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = -4.5, mid = -1, high = -10.5, engine = "sound" } },
 
 } :: {Track}
 
