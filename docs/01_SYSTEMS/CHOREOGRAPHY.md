@@ -340,3 +340,7 @@ D-962(NEON · Get A Guitar · Love 119, 20곳)를 고치며 나온 유형이다.
 ### 20.5 Play 확인
 - 보정이 들어간 구간 하나 이상을 `ChoreoSmoothingOff`(Studio, FashionGame 속성) 켬/끔으로 비교: 관절 각도가 기대만큼 바뀌고, 프레임당 회전이 튀지 않는지(손 10° · 고개 5° 안팎).
 - 클립 위치: `D:\Roblox\영상\*_centercut\clips`, 미러 연습 영상 곡(ANIMAL, 체포하겠어, Genie, LOVE ATTACK, I SPY, REDRED, BAD 원본 등)은 `D:\Roblox\오후\영상\*_centercut\clips`. Looks Can Kill은 클립과 조각 순서가 달라 아직 안 함.
+
+## 21. 요청서 · 수정 기록 분석 (D-1072, 2026-11-10)
+- 안무를 추가할 때 붙여 넣을 요청서, 지금까지 고친 것의 원인 · 해결 · 상태 표, 아직 사람이 봐야 잡히는 유형(가림 · 캡처 멈춤 · 큰 관절 강세 · 관통 · 상체 · 바닥 동작 · 박자 · 접촉 · 반복 · 업로드)과 찾는 법: `docs/01_SYSTEMS/CHOREO_REVIEW.md`.
+- 새 검사: `tools/choreo/occlusion_scan.py <centercut 폴더>`(centercut .venv 파이썬) — 센터가 가려지거나 추적이 다른 사람으로 옮겨 간 구간(클립 초). 걸린 구간은 Play로 캡처가 깨졌는지 보고, 깨졌으면 같은 동작의 반복을 `warp`로 다시 재생(D-1070).
