@@ -3494,3 +3494,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - D-1118의 "2 머무르-꿈꾸던 어른이 되었나요" 곡 삭제(원곡 머무르는 그대로). Track.clean 코드(DanceController applyClean)는 남겨 둠: clean 있는 곡이 없으면 효과는 계속 꺼져 있음.
 - Play로 들어 보지는 않음.
 - (2026-11-10) 사용자: "겟어기타, 레모네이드 수정 전으로 복구" → RIIZE-Get A Guitar -34/-20/-34, aespa-Lemonade -40/-25/-40 boost2 10으로 되돌림. 남은 변경: Catch Catch, 소원을 말해봐.
+- (2026-11-10) 사용자: "캐치캐치 설정값 수정 전으로 바꾸기" → YENA-Catch Catch -40/-25/-40 boost2 10으로 되돌림. 남은 변경: 소원을 말해봐.
