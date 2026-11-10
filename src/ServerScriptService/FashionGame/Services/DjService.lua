@@ -366,9 +366,8 @@ function DjService.Start()
 	-- is a product, bought each time, so it is given here)
 	-- (D-1166, user 2026-11-10: "ahchimsae 한테 dj 권한 줘", a test account that
 	-- should not look like the developer) these players get DJ time on joining too
-	local GRANTED: {[number]: boolean} = {
-		[11350809588] = true, -- ahchimsae
-	}
+	-- (D-1187) the list lives in ClubConfig.DJGranted (the client's play bar reads it too)
+	local GRANTED = ClubConfig.DJGranted
 	if not game:GetService("RunService"):IsStudio() and (game.CreatorType == Enum.CreatorType.User or next(GRANTED) ~= nil) then
 		local function ownerDJ(player: Player)
 			local owner = game.CreatorType == Enum.CreatorType.User and player.UserId == game.CreatorId
@@ -377,6 +376,22 @@ function DjService.Start()
 		end
 		Players.PlayerAdded:Connect(ownerDJ)
 		for _, p in ipairs(Players:GetPlayers()) do ownerDJ(p) end
+		-- (D-1187, user: "ahchimsae한테 dj 권 영구로 줘") a granted account's DJ time
+		-- comes back by itself whenever the booth is free (nobody DJing, nobody
+		-- waiting), so it never runs out while testing; buyers still go first
+		task.spawn(function()
+			while true do
+				task.wait(2)
+				if not current and #queue == 0 then
+					for _, p in ipairs(Players:GetPlayers()) do
+						if GRANTED[p.UserId] then
+							DjService.AddTime(p)
+							break
+						end
+					end
+				end
+			end
+		end)
 	end
 	Players.PlayerRemoving:Connect(function(player)
 		if guests[player.UserId] then

@@ -80,8 +80,16 @@ end
 
 -- (D-849, user) who may move the song with the play bar: the DJ playing now,
 -- the game's owner, anyone in Studio tests
+-- (D-1187, user 2026-11-10: "ahchimsae한테 dj 권 영구로 줘. 테스트하다가 일시정지
+-- 사라져버림") accounts with the owner's DJ rights on live servers: the play
+-- bar's ⏸ / seek always (not only during their DJ time), and DJ time again
+-- whenever the booth is free (DjService). Add a UserId to give it, remove to take it back.
+ClubConfig.DJGranted = {
+	[11350809588] = true, -- ahchimsae (test account, D-1166)
+} :: {[number]: boolean}
 function ClubConfig.canSeek(player: Player, isDJ: boolean): boolean
 	if isDJ or game:GetService("RunService"):IsStudio() then return true end
+	if ClubConfig.DJGranted[player.UserId] then return true end
 	return game.CreatorType == Enum.CreatorType.User and player.UserId == game.CreatorId
 end
 
