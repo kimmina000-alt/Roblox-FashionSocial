@@ -337,9 +337,15 @@ do
 
 	-- (D-952) a whole cake / 수육 plate ("Plate") is put down the same way; a
 	-- piece taken from a plate ("Piece") is only eaten, never put down
+	-- (D-1158) a club can (tier 1) goes on the food tables too; buckets stay in the club
+	local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
+	local function isCan(tool: Tool): boolean
+		local drink = ClubConfig.findDrink(tool:GetAttribute("Bottle"))
+		return drink ~= nil and drink.tier == 1
+	end
 	local function heldAny(): Tool?
 		local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
-		return if tool and (tool:GetAttribute("Snack") or tool:GetAttribute("Plate")) and not tool:GetAttribute("CafeOrder") then tool else nil
+		return if tool and (tool:GetAttribute("Snack") or tool:GetAttribute("Plate") or isCan(tool)) and not tool:GetAttribute("CafeOrder") then tool else nil
 	end
 	local function heldFood(): Tool?
 		local tool = heldAny()

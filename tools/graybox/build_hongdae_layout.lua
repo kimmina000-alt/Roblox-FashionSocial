@@ -7582,7 +7582,10 @@ do
 		local TURN = 30
 		B:SetAttribute("BenchTurn", TURN)
 		-- (table down to the pot size, benches 15° shorter at each end: user 2026-10-28, D-451)
-		local TR, R0, R1, SH = 1.5, 8.4, 11.2, 2.4 -- table radius, bench inner / outer radius, seat height
+		-- (D-1157, user 2026-11-10: "오후네컷 안에 둥근 의자 사이즈 줄였어 그 위에 앉는 블록도
+		-- 맞춰서 수정") the bench as the user scaled it in the place: 0.84 (radii
+		-- 8.4 / 11.2 → 7.05 / 9.4, seat height 2.4 → 2.02); the seats follow
+		local TR, R0, R1, SH = 1.5, 7.05, 9.4, 2.02 -- table radius, bench inner / outer radius, seat height
 		local PINK_T = Color3.fromRGB(255, 205, 214)
 		local SKY_B = Color3.fromRGB(186, 226, 240)
 		vcyl("RoundTable", c, TR * 2, 3.6, PINK_T, opt({ material = Enum.Material.SmoothPlastic }))

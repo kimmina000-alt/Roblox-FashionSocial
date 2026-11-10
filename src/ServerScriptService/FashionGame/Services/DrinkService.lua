@@ -759,12 +759,33 @@ local function swig(player: Player): (boolean, string?)
 	end
 	local left = ((tool:GetAttribute("Servings") :: number?) or ClubConfig.BottleServings) - 1
 	local character = tool.Parent :: Model
-	tool:SetAttribute("Drinking", true)
 	local handle = tool:FindFirstChild("Handle")
+	-- (D-1158, user 2026-11-10: "캔 음료 사서 처음 클릭해서 개봉할 때 나는 소리:
+	-- 111959113939767 (이건 모션도 넣어야 함)") a full can opens on the first tap:
+	-- the two-hand motion (EatMotionController "Unwrap") and the tab's sound
+	if drink.tier == 1 and not tool:GetAttribute("Opened") and left + 1 >= ClubConfig.BottleServings then
+		tool:SetAttribute("Opened", true)
+		tool:SetAttribute("Drinking", true)
+		character:SetAttribute("Unwrap", ((character:GetAttribute("Unwrap") :: number?) or 0) + 1)
+		if handle then
+			local snd = Instance.new("Sound")
+			snd.SoundId = "rbxassetid://111959113939767"
+			snd.Volume = 0.9
+			snd.RollOffMaxDistance = 40
+			snd.Parent = handle
+			task.delay(0.35, function() if snd.Parent then snd:Play() end end)
+			game:GetService("Debris"):AddItem(snd, 5)
+		end
+		task.wait(1.3)
+		tool:SetAttribute("Drinking", nil)
+		return true, nil
+	end
+	tool:SetAttribute("Drinking", true)
 	if handle and not handle:FindFirstChild("Gulp") then
 		local gulp = Instance.new("Sound")
 		gulp.Name = "Gulp"
-		gulp.SoundId = "rbxassetid://" .. tostring(ClubConfig.GulpSoundId)
+		-- (D-1158: "물/캔 음료 마시는 소리: 2245190929" for the cans)
+		gulp.SoundId = "rbxassetid://" .. tostring(if drink.tier == 1 then 2245190929 else ClubConfig.GulpSoundId)
 		gulp.Volume = 0.8
 		gulp.RollOffMaxDistance = 40
 		gulp.Parent = handle
@@ -787,6 +808,7 @@ local function swig(player: Player): (boolean, string?)
 	tool.Name = string.format("%s · %s (%d/%d)", containerName(drink), name, left, ClubConfig.BottleServings)
 	return true, nil
 end
+DrinkService.Swig = swig -- (D-1158: a can taken back from a food table, SnackService)
 
 --------------------------------------------------
 -- Bartender NPC

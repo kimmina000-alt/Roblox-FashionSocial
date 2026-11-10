@@ -49,6 +49,7 @@ require(script.Parent.Services.NameTagService).StartRoles() -- (VIP / DJ badges 
 local SnackService = require(script.Parent.Services.SnackService)
 SnackService.Start(EconomyService)
 SnackService.canGiver = DrinkService.GiveBottle -- (D-1135: the club's cans sold at OH24 too)
+SnackService.canSwig = DrinkService.Swig -- (D-1158: a can taken back from a food table)
 require(script.Parent.Services.CafeJobService).Start(EconomyService, SnackService)
 require(script.Parent.Services.SubwayService).Start()
 require(script.Parent.Services.PianoService).Start()

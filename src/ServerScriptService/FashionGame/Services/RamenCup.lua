@@ -27,7 +27,8 @@ local NOODLE_YELLOW = Color3.fromRGB(235, 195, 95) -- (D-1081) 참깨라멘 / �
 -- (D-1063, user 2026-11-09) the sounds the user picked
 local SOUND_LID = 75936211172606 -- 컵라면 뚜껑 뜯는 소리 (the lid off)
 local SOUND_WATER = 9119158299 -- the beach 음수대's water (FountainTap), while the water pours
-local SOUND_BROTH = 133241476322672 -- 국물 마시는 소리 (the last sip: the cup to the mouth)
+-- (D-1158, user 2026-11-10: "라면 국물 마시는 소리:133347729618467"; was 133241476322672)
+local SOUND_BROTH = 133347729618467 -- 국물 마시는 소리 (the last sip: the cup to the mouth)
 -- (the noodle bite itself: SnackService's Sip sound, 117267927001796 from 1 s in)
 RamenCup.EatSound = 117267927001796
 RamenCup.EatFrom = 1

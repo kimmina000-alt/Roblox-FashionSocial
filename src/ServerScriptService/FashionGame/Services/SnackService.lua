@@ -168,6 +168,46 @@ end
 -- Creator Store "Water Gulp/Drink Sound" (1481574895, 1.6 s), was 77555451916623
 local COFFEE_SIP = 1481574895
 local COFFEE = { iceamericano = true, hotamericano = true, latte = true, caramel = true, cappuccino = true, water = true }
+-- (D-1158, user 2026-11-10: "물/캔 음료 마시는 소리: 2245190929 / 커피 종류 마시는 소리:
+-- 102811247160851 / 아메리카노 핫 마실 때 소리: 97803848511203 / 캔 음료 사서 처음 클릭해서
+-- 개봉할 때 나는 소리: 111959113939767 (이건 모션도 넣어야 함)")
+local SIP_SOUND: {[string]: number} = {
+	water = 2245190929, soda = 2245190929,
+	iceamericano = 102811247160851, latte = 102811247160851, caramel = 102811247160851,
+	cappuccino = 102811247160851, frappe = 102811247160851,
+	hotamericano = 97803848511203,
+}
+SnackService.CanSip = 2245190929 -- (DrinkService: the club's cans)
+SnackService.CanOpen = 111959113939767
+local CANS = { soda = true } -- (OH24 cans opened on the first tap)
+
+-- (D-1158) a can not opened yet: open it now (the two-hand motion of the
+-- 삼각김밥 wrapper, EatMotionController "Unwrap", and the tab's sound). True when
+-- this tap opened it. DrinkService uses it for the club's cans too.
+function SnackService.openCan(tool: Tool): boolean
+	local key = tool:GetAttribute("Snack")
+	local isCan = (typeof(key) == "string" and CANS[key]) or tool:GetAttribute("CanSealed")
+	if not isCan or tool:GetAttribute("Opened") then return false end
+	tool:SetAttribute("Opened", true)
+	tool:SetAttribute("CanSealed", nil)
+	local character = tool.Parent
+	if character and character:IsA("Model") then
+		character:SetAttribute("Unwrap", ((character:GetAttribute("Unwrap") :: number?) or 0) + 1)
+	end
+	tool:SetAttribute("Busy", true)
+	task.delay(1.3, function() if tool.Parent then tool:SetAttribute("Busy", nil) end end)
+	local h = tool:FindFirstChild("Handle")
+	if h then
+		local snd = Instance.new("Sound")
+		snd.SoundId = "rbxassetid://" .. tostring(SnackService.CanOpen)
+		snd.Volume = 0.9
+		snd.RollOffMaxDistance = 40
+		snd.Parent = h
+		task.delay(0.35, function() if snd.Parent then snd:Play() end end) -- (as the left hand meets the tab)
+		Debris:AddItem(snd, 5)
+	end
+	return true
+end
 local QUIET = { bagel = true, saltbread = true } -- their bite at half volume
 -- (D-909, user 2026-11-05: "돼지국밥 먹는 소리 2배로 키워") 0.7 → 1.4
 -- (D-952, user 2026-11-07: "국밥 먹는 소리 3배로 키워") the three 국밥 at 3×
@@ -383,6 +423,9 @@ local SOUND_WRAPPER = 75383018229679 -- (D-1065) 삼각김밥 포장 비닐 뜯�
 local function bite(tool: Tool, item: SnackConfig.Item)
 	-- a cup the cafe staff is carrying to a customer is not theirs to drink
 	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return end
+	-- (D-1158) a can (탄산음료 캔): the first tap opens it, the two-hand motion and
+	-- the tab's sound, no sip yet
+	if SnackService.openCan(tool) then return end
 	-- (D-1065) a wrapped 삼각김밥: the first tap tears the wrapper (piece 1) off
 	if tool:GetAttribute("Wrapped") then
 		tool:SetAttribute("Wrapped", nil)
@@ -919,7 +962,7 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	-- the sound of a bite for this kind of food (drinks gulp)
 	local sip = Instance.new("Sound")
 	sip.Name = "Sip"
-	sip.SoundId = "rbxassetid://" .. tostring(if COFFEE[item.key] then COFFEE_SIP else EAT_SOUND[kind] or ClubConfig.GulpSoundId)
+	sip.SoundId = "rbxassetid://" .. tostring(SIP_SOUND[item.key] or (if COFFEE[item.key] then COFFEE_SIP else EAT_SOUND[kind] or ClubConfig.GulpSoundId)) -- (D-1158)
 	-- coffee twice as loud, bagel and 소금빵 half (user 2026-10-30)
 	setVolume(sip, if COFFEE[item.key] then 0.9 elseif QUIET[item.key] then 0.35 else LOUD[item.key] or 0.7)
 	sip.RollOffMaxDistance = 40
@@ -1532,6 +1575,16 @@ end
 
 -- (D-1135) who hands over a club can (DrinkService.GiveBottle: player, drink key, servings) → ok, message, tool
 SnackService.canGiver = nil :: ((Player, string, number?) -> (boolean, string?, Tool?))?
+SnackService.canSwig = nil :: ((Player) -> (boolean, string?))? -- (D-1158)
+
+-- (D-1158, user 2026-11-10: "캔 음료 테이블에 둘 수 있게 수정. 버켓은 클럽 안에서만.")
+-- a club can (DrinkService tier 1: Bottle attribute, 6 cups) goes on the food
+-- tables like a drink; buckets (tier 2 / 3) stay on the club's tables
+local function isCan(tool: Instance?): boolean
+	if not tool or not tool:IsA("Tool") then return false end
+	local drink = ClubConfig.findDrink(tool:GetAttribute("Bottle"))
+	return drink ~= nil and drink.tier == 1
+end
 
 function SnackService.SetFinishedHandler(handler: (Model, SnackConfig.Item) -> ())
 	finishedHandler = handler
@@ -1785,7 +1838,8 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- (D-952, user 2026-11-07: "수육 한 점은 배치 안 되어야 함") a piece taken
 	-- from a shared plate is eaten from the hand, never put down
 	if tool and tool:GetAttribute("Piece") then return false, nil end
-	if not root or not tool or not tool:GetAttribute("Snack") then return false, "손에 든 음식이 없어요." end
+	if not root or not tool or not (tool:GetAttribute("Snack") or isCan(tool)) then return false, "손에 든 음식이 없어요." end -- (D-1158: a can too)
+	if tool:GetAttribute("Drinking") then return false, nil end
 	-- (D-1106, user 2026-11-09: "먹는 중이에요. 삭제") nothing on the screen
 	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return false, nil end
 	local handle = tool:FindFirstChild("Handle")
@@ -2147,6 +2201,22 @@ local function spoonFromTable(player: Player, model: any, piece: any): (boolean,
 	-- of that bite (no message: user 2026-11-10 "뺏어 먹을 때 뜨는 문구 삭제해").
 	-- Drinks and snacks that go back to the hand stay the owner's.
 	local entry = nearPlaced(player, model)
+	-- (D-1158) a can on the table: back to its owner's hand and a swig there
+	if entry and entry.player == player and isCan(entry.tool) then
+		local character = player.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
+		if not humanoid or (model :: Model):GetAttribute("Busy") then return false, nil end
+		local tool = entry.tool
+		placedFood[model :: Model] = nil
+		tool:SetAttribute("KeptBy", nil)
+		tool.Parent = player:FindFirstChildOfClass("Backpack")
+		;(model :: Model):Destroy()
+		humanoid:EquipTool(tool)
+		task.delay(0.35, function()
+			if tool.Parent == character and SnackService.canSwig then SnackService.canSwig(player) end
+		end)
+		return true, nil
+	end
 	if not entry or not entry.item then return false, nil end
 	if entry.player ~= player then
 		if not entry.soup or (model :: Model):GetAttribute("Busy") then return false, nil end

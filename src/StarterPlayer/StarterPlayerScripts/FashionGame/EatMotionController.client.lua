@@ -28,6 +28,7 @@ local RunService = game:GetService("RunService")
 
 local UP_TIME = 0.28 -- seconds up (and down)
 local BIG = 1.2 -- studs: a dish held under the chin
+local HAND_FOOD = { croissant = true, saltbread = true, bagel = true } -- (D-1159: bitten from the end)
 
 type Pose = { shoulder: CFrame, elbow: CFrame, wrist: CFrame }
 type Rig = {
@@ -82,7 +83,8 @@ local function heldPoint(tool: Tool, handle: BasePart, grip: CFrame): (Vector3, 
 	-- (D-1152, user 2026-11-10, screenshots: the blue lemonade went to the ear on
 	-- its side: its farthest corner was the glass bottom) a drink with a straw
 	-- (tool attribute EatStraw): the straw's top end to the lips, the glass upright
-	local straw = if tool:GetAttribute("EatStraw") then tool:FindFirstChild("Straw", true) else nil
+	-- (D-1159: every glass with a Straw part, the built 한옥 drinks too, measured going to the cheek)
+	local straw = tool:FindFirstChild("Straw", true)
 	if straw and straw:IsA("BasePart") then
 		local rel = handle.CFrame:ToObjectSpace(straw.CFrame)
 		local h = straw.Size / 2
@@ -106,7 +108,10 @@ local function heldPoint(tool: Tool, handle: BasePart, grip: CFrame): (Vector3, 
 			return rel.Position + along * reach * 0.8, false, size
 		end
 	end
-	if math.max(size.X, size.Z) >= BIG then return (lo + hi) / 2, true, size end
+	-- (D-1159) a dish is low and wide: a tall cup (한옥 찻잔, 1.4 wide but 1.7 high)
+	-- and bread eaten from the hand go to the lips like the small things
+	local wide = math.max(size.X, size.Z)
+	if wide >= BIG and size.Y < wide * 0.8 and not HAND_FOOD[tool:GetAttribute("Snack")] then return (lo + hi) / 2, true, size end
 	return far or (lo + hi) / 2, false, size
 end
 
@@ -140,7 +145,10 @@ local function solve(character: Model): Pose?
 		target = mouth + Vector3.new(0, -0.02 * s, -0.05 * s)
 		wantUp = Vector3.new(0, 1, 0.12).Unit
 	elseif big then
-		target = mouth + Vector3.new(0.3 * s, -0.55 * s, -(size.Z / 2 + 0.1 * s))
+		-- (D-1159, user 2026-11-10: "뭐 먹을 때 위치 모두 체크해서 얼굴 하관 부근으로") measured
+		-- in Play: cakes / breads / 한옥 cups / 국밥 bowls stopped at the neck (their
+		-- top 0.55-0.9 head below the centre): 0.25 head higher and less to the side
+		target = mouth + Vector3.new(0.08 * s, -0.35 * s, -(size.Z / 2 + 0.1 * s))
 		wantUp = Vector3.new(0, 0.9, 0.44).Unit
 	else
 		target = mouth + Vector3.new(0.05 * s, 0, -0.15 * s)
@@ -163,17 +171,20 @@ local function solve(character: Model): Pose?
 	local function cost(sp: number, sy: number, sz: number, e: number, w: number): number
 		local p, up, elbow, h = fk(sp, sy, sz, e, w)
 		local c = (p - target).Magnitude / s
-		if wantUp then c += (1 - up:Dot(wantUp)) * 1.5 end
+		if wantUp then c += (1 - up:Dot(wantUp)) * (if big then 0.8 else 1.5) end -- (D-1159: a dish near the chin first)
 		-- the elbow out and below the hand; the hand out of the head
 		c += math.max(0, h.X + 0.2 * s - elbow.X) * 0.5 / s + math.max(0, elbow.Y - h.Y) * 0.5 / s
-		c += math.max(0, 0.75 * s - (h - headAt).Magnitude) * 2 / s
+		c += math.max(0, (if big then 0.6 else 0.75) * s - (h - headAt).Magnitude) * 2 / s -- (D-1159: a dish's hand may come closer)
 		c += math.abs(w) / 300 + math.abs(sy) / 400
 		return c
 	end
 	-- coarse, then finer around the best
 	local best, b = math.huge, { 60, 20, 0, 100, 0 }
-	for sp = 20, 120, 10 do
-		for sy = 0, 40, 10 do
+	-- (D-1159, measured: a tall glass's straw top is 1.3 studs over the hand, so
+	-- the hand comes in low and across to the middle) wider for straw drinks only
+	local spLo, syHi = if upright then -20 else 20, if upright then 80 else 40
+	for sp = spLo, 120, 10 do
+		for sy = 0, syHi, 10 do
 			for sz = -20, 40, 15 do
 				for e = 40, 150, 10 do
 					for w = -60, 40, 20 do
@@ -191,7 +202,7 @@ local function solve(character: Model): Pose?
 				for dsz = -1, 1 do
 					for de = -1, 1 do
 						for dw = -1, 1 do
-							local q = { c0[1] + dsp * step, math.clamp(c0[2] + dsy * step, 0, 45), c0[3] + dsz * step * 2, c0[4] + de * step, c0[5] + dw * step * 2 }
+							local q = { c0[1] + dsp * step, math.clamp(c0[2] + dsy * step, 0, syHi + 5), c0[3] + dsz * step * 2, c0[4] + de * step, c0[5] + dw * step * 2 }
 							local c = cost(q[1], q[2], q[3], q[4], q[5])
 							if c < best then best, b = c, q end
 						end
@@ -490,6 +501,19 @@ RunService.PreSimulation:Connect(function(dt)
 		pose(rig.shoulder, rig.pose.shoulder)
 		pose(rig.elbow, rig.pose.elbow)
 		if rig.wrist then pose(rig.wrist, rig.pose.wrist) end
+		-- (D-1159, user 2026-11-10: "뭐 먹을 때 입 움직이는 거 구현") a head that can move
+		-- its face (FaceControls, dynamic heads): the jaw chews while the food is up
+		-- at the mouth and closes as the arm goes down; classic heads have no jaw
+		local head = character:FindFirstChild("Head")
+		local face = head and head:FindFirstChildOfClass("FaceControls")
+		if face then
+			local chew = 0.5 + 0.5 * math.sin(os.clock() * 13)
+			local jaw = if done then 0 else a * (0.12 + 0.38 * chew)
+			pcall(function()
+				(face :: any).JawDrop = jaw
+				;(face :: any).Pucker = if done then 0 else a * 0.25 * (1 - chew)
+			end)
+		end
 		if done then rigs[character] = nil end
 	end
 end)

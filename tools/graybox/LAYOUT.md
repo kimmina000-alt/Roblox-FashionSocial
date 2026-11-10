@@ -52,7 +52,8 @@
   3-16. `oh24_door_1109.lua` — 편의점 문(D-1057).
   3-17. `oh24_store_1109.lua` — 사용자가 옮긴 편의점 위치, 벽 냉동고, 데크(테이블 없음), 창가 스툴 앉는 자리, 계산기(D-1063, D-1074, D-1078, D-1083).
   3-18. `ohucuts_walls_1109.lua` — 오후네컷 곧은 실내 벽마다 사진 판(PhotoWall, 키 OHU_*, D-1094).
-  3-19. `cafe_case_1110.lua` — 해변 카페 케이크 진열장(D-1149, D-1151): 1단만, 케이크 받침(Foods.CakeStand) 위에 통케이크 4종(빈티지 · 딸기 · 티라미수 · 바스크)을 테이블 크기(2.6)로. 맨 마지막. 여러 번 돌려도 같다.
+  3-19. `cafe_case_1110.lua` — 해변 카페 케이크 진열장(D-1149, D-1151): 1단만, 케이크 받침(Foods.CakeStand) 위에 통케이크 4종(빈티지 · 딸기 · 티라미수 · 바스크)을 테이블 크기(2.6)로. 여러 번 돌려도 같다.
+  3-20. `oh24_bar_1110.lua` — 편의점 창가 바(D-1157): 온수기 · 온수 꼭지 · 받침과 전자레인지를 짧은 창가 바 기준 자리로(Workspace 바로 아래 복사본은 OH24Store 안으로), 긴 바 스툴 4개를 데크 위 바 안쪽으로(공중에 뜨지 않게 레이캐스트). 맨 마지막. 여러 번 돌려도 같다.
 4. 손 편집 기록(`ServerStorage.PropOverrides`, git `prop_overrides.json`)은 2·3단계에서 자동 적용. 다시 빌드하기 전에 항상 `prop_save.lua`로 먼저 저장.
 - 필요한 Studio 자산: ServerStorage.ArtAssets(나무·관목·야자수·가로등·신호등 등, 스크립트 제거됨), ServerStorage.Cars(G70·G80), MaterialService(OHU_Asphalt, OHU_Concrete). 장소 파일에만 있으므로 Studio 저장 필수.
 - 예전 이름: hongdae_v1_temp.lua / Workspace.Hongdae_v1_Temp (임시 단계). 새 스크립트의 revert가 예전 폴더도 지운다.

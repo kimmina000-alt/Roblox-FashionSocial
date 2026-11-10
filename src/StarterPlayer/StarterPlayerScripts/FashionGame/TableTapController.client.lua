@@ -82,6 +82,19 @@ local function handle(hit: Instance?, hitPosition: Vector3?)
 	if os.clock() - lastHandled < 0.4 then return end
 	lastHandled = os.clock()
 	local tool = held()
+	-- (D-1158) a can over a cafe / 국밥집 / OH24 table: SnackController puts it down there
+	if tool and tool:GetAttribute("Bottle") and not tablePart and hit then
+		local node: Instance? = hit
+		while node and node ~= workspace do
+			if node:IsA("BasePart") and (CollectionService:HasTag(node, "CafeTable") or CollectionService:HasTag(node, "GukbapTable") or CollectionService:HasTag(node, "SnackTable")) then
+				lastHandled = 0
+				return
+			end
+			node = node.Parent
+		end
+		-- (a can someone left on a food table: SnackController's tap)
+		if hit:FindFirstAncestor("PlacedFood") then lastHandled = 0 return end
+	end
 	if tool and tool:GetAttribute("Bottle") then
 		if tablePart then
 			askVisibility:Fire(tablePart)
