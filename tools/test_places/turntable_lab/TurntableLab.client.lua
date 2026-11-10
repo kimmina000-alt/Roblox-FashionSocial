@@ -145,6 +145,7 @@ local TRACKS = {
 	{ title = "BIGBANG-BiiiG BiiiG", id = 117439533883778 }, -- 0.954
 	{ title = "RESCENE-Dragon", id = 82349082640186 }, -- user 2026-11-11, file 209.6 s, song 3:40
 	{ title = "TREASURE-SHOCK", id = 94024099429072 }, -- user 2026-11-11, file 160.8 s, song 2:48
+	{ title = "RESCENE-백화요란", id = 74619423082896 }, -- user 2026-11-11, file 201.0 s, song 3:31
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
