@@ -118,7 +118,7 @@ M.Playlist = {
 		-- the same song clock (`from = 0.75`) until 141.25, then 19 goes on from its 4.0 s. BAD crosses the right arm, BAD 2 (mirrored video) the left
 		{ id = 82346668311878, at = 137.25, from = 0.75, blend = 0.76, stop = 141.25 }, { id = 95469533767642, at = 141.25, from = 4.0, blend = 0.5 },
 		{ id = 138812417192850, at = 148.37 } }, autoChoreo = true },
-	-- (D-1128, user 2026-11-09: low / mid / high / boost2 from the user)
+	-- (D-1122, user 2026-11-09: low / mid / high / boost2 from the user)
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 2, octave = 0.5, low = -28, mid = -13.5, high = -4, engine = "sound" },
 		-- D-897: Genie1..26 (video = song - 13.55 s, the cover video cut the intro)
 		choreo = { { id = 122991710923104, at = 13.82 }, { id = 118462778307290, at = 20.62, blend = 0.56 }, { id = 127323208506008, at = 26.83, blend = 0.53 },
