@@ -157,7 +157,7 @@ local function boxRect(kind: string): (number, number, number, number)
 	local bottomRoom = 84 -- hotbar / inventory
 	local w, h
 	if vp.Y > vp.X and vp.X < 700 then
-		-- (D-1281) portrait phone: the full width, most of the height (above
+		-- (D-1283) portrait phone: the full width, most of the height (above
 		-- the jump button)
 		bottomRoom = 150
 		w = vp.X - 16
@@ -956,7 +956,7 @@ end
 local function layoutShoot()
 	local vp = viewport()
 	local top = topY()
-	-- (D-1281, user 2026-11-11 phone screenshot: "ui 모바일 세로/가로 버전에서도 유동적으로
+	-- (D-1283, user 2026-11-11 phone screenshot: "ui 모바일 세로/가로 버전에서도 유동적으로
 	-- 바뀌도록 수정") a portrait phone: the camera window across the top, the
 	-- button row under it, then props (left) and poses / faces (right) side by
 	-- side, all above the move stick and the jump button
@@ -1026,7 +1026,7 @@ local function layoutShoot()
 	tip.Size = UDim2.fromOffset(w, 20)
 	do -- (D-1268) one row under the picture: 허리 숙이기 · 키높이 발판 · 정면 보기 · 멈춤
 		local row = { shoot:FindFirstChild("BoothKneel"), shoot:FindFirstChild("BoothStep"), faceFront, pauseButton }
-		-- (D-1281 portrait: under the window, the full width, a little taller)
+		-- (D-1283 portrait: under the window, the full width, a little taller)
 		local bw = if portrait then math.floor((w - 3 * 6) / 4) else math.floor(math.min(120, (w - 24 - 3 * 6) / 4))
 		local x0 = x + (w - (4 * bw + 3 * 6)) / 2
 		for i, b in ipairs(row) do
@@ -1204,7 +1204,7 @@ local function layoutPick()
 		local grid = list and list:FindFirstChildOfClass("UIGridLayout")
 		if grid then
 			local w, h = bw - 24, bh - areaTop - 62 - 40
-			-- (D-1281) three to a row in a narrow (portrait) box
+			-- (D-1283) three to a row in a narrow (portrait) box
 			local n = if bw < 520 then 3 else 5
 			grid.CellSize = UDim2.fromOffset(math.floor((w - 6 - 8 - (n - 1) * 8) / n), math.max(60, h - 18))
 		end
@@ -1234,7 +1234,7 @@ local function layoutPick()
 	pickDone.AnchorPoint = Vector2.new(0, 1)
 	pickDone.Size = UDim2.fromOffset(previewW, 38)
 	pickDone.Position = UDim2.new(0, bw - previewW - 12, 1, -12)
-	-- 4 × 2 grid of 4:3 cells (D-1281: 2 × 4 in a narrow (portrait) box)
+	-- 4 × 2 grid of 4:3 cells (D-1283: 2 × 4 in a narrow (portrait) box)
 	local gw = pickGrid.Size.X.Offset
 	local cols = if bw < 520 then 2 else 4
 	local rows = math.ceil(8 / cols)
@@ -1840,7 +1840,7 @@ local function layoutAlbum()
 	albumList.Size = UDim2.fromOffset(bw - 24, bh - 66)
 	albumEmpty.Position = UDim2.fromOffset(0, 80)
 	-- four cards to a row; a card = the strip + date / time + trash
-	local perRow = if bw < 520 then 2 else 4 -- (D-1281: two in a narrow (portrait) box)
+	local perRow = if bw < 520 then 2 else 4 -- (D-1283: two in a narrow (portrait) box)
 	local cellW = math.floor((bw - 24 - 6 - (perRow - 1) * 10) / perRow)
 	local cellH = math.clamp(math.floor(bh - 76), 170, 320)
 	albumGrid.CellSize = UDim2.fromOffset(cellW, cellH)
