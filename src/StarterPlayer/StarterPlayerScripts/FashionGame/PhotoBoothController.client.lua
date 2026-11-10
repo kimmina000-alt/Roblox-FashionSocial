@@ -742,6 +742,12 @@ end
 
 local posePanel, poseList = sidePanel("Poses", "포즈")
 local propPanel, propList = sidePanel("Props", "소품")
+-- (D-1268, user 2026-11-11: "포즈랑 표정 나누기. 오른쪽 상단에 포즈 하단에 표정") the
+-- faces get their own window under the poses (found by name: shoot.Faces.List)
+do
+	local _, faceList = sidePanel("Faces", "표정")
+	faceList.Name = "List"
+end
 -- (D-1182, user 2026-11-10: "포즈 지금 아래로 드래그인데 옆으로 드래그로 변경") the pose
 -- list scrolls sideways: the buttons fill each column top to bottom, then the
 -- next column to the right (rows / cell width set in layoutShoot)
@@ -798,6 +804,16 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 			local ok, message = invoke(helper[1])
 			if not ok and typeof(message) == "string" then toast(message) end
 		end)
+		-- (D-1268, user 2026-11-11: "허리 숙이기/키높이 발판 팝업 밖으로 꺼내기. 정면 보기 / 멈춤
+		-- 앞에 정렬") out of the pose window, in the row under the picture
+		-- (layoutShoot puts them before 정면 보기 and 멈춤)
+		b.Name = attribute
+		b.Parent = shoot
+		b.ZIndex = 3
+		b.TextSize = 13
+		b.TextWrapped = false
+		local round = b:FindFirstChildOfClass("UICorner")
+		if round then round.CornerRadius = UDim.new(0, 15) end
 		local function paint()
 			local character = player.Character
 			local on = character ~= nil and character:GetAttribute(attribute) == true
@@ -857,6 +873,7 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 				local ok, message = invoke("Face", f.key)
 				if not ok and typeof(message) == "string" then toast(message) end
 			end)
+			faceButtons[f.key].Parent = (shoot :: any).Faces.List -- (D-1268: the 표정 window)
 		end
 		local function paint()
 			local character = player.Character
@@ -944,19 +961,48 @@ local function layoutShoot()
 	-- user 2026-10-28 (3))
 	local touch = game:GetService("UserInputService").TouchEnabled
 	local panelH = if touch then math.min(h, 34 * 3 + 4 * 2 + 40) else h
-	posePanel.Position = UDim2.fromOffset(x - panelW - 10, y)
-	posePanel.Size = UDim2.fromOffset(panelW, panelH)
+	-- (D-1268, user 2026-11-11: "포즈랑 소품 팝업 위치 바꾸기. 모바일 작동시 왼쪽 하단에 움직이는
+	-- 버튼 공간 때문에 포즈 선택하기 어려움" / "오른쪽 상단에 포즈 하단에 표정") the props on
+	-- the left; on the right the poses at the top and the faces under them, both
+	-- kept above the phone's jump button
+	local rightH = if touch then math.min(h, vp.Y - 110 - y) else h
+	local poseH = math.max(80, math.floor((rightH - 8) * 0.6))
+	local faceH = math.max(70, rightH - 8 - poseH)
+	posePanel.Position = UDim2.fromOffset(x + w + 10, y)
+	posePanel.Size = UDim2.fromOffset(panelW, poseH)
 	do -- (D-1182) as many rows as fit, two columns in view, the rest to the right
 		local grid = poseList:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
-		grid.FillDirectionMaxCells = math.max(1, math.floor((panelH - 34 - 3 + 4) / 38))
+		grid.FillDirectionMaxCells = math.max(1, math.floor((poseH - 34 - 3 + 4) / 38))
 		grid.CellSize = UDim2.fromOffset(math.floor((panelW - 12) / 2 - 3), 34)
+		local faces = shoot:FindFirstChild("Faces") :: Frame?
+		if faces then
+			faces.Position = UDim2.fromOffset(x + w + 10, y + poseH + 8)
+			faces.Size = UDim2.fromOffset(panelW, faceH)
+			local faceGrid = (faces :: any).List:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
+			faceGrid.CellSize = UDim2.new(0.5, -3, 0, 34)
+		end
 	end
-	propPanel.Position = UDim2.fromOffset(x + w + 10, y)
+	propPanel.Position = UDim2.fromOffset(x - panelW - 10, y)
 	propPanel.Size = UDim2.fromOffset(panelW, panelH)
 	tip.Position = UDim2.fromOffset(x, y + h - 24)
 	tip.Size = UDim2.fromOffset(w, 20)
-	faceFront.Position = UDim2.fromOffset(x + w / 2 - 126, y + h - 58)
-	pauseButton.Position = UDim2.fromOffset(x + w / 2 + 6, y + h - 58)
+	do -- (D-1268) one row under the picture: 허리 숙이기 · 키높이 발판 · 정면 보기 · 멈춤
+		local row = { shoot:FindFirstChild("BoothKneel"), shoot:FindFirstChild("BoothStep"), faceFront, pauseButton }
+		local bw = math.floor(math.min(120, (w - 24 - 3 * 6) / 4))
+		local x0 = x + (w - (4 * bw + 3 * 6)) / 2
+		for i, b in ipairs(row) do
+			if b then
+				(b :: GuiObject).Position = UDim2.fromOffset(x0 + (i - 1) * (bw + 6), y + h - 58)
+				;(b :: GuiObject).Size = UDim2.fromOffset(bw, 30)
+				-- (narrow phone windows: the text shrinks to fit, at most 13)
+				;(b :: TextButton).TextScaled = true
+				if not b:FindFirstChildOfClass("UITextSizeConstraint") then
+					create("UITextSizeConstraint", { MaxTextSize = 13 }, b)
+					create("UIPadding", { PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, b)
+				end
+			end
+		end
+	end
 	shootLeave.Position = UDim2.fromOffset(vp.X / 2 + infoBar.Size.X.Offset / 2 + 10, top)
 	shootLeave.Size = UDim2.fromOffset(34, 34)
 	local bracket = math.floor(math.clamp(math.min(w, h) * 0.12, 22, 48))
@@ -1468,6 +1514,10 @@ local function closeAllFlow()
 	shoot.Visible = false
 	waitBar.Visible = false
 	liftTouchGui(false)
+	-- (D-1268, found in a test 2026-11-11: after 닫기 the camera could stay the booth
+	-- camera, Scriptable, when the last cut's capture had turned it after the pick
+	-- screen opened) the flow is over: the camera always goes back to the player
+	if workspace.CurrentCamera and workspace.CurrentCamera.CameraType == Enum.CameraType.Scriptable then state.cameraSaved = true end
 	restoreCamera()
 	require(script.Parent:WaitForChild("PhotoMotionReel")).hideStools(nil, false) -- (D-1139)
 	state.stage = "none"
