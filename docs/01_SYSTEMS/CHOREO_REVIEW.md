@@ -138,6 +138,8 @@ docs/01_SYSTEMS/CHOREOGRAPHY.md §9~§20 + CHOREO_REVIEW.md 1-3 검사를 모두
 - 플레이리스트 번호는 곡이 추가되면 바뀐다: 번호 대신 제목으로 찾는다(D-1068에서 21번이 다른 곡이 됐음).
 - 캡처 동작을 뺄 때(warp · amp · 두 번째 freeze) 그 동작에 딸린 freeze · still 창도 같이 정리하고, 엉덩이 높이 · 방향 · 발을 다시 잰다(D-1190).
 - 새 규칙이 생기면 이 문서 + 메모리(choreo-lessons)에 적고 안무 추가 · 무대 카메라 세션에 보낸다(사용자 규칙 2026-11-10).
+- 커밋 전 `python -P -E tools/choreo/lua_balance.py <ClubChoreo.lua>` = "final 0", Studio 패치 뒤 `loadstring(src)` 확인(D-1194: 잘라내기 끝 표시가 어긋나 git에만 코드 찌꺼기가 남았음).
+- "한 바퀴만 슬로우로" = 팔 뻗은 시간 전체에 손목 한 바퀴(wristCircles 주기 = 그 길이). 굽힌 팔을 올릴 때 팔뚝 각도 = 150° − 위팔(아니면 손이 머리 뒤로).
 - 영상 손목 자동 분석: `python -P -E tools/choreo/hand_moves.py <영상> --off <노래-영상 초> --from --to --step 0.05` (MediaPipe 손 모델). 사용자 시간을 받으면 먼저 이걸로 영상의 반짝 · 돌리기 · 꺾기 · 팔 뻗기 시간을 뽑고, 게임 팔 위치와 맞춘다(D-1192).
 - 클립 자를 때(무대 카메라 · 센터컷): 손목 · 손이 잘 보이는 장면을 고른다(화면 밖으로 잘림 · 흐림 · 다른 멤버에 가림 없음). 생성기가 손목을 작게 잡으므로 영상에서 보여야 `bend`로 잴 수 있다.
 - KeyframeSequence를 Destroy하지 않는다(빈 시퀀스가 옴). MCP 한 번 60초 안(길면 task.spawn + 짧게 읽기).
