@@ -148,6 +148,9 @@ M.ChoreoFixes = {
 	-- (D-1192, user: 레몬탱 "1:01 오른팔 돌면서 회전하는 동작 깔끔하게 정돈. 움찔거림", "1:04에도 프레임 살짝 튀는 듯"): the capture turned on
 	-- +271° after the spin and swung 50° back (song 62.6-63.3), the right hand dropped 2 studs in 0.2 s (61.9) and jumped
 	-- up again (63.5): one even turn from 5's facing to 3.3 s (63.3, no swing back) and the right arm smoothed hard
+	-- (D-1202) Lemon Tang 6 (the 0:27 dance, also played at 1:22-1:27): its first second blended with 13 at 82.0 flicked the right
+	-- hand and the left foot (82.6-82.76): smoothed there
+	[70997868814427] = { steady = { from = 0.3, to = 1.1, passes = 16 } },
 	[115675906513114] = { spin = { from = 0, to = 3.3, fromPrev = true, dir = 1, ease = "both" }, level = { from = -1, to = 2.3, ease = 0.3 },
 		steady = { from = 1.6, to = 3.8, passes = 24, parts = { "RightUpperArm", "RightLowerArm", "RightHand" } } }, -- 9
 	[72328693870219] = { level = { from = 3.0, to = 4.5, ease = 0.3 } }, -- 8
@@ -213,7 +216,10 @@ M.ChoreoFixes = {
 	-- left higher, straight; each reach bends the wrist in and back; let go by 8.4 into the capture's hands at the
 	-- face (song 89.6), where (8.8-10.0) both wrists bend out and twinkle
 	[88699205496882] = { steady = { from = 0, to = 11.2, passes = 24 }, calm = true,
-		pose = { from = 1.7, to = 8.9, ease = 0.4, keys = (function()
+		-- (D-1202, user: "1:22 중간에 혼자 튀는 동작 있음 삭제하고 자연스럽게 연결"): 13 fades out at 82.0 under 6 (the 0:27 dance), and its
+		-- own arm keys from 1.7 pulled the arms the other way during the fade (the right hand and left foot flicked at 82.6-82.75):
+		-- the window starts at 5.9 now, after 13 comes back at 87.0
+		pose = { from = 5.9, to = 8.9, ease = 0.4, keys = (function()
 			local rK = { RightUpperArm = { 13, 14, -1 }, RightLowerArm = { 116, 26, -18 }, RightHand = { -8, -10, 49 } }
 			local lK = { LeftUpperArm = { 13, -14, 1 }, LeftLowerArm = { 116, -26, 18 }, LeftHand = { -8, 10, -49 } }
 			local function both(a, b) local s = {} for k, v in pairs(a) do s[k] = v end for k, v in pairs(b) do s[k] = v end return s end
@@ -766,7 +772,8 @@ M.ChoreoFixes = {
 	[82680550952125] = { steady = { from = 0, to = 10.3, passes = 8 },
 		-- (D-1200, user: "2:14 멈칫 끊김": the facing was held 134.0-135.0 before the turn: it turns from 6.4 now)
 		spin = { from = 4.35, to = 4.45, till = 6.4 },
-		still = { from = 6.4, to = 30 },
+		-- (D-1202, user: "2:14 버벅": `still` starting at 6.4 shifted the body 0.45 stud in one frame (song 134.13): from 4.45 on)
+		still = { from = 4.45, to = 30 },
 		freeze = { from = 10.2, to = 30, ease = 0.15 },
 		bend = { { part = "LowerTorso", keys = { { 6.39, 0, 100, 0 }, { 6.4, 0, 100, 0 }, { 7.9, 0, 0, 0 }, { 7.95, 0, 0, 0 } } } },
 		pose = { from = 8.4, to = 30, ease = 1.2, keys = {
@@ -850,7 +857,7 @@ M.ChoreoFixes = {
 	-- and 18's turn comes as before (song 145.9)
 	[132337331292488] = { steady = { { from = 0, to = 8.0, passes = 8 }, { from = 0.6, to = 3.2, passes = 16 } },
 		-- (let go over 0.9 s while the kneel comes in: a 0.3 s let-go swung the hips 35° and the right foot 2.7 studs)
-		freeze = { { from = 0.9, to = 3.6, ease = 0.3, easeOut = 0.9, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot" } } },
+		freeze = { { from = 1.4, to = 3.6, ease = 0.3, easeOut = 0.9, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot" } } },
 		still = { from = 2.8, to = 8.2 },
 		torsoUp = { from = 3.2, to = 8.2, ease = 0.4 },
 		-- (D-1062, user: "2:19에 천장 보고 있는데 정면 보도록 회전. 다리 허벅지는 쭉 뻗고 종아리 뒤로", "2:20 다리 더
@@ -876,8 +883,9 @@ M.ChoreoFixes = {
 				-- (one window with the sit: two windows meeting at 1.5 let the foot drop through the floor for a moment)
 				local kick = {} for a, v in pairs(s) do kick[a] = v end
 				kick.LeftUpperLeg, kick.LeftLowerLeg = { 0, -50, -155 }, { 0, 0, 0 }
-				return { { t = 0, set = k, move = { LowerTorso = { 0, -3.44, 0 } } }, { t = 0.7, set = s, move = { LowerTorso = { 0, -4.0, 0 } } },
-					{ t = 1.45, set = s, move = { LowerTorso = { 0, -4.0, 0 } } }, { t = 1.65, set = kick, move = { LowerTorso = { 0, -4.0, 0 } } },
+				-- (D-1202, user: "2:17에서 2:19 포즈로 자연스럽게 연결되게 … 갑자기 포즈 바꿈": the side sit and the lean come over 1.3 s, not 0.7)
+				return { { t = 0, set = k, move = { LowerTorso = { 0, -3.44, 0 } } }, { t = 1.3, set = s, move = { LowerTorso = { 0, -4.0, 0 } } },
+					{ t = 1.5, set = s, move = { LowerTorso = { 0, -4.0, 0 } } }, { t = 1.7, set = kick, move = { LowerTorso = { 0, -4.0, 0 } } },
 					{ t = 2.4, set = kick, move = { LowerTorso = { 0, -4.0, 0 } } }, { t = 2.65, set = s, move = { LowerTorso = { 0, -4.0, 0 } } } } end)() },
 			-- (D-1200, user: "2:21 왼쪽 다리 고정. 오른쪽 다리 앞으로 뻗으면서 엉덩이 바닥에 붙이기 / 쭉 뻗은 오른쪽 다리 오른쪽으로 벌리면서
 			-- 회전"): the kneel by 3.9, then the left leg stays folded, the right leg goes straight forward with the hips down on the
