@@ -3,6 +3,7 @@ python -I occlusion_scan.py <centercut folder> [<more folders>]  -> one line per
 (clip seconds). Also the dancer's own motion per 0.5 s (body-normalised keypoint speed) to compare with the capture."""
 import json, sys, os, math
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "centercut"))  # centercut.stitch_ids / hist_of
+sys.path.insert(1, r"D:\Roblox\Roblox-FashionSocial\tools\choreo\centercut")  # (centercut.py is not committed: the main folder's copy)
 import centercut as cc
 
 BODY = [5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]

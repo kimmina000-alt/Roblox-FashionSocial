@@ -17,6 +17,7 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local ChoreoSmooth = require(script.Parent:WaitForChild("ChoreoSmooth"))
 local ChoreoBodyGuard = require(script.Parent:WaitForChild("ChoreoBodyGuard")) -- (D-1168) arms not through the body / each other
+local ChoreoMouth = require(script.Parent:WaitForChild("ChoreoMouth")) -- (D-1186) singing along
 local danceRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Dance") :: RemoteEvent
 local player = Players.LocalPlayer
 
@@ -844,6 +845,14 @@ RunService.PreSimulation:Connect(function(dt)
 				-- (D-1168) last: arms out of the torso and out of each other (ChoreoBodyGuard)
 				if not (RunService:IsStudio() and FashionGame:GetAttribute("ChoreoBodyGuardOff")) then
 					ChoreoBodyGuard.apply(character, bodyJoints(character))
+				end
+				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
+				do
+					local tr = playingTrack()
+					local st = if tr and FashionGame:GetAttribute("ClubMusicPaused") ~= true
+						then (workspace:GetServerTimeNow() - (FashionGame:GetAttribute("ClubTrackStart") or 0)) * ClubConfig.songRate(tr, FashionGame:GetAttribute("ClubMusicSpeed"))
+						else nil
+					ChoreoMouth.apply(character, tr, st, dt)
 				end
 			else
 				snapState[character] = nil

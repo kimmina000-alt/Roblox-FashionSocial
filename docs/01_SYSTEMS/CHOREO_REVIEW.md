@@ -47,7 +47,9 @@ docs/01_SYSTEMS/CHOREOGRAPHY.md §9~§20 + CHOREO_REVIEW.md 1-3 검사를 모두
 | 9 | 처음 자리 · 정면 | ChoreoHome, faceoffset 조각별 | 영상 정면 순간 0° 근처 |
 | 10 | 고개 · 손목 | head_video.py / hand_video.py + head_misses.lua | §20 기준 |
 | 11 | **가림(새, 3-1)** | occlusion_scan.py → 가려진 구간 캡처 확인 | 깨졌으면 반복 동작 / 다시 업로드 |
-| 12 | **캡처 멈춤(새, 3-2)** | 영상 움직임 vs 캡처 움직임 0.5초씩 | 영상은 움직이는데 캡처가 1/3 아래인 곳 0 |
+| 12 | **영상 vs 캡처(새, 3-2 · 3-3 · 3-4 · 3-5 · 3-6 · 3-7)** | video_moves.py → capture_moves.lua `_G.captureMoves` (4부) | STALL · ARM · BEND · LEAN · FLOOR · FACE 모두 확인, BEAT 중앙값 ±0.1초 안 |
+| 12b | **업로드 · 반복(새, 3-8 · 3-9)** | capture_moves.lua `_G.uploadCheck`, `_G.repeatScan` | 복사본 · 길이 `!!` 0, 반복 쌍 중 한쪽만 깨진 곳은 잘 된 쪽으로 |
+| 12c | **팔 통과(3-4, 자동)** | ChoreoBodyGuard(게임이 모든 안무에) | Play에서 켬/끔 몸통 안 프레임 · 튐 비교 |
 | 13 | 춤추는 중 몸 바꾸기 | ApplyDescription(Torso · 팔 · 다리 0) | 같은 시각 값 몇 도 안 |
 | 14 | 비교 사진 | 곡 앞 · 중간 · 끝, 영상 | 게임 | docs/06_LOG/images/<날짜>/ |
 | 15 | 모바일 2P | 두 화면 같은 조각 · 같은 노래 위치 | 사용자 허락 후 머지 |
@@ -249,3 +251,34 @@ docs/01_SYSTEMS/CHOREOGRAPHY.md §9~§20 + CHOREO_REVIEW.md 1-3 검사를 모두
   - 3-2와 3-8은 이번 occlusion_scan / 키프레임 비교에 몇 줄 더하면 된다.
   - 3-3은 head_misses를 몸 전체로 넓히는 일이다.
 - 3-1 결과(`docs/06_LOG/occlusion_1110.txt`) 중 깨진 곳이 있는지 곡마다 Play로 확인한다.
+
+---
+
+## 4부. 3부 유형의 도구 (D-1186, 2026-11-10)
+
+사용자: "나머지 2~9번 … 얘까지 도구 찾아서 기록하고 안무 추가에도 전달하고 너도 기본 규칙으로 저장해". 안무를 넣거나 고칠 때 1-3 #11 · #12 · #12b와 함께 반드시 돌린다.
+
+| 유형 | 도구 | 하는 일 | 상태 |
+|---|---|---|---|
+| 3-1 가림 | `tools/choreo/occlusion_scan.py <centercut 폴더>` | 센터가 45%↑ 겹침 · 관절 신뢰도 0.45↓ · 옷 색이 바뀐 구간(클립 초) | 검사 |
+| 3-2 캡처 멈춤 | video_moves.py + capture_moves.lua **STALL** | 영상 움직임 0.8↑인데 캡처가 자기 중앙값의 1/3 아래 | 검사 |
+| 3-3 큰 관절 강세 | **ARM**(손목 높이 0.5 몸통↑ 차이, 0.4초) · **BEND**(팔꿈치 · 무릎 60°↑, 0.6초) | 영상보다 작거나 다른 팔 · 다리 | 검사 |
+| 3-4 몸통 관통 | `ChoreoBodyGuard`(자동) | 팔꿈치 · 아래팔 · 손이 몸통 안이면 어깨를 그만큼만 돌려 밖으로, 두 팔이 통과하면 맞닿고 멈춤. 체형마다 실제 부위 크기로 | **자동** |
+| 3-4 상체 기울기 | **LEAN** | 영상은 똑바른데(8° 안) 캡처가 옆으로 15°↑ | 검사 |
+| 3-5 바닥 동작 | **FLOOR** | 영상은 바닥인데 캡처는 아님(또는 반대) | 검사 |
+| 3-6 박자 | video_moves.py `--beats` + **BEAT** | 캡처 강세(속도 정점)가 박에서 떨어진 중앙값 · 0.12초↑ 개수 | 검사 |
+| 3-7 손 · 얼굴 | **FACE** | 영상 손이 얼굴에 있는데 캡처 손이 0.6 몸통↑ 떨어짐 | 검사 |
+| 3-8 반복 | `_G.repeatScan(pieces)` | 다른 자리의 1.6초가 같은 동작(10° 안)인 쌍 | 검사 |
+| 3-9 업로드 | `_G.uploadCheck(ids, clipLengths)` | 길이가 클립과 0.15초↑ 다름 · 키프레임이 다른 id와 같음(복사본) | 검사 |
+| 입 모양 | `ChoreoMouth`(자동) | 곡의 `vocals = { { from, to } }` 구간에서만, 1.3초 칸의 6할 정도, 초당 5번쯤 입을 벌림(다이내믹 헤드만) | **자동, 곡별 `vocals` 필요** |
+
+### 쓰는 법
+1. 영상: `python video_moves.py <centercut 폴더> [클립들] [--beats <영상 파일>]`(centercut .venv). 클립마다 한 줄.
+2. Studio Play, Server: `tools/choreo/capture_moves.lua`를 execute_luau로 붙이고, `_G.captureMoves({ clips = { ["13.mp4"] = { id = …, at = …, from = 0 } }, video = [[1의 줄들]], beats = "beats …", videoOffset = 영상 − 노래, mirror = false })`.
+   - `mirror`는 **조각을 이 영상에서 캡처했으면 false**(자기 원본과 비교).
+3. 나온 구간(곡 초)을 Play로 보고 고친다(§16 표 · 2부 표의 도구).
+4. 시험 결과(Catch Catch v2 13번, 2026-11-10):
+   - STALL은 없었다.
+   - ARM 125.8~126.2, BEND 125.6~126.6을 잡았다. 오늘 캡처가 깨졌던 2:06이고, `warp`로 고친 구간의 원래 캡처다.
+   - BEAT는 강세 3개, 중앙값 −0.19초였다.
+   - 2D 팔꿈치 각도는 흔들림이 커서 BEND 기준을 60° · 0.6초로 둔다.
