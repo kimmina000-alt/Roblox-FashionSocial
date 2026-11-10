@@ -17,7 +17,7 @@ BeachBallConfig.DRAG_K = BeachBallConfig.FLOAT_G / (BeachBallConfig.DRAG_VT * Be
 -- 반동으로 몇 번 더 튕기면서 멈출 때도 소리 나야 함") a bounce sound at every
 -- bounce of a thrown ball, softer as the bounces get smaller, down to the
 -- last little one (BeachBallController)
-BeachBallConfig.BOUNCE_SOUND = "rbxassetid://0"
+BeachBallConfig.BOUNCE_SOUND = "rbxassetid://4458219865" -- (the user's pick)
 BeachBallConfig.BOUNCE_MIN_SPEED = 1.5 -- studs/s falling: slower is not a bounce (bobbing on the sea)
 BeachBallConfig.BOUNCE_FULL_SPEED = 40 -- falling this fast or faster: full volume
 

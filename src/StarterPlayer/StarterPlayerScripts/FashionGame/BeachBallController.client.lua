@@ -485,7 +485,7 @@ end)
 -- goes up, that was a bounce. Louder (and a little lower) the faster it fell,
 -- so the last small bounces are soft taps until it lies still.
 do
-	local watched: {[BasePart]: { y: number, vy: number, at: number, sound: Sound }} = {}
+	local watched: {[BasePart]: { y: number, vy: number, t: number, at: number, sound: Sound }} = {}
 	local function watch(part: Instance)
 		if not part:IsA("BasePart") or part.Name ~= "ThrownBeachBall" then return end
 		local sound = Instance.new("Sound")
@@ -494,30 +494,36 @@ do
 		sound.RollOffMinDistance = 8
 		sound.RollOffMaxDistance = 90
 		sound.Parent = part
-		watched[part] = { y = part.Position.Y, vy = 0, at = 0, sound = sound }
+		watched[part] = { y = part.Position.Y, vy = 0, t = os.clock(), at = 0, sound = sound }
 		part.AncestryChanged:Connect(function()
 			if not part:IsDescendantOf(workspace) then watched[part] = nil end
 		end)
 	end
 	for _, child in ipairs(workspace:GetChildren()) do watch(child) end
 	workspace.ChildAdded:Connect(watch)
-	RunService.RenderStepped:Connect(function(dt)
-		if dt <= 0 then return end
+	RunService.RenderStepped:Connect(function()
 		local now = os.clock()
 		for part, w in pairs(watched) do
 			local y = part.Position.Y
-			local vy = (y - w.y) / dt
-			-- falling, then suddenly not (a turn up much sharper than the fall's
-			-- own slowing in the air)
-			if w.vy < -BeachBallConfig.BOUNCE_MIN_SPEED and vy > w.vy * 0.3 and now - w.at > 0.08 then
+			-- (the speed the server sends with the ball: its position here moves
+			-- less often than the screen draws, so steps of it gave false stops)
+			local vy = part.AssemblyLinearVelocity.Y
+			w.t = now
+			-- w.vy = the fastest fall since the last bounce; falling, then going
+			-- up again or lying still = a bounce, as loud as that fall was fast
+			w.vy = math.min(w.vy, vy)
+			if w.vy < -BeachBallConfig.BOUNCE_MIN_SPEED and vy > -0.3 and now - w.at > 0.08 then
 				w.at = now
 				local k = math.clamp(-w.vy / BeachBallConfig.BOUNCE_FULL_SPEED, 0, 1)
 				w.sound.Volume = 0.12 + 0.68 * k
 				w.sound.PlaybackSpeed = 1.15 - 0.2 * k + (math.random() - 0.5) * 0.06
 				w.sound.TimePosition = 0
 				w.sound:Play()
+				w.vy = 0
+			elseif vy > 0.5 then
+				w.vy = 0 -- (going up: the next fall starts afresh)
 			end
-			w.y, w.vy = y, vy
+			w.y = y
 		end
 	end)
 end

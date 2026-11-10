@@ -217,7 +217,10 @@ local function throw(ball: Ball, player: Player, target: Vector3, shown: any)
 	p.Massless = false
 	-- light and bouncy (density low enough to float on the sea)
 	-- (friction 0.35 rolled it 25 studs over the sand after a hit: 1 with full weight)
-	p.CustomPhysicalProperties = PhysicalProperties.new(0.08, 1, 0.55, 100, 1)
+	-- (D-1284, user 2026-11-11: "반동으로 몇 번 더 튕기면서 멈출 때") the ball's own
+	-- bounce wins over the sand's (weight 100, was 1: the two were averaged and
+	-- it hopped once): a few smaller and smaller bounces, then it lies still
+	p.CustomPhysicalProperties = PhysicalProperties.new(0.08, 1, 0.6, 100, 100)
 	-- from over the right shoulder, where the swing lets go of it, a little ahead
 	p.CFrame = CFrame.new(from)
 	p.Parent = workspace

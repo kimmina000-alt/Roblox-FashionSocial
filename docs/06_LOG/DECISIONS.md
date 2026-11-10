@@ -4171,3 +4171,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "음원 현재 가수-노래제목으로 되어 있는데 노래제목-가수로 변경".
 - ClubPlaylist의 곡 제목만 바꿈(첫 "-" 앞 = 가수; K-DA는 이름에 "-"가 있어 따로): 예) ATEEZ-BAD → BAD-ATEEZ, RESCENE-LOVE-ATTACK → LOVE-ATTACK-RESCENE, K-DA-GIRLS → GIRLS-K-DA. 가수가 없는 곡(K-Pop Party / K-pop Cute Crush / K-Pop Uprising, ROCK PAPER SCISSORS, 그사람 등)은 그대로. 46곡.
 - 제목은 화면 표시용으로만 쓰임(안무 · 무대 카메라 · 락은 soundId / 목록 순서): 다른 코드는 그대로. 코드 주석과 문서 속 옛 제목은 그대로 둠.
+
+## D-1284 비치볼: 던질 때 슉 소리 없음, 튕길 때마다 통 소리 (2026-11-11)
+- 사용자: "비치볼 던질 때 슉 소리 빼고 비치볼이 바닥에 닿을 때 통통 튕기는 소리 나게 해 줘 / 반동으로 몇 번 더 튕기면서 멈출 때도 소리 나야 함", 소리 4458219865 (사용자 지정).
+- BeachBallController: 던질 때 whoosh 뺌. 모든 화면에서 던진 공(ThrownBeachBall)의 속도(AssemblyLinearVelocity, 서버가 보내는 값: 위치는 화면보다 드물게 바뀌어 거짓 착지가 생겼음)를 보고, 떨어지다가 올라가거나 멈추면 그 공에서 BounceSound(4458219865). 크기 = 그 낙하의 가장 빠른 속도(1.5..40 → 0.12..0.8), 작은 반동일수록 조금 높게.
+- BeachBallService: 공 탄성 0.6, ElasticityWeight 1 → 100(모래와 반반 섞여 한 번만 톡 튀었음).
+- Play(모래 위, 힘 0.8): 4번 튕김, 소리 1.60 s 0.63 · 2.17 s 0.35 · 2.70 s 0.21 · 3.27 s 0.17, 오류 0.
