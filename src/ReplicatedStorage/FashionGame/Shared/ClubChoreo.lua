@@ -1077,7 +1077,7 @@ M.ChoreoFixes = {
 		{ part = "LeftHand", keys = wristCircles(3.74, 5.24, 1.5, 35) } } },
 	-- 15 (song 142.41): "2:22 한바퀴 도는 거 매끄럽게": the turn stalled at the seam (12° in 0.3 s at
 	-- 142.4-142.7): 15 carries it on from 14's facing in one even turn
-	[137553505478362] = { spin = { from = 0, to = 0.8, fromPrev = true, dir = -1, ease = "linear" } }, -- ("both" started slow: still a stall at the seam)[115574620758490] = { bend = { { part = "LeftHand", keys = wristTwinkle(0, 4.33, 0.2, 60) }, { part = "RightHand", keys = wristTwinkle(0, 4.33, 0.2, 60) } } },
+	[137553505478362] = { spin = { from = 0, to = 0.8, fromPrev = true, dir = -1, ease = "linear" } }, -- ("both" started slow: still a stall at the seam)
 	-- 26 (song 210.11): "3:44? 45?에 무릎 꿇고 있을 때 한번 위로 들썩거림": the last piece ends at song 216.2 while the song
 	-- runs on, and she stood up from the kneel in 0.3 s; now the kneel is kept (ClubPlaylist slowOut) and calm
 	[127828014236660] = { steady = { from = 1.6, to = 6.1, passes = 8 }, still = { from = 1.6, to = 6.1 } },
