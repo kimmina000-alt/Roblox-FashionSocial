@@ -11,7 +11,9 @@ return {
 	-- the ₩ mark alone, gold, no rings or edge: the top bar's coin pill
 	-- (docs/04_ART/icons/coin_won_mark.png)
 	won = "rbxassetid://71526225179744",
-	bag = "rbxassetid://95921900076363", -- backpack
+	-- (D-1267, user 2026-11-11: "가방 아이콘은 홈화면 상단 오른쪽 버튼에도 적용할 것": the
+	-- backpack from the 오후네컷 design, docs/04_ART/icons/ohucuts_bag.png; before 95921900076363)
+	bag = "rbxassetid://98853481270424", -- backpack
 	note = "rbxassetid://101715049079271",
 	give = "rbxassetid://92507739080371", -- hands + heart (old ♥ button)
 	heart = "rbxassetid://102999852159498",

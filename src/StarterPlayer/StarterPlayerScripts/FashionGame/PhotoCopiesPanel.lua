@@ -66,8 +66,9 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		BackgroundTransparency = 1,
 		Font = Enum.Font.GothamMedium,
 		TextSize = 14,
-		TextColor3 = Color3.fromRGB(200, 200, 210),
-		Text = string.format("각자 %d장은 무료 · 2장부터 1장마다 %s %d", info.free, EconomyConfig.Icon, info.price),
+		TextColor3 = Color3.new(1, 1, 1),
+		-- (D-1267, the user's design: white, "10코인")
+		Text = string.format("각자 %d장은 무료·2장부터 1장마다 %d코인", info.free, info.price),
 		ZIndex = zIndex,
 	}, panel)
 	-- <  1  >
@@ -75,7 +76,7 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 60),
 		Size = UDim2.fromOffset(220, 64),
-		BackgroundColor3 = Color3.fromRGB(40, 38, 50),
+		BackgroundColor3 = Color3.fromRGB(221, 221, 221), -- (D-1267: a light pill, red-brown arrows, a dark number)
 		ZIndex = zIndex,
 	}, panel)
 	round(row, 32)
@@ -84,9 +85,9 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 			AnchorPoint = Vector2.new(0.5, 0.5),
 			Position = UDim2.new(x, 0, 0.5, 0),
 			Size = UDim2.fromOffset(48, 48),
-			BackgroundColor3 = Color3.fromRGB(255, 120, 180),
-			Font = Enum.Font.GothamBlack,
-			TextSize = 26,
+			BackgroundColor3 = Color3.fromRGB(134, 78, 81),
+			Font = Enum.Font.GothamMedium,
+			TextSize = 22,
 			TextColor3 = Color3.new(1, 1, 1),
 			Text = text,
 			ZIndex = zIndex + 1,
@@ -103,9 +104,9 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		Position = UDim2.fromScale(0.5, 0.5),
 		Size = UDim2.fromOffset(80, 48),
 		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBlack,
-		TextSize = 34,
-		TextColor3 = Color3.new(1, 1, 1),
+		Font = Enum.Font.GothamMedium,
+		TextSize = 40,
+		TextColor3 = Color3.fromRGB(35, 31, 32),
 		Text = "1",
 		ZIndex = zIndex + 1,
 	}, row)
@@ -114,9 +115,9 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		Position = UDim2.new(0.5, 0, 0, 130),
 		Size = UDim2.new(1, 0, 0, 22),
 		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBold,
-		TextSize = 15,
-		TextColor3 = Color3.fromRGB(255, 220, 110),
+		Font = Enum.Font.GothamMedium,
+		TextSize = 14,
+		TextColor3 = Color3.new(1, 1, 1),
 		Text = "",
 		ZIndex = zIndex,
 	}, panel)
@@ -125,21 +126,22 @@ function PhotoCopiesPanel.open(parent: GuiObject, info: Info, zIndex: number, on
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 160),
 		Size = UDim2.fromOffset(220, 44),
-		BackgroundColor3 = Color3.fromRGB(255, 214, 90),
+		BackgroundColor3 = Color3.fromRGB(134, 78, 81),
 		Font = Enum.Font.GothamBold,
 		TextSize = 17,
-		TextColor3 = Color3.fromRGB(60, 40, 10),
+		TextColor3 = Color3.new(1, 1, 1),
 		Text = "",
 		ZIndex = zIndex,
 	}, panel)
-	round(save, 14)
+	round(save, 22)
 	local function refresh()
 		number.Text = tostring(count)
 		local price = (count - 1) * info.price
-		cost.Text = if price > 0 then string.format("%d장 · 추가 %s %d", count, EconomyConfig.Icon, price) else string.format("%d장 · 무료", count)
-		save.Text = "🖨 프린트하기" -- (the count shows above; the print happens only here, user 2026-10-30)
-		minus.BackgroundTransparency = if count <= 1 then 0.6 else 0
-		plus.BackgroundTransparency = if count >= maxCount then 0.6 else 0
+		cost.Text = if price > 0 then string.format("%d장·추가 %d코인", count, price) else string.format("%d장·무료", count)
+		save.Text = "프린트하기" -- (the count shows above; the print happens only here, user 2026-10-30)
+		-- (D-1267, user: "> 눌러서 2 장 3 장 만들면 더 줄일 수 있으니까 < 버튼도 활성화됨")
+		minus.BackgroundTransparency = if count <= 1 then 0.5 else 0
+		plus.BackgroundTransparency = if count >= maxCount then 0.5 else 0
 	end
 	minus.MouseButton1Click:Connect(function()
 		if count > 1 then count -= 1 refresh() end

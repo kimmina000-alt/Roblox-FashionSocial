@@ -147,6 +147,8 @@ local state = {
 }
 local PhotoCopiesPanel = require(script.Parent:WaitForChild("PhotoCopiesPanel"))
 local PhotoFlowUI = require(script.Parent:WaitForChild("PhotoFlowUI"))
+-- (D-1267) the user's new look for every 오후네컷 window (colours, shapes, icons)
+local Skin = require(script.Parent:WaitForChild("PhotoBoothSkin"))
 
 -- Centred box for pick / frame / result / album (user, 2026-10-20: not full
 -- screen; about the size of the minimized catalog, clear of the hotbar).
@@ -176,16 +178,9 @@ local function boxRect(kind: string): (number, number, number, number)
 end
 
 local function boxify(frame: Frame)
-	frame.BackgroundColor3 = Color3.fromRGB(24, 20, 32)
-	frame.BackgroundTransparency = 0.03
+	-- (D-1267: black 70 % with a white edge, was dark with a pink edge)
+	Skin.window(frame, 12)
 	frame.ClipsDescendants = true
-	local c = Instance.new("UICorner")
-	c.CornerRadius = UDim.new(0, 16)
-	c.Parent = frame
-	local stroke = Instance.new("UIStroke")
-	stroke.Color = Color3.fromRGB(255, 110, 170)
-	stroke.Thickness = 2
-	stroke.Parent = frame
 end
 
 local function placeBox(frame: Frame, kind: string): (number, number)
@@ -345,14 +340,10 @@ local layoutCards: {[string]: TextButton} = {}
 local chosenLayout = PhotoConfig.Layouts[1].key
 local function paintLayouts()
 	for key, other in pairs(layoutCards) do
-		local on = key == chosenLayout
-		local s = other:FindFirstChildOfClass("UIStroke")
-		if s then
-			s.Thickness = if on then 2.5 else 1
-			s.Transparency = if on then 0 else 0.6
-		end
+		-- (D-1267) the chosen frame gets a white edge (no ✓ badge)
+		Skin.edge(other, key == chosenLayout, 2.5)
 		local check = other:FindFirstChild("Check")
-		if check and check:IsA("GuiObject") then check.Visible = on end
+		if check and check:IsA("GuiObject") then check.Visible = false end
 	end
 end
 local chosenMode = "solo"
@@ -438,9 +429,7 @@ for index, mode in ipairs(PhotoConfig.Modes) do
 	modeButtons[mode.key] = modeButton
 	modeButton.MouseButton1Click:Connect(function()
 		chosenMode = mode.key
-		for key, other in pairs(modeButtons) do
-			other.BackgroundColor3 = if key == chosenMode then COLORS.pink else SETUP_CARD
-		end
+		Skin.paintModes(modeButtons, chosenMode) -- (D-1267: the chosen one dark with a white edge)
 	end)
 end
 modeButtons.solo.BackgroundColor3 = COLORS.pink
@@ -456,10 +445,72 @@ local enterButton = button({
 	TextSize = 18,
 	ZIndex = 12,
 }, setupBox, 14)
+do -- (D-1267, the user's design) "프레임을 선택해 주세요." with an X, two grey frame
+	-- cards, and one row: 혼자만 · 친구와 · 모두와 · 다음으로 ▶
+	Skin.window(setupBox, 12)
+	setupBox.Size = UDim2.fromOffset(420, 252)
+	local fit = setupBox:FindFirstChildOfClass("UISizeConstraint")
+	if fit then fit.MaxSize = Vector2.new(420, 252) end
+	for _, child in ipairs(setupBox:GetChildren()) do
+		if child:IsA("TextLabel") then
+			if child.Text == "촬영 방식을 선택해주세요" then
+				child.Text = "프레임을 선택해 주세요."
+				child.Font = Skin.FONT
+				child.TextSize = 16
+				child.Position = UDim2.fromOffset(16, 12)
+				child.Size = UDim2.new(1, -60, 0, 22)
+			else
+				child.Visible = false -- (the pink tile, the subtitle, "함께 촬영하기")
+			end
+		end
+	end
+	setupClose.BackgroundTransparency = 1
+	setupClose.Font = Skin.FONT
+	setupClose.TextSize = 14
+	setupClose.Position = UDim2.new(1, -6, 0, 6)
+	setupClose.Size = UDim2.fromOffset(26, 26)
+	layoutRow.Position = UDim2.fromOffset(16, 44)
+	layoutRow.Size = UDim2.new(1, -32, 0, 150)
+	for _, layout in ipairs(PhotoConfig.Layouts) do
+		local card = layoutCards[layout.key]
+		card.BackgroundColor3 = Skin.C.card
+		Skin.corner(card, 12)
+		for _, child in ipairs(card:GetChildren()) do
+			if child:IsA("TextLabel") then child.Visible = false end
+			if child:IsA("Frame") then -- the drawing: black strip, white cells
+				child.BackgroundColor3 = Skin.C.dark
+				child.Position = UDim2.new(0.5, 0, 0, 14)
+				child.Size = if layout.cols == 1 then UDim2.fromOffset(38, 120) else UDim2.fromOffset(134, 108)
+				for _, cell in ipairs(child:GetChildren()) do
+					if cell:IsA("Frame") then cell.BackgroundColor3 = Skin.C.white end
+				end
+			end
+		end
+	end
+	paintLayouts()
+	modeRow.Position = UDim2.new(0, 16, 1, -44)
+	modeRow.Size = UDim2.new(1, -32, 0, 30)
+	for index, mode in ipairs(PhotoConfig.Modes) do
+		local b = modeButtons[mode.key]
+		b.Size = UDim2.new(0.25, -6, 1, 0)
+		b.Text = mode.name
+		b.TextSize = 13
+		b.LayoutOrder = index
+	end
+	Skin.paintModes(modeButtons, chosenMode)
+	enterButton.Parent = modeRow
+	enterButton.LayoutOrder = 99
+	enterButton.AnchorPoint = Vector2.new(0, 0)
+	enterButton.Position = UDim2.new()
+	enterButton.Size = UDim2.new(0.25, -6, 1, 0)
+	enterButton.Text = "다음으로 ▶"
+	enterButton.TextSize = 13
+	Skin.pill(enterButton, "accent", true)
+end
 
 local function layoutSetup()
 	local vp = viewport()
-	local scale = math.min(1, (vp.X - 20) / 420, (vp.Y - 20) / 320)
+	local scale = math.min(1, (vp.X - 20) / 420, (vp.Y - 20) / 252)
 	local uiScale = setupBox:FindFirstChildOfClass("UIScale") or create("UIScale", {}, setupBox)
 	uiScale.Scale = scale
 end
@@ -487,7 +538,7 @@ enterButton.MouseButton1Click:Connect(function()
 	if not booth then return end
 	enterButton.Text = "..."
 	local ok, message = invoke("Open", { booth = booth, layout = chosenLayout, mode = chosenMode })
-	enterButton.Text = "다음으로"
+	enterButton.Text = "다음으로 ▶"
 	closeSetup()
 	if not ok then toast(message) end
 end)
@@ -528,6 +579,28 @@ local waitLeave = button({
 	TextSize = 14,
 }, waitBar, 15)
 waitStart.MouseButton1Click:Connect(function() invoke("Start", nil) end)
+-- (D-1267) one row: 바로 시작 | "10 초 후 촬영 시작·1/4명·혼자만" over a count bar | 나가기,
+-- at the top of the screen; the bar runs down with the seconds left
+Skin.window(waitBar, 12)
+waitText.Font = Skin.FONT
+waitText.TextSize = 13
+waitText.TextWrapped = false
+waitText.TextXAlignment = Enum.TextXAlignment.Left
+waitText.Position = UDim2.fromOffset(98, 7)
+waitText.Size = UDim2.new(1, -196, 0, 20)
+Skin.pill(waitStart, "accent", true)
+waitStart.TextSize = 12
+waitStart.AnchorPoint = Vector2.new(0, 0.5)
+waitStart.Position = UDim2.new(0, 10, 0.5, 0)
+waitStart.Size = UDim2.fromOffset(78, 26)
+Skin.pill(waitLeave, "card")
+waitLeave.TextSize = 12
+local waitCount = Skin.countBar(waitBar)
+do
+	local track = waitBar:FindFirstChild("CountTrack") :: Frame
+	track.Position = UDim2.fromOffset(98, 32)
+	track.Size = UDim2.new(1, -196, 0, 7)
+end
 
 --------------------------------------------------
 -- 3. Shooting screen
@@ -619,12 +692,11 @@ local recLabel = create("TextLabel", {
 	Text = '<font color="#FF3B3B">●</font> REC',
 	ZIndex = 3,
 }, windowFrame)
-task.spawn(function()
-	while true do
-		task.wait(0.6)
-		recLabel.TextTransparency = if recLabel.TextTransparency == 0 then 0.5 else 0
-	end
-end)
+-- (D-1267) only the red dot in front of REC blinks; white text and the white
+-- corners with a dark shadow under them
+Skin.rec(recLabel)
+recLabel.Position = UDim2.fromOffset(18, 12)
+for _, c in ipairs(corners) do Skin.shadow(c, 2) end
 local flash = create("Frame", {
 	Name = "Flash",
 	Size = UDim2.fromScale(1, 1),
@@ -657,7 +729,8 @@ local infoBar = text({
 	ZIndex = 3,
 }, shoot)
 corner(infoBar, 17)
-create("UIStroke", { Color = COLORS.pink, Thickness = 2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, infoBar)
+-- (D-1267) no box: [frame icon] 촬영 1/8   [timer icon] 10 초, white with a shadow
+;(Skin :: any).setShootInfo = Skin.shootInfo(infoBar)
 -- the tip sits inside the bottom of the photo window (user mock-up 2026-10-26)
 local tip = text({
 	Name = "Tip",
@@ -696,10 +769,21 @@ local faceFront = button({
 	Name = "FaceFront",
 	Size = UDim2.fromOffset(120, 30),
 	BackgroundColor3 = COLORS.pink,
-	Text = "🙂 정면 보기",
+	Text = "정면 보기",
 	TextSize = 13,
 	ZIndex = 3,
 }, shoot, 15)
+-- (D-1267) light pills under the picture that go dark when pressed; no tip
+-- line; the X is small, in the window's top-right corner
+Skin.pressPill(faceFront)
+tip.Visible = false
+for i, bar in ipairs(shootLeave:GetChildren()) do
+	if bar:IsA("Frame") then
+		bar.Name = "XBar" .. i
+		bar.Size = UDim2.fromOffset(16, 2)
+		Skin.shadow(bar, 1.5)
+	end
+end
 
 local function sidePanel(name: string, title: string): (Frame, ScrollingFrame)
 	-- (black with a pink edge like the other photo windows, user 2026-10-30;
@@ -748,10 +832,16 @@ local propPanel, propList = sidePanel("Props", "소품")
 poseList.ScrollingDirection = Enum.ScrollingDirection.X
 poseList.AutomaticCanvasSize = Enum.AutomaticSize.X
 ;(poseList:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout).FillDirection = Enum.FillDirection.Vertical
+-- (D-1267, user 2026-11-11: "소품이랑 포즈 위치 바꿈. 왼쪽이 소품, 오른쪽이 포즈. 포즈 칸에 표정
+-- 카테고리 추가해서 포즈랑 표정 나누기") the pose window gets 포즈 / 표정 tabs (표정 has its
+-- own list); the props become round buttons without a window
+;(Skin :: any).faceList = Skin.poseTabs(posePanel, poseList)
+Skin.propPanel(propPanel, propList)
 
 -- dark card buttons with white text, like the other photo windows (user
 -- 2026-10-30; were light sky blue); the chosen one is pink
-local SKY_BUTTON, SKY_TEXT = Color3.fromRGB(44, 42, 54), Color3.fromRGB(255, 255, 255)
+-- (D-1267: grey pills, the chosen one with a white edge)
+local SKY_BUTTON, SKY_TEXT = Skin.C.chip, Color3.fromRGB(255, 255, 255)
 local pauseButton: TextButton
 do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 	local order = 0
@@ -766,6 +856,8 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 			TextWrapped = true,
 			ZIndex = 5,
 		}, poseList, 8)
+		Skin.corner(b) -- (D-1267: pill)
+		b.Font = Skin.FONT
 		b.MouseButton1Click:Connect(onClick)
 		return b
 	end
@@ -781,6 +873,11 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 		TextSize = 13,
 		ZIndex = 3,
 	}, shoot, 15)
+	-- (D-1267) dark while the pose is held
+	Skin.pressPill(pauseButton, function()
+		local character = player.Character
+		return character ~= nil and typeof(character:GetAttribute("DancePause")) == "number"
+	end)
 	pauseButton.MouseButton1Click:Connect(function()
 		local character = player.Character
 		if not character or character:GetAttribute("DanceKey") == nil then
@@ -801,8 +898,7 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 		local function paint()
 			local character = player.Character
 			local on = character ~= nil and character:GetAttribute(attribute) == true
-			b.BackgroundColor3 = if on then COLORS.pink else SKY_BUTTON
-			b.TextColor3 = if on then Color3.new(1, 1, 1) else SKY_TEXT
+			Skin.select(b, on) -- (D-1267)
 		end
 		local function watch(character: Model)
 			character:GetAttributeChangedSignal(attribute):Connect(paint)
@@ -831,8 +927,17 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 			down.Text = if moved and (h :: number) < 0 then string.format("▼ 내려가기 (%s)", tostring(h)) else "▼ 내려가기"
 			up.Text = if moved and (h :: number) > 0 then string.format("▲ 올라가기 (+%s)", tostring(h)) else "▲ 올라가기"
 			local on = moved or (character ~= nil and character:GetAttribute("BoothKneel") == true)
-			stand.BackgroundColor3 = if on then COLORS.pink else SKY_BUTTON
-			stand.TextColor3 = if on then Color3.new(1, 1, 1) else SKY_TEXT
+			Skin.select(stand, on) -- (D-1267)
+		end
+		-- (D-1267, user: "아래 정면보기/내려가기/올라가기/멈춤 버튼") ▼ / ▲ go under the
+		-- picture next to 정면 보기 and 멈춤 (placed by layoutShoot)
+		for _, item in ipairs({ { down, "HeightDown" }, { up, "HeightUp" } }) do
+			local b = item[1] :: TextButton
+			b.Name = item[2]
+			b.Parent = shoot
+			b.ZIndex = 3
+			b.TextWrapped = false
+			Skin.pressPill(b)
 		end
 		local function watch(character: Model)
 			character:GetAttributeChangedSignal("BoothHeight"):Connect(paint)
@@ -857,13 +962,13 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 				local ok, message = invoke("Face", f.key)
 				if not ok and typeof(message) == "string" then toast(message) end
 			end)
+			faceButtons[f.key].Parent = (Skin :: any).faceList -- (D-1267: the 표정 tab)
 		end
 		local function paint()
 			local character = player.Character
 			local on = character and character:GetAttribute("BoothFace")
 			for key, b in pairs(faceButtons) do
-				b.BackgroundColor3 = if on == key then COLORS.pink else SKY_BUTTON
-				b.TextColor3 = if on == key then Color3.new(1, 1, 1) else SKY_TEXT
+				Skin.select(b, on == key) -- (D-1267)
 			end
 		end
 		local function watch(character: Model)
@@ -876,10 +981,11 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 	for _, category in ipairs(PhotoConfig.PoseCategoryOrder) do
 		for _, dance in ipairs(ClubConfig.Dances) do
 			if dance.category == category then
-				add(dance.name, function() danceRemote:FireServer("Start", dance.key, 1) end)
+				add(dance.name, function() danceRemote:FireServer("Start", dance.key, 1) end):SetAttribute("PoseKey", dance.key)
 			end
 		end
 	end
+	Skin.watchPoses(poseList, player) -- (D-1267: the pose being danced has a white edge)
 end
 
 local propButtons: {[string]: TextButton} = {}
@@ -892,8 +998,7 @@ local function refreshProps()
 				if child:IsA("Accessory") and child:GetAttribute("PhotoProp") == key then worn = true end
 			end
 		end
-		b.BackgroundColor3 = if worn then COLORS.pink else SKY_BUTTON
-		b.TextColor3 = if worn then Color3.new(1, 1, 1) else SKY_TEXT
+		Skin.propButton(b, worn) -- (D-1267: round, a white edge while worn)
 	end
 end
 for index, prop in ipairs(PhotoConfig.Props) do
@@ -907,6 +1012,7 @@ for index, prop in ipairs(PhotoConfig.Props) do
 		ZIndex = 5,
 	}, propList, 8)
 	propButtons[prop.key] = b
+	Skin.propButton(b, false)
 	b.MouseButton1Click:Connect(function()
 		local ok, message = invoke("Prop", prop.key)
 		if not ok then toast(message) end
@@ -944,21 +1050,33 @@ local function layoutShoot()
 	-- user 2026-10-28 (3))
 	local touch = game:GetService("UserInputService").TouchEnabled
 	local panelH = if touch then math.min(h, 34 * 3 + 4 * 2 + 40) else h
-	posePanel.Position = UDim2.fromOffset(x - panelW - 10, y)
+	-- (D-1267) the poses (포즈 / 표정 tabs) on the right, the props on the left
+	panelH = math.max(panelH, 140)
+	posePanel.Position = UDim2.fromOffset(x + w + 10, y)
 	posePanel.Size = UDim2.fromOffset(panelW, panelH)
-	do -- (D-1182) as many rows as fit, two columns in view, the rest to the right
-		local grid = poseList:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
-		grid.FillDirectionMaxCells = math.max(1, math.floor((panelH - 34 - 3 + 4) / 38))
-		grid.CellSize = UDim2.fromOffset(math.floor((panelW - 12) / 2 - 3), 34)
+	for _, list in ipairs({ poseList, (Skin :: any).faceList }) do -- (D-1182) as many rows as fit, two columns in view, the rest to the right
+		local grid = list:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
+		grid.FillDirectionMaxCells = if list == poseList then math.max(1, math.floor((panelH - 44 + 4) / 32)) else 2
+		grid.CellSize = UDim2.fromOffset(math.floor((panelW - 12) / 2 - 3), 28)
 	end
-	propPanel.Position = UDim2.fromOffset(x + w + 10, y)
-	propPanel.Size = UDim2.fromOffset(panelW, panelH)
+	local propSize = math.floor(math.clamp(panelW * 0.4, 40, 58))
+	Skin.layoutProps(propPanel, propList, x - (2 * propSize + 16) - 10, y, propSize)
 	tip.Position = UDim2.fromOffset(x, y + h - 24)
 	tip.Size = UDim2.fromOffset(w, 20)
-	faceFront.Position = UDim2.fromOffset(x + w / 2 - 126, y + h - 58)
-	pauseButton.Position = UDim2.fromOffset(x + w / 2 + 6, y + h - 58)
-	shootLeave.Position = UDim2.fromOffset(vp.X / 2 + infoBar.Size.X.Offset / 2 + 10, top)
-	shootLeave.Size = UDim2.fromOffset(34, 34)
+	do -- 정면 보기 · ▼ 내려가기 · ▲ 올라가기 · ⏸ 멈춤 in a row at the bottom of the picture
+		local row = { faceFront, shoot:FindFirstChild("HeightDown"), shoot:FindFirstChild("HeightUp"), pauseButton }
+		local pw = math.floor(math.min(104, (w - 60) / 4))
+		local x0 = x + (w - (4 * pw + 3 * 8)) / 2
+		for i, b in ipairs(row) do
+			if b then
+				(b :: GuiObject).Position = UDim2.fromOffset(x0 + (i - 1) * (pw + 8), y + h - 40)
+				;(b :: GuiObject).Size = UDim2.fromOffset(pw, 28)
+			end
+		end
+	end
+	infoBar.Position = UDim2.fromOffset(vp.X / 2, y + 6)
+	shootLeave.Position = UDim2.fromOffset(x + w - 36, y + 6)
+	shootLeave.Size = UDim2.fromOffset(30, 30)
 	local bracket = math.floor(math.clamp(math.min(w, h) * 0.12, 22, 48))
 	for _, c in ipairs(corners) do c.Size = UDim2.fromOffset(bracket, bracket) end
 end
@@ -1078,6 +1196,13 @@ local result = overlay("Result")
 boxify(pick)
 boxify(result)
 PhotoFlowUI.icon(pick, "📷", 12)
+-- (D-1267) white header text, grey 남은 시간, a grey / red 다음으로 ▶ pill
+pickTitle.TextColor3 = Skin.C.white
+pickTitle.Font = Skin.FONT
+pickTimer.TextColor3 = Skin.C.sub
+pickTimer.Font = Skin.FONT
+Skin.pill(pickDone, "card")
+pickDone.TextSize = 13
 
 local pickCells: {ViewportFrame} = {}
 local pickBadges: {TextLabel} = {}
@@ -1090,25 +1215,33 @@ local previewStrip: any = nil
 local function layoutPick()
 	local bw, bh = placeBox(pick, "flow")
 	PhotoFlowUI.placeHeader(pickTitle, pickTimer, bw)
-	local headerIcon = pick:FindFirstChild("HeaderIcon") :: TextLabel?
-	if headerIcon then headerIcon.Text = if state.stage == "frame" then "🖼" elseif state.stage == "copies" then "✨" else "📷" end
+	-- (D-1267) white icons: a camera while picking / choosing the frame, a picture when done
+	Skin.headerIcon(pick, if state.stage == "copies" then Skin.Icons.picture else Skin.Icons.camera)
 	local divider = PhotoFlowUI.divider(pick, 11)
-	local areaTop = 56
+	local areaTop = 44
 	local stage = state.stage
+	divider.Visible = false -- (D-1267: no line, the strip sits on a grey card)
+	Skin.previewCard(pick, pickPreview, stage == "picking")
 	if stage == "frame" then
-		divider.Visible = false
 		pickPreview.Visible = false
 		frameArea.Position = UDim2.fromOffset(12, areaTop)
-		frameArea.Size = UDim2.fromOffset(bw - 24, bh - areaTop - 62)
-		pickDone.AnchorPoint = Vector2.new(0.5, 1)
-		pickDone.Size = UDim2.fromOffset(220, 40)
-		pickDone.Position = UDim2.new(0.5, 0, 1, -12)
+		frameArea.Size = UDim2.fromOffset(bw - 24, bh - areaTop - 12)
+		-- (D-1267) 선택 완료 at the bottom right, on the frame box's edge
+		pickDone.AnchorPoint = Vector2.new(1, 1)
+		pickDone.Size = UDim2.fromOffset(96, 28)
+		pickDone.Position = UDim2.new(1, -16, 1, -8)
+		Skin.frameBox(frameArea, 28, 8)
 		-- five frame previews to a row, one row in view (more rows scroll)
 		local list = frameArea:FindFirstChild("Swatches")
 		local grid = list and list:FindFirstChildOfClass("UIGridLayout")
 		if grid then
-			local w, h = bw - 24, bh - areaTop - 62 - 40
-			grid.CellSize = UDim2.fromOffset(math.floor((w - 6 - 8 - 4 * 8) / 5), math.max(60, h - 18))
+			local w, h = bw - 24, bh - areaTop - 12 - 70 - 16 -- (the list's own height, the name under the strip in view)
+			grid.CellSize = UDim2.fromOffset(math.floor((w - 6 - 8 - 4 * 12 - 16) / 5), math.max(60, h))
+			grid.CellPadding = UDim2.fromOffset(12, 10)
+		end
+		if list then
+			(list :: ScrollingFrame).Position = UDim2.fromOffset(10, 40)
+			;(list :: ScrollingFrame).Size = UDim2.new(1, -20, 1, -40 - 30)
 		end
 		return
 	end
@@ -1124,26 +1257,32 @@ local function layoutPick()
 		frameArea.Size = UDim2.fromOffset(bw - leftW - 36, areaH)
 		return
 	end
-	divider.Visible = true
-	divider.Position = UDim2.fromOffset(bw - previewW - 24, areaTop)
-	divider.Size = UDim2.fromOffset(1, areaH)
-	pickGrid.Position = UDim2.fromOffset(12, areaTop)
-	pickGrid.Size = UDim2.fromOffset(bw - previewW - 48, areaH)
+	-- (D-1267) the strip on a grey card at the right, 다음으로 ▶ under the card
+	local cardW = previewW + 20
+	pickGrid.Position = UDim2.fromOffset(16, areaTop + 4)
+	pickGrid.Size = UDim2.fromOffset(bw - cardW - 16 - 16 - 16, areaH - 4)
 	frameArea.Position = pickGrid.Position
 	frameArea.Size = pickGrid.Size
-	pickPreview.Position = UDim2.fromOffset(bw - previewW - 12, areaTop)
-	pickPreview.Size = UDim2.fromOffset(previewW, areaH - 50)
+	pickPreview.Position = UDim2.fromOffset(bw - cardW - 16 + 10, areaTop + 10)
+	pickPreview.Size = UDim2.fromOffset(previewW, areaH - 46 - 20)
+	Skin.previewCard(pick, pickPreview, true)
 	pickDone.AnchorPoint = Vector2.new(0, 1)
-	pickDone.Size = UDim2.fromOffset(previewW, 38)
-	pickDone.Position = UDim2.new(0, bw - previewW - 12, 1, -12)
-	-- 4 × 2 grid of 4:3 cells
+	pickDone.Size = UDim2.fromOffset(cardW, 26)
+	pickDone.Position = UDim2.new(0, bw - cardW - 16, 1, -12)
+	-- (D-1267, user: "이미지는 9칸인데 8칸만 하고 마지막 칸에 네모 없이 오후 로고 넣기")
+	-- a 3 × 3 grid of 4:3 cells, the 9th the OHU logo
 	local gw = pickGrid.Size.X.Offset
-	local cellW = math.min((gw - 3 * 8) / 4, (areaH - 8) / 2 * 4 / 3)
+	local cellW = math.min((gw - 2 * 10) / 3, (areaH - 4 - 2 * 10) / 3 * 4 / 3)
 	local cellH = cellW * 3 / 4
 	for index, cell in ipairs(pickCells) do
-		local col, row = (index - 1) % 4, math.floor((index - 1) / 4)
-		cell.Position = UDim2.fromOffset(col * (cellW + 8), row * (cellH + 8))
+		local col, row = (index - 1) % 3, math.floor((index - 1) / 3)
+		cell.Position = UDim2.fromOffset(col * (cellW + 10), row * (cellH + 10))
 		cell.Size = UDim2.fromOffset(cellW, cellH)
+	end
+	local logo = pickGrid:FindFirstChild("LogoCell") :: GuiObject?
+	if logo then
+		logo.Position = UDim2.fromOffset(2 * (cellW + 10), 2 * (cellH + 10))
+		logo.Size = UDim2.fromOffset(cellW, cellH)
 	end
 end
 
@@ -1162,7 +1301,7 @@ end
 local function refreshPickBadges()
 	for index, badge in ipairs(pickBadges) do
 		local order = table.find(state.picks, index)
-		badge.Visible = order ~= nil
+		badge.Visible = false -- (D-1267: the picked cells show a white edge; the order shows in the strip)
 		badge.Text = if order then tostring(order) else ""
 		local stroke = pickCells[index]:FindFirstChildOfClass("UIStroke")
 		if stroke then stroke.Transparency = if order then 0 else 1 end
@@ -1176,7 +1315,11 @@ local function refreshPickBadges()
 		pickTitle.Text = string.format("%s님이 사진을 고르는 중… (%d/%d)", state.pickerName, #state.picks, PhotoConfig.PickCount)
 	end
 	pickDone.Visible = state.isPicker
-	pickDone.BackgroundColor3 = if #state.picks == PhotoConfig.PickCount then COLORS.yellow else COLORS.card
+	-- (D-1267, user: "사진 4개 선택하면 다음으로 버튼 붉은색으로 활성화 됨")
+	if state.stage ~= "frame" then
+		local ready = #state.picks == PhotoConfig.PickCount
+		Skin.pill(pickDone, if ready then "accent" else "card", ready)
+	end
 end
 
 -- The picker's every change goes to the others (they watch live).
@@ -1219,12 +1362,12 @@ local function openPick(shots: Shots)
 	for index, shot in ipairs(shots.shots) do
 		local cell = create("ViewportFrame", {
 			Name = "Shot" .. index,
-			BackgroundColor3 = Color3.fromRGB(60, 60, 66),
+			BackgroundColor3 = Skin.C.cell, -- (D-1267: light cells, a white edge when picked)
 			BorderSizePixel = 0,
 			ZIndex = 12,
 		}, pickGrid)
 		corner(cell, 6)
-		create("UIStroke", { Color = COLORS.yellow, Thickness = 3, Transparency = 1 }, cell)
+		create("UIStroke", { Color = Skin.C.white, Thickness = 3, Transparency = 1 }, cell)
 		local badge = text({
 			Size = UDim2.fromOffset(26, 26),
 			Position = UDim2.fromOffset(4, 4),
@@ -1265,9 +1408,10 @@ local function openPick(shots: Shots)
 		table.insert(pickBadges, badge)
 		PhotoRender.queueShot(cell, shot, people, shots.booth)
 	end
+	Skin.logoCell(pickGrid, 12) -- (D-1267: the 9th cell)
 	pickGrid.Visible = true
 	frameArea.Visible = false
-	pickDone.Text = "선택 완료"
+	pickDone.Text = "다음으로 ▶"
 	newPreview()
 	layoutPick()
 	refreshPickBadges()
@@ -1316,10 +1460,11 @@ local function refreshSaveButton()
 		pickDone.Text = if info.price == "coins"
 			then string.format("💰 %d 구매 후 저장", info.coins or 0)
 			else string.format("프레임 팩 R$%d", MonetizationConfig.GamePasses.FramePack.price)
+		Skin.pill(pickDone, "accent", true)
 		pickDone.BackgroundColor3 = if info.price == "coins" then Color3.fromRGB(230, 170, 40) else Color3.fromRGB(0, 176, 111)
 	else
 		pickDone.Text = "선택 완료"
-		pickDone.BackgroundColor3 = COLORS.yellow
+		Skin.pill(pickDone, "accent", true) -- (D-1267)
 	end
 end
 
@@ -1338,13 +1483,13 @@ local function renderSwatches()
 			local card = button({
 				Name = "Frame_" .. info.key,
 				LayoutOrder = index,
-				BackgroundColor3 = Color3.fromRGB(34, 32, 44),
+				BackgroundColor3 = Skin.C.cardLight, -- (D-1267: light grey card, a white edge when chosen)
 				AutoButtonColor = false,
 				Text = "",
 				ZIndex = 13,
 			}, swatches, 12)
 			frameCards[info.key] = create("UIStroke", {
-				Color = COLORS.pink,
+				Color = Skin.C.white,
 				Thickness = 3,
 				Transparency = if state.frame == info.key then 0 else 1,
 				ApplyStrokeMode = Enum.ApplyStrokeMode.Border,
@@ -1361,7 +1506,8 @@ local function renderSwatches()
 				Size = UDim2.new(1, -6, 0, 18),
 				Text = (if ownsFrame(info) then "" else "🔒 ") .. info.name
 					.. (if ownsFrame(info) then "" else " · " .. PhotoConfig.priceText(info)),
-				TextColor3 = COLORS.sub,
+				TextColor3 = Skin.C.white,
+				Font = Skin.FONT,
 				TextSize = 11,
 				TextScaled = false,
 				ZIndex = 14,
@@ -1376,9 +1522,7 @@ local function renderSwatches()
 			end)
 		end
 	end
-	for name, tab in pairs(tabButtons) do
-		tab.BackgroundColor3 = if name == frameTab then COLORS.pink else Color3.fromRGB(44, 42, 54)
-	end
+	Skin.paintTabs(tabButtons, frameTab) -- (D-1267: folder tabs, the open one with a white edge)
 end
 for index, name in ipairs(PhotoConfig.FrameTabs) do
 	local tab = button({
@@ -1458,6 +1602,9 @@ local function resultButton(label: string, color: Color3, order: number, onClick
 		TextSize = 14,
 		ZIndex = 12,
 	}, resultButtons, 10)
+	-- (D-1267) pills: red-brown for the saves, grey for the rest
+	Skin.pill(b, if color == COLORS.pink then "accent" else "card")
+	b.TextSize = 12
 	b.MouseButton1Click:Connect(onClick)
 	return b
 end
@@ -1468,6 +1615,10 @@ local function closeAllFlow()
 	shoot.Visible = false
 	waitBar.Visible = false
 	liftTouchGui(false)
+	-- (D-1267, found in the test: after 닫기 the camera was still the booth camera,
+	-- Scriptable, when the last cut's capture had turned it after the pick screen
+	-- opened) the flow is over: the camera always goes back to the player
+	if workspace.CurrentCamera and workspace.CurrentCamera.CameraType == Enum.CameraType.Scriptable then state.cameraSaved = true end
 	restoreCamera()
 	require(script.Parent:WaitForChild("PhotoMotionReel")).hideStools(nil, false) -- (D-1139)
 	state.stage = "none"
@@ -1476,7 +1627,7 @@ local function closeAllFlow()
 	Popups.closed("PhotoResult")
 end
 
-resultButton("📸 캡처 저장", COLORS.pink, 1, function()
+Skin.iconButton(resultButton("캡처 저장", COLORS.pink, 1, function()
 	-- the picked cuts as captured from the real scene (falls back to a
 	-- screenshot of this screen when the device made no captures)
 	local list = {}
@@ -1493,20 +1644,20 @@ resultButton("📸 캡처 저장", COLORS.pink, 1, function()
 		if ok then return end
 	end
 	captureToGallery({ resultButtons, resultTitle })
-end)
+end), Skin.Icons.camera) -- (D-1267: white icons in the pills)
 -- (D-1126, user 2026-11-10) the picked cuts as a video: the seconds before
 -- each shot from the booth camera, then the shot held still (PhotoMotionReel),
 -- recorded and offered to the device gallery to share
-resultButton("🎬 영상 저장", COLORS.pink, 2, function()
+Skin.iconButton(resultButton("영상 저장", COLORS.pink, 2, function()
 	if require(script.Parent:WaitForChild("PhotoMotionReel")).isPlaying() then return end
 	require(script.Parent:WaitForChild("PhotoMotionReel")).play(state.picks or {}, function(message)
 		if message then toast(message, 7) end -- (D-1266: long enough to read around the share screen)
 	end)
-end)
-resultButton("🎒 가방에서 보기", COLORS.card, 3, function()
+end), Skin.Icons.clapper)
+Skin.iconButton(resultButton("가방에서 보기", COLORS.card, 3, function()
 	closeAllFlow()
 	require(script.Parent:WaitForChild("BagSignals")).openBag:Fire("photos")
-end)
+end), Skin.Icons.bag)
 resultButton("닫기", COLORS.card, 4, closeAllFlow)
 
 -- (user mock-up 2026-10-30) a soft card with a pink check in the middle,
@@ -1533,7 +1684,7 @@ local function showResult(saved: any)
 	result.Visible = true
 	Popups.opened("PhotoResult", closeAllFlow)
 	local count = if typeof(saved) == "table" then saved.count else nil
-	savedSub.Text = if count then string.format("🎒 가방의 사진 칸에서 볼 수 있어요 (%d/%d)", count, saved.max or PhotoConfig.MaxPhotos) else "🎒 가방의 사진 칸에서 볼 수 있어요"
+	savedSub.Text = if count then string.format("가방의 사진 칸에서 볼 수 있어요 (%d/%d)", count, saved.max or PhotoConfig.MaxPhotos) else "가방의 사진 칸에서 볼 수 있어요"
 	require(script.Parent:WaitForChild("BagSignals")).photosChanged:Fire()
 	if typeof(saved) == "table" and not saved.persistent and saved.note then toast("사진첩: " .. tostring(saved.note)) end
 end
@@ -1891,17 +2042,21 @@ local function update()
 	local phase = if booth then booth:GetAttribute("Phase") else nil
 	if phase == "waiting" then
 		if album.Visible then closeAlbum() end
+		local fresh = state.stage ~= "waiting"
 		state.stage = "waiting"
 		local vp = viewport()
-		-- At the bottom, above the hotbar (user: 나가기 at the bottom).
-		waitBar.Position = UDim2.fromOffset(vp.X / 2, vp.Y - 84 - 96)
-		waitBar.Size = UDim2.fromOffset(math.min(380, vp.X - 30), 84)
-		local left = math.max(0, math.ceil((booth :: Model):GetAttribute("WaitUntil") - workspace:GetServerTimeNow()))
+		-- (D-1267: at the top under the top bar, the user's design; was at the bottom)
+		waitBar.Position = UDim2.fromOffset(vp.X / 2, topY())
+		waitBar.Size = UDim2.fromOffset(math.min(420, vp.X - 30), 46)
+		local exact = math.max(0, (booth :: Model):GetAttribute("WaitUntil") - workspace:GetServerTimeNow())
+		local left = math.ceil(exact)
 		local host = (booth :: Model):GetAttribute("Host") == player.UserId
-		waitText.Text = string.format("📸 %d초 후 촬영 시작 · %d/%d명 · %s", left, peopleCount(booth :: Model), PhotoConfig.MaxPeople, modeName((booth :: Model):GetAttribute("Mode")))
+		waitText.Text = string.format("%d 초 후 촬영 시작·%d/%d명·%s", left, peopleCount(booth :: Model), PhotoConfig.MaxPeople, modeName((booth :: Model):GetAttribute("Mode")))
+		waitCount(exact, if fresh then 1 else 0)
 		waitStart.Visible = host
-		waitLeave.Position = if host then UDim2.new(0.5, 6, 1, -38) else UDim2.new(0, 12, 1, -38)
-		waitLeave.Size = if host then UDim2.new(0.5, -18, 0, 30) else UDim2.new(1, -24, 0, 30)
+		waitLeave.AnchorPoint = Vector2.new(1, 0.5)
+		waitLeave.Position = UDim2.new(1, -10, 0.5, 0)
+		waitLeave.Size = UDim2.fromOffset(78, 26)
 		waitBar.Visible = true
 	elseif phase == "shooting" then
 		waitBar.Visible = false
@@ -1919,7 +2074,7 @@ local function update()
 		applyShootCamera()
 		local index = (booth :: Model):GetAttribute("ShotIndex") or 0
 		local left = math.max(0, (booth :: Model):GetAttribute("NextShotAt") - workspace:GetServerTimeNow())
-		infoBar.Text = string.format("📸 촬영 %d / %d   ⏱ %d초", index, PhotoConfig.ShotCount, math.ceil(left))
+		;(Skin :: any).setShootInfo(index, PhotoConfig.ShotCount, math.ceil(left)) -- (D-1267)
 		local character = player.Character
 		local paused = character and typeof(character:GetAttribute("DancePause")) == "number"
 		pauseButton.Text = if paused then "▶ 계속" else "⏸ 멈춤"
@@ -1956,7 +2111,7 @@ local function update()
 		waitBar.Visible = false
 		if state.stage == "copies" then
 			local left = math.max(0, math.ceil((booth :: Model):GetAttribute("WaitUntil") - workspace:GetServerTimeNow()))
-			pickTimer.Text = string.format("남은 시간 %d초 · 시간이 지나면 1장(무료)만 저장돼요", left)
+			pickTimer.Text = string.format("남은 시간 %d초·시간이 지나면 1장만 저장돼요.", left) -- (D-1267)
 		end
 	else
 		-- No session (or it just ended). A pick/frame screen whose session is

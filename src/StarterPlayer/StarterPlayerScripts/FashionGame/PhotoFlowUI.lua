@@ -49,15 +49,27 @@ function PhotoFlowUI.icon(parent: GuiObject, glyph: string, zIndex: number): Tex
 end
 
 -- A title + subtitle pair placed right of the icon, left-aligned.
+-- (D-1267, the user's 오후네컷 design: a small white icon, the title, and the
+-- grey line on the same row right after the title)
 function PhotoFlowUI.placeHeader(title: TextLabel, sub: TextLabel, width: number)
 	title.TextXAlignment = Enum.TextXAlignment.Left
 	sub.TextXAlignment = Enum.TextXAlignment.Left
-	title.Position = UDim2.fromOffset(56, 8)
-	title.Size = UDim2.fromOffset(width - 56 - 12, 22)
-	title.TextSize = 18
-	sub.Position = UDim2.fromOffset(56, 30)
-	sub.Size = UDim2.fromOffset(width - 56 - 12, 16)
+	title.Position = UDim2.fromOffset(44, 10)
+	title.Size = UDim2.fromOffset(width - 44 - 12, 24)
+	title.TextSize = 16
 	sub.TextSize = 12
+	title:SetAttribute("HeaderW", width)
+	local function follow()
+		local w = (title:GetAttribute("HeaderW") :: number?) or 300
+		local x = 44 + title.TextBounds.X + 12
+		sub.Position = UDim2.fromOffset(x, 12)
+		sub.Size = UDim2.fromOffset(math.max(40, w - x - 12), 22)
+	end
+	if not title:GetAttribute("HeaderFollow") then
+		title:SetAttribute("HeaderFollow", true)
+		title:GetPropertyChangedSignal("TextBounds"):Connect(follow)
+	end
+	follow()
 end
 
 -- A thin vertical divider line.
@@ -99,25 +111,23 @@ function PhotoFlowUI.savedPanel(parent: GuiObject, zIndex: number): (Frame, Text
 			make("UICorner", { CornerRadius = UDim.new(1, 0) }, bar)
 		end
 	end
-	local check = make("TextLabel", {
+	-- (D-1267, the user's design: a white picture icon instead of the pink ✓)
+	make("ImageLabel", {
+		Name = "SavedIcon",
 		AnchorPoint = Vector2.new(0.5, 0),
-		Position = UDim2.new(0.5, 0, 0, 14),
+		Position = UDim2.new(0.5, 0, 0, 12),
 		Size = UDim2.fromOffset(56, 56),
-		BackgroundColor3 = C.pink,
-		Font = Enum.Font.GothamBlack,
-		TextSize = 30,
-		TextColor3 = C.text,
-		Text = "✓",
+		BackgroundTransparency = 1,
+		Image = "rbxassetid://129959081088687", -- (PhotoBoothSkin.Icons.picture)
 		ZIndex = zIndex + 1,
 	}, card)
-	make("UICorner", { CornerRadius = UDim.new(1, 0) }, check)
 	local title = make("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0),
 		Position = UDim2.new(0.5, 0, 0, 78),
 		Size = UDim2.new(1, -20, 0, 28),
 		BackgroundTransparency = 1,
-		Font = Enum.Font.GothamBlack,
-		TextSize = 22,
+		Font = Enum.Font.GothamBold,
+		TextSize = 21,
 		TextColor3 = C.text,
 		Text = "사진이 저장되었어요!",
 		ZIndex = zIndex + 1,
@@ -130,7 +140,7 @@ function PhotoFlowUI.savedPanel(parent: GuiObject, zIndex: number): (Frame, Text
 		Font = Enum.Font.GothamMedium,
 		TextSize = 13,
 		TextColor3 = C.sub,
-		Text = "🎒 가방의 사진 칸에서 볼 수 있어요",
+		Text = "가방의 사진 칸에서 볼 수 있어요",
 		ZIndex = zIndex + 1,
 	}, card)
 	return card, title, sub
