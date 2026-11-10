@@ -104,7 +104,10 @@ local function giveBottle(player: Player, drinkKey: string, servings: number?, v
 	local name, color, variant = drinkLook(drink, variantKey)
 	local cups = math.clamp(servings or ClubConfig.BottleServings, 1, ClubConfig.BottleServings)
 	local tool = Instance.new("Tool")
-	tool.Name = string.format("%s · %s (%d/%d)", containerName(drink), name, cups, ClubConfig.BottleServings)
+	-- (D-1252, user 2026-11-10: "캔음료 마셔도 아래 (6/6) 안 줄어듬. 아예 삭제하든가") a
+	-- can's name has no cup count; the buckets keep theirs
+	tool.Name = if drink.tier == 1 then string.format("%s · %s", containerName(drink), name)
+		else string.format("%s · %s (%d/%d)", containerName(drink), name, cups, ClubConfig.BottleServings)
 	tool.ToolTip = if drink.tier == 1
 		then "테이블을 누르면 올려놓기 · 다른 곳을 누르면 캔째 마시기"
 		else "손에 들고 테이블을 누르면 버킷으로 올라가요"
@@ -120,7 +123,9 @@ local function giveBottle(player: Player, drinkKey: string, servings: number?, v
 	-- size in the hand per drink (user 2026-10-28 (15)): tier 2 half, 스택 하이드로
 	-- 0.7 (above tier 2), 스컬 앤 워터 0.935, 파스텔 스플래시 2/3, VIP 골목 공방 1.43 (2026-10-28 (19); kept the same after the bottles were resized (26))
 	local handScale = if drink.key == "stack_hydro" then 0.79 elseif drink.key == "skull_water" then 0.767
-		elseif drink.key == "pastel_splash" then 0.623 elseif drink.key == "golmok" then 0.985 elseif drink.tier == 2 then 0.5 else 1
+		elseif drink.key == "pastel_splash" then 0.623 elseif drink.key == "golmok" then 0.985 elseif drink.tier == 2 then 0.5
+		elseif drink.tier == 1 then 1.3 -- (D-1252, user 2026-11-10: "캔음료 사이즈 1.3배 키우기")
+		else 1
 	local scale = 1.9 / BottleShapes.height(drink.key) * handScale
 	BottleShapes.add(tool, handle.CFrame * CFrame.new(0, -0.9, 0), drink.key, color, scale, handle)
 	tool.Grip = CFrame.new(0, -0.3, 0)
@@ -805,7 +810,7 @@ local function swig(player: Player): (boolean, string?)
 	local name = drinkLook(drink, tool:GetAttribute("Variant"))
 	tool:SetAttribute("Servings", left)
 	tool:SetAttribute("Drinking", nil)
-	tool.Name = string.format("%s · %s (%d/%d)", containerName(drink), name, left, ClubConfig.BottleServings)
+	tool.Name = string.format("%s · %s", containerName(drink), name) -- (D-1252: no cup count on a can)
 	return true, nil
 end
 DrinkService.Swig = swig -- (D-1158: a can taken back from a food table, SnackService)

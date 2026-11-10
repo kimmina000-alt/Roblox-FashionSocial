@@ -30,7 +30,7 @@ local UP_TIME = 0.28 -- seconds up (and down)
 local BIG = 1.2 -- studs: a dish held under the chin
 local HAND_FOOD = { croissant = true, saltbread = true, bagel = true } -- (D-1159: bitten from the end)
 
-type Pose = { shoulder: CFrame, elbow: CFrame, wrist: CFrame }
+type Pose = { shoulder: CFrame, elbow: CFrame, wrist: CFrame, again: (() -> ())? }
 type Rig = {
 	shoulder: any, elbow: any, wrist: any?, pose: Pose,
 	want: number, up: number,
@@ -116,6 +116,14 @@ local function heldPoint(tool: Tool, handle: BasePart, grip: CFrame): (Vector3, 
 			return rel.Position + along * reach * 0.8, false, size
 		end
 	end
+	-- (D-1257, user 2026-11-10: "빨대 있는 음료 잘 마시고 있음 없는 음료 마시는 위치 얼굴
+	-- 하부로 수정 (모든 캐릭터 체형)", screenshot: the 카라멜 마끼아또 over the eyes) a
+	-- drink without a straw (SnackService marks cups and bottles "Drink", the club
+	-- cans have "Bottle"): the middle of its rim to the lower lip, tipped toward
+	-- the face; read from the head and face of each avatar, so any body works
+	if tool:GetAttribute("Drink") or tool:GetAttribute("Bottle") then
+		return Vector3.new((lo.X + hi.X) / 2, hi.Y, (lo.Z + hi.Z) / 2), false, size, "rim" :: any
+	end
 	-- (D-1159) a dish is low and wide: a tall cup (한옥 찻잔, 1.4 wide but 1.7 high)
 	-- and bread eaten from the hand go to the lips like the small things
 	local wide = math.max(size.X, size.Z)
@@ -133,38 +141,62 @@ local function solve(character: Model): Pose?
 	local wr = joint(character, "RightHand", "RightWrist")
 	if not torso or not head or not hand or not sh or not el or not wr then return nil end
 	local s = head.Size.Y
-	local mouth = torso.CFrame:PointToObjectSpace((head.CFrame * CFrame.new(0, -0.25 * s, -head.Size.Z / 2)).Position)
-	local headAt = torso.CFrame:PointToObjectSpace(head.Position)
+	local mouth, headAt = Vector3.zero, Vector3.zero
 	local tool = character:FindFirstChildOfClass("Tool")
 	local handle = tool and tool:FindFirstChild("Handle")
 	local gripAtt = hand:FindFirstChild("RightGripAttachment") :: Attachment?
 	local grip = if gripAtt then gripAtt.CFrame else CFrame.new(0, -hand.Size.Y / 2, 0)
 	local point, big, size, upright = Vector3.zero, false, Vector3.zero, nil :: boolean?
+	local rim = false -- (D-1257: a drink without a straw)
 	local handleInHand = CFrame.identity
 	if tool and handle and handle:IsA("BasePart") then
-		point, big, size, upright = heldPoint(tool, handle, grip)
+		local mode: any
+		point, big, size, mode = heldPoint(tool, handle, grip)
+		upright = mode == true
+		rim = mode == "rim"
 		handleInHand = grip * tool.Grip:Inverse()
 	else
 		handleInHand = grip
 	end
 	local target, wantUp
-	if upright then
-		-- (D-1152) the straw just at the lips, the glass standing (a hair toward the face)
-		-- (D-1163: measured 0.1-0.2 studs in front of the lips: the head's box front
-		-- is ahead of the face; the face's own front, FaceFrontAttachment, a hair in)
-		local ff = head:FindFirstChild("FaceFrontAttachment")
-		local faceZ = if ff and ff:IsA("Attachment") then ff.Position.Z + 0.04 else -head.Size.Z / 2
-		target = torso.CFrame:PointToObjectSpace((head.CFrame * CFrame.new(0, -0.27 * s, faceZ)).Position)
-		wantUp = Vector3.new(0, 1, 0.12).Unit
-	elseif big then
-		-- (D-1159, user 2026-11-10: "뭐 먹을 때 위치 모두 체크해서 얼굴 하관 부근으로") measured
-		-- in Play: cakes / breads / 한옥 cups / 국밥 bowls stopped at the neck (their
-		-- top 0.55-0.9 head below the centre): 0.25 head higher and less to the side
-		target = mouth + Vector3.new(0.08 * s, -0.35 * s, -(size.Z / 2 + 0.1 * s))
-		wantUp = Vector3.new(0, 0.9, 0.44).Unit
-	else
-		target = mouth + Vector3.new(0.05 * s, 0, -0.15 * s)
+	-- (D-1262, measured in Play: the head sways with the idle / dance animation,
+	-- 0.2 stud and 18° against the torso within half a second, so a pose solved
+	-- once at the start left the cup's rim at the chin or the cheek) the target
+	-- is read again every frame while the arm is up (aim + Pose.again below),
+	-- with the tool's grip as it is then
+	local function aim()
+		-- (DrinkService tilts a club drink 35° in the hand as the sip starts)
+		if tool and handle then handleInHand = grip * tool.Grip:Inverse() end
+		mouth = torso.CFrame:PointToObjectSpace((head.CFrame * CFrame.new(0, -0.25 * s, -head.Size.Z / 2)).Position)
+		headAt = torso.CFrame:PointToObjectSpace(head.Position)
+		if rim then
+			-- (D-1257) the rim's middle just in front of the lower lip (half the cup's
+			-- width out, so the near edge meets the lip), the top tipped back toward
+			-- the face like a sip
+			local ff = head:FindFirstChild("FaceFrontAttachment")
+			local faceZ = if ff and ff:IsA("Attachment") then ff.Position.Z else -head.Size.Z / 2
+			local r = math.min(size.X, size.Z) / 2
+			target = torso.CFrame:PointToObjectSpace((head.CFrame * CFrame.new(0, -0.32 * s, faceZ - r * 0.85)).Position)
+			wantUp = Vector3.new(0, 0.8, 0.6).Unit
+		elseif upright then
+			-- (D-1152) the straw just at the lips, the glass standing (a hair toward the face)
+			-- (D-1163: measured 0.1-0.2 studs in front of the lips: the head's box front
+			-- is ahead of the face; the face's own front, FaceFrontAttachment, a hair in)
+			local ff = head:FindFirstChild("FaceFrontAttachment")
+			local faceZ = if ff and ff:IsA("Attachment") then ff.Position.Z + 0.04 else -head.Size.Z / 2
+			target = torso.CFrame:PointToObjectSpace((head.CFrame * CFrame.new(0, -0.27 * s, faceZ)).Position)
+			wantUp = Vector3.new(0, 1, 0.12).Unit
+		elseif big then
+			-- (D-1159, user 2026-11-10: "뭐 먹을 때 위치 모두 체크해서 얼굴 하관 부근으로") measured
+			-- in Play: cakes / breads / 한옥 cups / 국밥 bowls stopped at the neck (their
+			-- top 0.55-0.9 head below the centre): 0.25 head higher and less to the side
+			target = mouth + Vector3.new(0.08 * s, -0.35 * s, -(size.Z / 2 + 0.1 * s))
+			wantUp = Vector3.new(0, 0.9, 0.44).Unit
+		else
+			target = mouth + Vector3.new(0.05 * s, 0, -0.15 * s)
+		end
 	end
+	aim()
 	local C0s, C1s = frames(sh)
 	local C0e, C1e = frames(el)
 	local C0w, C1w = frames(wr)
@@ -182,7 +214,7 @@ local function solve(character: Model): Pose?
 	end
 	local function cost(sp: number, sy: number, sz: number, e: number, w: number): number
 		local p, up, elbow, h = fk(sp, sy, sz, e, w)
-		local c = (p - target).Magnitude / s * (if upright then 3 else 1) -- (D-1163: the straw on the lips first)
+		local c = (p - target).Magnitude / s * (if upright or rim then 3 else 1) -- (D-1163: the straw on the lips first; D-1257 the rim too)
 		if wantUp then c += (1 - up:Dot(wantUp)) * (if big then 0.8 else 1.5) end -- (D-1159: a dish near the chin first)
 		-- the elbow out and below the hand; the hand out of the head
 		c += math.max(0, h.X + 0.2 * s - elbow.X) * 0.5 / s + math.max(0, elbow.Y - h.Y) * 0.5 / s
@@ -194,7 +226,7 @@ local function solve(character: Model): Pose?
 	local best, b = math.huge, { 60, 20, 0, 100, 0 }
 	-- (D-1159, measured: a tall glass's straw top is 1.3 studs over the hand, so
 	-- the hand comes in low and across to the middle) wider for straw drinks only
-	local spLo, syHi = if upright then -20 else 20, if upright then 80 else 40
+	local spLo, syHi = if upright or rim then -20 else 20, if upright or rim then 80 else 40
 	for sp = spLo, 120, 10 do
 		for sy = 0, syHi, 10 do
 			for sz = -20, 40, 15 do
@@ -224,7 +256,30 @@ local function solve(character: Model): Pose?
 		end
 	end
 	local _, _, _, _, s1, e1, w1 = fk(b[1], b[2], b[3], b[4], b[5])
-	return { shoulder = s1, elbow = e1, wrist = w1 }
+	local pose: Pose = { shoulder = s1, elbow = e1, wrist = w1 }
+	-- (D-1262) one fine pass around the last angles toward where the head is now
+	pose.again = function()
+		if not torso.Parent or not head.Parent then return end
+		aim()
+		best = cost(b[1], b[2], b[3], b[4], b[5])
+		local c0 = table.clone(b)
+		for dsp = -1, 1 do
+			for dsy = -1, 1 do
+				for dsz = -1, 1 do
+					for de = -1, 1 do
+						for dw = -1, 1 do
+							local q = { c0[1] + dsp * 2.5, math.clamp(c0[2] + dsy * 2.5, 0, syHi + 5), c0[3] + dsz * 5, c0[4] + de * 2.5, c0[5] + dw * 5 }
+							local c = cost(q[1], q[2], q[3], q[4], q[5])
+							if c < best then best, b = c, q end
+						end
+					end
+				end
+			end
+		end
+		local _, _, _, _, s2, e2, w2 = fk(b[1], b[2], b[3], b[4], b[5])
+		pose.shoulder, pose.elbow, pose.wrist = s2, e2, w2
+	end
+	return pose
 end
 
 local function start(character: Model)
@@ -509,6 +564,8 @@ RunService.PreSimulation:Connect(function(dt)
 			continue
 		end
 		local done = rig.want <= 0 and rig.up <= 0
+		-- (D-1262) follow the swaying head while the arm is up
+		if rig.want > 0 and rig.pose.again then rig.pose.again() end
 		local function pose(m: Joint, target: CFrame)
 			-- (a joint no animation writes keeps what was set last frame: then
 			-- the pose from before is the base, or the arm would stay up)

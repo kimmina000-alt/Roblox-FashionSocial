@@ -89,7 +89,8 @@ for i, m in ipairs(stools) do
 		local d = Vector2.new(s.Position.X - cf.X, s.Position.Z - cf.Z).Magnitude
 		if d < best then seat, best = s, d end
 	end
-	local x, z = long.Position.X + dx, frontZ + 0.4
+	-- (D-1253, user 2026-11-10: "편의점 의자 테이블에서 아주 약간만 떨어트리기") 0.4 → 0.9
+	local x, z = long.Position.X + dx, frontZ + 0.9
 	local hit = workspace:Raycast(Vector3.new(x, cf.Y + size.Y, z), Vector3.new(0, -20, 0), params)
 	local floorY = if hit then hit.Position.Y else cf.Y - size.Y / 2
 	local delta = Vector3.new(x - cf.X, floorY - (cf.Y - size.Y / 2), z - cf.Z)

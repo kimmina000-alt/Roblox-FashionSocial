@@ -515,6 +515,35 @@ function RamenCup.tableBite(copy: BasePart, left: number)
 	end
 end
 
+-- (D-1189, user 2026-11-10: "컵라면 물 받은 후 테이블에 놓은 상태로 클릭하면 테이블에
+-- 놓인 상태에서 뚜껑 열리게 해") the cooked cup opened where it stands on the table:
+-- the copy (and the tool kept aside) go "ready", steam from the broth, the
+-- lid's sound; the cup stays on the table for the chopsticks. Before the 10 s
+-- are over it only says how long is left.
+function RamenCup.openOnTable(tool: Tool, copy: BasePart): (boolean, string?)
+	if tool:GetAttribute("Ramen") ~= "cooking" then return false, nil end
+	local at = tool:GetAttribute("RamenCookAt")
+	local left = if typeof(at) == "number" then RamenCup.CookSeconds - (now() - at) else 0
+	if left > 0 then
+		return false, string.format("라면이 익고 있어요. %d초만 기다려 주세요.", math.ceil(left))
+	end
+	tool:SetAttribute("Ramen", "ready")
+	tool.ToolTip = "눌러서 먹기"
+	local handle = tool:FindFirstChild("Handle") :: BasePart?
+	for _, root in ipairs({ copy :: Instance, handle :: Instance }) do
+		if root then
+			for _, e in ipairs(root:GetDescendants()) do
+				if e:IsA("ParticleEmitter") and e.Name == "LidSteam" then e:Destroy() end
+			end
+			local soup = root:FindFirstChild("Soup", true) :: BasePart?
+			if soup and not soup:FindFirstChild("Steam") then steam(soup, 22, math.max(soup.Size.X, soup.Size.Z) * 0.75) end
+			paint(root, "ready")
+		end
+	end
+	playOnce(copy, SOUND_LID, 0.8)
+	return true, nil
+end
+
 -- a copy put on a table: the whole cup as it is now, the sticks standing in it
 function RamenCup.tableLook(copy: BasePart, tool: Tool)
 	for _, d in ipairs(copy:GetDescendants()) do

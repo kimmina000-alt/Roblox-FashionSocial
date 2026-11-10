@@ -1030,6 +1030,38 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	-- soup and noodles: the surface sinks a third of the bowl per bite
 	local surface = (kind == "bowl" or kind == "ricebowl" or kind == "noodle") and handle:FindFirstChild("Fill")
 	if surface then surface:SetAttribute("EatDrop", (if kind == "noodle" then 0.5 else 0.3) * k) end
+	-- (D-1257) cups and bottles are drunk from the rim (EatMotionController); a
+	-- glass with a straw still uses the straw
+	if kind == "cup" or kind == "bottle" then tool:SetAttribute("Drink", true) end
+	-- (D-1254, user 2026-11-10: "국밥에서 김 올라오게 하기") steam from the top of the
+	-- 국밥 (the cup ramen's look, a little softer); the copy put on a table carries it
+	if kind == "bowl" then
+		local top = tool:GetAttribute("EatHi")
+		local at = Instance.new("Attachment")
+		at.Name = "SteamPoint"
+		at.Position = Vector3.new(0, if typeof(top) == "number" then top else 0.3, 0)
+		at.Parent = handle
+		local e = Instance.new("ParticleEmitter")
+		e.Name = "Steam"
+		e.Texture = "rbxasset://textures/particles/smoke_main.dds"
+		e.Color = ColorSequence.new(Color3.new(1, 1, 1))
+		e.LightEmission = 0.15
+		e.Transparency = NumberSequence.new({ NumberSequenceKeypoint.new(0, 1), NumberSequenceKeypoint.new(0.15, 0.45), NumberSequenceKeypoint.new(0.6, 0.7), NumberSequenceKeypoint.new(1, 1) })
+		local w = handle.Size.X
+		for _, d in ipairs(handle:GetDescendants()) do
+			if d:IsA("BasePart") and d.Transparency < 0.95 then w = math.max(w, d.Size.X, d.Size.Z) end
+		end
+		local size = math.clamp(w * 0.4, 0.3, 1.2)
+		e.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, size * 0.3), NumberSequenceKeypoint.new(1, size) })
+		e.Lifetime = NumberRange.new(1.2, 2.0)
+		e.Rate = 14
+		e.Speed = NumberRange.new(0.5, 1.1)
+		e.SpreadAngle = Vector2.new(15, 15)
+		e.EmissionDirection = Enum.NormalId.Top
+		e.Acceleration = Vector3.new(0, 0.4, 0)
+		e.RotSpeed = NumberRange.new(-30, 30)
+		e.Parent = at
+	end
 	-- (D-950) a click / tap is not a bite by itself any more: SnackController
 	-- decides (over a food table it puts the food down there, elsewhere it
 	-- calls tool:Activate(), the bite)
@@ -2165,6 +2197,14 @@ local function buildFoodPreviews()
 						h.Transparency = 1
 						h.Parent = m
 						BottleShapes.add(m, h.CFrame * CFrame.new(0, -0.9, 0), key, item.color, 1.9 / BottleShapes.height(key), h)
+						-- (D-1250, user 2026-11-10: "편의점 판매 상품 사진 없는 거 사진 추가") the can
+						-- is placed already: it stays where it is (moved off with the handle
+						-- below, the can was left 4,000 studs away and the card was empty)
+						m:SetAttribute("StaticPreview", true)
+						for _, d in ipairs(m:GetDescendants()) do
+							if d:IsA("BasePart") then d.Anchored = true end
+							if d:IsA("WeldConstraint") or d:IsA("JointInstance") then d:Destroy() end
+						end
 					else
 						local tool = makeTool(item)
 						for _, d in ipairs(tool:GetChildren()) do d.Parent = m end
@@ -2178,7 +2218,7 @@ local function buildFoodPreviews()
 	end
 	-- hold each handle still far below the map, let the welds settle
 	for i, m in ipairs(made) do
-		local handle = m:FindFirstChild("Handle")
+		local handle = if m:GetAttribute("StaticPreview") then nil else m:FindFirstChild("Handle")
 		if handle and handle:IsA("BasePart") then
 			handle.Anchored = true
 			handle.CFrame = CFrame.new(i * 20, -4000, 0)
@@ -2193,7 +2233,7 @@ local function buildFoodPreviews()
 	stage.Parent = workspace
 	for _ = 1, 3 do game:GetService("RunService").Heartbeat:Wait() end
 	for i, m in ipairs(made) do
-		local handle = m:FindFirstChild("Handle")
+		local handle = if m:GetAttribute("StaticPreview") then nil else m:FindFirstChild("Handle")
 		for _, d in ipairs(m:GetDescendants()) do
 			if d:IsA("BasePart") then d.Anchored = true end
 		end
@@ -2272,6 +2312,13 @@ local function spoonFromTable(player: Player, model: any, piece: any): (boolean,
 	-- on the table is eaten there with chopsticks; before it is cooked (lid, hot
 	-- water) and for the last sip of broth it comes back to the hand as before
 	local ramen = entry.tool:GetAttribute("Ramen")
+	-- (D-1189, user 2026-11-10: "컵라면 물 받은 후 테이블에 놓은 상태로 클릭하면 테이블에
+	-- 놓인 상태에서 뚜껑 열리게 해") water poured and on the table: the lid comes
+	-- off there (RamenCup.openOnTable), the cup stays put
+	if ramen == "cooking" then
+		if (model :: Model):GetAttribute("Busy") then return false, nil end
+		return RamenCup.openOnTable(entry.tool, entry.copy)
+	end
 	local onTable = entry.soup or (ramen == "ready" and ((entry.tool:GetAttribute("Bites") :: number?) or 0) > 1)
 	if not onTable then
 		-- (D-1037, user 2026-11-09: "물 테이블에 설치하면 못 먹음") a tap on a drink

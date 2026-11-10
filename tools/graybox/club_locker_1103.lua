@@ -277,6 +277,32 @@ hole("stair hall door (corridor end)", 187.8, F - 0.5, -290, 190.4, F + 21, -275
 -- (from x 187.4: the lounge's floor-edge light line is cut across the doorway too, D-827)
 hole("stair hall door (2F lounge)", 187.4, V + 0.01, -273, 190.4, V + UDH, -259, wallOnly)
 hole("locker passage (corridor wall)", PX0, F - 0.5, -292.4, PX1, F + 21, -289.9, wallOnly)
+-- (D-1259, user 2026-11-10: "락커룸 복도 변경되면서 조명선 위치 어긋남 정리") the corridor's
+-- south floor light (CorridorNeon_W, z -289.9) still began at the old passage's
+-- east side (x 146.45): it crossed the new doorway (to 151.5). It begins at PX1
+-- now, where the passage's own east line (FloorLED) meets it; runs again safely.
+for _, p in ipairs(club:GetChildren()) do
+	if p:IsA("BasePart") and p.Name == "CorridorNeon_W" and math.abs(p.Position.Z - (-289.9)) < 0.6 then
+		local alongZ = p.Size.Z >= p.Size.X -- (which local axis is the long one)
+		local len = if alongZ then p.Size.Z else p.Size.X
+		local westX = p.Position.X - len / 2 -- (the line runs along world x)
+		local eastX = p.Position.X + len / 2
+		local startX = PX1 - 0.06
+		local endX = PX0 + 0.06
+		if westX < startX - 0.05 and eastX > startX + 1 then
+			-- the east piece: from the passage's east line on
+			local newLen = eastX - startX
+			p.CFrame = CFrame.new((eastX + startX) / 2, p.Position.Y, p.Position.Z) * p.CFrame.Rotation
+			p.Size = if alongZ then Vector3.new(p.Size.X, p.Size.Y, newLen) else Vector3.new(newLen, p.Size.Y, p.Size.Z)
+		elseif eastX < PX0 and eastX > PX0 - 6 then
+			-- the west piece (x 65.5 .. 132.5, the old opening's west side): on to the
+			-- passage's west line, over the wall that closed the old opening
+			local newLen = endX - westX
+			p.CFrame = CFrame.new((westX + endX) / 2, p.Position.Y, p.Position.Z) * p.CFrame.Rotation
+			p.Size = if alongZ then Vector3.new(p.Size.X, p.Size.Y, newLen) else Vector3.new(newLen, p.Size.Y, p.Size.Z)
+		end
+	end
+end
 -- (D-1134) the corridor wall closed again where the opening was before (x 132.5..137.5),
 -- unless a wall already stands there (a freshly built club zone)
 do
@@ -441,7 +467,8 @@ do
 	local X0, X1, Z0, Z1 = LX0, LX1, LZ0, LZ1
 	local TOP = -3 -- the passage and the doorway (21 high)
 	local RTOP = 10 -- the room's ceiling (D-1134, the user: was -3)
-	local WHITE = Color3.fromRGB(246, 244, 240)
+	-- (D-1265: a warm light beige instead of bright white, less glare)
+	local WHITE = Color3.fromRGB(226, 220, 211)
 	local PLASTER = { mat = Enum.Material.Plaster }
 	local wood = box("Floor", X0 - 1.6, F - 1, Z0 - 1.6, X1 + 1.6, F, Z1, Color3.fromRGB(214, 190, 156), R, { mat = Enum.Material.WoodPlanks })
 	wood.Reflectance = 0.05
@@ -478,10 +505,35 @@ do
 		for k = 0, 1 do
 			local cx = X0 + (X1 - X0) * (i + 0.5) / 4
 			local cz = Z0 + (Z1 - Z0) * (k + 0.5) / 2
-			local p = box("LightPanel", cx - 5, RTOP - 0.15, cz - 5, cx + 5, RTOP, cz + 5, Color3.fromRGB(255, 252, 245), R, NEON())
-			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 24 sl.Brightness = 2.2 sl.Angle = 120
+			-- (D-1265: the panels a softer white, they glared with the bloom)
+			local p = box("LightPanel", cx - 5, RTOP - 0.15, cz - 5, cx + 5, RTOP, cz + 5, Color3.fromRGB(226, 222, 214), R, NEON())
+			-- (D-1258, user 2026-11-10: "락커룸 층고 높이면서 조명 빛이 아래는 안 닿아 아래까지 닿게
+			-- 수정") the room is ~34 high since D-1134: range 24 → 40 (SurfaceLight's
+			-- reach), a little brighter
+			-- (D-1265, user 2026-11-10, screenshot: "락커룸 너무 눈부셔 조명 다시 올리고 ...
+			-- 조명선 넣을까") 2.6 burnt the white walls out: back to 0.9, the reach just
+			-- to the floor (36); the floor is lit by the line lights below
+			local sl = Instance.new("SurfaceLight") sl.Face = Enum.NormalId.Bottom sl.Range = 36 sl.Brightness = 0.9 sl.Angle = 120
 			sl.Color = Color3.fromRGB(255, 248, 238) sl.Shadows = false sl.Parent = p
 		end
+	end
+	-- (D-1265) LINE LIGHTS along the foot of every wall (like the corridor's floor
+	-- lines): a thin warm neon strip, its face to the room giving the light
+	-- (one SurfaceLight along each strip lights the floor by the walls evenly)
+	do
+		local WARM = Color3.fromRGB(255, 226, 190)
+		local Y0, Y1 = F + 0.35, F + 0.5
+		local function strip(x0, z0, x1, z1, face)
+			local s = box("WallLine", x0, Y0, z0, x1, Y1, z1, WARM, R, NEON())
+			local l = Instance.new("SurfaceLight")
+			l.Face = face l.Range = 16 l.Brightness = 1.4 l.Angle = 110
+			l.Color = WARM l.Shadows = false l.Parent = s
+		end
+		strip(X0 + 0.3, Z0, X1 - 0.3, Z0 + 0.1, Enum.NormalId.Back) -- north wall
+		strip(X0, Z0 + 0.3, X0 + 0.1, Z1 - 0.3, Enum.NormalId.Right) -- west wall
+		strip(X1 - 0.1, Z0 + 0.3, X1, Z1 - 0.3, Enum.NormalId.Left) -- east wall
+		strip(X0 + 0.3, Z1 - 0.1, PX0 - 0.4, Z1, Enum.NormalId.Front) -- south wall, west of the doorway
+		strip(PX1 + 0.4, Z1 - 0.1, X1 - 0.3, Z1, Enum.NormalId.Front) -- and east of it
 	end
 	-- LOCKERS on the north and east walls, nearly to the ceiling (D-827): the
 	-- user's locker photo (docs/04_ART/references/locker_ref_1103.png, 3 × 2

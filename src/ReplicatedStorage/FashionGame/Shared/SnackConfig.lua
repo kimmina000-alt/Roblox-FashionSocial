@@ -123,7 +123,8 @@ SnackConfig.Shops = {
 			{ key = "chips", name = "감자칩", kind = "bag", color = Color3.fromRGB(250, 205, 50), coins = 3, section = "💰 3" },
 			{ key = "chocosnack", name = "빼쭉이", kind = "bag", color = Color3.fromRGB(150, 60, 50), coins = 3, wrapped = true, stickOut = true, section = "💰 3" },
 			{ key = "bananamilk", name = "바나나우유", kind = "bottle", color = Color3.fromRGB(255, 225, 110), coins = 3, section = "💰 3" },
-			{ key = "soda", name = "탄산음료 캔", kind = "bottle", color = Color3.fromRGB(220, 50, 60), coins = 3, section = "💰 3" },
+			-- (D-1251, user 2026-11-10: "편의점 탄산음료캔 삭제") the plain red "탄산음료 캔" is off
+			-- the menu: the five club cans below are the store's cans
 			-- (D-1135, user 2026-11-10: "편의점 탄산음료, 클럽에서 파는 캔 음료 모두 넣기" → 편의점에서
 			-- 팔기) the club bar's cans too, the very same can (6 cups: put it on a table
 			-- and share it, or drink from it), at the club's coin price (물 = 생수 above)
