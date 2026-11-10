@@ -217,13 +217,15 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	local videoDone = false
 	local message: string? = nil
 	local recordingVideo = false
+	-- (D-1180, user 2026-11-10: "영상 저장 > 다 보고 난 뒤에 공유하기 보여 주면서 공유하기로만
+	-- 저장할 수 있다고 알려주기. 공유해야 저장되게 해 지금 걍 저장되네") the video is kept
+	-- here, not saved; after the replay the share sheet comes up (see the end)
+	local video: any = nil
 	local ok, started = pcall(function()
 		return CaptureService:StartVideoCaptureAsync(function(result, capture)
 			videoDone = true
 			if (result == Enum.VideoCaptureResult.Success or result == Enum.VideoCaptureResult.TimeLimitReached) and capture then
-				pcall(function()
-					CaptureService:PromptSaveCapturesToGallery({ capture }, function() end)
-				end)
+				video = capture
 			else
 				message = "영상을 저장하지 못했어요. (" .. tostring(result) .. ")"
 			end
@@ -308,6 +310,20 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	for _, tag in ipairs(hiddenTags) do if tag.Parent then tag.Enabled = true end end
 	Reel.hideStools(nil, false)
 	playing = false
+	-- (D-1180) the whole replay seen: the share sheet, and the note that sharing
+	-- is the only way to keep the video (pick 저장 there)
+	if video then
+		onDone("🎬 영상은 공유하기로만 저장할 수 있어요. 공유 화면에서 저장을 골라 주세요.")
+		local shared = pcall(function()
+			CaptureService:PromptShareCapture(Content.fromObject(video), "", function()
+				onDone("🎬 영상을 공유했어요!")
+			end, function()
+				onDone("공유하지 않아서 영상이 저장되지 않았어요. 🎬 영상 저장을 다시 눌러 주세요.")
+			end)
+		end)
+		if not shared then onDone("이 기기에서는 영상을 공유할 수 없어요.") end
+		return
+	end
 	onDone(message)
 end
 
@@ -317,16 +333,23 @@ end
 -- hidden on this screen while it shoots (and in the motion video), shown again after
 local hiddenStools: {[BasePart]: boolean} = {}
 local stoolBooth: Instance? = nil -- (the booth last shot in: the video hides its stools too)
+local stoolWatch: RBXScriptConnection? = nil
+local function hideStool(p: Instance)
+	if p:IsA("BasePart") and string.match(p.Name, "^Stool") and not hiddenStools[p] then
+		hiddenStools[p] = true
+		p.LocalTransparencyModifier = 1
+	end
+end
 function Reel.hideStools(booth: Instance?, hide: boolean)
 	if booth then stoolBooth = booth end
 	if hide and booth then
-		for _, p in ipairs(booth:GetChildren()) do
-			if p:IsA("BasePart") and string.match(p.Name, "^Stool") and not hiddenStools[p] then
-				hiddenStools[p] = true
-				p.LocalTransparencyModifier = 1
-			end
-		end
+		-- (D-1181: descendants, so the 키높이 발판's stool inside BoothStep goes too,
+		-- and one put down while shooting)
+		for _, p in ipairs(booth:GetDescendants()) do hideStool(p) end
+		if stoolWatch then stoolWatch:Disconnect() end
+		stoolWatch = booth.DescendantAdded:Connect(hideStool)
 	elseif not hide then
+		if stoolWatch then stoolWatch:Disconnect() stoolWatch = nil end
 		for p in pairs(hiddenStools) do
 			if p.Parent then p.LocalTransparencyModifier = 0 end
 		end

@@ -3906,3 +3906,30 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 마지막 자세(v2 20, 127455820218376, 곡 179.0~): 턱 아래 왼손의 손가락이 위를 향하던 것 → 손목 안쪽으로 70°(`bend` LeftHand z +70, 8.9~9.3초에 들어감). Play: 손가락이 턱 아래 가로(1.00, 0, 0), 손등이 위(0.99), 손등 윗면이 턱 높이.
 - `bend`는 mirror 곡에서도 게임에 보이는 손 이름 그대로 적용됨(RightHand로 적었더니 오른손에 걸림).
 - (2026-11-10) 사용자: "캐치캐치 설정값 수정 전으로 바꾸기" → YENA-Catch Catch -40/-25/-40 boost2 10으로 되돌림. 남은 변경: 소원을 말해봐.
+
+(D-1166 is the DJ grant on feat/dj-grant-1110; D-1167..D-1179 left for the choreography sessions, which share numbers: the 오후네컷 batch below starts at D-1180.)
+
+## D-1180 오후네컷 영상은 공유해야 저장 (2026-11-10)
+- 사용자: "영상 저장 > 다 보고 난 뒤에 공유하기 보여 주면서 공유하기로만 저장할 수 있다고 알려주기. 공유해야 저장되게 해 지금 걍 저장되네"
+- PhotoMotionReel: 녹화가 끝나도 바로 갤러리에 저장하지 않음(PromptSaveCapturesToGallery 삭제). 영상을 끝까지 다 보고 나면 "🎬 영상은 공유하기로만 저장할 수 있어요. 공유 화면에서 저장을 골라 주세요." 안내와 함께 공유 화면(CaptureService:PromptShareCapture, Content.fromObject)을 띄움. 공유를 안 하면 "공유하지 않아서 영상이 저장되지 않았어요" 안내.
+
+## D-1181 키높이 발판은 사진에 안 보이게 (2026-11-10)
+- 사용자: "다 찍은 사진에 키높이 발판 보임. 안 보이게 해."
+- PhotoRender: 저장된 사진에 발판(entry.s, D-1139의 의자 모양)을 더 이상 그리지 않음. 사람은 발판 높이에 그대로 있음.
+- 촬영 화면: 부스 의자 숨기기(Reel.hideStools)가 BoothStep 안의 의자 부품까지 숨기고, 촬영 중에 새로 놓은 발판도 바로 숨김(DescendantAdded).
+
+## D-1182 포즈 창은 옆으로 넘기기 (2026-11-10)
+- 사용자: "포즈 지금 아래로 드래그인데 옆으로 드래그로 변경"
+- PhotoBoothController: 포즈 목록이 가로로 스크롤(ScrollingDirection X, AutomaticCanvasSize X). 버튼은 한 줄을 위에서 아래로 채운 다음 오른쪽 줄로(FillDirection Vertical). 줄 수는 창 높이에 맞춰, 한 화면에 두 줄씩 보이게 layoutShoot에서 계산.
+
+## D-1183 오후네컷 표정 8가지 (2026-11-10)
+- 사용자: "표정 추가"
+- 포즈 창의 높이 맞추기 버튼 다음에: 😊 미소, 😁 활짝, 😉 윙크, 😮 놀람, 😆 눈웃음, 🐡 볼빵빵, 😤 뾰로통, 😌 눈감기. 누르면 분홍(켜짐), 한 번 더 누르면 꺼짐.
+- 서버 동작 "Face" → 캐릭터 속성 BoothFace. BoothPoseController가 매 프레임 애니메이션 다음에 머리의 FaceControls 값을 넣음(무드 애니메이션이 얼굴을 덮어쓰므로). 사진 데이터 entry.f에 저장, PhotoRender가 사진 속 사람에게도 적용. 부스를 나가면 지움.
+- 움직이는 얼굴(다이내믹 헤드)만 됨. 옛날 머리는 "움직이는 얼굴에서만 표정이 바뀌어요" 안내.
+- Studio 확인: 활짝(이 보이는 웃음), 윙크, 눈웃음이 보임. 메롱은 혀가 없는 머리가 많아(시험한 머리도 없음) 눈웃음으로 바꿈.
+
+## D-1184 오후네컷 간판 글꼴 · 연핑크 (2026-11-10)
+- 사용자: "간판 폰트 다른 걸로 후보 줘. 색상 연핑크로 변경" → 후보 8개(docs/04_ART/references/ohucuts_sign_fonts.png) 중 8번 강원교육튼튼.
+- 간판 3개(정면 ◎ 오후네컷, 북쪽·남쪽 ◎ OHU4cuts)는 글꼴이 없는 3D 획 글자였음 → 같은 자리·길이의 이미지판으로 교체: 연핑크 #FFB6CE, 진한 핑크 테두리로 입체감, 배경 투명. 이미지 86726202724660 (오후네컷), 78065484134233 (OHU4cuts).
+- 맵 체인 마지막 단계 tools/graybox/ohucuts_sign_1110.lua (LAYOUT.md 3-21). 예전 3D 글자는 ServerStorage.ParkedOhuSigns에 보관. 여러 번 돌려도 같음.

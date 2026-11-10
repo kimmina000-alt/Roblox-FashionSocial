@@ -83,6 +83,47 @@ function BoothPose.stool(parent: Instance, cf: CFrame, w: number, h: number, d: 
 	return made
 end
 
+-- (D-1183, user 2026-11-10: "오후네컷 표정 추가") faces for the photo: values for the
+-- head's FaceControls (dynamic heads only; classic heads have none). The
+-- character attribute BoothFace = a key; BoothPoseController sets it after the
+-- animations every step (the mood animation would undo it), PhotoRender on the
+-- saved photo (entry.f).
+BoothPose.Faces = {
+	{ key = "smile", label = "😊 미소", v = { LeftLipCornerPuller = 0.8, RightLipCornerPuller = 0.8, LeftCheekRaiser = 0.6, RightCheekRaiser = 0.6 } },
+	{ key = "grin", label = "😁 활짝", v = { LeftLipCornerPuller = 1, RightLipCornerPuller = 1, LeftCheekRaiser = 0.8, RightCheekRaiser = 0.8, JawDrop = 0.35, LeftUpperLipRaiser = 0.4, RightUpperLipRaiser = 0.4 } },
+	{ key = "wink", label = "😉 윙크", v = { LeftEyeClosed = 1, LeftCheekRaiser = 0.7, LeftLipCornerPuller = 0.7, RightLipCornerPuller = 0.5 } },
+	{ key = "wow", label = "😮 놀람", v = { JawDrop = 0.6, Funneler = 0.4, LeftInnerBrowRaiser = 1, RightInnerBrowRaiser = 1, LeftOuterBrowRaiser = 1, RightOuterBrowRaiser = 1, LeftEyeUpperLidRaiser = 0.8, RightEyeUpperLidRaiser = 0.8 } },
+	-- (메롱 was tried: many heads have no tongue, Studio check 2026-11-10 → 눈웃음)
+	{ key = "squint", label = "😆 눈웃음", v = { LeftEyeClosed = 0.7, RightEyeClosed = 0.7, LeftCheekRaiser = 1, RightCheekRaiser = 1, LeftLipCornerPuller = 1, RightLipCornerPuller = 1, JawDrop = 0.1 } },
+	{ key = "puff", label = "🐡 볼빵빵", v = { LeftCheekPuff = 1, RightCheekPuff = 1, LipsTogether = 1 } },
+	{ key = "pout", label = "😤 뾰로통", v = { Pucker = 0.8, LeftBrowLowerer = 0.8, RightBrowLowerer = 0.8, ChinRaiser = 0.5 } },
+	{ key = "calm", label = "😌 눈감기", v = { LeftEyeClosed = 1, RightEyeClosed = 1, LeftLipCornerPuller = 0.4, RightLipCornerPuller = 0.4 } },
+}
+local FACE_BY_KEY: {[string]: any} = {}
+local FACE_PROPS: {[string]: boolean} = {}
+for _, f in ipairs(BoothPose.Faces) do
+	FACE_BY_KEY[f.key] = f
+	for name in pairs(f.v) do FACE_PROPS[name] = true end
+end
+function BoothPose.isFace(key: any): boolean
+	return typeof(key) == "string" and FACE_BY_KEY[key] ~= nil
+end
+function BoothPose.faceControls(model: Model): Instance?
+	local head = model:FindFirstChild("Head")
+	return head and head:FindFirstChildOfClass("FaceControls")
+end
+-- the face on (key) or every face value back to 0 (key nil); false: no FaceControls
+function BoothPose.face(model: Model, key: string?): boolean
+	local fc = BoothPose.faceControls(model)
+	if not fc then return false end
+	local f = key and FACE_BY_KEY[key]
+	for name in pairs(FACE_PROPS) do
+		local value = if f then (f.v[name] or 0) else 0
+		pcall(function() (fc :: any)[name] = value end)
+	end
+	return true
+end
+
 -- Back to rest (the animations take over from there).
 function BoothPose.stand(model: Model)
 	for _, joint in ipairs({
