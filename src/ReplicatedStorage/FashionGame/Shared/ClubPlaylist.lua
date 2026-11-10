@@ -112,7 +112,10 @@ M.Playlist = {
 		{ id = 140073525951941, at = 38.17, blend = 0.25 }, { id = 91647545899849, at = 45.78, blend = 0.74 }, { id = 86108317246080, at = 53, blend = 0.68 },
 		{ id = 92410075296555, at = 57.9, blend = 0.37 }, { id = 112518247434645, at = 68, blend = 0.98 }, { id = 99913080692802, at = 76.58 },
 		{ id = 130897128636432, at = 88.87, blend = 0.6 }, { id = 114907255207310, at = 94.68, blend = 0.61 }, { id = 79044145915210, at = 103.9, blend = 0.91 },
-		{ id = 138182761294826, at = 110, blend = 1 }, { id = 90945372575300, at = 118 }, { id = 127427471547985, at = 125.3 },
+		{ id = 138182761294826, at = 110, blend = 1, stop = 117.3 },
+		-- (D-1192, user: "1:58 포즈에서 튀는 부분 있음. 삭제하고 59 포즈로 자연스럽게 연결"): the body flicked 68° to the front and back with the
+		-- arms flung out at song 117.3-118.6: 17 comes in at its 1:59 pose (0.9 s), started 1.6 s early and slowed
+		{ id = 90945372575300, at = 118.9, from = 0.9, blend = 0.5, slowIn = { 0.6, 1.6 } }, { id = 127427471547985, at = 125.3 },
 		-- (D-1022, user: "BAD2에 넣은 안무 중 가슴튕기는안무 부분 찾아서 BAD에 있는 가슴 튕기는 안무로 수정"): 19's chest bounce
 		-- (its 0.8-4.5 s, arm across the chest, hand to the waist) = ATEEZ-BAD's piece 21 with its fixes (pops, arm pose, sharp) on
 		-- the same song clock (`from = 0.75`) until 141.25, then 19 goes on from its 4.0 s. BAD crosses the right arm, BAD 2 (mirrored video) the left
@@ -120,16 +123,21 @@ M.Playlist = {
 		{ id = 138812417192850, at = 148.37 } }, autoChoreo = true },
 	-- (D-1122, user 2026-11-09: low / mid / high / boost2 from the user)
 	{ channel = "K-POP", title = "소녀시대-소원을 말해봐(Genie)", soundId = 128270208751659, length = 76, lab = { speed = 1, tempo = 0.334, volume = 10, boost = 10, boost2 = 2, octave = 0.5, low = -28, mid = -13.5, high = -4, engine = "sound" },
-		-- D-897: Genie1..26 (video = song - 13.55 s, the cover video cut the intro)
+		-- D-897: Genie1..26 (video = song - 13.55 s, the cover video cut the intro); 10 slowIn (D-1192, user: "1:42~43 모션 거의 멈춰
+		-- 있는 것처럼 보임. 1:41 안무에서 1:44 안무로 이어지게": 9 stands at its end and 10 came in over 1 s: 10 starts 2 s early, slowed; 15 blend 0.08: its spin only works at full weight, then carries 14's turn on)
 		choreo = { { id = 122991710923104, at = 13.82 }, { id = 118462778307290, at = 20.62, blend = 0.56 }, { id = 127323208506008, at = 26.83, blend = 0.53 },
 		{ id = 121572726416294, at = 34.07, blend = 0.91 }, { id = 101676644495491, at = 45.32 }, { id = 105545108302127, at = 58.39 },
 		{ id = 107809363798601, at = 68.14, blend = 0.52 }, { id = 97769840770691, at = 81.85, blend = 0.28 }, { id = 108803469428764, at = 93.43, blend = 0.76 },
-		{ id = 76060752564499, at = 103.47, blend = 1 }, { id = 136331779515321, at = 114.18, blend = 1 }, { id = 94271336995595, at = 120.92, blend = 0.49 },
-		{ id = 76687116604339, at = 132.64 }, { id = 94143895222958, at = 141.11 }, { id = 137553505478362, at = 142.41, blend = 0.58 },
+		{ id = 76060752564499, at = 103.47, blend = 0.5, slowIn = { 1.6, 2.0 } }, { id = 136331779515321, at = 114.18, blend = 1 }, { id = 94271336995595, at = 120.92, blend = 0.49 },
+		{ id = 76687116604339, at = 132.64 }, { id = 94143895222958, at = 141.11 }, { id = 137553505478362, at = 142.41, blend = 0.08 },
 		{ id = 120592352351697, at = 153.36, blend = 0.4 }, { id = 110416135198674, at = 155.43, blend = 0.52 }, { id = 124091598492660, at = 156.86, blend = 0.49 },
 		{ id = 98754942494305, at = 161.5, blend = 0.6 }, { id = 105066453794976, at = 170.27, blend = 0.49 }, { id = 130670560182985, at = 171.27, blend = 0.6 },
 		{ id = 125902811896005, at = 179.22, blend = 1 }, { id = 105428606733839, at = 188.56, blend = 0.84 }, { id = 127287424998997, at = 200.44, blend = 0.71 },
-		{ id = 115574620758490, at = 201.47, blend = 0.48 }, { id = 127828014236660, at = 210.11, blend = 0.94 } }, autoChoreo = true },
+		-- (D-1168, user: "3:30 멈추는 팔 있음 동작 연결되게 중간이 튀는 프레임 삭제해도 됨"): 26 came in over 0.94 s while 25 stood
+		-- on its last pose, so the arms stopped: 26 from 0.2 s (the frame closest to 25's end, 21°), blend 0.35, its
+		-- first 0.3 s played over 0.54 s from 210.07 (where 25 ends);
+		-- "3:44 무릎 꿇고 있을 때 한번 위로 들썩": its last 0.4 s is played over 11.4 s more, so she stays kneeling to the song's end
+		{ id = 115574620758490, at = 201.47, blend = 0.48 }, { id = 127828014236660, at = 210.31, from = 0.2, blend = 0.35, slowIn = { 0.3, 0.24 }, slowOut = { 0.4, 11.0 } } }, autoChoreo = true },
 	-- (D-919, user 2026-11-06: new upload, tuned in the lab; was 91762270038050, a 3× file of 53.553 s)
 	-- the D-919 file 133586602463513 was the same edit at 1.0908× (3 × 53.553 ÷ 147.285; loudness of both matched,
 	-- same start, no drift), so `at` and the stage camera keep the old song clock
@@ -169,7 +177,7 @@ M.Playlist = {
 		choreo = { { id = 116659270658163, at = 0.37 }, { id = 84899474236257, at = 3.94, blend = 0.9 }, { id = 77269060609340, at = 9.26, blend = 1 },
 		{ id = 84913058689124, at = 12.31, blend = 0.41 }, { id = 101539030624816, at = 21.77, blend = 0.77 }, { id = 75370013537988, at = 31.64, blend = 1 },
 		{ id = 107740496143451, at = 38.46, blend = 0.54 }, { id = 140553219106220, at = 42.99 }, { id = 96534907636929, at = 46.37, blend = 0.67 },
-		{ id = 133820711201781, at = 51.9, blend = 0.45 }, { id = 79064359810628, at = 55.33, blend = 0.71 }, { id = 103495705227564, at = 61.2, blend = 0.98 },
+		{ id = 133820711201781, at = 51.9, blend = 0.45 }, { id = 79064359810628, at = 55.33, blend = 0.71 }, { id = 103495705227564, at = 61.2, blend = 0.4 },
 		{ id = 119064865727357, at = 62.44, blend = 0.68 }, { id = 127521799015186, at = 65.58, blend = 0.47 }, { id = 131229132989104, at = 71.02, blend = 0.4 },
 		{ id = 103134109095683, at = 76, blend = 0.6 }, { id = 83720687579594, at = 79.03, blend = 1 }, { id = 107611961518863, at = 86.38, blend = 1 },
 		{ id = 79402676603023, at = 90.05, blend = 0.6 }, { id = 112123988214223, at = 95.23, blend = 0.98 }, { id = 128563000052459, at = 97.92, blend = 0.75 },
@@ -212,12 +220,15 @@ M.Playlist = {
 		{ id = 101333518191621, at = 24.37, blend = 0.8 }, { id = 70997868814427, at = 26.97, blend = 1 }, { id = 94645609133900, at = 40.17, blend = 0.6 },
 		{ id = 124676885767926, at = 49.8, blend = 0.84 }, { id = 72328693870219, at = 56.03, blend = 0.88 }, { id = 115675906513114, at = 60.02, blend = 1 },
 		{ id = 74892270940916, at = 65, blend = 0.94 }, { id = 119643676032061, at = 68, blend = 0.83 }, { id = 110925421163686, at = 73.07, blend = 0.5 },
-		{ id = 88699205496882, at = 81, blend = 1 }, { id = 98655639854740, at = 92.0, blend = 0.6 }, { id = 118088106367753, at = 96.23, blend = 0.77 }, { id = 112515342357817, at = 102.07, blend = 0.7 },
+		{ id = 88699205496882, at = 81, blend = 1, stop = 82.0 },
+		-- (D-1200, user: "레몬탱 1:22~1:27 부분 안무 0:27 안무 쓰기"): 1:22-1:27 plays the 0:27 dance (6, 70997868814427, from 0.03
+		-- = song 27.0), then 13 goes on at its own 6.0 s (song 87.0: the paws)
+		{ id = 70997868814427, at = 82.0, from = 0.03, blend = 0.8, stop = 87.0 }, { id = 88699205496882, at = 87.0, from = 6.0, blend = 0.5 }, { id = 98655639854740, at = 92.0, blend = 0.6 }, { id = 118088106367753, at = 96.23, blend = 0.77 }, { id = 112515342357817, at = 102.07, blend = 0.7 },
 		-- (D-1064, user 2026-11-09: "레몬탱 안무 ID 변경 19 … 24") clips 19-24 cut again (clips.json, 108.00-144.33):
 		-- 19 108.00 (4.0 s), 20 112.00 (3.0), 21 115.00 (4.0), 22 119.00 (9.43), 23 128.43 (7.57), 24 136.00 (8.33);
 		-- were 86206068065508 @108, 81450928736064 @114, 77958598718744 @116.58, 83504291197334 @119.38,
 		-- 115787352538480 @127.05, 97075080696819 @140.88
-		{ id = 125963510042067, at = 105, blend = 0.66 }, { id = 128761870790634, at = 108, blend = 0.3 }, { id = 108870214091189, at = 112, blend = 0.6 },
+		{ id = 125963510042067, at = 105, blend = 0.66 }, { id = 128761870790634, at = 108, blend = 0.1 }, { id = 108870214091189, at = 112, blend = 0.6 },
 		{ id = 93178194866716, at = 115, blend = 0.6 }, { id = 92757942038731, at = 119, blend = 0.6 }, { id = 110433660488854, at = 128.43, blend = 0.6 },
 		{ id = 87039448079710, at = 136, blend = 0.6 }, { id = 99840608563579, at = 144.33, blend = 1 }, { id = 134866535240552, at = 151.87, blend = 0.66 },
 		{ id = 98315614070332, at = 159.1, blend = 0.61 } }, autoChoreo = true },

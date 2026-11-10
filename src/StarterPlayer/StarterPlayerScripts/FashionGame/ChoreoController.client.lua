@@ -16,6 +16,8 @@ local RunService = game:GetService("RunService")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local ChoreoSmooth = require(script.Parent:WaitForChild("ChoreoSmooth"))
+local ChoreoBodyGuard = require(script.Parent:WaitForChild("ChoreoBodyGuard")) -- (D-1168) arms not through the body / each other
+local ChoreoMouth = require(script.Parent:WaitForChild("ChoreoMouth")) -- (D-1186) singing along
 local danceRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Dance") :: RemoteEvent
 local player = Players.LocalPlayer
 
@@ -164,6 +166,8 @@ end
 
 -- (D-811) the zigzag keyframes eased: each choreography animation playing
 -- adds its correction at its own time, as much as it shows (its weight)
+local levelY: {[Model]: { y: number, at: number }} = setmetatable({}, { __mode = "k" }) :: any -- (D-1188) `level`
+local levelOn: {[Model]: { e: number, at: number }} = setmetatable({}, { __mode = "k" }) :: any
 local function smoothJoints(character: Model, tracks: {AnimationTrack})
 	-- (Studio only: FashionGame attributes ChoreoSmoothingOff / ChoreoRetargetOff compare without them)
 	local smooth = ClubConfig.ChoreoSmoothing and not (RunService:IsStudio() and FashionGame:GetAttribute("ChoreoSmoothingOff"))
@@ -305,6 +309,21 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 							end
 						end
 					end
+					-- (D-1188, user: Lemon Tang "1:00~1:01 팔 들면서 한바퀴 도는데 몸 덜썩거림 수정") ChoreoFixes
+					-- `level = { from, to, ease? }`: the hips' height follows its own slow average there
+					-- (about 0.5 s), so a turn or steps do not bob the body up and down
+					local lvls = fx and fx.level
+					if lvls and lt then
+						for _, u in ipairs(if lvls.from then { lvls } else lvls) do
+							local tt = t.TimePosition
+							if tt > u.from and tt < u.to then
+								local e = math.clamp(math.min(tt - u.from, u.to - tt) / (u.ease or 0.3), 0, 1)
+								e = e * e * (3 - 2 * e) * weight
+								-- (applied after the floor lift, below: the lift was what bobbed)
+								levelOn[character] = { e = math.max(e, (levelOn[character] and os.clock() - levelOn[character].at < 0.02) and levelOn[character].e or 0), at = os.clock() }
+							end
+						end
+					end
 				end
 			end
 		end
@@ -320,6 +339,7 @@ end
 -- left alone (D-798 turned the dancer round), and it stops at walls and at
 -- the club's edge. The hips' own travel is then taken out below as before.
 local lastHips: {[AnimationTrack]: Vector3} = setmetatable({}, { __mode = "k" }) :: any
+local lastWalk: {[AnimationTrack]: number} = setmetatable({}, { __mode = "k" }) :: any
 local travelScale = 0.85 -- (the animator shrinks travel to the avatar's size; measured below)
 local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint, tracks: {AnimationTrack}, dt: number)
 	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
@@ -357,6 +377,26 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 					end
 					break
 				end
+			end
+		end
+		-- (D-1168, user: BAD 0:55 "몸이 보는 옆쪽으로 이동") ChoreoFixes `walk = { from, to, dist }`: the body
+		-- travels `dist` studs the way the hips face, eased in and out, on top of the capture's own travel
+		local walk = fixes and fixes.walk
+		if walk and t.WeightCurrent > 0.5 then
+			local tp = t.TimePosition
+			local done = 0
+			for _, w in ipairs(if walk.from then { walk } else walk) do
+				if tp >= w.from then
+					local f = math.clamp((tp - w.from) / (w.to - w.from), 0, 1)
+					done += f * f * (3 - 2 * f) * w.dist
+				end
+			end
+			local before = lastWalk[t]
+			lastWalk[t] = done
+			if before and done > before and done - before < 0.5 then
+				local look = joint.Transform.LookVector
+				local flat = Vector3.new(look.X, 0, look.Z)
+				if flat.Magnitude > 0.1 then move += flat.Unit * (done - before) / math.max(travelScale, 0.3) end
 			end
 		end
 		if here then
@@ -727,7 +767,17 @@ RunService.PreSimulation:Connect(function(dt)
 				local hips = joint.Transform
 				-- (D-995) lifted off the floor if the body went into it last frame
 				dancingNow[character] = true
-				joint.Transform = CFrame.new(0, hips.Y + (floorLift[character] or 0), 0) * hips.Rotation
+				local hy = hips.Y + (floorLift[character] or 0)
+				-- (D-1188) `level`: the height (lift included) follows its own slow average, at most 0.3
+				-- stud under where the lift wants it
+				local lv = levelOn[character]
+				if lv and os.clock() - lv.at < 0.1 then
+					local st = levelY[character]
+					local avg = if st and os.clock() - st.at < 0.3 then st.y + (hy - st.y) * 0.03 else hy
+					levelY[character] = { y = avg, at = os.clock() }
+					hy += (math.max(avg, hy - 0.3) - hy) * lv.e
+				end
+				joint.Transform = CFrame.new(0, hy, 0) * hips.Rotation
 				-- (D-992, user: Lemonade 2:17 "자세를 기본으로 누운 다음, 다른 곳 움직이지
 				-- 말고 왼쪽 다리만 쭉 뻗는 걸로") ChoreoFixes `freeze = { from, to, ease?,
 				-- except = { parts } }`: the pose at `from` is kept for every joint but
@@ -757,7 +807,8 @@ RunService.PreSimulation:Connect(function(dt)
 										if pose.LowerTorso then pose.LowerTorso = CFrame.new(0, -lift, 0) * pose.LowerTorso end
 										store[f] = pose
 									end
-									local e = math.clamp(math.min(tt - f.from, f.to - tt) / (f.ease or 0.3), 0, 1)
+									-- (D-1190) `easeOut`: a slower let-go than the fade in (Lemonade 2:22 lying → kneel)
+									local e = math.clamp(math.min((tt - f.from) / (f.ease or 0.3), (f.to - tt) / (f.easeOut or f.ease or 0.3)), 0, 1)
 									e = e * e * (3 - 2 * e) * math.min(t.WeightCurrent, 1)
 									-- (D-1062, user: Lemonade 2:22 "엉덩이랑 상체 고정. 흔들림") with the legs free, each
 									-- leg dipping under the floor lifted the frozen hips and they sank back as
@@ -819,6 +870,18 @@ RunService.PreSimulation:Connect(function(dt)
 					following.lastPose = last
 				end
 				limitSnaps(character, choreo, dt)
+				-- (D-1168) last: arms out of the torso and out of each other (ChoreoBodyGuard)
+				if not (RunService:IsStudio() and FashionGame:GetAttribute("ChoreoBodyGuardOff")) then
+					ChoreoBodyGuard.apply(character, bodyJoints(character))
+				end
+				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
+				do
+					local tr = playingTrack()
+					local st = if tr and FashionGame:GetAttribute("ClubMusicPaused") ~= true
+						then (workspace:GetServerTimeNow() - (FashionGame:GetAttribute("ClubTrackStart") or 0)) * ClubConfig.songRate(tr, FashionGame:GetAttribute("ClubMusicSpeed"))
+						else nil
+					ChoreoMouth.apply(character, tr, st, dt)
+				end
 			else
 				snapState[character] = nil
 				dancingNow[character] = nil
