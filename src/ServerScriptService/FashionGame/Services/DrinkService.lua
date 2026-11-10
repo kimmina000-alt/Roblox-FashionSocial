@@ -805,7 +805,7 @@ local function swig(player: Player): (boolean, string?)
 	Analytics.interact(player, "Drink") -- (D-1124)
 	if left <= 0 then
 		tool:Destroy()
-		return true, "다 마셨어요!"
+		return true, nil -- (D-1272, user 2026-11-11: "캔음료 먹고 다 마셨어요 문구 삭제")
 	end
 	local name = drinkLook(drink, tool:GetAttribute("Variant"))
 	tool:SetAttribute("Servings", left)

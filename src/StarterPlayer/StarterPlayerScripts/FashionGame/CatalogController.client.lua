@@ -1504,7 +1504,18 @@ updateCatalogLayout = function()
 		panelWidth = math.min(compactWidth, viewport.X - margin * 2)
 		local maxHeight = math.max(160, viewport.Y - topY - margin)
 		panelHeight = if isPhone then maxHeight else math.min(math.max(260, math.floor(viewport.Y * 0.58)), maxHeight)
-		mainFrame.Position = UDim2.fromOffset(viewport.X - panelWidth - margin, viewport.Y - panelHeight - margin)
+		local panelY = viewport.Y - panelHeight - margin
+		if isPhone and viewport.Y > viewport.X then
+			-- (D-1278, user 2026-11-11: "최소화 카탈로그는 너무 좁고 길어. 위에 초기화
+			-- 버튼이랑 옆에 버튼 더 있는 거 알 수 있을 정도까지는 너비 넓히고 세로 길이를
+			-- 줄여서 오른쪽 중앙에서 살짝 아래에 위치") portrait phones: wide enough
+			-- for 초기화 < > 🛒 ↗ X on one row, about half the height, its middle a
+			-- little below the screen's middle
+			panelWidth = math.min(math.max(250, math.floor(viewport.X * 0.74)), viewport.X - margin * 2)
+			panelHeight = math.min(math.max(300, math.floor(viewport.Y * 0.46)), maxHeight)
+			panelY = math.clamp(math.floor(viewport.Y * 0.56 - panelHeight / 2), topY, viewport.Y - panelHeight - margin)
+		end
+		mainFrame.Position = UDim2.fromOffset(viewport.X - panelWidth - margin, panelY)
 	end
 	mainFrame.Size = UDim2.fromOffset(panelWidth, panelHeight)
 	local compact = not expandedPanel
@@ -1564,7 +1575,13 @@ updateCatalogLayout = function()
 	local discoveryX: number
 	local discoveryY: number
 	local discoveryWidth: number
-	if phoneCompact then
+	-- (D-1278) a narrow phone window: the shortcuts get their own row under
+	-- 초기화 < > 🛒 ↗ X instead of a sliver beside them
+	local discoveryBelow = phoneCompact and controlsLeft - 6 - x < 140
+	if discoveryBelow then
+		discoveryX, discoveryY = x, headerY + controlSize + 4
+		discoveryWidth = innerWidth
+	elseif phoneCompact then
 		discoveryX, discoveryY = x, headerY
 		discoveryWidth = math.max(1, controlsLeft - 6 - x)
 	elseif compact then
@@ -1599,7 +1616,8 @@ updateCatalogLayout = function()
 	end
 
 	-- Category row (and, in expanded mode, search + filter on the same row).
-	local rowY = if phoneCompact then headerY + controlSize + 4 elseif compact then headerY + 70 else headerY + 40
+	local rowY = if discoveryBelow then headerY + (controlSize + 4) * 2
+		elseif phoneCompact then headerY + controlSize + 4 elseif compact then headerY + 70 else headerY + 40
 	local categoryWidth = if expandedPanel then math.max(80, math.floor(innerWidth * (if narrow then 0.32 else 0.42))) else innerWidth
 	local function placeArrowRow(left: TextButton, strip: ScrollingFrame, right: TextButton, rowX: number, y: number, width: number)
 		-- Arrow circles are half the row height (user request 2026-10-19).
@@ -1752,6 +1770,11 @@ local function bindViewport(camera: Camera?)
 end
 
 bindViewport(workspace.CurrentCamera)
+-- (D-1279, user 2026-11-11: the big catalog covered the time / coin pills that
+-- had wrapped to a second top row on a portrait phone) the top row can wrap
+-- after the catalog was laid out (rotation, a button coming or going): lay it
+-- out again under the new bottom edge
+require(script.Parent:WaitForChild("TopBar")).BottomChanged:Connect(function() updateCatalogLayout() end)
 workspace:GetPropertyChangedSignal("CurrentCamera"):Connect(function()
 	bindViewport(workspace.CurrentCamera)
 end)

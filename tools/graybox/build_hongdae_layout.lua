@@ -1916,6 +1916,9 @@ do
 				old:PivotTo(undo * old:GetPivot())
 				old:SetAttribute("HomeZone", beachZone.Name)
 				old.Parent = hidden
+				-- (D-1276, user 2026-11-11: "해변에 바닷물쪽에 있는 야자수 나무 삭제") the two
+				-- at the water's edge (x -265, z 138 and -10) are not planted
+				if foot.X < -250 then continue end
 				-- California fan palm (user pick P4, Creator Store 130498222865089,
 				-- 6 meshes instead of 67, scripts stripped), planted on the sand:
 				-- the trunk foot goes 0.6 into the ground found by a raycast

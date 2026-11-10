@@ -96,6 +96,11 @@ end
 local function buy(kind: string, key: string)
 	local entry = if kind == "pass" then MonetizationConfig.GamePasses[key] else MonetizationConfig.Products[key]
 	if not entry then return end
+	-- (D-1273, user 2026-11-11: "모든 상점에서 구매하면 팝업창 바로 사라지게 해.")
+	if panel.Visible then
+		panel.Visible = false
+		Popups.closed("CoinShop")
+	end
 	if entry.id ~= 0 then
 		if kind == "pass" then
 			MarketplaceService:PromptGamePassPurchase(player, entry.id)

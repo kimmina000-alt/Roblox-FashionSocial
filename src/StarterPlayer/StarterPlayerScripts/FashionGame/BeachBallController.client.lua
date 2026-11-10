@@ -206,6 +206,14 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if processed or not heldTool or chargingSince then return end
 	local t = input.UserInputType
 	if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then return end
+	-- (D-1275, user 2026-11-11: "비치볼 잡고 던질 때 모바일 버전에서 왼쪽 이동키 부분 제외하고
+	-- 오른쪽 누르면 파워 충전. 공 들고 돌아다닐 수 있게 왼쪽은 비워.") on a phone the left
+	-- half is the move stick's (Roblox's dynamic stick starts anywhere there):
+	-- only a press on the right half charges
+	if t == Enum.UserInputType.Touch then
+		local camera = workspace.CurrentCamera
+		if camera and input.Position.X < camera.ViewportSize.X * 0.5 then return end
+	end
 	chargingSince = os.clock()
 	pressInput = input
 	bar.Visible = true

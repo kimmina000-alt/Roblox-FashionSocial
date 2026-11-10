@@ -146,9 +146,11 @@ function ShopMenuUI:buy(item: any, robux: boolean)
 	if self.busy then return end
 	self.busy = true
 	task.spawn(function()
-		local _, message = self.handlers.buyCoins(item)
+		local ok, message = self.handlers.buyCoins(item)
 		if message then self:setStatus(message) end
 		self.busy = false
+		-- (D-1273, user 2026-11-11: "모든 상점에서 구매하면 팝업창 바로 사라지게 해.")
+		if ok then self:hide() end
 	end)
 end
 

@@ -219,6 +219,11 @@ end)
 -- Purchases
 --------------------------------------------------
 
+-- (D-1273, user 2026-11-11: "모든 상점에서 구매하면 팝업창 바로 사라지게 해.") the drink
+-- menu and the item shop close as soon as something is bought (set below,
+-- where those windows are made)
+local closeShops: () -> () = function() end
+
 local function studioTest(kind: string, key: string, name: string, price: number, closeFar: boolean?)
 	showModal("[Studio 테스트] " .. name,
 		string.format("상품 ID가 아직 없어 실제 결제창 대신 테스트 구매를 합니다.\n실제 가격(예정): %d R$ · 결제는 일어나지 않습니다.", price),
@@ -226,7 +231,7 @@ local function studioTest(kind: string, key: string, name: string, price: number
 			{ name = "Cancel", text = "취소", onClick = function() end },
 			{ name = "Buy", text = "테스트 구매", color = COLORS.robux, onClick = function()
 				local ok, message = ClubShop:InvokeServer("StudioTestBuy", { kind = kind, key = key })
-				if not ok then toast(tostring(message or "테스트 구매 실패")) end
+				if not ok then toast(tostring(message or "테스트 구매 실패")) else closeShops() end
 			end },
 		}, closeFar)
 end
@@ -235,6 +240,7 @@ local function buyPass(key: string, closeFar: boolean?)
 	local pass = MonetizationConfig.GamePasses[key]
 	if not pass then return end
 	if pass.id ~= 0 then
+		closeShops()
 		MarketplaceService:PromptGamePassPurchase(player, pass.id)
 	elseif RunService:IsStudio() then
 		studioTest("pass", key, pass.name, pass.price, closeFar)
@@ -247,6 +253,7 @@ local function buyProduct(key: string, closeFar: boolean?)
 	local product = MonetizationConfig.Products[key]
 	if not product then return end
 	if product.id ~= 0 then
+		closeShops()
 		MarketplaceService:PromptProductPurchase(player, product.id)
 	elseif RunService:IsStudio() then
 		studioTest("product", key, product.name, product.price, closeFar)
@@ -447,6 +454,7 @@ local function purchase(drink: any, method: string, chosen: string?)
 		if method == "order" then
 			local ok, message = ClubShop:InvokeServer("Order", payload)
 			toast(tostring(message or (if ok then "" else "주문하지 못했어요.")))
+			if ok then closeShops() end -- (D-1273)
 		elseif method == "coins" then
 			local price = ClubConfig.coinPrice(drink, isVip()) or 0
 			showModal(drink.name .. " · 코인으로 사기",
@@ -457,6 +465,7 @@ local function purchase(drink: any, method: string, chosen: string?)
 					{ name = "Buy", text = "💰 " .. tostring(price), color = COIN, onClick = function()
 						local ok, message = ClubShop:InvokeServer("OrderCoins", payload)
 						toast(tostring(message or (if ok then "" else "살 수 없어요.")))
+						if ok then closeShops() end -- (D-1273)
 					end },
 				})
 		else
@@ -624,6 +633,16 @@ itemWindow.onTab(function(i)
 	itemTab = i
 	buildItemShop()
 end)
+closeShops = function() -- (D-1273)
+	if menu.Visible then
+		menu.Visible = false
+		Popups.closed("ClubDrinkMenu")
+	end
+	if itemWindow.frame.Visible then
+		itemWindow.frame.Visible = false
+		Popups.closed("ClubItemShop")
+	end
+end
 local function openItemShop()
 	layoutWindow(itemWindow.frame)
 	buildItemShop()

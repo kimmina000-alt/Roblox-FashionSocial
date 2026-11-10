@@ -27,8 +27,9 @@ local POSES: {[string]: Pose} = {
 	},
 	BeachChair = {
 		-- (+ leans back here; seen in Play: the back then lies on the canvas)
-		Waist = function(anim) return anim * CFrame.Angles(R(28), 0, 0) end,
-		Neck = function(anim) return anim * CFrame.Angles(R(-12), 0, 0) end,
+		-- (D-1277: 28° still looked upright on the 48° canvas; 46° lies back on it)
+		Waist = function(anim) return anim * CFrame.Angles(R(46), 0, 0) end,
+		Neck = function(anim) return anim * CFrame.Angles(R(-22), 0, 0) end,
 	},
 }
 local PARTS = {
@@ -51,6 +52,12 @@ local function watch(character: Model)
 	local function update()
 		local seat = humanoid.SeatPart
 		local pose = seat and POSES[seat.Name]
+		-- (D-1277, user 2026-11-11: "비치의자에 앉으면 의자에 기대앉는 것처럼 몸 뒤로
+		-- 기울어지게") the store deck chair's own seat is named "Seat" inside a
+		-- model named BeachChair, and that is the one people land on
+		if not pose and seat and seat.Parent and seat.Parent.Name == "BeachChair" then
+			pose = POSES.BeachChair
+		end
 		local rig = rigs[character]
 		if pose then
 			if rig and rig.pose == pose then rig.want = 1 return end

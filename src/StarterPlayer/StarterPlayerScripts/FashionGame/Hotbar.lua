@@ -303,6 +303,17 @@ function Hotbar.look(tool: Tool, parent: GuiObject, emoji: string, box: UDim2, a
 			c.Parent = look
 		end
 	end
+	-- (D-1274, user 2026-11-11, phone screenshot: "누워서 보이는 아이템들 있어 이러다가 다른 거
+	-- 사거나 행동하면 수정됨") the picture was taken as the tool lay in the world:
+	-- a cup in a swinging hand came out on its side. Now always in the
+	-- handle's own frame (the tools are built upright around it)
+	local handle = look:FindFirstChild("Handle")
+	if handle and handle:IsA("BasePart") then
+		local base = handle.CFrame
+		for _, p in ipairs(look:GetDescendants()) do
+			if p:IsA("BasePart") then p.CFrame = base:ToObjectSpace(p.CFrame) end
+		end
+	end
 	local visible = false
 	for _, p in ipairs(look:GetDescendants()) do
 		if p:IsA("BasePart") and p.Transparency < 0.95 then visible = true end

@@ -125,6 +125,7 @@ local function showPictures(shopKey: string, shop: any, statusText: string)
 			elseif RunService:IsStudio() then
 				local ok, message = ClubShop:InvokeServer("StudioTestBuy", { kind = "product", key = item.product })
 				pictureMenu:setStatus(if ok then "[Studio 테스트] 구매했어요." else tostring(message or "구매하지 못했어요."))
+				if ok then hideAll() end -- (D-1273)
 				return
 			else
 				pictureMenu:setStatus("준비 중인 상품이에요.")
@@ -248,7 +249,8 @@ local function show(shopKey: string)
 			status.Text = "준비 중…"
 			local ok, message = remote:InvokeServer("Buy", shopKey, item.key)
 			status.Text = if typeof(message) == "string" then message else (if ok then "나왔어요!" else "주문하지 못했어요.")
-			if ok then task.delay(1.2, function() if openShop == shopKey then hide() end end) end
+			-- (D-1273, user 2026-11-11: "모든 상점에서 구매하면 팝업창 바로 사라지게 해.")
+			if ok and openShop == shopKey then hide() end
 		end
 		if both then
 			-- coins or Robux (the strawberry cake): two small price buttons
