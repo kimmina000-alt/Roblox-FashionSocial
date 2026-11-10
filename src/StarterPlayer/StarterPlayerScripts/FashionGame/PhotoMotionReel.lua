@@ -159,6 +159,36 @@ function Reel.has(picks: {number}): boolean
 	return false
 end
 
+-- (D-1139, user 2026-11-10: "동그라미 속 발판 부스 안 공간에는 있지만 사진 찍기 시작하면 저
+-- 화면에서 안 보이게 해. 사진 찍을 때까지 기다리는 처음 10초에는 공간 다 보이지만 찍기
+-- 시작하면 안 보이게.") the booth's two stools (StoolTop / StoolLeg / StoolRail) are
+-- hidden on this screen while it shoots (and in the motion video), shown again after
+local hiddenStools: {[BasePart]: boolean} = {}
+local stoolBooth: Instance? = nil -- (the booth last shot in: the video hides its stools too)
+local stoolWatch: RBXScriptConnection? = nil
+local function hideStool(p: Instance)
+	if p:IsA("BasePart") and string.match(p.Name, "^Stool") and not hiddenStools[p] then
+		hiddenStools[p] = true
+		p.LocalTransparencyModifier = 1
+	end
+end
+function Reel.hideStools(booth: Instance?, hide: boolean)
+	if booth then stoolBooth = booth end
+	if hide and booth then
+		-- (D-1181: descendants, so the 키높이 발판's stool inside BoothStep goes too,
+		-- and one put down while shooting)
+		for _, p in ipairs(booth:GetDescendants()) do hideStool(p) end
+		if stoolWatch then stoolWatch:Disconnect() end
+		stoolWatch = booth.DescendantAdded:Connect(hideStool)
+	elseif not hide then
+		if stoolWatch then stoolWatch:Disconnect() stoolWatch = nil end
+		for p in pairs(hiddenStools) do
+			if p.Parent then p.LocalTransparencyModifier = 0 end
+		end
+		table.clear(hiddenStools)
+	end
+end
+
 -- replays the picked cuts and records them; onDone(message) when finished
 function Reel.play(picks: {number}, onDone: (string?) -> ())
 	if playing then return end
@@ -198,18 +228,78 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	local cam = workspace.CurrentCamera
 	local oldType, oldCFrame, oldFov = cam.CameraType, cam.CFrame, cam.FieldOfView
 	cam.CameraType = Enum.CameraType.Scriptable
-	-- the flash, part of the video
+	-- (D-1266, user 2026-11-10: "오후네컷 동영상 전체 화면으로 보여 주지 말고 팝업으로 보여 줘")
+	-- the replay shows in a window in the middle (WIN of the screen, the same
+	-- shape), dark around it, a light pink frame, a title and X; the booth
+	-- camera's view is fitted into the window by a wider field of view (below),
+	-- so the window shows what the full screen showed. The video records the
+	-- screen, so it has the window too (like a photo frame).
+	local WIN = 0.72
 	local flashGui = Instance.new("ScreenGui")
 	flashGui.Name = "PhotoReelFlash"
 	flashGui.IgnoreGuiInset = true
 	flashGui.DisplayOrder = 100
+	local DIM = Color3.fromRGB(24, 20, 30)
+	local m = (1 - WIN) / 2
+	for _, r in ipairs({
+		{ UDim2.fromScale(0, 0), UDim2.fromScale(1, m) }, -- top
+		{ UDim2.fromScale(0, 1 - m), UDim2.fromScale(1, m) }, -- bottom
+		{ UDim2.fromScale(0, m), UDim2.fromScale(m, WIN) }, -- left
+		{ UDim2.fromScale(1 - m, m), UDim2.fromScale(m, WIN) }, -- right
+	}) do
+		local d = Instance.new("Frame")
+		d.Position, d.Size = r[1], r[2]
+		d.BackgroundColor3 = DIM
+		d.BackgroundTransparency = 0
+		d.BorderSizePixel = 0
+		d.Active = true -- (taps around it do not reach the game)
+		d.Parent = flashGui
+	end
+	local window = Instance.new("Frame")
+	window.Position = UDim2.fromScale(m, m)
+	window.Size = UDim2.fromScale(WIN, WIN)
+	window.BackgroundTransparency = 1
+	window.Parent = flashGui
+	local border = Instance.new("UIStroke")
+	border.Color = Color3.fromRGB(255, 182, 206)
+	border.Thickness = 5
+	border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+	border.Parent = window
+	local title = Instance.new("TextLabel")
+	title.AnchorPoint = Vector2.new(0.5, 1)
+	title.Position = UDim2.new(0.5, 0, 0, -8)
+	title.Size = UDim2.new(1, 0, 0, 26)
+	title.BackgroundTransparency = 1
+	title.Font = Enum.Font.GothamBold
+	title.TextSize = 20
+	title.TextColor3 = Color3.fromRGB(255, 200, 220)
+	title.Text = "🎬 오후네컷"
+	title.Parent = window
+	local cancelled = false
+	local close = Instance.new("TextButton")
+	close.AnchorPoint = Vector2.new(1, 1)
+	close.Position = UDim2.new(1, 0, 0, -6)
+	close.Size = UDim2.fromOffset(30, 30)
+	close.BackgroundColor3 = Color3.fromRGB(255, 182, 206)
+	close.TextColor3 = Color3.fromRGB(60, 30, 45)
+	close.Font = Enum.Font.BuilderSansExtraBold
+	close.TextSize = 18
+	close.Text = "X" -- (✕ has no glyph in the game fonts)
+	close.Parent = window
+	Instance.new("UICorner", close).CornerRadius = UDim.new(1, 0)
+	close.Activated:Connect(function() cancelled = true end)
+	-- the flash, part of the video, inside the window only
 	local flash = Instance.new("Frame")
 	flash.Size = UDim2.fromScale(1, 1)
 	flash.BackgroundColor3 = Color3.new(1, 1, 1)
 	flash.BackgroundTransparency = 1
 	flash.BorderSizePixel = 0
-	flash.Parent = flashGui
+	flash.Parent = window
 	flashGui.Parent = playerGui
+	-- the recorded field of view, widened so the window holds the whole view
+	local function fit(fov: number): number
+		return math.min(120, 2 * math.deg(math.atan(math.tan(math.rad(fov) / 2) / WIN)))
+	end
 	local stage = Instance.new("Folder")
 	stage.Name = "PhotoReel"
 	stage.Parent = workspace
@@ -257,7 +347,7 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 			elseif c0 or c1 then b.part.CFrame = (c0 or c1) :: CFrame end
 		end
 		cam.CFrame = f0.cam:Lerp(f1.cam, a)
-		cam.FieldOfView = f0.fov + (f1.fov - f0.fov) * a
+		cam.FieldOfView = fit(f0.fov + (f1.fov - f0.fov) * a)
 	end
 
 	for _, clip in ipairs(list) do
@@ -271,7 +361,7 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 		pose(bound, frames[1], frames[1], 0)
 		RunService.RenderStepped:Wait()
 		began = os.clock()
-		while true do
+		while not cancelled do
 			local e = os.clock() - began
 			if e >= length then break end
 			while k < #frames and frames[k + 1].t - start <= e do k += 1 end
@@ -284,18 +374,20 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 		-- the shot: a flash, then still
 		flash.BackgroundTransparency = 0.1
 		local flashStart = os.clock()
-		while os.clock() - flashStart < HOLD do
+		while os.clock() - flashStart < HOLD and not cancelled do
 			flash.BackgroundTransparency = math.min(1, 0.1 + (os.clock() - flashStart) / 0.35)
 			RunService.RenderStepped:Wait()
 		end
 		flash.BackgroundTransparency = 1
 		for _, copy in pairs(clip.copies) do copy.Parent = nil end
+		if cancelled then break end
 	end
 
 	if recordingVideo then
 		pcall(function() CaptureService:StopVideoCapture() end)
 		local waited = 0
-		while not videoDone and waited < 5 do waited += task.wait(0.1) end
+		-- (D-1266: closed with X = no video to wait for, the window goes at once)
+		while not videoDone and waited < 5 and not cancelled do waited += task.wait(0.1) end
 	end
 	-- back as it was
 	stage:Destroy()
@@ -310,6 +402,11 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	for _, tag in ipairs(hiddenTags) do if tag.Parent then tag.Enabled = true end end
 	Reel.hideStools(nil, false)
 	playing = false
+	-- (D-1266) closed with X before the end: nothing to share
+	if cancelled then
+		onDone("영상을 닫았어요. 🎬 영상 저장을 누르면 다시 볼 수 있어요.")
+		return
+	end
 	-- (D-1180) the whole replay seen: the share sheet, and the note that sharing
 	-- is the only way to keep the video (pick 저장 there)
 	if video then
@@ -325,36 +422,6 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 		return
 	end
 	onDone(message)
-end
-
--- (D-1139, user 2026-11-10: "동그라미 속 발판 부스 안 공간에는 있지만 사진 찍기 시작하면 저
--- 화면에서 안 보이게 해. 사진 찍을 때까지 기다리는 처음 10초에는 공간 다 보이지만 찍기
--- 시작하면 안 보이게.") the booth's two stools (StoolTop / StoolLeg / StoolRail) are
--- hidden on this screen while it shoots (and in the motion video), shown again after
-local hiddenStools: {[BasePart]: boolean} = {}
-local stoolBooth: Instance? = nil -- (the booth last shot in: the video hides its stools too)
-local stoolWatch: RBXScriptConnection? = nil
-local function hideStool(p: Instance)
-	if p:IsA("BasePart") and string.match(p.Name, "^Stool") and not hiddenStools[p] then
-		hiddenStools[p] = true
-		p.LocalTransparencyModifier = 1
-	end
-end
-function Reel.hideStools(booth: Instance?, hide: boolean)
-	if booth then stoolBooth = booth end
-	if hide and booth then
-		-- (D-1181: descendants, so the 키높이 발판's stool inside BoothStep goes too,
-		-- and one put down while shooting)
-		for _, p in ipairs(booth:GetDescendants()) do hideStool(p) end
-		if stoolWatch then stoolWatch:Disconnect() end
-		stoolWatch = booth.DescendantAdded:Connect(hideStool)
-	elseif not hide then
-		if stoolWatch then stoolWatch:Disconnect() stoolWatch = nil end
-		for p in pairs(hiddenStools) do
-			if p.Parent then p.LocalTransparencyModifier = 0 end
-		end
-		table.clear(hiddenStools)
-	end
 end
 
 function Reel.isPlaying(): boolean
