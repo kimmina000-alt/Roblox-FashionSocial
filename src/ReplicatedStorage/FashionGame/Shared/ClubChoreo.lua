@@ -816,7 +816,16 @@ M.ChoreoFixes = {
 	-- 움직이면 좋음) 얼굴은 정면 화면 봐야 함": the capture stands side on (hips -60°) from song 55.3; from
 	-- 55.0 to 57.9 a bent-knee walk, a step a beat (0.5 s), the head bobbing forward on each step and turned
 	-- 60° to the front (chest 24°, neck 36°)
-	[86108317246080] = { pose = { from = 2.0, to = 4.95, ease = 0.35, keys = duckWalk(2.1, 4.85, 0.5, 60) } },
+	-- (user: "몸이 보는 옆쪽으로 이동") and the body walks 2.5 studs the way the hips face (`walk`)
+	[86108317246080] = { pose = { from = 2.0, to = 4.95, ease = 0.35, keys = duckWalk(2.1, 4.85, 0.5, 60) }, walk = { from = 2.1, to = 4.85, dist = 2.5 } },
+	-- (D-1168, user: 소원을 말해봐 1:35 가만히 → "골반 움직이게해") 8 (song 81.85) stands still from 6.95 s (song 88.8,
+	-- back turned, hand on the hip, as in the video) to its end: the hips sway side to side on the beat (0.508 s)
+	[97769840770691] = { bend = { { part = "LowerTorso", keys = (function()
+		local keys, t, s = { { 6.95, 0, 0, 0 } }, 7.2, 1
+		while t < 11.3 do table.insert(keys, { t, 0, -6 * s, 7 * s }) t += 0.508 s = -s end
+		table.insert(keys, { 11.45, 0, 0, 0 })
+		return keys
+	end)() } } },
 	-- 18 (song 125.3): "2:5 팔 움찔": both hands flick out 1 stud and back in 0.15 s at song 125.8-126.0 (the
 	-- video opens the arms slowly): the arms smoothed hard there
 	[127427471547985] = { steady = { from = 0.1, to = 1.1, passes = 8, parts = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" } } },
@@ -878,7 +887,15 @@ M.ChoreoFixes = {
 	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
 	-- 자세에서 다음 걷는 안무로 자연스럽게 이어지도록") the first pose is held still
 	-- (the capture sways 20° and shifts) until the walk (2) blends in over 0.9 s
-	[116659270658163] = { hold = { from = 0, to = 3.6 } },
+	-- (D-1168, user 2026-11-10: "시작할 때 가만히 서 있는데 캐릭터 전체가 사선으로 서 있어 똑바로 일자로 서 있게 해"): in
+	-- that pose the upper body leaned 7° to the side and the feet stood 18° askew (one ahead): both legs
+	-- straight down (feet side by side), the hips level and the upper body straight up, then held
+	[116659270658163] = { hold = { from = 0, to = 3.6 }, upright = { from = -1, to = 3.75, ease = 0.4 }, torsoUp = { from = -1, to = 3.75, ease = 0.4 },
+		pose = { from = -1, to = 3.75, ease = 0.4, keys = { { t = 0, set = { LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { 0, 0, 0 }, LeftFoot = { 0, 0, 0 },
+			RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 } } } } } },
+	-- (D-1168, user: "1:01 왼쪽 다리 드는 안무일 때 상체가 왼쪽으로 잠깐 기울어짐 상체 고정"): the left leg is up at song
+	-- 61.0-62.0 and the upper body tipped 16-18° left at 61.7-61.9 as 13 blended in: straight up there
+	-- (`torsoUp` on 11 and 12 below)
 	-- IOI-갑자기 (D-996, the user's list of 2026-11-08, play-bar times = song seconds, rate 1.001)
 	-- 3 (from 8.5) "0:10 떨어": the legs smoothed through 9.0-12.5
 	[140529283375287] = { steady = { from = 0.5, to = 4.0, parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }, passes = 8 } },
@@ -907,11 +924,11 @@ M.ChoreoFixes = {
 	[75370013537988] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = -1, ease = "both" } },
 	-- 11, 12 (D-962, user: "1:00-1:01 캐릭터 갑자기 앞으로 이동"): the feet slide
 	-- 0.6-2 studs at 4.6-5.9 and in 12 (1.2 s): in place
-	[79064359810628] = { still = { { from = 4.6, to = 5.9 } } },
+	[79064359810628] = { still = { { from = 4.6, to = 5.9 } }, torsoUp = { from = 5.45, to = 7.0, ease = 0.3 } }, -- (torsoUp: D-1168 1:01)
 	-- 8 (D-965, found by tools/choreo/play_record.lua): the capture's hips dash
 	-- 2 studs off in its last 0.3 s (0:46.1-46.35): in place
 	[140553219106220] = { still = { { from = 2.9, to = 3.4 } } },
-	[103495705227564] = { still = { { from = 0, to = 1.2 } } },
+	[103495705227564] = { still = { { from = 0, to = 1.2 } }, torsoUp = { from = -1, to = 0.95, ease = 0.3 } }, -- (torsoUp: D-1168 1:01)
 	-- 18 (D-962, user: "1:27 회전"): 17 ends facing -89°, 18 starts at +64° and
 	-- spins once with a lurch (+50° a keyframe at 0.9-1.1 s): one even turn
 	-- from where 17 ended, over the seam, to 18's facing at 2.1 s

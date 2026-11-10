@@ -16,6 +16,7 @@ local RunService = game:GetService("RunService")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local ChoreoSmooth = require(script.Parent:WaitForChild("ChoreoSmooth"))
+local ChoreoBodyGuard = require(script.Parent:WaitForChild("ChoreoBodyGuard")) -- (D-1168) arms not through the body / each other
 local danceRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Dance") :: RemoteEvent
 local player = Players.LocalPlayer
 
@@ -320,6 +321,7 @@ end
 -- left alone (D-798 turned the dancer round), and it stops at walls and at
 -- the club's edge. The hips' own travel is then taken out below as before.
 local lastHips: {[AnimationTrack]: Vector3} = setmetatable({}, { __mode = "k" }) :: any
+local lastWalk: {[AnimationTrack]: number} = setmetatable({}, { __mode = "k" }) :: any
 local travelScale = 0.85 -- (the animator shrinks travel to the avatar's size; measured below)
 local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint, tracks: {AnimationTrack}, dt: number)
 	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
@@ -357,6 +359,26 @@ local function moveAlong(character: Model, joint: Motor6D | AnimationConstraint,
 					end
 					break
 				end
+			end
+		end
+		-- (D-1168, user: BAD 0:55 "몸이 보는 옆쪽으로 이동") ChoreoFixes `walk = { from, to, dist }`: the body
+		-- travels `dist` studs the way the hips face, eased in and out, on top of the capture's own travel
+		local walk = fixes and fixes.walk
+		if walk and t.WeightCurrent > 0.5 then
+			local tp = t.TimePosition
+			local done = 0
+			for _, w in ipairs(if walk.from then { walk } else walk) do
+				if tp >= w.from then
+					local f = math.clamp((tp - w.from) / (w.to - w.from), 0, 1)
+					done += f * f * (3 - 2 * f) * w.dist
+				end
+			end
+			local before = lastWalk[t]
+			lastWalk[t] = done
+			if before and done > before and done - before < 0.5 then
+				local look = joint.Transform.LookVector
+				local flat = Vector3.new(look.X, 0, look.Z)
+				if flat.Magnitude > 0.1 then move += flat.Unit * (done - before) / math.max(travelScale, 0.3) end
 			end
 		end
 		if here then
@@ -819,6 +841,10 @@ RunService.PreSimulation:Connect(function(dt)
 					following.lastPose = last
 				end
 				limitSnaps(character, choreo, dt)
+				-- (D-1168) last: arms out of the torso and out of each other (ChoreoBodyGuard)
+				if not (RunService:IsStudio() and FashionGame:GetAttribute("ChoreoBodyGuardOff")) then
+					ChoreoBodyGuard.apply(character, bodyJoints(character))
+				end
 			else
 				snapState[character] = nil
 				dancingNow[character] = nil
