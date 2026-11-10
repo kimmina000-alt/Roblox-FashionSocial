@@ -861,7 +861,18 @@ local function toggleHelper(player: Player, which: string): (boolean, any)
 	steps[player] = step
 	character:SetAttribute("BoothStep", true)
 	sitUp(character)
-	character:PivotTo(root.CFrame + Vector3.new(0, h, 0))
+	-- (D-1269, user 2026-11-11: "키높이 발판 누르면 부스에 있는 발판 밟고 올라가는 걸로 보이게")
+	-- a short step up onto it (0.25 s) instead of a jump in place; the step is
+	-- seen while shooting (PhotoMotionReel keeps it), never in the photo
+	local from = root.CFrame
+	task.spawn(function()
+		for i = 1, 6 do
+			if not character.Parent or steps[player] ~= step then return end
+			local a = i / 6
+			character:PivotTo(from + Vector3.new(0, h * (a * a * (3 - 2 * a)) + 0.05, 0))
+			task.wait(0.04)
+		end
+	end)
 	return true, true
 end
 

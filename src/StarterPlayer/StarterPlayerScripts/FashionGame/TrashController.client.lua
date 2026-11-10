@@ -2,6 +2,10 @@
 -- (D-1133) the trash can window (TrashConfig / TrashService): "열기" on a can
 -- shows what is in that can (tap = take it out) and what you carry that may
 -- go in (tap = throw it in). Black and white like the feedback window.
+-- (D-1270, user 2026-11-11: "아이템 들고 쓰레기통 누르면 버리기 / 쓰레기통 안에 텍스트 지우고
+-- 쓰레기통 안에 있는 아이템만 보이게 해. 버릴 수 있는 물건 보이는 거 삭제.") holding
+-- something that may go in, the can's 열기 throws it straight in; the window
+-- shows only the items in the can (no title, no lines, no "내 물건" list)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -115,6 +119,11 @@ local function section(text: string): (TextLabel, ScrollingFrame)
 end
 local inHead, inList = section("쓰레기통 안 · 누르면 가져가요")
 local mineHead, mineList = section("내 물건 · 누르면 버려요")
+-- (D-1270) only the items in the can
+title.Visible = false
+inHead.Visible = false
+mineHead.Visible = false
+mineList.Visible = false
 
 local openCan: BasePart? = nil
 local remote: RemoteFunction? = nil
@@ -168,8 +177,9 @@ local function layout()
 	local half = (h - 64 - 2 * 22) / 2
 	inHead.Position = UDim2.fromOffset(16, 62)
 	inHead.Size = UDim2.new(1, -32, 0, 20)
-	inList.Position = UDim2.fromOffset(12, 84)
-	inList.Size = UDim2.new(1, -24, 0, half)
+	-- (D-1270) the items fill the window under the X (and the status line)
+	inList.Position = UDim2.fromOffset(12, 48)
+	inList.Size = UDim2.new(1, -24, 1, -60)
 	mineHead.Position = UDim2.fromOffset(16, 84 + half + 4)
 	mineHead.Size = UDim2.new(1, -32, 0, 20)
 	mineList.Position = UDim2.fromOffset(12, 84 + half + 26)
@@ -202,7 +212,7 @@ local function refresh()
 	inHead.Text = string.format("쓰레기통 안 %d개 · 누르면 가져가요 (1시간 뒤 사라져요)", #items)
 	for i, item in ipairs(items) do
 		if item:IsA("Tool") then
-			card(inList, item, i, ago(item:GetAttribute("TrashedAt")), function() call("Take", item) end)
+			card(inList, item, i, nil, function() call("Take", item) end)
 		end
 	end
 	local mine = {}
@@ -246,7 +256,17 @@ close.Activated:Connect(function() setOpen(nil) end)
 ProximityPromptService.PromptTriggered:Connect(function(prompt)
 	if prompt.Name ~= "TrashPrompt" then return end
 	local part = prompt.Parent
-	if part and part:IsA("BasePart") then setOpen(part) end
+	if not part or not part:IsA("BasePart") then return end
+	-- (D-1270) something in the hand that may go in: straight into the can
+	local held = player.Character and player.Character:FindFirstChildOfClass("Tool")
+	if held and TrashConfig.canThrow(held) then
+		remote = remote or FashionGame:WaitForChild("Remotes"):WaitForChild("Trash", 5) :: RemoteFunction?
+		if remote then
+			pcall(function() return (remote :: RemoteFunction):InvokeServer("Throw", part, held) end)
+		end
+		return
+	end
+	setOpen(part)
 end)
 
 -- my things changed: the list follows; walked away: closed

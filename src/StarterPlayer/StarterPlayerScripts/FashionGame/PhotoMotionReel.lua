@@ -168,6 +168,11 @@ local hiddenStools: {[BasePart]: boolean} = {}
 local stoolBooth: Instance? = nil -- (the booth last shot in: the video hides its stools too)
 local stoolWatch: RBXScriptConnection? = nil
 local function hideStool(p: Instance)
+	-- (D-1269, user 2026-11-11: "키높이 발판 누르면 부스에 있는 발판 밟고 올라가는 걸로 보이게
+	-- 해. 사진 결과물에는 안 보이게.") the step under someone's feet stays in view
+	-- while shooting (they stand on it); the photos never draw it (D-1181) and
+	-- the motion video still hides it (playing)
+	if not playing and p:FindFirstAncestor("BoothStep") then return end
 	if p:IsA("BasePart") and string.match(p.Name, "^Stool") and not hiddenStools[p] then
 		hiddenStools[p] = true
 		p.LocalTransparencyModifier = 1

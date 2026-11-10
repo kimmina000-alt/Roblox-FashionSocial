@@ -291,6 +291,22 @@ local function bottleView(parent: Instance, preview: Model, color: Color3, posit
 	local m = preview:Clone()
 	m.Parent = world
 	local cf, sz = m:GetBoundingBox()
+	-- (D-1271, user 2026-11-11: "편의점 판매 UI에 캔음료 정중앙 배치. 사이즈 더 키우기 다른
+	-- 제품들처럼") framed on the parts that show: a can's invisible Handle (1.8
+	-- high, the can 0.63 at its foot) had the can small at the bottom
+	do
+		local lo, hi = Vector3.one * math.huge, -Vector3.one * math.huge
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("BasePart") and d.Transparency < 0.99 then
+				local h = d.Size / 2
+				for _, sx in ipairs({ -1, 1 }) do for _, sy in ipairs({ -1, 1 }) do for _, sz2 in ipairs({ -1, 1 }) do
+					local v = d.CFrame * Vector3.new(h.X * sx, h.Y * sy, h.Z * sz2)
+					lo, hi = lo:Min(v), hi:Max(v)
+				end end end
+			end
+		end
+		if lo.X < math.huge then cf, sz = CFrame.new((lo + hi) / 2), hi - lo end
+	end
 	local cam = Instance.new("Camera")
 	cam.FieldOfView = 30
 	-- (fit the taller of the height and the width: the window is narrow, cans are wide)
@@ -386,11 +402,29 @@ function NeonShopUI.itemCard(parent: Instance, order: number, emoji: string, tin
 		local world = Instance.new("WorldModel")
 		world.Parent = vp
 		local m = preview:Clone()
+		-- (D-1271, user 2026-11-11: "편의점 판매 UI에 캔음료 정중앙 배치. 사이즈 더 키우기 다른
+		-- 제품들처럼") the invisible hand part (a can's Handle sits beside the can)
+		-- left out of the framing, so the thing itself is in the middle and fills it
 		m.Parent = world
 		local cf, sz = m:GetBoundingBox()
+		do
+			local lo, hi = Vector3.one * math.huge, -Vector3.one * math.huge
+			for _, d in ipairs(m:GetDescendants()) do
+				if d:IsA("BasePart") and d.Transparency < 0.99 then
+					local h = d.Size / 2
+					for _, sx in ipairs({ -1, 1 }) do for _, sy in ipairs({ -1, 1 }) do for _, sz2 in ipairs({ -1, 1 }) do
+						local v = d.CFrame * Vector3.new(h.X * sx, h.Y * sy, h.Z * sz2)
+						lo, hi = lo:Min(v), hi:Max(v)
+					end end end
+				end
+			end
+			if lo.X < math.huge then
+				cf, sz = CFrame.new((lo + hi) / 2), hi - lo
+			end
+		end
 		local cam = Instance.new("Camera")
 		cam.FieldOfView = 30
-		local dist = math.max(sz.X, sz.Y, sz.Z) / 2 / math.tan(math.rad(15)) * 1.2
+		local dist = math.max(sz.X, sz.Y, sz.Z) / 2 / math.tan(math.rad(15)) * 0.95
 		cam.CFrame = CFrame.lookAt(cf.Position + Vector3.new(dist * 0.25, dist * 0.2, -dist), cf.Position)
 		cam.Parent = vp
 		vp.CurrentCamera = cam

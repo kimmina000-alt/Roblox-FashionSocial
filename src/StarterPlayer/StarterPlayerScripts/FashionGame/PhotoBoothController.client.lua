@@ -751,9 +751,10 @@ end
 -- (D-1182, user 2026-11-10: "포즈 지금 아래로 드래그인데 옆으로 드래그로 변경") the pose
 -- list scrolls sideways: the buttons fill each column top to bottom, then the
 -- next column to the right (rows / cell width set in layoutShoot)
-poseList.ScrollingDirection = Enum.ScrollingDirection.X
-poseList.AutomaticCanvasSize = Enum.AutomaticSize.X
-;(poseList:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout).FillDirection = Enum.FillDirection.Vertical
+-- (D-1269, user 2026-11-11: "포즈 드래그 세로로 수정") back to scrolling down: two
+-- buttons to a row, the rest below
+poseList.ScrollingDirection = Enum.ScrollingDirection.Y
+poseList.AutomaticCanvasSize = Enum.AutomaticSize.Y
 
 -- dark card buttons with white text, like the other photo windows (user
 -- 2026-10-30; were light sky blue); the chosen one is pink
@@ -970,9 +971,9 @@ local function layoutShoot()
 	local faceH = math.max(70, rightH - 8 - poseH)
 	posePanel.Position = UDim2.fromOffset(x + w + 10, y)
 	posePanel.Size = UDim2.fromOffset(panelW, poseH)
-	do -- (D-1182) as many rows as fit, two columns in view, the rest to the right
+	do -- (D-1269) two columns, scrolling down (D-1182 had it sideways)
 		local grid = poseList:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
-		grid.FillDirectionMaxCells = math.max(1, math.floor((poseH - 34 - 3 + 4) / 38))
+		grid.FillDirectionMaxCells = 2
 		grid.CellSize = UDim2.fromOffset(math.floor((panelW - 12) / 2 - 3), 34)
 		local faces = shoot:FindFirstChild("Faces") :: Frame?
 		if faces then
@@ -983,7 +984,14 @@ local function layoutShoot()
 		end
 	end
 	propPanel.Position = UDim2.fromOffset(x - panelW - 10, y)
-	propPanel.Size = UDim2.fromOffset(panelW, panelH)
+	do -- (D-1269, user 2026-11-11: "소품 창 소품 개수에 맞춰서 사이즈 줄이기") as tall as its buttons
+		local count = 0
+		for _, child in ipairs(propList:GetChildren()) do
+			if child:IsA("GuiButton") then count += 1 end
+		end
+		local rows = math.max(1, math.ceil(count / 2))
+		propPanel.Size = UDim2.fromOffset(panelW, math.min(h, 28 + rows * 38 + 6))
+	end
 	tip.Position = UDim2.fromOffset(x, y + h - 24)
 	tip.Size = UDim2.fromOffset(w, 20)
 	do -- (D-1268) one row under the picture: 허리 숙이기 · 키높이 발판 · 정면 보기 · 멈춤
@@ -1067,11 +1075,22 @@ local function captureCut(index: number)
 				table.insert(hidden, other)
 			end
 		end
+		-- (D-1269) the 키높이 발판 is seen while shooting but not in the saved cuts
+		local stepParts = {}
+		if state.booth then
+			for _, d in ipairs(state.booth:GetDescendants()) do
+				if d:IsA("BasePart") and d:FindFirstAncestor("BoothStep") and d.LocalTransparencyModifier < 1 then
+					d.LocalTransparencyModifier = 1
+					table.insert(stepParts, d)
+				end
+			end
+		end
 		local restored = false
 		local function restore()
 			if restored then return end
 			restored = true
 			for _, item in ipairs(hidden) do item.Enabled = true end
+			for _, d in ipairs(stepParts) do if d.Parent then d.LocalTransparencyModifier = 0 end end
 			if state.stage ~= "shooting" then restoreCamera() end
 		end
 		applyShootCamera()
