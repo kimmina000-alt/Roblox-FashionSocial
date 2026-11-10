@@ -44,6 +44,46 @@ layout.Parent = bar
 
 local cards: {[number]: TextButton} = {}
 
+-- (D-1264, user 2026-11-10: "홈 화면에 보이는 가운데 아래에 있는 아이템창 아래로 내려서
+-- 숨길 수 있는 버튼 만들어 줘 ▼ ▲") a small tab over the bar: ▼ slides the bar
+-- down off the screen, ▲ brings it back. While the bag is open or a card is
+-- dragged the bar comes up anyway (somewhere to drop it).
+local TweenService = game:GetService("TweenService")
+local folded = false
+local tab = Instance.new("TextButton")
+tab.Name = "FoldTab"
+tab.AnchorPoint = Vector2.new(0.5, 1)
+tab.Size = UDim2.fromOffset(46, 20)
+tab.BackgroundColor3 = Color3.fromRGB(20, 18, 28)
+tab.BackgroundTransparency = 0.25
+tab.TextColor3 = Color3.new(1, 1, 1)
+tab.Font = Enum.Font.GothamBold
+tab.TextSize = 12
+tab.Text = "▼"
+tab.AutoButtonColor = true
+tab.Visible = false
+tab.Parent = gui
+Instance.new("UICorner", tab).CornerRadius = UDim.new(0, 8)
+local tabStroke = Instance.new("UIStroke")
+tabStroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+tabStroke.Color = Color3.fromRGB(80, 80, 105)
+tabStroke.Parent = tab
+local lastDown: boolean? = nil
+local function place(size: number, instant: boolean?)
+	local down = folded and not Hotbar.bagOpen and not Hotbar.isDragging()
+	tab.Text = if down then "▲" else "▼"
+	local barAt = if down then UDim2.new(0.5, 0, 1, size + 12) else UDim2.new(0.5, 0, 1, -6)
+	local tabAt = if down then UDim2.new(0.5, 0, 1, -4) else UDim2.new(0.5, 0, 1, -6 - size - 3)
+	if instant or lastDown == nil or lastDown == down then
+		bar.Position, tab.Position = barAt, tabAt
+	else
+		local info = TweenInfo.new(0.22, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+		TweenService:Create(bar, info, { Position = barAt }):Play()
+		TweenService:Create(tab, info, { Position = tabAt }):Play()
+	end
+	lastDown = down
+end
+
 local function toggle(tool: Tool?)
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if not humanoid or not tool then return end
@@ -66,6 +106,8 @@ local function draw()
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not any and backpack then any = backpack:FindFirstChildOfClass("Tool") ~= nil end
 	bar.Visible = any and (Hotbar.anyInBar() or Hotbar.bagOpen or Hotbar.isDragging())
+	tab.Visible = bar.Visible
+	place(size)
 	for i = 1, math.max(n, #cards) do
 		local card = cards[i]
 		if i > n then
@@ -152,6 +194,11 @@ Hotbar.addZone(bar, function(tool: Tool, at: Vector2): boolean
 end)
 
 Hotbar.changed.Event:Connect(draw)
+
+tab.Activated:Connect(function()
+	folded = not folded
+	draw()
+end)
 
 local function watch(container: Instance?)
 	if not container then return end
