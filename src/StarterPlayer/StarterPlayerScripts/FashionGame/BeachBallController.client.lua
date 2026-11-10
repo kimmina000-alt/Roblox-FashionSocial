@@ -39,7 +39,6 @@ local mouse = player:GetMouse()
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Remote = FashionGame:WaitForChild("Remotes"):WaitForChild("BeachBall") :: RemoteEvent
 local BeachBallConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("BeachBallConfig"))
-local Sfx = require(script.Parent:WaitForChild("Sfx"))
 
 local CHARGE_FULL = BeachBallConfig.CHARGE_FULL
 local SWING = 0.14 -- seconds: wind-up → through, the ball goes at its end
@@ -226,7 +225,7 @@ local function release()
 	chargingSince, pressInput = nil, nil
 	bar.Visible = false
 	if tool.Parent ~= player.Character then return end
-	task.delay(SWING * 0.6, function() Sfx.play("whoosh", 0.25 + 0.3 * p) end)
+	-- (D-1284, user 2026-11-11: "비치볼 던질 때 슉 소리 빼고") no whoosh on the throw
 	Remote:FireServer("Throw", aimPoint(), p)
 	hideMarks()
 end
@@ -478,3 +477,47 @@ Remote.OnClientEvent:Connect(function(action, dir, speed)
 		if humanoid.Parent and humanoid.Health > 0 then humanoid:ChangeState(Enum.HumanoidStateType.GettingUp) end
 	end)
 end)
+
+-- ---------------------------------------------------------------------------
+-- (D-1284, user 2026-11-11: "비치볼이 바닥에 닿을 때 통통 튕기는 소리 나게 해 줘 / 반동으로
+-- 몇 번 더 튕기면서 멈출 때도 소리 나야 함") every screen hears every thrown ball
+-- bounce: its height is followed each frame and where it was falling and now
+-- goes up, that was a bounce. Louder (and a little lower) the faster it fell,
+-- so the last small bounces are soft taps until it lies still.
+do
+	local watched: {[BasePart]: { y: number, vy: number, at: number, sound: Sound }} = {}
+	local function watch(part: Instance)
+		if not part:IsA("BasePart") or part.Name ~= "ThrownBeachBall" then return end
+		local sound = Instance.new("Sound")
+		sound.Name = "BounceSound"
+		sound.SoundId = BeachBallConfig.BOUNCE_SOUND
+		sound.RollOffMinDistance = 8
+		sound.RollOffMaxDistance = 90
+		sound.Parent = part
+		watched[part] = { y = part.Position.Y, vy = 0, at = 0, sound = sound }
+		part.AncestryChanged:Connect(function()
+			if not part:IsDescendantOf(workspace) then watched[part] = nil end
+		end)
+	end
+	for _, child in ipairs(workspace:GetChildren()) do watch(child) end
+	workspace.ChildAdded:Connect(watch)
+	RunService.RenderStepped:Connect(function(dt)
+		if dt <= 0 then return end
+		local now = os.clock()
+		for part, w in pairs(watched) do
+			local y = part.Position.Y
+			local vy = (y - w.y) / dt
+			-- falling, then suddenly not (a turn up much sharper than the fall's
+			-- own slowing in the air)
+			if w.vy < -BeachBallConfig.BOUNCE_MIN_SPEED and vy > w.vy * 0.3 and now - w.at > 0.08 then
+				w.at = now
+				local k = math.clamp(-w.vy / BeachBallConfig.BOUNCE_FULL_SPEED, 0, 1)
+				w.sound.Volume = 0.12 + 0.68 * k
+				w.sound.PlaybackSpeed = 1.15 - 0.2 * k + (math.random() - 0.5) * 0.06
+				w.sound.TimePosition = 0
+				w.sound:Play()
+			end
+			w.y, w.vy = y, vy
+		end
+	end)
+end

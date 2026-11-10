@@ -13,6 +13,14 @@ BeachBallConfig.FLOAT_G = 55 -- the ball's own fall (the world pulls 196.2)
 BeachBallConfig.DRAG_VT = 55 -- the speed the air holds it to when falling
 BeachBallConfig.DRAG_K = BeachBallConfig.FLOAT_G / (BeachBallConfig.DRAG_VT * BeachBallConfig.DRAG_VT)
 
+-- (D-1284, user 2026-11-11: "비치볼이 바닥에 닿을 때 통통 튕기는 소리 나게 해 줘 /
+-- 반동으로 몇 번 더 튕기면서 멈출 때도 소리 나야 함") a bounce sound at every
+-- bounce of a thrown ball, softer as the bounces get smaller, down to the
+-- last little one (BeachBallController)
+BeachBallConfig.BOUNCE_SOUND = "rbxassetid://0"
+BeachBallConfig.BOUNCE_MIN_SPEED = 1.5 -- studs/s falling: slower is not a bounce (bobbing on the sea)
+BeachBallConfig.BOUNCE_FULL_SPEED = 40 -- falling this fast or faster: full volume
+
 -- Where the ball leaves the hand and how fast, for a thrower whose root is at
 -- `root`, head at `head`, aiming at `target` with `power`.
 -- Which way: toward the target, level; up by the aim + 25° (a thrower aims a
