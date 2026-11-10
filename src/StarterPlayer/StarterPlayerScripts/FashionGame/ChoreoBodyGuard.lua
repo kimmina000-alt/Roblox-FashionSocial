@@ -17,6 +17,7 @@ local BodyGuard = {}
 type Joint = Motor6D | AnimationConstraint
 
 local state: {[Model]: {[string]: Vector3}} = setmetatable({}, { __mode = "k" }) :: any
+local crossing: {[Model]: { front: string, at: number }} = setmetatable({}, { __mode = "k" }) :: any
 BodyGuard.stats = { frames = 0, pushed = 0, crossed = 0 }
 
 -- the joint's frame in the world (pivot) and the world CFrame of its Part1, from Part0's CFrame
@@ -51,7 +52,7 @@ local function closestOnSegments(p1: Vector3, q1: Vector3, p2: Vector3, q2: Vect
 		t = (b * s + f) / e
 		if t < 0 then t, s = 0, math.clamp(-c / a, 0, 1) elseif t > 1 then t, s = 1, math.clamp((b - c) / a, 0, 1) end
 	end
-	return p1 + d1 * s, p2 + d2 * t
+	return p1 + d1 * s, p2 + d2 * t, s, t
 end
 
 function BodyGuard.apply(character: Model, joints: {[string]: Joint})
@@ -78,7 +79,7 @@ function BodyGuard.apply(character: Model, joints: {[string]: Joint})
 			local wrist = (hCF * childOffset(jW)).Position
 			arms[side] = { joint = jS, pivot = pivot, elbow = elbow, wrist = wrist, hand = hCF.Position,
 				r = math.min(la.Size.X, la.Size.Z) * 0.5, rh = math.min(hand.Size.X, hand.Size.Z) * 0.5, sign = if side == "Left" then -1 else 1,
-				push = Vector3.zero, at = elbow }
+				pushes = {} }
 		end
 	end
 
@@ -104,43 +105,65 @@ function BodyGuard.apply(character: Model, joints: {[string]: Joint})
 				end
 			end
 		end
-		arm.push, arm.at = best, bestPoint
+		if best.Magnitude > 0 then table.insert(arm.pushes, { best, bestPoint }) end
 	end
 
-	-- 2) the two forearms / hands meet instead of passing through (half each)
+	-- 2) the two forearms / hands do not pass through each other (half each)
+	-- (user: "원본에서 팔 엑스자로 할 경우 팔 교차하지 말고 팔을 앞뒤로 해서 교차하게 해야 함") forearms crossing in the
+	-- middle (an X) are put one in front of the other along the chest's forward axis: the one already more to
+	-- the front goes further front, the other back (kept while they stay crossed, so they do not swap);
+	-- hands that only meet at the ends (palm to palm) stop where they touch
 	local L, R = arms.Left, arms.Right
 	if L and R then
-		local a, b = closestOnSegments(L.elbow, L.hand, R.elbow, R.hand)
+		local a, b, sa, sb = closestOnSegments(L.elbow, L.hand, R.elbow, R.hand)
 		local gap = (b - a).Magnitude
 		local need = (L.r + R.r) * 0.9
 		if gap < need then
-			local n = if gap > 1e-3 then (b - a) / gap else utCF.RightVector
-			local o = (need - gap) / 2
-			if L.push.Magnitude < o then L.push, L.at = -n * o, a end
-			if R.push.Magnitude < o then R.push, R.at = n * o, b end
+			if sa > 0.1 and sa < 0.95 and sb > 0.1 and sb < 0.95 then
+				local fwd = utCF.LookVector
+				local depth = (b - a):Dot(fwd) -- > 0: the right arm is in front
+				local cs = crossing[character]
+				local front = if cs and os.clock() - cs.at < 0.5 then cs.front else nil
+				if not front then
+					front = if math.abs(depth) > 0.03 then (if depth > 0 then "Right" else "Left") else (if cs then cs.front else "Right")
+				end
+				crossing[character] = { front = front, at = os.clock() }
+				-- (how far the front arm already is in front of the other, signed)
+				local o = math.max(need - (if front == "Right" then depth else -depth), 0) / 2
+				local fa = if front == "Right" then R else L
+				local ba = if front == "Right" then L else R
+				local fp, bp = if front == "Right" then b else a, if front == "Right" then a else b
+				if o > 0 then table.insert(fa.pushes, { fwd * o, fp }) table.insert(ba.pushes, { -fwd * o, bp }) end
+			else
+				local n = if gap > 1e-3 then (b - a) / gap else utCF.RightVector
+				local o = (need - gap) / 2
+				table.insert(L.pushes, { -n * o, a }) table.insert(R.pushes, { n * o, b })
+			end
 			BodyGuard.stats.crossed += 1
 		end
 	end
 
 	-- 3) the shoulder turns so that point moves by its push (eased over a few frames, in the chest's frame)
 	for side, arm in pairs(arms) do
+		-- (every push adds its turn: out of the torso and away from the other arm at once)
 		local target = Vector3.zero
-		local v = arm.at - arm.pivot.Position
-		if arm.push.Magnitude > 1e-3 and v.Magnitude > 0.2 then
-			local axis = v:Cross(arm.push)
-			if axis.Magnitude > 1e-4 then
-				local angle = math.min(arm.push.Magnitude / v.Magnitude, 0.8)
-				target = utCF:VectorToObjectSpace(axis.Unit * angle)
+		for _, pp in ipairs(arm.pushes) do
+			local push, at = pp[1], pp[2]
+			local v = at - arm.pivot.Position
+			if push.Magnitude > 1e-3 and v.Magnitude > 0.2 then
+				local axis = v:Cross(push)
+				if axis.Magnitude > 1e-4 then
+					target += utCF:VectorToObjectSpace(axis.Unit * math.min(push.Magnitude / v.Magnitude, 0.8))
+				end
 			end
-			BodyGuard.stats.pushed += 1
 		end
+		if target.Magnitude > 0.8 then target = target.Unit * 0.8 end
+		if #arm.pushes > 0 then BodyGuard.stats.pushed += 1 end
 		local cur = s[side] or Vector3.zero
-		-- (a push the other way round than the turn already on, e.g. two forearms that crossed over, keeps
-		-- the turn's way: flipping it threw the hand 0.9 stud in a frame)
-		if cur.Magnitude > 0.02 and target.Magnitude > 0 and target:Dot(cur) < 0 then target = cur.Unit * target.Magnitude end
-		-- in faster than out, and at most 2.5° a frame either way (no pop)
-		local step = (target - cur) * (if target.Magnitude > cur.Magnitude then 0.35 else 0.15)
-		if step.Magnitude > 0.044 then step = step.Unit * 0.044 end
+		-- in faster than out, and at most 4° a frame either way (no pop; the pushes add up, so the way they
+		-- turn the arm changes smoothly)
+		local step = (target - cur) * (if target.Magnitude > cur.Magnitude then 0.4 else 0.15)
+		if step.Magnitude > 0.07 then step = step.Unit * 0.07 end
 		cur += step
 		if cur.Magnitude < 1e-3 then cur = Vector3.zero end
 		s[side] = cur
