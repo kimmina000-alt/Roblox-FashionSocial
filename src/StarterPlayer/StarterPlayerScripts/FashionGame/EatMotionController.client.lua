@@ -85,6 +85,14 @@ local function heldPoint(tool: Tool, handle: BasePart, grip: CFrame): (Vector3, 
 	-- (tool attribute EatStraw): the straw's top end to the lips, the glass upright
 	-- (D-1159: every glass with a Straw part, the built 한옥 drinks too, measured going to the cheek)
 	local straw = tool:FindFirstChild("Straw", true)
+	-- (D-1163, user 2026-11-10: "빨대 있는 딸기스무디, 자바칩프라푸치노, 블루 레몬에이드는 빨대가
+	-- 입에 닿아야 함") the straw tip read from the mesh (an invisible StrawTip part in
+	-- the model): the smoothie's and frappe's straws are part of the glass mesh, the
+	-- lemonade's straw is tilted, so its box end was not the tip
+	local tip = tool:FindFirstChild("StrawTip", true)
+	if tip and tip:IsA("BasePart") then
+		return handle.CFrame:PointToObjectSpace(tip.Position), false, size, true
+	end
 	if straw and straw:IsA("BasePart") then
 		local rel = handle.CFrame:ToObjectSpace(straw.CFrame)
 		local h = straw.Size / 2
@@ -142,7 +150,11 @@ local function solve(character: Model): Pose?
 	local target, wantUp
 	if upright then
 		-- (D-1152) the straw just at the lips, the glass standing (a hair toward the face)
-		target = mouth + Vector3.new(0, -0.02 * s, -0.05 * s)
+		-- (D-1163: measured 0.1-0.2 studs in front of the lips: the head's box front
+		-- is ahead of the face; the face's own front, FaceFrontAttachment, a hair in)
+		local ff = head:FindFirstChild("FaceFrontAttachment")
+		local faceZ = if ff and ff:IsA("Attachment") then ff.Position.Z + 0.04 else -head.Size.Z / 2
+		target = torso.CFrame:PointToObjectSpace((head.CFrame * CFrame.new(0, -0.27 * s, faceZ)).Position)
 		wantUp = Vector3.new(0, 1, 0.12).Unit
 	elseif big then
 		-- (D-1159, user 2026-11-10: "뭐 먹을 때 위치 모두 체크해서 얼굴 하관 부근으로") measured
@@ -170,7 +182,7 @@ local function solve(character: Model): Pose?
 	end
 	local function cost(sp: number, sy: number, sz: number, e: number, w: number): number
 		local p, up, elbow, h = fk(sp, sy, sz, e, w)
-		local c = (p - target).Magnitude / s
+		local c = (p - target).Magnitude / s * (if upright then 3 else 1) -- (D-1163: the straw on the lips first)
 		if wantUp then c += (1 - up:Dot(wantUp)) * (if big then 0.8 else 1.5) end -- (D-1159: a dish near the chin first)
 		-- the elbow out and below the hand; the hand out of the head
 		c += math.max(0, h.X + 0.2 * s - elbow.X) * 0.5 / s + math.max(0, elbow.Y - h.Y) * 0.5 / s
@@ -219,6 +231,14 @@ local function start(character: Model)
 	local rig = rigs[character]
 	if rig then
 		rig.want = 1 -- (a new bite while the arm was still going down)
+		-- (D-1163: another thing in the hand since: its own pose, measured off by
+		-- 0.5 stud when a drink came right after another)
+		local tool = character:FindFirstChildOfClass("Tool")
+		if (rig :: any).tool ~= tool then
+			local pose = solve(character)
+			if pose then rig.pose = pose end
+			(rig :: any).tool = tool
+		end
 		return
 	end
 	local shoulder = joint(character, "RightUpperArm", "RightShoulder")
@@ -229,7 +249,8 @@ local function start(character: Model)
 	rigs[character] = {
 		shoulder = shoulder, elbow = elbow, wrist = joint(character, "RightHand", "RightWrist"), pose = pose,
 		want = 1, up = 0, base = {}, last = {},
-	}
+	};
+	(rigs[character] :: any).tool = character:FindFirstChildOfClass("Tool")
 end
 
 -- (D-1105, user 2026-11-09: "삼각김밥 처음에 포장 뜯을 때 양 손으로 뜯는 모션

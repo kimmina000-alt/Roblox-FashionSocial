@@ -212,21 +212,30 @@ function FriendBar.split(tool: Tool, item: any)
 	if not d or not handle then return end
 	local owner = Players:GetPlayerFromCharacter(tool.Parent)
 	if not owner then return end
+	-- (D-1160, user: "누르자마자 들리게") the sound first, from the Sound the bar has
+	-- carried since it was made (already loaded); before, a new Sound was made
+	-- after the other half was built, so it was heard late
+	local snd = handle:FindFirstChild("SplitSound") :: Sound?
+	if not snd then
+		local s = Instance.new("Sound")
+		s.SoundId = "rbxassetid://" .. tostring(FriendBar.SplitSound)
+		s.Volume = 1
+		s.RollOffMaxDistance = 40
+		s.Parent = handle
+		snd = s
+	end
+	local splitSound = snd :: Sound
+	splitSound:Play()
+	task.delay(6, function() if splitSound.Parent then splitSound:Destroy() end end)
 	-- the top pieces stay on their own half half the time, else one goes over
 	local r = math.random()
 	local moved = if r < 0.5 then 0 elseif r < 0.75 then 1 else 2
 	local half = d.makeTool(item)
 	local bHandle = half:FindFirstChild("Handle") :: BasePart?
 	if not bHandle then half:Destroy() return end
+	local copied = bHandle:FindFirstChild("SplitSound")
+	if copied then copied:Destroy() end -- (the other half never splits again)
 	d.splitXP(tool, half, 2) -- (포인트도 반으로)
-	local snd = Instance.new("Sound")
-	snd.SoundId = "rbxassetid://" .. tostring(FriendBar.SplitSound)
-	snd.Volume = 1
-	snd.RollOffMaxDistance = 40
-	snd.Parent = handle
-	snd:Play()
-	snd.Ended:Connect(function() snd:Destroy() end)
-	task.delay(6, function() if snd.Parent then snd:Destroy() end end)
 	FriendBar.applyHalf(tool, handle, 1, moved)
 	FriendBar.applyHalf(half, bHandle, 2, moved)
 	half:SetAttribute("KeptBy", owner.UserId)

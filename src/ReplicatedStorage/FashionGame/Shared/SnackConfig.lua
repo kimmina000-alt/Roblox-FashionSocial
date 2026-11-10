@@ -59,7 +59,7 @@ local CAFE_ITEMS: {Item} = {
 	{ key = "smoothie", name = "딸기 스무디", kind = "cup", color = Color3.fromRGB(240, 110, 140), coins = 20, section = T3 },
 	{ key = "frappe", name = "자바칩 프라푸치노", kind = "cup", color = Color3.fromRGB(120, 85, 65), topping = Color3.fromRGB(250, 250, 250), coins = 20, section = T3 },
 	{ key = "bluelemonade", name = "블루 레몬에이드", kind = "cup", color = Color3.fromRGB(90, 190, 255), coins = 20, section = T3 },
-	{ key = "croissant", name = "크루아상", kind = "bread", color = Color3.fromRGB(220, 165, 90), topping = Color3.fromRGB(240, 90, 110), coins = 20, section = T3 },
+	{ key = "croissant", name = "딸기크림크루아상", kind = "bread", color = Color3.fromRGB(220, 165, 90), topping = Color3.fromRGB(240, 90, 110), coins = 20, section = T3 },
 	-- (strawberry cream cake: coins or Robux, at the end of tier 2, priced like
 	-- the club's shared tier-2 bottles, user 2026-10-26)
 	{ key = "cake_strawberry", name = "딸기생크림 케이크 (6조각)", kind = "cake", color = Color3.fromRGB(252, 248, 242), topping = Color3.fromRGB(230, 40, 60), coins = 100, product = "Cafe_CakeStrawberry", share = 6, cake = "strawberry", section = T2 }, -- (unlocked D-781: the 3D model)

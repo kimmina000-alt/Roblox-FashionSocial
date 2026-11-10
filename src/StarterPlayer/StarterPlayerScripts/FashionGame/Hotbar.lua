@@ -92,6 +92,46 @@ function Hotbar.forget(tool: Tool)
 	Hotbar.changed:Fire()
 end
 
+-- (D-1164, user 2026-11-10: "내 가방 눌러서 나오는 아이템들이랑 화면 아래 네 칸으로 보이는
+-- 아이템이랑 드래그해서 위치 바꿀 수 있어야 함") the bag's own order: a card dropped on
+-- another card goes to its place. Tools never moved keep the order they came in.
+local bagOrder: {Tool} = {}
+function Hotbar.bagSort(list: {Tool}): {Tool}
+	for i = #bagOrder, 1, -1 do
+		local t = bagOrder[i]
+		if not t.Parent or not table.find(list, t) then table.remove(bagOrder, i) end
+	end
+	for _, t in ipairs(list) do
+		if not table.find(bagOrder, t) then table.insert(bagOrder, t) end
+	end
+	return table.clone(bagOrder)
+end
+-- `tool` to where `target` is (the others move one along)
+function Hotbar.moveInBag(tool: Tool, target: Tool)
+	if tool == target then return end
+	local from = table.find(bagOrder, tool)
+	if from then table.remove(bagOrder, from) end
+	local to = table.find(bagOrder, target)
+	if not to then table.insert(bagOrder, tool) else table.insert(bagOrder, to, tool) end
+	Hotbar.changed:Fire()
+end
+
+-- (D-1165, user 2026-11-10: "홈 화면에 아이템칸 가방에 아이템 다 넣으면 안 뜨게 해") the
+-- bar shows only with something in it, or while the bag is open / a card is
+-- being dragged (so a bag card still has somewhere to go)
+Hotbar.bagOpen = false
+function Hotbar.setBagOpen(open: boolean)
+	if Hotbar.bagOpen == open then return end
+	Hotbar.bagOpen = open
+	Hotbar.changed:Fire()
+end
+function Hotbar.anyInBar(): boolean
+	for i = 1, Hotbar.count() do
+		if Hotbar.get(i) then return true end
+	end
+	return false
+end
+
 -- drop zones -----------------------------------------------------------------
 
 type Zone = { gui: GuiObject, drop: (tool: Tool, position: Vector2) -> boolean }
@@ -109,6 +149,10 @@ local function inside(gui: GuiObject, p: Vector2): boolean
 	end
 	-- (a pointer position leaves out the top bar; a window that ignores the
 	-- top bar measures from the very top of the screen)
+	-- (D-1164) what is under the pointer, in its own space, first
+	for _, o in ipairs(player.PlayerGui:GetGuiObjectsAtPosition(p.X, p.Y)) do
+		if o == gui or o:IsDescendantOf(gui) then return true end
+	end
 	local screen = gui:FindFirstAncestorOfClass("ScreenGui")
 	if screen and screen.IgnoreGuiInset then p += game:GetService("GuiService"):GetGuiInset() end
 	local a, s = gui.AbsolutePosition, gui.AbsoluteSize
@@ -129,9 +173,13 @@ function Hotbar.isDragging(): boolean
 	return dragging ~= nil
 end
 
+-- (D-1164) where the card being dragged came from: "bag" or "bar"
+Hotbar.dragSource = nil :: string?
+
 -- `look` = the card to copy (its look follows the pointer)
-function Hotbar.beginDrag(tool: Tool, look: GuiObject, input: InputObject)
+function Hotbar.beginDrag(tool: Tool, look: GuiObject, input: InputObject, source: string?)
 	if dragging then return end
+	Hotbar.dragSource = source
 	local ghost = look:Clone()
 	for _, d in ipairs(ghost:GetDescendants()) do
 		if d:IsA("LuaSourceContainer") then d:Destroy() end
@@ -146,6 +194,7 @@ function Hotbar.beginDrag(tool: Tool, look: GuiObject, input: InputObject)
 		input = if input.UserInputType == Enum.UserInputType.Touch then input else nil,
 		touch = input.UserInputType == Enum.UserInputType.Touch,
 	}
+	Hotbar.changed:Fire() -- (D-1165: the bar shows while dragging)
 end
 
 UserInputService.InputChanged:Connect(function(input)
@@ -163,11 +212,14 @@ UserInputService.InputEnded:Connect(function(input)
 		dragging = nil
 		local at = Vector2.new(input.Position.X, input.Position.Y)
 		d.ghost:Destroy()
-		if not alive(d.tool) then return end
-		for i = #zones, 1, -1 do
-			local z = zones[i]
-			if inside(z.gui, at) and z.drop(d.tool, at) then return end
+		if alive(d.tool) then
+			for i = #zones, 1, -1 do
+				local z = zones[i]
+				if inside(z.gui, at) and z.drop(d.tool, at) then break end
+			end
 		end
+		Hotbar.dragSource = nil
+		Hotbar.changed:Fire() -- (D-1165: the bar hides again if it is empty)
 	end
 end)
 
@@ -177,6 +229,7 @@ local MOUSE_MOVE = 6
 local TOUCH_HOLD = 0.3
 local TOUCH_CANCEL = 12
 function Hotbar.pressable(card: GuiButton, tool: () -> Tool?, onTap: () -> (), holdFree: boolean?)
+	local source = if holdFree then "bar" else "bag" -- (D-1164: the bar's slots start a drag at once)
 	card.InputBegan:Connect(function(input)
 		if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
 		local t = tool()
@@ -201,13 +254,13 @@ function Hotbar.pressable(card: GuiButton, tool: () -> Tool?, onTap: () -> (), h
 				-- (in the bar a touch drag starts at once; in the bag only after the hold)
 				if holdFree and moved > MOUSE_MOVE then
 					stop()
-					Hotbar.beginDrag(t, card, input)
+					Hotbar.beginDrag(t, card, input, source)
 				elseif not holdFree and moved > TOUCH_CANCEL and os.clock() - began < TOUCH_HOLD then
 					stop() -- (a swipe: the list scrolls)
 				end
 			elseif moved > MOUSE_MOVE then
 				stop()
-				Hotbar.beginDrag(t, card, input)
+				Hotbar.beginDrag(t, card, input, source)
 			end
 		end)
 		endConn = UserInputService.InputEnded:Connect(function(e)
@@ -221,7 +274,7 @@ function Hotbar.pressable(card: GuiButton, tool: () -> Tool?, onTap: () -> (), h
 			task.delay(TOUCH_HOLD, function()
 				if done then return end
 				stop()
-				Hotbar.beginDrag(t, card, input)
+				Hotbar.beginDrag(t, card, input, source)
 			end)
 		end
 	end)

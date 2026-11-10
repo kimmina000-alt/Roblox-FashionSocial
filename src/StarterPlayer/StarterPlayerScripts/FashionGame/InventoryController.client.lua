@@ -185,13 +185,15 @@ local function tools(): {Tool}
 			if t:IsA("Tool") then table.insert(out, t) end
 		end
 	end
-	return out
+	return Hotbar.bagSort(out) -- (D-1164: the order the player dragged them into)
 end
+local cardTools: {[GuiObject]: Tool} = {}
 
 local function refreshItems()
 	for _, c in ipairs(list:GetChildren()) do
 		if c:IsA("GuiObject") then c:Destroy() end
 	end
+	table.clear(cardTools)
 	local items = tools()
 	empty.Text = "가방이 비어 있어요"
 	empty.Visible = #items == 0
@@ -204,6 +206,7 @@ local function refreshItems()
 		cell.AutoButtonColor = true
 		cell.BackgroundColor3 = if held then Color3.fromRGB(60, 24, 52) else Color3.fromRGB(30, 30, 42)
 		cell.Parent = list
+		cardTools[cell] = tool
 		corner(cell, 12)
 		local s = Instance.new("UIStroke")
 		s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
@@ -315,13 +318,35 @@ local function refresh()
 	if panel.Visible and tab == "items" then refreshItems() end
 end
 -- (D-1130) a slot of the bar dropped on the open bag: into the bag, out of the bar
-Hotbar.addZone(panel, function(tool: Tool): boolean
+-- (D-1164) dropped on a card: it takes that card's place in the bag; a bag card
+-- dropped in the bag only moves (it keeps its slot in the bar)
+Hotbar.addZone(panel, function(tool: Tool, at: Vector2): boolean
 	if not panel.Visible then return false end
+	local target: Tool? = nil
+	if tab == "items" then
+		-- (what is under the pointer, in the pointer's own space: adding the top
+		-- bar's inset by hand missed the cards in a Studio test)
+		for _, o in ipairs(player.PlayerGui:GetGuiObjectsAtPosition(at.X, at.Y)) do
+			local node: Instance? = o
+			while node and node ~= list do
+				local t = cardTools[node :: any]
+				if t then target = t break end
+				node = node.Parent
+			end
+			if target then break end
+		end
+	end
+	if Hotbar.dragSource == "bag" then
+		if target then Hotbar.moveInBag(tool, target) end
+		return true
+	end
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if humanoid and tool.Parent == player.Character then humanoid:UnequipTools() end
 	Hotbar.stow(tool)
+	if target then Hotbar.moveInBag(tool, target) end
 	return true
 end)
+panel:GetPropertyChangedSignal("Visible"):Connect(function() Hotbar.setBagOpen(panel.Visible) end) -- (D-1165)
 Hotbar.changed.Event:Connect(function() task.defer(refresh) end)
 
 local function setOpen(open: boolean, which: string?)

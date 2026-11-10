@@ -148,9 +148,11 @@ local EAT_SOUND = {
 -- (user 2026-10-30, later) one Creator Store clip instead: "Sipping"
 -- (140514526743537, 3.1 s); the own clips were 98804537108952, 105506248237925, 115770485617090
 -- (D-1063, user 2026-11-09: "국밥 먹는 소리: 133241476322672"; was 140514526743537)
-local GUKBAP_CLIPS = { 133241476322672 }
--- (D-1075, user 2026-11-09: "국밥 먹는 소리 앞에 0.5초 더 잘라") the clip from 0.5 s in
-local GUKBAP_FROM = 0.5
+-- (D-1162, user 2026-11-10: "국밥 먹는 소리 수정: 133347729618467"; was 133241476322672)
+local GUKBAP_CLIPS = { 133347729618467 }
+-- (D-1075, user 2026-11-09: "국밥 먹는 소리 앞에 0.5초 더 잘라") the old clip from 0.5 s in;
+-- the new clip from its start (D-1162)
+local GUKBAP_FROM = 0
 local lastGukbap = 0
 local function gukbapClip(): number?
 	local ready = {}
@@ -420,6 +422,7 @@ local function nextBite(root: Instance, set: {[number]: boolean}, wanted: number
 end
 
 local SOUND_WRAPPER = 75383018229679 -- (D-1065) 삼각김밥 포장 비닐 뜯는 소리
+local visualCut: (Tool, Instance?, number, number) -> ()
 local function bite(tool: Tool, item: SnackConfig.Item)
 	-- a cup the cafe staff is carrying to a customer is not theirs to drink
 	if tool:GetAttribute("Busy") or tool:GetAttribute("CafeOrder") then return end
@@ -562,21 +565,54 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 		end
 	end
 	if sound then sound:Play() end
-	task.wait(1.4)
+	local total = bitesOf(item)
+	-- (D-1161, user 2026-11-10: "음식 한 입 먹을 때마다 조각 사라지는 거 클릭하자마자 사라져야
+	-- 함. 먹는 소리 다 들리고 나중에 사라짐 현재는") the bite is cut as the food reaches
+	-- the mouth (the arm takes 0.28 s up), not after the sound (1.7 s). Things whose
+	-- parts are swapped for the bite (컵라면, 빼쭉이) still wait for their restore.
+	local early = restore == nil
+	local cut = false
+	local function cutBite(): number
+		cut = true
+		local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
+		tool:SetAttribute("Bites", left)
+		return left
+	end
+	local left = 0
+	if early then
+		task.wait(0.25)
+		left = cutBite()
+		visualCut(tool, handle, left, total)
+		task.wait(1.15)
+	else
+		task.wait(1.4)
+	end
 	-- (some eating clips run longer than a bite; the 국밥 clips are short, let them end)
 	if sound and item.kind ~= "bowl" then sound:Stop() end
 	character:SetAttribute("Eating", nil)
 	if restore then restore() end -- (before the bite is cut below)
 	if up and tool.Parent then TweenService:Create(tool, TweenInfo.new(0.3), { Grip = original }):Play() end
 	task.wait(0.3)
-	local total = bitesOf(item)
-	local left = ((tool:GetAttribute("Bites") :: number?) or total) - 1
-	tool:SetAttribute("Bites", left)
+	if not cut then
+		left = cutBite()
+		visualCut(tool, handle, left, total)
+	end
 	-- (D-1103) this bite's part of the food's XP, to the one eating
 	local eater = Players:GetPlayerFromCharacter(character)
 	if eater and economy then economy.EatXP(eater, tool, left + 1) end
 	if eater then Analytics.interact(eater, if item.kind == "cup" or item.kind == "bottle" then "Drink" else "Eat") end -- (D-1124)
-	-- a third of it is gone, from the top
+	tool:SetAttribute("Busy", nil)
+	if left <= 0 then
+		if finishedHandler and item.kind == "cup" and tool.Parent and tool.Parent:IsA("Model") then
+			task.spawn(finishedHandler, tool.Parent :: Model, item)
+		end
+		tool:Destroy()
+	end
+end
+
+-- (D-1161) the bite's piece goes: the next Bite part, a smaller store mesh, or
+-- the food cut down from the top / front
+function visualCut(tool: Tool, handle: Instance?, left: number, total: number)
 	local lo, hi = tool:GetAttribute("EatLo"), tool:GetAttribute("EatHi")
 	local zlo, zhi = tool:GetAttribute("EatZLo"), tool:GetAttribute("EatZHi")
 	if handle and handle:IsA("BasePart") and tool:GetAttribute("Ramen") then
@@ -603,13 +639,6 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 		eatFromFront(handle, zlo, zhi, left, total)
 	elseif handle and handle:IsA("BasePart") and typeof(lo) == "number" and typeof(hi) == "number" and left > 0 then
 		eatDownTo(handle, lo, hi, left, total)
-	end
-	tool:SetAttribute("Busy", nil)
-	if left <= 0 then
-		if finishedHandler and item.kind == "cup" and tool.Parent and tool.Parent:IsA("Model") then
-			task.spawn(finishedHandler, tool.Parent :: Model, item)
-		end
-		tool:Destroy()
 	end
 end
 
@@ -773,6 +802,14 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		if (item :: any).pair and eatMode == "Bites" then
 			tool:SetAttribute("Pair", true)
 			tool.ToolTip = "클릭(터치)해서 반으로 나누기"
+			-- (D-1160, user 2026-11-10: "친구바 처음 클릭했을 때 나는 소리 타이밍 느림 누르자마자
+			-- 들리게") the split sound waits in the bar from the start, loaded on every client
+			local split = Instance.new("Sound")
+			split.Name = "SplitSound"
+			split.SoundId = "rbxassetid://" .. tostring(FriendBar.SplitSound)
+			split.Volume = 1
+			split.RollOffMaxDistance = 40
+			split.Parent = handle
 		end
 	elseif kind == "cone" then
 		-- waffle cone (pointing down) with a scoop on top
@@ -1756,6 +1793,12 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	character:SetAttribute("Eating", true)
 	task.wait(0.35)
 	sound:Play()
+	-- (D-1161, user: "조각 사라지는 거 클릭하자마자 사라져야 함") the piece on the spoon / fork /
+	-- in the hand is gone as it reaches the mouth, not when the sound is over
+	for _, d in ipairs(handle:GetDescendants()) do
+		if d:IsA("BasePart") and (d.Name == "BitePiece" or d.Name == "Soup") then d.Transparency = 1 end
+		if (d:IsA("Decal") or d:IsA("Texture")) and d.Parent and (d.Parent.Name == "BitePiece" or d.Parent.Name == "Soup") then d.Transparency = 1 end
+	end
 	task.wait(1.1)
 	character:SetAttribute("Eating", nil)
 	if up and spoon.Parent then TweenService:Create(spoon, TweenInfo.new(0.3), { Grip = CFrame.new(0, -0.3, 0) }):Play() end

@@ -60,10 +60,12 @@ local function draw()
 	bar.Size = UDim2.fromOffset(n * size + (n - 1) * 6, size)
 	-- the bar shows while there is any item at all (in it or in the bag), with
 	-- its empty slots faint, so a bag card always has somewhere to go
+	-- (D-1165, user 2026-11-10: "홈 화면에 아이템칸 가방에 아이템 다 넣으면 안 뜨게 해") only
+	-- with something in the bar, or while the bag is open / a card is dragged
 	local any = player.Character ~= nil and player.Character:FindFirstChildOfClass("Tool") ~= nil
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if not any and backpack then any = backpack:FindFirstChildOfClass("Tool") ~= nil end
-	bar.Visible = any
+	bar.Visible = any and (Hotbar.anyInBar() or Hotbar.bagOpen or Hotbar.isDragging())
 	for i = 1, math.max(n, #cards) do
 		local card = cards[i]
 		if i > n then
@@ -130,6 +132,15 @@ end
 
 -- a drop on a slot: into the bar there (a swap when it came from another slot)
 Hotbar.addZone(bar, function(tool: Tool, at: Vector2): boolean
+	-- (D-1164) the slot under the pointer, in the pointer's own space
+	for _, o in ipairs(player.PlayerGui:GetGuiObjectsAtPosition(at.X, at.Y)) do
+		for i, c in pairs(cards) do
+			if o == c or o:IsDescendantOf(c) then
+				Hotbar.place(tool, i)
+				return true
+			end
+		end
+	end
 	for i, c in pairs(cards) do
 		local a, s = c.AbsolutePosition, c.AbsoluteSize
 		if at.X >= a.X - 3 and at.X <= a.X + s.X + 3 and at.Y >= a.Y - 10 and at.Y <= a.Y + s.Y + 10 then
