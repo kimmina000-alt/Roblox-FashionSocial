@@ -364,9 +364,15 @@ function DjService.Start()
 	-- live servers too, like the passes Roblox already gives a creator
 	-- (VIP / Guard: the owner owns every pass of their own experience; the DJ
 	-- is a product, bought each time, so it is given here)
-	if not game:GetService("RunService"):IsStudio() and game.CreatorType == Enum.CreatorType.User then
+	-- (D-1166, user 2026-11-10: "ahchimsae 한테 dj 권한 줘", a test account that
+	-- should not look like the developer) these players get DJ time on joining too
+	local GRANTED: {[number]: boolean} = {
+		[11350809588] = true, -- ahchimsae
+	}
+	if not game:GetService("RunService"):IsStudio() and (game.CreatorType == Enum.CreatorType.User or next(GRANTED) ~= nil) then
 		local function ownerDJ(player: Player)
-			if player.UserId ~= game.CreatorId then return end
+			local owner = game.CreatorType == Enum.CreatorType.User and player.UserId == game.CreatorId
+			if not owner and not GRANTED[player.UserId] then return end
 			task.delay(3, function() if player.Parent then DjService.AddTime(player) end end)
 		end
 		Players.PlayerAdded:Connect(ownerDJ)
