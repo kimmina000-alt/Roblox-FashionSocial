@@ -143,14 +143,39 @@ M.ChoreoFixes = {
 	-- 72° one way and 240° back: one turn from where 8 ended. 17 (1:48.9): a full turn with a
 	-- stop half way. 21 (2:07.6): 20 turns into it, 323° over the seam; 21 again at 2:20.5
 	-- (139.6-140.85). 23 (2:28.1): 400° in 1.5 s with a lurch
-	[115675906513114] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = 1, ease = "both" } }, -- 9
+	-- (D-1188, user: "1:00~1:01 팔 들면서 한바퀴 도는데 몸 덜썩거림 수정") the hips went 4.26-4.89 up and down through the
+	-- turn (song 59.2-62.2): their height follows a slow average there (`level`, 8's end and 9)
+	[115675906513114] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = 1, ease = "both" }, level = { from = -1, to = 2.3, ease = 0.3 } }, -- 9
+	[72328693870219] = { level = { from = 3.0, to = 4.5, ease = 0.3 } }, -- 8
+	-- (D-1188) 7 (song 40.17): "0:44 손목 밖으로 꺾고 반바퀴 반짝반짝": both hands up in front of the face at song
+	-- 43.8-45.3: the wrists bend out 40° and turn half way and back (앞으로 반짝반짝), 0.44 s a turn
+	[94645609133900] = { bend = { { part = "LeftHand", keys = { { 3.5, 0, 0, 0 }, { 3.8, 0, 0, -40 }, { 4.95, 0, 0, -40 }, { 5.2, 0, 0, 0 } } },
+		{ part = "LeftHand", keys = wristFlip(3.8, 4.95, 0.22, 150) },
+		{ part = "RightHand", keys = { { 3.5, 0, 0, 0 }, { 3.8, 0, 0, 40 }, { 4.95, 0, 0, 40 }, { 5.2, 0, 0, 0 } } },
+		{ part = "RightHand", keys = wristFlip(3.8, 4.95, 0.22, -150) } } },
+	-- (D-1188) 17 (song 105): "1:45 팔 움직일 때마다 손목 안쪽으로 꺾기 팔 살짝 뻗을 때는 손목 바깥으로 꺾기": the hands up over
+	-- the head; the left arm stretches at song 105.6 / 106.5 / 107.4 (elbow 23-48°) and bends between (95-116°),
+	-- the right stays bent but at 105.6: the wrists bend out on each stretch and in on each bend
+	[125963510042067] = { bend = {
+		{ part = "LeftHand", keys = { { -0.2, 0, 0, 0 }, { 0.0, 0, 0, 35 }, { 0.6, 0, 0, -35 }, { 0.9, 0, 0, 35 }, { 1.5, 0, 0, -35 }, { 2.1, 0, 0, 35 }, { 2.4, 0, 0, -35 }, { 3.0, 0, 0, 35 }, { 3.3, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { -0.2, 0, 0, 0 }, { 0.0, 0, 0, -35 }, { 0.6, 0, 0, 35 }, { 0.9, 0, 0, -35 }, { 3.0, 0, 0, -35 }, { 3.3, 0, 0, 0 } } } } },
+	-- (D-1188) 21 (song 115): "1:56 몸 30도 정도 왼쪽으로 돌면서 왼쪽 팔 팔꿈치 접고 호선 그리면서 회전 방향으로 움직이기": the body
+	-- turns 30° left over song 115.5-116.1 and holds to 116.9; the left arm, elbow bent 90°, sweeps from out to
+	-- the side round to the front, the way the body turns
+	[93178194866716] = { bend = { { part = "LowerTorso", keys = { { 0.4, 0, 0, 0 }, { 1.1, 0, 30, 0 }, { 1.9, 0, 30, 0 }, { 2.5, 0, 0, 0 } } } },
+		pose = { from = 0.35, to = 2.0, ease = 0.3, keys = {
+			{ t = 0.5, set = { LeftUpperArm = { 40, -30, -60 }, LeftLowerArm = { 90, 0, 0 } } },
+			{ t = 1.2, set = { LeftUpperArm = { 70, 0, -45 }, LeftLowerArm = { 90, 0, 0 } } },
+			{ t = 1.8, set = { LeftUpperArm = { 80, 30, -15 }, LeftLowerArm = { 85, 0, 0 } } } } } },
 	[86206068065508] = { spin = { from = 0, to = 1.4, fromPrev = true, dir = 1, turns = 1, ease = "both" } }, -- 17
 	-- (D-1058, user: "2:07 회전") 20 was still turning at ~210°/s when 21 took over, and 21's turn
 	-- started gently (ease both): it stalled at song 127.0-127.3 and whipped on (169° in 0.5 s).
 	-- 20 now plays its last 0.4 s over 0.52 s up to 21 (the 0.1 s hold before 21 started gone) and 21
 	-- turns on at one speed, ~220°/s as 20 came in (linear, 0-1.1 s)
 	[115787352538480] = { spin = { { from = 0, to = 1.1, fromPrev = true, dir = 1, ease = "linear" }, { from = 12.55, to = 13.8, ease = "both" } } }, -- 21
-	[99840608563579] = { spin = { from = 2.7, to = 4.25, ease = "both" } }, -- 23
+	-- (D-1188, user: "2:25 손목 인사하는 것처럼 흔들기") the right hand up at the side (song 144.3-145.1): it waves side to side
+	[99840608563579] = { spin = { from = 2.7, to = 4.25, ease = "both" }, bend = { { part = "RightHand", keys = { { 0, 0, 0, 0 },
+		{ 0.12, 45, 0, 0 }, { 0.28, -45, 0, 0 }, { 0.44, 45, 0, 0 }, { 0.6, -45, 0, 0 }, { 0.76, 0, 0, 0 } } } } }, -- 23
 	-- (D-1060) the new uploads 1 and 15: Play scan SPIN at 7.85 (1: the centre cut switches to
 	-- another member at 7.6-8.0 s and the capture spun 330° the wrong way; she turns 30°: one even
 	-- turn the short way, `turns = 1` undoing the wrong-way lap) and 92.48 (15: a 140° turn in
@@ -160,19 +185,57 @@ M.ChoreoFixes = {
 	[98655639854740] = { spin = { { from = 0, to = 0.9, fromPrev = true, dir = -1, ease = "both" }, { from = 3.2, to = 3.6, ease = "both" }, { from = 3.6, to = 4.2, ease = "both" } } }, -- 15
 	-- (D-1064) 19 cut again: side → back → front, one full turn the same way (0.8-1.6 s, the member blurred
 	-- at 0.9-1.5 in the clip); the capture turned to her back and whipped back 150° (796°/s at 108.76)
-	[128761870790634] = { spin = { from = 0.3, to = 1.8, turns = 1, ease = "out" } }, -- 19 (capture wraps back 150° at 1.0-1.2: one even lap, carried on from the blend)
+	-- (D-1188, user: "1:48 몸 이동": the body slid 0.9 stud during the lap at song 108.9-109.8: in place)
+	[128761870790634] = { spin = { from = 0.3, to = 1.8, turns = 1, ease = "out" }, still = { from = 0.7, to = 2.3 } }, -- 19 (capture wraps back 150° at 1.0-1.2: one even lap, carried on from the blend)
 	-- (D-1058, user: "1:22 버벅 / 이후로 덜덜 떨림 깔끔하게 큰 모션 위주로 정돈") 13 = clip 14, where the
 	-- centre cut lost the member for whole stretches (the picture all blurred at 1.0, 3.5-5.0, 6.0,
 	-- 7.5-8.0 s): its capture trembles throughout. Smoothed hard (24 passes, about 0.2 s), the
 	-- slower wobble eased too (calm): the big moves stay
-	[88699205496882] = { steady = { from = 0, to = 11.2, passes = 24 }, calm = true }, -- 13 (1:21-1:32)
+	-- (D-1188, user: "1:22 오른쪽 팔로 팔꿈치 접어서 들고 손목 꺾어서 꽃받침 > 왼쪽 똑같이 꽃받침 > 고개 갸웃 > 손목 안쪽으로 살짝
+	-- 꺾이면서 팔 부드럽게 바깥으로 호선 그리면서 내림 > 왼쪽 팔꿈치 접힌 상태로 팔 앞으로 … 우아하게 뻗으면서 손목 안쪽으로 꺾임 >
+	-- 오른쪽 팔 같은 동작으로 왼쪽보다 위로 > 왼쪽 팔 더 올라가서 뻗음 (팔 뻗을 때마다 손목 안쪽으로 꺾였다가 돌아오는 동작 반복)",
+	-- "1:30 손목 밖으로 꺾고 반짝반짝"): the capture has only the right hand at the chin (song 81.6-83.0, its wrist
+	-- already bent out 49°) and the left down; in the video (a wide group shot) the members hold the 1:23 hand
+	-- shapes. Set in order (piece time = song - 81): 1.0 right 꽃받침 (the capture's own pose), 2.0 the left the
+	-- same (the right arm's angles mirrored), 3.0-3.6 the head tilts, 4.2-5.0 both arms arc out and down with the
+	-- wrists a little in, 5.0 the left reaches forward (elbow bent), 5.8 the right the same and higher, 6.8 the
+	-- left higher, straight; each reach bends the wrist in and back; let go by 8.4 into the capture's hands at the
+	-- face (song 89.6), where (8.8-10.0) both wrists bend out and twinkle
+	[88699205496882] = { steady = { from = 0, to = 11.2, passes = 24 }, calm = true,
+		pose = { from = 1.7, to = 8.4, ease = 0.4, keys = (function()
+			local rK = { RightUpperArm = { 13, 14, -1 }, RightLowerArm = { 116, 26, -18 }, RightHand = { -8, -10, 49 } }
+			local lK = { LeftUpperArm = { 13, -14, 1 }, LeftLowerArm = { 116, -26, 18 }, LeftHand = { -8, 10, -49 } }
+			local function both(a, b) local s = {} for k, v in pairs(a) do s[k] = v end for k, v in pairs(b) do s[k] = v end return s end
+			local lDown = { LeftUpperArm = { 10, 0, -60 }, LeftLowerArm = { 20, 0, 0 }, LeftHand = { 0, 0, 20 } }
+			local rDown = { RightUpperArm = { 10, 0, 60 }, RightLowerArm = { 20, 0, 0 }, RightHand = { 0, 0, -20 } }
+			local lFwd = { LeftUpperArm = { 75, 0, -10 }, LeftLowerArm = { 40, 0, 0 }, LeftHand = { 0, 0, 0 } }
+			local rFwd = { RightUpperArm = { 105, 0, 10 }, RightLowerArm = { 30, 0, 0 }, RightHand = { 0, 0, 0 } }
+			local lHigh = { LeftUpperArm = { 140, 0, -10 }, LeftLowerArm = { 10, 0, 0 }, LeftHand = { 0, 0, 0 } }
+			local function wrist(t, side, deg) return { LeftHand = { 0, 0, if side == "L" then deg else 0 }, RightHand = { 0, 0, if side == "R" then -deg else 0 } } end
+			return {
+				{ t = 2.0, set = both(rK, lK) }, { t = 4.2, set = both(rK, lK) },
+				{ t = 5.0, set = both(lDown, rDown) },
+				{ t = 5.8, set = both(lFwd, rDown) },
+				{ t = 6.8, set = both(lFwd, rFwd) },
+				{ t = 7.8, set = both(lHigh, rFwd) },
+			}
+		end)() },
+		bend = { { part = "Head", keys = { { 3.0, 0, 0, 0 }, { 3.35, 0, 0, 15 }, { 3.9, 0, 0, 15 }, { 4.3, 0, 0, 0 } } },
+			-- each reach: the wrist in and back (left at 5.4 / 7.3, right at 6.3)
+			{ part = "LeftHand", keys = { { 5.0, 0, 0, 0 }, { 5.4, 0, 0, 40 }, { 5.8, 0, 0, 0 }, { 6.9, 0, 0, 0 }, { 7.3, 0, 0, 40 }, { 7.8, 0, 0, 0 } } },
+			{ part = "RightHand", keys = { { 5.9, 0, 0, 0 }, { 6.3, 0, 0, -40 }, { 6.8, 0, 0, 0 } } },
+			-- 1:30 both hands at the face: bent out, twinkle
+			{ part = "LeftHand", keys = { { 8.6, 0, 0, 0 }, { 8.85, 0, 0, -40 }, { 9.95, 0, 0, -40 }, { 10.2, 0, 0, 0 } } },
+			{ part = "RightHand", keys = { { 8.6, 0, 0, 0 }, { 8.85, 0, 0, 40 }, { 9.95, 0, 0, 40 }, { 10.2, 0, 0, 0 } } },
+			{ part = "LeftHand", keys = wristTwinkle(8.85, 9.95, 0.2, 60) }, { part = "RightHand", keys = wristTwinkle(8.85, 9.95, 0.2, 60) } } }, -- 13 (1:21-1:32)
 	-- (D-1058, user: "2:41 무릎 꿇으면서 손목 앞으로 꺽고 고개 옆으로 갸웃") 25 (from 159.1): kneeling, both
 	-- hands at the cheeks; in the video (clip 27) from 1.6 s the wrists bend forward and the head tilts
 	-- to her right, held to the end of the song (161.87) (x -35 = the fingers forward, checked in Play)
 	[98315614070332] = { bend = {
 		{ part = "Head", keys = { { 1.45, 0, 0, 0 }, { 1.85, 0, 0, -18 }, { 2.77, 0, 0, -18 } } },
-		{ part = "LeftHand", keys = { { 1.45, 0, 0, 0 }, { 1.85, -35, 0, 0 }, { 2.77, -35, 0, 0 } } },
-		{ part = "RightHand", keys = { { 1.45, 0, 0, 0 }, { 1.85, -35, 0, 0 }, { 2.77, -35, 0, 0 } } },
+		-- (D-1188, user: "마지막 포즈에 손목 밖으로 꺽어서 꽃받침") the hands at the chin bend out (palms up, fingers out)
+		{ part = "LeftHand", keys = { { 1.45, 0, 0, 0 }, { 1.85, 0, 0, -60 }, { 30, 0, 0, -60 } } },
+		{ part = "RightHand", keys = { { 1.45, 0, 0, 0 }, { 1.85, 0, 0, 60 }, { 30, 0, 0, 60 } } },
 	} }, -- 25 (2:40.5-)
 	-- ALLDAY PROJECT-CRASH 14 (D-1041, Play scan 1:49.4 SPIN 636°/s): the hips whip 100° back
 	-- (song 109.2-109.6) and settle: one even turn
@@ -811,7 +874,16 @@ M.ChoreoFixes = {
 	-- end pose (song 179.0 on) the hand under the chin had its fingers up; the wrist bends in 70° so the
 	-- fingers lie across under the chin and the back of the hand is up under the face (`bend` turns the
 	-- joint the game shows: her left hand, mirrored or not)
-	[127455820218376] = { bend = { { part = "LeftHand", keys = { { 8.9, 0, 0, 0 }, { 9.3, 0, 0, 70 }, { 30, 0, 0, 70 } } } } },
+	-- (D-1188, user: "2:56?57? 마지막에 손목 안으로 꺾은 거 밖으로 꺾어서 꽃받침처럼") the other way: bent out, palm up
+	-- under the chin, the fingers out to the side
+	[127455820218376] = { bend = { { part = "LeftHand", keys = { { 8.9, 0, 0, 0 }, { 9.3, 0, 0, -70 }, { 30, 0, 0, -70 } } } } },
+	-- (D-1188, user 2026-11-10, Catch Catch) 7 (song 48.27): "0:48 양쪽팔 벌리는 안무 더 높게 들어올리는 걸로 이어지게
+	-- 연결(1:48~1:50구간 동작 참고)": the arms open at song 49.2 with the hands at -1.8 (below the shoulders); 1:50
+	-- (v2 12) sweeps them up to +0.7 with the shoulders 1.5x (D-981): the same here
+	-- (1.5x only lifted the left hand to +0.2: 2x and the arms lifted 30° more out to the sides at the top)
+	[74567972410299] = { amp = { from = 0.55, to = 1.75, ease = 0.3, parts = { LeftUpperArm = 2, RightUpperArm = 2 } },
+		bend = { { part = "LeftUpperArm", keys = { { 0.9, 0, 0, 0 }, { 1.25, 0, 0, -30 }, { 1.5, 0, 0, -30 }, { 1.8, 0, 0, 0 } } },
+			{ part = "RightUpperArm", keys = { { 0.9, 0, 0, 0 }, { 1.25, 0, 0, 30 }, { 1.5, 0, 0, 30 }, { 1.8, 0, 0, 0 } } } } },
 	-- (D-1168, user 2026-11-10, ATEEZ-BAD) 9 (song 53): "55 측면으로 무릎 굽히고 앞으로 걸어가는 모션. (오리처럼 고개도
 	-- 움직이면 좋음) 얼굴은 정면 화면 봐야 함": the capture stands side on (hips -60°) from song 55.3; from
 	-- 55.0 to 57.9 a bent-knee walk, a step a beat (0.5 s), the head bobbing forward on each step and turned
@@ -862,26 +934,28 @@ M.ChoreoFixes = {
 	-- 이후에 한박자 쉬고 두 번 더 튕김": the arms stay down (the capture raised the
 	-- right arm at song 148.0 and the left at 149.1) and the chest pops on the
 	-- music's hits: song 148.13, (148.56 rest), 149.0, 149.44 (beats 0.434 s)
-	[115248452065042] = { spin = { from = 2.45, to = 3.6, ease = "both" }, still = { from = 4.9, to = 7.1 }, steady = { from = 4.9, to = 7.1, passes = 8 },
+	-- (D-1188, user: "2:25에 가슴 튕기는 안무 한박자 빠름") the pops, their arm swings and the 2:28 pose all one beat
+	-- (0.435 s, 138 bpm) later: 5.80 / 6.68 / 7.11
+	[115248452065042] = { spin = { from = 2.45, to = 3.6, ease = "both" }, still = { from = 4.9, to = 7.55 }, steady = { from = 4.9, to = 7.55, passes = 8 },
 		-- (D-987, user: "2:25~ 에 가슴 튕기는 거 원본 영상 보고 박자 잘 맞출 것. 팔 안무 추가할 것",
 		-- "2:28 안무 영상 보고 구현 수정"): in the video she arches with her head back at
 		-- video 147.6-147.8 = song 148.4, on the music's hit 148.56 (D-981 had the pops
 		-- one beat early): pops on the hits 148.56, (149.0 rest), 149.44, 149.87, the
 		-- arms swinging out a little with each pop; then at 2:28 (song 150.1-151.3) she
 		-- stands with the chest out and the chin up
-		pops = { at = { 5.36, 6.24, 6.67 }, sizes = { 1.8, 1, 1.2 }, push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.35 },
-		pose = { { from = 4.5, to = 7.0, ease = 0.3, keys = (function()
+		pops = { at = { 5.80, 6.68, 7.11 }, sizes = { 1.8, 1, 1.2 }, push = 0.5, lift = 0.2, arch = 8, out = 0.05, back = 0.35 },
+		pose = { { from = 4.5, to = 7.45, ease = 0.3, keys = (function()
 			local down = { LeftUpperArm = { 0, 0, -6 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 6 }, RightLowerArm = { 10, 0, 0 } }
 			local out = { LeftUpperArm = { -12, 0, -22 }, LeftLowerArm = { 28, 0, 0 }, RightUpperArm = { -12, 0, 22 }, RightLowerArm = { 28, 0, 0 } }
 			local keys = { { t = 4.5, set = down } }
-			for _, at in ipairs({ 5.36, 6.24, 6.67 }) do
+			for _, at in ipairs({ 5.80, 6.68, 7.11 }) do
 				table.insert(keys, { t = at - 0.06, set = down })
 				table.insert(keys, { t = at + 0.02, set = out })
 				table.insert(keys, { t = at + 0.3, set = down })
 			end
 			return keys
 		end)() },
-		{ from = 7.0, to = 8.2, ease = 0.3, keys = { { t = 7.0, add = { Head = { 10, 0, 0 }, UpperTorso = { 6, 0, 0 }, LeftUpperArm = { -8, 0, -4 }, RightUpperArm = { -8, 0, 4 } } } } },
+		{ from = 7.45, to = 8.65, ease = 0.3, keys = { { t = 7.45, add = { Head = { 10, 0, 0 }, UpperTorso = { 6, 0, 0 }, LeftUpperArm = { -8, 0, -4 }, RightUpperArm = { -8, 0, 4 } } } } },
 		-- (D-983) play bar 2:20 the left hand still across the body from v2 16: arm out of the body
 		{ from = -1, to = 0.7, ease = 0.3, keys = { { t = 0, add = { LeftUpperArm = { 10, 25, -8 } } } } } } },
 	-- RIIZE-Love 119 1 (D-962, user: "시작 부분에 처음 포즈로 가만히 서 있고 … 그
@@ -977,7 +1051,10 @@ M.ChoreoFixes = {
 	[114010461044470] = { spin = { from = 9.3, to = 9.85, ease = "both" }, -- v2 16 (2:21, +140° turn)
 		-- (D-983, user: play bar 2:19 "팔 몸통 통과") the arms folded across the chest at song
 		-- 141.5-142.3 sank into the body: upper arms turned 25° out, 8° open, 10° forward
-		pose = { from = 9.75, to = 12, ease = 0.3, keys = { { t = 9.75, add = { LeftUpperArm = { 10, 25, -8 }, RightUpperArm = { 10, -25, 8 } } } } } },
+		pose = { from = 9.75, to = 12, ease = 0.3, keys = { { t = 9.75, add = { LeftUpperArm = { 10, 25, -8 }, RightUpperArm = { 10, -25, 8 } } } } },
+		-- (D-1188, user: "2:19 손목 안쪽으로 꺾기") with the arms folded (song 141.4-142.5) both wrists bend in 45°
+		bend = { { part = "LeftHand", keys = { { 9.8, 0, 0, 0 }, { 10.1, 0, 0, 45 }, { 10.9, 0, 0, 45 }, { 11.2, 0, 0, 0 } } },
+			{ part = "RightHand", keys = { { 9.8, 0, 0, 0 }, { 10.1, 0, 0, -45 }, { 10.9, 0, 0, -45 }, { 11.2, 0, 0, 0 } } } } },
 	-- YENA-Catch Catch (D-968): Play scan SPIN 626-666°/s = fast real turns (one way, 155-210°), spread evenly
 	[98686361929027] = { spin = { from = 8.6, to = 9.5, ease = "both" } }, -- 4 (0:27)
 	[122624428391289] = { spin = { from = 0.5, to = 1.15, ease = "both" } }, -- 11 (1:34)

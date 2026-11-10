@@ -166,6 +166,8 @@ end
 
 -- (D-811) the zigzag keyframes eased: each choreography animation playing
 -- adds its correction at its own time, as much as it shows (its weight)
+local levelY: {[Model]: { y: number, at: number }} = setmetatable({}, { __mode = "k" }) :: any -- (D-1188) `level`
+local levelOn: {[Model]: { e: number, at: number }} = setmetatable({}, { __mode = "k" }) :: any
 local function smoothJoints(character: Model, tracks: {AnimationTrack})
 	-- (Studio only: FashionGame attributes ChoreoSmoothingOff / ChoreoRetargetOff compare without them)
 	local smooth = ClubConfig.ChoreoSmoothing and not (RunService:IsStudio() and FashionGame:GetAttribute("ChoreoSmoothingOff"))
@@ -304,6 +306,21 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 								local r = hips.RightVector
 								local want = hips.Rotation:Inverse() * CFrame.Angles(0, math.atan2(-r.Z, r.X), 0)
 								ut.Transform = ut.Transform:Lerp(CFrame.new(ut.Transform.Position) * want, e)
+							end
+						end
+					end
+					-- (D-1188, user: Lemon Tang "1:00~1:01 팔 들면서 한바퀴 도는데 몸 덜썩거림 수정") ChoreoFixes
+					-- `level = { from, to, ease? }`: the hips' height follows its own slow average there
+					-- (about 0.5 s), so a turn or steps do not bob the body up and down
+					local lvls = fx and fx.level
+					if lvls and lt then
+						for _, u in ipairs(if lvls.from then { lvls } else lvls) do
+							local tt = t.TimePosition
+							if tt > u.from and tt < u.to then
+								local e = math.clamp(math.min(tt - u.from, u.to - tt) / (u.ease or 0.3), 0, 1)
+								e = e * e * (3 - 2 * e) * weight
+								-- (applied after the floor lift, below: the lift was what bobbed)
+								levelOn[character] = { e = math.max(e, (levelOn[character] and os.clock() - levelOn[character].at < 0.02) and levelOn[character].e or 0), at = os.clock() }
 							end
 						end
 					end
@@ -750,7 +767,17 @@ RunService.PreSimulation:Connect(function(dt)
 				local hips = joint.Transform
 				-- (D-995) lifted off the floor if the body went into it last frame
 				dancingNow[character] = true
-				joint.Transform = CFrame.new(0, hips.Y + (floorLift[character] or 0), 0) * hips.Rotation
+				local hy = hips.Y + (floorLift[character] or 0)
+				-- (D-1188) `level`: the height (lift included) follows its own slow average, at most 0.3
+				-- stud under where the lift wants it
+				local lv = levelOn[character]
+				if lv and os.clock() - lv.at < 0.1 then
+					local st = levelY[character]
+					local avg = if st and os.clock() - st.at < 0.3 then st.y + (hy - st.y) * 0.03 else hy
+					levelY[character] = { y = avg, at = os.clock() }
+					hy += (math.max(avg, hy - 0.3) - hy) * lv.e
+				end
+				joint.Transform = CFrame.new(0, hy, 0) * hips.Rotation
 				-- (D-992, user: Lemonade 2:17 "자세를 기본으로 누운 다음, 다른 곳 움직이지
 				-- 말고 왼쪽 다리만 쭉 뻗는 걸로") ChoreoFixes `freeze = { from, to, ease?,
 				-- except = { parts } }`: the pose at `from` is kept for every joint but
