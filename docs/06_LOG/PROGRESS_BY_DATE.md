@@ -766,3 +766,4 @@
 ## 2026-11-10
 - Get A Guitar / Lemonade 음색 D-1122 전으로 복구 (D-1122).
 - Catch Catch 음색 D-1122 전으로 복구 (D-1122).
+- Catch Catch 저음 -20 (D-1122).
