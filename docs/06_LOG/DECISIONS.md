@@ -4177,3 +4177,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - BeachBallController: 던질 때 whoosh 뺌. 모든 화면에서 던진 공(ThrownBeachBall)의 속도(AssemblyLinearVelocity, 서버가 보내는 값: 위치는 화면보다 드물게 바뀌어 거짓 착지가 생겼음)를 보고, 떨어지다가 올라가거나 멈추면 그 공에서 BounceSound(4458219865). 크기 = 그 낙하의 가장 빠른 속도(1.5..40 → 0.12..0.8), 작은 반동일수록 조금 높게.
 - BeachBallService: 공 탄성 0.6, ElasticityWeight 1 → 100(모래와 반반 섞여 한 번만 톡 튀었음).
 - Play(모래 위, 힘 0.8): 4번 튕김, 소리 1.60 s 0.63 · 2.17 s 0.35 · 2.70 s 0.21 · 3.27 s 0.17, 오류 0.
+## D-1286 새 곡 3곡: Dragon-RESCENE, SHOCK-TREASURE, 백화요란-RESCENE (2026-11-11)
+- 사용자 요청(음원 테스트 세션의 lab 값, 매니저 세션 전달). 셋 다 x1 업로드, 안무 없음, 목록 끝(BiiiG BiiiG 다음)에 추가. 제목은 D-1281 순서(노래제목-가수).
+- Dragon-RESCENE 82349082640186: 209.555 s(Studio에서 잼), fileSpeed 1.0498, tempo 0.953 (× = 1.000), boost 10 / boost2 5 / boost3 2, EQ 0/0/0. 곡 3:40.
+- SHOCK-TREASURE 94024099429072: 160.832 s, fileSpeed 1.0446, tempo 0.957 (× = 1.000), boost 10 / 5 / 2, EQ 0/0/0. 곡 2:48.
+- 백화요란-RESCENE 74619423082896: 200.975 s, fileSpeed 1.0499, tempo 0.952 (× = 0.999), boost 10 / 5 / 2, EQ -4.5/-1/-10.5. 곡 3:31.
+- boost4는 셋 다 1이라 뺌. Play로 들어 보지는 않음.
