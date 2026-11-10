@@ -744,6 +744,19 @@ M.ChoreoFixes = {
 	-- 부드럽게 웨이브하듯이": she opens both arms out and up at song 111.6-112.3, the capture
 	-- only to the waist; the upper arms turn 1.5x as far there
 	[88923183102495] = { amp = { from = 3.7, to = 5.2, ease = 0.4, parts = { LeftUpperArm = 1.5, RightUpperArm = 1.5 } } },
+	-- (D-1070, user 2026-11-10: "캐치캐치 2:06부터 버벅거림. 바로 전 동작이랑 같은 안무일 거임. 원본 확인 후 동작
+	-- 반복으로 매끄럽게"): v2 13 (song 121) dances one move twice, 2.4 s apart (hand by the face at clip
+	-- 4.05 / 6.45, the bent-knee sway at 4.8 / 7.2), and the member in front hides her each time (3.75-3.9,
+	-- 6.15-6.3): the second time the capture shook (23°/frame, 7 turn-backs at song 127.3-127.7). From
+	-- 5.95 s (song 126.95, where the two times are closest, 15° apart) it plays the first time again
+	-- (3.6-5.42 s), smoothed over the seam
+	[73949956743570] = { warp = { { from = 0, to = 5.95, play = { 0, 5.95 } }, { from = 5.95, to = 7.77, play = { 3.6, 5.42 } } },
+		steady = { from = 5.75, to = 6.35, passes = 8 } },
+	-- (D-1070, user: "마지막 자세 잡을 때 손목 안쪽으로 꺾기 손등에 얼굴 올리는 것처럼") v2 20 (song 169.73): in the
+	-- end pose (song 179.0 on) the hand under the chin had its fingers up; the wrist bends in 70° so the
+	-- fingers lie across under the chin and the back of the hand is up under the face (`bend` turns the
+	-- joint the game shows: her left hand, mirrored or not)
+	[127455820218376] = { bend = { { part = "LeftHand", keys = { { 8.9, 0, 0, 0 }, { 9.3, 0, 0, 70 }, { 30, 0, 0, 70 } } } } },
 	-- v2 17 (song 143.2): 2:26 the walk into the circle turned 31° back, flicked
 	-- round at 720°/s, stopped, then turned on: one even turn (piece 2.45-3.6 s);
 	-- the pops stand still and calm (still + steady) so they show
