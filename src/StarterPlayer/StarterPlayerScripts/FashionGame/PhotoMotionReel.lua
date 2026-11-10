@@ -39,6 +39,7 @@ local recording = false
 local center: Vector3? = nil
 local lastSample = 0
 local playing = false
+local guided = false -- (D-1266: the 공유하기 card shown once per visit)
 
 -- a part's place inside its character, as a key (cached)
 local paths: {[Instance]: string} = setmetatable({}, { __mode = "k" }) :: any
@@ -159,6 +160,36 @@ function Reel.has(picks: {number}): boolean
 	return false
 end
 
+-- (D-1139, user 2026-11-10: "동그라미 속 발판 부스 안 공간에는 있지만 사진 찍기 시작하면 저
+-- 화면에서 안 보이게 해. 사진 찍을 때까지 기다리는 처음 10초에는 공간 다 보이지만 찍기
+-- 시작하면 안 보이게.") the booth's two stools (StoolTop / StoolLeg / StoolRail) are
+-- hidden on this screen while it shoots (and in the motion video), shown again after
+local hiddenStools: {[BasePart]: boolean} = {}
+local stoolBooth: Instance? = nil -- (the booth last shot in: the video hides its stools too)
+local stoolWatch: RBXScriptConnection? = nil
+local function hideStool(p: Instance)
+	if p:IsA("BasePart") and string.match(p.Name, "^Stool") and not hiddenStools[p] then
+		hiddenStools[p] = true
+		p.LocalTransparencyModifier = 1
+	end
+end
+function Reel.hideStools(booth: Instance?, hide: boolean)
+	if booth then stoolBooth = booth end
+	if hide and booth then
+		-- (D-1181: descendants, so the 키높이 발판's stool inside BoothStep goes too,
+		-- and one put down while shooting)
+		for _, p in ipairs(booth:GetDescendants()) do hideStool(p) end
+		if stoolWatch then stoolWatch:Disconnect() end
+		stoolWatch = booth.DescendantAdded:Connect(hideStool)
+	elseif not hide then
+		if stoolWatch then stoolWatch:Disconnect() stoolWatch = nil end
+		for p in pairs(hiddenStools) do
+			if p.Parent then p.LocalTransparencyModifier = 0 end
+		end
+		table.clear(hiddenStools)
+	end
+end
+
 -- replays the picked cuts and records them; onDone(message) when finished
 function Reel.play(picks: {number}, onDone: (string?) -> ())
 	if playing then return end
@@ -170,6 +201,64 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	if #list == 0 then onDone("영상으로 남은 컷이 없어요.") return end
 	playing = true
 	local playerGui = player:WaitForChild("PlayerGui")
+	-- (D-1266, user 2026-11-10: "그냥 기존 걸로 두자 전체 화면으로 공유하기 해야 저장된다는
+	-- 것만 안내 제대로 하자") before the first replay of this visit: a card that
+	-- says the video is kept only through 공유하기, with a button to start
+	if not guided then
+		guided = true
+		local g = Instance.new("ScreenGui")
+		g.Name = "PhotoReelGuide"
+		g.IgnoreGuiInset = true
+		g.DisplayOrder = 120
+		local dim = Instance.new("Frame")
+		dim.Size = UDim2.fromScale(1, 1)
+		dim.BackgroundColor3 = Color3.fromRGB(20, 16, 26)
+		dim.BackgroundTransparency = 0.35
+		dim.Active = true
+		dim.Parent = g
+		local card = Instance.new("Frame")
+		card.AnchorPoint = Vector2.new(0.5, 0.5)
+		card.Position = UDim2.fromScale(0.5, 0.5)
+		card.Size = UDim2.fromOffset(330, 232)
+		card.BackgroundColor3 = Color3.fromRGB(255, 246, 250)
+		card.Parent = dim
+		Instance.new("UICorner", card).CornerRadius = UDim.new(0, 16)
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = Color3.fromRGB(255, 182, 206)
+		stroke.Thickness = 3
+		stroke.Parent = card
+		local function text(y: number, h: number, s: string, size: number, bold: boolean, color: Color3)
+			local l = Instance.new("TextLabel")
+			l.Position = UDim2.new(0, 18, 0, y)
+			l.Size = UDim2.new(1, -36, 0, h)
+			l.BackgroundTransparency = 1
+			l.Font = if bold then Enum.Font.GothamBold else Enum.Font.GothamMedium
+			l.TextSize = size
+			l.TextWrapped = true
+			l.TextColor3 = color
+			l.Text = s
+			l.Parent = card
+		end
+		text(16, 26, "🎬 영상 저장 안내", 19, true, Color3.fromRGB(60, 30, 45))
+		text(50, 116, "1. 영상을 끝까지 봐 주세요.\n2. 끝나면 공유 화면이 떠요.\n3. 공유 화면에서 \"저장\"을 눌러야\n    영상이 내 기기에 저장돼요.\n(공유하지 않고 닫으면 저장되지 않아요)", 14, false, Color3.fromRGB(80, 55, 70))
+		local go = Instance.new("TextButton")
+		go.AnchorPoint = Vector2.new(0.5, 1)
+		go.Position = UDim2.new(0.5, 0, 1, -14)
+		go.Size = UDim2.fromOffset(200, 40)
+		go.BackgroundColor3 = Color3.fromRGB(255, 120, 170)
+		go.TextColor3 = Color3.new(1, 1, 1)
+		go.Font = Enum.Font.GothamBold
+		go.TextSize = 16
+		go.Text = "확인, 영상 보기"
+		go.Parent = card
+		Instance.new("UICorner", go).CornerRadius = UDim.new(0, 12)
+		local pressed = false
+		go.Activated:Connect(function() pressed = true end)
+		g.Parent = playerGui
+		local waited = 0
+		while not pressed and waited < 30 do waited += task.wait(0.1) end
+		g:Destroy()
+	end
 	-- off: the screen guis, the real characters (for this player only)
 	local hiddenGuis = {}
 	for _, g in ipairs(playerGui:GetChildren()) do
@@ -217,13 +306,15 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	local videoDone = false
 	local message: string? = nil
 	local recordingVideo = false
+	-- (D-1180, user 2026-11-10: "영상 저장 > 다 보고 난 뒤에 공유하기 보여 주면서 공유하기로만
+	-- 저장할 수 있다고 알려주기. 공유해야 저장되게 해 지금 걍 저장되네") the video is kept
+	-- here, not saved; after the replay the share sheet comes up (see the end)
+	local video: any = nil
 	local ok, started = pcall(function()
 		return CaptureService:StartVideoCaptureAsync(function(result, capture)
 			videoDone = true
 			if (result == Enum.VideoCaptureResult.Success or result == Enum.VideoCaptureResult.TimeLimitReached) and capture then
-				pcall(function()
-					CaptureService:PromptSaveCapturesToGallery({ capture }, function() end)
-				end)
+				video = capture
 			else
 				message = "영상을 저장하지 못했어요. (" .. tostring(result) .. ")"
 			end
@@ -308,30 +399,21 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	for _, tag in ipairs(hiddenTags) do if tag.Parent then tag.Enabled = true end end
 	Reel.hideStools(nil, false)
 	playing = false
-	onDone(message)
-end
-
--- (D-1139, user 2026-11-10: "동그라미 속 발판 부스 안 공간에는 있지만 사진 찍기 시작하면 저
--- 화면에서 안 보이게 해. 사진 찍을 때까지 기다리는 처음 10초에는 공간 다 보이지만 찍기
--- 시작하면 안 보이게.") the booth's two stools (StoolTop / StoolLeg / StoolRail) are
--- hidden on this screen while it shoots (and in the motion video), shown again after
-local hiddenStools: {[BasePart]: boolean} = {}
-local stoolBooth: Instance? = nil -- (the booth last shot in: the video hides its stools too)
-function Reel.hideStools(booth: Instance?, hide: boolean)
-	if booth then stoolBooth = booth end
-	if hide and booth then
-		for _, p in ipairs(booth:GetChildren()) do
-			if p:IsA("BasePart") and string.match(p.Name, "^Stool") and not hiddenStools[p] then
-				hiddenStools[p] = true
-				p.LocalTransparencyModifier = 1
-			end
-		end
-	elseif not hide then
-		for p in pairs(hiddenStools) do
-			if p.Parent then p.LocalTransparencyModifier = 0 end
-		end
-		table.clear(hiddenStools)
+	-- (D-1180) the whole replay seen: the share sheet, and the note that sharing
+	-- is the only way to keep the video (pick 저장 there)
+	if video then
+		onDone("🎬 영상은 공유하기로만 저장할 수 있어요. 공유 화면에서 저장을 골라 주세요.")
+		local shared = pcall(function()
+			CaptureService:PromptShareCapture(Content.fromObject(video), "", function()
+				onDone("🎬 영상을 공유했어요!")
+			end, function()
+				onDone("공유하지 않아서 영상이 저장되지 않았어요. 🎬 영상 저장을 다시 눌러 주세요.")
+			end)
+		end)
+		if not shared then onDone("이 기기에서는 영상을 공유할 수 없어요.") end
+		return
 	end
+	onDone(message)
 end
 
 function Reel.isPlaying(): boolean

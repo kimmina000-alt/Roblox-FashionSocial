@@ -107,14 +107,14 @@ local toastLabel = text({
 }, gui)
 corner(toastLabel, 12)
 local toastToken = 0
-local function toast(message: any)
+local function toast(message: any, seconds: number?)
 	if typeof(message) ~= "string" or message == "" then return end
 	toastToken += 1
 	local token = toastToken
 	toastLabel.Size = UDim2.fromOffset(math.min(440, viewport().X - 30), 40)
 	toastLabel.Text = message
 	toastLabel.Visible = true
-	task.delay(3.2, function()
+	task.delay(seconds or 3.2, function()
 		if toastToken == token then toastLabel.Visible = false end
 	end)
 end
@@ -742,6 +742,12 @@ end
 
 local posePanel, poseList = sidePanel("Poses", "포즈")
 local propPanel, propList = sidePanel("Props", "소품")
+-- (D-1182, user 2026-11-10: "포즈 지금 아래로 드래그인데 옆으로 드래그로 변경") the pose
+-- list scrolls sideways: the buttons fill each column top to bottom, then the
+-- next column to the right (rows / cell width set in layoutShoot)
+poseList.ScrollingDirection = Enum.ScrollingDirection.X
+poseList.AutomaticCanvasSize = Enum.AutomaticSize.X
+;(poseList:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout).FillDirection = Enum.FillDirection.Vertical
 
 -- dark card buttons with white text, like the other photo windows (user
 -- 2026-10-30; were light sky blue); the chosen one is pink
@@ -836,6 +842,37 @@ do -- pose buttons: ⏸ (freeze the pose), 기본 (stop) + club poses and dances
 		if player.Character then watch(player.Character) end
 		player.CharacterAdded:Connect(watch)
 	end
+	-- (D-1183, user 2026-11-10: "오후네컷 표정 추가") the faces (BoothPose.Faces), pink
+	-- while on; the same again = off. Only dynamic heads move their face.
+	do
+		local BoothPose = require(Shared:WaitForChild("BoothPose"))
+		local faceButtons: {[string]: TextButton} = {}
+		for _, f in ipairs(BoothPose.Faces) do
+			faceButtons[f.key] = add(f.label, function()
+				local character = player.Character
+				if character and not BoothPose.faceControls(character) then
+					toast("움직이는 얼굴(다이내믹 헤드)에서만 표정이 바뀌어요.")
+					return
+				end
+				local ok, message = invoke("Face", f.key)
+				if not ok and typeof(message) == "string" then toast(message) end
+			end)
+		end
+		local function paint()
+			local character = player.Character
+			local on = character and character:GetAttribute("BoothFace")
+			for key, b in pairs(faceButtons) do
+				b.BackgroundColor3 = if on == key then COLORS.pink else SKY_BUTTON
+				b.TextColor3 = if on == key then Color3.new(1, 1, 1) else SKY_TEXT
+			end
+		end
+		local function watch(character: Model)
+			character:GetAttributeChangedSignal("BoothFace"):Connect(paint)
+			paint()
+		end
+		if player.Character then watch(player.Character) end
+		player.CharacterAdded:Connect(watch)
+	end
 	for _, category in ipairs(PhotoConfig.PoseCategoryOrder) do
 		for _, dance in ipairs(ClubConfig.Dances) do
 			if dance.category == category then
@@ -909,6 +946,11 @@ local function layoutShoot()
 	local panelH = if touch then math.min(h, 34 * 3 + 4 * 2 + 40) else h
 	posePanel.Position = UDim2.fromOffset(x - panelW - 10, y)
 	posePanel.Size = UDim2.fromOffset(panelW, panelH)
+	do -- (D-1182) as many rows as fit, two columns in view, the rest to the right
+		local grid = poseList:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
+		grid.FillDirectionMaxCells = math.max(1, math.floor((panelH - 34 - 3 + 4) / 38))
+		grid.CellSize = UDim2.fromOffset(math.floor((panelW - 12) / 2 - 3), 34)
+	end
 	propPanel.Position = UDim2.fromOffset(x + w + 10, y)
 	propPanel.Size = UDim2.fromOffset(panelW, panelH)
 	tip.Position = UDim2.fromOffset(x, y + h - 24)
@@ -1458,7 +1500,7 @@ end)
 resultButton("🎬 영상 저장", COLORS.pink, 2, function()
 	if require(script.Parent:WaitForChild("PhotoMotionReel")).isPlaying() then return end
 	require(script.Parent:WaitForChild("PhotoMotionReel")).play(state.picks or {}, function(message)
-		if message then toast(message) end
+		if message then toast(message, 7) end -- (D-1266: long enough to read around the share screen)
 	end)
 end)
 resultButton("🎒 가방에서 보기", COLORS.card, 3, function()

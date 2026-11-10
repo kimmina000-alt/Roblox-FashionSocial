@@ -32,13 +32,15 @@ local kneeling: {[Model]: boolean} = {}
 -- screen): the photo walls hold dozens of kneeling rigs that were posed every
 -- frame from anywhere on the map; checked twice a second
 local kneelNear: {[Model]: boolean} = {}
+-- (D-1183) the 표정 of each rig (entry.f), set the same way
+local faces: {[Model]: string} = {}
 local nextCheck = 0
 RunService.Stepped:Connect(function()
 	local now = os.clock()
 	if now >= nextCheck then
 		nextCheck = now + 0.5
 		local camera = workspace.CurrentCamera
-		for rig in pairs(kneeling) do
+		local function check(rig: Model)
 			local gui = rig:FindFirstAncestorWhichIsA("LayerCollector")
 			local near = true
 			if gui and gui:IsA("SurfaceGui") then
@@ -47,13 +49,23 @@ RunService.Stepped:Connect(function()
 			end
 			kneelNear[rig] = near
 		end
+		for rig in pairs(kneeling) do check(rig) end
+		for rig in pairs(faces) do check(rig) end
 	end
 	for rig in pairs(kneeling) do
 		if not rig.Parent then
 			kneeling[rig] = nil
-			kneelNear[rig] = nil
+			if not faces[rig] then kneelNear[rig] = nil end
 		elseif kneelNear[rig] ~= false then
 			BoothPose.kneel(rig)
+		end
+	end
+	for rig, key in pairs(faces) do
+		if not rig.Parent then
+			faces[rig] = nil
+			kneelNear[rig] = nil
+		elseif kneelNear[rig] ~= false then
+			BoothPose.face(rig, key)
 		end
 	end
 end)
@@ -187,13 +199,9 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 		setPart(world, Vector3.new(44, 16, 0.5), CFrame.new(0, 2, 6.25), back)
 		setPart(world, Vector3.new(44, 0.3, 15), CFrame.new(0, -5.85, 0), back:Lerp(Color3.new(1, 1, 1), 0.4))
 	end
-	for _, entry in ipairs(shot.people or {}) do
-		local s = entry.s -- 키높이 발판: { x, y, z, width, height } in stand space
-		if typeof(s) == "table" and #s == 5 then
-			-- (D-1139) the stool the booth gives (BoothPose.stool), as in the booth
-			BoothPose.stool(world, CFrame.new(s[1], s[2], s[3]), s[4], s[5], s[4] * 0.75)
-		end
-	end
+	-- (D-1181, user 2026-11-10: "다 찍은 사진에 키높이 발판 보임. 안 보이게 해.") the step
+	-- (entry.s, D-1139 drew it as the booth's stool) is no longer drawn: the
+	-- person stands at its height, the stool under them is left out
 	for _, entry in ipairs(shot.people or {}) do
 		local info = people[entry.u]
 		local base = info and info.o and template(info.o)
@@ -204,6 +212,10 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 			if entry.kn then
 				kneeling[rig] = true
 				BoothPose.kneel(rig)
+			end
+			if BoothPose.isFace(entry.f) then -- (D-1183)
+				faces[rig] = entry.f
+				BoothPose.face(rig, entry.f)
 			end
 			local humanoid = rig:FindFirstChildOfClass("Humanoid")
 			if humanoid then

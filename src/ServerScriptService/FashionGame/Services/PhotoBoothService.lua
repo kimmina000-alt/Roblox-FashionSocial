@@ -260,6 +260,7 @@ local function clearProps(player: Player)
 	if not character then return end
 	character:SetAttribute("BoothKneel", nil)
 	character:SetAttribute("BoothStep", nil)
+	character:SetAttribute("BoothFace", nil) -- (D-1183)
 	-- (D-1136) the height back to normal
 	local hip0 = character:GetAttribute("BoothHip0")
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
@@ -372,6 +373,9 @@ local function captureShot(session: Session, stand: BasePart, at: number): any
 				p = PhotoProps.worn(character),
 			}
 			if character:GetAttribute("BoothKneel") then entry.kn = 1 end
+			-- (D-1183) the 표정 chosen, drawn on the saved photo
+			local face = character:GetAttribute("BoothFace")
+			if BoothPose.isFace(face) then entry.f = face end
 			local step = steps[person]
 			if step then
 				local s = stand.CFrame:PointToObjectSpace(step.Position)
@@ -1198,6 +1202,17 @@ local function handle(player: Player, action: any, payload: any): (boolean, any)
 		return toggleProp(player, payload)
 	elseif action == "Kneel" or action == "Step" or action == "Down" or action == "Up" or action == "StandUp" then
 		return toggleHelper(player, action)
+	elseif action == "Face" then
+		-- (D-1183, user 2026-11-10: "표정 추가") one face at a time; the same again = off
+		local session = byPlayer[player]
+		local character = player.Character
+		if not session or not character or (session.phase ~= "shooting" and session.phase ~= "waiting") then return false, nil end
+		if not BoothPose.isFace(payload) or character:GetAttribute("BoothFace") == payload then
+			character:SetAttribute("BoothFace", nil)
+			return true, nil
+		end
+		character:SetAttribute("BoothFace", payload)
+		return true, payload
 	elseif action == "PickUpdate" then
 		return pickUpdate(player, payload)
 	elseif action == "Confirm" then
