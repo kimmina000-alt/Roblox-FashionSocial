@@ -124,7 +124,11 @@ M.Playlist = {
 		{ id = 120592352351697, at = 153.36, blend = 0.4 }, { id = 110416135198674, at = 155.43, blend = 0.52 }, { id = 124091598492660, at = 156.86, blend = 0.49 },
 		{ id = 98754942494305, at = 161.5, blend = 0.6 }, { id = 105066453794976, at = 170.27, blend = 0.49 }, { id = 130670560182985, at = 171.27, blend = 0.6 },
 		{ id = 125902811896005, at = 179.22, blend = 1 }, { id = 105428606733839, at = 188.56, blend = 0.84 }, { id = 127287424998997, at = 200.44, blend = 0.71 },
-		{ id = 115574620758490, at = 201.47, blend = 0.48 }, { id = 127828014236660, at = 210.11, blend = 0.94 } }, autoChoreo = true },
+		-- (D-1168, user: "3:30 멈추는 팔 있음 동작 연결되게 중간이 튀는 프레임 삭제해도 됨"): 26 came in over 0.94 s while 25 stood
+		-- on its last pose, so the arms stopped: 26 from 0.2 s (the frame closest to 25's end, 21°), blend 0.35, its
+		-- first 0.3 s played over 0.54 s from 210.07 (where 25 ends);
+		-- "3:44 무릎 꿇고 있을 때 한번 위로 들썩": its last 0.4 s is played over 11.4 s more, so she stays kneeling to the song's end
+		{ id = 115574620758490, at = 201.47, blend = 0.48 }, { id = 127828014236660, at = 210.31, from = 0.2, blend = 0.35, slowIn = { 0.3, 0.24 }, slowOut = { 0.4, 11.0 } } }, autoChoreo = true },
 	-- (D-919, user 2026-11-06: new upload, tuned in the lab; was 91762270038050, a 3× file of 53.553 s)
 	-- the D-919 file 133586602463513 was the same edit at 1.0908× (3 × 53.553 ÷ 147.285; loudness of both matched,
 	-- same start, no drift), so `at` and the stage camera keep the old song clock

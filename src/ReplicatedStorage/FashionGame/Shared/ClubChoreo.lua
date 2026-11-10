@@ -82,6 +82,61 @@ M.LemonadeSideSit = {
 	RightUpperArm = { -20, 0, 20 }, RightLowerArm = { 0, 0, 0 },
 	LeftUpperArm = { 30, 0, -10 }, LeftLowerArm = { 30, 0, 0 },
 }
+-- (D-1168) wrist keys for `bend`: circles (x → z → −x → −z, `period` a circle), twinkle (반짝반짝: the hand
+-- turned about its own long axis, +amp / −amp every `half` s), flip (앞으로 반짝반짝: half a turn and back);
+-- every list starts and ends at 0
+local function wristCircles(t0: number, t1: number, period: number, amp: number)
+	local keys, q, i = { { t0, 0, 0, 0 } }, period / 4, 0
+	local turn = { { amp, 0, 0 }, { 0, 0, amp }, { -amp, 0, 0 }, { 0, 0, -amp } }
+	local t = t0 + q
+	while t <= t1 - q * 0.5 do
+		local s = turn[i % 4 + 1]
+		table.insert(keys, { t, s[1], s[2], s[3] })
+		t += q
+		i += 1
+	end
+	table.insert(keys, { t, 0, 0, 0 })
+	return keys
+end
+local function wristTwinkle(t0: number, t1: number, half: number, amp: number, from0: number?)
+	local keys, t, sign = { { t0, 0, 0, 0 } }, t0 + half * 0.5, 1
+	while t <= t1 - half * 0.5 do
+		table.insert(keys, { t, 0, sign * amp + (from0 or 0), 0 })
+		t += half
+		sign = -sign
+	end
+	table.insert(keys, { t, 0, 0, 0 })
+	return keys
+end
+local function wristFlip(t0: number, t1: number, half: number, amp: number)
+	local keys, t, up = { { t0, 0, 0, 0 } }, t0 + half, true
+	while t <= t1 do
+		table.insert(keys, { t, 0, if up then amp else 0, 0 })
+		t += half
+		up = not up
+	end
+	if keys[#keys][3] ~= 0 then table.insert(keys, { t, 0, 0, 0 }) end
+	return keys
+end
+-- (D-1168) a bent-knee walk on the spot, one step a `step` s, the head bobbing like a duck's and turned
+-- to the front (`turn` degrees about the neck, part of it in the chest)
+local function duckWalk(t0: number, t1: number, step: number, turn: number)
+	local keys, t, left = {}, t0, true
+	local function leg(up)
+		return if up then { { 70, 0, 0 }, { -100, 0, 0 }, { 30, 0, 0 } } else { { 40, 0, 0 }, { -65, 0, 0 }, { 25, 0, 0 } }
+	end
+	while t <= t1 + 1e-6 do
+		local l, r = leg(left), leg(not left)
+		table.insert(keys, { t = t, set = { LeftUpperLeg = l[1], LeftLowerLeg = l[2], LeftFoot = l[3], RightUpperLeg = r[1], RightLowerLeg = r[2], RightFoot = r[3] },
+			add = { Head = { if left then -14 else 4, turn * 0.6, 0 }, UpperTorso = { 0, turn * 0.4, 0 } }, move = { LowerTorso = { 0, -0.75, 0 } } })
+		t += step / 2
+		table.insert(keys, { t = t, set = { LeftUpperLeg = { 45, 0, 0 }, LeftLowerLeg = { -72, 0, 0 }, LeftFoot = { 27, 0, 0 }, RightUpperLeg = { 45, 0, 0 }, RightLowerLeg = { -72, 0, 0 }, RightFoot = { 27, 0, 0 } },
+			add = { Head = { 2, turn * 0.6, 0 }, UpperTorso = { 0, turn * 0.4, 0 } }, move = { LowerTorso = { 0, -0.85, 0 } } })
+		t += step / 2
+		left = not left
+	end
+	return keys
+end
 M.ChoreoFixes = {
 	-- Hearts2Hearts-Lemon Tang (D-1040): Play scan SPIN 617-777°/s, each turn made one even turn
 	-- (song times; yaw read every 0.08 s in Play). 9 (1:00.7): over its 1 s blend the hips went
@@ -757,6 +812,40 @@ M.ChoreoFixes = {
 	-- fingers lie across under the chin and the back of the hand is up under the face (`bend` turns the
 	-- joint the game shows: her left hand, mirrored or not)
 	[127455820218376] = { bend = { { part = "LeftHand", keys = { { 8.9, 0, 0, 0 }, { 9.3, 0, 0, 70 }, { 30, 0, 0, 70 } } } } },
+	-- (D-1168, user 2026-11-10, ATEEZ-BAD) 9 (song 53): "55 측면으로 무릎 굽히고 앞으로 걸어가는 모션. (오리처럼 고개도
+	-- 움직이면 좋음) 얼굴은 정면 화면 봐야 함": the capture stands side on (hips -60°) from song 55.3; from
+	-- 55.0 to 57.9 a bent-knee walk, a step a beat (0.5 s), the head bobbing forward on each step and turned
+	-- 60° to the front (chest 24°, neck 36°)
+	[86108317246080] = { pose = { from = 2.0, to = 4.95, ease = 0.35, keys = duckWalk(2.1, 4.85, 0.5, 60) } },
+	-- 18 (song 125.3): "2:5 팔 움찔": both hands flick out 1 stud and back in 0.15 s at song 125.8-126.0 (the
+	-- video opens the arms slowly): the arms smoothed hard there
+	[127427471547985] = { steady = { from = 0.1, to = 1.1, passes = 8, parts = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" } } },
+	-- 21 (song 148.37): "2:29 왼쪽팔 위아래로 움직이는 동작인데 더 위로 올렸다가 더 아래로 내리기": the left arm
+	-- swings up at song 149.4 (hand 2.15 over the chest) and 151.9 (only 1.13): the shoulder turns 1.35x /
+	-- 1.5x as far, and before and after each lift the arm swings back down past the hip
+	[138812417192850] = { amp = { { from = 0.55, to = 1.55, ease = 0.25, parts = { LeftUpperArm = 1.35 } }, { from = 3.05, to = 4.0, ease = 0.25, parts = { LeftUpperArm = 1.5 } } },
+		bend = { { part = "LeftUpperArm", keys = { { 0.4, 0, 0, 0 }, { 0.58, -22, 0, 0 }, { 0.72, 0, 0, 0 }, { 1.3, 0, 0, 0 }, { 1.48, -22, 0, 0 }, { 1.68, 0, 0, 0 },
+			{ 2.9, 0, 0, 0 }, { 3.08, -22, 0, 0 }, { 3.22, 0, 0, 0 }, { 3.8, 0, 0, 0 }, { 3.98, -22, 0, 0 }, { 4.18, 0, 0, 0 } } } } },
+	-- (D-1168, user 2026-11-10, 소녀시대-소원을 말해봐) 7 (song 68.14): "1:11 오른쪽팔 뻗었을 때 손목 한 방향으로 한바퀴씩
+	-- 돌리기", "1:13 이때도 손목 돌리기 한국의 반짝반짝 모션", "1:15 왼쪽팔 뻗은 거 손 돌리기": the right arm is out at
+	-- song 70.5-71.2, both arms out to the right at 73.1-73.75, the left arm at 74.4-75.05 (read in Play, as in the video)
+	[107809363798601] = { bend = { { part = "RightHand", keys = wristCircles(2.35, 3.05, 0.35, 35) },
+		{ part = "RightHand", keys = wristTwinkle(4.95, 5.65, 0.2, 60) }, { part = "LeftHand", keys = wristTwinkle(4.95, 5.65, 0.2, 60) },
+		{ part = "LeftHand", keys = wristCircles(6.25, 6.95, 0.35, 35) } } },
+	-- 21 (song 171.27): "2:50 왼쪽팔 반짝반짝(반바퀴 돌리고 복구하는 거 반복/앞으로 반짝반짝)": the left hand up by the head
+	-- at song 173.05-173.95 (video clip 21 1.75-2.75); "2:54 … 상체 앞으로 더 숙이고 뒤로 더 눕히기. 동작 더 크게": the
+	-- upper body bent 27° forward (song 173.1-173.6), 20° to the side (173.9) and only 6° back (174.4): 22° more
+	-- forward, 12° more to the side, 22° more back
+	[130670560182985] = { bend = { { part = "LeftHand", keys = wristFlip(1.8, 2.7, 0.22, 150) },
+		{ part = "UpperTorso", keys = { { 1.55, 0, 0, 0 }, { 2.0, -22, 0, 0 }, { 2.35, -18, 0, 10 }, { 2.65, 0, 0, 12 }, { 3.1, 22, 0, -8 }, { 3.4, 18, 0, -10 }, { 3.9, 0, 0, 0 } } } } },
+	-- 22 / 23 / 24 (song 188.56 / 200.44 / 201.47): "3:18 이후에 양쪽 팔 번갈아가면서 뻗고 양쪽팔 들고 위로 들고 크게 회전할 때
+	-- 손 반짝반짝(3:25까지)": both hands twinkle from song 198.8 to 205.8
+	[105428606733839] = { bend = { { part = "LeftHand", keys = wristTwinkle(10.24, 11.88, 0.2, 60) }, { part = "RightHand", keys = wristTwinkle(10.24, 11.88, 0.2, 60) } } },
+	[127287424998997] = { bend = { { part = "LeftHand", keys = wristTwinkle(0, 1.03, 0.2, 60) }, { part = "RightHand", keys = wristTwinkle(0, 1.03, 0.2, 60) } } },
+	[115574620758490] = { bend = { { part = "LeftHand", keys = wristTwinkle(0, 4.33, 0.2, 60) }, { part = "RightHand", keys = wristTwinkle(0, 4.33, 0.2, 60) } } },
+	-- 26 (song 210.11): "3:44? 45?에 무릎 꿇고 있을 때 한번 위로 들썩거림": the last piece ends at song 216.2 while the song
+	-- runs on, and she stood up from the kneel in 0.3 s; now the kneel is kept (ClubPlaylist slowOut) and calm
+	[127828014236660] = { steady = { from = 1.6, to = 6.1, passes = 8 }, still = { from = 1.6, to = 6.1 } },
 	-- v2 17 (song 143.2): 2:26 the walk into the circle turned 31° back, flicked
 	-- round at 720°/s, stopped, then turned on: one even turn (piece 2.45-3.6 s);
 	-- the pops stand still and calm (still + steady) so they show
