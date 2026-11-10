@@ -807,7 +807,8 @@ RunService.PreSimulation:Connect(function(dt)
 										if pose.LowerTorso then pose.LowerTorso = CFrame.new(0, -lift, 0) * pose.LowerTorso end
 										store[f] = pose
 									end
-									local e = math.clamp(math.min(tt - f.from, f.to - tt) / (f.ease or 0.3), 0, 1)
+									-- (D-1190) `easeOut`: a slower let-go than the fade in (Lemonade 2:22 lying → kneel)
+									local e = math.clamp(math.min((tt - f.from) / (f.ease or 0.3), (f.to - tt) / (f.easeOut or f.ease or 0.3)), 0, 1)
 									e = e * e * (3 - 2 * e) * math.min(t.WeightCurrent, 1)
 									-- (D-1062, user: Lemonade 2:22 "엉덩이랑 상체 고정. 흔들림") with the legs free, each
 									-- leg dipping under the floor lifted the frozen hips and they sank back as

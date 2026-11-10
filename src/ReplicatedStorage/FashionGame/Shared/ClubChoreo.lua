@@ -662,25 +662,40 @@ M.ChoreoFixes = {
 		torsoUp = { from = 1.0, to = 4.5, ease = 0.3 },
 		-- (D-1062, user: "1:47 동작도 0:21 동작에서 손목 돌리는 거 반영") the left arm is in the ㄱ again at
 		-- song 107.2-107.4 and 108.1-108.7: a wrist circle on the beats 107.29 and 108.23 (keys 0.09 s early)
-		bend = { { part = "LeftHand", keys = { { 6.19, 0, 0, 0 }, { 6.27, 30, 0, 0 }, { 6.39, 0, 0, 30 }, { 6.50, -30, 0, 0 }, { 6.62, 0, 0, -30 }, { 6.70, 0, 0, 0 },
-			{ 7.22, 0, 0, 0 }, { 7.30, 30, 0, 0 }, { 7.42, 0, 0, 30 }, { 7.53, -30, 0, 0 }, { 7.65, 0, 0, -30 }, { 7.73, 0, 0, 0 } } } },
-		pose = { { from = 0, to = 4.6, ease = 0.35, keys = {
-			{ t = 0.3, set = { LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
-				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 } } },
-			{ t = 0.9, set = { LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
-				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 } } },
-			-- (D-1058, user: "1:42 한바퀴 돌기 시작할 때 1:46처럼 다리 교차해서 도는 걸로 수정") the legs
-			-- during the turn take the crossed stance of 1:46 (read in Play at song 106.2: the
-			-- left leg in front of the right) instead of standing straight side by side
-			{ t = 1.2, set = { LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
-				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 },
-				LeftUpperLeg = { 17, 16, 2 }, LeftLowerLeg = { -36, 7, 6 }, LeftFoot = { 17, 12, -13 },
-				RightUpperLeg = { -13, -11, -10 }, RightLowerLeg = { -17, 6, 4 }, RightFoot = { 15, 8, 5 }, Head = { 0, 0, 0 } } },
-			{ t = 4.3, set = { LeftUpperArm = { 90, 0, 0 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
-				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 110 }, RightHand = { 0, 0, 0 },
-				LeftUpperLeg = { 17, 16, 2 }, LeftLowerLeg = { -36, 7, 6 }, LeftFoot = { 17, 12, -13 },
-				RightUpperLeg = { -13, -11, -10 }, RightLowerLeg = { -17, 6, 4 }, RightFoot = { 15, 8, 5 }, Head = { 0, 0, 0 } } },
-		} } } },
+		-- (D-1190, user's 1:41 list with photos: "두 팔 다 위로 직선으로 들어올림(손등이 안쪽으로 마주보게) > 팔꿈치 굽히면서 팔
+		-- 살짝 내려서 <ㅇ> 모양 > 왼쪽 팔만 쭉 뻗고 손목 위아래로 꺾기 > 두 팔 다 내리고 옆으로 몸 돌림 > 측면 보이게 돌리면서
+		-- 오른쪽 팔 ㄴ 모양으로(팔 굽히면서 손목도 꺾여야 함) > 왼쪽팔은 파란색 > 왼쪽 손 손바닥 보이면서 좌우로 흔들기 > 이제
+		-- 원래 안무"): replaces D-976's arms of the turn and D-1062's 1:47 wrist circles. Piece time = song - 100.92:
+		-- 1.0 both arms straight up (forearm + wrist turned half way: the backs of the hands face each other),
+		-- 2.4 elbows bent, the hands on top of the head (<ㅇ>), 3.9 the left arm straight out to the side (the
+		-- right stays at the head), its wrist flapping up and down (4.4-5.4); 5.5-6.3 the capture's own arms
+		-- down and turn to the side; 6.6 the right arm bent up to the head with the wrist bent, the left forearm
+		-- across the body; 7.5 the left arm out to the side, the palm shown, waving; back to the capture by 8.4
+		bend = { { part = "LeftHand", keys = { { 4.4, 0, 0, 0 }, { 4.55, 40, 0, 0 }, { 4.75, -40, 0, 0 }, { 4.95, 40, 0, 0 }, { 5.15, -40, 0, 0 }, { 5.35, 0, 0, 0 } } },
+			{ part = "RightHand", keys = { { 6.4, 0, 0, 0 }, { 6.7, 0, 0, -45 }, { 7.3, 0, 0, -45 }, { 7.6, 0, 0, 0 } } },
+			{ part = "LeftHand", keys = { { 7.5, 0, 0, 0 }, { 7.65, 35, 0, 0 }, { 7.82, -35, 0, 0 }, { 7.99, 35, 0, 0 }, { 8.16, -35, 0, 0 }, { 8.33, 0, 0, 0 } } } },
+		pose = { { from = 0, to = 5.5, ease = 0.35, keys = (function()
+			local legs = { LeftUpperLeg = { 17, 16, 2 }, LeftLowerLeg = { -36, 7, 6 }, LeftFoot = { 17, 12, -13 },
+				RightUpperLeg = { -13, -11, -10 }, RightLowerLeg = { -17, 6, 4 }, RightFoot = { 15, 8, 5 }, Head = { 0, 0, 0 } }
+			local up = { LeftUpperArm = { 172, 0, -6 }, LeftLowerArm = { 0, 90, 0 }, LeftHand = { 0, 90, 0 },
+				RightUpperArm = { 172, 0, 6 }, RightLowerArm = { 0, 90, 0 }, RightHand = { 0, 90, 0 } }
+			local head = { LeftUpperArm = { 0, 0, -160 }, LeftLowerArm = { 0, 0, -55 }, LeftHand = { 0, 0, 0 },
+				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 55 }, RightHand = { 0, 0, 0 } }
+			local leftOut = { LeftUpperArm = { 0, 0, -90 }, LeftLowerArm = { 0, 0, 0 }, LeftHand = { 0, 0, 0 },
+				RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 55 }, RightHand = { 0, 0, 0 } }
+			local function with(a, b) local s = {} for k, v in pairs(a) do s[k] = v end if b then for k, v in pairs(b) do s[k] = v end end return s end
+			return {
+				{ t = 0.6, set = up }, { t = 1.2, set = with(up, legs) }, { t = 2.0, set = with(up, legs) },
+				{ t = 2.6, set = with(head, legs) }, { t = 3.5, set = with(head, legs) },
+				{ t = 4.0, set = with(leftOut, legs) }, { t = 4.3, set = with(leftOut, legs) },
+				{ t = 5.3, set = leftOut },
+			}
+		end)() },
+		{ from = 5.9, to = 8.4, ease = 0.6, keys = {
+			{ t = 6.75, set = { RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 55 }, LeftUpperArm = { 35, 0, 35 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 7.3, set = { RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 55 }, LeftUpperArm = { 35, 0, 35 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 7.6, set = { RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 55 }, LeftUpperArm = { 0, 0, -90 }, LeftLowerArm = { 0, 90, 0 } } },
+			{ t = 8.2, set = { RightUpperArm = { 0, 0, 160 }, RightLowerArm = { 0, 0, 55 }, LeftUpperArm = { 0, 0, -90 }, LeftLowerArm = { 0, 90, 0 } } } } } } },
 	-- (D-988, user: "1:23~24 가만히 서 있는 장면 떨림 수정. 천천히 고개만 까딱이는 걸로"):
 	-- 9 (from 76.35) stands still at song 82.8-84.1: held calm, the head nodding
 	-- slowly on the beats (0.67 s)
@@ -688,7 +703,14 @@ M.ChoreoFixes = {
 		pose = { from = 6.3, to = 7.85, ease = 0.3, keys = {
 			{ t = 6.4, add = { Head = { 0, 0, 0 } } }, { t = 6.6, add = { Head = { -9, 0, 0 } } }, { t = 6.93, add = { Head = { 2, 0, 0 } } },
 			{ t = 7.27, add = { Head = { -9, 0, 0 } } }, { t = 7.6, add = { Head = { 2, 0, 0 } } },
-		} } },
+		} },
+		-- (D-1190, user: "1:20 손목 안으로 꺾" + photo: the forearms crossed in front of the chest, the wrists bent down)
+		-- song 80.6-81.5 both wrists in; "1:25 팔 쭉 뻗은 왼쪽 손목 바깥으로 꺾고 손가락 방향 오른쪽으로 머리통쪽으로 > 팔
+		-- 내리면서 손가락 방향 왼쪽 바깥으로 향함. 손목 밖으로 꺾인 상태" + photos: the left arm up at 84.6-85.1, then
+		-- coming down to 86.1: the wrist bent out all along, the fingers turned toward the head, then out to the left
+		bend = { { part = "LeftHand", keys = { { 4.2, 0, 0, 0 }, { 4.45, 0, 0, 45 }, { 5.0, 0, 0, 45 }, { 5.2, 0, 0, 0 } } },
+			{ part = "RightHand", keys = { { 4.2, 0, 0, 0 }, { 4.45, 0, 0, -45 }, { 5.0, 0, 0, -45 }, { 5.2, 0, 0, 0 } } },
+			{ part = "LeftHand", keys = { { 8.1, 0, 0, 0 }, { 8.35, 0, 45, -55 }, { 8.8, 0, 45, -55 }, { 9.3, 0, -45, -55 }, { 9.75, 0, -45, -55 }, { 10.0, 0, 0, 0 } } } } },
 	-- 16 / 17 / 18 (from 127.65): "2:10~ 버벅거리고 떠. 프레임 튀듯이", "~2:26까지 계속
 	-- 떨어": 10-27 joint turn-backs in 0.5 s all through; smoothed (the moves kept)
 	-- (D-1062, user: "2:14~2:16 서 있다가 무릎 굽히고 앉는 자세로 수정" + a photo of a deep squat: knees
@@ -705,18 +727,24 @@ M.ChoreoFixes = {
 	-- the upper body leaning right onto the right hand on the floor, the left hand on the lap (leg angles
 	-- found by forward kinematics on the R15 joints). From 8.45 s the whole pose is kept and the body
 	-- does not travel (`freeze`, `still`) until 17 lies down
+	-- (D-1190, user: "2:16~17 앉은 다음 인어공주 포즈까지 슬로우 걸면서 엉덩이 위치 고정한 상태로 정면 보도록 회전 천천히.
+	-- 인어공주 포즈 상태에서 멈춰 있는 시간이 김"): the sit comes slower (half squat by 8.0, the side sit by 9.6 =
+	-- song 137.25) and, from 8.3, the body turns slowly from side on (100°) to the front on its spot (the hips
+	-- set level, turned by `bend`, so the kept pose afterwards is short: 9.7 to 17's drop at 138.3)
 	[82680550952125] = { steady = { from = 0, to = 10.3, passes = 8 },
-		spin = { from = 4.35, to = 4.45, till = 30 },
-		still = { from = 8.3, to = 30 },
-		freeze = { from = 8.45, to = 30, ease = 0.15 },
-		pose = { from = 6.35, to = 30, ease = 1.9, keys = {
-			{ t = 7.3, set = {
+		spin = { from = 4.35, to = 4.45, till = 8.3 },
+		still = { from = 8.0, to = 30 },
+		freeze = { from = 9.7, to = 30, ease = 0.15, except = { "LowerTorso" } },
+		bend = { { part = "LowerTorso", keys = { { 8.29, 0, 100, 0 }, { 8.3, 0, 100, 0 }, { 10.1, 0, 0, 0 }, { 10.15, 0, 0, 0 } } } },
+		pose = { from = 6.35, to = 30, ease = 1.6, keys = {
+			{ t = 8.0, set = {
 				LeftUpperLeg = { 70, 0, 0 }, LeftLowerLeg = { -100, 0, 0 }, LeftFoot = { 30, 0, 0 },
 				RightUpperLeg = { 70, 0, 0 }, RightLowerLeg = { -100, 0, 0 }, RightFoot = { 30, 0, 0 },
 				UpperTorso = { -15, 0, 0 }, Head = { -5, 0, 0 },
 				LeftUpperArm = { 25, 0, 0 }, LeftLowerArm = { 15, 0, 0 }, RightUpperArm = { 10, 0, 0 }, RightLowerArm = { 10, 0, 0 } },
 				move = { LowerTorso = { 0, -1.5, 0 } } },
-			{ t = 8.3, set = M.LemonadeSideSit, move = { LowerTorso = { 0, -3.44, 0 } } } } } },
+			{ t = 9.6, set = (function() local s = { LowerTorso = { 0, 0, 0 } } for k, v in pairs(M.LemonadeSideSit) do s[k] = v end return s end)(),
+				move = { LowerTorso = { 0, -3.44, 0 } } } } } },
 	-- 17b red-box floor member (from 136.22) (D-991, user's screen recording of the
 	-- KBS stage, "2:20 전후로 누워서 하는 안무 이 영상이 더 잘 보인다. 참고해서 수정"):
 	-- on the stage she lies propped on her right forearm, the upper body raised and
@@ -784,16 +812,18 @@ M.ChoreoFixes = {
 	-- check keeps every part but the feet above the floor (ChoreoController). The leg stretched
 	-- and swung at song 141.3-142.7 (3.3-4.8 s) plays 0.5 s longer (2.0 s; the seated pause after
 	-- it makes the time up) and the upper legs swing 1.4x as far
+	-- (D-1190, user: "2:18 무릎 잠깐 벌어지는 거 수정", "2:20 왼쪽 다리 들 때 오른쪽 다리 고정. 몸체 정면 보고 있는 걸로 고정",
+	-- "2:22 몸 살짝 들고 다리 움직이는 거 삭제하고 무릎 꿇는 자세로 자연스럽게 연결 > 무릎 꿇은 자세에서 엉덩이 살짝 들어서
+	-- 오른쪽 다리 빼고 쭉 뻗을 것 > 다음은 회전 동일"): the lying pose keeps the right leg too (only the left kicks),
+	-- the knees stay together on the way down; the D-1058 / D-1062 stretched leg swing (warp, second freeze,
+	-- amp) is gone: from 3.0 (song 140.9) she comes up into a kneel (sitting on the heels, upper body straight)
+	-- by 3.9, holds it, lifts the hips a little and slides the right leg out straight to the side (5.4-6.4),
+	-- and 18's turn comes as before (song 145.9)
 	[132337331292488] = { steady = { { from = 0, to = 8.0, passes = 8 }, { from = 0.6, to = 3.2, passes = 16 } },
-		warp = { { from = 0, to = 3.3, play = { 0, 3.3 } }, { from = 3.3, to = 5.3, play = { 3.3, 4.8 } },
-			{ from = 5.3, to = 6.4, play = { 4.8, 6.4 } }, { from = 6.4, to = 9.0, play = { 6.4, 9.0 } } },
-		-- (D-1062, user: "2:22~ 다리 뻗고 회전할 때 엉덩이랑 상체 고정. 흔들림") the hips and upper body are
-		-- kept as at 3.1 s through the stretched leg swing (3.1-4.85, song 141.0-143.3), the legs move on;
-		-- the hips keep the highest floor lift the freeze has needed (ChoreoController), so they do not bob
-		freeze = { { from = 0.75, to = 3.0, ease = 0.3, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" } },
-			{ from = 3.1, to = 4.85, ease = 0.3, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" } } },
-		still = { from = 3.3, to = 4.85 },
-		amp = { from = 3.4, to = 4.8, ease = 0.3, parts = { LeftUpperLeg = 1.4, RightUpperLeg = 1.4 } },
+		-- (let go over 0.9 s while the kneel comes in: a 0.3 s let-go swung the hips 35° and the right foot 2.7 studs)
+		freeze = { { from = 0.75, to = 3.6, ease = 0.3, easeOut = 0.9, except = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot" } } },
+		still = { from = 2.8, to = 8.2 },
+		torsoUp = { from = 3.2, to = 8.2, ease = 0.4 },
 		-- (D-1062, user: "2:19에 천장 보고 있는데 정면 보도록 회전. 다리 허벅지는 쭉 뻗고 종아리 뒤로", "2:20 다리 더
 		-- 쭉 직선으로 뻗기", with the 2:14 squat): 17 starts in 16's squat (0-0.6 s, fading into the drop);
 		-- lying, the body turns 55° about its spine so the chest faces the front, not the ceiling (found in
@@ -802,23 +832,57 @@ M.ChoreoFixes = {
 		-- (D-1068, user: "2:20에 상체 너무 누워 있는데 빨간 선 표시한 위치로 세워") lying on her right side, the
 		-- upper body is raised from the waist (bent toward her left = up) onto the right arm; 17 starts in
 		-- 16's side sit (D-1068) and turns from 16's kept facing to its own while it lies down (0-0.8 s)
-		spin = { from = 0, to = 0.8, fromPrev = true, dir = -1, ease = "both" },
+		-- (D-1190: 16 now ends facing the front, so 17 no longer turns from side on: its `spin fromPrev` is gone)
 		bend = { { part = "LowerTorso", keys = { { 0.4, 0, 0, 0 }, { 0.7, 0, -55, 0 }, { 2.75, 0, -55, 0 }, { 3.0, 0, 0, 0 } } },
 			{ part = "UpperTorso", keys = { { 0.45, 0, 0, 0 }, { 0.72, 0, 0, 45 }, { 2.75, 0, 0, 45 }, { 3.0, 0, 0, 0 } } } },
 		pose = {
 			{ from = 0, to = 0.6, ease = 0.25, keys = { { t = 0, set = M.LemonadeSideSit,
 				move = { LowerTorso = { 0, -3.44, 0 } } } } },
-			{ from = 0.6, to = 1.5, ease = 0.2, keys = { { t = 0.8, set = {
+			-- (knees together on the way down: the side sit's folded legs straighten without opening)
+			{ from = 0.4, to = 1.5, ease = 0.2, keys = { { t = 0.8, set = {
 				LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { -95, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
 			{ from = 1.5, to = 2.55, ease = 0.15, keys = { { t = 1.6, set = {
 				LeftLowerLeg = { 0, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
 			{ from = 2.55, to = 3.0, ease = 0.15, keys = { { t = 2.6, set = {
 				LeftUpperLeg = { 0, 0, 0 }, LeftLowerLeg = { -95, 0, 0 }, RightUpperLeg = { 0, 0, 0 }, RightLowerLeg = { -95, 0, 0 } } } } },
+			-- kneel (on the heels) → hips up a little, the right leg out straight to the side, to 18's turn
+			{ from = 2.7, to = 9.0, ease = 0.9, keys = {
+				{ t = 3.9, set = { LeftUpperLeg = { 80, 0, 0 }, LeftLowerLeg = { -150, 0, 0 }, LeftFoot = { 70, 0, 0 },
+					RightUpperLeg = { 80, 0, 0 }, RightLowerLeg = { -150, 0, 0 }, RightFoot = { 70, 0, 0 } }, move = { LowerTorso = { 0, -3.0, 0 } } },
+				{ t = 5.4, set = { LeftUpperLeg = { 80, 0, 0 }, LeftLowerLeg = { -150, 0, 0 }, LeftFoot = { 70, 0, 0 },
+					RightUpperLeg = { 80, 0, 0 }, RightLowerLeg = { -150, 0, 0 }, RightFoot = { 70, 0, 0 } }, move = { LowerTorso = { 0, -3.0, 0 } } },
+				{ t = 6.4, set = { LeftUpperLeg = { 45, 0, 0 }, LeftLowerLeg = { -125, 0, 0 }, LeftFoot = { 50, 0, 0 },
+					RightUpperLeg = { 5, 0, 70 }, RightLowerLeg = { 0, 0, 0 }, RightFoot = { 0, 0, 0 } }, move = { LowerTorso = { 0, -2.3, 0 } } },
+			} },
 		} },
 	-- (2:26 "일어나면서 몸 돌리는데 두 번 돌림. 한 번으로 깔끔하게": the capture turns 55°
 	-- one way, then 141° back in 0.16 s, inside its 1 s blend: one even turn
 	-- the short way round from where 17 ended, 0-1.3 s, during the blend too)
-	[76195346888656] = { steady = { from = 0, to = 5.0, passes = 8 }, spin = { from = 0, to = 1.3, fromPrev = true, dir = 1, ease = "both" } },
+	[76195346888656] = { steady = { from = 0, to = 5.0, passes = 8 }, spin = { from = 0, to = 1.3, fromPrev = true, dir = 1, ease = "both" },
+		-- (D-1190, user: "2:27 손목 밖으로 꺾") both wrists out at song 146.8-147.6
+		bend = { { part = "LeftHand", keys = { { 0.75, 0, 0, 0 }, { 0.95, 0, 0, -50 }, { 1.55, 0, 0, -50 }, { 1.75, 0, 0, 0 } } },
+			{ part = "RightHand", keys = { { 0.75, 0, 0, 0 }, { 0.95, 0, 0, 50 }, { 1.55, 0, 0, 50 }, { 1.75, 0, 0, 0 } } } } },
+	-- (D-1190) 6 (song 39.2): "0:45 뻗은 오른쪽팔 손목 안으로 꺾어서 좌우로 흔들기": the right arm out to the side at song
+	-- 45.6-46.5: the wrist bent in and waving side to side
+	[131526768823490] = { bend = { { part = "RightHand", keys = { { 6.2, 0, 0, 0 }, { 6.4, 0, 0, -45 }, { 7.2, 0, 0, -45 }, { 7.4, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 6.4, 0, 0, 0 }, { 6.55, 35, 0, 0 }, { 6.7, -35, 0, 0 }, { 6.85, 35, 0, 0 }, { 7.0, -35, 0, 0 }, { 7.15, 0, 0, 0 } } } } },
+	-- (D-1190) 7 (song 47.49): "0:50-52 손목 돌리기" the left forearm up in front at song 50.5-52.0: wrist circles;
+	-- "0:53 팔 양쪽으로 벌릴 때 손목 밖으로 꺾기" (53.35-53.85, 25°: the capture is already bent out ~60°); "0:56 손목 안으로 꺾고 털기": the arms down and back at
+	-- 55.1-55.85: the wrists bent in, flicking
+	[99422937735141] = { bend = { { part = "LeftHand", keys = wristCircles(3.0, 4.5, 0.47, 35) },
+		{ part = "LeftHand", keys = { { 5.75, 0, 0, 0 }, { 5.9, 0, 0, -25 }, { 6.3, 0, 0, -25 }, { 6.45, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 5.75, 0, 0, 0 }, { 5.9, 0, 0, 25 }, { 6.3, 0, 0, 25 }, { 6.45, 0, 0, 0 } } },
+		{ part = "LeftHand", keys = { { 7.5, 0, 0, 0 }, { 7.65, 0, 0, 45 }, { 7.75, 0, 0, 25 }, { 7.85, 0, 0, 45 }, { 7.95, 0, 0, 25 }, { 8.05, 0, 0, 45 }, { 8.15, 0, 0, 25 }, { 8.25, 0, 0, 45 }, { 8.36, 0, 0, 40 } } },
+		{ part = "RightHand", keys = { { 7.5, 0, 0, 0 }, { 7.65, 0, 0, -45 }, { 7.75, 0, 0, -25 }, { 7.85, 0, 0, -45 }, { 7.95, 0, 0, -25 }, { 8.05, 0, 0, -45 }, { 8.15, 0, 0, -25 }, { 8.25, 0, 0, -45 }, { 8.36, 0, 0, -40 } } } } },
+	-- (D-1190) 19 (song 150.92): "2:38 팔 휘젓는 거에 맞춰서 안밖으로 꺾기": both wrists in and out on the beats, song 157.4-159.5
+	[116980798181063] = { bend = (function()
+		local L, R, t, s = { { 6.4, 0, 0, 0 } }, { { 6.4, 0, 0, 0 } }, 6.6, 1
+		while t < 8.5 do table.insert(L, { t, 0, 0, 40 * s }) table.insert(R, { t, 0, 0, -40 * s }) t += 0.47 s = -s end
+		table.insert(L, { 8.7, 0, 0, 0 }) table.insert(R, { 8.7, 0, 0, 0 })
+		return { { part = "LeftHand", keys = L }, { part = "RightHand", keys = R } }
+	end)() },
+	-- (D-1190) 20 (song 160.92): "2:43 왼쪽 팔 뻗고 있는 손 좌우로 인사하듯이 흔들기" (song 162.5-163.7)
+	[118071176218932] = { bend = { { part = "LeftHand", keys = { { 1.55, 0, 0, 0 }, { 1.7, 40, 0, 0 }, { 1.9, -40, 0, 0 }, { 2.1, 40, 0, 0 }, { 2.3, -40, 0, 0 }, { 2.5, 40, 0, 0 }, { 2.7, -40, 0, 0 }, { 2.85, 0, 0, 0 } } } } },
 	-- (D-1058, user's Lemonade list of 2026-11-09; beats from the practice video's sound: 127.7 bpm,
 	-- song beats at 68.31 + 0.4698 k; arm angles read in Play; every beat key is 0.09 s before the beat:
 	-- in Play the turns came 0.09-0.12 s late, the animation's clock running that much behind the song)
@@ -831,7 +895,9 @@ M.ChoreoFixes = {
 	-- 8 (from 55.92): "1:01 0:21이랑 같은 자세인 것 확인 후 손목 돌리기 추가": the left arm is in the
 	-- same ㄱ (upper arm 86-91° up, elbow ~94°) at song 61.0-61.9: two circles, one a beat (60.79-61.73)
 	[99169381541568] = { bend = { { part = "LeftHand", keys = { { 4.70, 0, 0, 0 }, { 4.78, 30, 0, 0 }, { 4.90, 0, 0, 30 }, { 5.01, -30, 0, 0 },
-		{ 5.13, 0, 0, -30 }, { 5.25, 30, 0, 0 }, { 5.37, 0, 0, 30 }, { 5.48, -30, 0, 0 }, { 5.60, 0, 0, -30 }, { 5.72, 0, 0, 0 } } } } },
+		{ 5.13, 0, 0, -30 }, { 5.25, 30, 0, 0 }, { 5.37, 0, 0, 30 }, { 5.48, -30, 0, 0 }, { 5.60, 0, 0, -30 }, { 5.72, 0, 0, 0 } } },
+		-- (D-1190, user: "1:00 뻗은 팔 손목 한바퀴") the left arm reaching forward at song 59.7-60.3: one wrist circle
+		{ part = "LeftHand", keys = wristCircles(3.8, 4.4, 0.6, 40) } } },
 	-- 9 (from 67.05): "1:10 팔 몸 앞에 들고 흔드는 안무에서 손목 90도 돌렸다가 돌아오는 반복 빠르게 박자에
 	-- 맞춰서": the left forearm is up in front (elbow ~90°) at song 69.6-72.0: on each beat (69.72 ...
 	-- 71.60) the hand turns 80° about the forearm and back by the half beat
@@ -841,19 +907,36 @@ M.ChoreoFixes = {
 	-- 11 (from 85.92): "1:25 처음에 팔 크게 내리고 두 번째 엄청 미세하게 내리는데 두 번째 내리는 것도 아예
 	-- 아래로 크게 내리기": the second time (song 86.2-86.9) the left arm came down with the elbow still
 	-- bent 55-65° (the hand at the waist): the elbow straightens, the arm all the way down
-	[83846438884132] = { pose = { from = 0.25, to = 1.0, ease = 0.2, keys = { { t = 0.4, set = { LeftLowerArm = { 0, 0, 0 } } } } } },
+	[83846438884132] = { pose = { from = 0.25, to = 1.0, ease = 0.2, keys = { { t = 0.4, set = { LeftLowerArm = { 0, 0, 0 } } } } },
+		-- (D-1190, user: "1:30 손목 밖으로 꺾" + photo: the hand by the head, palm out) the left hand up at song 90.0-91.0
+		bend = { { part = "LeftHand", keys = { { 3.9, 0, 0, 0 }, { 4.15, 0, 0, -60 }, { 4.9, 0, 0, -60 }, { 5.15, 0, 0, 0 } } } } },
 	-- 15 (from 114.92): "1:57 1:10과 동일": the same forearm-up shake at song 116.4-119.1: the same
 	-- hand turns on the beats 116.70 ... 118.58
 	[118124487485279] = { bend = { { part = "LeftHand", keys = { { 1.69, 0, 0, 0 }, { 1.82, 0, 80, 0 }, { 2.01, 0, 0, 0 }, { 2.16, 0, 0, 0 },
 		{ 2.29, 0, 80, 0 }, { 2.48, 0, 0, 0 }, { 2.63, 0, 0, 0 }, { 2.76, 0, 80, 0 }, { 2.95, 0, 0, 0 }, { 3.10, 0, 0, 0 }, { 3.23, 0, 80, 0 },
-		{ 3.42, 0, 0, 0 }, { 3.57, 0, 0, 0 }, { 3.70, 0, 80, 0 }, { 3.89, 0, 0, 0 } } } } },
+		{ 3.42, 0, 0, 0 }, { 3.57, 0, 0, 0 }, { 3.70, 0, 80, 0 }, { 3.89, 0, 0, 0 } } },
+		-- (D-1190, user: "1:55 왼쪽 손 반짝반짝" song 115.1-116.0; "2:07 손목 안으로 꺾기" song 126.8-127.5, both)
+		{ part = "LeftHand", keys = wristTwinkle(0.2, 1.1, 0.2, 60) },
+		{ part = "LeftHand", keys = { { 11.8, 0, 0, 0 }, { 12.0, 0, 0, 45 }, { 12.5, 0, 0, 45 }, { 12.7, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 11.8, 0, 0, 0 }, { 12.0, 0, 0, -45 }, { 12.5, 0, 0, -45 }, { 12.7, 0, 0, 0 } } } } },
 	-- 21 (from 168.42): "2:49 손목 90도로 돌리기 반복": both forearms up in front at song 169.0-170.8:
 	-- both hands turn on the beats 169.32 / 169.79 / 170.26 (the right one the mirror way)
-	[76826604804095] = { bend = {
-		{ part = "LeftHand", keys = { { 0.81, 0, 0, 0 }, { 0.94, 0, 80, 0 }, { 1.13, 0, 0, 0 }, { 1.28, 0, 0, 0 }, { 1.41, 0, 80, 0 },
-			{ 1.60, 0, 0, 0 }, { 1.75, 0, 0, 0 }, { 1.88, 0, 80, 0 }, { 2.07, 0, 0, 0 } } },
-		{ part = "RightHand", keys = { { 0.81, 0, 0, 0 }, { 0.94, 0, -80, 0 }, { 1.13, 0, 0, 0 }, { 1.28, 0, 0, 0 }, { 1.41, 0, -80, 0 },
-			{ 1.60, 0, 0, 0 }, { 1.75, 0, 0, 0 }, { 1.88, 0, -80, 0 }, { 2.07, 0, 0, 0 } } } } },
+	-- (D-1190, user: "2:49 현재 손목 흔드는데 더 크게 더 빠르게 돌릴 것", "2:57 2:49에서의 손목 동작처럼 더 크게 더 빠르게 회전"):
+	-- 120° instead of 80°, on every half beat (0.235 s) instead of every beat; the same at song 176.6-177.5
+	[76826604804095] = { bend = (function()
+		local function turns(t0, t1)
+			local L, R, t = { { t0, 0, 0, 0 } }, { { t0, 0, 0, 0 } }, t0
+			while t + 0.235 <= t1 + 1e-6 do
+				table.insert(L, { t + 0.1, 0, 120, 0 }) table.insert(R, { t + 0.1, 0, -120, 0 })
+				table.insert(L, { t + 0.235, 0, 0, 0 }) table.insert(R, { t + 0.235, 0, 0, 0 })
+				t += 0.235
+			end
+			return L, R
+		end
+		local L1, R1 = turns(0.81, 2.07)
+		local L2, R2 = turns(8.2, 9.05)
+		return { { part = "LeftHand", keys = L1 }, { part = "RightHand", keys = R1 }, { part = "LeftHand", keys = L2 }, { part = "RightHand", keys = R2 } }
+	end)() },
 	-- 22 (from 177.49): "3:5에 고개 숙였다가 턱 들고 다시 원위치. 박자에 맞춰서": the head drops on the
 	-- beat 184.82, the chin comes up on 185.29 and the head is back on 185.76
 	[89070118321317] = { bend = { { part = "Head", keys = { { 7.04, 0, 0, 0 }, { 7.24, -25, 0, 0 }, { 7.71, 18, 0, 0 }, { 8.18, 0, 0, 0 } } } } },
