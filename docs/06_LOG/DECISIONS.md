@@ -4187,3 +4187,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1287 카페 알바: 손님이 음료 받을 때 소리 4개 중 무작위 (2026-11-11)
 - 사용자: "카페 알바할 때 커피 주면 손님이 내는 소리 아래 4개 사용 랜덤으로 90708954020888 109524186690054 103423496956787 100906437230897".
 - CafeJobService SOUNDS.thanks = 네 소리 목록(볼륨 0.45 그대로), playAt이 목록이면 매번 하나를 무작위로 고름. 전에는 "ooh" 104374771321764 하나. 지금처럼 NPC 손님이 받을 때만(플레이어 손님은 사람이라 소리 없음).
+## D-1288 cortis_ian에게도 DJ 권한 (2026-11-11)
+- 사용자: "cortis_ian 한테도 dj 줘".
+- ClubConfig.DJGranted에 cortis_ian(UserId 11584919561, Players:GetUserIdFromNameAsync로 확인) 추가: 라이브 서버에서 ahchimsae처럼 플레이 바 ⏸ / 탐색 항상, DJ 부스가 비면 DJ 시간(DjService, D-1187).
