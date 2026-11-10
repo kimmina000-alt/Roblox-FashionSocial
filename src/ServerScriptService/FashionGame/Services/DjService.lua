@@ -364,13 +364,34 @@ function DjService.Start()
 	-- live servers too, like the passes Roblox already gives a creator
 	-- (VIP / Guard: the owner owns every pass of their own experience; the DJ
 	-- is a product, bought each time, so it is given here)
-	if not game:GetService("RunService"):IsStudio() and game.CreatorType == Enum.CreatorType.User then
+	-- (D-1166, user 2026-11-10: "ahchimsae 한테 dj 권한 줘", a test account that
+	-- should not look like the developer) these players get DJ time on joining too
+	-- (D-1187) the list lives in ClubConfig.DJGranted (the client's play bar reads it too)
+	local GRANTED = ClubConfig.DJGranted
+	if not game:GetService("RunService"):IsStudio() and (game.CreatorType == Enum.CreatorType.User or next(GRANTED) ~= nil) then
 		local function ownerDJ(player: Player)
-			if player.UserId ~= game.CreatorId then return end
+			local owner = game.CreatorType == Enum.CreatorType.User and player.UserId == game.CreatorId
+			if not owner and not GRANTED[player.UserId] then return end
 			task.delay(3, function() if player.Parent then DjService.AddTime(player) end end)
 		end
 		Players.PlayerAdded:Connect(ownerDJ)
 		for _, p in ipairs(Players:GetPlayers()) do ownerDJ(p) end
+		-- (D-1187, user: "ahchimsae한테 dj 권 영구로 줘") a granted account's DJ time
+		-- comes back by itself whenever the booth is free (nobody DJing, nobody
+		-- waiting), so it never runs out while testing; buyers still go first
+		task.spawn(function()
+			while true do
+				task.wait(2)
+				if not current and #queue == 0 then
+					for _, p in ipairs(Players:GetPlayers()) do
+						if GRANTED[p.UserId] then
+							DjService.AddTime(p)
+							break
+						end
+					end
+				end
+			end
+		end)
 	end
 	Players.PlayerRemoving:Connect(function(player)
 		if guests[player.UserId] then

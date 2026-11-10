@@ -959,7 +959,13 @@ end
 
 -- (the club's 🎵 노래 신청 button, ClubQuickBar, D-694: the same window as at
 -- the turntable, so anyone in the club can queue a song)
-require(script.Parent:WaitForChild("UiBus")).OpenMusic.Event:Connect(function() setPanelOpen(not panel.Visible) end)
+local startDjingNearConsole: () -> boolean = function() return false end -- (D-1185: set below)
+require(script.Parent:WaitForChild("UiBus")).OpenMusic.Event:Connect(function()
+	-- (D-1185) the DJ by the turntable: this is how DJing starts (the E button
+	-- is only for a first-time buyer)
+	if not panel.Visible and startDjingNearConsole() then return end
+	setPanelOpen(not panel.Visible)
+end)
 
 -- (D-911, user 2026-11-05: "엑스 말고 팝업 외 다른 공간 누르면 팝업 꺼지게") a
 -- click or tap anywhere outside the two windows (and the ? help) closes them.
@@ -1036,8 +1042,37 @@ local function startDjing()
 	end
 	setPanelOpen(true)
 end
+-- (D-1185, user 2026-11-10: "디제잉하기 창 삭제 / 디제이권 사면 안내 첫 구매자한테만 보여
+-- 주기") the "E 디제잉하기" button shows only to the DJ whose first-ever DJ time
+-- this is (player attribute DJFirstGuide, set by the server on that purchase);
+-- everyone else uses the 🎵 button by the turntable (UiBus.OpenMusic below)
+local djPrompts: {ProximityPrompt} = {}
+local consoleAnchors: {BasePart} = {}
+local function refreshDjPrompts()
+	local show = isDJ() and player:GetAttribute("DJFirstGuide") == true
+	for _, p in ipairs(djPrompts) do p.Enabled = show end
+end
+local function nearConsole(): boolean
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then return false end
+	for _, a in ipairs(consoleAnchors) do
+		if a.Parent and (a.Position - root.Position).Magnitude <= 14 then return true end
+	end
+	return false
+end
+startDjingNearConsole = function(): boolean
+	if isDJ() and nearConsole() then
+		startDjing()
+		return true
+	end
+	return false
+end
+FashionGame:GetAttributeChangedSignal("ClubDJ"):Connect(refreshDjPrompts)
+FashionGame:GetAttributeChangedSignal("ClubDJUntil"):Connect(refreshDjPrompts)
+player:GetAttributeChangedSignal("DJFirstGuide"):Connect(refreshDjPrompts)
 local function watchConsole(console: Instance)
 	local anchor = console:FindFirstChild("DeskTop", true) or console:FindFirstChildWhichIsA("BasePart", true)
+	if anchor and anchor:IsA("BasePart") then table.insert(consoleAnchors, anchor) end
 	if anchor and not anchor:FindFirstChild("DjingPrompt") then
 		local prompt = Instance.new("ProximityPrompt")
 		prompt.Name = "DjingPrompt"
@@ -1049,6 +1084,8 @@ local function watchConsole(console: Instance)
 		prompt.RequiresLineOfSight = false
 		prompt.Parent = anchor
 		prompt.Triggered:Connect(startDjing)
+		table.insert(djPrompts, prompt)
+		refreshDjPrompts()
 	end
 	local detector = console:FindFirstChildWhichIsA("ClickDetector", true)
 	if not detector then return end

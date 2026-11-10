@@ -81,7 +81,24 @@ require(script.Parent.Services.BagService).Start(PlayerDataService, SnackService
 -- without saying OK (user, 2026-10-20).
 local ClubNotify = Remotes:WaitForChild("ClubNotify") :: RemoteEvent
 MonetizationService.RegisterProduct("DJ", function(player)
+	-- (D-1185, user 2026-11-10: "디제잉하기 창 삭제 / 디제이권 사면 안내 첫 구매자한테만 보여
+	-- 주기") the turntable's "E 디제잉하기" button is a guide for a first-ever buyer
+	-- only: their first purchase sets the player attribute DJFirstGuide (the
+	-- button shows while that DJ time lasts, ClubMusicController); later buyers
+	-- start DJing with the 🎵 button by the turntable. wallet.tips.djFirst keeps it.
+	local wallet = PlayerDataService.Wallet(player)
+	wallet.tips = wallet.tips or {}
+	local first = not wallet.tips.djFirst
+	if first then
+		wallet.tips.djFirst = true
+		PlayerDataService.MarkDirty(player)
+	end
+	player:SetAttribute("DJFirstGuide", if first then true else nil)
 	local ok, message, kind = DjService.AddTime(player)
+	if ok and kind == "start" and not first then
+		local minutes = require(game:GetService("ReplicatedStorage").FashionGame.Shared.MonetizationConfig).DJMinutes
+		message = string.format("지금부터 %d분 동안 DJ예요! DJ 턴테이블 앞에서 🎵 버튼을 눌러 디제잉하세요.", minutes)
+	end
 	if ok and message then
 		ClubNotify:FireClient(player, "Toast", message)
 	end
