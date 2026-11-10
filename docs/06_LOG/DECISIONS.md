@@ -4167,3 +4167,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자(가로 폰 사진, 사진 고르기 화면 위가 하얀 띠): "사진 다 찍고 위에 흰색 부분 무엇인지 확인 후 안 보이게 수정."
 - 정체: 부스의 Ceiling 부품(242,228,200). 폰에서는 촬영 창이 화면 아래쪽이라 부스 카메라가 위로 들림(applyShootCamera, 측정 LookVector.Y +0.136 = 위 8°), 끝나고 플레이어 카메라가 그 기울기 그대로 이어져서 천장이 보였음.
 - restoreCamera: 카메라를 머리 옆 같은 쪽 6..12 스터드, 2.5 위에서 머리를 보게 둠(조금 아래로). Play(가로 폰 844 × 390 계산): 사진 고르기 때 Custom, LookVector.Y -0.204(아래 12°), 화면 위쪽은 벽.
+## D-1281 곡 제목 순서: 가수-노래제목 → 노래제목-가수 (2026-11-11)
+- 사용자: "음원 현재 가수-노래제목으로 되어 있는데 노래제목-가수로 변경".
+- ClubPlaylist의 곡 제목만 바꿈(첫 "-" 앞 = 가수; K-DA는 이름에 "-"가 있어 따로): 예) ATEEZ-BAD → BAD-ATEEZ, RESCENE-LOVE-ATTACK → LOVE-ATTACK-RESCENE, K-DA-GIRLS → GIRLS-K-DA. 가수가 없는 곡(K-Pop Party / K-pop Cute Crush / K-Pop Uprising, ROCK PAPER SCISSORS, 그사람 등)은 그대로. 46곡.
+- 제목은 화면 표시용으로만 쓰임(안무 · 무대 카메라 · 락은 soundId / 목록 순서): 다른 코드는 그대로. 코드 주석과 문서 속 옛 제목은 그대로 둠.
