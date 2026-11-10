@@ -319,7 +319,10 @@ ClubConfig.OutsideGrace = 1.5
 -- bar, its look faces the room). D-750, user's live screenshot: by the north
 -- wall, just east of the hall doorway to the VIP stairs (world about 128,
 -- -270), facing into the room. Before: 8 along the bar (76, -170).
-ClubConfig.ItemSellerOffset = CFrame.new(-92, 0, -52) * CFrame.Angles(0, -math.pi / 2, 0)
+-- (D-1289, user 2026-11-11: "불꽃판매원 캐릭터 1층 테이블 있는 벽 안쪽으로 조금 이동 너무
+-- 입구에 있어서 들어갈 때마다 놀람") 26 studs further east along the north wall,
+-- toward the 1F tables' side (world about 154, -266; the doorway ends at x 124)
+ClubConfig.ItemSellerOffset = CFrame.new(-88, 0, -78) * CFrame.Angles(0, -math.pi / 2, 0)
 
 -- A table (bottles, sparkler bucket) stays this long after its owner leaves the
 -- game, so a quick rejoin finds it still theirs (D-770, user: 2-3 min, not

@@ -190,7 +190,8 @@ NpcLooks.Looks.ItemSeller = {
 	snapshot = MANO,
 	pose = 103551093140086, -- Nonchalant idle (asset 89470439129000)
 	holds = NpcLooks.Looks.ItemSeller.holds,
-	wander = { min = Vector3.new(-90, 0, -60), max = Vector3.new(-80, 0, -44), speed = 6, walk = 76458754461389 }, -- Nonchalant walk (asset 89554541453975)
+	-- (D-1289: with the seller, world x 146..162, z -270..-260)
+	wander = { min = Vector3.new(-92, 0, -86), max = Vector3.new(-82, 0, -70), speed = 6, walk = 76458754461389 }, -- Nonchalant walk (asset 89554541453975)
 	nod = true,
 }
 

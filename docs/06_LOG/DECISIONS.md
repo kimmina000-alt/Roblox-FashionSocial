@@ -4190,3 +4190,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1288 cortis_ian에게도 DJ 권한 (2026-11-11)
 - 사용자: "cortis_ian 한테도 dj 줘".
 - ClubConfig.DJGranted에 cortis_ian(UserId 11584919561, Players:GetUserIdFromNameAsync로 확인) 추가: 라이브 서버에서 ahchimsae처럼 플레이 바 ⏸ / 탐색 항상, DJ 부스가 비면 DJ 시간(DjService, D-1187).
+## D-1289 불꽃 판매원: 홀 입구에서 1층 테이블 쪽으로 (2026-11-11)
+- 사용자: "불꽃판매원 캐릭터 1층 테이블 있는 벽 안쪽으로 조금 이동 너무 입구에 있어서 들어갈 때마다 놀람".
+- ClubConfig.ItemSellerOffset (-92, 0, -52) → (-88, 0, -78): 월드 약 (128, -270) → (154, -266), 북쪽 벽을 따라 동쪽(1층 테이블 쪽)으로 26 스터드. VIP 계단 홀 문은 x 96..124. NpcLooks.ItemSeller.wander도 함께 옮김(월드 x 146..162, z -270..-260, 그 자리 빈 곳 확인).
+- Play: 판매원 x 147..158 사이를 걸음, 구매 프롬프트 켜짐, 오류 0.
