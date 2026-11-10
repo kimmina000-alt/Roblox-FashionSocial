@@ -39,6 +39,7 @@ local recording = false
 local center: Vector3? = nil
 local lastSample = 0
 local playing = false
+local guided = false -- (D-1266: the 공유하기 card shown once per visit)
 
 -- a part's place inside its character, as a key (cached)
 local paths: {[Instance]: string} = setmetatable({}, { __mode = "k" }) :: any
@@ -200,6 +201,64 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	if #list == 0 then onDone("영상으로 남은 컷이 없어요.") return end
 	playing = true
 	local playerGui = player:WaitForChild("PlayerGui")
+	-- (D-1266, user 2026-11-10: "그냥 기존 걸로 두자 전체 화면으로 공유하기 해야 저장된다는
+	-- 것만 안내 제대로 하자") before the first replay of this visit: a card that
+	-- says the video is kept only through 공유하기, with a button to start
+	if not guided then
+		guided = true
+		local g = Instance.new("ScreenGui")
+		g.Name = "PhotoReelGuide"
+		g.IgnoreGuiInset = true
+		g.DisplayOrder = 120
+		local dim = Instance.new("Frame")
+		dim.Size = UDim2.fromScale(1, 1)
+		dim.BackgroundColor3 = Color3.fromRGB(20, 16, 26)
+		dim.BackgroundTransparency = 0.35
+		dim.Active = true
+		dim.Parent = g
+		local card = Instance.new("Frame")
+		card.AnchorPoint = Vector2.new(0.5, 0.5)
+		card.Position = UDim2.fromScale(0.5, 0.5)
+		card.Size = UDim2.fromOffset(330, 232)
+		card.BackgroundColor3 = Color3.fromRGB(255, 246, 250)
+		card.Parent = dim
+		Instance.new("UICorner", card).CornerRadius = UDim.new(0, 16)
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = Color3.fromRGB(255, 182, 206)
+		stroke.Thickness = 3
+		stroke.Parent = card
+		local function text(y: number, h: number, s: string, size: number, bold: boolean, color: Color3)
+			local l = Instance.new("TextLabel")
+			l.Position = UDim2.new(0, 18, 0, y)
+			l.Size = UDim2.new(1, -36, 0, h)
+			l.BackgroundTransparency = 1
+			l.Font = if bold then Enum.Font.GothamBold else Enum.Font.GothamMedium
+			l.TextSize = size
+			l.TextWrapped = true
+			l.TextColor3 = color
+			l.Text = s
+			l.Parent = card
+		end
+		text(16, 26, "🎬 영상 저장 안내", 19, true, Color3.fromRGB(60, 30, 45))
+		text(50, 116, "1. 영상을 끝까지 봐 주세요.\n2. 끝나면 공유 화면이 떠요.\n3. 공유 화면에서 \"저장\"을 눌러야\n    영상이 내 기기에 저장돼요.\n(공유하지 않고 닫으면 저장되지 않아요)", 14, false, Color3.fromRGB(80, 55, 70))
+		local go = Instance.new("TextButton")
+		go.AnchorPoint = Vector2.new(0.5, 1)
+		go.Position = UDim2.new(0.5, 0, 1, -14)
+		go.Size = UDim2.fromOffset(200, 40)
+		go.BackgroundColor3 = Color3.fromRGB(255, 120, 170)
+		go.TextColor3 = Color3.new(1, 1, 1)
+		go.Font = Enum.Font.GothamBold
+		go.TextSize = 16
+		go.Text = "확인, 영상 보기"
+		go.Parent = card
+		Instance.new("UICorner", go).CornerRadius = UDim.new(0, 12)
+		local pressed = false
+		go.Activated:Connect(function() pressed = true end)
+		g.Parent = playerGui
+		local waited = 0
+		while not pressed and waited < 30 do waited += task.wait(0.1) end
+		g:Destroy()
+	end
 	-- off: the screen guis, the real characters (for this player only)
 	local hiddenGuis = {}
 	for _, g in ipairs(playerGui:GetChildren()) do
@@ -228,78 +287,18 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	local cam = workspace.CurrentCamera
 	local oldType, oldCFrame, oldFov = cam.CameraType, cam.CFrame, cam.FieldOfView
 	cam.CameraType = Enum.CameraType.Scriptable
-	-- (D-1266, user 2026-11-10: "오후네컷 동영상 전체 화면으로 보여 주지 말고 팝업으로 보여 줘")
-	-- the replay shows in a window in the middle (WIN of the screen, the same
-	-- shape), dark around it, a light pink frame, a title and X; the booth
-	-- camera's view is fitted into the window by a wider field of view (below),
-	-- so the window shows what the full screen showed. The video records the
-	-- screen, so it has the window too (like a photo frame).
-	local WIN = 0.72
+	-- the flash, part of the video
 	local flashGui = Instance.new("ScreenGui")
 	flashGui.Name = "PhotoReelFlash"
 	flashGui.IgnoreGuiInset = true
 	flashGui.DisplayOrder = 100
-	local DIM = Color3.fromRGB(24, 20, 30)
-	local m = (1 - WIN) / 2
-	for _, r in ipairs({
-		{ UDim2.fromScale(0, 0), UDim2.fromScale(1, m) }, -- top
-		{ UDim2.fromScale(0, 1 - m), UDim2.fromScale(1, m) }, -- bottom
-		{ UDim2.fromScale(0, m), UDim2.fromScale(m, WIN) }, -- left
-		{ UDim2.fromScale(1 - m, m), UDim2.fromScale(m, WIN) }, -- right
-	}) do
-		local d = Instance.new("Frame")
-		d.Position, d.Size = r[1], r[2]
-		d.BackgroundColor3 = DIM
-		d.BackgroundTransparency = 0
-		d.BorderSizePixel = 0
-		d.Active = true -- (taps around it do not reach the game)
-		d.Parent = flashGui
-	end
-	local window = Instance.new("Frame")
-	window.Position = UDim2.fromScale(m, m)
-	window.Size = UDim2.fromScale(WIN, WIN)
-	window.BackgroundTransparency = 1
-	window.Parent = flashGui
-	local border = Instance.new("UIStroke")
-	border.Color = Color3.fromRGB(255, 182, 206)
-	border.Thickness = 5
-	border.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-	border.Parent = window
-	local title = Instance.new("TextLabel")
-	title.AnchorPoint = Vector2.new(0.5, 1)
-	title.Position = UDim2.new(0.5, 0, 0, -8)
-	title.Size = UDim2.new(1, 0, 0, 26)
-	title.BackgroundTransparency = 1
-	title.Font = Enum.Font.GothamBold
-	title.TextSize = 20
-	title.TextColor3 = Color3.fromRGB(255, 200, 220)
-	title.Text = "🎬 오후네컷"
-	title.Parent = window
-	local cancelled = false
-	local close = Instance.new("TextButton")
-	close.AnchorPoint = Vector2.new(1, 1)
-	close.Position = UDim2.new(1, 0, 0, -6)
-	close.Size = UDim2.fromOffset(30, 30)
-	close.BackgroundColor3 = Color3.fromRGB(255, 182, 206)
-	close.TextColor3 = Color3.fromRGB(60, 30, 45)
-	close.Font = Enum.Font.BuilderSansExtraBold
-	close.TextSize = 18
-	close.Text = "X" -- (✕ has no glyph in the game fonts)
-	close.Parent = window
-	Instance.new("UICorner", close).CornerRadius = UDim.new(1, 0)
-	close.Activated:Connect(function() cancelled = true end)
-	-- the flash, part of the video, inside the window only
 	local flash = Instance.new("Frame")
 	flash.Size = UDim2.fromScale(1, 1)
 	flash.BackgroundColor3 = Color3.new(1, 1, 1)
 	flash.BackgroundTransparency = 1
 	flash.BorderSizePixel = 0
-	flash.Parent = window
+	flash.Parent = flashGui
 	flashGui.Parent = playerGui
-	-- the recorded field of view, widened so the window holds the whole view
-	local function fit(fov: number): number
-		return math.min(120, 2 * math.deg(math.atan(math.tan(math.rad(fov) / 2) / WIN)))
-	end
 	local stage = Instance.new("Folder")
 	stage.Name = "PhotoReel"
 	stage.Parent = workspace
@@ -347,7 +346,7 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 			elseif c0 or c1 then b.part.CFrame = (c0 or c1) :: CFrame end
 		end
 		cam.CFrame = f0.cam:Lerp(f1.cam, a)
-		cam.FieldOfView = fit(f0.fov + (f1.fov - f0.fov) * a)
+		cam.FieldOfView = f0.fov + (f1.fov - f0.fov) * a
 	end
 
 	for _, clip in ipairs(list) do
@@ -361,7 +360,7 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 		pose(bound, frames[1], frames[1], 0)
 		RunService.RenderStepped:Wait()
 		began = os.clock()
-		while not cancelled do
+		while true do
 			local e = os.clock() - began
 			if e >= length then break end
 			while k < #frames and frames[k + 1].t - start <= e do k += 1 end
@@ -374,20 +373,18 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 		-- the shot: a flash, then still
 		flash.BackgroundTransparency = 0.1
 		local flashStart = os.clock()
-		while os.clock() - flashStart < HOLD and not cancelled do
+		while os.clock() - flashStart < HOLD do
 			flash.BackgroundTransparency = math.min(1, 0.1 + (os.clock() - flashStart) / 0.35)
 			RunService.RenderStepped:Wait()
 		end
 		flash.BackgroundTransparency = 1
 		for _, copy in pairs(clip.copies) do copy.Parent = nil end
-		if cancelled then break end
 	end
 
 	if recordingVideo then
 		pcall(function() CaptureService:StopVideoCapture() end)
 		local waited = 0
-		-- (D-1266: closed with X = no video to wait for, the window goes at once)
-		while not videoDone and waited < 5 and not cancelled do waited += task.wait(0.1) end
+		while not videoDone and waited < 5 do waited += task.wait(0.1) end
 	end
 	-- back as it was
 	stage:Destroy()
@@ -402,11 +399,6 @@ function Reel.play(picks: {number}, onDone: (string?) -> ())
 	for _, tag in ipairs(hiddenTags) do if tag.Parent then tag.Enabled = true end end
 	Reel.hideStools(nil, false)
 	playing = false
-	-- (D-1266) closed with X before the end: nothing to share
-	if cancelled then
-		onDone("영상을 닫았어요. 🎬 영상 저장을 누르면 다시 볼 수 있어요.")
-		return
-	end
 	-- (D-1180) the whole replay seen: the share sheet, and the note that sharing
 	-- is the only way to keep the video (pick 저장 there)
 	if video then

@@ -107,14 +107,14 @@ local toastLabel = text({
 }, gui)
 corner(toastLabel, 12)
 local toastToken = 0
-local function toast(message: any)
+local function toast(message: any, seconds: number?)
 	if typeof(message) ~= "string" or message == "" then return end
 	toastToken += 1
 	local token = toastToken
 	toastLabel.Size = UDim2.fromOffset(math.min(440, viewport().X - 30), 40)
 	toastLabel.Text = message
 	toastLabel.Visible = true
-	task.delay(3.2, function()
+	task.delay(seconds or 3.2, function()
 		if toastToken == token then toastLabel.Visible = false end
 	end)
 end
@@ -1500,7 +1500,7 @@ end)
 resultButton("🎬 영상 저장", COLORS.pink, 2, function()
 	if require(script.Parent:WaitForChild("PhotoMotionReel")).isPlaying() then return end
 	require(script.Parent:WaitForChild("PhotoMotionReel")).play(state.picks or {}, function(message)
-		if message then toast(message) end
+		if message then toast(message, 7) end -- (D-1266: long enough to read around the share screen)
 	end)
 end)
 resultButton("🎒 가방에서 보기", COLORS.card, 3, function()
