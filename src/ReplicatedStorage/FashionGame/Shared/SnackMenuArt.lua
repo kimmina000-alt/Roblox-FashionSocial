@@ -22,6 +22,7 @@ SnackMenuArt.Photos = {
 	ramen_sesame = "rbxassetid://98643130769596",
 	ramen_lava = "rbxassetid://124866904655046",
 	ramen_yukgae = "rbxassetid://113229406579037",
+	honeybread = "rbxassetid://110742985046819", -- (D-1317) honeybread_cutout.png
 }
 
 SnackMenuArt.Icons = {
@@ -38,7 +39,10 @@ SnackMenuArt.Icons = {
 	bluelemonade = "rbxassetid://140609360592357",
 	croissant = "rbxassetid://113885586029710",
 	cake_strawberry = "rbxassetid://138173379638460",
-	honeybread = "rbxassetid://136759119745135",
+	-- (D-1317, user 2026-11-11) the user's textured model (HoneyBread-pice.glb), shot in
+	-- the game on magenta and cut out (docs/04_ART/shop_photos/honeybread_cutout.png);
+	-- was the drawn icon 136759119745135
+	honeybread = "rbxassetid://110742985046819",
 	parfait = "rbxassetid://123581181009053",
 	cake_vintage = "rbxassetid://114951080986976",
 	cake_tiramisu = "rbxassetid://85809810617380",

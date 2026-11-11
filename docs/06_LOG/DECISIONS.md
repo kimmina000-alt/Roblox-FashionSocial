@@ -4203,4 +4203,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 트레이 에셋: 사용자가 올린 CAFE_trey(Workspace.Scene.Plane_Node.Plane) → ServerStorage.ArtAssets.Foods.CafeTray (place만, Ctrl+S).
 - SnackService CafeTrays: 카페 테이블(CafeTable)에 빵(kind bread, 허니브레드)을 놓으면 그 자리에 트레이(3.9 × 3.1, 둥근 카페 테이블 4.9에 들어감)를 깔고 빵은 가운데, 앞쪽에 포크(TrayFork)를 눕혀 둠. 같은 사람의 음료(카페 컵, 클럽 캔)를 트레이 가까이(5 스터드) 놓으면 트레이의 오른쪽 · 왼쪽 컵 자리로. 다른 음식 · 다른 사람 트레이와 겹침 검사, 트레이 위 물건이 다 없어지면 트레이도 사라짐. 트레이 위 빵은 흰 접시 없이(D-1299 접시는 트레이가 아닐 때만).
 - 빵 먹기: FoodShapes.TableEat 소금빵 · 베이글 · 크루아상 "hand" → "fork"(허니브레드와 같이). 빵을 누르면 트레이의 포크가 사라지고 손에 포크로 한 조각, 끝나면 포크가 트레이로 돌아옴.
-- Play(해변 카페 둥근 테이블): 베이글 + 라떼 + 아이스 아메리카노가 트레이 가운데 · 양옆에(cafe_tray_D-1315.jpg), 포크로 한 입(cafe_tray_fork_D-1315.jpg), 다 집어 가면 트레이 사라짐, 오류 0.
+- Play(해변 카페 둥근 테이블): 베이글 + 라떼 + 아이스 아메리카노가 트레이 가운데 · 양옆에(cafe_tray_D-1315.jpg), 포크로 한 입(cafe_tray_fork_D-1315.jpg), 다 집어 가면 트레이 사라짐, 오류 0.## D-1317 허니브레드: 사용자의 텍스처 모델로 모두 교체 + 상점 사진 (2026-11-11)
+- 사용자(Blender 렌더 사진: 구운 식빵 + 카라멜 뿌린 크림): "허니브레드 두 번째 사진처럼 생겨야 함", 다시 올린 HoneyBread-pice.glb(Bite1..9, 조각마다 UV + 텍스처 rbxassetid://110609992387350). 처음 가져온 CAFE_HoneyBread는 UV가 빠져 텍스처를 못 입혔음.
+- place만(Ctrl+S): ArtAssets.Foods.HoneyBreadBites / HoneyBread = 새 모델(Plastic, 흰색 = 텍스처 그대로). 옛 것은 _Imports_cafe_1110의 *_old2_1111, 가져온 원본 두 개는 HoneyBread_textured_import_1111. 진열대(MainTable 4 · WallTable 6), BreadSamples, Workspace.HoneyBread 12개를 같은 자리 · 방향 · 크기로 바꿈.
+- 상점 사진: 게임 안에서 마젠타 위에 찍어 누끼(docs/04_ART/shop_photos/honeybread_cutout.png) → rbxassetid://110742985046819, SnackMenuArt.Icons + Photos.honeybread(그린 아이콘 136759119745135 대신).
+- Play: 진열대(honeybread_display_D-1317.jpg), 손에 든 모습(honeybread_held_D-1317.jpg), 오류 0.
