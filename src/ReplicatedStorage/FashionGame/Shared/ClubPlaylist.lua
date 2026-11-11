@@ -562,8 +562,22 @@ M.Playlist = {
 	{ channel = "K-POP", title = "Dragon-RESCENE", soundId = 82349082640186, length = 209.555, fileSpeed = 1.0498,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	-- (D-1286) song 2:48
-	{ channel = "K-POP", title = "SHOCK-TREASURE", soundId = 94024099429072, length = 160.832, fileSpeed = 1.0446,
-		lab = { speed = 1, tempo = 0.957, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (D-1298) fileSpeed 1.0446 → 1.0499: in Play the song ran 0.05 s behind the original mp3 at 13 s, 0.40 s at 85 s, 0.72 s at
+	-- 148 s (0.51 % slow); 1.0499 as the other x1 uploads, so the song clock is the mp3's again
+	{ channel = "K-POP", title = "SHOCK-TREASURE", soundId = 94024099429072, length = 160.832, fileSpeed = 1.0499,
+		lab = { speed = 1, tempo = 0.957, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
+		-- (D-1298, user 2026-11-11: "shock" + 22 ids) fancam LReqXEEBIKI: song = video - 2.10 s (its sound against the original mp3, 3 s
+		-- windows from 3 to 162 s; the live sound past video 171 s is after the song's end). `at` = clip start - 2.10, piece 1 `from = 2.10`.
+		-- Clip 9 (song 65.10-75.38) left out: its upload 118620524863725 is a copy of 8 (same keyframes, 2.90 s, the clip is 10.28 s), so that
+		-- stretch is the default dance until it is uploaded again ({ at = 65.10 }); clip 22 (song 172.6-183.8) is after the song ends
+		choreo = {
+			{ id = 133830025852955, at = 0, from = 2.10 }, { id = 117322908574417, at = 11.18, blend = 0.26 }, { id = 81779912905543, at = 18.39, blend = 0.76 },
+			{ id = 75987043149726, at = 30.50, blend = 0.82 }, { id = 126059214767439, at = 36.24, blend = 0.65 }, { id = 131829068826954, at = 43.68, blend = 0.43 },
+			{ id = 121802134861592, at = 50.72, blend = 0.74 }, { id = 130135206628110, at = 62.13, blend = 0.68 }, { id = 130317916502145, at = 75.38 },
+			{ id = 94643800566754, at = 87.52, blend = 0.62 }, { id = 112228957264348, at = 92.43, blend = 0.77 }, { id = 107109971489791, at = 95.50, blend = 0.93 },
+			{ id = 90553036874786, at = 98.50, blend = 1 }, { id = 121912364930816, at = 111.81, blend = 0.46 }, { id = 139616314090616, at = 126.23, blend = 0.92 },
+			{ id = 73160805709614, at = 130.80, blend = 0.79 }, { id = 79170731093199, at = 139.94, blend = 0.69 }, { id = 94923487573207, at = 147.52, blend = 1 },
+			{ id = 107469099088447, at = 150.15, blend = 0.70 }, { id = 112291434709741, at = 160.43, blend = 0.53 } }, autoChoreo = true },
 	-- (D-1286) song 3:31
 	{ channel = "K-POP", title = "백화요란-RESCENE", soundId = 74619423082896, length = 200.975, fileSpeed = 1.0499,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = -4.5, mid = -1, high = -10.5, engine = "sound" },

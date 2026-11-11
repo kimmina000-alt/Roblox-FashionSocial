@@ -138,6 +138,10 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
+	-- SHOCK-TREASURE (D-1298, choreo_motion_scan): 14 at 2:00.1 jumps 152° in one keyframe in a half turn (LURCH); 15 starts 110° the
+	-- other way while 14 turns on (SEAM)
+	[121912364930816] = { spin = { from = 7.3, to = 9.2, ease = "both" } },
+	[139616314090616] = { spin = { from = 0, to = 1.12, fromPrev = true, dir = -1 } },
 	-- 백화요란-RESCENE (D-1293, choreo_motion_scan): 6 at 1:35.6 and 13 at 2:27.2 jump 65-89° in one keyframe in a full turn
 	-- (LURCH); 18 starts 77° the other way while 17 turns on (+35°/s, SEAM)
 	[123368765880247] = { spin = { from = 4.8, to = 6.8, ease = "both" } },
@@ -1298,6 +1302,14 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- SHOCK-TREASURE (D-1298, choreo_slide_check + choreo_motion_scan DRIFT; fancam captures slide a lot)
+	[133830025852955] = { { 6.8, 7.5 }, { 8.3, 9.5 }, { 10.1, 10.9 } }, [117322908574417] = { { 1.6, 2.4 } }, [81779912905543] = { { 2.6, 3.4 }, { 4.2, 5.0 }, { 5.8, 6.6 }, { 11.4, 12.0 } },
+	[75987043149726] = { { 0.1, 0.9 }, { 4.0, 4.9 } }, [126059214767439] = { { 0.5, 1.4 }, { 5.6, 6.5 }, { 6.7, 7.2 } }, [131829068826954] = { { 4.9, 5.5 } },
+	[121802134861592] = { { 0.9, 1.4 }, { 3.1, 3.6 }, { 6.2, 6.7 }, { 8.1, 9.6 }, { 10.4, 11.0 } }, [130135206628110] = { { 0.8, 1.6 } }, [130317916502145] = { { 2.3, 3.3 }, { 3.6, 4.8 } },
+	[112228957264348] = { { 0.0, 2.4 } }, [107109971489791] = { { 0.8, 1.8 } }, [90553036874786] = { { 0.2, 0.8 }, { 1.9, 3.7 }, { 3.8, 4.5 }, { 6.3, 7.1 }, { 8.1, 8.8 } },
+	[121912364930816] = { { 3.5, 5.0 }, { 7.1, 8.1 }, { 8.9, 9.4 } }, [73160805709614] = { { 2.0, 3.3 }, { 7.7, 8.7 } }, [79170731093199] = { { 5.6, 6.2 } }, [94923487573207] = { { 1.9, 2.7 } },
+	[112291434709741] = { { 0.7, 1.7 }, { 2.0, 2.5 }, { 7.0, 8.4 }, { 9.0, 10.8 }, { 11.2, 12.2 } },
+	-- (Play scan: TELEPORT 0:29.9, 0:43.1, 0:51.7-0:58.9 (4), 1:56.4-2:00.8 (4), 2:42.5: the body slides 1-2.4 studs in 0.3 s while the feet step a third)
 	-- 백화요란-RESCENE (D-1293, choreo_slide_check)
 	[129031824166857] = { { 7.8, 8.5 }, { 9.5, 10.2 } }, [74180602033079] = { { 2.7, 3.3 }, { 6.8, 7.4 } }, [100400560200750] = { { 0.0, 0.8 } },
 	[123368765880247] = { { 1.8, 2.4 }, { 8.0, 8.6 }, { 8.9, 10.0 } }, [76096143466808] = { { 6.8, 8.2 }, { 8.8, 9.6 } }, [108852044755937] = { { 3.7, 4.7 }, { 7.3, 8.0 } },
@@ -1501,6 +1513,8 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-1298) SHOCK-TREASURE (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 3 checked on frames: front)
+	[81779912905543] = -39, [126059214767439] = 11, [112228957264348] = 21, [90553036874786] = -14, [121912364930816] = 12, [112291434709741] = -12,
 	-- (D-1293) 백화요란 (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 15 and 23 checked on frames: front)
 	[129031824166857] = 7, [74180602033079] = 9, [100400560200750] = -7, [72320524127017] = 9, [131622951291839] = 7,
 	[118315209448422] = -34, [116718508120035] = 13, [126812347548541] = 10, [138514282006084] = 9, [129589571291554] = 19,
@@ -1616,6 +1630,9 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-1298) SHOCK-TREASURE: head_video.py → headMisses, keys 0.09 s early; clip 11 left out (next to a hidden stretch). Wrists: the fancam's hands are too small for the hand model (one 2-sample run, arms crossed), so no wrist bends
+	[117322908574417] = { { part = "Head", keys = { { 2.71, 0, 0, 0 }, { 2.91, 0, 0, 13 }, { 3.11, 0, 0, 9 }, { 3.31, 0, 0, 0 } } } }, -- SHOCK 2
+	[73160805709614] = { { part = "Head", keys = { { 2.71, 0, 0, 0 }, { 2.91, 0, 0, -19 }, { 3.11, 0, 0, -24 }, { 3.31, 0, 0, 0 } } } }, -- SHOCK 17
 	-- (D-1293) 백화요란: head_video.py → headMisses, keys 0.09 s early; 7 left out (the centre is hidden at 1.7-3.6 s)
 	[105306563598355] = { { part = "Head", keys = { { 3.71, 0, 0, 0 }, { 3.91, 0, 0, 17 }, { 4.11, 0, 0, 21 }, { 4.31, 0, 0, 16 }, { 4.51, 0, 0, 22 }, { 4.71, 0, 0, 11 }, { 4.91, 0, 0, 12 }, { 5.04, 0, 0, 0 } } } }, -- 백화요란 5
 	[123368765880247] = { { part = "Head", keys = { { 0.31, 0, 0, 0 }, { 0.51, 0, 0, 10 }, { 0.71, 0, 0, 17 }, { 0.91, 0, 0, 0 } } } }, -- 백화요란 6
