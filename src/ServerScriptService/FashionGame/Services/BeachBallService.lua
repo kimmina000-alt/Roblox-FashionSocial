@@ -58,6 +58,7 @@ type Ball = {
 	thrower: Player?,
 	hits: {[Instance]: boolean},
 	chargeAt: number?,
+	gauge: boolean?, -- (D-1290) charging by the swinging gauge (phones)
 }
 local balls: {Ball} = {}
 local holding: {[Player]: Ball} = {}
@@ -186,7 +187,10 @@ local function throw(ball: Ball, player: Player, target: Vector3, shown: any)
 	local head = character and character:FindFirstChild("Head")
 	local root = character and character:FindFirstChild("HumanoidRootPart")
 	if not character or not head or not head:IsA("BasePart") or not root or not root:IsA("BasePart") then return end
-	local power = if ball.chargeAt then math.clamp((os.clock() - ball.chargeAt) / CHARGE_FULL, 0, 1) else 0
+	-- (D-1290) phones: the gauge that swings up and down (BeachBallConfig.gauge)
+	local power = if not ball.chargeAt then 0
+		elseif ball.gauge then BeachBallConfig.gauge(os.clock() - ball.chargeAt)
+		else math.clamp((os.clock() - ball.chargeAt) / CHARGE_FULL, 0, 1)
 	-- (D-1089) the power the player's screen showed (its arc), when it is close
 	-- to what the server clock says (the press reaches the server a little late)
 	if typeof(shown) == "number" and shown == shown then
@@ -270,6 +274,7 @@ function BeachBallService.Start()
 		if action == "Charge" then
 			-- (D-1048) pressed: the power grows from now
 			ball.chargeAt = os.clock()
+			ball.gauge = target == "Gauge" -- (D-1290: the "+" tapped on a phone)
 			character:SetAttribute("BallCharge", workspace:GetServerTimeNow())
 			return
 		end

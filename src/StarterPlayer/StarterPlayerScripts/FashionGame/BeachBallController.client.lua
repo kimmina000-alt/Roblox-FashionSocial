@@ -89,12 +89,19 @@ barText.TextStrokeTransparency = 0.4
 barText.Text = "힘"
 barText.Parent = bar
 
-local cross = Instance.new("TextLabel")
+-- (D-1290) on phones the "+" is the throw button: a faint round pad to tap
+local cross = Instance.new("TextButton")
 cross.Name = "Cross"
 cross.AnchorPoint = Vector2.new(0.5, 0.5)
 cross.Position = UDim2.fromScale(0.5, 0.5)
-cross.Size = UDim2.fromOffset(36, 36)
-cross.BackgroundTransparency = 1
+cross.Size = UDim2.fromOffset(64, 64)
+cross.AutoButtonColor = false
+cross.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
+cross.BackgroundTransparency = 0.75
+do
+	local c = Instance.new("UICorner") c.CornerRadius = UDim.new(1, 0) c.Parent = cross
+	local s = Instance.new("UIStroke") s.Color = Color3.new(1, 1, 1) s.Transparency = 0.4 s.Thickness = 2 s.Parent = cross
+end
 cross.Font = Enum.Font.GothamBold
 cross.TextSize = 34
 cross.TextColor3 = AIM_COLOR
@@ -168,13 +175,16 @@ local function aimPoint(): Vector3
 	return ray.Origin + ray.Direction * 80
 end
 
+local gaugeMode = false -- (D-1290) charging by the swinging gauge (the "+" on phones)
 local function power(): number
-	return if chargingSince then math.clamp((os.clock() - chargingSince) / CHARGE_FULL, 0, 1) else 0
+	if not chargingSince then return 0 end
+	if gaugeMode then return BeachBallConfig.gauge(os.clock() - chargingSince) end
+	return math.clamp((os.clock() - chargingSince) / CHARGE_FULL, 0, 1)
 end
 
 local function setHeld(tool: Tool?)
 	heldTool = tool
-	chargingSince, pressInput = nil, nil
+	chargingSince, pressInput, gaugeMode = nil, nil, false
 	screen.Enabled = tool ~= nil
 	bar.Visible = false
 	cross.Visible = tool ~= nil and touchMode()
@@ -205,15 +215,12 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if processed or not heldTool or chargingSince then return end
 	local t = input.UserInputType
 	if t ~= Enum.UserInputType.MouseButton1 and t ~= Enum.UserInputType.Touch then return end
-	-- (D-1275, user 2026-11-11: "비치볼 잡고 던질 때 모바일 버전에서 왼쪽 이동키 부분 제외하고
-	-- 오른쪽 누르면 파워 충전. 공 들고 돌아다닐 수 있게 왼쪽은 비워.") on a phone the left
-	-- half is the move stick's (Roblox's dynamic stick starts anywhere there):
-	-- only a press on the right half charges
-	if t == Enum.UserInputType.Touch then
-		local camera = workspace.CurrentCamera
-		if camera and input.Position.X < camera.ViewportSize.X * 0.5 then return end
-	end
+	-- (D-1290, user 2026-11-11: "오른쪽도 비워 두고") on a phone no screen press charges
+	-- any more (D-1275 had the right half): only the "+" button does, so both
+	-- halves stay free to walk and turn the camera
+	if t == Enum.UserInputType.Touch then return end
 	chargingSince = os.clock()
+	gaugeMode = false
 	pressInput = input
 	bar.Visible = true
 	Remote:FireServer("Charge")
@@ -222,13 +229,26 @@ local function release()
 	local tool = heldTool
 	if not chargingSince or not tool then return end
 	local p = power()
-	chargingSince, pressInput = nil, nil
+	chargingSince, pressInput, gaugeMode = nil, nil, false
 	bar.Visible = false
 	if tool.Parent ~= player.Character then return end
 	-- (D-1284, user 2026-11-11: "비치볼 던질 때 슉 소리 빼고") no whoosh on the throw
 	Remote:FireServer("Throw", aimPoint(), p)
 	hideMarks()
 end
+-- (D-1290) the "+" on a phone: first tap = the gauge starts swinging up and
+-- down, the next tap = thrown with what it shows at that moment
+cross.Activated:Connect(function()
+	if not heldTool then return end
+	if chargingSince then
+		release()
+		return
+	end
+	chargingSince = os.clock()
+	gaugeMode = true
+	bar.Visible = true
+	Remote:FireServer("Charge", "Gauge")
+end)
 UserInputService.InputEnded:Connect(function(input)
 	if not chargingSince then return end
 	if input == pressInput or (pressInput and input.UserInputType == pressInput.UserInputType and input.UserInputType == Enum.UserInputType.MouseButton1) then

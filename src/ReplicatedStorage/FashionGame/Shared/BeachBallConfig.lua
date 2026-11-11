@@ -9,6 +9,16 @@ local BeachBallConfig = {}
 -- 18 → 7 studs, 50 → 30, 100 → 62 (top 16, 1.5 s in the air)
 BeachBallConfig.SPEED_MIN, BeachBallConfig.SPEED_MAX = 18, 100
 BeachBallConfig.CHARGE_FULL = 1.5 -- seconds held for full power
+
+-- (D-1290, user 2026-11-11: "비치볼 잡고 오른쪽도 비워 두고 중앙에 + 모양 한번 클릭하면
+-- 게이지 올랐다가 내렸다가 천천히 왔다갔다 하고 클릭하는 순간 찬 게이지만큼 던져지는
+-- 것으로") phones: tap the "+" = the gauge starts going up and down by itself,
+-- tap it again = thrown with what it shows. Up in GAUGE_PERIOD / 2, down in the same.
+BeachBallConfig.GAUGE_PERIOD = 2.4
+function BeachBallConfig.gauge(elapsed: number): number
+	local phase = (math.max(0, elapsed) / BeachBallConfig.GAUGE_PERIOD) % 1
+	return if phase < 0.5 then phase * 2 else (1 - phase) * 2
+end
 BeachBallConfig.FLOAT_G = 55 -- the ball's own fall (the world pulls 196.2)
 BeachBallConfig.DRAG_VT = 55 -- the speed the air holds it to when falling
 BeachBallConfig.DRAG_K = BeachBallConfig.FLOAT_G / (BeachBallConfig.DRAG_VT * BeachBallConfig.DRAG_VT)
