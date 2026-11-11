@@ -462,7 +462,7 @@ M.ChoreoFixes = {
 	-- of the slower wobble than other songs' pieces (over 5.5 short swings a
 	-- second; ATEEZ pieces have about 3) gets it eased too
 	[128256391320572] = { calm = true }, [100410498984971] = { calm = true }, -- (126736648781925 below)
-	[76437753036430] = { calm = true }, [136355327951443] = { calm = true }, [117451819045051] = { calm = true },
+	[76437753036430] = { calm = true }, [136355327951443] = { calm = true, guardOff = { from = 4.2, to = 5.4, side = "Right" } } --[[ D-1303: NEON 1:56 guard turn-back ]], [117451819045051] = { calm = true },
 	[133401623277764] = { calm = true }, [106546379406531] = { calm = true }, [71570705300325] = { calm = true },
 	[121393866689759] = { calm = true }, -- (114419952125075 below)
 	-- NEON 5 (D-852, user: 0:53 "이 자세로 잠시 머무는데 이때 떨림 삭제")
@@ -501,12 +501,28 @@ M.ChoreoFixes = {
 	-- (D-962, user: 2:33 "허리 숙이고 가만히 있는데 캐릭터 천천히 뒤로 움직이는 거")
 	-- the hips creep 0.5 stud back at 3.5-6.3: kept in place to 6.4, and the
 	-- bent-over pose smoothed too (15 small turn-backs in 0.5 s at 2:32)
-	[96973609514230] = { calm = true, steady = { from = 0.4, to = 6.3, passes = 8 },
+	-- (D-1296, user: NEON "2:30~2:31 팔 버벅거림": the left arm turned back 3 times in 0.3 s at song 151.37-151.68: the arms smoothed hard there)
+	[96973609514230] = { calm = true, steady = { { from = 0.4, to = 6.3, passes = 8 },
+		{ from = 2.2, to = 3.1, passes = 24, parts = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" } } },
+		-- (the flick out and back was ChoreoBodyGuard: the left hand passes close in front of the chest and the guard pushed the arm out
+		-- 0.9 stud and let it back (with the guard off the hand moves evenly): the guard lets the left arm go there)
+		guardOff = { from = 2.0, to = 5.0, side = "Left" }, -- (to 2.9 it flicked once more at 151.87: the hand stays low in front)
 		still = { from = 0.4, to = 6.4 } },
 	-- NEON 22 (D-962, user: 3:31 "뒤로 감. 제자리에", 3:38 "마지막 포즈 달달 떠는
 	-- 거") the last piece walks 5 studs back with the feet; in place, and the
 	-- end pose smoothed
-	[114419952125075] = { calm = true, still = { { from = 0.3, to = 9.4 } }, steady = { from = 5.5, to = 9.4, passes = 8 } },
+	-- (D-1296, user: NEON "3:32 왼쪽팔 위로 움찔거림": the left arm turned back 4 times and flicked up 0.6 stud at song 212.3-213.4)
+	[114419952125075] = { calm = true, still = { { from = 0.3, to = 9.4 } }, steady = { { from = 5.5, to = 9.4, passes = 8 },
+		{ from = 1.9, to = 3.5, passes = 24, parts = { "LeftUpperArm", "LeftLowerArm", "LeftHand" } } },
+		-- (the lift and the turn-backs were ChoreoBodyGuard pushing the arm out of the chest and back (none with the guard off))
+		guardOff = { from = 1.6, to = 3.8, side = "Left" } },
+	-- (D-1296, user: 체포하겠어 "0:36 상체 올라올 때 떨림"): 7 (song 32.95) comes up from the bend at song 37.2-38.3 with the head and
+	-- chest shaking (their path 3x the way they went): smoothed hard there
+	[75102459386899] = { steady = { from = 4.1, to = 5.5, passes = 24, parts = { "LowerTorso", "UpperTorso", "Head" } } },
+	-- (D-1303) the whole-song guard scan (tools/choreo/guard_scan.lua) with the steadier guard left three spots where the guard
+	-- still turned the right hand back once (checked at 1x, none with the guard off): I SPY 0:42, CRASH 1:09 (and NEON 1:56 above)
+	[98654918637507] = { guardOff = { from = 6.7, to = 7.9, side = "Right" } },
+	[119507357461993] = { guardOff = { from = 8.0, to = 9.2, side = "Right" } },
 	-- RIIZE-Get A Guitar 15 (D-882, user: 1:54 "한바퀴 도는 거 매끄럽게"): the turn at
 	-- 16.4-16.6 s lurched 157° in one keyframe; one even turn instead
 	-- (D-962, user: 1:38 "무릎 엄청 빠르게 찍고 내리는데 올릴 때 엄청 살짝 슬로우
@@ -1144,10 +1160,16 @@ M.ChoreoFixes = {
 	-- (D-1020, user: "2:22 앞으로 삐걱거림. 매끄럽게 수정"): its hips went forward in three dashes
 	-- (0.63-0.92, 1.04-1.34, 1.67-1.92; up to 7 stud/s in Play, then a stop): one even glide 141.2-143.67
 	[118835663786601] = { spin = { from = 0.3, to = 2.95, ease = "both" }, steady = { from = 0.3, to = 3.0, parts = { "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot" }, passes = 8 },
-		glide = { from = 0.5, to = 2.97 } },
+		glide = { from = 0.5, to = 2.97 },
+		-- (D-1297, user: 갑자기 "2:23 왼쪽팔 튐"): ChoreoBodyGuard pushed the left arm out of the chest and back (3 turn-backs at song
+		-- 142.57-142.79, none with the guard off): the guard lets the left arm go there
+		guardOff = { from = 1.5, to = 2.5, side = "Left" } },
 	[136490889932903] = { spin = { from = 0, to = 0.6, fromPrev = true, dir = -1, ease = "both" } },
 	-- 21 (from 149.7) "2:42 팔 들면서 바들바들 떨어": the arms smoothed 159-163.6
-	[123714434236489] = { steady = { from = 9.3, to = 13.9, parts = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }, passes = 8 } },
+	-- (D-1297, user: 갑자기 "2:35 왼쪽 어깨에 올린 오른손 튐"): the right hand on the left shoulder is inside the guard's reach: it pushed
+	-- the arm off and back (4 turn-backs at song 155.25-155.61, none with the guard off): the guard lets the right arm go there
+	[123714434236489] = { steady = { from = 9.3, to = 13.9, parts = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "RightUpperArm", "RightLowerArm", "RightHand" }, passes = 8 },
+		guardOff = { from = 5.0, to = 6.6, side = "Right" } },
 	-- 25 (from 180.7) "3:02 걸어갈 때 상체 뒤로 눕는 거 수정": straight up through the walk
 	[129257680770934] = { torsoUp = { from = 0.3, to = 6.0, ease = 0.4 } },
 	-- 6 (D-962, user: 0:32 "회전 한 바퀴 자연스럽게"): 5 ends turning (-92° → -176°

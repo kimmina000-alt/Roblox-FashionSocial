@@ -909,7 +909,28 @@ RunService.PreSimulation:Connect(function(dt)
 				limitSnaps(character, choreo, dt)
 				-- (D-1168) last: arms out of the torso and out of each other (ChoreoBodyGuard)
 				if not (RunService:IsStudio() and FashionGame:GetAttribute("ChoreoBodyGuardOff")) then
-					ChoreoBodyGuard.apply(character, bodyJoints(character))
+					-- (D-1296, user: NEON "2:30~2:31 팔 버벅거림") ChoreoFixes `guardOff = { from, to, side = "Left" | "Right" | nil (both) }`:
+					-- where an arm only passes close in front of the body, the guard's push out and back is the stutter
+					local off = nil
+					for _, t in ipairs(choreo) do
+						local fx = t.Animation and t.WeightCurrent > 0.3 and ChoreoSmooth.fixes(t.Animation.AnimationId)
+						local go = fx and fx.guardOff
+						if go then
+							for _, g in ipairs(if go.from then { go } else go) do
+								if t.TimePosition >= g.from and t.TimePosition < g.to then
+									off = off or {}
+									if g.side ~= "Right" then off.Left = true end
+									if g.side ~= "Left" then off.Right = true end
+								end
+							end
+						end
+					end
+					ChoreoBodyGuard.apply(character, bodyJoints(character), off)
+					-- (D-1303, Studio only) the guard's push on the character's attributes for tools/choreo/guard_scan.lua
+					if RunService:IsStudio() and FashionGame:GetAttribute("GuardLog") then
+						local gl, gr = ChoreoBodyGuard.push(character)
+						character:SetAttribute("GuardL", gl) character:SetAttribute("GuardR", gr)
+					end
 				end
 				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
 				do

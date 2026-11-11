@@ -12,12 +12,15 @@
 -- The turn eases in and out (no pop), and nothing changes while the arms are clear.
 -- Studio switch: FashionGame attribute ChoreoBodyGuardOff.
 
+local Workspace = game:GetService("Workspace")
+local RunService = game:GetService("RunService")
 local BodyGuard = {}
 
 type Joint = Motor6D | AnimationConstraint
 
 local state: {[Model]: {[string]: Vector3}} = setmetatable({}, { __mode = "k" }) :: any
 local crossing: {[Model]: { front: string, at: number }} = setmetatable({}, { __mode = "k" }) :: any
+local holds: {[Model]: {[string]: { v: Vector3, at: number }}} = setmetatable({}, { __mode = "k" }) :: any -- (D-1303)
 BodyGuard.stats = { frames = 0, pushed = 0, crossed = 0 }
 
 -- the joint's frame in the world (pivot) and the world CFrame of its Part1, from Part0's CFrame
@@ -55,7 +58,14 @@ local function closestOnSegments(p1: Vector3, q1: Vector3, p2: Vector3, q2: Vect
 	return p1 + d1 * s, p2 + d2 * t, s, t
 end
 
-function BodyGuard.apply(character: Model, joints: {[string]: Joint})
+-- (D-1303) how far the guard turns each arm now (radians), for the Studio scan (tools/choreo/guard_scan.lua)
+function BodyGuard.push(character: Model): (number, number)
+	local s = state[character]
+	return (s and s.Left and s.Left.Magnitude) or 0, (s and s.Right and s.Right.Magnitude) or 0
+end
+
+-- (D-1296) `off`: { Left = true, Right = true } lets that arm go (ChoreoFixes `guardOff`): its push eases back to none
+function BodyGuard.apply(character: Model, joints: {[string]: Joint}, off: {[string]: boolean}?)
 	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local ut, lt = character:FindFirstChild("UpperTorso") :: BasePart?, character:FindFirstChild("LowerTorso") :: BasePart?
 	local jRoot, jWaist = joints.LowerTorso, joints.UpperTorso
@@ -158,11 +168,28 @@ function BodyGuard.apply(character: Model, joints: {[string]: Joint})
 			end
 		end
 		if target.Magnitude > 0.8 then target = target.Unit * 0.8 end
+		if off and off[side] then target = Vector3.zero end
 		if #arm.pushes > 0 then BodyGuard.stats.pushed += 1 end
 		local cur = s[side] or Vector3.zero
+		-- (D-1303, user: "네온 · 체포하겠어 · 갑자기 … 다른 안무에도 같은 경우 있는지 찾아서 수정": a hand at the edge of the
+		-- torso went in and out frame by frame, so the push came and went: the arm flicked out and back (29 such
+		-- flicks in BAD, 20 in Genie, 21 in Get A Guitar, found by tools/choreo/guard_scan.lua). The push now holds
+		-- its strongest of the last 0.3 s and lets go slowly, so a short pass is one even move out and back)
+		local old = RunService:IsStudio() and Workspace:GetAttribute("GuardOld")
+		if not old then
+			local hs = holds[character]
+			if not hs then hs = {} holds[character] = hs end
+			local h = hs[side]
+			local now = os.clock()
+			if target.Magnitude >= (h and h.v.Magnitude or 0) or not h or now - h.at > 0.3 then
+				hs[side] = { v = target, at = now }
+			else
+				target = h.v
+			end
+		end
 		-- in faster than out, and at most 4° a frame either way (no pop; the pushes add up, so the way they
 		-- turn the arm changes smoothly)
-		local step = (target - cur) * (if target.Magnitude > cur.Magnitude then 0.4 else 0.15)
+		local step = (target - cur) * (if target.Magnitude > cur.Magnitude then 0.4 elseif old then 0.15 else 0.06)
 		if step.Magnitude > 0.07 then step = step.Unit * 0.07 end
 		cur += step
 		if cur.Magnitude < 1e-3 then cur = Vector3.zero end
