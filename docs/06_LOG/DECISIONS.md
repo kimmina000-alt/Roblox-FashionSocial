@@ -4204,3 +4204,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ClubAccessService nightSweep: 낮에 들어온 사람을 내보내지 않는 조건에 DjService.IsDJ(player)(지금 DJ 시간인 사람) 추가(가드 패스와 같은 자리). AutoDoorController: 밤에만 열리는 클럽 문이 지금 DJ(FashionGame 속성 ClubDJ, ClubDJUntil 전)에게도 열림. DJ 시간이 끝나도 안에 있으면 그대로(원래 규칙: 안에 있는 사람은 낮이 와도 머무름).
 - ClubConfig.DJGranted에서 cortis_ian(11584919561) 뺌 (D-1288 취소). 남은 권한: 게임 주인, ahchimsae.
 - Play(ClockOverride 12, 가드 패스 끔, Studio DJ = 나): 문 앞 x 38 → 걸어서 x 65, ClubInside true, 밖으로 안 내보냄, 오류 0.
+## D-1294 저사양 기기에서 다른 사람 안무가 빙빙 돌고 쓰러지던 것 (2026-11-11)
+- 사용자(저사양 폰 녹화): "사양 낮은 휴대폰으로 하니까 다른 사람 춤 이상하게 보임. 노트북도 8년 됐는데 처음에는 멀쩡하게 보이다가 다른 사람들 춤 점점 버벅거리더니 이상하게 보임. 춤 제대로 안 주고 빙빙 돌아." 영상: 다른 두 사람이 바닥에 눕고 기울고 돎, 내 캐릭터는 정상.
+- 원인(추정, 코드로 확인): ChoreoController PreSimulation이 모든 춤추는 사람 관절에 보정(faceOffset으로 엉덩이 돌리기, frontLock, 바닥 들어올림, freeze…)을 Animator가 이번 프레임에 쓴 값 위에 더함. 느린 기기는 Roblox가 다른 사람 애니메이션을 프레임마다 건너뛰어서(쓰로틀), 그 프레임에는 지난 프레임 결과 위에 보정이 또 더해져 회전이 매 프레임 쌓임 → 빙빙 돌다 넘어짐. 처음엔 괜찮다가 기기가 무거워질수록 심해지는 것과 맞음.
+- 수정: PostSimulation에서 관절 값을 적어 두고, 다음 PreSimulation 시작에 그 값 그대로면(Animator가 안 씀) Animator가 마지막으로 쓴 원래 포즈로 되돌린 뒤 보정(startFromAnimator). 빠른 기기는 매 프레임 Animator가 쓰므로 그대로.
+- Play(혼자, Lemon Tang 안무): 엉덩이 회전 -7..32° 정상 범위, 오류 0. 쓰로틀은 Studio에서 재현 못 함: 저사양 폰 / 오래된 노트북에서 확인 필요. D-1292 / D-1293은 안무 세션이 써서 1294.
