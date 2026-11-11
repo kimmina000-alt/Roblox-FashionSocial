@@ -1064,6 +1064,7 @@ ClubCamera.Songs[74619423082896] = {
 	video = "MBC Show! Music Core 2026-11-07, youtube C7vNpNTv7fQ",
 	offset = 11.25,
 	shots = cutList({
+		{ 0, "wide", 0, 5 }, { 2.2, "knee" }, { 4, "waist" }, { 4.88, "knee" }, { 9.12, "bust" },
 		{ 10.25, "wide", 0, 5, { size = "close" } }, { 12.59, "bust" }, { 15.28, "wide", 0, 5, { size = "full" } },
 		{ 16.42, "wide", 0, 5 }, { 22.66, "knee" }, { 24.4, "full" }, { 26.98, "knee", 0, 0, { size = "full" } },
 		{ 28.08, "waist" }, { 29.25, "bust" }, { 30.05, "xwide", 0, 8 }, { 31.58, "knee" }, { 32.97, "bust" },
@@ -1101,6 +1102,7 @@ ClubCamera.Songs[94024099429072] = {
 	video = "MBC Show! Music Core 2026-11-07, youtube BtqYIHuCriM",
 	offset = 9.5,
 	shots = cutList({
+		{ 0, "wide", 0, 5, { size = "full" } }, { 5.77, "bust" }, { 6.23, "full" }, { 7.22, "bust" },
 		{ 12, "wide", 0, 5 }, { 13.93, "bust" }, { 15.49, "full" }, { 18.23, "bust" }, { 19.97, "wide", 0, 5 },
 		{ 21.83, "bust" }, { 24.13, "wide", 0, 5 }, { 26.05, "bust" }, { 30.53, "wide", 0, 5 }, { 31.41, "full" },
 		{ 32.2, "waist" }, { 33.67, "bust" }, { 34.83, "wide", 0, 5 }, { 36.53, "bust" }, { 39.97, "full" },
