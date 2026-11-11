@@ -54,6 +54,7 @@ require(script.Parent.Services.CafeJobService).Start(EconomyService, SnackServic
 require(script.Parent.Services.SubwayService).Start()
 require(script.Parent.Services.PianoService).Start()
 require(script.Parent.Services.FountainService).Start()
+require(script.Parent.Services.ChoreoChairService).Start() -- (백화요란 chair intro, D-1321)
 local SparkleService = require(script.Parent.Services.SparkleService)
 SparkleService.Start()
 local RankingService = require(script.Parent.Services.RankingService)

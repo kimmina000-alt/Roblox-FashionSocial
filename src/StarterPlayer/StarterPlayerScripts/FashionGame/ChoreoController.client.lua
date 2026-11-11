@@ -18,6 +18,7 @@ local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("Club
 local ChoreoSmooth = require(script.Parent:WaitForChild("ChoreoSmooth"))
 local ChoreoBodyGuard = require(script.Parent:WaitForChild("ChoreoBodyGuard")) -- (D-1168) arms not through the body / each other
 local ChoreoMouth = require(script.Parent:WaitForChild("ChoreoMouth")) -- (D-1186) singing along
+local ChoreoChair = require(script.Parent:WaitForChild("ChoreoChair")) -- (D-1321) 백화요란's chair
 local danceRemote = FashionGame:WaitForChild("Remotes"):WaitForChild("Dance") :: RemoteEvent
 local player = Players.LocalPlayer
 
@@ -932,6 +933,8 @@ RunService.PreSimulation:Connect(function(dt)
 						character:SetAttribute("GuardL", gl) character:SetAttribute("GuardR", gr)
 					end
 				end
+				-- (D-1321) on the chair the hips rest on the seat, not through it
+				ChoreoChair.sit(character)
 				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
 				do
 					local tr = playingTrack()
@@ -1038,6 +1041,7 @@ local function stopFollowing()
 	if not following then return end
 	glideHome()
 	releaseCamera()
+	ChoreoChair.off() -- (D-1321)
 	for _, t in ipairs(following.tracks) do
 		t:Stop(0.25)
 		t:Destroy()
@@ -1252,6 +1256,8 @@ RunService.PreAnimation:Connect(function()
 		end
 		songTime += audioLag
 	end
+	-- (D-1321) a song's chair part (백화요란): the chair under the dancer
+	ChoreoChair.update((track :: any).chair, tostring(track.soundId) .. ":" .. tostring(start), songTime)
 	-- which segment that is (lengths known once each one has loaded); a gap
 	-- between segments (an `at` later than the one before ends) stands still;
 	-- t = the time in the animation (a `from` skips its start, D-810)
