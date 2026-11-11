@@ -16,14 +16,15 @@
 -- east side: 동궁, 소주방, 자경전, 민속박물관; the west side: 경회루, 수정전,
 -- 고궁박물관). About 1 stud a metre, squeezed where the square narrows.
 -- Simple boxes only (a blockout): stone platforms, hall bodies, roof slabs,
--- cloisters (행각) round the courtyards, ponds, trees, and a label over each
--- numbered place of the map.
+-- cloisters (행각) round the courtyards, ponds, trees; the roofs are the
+-- 광화문 tiled roof (D-1313; the name labels of D-1305 were removed).
 
 local ROOT = workspace:WaitForChild("Hongdae_Layout")
 local old = ROOT:FindFirstChild("PalaceBlockout")
 if old then old:Destroy() end
 local model = Instance.new("Model")
 model.Name = "PalaceBlockout"
+model.Parent = ROOT -- (in the Workspace while building: CSG only works there)
 
 local O = Vector3.new(165, 0, 215) -- just inside 광화문
 local F = Vector3.new(0.70710678, 0, 0.70710678) -- into the palace (u)
@@ -75,27 +76,243 @@ local function group(name: string): Model
 	m.Parent = model
 	return m
 end
-local function label(parent: BasePart, text: string)
-	local g = Instance.new("BillboardGui")
-	g.Name = "Label"
-	g.Size = UDim2.fromOffset(170, 34)
-	g.StudsOffsetWorldSpace = Vector3.new(0, parent.Size.Y / 2 + 8, 0)
-	g.MaxDistance = 600
-	g.LightInfluence = 0
-	local t = Instance.new("TextLabel")
-	t.Size = UDim2.fromScale(1, 1)
-	t.BackgroundColor3 = Color3.fromRGB(20, 20, 26)
-	t.BackgroundTransparency = 0.25
-	t.TextColor3 = Color3.new(1, 1, 1)
-	t.Font = Enum.Font.GothamBold
-	t.TextScaled = true
-	t.Text = text
-	t.Parent = g
-	Instance.new("UICorner", t).CornerRadius = UDim.new(0, 8)
-	g.Parent = parent
+-- (D-1313, user 2026-11-11: "한옥 마을에 장소마다 이름 표시한 거 삭제하고 한옥 건물 지붕 광화문 지붕에
+-- 쓴 에셋 재활용해서 기와 표현해") no name labels any more; every roof is the 광화문 roof
+-- (build_hongdae_layout palaceRoof): a 우진각 (hipped) body, rows of cover tiles from the ridge down
+-- to the eave (the same RoofTileRow: tile rings, 수막새 end cap, 암막새 drip), a green eave with
+-- rafters (RoofRafters), the white 용마루 with stacked ridge tiles and 취두, white hip ridges.
+-- The rows and rafters of each roof are merged into a few solids (like 광화문), so the part
+-- count stays inside the zone budget.
+local TILE_C = Color3.fromRGB(70, 74, 80)
+local ROOF_C = Color3.fromRGB(60, 62, 66)
+local WHITE_R = Color3.fromRGB(236, 234, 228)
+local GREEN = Color3.fromRGB(40, 116, 88)
+
+-- one template made of parts, merged once and cloned (as in build_hongdae_layout)
+local function unionTemplate(name: string, keepColors: boolean, build: (add: (Vector3, CFrame, Color3, Enum.PartType?) -> ()) -> ()): (BasePart, Vector3)
+	local TO = Vector3.new(0, 3200, 0)
+	local tmp = Instance.new("Model")
+	tmp.Parent = workspace
+	local list = {}
+	build(function(size, cf, color, shape)
+		local p = Instance.new("Part")
+		p.Anchored = true
+		p.Size = size
+		p.CFrame = CFrame.new(TO) * cf
+		p.Color = color
+		p.Material = Enum.Material.SmoothPlastic
+		if shape then p.Shape = shape end
+		p.Parent = tmp
+		table.insert(list, p)
+	end)
+	local first = table.remove(list, 1)
+	local ok, u = pcall(function() return first:UnionAsync(list) end)
+	local res: BasePart = first
+	if ok and u then
+		u.UsePartColor = not keepColors
+		res = u
+	end
+	res.Name = name
+	res.Anchored = true
+	res.CanCollide = false
+	res.CanTouch = false
+	res.CanQuery = false
+	res.CastShadow = false
+	pcall(function() (res :: any).CollisionFidelity = Enum.CollisionFidelity.Box end)
+	res.Parent = nil
+	local off = res.Position - TO
+	tmp:Destroy()
+	return res, off
+end
+local rowT, rowOff = unionTemplate("RoofTileRow", false, function(add)
+	local L = 10
+	add(Vector3.new(1, 0.06, L), CFrame.new(0, -0.03, 0), TILE_C) -- axis-aligned base first
+	add(Vector3.new(L, 0.56, 0.56), CFrame.new(0, 0.2, 0) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+	for j = 1, 6 do
+		add(Vector3.new(0.12, 0.64, 0.64), CFrame.new(0, 0.2, -L / 2 + j * L / 7) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+	end
+	add(Vector3.new(0.1, 0.72, 0.72), CFrame.new(0, 0.2, L / 2 + 0.03) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+	add(Vector3.new(0.06, 0.38, 0.38), CFrame.new(0, 0.2, L / 2 + 0.1) * CFrame.Angles(0, math.rad(90), 0), TILE_C, Enum.PartType.Cylinder)
+	add(Vector3.new(0.8, 0.42, 0.08), CFrame.new(0.5, -0.12, L / 2 + 0.02) * CFrame.Angles(math.rad(-25), 0, 0), TILE_C) -- 암막새
+end)
+local rafterT, rafterOff = unionTemplate("RoofRafters", true, function(add)
+	add(Vector3.new(4, 0.42, 0.42), CFrame.new(0, -0.32, -0.2), GREEN)
+	for i = 0, 4 do
+		local x = -2 + 0.4 + i * 0.8
+		add(Vector3.new(1.8, 0.3, 0.3), CFrame.new(x, 0, 0) * CFrame.Angles(0, math.rad(90), 0), GREEN, Enum.PartType.Cylinder)
+		add(Vector3.new(0.06, 0.32, 0.32), CFrame.new(x, 0, 0.92) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(240, 172, 60), Enum.PartType.Cylinder)
+		add(Vector3.new(0.04, 0.14, 0.14), CFrame.new(x, 0, 0.96) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(40, 70, 150), Enum.PartType.Cylinder)
+		add(Vector3.new(0.24, 0.24, 1.0), CFrame.new(x + 0.4, 0.3, 1.2), GREEN)
+		add(Vector3.new(0.26, 0.26, 0.05), CFrame.new(x + 0.4, 0.3, 1.72), Color3.fromRGB(190, 50, 40))
+	end
+end)
+
+-- neighbours merged into one solid each, `chunk` at a time
+local function merge(list: { BasePart }, parent: Instance, chunk: number)
+	for i = 1, #list, chunk do
+		local slice = {}
+		for j = i, math.min(i + chunk - 1, #list) do table.insert(slice, list[j]) end
+		if #slice > 1 then
+			local first = table.remove(slice, 1)
+			local ok, u = pcall(function() return first:UnionAsync(slice) end)
+			if ok and u then
+				u.Name = first.Name
+				u.UsePartColor = true
+				u.Color = first.Color
+				u.Material = first.Material
+				u.Anchored = true
+				u.CanCollide = false
+				u.CanQuery = false
+				u.CanTouch = false
+				u.CastShadow = first.CastShadow
+				u.Parent = parent
+				first:Destroy()
+				for _, p in ipairs(slice) do p:Destroy() end
+				count -= #slice
+			end
+		end
+	end
 end
 
--- a hall: stone base tiers, the body, a hipped roof as two slabs and a ridge
+-- a part in a roof's own frame (x across, y up, z along the ridge)
+local function rpart(name: string, frame: CFrame, size: Vector3, cf: CFrame, color: Color3, parent: Instance, opts: {[string]: any}?): BasePart
+	local o = opts or {}
+	local p: BasePart = Instance.new(o.class or "Part") :: any
+	p.Name = name
+	p.Anchored = true
+	p.Size = size
+	p.CFrame = frame * cf
+	p.Color = color
+	p.Material = o.material or Enum.Material.SmoothPlastic
+	p.TopSurface, p.BottomSurface = Enum.SurfaceType.Smooth, Enum.SurfaceType.Smooth
+	if o.nocol then p.CanCollide = false p.CanQuery = false p.CanTouch = false p.CastShadow = false end
+	p.Parent = parent
+	count += 1
+	return p
+end
+
+-- the 광화문 roof (palaceRoof) on a base `frame` (centre of the eave line, y = the eave):
+-- `a` across × `b` along; the ridge runs along the longer side. `full` = the rafters, the
+-- ridge tiles, 취두 and hip ridges (halls); the 행각 corridors keep the slopes, tiles and ridge.
+local function giwaRoof(parent: Instance, frame: CFrame, a: number, b: number, rise: number, full: boolean)
+	if a > b then
+		frame = frame * CFrame.Angles(0, math.rad(90), 0)
+		a, b = b, a
+	end
+	local w, d = a, b
+	local run = w / 2
+	local x0, x1, z0, z1 = -w / 2, w / 2, -d / 2, d / 2
+	local Ls = math.sqrt(run * run + rise * rise)
+	-- body: (gable along z) ∩ (gable along x with the same pitch) = a hipped roof
+	do
+		local a1 = rpart("RoofSlope", frame, Vector3.new(d, rise, run), CFrame.new(-run / 2, rise / 2, 0) * CFrame.Angles(0, math.rad(90), 0), ROOF_C, parent, { class = "WedgePart", material = Enum.Material.Slate })
+		local a2 = rpart("RoofSlope", frame, Vector3.new(d, rise, run), CFrame.new(run / 2, rise / 2, 0) * CFrame.Angles(0, math.rad(-90), 0), ROOF_C, parent, { class = "WedgePart", material = Enum.Material.Slate })
+		local riseB = rise * (d / 2) / run
+		local b1 = rpart("RoofHip", frame, Vector3.new(w, riseB, d / 2), CFrame.new(0, riseB / 2, -d / 4), ROOF_C, parent, { class = "WedgePart" })
+		local b2 = rpart("RoofHip", frame, Vector3.new(w, riseB, d / 2), CFrame.new(0, riseB / 2, d / 4) * CFrame.Angles(0, math.rad(180), 0), ROOF_C, parent, { class = "WedgePart" })
+		local ok, res = pcall(function()
+			local ua = a1:UnionAsync({ a2 })
+			ua.Parent = parent
+			local ub = b1:UnionAsync({ b2 })
+			ub.Parent = parent
+			local r = ua:IntersectAsync({ ub })
+			ua:Destroy()
+			ub:Destroy()
+			return r
+		end)
+		if ok and res then
+			res.Name = "RoofBody"
+			res.UsePartColor = true
+			res.Color = ROOF_C
+			res.Material = Enum.Material.Slate
+			res.Anchored = true
+			res.Parent = parent
+			a1:Destroy() a2:Destroy() b1:Destroy() b2:Destroy()
+			count -= 3
+		else
+			warn("hip roof CSG failed", res)
+			b1:Destroy() b2:Destroy()
+			count -= 2
+		end
+	end
+	if full then rpart("Eave", frame, Vector3.new(w, 0.4, d), CFrame.new(0, -0.2, 0), GREEN, parent) end
+	-- tile rows: the long sides (square to the 용마루), then the hipped ends
+	local rows: { BasePart } = {}
+	local function row(pos: Vector3, xAxis: Vector3, nrm: Vector3, rowRun: number)
+		if rowRun < 0.4 then return end
+		local c = rowT:Clone()
+		local sz = rowRun * Ls / run / 10
+		c.Size = Vector3.new(rowT.Size.X, rowT.Size.Y, rowT.Size.Z * sz)
+		c.CFrame = frame * CFrame.fromMatrix(pos, xAxis, nrm) * CFrame.new(rowOff.X, rowOff.Y, rowOff.Z * sz)
+		c.Parent = parent
+		count += 1
+		table.insert(rows, c)
+	end
+	for _, s in ipairs({ -1, 1 }) do
+		local nrm = Vector3.new(s * rise, run, 0).Unit
+		for z = z0 + 0.5, z1 - 0.49, 1 do
+			local rr = math.min(math.min(z - z0, z1 - z), run)
+			row(Vector3.new(s * (run - rr / 2), rise * (rr / 2) / run, z), Vector3.new(0, 0, -s), nrm, rr)
+		end
+	end
+	for _, e in ipairs({ -1, 1 }) do
+		local nrm = Vector3.new(0, run, e * rise).Unit
+		local endZ = if e < 0 then z0 else z1
+		for u = -run + 0.5, run - 0.49, 1 do
+			local rr = run - math.abs(u)
+			row(Vector3.new(u, rise * (rr / 2) / run, endZ - e * rr / 2), Vector3.new(e, 0, 0), nrm, rr)
+		end
+	end
+	merge(rows, parent, 40)
+	-- 용마루: the white sides and a dark ridge on top
+	local r0, r1 = z0 + run, z1 - run
+	local rl = math.max(r1 - r0, 0.6)
+	rpart("RoofRidge", frame, Vector3.new(1.2, 0.9, rl), CFrame.new(0, rise + 0.45, 0), WHITE_R, parent)
+	if not full then
+		rpart("RidgeTiles", frame, Vector3.new(1.5, 0.4, rl), CFrame.new(0, rise + 1.1, 0), Color3.fromRGB(62, 66, 72), parent, { material = Enum.Material.Slate })
+		return
+	end
+	for i, wdt in ipairs({ 1.5, 1.2, 0.95, 0.7 }) do
+		rpart("RidgeTiles", frame, Vector3.new(wdt, 0.3, rl), CFrame.new(0, rise + 0.9 + (i - 1) * 0.3 + 0.15, 0), Color3.fromRGB(62, 66, 72), parent, { material = Enum.Material.Slate })
+	end
+	for _, ze in ipairs({ r0, r1 }) do
+		rpart("RidgeEnd", frame, Vector3.new(1.3, 2.2, 1.1), CFrame.new(0, rise + 1.6, ze), Color3.fromRGB(58, 60, 66), parent, { material = Enum.Material.Slate })
+	end
+	-- hip ridges (white) from the ridge ends down to the four corners
+	for _, e in ipairs({ -1, 1 }) do
+		local rz = if e < 0 then r0 else r1
+		local endZ = if e < 0 then z0 else z1
+		for _, xe in ipairs({ x0, x1 }) do
+			local top = frame:PointToWorldSpace(Vector3.new(0, rise + 0.45, rz))
+			local bot = frame:PointToWorldSpace(Vector3.new(xe, 0.35, endZ))
+			rpart("HipRidge", CFrame.identity, Vector3.new(0.8, 0.6, (bot - top).Magnitude), CFrame.lookAt((top + bot) / 2, bot), WHITE_R, parent)
+		end
+	end
+	-- rafters under the eaves on all four sides
+	local rafters: { BasePart } = {}
+	local function rafter(pos: Vector3, out: Vector3, seg: number)
+		local c = rafterT:Clone()
+		c.Size = Vector3.new(rafterT.Size.X * seg / 4, rafterT.Size.Y, rafterT.Size.Z)
+		c.CFrame = frame * CFrame.fromMatrix(pos, out, Vector3.yAxis) * CFrame.new(rafterOff.X * seg / 4, rafterOff.Y, rafterOff.Z)
+		c.Parent = parent
+		count += 1
+		table.insert(rafters, c)
+	end
+	local n = math.max(1, math.floor(d / 4 + 0.5))
+	for _, s in ipairs({ -1, 1 }) do
+		local edge = if s < 0 then x0 else x1
+		for k = 0, n - 1 do rafter(Vector3.new(edge - s * 1.72, -0.85, z0 + d / n * (k + 0.5)), Vector3.new(0, 0, -s), d / n) end
+	end
+	local n2 = math.max(1, math.floor(w / 4 + 0.5))
+	for _, e in ipairs({ -1, 1 }) do
+		local endZ = if e < 0 then z0 else z1
+		for k = 0, n2 - 1 do rafter(Vector3.new(x0 + w / n2 * (k + 0.5), -0.85, endZ - e * 1.72), Vector3.new(e, 0, 0), w / n2) end
+	end
+	merge(rafters, parent, 60)
+end
+
+-- a hall: stone base tiers, the body, the 광화문 roof (a two-storey hall: a lower roof
+-- round the upper storey, then the top roof)
 local function hall(m: Instance, name: string, u: number, v: number, w: number, d: number, opts: {[string]: any}?): Part
 	local o = opts or {}
 	local tiers = o.tiers or 1
@@ -110,15 +327,18 @@ local function hall(m: Instance, name: string, u: number, v: number, w: number, 
 	y += bodyH
 	local storeys = o.storeys or 1
 	for s = 1, storeys do
-		box(name .. "_Roof" .. s, u - d / 2 - 4, u + d / 2 + 4, v - w / 2 - 4, v + w / 2 + 4, y, 1.4, COL.roof, m)
-		y += 1.4
+		local ww, dd = w + 8, d + 8
+		local rise = math.min(ww, dd) / 2 * 0.5
 		if s < storeys then
-			box(name .. "_Upper" .. s, u - d / 2 + 3, u + d / 2 - 3, v - w / 2 + 3, v + w / 2 - 3, y, 6, COL.body, m)
-			y += 6
+			-- the lower roof: a skirt round the upper storey (its top hidden inside it)
+			giwaRoof(m, at(u, v, y), ww, dd, rise, true)
+			local up = math.max(6, rise * 0.6 + 4)
+			box(name .. "_Upper" .. s, u - d / 2 + 3, u + d / 2 - 3, v - w / 2 + 3, v + w / 2 - 3, y + rise * 0.4, up, COL.body, m)
+			y += rise * 0.4 + up
+		else
+			giwaRoof(m, at(u, v, y), ww, dd, rise, true)
 		end
 	end
-	box(name .. "_RoofTop", u - d / 4, u + d / 4, v - w / 2 + 4, v + w / 2 - 4, y, math.max(2.5, d / 6), COL.roof, m)
-	if o.label then label(body, o.label) end
 	return body
 end
 
@@ -133,7 +353,8 @@ local function compound(name: string, u0: number, u1: number, v0: number, v1: nu
 	local vm = (v0 + v1) / 2
 	local function wing(nm: string, a0: number, a1: number, b0: number, b1: number)
 		box(nm, a0, a1, b0, b1, 0, H, COL.body, m)
-		box(nm .. "Roof", a0 - 1, a1 + 1, b0 - 1, b1 + 1, H, 1.2, COL.roof, m)
+		local ww, dd = math.abs(b1 - b0) + 2, math.abs(a1 - a0) + 2
+		giwaRoof(m, at((a0 + a1) / 2, (b0 + b1) / 2, H), ww, dd, math.min(ww, dd) / 2 * 0.55, false)
 	end
 	-- front (u0) and back (u1) sides along v, with the gate gap in the middle
 	wing("FrontL", u0, u0 + T, v0, vm - gap / 2)
@@ -147,7 +368,7 @@ local function compound(name: string, u0: number, u1: number, v0: number, v1: nu
 	wing("SideL", u0 + T, u1 - T, v0, v0 + T)
 	wing("SideR", u0 + T, u1 - T, v1 - T, v1)
 	if o.gate then
-		hall(m, name .. "Gate", u0 + T / 2, vm, gap + 10, T + 4, { h = 8, label = o.gate })
+		hall(m, name .. "Gate", u0 + T / 2, vm, gap + 10, T + 4, { h = 8 })
 	end
 	return m
 end
@@ -210,7 +431,7 @@ do
 	-- the wall across the axis with 흥례문 in it
 	box("Wall", 96, 100, -150, -16, 0, 9, COL.wall, m)
 	box("Wall", 96, 100, 16, 150, 0, 9, COL.wall, m)
-	hall(m, "Heungnyemun", 98, 0, 40, 14, { h = 8, storeys = 2, label = "흥례문" })
+	hall(m, "Heungnyemun", 98, 0, 40, 14, { h = 8, storeys = 2 })
 end
 
 -- 흥례문 courtyard with the 영제교 stream and bridge
@@ -219,13 +440,13 @@ do
 	local water = box("Stream", 142, 150, -83, 83, 0, 0.3, COL.water, m)
 	water.Material = Enum.Material.Glass
 	box("Yeongjegyo", 138, 154, -9, 9, 0, 1.6, COL.stone, m)
-	hall(m, "Geunjeongmun", 192, 0, 34, 12, { h = 8, label = "근정문" })
+	hall(m, "Geunjeongmun", 192, 0, 34, 12, { h = 8 })
 end
 
 -- 2 근정전 in its cloister, on the two-tier 월대
 do
 	local m = compound("02_Geunjeongjeon", 196, 336, -78, 78, { back = false })
-	hall(m, "Geunjeongjeon", 286, 0, 44, 26, { tiers = 2, h = 13, storeys = 2, label = "② 근정전" })
+	hall(m, "Geunjeongjeon", 286, 0, 44, 26, { tiers = 2, h = 13, storeys = 2 })
 	-- the rank stones (품계석) along the path: two rows of small posts
 	for i = 0, 5 do
 		box("RankStone", 214 + i * 9, 215.5 + i * 9, -9, -7.5, 0, 1.6, COL.stone, m)
@@ -236,7 +457,7 @@ end
 -- 3 사정전 (with 만춘전 / 천추전 at the sides)
 do
 	local m = compound("03_Sajeongjeon", 340, 392, -50, 50, { gate = "사정문" })
-	hall(m, "Sajeongjeon", 370, 0, 30, 15, { tiers = 1, h = 9, label = "③ 사정전" })
+	hall(m, "Sajeongjeon", 370, 0, 30, 15, { tiers = 1, h = 9 })
 	hall(m, "Manchunjeon", 370, 33, 14, 10, { h = 7 })
 	hall(m, "Cheonchujeon", 370, -33, 14, 10, { h = 7 })
 end
@@ -244,11 +465,11 @@ end
 -- 4 강녕전 and 교태전 (and the 아미산 garden behind)
 do
 	local m = compound("04a_Gangnyeongjeon", 396, 452, -50, 50, { gate = "향오문" })
-	hall(m, "Gangnyeongjeon", 428, 0, 40, 16, { tiers = 1, h = 8, label = "④ 강녕전" })
+	hall(m, "Gangnyeongjeon", 428, 0, 40, 16, { tiers = 1, h = 8 })
 	hall(m, "Yeonsaengjeon", 428, 36, 12, 10, { h = 6 })
 	hall(m, "Gyeongseongjeon", 428, -36, 12, 10, { h = 6 })
 	local m2 = compound("04b_Gyotaejeon", 456, 512, -50, 50, { gate = "양의문" })
-	hall(m2, "Gyotaejeon", 488, 0, 36, 16, { tiers = 1, h = 8, label = "④ 교태전" })
+	hall(m2, "Gyotaejeon", 488, 0, 36, 16, { tiers = 1, h = 8 })
 	-- 아미산: three green terraces with four chimneys
 	local g = group("04c_Amisan")
 	for i = 0, 2 do
@@ -261,28 +482,28 @@ end
 -- 5 흠경각 and 함원전 (west of 교태전)
 do
 	local m = compound("05_Heumgyeonggak", 458, 510, -112, -56, {})
-	hall(m, "Hamwonjeon", 484, -84, 24, 12, { h = 7, label = "⑤ 흠경각·함원전" })
+	hall(m, "Hamwonjeon", 484, -84, 24, 12, { h = 7 })
 end
 
 -- 6 자경전 (east)
 do
 	local m = compound("06_Jagyeongjeon", 430, 486, 66, 132, { gate = "만세문" })
-	hall(m, "Jagyeongjeon", 462, 99, 34, 14, { tiers = 1, h = 8, label = "⑥ 자경전" })
+	hall(m, "Jagyeongjeon", 462, 99, 34, 14, { tiers = 1, h = 8 })
 end
 
 -- 7 동궁 (the crown prince's halls, east of 근정전)
 do
 	local m = compound("07a_Jaseondang", 214, 274, 92, 168, { gate = nil })
-	hall(m, "Jaseondang", 246, 130, 30, 14, { tiers = 1, h = 8, label = "⑦ 동궁 (자선당)" })
+	hall(m, "Jaseondang", 246, 130, 30, 14, { tiers = 1, h = 8 })
 	local m2 = compound("07b_Bihyeongak", 280, 330, 100, 160, {})
-	hall(m2, "Bihyeongak", 307, 130, 26, 12, { h = 7, label = "⑦ 비현각" })
+	hall(m2, "Bihyeongak", 307, 130, 26, 12, { h = 7 })
 end
 
 -- 14 소주방 (the royal kitchens, east of 강녕전): three halls in a row
 do
 	local m = compound("14_Sojubang", 352, 410, 68, 146, {})
 	for i = 0, 2 do
-		hall(m, "Sojubang" .. i, 382, 82 + i * 25, 16, 22, { h = 6, label = if i == 1 then "⑭ 소주방" else nil })
+		hall(m, "Sojubang" .. i, 382, 82 + i * 25, 16, 22, { h = 6 })
 	end
 end
 
@@ -290,7 +511,7 @@ end
 do
 	local m = group("13_Sujeongjeon")
 	box("Yard", 286, 334, -168, -96, 0, 0.12, COL.pave, m)
-	hall(m, "Sujeongjeon", 312, -132, 44, 18, { tiers = 1, h = 8, label = "⑬ 수정전" })
+	hall(m, "Sujeongjeon", 312, -132, 44, 18, { tiers = 1, h = 8 })
 end
 
 -- 12 경회루: the big pond, the island, the pavilion on 48 stone pillars (24 here)
@@ -303,10 +524,8 @@ do
 			box("Pillar", 372 + iu * 15, 374.5 + iu * 15, -224 + iv * 11.5, -221.5 + iv * 11.5, 3, 9, COL.stone, pillars)
 		end
 	end
-	local floor = box("Gyeonghoeru", 368, 422, -228, -166, 12, 7, COL.body, m)
-	box("Gyeonghoeru_Roof", 364, 426, -232, -162, 19, 1.6, COL.roof, m)
-	box("Gyeonghoeru_RoofTop", 382, 408, -222, -172, 20.6, 4, COL.roof, m)
-	label(floor, "⑫ 경회루")
+	box("Gyeonghoeru", 368, 422, -228, -166, 12, 7, COL.body, m)
+	giwaRoof(m, at(395, -197, 19), 70, 62, 31 * 0.5, true)
 	-- the three bridges from the east bank
 	for i = 0, 2 do box("Bridge", 378 + i * 16, 386 + i * 16, -162, -142, 0, 1.4, COL.stone, m) end
 	-- small islands with pines
@@ -320,7 +539,7 @@ end
 -- 8 함화당 · 집경당
 do
 	local m = compound("08_Hamhwadang", 532, 584, -24, 54, {})
-	hall(m, "Hamhwadang", 558, 0, 22, 12, { h = 7, label = "⑧ 함화당·집경당" })
+	hall(m, "Hamhwadang", 558, 0, 22, 12, { h = 7 })
 	hall(m, "Jipgyeongdang", 558, 32, 18, 12, { h = 7 })
 end
 
@@ -332,34 +551,30 @@ do
 	local pav = part("Hyangwonjeong", at(616, 13, 2 + 5), Vector3.new(10, 6, 6), COL.body, m, Enum.PartType.Cylinder)
 	pav.CFrame = at(616, 13, 2 + 3) * CFrame.Angles(0, 0, math.rad(90))
 	pav.Size = Vector3.new(6, 7, 7)
-	part("Hyangwonjeong_Roof", at(616, 13, 2 + 6.8) * CFrame.Angles(0, 0, math.rad(90)), Vector3.new(1.6, 10, 10), COL.roof, m, Enum.PartType.Cylinder)
-	part("Hyangwonjeong_Top", at(616, 13, 2 + 9.5) * CFrame.Angles(0, 0, math.rad(90)), Vector3.new(3, 5, 5), COL.body, m, Enum.PartType.Cylinder)
-	label(pav, "⑨ 향원정")
+	giwaRoof(m, at(616, 13, 2 + 6.5), 10, 10.5, 2.6, true)
 	box("Chwihyanggyo", 623, 642, 11, 15, 0, 1.4, COL.stone, m) -- (the bridge north)
 	local g = compound("09b_Geoncheonggung", 644, 676, -64, 6, {})
-	hall(g, "Geoncheonggung", 662, -29, 30, 12, { h = 7, label = "⑨ 건청궁" })
+	hall(g, "Geoncheonggung", 662, -29, 30, 12, { h = 7 })
 end
 
 -- 10 집옥재
 do
 	local m = compound("10_Jibokjae", 566, 612, -110, -52, {})
-	hall(m, "Jibokjae", 590, -81, 30, 14, { tiers = 1, h = 9, label = "⑩ 집옥재" })
+	hall(m, "Jibokjae", 590, -81, 30, 14, { tiers = 1, h = 9 })
 end
 
 -- 11 태원전
 do
 	local m = compound("11_Taewonjeon", 506, 566, -178, -122, { gate = nil })
-	hall(m, "Taewonjeon", 536, -150, 30, 14, { tiers = 1, h = 8, label = "⑪ 태원전" })
+	hall(m, "Taewonjeon", 536, -150, 30, 14, { tiers = 1, h = 8 })
 end
 
 -- 국립고궁박물관 (west of the front court) and 국립민속박물관 with its pagoda (east)
 do
 	local m = group("Museums")
-	local a = box("PalaceMuseum", 24, 92, -230, -120, 0, 12, COL.modern, m)
+	box("PalaceMuseum", 24, 92, -230, -120, 0, 12, COL.modern, m)
 	box("PalaceMuseum_Roof", 20, 96, -234, -116, 12, 1.4, COL.roof, m)
-	label(a, "국립고궁박물관")
-	local b = box("FolkMuseum", 368, 440, 184, 236, 0, 10, COL.modern, m)
-	label(b, "국립민속박물관")
+	box("FolkMuseum", 368, 440, 184, 236, 0, 10, COL.modern, m)
 	local y = 0
 	for i = 0, 4 do
 		local s = 26 - i * 4
@@ -391,6 +606,5 @@ do
 	end
 end
 
-model.Parent = ROOT
 print(string.format("[PalaceBlockout] %d parts (%d outside the square)", count, outside))
 return count, outside
