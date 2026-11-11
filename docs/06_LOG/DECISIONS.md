@@ -4194,3 +4194,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - TrashService: Take가 성공하면 RemoteEvent Remotes.TrashNotice로 모두에게 (DisplayName, 아이템 이름)을 보냄.
 - TrashController: 화면 가운데 위(TopBar.bottom() + 6)에 한 줄 16 px, 흰 글씨 13 (이름표 VIP / GUARD / DJ 줄 높이 13과 같게), GothamSSm Bold, 검은 그림자 1 px. 이모지는 빼고 이름만, 받침이 있으면 "을", 없으면 "를"(도넛을, 커피를). 최대 3줄, 4초 뒤 사라짐.
 - Play: "Vantablack_Dev님이 쓰레기통에서 "도넛"을 주웠습니다." / ""커피"를", 창 카드 3개 이름 0.
+
+## D-1312 쓰레기통 알림 검은 외곽선, 후원 배너 13 (2026-11-11)
+- 사용자: "검은색 외곽선도 넣어 잘 안 보임 / 후원한 사람에 대한 문구 띄울 때도 폰트 크기 13px로 수정".
+- TrashController: 알림 흰 글씨에 검은 외곽선(TextStroke, 그림자는 그대로), 사라질 때 같이 흐려짐.
+- BannerController: 후원 배너(○○님이 N R$ 기부하셨습니다 / 한마디) 두 줄 다 13. 콜드 스파크 · DJ 불꽃 배너는 20 그대로.
+- Play: 서버에서 두 이벤트를 쏴서 화면 확인.

@@ -112,6 +112,10 @@ local function showNext()
 	end
 	mainText.Text, mainGlow.Text = main, main
 	subText.Text, subGlow.Text = sub, sub
+	-- (D-1312, user 2026-11-11: "후원한 사람에 대한 문구 띄울 때도 폰트 크기 13px로") a supporter's lines at 13
+	-- (the name-tag badge size, like the trash notice); cold sparks keep 20
+	local size = if data.kind == "support" then 13 else 20
+	for _, l in ipairs({ mainText, mainGlow, subText, subGlow }) do l.TextSize = size end
 	local seconds = if data.kind == "support" then GIFT_SECONDS else SPARK_SECONDS
 	banner.Position = UDim2.fromOffset(0, TopBar.bottom() + 8)
 	banner.Visible = true

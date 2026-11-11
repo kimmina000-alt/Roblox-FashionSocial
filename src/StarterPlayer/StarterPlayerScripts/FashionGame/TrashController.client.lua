@@ -334,6 +334,9 @@ do
 		local shadow = label(Color3.new(0, 0, 0), 1, 1)
 		shadow.TextTransparency = 0.25
 		local front = label(Color3.new(1, 1, 1), 0, 2)
+		-- (user 2026-11-11: "검은색 외곽선도 넣어 잘 안 보임") a black outline as well as the shadow
+		front.TextStrokeColor3 = Color3.new(0, 0, 0)
+		front.TextStrokeTransparency = 0
 		local rows = {}
 		for _, r in ipairs(stack:GetChildren()) do if r:IsA("Frame") then table.insert(rows, r) end end
 		table.sort(rows, function(a, b) return a.LayoutOrder < b.LayoutOrder end)
@@ -342,6 +345,7 @@ do
 			for k = 1, 10 do
 				if not row.Parent then return end
 				front.TextTransparency = k / 10
+				front.TextStrokeTransparency = k / 10
 				shadow.TextTransparency = 0.25 + 0.75 * k / 10
 				task.wait(0.05)
 			end
