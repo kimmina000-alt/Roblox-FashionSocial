@@ -889,6 +889,11 @@ RunService.PreSimulation:Connect(function(dt)
 						end
 					end
 					ChoreoBodyGuard.apply(character, bodyJoints(character), off)
+					-- (D-1303, Studio only) the guard's push on the character's attributes for tools/choreo/guard_scan.lua
+					if RunService:IsStudio() and FashionGame:GetAttribute("GuardLog") then
+						local gl, gr = ChoreoBodyGuard.push(character)
+						character:SetAttribute("GuardL", gl) character:SetAttribute("GuardR", gr)
+					end
 				end
 				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
 				do

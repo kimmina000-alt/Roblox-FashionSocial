@@ -462,7 +462,7 @@ M.ChoreoFixes = {
 	-- of the slower wobble than other songs' pieces (over 5.5 short swings a
 	-- second; ATEEZ pieces have about 3) gets it eased too
 	[128256391320572] = { calm = true }, [100410498984971] = { calm = true }, -- (126736648781925 below)
-	[76437753036430] = { calm = true }, [136355327951443] = { calm = true }, [117451819045051] = { calm = true },
+	[76437753036430] = { calm = true }, [136355327951443] = { calm = true, guardOff = { from = 4.2, to = 5.4, side = "Right" } } --[[ D-1303: NEON 1:56 guard turn-back ]], [117451819045051] = { calm = true },
 	[133401623277764] = { calm = true }, [106546379406531] = { calm = true }, [71570705300325] = { calm = true },
 	[121393866689759] = { calm = true }, -- (114419952125075 below)
 	-- NEON 5 (D-852, user: 0:53 "이 자세로 잠시 머무는데 이때 떨림 삭제")
@@ -519,6 +519,10 @@ M.ChoreoFixes = {
 	-- (D-1296, user: 체포하겠어 "0:36 상체 올라올 때 떨림"): 7 (song 32.95) comes up from the bend at song 37.2-38.3 with the head and
 	-- chest shaking (their path 3x the way they went): smoothed hard there
 	[75102459386899] = { steady = { from = 4.1, to = 5.5, passes = 24, parts = { "LowerTorso", "UpperTorso", "Head" } } },
+	-- (D-1303) the whole-song guard scan (tools/choreo/guard_scan.lua) with the steadier guard left three spots where the guard
+	-- still turned the right hand back once (checked at 1x, none with the guard off): I SPY 0:42, CRASH 1:09 (and NEON 1:56 above)
+	[98654918637507] = { guardOff = { from = 6.7, to = 7.9, side = "Right" } },
+	[119507357461993] = { guardOff = { from = 8.0, to = 9.2, side = "Right" } },
 	-- RIIZE-Get A Guitar 15 (D-882, user: 1:54 "한바퀴 도는 거 매끄럽게"): the turn at
 	-- 16.4-16.6 s lurched 157° in one keyframe; one even turn instead
 	-- (D-962, user: 1:38 "무릎 엄청 빠르게 찍고 내리는데 올릴 때 엄청 살짝 슬로우
