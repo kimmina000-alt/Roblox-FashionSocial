@@ -18,6 +18,14 @@
 -- Simple boxes only (a blockout): stone platforms, hall bodies, roof slabs,
 -- cloisters (행각) round the courtyards, ponds, trees; the roofs are the
 -- 광화문 tiled roof (D-1313; the name labels of D-1305 were removed).
+--
+-- (D-1318, user 2026-11-12: five photos of residential hanok, "한옥마을 참고해서 수정",
+-- docs/04_ART/references/hanok_village_ref_*.jpg) the halls and 행각 look like those houses:
+-- white plaster bays in a brown timber frame with lattice doors (Textures, one bay a tile:
+-- hanok_bay_door / hanok_bay_wall, tools/art/hanok_textures.py), granite 기단 with two steps
+-- and a wooden 툇마루 in front, natural-wood rafters under the eaves (no green 단청), 돌담
+-- walls (hanok_stonewall), sand (마사토) yards, crooked pines with flat crowns, a 장독대 of
+-- onggi jars by the kitchens, stone lanterns before the halls and a rock-and-pine garden.
 
 local ROOT = workspace:WaitForChild("Hongdae_Layout")
 local old = ROOT:FindFirstChild("PalaceBlockout")
@@ -36,17 +44,25 @@ end
 
 local COL = {
 	lawn = Color3.fromRGB(118, 152, 86),
-	pave = Color3.fromRGB(214, 206, 186), -- courtyards (박석)
+	pave = Color3.fromRGB(208, 190, 154), -- courtyards (마사토, D-1318)
 	path = Color3.fromRGB(196, 186, 160),
-	stone = Color3.fromRGB(184, 180, 170), -- platforms (월대, 기단)
-	body = Color3.fromRGB(150, 62, 48), -- columns / walls of the halls (단청 red)
+	stone = Color3.fromRGB(196, 192, 182), -- platforms (월대, 기단: granite)
+	body = Color3.fromRGB(122, 80, 50), -- the timber of the halls (D-1318: the bays are Textures)
 	roof = Color3.fromRGB(62, 64, 70), -- 기와
-	wall = Color3.fromRGB(196, 150, 120), -- 궁궐 담장 (brick-ish)
+	wall = Color3.fromRGB(176, 170, 158), -- 돌담 (the stone Texture over it)
 	water = Color3.fromRGB(86, 146, 186),
-	tree = Color3.fromRGB(70, 118, 64),
-	trunk = Color3.fromRGB(96, 74, 56),
+	tree = Color3.fromRGB(58, 98, 52), -- pine needles
+	trunk = Color3.fromRGB(128, 76, 52), -- red pine bark
 	modern = Color3.fromRGB(205, 205, 210),
+	floor = Color3.fromRGB(150, 104, 66), -- 툇마루 boards
+	onggi = Color3.fromRGB(78, 46, 34),
 }
+local TEX = {
+	door = "rbxassetid://140331785432338", -- hanok_bay_door.png
+	wall = "rbxassetid://121401885831849", -- hanok_bay_wall.png
+	stone = "rbxassetid://139325252321598", -- hanok_stonewall.png
+}
+local BAY = 8 -- studs a bay (칸)
 
 local count = 0
 local outside = 0
@@ -76,6 +92,39 @@ local function group(name: string): Model
 	m.Parent = model
 	return m
 end
+
+-- (D-1318) a Texture on one face: whole bays along it, one tile the face's height
+local function tex(p: BasePart, face: Enum.NormalId, image: string, along: number, high: number)
+	local t = Instance.new("Texture")
+	t.Texture = image
+	t.Face = face
+	local n = math.max(1, math.floor(along / BAY + 0.5))
+	t.StudsPerTileU = along / n
+	t.StudsPerTileV = high
+	t.Parent = p
+end
+-- the timber-and-plaster bays on a hall or 행각 body: lattice doors on the long sides,
+-- plaster with a small window on the ends (both long sides for a hall)
+local function facade(p: BasePart)
+	local s = p.Size
+	local longX = s.X >= s.Z
+	tex(p, Enum.NormalId.Front, if longX then TEX.door else TEX.wall, s.X, s.Y)
+	tex(p, Enum.NormalId.Back, if longX then TEX.door else TEX.wall, s.X, s.Y)
+	tex(p, Enum.NormalId.Left, if longX then TEX.wall else TEX.door, s.Z, s.Y)
+	tex(p, Enum.NormalId.Right, if longX then TEX.wall else TEX.door, s.Z, s.Y)
+end
+-- 돌담: the stone Texture on the four sides, 6 studs a tile
+local function stoneWall(p: BasePart)
+	for _, f in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back, Enum.NormalId.Left, Enum.NormalId.Right }) do
+		local t = Instance.new("Texture")
+		t.Texture = TEX.stone
+		t.Face = f
+		t.StudsPerTileU = 6
+		t.StudsPerTileV = 6
+		t.Parent = p
+	end
+	p.Material = Enum.Material.Cobblestone
+end
 -- (D-1313, user 2026-11-11: "한옥 마을에 장소마다 이름 표시한 거 삭제하고 한옥 건물 지붕 광화문 지붕에
 -- 쓴 에셋 재활용해서 기와 표현해") no name labels any more; every roof is the 광화문 roof
 -- (build_hongdae_layout palaceRoof): a 우진각 (hipped) body, rows of cover tiles from the ridge down
@@ -86,7 +135,10 @@ end
 local TILE_C = Color3.fromRGB(70, 74, 80)
 local ROOF_C = Color3.fromRGB(60, 62, 66)
 local WHITE_R = Color3.fromRGB(236, 234, 228)
-local GREEN = Color3.fromRGB(40, 116, 88)
+-- (D-1318) natural wood under the eaves like the houses in the photos (was 단청 green)
+local GREEN = Color3.fromRGB(112, 74, 46)
+local RAFTER_END = Color3.fromRGB(226, 210, 176)
+local RAFTER_CORE = Color3.fromRGB(150, 108, 70)
 
 -- one template made of parts, merged once and cloned (as in build_hongdae_layout)
 local function unionTemplate(name: string, keepColors: boolean, build: (add: (Vector3, CFrame, Color3, Enum.PartType?) -> ()) -> ()): (BasePart, Vector3)
@@ -140,10 +192,10 @@ local rafterT, rafterOff = unionTemplate("RoofRafters", true, function(add)
 	for i = 0, 4 do
 		local x = -2 + 0.4 + i * 0.8
 		add(Vector3.new(1.8, 0.3, 0.3), CFrame.new(x, 0, 0) * CFrame.Angles(0, math.rad(90), 0), GREEN, Enum.PartType.Cylinder)
-		add(Vector3.new(0.06, 0.32, 0.32), CFrame.new(x, 0, 0.92) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(240, 172, 60), Enum.PartType.Cylinder)
-		add(Vector3.new(0.04, 0.14, 0.14), CFrame.new(x, 0, 0.96) * CFrame.Angles(0, math.rad(90), 0), Color3.fromRGB(40, 70, 150), Enum.PartType.Cylinder)
+		add(Vector3.new(0.06, 0.32, 0.32), CFrame.new(x, 0, 0.92) * CFrame.Angles(0, math.rad(90), 0), RAFTER_END, Enum.PartType.Cylinder)
+		add(Vector3.new(0.04, 0.14, 0.14), CFrame.new(x, 0, 0.96) * CFrame.Angles(0, math.rad(90), 0), RAFTER_CORE, Enum.PartType.Cylinder)
 		add(Vector3.new(0.24, 0.24, 1.0), CFrame.new(x + 0.4, 0.3, 1.2), GREEN)
-		add(Vector3.new(0.26, 0.26, 0.05), CFrame.new(x + 0.4, 0.3, 1.72), Color3.fromRGB(190, 50, 40))
+		add(Vector3.new(0.26, 0.26, 0.05), CFrame.new(x + 0.4, 0.3, 1.72), RAFTER_END)
 	end
 end)
 
@@ -319,11 +371,31 @@ local function hall(m: Instance, name: string, u: number, v: number, w: number, 
 	local y = 0
 	for i = 1, tiers do
 		local grow = (tiers - i) * 6 + 4
-		box(name .. "_Base" .. i, u - d / 2 - grow, u + d / 2 + grow, v - w / 2 - grow, v + w / 2 + grow, y, 2.2, COL.stone, m)
+		local base = box(name .. "_Base" .. i, u - d / 2 - grow, u + d / 2 + grow, v - w / 2 - grow, v + w / 2 + grow, y, 2.2, COL.stone, m)
+		base.Material = Enum.Material.Granite
+		-- (D-1318) two granite steps up the front of the lowest tier, toward the gate
+		if i == 1 then
+			local f = u - d / 2 - grow
+			local sw = math.max(6, w * 0.3)
+			box(name .. "_Step", f - 2.4, f, v - sw / 2, v + sw / 2, y, 0.75, COL.stone, m).Material = Enum.Material.Granite
+			box(name .. "_Step", f - 1.2, f, v - sw / 2, v + sw / 2, y, 1.5, COL.stone, m).Material = Enum.Material.Granite
+		end
 		y += 2.2
 	end
 	local bodyH = o.h or 9
 	local body = box(name, u - d / 2, u + d / 2, v - w / 2, v + w / 2, y, bodyH, COL.body, m)
+	facade(body)
+	-- (D-1318) a wooden 툇마루 along the front of a house-sized hall, and two stone
+	-- lanterns (석등) before the steps
+	if bodyH <= 9 and tiers == 1 and not o.gate then
+		local deck = box(name .. "_Maru", u - d / 2 - 2.6, u - d / 2, v - w / 2 + 1, v + w / 2 - 1, y, 0.5, COL.floor, m)
+		deck.Material = Enum.Material.WoodPlanks
+		for _, s in ipairs(if w >= 20 then { -1, 1 } else {}) do
+			local lu, lv = u - d / 2 - 4 - 4, v + s * (math.max(6, w * 0.3) / 2 + 3)
+			box("Lantern", lu - 0.6, lu + 0.6, lv - 0.6, lv + 0.6, 0, 3.6, COL.stone, m).Material = Enum.Material.Granite
+			box("Lantern_Cap", lu - 1.0, lu + 1.0, lv - 1.0, lv + 1.0, 3.6, 0.5, COL.stone, m).Material = Enum.Material.Granite
+		end
+	end
 	y += bodyH
 	local storeys = o.storeys or 1
 	for s = 1, storeys do
@@ -333,7 +405,7 @@ local function hall(m: Instance, name: string, u: number, v: number, w: number, 
 			-- the lower roof: a skirt round the upper storey (its top hidden inside it)
 			giwaRoof(m, at(u, v, y), ww, dd, rise, true)
 			local up = math.max(6, rise * 0.6 + 4)
-			box(name .. "_Upper" .. s, u - d / 2 + 3, u + d / 2 - 3, v - w / 2 + 3, v + w / 2 - 3, y + rise * 0.4, up, COL.body, m)
+			facade(box(name .. "_Upper" .. s, u - d / 2 + 3, u + d / 2 - 3, v - w / 2 + 3, v + w / 2 - 3, y + rise * 0.4, up, COL.body, m))
 			y += rise * 0.4 + up
 		else
 			giwaRoof(m, at(u, v, y), ww, dd, rise, true)
@@ -347,12 +419,12 @@ end
 local function compound(name: string, u0: number, u1: number, v0: number, v1: number, opts: {[string]: any}?): Model
 	local o = opts or {}
 	local m = group(name)
-	box("Court", u0, u1, v0, v1, 0, 0.12, COL.pave, m)
+	box("Court", u0, u1, v0, v1, 0, 0.12, COL.pave, m).Material = Enum.Material.Sand
 	local T, H = o.depth or 7, o.h or 7
 	local gap = o.gap or 14
 	local vm = (v0 + v1) / 2
 	local function wing(nm: string, a0: number, a1: number, b0: number, b1: number)
-		box(nm, a0, a1, b0, b1, 0, H, COL.body, m)
+		facade(box(nm, a0, a1, b0, b1, 0, H, COL.body, m))
 		local ww, dd = math.abs(b1 - b0) + 2, math.abs(a1 - a0) + 2
 		giwaRoof(m, at((a0 + a1) / 2, (b0 + b1) / 2, H), ww, dd, math.min(ww, dd) / 2 * 0.55, false)
 	end
@@ -368,7 +440,7 @@ local function compound(name: string, u0: number, u1: number, v0: number, v1: nu
 	wing("SideL", u0 + T, u1 - T, v0, v0 + T)
 	wing("SideR", u0 + T, u1 - T, v1 - T, v1)
 	if o.gate then
-		hall(m, name .. "Gate", u0 + T / 2, vm, gap + 10, T + 4, { h = 8 })
+		hall(m, name .. "Gate", u0 + T / 2, vm, gap + 10, T + 4, { h = 8, gate = true })
 	end
 	return m
 end
@@ -388,8 +460,24 @@ end
 
 local trees = group("Trees")
 local function tree(u: number, v: number, s: number)
-	part("Trunk", at(u, v, 2), Vector3.new(1.4, 4, 1.4), COL.trunk, trees)
-	part("Crown", at(u, v, 4 + s / 2), Vector3.new(s, s, s), COL.tree, trees, Enum.PartType.Ball)
+	-- (D-1318) a Korean red pine: a leaning trunk, two flat cloud-like crowns
+	local k = (u * 7 + v * 13) % 360
+	local lean = CFrame.Angles(math.rad(12), math.rad(k), 0)
+	local h = 4 + s * 0.6
+	local trunk = part("Trunk", at(u, v, 0) * lean * CFrame.new(0, h / 2, 0), Vector3.new(1.2, h, 1.2), COL.trunk, trees)
+	trunk.Material = Enum.Material.Wood
+	local top = (at(u, v, 0) * lean * CFrame.new(0, h, 0)).Position
+	-- (flat ellipsoids: a block with a Sphere SpecialMesh, Ball parts stay round)
+	local function crown(cf: CFrame, size: Vector3)
+		local c = part("Crown", cf, size, COL.tree, trees)
+		c.Material = Enum.Material.Grass
+		c.CanCollide = false
+		local mesh = Instance.new("SpecialMesh")
+		mesh.MeshType = Enum.MeshType.Sphere
+		mesh.Parent = c
+	end
+	crown(CFrame.new(top) * CFrame.Angles(0, math.rad(k), 0), Vector3.new(s * 1.3, s * 0.35, s))
+	crown(CFrame.new(top + Vector3.new(0, -s * 0.35, 0) + at(0, 0, 0).RightVector * s * 0.35) * CFrame.Angles(0, math.rad(k + 40), 0), Vector3.new(s * 0.9, s * 0.28, s * 0.7))
 end
 
 ------------------------------------------------------------------------------
@@ -415,7 +503,7 @@ do
 	count += 1
 	-- the square's east and south walls (the north z 49 and west x 52 walls are there)
 	local function wall(x0: number, x1: number, z0: number, z1: number)
-		part("PalaceWall", CFrame.new((x0 + x1) / 2, 5, (z0 + z1) / 2), Vector3.new(math.max(3, x1 - x0), 10, math.max(3, z1 - z0)), COL.wall, m)
+		stoneWall(part("PalaceWall", CFrame.new((x0 + x1) / 2, 5, (z0 + z1) / 2), Vector3.new(math.max(3, x1 - x0), 10, math.max(3, z1 - z0)), COL.wall, m))
 		part("PalaceWallCap", CFrame.new((x0 + x1) / 2, 10.6, (z0 + z1) / 2), Vector3.new(math.max(3, x1 - x0) + 2, 1.2, math.max(3, z1 - z0) + 2), COL.roof, m)
 	end
 	wall(698, 701, 49, 702)
@@ -426,12 +514,15 @@ end
 -- 1 광화문 → 흥례문: the front court, the second gate
 do
 	local m = group("01_FrontCourt")
-	box("Court", 6, 96, -80, 80, 0, 0.12, COL.pave, m)
+	box("Court", 6, 96, -80, 80, 0, 0.12, COL.pave, m).Material = Enum.Material.Sand
 	box("RoyalPath", 6, 330, -5, 5, 0.12, 0.2, COL.path, m) -- (어도, all the way to 근정전)
-	-- the wall across the axis with 흥례문 in it
-	box("Wall", 96, 100, -150, -16, 0, 9, COL.wall, m)
-	box("Wall", 96, 100, 16, 150, 0, 9, COL.wall, m)
-	hall(m, "Heungnyemun", 98, 0, 40, 14, { h = 8, storeys = 2 })
+	-- the wall across the axis with 흥례문 in it (돌담 with a tiled coping, D-1318)
+	for _, s in ipairs({ -1, 1 }) do
+		local a, b = if s < 0 then -150 else 16, if s < 0 then -16 else 150
+		stoneWall(box("Wall", 96, 100, a, b, 0, 9, COL.wall, m))
+		box("WallCap", 95, 101, a, b, 9, 1.2, COL.roof, m).Material = Enum.Material.Slate
+	end
+	hall(m, "Heungnyemun", 98, 0, 40, 14, { h = 8, storeys = 2, gate = true })
 end
 
 -- 흥례문 courtyard with the 영제교 stream and bridge
@@ -440,7 +531,7 @@ do
 	local water = box("Stream", 142, 150, -83, 83, 0, 0.3, COL.water, m)
 	water.Material = Enum.Material.Glass
 	box("Yeongjegyo", 138, 154, -9, 9, 0, 1.6, COL.stone, m)
-	hall(m, "Geunjeongmun", 192, 0, 34, 12, { h = 8 })
+	hall(m, "Geunjeongmun", 192, 0, 34, 12, { h = 8, gate = true })
 end
 
 -- 2 근정전 in its cloister, on the two-tier 월대
@@ -476,7 +567,7 @@ do
 		local t = box("Terrace" .. i, 514 + i * 5, 530, -24 + i * 3, 24 - i * 3, 0, 1.5 + i * 1.5, COL.lawn, g)
 		t.Material = Enum.Material.Grass
 	end
-	for i = 0, 3 do box("Chimney", 520, 523, -12 + i * 8, -9 + i * 8, 4.5, 6, COL.body, g) end
+	for i = 0, 3 do box("Chimney", 520, 523, -12 + i * 8, -9 + i * 8, 4.5, 6, Color3.fromRGB(166, 92, 70), g).Material = Enum.Material.Brick end
 end
 
 -- 5 흠경각 and 함원전 (west of 교태전)
@@ -499,6 +590,49 @@ do
 	hall(m2, "Bihyeongak", 307, 130, 26, 12, { h = 7 })
 end
 
+-- (D-1318) a block with a Sphere SpecialMesh (an ellipsoid; Ball parts stay round)
+local function blob(name: string, cf: CFrame, size: Vector3, color: Color3, parent: Instance, material: Enum.Material?): Part
+	local p = part(name, cf, size, color, parent)
+	p.Material = material or Enum.Material.SmoothPlastic
+	local mesh = Instance.new("SpecialMesh")
+	mesh.MeshType = Enum.MeshType.Sphere
+	mesh.Parent = p
+	return p
+end
+
+-- (D-1318) the garden in 자선당's yard (photo 2): a raised bed with rocks, a low pine and flowers
+do
+	local m = group("07c_Garden")
+	local bed = box("GardenBed", 223, 234, 99, 111, 0, 0.7, COL.lawn, m)
+	bed.Material = Enum.Material.Grass
+	tree(229, 104.5, 5)
+	for i, r in ipairs({ { 225, 101, 2.6 }, { 231, 109, 2.0 }, { 233, 102, 1.6 }, { 226, 108, 1.4 } }) do
+		blob("Rock", at(r[1], r[2], 0.7 + r[3] * 0.25) * CFrame.Angles(0, math.rad(i * 50), 0), Vector3.new(r[3] * 1.3, r[3] * 0.8, r[3]), Color3.fromRGB(150, 146, 136), m, Enum.Material.Rock)
+	end
+	for i = 0, 5 do
+		blob("Flowers", at(224.5 + (i % 3) * 3.6, 103.5 + math.floor(i / 3) * 3.5, 1.0), Vector3.new(1.8, 0.8, 1.6),
+			if i % 2 == 0 then Color3.fromRGB(244, 240, 236) else Color3.fromRGB(214, 120, 170), m, Enum.Material.Grass)
+	end
+end
+
+-- (D-1318) the 장독대 by the kitchens (photo 1): a stone platform crowded with onggi jars
+do
+	local m = group("14b_Jangdokdae")
+	local u0, v0 = 360, 150
+	box("Platform", u0, u0 + 16, v0, v0 + 9, 0, 0.8, COL.stone, m).Material = Enum.Material.Granite
+	local n = 0
+	for r = 0, 2 do
+		for c = 0, 4 do
+			n += 1
+			local big = (r + c) % 3 == 0
+			local s = if big then 2.6 elseif (r * 5 + c) % 2 == 0 then 2.1 else 1.7
+			local h = s * (if big then 1.25 else 1.1)
+			blob("Onggi", at(u0 + 1.8 + c * 3.1, v0 + 1.6 + r * 2.9, 0.8 + h / 2), Vector3.new(s, h, s), COL.onggi, m, Enum.Material.SmoothPlastic)
+		end
+	end
+	local _ = n
+end
+
 -- 14 소주방 (the royal kitchens, east of 강녕전): three halls in a row
 do
 	local m = compound("14_Sojubang", 352, 410, 68, 146, {})
@@ -510,7 +644,7 @@ end
 -- 13 수정전 (west of 근정전, on a high base, no cloister)
 do
 	local m = group("13_Sujeongjeon")
-	box("Yard", 286, 334, -168, -96, 0, 0.12, COL.pave, m)
+	box("Yard", 286, 334, -168, -96, 0, 0.12, COL.pave, m).Material = Enum.Material.Sand
 	hall(m, "Sujeongjeon", 312, -132, 44, 18, { tiers = 1, h = 8 })
 end
 
