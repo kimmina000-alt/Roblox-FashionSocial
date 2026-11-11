@@ -138,6 +138,11 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
+	-- 백화요란-RESCENE (D-1293, choreo_motion_scan): 6 at 1:35.6 and 13 at 2:27.2 jump 65-89° in one keyframe in a full turn
+	-- (LURCH); 18 starts 77° the other way while 17 turns on (+35°/s, SEAM)
+	[123368765880247] = { spin = { from = 4.8, to = 6.8, ease = "both" } },
+	[131622951291839] = { spin = { from = 6.7, to = 8.7, ease = "both" } },
+	[126812347548541] = { spin = { from = 0, to = 0.84, fromPrev = true, dir = 1 } },
 	-- Hearts2Hearts-Lemon Tang (D-1040): Play scan SPIN 617-777°/s, each turn made one even turn
 	-- (song times; yaw read every 0.08 s in Play). 9 (1:00.7): over its 1 s blend the hips went
 	-- 72° one way and 240° back: one turn from where 8 ended. 17 (1:48.9): a full turn with a
@@ -1315,6 +1320,14 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- 백화요란-RESCENE (D-1293, choreo_slide_check)
+	[129031824166857] = { { 7.8, 8.5 }, { 9.5, 10.2 } }, [74180602033079] = { { 2.7, 3.3 }, { 6.8, 7.4 } }, [100400560200750] = { { 0.0, 0.8 } },
+	[123368765880247] = { { 1.8, 2.4 }, { 8.0, 8.6 }, { 8.9, 10.0 } }, [76096143466808] = { { 6.8, 8.2 }, { 8.8, 9.6 } }, [108852044755937] = { { 3.7, 4.7 }, { 7.3, 8.0 } },
+	[100292773355070] = { { 2.9, 4.2 } }, [72320524127017] = { { 0.6, 1.5 } }, [118315209448422] = { { 1.7, 2.3 } },
+	[138514282006084] = { { 0.8, 1.4 }, { 2.4, 4.0 }, { 5.4, 6.0 }, { 7.9, 8.7 } }, [87258411271471] = { { 4.6, 5.5 } }, [106836976565207] = { { 6.7, 7.5 }, { 8.4, 8.9 } },
+	-- (choreo_motion_scan DRIFT: hips and both feet slide together)
+	-- (Play scan: SLIDE 1:03.0, 2:52.5; TELEPORT 1:20.1, 1:47.6 (centre hidden at 7.6 s), 3:24.4: the body slides 1.1-2.1 studs in 0.3 s with small steps)
+	[70716391841768] = { { 0.9, 1.7 }, { 2.2, 2.7 } }, [105306563598355] = { { 3.4, 4.2 } }, [126812347548541] = { { 0.1, 0.9 } },
 	-- Hearts2Hearts-Lemon Tang (D-1040)
 	[100331751999626] = { { 1.9, 2.6 }, { 2.7, 3.4 } }, [70997868814427] = { { 4.7, 5.5 }, { 6.7, 7.3 } }, [94645609133900] = { { 0.5, 1.1 }, { 3.7, 4.4 } },
 	[124676885767926] = { { 0.9, 1.5 } }, [119643676032061] = { { 3.0, 3.8 } }, [88699205496882] = { { 8.0, 8.6 } }, [125963510042067] = { { 0.0, 0.5 } },
@@ -1484,6 +1497,7 @@ M.ChoreoGlideStill = {
 	[79075546317269] = { { 5.6, 6.2 } }, -- v2 11 (1:40.4 glide, D-980)
 } :: {[number]: {{number}}}
 M.ChoreoAutoSteady = {
+	[100400560200750] = { { 0.1, 0.7 } }, -- 백화요란 3 (D-1293, Play scan SHAKE 1:09.5)
 	[118832898913501] = { { 5.5, 6.4 } }, [122624428391289] = { { 2.3, 3.2 } }, [129415986484255] = { { 6.8, 7.7 } },
 	[134748500609652] = { { 3.2, 4.1 } }, [76049029842393] = { { 3.2, 4.1 } }, [88317170211079] = { { 3.1, 4.0 } },
 } :: {[number]: {{number}}}
@@ -1509,6 +1523,9 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-1293) 백화요란 (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 15 and 23 checked on frames: front)
+	[129031824166857] = 7, [74180602033079] = 9, [100400560200750] = -7, [72320524127017] = 9, [131622951291839] = 7,
+	[118315209448422] = -34, [116718508120035] = 13, [126812347548541] = 10, [138514282006084] = 9, [129589571291554] = 19,
 	-- (D-1064) Lemon Tang clips 19 and 23 cut again (tools/choreo/faceoffset: front frames 22 / 68, capture +12°, MAD 4 / 14)
 	[128761870790634] = -12, -- Lemon Tang 19
 	[110433660488854] = -12, -- Lemon Tang 23
@@ -1621,6 +1638,15 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-1293) 백화요란: head_video.py → headMisses, keys 0.09 s early; 7 left out (the centre is hidden at 1.7-3.6 s)
+	[105306563598355] = { { part = "Head", keys = { { 3.71, 0, 0, 0 }, { 3.91, 0, 0, 17 }, { 4.11, 0, 0, 21 }, { 4.31, 0, 0, 16 }, { 4.51, 0, 0, 22 }, { 4.71, 0, 0, 11 }, { 4.91, 0, 0, 12 }, { 5.04, 0, 0, 0 } } } }, -- 백화요란 5
+	[123368765880247] = { { part = "Head", keys = { { 0.31, 0, 0, 0 }, { 0.51, 0, 0, 10 }, { 0.71, 0, 0, 17 }, { 0.91, 0, 0, 0 } } } }, -- 백화요란 6
+	[82595297491524] = { { part = "Head", keys = { { 2.71, 0, 0, 0 }, { 2.91, 0, 0, 14 }, { 3.11, 0, 0, 17 }, { 3.31, 0, 0, 27 }, { 3.51, 0, 0, 29 }, { 3.71, 0, 0, 0 } } },
+		{ part = "Head", keys = { { 4.11, 0, 0, 0 }, { 4.31, 0, 0, 17 }, { 4.51, 0, 0, 21 }, { 4.71, 0, 0, 20 }, { 4.91, 0, 0, 18 }, { 5.11, 0, 0, 0 } } } }, -- 백화요란 10
+	[100292773355070] = { { part = "Head", keys = { { 0.00, 0, 0, 0 }, { 0.11, 0, 0, 20 }, { 0.31, 0, 0, 14 }, { 0.51, 0, 0, 12 }, { 0.71, 0, 0, 16 }, { 0.91, 0, 0, 14 }, { 1.11, 0, 0, 13 }, { 1.31, 0, 0, 0 } } } }, -- 백화요란 11
+	[98439541459421] = { { part = "Head", keys = { { 0.51, 0, 0, 0 }, { 0.71, 0, 0, 24 }, { 0.91, 0, 0, 30 }, { 1.11, 0, 0, 24 }, { 1.31, 0, 0, 0 } } } }, -- 백화요란 17
+	[106836976565207] = { { part = "Head", keys = { { 4.31, 0, 0, 0 }, { 4.51, 0, 0, -11 }, { 4.71, 0, 0, -27 }, { 4.91, 0, 0, -26 }, { 5.11, 0, 0, 0 } } } }, -- 백화요란 22
+	[129589571291554] = { { part = "Head", keys = { { 5.11, 0, 0, 0 }, { 5.31, 0, 0, 23 }, { 5.51, 0, 0, 22 }, { 5.71, 0, 0, 0 } } } }, -- 백화요란 23
 	[123559029471758] = { { part = "Head", keys = { { 4.00, 0, 0, 0 }, { 4.20, 0, 0, 10 }, { 4.40, 0, 0, 12 }, { 4.60, 0, 0, 12 }, { 4.80, 0, 0, 0 } } } }, -- Lemonade 4
 	[139260290712979] = { { part = "Head", keys = { { 1.60, 0, 0, 0 }, { 1.80, 0, 0, 13 }, { 2.00, 0, 0, 15 }, { 2.20, 0, 0, 0 } } } }, -- Lemonade 5
 	[131526768823490] = { { part = "Head", keys = { { 0.40, 0, 0, 0 }, { 0.60, 0, 0, 30 }, { 0.80, 0, 0, 30 }, { 1.00, 0, 0, 0 } } }, { part = "Head", keys = { { 2.40, 0, 0, 0 }, { 2.60, 0, 0, 13 }, { 2.80, 0, 0, 9 }, { 3.00, 0, 0, 0 } } }, { part = "Head", keys = { { 6.40, 0, 0, 0 }, { 6.60, 0, 0, -23 }, { 6.80, 0, 0, -23 }, { 7.00, 0, 0, 0 } } } }, -- Lemonade 6
@@ -1770,6 +1796,27 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
+	-- (D-1293, user 2026-11-11: "원본 동영상과 비교하면서 고개와 손목 움직임 세세한 부분까지 적용할 것") 백화요란: hand_moves.py on
+	-- all 22 clips (MediaPipe hands, 0.05 s) → wristMisses; keys 0.09 s early; capture wrist + bend kept ≤ 72° (6 left hand
+	-- dropped: the capture already bends 69-76°; 14 left hand at 2.8 s cut to 20); left out where the centre is hidden (6 at 9 s,
+	-- 7 at 3 s) or where the bend adds nothing (13 left hand, 23); Play check (hand vs forearm on screen, D-1263): 2 left hand,
+	-- 13 right hand at 0 s, 14 left hand at 0.2 s and 14 right hand went the wrong way or could not be read, so they are out
+	[100400560200750] = { { part = "LeftHand", keys = { { 7.71, 0, 0, 0 }, { 7.91, 0, 0, 40 }, { 8.11, 0, 0, 0 } } } }, -- 백화요란 3
+	[123368765880247] = { { part = "RightHand", keys = { { 6.31, 0, 0, 0 }, { 6.51, 33, 0, 0 }, { 6.71, 31, 0, 0 }, { 6.91, 37, 0, 0 }, { 7.11, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 7.31, 0, 0, 0 }, { 7.51, -32, 0, 0 }, { 7.71, -32, 0, 0 }, { 7.91, -32, 0, 0 }, { 8.11, -32, 0, 0 }, { 8.31, -32, 0, 0 }, { 8.51, 0, 0, 0 } } } }, -- 백화요란 6
+	[126526542148646] = { { part = "RightHand", keys = { { 0.71, 0, 0, 0 }, { 0.91, 20, 0, 0 }, { 1.11, 0, 0, 0 } } } }, -- 백화요란 8
+	[82595297491524] = { { part = "LeftHand", keys = { { 4.11, 0, 0, 0 }, { 4.31, 0, 0, 39 }, { 4.51, 0, 0, 34 }, { 4.71, 0, 0, 0 } } } }, -- 백화요란 10
+	[72320524127017] = { { part = "LeftHand", keys = { { 7.71, 0, 0, 0 }, { 7.91, 29, 0, 0 }, { 8.11, 13, 0, 0 }, { 8.31, 23, 0, 0 }, { 8.51, 26, 0, 0 }, { 8.71, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 7.51, 0, 0, 0 }, { 7.71, 23, 0, 0 }, { 7.91, 27, 0, 0 }, { 8.11, 30, 0, 0 }, { 8.31, 33, 0, 0 }, { 8.51, 38, 0, 0 }, { 8.71, 28, 0, 0 }, { 8.91, 0, 0, 0 } } } }, -- 백화요란 12
+	[131622951291839] = { { part = "RightHand", keys = { { 1.31, 0, 0, 0 }, { 1.51, 0, 0, 22 }, { 1.71, 0, 0, 24 }, { 1.91, 0, 0, 0 } } } }, -- 백화요란 13
+	[82878605609824] = { { part = "LeftHand", keys = { { 0.91, 0, 0, 0 }, { 1.11, 0, 0, 37 }, { 1.31, 0, 0, 40 }, { 1.51, 0, 0, 40 }, { 1.71, 0, 0, 0 } } },
+		{ part = "LeftHand", keys = { { 2.51, 0, 0, 0 }, { 2.71, 20, 0, 0 }, { 2.91, 16, 0, 0 }, { 3.11, 0, 0, 0 } } } }, -- 백화요란 14
+	[116718508120035] = { { part = "RightHand", keys = { { 0.51, 0, 0, 0 }, { 0.71, -40, 0, 0 }, { 0.91, -40, 0, 0 }, { 1.11, -40, 0, 0 }, { 1.31, 0, 0, 0 } } } }, -- 백화요란 16
+	[98439541459421] = { { part = "LeftHand", keys = { { 1.91, 0, 0, 0 }, { 2.11, 0, 0, 35 }, { 2.31, 0, 0, 40 }, { 2.51, 0, 0, 0 } } } }, -- 백화요란 17
+	[138514282006084] = { { part = "LeftHand", keys = { { 5.31, 0, 0, 0 }, { 5.51, -26, 0, 0 }, { 5.71, -40, 0, 0 }, { 5.91, 0, 0, 0 } } },
+		{ part = "LeftHand", keys = { { 7.51, 0, 0, 0 }, { 7.71, 0, 0, 40 }, { 7.91, 0, 0, 32 }, { 8.11, 0, 0, 0 } } } }, -- 백화요란 19
+	[106836976565207] = { { part = "RightHand", keys = { { 5.31, 0, 0, 0 }, { 5.51, -39, 0, 0 }, { 5.71, -34, 0, 0 }, { 5.91, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 6.71, 0, 0, 0 }, { 6.91, -20, 0, 0 }, { 7.11, -40, 0, 0 }, { 7.31, 0, 0, 0 } } } }, -- 백화요란 22
 	[123559029471758] = { { part = "RightHand", keys = { { 4.80, 0, 0, 0 }, { 5.00, 24, 0, 0 }, { 5.20, 25, 0, 0 }, { 5.40, 0, 0, 0 } } } }, -- Lemonade 4
 	[135759185323713] = { { part = "LeftHand", keys = { { 1.20, 0, 0, 0 }, { 1.40, 29, 0, 0 }, { 1.60, 40, 0, 0 }, { 1.80, 37, 0, 0 }, { 2.00, 0, 0, 0 } } } }, -- Lemonade 10
 	[138612452549442] = { { part = "RightHand", keys = { { 2.20, 0, 0, 0 }, { 2.40, 32, 0, 0 }, { 2.60, 34, 0, 0 }, { 2.80, 0, 0, 0 } } } }, -- Lemonade 14
