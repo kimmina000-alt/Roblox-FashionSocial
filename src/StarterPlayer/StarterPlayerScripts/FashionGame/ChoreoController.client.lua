@@ -933,6 +933,8 @@ RunService.PreSimulation:Connect(function(dt)
 						character:SetAttribute("GuardL", gl) character:SetAttribute("GuardR", gr)
 					end
 				end
+				-- (D-1321) on the chair the hips rest on the seat, not through it
+				ChoreoChair.sit(character)
 				-- (D-1186) the mouth sings along in the song's sung stretches (ChoreoMouth)
 				do
 					local tr = playingTrack()

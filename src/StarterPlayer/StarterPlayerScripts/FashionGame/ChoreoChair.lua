@@ -61,8 +61,9 @@ local function keyY(id: string, t: number): number?
 	return ys[#ys]
 end
 
--- the animation scale: a piece playing alone, its hips well down in the keyframes, against the root joint
-local function measure(character: Model, joint: Motor6D)
+-- the animation scale: a piece playing alone, its hips well down in the keyframes, against how far the
+-- hips really came down (the root joint's own value missed it on the default test body: 0.36 into the seat)
+local function measure(character: Model, root: BasePart, lt: BasePart, restY: number)
 	if scaleFor ~= character then scale, scaleFor = nil, character end
 	local humanoid = character:FindFirstChildOfClass("Humanoid")
 	local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
@@ -73,11 +74,44 @@ local function measure(character: Model, joint: Motor6D)
 			loadHips(id)
 			local ky = keyY(id, track.TimePosition)
 			if ky and ky < -0.4 then
-				local k = math.clamp(joint.Transform.Position.Y / ky, 0.4, 2.5)
+				local k = math.clamp((root.Position.Y + restY - lt.Position.Y) / -ky, 0.4, 2.5)
 				scale = if scale then scale + (k - scale) * 0.3 else k
 			end
 		end
 	end
+end
+
+-- every frame after the dance's own fixes (ChoreoController PreSimulation): while this player's chair
+-- stands, hips over the seat that come down below it are held up on it (at most `MAX_LIFT`; the second
+-- sit bounces 0.5 deeper than the first, so one seat height cannot fit both)
+local MAX_LIFT = 0.6
+local lift = 0
+function ChoreoChair.sit(character: Model)
+	if character ~= player.Character then return end
+	if not placedFor then lift = 0 return end
+	local folder = workspace:FindFirstChild("ChoreoChairs")
+	local chair = folder and folder:FindFirstChild("ChoreoChair_" .. tostring(player.UserId))
+	local seat = chair and chair:FindFirstChild("Seat") :: BasePart?
+	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local lt = character:FindFirstChild("LowerTorso") :: BasePart?
+	local joint = lt and lt:FindFirstChild("Root") :: Motor6D?
+	if not (seat and root and lt and joint) then lift = 0 return end
+	-- where the hips are drawn this frame (from the joint, not the part: that moves after the step)
+	local hips = root.CFrame * joint.C0 * joint.Transform * joint.C1:Inverse()
+	local q = seat.CFrame:PointToObjectSpace(hips.Position)
+	-- how much of the hips is over the seat (fading out over 0.4 studs past its edges: no pop where they
+	-- slide off the front)
+	local front = -seat.Size.Z / 2 - lt.Size.Z * 0.35
+	local over = math.clamp((q.Z - front) / 0.4 + 1, 0, 1) * math.clamp((seat.Size.X / 2 + 0.2 - math.abs(q.X)) / 0.4 + 1, 0, 1)
+		* (if q.Z > seat.Size.Z / 2 then 0 else 1)
+	local under = (seat.Position.Y + seat.Size.Y / 2) - (hips.Position.Y - lt.Size.Y / 2)
+	local want = math.clamp(under, 0, MAX_LIFT) * over
+	-- eased both ways (about 0.1 s)
+	lift += (want - lift) * 0.35
+	if lift < 1e-3 then lift = 0 return end
+	-- up in the world, as an offset in the root joint's own frame
+	local up = (root.CFrame * joint.C0).Rotation:VectorToObjectSpace(Vector3.new(0, lift, 0))
+	joint.Transform = CFrame.new(up) * joint.Transform
 end
 
 function ChoreoChair.off()
@@ -99,10 +133,10 @@ function ChoreoChair.update(cfg: any, key: string, songTime: number)
 	local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 	local joint = lt and lt:FindFirstChild("Root") :: Motor6D?
 	if not (character and root and lt and humanoid and joint) then return end
-	measure(character, joint)
 	local ground = root.Position.Y - humanoid.HipHeight - root.Size.Y / 2
 	-- the hips at rest (the root joint without the animation), then lowered by the sit
 	local rest = (joint.C0 * joint.C1:Inverse()).Position
+	measure(character, root, lt, rest.Y)
 	local sitY = root.Position.Y + rest.Y - (cfg.drop or 1.85) * (scale or 1)
 	local seatY = sitY - lt.Size.Y * 0.5 - (cfg.under or 0.1)
 	local height = seatY - ground

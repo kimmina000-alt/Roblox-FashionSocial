@@ -603,7 +603,8 @@ M.Playlist = {
 		-- 영상처럼 의자 사용해서 추는 걸로 구현해") the chair intro from the front-cam video (RESCENE_Baekhwayoran_front,
 		-- song = video - 0.33 by its sound, clips 1-6 = video 1.25..49.67), and a chair under each dancer until 49.33
 		-- (ChoreoChair / ChoreoChairService; `drop` = how far the captured sit lowers the hips)
-		chair = { to = 49.33, drop = 1.85 },
+		-- (`drop` 2.05: the first sit lowers the hips 1.91, the second (7 s) 2.19 in the keyframes: halfway)
+		chair = { to = 49.33, drop = 2.05 },
 		choreo = {
 			{ id = 109161757598338, at = 0.92 }, { id = 118163879610034, at = 5.78, blend = 0.5, slowIn = { 0.4, 0.4 } }, { id = 104244800567694, at = 15.85, blend = 0.4 },
 			{ id = 71730365125654, at = 19.57, blend = 0.4 }, { id = 133453398801454, at = 30.15, blend = 0.4 }, { id = 83394388681438, at = 38.33, blend = 0.4 },
