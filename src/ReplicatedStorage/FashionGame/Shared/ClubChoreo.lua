@@ -138,15 +138,15 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
-	-- (D-1302, Play re-scan) With 16 turns 606°/s at 1:48.6 (a real fast turn, about 310° in 1.3 s) → spread evenly
+	-- (D-1306, Play re-scan) With 16 turns 606°/s at 1:48.6 (a real fast turn, about 310° in 1.3 s) → spread evenly
 	[78971722650566] = { spin = { from = 4.8, to = 6.2, ease = "both" } },
-	-- (D-1302, tools/choreo/guard_scan.lua at 1x, D-1303 rule) BodyGuard flicks the right arm (shoulder step 6.3 / 9.1 / 11.8° a frame with the
+	-- (D-1306, tools/choreo/guard_scan.lua at 1x, D-1303 rule) BodyGuard flicks the right arm (shoulder step 6.3 / 9.1 / 11.8° a frame with the
 	-- guard, 5.3 / 7.5 / 8.1° without): With 6 at 0:31.8, 백화요란 2 at 1:03.2 and 12 at 2:17.0 → guardOff; With 20 head shakes at 2:36.2 → steady 24
 	[131580629784808] = { guardOff = { from = 7.8, to = 8.6, side = "Right" } },
 	[74180602033079] = { guardOff = { from = 2.9, to = 3.7, side = "Right" } },
 	[72320524127017] = { guardOff = { from = 7.2, to = 8.1, side = "Right" } },
 	[97670698889704] = { steady = { from = 5.2, to = 5.8, passes = 24 } },
-	-- With-RESCENE (D-1302, choreo_motion_scan): 3, 5 and 21 start 126-152° the other way while the piece before turns on (SEAM);
+	-- With-RESCENE (D-1306, choreo_motion_scan): 3, 5 and 21 start 126-152° the other way while the piece before turns on (SEAM);
 	-- 9 at 0:50.1 jumps 94° in one keyframe in a full turn (LURCH)
 	[77578453879056] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = 1 } },
 	[113905277691263] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = -1 } },
@@ -1315,7 +1315,7 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
-	-- With-RESCENE (D-1302, choreo_slide_check + choreo_motion_scan DRIFT); also 백화요란 20 (D-1300) and SHOCK 9 (D-1301)
+	-- With-RESCENE (D-1306, choreo_slide_check + choreo_motion_scan DRIFT); also 백화요란 20 (D-1300) and SHOCK 9 (D-1301)
 	[81069311107336] = { { 3.0, 3.8 } }, [102977375863633] = { { 1.2, 2.0 }, { 2.5, 3.5 }, { 7.6, 8.2 } }, [113905277691263] = { { 2.5, 3.1 }, { 3.7, 4.4 } },
 	[131580629784808] = { { 5.5, 6.1 }, { 9.9, 10.7 } }, [134804041385196] = { { 1.5, 2.3 } }, [135964930726670] = { { 1.6, 2.3 }, { 3.0, 3.7 } },
 	[119026591853452] = { { 5.5, 6.2 } }, [75224598365049] = { { 7.4, 8.5 } }, [78971722650566] = { { 0.1, 0.8 } }, [102753426349246] = { { 0.0, 1.0 }, { 2.4, 3.2 } },
@@ -1533,7 +1533,7 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
-	-- (D-1302) With-RESCENE (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 5 and 13 checked on frames: front)
+	-- (D-1306) With-RESCENE (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 5 and 13 checked on frames: front)
 	[102977375863633] = -7, [113905277691263] = -19, [134804041385196] = 8, [135964930726670] = -16, [103924587030311] = -23,
 	[119026591853452] = 24, [78971722650566] = 18, [103780560163454] = -8, [119066931308311] = -13, [132556616885642] = 16,
 	-- (D-1298) SHOCK-TREASURE (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 3 checked on frames: front)
@@ -1653,7 +1653,7 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
-	-- (D-1302) With-RESCENE + 백화요란 20: head_video.py → headMisses, keys 0.09 s early; left out where the centre is hidden (With 20 at 3 s, 백화요란 20 at 5 s)
+	-- (D-1306) With-RESCENE + 백화요란 20: head_video.py → headMisses, keys 0.09 s early; left out where the centre is hidden (With 20 at 3 s, 백화요란 20 at 5 s)
 	[98274724905693] = { { part = "Head", keys = { { 1.51, 0, 0, 0 }, { 1.71, 0, 0, 18 }, { 1.91, 0, 0, 19 }, { 2.11, 0, 0, 0 } } } }, -- With 2
 	[102977375863633] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, 15 }, { 3.91, 0, 0, 11 }, { 4.11, 0, 0, 13 }, { 4.31, 0, 0, 0 } } } }, -- With 4
 	[113905277691263] = { { part = "Head", keys = { { 2.51, 0, 0, 0 }, { 2.71, 0, 0, 13 }, { 2.91, 0, 0, 18 }, { 3.11, 0, 0, 21 }, { 3.31, 0, 0, 9 }, { 3.51, 0, 0, 16 }, { 3.71, 0, 0, 18 }, { 3.91, 0, 0, 0 } } } }, -- With 5
@@ -1832,7 +1832,7 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
-	-- (D-1302, user: "원본 동영상과 비교하면서 고개와 손목 움직임 세세한 부분까지") With-RESCENE: hand_moves.py on 25 clips → wristMisses, keys 0.09 s early,
+	-- (D-1306, user: "원본 동영상과 비교하면서 고개와 손목 움직임 세세한 부분까지") With-RESCENE: hand_moves.py on 25 clips → wristMisses, keys 0.09 s early,
 	-- capture wrist + bend ≤ 72°; left out where the centre is hidden (7 at 4.8 s, 14 at 0.5 s, 24) and 25 (after the song ends). Play
 	-- (D-1263): all 8 turn the hand toward the video (capture → game, video: 4 −26 → −42/−55 (−60/−67), 13 −18 → 0 (+30), 16 +14 → −20 (−50),
 	-- 17 −34 → +9 (+82), 21 −30 → −61 (−70..−94))

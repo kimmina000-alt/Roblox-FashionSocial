@@ -448,7 +448,7 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "With-RESCENE", soundId = 112509101263761, length = 179.843, fileSpeed = 1.0509,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
-		-- (D-1302, user 2026-11-11: "with 안무 추가" + 25 ids) practice video 8bYlHgMGrGU: song = video - 0.05 s (its sound against the original
+		-- (D-1306, user 2026-11-11: "with 안무 추가" + 25 ids) practice video 8bYlHgMGrGU: song = video - 0.05 s (its sound against the original
 		-- mp3 in 3 s windows), `at` = clip start - 0.05; all 25 uploads Vantablack_Dev, lengths = clips (±0.06 s), no copies
 		choreo = {
 			{ id = 81069311107336, at = 1.20 }, { id = 98274724905693, at = 5.20, blend = 0.85 }, { id = 77578453879056, at = 8.14, blend = 1 },
