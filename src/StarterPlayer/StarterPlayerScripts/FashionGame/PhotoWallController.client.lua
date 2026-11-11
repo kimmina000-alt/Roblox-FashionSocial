@@ -24,6 +24,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Shared = FashionGame:WaitForChild("Shared")
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
+local PhotoWallFit = require(Shared:WaitForChild("PhotoWallFit")) -- (D-1321)
 local Remotes = FashionGame:WaitForChild("Remotes")
 local boothRemote = Remotes:WaitForChild("PhotoBooth") :: RemoteFunction
 local boothEvent = Remotes:WaitForChild("PhotoBoothEvent") :: RemoteEvent
@@ -321,8 +322,11 @@ local function drawEntry(entry: Entry, order: number)
 	if drawn[entry.id] then return end
 	local wall = findWall(entry.wall)
 	if not wall then return end
-	local holder = surfaceFor(wall)
 	local size = photoSize(entry.photo.layout)
+	-- (D-1321) a photo stuck before over a niche or a gap hung in the air: not drawn
+	-- (tried again by the retry loop below, in case the wall behind was not streamed in)
+	if not PhotoWallFit.backed(wall, entry.u, entry.v, size.X / 2, size.Y / 2) then return end
+	local holder = surfaceFor(wall)
 	local frame = make("Frame", {
 		Name = "WallPhoto",
 		AnchorPoint = Vector2.new(0.5, 0.5),
@@ -375,11 +379,31 @@ boothEvent.OnClientEvent:Connect(function(kind: any, value: any)
 	if kind == "WallAdd" and typeof(value) == "table" then
 		table.insert(entries, value)
 		redrawAll()
+	elseif kind == "WallReset" and typeof(value) == "table" then
+		-- (D-1321) the server moved photos off niches: the whole wall again
+		for id, frame in pairs(drawn) do
+			frame:Destroy()
+			drawn[id] = nil
+			drawnWall[id] = nil
+		end
+		table.clear(entries)
+		for _, entry in ipairs(value) do table.insert(entries, entry) end
+		table.sort(entries, function(a, b) return (a.at or 0) < (b.at or 0) end)
+		redrawAll()
 	end
 end)
 -- a wall streaming in (again): draw its photos
 CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(function()
 	task.defer(redrawAll)
+end)
+-- (D-1321) photos not drawn yet (their wall, or the wall behind it, not streamed in)
+task.spawn(function()
+	while true do
+		task.wait(8)
+		for _, e in ipairs(entries) do
+			if not drawn[e.id] then redrawAll() break end
+		end
+	end
 end)
 
 --------------------------------------------------
@@ -524,19 +548,31 @@ local function pointerUV(screen: Vector2, touch: boolean?): (number?, number?)
 	return math.clamp(u, mu, 1 - mu), math.clamp(v, mv, 1 - mv)
 end
 
+-- (D-1321) no real wall behind that spot (a niche, a gap): the photo would hang in the air
+local function spotBacked(state: any, u: number, v: number): boolean
+	local size = photoSize(state.photo.layout)
+	return PhotoWallFit.backed(state.wall, u, v, size.X / 2, size.Y / 2)
+end
+local GHOST_BAD = Color3.fromRGB(235, 70, 70)
+local function moveGhost(state: any, u: number, v: number)
+	state.ghost.CFrame = wallCFrame(state.wall, u, v)
+	if state.okColor == nil then state.okColor = state.ghost.Color end
+	state.ghost.Color = if spotBacked(state, u, v) then state.okColor else GHOST_BAD
+end
+
 -- (D-1108) the preview follows the mouse; on a phone it stays where the wall
 -- was tapped and follows a finger moving over the wall
 RunService.RenderStepped:Connect(function()
 	local state = placing
 	if not state or not UserInputService.MouseEnabled then return end
 	local u, v = pointerUV(UserInputService:GetMouseLocation())
-	if u and v then state.ghost.CFrame = wallCFrame(state.wall, u, v) end
+	if u and v then moveGhost(state, u, v) end
 end)
 UserInputService.InputChanged:Connect(function(input)
 	local state = placing
 	if not state or input.UserInputType ~= Enum.UserInputType.Touch then return end
 	local u, v = pointerUV(Vector2.new(input.Position.X, input.Position.Y), true)
-	if u and v then state.ghost.CFrame = wallCFrame(state.wall, u, v) end
+	if u and v then moveGhost(state, u, v) end
 end)
 
 -- (D-1108) a short tap (not a drag) on the wall sticks it there
@@ -559,6 +595,11 @@ UserInputService.InputEnded:Connect(function(input, processed)
 		else UserInputService:GetMouseLocation()
 	local u, v = pointerUV(position, touch)
 	if not u or not v then return end
+	if not spotBacked(state, u, v) then
+		moveGhost(state, u, v)
+		toast("벽이 없는 자리예요. 벽 위에 붙여 주세요.")
+		return
+	end
 	posting = true
 	local ok, message = invoke("WallPost", { wall = state.wall, id = state.photo.id, u = u, v = v })
 	posting = false

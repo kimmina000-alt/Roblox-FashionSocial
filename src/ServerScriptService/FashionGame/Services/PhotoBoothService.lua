@@ -45,6 +45,7 @@ local HttpService = game:GetService("HttpService")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Shared = FashionGame:WaitForChild("Shared")
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
+local PhotoWallFit = require(Shared:WaitForChild("PhotoWallFit")) -- (D-1321)
 local PhotoProps = require(Shared:WaitForChild("PhotoProps"))
 local OutfitSnapshot = require(Shared:WaitForChild("OutfitSnapshot"))
 local BoothPose = require(Shared:WaitForChild("BoothPose"))
@@ -1064,6 +1065,48 @@ local function wallKey(wall: BasePart): string
 	return tostring(wall:GetAttribute("WallKey") or wall:GetFullName())
 end
 
+-- (D-1321) photos stuck before over a niche or a gap (they hung in the air): moved along
+-- their wall, same height, to the nearest spot with the real wall behind; saved again
+local function settleFloating(): number
+	local walls: {[string]: BasePart} = {}
+	for _, w in ipairs(CollectionService:GetTagged("PhotoWall")) do
+		if w:IsA("BasePart") and w:IsDescendantOf(workspace) then walls[wallKey(w)] = w end
+	end
+	local moved = 0
+	for _, e in ipairs(wallEntries) do
+		local w = walls[e.wall]
+		if w and typeof(e.u) == "number" and typeof(e.v) == "number" then
+			local size = PhotoWallFit.photoSize(e.photo and e.photo.layout)
+			local hw, hh = size.X / 2, size.Y / 2
+			if not PhotoWallFit.backed(w, e.u, e.v, hw, hh) then
+				local step = 0.25 / w.Size.X
+				local mu = hw / w.Size.X
+				local best: number? = nil
+				for k = 1, math.ceil(1 / step) do
+					for _, s in ipairs({ -1, 1 }) do
+						local u = e.u + s * k * step
+						if u >= mu and u <= 1 - mu and PhotoWallFit.backed(w, u, e.v, hw, hh) then
+							best = u
+							break
+						end
+					end
+					if best then break end
+				end
+				if best then
+					e.u = best
+					moved += 1
+				end
+			end
+		end
+	end
+	-- (saved on live servers only: a Studio test must not rewrite the live wall store)
+	if moved > 0 and not wallDirty and not game:GetService("RunService"):IsStudio() then
+		wallDirty = true
+		task.delay(8, saveWall)
+	end
+	return moved
+end
+
 local function wallPost(player: Player, payload: any): (boolean, string?)
 	if typeof(payload) ~= "table" then return false, "잘못된 요청입니다." end
 	local wall = wallFrom(payload.wall)
@@ -1076,6 +1119,12 @@ local function wallPost(player: Player, payload: any): (boolean, string?)
 	if typeof(u) ~= "number" or typeof(v) ~= "number" or u ~= u or v ~= v then return false, "붙일 자리를 골라 주세요." end
 	local photo = playerData.FindPhoto(player, payload.id)
 	if not photo then return false, "사진을 찾을 수 없어요." end
+	-- (D-1321) only where the real wall is right behind the panel (not over a niche or
+	-- a gap: the photo hung in the air there)
+	local size = PhotoWallFit.photoSize(photo.layout)
+	if not PhotoWallFit.backed(wall, math.clamp(u, 0, 1), math.clamp(v, 0, 1), size.X / 2, size.Y / 2) then
+		return false, "벽이 없는 자리예요. 벽 위에 붙여 주세요."
+	end
 	-- The print is used up: it leaves the album and the backpack.
 	local ok, message = playerData.DeletePhoto(player, photo.id)
 	if not ok then return false, message end
@@ -1311,7 +1360,17 @@ function PhotoBoothService.Start(dataService: any)
 	CollectionService:GetInstanceAddedSignal("PhotoBooth"):Connect(setupBooth)
 	for _, wall in ipairs(CollectionService:GetTagged("PhotoWall")) do setupWall(wall) end
 	CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(setupWall)
-	task.spawn(loadWall)
+	task.spawn(function()
+		loadWall()
+		-- (D-1321) photos over a niche move onto the wall next to it (the map is all
+		-- there on the server; a little wait for the layout scripts to settle)
+		task.wait(2)
+		local moved = settleFloating()
+		if moved > 0 then
+			print("[PhotoBoothService] photos moved off niches:", moved)
+			if event then event:FireAllClients("WallReset", wallEntries) end
+		end
+	end)
 	if false and game:GetService("RunService"):IsStudio() then -- (sample photos off: the frames are settled, user 2026-10-30)
 		task.delay(3, function() -- (sample photos for testing, Studio only)
 			for _, p in ipairs(Players:GetPlayers()) do task.spawn(seedPhotos, p) end
