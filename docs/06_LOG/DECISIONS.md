@@ -4191,3 +4191,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "빵 사서 테이블에 놓으면 접시 위에 놓는 걸로 구현".
 - SnackService putDown: kind "bread"(소금빵, 베이글, 딸기크림크루아상, 약과, 인절미 토스트)를 놓을 때 아래에 흰 원형 접시(Plate, 높이 0.12, 빵 크기 + 0.3 반지름)와 조금 작은 안쪽 면(PlateWell, 테두리가 보이게)을 깔고 빵을 그 위로 올림. 다른 음식과의 간격 계산(Radius)도 접시 크기로. 허니카라멜브레드는 모델에 접시가 이미 있어서 그대로.
 - Play(해변 카페, 소금빵): 접시 1.80 지름 위에 빵, 길게 눌러 다시 가방으로(접시도 같이 사라짐), 오류 0.
+## D-1314 해변 카페 빵 진열대 채우기, 새 허니브레드 (2026-11-11)
+- 사용자(진열대 사진 + CAFE_HoneyBread.glb): "빵 진열대 내가 배치해 놓은 것처럼 다른 트레이에도 빵 배치하고 벽쪽에 있는 블록 위에도 트레이랑 빵 배치해. 허니브레드 파일 수정했고 스튜디오에 새로 올렸어 교체해".
+- place만(git 아님, Ctrl+S 필요): Workspace.BakeryDisplay. MainTable = 본 진열대(BakeryTable x -245.7)의 빈 트레이 9개를 사용자가 놓은 패턴으로(허니브레드 2, 딸기크림크루아상 2, 베이글 3, 소금빵 2×3; 끝 트레이는 소금빵), WallTable = 벽 쪽 BakeryTable(x -210.7)에 트레이 14개를 본 진열대 그대로 옮겨 놓고 같은 빵. 부품 401. BreadSamples의 옛 허니브레드도 새 것으로.
+- ServerStorage.ArtAssets.Foods.HoneyBreadBites = 새 모델(Workspace.HoneyBread, Bite1..9, 접시 없음); 옛 것은 _Imports_cafe_1110.HoneyBreadBites_old_1111로.
+- 새 허니브레드는 접시가 없어서 테이블에 놓을 때 빵처럼 흰 접시 위에(SnackService, D-1299 규칙에 honeybread 추가).
+- Play: 진열대 두 곳(bakery_main_D-1314.jpg, bakery_wall_D-1314.jpg), 손에 든 모습, 테이블 위 접시(2.25 지름), 오류 0.

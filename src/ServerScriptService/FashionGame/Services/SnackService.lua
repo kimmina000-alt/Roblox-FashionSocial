@@ -2002,9 +2002,10 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- ArtAssets. The old way stays for a store bowl with the tray still there.
 	local placedItem = itemByKey(tool:GetAttribute("Snack"))
 	-- (D-1299, user 2026-11-11: "빵 사서 테이블에 놓으면 접시 위에 놓는 걸로
-	-- 구현") a bread goes down on a little white plate (the 허니카라멜브레드 has
-	-- its own plate in its model, kind "cake")
-	if placedItem and placedItem.kind == "bread" then
+	-- 구현") a bread goes down on a little white plate
+	-- (D-1314, user 2026-11-11: the new 허니카라멜브레드 model has no plate of its
+	-- own any more, so it gets one too)
+	if placedItem and (placedItem.kind == "bread" or placedItem.key == "honeybread") then
 		local _, fsize = model:GetBoundingBox()
 		local plateR = math.max(fsize.X, fsize.Z) / 2 + 0.3
 		local H = 0.12
