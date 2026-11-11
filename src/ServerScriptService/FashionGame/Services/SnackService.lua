@@ -1663,6 +1663,25 @@ end
 -- tool is kept aside and a still copy of it stands on the table where the
 -- player is; its owner picks it up again with "다시 들기" (bites left kept).
 local FOOD_TABLE_TAGS = { CafeTable = true, GukbapTable = true, SnackTable = true }
+-- (D-1315, user 2026-11-11, a cafe photo: a tray with a croissant, two iced
+-- americanos and forks: "빵 구매해서 테이블 위에 놓으면 이 트레이 위에 놓는 걸로 해 줘 /
+-- 주문하면 쟁반처럼 사용하는 용도 / 위에 포크 놓고 집어서 빵 먹을 수 있게 하고 / 음료
+-- 구매하면 트레이 위에 놓을 수 있게") a bread put on a table goes on a tray
+-- (the user's CAFE_trey.glb, ServerStorage.ArtAssets.Foods.CafeTray), a fork
+-- lying in front of it; that player's drinks put down near it go to the
+-- tray's two cup places, left and right of the bread. Tapping the bread
+-- takes the fork from the tray (FoodShapes.TableEat "fork"). The tray goes
+-- when nothing is left on it.
+local CafeTrays = {
+	of = setmetatable({}, { __mode = "k" }) :: {[Model]: Model}, -- a PlacedFood → its tray
+	-- (the round cafe tables are 4.9 across: the tray fits on them)
+	W = 3.9, D = 3.1, -- the tray's size on the table (long side across, toward the player)
+	LIFT = 0.1, -- its floor above the table
+	-- the places, in the tray's own frame (x across, z toward the player)
+	SLOTS = { bread = Vector3.new(0, 0, -0.2), cupL = Vector3.new(-1.35, 0, -0.3), cupR = Vector3.new(1.35, 0, -0.3) },
+	FORK = Vector3.new(0.15, 0, 0.95), -- the fork's middle, lying across in front of the bread
+	REACH = 5, -- a drink put down this near its owner's tray goes on it
+}
 local keptFolder: Folder? = nil
 local SOUP_SECONDS = 300
 
@@ -1807,6 +1826,13 @@ local function spoonful(player: Player, model: Model, copy: BasePart, tool: Tool
 	for _, d in ipairs(copy:GetChildren()) do
 		if d:IsA("BasePart") and (d.Name == "Spoon" or d.Name == "Chopsticks") then table.insert(own, d) d.Transparency = 1 end
 	end
+	-- (D-1315) the fork lying on the tray is the one picked up
+	local onTray = CafeTrays.of[model]
+	if onTray then
+		for _, d in ipairs(onTray:GetChildren()) do
+			if d:IsA("BasePart") and d.Name == "TrayFork" then table.insert(own, d) d.Transparency = 1 end
+		end
+	end
 	humanoid:UnequipTools()
 	spoon.Parent = character
 	-- (D-1099) the cup ramen on the table: long noodle strands from the sticks'
@@ -1874,6 +1900,103 @@ end
 -- farther than this part of the two reaches)
 local OVERLAP = 0.85
 
+-- (D-1315) a tray on the table top at `pos` (on the top), its long side across
+-- the player's view (`toward` = from the tray to the player)
+function CafeTrays.make(tablePart: BasePart, pos: Vector3, toward: Vector3, owner: Player): Model
+	local m = Instance.new("Model")
+	m.Name = "CafeTray"
+	local look = Vector3.new(toward.X, 0, toward.Z)
+	if look.Magnitude < 0.01 then look = Vector3.new(0, 0, 1) end
+	-- the tray's frame: +Z toward the player, +X to their right as they face it
+	local frame = CFrame.lookAt(pos, pos - look.Unit)
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local src = art and art:FindFirstChild("Foods") and art.Foods:FindFirstChild("CafeTray")
+	local body: BasePart
+	if src then
+		local c = src:Clone()
+		local mesh = if c:IsA("BasePart") then c else c:FindFirstChildWhichIsA("BasePart", true)
+		body = (mesh :: BasePart):Clone()
+		c:Destroy()
+		-- (the glb lies with its long side along Z: turned across, scaled to W × D)
+		local k = CafeTrays.W / math.max(body.Size.Z, 0.01)
+		body.Size = body.Size * k
+		body.CFrame = frame * CFrame.new(0, body.Size.Y / 2, 0) * CFrame.Angles(0, math.rad(90), 0)
+	else
+		local p = Instance.new("Part")
+		p.Size = Vector3.new(CafeTrays.W, 0.12, CafeTrays.D)
+		p.Color = Color3.fromRGB(40, 40, 44)
+		p.CFrame = frame * CFrame.new(0, 0.06, 0)
+		body = p
+	end
+	body.Name = "Tray"
+	body.Anchored, body.CanCollide, body.CanTouch, body.CanQuery = true, false, false, true
+	body.Parent = m
+	-- the fork, lying in front of the bread along the tray
+	local STEEL = Color3.fromRGB(215, 218, 222)
+	local base = frame * CFrame.new(CafeTrays.FORK + Vector3.new(-0.35, CafeTrays.LIFT + 0.02, 0)) * CFrame.Angles(0, math.rad(90), 0) * CFrame.Angles(math.rad(-90), 0, 0)
+	local function piece(size: Vector3, offset: CFrame)
+		local p = Instance.new("Part")
+		p.Name = "TrayFork"
+		p.Size = size
+		p.Color = STEEL
+		p.Material = Enum.Material.Metal
+		p.Anchored, p.CanCollide, p.CanTouch, p.CanQuery, p.CastShadow = true, false, false, false, false
+		p.CFrame = base * offset
+		p.Parent = m
+	end
+	piece(Vector3.new(0.08, 0.8, 0.03), CFrame.new())
+	piece(Vector3.new(0.12, 0.12, 0.03), CFrame.new(0, 0.45, 0))
+	piece(Vector3.new(0.2, 0.08, 0.03), CFrame.new(0, 0.53, 0))
+	for k = 0, 3 do piece(Vector3.new(0.03, 0.2, 0.03), CFrame.new(-0.075 + k * 0.05, 0.66, 0)) end
+	m:SetAttribute("Owner", owner.UserId)
+	m:SetAttribute("Frame", frame)
+	m:SetAttribute("Radius", math.sqrt(CafeTrays.W ^ 2 + CafeTrays.D ^ 2) / 2 * 0.9)
+	m:SetAttribute("Since", os.clock())
+	m.Parent = tablePart
+	return m
+end
+-- the frame a tray was made with (on the table top, +Z toward its owner)
+function CafeTrays.frame(tray: Model): CFrame?
+	local f = tray:GetAttribute("Frame")
+	return if typeof(f) == "CFrame" then f else nil
+end
+-- a free place of this kind on the tray ("bread" or a cup), or nil
+function CafeTrays.free(tray: Model, kind: string): (string?, Vector3?)
+	local taken = {}
+	for food, t in pairs(CafeTrays.of) do
+		if t == tray and food.Parent then taken[food:GetAttribute("TraySlot") or ""] = true end
+	end
+	local frame = CafeTrays.frame(tray)
+	if not frame then return nil, nil end
+	local names = if kind == "bread" then { "bread" } else { "cupR", "cupL" }
+	for _, name in ipairs(names) do
+		if not taken[name] then return name, frame * CafeTrays.SLOTS[name] end
+	end
+	return nil, nil
+end
+-- this player's tray on this table nearest to `pos`, if one is that near
+function CafeTrays.mine(tablePart: BasePart, player: Player, pos: Vector3?, within: number): Model?
+	local best, bestD = nil, within
+	for _, t in ipairs(tablePart:GetChildren()) do
+		if t:IsA("Model") and t.Name == "CafeTray" and t:GetAttribute("Owner") == player.UserId then
+			local p = t:GetBoundingBox().Position
+			local d = if pos then Vector3.new(p.X - pos.X, 0, p.Z - pos.Z).Magnitude else 0
+			if d <= bestD then best, bestD = t, d end
+		end
+	end
+	return best
+end
+-- a tray with nothing left on it goes
+function CafeTrays.tidy(tray: Model)
+	task.defer(function()
+		if not tray.Parent then return end
+		for food, t in pairs(CafeTrays.of) do
+			if t == tray and food.Parent then return end
+		end
+		tray:Destroy()
+	end)
+end
+
 local function putDown(player: Player, tablePart: any, at: any): (boolean, string?)
 	if typeof(tablePart) ~= "Instance" or not tablePart:IsA("BasePart") or not tablePart:IsDescendantOf(workspace) then
 		return false, "테이블을 찾을 수 없어요."
@@ -1934,8 +2057,38 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- pointed at (SnackController's green silhouette), checked again here:
 	-- on the top, the food inside its edges, not on another food
 	local radius = footprint(tool, handle)
-	if typeof(at) == "Vector3" then
-		if not (SnackConfig.onTable(tablePart, at, radius)) then -- (D-1141)
+	-- (D-1315) a bread goes on a tray (a new one, or a free bread place on this
+	-- player's tray right there); a drink near its owner's tray goes on it
+	local trayFor = itemByKey(tool:GetAttribute("Snack"))
+	local trayKind = if trayFor and (trayFor.kind == "bread" or trayFor.key == "honeybread") then "bread"
+		elseif (trayFor and trayFor.kind == "cup") or isCan(tool) then "cup" else nil
+	local trayModel: Model? = nil
+	local traySlot: string? = nil
+	local trayNew = false
+	if trayKind and CollectionService:HasTag(tablePart, "CafeTable") then
+		local near = if typeof(at) == "Vector3" then at else spot
+		local mine = CafeTrays.mine(tablePart, player, near, if trayKind == "bread" then 2.5 else CafeTrays.REACH)
+		if mine then
+			local slotName, slotAt = CafeTrays.free(mine, trayKind)
+			if slotName and slotAt then
+				trayModel, traySlot = mine, slotName
+				at = Vector3.new(slotAt.X, 0, slotAt.Z)
+			end
+		end
+		if not trayModel and trayKind == "bread" then
+			-- a new tray where the bread was put: room for the whole tray
+			trayNew = true
+			radius = math.max(radius, math.sqrt(CafeTrays.W ^ 2 + CafeTrays.D ^ 2) / 2 * 0.9)
+		end
+	end
+	if typeof(at) == "Vector3" and trayModel then
+		-- (on its owner's tray: the tray already has its room)
+		if Vector3.new(at.X - root.Position.X, 0, at.Z - root.Position.Z).Magnitude > 10 then
+			return false, "테이블 가까이 가 주세요."
+		end
+		spot = Vector3.new(at.X, 0, at.Z)
+	elseif typeof(at) == "Vector3" then
+		if not (SnackConfig.onTable(tablePart, at, if trayNew then radius * 0.8 else radius)) then -- (D-1141)
 			return false, "테이블 가장자리라 놓을 수 없어요."
 		end
 		if Vector3.new(at.X - root.Position.X, 0, at.Z - root.Position.Z).Magnitude > 9 then
@@ -1953,9 +2106,10 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 		end
 		-- (D-952) the shared plates too
 		for _, other in ipairs(tablePart:GetChildren()) do
-			if other:IsA("Model") and other.Name == "SharedPlate" then
+			if other:IsA("Model") and (other.Name == "SharedPlate" or other.Name == "CafeTray") then -- (D-1315: trays too)
 				local p = other:GetBoundingBox().Position
-				if Vector3.new(p.X - at.X, 0, p.Z - at.Z).Magnitude < (radius + PLATE_RADIUS) * OVERLAP then
+				local r2 = if other.Name == "CafeTray" then ((other:GetAttribute("Radius") :: number?) or 2.8) else PLATE_RADIUS
+				if Vector3.new(p.X - at.X, 0, p.Z - at.Z).Magnitude < (radius + r2) * OVERLAP then
 					return false, "다른 음식과 너무 가까워요."
 				end
 			end
@@ -1971,6 +2125,16 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	local copy = handle:Clone()
 	local originals, copies = handle:GetDescendants(), copy:GetDescendants()
 	local place = CFrame.lookAt(hit.Position, hit.Position + Vector3.new(flat.X, 0, flat.Z) + Vector3.new(0, 0, 0.001))
+	-- (D-1315) the new tray under the bread, then the food on its place on the tray
+	if trayNew then
+		trayModel = CafeTrays.make(tablePart, hit.Position, root.Position - hit.Position, player)
+		traySlot = "bread"
+	end
+	local trayFrame = trayModel and CafeTrays.frame(trayModel)
+	if trayModel and trayFrame and traySlot then
+		local p = trayFrame * CafeTrays.SLOTS[traySlot]
+		place = CFrame.lookAt(p, p + trayFrame.ZVector)
+	end
 	local parts: {BasePart} = {}
 	local function fix(original: Instance, clone: Instance)
 		if clone:IsA("BasePart") and original:IsA("BasePart") then
@@ -1994,7 +2158,7 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	copy.Parent = model
 	-- rest its lowest point on the table top
 	local box, size = model:GetBoundingBox()
-	local lift = hit.Position.Y + 0.02 - (box.Y - size.Y / 2)
+	local lift = hit.Position.Y + 0.02 + (if trayModel then CafeTrays.LIFT else 0) - (box.Y - size.Y / 2) -- (D-1315: on the tray's floor)
 	for _, p in ipairs(parts) do p.CFrame += Vector3.new(0, lift, 0) end
 	-- (D-1037, user 2026-11-09: "테이블에 놓을 때 국밥만 올라가게 변경. 기존에 에셋
 	-- 삭제") the 국밥 goes down as itself, the bowl in the hand (the user's model,
@@ -2005,7 +2169,7 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- 구현") a bread goes down on a little white plate
 	-- (D-1314, user 2026-11-11: the new 허니카라멜브레드 model has no plate of its
 	-- own any more, so it gets one too)
-	if placedItem and (placedItem.kind == "bread" or placedItem.key == "honeybread") then
+	if not trayModel and placedItem and (placedItem.kind == "bread" or placedItem.key == "honeybread") then -- (D-1315: not on a tray)
 		local _, fsize = model:GetBoundingBox()
 		local plateR = math.max(fsize.X, fsize.Z) / 2 + 0.3
 		local H = 0.12
@@ -2074,12 +2238,22 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- (D-1037) the pieces already eaten from the hand stay gone, and let taps through
 	if ownBowl then applyEaten(copy, eatenOf(tool)) end
 	model:SetAttribute("Soup", soup)
-	model:SetAttribute("Radius", radius)
+	model:SetAttribute("Radius", if trayModel then 0.6 else radius) -- (D-1315: the tray keeps the room)
 	placedFood[model] = { player = player, tool = tool, item = item, copy = copy, soup = soup }
+	-- (D-1315) on the tray: its place, and the tray goes when the last thing does
+	local onTray = trayModel
+	if onTray and traySlot then
+		model:SetAttribute("TraySlot", traySlot)
+		CafeTrays.of[model] = onTray
+	end
 	model.Parent = tablePart
 	model.Destroying:Connect(function()
 		placedFood[model] = nil
 		if tool.Parent == keptFolder then tool:Destroy() end
+		if onTray then
+			CafeTrays.of[model] = nil
+			CafeTrays.tidy(onTray)
+		end
 	end)
 	-- (a bowl left behind goes sooner: its owner may have walked off, user 2026-10-26)
 	Debris:AddItem(model, if soup then SOUP_SECONDS else SnackConfig.PlateSeconds)
