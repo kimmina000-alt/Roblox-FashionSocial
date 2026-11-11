@@ -4350,3 +4350,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
   - 담: 궁궐 벽돌담 → 돌담 Texture(hanok_stonewall 139325252321598) + 기와 갓, 마당: 박석 → 마사토(Sand).
   - 나무: 둥근 공 → 기울어진 붉은 소나무 줄기 + 납작한 솔잎 덩어리 두 개(SpecialMesh 구).
   - 새로: 자선당 마당의 바위 · 소나무 · 꽃 정원(07c_Garden), 소주방 옆 장독대(14b_Jangdokdae, 옹기 15개).
+  - 부품 1,495개(구역 한도 1,500 안: 석등은 폭 28 이상 큰 건물 앞에만), 옹기는 Plastic(덜 반짝). Play 사진: hanok_hall / hanok_jangdokdae / hanok_overview_D-1318.jpg.

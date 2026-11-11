@@ -390,7 +390,8 @@ local function hall(m: Instance, name: string, u: number, v: number, w: number, 
 	if bodyH <= 9 and tiers == 1 and not o.gate then
 		local deck = box(name .. "_Maru", u - d / 2 - 2.6, u - d / 2, v - w / 2 + 1, v + w / 2 - 1, y, 0.5, COL.floor, m)
 		deck.Material = Enum.Material.WoodPlanks
-		for _, s in ipairs(if w >= 20 then { -1, 1 } else {}) do
+		-- (lanterns only before the big halls, w 28+: the zone stays under 1,500 parts)
+		for _, s in ipairs(if w >= 28 then { -1, 1 } else {}) do
 			local lu, lv = u - d / 2 - 4 - 4, v + s * (math.max(6, w * 0.3) / 2 + 3)
 			box("Lantern", lu - 0.6, lu + 0.6, lv - 0.6, lv + 0.6, 0, 3.6, COL.stone, m).Material = Enum.Material.Granite
 			box("Lantern_Cap", lu - 1.0, lu + 1.0, lv - 1.0, lv + 1.0, 3.6, 0.5, COL.stone, m).Material = Enum.Material.Granite
@@ -627,7 +628,7 @@ do
 			local big = (r + c) % 3 == 0
 			local s = if big then 2.6 elseif (r * 5 + c) % 2 == 0 then 2.1 else 1.7
 			local h = s * (if big then 1.25 else 1.1)
-			blob("Onggi", at(u0 + 1.8 + c * 3.1, v0 + 1.6 + r * 2.9, 0.8 + h / 2), Vector3.new(s, h, s), COL.onggi, m, Enum.Material.SmoothPlastic)
+			blob("Onggi", at(u0 + 1.8 + c * 3.1, v0 + 1.6 + r * 2.9, 0.8 + h / 2), Vector3.new(s, h, s), COL.onggi, m, Enum.Material.Plastic) -- (Plastic: less shine)
 		end
 	end
 	local _ = n
