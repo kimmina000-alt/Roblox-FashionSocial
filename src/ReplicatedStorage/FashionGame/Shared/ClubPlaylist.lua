@@ -566,7 +566,20 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.957, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	-- (D-1286) song 3:31
 	{ channel = "K-POP", title = "백화요란-RESCENE", soundId = 74619423082896, length = 200.975, fileSpeed = 1.0499,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = -4.5, mid = -1, high = -10.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = -4.5, mid = -1, high = -10.5, engine = "sound" },
+		-- (D-1292, user 2026-11-11: "백화요란 안무 추가") practice video agdcTDnESIw = song 49.33 s to the end (its sound against
+		-- the original mp3: song = video + 49.33 in every 10 s window), so the first 49 s are the default dance; `at` = clip start
+		-- + 49.33. Clip 20 (song 178.96-190.42) left out: its upload 122185615780064 is a copy of 19 (same keyframes, 8.90 s, the clip
+		-- is 11.46 s), so that stretch is the default dance until it is uploaded again ({ at = 178.96 })
+		choreo = {
+			{ id = 129031824166857, at = 49.33 }, { id = 74180602033079, at = 60.21, blend = 0.44 }, { id = 100400560200750, at = 69.35, blend = 0.40 },
+			{ id = 70716391841768, at = 77.71, blend = 0.40 }, { id = 105306563598355, at = 84.58, blend = 0.65 }, { id = 123368765880247, at = 89.77, blend = 0.72 },
+			{ id = 76096143466808, at = 99.78, blend = 0.50 }, { id = 126526542148646, at = 109.29, blend = 0.76 }, { id = 108852044755937, at = 110.69, blend = 1 },
+			{ id = 82595297491524, at = 119.58, blend = 0.52 }, { id = 100292773355070, at = 125.22, blend = 1 }, { id = 72320524127017, at = 129.58, blend = 0.76 },
+			{ id = 131622951291839, at = 139.55, blend = 0.45 }, { id = 82878605609824, at = 150.10, blend = 1 }, { id = 118315209448422, at = 155.19, blend = 1 },
+			{ id = 116718508120035, at = 159.59, blend = 1 }, { id = 98439541459421, at = 166.28, blend = 1 }, { id = 126812347548541, at = 168.95, blend = 0.64 },
+			{ id = 138514282006084, at = 170.03, blend = 0.51 }, { id = 87258411271471, at = 190.42 }, { id = 106836976565207, at = 195.88, blend = 1 },
+			{ id = 129589571291554, at = 205.24, blend = 1 } }, autoChoreo = true },
 
 } :: {Track}
 
