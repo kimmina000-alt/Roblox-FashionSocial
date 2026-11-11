@@ -3616,6 +3616,9 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 
 ![바 선반 P1](images/2026-11-07/2p_bar_p1.jpg) ![IOI P1](images/2026-11-07/2p_ioi_p1.jpg) ![IOI P2](images/2026-11-07/2p_ioi_p2.jpg) ![무대 카메라 P2](images/2026-11-07/2p_stagecam_p2.jpg)
 
+## 2026-11-11 갑자기 2:23 · 2:35 (D-1297)
+- 가드 켜고 / 끄고 비교해 원인 확인 → guardOff. Play 확인.
+
 ## 2026-11-11 네온 팔 · 체포하겠어 (D-1296)
 - 네온 2:30 · 3:32 왼팔 튐은 ChoreoBodyGuard(가드 끄고 비교해서 찾음) → guardOff. 체포하겠어 0:36 steady, 0:38 slowIn. Play 확인.
 
