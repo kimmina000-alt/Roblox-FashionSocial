@@ -4356,3 +4356,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - tools/graybox/bakery_underlight.lua (place만, Workspace.BakeryDisplay.UnderLights, 혼자 돌려도 됨): 해변 카페 BakeryTable 두 개의 바닥 쪽 네 면에 따뜻한 LED 줄(Neon 255,190,120)과 Attachment PointLight 36개(밝기 0.6, 범위 3, 그림자 없음). SurfaceLight는 바닥까지 안 닿았고 더 밝게 하면 방 전체가 노래져서 이 값으로.
 - 사진: bakery_underlight_D-1319.jpg (밤 20시).
 - 한옥 마을 정면 항공샷(D-1318): 높이 400, 화각 20(바로 위에서, 광화문이 아래), 12장을 tools/art/aerial_stitch.py로 이어 붙임 → hanok_aerial_D-1318.jpg. 높이 500 넘으면 Studio가 부품을 안 그려서 한 장으로 못 찍음.
+## D-1320 빵 진열대 나무 트레이 밑 조명 (2026-11-12)
+- 사용자: "진열대 나무 트레이 밑에 조명 넣어".
+- tools/graybox/bakery_underlight.lua 뒷부분 (place만, Workspace.BakeryDisplay.TrayLights): 두 진열대의 나무 트레이 21개(사용자 트레이 MeshPart "Cube") 밑마다 사방 0.15 넓은 따뜻한 Neon 판 + PointLight 1개(밝기 0.5, 범위 3.5) → 트레이 발치에 빛 테두리. 사진 bakery_traylight_D-1320.jpg.

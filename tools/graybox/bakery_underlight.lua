@@ -58,4 +58,40 @@ for _, t in ipairs(workspace:GetDescendants()) do
 	end
 end
 print("[BakeryUnderLights] strips:", count)
+
+-- (D-1320, user 2026-11-12: "진열대 나무 트레이 밑에 조명 넣어") under every wooden bread
+-- tray on the two tables (the user's CAFE tray MeshParts named "Cube", 0.87 thick): a warm
+-- Neon plate 0.15 wider on each side, just above the table top, so a glowing rim shows
+-- round the tray's foot, and one small PointLight. Folder Workspace.BakeryDisplay.TrayLights.
+local oldT = display:FindFirstChild("TrayLights")
+if oldT then oldT:Destroy() end
+local trayFolder = Instance.new("Folder")
+trayFolder.Name = "TrayLights"
+trayFolder.Parent = display
+local trays = 0
+for _, d in ipairs(workspace:GetDescendants()) do
+	if d:IsA("MeshPart") and d.Name == "Cube" and math.abs(d.Size.Y - 0.87) < 0.05 and d.Size.Z > 6
+		and d.Position.X > -260 and d.Position.X < -195 and d.Position.Z > 195 and d.Position.Z < 265 then
+		local p = Instance.new("Part")
+		p.Name = "TrayGlow"
+		p.Anchored = true
+		p.CanCollide, p.CanQuery, p.CanTouch, p.CastShadow = false, false, false, false
+		p.Material = Enum.Material.Neon
+		p.Color = WARM
+		p.Size = Vector3.new(d.Size.X + 0.3, 0.06, d.Size.Z + 0.3)
+		p.CFrame = d.CFrame * CFrame.new(0, -d.Size.Y / 2 + 0.04, 0)
+		local a = Instance.new("Attachment")
+		a.Position = Vector3.new(0, 0.2, 0)
+		a.Parent = p
+		local light = Instance.new("PointLight")
+		light.Color = WARM
+		light.Brightness = 0.5
+		light.Range = 3.5
+		light.Shadows = false
+		light.Parent = a
+		p.Parent = trayFolder
+		trays += 1
+	end
+end
+print("[BakeryUnderLights] trays:", trays)
 return count
