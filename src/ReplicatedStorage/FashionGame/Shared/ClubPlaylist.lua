@@ -38,6 +38,8 @@ export type Track = {
 	-- (D-726) dance the choreography by itself: everyone in the club standing
 	-- still (not seated, not in a menu dance) follows it while the song plays
 	autoChoreo: boolean?,
+	-- (D-1321) a chair under each dancer until `to` (백화요란's chair intro; ChoreoChair)
+	chair: { to: number, drop: number?, from: number?, back: number?, under: number? }?,
 	-- (D-1118) live clean-up on top of the lab (DanceController): low / mid /
 	-- high = an extra EQ in dB (low band below ~400 Hz, mid ~400 Hz..4 kHz),
 	-- threshold / ratio / attack / release / makeup = a CompressorSoundEffect
@@ -597,8 +599,15 @@ M.Playlist = {
 		-- the original mp3: song = video + 49.33 in every 10 s window), so the first 49 s are the default dance; `at` = clip start
 		-- + 49.33. Clip 20 (song 178.96-190.42) left out: its upload 122185615780064 is a copy of 19 (same keyframes, 8.90 s, the clip
 		-- is 11.46 s); (D-1300, user 2026-11-11: "백화요란 20: 101271170738014") the re-upload is in at 178.96
+		-- (D-1321, user 2026-11-12: "백화요란 0~50초 앞부분 안무 추가", "의자 안무는 백화요란 안무에만 의자 추가해서
+		-- 영상처럼 의자 사용해서 추는 걸로 구현해") the chair intro from the front-cam video (RESCENE_Baekhwayoran_front,
+		-- song = video - 0.33 by its sound, clips 1-6 = video 1.25..49.67), and a chair under each dancer until 49.33
+		-- (ChoreoChair / ChoreoChairService; `drop` = how far the captured sit lowers the hips)
+		chair = { to = 49.33, drop = 1.85 },
 		choreo = {
-			{ id = 129031824166857, at = 49.33 }, { id = 74180602033079, at = 60.21, blend = 0.44 }, { id = 100400560200750, at = 69.35, blend = 0.40 },
+			{ id = 109161757598338, at = 0.92 }, { id = 118163879610034, at = 5.78, blend = 0.5, slowIn = { 0.4, 0.4 } }, { id = 104244800567694, at = 15.85, blend = 0.4 },
+			{ id = 71730365125654, at = 19.57, blend = 0.4 }, { id = 133453398801454, at = 30.15, blend = 0.4 }, { id = 83394388681438, at = 38.33, blend = 0.4 },
+			{ id = 129031824166857, at = 49.33, blend = 0.4 }, { id = 74180602033079, at = 60.21, blend = 0.44 }, { id = 100400560200750, at = 69.35, blend = 0.40 },
 			{ id = 70716391841768, at = 77.71, blend = 0.40 }, { id = 105306563598355, at = 84.58, blend = 0.65 }, { id = 123368765880247, at = 89.77, blend = 0.72 },
 			{ id = 76096143466808, at = 99.78, blend = 0.50 }, { id = 126526542148646, at = 109.29, blend = 0.76 }, { id = 108852044755937, at = 110.69, blend = 1 },
 			{ id = 82595297491524, at = 119.58, blend = 0.52 }, { id = 100292773355070, at = 125.22, blend = 1 }, { id = 72320524127017, at = 129.58, blend = 0.76 },
