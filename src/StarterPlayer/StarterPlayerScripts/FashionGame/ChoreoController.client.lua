@@ -686,6 +686,42 @@ RunService.Heartbeat:Connect(function()
 	end
 end)
 
+-- (D-1292, user 2026-11-11 phone video: "사양 낮은 휴대폰으로 하니까 다른 사람 춤 이상하게
+-- 보임 … 처음에는 멀쩡하게 보이다가 다른 사람들 춤 점점 버벅거리더니 이상하게 … 빙빙 돌아")
+-- every fix below changes the joints on top of what the Animator wrote this
+-- frame (faceOffset turns the hips by its angle, frontLock, the floor lift…).
+-- A slow device skips other people's animation on some frames (Roblox throttles
+-- them), and then the fixes were added again onto last frame's result: the
+-- turn grew every frame and the body spun round and fell over. Now each
+-- frame starts from the Animator's own pose: the joints are noted after the
+-- frame (PostSimulation); if they are still exactly that at the next
+-- PreSimulation the Animator did not write them, and the last pose it did
+-- write is put back before the fixes run.
+local poseBase = {
+	seen = setmetatable({}, { __mode = "k" }) :: {[Instance]: CFrame}, -- the joint after the last frame
+	raw = setmetatable({}, { __mode = "k" }) :: {[Instance]: CFrame}, -- the Animator's last own pose
+	dancing = setmetatable({}, { __mode = "k" }) :: {[Model]: boolean},
+}
+RunService.PostSimulation:Connect(function()
+	for character in pairs(poseBase.dancing) do
+		if not character.Parent then poseBase.dancing[character] = nil continue end
+		for _, j in pairs(bodyJoints(character)) do poseBase.seen[j] = (j :: any).Transform end
+	end
+end)
+local function startFromAnimator(character: Model)
+	poseBase.dancing[character] = true
+	for _, j in pairs(bodyJoints(character)) do
+		local now = (j :: any).Transform :: CFrame
+		local seen = poseBase.seen[j]
+		local raw = poseBase.raw[j]
+		if seen and raw and now:FuzzyEq(seen, 1e-6) then
+			(j :: any).Transform = raw -- (not written this frame: start again from its pose)
+		else
+			poseBase.raw[j] = now
+		end
+	end
+end
+
 -- after the animator, before the frame is drawn
 RunService.PreSimulation:Connect(function(dt)
 	for _, p in ipairs(Players:GetPlayers()) do
@@ -699,6 +735,7 @@ RunService.PreSimulation:Connect(function(dt)
 				if t.Animation and choreoAnimations[t.Animation.AnimationId] then table.insert(choreo, t) end
 			end
 			if #choreo > 0 then
+				startFromAnimator(character) -- (D-1292)
 				-- (D-985, user: Catch Catch "전체적으로 좌우 반전") a `mirror` song: the
 				-- animator's pose seen in a mirror (each joint takes the other side's
 				-- turn, mirrored); ChoreoSmooth reads its keyframes mirrored too
