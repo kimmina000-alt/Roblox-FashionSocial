@@ -569,11 +569,11 @@ M.Playlist = {
 		-- (D-1298, user 2026-11-11: "shock" + 22 ids) fancam LReqXEEBIKI: song = video - 2.10 s (its sound against the original mp3, 3 s
 		-- windows from 3 to 162 s; the live sound past video 171 s is after the song's end). `at` = clip start - 2.10, piece 1 `from = 2.10`.
 		-- Clip 9 (song 65.10-75.38) left out: its upload 118620524863725 is a copy of 8 (same keyframes, 2.90 s, the clip is 10.28 s), so that
-		-- stretch is the default dance until it is uploaded again ({ at = 65.10 }); clip 22 (song 172.6-183.8) is after the song ends
+		-- stretch was the default dance; (D-1301, user 2026-11-11: "shock 9: 87672486893566") the re-upload is in at 65.10; clip 22 (song 172.6-183.8) is after the song ends
 		choreo = {
 			{ id = 133830025852955, at = 0, from = 2.10 }, { id = 117322908574417, at = 11.18, blend = 0.26 }, { id = 81779912905543, at = 18.39, blend = 0.76 },
 			{ id = 75987043149726, at = 30.50, blend = 0.82 }, { id = 126059214767439, at = 36.24, blend = 0.65 }, { id = 131829068826954, at = 43.68, blend = 0.43 },
-			{ id = 121802134861592, at = 50.72, blend = 0.74 }, { id = 130135206628110, at = 62.13, blend = 0.68 }, { id = 130317916502145, at = 75.38 },
+			{ id = 121802134861592, at = 50.72, blend = 0.74 }, { id = 130135206628110, at = 62.13, blend = 0.68 }, { id = 87672486893566, at = 65.10, blend = 0.50 }, { id = 130317916502145, at = 75.38 },
 			{ id = 94643800566754, at = 87.52, blend = 0.62 }, { id = 112228957264348, at = 92.43, blend = 0.77 }, { id = 107109971489791, at = 95.50, blend = 0.93 },
 			{ id = 90553036874786, at = 98.50, blend = 1 }, { id = 121912364930816, at = 111.81, blend = 0.46 }, { id = 139616314090616, at = 126.23, blend = 0.92 },
 			{ id = 73160805709614, at = 130.80, blend = 0.79 }, { id = 79170731093199, at = 139.94, blend = 0.69 }, { id = 94923487573207, at = 147.52, blend = 1 },
