@@ -6,6 +6,9 @@
 -- 쓰레기통 안에 있는 아이템만 보이게 해. 버릴 수 있는 물건 보이는 거 삭제.") holding
 -- something that may go in, the can's 열기 throws it straight in; the window
 -- shows only the items in the can (no title, no lines, no "내 물건" list)
+-- (D-1311, user 2026-11-11: "쓰레기통에 아이템 이름 지우고 아이템 클릭해서 자기 인벤토리로 옮기면 서버 전체에 ㅇㅇㅇ님이
+-- 쓰레기통에서 ㅇㅇㅇㅇ를 주웠습니다 띄워. 폰트 크기는 캐릭터 위 vip guard dj 폰트 크기로 화면 중앙 상단에 흰색 폰트에 검은색
+-- 그림자 깔아서"): the cards show only the item's picture; TrashNotice lines at the top middle (13 px like the role badges)
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -140,19 +143,9 @@ local function card(list: ScrollingFrame, tool: Tool, order: number, sub: string
 	s.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
 	s.Color = Color3.fromRGB(90, 90, 96)
 	s.Parent = c
-	local emoji, name = Hotbar.split(tool.Name)
-	Hotbar.look(tool, c, emoji, UDim2.fromScale(0.62, 0.56), UDim2.fromScale(0.5, 0.03))
-	local l = Instance.new("TextLabel")
-	l.Position = UDim2.fromScale(0.05, if sub then 0.58 else 0.64)
-	l.Size = UDim2.fromScale(0.9, if sub then 0.24 else 0.3)
-	l.BackgroundTransparency = 1
-	l.Text = name
-	l.TextColor3 = Color3.new(1, 1, 1)
-	l.TextScaled = true
-	l.TextWrapped = true
-	l.Font = Enum.Font.GothamMedium
-	l.Parent = c
-	Instance.new("UITextSizeConstraint", l).MaxTextSize = 13
+	local emoji = Hotbar.split(tool.Name)
+	-- (D-1311) no name: the picture fills the card
+	Hotbar.look(tool, c, emoji, UDim2.fromScale(0.8, 0.8), UDim2.fromScale(0.5, 0.1))
 	if sub then
 		local t = Instance.new("TextLabel")
 		t.Position = UDim2.fromScale(0.05, 0.82)
@@ -287,3 +280,82 @@ task.spawn(function()
 		if can and (not root or (root.Position - can.Position).Magnitude > TrashConfig.Distance + 6) then setOpen(nil) end
 	end
 end)
+
+-- (D-1311) "ㅇㅇㅇ님이 쓰레기통에서 "ㅇㅇㅇㅇ"를 주웠습니다." for everyone, at the top middle under the top bar: white
+-- text with a black shadow, 13 px (the GUARD / VIP / DJ badges' size), 4 s each, up to 3 at once (newest on top)
+do
+	local noticeGui = Instance.new("ScreenGui")
+	noticeGui.Name = "TrashNoticeGui"
+	noticeGui.ResetOnSpawn = false
+	noticeGui.IgnoreGuiInset = true
+	noticeGui.DisplayOrder = 40
+	noticeGui.Parent = player:WaitForChild("PlayerGui")
+	local stack = Instance.new("Frame")
+	stack.AnchorPoint = Vector2.new(0.5, 0)
+	stack.Size = UDim2.new(1, -24, 0, 60)
+	stack.BackgroundTransparency = 1
+	stack.Parent = noticeGui
+	local list = Instance.new("UIListLayout")
+	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
+	list.SortOrder = Enum.SortOrder.LayoutOrder
+	list.Padding = UDim.new(0, 2)
+	list.Parent = stack
+	local function place() stack.Position = UDim2.new(0.5, 0, 0, TopBar.bottom() + 6) end
+	place()
+	local order = 0
+	local font = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold)
+	local function show(who: string, itemName: string)
+		place()
+		local _, name = Hotbar.split(itemName)
+		name = if name ~= "" then name else itemName
+		-- 을 after a final consonant (도넛을, 빵을), 를 otherwise (커피를)
+		local last = utf8.codepoint(name, utf8.offset(name, -1) or 1)
+		local particle = if last >= 0xAC00 and last <= 0xD7A3 and (last - 0xAC00) % 28 ~= 0 then "을" else "를"
+		local text = string.format("%s님이 쓰레기통에서 \"%s\"%s 주웠습니다.", who, name, particle)
+		order -= 1
+		local row = Instance.new("Frame")
+		row.LayoutOrder = order
+		row.Size = UDim2.new(1, 0, 0, 16)
+		row.BackgroundTransparency = 1
+		row.Parent = stack
+		local function label(color: Color3, offset: number, z: number): TextLabel
+			local l = Instance.new("TextLabel")
+			l.BackgroundTransparency = 1
+			l.Position = UDim2.fromOffset(offset, offset)
+			l.Size = UDim2.fromScale(1, 1)
+			l.Text = text
+			l.TextSize = 13
+			l.FontFace = font
+			l.TextColor3 = color
+			l.ZIndex = z
+			l.Parent = row
+			return l
+		end
+		local shadow = label(Color3.new(0, 0, 0), 1, 1)
+		shadow.TextTransparency = 0.25
+		local front = label(Color3.new(1, 1, 1), 0, 2)
+		-- (user 2026-11-11: "검은색 외곽선도 넣어 잘 안 보임") a black outline as well as the shadow
+		front.TextStrokeColor3 = Color3.new(0, 0, 0)
+		front.TextStrokeTransparency = 0
+		local rows = {}
+		for _, r in ipairs(stack:GetChildren()) do if r:IsA("Frame") then table.insert(rows, r) end end
+		table.sort(rows, function(a, b) return a.LayoutOrder < b.LayoutOrder end)
+		for i = 4, #rows do rows[i]:Destroy() end
+		task.delay(4, function()
+			for k = 1, 10 do
+				if not row.Parent then return end
+				front.TextTransparency = k / 10
+				front.TextStrokeTransparency = k / 10
+				shadow.TextTransparency = 0.25 + 0.75 * k / 10
+				task.wait(0.05)
+			end
+			row:Destroy()
+		end)
+	end
+	local ev = FashionGame:WaitForChild("Remotes"):WaitForChild("TrashNotice", 30) :: RemoteEvent?
+	if ev then
+		ev.OnClientEvent:Connect(function(who: any, itemName: any)
+			if typeof(who) == "string" and typeof(itemName) == "string" then show(who, itemName) end
+		end)
+	end
+end
