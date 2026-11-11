@@ -567,7 +567,7 @@ M.Playlist = {
 	-- (D-1286) song 3:31
 	{ channel = "K-POP", title = "백화요란-RESCENE", soundId = 74619423082896, length = 200.975, fileSpeed = 1.0499,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = -4.5, mid = -1, high = -10.5, engine = "sound" },
-		-- (D-1292, user 2026-11-11: "백화요란 안무 추가") practice video agdcTDnESIw = song 49.33 s to the end (its sound against
+		-- (D-1293, user 2026-11-11: "백화요란 안무 추가") practice video agdcTDnESIw = song 49.33 s to the end (its sound against
 		-- the original mp3: song = video + 49.33 in every 10 s window), so the first 49 s are the default dance; `at` = clip start
 		-- + 49.33. Clip 20 (song 178.96-190.42) left out: its upload 122185615780064 is a copy of 19 (same keyframes, 8.90 s, the clip
 		-- is 11.46 s), so that stretch is the default dance until it is uploaded again ({ at = 178.96 })

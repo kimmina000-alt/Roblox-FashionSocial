@@ -138,7 +138,7 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
-	-- 백화요란-RESCENE (D-1292, choreo_motion_scan): 6 at 1:35.6 and 13 at 2:27.2 jump 65-89° in one keyframe in a full turn
+	-- 백화요란-RESCENE (D-1293, choreo_motion_scan): 6 at 1:35.6 and 13 at 2:27.2 jump 65-89° in one keyframe in a full turn
 	-- (LURCH); 18 starts 77° the other way while 17 turns on (+35°/s, SEAM)
 	[123368765880247] = { spin = { from = 4.8, to = 6.8, ease = "both" } },
 	[131622951291839] = { spin = { from = 6.7, to = 8.7, ease = "both" } },
@@ -1298,7 +1298,7 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
-	-- 백화요란-RESCENE (D-1292, choreo_slide_check)
+	-- 백화요란-RESCENE (D-1293, choreo_slide_check)
 	[129031824166857] = { { 7.8, 8.5 }, { 9.5, 10.2 } }, [74180602033079] = { { 2.7, 3.3 }, { 6.8, 7.4 } }, [100400560200750] = { { 0.0, 0.8 } },
 	[123368765880247] = { { 1.8, 2.4 }, { 8.0, 8.6 }, { 8.9, 10.0 } }, [76096143466808] = { { 6.8, 8.2 }, { 8.8, 9.6 } }, [108852044755937] = { { 3.7, 4.7 }, { 7.3, 8.0 } },
 	[100292773355070] = { { 2.9, 4.2 } }, [72320524127017] = { { 0.6, 1.5 } }, [118315209448422] = { { 1.7, 2.3 } },
@@ -1475,7 +1475,7 @@ M.ChoreoGlideStill = {
 	[79075546317269] = { { 5.6, 6.2 } }, -- v2 11 (1:40.4 glide, D-980)
 } :: {[number]: {{number}}}
 M.ChoreoAutoSteady = {
-	[100400560200750] = { { 0.1, 0.7 } }, -- 백화요란 3 (D-1292, Play scan SHAKE 1:09.5)
+	[100400560200750] = { { 0.1, 0.7 } }, -- 백화요란 3 (D-1293, Play scan SHAKE 1:09.5)
 	[118832898913501] = { { 5.5, 6.4 } }, [122624428391289] = { { 2.3, 3.2 } }, [129415986484255] = { { 6.8, 7.7 } },
 	[134748500609652] = { { 3.2, 4.1 } }, [76049029842393] = { { 3.2, 4.1 } }, [88317170211079] = { { 3.1, 4.0 } },
 } :: {[number]: {{number}}}
@@ -1501,7 +1501,7 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
-	-- (D-1292) 백화요란 (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 15 and 23 checked on frames: front)
+	-- (D-1293) 백화요란 (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 15 and 23 checked on frames: front)
 	[129031824166857] = 7, [74180602033079] = 9, [100400560200750] = -7, [72320524127017] = 9, [131622951291839] = 7,
 	[118315209448422] = -34, [116718508120035] = 13, [126812347548541] = 10, [138514282006084] = 9, [129589571291554] = 19,
 	-- (D-1064) Lemon Tang clips 19 and 23 cut again (tools/choreo/faceoffset: front frames 22 / 68, capture +12°, MAD 4 / 14)
@@ -1616,7 +1616,7 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
-	-- (D-1292) 백화요란: head_video.py → headMisses, keys 0.09 s early; 7 left out (the centre is hidden at 1.7-3.6 s)
+	-- (D-1293) 백화요란: head_video.py → headMisses, keys 0.09 s early; 7 left out (the centre is hidden at 1.7-3.6 s)
 	[105306563598355] = { { part = "Head", keys = { { 3.71, 0, 0, 0 }, { 3.91, 0, 0, 17 }, { 4.11, 0, 0, 21 }, { 4.31, 0, 0, 16 }, { 4.51, 0, 0, 22 }, { 4.71, 0, 0, 11 }, { 4.91, 0, 0, 12 }, { 5.04, 0, 0, 0 } } } }, -- 백화요란 5
 	[123368765880247] = { { part = "Head", keys = { { 0.31, 0, 0, 0 }, { 0.51, 0, 0, 10 }, { 0.71, 0, 0, 17 }, { 0.91, 0, 0, 0 } } } }, -- 백화요란 6
 	[82595297491524] = { { part = "Head", keys = { { 2.71, 0, 0, 0 }, { 2.91, 0, 0, 14 }, { 3.11, 0, 0, 17 }, { 3.31, 0, 0, 27 }, { 3.51, 0, 0, 29 }, { 3.71, 0, 0, 0 } } },
@@ -1774,7 +1774,7 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
-	-- (D-1292, user 2026-11-11: "원본 동영상과 비교하면서 고개와 손목 움직임 세세한 부분까지 적용할 것") 백화요란: hand_moves.py on
+	-- (D-1293, user 2026-11-11: "원본 동영상과 비교하면서 고개와 손목 움직임 세세한 부분까지 적용할 것") 백화요란: hand_moves.py on
 	-- all 22 clips (MediaPipe hands, 0.05 s) → wristMisses; keys 0.09 s early; capture wrist + bend kept ≤ 72° (6 left hand
 	-- dropped: the capture already bends 69-76°; 14 left hand at 2.8 s cut to 20); left out where the centre is hidden (6 at 9 s,
 	-- 7 at 3 s) or where the bend adds nothing (13 left hand, 23); Play check (hand vs forearm on screen, D-1263): 2 left hand,
