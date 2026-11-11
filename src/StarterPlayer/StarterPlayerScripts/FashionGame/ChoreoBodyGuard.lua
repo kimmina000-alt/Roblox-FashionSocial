@@ -55,7 +55,8 @@ local function closestOnSegments(p1: Vector3, q1: Vector3, p2: Vector3, q2: Vect
 	return p1 + d1 * s, p2 + d2 * t, s, t
 end
 
-function BodyGuard.apply(character: Model, joints: {[string]: Joint})
+-- (D-1296) `off`: { Left = true, Right = true } lets that arm go (ChoreoFixes `guardOff`): its push eases back to none
+function BodyGuard.apply(character: Model, joints: {[string]: Joint}, off: {[string]: boolean}?)
 	local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local ut, lt = character:FindFirstChild("UpperTorso") :: BasePart?, character:FindFirstChild("LowerTorso") :: BasePart?
 	local jRoot, jWaist = joints.LowerTorso, joints.UpperTorso
@@ -158,6 +159,7 @@ function BodyGuard.apply(character: Model, joints: {[string]: Joint})
 			end
 		end
 		if target.Magnitude > 0.8 then target = target.Unit * 0.8 end
+		if off and off[side] then target = Vector3.zero end
 		if #arm.pushes > 0 then BodyGuard.stats.pushed += 1 end
 		local cur = s[side] or Vector3.zero
 		-- in faster than out, and at most 4° a frame either way (no pop; the pushes add up, so the way they
