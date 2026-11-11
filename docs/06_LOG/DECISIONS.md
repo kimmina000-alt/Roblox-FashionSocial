@@ -4197,3 +4197,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ServerStorage.ArtAssets.Foods.HoneyBreadBites = 새 모델(Workspace.HoneyBread, Bite1..9, 접시 없음); 옛 것은 _Imports_cafe_1110.HoneyBreadBites_old_1111로.
 - 새 허니브레드는 접시가 없어서 테이블에 놓을 때 빵처럼 흰 접시 위에(SnackService, D-1299 규칙에 honeybread 추가).
 - Play: 진열대 두 곳(bakery_main_D-1314.jpg, bakery_wall_D-1314.jpg), 손에 든 모습, 테이블 위 접시(2.25 지름), 오류 0.
+- (같은 날, 사용자 사진: "빵 재질 거칠기 올려서 광택 사라지게 해") place만: 빵 MeshPart(SmoothPlastic, 반짝임) → 텍스처 있는 소금빵 · 베이글 · 크루아상 = Fabric, 텍스처 없는 허니브레드(빵 · 크림) = Plastic(Fabric은 천 무늬가 보여서). ArtAssets.Foods의 *Bites(손에 드는 / 테이블에 놓는 빵)와 진열대 · 샘플 모두. bread_matte_D-1314.jpg.
