@@ -2001,6 +2001,32 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- D-1036); the store tray set (GukbapTray, user pick 2026-10-27) is gone from
 	-- ArtAssets. The old way stays for a store bowl with the tray still there.
 	local placedItem = itemByKey(tool:GetAttribute("Snack"))
+	-- (D-1298, user 2026-11-11: "빵 사서 테이블에 놓으면 접시 위에 놓는 걸로
+	-- 구현") a bread goes down on a little white plate (the 허니카라멜브레드 has
+	-- its own plate in its model, kind "cake")
+	if placedItem and placedItem.kind == "bread" then
+		local _, fsize = model:GetBoundingBox()
+		local plateR = math.max(fsize.X, fsize.Z) / 2 + 0.3
+		local H = 0.12
+		local dish = Instance.new("Part")
+		dish.Name = "Plate"
+		dish.Shape = Enum.PartType.Cylinder
+		dish.Size = Vector3.new(H, plateR * 2, plateR * 2)
+		dish.CFrame = CFrame.new(hit.Position + Vector3.new(0, 0.02 + H / 2, 0)) * CFrame.Angles(0, 0, math.rad(90))
+		dish.Color = Color3.fromRGB(250, 248, 244)
+		dish.Material = Enum.Material.SmoothPlastic
+		dish.Anchored, dish.CanCollide, dish.CanTouch, dish.CastShadow = true, false, false, false
+		dish.Parent = model
+		-- a slightly smaller well, so the rim shows
+		local well = dish:Clone()
+		well.Name = "PlateWell"
+		well.Size = Vector3.new(0.02, plateR * 1.5, plateR * 1.5)
+		well.CFrame = dish.CFrame + Vector3.new(0, H / 2 + 0.005, 0)
+		well.Color = Color3.fromRGB(240, 236, 230)
+		well.Parent = model
+		for _, p in ipairs(parts) do p.CFrame += Vector3.new(0, H, 0) end -- (the bread on the plate)
+		radius = math.max(radius, plateR)
+	end
 	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
 	local ownBowl = tool:GetAttribute("EatMode") == "Bites"
 	local tray = not ownBowl and placedItem and placedItem.kind == "bowl" and art and art:FindFirstChild("Foods") and art.Foods:FindFirstChild("GukbapTray")
