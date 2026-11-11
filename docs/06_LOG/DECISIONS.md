@@ -4193,3 +4193,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 영상 = 노래 + 11.25초: 원곡 mp3(re8HXvsK3xM) 소리를 무대 소리에 맞춤(mp3_loudness.py + align_wide.py), 10초 창마다 +11.20..+11.25, 기울기 0.
 - 컷 93개(cuts.py) → shots.py(YOLO 자세) → shots_to_lua.py 1 11.25 211.0, 110샷. 10.25초 크레인 샷은 와이드에서 얼굴 클로즈업까지 6배 줌이라 `to = close`를 손으로 넣음.
 - ClubCamera.Songs[74619423082896] (노래 끝 211.0초 = length 200.975 × fileSpeed 1.0499).
+
+## D-1302 무대 카메라: SHOCK-TREASURE (2026-11-11)
+- 사용자가 무대 영상을 보냄(MBC 쇼! 음악중심 2026-11-07, youtube BtqYIHuCriM). 안무 D-1298(feat/shock-choreo-1111, fileSpeed 1.0499)과 같은 노래 시간.
+- 영상 = 노래 + 9.50초: 원곡 mp3(rp7Q7_m_B-8) 소리를 무대 소리에 맞춤, 10초 창 대부분 +9.50(40·50초 창은 한 박 옆 +11.4가 1등이라 버림).
+- 컷 54개 → shots_to_lua.py 1 9.5 168.86, 77샷. 노래 끝 168.86초 = length 160.832 × fileSpeed 1.0499.
+- ClubCamera.Songs[94024099429072].

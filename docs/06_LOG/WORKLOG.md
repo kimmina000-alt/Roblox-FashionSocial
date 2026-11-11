@@ -3857,3 +3857,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 + 11.25초(모든 10초 창 +11.20..+11.25).
 - 컷 93개 → 110샷(shots_to_lua.py), 10.25초 크레인 샷만 와이드 → 클로즈업 줌을 손으로 넣음.
 - 브랜치 feat/stage-camera-baekhwa-1111. 다음: Studio 반영, 모바일 2인 테스트.
+
+## 2026-11-11 SHOCK 무대 카메라 (D-1302)
+- 사용자가 음악중심 무대(youtube BtqYIHuCriM)를 보내 D:\Roblox\영상\Shock_stage\stage.mp4로 받음.
+- 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 + 9.5초, fileSpeed 1.0499 기준(D-1298) 노래 끝 168.86초.
+- 컷 54개 → 77샷(shots_to_lua.py). 브랜치 feat/stage-camera-baekhwa-1111(백화요란과 함께). 다음: Studio 반영, 모바일 2인 테스트.

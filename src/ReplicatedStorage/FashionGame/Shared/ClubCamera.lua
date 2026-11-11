@@ -1094,4 +1094,30 @@ ClubCamera.Songs[74619423082896] = {
 		{ 207.25, "bust" }, { 209.4, "wide", 0, 5 },
 	}),
 }
+-- (D-1302) SHOCK-TREASURE: MBC Show! Music Core 2026-11-07 (youtube BtqYIHuCriM),
+-- video = song + 9.50 s (original mp3 lined up with the stage sound; fileSpeed 1.0499 of
+-- the choreography D-1298). Shot list made by shots_to_lua.py (D-944), to 168.86 s.
+ClubCamera.Songs[94024099429072] = {
+	video = "MBC Show! Music Core 2026-11-07, youtube BtqYIHuCriM",
+	offset = 9.5,
+	shots = cutList({
+		{ 12, "wide", 0, 5 }, { 13.93, "bust" }, { 15.49, "full" }, { 18.23, "bust" }, { 19.97, "wide", 0, 5 },
+		{ 21.83, "bust" }, { 24.13, "wide", 0, 5 }, { 26.05, "bust" }, { 30.53, "wide", 0, 5 }, { 31.41, "full" },
+		{ 32.2, "waist" }, { 33.67, "bust" }, { 34.83, "wide", 0, 5 }, { 36.53, "bust" }, { 39.97, "full" },
+		{ 41.61, "bust" }, { 43.03, "wide", 0, 5 }, { 44.52, "bust" }, { 46.14, "xwide", 0, 8 }, { 47.93, "bust" },
+		{ 50.23, "bust", 10, 0, { size = "close" } }, { 57.87, "waist" }, { 59.23, "wide", 0, 5 }, { 61.01, "bust" },
+		{ 62.4, "waist" }, { 65.56, "bust" }, { 71.47, "wide", 0, 5 }, { 75.07, "bust" }, { 77.41, "wide", 0, 5 },
+		{ 79.11, "bust" }, { 80.63, "wide", 0, 5 }, { 82.46, "waist" }, { 84.17, "wide", 0, 5 }, { 87.07, "bust" },
+		{ 89.24, "wide", 0, 5 }, { 90.86, "bust" }, { 92.77, "wide", 0, 5 }, { 94.47, "bust" },
+		{ 95.55, "wide", 0, 5 }, { 99.17, "bust" }, { 100.64, "full" }, { 102.57, "waist" }, { 105.3, "wide", 0, 5 },
+		{ 108.43, "xwide", 0, 8 }, { 110.27, "waist" }, { 112.4, "full" }, { 113.79, "bust" },
+		{ 120.9, "bust", -5, 0, { size = "waist" } }, { 123.03, "bust" }, { 124.7, "waist" },
+		{ 127.6, "wide", 0, 5 }, { 129.13, "waist" }, { 129.96, "bust" }, { 130.8, "wide", 0, 5 },
+		{ 132.82, "bust" }, { 134.36, "xwide", 0, 8 }, { 136.83, "bust" }, { 139.98, "waist" }, { 142.27, "knee" },
+		{ 142.67, "full" }, { 144.32, "wide", 0, 5 }, { 148.9, "bust" }, { 150.6, "wide", 0, 5 },
+		{ 151.55, "waist" }, { 154, "waist", 0, 0, { size = "knee" } }, { 154.97, "waist" }, { 155.9, "bust" },
+		{ 157.79, "knee" }, { 159.02, "bust" }, { 162.67, "wide", 0, 5, { size = "full" } }, { 163.43, "full" },
+		{ 164.24, "bust" }, { 167.2, "waist", 0, 0, { size = "knee" } },
+	}),
+}
 return ClubCamera
