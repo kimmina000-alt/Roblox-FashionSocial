@@ -8,6 +8,8 @@
 --   "Take",  can, item  → out of that can into the player's hand
 -- The can part's attribute TrashRev changes whenever its items change (an
 -- open window refreshes on it).
+-- (D-1311, user 2026-11-11: "아이템 클릭해서 자기 인벤토리로 옮기면 서버 전체에 ㅇㅇㅇ님이 쓰레기통에서 ㅇㅇㅇㅇ를
+-- 주웠습니다 띄워") RemoteEvent TrashNotice (player's display name, the item's name) goes to everyone on a "Take".
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -24,6 +26,7 @@ store.Name = "Trash"
 store.Parent = FashionGame
 
 local cans: {[BasePart]: Folder} = {}
+local notice: RemoteEvent? = nil
 local lastCall: {[Player]: number} = {}
 
 -- the part of a can (a model's PrimaryPart or its biggest part)
@@ -121,6 +124,8 @@ local function take(player: Player, canValue: any, item: any): (boolean, string?
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if humanoid then humanoid:EquipTool(item) end
 	bump(part)
+	-- (D-1311) the whole server sees who took what
+	if notice then notice:FireAllClients(player.DisplayName, item.Name) end
 	return true, nil
 end
 
@@ -136,6 +141,14 @@ function TrashService.Start()
 		r.Parent = Remotes
 		remote = r
 	end
+	local ev = Remotes:FindFirstChild("TrashNotice") :: RemoteEvent?
+	if not ev then
+		local e = Instance.new("RemoteEvent")
+		e.Name = "TrashNotice"
+		e.Parent = Remotes
+		ev = e
+	end
+	notice = ev;
 	(remote :: RemoteFunction).OnServerInvoke = function(player: Player, action: any, can: any, thing: any)
 		local now = os.clock()
 		if lastCall[player] and now - lastCall[player] < 0.25 then return false, nil end
