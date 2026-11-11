@@ -3878,3 +3878,13 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 사용자: "백화요란 20 / shock 9" 다시 올린 id + "with 안무 추가" 25개. 브랜치: 백화요란 20 → feat/baekhwa-choreo-1111, SHOCK 9 → feat/shock-choreo-1111, With → feat/with-choreo-1111(SHOCK 위).
 - With: 노래 = 영상 − 0.05초, 이음새 24 · 미끄러짐 20 · 회전 5 · 정면 10 · 고개 12 · 손목 8.
 - 새 규칙 guard_scan(D-1303)으로 세 곡 검사: 팔 보정 튐 3 · 머리 떨림 1 · 이음새 멈칫 1 고침, 다시 재서 사라짐. 몸 바꾸기 통과.
+## 2026-11-11 백화요란 무대 카메라 (D-1295)
+- 사용자가 음악중심 무대(youtube C7vNpNTv7fQ)를 보내 D:\Roblox\영상\Baekhwa_stage\stage.mp4로 받음.
+- 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 + 11.25초(모든 10초 창 +11.20..+11.25).
+- 컷 93개 → 110샷(shots_to_lua.py), 10.25초 크레인 샷만 와이드 → 클로즈업 줌을 손으로 넣음.
+- 브랜치 feat/stage-camera-baekhwa-1111. 다음: Studio 반영, 모바일 2인 테스트.
+
+## 2026-11-11 SHOCK 무대 카메라 (D-1302)
+- 사용자가 음악중심 무대(youtube BtqYIHuCriM)를 보내 D:\Roblox\영상\Shock_stage\stage.mp4로 받음.
+- 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 + 9.5초, fileSpeed 1.0499 기준(D-1298) 노래 끝 168.86초.
+- 컷 54개 → 77샷(shots_to_lua.py). 브랜치 feat/stage-camera-baekhwa-1111(백화요란과 함께). 다음: Studio 반영, 모바일 2인 테스트.
