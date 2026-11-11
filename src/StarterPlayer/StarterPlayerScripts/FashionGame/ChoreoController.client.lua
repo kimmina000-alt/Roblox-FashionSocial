@@ -686,7 +686,7 @@ RunService.Heartbeat:Connect(function()
 	end
 end)
 
--- (D-1293, user 2026-11-11 phone video: "사양 낮은 휴대폰으로 하니까 다른 사람 춤 이상하게
+-- (D-1294, user 2026-11-11 phone video: "사양 낮은 휴대폰으로 하니까 다른 사람 춤 이상하게
 -- 보임 … 처음에는 멀쩡하게 보이다가 다른 사람들 춤 점점 버벅거리더니 이상하게 … 빙빙 돌아")
 -- every fix below changes the joints on top of what the Animator wrote this
 -- frame (faceOffset turns the hips by its angle, frontLock, the floor lift…).
@@ -735,7 +735,7 @@ RunService.PreSimulation:Connect(function(dt)
 				if t.Animation and choreoAnimations[t.Animation.AnimationId] then table.insert(choreo, t) end
 			end
 			if #choreo > 0 then
-				startFromAnimator(character) -- (D-1293)
+				startFromAnimator(character) -- (D-1294)
 				-- (D-985, user: Catch Catch "전체적으로 좌우 반전") a `mirror` song: the
 				-- animator's pose seen in a mirror (each joint takes the other side's
 				-- turn, mirrored); ChoreoSmooth reads its keyframes mirrored too
