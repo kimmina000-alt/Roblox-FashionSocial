@@ -41,7 +41,9 @@ FoodShapes.Level = { iceamericano = true, hotamericano = true,
 FoodShapes.TableEat = { parfait = "spoon", honeybread = "fork",
 	-- (D-1154, user 2026-11-10: "테이블에서 누른 조각 먹게도 해") the breads: the piece
 	-- tapped is picked up by hand, as it is, and eaten
-	saltbread = "hand", bagel = "hand", croissant = "hand" }
+	-- (D-1315, user 2026-11-11: "위에 포크 놓고 집어서 빵 먹을 수 있게") with the fork
+	-- from the tray now, like the honey bread
+	saltbread = "fork", bagel = "fork", croissant = "fork" }
 
 local UP = CFrame.Angles(0, 0, math.rad(90)) -- a Part cylinder runs along X: this stands it up
 
