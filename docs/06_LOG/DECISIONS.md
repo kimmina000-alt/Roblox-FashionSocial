@@ -4199,3 +4199,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - BeachBallController(폰): 화면 어디를 눌러도 힘을 모으지 않음(D-1275의 오른쪽 절반도 뺌), 가운데 "+"가 버튼(64 px 둥근 판). 한 번 누르면 게이지가 1.2초 올라가고 1.2초 내려가기를 반복(BeachBallConfig.GAUGE_PERIOD 2.4, gauge()), 다시 누르면 그때 게이지만큼 던짐. PC는 그대로(누르고 있다 떼기).
 - BeachBallService: "Charge"가 "Gauge"로 오면 서버도 같은 왕복 게이지로 힘을 셈(화면 값과 맞춰 보는 D-1089 범위 그대로).
 - Play(PC에서 + 버튼을 보이게 해서): 게이지 0.02 → 0.93 → 0.02 → 0.94 왕복, 37 %에서 누름 → 서버 BallPower 0.36으로 던져짐, 오류 0.
+## D-1291 DJ는 자기 DJ 시간에 낮에도 클럽에 들어감, cortis_ian DJ 권한 뺌 (2026-11-11)
+- 사용자: "DJ 자기 시간대에는 낮에도 들어갈 수 있게 해 줘 / cortis_ian은 dj 빼".
+- ClubAccessService nightSweep: 낮에 들어온 사람을 내보내지 않는 조건에 DjService.IsDJ(player)(지금 DJ 시간인 사람) 추가(가드 패스와 같은 자리). AutoDoorController: 밤에만 열리는 클럽 문이 지금 DJ(FashionGame 속성 ClubDJ, ClubDJUntil 전)에게도 열림. DJ 시간이 끝나도 안에 있으면 그대로(원래 규칙: 안에 있는 사람은 낮이 와도 머무름).
+- ClubConfig.DJGranted에서 cortis_ian(11584919561) 뺌 (D-1288 취소). 남은 권한: 게임 주인, ahchimsae.
+- Play(ClockOverride 12, 가드 패스 끔, Studio DJ = 나): 문 앞 x 38 → 걸어서 x 65, ClubInside true, 밖으로 안 내보냄, 오류 0.

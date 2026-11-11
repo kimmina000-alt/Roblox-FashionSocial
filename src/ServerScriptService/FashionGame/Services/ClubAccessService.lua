@@ -72,7 +72,9 @@ local function nightSweep()
 				end
 			elseif not player:GetAttribute("ClubInside") then
 				-- guards come in at any hour (user 2026-10-31, Guard pass)
-				if clubOpen() or player:GetAttribute("Pass_Guard") == true then
+				-- (D-1291, user 2026-11-11: "DJ 자기 시간대에는 낮에도 들어갈 수 있게 해 줘")
+				-- and the DJ during their own DJ time
+				if clubOpen() or player:GetAttribute("Pass_Guard") == true or DjService.IsDJ(player) then
 					player:SetAttribute("ClubInside", true)
 				else
 					-- came in by day: back out to the sidewalk

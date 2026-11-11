@@ -114,6 +114,13 @@ while true do
 				-- (a guard opens the club door at any hour, user 2026-10-31; others
 				-- slipping in behind are put back out by ClubAccessService)
 				if player:GetAttribute("Pass_Guard") == true then guards[#roots] = true end
+				-- (D-1291) the DJ during their own DJ time too (DjService publishes them)
+				local fg = ReplicatedStorage:FindFirstChild("FashionGame")
+				local until_ = fg and fg:GetAttribute("ClubDJUntil")
+				if fg and player.UserId ~= 0 and fg:GetAttribute("ClubDJ") == player.UserId
+					and typeof(until_) == "number" and workspace:GetServerTimeNow() < until_ then
+					guards[#roots] = true
+				end
 			end
 	end
 	for model, door in pairs(doors) do

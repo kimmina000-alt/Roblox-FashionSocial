@@ -86,7 +86,6 @@ end
 -- whenever the booth is free (DjService). Add a UserId to give it, remove to take it back.
 ClubConfig.DJGranted = {
 	[11350809588] = true, -- ahchimsae (test account, D-1166)
-	[11584919561] = true, -- cortis_ian (D-1288, user 2026-11-11: "cortis_ian 한테도 dj 줘")
 } :: {[number]: boolean}
 function ClubConfig.canSeek(player: Player, isDJ: boolean): boolean
 	if isDJ or game:GetService("RunService"):IsStudio() then return true end
