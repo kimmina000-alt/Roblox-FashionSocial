@@ -44,7 +44,7 @@ local function bump(part: BasePart)
 	part:SetAttribute("TrashRev", ((part:GetAttribute("TrashRev") :: number?) or 0) + 1)
 end
 
--- (D-1306) the junk (TrashConfig.Junk): small tools made of plain parts
+-- (D-1310) the junk (TrashConfig.Junk): small tools made of plain parts
 local function junkTool(key: string, name: string): Tool
 	local tool = Instance.new("Tool")
 	tool.Name = name
@@ -140,7 +140,7 @@ local function addCan(inst: Instance)
 	prompt.RequiresLineOfSight = false
 	prompt.KeyboardKeyCode = Enum.KeyCode.E
 	prompt.Parent = part
-	-- (D-1306) a few bits of junk to begin with
+	-- (D-1310) a few bits of junk to begin with
 	for _ = 1, math.random(TrashConfig.JunkStart[1], TrashConfig.JunkStart[2]) do addJunk(folder) end
 	bump(part)
 end
@@ -222,7 +222,7 @@ function TrashService.Start()
 		return false, nil
 	end
 	Players.PlayerRemoving:Connect(function(p) lastCall[p] = nil end)
-	-- (D-1306) now and then one more bit of junk in a can that has few
+	-- (D-1310) now and then one more bit of junk in a can that has few
 	task.spawn(function()
 		while true do
 			task.wait(TrashConfig.JunkEvery)

@@ -14,7 +14,7 @@ TrashConfig.KeepSeconds = 3600 -- 1시간, then the item is gone
 TrashConfig.Distance = 12 -- studs from the can to throw in / take out
 TrashConfig.MaxItems = 40 -- per can (the oldest goes first when it is full)
 
--- (D-1306, user 2026-11-11: "쓰레기통에 랜덤으로 구겨진 영수증이랑 빈플라스틱컵, 담배꽁초
+-- (D-1310, user 2026-11-11: "쓰레기통에 랜덤으로 구겨진 영수증이랑 빈플라스틱컵, 담배꽁초
 -- 같은 아이템 넣어 줘") every can starts with a few bits of junk, chosen at
 -- random, and gets one more now and then (up to JunkMax). No cigarette butts
 -- (no tobacco in the game, content rule): a tissue and a snack bag instead.
@@ -33,7 +33,7 @@ TrashConfig.JunkEvery = 600 -- seconds: now and then one more, while under JunkM
 -- (a 야광봉 of the Glowstick pass, the guard's handcuffs, a photo of the album...)
 function TrashConfig.canThrow(tool: Instance): boolean
 	if not tool:IsA("Tool") then return false end
-	if tool:GetAttribute("Junk") then return true end -- (D-1306)
+	if tool:GetAttribute("Junk") then return true end -- (D-1310)
 	if tool:GetAttribute("CafeOrder") or tool:GetAttribute("Busy") or tool:GetAttribute("PhotoId") then return false end
 	if tool:GetAttribute("HandSparkler") then return false end
 	return tool:GetAttribute("Snack") ~= nil or tool:GetAttribute("Plate") ~= nil
