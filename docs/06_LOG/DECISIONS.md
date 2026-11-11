@@ -4351,3 +4351,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
   - 나무: 둥근 공 → 기울어진 붉은 소나무 줄기 + 납작한 솔잎 덩어리 두 개(SpecialMesh 구).
   - 새로: 자선당 마당의 바위 · 소나무 · 꽃 정원(07c_Garden), 소주방 옆 장독대(14b_Jangdokdae, 옹기 15개).
   - 부품 1,495개(구역 한도 1,500 안: 석등은 폭 28 이상 큰 건물 앞에만), 옹기는 Plastic(덜 반짝). Play 사진: hanok_hall / hanok_jangdokdae / hanok_overview_D-1318.jpg.
+## D-1319 빵 진열대 아래 조명 (2026-11-12)
+- 사용자(진열대 사진): "빵 진열대 밑에 조명 넣어 줘".
+- tools/graybox/bakery_underlight.lua (place만, Workspace.BakeryDisplay.UnderLights, 혼자 돌려도 됨): 해변 카페 BakeryTable 두 개의 바닥 쪽 네 면에 따뜻한 LED 줄(Neon 255,190,120)과 Attachment PointLight 36개(밝기 0.6, 범위 3, 그림자 없음). SurfaceLight는 바닥까지 안 닿았고 더 밝게 하면 방 전체가 노래져서 이 값으로.
+- 사진: bakery_underlight_D-1319.jpg (밤 20시).
+- 한옥 마을 정면 항공샷(D-1318): 높이 400, 화각 20(바로 위에서, 광화문이 아래), 12장을 tools/art/aerial_stitch.py로 이어 붙임 → hanok_aerial_D-1318.jpg. 높이 500 넘으면 Studio가 부품을 안 그려서 한 장으로 못 찍음.
