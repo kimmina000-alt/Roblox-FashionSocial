@@ -24,7 +24,7 @@ local playerGui = player:WaitForChild("PlayerGui")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Shared = FashionGame:WaitForChild("Shared")
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
-local PhotoWallFit = require(Shared:WaitForChild("PhotoWallFit")) -- (D-1321)
+local PhotoWallFit = require(Shared:WaitForChild("PhotoWallFit")) -- (D-1322)
 local Remotes = FashionGame:WaitForChild("Remotes")
 local boothRemote = Remotes:WaitForChild("PhotoBooth") :: RemoteFunction
 local boothEvent = Remotes:WaitForChild("PhotoBoothEvent") :: RemoteEvent
@@ -323,7 +323,7 @@ local function drawEntry(entry: Entry, order: number)
 	local wall = findWall(entry.wall)
 	if not wall then return end
 	local size = photoSize(entry.photo.layout)
-	-- (D-1321) a photo stuck before over a niche or a gap hung in the air: not drawn
+	-- (D-1322) a photo stuck before over a niche or a gap hung in the air: not drawn
 	-- (tried again by the retry loop below, in case the wall behind was not streamed in)
 	if not PhotoWallFit.backed(wall, entry.u, entry.v, size.X / 2, size.Y / 2) then return end
 	local holder = surfaceFor(wall)
@@ -380,7 +380,7 @@ boothEvent.OnClientEvent:Connect(function(kind: any, value: any)
 		table.insert(entries, value)
 		redrawAll()
 	elseif kind == "WallReset" and typeof(value) == "table" then
-		-- (D-1321) the server moved photos off niches: the whole wall again
+		-- (D-1322) the server moved photos off niches: the whole wall again
 		for id, frame in pairs(drawn) do
 			frame:Destroy()
 			drawn[id] = nil
@@ -396,7 +396,7 @@ end)
 CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(function()
 	task.defer(redrawAll)
 end)
--- (D-1321) photos not drawn yet (their wall, or the wall behind it, not streamed in)
+-- (D-1322) photos not drawn yet (their wall, or the wall behind it, not streamed in)
 task.spawn(function()
 	while true do
 		task.wait(8)
@@ -548,7 +548,7 @@ local function pointerUV(screen: Vector2, touch: boolean?): (number?, number?)
 	return math.clamp(u, mu, 1 - mu), math.clamp(v, mv, 1 - mv)
 end
 
--- (D-1321) no real wall behind that spot (a niche, a gap): the photo would hang in the air
+-- (D-1322) no real wall behind that spot (a niche, a gap): the photo would hang in the air
 local function spotBacked(state: any, u: number, v: number): boolean
 	local size = photoSize(state.photo.layout)
 	return PhotoWallFit.backed(state.wall, u, v, size.X / 2, size.Y / 2)

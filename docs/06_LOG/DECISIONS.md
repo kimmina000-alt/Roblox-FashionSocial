@@ -4359,8 +4359,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1320 빵 진열대 나무 트레이 밑 조명 (2026-11-12)
 - 사용자: "진열대 나무 트레이 밑에 조명 넣어".
 - tools/graybox/bakery_underlight.lua 뒷부분 (place만, Workspace.BakeryDisplay.TrayLights): 두 진열대의 나무 트레이 21개(사용자 트레이 MeshPart "Cube") 밑마다 사방 0.15 넓은 따뜻한 Neon 판 + PointLight 1개(밝기 0.5, 범위 3.5) → 트레이 발치에 빛 테두리. 사진 bakery_traylight_D-1320.jpg.
-## D-1321 포토월: 벽이 없는 자리(아치 홈 · 틈)에 사진이 떠 있던 것 (2026-11-12)
-- 사용자(라이브 폰 사진 photowall_floating_before_D-1321.jpg): "사진이 벽에 안 붙고 공중에 붙어".
+## D-1322 포토월: 벽이 없는 자리(아치 홈 · 틈)에 사진이 떠 있던 것 (2026-11-12)
+- 사용자(라이브 폰 사진 photowall_floating_before_D-1322.jpg): "사진이 벽에 안 붙고 공중에 붙어".
 - 원인: 오후네컷 홀 북쪽 벽(OHU_HALL_N)의 사진 판은 벽 전체를 덮는 평면인데, 그 벽에는 모자 · 인형 · 거울이 들어간 아치 홈과 사진 홈(깊이 3.1)이 있음. 홈 위에 붙인 사진은 공중에 떠 보임. 홀 남쪽 벽(OHU_HALL_S)도 아치 홈 몇 군데.
 - 새 Shared/PhotoWallFit: backed(wall, u, v, 반폭, 반높이) = 사진 가운데 + 네 모서리 근처에서 판 면 0.6 안쪽에 실제 면이 있는지(레이), photoSize(layout).
 - PhotoBoothService: 그런 자리는 붙이기 거절("벽이 없는 자리예요. 벽 위에 붙여 주세요.", 사진은 앨범에 남음). 서버 시작 때 이미 붙은 사진이 그런 자리면 같은 벽 · 같은 높이에서 가장 가까운 벽 자리로 옮기고(settleFloating) 클라이언트에 WallReset; 라이브 서버에서만 저장(Studio 테스트는 라이브 저장소를 안 바꿈).

@@ -45,7 +45,7 @@ local HttpService = game:GetService("HttpService")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Shared = FashionGame:WaitForChild("Shared")
 local PhotoConfig = require(Shared:WaitForChild("PhotoConfig"))
-local PhotoWallFit = require(Shared:WaitForChild("PhotoWallFit")) -- (D-1321)
+local PhotoWallFit = require(Shared:WaitForChild("PhotoWallFit")) -- (D-1322)
 local PhotoProps = require(Shared:WaitForChild("PhotoProps"))
 local OutfitSnapshot = require(Shared:WaitForChild("OutfitSnapshot"))
 local BoothPose = require(Shared:WaitForChild("BoothPose"))
@@ -1065,7 +1065,7 @@ local function wallKey(wall: BasePart): string
 	return tostring(wall:GetAttribute("WallKey") or wall:GetFullName())
 end
 
--- (D-1321) photos stuck before over a niche or a gap (they hung in the air): moved along
+-- (D-1322) photos stuck before over a niche or a gap (they hung in the air): moved along
 -- their wall, same height, to the nearest spot with the real wall behind; saved again
 local function settleFloating(): number
 	local walls: {[string]: BasePart} = {}
@@ -1119,7 +1119,7 @@ local function wallPost(player: Player, payload: any): (boolean, string?)
 	if typeof(u) ~= "number" or typeof(v) ~= "number" or u ~= u or v ~= v then return false, "붙일 자리를 골라 주세요." end
 	local photo = playerData.FindPhoto(player, payload.id)
 	if not photo then return false, "사진을 찾을 수 없어요." end
-	-- (D-1321) only where the real wall is right behind the panel (not over a niche or
+	-- (D-1322) only where the real wall is right behind the panel (not over a niche or
 	-- a gap: the photo hung in the air there)
 	local size = PhotoWallFit.photoSize(photo.layout)
 	if not PhotoWallFit.backed(wall, math.clamp(u, 0, 1), math.clamp(v, 0, 1), size.X / 2, size.Y / 2) then
@@ -1362,7 +1362,7 @@ function PhotoBoothService.Start(dataService: any)
 	CollectionService:GetInstanceAddedSignal("PhotoWall"):Connect(setupWall)
 	task.spawn(function()
 		loadWall()
-		-- (D-1321) photos over a niche move onto the wall next to it (the map is all
+		-- (D-1322) photos over a niche move onto the wall next to it (the map is all
 		-- there on the server; a little wait for the layout scripts to settle)
 		task.wait(2)
 		local moved = settleFloating()

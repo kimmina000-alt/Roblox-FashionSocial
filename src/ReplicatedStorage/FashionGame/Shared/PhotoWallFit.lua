@@ -1,5 +1,5 @@
 --!strict
--- (D-1321, user 2026-11-12: "사진이 벽에 안 붙고 공중에 붙어") a photo wall panel (tag
+-- (D-1322, user 2026-11-12: "사진이 벽에 안 붙고 공중에 붙어") a photo wall panel (tag
 -- PhotoWall) is one flat plane across a whole wall, but some walls have recesses behind it
 -- (오후네컷 hall: arched niches 3 studs deep, the photo niche, gaps between panels). A photo
 -- stuck there hung in the air. `backed` tells whether a real surface is right behind the
