@@ -447,7 +447,19 @@ M.Playlist = {
 	{ channel = "K-POP", title = "NO LIMIT-ALLDAY PROJECT", soundId = 79664669248816, length = 137.95, fileSpeed = 1.0511,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
 	{ channel = "K-POP", title = "With-RESCENE", soundId = 112509101263761, length = 179.843, fileSpeed = 1.0509,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" },
+		-- (D-1306, user 2026-11-11: "with 안무 추가" + 25 ids) practice video 8bYlHgMGrGU: song = video - 0.05 s (its sound against the original
+		-- mp3 in 3 s windows), `at` = clip start - 0.05; all 25 uploads Vantablack_Dev, lengths = clips (±0.06 s), no copies
+		choreo = {
+			{ id = 81069311107336, at = 1.20 }, { id = 98274724905693, at = 5.20, blend = 0.85 }, { id = 77578453879056, at = 8.14, blend = 1 },
+			{ id = 102977375863633, at = 10.32, blend = 1 }, { id = 113905277691263, at = 19.19, blend = 1 }, { id = 131580629784808, at = 23.85, blend = 0.69 },
+			{ id = 82123725906788, at = 35.93, blend = 1 }, { id = 134804041385196, at = 42.52, blend = 0.89 }, { id = 87649722430222, at = 46.68, blend = 1 },
+			{ id = 139525834845370, at = 59.04, blend = 0.45 }, { id = 135964930726670, at = 71.44 }, { id = 103924587030311, at = 78.99, blend = 0.51 },
+			{ id = 119026591853452, at = 82.78, blend = 0.55 }, { id = 107316277730722, at = 90.09, blend = 0.86 }, { id = 75224598365049, at = 92.93, blend = 0.48 },
+			{ id = 78971722650566, at = 103.27, blend = 0.96 }, { id = 102753426349246, at = 116.65, blend = 0.42 }, { id = 123058513001948, at = 130.35, blend = 0.69 },
+			{ id = 98289786237934, at = 140.80, blend = 0.63 }, { id = 97670698889704, at = 150.82, blend = 0.77 }, { id = 103780560163454, at = 156.95, blend = 1 },
+			{ id = 119066931308311, at = 164.02, blend = 1 }, { id = 128822554881165, at = 171.31, blend = 0.66 }, { id = 75577288501140, at = 176.23, blend = 0.92 },
+			{ id = 132556616885642, at = 183.07, blend = 1 } }, autoChoreo = true },
 	-- (D-1100, user 2026-11-09: low / mid / high from the user's new list)
 	{ channel = "K-POP", title = "FIRESTARTER-K-DA", soundId = 94925181116487, length = 190.271, fileSpeed = 1.0511,
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -5.5, mid = -6, high = -31.5, engine = "sound" } },
@@ -573,7 +585,7 @@ M.Playlist = {
 		choreo = {
 			{ id = 133830025852955, at = 0, from = 2.10 }, { id = 117322908574417, at = 11.18, blend = 0.26 }, { id = 81779912905543, at = 18.39, blend = 0.76 },
 			{ id = 75987043149726, at = 30.50, blend = 0.82 }, { id = 126059214767439, at = 36.24, blend = 0.65 }, { id = 131829068826954, at = 43.68, blend = 0.43 },
-			{ id = 121802134861592, at = 50.72, blend = 0.74 }, { id = 130135206628110, at = 62.13, blend = 0.68 }, { id = 87672486893566, at = 65.10, blend = 0.50 }, { id = 130317916502145, at = 75.38 },
+			{ id = 121802134861592, at = 50.72, blend = 0.74 }, { id = 130135206628110, at = 62.13, blend = 0.68 }, { id = 87672486893566, at = 65.10, blend = 0.50, slowIn = { 0.4, 0.4 } }, { id = 130317916502145, at = 75.38 },
 			{ id = 94643800566754, at = 87.52, blend = 0.62 }, { id = 112228957264348, at = 92.43, blend = 0.77 }, { id = 107109971489791, at = 95.50, blend = 0.93 },
 			{ id = 90553036874786, at = 98.50, blend = 1 }, { id = 121912364930816, at = 111.81, blend = 0.46 }, { id = 139616314090616, at = 126.23, blend = 0.92 },
 			{ id = 73160805709614, at = 130.80, blend = 0.79 }, { id = 79170731093199, at = 139.94, blend = 0.69 }, { id = 94923487573207, at = 147.52, blend = 1 },
