@@ -2001,7 +2001,7 @@ local function putDown(player: Player, tablePart: any, at: any): (boolean, strin
 	-- D-1036); the store tray set (GukbapTray, user pick 2026-10-27) is gone from
 	-- ArtAssets. The old way stays for a store bowl with the tray still there.
 	local placedItem = itemByKey(tool:GetAttribute("Snack"))
-	-- (D-1298, user 2026-11-11: "빵 사서 테이블에 놓으면 접시 위에 놓는 걸로
+	-- (D-1299, user 2026-11-11: "빵 사서 테이블에 놓으면 접시 위에 놓는 걸로
 	-- 구현") a bread goes down on a little white plate (the 허니카라멜브레드 has
 	-- its own plate in its model, kind "cake")
 	if placedItem and placedItem.kind == "bread" then
