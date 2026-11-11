@@ -138,7 +138,20 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
-	-- SHOCK-TREASURE (D-1298, choreo_motion_scan): 14 at 2:00.1 jumps 152° in one keyframe in a half turn (LURCH); 15 starts 110° the
+	-- (D-1302, Play re-scan) With 16 turns 606°/s at 1:48.6 (a real fast turn, about 310° in 1.3 s) → spread evenly
+	[78971722650566] = { spin = { from = 4.8, to = 6.2, ease = "both" } },
+	-- (D-1302, tools/choreo/guard_scan.lua at 1x, D-1303 rule) BodyGuard flicks the right arm (shoulder step 6.3 / 9.1 / 11.8° a frame with the
+	-- guard, 5.3 / 7.5 / 8.1° without): With 6 at 0:31.8, 백화요란 2 at 1:03.2 and 12 at 2:17.0 → guardOff; With 20 head shakes at 2:36.2 → steady 24
+	[131580629784808] = { guardOff = { from = 7.8, to = 8.6, side = "Right" } },
+	[74180602033079] = { guardOff = { from = 2.9, to = 3.7, side = "Right" } },
+	[72320524127017] = { guardOff = { from = 7.2, to = 8.1, side = "Right" } },
+	[97670698889704] = { steady = { from = 5.2, to = 5.8, passes = 24 } },
+	-- With-RESCENE (D-1302, choreo_motion_scan): 3, 5 and 21 start 126-152° the other way while the piece before turns on (SEAM);
+	-- 9 at 0:50.1 jumps 94° in one keyframe in a full turn (LURCH)
+	[77578453879056] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = 1 } },
+	[113905277691263] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = -1 } },
+	[103780560163454] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = 1 } },
+	[87649722430222] = { spin = { from = 2.4, to = 4.4, ease = "both" } },	-- SHOCK-TREASURE (D-1298, choreo_motion_scan): 14 at 2:00.1 jumps 152° in one keyframe in a half turn (LURCH); 15 starts 110° the
 	-- other way while 14 turns on (SEAM)
 	[121912364930816] = { spin = { from = 7.3, to = 9.2, ease = "both" } },
 	[139616314090616] = { spin = { from = 0, to = 1.12, fromPrev = true, dir = -1 } },
@@ -1302,7 +1315,14 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
-	-- SHOCK-TREASURE (D-1298, choreo_slide_check + choreo_motion_scan DRIFT; fancam captures slide a lot)
+	-- With-RESCENE (D-1302, choreo_slide_check + choreo_motion_scan DRIFT); also 백화요란 20 (D-1300) and SHOCK 9 (D-1301)
+	[81069311107336] = { { 3.0, 3.8 } }, [102977375863633] = { { 1.2, 2.0 }, { 2.5, 3.5 }, { 7.6, 8.2 } }, [113905277691263] = { { 2.5, 3.1 }, { 3.7, 4.4 } },
+	[131580629784808] = { { 5.5, 6.1 }, { 9.9, 10.7 } }, [134804041385196] = { { 1.5, 2.3 } }, [135964930726670] = { { 1.6, 2.3 }, { 3.0, 3.7 } },
+	[119026591853452] = { { 5.5, 6.2 } }, [75224598365049] = { { 7.4, 8.5 } }, [78971722650566] = { { 0.1, 0.8 } }, [102753426349246] = { { 0.0, 1.0 }, { 2.4, 3.2 } },
+	[123058513001948] = { { 1.5, 2.6 }, { 4.5, 5.5 }, { 8.0, 9.4 } }, [98289786237934] = { { 1.9, 3.5 }, { 4.1, 5.3 } }, [97670698889704] = { { 1.0, 1.8 } },
+	[103780560163454] = { { 1.6, 2.3 } }, [119066931308311] = { { 1.2, 2.0 }, { 4.2, 4.9 } }, [128822554881165] = { { 3.1, 3.9 } },
+	[75577288501140] = { { 2.9, 3.8 }, { 4.1, 4.8 }, { 5.6, 6.1 } }, [132556616885642] = { { 0.5, 1.3 } }, [103924587030311] = { { 1.3, 1.8 } }, -- (+ Play re-scan TELEPORT 1:20.4, 3:02.0)
+	[101271170738014] = { { 0.8, 1.4 }, { 3.3, 4.0 }, { 9.9, 10.7 } }, [87672486893566] = { { 2.2, 2.8 }, { 4.4, 5.2 } },	-- SHOCK-TREASURE (D-1298, choreo_slide_check + choreo_motion_scan DRIFT; fancam captures slide a lot)
 	[133830025852955] = { { 6.8, 7.5 }, { 8.3, 9.5 }, { 10.1, 10.9 } }, [117322908574417] = { { 1.6, 2.4 } }, [81779912905543] = { { 2.6, 3.4 }, { 4.2, 5.0 }, { 5.8, 6.6 }, { 11.4, 12.0 } },
 	[75987043149726] = { { 0.1, 0.9 }, { 4.0, 4.9 } }, [126059214767439] = { { 0.5, 1.4 }, { 5.6, 6.5 }, { 6.7, 7.2 } }, [131829068826954] = { { 4.9, 5.5 } },
 	[121802134861592] = { { 0.9, 1.4 }, { 3.1, 3.6 }, { 6.2, 6.7 }, { 8.1, 9.6 }, { 10.4, 11.0 } }, [130135206628110] = { { 0.8, 1.6 } }, [130317916502145] = { { 2.3, 3.3 }, { 3.6, 4.8 } },
@@ -1513,6 +1533,9 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-1302) With-RESCENE (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 5 and 13 checked on frames: front)
+	[102977375863633] = -7, [113905277691263] = -19, [134804041385196] = 8, [135964930726670] = -16, [103924587030311] = -23,
+	[119026591853452] = 24, [78971722650566] = 18, [103780560163454] = -8, [119066931308311] = -13, [132556616885642] = 16,
 	-- (D-1298) SHOCK-TREASURE (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 3 checked on frames: front)
 	[81779912905543] = -39, [126059214767439] = 11, [112228957264348] = 21, [90553036874786] = -14, [121912364930816] = 12, [112291434709741] = -12,
 	-- (D-1293) 백화요란 (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 15 and 23 checked on frames: front)
@@ -1630,6 +1653,24 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-1302) With-RESCENE + 백화요란 20: head_video.py → headMisses, keys 0.09 s early; left out where the centre is hidden (With 20 at 3 s, 백화요란 20 at 5 s)
+	[98274724905693] = { { part = "Head", keys = { { 1.51, 0, 0, 0 }, { 1.71, 0, 0, 18 }, { 1.91, 0, 0, 19 }, { 2.11, 0, 0, 0 } } } }, -- With 2
+	[102977375863633] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, 15 }, { 3.91, 0, 0, 11 }, { 4.11, 0, 0, 13 }, { 4.31, 0, 0, 0 } } } }, -- With 4
+	[113905277691263] = { { part = "Head", keys = { { 2.51, 0, 0, 0 }, { 2.71, 0, 0, 13 }, { 2.91, 0, 0, 18 }, { 3.11, 0, 0, 21 }, { 3.31, 0, 0, 9 }, { 3.51, 0, 0, 16 }, { 3.71, 0, 0, 18 }, { 3.91, 0, 0, 0 } } } }, -- With 5
+	[131580629784808] = { { part = "Head", keys = { { 4.31, 0, 0, 0 }, { 4.51, 0, 0, 18 }, { 4.71, 0, 0, 20 }, { 4.91, 0, 0, 0 } } },
+		{ part = "Head", keys = { { 8.11, 0, 0, 0 }, { 8.31, 0, 0, 13 }, { 8.51, 0, 0, 15 }, { 8.71, 0, 0, 30 }, { 8.91, 0, 0, 0 } } } }, -- With 6
+	[134804041385196] = { { part = "Head", keys = { { 2.31, 0, 0, 0 }, { 2.51, 0, 0, 12 }, { 2.71, 0, 0, 14 }, { 2.91, 0, 0, 0 } } } }, -- With 8
+	[139525834845370] = { { part = "Head", keys = { { 3.31, 0, 0, 0 }, { 3.51, 0, 0, 13 }, { 3.71, 0, 0, 14 }, { 3.91, 0, 0, 11 }, { 4.11, 0, 0, 10 }, { 4.31, 0, 0, 16 }, { 4.51, 0, 0, 0 } } },
+		{ part = "Head", keys = { { 8.91, 0, 0, 0 }, { 9.11, 0, 0, 15 }, { 9.31, 0, 0, 16 }, { 9.51, 0, 0, 0 } } } }, -- With 10
+	[135964930726670] = { { part = "Head", keys = { { 0.00, 0, 0, 14 }, { 0.11, 0, 0, 11 }, { 0.31, 0, 0, 23 }, { 0.51, 0, 0, 17 }, { 0.71, 0, 0, 0 } } } }, -- With 11
+	[75224598365049] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, -13 }, { 3.91, 0, 0, -10 }, { 4.11, 0, 0, 0 } } } }, -- With 15
+	[78971722650566] = { { part = "Head", keys = { { 3.71, 0, 0, 0 }, { 3.91, 0, 0, 23 }, { 4.11, 0, 0, 18 }, { 4.31, 0, 0, 0 } } } }, -- With 16
+	[123058513001948] = { { part = "Head", keys = { { 0.00, 0, 0, 19 }, { 0.11, 0, 0, 15 }, { 0.31, 0, 0, 0 } } },
+		{ part = "Head", keys = { { 0.51, 0, 0, 0 }, { 0.71, 0, 0, 20 }, { 0.91, 0, 0, 21 }, { 1.11, 0, 0, 0 } } },
+		{ part = "Head", keys = { { 2.51, 0, 0, 0 }, { 2.71, 0, 0, -15 }, { 2.91, 0, 0, -17 }, { 3.11, 0, 0, -28 }, { 3.31, 0, 0, -20 }, { 3.51, 0, 0, 0 } } },
+		{ part = "Head", keys = { { 8.91, 0, 0, 0 }, { 9.11, 0, 0, -19 }, { 9.31, 0, 0, -15 }, { 9.51, 0, 0, -11 }, { 9.71, 0, 0, 0 } } } }, -- With 18
+	[75577288501140] = { { part = "Head", keys = { { 2.11, 0, 0, 0 }, { 2.31, 0, 0, 22 }, { 2.51, 0, 0, 18 }, { 2.71, 0, 0, 23 }, { 2.91, 0, 0, 0 } } } }, -- With 24
+	[101271170738014] = { { part = "Head", keys = { { 2.31, 0, 0, 0 }, { 2.51, 0, 0, -11 }, { 2.71, 0, 0, -13 }, { 2.91, 0, 0, 0 } } } }, -- 백화요란 20
 	-- (D-1298) SHOCK-TREASURE: head_video.py → headMisses, keys 0.09 s early; clip 11 left out (next to a hidden stretch). Wrists: the fancam's hands are too small for the hand model (one 2-sample run, arms crossed), so no wrist bends
 	[117322908574417] = { { part = "Head", keys = { { 2.71, 0, 0, 0 }, { 2.91, 0, 0, 13 }, { 3.11, 0, 0, 9 }, { 3.31, 0, 0, 0 } } } }, -- SHOCK 2
 	[73160805709614] = { { part = "Head", keys = { { 2.71, 0, 0, 0 }, { 2.91, 0, 0, -19 }, { 3.11, 0, 0, -24 }, { 3.31, 0, 0, 0 } } } }, -- SHOCK 17
@@ -1791,6 +1832,19 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
+	-- (D-1302, user: "원본 동영상과 비교하면서 고개와 손목 움직임 세세한 부분까지") With-RESCENE: hand_moves.py on 25 clips → wristMisses, keys 0.09 s early,
+	-- capture wrist + bend ≤ 72°; left out where the centre is hidden (7 at 4.8 s, 14 at 0.5 s, 24) and 25 (after the song ends). Play
+	-- (D-1263): all 8 turn the hand toward the video (capture → game, video: 4 −26 → −42/−55 (−60/−67), 13 −18 → 0 (+30), 16 +14 → −20 (−50),
+	-- 17 −34 → +9 (+82), 21 −30 → −61 (−70..−94))
+	[102977375863633] = { { part = "LeftHand", keys = { { 5.11, 0, 0, 0 }, { 5.31, 22, 0, 0 }, { 5.51, 31, 0, 0 }, { 5.71, 0, 0, 0 } } },
+		{ part = "LeftHand", keys = { { 6.91, 0, 0, 0 }, { 7.11, 0, 0, 40 }, { 7.31, 0, 0, 40 }, { 7.51, 0, 0, 40 }, { 7.71, 0, 0, 40 }, { 7.91, 0, 0, 0 } } } }, -- With 4
+	[113905277691263] = { { part = "RightHand", keys = { { 3.51, 0, 0, 0 }, { 3.71, -28, 0, 0 }, { 3.91, -33, 0, 0 }, { 4.11, 0, 0, 0 } } } }, -- With 5
+	[119026591853452] = { { part = "RightHand", keys = { { 4.31, 0, 0, 0 }, { 4.51, 40, 0, 0 }, { 4.71, 40, 0, 0 }, { 4.91, 40, 0, 0 }, { 5.11, 0, 0, 0 } } } }, -- With 13
+	[78971722650566] = { { part = "RightHand", keys = { { 10.71, 0, 0, 0 }, { 10.91, -40, 0, 0 }, { 11.11, -40, 0, 0 }, { 11.31, -34, 0, 0 }, { 11.51, 0, 0, 0 } } } }, -- With 16
+	[102753426349246] = { { part = "RightHand", keys = { { 3.31, 0, 0, 0 }, { 3.51, 0, 0, -40 }, { 3.71, 0, 0, -40 }, { 3.91, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 4.71, 0, 0, 0 }, { 4.91, 0, 0, -40 }, { 5.11, 0, 0, -40 }, { 5.31, 0, 0, 0 } } } }, -- With 17
+	[123058513001948] = { { part = "RightHand", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, -40 }, { 3.91, 0, 0, -40 }, { 4.11, 0, 0, 0 } } } }, -- With 18
+	[103780560163454] = { { part = "RightHand", keys = { { 4.31, 0, 0, 0 }, { 4.51, 36, 0, 0 }, { 4.71, 40, 0, 0 }, { 4.91, 34, 0, 0 }, { 5.11, 34, 0, 0 }, { 5.31, 36, 0, 0 }, { 5.51, 0, 0, 0 } } } }, -- With 21
 	-- (D-1293, user 2026-11-11: "원본 동영상과 비교하면서 고개와 손목 움직임 세세한 부분까지 적용할 것") 백화요란: hand_moves.py on
 	-- all 22 clips (MediaPipe hands, 0.05 s) → wristMisses; keys 0.09 s early; capture wrist + bend kept ≤ 72° (6 left hand
 	-- dropped: the capture already bends 69-76°; 14 left hand at 2.8 s cut to 20); left out where the centre is hidden (6 at 9 s,
