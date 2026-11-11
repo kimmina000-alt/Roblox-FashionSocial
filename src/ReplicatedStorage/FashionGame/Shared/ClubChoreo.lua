@@ -151,7 +151,8 @@ M.ChoreoFixes = {
 	[77578453879056] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = 1 } },
 	[113905277691263] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = -1 } },
 	[103780560163454] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = 1 } },
-	[87649722430222] = { spin = { from = 2.4, to = 4.4, ease = "both" } },	-- SHOCK-TREASURE (D-1298, choreo_motion_scan): 14 at 2:00.1 jumps 152° in one keyframe in a half turn (LURCH); 15 starts 110° the
+	[87649722430222] = { spin = { from = 2.4, to = 4.4, ease = "both" } },
+	-- SHOCK-TREASURE (D-1298, choreo_motion_scan): 14 at 2:00.1 jumps 152° in one keyframe in a half turn (LURCH); 15 starts 110° the
 	-- other way while 14 turns on (SEAM)
 	[121912364930816] = { spin = { from = 7.3, to = 9.2, ease = "both" } },
 	[139616314090616] = { spin = { from = 0, to = 1.12, fromPrev = true, dir = -1 } },
@@ -222,7 +223,7 @@ M.ChoreoFixes = {
 		upright = { from = 0.2, to = 2.0, ease = 0.3 }, torsoUp = { from = 0.2, to = 2.0, ease = 0.3 } }, -- (from 18's facing: it started 53° off; turns = 1, or fromPrev takes the short way)
 	-- (D-1192, user: "1:55 오른쪽 팔 두 번 움직임 수정") 20 (song 112): the capture lifts the right arm at 112.7-113.0 and 113.9; in the
 	-- video it stays down until the one lift at 114.8-115.6: held down from 0.3 to 2.2 s (from 0.55 it froze the arm already rising)
-	[108870214091189] = { freeze = { from = 0.3, to = 2.2, ease = 0.25, except = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot", "Head", "UpperTorso", "LowerTorso" } } },
+	[108870214091189] = { freeze = { from = 0.3, to = 2.2, ease = 0.25, except = { "LeftUpperArm", "LeftLowerArm", "LeftHand", "LeftUpperLeg", "LeftLowerLeg", "LeftFoot", "RightUpperLeg", "RightLowerLeg", "RightFoot", "Head", "UpperTorso", "LowerTorso" } } }, -- 19 (capture wraps back 150° at 1.0-1.2: one even lap, carried on from the blend)
 	-- (D-1058, user: "1:22 버벅 / 이후로 덜덜 떨림 깔끔하게 큰 모션 위주로 정돈") 13 = clip 14, where the
 	-- centre cut lost the member for whole stretches (the picture all blurred at 1.0, 3.5-5.0, 6.0,
 	-- 7.5-8.0 s): its capture trembles throughout. Smoothed hard (24 passes, about 0.2 s), the
@@ -1344,7 +1345,8 @@ M.ChoreoSlideStill = {
 	[123058513001948] = { { 1.5, 2.6 }, { 4.5, 5.5 }, { 8.0, 9.4 } }, [98289786237934] = { { 1.9, 3.5 }, { 4.1, 5.3 } }, [97670698889704] = { { 1.0, 1.8 } },
 	[103780560163454] = { { 1.6, 2.3 } }, [119066931308311] = { { 1.2, 2.0 }, { 4.2, 4.9 } }, [128822554881165] = { { 3.1, 3.9 } },
 	[75577288501140] = { { 2.9, 3.8 }, { 4.1, 4.8 }, { 5.6, 6.1 } }, [132556616885642] = { { 0.5, 1.3 } }, [103924587030311] = { { 1.3, 1.8 } }, -- (+ Play re-scan TELEPORT 1:20.4, 3:02.0)
-	[101271170738014] = { { 0.8, 1.4 }, { 3.3, 4.0 }, { 9.9, 10.7 } }, [87672486893566] = { { 2.2, 2.8 }, { 4.4, 5.2 } },	-- SHOCK-TREASURE (D-1298, choreo_slide_check + choreo_motion_scan DRIFT; fancam captures slide a lot)
+	[101271170738014] = { { 0.8, 1.4 }, { 3.3, 4.0 }, { 9.9, 10.7 } }, [87672486893566] = { { 2.2, 2.8 }, { 4.4, 5.2 } },
+	-- SHOCK-TREASURE (D-1298, choreo_slide_check + choreo_motion_scan DRIFT; fancam captures slide a lot)
 	[133830025852955] = { { 6.8, 7.5 }, { 8.3, 9.5 }, { 10.1, 10.9 } }, [117322908574417] = { { 1.6, 2.4 } }, [81779912905543] = { { 2.6, 3.4 }, { 4.2, 5.0 }, { 5.8, 6.6 }, { 11.4, 12.0 } },
 	[75987043149726] = { { 0.1, 0.9 }, { 4.0, 4.9 } }, [126059214767439] = { { 0.5, 1.4 }, { 5.6, 6.5 }, { 6.7, 7.2 } }, [131829068826954] = { { 4.9, 5.5 } },
 	[121802134861592] = { { 0.9, 1.4 }, { 3.1, 3.6 }, { 6.2, 6.7 }, { 8.1, 9.6 }, { 10.4, 11.0 } }, [130135206628110] = { { 0.8, 1.6 } }, [130317916502145] = { { 2.3, 3.3 }, { 3.6, 4.8 } },
