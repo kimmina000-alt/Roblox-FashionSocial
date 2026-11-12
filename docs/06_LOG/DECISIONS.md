@@ -4392,3 +4392,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "받은 의견 어떻게 보니? 눌러도 내용 안 보임".
 - 원인: FeedbackService가 주인이 읽을 때 보낸 사람 id로 TextService:FilterStringAsync를 부르는데, 보낸 사람이 그 서버에 없으면 "The sender must be connected to the current server"로 실패 → 모든 의견이 "(필터를 거치지 못한 글)".
 - 수정: 보낼 때(보낸 사람이 서버에 있을 때) 필터한 글을 value.tf로 함께 저장. 목록은 tf → 보낸 사람 id → 주인 자신의 id 순으로 필터. Studio 서버에서 옛 의견 3개가 주인 id 필터로 제대로 보임(0.9초).
+## D-1326 광화문: 서쪽 큰길과 나란하게 (2026-11-12)
+- 사용자(위에서 본 사진에 길을 따라 빨간 선): "광화문 각도 직선으로 회전".
+- tools/graybox/build_hongdae_layout.lua: GATE_ROT -30° → 0°. 광화문이 남북으로 서서 서쪽 큰길을 바라봄. 양쪽 돌담 곡선 · 난간 · 해태 · 앞마당은 광화문 양끝(GATE_E1/E2)에서 다시 그려져 따라옴. 사용자가 직접 깐 앞마당 판(PlazaStone, D-1015)은 GATE_ROT_WAS(-30°)와의 차이만큼 광화문 가운데를 축으로 같이 돌림.
+- Studio 반영: Assistant가 localhost를 막아서, 사용자가 명령 바에서 체인 스크립트 28개를 ServerStorage.ChainSrc에 받아 둔 뒤(스크립트 Source 한도 200,000자라 큰 파일은 18만 자 조각으로 나눔) MCP로 prop_save → 체인 전체 → hanok_ground_fill(2,188칸) → bakery_underlight 실행, 모두 오류 없음. 끝난 뒤 ChainSrc 지움. prop_save에서 새로 지운 야자수 2개(Palm@-265,138 / -10)를 prop_overrides.json에 반영.
+- 사진: gate_straight_top.jpg, gate_straight_front.jpg.
