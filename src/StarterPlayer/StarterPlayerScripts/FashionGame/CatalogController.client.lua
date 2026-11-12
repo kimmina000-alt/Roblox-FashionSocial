@@ -1839,7 +1839,8 @@ updateCatalogLayout = function()
 			if s > bestSize then best, bestSize = r, s end
 		end
 		if best and bestSize > 80 then
-			catalogCamera.frame({ x = best.x, y = best.y + (best.h - bestSize) / 2, w = best.w, h = bestSize })
+			-- (D-1345) the usual camera, slid so the character stands in that space: walking works
+			catalogCamera.side({ x = best.x, y = best.y + (best.h - bestSize) / 2, w = best.w, h = bestSize })
 		else
 			catalogCamera.release()
 		end

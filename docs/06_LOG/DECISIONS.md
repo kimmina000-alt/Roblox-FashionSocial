@@ -4472,3 +4472,14 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ClubDances.ChoreoPhrases(곡마다 key / name / soundId / from / to, 원곡 초 = ClubPlaylist `at`의 시계), 춤 창에 '안무' 탭(K-POP · 포즈·응원 다음). 버튼을 누르면 ChoreoController가 그 곡의 안무 조각을 from..to 구간만 노래 없이 계속 반복(자기 시계 phrase.t0, 보정 · 블렌드 · 제자리 복귀 그대로), 같은 버튼 다시 = 멈춤, 걷기 · 다른 춤 · 춤 멈추기도 멈춤. 어디서나(클럽 밖도) 출 수 있음. LocalPlayer 속성 ChoreoPhrase(버튼 강조, "♪ 안무 · 곡").
 - 구간은 첫 후렴쯤으로 고른 1차 값(마지막 조각 시각의 27% 이후 첫 조각부터 15~24초, 조각 경계에서 끝). 곡별 from / to는 ClubDances.lua에서 바꾸면 됨.
 - Studio PC Play: 탭 버튼 20개, REDRED 20초 동안 조각 116978800280311 → 139026140322649 → 다시 처음, 안 추는 순간 0, 백화요란으로 바꾸기 · 같은 버튼으로 멈춤 확인(사진 dance_phrase_tab_D-1343.jpg).
+## D-1344 최적화: 한옥 담 기와 모듈을 가벼운 메시로 (2026-11-13, 비교 중)
+- 사용자: "최적화 작업". 측정(Edit): 파트 16,126(예산 25,000) · 메시파트 1,782 · 유니온 920 · 라이트 382(그림자 0) · SurfaceGui 392. 스크립트(클라이언트 4초) 0.22초 = 11-10과 같음. **유니온 삼각형 5,378,024개 중 4,991,400개(93%)가 기와 모듈 450개**(Workspace.HanokStoneWalls.GiwaCoping 320 + Hongdae_Layout.HanokWallExtension.GiwaRoof 130, 하나 11,092개: 원통 수십 개를 CSG로 합친 D-143 모듈). 다음 광화문 36만, 메시(읽은 것) 23만.
+- 유니온 RenderFidelity는 스크립트로 못 바꿈(값이 그대로). 그래서 같은 모양을 Blender로 다시 만듦: tools/art/giwa_lite/make_giwa_lite.py → GiwaLite.glb (수키와 8각, 막새 10각, 안 보이는 면 뺌) = **2,318개**(1/4.8). 사용자가 가져오기(MeshPart rbxassetid://120191711482769, Workspace.Scene.GiwaLite_Node). 크기 Y · Z가 유니온과 같아 유니온의 CFrame · Size를 그대로 쓰면 됨.
+- 돌담 한 줄(z 434) 절반만 바꿔 Play 비교(사진 giwa_lite_far / giwa_lite_near_D-1344.jpg, 시험 폴더 Workspace.GiwaLiteTest, 원래 유니온은 투명 + 속성 LiteTestHidden). 사용자 확인 뒤 450개 전부 + build_hongdae_layout / hanok_stonewall_1112가 새 메시를 쓰게.
+## D-1345 카탈로그 최소화: 평소 카메라 + 화면만 옆으로 (2026-11-13)
+- 사용자: "카탈로그 최소화에서는 아바타 위치만 왼쪽으로 옮기고 걸어다닐 수 있게 해 줘. 지금은 켜놓고 걸어다닐 수 없음. 걸으려고 움직이면 화면만 회전함".
+- 원인: D-1330 카메라가 캐릭터 정면을 매 프레임 따라감 → 걸으면 캐릭터가 돌고 카메라가 다시 정면으로 → 빙빙.
+- CatalogCamera.side(rect): 최소화일 때는 게임 카메라(Custom) 그대로, 카메라 스크립트 다음(Camera + 1)에 화면만 옆으로 밀어 캐릭터가 창 옆 빈자리 가운데에. 드래그 · 확대 · 걷기 모두 평소대로. 최대화 · 에디터는 그대로 정면(frame).
+- Studio(폰 화면 735×413): 캐릭터 화면 x 222, A키 1.2초에 19.4 걸음, 카메라 회전 0°, 캐릭터는 계속 x 222(사진 catalog_side_walk_D-1345.jpg).
+## D-1346 락커룸 조명선 바닥에 (2026-11-13)
+- 사용자: "락커룸 조명선 바닥에 딱 맞게 내리기". WallLine 5줄이 바닥(-24.00)에서 0.35 떠 있었음 → 바닥에 붙임(y -24.00..-23.85). 맵 + ServerStorage.UserMapSnapshot.Models.ClubAnnex 둘 다, club_locker_1103.lua도 F..F+0.15.

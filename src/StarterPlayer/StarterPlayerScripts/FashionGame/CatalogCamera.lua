@@ -172,7 +172,43 @@ local function step()
 	camera.CFrame = CFrame.lookAt(center + dir * distance, center) * CFrame.new(-dx, dy, 0)
 end
 
+-- (D-1345, user 2026-11-13: "카탈로그 최소화에서는 아바타 위치만 왼쪽으로 옮기고 걸어다닐 수
+-- 있게 해 줘. 지금은 켜놓고 걸어다닐 수 없음. 걸으려고 움직이면 화면만 회전함") beside the
+-- minimized window the game camera stays as it is (behind the character, the player's own
+-- drag and zoom, walking); only the picture is slid sideways so the character stands in the
+-- free part of the screen. (The front view of frame() turned with the character: walking
+-- turned the character, the camera went round to its front again, and so on.)
+local SIDE_BIND = "CatalogCameraSide"
+local sideRect: { x: number, y: number, w: number, h: number }? = nil
+local function sideStep()
+	local camera = workspace.CurrentCamera
+	local rect = sideRect
+	if not camera or not rect or camera.CameraType ~= Enum.CameraType.Custom then return end
+	local distance = (camera.CFrame.Position - camera.Focus.Position).Magnitude
+	if distance < 1 then return end -- (first person: nothing to slide)
+	local view = camera.ViewportSize
+	local perPixel = 2 * distance * math.tan(math.rad(camera.FieldOfView) / 2) / view.Y
+	local dx = (rect.x + rect.w / 2 - view.X / 2) * perPixel
+	camera.CFrame = camera.CFrame * CFrame.new(-dx, 0, 0)
+end
+local function stopSide()
+	if sideRect then
+		sideRect = nil
+		RunService:UnbindFromRenderStep(SIDE_BIND)
+	end
+end
+
+function CatalogCamera.side(rect: { x: number, y: number, w: number, h: number })
+	if saved then CatalogCamera.release() end
+	if not sideRect then
+		-- right after the camera scripts, before anything else draws
+		RunService:BindToRenderStep(SIDE_BIND, Enum.RenderPriority.Camera.Value + 1, sideStep)
+	end
+	sideRect = rect
+end
+
 function CatalogCamera.frame(rect: { x: number, y: number, w: number, h: number })
+	stopSide()
 	target = rect
 	if saved then return end
 	local camera = workspace.CurrentCamera
@@ -185,6 +221,7 @@ function CatalogCamera.frame(rect: { x: number, y: number, w: number, h: number 
 end
 
 function CatalogCamera.release()
+	stopSide()
 	target = nil
 	dragging, lastPos = nil, nil
 	CatalogCamera.stage(nil)
@@ -221,7 +258,7 @@ function CatalogCamera.release()
 end
 
 function CatalogCamera.active(): boolean
-	return saved ~= nil
+	return saved ~= nil or sideRect ~= nil
 end
 
 return CatalogCamera
