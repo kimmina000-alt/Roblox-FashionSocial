@@ -1747,6 +1747,17 @@ updateCatalogLayout = function()
 		local cellWidth = math.clamp(math.floor((innerWidth - 36) / 6), 88, 148)
 		grid.CellSize = UDim2.fromOffset(cellWidth, math.floor(cellWidth * 1.45))
 		cardContentScale = 1
+	elseif compact then
+		-- (D-1331, user 2026-11-13, landscape phone: "아이템칸 오른쪽 애매하게 남는 부분 없게
+		-- 정해진 사이즈 말고 비율로 사이즈 정해서 기종 달라도 3개씩 보이게 해 줘") the
+		-- minimized window: always 3 cards across, as wide as the list allows (less the
+		-- 6 px scroll bar and the two 6 px gaps), the card's shape and contents scaled
+		-- with it (the old 76 × 114 card at 0.68 = a 112 px design width)
+		-- (a wide PC window gets more columns rather than giant cards: 130 px each at most)
+		local columns = math.max(3, math.floor((innerWidth - 8) / 136))
+		local cellWidth = math.max(48, math.floor((innerWidth - 6 - 2 - 6 * (columns - 1)) / columns))
+		grid.CellSize = UDim2.fromOffset(cellWidth, math.floor(cellWidth * 1.5))
+		cardContentScale = cellWidth / 112
 	else
 		grid.CellSize = if isPhone then UDim2.fromOffset(76, 114) else UDim2.fromOffset(100, 146)
 		cardContentScale = if isPhone then 0.68 else 0.82
