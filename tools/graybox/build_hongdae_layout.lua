@@ -71,10 +71,14 @@ local HOLES = {
 -- stone walls leave its two ends in gentle curves (cubic Béziers) to the north
 -- wall line (z 49) and the 돌담길 along the south road. Gate frame: ALONG runs
 -- to its north-east end, OUT is its front (to the street)
-local GATE_C = Vector3.new(158, 0, 195)
+-- (D-1332, user 2026-11-13: "광화문 45도로 회전해 놨어. 지금 내가 회전해 놓은 위치에 맞춰서
+-- 이어져 있던 돌담벽도 수정해줘") the user turned the gate by hand in Studio: -45° (its
+-- front to the north-west crossing), its middle moved to where their turn left it
+-- (read from the GateStone). Was (158, 0, 195) at 0° (D-1326).
+local GATE_C = Vector3.new(180.68995666503906, 0, 183.9943389892578)
 -- (D-1326, user 2026-11-12: "광화문 각도 직선으로 회전", red line along the west road)
 -- square to the road: the gate runs north-south and faces west (was -30°, user map 2026-10-27)
-local GATE_ROT = math.rad(0)
+local GATE_ROT = math.rad(-45) -- (D-1332; 0 since D-1326)
 local GATE_ROT_WAS = math.rad(-30) -- (the user's hand-laid yard slab, D-1015, was made for this)
 local GATE_HL, GATE_HD = 56, 14 -- half its length and depth (2 × 56 / 2, 2 × 14 / 2; 3× → 2×, user 2026-10-27)
 local GATE_ALONG = CFrame.Angles(0, GATE_ROT, 0):VectorToWorldSpace(Vector3.new(0, 0, -1))
@@ -2821,7 +2825,9 @@ do
 		-- 2-stud runs (which reached the sidewalk and left a bare triangle when cut
 		-- back); every yard cell it does not cover all over is lawn
 		-- (D-1326) turned with the gate about its middle when GATE_ROT changes
-		local turn = CFrame.new(GATE_C) * CFrame.Angles(0, GATE_ROT - GATE_ROT_WAS, 0) * CFrame.new(-GATE_C)
+		-- (D-1332) the gate's middle moves too now: the slab keeps its place in the gate's frame
+		-- (laid for the gate at (158, 0, 195), GATE_ROT_WAS)
+		local turn = CFrame.new(GATE_C) * CFrame.Angles(0, GATE_ROT, 0) * (CFrame.new(158, 0, 195) * CFrame.Angles(0, GATE_ROT_WAS, 0)):Inverse()
 		local slab = part("PlazaStone", Vector3.new(113, 0.3, 115), turn * CFrame.new(122.77281188964844, 0.15000000596046448, 174.6353759765625,
 			0.8701031804084778, 0, -0.4928695857524872, 0, 1, 0, 0.4928695857524872, 0, 0.8701031804084778), PAVE2, { parent = G, material = Enum.Material.Slate })
 		slab.CastShadow = false
