@@ -522,7 +522,7 @@ do
 	-- (one SurfaceLight along each strip lights the floor by the walls evenly)
 	do
 		local WARM = Color3.fromRGB(255, 226, 190)
-		-- (D-1346, user 2026-11-13: "락커룸 조명선 바닥에 딱 맞게 내리기") on the floor (was F + 0.35)
+		-- (D-1349, user 2026-11-13: "락커룸 조명선 바닥에 딱 맞게 내리기") on the floor (was F + 0.35)
 		local Y0, Y1 = F, F + 0.15
 		local function strip(x0, z0, x1, z1, face)
 			local s = box("WallLine", x0, Y0, z0, x1, Y1, z1, WARM, R, NEON())

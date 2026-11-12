@@ -1,4 +1,4 @@
-# (D-1344, user 2026-11-13: "최적화 작업") A light copy of the 8-stud giwa wall module of
+# (D-1347, user 2026-11-13: "최적화 작업") A light copy of the 8-stud giwa wall module of
 # build_hongdae_layout.lua (giwaModule, D-143): the same pieces at the same places, built
 # here with few-sided cylinders and without faces nobody sees, so one module is about
 # 2,000 triangles instead of the CSG union's 11,092 (450 of them on the 한옥 walls).

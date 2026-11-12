@@ -172,7 +172,7 @@ local function step()
 	camera.CFrame = CFrame.lookAt(center + dir * distance, center) * CFrame.new(-dx, dy, 0)
 end
 
--- (D-1345, user 2026-11-13: "카탈로그 최소화에서는 아바타 위치만 왼쪽으로 옮기고 걸어다닐 수
+-- (D-1348, user 2026-11-13: "카탈로그 최소화에서는 아바타 위치만 왼쪽으로 옮기고 걸어다닐 수
 -- 있게 해 줘. 지금은 켜놓고 걸어다닐 수 없음. 걸으려고 움직이면 화면만 회전함") beside the
 -- minimized window the game camera stays as it is (behind the character, the player's own
 -- drag and zoom, walking); only the picture is slid sideways so the character stands in the
