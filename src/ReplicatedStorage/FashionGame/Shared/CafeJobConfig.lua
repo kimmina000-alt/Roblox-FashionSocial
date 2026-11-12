@@ -37,7 +37,7 @@ CafeJobConfig.NpcEverySeconds = 36 -- (18 → 36, D-772, user: half as often)
 -- after a random gap between these (about 36 s on average, as before)
 -- (D-1361, user 2026-11-13: "알바생 되면 입힐 앞치마: 블랙 셰프 앞치마, JacketAccessory·WhoseTrade")
 -- the catalog asset put on a part-timer for the shift (CafeJobService.apron); nil = none
-CafeJobConfig.ApronAssetId = nil :: number?
+CafeJobConfig.ApronAssetId = 12271645343 :: number? -- (블랙 셰프 앞치마, the user's id 2026-11-13)
 -- (D-1354, user 2026-11-13: "손님 1.5배 더 자주 오게") 12..60 → 8..40: about 24 s on average
 CafeJobConfig.NpcGapMin = 8
 CafeJobConfig.NpcGapMax = 40

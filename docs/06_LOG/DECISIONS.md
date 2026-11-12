@@ -4524,7 +4524,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "손님이 빵도 주문하게 해. 빵 주문한 손님은 트레이 남기고 가게 하기. 가끔 음료 다 안 마시고 빵 먹다 말고 남기고 가는 경우도 있게 해" / "카페 바닥에 트레이 떨어져 있음".
 - NPC 메뉴에 빵(kind bread)도. 떠날 때: 음료 → 빈 컵, 30%는 반쯤 남은 음료(LeftDrinkChance); 빵 → 카페 트레이(ArtAssets.Foods.CafeTray, SnackService 트레이와 같은 크기), 35%는 반쯤 먹은 빵이 위에(LeftBreadChance). 알바생이 "테이블 정리"로 치움(코인 + XP), 오래되면 컵처럼 사라짐.
 - 떨어진 트레이: Workspace.Scene.Plane_Node 2개(트레이 원본, 하나는 해변 카페 계단 위 y 27.7에 떠 있음, 하나는 땅속) → ServerStorage.SceneLeftovers로 옮김(게임은 ArtAssets 것을 씀).
-## D-1361 알바 앞치마 (2026-11-13, 아이템 ID 대기)
+## D-1361 알바 앞치마 (2026-11-13)
 - 사용자: "알바생 되면 입힐 앞치마: 블랙 셰프 앞치마, JacketAccessory·WhoseTrade". 카탈로그 검색으로 못 찾음 → CafeJobConfig.ApronAssetId에 ID를 넣으면 작동.
 - 알바 시작 · 리스폰 때 InsertService로 한 번 불러와 Accessory로 입힘(속성 CafeApron, 스크립트 제거), 알바 끝나면 벗김. HumanoidDescription을 안 거쳐서 마지막 옷 저장 · 코디 코드 · 착용 중에 안 섞임.
 ## D-1362 새 음원 4곡: NAGARI-KEYVITUP / MEME-RESCENE / REBELS-ISEGYE IDOL / Finest Thing-RESCENE (2026-11-13)
@@ -4538,3 +4538,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 새 곡 6개를 목록 끝(D-1362 4곡 다음)에: 미스터-KARA 139355618999719(184.435초, tempo 0.951), Hurricane Venus-BoA 91581305396096(181.558, 0.951), Magic-Secret 124810692241835(194.251, 0.952), BANG-After School 136570075901439(189.252, 0.951), Hot Issue-4MINUTE 124715970373244(205.296, 0.95), Abracadabra-Brown Eyed Girls 84753987256309(175.124, 0.952). length = 파일 초(Studio에서 잼), fileSpeed = 1 ÷ tempo.
 - Studio: ClubPlaylist(Catch Catch 줄 + 끝에 D-1362 4곡 · D-1363 6곡), ClubCamera 별칭 줄, ClubDances soundId만 바꿈. Play(클럽 홀): 곡 85개, 76..85번 10곡 모두 새 id로 재생(속도 = tempo), Catch Catch(17번) 새 id · fileSpeed 1.0702 · 무대 카메라 있음, 노래 112..115초에 14번 조각(at 107.77), 121초 뒤 15번 조각(at 121) = 안무 시계 맞음. 스크립트 오류 없음.
 - 메모: ClubCamera.lua는 깃에 CRLF로 저장돼 있음(다른 Shared 파일은 LF). 고칠 땐 core.autocrlf=false로 add해야 파일 전체 diff가 안 생김.
+- (같은 날) 사용자가 ID를 보냄: CafeJobConfig.ApronAssetId = 12271645343. Studio Play: 해변 카페 알바 시작 → 레이어드 앞치마(Apron)가 입혀짐, 알바 끝 → 벗겨짐. 사진 cafe_apron_D-1361.jpg.
