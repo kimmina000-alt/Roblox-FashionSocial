@@ -744,12 +744,19 @@ local function refreshSync()
 end
 
 local function refreshButtons()
+	-- (D-1343) a phrase from the 안무 tab (ChoreoController sets ChoreoPhrase while it plays)
+	local phraseKey = player:GetAttribute("ChoreoPhrase")
 	for key, danceBtn in pairs(danceButtons) do
-		danceBtn.BackgroundColor3 = if current.key == key then COLORS.cardActive else COLORS.card
+		danceBtn.BackgroundColor3 = if current.key == key or phraseKey == key then COLORS.cardActive else COLORS.card
 	end
 	local dance = current.key and ClubConfig.findDance(current.key)
 	local leader = joinedPlayer()
-	if dance then
+	local phrase = nil
+	for _, p in ipairs(ClubConfig.ChoreoPhrases) do if p.key == phraseKey then phrase = p end end
+	if phrase and not dance then
+		nowLabel.Text = "♪ 안무 · " .. phrase.name
+		nowLabel.TextColor3 = COLORS.text
+	elseif dance then
 		nowLabel.Text = if leader
 			then "♪ " .. dance.name .. " · " .. leader.DisplayName .. "님과"
 			else "♪ " .. dance.name
@@ -884,6 +891,24 @@ local function renderGrid()
 		if child:IsA("TextButton") then child:Destroy() end
 	end
 	table.clear(danceButtons)
+	-- (D-1343) the 안무 tab: a phrase of each song's choreography (ChoreoController)
+	if selectedTab == ClubConfig.PhraseTab then
+		for index, phrase in ipairs(ClubConfig.ChoreoPhrases) do
+			local phraseBtn = button({
+				Name = phrase.key,
+				LayoutOrder = index,
+				Text = phrase.name,
+				TextSize = 15,
+				TextWrapped = true,
+			}, grid)
+			phraseBtn.MouseButton1Click:Connect(function()
+				require(script.Parent:WaitForChild("UiBus")).ChoreoPhrase:Fire(phrase.key)
+			end)
+			danceButtons[phrase.key] = phraseBtn
+		end
+		refreshButtons()
+		return
+	end
 	for index, dance in ipairs(ClubConfig.Dances) do
 		if dance.category == selectedTab then
 			local danceBtn = button({
@@ -974,7 +999,9 @@ local function selectTab(name: string)
 end
 
 local tabNames = table.clone(ClubConfig.Categories)
+if #ClubConfig.ChoreoPhrases > 0 then table.insert(tabNames, ClubConfig.PhraseTab) end -- (D-1343)
 table.insert(tabNames, JOIN_TAB)
+player:GetAttributeChangedSignal("ChoreoPhrase"):Connect(function() refreshButtons() end)
 for index, name in ipairs(tabNames) do
 	local tab = button({
 		Name = "Tab_" .. name,

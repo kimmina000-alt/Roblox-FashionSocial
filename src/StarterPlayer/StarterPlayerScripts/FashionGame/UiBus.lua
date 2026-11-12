@@ -12,5 +12,7 @@ UiBus.OpenMusic = Instance.new("BindableEvent")
 UiBus.ChoreoTap = Instance.new("BindableEvent")
 -- (D-896) the 🎥 in the song banner (ClubQuickBar): the stage camera on / off (StageCameraController)
 UiBus.StageCamTap = Instance.new("BindableEvent")
+-- (D-1343) the dance window's 안무 tab: dance a song's phrase (key) on its own (ChoreoController)
+UiBus.ChoreoPhrase = Instance.new("BindableEvent")
 
 return UiBus

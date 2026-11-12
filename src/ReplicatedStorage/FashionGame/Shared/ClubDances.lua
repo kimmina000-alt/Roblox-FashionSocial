@@ -70,6 +70,35 @@ M.Dances = {
 	{ key = "celebrate", name = "축하", category = "포즈·응원", animationId = 10714016223, looped = true },
 } :: {Dance}
 
+-- (D-1343, user 2026-11-13: "모두 넣어") a phrase of each club song's choreography as its
+-- own dance in the 안무 tab: the pieces from `from` to `to` (seconds of the original song,
+-- the clock of ClubPlaylist's `at`) played by ChoreoController with all its fixes, over and
+-- over, without the music. First guesses around each song's first chorus: change from / to
+-- here (Lemonade-aespa is left out: its choreography is hidden, D-1338)
+M.PhraseTab = "안무"
+M.ChoreoPhrases = {
+	{ key = "phrase_134942349436280", name = "BAD", soundId = 134942349436280, from = 45.78, to = 68 }, -- BAD-ATEEZ 0:45.8-1:08.0
+	{ key = "phrase_128270208751659", name = "소원을 말해봐", soundId = 128270208751659, from = 58.39, to = 81.85 }, -- 0:58.4-1:21.8
+	{ key = "phrase_70738014182544", name = "Get A Guitar", soundId = 70738014182544, from = 47.92, to = 64.75 }, -- 0:47.9-1:04.8
+	{ key = "phrase_85204387077332", name = "Love 119", soundId = 85204387077332, from = 46.37, to = 62.44 }, -- 0:46.4-1:02.4
+	{ key = "phrase_80583279340768", name = "Catch Catch", soundId = 80583279340768, from = 48.27, to = 66.27 }, -- 0:48.3-1:06.3
+	{ key = "phrase_97032815457241", name = "Lemon Tang", soundId = 97032815457241, from = 49.8, to = 65 }, -- 0:49.8-1:05.0
+	{ key = "phrase_140713297574648", name = "NEON", soundId = 140713297574648, from = 72.27, to = 87.58 }, -- 1:12.3-1:27.6
+	{ key = "phrase_139044453511745", name = "체포하겠어", soundId = 139044453511745, from = 48.52, to = 66.52 }, -- 0:48.5-1:06.5
+	{ key = "phrase_139330220515727", name = "LOVE ATTACK", soundId = 139330220515727, from = 46.68, to = 64.68 }, -- 0:46.7-1:04.7
+	{ key = "phrase_135553051649506", name = "Looks Can Kill", soundId = 135553051649506, from = 57.08, to = 75.23 }, -- 0:57.1-1:15.2
+	{ key = "phrase_75344866720031", name = "갑자기", soundId = 75344866720031, from = 56.4, to = 74.7 }, -- 0:56.4-1:14.7
+	{ key = "phrase_98124521559769", name = "I SPY", soundId = 98124521559769, from = 49.27, to = 72.27 }, -- 0:49.3-1:12.3
+	{ key = "phrase_76034005809699", name = "REDRED", soundId = 76034005809699, from = 48.43, to = 65.27 }, -- 0:48.4-1:05.3
+	{ key = "phrase_94774089824958", name = "ANIMAL", soundId = 94774089824958, from = 39.86, to = 63.36 }, -- 0:39.9-1:03.4
+	{ key = "phrase_89634330677538", name = "Pretty Girl", soundId = 89634330677538, from = 58.03, to = 79.58 }, -- 0:58.0-1:19.6
+	{ key = "phrase_131620527618857", name = "Pop Off", soundId = 131620527618857, from = 45.3, to = 63.3 }, -- 0:45.3-1:03.3
+	{ key = "phrase_112509101263761", name = "With", soundId = 112509101263761, from = 59.04, to = 78.99 }, -- 0:59.0-1:19.0
+	{ key = "phrase_86115718533153", name = "CRASH", soundId = 86115718533153, from = 51.62, to = 73.91 }, -- 0:51.6-1:13.9
+	{ key = "phrase_94024099429072", name = "SHOCK", soundId = 94024099429072, from = 43.68, to = 62.13 }, -- 0:43.7-1:02.1
+	{ key = "phrase_74619423082896", name = "백화요란", soundId = 74619423082896, from = 60.21, to = 77.71 }, -- 1:00.2-1:17.7
+} :: { { key: string, name: string, soundId: number, from: number, to: number } }
+
 M.TempoMin = 0.5
 M.TempoMax = 2.0
 M.TempoStep = 0.1
