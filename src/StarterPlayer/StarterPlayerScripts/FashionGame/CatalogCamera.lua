@@ -22,6 +22,45 @@ local BIND = "CatalogCamera"
 local target: { x: number, y: number, w: number, h: number }? = nil
 local saved: { type: Enum.CameraType, subject: Instance?, fov: number }? = nil
 
+-- (D-1336, user 2026-11-13: "카탈로그 열었을 때 회전해서 캐릭터 앞 뒤 위 아래 볼 수
+-- 있도록 수정") a drag on the world (not on the catalog window, the joystick or the
+-- jump button: those inputs are already taken) turns the camera round the character:
+-- left / right all the way round (the back too), up / down from below to above.
+-- Every new opening starts from the front again.
+local UserInputService = game:GetService("UserInputService")
+local yaw, pitch = 0, 0
+local PITCH_MIN, PITCH_MAX = math.rad(-60), math.rad(80)
+local SPEED = math.rad(0.45) -- per pixel dragged
+local dragging: InputObject? = nil
+local lastPos: Vector3? = nil
+UserInputService.InputBegan:Connect(function(input, processed)
+	if not saved or processed or dragging then return end
+	local kind = input.UserInputType
+	if kind == Enum.UserInputType.Touch or kind == Enum.UserInputType.MouseButton1 or kind == Enum.UserInputType.MouseButton2 then
+		dragging = input
+		lastPos = input.Position
+	end
+end)
+UserInputService.InputChanged:Connect(function(input)
+	local drag = dragging
+	if not drag or not lastPos then return end
+	local moved = if drag.UserInputType == Enum.UserInputType.Touch
+		then input == drag
+		else input.UserInputType == Enum.UserInputType.MouseMovement
+	if not moved then return end
+	local d = input.Position - (lastPos :: Vector3)
+	lastPos = input.Position
+	yaw -= d.X * SPEED
+	pitch = math.clamp(pitch + d.Y * SPEED, PITCH_MIN, PITCH_MAX)
+end)
+UserInputService.InputEnded:Connect(function(input)
+	local drag = dragging
+	if drag and (input == drag or (drag.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType == drag.UserInputType)) then
+		dragging = nil
+		lastPos = nil
+	end
+end)
+
 local function step()
 	local camera = workspace.CurrentCamera
 	local character = Players.LocalPlayer.Character
@@ -55,7 +94,10 @@ local function step()
 	local perPixel = 2 * distance * tanHalf / view.Y
 	local dx = (rect.x + rect.w / 2 - view.X / 2) * perPixel
 	local dy = (rect.y + rect.h / 2 - view.Y / 2) * perPixel
-	camera.CFrame = CFrame.lookAt(center + look * distance, center) * CFrame.new(-dx, dy, 0)
+	-- (D-1336) round the character by the drag: yaw about the vertical, then up / down
+	local around = CFrame.Angles(0, yaw, 0):VectorToWorldSpace(look)
+	local dir = around * math.cos(pitch) + Vector3.yAxis * math.sin(pitch)
+	camera.CFrame = CFrame.lookAt(center + dir * distance, center) * CFrame.new(-dx, dy, 0)
 end
 
 function CatalogCamera.frame(rect: { x: number, y: number, w: number, h: number })
@@ -63,6 +105,7 @@ function CatalogCamera.frame(rect: { x: number, y: number, w: number, h: number 
 	if saved then return end
 	local camera = workspace.CurrentCamera
 	if not camera then return end
+	yaw, pitch, dragging, lastPos = 0, 0, nil, nil -- (D-1336) from the front
 	saved = { type = camera.CameraType, subject = camera.CameraSubject, fov = camera.FieldOfView }
 	-- after the other camera scripts (stage camera, photo booth) so this one wins
 	RunService:BindToRenderStep(BIND, Enum.RenderPriority.Camera.Value + 10, step)
@@ -70,6 +113,7 @@ end
 
 function CatalogCamera.release()
 	target = nil
+	dragging, lastPos = nil, nil
 	if not saved then return end
 	RunService:UnbindFromRenderStep(BIND)
 	local camera = workspace.CurrentCamera
