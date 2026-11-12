@@ -831,6 +831,10 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 		return false, "카운터 안쪽 작업대에서 시작해 주세요."
 	end
 	if staff[player] == shopKey then return true, nil end
+	-- (D-1364) two part-timers at a cafe at most
+	if staffCount(shopKey) >= CafeJobConfig.MaxStaff then
+		return false, string.format("지금은 알바 자리가 꽉 찼어요 (%d/%d). 잠시 후 다시 해 주세요.", staffCount(shopKey), CafeJobConfig.MaxStaff)
+	end
 	-- (D-715) staff cannot sit: not from a seat or a ride
 	local seated = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if seated and seated.SeatPart then return false, "자리에서 일어난 뒤 알바를 시작해 주세요." end
@@ -1031,7 +1035,8 @@ local function tick()
 			for _, order in pairs(orders) do
 				if order.shop == shopKey and order.kind == "npc" then npcs += 1 end
 			end
-			if npcs < CafeJobConfig.NpcMax and now - (lastNpcAt[shopKey] or 0) >= (npcGap[shopKey] or CafeJobConfig.NpcEverySeconds) / rate then
+			-- (D-1364) the NPC cap goes with how many work here
+			if npcs < CafeJobConfig.npcMax(staffCount(shopKey)) and now - (lastNpcAt[shopKey] or 0) >= (npcGap[shopKey] or CafeJobConfig.NpcEverySeconds) / rate then
 				lastNpcAt[shopKey] = now
 				npcGap[shopKey] = CafeJobConfig.npcGap() -- (D-1025) the next one at a random time
 				task.spawn(spawnNpc, shopKey)

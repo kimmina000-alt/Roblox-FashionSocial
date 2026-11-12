@@ -32,6 +32,14 @@ CafeJobConfig.WorkArea = 25
 
 -- NPC customers (only while someone works at that cafe; PERFORMANCE.md: few)
 CafeJobConfig.NpcMax = 3
+-- (D-1364, user 2026-11-13: "2명까지로 해 줘 2명이면 5명까지") at most this many part-timers at
+-- one cafe; the NPC customers at once go with how many work there (1 → 3, 2 → 5)
+CafeJobConfig.MaxStaff = 2
+CafeJobConfig.NpcMaxByStaff = { 3, 5 }
+function CafeJobConfig.npcMax(staffCount: number): number
+	local list = CafeJobConfig.NpcMaxByStaff
+	return list[math.clamp(staffCount, 1, #list)] or CafeJobConfig.NpcMax
+end
 CafeJobConfig.NpcEverySeconds = 36 -- (18 → 36, D-772, user: half as often)
 -- (D-1025, user 2026-11-08: "불규칙적으로 등장하게 해") each next customer comes
 -- after a random gap between these (about 36 s on average, as before)

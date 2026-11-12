@@ -4539,3 +4539,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 새 곡 6개를 목록 끝(D-1362 4곡 다음)에: 미스터-KARA 139355618999719(184.435초, tempo 0.951), Hurricane Venus-BoA 91581305396096(181.558, 0.951), Magic-Secret 124810692241835(194.251, 0.952), BANG-After School 136570075901439(189.252, 0.951), Hot Issue-4MINUTE 124715970373244(205.296, 0.95), Abracadabra-Brown Eyed Girls 84753987256309(175.124, 0.952). length = 파일 초(Studio에서 잼), fileSpeed = 1 ÷ tempo.
 - Studio: ClubPlaylist(Catch Catch 줄 + 끝에 D-1362 4곡 · D-1363 6곡), ClubCamera 별칭 줄, ClubDances soundId만 바꿈. Play(클럽 홀): 곡 85개, 76..85번 10곡 모두 새 id로 재생(속도 = tempo), Catch Catch(17번) 새 id · fileSpeed 1.0702 · 무대 카메라 있음, 노래 112..115초에 14번 조각(at 107.77), 121초 뒤 15번 조각(at 121) = 안무 시계 맞음. 스크립트 오류 없음.
 - 메모: ClubCamera.lua는 깃에 CRLF로 저장돼 있음(다른 Shared 파일은 LF). 고칠 땐 core.autocrlf=false로 add해야 파일 전체 diff가 안 생김.
+## D-1364 카페 알바: 한 카페 2명까지, 손님 수는 알바 수에 맞춰 (2026-11-13)
+- 사용자: "알바 동시에 몇 명까지 할 수 있는지 정했나?" → (제한 없었음) "2명까지로 해 줘 2명이면 5명까지".
+- CafeJobConfig.MaxStaff = 2: 셋째는 "지금은 알바 자리가 꽉 찼어요 (2/2). 잠시 후 다시 해 주세요." NPC 손님 동시 최대 = npcMax(알바 수): 1명 → 3명, 2명 → 5명(NpcMaxByStaff).
+- Studio: npcMax(1)=3 · npcMax(2)=5, 알바 시작 5초 뒤 손님 주문 들어옴. 셋째 막기는 3인이 필요해서 시험 못 함.
