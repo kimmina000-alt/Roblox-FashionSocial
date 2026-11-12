@@ -1320,6 +1320,17 @@ subcategoryRightButton.MouseButton1Click:Connect(function()
 	subcategoryStrip.CanvasPosition = Vector2.new(math.min(subcategoryStrip.AbsoluteCanvasSize.X, subcategoryStrip.CanvasPosition.X + 120), 0)
 end)
 
+-- (D-1329, user 2026-11-12: "아래 두 줄에 < > 화살표 넣은 것처럼 해당 줄에도 화살표 넣어 줘")
+-- ‹ › on the 최근 / 인기 / 즐겨찾기 / 착용 중 / ⚙ / 옷장 row too, whenever it has a row of
+-- its own (one table: CatalogController is near the 200-local limit)
+local discoveryArrows = { createArrowButton("DiscoveryLeftArrow", "‹"), createArrowButton("DiscoveryRightArrow", "›") }
+discoveryArrows[1].MouseButton1Click:Connect(function()
+	discoveryBar.CanvasPosition = Vector2.new(math.max(0, discoveryBar.CanvasPosition.X - 120), 0)
+end)
+discoveryArrows[2].MouseButton1Click:Connect(function()
+	discoveryBar.CanvasPosition = Vector2.new(math.min(math.max(0, discoveryBar.AbsoluteCanvasSize.X - discoveryBar.AbsoluteWindowSize.X), discoveryBar.CanvasPosition.X + 120), 0)
+end)
+
 -- Mouse drag scrolling for desktop; touch scrolling remains native on mobile.
 local categoryDragStartX: number? = nil
 local categoryDragCanvasX = 0
@@ -1588,9 +1599,29 @@ updateCatalogLayout = function()
 		discoveryX, discoveryY = x, headerY + 36
 		discoveryWidth = innerWidth
 	else
-		-- (D-1050: six buttons now, ⚙ and 옷장 too)
-		discoveryWidth = math.max(1, math.min(500, controlsLeft - 8 - (x + titleLabel.Size.X.Offset)))
-		discoveryX, discoveryY = controlsLeft - 6 - discoveryWidth, headerY
+		-- (D-1329, user 2026-11-12: "카탈로그 최소화 모드에서 최근 인기 즐겨찾기 착용 중
+		-- 이 라인 아래로 내린 것처럼 최대화 화면에서도 아래로 내려 줘") the expanded
+		-- catalog has them on their own row under CATALOG 초기화 < > 🛒 ↙ X as well
+		-- (they sat beside the title, squeezed between it and the buttons)
+		discoveryX, discoveryY = x, headerY + controlSize + 4
+		discoveryWidth = innerWidth
+	end
+	-- (D-1329) ‹ › at both ends of the row when it has a row of its own
+	local discoveryOwnRow = discoveryBelow or not phoneCompact
+	if discoveryOwnRow then
+		local diameter = math.floor(rowH / 2)
+		local arrowY = discoveryY + math.floor((controlSize - diameter) / 2)
+		for i, arrow in ipairs(discoveryArrows) do
+			arrow.Visible = true
+			arrow.Size = UDim2.fromOffset(diameter, diameter)
+			arrow.TextSize = diameter
+			arrow.Position = UDim2.fromOffset(if i == 1 then discoveryX else discoveryX + discoveryWidth - diameter, arrowY)
+		end
+		discoveryX += diameter + 4
+		discoveryWidth = math.max(1, discoveryWidth - diameter * 2 - 8)
+	else
+		discoveryArrows[1].Visible = false
+		discoveryArrows[2].Visible = false
 	end
 	discoveryBar.Visible = true
 	discoveryBar.Position = UDim2.fromOffset(discoveryX, discoveryY)
@@ -1617,7 +1648,8 @@ updateCatalogLayout = function()
 
 	-- Category row (and, in expanded mode, search + filter on the same row).
 	local rowY = if discoveryBelow then headerY + (controlSize + 4) * 2
-		elseif phoneCompact then headerY + controlSize + 4 elseif compact then headerY + 70 else headerY + 40
+		elseif phoneCompact then headerY + controlSize + 4 elseif compact then headerY + 70
+		else headerY + (controlSize + 4) * 2 -- (D-1329) under the shortcuts row
 	local categoryWidth = if expandedPanel then math.max(80, math.floor(innerWidth * (if narrow then 0.32 else 0.42))) else innerWidth
 	local function placeArrowRow(left: TextButton, strip: ScrollingFrame, right: TextButton, rowX: number, y: number, width: number)
 		-- Arrow circles are half the row height (user request 2026-10-19).
@@ -1744,7 +1776,7 @@ updateCatalogLayout = function()
 	titleLabel.Text = if editorOpen then "AVATAR EDITOR" else "CATALOG"
 	if editorOpen then
 		for _, gui in ipairs({
-			discoveryBar, categoryLeftButton, mainCategoryStrip, categoryRightButton,
+			discoveryBar, discoveryArrows[1], discoveryArrows[2], categoryLeftButton, mainCategoryStrip, categoryRightButton,
 			subcategoryLeftButton, subcategoryStrip, subcategoryRightButton,
 			searchBox, searchButton, fixedFilterButton, resultsFrame, backToPacksButton,
 			filterPanel,
@@ -1752,7 +1784,9 @@ updateCatalogLayout = function()
 			gui.Visible = false
 		end
 		if resultsMessage then resultsMessage.Visible = false end
-		avatarEditor:layout(x, rowY, innerWidth, math.max(120, panelHeight - rowY - pad))
+		-- (D-1329) the editor starts where the shortcuts row would be (it hides that row)
+		local editorY = headerY + controlSize + 4
+		avatarEditor:layout(x, editorY, innerWidth, math.max(120, panelHeight - editorY - pad))
 	else
 		resultsFrame.Visible = true
 		-- (D-799, user: the search box was gone after the editor; it is the only
