@@ -4430,3 +4430,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자(OH24 안 사진): "편의점 벽면에 냉장.냉동 저거 삭제해. 내가 준 진열장 이미지 넣은 블록만 있어야 함..".
 - build_hongdae_layout이 서쪽 벽에 만들던 냉장고(ColdBack / ColdTop / ColdHeader / ColdInner / ColdBase / ColdDoor / ColdFrame / ColdHandle / ColdShelf)와 앞의 상품 줄(ShelfRow) 123개가 사용자의 진열장 이미지 블록(Workspace.cold 두 개, 텍스처 93988306265362) 앞을 가리고 있었음. 새 체인 마지막 단계 tools/graybox/oh24_cold_off_1113.lua가 OH24Store 바로 아래, x -106.5..-100의 Cold* · ShelfRow를 지움(곤돌라 선반은 그대로). Studio에서 실행(123개), 게임 코드에는 이 부품을 쓰는 곳 없음. LAYOUT.md 3-24.
 - 레이아웃 체인 끝: … park_layout_1111 → hanok_ground_fill → bakery_underlight → oh24_cold_off_1113.
+## D-1334 체인 재빌드로 지워진 사용자 손 편집을 게시본(버전 317)에서 되찾음 (2026-11-13)
+- 사용자(게시 중인 게임 편의점 사진 4장): "편의점 이거여야 함. 지금 수정 전 편의점 내부로 돌아갔어" / "광화문 고치면서 다른 공간들은 바뀐 거 없는지 확인해".
+- 원인: Studio에서 손으로 고친 것 중 체인이 다시 짓는 폴더(Hongdae_Layout) 안의 것은 스크립트에 옮겨 적지 않았는데, 광화문 때문에 2026-11-12 · 13 체인 전체를 다시 돌려서 스크립트 상태로 돌아감. 체인 전에 확인하지 않은 것이 실수.
+- 복구: 사용자가 Studio 내용을 로컬 파일(D:/Roblox/OHU20261113.rbxl)로 두고, 게시본 317(2026-11-12 02:21)을 복원해 다른 창에서 열어 Hongdae_Layout · StreetDress를 복사해 옴. 부품 하나하나(이름 · 위치 · 크기 · 색 · 재질 · 회전 · 투명도) 비교: StreetDress는 같음. Hongdae_Layout에서 사용자 편집이 지워진 곳 = OH24Store(건물 x -1, 곤돌라 1개, 바 다리 등), BigSpenderLED(편의점 위 타워), ClubAnnex(바닥 102 × 54), Gukbap(주방 냉장고 없음), OhuFourCuts(다리 8개 없음), AmusementParkGate(서쪽 담 · 기둥 x -273.7, 그물 2장 없음), OpenSea 없음, 바닥 판 5 · 보도 2 · 해변 계단 21 · 산책로 · 계단 끝 · ParkRaise.ParkPlatform. 모두 317 상태로 되돌림. 그대로 둔 곳: 광화문 · 돌담 · 공사 펜스(D-1332), ParkPlatformNorth(그 뒤 사용자가 다시 넓힘, D-1327), PalaceBlockout(사용자가 그 뒤 지움). 나머지 차이는 회전 180 / -180 표기뿐.
+- 다시 지워지지 않게: ServerStorage.UserMapSnapshot(Models 6, AddParts 28, RemoveSigs 13, RemoveModels "OpenSea") + 체인 마지막 단계 tools/graybox/user_map_snapshot_1113.lua(LAYOUT.md 3-25). Studio에서 두 번 돌려 두 번째는 부품 변화 0. 편의점 사진 oh24_restored_D-1334.jpg.
+- 레이아웃 체인 끝: … hanok_ground_fill → bakery_underlight → oh24_cold_off_1113 → user_map_snapshot_1113.
