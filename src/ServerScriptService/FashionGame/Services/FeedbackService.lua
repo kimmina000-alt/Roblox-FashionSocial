@@ -66,8 +66,15 @@ local function send(player: Player, payload: any): (boolean, string?)
 	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local at = os.time()
 	local key = string.format("f_%d_%d", at, player.UserId)
+	-- (D-1325) filtered now, while the sender is in this server: the owner reads it
+	-- later, when the sender has usually left (filtering then failed, so the inbox
+	-- showed "(필터를 거치지 못한 글)" for every message)
+	local tf: string? = nil
+	pcall(function()
+		tf = TextService:FilterStringAsync(text, player.UserId):GetNonChatStringForBroadcastAsync()
+	end)
 	local value = {
-		u = player.UserId, n = player.Name, k = payload.kind, t = text, at = at,
+		u = player.UserId, n = player.Name, k = payload.kind, t = text, tf = tf, at = at,
 		x = if root then math.floor(root.Position.X) else nil,
 		z = if root then math.floor(root.Position.Z) else nil,
 	}
@@ -88,12 +95,23 @@ local function send(player: Player, payload: any): (boolean, string?)
 	return true, "소중한 의견이 잘 접수되었어요. 고마워요! 💛"
 end
 
--- the owner reads them in the game: filtered for the owner (Roblox text rules)
-local function filtered(text: string, from: number, to: Player): string
-	local ok, result = pcall(function()
-		return TextService:FilterStringAsync(text, from):GetNonChatStringForUserAsync(to.UserId)
-	end)
-	return if ok and typeof(result) == "string" then result else "(필터를 거치지 못한 글)"
+-- the owner reads them in the game: filtered for the owner (Roblox text rules).
+-- (D-1325, user 2026-11-12: "받은 의견 ... 눌러도 내용 안 보임") FilterStringAsync fails
+-- for a sender who is not in this server, which is nearly always, so every message
+-- read "(필터를 거치지 못한 글)". Now: the text filtered when it was sent (value.tf);
+-- for older messages the sender's id, else the owner's own id as the author.
+local function filtered(value: any, to: Player): string
+	if typeof(value.tf) == "string" and value.tf ~= "" then return value.tf end
+	local text = tostring(value.t)
+	for _, from in ipairs({ value.u, to.UserId }) do
+		if typeof(from) == "number" then
+			local ok, result = pcall(function()
+				return TextService:FilterStringAsync(text, from):GetNonChatStringForUserAsync(to.UserId)
+			end)
+			if ok and typeof(result) == "string" then return result end
+		end
+	end
+	return "(필터를 거치지 못한 글)"
 end
 
 local function list(player: Player): {any}
@@ -109,7 +127,7 @@ local function list(player: Player): {any}
 		for _, row in ipairs(page) do
 			local value = (store :: DataStore):GetAsync(row.key)
 			if typeof(value) == "table" and not value.done then
-				table.insert(out, { key = row.key, n = value.n, k = value.k, at = value.at, t = filtered(value.t, value.u, player), x = value.x, z = value.z, r = value.r })
+				table.insert(out, { key = row.key, n = value.n, k = value.k, at = value.at, t = filtered(value, player), x = value.x, z = value.z, r = value.r })
 			end
 		end
 	end)

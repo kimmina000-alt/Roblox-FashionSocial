@@ -13,7 +13,10 @@ local folder = Instance.new("Folder")
 folder.Name = "UnderLights"
 folder.Parent = display
 
-local WARM = Color3.fromRGB(255, 190, 120)
+-- (D-1324, user 2026-11-12: "빵 진열대랑 트레이 밑에 조명 더 얇게 하고 흰색으로 수정") white,
+-- and thinner: the strips 0.05 × 0.05 (were 0.14 × 0.1), the tray rims 0.05 wide and 0.03
+-- thick (were 0.15 / 0.06). The name WARM stays for the colour of every light here.
+local WARM = Color3.fromRGB(250, 250, 255)
 local count = 0
 for _, t in ipairs(workspace:GetDescendants()) do
 	if t:IsA("BasePart") and t.Name == "BakeryTable" then
@@ -34,8 +37,8 @@ for _, t in ipairs(workspace:GetDescendants()) do
 			p.Material = Enum.Material.Neon
 			p.Color = WARM
 			local len = (side[2] :: number) - 0.4
-			p.Size = if side[3] then Vector3.new(len, 0.14, 0.1) else Vector3.new(0.1, 0.14, len)
-			p.CFrame = cf * CFrame.new(0, bottom + 0.22, 0) * (side[1] :: CFrame)
+			p.Size = if side[3] then Vector3.new(len, 0.05, 0.05) else Vector3.new(0.05, 0.05, len)
+			p.CFrame = cf * CFrame.new(0, bottom + 0.175, 0) * (side[1] :: CFrame)
 			-- small warm PointLights on Attachments along the strip, 0.8 out from the
 			-- table (a SurfaceLight did not reach the floor; brighter ones flooded the room)
 			local out = side[4] :: Vector3
@@ -78,8 +81,8 @@ for _, d in ipairs(workspace:GetDescendants()) do
 		p.CanCollide, p.CanQuery, p.CanTouch, p.CastShadow = false, false, false, false
 		p.Material = Enum.Material.Neon
 		p.Color = WARM
-		p.Size = Vector3.new(d.Size.X + 0.3, 0.06, d.Size.Z + 0.3)
-		p.CFrame = d.CFrame * CFrame.new(0, -d.Size.Y / 2 + 0.04, 0)
+		p.Size = Vector3.new(d.Size.X + 0.1, 0.03, d.Size.Z + 0.1)
+		p.CFrame = d.CFrame * CFrame.new(0, -d.Size.Y / 2 + 0.025, 0)
 		local a = Instance.new("Attachment")
 		a.Position = Vector3.new(0, 0.2, 0)
 		a.Parent = p
