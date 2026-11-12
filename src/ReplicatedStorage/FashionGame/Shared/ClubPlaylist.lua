@@ -190,7 +190,9 @@ M.Playlist = {
 		{ id = 136973102149586, at = 135.1, blend = 0.7 }, { id = 98464771574081, at = 142.54, blend = 1 }, { id = 76049029842393, at = 145.09, blend = 0.63 },
 		{ id = 117350090855113, at = 155.01 }, { id = 95981548117869, at = 160.53, blend = 0.64 } }, autoChoreo = true },
 	-- (D-1122, user 2026-11-10: "캐치캐치 저음 -20으로 수정", then "캐치캐치 중음 -15 고음 -30", then "캐치캐치 중음 -25", then "캐치캐치 저음 -30")
-	{ channel = "K-POP", title = "Catch Catch-YENA", soundId = 80583279340768, length = 61, lab = { speed = 1, tempo = 0.34, volume = 10, boost = 10, boost2 = 10, octave = 0.5, low = -30, mid = -25, high = -30, engine = "sound" },
+	-- (D-1363, user 2026-11-13: "캐치캐치는 기존 음원을 아래 음원으로 변경") was 80583279340768, a 3× file of 61.177 s (song 183.53 s);
+	-- the new 171.491 s file = 3 × 61.177 ÷ 171.491 = 1.0702 faster than the song, so `at` and the stage camera keep the song clock
+	{ channel = "K-POP", title = "Catch Catch-YENA", soundId = 119002946047943, length = 171.491, fileSpeed = 1.0702, lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
 		-- (D-985, user: "전체적으로 좌우 반전") the pieces come from the mirrored video: danced as their mirror image
 		mirror = true,
 		-- D-968: CatchCatch 1..23 (3, 6, 15, 19, 22 = re-uploads 2026-11-07; the first uploads were copies of the piece before).
@@ -619,6 +621,28 @@ M.Playlist = {
 			{ id = 116718508120035, at = 159.59, blend = 1 }, { id = 98439541459421, at = 166.28, blend = 1 }, { id = 126812347548541, at = 168.95, blend = 0.64 },
 			{ id = 138514282006084, at = 170.03, blend = 0.51 }, { id = 101271170738014, at = 178.96, blend = 0.57 }, { id = 87258411271471, at = 190.42, blend = 0.36 }, { id = 106836976565207, at = 195.88, blend = 1 },
 			{ id = 129589571291554, at = 205.24, blend = 1 } }, autoChoreo = true },
+	-- (D-1362, user 2026-11-13: 4 uploads with the lab values as sent; length = the file's seconds, fileSpeed = 1 / tempo (heard = the song))
+	{ channel = "K-POP", title = "NAGARI-KEYVITUP", soundId = 111437943109567, length = 153.44, fileSpeed = 1.0493,
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -12.5, engine = "sound" } },
+	{ channel = "K-POP", title = "MEME-RESCENE", soundId = 97560393166257, length = 172.448, fileSpeed = 1.0493,
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -9.5, engine = "sound" } },
+	{ channel = "K-POP", title = "REBELS-ISEGYE IDOL", soundId = 79547024043593, length = 164.088, fileSpeed = 1.0482,
+		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -8, engine = "sound" } },
+	{ channel = "K-POP", title = "Finest Thing-RESCENE", soundId = 131800112414894, length = 133.375, fileSpeed = 1.0493,
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -11.5, engine = "sound" } },
+	-- (D-1363, user 2026-11-13: 6 uploads with the lab values as sent; length = the file's seconds, fileSpeed = 1 / tempo)
+	{ channel = "K-POP", title = "미스터-KARA", soundId = 139355618999719, length = 184.435, fileSpeed = 1.0515,
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "Hurricane Venus-BoA", soundId = 91581305396096, length = 181.558, fileSpeed = 1.0515,
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "Magic-Secret", soundId = 124810692241835, length = 194.251, fileSpeed = 1.0504,
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "BANG-After School", soundId = 136570075901439, length = 189.252, fileSpeed = 1.0515,
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "Hot Issue-4MINUTE", soundId = 124715970373244, length = 205.296, fileSpeed = 1.0526,
+		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "Abracadabra-Brown Eyed Girls", soundId = 84753987256309, length = 175.124, fileSpeed = 1.0504,
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 
 } :: {Track}
 

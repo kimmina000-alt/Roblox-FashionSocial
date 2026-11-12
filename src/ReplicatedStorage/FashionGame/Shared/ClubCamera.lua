@@ -1023,6 +1023,8 @@ ClubCamera.Songs[131620527618857] = ClubCamera.Songs[129996145931101]
 -- (D-1042) ALLDAY PROJECT-CRASH is on the new upload 86115718533153 (fileSpeed 1.0499,
 -- the same song clock as the old 3× file 104827635407586, feat/crash-choreo-1109)
 ClubCamera.Songs[86115718533153] = ClubCamera.Songs[104827635407586]
+-- (D-1363) YENA-Catch Catch new upload 119002946047943 (fileSpeed 1.0702): same song clock
+ClubCamera.Songs[119002946047943] = ClubCamera.Songs[80583279340768]
 
 -- (D-1046) Hearts2Hearts-Lemon Tang: MBC Show! Music Core 2026-06-27 (youtube a8tzYxhBjOg),
 -- video = song + 10.0 s (no mp3: the practice video's sound, = song + 0.00 by the
