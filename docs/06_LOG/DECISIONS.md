@@ -4476,4 +4476,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1362 새 음원 4곡: NAGARI-KEYVITUP / MEME-RESCENE / REBELS-ISEGYE IDOL / Finest Thing-RESCENE (2026-11-13)
 - 사용자가 랩 값과 함께 보냄(volume 10 / boost 10 / boost2 5 / boost3 4 / octave 1 / low 0 / mid 0 / high -12.5, -9.5, -8, -11.5). 곡 목록 맨 끝에 보낸 순서대로.
 - length = 파일 초(랩 장소 Play 서버에서 잼, 장소는 안 바꿈): 153.44 / 172.448 / 164.088 / 133.375. 들리는 길이 = 파일 ÷ tempo = 2:41 / 3:01 / 2:52 / 2:20. fileSpeed = 1 ÷ tempo(1.0493 / 1.0493 / 1.0482 / 1.0493). 안무·무대 카메라 없음.
-- Studio(오후)가 안 열려 있어 아직 적용·Play 확인 안 함.
+- Studio: D-1363과 함께 넣음(아래). Play: 76..79번 재생, 속도 = tempo, 오류 없음.
+
+## D-1363 Catch Catch 새 음원 + 새 음원 6곡 (2026-11-13)
+- 사용자: "캐치캐치는 기존 음원을 아래 음원으로 변경" + 7개 랩 값(volume 10 / boost 10 / boost2 5 / boost3 4 / octave 1 / EQ 0).
+- Catch Catch-YENA: 80583279340768(3배 파일 61.177초, 원곡 183.53초) → 119002946047943(171.491초). fileSpeed = 3 × 61.177 ÷ 171.491 = 1.0702(새 파일이 원곡보다 빠른 배수), tempo 0.953 × 1.0702 = 1.020 = 예전 0.34 × 3과 같은 곡 시계 → 안무 `at` 그대로. 들리는 길이 2:59.9(예전과 같음). 무대 카메라: ClubCamera.Songs[119002946047943] = 예전 id 별칭. 안무 탭 한 소절(ClubDances phrase_80583279340768)의 soundId도 새 id로(곡 목록에서 soundId로 곡을 찾음; key는 그대로).
+- 새 곡 6개를 목록 끝(D-1362 4곡 다음)에: 미스터-KARA 139355618999719(184.435초, tempo 0.951), Hurricane Venus-BoA 91581305396096(181.558, 0.951), Magic-Secret 124810692241835(194.251, 0.952), BANG-After School 136570075901439(189.252, 0.951), Hot Issue-4MINUTE 124715970373244(205.296, 0.95), Abracadabra-Brown Eyed Girls 84753987256309(175.124, 0.952). length = 파일 초(Studio에서 잼), fileSpeed = 1 ÷ tempo.
+- Studio: ClubPlaylist(Catch Catch 줄 + 끝에 D-1362 4곡 · D-1363 6곡), ClubCamera 별칭 줄, ClubDances soundId만 바꿈. Play(클럽 홀): 곡 85개, 76..85번 10곡 모두 새 id로 재생(속도 = tempo), Catch Catch(17번) 새 id · fileSpeed 1.0702 · 무대 카메라 있음, 노래 112..115초에 14번 조각(at 107.77), 121초 뒤 15번 조각(at 121) = 안무 시계 맞음. 스크립트 오류 없음.
+- 메모: ClubCamera.lua는 깃에 CRLF로 저장돼 있음(다른 Shared 파일은 LF). 고칠 땐 core.autocrlf=false로 add해야 파일 전체 diff가 안 생김.

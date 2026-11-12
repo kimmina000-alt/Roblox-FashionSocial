@@ -905,3 +905,4 @@
 - 춤 15개 추가 + K-POP 탭(NCT 127 · TWICE 공식 이모트, D-1341), '안무' 탭: 클럽 노래 20곡의 한 소절 반복 (D-1343).
 - 포토월: 게임 전체 30장 → 벽마다 30장 (사진이 밀려 사라지던 원인, D-1342).
 - 새 음원 4곡 추가: NAGARI-KEYVITUP, MEME-RESCENE, REBELS-ISEGYE IDOL, Finest Thing-RESCENE (랩 값, D-1362).
+- Catch Catch 새 음원 119002946047943(fileSpeed 1.0702, 안무·무대 카메라 그대로) + 새 곡 6개(KARA · BoA · Secret · After School · 4MINUTE · Brown Eyed Girls) (D-1363).

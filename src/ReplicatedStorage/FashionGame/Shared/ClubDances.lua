@@ -81,7 +81,7 @@ M.ChoreoPhrases = {
 	{ key = "phrase_128270208751659", name = "소원을 말해봐", soundId = 128270208751659, from = 58.39, to = 81.85 }, -- 0:58.4-1:21.8
 	{ key = "phrase_70738014182544", name = "Get A Guitar", soundId = 70738014182544, from = 47.92, to = 64.75 }, -- 0:47.9-1:04.8
 	{ key = "phrase_85204387077332", name = "Love 119", soundId = 85204387077332, from = 46.37, to = 62.44 }, -- 0:46.4-1:02.4
-	{ key = "phrase_80583279340768", name = "Catch Catch", soundId = 80583279340768, from = 48.27, to = 66.27 }, -- 0:48.3-1:06.3
+	{ key = "phrase_80583279340768", name = "Catch Catch", soundId = 119002946047943, from = 48.27, to = 66.27 }, -- 0:48.3-1:06.3
 	{ key = "phrase_97032815457241", name = "Lemon Tang", soundId = 97032815457241, from = 49.8, to = 65 }, -- 0:49.8-1:05.0
 	{ key = "phrase_140713297574648", name = "NEON", soundId = 140713297574648, from = 72.27, to = 87.58 }, -- 1:12.3-1:27.6
 	{ key = "phrase_139044453511745", name = "체포하겠어", soundId = 139044453511745, from = 48.52, to = 66.52 }, -- 0:48.5-1:06.5
