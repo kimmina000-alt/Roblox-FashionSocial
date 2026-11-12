@@ -4472,3 +4472,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ClubDances.ChoreoPhrases(곡마다 key / name / soundId / from / to, 원곡 초 = ClubPlaylist `at`의 시계), 춤 창에 '안무' 탭(K-POP · 포즈·응원 다음). 버튼을 누르면 ChoreoController가 그 곡의 안무 조각을 from..to 구간만 노래 없이 계속 반복(자기 시계 phrase.t0, 보정 · 블렌드 · 제자리 복귀 그대로), 같은 버튼 다시 = 멈춤, 걷기 · 다른 춤 · 춤 멈추기도 멈춤. 어디서나(클럽 밖도) 출 수 있음. LocalPlayer 속성 ChoreoPhrase(버튼 강조, "♪ 안무 · 곡").
 - 구간은 첫 후렴쯤으로 고른 1차 값(마지막 조각 시각의 27% 이후 첫 조각부터 15~24초, 조각 경계에서 끝). 곡별 from / to는 ClubDances.lua에서 바꾸면 됨.
 - Studio PC Play: 탭 버튼 20개, REDRED 20초 동안 조각 116978800280311 → 139026140322649 → 다시 처음, 안 추는 순간 0, 백화요란으로 바꾸기 · 같은 버튼으로 멈춤 확인(사진 dance_phrase_tab_D-1343.jpg).
+
+## D-1344 REDRED-CORTIS boost4 2 (2026-11-13)
+- 사용자: "레드레드 부스트 몇이야" → boost 10 / boost2 5 / boost3 5(boost4 없음 = 1, 볼륨 10과 곱하면 2,500). "부스트4 2로 가면 몇 돼" → 5,000, "응 바꿔".
+- ClubPlaylist REDRED-CORTIS(76034005809699) lab에 boost4 = 2. 들리는 배수 = 10 × 10 × 5 × 5 × 2 = 5,000(전의 2배). 다른 값 그대로.
+- Studio: 그 줄만 바꿈. Play: REDRED 재생, 그룹 ClubMusicBoost 10 > Boost2 5 > Boost3 5 > Boost4 2 > EdmSongMute 1, 스크립트 오류 없음. 소리 크기·찢어짐은 사용자가 귀로 확인.
