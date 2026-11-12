@@ -4426,3 +4426,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자(위에서 본 스크린샷): "광화문 45도로 회전해 놨어. 지금 내가 회전해 놓은 위치에 맞춰서 이어져 있던 돌담벽도 수정해줘".
 - Studio에서 GateStone을 읽어 build_hongdae_layout.lua에 그대로: GATE_ROT 0° → -45°(앞이 북서쪽 사거리), GATE_C (158, 0, 195) → (180.69, 0, 183.99)(사용자가 돌리면서 가운데가 옮겨진 자리). 앞마당 바닥 판(D-1015)은 이제 광화문 좌표계에 붙어서 같이 돌고 움직임(계산값이 사용자가 돌려 놓은 판과 일치). 돌담 곡선 · 난간 · 해태 · 잔디는 광화문 양끝에서 다시 그려짐.
 - 사용자 명령 바로 ChainSrc 30 → prop_save(변경 없음) → 체인 전체 → hanok_ground_fill(1,936칸) → bakery_underlight, 모두 오류 없음. 놀이공원 부지(D-1327) 그대로. 장소 저장. 사진 gate45_D-1332.jpg.
+## D-1333 OH24: 벽면 냉장 · 냉동고 삭제, 사용자 진열장 이미지 블록만 (2026-11-13)
+- 사용자(OH24 안 사진): "편의점 벽면에 냉장.냉동 저거 삭제해. 내가 준 진열장 이미지 넣은 블록만 있어야 함..".
+- build_hongdae_layout이 서쪽 벽에 만들던 냉장고(ColdBack / ColdTop / ColdHeader / ColdInner / ColdBase / ColdDoor / ColdFrame / ColdHandle / ColdShelf)와 앞의 상품 줄(ShelfRow) 123개가 사용자의 진열장 이미지 블록(Workspace.cold 두 개, 텍스처 93988306265362) 앞을 가리고 있었음. 새 체인 마지막 단계 tools/graybox/oh24_cold_off_1113.lua가 OH24Store 바로 아래, x -106.5..-100의 Cold* · ShelfRow를 지움(곤돌라 선반은 그대로). Studio에서 실행(123개), 게임 코드에는 이 부품을 쓰는 곳 없음. LAYOUT.md 3-24.
+- 레이아웃 체인 끝: … park_layout_1111 → hanok_ground_fill → bakery_underlight → oh24_cold_off_1113.

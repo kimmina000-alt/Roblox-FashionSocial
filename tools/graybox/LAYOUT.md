@@ -56,7 +56,8 @@
   3-20. `oh24_bar_1110.lua` — 편의점 창가 바(D-1157): 온수기 · 온수 꼭지 · 받침과 전자레인지를 짧은 창가 바 기준 자리로(Workspace 바로 아래 복사본은 OH24Store 안으로), 긴 바 스툴 4개를 데크 위 바 안쪽으로(공중에 뜨지 않게 레이캐스트, 바 앞에서 0.9, D-1253). 여러 번 돌려도 같다.
   3-21. `ohucuts_sign_1110.lua` — 오후네컷 간판 3개(◎ 오후네컷, ◎ OHU4cuts ×2)를 같은 자리·길이의 이미지판으로(강원교육튼튼, 연핑크, D-1184). 예전 3D 글자는 ServerStorage.ParkedOhuSigns로. 여러 번 돌려도 같다(따로 돌려도 안전).
   3-22. `gukbap_table_1110.lua` — 국밥집 테이블 9개를 0.4 위로(다리 늘이고 휴지통 같이, D-1255). 테이블마다 Raised1110 표시가 있어 다시 돌려도 또 올라가지 않음.
-  3-23. `park_layout_1111.lua` — 놀이공원 안내도대로 배치(D-1316): 관람차는 북쪽 끝, 회전목마는 서쪽 가운데, 그네는 그 북쪽으로 받침·라벨째 옮기고(정해진 자리로 옮겨서 다시 돌려도 같다), 나머지 안내도 시설은 Hongdae_Layout.ParkBlockout 블록아웃. park_raise 다음, 맨 마지막.
+  3-23. `park_layout_1111.lua` — 놀이공원 안내도대로 배치(D-1316): 관람차는 북쪽 끝, 회전목마는 서쪽 가운데, 그네는 그 북쪽으로 받침·라벨째 옮기고(정해진 자리로 옮겨서 다시 돌려도 같다), 나머지 안내도 시설은 Hongdae_Layout.ParkBlockout 블록아웃. park_raise 다음.
+  3-24. `hanok_ground_fill.lua`(D-1323, 한옥 마을 빈 땅을 지형 잔디로) → `bakery_underlight.lua`(D-1319/D-1324, 빵 진열대 조명) → `oh24_cold_off_1113.lua` — OH24 서쪽 벽의 냉장 · 냉동고(Cold* / ShelfRow)를 지움: 사용자 진열장 이미지 블록(Workspace.cold)만 남김(D-1333). 맨 마지막.
 4. 손 편집 기록(`ServerStorage.PropOverrides`, git `prop_overrides.json`)은 2·3단계에서 자동 적용. 다시 빌드하기 전에 항상 `prop_save.lua`로 먼저 저장.
 - 필요한 Studio 자산: ServerStorage.ArtAssets(나무·관목·야자수·가로등·신호등 등, 스크립트 제거됨), ServerStorage.Cars(G70·G80), MaterialService(OHU_Asphalt, OHU_Concrete). 장소 파일에만 있으므로 Studio 저장 필수.
 - 예전 이름: hongdae_v1_temp.lua / Workspace.Hongdae_v1_Temp (임시 단계). 새 스크립트의 revert가 예전 폴더도 지운다.
