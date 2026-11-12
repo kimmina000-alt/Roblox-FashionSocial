@@ -19,6 +19,7 @@ local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
+local ScreenHeld = require(script.Parent:WaitForChild("ScreenHeld")) -- (D-1350) held food apart from the body copy
 
 -- (D-1156) 260 → 150: the club is underground; from the streets around it the
 -- lights were still moved 30 times a second
@@ -233,6 +234,7 @@ type Pillar = {
 	-- copy is rebuilt (user, 2026-10-22: the pillar kept the old outfit)
 	watch: {RBXScriptConnection},
 	dirtyAt: number?,
+	held: any, -- (D-1350) ScreenHeld state
 }
 local pillars: {Pillar} = {}
 
@@ -274,6 +276,7 @@ local function clearClones(pillar: Pillar)
 	for _, connection in ipairs(pillar.watch) do connection:Disconnect() end
 	pillar.watch = {}
 	pillar.dirtyAt = nil
+	ScreenHeld.clear(pillar.held)
 end
 
 -- Copies `character` into every panel. Returns false when it cannot.
@@ -288,7 +291,8 @@ local function buildClones(pillar: Pillar, character: Model): boolean
 	if not ok or not template then return false end
 	for _, descendant in ipairs(template:GetDescendants()) do
 		if descendant:IsA("BaseScript") or descendant:IsA("Sound") or descendant:IsA("ForceField")
-			or descendant:IsA("BillboardGui") or descendant:IsA("ProximityPrompt") or descendant:IsA("Beam") then
+			or descendant:IsA("BillboardGui") or descendant:IsA("ProximityPrompt") or descendant:IsA("Beam")
+			or descendant:IsA("Tool") then -- (D-1350: held items are copied apart, ScreenHeld)
 			descendant:Destroy()
 		elseif descendant:IsA("BasePart") then
 			descendant.Anchored = true
@@ -334,6 +338,7 @@ local function buildClones(pillar: Pillar, character: Model): boolean
 	pillar.source = character
 	pillar.sourceParts = sourceParts
 	local function changed(instance: Instance)
+		if ScreenHeld.isHeld(instance) then return end -- (D-1350: a bite is not an outfit change)
 		if isLook(instance) and not pillar.dirtyAt then pillar.dirtyAt = os.clock() end
 	end
 	pillar.watch = {
@@ -416,7 +421,7 @@ local function buildPillar(model: Model): Pillar
 	local repeatPanels = math.max(1, math.floor(#list / 2))
 	local pillar: Pillar = {
 		model = model, panels = {}, nameLabel = nil, center = Vector3.zero, showing = -1,
-		source = nil, sourceParts = {}, watch = {}, dirtyAt = nil,
+		source = nil, sourceParts = {}, watch = {}, dirtyAt = nil, held = ScreenHeld.new(),
 	}
 	for _, item in ipairs(list) do
 		table.insert(pillar.panels, newPanel(item.part, item.slice, repeatPanels))
@@ -499,6 +504,11 @@ local function updatePillars(t: number)
 						end
 					end
 				end
+				-- (D-1350) what the hand holds, copied apart into every panel
+				local clones = {}
+				for _, panel in ipairs(pillar.panels) do if panel.clone then table.insert(clones, panel.clone) end end
+				ScreenHeld.sync(pillar.held, pillar.source :: Model, clones)
+				ScreenHeld.pose(pillar.held, base)
 			end
 			local count = #pillar.panels
 			local repeatPanels = math.max(1, math.floor(count / 2))

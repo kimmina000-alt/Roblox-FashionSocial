@@ -21,6 +21,7 @@ local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
+local ScreenHeld = require(script.Parent:WaitForChild("ScreenHeld")) -- (D-1350) held food apart from the body copy
 
 -- (D-1156) 320 → 150: the screen is inside the underground club; from the
 -- streets above it was drawn and animated every frame
@@ -49,6 +50,7 @@ type Screen = {
 	-- outfit changes while DJing: the copy is rebuilt (user, 2026-10-22)
 	watch: {RBXScriptConnection},
 	dirtyAt: number?,
+	held: any, -- (D-1350) ScreenHeld state
 }
 local screen: Screen? = nil
 local visuals: any = nil
@@ -127,7 +129,7 @@ local function build(part: BasePart, spot: BasePart)
 	screen = {
 		part = part, gui = gui, gradient = gradient, bars = bars, logo = logo,
 		viewport = viewport, camera = camera, nameLabel = nameLabel,
-		clone = nil, cloneParts = {}, sourceUserId = 0, watch = {}, dirtyAt = nil,
+		clone = nil, cloneParts = {}, sourceUserId = 0, watch = {}, dirtyAt = nil, held = ScreenHeld.new(),
 	}
 end
 
@@ -171,6 +173,7 @@ local function clearClone(s: Screen)
 	for _, connection in ipairs(s.watch) do connection:Disconnect() end
 	s.watch = {}
 	s.dirtyAt = nil
+	ScreenHeld.clear(s.held)
 end
 
 -- things that change how a character looks
@@ -190,7 +193,8 @@ local function makeClone(s: Screen, character: Model)
 	character.Archivable = archivable
 	if not copy then return end
 	for _, d in ipairs(copy:GetDescendants()) do
-		if d:IsA("LuaSourceContainer") or d:IsA("Sound") or d:IsA("IKControl") or d:IsA("BillboardGui") then d:Destroy() end
+		-- (D-1350: held items are copied apart, ScreenHeld)
+		if d:IsA("LuaSourceContainer") or d:IsA("Sound") or d:IsA("IKControl") or d:IsA("BillboardGui") or d:IsA("Tool") then d:Destroy() end
 	end
 	local map = {}
 	local function index(model: Instance, list: {[string]: BasePart}, prefix: string)
@@ -210,6 +214,7 @@ local function makeClone(s: Screen, character: Model)
 	s.clone = copy
 	s.cloneParts = map
 	local function changed(instance: Instance)
+		if ScreenHeld.isHeld(instance) then return end -- (D-1350: a bite is not an outfit change)
 		if isLook(instance) and not s.dirtyAt then s.dirtyAt = os.clock() end
 	end
 	s.watch = {
@@ -316,6 +321,9 @@ RunService.RenderStepped:Connect(function()
 			if src.Name == "Head" then top = rel.Position.Y + src.Size.Y / 2 end
 		end
 	end
+	-- (D-1350) what the hand holds, copied apart
+	ScreenHeld.sync(s.held, character, { s.clone :: Model })
+	ScreenHeld.pose(s.held, rootCf:Inverse())
 	bottom = -0.6 -- about the waist
 	if top == -math.huge then top = 2.5 end
 	local span = math.max(top - bottom, 1.5)
