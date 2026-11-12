@@ -154,9 +154,9 @@ local TRACKS = {
 	{ title = "미스터-KARA", id = 139355618999719 }, -- file 184.4 s, song 3:14
 	{ title = "Hurricane Venus-BoA", id = 91581305396096 }, -- file 181.6 s, song 3:11
 	{ title = "Magic-Secret", id = 124810692241835 }, -- file 194.3 s, song 3:24
-	{ title = "BANG-bang", id = 136570075901439 }, -- file 189.3 s, song 3:19
+	{ title = "BANG-After School", id = 136570075901439 }, -- file 189.3 s, song 3:19
 	{ title = "캐치 캐치-YENA", id = 119002946047943 }, -- file 171.5 s, song 3:00
-	{ title = "4MINUTE-REUPLOAD", id = 124715970373244 }, -- file 205.3 s, song 3:36
+	{ title = "Hot Issue-4MINUTE", id = 124715970373244 }, -- file 205.3 s, song 3:36
 	{ title = "Abracadabra-Brown Eyed Girls", id = 84753987256309 }, -- file 175.1 s, song 3:04
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
