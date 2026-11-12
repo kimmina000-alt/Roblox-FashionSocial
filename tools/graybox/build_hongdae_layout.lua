@@ -5603,6 +5603,10 @@ do
 			p.CastShadow = false
 		end
 	end
+	-- (D-1327, user 2026-11-12: "해변에 모래 둥글게 있던 거 삭제") the user deleted the
+	-- round bay sand and its wet shore (BaySand / BayShore) by hand in Studio: no longer built
+	local BAY_SAND = false
+	if BAY_SAND then
 	-- The north end of the beach: sand only (user 2026-10-24: no trees, lighter),
 	-- shaped like the user's white lines. The shore leaves the straight beach on
 	-- a circle (C, R) round the bay, runs on west to a sandy point, and the
@@ -5708,6 +5712,7 @@ do
 			end
 		end
 	end
+	end -- BAY_SAND (D-1327)
 end
 ------------------------------------------------------- beach furniture (광안리 photos, user 2026-10-23)
 do

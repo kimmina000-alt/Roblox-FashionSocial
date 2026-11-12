@@ -340,7 +340,9 @@ do
 	end
 end-- the park's walls north along the roads: a stone base under them, so they
 -- don't float (the ground there is out of reach)
-block("ParkPlatformNorth", NX0, 0, NZ0 - SHIFT, NX1, RAISE, NZ1 - SHIFT, STONE, Enum.Material.Slate)
+-- (D-1327, user 2026-11-12: "놀이공원 부지 넓힘", resized by hand in Studio) west to
+-- x -298.2 (was NX0 -211), south to z -455.5 (was -520), down to y -11.2 (was 0)
+block("ParkPlatformNorth", -298.2, -11.2, NZ0 - SHIFT, NX1, RAISE, -455.5, STONE, Enum.Material.Slate)
 F.Parent = L
 L:SetAttribute("ParkRaised", RAISE)
 print("[park_raise] raised " .. moved .. " parts by " .. RAISE)

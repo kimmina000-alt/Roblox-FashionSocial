@@ -4397,3 +4397,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - tools/graybox/build_hongdae_layout.lua: GATE_ROT -30° → 0°. 광화문이 남북으로 서서 서쪽 큰길을 바라봄. 양쪽 돌담 곡선 · 난간 · 해태 · 앞마당은 광화문 양끝(GATE_E1/E2)에서 다시 그려져 따라옴. 사용자가 직접 깐 앞마당 판(PlazaStone, D-1015)은 GATE_ROT_WAS(-30°)와의 차이만큼 광화문 가운데를 축으로 같이 돌림.
 - Studio 반영: Assistant가 localhost를 막아서, 사용자가 명령 바에서 체인 스크립트 28개를 ServerStorage.ChainSrc에 받아 둔 뒤(스크립트 Source 한도 200,000자라 큰 파일은 18만 자 조각으로 나눔) MCP로 prop_save → 체인 전체 → hanok_ground_fill(2,188칸) → bakery_underlight 실행, 모두 오류 없음. 끝난 뒤 ChainSrc 지움. prop_save에서 새로 지운 야자수 2개(Palm@-265,138 / -10)를 prop_overrides.json에 반영.
 - 사진: gate_straight_top.jpg, gate_straight_front.jpg.
+## D-1327 사용자 손 편집을 스크립트에: 해변 둥근 모래 삭제, 놀이공원 부지 넓힘 (2026-11-12)
+- 사용자: "해변에 모래 둥글게 있던 거 삭제하고 놀이공원 부지 넓힘" (Studio에서 직접 편집, 장소 저장 버전 324).
+- 둥근 모래: 해변 북쪽 끝의 둥근 만 모래와 물가 젖은 모래(BaySand / BayShore, OpenSea 안)를 사용자가 지움. build_hongdae_layout.lua에서 `BAY_SAND = false`로 더 이상 만들지 않음(바다 표면 SeaSurface는 그대로).
+- 놀이공원 부지: Hongdae_Layout.ParkRaise.ParkPlatformNorth를 사용자가 늘림. park_raise.lua에 그 크기 그대로: x -298.2..-46.5(서쪽으로 87.2), y -11.2..16, z -1450..-455.5(남쪽으로 64.5). 색 · 재질(Slate) 그대로.
+- 다음 체인 재빌드 때도 이 편집이 남음. Workspace 바로 아래 사용자 부품(한옥 마을 Part, 벚나무, 지붕)은 체인이 건드리지 않음.
