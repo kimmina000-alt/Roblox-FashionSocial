@@ -384,7 +384,7 @@ M.Playlist = {
 	-- in here, its entry removed: 3 × 54.35 ÷ 153.821 = 1.06, `at` and the stage camera keep the song clock)
 	-- (D-935, user 2026-11-06 final values: boost3 5)
 	{ channel = "K-POP", title = "REDRED-CORTIS", soundId = 76034005809699, length = 153.821, fileSpeed = 1.06,
-		lab = { speed = 1, tempo = 0.944, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
+		lab = { speed = 1, tempo = 0.944, volume = 10, boost = 10, boost2 = 5, boost3 = 5, boost4 = 2, octave = 1, low = -34, mid = -20, high = -34, engine = "sound" }, choreo = {
 		-- (D-879, user: 24 pieces from the practice video u_vusNeo6xI, mirrored,
 		-- clips 1-24 of D:\Roblox\영상\CORTIS_REDRED_centercut) each starts where its
 		-- clip starts in the video, less 0.40 s: the video runs 0.40 s behind the
