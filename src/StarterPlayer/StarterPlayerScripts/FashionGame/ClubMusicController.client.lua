@@ -866,7 +866,7 @@ local function renderTracks()
 			rowButton("Play", "▶", -(2 * buttonW + 16), buttonW, COLORS.dj, function() call("Play", index) end)
 			rowButton("Queue", "⏫", -(buttonW + 10), buttonW, COLORS.accent, function() call("Queue", index) end)
 			rowButton("Reserve", "➕", -4, buttonW, COLORS.robux, function() call("Request", index) end)
-		elseif not otherDJ then
+		else -- (D-1359: with another DJ on too)
 			rowButton("Request", "신청", -4, if compactNow then 48 else 64, COLORS.accent, function() call("Request", index) end)
 		end
 	end
@@ -914,7 +914,7 @@ local function refresh()
 	end
 	layout()
 	listTitle.Text = if dj and showGuests then "DJ 존 초대 (초대한 사람만 올라올 수 있어요)"
-		elseif dj then "▶ 지금 · ⏫ 우선예약 · ➕ 예약" elseif djId ~= 0 then "DJ가 곡을 고르는 중 (DJ만 곡을 골라요)" else "곡 신청 (한 번에 한 곡)"
+		elseif dj then "▶ 지금 · ⏫ 우선예약 · ➕ 예약" elseif djId ~= 0 then "곡 신청 (한 번에 한 곡 · DJ가 건너뛸 수 있어요)" else "곡 신청 (한 번에 한 곡)"
 	guestsButton.Text = if showGuests then "🎵 곡 목록" else "👥 초대"
 	local speed = FashionGame:GetAttribute("ClubLightSpeed")
 	speedButton.Text = "⚡x" .. tostring(if typeof(speed) == "number" then speed else 1)

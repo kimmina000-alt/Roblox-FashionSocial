@@ -322,6 +322,113 @@ local function placeCup(shopKey: string, near: Vector3)
 	newCup(shopKey, spotOn(tablePart, near), nil).Parent = folder("CafeCups")
 end
 
+-- (D-1360, user 2026-11-13: "손님이 빵도 주문하게 해. 빵 주문한 손님은 트레이 남기고 가게 하기.
+-- 가끔 음료 다 안 마시고 빵 먹다 말고 남기고 가는 경우도 있게 해") what an NPC leaves on the
+-- table: a drink → an empty cup, now and then one with some left in it; a bread → the cafe
+-- tray (the user's CafeTray, as in SnackService), now and then with the bread half eaten on
+-- it. The staff clears either with the same 테이블 정리 prompt (coins + XP).
+CafeJobConfig.LeftDrinkChance = CafeJobConfig.LeftDrinkChance or 0.3
+CafeJobConfig.LeftBreadChance = CafeJobConfig.LeftBreadChance or 0.35
+local function newTray(shopKey: string, tablePart: BasePart, at: Vector3, item: SnackConfig.Item, leftBread: boolean): Model
+	local m = Instance.new("Model")
+	m.Name = "LeftTray"
+	local look = Vector3.new(at.X - tablePart.Position.X, 0, at.Z - tablePart.Position.Z)
+	if look.Magnitude < 0.01 then look = Vector3.new(0, 0, 1) end
+	local frame = CFrame.lookAt(at, at - look.Unit)
+	local art = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+	local src = art and art:FindFirstChild("Foods") and art.Foods:FindFirstChild("CafeTray")
+	local body: BasePart
+	local mesh = src and (if src:IsA("BasePart") then src else src:FindFirstChildWhichIsA("BasePart", true))
+	if mesh then
+		body = (mesh :: BasePart):Clone()
+		for _, c in ipairs(body:GetChildren()) do if c:IsA("BasePart") then c:Destroy() end end
+		local k = 3.9 / math.max(body.Size.Z, 0.01) -- (as SnackService's trays: 3.9 across)
+		body.Size = body.Size * k
+		body.CFrame = frame * CFrame.new(0, body.Size.Y / 2, 0) * CFrame.Angles(0, math.rad(90), 0)
+	else
+		local p = Instance.new("Part")
+		p.Size = Vector3.new(3.9, 0.12, 3.1)
+		p.Color = Color3.fromRGB(40, 40, 44)
+		p.CFrame = frame * CFrame.new(0, 0.06, 0)
+		body = p
+	end
+	body.Name = "Tray"
+	body.Anchored, body.CanCollide, body.CanTouch, body.CanQuery = true, false, false, true
+	body.Parent = m
+	if leftBread then
+		-- the bread as it looks half eaten: its own model, every second bite gone
+		local ok, tool = pcall(function() return snack.MakeTool(item) end)
+		local handle = ok and tool and tool:FindFirstChild("Handle") :: BasePart?
+		if handle then
+			local bread = handle:Clone()
+			tool:Destroy()
+			local parts = { bread }
+			for _, d in ipairs(bread:GetDescendants()) do
+				if d:IsA("BasePart") then table.insert(parts, d) end
+				if d:IsA("JointInstance") or d:IsA("WeldConstraint") or d:IsA("Sound") or d:IsA("LuaSourceContainer") then d:Destroy() end
+			end
+			local most = 0
+			for _, p in ipairs(parts) do
+				local n = p:GetAttribute("Bite")
+				if typeof(n) == "number" then most = math.max(most, n) end
+			end
+			local place = frame * CFrame.new(0, 0.1 + bread.Size.Y / 2, -0.2)
+			local offset = place * bread.CFrame:Inverse()
+			for _, p in ipairs(parts) do
+				p.Anchored, p.CanCollide, p.CanTouch, p.CanQuery = true, false, false, false
+				p.CFrame = offset * p.CFrame
+				local n = p:GetAttribute("Bite")
+				if typeof(n) == "number" and n <= math.ceil(most / 2) then p.Transparency = 1 end -- (eaten first)
+			end
+			bread.Name = "LeftBread"
+			bread.Parent = m
+		elseif ok and tool then
+			tool:Destroy()
+		end
+	end
+	m:SetAttribute("Shop", shopKey)
+	m:SetAttribute("Since", os.clock())
+	local prompt = Instance.new("ProximityPrompt")
+	prompt.Name = "CleanPrompt"
+	prompt.ActionText = "테이블 정리"
+	prompt.ObjectText = if leftBread then item.name .. " (먹다 남김)" else "트레이"
+	prompt.HoldDuration = 0.5
+	prompt.MaxActivationDistance = 9
+	prompt.RequiresLineOfSight = false
+	prompt.Enabled = false -- the staff's client turns it on (CafeJobController, like the cups)
+	prompt.Parent = body
+	prompt.Triggered:Connect(function(player)
+		if not m.Parent or staff[player] ~= shopKey then return end
+		m:Destroy()
+		economy.AddJobXP(player, CafeJobConfig.JobKey, "cleaned", CafeJobConfig.CleanXP)
+		local given = economy.Earn(player, CafeJobConfig.CleanCoins, "CafeJob", CafeJobConfig.DailyCap, "테이블 정리")
+		player:SetAttribute("CafeJobEarned", economy.Earned(player, "CafeJob"))
+		if given == 0 then toast(player, "테이블 정리 완료! (오늘 알바 코인은 다 받았어요)") end
+	end)
+	return m
+end
+
+local function placeLeftover(shopKey: string, near: Vector3, item: SnackConfig.Item?)
+	if staffCount(shopKey) == 0 then return end
+	local tablePart = nearestTable(shopKey, near)
+	if not tablePart then return end
+	local spot = spotOn(tablePart, near)
+	if item and item.kind == "bread" then
+		newTray(shopKey, tablePart, spot, item, math.random() < CafeJobConfig.LeftBreadChance).Parent = folder("CafeCups")
+	elseif item and math.random() < CafeJobConfig.LeftDrinkChance then
+		-- some of it left: the fill halfway down
+		local cup = newCup(shopKey, spot, item)
+		local fill = cup:FindFirstChild("Fill") :: BasePart?
+		if fill then
+			fill.Size = Vector3.new(0.3, fill.Size.Y, fill.Size.Z)
+			fill.CFrame = cup.CFrame * CFrame.new(-0.22, 0, 0)
+		end
+		cup.Parent = folder("CafeCups")
+	else
+		newCup(shopKey, spot, nil).Parent = folder("CafeCups")
+	end
+end
+
 -- the drink tool the player holds → onto a table of a job cafe
 local function putDown(player: Player, tablePart: any): (boolean, string?)
 	if typeof(tablePart) ~= "Instance" or not isTable(tablePart) then return false, "테이블에만 놓을 수 있어요." end
@@ -399,8 +506,9 @@ local function npcLeave(order: Order, served: boolean)
 		-- the thank-you shows for a second only (user, 2026-10-22)
 		setBubble(npc, "“맛있어요!”", order.shop, 0)
 		task.delay(1, function() setBubble(npc, nil, nil, nil) end)
+		local leftItem = itemOf(order) -- (D-1360: what they had decides what they leave)
 		task.delay(CafeJobConfig.NpcStaySeconds, function()
-			if seat then placeCup(order.shop, seat.Position) end
+			if seat then placeLeftover(order.shop, seat.Position, leftItem) end
 			if npc.Parent then npc:Destroy() end
 		end)
 	else
@@ -551,7 +659,8 @@ local function spawnNpc(shopKey: string)
 	-- ones a little more often, like real orders)
 	local drinks = {}
 	for _, it in ipairs(shop.items) do
-		if it.kind == "cup" and not it.product then
+		-- (D-1360) breads too
+		if (it.kind == "cup" or it.kind == "bread") and not it.product then
 			local weight = if not it.coins then 1 elseif it.coins <= 10 then 3 else 2
 			for _ = 1, weight do table.insert(drinks, it) end
 		end
@@ -643,10 +752,46 @@ local function setStaffTag(character: Model?, _shopKey: string?)
 	if apron then apron:Destroy() end
 end
 
+-- (D-1361) the apron for the shift: the catalog item (CafeJobConfig.ApronAssetId) loaded once
+-- and put on as an accessory, marked CafeApron. Not through the HumanoidDescription, so the
+-- saved last look, outfit codes and the catalog's 착용 중 never include it; off when the shift ends
+local apronTemplate: Accessory? = nil
+local apronTried = false
+local function apron(player: Player, on: boolean)
+	local character = player.Character
+	if not character then return end
+	for _, a in ipairs(character:GetChildren()) do
+		if a:IsA("Accessory") and a:GetAttribute("CafeApron") then a:Destroy() end
+	end
+	local id = CafeJobConfig.ApronAssetId
+	if not on or not id then return end
+	if not apronTemplate and not apronTried then
+		apronTried = true
+		local ok, model = pcall(function() return game:GetService("InsertService"):LoadAsset(id) end)
+		local acc = ok and model and model:FindFirstChildWhichIsA("Accessory", true)
+		if acc then
+			for _, d in ipairs(acc:GetDescendants()) do
+				if d:IsA("LuaSourceContainer") then d:Destroy() end -- (never a script from an asset)
+			end
+			acc.Parent = nil
+			apronTemplate = acc
+		else
+			warn("[CafeJob] apron could not be loaded", id, model)
+		end
+	end
+	local humanoid = character:FindFirstChildOfClass("Humanoid")
+	if apronTemplate and humanoid then
+		local copy = (apronTemplate :: Accessory):Clone()
+		copy:SetAttribute("CafeApron", true)
+		humanoid:AddAccessory(copy)
+	end
+end
+
 local function stopWork(player: Player, message: string?)
 	local shopKey = staff[player]
 	if not shopKey then return end
 	staff[player] = nil
+	task.spawn(apron, player, false) -- (D-1361)
 	if player.Character then
 		player.Character:SetAttribute("CafeJob", nil)
 		setStaffTag(player.Character, nil)
@@ -704,6 +849,7 @@ local function startWork(player: Player, shopKey: any): (boolean, string?)
 		setStaffTag(player.Character, shopKey)
 		playAt(player.Character:FindFirstChild("HumanoidRootPart"), "start")
 	end
+	task.spawn(apron, player, true) -- (D-1361)
 	player:SetAttribute("CafeJobEarned", economy.Earned(player, "CafeJob"))
 	publish()
 	if CafeJobConfig.npcRate(DayNightConfig.clockNow()) == 0 then
@@ -838,6 +984,7 @@ local function tick()
 			-- new character (respawn): the tag back on
 			player.Character:SetAttribute("CafeJob", shopKey)
 			setStaffTag(player.Character, shopKey)
+			task.spawn(apron, player, true) -- (D-1361)
 		end
 	end
 	-- orders that waited too long, customers who left

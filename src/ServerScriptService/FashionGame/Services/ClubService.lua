@@ -464,9 +464,9 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	if action == "Request" then
 		local index, why = validTrack(payload)
 		if not index then return false, why or "없는 곡입니다." end
-		if DjService.CurrentDJ() ~= 0 and not isDJ then
-			return false, "지금은 DJ가 곡을 고르고 있어요."
-		end
+		-- (D-1359, user 2026-11-13: "클럽에서 DJ 있어도 노래 신청은 할 수 있게 해. DJ가 싫으면 그냥
+		-- 건너뛰면 되니까") with a DJ on, guests still request (one each, like without a DJ);
+		-- the DJ can skip a song or play another one now
 		if not isDJ then
 			for _, entry in ipairs(requests) do
 				if entry.u == player.UserId then

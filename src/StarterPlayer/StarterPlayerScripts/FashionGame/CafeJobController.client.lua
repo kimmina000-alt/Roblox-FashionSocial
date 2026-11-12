@@ -396,7 +396,7 @@ local function updateCups()
 	local cups = workspace:FindFirstChild("CafeCups")
 	if not cups then return end
 	for _, cup in ipairs(cups:GetChildren()) do
-		local prompt = cup:FindFirstChild("CleanPrompt")
+		local prompt = cup:FindFirstChild("CleanPrompt", true) -- (D-1360: a left tray has it on its tray part)
 		if prompt and prompt:IsA("ProximityPrompt") then
 			-- empty cups always; a drink with some left only once its owner left the cafe
 			local clearable = cup:GetAttribute("Owner") == nil or cup:GetAttribute("Clearable") == true

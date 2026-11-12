@@ -3115,56 +3115,11 @@ renderLocalMode = function()
 
 	local count = 0
 	local layerNumber = 0
-	-- (D-1073, user 2026-11-09 from the KOYA list: "입은 아이템을 액세서리 / 의상 /
-	-- 애니메이션 / 몸 칸으로 나누고") 착용 중 in four groups, each after a small
-	-- heading tile (the layered clothes stay in their order inside 의상, so the
-	-- drag that sorts them still works)
-	local sectionOf: ((any, any) -> number)? = nil
-	local SECTION_NAMES = { "💍 액세서리", "👕 의상", "🕺 애니메이션", "🧍 몸" }
-	if mode == "Wearing" then
-		local BODY = { Head = true, Torso = true, LeftArm = true, RightArm = true, LeftLeg = true, RightLeg = true, DynamicHead = true, Face = true }
-		local CLOTHES = { Shirt = true, Pants = true, TShirt = true, TShirtAccessory = true, ShirtAccessory = true, PantsAccessory = true, JacketAccessory = true, SweaterAccessory = true, ShortsAccessory = true, DressSkirtAccessory = true, LeftShoeAccessory = true, RightShoeAccessory = true }
-		sectionOf = function(entry, detail): number
-			local t = tostring(detail.AssetType or detail.BundleType or "")
-			if entry.itemType == "Bundle" or BODY[t] or string.find(t, "Makeup") then return 4 end
-			if string.find(t, "Animation") then return 3 end
-			if CLOTHES[t] or wornGroup(entry.id) == 1 then return 2 end
-			return 1
-		end
-		local indexed = {}
-		for i, entry in ipairs(entries) do
-			local detail = details[itemKey(entry.itemType, entry.id)]
-			indexed[i] = { entry = entry, s = if detail then (sectionOf :: any)(entry, detail) else 5, i = i }
-		end
-		table.sort(indexed, function(x, y) if x.s ~= y.s then return x.s < y.s end return x.i < y.i end)
-		entries = {}
-		for i, e in ipairs(indexed) do entries[i] = e.entry end
-	end
-	local lastSection = 0
+	-- (D-1073's four groups in 착용 중 were taken out again, D-1358, user 2026-11-13:
+	-- "착용중에 액세서리 의상 몸 애니메이션 나눈다고 추가한 거 삭제해"): one list as worn
 	for _, entry in ipairs(entries) do
 		local detail = details[itemKey(entry.itemType, entry.id)]
 		if detail and passesLocalFilters(detail) then
-			local sec = if sectionOf then sectionOf(entry, detail) else 0
-			if sectionOf and sec ~= lastSection and SECTION_NAMES[sec] then
-				lastSection = sec
-				count += 1
-				local head = Instance.new("Frame")
-				head.Name = "SectionHead"
-				head.LayoutOrder = count
-				head.BackgroundColor3 = Color3.fromRGB(32, 32, 40)
-				head.BackgroundTransparency = 0.2
-				head.Parent = resultsFrame
-				local hc = Instance.new("UICorner") hc.CornerRadius = UDim.new(0, 8) hc.Parent = head
-				local hl = Instance.new("TextLabel")
-				hl.Size = UDim2.fromScale(1, 1)
-				hl.BackgroundTransparency = 1
-				hl.Font = Enum.Font.GothamBold
-				hl.TextScaled = true
-				hl.TextColor3 = Color3.fromRGB(235, 235, 240)
-				hl.Text = SECTION_NAMES[sec]
-				local pad = Instance.new("UIPadding") pad.PaddingLeft = UDim.new(0.12, 0) pad.PaddingRight = UDim.new(0.12, 0) pad.PaddingTop = UDim.new(0.38, 0) pad.PaddingBottom = UDim.new(0.38, 0) pad.Parent = hl
-				hl.Parent = head
-			end
 			count += 1
 			local card = createItemCard(detail, count)
 			if card and mode == "Wearing" and wornGroup(entry.id) == 1 then
