@@ -41,7 +41,29 @@ UserInputService.InputBegan:Connect(function(input, processed)
 		lastPos = input.Position
 	end
 end)
-UserInputService.InputChanged:Connect(function(input)
+-- (D-1337, user 2026-11-13: "확대 축소도 돼?") two-finger pinch on a phone, the mouse
+-- wheel on a PC: closer up to 0.35 of the distance (the view rises to the face, like the
+-- old preview, D-819) or out to 1.6
+local zoom = 1
+local ZOOM_MIN, ZOOM_MAX = 0.35, 1.6
+local pinchStart: number? = nil
+UserInputService.TouchPinch:Connect(function(_, scale, _, state, processed)
+	if not saved then return end
+	if state == Enum.UserInputState.Begin then
+		if processed then return end
+		pinchStart = zoom
+		dragging, lastPos = nil, nil -- (the two fingers do not turn the view too)
+	elseif pinchStart and (state == Enum.UserInputState.Change or state == Enum.UserInputState.End) then
+		zoom = math.clamp((pinchStart :: number) / math.max(0.05, scale), ZOOM_MIN, ZOOM_MAX)
+		if state == Enum.UserInputState.End then pinchStart = nil end
+	end
+end)
+UserInputService.InputChanged:Connect(function(input, processed)
+	if saved and not processed and input.UserInputType == Enum.UserInputType.MouseWheel then
+		zoom = math.clamp(zoom * (if input.Position.Z > 0 then 0.88 else 1 / 0.88), ZOOM_MIN, ZOOM_MAX)
+		return
+	end
+	if pinchStart then return end
 	local drag = dragging
 	if not drag or not lastPos then return end
 	local moved = if drag.UserInputType == Enum.UserInputType.Touch
@@ -82,13 +104,15 @@ local function step()
 	end
 	if top < bottom then return end
 	local height = math.clamp(top - bottom, 2, 30)
-	local center = Vector3.new(root.Position.X, (top + bottom) / 2, root.Position.Z)
+	-- (D-1337) zoomed in, the view rises toward the face
+	local lift = height * 0.36 * math.clamp((1 - zoom) / (1 - ZOOM_MIN), 0, 1)
+	local center = Vector3.new(root.Position.X, (top + bottom) / 2 + lift, root.Position.Z)
 	local look = root.CFrame.LookVector
 	look = Vector3.new(look.X, 0, look.Z)
 	look = if look.Magnitude > 0.01 then look.Unit else Vector3.zAxis
 	local view = camera.ViewportSize
 	local tanHalf = math.tan(math.rad(camera.FieldOfView) / 2)
-	local distance = height / (FILL * 2 * tanHalf) * (view.Y / math.max(40, rect.h))
+	local distance = height / (FILL * 2 * tanHalf) * (view.Y / math.max(40, rect.h)) * zoom
 	-- studs per pixel at that distance: shift the camera so the character's middle
 	-- lands on the rectangle's middle
 	local perPixel = 2 * distance * tanHalf / view.Y
@@ -106,6 +130,7 @@ function CatalogCamera.frame(rect: { x: number, y: number, w: number, h: number 
 	local camera = workspace.CurrentCamera
 	if not camera then return end
 	yaw, pitch, dragging, lastPos = 0, 0, nil, nil -- (D-1336) from the front
+	zoom, pinchStart = 1, nil -- (D-1337) whole body
 	saved = { type = camera.CameraType, subject = camera.CameraSubject, fov = camera.FieldOfView }
 	-- after the other camera scripts (stage camera, photo booth) so this one wins
 	RunService:BindToRenderStep(BIND, Enum.RenderPriority.Camera.Value + 10, step)
