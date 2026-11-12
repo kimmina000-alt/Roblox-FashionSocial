@@ -4472,3 +4472,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ClubDances.ChoreoPhrases(곡마다 key / name / soundId / from / to, 원곡 초 = ClubPlaylist `at`의 시계), 춤 창에 '안무' 탭(K-POP · 포즈·응원 다음). 버튼을 누르면 ChoreoController가 그 곡의 안무 조각을 from..to 구간만 노래 없이 계속 반복(자기 시계 phrase.t0, 보정 · 블렌드 · 제자리 복귀 그대로), 같은 버튼 다시 = 멈춤, 걷기 · 다른 춤 · 춤 멈추기도 멈춤. 어디서나(클럽 밖도) 출 수 있음. LocalPlayer 속성 ChoreoPhrase(버튼 강조, "♪ 안무 · 곡").
 - 구간은 첫 후렴쯤으로 고른 1차 값(마지막 조각 시각의 27% 이후 첫 조각부터 15~24초, 조각 경계에서 끝). 곡별 from / to는 ClubDances.lua에서 바꾸면 됨.
 - Studio PC Play: 탭 버튼 20개, REDRED 20초 동안 조각 116978800280311 → 139026140322649 → 다시 처음, 안 추는 순간 0, 백화요란으로 바꾸기 · 같은 버튼으로 멈춤 확인(사진 dance_phrase_tab_D-1343.jpg).
+
+## D-1362 새 음원 4곡: NAGARI-KEYVITUP / MEME-RESCENE / REBELS-ISEGYE IDOL / Finest Thing-RESCENE (2026-11-13)
+- 사용자가 랩 값과 함께 보냄(volume 10 / boost 10 / boost2 5 / boost3 4 / octave 1 / low 0 / mid 0 / high -12.5, -9.5, -8, -11.5). 곡 목록 맨 끝에 보낸 순서대로.
+- length = 파일 초(랩 장소 Play 서버에서 잼, 장소는 안 바꿈): 153.44 / 172.448 / 164.088 / 133.375. 들리는 길이 = 파일 ÷ tempo = 2:41 / 3:01 / 2:52 / 2:20. fileSpeed = 1 ÷ tempo(1.0493 / 1.0493 / 1.0482 / 1.0493). 안무·무대 카메라 없음.
+- Studio(오후)가 안 열려 있어 아직 적용·Play 확인 안 함.

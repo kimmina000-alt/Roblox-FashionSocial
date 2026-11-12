@@ -619,6 +619,15 @@ M.Playlist = {
 			{ id = 116718508120035, at = 159.59, blend = 1 }, { id = 98439541459421, at = 166.28, blend = 1 }, { id = 126812347548541, at = 168.95, blend = 0.64 },
 			{ id = 138514282006084, at = 170.03, blend = 0.51 }, { id = 101271170738014, at = 178.96, blend = 0.57 }, { id = 87258411271471, at = 190.42, blend = 0.36 }, { id = 106836976565207, at = 195.88, blend = 1 },
 			{ id = 129589571291554, at = 205.24, blend = 1 } }, autoChoreo = true },
+	-- (D-1362, user 2026-11-13: 4 uploads with the lab values as sent; length = the file's seconds, fileSpeed = 1 / tempo (heard = the song))
+	{ channel = "K-POP", title = "NAGARI-KEYVITUP", soundId = 111437943109567, length = 153.44, fileSpeed = 1.0493,
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -12.5, engine = "sound" } },
+	{ channel = "K-POP", title = "MEME-RESCENE", soundId = 97560393166257, length = 172.448, fileSpeed = 1.0493,
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -9.5, engine = "sound" } },
+	{ channel = "K-POP", title = "REBELS-ISEGYE IDOL", soundId = 79547024043593, length = 164.088, fileSpeed = 1.0482,
+		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -8, engine = "sound" } },
+	{ channel = "K-POP", title = "Finest Thing-RESCENE", soundId = 131800112414894, length = 133.375, fileSpeed = 1.0493,
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -11.5, engine = "sound" } },
 
 } :: {Track}
 
