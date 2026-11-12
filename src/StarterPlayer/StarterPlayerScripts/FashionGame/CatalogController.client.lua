@@ -1793,6 +1793,37 @@ updateCatalogLayout = function()
 		-- control hidden above that nothing else shows again)
 		searchBox.Visible = true
 	end
+	-- (D-1330) while the catalog is open the camera shows the player's own
+	-- character from the front: in the free part of the screen beside the
+	-- minimized window, or inside the expanded window's preview box (the
+	-- ViewportFrame copy is only used by the avatar editor now, whose changes are
+	-- a preview until saved)
+	local catalogCamera = require(script.Parent:WaitForChild("CatalogCamera"))
+	if not mainFrame.Visible then
+		catalogCamera.release()
+	elseif expandedPanel then
+		avatarViewport.Visible = editorOpen
+		previewFrame.BackgroundTransparency = if editorOpen then 0.2 else 1
+		catalogCamera.frame({ x = margin + 8, y = topY + 8, w = leftWidth - 16, h = panelHeight - 132 })
+	else
+		local px, py = viewport.X - panelWidth - margin, mainFrame.Position.Y.Offset
+		local bottom = viewport.Y - 64 -- (the hotbar)
+		local best, bestSize = nil, 0
+		for _, r in ipairs({
+			{ x = 0, y = insetTop, w = px, h = bottom - insetTop }, -- left of the window
+			{ x = 0, y = insetTop, w = viewport.X, h = py - insetTop }, -- above it
+			{ x = 0, y = py + panelHeight, w = viewport.X, h = bottom - py - panelHeight }, -- below it
+		}) do
+			-- a standing character is about half as wide as it is tall
+			local s = math.min(r.h, r.w * 2)
+			if s > bestSize then best, bestSize = r, s end
+		end
+		if best and bestSize > 80 then
+			catalogCamera.frame({ x = best.x, y = best.y + (best.h - bestSize) / 2, w = best.w, h = bestSize })
+		else
+			catalogCamera.release()
+		end
+	end
 	-- (the C button is placed by TopBar now, 2026-10-30)
 end
 
@@ -3599,6 +3630,7 @@ local function closeCatalogNow()
 	filterPanelOpen = false
 	filterPanel.Visible = false
 	toastLabel.Visible = false
+	require(script.Parent:WaitForChild("CatalogCamera")).release() -- (D-1330)
 	require(script.Parent:WaitForChild("Popups")).closed("Catalog")
 end
 
