@@ -4440,3 +4440,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자(밤 해변 스크린샷, 바다 너머 모래색 평면에 빨간 동그라미): "여기 바다로 바꿔줘".
 - 원인: 지형 바다는 x -300..-1060뿐이고 그 너머는 비어 있음. 그 빈 곳을 덮던 OpenSea(바다 표면 띠 130개, D-1140)를 D-1334에서 317처럼 지웠더니 모래색 빈 공간이 보임.
 - build_hongdae_layout과 같은 OpenSea(x -270..-4400, z ±4400, y -7, 띠 26개 색 NEAR → FAR, Persistent)를 Studio에 다시 만들고, UserMapSnapshot의 RemoveModels를 ""로(체인이 다시 지우지 않게). 사진 far_sea_D-1335.jpg.
+
+## D-1338 레모네이드 안무 숨김 (2026-11-13)
+- 사용자: "레모네이드 안무 숨겨". Lemonade-aespa의 `choreo` 목록을 지우지 않고 `hiddenChoreo`로 이름만 바꿈(Track 타입에 `hiddenChoreo` 추가). 게임은 `choreo`만 읽으므로 이 곡은 기본 춤(🎵 없음, 자동 따라 추기 없음). ClubChoreo의 보정은 그대로 둠. 다시 켜려면 `hiddenChoreo` → `choreo`.
+- Play 확인: 클럽에서 이 곡 60초에 기본 춤 애니메이션만 재생, 안무 조각 0.

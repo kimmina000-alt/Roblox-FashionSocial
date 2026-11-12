@@ -35,6 +35,7 @@ export type Track = {
 	-- `from` (D-810) = seconds into the animation to start from (skips its
 	-- start; with `stop` on the entry before, this cuts a stretch out).
 	choreo: {any}?,
+	hiddenChoreo: {any}?, -- (D-1338) a choreography kept but not danced (the game reads only `choreo`)
 	-- (D-726) dance the choreography by itself: everyone in the club standing
 	-- still (not seated, not in a menu dance) follows it while the song plays
 	autoChoreo: boolean?,
@@ -245,7 +246,9 @@ M.Playlist = {
 		-- (D-1044, user 2026-11-09: "레모네이드 17번 원래 걸로 수정") clip 17 = the original practice clip 132337331292488 again (as in D-970);
 		-- the hand-keyed 123236589131931 and its fixes stay in ClubChoreo, unused
 		-- Clip 1 = mirror cover b3C-M5lDRHE (video = song + 1.45 s, `from = 1.45`); clips 2..22 = practice video NJx2IGeS8CQ (video = song + 1.08 s, `at` = clip start - 1.08)
-		choreo = { { id = 107871857436267, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
+		-- (D-1338, user 2026-11-13: "레모네이드 안무 숨겨") the choreography is kept as `hiddenChoreo`: the game reads only `choreo`,
+		-- so this song now plays the default dance (no 🎵, no auto follow); rename it back to `choreo` to bring it back
+		hiddenChoreo = { { id = 107871857436267, from = 1.45 }, { id = 85687535459003, at = 6.92, blend = 0.46 }, { id = 74096523961866, at = 15.92, blend = 0.4 },
 		{ id = 123559029471758, at = 22.84 }, { id = 139260290712979, at = 31.92, blend = 1 }, { id = 131526768823490, at = 39.2 },
 		-- (D-1062, user: 0:55 "훅 내려가는 걸 없애": 8 from 0.9 s at 56.82 (its deep bow at 0.1-0.85 skipped), 7 holds its
 		-- last pose up to it; was 7 stop 55.75 → 55.92 slowed (D-1058), 8 at 55.92 slowIn { 0.35, 0.17 };

@@ -3904,3 +3904,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 브랜치 feat/baekhwa-chair-1112. 사용자가 올린 6조각을 0.92~49.33초에 넣고, 그동안 춤추는 사람 밑에 검은 의자를 세움(서버가 만들어 모두에게 보임). 좌석 높이는 아바타마다 앉는 엉덩이 높이에 맞춤.
 
 ![의자](images/2026-11-12/baekhwa_chair_D-1321.jpg)
+
+## 2026-11-13 레모네이드 안무 숨김 (D-1338)
+- 사용자: "레모네이드 안무 숨겨". ClubPlaylist의 Lemonade-aespa `choreo` → `hiddenChoreo`(지우지 않음). Play에서 기본 춤만 나오는 것 확인. 브랜치 feat/hide-lemonade-1113.
