@@ -4436,3 +4436,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 복구: 사용자가 Studio 내용을 로컬 파일(D:/Roblox/OHU20261113.rbxl)로 두고, 게시본 317(2026-11-12 02:21)을 복원해 다른 창에서 열어 Hongdae_Layout · StreetDress를 복사해 옴. 부품 하나하나(이름 · 위치 · 크기 · 색 · 재질 · 회전 · 투명도) 비교: StreetDress는 같음. Hongdae_Layout에서 사용자 편집이 지워진 곳 = OH24Store(건물 x -1, 곤돌라 1개, 바 다리 등), BigSpenderLED(편의점 위 타워), ClubAnnex(바닥 102 × 54), Gukbap(주방 냉장고 없음), OhuFourCuts(다리 8개 없음), AmusementParkGate(서쪽 담 · 기둥 x -273.7, 그물 2장 없음), OpenSea 없음, 바닥 판 5 · 보도 2 · 해변 계단 21 · 산책로 · 계단 끝 · ParkRaise.ParkPlatform. 모두 317 상태로 되돌림. 그대로 둔 곳: 광화문 · 돌담 · 공사 펜스(D-1332), ParkPlatformNorth(그 뒤 사용자가 다시 넓힘, D-1327), PalaceBlockout(사용자가 그 뒤 지움). 나머지 차이는 회전 180 / -180 표기뿐.
 - 다시 지워지지 않게: ServerStorage.UserMapSnapshot(Models 6, AddParts 28, RemoveSigs 13, RemoveModels "OpenSea") + 체인 마지막 단계 tools/graybox/user_map_snapshot_1113.lua(LAYOUT.md 3-25). Studio에서 두 번 돌려 두 번째는 부품 변화 0. 편의점 사진 oh24_restored_D-1334.jpg.
 - 레이아웃 체인 끝: … hanok_ground_fill → bakery_underlight → oh24_cold_off_1113 → user_map_snapshot_1113.
+## D-1335 먼 바다 판(OpenSea) 다시 (2026-11-13)
+- 사용자(밤 해변 스크린샷, 바다 너머 모래색 평면에 빨간 동그라미): "여기 바다로 바꿔줘".
+- 원인: 지형 바다는 x -300..-1060뿐이고 그 너머는 비어 있음. 그 빈 곳을 덮던 OpenSea(바다 표면 띠 130개, D-1140)를 D-1334에서 317처럼 지웠더니 모래색 빈 공간이 보임.
+- build_hongdae_layout과 같은 OpenSea(x -270..-4400, z ±4400, y -7, 띠 26개 색 NEAR → FAR, Persistent)를 Studio에 다시 만들고, UserMapSnapshot의 RemoveModels를 ""로(체인이 다시 지우지 않게). 사진 far_sea_D-1335.jpg.

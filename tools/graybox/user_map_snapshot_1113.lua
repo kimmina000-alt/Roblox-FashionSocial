@@ -4,7 +4,7 @@
 -- The published version 317 (2026-11-12 02:21) still had them; its Hongdae_Layout was
 -- compared part by part with the rebuilt one and the user's state was put back:
 --   whole models: OH24Store, BigSpenderLED, ClubAnnex, Gukbap, OhuFourCuts, AmusementParkGate
---   gone: OpenSea (the sea surface bands)
+--   (OpenSea, gone in 317, is kept since D-1335: the user wants the far sea; RemoveModels = "")
 --   single parts: Ground / Sidewalk / BeachStep pieces, Promenade / BeachStepEdge strips,
 --   ParkRaise.ParkPlatform (ParkPlatformNorth keeps the later edit, D-1327)
 -- The copies live in ServerStorage.UserMapSnapshot (Models, AddParts, RemoveSigs,
