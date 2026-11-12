@@ -4402,3 +4402,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 둥근 모래: 해변 북쪽 끝의 둥근 만 모래와 물가 젖은 모래(BaySand / BayShore, OpenSea 안)를 사용자가 지움. build_hongdae_layout.lua에서 `BAY_SAND = false`로 더 이상 만들지 않음(바다 표면 SeaSurface는 그대로).
 - 놀이공원 부지: Hongdae_Layout.ParkRaise.ParkPlatformNorth를 사용자가 늘림. park_raise.lua에 그 크기 그대로: x -298.2..-46.5(서쪽으로 87.2), y -11.2..16, z -1450..-455.5(남쪽으로 64.5). 색 · 재질(Slate) 그대로.
 - 다음 체인 재빌드 때도 이 편집이 남음. Workspace 바로 아래 사용자 부품(한옥 마을 Part, 벚나무, 지붕)은 체인이 건드리지 않음.
+## D-1328 한옥 마을: 블록 8채에 한옥 지붕, 담장은 사진 같은 돌담 (2026-11-12)
+- 사용자: 한옥 지붕(Blender, 조각 5종)을 만들어 전체 지붕 _HanokRoof_.glb로 내보냄 → "무게를 줄여서 하나로 쓰자". Blender(D:\Blender 5.2) 배경 실행으로 합치고 Decimate collapse 35%(23,995 → 8,398 삼각형), 같은 텍스처 재질 8개 → 2개: D:\Roblox\오후\3D 물\HanokRoof_Lite.glb(사용자가 Studio로 가져옴, Workspace.Scene.HanokRoof). 25%는 기와 둥근 면이 각지고 텍스처가 번짐(비교 사진 scratchpad).
+- "이 블록 위에 한옥 지붕 올려 봐" → "처마 더 길게" → "처마 전으로 돌리고 지붕 자체를 키우기" → "나머지 블록도": 사용자 블록(70.4 × 32.2 × 31.6) 8채에 지붕: 블록 긴 쪽을 따라 돌리고 처마 사방 8, 높이 0.7배, 전체 1.2배, 처마 끝이 블록 윗면보다 약 1 아래. Workspace.HanokRoofs.HanokRoof_1..8(충돌 끔). 8채 합 약 67,000 삼각형: 폰 2인 테스트로 프레임 확인 필요.
+- 사용자 사진 2장(돌담: 네모난 회색 돌 + 흰 줄눈, 흰 회벽 띠에 검은 전돌 두 줄, 기와 담장 지붕) → "블록 감싸고 있는 벽 돌담벽으로": tools/graybox/hanok_stonewall_1112.lua. 사용자 벽 Part 20개(높이 13.8, 두께 2)를 HanokStoneWall로 이름 바꾸고 텍스처(tools/art/hanok_doldam_texture.py, rbxassetid://84893447335088, 9.2 스터드 × 벽 높이)를 네 면에, 위에는 궁궐 담 기와(GiwaRoof union)를 약 10 길이로 이어서 320개(Workspace.HanokStoneWalls, 충돌 끔).
+- 모두 place에만 있음(체인 스크립트가 안 건드리는 Workspace 최상위): 사용자가 저장.
