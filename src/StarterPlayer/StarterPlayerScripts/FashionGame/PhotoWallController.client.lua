@@ -344,9 +344,8 @@ local function drawEntry(entry: Entry, order: number)
 end
 
 local function redrawAll()
-	-- Keep only the newest MaxWallPhotos.
-	while #entries > PhotoConfig.MaxWallPhotos do
-		local old = table.remove(entries, 1) :: Entry
+	-- Keep only the newest MaxWallPhotos on each wall (D-1342).
+	for _, old in ipairs(PhotoConfig.trimWall(entries)) do
 		local frame = drawn[old.id]
 		if frame then frame:Destroy() end
 		drawn[old.id] = nil

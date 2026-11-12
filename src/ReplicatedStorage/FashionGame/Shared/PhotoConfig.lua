@@ -57,7 +57,33 @@ PhotoConfig.ExtraCopyCoins = 10 -- (was 20, D-311)
 PhotoConfig.MaxPhotos = 10         -- free album slots (user, 2026-10-20: 10장까지 무료)
 PhotoConfig.HardMaxPhotos = 60     -- stored maximum incl. bought slots (D-064)
 PhotoConfig.SlotsPerPurchase = 10  -- MonetizationConfig.Products.AlbumSlots
-PhotoConfig.MaxWallPhotos = 30     -- photo wall: newest stay, oldest fall off
+PhotoConfig.MaxWallPhotos = 30     -- photo wall: newest stay, oldest fall off (per wall since D-1342)
+-- (D-1342, user 2026-11-13: a photo on the 오후네컷 wall had gone) the 30 used to be for the
+-- whole game, so photos posted on any wall pushed the oldest off every other wall: now 30 on
+-- each wall, and at most this many in all (one DataStore key; about 5 KB a photo)
+PhotoConfig.MaxWallPhotosTotal = 150
+
+-- removes the oldest entries (the list is oldest first) past both limits; returns them
+function PhotoConfig.trimWall(list: {any}): {any}
+	local perWall: {[string]: number} = {}
+	for _, e in ipairs(list) do perWall[tostring(e.wall)] = (perWall[tostring(e.wall)] or 0) + 1 end
+	local total = #list
+	local removed = {}
+	local i = 1
+	while i <= #list do
+		local e = list[i]
+		local key = tostring(e.wall)
+		if total > PhotoConfig.MaxWallPhotosTotal or perWall[key] > PhotoConfig.MaxWallPhotos then
+			table.remove(list, i)
+			perWall[key] -= 1
+			total -= 1
+			table.insert(removed, e)
+		else
+			i += 1
+		end
+	end
+	return removed
+end
 PhotoConfig.OpenDistance = 24      -- how close to the booth to start / join
 PhotoConfig.LeaveDistance = 30     -- (unused since D-064: people stay inside the booth)
 

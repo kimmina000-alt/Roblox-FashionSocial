@@ -1029,7 +1029,7 @@ local function saveWall()
 				end
 			end
 			table.sort(merged, function(a, b) return (a.at or 0) < (b.at or 0) end)
-			while #merged > PhotoConfig.MaxWallPhotos do table.remove(merged, 1) end
+			PhotoConfig.trimWall(merged) -- (D-1342: per wall)
 			return merged
 		end)
 	end)
@@ -1050,7 +1050,7 @@ local function loadWall()
 			end
 		end
 		table.sort(wallEntries, function(a, b) return (a.at or 0) < (b.at or 0) end)
-		while #wallEntries > PhotoConfig.MaxWallPhotos do table.remove(wallEntries, 1) end
+		PhotoConfig.trimWall(wallEntries) -- (D-1342: per wall)
 	end
 end
 
@@ -1141,7 +1141,7 @@ local function wallPost(player: Player, payload: any): (boolean, string?)
 		photo = photo,
 	}
 	table.insert(wallEntries, entry)
-	while #wallEntries > PhotoConfig.MaxWallPhotos do table.remove(wallEntries, 1) end
+	PhotoConfig.trimWall(wallEntries) -- (D-1342: per wall)
 	if event then event:FireAllClients("WallAdd", entry) end
 	if not wallDirty then
 		wallDirty = true
