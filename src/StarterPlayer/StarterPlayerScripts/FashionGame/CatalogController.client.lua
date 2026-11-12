@@ -497,6 +497,13 @@ local function refreshAvatarPreview()
 	-- just after the first copy was framed, so the next copy jumped closer)
 	avatarViewport:SetAttribute("PreviewBounds", bounds)
 	avatarViewport:SetAttribute("PreviewFrame", (avatarViewport:GetAttribute("PreviewFrame") or 0) + 1)
+	-- (D-1339) in the avatar editor the draft copy stands in the world in place of the
+	-- character, and the game camera shows it (no separate preview box any more)
+	if avatarEditor and avatarEditor:isOpen() then
+		local catalogCamera = require(script.Parent:WaitForChild("CatalogCamera"))
+		catalogCamera.placeCopy(clone)
+		catalogCamera.stage(clone)
+	end
 	-- Avatar Editor draws the X/Y/Z guide around the selected accessory.
 	if avatarEditor then avatarEditor:onPreviewBuilt(clone) end
 end
@@ -1813,8 +1820,10 @@ updateCatalogLayout = function()
 	if not mainFrame.Visible then
 		catalogCamera.release()
 	elseif expandedPanel then
-		avatarViewport.Visible = editorOpen
-		previewFrame.BackgroundTransparency = if editorOpen then 0.2 else 1
+		-- (D-1339) the editor's draft copy is in the world now, shown by this camera too
+		avatarViewport.Visible = false
+		previewFrame.BackgroundTransparency = 1
+		if not editorOpen then catalogCamera.stage(nil) end
 		catalogCamera.frame({ x = margin + 8, y = topY + 8, w = leftWidth - 16, h = panelHeight - 132 })
 	else
 		local px, py = viewport.X - panelWidth - margin, mainFrame.Position.Y.Offset

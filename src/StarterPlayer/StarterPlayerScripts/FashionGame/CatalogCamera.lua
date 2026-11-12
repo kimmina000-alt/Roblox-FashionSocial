@@ -83,9 +83,57 @@ UserInputService.InputEnded:Connect(function(input)
 	end
 end)
 
+-- (D-1339, user 2026-11-13: the avatar editor still showed the old preview box) while
+-- the avatar editor is open its draft copy of the character (client only) stands in the
+-- world where the player stands and the real character is hidden on this screen, so the
+-- camera shows the draft the same way as the catalog shows the character
+local stageModel: Model? = nil
+local function setHidden(character: Model?, hidden: boolean)
+	if not character then return end
+	for _, d in ipairs(character:GetDescendants()) do
+		if d:IsA("BasePart") or d:IsA("Decal") then
+			d.LocalTransparencyModifier = if hidden then 1 else 0
+		end
+	end
+end
+
+-- model = the draft copy (already in the world), nil = back to the real character
+-- (the old copy is removed)
+function CatalogCamera.stage(model: Model?)
+	if model == stageModel then return end
+	local old = stageModel
+	stageModel = model
+	if old and old:IsDescendantOf(workspace) then old:Destroy() end
+	if not model then setHidden(Players.LocalPlayer.Character, false) end
+end
+
+-- puts a draft copy where the player stands: anchored, nothing to bump into or hit
+function CatalogCamera.placeCopy(clone: Model)
+	local character = Players.LocalPlayer.Character
+	if not character then return end
+	for _, d in ipairs(clone:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.Anchored = true
+			d.CanCollide = false
+			d.CanQuery = false
+			d.CanTouch = false
+		elseif d:IsA("BillboardGui") then
+			d:Destroy() -- (the name tag is the real character's)
+		end
+	end
+	local humanoid = clone:FindFirstChildOfClass("Humanoid")
+	if humanoid then humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end
+	clone.Parent = workspace
+	clone:PivotTo(character:GetPivot())
+end
+
 local function step()
 	local camera = workspace.CurrentCamera
 	local character = Players.LocalPlayer.Character
+	if stageModel and stageModel.Parent then
+		setHidden(character, true) -- (every frame: the camera scripts reset it)
+		character = stageModel
+	end
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
 	local rect = target
 	if not (camera and character and root and rect) then return end
@@ -139,14 +187,35 @@ end
 function CatalogCamera.release()
 	target = nil
 	dragging, lastPos = nil, nil
+	CatalogCamera.stage(nil)
 	if not saved then return end
 	RunService:UnbindFromRenderStep(BIND)
 	local camera = workspace.CurrentCamera
 	if camera then
 		camera.CameraType = saved.type
 		camera.FieldOfView = saved.fov
-		local humanoid = Players.LocalPlayer.Character and Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+		local character = Players.LocalPlayer.Character
+		local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 		camera.CameraSubject = if saved.type == Enum.CameraType.Custom and humanoid then humanoid else saved.subject
+		-- (D-1340, user 2026-11-13: "카탈로그 끄면 ... 원래 카메라 위치로. 캐릭터 다시 기본
+		-- 위치로 보여 줄 것") the game camera kept looking from where the catalog had put it
+		-- (in front of the character, on phones the character off to one side): back
+		-- behind the character at the usual distance, a little above
+		local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
+		if saved.type == Enum.CameraType.Custom and root then
+			local look = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
+			look = if look.Magnitude > 0.01 then look.Unit else Vector3.zAxis
+			local focus = root.Position + Vector3.new(0, 1.5, 0)
+			local cf = CFrame.lookAt(focus - look * 12 + Vector3.new(0, 4, 0), focus)
+			camera.CFrame = cf
+			camera.Focus = CFrame.new(focus)
+			-- (once more after the camera scripts' next frame, which can still use the old one)
+			task.defer(function()
+				if not saved and camera.CameraType == Enum.CameraType.Custom then
+					camera.CFrame = cf
+				end
+			end)
+		end
 	end
 	saved = nil
 end

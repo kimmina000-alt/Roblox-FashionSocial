@@ -12,7 +12,9 @@ export type Dance = {
 
 local M = {}
 
-M.Categories = { "댄스", "포즈·응원" }
+-- (D-1341, user 2026-11-13: more dances from the catalog: 9 Roblox emotes and every
+-- official K-POP emote, played in Studio first; each loads in this experience)
+M.Categories = { "댄스", "K-POP", "포즈·응원" }
 
 M.Dances = {
 	{ key = "shuffle", name = "셔플", category = "댄스", animationId = 10714371274, looped = true },
@@ -36,10 +38,30 @@ M.Dances = {
 	{ key = "hyper5g", name = "초고속 무브", category = "댄스", animationId = 10714371264, looped = true },
 	{ key = "blockparty", name = "블록 파티", category = "댄스", animationId = 10713988674, looped = true },
 	{ key = "twirl", name = "빙그르르", category = "댄스", animationId = 10714293450, looped = true },
+	-- (D-1341) Roblox emotes (catalog 3934988903 / 4272351660 / 7466046574 / 3570649048 /
+	-- 4646306072 / 79312439851071 / 7422841700 / 7422843994)
+	{ key = "fancyfeet", name = "팬시 피트", category = "댄스", animationId = 10714076981, looped = true },
+	{ key = "fasthands", name = "빠른 손", category = "댄스", animationId = 10714100539, looped = true },
+	{ key = "quietwaves", name = "잔잔한 물결", category = "댄스", animationId = 10714390497, looped = true },
+	{ key = "jacks", name = "점핑 잭", category = "댄스", animationId = 10714375667, looped = true },
+	{ key = "keepingtime", name = "박자 타기", category = "댄스", animationId = 10714380563, looped = true },
+	{ key = "hottogo", name = "HOT TO GO!", category = "댄스", animationId = 85267023718407, looped = true },
+	{ key = "outside", name = "온 더 아웃사이드", category = "댄스", animationId = 10714392953, looped = true },
+	{ key = "updown", name = "업 앤 다운", category = "댄스", animationId = 10714174918, looped = true },
+	-- (D-1341) official K-POP emotes, made by the agencies (SMTOWN: NCT 127 catalog
+	-- 12259888240 / 12804173616 / 12259885838 / 12259890638; JYP: TWICE 103776063641440;
+	-- the mic drop 14024722653)
+	{ key = "nct_kickit", name = "NCT 127 Kick It", category = "K-POP", animationId = 12259826609, looped = true },
+	{ key = "nct_ayyo", name = "NCT 127 Ay-Yo", category = "K-POP", animationId = 12804157977, looped = true },
+	{ key = "nct_sticker", name = "NCT 127 Sticker", category = "K-POP", animationId = 12259825026, looped = true },
+	{ key = "nct_2baddies", name = "NCT 127 2 Baddies", category = "K-POP", animationId = 12259828678, looped = true },
+	{ key = "twice_knock", name = "TWICE Knock Knock", category = "K-POP", animationId = 114440548313112, looped = true },
+	{ key = "micdrop", name = "마이크 드롭", category = "K-POP", animationId = 14024642130, looped = false },
 	{ key = "fashionable", name = "패셔니스타", category = "포즈·응원", animationId = 10714091938, looped = true },
 	{ key = "iceskate", name = "패션 스핀", category = "포즈·응원", animationId = 131669256082047, looped = true },
 	{ key = "greatest", name = "내가 제일 잘 나가", category = "포즈·응원", animationId = 10714349037, looped = false },
 	{ key = "heisman", name = "하이즈먼 포즈", category = "포즈·응원", animationId = 10714357129, looped = false },
+	{ key = "louder", name = "더 크게", category = "포즈·응원", animationId = 10714385204, looped = true }, -- (D-1341, catalog 3576751796)
 	{ key = "jumpcheer", name = "환호 점프", category = "포즈·응원", animationId = 5895324424, looped = true },
 	{ key = "applaud", name = "박수", category = "포즈·응원", animationId = 10713966026, looped = true },
 	{ key = "hello", name = "안녕", category = "포즈·응원", animationId = 10714359093, looped = false },

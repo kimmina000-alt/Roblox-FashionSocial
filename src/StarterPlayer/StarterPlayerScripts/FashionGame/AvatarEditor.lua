@@ -1479,6 +1479,10 @@ function AvatarEditor:_updateGizmo()
 	end
 
 	local labels = {}
+	-- (D-1339) the draft copy may stand in the world (seen by the game camera): the
+	-- labels then go on the box around it, placed with the game camera
+	local inWorld = clone:IsDescendantOf(workspace)
+	local labelParent: GuiObject = if inWorld and viewport.Parent and viewport.Parent:IsA("GuiObject") then viewport.Parent else viewport
 	for _, name in ipairs(AXIS_ORDER) do
 		local axis = axes[name]
 		local color = AXIS_COLORS[name]
@@ -1504,7 +1508,7 @@ function AvatarEditor:_updateGizmo()
 			TextSize = 14,
 			Font = Enum.Font.GothamBold,
 			ZIndex = 6,
-		}, viewport)
+		}, labelParent)
 		table.insert(labels, { label = label, point = center + axis * radius * 1.45 })
 	end
 	model.Parent = clone.Parent
@@ -1513,6 +1517,16 @@ function AvatarEditor:_updateGizmo()
 
 	-- Project the label points with the preview camera every frame (it orbits/zooms).
 	local function place()
+		if inWorld then
+			local camera = workspace.CurrentCamera
+			local origin = labelParent.AbsolutePosition
+			for _, item in ipairs(labels) do
+				local p, onScreen = camera:WorldToViewportPoint(item.point)
+				item.label.Visible = onScreen
+				item.label.Position = UDim2.fromOffset(p.X - origin.X, p.Y - origin.Y)
+			end
+			return
+		end
 		local camera = viewport.CurrentCamera
 		local size = viewport.AbsoluteSize
 		if not camera or size.X < 1 or size.Y < 1 then return end
