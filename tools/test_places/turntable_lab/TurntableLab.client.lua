@@ -146,6 +146,11 @@ local TRACKS = {
 	{ title = "RESCENE-Dragon", id = 82349082640186 }, -- user 2026-11-11, file 209.6 s, song 3:40
 	{ title = "TREASURE-SHOCK", id = 94024099429072 }, -- user 2026-11-11, file 160.8 s, song 2:48
 	{ title = "RESCENE-백화요란", id = 74619423082896 }, -- user 2026-11-11, file 201.0 s, song 3:31
+	-- (user 2026-11-13) titles written song-artist
+	{ title = "NAGARI-KEYVITUP", id = 111437943109567 }, -- song 2:41
+	{ title = "MEME-RESCENE", id = 97560393166257 }, -- song 3:01
+	{ title = "REBELS-ISEGYE IDOL", id = 79547024043593 }, -- song 2:52
+	{ title = "Finest Thing-RESCENE", id = 131800112414894 }, -- song 2:20
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
