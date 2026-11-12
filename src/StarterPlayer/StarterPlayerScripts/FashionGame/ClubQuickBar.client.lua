@@ -335,7 +335,10 @@ end)
 camButton.Activated:Connect(function()
 	local was = player:GetAttribute("StageCamera") == true
 	UiBus.StageCamTap:Fire()
-	showToast(if was then "🎥 무대 카메라 끔" else "🎥 무대 카메라 켬")
+	-- (D-1351) the camera films only while the choreography (🎵) is danced too
+	showToast(if was then "🎥 무대 카메라 끔"
+		elseif player:GetAttribute("ChoreoFollowing") == true then "🎥 무대 카메라 켬"
+		else "🎥 무대 카메라 켬 · 🎵 안무도 켜면 시작")
 end)
 
 skipButton.Activated:Connect(function()

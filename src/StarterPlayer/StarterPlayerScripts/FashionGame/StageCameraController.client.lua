@@ -90,6 +90,11 @@ end
 
 local function wanted(): (ClubConfig.Track?, ClubCamera.Song?)
 	if player:GetAttribute("StageCamera") ~= true then return nil, nil end
+	-- (D-1351, user 2026-11-13: "클럽 밖에서 오른쪽 상단에 음표 눌러서 노래 틀어 놓으면 카메라
+	-- 무빙 자동으로 켜지는 거 수정. 안무 카메라 모두 선택해야 시작") the camera stayed switched
+	-- on from before, so just listening to the club music started it: now it films only
+	-- while the song's choreography is danced too (🎵 on, not a phrase from the 안무 tab)
+	if player:GetAttribute("ChoreoFollowing") ~= true or player:GetAttribute("ChoreoPhrase") ~= nil then return nil, nil end
 	local r = root()
 	-- (D-993) wherever the club music is heard, not only in the club
 	if not r or not (ClubConfig.isInClub(r.Position) or player:GetAttribute("HearsClub") == true) then return nil, nil end
