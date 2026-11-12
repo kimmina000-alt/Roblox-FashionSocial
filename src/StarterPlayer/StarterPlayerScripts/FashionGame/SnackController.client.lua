@@ -622,6 +622,21 @@ do
 			end
 			return
 		end
+		-- (D-1357) a whole 친구바 in the hand: a tap on another player shares it with them
+		-- (both hold it and tug, FriendBar.share); anywhere else it splits as before
+		if eat and eat:GetAttribute("Pair") and short and not p.moved then
+			local hit = rayAt(screen)
+			local node: Instance? = hit and hit.Instance
+			local other: Player? = nil
+			while node and node ~= workspace and not other do
+				if node:IsA("Model") then other = Players:GetPlayerFromCharacter(node) end
+				node = node.Parent
+			end
+			if other and other ~= player then
+				ask("FriendBarShare", other)
+				return
+			end
+		end
 		if eat and eat:GetAttribute("Snack") then
 			-- anywhere else: a bite (a short tap or click, not a camera drag)
 			if short and not p.moved then eat:Activate() end

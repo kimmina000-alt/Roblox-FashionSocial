@@ -170,7 +170,7 @@ function ItemDetail.new(showToast: (string) -> ())
 	-- full name, wrapped (the cards cut it off)
 	self.nameLabel = create("TextLabel", {
 		Name = "FullName",
-		Size = UDim2.new(1, -36, 0.36, 0),
+		Size = UDim2.new(1, -36, 0.27, 0), -- (0.36 before D-1356: room for the ID row)
 		BackgroundTransparency = 1,
 		TextColor3 = COLORS.text,
 		Font = Enum.Font.GothamBold,
@@ -183,8 +183,8 @@ function ItemDetail.new(showToast: (string) -> ())
 	create("UITextSizeConstraint", { MaxTextSize = 22, MinTextSize = 11, Parent = self.nameLabel })
 	self.subLabel = create("TextLabel", {
 		Name = "Kind",
-		Position = UDim2.fromScale(0, 0.38),
-		Size = UDim2.new(1, 0, 0.12, 0),
+		Position = UDim2.fromScale(0, 0.28),
+		Size = UDim2.new(1, 0, 0.1, 0),
 		BackgroundTransparency = 1,
 		TextColor3 = COLORS.sub,
 		Font = Enum.Font.Gotham,
@@ -193,6 +193,58 @@ function ItemDetail.new(showToast: (string) -> ())
 		Parent = info,
 	})
 	create("UITextSizeConstraint", { MaxTextSize = 14, Parent = self.subLabel })
+	-- (D-1356, user 2026-11-13: "아이템 자세히 보여 줄 때 해당 아이템 ID도 보여주기. ID 복사 할 수
+	-- 있게") the item's ID in a text box: a game cannot write to the clipboard, so 복사
+	-- selects the whole number in the box (PC: Ctrl+C; phone: long-press → 복사); typing
+	-- in it does nothing (the number comes back)
+	local idRow = create("Frame", {
+		Name = "IdRow",
+		Position = UDim2.fromScale(0, 0.39),
+		Size = UDim2.new(1, 0, 0.1, 0),
+		BackgroundTransparency = 1,
+		Parent = info,
+	})
+	create("TextLabel", {
+		Size = UDim2.new(0, 22, 1, 0),
+		BackgroundTransparency = 1,
+		Text = "ID",
+		TextColor3 = COLORS.sub,
+		Font = Enum.Font.GothamBold,
+		TextSize = 13,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Parent = idRow,
+	})
+	self.idBox = create("TextBox", {
+		Name = "ItemId",
+		Position = UDim2.fromOffset(24, 0),
+		Size = UDim2.new(1, -24 - 62, 1, 0),
+		BackgroundColor3 = Color3.fromRGB(40, 40, 52),
+		TextColor3 = COLORS.text,
+		Font = Enum.Font.Code,
+		TextSize = 14,
+		ClearTextOnFocus = false,
+		TextXAlignment = Enum.TextXAlignment.Left,
+		Text = "",
+		Parent = idRow,
+	})
+	corner(self.idBox, 6)
+	create("UIPadding", { PaddingLeft = UDim.new(0, 6), Parent = self.idBox })
+	self.idBox:GetPropertyChangedSignal("Text"):Connect(function()
+		local want = if self.item then tostring(self.item.Id) else ""
+		if self.idBox.Text ~= want then self.idBox.Text = want end
+	end)
+	local copyButton = button(idRow, "복사", COLORS.plain, {
+		Name = "CopyId", AnchorPoint = Vector2.new(1, 0), Position = UDim2.fromScale(1, 0), Size = UDim2.new(0, 56, 1, 0),
+	})
+	copyButton.Activated:Connect(function()
+		local box = self.idBox
+		box:CaptureFocus()
+		box.CursorPosition = #box.Text + 1
+		box.SelectionStart = 1
+		showToast(if game:GetService("UserInputService").TouchEnabled
+			then "ID를 길게 눌러 복사하세요"
+			else "Ctrl+C로 복사하세요")
+	end)
 	self.priceLabel = create("TextLabel", {
 		Name = "Price",
 		Position = UDim2.fromScale(0, 0.5),
@@ -443,6 +495,7 @@ function ItemDetail:renderDetail()
 	self.nameLabel.Text = tostring(item.Name or "이름 없는 아이템")
 	local creator = item.CreatorName
 	self.subLabel.Text = typeText(item) .. (if typeof(creator) == "string" and creator ~= "" then " · " .. creator else "")
+	self.idBox.Text = tostring(item.Id) -- (D-1356)
 	self.priceLabel.Text = priceText(item)
 	local forSale = priceOf(item) ~= nil
 	self.buyButton.Text = if forSale then (if priceOf(item) == 0 then "무료로 받기" else "구매 " .. priceText(item)) else "구매 불가"

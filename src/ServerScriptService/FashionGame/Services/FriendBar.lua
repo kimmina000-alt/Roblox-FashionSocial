@@ -205,6 +205,78 @@ local function holdLeft(owner: Player, half: Tool, a: Tool): (() -> ())?
 	return finish
 end
 
+-- (D-1357, user 2026-11-13: "친구바 처음 사서 친구랑 나눌 때 친구바 산 사람이 다른 플레이어
+-- 클릭하면 해당 플레이어랑 반 나누는 걸로. 누르면 둘이 아이스크림 막대기 잡고 서로 당기는 모션")
+-- The buyer taps another player near by (SnackController asks "FriendBarShare"): the two
+-- turn to each other, both hold the bar between them and tug (character attribute
+-- FriendBarPull = the other one's UserId, FriendBarPullSide = 1 buyer / 2 friend:
+-- FriendBarPullController moves the arms on every client), then it snaps: the buyer keeps
+-- half A, the friend gets half B in the hand with half the XP. A tap anywhere else still
+-- splits it as before (B into the left hand with the "반쪽 받기" prompt).
+FriendBar.ShareDistance = 8
+FriendBar.PullSeconds = 1.4
+function FriendBar.share(owner: Player, tool: Tool, item: any, target: any): (boolean, string?)
+	local d = deps
+	local handle = tool:FindFirstChild("Handle") :: BasePart?
+	if not d or not handle or tool:GetAttribute("Busy") then return false, nil end
+	if typeof(target) ~= "Instance" or not target:IsA("Player") or target == owner then return false, nil end
+	local a = owner.Character
+	local b = (target :: Player).Character
+	local ra = a and a:FindFirstChild("HumanoidRootPart") :: BasePart?
+	local rb = b and b:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not a or not b or not ra or not rb then return false, nil end
+	local gap = rb.Position - ra.Position
+	if Vector3.new(gap.X, 0, gap.Z).Magnitude > FriendBar.ShareDistance then
+		return false, "친구 가까이 가서 눌러 주세요."
+	end
+	if b:GetAttribute("FriendBarPull") or a:GetAttribute("FriendBarPull") then return false, nil end
+	tool:SetAttribute("Busy", true)
+	-- face each other (turned only, where they stand)
+	local flat = Vector3.new(gap.X, 0, gap.Z)
+	if flat.Magnitude > 0.1 then
+		ra.CFrame = CFrame.lookAt(ra.Position, ra.Position + flat)
+		rb.CFrame = CFrame.lookAt(rb.Position, rb.Position - flat)
+	end
+	a:SetAttribute("FriendBarPull", (target :: Player).UserId)
+	a:SetAttribute("FriendBarPullSide", 1)
+	b:SetAttribute("FriendBarPull", owner.UserId)
+	b:SetAttribute("FriendBarPullSide", 2)
+	task.wait(FriendBar.PullSeconds)
+	local function done()
+		for _, c in ipairs({ a, b }) do
+			c:SetAttribute("FriendBarPull", nil)
+			c:SetAttribute("FriendBarPullSide", nil)
+		end
+	end
+	if tool.Parent ~= a or not tool:GetAttribute("Pair") or not (target :: Player).Parent or not b.Parent then
+		tool:SetAttribute("Busy", nil)
+		done()
+		return false, nil
+	end
+	-- it snaps
+	local snd = handle:FindFirstChild("SplitSound") :: Sound?
+	if snd then
+		snd:Play()
+		local s = snd
+		task.delay(6, function() if s.Parent then s:Destroy() end end)
+	end
+	local r = math.random()
+	local moved = if r < 0.5 then 0 elseif r < 0.75 then 1 else 2
+	local half = d.makeTool(item)
+	local bHandle = half:FindFirstChild("Handle") :: BasePart?
+	if not bHandle then half:Destroy() tool:SetAttribute("Busy", nil) done() return false, nil end
+	local copied = bHandle:FindFirstChild("SplitSound")
+	if copied then copied:Destroy() end
+	d.splitXP(tool, half, 2)
+	FriendBar.applyHalf(tool, handle, 1, moved)
+	FriendBar.applyHalf(half, bHandle, 2, moved)
+	tool:SetAttribute("Busy", nil)
+	d.giveTool(target :: Player, half)
+	d.analytics(target :: Player, "FriendBar")
+	task.delay(0.35, done) -- (the arms come back a moment after the snap)
+	return true, nil
+end
+
 -- the first tap: A stays in the hand, B into the left hand for a friend
 function FriendBar.split(tool: Tool, item: any)
 	local d = deps

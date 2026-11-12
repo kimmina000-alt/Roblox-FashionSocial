@@ -2608,6 +2608,14 @@ function SnackService.Start(economyService: any)
 		if action == "Microwave" then return Microwave.heat(player, shopKey) end -- (D-1104)
 		if action == "MicrowaveTake" then return Microwave.take(player, shopKey) end
 		if action == "TakePiece" then return takePiece(player, shopKey, itemKey) end -- (D-952; itemKey = the piece pointed at, D-1035)
+		-- (D-1357) a whole 친구바 in the hand, a tap on another player: share it with them
+		if action == "FriendBarShare" then
+			local character = player.Character
+			local tool = character and character:FindFirstChildOfClass("Tool")
+			local item = tool and tool:GetAttribute("Pair") and itemByKey(tool:GetAttribute("Snack")) or nil
+			if not tool or not item then return false, nil end
+			return FriendBar.share(player, tool, item, shopKey)
+		end
 		return false, nil
 	end
 	-- food left on a table goes when its owner leaves

@@ -545,11 +545,16 @@ local function spawnNpc(shopKey: string)
 		return Players:CreateHumanoidModelFromDescription(description :: HumanoidDescription, Enum.HumanoidRigType.R15)
 	end)
 	if not ok or not npc then return end
-	-- NPCs order the drinks the staff can make: free cups (the menu also has
-	-- coin / Robux food since D-317)
+	-- NPCs order the drinks the staff can make: cups, not the Robux ones
+	-- (D-1353, user 2026-11-13: "손님들이 물만 시킴, 메뉴 다양하게 주문하도록": only the free
+	-- cups were picked, and the only free cup is water; every coin cup now, the cheap
+	-- ones a little more often, like real orders)
 	local drinks = {}
 	for _, it in ipairs(shop.items) do
-		if it.kind == "cup" and not it.coins and not it.product then table.insert(drinks, it) end
+		if it.kind == "cup" and not it.product then
+			local weight = if not it.coins then 1 elseif it.coins <= 10 then 3 else 2
+			for _ = 1, weight do table.insert(drinks, it) end
+		end
 	end
 	if #drinks == 0 then return end
 	local item = drinks[math.random(1, #drinks)]
@@ -728,7 +733,12 @@ local function make(player: Player, id: any): (boolean, string?)
 	order.maker = player.UserId
 	publish()
 	playAt(stationOf(shopKey), "make")
+	-- (D-1352, user 2026-11-13: "음료 만들 때 만드는 모션 추가") every client shows the
+	-- making motion while this is set (CafeMakeController)
+	local character = player.Character
+	if character then character:SetAttribute("CafeMaking", true) end
 	task.wait(CafeJobConfig.MakeSeconds)
+	if character then character:SetAttribute("CafeMaking", nil) end
 	if orders[order.id] ~= order or order.maker ~= player.UserId or staff[player] ~= shopKey then
 		return false, nil
 	end

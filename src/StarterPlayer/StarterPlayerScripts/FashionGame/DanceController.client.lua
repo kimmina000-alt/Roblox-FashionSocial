@@ -1065,6 +1065,10 @@ local function setPanelOpen(open: boolean)
 	layoutPanel()
 	if not open then Popups.closed("Dance") end
 	if open then
+		-- (D-1355, user 2026-11-13: "밖에서 음표 누르면 노래 바로 나오게 수정. 지금 춤 멈추기 눌러야
+		-- 노래 나옴. 누르면 노래만 나오게 하고 춤은 아래 목록에서 선택하면 추는 걸로") opening
+		-- the window is enough to hear the club music outside; a dance only from the list
+		listening = true
 		Popups.opened("Dance", function() setPanelOpen(false) end)
 		if selectedTab == JOIN_TAB then renderJoinList() end
 		if not preloaded then
