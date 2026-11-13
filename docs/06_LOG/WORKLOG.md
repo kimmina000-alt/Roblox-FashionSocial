@@ -3962,3 +3962,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-13 BANG-After School 안무 (D-1394)
 - 사용자: "애프터스쿨 BANG 안무 추가" + id 16개. 13조각 넣음(7 · 11 · 16번은 6 · 10 · 15번 복사본). 노래 = 영상 + 0.85초.
 - 이음새 blend, 미끄러짐 고정 12조각, 회전 2곳, 정면 9조각, 고개 5조각, 손목 5조각(Play에서 방향 확인), guard_scan · Play 스캔 · 몸 바꾸기 확인. 자세한 숫자: DECISIONS D-1394.
+
+## 2026-11-13 (13) Merge: club heat, flat LED boards, park widened, APT title, BANG choreography
+- 2P test (Player1 / Player2, PC view, touch off): BANG-After School played by the DJ (Player1): both players dance the same piece at the same time (84153374890352 @ 8.4 s on both), both flat LED boards show the dancer, floor rings lit, photo rigs 313 with 0 animators. Player2: 오후네컷 booth Open (1x4, solo) → wait bar → Leave → closed. Player2 walked the sea road north to the new park face (stops at z -277, feet level) and the beach beside the new corner. Server and both clients: no script errors (only the usual asset-permission lines).
+- Merged perf/club-heat-1113, fix/apt-title-1113, feat/bang-choreo-1113 into catalog-ui-redesign.
