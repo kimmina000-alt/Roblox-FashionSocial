@@ -138,6 +138,18 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
+	-- (D-1387, user 2026-11-13 + 2 photos: "클럽 댄스 3 처음에 왼팔 들고 있을 때 왼쪽 손목 천천히 돌리기 / 양쪽 팔 둘 다 내릴 때
+	-- 손목 손등쪽으로 꺾기 / 오른쪽팔만 들 때 손목 안쪽으로 세 번 꺾기") the menu dance club3 (ClubDances, 15.43 s loop; menu
+	-- dances take only `bend`, ChoreoController menuBends). Left arm up at the start 0-1.5: one slow circle; both arms
+	-- down in front 2.45-4.85 and 5.95-7.1: the backs of the hands bent back (out: left z -, right z +; the capture is
+	-- already out 20-44°, so +25 keeps the total ≤ 70°); the right arm alone up 9.75-10.95: three bends in (right z -75: the capture holds it out ~50°, so -50 only reached 0)
+	[110198854438295] = { bend = { { part = "LeftHand", keys = wristCircles(0.05, 1.45, 1.4, 30) },
+		{ part = "LeftHand", keys = { { 2.45, 0, 0, 0 }, { 2.7, 0, 0, -25 }, { 4.6, 0, 0, -25 }, { 4.85, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 2.45, 0, 0, 0 }, { 2.7, 0, 0, 25 }, { 4.6, 0, 0, 25 }, { 4.85, 0, 0, 0 } } },
+		{ part = "LeftHand", keys = { { 5.95, 0, 0, 0 }, { 6.2, 0, 0, -25 }, { 6.85, 0, 0, -25 }, { 7.1, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 5.95, 0, 0, 0 }, { 6.2, 0, 0, 25 }, { 6.85, 0, 0, 25 }, { 7.1, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 9.75, 0, 0, 0 }, { 9.92, 0, 0, -75 }, { 10.1, 0, 0, 0 }, { 10.27, 0, 0, -75 }, { 10.45, 0, 0, 0 },
+			{ 10.62, 0, 0, -75 }, { 10.8, 0, 0, 0 }, { 10.95, 0, 0, 0 } } } } },
 	-- (D-1306, Play re-scan) With 16 turns 606°/s at 1:48.6 (a real fast turn, about 310° in 1.3 s) → spread evenly
 	[78971722650566] = { spin = { from = 4.8, to = 6.2, ease = "both" } },
 	-- (D-1306, tools/choreo/guard_scan.lua at 1x, D-1303 rule) BodyGuard flicks the right arm (shoulder step 6.3 / 9.1 / 11.8° a frame with the

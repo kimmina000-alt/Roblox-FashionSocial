@@ -167,6 +167,38 @@ local function bodyJoints(character: Model): {[string]: Motor6D | AnimationConst
 	return out
 end
 
+-- (D-1054) ChoreoFixes `bend = { { part, keys = { { t, x, y, z }, ... } } }` at time tt: each joint turned by its
+-- keys, eased between them, nothing before the first or after the last
+local function applyBends(joints: {[string]: Motor6D | AnimationConstraint}, bends: any, tt: number, weight: number)
+	for _, wb in ipairs(bends) do
+		local keys, j = wb.keys, joints[wb.part]
+		if j and tt > keys[1][1] and tt < keys[#keys][1] then
+			for i = 1, #keys - 1 do
+				local a, b = keys[i], keys[i + 1]
+				if tt >= a[1] and tt <= b[1] then
+					local k = if b[1] > a[1] then (tt - a[1]) / (b[1] - a[1]) else 0
+					k = k * k * (3 - 2 * k)
+					local x, y, z = a[2] + (b[2] - a[2]) * k, a[3] + (b[3] - a[3]) * k, a[4] + (b[4] - a[4]) * k
+					j.Transform = j.Transform * CFrame.identity:Lerp(CFrame.Angles(math.rad(x), math.rad(y), math.rad(z)), weight)
+					break
+				end
+			end
+		end
+	end
+end
+
+-- (D-1387, user 2026-11-13: "클럽 댄스 3 … 손목") the dance menu's dances (ClubDances) take their ChoreoFixes
+-- `bend` too: only the wrist / head turns, none of the choreography clean-ups
+local function menuBends(character: Model, anim: Animator)
+	for _, t in ipairs(anim:GetPlayingAnimationTracks()) do
+		local id = t.Animation and t.Animation.AnimationId
+		if id and not choreoAnimations[id] and t.WeightCurrent > 0 then
+			local fx = ChoreoSmooth.fixes(id)
+			if fx and fx.bend then applyBends(bodyJoints(character), fx.bend, t.TimePosition, math.min(t.WeightCurrent, 1)) end
+		end
+	end
+end
+
 -- (D-811) the zigzag keyframes eased: each choreography animation playing
 -- adds its correction at its own time, as much as it shows (its weight)
 local levelY: {[Model]: { y: number, at: number }} = setmetatable({}, { __mode = "k" }) :: any -- (D-1188) `level`
@@ -252,24 +284,7 @@ local function smoothJoints(character: Model, tracks: {AnimationTrack})
 				-- in the video (tools/choreo/wrist/head_video.py), added onto that joint;
 				-- eased between keys, nothing before the first or after the last (they carry 0)
 				local bends = fx and fx.bend
-				if bends then
-					local tt = t.TimePosition
-					for _, wb in ipairs(bends) do
-						local keys, j = wb.keys, joints[wb.part]
-						if j and tt > keys[1][1] and tt < keys[#keys][1] then
-							for i = 1, #keys - 1 do
-								local a, b = keys[i], keys[i + 1]
-								if tt >= a[1] and tt <= b[1] then
-									local k = if b[1] > a[1] then (tt - a[1]) / (b[1] - a[1]) else 0
-									k = k * k * (3 - 2 * k)
-									local x, y, z = a[2] + (b[2] - a[2]) * k, a[3] + (b[3] - a[3]) * k, a[4] + (b[4] - a[4]) * k
-									j.Transform = j.Transform * CFrame.identity:Lerp(CFrame.Angles(math.rad(x), math.rad(y), math.rad(z)), weight)
-									break
-								end
-							end
-						end
-					end
-				end
+				if bends then applyBends(joints, bends, t.TimePosition, weight) end
 				do
 					-- (D-986, user: Catch Catch 0:35 "다리는 수직 유지하고 상체만 숙이기")
 					-- ChoreoFixes `upright = { from, to, ease? }`: the hips stay level
@@ -737,6 +752,7 @@ RunService.PreSimulation:Connect(function(dt)
 			for _, t in ipairs(anim:GetPlayingAnimationTracks()) do
 				if t.Animation and choreoAnimations[t.Animation.AnimationId] then table.insert(choreo, t) end
 			end
+			menuBends(character, anim) -- (D-1387)
 			if #choreo > 0 then
 				startFromAnimator(character) -- (D-1294)
 				-- (D-985, user: Catch Catch "전체적으로 좌우 반전") a `mirror` song: the
