@@ -6,19 +6,22 @@
 -- the room. A board is still a Model named "LEDPillar" tagged "LEDPillar" (ClubScreenService
 -- picks who is shown, ClubLightsController draws the live copy) with attribute Flat = true
 -- and one "Panel" (Slice 0): one copy per board, no travelling picture.
--- Board = black frame + panel + a thin pink neon edge (ClubBeat) on two black legs.
--- Chain step after club_vip_bar_1107 (tools/graybox/LAYOUT.md); idempotent: pillars that are
--- still round are replaced, flat boards are rebuilt the same.
+-- Board = black frame + panel + a thin pink neon edge (ClubBeat).
+-- (D-1391, user 2026-11-13: "전광판 내가 살짝 수정했거든 다리 지우고 크기 키우고 조금 더 회전했음 반대쪽
+-- 것도 대칭되게 수정해 줘") Sizes and spot from the user's own edit of the east board (no legs,
+-- x1.52, moved): the west board is its mirror image across the DJ's LED wall middle (x 126.5).
+-- Chain step after club_vip_bar_1107 (tools/graybox/LAYOUT.md); idempotent: every LEDPillar
+-- model in 02_Club (round or flat) is replaced by the two boards.
 
 local CS = game:GetService("CollectionService")
 local club = workspace:WaitForChild("Graybox_MainSocial"):WaitForChild("02_Club")
 
-local FLOOR = -24 -- the dance floor's top here
-local W, H = 20, 36 -- the panel (the DJ's LED wall is 36 high, y -14..22)
-local BOTTOM = -14 -- the panel's lower edge, level with the LED wall
-local TURN = math.rad(35) -- in towards the room
-local ROOM_X = 126.5 -- the DJ's middle: boards west of it turn east and the other way
-local SPOTS = { Vector3.new(82.5, 0, -140), Vector3.new(171, 0, -140) } -- (the pillars' centres)
+local S = 1.5197 -- (the user's scale of the first boards)
+local W, H = 20 * S, 36 * S -- the panel: 30.39 x 54.71
+local MIDDLE_X = 126.5 -- the DJ's LED wall middle: the boards are mirror images across it
+-- the east board's panel middle and turn (the user's edit); the west one is mirrored
+local EAST = Vector3.new(172.075, 6.397, -146.833)
+local TURN = math.rad(35)
 
 local BLACK = Color3.fromRGB(12, 10, 18)
 local PINK = Color3.fromRGB(255, 70, 170)
@@ -41,52 +44,40 @@ local function part(parent: Instance, name: string, size: Vector3, cf: CFrame, c
 	return p
 end
 
--- where the boards go: the round pillars' spots (after a chain rebuild) or the known ones
-local spots = {}
 for _, m in ipairs(club:GetChildren()) do
-	if m:IsA("Model") and m.Name == "LEDPillar" then
-		if m:GetAttribute("Flat") ~= true then
-			local core = m:FindFirstChild("Core")
-			if core and core:IsA("BasePart") then table.insert(spots, Vector3.new(core.Position.X, 0, core.Position.Z)) end
-		end
-		m:Destroy()
-	end
+	if m:IsA("Model") and m.Name == "LEDPillar" then m:Destroy() end
 end
-if #spots == 0 then spots = SPOTS end
 
-for _, spot in ipairs(spots) do
-	local side = if spot.X < ROOM_X then 1 else -1
+local boards = {
+	{ mid = EAST, side = -1 }, -- east of the DJ: faces the room turned west
+	{ mid = Vector3.new(2 * MIDDLE_X - EAST.X, EAST.Y, EAST.Z), side = 1 },
+}
+for _, b in ipairs(boards) do
 	-- the board faces the room (-Z), turned towards the middle
-	local normal = Vector3.new(side * math.sin(TURN), 0, -math.cos(TURN))
-	local mid = Vector3.new(spot.X, BOTTOM + H / 2, spot.Z)
-	local face = CFrame.lookAt(mid, mid + normal) -- LookVector = normal, so the Front face shows
+	local normal = Vector3.new(b.side * math.sin(TURN), 0, -math.cos(TURN))
+	local face = CFrame.lookAt(b.mid, b.mid + normal) -- LookVector = normal, so the Front face shows
 	local m = Instance.new("Model")
 	m.Name = "LEDPillar"
 	m.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	m:SetAttribute("Flat", true)
-	part(m, "Core", Vector3.new(W + 1.2, H + 1.2, 1), face * CFrame.new(0, 0, 0.6), BLACK, false, true)
-	local panel = part(m, "Panel", Vector3.new(W, H, 0.2), face * CFrame.new(0, 0, -0.05), Color3.fromRGB(20, 10, 40))
+	part(m, "Core", Vector3.new(W + 1.2 * S, H + 1.2 * S, S), face * CFrame.new(0, 0, 0.65 * S), BLACK, false, true)
+	local panel = part(m, "Panel", Vector3.new(W, H, 0.2 * S), face, Color3.fromRGB(20, 10, 40))
 	panel:SetAttribute("Slice", 0)
 	-- the neon edge round the panel
+	local eW, eH, eT, eD = W + 1.2 * S, H + 1.2 * S, 0.35 * S, 0.3 * S
 	for _, e in ipairs({
-		{ Vector3.new(W + 1.2, 0.35, 0.3), CFrame.new(0, H / 2 + 0.6, -0.1) },
-		{ Vector3.new(W + 1.2, 0.35, 0.3), CFrame.new(0, -H / 2 - 0.6, -0.1) },
-		{ Vector3.new(0.35, H + 1.2, 0.3), CFrame.new(W / 2 + 0.6, 0, -0.1) },
-		{ Vector3.new(0.35, H + 1.2, 0.3), CFrame.new(-W / 2 - 0.6, 0, -0.1) },
+		{ Vector3.new(eW, eT, eD), CFrame.new(0, H / 2 + 0.6 * S, -0.05 * S) },
+		{ Vector3.new(eW, eT, eD), CFrame.new(0, -H / 2 - 0.6 * S, -0.05 * S) },
+		{ Vector3.new(eT, eH, eD), CFrame.new(W / 2 + 0.6 * S, 0, -0.05 * S) },
+		{ Vector3.new(eT, eH, eD), CFrame.new(-W / 2 - 0.6 * S, 0, -0.05 * S) },
 	}) do
 		local edge = part(m, "Edge", e[1], face * e[2], PINK, true)
 		CS:AddTag(edge, "ClubBeat")
 	end
-	-- two legs from the floor to the frame
-	local legH = BOTTOM - 0.6 - FLOOR
-	for _, x in ipairs({ -W / 2 + 3, W / 2 - 3 }) do
-		local foot = (face * CFrame.new(x, 0, 0.6)).Position
-		part(m, "Leg", Vector3.new(1, legH, 1), CFrame.new(foot.X, FLOOR + legH / 2, foot.Z) * face.Rotation, BLACK, false, true)
-	end
-	local anchor = part(m, "NameAnchor", Vector3.new(1, 1, 1), CFrame.new(spot.X, FLOOR + 14, spot.Z), BLACK)
+	local anchor = part(m, "NameAnchor", Vector3.new(1, 1, 1) * S, CFrame.new((face * CFrame.new(0, -14 * S, 0.05 * S)).Position), BLACK)
 	anchor.Transparency = 1
 	m.Parent = club
 	CS:AddTag(m, "LEDPillar")
 end
-print("[club_flat_screens_1113] flat LED boards:", #spots)
-return #spots
+print("[club_flat_screens_1113] flat LED boards:", #boards)
+return #boards

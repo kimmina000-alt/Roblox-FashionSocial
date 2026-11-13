@@ -4658,3 +4658,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Play: both boards show the dancer full length from the front of the room. Run in the place (Edit) and saved by the user (Ctrl+S).
 ## D-1390 OH24: the edge steps no longer float (2026-11-13)
 - User: "편의점 건물 가장자리에 있는 바닥 떠있더라 확인". The two FrontStep plates (DiamondPlate) round the store floor sat 1.2 above the pavement on the east (beach) side and 0.6 above the sidewalk on the south side. A StepPlinth of the same colour / material now fills each gap down to the ground, in Workspace.Hongdae_Layout.OH24Store and in ServerStorage.UserMapSnapshot.Models.OH24Store (the chain's last step puts the snapshot back). Place-only; walked in and out of the east door in Play.
+## D-1391 Club boards: the user's edit, mirrored (2026-11-13)
+- User (screenshot): "전광판 내가 살짝 수정했거든 다리 지우고 크기 키우고 조금 더 회전했음 반대쪽 것도 대칭되게 수정해 줘". Read from the place: the user's board (east, x 172) has no legs, every part x1.52 (panel 30.39 x 54.71, middle 172.075, 6.397, -146.833), turn still 35° in the data.
+- club_flat_screens_1113.lua now builds exactly that board and its mirror image across the DJ's LED wall middle x 126.5 (west panel middle 80.925, 6.397, -146.833, turned -35°), no legs; run in the place. Play: both boards the same size, facing the room symmetrically, both showing the dancer.
