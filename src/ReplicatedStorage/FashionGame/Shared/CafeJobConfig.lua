@@ -32,12 +32,20 @@ CafeJobConfig.WorkArea = 25
 
 -- NPC customers (only while someone works at that cafe; PERFORMANCE.md: few)
 CafeJobConfig.NpcMax = 3
+-- (D-1364, user 2026-11-13: "2명까지로 해 줘 2명이면 5명까지") at most this many part-timers at
+-- one cafe; the NPC customers at once go with how many work there (1 → 3, 2 → 5)
+CafeJobConfig.MaxStaff = 2
+CafeJobConfig.NpcMaxByStaff = { 3, 5 }
+function CafeJobConfig.npcMax(staffCount: number): number
+	local list = CafeJobConfig.NpcMaxByStaff
+	return list[math.clamp(staffCount, 1, #list)] or CafeJobConfig.NpcMax
+end
 CafeJobConfig.NpcEverySeconds = 36 -- (18 → 36, D-772, user: half as often)
 -- (D-1025, user 2026-11-08: "불규칙적으로 등장하게 해") each next customer comes
 -- after a random gap between these (about 36 s on average, as before)
 -- (D-1361, user 2026-11-13: "알바생 되면 입힐 앞치마: 블랙 셰프 앞치마, JacketAccessory·WhoseTrade")
 -- the catalog asset put on a part-timer for the shift (CafeJobService.apron); nil = none
-CafeJobConfig.ApronAssetId = nil :: number?
+CafeJobConfig.ApronAssetId = 12271645343 :: number? -- (블랙 셰프 앞치마, the user's id 2026-11-13)
 -- (D-1354, user 2026-11-13: "손님 1.5배 더 자주 오게") 12..60 → 8..40: about 24 s on average
 CafeJobConfig.NpcGapMin = 8
 CafeJobConfig.NpcGapMax = 40

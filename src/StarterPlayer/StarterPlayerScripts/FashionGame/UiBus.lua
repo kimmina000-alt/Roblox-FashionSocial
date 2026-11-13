@@ -14,5 +14,7 @@ UiBus.ChoreoTap = Instance.new("BindableEvent")
 UiBus.StageCamTap = Instance.new("BindableEvent")
 -- (D-1343) the dance window's 안무 tab: dance a song's phrase (key) on its own (ChoreoController)
 UiBus.ChoreoPhrase = Instance.new("BindableEvent")
+-- (D-1365) the guide NPC's "동네 둘러보기 다시 보기": the first-visit tour again (TourController)
+UiBus.StartTour = Instance.new("BindableEvent")
 
 return UiBus

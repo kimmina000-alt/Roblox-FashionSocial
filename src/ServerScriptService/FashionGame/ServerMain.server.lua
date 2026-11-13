@@ -33,6 +33,7 @@ local Analytics = require(script.Parent.Services.Analytics) -- (D-1124)
 local PhotoBoothService = require(script.Parent.Services.PhotoBoothService)
 MonetizationService.Start()
 EconomyService.Start(PlayerDataService)
+require(script.Parent.Services.OpeningEventService).Start(PlayerDataService, EconomyService) -- (D-1366 오픈 출석 이벤트)
 DjService.Start()
 ClubAccessService.Start()
 DrinkService.Start()
@@ -287,6 +288,7 @@ local function typedItem(payload: any): (number?, string?)
 	return nil, nil
 end
 
+local lookSnapshots: {[string]: any} = {} -- (D-1373) recommended looks, read once
 TryOnItem.OnServerInvoke = function(
 	player: Player,
 	action: string,
@@ -353,6 +355,29 @@ TryOnItem.OnServerInvoke = function(
 		end)
 		if ok then Analytics.interact(player, "Outfit") end -- (D-1124: trying clothes on)
 		return ok, result
+	end
+
+	-- (D-1373) a recommended look by its key (Shared/RecommendedLooks): the items come from
+	-- that list, never from the client
+	if action == "WearLook" then
+		local look = require(FashionGame.Shared.RecommendedLooks).get(payload)
+		if not look then return false, "Invalid look." end
+		-- the look's own Roblox outfit (exactly the Marketplace look), read once per server
+		local snapshot = lookSnapshots[look.key]
+		if not snapshot then
+			local ok, description = pcall(function() return Players:GetHumanoidDescriptionFromOutfitId(look.outfitId) end)
+			if not ok or not description then
+				warn("[FashionGame] look outfit failed:", look.key, description)
+				return false, "이 조합을 불러오지 못했어요."
+			end
+			snapshot = require(FashionGame.Shared.OutfitSnapshot).encode(description)
+			lookSnapshots[look.key] = snapshot
+		end
+		local done, result = runTracked(player, function()
+			return AvatarService.RestoreSnapshot(player, snapshot)
+		end)
+		if done then Analytics.interact(player, "Outfit") end
+		return done, result
 	end
 
 	if action == "WearBundle" or action == "WearShoeBundle" then

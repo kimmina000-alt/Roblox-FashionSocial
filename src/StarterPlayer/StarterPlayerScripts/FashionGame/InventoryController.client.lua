@@ -174,15 +174,18 @@ empty.Parent = panel
 -- the leading emoji of a tool name ("🎇 스파클러") as its picture (Hotbar.split since D-1130)
 local split = Hotbar.split
 
+-- (D-1371, user 2026-11-13: "홈화면 아래 인벤토리 4 칸에 꺼내져있는 아이템은 가방에서 빼.
+-- 아이템은 가방 홈화면인벤 두 군데 중 한 군데에만 있기") a tool in a slot of the bar at the
+-- bottom is not listed in the bag: each item is in one of the two places
 local function tools(): {Tool}
 	local out = {}
 	local character = player.Character
 	local held = character and character:FindFirstChildOfClass("Tool")
-	if held then table.insert(out, held) end
+	if held and not Hotbar.indexOf(held) then table.insert(out, held) end
 	local backpack = player:FindFirstChildOfClass("Backpack")
 	if backpack then
 		for _, t in ipairs(backpack:GetChildren()) do
-			if t:IsA("Tool") then table.insert(out, t) end
+			if t:IsA("Tool") and not Hotbar.indexOf(t) then table.insert(out, t) end
 		end
 	end
 	return Hotbar.bagSort(out) -- (D-1164: the order the player dragged them into)
@@ -227,19 +230,7 @@ local function refreshItems()
 		l.Font = Enum.Font.GothamMedium
 		l.Parent = cell
 		Instance.new("UITextSizeConstraint", l).MaxTextSize = 13
-		-- (D-1130) its slot in the bar at the bottom, if it has one
-		local slotNo = Hotbar.indexOf(tool)
-		if slotNo then
-			local k = Instance.new("TextLabel")
-			k.Position = UDim2.fromOffset(5, 3)
-			k.Size = UDim2.fromOffset(14, 14)
-			k.BackgroundTransparency = 1
-			k.Text = tostring(slotNo)
-			k.TextColor3 = Color3.fromRGB(200, 200, 215)
-			k.TextSize = 11
-			k.Font = Enum.Font.GothamBold
-			k.Parent = cell
-		end
+		-- (the bar's slot number on the card went with D-1371: bar items are not in the bag)
 		-- tap = hold it / put it away; drag onto the bar at the bottom = into that slot
 		Hotbar.pressable(cell, function() return tool end, function()
 			local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")

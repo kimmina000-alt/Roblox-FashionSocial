@@ -4524,9 +4524,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자: "손님이 빵도 주문하게 해. 빵 주문한 손님은 트레이 남기고 가게 하기. 가끔 음료 다 안 마시고 빵 먹다 말고 남기고 가는 경우도 있게 해" / "카페 바닥에 트레이 떨어져 있음".
 - NPC 메뉴에 빵(kind bread)도. 떠날 때: 음료 → 빈 컵, 30%는 반쯤 남은 음료(LeftDrinkChance); 빵 → 카페 트레이(ArtAssets.Foods.CafeTray, SnackService 트레이와 같은 크기), 35%는 반쯤 먹은 빵이 위에(LeftBreadChance). 알바생이 "테이블 정리"로 치움(코인 + XP), 오래되면 컵처럼 사라짐.
 - 떨어진 트레이: Workspace.Scene.Plane_Node 2개(트레이 원본, 하나는 해변 카페 계단 위 y 27.7에 떠 있음, 하나는 땅속) → ServerStorage.SceneLeftovers로 옮김(게임은 ArtAssets 것을 씀).
-## D-1361 알바 앞치마 (2026-11-13, 아이템 ID 대기)
+## D-1361 알바 앞치마 (2026-11-13)
 - 사용자: "알바생 되면 입힐 앞치마: 블랙 셰프 앞치마, JacketAccessory·WhoseTrade". 카탈로그 검색으로 못 찾음 → CafeJobConfig.ApronAssetId에 ID를 넣으면 작동.
 - 알바 시작 · 리스폰 때 InsertService로 한 번 불러와 Accessory로 입힘(속성 CafeApron, 스크립트 제거), 알바 끝나면 벗김. HumanoidDescription을 안 거쳐서 마지막 옷 저장 · 코디 코드 · 착용 중에 안 섞임.
+- (같은 날) 사용자가 ID를 보냄: CafeJobConfig.ApronAssetId = 12271645343. Studio Play: 해변 카페 알바 시작 → 레이어드 앞치마(Apron)가 입혀짐, 알바 끝 → 벗겨짐. 사진 cafe_apron_D-1361.jpg.
 ## D-1362 새 음원 4곡: NAGARI-KEYVITUP / MEME-RESCENE / REBELS-ISEGYE IDOL / Finest Thing-RESCENE (2026-11-13)
 - 사용자가 랩 값과 함께 보냄(volume 10 / boost 10 / boost2 5 / boost3 4 / octave 1 / low 0 / mid 0 / high -12.5, -9.5, -8, -11.5). 곡 목록 맨 끝에 보낸 순서대로.
 - length = 파일 초(랩 장소 Play 서버에서 잼, 장소는 안 바꿈): 153.44 / 172.448 / 164.088 / 133.375. 들리는 길이 = 파일 ÷ tempo = 2:41 / 3:01 / 2:52 / 2:20. fileSpeed = 1 ÷ tempo(1.0493 / 1.0493 / 1.0482 / 1.0493). 안무·무대 카메라 없음.
@@ -4538,3 +4539,50 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 새 곡 6개를 목록 끝(D-1362 4곡 다음)에: 미스터-KARA 139355618999719(184.435초, tempo 0.951), Hurricane Venus-BoA 91581305396096(181.558, 0.951), Magic-Secret 124810692241835(194.251, 0.952), BANG-After School 136570075901439(189.252, 0.951), Hot Issue-4MINUTE 124715970373244(205.296, 0.95), Abracadabra-Brown Eyed Girls 84753987256309(175.124, 0.952). length = 파일 초(Studio에서 잼), fileSpeed = 1 ÷ tempo.
 - Studio: ClubPlaylist(Catch Catch 줄 + 끝에 D-1362 4곡 · D-1363 6곡), ClubCamera 별칭 줄, ClubDances soundId만 바꿈. Play(클럽 홀): 곡 85개, 76..85번 10곡 모두 새 id로 재생(속도 = tempo), Catch Catch(17번) 새 id · fileSpeed 1.0702 · 무대 카메라 있음, 노래 112..115초에 14번 조각(at 107.77), 121초 뒤 15번 조각(at 121) = 안무 시계 맞음. 스크립트 오류 없음.
 - 메모: ClubCamera.lua는 깃에 CRLF로 저장돼 있음(다른 Shared 파일은 LF). 고칠 땐 core.autocrlf=false로 add해야 파일 전체 diff가 안 생김.
+## D-1364 카페 알바: 한 카페 2명까지, 손님 수는 알바 수에 맞춰 (2026-11-13)
+- 사용자: "알바 동시에 몇 명까지 할 수 있는지 정했나?" → (제한 없었음) "2명까지로 해 줘 2명이면 5명까지".
+- CafeJobConfig.MaxStaff = 2: 셋째는 "지금은 알바 자리가 꽉 찼어요 (2/2). 잠시 후 다시 해 주세요." NPC 손님 동시 최대 = npcMax(알바 수): 1명 → 3명, 2명 → 5명(NpcMaxByStaff).
+- Studio: npcMax(1)=3 · npcMax(2)=5, 알바 시작 5초 뒤 손님 주문 들어옴. 셋째 막기는 3인이 필요해서 시험 못 함.
+## D-1365 처음 투어 다시: 장소 8곳 + 상단 버튼 소개 (2026-11-13)
+- 사용자: "처음 튜토리얼 만들었을 때 카메라 움직이면서 장소 확대해서 보여 주던 거 다시 만들자. 오후네컷, 클럽, 국밥집, 편의점, 카페, 해변, 공사 중인 놀이공원이랑 한옥마을. 동선 깔끔한 순서대로 계산해서 보여 줘. 그리고 홈 화면 상단에 있는 버튼도 간단하게 소개해 줘. 특히 카탈로그 설명에서 무료로 마음껏 내가 원하는대로 예쁜 캐릭터를 꾸미고 자랑할 수 있다는 식의 문구 넣고 음표 버튼은 누르면 밖에서도 언제든 노래 들을 수 있다고 소개하고. 스킵 버튼 넣고."
+- 새 TourController(예전 투어는 D-845에서 지움): 18장. 환영 → 스폰(-30,-36)에서 가장 가까운 곳부터 한 바퀴: 오후네컷 → 클럽 → 국밥집 → OHU LAND(공사 중) → 해변 → 카페 → OH24 편의점 → 광화문 · 한옥 마을(카메라가 날아가 확대, 장소마다 눈 위치 · 보는 점을 지금 맵에서 재서 Studio 화면으로 맞춤) → 화면 버튼: 시계 · ₩ · ♥ 후원 · 👗 카탈로그("무료 아이템으로 마음껏, 내가 원하는 대로 예쁜 캐릭터를 꾸미고 자랑해 보세요!") · 🎒 · ♪("누르면 클럽 밖에서도 언제든 클럽 노래를 들을 수 있어요") · 💬, 해당 버튼에 깜빡이는 노란 고리 → 준비 끝.
+- 아래 카드(핫바 위), 오른쪽 위 "건너뛰기 >", 카드 안 "다음 ▶". 끝나거나 건너뛰면 카메라가 캐릭터 뒤로. 처음 한 번: 서버가 기억하는 팁 키 "tour2"(GuideService TipSeen, 예전 투어를 본 사람도 한 번 봄), 로딩 화면(OHULoading) 뒤에 시작. 안내원 질문 "🗺 동네 둘러보기 다시 보기"(UiBus.StartTour)로 다시 볼 수 있음.
+- Studio Play: 로딩 뒤 7초에 시작, 장소 8곳 화면 확인(오후네컷 · 클럽 · 카페는 고쳐서 다시 봄), 카탈로그 단계에 옷걸이 버튼 고리, 건너뛰기 → 카메라 Custom · 캐릭터 화면 가운데 · TipsSeen에 tour2. 사진 tour_club / tour_park / tour_catalog_button_D-1365.jpg.
+
+## D-1366 Opening attendance event (2026-11-13)
+- User: "오픈 이벤트 추가하자" with a mock-up (한국의 오후 · OHU GRAND OPENING 출석 이벤트). 21 days from 2026-11-13 00:00 KST (to 12/3), one attendance per KST day (not in a row), 14 to finish. Rewards: 1–6 = 5/10/15/20/25/30 coins, 7 = limited photo frame, 8–13 = 35..60 coins, 14 = permanent title FOUNDING MEMBER.
+- Shared/OpeningEventConfig (dates, rewards), OpeningEventService (wallet.opening {n, last, title}, kept by PlayerDataService.sanitizeWallet; coins via EconomyService.Gift with sku "OpeningEvent"; frame "opening2026" into wallet.frames + EconomyService.Republish; checks every minute for the midnight rollover), OpeningEventController (window on the day's first visit after the loading screen / tour / other popups, and from the 🎁 top-row button, order 6, while the event runs).
+- Title: NameTagService badge "FOUNDING MEMBER" (dark plate, orange text) before the other roles, from player attribute Title_Founding.
+- Frame: PhotoConfig "오픈 기념" (price "event", not for sale: the booth shows "🎁 오픈 출석 7회 보상"). Placeholder pink sticker frame until the user sends the frame image.
+- Studio never counts an attendance (would use up the real days); set ReplicatedStorage.FashionGame attribute OpeningStudioCount = true to test counting. Window test: set OpeningCount / OpeningJustClaimed on the player on the server.
+- Glyphs: 🪙 / ✕ show as boxes and 💰 blank in this font: coin cards use "₩", close "X". Screenshot: images/2026-11-13/opening_event_window.jpg.
+
+## D-1367 Tour views and catalog wording (2026-11-13)
+- User: 오후네컷 from the outside in (the inside is pretty), beach with parasols and tubes in one shot, cafe from inside out through the glass wall to the sea, 광화문 from the front a little low so the unbuilt inside is not seen; catalog step stresses free (many players stay in the default avatar).
+- TourController steps take `path` (more stops, each glided in t seconds after the first view) and `fov` (beach 32, given back at the end). 오후네컷: street (14,22,-20) → corner door (44,9,-48) → lobby (60,10,-62). Beach: from the sea (-350,13,-14) → (-250,-5,-36). Cafe: lounge (-284,12,338) → glass wall view (-292,17,318) → (-440,4,280). 광화문: (89,7,93) → (144.5,16,147.3). Catalog: "👗 카탈로그 · 전부 무료!" + "기본 캐릭터 그대로 다니지 마세요! …".
+- Stage camera default (user: "처음 접속 기본값만 변경"): already so, nothing changed: on joining StageCamera is off and 안무 자동 (ChoreoAuto) is on; a camera the player switched on stays on across songs.
+- Images: images/2026-11-13/tour_*.jpg.
+
+## D-1368 Photo wall tip after a shoot (2026-11-13)
+- User: "사진 다 찍으면 포토월 설명. 남들에게 자랑 가능 기능". PhotoWallTip: when the result window of a shoot closes, once per player ever (tip "photowall"), after other windows close: "📌 포토월에 자랑하기" — hold the photo (hotbar / 🎒) and tap a wall inside 오후네컷. Image: images/2026-11-13/photowall_tip.jpg.
+
+## D-1369 LED wall: only the DJ (2026-11-13)
+- User: "dj 전광판에 플레이어 뜨는 것 삭제. dj만 뜨게". ClubScreenService no longer runs the loop that put dancers on the LED wall by turns (ClubWallShow stays 0); the DJ is still shown (DJScreenController). The round LED pillars are unchanged.
+- (D-1366 fix, mobile 2P test 2026-11-13) the 🎁 button (TopBar order 6) had no place in TopBar's RIGHT map, so it was never laid out (size 0, not seen): now between ♥ and ₩, round like ♥, with the wider gap before ₩ after it.
+
+## D-1370 Photo wall: no photo over the niche's rim (2026-11-13)
+- User (live phone screenshot images/2026-11-13/live_photo_floating.jpg): "포토월 사진 또 공중에 붙어 있음". A 1x4 strip at the left edge of the PHOTO niche hung in the air: the north panel runs straight across the niche, and PhotoWallFit.backed's five points (middle + corners at 80 %) all landed on the niche's thin neon rim. Now a 3 x 3 grid out to 95 % of the photo. Check in Edit: only spots at the edges of openings change (north panel 6, south panel 9 of ~290 tested). Floating photos are hidden on clients at once and moved to a backed spot when a new server starts (D-1322 path).
+
+## D-1371 Bag lists only what is not in the bar (2026-11-13)
+- User (images/2026-11-13/live_bag_and_bar.jpg): "홈화면 아래 인벤토리 4 칸에 꺼내져있는 아이템은 가방에서 빼. 아이템은 가방 홈화면인벤 두 군데 중 한 군데에만 있기". InventoryController lists only tools without a Hotbar slot (held from the bag counts as bag); the slot number badge on bag cards is gone. Dragging between the two still moves an item from one to the other.
+- (D-1366 fix 2, mobile 2P test 2026-11-13) the 🎁 button's ScreenGui now ignores the top bar inset like the other top bar buttons (it sat one row too low).
+
+## D-1372 Expanded catalog: walking like the minimized one (2026-11-13)
+- User: "카탈로그 최소화 화면에서 아바타 움직일 수 있었던 것처럼 최대화에서도 동일하게 적용". The expanded window used CatalogCamera.frame (a fixed front view: moving turned the view, not the walk). Now it uses CatalogCamera.side with the preview box, like beside the minimized window (D-1348): the usual camera slid so the character stands in the box; walking, the player's own camera drag and zoom work. While the avatar editor is open, frame() stays (its draft copy stands still, D-1339). Play check: W + D for 2.5 s moved 13.5 studs with the expanded catalog open; closing gives the normal camera back. Image: images/2026-11-13/catalog_expanded_walk.jpg.
+
+## D-1373 Catalog ✨ 추천 조합: Marketplace looks the user picks (2026-11-13)
+- User: "마켓 아바타 번들 말고 추천 조합 올릴 수 있는 방법 찾아봐" → option 1 "링크 보내 주면 넣기". Marketplace Looks have no engine or Open Cloud API (DevForum "Add Native Engine Support for Looks API"; the web endpoints need a login cookie), and Marketplace avatar bundles only hold body + head. So each look link is opened by hand (roblox.com/looks/<id>, signed in) and its "포함된 아이템" ids go into Shared/RecommendedLooks.lua (key, name, price, lookId, items {kind Bundle/Asset, id, name}).
+- First two: 줄무늬 거리 방랑자 (look 3280169265994531316, R$660, 10 items) and 이중성 인형 방랑자 (look 1355996617550987559, R$741, 9 items).
+- Catalog strip "✨ 추천" (first, gold text) opens RecommendedLooksView (own ScreenGui above the catalog): a card per look with its items' pictures 3 x 2 (the look's own avatar picture could not be uploaded: the image uploader takes no rbxcdn links), name, item count + Marketplace total, 입어 보기 (TryOnItem "WearLook" with the key; AvatarService.WearLook replaces the outfit: accessories, layered / classic clothes, makeup; all bundle types incl. animations) and 한 번에 사기 (Owned → BuyMany, like the cart).
+- Play: both looks go on in one tap (17 parts each, ~4.6 s for the first, the second replaces the first). Images: images/2026-11-13/recommended_looks_window.jpg, look_striped_worn.jpg, look_duality_worn.jpg.
+- (D-1373, same day, 11 looks) The look API (apis.roblox.com/look-api/v2/looks/<lookId>, read signed in) shows that a look may use only some parts of a bundle (isIncluded: the arms + torso of one body, the legs of another) and gives the look's own `outfitId`. Wearing is now Players:GetHumanoidDescriptionFromOutfitId(outfitId) → OutfitSnapshot → AvatarService.RestoreSnapshot (as the wardrobe's Roblox 코디, D-838), cached per server: exactly the Marketplace look (body colours, sizes, layer order), ~0.6 s; the hand-built AvatarService.WearLook was taken out again. Share links resolve with apis.roblox.com/sharelinks/v1/resolve-link. 11 looks (the user's 2 + 9): all go on in Play. Card pictures: clothes first. "Cewek 오래된 돈" is named "올드 머니 룩".

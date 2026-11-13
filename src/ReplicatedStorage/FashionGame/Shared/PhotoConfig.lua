@@ -118,12 +118,16 @@ PhotoConfig.Frames = {
 	{ key = "stars", name = "별", color = Color3.fromRGB(180, 200, 255), text = Color3.new(1, 1, 1), tab = "특별한", price = "pass", style = "sticker", stickers = { "⭐", "🌟", "✨" } },
 	{ key = "flowers", name = "꽃", color = Color3.fromRGB(214, 240, 200), text = Color3.fromRGB(70, 110, 60), tab = "특별한", price = "pass", style = "sticker", stickers = { "🌸", "🌼", "🌷" } },
 	{ key = "mongi", name = "몽이", color = Color3.fromRGB(255, 226, 234), text = Color3.fromRGB(150, 80, 110), tab = "특별한", price = "pass", style = "sticker", stickers = { "rbxassetid://139448598693468", "rbxassetid://102428635231665", "💗" } }, -- (the shop's own mascot, user 2026-10-30; docs/04_ART/textures/mascot_mongi*.png)
+	-- (D-1366) the opening event's limited frame: the 7th attendance gives it (price "event",
+	-- never sold); the user's own art comes later, until then a pink sticker frame
+	{ key = "opening2026", name = "오픈 기념", color = Color3.fromRGB(255, 196, 222), text = Color3.fromRGB(150, 70, 140), tab = "특별한", price = "event", style = "sticker", stickers = { "🌸", "👑", "💜" } },
 	{ key = "hamster", name = "햄찌·토끼", color = Color3.fromRGB(255, 236, 200), text = Color3.fromRGB(130, 90, 50), tab = "특별한", price = "pass", style = "sticker", stickers = { "🐹", "🐰", "🍙" } },
 } :: {Frame}
 
 function PhotoConfig.priceText(frame: Frame): string
 	if frame.price == "coins" then return "💰 " .. tostring(frame.coins) end
 	if frame.price == "pass" then return "프레임 팩" end
+	if frame.price == "event" then return "출석 7회" end -- (D-1366)
 	return "무료"
 end
 

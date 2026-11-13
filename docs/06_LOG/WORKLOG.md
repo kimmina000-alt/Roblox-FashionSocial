@@ -3907,3 +3907,19 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 
 ## 2026-11-13 레모네이드 안무 숨김 (D-1338)
 - 사용자: "레모네이드 안무 숨겨". ClubPlaylist의 Lemonade-aespa `choreo` → `hiddenChoreo`(지우지 않음). Play에서 기본 춤만 나오는 것 확인. 브랜치 feat/hide-lemonade-1113.
+
+## 2026-11-13 오픈 이벤트 · 투어 · 포토월 · 가방 (D-1361, D-1364..D-1371)
+- 오픈 출석 이벤트(D-1366): 11/13~12/3, 하루 1회, 14회 완료. Studio에서는 출석이 안 쌓임(속성으로 창만 확인).
+  ![출석 창](images/2026-11-13/opening_event_window.jpg)
+- 투어 카메라(D-1367): ![오후네컷 밖](images/2026-11-13/tour_ohu4cuts_outside.jpg) ![안](images/2026-11-13/tour_ohu4cuts_inside.jpg) ![해변](images/2026-11-13/tour_beach.jpg) ![카페](images/2026-11-13/tour_cafe_window.jpg) ![광화문](images/2026-11-13/tour_gwanghwamun.jpg)
+- 포토월 안내(D-1368): ![안내](images/2026-11-13/photowall_tip.jpg)
+- 라이브 제보: 포토월 공중 사진(D-1370) ![제보](images/2026-11-13/live_photo_floating.jpg), 가방·아래 칸 중복(D-1371) ![제보](images/2026-11-13/live_bag_and_bar.jpg)
+- 모바일 2P 테스트: 1차에서 🎁 버튼이 안 보이는 버그(TopBar 자리 없음) 발견 → 수정, 2차에서 한 줄 아래로 내려가 있던 것(IgnoreGuiInset) 수정. 가방 6개 + 아래 칸 4개 중복 없음, 스크립트 오류 없음. catalog-ui-redesign에 fast-forward 머지(f9ec0e0b).
+
+## 2026-11-13 최대화 카탈로그에서 걷기 (D-1372)
+- 최대화 창도 최소화처럼 보통 카메라를 미리보기 칸으로 밀어서 보여 줌(편집 창이 열렸을 땐 정면 고정). PC Play: 13.5칸 이동. 모바일 2P: 폰 화면에서 캐릭터가 왼쪽 칸에 보이고, 칸이 투명이라 착용 중 카드 위쪽 빈 곳을 누르면 이동 스틱이 잡힘(Studio에선 키 입력 때문에 조이스틱이 숨어 직접 조작은 못 봄). 스크립트 오류 없음 → catalog-ui-redesign 머지.
+  ![최대화 걷기](images/2026-11-13/catalog_expanded_walk.jpg)
+
+## 2026-11-13 카탈로그 ✨ 추천 조합 (D-1373)
+- 사용자가 보낸 마켓 룩 공유 링크 11개 → 룩마다 Roblox 코디 번호(outfitId)로 한 번에 입기, 한 번에 사기. 모바일 2P: 서로의 룩이 보이고(Player1 올드 머니 룩 / Player2 진홍색 스케이터 십대), 폰에서 ✨ 추천 창이 열림, 스크립트 오류 없음 → catalog-ui-redesign 머지.
+  ![2P](images/2026-11-13/looks_2p.jpg) ![창](images/2026-11-13/recommended_looks_window.jpg)

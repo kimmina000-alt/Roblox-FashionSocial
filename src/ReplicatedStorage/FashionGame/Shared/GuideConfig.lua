@@ -70,6 +70,8 @@ GuideConfig.Faq = {
 	{ q = "물놀이는 어디서 해요?", a = "서쪽 해변에서 튜브를 타고 바다에 들어가요.", place = "beach" },
 	{ q = "놀이공원은 언제 열어요?", a = "OHU LAND는 지금 준비 중이에요. 계단 위 문 앞 광장까지는 올라갈 수 있어요.", place = "park" },
 	{ q = "국밥을 테이블에 놓으면 남도 먹어요?", a = "아니요, 테이블에 놓은 국밥은 놓은 사람만 떠먹어요. 수육 한 접시와 케이크는 테이블에 놓으면 모두 한 조각씩 가져가 먹어요.", place = "gukbap" },
+	-- (D-1365) action = "tour": the first-visit tour again (TourController)
+	{ q = "🗺 동네 둘러보기 다시 보기", a = "카메라가 동네를 한 바퀴 돌며 장소와 화면 버튼을 알려 줘요.", action = "tour" },
 	-- (D-725) action = "feedback": the button opens 💬 의견 보내기
 	{ q = "💬 불편한 점·바라는 점 보내기", a = "버그, 불편한 점, 있었으면 하는 것 무엇이든 알려 주세요! 개발자가 하나하나 직접 읽어요. 화면 오른쪽 위 💬 버튼으로도 보낼 수 있어요.", action = "feedback" },
 } :: {Faq}

@@ -1415,6 +1415,7 @@ local function refreshSaveButton()
 	if info and not ownsFrame(info) then
 		pickDone.Text = if info.price == "coins"
 			then string.format("💰 %d 구매 후 저장", info.coins or 0)
+			elseif info.price == "event" then "🎁 오픈 출석 7회 보상" -- (D-1366)
 			else string.format("프레임 팩 R$%d", MonetizationConfig.GamePasses.FramePack.price)
 		pickDone.BackgroundColor3 = if info.price == "coins" then Color3.fromRGB(230, 170, 40) else Color3.fromRGB(0, 176, 111)
 	else
@@ -1563,6 +1564,8 @@ local function resultButton(label: string, color: Color3, order: number, onClick
 end
 
 local function closeAllFlow()
+	-- (D-1368) a finished shoot: the photo wall is explained once (PhotoWallTip)
+	if state.stage == "result" then require(script.Parent:WaitForChild("PhotoWallTip")).maybeShow() end
 	pick.Visible = false
 	result.Visible = false
 	shoot.Visible = false
@@ -1658,6 +1661,10 @@ pickDone.MouseButton1Click:Connect(function()
 				local bought, message = invoke("BuyFrame", info.key)
 				toast(message)
 				if not bought then return end
+			elseif info.price == "event" then
+				-- (D-1366) not for sale: the opening event's 7th attendance
+				toast("오픈 출석 이벤트에서 7번 출석하면 받는 한정 프레임이에요.")
+				return
 			else
 				local pass = MonetizationConfig.GamePasses.FramePack
 				if pass.id ~= 0 then

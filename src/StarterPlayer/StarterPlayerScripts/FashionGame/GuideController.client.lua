@@ -223,7 +223,7 @@ local function showAnswer(faq: GuideConfig.Faq)
 	local place = faq.place and GuideConfig.Places[faq.place]
 	showButton.Visible = place ~= nil
 	goButton.Visible = place ~= nil or faq.action ~= nil
-	goButton.Text = if faq.action == "feedback" then "✏️ 의견 쓰기" else "📍 길 안내"
+	goButton.Text = if faq.action == "feedback" then "✏️ 의견 쓰기" elseif faq.action == "tour" then "▶ 다시 보기" else "📍 길 안내"
 	list.Visible = false
 	answer.Visible = true
 end
@@ -262,6 +262,11 @@ goButton.Activated:Connect(function()
 	if shown.action == "feedback" then
 		closeWindow()
 		require(script.Parent:WaitForChild("Feedback")).open()
+		return
+	end
+	if shown.action == "tour" then -- (D-1365)
+		closeWindow()
+		require(script.Parent:WaitForChild("UiBus")).StartTour:Fire()
 		return
 	end
 	local place = shown.place and GuideConfig.Places[shown.place]
