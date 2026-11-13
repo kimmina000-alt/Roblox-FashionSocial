@@ -60,6 +60,7 @@
   3-23. `park_layout_1111.lua` — 놀이공원 안내도대로 배치(D-1316): 관람차는 북쪽 끝, 회전목마는 서쪽 가운데, 그네는 그 북쪽으로 받침·라벨째 옮기고(정해진 자리로 옮겨서 다시 돌려도 같다), 나머지 안내도 시설은 Hongdae_Layout.ParkBlockout 블록아웃. park_raise 다음.
   3-24. `hanok_ground_fill.lua`(D-1323, 한옥 마을 빈 땅을 지형 잔디로) → `bakery_underlight.lua`(D-1319/D-1324, 빵 진열대 조명) → `oh24_cold_off_1113.lua` — OH24 서쪽 벽의 냉장 · 냉동고(Cold* / ShelfRow)를 지움: 사용자 진열장 이미지 블록(Workspace.cold)만 남김(D-1333).
   3-25. `user_map_snapshot_1113.lua` — 사용자 손 편집 되돌려 놓기(D-1334): ServerStorage.UserMapSnapshot의 OH24Store · BigSpenderLED · ClubAnnex · Gukbap · OhuFourCuts · AmusementParkGate를 통째로 다시 넣고, OpenSea를 지우고, 바닥 판 · 보도 · 해변 계단 · 산책로 몇 개와 ParkRaise.ParkPlatform을 사용자 상태로. 이 공간들은 이제 스크립트가 아니라 스냅숏이 기준: Studio에서 손으로 고친 뒤 스냅숏의 해당 모델을 새로 복사해 둘 것. 맨 마지막.
+  3-26. `park_expand_1113.lua` — 놀이공원 부지를 서쪽 바다 끝(x -298.5)까지, 남쪽은 공원 남쪽 벽(z -277)까지 넓힘(D-1393): 그 안의 해변 모래 · 계단 · 산책로 · 가로등 · 야자수 · 파라솔 · 튜브 · 비치체어를 지우고 남쪽으로 이어지는 것은 z -277에서 자름, 유턴 도로 끝을 남쪽으로 129 옮기고 도로 · 차선 · 인도를 그 뒤에서 시작, 공원 높이(16) 바닥(ParkRaise.ParkPlatformWest)과 잔디 띠 연장, 북쪽 구역 서쪽 벽(x -276.1)을 z -279.5까지 잇고 남쪽 벽을 z -279.5로 옮김, 안쪽 공원의 옛 서쪽 벽(x -147.5) 삭제. snapshot 단계 뒤 맨 마지막. AmusementParkGate는 스냅숏에도 반영돼 있음.
 4. 손 편집 기록(`ServerStorage.PropOverrides`, git `prop_overrides.json`)은 2·3단계에서 자동 적용. 다시 빌드하기 전에 항상 `prop_save.lua`로 먼저 저장.
 - 필요한 Studio 자산: ServerStorage.ArtAssets(나무·관목·야자수·가로등·신호등 등, 스크립트 제거됨), ServerStorage.Cars(G70·G80), MaterialService(OHU_Asphalt, OHU_Concrete). 장소 파일에만 있으므로 Studio 저장 필수.
 - 예전 이름: hongdae_v1_temp.lua / Workspace.Hongdae_v1_Temp (임시 단계). 새 스크립트의 revert가 예전 폴더도 지운다.
