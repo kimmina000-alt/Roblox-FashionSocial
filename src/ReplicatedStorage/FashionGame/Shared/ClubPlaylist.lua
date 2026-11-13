@@ -640,7 +640,15 @@ M.Playlist = {
 	{ channel = "K-POP", title = "Magic-Secret", soundId = 124810692241835, length = 194.251, fileSpeed = 1.0504,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "BANG-After School", soundId = 136570075901439, length = 189.252, fileSpeed = 1.0515,
-		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
+		-- (D-1394, user 2026-11-13: "애프터스쿨 BANG 안무 추가" + 16 ids) practice video Sk8ByISqgwc: song = video + 0.85 s (its sound against the
+		-- original mp3 in 10 s windows, 0.99-1.00 all through), `at` = clip start + 0.85; 7 / 11 / 16 were copies of 6 / 10 / 15 (same keyframes): left out
+		choreo = {
+			{ id = 84153374890352, at = 7.64 }, { id = 137056236927761, at = 21.64 }, { id = 105204020323017, at = 34.05 },
+			{ id = 120933576855785, at = 47.85, blend = 0.44 }, { id = 102971667388731, at = 60.84, blend = 0.89 }, { id = 103181529138741, at = 67.72 },
+			{ id = 91956738526101, at = 89.86, blend = 0.9 }, { id = 71518245203286, at = 99.60, blend = 1 }, { id = 88337047994676, at = 112.85 },
+			{ id = 114991184702089, at = 134.23, blend = 1 }, { id = 133693971779949, at = 147.85, blend = 1 }, { id = 129925869461594, at = 161.84 },
+			{ id = 73991603786553, at = 174.97 } }, autoChoreo = true },
 	{ channel = "K-POP", title = "Hot Issue-4MINUTE", soundId = 124715970373244, length = 205.296, fileSpeed = 1.0526,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
 	{ channel = "K-POP", title = "Abracadabra-Brown Eyed Girls", soundId = 84753987256309, length = 175.124, fileSpeed = 1.0504,

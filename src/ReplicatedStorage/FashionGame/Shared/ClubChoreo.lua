@@ -138,6 +138,10 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
+	-- (D-1394) BANG-After School, Play scan: 5 turns a full lap at 1:04.6-1:06.0 with one frame of 1033°/s → spread evenly;
+	-- 13 swings back 86° in one keyframe at 3:00.7 (663°/s) → eased
+	[102971667388731] = { spin = { from = 4.2, to = 5.6, ease = "both" } }, -- BANG 5
+	[73991603786553] = { spin = { from = 5.3, to = 6.0, ease = "both" } }, -- BANG 13
 	-- (D-1387, user 2026-11-13 + 2 photos: "클럽 댄스 3 처음에 왼팔 들고 있을 때 왼쪽 손목 천천히 돌리기 / 양쪽 팔 둘 다 내릴 때
 	-- 손목 손등쪽으로 꺾기 / 오른쪽팔만 들 때 손목 안쪽으로 세 번 꺾기") the menu dance club3 (ClubDances, 15.43 s loop; menu
 	-- dances take only `bend`, ChoreoController menuBends). Left arm up at the start 0-1.5: one slow circle; both arms
@@ -1350,6 +1354,11 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- BANG-After School (D-1394, choreo_slide_check + choreo_motion_scan DRIFT + Play scan)
+	[137056236927761] = { { 4.0, 4.6 }, { 7.2, 8.0 } }, [105204020323017] = { { 4.0, 4.7 }, { 11.4, 12.2 }, { 12.7, 13.3 } }, [120933576855785] = { { 1.8, 2.6 }, { 5.5, 6.3 }, { 6.9, 8.2 } },
+	[102971667388731] = { { 0.2, 1.0 }, { 5.3, 6.1 } }, [103181529138741] = { { 6.0, 6.6 }, { 7.5, 8.3 }, { 9.0, 9.9 } }, [91956738526101] = { { 1.4, 2.2 }, { 2.9, 4.2 }, { 5.3, 6.0 }, { 8.4, 9.5 } },
+	[71518245203286] = { { 5.4, 6.2 } }, [88337047994676] = { { 6.0, 8.4 } }, [114991184702089] = { { 1.6, 2.3 }, { 6.2, 6.8 } }, [133693971779949] = { { 1.1, 1.7 }, { 9.6, 10.4 } },
+	[129925869461594] = { { 11.7, 12.4 } }, [73991603786553] = { { 5.9, 7.0 } }, -- (+ Play scan TELEPORT 0:25.9, 0:54.9, 1:13.9, 1:35.4, 2:29.1, 3:01.0, SLIDE 2:20.5)
 	-- With-RESCENE (D-1306, choreo_slide_check + choreo_motion_scan DRIFT); also 백화요란 20 (D-1300) and SHOCK 9 (D-1301)
 	[81069311107336] = { { 3.0, 3.8 } }, [102977375863633] = { { 1.2, 2.0 }, { 2.5, 3.5 }, { 7.6, 8.2 } }, [113905277691263] = { { 2.5, 3.1 }, { 3.7, 4.4 } },
 	[131580629784808] = { { 5.5, 6.1 }, { 9.9, 10.7 } }, [134804041385196] = { { 1.5, 2.3 } }, [135964930726670] = { { 1.6, 2.3 }, { 3.0, 3.7 } },
@@ -1569,6 +1578,9 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-1394) BANG-After School (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 5, 6 and 10 checked on frames: front)
+	[137056236927761] = -10, [105204020323017] = -11, [120933576855785] = 6, [102971667388731] = -21, [103181529138741] = -29,
+	[91956738526101] = 10, [71518245203286] = -8, [88337047994676] = -22, [114991184702089] = 11,
 	-- (D-1306) With-RESCENE (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 5 and 13 checked on frames: front)
 	[102977375863633] = -7, [113905277691263] = -19, [134804041385196] = 8, [135964930726670] = -16, [103924587030311] = -23,
 	[119026591853452] = 24, [78971722650566] = 18, [103780560163454] = -8, [119066931308311] = -13, [132556616885642] = 16,
@@ -1689,6 +1701,12 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-1394) BANG-After School: head_video.py → headMisses, keys 0.09 s early (13 pieces; 7 / 11 / 16 not uploaded yet)
+	[84153374890352] = { { part = "Head", keys = { { 8.51, 0, 0, 0 }, { 8.71, 0, 0, 21 }, { 8.91, 0, 0, 15 }, { 9.11, 0, 0, 0 } } } }, -- BANG 1
+	[102971667388731] = { { part = "Head", keys = { { 6.31, 0, 0, 0 }, { 6.51, 0, 0, 19 }, { 6.71, 0, 0, 22 }, { 6.83, 0, 0, 21 } } } }, -- BANG 5 (ends tilted: 6 starts at 21)
+	[103181529138741] = { { part = "Head", keys = { { 0.00, 0, 0, 21 }, { 0.11, 0, 0, 19 }, { 0.31, 0, 0, 0 } } }, { part = "Head", keys = { { 5.31, 0, 0, 0 }, { 5.51, 0, 0, 17 }, { 5.71, 0, 0, 17 }, { 5.91, 0, 0, 0 } } } }, -- BANG 6
+	[114991184702089] = { { part = "Head", keys = { { 0.71, 0, 0, 0 }, { 0.91, 0, 0, 16 }, { 1.11, 0, 0, 17 }, { 1.31, 0, 0, 19 }, { 1.51, 0, 0, 16 }, { 1.71, 0, 0, 0 } } }, { part = "Head", keys = { { 7.71, 0, 0, 0 }, { 7.91, 0, 0, 13 }, { 8.11, 0, 0, 10 }, { 8.31, 0, 0, 0 } } } }, -- BANG 12
+	[129925869461594] = { { part = "Head", keys = { { 8.71, 0, 0, 0 }, { 8.91, 0, 0, 14 }, { 9.11, 0, 0, 13 }, { 9.31, 0, 0, 0 } } } }, -- BANG 14
 	-- (D-1306) With-RESCENE + 백화요란 20: head_video.py → headMisses, keys 0.09 s early; left out where the centre is hidden (With 20 at 3 s, 백화요란 20 at 5 s)
 	[98274724905693] = { { part = "Head", keys = { { 1.51, 0, 0, 0 }, { 1.71, 0, 0, 18 }, { 1.91, 0, 0, 19 }, { 2.11, 0, 0, 0 } } } }, -- With 2
 	[102977375863633] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, 15 }, { 3.91, 0, 0, 11 }, { 4.11, 0, 0, 13 }, { 4.31, 0, 0, 0 } } } }, -- With 4
@@ -1868,6 +1886,16 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
+	-- (D-1394, user: "애프터스쿨 BANG 안무 추가") BANG-After School: hand_moves.py on all 16 clips → wristMisses, keys 0.09 s early;
+	-- clip 12 0-3.3 s left out (another dancer next to the centre); checked in Play (D-1263)
+	[102971667388731] = { { part = "RightHand", keys = { { 2.31, 0, 0, 0 }, { 2.51, 0, 0, -23 }, { 2.71, 0, 0, -22 }, { 2.91, 0, 0, -17 }, { 3.11, 0, 0, -40 }, { 3.31, 0, 0, 0 } } } }, -- BANG 5
+	[91956738526101] = { { part = "LeftHand", keys = { { 7.71, 0, 0, 0 }, { 7.91, 0, 0, -28 }, { 8.11, 0, 0, -27 }, { 8.31, 0, 0, -29 }, { 8.51, 0, 0, 0 } } } }, -- BANG 8
+	[71518245203286] = { { part = "LeftHand", keys = { { 0.11, 0, 0, 0 }, { 0.31, 0, 0, -35 }, { 0.51, 0, 0, -40 }, { 0.71, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 2.11, 0, 0, 0 }, { 2.31, 23, 0, 0 }, { 2.51, 19, 0, 0 }, { 2.71, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 3.71, 0, 0, 0 }, { 3.91, 37, 0, 0 }, { 4.11, 24, 0, 0 }, { 4.31, 0, 0, 0 } } } }, -- BANG 9
+	[88337047994676] = { { part = "RightHand", keys = { { 1.11, 0, 0, 0 }, { 1.31, -20, 0, 0 }, { 1.51, -18, 0, 0 }, { 1.71, -19, 0, 0 }, { 1.91, -22, 0, 0 }, { 2.11, 0, 0, 0 } } } }, -- BANG 10
+	[114991184702089] = { { part = "LeftHand", keys = { { 3.71, 0, 0, 0 }, { 3.91, -21, 0, 0 }, { 4.11, -22, 0, 0 }, { 4.31, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 10.51, 0, 0, 0 }, { 10.71, 0, 0, -37 }, { 10.91, 0, 0, -12 }, { 11.11, 0, 0, -28 }, { 11.31, 0, 0, -40 }, { 11.51, 0, 0, -40 }, { 11.71, 0, 0, 0 } } } }, -- BANG 12
 	-- (D-1306, user: "원본 동영상과 비교하면서 고개와 손목 움직임 세세한 부분까지") With-RESCENE: hand_moves.py on 25 clips → wristMisses, keys 0.09 s early,
 	-- capture wrist + bend ≤ 72°; left out where the centre is hidden (7 at 4.8 s, 14 at 0.5 s, 24) and 25 (after the song ends). Play
 	-- (D-1263): all 8 turn the hand toward the video (capture → game, video: 4 −26 → −42/−55 (−60/−67), 13 −18 → 0 (+30), 16 +14 → −20 (−50),
