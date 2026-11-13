@@ -3971,3 +3971,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 사용자가 무대 영상(youtube 9xtKN5zNxgA)을 보내 D:\Roblox\영상\Bang_stage\stage.mp4로 받음.
 - 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 - 8초(무대가 전주를 잘라 노래 8초부터 시작).
 - 컷 87개 → 87샷(shots_to_lua.py), 첫 와이드 샷을 0초부터. 브랜치 feat/stage-camera-bang-1114. 다음: Studio 반영, 모바일 2인 테스트.
+
+## 2026-11-14 Merge: giving items, BANG stage camera, day-14 title, Earl Grey sip
+- 2P test (Player1 / Player2): Player1 bought 얼그레이 티 at the beach cafe (sip = 102811247160851), clicked Player2 → "🎁 얼그레이 티를 Player2님에게 줄까요?" (no sip on that click, bites 3 kept) → 주기 → Player2 "Player1님이 얼그레이 티를 주려고 해요 [받기 (15)]"; the first try ran out (background window too slow, both got the expired notes), the second 받기 worked: the tea in Player2's bag (bites 3, same sip), gone from Player1, Player1 saw "Player2님이 얼그레이 티를 받았어요!". BANG-After School played by Player1 (DJ): Player2 with 🎥 on follows the choreography and the camera films the stage (Scriptable, FOV 49), back to Custom when off. Day 14 card checked in single Play (Korean and Lang = en). No script errors on the server or either client.
+- Merged feat/give-item-1114, feat/stage-camera-bang-1114, fix/sip-badge-1114 into catalog-ui-redesign.
