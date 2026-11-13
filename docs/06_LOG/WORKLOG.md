@@ -3907,3 +3907,11 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 
 ## 2026-11-13 레모네이드 안무 숨김 (D-1338)
 - 사용자: "레모네이드 안무 숨겨". ClubPlaylist의 Lemonade-aespa `choreo` → `hiddenChoreo`(지우지 않음). Play에서 기본 춤만 나오는 것 확인. 브랜치 feat/hide-lemonade-1113.
+
+## 2026-11-13 오픈 이벤트 · 투어 · 포토월 · 가방 (D-1361, D-1364..D-1371)
+- 오픈 출석 이벤트(D-1366): 11/13~12/3, 하루 1회, 14회 완료. Studio에서는 출석이 안 쌓임(속성으로 창만 확인).
+  ![출석 창](images/2026-11-13/opening_event_window.jpg)
+- 투어 카메라(D-1367): ![오후네컷 밖](images/2026-11-13/tour_ohu4cuts_outside.jpg) ![안](images/2026-11-13/tour_ohu4cuts_inside.jpg) ![해변](images/2026-11-13/tour_beach.jpg) ![카페](images/2026-11-13/tour_cafe_window.jpg) ![광화문](images/2026-11-13/tour_gwanghwamun.jpg)
+- 포토월 안내(D-1368): ![안내](images/2026-11-13/photowall_tip.jpg)
+- 라이브 제보: 포토월 공중 사진(D-1370) ![제보](images/2026-11-13/live_photo_floating.jpg), 가방·아래 칸 중복(D-1371) ![제보](images/2026-11-13/live_bag_and_bar.jpg)
+- 모바일 2P 테스트: 1차에서 🎁 버튼이 안 보이는 버그(TopBar 자리 없음) 발견 → 수정, 2차에서 한 줄 아래로 내려가 있던 것(IgnoreGuiInset) 수정. 가방 6개 + 아래 칸 4개 중복 없음, 스크립트 오류 없음. catalog-ui-redesign에 fast-forward 머지(f9ec0e0b).
