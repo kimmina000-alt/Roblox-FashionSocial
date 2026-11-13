@@ -3932,3 +3932,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 번역: 다른 세션(게임 전체 다국어 번역)이 만든 16개 언어 번역표(L / I18n / I18nController). 사용자가 명령 바로 Studio에 넣음. Studio 확인: 영어(핫바, 출석 창, 카탈로그·추천, "Wearing …" 알림), 일본어.
 - 모바일 2P (Studio Lang = en): 두 폰 모두 영어, 추천 룩 입기 + 상대에게 보임, 스크립트 오류 없음 → 순위표 + 번역 함께 catalog-ui-redesign 머지. Studio 전용 Lang 속성은 테스트 후 지움.
   ![출석 창 영어](images/2026-11-13/i18n_en_opening.jpg) ![카탈로그 영어 2P](images/2026-11-13/i18n_en_catalog_2p.jpg)
+
+## 2026-11-13 ☰ 메뉴 (D-1377..D-1380) + 추천 카드 색 (D-1379) + 메뉴 번역
+- ☰ 메뉴: 닉네임 표시(내 화면에서만 모두의 닉네임 켜고 끄기), 내 칭호 표시(FOUNDING MEMBER / 알바생 / GUARD / VIP / DJ 각각), 💝 기부하기. 스위치는 분홍 = 보임(기본), 회색 = 끔.
+- 모바일 2P: Player2가 닉네임 표시를 끄면 Player2 화면에서만 Player1 이름이 사라지고 Player1 화면에서는 Player2 이름이 그대로, Player1이 GUARD를 끄면 Player2 화면에서 GUARD가 빠짐. 번역표에 새 문구(Show nicknames / Show my badges) 들어감. 스크립트 오류 없음 → catalog-ui-redesign 머지.
+  ![2P](images/2026-11-13/menu_2p.jpg)
