@@ -4592,3 +4592,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1375 추천 button without the star (2026-11-13)
 - User: "추천 앞에 별 빼고 텍스트만 둬". The catalog strip button reads "추천" (gold text kept); MODE_BY_LABEL key changed with it. Play: the button opens the 11 look cards.
+
+## D-1376 Rankings: no Vantablack_Dev, top 100 (2026-11-13)
+- User: "순위표에서 Vantablack_Dev 삭제 / 순위표 100명까지 표기". RankingService: Vantablack_Dev (11887382096, the game's own account) joins the excluded accounts (by id and name), TOP 50 → 100; the ordered store is read in pages of 100 (the most one page holds) plus the next page, so the hidden accounts still leave 100 rows. RankingBoards: 100 rows, "상위 100 플레이어". Play (real ranking store): level board 100 entries, no Vantablack_Dev; the park board shows 100 rows.

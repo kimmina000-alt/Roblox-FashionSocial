@@ -3927,3 +3927,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-13 ✨ 추천을 아이템 칸에, 룩 전신 그림으로 (D-1374)
 - 모바일 2P: 폰에서 ✨ 추천 → 아이템 칸에 카드 11장(룩 전신 그림), 마지막 카드 입기 → "올드 머니 룩" 입음 + 토스트, 스크립트 오류 없음 → catalog-ui-redesign 머지.
   ![폰](images/2026-11-13/looks_grid_phone.jpg)
+
+## 2026-11-13 순위표 100명 · Vantablack_Dev 제외 (D-1376) + 다국어 번역 (feat/i18n-1113)
+- 번역: 다른 세션(게임 전체 다국어 번역)이 만든 16개 언어 번역표(L / I18n / I18nController). 사용자가 명령 바로 Studio에 넣음. Studio 확인: 영어(핫바, 출석 창, 카탈로그·추천, "Wearing …" 알림), 일본어.
+- 모바일 2P (Studio Lang = en): 두 폰 모두 영어, 추천 룩 입기 + 상대에게 보임, 스크립트 오류 없음 → 순위표 + 번역 함께 catalog-ui-redesign 머지. Studio 전용 Lang 속성은 테스트 후 지움.
+  ![출석 창 영어](images/2026-11-13/i18n_en_opening.jpg) ![카탈로그 영어 2P](images/2026-11-13/i18n_en_catalog_2p.jpg)
