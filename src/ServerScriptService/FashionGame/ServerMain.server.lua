@@ -356,6 +356,18 @@ TryOnItem.OnServerInvoke = function(
 		return ok, result
 	end
 
+	-- (D-1373) a recommended look by its key (Shared/RecommendedLooks): the items come from
+	-- that list, never from the client
+	if action == "WearLook" then
+		local look = require(FashionGame.Shared.RecommendedLooks).get(payload)
+		if not look then return false, "Invalid look." end
+		local ok, result = runTracked(player, function()
+			return AvatarService.WearLook(player, look.items)
+		end)
+		if ok then Analytics.interact(player, "Outfit") end
+		return ok, result
+	end
+
 	if action == "WearBundle" or action == "WearShoeBundle" then
 		local ok, result = runTracked(player, function()
 			return AvatarService.WearBundle(player, payload)

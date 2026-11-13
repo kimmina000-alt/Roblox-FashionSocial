@@ -1020,7 +1020,8 @@ local discoveryButtons = {}
 -- (D-1050, user 2026-11-09: "최대화 카탈로그에 있는 아바타 에디터 버튼이랑 저장
 -- 버튼 최소화에 있는 위치로 수정. 통일.") the expanded catalog has them in the
 -- same strip now (they were ⚙ / ▣ in the corner of the avatar preview box).
-for index, label in ipairs({"최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
+-- (D-1373) ✨ 추천 first: the recommended looks window (RecommendedLooksView)
+for index, label in ipairs({"✨ 추천", "최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
 	local b = create("TextButton", {
 		Name = "Discovery_" .. tostring(index),
 		Size = UDim2.fromOffset(86, 30),
@@ -1401,6 +1402,10 @@ for label, mode in pairs(MODE_BY_LABEL) do
 end
 discoveryButtons["⚙"].MouseButton1Click:Connect(function()
 	openAvatarEditor()
+end)
+discoveryButtons["✨ 추천"].TextColor3 = Color3.fromRGB(255, 205, 110) -- (stands out a little)
+discoveryButtons["✨ 추천"].MouseButton1Click:Connect(function()
+	require(script.Parent:WaitForChild("RecommendedLooksView")).toggle()
 end)
 fixedFilterButton.MouseButton1Click:Connect(function()
 	filterPanelOpen = not filterPanelOpen
