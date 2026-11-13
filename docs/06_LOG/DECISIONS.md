@@ -4548,3 +4548,11 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 새 TourController(예전 투어는 D-845에서 지움): 18장. 환영 → 스폰(-30,-36)에서 가장 가까운 곳부터 한 바퀴: 오후네컷 → 클럽 → 국밥집 → OHU LAND(공사 중) → 해변 → 카페 → OH24 편의점 → 광화문 · 한옥 마을(카메라가 날아가 확대, 장소마다 눈 위치 · 보는 점을 지금 맵에서 재서 Studio 화면으로 맞춤) → 화면 버튼: 시계 · ₩ · ♥ 후원 · 👗 카탈로그("무료 아이템으로 마음껏, 내가 원하는 대로 예쁜 캐릭터를 꾸미고 자랑해 보세요!") · 🎒 · ♪("누르면 클럽 밖에서도 언제든 클럽 노래를 들을 수 있어요") · 💬, 해당 버튼에 깜빡이는 노란 고리 → 준비 끝.
 - 아래 카드(핫바 위), 오른쪽 위 "건너뛰기 >", 카드 안 "다음 ▶". 끝나거나 건너뛰면 카메라가 캐릭터 뒤로. 처음 한 번: 서버가 기억하는 팁 키 "tour2"(GuideService TipSeen, 예전 투어를 본 사람도 한 번 봄), 로딩 화면(OHULoading) 뒤에 시작. 안내원 질문 "🗺 동네 둘러보기 다시 보기"(UiBus.StartTour)로 다시 볼 수 있음.
 - Studio Play: 로딩 뒤 7초에 시작, 장소 8곳 화면 확인(오후네컷 · 클럽 · 카페는 고쳐서 다시 봄), 카탈로그 단계에 옷걸이 버튼 고리, 건너뛰기 → 카메라 Custom · 캐릭터 화면 가운데 · TipsSeen에 tour2. 사진 tour_club / tour_park / tour_catalog_button_D-1365.jpg.
+
+## D-1366 Opening attendance event (2026-11-13)
+- User: "오픈 이벤트 추가하자" with a mock-up (한국의 오후 · OHU GRAND OPENING 출석 이벤트). 21 days from 2026-11-13 00:00 KST (to 12/3), one attendance per KST day (not in a row), 14 to finish. Rewards: 1–6 = 5/10/15/20/25/30 coins, 7 = limited photo frame, 8–13 = 35..60 coins, 14 = permanent title FOUNDING MEMBER.
+- Shared/OpeningEventConfig (dates, rewards), OpeningEventService (wallet.opening {n, last, title}, kept by PlayerDataService.sanitizeWallet; coins via EconomyService.Gift with sku "OpeningEvent"; frame "opening2026" into wallet.frames + EconomyService.Republish; checks every minute for the midnight rollover), OpeningEventController (window on the day's first visit after the loading screen / tour / other popups, and from the 🎁 top-row button, order 6, while the event runs).
+- Title: NameTagService badge "FOUNDING MEMBER" (dark plate, orange text) before the other roles, from player attribute Title_Founding.
+- Frame: PhotoConfig "오픈 기념" (price "event", not for sale: the booth shows "🎁 오픈 출석 7회 보상"). Placeholder pink sticker frame until the user sends the frame image.
+- Studio never counts an attendance (would use up the real days); set ReplicatedStorage.FashionGame attribute OpeningStudioCount = true to test counting. Window test: set OpeningCount / OpeningJustClaimed on the player on the server.
+- Glyphs: 🪙 / ✕ show as boxes and 💰 blank in this font: coin cards use "₩", close "X". Screenshot: images/2026-11-13/opening_event_window.jpg.

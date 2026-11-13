@@ -219,11 +219,16 @@ end
 
 -- (D-1013) coins given by the game's owner (a reward for feedback), with a toast;
 -- not doubled by the x2 pass, no daily cap
-function EconomyService.Gift(player: Player, amount: number, text: string)
+function EconomyService.Gift(player: Player, amount: number, text: string, sku: string?)
 	if amount <= 0 or not player.Parent then return end
 	add(player, math.floor(amount))
-	Analytics.coins(player, "Source", math.floor(amount), EconomyService.Balance(player), "Gameplay", "FeedbackReward")
+	Analytics.coins(player, "Source", math.floor(amount), EconomyService.Balance(player), "Gameplay", sku or "FeedbackReward")
 	toast(player, string.format("%s +%d %s · %s", EconomyConfig.Icon, math.floor(amount), EconomyConfig.CurrencyName, text))
+end
+
+-- (D-1366) the attributes again after a change made elsewhere (a frame given by an event)
+function EconomyService.Republish(player: Player)
+	publish(player)
 end
 
 -- Coins back for something paid and not given (a cafe order cancelled, D-772).

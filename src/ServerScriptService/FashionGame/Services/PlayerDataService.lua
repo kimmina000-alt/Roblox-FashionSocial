@@ -63,7 +63,7 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- look = the last outfit worn (OutfitSnapshot), put back on the next visit (D-771)
 -- bag = the items carried when the player left (BagService, D-790): plain
 -- tables { k = kind, ... }, given back on the next visit
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}? }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean }? }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -143,6 +143,15 @@ local function sanitizeWallet(raw: any): Wallet
 	wallet.hair = HairFit.toSaved(HairFit.fromSaved(raw.hair))
 	wallet.tutorial = raw.tutorial == true
 	wallet.welcome = raw.welcome == true
+	-- (D-1366) the opening attendance event: n attendances, the event day of the last, the title
+	if typeof(raw.opening) == "table" then
+		local o = raw.opening
+		wallet.opening = {
+			n = if typeof(o.n) == "number" then math.clamp(math.floor(o.n), 0, 100) else 0,
+			last = if typeof(o.last) == "number" then math.floor(o.last) else 0,
+			title = o.title == true,
+		}
+	end
 	if typeof(raw.look) == "table" then wallet.look = raw.look end
 	-- (D-790) the carried items: at most 30 entries of plain values
 	if typeof(raw.bag) == "table" then
