@@ -288,6 +288,7 @@ local function typedItem(payload: any): (number?, string?)
 	return nil, nil
 end
 
+local lookSnapshots: {[string]: any} = {} -- (D-1373) recommended looks, read once
 TryOnItem.OnServerInvoke = function(
 	player: Player,
 	action: string,
@@ -361,11 +362,22 @@ TryOnItem.OnServerInvoke = function(
 	if action == "WearLook" then
 		local look = require(FashionGame.Shared.RecommendedLooks).get(payload)
 		if not look then return false, "Invalid look." end
-		local ok, result = runTracked(player, function()
-			return AvatarService.WearLook(player, look.items)
+		-- the look's own Roblox outfit (exactly the Marketplace look), read once per server
+		local snapshot = lookSnapshots[look.key]
+		if not snapshot then
+			local ok, description = pcall(function() return Players:GetHumanoidDescriptionFromOutfitId(look.outfitId) end)
+			if not ok or not description then
+				warn("[FashionGame] look outfit failed:", look.key, description)
+				return false, "이 조합을 불러오지 못했어요."
+			end
+			snapshot = require(FashionGame.Shared.OutfitSnapshot).encode(description)
+			lookSnapshots[look.key] = snapshot
+		end
+		local done, result = runTracked(player, function()
+			return AvatarService.RestoreSnapshot(player, snapshot)
 		end)
-		if ok then Analytics.interact(player, "Outfit") end
-		return ok, result
+		if done then Analytics.interact(player, "Outfit") end
+		return done, result
 	end
 
 	if action == "WearBundle" or action == "WearShoeBundle" then

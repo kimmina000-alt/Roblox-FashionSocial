@@ -118,12 +118,16 @@ local function build(): ScreenGui
 	for index, look in ipairs(Looks.list) do
 		local card = create("Frame", { BackgroundColor3 = CARD, LayoutOrder = index }, scroll)
 		corner(card, 14)
-		-- the items' pictures, 3 x 2 (body / head sets first, as listed)
+		-- the items' pictures, 3 x 2
 		local pics = create("Frame", { Position = UDim2.fromOffset(8, 8), Size = UDim2.new(1, -16, 0, 90), BackgroundColor3 = Color3.fromRGB(245, 240, 248) }, card)
 		corner(pics, 10)
 		create("UIGridLayout", { CellSize = UDim2.new(1 / 3, -2, 0.5, -2), CellPadding = UDim2.fromOffset(2, 2) }, pics)
-		for i = 1, math.min(6, #look.items) do
-			create("ImageLabel", { BackgroundTransparency = 1, Image = thumb(look.items[i]), ScaleType = Enum.ScaleType.Fit }, pics)
+		-- (clothes and accessories first: the body / head sets say little about the look)
+		local shown = {}
+		for _, item in ipairs(look.items) do if item.kind == "Asset" then table.insert(shown, item) end end
+		for _, item in ipairs(look.items) do if item.kind ~= "Asset" then table.insert(shown, item) end end
+		for i = 1, math.min(6, #shown) do
+			create("ImageLabel", { BackgroundTransparency = 1, Image = thumb(shown[i]), ScaleType = Enum.ScaleType.Fit }, pics)
 		end
 		create("TextLabel", {
 			Position = UDim2.fromOffset(10, 104), Size = UDim2.new(1, -20, 0, 30), BackgroundTransparency = 1,
