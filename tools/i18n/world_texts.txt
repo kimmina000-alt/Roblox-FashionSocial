@@ -49,3 +49,7 @@ CCTV\n촬영중
 운영 준비 중
 공사 중 · UNDER CONSTRUCTION
 더 신나는 놀이공원으로 곧 찾아올게요!
+# From feat/menu-1113 (MenuController), added before that branch is merged
+닉네임 숨기기
+칭호 숨기기
+💝 기부하기

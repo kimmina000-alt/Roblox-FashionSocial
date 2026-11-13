@@ -49,6 +49,9 @@ a41a2b	exact	24시간\n영업	1	place
 fe0c9b	exact	운영 준비 중	1	place
 094ba0	exact	공사 중 · UNDER CONSTRUCTION	1	place
 0dace5	exact	더 신나는 놀이공원으로 곧 찾아올게요!	1	place
+73a2a5	exact	닉네임 숨기기	1	place
+d3b546	exact	칭호 숨기기	1	place
+037838	exact	💝 기부하기	1	place
 9ac2b4	exact	불러오는 중… 0%	1	src/ReplicatedFirst/LoadingScreen.client.lua:244
 6f67c5	exact	건너뛰기	1	src/ReplicatedFirst/LoadingScreen.client.lua:245
 7487b0	exact	준비 완료!	1	src/ReplicatedFirst/LoadingScreen.client.lua:362
