@@ -49,8 +49,8 @@ a41a2b	exact	24시간\n영업	1	place
 fe0c9b	exact	운영 준비 중	1	place
 094ba0	exact	공사 중 · UNDER CONSTRUCTION	1	place
 0dace5	exact	더 신나는 놀이공원으로 곧 찾아올게요!	1	place
-73a2a5	exact	닉네임 숨기기	1	place
-d3b546	exact	칭호 숨기기	1	place
+8fad3b	exact	닉네임 표시	1	place
+d1a55a	exact	내 칭호 표시	1	place
 037838	exact	💝 기부하기	1	place
 9ac2b4	exact	불러오는 중… 0%	1	src/ReplicatedFirst/LoadingScreen.client.lua:244
 6f67c5	exact	건너뛰기	1	src/ReplicatedFirst/LoadingScreen.client.lua:245
@@ -877,8 +877,8 @@ b40de9	exact	먼저 라면을 눌러 뚜껑을 열어 주세요.	1	src/ServerScr
 e034e9	exact	이미 물을 부었어요.	1	src/ServerScriptService/FashionGame/Services/RamenCup.lua:246
 21e24a	tmpl	{1}초 뒤에 눌러서 열기	1	src/ServerScriptService/FashionGame/Services/RamenCup.lua:278
 a4ff6e	exact	다 익었어요! 눌러서 열기	1	src/ServerScriptService/FashionGame/Services/RamenCup.lua:283
-f7a557	exact	👑 싫어요가 많아 오늘의 큰손 전광판에서 내 아바타가 가려지고 이름만 보여요. 코디를 바꾸면 표가 새로 시작돼요.	1	src/ServerScriptService/FashionGame/Services/RankingService.lua:372
-d9c057	exact	💝 싫어요가 많아 실시간 후원 전광판에서 내 아바타가 가려지고 이름만 보여요. 코디를 바꾸면 표가 새로 시작돼요.	1	src/ServerScriptService/FashionGame/Services/RankingService.lua:377
+f7a557	exact	👑 싫어요가 많아 오늘의 큰손 전광판에서 내 아바타가 가려지고 이름만 보여요. 코디를 바꾸면 표가 새로 시작돼요.	1	src/ServerScriptService/FashionGame/Services/RankingService.lua:384
+d9c057	exact	💝 싫어요가 많아 실시간 후원 전광판에서 내 아바타가 가려지고 이름만 보여요. 코디를 바꾸면 표가 새로 시작돼요.	1	src/ServerScriptService/FashionGame/Services/RankingService.lua:389
 e8005e	exact	조각	1	src/ServerScriptService/FashionGame/Services/SnackService.lua:1342
 0389dc	exact	점	1	src/ServerScriptService/FashionGame/Services/SnackService.lua:1342
 4dc92a	tmpl	손에 {1}개까지 들 수 있어요. 먼저 드세요!	2	src/ServerScriptService/FashionGame/Services/SnackService.lua:1348
@@ -1515,7 +1515,7 @@ f8a187	exact	🎹 피아노  (점프 = 일어나기)	1	src/StarterPlayer/Starter
 9d8c62	tmpl	💝 {1} R$ 기부	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:231
 e95174	exact	기부금은 새로운 공간과 기능을 만드는 데 쓰여요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:235
 67255e	exact	기부 순위표	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:24
-73b92a	exact	상위 50 플레이어	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:24
+5056f5	exact	상위 100 플레이어	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:24
 c6ab03	exact	레벨 순위표	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:25
 031e43	exact	아직 순위가 없어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:262
 19cf83	exact	1위	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/RankingBoards.client.lua:269
