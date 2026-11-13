@@ -167,7 +167,7 @@ local TRACKS = {
 	{ title = "Lemonade-aespa", id = 101586065131501 }, -- song 3:06
 	{ title = "RUDE-Hearts2Hearts", id = 70718180522748 }, -- song 3:16
 	{ title = "It's Me-ILLIT", id = 80492816031335 }, -- song 2:15
-	{ title = "Project-Allday (2:57)", id = 130972741918400 }, -- song 2:57
+	{ title = "Famous-Allday Project", id = 130972741918400 }, -- song 2:57
 	{ title = "Rich Man-aespa", id = 103948769129661 }, -- song 3:16
 	{ title = "Bruno-ROSÉ", id = 125945363051363 }, -- song 2:50
 	{ title = "toxic till the end-ROSÉ", id = 106794728492736 }, -- song 2:37
