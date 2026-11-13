@@ -17,6 +17,10 @@ local M = {}
 M.Categories = { "댄스", "K-POP", "포즈·응원" }
 
 M.Dances = {
+	-- (D-1381, user 2026-11-13: "춤 목록에 추가 댄스1/2/3") the user's own uploads (Vantablack_Dev, looped, 13.5 / 19.9 / 15.4 s)
+	{ key = "club1", name = "클럽 댄스 1", category = "댄스", animationId = 104196105569844, looped = true },
+	{ key = "club2", name = "클럽 댄스 2", category = "댄스", animationId = 132094357016221, looped = true },
+	{ key = "club3", name = "클럽 댄스 3", category = "댄스", animationId = 110198854438295, looped = true },
 	{ key = "shuffle", name = "셔플", category = "댄스", animationId = 10714371274, looped = true },
 	{ key = "line", name = "라인 댄스", category = "댄스", animationId = 10714383856, looped = true },
 	{ key = "break", name = "브레이크", category = "댄스", animationId = 10714003221, looped = true },
