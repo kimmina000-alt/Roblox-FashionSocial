@@ -224,6 +224,7 @@ type Panel = {
 }
 type Pillar = {
 	model: Model,
+	flat: boolean, -- (D-1389) a flat board: one panel, the picture stands still
 	panels: {Panel},
 	nameLabel: TextLabel?,
 	center: Vector3,
@@ -420,7 +421,7 @@ local function buildPillar(model: Model): Pillar
 	table.sort(list, function(x, y) return x.slice < y.slice end)
 	local repeatPanels = math.max(1, math.floor(#list / 2))
 	local pillar: Pillar = {
-		model = model, panels = {}, nameLabel = nil, center = Vector3.zero, showing = -1,
+		model = model, flat = model:GetAttribute("Flat") == true, panels = {}, nameLabel = nil, center = Vector3.zero, showing = -1,
 		source = nil, sourceParts = {}, watch = {}, dirtyAt = nil, held = ScreenHeld.new(),
 	}
 	for _, item in ipairs(list) do
@@ -512,7 +513,7 @@ local function updatePillars(t: number)
 			end
 			local count = #pillar.panels
 			local repeatPanels = math.max(1, math.floor(count / 2))
-			local shift = (t * SCROLL_SPEED) % repeatPanels
+			local shift = if pillar.flat then 0 else (t * SCROLL_SPEED) % repeatPanels
 			for k, panel in ipairs(pillar.panels) do
 				-- the picture travels around the pillar
 				local slot = UDim2.new(-((panel.slice + shift) % repeatPanels), 0, 0, 0)
