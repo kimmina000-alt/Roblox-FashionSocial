@@ -664,7 +664,7 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
 	{ channel = "K-POP", title = "Rich Man-aespa", soundId = 103948769129661, length = 187.081, fileSpeed = 1.0477,
 		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
-	{ channel = "K-POP", title = "Bruno-ROSÉ", soundId = 125945363051363, length = 161.899, fileSpeed = 1.05,
+	{ channel = "K-POP", title = "APT.-ROSÉ & Bruno Mars", soundId = 125945363051363, length = 161.899, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
 	{ channel = "K-POP", title = "toxic till the end-ROSÉ", soundId = 106794728492736, length = 149.228, fileSpeed = 1.0521,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },

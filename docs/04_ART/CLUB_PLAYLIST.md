@@ -325,7 +325,7 @@ D-1010에서 잠갔던 다섯 곡. 다시 넣을 때는 아래 줄을 ClubPlayli
 | It's Me-ILLIT | 80492816031335 | 128.567 | 0.952 |
 | Famous-Allday Project | 130972741918400 | 168.747 | 0.953 |
 | Rich Man-aespa | 103948769129661 | 187.081 | 0.954 |
-| Bruno-ROSÉ | 125945363051363 | 161.899 | 0.952 |
+| APT.-ROSÉ & Bruno Mars | 125945363051363 | 161.899 | 0.952 |
 | toxic till the end-ROSÉ | 106794728492736 | 149.228 | 0.95 |
 | YOUNGCREATORCREW-CORTIS | 110347638399953 | 168.555 | 0.952 |
 | Hot Girls Cold Vibe-Red Velvet | 73504070212379 | 208.583 | 0.952 |
