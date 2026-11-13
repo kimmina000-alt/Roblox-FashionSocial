@@ -4691,3 +4691,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 사용자가 무대 영상을 보냄(youtube 9xtKN5zNxgA, 2014년 무대). 안무 D-1394와 같은 노래 시간(fileSpeed 1.0515, 노래 끝 199.0초).
 - 영상 = 노래 - 8.00초: 원곡 mp3(AEH1m2ez5hw) 소리를 무대 소리에 맞춤, 10초 창 모두 -8.00. 무대는 노래 8초부터라 첫 와이드 샷을 0초부터 씀.
 - 컷 87개 → shots_to_lua.py 1 -8 199.0, 87샷. ClubCamera.Songs[136570075901439].
+## D-1397 Opening event: the title on day 14, limited (2026-11-14)
+- User: "출석 이벤트 14일차에 아까 보여 준 칭호 디자인 올리고 한정 칭호 증정 강조해서 적어 / 해당 칭호는 이벤트 종료 후 재판매하지 않습니다 표기".
+- OpeningEventController: the day 14 card shows the FOUNDING MEMBER plate as it stands over the name (NameTagService: dark brown, orange letters, orange edge) with "한정 칭호 증정!" in pink under it; a dark line over the note: "👑 14번 출석하면 한정 칭호 FOUNDING MEMBER 증정! · 해당 칭호는 이벤트 종료 후 재판매하지 않습니다". Both new texts translated for the 16 languages (tools/i18n/tr/p14_opening14.tsv); checked in Korean and with Lang = en in Play.
+## D-1398 Earl Grey tea: the americano's sip (2026-11-14)
+- User: "얼그레이티 마시는 소리 안 남 아메리카노 마시는 소리로 넣어 다른 거 또 소리 없는 거 있나". The tea used the default cup gulp 9114171855 (0.9 s, quiet): it played (checked in Play), but was hardly heard. SnackService SIP_SOUND.tea = 102811247160851 (iced americano's sip).
+- Every snack / drink sound was loaded in Play: all play. Still on the same short gulp: smoothie, bluelemonade, barleytea, sikhye, yuja, omija, greentea (cups) and bananamilk, can_cider / can_cola / can_orange / can_lemonade / can_blueade (bottles): asked the user.

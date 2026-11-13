@@ -178,6 +178,9 @@ local SIP_SOUND: {[string]: number} = {
 	iceamericano = 102811247160851, latte = 102811247160851, caramel = 102811247160851,
 	cappuccino = 102811247160851, frappe = 102811247160851,
 	hotamericano = 97803848511203,
+	-- (D-1398, user 2026-11-14: "얼그레이티 마시는 소리 안 남 아메리카노 마시는 소리로 넣어") the
+	-- short gulp (9114171855, 0.9 s) was hardly heard: the iced americano's sip
+	tea = 102811247160851,
 }
 SnackService.CanSip = 2245190929 -- (DrinkService: the club's cans)
 SnackService.CanOpen = 111959113939767
