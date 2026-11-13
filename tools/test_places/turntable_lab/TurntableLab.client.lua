@@ -162,8 +162,8 @@ local TRACKS = {
 	{ title = "Focus-Hearts2Hearts", id = 100664272955386 }, -- song 2:54
 	{ title = "GO-CORTIS", id = 135970560153744 }, -- song 2:47
 	{ title = "Magnetic-ILLIT", id = 109036685956565 }, -- song 2:41
-	{ title = "PROJECT-ALLDAY (2:42)", id = 136800147171244 }, -- song 2:42
-	{ title = "SSERAFIM-LE (2:49)", id = 74768868557179 }, -- song 2:49
+	{ title = "WICKED-ALLDAY PROJECT", id = 136800147171244 }, -- song 2:42
+	{ title = "SPAGHETTI-LE SSERAFIM", id = 74768868557179 }, -- song 2:49
 	{ title = "Lemonade-aespa", id = 101586065131501 }, -- song 3:06
 	{ title = "RUDE-Hearts2Hearts", id = 70718180522748 }, -- song 3:16
 	{ title = "It's Me-ILLIT", id = 80492816031335 }, -- song 2:15
