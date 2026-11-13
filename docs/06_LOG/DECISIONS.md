@@ -4619,3 +4619,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Studio: ClubPlaylist(Lemonade 줄 + 끝에 17곡), ClubCamera 별칭만 바꿈. Play(StudioTestService:ExecutePlayModeAsync로 시작, MCP가 Play를 막고 있어서): 곡 102개, 19번 Lemonade와 86..102번 17곡 모두 새 id로 재생(속도 = tempo), Lemonade 무대 카메라 있음 · fileSpeed 1.0499. 게임 스크립트 오류 없음(시작할 때 Studio가 잠깐 멈춰 Roblox 기본 채팅 스크립트와 ChoreoController 1246 매 프레임 함수에서 시간 초과 한 번). D-1381은 feat/club-dances-1113이 먼저 써서 D-1382.
 ## D-1381 춤 목록에 클럽 댄스 1~3 (2026-11-13)
 - 사용자: "춤 목록에 추가 댄스1: 104196105569844 댄스2: 132094357016221 댄스3: 110198854438295". 셋 다 Vantablack_Dev, 반복(Loop), Action, 13.53 / 19.93 / 15.43초. ClubDances.Dances의 "댄스" 탭 맨 앞에 "클럽 댄스 1 / 2 / 3"(key club1..3, looped).
+
+## D-1384 Dance pole: no prompt label, tap the pole (2026-11-13)
+- User: "봉잡고돌기 안내 안 보이게. 기능은 그대로." DancePoleController sets every PolePrompt (bases tagged DancePole) to Style Custom on the client: no "봉 잡고 돌기" label is drawn, the prompt still works by its key (E) on a PC; a short tap / click on the pole or its base within 8 studs (flat) starts the same spin (phones have no key). The tap ray uses ScreenPointToRay (input positions leave out the top bar inset).
+- Play (ClockOverride 22, removed after): no label by the pole; a click on the pole starts the twirl round it. Images: images/2026-11-13/pole_no_label.jpg, pole_tap_spin.jpg.

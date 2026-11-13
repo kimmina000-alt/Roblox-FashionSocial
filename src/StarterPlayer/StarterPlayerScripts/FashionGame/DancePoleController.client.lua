@@ -2,7 +2,8 @@
 -- Club dance poles (user 2026-10-25): the "봉 잡고 돌기" prompt on a pole
 -- (on an attachment of the pole base, tag DancePole) puts the player on its base, holding the pole and turning
 -- slowly round it with the "빙그르르" (twirl) dance, a playful spin. Jump,
--- or the prompt again, lets go; it also stops after 20 s. The character
+-- or the prompt again, lets go; it also stops after 20 s. (D-1384: the prompt's label is
+-- hidden; E on a PC or a tap on the pole starts it.) The character
 -- moves on this client (its owner), so everyone sees it.
 
 local Players = game:GetService("Players")
@@ -72,4 +73,63 @@ ProximityPromptService.PromptTriggered:Connect(function(prompt, who)
 	local grip = prompt.Parent
 	local base = grip and grip.Parent
 	if base and base:IsA("BasePart") then start(base) end
+end)
+
+-- (D-1384, user 2026-11-13: "봉잡고돌기 안내 안 보이게. 기능은 그대로.") the prompt's own label
+-- is not drawn any more (Style Custom: it still works by its key, E, on a PC), and a short
+-- tap / click on a pole within its reach starts the spin the same way (phones have no key)
+local CollectionService = game:GetService("CollectionService")
+local function hidePrompt(prompt: Instance)
+	if prompt:IsA("ProximityPrompt") and prompt.Name == "PolePrompt" then
+		prompt.Style = Enum.ProximityPromptStyle.Custom
+	end
+end
+local function watchBase(base: Instance)
+	for _, d in ipairs(base:GetDescendants()) do hidePrompt(d) end
+	base.DescendantAdded:Connect(hidePrompt)
+end
+for _, base in ipairs(CollectionService:GetTagged("DancePole")) do watchBase(base) end
+CollectionService:GetInstanceAddedSignal("DancePole"):Connect(watchBase)
+
+local REACH = 8 -- (the prompt reaches 7 from its grip; measured flat from the pole here)
+local function baseAt(hit: BasePart): BasePart?
+	-- the tapped part is the pole or its base: the tagged base standing under it
+	local best, bestGap = nil, 2.5
+	for _, base in ipairs(CollectionService:GetTagged("DancePole")) do
+		if base:IsA("BasePart") and base:IsDescendantOf(workspace) then
+			local gap = Vector2.new(base.Position.X - hit.Position.X, base.Position.Z - hit.Position.Z).Magnitude
+			if gap < bestGap then best, bestGap = base, gap end
+		end
+	end
+	return best
+end
+local tapAt: Vector2? = nil
+local tapTime = 0
+UserInputService.InputBegan:Connect(function(input, processed)
+	if processed then return end
+	if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then
+		tapAt = Vector2.new(input.Position.X, input.Position.Y)
+		tapTime = os.clock()
+	end
+end)
+UserInputService.InputEnded:Connect(function(input, processed)
+	if processed or not tapAt then return end
+	if input.UserInputType ~= Enum.UserInputType.Touch and input.UserInputType ~= Enum.UserInputType.MouseButton1 then return end
+	local at = Vector2.new(input.Position.X, input.Position.Y)
+	local short = os.clock() - tapTime < 0.35 and (at - tapAt).Magnitude < 12
+	tapAt = nil
+	if not short then return end -- (a drag turns the camera)
+	local camera = workspace.CurrentCamera
+	local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+	if not camera or not root then return end
+	local ray = camera:ScreenPointToRay(at.X, at.Y) -- (input positions leave out the top bar inset)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { player.Character :: Model }
+	local hit = workspace:Raycast(ray.Origin, ray.Direction * 120, params)
+	if not hit or not (hit.Instance.Name == "DancePole" or CollectionService:HasTag(hit.Instance, "DancePole")) then return end
+	local base = baseAt(hit.Instance)
+	if not base then return end
+	local flat = Vector2.new(root.Position.X - base.Position.X, root.Position.Z - base.Position.Z).Magnitude
+	if flat <= REACH then start(base) end
 end)
