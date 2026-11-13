@@ -50,7 +50,6 @@ local function build(player: Player, character: Model)
 	billboard.AlwaysOnTop = false
 	billboard.ResetOnSpawn = false
 	billboard.Adornee = head
-	billboard.Enabled = player:GetAttribute("HideName") ~= true -- (D-1377: ☰ 닉네임 숨기기)
 
 	local name = Instance.new("TextLabel")
 	name.Name = "DisplayName"
@@ -96,12 +95,8 @@ function NameTagService.Start()
 			local label = tag and tag:FindFirstChild("XP")
 			if label and label:IsA("TextLabel") then label.Text = formatXp(player:GetAttribute("XP")) end
 		end)
-		-- (D-1377) ☰ 닉네임 숨기기: the whole name tag (nickname + XP) off / on
-		player:GetAttributeChangedSignal("HideName"):Connect(function()
-			local head = player.Character and player.Character:FindFirstChild("Head")
-			local tag = head and head:FindFirstChild(TAG_NAME)
-			if tag and tag:IsA("BillboardGui") then tag.Enabled = player:GetAttribute("HideName") ~= true end
-		end)
+		-- (the ☰ menu's 닉네임 표시 only turns the tags off on that player's own screen:
+		-- MenuController, D-1380)
 		player:GetAttributeChangedSignal("Cuffed"):Connect(function()
 			local head = player.Character and player.Character:FindFirstChild("Head")
 			local tag = head and head:FindFirstChild(TAG_NAME)

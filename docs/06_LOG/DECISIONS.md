@@ -4606,3 +4606,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1379 추천 cards in the item card colours (2026-11-13)
 - User: "추천 아이템칸 배경 흰색 말고 다른 아이템들처럼 똑같이 해". RecommendedLooksView cards: card (36, 36, 44) and picture box (28, 28, 34), as CatalogController's item cards (the picture box was light grey-white).
+
+## D-1380 ☰ switches show what is shown; 닉네임 표시 on my screen only (2026-11-13)
+- User (screenshot): "칭호 지금 켜진 게 디폴트라 … 반대로 해 줘 켜짐 디폴트니까 버튼도 분홍색 디폴트로 되어 있고 끄면 회색 되는 걸로 수정. 여기도 번역 작업. 닉네임 숨기기는 내 닉네임만 숨기는 기능이 아니라 내 화면에서만 모두의 닉네임을 끄고 켜는 기능임. 내 닉네임만 숨기는 기능은 없애."
+- Switches are pink while the thing is shown (default) and grey when turned off. Rows: 닉네임 표시 (HideName now means: every name tag off on this player's screen only; MenuController sets the OHUNameTag billboards locally, also for tags made later; NameTagService no longer turns a player's own tag off for everyone) and 내 칭호 표시 with FOUNDING MEMBER / 알바생 / GUARD / VIP / DJ (HideBadge_<role> unchanged).
+- Play: 닉네임 표시 off → the tag is off on the client while the server's tag stays on; defaults all pink. The user's test toggles (GUARD / VIP / DJ hidden) were reset to shown. New texts 닉네임 표시 / 내 칭호 표시 go to the translation tables. Images: images/2026-11-13/menu_default_on.jpg, looks_dark_cards.jpg (D-1379).

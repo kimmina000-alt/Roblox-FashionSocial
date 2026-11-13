@@ -2,8 +2,9 @@
 -- (D-1377, user 2026-11-13: "메뉴 버튼 안에 닉네임 숨기기 칭호 숨기기 기부하기 버튼 넣기";
 -- D-1378: "각각 다 선택해서 숨길 수 있게 해 줘") The ☰ menu's switches, kept in the
 -- player's saved data and shown as player attributes:
---   HideName            wallet.hideName: the name tag over the head (nickname + XP) is not
---                       drawn for anyone (NameTagService)
+--   HideName            wallet.hideName: (D-1380, user: "내 화면에서만 모두의 닉네임을 끄고
+--                       켜는 기능") everyone's name tags are off on this player's own
+--                       screen (MenuController); nobody else is affected
 --   HideBadge_<role>    wallet.hideBadges[role]: that badge over the head is not shown
 --                       (NameTagService); roles Founding (FOUNDING MEMBER), Staff (알바생),
 --                       GUARD, VIP, DJ
