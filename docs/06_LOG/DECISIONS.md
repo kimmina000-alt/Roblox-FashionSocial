@@ -4619,3 +4619,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Studio: ClubPlaylist(Lemonade 줄 + 끝에 17곡), ClubCamera 별칭만 바꿈. Play(StudioTestService:ExecutePlayModeAsync로 시작, MCP가 Play를 막고 있어서): 곡 102개, 19번 Lemonade와 86..102번 17곡 모두 새 id로 재생(속도 = tempo), Lemonade 무대 카메라 있음 · fileSpeed 1.0499. 게임 스크립트 오류 없음(시작할 때 Studio가 잠깐 멈춰 Roblox 기본 채팅 스크립트와 ChoreoController 1246 매 프레임 함수에서 시간 초과 한 번). D-1381은 feat/club-dances-1113이 먼저 써서 D-1382.
 ## D-1381 춤 목록에 클럽 댄스 1~3 (2026-11-13)
 - 사용자: "춤 목록에 추가 댄스1: 104196105569844 댄스2: 132094357016221 댄스3: 110198854438295". 셋 다 Vantablack_Dev, 반복(Loop), Action, 13.53 / 19.93 / 15.43초. ClubDances.Dances의 "댄스" 탭 맨 앞에 "클럽 댄스 1 / 2 / 3"(key club1..3, looped).
+
+## D-1383 Avatar editor: no clothes flicker, accessories move live (2026-11-13)
+- User: "아바타 미세 편집 들어갈 때 캐릭터가 입은 옷 사라졌다가 다시 나타나는데 계속 나타나있게 수정. 장신구 조정할 때 위치 수정해도 안 움직이다가 적용해도 안 움직이고 카탈로그 창 끄면 변경한 위치로 장신구 위치 바뀜."
+- Cause 1: every editor preview refresh builds a new copy (ApplyDescriptionResetAsync rebuilds every accessory and layered clothing) and CatalogCamera.stage swapped it in at once while its clothes were still loading. Now placeCopy puts the copy in hidden and stage() swaps only after PreloadAsync + a few frames + 0.25 s (layered clothing wraps late); until then the old copy, or the real character on the way in, stays visible.
+- Cause 2: placeCopy anchored every part of the copy. HairFit (and the accessory nudge) moves an accessory by its attachment and lets the AccessoryRigidConstraint carry the handle; an anchored handle never moves, so nothing showed until the catalog closed and the real character came back. Now only HumanoidRootPart is anchored, RigidConstraints are on again, the copy's Humanoid state machine is off, and AvatarEditor's nudge uses HairFit.set (attachment) for a copy in Workspace and HairFit.preview (by hand) only in a preview world.
+- Studio closed while starting Play for the check: not tested yet.

@@ -99,30 +99,67 @@ end
 
 -- model = the draft copy (already in the world), nil = back to the real character
 -- (the old copy is removed)
+-- (D-1383, user 2026-11-13: "아바타 미세 편집 들어갈 때 캐릭터가 입은 옷 사라졌다가 다시
+-- 나타나는데 계속 나타나있게 수정") a new copy comes in hidden and takes over only once its
+-- clothes and accessories are loaded (ApplyDescriptionResetAsync rebuilds them all, and
+-- layered clothing is drawn a few frames later): until then the old copy, or the real
+-- character on the way in, stays on screen
+local pendingToken = 0
+local pendingModel: Model? = nil
 function CatalogCamera.stage(model: Model?)
-	if model == stageModel then return end
-	local old = stageModel
-	stageModel = model
-	if old and old:IsDescendantOf(workspace) then old:Destroy() end
-	if not model then setHidden(Players.LocalPlayer.Character, false) end
+	if model == stageModel or (model ~= nil and model == pendingModel) then return end
+	pendingToken += 1
+	local token = pendingToken
+	if pendingModel and pendingModel ~= model and pendingModel:IsDescendantOf(workspace) then pendingModel:Destroy() end
+	pendingModel = nil
+	if not model then
+		local old = stageModel
+		stageModel = nil
+		if old and old:IsDescendantOf(workspace) then old:Destroy() end
+		setHidden(Players.LocalPlayer.Character, false)
+		return
+	end
+	pendingModel = model
+	task.spawn(function()
+		pcall(function() game:GetService("ContentProvider"):PreloadAsync({ model }) end)
+		for _ = 1, 6 do RunService.Heartbeat:Wait() end
+		task.wait(0.25) -- (layered clothing wraps a moment after it loads)
+		if token ~= pendingToken or not model.Parent then return end
+		pendingModel = nil
+		local old = stageModel
+		stageModel = model
+		setHidden(model, false)
+		if old and old ~= model and old:IsDescendantOf(workspace) then old:Destroy() end
+	end)
 end
 
--- puts a draft copy where the player stands: anchored, nothing to bump into or hit
+-- puts a draft copy where the player stands (hidden until stage() shows it): nothing to
+-- bump into or hit
+-- (D-1383, user: "장신구 조정할 때 위치 수정해도 안 움직이다가 … 카탈로그 창 끄면 변경한 위치로
+-- 장신구 위치 바뀜") only the root is anchored now: the accessory fit moves an accessory by
+-- its attachment and lets its constraint carry the handle, which an anchored handle never
+-- did, so the copy showed no change until the catalog closed
 function CatalogCamera.placeCopy(clone: Model)
 	local character = Players.LocalPlayer.Character
 	if not character then return end
 	for _, d in ipairs(clone:GetDescendants()) do
 		if d:IsA("BasePart") then
-			d.Anchored = true
+			d.Anchored = d.Name == "HumanoidRootPart"
 			d.CanCollide = false
 			d.CanQuery = false
 			d.CanTouch = false
+		elseif d:IsA("RigidConstraint") then
+			d.Enabled = true -- (the preview world turned some off to place handles by hand)
 		elseif d:IsA("BillboardGui") then
 			d:Destroy() -- (the name tag is the real character's)
 		end
 	end
 	local humanoid = clone:FindFirstChildOfClass("Humanoid")
-	if humanoid then humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None end
+	if humanoid then
+		humanoid.DisplayDistanceType = Enum.HumanoidDisplayDistanceType.None
+		humanoid.EvaluateStateMachine = false -- (a still copy: no falling or getting up)
+	end
+	setHidden(clone, true)
 	clone.Parent = workspace
 	clone:PivotTo(character:GetPivot())
 end

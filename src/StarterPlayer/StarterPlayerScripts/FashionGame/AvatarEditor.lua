@@ -715,7 +715,10 @@ function AvatarEditor:_nudgePreview()
 	local handle = findAccessoryHandle(clone, id :: number)
 	local accessory = handle and handle.Parent
 	if accessory and accessory:IsA("Accessory") then
-		HairFit.preview(accessory, { p = values.Position - built.Position, r = values.Rotation - built.Rotation })
+		local offset = { p = values.Position - built.Position, r = values.Rotation - built.Rotation }
+		-- (D-1383) the copy stands in the world now (D-1339): moved by its attachment there,
+		-- by hand only in a preview world (moving a handle by hand in Workspace moves the rig)
+		if accessory:IsDescendantOf(workspace) then HairFit.set(accessory, offset) else HairFit.preview(accessory, offset) end
 	end
 end
 
