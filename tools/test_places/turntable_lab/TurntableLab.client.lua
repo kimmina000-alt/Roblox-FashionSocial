@@ -158,6 +158,25 @@ local TRACKS = {
 	{ title = "캐치 캐치-YENA", id = 119002946047943 }, -- file 171.5 s, song 3:00
 	{ title = "Hot Issue-4MINUTE", id = 124715970373244 }, -- file 205.3 s, song 3:36
 	{ title = "Abracadabra-Brown Eyed Girls", id = 84753987256309 }, -- file 175.1 s, song 3:04
+	-- (user 2026-11-13, evening uploads matched by file time) boost3 4, high -10
+	{ title = "Focus-Hearts2Hearts", id = 100664272955386 }, -- song 2:54
+	{ title = "GO-CORTIS", id = 135970560153744 }, -- song 2:47
+	{ title = "Magnetic-ILLIT", id = 109036685956565 }, -- song 2:41
+	{ title = "PROJECT-ALLDAY (2:42)", id = 136800147171244 }, -- song 2:42
+	{ title = "SSERAFIM-LE (2:49)", id = 74768868557179 }, -- song 2:49
+	{ title = "Lemonade-aespa", id = 101586065131501 }, -- song 3:06
+	{ title = "RUDE-Hearts2Hearts", id = 70718180522748 }, -- song 3:16
+	{ title = "It's Me-ILLIT", id = 80492816031335 }, -- song 2:15
+	{ title = "Project-Allday (2:57)", id = 130972741918400 }, -- song 2:57
+	{ title = "Rich Man-aespa", id = 103948769129661 }, -- song 3:16
+	{ title = "Bruno-ROSÉ", id = 125945363051363 }, -- song 2:50
+	{ title = "toxic till the end-ROSÉ", id = 106794728492736 }, -- song 2:37
+	{ title = "YOUNGCREATORCREW-CORTIS", id = 110347638399953 }, -- song 2:57
+	{ title = "Velvet-Red", id = 73504070212379 }, -- song 3:39
+	{ title = "SSERAFIM-LE (2:57)", id = 87223810235707 }, -- song 2:57
+	{ title = "Heavy Serenade-NMIXX", id = 135622277389773 }, -- song 3:00
+	{ title = "DRIP-BABYMONSTER", id = 94601620282158 }, -- song 2:58
+	{ title = "SHEESH-BABYMONSTER", id = 127479755620167 }, -- song 2:51
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
