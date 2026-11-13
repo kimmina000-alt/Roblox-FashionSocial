@@ -4611,3 +4611,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User (screenshot): "칭호 지금 켜진 게 디폴트라 … 반대로 해 줘 켜짐 디폴트니까 버튼도 분홍색 디폴트로 되어 있고 끄면 회색 되는 걸로 수정. 여기도 번역 작업. 닉네임 숨기기는 내 닉네임만 숨기는 기능이 아니라 내 화면에서만 모두의 닉네임을 끄고 켜는 기능임. 내 닉네임만 숨기는 기능은 없애."
 - Switches are pink while the thing is shown (default) and grey when turned off. Rows: 닉네임 표시 (HideName now means: every name tag off on this player's screen only; MenuController sets the OHUNameTag billboards locally, also for tags made later; NameTagService no longer turns a player's own tag off for everyone) and 내 칭호 표시 with FOUNDING MEMBER / 알바생 / GUARD / VIP / DJ (HideBadge_<role> unchanged).
 - Play: 닉네임 표시 off → the tag is off on the client while the server's tag stays on; defaults all pink. The user's test toggles (GUARD / VIP / DJ hidden) were reset to shown. New texts 닉네임 표시 / 내 칭호 표시 go to the translation tables. Images: images/2026-11-13/menu_default_on.jpg, looks_dark_cards.jpg (D-1379).
+
+## D-1382 새 음원 17곡 + Lemonade-aespa 새 음원 (2026-11-13)
+- 사용자가 18곡 줄(제목 · soundId · length · fileSpeed · lab)을 그대로 보냄. 17곡은 목록 끝에 보낸 순서대로. "Famous-Allday Project" 제목 안에 줄바꿈이 있어 뺌(그대로면 Lua 문법 오류).
+- Lemonade-aespa는 같은 제목의 기존 줄이 있어 물음 → 사용자 "기존 줄을 새 음원으로 바꿔": 132067415333401(3배 파일 61.897초, 원곡 185.69초) → 101586065131501(176.86초). fileSpeed = 185.69 ÷ 176.86 = 1.0499(보낸 값 1.0517 대신, 예전 파일과 같은 곡 시계가 되게), tempo 0.951 × 1.0499 = 0.998 = 예전 0.333 × 3. 무대 카메라: ClubCamera.Songs[101586065131501] = 예전 id 별칭. 안무는 그대로(숨김 상태, D-1338).
+- 길이: 18곡 모두 Studio에서 잰 파일 길이와 보낸 length가 같음.
+- Studio: ClubPlaylist(Lemonade 줄 + 끝에 17곡), ClubCamera 별칭만 바꿈. Play 확인은 MCP가 Play를 다시 시작하지 못해 아직(D-1381은 feat/club-dances-1113이 먼저 써서 D-1382).

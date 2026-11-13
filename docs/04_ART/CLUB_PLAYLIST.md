@@ -309,3 +309,29 @@ D-1010에서 잠갔던 다섯 곡. 다시 넣을 때는 아래 줄을 ClubPlayli
 | Abracadabra-Brown Eyed Girls | 84753987256309 | 175.124 | 0.952 | 1.0504 |
 
 모두 volume 10 / boost 10 / boost2 5 / boost3 4 / octave 1 / EQ 0.
+
+### 새 음원 17곡 + Lemonade 새 음원 (D-1382, 2026-11-13)
+
+- Lemonade-aespa: 101586065131501, 176.86초, tempo 0.951, fileSpeed 1.0499(예전 132067415333401 3배 파일과 같은 곡 시계), 무대 카메라 별칭.
+
+| 곡 | soundId | 파일(초) | tempo |
+|---|---|---|---|
+| Focus-Hearts2Hearts | 100664272955386 | 165.474 | 0.951 |
+| GO-CORTIS | 135970560153744 | 159.467 | 0.955 |
+| Magnetic-ILLIT | 109036685956565 | 153.297 | 0.952 |
+| WICKED-ALLDAY PROJECT | 136800147171244 | 154.004 | 0.951 |
+| SPAGHETTI-LE SSERAFIM | 74768868557179 | 160.981 | 0.953 |
+| RUDE-Hearts2Hearts | 70718180522748 | 186.809 | 0.953 |
+| It's Me-ILLIT | 80492816031335 | 128.567 | 0.952 |
+| Famous-Allday Project | 130972741918400 | 168.747 | 0.953 |
+| Rich Man-aespa | 103948769129661 | 187.081 | 0.954 |
+| Bruno-ROSÉ | 125945363051363 | 161.899 | 0.952 |
+| toxic till the end-ROSÉ | 106794728492736 | 149.228 | 0.95 |
+| YOUNGCREATORCREW-CORTIS | 110347638399953 | 168.555 | 0.952 |
+| Hot Girls Cold Vibe-Red Velvet | 73504070212379 | 208.583 | 0.952 |
+| Iconic by Mistake-LE SSERAFIM, ILLIT, KATSEYE | 87223810235707 | 168.394 | 0.951 |
+| Heavy Serenade-NMIXX | 135622277389773 | 171.486 | 0.953 |
+| DRIP-BABYMONSTER | 94601620282158 | 169.448 | 0.952 |
+| SHEESH-BABYMONSTER | 127479755620167 | 162.473 | 0.95 |
+
+모두 volume 10 / boost 10 / boost2 5 / boost3 4 / octave 1, 대부분 high -10(Iconic -10.5, Heavy Serenade -15, DRIP -5.5 / -2 / -3, SHEESH 0).
