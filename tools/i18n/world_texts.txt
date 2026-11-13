@@ -1,0 +1,51 @@
+# Texts that live only in the Studio place (signs, prompts). One per line, \n = new line.
+# Shop name signs on the background facades stay Korean (street look).
+눌\n러\n주\n세\n요
+COFFEE\n아이스 아메리카노  무료\n카페라테 · 카푸치노  💰10\n카라멜 마끼아또  💰10\n\nNON COFFEE\n딸기 스무디 · 얼그레이  💰20\n블루 레몬에이드  💰20
+ESPRESSO\n아메리카노  4.5\n카페라떼  5.0\n바닐라 라떼  5.5
+SIGNATURE\n선셋 라떼  6.5\n흑임자 라떼  6.0\n크림 커피  6.0
+NON-COFFEE\n블루 레몬에이드  6.0\n망고 스무디  6.5\n딸기 라떼  6.0
+TEA\n얼그레이  5.0\n캐모마일  5.0\n유자차  5.5
+BAKERY\n크루아상  4.0\n소금빵  3.5\n치즈케이크  6.5
+자바칩 프라푸치노\n딸기 파르페\n\nBAKERY\n소금빵 · 베이글\n크루아상
+봉 잡고 돌기
+댄스 봉
+임대\n문의
+임대문의\n오후부동산
+24시\n영업
+OH24\n포인트 적립
+전자레인지 · 온수
+호빵 · 어묵 판매중
+<b>이달의 행사</b>\n1+1 · 2+1\nOH24
+<b>신상품</b>\n도시락\n출시!
+택배\n접수
+승강장\n↓
+출입구
+◀ 이전
+OHU CLUB · 국밥집
+다음 ▶
+OHU\nFASHION WEEK\n신상 런웨이
+만나서\n반가워요\nOHU 오후!
+탭해서 정류장 고르기
+고층 빌딩가
+한옥 마을 · 광화문
+카페
+해변
+오후역
+<font color="#1d4fd8">발 씻는 곳</font> <font color="#e02424">빨래금지</font>
+물 틀기
+음수대
+음수대(수돗물)\nWater Fountain
+✦ NEW FRAME ✦\nOHU4cuts\n친구랑 같이 찍어요
+SINCE 1985\n가마솥 24시간
+주문하는 곳
+관계자 외 출입금지
+국밥\n💰20
+24시간\n영업
+소고기국밥 · 수육
+돼지국밥 · 순대국밥
+⚡ 전기
+CCTV\n촬영중
+운영 준비 중
+공사 중 · UNDER CONSTRUCTION
+더 신나는 놀이공원으로 곧 찾아올게요!

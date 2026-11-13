@@ -1248,7 +1248,7 @@ local function fitTextSize(text: string, font: Enum.Font, desired: number, maxWi
 	local size = desired
 	while size > 8 do
 		local ok, bounds = pcall(function()
-			return game:GetService("TextService"):GetTextSize(text, size, font, Vector2.new(1000, 100))
+			return game:GetService("TextService"):GetTextSize(require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t(text), size, font, Vector2.new(1000, 100))
 		end)
 		if not ok or bounds.X <= maxWidth then break end
 		size -= 1

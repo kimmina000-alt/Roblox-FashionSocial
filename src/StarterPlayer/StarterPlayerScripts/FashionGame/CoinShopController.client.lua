@@ -111,7 +111,7 @@ local function buy(kind: string, key: string)
 		-- (no id yet: a test purchase, nothing is charged)
 		ClubShop:InvokeServer("StudioTestBuy", { kind = kind, key = key })
 	else
-		StarterGui:SetCore("SendNotification", { Title = entry.name, Text = "준비 중인 상품입니다.", Duration = 3 })
+		StarterGui:SetCore("SendNotification", { Title = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t(entry.name), Text = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t("준비 중인 상품입니다."), Duration = 3 })
 	end
 end
 

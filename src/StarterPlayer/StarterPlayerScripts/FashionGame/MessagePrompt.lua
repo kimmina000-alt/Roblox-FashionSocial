@@ -138,7 +138,7 @@ function MessagePrompt.buy(key: string, title: string)
 	if not product then return end
 	local studioTest = product.id == 0 and RunService:IsStudio()
 	if product.id == 0 and not studioTest then
-		StarterGui:SetCore("SendNotification", { Title = title, Text = "준비 중인 상품입니다.", Duration = 3 })
+		StarterGui:SetCore("SendNotification", { Title = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t(title), Text = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t("준비 중인 상품입니다."), Duration = 3 })
 		return
 	end
 	local body = "모두의 화면 위에 내 이름과 이 한마디가 떠요."

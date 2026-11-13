@@ -50,7 +50,7 @@ local function paintLight(root: Instance)
 		if d:IsA("TextLabel") or d:IsA("TextButton") then
 			if d.Name == "Title" or d.Name == "Name" then d.TextColor3 = BROWN
 			elseif d.Name == "Subtitle" then d.TextColor3 = SOFT
-			elseif d.Name == "Price" then d.TextColor3 = if string.find(d.Text, "개발 중", 1, true) then SOFT else GOLD
+			elseif d.Name == "Price" then d.TextColor3 = if string.find(d.Text, "개발 중", 1, true) or string.find(d.Text, require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t("개발 중"), 1, true) then SOFT else GOLD
 			elseif d.Name == "CloseButton" then d.BackgroundColor3, d.TextColor3 = CREAM, BROWN
 			elseif d.Name == "Icon" or d.Name == "Note" then d.BackgroundColor3 = CREAM
 			elseif d.Name:match("^Tab%d") and d.TextColor3 ~= DARK_TEXT then d.BackgroundColor3, d.TextColor3 = CREAM, SOFT
