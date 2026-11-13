@@ -4661,3 +4661,5 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1391 Club boards: the user's edit, mirrored (2026-11-13)
 - User (screenshot): "전광판 내가 살짝 수정했거든 다리 지우고 크기 키우고 조금 더 회전했음 반대쪽 것도 대칭되게 수정해 줘". Read from the place: the user's board (east, x 172) has no legs, every part x1.52 (panel 30.39 x 54.71, middle 172.075, 6.397, -146.833), turn still 35° in the data.
 - club_flat_screens_1113.lua now builds exactly that board and its mirror image across the DJ's LED wall middle x 126.5 (west panel middle 80.925, 6.397, -146.833, turned -35°), no legs; run in the place. Play: both boards the same size, facing the room symmetrically, both showing the dancer.
+## D-1392 Club boards: white edge (2026-11-13)
+- User: "프레임 조명선 분홍에서 하얀색으로". The boards' neon edge is white (255, 255, 255) and no longer tagged ClubBeat (the beat lights take the DJ's colour pick, which would tint it); club_flat_screens_1113.lua and the place. Play: both frames white.

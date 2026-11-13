@@ -6,7 +6,7 @@
 -- the room. A board is still a Model named "LEDPillar" tagged "LEDPillar" (ClubScreenService
 -- picks who is shown, ClubLightsController draws the live copy) with attribute Flat = true
 -- and one "Panel" (Slice 0): one copy per board, no travelling picture.
--- Board = black frame + panel + a thin pink neon edge (ClubBeat).
+-- Board = black frame + panel + a thin white neon edge.
 -- (D-1391, user 2026-11-13: "전광판 내가 살짝 수정했거든 다리 지우고 크기 키우고 조금 더 회전했음 반대쪽
 -- 것도 대칭되게 수정해 줘") Sizes and spot from the user's own edit of the east board (no legs,
 -- x1.52, moved): the west board is its mirror image across the DJ's LED wall middle (x 126.5).
@@ -24,7 +24,9 @@ local EAST = Vector3.new(172.075, 6.397, -146.833)
 local TURN = math.rad(35)
 
 local BLACK = Color3.fromRGB(12, 10, 18)
-local PINK = Color3.fromRGB(255, 70, 170)
+-- (D-1392, user 2026-11-13: "프레임 조명선 분홍에서 하얀색으로") white neon edge, not tagged
+-- ClubBeat (that tag would tint it with the DJ's colour pick)
+local EDGE = Color3.fromRGB(255, 255, 255)
 
 local function part(parent: Instance, name: string, size: Vector3, cf: CFrame, color: Color3, neon: boolean?, solid: boolean?): BasePart
 	local p = Instance.new("Part")
@@ -71,8 +73,7 @@ for _, b in ipairs(boards) do
 		{ Vector3.new(eT, eH, eD), CFrame.new(W / 2 + 0.6 * S, 0, -0.05 * S) },
 		{ Vector3.new(eT, eH, eD), CFrame.new(-W / 2 - 0.6 * S, 0, -0.05 * S) },
 	}) do
-		local edge = part(m, "Edge", e[1], face * e[2], PINK, true)
-		CS:AddTag(edge, "ClubBeat")
+		part(m, "Edge", e[1], face * e[2], EDGE, true)
 	end
 	local anchor = part(m, "NameAnchor", Vector3.new(1, 1, 1) * S, CFrame.new((face * CFrame.new(0, -14 * S, 0.05 * S)).Position), BLACK)
 	anchor.Transparency = 1
