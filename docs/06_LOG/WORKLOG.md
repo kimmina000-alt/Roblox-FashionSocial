@@ -3966,3 +3966,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-13 (13) Merge: club heat, flat LED boards, park widened, APT title, BANG choreography
 - 2P test (Player1 / Player2, PC view, touch off): BANG-After School played by the DJ (Player1): both players dance the same piece at the same time (84153374890352 @ 8.4 s on both), both flat LED boards show the dancer, floor rings lit, photo rigs 313 with 0 animators. Player2: 오후네컷 booth Open (1x4, solo) → wait bar → Leave → closed. Player2 walked the sea road north to the new park face (stops at z -277, feet level) and the beach beside the new corner. Server and both clients: no script errors (only the usual asset-permission lines).
 - Merged perf/club-heat-1113, fix/apt-title-1113, feat/bang-choreo-1113 into catalog-ui-redesign.
+
+## 2026-11-14 BANG 무대 카메라 (D-1395)
+- 사용자가 무대 영상(youtube 9xtKN5zNxgA)을 보내 D:\Roblox\영상\Bang_stage\stage.mp4로 받음.
+- 원곡 mp3와 무대 소리를 맞춰 영상 = 노래 - 8초(무대가 전주를 잘라 노래 8초부터 시작).
+- 컷 87개 → 87샷(shots_to_lua.py), 첫 와이드 샷을 0초부터. 브랜치 feat/stage-camera-bang-1114. 다음: Studio 반영, 모바일 2인 테스트.

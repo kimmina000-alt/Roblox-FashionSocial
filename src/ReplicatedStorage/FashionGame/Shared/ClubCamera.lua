@@ -1126,4 +1126,40 @@ ClubCamera.Songs[94024099429072] = {
 		{ 164.24, "bust" }, { 167.2, "waist", 0, 0, { size = "knee" } },
 	}),
 }
+-- (D-1395) BANG-After School: stage video youtube 9xtKN5zNxgA (2014-10-30 upload),
+-- video = song - 8.00 s (original mp3 lined up with the stage sound, -8.00 in every 10 s
+-- window): the stage starts at song 8 s, so the first wide shot also covers the intro.
+-- Shot list made by shots_to_lua.py (D-944), to the song's end at 199.0 s
+-- (length 189.252 x fileSpeed 1.0515; choreography D-1394).
+ClubCamera.Songs[136570075901439] = {
+	video = "youtube 9xtKN5zNxgA (2014 stage)",
+	offset = -8.0,
+	shots = cutList({
+		{ 0, "wide", 0, 5 }, { 9.9, "knee" }, { 11.17, "full" }, { 12.71, "wide", 0, 5 }, { 14.03, "bust" },
+		{ 14.87, "full" }, { 16.42, "wide", 0, 5 }, { 22.07, "full" }, { 23.13, "wide", 0, 5 }, { 25.93, "knee", 5 },
+		{ 28.53, "wide", 0, 5 }, { 29.97, "waist" }, { 32.17, "wide", 0, 5 }, { 34.2, "waist" }, { 35.64, "knee" },
+		{ 38, "waist" }, { 41.34, "wide", 0, 5 }, { 44.14, "full" }, { 47.77, "wide", 0, 5 }, { 48.59, "waist" },
+		{ 50.4, "wide", 0, 5 }, { 51.55, "xwide", 0, 8 }, { 53.87, "waist" },
+		{ 58.17, "waist", 0, 0, { size = "knee" } }, { 59.77, "wide", 0, 5 }, { 61.62, "full" },
+		{ 63.87, "full", -10, 0, { size = "wide" } }, { 65.97, "waist", -5, 0, { size = "bust" } },
+		{ 68.27, "full" }, { 69.23, "wide", 0, 5 }, { 69.93, "waist", -15, 0, { size = "bust" } },
+		{ 72.03, "wide", 0, 5 }, { 73.35, "knee" }, { 74.03, "full" }, { 75.38, "waist" }, { 78, "waist", 5 },
+		{ 82.03, "xwide", 0, 8 }, { 84.31, "wide", 0, 5 }, { 86.1, "wide", 0, 5, { size = "full" } },
+		{ 87.8, "waist", 20 }, { 90.13, "xwide", 0, 8 }, { 92.21, "wide", 0, 5 }, { 96.23, "bust" },
+		{ 100.31, "full" }, { 102.17, "full", -5 }, { 103.37, "full", 0, 0, { size = "wide" } },
+		{ 105.67, "wide", 0, 5 }, { 106.2, "xwide", 0, 8 }, { 112.74, "waist" }, { 116.81, "bust" },
+		{ 117.83, "xwide", 0, 8 }, { 119.89, "wide", 0, 5 }, { 122, "waist" }, { 123.33, "full" },
+		{ 124.4, "wide", 0, 5 }, { 126.1, "xwide", 0, 8 }, { 129.23, "bust" }, { 130.5, "full" },
+		{ 132.12, "waist" }, { 133.73, "wide", 0, 5, { size = "full" } }, { 135.73, "full" },
+		{ 137.7, "bust", 0, 0, { size = "close" } }, { 142.17, "xwide", 0, 8 }, { 148.33, "full" },
+		{ 149.13, "wide", 0, 5, { size = "xwide" } }, { 152.07, "full" }, { 153.6, "waist" }, { 155.25, "knee" },
+		{ 156.1, "full" }, { 156.73, "full", 0, 0, { size = "wide" } }, { 157.33, "full", 5, 0, { size = "wide" } },
+		{ 159.87, "xwide", 0, 8 }, { 162.47, "full" }, { 165.93, "wide", 0, 5 },
+		{ 167.13, "wide", 0, 5, { size = "xwide" } }, { 167.93, "xwide", 0, 8 }, { 170.05, "full" },
+		{ 174.59, "wide", 0, 5 }, { 176, "xwide", 0, 8 }, { 178.84, "wide", 0, 5 },
+		{ 180, "wide", 10, 5, { size = "xwide" } }, { 183.97, "waist" }, { 188.76, "wide", 0, 5 },
+		{ 190, "xwide", 0, 8 }, { 192.07, "wide", 0, 5 }, { 193.07, "wide", 0, 5, { size = "full" } },
+		{ 194.27, "full" },
+	}),
+}
 return ClubCamera

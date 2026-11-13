@@ -4686,3 +4686,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - GiveController (client): with a giveable item in the hand, a short tap / click on another player within 16 studs → "🎁 OO을 OO님에게 줄까요? [주기] [취소]" → GiveService Offer. The other player: "🎁 OO님이 OO을 주려고 해요 [받기 (15)] [괜찮아요]" with a countdown; both get a line at the top middle (받았어요 / 이번엔 받지 않았어요 / 전하지 못했어요). A whole 친구바 tapped on someone is still shared (D-1357); a snack tapped on a player is not bitten (SnackController), a drink / sparkler is not used on that press (ManualActivationOnly during it).
 - GiveService (server): Offer checks the held tool and the distance (16), one open offer per giver, 15 s; Respond (accept) checks the giver still has it and is within 40, then hands it over the bag's way (BagService.collect / give, D-790): the giver's list with and without the tool → the one entry → made again for the receiver by its own service (bites, cups, sparkler count kept), the giver's tool destroyed; if the receiver's copy is not made, the giver gets it back.
 - Giveable: snacks (Snack), plates (Plate), club bottles / cups, sparklers, sparkler bucket sets, hand sparklers. Not: 알바 order cups, lit sparklers, a cup while drinking, the glowstick, photos.
+
+## D-1395 무대 카메라: BANG-After School (2026-11-14)
+- 사용자가 무대 영상을 보냄(youtube 9xtKN5zNxgA, 2014년 무대). 안무 D-1394와 같은 노래 시간(fileSpeed 1.0515, 노래 끝 199.0초).
+- 영상 = 노래 - 8.00초: 원곡 mp3(AEH1m2ez5hw) 소리를 무대 소리에 맞춤, 10초 창 모두 -8.00. 무대는 노래 8초부터라 첫 와이드 샷을 0초부터 씀.
+- 컷 87개 → shots_to_lua.py 1 -8 199.0, 87샷. ClubCamera.Songs[136570075901439].
