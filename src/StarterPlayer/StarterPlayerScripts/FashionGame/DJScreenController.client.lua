@@ -247,7 +247,13 @@ local function musicLoudness(): number
 	return 0
 end
 
-RunService.RenderStepped:Connect(function()
+-- (D-1388, phones heating up in the club) 30 updates a second like the club lights:
+-- the wall and desk screens and the DJ copy redraw on every update
+local accumulator = 0
+RunService.RenderStepped:Connect(function(dt)
+	accumulator += dt
+	if accumulator < 1 / 30 then return end
+	accumulator = 0
 	if not screen or not screen.part.Parent then
 		screen = nil
 		if os.clock() < findAt then return end

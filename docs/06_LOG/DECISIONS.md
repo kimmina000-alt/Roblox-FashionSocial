@@ -4642,3 +4642,12 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 메뉴 춤(ClubDances)에는 ChoreoFixes가 안 걸렸음 → ChoreoController: `bend` 계산을 applyBends로 빼고, 플레이리스트 안무가 아닌 재생 중 애니메이션도 `bend`만 적용(menuBends). 다른 보정(다듬기, 가드 등)은 메뉴 춤에 안 걸림. 모든 플레이어 캐릭터에 걸려서 남들도 봄.
 - ClubChoreo [110198854438295] (club3, 15.43 s 반복): 왼팔 듦 0.05-1.45 왼손 원 한 바퀴(30°); 양팔 내림(앞) 2.45-4.85, 5.95-7.1 손등 쪽(왼 z -25 / 오 z +25, 캡처가 이미 20-44° 밖이라 합 ≤ 70°); 오른팔만 듦 9.75-10.95 안쪽 세 번(오 z -75: 캡처가 밖 ~50°라 -50은 0까지만 옴).
 - Play: 양팔 내림 3.0-3.8 손목 왼 -50~-62 / 오 +57~+65 (전 ~-30 / +35), 오른손 안쪽 세 번 -69 / -36 / -29, 사이는 밖 38 / 46 / 25.
+## D-1388 Club heat on phones: photo rigs frozen, floor / DJ screen at 30 Hz (2026-11-13)
+- User: "폰으로 하니까 클럽에 사람 서너 명 모이니까 개뜨겁던데 최적화 확인". Measured with ScriptProfilerService (ClientStart from the Server datamodel) in Play, standing in the club at night, 12 s.
+- Before, script time per 12 s: PhotoRender kneel / 표정 loop 699 ms (BoothPose.kneel / face every Stepped for the photo-wall rigs near the camera), ClubLightsController 399, ClubFloorFX 216, DJScreenController 117, LEDVisuals 69, PhotoBoothController myBooth 49 (≈ 1.55 s, 13 % of a desktop core; a phone is several times slower). Also 313 photo rigs (photo walls + ranking board) each with a live Animator (246 playing tracks) stepping every frame on every client.
+- PhotoRender: a photo rig is a still: two frames after its pose animation is set, its Animator is removed (the joints keep the pose, checked) and the kneel / 표정 are set once; the per-frame loop is gone.
+- ClubFloorFX: 30 Hz, and a tile is written only when its rounded brightness (steps of 0.05) or colour changes.
+- DJScreenController: 30 Hz (like the club lights).
+- PhotoBoothController: myBooth() decodes the booths' People lists only after one changes.
+- After, same place and spot: ClubLightsController 249, DJScreenController 94, LEDVisuals 51, ClubFloorFX 45, PhotoRender 0 (≈ 0.44 s, about 70 % less). Photo rigs: 313, animators 0, poses and kneels still shown on the walls; the club floor rings and screens still run; no script errors.
+- Not changed: lasers / wash beams / pillar copies (ClubLightsController, already 30 Hz) and people's own avatars, choreography and layered clothing (more people still cost more). Client Luau thread count rises ~15/s in Studio even with every game script disabled: Studio / plugin, not the game.

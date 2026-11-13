@@ -1971,7 +1971,23 @@ end)
 -- Booth state → screens
 --------------------------------------------------
 
-local function myBooth(): Model?
+-- (D-1388) the booths' People lists are read again only when one changes: myBooth()
+-- runs every frame (the Heartbeat below) and decoded every booth's JSON each time
+local boothsDirty = true
+local mine: Model? = nil
+local watched: {[Instance]: boolean} = {}
+local function watchBooth(booth: Instance)
+	if watched[booth] then return end
+	watched[booth] = true
+	boothsDirty = true
+	booth:GetAttributeChangedSignal("People"):Connect(function() boothsDirty = true end)
+	booth.AncestryChanged:Connect(function() boothsDirty = true end)
+end
+for _, booth in ipairs(CollectionService:GetTagged("PhotoBooth")) do watchBooth(booth) end
+CollectionService:GetInstanceAddedSignal("PhotoBooth"):Connect(watchBooth)
+CollectionService:GetInstanceRemovedSignal("PhotoBooth"):Connect(function() boothsDirty = true end)
+
+local function findMyBooth(): Model?
 	for _, booth in ipairs(CollectionService:GetTagged("PhotoBooth")) do
 		local raw = booth:GetAttribute("People")
 		if typeof(raw) == "string" then
@@ -1982,6 +1998,13 @@ local function myBooth(): Model?
 		end
 	end
 	return nil
+end
+local function myBooth(): Model?
+	if boothsDirty then
+		boothsDirty = false
+		mine = findMyBooth()
+	end
+	return mine
 end
 
 local function peopleCount(booth: Model): number

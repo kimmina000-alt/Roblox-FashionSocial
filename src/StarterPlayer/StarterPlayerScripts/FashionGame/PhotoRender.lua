@@ -25,50 +25,25 @@ local RunService = game:GetService("RunService")
 
 local PhotoRender = {}
 
--- Kneeling rigs (entry.kn): the pose is set after the animator every step
--- while the rig is shown.
-local kneeling: {[Model]: boolean} = {}
--- (D-1156) only the rigs on a screen near the camera (or on the player's own
--- screen): the photo walls hold dozens of kneeling rigs that were posed every
--- frame from anywhere on the map; checked twice a second
-local kneelNear: {[Model]: boolean} = {}
--- (D-1183) the 표정 of each rig (entry.f), set the same way
-local faces: {[Model]: string} = {}
-local nextCheck = 0
-RunService.Stepped:Connect(function()
-	local now = os.clock()
-	if now >= nextCheck then
-		nextCheck = now + 0.5
-		local camera = workspace.CurrentCamera
-		local function check(rig: Model)
-			local gui = rig:FindFirstAncestorWhichIsA("LayerCollector")
-			local near = true
-			if gui and gui:IsA("SurfaceGui") then
-				local a = gui.Adornee
-				near = gui.Enabled and (not (a and a:IsA("BasePart")) or (camera ~= nil and (camera.CFrame.Position - (a :: BasePart).Position).Magnitude < 80))
-			end
-			kneelNear[rig] = near
-		end
-		for rig in pairs(kneeling) do check(rig) end
-		for rig in pairs(faces) do check(rig) end
-	end
-	for rig in pairs(kneeling) do
-		if not rig.Parent then
-			kneeling[rig] = nil
-			if not faces[rig] then kneelNear[rig] = nil end
-		elseif kneelNear[rig] ~= false then
-			BoothPose.kneel(rig)
-		end
-	end
-	for rig, key in pairs(faces) do
-		if not rig.Parent then
-			faces[rig] = nil
-			kneelNear[rig] = nil
-		elseif kneelNear[rig] ~= false then
-			BoothPose.face(rig, key)
-		end
-	end
-end)
+-- (D-1388, user 2026-11-13: "폰으로 하니까 클럽에 사람 서너 명 모이니까 개뜨겁던데") A rig in
+-- a photo is a still: once its animation has put it in the shot's pose, its Animator is
+-- removed (the joints keep that pose) and the kneel (entry.kn) / 표정 (entry.f) are set
+-- once. Before, the photo walls' 300+ rigs each kept an Animator stepping every frame on
+-- every client, and the kneeling / 표정 rigs near the camera were posed again every frame
+-- (D-1156), which also redrew their viewports every frame.
+local function freeze(rig: Model, kneel: boolean, face: string?)
+	task.spawn(function()
+		-- (two frames: the animator has written the pose by then)
+		RunService.Heartbeat:Wait()
+		RunService.Heartbeat:Wait()
+		if not rig.Parent then return end
+		local humanoid = rig:FindFirstChildOfClass("Humanoid")
+		local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
+		if animator then animator:Destroy() end
+		if kneel then BoothPose.kneel(rig) end
+		if face then BoothPose.face(rig, face) end
+	end)
+end
 
 -- 40 with the level booth camera (2026-10-22): people fill more of the cut;
 -- four people side by side (2.8 studs apart) still fit. 48 with the camera
@@ -209,14 +184,9 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 			local rig = base:Clone()
 			rig.Parent = world
 			rig:PivotTo(CFrame.new(entry.x or 0, entry.y or -2.9, entry.z or 0) * CFrame.Angles(0, entry.r or 0, 0))
-			if entry.kn then
-				kneeling[rig] = true
-				BoothPose.kneel(rig)
-			end
-			if BoothPose.isFace(entry.f) then -- (D-1183)
-				faces[rig] = entry.f
-				BoothPose.face(rig, entry.f)
-			end
+			if entry.kn then BoothPose.kneel(rig) end
+			local face = if BoothPose.isFace(entry.f) then entry.f else nil -- (D-1183)
+			if face then BoothPose.face(rig, face) end
 			local humanoid = rig:FindFirstChildOfClass("Humanoid")
 			if humanoid then
 				local lift = PhotoProps.liftFor(rig)
@@ -245,6 +215,7 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 					end
 				end
 			end
+			freeze(rig, entry.kn == true, face)
 		end
 	end
 end

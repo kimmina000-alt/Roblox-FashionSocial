@@ -98,13 +98,24 @@ local function rings(t: number): {{ x: number, z: number, r: number, k: number, 
 end
 
 local shown = false
-RunService.Heartbeat:Connect(function()
+-- (D-1388, phones heating up in the club) 30 updates a second, and a tile is only
+-- written when its colour or (rounded) brightness changes: every write redraws the
+-- floor's SurfaceGui, and all 276 tiles were written 60 times a second
+local accumulator = 0
+local lastLevel: {[Frame]: number} = {}
+local lastColor: {[Frame]: Color3} = {}
+RunService.Heartbeat:Connect(function(dt)
+	accumulator += dt
+	if accumulator < 1 / 30 then return end
+	accumulator = 0
 	local camera = workspace.CurrentCamera
 	local near = camera ~= nil and (camera.CFrame.Position - sheet.Position).Magnitude < NEAR
 	local paused = FashionGame:GetAttribute("ClubMusicPaused") == true
 	if not near or paused then
 		if shown then
 			for _, tile in ipairs(tiles) do tile.frame.BackgroundTransparency = 1 end
+			table.clear(lastLevel)
+			table.clear(lastColor)
 			shown = false
 		end
 		return
@@ -122,11 +133,14 @@ RunService.Heartbeat:Connect(function()
 			end
 		end
 		local f = tile.frame
-		if best > 0.02 then
+		local level = if best > 0.02 then math.floor(best * 20 + 0.5) / 20 else 0
+		if level ~= (lastLevel[f] or 0) then
+			lastLevel[f] = level
+			f.BackgroundTransparency = if level > 0 then 1 - level * 0.85 else 1
+		end
+		if level > 0 and lastColor[f] ~= color then
+			lastColor[f] = color
 			f.BackgroundColor3 = color
-			f.BackgroundTransparency = 1 - best * 0.85
-		elseif f.BackgroundTransparency < 1 then
-			f.BackgroundTransparency = 1
 		end
 	end
 end)
