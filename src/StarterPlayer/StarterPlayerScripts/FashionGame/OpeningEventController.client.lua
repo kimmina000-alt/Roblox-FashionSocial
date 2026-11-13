@@ -174,7 +174,7 @@ end
 local button = create("TextButton", {
 	Name = "OpeningEventButton", BackgroundColor3 = Color3.fromRGB(0, 0, 0), BackgroundTransparency = 0.35,
 	Text = "🎁", TextScaled = true, TextColor3 = WHITE, Visible = Config.dayNow() ~= nil,
-}, create("ScreenGui", { Name = "OpeningEventButtonGui", ResetOnSpawn = false, DisplayOrder = 5 }, playerGui))
+}, create("ScreenGui", { Name = "OpeningEventButtonGui", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 5 }, playerGui)) -- (inset ignored like the other top bar buttons: 2P test 2026-11-13)
 corner(button, 999)
 create("UIPadding", { PaddingTop = UDim.new(0.18, 0), PaddingBottom = UDim.new(0.18, 0), PaddingLeft = UDim.new(0.18, 0), PaddingRight = UDim.new(0.18, 0) }, button)
 TopBar.add(button, 6)

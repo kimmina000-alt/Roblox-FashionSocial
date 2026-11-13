@@ -4575,3 +4575,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1371 Bag lists only what is not in the bar (2026-11-13)
 - User (images/2026-11-13/live_bag_and_bar.jpg): "홈화면 아래 인벤토리 4 칸에 꺼내져있는 아이템은 가방에서 빼. 아이템은 가방 홈화면인벤 두 군데 중 한 군데에만 있기". InventoryController lists only tools without a Hotbar slot (held from the bag counts as bag); the slot number badge on bag cards is gone. Dragging between the two still moves an item from one to the other.
+- (D-1366 fix 2, mobile 2P test 2026-11-13) the 🎁 button's ScreenGui now ignores the top bar inset like the other top bar buttons (it sat one row too low).
