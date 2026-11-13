@@ -172,8 +172,8 @@ local TRACKS = {
 	{ title = "Bruno-ROSÉ", id = 125945363051363 }, -- song 2:50
 	{ title = "toxic till the end-ROSÉ", id = 106794728492736 }, -- song 2:37
 	{ title = "YOUNGCREATORCREW-CORTIS", id = 110347638399953 }, -- song 2:57
-	{ title = "Velvet-Red", id = 73504070212379 }, -- song 3:39
-	{ title = "SSERAFIM-LE (2:57)", id = 87223810235707 }, -- song 2:57
+	{ title = "Hot Girls Cold Vibe-Red Velvet", id = 73504070212379 }, -- song 3:39
+	{ title = "Iconic by Mistake-LE SSERAFIM, ILLIT, KATSEYE", id = 87223810235707 }, -- song 2:57
 	{ title = "Heavy Serenade-NMIXX", id = 135622277389773 }, -- song 3:00
 	{ title = "DRIP-BABYMONSTER", id = 94601620282158 }, -- song 2:58
 	{ title = "SHEESH-BABYMONSTER", id = 127479755620167 }, -- song 2:51
