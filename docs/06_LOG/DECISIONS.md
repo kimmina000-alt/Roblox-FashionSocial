@@ -4603,3 +4603,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1378 ☰ 칭호 숨기기 per badge (2026-11-13)
 - User (asked whether 알바생 / GUARD / VIP / DJ hide too): "응 각각 다 선택해서 숨길 수 있게 해 줘". Under 칭호 숨기기 the menu has one switch per badge: FOUNDING MEMBER / 알바생 / GUARD / VIP / DJ (player attributes HideBadge_<role>, saved in wallet.hideBadges, ClubShop "HideBadge" { role, on }); the single HideTitle switch of D-1377 is replaced. NameTagService leaves each hidden badge out. Play: VIP on → GUARD and DJ stay, VIP gone. Image: images/2026-11-13/menu_badges.jpg.
+
+## D-1379 추천 cards in the item card colours (2026-11-13)
+- User: "추천 아이템칸 배경 흰색 말고 다른 아이템들처럼 똑같이 해". RecommendedLooksView cards: card (36, 36, 44) and picture box (28, 28, 34), as CatalogController's item cards (the picture box was light grey-white).

@@ -28,10 +28,11 @@ export type Context = {
 }
 local ctx: Context? = nil
 
--- the catalog card colours (as WardrobeView)
+-- the catalog item card colours (CatalogController.createItemCard; D-1379, user 2026-11-13:
+-- "추천 아이템칸 배경 흰색 말고 다른 아이템들처럼 똑같이 해": the picture box was white)
 local COLORS = {
-	card = Color3.fromRGB(35, 35, 42),
-	thumb = Color3.fromRGB(236, 236, 240),
+	card = Color3.fromRGB(36, 36, 44),
+	thumb = Color3.fromRGB(28, 28, 34),
 	text = Color3.fromRGB(240, 240, 245),
 	sub = Color3.fromRGB(175, 175, 190),
 	wear = Color3.fromRGB(255, 110, 170),
