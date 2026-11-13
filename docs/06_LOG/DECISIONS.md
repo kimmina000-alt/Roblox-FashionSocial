@@ -4589,3 +4589,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1374 ✨ 추천 in the item grid with the look's avatar picture (2026-11-13)
 - User (screenshot of the Marketplace look page): "추천 누르면 다른 인기 눌렀을 때처럼 아이템칸에 뜨게 해 주고 첨부한 사진 속 아바타 그림으로 띄워 줘". ✨ 추천 is a browse mode now ("Looks" in MODE_BY_LABEL: highlighted like 인기, pressed again = back to the catalog; a category press or 검색 leaves it like 옷장). RecommendedLooksView renders catalog-style cards into the results grid (setup(ctx) next to WardrobeView, render() from renderLocalMode): picture = rbxthumb://type=Outfit&id=<outfitId> (the look's whole avatar, as on the Marketplace page), name, "아이템 n개 · R$ total", 입기 / 사기. The separate popup window is gone. Play: 11 cards, avatar pictures load, 입기 from a card puts the look on. Image: images/2026-11-13/looks_grid.jpg.
+
+## D-1375 추천 button without the star (2026-11-13)
+- User: "추천 앞에 별 빼고 텍스트만 둬". The catalog strip button reads "추천" (gold text kept); MODE_BY_LABEL key changed with it. Play: the button opens the 11 look cards.

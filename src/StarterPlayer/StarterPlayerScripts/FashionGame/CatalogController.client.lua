@@ -1020,8 +1020,8 @@ local discoveryButtons = {}
 -- (D-1050, user 2026-11-09: "최대화 카탈로그에 있는 아바타 에디터 버튼이랑 저장
 -- 버튼 최소화에 있는 위치로 수정. 통일.") the expanded catalog has them in the
 -- same strip now (they were ⚙ / ▣ in the corner of the avatar preview box).
--- (D-1373) ✨ 추천 first: the recommended looks window (RecommendedLooksView)
-for index, label in ipairs({"✨ 추천", "최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
+-- (D-1373) 추천 first (no ✨ since D-1375, user: "추천 앞에 별 빼고 텍스트만 둬"): the recommended looks window (RecommendedLooksView)
+for index, label in ipairs({"추천", "최근", "인기", "즐겨찾기", "착용 중", "⚙", "옷장"}) do
 	local b = create("TextButton", {
 		Name = "Discovery_" .. tostring(index),
 		Size = UDim2.fromOffset(86, 30),
@@ -1378,8 +1378,8 @@ subcategoryStrip.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then subcategoryDragStartX = nil end
 end)
 
--- (D-1374) ✨ 추천 = the "Looks" mode: the recommended looks in the item grid (RecommendedLooksView)
-local MODE_BY_LABEL = { ["✨ 추천"] = "Looks", ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing", ["옷장"] = "Wardrobe" }
+-- (D-1374) 추천 = the "Looks" mode: the recommended looks in the item grid (RecommendedLooksView)
+local MODE_BY_LABEL = { ["추천"] = "Looks", ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing", ["옷장"] = "Wardrobe" }
 local function updateDiscoveryHighlight()
 	for label, button in pairs(discoveryButtons) do
 		local active = MODE_BY_LABEL[label] ~= nil and MODE_BY_LABEL[label] == browseMode
@@ -1404,7 +1404,7 @@ end
 discoveryButtons["⚙"].MouseButton1Click:Connect(function()
 	openAvatarEditor()
 end)
-discoveryButtons["✨ 추천"].TextColor3 = Color3.fromRGB(255, 205, 110) -- (stands out a little)
+discoveryButtons["추천"].TextColor3 = Color3.fromRGB(255, 205, 110) -- (stands out a little)
 fixedFilterButton.MouseButton1Click:Connect(function()
 	filterPanelOpen = not filterPanelOpen
 	updateCatalogLayout()
