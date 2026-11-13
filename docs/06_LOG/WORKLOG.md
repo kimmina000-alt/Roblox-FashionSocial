@@ -3954,3 +3954,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 
 ## 2026-11-13 클럽 댄스 3 손목 (D-1387)
 - 브랜치 feat/club3-wrist-1113. 메뉴 춤에도 손목 보정(bend)이 걸리게 하고, 클럽 댄스 3에 왼손 원 / 양손 손등 쪽 / 오른손 안쪽 세 번을 넣음. Play에서 각도 확인.
+
+## 2026-11-13 (12) Merge: ♥ button removed + club dance 3 wrists
+- Mobile 2P test (Player1 phone view, Player2): Player1's top row has no ♥; ☰ → 💝 기부하기 opens the 게임 후원 window. Player2 club dance 3: wrists follow the D-1387 keys (both hands bent out about 3-4.6 s, right hand bends in about 10-11 s). Server and clients: no script errors (only the usual asset-permission lines).
+- Merged fix/support-button-1113 (D-1386) and feat/club3-wrist-1113 (D-1387) into catalog-ui-redesign.
