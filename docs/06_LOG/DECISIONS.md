@@ -4632,3 +4632,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: "남들 춤이 한박자 느리게 보임. 남들 박자는 같음. 나랑만 다름." My own choreography is timed every frame to the music I hear (ChoreoController: song clock + my audio lag); other dancers' pieces come as replicated animations, late by the network delay, so every other dancer looked behind me by the same amount.
 - RemoteChoreoSync (new LocalScript): before the animator steps, each other player's playing piece of the current song's choreography is put where it should be by MY heard song time, with ChoreoController's rules (`at` / `from`, slowIn / slowOut, ChoreoFixes hold / warp); only when off by 0.08..2.5 s, so pieces play on their own between corrections. Pieces without `at` are left alone.
 - 2-player check (ATEEZ-BAD, both following): Studio's own network adds almost no delay (other dancer 0.04..0.08 s off either way), so Player1's window got Studio's IncomingReplicationLag 0.5 s (set back to 0 after): fix off: other dancer's piece 0.083 s off my clock (median); fix on: 0.007 s; no jumps over 0.1 s in the other dancer's animation over 6 s (no jerking). No script errors. The real phones' one-beat lag could not be reproduced in Studio; check on live with two phones.
+
+## D-1387 클럽 댄스 3 손목 (메뉴 춤에도 bend) (2026-11-13)
+- 사용자(사진 2장): "클럽 댄스 3 처음에 왼팔 들고 있을 때 왼쪽 손목 천천히 돌리기 / 양쪽 팔 둘 다 내릴 때 손목 손등쪽으로 꺾기 / 오른쪽팔만 들 때 손목 안쪽으로 세 번 꺾기".
+- 메뉴 춤(ClubDances)에는 ChoreoFixes가 안 걸렸음 → ChoreoController: `bend` 계산을 applyBends로 빼고, 플레이리스트 안무가 아닌 재생 중 애니메이션도 `bend`만 적용(menuBends). 다른 보정(다듬기, 가드 등)은 메뉴 춤에 안 걸림. 모든 플레이어 캐릭터에 걸려서 남들도 봄.
+- ClubChoreo [110198854438295] (club3, 15.43 s 반복): 왼팔 듦 0.05-1.45 왼손 원 한 바퀴(30°); 양팔 내림(앞) 2.45-4.85, 5.95-7.1 손등 쪽(왼 z -25 / 오 z +25, 캡처가 이미 20-44° 밖이라 합 ≤ 70°); 오른팔만 듦 9.75-10.95 안쪽 세 번(오 z -75: 캡처가 밖 ~50°라 -50은 0까지만 옴).
+- Play: 양팔 내림 3.0-3.8 손목 왼 -50~-62 / 오 +57~+65 (전 ~-30 / +35), 오른손 안쪽 세 번 -69 / -36 / -29, 사이는 밖 38 / 46 / 25.
