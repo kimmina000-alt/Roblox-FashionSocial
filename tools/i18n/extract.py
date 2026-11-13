@@ -270,6 +270,12 @@ def main():
             ln = ln.rstrip('\n')
             if ln and not ln.startswith('#'):
                 found[('exact', ln.replace('\\n', '\n'))].append('place')
+    extra = os.path.join(ROOT, 'tools', 'i18n', 'extra_templates.txt')
+    if os.path.exists(extra):
+        for ln in open(extra, encoding='utf-8'):
+            ln = ln.rstrip('\n')
+            if ln and not ln.startswith('#'):
+                found[('tmpl', ln.replace('\\n', '\n'))].append('manual')
     for p in sorted(files):
         if os.path.basename(p) in SKIP_FILES or os.sep + 'I18n' + os.sep in p: continue
         analyse(p, os.path.relpath(p, ROOT).replace('\\', '/'), found)

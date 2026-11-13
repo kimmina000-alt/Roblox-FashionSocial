@@ -1,0 +1,3 @@
+# Patterns the extractor cannot see (pieces glued in a way it does not follow). One per line, {1} = a value.
+ (아이템 {1}개는 입을 수 없어 뺐어요)
+"{1}" 검색 결과가 없습니다.

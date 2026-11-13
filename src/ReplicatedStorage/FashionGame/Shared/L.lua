@@ -72,8 +72,10 @@ type Book = {
 local books: {[string]: Book} = {}
 
 local function norm(s: string): string
-	-- CoinIcons' gap back to the coin mark, so texts match before and after it ran
+	-- CoinIcons swaps "💰" or "💰 " for a gap: back to a bare coin mark on both sides,
+	-- so texts match before and after it ran (CoinIcons swaps the mark again later)
 	s = string.gsub(s, GAP, COIN)
+	s = string.gsub(s, COIN .. " ", COIN)
 	return s
 end
 
@@ -103,7 +105,7 @@ local function bookFor(lang: string): Book?
 				end) .. "$"
 				-- the longest literal piece: a quick plain find before trying the pattern
 				local anchor = ""
-				for piece in string.gmatch(string.gsub(key, "{%d+}", "\0"), "[^%z]+") do
+				for piece in string.gmatch((string.gsub(key, "{%d+}", "\1")), "[^\1]+") do
 					if #piece > #anchor then anchor = piece end
 				end
 				if #anchor > 0 then
