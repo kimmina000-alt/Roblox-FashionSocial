@@ -3937,3 +3937,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - ☰ 메뉴: 닉네임 표시(내 화면에서만 모두의 닉네임 켜고 끄기), 내 칭호 표시(FOUNDING MEMBER / 알바생 / GUARD / VIP / DJ 각각), 💝 기부하기. 스위치는 분홍 = 보임(기본), 회색 = 끔.
 - 모바일 2P: Player2가 닉네임 표시를 끄면 Player2 화면에서만 Player1 이름이 사라지고 Player1 화면에서는 Player2 이름이 그대로, Player1이 GUARD를 끄면 Player2 화면에서 GUARD가 빠짐. 번역표에 새 문구(Show nicknames / Show my badges) 들어감. 스크립트 오류 없음 → catalog-ui-redesign 머지.
   ![2P](images/2026-11-13/menu_2p.jpg)
+
+## 2026-11-13 클럽 댄스 1~3 (D-1381)
+- 사용자 업로드 3개를 춤 목록 댄스 탭 맨 앞에 넣음. 브랜치 feat/club-dances-1113.

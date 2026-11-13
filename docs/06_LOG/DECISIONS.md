@@ -4611,3 +4611,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User (screenshot): "칭호 지금 켜진 게 디폴트라 … 반대로 해 줘 켜짐 디폴트니까 버튼도 분홍색 디폴트로 되어 있고 끄면 회색 되는 걸로 수정. 여기도 번역 작업. 닉네임 숨기기는 내 닉네임만 숨기는 기능이 아니라 내 화면에서만 모두의 닉네임을 끄고 켜는 기능임. 내 닉네임만 숨기는 기능은 없애."
 - Switches are pink while the thing is shown (default) and grey when turned off. Rows: 닉네임 표시 (HideName now means: every name tag off on this player's screen only; MenuController sets the OHUNameTag billboards locally, also for tags made later; NameTagService no longer turns a player's own tag off for everyone) and 내 칭호 표시 with FOUNDING MEMBER / 알바생 / GUARD / VIP / DJ (HideBadge_<role> unchanged).
 - Play: 닉네임 표시 off → the tag is off on the client while the server's tag stays on; defaults all pink. The user's test toggles (GUARD / VIP / DJ hidden) were reset to shown. New texts 닉네임 표시 / 내 칭호 표시 go to the translation tables. Images: images/2026-11-13/menu_default_on.jpg, looks_dark_cards.jpg (D-1379).
+
+## D-1381 춤 목록에 클럽 댄스 1~3 (2026-11-13)
+- 사용자: "춤 목록에 추가 댄스1: 104196105569844 댄스2: 132094357016221 댄스3: 110198854438295". 셋 다 Vantablack_Dev, 반복(Loop), Action, 13.53 / 19.93 / 15.43초. ClubDances.Dances의 "댄스" 탭 맨 앞에 "클럽 댄스 1 / 2 / 3"(key club1..3, looped).
