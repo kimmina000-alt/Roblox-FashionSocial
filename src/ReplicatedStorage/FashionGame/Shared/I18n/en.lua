@@ -733,6 +733,7 @@ return {
 	["삼각김밥\n참치마요"] = "Rice ball\nTuna mayo",
 	["삼각김밥을 들고 눌러 주세요."] = "Hold a rice ball and tap.",
 	["삼바"] = "Samba",
+	["상위 100 플레이어"] = "Top 100 players",
 	["상의"] = "Tops",
 	["상품 ID가 아직 없어 실제 결제창 대신 테스트 구매를 합니다.\n실제 가격(예정): {1} R$ · 결제는 일어나지 않습니다."] = "No product ID yet, so this is a test purchase instead of the real checkout.\nPlanned price: {1} R$ · no payment happens.",
 	["상품 처리기가 없습니다."] = "No product handler.",

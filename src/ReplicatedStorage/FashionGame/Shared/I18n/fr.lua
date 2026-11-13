@@ -733,6 +733,7 @@ return {
 	["삼각김밥\n참치마요"] = "Onigiri\nThon mayo",
 	["삼각김밥을 들고 눌러 주세요."] = "Tiens un onigiri et touche.",
 	["삼바"] = "Samba",
+	["상위 100 플레이어"] = "Top 100 joueurs",
 	["상의"] = "Hauts",
 	["상품 ID가 아직 없어 실제 결제창 대신 테스트 구매를 합니다.\n실제 가격(예정): {1} R$ · 결제는 일어나지 않습니다."] = "Pas encore d'ID produit : achat test au lieu du vrai paiement.\nPrix prévu : {1} R$ · aucun paiement.",
 	["상품 처리기가 없습니다."] = "Aucun gestionnaire de produit.",
