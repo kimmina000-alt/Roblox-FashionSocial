@@ -4619,3 +4619,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Studio: ClubPlaylist(Lemonade 줄 + 끝에 17곡), ClubCamera 별칭만 바꿈. Play(StudioTestService:ExecutePlayModeAsync로 시작, MCP가 Play를 막고 있어서): 곡 102개, 19번 Lemonade와 86..102번 17곡 모두 새 id로 재생(속도 = tempo), Lemonade 무대 카메라 있음 · fileSpeed 1.0499. 게임 스크립트 오류 없음(시작할 때 Studio가 잠깐 멈춰 Roblox 기본 채팅 스크립트와 ChoreoController 1246 매 프레임 함수에서 시간 초과 한 번). D-1381은 feat/club-dances-1113이 먼저 써서 D-1382.
 ## D-1381 춤 목록에 클럽 댄스 1~3 (2026-11-13)
 - 사용자: "춤 목록에 추가 댄스1: 104196105569844 댄스2: 132094357016221 댄스3: 110198854438295". 셋 다 Vantablack_Dev, 반복(Loop), Action, 13.53 / 19.93 / 15.43초. ClubDances.Dances의 "댄스" 탭 맨 앞에 "클럽 댄스 1 / 2 / 3"(key club1..3, looped).
+
+## D-1385 Other dancers on my song clock (2026-11-13)
+- User: "남들 춤이 한박자 느리게 보임. 남들 박자는 같음. 나랑만 다름." My own choreography is timed every frame to the music I hear (ChoreoController: song clock + my audio lag); other dancers' pieces come as replicated animations, late by the network delay, so every other dancer looked behind me by the same amount.
+- RemoteChoreoSync (new LocalScript): before the animator steps, each other player's playing piece of the current song's choreography is put where it should be by MY heard song time, with ChoreoController's rules (`at` / `from`, slowIn / slowOut, ChoreoFixes hold / warp); only when off by 0.08..2.5 s, so pieces play on their own between corrections. Pieces without `at` are left alone.
+- Needs a 2-player check.
