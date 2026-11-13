@@ -1824,7 +1824,15 @@ updateCatalogLayout = function()
 		avatarViewport.Visible = false
 		previewFrame.BackgroundTransparency = 1
 		if not editorOpen then catalogCamera.stage(nil) end
-		catalogCamera.frame({ x = margin + 8, y = topY + 8, w = leftWidth - 16, h = panelHeight - 132 })
+		local box = { x = margin + 8, y = topY + 8, w = leftWidth - 16, h = panelHeight - 132 }
+		if editorOpen then
+			catalogCamera.frame(box) -- (the editor's draft copy stands still: the front view)
+		else
+			-- (D-1372, user 2026-11-13: "카탈로그 최소화 화면에서 아바타 움직일 수 있었던 것처럼
+			-- 최대화에서도 동일하게 적용") the usual camera slid into the preview box, as beside the
+			-- minimized window (D-1348): walking and the player's own camera drag work
+			catalogCamera.side(box)
+		end
 	else
 		local px, py = viewport.X - panelWidth - margin, mainFrame.Position.Y.Offset
 		local bottom = viewport.Y - 64 -- (the hotbar)
