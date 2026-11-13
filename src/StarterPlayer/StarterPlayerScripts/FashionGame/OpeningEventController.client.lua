@@ -87,7 +87,8 @@ local period = create("TextLabel", {
 corner(period, 13)
 
 -- the 14 cards
-local grid = create("Frame", { Name = "Days", Position = UDim2.fromOffset(0, 106), Size = UDim2.new(1, 0, 1, -146), BackgroundTransparency = 1 }, window)
+-- (D-1397: 26 px less for the limited-title line under the cards)
+local grid = create("Frame", { Name = "Days", Position = UDim2.fromOffset(0, 106), Size = UDim2.new(1, 0, 1, -172), BackgroundTransparency = 1 }, window)
 create("UIGridLayout", { CellSize = UDim2.new(1 / 7, -6, 0.5, -4), CellPadding = UDim2.fromOffset(6, 6), SortOrder = Enum.SortOrder.LayoutOrder }, grid)
 type Card = { frame: Frame, head: TextLabel, icon: TextLabel, label: TextLabel, status: TextLabel }
 local cards: {Card} = {}
@@ -106,13 +107,26 @@ for n = 1, Config.Goal do
 	local icon = create("TextLabel", {
 		Position = UDim2.fromScale(0, 0.24), Size = UDim2.new(1, 0, 0.34, 0), BackgroundTransparency = 1, TextScaled = true,
 		FontFace = BOLD, TextColor3 = GOLD,
-		Text = if reward.coins then "₩" elseif reward.frame then "🖼️" else "👑", -- (the game's coin mark, as in the top bar)
+		Text = if reward.coins then "₩" elseif reward.frame then "🖼️" else "", -- (the game's coin mark, as in the top bar)
 	}, f)
 	create("UITextSizeConstraint", { MaxTextSize = 26 }, icon)
+	if reward.title then
+		-- (D-1397, user 2026-11-14: "14일차에 아까 보여 준 칭호 디자인 올리고 한정 칭호 증정 강조해서
+		-- 적어") the title as it shows over the name (NameTagService, the Founding plate): dark
+		-- brown, orange letters, orange edge
+		local plate = create("TextLabel", {
+			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.41), Size = UDim2.new(0.92, 0, 0.17, 0),
+			BackgroundColor3 = Color3.fromRGB(40, 22, 12), BackgroundTransparency = 0.05, TextScaled = true,
+			FontFace = BOLD, TextColor3 = Color3.fromRGB(255, 170, 90), Text = Config.TitleText,
+		}, f)
+		corner(plate, 3)
+		create("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.fromRGB(255, 150, 60), Thickness = 1.5 }, plate)
+		create("UIPadding", { PaddingTop = UDim.new(0, 2), PaddingBottom = UDim.new(0, 2), PaddingLeft = UDim.new(0, 4), PaddingRight = UDim.new(0, 4) }, plate)
+	end
 	local label = create("TextLabel", {
 		Position = UDim2.fromScale(0.04, 0.58), Size = UDim2.new(0.92, 0, 0.2, 0), BackgroundTransparency = 1, TextScaled = true,
-		FontFace = BOLD, TextColor3 = INK,
-		Text = if reward.title then "FOUNDING MEMBER" else Config.rewardText(reward),
+		FontFace = BOLD, TextColor3 = if reward.title then PINK else INK,
+		Text = if reward.title then "한정 칭호 증정!" else Config.rewardText(reward),
 	}, f)
 	create("UITextSizeConstraint", { MaxTextSize = 12 }, label)
 	local status = create("TextLabel", {
@@ -123,6 +137,18 @@ for n = 1, Config.Goal do
 	create("UITextSizeConstraint", { MaxTextSize = 11 }, status)
 	cards[n] = { frame = f, head = head, icon = icon, label = label, status = status }
 end
+
+-- (D-1397) the limited title, over the note
+local limited = create("TextLabel", {
+	Name = "Limited", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -38), Size = UDim2.new(1, 0, 0, 24),
+	BackgroundColor3 = Color3.fromRGB(40, 22, 12), BackgroundTransparency = 0.05, FontFace = BOLD, TextScaled = true,
+	TextColor3 = Color3.fromRGB(255, 190, 120), RichText = true,
+	Text = '👑 14번 출석하면 한정 칭호 <font color="#FFAA5A">FOUNDING MEMBER</font> 증정! · 해당 칭호는 이벤트 종료 후 재판매하지 않습니다',
+}, window)
+corner(limited, 12)
+create("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.fromRGB(255, 150, 60), Thickness = 1.5 }, limited)
+create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 3), PaddingBottom = UDim.new(0, 3) }, limited)
+create("UITextSizeConstraint", { MaxTextSize = 14 }, limited)
 
 -- the note
 create("TextLabel", {

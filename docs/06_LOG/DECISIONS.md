@@ -4681,3 +4681,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - guard_scan(1배속): 0:07.7 오른팔 · 0:15.9 왼팔 GUARD 7°(peak 0.13 rad, 첫 조각 시작 직후)만, STALL · SHAKE 없음 → 그대로(D-1306처럼 7~9°는 둠).
 - 남은 Play 경고: 1:19.1 / 2:03.9 SPIN · SNAP, 3:08 SLIDE = 빠진 클립 자리에서 기본 춤으로 넘어가는 곳(7 · 11 · 16 올라오면 사라짐).
 - 몸 바꾸기(노래 15.5초에 ApplyDescription): 0.5~1.1초 뒤 관절 차이 0.3~5°, 1.4초 뒤 팔 36°는 같은 몸 두 번 재도 36°(팔이 0.3초에 45° 움직이는 순간) → 몸 바꾸기 탓 아님.
+## D-1397 Opening event: the title on day 14, limited (2026-11-14)
+- User: "출석 이벤트 14일차에 아까 보여 준 칭호 디자인 올리고 한정 칭호 증정 강조해서 적어 / 해당 칭호는 이벤트 종료 후 재판매하지 않습니다 표기".
+- OpeningEventController: the day 14 card shows the FOUNDING MEMBER plate as it stands over the name (NameTagService: dark brown, orange letters, orange edge) with "한정 칭호 증정!" in pink under it; a dark line over the note: "👑 14번 출석하면 한정 칭호 FOUNDING MEMBER 증정! · 해당 칭호는 이벤트 종료 후 재판매하지 않습니다". Both new texts translated for the 16 languages (tools/i18n/tr/p14_opening14.tsv); checked in Korean and with Lang = en in Play.
+## D-1398 Earl Grey tea: the americano's sip (2026-11-14)
+- User: "얼그레이티 마시는 소리 안 남 아메리카노 마시는 소리로 넣어 다른 거 또 소리 없는 거 있나". The tea used the default cup gulp 9114171855 (0.9 s, quiet): it played (checked in Play), but was hardly heard. SnackService SIP_SOUND.tea = 102811247160851 (iced americano's sip).
+- Every snack / drink sound was loaded in Play: all play. Still on the same short gulp: smoothie, bluelemonade, barleytea, sikhye, yuja, omija, greentea (cups) and bananamilk, can_cider / can_cola / can_orange / can_lemonade / can_blueade (bottles): asked the user.
