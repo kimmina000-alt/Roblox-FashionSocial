@@ -4667,3 +4667,17 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User (aerial screenshot with a red line): "놀이공원 부지 빨간 선만큼 확장해 줘. 놀이공원 벽도 그만큼 옮겨서 수정해 주고. 해변은 삭제하고 해당 땅 위에 있는 나무랑 파라솔 같은 아이템 삭제해. 튜브랑 고무 오리도. 도로도 유턴 도로 부분 부지 커지는만큼 줄어들어서 이동되어야 함." Agreed on a top view (images/2026-11-13/park_expand_plan.png): box x -298.5..-148, z -456..-277; beach removed only inside it.
 - tools/graybox/park_expand_1113.lua (chain step after user_map_snapshot_1113), run in the place: 209 beach things removed (sand steps, promenade, 3 lamps, 3 palms, 2 parasols, 2 tubes, beach chairs / mats / ice box, beach ball; no rubber duck stood inside the box); 12 long pieces cut at z -277 (beach sand, shore slope, promenade, sidewalk, curb) or behind the new road end (sea road, edge line, centre line); U-turn end (74 pieces: cap, paving wedges, arrow, sign) moved 129 south; terrain in the box cleared; ParkRaise.ParkPlatformWest (top 16); lawn strip x -206..-148 runs on to z -280; walls: north part's west wall (x -276.1) runs on to z -282.5, its south wall moved to z -279.5, inner park's old west wall (x -147.5) removed, old corner pillar → new south-west corner (-273.7, -279.5), the user's loose pillar (workspace.Folder) → the middle of the new west wall (now AmusementParkGate.ParkPillarWestMiddle). UserMapSnapshot.Models.AmusementParkGate refreshed with this park. Inner park's construction fence and ParkWallBlocker unchanged.
 - Play (images/2026-11-13/park_expand_after.jpg): new ground level with the park, wall along the sea and the south edge, road U-turn under the new south face, beach south of it unchanged. The map boundary walls (x -148 / z -385) now stand inside the closed park; left as they are.
+
+## D-1394 BANG-After School 안무 13조각 + 고개 · 손목 (2026-11-13)
+- 사용자: "애프터스쿨 BANG 안무 추가" + id 16개(`D:\Roblox\영상\AfterSchool_Bang_centercut\clips\Bang_ids_번호.txt`, 연습 영상 Sk8ByISqgwc).
+- id: 16개 모두 Vantablack_Dev, 길이 = 클립(±0.06초, 7번만 0.25초 짧음). 7 · 11 · 16번은 6 · 10 · 15번과 키프레임 수 · 포즈가 같은 복사본 → 빼고 13조각만 넣음(그 세 자리 78.7-89.9 / 123.5-134.2 / 186.8~ 는 기본 춤). 다시 올리면 채울 것.
+- 시간: 영상 소리를 원곡 mp3와 10초 구간마다 비교 → 노래 = 영상 + 0.85초(일치도 0.99~1.00 전 구간). `at` = 클립 시작 + 0.85. Play에서 게임 소리는 mp3와 18초 −0.20 · 170초 −0.40초(0.13 %, fileSpeed 1.0515 그대로).
+- 이음새(choreo_check): blend 4 0.44, 5 0.89, 8 1, 11 1, 빠진 클립 다음 7 0.9 · 10 1. 4→5 정면 107° 차이(4가 오른쪽으로 돌고 끝남)는 blend로.
+- 미끄러짐(slide_check + motion_scan DRIFT + Play TELEPORT 6곳 · SLIDE 1곳) → ChoreoSlideStill 12조각. 회전: 5번 한 바퀴(1:04.6-1:06.0, 한 프레임 1033°/s) → `spin` 4.2-5.6 고르게, 13번 3:00.7 한 키 86° 되돌림(663°/s) → `spin` 5.3-6.0.
+- 정면(faceoffset) 9조각: 2 −10, 3 −11, 4 +6, 5 −21, 6 −29, 8 +10, 9 −8, 10 −22, 12 +11(5 · 6 · 10은 프레임 사진으로 정면 확인).
+- 고개(head_video → headMisses): 1 · 5 · 6 · 12 · 14 (7구간). 5번 끝은 21°로 끝냄(6번이 21°로 시작).
+- 손목(hand_moves → wristMisses): 5 · 8 · 9 · 10 · 12 (8구간), 12번 0-3.3초(옆에 다른 멤버)는 뺌. Play 확인(손 대 팔뚝 화면 각도, 게임 / 영상): 5 오 14~21 / 27~50, 8 왼 22~57 / 63~80, 9 왼 29~35 / 64~73, 9 오 −40~−59 / −52~−65, −41~−56 / −50~−68, 10 오 16~25 / 31~44, 12 왼 −25~−27 / −33~−37, 12 오 43 / 50(팔이 카메라 쪽이라 나머지는 못 잼). 모두 영상 쪽.
+- occlusion_scan: 6 · 8 · 9 · 11 · 12 · 15에 긴 "가림"이 나왔지만 프레임 사진은 가운데 멤버가 앞에서 또렷함(뒤 흐린 멤버) → 12번 0-3.3초만 손목에서 뺌.
+- guard_scan(1배속): 0:07.7 오른팔 · 0:15.9 왼팔 GUARD 7°(peak 0.13 rad, 첫 조각 시작 직후)만, STALL · SHAKE 없음 → 그대로(D-1306처럼 7~9°는 둠).
+- 남은 Play 경고: 1:19.1 / 2:03.9 SPIN · SNAP, 3:08 SLIDE = 빠진 클립 자리에서 기본 춤으로 넘어가는 곳(7 · 11 · 16 올라오면 사라짐).
+- 몸 바꾸기(노래 15.5초에 ApplyDescription): 0.5~1.1초 뒤 관절 차이 0.3~5°, 1.4초 뒤 팔 36°는 같은 몸 두 번 재도 36°(팔이 0.3초에 45° 움직이는 순간) → 몸 바꾸기 탓 아님.

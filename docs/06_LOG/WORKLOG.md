@@ -3958,3 +3958,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-13 (12) Merge: ♥ button removed + club dance 3 wrists
 - Mobile 2P test (Player1 phone view, Player2): Player1's top row has no ♥; ☰ → 💝 기부하기 opens the 게임 후원 window. Player2 club dance 3: wrists follow the D-1387 keys (both hands bent out about 3-4.6 s, right hand bends in about 10-11 s). Server and clients: no script errors (only the usual asset-permission lines).
 - Merged fix/support-button-1113 (D-1386) and feat/club3-wrist-1113 (D-1387) into catalog-ui-redesign.
+
+## 2026-11-13 BANG-After School 안무 (D-1394)
+- 사용자: "애프터스쿨 BANG 안무 추가" + id 16개. 13조각 넣음(7 · 11 · 16번은 6 · 10 · 15번 복사본). 노래 = 영상 + 0.85초.
+- 이음새 blend, 미끄러짐 고정 12조각, 회전 2곳, 정면 9조각, 고개 5조각, 손목 5조각(Play에서 방향 확인), guard_scan · Play 스캔 · 몸 바꾸기 확인. 자세한 숫자: DECISIONS D-1394.
