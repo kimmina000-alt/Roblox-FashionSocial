@@ -63,7 +63,7 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- look = the last outfit worn (OutfitSnapshot), put back on the next visit (D-771)
 -- bag = the items carried when the player left (BagService, D-790): plain
 -- tables { k = kind, ... }, given back on the next visit
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean }? }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean }?, hideName: boolean?, hideTitle: boolean? }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -152,6 +152,9 @@ local function sanitizeWallet(raw: any): Wallet
 			title = o.title == true,
 		}
 	end
+	-- (D-1377) the ☰ menu's 닉네임 숨기기 / 칭호 숨기기 (PlayerPrefsService)
+	if raw.hideName == true then wallet.hideName = true end
+	if raw.hideTitle == true then wallet.hideTitle = true end
 	if typeof(raw.look) == "table" then wallet.look = raw.look end
 	-- (D-790) the carried items: at most 30 entries of plain values
 	if typeof(raw.bag) == "table" then

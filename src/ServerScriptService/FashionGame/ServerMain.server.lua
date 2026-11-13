@@ -34,6 +34,7 @@ local PhotoBoothService = require(script.Parent.Services.PhotoBoothService)
 MonetizationService.Start()
 EconomyService.Start(PlayerDataService)
 require(script.Parent.Services.OpeningEventService).Start(PlayerDataService, EconomyService) -- (D-1366 오픈 출석 이벤트)
+require(script.Parent.Services.PlayerPrefsService).Start(PlayerDataService) -- (D-1377 ☰ 닉네임 / 칭호 숨기기)
 DjService.Start()
 ClubAccessService.Start()
 DrinkService.Start()
@@ -140,6 +141,9 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 		return require(script.Parent.Services.GuardService).Carry(player, payload)
 	elseif action == "GuardDrop" then
 		return require(script.Parent.Services.GuardService).Drop(player)
+	elseif action == "HideName" or action == "HideTitle" then
+		-- (D-1377) the ☰ menu's switches
+		return require(script.Parent.Services.PlayerPrefsService).Set(player, action, payload == true)
 	elseif action == "GuardCuff" or action == "GuardOut" then
 		return require(script.Parent.Services.GuardService).Cuff(player, payload)
 	end

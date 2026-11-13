@@ -50,6 +50,7 @@ local function build(player: Player, character: Model)
 	billboard.AlwaysOnTop = false
 	billboard.ResetOnSpawn = false
 	billboard.Adornee = head
+	billboard.Enabled = player:GetAttribute("HideName") ~= true -- (D-1377: ☰ 닉네임 숨기기)
 
 	local name = Instance.new("TextLabel")
 	name.Name = "DisplayName"
@@ -95,6 +96,12 @@ function NameTagService.Start()
 			local label = tag and tag:FindFirstChild("XP")
 			if label and label:IsA("TextLabel") then label.Text = formatXp(player:GetAttribute("XP")) end
 		end)
+		-- (D-1377) ☰ 닉네임 숨기기: the whole name tag (nickname + XP) off / on
+		player:GetAttributeChangedSignal("HideName"):Connect(function()
+			local head = player.Character and player.Character:FindFirstChild("Head")
+			local tag = head and head:FindFirstChild(TAG_NAME)
+			if tag and tag:IsA("BillboardGui") then tag.Enabled = player:GetAttribute("HideName") ~= true end
+		end)
 		player:GetAttributeChangedSignal("Cuffed"):Connect(function()
 			local head = player.Character and player.Character:FindFirstChild("Head")
 			local tag = head and head:FindFirstChild(TAG_NAME)
@@ -139,7 +146,7 @@ local function refreshRoles(player: Player)
 	local djing = character:GetAttribute("Djing")
 	local cafeJob = character:GetAttribute("CafeJob")
 	local on = {
-		Founding = player:GetAttribute("Title_Founding") == true,
+		Founding = player:GetAttribute("Title_Founding") == true and player:GetAttribute("HideTitle") ~= true, -- (D-1377: ☰ 칭호 숨기기)
 		Staff = cafeJob ~= nil and cafeJob ~= false and cafeJob ~= "",
 		GUARD = player:GetAttribute("Pass_Guard") == true,
 		VIP = player:GetAttribute("Pass_VIP") == true,
@@ -238,6 +245,7 @@ function NameTagService.StartRoles()
 		player:GetAttributeChangedSignal("Pass_VIP"):Connect(function() refreshRoles(player) end)
 		player:GetAttributeChangedSignal("Pass_Guard"):Connect(function() refreshRoles(player) end)
 		player:GetAttributeChangedSignal("Title_Founding"):Connect(function() refreshRoles(player) end) -- (D-1366)
+		player:GetAttributeChangedSignal("HideTitle"):Connect(function() refreshRoles(player) end) -- (D-1377)
 	end
 	for _, player in ipairs(Players:GetPlayers()) do watch(player) end
 	Players.PlayerAdded:Connect(watch)

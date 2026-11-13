@@ -4595,3 +4595,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1376 Rankings: no Vantablack_Dev, top 100 (2026-11-13)
 - User: "순위표에서 Vantablack_Dev 삭제 / 순위표 100명까지 표기". RankingService: Vantablack_Dev (11887382096, the game's own account) joins the excluded accounts (by id and name), TOP 50 → 100; the ordered store is read in pages of 100 (the most one page holds) plus the next page, so the hidden accounts still leave 100 rows. RankingBoards: 100 rows, "상위 100 플레이어". Play (real ranking store): level board 100 entries, no Vantablack_Dev; the park board shows 100 rows.
+
+## D-1377 ☰ menu: 닉네임 숨기기 / 칭호 숨기기 / 기부하기 (2026-11-13)
+- User: "메뉴 버튼 안에 닉네임 숨기기 칭호 숨기기 기부하기 버튼 넣기". The ☰ button (TopBar order 20, hidden since D-721) is back at the right end of the top row; MenuController shows a card under it (TopBar.OpenChanged) with two switches and 💝 기부하기 (UiBus.OpenSupport → the ♥ supporter window; ♥ stays in the row).
+- 닉네임 숨기기 = player attribute HideName: the name tag over the head (nickname + XP) is off for everyone; 칭호 숨기기 = HideTitle: the FOUNDING MEMBER badge is off (알바생 / GUARD / VIP / DJ badges stay). Saved in wallet.hideName / wallet.hideTitle (PlayerPrefsService, ClubShop actions "HideName" / "HideTitle"), back on the next visit.
+- Play: the card opens under ☰; 닉네임 숨기기 hides the name tag (role badges stay), 칭호 숨기기 hides FOUNDING MEMBER, 기부하기 closes the menu and opens 게임 후원. Image: images/2026-11-13/menu_hide_name.jpg. The 3 new texts are not in the translation tables yet (tools/i18n extract → translate → build).

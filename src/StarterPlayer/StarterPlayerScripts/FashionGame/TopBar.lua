@@ -34,7 +34,9 @@ TopBar.Scale = 1.5 -- (for the pieces other scripts size: coin pill, clock)
 -- (D-725: 💬 의견 보내기, order 2, at the end while FeedbackConfig.TopButton is on)
 -- (D-1366 fix, 2P test 2026-11-13) 🎁 오픈 출석 이벤트 (order 6) between ♥ and ₩: it had no place
 -- here, so it was never laid out (size 0)
-local RIGHT: {[number]: number} = { [2] = 1, [1] = 2, [3] = 3, [4] = 4, [5] = 5, [6] = 5.5, [10] = 6, [11] = 7 }
+-- (D-1377, user 2026-11-13: "메뉴 버튼 안에 닉네임 숨기기 칭호 숨기기 기부하기 버튼 넣기") ☰ (order 20)
+-- is back, at the right end: its menu is MenuController's panel (TopBar.OpenChanged)
+local RIGHT: {[number]: number} = { [20] = 0.5, [2] = 1, [1] = 2, [3] = 3, [4] = 4, [5] = 5, [6] = 5.5, [10] = 6, [11] = 7 }
 local MENU: {[number]: number} = {}
 local ROUND = { [1] = true, [2] = true, [3] = true, [4] = true, [6] = true } -- styled like ♥ here
 local LINE_GAP = 8 -- between two rows
@@ -182,9 +184,19 @@ layout = function()
 	end
 end
 
+local openChanged = Instance.new("BindableEvent")
+TopBar.OpenChanged = openChanged.Event -- (D-1377) the ☰ menu opened / closed
 function TopBar.setOpen(on: boolean)
+	local was = open
 	open = on
 	layout()
+	if was ~= on then openChanged:Fire(on) end
+end
+function TopBar.isOpen(): boolean
+	return open
+end
+function TopBar.menuButton(): GuiObject
+	return more
 end
 
 more.MouseButton1Click:Connect(function() TopBar.setOpen(not open) end)
@@ -293,7 +305,7 @@ do
 	end
 end
 TopBar.add(more, 20)
-more.Visible = false -- (D-721: nothing left in the menu; kept for the old order number)
+more.Visible = true -- (hidden D-721..D-1377 while the menu was empty)
 
 GuiService:GetPropertyChangedSignal("TopbarInset"):Connect(layout)
 if workspace.CurrentCamera then

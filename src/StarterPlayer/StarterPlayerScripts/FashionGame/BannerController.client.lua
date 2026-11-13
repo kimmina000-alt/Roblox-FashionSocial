@@ -302,3 +302,5 @@ Instance.new("UICorner", openButton).CornerRadius = UDim.new(1, 0)
 TopBar.icon(openButton, require(script.Parent:WaitForChild("Icons")).heart, 0.6) -- (a white heart, user mock-up 2026-10-30 rev 2; 0.5 → 0.6, 2026-10-31)
 TopBar.add(openButton, 5)
 openButton.MouseButton1Click:Connect(function() setPanel(not panel.Visible) end)
+-- (D-1377) the ☰ menu's 기부하기 opens the same window
+require(script.Parent:WaitForChild("UiBus")).OpenSupport.Event:Connect(function() setPanel(true) end)

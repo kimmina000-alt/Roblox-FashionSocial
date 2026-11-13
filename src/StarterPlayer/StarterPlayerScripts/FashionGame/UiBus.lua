@@ -16,5 +16,7 @@ UiBus.StageCamTap = Instance.new("BindableEvent")
 UiBus.ChoreoPhrase = Instance.new("BindableEvent")
 -- (D-1365) the guide NPC's "동네 둘러보기 다시 보기": the first-visit tour again (TourController)
 UiBus.StartTour = Instance.new("BindableEvent")
+-- (D-1377) the ☰ menu's 기부하기: the 💝 supporter window (BannerController)
+UiBus.OpenSupport = Instance.new("BindableEvent")
 
 return UiBus
