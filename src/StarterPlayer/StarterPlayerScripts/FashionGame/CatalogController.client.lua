@@ -1378,7 +1378,8 @@ subcategoryStrip.InputEnded:Connect(function(input)
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then subcategoryDragStartX = nil end
 end)
 
-local MODE_BY_LABEL = { ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing", ["옷장"] = "Wardrobe" }
+-- (D-1374) ✨ 추천 = the "Looks" mode: the recommended looks in the item grid (RecommendedLooksView)
+local MODE_BY_LABEL = { ["✨ 추천"] = "Looks", ["최근"] = "Recent", ["인기"] = "Popular", ["즐겨찾기"] = "Favorites", ["착용 중"] = "Wearing", ["옷장"] = "Wardrobe" }
 local function updateDiscoveryHighlight()
 	for label, button in pairs(discoveryButtons) do
 		local active = MODE_BY_LABEL[label] ~= nil and MODE_BY_LABEL[label] == browseMode
@@ -1404,9 +1405,6 @@ discoveryButtons["⚙"].MouseButton1Click:Connect(function()
 	openAvatarEditor()
 end)
 discoveryButtons["✨ 추천"].TextColor3 = Color3.fromRGB(255, 205, 110) -- (stands out a little)
-discoveryButtons["✨ 추천"].MouseButton1Click:Connect(function()
-	require(script.Parent:WaitForChild("RecommendedLooksView")).toggle()
-end)
 fixedFilterButton.MouseButton1Click:Connect(function()
 	filterPanelOpen = not filterPanelOpen
 	updateCatalogLayout()
@@ -3077,6 +3075,10 @@ renderLocalMode = function()
 		if wardrobeView then wardrobeView:render() end
 		return
 	end
+	if mode == "Looks" then -- (D-1374)
+		require(script.Parent:WaitForChild("RecommendedLooksView")).render()
+		return
+	end
 
 	local entries = {}
 	if mode == "Recent" then
@@ -3404,7 +3406,7 @@ selectCategory = function(name: string, assetTypes, bundleTypes)
 
 	-- Categories filter Recent/Favorites/Wearing, but mean nothing for saved
 	-- outfits: a category press in the Wardrobe goes back to the catalog.
-	if browseMode == "Wardrobe" then
+	if browseMode == "Wardrobe" or browseMode == "Looks" then
 		browseMode = "Catalog"
 		updateDiscoveryHighlight()
 	end
@@ -3689,7 +3691,7 @@ end)
 --------------------------------------------------
 
 searchButton.MouseButton1Click:Connect(function()
-	if browseMode == "Wardrobe" then
+	if browseMode == "Wardrobe" or browseMode == "Looks" then
 		browseMode = "Catalog"
 		updateDiscoveryHighlight()
 	end
@@ -3764,6 +3766,28 @@ wardrobeView = require(script.Parent:WaitForChild("WardrobeView")).new({
 	setBusy = function(busy) actionBusy = busy end,
 	editorDirty = function() return avatarEditor ~= nil and avatarEditor:isDirty() end,
 	onRestored = function()
+		refreshWornItems()
+		refreshAvatarPreview()
+	end,
+})
+
+-- (D-1374) the recommended looks' cards, in the same grid and card scale as the wardrobe
+require(script.Parent:WaitForChild("RecommendedLooksView")).setup({
+	container = resultsFrame,
+	TryOnItem = TryOnItem,
+	getCardScale = function() return cardContentScale end,
+	registerScale = function(uiScale) table.insert(cardContentUIScales, uiScale) end,
+	showToast = function(text) showToast(text) end,
+	setMessage = function(text) setResultsMessage(text) end,
+	canChangeAvatar = function()
+		if actionBusy then
+			showToast("다른 아바타 변경이 진행 중입니다.")
+			return false
+		end
+		return not editorBlocksAvatarChanges()
+	end,
+	setBusy = function(busy) actionBusy = busy end,
+	onWorn = function()
 		refreshWornItems()
 		refreshAvatarPreview()
 	end,
