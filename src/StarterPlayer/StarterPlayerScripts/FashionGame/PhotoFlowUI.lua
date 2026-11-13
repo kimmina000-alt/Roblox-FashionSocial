@@ -211,6 +211,11 @@ function PhotoFlowUI.dateLines(t: any): (string, string)
 	local d = DateTime.fromUnixTimestamp(t):ToLocalTime()
 	local h = d.Hour
 	local ampm = if h < 12 then "오전" else "오후"
+	local lang = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).langOf()
+	if lang ~= "ko" then
+		local pm = ({ ja = "午後", ["zh-cn"] = "下午", ["zh-tw"] = "下午", tr = "ÖS", vi = "CH", ar = "م", es = "p. m." })[lang]
+		ampm = if h < 12 then require(game:GetService("ReplicatedStorage").FashionGame.Shared.L).t("오전") else (pm or "PM")
+	end
 	local h12 = h % 12
 	if h12 == 0 then h12 = 12 end
 	return string.format("%04d.%02d.%02d", d.Year, d.Month, d.Day), string.format("%s %d:%02d", ampm, h12, d.Minute)

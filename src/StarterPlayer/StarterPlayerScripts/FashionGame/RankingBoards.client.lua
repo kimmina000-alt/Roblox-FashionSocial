@@ -346,7 +346,7 @@ local function voteButton(parent: Instance, props: {[string]: any}, onClick: () 
 end
 
 local function StarterGuiNotify(text: string)
-	game:GetService("StarterGui"):SetCore("SendNotification", { Title = "실시간 후원", Text = text, Duration = 3 })
+	game:GetService("StarterGui"):SetCore("SendNotification", { Title = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t("실시간 후원"), Text = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t(text), Duration = 3 })
 end
 
 local function openVoteWindow()

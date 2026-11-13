@@ -310,7 +310,7 @@ end
 notify.OnClientEvent:Connect(function(kind: any, shopKey: any)
 	if kind == "Open" and typeof(shopKey) == "string" then show(shopKey) end
 	if kind == "Toast" and typeof(shopKey) == "string" then
-		StarterGui:SetCore("SendNotification", { Title = "🍽", Text = shopKey, Duration = 4 })
+		StarterGui:SetCore("SendNotification", { Title = "🍽", Text = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t(shopKey), Duration = 4 })
 	end
 end)
 
@@ -469,7 +469,7 @@ do
 		task.spawn(function()
 			local ok, okServer, message = pcall(function() return remote:InvokeServer(action, a, b) end)
 			if ok and not okServer and typeof(message) == "string" then
-				StarterGui:SetCore("SendNotification", { Title = "🍽", Text = message, Duration = 3 })
+				StarterGui:SetCore("SendNotification", { Title = "🍽", Text = require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t(message), Duration = 3 })
 			end
 			busy = false
 		end)

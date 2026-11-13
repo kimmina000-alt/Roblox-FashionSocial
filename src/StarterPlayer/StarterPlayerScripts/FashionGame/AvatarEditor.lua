@@ -721,6 +721,7 @@ end
 
 function AvatarEditor:_setStatus(text: string)
 	self.statusLabel.Text = text
+	self._statusKo = text -- the Korean source (the label may show a translation)
 end
 
 function AvatarEditor:_updateFooter()
@@ -730,7 +731,7 @@ function AvatarEditor:_updateFooter()
 	self.resetButton.Position = UDim2.new(1, if dirty then -210 else -70, 0, 5)
 	if dirty and self.statusLabel.Text == "" then
 		self:_setStatus("미리보기 중 · 적용을 눌러야 아바타에 반영됩니다.")
-	elseif not dirty and string.find(self.statusLabel.Text, "미리보기 중", 1, true) then
+	elseif not dirty and string.find(self._statusKo or self.statusLabel.Text, "미리보기 중", 1, true) then
 		self:_setStatus("")
 	end
 end

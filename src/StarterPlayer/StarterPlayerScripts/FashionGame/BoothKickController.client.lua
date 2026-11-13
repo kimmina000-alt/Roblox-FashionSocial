@@ -127,7 +127,7 @@ task.spawn(function()
 				armed[id] = nil
 			elseif os.clock() - (armed[id] or -10) > 3 then
 				local button = frame:FindFirstChildWhichIsA("TextButton")
-				if button and button.Text == "한 번 더 누르기" then button.Text = "내보내기" end
+				if button and (button.Text == "한 번 더 누르기" or button.Text == require(game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("L")).t("한 번 더 누르기")) then button.Text = "내보내기" end
 			end
 		end
 		panel.Visible = next(others) ~= nil

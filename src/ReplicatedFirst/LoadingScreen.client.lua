@@ -15,6 +15,14 @@ local ReplicatedFirst = game:GetService("ReplicatedFirst")
 local RunService = game:GetService("RunService")
 local TweenService = game:GetService("TweenService")
 
+-- the player's language (Shared/L.lua) as soon as ReplicatedStorage arrives
+task.spawn(function()
+	local fg = game:GetService("ReplicatedStorage"):WaitForChild("FashionGame", 30)
+	local shared = fg and fg:WaitForChild("Shared", 30)
+	local mod = shared and shared:WaitForChild("L", 30)
+	if mod then pcall(function() require(mod :: ModuleScript).start() end) end
+end)
+
 ReplicatedFirst:RemoveDefaultLoadingScreen()
 
 local SCENE_SECONDS = 7 -- each place stays this long
