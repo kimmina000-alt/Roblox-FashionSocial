@@ -4556,3 +4556,15 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Frame: PhotoConfig "오픈 기념" (price "event", not for sale: the booth shows "🎁 오픈 출석 7회 보상"). Placeholder pink sticker frame until the user sends the frame image.
 - Studio never counts an attendance (would use up the real days); set ReplicatedStorage.FashionGame attribute OpeningStudioCount = true to test counting. Window test: set OpeningCount / OpeningJustClaimed on the player on the server.
 - Glyphs: 🪙 / ✕ show as boxes and 💰 blank in this font: coin cards use "₩", close "X". Screenshot: images/2026-11-13/opening_event_window.jpg.
+
+## D-1367 Tour views and catalog wording (2026-11-13)
+- User: 오후네컷 from the outside in (the inside is pretty), beach with parasols and tubes in one shot, cafe from inside out through the glass wall to the sea, 광화문 from the front a little low so the unbuilt inside is not seen; catalog step stresses free (many players stay in the default avatar).
+- TourController steps take `path` (more stops, each glided in t seconds after the first view) and `fov` (beach 32, given back at the end). 오후네컷: street (14,22,-20) → corner door (44,9,-48) → lobby (60,10,-62). Beach: from the sea (-350,13,-14) → (-250,-5,-36). Cafe: lounge (-284,12,338) → glass wall view (-292,17,318) → (-440,4,280). 광화문: (89,7,93) → (144.5,16,147.3). Catalog: "👗 카탈로그 · 전부 무료!" + "기본 캐릭터 그대로 다니지 마세요! …".
+- Stage camera default (user: "처음 접속 기본값만 변경"): already so, nothing changed: on joining StageCamera is off and 안무 자동 (ChoreoAuto) is on; a camera the player switched on stays on across songs.
+- Images: images/2026-11-13/tour_*.jpg.
+
+## D-1368 Photo wall tip after a shoot (2026-11-13)
+- User: "사진 다 찍으면 포토월 설명. 남들에게 자랑 가능 기능". PhotoWallTip: when the result window of a shoot closes, once per player ever (tip "photowall"), after other windows close: "📌 포토월에 자랑하기" — hold the photo (hotbar / 🎒) and tap a wall inside 오후네컷. Image: images/2026-11-13/photowall_tip.jpg.
+
+## D-1369 LED wall: only the DJ (2026-11-13)
+- User: "dj 전광판에 플레이어 뜨는 것 삭제. dj만 뜨게". ClubScreenService no longer runs the loop that put dancers on the LED wall by turns (ClubWallShow stays 0); the DJ is still shown (DJScreenController). The round LED pillars are unchanged.

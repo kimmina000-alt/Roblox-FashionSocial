@@ -1564,6 +1564,8 @@ local function resultButton(label: string, color: Color3, order: number, onClick
 end
 
 local function closeAllFlow()
+	-- (D-1368) a finished shoot: the photo wall is explained once (PhotoWallTip)
+	if state.stage == "result" then require(script.Parent:WaitForChild("PhotoWallTip")).maybeShow() end
 	pick.Visible = false
 	result.Visible = false
 	shoot.Visible = false

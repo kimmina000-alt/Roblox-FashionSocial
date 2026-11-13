@@ -120,7 +120,10 @@ local function wallLoop()
 end
 
 function ClubScreenService.Start()
-	task.spawn(wallLoop)
+	-- (D-1369, user 2026-11-13: "dj 전광판에 플레이어 뜨는 것 삭제. dj만 뜨게") the LED wall
+	-- behind the DJ no longer shows dancers by turns: only the DJ (DJScreenController)
+	FashionGame:SetAttribute("ClubWallShow", 0)
+	local _ = wallLoop
 	task.spawn(function()
 		local since = os.clock()
 		while true do
