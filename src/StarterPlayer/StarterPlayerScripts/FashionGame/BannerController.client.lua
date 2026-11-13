@@ -289,18 +289,7 @@ for index, key in ipairs(SUPPORT_KEYS) do
 	end)
 end
 
-local openButton = Instance.new("TextButton")
-openButton.Name = "SupportButton"
-openButton.BackgroundColor3 = Color3.fromRGB(18, 18, 21)
-openButton.BackgroundTransparency = 0.5 -- (50 %, user 2026-10-30)
-openButton.Text = "💝"
-openButton.TextSize = 22
-openButton.Font = Enum.Font.GothamBold
-openButton.TextColor3 = Color3.new(1, 1, 1)
-openButton.Parent = gui
-Instance.new("UICorner", openButton).CornerRadius = UDim.new(1, 0)
-TopBar.icon(openButton, require(script.Parent:WaitForChild("Icons")).heart, 0.6) -- (a white heart, user mock-up 2026-10-30 rev 2; 0.5 → 0.6, 2026-10-31)
-TopBar.add(openButton, 5)
-openButton.MouseButton1Click:Connect(function() setPanel(not panel.Visible) end)
+-- (D-1386, user 2026-11-13: "홈화면 메뉴 버튼에 기부하기 넣었으니까 바깥에 있는 기부하기 버튼
+-- 삭제") no ♥ button in the top bar any more: the window opens from ☰ → 💝 기부하기 only
 -- (D-1377) the ☰ menu's 기부하기 opens the same window
 require(script.Parent:WaitForChild("UiBus")).OpenSupport.Event:Connect(function() setPanel(true) end)

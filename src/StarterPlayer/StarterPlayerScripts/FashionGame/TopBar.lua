@@ -140,8 +140,12 @@ layout = function()
 	local moreX = 0
 	rowsBottom = centerY + SMALL / 2
 	local rightList = sorted(RIGHT)
-	local giftShown = false -- (the wider gap before ₩ goes after 🎁 when it is there)
-	for _, entry in ipairs(rightList) do if entry.order == 6 then giftShown = true end end
+	-- (the wider gap before ₩ goes after the last round button before it: 🎁, else
+	-- the catalog since D-1386 removed the ♥ button)
+	local beforeWallet: number? = nil
+	for _, entry in ipairs(rightList) do
+		if (RIGHT[entry.order] or 0) < RIGHT[10] and entry.order ~= 20 then beforeWallet = entry.order end
+	end
 	for _, entry in ipairs(rightList) do
 		local b = entry.button
 		local wide = b:GetAttribute("Width")
@@ -149,7 +153,7 @@ layout = function()
 		local w = if typeof(wide) == "number" then wide else SMALL
 		local h = if typeof(high) == "number" then high else SMALL
 		local gap = b:GetAttribute("GapLeft")
-		local gapLeft = if typeof(gap) == "number" then gap elseif (entry.order == 5 and not giftShown) or entry.order == 6 or entry.order == 10 then PILL_GAP else ROW_GAP
+		local gapLeft = if typeof(gap) == "number" then gap elseif entry.order == beforeWallet or entry.order == 10 then PILL_GAP else ROW_GAP
 		if inRow > 0 and screenW + x - w < leftLimit then
 			x = rightX
 			y += SMALL + LINE_GAP
