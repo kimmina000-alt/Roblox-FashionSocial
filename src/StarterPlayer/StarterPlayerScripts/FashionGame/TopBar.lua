@@ -32,9 +32,11 @@ TopBar.Scale = 1.5 -- (for the pieces other scripts size: coin pill, clock)
 -- the row would reach Roblox's buttons on the left: the rest goes on a second
 -- row below instead.)
 -- (D-725: 💬 의견 보내기, order 2, at the end while FeedbackConfig.TopButton is on)
-local RIGHT: {[number]: number} = { [2] = 1, [1] = 2, [3] = 3, [4] = 4, [5] = 5, [10] = 6, [11] = 7 }
+-- (D-1366 fix, 2P test 2026-11-13) 🎁 오픈 출석 이벤트 (order 6) between ♥ and ₩: it had no place
+-- here, so it was never laid out (size 0)
+local RIGHT: {[number]: number} = { [2] = 1, [1] = 2, [3] = 3, [4] = 4, [5] = 5, [6] = 5.5, [10] = 6, [11] = 7 }
 local MENU: {[number]: number} = {}
-local ROUND = { [1] = true, [2] = true, [3] = true, [4] = true } -- styled like ♥ here
+local ROUND = { [1] = true, [2] = true, [3] = true, [4] = true, [6] = true } -- styled like ♥ here
 local LINE_GAP = 8 -- between two rows
 local rowsBottom = 0 -- bottom edge of the last row (TopBar.bottom)
 local firstRowLeft = math.huge -- left edge (px) of the first row's leftmost button (TopBar.firstRow)
@@ -135,14 +137,17 @@ layout = function()
 	local inRow = 0
 	local moreX = 0
 	rowsBottom = centerY + SMALL / 2
-	for _, entry in ipairs(sorted(RIGHT)) do
+	local rightList = sorted(RIGHT)
+	local giftShown = false -- (the wider gap before ₩ goes after 🎁 when it is there)
+	for _, entry in ipairs(rightList) do if entry.order == 6 then giftShown = true end end
+	for _, entry in ipairs(rightList) do
 		local b = entry.button
 		local wide = b:GetAttribute("Width")
 		local high = b:GetAttribute("Height")
 		local w = if typeof(wide) == "number" then wide else SMALL
 		local h = if typeof(high) == "number" then high else SMALL
 		local gap = b:GetAttribute("GapLeft")
-		local gapLeft = if typeof(gap) == "number" then gap elseif entry.order == 5 or entry.order == 10 then PILL_GAP else ROW_GAP
+		local gapLeft = if typeof(gap) == "number" then gap elseif (entry.order == 5 and not giftShown) or entry.order == 6 or entry.order == 10 then PILL_GAP else ROW_GAP
 		if inRow > 0 and screenW + x - w < leftLimit then
 			x = rightX
 			y += SMALL + LINE_GAP

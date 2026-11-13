@@ -4568,3 +4568,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1369 LED wall: only the DJ (2026-11-13)
 - User: "dj 전광판에 플레이어 뜨는 것 삭제. dj만 뜨게". ClubScreenService no longer runs the loop that put dancers on the LED wall by turns (ClubWallShow stays 0); the DJ is still shown (DJScreenController). The round LED pillars are unchanged.
+- (D-1366 fix, mobile 2P test 2026-11-13) the 🎁 button (TopBar order 6) had no place in TopBar's RIGHT map, so it was never laid out (size 0, not seen): now between ♥ and ₩, round like ♥, with the wider gap before ₩ after it.
