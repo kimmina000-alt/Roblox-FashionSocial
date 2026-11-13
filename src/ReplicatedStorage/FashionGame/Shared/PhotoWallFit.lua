@@ -47,7 +47,11 @@ function PhotoWallFit.backed(wall: BasePart, u: number, v: number, halfW: number
 	params.FilterDescendantsInstances = exclude
 	local cx = (u - 0.5) * wall.Size.X * right
 	local cy = (0.5 - v) * wall.Size.Y
-	for _, o in ipairs({ { 0, 0 }, { -0.8, -0.8 }, { 0.8, -0.8 }, { -0.8, 0.8 }, { 0.8, 0.8 } }) do
+	-- (D-1370, user 2026-11-13 with a live screenshot: "포토월 사진 또 공중에 붙어 있음") a 1x4
+	-- strip at the edge of the PHOTO niche passed with all five old points (middle + 80 % corners)
+	-- on the niche's thin neon rim while it hung over the opening: now a 3 x 3 grid out to 95 %
+	-- of the photo, so a rim or a trim strip can no longer stand in for the wall
+	for _, o in ipairs({ { 0, 0 }, { -0.95, -0.95 }, { 0, -0.95 }, { 0.95, -0.95 }, { -0.95, 0 }, { 0.95, 0 }, { -0.95, 0.95 }, { 0, 0.95 }, { 0.95, 0.95 } }) do
 		local point = wall.CFrame * Vector3.new(cx + o[1] * halfW, cy + o[2] * halfH, zSign * wall.Size.Z / 2)
 		local hit = workspace:Raycast(point + normal * 0.3, -normal * (0.3 + PhotoWallFit.MaxGap), params)
 		if not hit then return false end

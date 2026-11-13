@@ -4569,3 +4569,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1369 LED wall: only the DJ (2026-11-13)
 - User: "dj 전광판에 플레이어 뜨는 것 삭제. dj만 뜨게". ClubScreenService no longer runs the loop that put dancers on the LED wall by turns (ClubWallShow stays 0); the DJ is still shown (DJScreenController). The round LED pillars are unchanged.
 - (D-1366 fix, mobile 2P test 2026-11-13) the 🎁 button (TopBar order 6) had no place in TopBar's RIGHT map, so it was never laid out (size 0, not seen): now between ♥ and ₩, round like ♥, with the wider gap before ₩ after it.
+
+## D-1370 Photo wall: no photo over the niche's rim (2026-11-13)
+- User (live phone screenshot images/2026-11-13/live_photo_floating.jpg): "포토월 사진 또 공중에 붙어 있음". A 1x4 strip at the left edge of the PHOTO niche hung in the air: the north panel runs straight across the niche, and PhotoWallFit.backed's five points (middle + corners at 80 %) all landed on the niche's thin neon rim. Now a 3 x 3 grid out to 95 % of the photo. Check in Edit: only spots at the edges of openings change (north panel 6, south panel 9 of ~290 tested). Floating photos are hidden on clients at once and moved to a backed spot when a new server starts (D-1322 path).
+
+## D-1371 Bag lists only what is not in the bar (2026-11-13)
+- User (images/2026-11-13/live_bag_and_bar.jpg): "홈화면 아래 인벤토리 4 칸에 꺼내져있는 아이템은 가방에서 빼. 아이템은 가방 홈화면인벤 두 군데 중 한 군데에만 있기". InventoryController lists only tools without a Hotbar slot (held from the bag counts as bag); the slot number badge on bag cards is gone. Dragging between the two still moves an item from one to the other.
