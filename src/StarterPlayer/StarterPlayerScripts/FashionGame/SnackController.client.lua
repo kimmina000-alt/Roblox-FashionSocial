@@ -638,6 +638,15 @@ do
 			end
 		end
 		if eat and eat:GetAttribute("Snack") then
+			-- (D-1396) a tap on another player: GiveController asks to give it, no bite
+			if short and not p.moved and not eat:GetAttribute("Pair") then
+				local hit = rayAt(screen)
+				local node: Instance? = hit and hit.Instance
+				while node and node ~= workspace do
+					if node:IsA("Model") and Players:GetPlayerFromCharacter(node) and node ~= player.Character then return end
+					node = node.Parent
+				end
+			end
 			-- anywhere else: a bite (a short tap or click, not a camera drag)
 			if short and not p.moved then eat:Activate() end
 			return

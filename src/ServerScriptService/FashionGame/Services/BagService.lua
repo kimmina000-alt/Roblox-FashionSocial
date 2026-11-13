@@ -44,6 +44,15 @@ local function give(player: Player, list: {any})
 	end
 end
 
+-- (D-1396) the entries a player carries now, and making entries again for a player
+-- (GiveService hands one item over with them: the item is written down and made again)
+function BagService.collect(player: Player): {any}
+	return collect(player)
+end
+function BagService.give(player: Player, list: {any})
+	give(player, list)
+end
+
 function BagService.Start(playerData: any, snack: Source, drink: Source, sparkle: Source)
 	sources = { snack, drink, sparkle }
 	-- (only a visit whose saved list already came back writes a new one: a

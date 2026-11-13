@@ -77,6 +77,7 @@ task.defer(require(script.Parent.Services.DoorHeadroomService).Start) -- (room o
 task.defer(require(script.Parent.Services.TrashService).Start) -- (trash cans "Trashcan", D-1133)
 -- carried items back after a rejoin or a respawn (D-790)
 require(script.Parent.Services.BagService).Start(PlayerDataService, SnackService, DrinkService, SparkleService)
+task.defer(require(script.Parent.Services.GiveService).Start) -- (giving a carried item to another player, D-1396)
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers

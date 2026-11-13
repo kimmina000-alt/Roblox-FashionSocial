@@ -4681,3 +4681,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - guard_scan(1배속): 0:07.7 오른팔 · 0:15.9 왼팔 GUARD 7°(peak 0.13 rad, 첫 조각 시작 직후)만, STALL · SHAKE 없음 → 그대로(D-1306처럼 7~9°는 둠).
 - 남은 Play 경고: 1:19.1 / 2:03.9 SPIN · SNAP, 3:08 SLIDE = 빠진 클립 자리에서 기본 춤으로 넘어가는 곳(7 · 11 · 16 올라오면 사라짐).
 - 몸 바꾸기(노래 15.5초에 ApplyDescription): 0.5~1.1초 뒤 관절 차이 0.3~5°, 1.4초 뒤 팔 36°는 같은 몸 두 번 재도 36°(팔이 0.3초에 45° 움직이는 순간) → 몸 바꾸기 탓 아님.
+## D-1396 Giving a carried item to another player (2026-11-14)
+- User: "다른 사람한테 아이템 주는 기능"; picked: hold the item and tap the person, the other one has to accept, every carried item.
+- GiveController (client): with a giveable item in the hand, a short tap / click on another player within 16 studs → "🎁 OO을 OO님에게 줄까요? [주기] [취소]" → GiveService Offer. The other player: "🎁 OO님이 OO을 주려고 해요 [받기 (15)] [괜찮아요]" with a countdown; both get a line at the top middle (받았어요 / 이번엔 받지 않았어요 / 전하지 못했어요). A whole 친구바 tapped on someone is still shared (D-1357); a snack tapped on a player is not bitten (SnackController), a drink / sparkler is not used on that press (ManualActivationOnly during it).
+- GiveService (server): Offer checks the held tool and the distance (16), one open offer per giver, 15 s; Respond (accept) checks the giver still has it and is within 40, then hands it over the bag's way (BagService.collect / give, D-790): the giver's list with and without the tool → the one entry → made again for the receiver by its own service (bites, cups, sparkler count kept), the giver's tool destroyed; if the receiver's copy is not made, the giver gets it back.
+- Giveable: snacks (Snack), plates (Plate), club bottles / cups, sparklers, sparkler bucket sets, hand sparklers. Not: 알바 order cups, lit sparklers, a cup while drinking, the glowstick, photos.
