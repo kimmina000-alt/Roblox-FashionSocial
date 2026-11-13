@@ -141,9 +141,13 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 		return require(script.Parent.Services.GuardService).Carry(player, payload)
 	elseif action == "GuardDrop" then
 		return require(script.Parent.Services.GuardService).Drop(player)
-	elseif action == "HideName" or action == "HideTitle" then
+	elseif action == "HideName" then
 		-- (D-1377) the ☰ menu's switches
-		return require(script.Parent.Services.PlayerPrefsService).Set(player, action, payload == true)
+		return require(script.Parent.Services.PlayerPrefsService).SetName(player, payload == true)
+	elseif action == "HideBadge" then
+		-- (D-1378) one badge's 숨기기: payload { role, on }
+		if typeof(payload) ~= "table" then return false, nil end
+		return require(script.Parent.Services.PlayerPrefsService).SetBadge(player, payload.role, payload.on == true)
 	elseif action == "GuardCuff" or action == "GuardOut" then
 		return require(script.Parent.Services.GuardService).Cuff(player, payload)
 	end

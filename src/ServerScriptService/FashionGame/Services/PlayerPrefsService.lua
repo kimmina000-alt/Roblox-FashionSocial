@@ -1,28 +1,43 @@
 --!strict
--- (D-1377, user 2026-11-13: "메뉴 버튼 안에 닉네임 숨기기 칭호 숨기기 기부하기 버튼 넣기")
--- The ☰ menu's two switches, kept in the player's saved data (wallet.hideName /
--- wallet.hideTitle) and shown as player attributes HideName / HideTitle:
---   HideName   the name tag over the head (nickname + XP) is not drawn for anyone
---              (NameTagService)
---   HideTitle  the FOUNDING MEMBER title badge is not shown (NameTagService); the role
---              badges (알바생 / GUARD / VIP / DJ) stay
--- ClubShop remote actions "HideName" / "HideTitle" with true / false (ServerMain).
+-- (D-1377, user 2026-11-13: "메뉴 버튼 안에 닉네임 숨기기 칭호 숨기기 기부하기 버튼 넣기";
+-- D-1378: "각각 다 선택해서 숨길 수 있게 해 줘") The ☰ menu's switches, kept in the
+-- player's saved data and shown as player attributes:
+--   HideName            wallet.hideName: the name tag over the head (nickname + XP) is not
+--                       drawn for anyone (NameTagService)
+--   HideBadge_<role>    wallet.hideBadges[role]: that badge over the head is not shown
+--                       (NameTagService); roles Founding (FOUNDING MEMBER), Staff (알바생),
+--                       GUARD, VIP, DJ
+-- ClubShop remote actions "HideName" (true / false) and "HideBadge" ({ role, on }) (ServerMain).
 
 local Players = game:GetService("Players")
 
 local PlayerPrefsService = {}
 
-local KEYS = { HideName = "hideName", HideTitle = "hideTitle" }
+PlayerPrefsService.Badges = { "Founding", "Staff", "GUARD", "VIP", "DJ" }
+local isBadge: {[string]: boolean} = {}
+for _, role in ipairs(PlayerPrefsService.Badges) do isBadge[role] = true end
+
 local data: any = nil
 
-function PlayerPrefsService.Set(player: Player, attribute: string, on: boolean): (boolean, any)
-	local key = KEYS[attribute]
-	if not key or not data then return false, nil end
+function PlayerPrefsService.SetName(player: Player, on: boolean): (boolean, any)
+	if not data then return false, nil end
 	local wallet = data.Wallet(player)
 	if not wallet then return false, nil end
-	wallet[key] = if on then true else nil
+	wallet.hideName = if on then true else nil
 	data.MarkDirty(player)
-	player:SetAttribute(attribute, if on then true else nil)
+	player:SetAttribute("HideName", if on then true else nil)
+	return true, on
+end
+
+function PlayerPrefsService.SetBadge(player: Player, role: any, on: boolean): (boolean, any)
+	if not data or typeof(role) ~= "string" or not isBadge[role] then return false, nil end
+	local wallet = data.Wallet(player)
+	if not wallet then return false, nil end
+	local hidden = wallet.hideBadges or {}
+	hidden[role] = if on then true else nil
+	wallet.hideBadges = if next(hidden) then hidden else nil
+	data.MarkDirty(player)
+	player:SetAttribute("HideBadge_" .. role, if on then true else nil)
 	return true, on
 end
 
@@ -32,8 +47,10 @@ function PlayerPrefsService.Start(playerData: any)
 		task.spawn(function()
 			local wallet = data.Wallet(player) -- (waits for the player's data)
 			if not player.Parent or not wallet then return end
-			for attribute, key in pairs(KEYS) do
-				player:SetAttribute(attribute, if wallet[key] == true then true else nil)
+			player:SetAttribute("HideName", if wallet.hideName == true then true else nil)
+			local hidden = wallet.hideBadges or {}
+			for _, role in ipairs(PlayerPrefsService.Badges) do
+				player:SetAttribute("HideBadge_" .. role, if hidden[role] == true then true else nil)
 			end
 		end)
 	end

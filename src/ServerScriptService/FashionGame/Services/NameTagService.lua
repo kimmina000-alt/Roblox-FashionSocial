@@ -146,12 +146,16 @@ local function refreshRoles(player: Player)
 	local djing = character:GetAttribute("Djing")
 	local cafeJob = character:GetAttribute("CafeJob")
 	local on = {
-		Founding = player:GetAttribute("Title_Founding") == true and player:GetAttribute("HideTitle") ~= true, -- (D-1377: ☰ 칭호 숨기기)
+		Founding = player:GetAttribute("Title_Founding") == true,
 		Staff = cafeJob ~= nil and cafeJob ~= false and cafeJob ~= "",
 		GUARD = player:GetAttribute("Pass_Guard") == true,
 		VIP = player:GetAttribute("Pass_VIP") == true,
 		DJ = (djing ~= nil and djing ~= false) or FashionGame:GetAttribute("ClubDJ") == player.UserId,
 	}
+	-- (D-1378) each badge the player hid in the ☰ menu (attribute HideBadge_<role>)
+	for role in pairs(on) do
+		if player:GetAttribute("HideBadge_" .. role) == true then on[role] = false end
+	end
 	local tag = head:FindFirstChild(ROLE_TAG)
 	if not (on.Founding or on.Staff or on.GUARD or on.VIP or on.DJ) then
 		if tag then tag:Destroy() end
@@ -245,7 +249,10 @@ function NameTagService.StartRoles()
 		player:GetAttributeChangedSignal("Pass_VIP"):Connect(function() refreshRoles(player) end)
 		player:GetAttributeChangedSignal("Pass_Guard"):Connect(function() refreshRoles(player) end)
 		player:GetAttributeChangedSignal("Title_Founding"):Connect(function() refreshRoles(player) end) -- (D-1366)
-		player:GetAttributeChangedSignal("HideTitle"):Connect(function() refreshRoles(player) end) -- (D-1377)
+		-- (D-1378) each badge's 숨기기 in the ☰ menu
+		for _, role in ipairs({ "Founding", "Staff", "GUARD", "VIP", "DJ" }) do
+			player:GetAttributeChangedSignal("HideBadge_" .. role):Connect(function() refreshRoles(player) end)
+		end
 	end
 	for _, player in ipairs(Players:GetPlayers()) do watch(player) end
 	Players.PlayerAdded:Connect(watch)
