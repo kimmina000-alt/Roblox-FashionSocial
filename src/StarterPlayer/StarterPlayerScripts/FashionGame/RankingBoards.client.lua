@@ -6,7 +6,7 @@
 --              scrolls by; a new gift shows "○○님 후원 감사합니다!" for a while
 --   todayBand  the corner screen on the tower over OH24: ad → supporter's avatar + id → @id + message → avatar + id, for the latest supporters (D-294, D-777)
 --   support / level   the two boards in the park (user 2026-10-30): 기부 순위표
---              and 레벨 순위표, top 50 each, on a see-through LED pane with a
+--              and 레벨 순위표, top 100 each (50 until D-1376), on a see-through LED pane with a
 --              neon edge; the list scrolls by itself (and by hand)
 
 local Players = game:GetService("Players")
@@ -21,8 +21,8 @@ local ClubNotify = FashionGame:WaitForChild("Remotes"):WaitForChild("ClubNotify"
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 
 local TITLES = {
-	support = { "💝", "기부 순위표", "상위 50 플레이어" },
-	level = { "⭐", "레벨 순위표", "상위 50 플레이어" },
+	support = { "💝", "기부 순위표", "상위 100 플레이어" }, -- (100 since D-1376)
+	level = { "⭐", "레벨 순위표", "상위 100 플레이어" },
 }
 local GOLD = Color3.fromRGB(255, 214, 110)
 local PINK = Color3.fromRGB(255, 110, 180)
@@ -165,7 +165,7 @@ local function buildList(part: BasePart, board: string)
 	scroll.CanvasSize = UDim2.new()
 	scroll.Parent = main
 	local rows = {}
-	for i = 1, 50 do
+	for i = 1, 100 do -- (D-1376: top 100)
 		local row = Instance.new("Frame")
 		row.Position = UDim2.fromOffset(0, (i - 1) * ROW_H)
 		row.Size = UDim2.new(1, -14, 0, ROW_H - 4)

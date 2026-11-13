@@ -28,7 +28,7 @@ local RankingService = {}
 -- (user 2026-10-30) the park boards are 레벨 순위표 (XP) and 기부 순위표
 -- (supporter gifts), top 50 each; 큰손 and play time are no longer shown
 -- (still counted: play time gates voting)
-local TOP = 50
+local TOP = 100 -- (50 until D-1376, user 2026-11-13: "순위표 100명까지 표기")
 local REFRESH_SECONDS = 60
 local PLAY_FLUSH_MINUTES = 5
 
@@ -109,8 +109,9 @@ local hidden: {[number]: boolean} = {}
 -- 이 둘은 물음표로도 두지 말고") arallll added (arrrrall was a misspelling, kept);
 -- their account ids written down too, so a failed name look-up can never show
 -- them as a "?" row
-local EXCLUDED_NAMES = { kr_ohu = true, arallll = true, arrrrall = true }
-local excluded: {[number]: boolean} = { [11886390086] = true, [438214973] = true, [11931560912] = true }
+-- (D-1376, user 2026-11-13: "순위표에서 Vantablack_Dev 삭제") the game's own account too
+local EXCLUDED_NAMES = { kr_ohu = true, arallll = true, arrrrall = true, vantablack_dev = true }
+local excluded: {[number]: boolean} = { [11886390086] = true, [438214973] = true, [11931560912] = true, [11887382096] = true }
 task.spawn(function()
 	for name in pairs(EXCLUDED_NAMES) do
 		local ok, id = pcall(function() return Players:GetUserIdFromNameAsync(name) end)
@@ -192,13 +193,24 @@ local function top(board: Board): {{ name: string, value: number, id: number }}
 	local merged: {[number]: number} = {}
 	local store = ordered(board)
 	if store then
+		-- (D-1376) a page holds at most 100: the next page too, so the hidden accounts
+		-- left out still leave 100 rows
 		local ok, pages = pcall(function()
-			return (store :: OrderedDataStore):GetSortedAsync(false, TOP + 5)
+			return (store :: OrderedDataStore):GetSortedAsync(false, 100)
 		end)
 		if ok and pages then
 			for _, entry in ipairs((pages :: DataStorePages):GetCurrentPage()) do
 				local id = tonumber(entry.key)
 				if id then merged[id] = entry.value end
+			end
+			if not (pages :: DataStorePages).IsFinished then
+				local more = pcall(function() (pages :: DataStorePages):AdvanceToNextPageAsync() end)
+				if more then
+					for _, entry in ipairs((pages :: DataStorePages):GetCurrentPage()) do
+						local id = tonumber(entry.key)
+						if id then merged[id] = entry.value end
+					end
+				end
 			end
 		end
 	end
