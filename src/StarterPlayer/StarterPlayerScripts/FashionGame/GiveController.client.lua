@@ -1,8 +1,10 @@
 --!strict
 -- (D-1396, user 2026-11-14: "다른 사람한테 아이템 주는 기능") With an item in the hand, a tap /
--- click on another player near you asks "🎁 OO을 OO님에게 줄까요? [주기] [취소]"; 주기 sends
--- the offer (GiveService). The other player gets "OO님이 OO을 주려고 해요 [받기] [괜찮아요]"
--- with a countdown; both see how it ended at the top middle.
+-- click on another player near you opens their player card (DanceController) with 🎁 OO 주기
+-- (D-1403, user: one card with the profile, 같이 추기 and the guard's 들기 / 수갑; it was a window
+-- of its own here before); that button (UiBus.GiveTo) sends the offer (GiveService). The other
+-- player gets "OO님이 OO을 주려고 해요 [받기] [괜찮아요]" with a countdown; both see how it ended
+-- at the top middle.
 -- A whole 친구바 tapped on someone is still shared (D-1357), not given. A held drink or
 -- sparkler does not sip / light on that tap (ManualActivationOnly while the press is on a
 -- player).
@@ -16,32 +18,12 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Remotes = FashionGame:WaitForChild("Remotes")
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
 local Popups = require(script.Parent:WaitForChild("Popups"))
-local Hotbar = require(script.Parent:WaitForChild("Hotbar"))
+local GiveItem = require(script.Parent:WaitForChild("GiveItem"))
+local UiBus = require(script.Parent:WaitForChild("UiBus"))
 
-local REACH = 16
-local KINDS = { "Snack", "Plate", "Bottle", "Cup", "Sparkler", "SparklerSet", "HandSparkler" }
-
-local function giveable(tool: Instance?): boolean
-	if not tool or not tool:IsA("Tool") then return false end
-	if tool:GetAttribute("CafeOrder") or tool:GetAttribute("Lit") or tool:GetAttribute("Drinking") then return false end
-	if tool:GetAttribute("Pair") then return false end -- (a whole 친구바: tapping someone shares it)
-	for _, k in ipairs(KINDS) do
-		if tool:GetAttribute(k) ~= nil then return true end
-	end
-	return false
-end
-
-local function heldTool(): Tool?
-	local character = player.Character
-	local tool = character and character:FindFirstChildOfClass("Tool")
-	return if tool and giveable(tool) then tool else nil
-end
-
--- the item's name without its emoji, and 을 / 를 after it
-local function itemName(raw: string): string
-	local _, name = Hotbar.split(raw)
-	return if name ~= "" then name else raw
-end
+local heldTool = GiveItem.heldTool
+local itemName = GiveItem.itemName
+-- 을 / 를 after a name
 local function object(name: string): string
 	local last = utf8.codepoint(name, utf8.offset(name, -1) or 1)
 	return name .. (if last >= 0xAC00 and last <= 0xD7A3 and (last - 0xAC00) % 28 ~= 0 then "을" else "를")
@@ -66,11 +48,6 @@ local function otherAt(screen: Vector2): Player?
 		end
 	end
 	return nil
-end
-local function near(other: Player): boolean
-	local a = player.Character and player.Character:FindFirstChild("HumanoidRootPart")
-	local b = other.Character and other.Character:FindFirstChild("HumanoidRootPart")
-	return a ~= nil and b ~= nil and ((a :: BasePart).Position - (b :: BasePart).Position).Magnitude <= REACH
 end
 
 --------------------------------------------------------------------- the window
@@ -167,13 +144,13 @@ local function ask(action: string, a: any, b: any)
 	return ok and done
 end
 
-local function offerTo(other: Player, tool: Tool)
-	local name = itemName(tool.Name)
-	show(("🎁 %s %s님에게 줄까요?"):format(object(name), other.DisplayName), "주기", "취소", function()
-		if heldTool() ~= tool then toast("줄 아이템을 손에 들어 주세요.") return end
-		if ask("Offer", other) then toast(("%s님에게 물어봤어요…"):format(other.DisplayName)) end
-	end, function() end)
-end
+-- (D-1403) the player card's 🎁 주기 (DanceController): the card was the question, so the offer goes now
+UiBus.GiveTo.Event:Connect(function(other: any, tool: any)
+	if typeof(other) ~= "Instance" or not other:IsA("Player") then return end
+	if heldTool() ~= tool then toast("줄 아이템을 손에 들어 주세요.") return end
+	if not GiveItem.near(other) then toast("더 가까이 가서 눌러 주세요.") return end
+	if ask("Offer", other) then toast(("%s님에게 물어봤어요…"):format(other.DisplayName)) end
+end)
 
 local incoming: string? = nil
 event.OnClientEvent:Connect(function(kind: any, a: any, b: any, c: any, d: any)
@@ -215,49 +192,24 @@ event.OnClientEvent:Connect(function(kind: any, a: any, b: any, c: any, d: any)
 end)
 
 --------------------------------------------------------------------- the tap
-type Press = { input: InputObject, at: number, start: Vector2, other: Player?, tool: Tool?, manual: boolean? }
-local press: Press? = nil
-local function pointOf(input: InputObject): Vector2
-	return if input.UserInputType == Enum.UserInputType.Touch then Vector2.new(input.Position.X, input.Position.Y) else UserInputService:GetMouseLocation()
-end
-local function letGo(p: Press)
-	-- (the tool's own click comes back a moment later, after this press)
-	local tool = p.tool
-	if tool and p.manual ~= nil then
-		local before = p.manual
-		task.delay(0.1, function() if tool.Parent then tool.ManualActivationOnly = before :: boolean end end)
-	end
-end
-
+-- (the tap itself opens the player card, DanceController; here only: a held drink or sparkler
+-- is not used by a press on another player)
+local pressed: {[InputObject]: { tool: Tool, manual: boolean }} = {}
 UserInputService.InputBegan:Connect(function(input, processed)
 	if processed then return end
 	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
 	local tool = heldTool()
 	if not tool then return end
-	local screen = pointOf(input)
-	local other = otherAt(screen)
-	local p: Press = { input = input, at = os.clock(), start = screen, other = other, tool = tool }
-	if other then
-		-- (a press on a player with a drink or sparkler: no sip / light this time)
-		p.manual = tool.ManualActivationOnly
+	local screen = if input.UserInputType == Enum.UserInputType.Touch then Vector2.new(input.Position.X, input.Position.Y) else UserInputService:GetMouseLocation()
+	if otherAt(screen) then
+		pressed[input] = { tool = tool, manual = tool.ManualActivationOnly }
 		tool.ManualActivationOnly = true
 	end
-	press = p
-end)
-UserInputService.InputChanged:Connect(function(input)
-	local p = press
-	if not p then return end
-	if input ~= p.input and input.UserInputType ~= Enum.UserInputType.MouseMovement then return end
-	if (pointOf(input) - p.start).Magnitude > 14 then p.other = nil end
 end)
 UserInputService.InputEnded:Connect(function(input)
-	local p = press
-	if not p or input ~= p.input then return end
-	press = nil
-	letGo(p)
-	local other, tool = p.other, p.tool
-	if not other or not tool or os.clock() - p.at > 0.5 then return end
-	if heldTool() ~= tool or other.Parent ~= Players then return end
-	if not near(other) then toast("더 가까이 가서 눌러 주세요.") return end
-	offerTo(other, tool)
+	local p = pressed[input]
+	if not p then return end
+	pressed[input] = nil
+	-- (the tool's own click comes back a moment later, after this press)
+	task.delay(0.1, function() if p.tool.Parent then p.tool.ManualActivationOnly = p.manual end end)
 end)

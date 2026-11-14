@@ -18,5 +18,7 @@ UiBus.ChoreoPhrase = Instance.new("BindableEvent")
 UiBus.StartTour = Instance.new("BindableEvent")
 -- (D-1377) the ☰ menu's 기부하기: the 💝 supporter window (BannerController)
 UiBus.OpenSupport = Instance.new("BindableEvent")
+-- (D-1403) the player card's 🎁 주기: give the item in my hand to (player, tool) (GiveController)
+UiBus.GiveTo = Instance.new("BindableEvent")
 
 return UiBus

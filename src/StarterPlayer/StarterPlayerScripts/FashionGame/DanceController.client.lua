@@ -422,7 +422,7 @@ local syncLeave = button({
 	TextSize = 14,
 }, syncPill, 13)
 
--- Player card (tap/click a player in the club)
+-- Player card (tap/click a player in the club; D-1403: near anyone with an item to give)
 local playerCard = create("Frame", {
 	Name = "PlayerCard",
 	AnchorPoint = Vector2.new(0.5, 0),
@@ -532,6 +532,18 @@ local cardCuff = button({
 }, cardGuard, 10)
 create("UIStroke", { Color = Color3.fromRGB(220, 20, 35), Thickness = 1.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, cardCuff)
 local GUARD_REACH = 12 -- (GuardService.Reach)
+-- (D-1403, user 2026-11-14: "클럽에서 다른 사람 누르면 ... 아이템 들고 누르면 아이템 주기 버튼 추가")
+-- with an item in the hand (GiveItem): give it to this player (GiveController sends the offer;
+-- the other one still accepts). Anywhere near, like the guard's buttons.
+local cardGive = button({
+	Name = "GiveButton",
+	Size = UDim2.new(1, -20, 0, 34),
+	BackgroundColor3 = Color3.fromRGB(255, 110, 170),
+	Text = "🎁 주기",
+	TextSize = 15,
+	ZIndex = 6,
+	Visible = false,
+}, playerCard, 10)
 
 local function topY(): number
 	return require(script.Parent:WaitForChild("TopBar")).bottom() + 6
@@ -1114,7 +1126,10 @@ local function refreshCard()
 	if not target then return end
 	local character = target.Character
 	local bothIn = character ~= nil and inClub(character) and inClub(player.Character)
-	if not target.Parent or not character or not (bothIn or guardNear(target)) then
+	local GiveItem = require(script.Parent:WaitForChild("GiveItem"))
+	local held = GiveItem.heldTool()
+	local canGive = held ~= nil and GiveItem.near(target)
+	if not target.Parent or not character or not (bothIn or guardNear(target) or canGive) then
 		closeCard()
 		return
 	end
@@ -1135,6 +1150,12 @@ local function refreshCard()
 	if amDJ then cardInvite.Position = UDim2.fromOffset(10, y) y += 40 end
 	cardGuard.Position = UDim2.fromOffset(10, y)
 	if amGuard then y += 40 end
+	cardGive.Visible = canGive
+	if held and canGive then
+		cardGive.Position = UDim2.fromOffset(10, y)
+		cardGive.Text = "🎁 " .. GiveItem.itemName(held.Name) .. " 주기"
+		y += 40
+	end
 	playerCard.Size = UDim2.fromOffset(playerCard.Size.X.Offset, y + 4)
 	cardCarry.Text = if player:GetAttribute("Carrying") == target.UserId then "내려놓기" else "들기"
 	if amDJ then
@@ -1189,6 +1210,12 @@ cardCarry.MouseButton1Click:Connect(function()
 	guardAction(if target and player:GetAttribute("Carrying") == target.UserId then "GuardDrop" else "GuardCarry")
 end)
 cardCuff.MouseButton1Click:Connect(function() guardAction("GuardCuff") end)
+cardGive.MouseButton1Click:Connect(function()
+	local target = cardTarget
+	local held = require(script.Parent:WaitForChild("GiveItem")).heldTool()
+	if target and held then require(script.Parent:WaitForChild("UiBus")).GiveTo:Fire(target, held) end
+	closeCard()
+end)
 cardJoin.MouseButton1Click:Connect(function()
 	local target = cardTarget
 	if not target then return end
@@ -1256,9 +1283,11 @@ UserInputService.InputEnded:Connect(function(input, processed)
 	local position = Vector2.new(input.Position.X, input.Position.Y)
 	if (position - press.position).Magnitude > 12 or os.clock() - press.time > 0.45 then return end
 	local here = inClub(player.Character)
-	if not here and player:GetAttribute("Pass_Guard") ~= true then return end
+	local GiveItem = require(script.Parent:WaitForChild("GiveItem"))
+	local holding = GiveItem.heldTool() ~= nil -- (D-1403: an item to give opens the card anywhere near)
+	if not here and player:GetAttribute("Pass_Guard") ~= true and not holding then return end
 	local target = playerAt(position)
-	if target and ((here and inClub(target.Character)) or guardNear(target)) then
+	if target and ((here and inClub(target.Character)) or guardNear(target) or (holding and GiveItem.near(target))) then
 		openCard(target)
 	elseif playerCard.Visible then
 		closeCard()
@@ -1279,7 +1308,7 @@ task.spawn(function()
 		local here = inClub(player.Character)
 		if here ~= wasInClub then
 			wasInClub = here
-			if not here and not (cardTarget and guardNear(cardTarget)) then closeCard() end
+			if not here and not (cardTarget and (guardNear(cardTarget) or require(script.Parent:WaitForChild("GiveItem")).heldTool())) then closeCard() end
 		end
 		if playerCard.Visible then refreshCard() end
 	end
