@@ -5,8 +5,8 @@
 -- x -277.5..-206.5, z -399..-292.4, its east rail at x -206.5), stainless fences only:
 --   - ENTRANCE: a corridor from the park's front (x -128, between the gate and the hall) west
 --     along z -292.5..-302 (where the playground stood; park_playground_1114 moves it north)
---   - two switchback lanes 5 studs wide by the hall: in at the south end of the east lane
---     (x -200..-195), north to z -372, back south in the west lane (x -205..-200) to the
+--   - two switchback lanes as wide as the corridor (9.5, D-1409) by the hall: in at the south
+--     end of the east lane, north, back south in the west lane to the
 --     boarding gap in the hall's east rail at z -304..-300 (clear of the hall's corner post)
 --   - EXIT: a gap in the hall's east rail at z -392..-388 (clear of the corner post), out east
 --     along the playground's south
@@ -64,11 +64,16 @@ local function fence(ax: number, az: number, bx: number, bz: number)
 	part("QueueBlocker", Vector3.new(0.4, 7, len), along + Vector3.new(0, G + 3.5, 0), STEEL, { collide = true, t = 1 })
 end
 
+-- (D-1409, user: "웨이팅 줄 간격 입구 간격이랑 동일하게") every lane as wide as the corridor
+-- (9.5): west lane x -205.15..-195.7 (from the hall rail's face), east lane x -195.7..-186.2,
+-- the turn at the north end 9.5 too
+local W = 9.5
+local XD, XO = -205.15 + W, -205.15 + 2 * W -- the divider and the east lane's outer side
 fence(-206.2, -292.5, -128, -292.5) -- the lanes' south ends + the corridor's south side
-fence(-195, -302, -128, -302) -- the corridor's north side
-fence(-200, -292.5, -200, -372) -- between the lanes (turn at the north end)
-fence(-195, -302, -195, -376) -- the east lane's outer side
-fence(-206.2, -376, -195, -376) -- north end
+fence(XO, -292.5 - W, -128, -292.5 - W) -- the corridor's north side
+fence(XD, -292.5, XD, -376 + W) -- between the lanes (turn at the north end)
+fence(XO, -292.5 - W, XO, -376) -- the east lane's outer side
+fence(-206.2, -376, XO, -376) -- north end
 
 ------------------------------------------------------------------ the hall's east rail: two gaps
 local blockout = layout:FindFirstChild("ParkBlockout")
