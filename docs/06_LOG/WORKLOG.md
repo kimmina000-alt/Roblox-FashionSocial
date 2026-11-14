@@ -3975,3 +3975,6 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-14 Merge: giving items, BANG stage camera, day-14 title, Earl Grey sip
 - 2P test (Player1 / Player2): Player1 bought 얼그레이 티 at the beach cafe (sip = 102811247160851), clicked Player2 → "🎁 얼그레이 티를 Player2님에게 줄까요?" (no sip on that click, bites 3 kept) → 주기 → Player2 "Player1님이 얼그레이 티를 주려고 해요 [받기 (15)]"; the first try ran out (background window too slow, both got the expired notes), the second 받기 worked: the tea in Player2's bag (bites 3, same sip), gone from Player1, Player1 saw "Player2님이 얼그레이 티를 받았어요!". BANG-After School played by Player1 (DJ): Player2 with 🎥 on follows the choreography and the camera films the stage (Scriptable, FOV 49), back to Custom when off. Day 14 card checked in single Play (Korean and Lang = en). No script errors on the server or either client.
 - Merged feat/give-item-1114, feat/stage-camera-bang-1114, fix/sip-badge-1114 into catalog-ui-redesign.
+
+## 2026-11-14 BANG 7 · 11 · 16번 (D-1399)
+- 사용자가 다시 올린 7 · 11 · 16번 id로 빈자리 채움(이음새 blend, 미끄러짐, 11번 회전, 정면 7 · 16, 16번 손목). 자세한 숫자: DECISIONS D-1399.

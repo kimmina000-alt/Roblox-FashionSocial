@@ -4697,3 +4697,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1398 Earl Grey tea: the americano's sip (2026-11-14)
 - User: "얼그레이티 마시는 소리 안 남 아메리카노 마시는 소리로 넣어 다른 거 또 소리 없는 거 있나". The tea used the default cup gulp 9114171855 (0.9 s, quiet): it played (checked in Play), but was hardly heard. SnackService SIP_SOUND.tea = 102811247160851 (iced americano's sip).
 - Every snack / drink sound was loaded in Play: all play. Still on the same short gulp: smoothie, bluelemonade, barleytea, sikhye, yuja, omija, greentea (cups) and bananamilk, can_cider / can_cola / can_orange / can_lemonade / can_blueade (bottles): asked the user.
+
+## D-1399 BANG 7 · 11 · 16번 다시 올린 것 채움 (2026-11-14)
+- 사용자: "7:117412778868520 11:122763589970816 16:73314859778019"(D-1394에서 복사본이던 세 클립). 셋 다 Vantablack_Dev, 길이 11.13 / 10.70 / 10.90초(클립 ±0.05), 6 · 10 · 15번과 키프레임이 다름.
+- `at` 78.68 / 123.51 / 186.85(클립 시작 + 0.85). 이음새: 7 blend 0.8(정면 39°, 왼팔 72°), 16 blend 0.64(정면 77°), 11 · 12는 0.25(기본)로 충분 → 12의 blend 1(기본 춤에서 들어올 때 값) 뺌.
+- 미끄러짐(slide_check + DRIFT) → ChoreoSlideStill 7 · 11 · 16. 11번: 캡처가 4.5-4.9초에 앞으로 돌았다가 5.0초에 한 키로 150° 되돌아감(다른 멤버가 앞을 지나감, occlusion 4.45-5.10) → `spin` 4.4-6.3 한 번의 고른 회전.
+- 정면(faceoffset, 캡처 엉덩이 방향 0.1초마다 = capyaw와 같은 값 확인: 6번 일치): 7 +9, 16 +6, 11은 3이라 없음.
+- 고개: 7 · 11 · 16 모두 0.2초 연속 2점 이상인 구간 없음(11은 가려진 구간) → 없음. 손목: 16 오른손 1.5-1.7초 영상 −25 / −27, 캡처 +10 → z −28 / −29. 7은 연속 구간 없음, 11은 가려진 구간뿐이라 뺌.
