@@ -500,7 +500,13 @@ function ChoreoSmooth.pose(animationId: string, t: number): ({[string]: CFrame}?
 	end
 	if t < keys[1].t then b = a elseif t > keys[#keys].t then a = b end
 	local k = if b.t > a.t then (t - a.t) / (b.t - a.t) else 0
-	k = k * k * (3 - 2 * k)
+	-- (D-1400, user: BANG 2:14 "오른팔 들썩거리는 거 잡아 … 서로 교차되는 느낌으로. 둥글게") a key's `curve` shapes the stretch
+	-- to the next key: "linear" passes through without the stop every eased key has, "in" starts slowly and leaves at
+	-- speed, "out" arrives at speed and settles; nil = eased at both ends
+	local curve = a.curve
+	if curve == "in" then k = k * k
+	elseif curve == "out" then k = 1 - (1 - k) * (1 - k)
+	elseif curve ~= "linear" then k = k * k * (3 - 2 * k) end
 	local set = {}
 	for part, value in pairs(a.set or {}) do
 		set[part] = angles(value):Lerp(angles((b.set or {})[part] or value), k)

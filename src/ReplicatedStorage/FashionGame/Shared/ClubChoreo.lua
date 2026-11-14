@@ -73,6 +73,8 @@ M.ChoreoDriftReturn = 8 :: number?
 --     eased between keys), `add` turns added on top, easing in and out over
 --     `ease` s (D-855); a list of such poses for different stretches, and keys
 --     with their own `add` turns (eased between keys), D-860
+--     a key's `curve` = "linear" | "in" | "out" shapes the stretch to the next key (nil: eased at both ends,
+--     so the joints stop at every key), D-1400
 --   (steady without `parts` = the whole body, D-852)
 -- (D-1068) Lemonade 2:16 side sit (the user's photo mirrored): set by 16 and held into 17's start
 M.LemonadeSideSit = {
@@ -176,10 +178,12 @@ M.ChoreoFixes = {
 	-- now both arms go down at the end of 11 and stay down (the window starts before 0 so 12 opens at full weight) until the
 	-- left arm rises at 135.0
 	[114991184702089] = { pose = { { from = -0.5, to = 3.6, ease = 0.45, keys = {
-			{ t = 0, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
-			{ t = 0.5, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
-			{ t = 0.75, set = { LeftUpperArm = { 40, 0, -60 }, LeftLowerArm = { 60, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } }, -- (up through the side: straight from down took a long way round)
-			{ t = 0.95, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			-- (D-1400 4th) the arms cross: the right comes down round the side while the left goes up round the side, without
+			-- stopping at the keys (`curve`: in at 11's raised arm, linear through the cross, out at the top)
+			{ t = 0, curve = "linear", set = { RightUpperArm = { 40, 0, 60 }, RightLowerArm = { 60, 0, 0 }, LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 } } },
+			{ t = 0.3, curve = "linear", set = { RightUpperArm = { 20, 0, 35 }, RightLowerArm = { 35, 0, 0 }, LeftUpperArm = { 20, 0, -35 }, LeftLowerArm = { 35, 0, 0 } } },
+			{ t = 0.6, curve = "out", set = { RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 }, LeftUpperArm = { 40, 0, -60 }, LeftLowerArm = { 60, 0, 0 } } },
+			{ t = 0.95, set = { RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 }, LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 } } },
 			{ t = 1.3, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
 			{ t = 1.6, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
 			{ t = 1.9, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
@@ -200,9 +204,11 @@ M.ChoreoFixes = {
 	-- front) and turns again at 5.4-6.2 → one even turn 4.4-6.3
 	[122763589970816] = { spin = { from = 4.4, to = 6.3, ease = "both" }, -- BANG 11
 		-- (D-1400 3rd) both arms down from song 133.66 into 12 (the window runs past the end, so it holds at full weight)
-		-- (the right arm held up, solved overhead, then lowered over 0.55 s: the capture dropped it in 0.15 s, 1.1 stud a frame)
-		pose = { from = 9.7, to = 11.5, ease = 0.35, keys = { { t = 10.05, set = { RightUpperArm = { 110, 70, 40 }, RightLowerArm = { 40, 0, 0 } } },
-			{ t = 10.6, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } } } } },
+		-- (D-1400 4th, user: "2:14 오른팔 들썩거리는 거 잡아 / 오른쪽 들고 왼팔 들 때 오른팔 내리는 중간부터 왼팔 들기 시작해서 서로
+		-- 교차되는 느낌으로. 둥글게.") the right arm held up (solved overhead) to 133.56, then down round the side: at 12's start
+		-- (the seam, 134.21) it is out at the side, where 12's keys take it on
+		pose = { from = 9.7, to = 11.5, ease = 0.35, keys = { { t = 10.05, curve = "in", set = { RightUpperArm = { 110, 70, 40 }, RightLowerArm = { 40, 0, 0 }, LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 } } },
+			{ t = 10.7, set = { RightUpperArm = { 40, 0, 60 }, RightLowerArm = { 60, 0, 0 }, LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 } } } } } },
 	-- (D-1387, user 2026-11-13 + 2 photos: "클럽 댄스 3 처음에 왼팔 들고 있을 때 왼쪽 손목 천천히 돌리기 / 양쪽 팔 둘 다 내릴 때
 	-- 손목 손등쪽으로 꺾기 / 오른쪽팔만 들 때 손목 안쪽으로 세 번 꺾기") the menu dance club3 (ClubDances, 15.43 s loop; menu
 	-- dances take only `bend`, ChoreoController menuBends). Left arm up at the start 0-1.5: one slow circle; both arms
