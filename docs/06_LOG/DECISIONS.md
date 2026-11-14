@@ -4701,3 +4701,5 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: "놀이공원 배치 수정했어 테스트 중에만 놀이공원 문 열어 줘".
 - ParkRideService.Start → openForStudioTest (RunService:IsStudio() only): in Hongdae_Layout.AmusementParkGate the closed gate leaves (frames, stiles, bars, spears, chain, padlock), ParkClosedBlocker, the hoarding behind the gate (panels, posts, braces) and the construction nets round the inside (ParkHoarding) go see-through and walk-through, their signs off; MapBoundary walls across the gate and inside the park (5) walk-through. Only for the running test: the place is unchanged, live servers keep the park closed.
 - Play: walked from the plaza through the gate into the park (to z -339) and west into the widened ground (to -185, -366); the inside shows through the arch. No script errors.
+## D-1405 Studio tests spawn in front of the park gate (2026-11-14)
+- User: "테스트 중에는 놀이공원 문 앞에서 스폰 되게 해". ParkRideService (Studio only, with D-1404): every character in a Studio test is put at the park gate's plaza (-97, 20, -262) facing the gate, 0.2 s after spawning; a multi-player test stands side by side (5 studs apart, 4 a row). Live servers unchanged.

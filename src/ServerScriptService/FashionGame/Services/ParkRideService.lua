@@ -223,6 +223,23 @@ local function openForStudioTest()
 		end
 	end
 	print("[ParkRideService] Studio test: the park gate is open (" .. n .. " closed-gate parts hidden, " .. walls .. " boundary walls passable)")
+	-- (D-1405, user 2026-11-14: "테스트 중에는 놀이공원 문 앞에서 스폰 되게 해") every spawn in a
+	-- Studio test stands in front of the gate, facing it (side by side for a multi-player test)
+	local GATE_FRONT = Vector3.new(-97, 20, -262)
+	local function onCharacter(player: Player, character: Model)
+		local root = character:WaitForChild("HumanoidRootPart", 10)
+		if not root or not character.Parent then return end
+		task.wait(0.2) -- (after the SpawnLocation has placed it)
+		local slot = (table.find(Players:GetPlayers(), player) or 1) - 1
+		local at = GATE_FRONT + Vector3.new((slot % 4 - 1.5) * 5, 0, math.floor(slot / 4) * 5)
+		character:PivotTo(CFrame.lookAt(at, at + Vector3.new(0, 0, -1)))
+	end
+	local function onPlayer(player: Player)
+		player.CharacterAdded:Connect(function(character) onCharacter(player, character) end)
+		if player.Character then task.spawn(onCharacter, player, player.Character) end
+	end
+	Players.PlayerAdded:Connect(onPlayer)
+	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
 end
 
 function ParkRideService.Start()
