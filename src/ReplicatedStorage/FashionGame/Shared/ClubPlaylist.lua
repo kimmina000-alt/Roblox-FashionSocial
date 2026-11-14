@@ -192,7 +192,7 @@ M.Playlist = {
 	-- (D-1122, user 2026-11-10: "캐치캐치 저음 -20으로 수정", then "캐치캐치 중음 -15 고음 -30", then "캐치캐치 중음 -25", then "캐치캐치 저음 -30")
 	-- (D-1363, user 2026-11-13: "캐치캐치는 기존 음원을 아래 음원으로 변경") was 80583279340768, a 3× file of 61.177 s (song 183.53 s);
 	-- the new 171.491 s file = 3 × 61.177 ÷ 171.491 = 1.0702 faster than the song, so `at` and the stage camera keep the song clock
-	{ channel = "K-POP", title = "Catch Catch-YENA", soundId = 119002946047943, length = 171.491, fileSpeed = 1.0702, lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
+	{ channel = "K-POP", title = "Catch Catch-YENA", soundId = 119002946047943, length = 171.491, fileSpeed = 1.0702, lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -6.5, engine = "sound" },
 		-- (D-985, user: "전체적으로 좌우 반전") the pieces come from the mirrored video: danced as their mirror image
 		mirror = true,
 		-- D-968: CatchCatch 1..23 (3, 6, 15, 19, 22 = re-uploads 2026-11-07; the first uploads were copies of the piece before).
@@ -240,7 +240,7 @@ M.Playlist = {
 		{ id = 98315614070332, at = 159.1, blend = 0.61 } }, autoChoreo = true },
 	-- (D-1382, user 2026-11-13: new upload 101586065131501 in place of 132067415333401, a 3× file of 61.897 s (song 185.69 s);
 	-- the new 176.86 s file = 185.69 ÷ 176.86 = 1.0499 faster than the song, so `at` and the stage camera keep the song clock)
-	{ channel = "K-POP", title = "Lemonade-aespa", soundId = 101586065131501, length = 176.86, fileSpeed = 1.0499, lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" },
+	{ channel = "K-POP", title = "Lemonade-aespa", soundId = 101586065131501, length = 176.86, fileSpeed = 1.0499, lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -5, mid = 0, high = -17.5, engine = "sound" },
 		-- (D-992, user: "안무 추면서 이동해도 결국 처음 서 있던 위치를 중심으로 두고 끝나면 돌아오게 … 레모네이드에만 먼저"):
 		-- the travel eases back toward the start in 2.5 s (instead of 8) and the dancer glides home over 1.5 s at the end
 		home = { settle = 2.5, back = 1.5 },
@@ -521,7 +521,7 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -16.5, mid = -17, high = -25, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
 	{ channel = "K-POP", title = "사랑일지도 몰라-이민혁·보라미유", soundId = 108346448346476, length = 229.723, fileSpeed = 1.0491,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -15.5, mid = -5.5, high = -24.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -21, mid = -5.5, high = -27.5, engine = "sound" } },
 	-- (D-1100, user 2026-11-09: the user's new low / mid / high; D-1127: the old "1" entry removed, kept as one)
 	{ channel = "K-POP", title = "푸르른 계절도 내겐 의미 없어요-정승환", soundId = 88022342248077, length = 275.256, fileSpeed = 1.0499,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 5, octave = 1, low = -8.5, mid = -3, high = -24, engine = "sound" } },
@@ -626,21 +626,21 @@ M.Playlist = {
 	-- (D-1362, user 2026-11-13: 4 uploads with the lab values as sent; length = the file's seconds, fileSpeed = 1 / tempo (heard = the song))
 	{ channel = "K-POP", title = "NAGARI-KEYVITUP", soundId = 111437943109567, length = 153.44, fileSpeed = 1.0493,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -12.5, engine = "sound" } },
-	{ channel = "K-POP", title = "MEME-RESCENE", soundId = 97560393166257, length = 172.448, fileSpeed = 1.0493,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -9.5, engine = "sound" } },
+	{ channel = "K-POP", title = "MEME-RESCENE", soundId = 97560393166257, length = 172.448, fileSpeed = 1.0496,
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -1.5, mid = 0, high = -13, engine = "sound" } },
 	{ channel = "K-POP", title = "REBELS-ISEGYE IDOL", soundId = 79547024043593, length = 164.088, fileSpeed = 1.0482,
-		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -8, engine = "sound" } },
-	{ channel = "K-POP", title = "Finest Thing-RESCENE", soundId = 131800112414894, length = 133.375, fileSpeed = 1.0493,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -11.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -11, engine = "sound" } },
+	{ channel = "K-POP", title = "Finest Thing-RESCENE", soundId = 131800112414894, length = 133.375, fileSpeed = 1.0497,
+		lab = { speed = 1, tempo = 1, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -14.5, engine = "sound" } },
 	-- (D-1363, user 2026-11-13: 6 uploads with the lab values as sent; length = the file's seconds, fileSpeed = 1 / tempo)
-	{ channel = "K-POP", title = "미스터-KARA", soundId = 139355618999719, length = 184.435, fileSpeed = 1.0515,
-		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
-	{ channel = "K-POP", title = "Hurricane Venus-BoA", soundId = 91581305396096, length = 181.558, fileSpeed = 1.0515,
-		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
-	{ channel = "K-POP", title = "Magic-Secret", soundId = 124810692241835, length = 194.251, fileSpeed = 1.0504,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "미스터-KARA", soundId = 139355618999719, length = 184.435, fileSpeed = 1.0519,
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -5.5, engine = "sound" } },
+	{ channel = "K-POP", title = "Hurricane Venus-BoA", soundId = 91581305396096, length = 181.558, fileSpeed = 1.052,
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -12, engine = "sound" } },
+	{ channel = "K-POP", title = "Magic-Secret", soundId = 124810692241835, length = 194.251, fileSpeed = 1.0502,
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -15.5, engine = "sound" } },
 	{ channel = "K-POP", title = "BANG-After School", soundId = 136570075901439, length = 189.252, fileSpeed = 1.0515,
-		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -11, engine = "sound" },
 		-- (D-1394, user 2026-11-13: "애프터스쿨 BANG 안무 추가" + 16 ids) practice video Sk8ByISqgwc: song = video + 0.85 s (its sound against the
 		-- original mp3 in 10 s windows, 0.99-1.00 all through), `at` = clip start + 0.85; 7 / 11 / 16 were copies of 6 / 10 / 15 (same keyframes): left out
 		choreo = {
@@ -649,45 +649,45 @@ M.Playlist = {
 			{ id = 91956738526101, at = 89.86, blend = 0.9 }, { id = 71518245203286, at = 99.60, blend = 1 }, { id = 88337047994676, at = 112.85 },
 			{ id = 114991184702089, at = 134.23, blend = 1 }, { id = 133693971779949, at = 147.85, blend = 1 }, { id = 129925869461594, at = 161.84 },
 			{ id = 73991603786553, at = 174.97 } }, autoChoreo = true },
-	{ channel = "K-POP", title = "Hot Issue-4MINUTE", soundId = 124715970373244, length = 205.296, fileSpeed = 1.0526,
-		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
-	{ channel = "K-POP", title = "Abracadabra-Brown Eyed Girls", soundId = 84753987256309, length = 175.124, fileSpeed = 1.0504,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	{ channel = "K-POP", title = "Hot Issue-4MINUTE", soundId = 124715970373244, length = 205.296, fileSpeed = 1.0521,
+		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -14, engine = "sound" } },
+	{ channel = "K-POP", title = "Abracadabra-Brown Eyed Girls", soundId = 84753987256309, length = 175.124, fileSpeed = 1.0507,
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -9, engine = "sound" } },
 	-- (D-1382, user 2026-11-13: 17 uploads as sent, entries with the lab values and fileSpeed; the title "Famous-Allday Project" had a line break inside, removed)
 	{ channel = "K-POP", title = "Focus-Hearts2Hearts", soundId = 100664272955386, length = 165.474, fileSpeed = 1.0515,
-		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -7, engine = "sound" } },
 	{ channel = "K-POP", title = "GO-CORTIS", soundId = 135970560153744, length = 159.467, fileSpeed = 1.0472,
-		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -6, engine = "sound" } },
 	{ channel = "K-POP", title = "Magnetic-ILLIT", soundId = 109036685956565, length = 153.297, fileSpeed = 1.0502,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -16, engine = "sound" } },
 	{ channel = "K-POP", title = "WICKED-ALLDAY PROJECT", soundId = 136800147171244, length = 154.004, fileSpeed = 1.0519,
-		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -9, engine = "sound" } },
 	{ channel = "K-POP", title = "SPAGHETTI-LE SSERAFIM", soundId = 74768868557179, length = 160.981, fileSpeed = 1.0498,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -4, mid = 0, high = -16.5, engine = "sound" } },
 	{ channel = "K-POP", title = "RUDE-Hearts2Hearts", soundId = 70718180522748, length = 186.809, fileSpeed = 1.0492,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -3, mid = 0, high = -20, engine = "sound" } },
 	{ channel = "K-POP", title = "It's Me-ILLIT", soundId = 80492816031335, length = 128.567, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -3.5, mid = 0, high = -17, engine = "sound" } },
 	{ channel = "K-POP", title = "Famous-Allday Project", soundId = 130972741918400, length = 168.747, fileSpeed = 1.0489,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
 	{ channel = "K-POP", title = "Rich Man-aespa", soundId = 103948769129661, length = 187.081, fileSpeed = 1.0477,
-		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.954, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -4, mid = 0, high = -20.5, engine = "sound" } },
 	{ channel = "K-POP", title = "APT.-ROSÉ & Bruno Mars", soundId = 125945363051363, length = 161.899, fileSpeed = 1.05,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -3, mid = 0, high = -16.5, engine = "sound" } },
 	{ channel = "K-POP", title = "toxic till the end-ROSÉ", soundId = 106794728492736, length = 149.228, fileSpeed = 1.0521,
-		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -1.5, mid = 0, high = -22.5, engine = "sound" } },
 	{ channel = "K-POP", title = "YOUNGCREATORCREW-CORTIS", soundId = 110347638399953, length = 168.555, fileSpeed = 1.0501,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -18, engine = "sound" } },
 	{ channel = "K-POP", title = "Hot Girls Cold Vibe-Red Velvet", soundId = 73504070212379, length = 208.583, fileSpeed = 1.0499,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -14, engine = "sound" } },
 	{ channel = "K-POP", title = "Iconic by Mistake-LE SSERAFIM, ILLIT, KATSEYE", soundId = 87223810235707, length = 168.394, fileSpeed = 1.0511,
-		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -2, mid = 0, high = -13.5, engine = "sound" } },
 	{ channel = "K-POP", title = "Heavy Serenade-NMIXX", soundId = 135622277389773, length = 171.486, fileSpeed = 1.0496,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -15, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -25, engine = "sound" } },
 	{ channel = "K-POP", title = "DRIP-BABYMONSTER", soundId = 94601620282158, length = 169.448, fileSpeed = 1.0505,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -5.5, mid = -2, high = -3, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -5.5, mid = -2, high = -14.5, engine = "sound" } },
 	{ channel = "K-POP", title = "SHEESH-BABYMONSTER", soundId = 127479755620167, length = 162.473, fileSpeed = 1.0525,
-		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -15, engine = "sound" } },
 
 } :: {Track}
 
