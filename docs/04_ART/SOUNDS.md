@@ -35,6 +35,7 @@
 | 11h | 자동문 열림·닫힘 (OH24, 오후네컷, 해변 카페, 클럽 입구) | 4496280365 | Automatic Sliding Door (Creator Store) — 닫힐 때는 조금 낮게 | `src/StarterPlayer/StarterPlayerScripts/FashionGame/AutoDoorController.client.lua` `DOOR_SOUND` | |
 | 11i | 버스 타고 도착해서 내릴 때 버스 문 열림 | 103836825296838 | Bs계열 앞문 오픈소리 (Creator Store) | `src/ServerScriptService/FashionGame/Services/SubwayService.lua` (BusDoorSound) | |
 | 11j | 튜브 타고 움직이는 동안 수영 소리 (반복) | 106239090346339 | swimminglp (Creator Store) | `src/StarterPlayer/StarterPlayerScripts/FashionGame/ParkRidesController.client.lua` `paddleSound` | |
+| 11l | 범퍼카끼리·벽에 부딪힐 때 퉁 (새로 넣음, D-1413) | 9117456565 | Plastic Cooler Hits 8 (Pro Sound Effects) — 세게 부딪힐수록 크게 | `src/ReplicatedStorage/FashionGame/Shared/BumperCarConfig.lua` `BumpSoundId` | |
 | 11k | 카페 알바: 음료 만들 때 (작업대에서) | 9113846434 | Coffee Pot 2 (Pro Sound Effects) | `src/ServerScriptService/FashionGame/Services/CafeJobService.lua` `SOUNDS.make` | |
 | 11l | 카페 알바: NPC 손님이 음료 받으면 "감사합니다" (다른 플레이어에게 줄 때는 안 남) | 132794698600617 | 감사합니다 new (Creator Store) | 같은 파일 `SOUNDS.thanks` | |
 | 11m | 카페 알바 시작 (띵, 볼륨 0.3) | 106268193751411 | Bell Ding (Creator Store, DaWaterNinja; 2026-10-30, 전: 79812542038049) | 같은 파일 `SOUNDS.start` | |
