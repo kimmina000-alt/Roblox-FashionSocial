@@ -4703,3 +4703,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Play: walked from the plaza through the gate into the park (to z -339) and west into the widened ground (to -185, -366); the inside shows through the arch. No script errors.
 ## D-1405 Studio tests spawn in front of the park gate (2026-11-14)
 - User: "테스트 중에는 놀이공원 문 앞에서 스폰 되게 해". ParkRideService (Studio only, with D-1404): every character in a Studio test is put at the park gate's plaza (-97, 20, -262) facing the gate, 0.2 s after spawning; a multi-player test stands side by side (5 studs apart, 4 a row). Live servers unchanged.
+## D-1406 Park west wall out to the ground's edge (2026-11-14)
+- User (screenshot, a gray strip between the wall and the sea): "놀이공원 벽을 회색땅 선 끝까지 맞춰서 이동". The park platforms' sea edge is x -298.25 (ParkPlatformNorth / ParkPlatformWest); the west wall stood at x -276.1.
+- Done in the place (one undo step) and as step 5 of tools/graybox/park_expand_1113.lua: the west wall's 5 long pieces (z -1450..-282.5) move 21.35 west (plinth flush with the edge, centre -297.45), the 11 pillars on it (87 pieces, incl. the corner and the user's middle pillar) 20.95 west (bases flush, centre -294.65), and the south wall's 5 pieces grow west to the moved corner pillar. UserMapSnapshot.Models.AmusementParkGate refreshed. Play: the wall stands on the edge over the sea, no gray strip outside.
