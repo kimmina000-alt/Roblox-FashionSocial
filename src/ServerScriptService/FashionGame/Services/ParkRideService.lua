@@ -175,7 +175,58 @@ local function leave(player: Player, home: boolean?): (boolean, any)
 	return true, exit
 end
 
+-- (D-1404, user 2026-11-14: "놀이공원 배치 수정했어 테스트 중에만 놀이공원 문 열어 줘") The park is
+-- closed on live servers (build_hongdae_layout: chained gates, an invisible ParkClosedBlocker,
+-- construction hoarding behind the gate, map boundary walls across and inside it). In a Studio
+-- play test only, the gate is open: those parts are see-through and walk-through (and their
+-- signs off), the boundary walls walk-through, for the length of the test; nothing changes in
+-- the place itself.
+local CLOSED_PARTS = {
+	ParkClosedBlocker = true, GateLeafFrame = true, GateLeafStile = true, GateLeafBar = true,
+	GateLeafSpear = true, GateChain = true, GatePadlock = true,
+	HoardingPanel = true, HoardingPost = true, HoardingBrace = true,
+}
+local function openForStudioTest()
+	if not game:GetService("RunService"):IsStudio() then return end
+	local layout = workspace:FindFirstChild("Hongdae_Layout")
+	local gate = layout and layout:FindFirstChild("AmusementParkGate")
+	if not gate then return end
+	local n = 0
+	for _, d in ipairs(gate:GetDescendants()) do
+		-- (and the construction nets round the inside, ParkHoarding)
+		if d:IsA("BasePart") and (CLOSED_PARTS[d.Name] or (d.Parent and d.Parent.Name == "ParkHoarding")) then
+			d.CanCollide = false
+			d.CanQuery = false
+			d.CanTouch = false
+			d.Transparency = 1
+			for _, g in ipairs(d:GetDescendants()) do
+				if g:IsA("SurfaceGui") or g:IsA("BillboardGui") then g.Enabled = false
+				elseif g:IsA("Decal") or g:IsA("Texture") then g.Transparency = 1 end
+			end
+			n += 1
+		end
+	end
+	-- the map boundary walls across the gate and inside the park (MapBoundary) let people through too
+	local walls = 0
+	local boundary = layout and layout:FindFirstChild("MapBoundary")
+	if boundary then
+		for _, w in ipairs(boundary:GetDescendants()) do
+			if w:IsA("BasePart") then
+				local cf, size = w.CFrame, w.Size
+				local e = (cf.RightVector * size.X):Abs() + (cf.UpVector * size.Y):Abs() + (cf.LookVector * size.Z):Abs()
+				local lo, hi = w.Position - e / 2, w.Position + e / 2
+				if hi.X > -280 and lo.X < -50 and lo.Z < -277 and hi.Z > -1460 and e.Y > 20 then
+					w.CanCollide = false
+					walls += 1
+				end
+			end
+		end
+	end
+	print("[ParkRideService] Studio test: the park gate is open (" .. n .. " closed-gate parts hidden, " .. walls .. " boundary walls passable)")
+end
+
 function ParkRideService.Start()
+	task.defer(openForStudioTest)
 	local remote = Remotes:WaitForChild("ParkRide") :: RemoteFunction
 	local notify = Remotes:WaitForChild("ParkNotify") :: RemoteEvent
 	remote.OnServerInvoke = function(player: Player, action: any, a: any, b: any)

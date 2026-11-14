@@ -4697,3 +4697,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1398 Earl Grey tea: the americano's sip (2026-11-14)
 - User: "얼그레이티 마시는 소리 안 남 아메리카노 마시는 소리로 넣어 다른 거 또 소리 없는 거 있나". The tea used the default cup gulp 9114171855 (0.9 s, quiet): it played (checked in Play), but was hardly heard. SnackService SIP_SOUND.tea = 102811247160851 (iced americano's sip).
 - Every snack / drink sound was loaded in Play: all play. Still on the same short gulp: smoothie, bluelemonade, barleytea, sikhye, yuja, omija, greentea (cups) and bananamilk, can_cider / can_cola / can_orange / can_lemonade / can_blueade (bottles): asked the user.
+## D-1404 Amusement park: the gate is open in Studio tests only (2026-11-14)
+- User: "놀이공원 배치 수정했어 테스트 중에만 놀이공원 문 열어 줘".
+- ParkRideService.Start → openForStudioTest (RunService:IsStudio() only): in Hongdae_Layout.AmusementParkGate the closed gate leaves (frames, stiles, bars, spears, chain, padlock), ParkClosedBlocker, the hoarding behind the gate (panels, posts, braces) and the construction nets round the inside (ParkHoarding) go see-through and walk-through, their signs off; MapBoundary walls across the gate and inside the park (5) walk-through. Only for the running test: the place is unchanged, live servers keep the park closed.
+- Play: walked from the plaza through the gate into the park (to z -339) and west into the widened ground (to -185, -366); the inside shows through the arch. No script errors.
