@@ -104,14 +104,10 @@ ramp.Size = Vector3.new(STZ1 - STZ0, STAGE_H, STEPS)
 ramp.CFrame = CFrame.new(SX1 + STEPS / 2, G + STAGE_H / 2, (STZ0 + STZ1) / 2) * CFrame.Angles(0, math.rad(-90), 0)
 ramp.Parent = V
 
--- the stage's railing: the same fence panels on the stage edge, a gap at the stair
+-- (D-1415) the stage's railing and the crowd barriers are the user's own panels now (loose FencePanel
+-- parts placed by hand; their invisible walls: park_fence_walls_1114), so they are not built here
 local SILVER = Color3.fromRGB(205, 208, 212)
 local e = 0.3
-panels(V, Vector3.new(SX0 + e, TOP, SZ0 + e), Vector3.new(SX1 - e, TOP, SZ0 + e)) -- north
-panels(V, Vector3.new(SX0 + e, TOP, SZ1 - e), Vector3.new(SX1 - e, TOP, SZ1 - e)) -- south
-panels(V, Vector3.new(SX0 + e, TOP, SZ0 + e), Vector3.new(SX0 + e, TOP, SZ1 - e)) -- west
-panels(V, Vector3.new(SX1 - e, TOP, SZ0 + e), Vector3.new(SX1 - e, TOP, STZ0)) -- east, north of the stair
-panels(V, Vector3.new(SX1 - e, TOP, STZ1), Vector3.new(SX1 - e, TOP, SZ1 - e)) -- east, south of the stair
 -- handrails up the stair
 for _, z in ipairs({ STZ0 + 0.2, STZ1 - 0.2 }) do
 	local a, b = Vector3.new(SX1 + STEPS, G, z), Vector3.new(SX1, TOP, z)
@@ -129,11 +125,6 @@ local function barriers(a: Vector3, b: Vector3)
 	panels(V, a + Vector3.new(0, G, 0), b + Vector3.new(0, G, 0))
 end
 local BX0, BX1, BZ0, BZ1 = -272, -224, -472, -416
-barriers(Vector3.new(BX0, 0, BZ0), Vector3.new(BX1, 0, BZ0)) -- north
-barriers(Vector3.new(BX0, 0, BZ1), Vector3.new(BX1, 0, BZ1)) -- south
-barriers(Vector3.new(BX0, 0, BZ0), Vector3.new(BX0, 0, BZ1)) -- west
-barriers(Vector3.new(BX1, 0, BZ0), Vector3.new(BX1, 0, STZ0 - 1)) -- east, north of the way in
-barriers(Vector3.new(BX1, 0, STZ1 + 1), Vector3.new(BX1, 0, BZ1)) -- east, south of the way in
 -- the sign at the way in
 local sign = part(V, "RideSign", Vector3.new(0.3, 3.4, 4), CFrame.new(BX1 + 0.4, G + 4.6, STZ1 + 3.6), Color3.fromRGB(240, 120, 30), { shadow = true })
 part(V, "RideSignPost", Vector3.new(0.3, 3, 0.3), CFrame.new(BX1 + 0.4, G + 1.5, STZ1 + 3.6), YEL, { mat = Enum.Material.Metal })

@@ -117,6 +117,55 @@ local function build(model: Model)
 	local seat = newSeat("VehicleSeat", "BumperSeat", -1) :: any -- (driver, left)
 	local passengerSeat = newSeat("Seat", "BumperSeatR", 1) -- (passenger, right)
 
+	-- (D-1415) the steering wheel in front of the driver: a rim the hands hold (IK on every
+	-- client, BumperCarController) and a column down to the floor; WheelWeld turns it
+	local so = BumperCarConfig.SteeringOffset
+	local hub = body.CFrame * CFrame.new(off.X + so.X, off.Y + so.Y, -off.Z + so.Z)
+	local wheelBase = hub * CFrame.Angles(0, 0, math.pi / 2 + BumperCarConfig.SteeringTilt) -- (a cylinder's axis is its X: tipped up towards the driver)
+	local ws = BumperCarConfig.SteeringSize
+	local rim = Instance.new("Part")
+	rim.Name = "SteeringWheel"
+	rim.Shape = Enum.PartType.Cylinder
+	rim.Size = Vector3.new(0.18, ws, ws)
+	rim.Color = Color3.fromRGB(30, 30, 34)
+	rim.Material = Enum.Material.SmoothPlastic
+	rim.CanCollide, rim.CanQuery, rim.CanTouch, rim.Massless, rim.CastShadow = false, false, false, true, false
+	rim.CollisionGroup = CAR_GROUP
+	rim.CFrame = wheelBase
+	rim.Parent = model
+	local wheelWeld = weld(body, rim, body.CFrame:ToObjectSpace(wheelBase))
+	wheelWeld.Name = "WheelWeld"
+	local cap = Instance.new("Part")
+	cap.Name = "SteeringHub"
+	cap.Shape = Enum.PartType.Cylinder
+	cap.Size = Vector3.new(0.22, ws * 0.35, ws * 0.35)
+	cap.Color = Color3.fromRGB(230, 60, 60)
+	cap.Material = Enum.Material.SmoothPlastic
+	cap.CanCollide, cap.CanQuery, cap.CanTouch, cap.Massless, cap.CastShadow = false, false, false, true, false
+	cap.CollisionGroup = CAR_GROUP
+	cap.CFrame = wheelBase * CFrame.new(0.05, 0, 0)
+	cap.Parent = model
+	weld(rim, cap, CFrame.new(0.05, 0, 0))
+	local column = Instance.new("Part")
+	column.Name = "SteeringColumn"
+	column.Size = Vector3.new(0.25, 0.25, 1.4)
+	column.Color = Color3.fromRGB(40, 40, 44)
+	column.Material = Enum.Material.Metal
+	column.CanCollide, column.CanQuery, column.CanTouch, column.Massless, column.CastShadow = false, false, false, true, false
+	column.CollisionGroup = CAR_GROUP
+	-- (from the hub forward and down, away from the driver, along the wheel's axis)
+	local axis = wheelBase.RightVector -- (towards the driver and up)
+	column.CFrame = CFrame.lookAt(hub.Position, hub.Position - axis) * CFrame.new(0, 0, -0.75)
+	column.Parent = model
+	weld(body, column, body.CFrame:ToObjectSpace(column.CFrame))
+	-- grips on the rim (left / right of the hub, a little up), turned with the wheel
+	for _, side in ipairs({ { "GripL", -1 }, { "GripR", 1 } }) do
+		local a = Instance.new("Attachment")
+		a.Name = side[1]
+		a.Position = Vector3.new(0, -ws * 0.18, side[2] * ws * 0.44) -- (the rim's -Y is "up" on the tipped wheel)
+		a.Parent = rim
+	end
+
 	local prompt = Instance.new("ProximityPrompt")
 	prompt.ActionText = "범퍼카 타기"
 	prompt.ObjectText = "범퍼카"

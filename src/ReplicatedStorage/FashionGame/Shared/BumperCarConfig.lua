@@ -26,13 +26,19 @@ BumperCarConfig.RootTag = "BumperCarRoot" -- the runtime root part the server bu
 -- (D-1414, user: "크기 원래대로 하면 두 명 탈 수 있나? 범퍼카 하나에 두 명 탈 수 있게 하고 먼저 탄 사람이
 -- 왼쪽에 탑승해서 운전권 가지게 해") the car at the size the user placed it (16.8 x 5.9 x 9.7), two seats
 -- side by side. Length (studs) scales every car to that length instead; nil keeps the place's size.
-BumperCarConfig.Length = nil :: number?
-BumperCarConfig.SeatOffset = Vector3.new(-2.45, -0.92, 2.2) -- the seats in the body's space (back half; +X is the front); Z = each seat's distance from the middle
+BumperCarConfig.Length = 11.2 :: number? -- (D-1415, user: "둘이 타도 범퍼카 좀 크다 1/3만 줄이자": 2/3 of the placed 16.8)
+BumperCarConfig.SeatOffset = Vector3.new(-1.63, -0.61, 1.47) -- the seats in the body's space (back half; +X is the front); Z = each seat's distance from the middle
+-- (D-1415, user: "운전자는 운전하는 모션 보여 줘") a steering wheel in front of the driver's seat (body space,
+-- from the seat), its hands on the rim (IK); the wheel turns with the drive wheel (x WheelTurn)
+BumperCarConfig.SteeringOffset = Vector3.new(1.45, 1.55, 0)
+BumperCarConfig.SteeringTilt = math.rad(55) -- the wheel's face leans back towards the driver
+BumperCarConfig.SteeringSize = 1.5
+BumperCarConfig.WheelTurn = 1.6 -- the steering wheel turns this many times the drive wheel's angle
 
 -- driving (studs, seconds; a 10-stud car = about 2 m, 1 m = 5 studs)
--- (D-1414, user: "시속 두 배로 더 올리고") twice as fast as D-1413: tops out near 17 studs/s
-BumperCarConfig.MaxSpeed = 24
-BumperCarConfig.Accel = 40 -- full pedal
+-- (D-1414 twice, D-1415 user: "시속은 3배까지 올려") three times D-1413: tops out near 25 studs/s
+BumperCarConfig.MaxSpeed = 36
+BumperCarConfig.Accel = 60 -- full pedal
 BumperCarConfig.ReverseFactor = 0.55 -- S / stick back: backing up is slower
 BumperCarConfig.RollDrag = 0.7 -- 1/s along the car (no pedal: rolls to a stop in a few seconds)
 BumperCarConfig.SideGrip = 4.5 -- 1/s across the car (low: the steel floor lets it slide)
@@ -54,7 +60,8 @@ BumperCarConfig.WobbleFreq = 9 -- the body's rock (rad/s)
 BumperCarConfig.WobbleDamp = 5
 
 -- the hall (Hongdae_Layout.ParkBlockout["04_BumperCars"]): the rails' inner faces and the floor top
-BumperCarConfig.Hall = { x0 = -276.2, x1 = -207.85, z0 = -397.68, z1 = -293.75, floorY = 18.03 }
+-- (D-1415, user: "범퍼카 부지 빨간선만큼 확장": the east rail moved from x -206.5 to -156.2, tools/graybox/park_bumper_expand_1114.lua)
+BumperCarConfig.Hall = { x0 = -276.2, x1 = -157.55, z0 = -397.68, z1 = -293.75, floorY = 18.03 }
 
 -- the car's spring (per unit mass) and damping from the contact time and the bounce:
 -- a damped spring's half period = ContactSeconds, the speed after / before = Restitution

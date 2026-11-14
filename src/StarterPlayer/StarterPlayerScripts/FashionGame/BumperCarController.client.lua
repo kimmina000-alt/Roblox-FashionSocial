@@ -302,6 +302,71 @@ local function watchOthers()
 	seen = now
 end
 
+---------------------------------------------------------------- the driver's hands and the steering wheel (all cars)
+-- (D-1415, user: "운전자는 운전하는 모션 보여 줘") both hands on the rim by IK, the steering wheel
+-- turning with the drive wheel: this player's own wheel angle, other drivers' from their car's spin
+type Grip = { humanoid: Humanoid, iks: {IKControl} }
+local grips: {[BasePart]: Grip} = {}
+local wheelBase: {[Weld]: CFrame} = {}
+
+local function dropGrip(root: BasePart)
+	local g = grips[root]
+	if g then
+		for _, ik in ipairs(g.iks) do ik:Destroy() end
+		grips[root] = nil
+	end
+end
+
+local function holdWheel(root: BasePart, humanoid: Humanoid, rim: BasePart)
+	local g = grips[root]
+	if g and g.humanoid == humanoid then return end
+	dropGrip(root)
+	local character = humanoid.Parent
+	local iks = {}
+	for _, side in ipairs({ "Left", "Right" }) do
+		local upper = character and character:FindFirstChild(side .. "UpperArm")
+		local hand = character and character:FindFirstChild(side .. "Hand")
+		local target = rim:FindFirstChild("Grip" .. string.sub(side, 1, 1))
+		if upper and hand and target then
+			local ik = Instance.new("IKControl")
+			ik.Name = "BumperGrip" .. side
+			ik.Type = Enum.IKControlType.Position
+			ik.ChainRoot = upper
+			ik.EndEffector = hand
+			ik.Target = target
+			ik.SmoothTime = 0.04
+			ik.Parent = humanoid
+			table.insert(iks, ik)
+		end
+	end
+	grips[root] = { humanoid = humanoid, iks = iks }
+end
+
+local function steerAll()
+	for _, root in ipairs(CollectionService:GetTagged(C.RootTag)) do
+		local model = root.Parent
+		local seat = model and model:FindFirstChild("BumperSeat") :: VehicleSeat?
+		local rim = model and model:FindFirstChild("SteeringWheel") :: BasePart?
+		local ww = model and model:FindFirstChild("WheelWeld", true) :: Weld?
+		if seat and rim and ww and root:IsA("BasePart") then
+			local driver = seat.Occupant
+			if driver then holdWheel(root, driver, rim) else dropGrip(root) end
+			local angle = 0
+			if drive and drive.root == root then
+				angle = drive.wheel
+			elseif driver and not root.Anchored then
+				angle = math.clamp(-root.AssemblyAngularVelocity.Y / 2.5, -1, 1) * C.WheelMax -- (turning right = spinning clockwise = negative Y)
+			end
+			local base = wheelBase[ww] or ww.C0
+			wheelBase[ww] = base
+			ww.C0 = base * CFrame.Angles(-angle * C.WheelTurn, 0, 0)
+		end
+	end
+	for root in pairs(grips) do
+		if not root.Parent then dropGrip(root) end
+	end
+end
+
 ---------------------------------------------------------------- frame
 RunService.Heartbeat:Connect(function(dt)
 	dt = math.min(dt, 1 / 15)
@@ -316,6 +381,7 @@ RunService.Heartbeat:Connect(function(dt)
 	end
 	driveStep(dt)
 	watchOthers()
+	steerAll()
 	-- the bodies' rock / hop
 	for root, w in pairs(wobbles) do
 		if not root.Parent then
