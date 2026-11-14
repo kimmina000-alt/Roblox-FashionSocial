@@ -233,5 +233,34 @@ if loose then
 	end
 end
 
+------------------------------------------------------------------ 5. the west wall out to the ground's edge
+-- (D-1406, user 2026-11-14, a screenshot: "놀이공원 벽을 회색땅 선 끝까지 맞춰서 이동") the west
+-- wall (x -276.1) and its pillars (x -273.7) move out to the platform's sea edge (x -298.25):
+-- wall plinth flush with the edge (centre -297.45), pillar bases flush (centre -294.65); the
+-- south wall's west end follows the corner pillar. Pieces already out there are left alone.
+local WALL_DX, PILLAR_DX = -21.35, -20.95
+local shifted = 0
+for _, d in ipairs(gate:GetDescendants()) do
+	if d:IsA("BasePart") then
+		local a, b = aabb(d)
+		local long = b.Z - a.Z > b.X - a.X
+		if WALL_NAMES[d.Name] and long and near(d.Position.X, WEST_X, 1) then
+			if not DRY then d.CFrame = d.CFrame + Vector3.new(WALL_DX, 0, 0) end
+			shifted += 1
+		elseif string.match(d.Name, "^ParkPillar") and near(d.Position.X, -273.7, 1.5) then
+			if not DRY then d.CFrame = d.CFrame + Vector3.new(PILLAR_DX, 0, 0) end
+			shifted += 1
+		elseif WALL_NAMES[d.Name] and not long and near(d.Position.Z, SOUTH_WALL_Z, 1) and a.X < -265 and a.X > -272 then
+			if not DRY then
+				local len = b.X - a.X - PILLAR_DX
+				d.Size = Vector3.new(len, d.Size.Y, d.Size.Z)
+				d.CFrame = CFrame.new(b.X - len / 2, d.Position.Y, d.Position.Z)
+			end
+			shifted += 1
+		end
+	end
+end
+say(("west wall out to the edge: %d pieces"):format(shifted))
+
 print("[park_expand_1113]" .. (if DRY then " DRY" else "") .. "\n" .. table.concat(log, "\n"))
 return table.concat(log, "\n")
