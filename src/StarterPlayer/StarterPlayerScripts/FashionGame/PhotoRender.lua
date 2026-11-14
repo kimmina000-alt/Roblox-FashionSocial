@@ -297,10 +297,36 @@ game:GetService("RunService").Heartbeat:Connect(function()
 	end
 end)
 local function applyStyle(strip: Frame, info: any)
-	for _, name in ipairs({ "Deco", "Stickers", "Gloss", "NeonEdge" }) do
+	for _, name in ipairs({ "Deco", "Stickers", "Gloss", "NeonEdge", "ArtFrame" }) do
 		local old = strip:FindFirstChild(name)
 		if old then old:Destroy() end
 	end
+	-- (D-1412) an art frame (frame.art, the user's own drawing): a cut-out image over the strip
+	-- with see-through holes on the cells, drawn past the strip's edges (ribbon, bears); it
+	-- has its own OHU, so the strip's colour and footer are hidden
+	local footerRow = strip:FindFirstChild("FooterRow") :: GuiObject?
+	if info and typeof(info.art) == "table" then
+		local firstCell = strip:FindFirstChild("Cell1") :: GuiObject?
+		local secondCell = strip:FindFirstChild("Cell2") :: GuiObject?
+		local layoutKey = if firstCell and secondCell and secondCell.Position.X.Scale > firstCell.Position.X.Scale then "2x2" else "1x4"
+		local art = info.art[layoutKey]
+		if art then
+			strip.BackgroundTransparency = 1
+			if footerRow then footerRow.Visible = false end
+			local img = Instance.new("ImageLabel")
+			img.Name = "ArtFrame"
+			img.BackgroundTransparency = 1
+			img.Image = art.image
+			img.ScaleType = Enum.ScaleType.Stretch
+			img.Position = UDim2.fromScale(art.x, art.y)
+			img.Size = UDim2.fromScale(art.w, art.h)
+			img.ZIndex = 3
+			img.Parent = strip
+			return
+		end
+	end
+	strip.BackgroundTransparency = 0
+	if footerRow then footerRow.Visible = true end
 	-- 특별한 frames: a glowing neon outline (user 2026-10-30): a wide soft halo,
 	-- a mid glow and a thin bright core, sized from the strip's width and
 	-- breathing slowly

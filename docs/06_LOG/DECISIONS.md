@@ -4697,3 +4697,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1398 Earl Grey tea: the americano's sip (2026-11-14)
 - User: "얼그레이티 마시는 소리 안 남 아메리카노 마시는 소리로 넣어 다른 거 또 소리 없는 거 있나". The tea used the default cup gulp 9114171855 (0.9 s, quiet): it played (checked in Play), but was hardly heard. SnackService SIP_SOUND.tea = 102811247160851 (iced americano's sip).
 - Every snack / drink sound was loaded in Play: all play. Still on the same short gulp: smoothie, bluelemonade, barleytea, sikhye, yuja, omija, greentea (cups) and bananamilk, can_cider / can_cola / can_orange / can_lemonade / can_blueade (bottles): asked the user.
+
+## D-1412 Opening event frame = the user's drawing (2026-11-14)
+- User (with the drawing: a pink lace 6-cut strip and a 2x2 frame with a ribbon, bears and ♡OHU♡): "출석 이벤트 프레임 이거 누끼 따서 사용하자 아이템 넣어".
+- tools/art/opening_frame (cut.py, warp.py, README): cut out, straightened and warped so the holes sit exactly on the game's cells (4:3, 0.35 gaps); the border keeps its scale and reaches past the strip (ribbon, bears). The 1x4 uses rows 1, 2, 5, 6 of the strip's six. Images: 1x4 rbxassetid://98572338696618, 2x2 rbxassetid://126371730378535.
+- PhotoConfig `opening2026`: style "art", `art[layout] = { image, x, y, w, h }` (strip fractions). PhotoRender.applyStyle draws an art frame as an ImageLabel over the cells (ZIndex 3) and hides the strip's colour and OHU footer (the drawing has its own); stickers / neon edge are skipped. Everything that draws a strip (frame picker, album, viewer, photo wall) goes through newStrip, so all show it.
+- Play: wall photos of both layouts drawn with the frame (docs/06_LOG/images/2026-11-14/opening_frame_photos.jpg). On the photo wall the 1x4's bears reach about 45 % of a strip's width past each side.
+
