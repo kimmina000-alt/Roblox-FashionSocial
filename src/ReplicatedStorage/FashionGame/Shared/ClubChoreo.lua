@@ -141,24 +141,50 @@ M.ChoreoFixes = {
 	-- (D-1400, user 2026-11-14, BANG-After School: "1:20 가슴 튕기는 안무처럼 가슴 더 크게 튕기기.쿵.쿵.쿵 박자에 / 1:38 안무 확인
 	-- (9번 안무인데 동작 다름) / 2:14 안무 두 번씩 함 한 번으로 깔끔하게 정리 / 2:23 오른쪽팔 움찔"). BANG's song rate is 1.000, so
 	-- the play-bar times are song seconds; beats (practice video, 119.5 bpm) at song 1.161 + k x 0.5021.
-	-- 7 (at 78.68): the capture's chest only dips 0.1-0.2 at 80.7 / 81.1 / 81.4; three big pops on the beats 80.49 / 80.99 / 81.50
-	-- (0.09 s early, the animation clock lags)
-	[117412778868520] = { sharp = true, pops = { at = { 1.72, 2.22, 2.73 }, sizes = { 1.6, 1.6, 1.6 }, push = 0.5, lift = 0.2, arch = 9, out = 0.05, back = 0.35 } },
+	-- 7 (at 78.68): the capture's chest only dips 0.1-0.2 at 80.7 / 81.1 / 81.4; three big pops on the beats, (D-1400 2nd, user:
+	-- "가슴 튕기는 안무 1.5초 늦게 시작") 81.99 / 82.50 / 83.00 (0.09 s early, the animation clock lags)
+	[117412778868520] = { sharp = true, pops = { at = { 3.22, 3.72, 4.23 }, sizes = { 1.6, 1.6, 1.6 }, push = 0.5, lift = 0.2, arch = 9, out = 0.05, back = 0.35 } },
 	-- 8 (at 89.86) end and 9 (at 99.60) start: in the video the centre stands with both hands on the hips from song 96.3 to 102.8
 	-- (others pass close behind her, so the capture lost it: hands in front of the chest, one inside the body, then up at the
 	-- face at 98.0-98.6 and 99.4-100.2); both arms set to hands on the hips (angles solved on the avatar's own joints: hand at
 	-- the waist side, elbow out wide)
 	[91956738526101] = { pose = { from = 6.0, to = 9.7, ease = 0.5, keys = {
 		{ t = 6.5, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } } },
-	[71518245203286] = { pose = { from = 0, to = 3.3, ease = 0.3, keys = {
-		{ t = 0, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } } },
+	-- (D-1400 2nd, user + clip 9: "왼쪽팔 들고 흔드는 안무가 안 들어감") at song 104.0-105.4 (clip 4.4-5.8) the right hand stays on
+	-- the hip and the left arm goes up beside the head and waves (the capture holds it in front of the face): left arm keys
+	-- solved like the hips (beside the head / out a little), the wrist flicking with each
+	[71518245203286] = { pose = { { from = 0, to = 3.3, ease = 0.3, keys = {
+		{ t = 0, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } },
+		{ from = 4.0, to = 5.95, ease = 0.45, keys = {
+			{ t = 4.45, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 4.7, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 4.95, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 5.2, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 5.45, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } } } } },
+		bend = { { part = "LeftHand", keys = { { 4.45, 0, 0, 0 }, { 4.7, 0, 0, -35 }, { 4.95, 0, 0, 20 }, { 5.2, 0, 0, -35 }, { 5.45, 0, 0, 20 }, { 5.7, 0, 0, 0 } } } } },
 	-- 12 (at 134.23): the formation walk at 2:14 lowers the hands down and back twice (song 134.6-135.8 and again 136.6-137.6,
-	-- the video's centre changes in between): the first pose held through the second (one move); at 2:23 (song 142.7-144.1)
+	-- the video's centre changes in between): (first a hold, replaced below); at 2:23 (song 142.7-144.1)
 	-- the video folds the arms across the chest, the capture put the right hand inside the body, so BodyGuard swung the arm
 	-- out 43° in 0.2 s: both arms set folded in front (solved like above; the clip follows the member on the left, who folds
 	-- her arms; the capture puts the hands back inside the body after 144.2, so the fold lets go slowly, over 0.8 s)
-	[114991184702089] = { hold = { from = 1.37, to = 2.37 }, pose = { from = 8.3, to = 11.0, ease = 0.8, keys = {
-		{ t = 8.5, set = { RightUpperArm = { -10, 90, 40 }, RightLowerArm = { 80, 0, 0 }, LeftUpperArm = { 80, -90, 50 }, LeftLowerArm = { 70, 0, 0 } } } } } },
+	-- (D-1400 2nd, user + a screen recording of the video: "2:14 안무 첨부한 영상 보고 수정. 양쪽 팔 한번씩 들었다가 내리는 안무. 팔
+	-- 부드럽게 웨이브 들어감"): the right arm up and down is the capture's own (134.0-135.0); the hold is gone; the left arm goes up
+	-- curved over the head and waves (135.0-136.2), then both arms wave out at the sides (136.5-137.4, the right arm comes up over 0.4 s: 0.3 s whipped) and come down into the walk:
+	-- one pose window (two that meet let the capture show between), keys solved like the hips
+	[114991184702089] = { pose = { { from = 0.6, to = 3.6, ease = 0.45, keys = {
+			{ t = 0.95, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 } } },
+			{ t = 1.3, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 1.6, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 } } },
+			{ t = 1.9, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 2.3, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
+			{ t = 2.6, set = { LeftUpperArm = { 0, 25, -65 }, LeftLowerArm = { 100, 0, 0 }, RightUpperArm = { 0, -25, 65 }, RightLowerArm = { 100, 0, 0 } } },
+			{ t = 2.9, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
+			{ t = 3.15, set = { LeftUpperArm = { 0, 25, -65 }, LeftLowerArm = { 100, 0, 0 }, RightUpperArm = { 0, -25, 65 }, RightLowerArm = { 100, 0, 0 } } } } },
+		{ from = 8.3, to = 11.0, ease = 0.8, keys = {
+			{ t = 8.5, set = { RightUpperArm = { -10, 90, 40 }, RightLowerArm = { 80, 0, 0 }, LeftUpperArm = { 80, -90, 50 }, LeftLowerArm = { 70, 0, 0 } } } } } },
+		bend = { { part = "LeftHand", keys = { { 1.0, 0, 0, 0 }, { 1.3, 0, 0, -25 }, { 1.6, 0, 0, 15 }, { 1.9, 0, 0, -25 }, { 2.3, 0, 0, 0 } } },
+			{ part = "LeftHand", keys = { { 2.3, 0, 0, 0 }, { 2.6, 0, 0, 30 }, { 2.9, 0, 0, -20 }, { 3.15, 0, 0, 30 }, { 3.4, 0, 0, 0 } } },
+			{ part = "RightHand", keys = { { 2.3, 0, 0, 0 }, { 2.6, 0, 0, -30 }, { 2.9, 0, 0, 20 }, { 3.15, 0, 0, -30 }, { 3.4, 0, 0, 0 } } } } },
 	-- (D-1394) BANG-After School, Play scan: 5 turns a full lap at 1:04.6-1:06.0 with one frame of 1033°/s → spread evenly;
 	-- 13 swings back 86° in one keyframe at 3:00.7 (663°/s) → eased
 	[102971667388731] = { spin = { from = 4.2, to = 5.6, ease = "both" } }, -- BANG 5
