@@ -19,6 +19,38 @@ local M = Instance.new("Model")
 M.Name = "RideFences"
 local G = 16.2
 
+-- (D-1411, user: "놀이공원 안에 펜스 저걸로 통일") every park fence is the user's crowd barrier
+-- mesh (fence.glb, place-only template ServerStorage.ArtAssets.ParkFence, yellow metal):
+-- panels of about 5 studs along a line, no collision; one invisible 7-stud wall per line.
+local FENCE_SRC = game:GetService("ServerStorage"):WaitForChild("ArtAssets"):WaitForChild("ParkFence") :: MeshPart
+local FENCE_COLOR = Color3.fromRGB(250, 205, 30)
+local FENCE_H = 3.6
+local function panels(parent: Instance, a: Vector3, b: Vector3, step: number?)
+	-- a, b: the line's ends; their Y is the ground under the fence
+	local d = b - a
+	local len = d.Magnitude
+	if len < 0.5 then return end
+	local n = math.max(1, math.floor(len / (step or 5) + 0.5))
+	for i = 0, n - 1 do
+		local p0, p1 = a + d * (i / n), a + d * ((i + 1) / n)
+		local mid = (p0 + p1) / 2 + Vector3.new(0, FENCE_H / 2, 0)
+		local m = FENCE_SRC:Clone()
+		m.Name = "FencePanel"
+		m.Anchored, m.CanCollide, m.CanQuery, m.CanTouch, m.CastShadow = true, false, false, false, false
+		m.Size = Vector3.new(0.25, FENCE_H, (p1 - p0).Magnitude - 0.15)
+		m.CFrame = CFrame.lookAt(mid, mid + (p1 - p0))
+		m.Color, m.Material = FENCE_COLOR, Enum.Material.Metal
+		m.Parent = parent
+	end
+	local w = Instance.new("Part")
+	w.Name = "FenceBlocker"
+	w.Anchored, w.Transparency, w.CastShadow, w.CanTouch = true, 1, false, false
+	w.Size = Vector3.new(0.4, 7, len)
+	local mid = (a + b) / 2 + Vector3.new(0, 3.5, 0)
+	w.CFrame = CFrame.lookAt(mid, mid + d)
+	w.Parent = parent
+end
+
 local function part(parent: Instance, name: string, size: Vector3, cf: CFrame, color: Color3, opts: any?): BasePart
 	opts = opts or {}
 	local p = Instance.new(opts.class or "Part")
@@ -72,28 +104,14 @@ ramp.Size = Vector3.new(STZ1 - STZ0, STAGE_H, STEPS)
 ramp.CFrame = CFrame.new(SX1 + STEPS / 2, G + STAGE_H / 2, (STZ0 + STZ1) / 2) * CFrame.Angles(0, math.rad(-90), 0)
 ramp.Parent = V
 
--- a silver railing: posts and two rails with a see-through mesh panel
+-- the stage's railing: the same fence panels on the stage edge, a gap at the stair
 local SILVER = Color3.fromRGB(205, 208, 212)
-local function railing(parent: Instance, a: Vector3, b: Vector3, h: number)
-	local d = b - a
-	local len = d.Magnitude
-	if len < 0.5 then return end
-	local mid = (a + b) / 2
-	local along = CFrame.lookAt(mid, b)
-	part(parent, "RailTop", Vector3.new(0.25, 0.25, len), along + Vector3.new(0, h, 0), SILVER, { mat = Enum.Material.Metal })
-	part(parent, "RailMesh", Vector3.new(0.08, h - 0.4, len), along + Vector3.new(0, h / 2, 0), SILVER, { mat = Enum.Material.Metal, t = 0.55 })
-	local n = math.max(1, math.floor(len / 4))
-	for i = 0, n do
-		local p = a + d * (i / n)
-		part(parent, "RailPost", Vector3.new(0.3, h, 0.3), CFrame.new(p.X, p.Y + h / 2, p.Z), SILVER, { mat = Enum.Material.Metal })
-	end
-end
 local e = 0.3
-railing(V, Vector3.new(SX0 + e, TOP, SZ0 + e), Vector3.new(SX1 - e, TOP, SZ0 + e), 3.5) -- north
-railing(V, Vector3.new(SX0 + e, TOP, SZ1 - e), Vector3.new(SX1 - e, TOP, SZ1 - e), 3.5) -- south
-railing(V, Vector3.new(SX0 + e, TOP, SZ0 + e), Vector3.new(SX0 + e, TOP, SZ1 - e), 3.5) -- west
-railing(V, Vector3.new(SX1 - e, TOP, SZ0 + e), Vector3.new(SX1 - e, TOP, STZ0), 3.5) -- east, north of the stair
-railing(V, Vector3.new(SX1 - e, TOP, STZ1), Vector3.new(SX1 - e, TOP, SZ1 - e), 3.5) -- east, south of the stair
+panels(V, Vector3.new(SX0 + e, TOP, SZ0 + e), Vector3.new(SX1 - e, TOP, SZ0 + e)) -- north
+panels(V, Vector3.new(SX0 + e, TOP, SZ1 - e), Vector3.new(SX1 - e, TOP, SZ1 - e)) -- south
+panels(V, Vector3.new(SX0 + e, TOP, SZ0 + e), Vector3.new(SX0 + e, TOP, SZ1 - e)) -- west
+panels(V, Vector3.new(SX1 - e, TOP, SZ0 + e), Vector3.new(SX1 - e, TOP, STZ0)) -- east, north of the stair
+panels(V, Vector3.new(SX1 - e, TOP, STZ1), Vector3.new(SX1 - e, TOP, SZ1 - e)) -- east, south of the stair
 -- handrails up the stair
 for _, z in ipairs({ STZ0 + 0.2, STZ1 - 0.2 }) do
 	local a, b = Vector3.new(SX1 + STEPS, G, z), Vector3.new(SX1, TOP, z)
@@ -105,30 +123,10 @@ for _, z in ipairs({ STZ0 + 0.2, STZ1 - 0.2 }) do
 	end
 end
 
--- yellow crowd barriers round it all (units of 5 studs: frame + bars), the way in at the stair
-local YEL = Color3.fromRGB(250, 205, 30)
-local BH = 3.6
+-- crowd barriers round it all, the way in at the stair
+local YEL = FENCE_COLOR
 local function barriers(a: Vector3, b: Vector3)
-	local d = b - a
-	local len = d.Magnitude
-	local n = math.max(1, math.floor(len / 5 + 0.5))
-	for i = 0, n - 1 do
-		local p0, p1 = a + d * (i / n), a + d * ((i + 1) / n)
-		local mid = (p0 + p1) / 2
-		local ul = (p1 - p0).Magnitude - 0.3
-		local cf = CFrame.lookAt(Vector3.new(mid.X, G, mid.Z), Vector3.new(p1.X, G, p1.Z))
-		part(V, "BarrierTop", Vector3.new(0.25, 0.25, ul), cf + Vector3.new(0, BH, 0), YEL, { mat = Enum.Material.Metal })
-		part(V, "BarrierBottom", Vector3.new(0.25, 0.25, ul), cf + Vector3.new(0, 0.6, 0), YEL, { mat = Enum.Material.Metal })
-		for _, s in ipairs({ -1, 1 }) do
-			part(V, "BarrierEnd", Vector3.new(0.3, BH, 0.3), cf * CFrame.new(0, BH / 2, s * ul / 2), YEL, { mat = Enum.Material.Metal })
-			part(V, "BarrierFoot", Vector3.new(1.6, 0.15, 0.3), cf * CFrame.new(0, 0.08, s * ul / 2), YEL, { mat = Enum.Material.Metal, collide = false })
-		end
-		for k = 1, 5 do
-			part(V, "BarrierBar", Vector3.new(0.12, BH - 0.6, 0.12), cf * CFrame.new(0, (BH + 0.6) / 2, -ul / 2 + ul * k / 6), YEL, { mat = Enum.Material.Metal, collide = false })
-		end
-		-- (one invisible wall per unit: nobody hops over)
-		part(V, "BarrierBlocker", Vector3.new(0.4, 7, ul + 0.3), cf + Vector3.new(0, 3.5, 0), YEL, { t = 1 })
-	end
+	panels(V, a + Vector3.new(0, G, 0), b + Vector3.new(0, G, 0))
 end
 local BX0, BX1, BZ0, BZ1 = -272, -224, -472, -416
 barriers(Vector3.new(BX0, 0, BZ0), Vector3.new(BX1, 0, BZ0)) -- north
@@ -164,27 +162,13 @@ local T = Instance.new("Model")
 T.Name = "TeaCupFence"
 T.Parent = M
 local CX, CZ, R = -102.2, -495, 38.5
-local SEGS = 28
-local GAP = { 7, 8 } -- the segments left open (round the south, +Z)
-local COLORS = { Color3.fromRGB(245, 245, 245), Color3.fromRGB(220, 60, 60), Color3.fromRGB(245, 245, 245), Color3.fromRGB(60, 130, 220) }
-local FH = 3.2
+local SEGS = 52
+local GAP0, GAP1 = 13, 16 -- the segments left open (round the south, +Z, about 18 studs)
 for i = 0, SEGS - 1 do
-	if not table.find(GAP, i) then
+	if i < GAP0 or i > GAP1 then
 		local a0 = (i / SEGS) * math.pi * 2
 		local a1 = ((i + 1) / SEGS) * math.pi * 2
-		local p0 = Vector3.new(CX + math.cos(a0) * R, G, CZ + math.sin(a0) * R)
-		local p1 = Vector3.new(CX + math.cos(a1) * R, G, CZ + math.sin(a1) * R)
-		local mid = (p0 + p1) / 2
-		local len = (p1 - p0).Magnitude
-		local cf = CFrame.lookAt(mid, p1)
-		local col = COLORS[i % #COLORS + 1]
-		part(T, "FenceRail", Vector3.new(0.3, 0.3, len), cf + Vector3.new(0, FH - 0.4, 0), col)
-		part(T, "FenceRail", Vector3.new(0.3, 0.3, len), cf + Vector3.new(0, 0.8, 0), col)
-		for k = 0, 4 do
-			local p = cf * CFrame.new(0, FH / 2, -len / 2 + len * k / 4)
-			part(T, "FencePicket", Vector3.new(0.35, FH, 0.35), p, if k == 0 or k == 4 then Color3.fromRGB(60, 130, 220) else col)
-		end
-		part(T, "FenceBlocker", Vector3.new(0.4, 7, len), cf + Vector3.new(0, 3.5, 0), col, { t = 1 })
+		panels(T, Vector3.new(CX + math.cos(a0) * R, G, CZ + math.sin(a0) * R), Vector3.new(CX + math.cos(a1) * R, G, CZ + math.sin(a1) * R), 6)
 	end
 end
 

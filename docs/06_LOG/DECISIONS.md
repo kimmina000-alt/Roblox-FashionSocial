@@ -4721,3 +4721,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1410 Mini viking on a stage, yellow barriers, teacup fence (2026-11-14)
 - User (with photos): "범퍼카 옆에 있는 미니바이킹 사진 속처럼 노란색 펜스 두르고 안에 단상 위에 바이킹 올리기. 단상에도 펜스 있음. 올라가는 계단 있음. 티컵도 주변에 펜스 두르고 출입구만 뚫어 놓기."
 - tools/graybox/park_ride_fences_1114.lua (last chain step, rebuilds Hongdae_Layout.RideFences): the mini viking (ParkBlockout 09_MiniViking) lifted onto a blue stage 4 high (x -266..-238, z -466..-422, diamond-plate deck, yellow trim) with silver mesh railings, an 8-step stair on the east (z -432..-426) with handrails; yellow crowd barriers in 5-stud units round it (x -272..-224, z -472..-416), way in on the east at z -433..-425 with a 미니바이킹 / 타는곳 sign; teacups: a round picket fence (R 38.5, white / red / white / blue) open only on the south. Invisible 7-stud walls on every barrier / fence. Play: walked in through the barrier gap and up the stair onto the stage; into the teacups through the south opening; the east side blocks.
+
+## D-1411 One fence for the whole park: the user's crowd barrier mesh (2026-11-14)
+- User: "놀이공원 안에 펜스 저걸로 통일" (fence.glb, imported by the user; asked which is lighter: the mesh, one MeshPart per panel instead of 12 parts).
+- Template: ServerStorage.ArtAssets.ParkFence (MeshPart rbxassetid://140510585275770, place-only, yellow metal). park_playground_1114, park_bumper_queue_1114 and park_ride_fences_1114 share a `panels(parent, a, b, step)` helper: panels of about 5 studs (3.6 high, 0.25 thick, no collision / query / shadow) along each line and one invisible 7-stud wall per line. Replaced: the playground's wooden fence, the bumper car queue's stainless rails, the mini viking's yellow barriers and stage railing (stair handrails stay silver), the tea cup picket fence (52 segments, 4 open on the south).
+- Parts: RideFences 768 -> 196. Play: up the viking stair onto the stage, into the tea cups through the south opening.
+

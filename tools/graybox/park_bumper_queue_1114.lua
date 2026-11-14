@@ -23,7 +23,38 @@ M.Name = "BumperCarQueue"
 M.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 
 local G = 16.2 -- ground top here
-local STEEL = Color3.fromRGB(200, 204, 210)
+
+-- (D-1411, user: "놀이공원 안에 펜스 저걸로 통일") every park fence is the user's crowd barrier
+-- mesh (fence.glb, place-only template ServerStorage.ArtAssets.ParkFence, yellow metal):
+-- panels of about 5 studs along a line, no collision; one invisible 7-stud wall per line.
+local FENCE_SRC = game:GetService("ServerStorage"):WaitForChild("ArtAssets"):WaitForChild("ParkFence") :: MeshPart
+local FENCE_COLOR = Color3.fromRGB(250, 205, 30)
+local FENCE_H = 3.6
+local function panels(parent: Instance, a: Vector3, b: Vector3, step: number?)
+	-- a, b: the line's ends; their Y is the ground under the fence
+	local d = b - a
+	local len = d.Magnitude
+	if len < 0.5 then return end
+	local n = math.max(1, math.floor(len / (step or 5) + 0.5))
+	for i = 0, n - 1 do
+		local p0, p1 = a + d * (i / n), a + d * ((i + 1) / n)
+		local mid = (p0 + p1) / 2 + Vector3.new(0, FENCE_H / 2, 0)
+		local m = FENCE_SRC:Clone()
+		m.Name = "FencePanel"
+		m.Anchored, m.CanCollide, m.CanQuery, m.CanTouch, m.CastShadow = true, false, false, false, false
+		m.Size = Vector3.new(0.25, FENCE_H, (p1 - p0).Magnitude - 0.15)
+		m.CFrame = CFrame.lookAt(mid, mid + (p1 - p0))
+		m.Color, m.Material = FENCE_COLOR, Enum.Material.Metal
+		m.Parent = parent
+	end
+	local w = Instance.new("Part")
+	w.Name = "FenceBlocker"
+	w.Anchored, w.Transparency, w.CastShadow, w.CanTouch = true, 1, false, false
+	w.Size = Vector3.new(0.4, 7, len)
+	local mid = (a + b) / 2 + Vector3.new(0, 3.5, 0)
+	w.CFrame = CFrame.lookAt(mid, mid + d)
+	w.Parent = parent
+end
 
 local function part(name: string, size: Vector3, cf: CFrame, color: Color3, opts: any?): BasePart
 	opts = opts or {}
@@ -46,22 +77,9 @@ local function part(name: string, size: Vector3, cf: CFrame, color: Color3, opts
 	return p
 end
 
--- a fence line from a to b (on the ground plane), posts every ~6 studs
+-- a fence line from a to b (on the ground plane): the park's fence panels (D-1411)
 local function fence(ax: number, az: number, bx: number, bz: number)
-	local a, b = Vector3.new(ax, 0, az), Vector3.new(bx, 0, bz)
-	local d = b - a
-	local len = d.Magnitude
-	local mid = (a + b) / 2
-	local along = CFrame.lookAt(mid, b) -- LookVector along the line
-	for _, h in ipairs({ 1.6, 3.3 }) do
-		part("QueueRail", Vector3.new(len, 0.2, 0.2), (along + Vector3.new(0, G + h, 0)) * CFrame.Angles(0, math.rad(90), 0), STEEL, { mat = Enum.Material.Metal, shape = Enum.PartType.Cylinder })
-	end
-	local n = math.max(1, math.floor(len / 6))
-	for i = 0, n do
-		local p = a + d * (i / n)
-		part("QueuePost", Vector3.new(3.4, 0.28, 0.28), CFrame.new(p.X, G + 1.7, p.Z) * CFrame.Angles(0, 0, math.rad(90)), STEEL, { mat = Enum.Material.Metal, shape = Enum.PartType.Cylinder })
-	end
-	part("QueueBlocker", Vector3.new(0.4, 7, len), along + Vector3.new(0, G + 3.5, 0), STEEL, { collide = true, t = 1 })
+	panels(M, Vector3.new(ax, G, az), Vector3.new(bx, G, bz))
 end
 
 -- (D-1409, user: "웨이팅 줄 간격 입구 간격이랑 동일하게") every lane as wide as the corridor

@@ -57,6 +57,38 @@ if old then old:Destroy() end
 local M = Instance.new("Model")
 M.Name = "ParkPlayground"
 local G = 16.2
+
+-- (D-1411, user: "놀이공원 안에 펜스 저걸로 통일") every park fence is the user's crowd barrier
+-- mesh (fence.glb, place-only template ServerStorage.ArtAssets.ParkFence, yellow metal):
+-- panels of about 5 studs along a line, no collision; one invisible 7-stud wall per line.
+local FENCE_SRC = game:GetService("ServerStorage"):WaitForChild("ArtAssets"):WaitForChild("ParkFence") :: MeshPart
+local FENCE_COLOR = Color3.fromRGB(250, 205, 30)
+local FENCE_H = 3.6
+local function panels(parent: Instance, a: Vector3, b: Vector3, step: number?)
+	-- a, b: the line's ends; their Y is the ground under the fence
+	local d = b - a
+	local len = d.Magnitude
+	if len < 0.5 then return end
+	local n = math.max(1, math.floor(len / (step or 5) + 0.5))
+	for i = 0, n - 1 do
+		local p0, p1 = a + d * (i / n), a + d * ((i + 1) / n)
+		local mid = (p0 + p1) / 2 + Vector3.new(0, FENCE_H / 2, 0)
+		local m = FENCE_SRC:Clone()
+		m.Name = "FencePanel"
+		m.Anchored, m.CanCollide, m.CanQuery, m.CanTouch, m.CastShadow = true, false, false, false, false
+		m.Size = Vector3.new(0.25, FENCE_H, (p1 - p0).Magnitude - 0.15)
+		m.CFrame = CFrame.lookAt(mid, mid + (p1 - p0))
+		m.Color, m.Material = FENCE_COLOR, Enum.Material.Metal
+		m.Parent = parent
+	end
+	local w = Instance.new("Part")
+	w.Name = "FenceBlocker"
+	w.Anchored, w.Transparency, w.CastShadow, w.CanTouch = true, 1, false, false
+	w.Size = Vector3.new(0.4, 7, len)
+	local mid = (a + b) / 2 + Vector3.new(0, 3.5, 0)
+	w.CFrame = CFrame.lookAt(mid, mid + d)
+	w.Parent = parent
+end
 local X0, X1, Z0, Z1 = -198, -151, -468, -398 -- the pad
 
 local function part(name: string, size: Vector3, cf: CFrame, color: Color3, opts: any?): BasePart
@@ -98,19 +130,9 @@ for _, e in ipairs({
 	{ Vector3.new(0.6, 0.3, Z1 - Z0), CFrame.new(X1, G + 0.15, (Z0 + Z1) / 2) },
 }) do part("PadEdge", e[1], e[2], Color3.fromRGB(70, 160, 150), { mat = RUBBER, collide = false }) end
 
--- low fence: wooden posts and a teal rail; gaps on the south (from the exit path) and east
-local WOOD = Color3.fromRGB(176, 104, 52)
-local TEALR = Color3.fromRGB(110, 205, 170)
+-- the fence (the park's fence panels, D-1411); gaps on the south (from the exit path) and east
 local function fence(a: Vector3, b: Vector3)
-	local d = b - a
-	local len = d.Magnitude
-	local mid = (a + b) / 2
-	part("FenceRail", Vector3.new(len, 0.35, 0.5), CFrame.lookAt(Vector3.new(mid.X, G + 2.4, mid.Z), Vector3.new(b.X, G + 2.4, b.Z)) * CFrame.Angles(0, math.rad(90), 0), TEALR, { mat = Enum.Material.Wood })
-	local n = math.max(1, math.floor(len / 5))
-	for i = 0, n do
-		local p = a + d * (i / n)
-		part("FencePost", Vector3.new(0.6, 3, 0.6), CFrame.new(p.X, G + 1.5, p.Z), WOOD, { mat = Enum.Material.Wood })
-	end
+	panels(M, a + Vector3.new(0, G, 0), b + Vector3.new(0, G, 0))
 end
 local FX0, FX1, FZ0, FZ1 = X0 + 0.8, X1 - 0.8, Z0 + 0.8, Z1 - 0.8
 fence(Vector3.new(FX0, 0, FZ1), Vector3.new(-180, 0, FZ1)) -- south, west part
