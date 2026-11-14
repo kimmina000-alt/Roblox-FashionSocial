@@ -4697,3 +4697,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1398 Earl Grey tea: the americano's sip (2026-11-14)
 - User: "얼그레이티 마시는 소리 안 남 아메리카노 마시는 소리로 넣어 다른 거 또 소리 없는 거 있나". The tea used the default cup gulp 9114171855 (0.9 s, quiet): it played (checked in Play), but was hardly heard. SnackService SIP_SOUND.tea = 102811247160851 (iced americano's sip).
 - Every snack / drink sound was loaded in Play: all play. Still on the same short gulp: smoothie, bluelemonade, barleytea, sikhye, yuja, omija, greentea (cups) and bananamilk, can_cider / can_cola / can_orange / can_lemonade / can_blueade (bottles): asked the user.
+## D-1401 Opening event: attendance only on the 받기 tap (2026-11-14)
+- User: "출석 이벤트에 받기 완료 < 받기 버튼이었다가 눌러야 받기 완료로 뜨고 출석 인정하는 걸로 수정 / 제일 아래 하루 한 번 출석. 연속이 아니어도 돼요 이 줄 삭제."
+- OpeningEventService: a visit no longer counts by itself. Player attribute OpeningCanClaim = true while today's attendance waits (event day, not yet counted today, fewer than 14); remote OpeningEvent "Claim" counts it and gives Rewards[n] (as before), then OpeningJustClaimed. Checked again every minute (past midnight). Studio still never counts (attribute OpeningStudioCount lets a test through).
+- OpeningEventController: the cards' status is a button; the next card shows a pink 받기 while OpeningCanClaim, the tap → Claim → 오늘 받았어요! / 받기 완료!. The window opens by itself while today's 받기 waits. The bottom note line ("하루 한 번 출석 · 연속이 아니어도 돼요 · ...") is removed; the limited-title line moved to the bottom.

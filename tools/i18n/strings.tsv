@@ -573,20 +573,20 @@ d10df7	exact	새콤달콤 따뜻한 유자차	1	src/ReplicatedStorage/FashionGam
 0194c3	exact	빈 플라스틱 컵	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:24
 e2bab4	exact	구겨진 휴지	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:25
 60118c	exact	빈 과자 봉지	1	src/ReplicatedStorage/FashionGame/Shared/TrashConfig.lua:26
-1484bd	tmpl	지금부터 {1}분 동안 DJ예요! DJ 턴테이블 앞에서 🎵 버튼을 눌러 디제잉하세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:103
-bc0f54	exact	⏱ 코인 x2 부스트 1시간이 시작됐어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:117
-782623	tmpl	사진첩이 {1}장 늘어났어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:126
-c0af0e	exact	잘못된 요청입니다.	15	src/ServerScriptService/FashionGame/ServerMain.server.lua:134
-803110	exact	DJ 차례를 다음 사람에게 넘겼어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:161
-f22616	exact	지금 DJ 차례가 아니에요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:163
-5524e0	exact	되돌릴 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:271
-aea147	exact	다시 할 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:271
-c45f14	exact	장바구니를 확인해 주세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:313
-51408e	exact	한 번에 사기를 열지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:329
-e5845f	exact	이 조합을 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:379
-6f6118	exact	저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:434
-c524ea	exact	이 코디를 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:448
-26addc	exact	원래 캐릭터를 아직 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:478
+1484bd	tmpl	지금부터 {1}분 동안 DJ예요! DJ 턴테이블 앞에서 🎵 버튼을 눌러 디제잉하세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:104
+bc0f54	exact	⏱ 코인 x2 부스트 1시간이 시작됐어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:118
+782623	tmpl	사진첩이 {1}장 늘어났어요!	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:127
+c0af0e	exact	잘못된 요청입니다.	15	src/ServerScriptService/FashionGame/ServerMain.server.lua:135
+803110	exact	DJ 차례를 다음 사람에게 넘겼어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:162
+f22616	exact	지금 DJ 차례가 아니에요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:164
+5524e0	exact	되돌릴 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:272
+aea147	exact	다시 할 단계가 없어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:272
+c45f14	exact	장바구니를 확인해 주세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:314
+51408e	exact	한 번에 사기를 열지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:330
+e5845f	exact	이 조합을 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:380
+6f6118	exact	저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:435
+c524ea	exact	이 코디를 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:449
+26addc	exact	원래 캐릭터를 아직 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:479
 e86707	exact	저장된 코디 데이터를 읽을 수 없습니다.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1554
 3298e4	exact	코디를 복원하지 못했습니다. 이전 모습은 그대로입니다.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1566
 d196a6	exact	복원 중 오류가 발생했습니다. 현재 아바타를 다시 불러와 확인해 주세요.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1567
@@ -762,6 +762,13 @@ b09c2e	exact	반쪽 받기	1	src/ServerScriptService/FashionGame/Services/Friend
 265931	tmpl	{1}의 친구바	1	src/ServerScriptService/FashionGame/Services/FriendBar.lua:140
 e59b2a	exact	친구 가까이 가서 눌러 주세요.	1	src/ServerScriptService/FashionGame/Services/FriendBar.lua:230
 47d3d1	exact	친구바 (반쪽)	1	src/ServerScriptService/FashionGame/Services/FriendBar.lua:46
+3043f8	exact	줄 수 있는 아이템을 손에 들어 주세요.	1	src/ServerScriptService/FashionGame/Services/GiveService.lua:101
+2f249c	exact	더 가까이 가서 눌러 주세요.	2	src/ServerScriptService/FashionGame/Services/GiveService.lua:102
+af14d6	exact	이미 끝난 선물이에요.	1	src/ServerScriptService/FashionGame/Services/GiveService.lua:124
+716de9	exact	아이템이 이미 없어졌어요.	1	src/ServerScriptService/FashionGame/Services/GiveService.lua:136
+f9c604	exact	너무 멀어졌어요. 가까이 가서 다시 받아 주세요.	1	src/ServerScriptService/FashionGame/Services/GiveService.lua:138
+d0df2d	exact	지금은 받을 수 없어요.	1	src/ServerScriptService/FashionGame/Services/GiveService.lua:140
+ba31a6	exact	받지 못했어요. 아이템은 그대로 있어요.	1	src/ServerScriptService/FashionGame/Services/GiveService.lua:148
 9c96b6	exact	이미 누군가를 들고 있어요.	1	src/ServerScriptService/FashionGame/Services/GuardService.lua:100
 fe19aa	exact	다른 가드가 들고 있어요.	1	src/ServerScriptService/FashionGame/Services/GuardService.lua:103
 2805df	tmpl	🛡 가드 {1}님이 들어 올렸어요.	1	src/ServerScriptService/FashionGame/Services/GuardService.lua:132
@@ -785,7 +792,8 @@ d02360	exact	전자레인지 가까이에서 눌러 주세요.	2	src/ServerScrip
 dea5dc	exact	Studio 테스트 구매는 상품 ID가 없을 때 Studio에서만 됩니다.	1	src/ServerScriptService/FashionGame/Services/MonetizationService.lua:182
 4eed47	exact	상품 처리기가 없습니다.	1	src/ServerScriptService/FashionGame/Services/MonetizationService.lua:190
 09203b	exact	알바생	2	src/ServerScriptService/FashionGame/Services/NameTagService.lua:130
-dfcd28	tmpl	오픈 출석 {1}일차	1	src/ServerScriptService/FashionGame/Services/OpeningEventService.lua:39
+dbbd11	exact	오늘은 이미 받았어요.	1	src/ServerScriptService/FashionGame/Services/OpeningEventService.lua:64
+dfcd28	tmpl	오픈 출석 {1}일차	1	src/ServerScriptService/FashionGame/Services/OpeningEventService.lua:71
 b93c4c	tmpl	{1}초 뒤에 다시 만들 수 있어요.	1	src/ServerScriptService/FashionGame/Services/OutfitCodeService.lua:59
 9fc945	exact	지금은 코드를 만들 수 없어요. 잠시 후 다시 시도하세요.	1	src/ServerScriptService/FashionGame/Services/OutfitCodeService.lua:62
 9245e3	exact	코드를 만들지 못했어요. 잠시 후 다시 시도하세요.	1	src/ServerScriptService/FashionGame/Services/OutfitCodeService.lua:81
@@ -994,7 +1002,7 @@ cc131b	exact	팔레트에서 색을 고른 뒤 아래 막대로 더 어둡게(�
 e2f5be	exact	피부색	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/AvatarEditor.lua:384
 93c17c	exact	메이크업 순서	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/AvatarEditor.lua:385
 7d4831	exact	초기화	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/AvatarEditor.lua:438
-1a64f5	exact	취소	8	src/StarterPlayer/StarterPlayerScripts/FashionGame/AvatarEditor.lua:439
+1a64f5	exact	취소	9	src/StarterPlayer/StarterPlayerScripts/FashionGame/AvatarEditor.lua:439
 c4906c	exact	적용	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/AvatarEditor.lua:440
 2fb032	exact	적용하지 않은 변경 사항이 있습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/AvatarEditor.lua:468
 92e93a	exact	버리기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/AvatarEditor.lua:491
@@ -1332,6 +1340,20 @@ c2a350	exact	이미 벗은 아이템입니다.	2	src/StarterPlayer/StarterPlayer
 d592d9	exact	아이템 정보를 불러오지 못했습니다. 잠시 후 다시 시도하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FriendlyErrors.lua:7
 5ff96b	exact	캐릭터가 준비되지 않았습니다. 잠시 후 다시 시도하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FriendlyErrors.lua:8
 802be5	exact	이전 변경이 끝날 때까지 기다려 주세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FriendlyErrors.lua:9
+3dc55a	tmpl	🎁 {1} {2}님에게 줄까요?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:172
+09a4fc	exact	주기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:172
+e36ead	exact	줄 아이템을 손에 들어 주세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:173
+6b6e88	tmpl	{1}님에게 물어봤어요…	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:174
+a4d4de	tmpl	🎁 {1}님이 {2} 주려고 해요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:184
+fcfda9	exact	받기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:184
+b91f88	exact	괜찮아요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:184
+333472	tmpl	🎁 {1} 받았어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:186
+551998	tmpl	받기 ({1})	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:197
+53c702	tmpl	🎁 {1}님이 {2} 받았어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:208
+efa561	tmpl	{1}님이 이번엔 받지 않았어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:210
+401e66	exact	선물을 전하지 못했어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:212
+038973	exact	을	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:47
+0386e2	exact	를	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/GiveController.client.lua:47
 6583c4	exact	⬇ 내려놓기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/GuardController.client.lua:78
 57ee40	exact	 내려놓기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GuardController.client.lua:94
 be2c29	tmpl	🙋 {1} · 무엇이든 물어보세요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/GuideController.client.lua:168
@@ -1394,20 +1416,19 @@ d8165c	tmpl	장바구니 보기 ({1})	1	src/StarterPlayer/StarterPlayerScripts/F
 a08356	tmpl	모두의 화면 위에 내 이름과 이 한마디가 떠요.{1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:144
 8633a2	tmpl	\n[Studio 테스트] 결제 없이 {1} R$ 상품을 시험해요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:145
 f2bae9	exact	한마디 (30자, 비워도 돼요)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:72
-1bbacc	tmpl	{1}일차	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:103
-1b8ee2	exact	한정 칭호 증정!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:129
-008a25	exact	👑 14번 출석하면 한정 칭호 <font color="#FFAA5A">FOUNDING MEMBER</font> 증정! · 해당 칭호는 이벤트 종료 후 재판매하지 않습니다	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:146
-30ac86	exact	❗ 하루 한 번 출석 · 연속이 아니어도 돼요 · 보상은 계정당 1번 · 기간이 지나면 받을 수 없어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:157
-66a439	tmpl	출석<br/><font size="22" color="#FF5CA8">{1}</font> / {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:166
-76f8ea	tmpl	📅 {1} · {2}일 동안 {3}번 출석하면 완료!{4}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:167
-670c3b	tmpl	  (오늘은 {1}일째)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:168
-019e21	exact	  (이벤트가 끝났어요)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:168
-4fc688	exact	오늘 받았어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:177
-b04711	exact	받기 완료!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:177
-4a44c6	exact	기다려요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:183
-f3d2c5	exact	한국의 오후 · OHU GRAND OPENING	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:56
-22f1c1	exact	출석 이벤트 💖	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:61
-ea9fc7	exact	매일 오후에 놀러 오고, 특별한 선물 받아 가세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:67
+1bbacc	tmpl	{1}일차	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:104
+1b8ee2	exact	한정 칭호 증정!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:130
+008a25	exact	👑 14번 출석하면 한정 칭호 <font color="#FFAA5A">FOUNDING MEMBER</font> 증정! · 해당 칭호는 이벤트 종료 후 재판매하지 않습니다	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:148
+66a439	tmpl	출석<br/><font size="22" color="#FF5CA8">{1}</font> / {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:161
+76f8ea	tmpl	📅 {1} · {2}일 동안 {3}번 출석하면 완료!{4}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:162
+670c3b	tmpl	  (오늘은 {1}일째)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:163
+019e21	exact	  (이벤트가 끝났어요)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:163
+4fc688	exact	오늘 받았어요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:172
+b04711	exact	받기 완료!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:172
+4a44c6	exact	기다려요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:185
+f3d2c5	exact	한국의 오후 · OHU GRAND OPENING	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:57
+22f1c1	exact	출석 이벤트 💖	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:62
+ea9fc7	exact	매일 오후에 놀러 오고, 특별한 선물 받아 가세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/OpeningEventController.client.lua:68
 b33346	exact	🎡 관람차 타기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ParkRidesController.client.lua:657
 c8dbcc	tmpl	🎡 다음 칸까지 {1}초	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ParkRidesController.client.lua:658
 6657b2	exact	🎠 목마 타기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ParkRidesController.client.lua:674
@@ -1605,8 +1626,6 @@ aa66ac	tmpl	{1}분 남음	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/T
 3546f5	exact	할 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:193
 236a81	tmpl	쓰레기통 안 {1}개 · 누르면 가져가요 (1시간 뒤 사라져요)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:205
 ab0486	exact	버릴 수 있는 물건이 없어요 (음식 · 음료 · 스파클러)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:220
-038973	exact	을	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:313
-0386e2	exact	를	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:313
 d712e3	tmpl	{1}님이 쓰레기통에서 "{2}"{3} 주웠습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:314
 e5436a	exact	🗑 쓰레기통	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:59
 143fac	exact	원래 캐릭터로 돌아왔어요. < 로 되돌릴 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/UndoBar.lua:70
