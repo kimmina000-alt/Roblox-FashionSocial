@@ -6124,3 +6124,9 @@ Studio only (no script yet).
 ## D-1802 (2026-11-18) 카탈로그: 같은 목록을 다시 그리면 스크롤 유지
 - User (phone shot of 착용 중 scrolled down): "카탈로그에서 옷 벗을 때 드래그해서 내려서 벗으면 스크롤 다시 올라감 스크롤 고정". renderLocalMode set CanvasPosition to 0 on every redraw, and taking an item off (WORN) redraws 착용 중.
 - renderLocalMode remembers the list it drew (resultsFrame attribute LocalRenderMode); redrawing the same list puts the old scroll back as the cards come in (new module CatalogScrollKeep.hold: at most 2 s, never past the end). A search, category change or the catalog reset (CatalogScrollKeep.reset) still starts at the top. CatalogController got 7 lines and no new top-level locals (200-register limit).
+
+## D-1412 Opening event frame = the user's drawing (2026-11-14)
+- User (with the drawing: a pink lace 6-cut strip and a 2x2 frame with a ribbon, bears and ♡OHU♡): "출석 이벤트 프레임 이거 누끼 따서 사용하자 아이템 넣어".
+- tools/art/opening_frame (cut.py, warp.py, README): cut out, straightened and warped so the holes sit exactly on the game's cells (4:3, 0.35 gaps); the border keeps its scale and reaches past the strip (ribbon, bears). The 1x4 uses rows 1, 2, 5, 6 of the strip's six. Images: 1x4 rbxassetid://98572338696618, 2x2 rbxassetid://126371730378535.
+- PhotoConfig `opening2026`: style "art", `art[layout] = { image, x, y, w, h }` (strip fractions). PhotoRender.applyStyle draws an art frame as an ImageLabel over the cells (ZIndex 3) and hides the strip's colour and OHU footer (the drawing has its own); stickers / neon edge are skipped. Everything that draws a strip (frame picker, album, viewer, photo wall) goes through newStrip, so all show it.
+- Play: wall photos of both layouts drawn with the frame (docs/06_LOG/images/2026-11-14/opening_frame_photos.jpg). On the photo wall the 1x4's bears reach about 45 % of a strip's width past each side.
