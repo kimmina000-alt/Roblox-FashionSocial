@@ -6124,3 +6124,8 @@ Studio only (no script yet).
 ## D-1802 (2026-11-18) 카탈로그: 같은 목록을 다시 그리면 스크롤 유지
 - User (phone shot of 착용 중 scrolled down): "카탈로그에서 옷 벗을 때 드래그해서 내려서 벗으면 스크롤 다시 올라감 스크롤 고정". renderLocalMode set CanvasPosition to 0 on every redraw, and taking an item off (WORN) redraws 착용 중.
 - renderLocalMode remembers the list it drew (resultsFrame attribute LocalRenderMode); redrawing the same list puts the old scroll back as the cards come in (new module CatalogScrollKeep.hold: at most 2 s, never past the end). A search, category change or the catalog reset (CatalogScrollKeep.reset) still starts at the top. CatalogController got 7 lines and no new top-level locals (200-register limit).
+
+## D-1403 One player card: profile, 같이 추기, guard buttons and 🎁 주기 (2026-11-14)
+- User: "클럽에서 다른 사람 누르면 다른 사람 간단한 프로필이랑 춤 따라추기 뜨는 창에 가드는 그 창에서 수갑, 들기 추가되는 거고. 아이템 들고 누르면 아이템 주기 버튼 추가되는 걸로 수정. 현재 가드가 아이템 들고 사람 누르면 들기, 수갑만 뜸."
+- Cause: a tap on a player opened two windows (DanceController's player card and GiveController's own "줄까요?" window, D-1396); only one popup is open at a time (Popups), so the guard was left with the card's 들기 / 수갑 row.
+- DanceController's player card is the one window: profile, 💃 같이 추기 (both in the club), 🎧 DJ 존 초대 (the DJ), 들기 / 수갑 (a guard), and now 🎁 OO 주기 (a giveable item in the hand and the player within 16 studs; then the card also opens outside the club). The button fires UiBus.GiveTo → GiveController sends the offer (the other one still accepts). GiveController no longer opens a window of its own on the tap (it keeps the press guard: a held drink / sparkler is not used on that tap). Shared check: GiveItem (client module: giveable, heldTool, near, itemName).
