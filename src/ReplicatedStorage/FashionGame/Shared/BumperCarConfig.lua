@@ -23,12 +23,16 @@ local BumperCarConfig = {}
 BumperCarConfig.Tag = "BumperCar" -- the car models in the place (Workspace.Scene.BumperCar*)
 BumperCarConfig.RootTag = "BumperCarRoot" -- the runtime root part the server builds per car
 
-BumperCarConfig.Length = 10 -- the car's length after scaling the user's mesh (studs; a seated avatar fits)
-BumperCarConfig.SeatOffset = Vector3.new(-1.45, -0.55, 0) -- the seat in the body's space (back half; +X is the front)
+-- (D-1414, user: "크기 원래대로 하면 두 명 탈 수 있나? 범퍼카 하나에 두 명 탈 수 있게 하고 먼저 탄 사람이
+-- 왼쪽에 탑승해서 운전권 가지게 해") the car at the size the user placed it (16.8 x 5.9 x 9.7), two seats
+-- side by side. Length (studs) scales every car to that length instead; nil keeps the place's size.
+BumperCarConfig.Length = nil :: number?
+BumperCarConfig.SeatOffset = Vector3.new(-2.45, -0.92, 2.2) -- the seats in the body's space (back half; +X is the front); Z = each seat's distance from the middle
 
 -- driving (studs, seconds; a 10-stud car = about 2 m, 1 m = 5 studs)
-BumperCarConfig.MaxSpeed = 12 -- (with the drag a car tops out near 8.5 studs/s, about 6 km/h)
-BumperCarConfig.Accel = 20 -- full pedal
+-- (D-1414, user: "시속 두 배로 더 올리고") twice as fast as D-1413: tops out near 17 studs/s
+BumperCarConfig.MaxSpeed = 24
+BumperCarConfig.Accel = 40 -- full pedal
 BumperCarConfig.ReverseFactor = 0.55 -- S / stick back: backing up is slower
 BumperCarConfig.RollDrag = 0.7 -- 1/s along the car (no pedal: rolls to a stop in a few seconds)
 BumperCarConfig.SideGrip = 4.5 -- 1/s across the car (low: the steel floor lets it slide)
@@ -40,7 +44,7 @@ BumperCarConfig.DriveAhead = 0.3 -- the drive wheel this far ahead of the centre
 -- the rubber ring
 BumperCarConfig.RingPad = 0.15 -- the ring's half width past the body's sides (studs)
 BumperCarConfig.ContactSeconds = 0.14
-BumperCarConfig.Restitution = 0.62
+BumperCarConfig.Restitution = 0.68 -- (D-1414, user: "더 7스터드 튕기게": a full-speed hit into a parked car now throws it back about 14 studs; D-1413 about 7)
 BumperCarConfig.RingFriction = 0.25 -- rubber on rubber: the sideways part of a hit (spins the car)
 BumperCarConfig.BumpSoundId = "rbxassetid://9117456565" -- Plastic Cooler Hits 8 (Pro Sound Effects): a hollow thud
 BumperCarConfig.BumpSoundMin = 2.5 -- closing speed (studs/s) for a sound and a wobble

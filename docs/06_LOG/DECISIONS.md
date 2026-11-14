@@ -4705,3 +4705,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Place: the six cars in Workspace.Scene (BumperCar, BumperCar_Green/_Gray/_Red/_White/_Cyan) tagged "BumperCar" (place-only; save the place).
 - Play (1 player): W drives (tops out about 8 studs/s), A curves left; driven head-on into the parked green car at 8.2 studs/s the car bounced back at about 5, the body pitched and hopped, the thud played. Not yet tested: two drivers hitting each other (needs the 2P test).
 
+## D-1414 Bumper cars: 2P checked, twice as fast, a bigger bounce, two seats (2026-11-14)
+- User: "2인 테스트 먼저 해 보고 이상 없으면 아래 수정사항 적용 / 시속 두 배로 더 올리고 더 7스터드 튕기게 해 봐 / 크기 원래대로 하면 두 명 탈 수 있나? 범퍼카 하나에 두 명 탈 수 있게 하고 먼저 탄 사람이 왼쪽에 탑승해서 운전권 가지게 해".
+- 2P test of D-1413 first (server + Player1 + Player2, PC view): Player1 drove into Player2's (driven, idle) car: Player2's car was pushed back about 8 studs, Player1's stopped, the thud played; no script errors on the server or the clients.
+- Then: MaxSpeed 24 / Accel 40 (tops out near 17 studs/s, D-1413 about 8.4); Restitution 0.68 (a full-speed hit into a parked car throws the car back 14.5 studs, measured; D-1413 about 7); the cars keep the size the user placed them (16.8 x 5.9 x 9.7; BumperCarConfig.Length = nil) with two seats side by side (SeatOffset -2.45, -0.92, ±2.2): the left one is the driver's VehicleSeat, the right one a plain Seat. One prompt on the car: the first rider gets the left seat (and the wheel), the second the right; when the driver gets out, the passenger moves over to the wheel.
+- Play (1 player + a dummy passenger): both seated side by side (docs/06_LOG/images/2026-11-14/bumper_car_two_seats.jpg), the player on the left VehicleSeat. Two real players in one car: not tested yet (needs a new 2P test).
+
