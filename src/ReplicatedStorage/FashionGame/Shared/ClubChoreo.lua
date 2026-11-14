@@ -171,11 +171,18 @@ M.ChoreoFixes = {
 	-- 부드럽게 웨이브 들어감"): the right arm up and down is the capture's own (134.0-135.0); the hold is gone; the left arm goes up
 	-- curved over the head and waves (135.0-136.2), then both arms wave out at the sides (136.5-137.4, the right arm comes up over 0.4 s: 0.3 s whipped) and come down into the walk:
 	-- one pose window (two that meet let the capture show between), keys solved like the hips
-	[114991184702089] = { pose = { { from = 0.6, to = 3.6, ease = 0.45, keys = {
-			{ t = 0.95, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 } } },
-			{ t = 1.3, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } },
-			{ t = 1.6, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 } } },
-			{ t = 1.9, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 } } },
+	-- (D-1400 3rd, user: "2:13 처음 오른팔만 올린 자세에서 양팔 다 내렸다가 2:15에 왼팔만 올리는 자세로 스무스하게 이어지게 수정 / 지금
+	-- 올렸다 내렸다 들썩거림"): the right arm came down at 133.8 (11), up again at 134.1 (12 starts with it up) and down at 135.0;
+	-- now both arms go down at the end of 11 and stay down (the window starts before 0 so 12 opens at full weight) until the
+	-- left arm rises at 135.0
+	[114991184702089] = { pose = { { from = -0.5, to = 3.6, ease = 0.45, keys = {
+			{ t = 0, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 0.5, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 0.75, set = { LeftUpperArm = { 40, 0, -60 }, LeftLowerArm = { 60, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } }, -- (up through the side: straight from down took a long way round)
+			{ t = 0.95, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 1.3, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 1.6, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 1.9, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
 			{ t = 2.3, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
 			{ t = 2.6, set = { LeftUpperArm = { 0, 25, -65 }, LeftLowerArm = { 100, 0, 0 }, RightUpperArm = { 0, -25, 65 }, RightLowerArm = { 100, 0, 0 } } },
 			{ t = 2.9, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
@@ -191,7 +198,11 @@ M.ChoreoFixes = {
 	[73991603786553] = { spin = { from = 5.3, to = 6.0, ease = "both" } }, -- BANG 13
 	-- (D-1399) BANG 11: the capture turns to the front at 4.5-4.9, jumps back 150° in one keyframe at 5.0 (another dancer passes in
 	-- front) and turns again at 5.4-6.2 → one even turn 4.4-6.3
-	[122763589970816] = { spin = { from = 4.4, to = 6.3, ease = "both" } }, -- BANG 11
+	[122763589970816] = { spin = { from = 4.4, to = 6.3, ease = "both" }, -- BANG 11
+		-- (D-1400 3rd) both arms down from song 133.66 into 12 (the window runs past the end, so it holds at full weight)
+		-- (the right arm held up, solved overhead, then lowered over 0.55 s: the capture dropped it in 0.15 s, 1.1 stud a frame)
+		pose = { from = 9.7, to = 11.5, ease = 0.35, keys = { { t = 10.05, set = { RightUpperArm = { 110, 70, 40 }, RightLowerArm = { 40, 0, 0 } } },
+			{ t = 10.6, set = { LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } } } } },
 	-- (D-1387, user 2026-11-13 + 2 photos: "클럽 댄스 3 처음에 왼팔 들고 있을 때 왼쪽 손목 천천히 돌리기 / 양쪽 팔 둘 다 내릴 때
 	-- 손목 손등쪽으로 꺾기 / 오른쪽팔만 들 때 손목 안쪽으로 세 번 꺾기") the menu dance club3 (ClubDances, 15.43 s loop; menu
 	-- dances take only `bend`, ChoreoController menuBends). Left arm up at the start 0-1.5: one slow circle; both arms
