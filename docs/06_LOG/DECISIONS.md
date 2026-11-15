@@ -4957,3 +4957,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1465 (2026-11-16) 범퍼카장 뒤쪽 = 바닥부터 이미지 전체, 지붕을 그 높이로
 - User (screenshot with the lower blue wall boxed): "아래 벽도 삭제하고 이미지로 채워. 이미지 높이에 맞춰서 천장도 높여."
 - park_bumper_dress_1115: the back wall is now the whole picture (no crop), from the floor up, as wide as the floor: 106.6 × 45.2, its face on the back rail's inner face. The back rail (the bumper-car session's collision wall) is only made invisible: it still stops the cars. The eaves stand 1.8 over the picture (47 over the floor, was 20), the ridge 11 higher; posts, LED strips, bulbs, string lights and the marquee sign follow; the four soft lights hang 4 under the eaves with a range of 60. 678 parts (was 855 with the old wall pieces). Checked on a screenshot from the front; zfight pass.
+
+## D-1466 (2026-11-16) 회전컵 = 사용자 새 컵(팔각, 핸들 없음) + 흘러내림 그림 5장
+- User: "cup 3d 아이템 가져오기 했어 이미지 이걸로 다섯 개 써서 수정해" + five drip pictures (yellow, pink, purple, green, cyan; docs/04_ART/park/teacups4).
+- The import (Workspace.Scene.Cup, one MeshPart, octagonal, UV'd for these pictures, no middle post or wheel) is kept place-only as ServerStorage.ArtAssets.TeaCupTex4. park_teacups_1115 takes TeaCupTex4 first and gives the five cups the uploads 88415588841309 (yellow), 80021590554183 (pink), 117944709363119 (purple), 131642548427433 (green), 80782978424076 (cyan).
+- This cup's floor is near its foot (0.046 of its 5.66 height, measured by a ray), so for it the seats stand at 0.42 of its height (2.38 over the saucer; riders' shoulders over the rim) on one thin leg each set 1.9 from the middle (the foot is 2.7 across at 0.4 up; measured rays: the seat corners stay inside the bowl), and a post from the floor carries the wheel 1.5 over the seats. The other templates keep their old seats.
+- Checked on screenshots (textures loaded after a PreloadAsync).

@@ -30,6 +30,10 @@ local CUP_COLORS = { Color3.fromRGB(70, 150, 95), Color3.fromRGB(214, 60, 58), C
 -- (D-1435: the user's drip picture, CupDrip_<colour>.png from tools/art/teacups_drip_v2.py:
 -- green, red, yellow, blue, dark green; D-1432's own drips were 101010709181927 / 110353989323099 / ...)
 local CUP_TEXTURES = { "rbxassetid://96347537548381", "rbxassetid://127637303435065", "rbxassetid://137053123416662", "rbxassetid://126801391100567", "rbxassetid://93907123130946" }
+-- (D-1466, user 2026-11-16: "cup 3d 아이템 가져오기 했어 이미지 이걸로 다섯 개 써서 수정해": the user's new
+-- octagonal cup without the middle post or wheel, ArtAssets.TeaCupTex4, UV'd for these drip pictures
+-- (docs/04_ART/park/teacups4): yellow, pink, purple, green, cyan)
+local CUP4_TEXTURES = { "rbxassetid://88415588841309", "rbxassetid://80021590554183", "rbxassetid://117944709363119", "rbxassetid://131642548427433", "rbxassetid://80782978424076" }
 
 local function quiet(p: BasePart, collide: boolean?)
 	p.Anchored = true
@@ -128,8 +132,13 @@ end
 
 -- the cups
 -- (D-1438: TeaCupTex2 / 3 = the user's new cup, a post in the middle, 3 = the picture inside too)
-local cupT = template({ "TeaCupTex3", "TeaCupTex2", "TeaCupTex", "TeaCup" })
+local cupT = template({ "TeaCupTex4", "TeaCupTex3", "TeaCupTex2", "TeaCupTex", "TeaCup" })
 local ownPost = cupT ~= nil and (cupT.Name == "TeaCupTex3" or cupT.Name == "TeaCupTex2")
+local cup4 = cupT ~= nil and cupT.Name == "TeaCupTex4"
+if cup4 then CUP_TEXTURES = CUP4_TEXTURES end
+-- (Tex4: its floor is near the bottom (0.046 of its height, measured), so the benches stand on legs
+-- up to BENCH4 of its height, riders' shoulders over the rim; the post and wheel are built here)
+local BENCH4 = 0.42
 local seatRel = {}
 for k = 1, CUPS do
 	local a = (k - 1) / CUPS * 2 * math.pi
@@ -145,7 +154,7 @@ for k = 1, CUPS do
 	if cupT then
 		local m = placeMesh(cupT, cup, "CupMesh", pivot, function(size) return CUP_D / math.max(size.X, size.Z) end)
 		local cf, size = m:GetBoundingBox()
-		floorY = sTop + size.Y * 0.374 -- (the cup's floor: 0.43 of its 1.15 height in the glb)
+		floorY = sTop + size.Y * (if cup4 then 0.046 else 0.374) -- (the cup's floor: 0.43 of its 1.15 height in the glb)
 		cupH = size.Y
 		for _, d in ipairs(m:GetDescendants()) do
 			if d:IsA("MeshPart") then
@@ -158,20 +167,30 @@ for k = 1, CUPS do
 		end
 	end
 	-- steering wheel in the middle, benches round it
+	local benchTop = if cup4 then sTop + cupH * BENCH4 else floorY + 1.3
 	local wheelY = floorY + 2.2
 	if ownPost then
 		wheelY = sTop + cupH * 0.885 -- (the top of the user's post: 0.885 of the cup's height)
+	elseif cup4 then
+		wheelY = benchTop + 1.5
+		disc(cup, "WheelPost", at, floorY, wheelY - floorY, 0.55, Color3.fromRGB(150, 155, 160)).Material = Enum.Material.Metal
 	else
 		disc(cup, "WheelPost", at, floorY, 2.2, 0.5, Color3.fromRGB(150, 155, 160)).Material = Enum.Material.Metal
 	end
 	disc(cup, "Wheel", at, wheelY, 0.22, 2.6, Color3.fromRGB(60, 64, 72))
 	disc(cup, "WheelHub", at, wheelY + 0.22, 0.2, 0.8, Color3.fromRGB(230, 190, 70))
-	local benchTop = floorY + 1.3
 	for s = 1, PER do
 		local b = (s - 0.5) / PER * 2 * math.pi
 		local p = Vector3.new(at.X + 2.9 * math.cos(b), 0, at.Z + 2.9 * math.sin(b))
 		local face = CFrame.lookAt(Vector3.new(p.X, benchTop, p.Z), Vector3.new(at.X, benchTop, at.Z))
-		part(cup, "Bench", Vector3.new(2.0, 1.3, 1.6), face * CFrame.new(0, -0.65, 0.2), Color3.fromRGB(248, 248, 246))
+		local bh = benchTop - floorY -- (the bench from the cup's floor up to its seat)
+		if cup4 then
+			-- (the Tex4 bowl narrows to its foot: a seat on one thin leg, set inwards, stays inside it)
+			part(cup, "Bench", Vector3.new(2.0, 0.4, 1.4), face * CFrame.new(0, -0.2, 0.1), Color3.fromRGB(248, 248, 246))
+			part(cup, "BenchLeg", Vector3.new(0.45, bh - 0.4, 0.45), face * CFrame.new(0, -0.4 - (bh - 0.4) / 2, -1.0), Color3.fromRGB(200, 204, 210), Enum.Material.Metal) -- (leg 1.9 from the middle: the foot is 2.7 across at 0.4 up)
+		else
+			part(cup, "Bench", Vector3.new(2.0, bh, 1.6), face * CFrame.new(0, -bh / 2, 0.2), Color3.fromRGB(248, 248, 246))
+		end
 		if k == 1 then seatRel[s] = pivot:ToObjectSpace(face) end
 	end
 	cup.WorldPivot = pivot
