@@ -61,7 +61,10 @@ local function part(parent: Instance, name: string, size: Vector3, cf: CFrame, c
 	return p
 end
 
-local function beam(parent: Instance, name: string, a: Vector3, b: Vector3, t: number, color: Color3): Part
+local function beam(parent: Instance, name: string, a: Vector3, b: Vector3, t: number, color: Color3): Part?
+	-- (D-1463: two spokes at the same angle gave a beam of no length, CFrame.lookAt then put it a
+	-- million studs away: nine such chords stretched the wheel's bounding box)
+	if (b - a).Magnitude < 0.05 then return nil end
 	return part(parent, name, Vector3.new(t, t, (b - a).Magnitude), CFrame.lookAt((a + b) / 2, b), color, Enum.Material.Metal)
 end
 

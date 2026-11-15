@@ -74,8 +74,10 @@ ParkConfig.WheelBoardAngle = math.rad(9)
 ParkConfig.CabinSeats = {
 	-- seat surface relative to the hang point; riders face the cabin centre
 	-- (D-1433: the user's cabin; benches at x ±2.05, top 7.05 under the hang point)
-	{ offset = Vector3.new(2.05, -7.05, 0), facing = Vector3.new(-1, 0, 0) },
-	{ offset = Vector3.new(-2.05, -7.05, 0), facing = Vector3.new(1, 0, 0) },
+	-- (D-1463: the user's new cabin has its door on the front (+x, the boarding deck): the benches
+	-- stand across the wheel, at z ±2.6 in the hub's frame, riders facing each other)
+	{ offset = Vector3.new(0, -7.05, 2.6), facing = Vector3.new(0, 0, -1) },
+	{ offset = Vector3.new(0, -7.05, -2.6), facing = Vector3.new(0, 0, 1) },
 }
 ParkConfig.BoardDistance = 12
 

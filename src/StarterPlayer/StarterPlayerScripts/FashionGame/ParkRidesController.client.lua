@@ -101,7 +101,8 @@ local function moveModel(model: Instance, cf: CFrame)
 		local rest = (model :: Model):GetPivot()
 		local r: Rig = { rest = rest, parts = {} }
 		local function add(d: Instance)
-			if d:IsA("BasePart") then r.parts[d] = rest:ToObjectSpace(d.CFrame) end
+			-- (D-1463: a part marked OwnMove, the cabin doors, is moved by its own code)
+			if d:IsA("BasePart") and not d:GetAttribute("OwnMove") then r.parts[d] = rest:ToObjectSpace(d.CFrame) end
 		end
 		for _, d in ipairs(model:GetDescendants()) do add(d) end
 		model.DescendantAdded:Connect(add)
@@ -444,7 +445,21 @@ local function animate(t: number, dt: number)
 			for index = 1, ParkConfig.cabinCount(wheel.model) do
 				local cabin = wheel.model:FindFirstChild("Cabin" .. index)
 				local cf = ParkConfig.cabinCFrame(wheel.model, index, t)
-				if cabin and cabin:IsA("Model") and cf then moveModel(cabin, cf) end
+				if cabin and cabin:IsA("Model") and cf then
+					moveModel(cabin, cf)
+					-- (D-1463, user: "바닥에 닿을 때 문 열리게 하고 공중에 뜨면서 닫히게") the door swings open
+					-- on its hinge near the bottom (the boarding window) and shuts as the cabin rises
+					local door = cabin:FindFirstChild("CabinDoor")
+					local hinge, rel = door and door:GetAttribute("HingeRel"), door and door:GetAttribute("DoorRel")
+					if door and door:IsA("BasePart") and typeof(hinge) == "CFrame" and typeof(rel) == "CFrame" then
+						local gap = ParkConfig.cabinFromBottom(wheel.model, index, t)
+						local b = ParkConfig.WheelBoardAngle
+						local f = math.clamp((b * 2 - gap) / b, 0, 1) -- (open within b, shut past 2b)
+						f = f * f * (3 - 2 * f)
+						local yaw = (door:GetAttribute("OpenYaw") :: number?) or 1.6
+						door.CFrame = cf * hinge * CFrame.Angles(0, yaw * f, 0) * rel
+					end
+				end
 			end
 		end
 	end
