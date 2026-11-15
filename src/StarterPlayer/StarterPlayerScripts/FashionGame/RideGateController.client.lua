@@ -20,7 +20,7 @@ local ParkConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitFor
 
 local player = Players.LocalPlayer
 local OPEN_RATE = 1 / 1.2 -- (open fraction per second: a leaf swings in 1.2 s)
-local NEAR = 150 -- (gates further away are left as they are)
+local NEAR = 400 -- (gates further away are left as they are; D-1455: was 150, a player 151 away still saw the gate open while the boat ran)
 local EXIT_NEAR = 7 -- (someone this close inside opens the exit)
 
 type Leaf = { model: Model, hinge: CFrame, yaw: number, parts: {[BasePart]: CFrame} }
