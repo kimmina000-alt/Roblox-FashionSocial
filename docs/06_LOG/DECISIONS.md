@@ -5131,3 +5131,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Mobile 2P test (both players in phone emulation, touch on): the rider on seat 2 sat at x -2.17 instead of -1.25 while the car hopped. The invisible PoleCollider (2.4 x 30 x 2.4 at the tower's foot) overlapped seats 2 and 3, and the physics pushed their riders 0.9 sideways while they were inside its height.
 - park_jumpstar_mesh_1116: the PoleCollider only goes up to the car's bottom (5 high), enough to keep walkers off the tower. Re-checked live: the seat-2 rider stays at x -1.25 the whole run, also as Player2 sees it.
 - Same test: beach cafe auto door, order, shift (make + serve to Player1), walking past snack bar 2, beach ball pick-up / throw, float tube board / ride / leave — no script errors on the server or the two clients. Merged into catalog-ui-redesign (user: "모바일 2인 테스트하고 머지해").
+
+## D-1492 (2026-11-16) 지도 전체 그림자 최적화
+- User: "최적화", scope picked: "지도 전체". Measured first: 19,513 parts in Workspace (budget 25,000), 412 lights (351 on; none cast shadows; only 9 overlap another of the same colour, all coloured club / photo-booth / park-path lights, left alone), StreamingEnabled with Opportunistic 384 / 128 already.
+- tools/graybox/optimize_1116.lua (run last in the layout chain, idempotent): CastShadow off on the 2,086 parts under 1.5 studs (bulbs, bolts, trims, LED dots) and on 886 flat slabs (≤ 1.2 thick) lying on something (their shadow falls under themselves); the 177 small Neon parts without a tag / prompt / collider-like name also lose CanCollide / CanTouch / CanQuery. Shadow casters 9,515 → 6,543.
+- Not done: removing or merging lights (they are the look of the club, cafe and photo booth); the user deleted the peace train on purpose (not rebuilt).
