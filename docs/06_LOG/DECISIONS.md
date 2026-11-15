@@ -4806,3 +4806,4 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: "놀이공원 안에 있는 스포너는 Vantablack_Dev 만 스폰할 수 있게 해. 일반 유저는 역 앞에 있는 스포너로 스폰되게 해."
 - ParkRideService.parkTestSpawn (D-1426): only the owner (PARK_SPAWN_OWNER = 11887382096, Vantablack_Dev) is put on Workspace.ParkTestSpawn, in Studio and on live servers (the pad is no longer destroyed on live; it is hidden there: transparent, its sign off). Everyone else spawns as before at the one SpawnLocation by the station (-30, -36, near subway exit 3).
 - Play check (solo, Vantablack_Dev): spawned on the pad (-199, 20.2, -485). Another account was not tested (Studio's extra test players have negative ids, so they would go to the station).
+- (later the same day) The user imported both Tex3 boats: ArtAssets.VikingBoatMini_Tex3 / VikingBoatSuper_Tex3; both rides (and backups) rebuilt — mini 8 seats, super 16 seats. Play: the super boat's middle is empty, seat 8 (the row beside the middle) boards and sits right.
