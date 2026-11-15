@@ -350,6 +350,7 @@ ParkConfig.JumpKeys = {
 ParkConfig.JumpWindSpeed = 6 -- (studs/s down: faster than this, the wind sound plays — the big drop)
 
 -- (height of the car over its bottom place, standing still?, seconds until the next change)
+-- (D-1484) the Ride's attribute JumpScale stretches every height (a taller tower: the user's v2 model).
 function ParkConfig.jumpStarState(model: Instance, t: number): (number, boolean, number)
 	local keys = ParkConfig.JumpKeys
 	local run = keys[#keys][1]
@@ -371,7 +372,7 @@ function ParkConfig.jumpStarState(model: Instance, t: number): (number, boolean,
 			else
 				x = x * x * (3 - 2 * x)
 			end
-			return a[2] + (b[2] - a[2]) * x, false, cycle - c
+			return (a[2] + (b[2] - a[2]) * x) * attr(model, "JumpScale", 1), false, cycle - c
 		end
 	end
 	return 0, false, cycle - c

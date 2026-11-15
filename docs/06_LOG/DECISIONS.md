@@ -5091,3 +5091,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Removed from Workspace["점핑스타"]: the block tower, stars, sign, machine box, light poles and bulbs (500 → 29 parts with the fence). Kept: fence, Enter / Exit signs, Ride (tag ParkJumpStar, Board / Exit / Reach).
 - Ride.Car now holds CarMesh + LapBarMesh (they hop with ParkConfig.jumpStarState as before); the tower mesh is CanCollide false over an invisible base disc (r 6.25, measured by rays) and pole collider.
 - Seats: Seat1..Seat4 on the seat pads (6.88 over the foot, measured by a ray on the car mesh); Seat5 / Seat6 removed. Play check: boarding seat 2 puts the rider on the pad under the lap bar, the rider rides with the car (car 24.7 → 46.7 at the top, under the JUMPIN STAR letters).
+
+## D-1484 (2026-11-16) 점핑스타 v2 모델 + 사진 같은 전구
+- User (the Jumping Star photo): "사진 참고해서 조명 추가해 줘 / 사이즈 수정했어 파일 다시 가지고 와. 스튜디오에 갖고 왔어".
+- ServerStorage.ArtAssets.JumpStarMesh = the user's re-import (tower 14.7 high in Blender units, car 2.74 wide); park_jumpstar_mesh_1116 at 4.5x: tower 66.1, car 12.3 wide, base disc r 5.5. Seat tops now found by a ray on the car mesh (6.45 / 6.63 over the foot).
+- Jump height follows the taller tower: Ride attribute JumpScale (ParkConfig.jumpStarState multiplies every JumpKeys height by it) = 1.304, so the car's top stops at 41 over the foot, under the arms. Play: car centre 8.8 → 37.5.
+- Bulbs (Workspace["점핑스타"].Lights, 184 neon balls, no lights / shadows): red and blue bulbs alternating up both outer sides of the tower to the arms (the photo's bulb columns), warm white bulbs along the arms, the small stars and the big star, red bulbs round the JUMPIN STAR letters (found by front rays on a 0.25 grid: an outline = a hit beside a miss or a depth step). 207 parts in the ride with the fence.

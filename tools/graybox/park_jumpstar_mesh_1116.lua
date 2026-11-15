@@ -102,13 +102,113 @@ pole.Parent = owner
 -- 4. four seats along the car's front (seat tops, from the pivot with the car at the bottom)
 local carRel = pivot:ToObjectSpace(carPart.CFrame)
 local w, h, d = carPart.Size.X, carPart.Size.Y, carPart.Size.Z
-local seatY = carRel.Position.Y - h / 2 + h * 0.2 -- (the seat pad's top, measured by a ray: 6.87 over the foot)
 local seatZ = carRel.Position.Z - d * 0.25 -- (in front of the tower)
+-- the seat pad's top: a ray down onto the car mesh at each seat (fallback a fifth up the car)
+carPart.CanQuery = true
+local carParams = RaycastParams.new()
+carParams.FilterType = Enum.RaycastFilterType.Include
+carParams.FilterDescendantsInstances = { carPart }
 for i = 1, 6 do ride:SetAttribute("Seat" .. i, nil) end
 for i = 1, 4 do
 	local x = carRel.Position.X + (i - 2.5) * (w * 0.8 / 4)
+	local from = pivot * Vector3.new(x, carRel.Position.Y + h / 2 + 1, seatZ)
+	local hit = workspace:Raycast(from, -pivot.UpVector * (h + 2), carParams)
+	local seatY = if hit then pivot:PointToObjectSpace(hit.Position).Y else carRel.Position.Y - h / 2 + h * 0.2
 	ride:SetAttribute("Seat" .. i, CFrame.new(x, seatY, seatZ))
 end
+carPart.CanQuery = false
+
+-- 5. jump height in step with the tower (D-1484: the user's v2 tower is 66 high): the car's top
+-- stops under the arms, JUMP_TOP over the foot (ParkConfig.JumpKeys go up to 22; Ride JumpScale)
+local JUMP_TOP = 41
+local topKey = 22
+ride:SetAttribute("JumpScale", math.max(1, (JUMP_TOP - (carRel.Position.Y + h / 2)) / topKey))
+
+-- 6. bulbs like the photo (D-1484, user: "사진 참고해서 조명 추가해 줘"): the real ride has bulb
+-- columns up both sides of the tower and bulbs round its stars and its red letters. Here: a column
+-- of red / blue bulbs on each outer side of the tower, and bulbs along every outline of the top
+-- (arms, small stars, the big star in warm white; the JUMPIN STAR letters in red), found by rays
+-- from the front on a 0.25 grid (an outline = a hit next to a miss or a step in depth).
+local lights = Instance.new("Model")
+lights.Name = "Lights"
+towerPart.CanQuery = true
+local BULB = 0.42
+local WARM = Color3.fromRGB(255, 236, 170)
+local RED = Color3.fromRGB(255, 60, 60)
+local BLUE = Color3.fromRGB(70, 130, 255)
+local function bulb(localPos: Vector3, color: Color3)
+	local b = Instance.new("Part")
+	b.Name = "Bulb"
+	b.Shape = Enum.PartType.Ball
+	b.Size = Vector3.one * BULB
+	b.Material = Enum.Material.Neon
+	b.Color = color
+	b.Anchored, b.CanCollide, b.CanTouch, b.CanQuery, b.CastShadow = true, false, false, false, false
+	b.CFrame = pivot * CFrame.new(localPos)
+	b.Parent = lights
+end
+local function frontHit(x: number, y: number): number?
+	local a = pivot * Vector3.new(x, y, -20)
+	local hit = workspace:Raycast(a, pivot * Vector3.new(x, y, 20) - a, params)
+	return hit and pivot:PointToObjectSpace(hit.Position).Z or nil
+end
+-- 6a. the side columns: the tower's outer edges below the arms
+local function sideX(y: number, dir: number): number?
+	local last
+	for x = 0, dir * 6, dir * 0.1 do
+		if frontHit(x, y) then last = x elseif last then break end
+	end
+	return last
+end
+local ARM_Y = JUMP_TOP + 0.5
+local n = 0
+for y = discTop - pivot.Y + 1, ARM_Y, 1.1 do
+	n += 1
+	for _, dir in ipairs({ -1, 1 }) do
+		local x = sideX(y, dir)
+		if x then
+			local z = frontHit(x - dir * 0.2, y) or 2
+			bulb(Vector3.new(x + dir * 0.12, y, z + 0.1), if (n + (dir > 0 and 1 or 0)) % 2 == 0 then RED else BLUE)
+		end
+	end
+end
+-- 6b. outlines above the arms' foot
+local STEP = 0.25
+local grid, xs, ys = {}, {}, {}
+for x = -10, 10, STEP do table.insert(xs, x) end
+for y = ARM_Y - 1, towerPart.Size.Y + 1, STEP do table.insert(ys, y) end
+for i, x in ipairs(xs) do
+	grid[i] = {}
+	for j, y in ipairs(ys) do grid[i][j] = frontHit(x, y) or false end
+end
+local edges = {}
+for i = 2, #xs - 1 do
+	for j = 2, #ys - 1 do
+		local z = grid[i][j]
+		if z then
+			local edge = false
+			for _, o in ipairs({ { 1, 0 }, { -1, 0 }, { 0, 1 }, { 0, -1 } }) do
+				local nz = grid[i + o[1]][j + o[2]]
+				if not nz or nz - z > 0.5 then edge = true end
+			end
+			if edge then table.insert(edges, Vector3.new(xs[i], ys[j], z)) end
+		end
+	end
+end
+local placed = {}
+for _, p in ipairs(edges) do
+	local gap = if p.Z < 1.4 then 0.75 else 1.0 -- (letters closer)
+	local ok = true
+	for _, q in ipairs(placed) do
+		if (q - p).Magnitude < gap then ok = false break end
+	end
+	if ok then
+		table.insert(placed, p)
+		bulb(Vector3.new(p.X, p.Y, p.Z - 0.12), if p.Z < 1.4 then RED else WARM)
+	end
+end
+towerPart.CanQuery = false
+lights.Parent = owner
 
 local count = 0
 for _, d in ipairs(owner:GetDescendants()) do if d:IsA("BasePart") then count += 1 end end
