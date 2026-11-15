@@ -241,7 +241,9 @@ local steps = RAISE - STAIR_Y
 local run = (STAIR_Z - LANDING_Z) / steps -- (each step's depth)
 for k = 1, steps do
 	local zFront = STAIR_Z - (k - 1) * run
-	block("ParkRaiseStep", STAIR_X0, STAIR_Y - 1, zFront, STAIR_X1, STAIR_Y + k, LANDING_Z, if k % 2 == 0 then PAVE else STONE, Enum.Material.Slate)
+	-- (D-1453: each step only its own depth, no longer back to the landing: the old blocks lay
+	-- one inside the other with their bottoms and backs on the same planes, colours alternating)
+	block("ParkRaiseStep", STAIR_X0, STAIR_Y - 1, zFront, STAIR_X1, STAIR_Y + k, zFront - run, if k % 2 == 0 then PAVE else STONE, Enum.Material.Slate)
 end
 -- (D-698 had flat ground beside the stair from z BANK_Z; user 2026-11-01, D-700:
 -- the wall moves back to where the stair ends, both sides; the plaza is on top,
