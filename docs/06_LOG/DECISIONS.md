@@ -4875,3 +4875,15 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User (screenshot, the wall west of the gate over the sea road's tunnel): "벽면 깔끔하게 정리".
 - The concrete under the brick wall (ParkPlatformWestStrip, park_corner_beach_1115 D-1418) reached z -277, 1.74 past the wall's plinth face (-278.74): a ledge under the whole wall. The plaza's west parapet stopped at z -272.8, leaving a notch before the corner pillar.
 - tools/graybox/park_wall_tidy_1115.lua (new, last chain step): the strip stops flush with the plinth face and the parapet runs on to it; faces read from the wall pieces.
+
+## D-1451 (2026-11-15) 전체 맵 점검: 바닥 구멍 두 군데 메움
+- User: "다른 곳은 오류난 곳이나 땅 뒤틀린 곳 없는지 전체적으로 확인".
+- Checks (Edit, then Play): rays every 2 studs over the whole play area with the invisible MapBoundary walls left out (the first pass at 4 studs had them in and missed a slot under one), slight tilts of flat parts, same-height overlapping floor faces of different colour / material (flicker), parts that were not anchored, the 27 + 1 parts of UserMapSnapshot against the place, and a Play run through club / beach / beach cafe / 한옥 / 오후네컷 / 국밥집 / station.
+- Holes found and filled (terrain grass, hanok_ground_fill.lua, which only fills columns with nothing under them):
+  - along the map's south wall in the 한옥 village, z 384..386, x 54..275: a 2-stud slot down to the void next to the wall. The column centres there (z 386) hit the invisible boundary wall, so the fill never saw the hole; the rays now ignore MapBoundary and look at 9 points per column.
+  - a small triangle behind the diagonal palace wall against the east boundary wall (x 271..276, z 62..71): the fill area now starts at z 48.
+- Left alone: a strip x 154..232, z -311..-292 between the club's north wall and the locker room has no floor and the locker room's ceiling slab stands 13 above the street there, but no path reaches it from the spawn (PathfindingService: NoPath to the strip, the ground east of it, or the slab's top); x -46 at the park's far north end is outside its wall.
+- Tilts: only the bus stop roofs (3°), OH24's awning and the wheel platform ramp: all built that way. Flicker pairs: under the grand stairs (hidden), under the 국밥집 front wall (covered), the 오후네컷 roof top (both white). Play: no script errors; the new ferris cabin textures still log "No asset content representation" (not ready on the test player).
+
+## D-1452 (2026-11-15) 떠 있던(Anchored 꺼진) 부품 고정
+- The user's 한옥 stone walls (Workspace.HanokStoneWall × 20) and building blocks (Workspace.Part × 8, 70 × 32 × 31), the bakery display's loose bread / plate / tray meshes (Workspace.Folder, Workspace.Scene, Workspace.Cube × 7) were not anchored: upright and in place in Studio, but physics objects on a live server (players could shove them, the giwa coping stays put while a wall moves). 50 parts set Anchored where they stand (place-only, positions unchanged). Left as they were: the beach cafe staff door (welded on purpose) and one part of the bumper car site (another session's work in progress, Workspace.범퍼.Part).
