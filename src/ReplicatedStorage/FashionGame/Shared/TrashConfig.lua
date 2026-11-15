@@ -10,7 +10,7 @@
 local TrashConfig = {}
 
 TrashConfig.Name = "Trashcan"
-TrashConfig.KeepSeconds = 3600 -- 1시간, then the item is gone
+TrashConfig.KeepSeconds = 24 * 3600 -- 24시간, then the item is gone (D-1434, user 2026-11-15: "쓰레기통 속 아이템 유효기간 24시간으로"; was 1 h)
 TrashConfig.Distance = 12 -- studs from the can to throw in / take out
 TrashConfig.MaxItems = 40 -- per can (the oldest goes first when it is full)
 

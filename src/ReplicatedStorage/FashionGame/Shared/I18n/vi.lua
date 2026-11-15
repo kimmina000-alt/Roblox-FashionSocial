@@ -824,7 +824,7 @@ return {
 	["쓰레기통"] = "Thùng rác",
 	["쓰레기통 가까이에서 꺼내요."] = "Lấy ra gần thùng rác.",
 	["쓰레기통 가까이에서 버려요."] = "Vứt gần thùng rác.",
-	["쓰레기통 안 {1}개 · 누르면 가져가요 (1시간 뒤 사라져요)"] = "Trong thùng rác {1} món · chạm để lấy (biến mất sau 1 giờ)",
+	["쓰레기통 안 {1}개 · 누르면 가져가요 (24시간 뒤 사라져요)"] = "Trong thùng rác {1} món · chạm để lấy (biến mất sau 24 giờ)",
 	["쓰레기통 안 · 누르면 가져가요"] = "Trong thùng rác · chạm để lấy",
 	["쓰레기통을 찾을 수 없어요."] = "Không tìm thấy thùng rác.",
 	["아니요"] = "Không",

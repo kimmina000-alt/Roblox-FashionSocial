@@ -824,7 +824,7 @@ return {
 	["쓰레기통"] = "Tempat sampah",
 	["쓰레기통 가까이에서 꺼내요."] = "Ambil di dekat tempat sampah.",
 	["쓰레기통 가까이에서 버려요."] = "Buang di dekat tempat sampah.",
-	["쓰레기통 안 {1}개 · 누르면 가져가요 (1시간 뒤 사라져요)"] = "{1} di tempat sampah · ketuk untuk ambil (hilang setelah 1 jam)",
+	["쓰레기통 안 {1}개 · 누르면 가져가요 (24시간 뒤 사라져요)"] = "{1} di tempat sampah · ketuk untuk ambil (hilang setelah 24 jam)",
 	["쓰레기통 안 · 누르면 가져가요"] = "Di tempat sampah · ketuk untuk ambil",
 	["쓰레기통을 찾을 수 없어요."] = "Tempat sampah tidak ditemukan.",
 	["아니요"] = "Tidak",

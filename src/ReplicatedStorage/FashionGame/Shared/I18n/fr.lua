@@ -824,7 +824,7 @@ return {
 	["쓰레기통"] = "Poubelle",
 	["쓰레기통 가까이에서 꺼내요."] = "Récupère-le près de la poubelle.",
 	["쓰레기통 가까이에서 버려요."] = "Jette-le près de la poubelle.",
-	["쓰레기통 안 {1}개 · 누르면 가져가요 (1시간 뒤 사라져요)"] = "{1} dans la poubelle · touche pour prendre (disparaît après 1 h)",
+	["쓰레기통 안 {1}개 · 누르면 가져가요 (24시간 뒤 사라져요)"] = "{1} dans la poubelle · touche pour prendre (disparaît après 24 h)",
 	["쓰레기통 안 · 누르면 가져가요"] = "Dans la poubelle · touche pour prendre",
 	["쓰레기통을 찾을 수 없어요."] = "Poubelle introuvable.",
 	["아니요"] = "Non",

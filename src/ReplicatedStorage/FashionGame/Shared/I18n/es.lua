@@ -824,7 +824,7 @@ return {
 	["쓰레기통"] = "Papelera",
 	["쓰레기통 가까이에서 꺼내요."] = "Sácalo cerca de la papelera.",
 	["쓰레기통 가까이에서 버려요."] = "Tíralo cerca de la papelera.",
-	["쓰레기통 안 {1}개 · 누르면 가져가요 (1시간 뒤 사라져요)"] = "{1} en la papelera · toca para coger (desaparece en 1 h)",
+	["쓰레기통 안 {1}개 · 누르면 가져가요 (24시간 뒤 사라져요)"] = "{1} en la papelera · toca para coger (desaparece en 24 h)",
 	["쓰레기통 안 · 누르면 가져가요"] = "Dentro de la papelera · toca para coger",
 	["쓰레기통을 찾을 수 없어요."] = "No se encontró la papelera.",
 	["아니요"] = "No",

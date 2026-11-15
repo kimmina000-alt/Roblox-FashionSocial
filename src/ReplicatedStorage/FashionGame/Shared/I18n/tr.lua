@@ -824,7 +824,7 @@ return {
 	["쓰레기통"] = "Çöp kutusu",
 	["쓰레기통 가까이에서 꺼내요."] = "Çöp kutusunun yanında çıkar.",
 	["쓰레기통 가까이에서 버려요."] = "Çöp kutusunun yanında at.",
-	["쓰레기통 안 {1}개 · 누르면 가져가요 (1시간 뒤 사라져요)"] = "Çöp kutusunda {1} · almak için dokun (1 saat sonra kaybolur)",
+	["쓰레기통 안 {1}개 · 누르면 가져가요 (24시간 뒤 사라져요)"] = "Çöp kutusunda {1} · almak için dokun (24 saat sonra kaybolur)",
 	["쓰레기통 안 · 누르면 가져가요"] = "Çöp kutusunda · almak için dokun",
 	["쓰레기통을 찾을 수 없어요."] = "Çöp kutusu bulunamadı.",
 	["아니요"] = "Hayır",

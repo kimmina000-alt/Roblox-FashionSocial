@@ -1603,7 +1603,7 @@ e29748	exact	쓰레기통 안 · 누르면 가져가요	1	src/StarterPlayer/Star
 89d791	exact	내 물건 · 누르면 버려요	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:124
 aa66ac	tmpl	{1}분 남음	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:185
 3546f5	exact	할 수 없어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:193
-236a81	tmpl	쓰레기통 안 {1}개 · 누르면 가져가요 (1시간 뒤 사라져요)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:205
+236a81	tmpl	쓰레기통 안 {1}개 · 누르면 가져가요 (24시간 뒤 사라져요)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:205
 ab0486	exact	버릴 수 있는 물건이 없어요 (음식 · 음료 · 스파클러)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:220
 038973	exact	을	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:313
 0386e2	exact	를	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:313

@@ -824,7 +824,7 @@ return {
 	["쓰레기통"] = "Mülleimer",
 	["쓰레기통 가까이에서 꺼내요."] = "Hol es am Mülleimer heraus.",
 	["쓰레기통 가까이에서 버려요."] = "Wirf es am Mülleimer weg.",
-	["쓰레기통 안 {1}개 · 누르면 가져가요 (1시간 뒤 사라져요)"] = "{1} im Mülleimer · tippen zum Nehmen (weg nach 1 Std.)",
+	["쓰레기통 안 {1}개 · 누르면 가져가요 (24시간 뒤 사라져요)"] = "{1} im Mülleimer · tippen zum Nehmen (weg nach 24 Std.)",
 	["쓰레기통 안 · 누르면 가져가요"] = "Im Mülleimer · tippen zum Nehmen",
 	["쓰레기통을 찾을 수 없어요."] = "Mülleimer nicht gefunden.",
 	["아니요"] = "Nein",

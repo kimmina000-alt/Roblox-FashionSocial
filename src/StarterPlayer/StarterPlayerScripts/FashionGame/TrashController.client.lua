@@ -202,7 +202,7 @@ local function refresh()
 	local folder = FashionGame:FindFirstChild("Trash") and FashionGame.Trash:FindFirstChild(can:GetAttribute("TrashCan") :: string)
 	local items = if folder then folder:GetChildren() else {}
 	table.sort(items, function(a, b) return ((a:GetAttribute("TrashedAt") :: number?) or 0) > ((b:GetAttribute("TrashedAt") :: number?) or 0) end)
-	inHead.Text = string.format("쓰레기통 안 %d개 · 누르면 가져가요 (1시간 뒤 사라져요)", #items)
+	inHead.Text = string.format("쓰레기통 안 %d개 · 누르면 가져가요 (24시간 뒤 사라져요)", #items)
 	for i, item in ipairs(items) do
 		if item:IsA("Tool") then
 			card(inList, item, i, nil, function() call("Take", item) end)
