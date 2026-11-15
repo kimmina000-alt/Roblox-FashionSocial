@@ -6,7 +6,8 @@
 -- Remote ParkRide (RemoteFunction) actions:
 --   "Board", ride            ferris wheel: the cabin at the bottom now;
 --                            viking (D-1425): a free seat, while the boat stands still
---   "Board", ride, seat#     viking (D-1428): that seat
+--   "Board", ride, seat#     viking (D-1428): that seat; already on that boat and it stands
+--                            still: move there (D-1429)
 --   "Board", ride, slot      carousel horse / swing / spring rider
 --   "Leave"                  → exit CFrame (wheel: only near the bottom)
 --   "Level", delta           swing speed −/+ (0..SwingLevels)
@@ -73,6 +74,20 @@ local function near(player: Player, position: Vector3, distance: number): boolea
 end
 
 local function board(player: Player, model: Instance, slot: Instance?, pick: number?): (boolean, any)
+	-- (D-1429, user: "앉은 상태에서 운행 시작 전에는 클릭해서 자리 이동") a viking rider moves to another
+	-- free seat of the same boat while it still stands
+	local current = riding[player]
+	if current and pick and current.kind == "ParkViking" and current.model == model then
+		local _, still = ParkConfig.vikingState(model, now())
+		if not still then return false, "운행 중에는 자리를 옮길 수 없어요." end
+		if pick % 1 ~= 0 or pick < 1 or pick > ParkConfig.vikingSeatCount(model) then return false, "옮길 수 없어요." end
+		local key = "Rider" .. pick
+		if model:GetAttribute(key) ~= nil then return false, "다른 사람이 앉은 자리예요." end
+		if model:GetAttribute(current.key) == player.UserId then model:SetAttribute(current.key, nil) end
+		model:SetAttribute(key, player.UserId)
+		current.key = key
+		return true, { slot = model, key = key }
+	end
 	if riding[player] then return false, "이미 타고 있어요." end
 	-- (D-715) cafe staff cannot sit (CafeJobController turns the Seated state
 	-- off on duty), so a tube or a seat left them stuck, even after the shift

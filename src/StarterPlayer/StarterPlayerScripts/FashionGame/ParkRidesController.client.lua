@@ -781,9 +781,10 @@ local function pressMain()
 end
 mainButton.MouseButton1Click:Connect(pressMain)
 
--- (D-1428, user 2026-11-15: "바이킹 비어 있는 자리 클릭하면 자리 선택해서 앉을 수 있게") while a
--- viking stands still, every free seat shows a round + button (near the boat, not riding); a click
--- or tap there takes that seat. The main button still takes the first free one.
+-- (D-1428, user 2026-11-15: "바이킹 비어 있는 자리 클릭하면 자리 선택해서 앉을 수 있게") the main
+-- button seats you; (D-1429, user: "앉기 전에 + 뜨는 거 지우고 앉은 상태에서 운행 시작 전에는 클릭해서
+-- 자리 이동") then, while the boat still stands, every free seat of YOUR boat shows a round +
+-- button: a click or tap there moves you to that seat.
 type SeatPick = { ride: Model, index: number, gui: BillboardGui }
 local seatPicks: {SeatPick} = {}
 local pickFolder = Instance.new("Folder")
@@ -801,7 +802,8 @@ pickHolder.CFrame = CFrame.new()
 pickHolder.Parent = workspace
 
 local function pickSeat(ride: Model, index: number)
-	if busy or mySlot then return end
+	local current = mySlot
+	if busy or not current or current.ride ~= ride then return end
 	busy = true
 	local ok, result = remote:InvokeServer("Board", ride, index)
 	if ok and typeof(result) == "table" then
@@ -857,7 +859,8 @@ local function updateSeatPicks(t: number)
 	local stillRide: {[Model]: boolean} = {}
 	for _, pick in ipairs(seatPicks) do
 		local show = false
-		if root and not mySlot and pick.ride.Parent then
+		local current = mySlot
+		if root and current and current.kind == "ParkViking" and current.ride == pick.ride and pick.ride.Parent then
 			local still = stillRide[pick.ride]
 			if still == nil then
 				local pivot = pick.ride:GetPivot()

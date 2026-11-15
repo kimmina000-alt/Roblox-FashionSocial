@@ -266,7 +266,7 @@ if super then
 		ride = { Period = 7.2, MaxAngle = 78, Board = 15, Ramp = 12, Hold = 20, Reach = 34 * K, Exit = Vector3.new(-91.6 + 13 * K, baseY + 3, -648.8) },
 		baseSize = Vector2.new(33.41 * K, 66.83 * K),
 		legX = 6.8 * K, footX = 11 * K, footZ = 24 * K, groundY = baseY, leg = 2.0 * K,
-		braces = { 0.35, 0.7 }, truss = true,
+		braces = {}, -- (D-1429, user: "슈퍼바이킹 기둥 사이에 있는 프레임들 삭제": no braces, no truss)
 		arm = 1.3 * K, armZ = 21 * K, armBulbs = 6,
 		frameColor = Color3.fromRGB(128, 58, 42), footColor = Color3.fromRGB(90, 90, 95),
 		hubColor = Color3.fromRGB(150, 70, 50), armColor = Color3.fromRGB(128, 58, 42),
