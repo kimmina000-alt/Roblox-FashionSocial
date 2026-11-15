@@ -75,4 +75,5 @@
 - 예전 이름: hongdae_v1_temp.lua / Workspace.Hongdae_v1_Temp (임시 단계). 새 스크립트의 revert가 예전 폴더도 지운다.
   - `park_wall_tidy_1115.lua` (D-1450) — 놀이공원 남쪽 벽(게이트 서쪽) 정리: ParkPlatformWestStrip 남쪽 면을 벽 받침(plinth) 면 z -278.74에 맞추고, 광장 서쪽 난간(ParkPlazaParapet)을 벽까지 잇는다. 체인 맨 끝(park_corner_beach_1115 다음, 그 스크립트가 strip을 매번 -277로 되돌리므로).
   - `park_paths_1116.lua` (D-1471) — 놀이공원 길: 정문 광장(로제트) → 대각선 길 → 회전목마 원형 광장 → 가운데 산책로(관람차·범퍼카 사이는 좁게) → 북쪽 원형 광장 → 끝 광장, 놀이기구마다 갈래길. 사암 포석 + 테라코타 벽돌 테두리·띠·마름모, 잔디밭(벚나무·덤불), 가로등·벤치·휴지통·튤립 화단·꽃바구니 깃발 기둥. 공원 바닥(ParkPlatform*)을 중간 회색으로(원래 색은 속성 OrigColor). Workspace["놀이공원길"], 매번 새로. 놀이기구 스크립트들 다음, park_wall_tidy 다음, zfight_fix 앞.
+  - `park_playground_1116.lua` (D-1475) — 놀이터(정문 안 서쪽, x -178.5..-134, z -284..-371): 고무 바닥, 그네 3(ParkSwing), 말 스프링 3(ParkSpring), 미끄럼틀 탑(ParkSlide, 경로 P0..P2를 제자리로), 버섯 회전의자, 작은 회전목마, 벤치. 존 06_Park_Playground.놀이 의 옛 놀이기구와 Hongdae_Layout.BumperCarGates(옛 투명벽)를 지운다. Workspace["놀이터"], 매번 새로. park_paths_1116 다음.
   - `zfight_fix_1115.lua` (D-1453) — 겹친 면 정리: 같은 면 위에서 같은 쪽을 보고 겹치는 두 부품(색/재질이 달라 깜빡임)이 있으면 작은 쪽 면을 0.02 밖으로. 체인의 진짜 마지막(park_wall_tidy_1115 다음, 사용자 스냅샷 다음). 다시 돌려도 남은 게 없으면 아무것도 안 함.

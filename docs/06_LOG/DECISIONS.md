@@ -5014,3 +5014,13 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - park_teacups_1115: TEAPOT_H 19.5 → 29.25 (12.8 wide); the ride's attribute PotPeriod = 24 (seconds a turn).
 - ParkRidesController: each tea cup ride's "Teapot" turns about the ride's middle, one turn per PotPeriod, all the time (running or not), from the server clock ((t / period) % 1), moved like the other ride parts (moveModel).
 - Play: turned 30° in 2 s (24 s a turn); no script errors. Studio script source hash = git.
+
+## D-1475 (2026-11-16) 놀이터 + 놀이공원 항공샷
+- User: "놀이터 구현" + two playground photos (blue rubber floor with coloured patches, a play tower with a red roof, a red slide, stairs, a climbing wall and a yellow arch panel, a swing set with red and blue posts, red spring horses, mushroom spinner seats, a small merry-go-round); "놀이공원 부지 항공샷 줘 왜곡 없이".
+- New tools/graybox/park_playground_1116.lua → Workspace["놀이터"] (217 parts), inside the gate west of the gate plaza (x -178.5..-134, z -284..-371), after park_paths_1116:
+  - The old pieces in Graybox_MainSocial.06_Park_Playground.놀이 (swing set, slide, 3 spring riders) are removed: the old slide's path (P0..P2) still pointed at its first place (z -583..-595), so sliding took riders across the park.
+  - Built again with the tags and structure the ride code reads: Swing1..3 (ParkSwing: Pivot, SwingSeat pivoted at the top, Length 8; swing along z), Horse1..3 (ParkSpring: Rocker pivoted at the spring top, SeatY 1.6; red / yellow / red horses facing -z), Slide (ParkSlide: SlideStart at the deck's east edge, P0..P2 along the bed 0.25 over it).
+  - Decor: blue rubber floor with orange / green / sand / red patches (each its own height), a low yellow rubber edge, the tower (yellow deck 5.5 up, blue posts, stepped red roof, red climbing wall with holds, yellow arch panel, blue rails, 10 walkable steps), two mushroom spinners, a small yellow merry-go-round, two benches and a bin.
+  - Hongdae_Layout.BumperCarGates is removed: four invisible collision walls left from the bumper cars' first place (two across this ground, one across the diagonal path at x -156, one by the fire truck), in no script.
+- Play: boarded a swing (rider on the board, swinging) and a horse (rocking); walked up the steps onto the deck and down the slide (x -159 → -141, landed on the floor); no script errors.
+- Aerial: docs/04_ART/park/park_aerial_2026-11-16.jpg — nine shots straight down from 400 up with the camera's field of view at 20° (little perspective), cut to 130-stud bands and stitched at 4.25 px per stud, north (-z) up, with 50-stud marks.
