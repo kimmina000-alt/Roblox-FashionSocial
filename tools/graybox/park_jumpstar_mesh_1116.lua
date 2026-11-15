@@ -71,6 +71,21 @@ local carPart = place(carMesh, "CarMesh", car)
 local barPart = place(bar, "LapBarMesh", car)
 carPart.CanQuery = false
 barPart.CanQuery = false
+-- (D-1485, user: "의자 사이즈 캐릭터 크기에 맞춰서 조절해 봐 안전바 조금 더 내리고") the car is
+-- CAR_SCALE of the tower's scale (seats 2.3 wide, 3 deep, like a sitting avatar), shrunk about its
+-- back-bottom edge so it stays against the tower; the lap bar drops BAR_DROP more onto the laps.
+local CAR_SCALE = 0.75
+local BAR_DROP = 0.5
+do
+	local c = pivot:ToObjectSpace(carPart.CFrame)
+	local anchor = c.Position + Vector3.new(0, -carPart.Size.Y / 2, carPart.Size.Z / 2)
+	for _, p in ipairs({ carPart, barPart }) do
+		local r = pivot:ToObjectSpace(p.CFrame)
+		p.Size *= CAR_SCALE
+		p.CFrame = pivot * (CFrame.new(anchor + (r.Position - anchor) * CAR_SCALE) * r.Rotation)
+	end
+	barPart.CFrame = pivot * CFrame.new(0, -BAR_DROP, 0) * pivot:ToObjectSpace(barPart.CFrame)
+end
 
 -- 3. a walkable disc where the mesh's base disc is (radius = half the tower mesh's width at the floor)
 local params = RaycastParams.new()

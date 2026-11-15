@@ -5097,3 +5097,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - ServerStorage.ArtAssets.JumpStarMesh = the user's re-import (tower 14.7 high in Blender units, car 2.74 wide); park_jumpstar_mesh_1116 at 4.5x: tower 66.1, car 12.3 wide, base disc r 5.5. Seat tops now found by a ray on the car mesh (6.45 / 6.63 over the foot).
 - Jump height follows the taller tower: Ride attribute JumpScale (ParkConfig.jumpStarState multiplies every JumpKeys height by it) = 1.304, so the car's top stops at 41 over the foot, under the arms. Play: car centre 8.8 → 37.5.
 - Bulbs (Workspace["점핑스타"].Lights, 184 neon balls, no lights / shadows): red and blue bulbs alternating up both outer sides of the tower to the arms (the photo's bulb columns), warm white bulbs along the arms, the small stars and the big star, red bulbs round the JUMPIN STAR letters (found by front rays on a 0.25 grid: an outline = a hit beside a miss or a depth step). 207 parts in the ride with the fence.
+
+## D-1485 (2026-11-16) 점핑스타: 마지막 상승은 간판 아래까지, 좌석은 아바타 크기, 안전바 낮게
+- User (screenshots with a red line between the arms' stars and the JUMPIN STAR sign): "끝에 여기까지 올려 / 의자 사이즈 캐릭터 크기에 맞춰서 조절해 봐 안전바 조금 더 내리고".
+- ParkConfig.JumpKeys: the last slow climb and its hold go to 30 (were 22); with the Ride's JumpScale 1.384 the car's top reaches 52.1 over the foot (measured in Play), right under the sign. The hops before it are unchanged.
+- park_jumpstar_mesh_1116: CAR_SCALE 0.75 (car 9.24 x 5.24 x 3.37: seats 2.3 wide and 3 deep, shrunk about the car's back-bottom edge so it stays on the tower), the lap bar 0.5 lower on top of that (bar box 6.98..8.43 over the foot, seats 6.17 / 6.30). Play: the rider sits on the pad within one seat, the bar across the lap.

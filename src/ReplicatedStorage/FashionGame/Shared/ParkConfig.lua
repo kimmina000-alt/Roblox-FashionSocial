@@ -340,12 +340,14 @@ end
 -- (up the tower in hops, bouncing down again) and then D-1458's ending: slowly up to the top, a moment
 -- there, the sudden drop and its brake and one small bounce. ParkConfig.jumpStarBigDrop says when the
 -- last drop runs (the riders' arms go up and the wind blows only then).
+-- (D-1485, user: "끝에 여기까지 올려" + a line between the arms' stars and the sign) the last climb
+-- goes to 30 (with JumpScale 1.384: the car's top 52 over the foot, under the JUMPIN STAR sign).
 ParkConfig.JumpKeys = {
 	{ 0, 0 }, { 2.4, 6 }, { 3.1, 3.5 }, { 5.2, 12 }, { 5.9, 9 }, { 8.0, 17 }, { 8.7, 14 }, { 11.0, 22 },
 	{ 12.6, 22 }, { 13.2, 11 }, { 14.3, 20 }, { 14.9, 9 }, { 16.0, 19 }, { 16.6, 7 }, { 17.8, 17 },
 	{ 18.4, 5 }, { 19.6, 14 }, { 20.2, 3 }, { 21.4, 10 }, { 22.0, 2 }, { 23.0, 6 }, { 23.6, 0.6 },
 	{ 24.4, 2.2 }, { 25.2, 0 },
-	{ 33.2, 22 }, { 35.7, 22 }, { 36.8, 6, "fall" }, { 37.2, 0, "brake" }, { 37.9, 1.2 }, { 38.7, 0 },
+	{ 33.2, 30 }, { 35.7, 30 }, { 36.8, 6, "fall" }, { 37.2, 0, "brake" }, { 37.9, 1.2 }, { 38.7, 0 },
 }
 ParkConfig.JumpWindSpeed = 6 -- (studs/s down: faster than this, the wind sound plays — the big drop)
 
