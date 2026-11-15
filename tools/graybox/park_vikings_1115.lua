@@ -79,7 +79,7 @@ end
 -- (D-1428) "_Tex2" = the boat with its walls lowered above the seats (riders see out); its glb is
 -- shorter, so it brings its own height / middle (glb units), see the specs' glb.v2
 local function boatTemplate(kind: string): (MeshPart?, string?)
-	for _, v in ipairs({ "_Tex2", "_Tex", "" }) do
+	for _, v in ipairs({ "_Tex3", "_Tex2", "_Tex", "" }) do -- (D-1436: _Tex3 = the user's own edit)
 		local m = art:FindFirstChild("VikingBoat" .. kind .. v)
 		local b = m and (m:FindFirstChild("Boat") or m:FindFirstChildWhichIsA("MeshPart"))
 		if b then return b :: MeshPart, v end
@@ -149,9 +149,10 @@ local function build(owner: Model, kind: string, o: Vector3, s)
 
 	-- the boat (its height from the glb in use: s.sy studs per glb unit)
 	local tmpl, variant = boatTemplate(kind)
-	local gv = if variant == "_Tex2" then s.glb.v2 else s.glb
+	local gv = if variant == "_Tex3" then (s.glb.v3 or s.glb.v2) elseif variant == "_Tex2" then s.glb.v2 else s.glb
 	s.height = gv.height * s.sy
 	s.glb.height, s.glb.midY = gv.height, gv.midY
+	if gv.rows then s.glb.rows = gv.rows end
 	local boatMid = Vector3.new(o.X, s.restY + s.height / 2, o.Z)
 	if tmpl then
 		local boat = tmpl:Clone()
@@ -261,7 +262,9 @@ if super then
 	build(super, "Super", Vector3.new(-91.6, baseY + 46.65 * K, -648.8), {
 		len = 50.1 * K, width = 8.7 * K, sy = 3.614 * K, restY = baseY + 5.6 * K,
 		glb = { len = 13.907, width = 2.405, height = 2.02, midY = 1.106, seatTop = 1.016, seatX = 0.42, rows = { -6.29, -4.85, -3.42, -1.98, -0.54, 0.54, 1.98, 3.42, 4.85, 6.29 },
-			v2 = { height = 1.4708, midY = 0.8318 } },
+			v2 = { height = 1.4708, midY = 0.8318 },
+			-- (D-1436, user: "슈퍼바이킹 가운데 의자 두 개 삭제했음": the user's Tex3 has no middle rows ±0.54)
+			v3 = { height = 1.4708, midY = 0.8318, rows = { -6.29, -4.85, -3.42, -1.98, 1.98, 3.42, 4.85, 6.29 } } },
 		ride = { Period = 7.2, MaxAngle = 78, Board = 15, Ramp = 12, Hold = 20, Reach = 34 * K, Exit = Vector3.new(-91.6 + 13 * K, baseY + 3, -648.8) },
 		baseSize = Vector2.new(33.41 * K, 66.83 * K),
 		legX = 6.8 * K, footX = 11 * K, footZ = 24 * K, groundY = baseY, leg = 2.0 * K,

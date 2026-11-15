@@ -4797,3 +4797,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: a blue drip picture + "티컵 이미지 … 새로운 걸로 교체".
 - tools/art/teacups_drip_v2.py fits the picture into the cup texture's side area (top 0.8 of the image, the swatches below kept) and re-tints the blue per cup → CupDrip_<green|red|yellow|blue|darkgreen>.png (docs/04_ART/park/teacups_tex/v2), uploaded (96347537548381, 127637303435065, 137053123416662, 126801391100567, 93907123130946) and set on the five cups (and the backup), park_teacups_1115 CUP_TEXTURES. Play: the cups show the user's drips.
 - The user's new vikings: 02_SuperViking_Tex3.glb is fine (1260 vertices, the same texture; not imported yet); 09_MiniViking_Tex3.glb is empty (132 bytes, no mesh: the export had nothing selected) — asked the user to export it again.
+
+## D-1436 (2026-11-15) Super viking without its middle seats (the user's Tex3)
+- User: "슈퍼바이킹 가운데 의자 두 개 삭제했음" (02_SuperViking_Tex3.glb: the two middle seat rows, z ±0.54, are gone; 8 rows left, checked on the file).
+- park_vikings_1115 takes VikingBoat<Kind>_Tex3 first; the super viking's v3 seat rows leave out ±0.54 → 16 seats (was 20). The mini viking's Tex3 has the same size and rows as Tex2. Both swap in once the user imports them.
