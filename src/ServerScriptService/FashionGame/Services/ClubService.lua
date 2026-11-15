@@ -467,11 +467,15 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		-- (D-1359, user 2026-11-13: "클럽에서 DJ 있어도 노래 신청은 할 수 있게 해. DJ가 싫으면 그냥
 		-- 건너뛰면 되니까") with a DJ on, guests still request (one each, like without a DJ);
 		-- the DJ can skip a song or play another one now
+		-- (D-1416, user 2026-11-14: "노래 신청 세 곡까지 가능하게 수정") up to ClubConfig.MaxRequestsEach
+		-- songs waiting per guest (one until now)
 		if not isDJ then
+			local mine = 0
 			for _, entry in ipairs(requests) do
-				if entry.u == player.UserId then
-					return false, "신청한 곡이 나온 뒤에 다시 신청할 수 있어요."
-				end
+				if entry.u == player.UserId then mine += 1 end
+			end
+			if mine >= ClubConfig.MaxRequestsEach then
+				return false, string.format("신청곡은 한 사람당 %d곡까지예요. 신청한 곡이 나오면 다시 신청할 수 있어요.", ClubConfig.MaxRequestsEach)
 			end
 		end
 		if #requests >= MAX_REQUESTS then return false, "신청곡이 가득 찼어요." end

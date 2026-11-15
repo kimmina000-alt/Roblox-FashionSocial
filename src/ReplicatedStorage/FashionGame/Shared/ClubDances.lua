@@ -8,6 +8,11 @@ export type Dance = {
 	category: string,
 	animationId: number,
 	looped: boolean,
+	-- (D-1416) a smooth loop: play loopFrom..loopTo of the clip and blend the end into the next
+	-- start over loopBlend seconds (instead of the clip's own hard jump back to 0)
+	loopFrom: number?,
+	loopTo: number?,
+	loopBlend: number?,
 }
 
 local M = {}
@@ -18,9 +23,14 @@ M.Categories = { "댄스", "K-POP", "포즈·응원" }
 
 M.Dances = {
 	-- (D-1381, user 2026-11-13: "춤 목록에 추가 댄스1/2/3") the user's own uploads (Vantablack_Dev, looped, 13.5 / 19.9 / 15.4 s)
-	{ key = "club1", name = "클럽 댄스 1", category = "댄스", animationId = 104196105569844, looped = true },
-	{ key = "club2", name = "클럽 댄스 2", category = "댄스", animationId = 132094357016221, looped = true },
-	{ key = "club3", name = "클럽 댄스 3", category = "댄스", animationId = 110198854438295, looped = true },
+	-- (D-1416, user 2026-11-14: "클럽댄스 1, 2, 3 반복 춤으로 자연스럽게 이어지도록 첫동작과 끝동작 연결되게
+	-- 수정") the clips' last pose and first pose differed by 8.6 / 5.5 / 4.7 (sum of the 15 joints'
+	-- turn in radians; a 0.1 s step of the dance is about 1.4 / 2.2 / 1.2), so the loop snapped.
+	-- loopFrom / loopTo = the pair of poses (first and last 2.5 s, 0.1 s steps) that are closest,
+	-- blended over loopBlend (DanceController)
+	{ key = "club1", name = "클럽 댄스 1", category = "댄스", animationId = 104196105569844, looped = true, loopFrom = 1.1, loopTo = 12.41, loopBlend = 0.5 },
+	{ key = "club2", name = "클럽 댄스 2", category = "댄스", animationId = 132094357016221, looped = true, loopFrom = 0, loopTo = 19.61, loopBlend = 0.5 },
+	{ key = "club3", name = "클럽 댄스 3", category = "댄스", animationId = 110198854438295, looped = true, loopFrom = 0, loopTo = 15.31, loopBlend = 0.45 },
 	{ key = "shuffle", name = "셔플", category = "댄스", animationId = 10714371274, looped = true },
 	{ key = "line", name = "라인 댄스", category = "댄스", animationId = 10714383856, looped = true },
 	{ key = "break", name = "브레이크", category = "댄스", animationId = 10714003221, looped = true },
