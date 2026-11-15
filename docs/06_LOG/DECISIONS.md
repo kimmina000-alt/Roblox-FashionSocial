@@ -4901,3 +4901,13 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1455 (2026-11-15) 2인 테스트: 회전컵 연타·바이킹 문 / 문 갱신 거리 400
 - 2P test (server + Player1 / Player2, PC windows, started by the user before D-1454, so without the fire truck): both boarded tea cup 1 with E; Player1's four clicks on an empty spot of the screen took the cup's extra spin to 4.1 rad/s and Player2's screen showed it (Spin1 replicated; the saucer 0.12–0.15 from the formula after the first frame, 0.99 in it; both riders 2.05 from a bench); both left with E when it stopped. Player2 at the mini viking: walking in while the boat ran stopped at x -223.5, after it stopped walked in to -233.4. No script errors on the server or either client (only the known asset warnings).
 - Bug: on Player1's screen (151 studs from the gate) the mini viking's entrance stayed open while the boat ran: RideGateController only updated gates within NEAR = 150. Now 400 (only a few gates, cheap). Needs the next test.
+
+## D-1456 (2026-11-15) 점핑스타 디자인
+- User: "점핑스타 디자인" + a photo of a Jumping Star ride.
+- tools/graybox/park_jumpingstar_1115.lua (new chain step; Workspace["점핑스타"], outside Hongdae_Layout; park_layout_1111 no longer builds the 24_JumpingStar blockout when it exists): where the blockout stood (x -255.8, z -370.4, kept in the attribute Site), facing +x (the park's middle):
+  - a grey round plinth with a red trim, a red machine box behind, a red A-frame foot
+  - a yellow tower 40 high with a dark slot near the top under a red cap; red / blue twisted bulb columns up both sides (two strands round a pole), four small yellow stars on them
+  - on top a big yellow star (8 across the points) with a red neon rim, white bulbs on the tips and "JUMPING STAR" in red letters
+  - one blue car across the tower's front, 15 wide: six seats yellow / red / orange, lap bar on two arms, foot rest, rounded blue ends with yellow caps, red sleeves round the tower, six yellow stars along its back
+  - a grey queue fence (R 11) open towards +x with ENTER / EXIT signs
+- 632 parts. Design only: the car stands at seat height 9 and does not jump yet. No overlapping faces (zfight pass: 0).

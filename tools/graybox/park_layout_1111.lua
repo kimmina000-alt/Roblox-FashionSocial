@@ -207,7 +207,8 @@ if not workspace:FindFirstChild("회전컵") then roundRide("07_TeaCups", -126, 
 roundRide("03_JumperBoat", -105, -394, 13, 6, { C.blue, C.white })
 
 -- 24 점핑스타: a drop tower
-do
+-- (D-1456: the real ride is Workspace["점핑스타"], park_jumpingstar_1115; no blockout then)
+if not workspace:FindFirstChild("점핑스타") then
 	local m = grp("24_JumpingStar")
 	local x, z = -107, -440
 	disc(m, "Base", x, z, 8, 0, 1, C.stone)
