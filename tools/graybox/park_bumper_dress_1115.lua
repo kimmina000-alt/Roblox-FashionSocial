@@ -303,7 +303,12 @@ do
 	end
 end
 
----------------------------------------------------------------- the back wall panels (-z)
+---------------------------------------------------------------- the back wall (-z)
+-- (D-1464, user 2026-11-16: "범퍼카 저쪽 벽면 자잘한 거 다 삭제하고 벽 하나만 두고 이미지 넣어" + a neon
+-- bumper-car picture, docs/04_ART/park/bumper/bumper_wall.png = 74788882274531, 1584 × 672) one dark
+-- wall over the back rail up to the eaves, the picture on it. The wall is a long strip (about 10:1)
+-- and the picture 2.4:1, so not to stretch it the wall shows a band of it as wide as the picture,
+-- centred on the crash in the middle (rows BAND_MID ± half the band).
 do
 	local rail = nil
 	for _, p in ipairs(area:GetChildren()) do
@@ -314,17 +319,26 @@ do
 	end
 	local top = if rail then select(2, bb(rail)).Y + 0.5 else FY + 8
 	local z = Z0 - 1.6
-	local COLS = { Color3.fromRGB(110, 50, 170), Color3.fromRGB(40, 90, 200), Color3.fromRGB(220, 70, 150) }
-	local n = 8
-	local pw = (X1 - X0) / n
+	local W = X1 - X0
 	local h = EAVE - 1.5 - top
-	for k = 0, n - 1 do
-		local x = X0 + (k + 0.5) * pw
-		part("WallPanel", Vector3.new(pw - 0.2, h, 0.4), CFrame.new(x, top + h / 2, z), COLS[k % #COLS + 1], Enum.Material.SmoothPlastic)
-		local band = part("WallNeon", Vector3.new(pw - 1.2, 0.3, 0.12), CFrame.new(x, top + h * 0.72, z + 0.26), BULBS[k % #BULBS + 1], Enum.Material.Neon)
-		band.CastShadow = false
-		star(CFrame.new(x, top + h * 0.38, z + 0.3) * CFrame.Angles(0, math.pi, 0), 1.6, 0.25, YELLOW, Enum.Material.Neon)
-	end
+	local IMG, IW, IH, BAND_MID = "rbxassetid://74788882274531", 1584, 672, 385
+	local wall = part("BackWall", Vector3.new(W, h, 0.4), CFrame.new((X0 + X1) / 2, top + h / 2, z), Color3.fromRGB(16, 18, 34), Enum.Material.SmoothPlastic)
+	local g = Instance.new("SurfaceGui")
+	g.Name = "Mural"
+	g.Face = Enum.NormalId.Back -- (+z: towards the arena)
+	g.CanvasSize = Vector2.new(2048, math.floor(2048 * h / W))
+	g.LightInfluence = 0.15
+	g.Brightness = 1.3
+	g.Parent = wall
+	local img = Instance.new("ImageLabel")
+	img.Size = UDim2.fromScale(1, 1)
+	img.BackgroundTransparency = 1
+	img.Image = IMG
+	local bandH = math.floor(IW * h / W + 0.5)
+	img.ImageRectOffset = Vector2.new(0, math.clamp(BAND_MID - bandH / 2, 0, IH - bandH))
+	img.ImageRectSize = Vector2.new(IW, bandH)
+	img.ScaleType = Enum.ScaleType.Stretch
+	img.Parent = g
 end
 
 dress.Parent = workspace["범퍼"]
