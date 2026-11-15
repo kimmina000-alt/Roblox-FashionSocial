@@ -5084,3 +5084,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User (a screenshot where the rim seemed to touch the super viking's frame): "관람차 바이킹 안 닿는 위치로 수정해. 니가 확인해 놓고 그냥 둔 이유가 뭐냐?"
 - D-1481 had set 10 only between the ground footprints (legs ↔ base). Measured in 3D (rim and cabins over a full turn, the boat over a full swing) the nearest gap was about 20: the photo's angle put the two one behind the other. That should have been said with the shot, not left.
 - The user picked "북쪽으로 20 더": park_swap_1116 WHEEL (-100, -768.6): legs 30 from the viking's base, the turning rim / cabins about 40 from its frame and boat. Nothing else stands in the new footprint (x -132..-85, z -823..-715).
+
+## D-1483 (2026-11-16) 점핑스타 = 사용자 모델
+- User: "점핑스타 만들었어 교체해 봐" (D:\Roblox\오후D 물\jumpingstar.glb, imported into Studio by the user as a Scene with Cylinder / Plane / BézierCurve).
+- The import lives in ServerStorage.ArtAssets.JumpStarMesh (place only). tools/graybox/park_jumpstar_mesh_1116.lua scales it 4.5x (tower 42.9 high, car 9.2 wide: four seats 2.3 apart like the block car) and stands it on the Ride pivot facing the park's middle (+x).
+- Removed from Workspace["점핑스타"]: the block tower, stars, sign, machine box, light poles and bulbs (500 → 29 parts with the fence). Kept: fence, Enter / Exit signs, Ride (tag ParkJumpStar, Board / Exit / Reach).
+- Ride.Car now holds CarMesh + LapBarMesh (they hop with ParkConfig.jumpStarState as before); the tower mesh is CanCollide false over an invisible base disc (r 6.25, measured by rays) and pole collider.
+- Seats: Seat1..Seat4 on the seat pads (6.88 over the foot, measured by a ray on the car mesh); Seat5 / Seat6 removed. Play check: boarding seat 2 puts the rider on the pad under the lap bar, the rider rides with the car (car 24.7 → 46.7 at the top, under the JUMPIN STAR letters).
