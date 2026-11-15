@@ -85,6 +85,39 @@ local vikings: {{ model: Model, swing: Model?, rel: CFrame }} = {} -- (D-1425)
 local teacups: {{ model: Model, rotor: Model?, rel: CFrame }} = {} -- (D-1432)
 local seatRides: {Model} = {} -- (vikings and tea cups: seats picked, a shared run)
 
+-- (D-1441, 2P test 2026-11-15: on Player2's screen the tea cups' parts stood up to 2 × their radius
+-- from where the cups turned) Moving a Model with PivotTo while its parts are still streaming in
+-- moves only the empty pivot; parts that arrive later come in at the server's resting place and keep
+-- a wrong offset from then on. So every moving piece of a ride keeps, for each part, its offset from
+-- the model's RESTING pivot (the server's, read the first time the model is moved, before this
+-- client has touched it); a part that streams in later is at the server's resting place too, so its
+-- offset is right. Each frame the parts go to cf * offset in one BulkMoveTo.
+type Rig = { rest: CFrame, parts: {[BasePart]: CFrame} }
+local rigs: {[Instance]: Rig} = {}
+local function moveModel(model: Instance, cf: CFrame)
+	local rig = rigs[model]
+	if not rig then
+		local rest = (model :: Model):GetPivot()
+		local r: Rig = { rest = rest, parts = {} }
+		local function add(d: Instance)
+			if d:IsA("BasePart") then r.parts[d] = rest:ToObjectSpace(d.CFrame) end
+		end
+		for _, d in ipairs(model:GetDescendants()) do add(d) end
+		model.DescendantAdded:Connect(add)
+		model.DescendantRemoving:Connect(function(d: Instance)
+			if d:IsA("BasePart") then r.parts[d] = nil end
+		end)
+		rigs[model] = r
+		rig = r
+	end
+	local ps, cfs = {}, {}
+	for part, offset in pairs((rig :: Rig).parts) do
+		table.insert(ps, part)
+		table.insert(cfs, cf * offset)
+	end
+	if #ps > 0 then workspace:BulkMoveTo(ps, cfs, Enum.BulkMoveMode.FireCFrameChanged) end
+end
+
 local function hubCFrame(model: Model, name: string): CFrame?
 	local part = model:FindFirstChild(name)
 	return if part and part:IsA("BasePart") then part.CFrame else nil
@@ -385,12 +418,12 @@ local function animate(t: number, dt: number)
 		local hub = hubCFrame(wheel.model, "Hub")
 		if hub and cameraNear(hub.Position, true) then
 			if wheel.rotor then
-				wheel.rotor:PivotTo(hub * CFrame.Angles(ParkConfig.wheelAngle(wheel.model, t), 0, 0) * wheel.rel)
+				moveModel(wheel.rotor, hub * CFrame.Angles(ParkConfig.wheelAngle(wheel.model, t), 0, 0) * wheel.rel)
 			end
 			for index = 1, ParkConfig.cabinCount(wheel.model) do
 				local cabin = wheel.model:FindFirstChild("Cabin" .. index)
 				local cf = ParkConfig.cabinCFrame(wheel.model, index, t)
-				if cabin and cabin:IsA("Model") and cf then cabin:PivotTo(cf) end
+				if cabin and cabin:IsA("Model") and cf then moveModel(cabin, cf) end
 			end
 		end
 	end
@@ -398,30 +431,30 @@ local function animate(t: number, dt: number)
 		local center = hubCFrame(carousel.model, "Center")
 		if center and cameraNear(center.Position, true) then
 			if carousel.rotor then
-				carousel.rotor:PivotTo(center * CFrame.Angles(0, ParkConfig.carouselAngle(carousel.model, t), 0) * carousel.rel)
+				moveModel(carousel.rotor, center * CFrame.Angles(0, ParkConfig.carouselAngle(carousel.model, t), 0) * carousel.rel)
 			end
 			for index = 1, ParkConfig.horseCount(carousel.model) do
 				local horse = carousel.model:FindFirstChild("Horse" .. index)
 				local cf = ParkConfig.horseCFrame(carousel.model, index, t)
-				if horse and horse:IsA("Model") and cf then horse:PivotTo(cf) end
+				if horse and horse:IsA("Model") and cf then moveModel(horse, cf) end
 			end
 		end
 	end
 	for _, viking in ipairs(vikings) do
 		local pivot = viking.model:GetPivot()
 		if viking.swing and viking.model.Parent and cameraNear(pivot.Position, true) then
-			viking.swing:PivotTo(pivot * ParkConfig.vikingTurn(viking.model, t) * viking.rel)
+			moveModel(viking.swing, pivot * ParkConfig.vikingTurn(viking.model, t) * viking.rel)
 		end
 	end
 	for _, tc in ipairs(teacups) do
 		local pivot = tc.model:GetPivot()
 		if tc.model.Parent and cameraNear(pivot.Position, true) then
 			local turn = ParkConfig.teacupState(tc.model, t)
-			if tc.rotor then tc.rotor:PivotTo(pivot * CFrame.Angles(0, turn, 0) * tc.rel) end
+			if tc.rotor then moveModel(tc.rotor, pivot * CFrame.Angles(0, turn, 0) * tc.rel) end
 			for cup = 1, ParkConfig.teacupCount(tc.model) do
 				local m = tc.model:FindFirstChild("Cup" .. cup)
 				local cf = ParkConfig.teacupCFrame(tc.model, cup, t)
-				if m and m:IsA("Model") and cf then m:PivotTo(cf) end
+				if m and m:IsA("Model") and cf then moveModel(m, cf) end
 			end
 		end
 	end
@@ -433,7 +466,7 @@ local function animate(t: number, dt: number)
 			-- speed changes ease in over a few swings (no jolts)
 			swing.amp += (target - swing.amp) * math.min(1, dt * 0.6)
 			swing.phase = (swing.phase + dt * 2 * math.pi / ParkConfig.SwingPeriod) % (2 * math.pi)
-			swing.seat:PivotTo(pivot * CFrame.Angles(swing.amp * math.sin(swing.phase), 0, 0))
+			moveModel(swing.seat, pivot * CFrame.Angles(swing.amp * math.sin(swing.phase), 0, 0))
 		end
 	end
 	for _, model in ipairs(floaters) do
@@ -468,7 +501,7 @@ local function animate(t: number, dt: number)
 			if spring.model:GetAttribute("Rider") then
 				angle = ParkConfig.SpringAngle * math.sin(t * 2 * math.pi / ParkConfig.SpringPeriod)
 			end
-			spring.rocker:PivotTo(spring.base * CFrame.Angles(angle, 0, 0))
+			moveModel(spring.rocker, spring.base * CFrame.Angles(angle, 0, 0))
 		end
 	end
 end
