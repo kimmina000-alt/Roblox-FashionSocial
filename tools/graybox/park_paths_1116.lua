@@ -7,7 +7,7 @@
 --   * a paved network on the park's flat floor (all of it was one light grey slab, now a mid grey): a gate plaza with a
 --     rosette, a diagonal path to a round plaza round the carousel (radial terracotta stripes), the
 --     main promenade north up the park's middle (narrow between the ferris wheel and the bumper
---     cars), plazas where it bends and a round north plaza, short branch paths to each ride's entrance
+--     cars until D-1476), plazas where it bends and a round north plaza, short branch paths to each ride's entrance
 --   * paving: warm sandstone setts (Cobblestone), terracotta brick edges and cross bands, diamond medallions; every
 --     layer at its own height (no shared faces: branch 0.05 / 0.08, path 0.11 / 0.14 / 0.17, plaza
 --     0.20 / 0.23 / 0.26 above the floor), each slab 0.3 thick so nothing floats
@@ -192,10 +192,12 @@ do
 end
 -- the carousel plaza (round, the carousel's yellow fence inside it)
 plazaRound("CarouselPlaza", HUB.X, HUB.Z, HUB_R, 27.5, 32)
--- the promenade north: wide, narrow past the ferris wheel / bumper cars, wide again
+-- the promenade north (20 wide all the way since D-1476)
 path(V(-176, -482), V(-176, -730), 20)
 plazaBox("BumperPlaza", -198, -156, -752, -724)
-path(V(-184, -746), V(-184, -902), 10, { step = 26 })
+-- (D-1476: the bumper cars and the wheel swapped; the bumper hall's east rail is at x -187.3, so this
+-- stretch is as wide as the rest, was 10 wide at x -184 between the wheel and the hall)
+path(V(-176, -746), V(-176, -902), 20)
 plazaBox("WheelPlaza", -198, -160, -918, -899)
 path(V(-176, -912), V(-176, -1016), 20)
 local NORTH = V(-176, -1042)
@@ -219,6 +221,7 @@ branch(V(-176, -591), V(-62, -591), 16, 10) -- 슈퍼바이킹 (its two gates fa
 branch(V(-176, -646), V(-227, -646), 12, 10) -- 평화열차 / 점퍼보트
 branch(V(-160, -1056), V(-114, -1092), 12, 4) -- 유레카
 branch(V(-176, -1132), V(-155, -1132), 10, 10) -- 번개 코스터
+branch(V(-176, -790), V(-96, -790), 12, 10) -- 관람차 (D-1476: its station's stairs face +z at x -110, z -800)
 branch(V(-193, -1058), V(-236, -1100), 12, 4) -- 스카이 사이클
 
 ---------------------------------------------------------------- free space test
@@ -316,8 +319,11 @@ local function lawn(name: string, x0: number, x1: number, z0: number, z1: number
 	end
 	table.insert(paved, { kind = "box", c = V(cx, cz), hx = w / 2, hz = l / 2 })
 end
-lawn("LawnWestA", -286, -202, -778, -700, 4, 2)
-lawn("LawnWestB", -286, -202, -1030, -842, 9, 3)
+-- (D-1476: the bumper hall now fills x -297..-187, z -754..-897, and the user's queue fence north of it
+-- reaches z -990)
+lawn("LawnWestA", -286, -202, -748, -700, 3, 2)
+lawn("LawnWestB", -286, -202, -1030, -996, 3, 2)
+lawn("LawnEastC", -152, -60, -893, -848, 3, 2)
 lawn("LawnEastA", -152, -86, -744, -702, 3, 2)
 lawn("LawnEastB", -144, -60, -1050, -1000, 3, 2)
 lawn("LawnNorthW", -290, -200, -1360, -1222, 6, 3)
@@ -429,6 +435,7 @@ local function dressPath(cx: number, hw: number, za: number, zb: number, step: n
 	end
 end
 dressPath(-176, 10, -500, -722, 26)
+dressPath(-176, 10, -760, -890, 26)
 dressPath(-176, 10, -926, -1008, 26)
 dressPath(-176, 10, -1078, -1172, 24)
 -- round the carousel plaza and the north plaza: lamps on the ring (off the paths that come in)
@@ -456,10 +463,6 @@ end
 for _, z in ipairs({ -304, -350 }) do
 	bench(-131.6, z, Vector3.new(1, 0, 0))
 	bed(-132.2, z - 8, Vector3.zAxis, 8, 3)
-end
--- the narrow promenade: lamps on its west side where there is room (the bumper cars fill the east)
-for z = -760, -890, -26 do
-	lamp(-190.4, z)
 end
 
 print(("[park_paths_1116] paving %d, trees %d, bushes %d, lamps %d, benches %d, bins %d, beds %d, poles %d"):format(

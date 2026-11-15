@@ -168,8 +168,13 @@ local RX0, RX1, RZ0, RZ1 = X0 - 2.2, X1 + 2.2, Z0 - 2.2, Z1 + 2.2 -- (the post l
 local postsZ = {}
 local nz = 4
 for k = 0, nz do table.insert(postsZ, RZ0 + (RZ1 - RZ0) * k / nz) end
+-- (D-1476) the entrance in the east rail (park_swap_1116): no post in front of it, the sign over it
+local entrance = workspace["범퍼"]:FindFirstChild("EastEntrance")
+local entRamp = entrance and entrance:FindFirstChild("EntranceRamp") :: BasePart?
+local ENT_Z = entRamp and entRamp.Position.Z
 for _, x in ipairs({ RX0, RX1 }) do
 	for _, z in ipairs(postsZ) do
+		if ENT_Z and x == RX1 and math.abs(z - ENT_Z) < 8 then continue end
 		part("CanopyPost", Vector3.new(1.4, EAVE - FY + 2, 1.4), CFrame.new(x, (FY + EAVE) / 2 - 1, z), STEEL, Enum.Material.Metal, nil, true)
 		local inX = if x < CX then 0.75 else -0.75
 		local led = part("PostLED", Vector3.new(0.2, EAVE - FY - 4, 0.5), CFrame.new(x + inX, (FY + EAVE) / 2, z), Color3.fromRGB(70, 110, 255), Enum.Material.Neon)
@@ -275,7 +280,11 @@ end
 ---------------------------------------------------------------- the marquee sign over the front
 do
 	local SW, SH = 44, 9
-	local base = CFrame.new(CX, EAVE + SH / 2 + 0.6, RZ1 + OVER + 0.6) -- (facing +z: its front face looks at the queue)
+	-- (its face is the frame's +Z: over the front (+z) at first; D-1476, the entrance on the east side:
+	-- over the east eave, facing the promenade)
+	local base = if ENT_Z
+		then CFrame.fromMatrix(Vector3.new(RX1 + OVER + 0.6, EAVE + SH / 2 + 0.6, ENT_Z), -Vector3.zAxis, Vector3.yAxis)
+		else CFrame.new(CX, EAVE + SH / 2 + 0.6, RZ1 + OVER + 0.6)
 	part("SignBoard", Vector3.new(SW, SH, 0.8), base, PURPLE, Enum.Material.SmoothPlastic)
 	part("SignTrim", Vector3.new(SW + 1, SH + 1, 0.5), base * CFrame.new(0, 0, -0.35), Color3.fromRGB(240, 140, 40), Enum.Material.Neon)
 	for _, y in ipairs({ -SH / 2 + 0.6, SH / 2 - 0.6 }) do
@@ -313,8 +322,11 @@ do
 	star(face * CFrame.new(SW / 2 - 5.5, 0.6, -0.7), 5.2, 0.5, YELLOW, Enum.Material.Neon) -- (the left, seen from the queue: -x; face's x is the world's -x)
 	star(face * CFrame.new(SW / 2 - 12, -2.2, -0.7), 2, 0.4, Color3.fromRGB(70, 140, 255), Enum.Material.Neon)
 	-- two legs holding it on the front eave beam
+	local baseY = base.Position.Y
 	for _, s in ipairs({ -1, 1 }) do
-		beam("SignLeg", Vector3.new(CX + s * SW * 0.3, EAVE - 0.4, RZ1 + OVER * 0.3), Vector3.new(CX + s * SW * 0.3, EAVE + 1.2, RZ1 + OVER + 0.6), 0.6, STEEL)
+		local a = (base * CFrame.new(s * SW * 0.3, EAVE - 0.4 - baseY, -(OVER * 0.7 + 0.6))).Position
+		local b = (base * CFrame.new(s * SW * 0.3, EAVE + 1.2 - baseY, 0)).Position
+		beam("SignLeg", a, b, 0.6, STEEL)
 	end
 end
 

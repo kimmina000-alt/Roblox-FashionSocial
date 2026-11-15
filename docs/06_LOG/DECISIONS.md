@@ -5024,3 +5024,15 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
   - Hongdae_Layout.BumperCarGates is removed: four invisible collision walls left from the bumper cars' first place (two across this ground, one across the diagonal path at x -156, one by the fire truck), in no script.
 - Play: boarded a swing (rider on the board, swinging) and a horse (rocking); walked up the steps onto the deck and down the slide (x -159 → -141, landed on the floor); no script errors.
 - Aerial: docs/04_ART/park/park_aerial_2026-11-16.jpg — nine shots straight down from 400 up with the camera's field of view at 20° (little perspective), cut to 130-stud bands and stitched at 4.25 px per stud, north (-z) up, with 50-stud marks.
+
+## D-1476 (2026-11-16) 범퍼카 ↔ 관람차 자리 바꿈, 관람차 단상 확대, 범퍼카 입구 동쪽
+- User (an aerial mock-up with the two swapped): "범퍼카랑 관람차 위치 바꿔 줘. 관람차 아래 대기하는 단상 크기 키우고 범퍼카 입구는 동쪽으로".
+- New tools/graybox/park_swap_1116.lua (absolute targets, a rerun moves nothing):
+  - The bumper car hall (Workspace["범퍼"], place-only) moved west by 122.7: floor middle (-241.95, -829.8); west rail just inside the park's west wall (-296.6), east rail at x -188.7 by the promenade. The user's yellow queue fence north of it (Workspace.Folder["범 퍼 펜 "]) moved with it.
+  - Entrance on the east: an 11-wide gap in the east rail at the floor's middle (z -829.8), a diamond-plate ramp (2 up, 4.5 long) and a red / yellow arch "범퍼카 BUMPER CARS". The old south front closed: the two south rail gaps filled, the invisible queue walls (FenceWall ×22), the two invisible ramps and a divider in front of it removed (their visible panels had been moved north by hand).
+  - The ferris wheel group moved east: hub (-110, 81.25, -830), the rim (52 round) inside the east wall.
+- park_bumper_dress_1115: no canopy post in front of the entrance; with an EastEntrance the big BUMPER CARS sign stands over the east eave facing the promenade (was over the south front). Rerun: 680 parts.
+- park_wheel_frame_1115: the station deck 30 × 22 → 48 × 30 (HX 15 → 24, front 13 → 22, back -6 → -8), stairs 7 → 10 wide; rerun at the new place (deck x -134..-86, z -838..-808, stairs and FERRIS WHEEL arch facing +z).
+- park_paths_1116: the promenade 20 wide all the way (was 10 at x -184 between the wheel and the hall), dressed with lamps / benches; a branch along z -790 to the wheel's stairs; lawns: West A z -748..-700, West B z -1030..-996 (the hall and the moved queue fence fill the rest), new East C x -152..-60, z -893..-848. 1,456 parts.
+- Play: walked from the promenade up the east ramp into the hall and across its floor, back out, along the new branch and up the wheel's stairs onto the deck; no script errors.
+- Note: the bumper cars' driving code (feat/bumper-park-1114, not merged; BumperCarConfig.Hall = x -276..-157, z -397..-293) still points at the hall's first place, and the car models in Workspace.Scene are empty, so nothing drives here yet; that session must take the hall's new box (floor x -295.2..-188.7, z -891.1..-768.5, top 18.03).

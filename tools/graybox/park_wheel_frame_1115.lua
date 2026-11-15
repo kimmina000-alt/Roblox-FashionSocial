@@ -188,7 +188,8 @@ end
 local st = Instance.new("Model")
 st.Name = "WheelStation"
 local TOP = GROUND + DECK_H
-local HX, FRONT, BACK = 15, 13, -6 -- (deck: x ±HX in the wheel's plane, axle from BACK to FRONT; +axle = the front)
+-- (D-1476, user 2026-11-16: "관람차 아래 대기하는 단상 크기 키우고": was 15 / 13 / -6, stairs 7 wide)
+local HX, FRONT, BACK = 24, 22, -8 -- (deck: x ±HX in the wheel's plane, axle from BACK to FRONT; +axle = the front)
 -- the frame for the deck: X across (in the wheel's plane), Z = -axle (so -Z faces the front)
 local O = CFrame.fromMatrix(W(0, 0, GROUND), -IN, Vector3.yAxis) -- (its Z = -axle)
 local function L(x: number, y: number, z: number): CFrame return O * CFrame.new(x, y, -z) end -- (z = towards the front)
@@ -203,7 +204,7 @@ for k = -3, 3 do
 	end
 end
 -- stairs down the front middle, an invisible ramp to walk on
-local SW, STEPS = 7, 7
+local SW, STEPS = 10, 7
 local rise, run = DECK_H / STEPS, 1.1
 for k = 1, STEPS do
 	local top = DECK_H - (k - 1) * rise
