@@ -234,16 +234,23 @@ end
 
 -- (D-1426, user 2026-11-15: "테스트 스포너 놀이공원 안에 만들어 줘") a test spawn inside the
 -- park: the pad Workspace.ParkTestSpawn (place-only, move it in Edit mode to spawn elsewhere; its
--- attribute On = false switches it off). In a Studio test every character is put on it (side by
--- side for a multi-player test); on a live server the pad is removed and nothing changes.
+-- attribute On = false switches it off).
+-- (D-1437, user: "놀이공원 안에 있는 스포너는 Vantablack_Dev 만 스폰할 수 있게 해. 일반 유저는 역 앞에
+-- 있는 스포너로 스폰되게 해.") only the owner (Vantablack_Dev, PARK_SPAWN_OWNER) is put on it — in
+-- Studio and on live servers; everyone else spawns as before at the SpawnLocation by the station
+-- (subway exit 3). On live servers the pad itself is hidden (no green pad in the closed park).
+local PARK_SPAWN_OWNER = 11887382096 -- (Vantablack_Dev, the experience's owner)
 local function parkTestSpawn()
 	local pad = workspace:FindFirstChild("ParkTestSpawn")
 	if not pad or not pad:IsA("BasePart") then return end
 	if not game:GetService("RunService"):IsStudio() then
-		pad:Destroy()
-		return
+		pad.Transparency = 1
+		for _, g in ipairs(pad:GetDescendants()) do
+			if g:IsA("SurfaceGui") then g.Enabled = false end
+		end
 	end
 	local function onCharacter(player: Player, character: Model)
+		if player.UserId ~= PARK_SPAWN_OWNER then return end
 		local root = character:WaitForChild("HumanoidRootPart", 10)
 		if not root or not character.Parent or not pad.Parent or pad:GetAttribute("On") == false then return end
 		task.wait(0.3) -- (after the SpawnLocation, and the gate spawn of a Studio test, have placed it)

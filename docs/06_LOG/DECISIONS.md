@@ -4801,3 +4801,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1436 (2026-11-15) Super viking without its middle seats (the user's Tex3)
 - User: "슈퍼바이킹 가운데 의자 두 개 삭제했음" (02_SuperViking_Tex3.glb: the two middle seat rows, z ±0.54, are gone; 8 rows left, checked on the file).
 - park_vikings_1115 takes VikingBoat<Kind>_Tex3 first; the super viking's v3 seat rows leave out ±0.54 → 16 seats (was 20). The mini viking's Tex3 has the same size and rows as Tex2. Both swap in once the user imports them.
+
+## D-1437 (2026-11-15) Park spawn pad for Vantablack_Dev only
+- User: "놀이공원 안에 있는 스포너는 Vantablack_Dev 만 스폰할 수 있게 해. 일반 유저는 역 앞에 있는 스포너로 스폰되게 해."
+- ParkRideService.parkTestSpawn (D-1426): only the owner (PARK_SPAWN_OWNER = 11887382096, Vantablack_Dev) is put on Workspace.ParkTestSpawn, in Studio and on live servers (the pad is no longer destroyed on live; it is hidden there: transparent, its sign off). Everyone else spawns as before at the one SpawnLocation by the station (-30, -36, near subway exit 3).
+- Play check (solo, Vantablack_Dev): spawned on the pad (-199, 20.2, -485). Another account was not tested (Studio's extra test players have negative ids, so they would go to the station).
