@@ -27,7 +27,8 @@ local CUP_R = 19.5 -- (cups' middles from the table's middle)
 local CUP_D = 10 -- (a cup across)
 local TEAPOT_H = 13
 local CUP_COLORS = { Color3.fromRGB(70, 150, 95), Color3.fromRGB(214, 60, 58), Color3.fromRGB(244, 196, 52), Color3.fromRGB(88, 176, 228), Color3.fromRGB(52, 84, 58) }
-local CUP_TEXTURES = { "", "", "", "", "" } -- (green, red, yellow, blue, dark green; "" = the glb's own)
+-- (green = CupTex.glb's own, then the CupTex_<colour>.png uploads, D-1432)
+local CUP_TEXTURES = { "rbxassetid://101010709181927", "rbxassetid://110353989323099", "rbxassetid://138479259506853", "rbxassetid://84413183956101", "rbxassetid://118220460146647" }
 
 local function quiet(p: BasePart, collide: boolean?)
 	p.Anchored = true
