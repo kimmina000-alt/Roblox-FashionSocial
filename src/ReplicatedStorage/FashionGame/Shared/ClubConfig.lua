@@ -45,6 +45,9 @@ ClubConfig.TempoMin = ClubDances.TempoMin
 ClubConfig.TempoMax = ClubDances.TempoMax
 ClubConfig.TempoStep = ClubDances.TempoStep
 ClubConfig.JoinRadius = ClubDances.JoinRadius
+-- (D-1416, user 2026-11-14: "노래 신청 세 곡까지 가능하게 수정") songs one guest may have waiting in the
+-- request list at a time (ClubService "Request"; the DJ's own 예약 has no such limit)
+ClubConfig.MaxRequestsEach = 3
 ClubConfig.SavedLabs = ClubPlaylist.SavedLabs
 ClubConfig.Playlist = ClubPlaylist.Playlist
 ClubConfig.Drinks = ClubDrinks.Drinks
