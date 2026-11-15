@@ -117,6 +117,13 @@ local DRUM_D, DRUM_H = 9, 8.5
 disc(turn, "Drum", FLOOR, DRUM_H, DRUM_D, CREAM)
 disc(turn, "DrumBandLow", FLOOR, 0.7, DRUM_D + 0.5, GOLD)
 disc(turn, "DrumBandHigh", FLOOR + DRUM_H - 0.5, 0.5, DRUM_D + 0.5, GOLD)
+-- (D-1445, user: "회전목마 가운데 기둥 하단에 조명선 넣기") a line of light round the drum's foot: a neon
+-- strip over the low gold band and a row of bulbs on it
+disc(turn, "DrumFootLight", FLOOR + 0.7, 0.22, DRUM_D + 0.62, BULB, Enum.Material.Neon)
+disc(turn, "DrumFootLight", FLOOR + 0.05, 0.16, DRUM_D + 0.9, BULB, Enum.Material.Neon)
+for k = 0, 23 do
+	part(turn, "DrumFootBulb", Vector3.one * 0.4, CFrame.new(around(DRUM_D / 2 + 0.3, k / 24 * 2 * math.pi, FLOOR + 0.35)), BULB, Enum.Material.Neon, Enum.PartType.Ball)
+end
 disc(turn, "DrumCrown", FLOOR + DRUM_H, 1.3, DRUM_D + 1.0, RED)
 disc(turn, "DrumCrownTrim", FLOOR + DRUM_H + 1.3, 0.35, DRUM_D + 1.2, GOLD)
 for k = 0, 5 do
@@ -150,6 +157,14 @@ for _, pole in ipairs(rotor:GetChildren()) do
 		local p = pole.Position
 		for _, y in ipairs({ FLOOR, CEIL - 0.6 }) do
 			part(turn, "PoleCap", Vector3.new(0.6, 0.75, 0.75), CFrame.new(p.X, y + 0.3, p.Z) * CFrame.Angles(0, 0, math.pi / 2), GOLD, nil, Enum.PartType.Cylinder)
+		end
+		-- (D-1445, user: "회전목마 말 기둥 고정되어 있는 하단에 조명넣기") a glowing ring on the floor round
+		-- the pole's foot, bulbs on it
+		part(turn, "PoleFootLight", Vector3.new(0.12, 1.9, 1.9), CFrame.new(p.X, FLOOR + 0.06, p.Z) * CFrame.Angles(0, 0, math.pi / 2), BULB, Enum.Material.Neon, Enum.PartType.Cylinder)
+		part(turn, "PoleFootBase", Vector3.new(0.16, 1.3, 1.3), CFrame.new(p.X, FLOOR + 0.08, p.Z) * CFrame.Angles(0, 0, math.pi / 2), GOLD, nil, Enum.PartType.Cylinder)
+		for k = 0, 5 do
+			local a = k / 6 * 2 * math.pi
+			part(turn, "PoleFootBulb", Vector3.one * 0.32, CFrame.new(p.X + 0.82 * math.cos(a), FLOOR + 0.2, p.Z + 0.82 * math.sin(a)), BULB, Enum.Material.Neon, Enum.PartType.Ball)
 		end
 	end
 end

@@ -910,7 +910,64 @@ addSeatPicks = function(model: Model)
 	end
 end
 
+-- (D-1442, user: "회전컵은 가운데 핸들 클릭하면 점점 더 빨라지고 클릭 안 하면 점점 느려지게") while a tea
+-- cup runs, its rider presses the wheel in the middle (a button over the wheel) to spin the cup
+-- faster; ParkConfig.teacupExtra / ParkRideService "Spin"
+local spinGui = Instance.new("BillboardGui")
+spinGui.Name = "TeaCupWheelTap"
+spinGui.Size = UDim2.fromScale(4.2, 4.2) -- (studs: the wheel and a bit round it)
+spinGui.AlwaysOnTop = false
+spinGui.Active = true
+spinGui.MaxDistance = 60
+spinGui.Enabled = false
+spinGui.Parent = pickFolder
+local spinButton = Instance.new("TextButton")
+spinButton.Size = UDim2.fromScale(1, 1)
+spinButton.BackgroundTransparency = 1
+spinButton.Text = ""
+spinButton.Parent = spinGui
+local spinHint = Instance.new("TextLabel")
+spinHint.Size = UDim2.new(1.6, 0, 0.32, 0)
+spinHint.Position = UDim2.fromScale(-0.3, -0.1)
+spinHint.BackgroundTransparency = 1
+spinHint.Font = Enum.Font.GothamBold
+spinHint.TextScaled = true
+spinHint.TextColor3 = Color3.new(1, 1, 1)
+spinHint.TextStrokeTransparency = 0.35
+spinHint.Text = "핸들 연타! 🔄"
+spinHint.Parent = spinGui
+local spinSending = false
+spinButton.Activated:Connect(function()
+	if spinSending then return end
+	spinSending = true
+	spinHint.TextColor3 = Color3.fromRGB(255, 220, 90)
+	task.spawn(function()
+		remote:InvokeServer("Spin")
+		spinSending = false
+	end)
+	task.delay(0.12, function() spinHint.TextColor3 = Color3.new(1, 1, 1) end)
+end)
+
+local function updateSpinTap(t: number)
+	local entry = mySlot
+	local show = false
+	if entry and entry.kind == "ParkTeaCups" and entry.ride and entry.ride.Parent then
+		local _, _, still, left = ParkConfig.teacupState(entry.ride, t)
+		if not still and left > ParkConfig.SpinStopGap then
+			local seat = tonumber(string.match(entry.key, "%d+")) or 1
+			local cup = entry.ride:FindFirstChild("Cup" .. math.ceil(seat / attrNumber(entry.ride, "SeatsPerCup", 4)))
+			local wheel = cup and cup:FindFirstChild("Wheel")
+			if wheel then
+				spinGui.Adornee = wheel
+				show = true
+			end
+		end
+	end
+	spinGui.Enabled = show
+end
+
 local function updateSeatPicks(t: number)
+	updateSpinTap(t)
 	local root = ownRoot()
 	local stillRide: {[Model]: boolean} = {}
 	for _, pick in ipairs(seatPicks) do

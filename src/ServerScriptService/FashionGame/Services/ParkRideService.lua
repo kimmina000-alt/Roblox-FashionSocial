@@ -27,6 +27,7 @@ local ParkRideService = {}
 type Ride = { kind: string, model: Instance, slot: Instance, key: string }
 local riding: {[Player]: Ride} = {}
 local lastSlide: {[Player]: number} = {}
+local lastSpin: {[Player]: number} = {} -- (D-1442: tea cup wheel taps)
 
 local function now(): number
 	return workspace:GetServerTimeNow()
@@ -282,6 +283,22 @@ function ParkRideService.Start()
 			level = math.clamp(level + (if a > 0 then 1 else -1), 0, ParkConfig.SwingLevels)
 			ride.slot:SetAttribute("Level", level)
 			return true, level
+		elseif action == "Spin" then -- (D-1442) a tea cup rider tapped the wheel
+			local ride = riding[player]
+			if not ride or ride.kind ~= "ParkTeaCups" then return false, nil end
+			local t = os.clock()
+			if lastSpin[player] and t - lastSpin[player] < 0.12 then return false, nil end
+			lastSpin[player] = t
+			local model = ride.model
+			local st = now()
+			local _, _, still, left = ParkConfig.teacupState(model, st)
+			if still or left < ParkConfig.SpinStopGap then return false, nil end
+			local seat = tonumber(string.match(ride.key, "%d+")) or 1
+			local cup = math.ceil(seat / ((model:GetAttribute("SeatsPerCup") :: number?) or 4))
+			local angle, speed = ParkConfig.teacupExtra(model, cup, st)
+			speed = math.min(speed + ParkConfig.SpinBoost, ParkConfig.SpinMax)
+			model:SetAttribute("Spin" .. cup, Vector3.new(angle % (2 * math.pi), speed, st))
+			return true, speed
 		elseif action == "Slid" then
 			local t = os.clock()
 			if lastSlide[player] and t - lastSlide[player] < 2 then return false, nil end
@@ -361,6 +378,7 @@ function ParkRideService.Start()
 	Players.PlayerRemoving:Connect(function(player)
 		clear(player)
 		lastSlide[player] = nil
+		lastSpin[player] = nil
 	end)
 end
 

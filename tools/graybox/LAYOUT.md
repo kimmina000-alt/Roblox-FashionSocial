@@ -59,7 +59,8 @@
   3-22. `gukbap_table_1110.lua` — 국밥집 테이블 9개를 0.4 위로(다리 늘이고 휴지통 같이, D-1255). 테이블마다 Raised1110 표시가 있어 다시 돌려도 또 올라가지 않음.
   3-23. `park_layout_1111.lua` — 놀이공원 안내도대로 배치(D-1316): 관람차는 북쪽 끝, 회전목마는 서쪽 가운데, 그네는 그 북쪽으로 받침·라벨째 옮기고(정해진 자리로 옮겨서 다시 돌려도 같다), 나머지 안내도 시설은 Hongdae_Layout.ParkBlockout 블록아웃. park_raise 다음.
   3-23a. `park_vikings_1115.lua` — 미니바이킹 / 슈퍼바이킹(D-1424): Workspace["미니바이킹"](사용자가 만든 무대·펜스 묶음) / Workspace["슈퍼바이킹"]에 프레임 + 배(ServerStorage.ArtAssets.VikingBoatMini/Super, *_Tex 우선)를 "Ride"로 새로 짓는다. 둘 다 Hongdae_Layout 밖이라 체인이 지우지 않고, park_layout_1111은 이 모델이 있으면 블록아웃을 안 만든다. 백업: ArtAssets.미니바이킹_Backup / 슈퍼바이킹_Backup.
-  3-23a2. `park_viking_stage_1115.lua` — 슈퍼바이킹 단상·펜스(D-1440): 배 양옆 탑승 단상(주황 골함석 옆면·갈색 난간·방패 장식·계단+보이지 않는 경사로), 바닥 둘레 회색 펜스(계단 앞 열림), 내리는 곳(Exit)을 단상 위로. park_vikings_1115 다음.
+  3-23a2. `park_viking_stage_1115.lua` — 슈퍼바이킹 단상·펜스(D-1440): 배 양옆 탑승 단상(주황 골함석 옆면·갈색 난간·방패 장식·계단+보이지 않는 경사로), 바닥 둘레 회색 펜스(계단 앞 열림), 내리는 곳(Exit)을 단상 위로. park_vikings_1115 다음. D-1444: 단상 17.2×64, 바닥판 +z로 넓힘, 계단 폭에 맞춘 펜스 출입구(Stage 속성 EntryGate / ExitGate / GateWidth).
+  3-23a3. `park_ride_gates_1115.lua` — 바이킹 입구·출구 문(D-1443): Workspace["미니바이킹"].Gates / ["슈퍼바이킹"].Gates(태그 RideGate). 입구는 운행이 멈췄을 때만 열리고, 출구는 안에서 나오는 사람만 지나간다(RideGateController). park_viking_stage_1115 다음.
   3-23b. `park_teacups_1115.lua` — 회전컵(D-1432): Workspace["회전컵"](Base + Ride, 태그 ParkTeaCups)에 회전판·찻주전자·컵 5개를 새로 짓는다. 메시: ArtAssets.TeaCupTex / TeapotTex(가져오기 후) 아니면 TeaCup / Teapot. park_layout_1111은 이 모델이 있으면 07_TeaCups 블록아웃을 안 만든다. 백업 ArtAssets.회전컵_Backup.
   3-23c. `park_front_fill_1115.lua` — 순위표 뒤 빈 공간 메우기(D-1434): ParkPlatform 앞면(z -223.4)과 순위표·착지 판 줄(z -216) 사이를 계단 서쪽 벽(x -115.1)까지 같은 돌로 채운다. park_raise 다음.
   3-24. `hanok_ground_fill.lua`(D-1323, 한옥 마을 빈 땅을 지형 잔디로) → `bakery_underlight.lua`(D-1319/D-1324, 빵 진열대 조명) → `oh24_cold_off_1113.lua` — OH24 서쪽 벽의 냉장 · 냉동고(Cold* / ShelfRow)를 지움: 사용자 진열장 이미지 블록(Workspace.cold)만 남김(D-1333).

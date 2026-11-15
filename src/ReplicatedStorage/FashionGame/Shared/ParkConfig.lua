@@ -260,11 +260,38 @@ function ParkConfig.teacupCount(model: Instance): number
 	return attr(model, "Cups", 0)
 end
 
+-- (D-1442, user 2026-11-15: "회전컵은 가운데 핸들 클릭하면 점점 더 빨라지고 클릭 안 하면 점점
+-- 느려지게") a rider tapping the cup's wheel spins that cup faster; the extra speed dies away
+-- by itself. The server keeps each cup's extra spin in the ride's attribute Spin<k> =
+-- Vector3(angle, speed, server time) and every screen works out the angle from it:
+--   speed(t) = speed0 · e^(-(t - t0) / SpinFade), angle(t) = angle0 + speed0 · SpinFade · (1 - e^(…))
+-- Taps only count while the table runs and not in its last SpinStopGap seconds; when the run
+-- ends the extra angle is held where it was (so the cups stand still for boarding).
+ParkConfig.SpinBoost = 1.3 -- (rad/s added per tap; the cup's own spin is 2π / 4 ≈ 1.6)
+ParkConfig.SpinMax = 10 -- (rad/s of extra spin at most)
+ParkConfig.SpinFade = 2.5 -- (seconds for the extra speed to fall to 37 %)
+ParkConfig.SpinStopGap = 5 -- (no taps in the run's last seconds: the cups calm down first)
+
+-- (extra angle, extra speed) of cup k at time t
+function ParkConfig.teacupExtra(model: Instance, cup: number, t: number): (number, number)
+	local s = model:GetAttribute("Spin" .. cup)
+	if typeof(s) ~= "Vector3" then return 0, 0 end
+	local _, _, still, left = ParkConfig.teacupState(model, t)
+	if still and ParkConfig.isRunning("ParkTeaCups") then
+		-- standing still: held at the end of the last run
+		t = t - (attr(model, "Board", 15) - left)
+	end
+	local dt = math.max(0, t - s.Z)
+	local k = math.exp(-dt / ParkConfig.SpinFade)
+	return s.X + s.Y * ParkConfig.SpinFade * (1 - k), s.Y * k
+end
+
 -- Cup k's pivot now.
 function ParkConfig.teacupCFrame(model: Model, cup: number, t: number): CFrame?
 	local rel = model:GetAttribute("Cup" .. cup)
 	if typeof(rel) ~= "CFrame" then return nil end
 	local turn, spin = ParkConfig.teacupState(model, t)
+	spin += ParkConfig.teacupExtra(model, cup, t)
 	return model:GetPivot() * CFrame.Angles(0, turn, 0) * rel * CFrame.Angles(0, -spin, 0)
 end
 

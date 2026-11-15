@@ -19,7 +19,11 @@ local base = owner:WaitForChild("Base") :: BasePart
 local O = ride:GetPivot().Position -- (the axle)
 local GROUND = base.Position.Y + base.Size.Y / 2
 local TOP_Y = GROUND + 8.5
-local X0, X1, ZH = 7.8, 18, 26 -- (deck from the axle: x inner / outer, z half length)
+-- (D-1444, user 2026-11-15: "슈퍼 바이킹 대기하는 공간 더 크게": the decks 10.2 x 52 → 17.2 x 64, was
+-- X1 18 / ZH 26; the base grows with them, more to +z where the stairs go down: the bumper cars'
+-- fence is 2 studs past the base's -z edge)
+local X0, X1, ZH = 7.8, 25, 32 -- (deck from the axle: x inner / outer, z half length)
+local BASE_X, BASE_Z0, BASE_Z1 = X1 + 4, -(ZH + 4), ZH + 13 + 4 -- (base from the axle; the stairs run 13 out from the deck)
 local ORANGE = Color3.fromRGB(214, 98, 44)
 local RIB = Color3.fromRGB(178, 76, 34)
 local WOOD = Color3.fromRGB(122, 74, 44)
@@ -54,6 +58,8 @@ end
 local function W(x: number, y: number, z: number): Vector3 return Vector3.new(O.X + x, y, O.Z + z) end
 
 local H = TOP_Y - GROUND
+base.Size = Vector3.new(BASE_X * 2, base.Size.Y, BASE_Z1 - BASE_Z0)
+base.CFrame = CFrame.new(O.X, GROUND - base.Size.Y / 2, O.Z + (BASE_Z0 + BASE_Z1) / 2)
 for _, sx in ipairs({ -1, 1 }) do
 	local xin, xout = sx * X0, sx * X1
 	local cx, w = (xin + xout) / 2, X1 - X0
@@ -114,35 +120,38 @@ for _, sx in ipairs({ -1, 1 }) do
 	end
 end
 
--- the fence round the base, open in front of both stairs
+-- the fence round the base, open in front of both stairs: each opening just the stairs' width
+-- plus a little (D-1443: a gate in each, park_ride_gates_1115: -x = entrance, +x = exit)
+local GAP_W = 7
 do
-	local hx, hz = base.Size.X / 2 - 1, base.Size.Z / 2 - 1
-	local cx, cz = base.Position.X, base.Position.Z
-	local function run(a: Vector3, b: Vector3, gaps: {{number}}?)
+	local hx = BASE_X - 1
+	local z0, z1 = O.Z + BASE_Z0 + 1, O.Z + BASE_Z1 - 1
+	local cx = O.X
+	local function run(a: Vector3, b: Vector3)
 		local d = b - a
 		local n = math.max(1, math.floor(d.Magnitude / 6 + 0.5))
 		for k = 0, n - 1 do
 			local p0, p1 = a + d * (k / n), a + d * ((k + 1) / n)
-			local mid = (p0 + p1) / 2
-			local skip = false
-			for _, g in ipairs(gaps or {}) do
-				if math.abs(mid.X - g[1]) < g[2] then skip = true end
-			end
 			part("FencePost", Vector3.new(0.35, 3.6, 0.35), CFrame.new(p0 + Vector3.new(0, 1.8, 0)), FENCE, Enum.Material.Metal)
-			if not skip then
-				for _, y in ipairs({ 1.2, 3.3 }) do
-					bar("FenceRail", p0 + Vector3.new(0, y, 0), p1 + Vector3.new(0, y, 0), 0.22, FENCE, Enum.Material.Metal)
-				end
+			for _, y in ipairs({ 1.2, 3.3 }) do
+				bar("FenceRail", p0 + Vector3.new(0, y, 0), p1 + Vector3.new(0, y, 0), 0.22, FENCE, Enum.Material.Metal)
 			end
 		end
 		part("FencePost", Vector3.new(0.35, 3.6, 0.35), CFrame.new(b + Vector3.new(0, 1.8, 0)), FENCE, Enum.Material.Metal)
 	end
 	local y = GROUND
-	local stairX = { { O.X + (X1 - 3.1), 4 }, { O.X - (X1 - 3.1), 4 } }
-	run(Vector3.new(cx - hx, y, cz - hz), Vector3.new(cx + hx, y, cz - hz))
-	run(Vector3.new(cx + hx, y, cz - hz), Vector3.new(cx + hx, y, cz + hz))
-	run(Vector3.new(cx + hx, y, cz + hz), Vector3.new(cx - hx, y, cz + hz), stairX)
-	run(Vector3.new(cx - hx, y, cz + hz), Vector3.new(cx - hx, y, cz - hz))
+	local sxs = O.X + (X1 - 3.1) -- (the stairs' middles, x)
+	local function V(x: number, z: number): Vector3 return Vector3.new(x, y, z) end
+	run(V(cx - hx, z0), V(cx + hx, z0))
+	run(V(cx + hx, z0), V(cx + hx, z1))
+	-- +z side: three runs round the two openings
+	run(V(cx + hx, z1), V(sxs + GAP_W / 2, z1))
+	run(V(sxs - GAP_W / 2, z1), V(2 * O.X - sxs + GAP_W / 2, z1))
+	run(V(2 * O.X - sxs - GAP_W / 2, z1), V(cx - hx, z1))
+	run(V(cx - hx, z1), V(cx - hx, z0))
+	stage:SetAttribute("ExitGate", CFrame.new(sxs, y, z1)) -- (gate middle; +z = out)
+	stage:SetAttribute("EntryGate", CFrame.new(2 * O.X - sxs, y, z1))
+	stage:SetAttribute("GateWidth", GAP_W)
 end
 
 base.Material = Enum.Material.Pavement
