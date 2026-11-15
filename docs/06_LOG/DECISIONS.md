@@ -5126,3 +5126,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User (a rider sitting across the yellow / green seat panels): "점핑스타 좌석마다 색깔 넣은 거 캐릭터 앉는 위치에 맞춰서 수정해".
 - Measured from straight in front with markers: the seats were 0.2 of the car's width apart (1.85), the coloured panels are 0.2104 apart (1.94) and centred 0.033 off the car mesh's box middle. Ride Seat1..4 = x -3.19 / -1.25 / 0.70 / 2.64 (park_jumpstar_mesh_1116). Play: the rider on seat 1 sits on the middle of the green panel.
 - 2P test the same day (PC view, not phone emulation): beach cafe auto door, order, part-time shift (make + serve), seat; beach ball pick-up / throw; float tube; jumping star seen riding from the other player; OH24 and 국밥집 orders; club at 22:00 (ClockOverride, removed after) with music — no script errors on the server or either client.
+
+## D-1491 (2026-11-16) 점핑스타 기둥 충돌 블록이 가운데 좌석 사람을 밀던 것
+- Mobile 2P test (both players in phone emulation, touch on): the rider on seat 2 sat at x -2.17 instead of -1.25 while the car hopped. The invisible PoleCollider (2.4 x 30 x 2.4 at the tower's foot) overlapped seats 2 and 3, and the physics pushed their riders 0.9 sideways while they were inside its height.
+- park_jumpstar_mesh_1116: the PoleCollider only goes up to the car's bottom (5 high), enough to keep walkers off the tower. Re-checked live: the seat-2 rider stays at x -1.25 the whole run, also as Player2 sees it.
+- Same test: beach cafe auto door, order, shift (make + serve to Player1), walking past snack bar 2, beach ball pick-up / throw, float tube board / ride / leave — no script errors on the server or the two clients. Merged into catalog-ui-redesign (user: "모바일 2인 테스트하고 머지해").

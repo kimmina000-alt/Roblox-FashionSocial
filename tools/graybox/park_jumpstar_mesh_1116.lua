@@ -117,8 +117,10 @@ disc.Parent = owner
 local pole = Instance.new("Part")
 pole.Name = "PoleCollider"
 pole.Anchored, pole.Transparency, pole.CastShadow = true, 1, false
-pole.Size = Vector3.new(1.2 * SCALE / 4.5 * 2, 30, 1.2 * SCALE / 4.5 * 2)
-pole.CFrame = pivot * CFrame.new(0, 15, 0)
+-- (D-1491) only up to the car's bottom (5): taller, it overlapped seats 2 and 3 and the physics pushed
+-- their riders 0.9 sideways while the car hopped
+pole.Size = Vector3.new(1.2 * SCALE / 4.5 * 2, 5, 1.2 * SCALE / 4.5 * 2)
+pole.CFrame = pivot * CFrame.new(0, 2.5, 0)
 pole.Parent = owner
 
 -- 4. four seats along the car's front (seat tops, from the pivot with the car at the bottom)
