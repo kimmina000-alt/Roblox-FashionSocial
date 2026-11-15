@@ -16,6 +16,12 @@
 -- The boats are the user's meshes, place-only templates in ServerStorage.ArtAssets:
 --   VikingBoatMini / VikingBoatSuper (MeshPart "Boat"; *_Tex = the re-UV'd, painted glbs
 --   docs/04_ART/park/viking_tex, used first when the user has imported them).
+-- (D-1425, user 2026-11-15: "바이킹 사람 타서 흔들리는 것까지 구현") "Ride" carries the tag ParkViking
+-- and the ride attributes (ParkConfig: Period, MaxAngle, Board / Ramp / Hold, Seat1..N, Exit, Reach):
+-- ParkRideService seats riders, ParkRidesController swings "Swing" and the riders from the server
+-- clock. Seats sit on the boat's seat rows (read off the glbs: rows across the boat, two riders a
+-- row, facing the boat's middle). The axles went up (mini 2.2, super 3.6) so the boats' ends clear
+-- the floor at full swing (checked on the meshes: the ends reach further than the flat bottom).
 -- Idempotent: "Ride" is built anew each run. Run in Edit mode (chain step after park_layout_1111).
 
 local SS = game:GetService("ServerStorage")
@@ -80,6 +86,8 @@ end
 -- one viking ride. o = the axle's middle (y = the axle); spec:
 --   len / width / height: the boat; restY: the boat's bottom at rest; legX / footX: the A-frames'
 --   x at the top / at the feet; footZ: the feet along the boat; groundY; colors
+local CollectionService = game:GetService("CollectionService")
+
 local function build(owner: Model, kind: string, o: Vector3, s)
 	local old = owner:FindFirstChild("Ride")
 	if old then old:Destroy() end
@@ -187,6 +195,28 @@ local function build(owner: Model, kind: string, o: Vector3, s)
 	end
 	ride.WorldPivot = CFrame.new(o)
 	swing.WorldPivot = CFrame.new(o)
+	-- the ride: seats (from the axle at rest), timing, where riders get off
+	local g = s.glb
+	local k = 0
+	for _, zg in ipairs(g.rows) do
+		local z = zg / g.len * s.len
+		local y = s.restY + s.height / 2 + (g.seatTop - g.midY) / g.height * s.height - o.Y
+		for _, xg in ipairs({ -g.seatX, g.seatX }) do
+			k += 1
+			local x = xg / g.width * s.width
+			local at = Vector3.new(x, y, z)
+			ride:SetAttribute("Seat" .. k, CFrame.lookAt(at, Vector3.new(x, y, 0)))
+		end
+	end
+	for name, value in pairs(s.ride) do ride:SetAttribute(name, value) end
+	-- the swinging part moves on every screen by itself: it must not shove anyone
+	for _, d in ipairs(swing:GetDescendants()) do
+		if d:IsA("BasePart") then
+			d.CanCollide = false
+			d.CanQuery = false
+		end
+	end
+	CollectionService:AddTag(ride, "ParkViking")
 	ride.Parent = owner
 	return ride
 end
@@ -195,8 +225,10 @@ end
 local mini = workspace:FindFirstChild("미니바이킹")
 if mini then
 	local deckY = 20.3
-	build(mini, "Mini", Vector3.new(-256, 38.5, -521.6), {
-		len = 25.1, width = 9.0, height = 6.4, restY = deckY + 1.3,
+	build(mini, "Mini", Vector3.new(-256, 40.7, -521.6), {
+		len = 25.1, width = 9.0, height = 6.4, restY = deckY + 3.5,
+		glb = { len = 6.698, width = 2.405, height = 1.698, midY = 0.945, seatTop = 1.09, seatX = 0.42, rows = { -2.745, -1.31, 1.31, 2.745 } },
+		ride = { Period = 4.2, MaxAngle = 50, Board = 15, Ramp = 8, Hold = 16, Reach = 18, Exit = Vector3.new(-243.5, deckY + 3, -521.6) },
 		legX = 6.4, footX = 8.6, footZ = 11.5, groundY = deckY, leg = 1.1,
 		braces = { 0.62 }, bulbs = 5,
 		arm = 0.8, armZ = 10.5, armBulbs = 4, panels = Vector2.new(5, 3.4),
@@ -210,8 +242,10 @@ end
 local super = workspace:FindFirstChild("슈퍼바이킹")
 if super then
 	local baseY = 18.95
-	build(super, "Super", Vector3.new(-91.6, 62, -648.8), {
-		len = 50.1, width = 8.7, height = 7.3, restY = baseY + 2,
+	build(super, "Super", Vector3.new(-91.6, 65.6, -648.8), {
+		len = 50.1, width = 8.7, height = 7.3, restY = baseY + 5.6,
+		glb = { len = 13.907, width = 2.405, height = 2.02, midY = 1.106, seatTop = 1.44, seatX = 0.42, rows = { -6.33, -4.9, -3.46, -2.02, -0.58, 0.58, 2.02, 3.46, 4.9, 6.33 } },
+		ride = { Period = 6.5, MaxAngle = 62, Board = 15, Ramp = 12, Hold = 20, Reach = 34, Exit = Vector3.new(-91.6 + 13, baseY + 3, -648.8) },
 		legX = 6.8, footX = 11, footZ = 24, groundY = baseY, leg = 2.0,
 		braces = { 0.35, 0.7 }, truss = true,
 		arm = 1.3, armZ = 21, armBulbs = 6,

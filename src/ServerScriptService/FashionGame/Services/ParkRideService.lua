@@ -4,7 +4,8 @@
 -- clients from the shared clock.
 --
 -- Remote ParkRide (RemoteFunction) actions:
---   "Board", ride            ferris wheel: the cabin at the bottom now
+--   "Board", ride            ferris wheel: the cabin at the bottom now;
+--                            viking (D-1425): a free seat, while the boat stands still
 --   "Board", ride, slot      carousel horse / swing / spring rider
 --   "Leave"                  → exit CFrame (wheel: only near the bottom)
 --   "Level", delta           swing speed −/+ (0..SwingLevels)
@@ -36,7 +37,7 @@ local function rootOf(player: Player): BasePart?
 end
 
 local function kindOf(model: Instance): string?
-	for _, tag in ipairs({ "ParkWheel", "ParkCarousel", "ParkSwing", "ParkSpring", "FloatTube" }) do
+	for _, tag in ipairs({ "ParkWheel", "ParkCarousel", "ParkSwing", "ParkSpring", "FloatTube", "ParkViking" }) do
 		if CollectionService:HasTag(model, tag) then return tag end
 	end
 	return nil
@@ -104,6 +105,26 @@ local function board(player: Player, model: Instance, slot: Instance?): (boolean
 		end
 		return false, "이 칸은 가득 찼어요 (2명). 다음 칸을 기다려 주세요."
 	end
+	if kind == "ParkViking" then -- (D-1425) on and off only while the boat stands still
+		local pivot = (model :: Model):GetPivot()
+		local root = rootOf(player)
+		local reach = ((model:GetAttribute("Reach") :: number?) or 20)
+		if not root or Vector3.new(root.Position.X - pivot.X, 0, root.Position.Z - pivot.Z).Magnitude > reach
+			or math.abs(root.Position.Y - pivot.Y) > 60 then
+			return false, "바이킹 앞에서 탈 수 있어요."
+		end
+		local _, still, left = ParkConfig.vikingState(model, t)
+		if not still then return false, string.format("운행 중이에요. %d초 뒤에 탈 수 있어요.", math.ceil(left)) end
+		for seat = 1, ParkConfig.vikingSeatCount(model) do
+			local key = "Rider" .. seat
+			if model:GetAttribute(key) == nil then
+				model:SetAttribute(key, player.UserId)
+				riding[player] = { kind = kind, model = model, slot = model, key = key }
+				return true, { slot = model, key = key }
+			end
+		end
+		return false, "자리가 가득 찼어요. 다음 운행을 기다려 주세요."
+	end
 	-- swings and spring riders are their own slot; horses are inside the carousel
 	if not slot or (slot ~= model and not slot:IsDescendantOf(model)) then return false, "탈 수 없어요." end
 	if slot:GetAttribute("Rider") ~= nil then return false, "다른 사람이 타고 있어요." end
@@ -141,6 +162,12 @@ local function exitFor(ride: Ride): CFrame?
 			local spot = center.Position + out.Unit * (radius + 7) + Vector3.new(0, 3, 0)
 			return CFrame.lookAt(spot, spot + out)
 		end
+	elseif ride.kind == "ParkViking" then
+		local exit = ride.model:GetAttribute("Exit")
+		if typeof(exit) == "Vector3" then
+			local pivot = (ride.model :: Model):GetPivot()
+			return CFrame.lookAt(exit, Vector3.new(pivot.X, exit.Y, pivot.Z))
+		end
 	elseif ride.kind == "FloatTube" then
 		-- next to the tube, in the water (the player swims)
 		local cf = ParkConfig.floatCFrame(ride.model, t)
@@ -168,6 +195,10 @@ local function leave(player: Player, home: boolean?): (boolean, any)
 		if index and ParkConfig.cabinFromBottom(ride.model, index, now()) > ParkConfig.WheelBoardAngle * 1.6 then
 			return false, "관람차가 아래로 내려오면 내릴 수 있어요."
 		end
+	end
+	if ride.kind == "ParkViking" then
+		local _, still, left = ParkConfig.vikingState(ride.model, now())
+		if not still then return false, string.format("바이킹이 멈추면 내릴 수 있어요 (%d초).", math.ceil(left)) end
 	end
 	local exit = exitFor(ride)
 	clear(player)

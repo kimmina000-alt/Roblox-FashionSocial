@@ -20,6 +20,11 @@
 --   tag "ParkSpring"    "Rocker" (Model, pivot = spring top). Attribute Rider.
 --   tag "ParkSlide"     attributes P0, P1, P2 (Vector3, path); "SlideStart"
 --                       (Part, trigger box at the top).
+--   tag "ParkViking"    (D-1425) the viking's "Ride" model, pivot = the axle (X axis);
+--                       "Swing" (Model, pivot = the axle) is turned about it. Attributes
+--                       Period (one swing, s), MaxAngle (deg), Board / Ramp / Hold (s),
+--                       Seat1..SeatN (CFrame from the axle at rest, facing the way the
+--                       rider looks), Exit (Vector3). Riders: attributes Rider1..RiderN.
 
 local ParkConfig = {}
 
@@ -33,11 +38,14 @@ ParkConfig.RidesRunning = false
 -- riders again; the Ferris wheel stays stopped (RidesRunning). The live attribute ParkRidesRunning
 -- still switches both.
 ParkConfig.CarouselRunning = true
+-- (D-1425, user 2026-11-15: "바이킹 사람 타서 흔들리는 것까지 구현") the two vikings swing.
+ParkConfig.VikingRunning = true
 function ParkConfig.isRunning(kind: string): boolean
 	local fg = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
 	local live = fg and fg:GetAttribute("ParkRidesRunning")
 	if typeof(live) == "boolean" then return live end
 	if kind == "ParkCarousel" then return ParkConfig.CarouselRunning end
+	if kind == "ParkViking" then return ParkConfig.VikingRunning end
 	return ParkConfig.RidesRunning
 end
 
@@ -161,6 +169,53 @@ function ParkConfig.horseCFrame(model: Instance, index: number, t: number): CFra
 	local bob = attr(model, "Bob", 0.8) * math.sin((t % 1000) * 1.6 + index * 1.7)
 	local theta = (ParkConfig.carouselAngle(model, t) + (index - 1) * 2 * math.pi / count) % (2 * math.pi)
 	return center * CFrame.Angles(0, theta, 0) * CFrame.new(0, saddle + bob, -radius) * CFrame.Angles(0, math.pi / 2, 0)
+end
+
+--------------------------------------------------
+-- Viking (D-1425): one shared run after another, from the server clock.
+-- A run = Board seconds standing still (get on / off), then the swing grows
+-- over Ramp seconds, swings at MaxAngle for Hold seconds and dies down over
+-- Ramp seconds. Every client turns the boat the same way at the same time.
+--------------------------------------------------
+
+local function smooth(x: number): number
+	x = math.clamp(x, 0, 1)
+	return x * x * (3 - 2 * x)
+end
+
+-- (angle in radians, standing still now?, seconds until the next change: the start when
+-- standing, the stop when swinging)
+function ParkConfig.vikingState(model: Instance, t: number): (number, boolean, number)
+	local board = attr(model, "Board", 15)
+	local ramp = attr(model, "Ramp", 10)
+	local hold = attr(model, "Hold", 20)
+	local cycle = board + ramp * 2 + hold
+	if not ParkConfig.isRunning("ParkViking") then return 0, true, 0 end
+	local c = t % cycle
+	if c < board then return 0, true, board - c end
+	local u = c - board
+	local env = if u < ramp then smooth(u / ramp) elseif u < ramp + hold then 1 else smooth((cycle - board - u) / ramp)
+	local angle = math.rad(attr(model, "MaxAngle", 45)) * env * math.sin(2 * math.pi * u / attr(model, "Period", 4))
+	return angle, false, cycle - c
+end
+
+function ParkConfig.vikingSeatCount(model: Instance): number
+	local count = 0
+	while typeof(model:GetAttribute("Seat" .. (count + 1))) == "CFrame" do count += 1 end
+	return count
+end
+
+-- The boat's turn now (the Swing model goes to pivot * this).
+function ParkConfig.vikingTurn(model: Instance, t: number): CFrame
+	local angle = ParkConfig.vikingState(model, t)
+	return CFrame.Angles(angle, 0, 0)
+end
+
+-- Seat k: where the rider sits (seat top), facing the way they look.
+function ParkConfig.vikingSeatCFrame(model: Model, index: number, t: number): CFrame?
+	local rel = model:GetAttribute("Seat" .. index)
+	if typeof(rel) ~= "CFrame" then return nil end
+	return model:GetPivot() * ParkConfig.vikingTurn(model, t) * rel
 end
 
 --------------------------------------------------

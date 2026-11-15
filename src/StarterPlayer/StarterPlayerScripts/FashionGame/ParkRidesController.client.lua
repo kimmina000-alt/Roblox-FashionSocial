@@ -71,6 +71,7 @@ local carousels: {{ model: Model, rotor: Model?, rel: CFrame }} = {}
 local swings: {{ model: Model, seat: Model?, amp: number, phase: number }} = {}
 local springs: {{ model: Model, rocker: Model?, base: CFrame }} = {}
 local slides: {Model} = {}
+local vikings: {{ model: Model, swing: Model?, rel: CFrame }} = {} -- (D-1425)
 
 local function hubCFrame(model: Model, name: string): CFrame?
 	local part = model:FindFirstChild(name)
@@ -142,6 +143,20 @@ local function addSpring(model: Model)
 	})
 end
 
+-- (D-1425) Viking: the Swing model turns about the axle (the Ride's pivot); a rider per seat.
+local function addViking(model: Model)
+	local swing = model:FindFirstChild("Swing") :: Model?
+	table.insert(vikings, { model = model, swing = swing, rel = if swing then model:GetPivot():Inverse() * swing:GetPivot() else CFrame.new() })
+	for index = 1, ParkConfig.vikingSeatCount(model) do
+		table.insert(slots, {
+			kind = "ParkViking", ride = model, slot = model, key = "Rider" .. index,
+			seat = function(t: number): CFrame?
+				return ParkConfig.vikingSeatCFrame(model, index, t)
+			end,
+		})
+	end
+end
+
 -- Floating tubes (rideable) and decorations on the sea (beach).
 -- Each tube part is placed from where it sits in the server's pose (around
 -- Base). Moving the model by its pivot went wrong on phones: the model
@@ -205,6 +220,7 @@ register("ParkSwing", addSwing)
 register("ParkSpring", addSpring)
 register("ParkSlide", function(model) table.insert(slides, model) end)
 register("FloatTube", addTube)
+register("ParkViking", addViking)
 
 -- Rubber ducks (tag "FloatDeco", user 2026-10-25): they sit on the real water
 -- surface, ride the waves along their drift path and get pushed by anyone
@@ -347,6 +363,12 @@ local function animate(t: number, dt: number)
 				local cf = ParkConfig.horseCFrame(carousel.model, index, t)
 				if horse and horse:IsA("Model") and cf then horse:PivotTo(cf) end
 			end
+		end
+	end
+	for _, viking in ipairs(vikings) do
+		local pivot = viking.model:GetPivot()
+		if viking.swing and viking.model.Parent and cameraNear(pivot.Position, true) then
+			viking.swing:PivotTo(pivot * ParkConfig.vikingTurn(viking.model, t) * viking.rel)
 		end
 	end
 	for _, swing in ipairs(swings) do
@@ -663,6 +685,24 @@ local function currentOffer(t: number): Offer?
 			return { text = string.format("🎡 다음 칸까지 %d초", math.ceil(wait)), ride = nil, slot = nil, ready = false }
 		end
 	end
+	for _, viking in ipairs(vikings) do -- (D-1425) one button per boat
+		local pivot = viking.model:GetPivot()
+		local reach = attrNumber(viking.model, "Reach", 20)
+		if Vector3.new(position.X - pivot.X, 0, position.Z - pivot.Z).Magnitude <= reach and math.abs(position.Y - pivot.Y) <= 60 then
+			local _, still, left = ParkConfig.vikingState(viking.model, t)
+			if not still then
+				return { text = string.format("⛵ 운행 중 · %d초 뒤 탑승", math.ceil(left)), ride = nil, slot = nil, ready = false }
+			end
+			local free = false
+			for index = 1, ParkConfig.vikingSeatCount(viking.model) do
+				if viking.model:GetAttribute("Rider" .. index) == nil then free = true break end
+			end
+			if free then
+				return { text = string.format("⛵ 바이킹 타기 (%d초 뒤 출발)", math.ceil(left)), ride = viking.model, slot = nil, ready = true }
+			end
+			return { text = "⛵ 자리가 가득 찼어요", ride = nil, slot = nil, ready = false }
+		end
+	end
 	local best: Offer? = nil
 	local bestDistance = math.huge
 	local function consider(entry: Slot, text: string, reach: number)
@@ -729,7 +769,7 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if input.KeyCode == Enum.KeyCode.E then
 		if bar.Visible and mainButton.Visible then task.spawn(pressMain) end
 	elseif input.KeyCode == Enum.KeyCode.V then
-		if mySlot and mySlot.kind == "ParkWheel" then setFirstPerson(not firstPerson) end
+		if mySlot and (mySlot.kind == "ParkWheel" or mySlot.kind == "ParkViking") then setFirstPerson(not firstPerson) end
 	end
 end)
 
@@ -761,7 +801,14 @@ local function refreshUi(t: number)
 				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130)
 			end
 		end
-		viewButton.Visible = entry.kind == "ParkWheel"
+		if entry.kind == "ParkViking" then -- (D-1425) off only while it stands still
+			local _, still, left = ParkConfig.vikingState(entry.ride, t)
+			if not still then
+				mainButton.Text = string.format(KEY .. "내리기 (멈추면 · %d초)", math.ceil(left))
+				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130)
+			end
+		end
+		viewButton.Visible = entry.kind == "ParkWheel" or entry.kind == "ParkViking"
 		viewButton.Text = if firstPerson then (if KEY ~= "" then "🎥 3인칭 (V)" else "🎥 3인칭") else (if KEY ~= "" then "👁 1인칭 (V)" else "👁 1인칭")
 		local isSwing = entry.kind == "ParkSwing"
 		minusButton.Visible = isSwing
