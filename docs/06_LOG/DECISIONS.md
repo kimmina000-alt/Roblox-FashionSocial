@@ -4768,3 +4768,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: "플러스 모양 그냥 없애 그냥 누르면 앉게 해".
 - The seat buttons are invisible (a transparent button about one seat big, 3 × 2.6 studs, over each seat pan). While the boat stands still and you are near: pressing a free seat seats you there; already on that boat, it moves you there. The main button still takes the first free seat.
 - Play check: nothing drawn over the seats; a click on seat 6 seated the player on 6; in the next stop a click on seat 3 moved them to 3; a click while swinging did nothing.
+
+## D-1431 (2026-11-15) Vikings without the middle hanger and the side bar
+- User (picture of the super viking with the middle vertical bar and the bar along the boat's side circled): "슈퍼바이킹 해당 프레임 삭제. 뒤쪽도. 미니바이킹도 삭제."
+- park_vikings_1115 no longer builds "Hanger" (axle hub → middle of the boat) or "ArmBrace" (along the boat's side); removed from both rides and their _Backup copies (16 parts). The boat hangs on the two V arms each side. Play: the super viking swings with only the V arms.

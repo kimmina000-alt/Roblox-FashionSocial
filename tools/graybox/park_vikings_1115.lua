@@ -170,8 +170,7 @@ local function build(owner: Model, kind: string, o: Vector3, s)
 			local low = Vector3.new(o.X + sx * (s.width / 2 + s.arm * 0.6), rimY, o.Z + sz * s.armZ)
 			beam(swing, "Arm", top, low, s.arm, s.armColor)
 		end
-		beam(swing, "Hanger", top, Vector3.new(top.X, rimY, o.Z), s.arm * 0.8, s.armColor)
-		beam(swing, "ArmBrace", Vector3.new(top.X, rimY + 0.2, o.Z - s.armZ), Vector3.new(top.X, rimY + 0.2, o.Z + s.armZ), s.arm * 0.7, s.armColor)
+		-- (D-1431, user: "해당 프레임 삭제. 뒤쪽도. 미니바이킹도": no middle hanger, no bar along the boat's side)
 		if s.panels then -- picture boards between the arms (plain colours, no characters)
 			for k, sz in ipairs({ -1, 1 }) do
 				local mid = top:Lerp(Vector3.new(top.X, rimY, o.Z + sz * s.armZ), 0.55)
