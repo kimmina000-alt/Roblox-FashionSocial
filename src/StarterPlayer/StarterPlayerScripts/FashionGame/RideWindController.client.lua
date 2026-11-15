@@ -103,6 +103,7 @@ RunService.Heartbeat:Connect(function()
 		local h1 = ParkConfig.jumpStarState(ride, t + 0.05)
 		local down = (h0 - h1) / 0.05
 		local k = if down > ParkConfig.JumpWindSpeed then math.clamp((down - ParkConfig.JumpWindSpeed) / (JUMP_FULL - ParkConfig.JumpWindSpeed), 0.25, 1) else 0
+		if not ParkConfig.jumpStarBigDrop(ride, t) then k = 0 end -- (D-1481: the hops fall fast too; the wind is for the last drop)
 		set(part, DROP_MAX * k, 0.95 + 0.3 * k)
 	end
 end)

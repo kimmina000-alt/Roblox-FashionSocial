@@ -145,13 +145,19 @@ for _, p in ipairs(area:GetChildren()) do
 		p.CastShadow = false
 	end
 end
+-- (D-1481, user 2026-11-16: "범퍼카 파란벽 펜스로 바꿔서 밖에서도 보이게 해") the rails stay as invisible walls
+-- (they stop the cars and people); on the floor along them stand the park's yellow panels
+-- (ServerStorage.ArtAssets.YellowFencePanel, at their own size), so the hall can be seen into from
+-- outside. The black rubber band at the floor stays.
+local PANEL = game:GetService("ServerStorage"):WaitForChild("ArtAssets"):FindFirstChild("YellowFencePanel") :: BasePart?
+local nPanel = 0
 for _, p in ipairs(area:GetChildren()) do
 	if p:IsA("BasePart") and p.Name == "Rail" and not isBackRail(p) then
 		local lo, hi = bb(p)
 		local c = (lo + hi) / 2
 		local sx, sz = hi.X - lo.X, hi.Z - lo.Z
-		part("RailCap", Vector3.new(sx + 0.3, 0.5, sz + 0.3), CFrame.new(c.X, hi.Y + 0.25, c.Z), YELLOW, Enum.Material.SmoothPlastic)
-		-- the inner face: the side towards the floor's middle
+		p.Transparency = 1
+		p.CastShadow = false
 		local inward = Vector3.new(CX - c.X, 0, CZ - c.Z)
 		if sx > sz then
 			local zf = if inward.Z > 0 then hi.Z else lo.Z
@@ -159,6 +165,26 @@ for _, p in ipairs(area:GetChildren()) do
 		else
 			local xf = if inward.X > 0 then hi.X else lo.X
 			part("RubberBand", Vector3.new(0.5, 1.6, sz), CFrame.new(xf + math.sign(inward.X) * 0.25, FY + 1.1, c.Z), Color3.fromRGB(24, 24, 28), Enum.Material.Rubber)
+		end
+		if PANEL then
+			-- panels end to end along the rail's middle line (the last ones overlap a little; every other one
+			-- 0.03 off the line)
+			local a = if sx > sz then Vector3.new(lo.X, FY, c.Z) else Vector3.new(c.X, FY, lo.Z)
+			local b = if sx > sz then Vector3.new(hi.X, FY, c.Z) else Vector3.new(c.X, FY, hi.Z)
+			local L = (b - a).Magnitude
+			local u = (b - a).Unit
+			local PL = PANEL.Size.Z
+			local n = math.max(1, math.ceil(L / PL - 0.02))
+			for k = 0, n - 1 do
+				local t = if n == 1 then L / 2 else PL / 2 + (L - PL) * k / (n - 1)
+				local m = a + u * t
+				local q = PANEL:Clone()
+				q.Name = "FencePanel"
+				q.CFrame = CFrame.lookAt(m, m + u) * CFrame.new(if nPanel % 2 == 0 then 0.03 else -0.03, PANEL.Size.Y / 2, 0)
+				q.Anchored, q.CanCollide, q.CanTouch, q.CanQuery = true, false, false, false
+				q.Parent = dress
+				nPanel += 1
+			end
 		end
 	end
 end
@@ -256,14 +282,20 @@ bulbRow(Vector3.new(RX0, EAVE - 1.1, RZ1), Vector3.new(RX1, EAVE - 1.1, RZ1), 2.
 for i = 1, 5 do
 	local z = RZ0 + (RZ1 - RZ0) * i / 6
 	local n = 34
+	-- (D-1481, user: "전구 달린 줄 더 아래로 내려오게": they hang from 4 under the eaves and sag 9 in the middle,
+	-- was 1.6 and 2)
+	local TOPY, SAG = EAVE - 4, 9
+	local prev
 	for k = 0, n do
 		local u = k / n
 		local x = RX0 + (RX1 - RX0) * u
-		local sag = 2 * (1 - (2 * u - 1) ^ 2)
-		bulb(Vector3.new(x, EAVE - 1.6 - sag, z), BULBS[(k + i) % #BULBS + 1], 0.5)
+		local sag = SAG * (1 - (2 * u - 1) ^ 2)
+		local p = Vector3.new(x, TOPY - sag, z)
+		bulb(p, BULBS[(k + i) % #BULBS + 1], 0.5)
+		local joint = k % 4 == 0 or k == n
+		if prev and joint then beam("StringWire", prev, p, 0.06, Color3.fromRGB(30, 30, 30)) end
+		if joint then prev = p end
 	end
-	beam("StringWire", Vector3.new(RX0, EAVE - 1.6, z), Vector3.new(CX, EAVE - 3.6, z), 0.06, Color3.fromRGB(30, 30, 30))
-	beam("StringWire", Vector3.new(CX, EAVE - 3.6, z), Vector3.new(RX1, EAVE - 1.6, z), 0.06, Color3.fromRGB(30, 30, 30))
 end
 -- soft lights under the roof (they also light the glossy floor at night)
 for _, fz in ipairs({ 0.25, 0.75 }) do

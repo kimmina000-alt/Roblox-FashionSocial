@@ -84,7 +84,10 @@ RunService:BindToRenderStep("VikingCheer", Enum.RenderPriority.Camera.Value - 1,
 			local character = rider and rider.Character
 			if not character then continue end
 			local down = false
-			if not still then
+			if CollectionService:HasTag(ride, "ParkJumpStar") then
+				-- (D-1481, user: "아바타가 팔 드는 모션은 마지막에 훅 내려갈 때만": not on the hops)
+				down = ParkConfig.jumpStarBigDrop(ride, t)
+			elseif not still then
 				local a = ParkConfig.seatRideSeatCFrame(ride :: Model, index, t)
 				local b = ParkConfig.seatRideSeatCFrame(ride :: Model, index, t + 0.05)
 				down = a ~= nil and b ~= nil and (b.Y - a.Y) / 0.05 < DROP

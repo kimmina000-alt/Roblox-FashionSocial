@@ -57,6 +57,8 @@ ParkConfig.VikingRunning = true
 ParkConfig.TeaCupsRunning = true
 -- (D-1457, user 2026-11-15: "점핑스타 사람 타서 위아래로 뛰는 것까지 구현")
 ParkConfig.JumpStarRunning = true
+-- (D-1481, user 2026-11-16: "관람차 운영되게 해") the Ferris wheel turns and takes riders again.
+ParkConfig.WheelRunning = true
 function ParkConfig.isRunning(kind: string): boolean
 	local fg = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
 	local live = fg and fg:GetAttribute("ParkRidesRunning")
@@ -65,6 +67,7 @@ function ParkConfig.isRunning(kind: string): boolean
 	if kind == "ParkViking" then return ParkConfig.VikingRunning end
 	if kind == "ParkTeaCups" then return ParkConfig.TeaCupsRunning end
 	if kind == "ParkJumpStar" then return ParkConfig.JumpStarRunning end
+	if kind == "ParkWheel" then return ParkConfig.WheelRunning end
 	return ParkConfig.RidesRunning
 end
 
@@ -330,9 +333,16 @@ end
 -- then a sudden drop: falling faster and faster ("fall": x²) to 6 over the bottom, braking hard
 -- ("brake") to the bottom with the same speed it fell at, one small bounce.
 -- A key's third value is how the gap BEFORE it eases (default: slow out, slow in).
+-- (D-1481, user: "점핑스타 제일 처음 니가 만들었던 움직임으로 하되 마지막에 훅 내려가는 구간만 추가"): D-1457's hops
+-- (up the tower in hops, bouncing down again) and then D-1458's ending: slowly up to the top, a moment
+-- there, the sudden drop and its brake and one small bounce. ParkConfig.jumpStarBigDrop says when the
+-- last drop runs (the riders' arms go up and the wind blows only then).
 ParkConfig.JumpKeys = {
-	{ 0, 0 }, { 8, 22 }, { 9.5, 22 }, { 15, 11 }, { 16, 11 }, { 21.5, 22 }, { 24, 22 },
-	{ 25.1, 6, "fall" }, { 25.5, 0, "brake" }, { 26.2, 1.2 }, { 27, 0 },
+	{ 0, 0 }, { 2.4, 6 }, { 3.1, 3.5 }, { 5.2, 12 }, { 5.9, 9 }, { 8.0, 17 }, { 8.7, 14 }, { 11.0, 22 },
+	{ 12.6, 22 }, { 13.2, 11 }, { 14.3, 20 }, { 14.9, 9 }, { 16.0, 19 }, { 16.6, 7 }, { 17.8, 17 },
+	{ 18.4, 5 }, { 19.6, 14 }, { 20.2, 3 }, { 21.4, 10 }, { 22.0, 2 }, { 23.0, 6 }, { 23.6, 0.6 },
+	{ 24.4, 2.2 }, { 25.2, 0 },
+	{ 33.2, 22 }, { 35.7, 22 }, { 36.8, 6, "fall" }, { 37.2, 0, "brake" }, { 37.9, 1.2 }, { 38.7, 0 },
 }
 ParkConfig.JumpWindSpeed = 6 -- (studs/s down: faster than this, the wind sound plays — the big drop)
 
@@ -362,6 +372,23 @@ function ParkConfig.jumpStarState(model: Instance, t: number): (number, boolean,
 		end
 	end
 	return 0, false, cycle - c
+end
+
+-- (D-1481) is the run in its last, sudden drop (the "fall" gap and the "brake" after it)?
+function ParkConfig.jumpStarBigDrop(model: Instance, t: number): boolean
+	local keys = ParkConfig.JumpKeys
+	if not ParkConfig.isRunning("ParkJumpStar") then return false end
+	local board = attr(model, "Board", 15)
+	local c = t % (board + keys[#keys][1])
+	if c < board then return false end
+	local u = c - board
+	for i = 2, #keys do
+		local e = keys[i][3]
+		if e == "fall" or e == "brake" then
+			if u >= keys[i - 1][1] and u < keys[i][1] then return true end
+		end
+	end
+	return false
 end
 
 function ParkConfig.jumpStarSeatCFrame(model: Model, index: number, t: number): CFrame?
