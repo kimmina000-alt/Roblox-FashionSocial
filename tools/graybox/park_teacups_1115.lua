@@ -137,6 +137,16 @@ local cupT = template({ "TeaCupTex4", "TeaCupTex3", "TeaCupTex2", "TeaCupTex", "
 local ownPost = cupT ~= nil and (cupT.Name == "TeaCupTex3" or cupT.Name == "TeaCupTex2")
 local cup4 = cupT ~= nil and cupT.Name == "TeaCupTex4"
 if cup4 then CUP_TEXTURES = CUP4_TEXTURES end
+-- (D-1472, user 2026-11-16: "회전컵 디자인 변경 가져오기 했음": cup2-1..5.glb, five cups with animal ears,
+-- each its own mesh and painted texture (cream, green, sky, orange, pink), kept place-only as
+-- ServerStorage.ArtAssets.TeaCup5.Cup1..Cup5. Like Tex4 their floor is at the foot (0.04 of the
+-- height, measured), so they take Tex4's leg benches and post; scaled by the bowl's width (Z, the
+-- handle sticks out along X); the ears stand over the rim, so the seat height comes from the bowl
+-- (0.669 of its width), not from the whole height)
+local cupSet = art:FindFirstChild("TeaCup5")
+local cup5 = cupSet ~= nil and cupSet:FindFirstChild("Cup1") ~= nil
+local flat = cup4 or cup5
+local BOWL5 = 0.669
 -- (Tex4: its floor is near the bottom (0.046 of its height, measured), so the benches stand on legs
 -- up to BENCH4 of its height, riders' shoulders over the rim; the post and wheel are built here)
 local BENCH4 = 0.42
@@ -152,13 +162,14 @@ for k = 1, CUPS do
 	local pivot = CFrame.new(at.X, sTop, at.Z)
 	local floorY = sTop + 0.6
 	local cupH = 0
-	if cupT then
-		local m = placeMesh(cupT, cup, "CupMesh", pivot, function(size) return CUP_D / math.max(size.X, size.Z) end)
+	local tk = if cup5 then cupSet:FindFirstChild("Cup" .. ((k - 1) % #cupSet:GetChildren() + 1)) else cupT
+	if tk then
+		local m = placeMesh(tk, cup, "CupMesh", pivot, function(size) return CUP_D / (if cup5 then size.Z else math.max(size.X, size.Z)) end)
 		local cf, size = m:GetBoundingBox()
-		floorY = sTop + size.Y * (if cup4 then 0.046 else 0.374) -- (the cup's floor: 0.43 of its 1.15 height in the glb)
-		cupH = size.Y
+		floorY = sTop + size.Y * (if cup5 then 0.04 elseif cup4 then 0.046 else 0.374) -- (the cup's floor: 0.43 of its 1.15 height in the glb)
+		cupH = if cup5 then CUP_D * BOWL5 else size.Y
 		for _, d in ipairs(m:GetDescendants()) do
-			if d:IsA("MeshPart") then
+			if d:IsA("MeshPart") and not cup5 then
 				if CUP_TEXTURES[k] ~= "" then
 					d.TextureID = CUP_TEXTURES[k]
 				elseif d.TextureID == "" then
@@ -168,11 +179,11 @@ for k = 1, CUPS do
 		end
 	end
 	-- steering wheel in the middle, benches round it
-	local benchTop = if cup4 then sTop + cupH * BENCH4 else floorY + 1.3
+	local benchTop = if flat then sTop + cupH * BENCH4 else floorY + 1.3
 	local wheelY = floorY + 2.2
-	if ownPost then
+	if ownPost and not cup5 then
 		wheelY = sTop + cupH * 0.885 -- (the top of the user's post: 0.885 of the cup's height)
-	elseif cup4 then
+	elseif flat then
 		wheelY = benchTop + 1.5
 		disc(cup, "WheelPost", at, floorY, wheelY - floorY, 0.55, Color3.fromRGB(150, 155, 160)).Material = Enum.Material.Metal
 	else
@@ -182,13 +193,14 @@ for k = 1, CUPS do
 	disc(cup, "WheelHub", at, wheelY + 0.22, 0.2, 0.8, Color3.fromRGB(230, 190, 70))
 	for s = 1, PER do
 		local b = (s - 0.5) / PER * 2 * math.pi
-		local p = Vector3.new(at.X + 2.9 * math.cos(b), 0, at.Z + 2.9 * math.sin(b))
+		local br = if cup5 then 2.4 else 2.9 -- (TeaCup5: its wall leans in lower down: measured, the seats sit closer in)
+		local p = Vector3.new(at.X + br * math.cos(b), 0, at.Z + br * math.sin(b))
 		local face = CFrame.lookAt(Vector3.new(p.X, benchTop, p.Z), Vector3.new(at.X, benchTop, at.Z))
 		local bh = benchTop - floorY -- (the bench from the cup's floor up to its seat)
-		if cup4 then
+		if flat then
 			-- (the Tex4 bowl narrows to its foot: a seat on one thin leg, set inwards, stays inside it)
-			part(cup, "Bench", Vector3.new(2.0, 0.4, 1.4), face * CFrame.new(0, -0.2, 0.1), Color3.fromRGB(248, 248, 246))
-			part(cup, "BenchLeg", Vector3.new(0.45, bh - 0.4, 0.45), face * CFrame.new(0, -0.4 - (bh - 0.4) / 2, -1.0), Color3.fromRGB(200, 204, 210), Enum.Material.Metal) -- (leg 1.9 from the middle: the foot is 2.7 across at 0.4 up)
+			part(cup, "Bench", if cup5 then Vector3.new(1.8, 0.4, 1.2) else Vector3.new(2.0, 0.4, 1.4), face * CFrame.new(0, -0.2, if cup5 then 0 else 0.1), Color3.fromRGB(248, 248, 246))
+			part(cup, "BenchLeg", Vector3.new(0.45, bh - 0.4, 0.45), face * CFrame.new(0, -0.4 - (bh - 0.4) / 2, if cup5 then -1.2 else -1.0), Color3.fromRGB(200, 204, 210), Enum.Material.Metal) -- (leg 1.9 from the middle: the foot is 2.7 across at 0.4 up)
 		else
 			part(cup, "Bench", Vector3.new(2.0, bh, 1.6), face * CFrame.new(0, -bh / 2, 0.2), Color3.fromRGB(248, 248, 246))
 		end
@@ -229,5 +241,5 @@ floor.CFrame = deck.CFrame
 floor.Transparency = 1
 quiet(floor, true)
 floor.Parent = owner
-print(("[park_teacups_1115] cups %d (%s), teapot %s"):format(CUPS, cupT and cupT.Name or "none", pot and pot.Name or "none"))
+print(("[park_teacups_1115] cups %d (%s), teapot %s"):format(CUPS, if cup5 then "TeaCup5" elseif cupT then cupT.Name else "none", pot and pot.Name or "none"))
 return CUPS

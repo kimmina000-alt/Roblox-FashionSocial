@@ -4999,3 +4999,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
   - Furniture only where nothing stands and off the paving: 61 lamp posts (three white globes, a PointLight), 15 benches (the bus stop's Park Bench), 12 bins, 7 tulip beds, 13 flower-basket banner poles.
   - 1,471 parts (zone budget 1,500).
 - Play: walked gate plaza → carousel plaza → promenade → super viking branch, and onto a lawn: smooth (heights 20.4-20.8); no script errors.
+
+## D-1472 (2026-11-16) 회전컵 = 사용자 새 컵 다섯 개 (동물 귀)
+- User: "회전컵 디자인 변경 가져오기 했음" + cup2-1..5.glb (copied to docs/04_ART/park/teacups5): five cups with animal ears and faces, each its own mesh and painted texture (cream bunny, green, sky, orange, pink). The cream one had been imported twice; one copy is used.
+- Kept place-only as ServerStorage.ArtAssets.TeaCup5.Cup1..Cup5 (the imports removed from Workspace). park_teacups_1115 takes TeaCup5 first: cup k = TeaCup5.Cup<k>, its own texture (no recolouring), scaled so the bowl (Z, without the handle) is 10 across.
+- Like Tex4 their floor is at the foot (0.04 of the height, measured), so they get Tex4's post, wheel and benches on one leg; the seat height comes from the bowl (0.669 of its width; the ears stand above the rim). Measured, the wall leans in lower down, so the seats sit 2.4 from the middle (was 2.9), 1.8 × 1.2, legs 1.2 from the middle: nothing shows through the wall or the foot (checked on screenshots).
