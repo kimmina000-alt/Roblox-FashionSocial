@@ -4742,3 +4742,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: "테스트 스포너 놀이공원 안에 만들어 줘".
 - Place-only pad Workspace.ParkTestSpawn (green, "TEST SPAWN (Studio 전용)", no collision) at (-205, 16.15, -485) between the carousel and the mini viking, facing north. ParkRideService.parkTestSpawn: in a Studio test every character (and every respawn) is put on it, side by side for a multi-player test; attribute On = false switches it off; move the pad in Edit mode to spawn elsewhere. On a live server the pad is destroyed and spawning is unchanged.
 - Play check: first spawn and respawn at (-199, 20.2, -485).
+
+## D-1427 (2026-11-15) Viking smoother, arms up on the way down, riders on the ㄴ seats; carousel horses higher
+- User: "바이킹 타면 덜커덕거림 매끄럽게 수정 / 바이킹 올라갔다가 내려갈 때 양팔 드는 모션 / 바이킹 저 ㄴ 모양 블록이 의자인데 저기 앉히기 / 회전목마 말 너무 아래에서 움직임. 전체적으로 위로 올리고 위아래로 움직이는 범위 넓히기" (+ a Blender picture of the boats' L-shaped seats).
+- Smoother: ParkRidesController's clock is smoothed (os.clock + an offset that follows GetServerTimeNow slowly, reset on a jump > 0.5 s), the rides and riders move in BindToRenderStep at Camera - 1 (the camera then follows where the rider already is), and a viking rider's root is held anchored like on a tube. Play check over 3 s mid-swing: rider-to-boat distance changed 0.000, rider acceleration max 33 / mean 29 (no spikes).
+- Arms up: VikingCheerMotion.client.lua (IKControls on every client, like the tube paddling): both hands over the head while the rider's seat drops faster than 1.2 studs/s, eased in 0.3 s and out 0.45 s. Checked: weight 1, hands 3.5 above the root.
+- Seats: the L blocks (glb) — seat pan top 0.66 (mini) / 1.016 (super), backrest on the side of the boat's end; each rider sits in the middle of the pan, back to the backrest, facing the middle (park_vikings_1115 rows, and the Seat attributes in Studio and in the _Backup copies).
+- Carousel: SaddleY 5.54 → 8.6 (hooves about 3 over the floor), Bob 1.1 → 2.3 (park_carousel_horses_1115 SADDLE_Y / BOB; horses moved in Studio). Play: saddle 23.7..27.6.

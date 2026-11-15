@@ -18,6 +18,9 @@
 --     its lower edge a little under the canopy; the old CanopyTop / CanopyCrown under it are removed
 --     (the flat Canopy stays as the ceiling seen from below, with its bulbs).
 --   * the carousel's Radius / SaddleY / Bob attributes are set to its real size.
+--   * (D-1427, user 2026-11-15: "회전목마 말 너무 아래에서 움직임. 전체적으로 위로 올리고 위아래로
+--     움직이는 범위 넓히기") the saddles stand SADDLE_Y above the carousel's Center (was 5.54: the
+--     hooves nearly on the floor) and bob BOB up and down (was 1.1).
 -- Idempotent (horses holding "HorseMesh" with a "PoleV2" attribute, a "HorsePole" in the Rotor and a
 -- "RoofMesh" are left). Chain step: after the graybox zones, with park_playground_1114.
 
@@ -32,6 +35,8 @@ local roofTemplate = art:WaitForChild("CarouselRoof")
 local SCALE = 3.75
 local SADDLE = Vector3.new(0.153, 0.216 + 0.03, 0) -- (from the body's middle, size 1 = as imported)
 local ROOF_D = 48.5
+local SADDLE_Y = 8.6 -- (saddle top above the Center part; hooves about 3 studs over the floor)
+local BOB = 2.3
 local ROOF_DROP = 0.5 -- (the roof's lower edge under the canopy's underside)
 
 local body0 = template:FindFirstChild("Body") :: MeshPart
@@ -61,6 +66,8 @@ for i = 1, 64 do
 	local horse = carousel:FindFirstChild("Horse" .. i)
 	if not horse or not horse:IsA("Model") then break end
 	local pivot = horse:GetPivot() -- (saddle top on the pole, facing the way it rides)
+	pivot = (pivot - pivot.Position) + Vector3.new(pivot.X, center.Position.Y + SADDLE_Y, pivot.Z)
+	if horse:GetAttribute("PoleV2") then horse:PivotTo(pivot) end
 	radius = Vector2.new(pivot.X - center.Position.X, pivot.Z - center.Position.Z).Magnitude
 	saddleY = pivot.Y - center.Position.Y
 	if not horse:GetAttribute("PoleV2") then
@@ -109,7 +116,7 @@ quiet(r)
 
 carousel:SetAttribute("Radius", math.floor(radius * 100 + 0.5) / 100)
 carousel:SetAttribute("SaddleY", math.floor(saddleY * 100 + 0.5) / 100)
-carousel:SetAttribute("Bob", 1.1)
+carousel:SetAttribute("Bob", BOB)
 print(("[park_carousel_horses_1115] horses %d, radius %.2f, saddle %.2f, poles %.2f long, roof %.1f high")
 	:format(count, radius, saddleY, ceilY - floorY, r.Size.Y))
 return count

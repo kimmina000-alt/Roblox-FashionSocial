@@ -31,8 +31,18 @@ local playerGui = player:WaitForChild("PlayerGui")
 
 local DRAW_DISTANCE = 450
 
+-- (D-1427, user 2026-11-15: "바이킹 타면 덜커덕거림 매끄럽게") the shared clock, smoothed: the
+-- server time comes in steps; the local clock runs smoothly and only follows it slowly, so the rides
+-- and their riders never jump between frames.
+local clockOffset: number? = nil
 local function now(): number
-	return workspace:GetServerTimeNow()
+	local target = workspace:GetServerTimeNow() - os.clock()
+	if clockOffset == nil or math.abs(target - clockOffset) > 0.5 then
+		clockOffset = target
+	else
+		clockOffset = (clockOffset :: number) + (target - (clockOffset :: number)) * 0.01
+	end
+	return os.clock() + (clockOffset :: number)
 end
 
 local function ownRoot(): BasePart?
@@ -537,7 +547,8 @@ RunService.PreSimulation:Connect(function(dt)
 		-- in the water the swimming body drifted out of the ring between frames
 		-- (it showed the rider beside the tube, user phone test 2026-10-26):
 		-- on a tube the rider is held anchored at the seat
-		if entry.kind == "FloatTube" and not root.Anchored then root.Anchored = true end
+		-- (D-1427) on a viking too: the body falling a little between frames made the ride judder
+		if (entry.kind == "FloatTube" or entry.kind == "ParkViking") and not root.Anchored then root.Anchored = true end
 		local cf = riderCFrame(entry, root, now())
 		if cf then placeOwn(cf) end
 	end
@@ -947,7 +958,9 @@ player.CharacterAdded:Connect(function()
 end)
 
 local uiTimer = 0
-RunService.RenderStepped:Connect(function(dt)
+-- (D-1427) just before the camera: the camera then follows where the rider already is this frame
+-- (a RenderStepped handler could run after it, and a moving rider looked like it judders)
+RunService:BindToRenderStep("ParkRides", Enum.RenderPriority.Camera.Value - 1, function(dt)
 	local t = now()
 	-- Rides and riders move every frame from the same clock (at 30 updates a
 	-- second the ride and the rider drifted apart and looked jerky, user

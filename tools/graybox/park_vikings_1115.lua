@@ -19,7 +19,9 @@
 -- (D-1425, user 2026-11-15: "바이킹 사람 타서 흔들리는 것까지 구현") "Ride" carries the tag ParkViking
 -- and the ride attributes (ParkConfig: Period, MaxAngle, Board / Ramp / Hold, Seat1..N, Exit, Reach):
 -- ParkRideService seats riders, ParkRidesController swings "Swing" and the riders from the server
--- clock. Seats sit on the boat's seat rows (read off the glbs: rows across the boat, two riders a
+-- clock. (D-1427, the user's picture: the ㄴ-shaped blocks are the seats) each rider sits on the seat
+-- pan (its top, the middle between the backrest and the front edge), back to the backrest (towards
+-- the boat's end), facing the boat's middle. Seats sit on the boat's seat rows (read off the glbs: rows across the boat, two riders a
 -- row, facing the boat's middle). The axles went up (mini 2.2, super 3.6) so the boats' ends clear
 -- the floor at full swing (checked on the meshes: the ends reach further than the flat bottom).
 -- Idempotent: "Ride" is built anew each run. Run in Edit mode (chain step after park_layout_1111).
@@ -227,7 +229,7 @@ if mini then
 	local deckY = 20.3
 	build(mini, "Mini", Vector3.new(-256, 40.7, -521.6), {
 		len = 25.1, width = 9.0, height = 6.4, restY = deckY + 3.5,
-		glb = { len = 6.698, width = 2.405, height = 1.698, midY = 0.945, seatTop = 1.09, seatX = 0.42, rows = { -2.745, -1.31, 1.31, 2.745 } },
+		glb = { len = 6.698, width = 2.405, height = 1.698, midY = 0.945, seatTop = 0.66, seatX = 0.42, rows = { -2.708, -1.271, 1.271, 2.708 } },
 		ride = { Period = 4.2, MaxAngle = 50, Board = 15, Ramp = 8, Hold = 16, Reach = 18, Exit = Vector3.new(-243.5, deckY + 3, -521.6) },
 		legX = 6.4, footX = 8.6, footZ = 11.5, groundY = deckY, leg = 1.1,
 		braces = { 0.62 }, bulbs = 5,
@@ -244,7 +246,7 @@ if super then
 	local baseY = 18.95
 	build(super, "Super", Vector3.new(-91.6, 65.6, -648.8), {
 		len = 50.1, width = 8.7, height = 7.3, restY = baseY + 5.6,
-		glb = { len = 13.907, width = 2.405, height = 2.02, midY = 1.106, seatTop = 1.44, seatX = 0.42, rows = { -6.33, -4.9, -3.46, -2.02, -0.58, 0.58, 2.02, 3.46, 4.9, 6.33 } },
+		glb = { len = 13.907, width = 2.405, height = 2.02, midY = 1.106, seatTop = 1.016, seatX = 0.42, rows = { -6.29, -4.85, -3.42, -1.98, -0.54, 0.54, 1.98, 3.42, 4.85, 6.29 } },
 		ride = { Period = 6.5, MaxAngle = 62, Board = 15, Ramp = 12, Hold = 20, Reach = 34, Exit = Vector3.new(-91.6 + 13, baseY + 3, -648.8) },
 		legX = 6.8, footX = 11, footZ = 24, groundY = baseY, leg = 2.0,
 		braces = { 0.35, 0.7 }, truss = true,
