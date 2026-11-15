@@ -4814,3 +4814,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: "가져왔어 / 티컵 안쪽도 바깥 이미지 그대로 넣어 줘".
 - CupTex2 imported → ArtAssets.TeaCupTex2; the five cups (and the backup) swapped, each with its D-1435 picture; the user's middle post replaces the steering post (WheelPost removed), the wheel sits on the post's top (0.885 of the cup's height). park_teacups_1115 takes TeaCupTex3 / TeaCupTex2 first and then builds no WheelPost.
 - tools/art/teacups_tex.py now gives the inside wall the same UVs as the outside (the floor keeps its colour) → docs/04_ART/park/teacups_tex/CupTex3.glb, for the user to import (until then the inside stays white).
+- (D-1438, later) The user imported CupTex3: ArtAssets.TeaCupTex3; the five cups (and the backup) swapped. Play: the inside wall shows the cup's coloured drips too.
+
+## D-1439 (2026-11-15) Mini viking taller, no brace between the legs
+- User (pictures: a red apex well above the frame; a mark on the cross bar): "미니바이킹 기둥 더 높여 줘 / 사이에 기둥은 삭제".
+- park_vikings_1115 mini: axle 40.7 → 52 (legs and arms longer; feet out to z ±13, legs 1.2 thick, 7 bulbs a leg, 6 an arm), braces = {}. With the longer arms the boat's end clears the deck by 1.67 at full swing (was 0.59, checked on the Tex3 mesh). Rebuilt (8 seats) with its backup. Play: the taller frame swings with no cross bar.

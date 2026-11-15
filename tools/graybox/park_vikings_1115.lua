@@ -238,14 +238,16 @@ end
 local mini = workspace:FindFirstChild("미니바이킹")
 if mini then
 	local deckY = 20.3
-	build(mini, "Mini", Vector3.new(-256, 40.7, -521.6), {
+	-- (D-1439, user: "미니바이킹 기둥 더 높여 줘 / 사이에 기둥은 삭제": the axle 40.7 → 52, longer arms, no
+	-- brace between the legs; the boat's end then clears the deck by 1.67 at full swing, was 0.59)
+	build(mini, "Mini", Vector3.new(-256, 52, -521.6), {
 		len = 25.1, width = 9.0, sy = 3.769, restY = deckY + 3.5,
 		glb = { len = 6.698, width = 2.405, height = 1.698, midY = 0.945, seatTop = 0.66, seatX = 0.42, rows = { -2.708, -1.271, 1.271, 2.708 },
 			v2 = { height = 1.1318, midY = 0.6623 } },
 		ride = { Period = 4.2, MaxAngle = 50, Board = 15, Ramp = 8, Hold = 16, Reach = 18, Exit = Vector3.new(-243.5, deckY + 3, -521.6) },
-		legX = 6.4, footX = 8.6, footZ = 11.5, groundY = deckY, leg = 1.1,
-		braces = { 0.62 }, bulbs = 5,
-		arm = 0.8, armZ = 10.5, armBulbs = 4, -- (D-1428: the square boards between the arms removed)
+		legX = 6.4, footX = 8.8, footZ = 13, groundY = deckY, leg = 1.2,
+		braces = {}, bulbs = 7,
+		arm = 0.85, armZ = 10.5, armBulbs = 6, -- (D-1428: the square boards between the arms removed)
 		frameColor = Color3.fromRGB(250, 200, 30), footColor = Color3.fromRGB(215, 35, 40),
 		hubColor = Color3.fromRGB(215, 35, 40), armColor = Color3.fromRGB(250, 200, 30),
 		boatColor = Color3.fromRGB(250, 200, 30),
