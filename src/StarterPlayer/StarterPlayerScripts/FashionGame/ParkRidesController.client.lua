@@ -911,34 +911,31 @@ addSeatPicks = function(model: Model)
 end
 
 -- (D-1442, user: "회전컵은 가운데 핸들 클릭하면 점점 더 빨라지고 클릭 안 하면 점점 느려지게") while a tea
--- cup runs, its rider presses the wheel in the middle (a button over the wheel) to spin the cup
--- faster; ParkConfig.teacupExtra / ParkRideService "Spin"
+-- cup runs, its rider taps to spin the cup faster; ParkConfig.teacupExtra / ParkRideService "Spin".
+-- (D-1448, user: "핸들만 누르는 거 에임 어렵다 … 화면 자체를 광클하는 걸로") any tap or click on the
+-- screen counts (not on buttons or the thumbstick: those come in as processed); the label over
+-- the wheel only says so.
 local spinGui = Instance.new("BillboardGui")
 spinGui.Name = "TeaCupWheelTap"
-spinGui.Size = UDim2.fromScale(4.2, 4.2) -- (studs: the wheel and a bit round it)
+spinGui.Size = UDim2.fromScale(7, 1.4) -- (studs)
+spinGui.StudsOffset = Vector3.new(0, 2.2, 0)
 spinGui.AlwaysOnTop = false
-spinGui.Active = true
+spinGui.Active = false
 spinGui.MaxDistance = 60
 spinGui.Enabled = false
 spinGui.Parent = pickFolder
-local spinButton = Instance.new("TextButton")
-spinButton.Size = UDim2.fromScale(1, 1)
-spinButton.BackgroundTransparency = 1
-spinButton.Text = ""
-spinButton.Parent = spinGui
 local spinHint = Instance.new("TextLabel")
-spinHint.Size = UDim2.new(1.6, 0, 0.32, 0)
-spinHint.Position = UDim2.fromScale(-0.3, -0.1)
+spinHint.Size = UDim2.fromScale(1, 1)
 spinHint.BackgroundTransparency = 1
 spinHint.Font = Enum.Font.GothamBold
 spinHint.TextScaled = true
 spinHint.TextColor3 = Color3.new(1, 1, 1)
 spinHint.TextStrokeTransparency = 0.35
-spinHint.Text = "핸들 연타! 🔄"
+spinHint.Text = "화면 연타! 🔄"
 spinHint.Parent = spinGui
 local spinSending = false
-spinButton.Activated:Connect(function()
-	if spinSending then return end
+local function spinTap()
+	if spinSending or not spinGui.Enabled then return end
 	spinSending = true
 	spinHint.TextColor3 = Color3.fromRGB(255, 220, 90)
 	task.spawn(function()
@@ -946,6 +943,12 @@ spinButton.Activated:Connect(function()
 		spinSending = false
 	end)
 	task.delay(0.12, function() spinHint.TextColor3 = Color3.new(1, 1, 1) end)
+end
+UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
+	if processed then return end
+	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+		spinTap()
+	end
 end)
 
 local function updateSpinTap(t: number)

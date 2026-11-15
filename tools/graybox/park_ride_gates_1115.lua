@@ -40,12 +40,13 @@ local function part(parent: Instance, name: string, size: Vector3, cf: CFrame, c
 	return p
 end
 
--- the turn about Y that takes direction d to direction n (both flat, at right angles)
+-- the turn about Y (CFrame.Angles(0, a, 0)) that takes flat direction d to flat direction n
 local function yawTo(d: Vector3, n: Vector3): number
-	return if Vector3.new(d.Z, 0, -d.X):Dot(n) > 0 then math.pi / 2 else -math.pi / 2
+	return math.atan2(d.Z * n.X - d.X * n.Z, d.X * n.X + d.Z * n.Z)
 end
 
--- one leaf from hinge h along d (length len), its look: style.panel (a MeshPart to stretch) or bars
+-- one leaf from hinge h along d (length len), its look: style.move (the user's own fence panel,
+-- moved in and stretched), style.panel (a MeshPart copied and stretched) or bars
 local function leaf(gate: Model, name: string, h: Vector3, d: Vector3, len: number, openTo: Vector3, style)
 	local m = Instance.new("Model")
 	m.Name = name
@@ -53,9 +54,10 @@ local function leaf(gate: Model, name: string, h: Vector3, d: Vector3, len: numb
 	m:SetAttribute("Hinge", hinge)
 	m:SetAttribute("OpenYaw", yawTo(d, openTo))
 	local H = style.height
-	if style.panel then
-		local p = style.panel:Clone()
-		p.Name = "LeafPanel"
+	if style.move or style.panel then
+		local p = style.move or style.panel:Clone()
+		if not style.move then p.Name = "LeafPanel" end
+		if style.move then H = p.Size.Y end -- (the user's panel keeps its height)
 		p.Size = Vector3.new(p.Size.X, H, len - 0.3)
 		p.CFrame = hinge * CFrame.new(0, H / 2, -len / 2)
 		quiet(p)
@@ -99,7 +101,9 @@ local function sign(parent: Instance, at: CFrame, text: string, color: Color3)
 end
 
 -- a gate across the opening a → b (ground level), inward = into the ride's area
-local function gate(folder: Instance, name: string, mode: string, a: Vector3, b: Vector3, inward: Vector3, style)
+-- opts.leaves: "pair" (two, swing in), "one" (hinged at a; at b with opts.hingeAtB) or "none";
+-- opts.openTo: where the one leaf points when open (default: in for an entrance, out for an exit)
+local function gate(folder: Instance, name: string, mode: string, a: Vector3, b: Vector3, inward: Vector3, style, opts)
 	local g = Instance.new("Model")
 	g.Name = name
 	local span = b - a
@@ -109,11 +113,18 @@ local function gate(folder: Instance, name: string, mode: string, a: Vector3, b:
 	g:SetAttribute("Mode", mode)
 	g:SetAttribute("Inward", inward)
 	g:SetAttribute("Width", w)
-	if mode == "Entry" then -- two leaves, swing in
+	opts = opts or {}
+	local leaves = opts.leaves or (if mode == "Entry" then "pair" else "one")
+	if leaves == "pair" then -- two leaves, swing in
 		leaf(g, "Leaf1", a, d, w / 2, inward, style)
 		leaf(g, "Leaf2", b, -d, w / 2, inward, style)
-	else -- one leaf, swings out
-		leaf(g, "Leaf1", a, d, w, -inward, style)
+	elseif leaves == "one" then
+		local openTo = opts.openTo or (if mode == "Entry" then inward else -inward)
+		if opts.hingeAtB then
+			leaf(g, "Leaf1", b, -d, w, openTo, style)
+		else
+			leaf(g, "Leaf1", a, d, w, openTo, style)
+		end
 	end
 	local block = part(g, "Block", Vector3.new(w, 8, 1.2), CFrame.lookAt((a + b) / 2 + Vector3.new(0, 4, 0), (a + b) / 2 + Vector3.new(0, 4, 0) + inward), Color3.new(1, 1, 1))
 	block.Transparency = 1
@@ -137,13 +148,43 @@ local made = 0
 ---------------------------------------------------------------- 미니바이킹 (the user's yellow fence)
 local mini = workspace:FindFirstChild("미니바이킹")
 if mini then
+	-- (D-1447, user: "입구 펜스 두 개가 양쪽으로 열리는 건데 기존 펜스 사선으로 놔진 거 하나만 열리는 걸로
+	-- 수정. 현재 출구 펜스 열리는 것처럼 오른쪽 기준점으로" / "출구에 새로 만든 펜스는 없어도 됨. 못 들어가는
+	-- 것만 유지") the entrance's leaf is the user's own diagonal FencePanel next to it (it already
+	-- stood like an open gate, hinged at the opening's -z end = the right seen from outside): closed
+	-- it spans the opening, open it is back on its diagonal. The exit has no leaf, only the Block.
+	local fences = mini:FindFirstChild("Fences")
+	local old = mini:FindFirstChild("Gates")
+	local moved = old and old:FindFirstChild("DiagPanel", true)
+	if moved and fences then -- (a rerun: put the panel back where the user had it first)
+		moved.Name = "FencePanel"
+		moved.CFrame = moved:GetAttribute("OrigCFrame") or moved.CFrame
+		moved.Size = moved:GetAttribute("OrigSize") or moved.Size
+		moved.Parent = fences
+	end
 	local f = freshFolder(mini)
-	local panel = mini:FindFirstChild("Fences") and mini.Fences:FindFirstChild("FencePanel")
-	local style = { height = 6.0, panel = panel, color = Color3.fromRGB(250, 200, 30) }
 	local y = 16.05 -- (the paving under the outer fence: panels 6.2 high at y 19.1)
-	-- the opening by the sign (x -224.5, z -536.2 .. -545.6) and the other one (z -501.7 .. -510.5)
-	gate(f, "Entrance", "Entry", Vector3.new(-224.5, y, -536.2), Vector3.new(-224.6, y, -545.5), Vector3.new(-1, 0, 0), style)
-	gate(f, "Exit", "Exit", Vector3.new(-224.5, y, -510.4), Vector3.new(-224.5, y, -501.8), Vector3.new(-1, 0, 0), style)
+	local hingeAt = Vector3.new(-224.6, y, -545.5)
+	local diag
+	for _, p in ipairs(fences and fences:GetChildren() or {}) do
+		if p:IsA("BasePart") and p.Name == "FencePanel" and (Vector3.new(p.Position.X, 0, p.Position.Z) - Vector3.new(-228.1, 0, -543.3)).Magnitude < 1.5 then diag = p end
+	end
+	local openTo = Vector3.new(-0.829, 0, 0.559) -- (the diagonal panel's way from the hinge)
+	if diag then
+		diag:SetAttribute("OrigCFrame", diag.CFrame)
+		diag:SetAttribute("OrigSize", diag.Size)
+		local e1 = diag.CFrame * Vector3.new(0, 0, diag.Size.Z / 2)
+		local e2 = diag.CFrame * Vector3.new(0, 0, -diag.Size.Z / 2)
+		local near, far = e1, e2
+		if (Vector3.new(e2.X, y, e2.Z) - hingeAt).Magnitude < (Vector3.new(e1.X, y, e1.Z) - hingeAt).Magnitude then near, far = e2, e1 end
+		openTo = Vector3.new(far.X - near.X, 0, far.Z - near.Z).Unit
+		diag.Name = "DiagPanel"
+	end
+	-- the opening by the sign (x -224.5, z -536.2 .. -545.5) and the other one (z -501.7 .. -510.5)
+	gate(f, "Entrance", "Entry", Vector3.new(-224.5, y, -536.2), hingeAt, Vector3.new(-1, 0, 0),
+		{ height = 6.0, move = diag, panel = fences and fences:FindFirstChild("FencePanel"), color = Color3.fromRGB(250, 200, 30) },
+		{ leaves = "one", hingeAtB = true, openTo = openTo })
+	gate(f, "Exit", "Exit", Vector3.new(-224.5, y, -510.4), Vector3.new(-224.5, y, -501.8), Vector3.new(-1, 0, 0), { height = 6.0 }, { leaves = "none" })
 	sign(f, CFrame.new(-222.4, y, -512.2), "출구 EXIT", Color3.fromRGB(46, 140, 80))
 	made += 2
 end

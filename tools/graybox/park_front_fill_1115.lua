@@ -28,4 +28,43 @@ if hi.Z < FRONT_Z - 0.05 then
 else
 	print("[park_front_fill_1115] no gap")
 end
+
+-- (D-1446, user 2026-11-15, a top view with two lines drawn: "땅 벌어짐 수정") the park floor had
+-- two slots down to the street level: ParkPlatform (the user's edit, kept by user_map_snapshot)
+-- starts at x -144.8 while ParkPlatformWest / its strip end at x -148 (a 3.2-wide slot from the
+-- landing paving, z -279, to z -455.5), and it ends at z -447.8 while ParkPlatformNorth starts
+-- at z -455.5 (a 7.7-wide slot along the whole platform). Both are filled with the same stone, top
+-- level with the floor ("ParkSeamFill", remade each run).
+for _, c in ipairs(raise:GetChildren()) do
+	if c.Name == "ParkSeamFill" then c:Destroy() end
+end
+local function box(p: BasePart): (Vector3, Vector3)
+	local c, sz = p.CFrame, p.Size
+	local ext = (c.RightVector * sz.X):Abs() + (c.UpVector * sz.Y):Abs() + (c.LookVector * sz.Z):Abs()
+	return p.Position - ext / 2, p.Position + ext / 2
+end
+local function seam(x0: number, z0: number, x1: number, z1: number)
+	if x1 - x0 < 0.05 or z1 - z0 < 0.05 then return end
+	local fill = plat:Clone()
+	fill.Name = "ParkSeamFill"
+	for _, c in ipairs(fill:GetChildren()) do c:Destroy() end
+	fill.Size = Vector3.new(x1 - x0, hi.Y - lo.Y, z1 - z0)
+	fill.CFrame = CFrame.new((x0 + x1) / 2, (lo.Y + hi.Y) / 2, (z0 + z1) / 2)
+	fill.Parent = raise
+	print(("[park_front_fill_1115] seam x %.1f..%.1f z %.1f..%.1f"):format(x0, x1, z0, z1))
+end
+local west = raise:FindFirstChild("ParkPlatformWest") :: BasePart?
+local north = raise:FindFirstChild("ParkPlatformNorth") :: BasePart?
+local landing = raise:FindFirstChild("ParkLandingPaving") :: BasePart?
+local westX = lo.X
+if west then
+	local _, whi = box(west)
+	westX = whi.X - 0.2
+	local zTop = if landing then box(landing).Z else hi.Z -- (the landing paving's south edge, z -279)
+	seam(westX, lo.Z, lo.X + 0.2, zTop)
+end
+if north then
+	local _, nhi = box(north)
+	seam(westX, nhi.Z - 0.2, hi.X, lo.Z + 0.2)
+end
 return true
