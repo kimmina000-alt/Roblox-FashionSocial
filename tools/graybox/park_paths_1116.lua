@@ -6,8 +6,8 @@
 -- 쭉 깔고 화단 배치할 때 위치 조절해서 위에서 봤을 때 곡선으로 보이도록 / 화단은 사람이 못 밟게 해"):
 --   * the whole park floor is one paving: two slabs of the paths' sandstone setts (Cobblestone,
 --     206/172/132), 0.05 over the old floor (the paths, plazas and their patterns are gone)
---   * the layout is made by raised flower beds (D-1478: planters like the user's own 화단 — granite edges,
---     soil, a close hedge of the Shrub's leafy mesh; some cherry trees and lamp posts in them): along the park's walls, round the rides at a distance, rows
+--   * the layout is made by raised flower beds (brick curb + grass, D-1479; on it a close hedge of the
+--     Shrub's leafy mesh, D-1478; some cherry trees and lamp posts in them): along the park's walls, round the rides at a distance, rows
 --     between the ride blocks on the west side; curves (round the tea cups, the Jumping Star) are short
 --     straight pieces turned along the arc, so from above they read as curves. Every bed has an
 --     invisible wall 12 high over it: nobody steps or jumps onto it.
@@ -105,11 +105,12 @@ end
 -- close in one row. The flower balls and the brick / grass beds of D-1477 are gone; the beds are such
 -- planters, their hedge a row of the leafy mesh every HEDGE_STEP, each pushed a little sideways; on
 -- the curves the pieces turn along the arc and the hedge follows them.)
+-- (D-1479, user: "화단의 벽돌 패턴이랑 위에 잔디색 풀은 니가 만든 걸로 사용": the bed itself is D-1477's brick
+-- curb with grass on top again, the hedge on it)
 local BED_W = 6.5
-local EDGE_W, EDGE_H, SOIL_H = 0.66, 1.3, 1.0
+local CURB = 0.9 -- (the brick curb over the floor)
+local SOIL_H = CURB + 0.12 -- (the grass top: the hedge stands on it)
 local WALL = 12 -- (the invisible wall over each bed)
-local STONE = Color3.fromRGB(196, 194, 188)
-local SOIL = Color3.fromRGB(98, 74, 52)
 local beds = {} -- {a, b, w}: for what stands in and beside them
 local nPiece = 0
 -- one straight piece a → b (flat points), w wide, `ext` longer at both ends (joints overlap; every
@@ -124,30 +125,18 @@ local function piece(a: Vector3, b: Vector3, w: number, ext: number)
 	nPiece += 1
 	local lift = (nPiece % 2) * 0.04
 	local cf = CFrame.lookAt(Vector3.new(m.X, 0, m.Z), Vector3.new(m.X, 0, m.Z) + u)
-	for _, sx in ipairs({ -1, 1 }) do
-		local h = EDGE_H + lift + 0.3
-		part(fBeds, "PlanterEdge", Vector3.new(EDGE_W, h, L), cf * CFrame.new(sx * (w / 2 - EDGE_W / 2), G + EDGE_H + lift - h / 2, 0), STONE, Enum.Material.Granite)
-	end
-	local sh = SOIL_H + lift + 0.3
-	part(fBeds, "PlanterSoil", Vector3.new(w - 2 * EDGE_W + 0.1, sh, L - 0.1), cf + Vector3.new(0, G + SOIL_H + lift - sh / 2, 0), SOIL, Enum.Material.Ground, nil, false)
-	local wall = part(fBeds, "BedWall", Vector3.new(w, WALL, L), cf + Vector3.new(0, G + WALL / 2, 0), STONE, nil, nil, true)
+	local curbH = CURB + lift + 0.3
+	part(fBeds, "BedCurb", Vector3.new(w, curbH, L), cf + Vector3.new(0, G + CURB + lift - curbH / 2, 0), BRICK, Enum.Material.Brick)
+	part(fBeds, "BedGrass", Vector3.new(w - 0.7, 0.3, L - 0.2), cf + Vector3.new(0, G + CURB + lift + 0.12 - 0.15, 0), GRASS, Enum.Material.Grass, nil, false)
+	local wall = part(fBeds, "BedWall", Vector3.new(w, WALL, L), cf + Vector3.new(0, G + WALL / 2, 0), BRICK, nil, nil, true)
 	wall.Transparency = 1
 	wall.CanQuery = false
 	wall.CastShadow = false
 	table.insert(beds, { a = a, b = b, w = w })
 end
--- a stone end on a bed's open end (p, the bed running along u)
-local function cap(p: Vector3, u: Vector3, w: number)
-	local cf = CFrame.lookAt(Vector3.new(p.X, 0, p.Z), Vector3.new(p.X, 0, p.Z) + u)
-	part(fBeds, "PlanterEdge", Vector3.new(w, EDGE_H + 0.32, EDGE_W), cf + Vector3.new(0, G + EDGE_H + 0.02 - (EDGE_H + 0.32) / 2, 0), STONE, Enum.Material.Granite)
-end
 local function line(points: {Vector3}, w: number?)
 	w = w or BED_W
 	for i = 1, #points - 1 do piece(points[i], points[i + 1], w, w / 2) end
-	local u0 = (points[2] - points[1]).Unit
-	local u1 = (points[#points] - points[#points - 1]).Unit
-	cap(points[1] - u0 * (w / 2 - EDGE_W / 2), u0, w)
-	cap(points[#points] + u1 * (w / 2 - EDGE_W / 2), u1, w)
 end
 -- an arc round c, radius r, from angle a0 to a1 (degrees; x = cos, z = sin: 90 = south, 180 = west)
 local function arc(c: Vector3, r: number, a0: number, a1: number, w: number?)
@@ -159,8 +148,6 @@ local function arc(c: Vector3, r: number, a0: number, a1: number, w: number?)
 		table.insert(pts, c + Vector3.new(math.cos(a), 0, math.sin(a)) * r)
 	end
 	for i = 1, #pts - 1 do piece(pts[i], pts[i + 1], w, 0.35) end
-	cap(pts[1] - (pts[2] - pts[1]).Unit * 0.35, (pts[2] - pts[1]).Unit, w)
-	cap(pts[#pts] + (pts[#pts] - pts[#pts - 1]).Unit * 0.35, (pts[#pts] - pts[#pts - 1]).Unit, w)
 end
 
 local WX = -293.2 -- (the west wall bed's middle line: inside the wall, clear of the bumper hall's rail at -289.55)

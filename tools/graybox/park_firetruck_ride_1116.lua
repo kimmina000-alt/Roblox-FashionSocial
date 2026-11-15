@@ -130,7 +130,7 @@ local function meshTruck(): (Model, number)
 	if FRONT_SIGN > 0 then turn = turn * CFrame.Angles(0, math.pi, 0) end
 	local rel = cf:ToObjectSpace(m:GetPivot())
 	m:PivotTo(turn * CFrame.new(0, size2.Y / 2, 0) * rel)
-	return m, size2.Y * 0.62
+	return m, size2.Y * 0.75 -- (the rider sits on the truck's back, over its ladder deck)
 end
 
 local saddle = 0
@@ -138,9 +138,13 @@ for k = 1, N do
 	local truck, seatY
 	if tmpl then truck, seatY = meshTruck() else truck, seatY = blockTruck() end
 	truck.Name = "Horse" .. k
-	-- an open seat on its back: the pivot is the seat's top, facing the front
-	part(truck, "Seat", Vector3.new(1.8, 0.4, 1.6), CFrame.new(0, seatY - 0.2, TRUCK_L * 0.2), YELLOW)
-	part(truck, "SeatBack", Vector3.new(1.8, 1.2, 0.3), CFrame.new(0, seatY + 0.4, TRUCK_L * 0.2 + 0.95), YELLOW)
+	-- the block truck gets an open seat on its back; the user's truck is used as it is (D-1479, user:
+	-- "니가 만들어 놓은 소방차랑 이거랑 더 가벼운 걸로 사용": its 3 MeshParts against the block truck's 18).
+	-- The pivot is the seat's top, facing the front.
+	if not tmpl then
+		part(truck, "Seat", Vector3.new(1.8, 0.4, 1.6), CFrame.new(0, seatY - 0.2, TRUCK_L * 0.2), YELLOW)
+		part(truck, "SeatBack", Vector3.new(1.8, 1.2, 0.3), CFrame.new(0, seatY + 0.4, TRUCK_L * 0.2 + 0.95), YELLOW)
+	end
 	for _, d in ipairs(truck:GetDescendants()) do
 		if d:IsA("BasePart") then
 			d.Anchored = true
