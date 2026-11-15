@@ -5111,3 +5111,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1487 (2026-11-16) 놀이공원 모서리 기둥을 회색 블록 안으로
 - User (a beach-side screenshot, two corner pillars boxed): "아래 회색 블록보다 튀어나온 놀이공원 벽 안쪽으로 넣어".
 - park_corner_beach_1115 (D-1418) had put three corner pillars of AmusementParkGate 2.5–3 past the park platform's edge over the beach. tools/graybox/park_pillars_inside_1116.lua moves each pillar group (pillar, base, drum, cornice, caps, dome, spire) the shortest way onto the platform, measured by rays: (-294.7, -335.8) and (-182, -335.8) 3 north, (-182, -279.5) 3 east and 3 north. The walls stay where they are (their corner now stands in front of the pillar). The other 21 pillars were already on the platform. Hongdae_Layout piece: run after park_corner_beach_1115 when the chain is rebuilt.
+
+## D-1488 (2026-11-16) 점핑스타 재질 + 사용자가 옮긴 자리
+- User: "점핑스타에 알맞는 재질 좀 입혀 줘 / 점핑스타 위치 내가 남쪽으로 좀 이동시켰어 확인해".
+- The user moved Workspace["점핑스타"] 8.8 south (pivot z -370.4 → -361.6): every part, the Ride / Car pivots, fence and signs moved together; the world-space attributes did not, so Ride.Exit and the model's Site were moved by the same 8.8 (Exit stands on the paving). The fence now runs z -375.4..-347.8: 15 from snack bar 2, 12 from the park's south wall.
+- Materials (park_jumpstar_mesh_1116): tower SmoothPlastic, Reflectance 0.08 (glossy painted steel), car SmoothPlastic 0.06, lap bar Leather; the base collider became a visible grey DiamondPlate floor 0.03 over the mesh's disc (BasePlate). The four side bulbs below 3.5 (they stood off the flared foot) are gone; the side columns start at 4.

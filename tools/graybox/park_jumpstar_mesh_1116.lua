@@ -71,6 +71,11 @@ local carPart = place(carMesh, "CarMesh", car)
 local barPart = place(bar, "LapBarMesh", car)
 carPart.CanQuery = false
 barPart.CanQuery = false
+-- (D-1488, user: "점핑스타에 알맞는 재질 좀 입혀 줘") glossy painted steel for the tower and the car,
+-- leather for the padded lap bar
+towerPart.Material, towerPart.Reflectance = Enum.Material.SmoothPlastic, 0.08
+carPart.Material, carPart.Reflectance = Enum.Material.SmoothPlastic, 0.06
+barPart.Material = Enum.Material.Leather
 -- (D-1485, user: "의자 사이즈 캐릭터 크기에 맞춰서 조절해 봐 안전바 조금 더 내리고") the car is
 -- CAR_SCALE of the tower's scale (seats 2.3 wide, 3 deep, like a sitting avatar), shrunk about its
 -- back-bottom edge so it stays against the tower; the lap bar drops BAR_DROP more onto the laps.
@@ -99,12 +104,14 @@ for r = 0.5, 12, 0.25 do
 	radius, discTop = r, math.max(discTop, hit.Position.Y)
 end
 towerPart.CanQuery = false
+-- (D-1488) a grey diamond-plate floor over the mesh's disc, 0.03 above it (the walkable part too)
 local disc = Instance.new("Part")
-disc.Name = "BaseCollider"
+disc.Name = "BasePlate"
 disc.Shape = Enum.PartType.Cylinder
-disc.Anchored, disc.Transparency, disc.CastShadow = true, 1, false
-disc.Size = Vector3.new(discTop - pivot.Y, radius * 2, radius * 2)
-disc.CFrame = CFrame.new(pivot.Position + Vector3.new(0, (discTop - pivot.Y) / 2, 0)) * CFrame.Angles(0, 0, math.pi / 2)
+disc.Anchored, disc.Transparency, disc.CastShadow = true, 0, false
+disc.Material, disc.Color = Enum.Material.DiamondPlate, Color3.fromRGB(150, 154, 160)
+disc.Size = Vector3.new(discTop - pivot.Y + 0.03, radius * 2, radius * 2)
+disc.CFrame = CFrame.new(pivot.Position + Vector3.new(0, (discTop - pivot.Y + 0.03) / 2, 0)) * CFrame.Angles(0, 0, math.pi / 2)
 disc.Parent = owner
 -- the tower pole itself (riders and walkers do not pass through it)
 local pole = Instance.new("Part")
@@ -177,7 +184,7 @@ local function sideX(y: number, dir: number): number?
 end
 local ARM_Y = JUMP_TOP + 0.5
 local n = 0
-for y = discTop - pivot.Y + 1, ARM_Y, 1.1 do
+for y = discTop - pivot.Y + 4.1, ARM_Y, 1.1 do -- (D-1488: from 4 up; lower down the bulbs stood off the flared foot)
 	n += 1
 	for _, dir in ipairs({ -1, 1 }) do
 		local x = sideX(y, dir)
