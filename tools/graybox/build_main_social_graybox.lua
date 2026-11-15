@@ -647,21 +647,16 @@ for _,cx in ipairs({-41.7,-14.5,12.5,39}) do platform(cx,NZ,1) end
 local function pole(px,pz,ledPole)
  -- (user 2026-10-25) a wider round stage of two steps, a lemon LED line
  -- under each step edge
- local BH=3
- -- (user 2026-10-25) one wide round stage, 2 high (no steps), LED round its top edge
- -- (the stepped base black too, user 2026-10-26)
- local POLEB=Color3.fromRGB(18,18,20)
+ -- (D-1418, user 2026-11-15: "댄스봉 단상에 조명선 삭제. 댄스봉 단상 현재 2단 높이의 1단으로 수정")
+ -- one round step 2 high (the old second step's size), no steps under it, no LED lines
+ local BH=2
+ local D=8.5
  -- (user 2026-11-01, D-718: the stage light grey with the DJ stage's diamond plate)
 local POLES=Color3.fromRGB(190,192,198)
-local b=cyl(z,"PoleBase",7,BH,Vector3.new(px,F+BH/2,pz),POLES,{mat=Enum.Material.DiamondPlate}) CS:AddTag(b,"DancePole") -- (smaller and higher, user 2026-10-25)
- -- stepped: two wider rings below the top stage, 1 stud each, easy to walk up (user 2026-10-25)
- cyl(z,"PoleStep",10,1,Vector3.new(px,F+0.5,pz),POLES,{mat=Enum.Material.DiamondPlate,nocol=true})
- cyl(z,"PoleStep",8.5,2,Vector3.new(px,F+1,pz),POLES,{mat=Enum.Material.DiamondPlate,nocol=true})
- -- (user 2026-10-27: the black stage did not show) a thin LED line round each edge
- for _,r in ipairs({{10,F+1},{8.5,F+2},{7,F+BH}}) do cyl(z,"PoleEdgeLED",r[1]+0.2,0.15,Vector3.new(px,r[2]-0.12,pz),Color3.fromRGB(255,250,175),{mat=Enum.Material.Neon,ghost=true}) end
- -- (small avatars did not climb the 1-stud steps: invisible wedge ramps all round, user rule)
+local b=cyl(z,"PoleBase",D,BH,Vector3.new(px,F+BH/2,pz),POLES,{mat=Enum.Material.DiamondPlate}) CS:AddTag(b,"DancePole")
+ -- (small avatars do not climb a 2-stud step: invisible wedge ramps all round, user rule)
  for k=0,23 do local a=math.rad(k*15) local out=Vector3.new(math.cos(a),0,math.sin(a))
-  local c=Vector3.new(px,F+BH/2,pz)+out*4.75
+  local c=Vector3.new(px,F+BH/2,pz)+out*(D/2+0.85)
   P(z,"PoleRamp",Vector3.new(1.75,BH,2.5),CFrame.lookAt(c,c+out),W,{class="WedgePart",t=1}) end
  -- (no LED line on the stage, user 2026-10-25)
  local PL=TOP-(F+BH) -- all the way up to the 2F ceiling (user 2026-10-25)

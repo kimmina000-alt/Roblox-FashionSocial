@@ -186,8 +186,12 @@ local CLOSED_PARTS = {
 	GateLeafSpear = true, GateChain = true, GatePadlock = true,
 	HoardingPanel = true, HoardingPost = true, HoardingBrace = true,
 }
+-- (D-1418, user 2026-11-15: "게시하게 스폰 원래 위치로 바꾸고 놀이공원 막아 둔 것도 막힌 상태 유지")
+-- off for now: Studio tests also spawn where players do and find the park closed, as on live
+-- servers. true = the D-1404 / D-1405 test opening again.
+local STUDIO_TEST_OPEN = false
 local function openForStudioTest()
-	if not game:GetService("RunService"):IsStudio() then return end
+	if not STUDIO_TEST_OPEN or not game:GetService("RunService"):IsStudio() then return end
 	local layout = workspace:FindFirstChild("Hongdae_Layout")
 	local gate = layout and layout:FindFirstChild("AmusementParkGate")
 	if not gate then return end

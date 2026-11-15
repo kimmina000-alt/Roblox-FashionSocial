@@ -62,19 +62,11 @@ for _, b in ipairs(boards) do
 	m.Name = "LEDPillar"
 	m.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	m:SetAttribute("Flat", true)
-	part(m, "Core", Vector3.new(W + 1.2 * S, H + 1.2 * S, S), face * CFrame.new(0, 0, 0.65 * S), BLACK, false, true)
+	-- (D-1418, user 2026-11-15: "클럽 DJ 전광판 양 옆에 전광판 테두리 삭제") no frame: the black back is
+	-- the panel's own size and there is no white neon edge any more
+	part(m, "Core", Vector3.new(W, H, S), face * CFrame.new(0, 0, 0.65 * S), BLACK, false, true)
 	local panel = part(m, "Panel", Vector3.new(W, H, 0.2 * S), face, Color3.fromRGB(20, 10, 40))
 	panel:SetAttribute("Slice", 0)
-	-- the neon edge round the panel
-	local eW, eH, eT, eD = W + 1.2 * S, H + 1.2 * S, 0.35 * S, 0.3 * S
-	for _, e in ipairs({
-		{ Vector3.new(eW, eT, eD), CFrame.new(0, H / 2 + 0.6 * S, -0.05 * S) },
-		{ Vector3.new(eW, eT, eD), CFrame.new(0, -H / 2 - 0.6 * S, -0.05 * S) },
-		{ Vector3.new(eT, eH, eD), CFrame.new(W / 2 + 0.6 * S, 0, -0.05 * S) },
-		{ Vector3.new(eT, eH, eD), CFrame.new(-W / 2 - 0.6 * S, 0, -0.05 * S) },
-	}) do
-		part(m, "Edge", e[1], face * e[2], EDGE, true)
-	end
 	local anchor = part(m, "NameAnchor", Vector3.new(1, 1, 1) * S, CFrame.new((face * CFrame.new(0, -14 * S, 0.05 * S)).Position), BLACK)
 	anchor.Transparency = 1
 	m.Parent = club
