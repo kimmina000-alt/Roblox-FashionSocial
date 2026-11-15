@@ -96,6 +96,7 @@ local function addWheel(model: Model)
 	end
 end
 
+local ridesRunningNow: () -> boolean -- (set below, D-1420)
 local function addCarousel(model: Model)
 	local center = hubCFrame(model, "Center")
 	local rotor = model:FindFirstChild("Rotor") :: Model?
@@ -105,7 +106,12 @@ local function addCarousel(model: Model)
 		local horse = model:FindFirstChild("Horse" .. index) :: Instance
 		table.insert(slots, {
 			kind = "ParkCarousel", ride = model, slot = horse, key = "Rider",
-			seat = function(t: number): CFrame? return ParkConfig.horseCFrame(model, index, t) end,
+			-- (D-1420) a stopped carousel (ParkConfig.RidesRunning) leaves its horses where they stand:
+			-- the rider sits on the horse there, not where the turning clock would put it
+			seat = function(t: number): CFrame?
+				if not ridesRunningNow() and horse and horse:IsA("Model") then return horse:GetPivot() end
+				return ParkConfig.horseCFrame(model, index, t)
+			end,
 		})
 	end
 end
@@ -310,11 +316,10 @@ end
 
 -- (D-831, user) the Ferris wheel and the carousel can be stopped (ParkConfig.RidesRunning,
 -- or live with the attribute ParkRidesRunning on ReplicatedStorage.FashionGame)
-local function ridesRunning(): boolean
-	local live = FashionGame:GetAttribute("ParkRidesRunning")
-	if typeof(live) == "boolean" then return live end
-	return ParkConfig.RidesRunning
+local function ridesRunning(kind: string?): boolean
+	return ParkConfig.isRunning(kind or "ParkWheel") -- (D-1420: the carousel on its own switch)
 end
+ridesRunningNow = function() return ridesRunning("ParkCarousel") end
 
 local function animate(t: number, dt: number)
 	local running = ridesRunning()
@@ -331,7 +336,7 @@ local function animate(t: number, dt: number)
 			end
 		end
 	end
-	for _, carousel in ipairs(running and carousels or {}) do
+	for _, carousel in ipairs(ridesRunning("ParkCarousel") and carousels or {}) do
 		local center = hubCFrame(carousel.model, "Center")
 		if center and cameraNear(center.Position, true) then
 			if carousel.rotor then

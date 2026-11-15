@@ -29,6 +29,17 @@ local ParkConfig = {}
 -- again; a live server can also switch them with the attribute
 -- ParkRidesRunning (true/false) on ReplicatedStorage.FashionGame.
 ParkConfig.RidesRunning = false
+-- (D-1420, user 2026-11-15: the carousel's new horses "기능까지 구현") the carousel turns and takes
+-- riders again; the Ferris wheel stays stopped (RidesRunning). The live attribute ParkRidesRunning
+-- still switches both.
+ParkConfig.CarouselRunning = true
+function ParkConfig.isRunning(kind: string): boolean
+	local fg = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
+	local live = fg and fg:GetAttribute("ParkRidesRunning")
+	if typeof(live) == "boolean" then return live end
+	if kind == "ParkCarousel" then return ParkConfig.CarouselRunning end
+	return ParkConfig.RidesRunning
+end
 
 -- Ferris wheel: one turn in Period seconds; a cabin can be boarded or left
 -- while it is within BoardAngle of the bottom.

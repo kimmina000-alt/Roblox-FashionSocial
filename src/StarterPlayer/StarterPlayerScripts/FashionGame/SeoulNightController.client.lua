@@ -10,6 +10,9 @@
 --      self-lit copy of the photo at night, so they read as lit buildings, not black blocks.
 --   3. street lamps: warm 3,000 K light (Seoul's night lights are mostly 2,500-3,500 K) and a
 --      wider, brighter pool on the ground.
+--   4. (D-1421, "4랑 5도 적용") shop signs and shop windows: every sign / board / banner picture
+--      shines by itself at night (SurfaceGui LightInfluence 0), the shop windows (ShopGlass,
+--      EntranceGlass, FrontGlass, ...) light the pavement in front with a warm glow.
 -- Client only (looks); nothing changes in the place.
 
 local Lighting = game:GetService("Lighting")
@@ -162,12 +165,75 @@ local function scanLamps()
 	end
 end
 
+---------------------------------------------------------------- 4. signs and shop windows
+local SIGN_WORDS = { "Sign", "Board", "Banner", "Logo", "Letter", "Band", "Awning", "Flag", "Header", "Halo", "Poster", "Sticker", "AdPanel", "Name" }
+local SHOP_GLASS = { ShopGlass = true, EntranceGlass = true, FrontGlass = true, PizzaGlass = true, PizzaDoorGlass = true, PizzaGlassNorth = true, DoorTransom = true }
+type Sign = { gui: SurfaceGui, li: number, brightness: number }
+local signs: {Sign} = {}
+local shopLights: {SurfaceLight} = {}
+
+local function addSign(g: Instance)
+	if not g:IsA("SurfaceGui") or string.sub(g.Name, 1, 12) == "NightFacade_" or g:GetAttribute("NightSign") then return end
+	local part = g.Parent
+	if not part or not part:IsA("BasePart") or g.LightInfluence < 0.05 then return end
+	local hit = false
+	for _, w in ipairs(SIGN_WORDS) do
+		if string.find(part.Name, w, 1, true) then hit = true break end
+	end
+	if not hit then return end
+	g:SetAttribute("NightSign", true)
+	table.insert(signs, { gui = g, li = g.LightInfluence, brightness = g.Brightness })
+end
+
+local function addShopGlass(p: Instance)
+	if not p:IsA("BasePart") or not SHOP_GLASS[p.Name] or p:FindFirstChild("NightShopLight") then return end
+	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+		local l = Instance.new("SurfaceLight")
+		l.Name = "NightShopLight"
+		l.Face = face
+		l.Color = WARM
+		l.Range = 14
+		l.Brightness = 1.1
+		l.Angle = 100
+		l.Enabled = false
+		l.Parent = p
+		table.insert(shopLights, l)
+	end
+end
+
+local shopsOn: boolean? = nil
+local function setShops(on: boolean)
+	if shopsOn == on then return end
+	shopsOn = on
+	for i = #signs, 1, -1 do
+		local s = signs[i]
+		if not s.gui.Parent then
+			table.remove(signs, i)
+		else
+			s.gui.LightInfluence = if on then 0 else s.li
+			s.gui.Brightness = if on then math.max(s.brightness, 1.2) else s.brightness
+		end
+	end
+	for i = #shopLights, 1, -1 do
+		local l = shopLights[i]
+		if not l.Parent then table.remove(shopLights, i) else l.Enabled = on end
+	end
+end
+
+local function scanShops()
+	for _, d in ipairs(workspace:GetDescendants()) do
+		if d:IsA("SurfaceGui") then addSign(d) elseif d:IsA("BasePart") and SHOP_GLASS[d.Name] then addShopGlass(d) end
+	end
+end
+
 ---------------------------------------------------------------- run
 task.spawn(function()
 	task.wait(3) -- (streamed-in parts first)
 	scan()
 	scanLamps()
+	scanShops()
 	lightsOn = nil -- (the windows and facades found now take the hour's state on the next check)
+	shopsOn = nil
 	-- parts streamed in later
 	workspace.DescendantAdded:Connect(function(d)
 		if d:IsA("BasePart") and WINDOW_NAMES[d.Name] then
@@ -180,7 +246,12 @@ task.spawn(function()
 				end
 			end
 		elseif d:IsA("SpotLight") or d:IsA("SurfaceLight") then
-			lamp(d)
+			if d.Name ~= "NightShopLight" then lamp(d) end
+		elseif d:IsA("SurfaceGui") then
+			task.defer(function() addSign(d) shopsOn = nil end)
+		elseif d:IsA("BasePart") and SHOP_GLASS[d.Name] then
+			addShopGlass(d)
+			shopsOn = nil
 		end
 	end)
 end)
@@ -193,4 +264,5 @@ RunService.Heartbeat:Connect(function()
 	local n = nightAmount(Lighting.ClockTime)
 	sky(n)
 	setWindows(n > 0.5)
+	setShops(n > 0.5)
 end)

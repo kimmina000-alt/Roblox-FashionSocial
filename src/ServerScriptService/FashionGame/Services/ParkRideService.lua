@@ -82,8 +82,7 @@ local function board(player: Player, model: Instance, slot: Instance?): (boolean
 	local t = now()
 	-- (D-831) the wheel and the carousel are stopped for now (ParkConfig.RidesRunning)
 	if kind == "ParkWheel" or kind == "ParkCarousel" then
-		local live = game:GetService("ReplicatedStorage"):WaitForChild("FashionGame"):GetAttribute("ParkRidesRunning")
-		if not (if typeof(live) == "boolean" then live else ParkConfig.RidesRunning) then
+		if not ParkConfig.isRunning(kind) then -- (D-1420: the carousel runs, the wheel not)
 			return false, "지금은 운행하지 않아요."
 		end
 	end
