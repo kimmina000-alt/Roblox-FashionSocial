@@ -132,7 +132,9 @@ carParams.FilterType = Enum.RaycastFilterType.Include
 carParams.FilterDescendantsInstances = { carPart }
 for i = 1, 6 do ride:SetAttribute("Seat" .. i, nil) end
 for i = 1, 4 do
-	local x = carRel.Position.X + (i - 2.5) * (w * 0.8 / 4)
+	-- (D-1490, user: "좌석마다 색깔 넣은 거 캐릭터 앉는 위치에 맞춰서") on the middles of the four coloured
+	-- seat panels, measured from the front: 0.2104 of the car apart, 0.033 off its box middle
+	local x = carRel.Position.X + 0.033 + (i - 2.5) * (w * 0.2104)
 	local from = pivot * Vector3.new(x, carRel.Position.Y + h / 2 + 1, seatZ)
 	local hit = workspace:Raycast(from, -pivot.UpVector * (h + 2), carParams)
 	local seatY = if hit then pivot:PointToObjectSpace(hit.Position).Y else carRel.Position.Y - h / 2 + h * 0.2
