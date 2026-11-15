@@ -18,7 +18,9 @@
 -- park_bumper_dress_1115 (run it again after this: its rail caps follow the split rails), the wheel
 -- frame / cabins and park_paths_1116 (its paths follow the new places).
 
-local BUMPER = Vector3.new(-241.95, 0, -829.8) -- (the hall floor's middle, x z)
+-- (D-1477, user: "범퍼카 서쪽 놀이공원 벽이랑 겹치는 부분 화단 넣어서 떨어트려": 7 east, was x -241.95, so a
+-- flower bed fits between its west rail and the park's west wall)
+local BUMPER = Vector3.new(-234.95, 0, -829.8) -- (the hall floor's middle, x z)
 local WHEEL = Vector3.new(-110, 0, -830) -- (the hub, x z)
 local G = 16.06
 

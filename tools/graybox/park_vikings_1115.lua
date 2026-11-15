@@ -254,20 +254,21 @@ if mini then
 	})
 end
 
--- 슈퍼바이킹: where its blockout stood (middle x -91.6, z -648.8, base top y 18.95).
+-- 슈퍼바이킹: where its blockout stood (middle x -91.6, z -648.8, base top y 18.95); D-1477 (user: "슈퍼바이킹이랑
+-- 놀이공원 벽 사이에 화단 넣고 길 넣으면서 바이킹 위치 서쪽으로 살짝 이동"): 6 west, x -97.6.
 -- (D-1428, user: "슈퍼바이킹 1.3배 키우기", "올라가는 각도 더 높게") everything 1.3 times, the swing
 -- up to 78° (the boat's lowest corner still 0.85 over the base, checked on the meshes)
 local super = workspace:FindFirstChild("슈퍼바이킹")
 if super then
 	local baseY = 18.95
 	local K = 1.3
-	build(super, "Super", Vector3.new(-91.6, baseY + 46.65 * K, -648.8), {
+	build(super, "Super", Vector3.new(-97.6, baseY + 46.65 * K, -648.8), {
 		len = 50.1 * K, width = 8.7 * K, sy = 3.614 * K, restY = baseY + 5.6 * K,
 		glb = { len = 13.907, width = 2.405, height = 2.02, midY = 1.106, seatTop = 1.016, seatX = 0.42, rows = { -6.29, -4.85, -3.42, -1.98, -0.54, 0.54, 1.98, 3.42, 4.85, 6.29 },
 			v2 = { height = 1.4708, midY = 0.8318 },
 			-- (D-1436, user: "슈퍼바이킹 가운데 의자 두 개 삭제했음": the user's Tex3 has no middle rows ±0.54)
 			v3 = { height = 1.4708, midY = 0.8318, rows = { -6.29, -4.85, -3.42, -1.98, 1.98, 3.42, 4.85, 6.29 } } },
-		ride = { Period = 7.2, MaxAngle = 78, Board = 15, Ramp = 12, Hold = 20, Reach = 34 * K, Exit = Vector3.new(-91.6 + 13 * K, baseY + 3, -648.8) },
+		ride = { Period = 7.2, MaxAngle = 78, Board = 15, Ramp = 12, Hold = 20, Reach = 34 * K, Exit = Vector3.new(-97.6 + 13 * K, baseY + 3, -648.8) },
 		baseSize = Vector2.new(33.41 * K, 66.83 * K),
 		legX = 6.8 * K, footX = 11 * K, footZ = 24 * K, groundY = baseY, leg = 2.0 * K,
 		braces = {}, -- (D-1429, user: "슈퍼바이킹 기둥 사이에 있는 프레임들 삭제": no braces, no truss)

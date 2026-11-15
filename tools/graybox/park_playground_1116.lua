@@ -129,6 +129,7 @@ do
 		m:SetAttribute("Length", LEN)
 		m:SetAttribute("Level", 0)
 		m.WorldPivot = pivotCF * CFrame.new(0, -LEN, 0)
+		m.ModelStreamingMode = Enum.ModelStreamingMode.Atomic -- (D-1477: whole, so the ride code finds its parts)
 		CollectionService:AddTag(m, "ParkSwing")
 	end
 end
@@ -160,6 +161,7 @@ for k, z in ipairs({ -290, -300, -310 }) do
 	rocker.WorldPivot = P
 	m:SetAttribute("SeatY", 1.6)
 	m.WorldPivot = P
+	m.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	CollectionService:AddTag(m, "ParkSpring")
 end
 
@@ -241,6 +243,7 @@ do
 	slide:SetAttribute("P1", mid + Vector3.new(0, lift, 0))
 	slide:SetAttribute("P2", Vector3.new(bx + 1.6, botY + lift, CZ))
 	slide.WorldPivot = CFrame.new(a3)
+	slide.ModelStreamingMode = Enum.ModelStreamingMode.Atomic
 	CollectionService:AddTag(slide, "ParkSlide")
 end
 

@@ -25,7 +25,7 @@ local CENTER = Vector3.new(-111, 0, -535)
 local CUPS, PER = 5, 4
 local CUP_R = 19.5 -- (cups' middles from the table's middle)
 local CUP_D = 10 -- (a cup across)
-local TEAPOT_H = 29.25 -- (D-1467, user: "크기 1.5배 키우기": was 13; D-1474, the Y post: again 1.5x, was 19.5)
+local TEAPOT_H = 43.875 -- (D-1467, user: "크기 1.5배 키우기": was 13; D-1474, the Y post: again 1.5x, was 19.5; D-1477 again 1.5x, was 29.25)
 local CUP_COLORS = { Color3.fromRGB(70, 150, 95), Color3.fromRGB(214, 60, 58), Color3.fromRGB(244, 196, 52), Color3.fromRGB(88, 176, 228), Color3.fromRGB(52, 84, 58) }
 -- (D-1435: the user's drip picture, CupDrip_<colour>.png from tools/art/teacups_drip_v2.py:
 -- green, red, yellow, blue, dark green; D-1432's own drips were 101010709181927 / 110353989323099 / ...)
@@ -117,12 +117,15 @@ local rotor = Instance.new("Model")
 rotor.Name = "Rotor"
 rotor.Parent = ride
 deck.Parent = rotor
-deck.Color = Color3.fromRGB(196, 202, 210)
-deck.Material = Enum.Material.SmoothPlastic
+-- (D-1477, user: "회전컵 바닥 잔디 심은 땅으로 수정") the turntable is a lawn: grass with a pale stone ring
+-- near its edge and a stone circle under the middle piece
+local LAWN = Color3.fromRGB(92, 150, 66)
+deck.Color = LAWN
+deck.Material = Enum.Material.Grass
 quiet(deck, true)
-disc(rotor, "DeckRing", C, deckTop, 0.06, deck.Size.Y - 3, Color3.fromRGB(88, 160, 220))
-disc(rotor, "DeckInner", C, deckTop, 0.08, deck.Size.Y - 4.6, Color3.fromRGB(204, 210, 218))
-disc(rotor, "DeckCentre", C, deckTop, 0.1, 16, Color3.fromRGB(244, 196, 52))
+disc(rotor, "DeckRing", C, deckTop, 0.06, deck.Size.Y - 3, Color3.fromRGB(226, 220, 204), Enum.Material.Slate)
+disc(rotor, "DeckInner", C, deckTop, 0.08, deck.Size.Y - 4.6, LAWN, Enum.Material.Grass)
+disc(rotor, "DeckCentre", C, deckTop, 0.1, 16, Color3.fromRGB(226, 220, 204), Enum.Material.Slate)
 
 -- the teapot (stands still in the middle)
 -- (D-1467, user 2026-11-16: "회전컵 가운데 주전자 수정": the user's new teapot.glb, ArtAssets.TeapotTex2)
@@ -131,7 +134,41 @@ disc(rotor, "DeckCentre", C, deckTop, 0.1, 16, Color3.fromRGB(244, 196, 52))
 -- stood TEAPOT_H high like the teapot)
 local pot = template({ "TeapotTex3", "TeapotTex2", "TeapotTex", "Teapot" })
 if pot then
-	placeMesh(pot, ride, "Teapot", CFrame.new(C + Vector3.new(0, 0.1, 0)), function(size) return TEAPOT_H / size.Y end)
+	local potModel = placeMesh(pot, ride, "Teapot", CFrame.new(C + Vector3.new(0, 0.1, 0)), function(size) return TEAPOT_H / size.Y end)
+	-- (D-1477, user: "가운데 세워 놓은 조형물에 흰색 뿔들 조명처럼 불 들어오게") the Y post's white spikes (3 on
+	-- each side of each crowned end: 12) light up: a warm neon rod along each spike and a bulb on its
+	-- tip, inside the Teapot model (they turn with it). Tips and bases in the glb's own units
+	-- (TeapotTex.glb, read from its white texels); its box is MESH_MIN..MESH_MAX.
+	local mesh = potModel:FindFirstChildWhichIsA("MeshPart", true)
+	if mesh and pot.Name == "TeapotTex3" then
+		local MESH_MIN, MESH_MAX = Vector3.new(5.6545, -5.8965, -0.27), Vector3.new(8.8324, 1.3715, 0.27)
+		local mid, msize = (MESH_MIN + MESH_MAX) / 2, MESH_MAX - MESH_MIN
+		local k = mesh.Size / msize
+		local TIPS = { -- (tip, the arm's middle line x it grows from)
+			{ Vector3.new(5.655, -0.03, 0), 6.25 }, { Vector3.new(5.709, 0.37, 0), 6.3 }, { Vector3.new(5.828, 0.707, 0), 6.35 },
+			{ Vector3.new(6.627, -0.05, 0), 6.25 }, { Vector3.new(6.691, 0.244, 0), 6.3 }, { Vector3.new(6.771, 0.522, 0), 6.35 },
+			{ Vector3.new(8.832, -0.03, 0), 8.24 }, { Vector3.new(8.778, 0.37, 0), 8.19 }, { Vector3.new(8.659, 0.707, 0), 8.14 },
+			{ Vector3.new(7.86, -0.05, 0), 8.24 }, { Vector3.new(7.796, 0.244, 0), 8.19 }, { Vector3.new(7.716, 0.522, 0), 8.14 },
+		}
+		local GLOW = Color3.fromRGB(255, 246, 214)
+		local function at(v: Vector3): Vector3 return mesh.CFrame:PointToWorldSpace((v - mid) * k) end
+		for i, t in ipairs(TIPS) do
+			local tip = at(t[1])
+			local base = at(Vector3.new(t[1].X + (t[2] - t[1].X) * 0.75, t[1].Y, 0))
+			local rod = part(potModel, "SpikeGlow", Vector3.new(0.09 * k.X, 0.09 * k.X, (tip - base).Magnitude), CFrame.lookAt((tip + base) / 2, tip), GLOW, Enum.Material.Neon)
+			rod.CastShadow = false
+			local bulb = part(potModel, "SpikeTip", Vector3.one * 0.14 * k.X, CFrame.new(tip), GLOW, Enum.Material.Neon, Enum.PartType.Ball)
+			bulb.CastShadow = false
+			if i % 3 == 2 then
+				local light = Instance.new("PointLight")
+				light.Range = 14
+				light.Brightness = 1.4
+				light.Color = Color3.fromRGB(255, 236, 190)
+				light.Shadows = false
+				light.Parent = bulb
+			end
+		end
+	end
 end
 
 -- the cups

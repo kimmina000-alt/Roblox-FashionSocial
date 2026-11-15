@@ -861,7 +861,8 @@ local function currentOffer(t: number): Offer?
 		end
 	end
 	for _, entry in ipairs(slots) do
-		if entry.kind == "ParkCarousel" then consider(entry, "🎠 목마 타기", 5)
+		-- (D-1477: a ride built on the carousel's code, the fire trucks, names itself: attribute RideText)
+		if entry.kind == "ParkCarousel" then consider(entry, entry.ride:GetAttribute("RideText") or "🎠 목마 타기", 5)
 		elseif entry.kind == "ParkSwing" then consider(entry, "그네 타기", 4.5)
 		elseif entry.kind == "ParkSpring" then consider(entry, "흔들 그네 타기", 4.5)
 		elseif entry.kind == "FloatTube" then consider(entry, "튜브 타기", 6) end
@@ -987,6 +988,8 @@ spinHint.TextScaled = true
 spinHint.TextColor3 = Color3.new(1, 1, 1)
 spinHint.TextStrokeTransparency = 0.35
 spinHint.Text = "화면 연타! 🔄"
+-- (D-1477, user: "화면 연타 텍스트 삭제") the label is not shown; spinGui.Enabled still says when taps count
+spinHint.Visible = false
 spinHint.Parent = spinGui
 local spinSending = false
 local function spinTap()

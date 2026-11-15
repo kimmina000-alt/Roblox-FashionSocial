@@ -244,27 +244,9 @@ rail(P(-HX, BACK), P(-5, BACK))
 rail(P(5, BACK), P(HX, BACK))
 rail(P(-HX, FRONT), P(-SW / 2, FRONT))
 rail(P(SW / 2, FRONT), P(HX, FRONT))
--- the canopy over the front half (clear of the cabins: they pass at axle ±3)
-local CZ0, CZ1 = 5, FRONT - 0.5
-local CH = 7.6
-for _, x in ipairs({ -HX + 0.6, HX - 0.6 }) do
-	for _, z in ipairs({ CZ0 + 0.4, CZ1 - 0.4 }) do
-		part(st, "CanopyPost", Vector3.new(0.45, CH, 0.45), L(x, DECK_H + CH / 2, z), WHITE, Enum.Material.Metal, nil, true)
-	end
-end
-part(st, "CanopyRoof", Vector3.new(HX * 2 + 1.6, 0.5, CZ1 - CZ0 + 1.6), L(0, DECK_H + CH + 0.25, (CZ0 + CZ1) / 2), BLUE, Enum.Material.SmoothPlastic)
-part(st, "CanopyRidge", Vector3.new(HX * 2 + 1.6, 1.0, 1.2), L(0, DECK_H + CH + 0.9, (CZ0 + CZ1) / 2), BLUE, Enum.Material.SmoothPlastic)
--- the white scalloped valance along its front and sides
-local VAL = Vector3.new(0, DECK_H + CH - 0.35, 0)
-for i = 0, math.floor((HX * 2 + 1.6) / 1.6) do
-	local x = -HX - 0.8 + i * 1.6
-	part(st, "Valance", Vector3.new(0.1, 1.5, 1.5), L(x, VAL.Y - 0.2, CZ1 + 0.8) * CFrame.Angles(0, math.pi / 2, 0), WHITE, nil, Enum.PartType.Cylinder)
-end
-part(st, "ValanceBand", Vector3.new(HX * 2 + 1.6, 0.5, 0.12), L(0, VAL.Y + 0.35, CZ1 + 0.82), WHITE)
--- a small ticket booth under the canopy
-part(st, "Booth", Vector3.new(4, 4.4, 3.2), L(-HX + 3, DECK_H + 2.2, CZ1 - 2.2), Color3.fromRGB(246, 220, 232), Enum.Material.SmoothPlastic, nil, true)
-part(st, "BoothWindow", Vector3.new(2.6, 1.6, 0.1), L(-HX + 3, DECK_H + 2.8, CZ1 - 0.55), Color3.fromRGB(150, 200, 240), Enum.Material.Glass)
-part(st, "BoothRoof", Vector3.new(4.6, 0.4, 3.8), L(-HX + 3, DECK_H + 4.6, CZ1 - 2.2), RED, Enum.Material.SmoothPlastic)
+-- (D-1477, user: "관람차 아래 천막이랑 작은 건물 삭제": the canopy over the front half, its valance and
+-- the small ticket booth are gone)
+
 -- the arched sign over the stairs' foot
 local AZ = FRONT + STEPS * run + 1.2
 for _, s in ipairs({ -1, 1 }) do
