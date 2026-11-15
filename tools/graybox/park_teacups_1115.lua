@@ -126,7 +126,10 @@ disc(rotor, "DeckCentre", C, deckTop, 0.1, 16, Color3.fromRGB(244, 196, 52))
 
 -- the teapot (stands still in the middle)
 -- (D-1467, user 2026-11-16: "회전컵 가운데 주전자 수정": the user's new teapot.glb, ArtAssets.TeapotTex2)
-local pot = template({ "TeapotTex2", "TeapotTex", "Teapot" })
+-- (D-1473, user 2026-11-16: "TeapotTex 수정" + teacups_tex/v2/TeapotTex.glb, answered "주전자 교체": the
+-- middle piece is now that model, a pink Y-shaped post with crowned ends, ArtAssets.TeapotTex3,
+-- stood TEAPOT_H high like the teapot)
+local pot = template({ "TeapotTex3", "TeapotTex2", "TeapotTex", "Teapot" })
 if pot then
 	placeMesh(pot, ride, "Teapot", CFrame.new(C + Vector3.new(0, 0.1, 0)), function(size) return TEAPOT_H / size.Y end)
 end
