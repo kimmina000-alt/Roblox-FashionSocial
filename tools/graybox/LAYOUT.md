@@ -69,3 +69,4 @@
 4. 손 편집 기록(`ServerStorage.PropOverrides`, git `prop_overrides.json`)은 2·3단계에서 자동 적용. 다시 빌드하기 전에 항상 `prop_save.lua`로 먼저 저장.
 - 필요한 Studio 자산: ServerStorage.ArtAssets(나무·관목·야자수·가로등·신호등 등, 스크립트 제거됨), ServerStorage.Cars(G70·G80), MaterialService(OHU_Asphalt, OHU_Concrete). 장소 파일에만 있으므로 Studio 저장 필수.
 - 예전 이름: hongdae_v1_temp.lua / Workspace.Hongdae_v1_Temp (임시 단계). 새 스크립트의 revert가 예전 폴더도 지운다.
+  - `park_wall_tidy_1115.lua` (D-1450) — 놀이공원 남쪽 벽(게이트 서쪽) 정리: ParkPlatformWestStrip 남쪽 면을 벽 받침(plinth) 면 z -278.74에 맞추고, 광장 서쪽 난간(ParkPlazaParapet)을 벽까지 잇는다. 체인 맨 끝(park_corner_beach_1115 다음, 그 스크립트가 strip을 매번 -277로 되돌리므로).

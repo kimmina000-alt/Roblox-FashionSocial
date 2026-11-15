@@ -4865,3 +4865,13 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1448 (2026-11-15) 회전컵: 화면 아무 데나 연타
 - User: "회전컵 핸들만 누르는 거 에임 어렵다. 그냥 컵 자체를 광클하면 화면 자체를 광클하는 걸로 수정".
 - ParkRidesController: while the cup runs, any click / touch that no button or the thumbstick took (UserInputService.InputBegan, not processed) sends "Spin"; the billboard over the wheel is only a label, "화면 연타! 🔄". Play check: mouse clicks on an empty spot of the screen took the cup's extra spin to 4.0 rad/s, then it faded.
+
+## D-1449 (2026-11-15) 놀이공원 앞 광장 바닥: 밀려 있던 ParkPlatform 제자리로
+- User (aerial screenshot of the plaza in front of the park gate): "땅 난리 났다. 깔끔하게 정돈 좀..".
+- Cause: Hongdae_Layout.ParkRaise.ParkPlatform (the user's version, kept in ServerStorage.UserMapSnapshot.AddParts) stood moved by (+7.7, 0, +26.2) from the snapshot: dragged in Studio by mistake (all 27 other snapshot parts were in place). Its front ran 26 studs past the plaza's edge over the grand stairs, the plaza's parapets stood in the middle of the floor, and its west / north edges opened the two slots of D-1446 (which were therefore not real gaps in the design).
+- Put back on the snapshot's CFrame and Locked (Studio can no longer drag it by a click). The D-1446 ParkSeamFill pieces and the old ParkFrontFill (D-1434, also a symptom of an earlier slide) were removed: park_front_fill_1115 finds no gap now and makes nothing (its checks stay as a guard). A raycast grid over the park floor (x -152..-47, z -218..-470) found no hole.
+
+## D-1450 (2026-11-15) 놀이공원 남쪽 벽면 정리 (게이트 서쪽, 터널 위)
+- User (screenshot, the wall west of the gate over the sea road's tunnel): "벽면 깔끔하게 정리".
+- The concrete under the brick wall (ParkPlatformWestStrip, park_corner_beach_1115 D-1418) reached z -277, 1.74 past the wall's plinth face (-278.74): a ledge under the whole wall. The plaza's west parapet stopped at z -272.8, leaving a notch before the corner pillar.
+- tools/graybox/park_wall_tidy_1115.lua (new, last chain step): the strip stops flush with the plinth face and the parapet runs on to it; faces read from the wall pieces.
