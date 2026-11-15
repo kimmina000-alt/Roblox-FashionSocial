@@ -4715,3 +4715,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - 5 (NightWalkerService): from 19:00 to 05:00, 8 passers-by on the main sidewalks (8 fixed lines round the spawn, the crossroads and the club street), in the catalog's recommended Marketplace looks (RecommendedLooks outfits), walking up and down with short stops, no name tag; gone by day. Car lights: there are no street cars in the map, so nothing to light.
 - Play 22:00: 8 walkers walking (images/2026-11-15/night_walker_signs.jpg), 118 signs lit, 126 shop-window lights on; at 12:00 no walkers, no shop lights; no script errors on the server or the client.
 
+
+## D-1422 (2026-11-15) Night: passers-by removed, softer glow
+- User: "야경 5 삭제 6 적용". NightWalkerService (D-1421, 8 passers-by at night) is removed again, with its ServerMain line.
+- SeoulNightController lerps Lighting.Bloom with the night amount: day values read at start (1 / 24 / 2) → night Intensity 1.25, Size 32, Threshold 1.35, so the signs and lit windows glow softly. Play check: 23:00 → 1.25 / 32 / 1.35, 14:00 → 1 / 24 / 2; no walkers.

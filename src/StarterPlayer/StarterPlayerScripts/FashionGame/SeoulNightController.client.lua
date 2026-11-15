@@ -13,6 +13,9 @@
 --   4. (D-1421, "4랑 5도 적용") shop signs and shop windows: every sign / board / banner picture
 --      shines by itself at night (SurfaceGui LightInfluence 0), the shop windows (ShopGlass,
 --      EntranceGlass, FrontGlass, ...) light the pavement in front with a warm glow.
+--   6. (D-1422, "야경 5 삭제 6 적용": the night walkers of D-1421 are gone again) a little more glow
+--      round bright things at night (Lighting.Bloom: lower threshold, a bit stronger and wider),
+--      so the signs and lit windows shine softly.
 -- Client only (looks); nothing changes in the place.
 
 local Lighting = game:GetService("Lighting")
@@ -32,6 +35,9 @@ local NIGHT = {
 	atmDecay = Color3.fromRGB(140, 95, 70), -- (the warm glow of the city low on the sky)
 	haze = 1.4,
 	exposure = 0.25,
+	bloomIntensity = 1.25,
+	bloomSize = 32,
+	bloomThreshold = 1.35,
 }
 -- night amount by the clock: 0 by day, 1 at night, eased over dusk 17.5-19.5 and dawn 5-6.5
 local function nightAmount(t: number): number
@@ -42,7 +48,11 @@ end
 
 ---------------------------------------------------------------- 1. sky and ambient
 local atm = Lighting:FindFirstChildOfClass("Atmosphere")
+local bloom = Lighting:FindFirstChildOfClass("BloomEffect")
 local day = {
+	bloomIntensity = bloom and bloom.Intensity or 1,
+	bloomSize = bloom and bloom.Size or 24,
+	bloomThreshold = bloom and bloom.Threshold or 2,
 	ambient = Lighting.Ambient,
 	outdoor = Lighting.OutdoorAmbient,
 	exposure = Lighting.ExposureCompensation,
@@ -54,6 +64,11 @@ local function sky(n: number)
 	Lighting.Ambient = day.ambient:Lerp(NIGHT.ambient, n)
 	Lighting.OutdoorAmbient = day.outdoor:Lerp(NIGHT.outdoor, n)
 	Lighting.ExposureCompensation = day.exposure + (NIGHT.exposure - day.exposure) * n
+	if bloom then
+		bloom.Intensity = day.bloomIntensity + (NIGHT.bloomIntensity - day.bloomIntensity) * n
+		bloom.Size = day.bloomSize + (NIGHT.bloomSize - day.bloomSize) * n
+		bloom.Threshold = day.bloomThreshold + (NIGHT.bloomThreshold - day.bloomThreshold) * n
+	end
 	if atm then
 		atm.Color = day.atmColor:Lerp(NIGHT.atmColor, n)
 		atm.Decay = day.atmDecay:Lerp(NIGHT.atmDecay, n)
