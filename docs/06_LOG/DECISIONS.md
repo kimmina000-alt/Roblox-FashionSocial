@@ -4819,3 +4819,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1439 (2026-11-15) Mini viking taller, no brace between the legs
 - User (pictures: a red apex well above the frame; a mark on the cross bar): "미니바이킹 기둥 더 높여 줘 / 사이에 기둥은 삭제".
 - park_vikings_1115 mini: axle 40.7 → 52 (legs and arms longer; feet out to z ±13, legs 1.2 thick, 7 bulbs a leg, 6 an arm), braces = {}. With the longer arms the boat's end clears the deck by 1.67 at full swing (was 0.59, checked on the Tex3 mesh). Rebuilt (8 seats) with its backup. Play: the taller frame swings with no cross bar.
+
+## D-1440 (2026-11-15) Super viking stage and fence
+- User: "슈퍼바이킹 단상이랑 주변 펜스 디자인 작업" + photos of 경주월드 King Viking (the boat swings between raised boarding decks with orange corrugated sides, a wooden railing with round painted shields, stairs, a queue fence).
+- tools/graybox/park_viking_stage_1115.lua → Workspace["슈퍼바이킹"].Stage (330 parts): two decks at the boat's floor level (8.5 over the paving), x 7.8–18 each side of the axle (clear of the arms, which swing at x ±7.5) and z ±26; orange metal sides with vertical ribs (Roblox has no corrugated material), a diamond-plate floor, a brown railing (low on the boat side) with eight green / blue / red shields with gold rims along each outer rail; stairs from each deck's +z end with an invisible ramp; a grey metal fence round the base, open before both stairs; the base becomes brick-coloured paving. The ride's Exit moves onto the +x deck. Backup refreshed.
+- Play: walking from the paving up the +x stairs reached the deck (feet at 27.45 = the deck top); the boat swings between the decks.
