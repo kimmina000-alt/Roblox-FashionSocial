@@ -202,7 +202,8 @@ if not workspace:FindFirstChild("미니바이킹") then
 end
 
 -- 7 회전컵 and 3 점퍼보트
-roundRide("07_TeaCups", -126, -387, 15, 5, { C.pink, C.blue, C.yellow, C.green, C.purple }, false)
+-- (D-1432: the real ride is Workspace["회전컵"], park_teacups_1115; no blockout then)
+if not workspace:FindFirstChild("회전컵") then roundRide("07_TeaCups", -126, -387, 15, 5, { C.pink, C.blue, C.yellow, C.green, C.purple }, false) end
 roundRide("03_JumperBoat", -105, -394, 13, 6, { C.blue, C.white })
 
 -- 24 점핑스타: a drop tower

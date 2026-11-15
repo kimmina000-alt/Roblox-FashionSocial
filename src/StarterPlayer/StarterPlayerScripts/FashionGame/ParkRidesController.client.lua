@@ -82,6 +82,8 @@ local swings: {{ model: Model, seat: Model?, amp: number, phase: number }} = {}
 local springs: {{ model: Model, rocker: Model?, base: CFrame }} = {}
 local slides: {Model} = {}
 local vikings: {{ model: Model, swing: Model?, rel: CFrame }} = {} -- (D-1425)
+local teacups: {{ model: Model, rotor: Model?, rel: CFrame }} = {} -- (D-1432)
+local seatRides: {Model} = {} -- (vikings and tea cups: seats picked, a shared run)
 
 local function hubCFrame(model: Model, name: string): CFrame?
 	local part = model:FindFirstChild(name)
@@ -162,6 +164,7 @@ local addSeatPicks: ((Model) -> ())? = nil -- (D-1428, set below with the UI)
 local function addViking(model: Model)
 	local swing = model:FindFirstChild("Swing") :: Model?
 	table.insert(vikings, { model = model, swing = swing, rel = if swing then model:GetPivot():Inverse() * swing:GetPivot() else CFrame.new() })
+	table.insert(seatRides, model)
 	for index = 1, ParkConfig.vikingSeatCount(model) do
 		table.insert(slots, {
 			kind = "ParkViking", ride = model, slot = model, key = "Rider" .. index,
@@ -241,6 +244,25 @@ register("ParkSpring", addSpring)
 register("ParkSlide", function(model) table.insert(slides, model) end)
 register("FloatTube", addTube)
 register("ParkViking", addViking)
+-- (D-1432) Tea cups: the Rotor turns with the table, each Cup<k> turns with it and spins itself.
+register("ParkTeaCups", function(model: Model)
+	local rotor = model:FindFirstChild("Rotor") :: Model?
+	table.insert(teacups, { model = model, rotor = rotor, rel = if rotor then model:GetPivot():Inverse() * rotor:GetPivot() else CFrame.new() })
+	table.insert(seatRides, model)
+	for index = 1, ParkConfig.rideSeatCount(model) do
+		table.insert(slots, {
+			kind = "ParkTeaCups", ride = model, slot = model, key = "Rider" .. index,
+			seat = function(t: number): CFrame?
+				return ParkConfig.teacupSeatCFrame(model, index, t)
+			end,
+		})
+	end
+	task.spawn(function()
+		while not addSeatPicks do task.wait(0.2) end
+		local add = addSeatPicks
+		if add then add(model) end
+	end)
+end)
 
 -- Rubber ducks (tag "FloatDeco", user 2026-10-25): they sit on the real water
 -- surface, ride the waves along their drift path and get pushed by anyone
@@ -389,6 +411,18 @@ local function animate(t: number, dt: number)
 		local pivot = viking.model:GetPivot()
 		if viking.swing and viking.model.Parent and cameraNear(pivot.Position, true) then
 			viking.swing:PivotTo(pivot * ParkConfig.vikingTurn(viking.model, t) * viking.rel)
+		end
+	end
+	for _, tc in ipairs(teacups) do
+		local pivot = tc.model:GetPivot()
+		if tc.model.Parent and cameraNear(pivot.Position, true) then
+			local turn = ParkConfig.teacupState(tc.model, t)
+			if tc.rotor then tc.rotor:PivotTo(pivot * CFrame.Angles(0, turn, 0) * tc.rel) end
+			for cup = 1, ParkConfig.teacupCount(tc.model) do
+				local m = tc.model:FindFirstChild("Cup" .. cup)
+				local cf = ParkConfig.teacupCFrame(tc.model, cup, t)
+				if m and m:IsA("Model") and cf then m:PivotTo(cf) end
+			end
 		end
 	end
 	for _, swing in ipairs(swings) do
@@ -558,7 +592,7 @@ RunService.PreSimulation:Connect(function(dt)
 		-- (it showed the rider beside the tube, user phone test 2026-10-26):
 		-- on a tube the rider is held anchored at the seat
 		-- (D-1427) on a viking too: the body falling a little between frames made the ride judder
-		if (entry.kind == "FloatTube" or entry.kind == "ParkViking") and not root.Anchored then root.Anchored = true end
+		if (entry.kind == "FloatTube" or entry.kind == "ParkViking" or entry.kind == "ParkTeaCups") and not root.Anchored then root.Anchored = true end
 		local cf = riderCFrame(entry, root, now())
 		if cf then placeOwn(cf) end
 	end
@@ -706,22 +740,24 @@ local function currentOffer(t: number): Offer?
 			return { text = string.format("🎡 다음 칸까지 %d초", math.ceil(wait)), ride = nil, slot = nil, ready = false }
 		end
 	end
-	for _, viking in ipairs(vikings) do -- (D-1425) one button per boat
-		local pivot = viking.model:GetPivot()
-		local reach = attrNumber(viking.model, "Reach", 20)
+	for _, ride in ipairs(seatRides) do -- (D-1425 / D-1432) one button per viking / tea cups
+		local pivot = ride:GetPivot()
+		local reach = attrNumber(ride, "Reach", 20)
 		if Vector3.new(position.X - pivot.X, 0, position.Z - pivot.Z).Magnitude <= reach and math.abs(position.Y - pivot.Y) <= 60 then
-			local _, still, left = ParkConfig.vikingState(viking.model, t)
+			local icon, label = "⛵", "바이킹"
+			if ParkConfig.seatRideKind(ride) == "ParkTeaCups" then icon, label = "☕", "회전컵" end
+			local still, left = ParkConfig.rideState(ride, t)
 			if not still then
-				return { text = string.format("⛵ 운행 중 · %d초 뒤 탑승", math.ceil(left)), ride = nil, slot = nil, ready = false }
+				return { text = string.format("%s 운행 중 · %d초 뒤 탑승", icon, math.ceil(left)), ride = nil, slot = nil, ready = false }
 			end
 			local free = false
-			for index = 1, ParkConfig.vikingSeatCount(viking.model) do
-				if viking.model:GetAttribute("Rider" .. index) == nil then free = true break end
+			for index = 1, ParkConfig.rideSeatCount(ride) do
+				if ride:GetAttribute("Rider" .. index) == nil then free = true break end
 			end
 			if free then
-				return { text = string.format("⛵ 바이킹 타기 (%d초 뒤 출발)", math.ceil(left)), ride = viking.model, slot = nil, ready = true }
+				return { text = string.format("%s %s 타기 (%d초 뒤 출발)", icon, label, math.ceil(left)), ride = ride, slot = nil, ready = true }
 			end
-			return { text = "⛵ 자리가 가득 찼어요", ride = nil, slot = nil, ready = false }
+			return { text = icon .. " 자리가 가득 찼어요", ride = nil, slot = nil, ready = false }
 		end
 	end
 	local best: Offer? = nil
@@ -785,7 +821,7 @@ mainButton.MouseButton1Click:Connect(pressMain)
 -- "플러스 모양 그냥 없애 그냥 누르면 앉게 해") while a viking stands still and you are near it, every
 -- free seat is an invisible button over the seat itself: a click or tap there seats you on it, or,
 -- already on that boat, moves you to it. The main button still takes the first free seat.
-type SeatPick = { ride: Model, index: number, gui: BillboardGui }
+type SeatPick = { ride: Model, index: number, gui: BillboardGui, anchor: Attachment }
 local seatPicks: {SeatPick} = {}
 local pickFolder = Instance.new("Folder")
 pickFolder.Name = "VikingSeatPicks"
@@ -818,12 +854,10 @@ local function pickSeat(ride: Model, index: number)
 end
 
 addSeatPicks = function(model: Model)
-	for index = 1, ParkConfig.vikingSeatCount(model) do
-		local rel = model:GetAttribute("Seat" .. index) :: CFrame
+	for index = 1, ParkConfig.rideSeatCount(model) do
 		local anchor = Instance.new("Attachment")
 		anchor.Name = model.Parent and model.Parent.Name .. index or tostring(index)
-		anchor.Parent = pickHolder
-		anchor.WorldCFrame = model:GetPivot() * rel * CFrame.new(0, 1.2, 0) -- (over the seat pan)
+		anchor.Parent = pickHolder -- (placed over the seat while it shows, updateSeatPicks)
 		local g = Instance.new("BillboardGui")
 		g.Name = "Seat" .. index
 		g.Size = UDim2.fromScale(3, 2.6) -- (studs: about one seat)
@@ -839,7 +873,7 @@ addSeatPicks = function(model: Model)
 		b.Text = ""
 		b.Parent = g
 		b.Activated:Connect(function() task.spawn(pickSeat, model, index) end)
-		table.insert(seatPicks, { ride = model, index = index, gui = g })
+		table.insert(seatPicks, { ride = model, index = index, gui = g, anchor = anchor })
 	end
 end
 
@@ -849,18 +883,24 @@ local function updateSeatPicks(t: number)
 	for _, pick in ipairs(seatPicks) do
 		local show = false
 		local current = mySlot
-		if root and (current == nil or (current.kind == "ParkViking" and current.ride == pick.ride)) and pick.ride.Parent then
+		if root and (current == nil or ((current.kind == "ParkViking" or current.kind == "ParkTeaCups") and current.ride == pick.ride)) and pick.ride.Parent then
 			local still = stillRide[pick.ride]
 			if still == nil then
 				local pivot = pick.ride:GetPivot()
 				local reach = attrNumber(pick.ride, "Reach", 20)
 				local near = Vector3.new(root.Position.X - pivot.X, 0, root.Position.Z - pivot.Z).Magnitude <= reach
 					and math.abs(root.Position.Y - pivot.Y) <= 60
-				local _, standing = ParkConfig.vikingState(pick.ride, t)
+				local standing = ParkConfig.rideState(pick.ride, t)
 				still = near and standing
 				stillRide[pick.ride] = still
 			end
 			show = still and pick.ride:GetAttribute("Rider" .. pick.index) == nil
+			if show then
+				local seat = if ParkConfig.seatRideKind(pick.ride) == "ParkTeaCups"
+					then ParkConfig.teacupSeatCFrame(pick.ride, pick.index, t)
+					else ParkConfig.vikingSeatCFrame(pick.ride, pick.index, t)
+				if seat then pick.anchor.WorldCFrame = seat * CFrame.new(0, 1.2, 0) else show = false end -- (over the seat pan)
+			end
 		end
 		pick.gui.Enabled = show
 	end
@@ -875,7 +915,7 @@ UserInputService.InputBegan:Connect(function(input, processed)
 	if input.KeyCode == Enum.KeyCode.E then
 		if bar.Visible and mainButton.Visible then task.spawn(pressMain) end
 	elseif input.KeyCode == Enum.KeyCode.V then
-		if mySlot and (mySlot.kind == "ParkWheel" or mySlot.kind == "ParkViking") then setFirstPerson(not firstPerson) end
+		if mySlot and (mySlot.kind == "ParkWheel" or mySlot.kind == "ParkViking" or mySlot.kind == "ParkTeaCups") then setFirstPerson(not firstPerson) end
 	end
 end)
 
@@ -908,14 +948,14 @@ local function refreshUi(t: number)
 				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130)
 			end
 		end
-		if entry.kind == "ParkViking" then -- (D-1425) off only while it stands still
-			local _, still, left = ParkConfig.vikingState(entry.ride, t)
+		if entry.kind == "ParkViking" or entry.kind == "ParkTeaCups" then -- (D-1425) off only while it stands still
+			local still, left = ParkConfig.rideState(entry.ride, t)
 			if not still then
 				mainButton.Text = string.format(KEY .. "내리기 (멈추면 · %d초)", math.ceil(left))
 				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130)
 			end
 		end
-		viewButton.Visible = entry.kind == "ParkWheel" or entry.kind == "ParkViking"
+		viewButton.Visible = entry.kind == "ParkWheel" or entry.kind == "ParkViking" or entry.kind == "ParkTeaCups"
 		viewButton.Text = if firstPerson then (if KEY ~= "" then "🎥 3인칭 (V)" else "🎥 3인칭") else (if KEY ~= "" then "👁 1인칭 (V)" else "👁 1인칭")
 		local isSwing = entry.kind == "ParkSwing"
 		minusButton.Visible = isSwing

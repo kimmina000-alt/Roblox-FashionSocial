@@ -25,6 +25,14 @@
 --                       Period (one swing, s), MaxAngle (deg), Board / Ramp / Hold (s),
 --                       Seat1..SeatN (CFrame from the axle at rest, facing the way the
 --                       rider looks), Exit (Vector3). Riders: attributes Rider1..RiderN.
+--   tag "ParkTeaCups"   (D-1432) the tea cups' "Ride" model, pivot = the turntable's middle
+--                       (deck top). "Rotor" (Model) turns with the table; "Cup1".."CupN" (Model,
+--                       pivot = the cup's middle on its saucer) turn with the table and spin on
+--                       themselves the other way. Attributes Cups, SeatsPerCup, Cup1..CupN
+--                       (CFrame from the pivot), SeatRel1..SeatRelM (CFrame from a cup's pivot),
+--                       TurnPeriod / CupPeriod (s per turn at full speed), Board / Ramp / Hold
+--                       (s; Ramp + Hold is a whole number of turns of both, so a run ends where
+--                       it began), Exit (Vector3), Reach. Riders: Rider1..Rider(Cups×SeatsPerCup).
 
 local ParkConfig = {}
 
@@ -40,12 +48,15 @@ ParkConfig.RidesRunning = false
 ParkConfig.CarouselRunning = true
 -- (D-1425, user 2026-11-15: "바이킹 사람 타서 흔들리는 것까지 구현") the two vikings swing.
 ParkConfig.VikingRunning = true
+-- (D-1432, user 2026-11-15: "회전컵") the tea cups turn and take riders.
+ParkConfig.TeaCupsRunning = true
 function ParkConfig.isRunning(kind: string): boolean
 	local fg = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
 	local live = fg and fg:GetAttribute("ParkRidesRunning")
 	if typeof(live) == "boolean" then return live end
 	if kind == "ParkCarousel" then return ParkConfig.CarouselRunning end
 	if kind == "ParkViking" then return ParkConfig.VikingRunning end
+	if kind == "ParkTeaCups" then return ParkConfig.TeaCupsRunning end
 	return ParkConfig.RidesRunning
 end
 
@@ -216,6 +227,82 @@ function ParkConfig.vikingSeatCFrame(model: Model, index: number, t: number): CF
 	local rel = model:GetAttribute("Seat" .. index)
 	if typeof(rel) ~= "CFrame" then return nil end
 	return model:GetPivot() * ParkConfig.vikingTurn(model, t) * rel
+end
+
+--------------------------------------------------
+-- Tea cups (D-1432): the same kind of shared run as the viking. Standing still for Board
+-- seconds, then the table speeds up over Ramp seconds, turns at full speed for Hold seconds
+-- and slows down over Ramp seconds (speed rises and falls in a straight line). The cups spin
+-- the other way at their own speed. Ramp + Hold is a whole number of turns of the table and
+-- of a cup, so every run starts and ends with the cups at the same places.
+--------------------------------------------------
+
+-- (table angle, cup spin angle, standing still?, seconds until the next change)
+function ParkConfig.teacupState(model: Instance, t: number): (number, number, boolean, number)
+	local board = attr(model, "Board", 15)
+	local ramp = attr(model, "Ramp", 4)
+	local hold = attr(model, "Hold", 24)
+	local run = ramp * 2 + hold
+	local cycle = board + run
+	if not ParkConfig.isRunning("ParkTeaCups") then return 0, 0, true, 0 end
+	local c = t % cycle
+	if c < board then return 0, 0, true, board - c end
+	local u = c - board
+	-- f(u) = seconds at full speed so far
+	local f = if u < ramp then u * u / (2 * ramp) elseif u < ramp + hold then ramp / 2 + (u - ramp) else ramp + hold - (run - u) ^ 2 / (2 * ramp)
+	local turn = (f / attr(model, "TurnPeriod", 14)) % 1 * 2 * math.pi
+	local spin = (f / attr(model, "CupPeriod", 4)) % 1 * 2 * math.pi
+	return turn, spin, false, cycle - c
+end
+
+function ParkConfig.teacupCount(model: Instance): number
+	return attr(model, "Cups", 0)
+end
+
+-- Cup k's pivot now.
+function ParkConfig.teacupCFrame(model: Model, cup: number, t: number): CFrame?
+	local rel = model:GetAttribute("Cup" .. cup)
+	if typeof(rel) ~= "CFrame" then return nil end
+	local turn, spin = ParkConfig.teacupState(model, t)
+	return model:GetPivot() * CFrame.Angles(0, turn, 0) * rel * CFrame.Angles(0, -spin, 0)
+end
+
+-- Seat k (cup = ceil(k / SeatsPerCup)) now.
+function ParkConfig.teacupSeatCFrame(model: Model, index: number, t: number): CFrame?
+	local per = attr(model, "SeatsPerCup", 4)
+	local cup = math.ceil(index / per)
+	local rel = model:GetAttribute("SeatRel" .. ((index - 1) % per + 1))
+	local cf = ParkConfig.teacupCFrame(model, cup, t)
+	if not cf or typeof(rel) ~= "CFrame" then return nil end
+	return cf * rel
+end
+
+--------------------------------------------------
+-- Rides with a shared run and seats picked on board (viking, tea cups)
+--------------------------------------------------
+
+function ParkConfig.seatRideKind(model: Instance): string?
+	local cs = game:GetService("CollectionService")
+	if cs:HasTag(model, "ParkViking") then return "ParkViking" end
+	if cs:HasTag(model, "ParkTeaCups") then return "ParkTeaCups" end
+	return nil
+end
+
+-- (standing still?, seconds until the next change)
+function ParkConfig.rideState(model: Instance, t: number): (boolean, number)
+	if ParkConfig.seatRideKind(model) == "ParkTeaCups" then
+		local _, _, still, left = ParkConfig.teacupState(model, t)
+		return still, left
+	end
+	local _, still, left = ParkConfig.vikingState(model, t)
+	return still, left
+end
+
+function ParkConfig.rideSeatCount(model: Instance): number
+	if ParkConfig.seatRideKind(model) == "ParkTeaCups" then
+		return ParkConfig.teacupCount(model) * attr(model, "SeatsPerCup", 4)
+	end
+	return ParkConfig.vikingSeatCount(model)
 end
 
 --------------------------------------------------
