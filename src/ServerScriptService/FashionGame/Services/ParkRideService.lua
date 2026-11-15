@@ -205,7 +205,35 @@ local function leave(player: Player, home: boolean?): (boolean, any)
 	return true, exit
 end
 
+-- (D-1426, user 2026-11-15: "테스트 스포너 놀이공원 안에 만들어 줘") a test spawn inside the
+-- park: the pad Workspace.ParkTestSpawn (place-only, move it in Edit mode to spawn elsewhere; its
+-- attribute On = false switches it off). In a Studio test every character is put on it (side by
+-- side for a multi-player test); on a live server the pad is removed and nothing changes.
+local function parkTestSpawn()
+	local pad = workspace:FindFirstChild("ParkTestSpawn")
+	if not pad or not pad:IsA("BasePart") then return end
+	if not game:GetService("RunService"):IsStudio() then
+		pad:Destroy()
+		return
+	end
+	local function onCharacter(player: Player, character: Model)
+		local root = character:WaitForChild("HumanoidRootPart", 10)
+		if not root or not character.Parent or not pad.Parent or pad:GetAttribute("On") == false then return end
+		task.wait(0.3) -- (after the SpawnLocation, and the gate spawn of a Studio test, have placed it)
+		local slot = (table.find(Players:GetPlayers(), player) or 1) - 1
+		local at = (pad.CFrame * CFrame.new((slot % 4 - 1.5) * 4, 3.5, math.floor(slot / 4) * 4)).Position
+		character:PivotTo(CFrame.lookAt(at, at + pad.CFrame.LookVector * Vector3.new(1, 0, 1)))
+	end
+	local function onPlayer(player: Player)
+		player.CharacterAdded:Connect(function(character) onCharacter(player, character) end)
+		if player.Character then task.spawn(onCharacter, player, player.Character) end
+	end
+	Players.PlayerAdded:Connect(onPlayer)
+	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
+end
+
 function ParkRideService.Start()
+	task.defer(parkTestSpawn)
 	local remote = Remotes:WaitForChild("ParkRide") :: RemoteFunction
 	local notify = Remotes:WaitForChild("ParkNotify") :: RemoteEvent
 	remote.OnServerInvoke = function(player: Player, action: any, a: any, b: any)

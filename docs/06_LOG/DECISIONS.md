@@ -4737,3 +4737,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Seats = the boat's seat rows read off the glbs, riders face the boat's middle and tilt with it; ParkRidesController turns "Swing" about the axle and puts every rider on their seat each frame; ParkRideService gives a free seat, refuses getting off while it swings ("바이킹이 멈추면 내릴 수 있어요"), puts riders down at Exit. Button: "⛵ 바이킹 타기 (n초 뒤 출발)" / "⛵ 운행 중 · n초 뒤 탑승", 👁 1인칭 (V) while riding.
 - The swinging parts do not collide (they move on each screen). Axles raised (mini 40.7, super 65.6) so the boat ends clear the floor at full swing (checked on the meshes).
 - Play check: mini boarded, swung to 39°+ with the rider on the seat, left at the stairs; super boarded with E, 52° with the rider at the top end, leaving mid-swing refused, E after it stopped put the rider at the exit.
+
+## D-1426 (2026-11-15) Test spawn inside the park (Studio only)
+- User: "테스트 스포너 놀이공원 안에 만들어 줘".
+- Place-only pad Workspace.ParkTestSpawn (green, "TEST SPAWN (Studio 전용)", no collision) at (-205, 16.15, -485) between the carousel and the mini viking, facing north. ParkRideService.parkTestSpawn: in a Studio test every character (and every respawn) is put on it, side by side for a multi-player test; attribute On = false switches it off; move the pad in Edit mode to spawn elsewhere. On a live server the pad is destroyed and spawning is unchanged.
+- Play check: first spawn and respawn at (-199, 20.2, -485).
