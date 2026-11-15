@@ -5061,3 +5061,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - park_paths_1116: each bed piece is D-1477's brick curb (0.9) with grass on top again (the granite edges, soil and end caps of D-1478 are gone); the hedge of the leafy bush (D-1478) stands on the grass. The park path model: 1,398 parts (was 1,503).
 - Fire truck: the user's import (ServerStorage.ArtAssets.FireTruck: 3 MeshParts) against the block truck (18 parts): the user's truck is lighter and used. park_firetruck_ride_1116: with the user's truck no seat parts are added; the rider sits on its back (SaddleY = 0.75 of the truck's height, 2.59). The cab is the truck's -Z end and faces the way it drives (checked on a screenshot). The ride: 44 parts.
 - Play: boarded a truck (the rider rides on its back, going round at 3.6 studs/s); no script errors.
+
+## D-1480 (2026-11-16) 관람차 입구 서쪽, 슈퍼바이킹 쪽으로 이동
+- User: "관람차 입구가 서쪽 바라보게 90도 회전 시키고 슈퍼 바이킹 쪽으로 살짝 이동".
+- park_wheel_frame_1115: the axle (and the station's front, +axle) runs along -X: the stairs and the FERRIS WHEEL arch face west (arch at x -130.9); the wheel's plane is now north-south.
+- park_swap_1116: hub (-110, -830) → (-100, -800): 30 toward the super viking (its base ends at z -684.8; the wheel's legs reach z -832..-768, the rim, high up, -852..-748) and 10 east, so the station (x -131..-92) stays clear of the promenade.
+- Rerun in the place: move, frame (legs, station), cabins (doors open towards the new front). Play: walked from the promenade through the arch, up the stairs onto the deck; no script errors.
+- Asked: a comfortable width for two characters walking side by side; the bike lane's width (Hongdae_Layout.BikeLane: 4 studs; the bike crossing is 7 deep).

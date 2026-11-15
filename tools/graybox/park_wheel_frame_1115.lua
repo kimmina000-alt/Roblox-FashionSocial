@@ -52,7 +52,10 @@ local CABIN_BELOW = 9.6 -- (the cabin's bottom under the rim's hang point: park_
 local HUB_UP = R + CABIN_BELOW + DECK_H + 0.25
 
 ---------------------------------------------------------------- 1. upright
-local target = CFrame.fromMatrix(Vector3.new(hub.Position.X, GROUND + HUB_UP, hub.Position.Z), Vector3.zAxis, Vector3.yAxis)
+-- (D-1480, user: "관람차 입구가 서쪽 바라보게 90도 회전": the axle (and the station's front, +axle) runs along
+-- -X now, the entrance facing west; it was +Z, facing the gate)
+local AXLE = -Vector3.xAxis
+local target = CFrame.fromMatrix(Vector3.new(hub.Position.X, GROUND + HUB_UP, hub.Position.Z), AXLE, Vector3.yAxis)
 local delta = target * hub.CFrame:Inverse()
 wheel:PivotTo(delta * wheel:GetPivot())
 local H = hub.CFrame -- (X = the axle = world Z, Y = up)

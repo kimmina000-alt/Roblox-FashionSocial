@@ -21,7 +21,9 @@
 -- (D-1477, user: "범퍼카 서쪽 놀이공원 벽이랑 겹치는 부분 화단 넣어서 떨어트려": 7 east, was x -241.95, so a
 -- flower bed fits between its west rail and the park's west wall)
 local BUMPER = Vector3.new(-234.95, 0, -829.8) -- (the hall floor's middle, x z)
-local WHEEL = Vector3.new(-110, 0, -830) -- (the hub, x z)
+-- (D-1480, user: "… 90도 회전 시키고 슈퍼 바이킹 쪽으로 살짝 이동": turned to face west (park_wheel_frame_1115)
+-- and 30 south, 10 east: was (-110, -830); its station now runs west to x -131, its legs z -832..-768)
+local WHEEL = Vector3.new(-100, 0, -800) -- (the hub, x z)
 local G = 16.06
 
 local moved = {}
