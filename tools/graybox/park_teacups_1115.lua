@@ -27,8 +27,9 @@ local CUP_R = 19.5 -- (cups' middles from the table's middle)
 local CUP_D = 10 -- (a cup across)
 local TEAPOT_H = 13
 local CUP_COLORS = { Color3.fromRGB(70, 150, 95), Color3.fromRGB(214, 60, 58), Color3.fromRGB(244, 196, 52), Color3.fromRGB(88, 176, 228), Color3.fromRGB(52, 84, 58) }
--- (green = CupTex.glb's own, then the CupTex_<colour>.png uploads, D-1432)
-local CUP_TEXTURES = { "rbxassetid://101010709181927", "rbxassetid://110353989323099", "rbxassetid://138479259506853", "rbxassetid://84413183956101", "rbxassetid://118220460146647" }
+-- (D-1435: the user's drip picture, CupDrip_<colour>.png from tools/art/teacups_drip_v2.py:
+-- green, red, yellow, blue, dark green; D-1432's own drips were 101010709181927 / 110353989323099 / ...)
+local CUP_TEXTURES = { "rbxassetid://96347537548381", "rbxassetid://127637303435065", "rbxassetid://137053123416662", "rbxassetid://126801391100567", "rbxassetid://93907123130946" }
 
 local function quiet(p: BasePart, collide: boolean?)
 	p.Anchored = true

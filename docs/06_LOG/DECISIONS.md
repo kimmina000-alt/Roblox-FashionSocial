@@ -4792,3 +4792,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User (phone screenshot): "놀이공원 순위표 붙어 있는 벽 사이 공간 뜸 수정 / 쓰레기통 속 아이템 유효기간 24시간으로 수정".
 - The park platform (ParkRaise.ParkPlatform) ends at z -223.4 in the place while the ranking boards and the landing slab are at z -216: a 7.6-stud hollow under the slab, open from the west sidewalk. tools/graybox/park_front_fill_1115.lua (chain step after park_raise) fills it with the platform's stone from its west face to the stair's west wall (x -151.6..-115.1, y 0..16) as ParkFrontFill; nothing when there is no gap. Play: the corner is a solid wall.
 - TrashConfig.KeepSeconds 3600 → 24 × 3600; the window's line "(24시간 뒤 사라져요)" and its 16 translations (tools/i18n/strings.tsv too).
+
+## D-1435 (2026-11-15) Tea cups with the user's drip picture
+- User: a blue drip picture + "티컵 이미지 … 새로운 걸로 교체".
+- tools/art/teacups_drip_v2.py fits the picture into the cup texture's side area (top 0.8 of the image, the swatches below kept) and re-tints the blue per cup → CupDrip_<green|red|yellow|blue|darkgreen>.png (docs/04_ART/park/teacups_tex/v2), uploaded (96347537548381, 127637303435065, 137053123416662, 126801391100567, 93907123130946) and set on the five cups (and the backup), park_teacups_1115 CUP_TEXTURES. Play: the cups show the user's drips.
+- The user's new vikings: 02_SuperViking_Tex3.glb is fine (1260 vertices, the same texture; not imported yet); 09_MiniViking_Tex3.glb is empty (132 bytes, no mesh: the export had nothing selected) — asked the user to export it again.
