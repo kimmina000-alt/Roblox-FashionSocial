@@ -4953,3 +4953,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1464 (2026-11-16) 범퍼카장 뒤쪽 벽 = 벽 하나 + 이미지
 - User (a neon bumper-car picture and a screenshot of the back wall): "범퍼카 저쪽 벽면 자잘한 거 다 삭제하고 벽 하나만 두고 이미지 넣어."
 - park_bumper_dress_1115: the eight back-wall panels, their neon bands and stars (176 parts) go; one dark wall (106.6 × 10.4) over the back rail up to the eaves carries the picture (docs/04_ART/park/bumper/bumper_wall.png, uploaded 74788882274531) in a SurfaceGui. The wall is about 10:1 and the picture 2.4:1, so not to stretch it the wall shows a full-width band of it (rows 307..462 of 672) centred on the crash in the middle. Checked on a screenshot from inside.
+
+## D-1465 (2026-11-16) 범퍼카장 뒤쪽 = 바닥부터 이미지 전체, 지붕을 그 높이로
+- User (screenshot with the lower blue wall boxed): "아래 벽도 삭제하고 이미지로 채워. 이미지 높이에 맞춰서 천장도 높여."
+- park_bumper_dress_1115: the back wall is now the whole picture (no crop), from the floor up, as wide as the floor: 106.6 × 45.2, its face on the back rail's inner face. The back rail (the bumper-car session's collision wall) is only made invisible: it still stops the cars. The eaves stand 1.8 over the picture (47 over the floor, was 20), the ridge 11 higher; posts, LED strips, bulbs, string lights and the marquee sign follow; the four soft lights hang 4 under the eaves with a range of 60. 678 parts (was 855 with the old wall pieces). Checked on a screenshot from the front; zfight pass.

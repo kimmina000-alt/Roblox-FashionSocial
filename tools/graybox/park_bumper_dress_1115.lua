@@ -39,8 +39,12 @@ local flo, fhi = bb(floor)
 local X0, X1, Z0, Z1 = flo.X, fhi.X, flo.Z, fhi.Z
 local FY = fhi.Y -- (the floor's top)
 local CX, CZ = (X0 + X1) / 2, (Z0 + Z1) / 2
-local EAVE = FY + 20
-local RIDGE = FY + 31
+-- (D-1465, user 2026-11-16: "아래 벽도 삭제하고 이미지로 채워. 이미지 높이에 맞춰서 천장도 높여.") the back
+-- wall is the whole picture from the floor up, as wide as the floor; the eaves stand just over it
+local IMG, IW, IH = "rbxassetid://74788882274531", 1584, 672
+local IMG_H = (X1 - X0) * IH / IW -- (the picture's height at the floor's width: about 45)
+local EAVE = FY + IMG_H + 1.8
+local RIDGE = EAVE + 11
 local OVER = 3 -- (the roof past the rail walls)
 
 local old = workspace["범퍼"]:FindFirstChild("ArenaDress")
@@ -130,8 +134,19 @@ for _, p in ipairs(area:GetChildren()) do
 	end
 end
 -- a yellow cap on each rail wall, a black rubber band on its inner face at car height
+local function isBackRail(p: BasePart): boolean
+	local lo, hi = bb(p)
+	return hi.X - lo.X > 50 and lo.Z < Z0
+end
 for _, p in ipairs(area:GetChildren()) do
-	if p:IsA("BasePart") and p.Name == "Rail" then
+	if p:IsA("BasePart") and p.Name == "Rail" and isBackRail(p) then
+		-- (D-1465) the back rail is hidden behind the picture: it still stops the cars
+		p.Transparency = 1
+		p.CastShadow = false
+	end
+end
+for _, p in ipairs(area:GetChildren()) do
+	if p:IsA("BasePart") and p.Name == "Rail" and not isBackRail(p) then
 		local lo, hi = bb(p)
 		local c = (lo + hi) / 2
 		local sx, sz = hi.X - lo.X, hi.Z - lo.Z
@@ -248,9 +263,9 @@ end
 -- soft lights under the roof (they also light the glossy floor at night)
 for _, fz in ipairs({ 0.25, 0.75 }) do
 	for _, fx in ipairs({ 0.3, 0.7 }) do
-		local holder = part("LightHolder", Vector3.new(1.2, 0.6, 1.2), CFrame.new(RX0 + (RX1 - RX0) * fx, under((fx - 0.5) * 2 * (HALF - OVER)) - 0.6, RZ0 + (RZ1 - RZ0) * fz), STEEL, Enum.Material.Metal)
+		local holder = part("LightHolder", Vector3.new(1.2, 0.6, 1.2), CFrame.new(RX0 + (RX1 - RX0) * fx, EAVE - 4, RZ0 + (RZ1 - RZ0) * fz), STEEL, Enum.Material.Metal)
 		local l = Instance.new("PointLight")
-		l.Range = 45
+		l.Range = 60 -- (D-1465: hung under the tie beams, the high roof)
 		l.Brightness = 1.2
 		l.Color = Color3.fromRGB(255, 226, 190)
 		l.Parent = holder
@@ -304,29 +319,20 @@ do
 end
 
 ---------------------------------------------------------------- the back wall (-z)
--- (D-1464, user 2026-11-16: "범퍼카 저쪽 벽면 자잘한 거 다 삭제하고 벽 하나만 두고 이미지 넣어" + a neon
--- bumper-car picture, docs/04_ART/park/bumper/bumper_wall.png = 74788882274531, 1584 × 672) one dark
--- wall over the back rail up to the eaves, the picture on it. The wall is a long strip (about 10:1)
--- and the picture 2.4:1, so not to stretch it the wall shows a band of it as wide as the picture,
--- centred on the crash in the middle (rows BAND_MID ± half the band).
+-- (D-1464 / D-1465, user: "벽 하나만 두고 이미지 넣어", "아래 벽도 삭제하고 이미지로 채워. 이미지 높이에
+-- 맞춰서 천장도 높여") the picture (docs/04_ART/park/bumper/bumper_wall.png) whole, from the floor up to
+-- IMG_H, as wide as the floor, its face on the hidden back rail's inner face
 do
-	local rail = nil
+	local face = Z0
 	for _, p in ipairs(area:GetChildren()) do
-		if p:IsA("BasePart") and p.Name == "Rail" then
-			local lo, hi = bb(p)
-			if hi.X - lo.X > 50 and lo.Z < Z0 then rail = p end
-		end
+		if p:IsA("BasePart") and p.Name == "Rail" and isBackRail(p) then face = select(2, bb(p)).Z end
 	end
-	local top = if rail then select(2, bb(rail)).Y + 0.5 else FY + 8
-	local z = Z0 - 1.6
 	local W = X1 - X0
-	local h = EAVE - 1.5 - top
-	local IMG, IW, IH, BAND_MID = "rbxassetid://74788882274531", 1584, 672, 385
-	local wall = part("BackWall", Vector3.new(W, h, 0.4), CFrame.new((X0 + X1) / 2, top + h / 2, z), Color3.fromRGB(16, 18, 34), Enum.Material.SmoothPlastic)
+	local wall = part("BackWall", Vector3.new(W, IMG_H, 0.4), CFrame.new((X0 + X1) / 2, FY + IMG_H / 2, face - 0.2), Color3.fromRGB(16, 18, 34), Enum.Material.SmoothPlastic)
 	local g = Instance.new("SurfaceGui")
 	g.Name = "Mural"
 	g.Face = Enum.NormalId.Back -- (+z: towards the arena)
-	g.CanvasSize = Vector2.new(2048, math.floor(2048 * h / W))
+	g.CanvasSize = Vector2.new(IW, IH)
 	g.LightInfluence = 0.15
 	g.Brightness = 1.3
 	g.Parent = wall
@@ -334,9 +340,6 @@ do
 	img.Size = UDim2.fromScale(1, 1)
 	img.BackgroundTransparency = 1
 	img.Image = IMG
-	local bandH = math.floor(IW * h / W + 0.5)
-	img.ImageRectOffset = Vector2.new(0, math.clamp(BAND_MID - bandH / 2, 0, IH - bandH))
-	img.ImageRectSize = Vector2.new(IW, bandH)
 	img.ScaleType = Enum.ScaleType.Stretch
 	img.Parent = g
 end
