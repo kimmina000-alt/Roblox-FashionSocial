@@ -6,8 +6,8 @@
 -- 쭉 깔고 화단 배치할 때 위치 조절해서 위에서 봤을 때 곡선으로 보이도록 / 화단은 사람이 못 밟게 해"):
 --   * the whole park floor is one paving: two slabs of the paths' sandstone setts (Cobblestone,
 --     206/172/132), 0.05 over the old floor (the paths, plazas and their patterns are gone)
---   * the layout is made by raised flower beds (brick curb, grass, bushes, flower clusters, some cherry
---     trees and lamp posts in them): along the park's walls, round the rides at a distance, rows
+--   * the layout is made by raised flower beds (D-1478: planters like the user's own 화단 — granite edges,
+--     soil, a close hedge of the Shrub's leafy mesh; some cherry trees and lamp posts in them): along the park's walls, round the rides at a distance, rows
 --     between the ride blocks on the west side; curves (round the tea cups, the Jumping Star) are short
 --     straight pieces turned along the arc, so from above they read as curves. Every bed has an
 --     invisible wall 12 high over it: nobody steps or jumps onto it.
@@ -43,7 +43,6 @@ local IRON = Color3.fromRGB(34, 36, 40)
 local GLOBE = Color3.fromRGB(255, 244, 222)
 local GRASS = Color3.fromRGB(88, 146, 64)
 local BRICK = Color3.fromRGB(156, 84, 64)
-local FLOWERS = { Color3.fromRGB(230, 40, 60), Color3.fromRGB(250, 200, 40), Color3.fromRGB(246, 120, 170), Color3.fromRGB(250, 130, 40), Color3.fromRGB(200, 90, 210), Color3.fromRGB(255, 255, 255) }
 
 local function part(parent: Instance, name: string, size: Vector3, cf: CFrame, color: Color3, mat: Enum.Material?, shape: Enum.PartType?, collide: boolean?): Part
 	local p = Instance.new("Part")
@@ -100,8 +99,17 @@ local function cleanModel(m: Instance)
 end
 
 ---------------------------------------------------------------- flower beds
-local CURB = 0.9 -- (the brick curb over the floor)
+-- (D-1478, user 2026-11-16: "동그란 거 다 삭제하고 동그라미친 풀 사용해서 세 번째 사진처럼 만들어서 배치해 … 세 번째
+-- 사진은 직선이고 저기에서 화단 풀을 살짝씩 옆으로 이동하면서 쭉 놓으면 곡선 되겠지", the third photo = the user's own
+-- planter by the Jumping Star (Workspace.화단): low granite edges, dark soil, the Shrub's leafy mesh packed
+-- close in one row. The flower balls and the brick / grass beds of D-1477 are gone; the beds are such
+-- planters, their hedge a row of the leafy mesh every HEDGE_STEP, each pushed a little sideways; on
+-- the curves the pieces turn along the arc and the hedge follows them.)
+local BED_W = 6.5
+local EDGE_W, EDGE_H, SOIL_H = 0.66, 1.3, 1.0
 local WALL = 12 -- (the invisible wall over each bed)
+local STONE = Color3.fromRGB(196, 194, 188)
+local SOIL = Color3.fromRGB(98, 74, 52)
 local beds = {} -- {a, b, w}: for what stands in and beside them
 local nPiece = 0
 -- one straight piece a → b (flat points), w wide, `ext` longer at both ends (joints overlap; every
@@ -116,32 +124,47 @@ local function piece(a: Vector3, b: Vector3, w: number, ext: number)
 	nPiece += 1
 	local lift = (nPiece % 2) * 0.04
 	local cf = CFrame.lookAt(Vector3.new(m.X, 0, m.Z), Vector3.new(m.X, 0, m.Z) + u)
-	local curbH = CURB + lift + 0.3
-	part(fBeds, "BedCurb", Vector3.new(w, curbH, L), cf + Vector3.new(0, G + CURB + lift - curbH / 2, 0), BRICK, Enum.Material.Brick)
-	part(fBeds, "BedGrass", Vector3.new(w - 0.7, 0.3, L - 0.2), cf + Vector3.new(0, G + CURB + lift + 0.12 - 0.15, 0), GRASS, Enum.Material.Grass, nil, false)
-	local wall = part(fBeds, "BedWall", Vector3.new(w, WALL, L), cf + Vector3.new(0, G + WALL / 2, 0), BRICK, nil, nil, true)
+	for _, sx in ipairs({ -1, 1 }) do
+		local h = EDGE_H + lift + 0.3
+		part(fBeds, "PlanterEdge", Vector3.new(EDGE_W, h, L), cf * CFrame.new(sx * (w / 2 - EDGE_W / 2), G + EDGE_H + lift - h / 2, 0), STONE, Enum.Material.Granite)
+	end
+	local sh = SOIL_H + lift + 0.3
+	part(fBeds, "PlanterSoil", Vector3.new(w - 2 * EDGE_W + 0.1, sh, L - 0.1), cf + Vector3.new(0, G + SOIL_H + lift - sh / 2, 0), SOIL, Enum.Material.Ground, nil, false)
+	local wall = part(fBeds, "BedWall", Vector3.new(w, WALL, L), cf + Vector3.new(0, G + WALL / 2, 0), STONE, nil, nil, true)
 	wall.Transparency = 1
 	wall.CanQuery = false
 	wall.CastShadow = false
 	table.insert(beds, { a = a, b = b, w = w })
 end
+-- a stone end on a bed's open end (p, the bed running along u)
+local function cap(p: Vector3, u: Vector3, w: number)
+	local cf = CFrame.lookAt(Vector3.new(p.X, 0, p.Z), Vector3.new(p.X, 0, p.Z) + u)
+	part(fBeds, "PlanterEdge", Vector3.new(w, EDGE_H + 0.32, EDGE_W), cf + Vector3.new(0, G + EDGE_H + 0.02 - (EDGE_H + 0.32) / 2, 0), STONE, Enum.Material.Granite)
+end
 local function line(points: {Vector3}, w: number?)
-	for i = 1, #points - 1 do piece(points[i], points[i + 1], w or 5, (w or 5) / 2) end
+	w = w or BED_W
+	for i = 1, #points - 1 do piece(points[i], points[i + 1], w, w / 2) end
+	local u0 = (points[2] - points[1]).Unit
+	local u1 = (points[#points] - points[#points - 1]).Unit
+	cap(points[1] - u0 * (w / 2 - EDGE_W / 2), u0, w)
+	cap(points[#points] + u1 * (w / 2 - EDGE_W / 2), u1, w)
 end
 -- an arc round c, radius r, from angle a0 to a1 (degrees; x = cos, z = sin: 90 = south, 180 = west)
 local function arc(c: Vector3, r: number, a0: number, a1: number, w: number?)
+	w = w or BED_W
 	local n = math.max(2, math.ceil(math.abs(math.rad(a1 - a0)) * r / 5))
-	local prev
+	local pts = {}
 	for i = 0, n do
 		local a = math.rad(a0 + (a1 - a0) * i / n)
-		local p = c + Vector3.new(math.cos(a), 0, math.sin(a)) * r
-		if prev then piece(prev, p, w or 5, 0.35) end
-		prev = p
+		table.insert(pts, c + Vector3.new(math.cos(a), 0, math.sin(a)) * r)
 	end
+	for i = 1, #pts - 1 do piece(pts[i], pts[i + 1], w, 0.35) end
+	cap(pts[1] - (pts[2] - pts[1]).Unit * 0.35, (pts[2] - pts[1]).Unit, w)
+	cap(pts[#pts] + (pts[#pts] - pts[#pts - 1]).Unit * 0.35, (pts[#pts] - pts[#pts - 1]).Unit, w)
 end
 
-local WX = -293.9 -- (the west wall bed's middle line)
-local EX = -55.5 -- (the east wall bed's)
+local WX = -293.2 -- (the west wall bed's middle line: inside the wall, clear of the bumper hall's rail at -289.55)
+local EX = -55.8 -- (the east wall bed's)
 -- along the walls
 line({ V(WX, -351), V(WX, -1218) })
 line({ V(EX, -283.5), V(EX, -905) })
@@ -170,9 +193,17 @@ line({ V(-178, -376.5), V(-138, -376.5) })
 
 ---------------------------------------------------------------- what grows in the beds
 local treeT = SS:FindFirstChild("FallingBlossomCherryTree")
-local bushT = SS:FindFirstChild("ArtAssets") and SS.ArtAssets:FindFirstChild("Shrub")
-local rng = Random.new(1477)
-local nTrees, nBush, nFlower = 0, 0, 0
+local leafT -- (the Shrub's leafy mesh: the circled bush; its small trunk mesh is left out, as in the user's planter)
+do
+	local shrub = SS:FindFirstChild("ArtAssets") and SS.ArtAssets:FindFirstChild("Shrub")
+	for _, d in ipairs(shrub and shrub:GetDescendants() or {}) do
+		if d:IsA("MeshPart") and (not leafT or d.Size.Magnitude > leafT.Size.Magnitude) then leafT = d end
+	end
+end
+local rng = Random.new(1478)
+local HEDGE_STEP = 5.2
+local HEDGE_SCALE = 0.7 -- (the leafy mesh 10 across → 7: a little wider than the soil, like the user's)
+local nTrees, nBush = 0, 0
 local function tree(x: number, z: number, emit: boolean, top: number)
 	if not treeT then return end
 	local t = treeT:Clone()
@@ -186,25 +217,18 @@ local function tree(x: number, z: number, emit: boolean, top: number)
 	t.Parent = fGreen
 	nTrees += 1
 end
-local function bush(at: Vector3, scale: number, top: number)
-	if not bushT then return end
-	local b = bushT:Clone()
-	cleanModel(b)
-	b:ScaleTo(scale)
-	for _, d in ipairs(b:GetDescendants()) do
-		if d:IsA("BasePart") then d.CanCollide = false d.CanQuery = false end
-	end
-	local _, s = b:GetBoundingBox()
-	b:PivotTo(CFrame.new(at.X, top + s.Y / 2 - 0.3, at.Z) * CFrame.Angles(0, rng:NextNumber(0, 2 * math.pi), 0))
+local function leaf(at: Vector3, scale: number, top: number)
+	if not leafT then return end
+	local b = leafT:Clone()
+	b.Name = "Hedge"
+	b.Size = leafT.Size * scale
+	b.CFrame = CFrame.new(at.X, top + b.Size.Y / 2 - 0.7, at.Z) * CFrame.Angles(0, rng:NextNumber(0, 2 * math.pi), 0)
+	b.Anchored = true
+	b.CanCollide = false
+	b.CanTouch = false
+	b.CanQuery = false
 	b.Parent = fGreen
 	nBush += 1
-end
-local function flowers(at: Vector3, top: number)
-	for _ = 1, 2 do
-		local o = Vector3.new(rng:NextNumber(-1, 1), 0, rng:NextNumber(-1, 1))
-		part(fGreen, "Flower", Vector3.one * rng:NextNumber(0.7, 1.0), CFrame.new(at + o + Vector3.new(0, top + 0.35, 0)), FLOWERS[rng:NextInteger(1, #FLOWERS)], Enum.Material.SmoothPlastic, Enum.PartType.Ball, false)
-	end
-	nFlower += 1
 end
 local nLamp = 0
 local function lamp(x: number, z: number, top: number)
@@ -226,30 +250,31 @@ local function lamp(x: number, z: number, top: number)
 	m.Parent = fFurn
 	nLamp += 1
 end
--- along every bed, a spot every 12: a lamp every 5th spot, a cherry tree now and then on the long wall
--- beds, flower clusters and bushes in between
+-- the hedge: one leafy bush every HEDGE_STEP along each bed, each pushed up to 0.5 sideways; a lamp
+-- every 17th spot, a cherry tree every 25th on the long wall beds (parts: the park stays under 1,500)
 local spot = 0
+local carry = 0 -- (the distance left over from the last piece: the hedge runs on round the curves)
 for _, b in ipairs(beds) do
 	local d = b.b - b.a
 	local L = d.Magnitude
 	local u = d.Unit
-	local top = G + CURB + 0.12
+	local side = Vector3.new(-u.Z, 0, u.X)
+	local top = G + SOIL_H
 	local long = L > 150
-	local s = if L < 12 then L / 2 else 4 -- (the short arc pieces: one thing in the middle of each)
-	while s <= L - 2 or (L < 12 and s == L / 2) do
+	local s = carry
+	while s < L do
 		local at = b.a + u * s
 		spot += 1
-		if spot % 5 == 0 then
+		if spot % 17 == 0 then
 			lamp(at.X, at.Z, top)
-		elseif long and spot % 7 == 3 then
-			tree(at.X, at.Z, spot % 14 == 3, top)
-		elseif spot % 2 == 1 then
-			flowers(at, top)
+		elseif long and spot % 25 == 7 then
+			tree(at.X, at.Z, spot % 50 == 7, top)
 		else
-			bush(at, 0.3 + rng:NextNumber(0, 0.1), top)
+			leaf(at + side * rng:NextNumber(-0.5, 0.5), HEDGE_SCALE * rng:NextNumber(0.9, 1.08), top)
 		end
-		s += 12
+		s += HEDGE_STEP
 	end
+	carry = if L < 12 then s - L else 0
 end
 
 ---------------------------------------------------------------- benches and bins by the beds
@@ -332,7 +357,7 @@ local function lawn(name: string, x0: number, x1: number, z0: number, z1: number
 	local n = math.floor(l / 13)
 	for j = 0, n do
 		local z = z0 + 3 + (l - 6) * j / math.max(1, n)
-		for _, x in ipairs({ x0 + 2.6, x1 - 2.6 }) do bush(V(x, z), 0.32 + rng:NextNumber(0, 0.1), G + 0.45) end
+		for _, x in ipairs({ x0 + 2.6, x1 - 2.6 }) do leaf(V(x, z), 0.4 + rng:NextNumber(0, 0.1), G + 0.52) end
 	end
 end
 lawn("LawnWestB", -286, -202, -1030, -996, 3, 2)
@@ -344,6 +369,6 @@ local n = 0
 for _, d in ipairs(root:GetDescendants()) do
 	if d:IsA("BasePart") then n += 1 end
 end
-print(("[park_paths_1116] beds %d pieces, trees %d, bushes %d, flower clusters %d, lamps %d, benches %d, bins %d; parts %d"):format(
-	nPiece, nTrees, nBush, nFlower, nLamp, nBench, nBin, n))
+print(("[park_paths_1116] beds %d pieces, trees %d, hedge bushes %d, lamps %d, benches %d, bins %d; parts %d"):format(
+	nPiece, nTrees, nBush, nLamp, nBench, nBin, n))
 return n
