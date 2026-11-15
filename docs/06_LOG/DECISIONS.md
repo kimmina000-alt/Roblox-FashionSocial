@@ -4963,3 +4963,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - The import (Workspace.Scene.Cup, one MeshPart, octagonal, UV'd for these pictures, no middle post or wheel) is kept place-only as ServerStorage.ArtAssets.TeaCupTex4. park_teacups_1115 takes TeaCupTex4 first and gives the five cups the uploads 88415588841309 (yellow), 80021590554183 (pink), 117944709363119 (purple), 131642548427433 (green), 80782978424076 (cyan).
 - This cup's floor is near its foot (0.046 of its 5.66 height, measured by a ray), so for it the seats stand at 0.42 of its height (2.38 over the saucer; riders' shoulders over the rim) on one thin leg each set 1.9 from the middle (the foot is 2.7 across at 0.4 up; measured rays: the seat corners stay inside the bowl), and a post from the floor carries the wheel 1.5 over the seats. The other templates keep their old seats.
 - Checked on screenshots (textures loaded after a PreloadAsync).
+
+## D-1467 (2026-11-16) 회전컵 주전자 = 사용자 새 주전자, 1.5배
+- User: "teapot.glb 스튜디오에 가지고 옴 / 회전컵 가운데 주전가 수정. 크기 1.5배 키우기." (copied to docs/04_ART/park/teacups4/teapot2.glb)
+- The import (Workspace.Scene.teapot, its own texture) is kept place-only as ServerStorage.ArtAssets.TeapotTex2; park_teacups_1115 takes it first and stands it 19.5 high (was 13). Its widest reach is 9.5 from the middle, the cups' inner edges 14.5. Checked on a screenshot.

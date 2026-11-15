@@ -25,7 +25,7 @@ local CENTER = Vector3.new(-111, 0, -535)
 local CUPS, PER = 5, 4
 local CUP_R = 19.5 -- (cups' middles from the table's middle)
 local CUP_D = 10 -- (a cup across)
-local TEAPOT_H = 13
+local TEAPOT_H = 19.5 -- (D-1467, user: "크기 1.5배 키우기": was 13)
 local CUP_COLORS = { Color3.fromRGB(70, 150, 95), Color3.fromRGB(214, 60, 58), Color3.fromRGB(244, 196, 52), Color3.fromRGB(88, 176, 228), Color3.fromRGB(52, 84, 58) }
 -- (D-1435: the user's drip picture, CupDrip_<colour>.png from tools/art/teacups_drip_v2.py:
 -- green, red, yellow, blue, dark green; D-1432's own drips were 101010709181927 / 110353989323099 / ...)
@@ -125,7 +125,8 @@ disc(rotor, "DeckInner", C, deckTop, 0.08, deck.Size.Y - 4.6, Color3.fromRGB(204
 disc(rotor, "DeckCentre", C, deckTop, 0.1, 16, Color3.fromRGB(244, 196, 52))
 
 -- the teapot (stands still in the middle)
-local pot = template({ "TeapotTex", "Teapot" })
+-- (D-1467, user 2026-11-16: "회전컵 가운데 주전자 수정": the user's new teapot.glb, ArtAssets.TeapotTex2)
+local pot = template({ "TeapotTex2", "TeapotTex", "Teapot" })
 if pot then
 	placeMesh(pot, ride, "Teapot", CFrame.new(C + Vector3.new(0, 0.1, 0)), function(size) return TEAPOT_H / size.Y end)
 end
