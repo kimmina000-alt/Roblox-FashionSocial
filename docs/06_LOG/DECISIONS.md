@@ -5079,3 +5079,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Ferris wheel 51.4 south (park_swap_1116 WHEEL (-100, -748.6)): its legs end at z -694.8, 10 from the super viking's base (-684.8).
 - Play: train cars run the loop (8 studs in 3 s), cabins turn, jump star cycle checked (hops, rise, drop flag ~1.5 s), no script errors.
 - 3D jumping star: today's model is 493 parts + 7 MeshParts (tower, lit poles, star, car, fence). The user's own models are 1-5 MeshParts each (FireTruck 3, TeaCup5 5, TeapotTex 1, FerrisCabin2 2, viking boats 1). A user-made jumping star as ~3-6 MeshParts (tower, star sign, the moving car apart, fence) would be far lighter, as long as it stays low-poly (≈ 10k triangles in all).
+
+## D-1482 (2026-11-16) 관람차를 슈퍼바이킹에서 20 더 북쪽으로
+- User (a screenshot where the rim seemed to touch the super viking's frame): "관람차 바이킹 안 닿는 위치로 수정해. 니가 확인해 놓고 그냥 둔 이유가 뭐냐?"
+- D-1481 had set 10 only between the ground footprints (legs ↔ base). Measured in 3D (rim and cabins over a full turn, the boat over a full swing) the nearest gap was about 20: the photo's angle put the two one behind the other. That should have been said with the shot, not left.
+- The user picked "북쪽으로 20 더": park_swap_1116 WHEEL (-100, -768.6): legs 30 from the viking's base, the turning rim / cabins about 40 from its frame and boat. Nothing else stands in the new footprint (x -132..-85, z -823..-715).

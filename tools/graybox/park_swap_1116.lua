@@ -25,7 +25,9 @@ local BUMPER = Vector3.new(-234.95, 0, -829.8) -- (the hall floor's middle, x z)
 -- and 30 south, 10 east: was (-110, -830); its station now runs west to x -131, its legs z -832..-768)
 -- (D-1481, user: "슈퍼바이킹이랑 관람차 사이도 10 스터드만 두고 관람차 남쪽으로 이동": 51.4 south, so its legs'
 -- south ends (z -694.8) are 10 from the super viking's base (z -684.8); was z -800)
-local WHEEL = Vector3.new(-100, 0, -748.6) -- (the hub, x z)
+-- (D-1482, user: "관람차 바이킹 안 닿는 위치로 수정해", seen at an angle the rim looked to touch the super viking's
+-- frame; picked "북쪽으로 20 더": legs 30 from its base, the turning rim / cabins about 40 from its frame and boat)
+local WHEEL = Vector3.new(-100, 0, -768.6) -- (the hub, x z)
 local G = 16.06
 
 local moved = {}
