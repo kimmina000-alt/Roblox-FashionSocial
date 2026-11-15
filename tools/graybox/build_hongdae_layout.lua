@@ -5203,7 +5203,12 @@ do
 		-- the north road up to z -455 by the shop block N, round the smaller 국밥집,
 		-- the east edge at x 194 to the east road, then out to x 277 over the
 		-- 광화문 yard and the (empty) village, the south edge at z 387
-		{ -415, -385 }, { -148, -385 }, { -148, -229 }, { -51.3, -229 }, { -51.3, -455 }, { 47, -455 }, { 47, -385 },
+		-- (D-1469, user 2026-11-16: "점핑스타 있는 땅에 접근 못 함 안 보이는 벽 있는 듯") the park grew west
+		-- (park_expand_1113, park_corner_beach_1115: its walls at x -297.45, z -335.8, x -182, z -279.5),
+		-- but this line still ran along the old beach edge (z -385 to x -148, then x -148 south), right
+		-- through the park's new west part: it now follows the park's new outer walls
+		{ -415, -385 }, { -297.45, -385 }, { -297.45, -335.8 }, { -182, -335.8 }, { -182, -279.5 }, { -148, -279.5 },
+		{ -148, -229 }, { -51.3, -229 }, { -51.3, -455 }, { 47, -455 }, { 47, -385 },
 		-- (D-821, user 2026-11-03) out round the club's new VIP stair hall east
 		-- of the club (x 190..248, z -298..-254, club_locker_1103.lua)
 		{ 160, -385 }, { 160, -316 }, { 194, -316 }, { 194, -299 }, { 259, -299 }, { 259, -253 }, { 194, -253 }, -- (landing wider, x 257: D-824)

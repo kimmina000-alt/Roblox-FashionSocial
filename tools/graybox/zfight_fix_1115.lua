@@ -13,6 +13,11 @@
 -- every other step: rebuilt parts are fixed again). Idempotent: a second run finds nothing.
 
 local Players = game:GetService("Players")
+-- (D-1468, user 2026-11-16, a screenshot with a red line across the park: "빨간 선 부분 번쩍거림") two
+-- faces of the SAME colour and material fight too when the material has a pattern (Slate, Sandstone,
+-- Concrete, …): the pattern is laid from each part's own size and place, so the two do not line up
+-- (the park's floor slabs overlapped 106 × 18.5 at y 16). Only plain materials are left alone.
+local PLAIN = { [Enum.Material.SmoothPlastic] = true, [Enum.Material.Neon] = true, [Enum.Material.Glass] = true, [Enum.Material.ForceField] = true }
 local EPS = 0.02
 local MAX_PASSES = 16
 
@@ -83,7 +88,7 @@ for pass = 1, MAX_PASSES do
 					local A, B = items[b[i]], items[b[j]]
 					local o1 = math.min(A.hi[o[1]], B.hi[o[1]]) - math.max(A.lo[o[1]], B.lo[o[1]])
 					local o2 = math.min(A.hi[o[2]], B.hi[o[2]]) - math.max(A.lo[o[2]], B.lo[o[2]])
-					if o1 > 0.05 and o2 > 0.05 and (A.p.Color ~= B.p.Color or A.p.Material ~= B.p.Material or A.p.Transparency ~= B.p.Transparency) then
+					if o1 > 0.05 and o2 > 0.05 and (A.p.Color ~= B.p.Color or A.p.Material ~= B.p.Material or A.p.Transparency ~= B.p.Transparency or not PLAIN[A.p.Material]) then
 						local S = if A.vol <= B.vol then A else B
 						if not done[S.p] then
 							done[S.p] = true

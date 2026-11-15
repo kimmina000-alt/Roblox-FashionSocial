@@ -4967,3 +4967,13 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1467 (2026-11-16) 회전컵 주전자 = 사용자 새 주전자, 1.5배
 - User: "teapot.glb 스튜디오에 가지고 옴 / 회전컵 가운데 주전가 수정. 크기 1.5배 키우기." (copied to docs/04_ART/park/teacups4/teapot2.glb)
 - The import (Workspace.Scene.teapot, its own texture) is kept place-only as ServerStorage.ArtAssets.TeapotTex2; park_teacups_1115 takes it first and stands it 19.5 high (was 13). Its widest reach is 9.5 from the middle, the cups' inner edges 14.5. Checked on a screenshot.
+
+## D-1468 (2026-11-16) 놀이공원 바닥 번쩍임 (같은 재질 무늬끼리 겹침)
+- User (a screenshot with a red line across the park): "빨간 선 부분 번쩍거림".
+- Cause: same-colour Slate floor slabs at y 16 overlapping: ParkPlatform and ParkPlatformNorth over 106 × 18.5 (z -474..-455.5), ParkPlatform with ParkPlatformWest / WestStrip (x -152.5..-148), North with West (0.5). D-1453's pass left same-look pairs alone, but a patterned material (Slate, Sandstone, Concrete …) is laid from each part's own size and place, so the two patterns fight.
+- zfight_fix_1115 now also takes same-look pairs unless the material is plain (SmoothPlastic, Neon, Glass, ForceField). Run on the place: 2,223 faces moved 0.02 in 8 passes (planter edges 1,435, park walls, floor slabs, cladding …), then 0.
+
+## D-1469 (2026-11-16) 점핑스타 땅을 막던 옛 맵 경계 벽
+- User: "점핑스타 있는 땅에 접근 못 함 안 보이는 벽 있는 듯".
+- Cause: build_hongdae_layout's map boundary still followed the old beach edge (z -385 from the sea to x -148, then x -148 south to z -229): after the park grew west (park_expand_1113 / park_corner_beach_1115) these two walls ran through the park's new west part, boxing in the Jumping Star (x -255.8, z -370.4).
+- The boundary polygon now follows the park's new outer walls: (-415,-385) → (-297.45,-385) → (-297.45,-335.8) → (-182,-335.8) → (-182,-279.5) → (-148,-279.5) → (-148,-229) → … as before. In the place the two old walls were removed and the six new ones added (Locked, invisible). Play check: walked from (-200,-420) over z -385 to the Jumping Star's fence (-240,-373); no script errors.
