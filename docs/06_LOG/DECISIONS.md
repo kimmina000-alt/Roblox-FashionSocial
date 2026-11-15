@@ -5102,3 +5102,12 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User (screenshots with a red line between the arms' stars and the JUMPIN STAR sign): "끝에 여기까지 올려 / 의자 사이즈 캐릭터 크기에 맞춰서 조절해 봐 안전바 조금 더 내리고".
 - ParkConfig.JumpKeys: the last slow climb and its hold go to 30 (were 22); with the Ride's JumpScale 1.384 the car's top reaches 52.1 over the foot (measured in Play), right under the sign. The hops before it are unchanged.
 - park_jumpstar_mesh_1116: CAR_SCALE 0.75 (car 9.24 x 5.24 x 3.37: seats 2.3 wide and 3 deep, shrunk about the car's back-bottom edge so it stays on the tower), the lap bar 0.5 lower on top of that (bar box 6.98..8.43 over the foot, seats 6.17 / 6.30). Play: the rider sits on the pad within one seat, the bar across the lap.
+
+## D-1486 (2026-11-16) 스낵바 2 (사용자 모델)
+- User: "기존 스낵바 옆에 크기 맞춰서 진열해 줘 가져오기 했음" (D:/Roblox/오후/3D 물/snackbar2.glb, one MeshPart "Cube.001").
+- Workspace.SnackBar2 (place only, outside Hongdae_Layout): scaled 4.839x, the same scale as the pink kiosk Scene.SnackBar (20.6 x 15.1 x 19.1), turned -90° like it (counter to the east, the path), bottom on the paving (16.11), back edge in line with the kiosk's (x -290.5), south edge at z -390.5 (10 from the jumping star's fence, as in D-1481), 1.3 south of the kiosk.
+- The CANDY APPLES snack bar (Scene.SnackBar Cube.002) was no longer in the place when this was done.
+
+## D-1487 (2026-11-16) 놀이공원 모서리 기둥을 회색 블록 안으로
+- User (a beach-side screenshot, two corner pillars boxed): "아래 회색 블록보다 튀어나온 놀이공원 벽 안쪽으로 넣어".
+- park_corner_beach_1115 (D-1418) had put three corner pillars of AmusementParkGate 2.5–3 past the park platform's edge over the beach. tools/graybox/park_pillars_inside_1116.lua moves each pillar group (pillar, base, drum, cornice, caps, dome, spire) the shortest way onto the platform, measured by rays: (-294.7, -335.8) and (-182, -335.8) 3 north, (-182, -279.5) 3 east and 3 north. The walls stay where they are (their corner now stands in front of the pillar). The other 21 pillars were already on the platform. Hongdae_Layout piece: run after park_corner_beach_1115 when the chain is rebuilt.
