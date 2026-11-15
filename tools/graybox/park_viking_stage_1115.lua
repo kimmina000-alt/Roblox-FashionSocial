@@ -9,7 +9,7 @@
 --   * a brown railing (posts, two rails) round each deck, open on the boat side between the
 --     posts so riders face the boat; round shields (green / blue / red, gold rim) on the outer rail
 --   * stairs from each deck's +z end down to the paving (with an invisible ramp to walk on)
---   * a grey metal fence round the base, open in front of both stairs
+--   * a fence round the base, open by both stairs (D-1470: the mini viking's yellow panels)
 --   * the ride's Exit moves onto the +x deck (riders get off onto the deck and walk down)
 -- Workspace["슈퍼바이킹"].Stage, built anew each run; Edit mode, after park_vikings_1115.
 
@@ -120,37 +120,53 @@ for _, sx in ipairs({ -1, 1 }) do
 	end
 end
 
--- the fence round the base, open in front of both stairs: each opening just the stairs' width
--- plus a little (D-1443: a gate in each, park_ride_gates_1115: -x = entrance, +x = exit)
-local GAP_W = 7
+-- the fence round the base, open at its two +z corners (D-1443: a gate in each, park_ride_gates_1115:
+-- -x = entrance, +x = exit). (D-1470, user 2026-11-16: "놀이공원 내 펜스 미니 바이킹에 있는 노란색 펜스로
+-- 수정. 사이즈 고정.") The fence is the mini viking's yellow panel (ServerStorage.ArtAssets.
+-- YellowFencePanel) at its own size, end to end; each opening is one panel wide (+0.3) and sits in
+-- the corner, so no run is shorter than a panel.
+local PANEL = game:GetService("ServerStorage"):WaitForChild("ArtAssets"):FindFirstChild("YellowFencePanel") :: BasePart
+assert(PANEL, "ServerStorage.ArtAssets.YellowFencePanel missing (D-1470)")
+local PL = PANEL.Size.Z
+local GAP_W = PL + 0.3
+local nPanel = 0
+-- panels a → b (ground points) end to end; when the run is not a whole number of panels they overlap
+-- a little, every other one pushed 0.03 off the line (no shared faces); an invisible wall behind each
+local function run(a: Vector3, b: Vector3)
+	local d = Vector3.new(b.X - a.X, 0, b.Z - a.Z)
+	local L = d.Magnitude
+	if L < 0.5 then return end
+	local u = d.Unit
+	local n = math.max(1, math.ceil(L / PL - 0.02))
+	for k = 0, n - 1 do
+		local t = if n == 1 then L / 2 else PL / 2 + (L - PL) * k / (n - 1)
+		local m = a + u * t
+		local cf = CFrame.lookAt(m, m + u) * CFrame.new(if nPanel % 2 == 0 then 0.03 else -0.03, PANEL.Size.Y / 2, 0)
+		nPanel += 1
+		local p = PANEL:Clone()
+		p.Name = "FencePanel"
+		p.CFrame = cf
+		p.Anchored, p.CanCollide, p.CanTouch, p.CanQuery = true, false, false, false
+		p.Parent = stage
+		local w = part("FenceWall", Vector3.new(0.6, 7, PL), cf * CFrame.new(0, 7 / 2 - PANEL.Size.Y / 2, 0), FENCE)
+		w.Transparency = 1
+		w.CanQuery = false
+	end
+end
 do
 	local hx = BASE_X - 1
 	local z0, z1 = O.Z + BASE_Z0 + 1, O.Z + BASE_Z1 - 1
 	local cx = O.X
-	local function run(a: Vector3, b: Vector3)
-		local d = b - a
-		local n = math.max(1, math.floor(d.Magnitude / 6 + 0.5))
-		for k = 0, n - 1 do
-			local p0, p1 = a + d * (k / n), a + d * ((k + 1) / n)
-			part("FencePost", Vector3.new(0.35, 3.6, 0.35), CFrame.new(p0 + Vector3.new(0, 1.8, 0)), FENCE, Enum.Material.Metal)
-			for _, y in ipairs({ 1.2, 3.3 }) do
-				bar("FenceRail", p0 + Vector3.new(0, y, 0), p1 + Vector3.new(0, y, 0), 0.22, FENCE, Enum.Material.Metal)
-			end
-		end
-		part("FencePost", Vector3.new(0.35, 3.6, 0.35), CFrame.new(b + Vector3.new(0, 1.8, 0)), FENCE, Enum.Material.Metal)
-	end
 	local y = GROUND
-	local sxs = O.X + (X1 - 3.1) -- (the stairs' middles, x)
 	local function V(x: number, z: number): Vector3 return Vector3.new(x, y, z) end
+	local ex = cx + hx - GAP_W / 2 -- (the exit's middle: the +x corner; the entrance mirrors it)
 	run(V(cx - hx, z0), V(cx + hx, z0))
 	run(V(cx + hx, z0), V(cx + hx, z1))
-	-- +z side: three runs round the two openings
-	run(V(cx + hx, z1), V(sxs + GAP_W / 2, z1))
-	run(V(sxs - GAP_W / 2, z1), V(2 * O.X - sxs + GAP_W / 2, z1))
-	run(V(2 * O.X - sxs - GAP_W / 2, z1), V(cx - hx, z1))
+	-- +z side: the exit in the +x corner, the entrance in the -x corner, one run between
+	run(V(cx + hx - GAP_W, z1), V(cx - hx + GAP_W, z1))
 	run(V(cx - hx, z1), V(cx - hx, z0))
-	stage:SetAttribute("ExitGate", CFrame.new(sxs, y, z1)) -- (gate middle; +z = out)
-	stage:SetAttribute("EntryGate", CFrame.new(2 * O.X - sxs, y, z1))
+	stage:SetAttribute("ExitGate", CFrame.new(ex, y, z1)) -- (gate middle; +z = out)
+	stage:SetAttribute("EntryGate", CFrame.new(2 * cx - ex, y, z1))
 	stage:SetAttribute("GateWidth", GAP_W)
 end
 

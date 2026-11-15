@@ -7,8 +7,8 @@
 --     panels framed in warm light and a red crown; the column above it cream with gold rings
 --   * ceiling (turns): twelve gold beams from the column to the edge, each with a strip of light
 --   * poles (turn): gold caps where each horse pole meets the floor and the ceiling
---   * a white fence round the carousel (posts, top and middle rails), open towards the park's
---     gate (+z)
+--   * a fence round the carousel, open towards the park's gate (+z): the mini viking's yellow
+--     panels (D-1470)
 -- Run in Edit mode after park_carousel_horses_1115 (it uses the HorsePole parts). Idempotent: the
 -- "Dress" folders are built anew.
 
@@ -82,32 +82,40 @@ if ring then
 	end
 end
 
--- the fence: 24 posts round, rails between them, two bays left open towards +z (the gate side)
+-- the fence round the carousel, open towards +z (the gate side). (D-1470, user 2026-11-16: "놀이공원 내
+-- 펜스 미니 바이킹에 있는 노란색 펜스로 수정. 사이즈 고정.") The mini viking's yellow panel
+-- (ServerStorage.ArtAssets.YellowFencePanel) at its own size: a ring of N panels whose sides are
+-- exactly one panel long (corner radius about R_BASE + 3.7), the one facing the gate left out, an
+-- invisible wall behind each
 do
+	local PANEL = game:GetService("ServerStorage"):WaitForChild("ArtAssets"):FindFirstChild("YellowFencePanel") :: BasePart
+	assert(PANEL, "ServerStorage.ArtAssets.YellowFencePanel missing (D-1470)")
+	local PL = PANEL.Size.Z
 	local R = R_BASE + 3.2
-	local N = 24
-	local open = { [5] = true, [6] = true } -- (bay k runs from post k to post k+1; these two face +z)
+	local N = math.max(8, math.ceil(math.pi / math.asin(PL / (2 * R))))
+	local RR = PL / (2 * math.sin(math.pi / N))
+	local OPEN_A = 6.5 / 24 * 2 * math.pi -- (the opening's middle: where the two open bays were)
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { group }
-	local function ground(p: Vector3): number -- (the park floor under the post)
+	local function ground(p: Vector3): number -- (the park floor under the panel)
 		local hit = workspace:Raycast(Vector3.new(p.X, FLOOR + 30, p.Z), Vector3.new(0, -80, 0), params)
 		return if hit then hit.Position.Y else base.Position.Y - base.Size.X / 2
 	end
-	for k = 0, N - 1 do
-		local a = (k + 0.5) / N * 2 * math.pi
-		local b = (k + 1.5) / N * 2 * math.pi
-		local p0, p1 = around(R, a, 0), around(R, b, 0)
-		p0 = Vector3.new(p0.X, ground(p0), p0.Z)
-		p1 = Vector3.new(p1.X, ground(p1), p1.Z)
-		part(still, "FencePost", Vector3.new(0.4, 3.4, 0.4), CFrame.new(p0 + Vector3.new(0, 1.7, 0)), WHITE, nil, nil, true)
-		part(still, "FencePostCap", Vector3.one * 0.55, CFrame.new(p0 + Vector3.new(0, 3.5, 0)), GOLD, nil, Enum.PartType.Ball)
-		if not open[k] then
-			for _, h in ipairs({ 3.1, 1.6 }) do
-				local a3, b3 = p0 + Vector3.new(0, h, 0), p1 + Vector3.new(0, h, 0)
-				part(still, "FenceRail", Vector3.new(0.25, 0.25, (b3 - a3).Magnitude), CFrame.lookAt((a3 + b3) / 2, b3), WHITE, nil, nil, true)
-			end
-		end
+	local step = 2 * math.pi / N
+	for k = 1, N - 1 do -- (k = 0: the opening)
+		local p0, p1 = around(RR, OPEN_A + (k - 0.5) * step, 0), around(RR, OPEN_A + (k + 0.5) * step, 0)
+		local m = (p0 + p1) / 2
+		m = Vector3.new(m.X, ground(m), m.Z)
+		local cf = CFrame.lookAt(m, m + (p1 - p0)) * CFrame.new(0, PANEL.Size.Y / 2, 0)
+		local p = PANEL:Clone()
+		p.Name = "FencePanel"
+		p.CFrame = cf
+		p.Anchored, p.CanCollide, p.CanTouch, p.CanQuery = true, false, false, false
+		p.Parent = still
+		local w = part(still, "FenceWall", Vector3.new(0.6, 7, PL), cf * CFrame.new(0, 7 / 2 - PANEL.Size.Y / 2, 0), WHITE, nil, nil, true)
+		w.Transparency = 1
+		w.CanQuery = false
 	end
 end
 

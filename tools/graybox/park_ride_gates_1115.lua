@@ -54,7 +54,13 @@ local function leaf(gate: Model, name: string, h: Vector3, d: Vector3, len: numb
 	m:SetAttribute("Hinge", hinge)
 	m:SetAttribute("OpenYaw", yawTo(d, openTo))
 	local H = style.height
-	if style.move or style.panel then
+	if style.fixed then -- (D-1470) the yellow panel at its own size, from the hinge along d
+		local p = style.fixed:Clone()
+		p.Name = "LeafPanel"
+		p.CFrame = hinge * CFrame.new(0, p.Size.Y / 2, -p.Size.Z / 2)
+		quiet(p)
+		p.Parent = m
+	elseif style.move or style.panel then
 		local p = style.move or style.panel:Clone()
 		if not style.move then p.Name = "LeafPanel" end
 		if style.move then H = p.Size.Y end -- (the user's panel keeps its height)
@@ -189,19 +195,23 @@ if mini then
 	made += 2
 end
 
----------------------------------------------------------------- 슈퍼바이킹 (grey metal fence)
+---------------------------------------------------------------- 슈퍼바이킹 (D-1470: yellow panels)
 local super = workspace:FindFirstChild("슈퍼바이킹")
 local stage = super and super:FindFirstChild("Stage")
 if stage and stage:GetAttribute("EntryGate") then
 	local f = freshFolder(super)
-	local style = { height = 3.6, color = GREY }
+	-- one leaf each, the mini viking's yellow panel at its own size (the opening is a panel + 0.3,
+	-- in the fence's corner): hinged at the corner, the entrance swings in, the exit out
+	local panel = game:GetService("ServerStorage"):WaitForChild("ArtAssets"):FindFirstChild("YellowFencePanel")
+	local style = if panel then { fixed = panel } else { height = 3.6, color = GREY }
 	local w = stage:GetAttribute("GateWidth") :: number
 	for _, mode in ipairs({ "Entry", "Exit" }) do
 		local c = stage:GetAttribute(mode .. "Gate") :: CFrame
-		local a = c.Position + Vector3.new(w / 2, 0, 0)
-		local b = c.Position - Vector3.new(w / 2, 0, 0)
-		gate(f, if mode == "Entry" then "Entrance" else "Exit", mode, a, b, Vector3.new(0, 0, -1), style)
-		sign(f, CFrame.new(c.Position + Vector3.new((if mode == "Entry" then 1 else -1) * (w / 2 + 1.2), 0, 1.2)),
+		local out = if mode == "Entry" then -1 else 1 -- (the corner's side, x)
+		local corner = c.Position + Vector3.new(out * w / 2, 0, 0)
+		local inner = c.Position - Vector3.new(out * w / 2, 0, 0)
+		gate(f, if mode == "Entry" then "Entrance" else "Exit", mode, corner, inner, Vector3.new(0, 0, -1), style, { leaves = "one" })
+		sign(f, CFrame.new(c.Position + Vector3.new(-out * (w / 2 + 1.2), 0, 1.6)),
 			if mode == "Entry" then "타는 곳 ENTRANCE" else "출구 EXIT",
 			if mode == "Entry" then Color3.fromRGB(214, 98, 44) else Color3.fromRGB(46, 140, 80))
 	end

@@ -254,26 +254,40 @@ do
 	ride.Parent = owner
 end
 
----------------------------------------------------------------- the queue fence (grey, open in front)
+---------------------------------------------------------------- the queue fence (open in front)
+-- (D-1470, user 2026-11-16: "놀이공원 내 펜스 미니 바이킹에 있는 노란색 펜스로 수정. 사이즈 고정.") the
+-- mini viking's yellow panel (ServerStorage.ArtAssets.YellowFencePanel) at its own size: a ring of N
+-- panels whose sides are exactly one panel long, the one facing FACE left out (the opening), an
+-- invisible wall behind each panel
 do
 	local R = 11
-	local N = 20
-	for k = 0, N - 1 do
-		local a0, a1 = k / N * 2 * math.pi, (k + 1) / N * 2 * math.pi
-		local mid = (a0 + a1) / 2
-		local open = math.abs(math.atan2(math.sin(mid), math.cos(mid))) < 0.45 -- (two bays face FACE)
-		local p0 = (L(R * math.sin(a0), 0, R * math.cos(a0))).Position
-		local p1 = (L(R * math.sin(a1), 0, R * math.cos(a1))).Position
-		part("FencePost", Vector3.new(0.3, 3.4, 0.3), CFrame.new(p0 + Vector3.new(0, 1.7, 0)), GREY, Enum.Material.Metal, nil, true)
-		if not open then
-			for _, h in ipairs({ 1.0, 3.0 }) do
-				beam("FenceRail", p0 + Vector3.new(0, h, 0), p1 + Vector3.new(0, h, 0), 0.18, GREY)
-			end
-			for f = 1, 5 do -- vertical bars between the rails
-				local q = p0:Lerp(p1, f / 6)
-				part("FenceBar", Vector3.new(0.1, 2.0, 0.1), CFrame.new(q + Vector3.new(0, 2.0, 0)), GREY, Enum.Material.Metal)
-			end
-		end
+	local PANEL = game:GetService("ServerStorage"):WaitForChild("ArtAssets"):FindFirstChild("YellowFencePanel") :: BasePart
+	assert(PANEL, "ServerStorage.ArtAssets.YellowFencePanel missing (D-1470)")
+	local PL = PANEL.Size.Z
+	local N = math.max(6, math.floor(math.pi / math.asin(PL / (2 * R)) + 0.5))
+	local RR = PL / (2 * math.sin(math.pi / N)) -- (the ring's corner radius)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { owner }
+	local function ground(p: Vector3): number
+		local hit = workspace:Raycast(p + Vector3.new(0, 20, 0), Vector3.new(0, -40, 0), params)
+		return if hit then hit.Position.Y else p.Y
+	end
+	local step = 2 * math.pi / N
+	for k = 1, N - 1 do -- (k = 0: the opening, facing FACE)
+		local p0 = (L(RR * math.sin((k - 0.5) * step), 0, RR * math.cos((k - 0.5) * step))).Position
+		local p1 = (L(RR * math.sin((k + 0.5) * step), 0, RR * math.cos((k + 0.5) * step))).Position
+		local m = (p0 + p1) / 2
+		m = Vector3.new(m.X, ground(m), m.Z)
+		local cf = CFrame.lookAt(m, m + (p1 - p0) * Vector3.new(1, 0, 1)) * CFrame.new(0, PANEL.Size.Y / 2, 0)
+		local p = PANEL:Clone()
+		p.Name = "FencePanel"
+		p.CFrame = cf
+		p.Anchored, p.CanCollide, p.CanTouch, p.CanQuery = true, false, false, false
+		p.Parent = owner
+		local w = part("FenceWall", Vector3.new(0.6, 7, PL), cf * CFrame.new(0, 7 / 2 - PANEL.Size.Y / 2, 0), GREY, nil, nil, true)
+		w.Transparency = 1
+		w.CanQuery = false
 	end
 	-- the Enter / Exit signs at the opening
 	for _, s in ipairs({ { -1, "ENTER", Color3.fromRGB(230, 40, 40) }, { 1, "EXIT", Color3.fromRGB(40, 140, 80) } }) do

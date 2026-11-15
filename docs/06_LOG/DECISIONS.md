@@ -4977,3 +4977,25 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: "점핑스타 있는 땅에 접근 못 함 안 보이는 벽 있는 듯".
 - Cause: build_hongdae_layout's map boundary still followed the old beach edge (z -385 from the sea to x -148, then x -148 south to z -229): after the park grew west (park_expand_1113 / park_corner_beach_1115) these two walls ran through the park's new west part, boxing in the Jumping Star (x -255.8, z -370.4).
 - The boundary polygon now follows the park's new outer walls: (-415,-385) → (-297.45,-385) → (-297.45,-335.8) → (-182,-335.8) → (-182,-279.5) → (-148,-279.5) → (-148,-229) → … as before. In the place the two old walls were removed and the six new ones added (Locked, invisible). Play check: walked from (-200,-420) over z -385 to the Jumping Star's fence (-240,-373); no script errors.
+
+## D-1470 (2026-11-16) 놀이공원 펜스 = 미니바이킹의 노란 펜스, 크기 고정
+- User: "놀이공원 내 펜스 미니 바이킹에 있는 노란색 펜스로 수정. 사이즈 고정."
+- The mini viking's yellow FencePanel (MeshPart 0.43 × 6.16 × 8.10) is kept place-only as ServerStorage.ArtAssets.YellowFencePanel and used at its own size everywhere, with an invisible 0.6 × 7 collision wall behind each panel:
+  - park_carousel_dress_1115: the white post-and-rail ring becomes a ring of 19 panels (20 sides exactly one panel long, corner radius 25.9), the side facing the gate left open.
+  - park_jumpingstar_1115: the grey ring becomes 7 panels (8 sides, radius 10.6), the side facing +x open (Enter / Exit signs kept).
+  - park_viking_stage_1115 (super viking): panels end to end round the base; a run that is not a whole number of panels overlaps a little (every other panel 0.03 off the line). The two openings are now one panel + 0.3 wide and sit in the +z corners, so no run is shorter than a panel.
+  - park_ride_gates_1115: the super viking's gates are one yellow panel each (style.fixed, not stretched), hinged at the corner: the entrance swings in, the exit out. The mini viking is unchanged.
+  - The mini viking's 15 grey deck panels got the yellow colour (place edit).
+- The bumper cars' fence was already the user's yellow panels. Not changed: the ferris wheel station's deck and stair handrails, the main gate's iron fence.
+- Play: walking into the carousel, the Jumping Star and the super viking fences stops at the panels; no script errors.
+
+## D-1471 (2026-11-16) 놀이공원 길 디자인
+- User: "놀이공원 길 디자인 구현" + photos (Everland from the air, Lotte World's patterned floor, Everland's Global Fair street, Coney Island / Navy Pier).
+- New tools/graybox/park_paths_1116.lua → Workspace["놀이공원길"] (Paving / Green / Furniture), built anew each run, after the ride scripts and before zfight_fix_1115:
+  - Network: a gate plaza with a rosette (inside the gate, x -128..-74), a diagonal path to a round plaza round the carousel (R 40, radial terracotta / sand stripes), the promenade north up the middle (20 wide; 10 between the ferris wheel and the bumper cars), square plazas where it jogs, a round north plaza (R 30, rosette), an end plaza; branch paths to the Jumping Star, the snack stands, the mini viking (with an apron along its fence), the teacups, the super viking's gates, the train / jumper boat, Eureka, the coaster, the sky cycle.
+  - Paving: sandstone setts (Cobblestone, 206/172/132) with terracotta brick edges, cross bands and diamond medallions. Every layer has its own height above the floor (branch 0.05 / 0.08, path 0.11 / 0.14 / 0.17, plaza 0.20 / 0.23 / 0.26 / 0.29): checked, no shared faces.
+  - The park floor (ParkPlatform*) is now a mid grey (150/148/144) so the paths show; the old colour is in the attribute OrigColor.
+  - Six lawns with a brick curb, 30 cherry trees (ServerStorage.FallingBlossomCherryTree, scripts stripped, falling petals on every second or third tree, an invisible trunk post to collide) and 104 small bushes (ArtAssets.Shrub at 0.32-0.42).
+  - Furniture only where nothing stands and off the paving: 61 lamp posts (three white globes, a PointLight), 15 benches (the bus stop's Park Bench), 12 bins, 7 tulip beds, 13 flower-basket banner poles.
+  - 1,471 parts (zone budget 1,500).
+- Play: walked gate plaza → carousel plaza → promenade → super viking branch, and onto a lawn: smooth (heights 20.4-20.8); no script errors.
