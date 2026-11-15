@@ -4697,3 +4697,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1398 Earl Grey tea: the americano's sip (2026-11-14)
 - User: "얼그레이티 마시는 소리 안 남 아메리카노 마시는 소리로 넣어 다른 거 또 소리 없는 거 있나". The tea used the default cup gulp 9114171855 (0.9 s, quiet): it played (checked in Play), but was hardly heard. SnackService SIP_SOUND.tea = 102811247160851 (iced americano's sip).
 - Every snack / drink sound was loaded in Play: all play. Still on the same short gulp: smoothie, bluelemonade, barleytea, sikhye, yuja, omija, greentea (cups) and bananamilk, can_cider / can_cola / can_orange / can_lemonade / can_blueade (bottles): asked the user.
+
+## D-1419 A Seoul night: navy sky, lit windows and buildings, warm street lamps (2026-11-15)
+- Player feedback "밤에 무섭다" (PLAYER_FEEDBACK.md 11-15); user: "서울 야경 조사해" (docs/04_ART/NIGHT_SEOUL.md) → "3까지 해 봐" (options 1-3).
+- SeoulNightController (client): (1) sky and ambient blended in at dusk 17.5-19.5 and out at dawn 5-6.5: Ambient (88, 90, 112), OutdoorAmbient (100, 106, 140), Atmosphere colour (70, 80, 125) with a warm decay (140, 95, 70) and haze 1.4 (a navy sky with a city glow low on it), exposure +0.25; (2) 70 % of the window panes (WindowGlass, Window2F, the OH24 tower's TowerSlit; picked from their place, the same for everyone; a fifth of them cool white) turn Neon warm at night; the BG_* buildings' facade photos get a self-lit copy (SurfaceGui, LightInfluence 0) at night; (3) street lamps 3,000 K (255, 196, 140): LampHead spot lights range 40 / brightness 2.4 / angle 120, the StreetDress street lights' surface lights warm, range 50.
+- Play 23:00 (images/2026-11-15/night_before_23h.jpg → night_after_23h.jpg, night_after_facades.jpg): navy sky, lit windows, the facade row glowing, warm horizon; at 14:00 everything back to the day values (Ambient 70 grey, Atmosphere 200 grey, no facades, no lit windows).
+
