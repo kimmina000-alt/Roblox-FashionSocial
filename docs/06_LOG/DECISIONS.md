@@ -4763,3 +4763,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - The user imported the *_Tex2 boats: ArtAssets.VikingBoatMini_Tex2 / VikingBoatSuper_Tex2 (textures 111530873435434 / 120207718676290), both rides and their _Backup copies rebuilt with them (boat heights 4.27 / 6.91; riders' shoulders now over the wall).
 - Seat buttons: none before sitting (the main button seats you); while seated and the boat still stands, the free seats of your own boat show the + button and a click / tap moves you there (ParkRideService: "Board", same ride, seat# while riding = move; refused while swinging). Play check: no + before sitting, 7 shown after sitting on seat 1, a click on seat 8's button moved the rider to seat 8.
 - Super viking: no braces and no zig-zag truss between the legs (park_vikings_1115 braces = {}).
+
+## D-1430 (2026-11-15) Viking: no + marks, press the seat itself
+- User: "플러스 모양 그냥 없애 그냥 누르면 앉게 해".
+- The seat buttons are invisible (a transparent button about one seat big, 3 × 2.6 studs, over each seat pan). While the boat stands still and you are near: pressing a free seat seats you there; already on that boat, it moves you there. The main button still takes the first free seat.
+- Play check: nothing drawn over the seats; a click on seat 6 seated the player on 6; in the next stop a click on seat 3 moved them to 3; a click while swinging did nothing.

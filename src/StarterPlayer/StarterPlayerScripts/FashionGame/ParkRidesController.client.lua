@@ -781,10 +781,10 @@ local function pressMain()
 end
 mainButton.MouseButton1Click:Connect(pressMain)
 
--- (D-1428, user 2026-11-15: "바이킹 비어 있는 자리 클릭하면 자리 선택해서 앉을 수 있게") the main
--- button seats you; (D-1429, user: "앉기 전에 + 뜨는 거 지우고 앉은 상태에서 운행 시작 전에는 클릭해서
--- 자리 이동") then, while the boat still stands, every free seat of YOUR boat shows a round +
--- button: a click or tap there moves you to that seat.
+-- (D-1428, user 2026-11-15: "바이킹 비어 있는 자리 클릭하면 자리 선택해서 앉을 수 있게"; D-1430:
+-- "플러스 모양 그냥 없애 그냥 누르면 앉게 해") while a viking stands still and you are near it, every
+-- free seat is an invisible button over the seat itself: a click or tap there seats you on it, or,
+-- already on that boat, moves you to it. The main button still takes the first free seat.
 type SeatPick = { ride: Model, index: number, gui: BillboardGui }
 local seatPicks: {SeatPick} = {}
 local pickFolder = Instance.new("Folder")
@@ -803,7 +803,7 @@ pickHolder.Parent = workspace
 
 local function pickSeat(ride: Model, index: number)
 	local current = mySlot
-	if busy or not current or current.ride ~= ride then return end
+	if busy or (current and current.ride ~= ride) then return end
 	busy = true
 	local ok, result = remote:InvokeServer("Board", ride, index)
 	if ok and typeof(result) == "table" then
@@ -823,10 +823,10 @@ addSeatPicks = function(model: Model)
 		local anchor = Instance.new("Attachment")
 		anchor.Name = model.Parent and model.Parent.Name .. index or tostring(index)
 		anchor.Parent = pickHolder
-		anchor.WorldCFrame = model:GetPivot() * rel * CFrame.new(0, 2.4, 0) -- (head high: over the boat's wall)
+		anchor.WorldCFrame = model:GetPivot() * rel * CFrame.new(0, 1.2, 0) -- (over the seat pan)
 		local g = Instance.new("BillboardGui")
 		g.Name = "Seat" .. index
-		g.Size = UDim2.fromOffset(34, 34)
+		g.Size = UDim2.fromScale(3, 2.6) -- (studs: about one seat)
 		g.AlwaysOnTop = false -- (AlwaysOnTop billboards were not drawn in the Studio test)
 		g.Active = true
 		g.MaxDistance = 80
@@ -835,20 +835,9 @@ addSeatPicks = function(model: Model)
 		g.Parent = pickFolder
 		local b = Instance.new("TextButton")
 		b.Size = UDim2.fromScale(1, 1)
-		b.BackgroundColor3 = Color3.fromRGB(255, 110, 170)
-		b.TextColor3 = Color3.new(1, 1, 1)
-		b.Font = Enum.Font.GothamBold
-		b.TextSize = 22
-		b.Text = "+"
+		b.BackgroundTransparency = 1 -- (nothing drawn: the seat itself is what you press)
+		b.Text = ""
 		b.Parent = g
-		local corner = Instance.new("UICorner")
-		corner.CornerRadius = UDim.new(1, 0)
-		corner.Parent = b
-		local stroke = Instance.new("UIStroke")
-		stroke.Color = Color3.new(1, 1, 1)
-		stroke.Thickness = 2
-		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
-		stroke.Parent = b
 		b.Activated:Connect(function() task.spawn(pickSeat, model, index) end)
 		table.insert(seatPicks, { ride = model, index = index, gui = g })
 	end
@@ -860,7 +849,7 @@ local function updateSeatPicks(t: number)
 	for _, pick in ipairs(seatPicks) do
 		local show = false
 		local current = mySlot
-		if root and current and current.kind == "ParkViking" and current.ride == pick.ride and pick.ride.Parent then
+		if root and (current == nil or (current.kind == "ParkViking" and current.ride == pick.ride)) and pick.ride.Parent then
 			local still = stillRide[pick.ride]
 			if still == nil then
 				local pivot = pick.ride:GetPivot()
