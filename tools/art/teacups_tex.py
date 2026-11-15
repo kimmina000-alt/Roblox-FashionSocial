@@ -5,7 +5,8 @@
 # Cylindrical mapping (u = angle round the middle, v = height); seam triangles keep u continuous.
 # Writes CupTex.glb (green band) + CupTex_<colour>.png for the other cups, TeapotTex.glb.
 # (D-1436) The user's new cup.glb (no handle, a post in the middle): the post is left as it is (white),
-# and with teacups_tex/v2/CupDrip_green.png there the cup is written as CupTex2.glb with that picture.
+# and with teacups_tex/v2/CupDrip_green.png there the cup is written with that picture (CupTex2.glb;
+# D-1438: CupTex3.glb, the inside wall showing the same picture as the outside).
 # python tools/art/teacups_tex.py  (copies in docs/04_ART/park/teacups_tex)
 import json, struct, io, math, sys, numpy as np
 from PIL import Image, ImageDraw, ImageFilter
@@ -126,9 +127,12 @@ for k, t in enumerate(I):
         outP.append(v[j]); outN.append(N[t[j]]); outUV.append(uv[j])
     # the cup's inside: the outer wall again, turned in, a hair inward (and the bottom, as a floor)
     if not hand[k] and outward:
-        inner = SW_FLOOR if n[1] < -0.5 else SW_IN
+        # (D-1438, user: "티컵 안쪽도 바깥 이미지 그대로 넣어 줘") the inside wall shows the same
+        # picture as the outside (the same UVs); the inside of the bottom is the floor colour
+        is_side = abs(n[1]) < 0.95 and n[1] >= -0.5
         for j in (0, 2, 1):
-            outP.append(v[j] - n * 0.02); outN.append(-N[t[j]]); outUV.append(inner)
+            outP.append(v[j] - n * 0.02); outN.append(-N[t[j]])
+            outUV.append(uv[j] if is_side else SW_FLOOR)
 outP = np.array(outP, np.float32); outN = np.array(outN, np.float32); outUV = np.array(outUV, np.float32)
 for cname, col in CUPS.items():
     img = cup_image(col); img.save(OUT + f"CupTex_{cname}.png")
@@ -136,7 +140,7 @@ import os
 drip = OUT + "v2/CupDrip_green.png"  # (D-1435/1436: the user's drip picture when it is there)
 buf = io.BytesIO()
 (Image.open(drip).convert('RGB') if os.path.exists(drip) else cup_image(CUPS['green'])).save(buf, 'PNG')
-name = "CupTex2" if os.path.exists(drip) else "CupTex"
+name = "CupTex3" if os.path.exists(drip) else "CupTex"
 write_glb(OUT + name + ".glb", name, outP, outN, outUV, buf.getvalue())
 print("cup", len(outP) // 3, "tris, bounds", outP.min(0).round(3).tolist(), outP.max(0).round(3).tolist())
 

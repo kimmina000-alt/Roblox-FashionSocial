@@ -127,7 +127,9 @@ if pot then
 end
 
 -- the cups
-local cupT = template({ "TeaCupTex", "TeaCup" })
+-- (D-1438: TeaCupTex2 / 3 = the user's new cup, a post in the middle, 3 = the picture inside too)
+local cupT = template({ "TeaCupTex3", "TeaCupTex2", "TeaCupTex", "TeaCup" })
+local ownPost = cupT ~= nil and (cupT.Name == "TeaCupTex3" or cupT.Name == "TeaCupTex2")
 local seatRel = {}
 for k = 1, CUPS do
 	local a = (k - 1) / CUPS * 2 * math.pi
@@ -139,10 +141,12 @@ for k = 1, CUPS do
 	local sTop = deckTop + 0.65
 	local pivot = CFrame.new(at.X, sTop, at.Z)
 	local floorY = sTop + 0.6
+	local cupH = 0
 	if cupT then
 		local m = placeMesh(cupT, cup, "CupMesh", pivot, function(size) return CUP_D / math.max(size.X, size.Z) end)
 		local cf, size = m:GetBoundingBox()
 		floorY = sTop + size.Y * 0.374 -- (the cup's floor: 0.43 of its 1.15 height in the glb)
+		cupH = size.Y
 		for _, d in ipairs(m:GetDescendants()) do
 			if d:IsA("MeshPart") then
 				if CUP_TEXTURES[k] ~= "" then
@@ -154,9 +158,14 @@ for k = 1, CUPS do
 		end
 	end
 	-- steering wheel in the middle, benches round it
-	disc(cup, "WheelPost", at, floorY, 2.2, 0.5, Color3.fromRGB(150, 155, 160)).Material = Enum.Material.Metal
-	disc(cup, "Wheel", at, floorY + 2.2, 0.22, 2.6, Color3.fromRGB(60, 64, 72))
-	disc(cup, "WheelHub", at, floorY + 2.42, 0.2, 0.8, Color3.fromRGB(230, 190, 70))
+	local wheelY = floorY + 2.2
+	if ownPost then
+		wheelY = sTop + cupH * 0.885 -- (the top of the user's post: 0.885 of the cup's height)
+	else
+		disc(cup, "WheelPost", at, floorY, 2.2, 0.5, Color3.fromRGB(150, 155, 160)).Material = Enum.Material.Metal
+	end
+	disc(cup, "Wheel", at, wheelY, 0.22, 2.6, Color3.fromRGB(60, 64, 72))
+	disc(cup, "WheelHub", at, wheelY + 0.22, 0.2, 0.8, Color3.fromRGB(230, 190, 70))
 	local benchTop = floorY + 1.3
 	for s = 1, PER do
 		local b = (s - 0.5) / PER * 2 * math.pi
