@@ -5008,3 +5008,9 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1473 (2026-11-16) 회전컵 가운데 = 사용자 TeapotTex (Y자 막대)
 - User: "TeapotTex 수정" + teacups_tex/v2/TeapotTex.glb (copied to docs/04_ART/park/teacups5). The model is not a teapot but a flat pink Y-shaped post with crowned ends (3.2 × 7.3 × 0.54); asked where it goes, the user answered "주전자 교체".
 - Kept place-only as ServerStorage.ArtAssets.TeapotTex3 (the import removed from Workspace); park_teacups_1115 takes it first and stands it TEAPOT_H (19.5) high in the middle: 8.5 wide, 1.45 thick. Swapped in the place; checked on a screenshot.
+
+## D-1474 (2026-11-16) 회전컵 가운데 Y자 막대 1.5배 + 제자리 천천히 회전
+- User: "사이즈 1.5배 키우기 제자리에서 천천히 회전하기".
+- park_teacups_1115: TEAPOT_H 19.5 → 29.25 (12.8 wide); the ride's attribute PotPeriod = 24 (seconds a turn).
+- ParkRidesController: each tea cup ride's "Teapot" turns about the ride's middle, one turn per PotPeriod, all the time (running or not), from the server clock ((t / period) % 1), moved like the other ride parts (moveModel).
+- Play: turned 30° in 2 s (24 s a turn); no script errors. Studio script source hash = git.

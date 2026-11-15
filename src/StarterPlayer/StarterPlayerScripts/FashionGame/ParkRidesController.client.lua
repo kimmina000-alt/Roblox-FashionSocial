@@ -82,7 +82,7 @@ local swings: {{ model: Model, seat: Model?, amp: number, phase: number }} = {}
 local springs: {{ model: Model, rocker: Model?, base: CFrame }} = {}
 local slides: {Model} = {}
 local vikings: {{ model: Model, swing: Model?, rel: CFrame }} = {} -- (D-1425)
-local teacups: {{ model: Model, rotor: Model?, rel: CFrame }} = {} -- (D-1432)
+local teacups: {{ model: Model, rotor: Model?, rel: CFrame, pot: Model?, potRel: CFrame }} = {} -- (D-1432)
 local jumpstars: {{ model: Model, car: Model?, rel: CFrame }} = {} -- (D-1457)
 local seatRides: {Model} = {} -- (vikings, tea cups, jumping star: seats picked, a shared run)
 
@@ -282,7 +282,15 @@ register("ParkViking", addViking)
 -- (D-1432) Tea cups: the Rotor turns with the table, each Cup<k> turns with it and spins itself.
 register("ParkTeaCups", function(model: Model)
 	local rotor = model:FindFirstChild("Rotor") :: Model?
-	table.insert(teacups, { model = model, rotor = rotor, rel = if rotor then model:GetPivot():Inverse() * rotor:GetPivot() else CFrame.new() })
+	-- (D-1474) the middle piece turns slowly on its own, all the time (the ride's PotPeriod, seconds a turn)
+	local pot = model:FindFirstChild("Teapot") :: Model?
+	table.insert(teacups, {
+		model = model,
+		rotor = rotor,
+		rel = if rotor then model:GetPivot():Inverse() * rotor:GetPivot() else CFrame.new(),
+		pot = pot,
+		potRel = if pot then model:GetPivot():Inverse() * pot:GetPivot() else CFrame.new(),
+	})
 	table.insert(seatRides, model)
 	for index = 1, ParkConfig.rideSeatCount(model) do
 		table.insert(slots, {
@@ -494,6 +502,10 @@ local function animate(t: number, dt: number)
 		if tc.model.Parent and cameraNear(pivot.Position, true) then
 			local turn = ParkConfig.teacupState(tc.model, t)
 			if tc.rotor then moveModel(tc.rotor, pivot * CFrame.Angles(0, turn, 0) * tc.rel) end
+			local potPeriod = tc.model:GetAttribute("PotPeriod")
+			if tc.pot and tc.pot.Parent and type(potPeriod) == "number" and potPeriod > 0 then
+				moveModel(tc.pot, pivot * CFrame.Angles(0, ((t / potPeriod) % 1) * 2 * math.pi, 0) * tc.potRel)
+			end
 			for cup = 1, ParkConfig.teacupCount(tc.model) do
 				local m = tc.model:FindFirstChild("Cup" .. cup)
 				local cf = ParkConfig.teacupCFrame(tc.model, cup, t)

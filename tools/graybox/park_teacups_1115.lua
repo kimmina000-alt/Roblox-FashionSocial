@@ -25,7 +25,7 @@ local CENTER = Vector3.new(-111, 0, -535)
 local CUPS, PER = 5, 4
 local CUP_R = 19.5 -- (cups' middles from the table's middle)
 local CUP_D = 10 -- (a cup across)
-local TEAPOT_H = 19.5 -- (D-1467, user: "크기 1.5배 키우기": was 13)
+local TEAPOT_H = 29.25 -- (D-1467, user: "크기 1.5배 키우기": was 13; D-1474, the Y post: again 1.5x, was 19.5)
 local CUP_COLORS = { Color3.fromRGB(70, 150, 95), Color3.fromRGB(214, 60, 58), Color3.fromRGB(244, 196, 52), Color3.fromRGB(88, 176, 228), Color3.fromRGB(52, 84, 58) }
 -- (D-1435: the user's drip picture, CupDrip_<colour>.png from tools/art/teacups_drip_v2.py:
 -- green, red, yellow, blue, dark green; D-1432's own drips were 101010709181927 / 110353989323099 / ...)
@@ -219,6 +219,7 @@ ride:SetAttribute("Cups", CUPS)
 ride:SetAttribute("SeatsPerCup", PER)
 ride:SetAttribute("TurnPeriod", 14) -- (Ramp + Hold = 28 s at full speed: 2 table turns, 7 cup spins)
 ride:SetAttribute("CupPeriod", 4)
+ride:SetAttribute("PotPeriod", 24) -- (D-1474, user: "제자리에서 천천히 회전하기": the middle piece, one turn in 24 s, always)
 ride:SetAttribute("Board", 15)
 ride:SetAttribute("Ramp", 4)
 ride:SetAttribute("Hold", 24)
