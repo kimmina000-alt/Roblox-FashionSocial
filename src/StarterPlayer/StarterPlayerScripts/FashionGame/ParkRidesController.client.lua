@@ -119,9 +119,13 @@ local function addCarousel(model: Model)
 			kind = "ParkCarousel", ride = model, slot = horse, key = "Rider",
 			-- (D-1420) a stopped carousel (ParkConfig.RidesRunning) leaves its horses where they stand:
 			-- the rider sits on the horse there, not where the turning clock would put it
+			-- (D-1428, user: "회전목마 말에 조금 더 뒤쪽에 앉기 기둥에 안 겹치게") the rider sits SeatBack
+			-- studs behind the pole (the horse's pivot is on the pole, LookVector = the way it rides)
 			seat = function(t: number): CFrame?
-				if not ridesRunningNow() and horse and horse:IsA("Model") then return horse:GetPivot() end
-				return ParkConfig.horseCFrame(model, index, t)
+				local back = CFrame.new(0, attrNumber(model, "SeatDrop", 0), attrNumber(model, "SeatBack", 1.5))
+				if not ridesRunningNow() and horse and horse:IsA("Model") then return horse:GetPivot() * back end
+				local cf = ParkConfig.horseCFrame(model, index, t)
+				return cf and cf * back
 			end,
 		})
 	end
@@ -154,6 +158,7 @@ local function addSpring(model: Model)
 end
 
 -- (D-1425) Viking: the Swing model turns about the axle (the Ride's pivot); a rider per seat.
+local addSeatPicks: ((Model) -> ())? = nil -- (D-1428, set below with the UI)
 local function addViking(model: Model)
 	local swing = model:FindFirstChild("Swing") :: Model?
 	table.insert(vikings, { model = model, swing = swing, rel = if swing then model:GetPivot():Inverse() * swing:GetPivot() else CFrame.new() })
@@ -165,6 +170,11 @@ local function addViking(model: Model)
 			end,
 		})
 	end
+	task.spawn(function()
+		while not addSeatPicks do task.wait(0.2) end -- (the UI part of this script sets it)
+		local add = addSeatPicks
+		if add then add(model) end
+	end)
 end
 
 -- Floating tubes (rideable) and decorations on the sea (beach).
@@ -771,6 +781,99 @@ local function pressMain()
 end
 mainButton.MouseButton1Click:Connect(pressMain)
 
+-- (D-1428, user 2026-11-15: "바이킹 비어 있는 자리 클릭하면 자리 선택해서 앉을 수 있게") while a
+-- viking stands still, every free seat shows a round + button (near the boat, not riding); a click
+-- or tap there takes that seat. The main button still takes the first free one.
+type SeatPick = { ride: Model, index: number, gui: BillboardGui }
+local seatPicks: {SeatPick} = {}
+local pickFolder = Instance.new("Folder")
+pickFolder.Name = "VikingSeatPicks"
+pickFolder.Parent = playerGui
+local pickHolder = Instance.new("Part")
+pickHolder.Name = "VikingSeatPickAnchors"
+pickHolder.Anchored = true
+pickHolder.CanCollide = false
+pickHolder.CanQuery = false
+pickHolder.CanTouch = false
+pickHolder.Transparency = 1
+pickHolder.Size = Vector3.new(0.2, 0.2, 0.2)
+pickHolder.CFrame = CFrame.new()
+pickHolder.Parent = workspace
+
+local function pickSeat(ride: Model, index: number)
+	if busy or mySlot then return end
+	busy = true
+	local ok, result = remote:InvokeServer("Board", ride, index)
+	if ok and typeof(result) == "table" then
+		for _, entry in ipairs(slots) do
+			if entry.slot == result.slot and entry.key == result.key then mySlot = entry boardedAt = os.clock() end
+		end
+		setJump(false)
+	elseif typeof(result) == "string" then
+		toast(result)
+	end
+	busy = false
+end
+
+addSeatPicks = function(model: Model)
+	for index = 1, ParkConfig.vikingSeatCount(model) do
+		local rel = model:GetAttribute("Seat" .. index) :: CFrame
+		local anchor = Instance.new("Attachment")
+		anchor.Name = model.Parent and model.Parent.Name .. index or tostring(index)
+		anchor.Parent = pickHolder
+		anchor.WorldCFrame = model:GetPivot() * rel * CFrame.new(0, 2.4, 0) -- (head high: over the boat's wall)
+		local g = Instance.new("BillboardGui")
+		g.Name = "Seat" .. index
+		g.Size = UDim2.fromOffset(34, 34)
+		g.AlwaysOnTop = false -- (AlwaysOnTop billboards were not drawn in the Studio test)
+		g.Active = true
+		g.MaxDistance = 80
+		g.Adornee = anchor
+		g.Enabled = false
+		g.Parent = pickFolder
+		local b = Instance.new("TextButton")
+		b.Size = UDim2.fromScale(1, 1)
+		b.BackgroundColor3 = Color3.fromRGB(255, 110, 170)
+		b.TextColor3 = Color3.new(1, 1, 1)
+		b.Font = Enum.Font.GothamBold
+		b.TextSize = 22
+		b.Text = "+"
+		b.Parent = g
+		local corner = Instance.new("UICorner")
+		corner.CornerRadius = UDim.new(1, 0)
+		corner.Parent = b
+		local stroke = Instance.new("UIStroke")
+		stroke.Color = Color3.new(1, 1, 1)
+		stroke.Thickness = 2
+		stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Border
+		stroke.Parent = b
+		b.Activated:Connect(function() task.spawn(pickSeat, model, index) end)
+		table.insert(seatPicks, { ride = model, index = index, gui = g })
+	end
+end
+
+local function updateSeatPicks(t: number)
+	local root = ownRoot()
+	local stillRide: {[Model]: boolean} = {}
+	for _, pick in ipairs(seatPicks) do
+		local show = false
+		if root and not mySlot and pick.ride.Parent then
+			local still = stillRide[pick.ride]
+			if still == nil then
+				local pivot = pick.ride:GetPivot()
+				local reach = attrNumber(pick.ride, "Reach", 20)
+				local near = Vector3.new(root.Position.X - pivot.X, 0, root.Position.Z - pivot.Z).Magnitude <= reach
+					and math.abs(root.Position.Y - pivot.Y) <= 60
+				local _, standing = ParkConfig.vikingState(pick.ride, t)
+				still = near and standing
+				stillRide[pick.ride] = still
+			end
+			show = still and pick.ride:GetAttribute("Rider" .. pick.index) == nil
+		end
+		pick.gui.Enabled = show
+	end
+end
+
 viewButton.MouseButton1Click:Connect(function()
 	setFirstPerson(not firstPerson)
 end)
@@ -794,6 +897,7 @@ minusButton.MouseButton1Click:Connect(function() changeLevel(-1) end)
 plusButton.MouseButton1Click:Connect(function() changeLevel(1) end)
 
 local function refreshUi(t: number)
+	updateSeatPicks(t)
 	local entry = mySlot
 	if entry then
 		bar.Visible = true

@@ -117,6 +117,7 @@ quiet(r)
 carousel:SetAttribute("Radius", math.floor(radius * 100 + 0.5) / 100)
 carousel:SetAttribute("SaddleY", math.floor(saddleY * 100 + 0.5) / 100)
 carousel:SetAttribute("Bob", BOB)
+carousel:SetAttribute("SeatBack", 1.5) -- (D-1428: riders sit 1.5 behind the pole, ParkRidesController)
 print(("[park_carousel_horses_1115] horses %d, radius %.2f, saddle %.2f, poles %.2f long, roof %.1f high")
 	:format(count, radius, saddleY, ceilY - floorY, r.Size.Y))
 return count

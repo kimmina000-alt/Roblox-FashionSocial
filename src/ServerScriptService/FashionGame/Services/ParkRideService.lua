@@ -6,6 +6,7 @@
 -- Remote ParkRide (RemoteFunction) actions:
 --   "Board", ride            ferris wheel: the cabin at the bottom now;
 --                            viking (D-1425): a free seat, while the boat stands still
+--   "Board", ride, seat#     viking (D-1428): that seat
 --   "Board", ride, slot      carousel horse / swing / spring rider
 --   "Leave"                  → exit CFrame (wheel: only near the bottom)
 --   "Level", delta           swing speed −/+ (0..SwingLevels)
@@ -71,7 +72,7 @@ local function near(player: Player, position: Vector3, distance: number): boolea
 	return root ~= nil and (root.Position - position).Magnitude <= distance
 end
 
-local function board(player: Player, model: Instance, slot: Instance?): (boolean, any)
+local function board(player: Player, model: Instance, slot: Instance?, pick: number?): (boolean, any)
 	if riding[player] then return false, "이미 타고 있어요." end
 	-- (D-715) cafe staff cannot sit (CafeJobController turns the Seated state
 	-- off on duty), so a tube or a seat left them stuck, even after the shift
@@ -115,7 +116,17 @@ local function board(player: Player, model: Instance, slot: Instance?): (boolean
 		end
 		local _, still, left = ParkConfig.vikingState(model, t)
 		if not still then return false, string.format("운행 중이에요. %d초 뒤에 탈 수 있어요.", math.ceil(left)) end
-		for seat = 1, ParkConfig.vikingSeatCount(model) do
+		-- (D-1428, user: "비어 있는 자리 클릭하면 자리 선택해서 앉을 수 있게") a seat picked on the boat
+		local count = ParkConfig.vikingSeatCount(model)
+		if pick then
+			if pick % 1 ~= 0 or pick < 1 or pick > count then return false, "탈 수 없어요." end
+			local key = "Rider" .. pick
+			if model:GetAttribute(key) ~= nil then return false, "다른 사람이 앉은 자리예요." end
+			model:SetAttribute(key, player.UserId)
+			riding[player] = { kind = kind, model = model, slot = model, key = key }
+			return true, { slot = model, key = key }
+		end
+		for seat = 1, count do
 			local key = "Rider" .. seat
 			if model:GetAttribute(key) == nil then
 				model:SetAttribute(key, player.UserId)
@@ -238,7 +249,7 @@ function ParkRideService.Start()
 	local notify = Remotes:WaitForChild("ParkNotify") :: RemoteEvent
 	remote.OnServerInvoke = function(player: Player, action: any, a: any, b: any)
 		if action == "Board" and typeof(a) == "Instance" then
-			return board(player, a, if typeof(b) == "Instance" then b else nil)
+			return board(player, a, if typeof(b) == "Instance" then b else nil, if typeof(b) == "number" then b else nil)
 		elseif action == "Leave" then
 			return leave(player, a == "home")
 		elseif action == "Level" and typeof(a) == "number" then

@@ -76,13 +76,15 @@ local function cyl(parent: Instance, name: string, cf: CFrame, len: number, d: n
 	return p
 end
 
-local function boatTemplate(kind: string): MeshPart?
-	for _, n in ipairs({ "VikingBoat" .. kind .. "_Tex", "VikingBoat" .. kind }) do
-		local m = art:FindFirstChild(n)
+-- (D-1428) "_Tex2" = the boat with its walls lowered above the seats (riders see out); its glb is
+-- shorter, so it brings its own height / middle (glb units), see the specs' glb.v2
+local function boatTemplate(kind: string): (MeshPart?, string?)
+	for _, v in ipairs({ "_Tex2", "_Tex", "" }) do
+		local m = art:FindFirstChild("VikingBoat" .. kind .. v)
 		local b = m and (m:FindFirstChild("Boat") or m:FindFirstChildWhichIsA("MeshPart"))
-		if b then return b end
+		if b then return b :: MeshPart, v end
 	end
-	return nil
+	return nil, nil
 end
 
 -- one viking ride. o = the axle's middle (y = the axle); spec:
@@ -145,8 +147,11 @@ local function build(owner: Model, kind: string, o: Vector3, s)
 	end
 	cyl(frame, "Axle", CFrame.new(o), s.legX * 2 + s.leg * 2, s.leg * 0.9, Color3.fromRGB(150, 150, 155))
 
-	-- the boat
-	local tmpl = boatTemplate(kind)
+	-- the boat (its height from the glb in use: s.sy studs per glb unit)
+	local tmpl, variant = boatTemplate(kind)
+	local gv = if variant == "_Tex2" then s.glb.v2 else s.glb
+	s.height = gv.height * s.sy
+	s.glb.height, s.glb.midY = gv.height, gv.midY
 	local boatMid = Vector3.new(o.X, s.restY + s.height / 2, o.Z)
 	if tmpl then
 		local boat = tmpl:Clone()
@@ -211,6 +216,12 @@ local function build(owner: Model, kind: string, o: Vector3, s)
 		end
 	end
 	for name, value in pairs(s.ride) do ride:SetAttribute(name, value) end
+	local base = owner:FindFirstChild("Base")
+	if s.baseSize and base and base:IsA("BasePart") then -- (D-1428) the base grows with the ride
+		local top = base.Position.Y + base.Size.Y / 2
+		base.Size = Vector3.new(s.baseSize.X, base.Size.Y, s.baseSize.Y)
+		base.CFrame = CFrame.new(o.X, top - base.Size.Y / 2, o.Z)
+	end
 	-- the swinging part moves on every screen by itself: it must not shove anyone
 	for _, d in ipairs(swing:GetDescendants()) do
 		if d:IsA("BasePart") then
@@ -228,29 +239,35 @@ local mini = workspace:FindFirstChild("미니바이킹")
 if mini then
 	local deckY = 20.3
 	build(mini, "Mini", Vector3.new(-256, 40.7, -521.6), {
-		len = 25.1, width = 9.0, height = 6.4, restY = deckY + 3.5,
-		glb = { len = 6.698, width = 2.405, height = 1.698, midY = 0.945, seatTop = 0.66, seatX = 0.42, rows = { -2.708, -1.271, 1.271, 2.708 } },
+		len = 25.1, width = 9.0, sy = 3.769, restY = deckY + 3.5,
+		glb = { len = 6.698, width = 2.405, height = 1.698, midY = 0.945, seatTop = 0.66, seatX = 0.42, rows = { -2.708, -1.271, 1.271, 2.708 },
+			v2 = { height = 1.1318, midY = 0.6623 } },
 		ride = { Period = 4.2, MaxAngle = 50, Board = 15, Ramp = 8, Hold = 16, Reach = 18, Exit = Vector3.new(-243.5, deckY + 3, -521.6) },
 		legX = 6.4, footX = 8.6, footZ = 11.5, groundY = deckY, leg = 1.1,
 		braces = { 0.62 }, bulbs = 5,
-		arm = 0.8, armZ = 10.5, armBulbs = 4, panels = Vector2.new(5, 3.4),
+		arm = 0.8, armZ = 10.5, armBulbs = 4, -- (D-1428: the square boards between the arms removed)
 		frameColor = Color3.fromRGB(250, 200, 30), footColor = Color3.fromRGB(215, 35, 40),
 		hubColor = Color3.fromRGB(215, 35, 40), armColor = Color3.fromRGB(250, 200, 30),
 		boatColor = Color3.fromRGB(250, 200, 30),
 	})
 end
 
--- 슈퍼바이킹: where its blockout stood (middle x -91.6, z -648.8, base top y 18.95)
+-- 슈퍼바이킹: where its blockout stood (middle x -91.6, z -648.8, base top y 18.95).
+-- (D-1428, user: "슈퍼바이킹 1.3배 키우기", "올라가는 각도 더 높게") everything 1.3 times, the swing
+-- up to 78° (the boat's lowest corner still 0.85 over the base, checked on the meshes)
 local super = workspace:FindFirstChild("슈퍼바이킹")
 if super then
 	local baseY = 18.95
-	build(super, "Super", Vector3.new(-91.6, 65.6, -648.8), {
-		len = 50.1, width = 8.7, height = 7.3, restY = baseY + 5.6,
-		glb = { len = 13.907, width = 2.405, height = 2.02, midY = 1.106, seatTop = 1.016, seatX = 0.42, rows = { -6.29, -4.85, -3.42, -1.98, -0.54, 0.54, 1.98, 3.42, 4.85, 6.29 } },
-		ride = { Period = 6.5, MaxAngle = 62, Board = 15, Ramp = 12, Hold = 20, Reach = 34, Exit = Vector3.new(-91.6 + 13, baseY + 3, -648.8) },
-		legX = 6.8, footX = 11, footZ = 24, groundY = baseY, leg = 2.0,
+	local K = 1.3
+	build(super, "Super", Vector3.new(-91.6, baseY + 46.65 * K, -648.8), {
+		len = 50.1 * K, width = 8.7 * K, sy = 3.614 * K, restY = baseY + 5.6 * K,
+		glb = { len = 13.907, width = 2.405, height = 2.02, midY = 1.106, seatTop = 1.016, seatX = 0.42, rows = { -6.29, -4.85, -3.42, -1.98, -0.54, 0.54, 1.98, 3.42, 4.85, 6.29 },
+			v2 = { height = 1.4708, midY = 0.8318 } },
+		ride = { Period = 7.2, MaxAngle = 78, Board = 15, Ramp = 12, Hold = 20, Reach = 34 * K, Exit = Vector3.new(-91.6 + 13 * K, baseY + 3, -648.8) },
+		baseSize = Vector2.new(33.41 * K, 66.83 * K),
+		legX = 6.8 * K, footX = 11 * K, footZ = 24 * K, groundY = baseY, leg = 2.0 * K,
 		braces = { 0.35, 0.7 }, truss = true,
-		arm = 1.3, armZ = 21, armBulbs = 6,
+		arm = 1.3 * K, armZ = 21 * K, armBulbs = 6,
 		frameColor = Color3.fromRGB(128, 58, 42), footColor = Color3.fromRGB(90, 90, 95),
 		hubColor = Color3.fromRGB(150, 70, 50), armColor = Color3.fromRGB(128, 58, 42),
 		boatColor = Color3.fromRGB(140, 32, 32),

@@ -2,6 +2,7 @@
 # ends, inside, seats, bars each get their own texture area) and paint the texture from the photos
 # (mini: yellow/red with pastel star panels; super: deep red with gold trim). Writes *_Tex.glb + .png
 # (copies in docs/04_ART/park/viking_tex). python tools/art/viking_tex.py
+# (D-1428) *_Tex2.glb: the hull walls above the seat pans at half height (riders see out).
 import json,struct,sys,io,math,numpy as np
 from PIL import Image,ImageDraw,ImageFilter
 def load(p):
@@ -27,10 +28,14 @@ def comps(P,I):
     return np.array([f(t[0]) for t in I])
 W=1024
 SOLID={} # name -> (cx,cy) pixel
-def build(src,dst,style):
+def build(src,dst,style,squash=None):
     js,P,N,I=load(src)
     cid=comps(P,I); sizes={c:(cid==c).sum() for c in set(cid)}
     hullc=max(sizes,key=sizes.get)
+    if squash:  # (D-1428) lower the hull walls above the seat pans: y' = pan + (y - pan) * k
+        pan,k=squash; P=P.copy()
+        hv=np.unique(I[cid==hullc].ravel())
+        up=hv[P[hv,1]>pan]; P[up,1]=pan+(P[up,1]-pan)*k
     hv=np.unique(I[cid==hullc].ravel()); lo=P[hv].min(0); hi=P[hv].max(0); ctr=(lo+hi)/2
     img=Image.new('RGB',(W,W),(0,0,0)); d=ImageDraw.Draw(img)
     S=style
@@ -78,7 +83,7 @@ def build(src,dst,style):
     buf=io.BytesIO(); img.save(buf,'PNG'); png=buf.getvalue()
     img.save(dst.replace('.glb','.png'))
     write_glb(dst,js['nodes'][0]['name'],outP,outN,outUV,idx,png)
-    print(dst,len(idx)//3,'tris')
+    print(dst,len(idx)//3,'tris','min',outP.min(0).round(4).tolist(),'max',outP.max(0).round(4).tolist())
 def write_glb(dst,name,P,N,UV,I,png):
     blobs=[P.tobytes(),N.tobytes(),UV.tobytes(),I.tobytes(),png]
     views=[];off=0;data=b''
@@ -138,3 +143,7 @@ SUPER=dict(body=(140,32,32),band=(110,22,22),line=(230,185,80),low=(95,45,30),pa
 base="D:/Roblox/오후/3D 물/"
 build(base+"09_MiniViking.glb",base+"viking_tex/09_MiniViking_Tex.glb",MINI)
 build(base+"02_SuperViking.glb",base+"viking_tex/02_SuperViking_Tex.glb",SUPER)
+# (D-1428, user: "바이킹 둘 다 윗부분 블록 높이 낮추기. 캐릭터 시야 다 가려져서 옆이 안 보임")
+# v2: the hull walls above the seat pans at half height (seats and bars stay)
+build(base+"09_MiniViking.glb",base+"viking_tex/09_MiniViking_Tex2.glb",MINI,squash=(0.66,0.5))
+build(base+"02_SuperViking.glb",base+"viking_tex/02_SuperViking_Tex2.glb",SUPER,squash=(1.016,0.5))
