@@ -34,7 +34,8 @@ local PINKRED = Color3.fromRGB(210, 72, 100)
 local WHITE = Color3.fromRGB(242, 240, 242)
 local LEG = Color3.fromRGB(222, 226, 232)
 local CABIN_COLORS = { Color3.fromRGB(232, 120, 160), Color3.fromRGB(62, 112, 200), Color3.fromRGB(242, 200, 62), Color3.fromRGB(96, 184, 224), Color3.fromRGB(210, 70, 100) }
-local CABIN_TEXTURES = { "", "", "", "", "" } -- (pink = the glb's own, then the FerrisCabinTex_<colour>.png uploads)
+-- (pink = the glb's own 128369625673591, then the FerrisCabinTex_<colour>.png uploads: blue, yellow, sky, red)
+local CABIN_TEXTURES = { "", "rbxassetid://85623645387555", "rbxassetid://99084509303848", "rbxassetid://79850105325162", "rbxassetid://81213501938454" }
 local CABIN_SIZE = Vector3.new(6, 8, 8.4) -- (along the axle, up, across)
 local TOP = -1.6 -- (the cabin's top under the hang point)
 local TWIN_X = 3.9 -- (each ring this far from the axle's middle)
@@ -150,7 +151,9 @@ for k = 1, 64 do
 		m.Size = CABIN_SIZE
 		m.CFrame = mid
 		local tex = CABIN_TEXTURES[(k - 1) % #CABIN_TEXTURES + 1]
-		if tex ~= "" then m.TextureID = tex elseif m.TextureID == "" then m.Color = col end
+		if m.TextureID ~= "" and tex ~= "" then m.TextureID = tex elseif m.TextureID == "" then m.Color = col end
+		-- (the windows' see-through pixels only show when the part is a little transparent itself)
+		if m.TextureID ~= "" then m.Transparency = 0.02 end
 		quiet(m)
 		m.Parent = cabin
 	end
