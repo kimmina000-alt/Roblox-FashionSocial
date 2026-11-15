@@ -170,6 +170,10 @@ local BIRD_BOXES: {Box} = {
 	{ -15, 345, 21, 423 }, -- 광화문 and the hanok village
 }
 local CLUB_BOX: Box = { 29, 193, -289, -131 }
+-- (D-1459) the amusement park inside its walls (the gate's wall at z -279.5); its music fades in
+-- over PARK_FADE studs outside, i.e. from the plaza in front of the gate (z -216) on
+local PARK_BOX: Box = { -298, -46, -1450, -279.5 }
+local PARK_FADE = 75
 
 -- 1 inside the box, down to 0 at `fade` studs outside it
 local function weight(box: Box, pos: Vector3, fade: number): number
@@ -198,8 +202,8 @@ for name, id in pairs(SoundConfig.Ambience :: {[string]: number}) do
 end
 
 -- (D-718, user: the birds and the street were not heard next to the waves: raised to them)
-local MAX = { waves = 0.0825, birds = 0.45, city = 0.3 }
-local current = { waves = 0, birds = 0, city = 0 }
+local MAX = { waves = 0.0825, birds = 0.45, city = 0.3, park = 0.32 }
+local current = { waves = 0, birds = 0, city = 0, park = 0 }
 local nextAt = 0
 RunService.Heartbeat:Connect(function()
 	local camera = workspace.CurrentCamera
@@ -218,10 +222,12 @@ RunService.Heartbeat:Connect(function()
 		or (root ~= nil and root:IsA("BasePart") and ClubConfig.isInClub(root.Position))
 	local waves = if inClub then 0 else math.clamp(1 - math.max(0, pos.X - SHORE_X) / 220, 0, 1)
 	local birds = if inClub then 0 else most(BIRD_BOXES, pos, 50)
+	local park = if inClub then 0 else weight(PARK_BOX, pos, PARK_FADE)
 	local target = {
-		waves = waves,
-		birds = birds,
-		city = if inClub then 0 else (1 - waves) * (1 - 0.5 * birds),
+		waves = waves * (1 - 0.5 * park),
+		birds = birds * (1 - 0.5 * park),
+		city = if inClub then 0 else (1 - waves) * (1 - 0.5 * birds) * (1 - 0.7 * park),
+		park = park,
 	}
 	-- (D-717, user) louder while a tour or tip is on (GuideController / Coach
 	-- set the local attribute GuideActive)

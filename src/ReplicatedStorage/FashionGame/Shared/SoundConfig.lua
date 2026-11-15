@@ -27,5 +27,17 @@ return {
 		waves = 9119677305, -- Surf Ocean Wave Impact On Zuma Beach 4 (Pro Sound Effects)
 		city = 9112819963, -- Las Vegas Night Traffic 1 (Pro Sound Effects): street hum
 		birds = 9112831284, -- Morning Birds 1 (Pro Sound Effects): parks and the hanok village
+		-- (D-1459, user 2026-11-15: "놀이공원에 어울리는 배경음악 찾아서 추천해 줘. 놀이공원 입구 가까워지면
+		-- 그때부터 들리게") the park's music, from the plaza in front of the gate in. Until the user picks:
+		-- Amusement Park (APM, 128 s). Candidates (all load, Creator Store, free):
+		--   1839237742 Amusement Park (APM, 128 s) · 1836351592 Disneyland (APM, 95 s)
+		--   9046172743 Circus And Clowns (a) 60 (APM, 60 s) · 1841134066 Playful Twist (APM, 61 s)
+		--   9046748008 Holiday Bliss (APM, 70 s) · 87883706305527 Amusement Park (DistroKid, 124 s)
+		--   90761353490771 Amusement park (DistroKid, 88 s) · 103863683328306 Amusement park (DistroKid, 127 s)
+		--   111710156976120 Amusement Park 147bpm (DistroKid, 198 s)
+		park = 1839237742,
 	},
+	-- (D-1459, user: "바이킹 움직일 때 들리는 바람 소리" 101252896391536, 2 s, looped) the rides' wind:
+	-- the vikings while they swing (louder the faster), the jumping star on its big drop
+	RideWind = 101252896391536,
 }

@@ -323,12 +323,16 @@ end
 -- landing). The drops are the short gaps.
 --------------------------------------------------
 
+-- (D-1458, user 2026-11-15: "점핑스타 천천히 올라갔다가 천천히 반만 내려왔다가 다시 올라갔다가 훅
+-- 내려가는 걸로") slowly up to the top, slowly half way down, slowly up again, a moment at the top,
+-- then a sudden drop: falling faster and faster ("fall": x²) to 6 over the bottom, braking hard
+-- ("brake") to the bottom with the same speed it fell at, one small bounce.
+-- A key's third value is how the gap BEFORE it eases (default: slow out, slow in).
 ParkConfig.JumpKeys = {
-	{ 0, 0 }, { 2.4, 6 }, { 3.1, 3.5 }, { 5.2, 12 }, { 5.9, 9 }, { 8.0, 17 }, { 8.7, 14 }, { 11.0, 22 },
-	{ 12.6, 22 }, { 13.2, 11 }, { 14.3, 20 }, { 14.9, 9 }, { 16.0, 19 }, { 16.6, 7 }, { 17.8, 17 },
-	{ 18.4, 5 }, { 19.6, 14 }, { 20.2, 3 }, { 21.4, 10 }, { 22.0, 2 }, { 23.0, 6 }, { 23.6, 0.6 },
-	{ 24.4, 2.2 }, { 25.2, 0 },
+	{ 0, 0 }, { 8, 22 }, { 9.5, 22 }, { 15, 11 }, { 16, 11 }, { 21.5, 22 }, { 24, 22 },
+	{ 25.1, 6, "fall" }, { 25.5, 0, "brake" }, { 26.2, 1.2 }, { 27, 0 },
 }
+ParkConfig.JumpWindSpeed = 6 -- (studs/s down: faster than this, the wind sound plays — the big drop)
 
 -- (height of the car over its bottom place, standing still?, seconds until the next change)
 function ParkConfig.jumpStarState(model: Instance, t: number): (number, boolean, number)
@@ -344,7 +348,14 @@ function ParkConfig.jumpStarState(model: Instance, t: number): (number, boolean,
 		local a, b = keys[i], keys[i + 1]
 		if u < b[1] then
 			local x = (u - a[1]) / (b[1] - a[1])
-			x = x * x * (3 - 2 * x)
+			local ease = b[3]
+			if ease == "fall" then
+				x = x * x
+			elseif ease == "brake" then
+				x = 1 - (1 - x) * (1 - x)
+			else
+				x = x * x * (3 - 2 * x)
+			end
 			return a[2] + (b[2] - a[2]) * x, false, cycle - c
 		end
 	end
