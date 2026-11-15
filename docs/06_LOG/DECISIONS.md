@@ -5086,7 +5086,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - The user picked "북쪽으로 20 더": park_swap_1116 WHEEL (-100, -768.6): legs 30 from the viking's base, the turning rim / cabins about 40 from its frame and boat. Nothing else stands in the new footprint (x -132..-85, z -823..-715).
 
 ## D-1483 (2026-11-16) 점핑스타 = 사용자 모델
-- User: "점핑스타 만들었어 교체해 봐" (D:\Roblox\오후D 물\jumpingstar.glb, imported into Studio by the user as a Scene with Cylinder / Plane / BézierCurve).
+- User: "점핑스타 만들었어 교체해 봐" (D:/Roblox/오후/3D 물/jumpingstar.glb, imported into Studio by the user as a Scene with Cylinder / Plane / BézierCurve).
 - The import lives in ServerStorage.ArtAssets.JumpStarMesh (place only). tools/graybox/park_jumpstar_mesh_1116.lua scales it 4.5x (tower 42.9 high, car 9.2 wide: four seats 2.3 apart like the block car) and stands it on the Ride pivot facing the park's middle (+x).
 - Removed from Workspace["점핑스타"]: the block tower, stars, sign, machine box, light poles and bulbs (500 → 29 parts with the fence). Kept: fence, Enter / Exit signs, Ride (tag ParkJumpStar, Board / Exit / Reach).
 - Ride.Car now holds CarMesh + LapBarMesh (they hop with ParkConfig.jumpStarState as before); the tower mesh is CanCollide false over an invisible base disc (r 6.25, measured by rays) and pole collider.
