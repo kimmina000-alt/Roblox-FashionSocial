@@ -4697,3 +4697,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1398 Earl Grey tea: the americano's sip (2026-11-14)
 - User: "얼그레이티 마시는 소리 안 남 아메리카노 마시는 소리로 넣어 다른 거 또 소리 없는 거 있나". The tea used the default cup gulp 9114171855 (0.9 s, quiet): it played (checked in Play), but was hardly heard. SnackService SIP_SOUND.tea = 102811247160851 (iced americano's sip).
 - Every snack / drink sound was loaded in Play: all play. Still on the same short gulp: smoothie, bluelemonade, barleytea, sikhye, yuja, omija, greentea (cups) and bananamilk, can_cider / can_cola / can_orange / can_lemonade / can_blueade (bottles): asked the user.
+
+## D-1417 ♥ support button back in the top bar (2026-11-15)
+- User: "기부하기 버튼 밖으로 꺼내기". BannerController makes the ♥ SupportButton again (TopBar order 5, between 👗 and 🎁); ☰ → 💝 기부하기 still opens the same window. TopBar's wide gap before ₩ (D-1386) still goes after the last button before it (🎁).
+- Play: top row ☰ 💬 ♪ 🔒 👗 ♥ 🎁 ₩; a click on ♥ opens the 게임 후원 window (docs/06_LOG/images/2026-11-15/support_button_back.jpg). Studio source = git (hash).
+
