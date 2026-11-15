@@ -170,10 +170,11 @@ if mini then
 	end
 	local f = freshFolder(mini)
 	local y = 16.05 -- (the paving under the outer fence: panels 6.2 high at y 19.1)
-	local hingeAt = Vector3.new(-224.6, y, -545.5)
+	local DZ = 52.3 -- (D-1481: the mini viking moved 52.3 south, park_compact_1116)
+	local hingeAt = Vector3.new(-224.6, y, -545.5 + DZ)
 	local diag
 	for _, p in ipairs(fences and fences:GetChildren() or {}) do
-		if p:IsA("BasePart") and p.Name == "FencePanel" and (Vector3.new(p.Position.X, 0, p.Position.Z) - Vector3.new(-228.1, 0, -543.3)).Magnitude < 1.5 then diag = p end
+		if p:IsA("BasePart") and p.Name == "FencePanel" and (Vector3.new(p.Position.X, 0, p.Position.Z) - Vector3.new(-228.1, 0, -543.3 + DZ)).Magnitude < 1.5 then diag = p end
 	end
 	local openTo = Vector3.new(-0.829, 0, 0.559) -- (the diagonal panel's way from the hinge)
 	if diag then
@@ -187,11 +188,11 @@ if mini then
 		diag.Name = "DiagPanel"
 	end
 	-- the opening by the sign (x -224.5, z -536.2 .. -545.5) and the other one (z -501.7 .. -510.5)
-	gate(f, "Entrance", "Entry", Vector3.new(-224.5, y, -536.2), hingeAt, Vector3.new(-1, 0, 0),
+	gate(f, "Entrance", "Entry", Vector3.new(-224.5, y, -536.2 + DZ), hingeAt, Vector3.new(-1, 0, 0),
 		{ height = 6.0, move = diag, panel = fences and fences:FindFirstChild("FencePanel"), color = Color3.fromRGB(250, 200, 30) },
 		{ leaves = "one", hingeAtB = true, openTo = openTo })
-	gate(f, "Exit", "Exit", Vector3.new(-224.5, y, -510.4), Vector3.new(-224.5, y, -501.8), Vector3.new(-1, 0, 0), { height = 6.0 }, { leaves = "none" })
-	sign(f, CFrame.new(-222.4, y, -512.2), "출구 EXIT", Color3.fromRGB(46, 140, 80))
+	gate(f, "Exit", "Exit", Vector3.new(-224.5, y, -510.4 + DZ), Vector3.new(-224.5, y, -501.8 + DZ), Vector3.new(-1, 0, 0), { height = 6.0 }, { leaves = "none" })
+	sign(f, CFrame.new(-222.4, y, -512.2 + DZ), "출구 EXIT", Color3.fromRGB(46, 140, 80))
 	made += 2
 end
 

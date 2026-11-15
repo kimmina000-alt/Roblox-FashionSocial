@@ -23,7 +23,9 @@
 local BUMPER = Vector3.new(-234.95, 0, -829.8) -- (the hall floor's middle, x z)
 -- (D-1480, user: "… 90도 회전 시키고 슈퍼 바이킹 쪽으로 살짝 이동": turned to face west (park_wheel_frame_1115)
 -- and 30 south, 10 east: was (-110, -830); its station now runs west to x -131, its legs z -832..-768)
-local WHEEL = Vector3.new(-100, 0, -800) -- (the hub, x z)
+-- (D-1481, user: "슈퍼바이킹이랑 관람차 사이도 10 스터드만 두고 관람차 남쪽으로 이동": 51.4 south, so its legs'
+-- south ends (z -694.8) are 10 from the super viking's base (z -684.8); was z -800)
+local WHEEL = Vector3.new(-100, 0, -748.6) -- (the hub, x z)
 local G = 16.06
 
 local moved = {}

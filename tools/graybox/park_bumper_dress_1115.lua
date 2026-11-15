@@ -90,6 +90,7 @@ local function wedge(size: Vector3, cf: CFrame, color: Color3, mat: Enum.Materia
 end
 local function tri(a: Vector3, b: Vector3, c: Vector3, th: number, color: Color3, mat: Enum.Material?)
 	local ab, ac, bc = b - a, c - a, c - b
+	if ab:Cross(ac).Magnitude < 1e-3 then return end -- (D-1481: the gable's top triangle has two corners on one point: no NaN wedges at y -1e6)
 	local abd, acd, bcd = ab:Dot(ab), ac:Dot(ac), bc:Dot(bc)
 	if abd > acd and abd > bcd then
 		c, a = a, c

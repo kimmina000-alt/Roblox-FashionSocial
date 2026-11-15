@@ -85,6 +85,8 @@ local vikings: {{ model: Model, swing: Model?, rel: CFrame }} = {} -- (D-1425)
 local teacups: {{ model: Model, rotor: Model?, rel: CFrame, pot: Model?, potRel: CFrame }} = {} -- (D-1432)
 local jumpstars: {{ model: Model, car: Model?, rel: CFrame }} = {} -- (D-1457)
 local seatRides: {Model} = {} -- (vikings, tea cups, jumping star: seats picked, a shared run)
+-- (D-1481) peace train: cars run along a closed track (the model's PathData = "x,y,z;…" rail-top points)
+local trains: {{ model: Model, pts: {Vector3}, acc: {number}, length: number }} = {}
 
 -- (D-1441, 2P test 2026-11-15: on Player2's screen the tea cups' parts stood up to 2 × their radius
 -- from where the cups turned) Moving a Model with PivotTo while its parts are still streaming in
@@ -279,6 +281,33 @@ register("ParkSpring", addSpring)
 register("ParkSlide", function(model) table.insert(slides, model) end)
 register("FloatTube", addTube)
 register("ParkViking", addViking)
+register("ParkTrain", function(model: Model)
+	local data = model:GetAttribute("PathData")
+	if typeof(data) ~= "string" then return end
+	local pts: {Vector3} = {}
+	for x, y, z in data:gmatch("([%-%d%.]+),([%-%d%.]+),([%-%d%.]+)") do
+		table.insert(pts, Vector3.new(tonumber(x) :: number, tonumber(y) :: number, tonumber(z) :: number))
+	end
+	if #pts < 3 then return end
+	table.insert(pts, pts[1]) -- (closed)
+	local acc, total = { 0 }, 0
+	for k = 2, #pts do
+		total += (pts[k] - pts[k - 1]).Magnitude
+		acc[k] = total
+	end
+	table.insert(trains, { model = model, pts = pts, acc = acc, length = total })
+end)
+-- the point s studs along a train's track (wraps)
+local function trainAt(tr: { pts: {Vector3}, acc: {number}, length: number }, s: number): Vector3
+	s %= tr.length
+	local lo, hi = 1, #tr.acc
+	while hi - lo > 1 do
+		local mid = (lo + hi) // 2
+		if tr.acc[mid] <= s then lo = mid else hi = mid end
+	end
+	local span = tr.acc[hi] - tr.acc[lo]
+	return tr.pts[lo]:Lerp(tr.pts[hi], if span > 0 then (s - tr.acc[lo]) / span else 0)
+end
 -- (D-1432) Tea cups: the Rotor turns with the table, each Cup<k> turns with it and spins itself.
 register("ParkTeaCups", function(model: Model)
 	local rotor = model:FindFirstChild("Rotor") :: Model?
@@ -488,6 +517,24 @@ local function animate(t: number, dt: number)
 		local pivot = viking.model:GetPivot()
 		if viking.swing and viking.model.Parent and cameraNear(pivot.Position, true) then
 			moveModel(viking.swing, pivot * ParkConfig.vikingTurn(viking.model, t) * viking.rel)
+		end
+	end
+	for _, tr in ipairs(ridesRunning("ParkTrain") and trains or {}) do
+		local model = tr.model
+		if model.Parent and cameraNear(model:GetPivot().Position, true) then
+			local period = attrNumber(model, "Period", 40)
+			local gap = attrNumber(model, "CarGap", 4.6)
+			local head = (t / period % 1) * tr.length
+			for index = 1, 12 do
+				local car = model:FindFirstChild("Car" .. index)
+				if not car then break end
+				if car:IsA("Model") then
+					local s = head - (index - 1) * gap
+					local front, back = trainAt(tr, s + 1.4), trainAt(tr, s - 1.4)
+					local mid = trainAt(tr, s)
+					moveModel(car, CFrame.lookAt(mid, mid + (front - back)))
+				end
+			end
 		end
 	end
 	for _, js in ipairs(jumpstars) do

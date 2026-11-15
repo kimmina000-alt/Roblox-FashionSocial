@@ -160,16 +160,19 @@ line({ V(WX, -905), V(-190, -905) })
 line({ V(-162, -905), V(EX, -905) })
 -- the west column: a row under the bumper cars, rows between the ride blocks, a divider along their
 -- east side with openings
-line({ V(WX, -759), V(-219, -759) }) -- (clear of the hall's canopy posts at z -766.3)
-line({ V(WX, -578), V(-219, -578) })
-line({ V(WX, -484.5), V(-219, -484.5) })
-line({ V(WX, -414), V(-227, -414) })
-line({ V(-219, -759), V(-219, -728) })
-line({ V(-219, -712), V(-219, -650) })
-line({ V(-219, -632), V(-219, -578) })
-line({ V(-219, -578), V(-219, -560) })
--- round the Jumping Star (open to the north-east, its entrance faces +x)
-arc(V(-255.8, -370.4), 17.5, 30, 225)
+-- (D-1481, user: "각 기구들 사이 거리는 10스터드": the rides moved south 10 apart (park_compact_1116), a 5-wide
+-- bed in the middle of each gap: jumping star | snack bars | 미니바이킹 | peace train | 03_JumperBoat | bumper hall)
+local GAP_W = 5
+line({ V(WX, -760.6), V(-219, -760.6) }, GAP_W) -- (JumperBoat | the hall's canopy posts at z -766.3)
+line({ V(WX, -728.4), V(-219, -728.4) }, GAP_W) -- (peace train | JumperBoat)
+line({ V(WX, -506.7), V(-219, -506.7) }, GAP_W) -- (미니바이킹 | peace train)
+line({ V(WX, -435.3), V(-219, -435.3) }, GAP_W) -- (snack bars | 미니바이킹)
+line({ V(WX, -385.5), V(-227, -385.5) }, GAP_W) -- (jumping star | snack bars)
+-- along the peace train's east side, open in the middle (the way in)
+line({ V(-219, -506.7), V(-219, -598) }, GAP_W)
+line({ V(-219, -614), V(-219, -728.4) }, GAP_W)
+-- round the Jumping Star's south and west (its entrance faces +x; the row above closes the north)
+arc(V(-255.8, -370.4), 17.5, 30, 180)
 -- round the tea cups (open to the west, the way in), and a row from it down to the east wall
 -- between the tea cups and the fire trucks
 arc(V(-111, -535), 41, -150, 150)

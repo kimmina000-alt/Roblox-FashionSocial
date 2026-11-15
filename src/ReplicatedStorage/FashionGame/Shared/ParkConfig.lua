@@ -59,6 +59,8 @@ ParkConfig.TeaCupsRunning = true
 ParkConfig.JumpStarRunning = true
 -- (D-1481, user 2026-11-16: "관람차 운영되게 해") the Ferris wheel turns and takes riders again.
 ParkConfig.WheelRunning = true
+-- (D-1481, user 2026-11-16: "01_PeaceTrain … 레일 만들고 그냥 박스로 트레인 만들어서 테스트") the peace train runs.
+ParkConfig.TrainRunning = true
 function ParkConfig.isRunning(kind: string): boolean
 	local fg = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
 	local live = fg and fg:GetAttribute("ParkRidesRunning")
@@ -68,6 +70,7 @@ function ParkConfig.isRunning(kind: string): boolean
 	if kind == "ParkTeaCups" then return ParkConfig.TeaCupsRunning end
 	if kind == "ParkJumpStar" then return ParkConfig.JumpStarRunning end
 	if kind == "ParkWheel" then return ParkConfig.WheelRunning end
+	if kind == "ParkTrain" then return ParkConfig.TrainRunning end
 	return ParkConfig.RidesRunning
 end
 
