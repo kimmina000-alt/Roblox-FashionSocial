@@ -4851,3 +4851,17 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1445 (2026-11-15) 회전목마 기둥 아래 조명
 - User (screenshot, the drum's foot and a horse pole's foot circled): "회전목마 가운데 기둥 하단에 조명선 넣기. 회전목마 말 기둥 고정되어 있는 하단에 조명넣기".
 - park_carousel_dress_1115: a neon line on the drum's low gold band, a neon ring on the floor round the drum and 24 bulbs on it; at each horse pole's foot a glowing ring on the floor (1.9 across) under a gold base with 6 bulbs. All turn with the Rotor.
+
+## D-1446 (2026-11-15) 놀이공원 바닥 틈 메우기
+- User (top view, two lines drawn west and north of the carousel): "땅 벌어짐 수정".
+- Two slots went down to the street level: ParkPlatform (the user's edit, kept by user_map_snapshot) starts at x -144.8 while ParkPlatformWest / its strip end at x -148 (3.2 wide, z -279..-455.5), and it ends at z -447.8 while ParkPlatformNorth starts at -455.5 (7.7 wide, x -148..-38.8).
+- park_front_fill_1115 now also adds "ParkSeamFill" (the platform's own stone, top 16) over both; remade each run, so the snapshot's ParkPlatform stays as the user left it. A raycast grid over both seams found no hole afterwards.
+
+## D-1447 (2026-11-15) 미니바이킹 입구 = 기존 사선 펜스 한 짝, 출구는 문 없이
+- User: "출구에 새로 만든 펜스는 없어도 됨. 못 들어가는 것만 유지" / "입구 펜스 두 개가 양쪽으로 열리는 건데 기존 펜스 사선으로 놔진 거 하나만 열리는 걸로 수정. 현재 출구 펜스 열리는 것처럼 오른쪽 기준점으로 열리는 걸로 구현".
+- park_ride_gates_1115: the entrance's one leaf is the user's diagonal FencePanel next to the opening (moved into Gates.Entrance.Leaf1 as "DiagPanel", its first place kept in the attributes OrigCFrame / OrigSize and put back before a rerun), hinged at the opening's -z end (the right seen from outside): closed it spans the opening (stretched 8.1 → 9.0), open it stands on its old diagonal (OpenYaw -56°). The exit keeps only its invisible Block (one-way) and the sign. leaf() takes any open angle now (yawTo = atan2).
+- Play check: while running the leaf stood across the opening and walking in stopped at x -223.4; standing still it was back on the diagonal (0.57 off: the stretch) and walking in reached x -233; the exit stopped a walk in at -223.3 and let one out to -216.7.
+
+## D-1448 (2026-11-15) 회전컵: 화면 아무 데나 연타
+- User: "회전컵 핸들만 누르는 거 에임 어렵다. 그냥 컵 자체를 광클하면 화면 자체를 광클하는 걸로 수정".
+- ParkRidesController: while the cup runs, any click / touch that no button or the thumbstick took (UserInputService.InputBegan, not processed) sends "Spin"; the billboard over the wheel is only a label, "화면 연타! 🔄". Play check: mouse clicks on an empty spot of the screen took the cup's extra spin to 4.0 rad/s, then it faded.
