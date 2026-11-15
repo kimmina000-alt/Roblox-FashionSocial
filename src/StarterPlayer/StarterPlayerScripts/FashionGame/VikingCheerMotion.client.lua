@@ -70,10 +70,13 @@ RunService:BindToRenderStep("VikingCheer", Enum.RenderPriority.Camera.Value - 1,
 	local t = workspace:GetServerTimeNow()
 	local camera = workspace.CurrentCamera
 	local cheering: {[Model]: boolean} = {}
-	for _, ride in ipairs(CollectionService:GetTagged("ParkViking")) do
+	-- (D-1457: the jumping star's riders too, on every drop)
+	local rides = CollectionService:GetTagged("ParkViking")
+	for _, r in ipairs(CollectionService:GetTagged("ParkJumpStar")) do table.insert(rides, r) end
+	for _, ride in ipairs(rides) do
 		if not ride:IsA("Model") or not ride:IsDescendantOf(workspace) then continue end
 		if camera and (camera.CFrame.Position - ride:GetPivot().Position).Magnitude > NEAR then continue end
-		local _, still = ParkConfig.vikingState(ride, t)
+		local still = ParkConfig.rideState(ride, t)
 		for index = 1, ParkConfig.vikingSeatCount(ride) do
 			local id = ride:GetAttribute("Rider" .. index)
 			if typeof(id) ~= "number" then continue end
@@ -82,8 +85,8 @@ RunService:BindToRenderStep("VikingCheer", Enum.RenderPriority.Camera.Value - 1,
 			if not character then continue end
 			local down = false
 			if not still then
-				local a = ParkConfig.vikingSeatCFrame(ride, index, t)
-				local b = ParkConfig.vikingSeatCFrame(ride, index, t + 0.05)
+				local a = ParkConfig.seatRideSeatCFrame(ride :: Model, index, t)
+				local b = ParkConfig.seatRideSeatCFrame(ride :: Model, index, t + 0.05)
 				down = a ~= nil and b ~= nil and (b.Y - a.Y) / 0.05 < DROP
 			end
 			cheering[character] = down

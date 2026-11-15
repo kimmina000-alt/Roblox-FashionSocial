@@ -6,8 +6,12 @@
 -- along its back, a red machine box behind, a grey queue fence round it with Enter / Exit).
 -- Workspace["점핑스타"] (outside Hongdae_Layout, so a chain run cannot wipe it; park_layout_1111
 -- no longer builds the 24_JumpingStar blockout when it is there). It stands where the blockout
--- stood (its Base's middle, read once and kept in the attribute Site), facing FACE. Design only:
--- the car does not move yet. Idempotent: everything is built anew.
+-- stood (its Base's middle, read once and kept in the attribute Site), facing FACE.
+-- (D-1457, user: "점핑스타 사람 타서 위아래로 뛰는 것까지 구현") the car and its seats are the Model
+-- "Ride.Car"; "Ride" (tag ParkJumpStar, pivot = the tower's foot facing FACE) carries Seat1..6
+-- (seat tops from the pivot, car at the bottom), Board, Exit and Reach; ParkConfig.jumpStarState
+-- moves the car on every screen (ParkRidesController), riders picked and seated like the vikings.
+-- Idempotent: everything is built anew.
 
 local CENTER_DEFAULT = Vector3.new(-255.8, 16, -370.4)
 local FACE = Vector3.new(1, 0, 0) -- (the car and the star face +x, the park's middle)
@@ -223,6 +227,31 @@ beam("FootRest", (L(-CW / 2 + 0.8, CY - 3.3, front + 3.5)).Position, (L(CW / 2 -
 for k = 0, 5 do
 	local x = -CW / 2 + 1.4 + k * (CW - 2.8) / 5
 	star("CarStar", L(x, CY + 5.4, front + 0.4), 0.95, 0.3, YELLOW)
+end
+
+-- (D-1457) the car's parts into Ride.Car, the seats' places on Ride
+do
+	local CAR = { CarFloor = true, CarBack = true, CarBackTrim = true, CarSkirt = true, CarEnd = true, CarEndCap = true,
+		CarSleeve = true, Seat = true, SeatBack = true, SeatDivider = true, LapBar = true, LapArm = true, FootRest = true, CarStar = true }
+	local ride = Instance.new("Model")
+	ride.Name = "Ride"
+	local car = Instance.new("Model")
+	car.Name = "Car"
+	car.Parent = ride
+	for _, c in ipairs(owner:GetChildren()) do
+		if c:IsA("BasePart") and CAR[c.Name] then c.Parent = car end
+	end
+	for k = 1, SEATS do
+		local x = -CW / 2 + 0.8 + (k - 0.5) * sw
+		ride:SetAttribute("Seat" .. k, O:ToObjectSpace(L(x, CY - 0.1, front + 2.0)))
+	end
+	ride:SetAttribute("Board", 15)
+	ride:SetAttribute("Reach", 14)
+	ride:SetAttribute("Exit", (L(0, 3, 13.5)).Position)
+	car.WorldPivot = O
+	ride.WorldPivot = O
+	game:GetService("CollectionService"):AddTag(ride, "ParkJumpStar")
+	ride.Parent = owner
 end
 
 ---------------------------------------------------------------- the queue fence (grey, open in front)

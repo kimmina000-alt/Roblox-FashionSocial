@@ -4911,3 +4911,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
   - one blue car across the tower's front, 15 wide: six seats yellow / red / orange, lap bar on two arms, foot rest, rounded blue ends with yellow caps, red sleeves round the tower, six yellow stars along its back
   - a grey queue fence (R 11) open towards +x with ENTER / EXIT signs
 - 632 parts. Design only: the car stands at seat height 9 and does not jump yet. No overlapping faces (zfight pass: 0).
+
+## D-1457 (2026-11-15) 점핑스타 탑승 + 위아래로 뛰기
+- User: "점핑스타 사람 타서 위아래로 뛰는 것까지 구현".
+- A fourth seat ride next to the vikings and the tea cups (tag ParkJumpStar on Workspace["점핑스타"].Ride; the car's 152 parts are Ride.Car). ParkConfig.jumpStarState: Board 15 s standing at the bottom, then 25.2 s of hops through ParkConfig.JumpKeys (up to 22 studs in four climbing hops with small drops, a moment at the top, then drop-and-bounce: 22 → 11 → 20 → 9 → 19 → 7 → 17 → 5 → 14 → 3 → 10 → 2 → 6 → 0.6 → 2.2 → 0), each gap eased so the car stops at every top and landing; the drops are the short gaps. Same clock on every screen.
+- Six seats (Seat1..6 on the Ride), picked by tapping like the vikings or the E button ("⭐ 점핑스타 타기"), on / off only while it stands at the bottom; Exit in front of the fence opening, Reach 14. Riders are held on their seats; arms go up on every drop (VikingCheerMotion now takes ParkViking and ParkJumpStar).
+- Shared code: ParkConfig.isSeatRide / seatRideSeatCFrame / SeatRideNames / SeatRideSubjects / SeatRideIcons replace the "viking or tea cups" checks in ParkRideService and ParkRidesController.
+- Play check: boarded seat 1 with E, the car followed the keys (0 → 6 → 3.6 → 12 → … → 22 → 11.7 → 19 → … → 0) with the rider 1.4 over the seat the whole run; got off with E at the exit (x -242.3); no script errors.

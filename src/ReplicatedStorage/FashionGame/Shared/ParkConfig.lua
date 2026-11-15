@@ -33,6 +33,11 @@
 --                       TurnPeriod / CupPeriod (s per turn at full speed), Board / Ramp / Hold
 --                       (s; Ramp + Hold is a whole number of turns of both, so a run ends where
 --                       it began), Exit (Vector3), Reach. Riders: Rider1..Rider(Cups×SeatsPerCup).
+--   tag "ParkJumpStar"  (D-1457) the jumping star's "Ride" model, pivot = the tower's foot (upright,
+--                       facing the way the car looks). "Car" (Model, pivot = the same) goes up and
+--                       down the tower (ParkConfig.jumpStarState). Attributes Seat1..SeatN (CFrame
+--                       from the pivot with the car at the bottom), Board (s standing still),
+--                       Exit (Vector3), Reach. Riders: Rider1..RiderN.
 
 local ParkConfig = {}
 
@@ -50,6 +55,8 @@ ParkConfig.CarouselRunning = true
 ParkConfig.VikingRunning = true
 -- (D-1432, user 2026-11-15: "회전컵") the tea cups turn and take riders.
 ParkConfig.TeaCupsRunning = true
+-- (D-1457, user 2026-11-15: "점핑스타 사람 타서 위아래로 뛰는 것까지 구현")
+ParkConfig.JumpStarRunning = true
 function ParkConfig.isRunning(kind: string): boolean
 	local fg = game:GetService("ReplicatedStorage"):FindFirstChild("FashionGame")
 	local live = fg and fg:GetAttribute("ParkRidesRunning")
@@ -57,6 +64,7 @@ function ParkConfig.isRunning(kind: string): boolean
 	if kind == "ParkCarousel" then return ParkConfig.CarouselRunning end
 	if kind == "ParkViking" then return ParkConfig.VikingRunning end
 	if kind == "ParkTeaCups" then return ParkConfig.TeaCupsRunning end
+	if kind == "ParkJumpStar" then return ParkConfig.JumpStarRunning end
 	return ParkConfig.RidesRunning
 end
 
@@ -308,24 +316,89 @@ function ParkConfig.teacupSeatCFrame(model: Model, index: number, t: number): CF
 end
 
 --------------------------------------------------
--- Rides with a shared run and seats picked on board (viking, tea cups)
+-- Jumping star (D-1457): the car hops up the tower, drops and bounces, and comes down, the
+-- same run on every screen. A run = Board seconds standing at the bottom, then the hops in
+-- JumpKeys (seconds into the hops, height of the seat over its bottom place); between two keys
+-- the car eases out and in (it stops for a moment at each key, so every key is a jump's top or a
+-- landing). The drops are the short gaps.
 --------------------------------------------------
+
+ParkConfig.JumpKeys = {
+	{ 0, 0 }, { 2.4, 6 }, { 3.1, 3.5 }, { 5.2, 12 }, { 5.9, 9 }, { 8.0, 17 }, { 8.7, 14 }, { 11.0, 22 },
+	{ 12.6, 22 }, { 13.2, 11 }, { 14.3, 20 }, { 14.9, 9 }, { 16.0, 19 }, { 16.6, 7 }, { 17.8, 17 },
+	{ 18.4, 5 }, { 19.6, 14 }, { 20.2, 3 }, { 21.4, 10 }, { 22.0, 2 }, { 23.0, 6 }, { 23.6, 0.6 },
+	{ 24.4, 2.2 }, { 25.2, 0 },
+}
+
+-- (height of the car over its bottom place, standing still?, seconds until the next change)
+function ParkConfig.jumpStarState(model: Instance, t: number): (number, boolean, number)
+	local keys = ParkConfig.JumpKeys
+	local run = keys[#keys][1]
+	local board = attr(model, "Board", 15)
+	if not ParkConfig.isRunning("ParkJumpStar") then return 0, true, 0 end
+	local cycle = board + run
+	local c = t % cycle
+	if c < board then return 0, true, board - c end
+	local u = c - board
+	for i = 1, #keys - 1 do
+		local a, b = keys[i], keys[i + 1]
+		if u < b[1] then
+			local x = (u - a[1]) / (b[1] - a[1])
+			x = x * x * (3 - 2 * x)
+			return a[2] + (b[2] - a[2]) * x, false, cycle - c
+		end
+	end
+	return 0, false, cycle - c
+end
+
+function ParkConfig.jumpStarSeatCFrame(model: Model, index: number, t: number): CFrame?
+	local rel = model:GetAttribute("Seat" .. index)
+	if typeof(rel) ~= "CFrame" then return nil end
+	local h = ParkConfig.jumpStarState(model, t)
+	return model:GetPivot() * CFrame.new(0, h, 0) * rel
+end
+
+--------------------------------------------------
+-- Rides with a shared run and seats picked on board (viking, tea cups, jumping star)
+--------------------------------------------------
+
+ParkConfig.SeatRideNames = { ParkViking = "바이킹", ParkTeaCups = "회전컵", ParkJumpStar = "점핑스타" }
+-- (the name with its subject particle: 바이킹이 / 회전컵이 / 점핑스타가)
+ParkConfig.SeatRideSubjects = { ParkViking = "바이킹이", ParkTeaCups = "회전컵이", ParkJumpStar = "점핑스타가" }
+ParkConfig.SeatRideIcons = { ParkViking = "⛵", ParkTeaCups = "☕", ParkJumpStar = "⭐" }
+
+function ParkConfig.isSeatRide(kind: string?): boolean
+	return kind == "ParkViking" or kind == "ParkTeaCups" or kind == "ParkJumpStar"
+end
 
 function ParkConfig.seatRideKind(model: Instance): string?
 	local cs = game:GetService("CollectionService")
 	if cs:HasTag(model, "ParkViking") then return "ParkViking" end
 	if cs:HasTag(model, "ParkTeaCups") then return "ParkTeaCups" end
+	if cs:HasTag(model, "ParkJumpStar") then return "ParkJumpStar" end
 	return nil
 end
 
 -- (standing still?, seconds until the next change)
 function ParkConfig.rideState(model: Instance, t: number): (boolean, number)
-	if ParkConfig.seatRideKind(model) == "ParkTeaCups" then
+	local kind = ParkConfig.seatRideKind(model)
+	if kind == "ParkTeaCups" then
 		local _, _, still, left = ParkConfig.teacupState(model, t)
+		return still, left
+	elseif kind == "ParkJumpStar" then
+		local _, still, left = ParkConfig.jumpStarState(model, t)
 		return still, left
 	end
 	local _, still, left = ParkConfig.vikingState(model, t)
 	return still, left
+end
+
+-- seat k of any seat ride now (where the rider sits, facing the way they look)
+function ParkConfig.seatRideSeatCFrame(model: Model, index: number, t: number): CFrame?
+	local kind = ParkConfig.seatRideKind(model)
+	if kind == "ParkTeaCups" then return ParkConfig.teacupSeatCFrame(model, index, t) end
+	if kind == "ParkJumpStar" then return ParkConfig.jumpStarSeatCFrame(model, index, t) end
+	return ParkConfig.vikingSeatCFrame(model, index, t)
 end
 
 function ParkConfig.rideSeatCount(model: Instance): number

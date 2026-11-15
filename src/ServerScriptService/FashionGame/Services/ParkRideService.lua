@@ -40,7 +40,7 @@ local function rootOf(player: Player): BasePart?
 end
 
 local function kindOf(model: Instance): string?
-	for _, tag in ipairs({ "ParkWheel", "ParkCarousel", "ParkSwing", "ParkSpring", "FloatTube", "ParkViking", "ParkTeaCups" }) do
+	for _, tag in ipairs({ "ParkWheel", "ParkCarousel", "ParkSwing", "ParkSpring", "FloatTube", "ParkViking", "ParkTeaCups", "ParkJumpStar" }) do
 		if CollectionService:HasTag(model, tag) then return tag end
 	end
 	return nil
@@ -78,7 +78,7 @@ local function board(player: Player, model: Instance, slot: Instance?, pick: num
 	-- (D-1429, user: "앉은 상태에서 운행 시작 전에는 클릭해서 자리 이동") a viking rider moves to another
 	-- free seat of the same boat while it still stands
 	local current = riding[player]
-	if current and pick and (current.kind == "ParkViking" or current.kind == "ParkTeaCups") and current.model == model then
+	if current and pick and ParkConfig.isSeatRide(current.kind) and current.model == model then
 		local still = ParkConfig.rideState(model, now())
 		if not still then return false, "운행 중에는 자리를 옮길 수 없어요." end
 		if pick % 1 ~= 0 or pick < 1 or pick > ParkConfig.rideSeatCount(model) then return false, "옮길 수 없어요." end
@@ -123,13 +123,13 @@ local function board(player: Player, model: Instance, slot: Instance?, pick: num
 		return false, "이 칸은 가득 찼어요 (2명). 다음 칸을 기다려 주세요."
 	end
 	-- (D-1432: the tea cups board the same way)
-	if kind == "ParkViking" or kind == "ParkTeaCups" then -- (D-1425) on and off only while the boat stands still
+	if ParkConfig.isSeatRide(kind) then -- (D-1425) on and off only while the boat stands still
 		local pivot = (model :: Model):GetPivot()
 		local root = rootOf(player)
 		local reach = ((model:GetAttribute("Reach") :: number?) or 20)
 		if not root or Vector3.new(root.Position.X - pivot.X, 0, root.Position.Z - pivot.Z).Magnitude > reach
 			or math.abs(root.Position.Y - pivot.Y) > 60 then
-			return false, (if kind == "ParkTeaCups" then "회전컵" else "바이킹") .. " 앞에서 탈 수 있어요."
+			return false, (ParkConfig.SeatRideNames[kind] or "") .. " 앞에서 탈 수 있어요."
 		end
 		local still, left = ParkConfig.rideState(model, t)
 		if not still then return false, string.format("운행 중이에요. %d초 뒤에 탈 수 있어요.", math.ceil(left)) end
@@ -190,7 +190,7 @@ local function exitFor(ride: Ride): CFrame?
 			local spot = center.Position + out.Unit * (radius + 7) + Vector3.new(0, 3, 0)
 			return CFrame.lookAt(spot, spot + out)
 		end
-	elseif ride.kind == "ParkViking" or ride.kind == "ParkTeaCups" then
+	elseif ParkConfig.isSeatRide(ride.kind) then
 		local exit = ride.model:GetAttribute("Exit")
 		if typeof(exit) == "Vector3" then
 			local pivot = (ride.model :: Model):GetPivot()
@@ -224,9 +224,9 @@ local function leave(player: Player, home: boolean?): (boolean, any)
 			return false, "관람차가 아래로 내려오면 내릴 수 있어요."
 		end
 	end
-	if ride.kind == "ParkViking" or ride.kind == "ParkTeaCups" then
+	if ParkConfig.isSeatRide(ride.kind) then
 		local still, left = ParkConfig.rideState(ride.model, now())
-		if not still then return false, string.format("%s 멈추면 내릴 수 있어요 (%d초).", if ride.kind == "ParkTeaCups" then "회전컵이" else "바이킹이", math.ceil(left)) end
+		if not still then return false, string.format("%s 멈추면 내릴 수 있어요 (%d초).", ParkConfig.SeatRideSubjects[ride.kind] or "", math.ceil(left)) end
 	end
 	local exit = exitFor(ride)
 	clear(player)
