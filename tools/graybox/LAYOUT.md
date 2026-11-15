@@ -58,6 +58,7 @@
   3-21. `ohucuts_sign_1110.lua` — 오후네컷 간판 3개(◎ 오후네컷, ◎ OHU4cuts ×2)를 같은 자리·길이의 이미지판으로(강원교육튼튼, 연핑크, D-1184). 예전 3D 글자는 ServerStorage.ParkedOhuSigns로. 여러 번 돌려도 같다(따로 돌려도 안전).
   3-22. `gukbap_table_1110.lua` — 국밥집 테이블 9개를 0.4 위로(다리 늘이고 휴지통 같이, D-1255). 테이블마다 Raised1110 표시가 있어 다시 돌려도 또 올라가지 않음.
   3-23. `park_layout_1111.lua` — 놀이공원 안내도대로 배치(D-1316): 관람차는 북쪽 끝, 회전목마는 서쪽 가운데, 그네는 그 북쪽으로 받침·라벨째 옮기고(정해진 자리로 옮겨서 다시 돌려도 같다), 나머지 안내도 시설은 Hongdae_Layout.ParkBlockout 블록아웃. park_raise 다음.
+  3-23-1. `park_firetruck_1115.lua` — 소방차(D-1454): ParkBlockout["23_FireTruck"]의 회색 Truck 블록·Ladder 자리에 사용자 소방차(ServerStorage.ArtAssets.FireTruck, place 전용)를 같은 길이 8.9로. Track·Lawn은 그대로. park_layout_1111 다음.
   3-23a. `park_vikings_1115.lua` — 미니바이킹 / 슈퍼바이킹(D-1424): Workspace["미니바이킹"](사용자가 만든 무대·펜스 묶음) / Workspace["슈퍼바이킹"]에 프레임 + 배(ServerStorage.ArtAssets.VikingBoatMini/Super, *_Tex 우선)를 "Ride"로 새로 짓는다. 둘 다 Hongdae_Layout 밖이라 체인이 지우지 않고, park_layout_1111은 이 모델이 있으면 블록아웃을 안 만든다. 백업: ArtAssets.미니바이킹_Backup / 슈퍼바이킹_Backup.
   3-23a2. `park_viking_stage_1115.lua` — 슈퍼바이킹 단상·펜스(D-1440): 배 양옆 탑승 단상(주황 골함석 옆면·갈색 난간·방패 장식·계단+보이지 않는 경사로), 바닥 둘레 회색 펜스(계단 앞 열림), 내리는 곳(Exit)을 단상 위로. park_vikings_1115 다음. D-1444: 단상 17.2×64, 바닥판 +z로 넓힘, 계단 폭에 맞춘 펜스 출입구(Stage 속성 EntryGate / ExitGate / GateWidth).
   3-23a3. `park_ride_gates_1115.lua` — 바이킹 입구·출구 문(D-1443): Workspace["미니바이킹"].Gates / ["슈퍼바이킹"].Gates(태그 RideGate). 입구는 운행이 멈췄을 때만 열리고, 출구는 안에서 나오는 사람만 지나간다(RideGateController). park_viking_stage_1115 다음.
