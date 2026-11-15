@@ -297,7 +297,12 @@ function ParkRideService.Start()
 			local cup = math.ceil(seat / ((model:GetAttribute("SeatsPerCup") :: number?) or 4))
 			local angle, speed = ParkConfig.teacupExtra(model, cup, st)
 			speed = math.min(speed + ParkConfig.SpinBoost, ParkConfig.SpinMax)
-			model:SetAttribute("Spin" .. cup, Vector3.new(angle % (2 * math.pi), speed, st))
+			local epoch = model:GetAttribute("SpinEpoch")
+			if typeof(epoch) ~= "number" then
+				epoch = math.floor(st)
+				model:SetAttribute("SpinEpoch", epoch)
+			end
+			model:SetAttribute("Spin" .. cup, Vector3.new(angle % (2 * math.pi), speed, st - (epoch :: number)))
 			return true, speed
 		elseif action == "Slid" then
 			local t = os.clock()

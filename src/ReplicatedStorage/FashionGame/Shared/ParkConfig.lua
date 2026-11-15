@@ -263,7 +263,9 @@ end
 -- (D-1442, user 2026-11-15: "회전컵은 가운데 핸들 클릭하면 점점 더 빨라지고 클릭 안 하면 점점
 -- 느려지게") a rider tapping the cup's wheel spins that cup faster; the extra speed dies away
 -- by itself. The server keeps each cup's extra spin in the ride's attribute Spin<k> =
--- Vector3(angle, speed, server time) and every screen works out the angle from it:
+-- Vector3(angle, speed, server time - SpinEpoch) and every screen works out the angle from it
+-- (a Vector3 holds single precision: the server clock itself, about 1.8e9, loses whole minutes, so
+-- the time is counted from the ride's SpinEpoch, a whole second the server set once):
 --   speed(t) = speed0 · e^(-(t - t0) / SpinFade), angle(t) = angle0 + speed0 · SpinFade · (1 - e^(…))
 -- Taps only count while the table runs and not in its last SpinStopGap seconds; when the run
 -- ends the extra angle is held where it was (so the cups stand still for boarding).
@@ -281,7 +283,7 @@ function ParkConfig.teacupExtra(model: Instance, cup: number, t: number): (numbe
 		-- standing still: held at the end of the last run
 		t = t - (attr(model, "Board", 15) - left)
 	end
-	local dt = math.max(0, t - s.Z)
+	local dt = math.max(0, t - attr(model, "SpinEpoch", 0) - s.Z)
 	local k = math.exp(-dt / ParkConfig.SpinFade)
 	return s.X + s.Y * ParkConfig.SpinFade * (1 - k), s.Y * k
 end
