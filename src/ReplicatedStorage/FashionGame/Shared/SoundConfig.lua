@@ -35,7 +35,8 @@ return {
 		--   9046748008 Holiday Bliss (APM, 70 s) · 87883706305527 Amusement Park (DistroKid, 124 s)
 		--   90761353490771 Amusement park (DistroKid, 88 s) · 103863683328306 Amusement park (DistroKid, 127 s)
 		--   111710156976120 Amusement Park 147bpm (DistroKid, 198 s)
-		park = 1839237742,
+		-- (user 2026-11-15: "Disneyland (APM) 이걸로 진행")
+		park = 1836351592,
 	},
 	-- (D-1459, user: "바이킹 움직일 때 들리는 바람 소리" 101252896391536, 2 s, looped) the rides' wind:
 	-- the vikings while they swing (louder the faster), the jumping star on its big drop
