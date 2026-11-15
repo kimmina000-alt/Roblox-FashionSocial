@@ -157,7 +157,8 @@ do
 end
 
 -- 2 슈퍼바이킹: an A-frame with the ship hanging along the plot
-do
+-- (D-1424: the real ride is Workspace["슈퍼바이킹"], park_vikings_1115; no blockout then)
+if not workspace:FindFirstChild("슈퍼바이킹") then
 	local m = grp("02_SuperViking")
 	local x, z = -122, -318
 	for _, dz in ipairs({ -11, 11 }) do
@@ -190,7 +191,8 @@ do
 	w.Transparency = 0.2
 	for k = 0, 2 do box(m, "Boat", -130 + k * 6, -360 - (k % 2) * 3, 3, 4, 1.2, 1.2, ({ C.yellow, C.red, C.blue })[k + 1]) end
 end
-do
+-- (D-1424: the real ride is Workspace["미니바이킹"], park_vikings_1115; no blockout then)
+if not workspace:FindFirstChild("미니바이킹") then
 	local m = grp("09_MiniViking")
 	local x, z = -104, -366
 	box(m, "Base", x, z, 9, 14, 0, 0.6, C.stone)
