@@ -1,7 +1,7 @@
 --!nocheck
 -- 놀이공원 야경 (D-1530, user 2026-11-16: "놀이공원 야경 화려하게 구현해"). The pieces ParkNightController
 -- lights up at night:
---   * string lights between the park's lamps (ParkLampV2 inside the park): each lamp to its two nearest
+--   * (removed, user 2026-11-16: LAMP_STRINGS = false) string lights between the park's lamps (ParkLampV2 inside the park): each lamp to its two nearest
 --     neighbours 14..48 apart when nothing but trees stands between them, a sagging line of bulbs every
 --     2.2 studs (tag "ParkNightBulb", attribute Seq = its place along the line, rainbow order) on a thin
 --     dark wire, hung just under the lamp glass;
@@ -73,7 +73,10 @@ local function clear(a: Vector3, b: Vector3, skip: {Instance}): boolean
 end
 local pairsDone = {}
 local lines = {}
-for i, l in ipairs(lamps) do
+-- (D-1530, user 2026-11-16 with the strings between the lamps by the churros / colpop shops marked: "가로등 사이에
+-- 설치한 이 조명 줄 다 삭제해") no strings between the lamps any more; the plaza canopy's strings stay
+local LAMP_STRINGS = false
+for i, l in ipairs(if LAMP_STRINGS then lamps else {}) do
 	local near = {}
 	for j, m in ipairs(lamps) do
 		local d = (Vector3.new(m.at.X, 0, m.at.Z) - Vector3.new(l.at.X, 0, l.at.Z)).Magnitude
