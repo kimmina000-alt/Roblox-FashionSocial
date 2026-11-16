@@ -5169,3 +5169,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1499 (2026-11-16) 츄로스·콜팝 두 개씩
 - User: "츄로스, 콜팝 가게 원래 있던 위치에도 있어야 해. 두 개씩 두자". A second pair stands where they stood by the jumping star, facing east as before: SnackBar1B (콜팝) x -257.8..-240.8 z -431.1..-412.8, SnackBar2B (츄로스) x -257.6..-240.6 z -410.0..-391.7, same scale and sign colour (park_shops_1116 step 5). The pair beside the balloon shop stays.
+
+## D-1500 (2026-11-16) 회전컵 · 슈퍼바이킹 · 관람차를 입구 쪽으로
+- User (top view, the three boxed, an arrow down to a line above the shops): "회전컵, 슈퍼바이킹, 관람차 전체적으로 북쪽으로 이동". The text said north but the arrow pointed south (toward the gate); asked, the user picked the arrow: toward the gate, about 120.
+- tools/graybox/park_rides_south_1116.lua: the three moved 123.5 south together (tea cups z -446.7..-376.3, 15 north of the 콜팝 stand; super viking -561.3..-475.6; Ferris wheel -698.9..-591.3), the tea cups also 6.4 east (3 clear of the carousel); world attributes moved with them. Under the new places 24 BedGrass, 25 BedCurb, 22 Hedge, a cherry tree and a lamp were set aside in ServerStorage.ParkMoveRemoved_1116 (FromPath) for the user to place again.

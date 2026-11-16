@@ -87,3 +87,4 @@
   - `park_lamp_bench_1116.lua` (D-1493) — 놀이공원 가로등 31개·벤치 17개를 사용자 모델(ArtAssets.ParkLampMesh / ParkBenchMesh)로 교체. park_paths_1116 / park_playground_1116 다음, optimize_1116 앞.
   - `park_narrow_1116.lua` (D-1494) — 놀이공원 서쪽 끝 x -298.5 → -268(해변 모래 선): 바닥·바다·서쪽 벽·기둥·벽 쪽 화단/가로등/벤치 30.5 이동, 기구는 벽에서 3 떨어질 만큼만 동쪽으로. park_pillars_inside_1116 / park_lamp_bench_1116 다음, optimize_1116 앞.
   - `park_shops_1116.lua` (D-1496) — 스낵바 2개를 사용자 모델로 교체, 풍선 가게(입구 안쪽 오른편, BalloonCounter = SnackShop) 설치, ArtAssets.BalloonShopDecor가 있으면 풍선 색. park_narrow_1116 다음.
+  - `park_rides_south_1116.lua` (D-1500) — 회전컵·슈퍼바이킹·관람차를 입구 쪽(남쪽)으로 123.5(회전컵은 동쪽으로 6.4 더), 새 자리 밑 화단은 ServerStorage.ParkMoveRemoved_1116로. park_shops_1116 다음.
