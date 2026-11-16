@@ -90,3 +90,6 @@
   - `park_rides_south_1116.lua` (D-1500) — 회전컵·슈퍼바이킹·관람차를 입구 쪽(남쪽)으로 123.5(회전컵은 동쪽으로 6.4 더), 새 자리 밑 화단은 ServerStorage.ParkMoveRemoved_1116로. park_shops_1116 다음.
   - `park_star_bed_1116.lua` (D-1501) — 점핑스타 둘레: 펜스 밖 10 길 + 북·남 둥근 화단(StarBeds). park_rides_south_1116 다음.
   - `park_cups_bed_1116.lua` (D-1504) — 회전컵 펜스 밖 10 길 + 북·남 둥근 화단(CupBeds), 그 자리 옛 화단 삭제. park_star_bed_1116 다음.
+  - `park_bumper_big_1116.lua` (D-1512) — 범퍼카장 바닥 x -253..-65 z -760..-645, 남쪽 입구(SouthEntrance). 바로 다음에 `park_bumper_dress_1115.lua`(그림 2장).
+  - `park_rides_beds_1116.lua` (D-1513) — 관람차 · 슈퍼바이킹 화단, 미니바이킹 북쪽 화단 삭제, z -766 북쪽 화단 · 나무 치움, 점핑스타 남서쪽 풀숲.
+  - `park_cups_truck_gates_1116.lua` (D-1515) — 회전컵 펜스 채움 + 계단, 소방차 1.3배, 미니바이킹 경첩, 슈퍼바이킹 출입구.

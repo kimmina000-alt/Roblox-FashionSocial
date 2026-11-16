@@ -5215,3 +5215,21 @@ Studio only (no script yet).
 ## D-1511 (2026-11-16) 떠 있는 놀이기구·가로등·나무 땅에 붙이기
 - User (the carousel's base over the ground): "회전목마 붕 떠 있음 / 이렇게 붕 떠 있는 놀이기구나 화단 나무 벤치 있으면 땅에 맞춰서 배치해".
 - Checked 87 units in the park (every ride, the snack bars and balloon shop, the bed models, 놀이공원길's lamps, benches, bins and trees, loose hedges): rays down from the lowest visible parts, the unit itself left out. Floating more than 0.25 and dropped onto what is under them: the carousel (base, ring and the turning Carousel model; its fence was on the ground) 1.27, the super viking 1.41, two lamps 0.97 and a cherry tree 0.97 (moved off their beds earlier onto the paving). World attributes went with them. Play: the carousel turns, horses bob over the base, no script errors. Studio only.
+
+## D-1512 (2026-11-16) 범퍼카장을 부지 폭에 맞게
+- User (a top view, a red box under the hall's south half as wide as the park, an arrow south): "범퍼카 놀이공원 부지에 거의 딱 맞게 범퍼카 장소 사이즈 키우기. 출입구 방향은 화살표 방향으로. 범퍼카 이미지 들어간 벽은 북쪽으로". Asked: the box is the new place; the picture twice side by side.
+- tools/graybox/park_bumper_big_1116.lua: floor x -253..-65 (188), z -760..-645 (115); rails laid again on its edges with an 11 gap in the middle of the south rail; the entrance (ramp, sign posts, sign) turned to that gap and renamed SouthEntrance; the six cylinders keep their place from the north-west corner; 30 things of 놀이공원길 under the hall set aside in ServerStorage.ParkMoveRemoved_1116. park_bumper_dress_1115 then rebuilt ArenaDress (805 parts): marquee over the south eave, the north wall = the picture twice (IMG_N 2, 39.9 high).
+- Not changed: BumperCarConfig.Hall (another session's unmerged code) still holds the hall's first place, and the six BumperCar models in Workspace.Scene are empty; the cars need both before they drive here.
+
+## D-1513 (2026-11-16) 관람차 · 슈퍼바이킹 화단, 범퍼카 북쪽 정리, 점핑스타 풀숲
+- User: "미니바이킹 옆에 화단 10 스터드 옆으로 이동" (asked: delete it), "관람차 10 스터드 간격 두고 화단 설치", "슈퍼바이킹도 화단 설치", "범퍼카보다 북쪽에 위치한 화단과 나무 삭제", "잔디밭 … 지금 선택된 풀을 여러개 설치해서 풀숲처럼" (the user had deleted Workspace.StarLawn).
+- tools/graybox/park_rides_beds_1116.lua: the bed on the mini viking's north fence deleted (14 pieces); straight beds in the park style 10 from the Ferris wheel's base (north, east and south, openings 14 in the middle of the east and south runs; the west wall bed is its west side, Workspace.관람차화단) and the super viking's base (north, west, and a short one between its entry and exit gates, Workspace.슈퍼바이킹화단); north of z -766: 199 bushes, beds and trees of 놀이공원길 set aside, the two long wall beds end at -766 (lamps and benches stay); 48 bushes (ArtAssets.Shrub at the beds' scale, 0.85-1.2) close together in the jumping star's south-west corner (Workspace.점핑스타풀숲).
+
+## D-1514 (2026-11-16) 바이킹 팔 들기: 내 쪽이 내려갈 때만
+- User: "바이킹 올라가고 내려가고 할 때 어느쪽에 앉느냐에 따라 달라져서 둘 다 팔 드는데 어느쪽에 앉았는지 확인한 후 캐릭터가 내려갈 때만 팔 들도록".
+- The seats hang 49 under the pivot, so near the top of every swing the whole boat drops and both ends' seats fell (each seat cheered twice per swing). VikingCheerMotion now also needs the seat's end to be the raised one (seat z × sin(angle) < 0): checked over one period of the super viking, seat 1 and seat 15 cheer once each, in turn.
+
+## D-1515 (2026-11-16) 회전컵 펜스 · 계단, 소방차 1.3배, 꽃밭, 바이킹 출입구
+- User: "회전컵 펜스 표시한 부분 채우기. 펜스 없는 부분에 단상 올라갈 수 있는 계단 한 칸씩", "꽃밭은 1로 설치", "소방차 크기 1.3배 키우기", "슈퍼바이킹 출입구 펜스도 미니바이킹 출입구 펜스 기능 적용 / 미니바이킹 위치 수정하면서 입구 펜스 열릴 때 펜스 위치 엉뚱한 곳으로 감".
+- tools/graybox/park_cups_truck_gates_1116.lua: tea cups' north-east gap filled (2 panels), three steps + an invisible wedge at the other two gaps (deck 4.8 high; walked up in Play); fire truck ScaleTo 1.3 (north-west corner and ground kept, fences at their height, Radius / SaddleY × 1.3; now x -171..-128.5 z -333.7..-293.9); mini viking entrance Hinge on the closed leaf's -z end (it had stayed where the ride was before the user moved it); super viking entrance opens to the same diagonal (OpenYaw 0.98), exit leaf removed. Play: both entrance leaves closed while the boats run and open on their diagonals when they stop.
+- Flower bed: candidate 1 (Creator Store 131216077381773), its two scripts ("Runtime" inside a SurfaceAppearance, "ScreenBuilder") deleted, scale 0.7, by the gate in the corner west of the fire truck (Workspace.꽃밭). Place only.

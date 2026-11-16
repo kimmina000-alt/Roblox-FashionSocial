@@ -42,7 +42,9 @@ local CX, CZ = (X0 + X1) / 2, (Z0 + Z1) / 2
 -- (D-1465, user 2026-11-16: "아래 벽도 삭제하고 이미지로 채워. 이미지 높이에 맞춰서 천장도 높여.") the back
 -- wall is the whole picture from the floor up, as wide as the floor; the eaves stand just over it
 local IMG, IW, IH = "rbxassetid://74788882274531", 1584, 672
-local IMG_H = (X1 - X0) * IH / IW -- (the picture's height at the floor's width: about 45)
+-- (D-1512, the hall as wide as the park: 188) the picture twice side by side, each half the floor's width
+local IMG_N = if X1 - X0 > 150 then 2 else 1
+local IMG_H = (X1 - X0) / IMG_N * IH / IW -- (the picture's height: about 45 for one, 40 for two)
 local EAVE = FY + IMG_H + 1.8
 local RIDGE = EAVE + 11
 local OVER = 3 -- (the roof past the rail walls)
@@ -381,12 +383,16 @@ do
 	g.LightInfluence = 0.15
 	g.Brightness = 1.3
 	g.Parent = wall
-	local img = Instance.new("ImageLabel")
-	img.Size = UDim2.fromScale(1, 1)
-	img.BackgroundTransparency = 1
-	img.Image = IMG
-	img.ScaleType = Enum.ScaleType.Stretch
-	img.Parent = g
+	g.CanvasSize = Vector2.new(IW * IMG_N, IH)
+	for i = 0, IMG_N - 1 do
+		local img = Instance.new("ImageLabel")
+		img.Size = UDim2.fromScale(1 / IMG_N, 1)
+		img.Position = UDim2.fromScale(i / IMG_N, 0)
+		img.BackgroundTransparency = 1
+		img.Image = IMG
+		img.ScaleType = Enum.ScaleType.Stretch
+		img.Parent = g
+	end
 end
 
 dress.Parent = workspace["범퍼"]

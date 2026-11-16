@@ -91,6 +91,15 @@ RunService:BindToRenderStep("VikingCheer", Enum.RenderPriority.Camera.Value - 1,
 				local a = ParkConfig.seatRideSeatCFrame(ride :: Model, index, t)
 				local b = ParkConfig.seatRideSeatCFrame(ride :: Model, index, t + 0.05)
 				down = a ~= nil and b ~= nil and (b.Y - a.Y) / 0.05 < DROP
+				-- (D-1514, user: "어느쪽에 앉았는지 확인한 후 캐릭터가 내려갈 때만 팔 들도록") the seats hang far
+				-- under the pivot, so near the top of each swing the whole boat drops and both ends' seats
+				-- fell: only the end that was up (the seat on the raised side of the boat) cheers, from the
+				-- top of its swing until the boat passes the bottom
+				local rel = ride:GetAttribute("Seat" .. index)
+				if down and typeof(rel) == "CFrame" then
+					local angle = ParkConfig.vikingState(ride, t)
+					down = rel.Position.Z * math.sin(angle) < 0
+				end
 			end
 			cheering[character] = down
 		end
