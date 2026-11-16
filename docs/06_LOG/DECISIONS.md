@@ -5353,3 +5353,4 @@ Studio only (no script yet).
 ## D-1541 (2026-11-16) 메모리 1-2: 사진 벽 만드는 거리 82 / 105
 - Mobile 4P test of D-1540 (Player1..4 at the NW spawn square): passed, no script errors; Player4 spawn → beach 0 photo-wall instances → 오후네컷 5 walls rebuilt → spawn. But at the spawn three walls (73,757 instances) were built: the 오후네컷 walls are 86..114 studs from the spawn camera, inside the 140 of D-1540.
 - NEAR / FAR 140 / 190 → 82 / 105 (draw distance stays 80): the spawn builds none; a wall's photos are made as the player walks in (the walls are inside the building).
+- Mobile 3P test (2026-11-16): at the spawn Player1..3 had 0 photo walls; Player3 inside 오후네컷 got 4 walls (85,094 instances, 188 cuts in 40 s); back at the spawn 2 walls stayed (86 and 101 studs, inside FAR 105). No script errors.
