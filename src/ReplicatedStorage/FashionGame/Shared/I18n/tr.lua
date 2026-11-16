@@ -424,6 +424,7 @@ return {
 	["노래를 바꾸거나 넘길 수 있어요?"] = "Şarkı değiştirebilir veya atlayabilir miyim?",
 	["녹차"] = "Yeşil çay",
 	["녹차라떼"] = "Yeşil çay latte",
+	["놀이공원 안에서 받아가세요"] = "Lunaparkın içinde al",
 	["놀이공원은 언제 열어요?"] = "Lunapark ne zaman açılıyor?",
 	["놀이공원은 지금 공사 중이에요. 곧 문을 열어요! 계단 위 정문 앞까지는 올라가 볼 수 있어요."] = "Lunapark inşa ediliyor. Yakında açılıyor! Merdivenin üstündeki ana kapıya çıkabilirsin.",
 	["놓지 못했어요."] = "Konulamadı.",

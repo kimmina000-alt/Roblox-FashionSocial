@@ -424,6 +424,7 @@ return {
 	["노래를 바꾸거나 넘길 수 있어요?"] = "Đổi hoặc bỏ qua bài được không?",
 	["녹차"] = "Trà xanh",
 	["녹차라떼"] = "Latte trà xanh",
+	["놀이공원 안에서 받아가세요"] = "Nhận trong công viên",
 	["놀이공원은 언제 열어요?"] = "Khi nào công viên mở?",
 	["놀이공원은 지금 공사 중이에요. 곧 문을 열어요! 계단 위 정문 앞까지는 올라가 볼 수 있어요."] = "Công viên đang thi công. Sắp mở rồi! Bạn có thể lên tới cổng chính trên cầu thang.",
 	["놓지 못했어요."] = "Không đặt được.",

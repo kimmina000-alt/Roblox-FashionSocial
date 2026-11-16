@@ -5359,6 +5359,7 @@ Studio only (no script yet).
 
 ## D-1538 (2026-11-16) 풍선 표지판 문구
 - User: "풍선 무료 표지판에 매표소에서 받아 가세요 -> 소품샵에서 받아 가세요. 로 수정". park_free_balloon_1116 + the sign in the place; 16 languages (tr/p15_park1116.tsv). The booth counters still give balloons.
+- (later, user: "소품샵에서 받으라고 적혀 있습니다. > 놀이공원 안에서 받아가세요") the line is "놀이공원 안에서 받아가세요" (place + script + 16 languages, tr/p15_park1116.tsv id d4d42f).
 
 ## D-1539 (2026-11-16) 버튼을 설명하거나 눌러야 하면 설명창은 그 버튼 바로 아래
 - User: "튜토리얼에 특정 버튼 설명 혹은 눌러야 하는 경우 해당 버튼 근처에 설명창 띄울 것".

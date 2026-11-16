@@ -424,6 +424,7 @@ return {
 	["노래를 바꾸거나 넘길 수 있어요?"] = "¿Puedo cambiar o saltar canciones?",
 	["녹차"] = "Té verde",
 	["녹차라떼"] = "Latte de té verde",
+	["놀이공원 안에서 받아가세요"] = "Recógelo dentro del parque",
 	["놀이공원은 언제 열어요?"] = "¿Cuándo abre el parque?",
 	["놀이공원은 지금 공사 중이에요. 곧 문을 열어요! 계단 위 정문 앞까지는 올라가 볼 수 있어요."] = "El parque está en obras. ¡Abre pronto! Puedes subir hasta la entrada principal en lo alto de la escalera.",
 	["놓지 못했어요."] = "No se pudo dejar.",

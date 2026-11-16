@@ -6,7 +6,7 @@
 --   * an invisible counter in front of each booth window (tag SnackShop, Shop = "BalloonShop": the
 --     same menu, 0 coins, SnackService gives the balloon) and a bunch of balloons tied by the window;
 --   * a standing sign in front of the gate's east side gate (it was left of the west booth at first): "★ 놀이공원 개장 기념 ★ / 풍선 무료 /
---     소품샵에서 받아 가세요" (D-1538: was 매표소에서), sunset colours of the logo, balloons tied to its top corners.
+--     놀이공원 안에서 받아가세요" (D-1538: was 매표소에서, then 소품샵에서), sunset colours of the logo, balloons tied to its top corners.
 -- Model Workspace.무료풍선 (rebuilt each run). The booths themselves are in Hongdae_Layout (chain).
 
 local CS = game:GetService("CollectionService")
@@ -117,7 +117,7 @@ for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
 	end
 	label("★ 놀이공원 개장 기념 ★", 0.06, 0.25, Enum.FontWeight.Heavy, Color3.fromRGB(255, 245, 190))
 	label("풍선 무료", 0.32, 0.42, Enum.FontWeight.Heavy, Color3.new(1, 1, 1))
-	label("소품샵에서 받아 가세요", 0.76, 0.17, Enum.FontWeight.Bold, Color3.new(1, 1, 1))
+	label("놀이공원 안에서 받아가세요", 0.76, 0.17, Enum.FontWeight.Bold, Color3.new(1, 1, 1))
 end
 -- balloons tied to the top corners
 for _, sx in ipairs({ -1, 1 }) do
