@@ -5,14 +5,14 @@
 -- gate hand balloons out too:
 --   * an invisible counter in front of each booth window (tag SnackShop, Shop = "BalloonShop": the
 --     same menu, 0 coins, SnackService gives the balloon) and a bunch of balloons tied by the window;
---   * a standing sign on the landing just left of the west booth: "★ 놀이공원 개장 기념 ★ / 풍선 무료 /
+--   * a standing sign in front of the gate's east side gate (it was left of the west booth at first): "★ 놀이공원 개장 기념 ★ / 풍선 무료 /
 --     매표소에서 받아 가세요", sunset colours of the logo, balloons tied to its top corners.
 -- Model Workspace.무료풍선 (rebuilt each run). The booths themselves are in Hongdae_Layout (chain).
 
 local CS = game:GetService("CollectionService")
 local G = 16.08
 local BOOTHS = { Vector3.new(-136, 0, -268.05), Vector3.new(-61, 0, -268.05) } -- (sill fronts)
-local SIGN_AT = Vector3.new(-147.2, G, -262)
+local SIGN_AT = Vector3.new(-77, G, -272) -- (user 2026-11-16: in front of the east side gate, was by the west booth at x -147.2)
 local COLORS = { Color3.fromRGB(235, 60, 75), Color3.fromRGB(255, 140, 190), Color3.fromRGB(255, 210, 60), Color3.fromRGB(110, 225, 190), Color3.fromRGB(80, 150, 255), Color3.fromRGB(165, 110, 235) }
 
 local old = workspace:FindFirstChild("무료풍선")
