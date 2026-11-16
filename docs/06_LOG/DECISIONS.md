@@ -5327,3 +5327,8 @@ Studio only (no script yet).
 - Sounds: churro bites "eat_onionring" 136587360928233 (crisp), 콜팝 chicken "eat_friedchicken3" 96143714118880, the last tap "straw-slurp" 140468384563217 (Creator Store, free).
 - SnackConfig: 콜팝 items finalSip = true → bites = pieces + 1. The last tap renames StrawTipLater to StrawTip (EatMotionController brings the straw tip to the lips), plays the slurp, and the 콜팝 is gone.
 - Studio Play: churro 4 taps, pieces 1→4 gone in order with the crisp sound, then gone; 콜팝 7 taps take the chicken 1→7, the 8th lifts the cup with the straw tip at the mouth (0.6 from the head centre) and the slurp plays, then it is gone; no script errors.
+
+## D-1534 (2026-11-16) 광장 전구 지붕 한 모델로, 상점 천막까지 전구 줄
+- User (screenshot of the plaza canopy): "이거 하나의 모델로 묶어 봐 이동시키게 / 놀이공원 상점들 앞에 천막에 있는 줄무늬 지붕까지 이어지도록 수정".
+- park_night_1116: the canopy is Workspace.놀이공원야경.PlazaCanopy (PrimaryPart CanopyPole: Poles + Lights, its eight strings with their bulbs and wires). Drag it anywhere; the next run builds it where the CanopyPole stands.
+- The park shops' striped awnings (BalloonShop, SnackBar1B 츄로스, SnackBar2B 콜팝): their front edge found by rays down onto the shop meshes; a string of bulbs along each awning's front edge (light sag) and one from a front corner to the nearest lamp with a clear line, in 놀이공원야경.ShopLights. 23 lines, 383 bulbs in all (was 17 / 341).
