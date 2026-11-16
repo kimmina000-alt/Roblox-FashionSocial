@@ -85,3 +85,4 @@
   - `zfight_fix_1115.lua` (D-1453) — 겹친 면 정리: 같은 면 위에서 같은 쪽을 보고 겹치는 두 부품(색/재질이 달라 깜빡임)이 있으면 작은 쪽 면을 0.02 밖으로. 체인의 진짜 마지막(park_wall_tidy_1115 다음, 사용자 스냅샷 다음). 다시 돌려도 남은 게 없으면 아무것도 안 함.
   - `optimize_1116.lua` (D-1492) — 지도 전체: 1.5 미만 작은 파트와 바닥에 놓인 얇은 판의 그림자 끄기, 작은 네온 전구 충돌 끄기. 체인 맨 마지막.
   - `park_lamp_bench_1116.lua` (D-1493) — 놀이공원 가로등 31개·벤치 17개를 사용자 모델(ArtAssets.ParkLampMesh / ParkBenchMesh)로 교체. park_paths_1116 / park_playground_1116 다음, optimize_1116 앞.
+  - `park_narrow_1116.lua` (D-1494) — 놀이공원 서쪽 끝 x -298.5 → -268(해변 모래 선): 바닥·바다·서쪽 벽·기둥·벽 쪽 화단/가로등/벤치 30.5 이동, 기구는 벽에서 3 떨어질 만큼만 동쪽으로. park_pillars_inside_1116 / park_lamp_bench_1116 다음, optimize_1116 앞.
