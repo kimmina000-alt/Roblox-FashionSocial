@@ -134,5 +134,78 @@ if shopTemplate then
 		table.insert(done, "BalloonShop")
 	end
 end
+------------------------------------------------------------------ 4. the three in a row (D-1498)
+-- (user: "풍선 파는 곳 양옆으로 츄로스, 콜팝 가게 정렬") 츄로스 south of the balloon shop, 콜팝 north of it, all
+-- three facing the way in (west) with their fronts in one line, 0.5 apart; the row starts just
+-- inside the gate's hoarding (z ROW_SOUTH). The bench and bin in front of 콜팝 step 3 west.
+local ROW_SOUTH, GAP = -291.5, 0.5
+local function ext(p: BasePart): (Vector3, Vector3)
+	local cf, sz = p.CFrame, p.Size
+	local e = (cf.RightVector * sz.X):Abs() + (cf.UpVector * sz.Y):Abs() + (cf.LookVector * sz.Z):Abs()
+	return p.Position - e / 2, p.Position + e / 2
+end
+local function bb(m: Instance): (Vector3, Vector3)
+	local lo, hi = Vector3.one * 1e9, -Vector3.one * 1e9
+	for _, p in ipairs(m:GetDescendants()) do
+		if p:IsA("BasePart") and p.Transparency < 1 then
+			local a, b = ext(p)
+			lo, hi = lo:Min(a), hi:Max(b)
+		end
+	end
+	return lo, hi
+end
+local function move(m: Instance, d: Vector3)
+	for _, p in ipairs(m:GetDescendants()) do if p:IsA("BasePart") then p.CFrame += d end end
+	if m:IsA("Model") then m.WorldPivot += d end
+end
+local function faceWest(name: string, templateName: string, bodyName: string)
+	local old, template = workspace:FindFirstChild(name), ART:FindFirstChild(templateName)
+	if not old or not template then return nil end
+	local ob, tb = body(old, bodyName), body(template, bodyName)
+	if not ob or not tb then return nil end
+	local new = lay(template, tb, CFrame.new(ob.Position) * CFrame.Angles(0, math.rad(90), 0), ob.Size.Y / tb.Size.Y, name)
+	for _, p in ipairs(new:GetChildren()) do
+		if p:IsA("MeshPart") and p.TextureID == "" then p.Color, p.Material = SIGN, Enum.Material.SmoothPlastic end
+	end
+	old:Destroy()
+	new.Parent = workspace
+	return new
+end
+local balloonShop = workspace:FindFirstChild("BalloonShop")
+local churros = faceWest("SnackBar2", "SnackBar2Mesh", "Cube.001")
+local colpop = faceWest("SnackBar1", "SnackBar1Mesh", "Cube.008")
+if balloonShop and churros and colpop then
+	local front = select(1, bb(balloonShop)).X
+	local function put(m: Instance, south: number): number
+		local lo, hi = bb(m)
+		move(m, Vector3.new(front - lo.X, 0, south - hi.Z))
+		return select(1, bb(m)).Z
+	end
+	local z = put(churros, ROW_SOUTH)
+	z = put(balloonShop, z - GAP)
+	put(colpop, z - GAP)
+	local paths = workspace:FindFirstChild("놀이공원길")
+	local furniture = paths and paths:FindFirstChild("Furniture")
+	local clo, chi = bb(colpop)
+	if furniture then
+		local bench, bin
+		for _, f in ipairs(furniture:GetChildren()) do
+			local lo, hi = bb(f)
+			local near = lo.Z < chi.Z + 1 and hi.Z > clo.Z - 1 and hi.X > clo.X - 1 and lo.X < chi.X
+			if near and f.Name == "ParkBenchV2" then bench = f end
+			if near and f.Name == "ParkBin" then bin = f end
+		end
+		if bench then
+			local lo, hi = bb(bench)
+			move(bench, Vector3.new((clo.X - 1) - hi.X, 0, 0))
+			if bin then
+				local blo = select(1, bb(bench))
+				local _, nhi = bb(bin)
+				move(bin, Vector3.new((blo.X - 0.4) - nhi.X, 0, 0))
+			end
+		end
+	end
+	table.insert(done, "row")
+end
 print("[park_shops_1116] " .. table.concat(done, ", "))
 return #done

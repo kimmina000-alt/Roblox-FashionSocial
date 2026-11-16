@@ -16,7 +16,7 @@ local LAMP = ART and ART:FindFirstChild("ParkLampMesh")
 local BENCH = ART and ART:FindFirstChild("ParkBenchMesh")
 assert(LAMP and BENCH, "ServerStorage.ArtAssets.ParkLampMesh / ParkBenchMesh missing (the user's imports)")
 
-local BRONZE = Color3.fromRGB(92, 68, 48) -- (D-1495: the reference photo's brown bronze)
+local BRONZE = Color3.fromRGB(64, 40, 26) -- (D-1498, user: "더 진한 고동색": dark brown Metal)
 -- (D-1495, user: "가로등 크기 2배 키우기") lamps stand LAMP_HEIGHT high (twice the old 12.15)
 local LAMP_HEIGHT = 24.3
 local GLASS = Color3.fromRGB(255, 252, 240)
@@ -86,7 +86,7 @@ for _, root in ipairs({ workspace:FindFirstChild("놀이공원길"), workspace:F
 					local light = m:FindFirstChildWhichIsA("PointLight", true)
 					if light then light:Clone().Parent = p end
 				else
-					p.Material, p.Color, p.CanCollide = Enum.Material.CorrodedMetal, BRONZE, true
+					p.Material, p.Color, p.CanCollide = Enum.Material.Metal, BRONZE, true
 				end
 			end
 			new.Parent = m.Parent
