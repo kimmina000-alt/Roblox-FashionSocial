@@ -806,7 +806,6 @@ return {
 	["소중한 의견이 잘 접수되었어요. 고마워요! 💛"] = "Your feedback was received. Thank you! 💛",
 	["소지품"] = "Items",
 	["소품"] = "Props",
-	["소품샵에서 받아 가세요"] = "Get one at the gift shop",
 	["소품은 {1}개까지 쓸 수 있어요."] = "You can use up to {1} props.",
 	["속눈썹"] = "Eyelashes",
 	["속도 {1}/{2}"] = "Speed {1}/{2}",

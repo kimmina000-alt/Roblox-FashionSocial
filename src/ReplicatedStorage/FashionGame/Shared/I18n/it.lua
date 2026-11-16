@@ -806,7 +806,6 @@ return {
 	["소중한 의견이 잘 접수되었어요. 고마워요! 💛"] = "Abbiamo ricevuto il tuo feedback. Grazie! 💛",
 	["소지품"] = "Oggetti",
 	["소품"] = "Accessori",
-	["소품샵에서 받아 가세요"] = "Ritiralo al negozio di souvenir",
 	["소품은 {1}개까지 쓸 수 있어요."] = "Puoi usare fino a {1} accessori.",
 	["속눈썹"] = "Ciglia",
 	["속도 {1}/{2}"] = "Velocità {1}/{2}",

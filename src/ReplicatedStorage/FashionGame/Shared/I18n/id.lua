@@ -806,7 +806,6 @@ return {
 	["소중한 의견이 잘 접수되었어요. 고마워요! 💛"] = "Masukanmu sudah diterima. Terima kasih! 💛",
 	["소지품"] = "Barang",
 	["소품"] = "Properti",
-	["소품샵에서 받아 가세요"] = "Ambil di toko suvenir",
 	["소품은 {1}개까지 쓸 수 있어요."] = "Maksimal {1} properti.",
 	["속눈썹"] = "Bulu mata",
 	["속도 {1}/{2}"] = "Kecepatan {1}/{2}",

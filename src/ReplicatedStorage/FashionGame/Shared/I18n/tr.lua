@@ -806,7 +806,6 @@ return {
 	["소중한 의견이 잘 접수되었어요. 고마워요! 💛"] = "Geri bildirimin alındı. Teşekkürler! 💛",
 	["소지품"] = "Eşyalar",
 	["소품"] = "Aksesuarlar",
-	["소품샵에서 받아 가세요"] = "Hediyelik eşya dükkânından al",
 	["소품은 {1}개까지 쓸 수 있어요."] = "En fazla {1} aksesuar kullanabilirsin.",
 	["속눈썹"] = "Kirpikler",
 	["속도 {1}/{2}"] = "Hız {1}/{2}",
