@@ -5192,3 +5192,10 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1505 (2026-11-16) 슈퍼바이킹 밑 옛 회전컵 화단 삭제
 - User: "슈퍼바이킹 아래 깔린 화단 삭제". It was the tea cups' old ring bed (park_paths_1116's arc round (-111, -535), radius 41), left where the tea cups stood before D-1500 and now round / under the super viking: every Bed* / Hedge of 놀이공원길 Beds / Green between radius 36 and 46 of that point (west of x -62, so the east wall bed stays) was deleted: 19 BedCurb, 20 BedGrass, 19 Hedge. Studio only; the two lamps that stood on that ring are left standing.
+
+## D-1506 (2026-11-16) 범퍼카장 남쪽으로 + 화단 3칸 묶음
+- User (a top view: the bumper hall boxed, an arrow down to a box west of the Ferris wheel; and a picture of a short bed with three bushes): "화단 지우고 범퍼카 위치 이동 / 화단 세 칸짜리만 묶어서 만들어줘".
+- Beds in the box (x -268..-140, z -685..-511) deleted (61 pieces with their bushes); 13 lamps, benches, bins and trees there set aside in ServerStorage.ParkMoveRemoved_1116. The delete took two long beds whole (the west wall bed, 867 long, and the x -219 divider); their parts outside the box were laid again in the same style: wall bed x -262.7 z -351..-511 and -685..-1218, divider z -685..-728.4.
+- Bumper hall (Workspace.범퍼 and its queue fences 범 퍼 펜) moved 251.4 south: z -645.1..-511.7, 10 north of the mini viking (the 10-apart rule of D-1481), 8 west of the Ferris wheel; world attributes moved with it. Its old place (z -896..-763) is open ground now.
+- Workspace.화단3칸 (also ServerStorage.ArtAssets.ParkBed3): one bed of the park's style — brick curb 6.5 × 17.2, grass top, three bushes 5.2 apart — grouped as one model (PrimaryPart BedCurb) to copy and place by hand; the first one stands at (-200, -830).
+Studio only (no script yet).
