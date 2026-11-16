@@ -84,3 +84,4 @@
   - `park_playground_1116.lua` (D-1475) — 놀이터(정문 안 서쪽, x -178.5..-134, z -284..-371): 고무 바닥, 그네 3(ParkSwing), 말 스프링 3(ParkSpring), 미끄럼틀 탑(ParkSlide, 경로 P0..P2를 제자리로), 버섯 회전의자, 작은 회전목마, 벤치. 존 06_Park_Playground.놀이 의 옛 놀이기구와 Hongdae_Layout.BumperCarGates(옛 투명벽)를 지운다. Workspace["놀이터"], 매번 새로. park_paths_1116 다음.
   - `zfight_fix_1115.lua` (D-1453) — 겹친 면 정리: 같은 면 위에서 같은 쪽을 보고 겹치는 두 부품(색/재질이 달라 깜빡임)이 있으면 작은 쪽 면을 0.02 밖으로. 체인의 진짜 마지막(park_wall_tidy_1115 다음, 사용자 스냅샷 다음). 다시 돌려도 남은 게 없으면 아무것도 안 함.
   - `optimize_1116.lua` (D-1492) — 지도 전체: 1.5 미만 작은 파트와 바닥에 놓인 얇은 판의 그림자 끄기, 작은 네온 전구 충돌 끄기. 체인 맨 마지막.
+  - `park_lamp_bench_1116.lua` (D-1493) — 놀이공원 가로등 31개·벤치 17개를 사용자 모델(ArtAssets.ParkLampMesh / ParkBenchMesh)로 교체. park_paths_1116 / park_playground_1116 다음, optimize_1116 앞.
