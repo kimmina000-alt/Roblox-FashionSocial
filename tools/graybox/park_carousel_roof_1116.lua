@@ -78,7 +78,7 @@ for i = 0, STEPS - 1 do
 	local dir = Vector3.new(math.cos(a), 0, math.sin(a))
 	for y = top, BOTTOM - 1, -0.1 do
 		local hit = workspace:Raycast(Vector3.new(centre.X, y, centre.Z) + dir * (R + 4), -dir * 8, rp)
-		if hit and (Vector3.new(hit.Position.X, 0, hit.Position.Z) - Vector3.new(centre.X, 0, centre.Z)).Magnitude > R - 2.5 then
+		if hit and (Vector3.new(hit.Position.X, 0, hit.Position.Z) - Vector3.new(centre.X, 0, centre.Z)).Magnitude > R - 0.8 then -- (the crown's outer face, r 23.9-24.25; the cone's rim below the dips is at r 22-23.5)
 			if not topY[i] then topY[i], topAt[i] = y, hit.Position end
 			lowY[i] = y
 		end
