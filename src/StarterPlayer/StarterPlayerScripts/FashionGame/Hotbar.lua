@@ -350,6 +350,22 @@ function Hotbar.look(tool: Tool, parent: GuiObject, emoji: string, box: UDim2, a
 		e.Font = Enum.Font.GothamBold
 		holder = e
 		look:Destroy()
+		-- (D-1528, user: "전주비빔 삼각김밥 전자레인지 돌리고 꺼내면 아이콘 선물상자로 뜸") a tool that came
+		-- back from the server (the microwave keeps it in ServerStorage) arrives before its parts: the
+		-- card drew the 🎁 of an empty tool. Look again for a few seconds; once its parts are here, draw it
+		task.spawn(function()
+			for _ = 1, 20 do
+				task.wait(0.25)
+				if not e.Parent or e.Parent ~= parent then return end
+				for _, p in ipairs(tool:GetDescendants()) do
+					if p:IsA("BasePart") and p.Transparency < 0.95 then
+						e:Destroy()
+						Hotbar.look(tool, parent, emoji, box, at)
+						return
+					end
+				end
+			end
+		end)
 	end
 	holder.Name = "Look"
 	holder.AnchorPoint = Vector2.new(0.5, 0)

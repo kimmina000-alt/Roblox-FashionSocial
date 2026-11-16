@@ -42,6 +42,17 @@ local function freeze(rig: Model, kneel: boolean, face: string?)
 		if animator then animator:Destroy() end
 		if kneel then BoothPose.kneel(rig) end
 		if face then BoothPose.face(rig, face) end
+		-- (D-1528, user: "허리 숙이기 한 다음 포즈 누르면 … 최종 찍은 사진에 풀려서 하체만 나옴") the photo
+		-- rigs have AnimationConstraint joints: the stopped pose is written over them once more a
+		-- frame or two after the Animator goes, undoing the kneel. Set it again after that
+		if kneel or face then
+			RunService.Heartbeat:Wait()
+			RunService.Heartbeat:Wait()
+			RunService.Heartbeat:Wait()
+			if not rig.Parent then return end
+			if kneel then BoothPose.kneel(rig) end
+			if face then BoothPose.face(rig, face) end
+		end
 	end)
 end
 
