@@ -19,7 +19,8 @@ local ART = game.ServerStorage:FindFirstChild("ArtAssets")
 assert(ART, "no ServerStorage.ArtAssets")
 local SHOP_AT = Vector3.new(-70, 16.11, -306)
 local BALLOON_COLORS = { Color3.fromRGB(235, 60, 75), Color3.fromRGB(255, 210, 60), Color3.fromRGB(80, 150, 255), Color3.fromRGB(110, 225, 190) }
-local SIGN = Color3.fromRGB(120, 80, 160)
+-- (D-1497, user: "상점 세 개 간판 글씨 … 매표소 간판과 색상 동일하게") the gate booths' letter face colour
+local SIGN = Color3.fromRGB(255, 252, 250)
 
 local function meshes(m: Instance): {MeshPart}
 	local t = {}
@@ -57,7 +58,12 @@ local function swap(old: Instance?, oldBodyName: string, templateName: string, b
 	local tb = body(template, bodyName)
 	if not ob or not tb then return end
 	local s = ob.Size.Y / tb.Size.Y
-	lay(template, tb, ob.CFrame, s, newName).Parent = workspace
+	local new = lay(template, tb, ob.CFrame, s, newName)
+	for _, p in ipairs(new:GetChildren()) do
+		-- the sign letters: the only untextured piece
+		if p:IsA("MeshPart") and p.TextureID == "" then p.Color, p.Material = SIGN, Enum.Material.SmoothPlastic end
+	end
+	new.Parent = workspace
 	old:Destroy()
 	table.insert(done, newName)
 end
@@ -104,7 +110,7 @@ if shopTemplate then
 				if i then
 					c.Color, c.Material, c.Reflectance = BALLOON_COLORS[i], Enum.Material.SmoothPlastic, 0.12
 				elseif p.Name == "ShopSign" then
-					c.Color = SIGN
+					c.Color, c.Material = SIGN, Enum.Material.SmoothPlastic
 				else
 					c.Color = Color3.new(1, 1, 1)
 				end
