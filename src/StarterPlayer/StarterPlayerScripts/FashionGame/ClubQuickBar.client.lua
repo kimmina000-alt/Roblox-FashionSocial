@@ -562,7 +562,8 @@ task.spawn(function()
 	while true do
 		local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
 		inClub = root ~= nil and ClubConfig.isInClub(root.Position)
-		gui.Enabled = inClub or player:GetAttribute("HearsClub") == true
+		-- (D-1537) none of it with the sound off (소리 끄기, LocalPlayer attribute ClubMuted)
+		gui.Enabled = (inClub or player:GetAttribute("HearsClub") == true) and player:GetAttribute("ClubMuted") ~= true
 		task.wait(0.5)
 	end
 end)

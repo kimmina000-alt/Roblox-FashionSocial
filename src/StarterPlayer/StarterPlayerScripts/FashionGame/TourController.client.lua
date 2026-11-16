@@ -91,7 +91,7 @@ local title = create("TextLabel", {
 }, card)
 local count = create("TextLabel", {
 	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -16, 0, 14), Size = UDim2.fromOffset(70, 22),
-	BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Color3.fromRGB(200, 200, 205),
+	BackgroundTransparency = 1, Font = Enum.Font.GothamBold, TextSize = 14, TextColor3 = Color3.fromRGB(200, 200, 200),
 	TextXAlignment = Enum.TextXAlignment.Right, Text = "",
 }, card)
 local body = create("TextLabel", {
@@ -103,13 +103,16 @@ create("UITextSizeConstraint", { MaxTextSize = 18, MinTextSize = 12 }, body)
 body.TextScaled = true
 local skip = create("TextButton", {
 	Name = "Skip", AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, -8, 0, -6), Size = UDim2.fromOffset(92, 28),
-	BackgroundColor3 = Color3.fromRGB(40, 40, 46), Text = "건너뛰기 >", TextColor3 = Color3.new(1, 1, 1),
+	BackgroundColor3 = Color3.new(0, 0, 0), Text = "건너뛰기 >", TextColor3 = Color3.new(1, 1, 1),
 	Font = Enum.Font.GothamBold, TextSize = 14, AutoButtonColor = true,
 }, card)
 create("UICorner", { CornerRadius = UDim.new(0, 12) }, skip)
+-- (D-1536, user 2026-11-16: "튜토리얼 블랙앤화이트로 수정") black and white only: the black card with
+-- its white line, a black 건너뛰기 with a white line, a white 다음 with black words, a white ring
+create("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 1.5, Transparency = 0.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, skip)
 local nextButton = create("TextButton", {
 	Name = "Next", AnchorPoint = Vector2.new(1, 1), Position = UDim2.new(1, -12, 1, -12), Size = UDim2.fromOffset(96, 40),
-	BackgroundColor3 = Color3.fromRGB(255, 140, 60), Text = "다음 ▶", TextColor3 = Color3.new(1, 1, 1),
+	BackgroundColor3 = Color3.new(1, 1, 1), Text = "다음 ▶", TextColor3 = Color3.new(0, 0, 0),
 	Font = Enum.Font.GothamBold, TextSize = 15, AutoButtonColor = true,
 }, card)
 create("UICorner", { CornerRadius = UDim.new(0, 12) }, nextButton)
@@ -117,7 +120,7 @@ create("UICorner", { CornerRadius = UDim.new(0, 12) }, nextButton)
 -- the ring round the top bar button being explained (it pulses)
 local ring = create("Frame", { Name = "Ring", BackgroundTransparency = 1, Visible = false, ZIndex = 10 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, ring)
-local ringStroke = create("UIStroke", { Color = Color3.fromRGB(255, 200, 60), Thickness = 4 }, ring)
+local ringStroke = create("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 4 }, ring)
 local ringTarget: GuiObject? = nil
 game:GetService("RunService").RenderStepped:Connect(function()
 	local target = ringTarget

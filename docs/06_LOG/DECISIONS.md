@@ -5343,6 +5343,22 @@ Studio only (no script yet).
 - Studio Play (prints only): LoadSecs 8 Back; a test copy set to New gave 첫 이동 / 첫 상호작용 / FirstLeave 13 0-30초 / 오후네컷 / Dance; TourEnd once per visit, a second Loaded ignored; no script errors.
 - Mobile 2P test (Player1 / Player2, phone emulation, touch on): LoadSecs 10 from both, TourEnd 3 건너뜀 from Player2, the usual PlaceEnter / Interact / Economy lines; no script errors on the server or either client (the only client errors came from another session's AssistantCommand). Merged into catalog-ui-redesign (user: "테스트하고 머지해").
 
+## D-1535 (2026-11-16) 오후네컷 기둥에 묻힌 사진
+- User (live phone screenshot): "오후네컷에 잘못 붙은 사진 오류 고쳐 / 전에도 그랬는데 그때 안 고쳤어?". Before, D-1322 / D-1370 only checked that a real wall is right BEHIND the photo (niches, gaps, the niche rim). Here something stood IN FRONT: the hall's north photo panel (OHU_HALL_N) runs on behind the white PhotoFin pillar at its west end, which comes 2.3 studs out from the wall; photos stuck at the panel's left end were buried in it, only slivers showing. The back rays start inside the pillar, so they passed.
+- PhotoWallFit.backed: also a thin slab over the photo, FrontClear 0.32 out from the wall, must touch no part (GetPartBoundsInBox: a box sees a part it starts in, a ray does not). Counts what stands on the wall and comes out further (the pillar, the studio mirror, the room 2 booth machine and bag table, the hall's room arches, the studio ladder); flat things on the wall (backdrops 0.15, signs 0.14 out) and things standing off it (plants, stools) do not.
+- Effect: such spots are red when posting and refused by the server; photos already there are not drawn and are moved along their wall to the nearest free spot when a live server starts (settleFloating, saved on live servers only).
+- Checked in Studio: x 93.6 / 94.2 by the pillar refused, 94.5 on free; per-wall scan of 1x4 spots shows only the parts above block.
+
+## D-1536 (2026-11-16) 튜토리얼 흑백
+- User: "튜토리얼 블랙앤화이트로 수정". TourController card: black card with a white line (as before), 건너뛰기 black with a white line, 다음 white with black words (was orange), the ring round a top bar button white (was yellow), the step count light grey. The step titles keep their emoji.
+
+## D-1537 (2026-11-16) 음소거 → 소리 끄기, 소리 끄면 음표도 없음
+- User: "음소거 말고 소리 끄기로 수정. 소리 끄기 하면 홈 화면에 음표도 삭제." Dance window button "🔇 소리 끄기" / "🔊 소리 켜기". With the sound off nothing counts as heard (HearsClub off): the now-playing banner, its 🎵 > fold button, the 🎵 🎥 and play bar (ClubQuickBar, also off in the club while ClubMuted) go away; the choreography / stage camera outside the club stop with it. Sound on again brings them back.
+- Studio Play in the club at 22:00: 소리 끄기 → HearsClub nil, fold button and quick bar hidden; 소리 켜기 → all back.
+
+## D-1538 (2026-11-16) 풍선 표지판 문구
+- User: "풍선 무료 표지판에 매표소에서 받아 가세요 -> 소품샵에서 받아 가세요. 로 수정". park_free_balloon_1116 + the sign in the place; 16 languages (tr/p15_park1116.tsv). The booth counters still give balloons.
+
 ## D-1540 (2026-11-16) 메모리 1: 사진 벽은 가까이 있을 때만 만든다
 - Live 2026-11-15: 29 out-of-memory exits in a day (peak 19 players), client memory 1.79 GB on average, crash rate 3 %. A dedicated memory session (perf/memory-1116) measures first, then fixes the biggest consumers without changing the look.
 - Found: the five photo walls (오후네컷 4 panels + 08_PhotoBooth) are SurfaceGuis in PlayerGui, so streaming never drops them: 304 ViewportFrames holding about 440 dressed avatar rigs = 122,000 instances (8,028 MeshParts, about 3,000 SurfaceAppearances, 600 unique textures, layered clothing) on every client at any distance. Workspace itself held 24,500 instances on the client.

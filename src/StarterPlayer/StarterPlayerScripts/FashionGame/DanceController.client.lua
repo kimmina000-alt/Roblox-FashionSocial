@@ -178,7 +178,8 @@ local muteButton = button({
 	TextSize = 13,
 }, panel)
 local function paintMute()
-	muteButton.Text = if muted then "🔊 소리 켜기" else "🔇 음소거"
+	-- (D-1537, user 2026-11-16: "음소거 말고 소리 끄기로 수정") 소리 끄기 / 소리 켜기
+	muteButton.Text = if muted then "🔊 소리 켜기" else "🔇 소리 끄기"
 	muteButton.BackgroundColor3 = if muted then COLORS.accent else COLORS.card
 end
 muteButton.MouseButton1Click:Connect(function()
@@ -1612,7 +1613,10 @@ RunService.RenderStepped:Connect(function(dt)
 		if player.Character and player.Character:GetAttribute("PhotoBooth") ~= nil then level = 0 end
 		-- (D-993) heard here, before the 음소거: the banner, its 🎵 🎥 and following
 		-- a choreography outside go by this (LocalPlayer attribute HearsClub)
-		local heard = level
+		-- (D-1537, user: "소리 끄기 하면 홈 화면에 음표도 삭제") with the sound off nothing is heard:
+		-- the now-playing banner with its 🎵 goes away outside the club (ClubQuickBar hides it
+		-- in the club too, ClubMuted)
+		local heard = if muted then 0 else level
 		if player:GetAttribute("HearsClub") ~= (heard > 0 or nil) then player:SetAttribute("HearsClub", if heard > 0 then true else nil) end
 		if muted then level = 0 end
 		-- (a track may set its own volume, ClubConfig Track.volume)
