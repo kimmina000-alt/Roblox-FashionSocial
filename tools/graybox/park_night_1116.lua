@@ -11,9 +11,6 @@
 --   * (D-1534, user 2026-11-16) the plaza canopy is one model, 놀이공원야경.PlazaCanopy (PrimaryPart
 --     CanopyPole): poles and its eight strings move together. Moved by hand, the next run keeps it where
 --     the user put it (its CanopyPole's place);
---   * (D-1534) the park shops' striped awnings (BalloonShop, SnackBar1B / SnackBar2B, measured by rays):
---     a string along each awning's front edge and one from each front corner to the nearest lamp with a
---     clear line (up to 45 away), in 놀이공원야경.ShopLights.
 -- Model Workspace.놀이공원야경 (rebuilt each run).
 
 local CS = game:GetService("CollectionService")
@@ -128,69 +125,6 @@ for k = 0, 7 do
 	table.insert(lines, { topAt, at + Vector3.new(0, SHORT - 0.3, 0), canopyLights })
 end
 
--- (D-1534) the shops' awnings: the front edge (the far end of the stripes from the shop, found by rays down
--- onto the shop's meshes) and its two corners
-local shopLights = Instance.new("Model")
-shopLights.Name = "ShopLights"
-shopLights.Parent = root
-local SHOPS = { { "BalloonShop", -1 }, { "SnackBar1B", 1 }, { "SnackBar2B", 1 } } -- (the way the front faces, in X)
-local nShop = 0
-for _, sh in ipairs(SHOPS) do
-	local m = workspace:FindFirstChild(sh[1])
-	if m and m:IsA("Model") then
-		local dir = sh[2]
-		local cf = m:GetBoundingBox()
-		local parts, query = {}, {}
-		for _, d in ipairs(m:GetDescendants()) do
-			if d:IsA("BasePart") then
-				table.insert(parts, d)
-				query[d] = d.CanQuery
-				d.CanQuery = true -- (rays only see queryable parts; put back below)
-			end
-		end
-		local rp = RaycastParams.new()
-		rp.FilterType = Enum.RaycastFilterType.Include
-		rp.FilterDescendantsInstances = parts
-		rp.RespectCanCollide = false
-		local function down(x: number, z: number): number?
-			local hit = workspace:Raycast(Vector3.new(x, cf.Position.Y + 40, z), Vector3.new(0, -60, 0), rp)
-			return if hit and hit.Position.Y > G + 8 then hit.Position.Y else nil
-		end
-		local edge, y
-		for k = 0, 50 do
-			local x = cf.Position.X + dir * k * 0.5
-			local h = down(x, cf.Position.Z)
-			if h then edge, y = x, h end
-		end
-		if edge then
-			local zlo, zhi
-			for k = -50, 50 do
-				local z = cf.Position.Z + k * 0.5
-				if down(edge - dir, z) then
-					zlo = zlo or z
-					zhi = z
-				end
-			end
-			if zlo and zhi then
-				local yy = (y :: number) - 0.3
-				local c1 = Vector3.new(edge + dir * 0.4, yy, zlo + 0.6)
-				local c2 = Vector3.new(edge + dir * 0.4, yy, zhi - 0.6)
-				table.insert(lines, { c1, c2, shopLights, 0.04 }) -- (along the edge: a light sag)
-				for _, corner in ipairs({ c1, c2 }) do
-					local best, bestD
-					for _, l in ipairs(lamps) do
-						local d = (Vector3.new(l.at.X, 0, l.at.Z) - Vector3.new(corner.X, 0, corner.Z)).Magnitude
-						if d >= 8 and d <= 45 and (not bestD or d < bestD) and clear(l.at, corner, { l.model }) then best, bestD = l, d end
-					end
-					if best then table.insert(lines, { best.at, corner, shopLights }) end
-				end
-				nShop += 1
-			end
-		end
-		for d, q in pairs(query) do d.CanQuery = q end
-	end
-end
-
 -- (the wire: Beams from bulb to bulb, not parts: D-1532, ~360 fewer parts. Each bulb holds the wire's
 -- attachment 0.4 above its centre; a line's two ends hang from a tiny invisible WireEnd.)
 local seq = 0
@@ -284,5 +218,5 @@ for i, s in ipairs(SPOTS) do
 end
 
 root.Parent = workspace
-print(("[park_night_1116] %d lamps, %d lines, %d bulbs, %d searchlights, %d shop awnings"):format(#lamps, #lines, nBulbs, #SPOTS, nShop))
-return ("%d lamps, %d lines, %d bulbs, %d shop awnings"):format(#lamps, #lines, nBulbs, nShop)
+print(("[park_night_1116] %d lamps, %d lines, %d bulbs, %d searchlights"):format(#lamps, #lines, nBulbs, #SPOTS))
+return ("%d lamps, %d lines, %d bulbs"):format(#lamps, #lines, nBulbs)

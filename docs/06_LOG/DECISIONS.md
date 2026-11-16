@@ -5331,4 +5331,4 @@ Studio only (no script yet).
 ## D-1534 (2026-11-16) 광장 전구 지붕 한 모델로, 상점 천막까지 전구 줄
 - User (screenshot of the plaza canopy): "이거 하나의 모델로 묶어 봐 이동시키게 / 놀이공원 상점들 앞에 천막에 있는 줄무늬 지붕까지 이어지도록 수정".
 - park_night_1116: the canopy is Workspace.놀이공원야경.PlazaCanopy (PrimaryPart CanopyPole: Poles + Lights, its eight strings with their bulbs and wires). Drag it anywhere; the next run builds it where the CanopyPole stands.
-- The park shops' striped awnings (BalloonShop, SnackBar1B 츄로스, SnackBar2B 콜팝): their front edge found by rays down onto the shop meshes; a string of bulbs along each awning's front edge (light sag) and one from a front corner to the nearest lamp with a clear line, in 놀이공원야경.ShopLights. 23 lines, 383 bulbs in all (was 17 / 341).
+- The park shops' striped awnings got a string of bulbs along their front edge and a link to the nearest lamp (놀이공원야경.ShopLights, 42 bulbs); the user then asked to take it off again ("상점 천막까지 전구 줄 작업한 거 취소해 삭제"): removed from the place and the script. The canopy model stays.
