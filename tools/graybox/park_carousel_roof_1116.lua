@@ -37,6 +37,8 @@ local k = WIDTH / roof.Size.X
 roof.Size = roof.Size * k
 roof.CFrame = CFrame.new(centre.X, BOTTOM + roof.Size.Y / 2, centre.Z)
 roof.Anchored, roof.CanCollide, roof.CanTouch, roof.CastShadow = true, false, false, true
+-- (user 2026-11-16: "이미지 변경") the user's second texture (회전목마 지붕.png, uploaded as Vantablack_Dev)
+roof.TextureID = "rbxassetid://103837026073319"
 roof.Parent = rotor
 
 -- rays onto the new roof only
@@ -72,7 +74,7 @@ end
 -- The crown at 360 angles: a ray in from outside at falling heights; the first height that hits near the rim
 -- is the top edge there, the last one the lower edge.
 local STEPS = 360
-local topAt, topY, lowY = {}, {}, {}
+local topAt, topY, lowY, lowAt = {}, {}, {}, {}
 for i = 0, STEPS - 1 do
 	local a = i / STEPS * 2 * math.pi
 	local dir = Vector3.new(math.cos(a), 0, math.sin(a))
@@ -80,7 +82,7 @@ for i = 0, STEPS - 1 do
 		local hit = workspace:Raycast(Vector3.new(centre.X, y, centre.Z) + dir * (R + 4), -dir * 8, rp)
 		if hit and (Vector3.new(hit.Position.X, 0, hit.Position.Z) - Vector3.new(centre.X, 0, centre.Z)).Magnitude > R - 0.8 then -- (the crown's outer face, r 23.9-24.25; the cone's rim below the dips is at r 22-23.5)
 			if not topY[i] then topY[i], topAt[i] = y, hit.Position end
-			lowY[i] = y
+			lowY[i], lowAt[i] = y, hit.Position
 		end
 	end
 end
@@ -105,6 +107,23 @@ for i = 0, STEPS do
 		prev = inside
 	end
 end
+-- (user 2026-11-16, a red line along the crown's foot: "지붕 밑단? 에도 조명 추가") along the lower edge too,
+-- the same spacing, 0.4 above the edge on the panel face
+walked, prev = SPACING, nil
+for i = 0, STEPS do
+	local j = i % STEPS
+	local p = lowAt[j]
+	if p then
+		local inside = p + dirAt(j) * 0.3 + Vector3.new(0, 0.4, 0)
+		if prev then walked += (inside - prev).Magnitude end
+		if walked >= SPACING and i < STEPS then
+			bulb(inside, 0.5)
+			walked = 0
+		end
+		prev = inside
+	end
+end
+
 -- down the seams: the crown has 8 big panels (their points 45 degrees apart) and a small panel between
 -- each two; the sky-blue seams are the small panels' two sides, 7 degrees either side of their middle
 -- (measured on the user's mesh: the top edge dips there). The first big point = the highest sample in the
