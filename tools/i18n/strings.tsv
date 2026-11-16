@@ -1660,3 +1660,7 @@ af00ce	tmpl	"{1}" 일부 복원: 아이템 {2}개는 더 이상 착용할 수 �
 452ae5	tmpl	"{1}" 코디로 갈아입었습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/WardrobeView.lua:836
 3c9a71	exact	코디를 복원하지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/WardrobeView.lua:839
 d6f208	exact	미리보기 없음	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/WardrobeView.lua:875
+cff49e	exact	★ 놀이공원 개장 기념 ★	1	place
+8af651	exact	풍선 무료	1	place
+426021	exact	매표소에서 받아 가세요	1	place
+c0d064	exact	무료 풍선 받기	1	src/ReplicatedStorage/FashionGame/Shared/SnackConfig.lua:114

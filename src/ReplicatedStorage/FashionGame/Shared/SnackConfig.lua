@@ -106,17 +106,19 @@ SnackConfig.Shops = {
 		},
 	},
 	-- (D-1496) the park's balloon shop: a helium balloon on a string (BalloonService), a tap lets it go
+	-- (D-1531, user 2026-11-16: "풍선은 무료로 나눠 줘") free (no coins: the menu shows 무료); the ticket
+	-- booths outside the closed gate hand them out too (tools/graybox/park_free_balloon_1116.lua)
 	BalloonShop = {
 		key = "BalloonShop",
 		title = "오후 풍선 가게",
-		prompt = "풍선 사기",
+		prompt = "무료 풍선 받기",
 		items = {
-			{ key = "balloon_red", name = "빨간 풍선", kind = "balloon", color = Color3.fromRGB(235, 60, 75), coins = 5 },
-			{ key = "balloon_pink", name = "분홍 풍선", kind = "balloon", color = Color3.fromRGB(255, 140, 190), coins = 5 },
-			{ key = "balloon_yellow", name = "노란 풍선", kind = "balloon", color = Color3.fromRGB(255, 210, 60), coins = 5 },
-			{ key = "balloon_mint", name = "민트 풍선", kind = "balloon", color = Color3.fromRGB(110, 225, 190), coins = 5 },
-			{ key = "balloon_blue", name = "파란 풍선", kind = "balloon", color = Color3.fromRGB(80, 150, 255), coins = 5 },
-			{ key = "balloon_purple", name = "보라 풍선", kind = "balloon", color = Color3.fromRGB(165, 110, 235), coins = 5 },
+			{ key = "balloon_red", name = "빨간 풍선", kind = "balloon", color = Color3.fromRGB(235, 60, 75) },
+			{ key = "balloon_pink", name = "분홍 풍선", kind = "balloon", color = Color3.fromRGB(255, 140, 190) },
+			{ key = "balloon_yellow", name = "노란 풍선", kind = "balloon", color = Color3.fromRGB(255, 210, 60) },
+			{ key = "balloon_mint", name = "민트 풍선", kind = "balloon", color = Color3.fromRGB(110, 225, 190) },
+			{ key = "balloon_blue", name = "파란 풍선", kind = "balloon", color = Color3.fromRGB(80, 150, 255) },
+			{ key = "balloon_purple", name = "보라 풍선", kind = "balloon", color = Color3.fromRGB(165, 110, 235) },
 		},
 	},
 	-- (D-1527, user: "츄로스랑 콜팝도 풍선처럼 구매 가능하게") the park's snack bars: coins, held and eaten
