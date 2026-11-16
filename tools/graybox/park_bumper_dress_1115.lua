@@ -344,7 +344,10 @@ do
 	plate.Transparency = 1
 	local g = Instance.new("SurfaceGui")
 	g.Face = Enum.NormalId.Back -- (the plate's back faces +z: this CFrame looks down -z)
-	g.CanvasSize = Vector2.new(900, 230)
+	-- (D-1528, user: "범퍼카 간판에 글씨가 너무 작음") a canvas of the plate's own shape at 8 px a stud:
+	-- the words scale up to the 100 px cap of TextScaled, which on the old 900 × 230 canvas filled
+	-- under half the board
+	g.CanvasSize = Vector2.new(plate.Size.X * 8, plate.Size.Y * 8)
 	g.LightInfluence = 0
 	g.Brightness = 1.8
 	g.Parent = plate

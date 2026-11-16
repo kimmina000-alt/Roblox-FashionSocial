@@ -42,17 +42,6 @@ local function freeze(rig: Model, kneel: boolean, face: string?)
 		if animator then animator:Destroy() end
 		if kneel then BoothPose.kneel(rig) end
 		if face then BoothPose.face(rig, face) end
-		-- (D-1528, user: "허리 숙이기 한 다음 포즈 누르면 … 최종 찍은 사진에 풀려서 하체만 나옴") the photo
-		-- rigs have AnimationConstraint joints: the stopped pose is written over them once more a
-		-- frame or two after the Animator goes, undoing the kneel. Set it again after that
-		if kneel or face then
-			RunService.Heartbeat:Wait()
-			RunService.Heartbeat:Wait()
-			RunService.Heartbeat:Wait()
-			if not rig.Parent then return end
-			if kneel then BoothPose.kneel(rig) end
-			if face then BoothPose.face(rig, face) end
-		end
 	end)
 end
 
@@ -226,7 +215,10 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 					end
 				end
 			end
-			freeze(rig, entry.kn == true, face)
+			-- (D-1528, user: "허리 숙이기 한 다음 포즈 누르면 … 최종 찍은 사진에 풀려서 하체만 나옴") the shot
+			-- stores the kneel as kn = 1: "== true" was false, so a posed cut lost its kneel when the
+			-- pose's Animator went (a cut without a pose kept the one set above)
+			freeze(rig, entry.kn ~= nil and entry.kn ~= false, face)
 		end
 	end
 end
