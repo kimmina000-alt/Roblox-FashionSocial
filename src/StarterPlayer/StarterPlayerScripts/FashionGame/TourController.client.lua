@@ -234,16 +234,6 @@ end)
 skip.Activated:Connect(finish)
 if UiBus.StartTour then UiBus.StartTour.Event:Connect(start) end
 
--- first visit: once the server has told which tips were seen
-task.spawn(function()
-	local waited = 0
-	while player:GetAttribute("TipsSeen") == nil and waited < 20 do task.wait(0.5) waited += 0.5 end
-	local ok, seen = pcall(function() return HttpService:JSONDecode(player:GetAttribute("TipsSeen") or "[]") end)
-	if ok and typeof(seen) == "table" and table.find(seen, TOUR_KEY) then return end
-	if not player.Character then player.CharacterAdded:Wait() end
-	-- (after the loading screen, ReplicatedFirst OHULoading, and the world around the spawn)
-	local t0 = os.clock()
-	while playerGui:FindFirstChild("OHULoading") and os.clock() - t0 < 90 do task.wait(0.5) end
-	task.wait(1.5)
-	start()
-end)
+-- (D-1523, user: "첫 접속엔 목표만") the first visit no longer starts the tour by itself:
+-- FirstGoalController shows one goal instead. The tour stays on the guide NPC's question
+-- "🗺 동네 둘러보기 다시 보기" (UiBus.StartTour).

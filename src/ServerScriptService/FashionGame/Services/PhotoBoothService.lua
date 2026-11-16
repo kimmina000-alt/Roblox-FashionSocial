@@ -499,6 +499,7 @@ local function saveCopies(session: Session, player: Player, copies: number): (bo
 	release(session, player)
 	publish(session, session.booth)
 	EconomyService.Award(player, "PhotoSaved")
+	player:SetAttribute("PhotoSavedAt", os.time()) -- (D-1523: the first goal's photo step)
 	if firstPhoto and #firstPhoto.people > 1 then EconomyService.Award(player, "PhotoGroup") end
 	-- (D-1124) the booth funnel's last step, and a photo taken
 	Analytics.funnel(player, "PhotoBooth", tostring(session.id), 4, "저장")
@@ -1148,6 +1149,7 @@ local function wallPost(player: Player, payload: any): (boolean, string?)
 		task.delay(8, saveWall)
 	end
 	EconomyService.Award(player, "WallPost")
+	player:SetAttribute("WallPostedAt", os.time()) -- (D-1523: the first goal's wall step)
 	Analytics.interact(player, "WallPost") -- (D-1124)
 	return true, "포토월에 붙였어요!"
 end
