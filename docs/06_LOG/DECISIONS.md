@@ -5208,3 +5208,6 @@ Studio only (no script yet).
 
 ## D-1509 (2026-11-16) 가로등 유리 다시 나눔
 - User (a lamp with dark panes that should be glass): "가로등 조명 부분이어야 하는데 안 나눠진 부분 있음 수정". The lantern is a polygon, not a circle, so D-1495's radius test took some panes for bars. tools/art/split_lamp3.py tells them by width (each tall face is half of a quad: bars 0.108 at both rings, panes 0.28-0.39 at the bottom and 0.60-0.71 at the top): 16 panes = 32 faces glass (was 23 faces), checked from four sides. The user imported StreetLamp_split3.glb (now ArtAssets.ParkLampMesh); the 25 park lamps in Workspace and the 6 set aside in ServerStorage were rebuilt from it (24.3 high, dark brown Metal, Neon glass with the light). A second lamp 1.1 from the one at (-262.7, -434.2) was a duplicate and was removed.
+
+## D-1510 (2026-11-16) 미니바이킹 북쪽 화단을 펜스에서 10 떨어지게
+- User (the bed lying on the mini viking's north fence): "화단 펜스로부터 10 스터드 떨어진 옆으로 이동". The user had moved the mini viking (now x -249..-188.6, z -506.4..-445.2) and the bumper hall (z -705.9..-572.5) by hand; the long bed between them (park_paths_1116's z -506.7 row, x -261.6..-216.5, with its bushes, 14 pieces) sat on the mini viking's north fence line (-506.4). It moved 12.2 north: its south edge is 10 from the fence (bed middle z -518.9). Studio only.
