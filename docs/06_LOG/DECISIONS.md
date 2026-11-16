@@ -5182,3 +5182,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: "회전컵 펜스 설치 / 화단 두 개 따로 묶어 줘".
 - Tea cups: the park's yellow crowd barrier (the jumping star's FencePanel mesh + invisible FenceWall) in a ring 2 outside the base (radius 37.2, 24 panels 8.33 long), open at the exit (east, the Ride's Exit) and opposite it (west), model 회전컵.Fence (park_rides_south_1116; it moves with the ride).
 - Jumping star beds: StarBeds now holds two models, StarBedNorth and StarBedSouth (24 pieces each: curbs, grass, bushes), so each can be picked and moved as one (park_star_bed_1116).
+
+## D-1503 (2026-11-16) 벽 기둥 속에 박힌 덤불 삭제
+- User (a west wall pillar with hedge leaves sticking out of its foot): "여기 들어간 화단 삭제". The wall bed's hedges that moved with the wall (D-1494) stood half inside the pillars: every Hedge of 놀이공원길 whose middle is inside a ParkPillar's footprint (± 1) was deleted, 11 in all (west pillars at z -378, -477, -630 ×2, -735, -945 ×2, -1050, -1155 ×2; east pillar at -630). Studio only (the place); a rebuild of 놀이공원길 by park_paths_1116 would bring them back.
