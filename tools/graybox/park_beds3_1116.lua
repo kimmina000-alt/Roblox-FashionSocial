@@ -195,5 +195,35 @@ do
 	end
 end
 
+-- (D-1522, user: "해당 묶음 가운데 벚꽃나무만 두고 삭제.. 가로등 위치 재배치") the garden's big island keeps its
+-- cherry trees (and benches): its bushes go, and its four lamps by the rides' south end stand on the trees'
+-- line instead, between and past them (x -165..-168, z -458 / -498 / -536 / -590)
+do
+	local isl = workspace:FindFirstChild("놀이공원정원") and workspace["놀이공원정원"]:FindFirstChild("Island1")
+	if isl then
+		local n = 0
+		for _, c in ipairs(isl:GetChildren()) do
+			if c.Name == "Bush" then
+				c:Destroy()
+				n += 1
+			end
+		end
+		local spots = { Vector3.new(-165, 0, -458), Vector3.new(-165, 0, -498), Vector3.new(-163, 0, -536), Vector3.new(-168, 0, -590) }
+		local strip = {}
+		for _, c in ipairs(isl:GetChildren()) do
+			if c.Name == "ParkLampV2" and c:GetPivot().Z > -500 then table.insert(strip, c) end
+		end
+		table.sort(strip, function(a, b) return a:GetPivot().Z > b:GetPivot().Z end)
+		for i, l in ipairs(strip) do
+			local at = spots[i]
+			if at then
+				local p = l:GetPivot()
+				l:PivotTo(CFrame.new(at.X, p.Y, at.Z) * p.Rotation)
+			end
+		end
+		table.insert(o, ("island 1: %d bushes off, %d lamps moved"):format(n, math.min(#strip, #spots)))
+	end
+end
+
 print("[park_beds3_1116] " .. table.concat(o, "; "))
 return table.concat(o, "; ")

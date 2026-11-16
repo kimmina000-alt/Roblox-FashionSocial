@@ -5258,3 +5258,7 @@ Studio only (no script yet).
 ## D-1521 (2026-11-16) 관람차 서쪽 화단, 세모 풀숲, 섬 밑 블록
 - User (two pictures of the Ferris wheel with a red line along the west wall and two red triangles, and the garden's small island): "빨간선으로 화단 설치. 세모 그린 곳 안에 풀숲 조성", "회전목마랑 소방차 사이에 있는 화단 밑 블록 생성".
 - tools/graybox/park_beds3_1116.lua: a straight bed along the west wall from the wheel's south-west corner to the 화단3칸 north of the mini viking (관람차화단.WheelBedWest, x -257.6, z -551.5..-505.5); two triangles of bushes on a raised grass base (0.9) with a brick curb: between the wheel and its south bed (WheelThicketSouth) and in the corner of its east side and north bed (WheelThicketEast); 놀이공원정원.Island2 on the same base (its bushes' hull rounded out 3.2, bushes raised onto it) and the bench that stood under its bushes taken away.
+
+## D-1522 (2026-11-16) 정원 큰 섬: 벚나무만 남기고 가로등 재배치
+- User (the big garden island between the mini viking and the super viking selected, its three cherry trees ticked): "해당 묶음 가운데 벚꽃나무만 두고 삭제.. 가로등 위치 재배치".
+- 놀이공원정원.Island1: its 323 bushes deleted; the five cherry trees and the benches stay; the four lamps at the strip's south end moved onto the trees' line, between and past them (x -165..-168, z -458 / -498 / -536 / -590; the -576 spot hit a bench). In park_beds3_1116 (run after park_garden_1116).
