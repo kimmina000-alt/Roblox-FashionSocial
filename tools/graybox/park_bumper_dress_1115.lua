@@ -201,6 +201,10 @@ for k = 0, nz do table.insert(postsZ, RZ0 + (RZ1 - RZ0) * k / nz) end
 local entrance = workspace["범퍼"]:FindFirstChild("EastEntrance")
 local entRamp = entrance and entrance:FindFirstChild("EntranceRamp") :: BasePart?
 local ENT_Z = entRamp and entRamp.Position.Z
+-- (D-1516) the entrance in the south rail (park_bumper_big_1116, east of the middle): the marquee over it
+local southEnt = workspace["범퍼"]:FindFirstChild("SouthEntrance")
+local southRamp = southEnt and southEnt:FindFirstChild("EntranceRamp") :: BasePart?
+local ENT_X = southRamp and southRamp.Position.X
 for _, x in ipairs({ RX0, RX1 }) do
 	for _, z in ipairs(postsZ) do
 		if ENT_Z and x == RX1 and math.abs(z - ENT_Z) < 8 then continue end
@@ -319,7 +323,7 @@ do
 	-- over the east eave, facing the promenade)
 	local base = if ENT_Z
 		then CFrame.fromMatrix(Vector3.new(RX1 + OVER + 0.6, EAVE + SH / 2 + 0.6, ENT_Z), -Vector3.zAxis, Vector3.yAxis)
-		else CFrame.new(CX, EAVE + SH / 2 + 0.6, RZ1 + OVER + 0.6)
+		else CFrame.new(ENT_X or CX, EAVE + SH / 2 + 0.6, RZ1 + OVER + 0.6)
 	part("SignBoard", Vector3.new(SW, SH, 0.8), base, PURPLE, Enum.Material.SmoothPlastic)
 	part("SignTrim", Vector3.new(SW + 1, SH + 1, 0.5), base * CFrame.new(0, 0, -0.35), Color3.fromRGB(240, 140, 40), Enum.Material.Neon)
 	for _, y in ipairs({ -SH / 2 + 0.6, SH / 2 - 0.6 }) do

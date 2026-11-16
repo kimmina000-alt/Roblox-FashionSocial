@@ -5233,3 +5233,19 @@ Studio only (no script yet).
 - User: "회전컵 펜스 표시한 부분 채우기. 펜스 없는 부분에 단상 올라갈 수 있는 계단 한 칸씩", "꽃밭은 1로 설치", "소방차 크기 1.3배 키우기", "슈퍼바이킹 출입구 펜스도 미니바이킹 출입구 펜스 기능 적용 / 미니바이킹 위치 수정하면서 입구 펜스 열릴 때 펜스 위치 엉뚱한 곳으로 감".
 - tools/graybox/park_cups_truck_gates_1116.lua: tea cups' north-east gap filled (2 panels), three steps + an invisible wedge at the other two gaps (deck 4.8 high; walked up in Play); fire truck ScaleTo 1.3 (north-west corner and ground kept, fences at their height, Radius / SaddleY × 1.3; now x -171..-128.5 z -333.7..-293.9); mini viking entrance Hinge on the closed leaf's -z end (it had stayed where the ride was before the user moved it); super viking entrance opens to the same diagonal (OpenYaw 0.98), exit leaf removed. Play: both entrance leaves closed while the boats run and open on their diagonals when they stop.
 - Flower bed: candidate 1 (Creator Store 131216077381773), its two scripts ("Runtime" inside a SurfaceAppearance, "ScreenBuilder") deleted, scale 0.7, by the gate in the corner west of the fire truck (Workspace.꽃밭). Place only.
+
+## D-1516 (2026-11-16) 땅 틈, 미니바이킹 단상 펜스, 범퍼카 입구 동쪽
+- User (a picture of the corner where the sea road ends at the park's grey platform): "땅 확인". Between the road end (z -275) and the platform (z -278.74), x -182..-153, there was no paving: the bare ground 0.6 under the promenade. Hongdae_Layout.PromenadeParkFill (brick like the promenade) fills it.
+- "미니바이킹 단상 위에 있는 펜스는 회색 메탈 재질로 변경": the 15 FencePanels on the mini viking's deck are grey Metal.
+- "범퍼카 출입구 동쪽으로 옮기기": the south rail's gap, the entrance and the marquee at x -95 (was -159); the south panels laid again round it. tools/graybox/park_fixes2_1116.lua (+ park_bumper_big_1116 ENT_X, park_bumper_dress_1115 marquee over the south entrance).
+
+## D-1517 (2026-11-16) 회전컵: 컵마다 다른 방향
+- User: "회전컵 멈췄을 때 회전 방향 모두 다르게 하기. 지금 캐릭터 얼굴이 모두 한 방향". A run is whole turns of the table and of each cup, so every cup stopped facing its first way (all the same). ParkConfig.teacupCFrame adds (cup - 1) × TeacupRestTurn (137.5°) to each cup's spin: no two cups face alike, at rest or running.
+
+## D-1518 (2026-11-16) 빈 땅 정원
+- User (an amusement park photo: lawns between paths, round shrubs, trees): "사진 참고하여 풀숲(잔디 대용) 적절히 사용하여 배치 디자인해. 벤치랑 가로등, 나무도 설치".
+- tools/graybox/park_garden_1116.lua: the park's open paving mapped on a 4-stud grid; a cell is taken within 9 of anything standing (so every island keeps a 9-wide walk round it), the gate's entry plaza and the corner outside the park stay open; free patches shrunk by a cell become bush islands (ArtAssets.Shrub, 4.4 apart) with cherry trees where widest (24 apart), benches facing the walk on the edges and lamps at the ends. Now: island 1 (between the rides from the mini viking to the bumper hall, 436 cells: 323 bushes, 5 trees, 10 benches, 8 lamps), island 2 (by the jumping star, 9 bushes, 2 benches). Workspace.놀이공원정원.
+
+## D-1519 (2026-11-16) 회전컵 계단 · 펜스 다시, 상점 이미지 시안
+- User: "회전컵 계단, 펜스 확인" (red boxes at the fence ends). D-1515 put the filled gap's two panels and both stairs half a step off the fence's grid: panels back on it, stairs in the middle of each gap and as wide as it (park_fixes2_1116).
+- "츄로스, 콜팝, 풍선샵에 들어간 이미지 메테리얼 사진 분위기에 맞춰서 이미지 편집해서 보여 줄 것": the textures taken out of the user's glb files (D:/Roblox/오후/3D 물/snackbar1.glb = 츄로스, snackbar2.glb = 콜팝 and the balloon shop's body) recoloured like the photo (bright fair colours): 츄로스 yellow roof / red stripes, 콜팝 teal roof / orange stripes, 풍선샵 blue roof / pink stripes, walls warm cream; menus, the door and the churro photo kept. docs/04_ART/park/shops/ (shop_textures_before_after.png). Not uploaded yet: waiting for the user's OK.

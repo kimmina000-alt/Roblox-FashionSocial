@@ -13,6 +13,7 @@
 
 local X0, X1, Z0, Z1 = -253, -65, -760, -645
 local GAP = 11
+local ENT_X = -95 -- (D-1516, user: "범퍼카 출입구 동쪽으로 옮기기": the gap east of the middle, -159)
 local G = 16.06
 
 local hall = workspace:FindFirstChild("범퍼")
@@ -65,8 +66,8 @@ if math.abs(oldX0 - X0) > 0.05 or math.abs(oldZ0 - Z0) > 0.05 or math.abs(fhi.X 
 	rail(X0 - T / 2, X1 + T / 2, Z0 - T / 2, Z0 + T / 2)
 	rail(X0 - T / 2, X0 + T / 2, Z0, Z1)
 	rail(X1 - T / 2, X1 + T / 2, Z0, Z1)
-	rail(X0 + T / 2, CX - GAP / 2, Z1 - T / 2, Z1 + T / 2)
-	rail(CX + GAP / 2, X1 - T / 2, Z1 - T / 2, Z1 + T / 2)
+	rail(X0 + T / 2, ENT_X - GAP / 2, Z1 - T / 2, Z1 + T / 2)
+	rail(ENT_X + GAP / 2, X1 - T / 2, Z1 - T / 2, Z1 + T / 2)
 	-- the old hidden roof and posts on the new corners
 	local k = 0
 	for _, p in ipairs(area:GetChildren()) do
@@ -90,7 +91,7 @@ if math.abs(oldX0 - X0) > 0.05 or math.abs(oldZ0 - Z0) > 0.05 or math.abs(fhi.X 
 	if ramp then
 		local run = ramp.Size.Z
 		local rise = FY - G
-		local newC = Vector3.new(CX, G + rise / 2, Z1 + run / 2)
+		local newC = Vector3.new(ENT_X, G + rise / 2, Z1 + run / 2)
 		-- the ramp's look vector points out of the hall; its frame without the ramp's own turn
 		local out = ramp.CFrame.LookVector
 		local oldFrame = CFrame.lookAt(ramp.Position, ramp.Position + Vector3.new(out.X, 0, out.Z))

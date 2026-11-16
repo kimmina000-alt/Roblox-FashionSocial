@@ -304,12 +304,17 @@ function ParkConfig.teacupExtra(model: Instance, cup: number, t: number): (numbe
 	return s.X + s.Y * ParkConfig.SpinFade * (1 - k), s.Y * k
 end
 
+ParkConfig.TeacupRestTurn = math.rad(137.5)
+
 -- Cup k's pivot now.
 function ParkConfig.teacupCFrame(model: Model, cup: number, t: number): CFrame?
 	local rel = model:GetAttribute("Cup" .. cup)
 	if typeof(rel) ~= "CFrame" then return nil end
 	local turn, spin = ParkConfig.teacupState(model, t)
 	spin += ParkConfig.teacupExtra(model, cup, t)
+	-- (D-1517, user: "회전컵 멈췄을 때 회전 방향 모두 다르게 하기. 지금 캐릭터 얼굴이 모두 한 방향"): each cup
+	-- turned its own way (137.5° apart, so no two face alike); a run is still whole turns, so it keeps it
+	spin += (cup - 1) * ParkConfig.TeacupRestTurn
 	return model:GetPivot() * CFrame.Angles(0, turn, 0) * rel * CFrame.Angles(0, -spin, 0)
 end
 
