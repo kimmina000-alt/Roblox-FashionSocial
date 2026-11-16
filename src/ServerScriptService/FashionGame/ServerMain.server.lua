@@ -43,6 +43,7 @@ ClubScreenService.Start()
 PhotoBoothService.Start(PlayerDataService)
 require(script.Parent.Services.ParkRideService).Start()
 require(script.Parent.Services.BumperCarService).Start() -- (drivable bumper cars, D-1413)
+task.spawn(require(script.Parent.Services.ParkOpenService).Start) -- (the amusement park open to everyone, D-1547)
 -- XP name tags are locked with XP (EconomyConfig.XPEnabled, user 2026-10-22):
 -- players keep Roblox's own name display.
 if require(game:GetService("ReplicatedStorage").FashionGame.Shared.EconomyConfig).XPEnabled then

@@ -1739,3 +1739,8 @@ af00ce	tmpl	"{1}" 일부 복원: 아이템 {2}개는 더 이상 착용할 수 �
 452ae5	tmpl	"{1}" 코디로 갈아입었습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/WardrobeView.lua:836
 3c9a71	exact	코디를 복원하지 못했습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/WardrobeView.lua:839
 d6f208	exact	미리보기 없음	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/WardrobeView.lua:875
+5c2d2d	exact	계단 위 놀이공원이 문을 열었어요! 놀이기구를 타고 무료 풍선도 받아 가세요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:33
+ca05f4	exact	놀이공원은 어디 있어요?	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
+6b1648	exact	계단 위 OHU LAND가 문을 열었어요! 바이킹, 회전컵, 관람차, 범퍼카를 탈 수 있어요.	1	src/ReplicatedStorage/FashionGame/Shared/GuideConfig.lua:71
+ed97c3	exact	화면을 마구 클릭해 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ParkRidesController.client.lua:805
+5a852a	exact	놀이공원이 문을 열었어요! 바이킹, 회전컵, 관람차, 범퍼카를 타고 무료 풍선도 받아 가세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:50

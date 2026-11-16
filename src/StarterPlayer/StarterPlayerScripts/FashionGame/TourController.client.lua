@@ -46,7 +46,8 @@ local STEPS: {Step} = {
 		eye = Vector3.new(-30, 38, -185), look = Vector3.new(60, 6, -205) },
 	{ title = "🍲 오후 돼지국밥", text = "국밥을 사서 자리에서 먹어요. 수육 한 접시는 테이블에 놓고 다 같이 나눠 먹어요.",
 		eye = Vector3.new(10, 42, -295), look = Vector3.new(88, 14, -334) },
-	{ title = "🎡 OHU LAND (공사 중)", text = "놀이공원은 지금 공사 중이에요. 곧 문을 열어요! 계단 위 정문 앞까지는 올라가 볼 수 있어요.",
+	-- (D-1547) the park is open
+	{ title = "🎡 OHU LAND", text = "놀이공원이 문을 열었어요! 바이킹, 회전컵, 관람차, 범퍼카를 타고 무료 풍선도 받아 가세요.",
 		eye = Vector3.new(-97, 48, -200), look = Vector3.new(-97, 28, -290) },
 	{ title = "🏖 해변", text = "튜브를 타고 바다에서 물놀이를 하고, 비치볼도 던지며 놀아요.",
 		eye = Vector3.new(-350, 13, -14), look = Vector3.new(-250, -5, -36), fov = 32 }, -- (D-1367: from the sea, tubes and parasols together)

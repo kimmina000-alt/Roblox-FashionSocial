@@ -30,7 +30,7 @@ GuideConfig.Places = {
 		at = Vector3.new(-215, 1, -40), look = Vector3.new(-250, 0, -40) },
 	hanok = { key = "hanok", name = "광화문 · 한옥 마을", emoji = "🏯", text = "광화문 앞 마당과 해태 앞은 사진 찍기 좋은 곳이에요.",
 		at = Vector3.new(120, 1, 165), look = Vector3.new(165, 18, 215), eye = Vector3.new(55, 48, 110) },
-	park = { key = "park", name = "OHU LAND (준비 중)", emoji = "🎡", text = "계단 위 놀이공원은 곧 열려요. 지금은 문 앞 광장까지 올라갈 수 있어요.",
+	park = { key = "park", name = "OHU LAND", emoji = "🎡", text = "계단 위 놀이공원이 문을 열었어요! 놀이기구를 타고 무료 풍선도 받아 가세요.", -- (D-1547)
 		at = Vector3.new(-97, 17, -250), look = Vector3.new(-100, 30, -330) },
 	guide = { key = "guide", name = "순위표 · 안내원", emoji = "🙋", text = "기부·레벨 순위표가 있어요. 앞에서 돌아다니는 토끼 안내원에게 무엇이든 물어보세요!",
 		at = Vector3.new(-112, 1, -56), look = Vector3.new(-120, 6, -60) },
@@ -68,7 +68,7 @@ GuideConfig.Faq = {
 	{ q = "옷은 어떻게 갈아입어요?", a = "오른쪽 위 옷걸이 버튼으로 카탈로그를 열어 입어 보고, ⚙ 아바타 편집에서 장신구 위치·크기도 바꿀 수 있어요." },
 	{ q = "멀리 빨리 가려면요?", a = "길가의 버스 정류장 표지판을 누르면 다른 정류장으로 바로 가요. 지하철 출구 계단 아래에서도 갈 곳을 고를 수 있어요." },
 	{ q = "물놀이는 어디서 해요?", a = "서쪽 해변에서 튜브를 타고 바다에 들어가요.", place = "beach" },
-	{ q = "놀이공원은 언제 열어요?", a = "OHU LAND는 지금 준비 중이에요. 계단 위 문 앞 광장까지는 올라갈 수 있어요.", place = "park" },
+	{ q = "놀이공원은 어디 있어요?", a = "계단 위 OHU LAND가 문을 열었어요! 바이킹, 회전컵, 관람차, 범퍼카를 탈 수 있어요.", place = "park" }, -- (D-1547)
 	{ q = "국밥을 테이블에 놓으면 남도 먹어요?", a = "아니요, 테이블에 놓은 국밥은 놓은 사람만 떠먹어요. 수육 한 접시와 케이크는 테이블에 놓으면 모두 한 조각씩 가져가 먹어요.", place = "gukbap" },
 	-- (D-1365) action = "tour": the first-visit tour again (TourController)
 	{ q = "🗺 동네 둘러보기 다시 보기", a = "카메라가 동네를 한 바퀴 돌며 장소와 화면 버튼을 알려 줘요.", action = "tour" },

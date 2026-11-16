@@ -794,6 +794,28 @@ minusButton.TextSize = 26
 plusButton.Text = "+"
 plusButton.TextSize = 24
 
+-- (D-1546, user 2026-11-16: "파란 줄에 화면을 마구 클릭해 보세요! 넣기. 흰색 폰트에 검은색 그림자") over the
+-- button bar while a tea cup can be spun by tapping (updateSpinTap)
+local tapHint = Instance.new("TextLabel")
+tapHint.Name = "TapHint"
+tapHint.AnchorPoint = Vector2.new(0.5, 1)
+tapHint.Position = if TOUCH then UDim2.new(0.5, 0, 1, -24 - 48 - 6) else UDim2.new(0.5, 0, 1, -110 - 48 - 6)
+tapHint.Size = UDim2.fromOffset(420, 30)
+tapHint.BackgroundTransparency = 1
+tapHint.Text = "화면을 마구 클릭해 보세요!"
+tapHint.TextColor3 = Color3.new(1, 1, 1)
+tapHint.Font = Enum.Font.GothamBlack
+tapHint.TextSize = 22
+tapHint.TextStrokeColor3 = Color3.new(0, 0, 0)
+tapHint.TextStrokeTransparency = 0.2
+tapHint.Visible = false
+tapHint.Parent = gui
+local tapShadow = Instance.new("UIStroke")
+tapShadow.Color = Color3.new(0, 0, 0)
+tapShadow.Thickness = 2
+tapShadow.Transparency = 0.15
+tapShadow.Parent = tapHint
+
 local toastLabel = Instance.new("TextLabel")
 toastLabel.AnchorPoint = Vector2.new(0.5, 1)
 toastLabel.Position = UDim2.new(0.5, 0, 1, -168)
@@ -829,6 +851,10 @@ local firstPerson = false
 local WHEEL_FRAME = {
 	Spoke = true, Support = true, LegBand = true, LegFoot = true, LegBar = true, Bearing = true, Axle = true,
 	Hub = true, HubWindow = true, HangRod = true, Hanger = true, StarPiece = true, StarMiddle = true,
+	-- (D-1546, user 2026-11-16, first-person screenshots at night: "관람차 1인칭 시점에 관람차 기둥 안 보이게
+	-- 하지 않았어?") the rim and its lights too: at night they glow (ParkNightController) and the big
+	-- neon bars filled the view
+	Rim = true, RimLight = true, Chord = true, Diagonal = true, HubPlate = true,
 }
 local hiddenFrame: {BasePart} = {}
 local function hideWheelFrame(wheel: Instance?)
@@ -1092,6 +1118,7 @@ local function updateSpinTap(t: number)
 		end
 	end
 	spinGui.Enabled = show
+	tapHint.Visible = show -- (D-1546)
 end
 
 local function updateSeatPicks(t: number)

@@ -1,5 +1,5 @@
 --!nocheck
--- 놀이공원 피드백 (D-1545, user 2026-11-16, phone screenshots). A post-pass after the park scripts (before
+-- 놀이공원 피드백 (D-1545 / D-1546, user 2026-11-16, phone screenshots). A post-pass after the park scripts (before
 -- park_perf_1116); safe to run again:
 --   * 소방차: the rider sits 1.2 studs further forward, nearer the truck's middle (SeatBack -1.2; the
 --     body's middle is 1.7 ahead of the old seat point);
@@ -72,6 +72,39 @@ for _, wheel in ipairs(CS:GetTagged("ParkWheel")) do
 	end
 end
 table.insert(out, benches .. " cabin benches removed")
+
+---------------------------------------------------------------- 회전컵 (D-1546)
+-- (user: "회전컵 의자 블록 삭제 앉는 모션 기능은 유지 / 회전컵 내릴 때 위치 확인") the cups' Bench / BenchLeg
+-- blocks go (the riders keep their seats: the Seat CFrames are attributes of the ride); getting off put
+-- you east of the deck 7.8 studs up in the air: now at the foot of the NW steps, facing away from the cups
+local cupBenches = 0
+for _, ride in ipairs(CS:GetTagged("ParkTeaCups")) do
+	if ride:IsDescendantOf(workspace) then
+		for _, d in ipairs(ride:GetDescendants()) do
+			if d:IsA("BasePart") and (d.Name == "Bench" or d.Name == "BenchLeg") then
+				d:Destroy()
+				cupBenches += 1
+			end
+		end
+		-- the lowest step of the flight nearest the gate (north-west), a little past it on the ground
+		local centre = ride:GetPivot().Position
+		local best, bestZ = nil, -math.huge
+		for _, d in ipairs(workspace:GetDescendants()) do
+			if d:IsA("BasePart") and d.Name == "Step" and d.Parent and d.Parent.Name == "Stairs" then
+				local p = d.Position
+				if (Vector3.new(p.X, 0, p.Z) - Vector3.new(centre.X, 0, centre.Z)).Magnitude < 40 and p.Z > centre.Z and d.Size.Y < 2 and p.Z > bestZ then
+					best, bestZ = d, p.Z
+				end
+			end
+		end
+		if best then
+			local out = Vector3.new(best.Position.X - centre.X, 0, best.Position.Z - centre.Z).Unit
+			local foot = best.Position + out * 3.5
+			ride:SetAttribute("Exit", Vector3.new(foot.X, 16.11 + 3, foot.Z))
+		end
+	end
+end
+table.insert(out, cupBenches .. " tea cup bench parts removed, exit at the NW steps")
 
 ---------------------------------------------------------------- 범퍼카 fences
 local hall = { x0 = -262, x1 = -55, z0 = -775, z1 = -620 }
