@@ -318,10 +318,27 @@ local function openViewer(photo: any)
 	end, false, Enum.ContextActionPriority.High.Value, Enum.UserInputType.MouseWheel)
 end
 
+-- (D-1540, memory: phones ran out of memory on live servers) every photo on a
+-- wall is 1..4 cuts of full dressed avatars in ViewportFrames: the five walls
+-- held 122,000 instances (8,000 MeshParts, layered clothing, 600 textures),
+-- about 350 MB, at any distance. A wall's photos are built only while the
+-- camera is near it (NEAR) and thrown away once it is far (FAR). They are drawn
+-- only within 80 studs anyway (SurfaceGuiDistance), so nothing looks different.
+local NEAR, FAR = 140, 190
+local nearWalls: {[BasePart]: boolean} = {} -- (false = far, watched)
+local function wallDistance(wall: BasePart): number
+	local camera = workspace.CurrentCamera
+	if not camera then return math.huge end
+	local p = wall.CFrame:PointToObjectSpace(camera.CFrame.Position)
+	local h = wall.Size / 2
+	local q = Vector3.new(math.clamp(p.X, -h.X, h.X), math.clamp(p.Y, -h.Y, h.Y), math.clamp(p.Z, -h.Z, h.Z))
+	return (p - q).Magnitude
+end
+
 local function drawEntry(entry: Entry, order: number)
 	if drawn[entry.id] then return end
 	local wall = findWall(entry.wall)
-	if not wall then return end
+	if not wall or not nearWalls[wall] then return end
 	local size = photoSize(entry.photo.layout)
 	-- (D-1322) a photo stuck before over a niche or a gap hung in the air: not drawn
 	-- (tried again by the retry loop below, in case the wall behind was not streamed in)
@@ -400,8 +417,34 @@ task.spawn(function()
 	while true do
 		task.wait(8)
 		for _, e in ipairs(entries) do
-			if not drawn[e.id] then redrawAll() break end
+			local wall = not drawn[e.id] and findWall(e.wall)
+			if wall and nearWalls[wall] then redrawAll() break end
 		end
+	end
+end)
+-- (D-1540) walls coming near are built, walls gone far are thrown away
+task.spawn(function()
+	while true do
+		task.wait(1)
+		local changed = false
+		for _, wall in ipairs(CollectionService:GetTagged("PhotoWall")) do
+			if wall:IsA("BasePart") and wall:IsDescendantOf(workspace) then
+				local d = wallDistance(wall)
+				if not nearWalls[wall] and d < NEAR then
+					if nearWalls[wall] == nil then
+						wall.AncestryChanged:Connect(function()
+							if not wall:IsDescendantOf(workspace) then nearWalls[wall] = nil end
+						end)
+					end
+					nearWalls[wall] = true
+					changed = true
+				elseif nearWalls[wall] and d > FAR then
+					nearWalls[wall] = false
+					forgetWall(wall)
+				end
+			end
+		end
+		if changed then redrawAll() end
 	end
 end)
 
