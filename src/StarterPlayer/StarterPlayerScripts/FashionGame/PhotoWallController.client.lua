@@ -324,7 +324,10 @@ end
 -- about 350 MB, at any distance. A wall's photos are built only while the
 -- camera is near it (NEAR) and thrown away once it is far (FAR). They are drawn
 -- only within 80 studs anyway (SurfaceGuiDistance), so nothing looks different.
-local NEAR, FAR = 140, 190
+-- (D-1541) 140 / 190 → 82 / 105: from the NW spawn square the 오후네컷 walls are
+-- 86..114 studs away, so three walls (74,000 instances) were built at the
+-- spawn; 82 is just past the 80-stud draw distance.
+local NEAR, FAR = 82, 105
 local nearWalls: {[BasePart]: boolean} = {} -- (false = far, watched)
 local function wallDistance(wall: BasePart): number
 	local camera = workspace.CurrentCamera
