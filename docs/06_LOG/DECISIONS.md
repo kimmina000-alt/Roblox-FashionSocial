@@ -5426,6 +5426,5 @@ Studio only (no script yet).
   - 슈퍼바이킹 boat 120207718676290 → 79709547591604, 미니바이킹 boat 111530873435434 → 123475083341795 (from docs/04_ART/park/viking_tex/*_Tex2.png; Workspace boats + ArtAssets VikingBoat*_Tex / _Tex2 + backups)
   - club bottle prints (SurfaceAppearance ColorMap): 골목 VIP 127730508419050 → 132018616240280, 스컬 앤 워터 134431123189380 → 116190746325115, 몬테 70523001372892 → 119585907032550, 골든 애플 100302718334363 → 116211355380806, 파스텔 스플래시 112355101268100 → 103388254069254
   - 국밥집 tissue box 128364778476427 → 121180420730475 (19 uses)
-- Originals of the bottles / tissue box were not in the repo: taken from Studio's own content cache (%LOCALAPPDATA%\Roblox
-bx-storage, RBXH header + PNG), matched to each asset by a pixel checksum read with EditableImage. Uploaded with the Studio MCP upload_image (account Vantablack_Dev). AssetService:CreateAssetAsync is not available yet.
+- Originals of the bottles / tissue box were not in the repo: taken from Studio's own content cache (%LOCALAPPDATA%/Roblox/rbx-storage, RBXH header + PNG), matched to each asset by a pixel checksum read with EditableImage. Uploaded with the Studio MCP upload_image (account Vantablack_Dev). AssetService:CreateAssetAsync is not available yet.
 - Each image: 4 MB → 1 MB uncompressed (about 5.3 → 1.3 MB with mips), about 30 MB in all. Edit-mode shots of the super viking and the VIP bucket look the same. The user must save the place (File → Save to Roblox).
