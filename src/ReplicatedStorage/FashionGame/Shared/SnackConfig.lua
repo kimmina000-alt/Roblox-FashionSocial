@@ -31,6 +31,7 @@ export type Item = {
 	pair: boolean?, -- (D-1129) 친구바: the first tap splits it in two, one half for a friend (FriendBar)
 	stickOut: boolean?, -- (D-1131) 빼쭉이: each bite one stick out into the other hand (SnackHands)
 	clubCan: string?, -- (D-1135) the club bar's can of this drink (ClubDrinks key), handed over by DrinkService
+	finalSip: boolean?, -- (D-1533) 콜팝: after the last piece one more tap drinks the cola through the straw
 }
 export type Shop = { key: string, title: string, prompt: string, hint: string?, items: {Item} }
 
@@ -106,17 +107,19 @@ SnackConfig.Shops = {
 		},
 	},
 	-- (D-1496) the park's balloon shop: a helium balloon on a string (BalloonService), a tap lets it go
+	-- (D-1531, user 2026-11-16: "풍선은 무료로 나눠 줘") free (no coins: the menu shows 무료); the ticket
+	-- booths outside the closed gate hand them out too (tools/graybox/park_free_balloon_1116.lua)
 	BalloonShop = {
 		key = "BalloonShop",
 		title = "오후 풍선 가게",
-		prompt = "풍선 사기",
+		prompt = "무료 풍선 받기",
 		items = {
-			{ key = "balloon_red", name = "빨간 풍선", kind = "balloon", color = Color3.fromRGB(235, 60, 75), coins = 5 },
-			{ key = "balloon_pink", name = "분홍 풍선", kind = "balloon", color = Color3.fromRGB(255, 140, 190), coins = 5 },
-			{ key = "balloon_yellow", name = "노란 풍선", kind = "balloon", color = Color3.fromRGB(255, 210, 60), coins = 5 },
-			{ key = "balloon_mint", name = "민트 풍선", kind = "balloon", color = Color3.fromRGB(110, 225, 190), coins = 5 },
-			{ key = "balloon_blue", name = "파란 풍선", kind = "balloon", color = Color3.fromRGB(80, 150, 255), coins = 5 },
-			{ key = "balloon_purple", name = "보라 풍선", kind = "balloon", color = Color3.fromRGB(165, 110, 235), coins = 5 },
+			{ key = "balloon_red", name = "빨간 풍선", kind = "balloon", color = Color3.fromRGB(235, 60, 75) },
+			{ key = "balloon_pink", name = "분홍 풍선", kind = "balloon", color = Color3.fromRGB(255, 140, 190) },
+			{ key = "balloon_yellow", name = "노란 풍선", kind = "balloon", color = Color3.fromRGB(255, 210, 60) },
+			{ key = "balloon_mint", name = "민트 풍선", kind = "balloon", color = Color3.fromRGB(110, 225, 190) },
+			{ key = "balloon_blue", name = "파란 풍선", kind = "balloon", color = Color3.fromRGB(80, 150, 255) },
+			{ key = "balloon_purple", name = "보라 풍선", kind = "balloon", color = Color3.fromRGB(165, 110, 235) },
 		},
 	},
 	-- (D-1527, user: "츄로스랑 콜팝도 풍선처럼 구매 가능하게") the park's snack bars: coins, held and eaten
@@ -135,9 +138,9 @@ SnackConfig.Shops = {
 		title = "OHU 콜팝",
 		prompt = "콜팝 사기",
 		items = {
-			{ key = "colpop_cola", name = "콜팝 (콜라)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(255, 255, 255), coins = 5 },
-			{ key = "colpop_cider", name = "콜팝 (사이다)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(120, 210, 120), coins = 5 },
-			{ key = "colpop_cheese", name = "치즈 콜팝", kind = "colpop", color = Color3.fromRGB(240, 190, 70), topping = Color3.fromRGB(255, 255, 255), coins = 5 },
+			{ key = "colpop_cola", name = "콜팝 (콜라)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(255, 255, 255), coins = 5, finalSip = true },
+			{ key = "colpop_cider", name = "콜팝 (사이다)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(120, 210, 120), coins = 5, finalSip = true },
+			{ key = "colpop_cheese", name = "치즈 콜팝", kind = "colpop", color = Color3.fromRGB(240, 190, 70), topping = Color3.fromRGB(255, 255, 255), coins = 5, finalSip = true },
 		},
 	},
 	-- OH24 convenience store (D-311): cheap snacks, coins only, no alcohol / tobacco
