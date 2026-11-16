@@ -5249,3 +5249,12 @@ Studio only (no script yet).
 ## D-1519 (2026-11-16) 회전컵 계단 · 펜스 다시, 상점 이미지 시안
 - User: "회전컵 계단, 펜스 확인" (red boxes at the fence ends). D-1515 put the filled gap's two panels and both stairs half a step off the fence's grid: panels back on it, stairs in the middle of each gap and as wide as it (park_fixes2_1116).
 - "츄로스, 콜팝, 풍선샵에 들어간 이미지 메테리얼 사진 분위기에 맞춰서 이미지 편집해서 보여 줄 것": the textures taken out of the user's glb files (D:/Roblox/오후/3D 물/snackbar1.glb = 츄로스, snackbar2.glb = 콜팝 and the balloon shop's body) recoloured like the photo (bright fair colours): 츄로스 yellow roof / red stripes, 콜팝 teal roof / orange stripes, 풍선샵 blue roof / pink stripes, walls warm cream; menus, the door and the churro photo kept. docs/04_ART/park/shops/ (shop_textures_before_after.png). Not uploaded yet: waiting for the user's OK.
+- (later, user: "업로드 적용") uploaded and applied: 츄로스 126552603817404 (SnackBar1, SnackBar1B), 콜팝 80091077795752 (SnackBar2B), 풍선샵 118002342856320 (BalloonShop.BoothBody, its own image now). All three load in Studio.
+
+## D-1520 (2026-11-16) 관람차 1인칭에서 기둥 숨기기
+- User (a first-person view from a cabin with the wheel's beams across it): "관람차 1인칭 시점하면 관람차 기둥 보이는데 1인칭 시점에서 기둥 안 보이게".
+- ParkRidesController: in first person in a cabin the wheel's frame (Spoke, Support, LegBand, LegFoot, LegBar, Bearing, Axle, Hub, HubWindow, HangRod, Hanger and the legs' stars) gets LocalTransparencyModifier 1 on that screen only, back to 0 on 3인칭 or getting off; the cabins, the rim and its lights stay.
+
+## D-1521 (2026-11-16) 관람차 서쪽 화단, 세모 풀숲, 섬 밑 블록
+- User (two pictures of the Ferris wheel with a red line along the west wall and two red triangles, and the garden's small island): "빨간선으로 화단 설치. 세모 그린 곳 안에 풀숲 조성", "회전목마랑 소방차 사이에 있는 화단 밑 블록 생성".
+- tools/graybox/park_beds3_1116.lua: a straight bed along the west wall from the wheel's south-west corner to the 화단3칸 north of the mini viking (관람차화단.WheelBedWest, x -257.6, z -551.5..-505.5); two triangles of bushes on a raised grass base (0.9) with a brick curb: between the wheel and its south bed (WheelThicketSouth) and in the corner of its east side and north bed (WheelThicketEast); 놀이공원정원.Island2 on the same base (its bushes' hull rounded out 3.2, bushes raised onto it) and the bench that stood under its bushes taken away.
