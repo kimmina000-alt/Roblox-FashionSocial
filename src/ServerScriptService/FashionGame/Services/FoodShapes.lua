@@ -520,13 +520,13 @@ local ASSET_FOODS: {[string]: {any}} = {
 	-- (D-1533, user 2026-11-16: "츄로스랑 콜팝 3d 에셋 추가함") the user's models (Foods.ChurroBites:
 	-- Bite1 (top) .. Bite4, eaten from the top; Foods.ColpopBites: Plate = the striped cup with its
 	-- straw, Bite1..7 = the chicken on top, then the cola through the straw, SnackService finalSip).
-	-- One model for every flavour. Held low (4th value).
-	churro_original = { "Churro", 1.9, nil, 0.3 },
-	churro_choco = { "Churro", 1.9, nil, 0.3 },
-	churro_strawberry = { "Churro", 1.9, nil, 0.3 },
-	colpop_cola = { "Colpop", 1.3, nil, 0.22 },
-	colpop_cider = { "Colpop", 1.3, nil, 0.22 },
-	colpop_cheese = { "Colpop", 1.3, nil, 0.22 },
+	-- One model for every flavour. Held low (4th value). Sizes before FOOD_SCALE (1.5x): 1.5 and 1.35 studs in the hand.
+	churro_original = { "Churro", 1.0, nil, 0.4 },
+	churro_choco = { "Churro", 1.0, nil, 0.4 },
+	churro_strawberry = { "Churro", 1.0, nil, 0.4 },
+	colpop_cola = { "Colpop", 0.9, nil, 0.2 },
+	colpop_cider = { "Colpop", 0.9, nil, 0.2 },
+	colpop_cheese = { "Colpop", 0.9, nil, 0.2 },
 }
 local function fromAsset(item: any): (Part?, CFrame?, boolean?)
 	local spec = ASSET_FOODS[item.key]
