@@ -89,3 +89,4 @@
   - `park_shops_1116.lua` (D-1496) — 스낵바 2개를 사용자 모델로 교체, 풍선 가게(입구 안쪽 오른편, BalloonCounter = SnackShop) 설치, ArtAssets.BalloonShopDecor가 있으면 풍선 색. park_narrow_1116 다음.
   - `park_rides_south_1116.lua` (D-1500) — 회전컵·슈퍼바이킹·관람차를 입구 쪽(남쪽)으로 123.5(회전컵은 동쪽으로 6.4 더), 새 자리 밑 화단은 ServerStorage.ParkMoveRemoved_1116로. park_shops_1116 다음.
   - `park_star_bed_1116.lua` (D-1501) — 점핑스타 둘레: 펜스 밖 10 길 + 북·남 둥근 화단(StarBeds). park_rides_south_1116 다음.
+  - `park_cups_bed_1116.lua` (D-1504) — 회전컵 펜스 밖 10 길 + 북·남 둥근 화단(CupBeds), 그 자리 옛 화단 삭제. park_star_bed_1116 다음.

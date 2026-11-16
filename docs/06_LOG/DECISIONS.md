@@ -5185,3 +5185,7 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 
 ## D-1503 (2026-11-16) 벽 기둥 속에 박힌 덤불 삭제
 - User (a west wall pillar with hedge leaves sticking out of its foot): "여기 들어간 화단 삭제". The wall bed's hedges that moved with the wall (D-1494) stood half inside the pillars: every Hedge of 놀이공원길 whose middle is inside a ParkPillar's footprint (± 1) was deleted, 11 in all (west pillars at z -378, -477, -630 ×2, -735, -945 ×2, -1050, -1155 ×2; east pillar at -630). Studio only (the place); a rebuild of 놀이공원길 by park_paths_1116 would bring them back.
+
+## D-1504 (2026-11-16) 회전컵 둘레 둥근 화단
+- User (an arc round the tea cups' east side): "회전컵 펜스 10스터드 밖으로 화단 설치. 위에 화단 가지고 오든지 사이즈 안 맞으면 위에 기존 화단 삭제하고 새로 만들어". The old beds north of the tea cups did not fit the new ring, so they were deleted (21 pieces reaching into the new path / ring; the east wall bed kept) and the ring is new.
+- tools/graybox/park_cups_bed_1116.lua (Workspace.놀이공원길.CupBeds: CupBedNorth / CupBedSouth): fence radius 37.2 + a 10 path + a 6.5 bed (the tea cups' old bed width), radius 50.45; north arc -130°..-28°, south arc 28°..130°: open to the west (the carousel is 3 from the fence there) and at the east, where the east wall bed already runs. 4 lamps / benches in the way moved out past the ring.
