@@ -5299,3 +5299,9 @@ Studio only (no script yet).
 ## D-1529 (2026-11-16) 놀이공원 입구 키 재기 판
 - User (a height board photo: a giraffe with a ruler): "놀이공원 입구 초입에 키재는 판 만들어놔 소방차 옆에 두자".
 - tools/graybox/park_height_board_1116.lua (Workspace.키재기판): our own giraffe from parts — a yellow board 10.7 high with brown spots, a white ruler 0..300 cm (1 stud = 28 cm; ticks every 5 cm, round orange / brown numbers every 20 cm, FixedSize SurfaceGui: PixelsPerStud drew nothing), the head on top (horns, ears, eyes, cheeks, snout), a green "키 재기" plate; at x -124, z -298 east of the fire truck by the way in, facing east; only the board collides.
+
+## D-1530 (2026-11-16) 놀이공원 야경
+- User: "놀이공원 야경 화려하게 구현해".
+- tools/graybox/park_night_1116.lua (Workspace.놀이공원야경): rainbow string lights (341 bulbs, tag ParkNightBulb, attribute Seq) on dark wires between the park's lamps (each to its two nearest, up to 60 apart, 92 along the east wall, only past trees) and from a 24-high pole with a star in the entry plaza to eight ring poles round it (a canopy; star and ring caps NightGlow); four searchlights on the park wall's corner pillars (white-blue / pink / sky / gold beams, Persistent so far corners show).
+- ParkNightController (new, 18:00–06:00 and only while the camera is within 700 of the park): bulbs Neon with their colours running along each string (every 0.16 s), the whole Ferris wheel (Rim, RimLight, Spoke) Neon with a rainbow going round it (pieces placed in the wave by their angle in the wheel's plane), the searchlight beams sweeping their own circles, fireworks every 27 s slot of the server clock (3–6 shells: a rocket with a trail, a burst of sparks and a flash; the same shells on every screen). Pieces streamed in after dusk are given the night look too; by day everything goes back.
+- Studio Play at 22:00 (ClockOverride, removed after): rainbow wheel, running string lights, a gold beam, a rocket going up; no script errors.
