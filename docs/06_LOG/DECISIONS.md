@@ -5211,3 +5211,7 @@ Studio only (no script yet).
 
 ## D-1510 (2026-11-16) 미니바이킹 북쪽 화단을 펜스에서 10 떨어지게
 - User (the bed lying on the mini viking's north fence): "화단 펜스로부터 10 스터드 떨어진 옆으로 이동". The user had moved the mini viking (now x -249..-188.6, z -506.4..-445.2) and the bumper hall (z -705.9..-572.5) by hand; the long bed between them (park_paths_1116's z -506.7 row, x -261.6..-216.5, with its bushes, 14 pieces) sat on the mini viking's north fence line (-506.4). It moved 12.2 north: its south edge is 10 from the fence (bed middle z -518.9). Studio only.
+
+## D-1511 (2026-11-16) 떠 있는 놀이기구·가로등·나무 땅에 붙이기
+- User (the carousel's base over the ground): "회전목마 붕 떠 있음 / 이렇게 붕 떠 있는 놀이기구나 화단 나무 벤치 있으면 땅에 맞춰서 배치해".
+- Checked 87 units in the park (every ride, the snack bars and balloon shop, the bed models, 놀이공원길's lamps, benches, bins and trees, loose hedges): rays down from the lowest visible parts, the unit itself left out. Floating more than 0.25 and dropped onto what is under them: the carousel (base, ring and the turning Carousel model; its fence was on the ground) 1.27, the super viking 1.41, two lamps 0.97 and a cherry tree 0.97 (moved off their beds earlier onto the paving). World attributes went with them. Play: the carousel turns, horses bob over the base, no script errors. Studio only.
