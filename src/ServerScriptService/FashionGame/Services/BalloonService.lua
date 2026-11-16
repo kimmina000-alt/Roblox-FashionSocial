@@ -156,9 +156,26 @@ function BalloonService.give(player: Player, name: string, color: Color3): Tool?
 	float(balloon, LIFT)
 	tool.Equipped:Connect(function()
 		-- up over the hand again, and the holder's machine moves it (smooth swaying)
-		balloon.CFrame = handle.CFrame + Vector3.new(0, ROPE, 0)
+		-- (D-1544, user 2026-11-16: "풍선 받으면 왜 밖으로 스폰되지") when the tool is equipped its
+		-- handle is not on the hand yet (the grip weld comes a moment later): the balloon was put over
+		-- the handle's old place, far off near the map's middle, and the string yanked the holder
+		-- that way (out of the park through the gate). Now: over the HAND, the string slack until the
+		-- grip is there, then placed once more.
+		local character = tool.Parent
+		local hand = character and (character:FindFirstChild("RightHand") or character:FindFirstChild("Right Arm"))
+		local at = if hand and hand:IsA("BasePart") then hand.Position else handle.Position
+		rope.Enabled = false
+		balloon.CFrame = CFrame.new(at + Vector3.new(0, ROPE, 0))
 		balloon.AssemblyLinearVelocity = Vector3.zero
 		pcall(function() balloon:SetNetworkOwner(player) end)
+		task.delay(0.2, function()
+			if tool.Parent ~= character or not balloon.Parent then return end
+			local over = handle.Position
+			if hand and hand:IsA("BasePart") and (over - hand.Position).Magnitude > 4 then over = hand.Position end
+			balloon.CFrame = CFrame.new(over + Vector3.new(0, ROPE, 0))
+			balloon.AssemblyLinearVelocity = Vector3.zero
+			rope.Enabled = true
+		end)
 	end)
 	tool.Activated:Connect(function()
 		if tool.Parent and balloon.Parent then letGo(player, tool, balloon) end

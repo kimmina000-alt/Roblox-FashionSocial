@@ -402,3 +402,35 @@ RunService.Heartbeat:Connect(function(dt)
 		end
 	end
 end)
+
+-- (D-1545, user 2026-11-16: "범퍼카 탑승 후에는 범퍼카 타기 안 뜨게 해") while this player sits in a bumper
+-- car, no car's "범퍼카 타기" shows on their screen (the server keeps a car's prompt on while its other
+-- seat is free, for the next person); off the car, they come back.
+local RIDE_REACH = 11
+task.spawn(function()
+	local wasIn = false
+	while true do
+		task.wait(0.3)
+		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		local seat = humanoid and humanoid.SeatPart
+		local inCar = false
+		if seat then
+			local node: Instance? = seat
+			while node and node ~= workspace do
+				if CollectionService:HasTag(node, C.Tag) or CollectionService:HasTag(node, C.RootTag) then inCar = true break end
+				node = node.Parent
+			end
+		end
+		if inCar or wasIn then
+			for _, root in ipairs(CollectionService:GetTagged(C.RootTag)) do
+				local model = root.Parent
+				for _, d in ipairs(if model then model:GetDescendants() else {}) do
+					if d:IsA("ProximityPrompt") then -- (the car's one prompt; its text may be translated)
+						d.MaxActivationDistance = if inCar then 0 else RIDE_REACH
+					end
+				end
+			end
+		end
+		wasIn = inCar
+	end
+end)

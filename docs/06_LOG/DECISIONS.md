@@ -5385,3 +5385,16 @@ Studio only (no script yet).
 - NEAR / FAR 140 / 190 → 82 / 105 (draw distance stays 80): the spawn builds none; a wall's photos are made as the player walks in (the walls are inside the building).
 - Mobile 3P test (2026-11-16): at the spawn Player1..3 had 0 photo walls; Player3 inside 오후네컷 got 4 walls (85,094 instances, 188 cuts in 40 s); back at the spawn 2 walls stayed (86 and 101 studs, inside FAR 105). No script errors.
 - Merged into catalog-ui-redesign (fast-forward, user: "머지해" after the mobile 3P test).
+
+## D-1543 (2026-11-16) 놀이공원 배경음악 35%
+- User: "놀이공원 배경음악 35%로 줄이기". SfxController ambience MAX park 0.32 → 0.112.
+
+## D-1544 (2026-11-16) 풍선을 받으면 정문 밖으로 끌려가던 문제
+- User: "풍선 받으면 왜 밖으로 스폰되지 막아 놔서 구런가". Reproduced in Studio: buying a balloon at the park's balloon shop moved the character from (-84, -305) to (-69, -251), out through the gate. Not the closed gate: on equip BalloonService put the balloon over the tool's handle, which was not on the hand yet (the grip weld comes a moment later), so the balloon sat far off near the map's middle and its RopeConstraint yanked the holder that way until the gate stopped them.
+- Fix (BalloonService): on equip the balloon goes over the right hand, the string is off for 0.2 s, then the balloon is placed over the handle (or the hand if the handle is still away) and the string comes back. Checked: the character stays put, the balloon floats 7 over the hand.
+
+## D-1545 (2026-11-16) 놀이공원 피드백 (소방차, 회전목마, 점핑스타, 관람차, 범퍼카)
+- User (phone screenshots): "소방차 앉는 위치 조금 더 가운데로 / 회전목마 체크한 부분 조명선 더 얇게 하기 너무 눈부심 / 말 귀 하얗게 수정 / 점핑스타 내리면 저 곳에서 내리는 걸로 수정 / 관람차 의자 블록 삭제하고 기존 앉는 위치에서 살짝만 아래로 내리기. 에셋에 의자 부분 만들었음. / 범퍼카 펜스 겹치는 거 수정. 안 겹치게 해. 살짝 떨어져도 되니까. / 범퍼가 위치 오른쪽으로 이동. 두 줄로 넣어서 총 12대 넣기. / 범퍼카 탑승 후에는 범퍼카 타기 안 뜨게 해. / 벽에 그림 잘려도 되니까 가운데 중심으로 잡고 이미지 하나만 넣기."
+- tools/graybox/park_fixes3_1116.lua (post-pass, before park_perf_1116): 소방차 SeatBack -1.2 (the body's middle is 1.7 ahead of the old seat point); 회전목마 MirrorGlow frames 0.08 round the mirror (were 0.3), PoleFootLight discs 1.2 across (were 1.9), HorseHorn white; 점핑스타 Exit just outside the fence's east opening (pivot + 14.2 in X); 관람차 the 20 cabin Bench blocks removed; 범퍼카 64 fence panels shortened to their neighbour gap less 0.15 (8.1 long on 7.63 centres before), 12 cars (the six placed + a copy of each, Workspace.Scene *_2, place-only) in two rows of six on the east half by the back wall (x -150..-87.5, z -751.2 / -740.2), the back wall's Mural one image, ScaleType Crop (centred).
+- ParkConfig.CabinSeats y -7.05 → -7.35 (the cabin mesh's own seats). BumperCarController: while this player sits in a bumper car every car's prompt has MaxActivationDistance 0 on their screen, 11 again after.
+- Studio Play: balloon fine, jumpstar Leave returns (-206.5, 19.25, -361.1), 12 car roots, all prompts 0 while seated and 11 after, one cropped picture, thinner carousel lights and white ears; the probe in a cabin shows -7.35 on the mesh seats' top; no script errors.

@@ -202,7 +202,8 @@ for name, id in pairs(SoundConfig.Ambience :: {[string]: number}) do
 end
 
 -- (D-718, user: the birds and the street were not heard next to the waves: raised to them)
-local MAX = { waves = 0.0825, birds = 0.45, city = 0.3, park = 0.32 }
+-- (D-1543, user 2026-11-16: "놀이공원 배경음악 35%로 줄이기") park 0.32 → 0.112
+local MAX = { waves = 0.0825, birds = 0.45, city = 0.3, park = 0.112 }
 local current = { waves = 0, birds = 0, city = 0, park = 0 }
 local nextAt = 0
 RunService.Heartbeat:Connect(function()

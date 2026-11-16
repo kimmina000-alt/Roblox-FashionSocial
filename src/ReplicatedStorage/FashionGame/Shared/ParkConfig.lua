@@ -82,8 +82,10 @@ ParkConfig.CabinSeats = {
 	-- (D-1433: the user's cabin; benches at x ±2.05, top 7.05 under the hang point)
 	-- (D-1463: the user's new cabin has its door on the front (+x, the boarding deck): the benches
 	-- stand across the wheel, at z ±2.6 in the hub's frame, riders facing each other)
-	{ offset = Vector3.new(0, -7.05, 2.6), facing = Vector3.new(0, 0, -1) },
-	{ offset = Vector3.new(0, -7.05, -2.6), facing = Vector3.new(0, 0, 1) },
+	-- (D-1545, user 2026-11-16: "관람차 의자 블록 삭제하고 기존 앉는 위치에서 살짝만 아래로 내리기. 에셋에 의자
+	-- 부분 만들었음") the Bench blocks are gone (park_fixes3_1116), the cabin mesh has its seats: 0.3 lower
+	{ offset = Vector3.new(0, -7.35, 2.6), facing = Vector3.new(0, 0, -1) },
+	{ offset = Vector3.new(0, -7.35, -2.6), facing = Vector3.new(0, 0, 1) },
 }
 ParkConfig.BoardDistance = 12
 
