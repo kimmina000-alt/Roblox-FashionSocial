@@ -5,9 +5,9 @@
 --   * the roof: ServerStorage.ArtAssets.CarouselRoof2 (the user's import, place-only: save the place) as the
 --     carousel's RoofMesh in its Rotor, as wide as the old roof (48.5) and its lower edge where the old
 --     one's was; the old RoofMesh is kept in ServerStorage.ArtAssets.CarouselRoofOld;
---   * the lights (Rotor.RoofLights, turning with the roof): warm Neon bulbs along the crown's top edge (it
---     goes up and down with the points) and its lower edge, and up 16 lines of the cone to the top, found by
---     rays onto the new mesh; a gold glow at the finial. Bulbs are CanCollide / CanQuery / CastShadow off.
+--   * the lights (Rotor.RoofLights, turning with the roof): warm Neon bulbs on the crown's lines only (the
+--     user's sky-blue marks): along its top edge, up and down the points, and down the seams where two
+--     panels meet, found by rays onto the new mesh. Bulbs are CanCollide / CanQuery / CastShadow off.
 -- Safe to run again.
 
 local art = game:GetService("ServerStorage"):WaitForChild("ArtAssets")
@@ -65,51 +65,70 @@ local function bulb(at: Vector3, d: number)
 	n += 1
 end
 
--- the crown: at each angle a ray in from outside at falling heights; the first height that hits near the
--- rim is the crown's top there, the last one its lower edge
-local ANGLES = 64
-for i = 0, ANGLES - 1 do
-	local a = i / ANGLES * 2 * math.pi
+-- (D-1548, user 2026-11-16 with the roof marked in sky blue: "지붕에 조명 하늘색 선 안쪽으로만 넣어 봐") bulbs
+-- only on the crown's lines: along its top edge (up and down the points) and down the seams where two
+-- panels meet (the dips of the top edge); just inside the lines, on the panel faces. Not up the cone, not
+-- along the lower edge, no finial glow (the first try had those).
+-- The crown at 360 angles: a ray in from outside at falling heights; the first height that hits near the rim
+-- is the top edge there, the last one the lower edge.
+local STEPS = 360
+local topAt, topY, lowY = {}, {}, {}
+for i = 0, STEPS - 1 do
+	local a = i / STEPS * 2 * math.pi
 	local dir = Vector3.new(math.cos(a), 0, math.sin(a))
-	local first, last, firstHit, lastHit = nil, nil, nil, nil
-	for y = top, BOTTOM - 1, -0.25 do
-		local from = Vector3.new(centre.X, y, centre.Z) + dir * (R + 4)
-		local hit = workspace:Raycast(from, -dir * 8, rp)
+	for y = top, BOTTOM - 1, -0.1 do
+		local hit = workspace:Raycast(Vector3.new(centre.X, y, centre.Z) + dir * (R + 4), -dir * 8, rp)
 		if hit and (Vector3.new(hit.Position.X, 0, hit.Position.Z) - Vector3.new(centre.X, 0, centre.Z)).Magnitude > R - 2.5 then
-			if not first then first, firstHit = y, hit.Position end
-			last, lastHit = y, hit.Position
+			if not topY[i] then topY[i], topAt[i] = y, hit.Position end
+			lowY[i] = y
 		end
 	end
-	if firstHit then bulb(firstHit + dir * 0.35 - Vector3.new(0, 0.2, 0), 0.55) end
-	if lastHit and last and first and first - last > 1 then bulb(lastHit + dir * 0.35 + Vector3.new(0, 0.2, 0), 0.55) end
 end
-
--- up the cone: 16 lines from the crown to the top, a bulb every ~2.2 studs, laid on the surface (rays down)
-local LINES = 16
-for i = 0, LINES - 1 do
-	local a = (i + 0.5) / LINES * 2 * math.pi
-	local dir = Vector3.new(math.cos(a), 0, math.sin(a))
-	for r = R - 2.5, 1.5, -2.2 do
-		local from = Vector3.new(centre.X, top + 5, centre.Z) + dir * r
-		local hit = workspace:Raycast(from, Vector3.new(0, -(top - BOTTOM + 10), 0), rp)
-		if hit then bulb(hit.Position + hit.Normal * 0.3, 0.5) end
+local function dirAt(i: number): Vector3
+	local a = i / STEPS * 2 * math.pi
+	return Vector3.new(math.cos(a), 0, math.sin(a))
+end
+-- along the top edge, a bulb every SPACING studs of edge
+local SPACING = 1.25
+local walked = SPACING
+local prev: Vector3? = nil
+for i = 0, STEPS do
+	local j = i % STEPS
+	local p = topAt[j]
+	if p then
+		local inside = p + dirAt(j) * 0.3 - Vector3.new(0, 0.45, 0)
+		if prev then walked += (inside - prev).Magnitude end
+		if walked >= SPACING and i < STEPS then
+			bulb(inside, 0.5)
+			walked = 0
+		end
+		prev = inside
 	end
 end
-
--- the finial's glow
-local tip = workspace:Raycast(Vector3.new(centre.X, top + 5, centre.Z), Vector3.new(0, -10, 0), rp)
-local glow = Instance.new("Part")
-glow.Name = "FinialGlow"
-glow.Shape = Enum.PartType.Ball
-glow.Size = Vector3.new(1.4, 1.4, 1.4)
-glow.Material = Enum.Material.Neon
-glow.Color = Color3.fromRGB(255, 205, 90)
-glow.Anchored, glow.CanCollide, glow.CanTouch, glow.CanQuery, glow.CastShadow = true, false, false, false, false
-glow.Position = (if tip then tip.Position else Vector3.new(centre.X, top, centre.Z)) + Vector3.new(0, 0.6, 0)
-local light = Instance.new("PointLight")
-light.Color, light.Range, light.Brightness = Color3.fromRGB(255, 210, 120), 16, 1.5
-light.Parent = glow
-glow.Parent = lights
+-- down the seams: the crown has 8 big panels (their points 45 degrees apart) and a small panel between
+-- each two; the sky-blue seams are the small panels' two sides, 7 degrees either side of their middle
+-- (measured on the user's mesh: the top edge dips there). The first big point = the highest sample in the
+-- first 45 degrees.
+local SEAM_HALF = 7
+local peak, peakY = 0, -math.huge
+for i = 0, 44 do
+	if topY[i] and topY[i] > peakY then peak, peakY = i, topY[i] end
+end
+local seams = 0
+for k = 0, 7 do
+	for _, side in ipairs({ -1, 1 }) do
+		local i = math.floor(peak + 22.5 + k * 45 + side * SEAM_HALF + 0.5) % STEPS
+		local y, low = topY[i], lowY[i]
+		if y and low then
+			seams += 1
+			local dir = dirAt(i)
+			for h = y - 1.1, low + 0.4, -1.2 do
+				local hit = workspace:Raycast(Vector3.new(centre.X, h, centre.Z) + dir * (R + 4), -dir * 8, rp)
+				if hit then bulb(hit.Position + dir * 0.3, 0.5) end
+			end
+		end
+	end
+end
 
 roof.CanQuery = false
 lights.Parent = rotor
