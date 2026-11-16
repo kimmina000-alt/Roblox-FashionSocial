@@ -48,6 +48,8 @@ local IMG_H = (X1 - X0) / IMG_N * IH / IW -- (the picture's height: about 45 for
 local EAVE = FY + IMG_H + 1.8
 local RIDGE = EAVE + 11
 local OVER = 3 -- (the roof past the rail walls)
+-- (D-1527, user: "범퍼카 간판 더 키우고 왼쪽으로 이동") the marquee 1.5 times as big, over x SIGN_X
+local SIGN_SCALE, SIGN_X = 1.5, -121
 
 local old = workspace["범퍼"]:FindFirstChild("ArenaDress")
 if old then old:Destroy() end
@@ -318,12 +320,12 @@ end
 
 ---------------------------------------------------------------- the marquee sign over the front
 do
-	local SW, SH = 44, 9
+	local SW, SH = 44 * SIGN_SCALE, 9 * SIGN_SCALE
 	-- (its face is the frame's +Z: over the front (+z) at first; D-1476, the entrance on the east side:
 	-- over the east eave, facing the promenade)
 	local base = if ENT_Z
 		then CFrame.fromMatrix(Vector3.new(RX1 + OVER + 0.6, EAVE + SH / 2 + 0.6, ENT_Z), -Vector3.zAxis, Vector3.yAxis)
-		else CFrame.new(ENT_X or CX, EAVE + SH / 2 + 0.6, RZ1 + OVER + 0.6)
+		else CFrame.new(SIGN_X or ENT_X or CX, EAVE + SH / 2 + 0.6, RZ1 + OVER + 0.6)
 	part("SignBoard", Vector3.new(SW, SH, 0.8), base, PURPLE, Enum.Material.SmoothPlastic)
 	part("SignTrim", Vector3.new(SW + 1, SH + 1, 0.5), base * CFrame.new(0, 0, -0.35), Color3.fromRGB(240, 140, 40), Enum.Material.Neon)
 	for _, y in ipairs({ -SH / 2 + 0.6, SH / 2 - 0.6 }) do
@@ -338,7 +340,7 @@ do
 		end
 	end
 	-- the words, in a surface gui on a front plate
-	local plate = part("SignText", Vector3.new(SW - 14, SH - 2.2, 0.1), base * CFrame.new(5, 0, 0.45), PURPLE) -- (the right half, seen from the queue: +x)
+	local plate = part("SignText", Vector3.new(SW - 14 * SIGN_SCALE, SH - 2.2 * SIGN_SCALE, 0.1), base * CFrame.new(5 * SIGN_SCALE, 0, 0.45), PURPLE) -- (the right half, seen from the queue: +x)
 	plate.Transparency = 1
 	local g = Instance.new("SurfaceGui")
 	g.Face = Enum.NormalId.Back -- (the plate's back faces +z: this CFrame looks down -z)
@@ -358,8 +360,8 @@ do
 	t.Parent = g
 	-- the big yellow star and a small blue one at the left, facing +z
 	local face = base * CFrame.Angles(0, math.pi, 0) -- (a star's points lie in its X/Y; this turns it to face +z)
-	star(face * CFrame.new(SW / 2 - 5.5, 0.6, -0.7), 5.2, 0.5, YELLOW, Enum.Material.Neon) -- (the left, seen from the queue: -x; face's x is the world's -x)
-	star(face * CFrame.new(SW / 2 - 12, -2.2, -0.7), 2, 0.4, Color3.fromRGB(70, 140, 255), Enum.Material.Neon)
+	star(face * CFrame.new(SW / 2 - 5.5 * SIGN_SCALE, 0.6 * SIGN_SCALE, -0.7), 5.2 * SIGN_SCALE, 0.5, YELLOW, Enum.Material.Neon) -- (the left, seen from the queue: -x; face's x is the world's -x)
+	star(face * CFrame.new(SW / 2 - 12 * SIGN_SCALE, -2.2 * SIGN_SCALE, -0.7), 2 * SIGN_SCALE, 0.4, Color3.fromRGB(70, 140, 255), Enum.Material.Neon)
 	-- two legs holding it on the front eave beam
 	local baseY = base.Position.Y
 	for _, s in ipairs({ -1, 1 }) do

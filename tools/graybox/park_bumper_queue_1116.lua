@@ -158,49 +158,40 @@ if dress and YP then
 	end
 	table.insert(o, ("rail panels %d"):format(k2))
 end
--- (D-1526, user: "범퍼카 입구 출구 표시해 줘") signs: a gantry over the exit lane and the queue's way in
--- (posts on the fence lines; "출구 EXIT" green, "범퍼카 타는 곳 ENTRANCE" purple), and "출구 EXIT" over the
--- hall's exit gap for the riders inside. Model 범퍼.Signs.
+-- (D-1526 / D-1527, user: "범퍼카 입구 출구 표시해 줘", then "지금 만든 범퍼카 출입구 표지판 삭제하고
+-- 슈퍼바이킹에 있는 타는 곳, 출구 그대로 써") copies of the super viking's two signs (post + board): "타는
+-- 곳 ENTRANCE" at the queue's way in, "출구 EXIT" at the exit lane's end. Model 범퍼.RideSigns.
 do
-	local old2 = hall:FindFirstChild("Signs")
-	if old2 then old2:Destroy() end
-	local m = Instance.new("Model")
-	m.Name = "Signs"
-	local STEEL = Color3.fromRGB(60, 62, 70)
-	local function part(name: string, size: Vector3, cf: CFrame, color: Color3, mat: Enum.Material?): Part
-		local p = Instance.new("Part")
-		p.Name = name
-		p.Size, p.CFrame, p.Color, p.Material = size, cf, color, mat or Enum.Material.Metal
-		p.Anchored, p.CanCollide, p.CanTouch, p.CanQuery = true, false, false, false
-		p.TopSurface = Enum.SurfaceType.Smooth
-		p.Parent = m
-		return p
+	for _, n in ipairs({ "Signs", "RideSigns" }) do
+		local x = hall:FindFirstChild(n)
+		if x then x:Destroy() end
 	end
-	local function board(name: string, x0: number, x1: number, z: number, y: number, h: number, bg: Color3, fg: Color3, text: string)
-		local b = part(name, Vector3.new(x1 - x0, h, 0.4), CFrame.new((x0 + x1) / 2, y, z), bg, Enum.Material.SmoothPlastic)
-		for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
-			local g = Instance.new("SurfaceGui")
-			g.Face, g.CanvasSize, g.LightInfluence, g.Brightness = face, Vector2.new((x1 - x0) * 50, h * 50), 0, 1.4
-			g.Parent = b
-			local t = Instance.new("TextLabel")
-			t.Size, t.BackgroundTransparency, t.Font, t.TextScaled, t.TextColor3, t.Text = UDim2.fromScale(1, 1), 1, Enum.Font.GothamBlack, true, fg, text
-			t.Parent = g
-			local pad = Instance.new("UIPadding")
-			pad.PaddingLeft, pad.PaddingRight, pad.PaddingTop, pad.PaddingBottom = UDim.new(0.04, 0), UDim.new(0.04, 0), UDim.new(0.12, 0), UDim.new(0.12, 0)
-			pad.Parent = t
+	local rs = Instance.new("Model")
+	rs.Name = "RideSigns"
+	local g = workspace:FindFirstChild("슈퍼바이킹") and workspace["슈퍼바이킹"]:FindFirstChild("Gates")
+	local function lowY(p: BasePart): number
+		local e = (p.CFrame.RightVector * p.Size.X):Abs() + (p.CFrame.UpVector * p.Size.Y):Abs() + (p.CFrame.LookVector * p.Size.Z):Abs()
+		return p.Position.Y - e.Y / 2
+	end
+	for _, spec in ipairs({ { -116, Vector3.new(-126.0, 0, -577.4) }, { -79.2, Vector3.new(EXIT_W - 0.7, 0, -582.4) } }) do
+		local parts, post = {}, nil
+		for _, c in ipairs(g and g:GetChildren() or {}) do
+			if (c.Name == "SignPost" or c.Name == "SignBoard") and math.abs(c.Position.X - spec[1]) < 2.5 then
+				table.insert(parts, c)
+				if c.Name == "SignPost" then post = c end
+			end
 		end
-		local tr = part(name .. "Trim", Vector3.new(x1 - x0 + 0.4, h + 0.4, 0.3), CFrame.new((x0 + x1) / 2, y, z), Color3.fromRGB(250, 190, 40), Enum.Material.Neon)
-		tr.CastShadow = false
+		if post then
+			local d = Vector3.new(spec[2].X - post.Position.X, G - lowY(post), spec[2].Z - post.Position.Z)
+			for _, p in ipairs(parts) do
+				local c = p:Clone()
+				c.CFrame += d
+				c.Parent = rs
+			end
+		end
 	end
-	local Z, TOP = -581.2, G + 10
-	for _, x in ipairs({ EXIT_W, EXIT_E, -126.9 }) do part("SignPost", Vector3.new(0.6, TOP - G + 0.6, 0.6), CFrame.new(x, (G + TOP) / 2, Z), STEEL) end
-	part("SignBeam", Vector3.new(-126.9 - EXIT_W + 0.6, 0.5, 0.5), CFrame.new((EXIT_W - 126.9) / 2, TOP, Z), STEEL)
-	board("ExitSign", EXIT_W + 0.3, EXIT_E - 0.3, Z, TOP - 1.6, 2.6, Color3.fromRGB(28, 140, 80), Color3.new(1, 1, 1), "출구 EXIT")
-	board("QueueSign", EXIT_E + 0.3, -127.2, Z, TOP - 1.6, 2.6, Color3.fromRGB(86, 40, 150), Color3.fromRGB(255, 220, 110), "범퍼카 타는 곳 ENTRANCE")
-	board("HallExitSign", EXIT_W + 0.5, EXIT_E - 0.5, RAIL_Z, G + 9.2, 2.2, Color3.fromRGB(28, 140, 80), Color3.new(1, 1, 1), "출구 EXIT")
-	for _, x in ipairs({ EXIT_W, EXIT_E }) do part("SignPost", Vector3.new(0.5, 10.3, 0.5), CFrame.new(x, G + 5.15, RAIL_Z), STEEL) end
-	m.Parent = hall
-	table.insert(o, "signs")
+	rs.Parent = hall
+	table.insert(o, "ride signs")
 end
 
 print("[park_bumper_queue_1116] " .. table.concat(o, "; "))
