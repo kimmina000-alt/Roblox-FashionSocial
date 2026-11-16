@@ -48,6 +48,21 @@ for _, carousel in ipairs(CS:GetTagged("ParkCarousel")) do
 	end
 end
 table.insert(out, ("carousel: %d ears white, %d mirror frames, %d foot discs"):format(horns, glows, feet))
+-- (D-1548, user 2026-11-16 with the bulbs circled under the carousel roof: "체크한 반복되는 패턴의 조명 삭제")
+-- the repeated small bulbs go: round the canopy's edge (CanopyBulb), round the drum's foot (DrumFootBulb)
+-- and round each pole's foot (PoleFootBulb); the glow discs stay
+local dropped = 0
+for _, carousel in ipairs(CS:GetTagged("ParkCarousel")) do
+	if carousel:IsDescendantOf(workspace) then
+		for _, d in ipairs(carousel:GetDescendants()) do
+			if d:IsA("BasePart") and (d.Name == "CanopyBulb" or d.Name == "DrumFootBulb" or d.Name == "PoleFootBulb") then
+				d:Destroy()
+				dropped += 1
+			end
+		end
+	end
+end
+table.insert(out, dropped .. " carousel bulbs removed")
 
 ---------------------------------------------------------------- 점핑스타
 for _, ride in ipairs(CS:GetTagged("ParkJumpStar")) do
