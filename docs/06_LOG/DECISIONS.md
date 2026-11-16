@@ -5312,3 +5312,10 @@ Studio only (no script yet).
 - SnackConfig.BalloonShop: no coins (the menu shows 무료), prompt "무료 풍선 받기".
 - tools/graybox/park_free_balloon_1116.lua (Workspace.무료풍선): the two ticket booths outside the gate hand balloons out (an invisible SnackShop counter in front of each window, a bunch of balloons by it), and a sign on the landing left of the west booth: "★ 놀이공원 개장 기념 ★ / 풍선 무료 / 매표소에서 받아 가세요" on the logo's sunset gradient, balloons tied on top. Canvas 40 px per stud (TextScaled stops at 100 px). 16 languages (tools/i18n/tr/p15_park1116.tsv; it also keeps the hand-edited "24 hours" trash-can line).
 - Studio Play (solo, as Vantablack_Dev): walked from the plaza through the closed gate to z -299; at the west booth got a red and a blue balloon, coins unchanged (4258); no script errors.
+
+## D-1532 (2026-11-16) 놀이공원 최적화
+- User: "최적화". Nothing anyone can see changes; parts 19,862 → 19,292 in all, 5,326 → 4,756 in the park.
+- park_night_1116: the string lights' wires are Beams from bulb to bulb (a WireEnd at each end of a line) instead of 358 wire parts: 놀이공원야경 734 → 410 parts.
+- tools/graybox/park_perf_1116.lua (new, last chain step): the bumper hall's 45 StringWire parts become Beams between their bulbs; the playground stored under the park (201 parts, its swings / spring riders / slide still set up and moved on every screen) goes to ServerStorage.ParkSeaNorthRemoved_1116; small park parts (under 3 studs) cast no shadow (278).
+- ParkNightController: each bulb's Seq read once, not 341 attribute reads every 0.16 s.
+- Studio Play at 22:00: the string lights, rainbow wheel and searchlight look as before; no script errors.

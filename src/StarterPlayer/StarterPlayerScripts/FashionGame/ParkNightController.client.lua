@@ -35,14 +35,19 @@ end
 
 ---------------------------------------------------------------- the string lights
 local bulbs: {BasePart} = {}
+local seqOf: {[BasePart]: number} = {} -- (D-1532: read once, not 341 attribute reads a step)
 local function addBulb(p: Instance)
-	if p:IsA("BasePart") and not table.find(bulbs, p) then table.insert(bulbs, p) end
+	if p:IsA("BasePart") and not table.find(bulbs, p) then
+		table.insert(bulbs, p)
+		seqOf[p] = (p:GetAttribute("Seq") :: number?) or 0
+	end
 end
 for _, p in ipairs(CollectionService:GetTagged("ParkNightBulb")) do addBulb(p) end
 CollectionService:GetInstanceAddedSignal("ParkNightBulb"):Connect(addBulb)
 CollectionService:GetInstanceRemovedSignal("ParkNightBulb"):Connect(function(p)
 	local i = table.find(bulbs, p :: BasePart)
 	if i then table.remove(bulbs, i) end
+	seqOf[p :: BasePart] = nil
 end)
 
 ---------------------------------------------------------------- the wheel: rim, rim lights and spokes
@@ -218,7 +223,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 	step += 1
 	-- (pieces streamed in after dusk get the night look here: bulbs, and the wheel when it arrives)
 	for _, b in ipairs(bulbs) do
-		local seq = (b:GetAttribute("Seq") :: number?) or 0
+		local seq = seqOf[b] or 0
 		if b.Material ~= Enum.Material.Neon then
 			if b:GetAttribute("DayColor") == nil then b:SetAttribute("DayColor", b.Color) end
 			b.Material = Enum.Material.Neon

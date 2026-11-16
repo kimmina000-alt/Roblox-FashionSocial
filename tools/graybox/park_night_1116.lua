@@ -112,29 +112,46 @@ for k = 0, 7 do
 	table.insert(lines, { topAt, at + Vector3.new(0, SHORT - 0.3, 0) })
 end
 
+-- (the wire: Beams from bulb to bulb, not parts: D-1532, ~360 fewer parts. Each bulb holds the wire's
+-- attachment 0.4 above its centre; a line's two ends hang from a tiny invisible WireEnd.)
 local seq = 0
 local nBulbs = 0
+local function wire(a0: Attachment, a1: Attachment)
+	local w = Instance.new("Beam")
+	w.Name = "Wire"
+	w.Attachment0, w.Attachment1 = a0, a1
+	w.Width0, w.Width1 = 0.08, 0.08
+	w.Color = ColorSequence.new(Color3.fromRGB(35, 35, 40))
+	w.Transparency = NumberSequence.new(0)
+	w.FaceCamera, w.Segments, w.LightInfluence = true, 1, 1
+	w.Parent = a0.Parent
+end
 for _, ln in ipairs(lines) do
 	local a, b = ln[1], ln[2]
 	local L = (b - a).Magnitude
 	local sag = 0.1 * L
 	local n = math.max(3, math.floor(L / STEP))
-	local prev
+	local prev: Attachment? = nil
 	for k = 0, n do
 		local t = k / n
 		local p = a:Lerp(b, t) - Vector3.new(0, sag * 4 * t * (1 - t), 0)
+		local holder
 		if k > 0 and k < n then
 			seq += 1
-			local bulb = part(strings, "Bulb", Vector3.new(0.8, 0.8, 0.8), CFrame.new(p - Vector3.new(0, 0.4, 0)), PALETTE[seq % #PALETTE + 1], nil, Enum.PartType.Ball)
-			bulb:SetAttribute("Seq", seq)
-			CS:AddTag(bulb, "ParkNightBulb")
+			holder = part(strings, "Bulb", Vector3.new(0.8, 0.8, 0.8), CFrame.new(p - Vector3.new(0, 0.4, 0)), PALETTE[seq % #PALETTE + 1], nil, Enum.PartType.Ball)
+			holder:SetAttribute("Seq", seq)
+			CS:AddTag(holder, "ParkNightBulb")
 			nBulbs += 1
+		else
+			holder = part(strings, "WireEnd", Vector3.new(0.1, 0.1, 0.1), CFrame.new(p), Color3.new(0, 0, 0))
+			holder.Transparency = 1
 		end
-		if prev then
-			local mid = (prev + p) / 2
-			part(strings, "Wire", Vector3.new(0.08, 0.08, (p - prev).Magnitude), CFrame.lookAt(mid, p), Color3.fromRGB(35, 35, 40))
-		end
-		prev = p
+		local at = Instance.new("Attachment")
+		at.WorldPosition = p
+		at.Parent = holder
+		at.WorldPosition = p
+		if prev then wire(prev, at) end
+		prev = at
 	end
 end
 

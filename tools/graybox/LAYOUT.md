@@ -101,3 +101,4 @@
   - `park_height_board_1116.lua` (D-1529) — 입구 소방차 옆 기린 키 재기 판(0~300cm, 1스터드 = 28cm).
   - `park_night_1116.lua` (D-1530) — 놀이공원 야경: 가로등 사이 무지개 전구 줄, 입구 광장 전구 지붕(별 기둥), 담장 모서리 서치라이트 4개. 밤 연출은 ParkNightController.
   - `park_free_balloon_1116.lua` (D-1531) — 매표소 무료 풍선 카운터 2곳 + "★ 놀이공원 개장 기념 풍선 무료 ★" 표지판 (Workspace.무료풍선).
+  - `park_perf_1116.lua` (D-1532) — 놀이공원 최적화 (체인 마지막): 범퍼카장 전선 파트 → Beam, 땅 밑 놀이터 → ServerStorage.ParkSeaNorthRemoved_1116, 작은 파트 그림자 끔. 다시 돌려도 됨.
