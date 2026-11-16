@@ -86,3 +86,4 @@
   - `optimize_1116.lua` (D-1492) — 지도 전체: 1.5 미만 작은 파트와 바닥에 놓인 얇은 판의 그림자 끄기, 작은 네온 전구 충돌 끄기. 체인 맨 마지막.
   - `park_lamp_bench_1116.lua` (D-1493) — 놀이공원 가로등 31개·벤치 17개를 사용자 모델(ArtAssets.ParkLampMesh / ParkBenchMesh)로 교체. park_paths_1116 / park_playground_1116 다음, optimize_1116 앞.
   - `park_narrow_1116.lua` (D-1494) — 놀이공원 서쪽 끝 x -298.5 → -268(해변 모래 선): 바닥·바다·서쪽 벽·기둥·벽 쪽 화단/가로등/벤치 30.5 이동, 기구는 벽에서 3 떨어질 만큼만 동쪽으로. park_pillars_inside_1116 / park_lamp_bench_1116 다음, optimize_1116 앞.
+  - `park_shops_1116.lua` (D-1496) — 스낵바 2개를 사용자 모델로 교체, 풍선 가게(입구 안쪽 오른편, BalloonCounter = SnackShop) 설치, ArtAssets.BalloonShopDecor가 있으면 풍선 색. park_narrow_1116 다음.

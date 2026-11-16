@@ -30,6 +30,7 @@ local Microwave = require(script.Parent:WaitForChild("Microwave")) -- (D-1104: �
 local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124)
 local FriendBar = require(script.Parent:WaitForChild("FriendBar")) -- (D-1129: 친구바, split in two)
 local SnackHands = require(script.Parent:WaitForChild("SnackHands")) -- (D-1131: 빼쭉이, one stick at a time in the other hand)
+local BalloonService = require(script.Parent:WaitForChild("BalloonService")) -- (D-1496: the park's balloons)
 
 local SnackService = {}
 local economy: any = nil
@@ -1530,6 +1531,18 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	if item.comingSoon then return false, "🔒 개발 중이에요. 조금만 기다려 주세요!" end
 	if item.product and not item.coins then return false, "Robux 결제로 주문해요." end
 	if not nearShop(player, shop.key) then return false, "카운터 가까이에서 주문해 주세요." end
+	-- (D-1496) a balloon: not food, its own tool (BalloonService)
+	if item.kind == "balloon" then
+		local price = item.coins or 0
+		if price > 0 and (not economy or not economy.Spend(player, price, "Snack_" .. shop.key .. "_" .. item.key)) then
+			local balance = if economy then economy.Balance(player) else 0
+			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
+		end
+		if not BalloonService.give(player, item.name, item.color) then return false, "잠시 후 다시 시도해 주세요." end
+		payBeep(player, shop.key)
+		Analytics.interact(player, "Buy")
+		return true, item.name .. " 받았어요! 누르면(터치) 손을 놓아 하늘로 날아가요."
+	end
 	-- a shared cake bought with coins (the strawberry cake: 💰 or R$)
 	if item.share then
 		local price = item.coins or 0
@@ -2371,7 +2384,7 @@ local function buildFoodPreviews()
 	local done: {[string]: boolean} = {}
 	for _, shop in pairs(SnackConfig.Shops) do
 		for _, item in ipairs(shop.items) do
-			if not done[item.key] then
+			if not done[item.key] and item.kind ~= "balloon" then -- (D-1496: a balloon is no food)
 				done[item.key] = true
 				local ok, err = pcall(function()
 					local m = Instance.new("Model")

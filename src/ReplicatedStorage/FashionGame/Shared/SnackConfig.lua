@@ -15,7 +15,8 @@ export type Item = {
 	key: string,
 	name: string,
 	-- how it is held: "cup" | "cone" | "bar" | "bread" | "cake" | "bowl" |
-	-- "bag" | "rice" (삼각김밥) | "ricebowl" | "noodle" | "bottle" | "parfait" | "plate"
+	-- "bag" | "rice" (삼각김밥) | "ricebowl" | "noodle" | "bottle" | "parfait" | "plate" |
+	-- "balloon" (D-1496: not food, BalloonService)
 	kind: string,
 	color: Color3,
 	topping: Color3?,
@@ -102,6 +103,20 @@ SnackConfig.Shops = {
 			{ key = "vanilla", name = "바닐라", kind = "cone", color = Color3.fromRGB(255, 245, 215), coins = 15 },
 			{ key = "mintchoco", name = "민트초코", kind = "cone", color = Color3.fromRGB(160, 235, 210), topping = Color3.fromRGB(70, 45, 30), coins = 15 },
 			{ key = "chocolate", name = "초코", kind = "cone", color = Color3.fromRGB(120, 75, 50), coins = 15 },
+		},
+	},
+	-- (D-1496) the park's balloon shop: a helium balloon on a string (BalloonService), a tap lets it go
+	BalloonShop = {
+		key = "BalloonShop",
+		title = "오후 풍선 가게",
+		prompt = "풍선 사기",
+		items = {
+			{ key = "balloon_red", name = "빨간 풍선", kind = "balloon", color = Color3.fromRGB(235, 60, 75), coins = 5 },
+			{ key = "balloon_pink", name = "분홍 풍선", kind = "balloon", color = Color3.fromRGB(255, 140, 190), coins = 5 },
+			{ key = "balloon_yellow", name = "노란 풍선", kind = "balloon", color = Color3.fromRGB(255, 210, 60), coins = 5 },
+			{ key = "balloon_mint", name = "민트 풍선", kind = "balloon", color = Color3.fromRGB(110, 225, 190), coins = 5 },
+			{ key = "balloon_blue", name = "파란 풍선", kind = "balloon", color = Color3.fromRGB(80, 150, 255), coins = 5 },
+			{ key = "balloon_purple", name = "보라 풍선", kind = "balloon", color = Color3.fromRGB(165, 110, 235), coins = 5 },
 		},
 	},
 	-- OH24 convenience store (D-311): cheap snacks, coins only, no alcohol / tobacco
