@@ -5312,3 +5312,7 @@ Studio only (no script yet).
 - A / B in Studio Play (same spawn, 50 s): with the photo wall script off the process used 354 MB less (BaseParts −78, Instances −50, mesh −21, Animation −50, Internal −196 MB).
 - PhotoWallController: a wall's photos are built only while the camera is within 140 studs of the wall's box and are thrown away beyond 190 (SurfaceGuiDistance draws them only within 80 anyway, so nothing looks different). PhotoRender: dressed avatar templates (one per outfit ever drawn: walls, album, ranking boards, bus ads) are thrown away after 90 s unused instead of being kept for the whole visit.
 - Checked in Studio Play: at the spawn 0 walls / 0 instances; walking to 오후네컷 builds all 5 walls (122,171 instances, 304 filled cuts) within about 50 s; back at the spawn 0 again within 5 s.
+
+## D-1541 (2026-11-16) 메모리 1-2: 사진 벽 만드는 거리 82 / 105
+- Mobile 4P test of D-1540 (Player1..4 at the NW spawn square): passed, no script errors; Player4 spawn → beach 0 photo-wall instances → 오후네컷 5 walls rebuilt → spawn. But at the spawn three walls (73,757 instances) were built: the 오후네컷 walls are 86..114 studs from the spawn camera, inside the 140 of D-1540.
+- NEAR / FAR 140 / 190 → 82 / 105 (draw distance stays 80): the spawn builds none; a wall's photos are made as the player walks in (the walls are inside the building).
