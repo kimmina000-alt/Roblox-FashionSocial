@@ -103,3 +103,4 @@
   - `park_free_balloon_1116.lua` (D-1531) — 매표소 무료 풍선 카운터 2곳 + "★ 놀이공원 개장 기념 풍선 무료 ★" 표지판 (Workspace.무료풍선).
   - `park_perf_1116.lua` (D-1532) — 놀이공원 최적화 (체인 마지막): 범퍼카장 전선 파트 → Beam, 땅 밑 놀이터 → ServerStorage.ParkSeaNorthRemoved_1116, 작은 파트 그림자 끔. 다시 돌려도 됨.
   - `park_fixes3_1116.lua` (D-1545) — 놀이공원 피드백: 소방차 좌석, 회전목마 조명·말 귀, 점핑스타 하차 위치, 관람차 의자 블록 삭제, 범퍼카 펜스 겹침·12대 두 줄·벽 그림 한 장. park_perf_1116 앞에 실행.
+  - `park_carousel_roof_1116.lua` (D-1548) — 회전목마 새 지붕(ArtAssets.CarouselRoof2) + 지붕 조명(Rotor.RoofLights). 옛 지붕은 ArtAssets.CarouselRoofOld.
