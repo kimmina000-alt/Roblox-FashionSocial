@@ -5202,3 +5202,6 @@ Studio only (no script yet).
 
 ## D-1507 (2026-11-16) 화단 묶음을 클릭 한 번에 고를 수 있게
 - User: "회전컵에 있는 화단도 두 묶음으로 묶어 줘" (they were already two models, CupBedNorth / CupBedSouth, but inside the 놀이공원길 Model a click in Studio picks the whole park). The two pairs of arcs now sit in Folders at the top of Workspace: Workspace.회전컵화단 (CupBedNorth / CupBedSouth) and Workspace.점핑스타화단 (StarBedNorth / StarBedSouth), so a click picks one arc. park_cups_bed_1116 / park_star_bed_1116 build them there.
+
+## D-1508 (2026-11-16) 모서리 기둥 받침
+- User (the south-west corner pillar): "밑에 어데 갓노". The three corner pillars that park_corner_beach_1115 copied ((-264.2, -338.9), (-182, -338.9), (-178.9, -281.8)) had no ParkPillarBase: their bottom was 3 over the paving. Each got a copy of another pillar's base at the same offset (park_pillars_inside_1116 step 3, any pillar without a base).
