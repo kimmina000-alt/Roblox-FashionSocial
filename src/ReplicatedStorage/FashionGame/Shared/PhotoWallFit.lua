@@ -16,6 +16,7 @@ local PhotoConfig = require(script.Parent:WaitForChild("PhotoConfig"))
 local PhotoWallFit = {}
 
 PhotoWallFit.MaxGap = 0.6 -- studs behind the panel's face a surface may be
+PhotoWallFit.FrontClear = 0.32 -- (D-1535) how far out from the wall a part covers the photo
 
 -- a photo's size on the wall in studs (as PhotoWallController.photoSize: the strip's
 -- aspect from PhotoRender.stripAspect, 3.4 high for 2x2, else 4.4)
@@ -56,6 +57,20 @@ function PhotoWallFit.backed(wall: BasePart, u: number, v: number, halfW: number
 		local hit = workspace:Raycast(point + normal * 0.3, -normal * (0.3 + PhotoWallFit.MaxGap), params)
 		if not hit then return false end
 	end
+	-- (D-1535, user 2026-11-16 with a live screenshot: "오후네컷에 잘못 붙은 사진 오류 고쳐") nothing
+	-- may stand in front of the photo either: the hall's north panel runs on behind the white
+	-- PhotoFin pillar at its west end (2.4 studs out from the wall), and photos stuck there were
+	-- buried in the pillar, only thin slivers showing (the rays above start inside the pillar and
+	-- pass). A thin slab over the photo's face, FrontClear out from the wall, must touch no part (a
+	-- ray from inside a part does not see that part, a box does): what stands on the wall and comes
+	-- out further than that covers the photo (the pillar, the studio mirror, the room 2 booth
+	-- machine, the hall's room arches); flat things on the wall (backdrops, signs, under 0.2 out)
+	-- and things standing off it (plants, stools) do not count
+	local slab = wall.CFrame * CFrame.new(cx, cy, zSign * (wall.Size.Z / 2 + PhotoWallFit.FrontClear))
+	local overlap = OverlapParams.new()
+	overlap.FilterType = Enum.RaycastFilterType.Exclude
+	overlap.FilterDescendantsInstances = exclude
+	if #workspace:GetPartBoundsInBox(slab, Vector3.new(halfW * 1.9, halfH * 1.9, 0.1), overlap) > 0 then return false end
 	return true
 end
 

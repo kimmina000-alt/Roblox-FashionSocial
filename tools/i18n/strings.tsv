@@ -54,7 +54,7 @@ d1a55a	exact	내 칭호 표시	2	place
 037838	exact	💝 기부하기	2	place
 cff49e	exact	★ 놀이공원 개장 기념 ★	1	place
 8af651	exact	풍선 무료	1	place
-426021	exact	매표소에서 받아 가세요	1	place
+9b8567	exact	소품샵에서 받아 가세요	1	place
 91043b	exact	타는 곳 ENTRANCE	1	place
 408a08	exact	출구 EXIT	1	place
 3003d5	exact	소방차 FIRE TRUCK	1	place
@@ -617,9 +617,9 @@ aea147	exact	다시 할 단계가 없어요.	1	src/ServerScriptService/FashionGa
 c45f14	exact	장바구니를 확인해 주세요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:315
 51408e	exact	한 번에 사기를 열지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:331
 e5845f	exact	이 조합을 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:381
-6f6118	exact	저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:436
-c524ea	exact	이 코디를 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:450
-26addc	exact	원래 캐릭터를 아직 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:480
+6f6118	exact	저장된 코디를 찾을 수 없습니다. 이미 삭제되었을 수 있습니다.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:440
+c524ea	exact	이 코디를 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:454
+26addc	exact	원래 캐릭터를 아직 불러오지 못했어요.	1	src/ServerScriptService/FashionGame/ServerMain.server.lua:484
 e86707	exact	저장된 코디 데이터를 읽을 수 없습니다.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1554
 3298e4	exact	코디를 복원하지 못했습니다. 이전 모습은 그대로입니다.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1566
 d196a6	exact	복원 중 오류가 발생했습니다. 현재 아바타를 다시 불러와 확인해 주세요.	1	src/ServerScriptService/FashionGame/Services/AvatarService.lua:1567
@@ -1303,30 +1303,30 @@ feaffc	exact	✅ 코인 x2 패스 적용 중 (영구)	1	src/StarterPlayer/Starte
 e3a14e	exact	 · [Studio 테스트 구매]	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CoinShopController.client.lua:137
 cb80db	exact	패스가 있어서 필요 없어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CoinShopController.client.lua:143
 9cc5b1	exact	💰 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/CoinShopController.client.lua:55
-09fa1c	exact	지금은 춤을 쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1125
-88caf0	exact	같이 추기 해제	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1127
-6155d3	exact	내려놓기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1139
-68a92b	exact	DJ 존 초대 취소	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1142
+09fa1c	exact	지금은 춤을 쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1126
+88caf0	exact	같이 추기 해제	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1128
+6155d3	exact	내려놓기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1140
+68a92b	exact	DJ 존 초대 취소	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:1143
 038c9a	exact	춤	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:133
 671682	exact	춤을 고르세요	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:141
 192c8c	exact	■ 춤 멈추기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:153
-479d8b	exact	🔊 소리 켜기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:181
-4e68fc	exact	🔇 음소거	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:181
-0936e5	exact	템포	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:201
-7a4485	exact	근처 사람을 눌러 같이 추기 · 화면에서 사람을 직접 눌러도 돼요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:297
-41fff2	exact	근처에 다른 사람이 없어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:308
-f5961b	exact	해제	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:421
-07c278	exact	💃 같이 추기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:488
-6f2aa3	exact	🎧 DJ 존 초대	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:498
-686b62	exact	들기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:518
-d18617	exact	수갑 (1분)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:529
+479d8b	exact	🔊 소리 켜기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:182
+77c097	exact	🔇 소리 끄기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:182
+0936e5	exact	템포	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:202
+7a4485	exact	근처 사람을 눌러 같이 추기 · 화면에서 사람을 직접 눌러도 돼요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:298
+41fff2	exact	근처에 다른 사람이 없어요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:309
+f5961b	exact	해제	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:422
+07c278	exact	💃 같이 추기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:489
+6f2aa3	exact	🎧 DJ 존 초대	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:499
+686b62	exact	들기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:519
+d18617	exact	수갑 (1분)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:530
 dd587f	exact	같이 추기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:56
-cac309	tmpl	🔗 {1}님과 같이 추기 · {2} {3}x	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:741
-d43ab3	tmpl	🔗 {1}님과 같이 추기 · 상대가 쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:742
-1f99c0	tmpl	♪ 안무 · {1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:757
-f23a56	exact	님과	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:761
-03573f	tmpl	{1}님 기다리는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:765
-d7e10c	exact	쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:964
+cac309	tmpl	🔗 {1}님과 같이 추기 · {2} {3}x	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:742
+d43ab3	tmpl	🔗 {1}님과 같이 추기 · 상대가 쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:743
+1f99c0	tmpl	♪ 안무 · {1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:758
+f23a56	exact	님과	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:762
+03573f	tmpl	{1}님 기다리는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:766
+d7e10c	exact	쉬는 중	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DanceController.client.lua:965
 e2a92e	exact	DJ 시간을 더 사요. 기다리는 사람이 있으면 연장 대신 대기 순서에 들어가요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DjHelp.lua:17
 e84cee	exact	지금 곡을 넘기고 다음 곡을 틀어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DjHelp.lua:18
 61b934	exact	아래 목록이 사람 목록으로 바뀌어요. 초대한 사람만 DJ 존(무대)에 올라올 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/DjHelp.lua:19
@@ -1372,22 +1372,17 @@ ca6340	exact	지급됨	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/Feed
 210ca3	exact	💬 의견 보내기	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/Feedback.lua:63
 ca80af	exact	📥 받은 의견	3	src/StarterPlayer/StarterPlayerScripts/FashionGame/Feedback.lua:70
 b97f72	tmpl	버그, 불편한 점, 바라는 것 무엇이든 적어 주세요. 좋은 의견은 확인 후 {1}코인을 드려요! 🎁	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/Feedback.lua:83
-6462c3	exact	옷 갈아입기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:111
-f3aa17	exact	위의 👗 카탈로그를 눌러 무료 옷으로 갈아입어 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:111
-a1353f	exact	오후네컷에서 사진 찍기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:113
-f1f2b1	exact	빛나는 길을 따라 오후네컷에 가서 사진 한 장 찍어 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:113
-e83a88	exact	사진 벽에 붙이기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:116
-82e24e	exact	사진을 손에 들고(아래 칸 · 🎒 가방) 오후네컷 벽을 눌러 붙여 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:116
-ed3918	exact	포토월	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:117
-a78038	exact	클럽 들어가기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:121
-018429	exact	밤에만 여는 OHU CLUB! 빛나는 길을 따라 들어가 보세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:121
-aedd3f	exact	춤추기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:124
-d078b2	exact	위의 ♪ 버튼에서 춤을 골라 다 같이 춰 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:124
-85cfc3	exact	🎯 첫 목표	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:142
-caf72a	tmpl	🎉 첫 목표 완료!\n{1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:212
-0ec8c9	exact	옷 갈아입고 사진 찍어 벽에 붙이기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:234
-74a18e	tmpl	🎯 첫 목표 · {1} / {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:248
-d444e6	exact	클럽에서 춤추기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:305
+a1353f	exact	오후네컷에서 사진 찍기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:101
+f1f2b1	exact	빛나는 길을 따라 오후네컷에 가서 사진 한 장 찍어 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:101
+586729	exact	클럽 가기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:107
+018429	exact	밤에만 여는 OHU CLUB! 빛나는 길을 따라 들어가 보세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:107
+85cfc3	exact	🎯 첫 목표	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:123
+caf72a	tmpl	🎉 첫 목표 완료!\n{1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:199
+50b440	exact	추천 옷 입고 사진 찍기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:221
+74a18e	tmpl	🎯 첫 목표 · {1} / {2}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:235
+e4a788	exact	추천 옷 입고 클럽 가기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:294
+e5e80e	exact	추천 옷 입기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:96
+87c15c	exact	👗 카탈로그 → '추천'에서 마음에 드는 옷의 '입기'를 눌러 보세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FirstGoalController.client.lua:96
 e1d613	exact	Roblox가 이 아이템을 아바타에 적용하지 않았습니다.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FriendlyErrors.lua:10
 5a7521	exact	아바타에 적용하지 못했습니다. 다시 시도하세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/FriendlyErrors.lua:11
 c2a350	exact	이미 벗은 아이템입니다.	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/FriendlyErrors.lua:12
@@ -1651,40 +1646,40 @@ e3c00f	exact	어느 정류장으로 가시겠습니까?	1	src/StarterPlayer/Star
 a82b56	exact	 (지금 여기)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SubwayController.client.lua:140
 fcac70	exact	이동 중…	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SubwayController.client.lua:144
 abb73d	exact	몇 번 출구로 가시겠습니까?	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/SubwayController.client.lua:46
-338a55	exact	건너뛰기 >	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:106
-e1fa0a	exact	시작! ✨	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:196
-e97a6e	exact	👋 오후에 오신 걸 환영해요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:37
-682d2b	exact	동네를 한 바퀴 둘러볼게요. 언제든 오른쪽 위 '건너뛰기'로 끝낼 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:37
-4971f6	exact	📸 오후네컷	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:38
-5f6480	exact	친구랑 네 컷 사진을 찍는 사진관이에요. 안에는 예쁜 촬영 부스 세 곳과 볼풀이 있고, 찍은 사진은 벽에 붙여 모두에게 자랑할 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:38
-6efbed	exact	밤(18:00~06:00)에 문을 여는 클럽이에요. 노래를 신청하고, 안무를 따라 추고, DJ도 될 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:44
-437659	exact	🍲 오후 돼지국밥	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:46
-105fd0	exact	🎡 OHU LAND (공사 중)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:48
-0ee4ae	exact	놀이공원은 지금 공사 중이에요. 곧 문을 열어요! 계단 위 정문 앞까지는 올라가 볼 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:48
-809b51	exact	🏖 해변	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:50
-e33c11	exact	튜브를 타고 바다에서 물놀이를 하고, 비치볼도 던지며 놀아요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:50
-7f2561	exact	바다가 보이는 카페예요. 음료와 빵을 먹고, 카운터 안쪽에서 알바를 하면 코인을 벌 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:52
-ec507e	exact	🏪 OH24 편의점	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:55
-81a43b	exact	과자·아이스크림·컵라면을 사는 편의점이에요. 친구바는 친구를 눌러 반씩 나눠 먹어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:55
-474eac	exact	🏯 광화문 · 한옥 마을	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:57
-349c45	exact	광화문을 지나 돌담길을 따라가면 한옥 마을이에요. 사진 찍기 좋은 곳이에요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:57
-479240	exact	📱 화면 버튼	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:60
-08e7b5	exact	동네 소개는 여기까지예요! 이제 화면 위쪽 버튼들을 하나씩 알려 드릴게요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:60
-8780d9	exact	🕐 시계	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:61
-3acd67	exact	게임 속 시간이에요. 하루는 30분이고, 클럽은 밤에 열려요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:61
-95682b	exact	₩ 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:62
-1d1bb4	exact	가진 코인이에요. 게임에 있으면 1분마다 쌓이고, 카페 알바를 하면 더 벌어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:62
-05449b	exact	♥ 후원	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:63
-84aeb3	exact	게임을 응원하는 후원이에요. 후원하면 모두의 화면 위에 내 이름과 메시지가 떠요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:63
-a22a76	exact	👗 카탈로그 · 전부 무료!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:65
-dcb558	exact	기본 캐릭터 그대로 다니지 마세요! 여기 있는 옷·머리·얼굴은 전부 무료로 입을 수 있어요. 내 마음대로 예쁘게 꾸미고 자랑해 보세요. 입은 모습은 그대로 저장돼요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:65
-fdc41a	exact	🎒 가방	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:66
-31bf3a	exact	산 음식과 음료, 찍은 사진첩이 들어 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:66
-c92710	exact	♪ 음악 · 춤	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:67
-da04ba	exact	누르면 클럽 밖에서도 언제든 클럽 노래를 들을 수 있어요. 아래 목록에서 춤을 골라 출 수도 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:67
-02cfb9	exact	불편한 점이나 바라는 점을 개발자에게 바로 보낼 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:68
-0bb6db	exact	✨ 준비 끝!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:69
-ffe7ba	exact	즐거운 시간 보내세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:69
+338a55	exact	건너뛰기 >	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:107
+e1fa0a	exact	시작! ✨	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:222
+e97a6e	exact	👋 오후에 오신 걸 환영해요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:38
+682d2b	exact	동네를 한 바퀴 둘러볼게요. 언제든 오른쪽 위 '건너뛰기'로 끝낼 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:38
+4971f6	exact	📸 오후네컷	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:39
+5f6480	exact	친구랑 네 컷 사진을 찍는 사진관이에요. 안에는 예쁜 촬영 부스 세 곳과 볼풀이 있고, 찍은 사진은 벽에 붙여 모두에게 자랑할 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:39
+6efbed	exact	밤(18:00~06:00)에 문을 여는 클럽이에요. 노래를 신청하고, 안무를 따라 추고, DJ도 될 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:45
+437659	exact	🍲 오후 돼지국밥	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:47
+105fd0	exact	🎡 OHU LAND (공사 중)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:49
+0ee4ae	exact	놀이공원은 지금 공사 중이에요. 곧 문을 열어요! 계단 위 정문 앞까지는 올라가 볼 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:49
+809b51	exact	🏖 해변	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:51
+e33c11	exact	튜브를 타고 바다에서 물놀이를 하고, 비치볼도 던지며 놀아요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:51
+7f2561	exact	바다가 보이는 카페예요. 음료와 빵을 먹고, 카운터 안쪽에서 알바를 하면 코인을 벌 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:53
+ec507e	exact	🏪 OH24 편의점	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:56
+81a43b	exact	과자·아이스크림·컵라면을 사는 편의점이에요. 친구바는 친구를 눌러 반씩 나눠 먹어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:56
+474eac	exact	🏯 광화문 · 한옥 마을	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:58
+349c45	exact	광화문을 지나 돌담길을 따라가면 한옥 마을이에요. 사진 찍기 좋은 곳이에요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:58
+479240	exact	📱 화면 버튼	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:61
+08e7b5	exact	동네 소개는 여기까지예요! 이제 화면 위쪽 버튼들을 하나씩 알려 드릴게요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:61
+8780d9	exact	🕐 시계	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:62
+3acd67	exact	게임 속 시간이에요. 하루는 30분이고, 클럽은 밤에 열려요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:62
+95682b	exact	₩ 코인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:63
+1d1bb4	exact	가진 코인이에요. 게임에 있으면 1분마다 쌓이고, 카페 알바를 하면 더 벌어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:63
+05449b	exact	♥ 후원	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:64
+84aeb3	exact	게임을 응원하는 후원이에요. 후원하면 모두의 화면 위에 내 이름과 메시지가 떠요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:64
+a22a76	exact	👗 카탈로그 · 전부 무료!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:66
+dcb558	exact	기본 캐릭터 그대로 다니지 마세요! 여기 있는 옷·머리·얼굴은 전부 무료로 입을 수 있어요. 내 마음대로 예쁘게 꾸미고 자랑해 보세요. 입은 모습은 그대로 저장돼요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:66
+fdc41a	exact	🎒 가방	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:67
+31bf3a	exact	산 음식과 음료, 찍은 사진첩이 들어 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:67
+c92710	exact	♪ 음악 · 춤	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:68
+da04ba	exact	누르면 클럽 밖에서도 언제든 클럽 노래를 들을 수 있어요. 아래 목록에서 춤을 골라 출 수도 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:68
+02cfb9	exact	불편한 점이나 바라는 점을 개발자에게 바로 보낼 수 있어요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:69
+0bb6db	exact	✨ 준비 끝!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:70
+ffe7ba	exact	즐거운 시간 보내세요!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:70
 e29748	exact	쓰레기통 안 · 누르면 가져가요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:123
 89d791	exact	내 물건 · 누르면 버려요	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:124
 aa66ac	tmpl	{1}분 남음	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:185
