@@ -23,6 +23,7 @@ local TopBar = require(script.Parent:WaitForChild("TopBar"))
 local Popups = require(script.Parent:WaitForChild("Popups"))
 local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local UiBus = require(script.Parent:WaitForChild("UiBus"))
+local NearButton = require(script.Parent:WaitForChild("NearButton")) -- (D-1539)
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -82,7 +83,7 @@ local card = create("Frame", {
 	Size = UDim2.new(1, -40, 0, 118), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.3,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 18) }, card)
-create("UISizeConstraint", { MaxSize = Vector2.new(560, 118) }, card)
+local cardLimit = create("UISizeConstraint", { MaxSize = Vector2.new(560, 118) }, card)
 create("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 2, Transparency = 0.2 }, card)
 local title = create("TextLabel", {
 	Position = UDim2.fromOffset(18, 10), Size = UDim2.new(1, -100, 0, 30), BackgroundTransparency = 1,
@@ -117,6 +118,27 @@ local nextButton = create("TextButton", {
 }, card)
 create("UICorner", { CornerRadius = UDim.new(0, 12) }, nextButton)
 
+-- (D-1539) a step about a top bar button: the card right under that button, a pointer up to it,
+-- 건너뛰기 inside the card (above it would sit on the bar); other steps: at the bottom as before
+local pointer = NearButton.pointer(card)
+local NEAR_W, NEAR_H = 330, 150
+local function cardAt(nearButton: boolean)
+	if nearButton then
+		cardLimit.MaxSize = Vector2.new(560, NEAR_H)
+		card.Size = UDim2.fromOffset(NEAR_W, NEAR_H)
+		skip.AnchorPoint = Vector2.new(0, 1)
+		skip.Position = UDim2.new(0, 12, 1, -12)
+	else
+		cardLimit.MaxSize = Vector2.new(560, 118)
+		card.AnchorPoint = Vector2.new(0.5, 1)
+		card.Position = UDim2.new(0.5, 0, 1, -96)
+		card.Size = UDim2.new(1, -40, 0, 118)
+		skip.AnchorPoint = Vector2.new(1, 1)
+		skip.Position = UDim2.new(1, -8, 0, -6)
+		pointer.Visible = false
+	end
+end
+
 -- the ring round the top bar button being explained (it pulses)
 local ring = create("Frame", { Name = "Ring", BackgroundTransparency = 1, Visible = false, ZIndex = 10 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, ring)
@@ -125,6 +147,7 @@ local ringTarget: GuiObject? = nil
 game:GetService("RunService").RenderStepped:Connect(function()
 	local target = ringTarget
 	if not target or not ring.Visible then return end
+	NearButton.place(card, pointer, target, NEAR_W) -- (D-1539)
 	-- (AbsolutePosition leaves out the top bar inset even here: add it, D-1138)
 	local inset = game:GetService("GuiService"):GetGuiInset()
 	local pad = 6 + 3 * math.sin(os.clock() * 6)
@@ -204,6 +227,7 @@ local function show()
 	end
 	ringTarget = if s.button then TopBar.button(s.button) else nil
 	ring.Visible = ringTarget ~= nil and ringTarget.Visible
+	cardAt(ring.Visible) -- (D-1539)
 end
 
 local function finish()

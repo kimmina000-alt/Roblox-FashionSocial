@@ -29,6 +29,7 @@ local ClubConfig = require(Shared:WaitForChild("ClubConfig"))
 local DayNightConfig = require(Shared:WaitForChild("DayNightConfig"))
 local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("Guide") :: RemoteFunction
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
+local NearButton = require(script.Parent:WaitForChild("NearButton")) -- (D-1539)
 local Sfx = require(script.Parent:WaitForChild("Sfx"))
 
 local player = Players.LocalPlayer
@@ -157,8 +158,13 @@ local close = create("TextButton", {
 	TextColor3 = Color3.fromRGB(120, 90, 80), AutoButtonColor = true,
 }, card)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, close)
+-- (D-1539) a goal that asks to press a top bar button (👗, ♪): the card right under that button
+-- with a pointer up to it (Heartbeat below); other goals: at the left under the bar as before
+local pointer = NearButton.pointer(card)
 local function placeCard()
+	card.AnchorPoint = Vector2.zero
 	card.Position = UDim2.fromOffset(12, TopBar.bottom() + 8)
+	pointer.Visible = false
 end
 placeCard()
 TopBar.BottomChanged:Connect(placeCard)
@@ -266,6 +272,7 @@ RunService.Heartbeat:Connect(function()
 	-- the pulsing ring round a top bar button
 	local b = if s.button then TopBar.button(s.button) else nil
 	if b and b.Visible then
+		NearButton.place(card, pointer, b, 280) -- (D-1539)
 		ring.Visible = true
 		local pad = 6
 		-- (AbsolutePosition leaves out the top-bar inset even here, D-1138)
@@ -274,6 +281,7 @@ RunService.Heartbeat:Connect(function()
 		ring.Size = UDim2.fromOffset(b.AbsoluteSize.X + pad * 2, b.AbsoluteSize.Y + pad * 2)
 		ringStroke.Transparency = 0.5 + 0.5 * math.sin(os.clock() * 6)
 	else
+		if ring.Visible then placeCard() end -- (D-1539: back to the left)
 		ring.Visible = false
 	end
 	-- the line: from the new body after a respawn, the distance on the sign, hidden when there

@@ -5359,6 +5359,13 @@ Studio only (no script yet).
 ## D-1538 (2026-11-16) 풍선 표지판 문구
 - User: "풍선 무료 표지판에 매표소에서 받아 가세요 -> 소품샵에서 받아 가세요. 로 수정". park_free_balloon_1116 + the sign in the place; 16 languages (tr/p15_park1116.tsv). The booth counters still give balloons.
 
+## D-1539 (2026-11-16) 버튼을 설명하거나 눌러야 하면 설명창은 그 버튼 바로 아래
+- User: "튜토리얼에 특정 버튼 설명 혹은 눌러야 하는 경우 해당 버튼 근처에 설명창 띄울 것".
+- New NearButton module (StarterPlayerScripts/FashionGame): puts a card right under a top bar button (clamped to the screen, 12 from its edges) with a small pointer up to the button's middle, every frame while shown.
+- TourController: the steps about a top bar button (시계, 코인, 후원, 카탈로그, 가방, ♪, 의견) show the card 330 x 150 under that button, 건너뛰기 inside the card (bottom left); the other steps keep the card at the bottom.
+- FirstGoalController: the goals that ask to press a button (👗 옷 갈아입기, 💃 춤추기 = ♪) show the goal card under that button; the others at the left under the bar as before.
+- Studio Play: the first goal card under 👗 with the pointer; the tour card under ♪ at the right edge.
+
 ## D-1540 (2026-11-16) 메모리 1: 사진 벽은 가까이 있을 때만 만든다
 - Live 2026-11-15: 29 out-of-memory exits in a day (peak 19 players), client memory 1.79 GB on average, crash rate 3 %. A dedicated memory session (perf/memory-1116) measures first, then fixes the biggest consumers without changing the look.
 - Found: the five photo walls (오후네컷 4 panels + 08_PhotoBooth) are SurfaceGuis in PlayerGui, so streaming never drops them: 304 ViewportFrames holding about 440 dressed avatar rigs = 122,000 instances (8,028 MeshParts, about 3,000 SurfaceAppearances, 600 unique textures, layered clothing) on every client at any distance. Workspace itself held 24,500 instances on the client.
