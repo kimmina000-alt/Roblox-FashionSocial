@@ -75,9 +75,30 @@ local function outfitKey(outfit: any): string
 	return if ok then encoded else tostring(outfit)
 end
 
+-- (D-1540, memory) a template is a whole dressed avatar (meshes, textures,
+-- layered clothing) kept out of the world: before, every outfit ever drawn
+-- (photo walls, album, ranking boards, bus ads) stayed for the whole visit.
+-- One not used for TEMPLATE_KEEP seconds is thrown away (built again if needed).
+local TEMPLATE_KEEP = 90
+local usedAt: {[string]: number} = {}
+task.spawn(function()
+	while true do
+		task.wait(30)
+		local now = os.clock()
+		for key, model in pairs(templates) do
+			if not building[key] and now - (usedAt[key] or 0) > TEMPLATE_KEEP then
+				templates[key] = nil
+				usedAt[key] = nil
+				model:Destroy()
+			end
+		end
+	end
+end)
+
 -- A dressed avatar for an outfit snapshot (cached).
 local function template(outfit: any): Model?
 	local key = outfitKey(outfit)
+	usedAt[key] = os.clock()
 	while building[key] do task.wait(0.05) end
 	if templates[key] then return templates[key] end
 	local character = Players.LocalPlayer.Character
