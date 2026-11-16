@@ -225,13 +225,22 @@ local function start()
 	show()
 end
 
+-- (D-1524) analytics: TourEnd, the card reached and whether it was skipped
+local function report(kind: string)
+	local gate = FashionGame:WaitForChild("Remotes"):FindFirstChild("AnalyticsStep")
+	if touring and gate and gate:IsA("RemoteEvent") then gate:FireServer(kind, step) end
+end
+
 nextButton.Activated:Connect(function()
 	if not touring then return end
-	if step >= #STEPS then finish() return end
+	if step >= #STEPS then report("TourDone") finish() return end
 	step += 1
 	show()
 end)
-skip.Activated:Connect(finish)
+skip.Activated:Connect(function()
+	report("TourSkip")
+	finish()
+end)
 if UiBus.StartTour then UiBus.StartTour.Event:Connect(start) end
 
 -- (D-1523, user: "첫 접속엔 목표만") the first visit no longer starts the tour by itself:

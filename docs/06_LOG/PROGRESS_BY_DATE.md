@@ -926,3 +926,6 @@
 
 ## 2026-11-14
 - BANG-After School 무대 카메라 (영상 = 노래 - 8초, D-1395).
+
+## 2026-11-16
+- 첫 방문자 이탈 기록: 온보딩 1 접속 → 2 로딩 끝 → 3 첫 이동 → 4 첫 상호작용 → 5 3분 → 6 10분, 나갈 때 FirstLeave(시간 / 장소 / 어디까지), LoadSecs, TourEnd (D-1524, docs/01_SYSTEMS/ANALYTICS.md).

@@ -287,6 +287,14 @@ local closeAt: number? = nil
 local function close()
 	if closeAt then return end
 	closeAt = os.clock()
+	-- (D-1524) analytics: onboarding step 2 "로딩 끝" and how long the screen was up
+	local upFor = os.clock() - started
+	task.spawn(function()
+		local fg = game:GetService("ReplicatedStorage"):WaitForChild("FashionGame", 60)
+		local remotes = fg and fg:WaitForChild("Remotes", 60)
+		local gate = remotes and remotes:WaitForChild("AnalyticsStep", 60)
+		if gate and gate:IsA("RemoteEvent") then gate:FireServer("Loaded", upFor) end
+	end)
 	for _, d in ipairs(textLayer:GetDescendants()) do
 		if d:IsA("TextLabel") or d:IsA("TextButton") then
 			TweenService:Create(d, TweenInfo.new(0.6), { TextTransparency = 1, BackgroundTransparency = 1 }):Play()
