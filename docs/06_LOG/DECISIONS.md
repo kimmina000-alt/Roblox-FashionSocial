@@ -5429,3 +5429,8 @@ Studio only (no script yet).
 - Originals of the bottles / tissue box were not in the repo: taken from Studio's own content cache (%LOCALAPPDATA%/Roblox/rbx-storage, RBXH header + PNG), matched to each asset by a pixel checksum read with EditableImage. Uploaded with the Studio MCP upload_image (account Vantablack_Dev). AssetService:CreateAssetAsync is not available yet.
 - Each image: 4 MB → 1 MB uncompressed (about 5.3 → 1.3 MB with mips), about 30 MB in all. Edit-mode shots of the super viking and the VIP bucket look the same. The user must save the place (File → Save to Roblox).
 - Mobile 3P test (2026-11-16): Player1 at the vikings, Player2 at the club bar: both boats, the five bottle prints and the tissue box use the 512 ids (boats / tissue box load Success); no script errors on the server or any phone. New uploads log "No asset content representation found" (also seen for older ids). Bottle prints cannot load in Studio test clients (the old ids fail the same way): check them on the live game. Merged into catalog-ui-redesign (fast-forward, user: "머지해").
+
+## D-1550 (2026-11-16) 메모리 3: 스트리밍 반경 384 → 256
+- User (forwarded by the main session): "둘 다 해" to the two memory trade-offs (D-1549 images, and the streaming radius).
+- Workspace.StreamingTargetRadius 384 → 256 (StreamingMinRadius 128, Opportunistic, PauseOutsideLoadedArea unchanged; no script sets these), place only.
+- Studio Play, same spots, 20 s each: parts on the client at the spawn 17,314 → 13,039 (−25 %), in the park 13,497 → 9,715 (−28 %); instances 28,132 → 22,838 / 22,449 → 16,839. Far buildings now arrive later: from the spawn the street is built about 250 studs out.
