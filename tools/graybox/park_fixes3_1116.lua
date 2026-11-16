@@ -120,6 +120,20 @@ for _, ride in ipairs(CS:GetTagged("ParkTeaCups")) do
 	end
 end
 table.insert(out, cupBenches .. " tea cup bench parts removed, exit at the NW steps")
+-- (D-1560, user 2026-11-16 with the steering wheel in a cup marked: "회전컵 핸들, 각 컵 컬러에 맞춰서 색 변경")
+-- each cup's steering wheel (Wheel, was dark grey) in that cup's colour: 1 cream, 2 green, 3 blue, 4 orange, 5 pink
+local WHEEL = { Color3.fromRGB(240, 214, 150), Color3.fromRGB(107, 206, 118), Color3.fromRGB(120, 166, 190), Color3.fromRGB(242, 158, 114), Color3.fromRGB(245, 181, 182) }
+local wheels = 0
+for _, ride in ipairs(CS:GetTagged("ParkTeaCups")) do
+	if ride:IsDescendantOf(workspace) then
+		for i = 1, 5 do
+			local cup = ride:FindFirstChild("Cup" .. i)
+			local wheel = cup and cup:FindFirstChild("Wheel", true)
+			if wheel and wheel:IsA("BasePart") then wheel.Color = WHEEL[i] wheels += 1 end
+		end
+	end
+end
+table.insert(out, wheels .. " tea cup wheels in the cup colours")
 
 ---------------------------------------------------------------- 범퍼카 fences
 local hall = { x0 = -262, x1 = -55, z0 = -775, z1 = -620 }
