@@ -5,17 +5,16 @@
 -- 찍어서 벽에 붙여 보기", by night "클럽에서 춤추기"; a celebration only, no coins).
 -- On a player's first visit (neither the tip "goal1" nor the old first-visit tour "tour2" seen) one goal
 -- is chosen by the game clock when they arrive:
---   day   ① 👗 change clothes in the catalog  (the 👗 button pulses; done when the body's look changes)
+--   (D-1542, 2026-11-16: the user's new goals)
+--   day   ① 👗 put on a look from the catalog's 추천 tab (👗, then the 추천 button pulses; done at LookWornAt)
 --         ② 📸 take a photo at 오후네컷       (a line to the studio; done when the server marks PhotoSavedAt)
---         ③ 📌 stick it on the photo wall    (a line to the nearest wall; done at WallPostedAt)
---   night ① 🎧 go into OHU CLUB              (a line to the door; done when InClubLocal)
---         ② 💃 dance                         (the ♪ button pulses; done when the body has a DanceKey)
+--   night ① 👗 the same 추천 look
+--         ② 🎧 go into OHU CLUB              (a line to the door; done when InClubLocal)
 -- One step shows at a time, in a small card under the top bar (✕ hides the goal for good). The
 -- character and camera turn to the first place on arrival. At the end: confetti and "첫 목표 완료!".
 -- Seen: the tips the server remembers (GuideService "TipSeen" "goal1" and "tour2", so the tour does not
 -- start by itself either). Leaving midway keeps it for the next visit.
 
-local CollectionService = game:GetService("CollectionService")
 local HttpService = game:GetService("HttpService")
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -68,68 +67,46 @@ local function root(): BasePart?
 	local c = player.Character
 	return c and c:FindFirstChild("HumanoidRootPart") :: BasePart?
 end
--- the body's look as one string: accessories, clothes, face, body meshes, skin colours
-local function lookOf(character: Model?): string
-	if not character then return "" end
-	local bits = {}
-	for _, c in ipairs(character:GetChildren()) do
-		if c:IsA("Accessory") then
-			local h = c:FindFirstChild("Handle")
-			local id = if h and h:IsA("MeshPart") then h.MeshId .. h.TextureID else c.Name
-			table.insert(bits, "A" .. id)
-		elseif c:IsA("Shirt") then
-			table.insert(bits, "S" .. c.ShirtTemplate)
-		elseif c:IsA("Pants") then
-			table.insert(bits, "P" .. c.PantsTemplate)
-		elseif c:IsA("ShirtGraphic") then
-			table.insert(bits, "T" .. c.Graphic)
-		elseif c:IsA("BodyColors") then
-			table.insert(bits, "C" .. tostring(c.TorsoColor3) .. tostring(c.HeadColor3))
-		elseif c:IsA("MeshPart") then
-			table.insert(bits, "M" .. c.Name .. c.MeshId)
-		end
-	end
-	local head = character:FindFirstChild("Head")
-	local face = head and head:FindFirstChild("face")
-	if face and face:IsA("Decal") then table.insert(bits, "F" .. face.Texture) end
-	table.sort(bits)
-	return table.concat(bits, "|")
-end
-local function nearestWall(): Vector3?
-	local r = root()
-	local best, bestD = nil, math.huge
-	for _, w in ipairs(CollectionService:GetTagged("PhotoWall")) do
-		if w:IsA("BasePart") and w:IsDescendantOf(workspace) then
-			local d = if r then (w.Position - r.Position).Magnitude else 0
-			if d < bestD then best, bestD = w.Position, d end
-		end
-	end
-	return best
-end
-
-type Step = { icon: string, title: string, text: string, place: (() -> Vector3?)?, placeName: string?, button: number?, done: () -> boolean }
-local baseLook = ""
+type Step = { icon: string, title: string, text: string, place: (() -> Vector3?)?, placeName: string?, button: number?, target: (() -> GuiObject?)?, done: () -> boolean }
 local photoAt = player:GetAttribute("PhotoSavedAt")
-local wallAt = player:GetAttribute("WallPostedAt")
+local lookAt = player:GetAttribute("LookWornAt")
+-- (D-1542, user 2026-11-16: "목표 수정 / 밤에는 추천 탭에 있는 옷 갈아입고 클럽 가기 / 낮에는 추천 탭에
+-- 있는 옷 갈아입고 사진 찍기") the first step, day and night: a look from the catalog's 추천 tab (the
+-- server counts LookWornAt up when a 추천 look is put on, TryOnItem "WearLook"). It points at 👗 while
+-- the catalog is shut and at the catalog's 추천 button once it is open.
+local recommendButton: GuiObject? = nil
+local function recommendTarget(): GuiObject?
+	local b = recommendButton
+	if not (b and b.Parent) then
+		local found = playerGui:FindFirstChild("Discovery_1", true)
+		b = if found and found:IsA("GuiObject") then found else nil
+		recommendButton = b
+	end
+	if b and b.Visible and b.AbsoluteSize.X > 0 then
+		-- (on screen only: every frame up to the gui must be shown)
+		local o: Instance? = b
+		while o and not o:IsA("LayerCollector") do
+			if o:IsA("GuiObject") and not o.Visible then return TopBar.button(4) end
+			o = o.Parent
+		end
+		if o and o:IsA("LayerCollector") and o.Enabled then return b end
+	end
+	return TopBar.button(4)
+end
+local OUTFIT: Step = { icon = "👗", title = "추천 옷 입기", text = "👗 카탈로그 → '추천'에서 마음에 드는 옷의 '입기'를 눌러 보세요!",
+	target = recommendTarget,
+	done = function() return player:GetAttribute("LookWornAt") ~= lookAt end }
 local DAY: {Step} = {
-	{ icon = "👗", title = "옷 갈아입기", text = "위의 👗 카탈로그를 눌러 무료 옷으로 갈아입어 보세요!", button = 4,
-		done = function() return baseLook ~= "" and lookOf(player.Character) ~= baseLook end },
+	OUTFIT,
 	{ icon = "📸", title = "오후네컷에서 사진 찍기", text = "빛나는 길을 따라 오후네컷에 가서 사진 한 장 찍어 보세요!",
 		place = function() return GuideConfig.Places.photo.at end, placeName = "오후네컷",
 		done = function() return player:GetAttribute("PhotoSavedAt") ~= photoAt end },
-	{ icon = "📌", title = "사진 벽에 붙이기", text = "사진을 손에 들고(아래 칸 · 🎒 가방) 오후네컷 벽을 눌러 붙여 보세요!",
-		place = nearestWall, placeName = "포토월",
-		done = function() return player:GetAttribute("WallPostedAt") ~= wallAt end },
 }
 local NIGHT: {Step} = {
-	{ icon = "🎧", title = "클럽 들어가기", text = "밤에만 여는 OHU CLUB! 빛나는 길을 따라 들어가 보세요.",
+	OUTFIT,
+	{ icon = "🎧", title = "클럽 가기", text = "밤에만 여는 OHU CLUB! 빛나는 길을 따라 들어가 보세요.",
 		place = function() return GuideConfig.Places.club.at end, placeName = "OHU CLUB",
 		done = function() return player:GetAttribute("InClubLocal") == true end },
-	{ icon = "💃", title = "춤추기", text = "위의 ♪ 버튼에서 춤을 골라 다 같이 춰 보세요!", button = 1,
-		done = function()
-			local c = player.Character
-			return c ~= nil and c:GetAttribute("DanceKey") ~= nil
-		end },
 }
 
 ---------------------------------------------------------------- the card, the line, the ring
@@ -241,7 +218,7 @@ end
 
 ---------------------------------------------------------------- the run
 local steps: {Step} = DAY
-local goalText = "옷 갈아입고 사진 찍어 벽에 붙이기"
+local goalText = "추천 옷 입고 사진 찍기"
 local index = 0
 local running = false
 local function finish(done: boolean)
@@ -274,7 +251,7 @@ RunService.Heartbeat:Connect(function()
 	local s = steps[index]
 	if not s then return end
 	-- the pulsing ring round a top bar button
-	local b = if s.button then TopBar.button(s.button) else nil
+	local b = if s.target then s.target() elseif s.button then TopBar.button(s.button) else nil
 	if b and b.Visible then
 		NearButton.place(card, pointer, b, 280) -- (D-1539)
 		ring.Visible = true
@@ -314,10 +291,9 @@ local function start()
 	if running then return end
 	local night = ClubConfig.isNightOpen(DayNightConfig.clockNow())
 	steps = if night then NIGHT else DAY
-	goalText = if night then "클럽에서 춤추기" else "옷 갈아입고 사진 찍어 벽에 붙이기"
-	baseLook = lookOf(player.Character)
+	goalText = if night then "추천 옷 입고 클럽 가기" else "추천 옷 입고 사진 찍기"
 	photoAt = player:GetAttribute("PhotoSavedAt")
-	wallAt = player:GetAttribute("WallPostedAt")
+	lookAt = player:GetAttribute("LookWornAt")
 	index = 1
 	running = true
 	gui.Enabled = true

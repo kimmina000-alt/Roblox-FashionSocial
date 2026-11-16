@@ -386,7 +386,11 @@ TryOnItem.OnServerInvoke = function(
 		local done, result = runTracked(player, function()
 			return AvatarService.RestoreSnapshot(player, snapshot)
 		end)
-		if done then Analytics.interact(player, "Outfit") end
+		if done then
+			Analytics.interact(player, "Outfit")
+			-- (D-1542) the first goal's step "추천 옷 입기" (FirstGoalController) goes by this count
+			player:SetAttribute("LookWornAt", ((player:GetAttribute("LookWornAt") :: number?) or 0) + 1)
+		end
 		return done, result
 	end
 

@@ -5373,3 +5373,9 @@ Studio only (no script yet).
 - A / B in Studio Play (same spawn, 50 s): with the photo wall script off the process used 354 MB less (BaseParts −78, Instances −50, mesh −21, Animation −50, Internal −196 MB).
 - PhotoWallController: a wall's photos are built only while the camera is within 140 studs of the wall's box and are thrown away beyond 190 (SurfaceGuiDistance draws them only within 80 anyway, so nothing looks different). PhotoRender: dressed avatar templates (one per outfit ever drawn: walls, album, ranking boards, bus ads) are thrown away after 90 s unused instead of being kept for the whole visit.
 - Checked in Studio Play: at the spawn 0 walls / 0 instances; walking to 오후네컷 builds all 5 walls (122,171 instances, 304 filled cuts) within about 50 s; back at the spawn 0 again within 5 s.
+
+## D-1542 (2026-11-16) 첫 목표: 추천 탭 옷 입고 사진 / 클럽
+- User: "목표 수정 / 밤에는 추천 탭에 있는 옷 갈아입고 클럽 가기 / 낮에는 추천 탭에 있는 옷 갈아입고 사진 찍기".
+- FirstGoalController: day = ① 👗 추천 옷 입기 → ② 📸 오후네컷에서 사진 찍기 (the photo wall step is gone); night = ① 👗 추천 옷 입기 → ② 🎧 클럽 가기 (the dance step is gone). Done banner: "추천 옷 입고 사진 찍기" / "추천 옷 입고 클럽 가기".
+- Step ① counts only a look from the catalog's 추천 tab: the server counts the player attribute LookWornAt up when TryOnItem "WearLook" succeeds (ServerMain). The card and the ring point at 👗 while the catalog is shut and at the catalog's 추천 button (Discovery_1) once it is open (NearButton, D-1539).
+- Studio Play: by day 1/2 추천 옷 입기, the ring and card moved to 추천 when the catalog opened, a 추천 look worn → 2/2 오후네컷에서 사진 찍기; at 22:00 1/2 추천 옷 입기 → 2/2 클럽 가기; no script errors. (These goal texts have no translations yet, as before.)
