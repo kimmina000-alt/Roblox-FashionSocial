@@ -16,7 +16,9 @@ local LAMP = ART and ART:FindFirstChild("ParkLampMesh")
 local BENCH = ART and ART:FindFirstChild("ParkBenchMesh")
 assert(LAMP and BENCH, "ServerStorage.ArtAssets.ParkLampMesh / ParkBenchMesh missing (the user's imports)")
 
-local BRONZE = Color3.fromRGB(64, 54, 42)
+local BRONZE = Color3.fromRGB(92, 68, 48) -- (D-1495: the reference photo's brown bronze)
+-- (D-1495, user: "가로등 크기 2배 키우기") lamps stand LAMP_HEIGHT high (twice the old 12.15)
+local LAMP_HEIGHT = 24.3
 local GLASS = Color3.fromRGB(255, 252, 240)
 local LEGS = Color3.fromRGB(28, 28, 30)
 local WOOD = Color3.fromRGB(150, 98, 58)
@@ -66,17 +68,18 @@ for _, root in ipairs({ workspace:FindFirstChild("놀이공원길"), workspace:F
 	if not root then continue end
 	local old = {}
 	for _, d in ipairs(root:GetDescendants()) do
-		if d:IsA("Model") and (d.Name == "ParkLamp" or d.Name == "Park Bench|공원 벤치") then table.insert(old, d) end
+		if d:IsA("Model") and (d.Name == "ParkLamp" or d.Name == "ParkLampV2" or d.Name == "Park Bench|공원 벤치") then table.insert(old, d) end
 	end
 	for _, m in ipairs(old) do
 		local parts = partsOf(m)
 		local lo, hi = aabb(parts)
-		if m.Name == "ParkLamp" then
-			-- the pole stands where the base is
+		if m.Name == "ParkLamp" or m.Name == "ParkLampV2" then
+			-- the pole stands where the base is (a V2 lamp: on its pivot, rebuilt from the current template)
 			local base = m:FindFirstChild("LampBase")
 			local x, z = (lo.X + hi.X) / 2, (lo.Z + hi.Z) / 2
 			if base and base:IsA("BasePart") then x, z = base.Position.X, base.Position.Z end
-			local new = place(LAMP, (hi.Y - lo.Y) / lampTall, CFrame.new(x, lo.Y, z), "ParkLampV2")
+			if m.Name == "ParkLampV2" then x, z = m.WorldPivot.X, m.WorldPivot.Z end
+			local new = place(LAMP, LAMP_HEIGHT / lampTall, CFrame.new(x, lo.Y, z), "ParkLampV2")
 			for _, p in ipairs(new:GetChildren()) do
 				if p.Name == "LampGlass" then
 					p.Material, p.Color, p.CanCollide, p.CastShadow = Enum.Material.Neon, GLASS, false, false
@@ -107,6 +110,35 @@ for _, root in ipairs({ workspace:FindFirstChild("놀이공원길"), workspace:F
 					p.Material, p.Color = Enum.Material.Asphalt, LEGS
 				end
 				p.CanCollide = true
+			end
+			-- (D-1495, user: "놀이공원 벤치 앉기 기능. 따로 텍스트 띄우지 말고") three invisible Seats on the planks
+			-- (tag PromptSeat: walking into one sits you down, no prompt), facing the freer side
+			local plank = new:FindFirstChild("BenchSeat") :: BasePart
+			local top = plank.Position.Y + plank.Size.Y / 2
+			local along, side = new.WorldPivot.LookVector, new.WorldPivot.RightVector
+			local rp = RaycastParams.new()
+			rp.FilterType = Enum.RaycastFilterType.Exclude
+			rp.FilterDescendantsInstances = { new, m }
+			local function free(dir: Vector3): number
+				local best = 99
+				for _, dy in ipairs({ 0.5, 2 }) do
+					for _, off in ipairs({ -2.5, 0, 2.5 }) do
+						local hit = workspace:Raycast(plank.Position + Vector3.new(0, dy, 0) + along * off, dir * 8, rp)
+						if hit then best = math.min(best, hit.Distance) end
+					end
+				end
+				return best
+			end
+			if free(-side) > free(side) then side = -side end
+			for i = -1, 1 do
+				local sit = Instance.new("Seat")
+				sit.Name = "BenchSit"
+				sit.Anchored, sit.Transparency, sit.CanCollide, sit.CastShadow = true, 1, false, false
+				sit.Size = Vector3.new(1.8, 0.3, 1.8)
+				local pos = Vector3.new(plank.Position.X, top + 0.15, plank.Position.Z) + along * (i * plank.Size.Z / 3)
+				sit.CFrame = CFrame.lookAt(pos, pos + side)
+				sit.Parent = new
+				game:GetService("CollectionService"):AddTag(sit, "PromptSeat")
 			end
 			new.Parent = m.Parent
 			benches += 1
