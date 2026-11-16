@@ -124,6 +124,13 @@ for _, a in ipairs(ARCS) do
 		end
 	end
 end
+-- (D-1502, user: "화단 두 개 따로 묶어 줘") each arc its own model: StarBedNorth / StarBedSouth
+local north, south = Instance.new("Model"), Instance.new("Model")
+north.Name, south.Name = "StarBedNorth", "StarBedSouth"
+for _, p in ipairs(root:GetChildren()) do
+	if p:IsA("BasePart") then p.Parent = if p.Position.Z < C.Z then north else south end
+end
+north.Parent, south.Parent = root, root
 root.Parent = paths
 print(("[park_star_bed_1116] radius %.2f, %d pieces, %d bushes"):format(R, n, bushes))
 return n

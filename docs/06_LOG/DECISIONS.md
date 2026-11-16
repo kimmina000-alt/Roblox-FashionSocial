@@ -5177,3 +5177,8 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1501 (2026-11-16) 점핑스타 둘레 둥근 화단
 - User (two red arcs round the jumping star): "점핀스타 펜스 밖으로 10스터드씩 길 두고 회전컵에 화단 두른 것처럼 화단 둥글게 배치".
 - tools/graybox/park_star_bed_1116.lua (Workspace.놀이공원길.StarBeds): a 10-stud path outside the fence (radius 9.8), then two curved beds in the tea cups' style (brick curb, grass top, a leafy bush every 5.2): the north arc (-140°..-40°) and the south arc (40°..140°), open to the ride's entrance (east) and to the park wall (west). Bed 5.5 wide (the tea cups' 6.5 did not fit between the south wall and the snack bars) on radius 22.55; the jumping star moved 2.5 north (z -364.1, Exit / Site too) so the south arc clears the wall's inner face (-337.5) by 1.3 and the north one the snack bars by 2.3. Old hedges in the path / ring went to ServerStorage.ParkMoveRemoved_1116; a lamp there moved out to (-255, -390).
+
+## D-1502 (2026-11-16) 회전컵 펜스 + 점핑스타 화단 따로 묶기
+- User: "회전컵 펜스 설치 / 화단 두 개 따로 묶어 줘".
+- Tea cups: the park's yellow crowd barrier (the jumping star's FencePanel mesh + invisible FenceWall) in a ring 2 outside the base (radius 37.2, 24 panels 8.33 long), open at the exit (east, the Ride's Exit) and opposite it (west), model 회전컵.Fence (park_rides_south_1116; it moves with the ride).
+- Jumping star beds: StarBeds now holds two models, StarBedNorth and StarBedSouth (24 pieces each: curbs, grass, bushes), so each can be picked and moved as one (park_star_bed_1116).
