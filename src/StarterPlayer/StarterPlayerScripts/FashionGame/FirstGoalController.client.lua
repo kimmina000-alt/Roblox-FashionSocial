@@ -35,8 +35,11 @@ local Sfx = require(script.Parent:WaitForChild("Sfx"))
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
 local KEY = "goal1"
-local ORANGE = Color3.fromRGB(255, 170, 60)
-local PINK = Color3.fromRGB(255, 110, 170)
+-- (D-1536b, user 2026-11-16: "옷 갈아입기는 왜 블랙앤화이트 아니야") black and white like the tour:
+-- the card, the ring, the guide line and its sign, the done banner and its confetti
+local WHITE = Color3.new(1, 1, 1)
+local BLACK = Color3.new(0, 0, 0)
+local GREY = Color3.fromRGB(150, 150, 150)
 
 local function create(className: string, props: {[string]: any}, parent: Instance?): any
 	local instance = Instance.new(className)
@@ -132,32 +135,33 @@ local NIGHT: {Step} = {
 ---------------------------------------------------------------- the card, the line, the ring
 local gui = create("ScreenGui", { Name = "FirstGoalGui", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 30, Enabled = false }, playerGui)
 local card = create("Frame", {
-	Position = UDim2.fromOffset(12, 80), Size = UDim2.fromOffset(280, 92), BackgroundColor3 = Color3.fromRGB(255, 248, 238),
-	BackgroundTransparency = 0.04,
+	Position = UDim2.fromOffset(12, 80), Size = UDim2.fromOffset(280, 92), BackgroundColor3 = BLACK,
+	BackgroundTransparency = 0.25,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 16) }, card)
-local stroke = create("UIStroke", { Color = ORANGE, Thickness = 3 }, card)
+local stroke = create("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.2 }, card)
 local head = create("TextLabel", {
 	Position = UDim2.fromOffset(14, 8), Size = UDim2.new(1, -50, 0, 22), BackgroundTransparency = 1,
-	Font = Enum.Font.GothamBlack, TextSize = 15, TextColor3 = Color3.fromRGB(220, 110, 20), TextXAlignment = Enum.TextXAlignment.Left,
+	Font = Enum.Font.GothamBlack, TextSize = 15, TextColor3 = Color3.fromRGB(200, 200, 200), TextXAlignment = Enum.TextXAlignment.Left,
 	Text = "🎯 첫 목표",
 }, card)
 local title = create("TextLabel", {
 	Position = UDim2.fromOffset(14, 30), Size = UDim2.new(1, -28, 0, 24), BackgroundTransparency = 1,
-	Font = Enum.Font.GothamBlack, TextSize = 18, TextColor3 = Color3.fromRGB(60, 40, 40), TextXAlignment = Enum.TextXAlignment.Left,
+	Font = Enum.Font.GothamBlack, TextSize = 18, TextColor3 = WHITE, TextXAlignment = Enum.TextXAlignment.Left,
 	TextScaled = false, Text = "",
 }, card)
 local body = create("TextLabel", {
 	Position = UDim2.fromOffset(14, 54), Size = UDim2.new(1, -28, 0, 34), BackgroundTransparency = 1,
-	Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = Color3.fromRGB(90, 70, 70), TextWrapped = true,
+	Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = Color3.fromRGB(230, 230, 230), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
 local close = create("TextButton", {
 	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -8, 0, 6), Size = UDim2.fromOffset(28, 28),
-	BackgroundColor3 = Color3.fromRGB(240, 225, 215), Text = "X", Font = Enum.Font.GothamBlack, TextSize = 14,
-	TextColor3 = Color3.fromRGB(120, 90, 80), AutoButtonColor = true,
+	BackgroundColor3 = BLACK, Text = "X", Font = Enum.Font.GothamBlack, TextSize = 14,
+	TextColor3 = WHITE, AutoButtonColor = true,
 }, card)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, close)
+create("UIStroke", { Color = WHITE, Thickness = 1.5, Transparency = 0.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, close)
 -- (D-1539) a goal that asks to press a top bar button (👗, ♪): the card right under that button
 -- with a pointer up to it (Heartbeat below); other goals: at the left under the bar as before
 local pointer = NearButton.pointer(card)
@@ -171,7 +175,7 @@ TopBar.BottomChanged:Connect(placeCard)
 
 local ring = create("Frame", { BackgroundTransparency = 1, Visible = false, ZIndex = 50 }, gui)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, ring)
-local ringStroke = create("UIStroke", { Color = Color3.fromRGB(255, 220, 60), Thickness = 4 }, ring)
+local ringStroke = create("UIStroke", { Color = WHITE, Thickness = 4 }, ring)
 
 local marker: BasePart? = nil
 local from: Attachment? = nil
@@ -194,15 +198,15 @@ local function lineTo(at: Vector3, name: string)
 	local a = create("Attachment", { Name = "FirstGoalFrom", Position = Vector3.new(0, -2, 0) }, r)
 	create("Beam", {
 		Attachment0 = a, Attachment1 = to, FaceCamera = true, Width0 = 1.1, Width1 = 1.1,
-		Color = ColorSequence.new(ORANGE), LightEmission = 1, Transparency = NumberSequence.new(0.15), Segments = 24,
+		Color = ColorSequence.new(WHITE), LightEmission = 1, Transparency = NumberSequence.new(0.15), Segments = 24,
 	}, part)
 	local b = create("BillboardGui", {
 		Name = "FirstGoalSign", Adornee = part, Size = UDim2.fromOffset(170, 44), StudsOffset = Vector3.new(0, 5, 0),
 		AlwaysOnTop = true, LightInfluence = 0,
 	}, part) -- (no taps needed: on the marker itself, D-1523)
 	local l = create("TextLabel", {
-		Size = UDim2.fromScale(1, 1), BackgroundColor3 = ORANGE, BackgroundTransparency = 0.1,
-		Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = Color3.new(0, 0, 0), Text = name,
+		Size = UDim2.fromScale(1, 1), BackgroundColor3 = BLACK, BackgroundTransparency = 0.2,
+		Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = WHITE, Text = name,
 	}, b)
 	create("UICorner", { CornerRadius = UDim.new(0, 14) }, l)
 	marker, from, sign, signLabel = part, a, b, l
@@ -214,13 +218,13 @@ local function celebrate(goalText: string)
 	local g = create("ScreenGui", { Name = "FirstGoalDone", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 60 }, playerGui)
 	local banner = create("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.4), Size = UDim2.fromOffset(0, 0),
-		BackgroundColor3 = Color3.fromRGB(255, 248, 238), Font = Enum.Font.GothamBlack, TextSize = 26,
-		TextColor3 = Color3.fromRGB(220, 90, 40), Text = "🎉 첫 목표 완료!\n" .. goalText, TextWrapped = true,
+		BackgroundColor3 = BLACK, Font = Enum.Font.GothamBlack, TextSize = 26,
+		TextColor3 = WHITE, Text = "🎉 첫 목표 완료!\n" .. goalText, TextWrapped = true,
 	}, g)
 	create("UICorner", { CornerRadius = UDim.new(0, 22) }, banner)
-	create("UIStroke", { Color = PINK, Thickness = 4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, banner)
+	create("UIStroke", { Color = WHITE, Thickness = 4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, banner)
 	TweenService:Create(banner, TweenInfo.new(0.45, Enum.EasingStyle.Back), { Size = UDim2.fromOffset(330, 120) }):Play()
-	local colors = { PINK, ORANGE, Color3.fromRGB(80, 200, 255), Color3.fromRGB(140, 230, 120), Color3.fromRGB(255, 230, 80) }
+	local colors = { WHITE, GREY, BLACK, Color3.fromRGB(210, 210, 210), Color3.fromRGB(80, 80, 80) }
 	local rng = Random.new()
 	for i = 1, 60 do
 		local p = create("Frame", {

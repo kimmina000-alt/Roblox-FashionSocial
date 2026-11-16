@@ -5351,6 +5351,7 @@ Studio only (no script yet).
 
 ## D-1536 (2026-11-16) 튜토리얼 흑백
 - User: "튜토리얼 블랙앤화이트로 수정". TourController card: black card with a white line (as before), 건너뛰기 black with a white line, 다음 white with black words (was orange), the ring round a top bar button white (was yellow), the step count light grey. The step titles keep their emoji.
+- (later, user: "옷 갈아입기는 왜 블랙앤화이트 아니야") the first goal too (FirstGoalController, "D-1536b" in the code): black card with a white line, white / light grey words, black X with a white line, white ring, white guide line and a black sign with white words in the world, the done banner black with white words, confetti in white / greys / black.
 
 ## D-1537 (2026-11-16) 음소거 → 소리 끄기, 소리 끄면 음표도 없음
 - User: "음소거 말고 소리 끄기로 수정. 소리 끄기 하면 홈 화면에 음표도 삭제." Dance window button "🔇 소리 끄기" / "🔊 소리 켜기". With the sound off nothing counts as heard (HearsClub off): the now-playing banner, its 🎵 > fold button, the 🎵 🎥 and play bar (ClubQuickBar, also off in the club while ClubMuted) go away; the choreography / stage camera outside the club stop with it. Sound on again brings them back.
