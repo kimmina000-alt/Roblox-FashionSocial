@@ -5199,3 +5199,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - Bumper hall (Workspace.범퍼 and its queue fences 범 퍼 펜) moved 251.4 south: z -645.1..-511.7, 10 north of the mini viking (the 10-apart rule of D-1481), 8 west of the Ferris wheel; world attributes moved with it. Its old place (z -896..-763) is open ground now.
 - Workspace.화단3칸 (also ServerStorage.ArtAssets.ParkBed3): one bed of the park's style — brick curb 6.5 × 17.2, grass top, three bushes 5.2 apart — grouped as one model (PrimaryPart BedCurb) to copy and place by hand; the first one stands at (-200, -830).
 Studio only (no script yet).
+
+## D-1507 (2026-11-16) 화단 묶음을 클릭 한 번에 고를 수 있게
+- User: "회전컵에 있는 화단도 두 묶음으로 묶어 줘" (they were already two models, CupBedNorth / CupBedSouth, but inside the 놀이공원길 Model a click in Studio picks the whole park). The two pairs of arcs now sit in Folders at the top of Workspace: Workspace.회전컵화단 (CupBedNorth / CupBedSouth) and Workspace.점핑스타화단 (StarBedNorth / StarBedSouth), so a click picks one arc. park_cups_bed_1116 / park_star_bed_1116 build them there.

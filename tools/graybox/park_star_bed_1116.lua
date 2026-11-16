@@ -30,10 +30,12 @@ assert(paths and star and star:FindFirstChild("Ride"), "no 놀이공원길 / 점
 local c3 = star.Ride:GetPivot().Position
 local C = Vector3.new(c3.X, 0, c3.Z)
 
-local old = paths:FindFirstChild("StarBeds")
+-- (D-1507) a Folder at the top of Workspace: in Studio a click picks each arc's own model (inside the
+-- 놀이공원길 model a click picked the whole park)
+local old = workspace:FindFirstChild("점핑스타화단")
 if old then old:Destroy() end
-local root = Instance.new("Model")
-root.Name = "StarBeds"
+local root = Instance.new("Folder")
+root.Name = "점핑스타화단"
 
 local function part(name: string, size: Vector3, cf: CFrame, color: Color3, mat: Enum.Material, collide: boolean): Part
 	local p = Instance.new("Part")
@@ -131,6 +133,6 @@ for _, p in ipairs(root:GetChildren()) do
 	if p:IsA("BasePart") then p.Parent = if p.Position.Z < C.Z then north else south end
 end
 north.Parent, south.Parent = root, root
-root.Parent = paths
+root.Parent = workspace
 print(("[park_star_bed_1116] radius %.2f, %d pieces, %d bushes"):format(R, n, bushes))
 return n
