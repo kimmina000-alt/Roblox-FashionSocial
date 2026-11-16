@@ -5189,3 +5189,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 ## D-1504 (2026-11-16) 회전컵 둘레 둥근 화단
 - User (an arc round the tea cups' east side): "회전컵 펜스 10스터드 밖으로 화단 설치. 위에 화단 가지고 오든지 사이즈 안 맞으면 위에 기존 화단 삭제하고 새로 만들어". The old beds north of the tea cups did not fit the new ring, so they were deleted (21 pieces reaching into the new path / ring; the east wall bed kept) and the ring is new.
 - tools/graybox/park_cups_bed_1116.lua (Workspace.놀이공원길.CupBeds: CupBedNorth / CupBedSouth): fence radius 37.2 + a 10 path + a 6.5 bed (the tea cups' old bed width), radius 50.45; north arc -130°..-28°, south arc 28°..130°: open to the west (the carousel is 3 from the fence there) and at the east, where the east wall bed already runs. 4 lamps / benches in the way moved out past the ring.
+
+## D-1505 (2026-11-16) 슈퍼바이킹 밑 옛 회전컵 화단 삭제
+- User: "슈퍼바이킹 아래 깔린 화단 삭제". It was the tea cups' old ring bed (park_paths_1116's arc round (-111, -535), radius 41), left where the tea cups stood before D-1500 and now round / under the super viking: every Bed* / Hedge of 놀이공원길 Beds / Green between radius 36 and 46 of that point (west of x -62, so the east wall bed stays) was deleted: 19 BedCurb, 20 BedGrass, 19 Hedge. Studio only; the two lamps that stood on that ring are left standing.
