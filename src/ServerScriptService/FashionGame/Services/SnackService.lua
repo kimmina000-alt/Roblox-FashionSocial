@@ -122,7 +122,10 @@ local EAT_STEPS = 3
 local function bitesOf(item: SnackConfig.Item): number
 	if (item :: any).oneBite then return 1 end
 	-- (D-1036) the user's 국밥 models: one spoonful per piece
-	return FoodShapes.biteCount(item) or EAT_STEPS
+	local pieces = FoodShapes.biteCount(item)
+	-- (D-1533) 콜팝: one more tap after the chicken, the cola through the straw
+	if pieces and (item :: any).finalSip then return pieces + 1 end
+	return pieces or EAT_STEPS
 end
 
 -- containers and tools that stay in the hand
@@ -142,7 +145,12 @@ local EAT_SOUND = {
 	bag = 137096768206416, bread = 137096768206416, rice = 137096768206416, -- crunchy / bready
 	cake = 95249450082163, cone = 95249450082163, bar = 95249450082163, -- soft
 	plate = 135174197196705, -- "Chewing" (GIANT EATERS)
+	-- (D-1533, user 2026-11-16: "츄로스 바삭바삭 소리 내면서 순서대로 먹고") crisp fried bites:
+	-- "eat_onionring" (ilumnil) for the churro, "eat_friedchicken3" (ilumnil) for the 콜팝 chicken
+	churro = 136587360928233, colpop = 96143714118880,
 }
+-- (D-1533) 콜팝's last tap: "straw-slurp" (river. Games), the cola through the straw
+local STRAW_SLURP = 140468384563217
 -- 국밥 (kind "bowl"): the user's own three clips, picked at random each
 -- spoonful, never the same twice in a row (user 2026-10-30;
 -- docs/04_ART/sounds/gukbap_eat_1..3.mp3, uploaded on Vantablack_Dev). 0 = the old clip.
@@ -548,6 +556,14 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 		restore = SnackHands.pullStick(tool, handle, character, leftGrip)
 		task.wait(0.1) -- (the new grip reaches the clients before the arm lifts it)
 	end
+	-- (D-1533) 콜팝: the last tap after the chicken is the cola through the straw: the straw's tip to the
+	-- lips (its StrawTipLater part becomes the StrawTip EatMotionController aims at) and the slurp
+	local finalSip = (item :: any).finalSip and tool:GetAttribute("Bites") == 1 and handle ~= nil
+	if finalSip and handle then
+		local tip = handle:FindFirstChild("StrawTipLater", true)
+		if tip then tip.Name = "StrawTip" end
+		task.wait(0.1) -- (the new name reaches the clients before the arm lifts it)
+	end
 	character:SetAttribute("Eating", true)
 	local up = if ik then nil else mouthGrip(character, if item.kind == "cone" or item.kind == "bar" then -0.2 else 0)
 	if up then TweenService:Create(tool, TweenInfo.new(0.3, Enum.EasingStyle.Quad), { Grip = up }):Play() end
@@ -567,6 +583,10 @@ local function bite(tool: Tool, item: SnackConfig.Item)
 			sound.SoundId = "rbxassetid://" .. id
 			sound.TimePosition = GUKBAP_FROM
 		end
+	end
+	if finalSip and handle then
+		local slurp = handle:FindFirstChild("StrawSlurp", true) :: Sound?
+		if slurp then sound = slurp end
 	end
 	if sound then sound:Play() end
 	local total = bitesOf(item)
@@ -1034,6 +1054,14 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 	setVolume(sip, if COFFEE[item.key] then 0.9 elseif QUIET[item.key] then 0.35 else LOUD[item.key] or 0.7)
 	sip.RollOffMaxDistance = 40
 	sip.Parent = handle
+	if (item :: any).finalSip then -- (D-1533) loaded from the start, so the last tap is heard at once
+		local slurp = Instance.new("Sound")
+		slurp.Name = "StrawSlurp"
+		slurp.SoundId = "rbxassetid://" .. tostring(STRAW_SLURP)
+		setVolume(slurp, 0.9)
+		slurp.RollOffMaxDistance = 40
+		slurp.Parent = handle
+	end
 	-- (D-1079, user 2026-11-09: "국밥 크기 1.5배 키우기") the three 국밥 once more 1.5×
 	local k = FOOD_SCALE * (if kind == "bowl" then 1.5 else 1)
 	scaleTool(tool, handle, k) -- (D-950)

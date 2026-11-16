@@ -31,6 +31,7 @@ export type Item = {
 	pair: boolean?, -- (D-1129) 친구바: the first tap splits it in two, one half for a friend (FriendBar)
 	stickOut: boolean?, -- (D-1131) 빼쭉이: each bite one stick out into the other hand (SnackHands)
 	clubCan: string?, -- (D-1135) the club bar's can of this drink (ClubDrinks key), handed over by DrinkService
+	finalSip: boolean?, -- (D-1533) 콜팝: after the last piece one more tap drinks the cola through the straw
 }
 export type Shop = { key: string, title: string, prompt: string, hint: string?, items: {Item} }
 
@@ -137,9 +138,9 @@ SnackConfig.Shops = {
 		title = "OHU 콜팝",
 		prompt = "콜팝 사기",
 		items = {
-			{ key = "colpop_cola", name = "콜팝 (콜라)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(255, 255, 255), coins = 5 },
-			{ key = "colpop_cider", name = "콜팝 (사이다)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(120, 210, 120), coins = 5 },
-			{ key = "colpop_cheese", name = "치즈 콜팝", kind = "colpop", color = Color3.fromRGB(240, 190, 70), topping = Color3.fromRGB(255, 255, 255), coins = 5 },
+			{ key = "colpop_cola", name = "콜팝 (콜라)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(255, 255, 255), coins = 5, finalSip = true },
+			{ key = "colpop_cider", name = "콜팝 (사이다)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(120, 210, 120), coins = 5, finalSip = true },
+			{ key = "colpop_cheese", name = "치즈 콜팝", kind = "colpop", color = Color3.fromRGB(240, 190, 70), topping = Color3.fromRGB(255, 255, 255), coins = 5, finalSip = true },
 		},
 	},
 	-- OH24 convenience store (D-311): cheap snacks, coins only, no alcohol / tobacco

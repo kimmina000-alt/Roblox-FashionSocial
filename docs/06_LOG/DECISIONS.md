@@ -5319,3 +5319,10 @@ Studio only (no script yet).
 - tools/graybox/park_perf_1116.lua (new, last chain step): the bumper hall's 45 StringWire parts become Beams between their bulbs; the playground stored under the park (201 parts, its swings / spring riders / slide still set up and moved on every screen) goes to ServerStorage.ParkSeaNorthRemoved_1116; small park parts (under 3 studs) cast no shadow (278).
 - ParkNightController: each bulb's Seq read once, not 341 attribute reads every 0.16 s.
 - Studio Play at 22:00: the string lights, rainbow wheel and searchlight look as before; no script errors.
+
+## D-1533 (2026-11-16) 츄로스 / 콜팝: 사용자 3D 모델로 순서대로 먹기, 콜팝 마지막은 빨대로 콜라
+- User: "츄로스랑 콜팝 3d 에셋 추가함 / 츄로스 바삭바삭 소리 내면서 순서대로 먹고 / 콜팝은 순서대로 먹고 bite 다 먹으면 마지막에 빨대로 콜라 마시는 소리 내면서 사라지게 해".
+- The user's imports (two Workspace "Scene" models) are ServerStorage.ArtAssets.Foods.ChurroBites (Bite1 = top .. Bite4) and ColpopBites (Plate = the striped cup with its straw, Bite1..7 = the chicken, an invisible StrawTipLater at the straw's tip). Place-only: save the place.
+- FoodShapes.ASSET_FOODS: the three churros → "Churro" 1.9 long, held low (0.3); the three 콜팝 → "Colpop" 1.3, held low (0.22). EatMode "Bites": one piece per tap, Bite1 first. One model for every flavour.
+- Sounds: churro bites "eat_onionring" 136587360928233 (crisp), 콜팝 chicken "eat_friedchicken3" 96143714118880, the last tap "straw-slurp" 140468384563217 (Creator Store, free).
+- SnackConfig: 콜팝 items finalSip = true → bites = pieces + 1. The last tap renames StrawTipLater to StrawTip (EatMotionController brings the straw tip to the lips), plays the slurp, and the 콜팝 is gone.
