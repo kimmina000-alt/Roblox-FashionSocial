@@ -1,5 +1,5 @@
 --!nocheck
--- 범퍼카 대기줄 · 출구 (D-1524, user 2026-11-16 + a top view with red fence lines in front of the hall:
+-- 범퍼카 대기줄 · 출구 (D-1525, user 2026-11-16 + a top view with red fence lines in front of the hall:
 -- "범퍼카 앞에 펜스 빨간선 모양으로 세워 줘. 왼쪽 화살표는 출구 입장 안 되게 막고, 오른쪽 노란 화살표 따라서
 -- 대기줄 서는 거임. 입장만 할 수 있음").
 --   * an exit in the hall's south rail at x -155.3..-141.7 (a ramp like the entrance's) with a fenced lane

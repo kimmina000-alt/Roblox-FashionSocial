@@ -5263,7 +5263,7 @@ Studio only (no script yet).
 - User (the big garden island between the mini viking and the super viking selected, its three cherry trees ticked): "해당 묶음 가운데 벚꽃나무만 두고 삭제.. 가로등 위치 재배치".
 - 놀이공원정원.Island1: its 323 bushes deleted; the five cherry trees and the benches stay; the four lamps at the strip's south end moved onto the trees' line, between and past them (x -165..-168, z -458 / -498 / -536 / -590; the -576 spot hit a bench). In park_beds3_1116 (run after park_garden_1116).
 
-## D-1524 (2026-11-16) 범퍼카 대기줄 · 출구
+## D-1525 (2026-11-16) 범퍼카 대기줄 · 출구
 - User (a top view with red fence lines in front of the hall and yellow arrows): "범퍼카 앞에 펜스 빨간선 모양으로 세워 줘. 왼쪽 화살표는 출구 입장 안 되게 막고, 오른쪽 노란 화살표 따라서 대기줄 서는 거임. 입장만 할 수 있음".
 - tools/graybox/park_bumper_queue_1116.lua: an exit cut in the south rail at x -155.3..-141.7 with a ramp like the entrance's and a fenced lane south from it; the queue fences (점핑스타's yellow panel + invisible FenceWall, 44 panels) in the drawn shape: in from the south between x -141.7 and -126.9, the bottom row east, the middle row west, the top row east to the entrance at x -95 (범퍼.Queue); one way by two RideGate models in 범퍼.Gates, Mode "Exit" without a leaf: the exit (Inward north) stops people coming in, the entrance (Inward south) stops people going back out; the south rail's panels and rubber band laid again round both gaps.
 - Play: in through the entrance passes, out through it is stopped; out through the exit passes, in through it is stopped; the way in up the bottom row is open. As drawn, the top row is open to the east between its end (x -70) and the east wall bed.
