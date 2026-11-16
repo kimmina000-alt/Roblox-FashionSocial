@@ -42,6 +42,7 @@ ClubService.Start()
 ClubScreenService.Start()
 PhotoBoothService.Start(PlayerDataService)
 require(script.Parent.Services.ParkRideService).Start()
+require(script.Parent.Services.BumperCarService).Start() -- (drivable bumper cars, D-1413)
 -- XP name tags are locked with XP (EconomyConfig.XPEnabled, user 2026-10-22):
 -- players keep Roblox's own name display.
 if require(game:GetService("ReplicatedStorage").FashionGame.Shared.EconomyConfig).XPEnabled then

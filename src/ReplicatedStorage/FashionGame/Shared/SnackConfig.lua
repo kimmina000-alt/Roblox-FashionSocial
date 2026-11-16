@@ -15,7 +15,8 @@ export type Item = {
 	key: string,
 	name: string,
 	-- how it is held: "cup" | "cone" | "bar" | "bread" | "cake" | "bowl" |
-	-- "bag" | "rice" (삼각김밥) | "ricebowl" | "noodle" | "bottle" | "parfait" | "plate"
+	-- "bag" | "rice" (삼각김밥) | "ricebowl" | "noodle" | "bottle" | "parfait" | "plate" |
+	-- "balloon" (D-1496: not food, BalloonService)
 	kind: string,
 	color: Color3,
 	topping: Color3?,
@@ -102,6 +103,41 @@ SnackConfig.Shops = {
 			{ key = "vanilla", name = "바닐라", kind = "cone", color = Color3.fromRGB(255, 245, 215), coins = 15 },
 			{ key = "mintchoco", name = "민트초코", kind = "cone", color = Color3.fromRGB(160, 235, 210), topping = Color3.fromRGB(70, 45, 30), coins = 15 },
 			{ key = "chocolate", name = "초코", kind = "cone", color = Color3.fromRGB(120, 75, 50), coins = 15 },
+		},
+	},
+	-- (D-1496) the park's balloon shop: a helium balloon on a string (BalloonService), a tap lets it go
+	BalloonShop = {
+		key = "BalloonShop",
+		title = "오후 풍선 가게",
+		prompt = "풍선 사기",
+		items = {
+			{ key = "balloon_red", name = "빨간 풍선", kind = "balloon", color = Color3.fromRGB(235, 60, 75), coins = 5 },
+			{ key = "balloon_pink", name = "분홍 풍선", kind = "balloon", color = Color3.fromRGB(255, 140, 190), coins = 5 },
+			{ key = "balloon_yellow", name = "노란 풍선", kind = "balloon", color = Color3.fromRGB(255, 210, 60), coins = 5 },
+			{ key = "balloon_mint", name = "민트 풍선", kind = "balloon", color = Color3.fromRGB(110, 225, 190), coins = 5 },
+			{ key = "balloon_blue", name = "파란 풍선", kind = "balloon", color = Color3.fromRGB(80, 150, 255), coins = 5 },
+			{ key = "balloon_purple", name = "보라 풍선", kind = "balloon", color = Color3.fromRGB(165, 110, 235), coins = 5 },
+		},
+	},
+	-- (D-1527, user: "츄로스랑 콜팝도 풍선처럼 구매 가능하게") the park's snack bars: coins, held and eaten
+	Churros = {
+		key = "Churros",
+		title = "OHU 츄로스",
+		prompt = "츄로스 사기",
+		items = {
+			{ key = "churro_original", name = "오리지널 츄로스", kind = "churro", color = Color3.fromRGB(205, 140, 70), topping = Color3.fromRGB(245, 230, 205), coins = 5 },
+			{ key = "churro_choco", name = "초코 츄로스", kind = "churro", color = Color3.fromRGB(205, 140, 70), topping = Color3.fromRGB(95, 55, 35), coins = 5 },
+			{ key = "churro_strawberry", name = "딸기 츄로스", kind = "churro", color = Color3.fromRGB(205, 140, 70), topping = Color3.fromRGB(245, 130, 160), coins = 5 },
+		},
+	},
+	Colpop = {
+		key = "Colpop",
+		title = "OHU 콜팝",
+		prompt = "콜팝 사기",
+		items = {
+			{ key = "colpop_cola", name = "콜팝 (콜라)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(255, 255, 255), coins = 5 },
+			{ key = "colpop_cider", name = "콜팝 (사이다)", kind = "colpop", color = Color3.fromRGB(215, 140, 55), topping = Color3.fromRGB(120, 210, 120), coins = 5 },
+			{ key = "colpop_cheese", name = "치즈 콜팝", kind = "colpop", color = Color3.fromRGB(240, 190, 70), topping = Color3.fromRGB(255, 255, 255), coins = 5 },
 		},
 	},
 	-- OH24 convenience store (D-311): cheap snacks, coins only, no alcohol / tobacco

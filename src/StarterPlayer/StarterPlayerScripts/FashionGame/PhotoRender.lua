@@ -215,7 +215,10 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 					end
 				end
 			end
-			freeze(rig, entry.kn == true, face)
+			-- (D-1528, user: "허리 숙이기 한 다음 포즈 누르면 … 최종 찍은 사진에 풀려서 하체만 나옴") the shot
+			-- stores the kneel as kn = 1: "== true" was false, so a posed cut lost its kneel when the
+			-- pose's Animator went (a cut without a pose kept the one set above)
+			freeze(rig, entry.kn ~= nil and entry.kn ~= false, face)
 		end
 	end
 end

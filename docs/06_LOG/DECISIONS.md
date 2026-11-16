@@ -5132,6 +5132,174 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - park_jumpstar_mesh_1116: the PoleCollider only goes up to the car's bottom (5 high), enough to keep walkers off the tower. Re-checked live: the seat-2 rider stays at x -1.25 the whole run, also as Player2 sees it.
 - Same test: beach cafe auto door, order, shift (make + serve to Player1), walking past snack bar 2, beach ball pick-up / throw, float tube board / ride / leave — no script errors on the server or the two clients. Merged into catalog-ui-redesign (user: "모바일 2인 테스트하고 머지해").
 
+## D-1492 (2026-11-16) 지도 전체 그림자 최적화
+- User: "최적화", scope picked: "지도 전체". Measured first: 19,513 parts in Workspace (budget 25,000), 412 lights (351 on; none cast shadows; only 9 overlap another of the same colour, all coloured club / photo-booth / park-path lights, left alone), StreamingEnabled with Opportunistic 384 / 128 already.
+- tools/graybox/optimize_1116.lua (run last in the layout chain, idempotent): CastShadow off on the 2,086 parts under 1.5 studs (bulbs, bolts, trims, LED dots) and on 886 flat slabs (≤ 1.2 thick) lying on something (their shadow falls under themselves); the 177 small Neon parts without a tag / prompt / collider-like name also lose CanCollide / CanTouch / CanQuery. Shadow casters 9,515 → 6,543.
+- Not done: removing or merging lights (they are the look of the club, cafe and photo booth); the user deleted the peace train on purpose (not rebuilt).
+
+## D-1493 (2026-11-16) 놀이공원 가로등 + 벤치 = 사용자 모델
+- User: "벤치랑 가로등 이걸로 교체해 / 가로등 오래된 느낌의 엔틱한 재질로 하되 사진에 선택한 부분은 하얀 조명으로 처리해 / 벤치는 양쪽 다리는 검은색 꺼끌한 재질로 하고 가운데 앉는 부분은 우드로" (street lamp.glb, Bench.glb).
+- Each glb is one mesh, and a MeshPart takes one material, so the files were split by material (tools/art/split.py + glbio.py; copies in docs/04_ART/models/park): lamp glass = the wide panes of the lantern (y 29..34.5, not the narrow recessed bars), bench seat = the three planks (every vertex within |y| 0.21). The user imported the split files; they live in ServerStorage.ArtAssets.ParkLampMesh / ParkBenchMesh (place only). The first single-piece imports were deleted.
+- tools/graybox/park_lamp_bench_1116.lua: every ParkLamp (31) and "Park Bench|공원 벤치" (17: 15 on the park paths, 2 at the playground) replaced in place: lamp as tall as the old one (12.15) on its base point, body CorrodedMetal dark bronze (64,54,42), glass Neon warm white with the old lamp's PointLight; bench as long as the old one (8.5) along the old seat, legs Asphalt black (28,28,30), seat Wood (150,98,58). City street lamps (StreetDress) not touched.
+
+## D-1494 (2026-11-16) 놀이공원 서쪽을 해변 모래 선까지 좁힘
+- User (a red line down the beach sand's west edge): "해변 모래 있는 선에 맞춰서 놀이공원 부지 좁히자 / 해당 땅 위에 잇는 기구들도 동쪽으로 이동"; rides: "벽에 닿는 만큼만".
+- tools/graybox/park_narrow_1116.lua: the park's west edge x -298.5 → -268 (the beach sand's and the land's west edge, 30.5): ParkRaise.ParkPlatformNorth / West start at -268 and the strip is sea (terrain water to y -4); the west wall run, its pillars and ParkPillarWestMiddle moved 30.5 east; CornerBeachWalls' south run starts at -267.5; 놀이공원길 Paving starts at -268, lawns and long beds at the wall's inner side (-261.65); the wall bed, hedges, trees, lamps, benches and bins along it moved 30.5.
+- Rides moved east only until 3 clear of the wall (or of a hand-placed hedge west of them): 점핑스타 +15.4 (Exit / Site too), snack bar 2 +31.8, kiosk +31.1, 미니바이킹 +18.3 (with its loose side fence), the carousel +3.3 next to it, 범퍼 +34.8 (with its fence folder), 03_JumperBoat +7.5.
+- 80 hedges that the moved rides now stood on were set aside in ServerStorage.ParkNarrowRemoved_1116 (attribute FromPath) for the user to place again; the bench and bin under the kiosk moved north of it. Play walk: to the jumping star exit, the snack bar fronts, the path north of the kiosk and the bumper hall's east side, no blocking.
+
+## D-1495 (2026-11-16) 놀이공원 벤치 앉기 + 가로등 v2 두 배
+- User: "놀이공원 벤치 앉기 기능. 따로 텍스트 띄우지 말고 / 가로등 사진 참고해서 수정. 가로등 크기 2배 키우기 / 가로등 비율 수정했어 이걸로 다시 만들어줘 스플릿해서 주면 그거 가져오기 할게".
+- Benches: three invisible Seats (BenchSit, tag PromptSeat: no prompt, walking in sits you down) on each ParkBenchV2's planks, facing the freer side (rays both ways; one bench had faced its hedge). Play: sat down by walking into it, facing the path, no text.
+- Lamps: the user's re-proportioned street lamp.glb split again (tools/art/split_lamp2.py: glass = the wide panes between the rings at y 28.5 / 31.98, measured against each ring's own radius), imported as ServerStorage.ArtAssets.ParkLampMesh; park_lamp_bench_1116 rebuilds every ParkLampV2 at LAMP_HEIGHT 24.3 (twice 12.15), body CorrodedMetal brown bronze (92,68,48) as the reference photo, glass Neon warm white with the lamp's PointLight.
+
+## D-1496 (2026-11-16) 스낵바 2개 교체 + 풍선 가게 + 헬륨 풍선
+- User: "3d 스낵바 두 군데 이걸로 교체 / 입구 들어와서 오른쪽에 ballonshop 설치. 스낵바와 같은 크기로. 풍선은 색깔 다르게 지정 / balloon은 balloonshop에서 파는 판매 물품 풍선에 헬륨 들어 있는 것처럼 떠 있게 하고 풍선 놓으면 하늘로 떠올라가게 구현".
+- tools/graybox/park_shops_1116.lua: the kiosk → SnackBar1 (snackbar1.glb, 콜팝 sign), SnackBar2 → snackbar2.glb (츄로스 sign), each laid on the old body (scale 4.29); Workspace.BalloonShop inside the gate on the right of the way in (body centre -70, -306, counter facing west), the same scale, with an invisible BalloonCounter tagged SnackShop (Shop = BalloonShop). The shop's balloons are one mesh with its sign and strings, so tools/art/split_balloonshop.py split them (BalloonShopDecor_split.glb: Balloon1..4, BalloonStrings, ShopSign); once imported as ArtAssets.BalloonShopDecor the script colours them red / yellow / blue / mint.
+- SnackConfig.Shops.BalloonShop: six balloons (red, pink, yellow, mint, blue, purple), 5 coins each (a guess, to set). SnackService.buy hands kind "balloon" to the new BalloonService: a tool whose handle is the hand end of a visible RopeConstraint string (4.6) to the balloon (balloon.glb sphere, ArtAssets.BalloonMesh, 2.2 high, the colour), lifted 1.6× its weight with light damping, network-owned by the holder; a tap lets go: the tool goes and a free balloon with a string tail rises 7 studs/s with a little drift, fading out after 14 s. Play: bought a pink balloon (floats 5.5 over the hand, sways on its string), tapped: it rose 16 studs in 3 s.
+
+## D-1497 (2026-11-16) 풍선 가게 풍선 색 + 상점 간판 글자 색
+- The user imported BalloonShopDecor_split.glb (now ServerStorage.ArtAssets.BalloonShopDecor): the balloon shop was rebuilt with its four balloons red / yellow / blue / mint, the strings white, lined up with the original decoration's box.
+- User: "상점 세 개 간판 글씨 바깥에 매표소 간판과 색상 동일하게": the letters of the 콜팝, 츄로스 and 오후 (balloon shop) signs take the gate booths' letter face colour (255, 252, 250), SmoothPlastic (park_shops_1116).
+
+## D-1498 (2026-11-16) 상점 세 개 한 줄 + 가로등 진한 고동색
+- User: "풍선 파는 곳 양옆으로 츄로스, 콜팝 가게 정렬 / 가로등 내가 보낸 사진 보고 재질 변경. 더 진한 고동색으로".
+- The 츄로스 (SnackBar2) and 콜팝 (SnackBar1) stands left their spot by the jumping star and stand either side of the balloon shop inside the gate: 츄로스 z -309.8..-291.5 (just inside the hoarding), the balloon shop -342.5..-310.3, 콜팝 -361.3..-343.0, all facing the way in (west) with their fronts on x -78.5, 0.5 apart. The bench in front of 콜팝 moved 3 west, its bin to the bench's west end (park_shops_1116 step 4).
+- Lamp bodies: Metal, dark brown (64, 40, 26) instead of CorrodedMetal light bronze (its rust texture kept them orange); park_lamp_bench_1116.
+
+## D-1499 (2026-11-16) 츄로스·콜팝 두 개씩
+- User: "츄로스, 콜팝 가게 원래 있던 위치에도 있어야 해. 두 개씩 두자". A second pair stands where they stood by the jumping star, facing east as before: SnackBar1B (콜팝) x -257.8..-240.8 z -431.1..-412.8, SnackBar2B (츄로스) x -257.6..-240.6 z -410.0..-391.7, same scale and sign colour (park_shops_1116 step 5). The pair beside the balloon shop stays.
+
+## D-1500 (2026-11-16) 회전컵 · 슈퍼바이킹 · 관람차를 입구 쪽으로
+- User (top view, the three boxed, an arrow down to a line above the shops): "회전컵, 슈퍼바이킹, 관람차 전체적으로 북쪽으로 이동". The text said north but the arrow pointed south (toward the gate); asked, the user picked the arrow: toward the gate, about 120.
+- tools/graybox/park_rides_south_1116.lua: the three moved 123.5 south together (tea cups z -446.7..-376.3, 15 north of the 콜팝 stand; super viking -561.3..-475.6; Ferris wheel -698.9..-591.3), the tea cups also 6.4 east (3 clear of the carousel); world attributes moved with them. Under the new places 24 BedGrass, 25 BedCurb, 22 Hedge, a cherry tree and a lamp were set aside in ServerStorage.ParkMoveRemoved_1116 (FromPath) for the user to place again.
+
+## D-1501 (2026-11-16) 점핑스타 둘레 둥근 화단
+- User (two red arcs round the jumping star): "점핀스타 펜스 밖으로 10스터드씩 길 두고 회전컵에 화단 두른 것처럼 화단 둥글게 배치".
+- tools/graybox/park_star_bed_1116.lua (Workspace.놀이공원길.StarBeds): a 10-stud path outside the fence (radius 9.8), then two curved beds in the tea cups' style (brick curb, grass top, a leafy bush every 5.2): the north arc (-140°..-40°) and the south arc (40°..140°), open to the ride's entrance (east) and to the park wall (west). Bed 5.5 wide (the tea cups' 6.5 did not fit between the south wall and the snack bars) on radius 22.55; the jumping star moved 2.5 north (z -364.1, Exit / Site too) so the south arc clears the wall's inner face (-337.5) by 1.3 and the north one the snack bars by 2.3. Old hedges in the path / ring went to ServerStorage.ParkMoveRemoved_1116; a lamp there moved out to (-255, -390).
+
+## D-1502 (2026-11-16) 회전컵 펜스 + 점핑스타 화단 따로 묶기
+- User: "회전컵 펜스 설치 / 화단 두 개 따로 묶어 줘".
+- Tea cups: the park's yellow crowd barrier (the jumping star's FencePanel mesh + invisible FenceWall) in a ring 2 outside the base (radius 37.2, 24 panels 8.33 long), open at the exit (east, the Ride's Exit) and opposite it (west), model 회전컵.Fence (park_rides_south_1116; it moves with the ride).
+- Jumping star beds: StarBeds now holds two models, StarBedNorth and StarBedSouth (24 pieces each: curbs, grass, bushes), so each can be picked and moved as one (park_star_bed_1116).
+
+## D-1503 (2026-11-16) 벽 기둥 속에 박힌 덤불 삭제
+- User (a west wall pillar with hedge leaves sticking out of its foot): "여기 들어간 화단 삭제". The wall bed's hedges that moved with the wall (D-1494) stood half inside the pillars: every Hedge of 놀이공원길 whose middle is inside a ParkPillar's footprint (± 1) was deleted, 11 in all (west pillars at z -378, -477, -630 ×2, -735, -945 ×2, -1050, -1155 ×2; east pillar at -630). Studio only (the place); a rebuild of 놀이공원길 by park_paths_1116 would bring them back.
+
+## D-1504 (2026-11-16) 회전컵 둘레 둥근 화단
+- User (an arc round the tea cups' east side): "회전컵 펜스 10스터드 밖으로 화단 설치. 위에 화단 가지고 오든지 사이즈 안 맞으면 위에 기존 화단 삭제하고 새로 만들어". The old beds north of the tea cups did not fit the new ring, so they were deleted (21 pieces reaching into the new path / ring; the east wall bed kept) and the ring is new.
+- tools/graybox/park_cups_bed_1116.lua (Workspace.놀이공원길.CupBeds: CupBedNorth / CupBedSouth): fence radius 37.2 + a 10 path + a 6.5 bed (the tea cups' old bed width), radius 50.45; north arc -130°..-28°, south arc 28°..130°: open to the west (the carousel is 3 from the fence there) and at the east, where the east wall bed already runs. 4 lamps / benches in the way moved out past the ring.
+
+## D-1505 (2026-11-16) 슈퍼바이킹 밑 옛 회전컵 화단 삭제
+- User: "슈퍼바이킹 아래 깔린 화단 삭제". It was the tea cups' old ring bed (park_paths_1116's arc round (-111, -535), radius 41), left where the tea cups stood before D-1500 and now round / under the super viking: every Bed* / Hedge of 놀이공원길 Beds / Green between radius 36 and 46 of that point (west of x -62, so the east wall bed stays) was deleted: 19 BedCurb, 20 BedGrass, 19 Hedge. Studio only; the two lamps that stood on that ring are left standing.
+
+## D-1506 (2026-11-16) 범퍼카장 남쪽으로 + 화단 3칸 묶음
+- User (a top view: the bumper hall boxed, an arrow down to a box west of the Ferris wheel; and a picture of a short bed with three bushes): "화단 지우고 범퍼카 위치 이동 / 화단 세 칸짜리만 묶어서 만들어줘".
+- Beds in the box (x -268..-140, z -685..-511) deleted (61 pieces with their bushes); 13 lamps, benches, bins and trees there set aside in ServerStorage.ParkMoveRemoved_1116. The delete took two long beds whole (the west wall bed, 867 long, and the x -219 divider); their parts outside the box were laid again in the same style: wall bed x -262.7 z -351..-511 and -685..-1218, divider z -685..-728.4.
+- Bumper hall (Workspace.범퍼 and its queue fences 범 퍼 펜) moved 251.4 south: z -645.1..-511.7, 10 north of the mini viking (the 10-apart rule of D-1481), 8 west of the Ferris wheel; world attributes moved with it. Its old place (z -896..-763) is open ground now.
+- Workspace.화단3칸 (also ServerStorage.ArtAssets.ParkBed3): one bed of the park's style — brick curb 6.5 × 17.2, grass top, three bushes 5.2 apart — grouped as one model (PrimaryPart BedCurb) to copy and place by hand; the first one stands at (-200, -830).
+Studio only (no script yet).
+
+## D-1507 (2026-11-16) 화단 묶음을 클릭 한 번에 고를 수 있게
+- User: "회전컵에 있는 화단도 두 묶음으로 묶어 줘" (they were already two models, CupBedNorth / CupBedSouth, but inside the 놀이공원길 Model a click in Studio picks the whole park). The two pairs of arcs now sit in Folders at the top of Workspace: Workspace.회전컵화단 (CupBedNorth / CupBedSouth) and Workspace.점핑스타화단 (StarBedNorth / StarBedSouth), so a click picks one arc. park_cups_bed_1116 / park_star_bed_1116 build them there.
+
+## D-1508 (2026-11-16) 모서리 기둥 받침
+- User (the south-west corner pillar): "밑에 어데 갓노". The three corner pillars that park_corner_beach_1115 copied ((-264.2, -338.9), (-182, -338.9), (-178.9, -281.8)) had no ParkPillarBase: their bottom was 3 over the paving. Each got a copy of another pillar's base at the same offset (park_pillars_inside_1116 step 3, any pillar without a base).
+
+## D-1509 (2026-11-16) 가로등 유리 다시 나눔
+- User (a lamp with dark panes that should be glass): "가로등 조명 부분이어야 하는데 안 나눠진 부분 있음 수정". The lantern is a polygon, not a circle, so D-1495's radius test took some panes for bars. tools/art/split_lamp3.py tells them by width (each tall face is half of a quad: bars 0.108 at both rings, panes 0.28-0.39 at the bottom and 0.60-0.71 at the top): 16 panes = 32 faces glass (was 23 faces), checked from four sides. The user imported StreetLamp_split3.glb (now ArtAssets.ParkLampMesh); the 25 park lamps in Workspace and the 6 set aside in ServerStorage were rebuilt from it (24.3 high, dark brown Metal, Neon glass with the light). A second lamp 1.1 from the one at (-262.7, -434.2) was a duplicate and was removed.
+
+## D-1510 (2026-11-16) 미니바이킹 북쪽 화단을 펜스에서 10 떨어지게
+- User (the bed lying on the mini viking's north fence): "화단 펜스로부터 10 스터드 떨어진 옆으로 이동". The user had moved the mini viking (now x -249..-188.6, z -506.4..-445.2) and the bumper hall (z -705.9..-572.5) by hand; the long bed between them (park_paths_1116's z -506.7 row, x -261.6..-216.5, with its bushes, 14 pieces) sat on the mini viking's north fence line (-506.4). It moved 12.2 north: its south edge is 10 from the fence (bed middle z -518.9). Studio only.
+
+## D-1511 (2026-11-16) 떠 있는 놀이기구·가로등·나무 땅에 붙이기
+- User (the carousel's base over the ground): "회전목마 붕 떠 있음 / 이렇게 붕 떠 있는 놀이기구나 화단 나무 벤치 있으면 땅에 맞춰서 배치해".
+- Checked 87 units in the park (every ride, the snack bars and balloon shop, the bed models, 놀이공원길's lamps, benches, bins and trees, loose hedges): rays down from the lowest visible parts, the unit itself left out. Floating more than 0.25 and dropped onto what is under them: the carousel (base, ring and the turning Carousel model; its fence was on the ground) 1.27, the super viking 1.41, two lamps 0.97 and a cherry tree 0.97 (moved off their beds earlier onto the paving). World attributes went with them. Play: the carousel turns, horses bob over the base, no script errors. Studio only.
+
+## D-1512 (2026-11-16) 범퍼카장을 부지 폭에 맞게
+- User (a top view, a red box under the hall's south half as wide as the park, an arrow south): "범퍼카 놀이공원 부지에 거의 딱 맞게 범퍼카 장소 사이즈 키우기. 출입구 방향은 화살표 방향으로. 범퍼카 이미지 들어간 벽은 북쪽으로". Asked: the box is the new place; the picture twice side by side.
+- tools/graybox/park_bumper_big_1116.lua: floor x -253..-65 (188), z -760..-645 (115); rails laid again on its edges with an 11 gap in the middle of the south rail; the entrance (ramp, sign posts, sign) turned to that gap and renamed SouthEntrance; the six cylinders keep their place from the north-west corner; 30 things of 놀이공원길 under the hall set aside in ServerStorage.ParkMoveRemoved_1116. park_bumper_dress_1115 then rebuilt ArenaDress (805 parts): marquee over the south eave, the north wall = the picture twice (IMG_N 2, 39.9 high).
+- Not changed: BumperCarConfig.Hall (another session's unmerged code) still holds the hall's first place, and the six BumperCar models in Workspace.Scene are empty; the cars need both before they drive here.
+
+## D-1513 (2026-11-16) 관람차 · 슈퍼바이킹 화단, 범퍼카 북쪽 정리, 점핑스타 풀숲
+- User: "미니바이킹 옆에 화단 10 스터드 옆으로 이동" (asked: delete it), "관람차 10 스터드 간격 두고 화단 설치", "슈퍼바이킹도 화단 설치", "범퍼카보다 북쪽에 위치한 화단과 나무 삭제", "잔디밭 … 지금 선택된 풀을 여러개 설치해서 풀숲처럼" (the user had deleted Workspace.StarLawn).
+- tools/graybox/park_rides_beds_1116.lua: the bed on the mini viking's north fence deleted (14 pieces); straight beds in the park style 10 from the Ferris wheel's base (north, east and south, openings 14 in the middle of the east and south runs; the west wall bed is its west side, Workspace.관람차화단) and the super viking's base (north, west, and a short one between its entry and exit gates, Workspace.슈퍼바이킹화단); north of z -766: 199 bushes, beds and trees of 놀이공원길 set aside, the two long wall beds end at -766 (lamps and benches stay); 48 bushes (ArtAssets.Shrub at the beds' scale, 0.85-1.2) close together in the jumping star's south-west corner (Workspace.점핑스타풀숲).
+
+## D-1514 (2026-11-16) 바이킹 팔 들기: 내 쪽이 내려갈 때만
+- User: "바이킹 올라가고 내려가고 할 때 어느쪽에 앉느냐에 따라 달라져서 둘 다 팔 드는데 어느쪽에 앉았는지 확인한 후 캐릭터가 내려갈 때만 팔 들도록".
+- The seats hang 49 under the pivot, so near the top of every swing the whole boat drops and both ends' seats fell (each seat cheered twice per swing). VikingCheerMotion now also needs the seat's end to be the raised one (seat z × sin(angle) < 0): checked over one period of the super viking, seat 1 and seat 15 cheer once each, in turn.
+
+## D-1515 (2026-11-16) 회전컵 펜스 · 계단, 소방차 1.3배, 꽃밭, 바이킹 출입구
+- User: "회전컵 펜스 표시한 부분 채우기. 펜스 없는 부분에 단상 올라갈 수 있는 계단 한 칸씩", "꽃밭은 1로 설치", "소방차 크기 1.3배 키우기", "슈퍼바이킹 출입구 펜스도 미니바이킹 출입구 펜스 기능 적용 / 미니바이킹 위치 수정하면서 입구 펜스 열릴 때 펜스 위치 엉뚱한 곳으로 감".
+- tools/graybox/park_cups_truck_gates_1116.lua: tea cups' north-east gap filled (2 panels), three steps + an invisible wedge at the other two gaps (deck 4.8 high; walked up in Play); fire truck ScaleTo 1.3 (north-west corner and ground kept, fences at their height, Radius / SaddleY × 1.3; now x -171..-128.5 z -333.7..-293.9); mini viking entrance Hinge on the closed leaf's -z end (it had stayed where the ride was before the user moved it); super viking entrance opens to the same diagonal (OpenYaw 0.98), exit leaf removed. Play: both entrance leaves closed while the boats run and open on their diagonals when they stop.
+- Flower bed: candidate 1 (Creator Store 131216077381773), its two scripts ("Runtime" inside a SurfaceAppearance, "ScreenBuilder") deleted, scale 0.7, by the gate in the corner west of the fire truck (Workspace.꽃밭). Place only.
+
+## D-1516 (2026-11-16) 땅 틈, 미니바이킹 단상 펜스, 범퍼카 입구 동쪽
+- User (a picture of the corner where the sea road ends at the park's grey platform): "땅 확인". Between the road end (z -275) and the platform (z -278.74), x -182..-153, there was no paving: the bare ground 0.6 under the promenade. Hongdae_Layout.PromenadeParkFill (brick like the promenade) fills it.
+- "미니바이킹 단상 위에 있는 펜스는 회색 메탈 재질로 변경": the 15 FencePanels on the mini viking's deck are grey Metal.
+- "범퍼카 출입구 동쪽으로 옮기기": the south rail's gap, the entrance and the marquee at x -95 (was -159); the south panels laid again round it. tools/graybox/park_fixes2_1116.lua (+ park_bumper_big_1116 ENT_X, park_bumper_dress_1115 marquee over the south entrance).
+
+## D-1517 (2026-11-16) 회전컵: 컵마다 다른 방향
+- User: "회전컵 멈췄을 때 회전 방향 모두 다르게 하기. 지금 캐릭터 얼굴이 모두 한 방향". A run is whole turns of the table and of each cup, so every cup stopped facing its first way (all the same). ParkConfig.teacupCFrame adds (cup - 1) × TeacupRestTurn (137.5°) to each cup's spin: no two cups face alike, at rest or running.
+
+## D-1518 (2026-11-16) 빈 땅 정원
+- User (an amusement park photo: lawns between paths, round shrubs, trees): "사진 참고하여 풀숲(잔디 대용) 적절히 사용하여 배치 디자인해. 벤치랑 가로등, 나무도 설치".
+- tools/graybox/park_garden_1116.lua: the park's open paving mapped on a 4-stud grid; a cell is taken within 9 of anything standing (so every island keeps a 9-wide walk round it), the gate's entry plaza and the corner outside the park stay open; free patches shrunk by a cell become bush islands (ArtAssets.Shrub, 4.4 apart) with cherry trees where widest (24 apart), benches facing the walk on the edges and lamps at the ends. Now: island 1 (between the rides from the mini viking to the bumper hall, 436 cells: 323 bushes, 5 trees, 10 benches, 8 lamps), island 2 (by the jumping star, 9 bushes, 2 benches). Workspace.놀이공원정원.
+
+## D-1519 (2026-11-16) 회전컵 계단 · 펜스 다시, 상점 이미지 시안
+- User: "회전컵 계단, 펜스 확인" (red boxes at the fence ends). D-1515 put the filled gap's two panels and both stairs half a step off the fence's grid: panels back on it, stairs in the middle of each gap and as wide as it (park_fixes2_1116).
+- "츄로스, 콜팝, 풍선샵에 들어간 이미지 메테리얼 사진 분위기에 맞춰서 이미지 편집해서 보여 줄 것": the textures taken out of the user's glb files (D:/Roblox/오후/3D 물/snackbar1.glb = 츄로스, snackbar2.glb = 콜팝 and the balloon shop's body) recoloured like the photo (bright fair colours): 츄로스 yellow roof / red stripes, 콜팝 teal roof / orange stripes, 풍선샵 blue roof / pink stripes, walls warm cream; menus, the door and the churro photo kept. docs/04_ART/park/shops/ (shop_textures_before_after.png). Not uploaded yet: waiting for the user's OK.
+- (later, user: "업로드 적용") uploaded and applied: 츄로스 126552603817404 (SnackBar1, SnackBar1B), 콜팝 80091077795752 (SnackBar2B), 풍선샵 118002342856320 (BalloonShop.BoothBody, its own image now). All three load in Studio.
+
+## D-1520 (2026-11-16) 관람차 1인칭에서 기둥 숨기기
+- User (a first-person view from a cabin with the wheel's beams across it): "관람차 1인칭 시점하면 관람차 기둥 보이는데 1인칭 시점에서 기둥 안 보이게".
+- ParkRidesController: in first person in a cabin the wheel's frame (Spoke, Support, LegBand, LegFoot, LegBar, Bearing, Axle, Hub, HubWindow, HangRod, Hanger and the legs' stars) gets LocalTransparencyModifier 1 on that screen only, back to 0 on 3인칭 or getting off; the cabins, the rim and its lights stay.
+
+## D-1521 (2026-11-16) 관람차 서쪽 화단, 세모 풀숲, 섬 밑 블록
+- User (two pictures of the Ferris wheel with a red line along the west wall and two red triangles, and the garden's small island): "빨간선으로 화단 설치. 세모 그린 곳 안에 풀숲 조성", "회전목마랑 소방차 사이에 있는 화단 밑 블록 생성".
+- tools/graybox/park_beds3_1116.lua: a straight bed along the west wall from the wheel's south-west corner to the 화단3칸 north of the mini viking (관람차화단.WheelBedWest, x -257.6, z -551.5..-505.5); two triangles of bushes on a raised grass base (0.9) with a brick curb: between the wheel and its south bed (WheelThicketSouth) and in the corner of its east side and north bed (WheelThicketEast); 놀이공원정원.Island2 on the same base (its bushes' hull rounded out 3.2, bushes raised onto it) and the bench that stood under its bushes taken away.
+
+## D-1522 (2026-11-16) 정원 큰 섬: 벚나무만 남기고 가로등 재배치
+- User (the big garden island between the mini viking and the super viking selected, its three cherry trees ticked): "해당 묶음 가운데 벚꽃나무만 두고 삭제.. 가로등 위치 재배치".
+- 놀이공원정원.Island1: its 323 bushes deleted; the five cherry trees and the benches stay; the four lamps at the strip's south end moved onto the trees' line, between and past them (x -165..-168, z -458 / -498 / -536 / -590; the -576 spot hit a bench). In park_beds3_1116 (run after park_garden_1116).
+
+## D-1523 (2026-11-16) 첫 목표: 처음 온 사람에게 목표 하나
+- User: "첫 목표(예: 옷 갈아입고 클럽 가 보기)를 알려 주는 장치 추가 / 혼자 온 사람의 첫 목표 하나: 처음 들어오면 오후네컷이 바로 보이게 하고, 표지와 안내로 사진 한 장 찍기까지". Asked: first visit = the goal only (the 18-card tour of D-1365 stays on the guide NPC's "동네 둘러보기 다시 보기"); by day "옷 갈아입고 사진 찍어서 벽에 붙여 보기", by night "클럽에서 춤추기"; a celebration only, no coins.
+- FirstGoalController (new): on a first visit (tips "goal1" and "tour2" both unseen), after the loading screen, the game clock picks the goal (ClubConfig.isNightOpen). Day: ① 👗 갈아입기 (the catalog button pulses; done when the body's accessories / clothes / face / body meshes / skin change) → ② 📸 오후네컷에서 사진 찍기 (a thick orange line from the feet to 오후네컷 and a sign with the distance; done at the player attribute PhotoSavedAt) → ③ 📌 사진 벽에 붙이기 (a line to the nearest PhotoWall; done at WallPostedAt). Night: ① 🎧 클럽 들어가기 (a line to the club door; done at InClubLocal) → ② 💃 춤추기 (the ♪ button pulses; done when the body has a DanceKey). One step at a time in a card under the top bar (X ends it for good); the body and camera turn to 오후네컷 (day) / the club (night) at the start; at the end "🎉 첫 목표 완료!" with confetti and the success sound. Then the tips goal1 and tour2 are saved; leaving midway keeps it for the next visit.
+- PhotoBoothService sets PhotoSavedAt after a saved photo and WallPostedAt after a wall post (os.time). TourController no longer starts by itself on a first visit.
+- Studio test: ReplicatedStorage.FashionGame attribute FirstGoalTest = true shows the goal to an account that has seen it and saves nothing (remove it after testing); ClockOverride 22 for the night goal.
+- Studio Play: day ①→②→③→ celebration (look change, PhotoSavedAt, WallPostedAt simulated), the line to 오후네컷 from the spawn; night ①→② → celebration; no script errors. AlwaysOnTop billboards do not show in MCP screen captures (they do in the game). New Korean texts still need the translation pass (tools/i18n extract → translate → build).
+
+## D-1525 (2026-11-16) 범퍼카 대기줄 · 출구
+- User (a top view with red fence lines in front of the hall and yellow arrows): "범퍼카 앞에 펜스 빨간선 모양으로 세워 줘. 왼쪽 화살표는 출구 입장 안 되게 막고, 오른쪽 노란 화살표 따라서 대기줄 서는 거임. 입장만 할 수 있음".
+- tools/graybox/park_bumper_queue_1116.lua: an exit cut in the south rail at x -155.3..-141.7 with a ramp like the entrance's and a fenced lane south from it; the queue fences (점핑스타's yellow panel + invisible FenceWall, 44 panels) in the drawn shape: in from the south between x -141.7 and -126.9, the bottom row east, the middle row west, the top row east to the entrance at x -95 (범퍼.Queue); one way by two RideGate models in 범퍼.Gates, Mode "Exit" without a leaf: the exit (Inward north) stops people coming in, the entrance (Inward south) stops people going back out; the south rail's panels and rubber band laid again round both gaps.
+- Play: in through the entrance passes, out through it is stopped; out through the exit passes, in through it is stopped; the way in up the bottom row is open. As drawn, the top row is open to the east between its end (x -70) and the east wall bed.
+
+## D-1526 (2026-11-16) 범퍼카 입구·출구 간판, 공원 북쪽은 바다로
+- User: "범퍼카 입구 출구 표시해 줘" + the earlier answer's method 1 pasted ("공원 부지 줄이기: 범퍼카장 북쪽 벽을 공원의 북쪽 끝으로 삼고, 그 뒤 땅은 바다나 해변으로 바꾸거나 낮춰서"); asked: the sea; the playground "놀이공원 부지 땅 아래 빈 곳에 수납".
+- Signs (park_bumper_queue_1116, 범퍼.Signs): a gantry over the exit lane and the queue's way in at z -581 ("출구 EXIT" green, "범퍼카 타는 곳 ENTRANCE" purple, yellow neon trim, both faces), "출구 EXIT" over the hall's exit gap for the riders inside.
+- tools/graybox/park_sea_north_1116.lua: the park ends at z -770 behind the bumper hall. A new north wall (the west wall's pieces turned east-west) at z -769.2 with a corner pillar group at each end; north of it the park platform is cut (a strip x -55..-46.5 stays under the east wall: a sea wall by the road, Hongdae_Layout.ParkRaise.ParkPierEast), the west wall cut and its 6 pillar groups there removed, the paving cut, Hongdae_Layout Ground / BeachSand under it cut back; terrain water y -16..-4 (the west sea's level) over x -268..-55 z -1450..-770 and, where the old sea stopped, x -1024..-268 z -1450..-1024, on two SeaFloorNorth parts. 25 things north of the cut (lawns, lamps, benches, bins, Hongdae_Layout.ParkBlockout) set aside in ServerStorage.ParkSeaNorthRemoved_1116; Workspace.놀이터 put away under the park's ground (centre (-160, -600), top y -20).
+- Seen from the sea side and the wheel, the back of the bumper hall's picture wall is plain dark navy.
+
+## D-1527 (2026-11-16) 범퍼카 간판 · 표지판, 풍선샵 글씨, 츄로스 · 콜팝 판매, 범퍼카 운행
+- User (a view of the hall with the marquee boxed further west): "범퍼카 간판 더 키우고 왼쪽으로 이동 / 지금 만든 범퍼카 출입구 표지판 삭제하고 슈퍼바이킹에 있는 타는 곳, 출구 그대로 써 / 풍선샵에 오후 글씨 삭제 / 츄로스랑 콜팝도 풍선처럼 구매 가능하게 구현 / 범퍼카 기능 구현".
+- Marquee 1.5× (66 × 13.5) over x -121 (park_bumper_dress_1115 SIGN_SCALE / SIGN_X). The D-1526 gantry is gone: copies of the super viking's "타는 곳 ENTRANCE" (queue way in) and "출구 EXIT" (exit lane end) signs (park_bumper_queue_1116, 범퍼.RideSigns).
+- tools/graybox/park_shops2_1116.lua: BalloonShop.ShopSign ("오후" letters) set aside in ServerStorage.ParkShopsRemoved_1116; an invisible ShopCounter tagged SnackShop in front of each snack bar's window (SnackBar1 / SnackBar1B = Churros, SnackBar2B = Colpop); the six bumper car meshes (범퍼's "Cylinder") put into the empty car models tagged BumperCar as "Body".
+- SnackConfig.Shops Churros (오리지널 / 초코 / 딸기 츄로스) and Colpop (콜라 / 사이다 / 치즈), 5 coins each like the balloons; SnackService kinds "churro" (a sugared stick in a red-striped paper sleeve, four ridges) and "colpop" (a red cola cup, a bowl of chicken on top, a straw).
+- Bumper car code (BumperCarConfig / Service / Controller, D-1413..) taken from feat/park-beach-1115 (not merged; identical to Studio) with BumperCarConfig.Hall = the new hall's rails (x -251.65..-66.35, z -758.65..-646.35, floor 18.03); ServerMain starts BumperCarService.
+- Play: bought 오리지널 츄로스 at the gate and 콜팝 (콜라) by the jumping star (held, no errors); 6 cars built with seats; "범퍼카 타기" seats the player and W drove the car 55 studs inside the hall.
+
+## D-1528 (2026-11-16) 범퍼카 간판 글씨, 오후네컷 허리 숙이기 + 포즈, 전자레인지 아이콘, 테이블 높이 확인
+- User: "범퍼카 간판에 글씨가 너무 작음 / 오후네컷에서 허리 숙이기 … 한 다음 포즈 누르면 허리 숙이기 풀림. 화면에는 유지 … 최종 찍은 사진에 풀려서 하체만 나옴 / 현재 모든 공간 테이블 높이가 기본보다 높은 상태인지 확인 / 전주비빔 삼각김밥 전자레인지 돌리고 꺼내면 아이콘 선물상자로 뜸. 클릭하면 에셋 아이콘으로 돌아옴".
+- Marquee: the words' SurfaceGui canvas is the plate's own shape at 8 px a stud (360 × 82); on 900 × 230 the 100 px cap of TextScaled filled under half the board (park_bumper_dress_1115).
+- Photo: shots store the kneel as kn = 1 and PhotoRender called freeze(rig, entry.kn == true) — false — so in a cut with a pose the kneel set before the animation was undone by the pose and not set again when the Animator went (a cut without a pose kept it). Now kn ~= nil. Checked on the user's 6th album photo: cuts 1–3 (kneel + jumpcheer / break / curtsy) were standing (Root -1.01 / -4.35 / -0.72), now kneel (-2.88); cut 4 was shot without the kneel (kn absent). Saved photos are drawn right again (the fix is in the drawing). Studio holds the feat/opening-frame-1114 PhotoRender (unmerged) with the same one-line fix.
+- Hotbar: the microwave keeps the 삼각김밥 tool in ServerStorage; back in the backpack it reaches the client before its parts, so the card drew the 🎁 of an empty tool; it now looks again every 0.25 s for 5 s and draws the tool once its parts are there.
+- Tables (top above the floor; the furniture was drawn for 3.2, D-401 grew tables / chairs 1.5×): 국밥집 9 tables 4.1 (FurnScaled), OH24 2 tables 5.4 and window bars 5.4 (FurnScaled), beach cafe 26 tables 6.2 / bar tables 8.0 / lounge tables by the sofas 3.9 and the window bar 5.0 (FurnScaled), club standing tables 7.3 (D-360 2×) and VIP tables 3.3 (not grown: the club is outside D-401), 오후네컷 booth bag tables 3.9 (not grown).
+
+## D-1529 (2026-11-16) 놀이공원 입구 키 재기 판
+- User (a height board photo: a giraffe with a ruler): "놀이공원 입구 초입에 키재는 판 만들어놔 소방차 옆에 두자".
+- tools/graybox/park_height_board_1116.lua (Workspace.키재기판): our own giraffe from parts — a yellow board 10.7 high with brown spots, a white ruler 0..300 cm (1 stud = 28 cm; ticks every 5 cm, round orange / brown numbers every 20 cm, FixedSize SurfaceGui: PixelsPerStud drew nothing), the head on top (horns, ears, eyes, cheeks, snout), a green "키 재기" plate; at x -124, z -298 east of the fire truck by the way in, facing east; only the board collides.
+
 ## D-1524 (2026-11-16) 첫 방문자가 어디서 나가는지 기록 (온보딩 1~6 단계, FirstLeave)
 - User looked at the dashboard after the sponsored ad of 11-12..15 (322k impressions, 8,974 clicks, 859 plays, 38.22 USD; the 11-13 cohort 829 new players, 1.08 % back the next day; 11-15: 29 out-of-memory exits, client crash rate 3 %, client memory 1.79 GB) and asked for the events that show where new players leave ("넣어줘").
 - Analytics.lua (D-1124 already logs places, first actions, 3 / 10 min, coins, photo / club funnels): onboarding funnel now 1 접속 → 2 로딩 끝 → 3 첫 이동 (20 studs) → 4 첫 상호작용 → 5 3분 머묾 → 6 10분 머묾 (step 2 was 첫 상호작용 before today); steps reached before the wallet says New / Back are sent once it does. New custom events: FirstLeave (new players, on leaving: seconds, time bucket / place / how far: 로딩 중 · 가만히 · 걷기만 · last activity), LoadSecs (loading screen seconds, New / Back), TourEnd (card reached, 끝까지 / 건너뜀). LoadingScreen fires AnalyticsStep "Loaded"; TourController fires "TourSkip" / "TourDone" (works with D-1523's tour-from-the-guide-NPC). docs/01_SYSTEMS/ANALYTICS.md.

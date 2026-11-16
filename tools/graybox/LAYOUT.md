@@ -83,3 +83,19 @@
   - `park_paths_1116.lua` (D-1471, D-1477: 바닥 한 장 + 화단) — 놀이공원 길: 정문 광장(로제트) → 대각선 길 → 회전목마 원형 광장 → 가운데 산책로(관람차·범퍼카 사이는 좁게) → 북쪽 원형 광장 → 끝 광장, 놀이기구마다 갈래길. 사암 포석 + 테라코타 벽돌 테두리·띠·마름모, 잔디밭(벚나무·덤불), 가로등·벤치·휴지통·튤립 화단·꽃바구니 깃발 기둥. 공원 바닥(ParkPlatform*)을 중간 회색으로(원래 색은 속성 OrigColor). Workspace["놀이공원길"], 매번 새로. 놀이기구 스크립트들 다음, park_wall_tidy 다음, zfight_fix 앞.
   - `park_playground_1116.lua` (D-1475) — 놀이터(정문 안 서쪽, x -178.5..-134, z -284..-371): 고무 바닥, 그네 3(ParkSwing), 말 스프링 3(ParkSpring), 미끄럼틀 탑(ParkSlide, 경로 P0..P2를 제자리로), 버섯 회전의자, 작은 회전목마, 벤치. 존 06_Park_Playground.놀이 의 옛 놀이기구와 Hongdae_Layout.BumperCarGates(옛 투명벽)를 지운다. Workspace["놀이터"], 매번 새로. park_paths_1116 다음.
   - `zfight_fix_1115.lua` (D-1453) — 겹친 면 정리: 같은 면 위에서 같은 쪽을 보고 겹치는 두 부품(색/재질이 달라 깜빡임)이 있으면 작은 쪽 면을 0.02 밖으로. 체인의 진짜 마지막(park_wall_tidy_1115 다음, 사용자 스냅샷 다음). 다시 돌려도 남은 게 없으면 아무것도 안 함.
+  - `optimize_1116.lua` (D-1492) — 지도 전체: 1.5 미만 작은 파트와 바닥에 놓인 얇은 판의 그림자 끄기, 작은 네온 전구 충돌 끄기. 체인 맨 마지막.
+  - `park_lamp_bench_1116.lua` (D-1493) — 놀이공원 가로등 31개·벤치 17개를 사용자 모델(ArtAssets.ParkLampMesh / ParkBenchMesh)로 교체. park_paths_1116 / park_playground_1116 다음, optimize_1116 앞.
+  - `park_narrow_1116.lua` (D-1494) — 놀이공원 서쪽 끝 x -298.5 → -268(해변 모래 선): 바닥·바다·서쪽 벽·기둥·벽 쪽 화단/가로등/벤치 30.5 이동, 기구는 벽에서 3 떨어질 만큼만 동쪽으로. park_pillars_inside_1116 / park_lamp_bench_1116 다음, optimize_1116 앞.
+  - `park_shops_1116.lua` (D-1496) — 스낵바 2개를 사용자 모델로 교체, 풍선 가게(입구 안쪽 오른편, BalloonCounter = SnackShop) 설치, ArtAssets.BalloonShopDecor가 있으면 풍선 색. park_narrow_1116 다음.
+  - `park_rides_south_1116.lua` (D-1500) — 회전컵·슈퍼바이킹·관람차를 입구 쪽(남쪽)으로 123.5(회전컵은 동쪽으로 6.4 더), 새 자리 밑 화단은 ServerStorage.ParkMoveRemoved_1116로. park_shops_1116 다음.
+  - `park_star_bed_1116.lua` (D-1501) — 점핑스타 둘레: 펜스 밖 10 길 + 북·남 둥근 화단(StarBeds). park_rides_south_1116 다음.
+  - `park_cups_bed_1116.lua` (D-1504) — 회전컵 펜스 밖 10 길 + 북·남 둥근 화단(CupBeds), 그 자리 옛 화단 삭제. park_star_bed_1116 다음.
+  - `park_bumper_big_1116.lua` (D-1512) — 범퍼카장 바닥 x -253..-65 z -760..-645, 남쪽 입구(SouthEntrance). 바로 다음에 `park_bumper_dress_1115.lua`(그림 2장).
+  - `park_rides_beds_1116.lua` (D-1513) — 관람차 · 슈퍼바이킹 화단, 미니바이킹 북쪽 화단 삭제, z -766 북쪽 화단 · 나무 치움, 점핑스타 남서쪽 풀숲.
+  - `park_cups_truck_gates_1116.lua` (D-1515) — 회전컵 펜스 채움 + 계단, 소방차 1.3배, 미니바이킹 경첩, 슈퍼바이킹 출입구.
+  - `park_fixes2_1116.lua` (D-1516 / D-1519) — 도로 끝 벽돌 채움, 미니바이킹 단상 펜스 회색 메탈, 회전컵 펜스 격자 · 계단, 범퍼카 남쪽 펜스(입구 x -95).
+  - `park_garden_1116.lua` (D-1518) — 빈 땅 정원(풀숲 섬, 벚나무, 벤치, 가로등). 공원 단계 맨 끝에 (서 있는 것을 읽어서 자리를 잡음).
+  - `park_beds3_1116.lua` (D-1521) — 관람차 서쪽 벽 화단, 세모 풀숲 2곳(받침 + 벽돌 테두리), 정원 Island2 밑 블록. park_garden_1116 다음.
+  - `park_bumper_queue_1116.lua` (D-1525) — 범퍼카 출구(x -155..-142, 나가기만) · 대기줄 펜스 · 입구는 들어가기만(RideGate Exit 모드 두 개).
+  - `park_sea_north_1116.lua` (D-1526) — 공원 끝을 범퍼카 뒤 z -770으로: 새 북쪽 담장, 그 북쪽은 바다(지형 물 -16..-4 + 바닥), 동쪽 담장은 방파제로 남김, 놀이터는 땅 밑 보관. 한 번만(이미 했으면 아무것도 안 함).
+  - `park_height_board_1116.lua` (D-1529) — 입구 소방차 옆 기린 키 재기 판(0~300cm, 1스터드 = 28cm).

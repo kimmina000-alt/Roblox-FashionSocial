@@ -42,10 +42,14 @@ local CX, CZ = (X0 + X1) / 2, (Z0 + Z1) / 2
 -- (D-1465, user 2026-11-16: "아래 벽도 삭제하고 이미지로 채워. 이미지 높이에 맞춰서 천장도 높여.") the back
 -- wall is the whole picture from the floor up, as wide as the floor; the eaves stand just over it
 local IMG, IW, IH = "rbxassetid://74788882274531", 1584, 672
-local IMG_H = (X1 - X0) * IH / IW -- (the picture's height at the floor's width: about 45)
+-- (D-1512, the hall as wide as the park: 188) the picture twice side by side, each half the floor's width
+local IMG_N = if X1 - X0 > 150 then 2 else 1
+local IMG_H = (X1 - X0) / IMG_N * IH / IW -- (the picture's height: about 45 for one, 40 for two)
 local EAVE = FY + IMG_H + 1.8
 local RIDGE = EAVE + 11
 local OVER = 3 -- (the roof past the rail walls)
+-- (D-1527, user: "범퍼카 간판 더 키우고 왼쪽으로 이동") the marquee 1.5 times as big, over x SIGN_X
+local SIGN_SCALE, SIGN_X = 1.5, -121
 
 local old = workspace["범퍼"]:FindFirstChild("ArenaDress")
 if old then old:Destroy() end
@@ -199,6 +203,10 @@ for k = 0, nz do table.insert(postsZ, RZ0 + (RZ1 - RZ0) * k / nz) end
 local entrance = workspace["범퍼"]:FindFirstChild("EastEntrance")
 local entRamp = entrance and entrance:FindFirstChild("EntranceRamp") :: BasePart?
 local ENT_Z = entRamp and entRamp.Position.Z
+-- (D-1516) the entrance in the south rail (park_bumper_big_1116, east of the middle): the marquee over it
+local southEnt = workspace["범퍼"]:FindFirstChild("SouthEntrance")
+local southRamp = southEnt and southEnt:FindFirstChild("EntranceRamp") :: BasePart?
+local ENT_X = southRamp and southRamp.Position.X
 for _, x in ipairs({ RX0, RX1 }) do
 	for _, z in ipairs(postsZ) do
 		if ENT_Z and x == RX1 and math.abs(z - ENT_Z) < 8 then continue end
@@ -312,12 +320,12 @@ end
 
 ---------------------------------------------------------------- the marquee sign over the front
 do
-	local SW, SH = 44, 9
+	local SW, SH = 44 * SIGN_SCALE, 9 * SIGN_SCALE
 	-- (its face is the frame's +Z: over the front (+z) at first; D-1476, the entrance on the east side:
 	-- over the east eave, facing the promenade)
 	local base = if ENT_Z
 		then CFrame.fromMatrix(Vector3.new(RX1 + OVER + 0.6, EAVE + SH / 2 + 0.6, ENT_Z), -Vector3.zAxis, Vector3.yAxis)
-		else CFrame.new(CX, EAVE + SH / 2 + 0.6, RZ1 + OVER + 0.6)
+		else CFrame.new(SIGN_X or ENT_X or CX, EAVE + SH / 2 + 0.6, RZ1 + OVER + 0.6)
 	part("SignBoard", Vector3.new(SW, SH, 0.8), base, PURPLE, Enum.Material.SmoothPlastic)
 	part("SignTrim", Vector3.new(SW + 1, SH + 1, 0.5), base * CFrame.new(0, 0, -0.35), Color3.fromRGB(240, 140, 40), Enum.Material.Neon)
 	for _, y in ipairs({ -SH / 2 + 0.6, SH / 2 - 0.6 }) do
@@ -332,11 +340,14 @@ do
 		end
 	end
 	-- the words, in a surface gui on a front plate
-	local plate = part("SignText", Vector3.new(SW - 14, SH - 2.2, 0.1), base * CFrame.new(5, 0, 0.45), PURPLE) -- (the right half, seen from the queue: +x)
+	local plate = part("SignText", Vector3.new(SW - 14 * SIGN_SCALE, SH - 2.2 * SIGN_SCALE, 0.1), base * CFrame.new(5 * SIGN_SCALE, 0, 0.45), PURPLE) -- (the right half, seen from the queue: +x)
 	plate.Transparency = 1
 	local g = Instance.new("SurfaceGui")
 	g.Face = Enum.NormalId.Back -- (the plate's back faces +z: this CFrame looks down -z)
-	g.CanvasSize = Vector2.new(900, 230)
+	-- (D-1528, user: "범퍼카 간판에 글씨가 너무 작음") a canvas of the plate's own shape at 8 px a stud:
+	-- the words scale up to the 100 px cap of TextScaled, which on the old 900 × 230 canvas filled
+	-- under half the board
+	g.CanvasSize = Vector2.new(plate.Size.X * 8, plate.Size.Y * 8)
 	g.LightInfluence = 0
 	g.Brightness = 1.8
 	g.Parent = plate
@@ -352,8 +363,8 @@ do
 	t.Parent = g
 	-- the big yellow star and a small blue one at the left, facing +z
 	local face = base * CFrame.Angles(0, math.pi, 0) -- (a star's points lie in its X/Y; this turns it to face +z)
-	star(face * CFrame.new(SW / 2 - 5.5, 0.6, -0.7), 5.2, 0.5, YELLOW, Enum.Material.Neon) -- (the left, seen from the queue: -x; face's x is the world's -x)
-	star(face * CFrame.new(SW / 2 - 12, -2.2, -0.7), 2, 0.4, Color3.fromRGB(70, 140, 255), Enum.Material.Neon)
+	star(face * CFrame.new(SW / 2 - 5.5 * SIGN_SCALE, 0.6 * SIGN_SCALE, -0.7), 5.2 * SIGN_SCALE, 0.5, YELLOW, Enum.Material.Neon) -- (the left, seen from the queue: -x; face's x is the world's -x)
+	star(face * CFrame.new(SW / 2 - 12 * SIGN_SCALE, -2.2 * SIGN_SCALE, -0.7), 2 * SIGN_SCALE, 0.4, Color3.fromRGB(70, 140, 255), Enum.Material.Neon)
 	-- two legs holding it on the front eave beam
 	local baseY = base.Position.Y
 	for _, s in ipairs({ -1, 1 }) do
@@ -381,12 +392,16 @@ do
 	g.LightInfluence = 0.15
 	g.Brightness = 1.3
 	g.Parent = wall
-	local img = Instance.new("ImageLabel")
-	img.Size = UDim2.fromScale(1, 1)
-	img.BackgroundTransparency = 1
-	img.Image = IMG
-	img.ScaleType = Enum.ScaleType.Stretch
-	img.Parent = g
+	g.CanvasSize = Vector2.new(IW * IMG_N, IH)
+	for i = 0, IMG_N - 1 do
+		local img = Instance.new("ImageLabel")
+		img.Size = UDim2.fromScale(1 / IMG_N, 1)
+		img.Position = UDim2.fromScale(i / IMG_N, 0)
+		img.BackgroundTransparency = 1
+		img.Image = IMG
+		img.ScaleType = Enum.ScaleType.Stretch
+		img.Parent = g
+	end
 end
 
 dress.Parent = workspace["범퍼"]

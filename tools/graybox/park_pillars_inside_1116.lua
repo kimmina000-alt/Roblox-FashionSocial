@@ -64,5 +64,38 @@ for _, m in ipairs(MOVES) do
 		table.insert(done, ("pillar (%.0f, %.0f)"):format(m[1].X, m[1].Z))
 	end
 end
+-- 3. (D-1508, user: "밑에 어데 갓노") the corner pillars park_corner_beach_1115 copied had no
+-- ParkPillarBase and stood 3 over the ground: each pillar without one gets a copy of another pillar's
+-- base, at the same offset under it
+local tmplBase, tmplPillar
+for _, d in ipairs(gate:GetDescendants()) do
+	if d:IsA("BasePart") and d.Name == "ParkPillarBase" then tmplBase = d break end
+end
+if tmplBase then
+	for _, d in ipairs(gate:GetDescendants()) do
+		if d:IsA("BasePart") and d.Name == "ParkPillar" and Vector2.new(d.Position.X - tmplBase.Position.X, d.Position.Z - tmplBase.Position.Z).Magnitude < 1 then tmplPillar = d end
+	end
+end
+if tmplBase and tmplPillar then
+	local rel = tmplPillar.CFrame:ToObjectSpace(tmplBase.CFrame)
+	local bases = {}
+	for _, d in ipairs(gate:GetDescendants()) do
+		if d:IsA("BasePart") and d.Name == "ParkPillarBase" then table.insert(bases, d) end
+	end
+	for _, p in ipairs(gate:GetDescendants()) do
+		if p:IsA("BasePart") and p.Name == "ParkPillar" then
+			local has = false
+			for _, b in ipairs(bases) do
+				if Vector2.new(b.Position.X - p.Position.X, b.Position.Z - p.Position.Z).Magnitude < 1 then has = true end
+			end
+			if not has then
+				local b = tmplBase:Clone()
+				b.CFrame = p.CFrame * rel
+				b.Parent = p.Parent
+				table.insert(done, ("base under (%.0f, %.0f)"):format(p.Position.X, p.Position.Z))
+			end
+		end
+	end
+end
 print("[park_pillars_inside_1116] " .. table.concat(done, "; "))
 return #done

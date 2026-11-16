@@ -30,6 +30,7 @@ local Microwave = require(script.Parent:WaitForChild("Microwave")) -- (D-1104: �
 local Analytics = require(script.Parent:WaitForChild("Analytics")) -- (D-1124)
 local FriendBar = require(script.Parent:WaitForChild("FriendBar")) -- (D-1129: 친구바, split in two)
 local SnackHands = require(script.Parent:WaitForChild("SnackHands")) -- (D-1131: 빼쭉이, one stick at a time in the other hand)
+local BalloonService = require(script.Parent:WaitForChild("BalloonService")) -- (D-1496: the park's balloons)
 
 local SnackService = {}
 local economy: any = nil
@@ -832,6 +833,32 @@ local function makeTool(item: SnackConfig.Item, nameOverride: string?): Tool
 		attach(handle, part("Fill", Vector3.new(0.38, 0.7, 0.2), item.color), CFrame.new(0, 0.6, 0))
 		if item.topping then attach(handle, part("Dip", Vector3.new(0.4, 0.22, 0.22), item.topping), CFrame.new(0, 0.87, 0)) end
 		tool.Grip = CFrame.new(0, -0.15, 0)
+	elseif kind == "churro" then
+		-- (D-1527) a churro in a paper sleeve: a long sugared stick, eaten from the top
+		handle = part("Handle", Vector3.new(0.42, 0.55, 0.42), Color3.fromRGB(250, 248, 244))
+		handle.Parent = tool
+		attach(handle, part("Stripe", Vector3.new(0.44, 0.14, 0.44), Color3.fromRGB(232, 50, 47)), CFrame.new(0, 0.12, 0))
+		local stick = part("Fill", Vector3.new(0.3, 1.5, 0.3), item.color, Enum.Material.Sand)
+		attach(handle, stick, CFrame.new(0, 0.95, 0))
+		for k = 0, 3 do -- (the star-shaped ridges)
+			local rib = part("Rib", Vector3.new(0.08, 1.45, 0.08), item.topping or item.color, Enum.Material.Sand)
+			attach(handle, rib, CFrame.new(math.cos(k * math.pi / 2) * 0.15, 0.95, math.sin(k * math.pi / 2) * 0.15))
+			rib:SetAttribute("EatShrink", true)
+		end
+		tool.Grip = CFrame.new(0, -0.1, 0)
+	elseif kind == "colpop" then
+		-- (D-1527) 콜팝: a cola cup with popcorn chicken in the cup on top, a straw through both
+		handle = part("Handle", Vector3.new(0.55, 0.8, 0.55), Color3.new(1, 1, 1))
+		handle.Transparency = 1
+		handle.Parent = tool
+		attach(handle, cyl("Cup", 0.55, 0.8, Color3.fromRGB(230, 45, 50)), UPRIGHT)
+		attach(handle, cyl("Band", 0.57, 0.18, Color3.fromRGB(250, 250, 250)), CFrame.new(0, 0.1, 0) * UPRIGHT)
+		attach(handle, cyl("Bowl", 0.78, 0.3, Color3.fromRGB(250, 248, 240)), CFrame.new(0, 0.52, 0) * UPRIGHT)
+		local fill = blob("Fill", Vector3.new(0.72, 0.42, 0.72), item.color)
+		fill.Material = Enum.Material.Sand
+		attach(handle, fill, CFrame.new(0, 0.72, 0))
+		attach(handle, cyl("Straw", 0.08, 1.3, item.topping or Color3.fromRGB(255, 200, 60)), CFrame.new(0.18, 0.75, 0.1) * UPRIGHT)
+		tool.Grip = CFrame.new(0, -0.15, 0)
 	elseif kind == "bread" then
 		handle = part("Handle", Vector3.new(0.5, 0.3, 0.8), item.color)
 		handle.Transparency = 1
@@ -1530,6 +1557,18 @@ local function buy(player: Player, shopKey: any, itemKey: any): (boolean, string
 	if item.comingSoon then return false, "🔒 개발 중이에요. 조금만 기다려 주세요!" end
 	if item.product and not item.coins then return false, "Robux 결제로 주문해요." end
 	if not nearShop(player, shop.key) then return false, "카운터 가까이에서 주문해 주세요." end
+	-- (D-1496) a balloon: not food, its own tool (BalloonService)
+	if item.kind == "balloon" then
+		local price = item.coins or 0
+		if price > 0 and (not economy or not economy.Spend(player, price, "Snack_" .. shop.key .. "_" .. item.key)) then
+			local balance = if economy then economy.Balance(player) else 0
+			return false, string.format("%s이 부족해요 (%d 필요, 지금 %d).", EconomyConfig.CurrencyName, price, balance)
+		end
+		if not BalloonService.give(player, item.name, item.color) then return false, "잠시 후 다시 시도해 주세요." end
+		payBeep(player, shop.key)
+		Analytics.interact(player, "Buy")
+		return true, item.name .. " 받았어요! 누르면(터치) 손을 놓아 하늘로 날아가요."
+	end
 	-- a shared cake bought with coins (the strawberry cake: 💰 or R$)
 	if item.share then
 		local price = item.coins or 0
@@ -2371,7 +2410,7 @@ local function buildFoodPreviews()
 	local done: {[string]: boolean} = {}
 	for _, shop in pairs(SnackConfig.Shops) do
 		for _, item in ipairs(shop.items) do
-			if not done[item.key] then
+			if not done[item.key] and item.kind ~= "balloon" then -- (D-1496: a balloon is no food)
 				done[item.key] = true
 				local ok, err = pcall(function()
 					local m = Instance.new("Model")
