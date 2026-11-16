@@ -11,7 +11,18 @@
 -- attribute FirstVisit), else "Back". With a friend: a Roblox friend in this
 -- server within 40 studs ("Friends"), else "Solo".
 --
--- 1. Onboarding funnel (new players only, once): 1 접속 → 2 첫 상호작용.
+-- 1. Onboarding funnel (new players only, once; D-1524 renumbered it, before 11-16
+--    step 2 was 첫 상호작용): 1 접속 → 2 로딩 끝 (the loading screen closed, client
+--    "Loaded") → 3 첫 이동 (20 studs from where they appeared) → 4 첫 상호작용 →
+--    5 3분 머묾 → 6 10분 머묾. A step reached before the server knows whether the
+--    player is new (wallet still loading) is sent once it knows.
+--    (D-1524, user 2026-11-16, after the ad of 11-12..15: 829 new players on 11-13,
+--    1.08 % back the next day — where do new players leave?)
+--    FirstLeave (value = seconds) new players, when leaving the first visit:
+--               time (0-30초 / 30초-1분 / 1-3분 / 3-10분 / 10분+) / place /
+--               how far (로딩 중 | 가만히 | 걷기만 | the last activity done)
+--    LoadSecs   (value = seconds the loading screen was up) New | Back
+--    TourEnd    (value = the tour card reached, 1..18) 끝까지 | 건너뜀 / New | Back
 -- 2. Custom events (field 1 / 2 / 3):
 --    PlaceEnter        place / New|Back / Solo|Friends        each entry (not within 60 s of the last one there)
 --    Interact          activity / place / New·Solo ...        doing something (dance, eat, photo ...), once per
@@ -78,6 +89,9 @@ type State = {
 	playtime: number, dwell3: boolean, dwell10: boolean,
 	-- (D-1125) photos: the last save (time, booth session), whether that run was opened again
 	lastSaveAt: number?, lastBooth: string?, recheckedBooth: string?, lastAlbum: number,
+	-- (D-1524) onboarding steps reached (sent once `newKnown`), first leave
+	newKnown: boolean, reached: {[number]: string}, loaded: boolean, moved: boolean,
+	spawnAt: Vector3?, lastAction: string?, tourEnded: boolean,
 }
 local states: {[Player]: State} = {}
 local friends: {[number]: {[number]: boolean}} = {}
@@ -120,12 +134,24 @@ function Analytics.funnel(player: Player, name: string, sessionId: string, step:
 	end, string.format("%s %s #%d %s (%s)", name, sessionId, step, stepName, player.Name))
 end
 
-local function onboarding(player: Player, step: number, stepName: string)
-	local s = states[player]
-	if not s or not s.new then return end
+local function sendOnboarding(player: Player, step: number, stepName: string)
 	log("Onboarding", function()
 		AnalyticsService:LogOnboardingFunnelStepEvent(player, step, stepName)
 	end, string.format("#%d %s (%s)", step, stepName, player.Name))
+end
+
+-- (D-1524) each step once; held until the server knows whether the player is new
+local function onboarding(player: Player, step: number, stepName: string)
+	local s = states[player]
+	if not s or s.reached[step] then return end
+	s.reached[step] = stepName
+	if s.newKnown and s.new then sendOnboarding(player, step, stepName) end
+end
+
+local function leaveBucket(seconds: number): string
+	if seconds < 30 then return "0-30초" end
+	if seconds < 60 then return "30초-1분" end
+	return bucket(seconds)
 end
 
 local function custom(player: Player, name: string, value: number?, f: {[string]: string}?)
@@ -149,10 +175,11 @@ function Analytics.interact(player: Player, activity: string)
 	local s = states[player]
 	if not s or player:GetAttribute("Spectating") then return end
 	local place = zoneOf(player) or "거리"
+	s.lastAction = activity -- (D-1524: FirstLeave's "how far")
 	if not s.interacted then
 		s.interacted = true
+		onboarding(player, 4, "첫 상호작용") -- (D-1524: was step 2)
 		if s.new then
-			onboarding(player, 2, "첫 상호작용")
 			custom(player, "FirstInteractSecs", math.floor(os.clock() - s.joined + 0.5), nil)
 		end
 	end
@@ -267,16 +294,27 @@ local function onPlayer(player: Player)
 		shopSession = nil, shopStep = 0, shopOpens = 0,
 		playtime = 0, dwell3 = false, dwell10 = false,
 		lastSaveAt = nil, lastBooth = nil, recheckedBooth = nil, lastAlbum = -math.huge,
+		newKnown = false, reached = {}, loaded = false, moved = false,
+		spawnAt = nil, lastAction = nil, tourEnded = false,
 	}
 	states[player] = s
+	onboarding(player, 1, "접속")
 	task.spawn(function()
 		local waited = 0
 		while player.Parent and player:GetAttribute("FirstVisit") == nil and waited < 30 do
 			task.wait(0.5)
 			waited += 0.5
 		end
+		if states[player] ~= s or player:GetAttribute("FirstVisit") == nil then return end
 		s.new = player:GetAttribute("FirstVisit") == true
-		onboarding(player, 1, "접속")
+		s.newKnown = true
+		-- (D-1524) the steps reached while the wallet was loading, in order
+		if s.new then
+			for step = 1, 6 do
+				local name = s.reached[step]
+				if name then sendOnboarding(player, step, name) end
+			end
+		end
 	end)
 	-- friends in this server, both ways
 	task.spawn(function()
@@ -311,6 +349,16 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 	Players.PlayerAdded:Connect(onPlayer)
 	for _, p in ipairs(Players:GetPlayers()) do onPlayer(p) end
 	Players.PlayerRemoving:Connect(function(player)
+		-- (D-1524) where and when a new player left the first visit
+		local s = states[player]
+		if s and s.newKnown and s.new then
+			local secs = os.clock() - s.joined
+			local stage = if not s.loaded then "로딩 중"
+				elseif s.interacted and s.lastAction then s.lastAction
+				elseif s.moved then "걷기만"
+				else "가만히"
+			custom(player, "FirstLeave", math.floor(secs + 0.5), fields(leaveBucket(secs), s.place or "거리", stage))
+		end
 		flushPlaytime(player)
 		afterPhoto(player) -- (D-1125)
 		states[player] = nil
@@ -326,7 +374,25 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 		gate.Parent = remotes
 	end
 	local lastStep: {[Player]: number} = {}
-	(gate :: RemoteEvent).OnServerEvent:Connect(function(player, step)
+	(gate :: RemoteEvent).OnServerEvent:Connect(function(player, step, arg)
+		local s = states[player]
+		-- (D-1524) once per visit each, not behind the 1 s gate
+		if step == "Loaded" then
+			if not s or s.loaded then return end
+			s.loaded = true
+			onboarding(player, 2, "로딩 끝")
+			local secs = if typeof(arg) == "number" and arg == arg then math.clamp(math.floor(arg + 0.5), 0, 600) else 0
+			task.delay(30, function() -- (New | Back is known by then)
+				if states[player] == s then custom(player, "LoadSecs", secs, fields(visitor(player))) end
+			end)
+			return
+		elseif step == "TourSkip" or step == "TourDone" then
+			if not s or s.tourEnded then return end
+			s.tourEnded = true
+			local card = if typeof(arg) == "number" and arg == arg then math.clamp(math.floor(arg), 1, 30) else 1
+			custom(player, "TourEnd", card, fields(if step == "TourDone" then "끝까지" else "건너뜀", visitor(player)))
+			return
+		end
 		local now = os.clock()
 		if lastStep[player] and now - lastStep[player] < 1 then return end
 		lastStep[player] = now
@@ -358,10 +424,30 @@ function Analytics.Start(zoneFn: (Player) -> string?, balanceFn: (Player) -> num
 						end
 					end
 				end
+				-- (D-1524) first move: 20 studs from where the character first stood
+				if not s.moved then
+					local root = player.Character and player.Character:FindFirstChild("HumanoidRootPart") :: BasePart?
+					if root then
+						if not s.spawnAt then
+							s.spawnAt = root.Position
+						elseif (root.Position - (s.spawnAt :: Vector3)).Magnitude > 20 then
+							s.moved = true
+							onboarding(player, 3, "첫 이동")
+						end
+					end
+				end
 				if s.new then
 					local stayed = now - s.joined
-					if not s.dwell3 and stayed >= 180 then s.dwell3 = true custom(player, "FirstSession", 1, fields("3분")) end
-					if not s.dwell10 and stayed >= 600 then s.dwell10 = true custom(player, "FirstSession", 1, fields("10분")) end
+					if not s.dwell3 and stayed >= 180 then
+						s.dwell3 = true
+						custom(player, "FirstSession", 1, fields("3분"))
+						onboarding(player, 5, "3분 머묾")
+					end
+					if not s.dwell10 and stayed >= 600 then
+						s.dwell10 = true
+						custom(player, "FirstSession", 1, fields("10분"))
+						onboarding(player, 6, "10분 머묾")
+					end
 				end
 			end
 			if sincePlaytime >= PLAYTIME_EVERY then
