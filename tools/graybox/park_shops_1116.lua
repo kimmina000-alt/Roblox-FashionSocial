@@ -207,5 +207,29 @@ if balloonShop and churros and colpop then
 	end
 	table.insert(done, "row")
 end
+------------------------------------------------------------------ 5. a second pair where they stood (D-1499)
+-- (user: "츄로스, 콜팝 가게 원래 있던 위치에도 있어야 해. 두 개씩 두자") SnackBar1B (콜팝) and SnackBar2B (츄로스)
+-- by the jumping star, facing east as before: boxes x -257.8 / -257.6 west, z -412.8 / -391.7 south
+local SECOND = {
+	{ "SnackBar1B", "SnackBar1Mesh", "Cube.008", Vector2.new(-257.8, -412.8) },
+	{ "SnackBar2B", "SnackBar2Mesh", "Cube.001", Vector2.new(-257.6, -391.7) },
+}
+for _, s2 in ipairs(SECOND) do
+	local template = ART:FindFirstChild(s2[2])
+	local tb = template and body(template, s2[3])
+	if tb then
+		local old = workspace:FindFirstChild(s2[1])
+		if old then old:Destroy() end
+		local sc = scale
+		local new = lay(template, tb, CFrame.new(0, SHOP_AT.Y + tb.Size.Y * sc / 2, 0) * CFrame.Angles(0, math.rad(-90), 0), sc, s2[1])
+		for _, p in ipairs(new:GetChildren()) do
+			if p:IsA("MeshPart") and p.TextureID == "" then p.Color, p.Material = SIGN, Enum.Material.SmoothPlastic end
+		end
+		new.Parent = workspace
+		local lo, hi = bb(new)
+		move(new, Vector3.new(s2[4].X - lo.X, 0, s2[4].Y - hi.Z))
+		table.insert(done, s2[1])
+	end
+end
 print("[park_shops_1116] " .. table.concat(done, ", "))
 return #done

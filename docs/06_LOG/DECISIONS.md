@@ -5166,3 +5166,6 @@ Studio Play: 시안 카드·버튼 옆 카드·균일한 어둡기·포토월 �
 - User: "풍선 파는 곳 양옆으로 츄로스, 콜팝 가게 정렬 / 가로등 내가 보낸 사진 보고 재질 변경. 더 진한 고동색으로".
 - The 츄로스 (SnackBar2) and 콜팝 (SnackBar1) stands left their spot by the jumping star and stand either side of the balloon shop inside the gate: 츄로스 z -309.8..-291.5 (just inside the hoarding), the balloon shop -342.5..-310.3, 콜팝 -361.3..-343.0, all facing the way in (west) with their fronts on x -78.5, 0.5 apart. The bench in front of 콜팝 moved 3 west, its bin to the bench's west end (park_shops_1116 step 4).
 - Lamp bodies: Metal, dark brown (64, 40, 26) instead of CorrodedMetal light bronze (its rust texture kept them orange); park_lamp_bench_1116.
+
+## D-1499 (2026-11-16) 츄로스·콜팝 두 개씩
+- User: "츄로스, 콜팝 가게 원래 있던 위치에도 있어야 해. 두 개씩 두자". A second pair stands where they stood by the jumping star, facing east as before: SnackBar1B (콜팝) x -257.8..-240.8 z -431.1..-412.8, SnackBar2B (츄로스) x -257.6..-240.6 z -410.0..-391.7, same scale and sign colour (park_shops_1116 step 5). The pair beside the balloon shop stays.
