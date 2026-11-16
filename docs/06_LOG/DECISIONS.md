@@ -5205,3 +5205,6 @@ Studio only (no script yet).
 
 ## D-1508 (2026-11-16) 모서리 기둥 받침
 - User (the south-west corner pillar): "밑에 어데 갓노". The three corner pillars that park_corner_beach_1115 copied ((-264.2, -338.9), (-182, -338.9), (-178.9, -281.8)) had no ParkPillarBase: their bottom was 3 over the paving. Each got a copy of another pillar's base at the same offset (park_pillars_inside_1116 step 3, any pillar without a base).
+
+## D-1509 (2026-11-16) 가로등 유리 다시 나눔
+- User (a lamp with dark panes that should be glass): "가로등 조명 부분이어야 하는데 안 나눠진 부분 있음 수정". The lantern is a polygon, not a circle, so D-1495's radius test took some panes for bars. tools/art/split_lamp3.py tells them by width (each tall face is half of a quad: bars 0.108 at both rings, panes 0.28-0.39 at the bottom and 0.60-0.71 at the top): 16 panes = 32 faces glass (was 23 faces), checked from four sides. The user imported StreetLamp_split3.glb (now ArtAssets.ParkLampMesh); the 25 park lamps in Workspace and the 6 set aside in ServerStorage were rebuilt from it (24.3 high, dark brown Metal, Neon glass with the light). A second lamp 1.1 from the one at (-262.7, -434.2) was a duplicate and was removed.
