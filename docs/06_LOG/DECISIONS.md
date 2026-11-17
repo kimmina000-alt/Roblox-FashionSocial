@@ -5907,3 +5907,7 @@ Studio only (no script yet).
 - 벽 아래 돌(주춧돌 · 기단 · 계단 · 돌판 다리 · 대문 문턱 · 정자 기단): 밝은 돌 사진(hanok_stone_plinth.png) → OHU_HanokPlinth(Slate, 8스터드, 색 222,218,210). 벽 키트 주춧돌도 같이.
 - 마당 바닥: 거친 회색 돌 사진(hanok_stone_yard.webp) → OHU_HanokYard(Slate, 12스터드, 색 200,200,200). D-1743 아스팔트 대신. 판석은 화강암 그대로.
 - 사진: docs/06_LOG/images/2026-11-17/hanok_garden_v4_*.jpg.
+## D-1745 한옥 연못 정원: 도드라진 판석을 듬성듬성 크게 (2026-11-18)
+- 사용자(판석이 빽빽한 화면 hanok_garden_too_many_stones.webp): "바닥에 입체감 주는 돌 너무 많아. 사진처럼 드문드문 하나씩만 큼지막하게 둬 사이즈 다 다양하게".
+- hanok_garden_1117.lua: 길 · 연못 둘레에 촘촘히 깔던 458개 → 마당 아무 데나 서로 11 이상 떨어진 45개, 크기 3~8.5(가로세로 비 0.6~1)로 제각각. 화단 · 집 · 정자 · 다리 · 연못(3.5 여유)은 피함. HanokGarden 부품 1,065 → 654.
+- 사진: docs/06_LOG/images/2026-11-18/hanok_garden_sparse_*.jpg.

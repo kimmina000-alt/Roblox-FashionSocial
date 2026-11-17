@@ -324,7 +324,10 @@ if FS then
 		if x > X0 - 5 and x < X1 + 5 and z > Z0 - 5 and z < Z1 + 8 then return true end
 		if x > 264 and x < 316 and z > 597 and z < 627 then return true end
 		if x > bx - 5.5 and x < bx + 5.5 and z > 552 and z < 591 then return true end
-		if x < 237 and z > 469 and z < 599 then return true end
+		if x < 240 and z > 466 and z < 602 then return true end -- 화단
+		if x > 333 and z < 552 then return true end
+		if x > 322 and z > 556 then return true end
+		if z > 626 then return true end
 		return false
 	end
 	local function put(x, z)
@@ -335,26 +338,27 @@ if FS then
 		p.Material = Enum.Material.Granite
 		p.MaterialVariant = "OHU_HanokGranite"
 		p.Color = Color3.fromRGB(255, 255, 255)
-		p.Size = Vector3.new(frs:NextNumber(2.6, 3.6), frs:NextNumber(0.2, 0.28), frs:NextNumber(2.2, 3.2))
+		local sz = frs:NextNumber(3, 8.5)
+		p.Size = Vector3.new(sz, frs:NextNumber(0.22, 0.32), sz * frs:NextNumber(0.6, 1))
 		p.CFrame = CFrame.new(x, GY + 0.02, z) * CFrame.Angles(frs:NextNumber(-0.02, 0.02), frs:NextNumber(0, 6.28), frs:NextNumber(-0.02, 0.02))
 		p.Anchored = true
 		p.CanCollide = false
 		p.CastShadow = false
 		p.Parent = stones
 	end
-	local ZONES = { { 236, 258, 456, 600 }, { 236, 293, 494, 516 }, { 236, 326, 586, 600 }, { 296, 318, 543, 553 } }
-	for _, zn in ipairs(ZONES) do
-		for x = zn[1] + 1.8, zn[2] - 1, 3.7 do
-			for z = zn[3] + 1.8, zn[4] - 1, 3.4 do
-				put(x + frs:NextNumber(-0.6, 0.6), z + frs:NextNumber(-0.6, 0.6))
-			end
+	-- 듬성듬성 하나씩, 크기 제각각 (사용자 사진, D-1745): 마당 아무 데나, 서로 11 이상 떨어져 약 45개
+	local placed = {}
+	local tries = 0
+	while #placed < 45 and tries < 3000 do
+		tries += 1
+		local x, z = frs:NextNumber(LX0 + 4, LX1 - 4), frs:NextNumber(LZ0 + 4, LZ1 - 4)
+		local ok = not blocked(x, z) and not inPond(x, z, 3.5)
+		for _, q in ipairs(placed) do
+			if ok and (q[1] - x) ^ 2 + (q[2] - z) ^ 2 < 121 then ok = false end
 		end
-	end
-	for _, c in ipairs(DISCS) do
-		local n = math.floor(c[3] * 0.9)
-		for k = 1, n do
-			local a = k / n * math.pi * 2 + frs:NextNumber(-0.1, 0.1)
-			put(c[1] + math.cos(a) * (c[3] + 1.4), c[2] + math.sin(a) * (c[3] + 1.4))
+		if ok then
+			table.insert(placed, { x, z })
+			put(x, z)
 		end
 	end
 end
