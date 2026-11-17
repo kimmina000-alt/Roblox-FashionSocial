@@ -5621,3 +5621,6 @@ Studio only (no script yet).
 
 ## D-1595 (2026-11-17) 관람차 1인칭에서 숨기던 코드 삭제
 - User (first-person screenshot from a cabin: the other cabins floating in the sky): "관람차 공중에 떠 있어서 비현실적이야 / 안 보이게 감춘 거 다 삭제해 / 보이게 다시 코드 작성하는 거 아니고 감춘 코드 지우는 거 맞지". ParkRidesController: WHEEL_FRAME, hiddenFrame, hideWheelFrame and its call in setFirstPerson are deleted (D-1520 / D-1546 / D-1590); nothing of the wheel is hidden in first person any more. Studio script identical to git.
+## D-1597 가방: 사진 칸도 화면 너비 비율로 (2026-11-17)
+- 사용자(폰 화면 사진, 사진 탭에 3장 + 오른쪽 빈 칸): "아이템 칸 여백 안 남게 사이즈 고정하지 말고 화면에 따라 비율로 칸 나누기".
+- InventoryController: 사진 칸도 소지품 칸처럼 너비의 1/COLS(폰 4, PC 8), 높이는 예전 88 : 190 비율(UIAspectRatioConstraint). 두 목록 모두 칸마다 간격 몫(8 × (COLS − 1) / COLS)만 빼서 마지막 열이 목록 끝에 딱 맞음(남는 여백 0, Play에서 너비 340 / 408 / 760 확인).
