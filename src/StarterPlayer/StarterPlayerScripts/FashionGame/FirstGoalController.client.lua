@@ -480,6 +480,15 @@ task.spawn(function()
 	if not player.Character then player.CharacterAdded:Wait() end
 	local t0 = os.clock()
 	while playerGui:FindFirstChild("OHULoading") and os.clock() - t0 < 90 do task.wait(0.5) end
-	task.wait(1.5)
+	-- (D-1690, user 2026-11-17: "투어 끝나고 출석 이벤트 보여 주고 목표 안내 순서") after the first-visit tour
+	-- (TourActive) and the opening attendance window (it opens 1 s after the tour; any open window
+	-- counts, Popups) — the goal comes last
+	task.wait(3)
+	local Popups = require(script.Parent:WaitForChild("Popups"))
+	local calm = 0
+	while calm < 3 do
+		task.wait(0.5)
+		if player:GetAttribute("TourActive") or Popups.anyOpen() then calm = 0 else calm += 0.5 end
+	end
 	start()
 end)

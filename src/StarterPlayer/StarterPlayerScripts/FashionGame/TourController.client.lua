@@ -271,6 +271,24 @@ skip.Activated:Connect(function()
 end)
 if UiBus.StartTour then UiBus.StartTour.Event:Connect(start) end
 
--- (D-1523, user: "첫 접속엔 목표만") the first visit no longer starts the tour by itself:
--- FirstGoalController shows one goal instead. The tour stays on the guide NPC's question
--- "🗺 동네 둘러보기 다시 보기" (UiBus.StartTour).
+-- (D-1523, user: "첫 접속엔 목표만") the first visit no longer started the tour by itself.
+-- (D-1690, user 2026-11-17: "투어 추가해 투어 끝나고 출석 이벤트 보여 주고 목표 안내 순서") it does again:
+-- the first visit is ① this tour → ② the opening attendance window (OpeningEventController waits
+-- while TourActive) → ③ the first goal (FirstGoalController waits for both). Once: the "tour2" tip;
+-- the guide NPC's question still starts it again. (Studio: FirstGoalTest = true shows it every Play.)
+task.spawn(function()
+	local TEST = game:GetService("RunService"):IsStudio() and FashionGame:GetAttribute("FirstGoalTest") == true
+	local waited = 0
+	while player:GetAttribute("TipsSeen") == nil and waited < 20 do
+		task.wait(0.5)
+		waited += 0.5
+	end
+	local ok, keys = pcall(function() return HttpService:JSONDecode(player:GetAttribute("TipsSeen") or "[]") end)
+	local seen = ok and typeof(keys) == "table" and table.find(keys, TOUR_KEY) ~= nil
+	if seen and not TEST then return end
+	if not player.Character then player.CharacterAdded:Wait() end
+	local t0 = os.clock()
+	while playerGui:FindFirstChild("OHULoading") and os.clock() - t0 < 90 do task.wait(0.5) end
+	task.wait(1.5)
+	start()
+end)

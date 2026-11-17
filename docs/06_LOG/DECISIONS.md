@@ -5731,3 +5731,7 @@ Studio only (no script yet).
 - 사용자: "목표 안내시 보여 주는 실선 점선으로 수정, 그냥 벽 다 뚫고 직선만 보여 주는데 플레이어가 실제로 걸어가는 루트로 안내할 것 / 첫 목표 완료 < 삭제, 즐기라는 말만 하기".
 - 원인: 클럽 문 좌표(GuideConfig.Places.club.at, y 3.6)가 인도보다 3 stud 떠 있어 PathfindingService가 NoPath → 직선 대체로 벽을 뚫음(Studio에서 확인: 바닥에 붙이면 Success 47~77 지점, 클럽 로비 → 댄스 플로어도 Success).
 - FirstGoalController: 출발 · 목적지를 바닥에 붙여 길찾기, 실패하면 목적지 주변 6 / 10 / 16 stud 8방향을 시도, 마지막에만 직선. 선은 점선(1.6 stud 선 · 1.1 stud 빈칸). 완료 배너는 "오후를 재미있게 즐겨 봐요!"만.
+## D-1690 첫 접속 순서: 투어 → 출석 이벤트 → 첫 목표 (2026-11-17)
+- 사용자: "투어 추가해 투어 끝나고 출석 이벤트 보여 주고 목표 안내 순서". (D 번호: 이 세션은 D-1690~1699, 1670~1689는 다른 세션 몫)
+- TourController: 첫 접속(tour2 안 봄)이면 로딩 화면 1.5초 뒤 동네 투어를 다시 자동으로(D-1523 이전처럼). OpeningEventController는 원래대로 투어(TourActive)와 다른 창이 끝난 뒤 1초에 출석 창. FirstGoalController: 로딩 뒤 3초, 그다음 투어도 창(Popups)도 없는 상태가 3초 이어지면 첫 목표 시작. 첫 목표를 할지는 투어 전에 본 기록으로 정함(투어가 tour2를 남겨도 새 사람은 목표까지 봄).
+- Studio: FirstGoalTest = true면 투어 · 출석 창 · 첫 목표가 매번 순서대로(Studio는 출석을 안 세므로 출석 창도 테스트일 때 띄움).
