@@ -800,8 +800,20 @@ local levelLabel = button("Level", 2, 110)
 levelLabel.AutoButtonColor = false
 levelLabel.BackgroundColor3 = Color3.fromRGB(40, 36, 52)
 local plusButton = button("Plus", 3, 46)
-local mainButton = button("Main", 4, 240)
-local viewButton = button("View", 5, 140)
+-- (D-1667, user 2026-11-17: "내리기 1인칭 버튼 반으로 줄이기") 240 → 120 and 140 → 70 wide, 46 → 32 high
+-- (a 23-stud-high button is too small to tap on a phone); their wait times went to the RideTimer line
+local mainButton = button("Main", 4, 120)
+local viewButton = button("View", 5, 70)
+for _, b in ipairs({ mainButton, viewButton }) do
+	b.Size = UDim2.fromOffset(b.Size.X.Offset, 32)
+	b.TextSize = 14
+	(b:FindFirstChildOfClass("UICorner") :: UICorner).CornerRadius = UDim.new(0, 16)
+	-- (a longer text such as "🚒 소방차 타기" widens the button instead of being cut)
+	b.AutomaticSize = Enum.AutomaticSize.X
+	local pad = Instance.new("UIPadding")
+	pad.PaddingLeft, pad.PaddingRight = UDim.new(0, 12), UDim.new(0, 12)
+	pad.Parent = b
+end
 viewButton.BackgroundColor3 = Color3.fromRGB(60, 120, 220)
 minusButton.Text = "−"
 minusButton.TextSize = 26
@@ -830,6 +842,15 @@ tapShadow.Color = Color3.new(0, 0, 0)
 tapShadow.Thickness = 1.2
 tapShadow.Transparency = 0.15
 tapShadow.Parent = tapHint
+
+-- (D-1667, user 2026-11-17: "놀이기구 운행까지 남은 시간 보여 주기 흰글씨로 (화면을 마구 클릭해요와 같은 위치
+-- 같은 사이즈로)") the seconds until a seat ride (vikings, tea cups, jumping star) starts, while its
+-- rider waits: the tap hint's place, size and look
+local rideTimer = tapHint:Clone()
+rideTimer.Name = "RideTimer"
+rideTimer.Text = ""
+rideTimer.Visible = false
+rideTimer.Parent = gui
 
 local toastLabel = Instance.new("TextLabel")
 toastLabel.AnchorPoint = Vector2.new(0.5, 1)
@@ -1243,13 +1264,18 @@ local function refreshUi(t: number)
 		mainButton.Text = KEY .. "내리기"
 		mainButton.BackgroundColor3 = Color3.fromRGB(255, 110, 170)
 		-- (D-1650) the ferris wheel lets you off anywhere: the button is always the pink 내리기
+		local waiting: number? = nil
 		if ParkConfig.isSeatRide(entry.kind) then -- (D-1425) off only while it stands still
 			local still, left = ParkConfig.rideState(entry.ride, t)
 			if not still then
-				mainButton.Text = string.format(KEY .. "내리기 (멈추면 · %d초)", math.ceil(left))
-				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130)
+				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130) -- (grey: off when it stops)
+			else
+				waiting = left
 			end
 		end
+		-- (D-1667) "운행까지 N초" while the ride stands still with its riders in
+		rideTimer.Visible = waiting ~= nil and not tapHint.Visible
+		if waiting then rideTimer.Text = string.format("운행까지 %d초", math.max(0, math.ceil(waiting))) end
 		-- (D-1661, user 2026-11-17: "회전목마 타는 버튼만 띄우고 내리기 버튼 삭제") no button bar while on the
 		-- carousel or a fire truck: jump to get off
 		if entry.kind == "ParkCarousel" then
@@ -1271,6 +1297,7 @@ local function refreshUi(t: number)
 	minusButton.Visible = false
 	plusButton.Visible = false
 	levelLabel.Visible = false
+	rideTimer.Visible = false
 	offer = if slideCFrame then nil else currentOffer(t)
 	local current = offer
 	if current then

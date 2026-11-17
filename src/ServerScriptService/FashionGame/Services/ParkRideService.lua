@@ -237,42 +237,11 @@ local function leave(player: Player, home: boolean?): (boolean, any)
 	return true, exit
 end
 
--- (D-1426, user 2026-11-15: "테스트 스포너 놀이공원 안에 만들어 줘") a test spawn inside the
--- park: the pad Workspace.ParkTestSpawn (place-only, move it in Edit mode to spawn elsewhere; its
--- attribute On = false switches it off).
--- (D-1437, user: "놀이공원 안에 있는 스포너는 Vantablack_Dev 만 스폰할 수 있게 해. 일반 유저는 역 앞에
--- 있는 스포너로 스폰되게 해.") only the owner (Vantablack_Dev, PARK_SPAWN_OWNER) is put on it — in
--- Studio and on live servers; everyone else spawns as before at the SpawnLocation by the station
--- (subway exit 3). On live servers the pad itself is hidden (no green pad in the closed park).
-local PARK_SPAWN_OWNER = 11887382096 -- (Vantablack_Dev, the experience's owner)
-local function parkTestSpawn()
-	local pad = workspace:FindFirstChild("ParkTestSpawn")
-	if not pad or not pad:IsA("BasePart") then return end
-	if not game:GetService("RunService"):IsStudio() then
-		pad.Transparency = 1
-		for _, g in ipairs(pad:GetDescendants()) do
-			if g:IsA("SurfaceGui") then g.Enabled = false end
-		end
-	end
-	local function onCharacter(player: Player, character: Model)
-		if player.UserId ~= PARK_SPAWN_OWNER then return end
-		local root = character:WaitForChild("HumanoidRootPart", 10)
-		if not root or not character.Parent or not pad.Parent or pad:GetAttribute("On") == false then return end
-		task.wait(0.3) -- (after the SpawnLocation, and the gate spawn of a Studio test, have placed it)
-		local slot = (table.find(Players:GetPlayers(), player) or 1) - 1
-		local at = (pad.CFrame * CFrame.new((slot % 4 - 1.5) * 4, 3.5, math.floor(slot / 4) * 4)).Position
-		character:PivotTo(CFrame.lookAt(at, at + pad.CFrame.LookVector * Vector3.new(1, 0, 1)))
-	end
-	local function onPlayer(player: Player)
-		player.CharacterAdded:Connect(function(character) onCharacter(player, character) end)
-		if player.Character then task.spawn(onCharacter, player, player.Character) end
-	end
-	Players.PlayerAdded:Connect(onPlayer)
-	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
-end
+-- (D-1668, user 2026-11-17: "테스트 중에도 첫 스포너 위치 원래 플레이어 스포너 위치로 수정하고 놀이공원에 있는
+-- 거 삭제") the park test spawn of D-1426 / D-1437 is gone: everyone, the owner and Studio tests
+-- included, spawns at the players' SpawnLocation; the pad Workspace.ParkTestSpawn is deleted.
 
 function ParkRideService.Start()
-	task.defer(parkTestSpawn)
 	local remote = Remotes:WaitForChild("ParkRide") :: RemoteFunction
 	local notify = Remotes:WaitForChild("ParkNotify") :: RemoteEvent
 	remote.OnServerInvoke = function(player: Player, action: any, a: any, b: any)

@@ -214,37 +214,83 @@ local function groundAt(p: Vector3): Vector3
 	local params = RaycastParams.new()
 	params.FilterType = Enum.RaycastFilterType.Exclude
 	params.FilterDescendantsInstances = { player.Character :: Instance, lineFolder :: Instance }
-	local hit = workspace:Raycast(p + Vector3.new(0, 4, 0), Vector3.new(0, -12, 0), params)
+	local hit = workspace:Raycast(p + Vector3.new(0, 2, 0), Vector3.new(0, -20, 0), params)
 	return if hit then hit.Position else p
+end
+-- (D-1669, user 2026-11-17: "목표 안내시 보여 주는 실선 점선으로 수정, 그냥 벽 다 뚫고 직선만 보여 주는데 플레이어가
+-- 실제로 걸어가는 루트로 안내할 것") the path was not found (the club door's point floats 3 studs over the
+-- pavement), so the straight fallback cut through the buildings. Both ends are put on the ground now and,
+-- if there is still no path, points around the place (up to 16 studs off) are tried; the straight line
+-- is only the last resort. The way is drawn as a dashed line (DASH studs on, GAP off).
+local DASH, GAP = 1.6, 1.1
+local function walkPath(from: Vector3, target: Vector3): {Vector3}?
+	local path = PathfindingService:CreatePath({ AgentRadius = 1.5, AgentHeight = 5, AgentCanJump = true, WaypointSpacing = 4 })
+	local ok = pcall(function() path:ComputeAsync(from, target) end)
+	if not ok or path.Status ~= Enum.PathStatus.Success then return nil end
+	local points = {}
+	for _, w in ipairs(path:GetWaypoints()) do table.insert(points, w.Position) end
+	return points
 end
 local function drawLine()
 	local r = root()
 	local target = lineTarget
 	if drawing or not r or not target then return end
 	drawing = true
-	local from = r.Position - Vector3.new(0, 3, 0)
-	local points: {Vector3} = {}
-	local path = PathfindingService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = true, WaypointSpacing = 4 })
-	local ok = pcall(function() path:ComputeAsync(from, target) end)
-	if ok and path.Status == Enum.PathStatus.Success then
-		for _, w in ipairs(path:GetWaypoints()) do table.insert(points, w.Position) end
-	else
-		local d = (target - from).Magnitude
+	local from = groundAt(r.Position)
+	local goal = groundAt(target + Vector3.new(0, 6, 0))
+	local points = walkPath(from, goal)
+	if not points then
+		for _, radius in ipairs({ 6, 10, 16 }) do
+			for k = 0, 7 do
+				local a = k * math.pi / 4
+				local near = groundAt(goal + Vector3.new(math.cos(a) * radius, 6, math.sin(a) * radius))
+				points = walkPath(from, near)
+				if points then break end
+			end
+			if points then break end
+		end
+	end
+	if not points then
+		local straight = {}
+		local d = (goal - from).Magnitude
 		local n = math.clamp(math.floor(d / 4), 1, 150)
-		for i = 0, n do table.insert(points, groundAt(from:Lerp(target, i / n))) end
+		for i = 0, n do table.insert(straight, groundAt(from:Lerp(goal, i / n) + Vector3.new(0, 6, 0))) end
+		points = straight
 	end
 	if lineTarget ~= target then drawing = false return end -- (the step changed meanwhile)
 	local folder = Instance.new("Folder")
 	folder.Name = "FirstGoalLine"
-	for i = 1, math.min(#points - 1, 160) do
-		local a, b = points[i] + Vector3.new(0, 0.12, 0), points[i + 1] + Vector3.new(0, 0.12, 0)
+	-- dashes along the way: DASH on, GAP off, carried over from one leg to the next
+	local carry = 0 -- (how far into the current dash; < 0 = how much gap is left)
+	local count = 0
+	local pts = points :: {Vector3}
+	for i = 1, #pts - 1 do
+		local a, b = pts[i] + Vector3.new(0, 0.12, 0), pts[i + 1] + Vector3.new(0, 0.12, 0)
 		local len = (b - a).Magnitude
 		if len > 0.05 then
-			create("Part", {
-				Anchored = true, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false,
-				Material = Enum.Material.Neon, Color = WHITE, Transparency = 0.1,
-				Size = Vector3.new(0.45, 0.06, len + 0.4), CFrame = CFrame.lookAt((a + b) / 2, b),
-			}, folder)
+			local dir = (b - a) / len
+			local at = 0
+			while at < len - 1e-3 and count < 400 do
+				if carry < 0 then -- (in a gap)
+					local skip = math.min(-carry, len - at)
+					at += skip
+					carry += skip
+				else
+					local piece = math.min(DASH - carry, len - at)
+					if piece > 0.05 then
+						local p0, p1 = a + dir * at, a + dir * (at + piece)
+						create("Part", {
+							Anchored = true, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false,
+							Material = Enum.Material.Neon, Color = WHITE, Transparency = 0.1,
+							Size = Vector3.new(0.4, 0.06, piece), CFrame = CFrame.lookAt((p0 + p1) / 2, p1),
+						}, folder)
+						count += 1
+					end
+					at += piece
+					carry += piece
+					if carry >= DASH - 1e-3 then carry = -GAP end
+				end
+			end
 		end
 	end
 	if lineFolder then lineFolder:Destroy() end
@@ -280,7 +326,7 @@ local function celebrate(goalText: string)
 	local banner = create("TextLabel", {
 		AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.4), Size = UDim2.fromOffset(0, 0),
 		BackgroundColor3 = BLACK, Font = Enum.Font.GothamBlack, TextSize = 26,
-		TextColor3 = WHITE, Text = "🎉 첫 목표 완료!\n" .. goalText, TextWrapped = true,
+		TextColor3 = WHITE, Text = goalText, TextWrapped = true, -- (D-1669, user: "첫 목표 완료 삭제, 즐기라는 말만 하기")
 	}, g)
 	create("UICorner", { CornerRadius = UDim.new(0, 22) }, banner)
 	create("UIStroke", { Color = WHITE, Thickness = 4, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, banner)

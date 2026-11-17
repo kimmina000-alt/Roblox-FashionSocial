@@ -134,60 +134,11 @@ local function forwardOf(yaw: number): Vector3
 	return Vector3.new(math.cos(yaw), 0, -math.sin(yaw)) -- the car's +X at this yaw
 end
 
----------------------------------------------------------------- phone steering (D-1564)
--- (user 2026-11-17: "범퍼카 왼쪽 버튼(방향키)는 직진 후진하고 오른쪽 방향키로 방향 틀 수 있도록") on a
--- touch screen the left stick only drives forward / back (its sideways part is left out) and two
--- buttons on the right, ◀ and ▶, turn the wheel while held. Keyboards keep W / S and A / D.
-local UserInputService = game:GetService("UserInputService")
-local function touchMode(): boolean
-	-- (a phone has no keyboard; Studio's phone view and touch laptops have both: then the last input decides)
-	return UserInputService.TouchEnabled
-		and (not UserInputService.KeyboardEnabled or UserInputService:GetLastInputType() == Enum.UserInputType.Touch)
-end
-local held = { left = false, right = false }
-local padGui = Instance.new("ScreenGui")
-padGui.Name = "BumperSteer"
-padGui.ResetOnSpawn = false
-padGui.Enabled = false
-padGui.DisplayOrder = 5
-padGui.Parent = player:WaitForChild("PlayerGui")
-local function padButton(name: string, text: string, xOffset: number, key: string)
-	local b = Instance.new("TextButton")
-	b.Name = name
-	b.AnchorPoint = Vector2.new(1, 1)
-	b.Position = UDim2.new(1, xOffset, 1, -96) -- (above the hotbar along the bottom)
-	b.Size = UDim2.fromOffset(84, 84)
-	b.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
-	b.BackgroundTransparency = 0.35
-	b.Text = text
-	b.TextColor3 = Color3.new(1, 1, 1)
-	b.TextSize = 44
-	b.Font = Enum.Font.GothamBold
-	b.AutoButtonColor = false
-	local corner = Instance.new("UICorner")
-	corner.CornerRadius = UDim.new(1, 0)
-	corner.Parent = b
-	local function set(on: boolean)
-		held[key] = on
-		b.BackgroundTransparency = if on then 0.1 else 0.35
-	end
-	b.InputBegan:Connect(function(input: InputObject)
-		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then set(true) end
-	end)
-	b.InputEnded:Connect(function(input: InputObject)
-		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then set(false) end
-	end)
-	b.MouseLeave:Connect(function() set(false) end)
-	b.Parent = padGui
-end
-padButton("Left", "◀", -126, "left")
-padButton("Right", "▶", -28, "right")
-
--- -1 = left .. 1 = right
+---------------------------------------------------------------- steering
+-- (D-1666, user 2026-11-17: "범퍼카 회전은 원래 오른쪽 드래그하면 회전됐던 기능 사용 < > 버튼 삭제 기능 삭제")
+-- the ◀ ▶ phone buttons of D-1564 are gone: the wheel follows the stick / A D again (seat.SteerFloat),
+-- on phones too (push the stick right to turn right)
 local function steerInput(seat: VehicleSeat): number
-	if touchMode() then
-		return (if held.right then 1 else 0) - (if held.left then 1 else 0)
-	end
 	return seat.SteerFloat
 end
 
@@ -435,11 +386,6 @@ RunService.Heartbeat:Connect(function(dt)
 		if not drive or drive.seat ~= seat then startDrive(seat) end
 	elseif drive then
 		drive = nil
-	end
-	local showPad = drive ~= nil and touchMode()
-	if padGui.Enabled ~= showPad then
-		padGui.Enabled = showPad
-		if not showPad then held.left, held.right = false, false end
 	end
 	driveStep(dt)
 	watchOthers()
