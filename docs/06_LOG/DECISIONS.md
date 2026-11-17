@@ -5447,3 +5447,7 @@ Studio only (no script yet).
 ## D-1573 (2026-11-17) 회전컵 가운데 조형물 불빛 30 %
 - User: "회전컵 중앙에 있는 조형물 위에 빛나는 것도 발광 30%로 줄여".
 - The glow is the Neon spikes on the teapot (Workspace.회전컵.Ride.Teapot SpikeGlow / SpikeTip, made by tools/graybox/park_teacups_1115.lua). Their colour is 30 % of the old one: (255, 246, 214) → (77, 74, 64), in the script and in the place (place change: the user saves).
+
+## D-1574 (2026-11-17) 클럽 계단 · 복도 조명 30 %
+- User: "클럽 계단과 복도에 있는 조명 발광 수정 안 했으면 거기 발광도 줄여 줘" (D-1570 only toned the picture down indoors; these Neon lines were unchanged).
+- New client script ClubGlowDim: Neon parts named StairNeon, VIP_StairNeon, FoyerLED, PassageLight, CorridorNeon_E / _W, FloorLED, HallDoorFootLED, CeilingStrip inside 02_Club or ClubAnnex take 30 % of their colour on each screen (parts streamed in again are dimmed again). The place and the graybox scripts keep the full colours, so no chain run is needed. The dance floor, DJ, bar, VIP signs and crown lights are unchanged.
