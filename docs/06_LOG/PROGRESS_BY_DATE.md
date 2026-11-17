@@ -935,3 +935,4 @@
 - SHEESH-BABYMONSTER 음색 -4 / -25 / -22 (D-1601).
 - 새 곡 4곡: Lucky Girl Syndrome / 빌려온 고양이-ILLIT, 뛰어 JUMP-BLACKPINK, Blue Valentine-NMIXX (D-1602).
 - 2026-11-17: 내 이름을 불러줘-TWS 안무 19조각 + 회전 · 고개 · 손목 (D-1603, 8번은 7번 복사본이라 다시 업로드 필요).
+- 2026-11-17: 내 이름을 불러줘-TWS 8번 채움, 안무 20조각 완성 (D-1658).
