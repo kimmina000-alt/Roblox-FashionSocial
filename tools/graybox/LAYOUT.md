@@ -105,6 +105,6 @@
   - `park_fixes3_1116.lua` (D-1545) — 놀이공원 피드백: 소방차 좌석, 회전목마 조명·말 귀, 점핑스타 하차 위치, 관람차 의자 블록 삭제, 범퍼카 펜스 겹침·12대 두 줄·벽 그림 한 장. park_perf_1116 앞에 실행.
   - `park_fixes4_1117.lua` (D-1564/D-1565) — 바이킹 두 대 번갈아 운행(Board/Offset), 관람차 바퀴 0.75로 줄이고 칸까지 흰 받침대(CabinBrackets), 칸 바닥 축소. park_fixes3_1116 다음에 실행.
   - `park_ride_lights_1117.lua` (D-1656/D-1657) — 회전컵 접시 둘레(SaucerGlow, 컵과 같이 돎) · 소방차 트랙 바깥(TrackGlow) · 잔디 둘레(LawnGlow) 네온 조명 줄. park_fixes4_1117 다음에 실행.
-  - `club_passage_light_1117.lua` (D-1658) — 락커룸 통로 천장 보라 조명(Passage.PassageGlow, SurfaceLight 각도 120 · 범위 24): 통로 대리석도 클럽 바닥처럼 보라 결이 보이게. club_locker_1103 다음 어디든.
+  - `club_passage_light_1117.lua` (D-1659) — 락커룸 통로 천장 보라 조명(Passage.PassageGlow, SurfaceLight 각도 120 · 범위 24): 통로 대리석도 클럽 바닥처럼 보라 결이 보이게. club_locker_1103 다음 어디든.
   - `beach_tube_pile_1117.lua` (D-1576) — 해변 종합안내도 북쪽(21 스터드) 모래 위에 튜브 18개 더미 + "튜브 무료 대여" 표지판 + PromptPart(TubeRentService가 "튜브 들기"를 붙임). build_beach_signs 다음에 실행.
   - `park_carousel_roof_1116.lua` (D-1548) — 회전목마 새 지붕(ArtAssets.CarouselRoof2) + 지붕 조명(Rotor.RoofLights). 옛 지붕은 ArtAssets.CarouselRoofOld.

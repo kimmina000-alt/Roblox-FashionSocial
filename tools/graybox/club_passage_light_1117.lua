@@ -1,5 +1,5 @@
 --!nocheck
--- 클럽 통로 바닥 통일 (D-1658, user 2026-11-17 with a phone shot of the locker room passage: "클럽 내부
+-- 클럽 통로 바닥 통일 (D-1659, user 2026-11-17 with a phone shot of the locker room passage: "클럽 내부
 -- 바닥 통일" / "이미지를 봐봐 무늬가 다르잖아 원인 파악해서 고쳐").
 -- Cause: the passage floor (ClubAnnex.LockerRoom.Passage.Floor) is the same black marble as the club
 -- floor (Marble 20,20,24, reflectance 0.15; ClubGlowDim tones both up). The club floor's purple veins
