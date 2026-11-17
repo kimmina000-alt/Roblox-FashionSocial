@@ -138,26 +138,16 @@ end
 -- (D-1666, user 2026-11-17: "범퍼카 회전은 원래 오른쪽 드래그하면 회전됐던 기능 사용 < > 버튼 삭제 기능 삭제")
 -- the ◀ ▶ phone buttons of D-1564 are gone: the wheel follows the stick / A D again (seat.SteerFloat),
 -- on phones too (push the stick right to turn right)
-local function steerInput(seat: VehicleSeat): number
-	return seat.SteerFloat
-end
 
 -- (D-1703, user 2026-11-17: "범퍼카 탔을 때 모바일 예시로 왼쪽 하단에서 앞으로 직진 방향으로 누르면서 오른쪽 화면에서
 -- 오른쪽으로 화면 회전하면 그 방향으로 직진하게 구현") the car drives like walking: the stick (W A S D) points
 -- a way on the screen, seen from the camera; the car turns its wheel towards that way and drives there
 -- (drag the screen to turn the camera and the car follows it). No stick: the pedal is up, the car rolls
--- to a stop.
-local controls: any = nil
-task.spawn(function()
-	local ok, module = pcall(function()
-		return require((player:WaitForChild("PlayerScripts") :: any):WaitForChild("PlayerModule"))
-	end)
-	if ok and module then controls = module:GetControls() end
-end)
-local function moveWish(): Vector3?
-	if not controls then return nil end
-	local ok, mv = pcall(function() return controls:GetMoveVector() end)
-	if not ok or typeof(mv) ~= "Vector3" or mv.Magnitude < 0.12 then return nil end
+-- to a stop. The stick is read from the seat (the default controls put its forward / right there as
+-- ThrottleFloat / SteerFloat; this place has no PlayerModule to ask).
+local function moveWish(seat: VehicleSeat): Vector3?
+	local mv = Vector3.new(seat.SteerFloat, 0, -seat.ThrottleFloat)
+	if mv.Magnitude < 0.12 then return nil end
 	local cam = workspace.CurrentCamera
 	if not cam then return nil end
 	local look = Vector3.new(cam.CFrame.LookVector.X, 0, cam.CFrame.LookVector.Z)
@@ -176,23 +166,15 @@ local function simulate(d: Drive, dt: number)
 	local hall = C.Hall
 
 	-- the wheel follows A / D, and comes back by itself
-	local steer, pedal
-	if controls then
-		-- (D-1703) towards the stick's way on the screen: the wheel turns by how far the car still has
-		-- to turn (positive wheel = to the right = the heading going down), the pedal by the stick
-		local wish = moveWish()
-		if wish then
-			local want = math.atan2(-wish.Z, wish.X)
-			local diff = (want - d.yaw + math.pi) % (2 * math.pi) - math.pi
-			steer = math.clamp(-diff / (C.WheelMax * 0.6), -1, 1)
-			pedal = wish.Magnitude
-		else
-			steer, pedal = 0, 0
-		end
-	else
-		steer = steerInput(d.seat)
-		pedal = math.clamp(d.seat.ThrottleFloat, -1, 1)
-		if pedal < 0 then pedal *= C.ReverseFactor end
+	-- (D-1703) towards the stick's way on the screen: the wheel turns by how far the car still has
+	-- to turn (positive wheel = to the right = the heading going down), the pedal by the stick
+	local steer, pedal = 0, 0
+	local wish = moveWish(d.seat)
+	if wish then
+		local want = math.atan2(-wish.Z, wish.X)
+		local diff = (want - d.yaw + math.pi) % (2 * math.pi) - math.pi
+		steer = math.clamp(-diff / (C.WheelMax * 0.6), -1, 1)
+		pedal = wish.Magnitude
 	end
 	local target = math.clamp(steer, -1, 1) * C.WheelMax
 	local step = C.WheelRate * dt
