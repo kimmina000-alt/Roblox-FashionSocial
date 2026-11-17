@@ -5589,3 +5589,6 @@ Studio only (no script yet).
 - Blue Valentine 111032764768565: 173.889 s, fileSpeed 1.0696 (곡 3:06), tempo 0.935, boost 10/5/2, EQ 0/0/-7.
 - 빌려온 고양이 126150660776305: 176.341 s, fileSpeed 1.0718 (곡 3:09), tempo 0.933, boost 10/5/2, EQ -2/0/-15.5.
 - tempo × fileSpeed ≈ 1.000(넷 다). Play로 들어 보지는 않음.
+
+## D-1595 (2026-11-17) 관람차 1인칭에서 숨기던 코드 삭제
+- User (first-person screenshot from a cabin: the other cabins floating in the sky): "관람차 공중에 떠 있어서 비현실적이야 / 안 보이게 감춘 거 다 삭제해 / 보이게 다시 코드 작성하는 거 아니고 감춘 코드 지우는 거 맞지". ParkRidesController: WHEEL_FRAME, hiddenFrame, hideWheelFrame and its call in setFirstPerson are deleted (D-1520 / D-1546 / D-1590); nothing of the wheel is hidden in first person any more. Studio script identical to git.
