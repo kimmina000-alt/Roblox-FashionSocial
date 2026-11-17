@@ -365,7 +365,15 @@ local function playable(index: number): boolean
 	return ok
 end
 
-local function playNext()
+-- (D-1738, user 2026-11-18: "클럽에서 노래 신청 혹은 다음 곡으로 추가해 놓고 지금 노래 스킵했는데 다른 곡 나올 때
+-- 있음 / 신청곡만 스킵이 빨리 넘어가고 다른 곡은 천천히 넘어간다") playable() waits up to 4 s for a song's audio;
+-- meanwhile the skip votes still stood, so the playlist loop's vote check skipped AGAIN: the requested
+-- song was replaced at once by the next request or a random one. Now one change at a time (switching),
+-- the votes are cleared before anything waits, and a random song is taken from the ones already known
+-- to play (all songs are checked in the background from the start, warmPlayable), so it comes as fast
+-- as a request.
+local switching = false
+local function playNextNow()
 	local count = #ClubConfig.Playlist
 	if count == 0 then return end
 	local nextRequest = table.remove(requests, 1)
@@ -379,14 +387,39 @@ local function playNext()
 	local order = {}
 	for i = 1, count do if i ~= trackIndex then table.insert(order, math.random(1, #order + 1), i) end end
 	if #order == 0 then order = { trackIndex } end
+	-- (D-1738) first the songs already known to play: no waiting
+	for _, i in ipairs(order) do
+		local track = ClubConfig.Playlist[i]
+		if track and playableOk[track.soundId] then playTrack(i, 0) return end
+	end
 	for _, i in ipairs(order) do
 		if playable(i) then playTrack(i, 0) return end
+	end
+end
+local function playNext()
+	if switching then return end
+	switching = true
+	clearSkipVotes()
+	publishSkipVotes()
+	local ok, err = pcall(playNextNow)
+	switching = false
+	if not ok then warn("[ClubService] playNext", err) end
+end
+
+-- (D-1738) every song's audio checked once in the background (one at a time), so a skip seldom waits
+local function warmPlayable()
+	for index, track in ipairs(ClubConfig.Playlist) do
+		if not playableOk[track.soundId] then
+			playable(index)
+			task.wait(0.5)
+		end
 	end
 end
 
 local function runPlaylist()
 	publishRequests()
 	playNext()
+	task.spawn(warmPlayable)
 	local tick = 0
 	while true do
 		task.wait(0.5)
