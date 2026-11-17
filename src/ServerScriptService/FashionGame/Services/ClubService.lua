@@ -194,8 +194,8 @@ end
 --   ClubRequests (JSON list of {i = track index, u = userId}),
 --   ClubMusicSpeed (DJ playback speed), ClubMusicPitch (DJ pitch; user 2026-10-30),
 --   ClubMusicVolume (DJ volume multiplier; user 2026-11-01).
--- Without a DJ anyone may queue one song at a time. With a DJ, only the DJ
--- picks: "Play" (now), "Queue" (next), "Skip"; requests are closed.
+-- Anyone may queue one song at a time (with a DJ on too, D-1359); the DJ also
+-- has "Play" (now), "Queue" (next), "Skip". Requests stay when the DJ changes (D-1596).
 --------------------------------------------------
 
 local HttpService = game:GetService("HttpService")
@@ -537,14 +537,14 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 	return false, "잘못된 요청입니다."
 end
 
--- A DJ starting clears the open request list (the DJ picks from now on).
+-- (D-1596, user 2026-11-17: "디제이 있을 때 노래 신청 후 디제이 나가면 신청 리스트로 리셋됨 신청 리스트는
+-- 차례대로 나오게 해") a DJ starting no longer clears the request list: since D-1359 guests request with
+-- a DJ on too, and on live servers the owner / DJGranted account takes the booth again 2 s after a DJ
+-- leaves, which wiped every request. The requests keep their order and play one after another as
+-- each song ends, whoever is DJ (the DJ can still skip, play now or put a song first with 우선예약).
 local lastDJ = 0
 local function onDJChanged()
 	local dj = DjService.CurrentDJ()
-	if dj ~= 0 and dj ~= lastDJ then
-		table.clear(requests)
-		publishRequests()
-	end
 	-- each DJ starts with the song as it is; it goes back when the DJ ends
 	if dj ~= lastDJ then
 		setPaused(false) -- (a stopped song plays on when the DJ ends)
