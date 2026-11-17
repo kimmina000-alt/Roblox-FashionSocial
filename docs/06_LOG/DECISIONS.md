@@ -5744,3 +5744,8 @@ Studio only (no script yet).
 ## D-1693 출석 하루 기준: 한국 시간 오전 5시 (2026-11-17)
 - 사용자(추천안 선택): 출석이 바뀌는 시각을 자정 대신 오전 5시로. 클럽이 18:00~06:00이라 밤새 노는 날이 하루로 묶이게.
 - OpeningEventConfig.Start = 2026-11-12 20:00 UTC(= 11-13 05:00 KST). 기간 끝도 5시간 뒤로(12-4 05:00). OpeningEventService: 출석은 day > o.last일 때만(바꾸는 날 밤 0~5시에 날짜 번호가 하루 뒤로 가서 두 번 세지 않게). 출석 창은 D-1691의 24시간 대신 이벤트 날마다 첫 접속에 한 번(wallet.opening.shownDay).
+
+
+## D-1552 (2026-11-17) 사진 벽: 비운 칸은 사진 배경색
+- User's phone after D-1551 (F9 Client Memory Usage): park 1,201 / 998 MB (was 1,290), beach 994, 오후네컷 1,291 / 1,539 (was 1,766), club 1,334 (was 1,293..1,367). But the photos farther than 25 studs showed as black squares: an emptied cell kept the strip's dark cell colour (60, 60, 66).
+- PhotoRender.emptyStrip(strip, booth) paints each emptied cell with the photo's own backdrop colour (booth.back, the colour behind the people in the shot), so from afar a photo looks like its picture with people too small to see; drawPhoto(…, empty) uses it too.

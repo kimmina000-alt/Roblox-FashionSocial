@@ -389,7 +389,7 @@ task.spawn(function()
 						PhotoRender.fillStrip(s.strip, s.photo.shots or {}, PhotoRender.peopleMap(s.photo.people), s.photo.booth)
 					elseif s.full and d > EMPTY then
 						s.full = false
-						PhotoRender.emptyStrip(s.strip)
+						PhotoRender.emptyStrip(s.strip, s.photo.booth)
 					end
 				end
 			end
