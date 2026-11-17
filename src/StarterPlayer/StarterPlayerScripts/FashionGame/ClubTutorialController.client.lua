@@ -73,16 +73,20 @@ local STEPS: {Step} = {
 
 ---------------------------------------------------------------- the card and the ring
 local gui = create("ScreenGui", { Name = "ClubTutorialGui", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 31, Enabled = false }, playerGui)
-local card = create("Frame", { Size = UDim2.fromOffset(280, 114), BackgroundColor3 = BLACK, BackgroundTransparency = 0.2 }, gui)
+-- (D-1692) the guide rabbit waving at the card's left (GuideSpeaker), the text after it
+local SPEAKER = 78
+local CARD_W = 280 + SPEAKER
+local card = create("Frame", { Size = UDim2.fromOffset(CARD_W, 114), BackgroundColor3 = BLACK, BackgroundTransparency = 0.2 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 16) }, card)
 local stroke = create("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.2 }, card)
+require(script.Parent:WaitForChild("GuideSpeaker")).attach(card, SPEAKER)
 -- (D-1665, user: "클럽 안내 1/3 삭제") no header line
 local title = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 10), Size = UDim2.new(1, -50, 0, 22), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(SPEAKER + 8, 10), Size = UDim2.new(1, -50 - SPEAKER, 0, 22), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBlack, TextSize = 17, TextColor3 = WHITE, TextXAlignment = Enum.TextXAlignment.Left, Text = "",
 }, card)
 local body = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 34), Size = UDim2.new(1, -28, 0, 44), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(SPEAKER + 8, 34), Size = UDim2.new(1, -22 - SPEAKER, 0, 44), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Color3.fromRGB(230, 230, 230), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
@@ -154,7 +158,7 @@ RunService.Heartbeat:Connect(function()
 	local b = s and bannerButton(s.button)
 	local anchor = if b and b.Visible then b else bannerButton("ClubList")
 	if anchor and anchor.Visible then
-		NearButton.place(card, pointer, anchor, 280)
+		NearButton.place(card, pointer, anchor, CARD_W)
 		pointer.Visible = anchor == b
 	else
 		card.AnchorPoint = Vector2.new(0.5, 0.5)

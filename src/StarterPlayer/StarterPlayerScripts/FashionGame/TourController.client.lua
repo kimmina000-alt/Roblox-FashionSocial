@@ -84,10 +84,14 @@ local card = create("Frame", {
 	Size = UDim2.new(1, -40, 0, 118), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.3,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 18) }, card)
-local cardLimit = create("UISizeConstraint", { MaxSize = Vector2.new(560, 118) }, card)
+local cardLimit = create("UISizeConstraint", { MaxSize = Vector2.new(560 + 96, 118) }, card)
 create("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 2, Transparency = 0.2 }, card)
+-- (D-1692, user 2026-11-17: "안내원 토끼가 인사하는 모션으로 상반신만 보이게 텍스트 왼쪽에 넣어서 안내원 토끼가
+-- 말하는 것처럼") the guide rabbit waving at the card's left (GuideSpeaker); the text starts after it
+local SPEAKER = 96
+require(script.Parent:WaitForChild("GuideSpeaker")).attach(card, SPEAKER)
 local title = create("TextLabel", {
-	Position = UDim2.fromOffset(18, 10), Size = UDim2.new(1, -100, 0, 30), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(SPEAKER + 10, 10), Size = UDim2.new(1, -100 - SPEAKER, 0, 30), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBlack, TextSize = 22, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left,
 	TextScaled = false, Text = "",
 }, card)
@@ -97,7 +101,7 @@ local count = create("TextLabel", {
 	TextXAlignment = Enum.TextXAlignment.Right, Text = "",
 }, card)
 local body = create("TextLabel", {
-	Position = UDim2.fromOffset(18, 44), Size = UDim2.new(1, -130, 0, 64), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(SPEAKER + 10, 44), Size = UDim2.new(1, -130 - SPEAKER, 0, 64), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBold, TextSize = 18, TextColor3 = Color3.new(1, 1, 1), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
@@ -122,15 +126,15 @@ create("UICorner", { CornerRadius = UDim.new(0, 12) }, nextButton)
 -- (D-1539) a step about a top bar button: the card right under that button, a pointer up to it,
 -- 건너뛰기 inside the card (above it would sit on the bar); other steps: at the bottom as before
 local pointer = NearButton.pointer(card)
-local NEAR_W, NEAR_H = 330, 150
+local NEAR_W, NEAR_H = 330 + 96, 150 -- (+96: the guide at the left, D-1692)
 local function cardAt(nearButton: boolean)
 	if nearButton then
-		cardLimit.MaxSize = Vector2.new(560, NEAR_H)
+		cardLimit.MaxSize = Vector2.new(560 + 96, NEAR_H)
 		card.Size = UDim2.fromOffset(NEAR_W, NEAR_H)
 		skip.AnchorPoint = Vector2.new(0, 1)
 		skip.Position = UDim2.new(0, 12, 1, -12)
 	else
-		cardLimit.MaxSize = Vector2.new(560, 118)
+		cardLimit.MaxSize = Vector2.new(560 + 96, 118)
 		card.AnchorPoint = Vector2.new(0.5, 1)
 		card.Position = UDim2.new(0.5, 0, 1, -96)
 		card.Size = UDim2.new(1, -40, 0, 118)

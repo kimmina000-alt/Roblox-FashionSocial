@@ -155,21 +155,25 @@ local NIGHT: {Step} = {
 }
 
 ---------------------------------------------------------------- the card, the line, the ring
+-- (D-1692) the guide rabbit speaks the goal: waving at the card's left (GuideSpeaker), the text after it
+local SPEAKER = 62
+local CARD_W = 280 + SPEAKER
 local gui = create("ScreenGui", { Name = "FirstGoalGui", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 30, Enabled = false }, playerGui)
 local card = create("Frame", {
-	Position = UDim2.fromOffset(12, 80), Size = UDim2.fromOffset(280, 74), BackgroundColor3 = BLACK,
+	Position = UDim2.fromOffset(12, 80), Size = UDim2.fromOffset(CARD_W, 74), BackgroundColor3 = BLACK,
 	BackgroundTransparency = 0.25,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 16) }, card)
 local stroke = create("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.2 }, card)
+require(script.Parent:WaitForChild("GuideSpeaker")).attach(card, SPEAKER)
 -- (D-1664, user: "첫 목표 1/2 삭제") no header line: the title at the top
 local title = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 10), Size = UDim2.new(1, -50, 0, 24), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(SPEAKER + 8, 10), Size = UDim2.new(1, -50 - SPEAKER, 0, 24), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBlack, TextSize = 18, TextColor3 = WHITE, TextXAlignment = Enum.TextXAlignment.Left,
 	TextScaled = false, Text = "",
 }, card)
 local body = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 36), Size = UDim2.new(1, -28, 0, 34), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(SPEAKER + 8, 36), Size = UDim2.new(1, -22 - SPEAKER, 0, 34), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = Color3.fromRGB(230, 230, 230), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
@@ -370,7 +374,7 @@ local function showStep()
 		local at = s.place()
 		if at then lineTo(at, s.icon .. " " .. (s.placeName or s.title)) end
 	end
-	card.Size = UDim2.fromOffset(280, 74)
+	card.Size = UDim2.fromOffset(CARD_W, 74)
 	TweenService:Create(stroke, TweenInfo.new(0.25), { Thickness = 6 }):Play()
 	task.delay(0.3, function() TweenService:Create(stroke, TweenInfo.new(0.4), { Thickness = 3 }):Play() end)
 end
@@ -389,16 +393,16 @@ RunService.Heartbeat:Connect(function()
 		local inset = game:GetService("GuiService"):GetGuiInset()
 		local right = panel.AbsolutePosition.X - 10
 		pointer.Visible = false
-		if right >= 280 + 12 then
+		if right >= CARD_W + 12 then
 			card.AnchorPoint = Vector2.new(1, 0)
 			card.Position = UDim2.fromOffset(right, panel.AbsolutePosition.Y + inset.Y)
-			card.Size = UDim2.fromOffset(280, card.Size.Y.Offset)
+			card.Size = UDim2.fromOffset(CARD_W, card.Size.Y.Offset)
 		elseif card.AnchorPoint ~= Vector2.zero then
 			placeCard()
 		end
 	end
 	if b and b.Visible then
-		if not panel then NearButton.place(card, pointer, b, 280) end -- (D-1539: under a top bar button)
+		if not panel then NearButton.place(card, pointer, b, CARD_W) end -- (D-1539: under a top bar button)
 		ring.Visible = true
 		local pad = 6
 		-- (AbsolutePosition leaves out the top-bar inset even here, D-1138)

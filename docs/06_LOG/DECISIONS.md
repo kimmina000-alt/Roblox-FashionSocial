@@ -5738,3 +5738,6 @@ Studio only (no script yet).
 ## D-1691 출석 이벤트 창: 24시간에 한 번 (2026-11-17)
 - 사용자: "출석 이벤트는 24시간에 한 번씩 띄워야 해".
 - OpeningEventService: 이벤트 기간에 마지막으로 창을 띄운 때(wallet.opening.shownAt, os.time)에서 24시간이 지났으면 OpeningShowWindow = true(그리고 시각 저장, Studio는 저장 안 함). OpeningEventController는 이 속성일 때만 투어 · 다른 창 뒤에 저절로 엶(🎁 버튼은 언제든).
+## D-1692 안내원 토끼가 말하는 카드 (2026-11-17)
+- 사용자: "안내원 토끼가 인사하는 모션으로 상반신만 보이게 텍스트 왼쪽에 넣어서 안내원 토끼가 말하는 것처럼 구현".
+- GuideSpeaker(새 모듈): 서버가 만들어 둔 안내원 복사본(ReplicatedStorage.FashionGame.GuidePortrait)을 카드 왼쪽 ViewportFrame(WorldModel)에 넣고, 허리 위만 보이게 카메라를 맞추고(뷰 모양에 맞춰 높이 · 너비 둘 다), 「Hello」 이모트(3344650532)를 반복 재생. 기본 R15 Wave(507770239)는 이 작은 토끼에서 손이 거의 안 움직여서(Play에서 확인) 바꿈. 투어 카드(96 너비), 첫 목표 카드(62, 카드 280 → 342), 클럽 안내 카드(78, 280 → 358)에 붙이고 글자는 그만큼 오른쪽으로.
