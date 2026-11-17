@@ -5218,7 +5218,12 @@ do
 		-- (D-821, user 2026-11-03) out round the club's new VIP stair hall east
 		-- of the club (x 190..248, z -298..-254, club_locker_1103.lua)
 		{ 160, -385 }, { 160, -316 }, { 194, -316 }, { 194, -299 }, { 259, -299 }, { 259, -253 }, { 194, -253 }, -- (landing wider, x 257: D-824)
-		{ 194, -50 }, { 277, -50 }, { 277, 387 }, { -415, 387 },	}
+		-- (D-1733, user 2026-11-18: "한옥 마을 돌담벽을 선으로 한옥마을 안쪽에 못 가게 막아 놓은 부분 풀어 줘. 바깥
+		-- 도로는 더 못 가는 부분 유지.") the line x 277 / z 387 ran through the village (its houses and the
+		-- garden were out of bounds): it now goes round the village's outer stone walls (x 80..548,
+		-- z 182..648) — east along the palace wall's south line (z 52) to x 560, north to z 665, west to the
+		-- palace wall's west line (x 52) and down it to z 387; the roads outside stay closed
+		{ 194, -50 }, { 277, -50 }, { 277, 52 }, { 560, 52 }, { 560, 665 }, { 52, 665 }, { 52, 387 }, { -415, 387 },	}
 	for i = 1, #P do
 		local a, b = P[i], P[(i % #P) + 1]
 		local pa, pb = Vector3.new(a[1], 0, a[2]), Vector3.new(b[1], 0, b[2])

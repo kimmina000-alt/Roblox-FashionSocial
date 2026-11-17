@@ -5860,3 +5860,8 @@ Studio only (no script yet).
 ## D-1732 Studio 테스트용 스포너: 한옥 마을 입구 안 (2026-11-18)
 - 사용자: "테스트용 스포너 한옥 마을 입구 안에 만들어줘".
 - ServerScriptService/FashionGame/StudioTestSpawn.server.lua: Studio Play에서만, ReplicatedStorage.FashionGame 속성 StudioTestSpawn = true면 모든 캐릭터가 광화문 바로 안쪽 마당(178, 5, 230)에 마을 쪽을 보고 나옴. 라이브 서버는 아무것도 안 함. 속성을 지우거나 false로 하면 원래 스포너(안내원 옆). Studio 속성은 켜 둠. 사진: docs/06_LOG/images/2026-11-18/studio_test_spawn_hanok.jpg.
+## D-1733 한옥 마을 안쪽 열기 (맵 경계를 마을 바깥 돌담 둘레로) (2026-11-18)
+- 사용자: "한옥 마을 돌담벽을 선으로 한옥마을 안쪽에 못 가게 막아 놓은 부분 풀어 줘. 바깥 도로는 더 못 가는 부분 유지."
+- 원인: 맵 경계(MapBoundary)가 x 277(z -50..387)과 z 387(x -415..277)로 마을 한가운데를 지나, 집들과 연못 정원(z 451..647)이 경계 밖이었음(위에서 본 사진, 빨간 선 = x 277: docs/06_LOG/images/2026-11-18/hanok_boundary_before.jpg).
+- 새 선: (277, -50) → (277, 52) → (560, 52) → (560, 665) → (52, 665) → (52, 387) → (-415, 387). 마을 바깥 돌담(x 80..548, z 182..648)을 둘러싸고, 바깥 도로 쪽(남쪽 z 52 아래, 동쪽 x 560 밖, 북쪽 z 665 밖)은 계속 막힘. build_hongdae_layout 다각형도 같게, 지금 장소는 tools/graybox/hanok_open_1118.lua로 고침(벽 2개 빼고 6개 추가).
+- Play에서 걸어 봄: 예전 선 두 곳은 지나감, 동쪽 x 560 · 북쪽 z 665에서는 멈춤.
