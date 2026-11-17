@@ -1696,6 +1696,7 @@ return {
 	["📸 이걸로 광고 사진"] = "📸 Dùng ảnh này cho quảng cáo",
 	["📸 촬영 {1} / {2}   ⏱ {3}초"] = "📸 Chụp {1} / {2}   ⏱ {3} giây",
 	["📸 캡처 저장"] = "📸 Lưu ảnh chụp",
+	["📸 사진 저장"] = "📸 Lưu ảnh",
 	["📸 포즈 다시 찍기 (지금 코디로)"] = "📸 Chụp lại tư thế (trang phục hiện tại)",
 	["📺 전광판"] = "📺 Màn hình lớn",
 	["📺 전광판 OFF"] = "📺 Màn hình TẮT",

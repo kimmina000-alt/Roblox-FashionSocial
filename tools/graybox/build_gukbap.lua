@@ -351,7 +351,9 @@ for lz = HZ0 + 6, Z1 - 5, 10 do
 	for lx = X0 + 6, KX - 3, 11 do
 		local d = part("Downlight", Vector3.new(0.1, 1.3, 1.3), CFrame.new(lx, top1 - 0.04, lz) * CFrame.Angles(0, 0, math.rad(90)), Color3.fromRGB(255, 250, 238), { shape = Enum.PartType.Cylinder, material = Enum.Material.Neon, nocol = true, noshadow = true })
 		nLight += 1
-		if nLight % 3 == 1 then
+		-- (D-1586, user 2026-11-17: "국밥집 입구에 흰빛 아예 지워") no light in the front row by the
+		-- door (x X0 + 6, z -304 / -314): they blew the doorway floor and people white at night
+		if nLight % 3 == 1 and not (lx == X0 + 6 and lz > -320) then
 			local l = Instance.new("SpotLight")
 			l.Face = Enum.NormalId.Left -- the cylinder's axis (local X) is turned to point down
 			l.Range = 28

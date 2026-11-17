@@ -5593,3 +5593,21 @@ Studio only (no script yet).
 - 사용자: "디제이 있을 때 노래 신청 후 디제이 나가면 신청 리스트로 리셋됨 신청 리스트는 차례대로 나오게 해".
 - 원인: ClubService onDJChanged가 새 DJ가 시작될 때마다 신청 목록을 비웠음(D-1359 전, DJ만 고르던 때의 코드). 라이브에서는 DJ가 나가면 2초 뒤 소유자 / DJGranted 계정이 다시 DJ가 되어 신청곡이 모두 지워짐.
 - 수정: DJ가 바뀌어도 목록을 비우지 않음. 신청곡은 들어온 순서대로 곡이 끝날 때마다 하나씩 나옴(DJ의 건너뛰기 / 바로 재생 / 우선예약은 그대로).
+
+
+## D-1585 (2026-11-17) VIP 계단 아래 문틀 왼쪽 기둥 보이게
+- User (shot from the top of the VIP stair, the frame's north post missing): "저기 조명선 이어지게 추가".
+- Since D-1583 only the hall-side frame is left; its north post (z -275.4 .. -275) stood inside WalkFill (z -275.5 .. -257) and was hidden. It now stands on WalkFill's face (z -275.9 .. -275.5) and the top bar ends there (z -290 .. -275.5), in club_locker_1103.lua and in the place. Play check from the stair top: the frame is whole. Place change: the user saves.
+
+## D-1586 (2026-11-17) 밤 번짐 줄이기, 국밥집 입구 조명 제거, 📸 사진 저장
+- User (four phone shots): "발광 심함 줄이기 / 국밥집 입구에 흰빛 아예 지워 보고 전후 사진 줘 / 사진 저장은 프레임 완성 사진 그 자체로 사이즈 줄이지 말고 원본으로 그 사람 사진첩에 저장 / 캡처 저장 말고 사진 저장으로 변경".
+- SeoulNightController night values: exposure 0.25 → 0.1, bloom intensity 1.25 → 0.6, size 32 → 16, threshold 1.35 → 2.4 (weaker than the day bloom 1 / 24 / 2): on phones the lit windows, road markings and white clothes had big halos.
+- 국밥집: the two front-row downlights by the door (x 54, z -304 / -314) carry no SpotLight any more (build_gukbap.lua, the place and ServerStorage.UserMapSnapshot's Gukbap): with them off the doorway floor and people stop glaring white (before / after shots in Play). Place change: the user saves.
+- Photo booth: the button is 📸 사진 저장 (16 languages added by hand next to 📸 캡처 저장; build.py was not used because it also drops other sessions' unused strings); the framed photo fills the screen height (sheet holder 100 %). Roblox can only save a screen capture to the device gallery, so the saved size is the screen's height, not the photo's own pixels.
+
+## D-1587 (2026-11-17) 도로 발광 없애기, 오후네컷 입구 선 얇게, 사진 저장은 세로로
+- User: "도로에 발광 다 없애기 / 오후네컷 입구 조명선 얇게 수정 / 사진 저장할 때 알아서 세로모드로 저장하고 원래 플레이어가 쓰던 화면으로 돌아가게 해".
+- SeoulNightController: road paint (LaneDash, LaneSolid, EdgeLine, CenterLine, JunctionLine, Crosswalk, StopLine, Arrow, ArrowHead, ArrowTurn, UTurnArrow, CrossingAhead, BikeLaneEdge, BikeCrossingLine; white plastic 240, not Neon) at 55 % of its colour at night; street lamp SpotLights 2.4 → 1.6.
+- NightGlowController: the 오후네컷 door frame line (FrameGlow, tag NightGlow) half as thick on each screen (0.2 → 0.1).
+- PhotoBoothController saveFramedPhoto: on touch devices PlayerGui.ScreenOrientation turns to Portrait for the shot (waits up to 2 s for the screen to be taller than wide), then goes back to the player's own setting. Not testable in Studio: check on a phone.
+- (later, user picked the sign: "오른쪽 아래 편의점 <- 이렇게 적힌 거") the OH24 stand sign is BannerFlag: SeoulNightController no longer makes it a self-lit sign at night (NOT_SIGNS) and sets its SurfaceGui LightInfluence to 1, so only the street light shows it.

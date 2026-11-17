@@ -44,10 +44,13 @@ local NIGHT = {
 	atmColor = Color3.fromRGB(70, 80, 125),
 	atmDecay = Color3.fromRGB(140, 95, 70), -- (the warm glow of the city low on the sky)
 	haze = 1.4,
-	exposure = 0.25,
-	bloomIntensity = 1.25,
-	bloomSize = 32,
-	bloomThreshold = 1.35,
+	-- (D-1586, user 2026-11-17 with phone shots: "발광 심함 줄이기": lit windows, road markings and
+	-- white clothes glared on phones) a softer night: less exposure and a weaker, smaller bloom
+	-- than by day (was 0.25 / 1.25 / 32 / 1.35)
+	exposure = 0.1,
+	bloomIntensity = 0.6,
+	bloomSize = 16,
+	bloomThreshold = 2.4,
 }
 -- night amount by the clock: 0 by day, 1 at night, eased over dusk 17.5-19.5 and dawn 5-6.5
 local function nightAmount(t: number): number
@@ -184,7 +187,7 @@ local function lamp(l: Instance)
 		l:SetAttribute("SeoulLamp", true)
 		l.Color = WARM
 		l.Range = 40
-		l.Brightness = 2.4
+		l.Brightness = 1.6 -- (D-1587: 2.4 lit the white road markings into a glare on phones)
 		l.Angle = 120
 	elseif l:IsA("SurfaceLight") and (parent.Name == "Lense" or parent.Name == "Union") and parent:IsDescendantOf(workspace) then
 		local street = parent:FindFirstAncestor("StreetLights")
@@ -204,6 +207,7 @@ end
 ---------------------------------------------------------------- 4. signs and shop windows
 local SIGN_WORDS = { "Sign", "Board", "Banner", "Logo", "Letter", "Band", "Awning", "Flag", "Header", "Halo", "Poster", "Sticker", "AdPanel", "Name" }
 local SHOP_GLASS = { ShopGlass = true, EntranceGlass = true, FrontGlass = true, PizzaGlass = true, PizzaDoorGlass = true, PizzaGlassNorth = true, DoorTransom = true }
+local NOT_SIGNS = { BannerFlag = true }
 type Sign = { gui: SurfaceGui, li: number, brightness: number }
 local signs: {Sign} = {}
 local shopLights: {SurfaceLight} = {}
@@ -212,6 +216,12 @@ local function addSign(g: Instance)
 	if not g:IsA("SurfaceGui") or string.sub(g.Name, 1, 12) == "NightFacade_" or g:GetAttribute("NightSign") then return end
 	local part = g.Parent
 	if not part or not part:IsA("BasePart") or g.LightInfluence < 0.05 then return end
+	-- (D-1587, user 2026-11-17: the OH24 "편의점 ←" stand sign glowed at night) not self-lit at all:
+	-- lit only by the street around it
+	if NOT_SIGNS[part.Name] then
+		g.LightInfluence = 1
+		return
+	end
 	local hit = false
 	for _, w in ipairs(SIGN_WORDS) do
 		if string.find(part.Name, w, 1, true) then hit = true break end
@@ -272,6 +282,36 @@ local function addShopGlass(p: Instance)
 		table.insert(shopLights, l)
 	end
 end
+
+-- (D-1587, user 2026-11-17: "도로에 발광 다 없애기") the white / yellow road paint is a little darker
+-- at night (it caught the lamps and bloomed white on phones)
+local ROAD_PAINT = {
+	LaneDash = true, LaneSolid = true, EdgeLine = true, CenterLine = true, JunctionLine = true,
+	Crosswalk = true, StopLine = true, Arrow = true, ArrowHead = true, ArrowTurn = true,
+	UTurnArrow = true, CrossingAhead = true, BikeLaneEdge = true, BikeCrossingLine = true,
+}
+local ROAD_NIGHT = 0.55 -- (the paint's colour times this at night)
+local roadPaint: {[BasePart]: Color3} = setmetatable({}, { __mode = "k" }) :: any
+local roadOn: boolean? = nil
+local function addRoad(p: Instance)
+	if not p:IsA("BasePart") or not ROAD_PAINT[p.Name] or roadPaint[p] then return end
+	roadPaint[p] = p.Color
+	if roadOn then p.Color = p.Color:Lerp(Color3.new(), 1 - ROAD_NIGHT) end
+end
+local function setRoad(on: boolean)
+	if roadOn == on then return end
+	roadOn = on
+	for p, day in pairs(roadPaint) do
+		if p.Parent then p.Color = if on then day:Lerp(Color3.new(), 1 - ROAD_NIGHT) else day end
+	end
+end
+task.spawn(function()
+	task.wait(3)
+	for _, d in ipairs(workspace:GetDescendants()) do addRoad(d) end
+	workspace.DescendantAdded:Connect(function(d)
+		if ROAD_PAINT[d.Name] then task.defer(addRoad, d) end
+	end)
+end)
 
 local shopsOn: boolean? = nil
 local function setShops(on: boolean)
@@ -387,5 +427,6 @@ RunService.Heartbeat:Connect(function()
 	checkIndoor()
 	sky(n)
 	setWindows(n > 0.5)
+	setRoad(n > 0.5)
 	setShops(n > 0.5)
 end)

@@ -1696,6 +1696,7 @@ return {
 	["📸 이걸로 광고 사진"] = "📸 Usa questa per l'annuncio",
 	["📸 촬영 {1} / {2}   ⏱ {3}초"] = "📸 Scatto {1} / {2}   ⏱ {3} s",
 	["📸 캡처 저장"] = "📸 Salva cattura",
+	["📸 사진 저장"] = "📸 Salva foto",
 	["📸 포즈 다시 찍기 (지금 코디로)"] = "📸 Rifai la posa (outfit attuale)",
 	["📺 전광판"] = "📺 Maxischermo",
 	["📺 전광판 OFF"] = "📺 Maxischermo OFF",

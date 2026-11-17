@@ -1549,6 +1549,7 @@ local function captureToGallery(hide: {GuiObject})
 	end
 end
 
+-- (D-1586, user 2026-11-17: "캡처 저장 말고 사진 저장으로 변경") the button says 📸 사진 저장.
 -- (D-1584, player feedback 2026-11-16 + user 2026-11-17: "오후네컷에서 찍은 프레임으로 된 사진 저장할
 -- 수 있는 기능 추가 / 현재 가방에서 사진 선택하고 사진 저장 누르면 그때 보고 있는 화면 저장됨")
 -- Roblox can only save a screen capture, so the framed photo is shown alone on a plain sheet over
@@ -1573,7 +1574,7 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 	local holder = Instance.new("Frame")
 	holder.AnchorPoint = Vector2.new(0.5, 0.5)
 	holder.Position = UDim2.fromScale(0.5, 0.5)
-	holder.Size = UDim2.fromScale(0.92, 0.92)
+	holder.Size = UDim2.fromScale(1, 1) -- (D-1586, user: "사이즈 줄이지 말고": the photo as tall as the screen)
 	holder.BackgroundTransparency = 1
 	holder.Parent = bg
 	local drawn = pcall(draw, holder)
@@ -1583,6 +1584,14 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 		return false
 	end
 	sheet.Parent = playerGui
+	-- (D-1587, user 2026-11-17: "사진 저장할 때 알아서 세로모드로 저장하고 원래 플레이어가 쓰던 화면으로
+	-- 돌아가게 해") on a phone the screen turns to portrait for the shot (the strip is tall, so it is
+	-- bigger), then back to the player's own orientation
+	local oldOrientation = playerGui.ScreenOrientation
+	local turned = false
+	if game:GetService("UserInputService").TouchEnabled then
+		turned = pcall(function() playerGui.ScreenOrientation = Enum.ScreenOrientation.Portrait end)
+	end
 	local hidden = {}
 	for _, other in ipairs(playerGui:GetChildren()) do
 		if other:IsA("ScreenGui") and other ~= sheet and other.Enabled then
@@ -1596,12 +1605,20 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 		done = true
 		for _, other in ipairs(hidden) do if other.Parent then other.Enabled = true end end
 		sheet:Destroy()
+		if turned then pcall(function() playerGui.ScreenOrientation = oldOrientation end) end
 		savingSheet = false
 	end
 	task.spawn(function()
 		-- the cuts are drawn one by one (PhotoRender's queue): wait for them, then two frames
 		local waited = 0
 		while PhotoRender.busy() and waited < 6 do waited += task.wait(0.1) end
+		if turned then
+			-- wait for the screen to have turned (taller than wide), at most 2 s
+			local cam = workspace.CurrentCamera
+			local t = 0
+			while cam and cam.ViewportSize.X > cam.ViewportSize.Y and t < 2 do t += task.wait(0.1) end
+			task.wait(0.3)
+		end
 		task.wait(0.3)
 		RunService.RenderStepped:Wait()
 		RunService.RenderStepped:Wait()
@@ -1617,7 +1634,7 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 			finish()
 			toast("이 기기에서는 캡처 저장을 할 수 없어요. (Studio에서는 동작하지 않을 수 있어요)")
 		end
-		task.delay(3, finish)
+		task.delay(if turned then 5 else 3, finish)
 	end)
 	return true
 end
@@ -1656,7 +1673,7 @@ local function closeAllFlow()
 	Popups.closed("PhotoResult")
 end
 
-resultButton("📸 캡처 저장", COLORS.pink, 1, function()
+resultButton("📸 사진 저장", COLORS.pink, 1, function()
 	-- (D-1584) the finished photo in its frame
 	local shots = state.shots
 	if shots and state.picks and #state.picks > 0 then
@@ -1900,7 +1917,7 @@ local function viewerButton(label: string, color: Color3, order: number): TextBu
 		ZIndex = 22,
 	}, viewerButtons, 12)
 end
-local viewerCapture = viewerButton("📸 캡처 저장", COLORS.pink, 1)
+local viewerCapture = viewerButton("📸 사진 저장", COLORS.pink, 1)
 local viewerDelete = viewerButton("삭제", COLORS.danger, 2)
 local viewerClose = viewerButton("닫기", COLORS.card, 3)
 -- 🤚 손에 들기: the photo as an item in the hand (it was taken out on every tap in 내 앨범)
