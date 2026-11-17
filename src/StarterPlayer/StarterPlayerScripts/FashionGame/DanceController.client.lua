@@ -396,7 +396,7 @@ end)
 -- 같이 추기 status pill (under the banner while synced)
 local syncPill = create("Frame", {
 	Name = "SyncPill",
-	AnchorPoint = Vector2.new(0.5, 0),
+	AnchorPoint = Vector2.new(0.5, 1), -- (D-1767: at the bottom)
 	Size = UDim2.fromOffset(330, 34),
 	BackgroundColor3 = Color3.fromRGB(10, 40, 60),
 	BackgroundTransparency = 0.1,
@@ -628,6 +628,9 @@ local function layoutPanel()
 	end
 	-- (D-906 had the song banner at the left, half way down; D-926 above)
 	place(syncPill, 330, top)
+	-- (D-1767, user 2026-11-18: "누구랑 같이 추기도 아래로 내려") the "🔗 ○○님과 같이 추기" pill at the bottom middle,
+	-- over the skip vote card (bottom - 100) and the hotbar, like the other notices
+	syncPill.Position = UDim2.new(0, syncPill.Position.X.Offset, 1, -138)
 	place(playerCard, 290, top + 38)
 end
 layoutPanel()
