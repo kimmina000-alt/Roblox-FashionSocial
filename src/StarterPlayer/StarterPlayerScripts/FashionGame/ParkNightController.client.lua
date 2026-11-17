@@ -178,7 +178,12 @@ local function shell(seed: number, at: Vector3, height: number, color: Color3, d
 		bang.SoundId = BANG
 		-- (D-1728, user 2026-11-18: "폭죽 소리 1/4로 줄이기": 0.8 → 0.2; D-1729: "폭죽 소리 반으로 더 줄이고 환호성 끄는
 		-- 거에 폭죽 소리도 넣어": 0.1, and none with the ☰ menu's switch off, attribute MuteCheer)
-		if Players.LocalPlayer:GetAttribute("MuteCheer") == true then bang.Volume = 0 else bang.Volume = 0.1 end
+		-- (D-1737, user 2026-11-18: "놀이공원 폭죽소리 놀이공원 안에서만 들리게 해") heard only while this screen's camera
+		-- is inside the park (its walls: x -280..-50, z -1460..-277, as ParkGatePassController)
+		local camera = workspace.CurrentCamera
+		local eye = if camera then camera.CFrame.Position else Vector3.zero
+		local inPark = eye.X > -280 and eye.X < -50 and eye.Z > -1460 and eye.Z < -277
+		if Players.LocalPlayer:GetAttribute("MuteCheer") == true or not inPark then bang.Volume = 0 else bang.Volume = 0.1 end
 		bang.PlaybackSpeed = 0.9 + (seed % 7) * 0.03
 		bang.RollOffMode = Enum.RollOffMode.InverseTapered
 		bang.RollOffMinDistance = 60

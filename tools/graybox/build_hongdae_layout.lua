@@ -580,7 +580,8 @@ local CURB = 0.6
 -- tools/graybox/road_paint_1118.lua recolours the markings already in the place
 -- (D-1735, user 2026-11-18: "도로에 그려진 흰색 선이랑 노란색 선들 채도 65% 줄여") saturation x 0.35 (same hue and
 -- brightness): white (192, 192, 188) → (192, 192, 191), yellow (200, 168, 78) → (200, 189, 157)
-local WHITE = Color3.fromRGB(192, 192, 191)
+-- (D-1736, user 2026-11-18: "흰색은 그레이 쪽으로 가 / 명도 80%로 수정") white → a plain grey at 80 % of its brightness
+local WHITE = Color3.fromRGB(154, 154, 154)
 local YELLOW = Color3.fromRGB(200, 189, 157)
 local BLUE = Color3.fromRGB(62, 92, 150)
 local SIGNS = { Color3.fromRGB(230, 60, 70), Color3.fromRGB(40, 120, 220), Color3.fromRGB(250, 200, 40), Color3.fromRGB(60, 180, 90), Color3.fromRGB(240, 120, 40) }
