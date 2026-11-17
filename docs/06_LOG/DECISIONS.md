@@ -5503,3 +5503,9 @@ Studio only (no script yet).
 
 ## D-1592 (2026-11-17) 손 스파클러를 아이템 상점 맨 위로
 - User: "손 스파클러 제일 위로 수정". ClubShopController: the 💰 30 hand sparkler card is the first card of the 불꽃 아이템 tab (before 테이블 스파클러).
+
+## D-1593 (2026-11-17) 손 스파클러: 확인창 없이 구매, 불꽃 더 풍성하게, 🔥 아이콘만
+- User: "손 스파클러 확인창 삭제 / 스파클러 네모 친 곳에 있는 동그라미 사이즈 줄이고 동그라미 속에 있는 거 수 늘리기. 빈약해 보임. 버켓에 꽂는 것도 같은 거면 함께 수정 / 불 붙이기 삭제하고 앞에 불 모양 아이콘만 남기기. 불 모양 아이콘 흰색 외곽선 주고 배경 지우기".
+- ClubShopController: the 💰 30 card buys at once (no confirm window).
+- SparkleService: the white-hot tip ball 0.22 → 0.1 on both the hand sparkler and the bucket / table sparklers; more sparks: the small fountain 240 → 600 a second (bucket / table), the hand sparkler 160 → 480.
+- HandSparklerController: the light button is only 🔥 (60 x 60), no background, a white UIStroke round the glyph.

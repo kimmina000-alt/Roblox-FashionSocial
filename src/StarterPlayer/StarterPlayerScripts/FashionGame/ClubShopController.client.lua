@@ -609,16 +609,10 @@ local function buildItemShop()
 		local handPrice = ClubConfig.HandSparklerCoins
 		NeonShopUI.itemCard(list2, nextOrder(), "✨", Color3.fromRGB(200, 140, 40), "손 스파클러",
 			"손에 들고 60초 동안 춤춰요", "💰 " .. handPrice, nil, "💰 구매하기", COIN, function()
-				showModal("✨ 손 스파클러 · 코인으로 사기",
-					string.format("%d 코인을 써서 손 스파클러를 살까요?\n(지금 %d 코인)", handPrice, player:GetAttribute("Coins") or 0),
-					{
-						{ name = "Cancel", text = "취소", onClick = function() end },
-						{ name = "Buy", text = "💰 " .. tostring(handPrice), color = COIN, onClick = function()
-							local ok, message = ClubShop:InvokeServer("BuyHandSparklerCoins", nil)
-							toast(tostring(message or (if ok then "" else "살 수 없어요.")))
-							if ok then closeShops() end
-						end },
-					})
+				-- (D-1593, user 2026-11-17: "손 스파클러 확인창 삭제") bought at once, no confirm window
+				local ok, message = ClubShop:InvokeServer("BuyHandSparklerCoins", nil)
+				toast(tostring(message or (if ok then "" else "살 수 없어요.")))
+				if ok then closeShops() end
 			end, look("HandSparkler"))
 		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(120, 60, 200), "테이블 스파클러",
 			"들고 테이블 위 병(버킷)을 누르면 30초 연출", rs("Sparkler1"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler1") end, look("Sparkler1"))

@@ -1,5 +1,5 @@
 --!strict
--- "🔥 불 붙이기" (user 2026-10-27): holding an unlit hand sparkler shows this
+-- "🔥" (user 2026-10-27, words dropped D-1593): holding an unlit hand sparkler shows this
 -- button above the hotbar; pressing it lights the sparkler (SparkleService
 -- "LightHandSparkler"), then the button goes. The sparkler burns down on its own.
 
@@ -15,20 +15,27 @@ gui.ResetOnSpawn = false
 gui.DisplayOrder = 30
 gui.Parent = player:WaitForChild("PlayerGui")
 
+-- (D-1593, user 2026-11-17: "불 붙이기 삭제하고 앞에 불 모양 아이콘만 남기기. 불 모양 아이콘 흰색 외곽선 주고
+-- 배경 지우기") only the 🔥, no words, no background, a white outline round it
 local button = Instance.new("TextButton")
 button.Name = "Light"
 button.AnchorPoint = Vector2.new(0.5, 1)
 button.Position = UDim2.new(0.5, 0, 1, -110)
-button.Size = UDim2.fromOffset(170, 50)
-button.BackgroundColor3 = Color3.fromRGB(255, 120, 40)
-button.Text = "🔥 불 붙이기"
+button.Size = UDim2.fromOffset(60, 60)
+button.BackgroundTransparency = 1
+button.Text = "🔥"
 button.TextColor3 = Color3.new(1, 1, 1)
 button.TextScaled = true
 button.Font = Enum.Font.GothamBlack
 button.Visible = false
 button.Parent = gui
-Instance.new("UICorner", button).CornerRadius = UDim.new(0, 14)
-do local p = Instance.new("UIPadding") p.PaddingTop = UDim.new(0, 8) p.PaddingBottom = UDim.new(0, 8) p.Parent = button end
+do
+	local stroke = Instance.new("UIStroke")
+	stroke.Color = Color3.new(1, 1, 1)
+	stroke.Thickness = 2.5
+	stroke.ApplyStrokeMode = Enum.ApplyStrokeMode.Contextual -- (round the glyph)
+	stroke.Parent = button
+end
 
 local function held(): Tool?
 	local tool = player.Character and player.Character:FindFirstChildOfClass("Tool")
