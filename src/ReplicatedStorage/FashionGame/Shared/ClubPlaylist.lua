@@ -702,12 +702,12 @@ M.Playlist = {
 	{ channel = "K-POP", title = "내 이름을 불러줘(Call My Name)-투어스(TWS)", soundId = 129638210426239, length = 154.084, fileSpeed = 1.0708,
 		lab = { speed = 1, tempo = 0.934, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = 0, mid = 0, high = 0, engine = "sound" },
 		-- (D-1603, user 2026-11-17: "내 이름을 불러 줘 안무 추가" + 21 ids) practice video lAf01WUYtf8: video = song + 1.25 s (its sound against the
-		-- original mp3, 0.96-0.98 at the start and end), `at` = clip start - 1.25 (clip 1 `from = 1.25`); clip 8 upload 94288647679069 is a copy of
-		-- 7 (and 6.97 s for a 9.01 s clip): left out (default dance 57.7-66.8); 101121496904670 = a second upload of 13 (joints within 0.3°)
+		-- original mp3, 0.96-0.98 at the start and end), `at` = clip start - 1.25 (clip 1 `from = 1.25`); clip 8 = re-upload 90921923486342 (D-1658; the first, 94288647679069, was a copy of
+		-- 7, 6.97 s for a 9.01 s clip); 101121496904670 = a second upload of 13 (joints within 0.3°)
 		choreo = {
 			{ id = 84847937406843, at = 0.00, from = 1.25 }, { id = 88993457159273, at = 11.76, blend = 0.47 }, { id = 74885576782093, at = 20.74, blend = 0.46 },
 			{ id = 132355350514600, at = 29.75, blend = 1, slowIn = { 0.4, 0.4 } }, { id = 83828094822862, at = 33.75, blend = 1 }, { id = 107391937407645, at = 41.26, blend = 0.65 },
-			{ id = 120616516576434, at = 50.74, blend = 0.7 }, { id = 73429358232249, at = 66.75, blend = 0.08 }, { id = 88595092254451, at = 70.76, blend = 0.67 },
+			{ id = 120616516576434, at = 50.74, blend = 0.7 }, { id = 90921923486342, at = 57.74, blend = 0.5 }, { id = 73429358232249, at = 66.75, blend = 1 }, { id = 88595092254451, at = 70.76, blend = 0.67 },
 			{ id = 133275108218481, at = 73.76, blend = 1 }, { id = 107243018629607, at = 77.76, blend = 1 }, { id = 76545761433830, at = 81.77, blend = 1 },
 			{ id = 137670042338904, at = 87.74, blend = 1 }, { id = 81624243507898, at = 100.52, slowIn = { 0.4, 0.4 } }, { id = 128327230683798, at = 114.77, blend = 0.48 },
 			{ id = 107246799142521, at = 116.73, blend = 0.77 }, { id = 100667532281425, at = 124.74, blend = 0.99 }, { id = 122207092339520, at = 135.05 },
