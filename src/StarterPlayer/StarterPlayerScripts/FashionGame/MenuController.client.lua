@@ -106,7 +106,8 @@ for i, badge in ipairs({ { "Founding", "FOUNDING MEMBER" }, { "Staff", "알바�
 end
 -- (D-1709, user 2026-11-18: "환호성 끄기 버튼 추가") 놀이기구 환호성: the vikings' / jumping star's cheer
 -- (RideWindController) on this screen; pink = heard (attribute MuteCheer = off), saved like the others
-switchRow(8, "🎢 놀이기구 환호성", "MuteCheer", function(mute) remote:InvokeServer("MuteCheer", mute) end)
+-- (D-1729: the park's firework bangs too, so the row says so)
+switchRow(8, "🎢 환호성 · 폭죽 소리", "MuteCheer", function(mute) remote:InvokeServer("MuteCheer", mute) end)
 -- (D-1594, user 2026-11-17: "ui 숨기기 버튼 추가") 🙈 UI 숨기기: everything on the screen goes (HideUi), a 👁
 -- button at the top right brings it back
 do

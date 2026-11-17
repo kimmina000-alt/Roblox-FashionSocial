@@ -5848,3 +5848,6 @@ Studio only (no script yet).
 - 사용자: "지금 접속할 때마다 출석 이벤트 창 떠". 원인: PlayerDataService가 불러올 때 wallet.opening을 n / last / title만 남기고 다시 만들어, D-1691의 shownDay(그날 창을 보여 준 이벤트 날)가 매번 사라짐 → 매 접속이 "그날 첫 접속". shownDay도 남기게 고침. (Studio에서는 FirstGoalTest가 켜져 있으면 테스트로 매번 뜸, D-1690.)
 ## D-1728 폭죽 소리 1/4 (2026-11-18)
 - 사용자: "폭죽 소리 1/4로 줄이기". ParkNightController 볼륨 0.8 → 0.2.
+## D-1729 폭죽 소리 반 더 줄이기 + 환호성 스위치로 폭죽도 끄기 (2026-11-18)
+- 사용자: "폭죽 소리 반으로 더 줄이고 환호성 끄는 거에 폭죽 소리도 넣어".
+- ParkNightController 폭죽 볼륨 0.2 → 0.1, ☰ 메뉴 스위치가 꺼져 있으면(MuteCheer) 0. 스위치 이름 "🎢 놀이기구 환호성" → "🎢 환호성 · 폭죽 소리", 투어 ☰ 단계 문구도 "놀이공원 환호성과 폭죽 소리를 끄거나". 두 문구 16개 언어 번역(tools/i18n/tr/p19_cheer1118.tsv → build.py).

@@ -13,6 +13,7 @@
 local CollectionService = game:GetService("CollectionService")
 local Lighting = game:GetService("Lighting")
 local RunService = game:GetService("RunService")
+local Players = game:GetService("Players")
 local TweenService = game:GetService("TweenService")
 
 local NIGHT_FROM, NIGHT_TO = 18, 6
@@ -175,7 +176,9 @@ local function shell(seed: number, at: Vector3, height: number, color: Color3, d
 		local bang = Instance.new("Sound")
 		bang.Name = "FireworkBang"
 		bang.SoundId = BANG
-		bang.Volume = 0.2 -- (D-1728, user 2026-11-18: "폭죽 소리 1/4로 줄이기": 0.8 → 0.2)
+		-- (D-1728, user 2026-11-18: "폭죽 소리 1/4로 줄이기": 0.8 → 0.2; D-1729: "폭죽 소리 반으로 더 줄이고 환호성 끄는
+		-- 거에 폭죽 소리도 넣어": 0.1, and none with the ☰ menu's switch off, attribute MuteCheer)
+		if Players.LocalPlayer:GetAttribute("MuteCheer") == true then bang.Volume = 0 else bang.Volume = 0.1 end
 		bang.PlaybackSpeed = 0.9 + (seed % 7) * 0.03
 		bang.RollOffMode = Enum.RollOffMode.InverseTapered
 		bang.RollOffMinDistance = 60

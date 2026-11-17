@@ -73,7 +73,7 @@ local STEPS: {Step} = {
 	{ title = "♪ 음악 · 춤", text = "클럽에 들어가지 않아도 클럽에서 재생 중인 노래를 들을 수 있어. 예쁜 야외 배경을 무대 삼아 아이돌처럼 춤출 수 있어.", button = 1, quiet = true },
 	{ title = "💬 의견 보내기", text = "불편한 점이나 바라는 점을 개발자에게 보낼 수 있어.", button = 2, quiet = true },
 	-- (D-1722, user 2026-11-18: "메뉴 버튼에 대한 설명도 넣어야겠다") the ☰ menu (TopBar order 20)
-	{ title = "☰ 메뉴", text = "닉네임과 칭호를 보이거나 숨기고, 놀이기구 환호성을 끄거나 화면 버튼을 잠깐 숨길 수 있어.", button = 20, quiet = true },
+	{ title = "☰ 메뉴", text = "닉네임과 칭호를 보이거나 숨기고, 놀이공원 환호성과 폭죽 소리를 끄거나 화면 버튼을 잠깐 숨길 수 있어.", button = 20, quiet = true },
 	{ title = "", text = "그럼 오후에서 즐거운 시간 보내!", done = "놀러가기" },
 }
 
