@@ -5605,3 +5605,4 @@ Studio only (no script yet).
 - SeoulNightController: road paint (LaneDash, LaneSolid, EdgeLine, CenterLine, JunctionLine, Crosswalk, StopLine, Arrow, ArrowHead, ArrowTurn, UTurnArrow, CrossingAhead, BikeLaneEdge, BikeCrossingLine; white plastic 240, not Neon) at 55 % of its colour at night; street lamp SpotLights 2.4 → 1.6.
 - NightGlowController: the 오후네컷 door frame line (FrameGlow, tag NightGlow) half as thick on each screen (0.2 → 0.1).
 - PhotoBoothController saveFramedPhoto: on touch devices PlayerGui.ScreenOrientation turns to Portrait for the shot (waits up to 2 s for the screen to be taller than wide), then goes back to the player's own setting. Not testable in Studio: check on a phone.
+- (later, user picked the sign: "오른쪽 아래 편의점 <- 이렇게 적힌 거") the OH24 stand sign is BannerFlag: SeoulNightController no longer makes it a self-lit sign at night (NOT_SIGNS) and sets its SurfaceGui LightInfluence to 1, so only the street light shows it.

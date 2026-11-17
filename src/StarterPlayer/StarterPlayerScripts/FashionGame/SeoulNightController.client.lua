@@ -207,6 +207,7 @@ end
 ---------------------------------------------------------------- 4. signs and shop windows
 local SIGN_WORDS = { "Sign", "Board", "Banner", "Logo", "Letter", "Band", "Awning", "Flag", "Header", "Halo", "Poster", "Sticker", "AdPanel", "Name" }
 local SHOP_GLASS = { ShopGlass = true, EntranceGlass = true, FrontGlass = true, PizzaGlass = true, PizzaDoorGlass = true, PizzaGlassNorth = true, DoorTransom = true }
+local NOT_SIGNS = { BannerFlag = true }
 type Sign = { gui: SurfaceGui, li: number, brightness: number }
 local signs: {Sign} = {}
 local shopLights: {SurfaceLight} = {}
@@ -215,6 +216,12 @@ local function addSign(g: Instance)
 	if not g:IsA("SurfaceGui") or string.sub(g.Name, 1, 12) == "NightFacade_" or g:GetAttribute("NightSign") then return end
 	local part = g.Parent
 	if not part or not part:IsA("BasePart") or g.LightInfluence < 0.05 then return end
+	-- (D-1587, user 2026-11-17: the OH24 "편의점 ←" stand sign glowed at night) not self-lit at all:
+	-- lit only by the street around it
+	if NOT_SIGNS[part.Name] then
+		g.LightInfluence = 1
+		return
+	end
 	local hit = false
 	for _, w in ipairs(SIGN_WORDS) do
 		if string.find(part.Name, w, 1, true) then hit = true break end
