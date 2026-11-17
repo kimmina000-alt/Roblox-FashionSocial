@@ -107,15 +107,32 @@ end
 local function release()
 	if not saved then return end
 	local camera = workspace.CurrentCamera
-	camera.CameraType = saved.type
+	-- (D-1762) never handed back as Scriptable: that is this camera's own mode (taken over from a
+	-- moment when something else held the camera, it left the player unable to turn the view)
+	camera.CameraType = if saved.type == Enum.CameraType.Scriptable then Enum.CameraType.Custom else saved.type
 	camera.FieldOfView = saved.fov
-	-- (the subject is left alone: ChoreoController may hold its own anchor)
+	-- (the subject is left alone: ChoreoController may hold its own anchor; D-1762: unless it is gone,
+	-- then the player's own humanoid, or the camera follows nothing and cannot be turned)
+	local subject = camera.CameraSubject
+	if not subject or not subject:IsDescendantOf(game) then
+		local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
+		if humanoid then camera.CameraSubject = humanoid end
+	end
 	saved, front, smoothAim, lastShot, bodyScale, reach = nil, nil, nil, nil, nil, nil
 end
 
 RunService:BindToRenderStep("StageCamera", Enum.RenderPriority.Camera.Value + 2, function(dt)
 	local track, song = wanted()
 	if not track or not song then
+		release()
+		return
+	end
+	local t = songTime(track)
+	local index, shot = ClubCamera.shotAt(song, t)
+	-- (D-1762, user 2026-11-18: "카메라 켜 놓고 춤추다가 다음 신청곡 넘어가서 그런가 화면 회전 안 되는 현상 있어") no shot
+	-- at this moment (a new song before its first shot, past its last): the game camera back, not a
+	-- frozen Scriptable one the player cannot turn
+	if not shot then
 		release()
 		return
 	end
@@ -138,9 +155,6 @@ RunService:BindToRenderStep("StageCamera", Enum.RenderPriority.Camera.Value + 2,
 		local flatLook = Vector3.new(look.X, 0, look.Z)
 		front = if flatLook.Magnitude > 0.2 then flatLook.Unit else Vector3.new(0, 0, -1)
 	end
-	local t = songTime(track)
-	local index, shot = ClubCamera.shotAt(song, t)
-	if not shot then return end
 	local view = ClubCamera.view(shot, t, ClubCamera.shotEnd(song, index))
 	-- the shot sizes are for an avatar 5.5 studs tall: scale them to this
 	-- one (feet to the top of the head, read at each cut so the dance's

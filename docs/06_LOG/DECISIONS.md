@@ -5949,3 +5949,8 @@ Studio only (no script yet).
 - 손목 도구: hand_moves.py의 기본 모델 경로가 지워진 다른 세션 임시 폴더였음 → 사용자 허락을 받아 pose_landmarker_full.task(storage.googleapis.com/mediapipe-models)를 tools/choreo/centercut/models에 받고(git 제외 폴더), 기본 경로를 그 폴더로 바꿈.
 - guard_scan 조건(GUARD / STALL)은 Play 전체 스캔에 같이 넣음: GUARD 없음, STALL 1곳은 위처럼 고침.
 - 몸 바꾸기(노래 21.5초에 ApplyDescription): 0.5~1.4초 뒤 관절 차이 0.1~4.0°(같은 몸 두 번 잰 차이 0.4~9.8°와 같은 수준).
+
+## D-1762 무대 카메라를 켠 채 곡이 바뀐 뒤 화면 회전이 안 되던 것 (2026-11-18)
+- 사용자: "카메라 켜 놓고 춤추다가 다음 신청곡 넘어가서 그런가 화면 회전 안 되는 현상 있어".
+- StageCameraController: (1) 지금 찍을 장면이 없으면(곡이 막 바뀌어 곡 시간이 잠깐 앞으로 갈 때 등) 카메라를 Scriptable로 바꿔 놓고 아무것도 안 하던 것 → 카메라를 넘겨받기 전에 장면부터 보고, 없으면 게임 카메라를 돌려줌. (2) 돌려줄 때 처음 넘겨받은 상태가 Scriptable이었으면 Custom으로. (3) 따라가던 대상(안무의 카메라 기준점)이 사라진 채면 내 캐릭터로.
+- Studio(혼자): 무대 카메라 + 안무 따라 추기 중 카메라 곡 → 우선예약 곡으로 넘기기: 4초 동안 계속 촬영, 카메라 없는 곡이나 카메라 끄기 → Custom, 대상 = 캐릭터. 원래 증상은 Studio에서 그대로 재현하지 못함.
