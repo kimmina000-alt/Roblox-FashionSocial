@@ -497,14 +497,18 @@ RunService.RenderStepped:Connect(function()
 	-- the 🎵 sits just in front of the title (centred in the banner; the title
 	-- of a choreography song is shown without its ♪, DanceController)
 	local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
-	choreoButton.Visible = shown and track ~= nil and track.choreo ~= nil
+	-- (D-1665, user 2026-11-17: "안무 없는 곡 나올 때는 안무, 카메라 아이콘 임시로 그려서 보여 주기") while the
+	-- club tutorial points at them (LocalPlayer attribute TutorialIcons, ClubTutorialController) the 🎵 and
+	-- the 🎥 show for any song
+	local demo = player:GetAttribute("TutorialIcons") == true
+	choreoButton.Visible = shown and track ~= nil and (track.choreo ~= nil or demo)
 	if choreoButton.Visible then
 		local inner = banner.AbsoluteSize.X - 68
 		local textLeft = math.max((inner - banner.TextBounds.X) / 2, 24)
 		choreoButton.Position = UDim2.new(0, textLeft - 6, 0.5, 0)
 	end
 	-- (D-896) the 🎥 just after the title
-	camButton.Visible = shown and track ~= nil and ClubCamera.forTrack(track) ~= nil
+	camButton.Visible = shown and track ~= nil and (ClubCamera.forTrack(track) ~= nil or demo)
 	if camButton.Visible then
 		local inner = banner.AbsoluteSize.X - 68
 		local textRight = math.min((inner + banner.TextBounds.X) / 2, inner - 24)

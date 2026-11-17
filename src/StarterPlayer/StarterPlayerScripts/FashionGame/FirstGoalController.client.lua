@@ -93,52 +93,92 @@ local function recommendTarget(): GuiObject?
 	end
 	return TopBar.button(4)
 end
-local OUTFIT: Step = { icon = "👗", title = "추천 옷 입기", text = "👗 카탈로그 → '추천'에서 마음에 드는 옷의 '입기'를 눌러 보세요!",
-	target = recommendTarget,
-	done = function() return player:GetAttribute("LookWornAt") ~= lookAt end }
+-- (D-1664, user 2026-11-17: "추천 옷 입기 -> 카탈로그 이용하기 / 내용: 카탈로그를 눌러 마음에 드는 옷으로
+-- 갈아입어 보세요. / 카탈로그에 가깝게 붙여서 위치 / 카탈로그에서 옷 입고 카탈로그 창 끄면 클럽 가기 띄우기")
+-- any clothes from the catalog count now (not only a 추천 look): done once the outfit changed and the
+-- catalog window is shut again. The ring is on 👗 while the catalog is shut; while it is open the card
+-- sits right beside the catalog window, no ring.
+local function catalogPanel(): GuiObject?
+	local b = recommendButton
+	if not (b and b.Parent) then
+		local found = playerGui:FindFirstChild("Discovery_1", true)
+		b = if found and found:IsA("GuiObject") then found else nil
+		recommendButton = b
+	end
+	if not b then return nil end
+	-- the catalog window: the frame right under its ScreenGui that holds the 추천 button
+	local o: Instance = b
+	while o.Parent and not o.Parent:IsA("LayerCollector") do o = o.Parent end
+	local gui = o.Parent
+	if not (gui and gui:IsA("LayerCollector") and gui.Enabled and o:IsA("GuiObject") and o.Visible) then return nil end
+	return if o.AbsoluteSize.X > 0 then o else nil
+end
+local outfitChanged = false
+local OUTFIT: Step = { icon = "👗", title = "카탈로그 이용하기", text = "카탈로그를 눌러 마음에 드는 옷으로 갈아입어 보세요.",
+	target = function() return if catalogPanel() then nil else TopBar.button(4) end,
+	done = function() return outfitChanged and catalogPanel() == nil end }
+local function watchOutfit(character: Model)
+	local function changed(child: Instance)
+		if child:IsA("Accessory") or child:IsA("Clothing") or child:IsA("ShirtGraphic") or child:IsA("BodyColors") then
+			if catalogPanel() then outfitChanged = true end
+		end
+	end
+	character.ChildAdded:Connect(changed)
+	character.ChildRemoved:Connect(changed)
+end
+if player.Character then watchOutfit(player.Character) end
+player.CharacterAdded:Connect(watchOutfit)
+player:GetAttributeChangedSignal("LookWornAt"):Connect(function() outfitChanged = true end)
 local DAY: {Step} = {
 	OUTFIT,
 	{ icon = "📸", title = "오후네컷에서 사진 찍기", text = "빛나는 길을 따라 오후네컷에 가서 사진 한 장 찍어 보세요!",
 		place = function() return GuideConfig.Places.photo.at end, placeName = "오후네컷",
 		done = function() return player:GetAttribute("PhotoSavedAt") ~= photoAt end },
 }
+-- the dance floor in front of the DJ stage (ClubFloorFX's tiles)
+local DANCE_FLOOR = Vector3.new(128, -24, -204)
 local NIGHT: {Step} = {
 	OUTFIT,
-	{ icon = "🎧", title = "클럽 가기", text = "밤에만 여는 OHU CLUB! 빛나는 길을 따라 들어가 보세요.",
-		place = function() return GuideConfig.Places.club.at end, placeName = "OHU CLUB",
-		done = function() return player:GetAttribute("InClubLocal") == true end },
+	-- (D-1664, user: "클럽 가기 -> 춤추러 가기 / 내용 그대로 / 춤추는 곳까지 가면 안내 끝") the line goes
+	-- to the club's door, then (inside) on to the dance floor; done on the dance floor
+	{ icon = "🎧", title = "춤추러 가기", text = "밤에만 여는 OHU CLUB! 빛나는 길을 따라 들어가 보세요.",
+		place = function()
+			if player:GetAttribute("InClubLocal") == true then return DANCE_FLOOR end
+			return GuideConfig.Places.club.at
+		end, placeName = "OHU CLUB",
+		done = function()
+			local r = root()
+			if not r then return false end
+			local p = r.Position
+			return p.X > 100 and p.X < 156 and p.Z > -254 and p.Z < -154 and p.Y > -32 and p.Y < -8
+		end },
 }
 
 ---------------------------------------------------------------- the card, the line, the ring
 local gui = create("ScreenGui", { Name = "FirstGoalGui", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 30, Enabled = false }, playerGui)
 local card = create("Frame", {
-	Position = UDim2.fromOffset(12, 80), Size = UDim2.fromOffset(280, 92), BackgroundColor3 = BLACK,
+	Position = UDim2.fromOffset(12, 80), Size = UDim2.fromOffset(280, 74), BackgroundColor3 = BLACK,
 	BackgroundTransparency = 0.25,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 16) }, card)
 local stroke = create("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.2 }, card)
-local head = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 8), Size = UDim2.new(1, -50, 0, 22), BackgroundTransparency = 1,
-	Font = Enum.Font.GothamBlack, TextSize = 15, TextColor3 = Color3.fromRGB(200, 200, 200), TextXAlignment = Enum.TextXAlignment.Left,
-	Text = "🎯 첫 목표",
-}, card)
+-- (D-1664, user: "첫 목표 1/2 삭제") no header line: the title at the top
 local title = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 30), Size = UDim2.new(1, -28, 0, 24), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(14, 10), Size = UDim2.new(1, -50, 0, 24), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBlack, TextSize = 18, TextColor3 = WHITE, TextXAlignment = Enum.TextXAlignment.Left,
 	TextScaled = false, Text = "",
 }, card)
 local body = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 54), Size = UDim2.new(1, -28, 0, 34), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(14, 36), Size = UDim2.new(1, -28, 0, 34), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBold, TextSize = 13, TextColor3 = Color3.fromRGB(230, 230, 230), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
+-- (D-1664, user: "엑스에 동그라미 삭제") a plain X, no circle
 local close = create("TextButton", {
-	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -8, 0, 6), Size = UDim2.fromOffset(28, 28),
-	BackgroundColor3 = BLACK, Text = "X", Font = Enum.Font.GothamBlack, TextSize = 14,
-	TextColor3 = WHITE, AutoButtonColor = true,
+	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -6, 0, 6), Size = UDim2.fromOffset(28, 28),
+	BackgroundTransparency = 1, Text = "X", Font = Enum.Font.GothamBlack, TextSize = 16,
+	TextColor3 = WHITE, AutoButtonColor = false,
 }, card)
-create("UICorner", { CornerRadius = UDim.new(1, 0) }, close)
-create("UIStroke", { Color = WHITE, Thickness = 1.5, Transparency = 0.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, close)
 -- (D-1539) a goal that asks to press a top bar button (👗, ♪): the card right under that button
 -- with a pointer up to it (Heartbeat below); other goals: at the left under the bar as before
 local pointer = NearButton.pointer(card)
@@ -154,29 +194,71 @@ local ring = create("Frame", { BackgroundTransparency = 1, Visible = false, ZInd
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, ring)
 local ringStroke = create("UIStroke", { Color = WHITE, Thickness = 4 }, ring)
 
+-- (D-1664, user 2026-11-17: "바닥에 선 실선으로 표현") the way to the place is a solid white line lying on
+-- the ground along a walkable path (PathfindingService; a straight line on the ground if no path is
+-- found), drawn again as the player walks; the sign with the distance floats over the place.
+local PathfindingService = game:GetService("PathfindingService")
 local marker: BasePart? = nil
-local from: Attachment? = nil
 local sign: BillboardGui? = nil
 local signLabel: TextLabel? = nil
+local lineFolder: Folder? = nil
+local lineTarget: Vector3? = nil
+local drawnFrom: Vector3? = nil
+local drawing = false
 local function clearLine()
 	if marker then marker:Destroy() end -- (the sign goes with it)
-	if from then from:Destroy() end
-	marker, from, sign, signLabel = nil, nil, nil, nil
+	if lineFolder then lineFolder:Destroy() end
+	marker, sign, signLabel, lineFolder, lineTarget, drawnFrom = nil, nil, nil, nil, nil, nil
+end
+local function groundAt(p: Vector3): Vector3
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Exclude
+	params.FilterDescendantsInstances = { player.Character :: Instance, lineFolder :: Instance }
+	local hit = workspace:Raycast(p + Vector3.new(0, 4, 0), Vector3.new(0, -12, 0), params)
+	return if hit then hit.Position else p
+end
+local function drawLine()
+	local r = root()
+	local target = lineTarget
+	if drawing or not r or not target then return end
+	drawing = true
+	local from = r.Position - Vector3.new(0, 3, 0)
+	local points: {Vector3} = {}
+	local path = PathfindingService:CreatePath({ AgentRadius = 2, AgentHeight = 5, AgentCanJump = true, WaypointSpacing = 4 })
+	local ok = pcall(function() path:ComputeAsync(from, target) end)
+	if ok and path.Status == Enum.PathStatus.Success then
+		for _, w in ipairs(path:GetWaypoints()) do table.insert(points, w.Position) end
+	else
+		local d = (target - from).Magnitude
+		local n = math.clamp(math.floor(d / 4), 1, 150)
+		for i = 0, n do table.insert(points, groundAt(from:Lerp(target, i / n))) end
+	end
+	if lineTarget ~= target then drawing = false return end -- (the step changed meanwhile)
+	local folder = Instance.new("Folder")
+	folder.Name = "FirstGoalLine"
+	for i = 1, math.min(#points - 1, 160) do
+		local a, b = points[i] + Vector3.new(0, 0.12, 0), points[i + 1] + Vector3.new(0, 0.12, 0)
+		local len = (b - a).Magnitude
+		if len > 0.05 then
+			create("Part", {
+				Anchored = true, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false,
+				Material = Enum.Material.Neon, Color = WHITE, Transparency = 0.1,
+				Size = Vector3.new(0.45, 0.06, len + 0.4), CFrame = CFrame.lookAt((a + b) / 2, b),
+			}, folder)
+		end
+	end
+	if lineFolder then lineFolder:Destroy() end
+	folder.Parent = workspace
+	lineFolder = folder
+	drawnFrom = r.Position
+	drawing = false
 end
 local function lineTo(at: Vector3, name: string)
 	clearLine()
-	local r = root()
-	if not r then return end
 	local part = create("Part", {
 		Name = "FirstGoalMarker", Anchored = true, CanCollide = false, CanQuery = false, CanTouch = false,
 		Transparency = 1, Size = Vector3.one, Position = at + Vector3.new(0, 2, 0),
 	}, workspace)
-	local to = create("Attachment", {}, part)
-	local a = create("Attachment", { Name = "FirstGoalFrom", Position = Vector3.new(0, -2, 0) }, r)
-	create("Beam", {
-		Attachment0 = a, Attachment1 = to, FaceCamera = true, Width0 = 1.1, Width1 = 1.1,
-		Color = ColorSequence.new(WHITE), LightEmission = 1, Transparency = NumberSequence.new(0.15), Segments = 24,
-	}, part)
 	local b = create("BillboardGui", {
 		Name = "FirstGoalSign", Adornee = part, Size = UDim2.fromOffset(170, 44), StudsOffset = Vector3.new(0, 5, 0),
 		AlwaysOnTop = true, LightInfluence = 0,
@@ -186,7 +268,9 @@ local function lineTo(at: Vector3, name: string)
 		Font = Enum.Font.GothamBold, TextSize = 15, TextColor3 = WHITE, Text = name,
 	}, b)
 	create("UICorner", { CornerRadius = UDim.new(0, 14) }, l)
-	marker, from, sign, signLabel = part, a, b, l
+	marker, sign, signLabel = part, b, l
+	lineTarget = at
+	task.spawn(drawLine)
 end
 
 ---------------------------------------------------------------- confetti
@@ -218,7 +302,8 @@ end
 
 ---------------------------------------------------------------- the run
 local steps: {Step} = DAY
-local goalText = "추천 옷 입고 사진 찍기"
+-- (D-1664, user: "첫 목표 완료! 추천 옷 입고 클럽 가기 -> 오후를 재미있게 즐겨 봐요!")
+local goalText = "오후를 재미있게 즐겨 봐요!"
 local index = 0
 local running = false
 local function finish(done: boolean)
@@ -232,7 +317,6 @@ local function finish(done: boolean)
 end
 local function showStep()
 	local s = steps[index]
-	head.Text = string.format("🎯 첫 목표 · %d / %d", index, #steps)
 	title.Text = s.icon .. " " .. s.title
 	body.Text = s.text
 	clearLine()
@@ -240,7 +324,7 @@ local function showStep()
 		local at = s.place()
 		if at then lineTo(at, s.icon .. " " .. (s.placeName or s.title)) end
 	end
-	card.Size = UDim2.fromOffset(280, 92)
+	card.Size = UDim2.fromOffset(280, 74)
 	TweenService:Create(stroke, TweenInfo.new(0.25), { Thickness = 6 }):Play()
 	task.delay(0.3, function() TweenService:Create(stroke, TweenInfo.new(0.4), { Thickness = 3 }):Play() end)
 end
@@ -252,15 +336,23 @@ RunService.Heartbeat:Connect(function()
 	if not s then return end
 	-- the pulsing ring round a top bar button
 	local b = if s.target then s.target() elseif s.button then TopBar.button(s.button) else nil
-	if b and b.Visible then
-		-- (D-1663, user 2026-11-17 with a shot of the card over the catalog: "목표 안내가 카탈로그 가리니까 위로
-		-- 올리기") a button inside a window (the catalog's 추천, s.target) keeps the card up at the left under
-		-- the top bar, clear of the window; only a top bar button gets the card right under it
-		if s.target and b ~= TopBar.button(4) then -- (👗 itself is a top bar button: under it)
-			if pointer.Visible or card.Position ~= UDim2.fromOffset(12, TopBar.bottom() + 8) then placeCard() end
-		else
-			NearButton.place(card, pointer, b, 280) -- (D-1539)
+	-- (D-1663 / D-1664) while the catalog is open the card sits right beside its window (on its left,
+	-- level with its top), never over it; at the left under the top bar when there is no room
+	local panel = if s == OUTFIT then catalogPanel() else nil
+	if panel then
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		local right = panel.AbsolutePosition.X - 10
+		pointer.Visible = false
+		if right >= 280 + 12 then
+			card.AnchorPoint = Vector2.new(1, 0)
+			card.Position = UDim2.fromOffset(right, panel.AbsolutePosition.Y + inset.Y)
+			card.Size = UDim2.fromOffset(280, card.Size.Y.Offset)
+		elseif card.AnchorPoint ~= Vector2.zero then
+			placeCard()
 		end
+	end
+	if b and b.Visible then
+		if not panel then NearButton.place(card, pointer, b, 280) end -- (D-1539: under a top bar button)
 		ring.Visible = true
 		local pad = 6
 		-- (AbsolutePosition leaves out the top-bar inset even here, D-1138)
@@ -269,18 +361,27 @@ RunService.Heartbeat:Connect(function()
 		ring.Size = UDim2.fromOffset(b.AbsoluteSize.X + pad * 2, b.AbsoluteSize.Y + pad * 2)
 		ringStroke.Transparency = 0.5 + 0.5 * math.sin(os.clock() * 6)
 	else
-		if ring.Visible then placeCard() end -- (D-1539: back to the left)
+		if ring.Visible and not panel then placeCard() end -- (D-1539: back to the left)
 		ring.Visible = false
 	end
-	-- the line: from the new body after a respawn, the distance on the sign, hidden when there
+	-- the line: to where the step points now (the club door, then the dance floor), drawn again as the
+	-- player walks on; the distance on the sign; hidden when there
 	local r = root()
-	if from and r and from.Parent ~= r then from.Parent = r end
+	if s.place then
+		local at = s.place()
+		if at and (not lineTarget or (at - lineTarget).Magnitude > 1) then lineTo(at, s.icon .. " " .. (s.placeName or s.title)) end
+	end
+	if r and lineTarget and not drawing and (not drawnFrom or (r.Position - drawnFrom).Magnitude > 6) then
+		task.spawn(drawLine)
+	end
 	if marker and signLabel and r then
 		local d = (Vector3.new(r.Position.X, marker.Position.Y, r.Position.Z) - marker.Position).Magnitude
 		signLabel.Text = string.format("%s %s · %dm", s.icon, s.placeName or s.title, math.floor(d + 0.5))
 		local near = d < 12
-		local beam = marker:FindFirstChildOfClass("Beam")
-		if beam then beam.Enabled = not near end
+		if lineFolder and lineFolder:GetAttribute("Hidden") ~= near then
+			lineFolder:SetAttribute("Hidden", near)
+			for _, part in ipairs(lineFolder:GetChildren()) do (part :: BasePart).Transparency = if near then 1 else 0.1 end
+		end
 		if sign then sign.Enabled = not near end
 	end
 	if s.done() then
@@ -298,9 +399,9 @@ local function start()
 	if running then return end
 	local night = ClubConfig.isNightOpen(DayNightConfig.clockNow())
 	steps = if night then NIGHT else DAY
-	goalText = if night then "추천 옷 입고 클럽 가기" else "추천 옷 입고 사진 찍기"
 	photoAt = player:GetAttribute("PhotoSavedAt")
 	lookAt = player:GetAttribute("LookWornAt")
+	outfitChanged = false
 	index = 1
 	running = true
 	gui.Enabled = true

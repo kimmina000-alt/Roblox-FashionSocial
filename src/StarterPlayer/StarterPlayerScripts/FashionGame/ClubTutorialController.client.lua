@@ -73,20 +73,16 @@ local STEPS: {Step} = {
 
 ---------------------------------------------------------------- the card and the ring
 local gui = create("ScreenGui", { Name = "ClubTutorialGui", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 31, Enabled = false }, playerGui)
-local card = create("Frame", { Size = UDim2.fromOffset(280, 132), BackgroundColor3 = BLACK, BackgroundTransparency = 0.2 }, gui)
+local card = create("Frame", { Size = UDim2.fromOffset(280, 114), BackgroundColor3 = BLACK, BackgroundTransparency = 0.2 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 16) }, card)
 local stroke = create("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.2 }, card)
-local head = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 8), Size = UDim2.new(1, -50, 0, 20), BackgroundTransparency = 1,
-	Font = Enum.Font.GothamBlack, TextSize = 13, TextColor3 = Color3.fromRGB(200, 200, 200),
-	TextXAlignment = Enum.TextXAlignment.Left, Text = "",
-}, card)
+-- (D-1665, user: "클럽 안내 1/3 삭제") no header line
 local title = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 28), Size = UDim2.new(1, -28, 0, 22), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(14, 10), Size = UDim2.new(1, -50, 0, 22), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBlack, TextSize = 17, TextColor3 = WHITE, TextXAlignment = Enum.TextXAlignment.Left, Text = "",
 }, card)
 local body = create("TextLabel", {
-	Position = UDim2.fromOffset(14, 52), Size = UDim2.new(1, -28, 0, 44), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(14, 34), Size = UDim2.new(1, -28, 0, 44), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Color3.fromRGB(230, 230, 230), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
@@ -95,12 +91,11 @@ local nextButton = create("TextButton", {
 	BackgroundColor3 = WHITE, Text = "다음", Font = Enum.Font.GothamBlack, TextSize = 13, TextColor3 = BLACK, AutoButtonColor = true,
 }, card)
 create("UICorner", { CornerRadius = UDim.new(1, 0) }, nextButton)
+-- (a plain X, no circle, like the first goal's card, D-1664)
 local close = create("TextButton", {
-	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -8, 0, 6), Size = UDim2.fromOffset(26, 26),
-	BackgroundColor3 = BLACK, Text = "X", Font = Enum.Font.GothamBlack, TextSize = 13, TextColor3 = WHITE, AutoButtonColor = true,
+	AnchorPoint = Vector2.new(1, 0), Position = UDim2.new(1, -6, 0, 6), Size = UDim2.fromOffset(28, 28),
+	BackgroundTransparency = 1, Text = "X", Font = Enum.Font.GothamBlack, TextSize = 16, TextColor3 = WHITE, AutoButtonColor = false,
 }, card)
-create("UICorner", { CornerRadius = UDim.new(1, 0) }, close)
-create("UIStroke", { Color = WHITE, Thickness = 1.5, Transparency = 0.2, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, close)
 local pointer = NearButton.pointer(card)
 
 local ring = create("Frame", { BackgroundTransparency = 1, Visible = false, ZIndex = 50 }, gui)
@@ -119,6 +114,7 @@ end
 
 local function finish()
 	running = false
+	player:SetAttribute("TutorialIcons", nil) -- (D-1665: the 🎵 🎥 follow the song again)
 	gui.Enabled = false
 	ring.Visible = false
 	markSeen()
@@ -133,7 +129,6 @@ end
 local function show(i: number)
 	index = i
 	local s = STEPS[i]
-	head.Text = string.format("🎧 클럽 안내 · %d / %d", i, #STEPS)
 	title.Text = s.icon .. "  " .. s.title
 	body.Text = s.text
 	nextButton.Text = if i == #STEPS then "알겠어요" else "다음"
@@ -196,7 +191,11 @@ task.spawn(function()
 				if bannerButton("ClubList") and (bannerButton("ClubList") :: GuiObject).Visible then break end
 				task.wait(0.3)
 			end
+			-- (after the first goal's "첫 목표 완료!" banner: it ends on this same floor)
+			while playerGui:FindFirstChild("FirstGoalDone") do task.wait(0.3) end
 			running = true
+			-- (D-1665) the 🎵 and 🎥 show in the banner for any song while these cards point at them
+			player:SetAttribute("TutorialIcons", true)
 			gui.Enabled = true
 			show(1)
 			while running do task.wait(0.5) end
