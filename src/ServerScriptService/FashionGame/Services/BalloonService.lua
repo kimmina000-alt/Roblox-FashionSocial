@@ -16,8 +16,16 @@ local ServerStorage = game:GetService("ServerStorage")
 local BalloonService = {}
 
 local HEIGHT = 2.2 -- (studs, the balloon's own height)
-local ROPE = 4.6 -- (studs of string from the hand)
-local LIFT = 1.6 -- (× its weight: how hard it pulls up)
+local ROPE = 6 -- (studs of string from the hand; 4.6 until D-1599)
+local LIFT = 1.0 -- (× its weight: just floats; was 1.6, D-1599 the follow below lifts it)
+-- (D-1599, user 2026-11-17: "풍선 너무 정신사납게 흔들리더라 막 움직이는 거 움직임 좀 줄이고 천천히 움직이게
+-- 수정") it hung on the string pulled up by 1.6× its weight with a weak brake, so every step of the
+-- holder yanked it about and it spun. Now it floats (lift = its weight) and is drawn softly to a
+-- point over the holder's hand side (AlignPosition: slow, at most FOLLOW_SPEED studs / s) and kept
+-- upright (AlignOrientation), so it trails a little behind and settles calmly; the string stays as
+-- the visible tie (a little slack, so it no longer jerks).
+local FOLLOW_SPEED = 7
+local FOLLOW_RESPONSE = 0.8 -- (Play 2026-11-17: trails about 2 studs while walking, settles in 1.5 s)
 local RISE = 7 -- (studs / s when let go)
 local FLY_SECONDS = 14
 
@@ -79,6 +87,42 @@ local function float(b: BasePart, extra: number)
 	drag.VectorVelocity = Vector3.zero
 	drag.MaxForce = mass * g * 0.35
 	drag.Parent = b
+	-- (D-1599) upright and not spinning
+	local upright = Instance.new("AlignOrientation")
+	upright.Name = "Upright"
+	upright.Mode = Enum.OrientationAlignmentMode.OneAttachment
+	upright.Attachment0 = att
+	upright.CFrame = CFrame.new()
+	upright.Responsiveness = 4
+	upright.MaxTorque = mass * g * 20
+	upright.Parent = b
+end
+
+-- (D-1599) the soft follow to a point over the holder's hand side (an attachment on their root part,
+-- which stays level while the arms swing)
+local function follow(b: BasePart, character: Model?)
+	local old = b:FindFirstChild("Follow")
+	if old then old:Destroy() end
+	local root = character and character:FindFirstChild("HumanoidRootPart")
+	if not root or not root:IsA("BasePart") then return end
+	local target = root:FindFirstChild("BalloonTarget") :: Attachment?
+	if not target then
+		target = Instance.new("Attachment")
+		target.Name = "BalloonTarget"
+		target.Position = Vector3.new(1.4, ROPE - 2.2, 0.6) -- (beside and a bit behind the right hand, the string a little slack)
+		target.Parent = root
+	end
+	local mass = b:GetMass()
+	local align = Instance.new("AlignPosition")
+	align.Name = "Follow"
+	align.Mode = Enum.PositionAlignmentMode.TwoAttachment
+	align.Attachment0 = b:FindFirstChild("LiftPoint") :: Attachment
+	align.Attachment1 = target
+	align.ApplyAtCenterOfMass = true
+	align.Responsiveness = FOLLOW_RESPONSE
+	align.MaxVelocity = FOLLOW_SPEED
+	align.MaxForce = mass * workspace.Gravity * 1.2
+	align.Parent = b
 end
 
 local function letGo(player: Player, tool: Tool, balloon: BasePart)
@@ -175,7 +219,12 @@ function BalloonService.give(player: Player, name: string, color: Color3): Tool?
 			balloon.CFrame = CFrame.new(over + Vector3.new(0, ROPE, 0))
 			balloon.AssemblyLinearVelocity = Vector3.zero
 			rope.Enabled = true
+			follow(balloon, character :: Model)
 		end)
+	end)
+	tool.Unequipped:Connect(function()
+		local f = balloon:FindFirstChild("Follow")
+		if f then f:Destroy() end
 	end)
 	tool.Activated:Connect(function()
 		if tool.Parent and balloon.Parent then letGo(player, tool, balloon) end
