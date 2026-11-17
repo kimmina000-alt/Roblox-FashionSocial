@@ -5551,3 +5551,13 @@ Studio only (no script yet).
 - GiveService / GiveController: the ring (CarryTube) can be given like other items; it moves as it is, only to someone without one.
 - ParkRidesController: a FloatTube removed (picked up) drops its slot and parts.
 - Play test (PC, 1 player): heap → ring in hand, prompt turned "튜브 반납" → returned; taken again, put down on the sand (lay at y -1.35) → "튜브 들기" gave it back; walked from the shore into the sea → the ring went on the water and the player sat in it ([E] 내리기), paddled; [E] 내리기 → the ring floated there; picked up in the water → held, and since the player was swimming they got straight back in it. First try: the player swam on during the second before the ring's slot was ready and was out of reach: TubeCarryController holds the player still (WalkSpeed 0) until seated. Not tested: giving the ring (needs 2 players). Studio also holds feat/player-card-1114's GiveItem module (not merged): its KINDS got CarryTube there too.
+
+## D-1592 (2026-11-17) 손 스파클러를 아이템 상점 맨 위로
+- User: "손 스파클러 제일 위로 수정". ClubShopController: the 💰 30 hand sparkler card is the first card of the 불꽃 아이템 tab (before 테이블 스파클러).
+
+## D-1593 (2026-11-17) 손 스파클러: 확인창 없이 구매, 불꽃 더 풍성하게, 🔥 아이콘만
+- User: "손 스파클러 확인창 삭제 / 스파클러 네모 친 곳에 있는 동그라미 사이즈 줄이고 동그라미 속에 있는 거 수 늘리기. 빈약해 보임. 버켓에 꽂는 것도 같은 거면 함께 수정 / 불 붙이기 삭제하고 앞에 불 모양 아이콘만 남기기. 불 모양 아이콘 흰색 외곽선 주고 배경 지우기".
+- ClubShopController: the 💰 30 card buys at once (no confirm window).
+- SparkleService: the white-hot tip ball 0.22 → 0.1 on both the hand sparkler and the bucket / table sparklers; more sparks: the small fountain 240 → 600 a second (bucket / table), the hand sparkler 160 → 480.
+- HandSparklerController: the light button is only the fire: an ImageButton 64 x 64, no background, the picture docs/04_ART/icons/fire_outline.png (the 🔥 emoji with a white outline; a UIStroke does not outline an emoji), uploaded as Vantablack_Dev rbxassetid://79006995744297.
+- Play (PC): with more sparks the first look was still thin (low graphics draw only some particles): the sparks now fly as thin streaks (VelocityParallel, Squash -1.2) and a "Crackle" emitter of tiny white points sits round the tip (bucket and hand); lit, the hand sparkler showed a full star of streaks. The burn-out turns every emitter off.

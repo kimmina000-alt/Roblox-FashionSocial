@@ -604,27 +604,22 @@ local function buildItemShop()
 			local m = previews and previews:FindFirstChild(name)
 			return if m and m:IsA("Model") then m else nil
 		end
+		-- (D-1567, user 2026-11-17: "손 스파클러 코인으로 판매 전환") coins, not Robux;
+		-- (D-1592, user 2026-11-17: "손 스파클러 제일 위로 수정") the first card
+		local handPrice = ClubConfig.HandSparklerCoins
+		NeonShopUI.itemCard(list2, nextOrder(), "✨", Color3.fromRGB(200, 140, 40), "손 스파클러",
+			"손에 들고 60초 동안 춤춰요", "💰 " .. handPrice, nil, "💰 구매하기", COIN, function()
+				-- (D-1593, user 2026-11-17: "손 스파클러 확인창 삭제") bought at once, no confirm window
+				local ok, message = ClubShop:InvokeServer("BuyHandSparklerCoins", nil)
+				toast(tostring(message or (if ok then "" else "살 수 없어요.")))
+				if ok then closeShops() end
+			end, look("HandSparkler"))
 		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(120, 60, 200), "테이블 스파클러",
 			"들고 테이블 위 병(버킷)을 누르면 30초 연출", rs("Sparkler1"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler1") end, look("Sparkler1"))
 		NeonShopUI.itemCard(list2, nextOrder(), "🎇", Color3.fromRGB(150, 50, 190), "스파클러 ×5",
 			"한 버킷에 5개까지 꽂아요", rs("Sparkler5"), nil, "🛒 구매하기", C, function() buyProduct("Sparkler5") end, look("Sparkler1")) -- (the same picture as one, user 2026-10-30)
 		NeonShopUI.itemCard(list2, nextOrder(), "🍾", Color3.fromRGB(40, 120, 200), "스파클러 버킷 세트",
 			"얼음 버킷 + 음료 3개 + 스파클러 3개", rs("SparklerBucket"), if vip then nil else rs("SparklerBucket_VIP"), "🛒 구매하기", C, function() buyProduct(bucketKey) end, look("SparklerBucket"))
-		-- (D-1567, user 2026-11-17: "손 스파클러 코인으로 판매 전환") coins, not Robux
-		local handPrice = ClubConfig.HandSparklerCoins
-		NeonShopUI.itemCard(list2, nextOrder(), "✨", Color3.fromRGB(200, 140, 40), "손 스파클러",
-			"손에 들고 60초 동안 춤춰요", "💰 " .. handPrice, nil, "💰 구매하기", COIN, function()
-				showModal("✨ 손 스파클러 · 코인으로 사기",
-					string.format("%d 코인을 써서 손 스파클러를 살까요?\n(지금 %d 코인)", handPrice, player:GetAttribute("Coins") or 0),
-					{
-						{ name = "Cancel", text = "취소", onClick = function() end },
-						{ name = "Buy", text = "💰 " .. tostring(handPrice), color = COIN, onClick = function()
-							local ok, message = ClubShop:InvokeServer("BuyHandSparklerCoins", nil)
-							toast(tostring(message or (if ok then "" else "살 수 없어요.")))
-							if ok then closeShops() end
-						end },
-					})
-			end, look("HandSparkler"))
 		local hasGlow = player:GetAttribute("Pass_Glowstick") == true
 		NeonShopUI.itemCard(list2, nextOrder(), "🌟", Color3.fromRGB(40, 170, 120), "야광봉",
 			"영구 아이템 · 누르면 색이 바뀌어요", if hasGlow then "보유 중" else ("R$" .. MonetizationConfig.GamePasses.Glowstick.price), nil,

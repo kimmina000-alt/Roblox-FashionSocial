@@ -160,7 +160,7 @@ local function sparks(parent: Instance, offset: Vector3, big: boolean): Attachme
 	else
 		-- bottle sparkler (user photo 2026-10-25): a dense white fountain
 		-- shooting up about a bottle's height, sparks raining back down
-		emitter.Rate = 240
+		emitter.Rate = 600 -- (D-1593: was 240)
 		emitter.Lifetime = NumberRange.new(0.5, 0.9)
 		emitter.Speed = NumberRange.new(6, 11)
 		emitter.SpreadAngle = Vector2.new(18, 18)
@@ -169,6 +169,25 @@ local function sparks(parent: Instance, offset: Vector3, big: boolean): Attachme
 			NumberSequenceKeypoint.new(0, 0.24),
 			NumberSequenceKeypoint.new(1, 0),
 		})
+		-- (D-1593) the sparks fly as thin streaks, and a crackle of tiny white points sits round the
+		-- tip: phones and low graphics draw only some of the particles, so the look comes from the
+		-- shapes, not only the count
+		emitter.Name = "Sparks"
+		emitter.Orientation = Enum.ParticleOrientation.VelocityParallel
+		emitter.Squash = NumberSequence.new(-1.2)
+		local crackle = Instance.new("ParticleEmitter")
+		crackle.Name = "Crackle"
+		crackle.Texture = SPARKLE_TEXTURE
+		crackle.LightEmission = 1
+		crackle.Brightness = 4
+		crackle.Color = ColorSequence.new(Color3.fromRGB(255, 255, 245), Color3.fromRGB(255, 220, 150))
+		crackle.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.07), NumberSequenceKeypoint.new(1, 0.02) })
+		crackle.Transparency = NumberSequence.new(0, 0.4)
+		crackle.Rate = 300
+		crackle.Lifetime = NumberRange.new(0.12, 0.3)
+		crackle.Speed = NumberRange.new(1.5, 4)
+		crackle.SpreadAngle = Vector2.new(180, 180)
+		crackle.Parent = at
 	end
 	emitter.Brightness = 3
 	emitter.Parent = at
@@ -203,7 +222,9 @@ local function burn(parent: BasePart, base: Vector3, seconds: number)
 	local tip = Instance.new("Part")
 	tip.Name = "SparklerTip"
 	tip.Shape = Enum.PartType.Ball
-	tip.Size = Vector3.new(0.22, 0.22, 0.22)
+	-- (D-1593, user 2026-11-17: "동그라미 사이즈 줄이고 동그라미 속에 있는 거 수 늘리기. 빈약해 보임. 버켓에
+	-- 꽂는 것도 같은 거면 함께 수정") a smaller white-hot tip (0.22 → 0.1) and more sparks round it
+	tip.Size = Vector3.new(0.1, 0.1, 0.1)
 	tip.Color = Color3.fromRGB(255, 245, 220)
 	tip.Material = Enum.Material.Neon
 	tip.Anchored = true
@@ -226,8 +247,9 @@ local function burn(parent: BasePart, base: Vector3, seconds: number)
 	fizz.TimePosition = math.random() * 30
 	fizz:Play()
 	task.delay(seconds, function()
-		local emitter = at:FindFirstChildOfClass("ParticleEmitter")
-		if emitter then emitter.Enabled = false end
+		for _, emitter in ipairs(at:GetChildren()) do
+			if emitter:IsA("ParticleEmitter") then emitter.Enabled = false end
+		end
 		fizz:Stop()
 		Debris:AddItem(s, 1)
 	end)
@@ -681,7 +703,7 @@ local function lightHandSparkler(player: Player): (boolean, string?)
 	local tip = Instance.new("Part")
 	tip.Name = "Tip"
 	tip.Shape = Enum.PartType.Ball
-	tip.Size = Vector3.new(0.22, 0.22, 0.22)
+	tip.Size = Vector3.new(0.1, 0.1, 0.1) -- (D-1593: was 0.22)
 	tip.Color = Color3.fromRGB(255, 245, 220)
 	tip.Material = Enum.Material.Neon
 	tip.CanCollide = false
@@ -694,9 +716,9 @@ local function lightHandSparkler(player: Player): (boolean, string?)
 	tipWeld.Parent = tip
 	tip.Parent = tool
 	local at = sparks(tip, Vector3.zero, false)
-	local emitter = at:FindFirstChildOfClass("ParticleEmitter")
-	if emitter then
-		emitter.Rate = 160
+	local emitter = at:FindFirstChild("Sparks")
+	if emitter and emitter:IsA("ParticleEmitter") then
+		emitter.Rate = 480 -- (D-1593: was 160)
 		emitter.SpreadAngle = Vector2.new(180, 180)
 		emitter.Speed = NumberRange.new(3, 6)
 		emitter.Lifetime = NumberRange.new(0.3, 0.6)
