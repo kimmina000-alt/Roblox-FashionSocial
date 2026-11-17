@@ -294,7 +294,7 @@ local function refreshPhotos()
 				if deleted then task.spawn(refreshPhotos) end
 			end)
 		end)
-		cell.MouseButton1Click:Connect(function() BagSignals.viewPhoto:Fire(photo) end)
+		cell.MouseButton1Click:Connect(function() BagSignals.viewPhoto:Fire(photo, photos) end) -- (D-1598: ‹ › in the viewer)
 	end
 end
 

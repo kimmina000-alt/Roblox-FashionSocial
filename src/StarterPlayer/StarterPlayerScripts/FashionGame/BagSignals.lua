@@ -2,7 +2,8 @@
 -- Signals between the 🎒 bag (InventoryController) and the photo booth
 -- scripts (user 2026-10-30: no 내 앨범 any more, the photos are in the bag).
 --   openBag:Fire(tab)         open the bag on "items" or "photos"
---   viewPhoto:Fire(photo)     show one photo big (the viewer in PhotoBoothController)
+--   viewPhoto:Fire(photo, list)  show one photo big (the viewer in PhotoBoothController);
+--                             `list` = all the photos, for its ‹ › buttons (D-1598)
 --   photosChanged:Fire()      a photo was saved or deleted: the bag reloads
 
 local BagSignals = {

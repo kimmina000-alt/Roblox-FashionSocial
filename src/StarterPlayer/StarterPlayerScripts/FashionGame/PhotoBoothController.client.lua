@@ -1950,6 +1950,43 @@ local viewerHolder = create("Frame", { BackgroundTransparency = 1, ZIndex = 21 }
 local viewerButtons = create("Frame", { BackgroundTransparency = 1, ZIndex = 21 }, viewer)
 create("UIListLayout", { Padding = UDim.new(0, 8), SortOrder = Enum.SortOrder.LayoutOrder }, viewerButtons)
 local viewerPhoto: any = nil
+-- (D-1598, user 2026-11-17: "사진첩에 옆으로 버튼 눌러서 사진 볼 수 있게 하자") ‹ › at the bottom
+-- corners of the photo go to the photo before / after it in the list it was opened from (the
+-- bag's 사진 tab or 내 앨범); hidden at the first / last photo and when there is only one
+local viewerList: {any} = {}
+local viewerIndex = 0
+local function viewerArrow(label: string): TextButton
+	return button({
+		Size = UDim2.fromOffset(44, 44),
+		BackgroundColor3 = Color3.fromRGB(18, 18, 24),
+		BackgroundTransparency = 0.25,
+		Text = label,
+		TextSize = 30,
+		Visible = false,
+		ZIndex = 24,
+	}, viewer, 22)
+end
+local viewerPrev = viewerArrow("‹")
+local viewerNext = viewerArrow("›")
+local function showViewerPhoto(photo: any, list: {any}?)
+	viewerPhoto = photo
+	if list then
+		viewerList = list
+		viewerIndex = table.find(list, photo) or 0
+	end
+	for _, child in ipairs(viewerHolder:GetChildren()) do child:Destroy() end
+	PhotoRender.drawPhoto(viewerHolder, photo)
+	viewerPrev.Visible = viewerIndex > 1
+	viewerNext.Visible = viewerIndex > 0 and viewerIndex < #viewerList
+end
+local function viewerStep(by: number)
+	local photo = viewerList[viewerIndex + by]
+	if not photo then return end
+	viewerIndex += by
+	showViewerPhoto(photo)
+end
+viewerPrev.MouseButton1Click:Connect(function() viewerStep(-1) end)
+viewerNext.MouseButton1Click:Connect(function() viewerStep(1) end)
 local function viewerButton(label: string, color: Color3, order: number): TextButton
 	return button({
 		LayoutOrder = order,
@@ -2000,6 +2037,9 @@ local function layoutAlbum()
 	viewerHolder.Size = UDim2.fromOffset(bw - buttonsW - 36, bh - 24)
 	viewerButtons.Position = UDim2.fromOffset(bw - buttonsW - 12, 40)
 	viewerButtons.Size = UDim2.fromOffset(buttonsW, 190)
+	-- (D-1598) the arrows at the photo's bottom corners, either side of its logo bar
+	viewerPrev.Position = UDim2.fromOffset(16, bh - 60)
+	viewerNext.Position = UDim2.fromOffset(bw - buttonsW - 36 + 12 - 48, bh - 60)
 end
 
 local albumGeneration = 0
@@ -2035,9 +2075,7 @@ local function renderAlbum()
 			end)
 		end)
 		cell.MouseButton1Click:Connect(function()
-			viewerPhoto = photo
-			for _, child in ipairs(viewerHolder:GetChildren()) do child:Destroy() end
-			PhotoRender.drawPhoto(viewerHolder, photo)
+			showViewerPhoto(photo, photos)
 			viewerDelete.Text = "삭제"
 			viewer.Visible = true
 			-- Tapping a photo also puts it in the inventory (user, 2026-10-20).
@@ -2105,12 +2143,10 @@ albumDeleteAll.MouseButton1Click:Connect(function()
 	end)
 end)
 -- the bag's 사진 tab shows a photo in the viewer (user 2026-10-30, later)
-require(script.Parent:WaitForChild("BagSignals")).viewPhoto.Event:Connect(function(photo: any)
+require(script.Parent:WaitForChild("BagSignals")).viewPhoto.Event:Connect(function(photo: any, list: any)
 	if typeof(photo) ~= "table" then return end
 	layoutAlbum()
-	viewerPhoto = photo
-	for _, child in ipairs(viewerHolder:GetChildren()) do child:Destroy() end
-	PhotoRender.drawPhoto(viewerHolder, photo)
+	showViewerPhoto(photo, if typeof(list) == "table" then list else { photo })
 	viewer.Visible = true
 end)
 
