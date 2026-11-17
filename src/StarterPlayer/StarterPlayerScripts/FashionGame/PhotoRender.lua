@@ -572,9 +572,15 @@ end
 
 -- (D-1551, memory) takes the people out of a strip's cells (the frame and its
 -- colours stay); fillStrip puts them back. Shots still queued are skipped.
-function PhotoRender.emptyStrip(strip: Strip)
+-- (D-1552, user's phone: the empty cells showed as black squares from afar) an
+-- emptied cell shows the photo's backdrop colour, as if the people were too
+-- small to see.
+function PhotoRender.emptyStrip(strip: Strip, booth: any?)
+	local back = colorOf(booth and booth.back, Color3.fromRGB(235, 235, 240))
 	for _, cell in ipairs(strip.cells) do
 		cell:SetAttribute("Emptied", true)
+		cell.BackgroundColor3 = back
+		cell.BackgroundTransparency = 0
 		for _, child in ipairs(cell:GetChildren()) do
 			if child:IsA("WorldModel") or child:IsA("Camera") then child:Destroy() end
 		end
@@ -603,7 +609,10 @@ end
 -- (`empty` = true: only the strip, filled later with fillStrip, D-1551)
 function PhotoRender.drawPhoto(parent: GuiObject, photo: any, empty: boolean?): Strip
 	local strip = PhotoRender.newStrip(parent, photo.layout, photo.frame, "OHU")
-	if empty then return strip end
+	if empty then
+		PhotoRender.emptyStrip(strip, photo.booth)
+		return strip
+	end
 	PhotoRender.fillStrip(strip, photo.shots or {}, PhotoRender.peopleMap(photo.people), photo.booth)
 	return strip
 end
