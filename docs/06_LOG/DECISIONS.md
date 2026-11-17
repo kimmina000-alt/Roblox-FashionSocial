@@ -5500,3 +5500,6 @@ Studio only (no script yet).
 - User (forwarded by the main session): "둘 다 해" to the two memory trade-offs (D-1549 images, and the streaming radius).
 - Workspace.StreamingTargetRadius 384 → 256 (StreamingMinRadius 128, Opportunistic, PauseOutsideLoadedArea unchanged; no script sets these), place only.
 - Studio Play, same spots, 20 s each: parts on the client at the spawn 17,314 → 13,039 (−25 %), in the park 13,497 → 9,715 (−28 %); instances 28,132 → 22,838 / 22,449 → 16,839. Far buildings now arrive later: from the spawn the street is built about 250 studs out.
+
+## D-1592 (2026-11-17) 손 스파클러를 아이템 상점 맨 위로
+- User: "손 스파클러 제일 위로 수정". ClubShopController: the 💰 30 hand sparkler card is the first card of the 불꽃 아이템 tab (before 테이블 스파클러).
