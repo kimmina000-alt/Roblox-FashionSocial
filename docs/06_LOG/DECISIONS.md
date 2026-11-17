@@ -5635,3 +5635,4 @@ Studio only (no script yet).
 ## D-1589 (2026-11-17) 사진 저장: 위가 잘리지 않게
 - User (phone, 2x2 save preview): "2x2 사진 윗부분 잘림". The saved capture leaves out the top bar strip, and the sheet drew the photo over the whole screen.
 - saveFramedPhoto places the photo below the top bar inset (GuiService:GetGuiInset, read after the turn) with an 8 px margin all round. Play check on a 735 x 413 phone view: inset 58, the 2x2 strip runs y 66..405, whole.
+- (later, user: "윗부분 잘라 버리면 그냥 세로로 찍는 게 더 커지지 않나?") yes: the orientation choice now counts the real room, the inset and the margins off (strip width = min(w - 16, (h - inset - 16) × a)). On the 735 x 413 phone view with inset 58: 1x4 lying 105 / standing 205, 2x2 lying 363 / standing 397, so both save standing up. Play check: no script errors (Studio also holds feat/album-swipe-1117's PhotoBoothController change; both are in, no overwrite).

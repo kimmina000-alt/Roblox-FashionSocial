@@ -1589,7 +1589,8 @@ local function saveFramedPhoto(draw: (holder: Frame) -> (), layoutKey: string?):
 	-- (D-1588, user: "긴 프레임은 세로버전이 더 클 거고 2x2 프레임은 가로 세로 중 어느 게 더 클지 계산해서
 	-- 구현") the way that shows the strip bigger is worked out from the strip's shape: a strip of aspect
 	-- a (width / height) on a screen L x S (long, short) is min(S, L / a) tall lying down and
-	-- min(L, S / a) tall standing up; the 1x4 strip is bigger standing, the 2x2 (a = 1.07) lying down
+	-- min(L, S / a) tall standing up; with the top bar taken off (D-1589) both the 1x4 and the 2x2
+	-- strips come out bigger standing up on a phone
 	local oldOrientation = playerGui.ScreenOrientation
 	local turned = false
 	local wantPortrait: boolean? = nil
@@ -1600,8 +1601,14 @@ local function saveFramedPhoto(draw: (holder: Frame) -> (), layoutKey: string?):
 		local aspect = if okA and typeof(a) == "number" and a > 0 then a else 0.3
 		local vp = cam.ViewportSize
 		local L, S = math.max(vp.X, vp.Y), math.min(vp.X, vp.Y)
-		local lying = math.min(S, L / aspect) * aspect -- (the strip's width; same ratio as its height)
-		local standing = math.min(L, S / aspect) * aspect
+		-- (D-1589, user: "윗부분 잘라 버리면 그냥 세로로 찍는 게 더 커지지 않나?") the room the photo
+		-- really has: the top bar inset and the 8 px margins come off (the strip's width in each case)
+		local insetY = game:GetService("GuiService"):GetGuiInset().Y
+		local function stripWidth(w: number, h: number): number
+			return math.min(w - 16, (h - insetY - 16) * aspect)
+		end
+		local lying = stripWidth(L, S)
+		local standing = stripWidth(S, L)
 		wantPortrait = standing > lying * 1.02
 		local isPortrait = vp.Y > vp.X
 		wasPortrait = isPortrait
