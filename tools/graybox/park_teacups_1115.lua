@@ -140,7 +140,8 @@ if pot then
 	-- tip, inside the Teapot model (they turn with it). Tips and bases in the glb's own units
 	-- (TeapotTex.glb, read from its white texels); its box is MESH_MIN..MESH_MAX.
 	local mesh = potModel:FindFirstChildWhichIsA("MeshPart", true)
-	if mesh and pot.Name == "TeapotTex3" then
+	-- (D-1582, user 2026-11-17: "막대 없애기") the spikes are gone: the block below no longer runs
+	if false and mesh and pot.Name == "TeapotTex3" then
 		local MESH_MIN, MESH_MAX = Vector3.new(5.6545, -5.8965, -0.27), Vector3.new(8.8324, 1.3715, 0.27)
 		local mid, msize = (MESH_MIN + MESH_MAX) / 2, MESH_MAX - MESH_MIN
 		local k = mesh.Size / msize

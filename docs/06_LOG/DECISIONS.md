@@ -5520,3 +5520,14 @@ Studio only (no script yet).
 - Cause: SeoulNightController (D-1421) put its two NightShopLight SurfaceLights on every shop pane's Front / Back faces. Panes thin along X (the 국밥집 front and many others) have their narrow edges there, so the glow ran sideways along the shop front and into the shop, onto the white floor at the door, on top of the 10 downlights; seen from outside, the night exposure / bloom blew it out.
 - Now the light goes on the pane's two big faces (by its thinnest axis), and only on the street side: the big face with no solid roof within 40 studs over a point 4 studs in front of it. Both big faces stay lit only when neither or both sides are roofed.
 - Play check (22:00): all 60 panes got one light; the 국밥집 panes light the pavement (Left face), the doorway no longer glares; no script errors.
+
+## D-1582 (2026-11-17) 클럽 복도선 흰색 · 통로선 위치 · 락커룸 선 · 벽/바닥 두 톤 · 회전컵 막대 삭제
+- User requests (relayed by the main session with screenshots): "막대 없애기" (tea cups), "여기 벽이 두 겹 같은데 흰색 조명선 오른쪽 벽에 있잖아. 왼쪽 빨간선 벽으로 이동. 복도 바닥에 노란색 흰색으로 변경", "락커룸 조명선 끊기지 않게 수정", "입구에 조명선 더 얇게 수정" (locker room door), "클럽 내부 벽과 바닥 두 톤씩 밝게".
+- Tea cup teapot spikes (SpikeGlow / SpikeTip ×24) deleted from the place; park_teacups_1115.lua no longer makes them; ParkNightController's spike code (D-1575) removed.
+- ClubGlowDim (client only):
+  - corridor floor lines (FoyerLED, CorridorNeon_E / _W, FloorLED, HallDoorFootLED) white at 50 % instead of their yellow (255, 250, 175);
+  - the vertical PassageLight moved from the hall wall's end (65.36, -273.85) onto the corridor wall Corridor_E_S's west end (66.35, -274.84), flush with the corridor face; the ceiling line across the corridor mouth moved with it (x 66.35, ends at the post);
+  - LockerRoom DoorFrameLight half as thick (0.3 → 0.15);
+  - LockerRoom WallLine floor lines 0.3 longer at each end, so the corners meet (they stopped 0.2 short);
+  - club walls (SmoothPlastic 26, 26, 29) and black marble floors (20, 20, 24) in 02_Club / ClubAnnex +22 on each channel ("two tones").
+- Play check: lines white, passage line on the corridor wall corner, locker room corners closed, door frame 0.15; no script errors. Place change (spikes): the user saves.
