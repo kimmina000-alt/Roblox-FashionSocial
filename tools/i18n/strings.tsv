@@ -1,5 +1,6 @@
 1d8d4b	tmpl	 (아이템 {1}개는 입을 수 없어 뺐어요)	1	manual
 1a3402	tmpl	"{1}" 검색 결과가 없습니다.	1	manual
+014c3b	tmpl	♪ 지금: {1}	1	manual
 4823c9	exact	눌\n러\n주\n세\n요	1	place
 303a85	exact	COFFEE\n아이스 아메리카노  무료\n카페라테 · 카푸치노  💰10\n카라멜 마끼아또  💰10\n\nNON COFFEE\n딸기 스무디 · 얼그레이  💰20\n블루 레몬에이드  💰20	1	place
 f6ad4d	exact	ESPRESSO\n아메리카노  4.5\n카페라떼  5.0\n바닐라 라떼  5.5	1	place

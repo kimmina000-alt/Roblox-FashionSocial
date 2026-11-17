@@ -248,6 +248,7 @@ return {
 	["♪ 음악 · 춤"] = "♪ Musica · Ballo",
 	["♪ 지금: "] = "♪ Ora: ",
 	["♪ 지금: -"] = "♪ Ora: -",
+	["♪ 지금: {1}"] = "♪ Ora: {1}",
 	["⚡ EDM 속도"] = "⚡ Velocità EDM",
 	["⚡ 전기"] = "⚡ Elettricità",
 	["⛓ 가드 {1}님이 수갑을 채웠어요. {2}초 동안 클럽에 들어갈 수 없어요."] = "⛓ La guardia {1} ti ha ammanettato. Niente club per {2} s.",

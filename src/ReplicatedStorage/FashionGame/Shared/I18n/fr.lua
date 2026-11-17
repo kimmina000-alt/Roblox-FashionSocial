@@ -248,6 +248,7 @@ return {
 	["♪ 음악 · 춤"] = "♪ Musique · Danse",
 	["♪ 지금: "] = "♪ En cours : ",
 	["♪ 지금: -"] = "♪ En cours : -",
+	["♪ 지금: {1}"] = "♪ En cours : {1}",
 	["⚡ EDM 속도"] = "⚡ Vitesse EDM",
 	["⚡ 전기"] = "⚡ Électricité",
 	["⛓ 가드 {1}님이 수갑을 채웠어요. {2}초 동안 클럽에 들어갈 수 없어요."] = "⛓ Le vigile {1} t'a menotté. Interdit au club pendant {2} s.",
