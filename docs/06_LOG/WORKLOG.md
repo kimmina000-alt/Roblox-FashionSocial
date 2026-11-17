@@ -3975,3 +3975,7 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-14 Merge: giving items, BANG stage camera, day-14 title, Earl Grey sip
 - 2P test (Player1 / Player2): Player1 bought 얼그레이 티 at the beach cafe (sip = 102811247160851), clicked Player2 → "🎁 얼그레이 티를 Player2님에게 줄까요?" (no sip on that click, bites 3 kept) → 주기 → Player2 "Player1님이 얼그레이 티를 주려고 해요 [받기 (15)]"; the first try ran out (background window too slow, both got the expired notes), the second 받기 worked: the tea in Player2's bag (bites 3, same sip), gone from Player1, Player1 saw "Player2님이 얼그레이 티를 받았어요!". BANG-After School played by Player1 (DJ): Player2 with 🎥 on follows the choreography and the camera films the stage (Scriptable, FOV 49), back to Custom when off. Day 14 card checked in single Play (Korean and Lang = en). No script errors on the server or either client.
 - Merged feat/give-item-1114, feat/stage-camera-bang-1114, fix/sip-badge-1114 into catalog-ui-redesign.
+
+## 2026-11-17 내 이름을 불러줘-TWS 안무 (D-1603)
+- 사용자: "내 이름을 불러 줘 안무 추가" + id 21개. 19조각 넣음(8번은 7번 복사본, 101121496904670은 13번 재업로드). 영상 = 노래 + 1.25초.
+- 이음새 blend · slowIn, 빠른 회전 12곳 고르게, 미끄러짐 12조각, 정면 8조각, 고개 5조각, 손목 3조각(Play에서 방향 확인), Play 전체 스캔 두 번 · 몸 바꾸기 확인. 자세한 숫자: DECISIONS D-1603.

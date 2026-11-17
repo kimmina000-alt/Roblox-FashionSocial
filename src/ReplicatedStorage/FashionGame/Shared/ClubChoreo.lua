@@ -138,6 +138,20 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
+	-- (D-1603) 내 이름을 불러줘-TWS: fast turns spread evenly (choreo_motion_scan + Play scan > 600°/s); 5 / 11 start against the piece
+	-- before (the capture turns back 150 / 84° at the seam, then on the same way) → fromPrev; 18 picks up 17's turn → fromPrev;
+	-- 9 starts with a lap after the default dance (fromPrev has no piece before) → blend 0.08 + its own spin
+	[88993457159273] = { spin = { from = 4.7, to = 6.1, ease = "both" } }, -- TWS 2 (one lap with a -165° keyframe)
+	[83828094822862] = { spin = { { from = 0, to = 1.1, fromPrev = true, dir = -1, ease = "both" }, { from = 4.4, to = 5.9, ease = "both" } } }, -- TWS 5
+	[107391937407645] = { spin = { from = 7.0, to = 8.4, ease = "both" } }, -- TWS 6
+	[73429358232249] = { spin = { from = 0, to = 1.1, ease = "both" } }, -- TWS 9
+	[133275108218481] = { spin = { from = 0, to = 1.2, fromPrev = true, dir = -1, ease = "both" } }, -- TWS 11
+	[107243018629607] = { spin = { from = 0, to = 1.0, fromPrev = true, dir = -1, ease = "both" } }, -- TWS 12 (627°/s at the seam, 2nd Play scan)
+	[137670042338904] = { spin = { from = 6.5, to = 8.0, ease = "both" } }, -- TWS 14
+	[107246799142521] = { spin = { from = 6.8, to = 7.97, ease = "linear" } }, -- TWS 17 (carried on by 18)
+	[100667532281425] = { spin = { { from = 0, to = 1.0, fromPrev = true, dir = 1 }, { from = 2.6, to = 4.6, ease = "both" } } }, -- TWS 18
+	[122207092339520] = { spin = { from = 8.8, to = 12.0, ease = "both" } }, -- TWS 19
+	[96319765244846] = { spin = { from = 0.5, to = 2.2, ease = "both" } }, -- TWS 20
 	-- (D-1394) BANG-After School, Play scan: 5 turns a full lap at 1:04.6-1:06.0 with one frame of 1033°/s → spread evenly;
 	-- 13 swings back 86° in one keyframe at 3:00.7 (663°/s) → eased
 	[102971667388731] = { spin = { from = 4.2, to = 5.6, ease = "both" } }, -- BANG 5
@@ -1354,6 +1368,11 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- 내 이름을 불러줘-TWS (D-1603, choreo_slide_check + choreo_motion_scan DRIFT + Play TELEPORT 0:02.3, 0:03.0, 0:03.7, 0:04.2, 0:21.7, 0:28.1, 0:34.5, 0:35.4, 1:16.4, 1:31.4, 2:27.6)
+	[84847937406843] = { { 2.2, 6.0 }, { 7.5, 8.4 }, { 11.8, 12.7 } }, [74885576782093] = { { 0.0, 1.3 }, { 5.4, 6.9 }, { 7.1, 8.3 } }, [83828094822862] = { { 0.6, 2.2 }, { 3.0, 3.9 }, { 5.7, 6.3 } },
+	[107391937407645] = { { 1.9, 2.5 }, { 8.1, 9.0 } }, [88595092254451] = { { 0.6, 1.5 } }, [107243018629607] = { { 0.2, 0.9 }, { 2.7, 4.0 } },
+	[137670042338904] = { { 3.5, 4.1 }, { 9.5, 10.2 }, { 12.2, 12.8 } }, [81624243507898] = { { 0.4, 1.0 }, { 5.7, 6.6 } }, [107246799142521] = { { 1.5, 2.4 }, { 5.6, 6.5 } },
+	[122207092339520] = { { 3.7, 4.6 }, { 12.3, 13.0 } }, [133275108218481] = { { 2.4, 3.0 } }, [96319765244846] = { { 3.0, 3.9 }, { 4.6, 6.9 } },
 	-- BANG-After School (D-1394, choreo_slide_check + choreo_motion_scan DRIFT + Play scan)
 	[137056236927761] = { { 4.0, 4.6 }, { 7.2, 8.0 } }, [105204020323017] = { { 4.0, 4.7 }, { 11.4, 12.2 }, { 12.7, 13.3 } }, [120933576855785] = { { 1.8, 2.6 }, { 5.5, 6.3 }, { 6.9, 8.2 } },
 	[102971667388731] = { { 0.2, 1.0 }, { 5.3, 6.1 } }, [103181529138741] = { { 6.0, 6.6 }, { 7.5, 8.3 }, { 9.0, 9.9 } }, [91956738526101] = { { 1.4, 2.2 }, { 2.9, 4.2 }, { 5.3, 6.0 }, { 8.4, 9.5 } },
@@ -1578,6 +1597,9 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-1603) 내 이름을 불러줘-TWS (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 2 / 3 / 9 / 18 / 19 checked on frames: front)
+	[88993457159273] = 24, [74885576782093] = 25, [107391937407645] = -11, [120616516576434] = 8, [73429358232249] = -21,
+	[107243018629607] = -8, [100667532281425] = -31, [122207092339520] = -21,
 	-- (D-1394) BANG-After School (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 5, 6 and 10 checked on frames: front)
 	[137056236927761] = -10, [105204020323017] = -11, [120933576855785] = 6, [102971667388731] = -21, [103181529138741] = -29,
 	[91956738526101] = 10, [71518245203286] = -8, [88337047994676] = -22, [114991184702089] = 11,
@@ -1701,6 +1723,12 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-1603) 내 이름을 불러줘-TWS: head_video.py → headMisses, keys 0.09 s early
+	[88993457159273] = { { part = "Head", keys = { { 0.91, 0, 0, 0 }, { 1.11, 0, 0, -13 }, { 1.31, 0, 0, -16 }, { 1.51, 0, 0, 0 } } } }, -- TWS 2
+	[76545761433830] = { { part = "Head", keys = { { 2.31, 0, 0, 0 }, { 2.51, 0, 0, 10 }, { 2.71, 0, 0, 10 }, { 2.91, 0, 0, 0 } } } }, -- TWS 13
+	[137670042338904] = { { part = "Head", keys = { { 5.31, 0, 0, 0 }, { 5.51, 0, 0, -15 }, { 5.71, 0, 0, -13 }, { 5.91, 0, 0, -15 }, { 6.11, 0, 0, 0 } } } }, -- TWS 14
+	[107246799142521] = { { part = "Head", keys = { { 2.31, 0, 0, 0 }, { 2.51, 0, 0, -17 }, { 2.71, 0, 0, -22 }, { 2.91, 0, 0, 0 } } } }, -- TWS 17
+	[100667532281425] = { { part = "Head", keys = { { 1.91, 0, 0, 0 }, { 2.11, 0, 0, -8 }, { 2.31, 0, 0, -14 }, { 2.51, 0, 0, 0 } } } }, -- TWS 18
 	-- (D-1394) BANG-After School: head_video.py → headMisses, keys 0.09 s early (13 pieces; 7 / 11 / 16 not uploaded yet)
 	[84153374890352] = { { part = "Head", keys = { { 8.51, 0, 0, 0 }, { 8.71, 0, 0, 21 }, { 8.91, 0, 0, 15 }, { 9.11, 0, 0, 0 } } } }, -- BANG 1
 	[102971667388731] = { { part = "Head", keys = { { 6.31, 0, 0, 0 }, { 6.51, 0, 0, 19 }, { 6.71, 0, 0, 22 }, { 6.83, 0, 0, 21 } } } }, -- BANG 5 (ends tilted: 6 starts at 21)
@@ -1886,6 +1914,10 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
+	-- (D-1603, user: "내 이름을 불러 줘 안무 추가") 내 이름을 불러줘-TWS: hand_moves.py on 19 clips → wristMisses, keys 0.09 s early; checked in Play (D-1263)
+	[73429358232249] = { { part = "LeftHand", keys = { { 2.11, 0, 0, 0 }, { 2.31, 0, 0, -19 }, { 2.51, 0, 0, -20 }, { 2.71, 0, 0, -26 }, { 2.91, 0, 0, 0 } } } }, -- TWS 9
+	[107243018629607] = { { part = "LeftHand", keys = { { 1.11, 0, 0, 0 }, { 1.31, 27, 0, 0 }, { 1.51, 40, 0, 0 }, { 1.71, 25, 0, 0 }, { 1.91, 24, 0, 0 }, { 2.11, 0, 0, 0 } } } }, -- TWS 12
+	[122207092339520] = { { part = "LeftHand", keys = { { 11.71, 0, 0, 0 }, { 11.91, 0, 0, -20 }, { 12.11, 0, 0, -33 }, { 12.31, 0, 0, 0 } } } }, -- TWS 19
 	-- (D-1394, user: "애프터스쿨 BANG 안무 추가") BANG-After School: hand_moves.py on all 16 clips → wristMisses, keys 0.09 s early;
 	-- clip 12 0-3.3 s left out (another dancer next to the centre); checked in Play (D-1263)
 	[102971667388731] = { { part = "RightHand", keys = { { 2.31, 0, 0, 0 }, { 2.51, 0, 0, -23 }, { 2.71, 0, 0, -22 }, { 2.91, 0, 0, -17 }, { 3.11, 0, 0, -40 }, { 3.31, 0, 0, 0 } } } }, -- BANG 5
