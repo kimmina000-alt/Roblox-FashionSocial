@@ -89,6 +89,13 @@ local function board(player: Player, model: Instance, slot: Instance?, pick: num
 		current.key = key
 		return true, { slot = model, key = key }
 	end
+	-- (D-1653, user 2026-11-17: "튜브 안 타고 들기 하고 다시 놓고 타려고 하니까 이미 타고 있다고 뜸") a
+	-- ride whose model is gone (a rented ring picked up or put away) or that no longer names this
+	-- player is forgotten here, instead of blocking every ride after it
+	local stale = riding[player]
+	if stale and (not stale.model:IsDescendantOf(workspace) or stale.slot:GetAttribute(stale.key) ~= player.UserId) then
+		riding[player] = nil
+	end
 	if riding[player] then return false, "이미 타고 있어요." end
 	-- (D-715) cafe staff cannot sit (CafeJobController turns the Seated state
 	-- off on duty), so a tube or a seat left them stuck, even after the shift
