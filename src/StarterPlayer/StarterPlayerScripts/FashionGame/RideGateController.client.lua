@@ -5,7 +5,7 @@
 -- to its "Ride"), attributes Mode / Inward / Width, leaves Leaf1 / Leaf2 (Hinge, OpenYaw) and an
 -- invisible Block across the opening.
 --   * Entry: open while the ride stands still (ParkConfig.rideState), closed while it runs; the
---     Block stops this player while closed.
+--     Block stops this player while closed, and always once they are inside (D-1561: in only).
 --   * Exit: the leaf swings out while anyone stands just inside it; the Block stops this player when
 --     they are outside (so the exit only lets people out).
 -- Every screen works this out by itself; the Block's CanCollide is set on this screen only, which is
@@ -128,6 +128,12 @@ RunService.Heartbeat:Connect(function(dt: number)
 			local still = if ride then ParkConfig.rideState(ride, t) else false
 			want = if still then 1 else 0
 			blocked = not still
+			-- (D-1561, user 2026-11-17: "입구로 못 나오게 막아") a player inside never leaves by the entrance
+			-- (they leave by the exit)
+			if root and not blocked then
+				local rel = root.Position - center
+				blocked = Vector3.new(rel.X, 0, rel.Z):Dot(gate.inward) > 0.5
+			end
 		else
 			want = if someoneLeaving(gate, center) then 1 else 0
 			-- this player outside the exit: the Block stops them
