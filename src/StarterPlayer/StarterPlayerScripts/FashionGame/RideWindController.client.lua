@@ -27,8 +27,10 @@ local NEAR = 220 -- (camera further away: silent, nothing worked out)
 local sounds: {[Instance]: Sound} = {}
 
 local CHEER = "rbxassetid://" .. tostring(ParkConfig.DropCheerSoundId)
+local localPlayer = game:GetService("Players").LocalPlayer
 local function cheer(part: BasePart?)
-	if not part then return end
+	-- (D-1709) the ☰ menu's 놀이기구 환호성 switch off: no cheer on this screen
+	if not part or localPlayer:GetAttribute("MuteCheer") == true then return end
 	local snd = Instance.new("Sound")
 	snd.Name = "DropCheer"
 	snd.SoundId = CHEER

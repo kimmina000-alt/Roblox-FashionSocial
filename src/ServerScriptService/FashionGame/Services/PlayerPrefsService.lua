@@ -8,7 +8,9 @@
 --   HideBadge_<role>    wallet.hideBadges[role]: that badge over the head is not shown
 --                       (NameTagService); roles Founding (FOUNDING MEMBER), Staff (알바생),
 --                       GUARD, VIP, DJ
--- ClubShop remote actions "HideName" (true / false) and "HideBadge" ({ role, on }) (ServerMain).
+--   MuteCheer           wallet.muteCheer: (D-1709, user 2026-11-18: "환호성 끄기 버튼 추가") no ride cheer
+--                       (vikings / jumping star, RideWindController) on this player's screen
+-- ClubShop remote actions "HideName" (true / false), "HideBadge" ({ role, on }) and "MuteCheer" (ServerMain).
 
 local Players = game:GetService("Players")
 
@@ -30,6 +32,16 @@ function PlayerPrefsService.SetName(player: Player, on: boolean): (boolean, any)
 	return true, on
 end
 
+function PlayerPrefsService.SetCheer(player: Player, mute: boolean): (boolean, any)
+	if not data then return false, nil end
+	local wallet = data.Wallet(player)
+	if not wallet then return false, nil end
+	wallet.muteCheer = if mute then true else nil
+	data.MarkDirty(player)
+	player:SetAttribute("MuteCheer", if mute then true else nil)
+	return true, mute
+end
+
 function PlayerPrefsService.SetBadge(player: Player, role: any, on: boolean): (boolean, any)
 	if not data or typeof(role) ~= "string" or not isBadge[role] then return false, nil end
 	local wallet = data.Wallet(player)
@@ -49,6 +61,7 @@ function PlayerPrefsService.Start(playerData: any)
 			local wallet = data.Wallet(player) -- (waits for the player's data)
 			if not player.Parent or not wallet then return end
 			player:SetAttribute("HideName", if wallet.hideName == true then true else nil)
+			player:SetAttribute("MuteCheer", if wallet.muteCheer == true then true else nil)
 			local hidden = wallet.hideBadges or {}
 			for _, role in ipairs(PlayerPrefsService.Badges) do
 				player:SetAttribute("HideBadge_" .. role, if hidden[role] == true then true else nil)

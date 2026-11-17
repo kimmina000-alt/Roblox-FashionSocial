@@ -5818,3 +5818,6 @@ Studio only (no script yet).
 ## D-1708 바이킹 · 점핑스타 내려올 때 환호 소리 (2026-11-18)
 - 사용자: "바이킹이나 점핑스타 내려올 때 들리는 소리 추가: 126615573673174" ("Crowd Cheering", 2.2초).
 - RideWindController(ParkConfig.DropCheerSoundId): 바이킹은 MaxAngle의 75% 넘는 꼭대기에서 방향이 바뀌어 내려가기 시작할 때마다(세게 흔들 때 약 2초마다), 점핑스타는 마지막 큰 낙하가 시작될 때 한 번. 배 / 의자 부품에서 나서 가까울수록 크게 들림(14~140스터드).
+## D-1709 ☰ 메뉴에 "놀이기구 환호성" 끄기 스위치 (2026-11-18)
+- 사용자: "환호성 끄기 버튼 추가".
+- MenuController: 칭호 스위치 아래 "🎢 놀이기구 환호성" 스위치(분홍 = 들림). 끄면 이 화면에서만 바이킹 · 점핑스타 환호성(D-1708)이 안 남. 닉네임 · 칭호처럼 저장됨: wallet.muteCheer → 플레이어 속성 MuteCheer(PlayerPrefsService.SetCheer, ClubShop "MuteCheer"). 바람 소리는 그대로.

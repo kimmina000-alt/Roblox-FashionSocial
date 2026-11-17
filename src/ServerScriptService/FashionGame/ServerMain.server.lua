@@ -148,6 +148,9 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 	elseif action == "HideName" then
 		-- (D-1377) the ☰ menu's switches
 		return require(script.Parent.Services.PlayerPrefsService).SetName(player, payload == true)
+	elseif action == "MuteCheer" then
+		-- (D-1709) the ☰ menu's 놀이기구 환호성 switch
+		return require(script.Parent.Services.PlayerPrefsService).SetCheer(player, payload == true)
 	elseif action == "HideBadge" then
 		-- (D-1378) one badge's 숨기기: payload { role, on }
 		if typeof(payload) ~= "table" then return false, nil end
