@@ -5876,3 +5876,9 @@ Studio only (no script yet).
 - 다도세트(찻상 위): 흰 쟁반 + 대나무 차판(홈 5줄), 크림색 점박이 도자기(SmoothPlastic + 점 텍스처 hg_speckle 126869188514605): 옆손잡이 찻주전자(부품), 숙우 · 잔 3개는 공을 CSG로 깎은 둥근 그릇(잔 2개 겹침). AI 다도세트 메시는 모양이 달라(위 손잡이, 잔 손잡이) 쓰지 않음.
 - 계단 · 대문 문턱 · 정자 계단 · 화단 · 다리 높이를 새 마당 높이에 맞춤. HanokGarden 부품 약 1,075(존 예산 1,500 안).
 - 사진: docs/06_LOG/images/2026-11-17/hanok_garden_v2_*.jpg.
+## D-1743 한옥 연못 정원 3차: 사진 돌 · 나무 텍스처, 아스팔트 마당, AI 다도세트 (2026-11-17)
+- 사용자(화강암 · 나무 사진 4장): "돌 나무 텍스처 사용. 한옥 벽 나무 부분 세 번째 첨부하는 이미지 사용해 봐. 바닥 아스팔트 재질로 바꿔 돌 만들어서 입체감 줬으니까. 다도세트 3d로 만든 거 넣어. 손잡이 있으면 왜 못 써?"
+- 벽 키트 나무(기둥 · 인방 · 문울거미 · 바닥): 세 번째 사진(hanok_wood_oak.png)을 512로 맞춰 OHU_HanokPineV(세로) / PineH(90° 돌림)의 ColorMap으로, 곱하는 색은 흰색(사진 색 그대로). 화강암 사진(hanok_stone_granite.webp)은 새 MaterialVariant OHU_HanokGranite: 주춧돌 · 기단 · 계단 · 다리 · 대문 문턱 · 도드라진 판석 458개. 네 번째 사진(hanok_wood_dark.png)은 OHU_HanokDarkV/H: 찻상 · 식탁 · 의자 · 낮은 탁자. 두 번째 사진은 스톡 사진 워터마크가 있어 쓰지 않음.
+- 마당 포장: 거리 차도와 같은 실사 아스팔트(Concrete + MaterialVariant OHU_Asphalt, 색 128,128,130), 납작 돌 텍스처는 뺌.
+- 다도세트: 손잡이 모양 때문에 빼 두었던 AI 메시를 사용자 요청대로 다시 넣음(InsertService로 업로드 id 71556407953405 / 113470511072183 / 107112482480768 → ArtAssets.HanokGardenAssets.TeaKyusu / TeaPitcher / TeaCup): 위 손잡이 주전자, 숙우, 잔 3(둘은 겹쳐) 를 대나무 차판 위에. 부품 도자기는 메시가 없을 때만.
+- 사진: docs/06_LOG/images/2026-11-17/hanok_garden_v3_*.jpg.

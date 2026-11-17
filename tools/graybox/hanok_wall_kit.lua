@@ -14,8 +14,11 @@ local MaterialService = game:GetService("MaterialService")
 local ServerStorage = game:GetService("ServerStorage")
 
 local TEX = {
-	pineV = "rbxassetid://115576550363672", -- 세로 결 (기둥, 문울거미 세로)
-	pineH = "rbxassetid://110895737913533", -- 가로 결 (인방, 창방, 머름)
+	pineV = "rbxassetid://83566626446641", -- 나뭇결 세로 (사용자 사진 hanok_wood_oak.png, D-1743)
+	pineH = "rbxassetid://119796355507042", -- 같은 사진 90° (인방, 창방, 머름)
+	granite = "rbxassetid://101703228134434", -- 화강암 (사용자 사진 hanok_stone_granite.webp): 주춧돌 · 기단 · 판석
+	darkV = "rbxassetid://107334874439887", -- 어두운 나무 (사용자 사진 hanok_wood_dark.png): 가구
+	darkH = "rbxassetid://126234164189304",
 	plaster = "rbxassetid://73293187055221",
 	ttisal = "rbxassetid://96464883424808", -- 띠살
 	jeongja = "rbxassetid://114067470834518", -- 정자살 (4칸 한 장, 반복)
@@ -37,10 +40,13 @@ end
 variant("OHU_HanokPineV", Enum.Material.Wood, TEX.pineV, 7)
 variant("OHU_HanokPineH", Enum.Material.Wood, TEX.pineH, 7)
 variant("OHU_HanokPlaster", Enum.Material.Plaster, TEX.plaster, 18)
+variant("OHU_HanokGranite", Enum.Material.Granite, TEX.granite, 6)
+variant("OHU_HanokDarkV", Enum.Material.Wood, TEX.darkV, 6)
+variant("OHU_HanokDarkH", Enum.Material.Wood, TEX.darkH, 6)
 
 local T = 1.2 -- 벽 두께
 local P = 2.6 -- 기둥 폭
-local WOOD = Color3.fromRGB(240, 205, 155) -- 소나무 결 위에 곱해지는 색
+local WOOD = Color3.fromRGB(255, 255, 255) -- 사진 나뭇결 그대로 (곱하는 색)
 
 local K = {}
 _G.HanokWallKit = K
@@ -65,7 +71,8 @@ local function box(model, name, size, pos, kind, opts)
 		p.Color = Color3.fromRGB(255, 255, 255)
 	elseif kind == "stone" then
 		p.Material = Enum.Material.Granite
-		p.Color = Color3.fromRGB(196, 192, 182)
+		p.MaterialVariant = "OHU_HanokGranite"
+		p.Color = Color3.fromRGB(255, 255, 255)
 	elseif kind == "iron" then
 		p.Material = Enum.Material.Metal
 		p.Color = Color3.fromRGB(38, 36, 34)

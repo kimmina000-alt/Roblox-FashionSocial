@@ -4,7 +4,7 @@
 -- 체인 스크립트가 건드리지 않는 Workspace 최상위(HanokGarden), 지형(필지 안 연못 물)과 사용자 부품(블록 · 북쪽 담)만 바꾼다: 장소 저장 필요.
 --   블록 Part(315, 504) → ServerStorage.ParkedHanokBlocks 로(지붕 HanokRoof_4 는 그대로).
 --   북쪽 담(z 454)에 대문 자리(x 238..250)를 냄: 원래 담은 ServerStorage.ParkedHanokBlocks.NorthWall_1117 에 보관.
--- 에셋(AI generate_mesh, place 전용): ServerStorage.ArtAssets.HanokGardenAssets.{Persimmon, RockB, RockC, Fern, Flagstone, LotusFlat, LotusTall}
+-- 에셋(AI generate_mesh, place 전용): ServerStorage.ArtAssets.HanokGardenAssets.{Persimmon, RockB, RockC, Fern, Flagstone, LotusFlat, LotusTall, TeaKyusu, TeaPitcher, TeaCup}
 --   LotusFlat / LotusTall 은 SurfaceAppearance(ColorMap = 메시 텍스처, Color 176,200,160)로 사진처럼 차분한 초록.
 -- 마당 높이 GY 1.0: 포장(CSG, 연못 구멍) + 투명 걷는 바닥(연못 안쪽만 비움), 수면 약 0.9 = Terrain Water(지형 칸에 직접 씀).
 local K = _G.HanokWallKit
@@ -50,7 +50,7 @@ local function folder(name)
 	local f = Instance.new("Model") f.Name = name f.Parent = root return f
 end
 local function mat(p, material, color) p.Material = material p.Color = color return p end
-local STONE = Color3.fromRGB(206, 200, 188)
+local STONE = Color3.fromRGB(255, 255, 255) -- 화강암 사진 텍스처 그대로 (D-1743)
 local function stone(m, name, x0, x1, y0, y1, z0, z1)
 	local p = box(m, name, Vector3.new(x1 - x0, y1 - y0, z1 - z0), Vector3.new((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), "stone")
 	p.Color = STONE
@@ -187,7 +187,8 @@ pave.CanCollide = false -- CSG 충돌은 구멍까지 메움: 아래 WalkFloor �
 pave.CastShadow = false
 pave.Parent = gd
 pave0:Destroy()
-mat(pave, Enum.Material.Slate, Color3.fromRGB(196, 190, 176))
+mat(pave, Enum.Material.Concrete, Color3.fromRGB(128, 128, 130))
+pave.MaterialVariant = "OHU_Asphalt" -- 거리 차도와 같은 실사 아스팔트 (D-1743: 도드라진 판석이 입체감)
 -- 걷는 바닥(투명): 2스터드 칸, 연못 안쪽(가장자리 1 안)만 비움, 같은 모양 줄끼리 합침
 local rows = {}
 for z = LZ0, LZ1 - 2, 2 do
@@ -210,8 +211,6 @@ while ri <= #rows do
 	end
 	ri = rj + 1
 end
-local ptx = Instance.new("Texture")
-ptx.Texture = "rbxassetid://111631043205596" ptx.Face = Enum.NormalId.Top ptx.StudsPerTileU = 13 ptx.StudsPerTileV = 13 ptx.Color3 = Color3.fromRGB(236, 228, 214) ptx.Parent = pave
 local GRASS = Color3.fromRGB(86, 112, 58)
 local function bed(name, x0, x1, z0, z1)
 	local e = box(gd, name .. "Edge", Vector3.new(x1 - x0 + 0.8, GY + 0.35, z1 - z0 + 0.8), Vector3.new((x0 + x1) / 2, (GY + 0.35) / 2, (z0 + z1) / 2), nil, { shadow = false })
@@ -322,8 +321,9 @@ if FS then
 		local p = FS:Clone()
 		for _, d in ipairs(p:GetChildren()) do if d:IsA("SurfaceAppearance") then d:Destroy() end end
 		p.TextureID = ""
-		p.Material = Enum.Material.Slate
-		p.Color = Color3.fromRGB(170, 162, 148)
+		p.Material = Enum.Material.Granite
+		p.MaterialVariant = "OHU_HanokGranite"
+		p.Color = Color3.fromRGB(255, 255, 255)
 		p.Size = Vector3.new(frs:NextNumber(2.6, 3.6), frs:NextNumber(0.2, 0.28), frs:NextNumber(2.2, 3.2))
 		p.CFrame = CFrame.new(x, GY + 0.02, z) * CFrame.Angles(frs:NextNumber(-0.02, 0.02), frs:NextNumber(0, 6.28), frs:NextNumber(-0.02, 0.02))
 		p.Anchored = true
@@ -440,6 +440,25 @@ for k = -2, 2 do
 	mat(g, Enum.Material.SmoothPlastic, Color3.fromRGB(150, 110, 64))
 end
 local FY2 = TY + 0.2 -- 차판 윗면
+-- AI 도자기 메시(TeaKyusu · TeaPitcher · TeaCup, D-1743 사용자 요청): 있으면 이것을 씀, 없으면 아래 부품 도자기
+local function ware(name, x, y, z, scale, yaw)
+	local src = assets and assets:FindFirstChild(name)
+	if not src then return nil end
+	local m = src:Clone()
+	m:ScaleTo(m:GetScale() * scale)
+	m:PivotTo(CFrame.new(m:GetPivot().Position) * CFrame.Angles(0, yaw, 0))
+	local cf, s = m:GetBoundingBox()
+	m:PivotTo(m:GetPivot() + (Vector3.new(x, y + s.Y / 2, z) - cf.Position))
+	m.Parent = tea
+	return m
+end
+if ware("TeaKyusu", TX - 1.2, FY2, tz2 + 0.1, 1.05, math.rad(200)) then
+	ware("TeaPitcher", TX - 0.3, TY, tz2 - 1.45, 1.35, math.rad(-20))
+	ware("TeaCup", TX + 0.2, FY2, tz2 + 0.2, 1, math.rad(30))
+	local c1 = ware("TeaCup", TX + 1.3, FY2, tz2 - 0.2, 1, math.rad(120))
+	local _, s1 = c1:GetBoundingBox()
+	ware("TeaCup", TX + 1.3, FY2 + s1.Y * 0.55, tz2 - 0.2, 1, math.rad(150))
+else
 -- 옆손잡이 찻주전자 (왼쪽)
 local px, pz = TX - 1.2, tz2 + 0.1
 local body = ceramic(box(tea, "PotBody", Vector3.new(0.9, 0.9, 0.9), Vector3.new(px, FY2 + 0.42, pz), nil))
@@ -469,6 +488,15 @@ end
 cup(TX + 0.15, FY2, tz2 + 0.15)
 cup(TX + 1.3, FY2, tz2 - 0.2)
 cup(TX + 1.3, FY2 + 0.26, tz2 - 0.2)
+end
+-- 어두운 나무(사용자 사진): 찻상 · 식탁 · 의자 · 낮은 탁자
+local DARKNAMES = { TeaTable = 1, TeaTableBase = 1, TableTop = 1, TableLeg = 1, ChairSeat = 1, ChairBack = 1, ChairLegs = 1, LowTableTop = 1, LowTableBase = 1 }
+for _, d in ipairs(root:GetDescendants()) do
+	if d:IsA("BasePart") and DARKNAMES[d.Name] then
+		d.MaterialVariant = d.MaterialVariant == "OHU_HanokPineH" and "OHU_HanokDarkH" or "OHU_HanokDarkV"
+		d.Color = Color3.fromRGB(255, 255, 255)
+	end
+end
 -- 방석 4 (앉기)
 for _, x in ipairs({ 280, 287, 294, 301 }) do
 	local seat = Instance.new("Seat")
