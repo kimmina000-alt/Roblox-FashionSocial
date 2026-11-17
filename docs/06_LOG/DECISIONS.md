@@ -5495,3 +5495,8 @@ Studio only (no script yet).
 - User: "회전컵 조형물 조명은 밤에만 빛나게".
 - The teapot spikes (SpikeGlow / SpikeTip) are plain cream SmoothPlastic (255, 246, 214) in the place and in park_teacups_1115.lua. ParkNightController turns them to Neon at 30 % (77, 74, 64, D-1573) from 18:00 to 06:00 while the camera is near the park, like the string lights; parts streamed in at night are caught every 12 steps.
 - Play check: 14:00 → 24 spikes plastic, 21:30 → 24 Neon (77, 74, 64); no script errors. Place change: the user saves.
+
+## D-1550 (2026-11-16) 메모리 3: 스트리밍 반경 384 → 256
+- User (forwarded by the main session): "둘 다 해" to the two memory trade-offs (D-1549 images, and the streaming radius).
+- Workspace.StreamingTargetRadius 384 → 256 (StreamingMinRadius 128, Opportunistic, PauseOutsideLoadedArea unchanged; no script sets these), place only.
+- Studio Play, same spots, 20 s each: parts on the client at the spawn 17,314 → 13,039 (−25 %), in the park 13,497 → 9,715 (−28 %); instances 28,132 → 22,838 / 22,449 → 16,839. Far buildings now arrive later: from the spawn the street is built about 250 studs out.
