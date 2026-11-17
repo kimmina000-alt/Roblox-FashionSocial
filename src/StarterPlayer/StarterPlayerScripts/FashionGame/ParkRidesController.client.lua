@@ -1007,7 +1007,8 @@ local function pressMain()
 			end
 			-- (D-1661, user 2026-11-17: "회전목마 ... 점프 버튼 유지해서 점프하면 내리게 하기") on the carousel
 			-- (and the fire trucks, built on its code) jumping stays on: a jump gets you off (JumpRequest below)
-			setJump(mySlot ~= nil and mySlot.kind == "ParkCarousel")
+			-- (D-1702, user 2026-11-17: "관람차 내리기 삭제. 점프하면 내리게.") the ferris wheel too
+			setJump(mySlot ~= nil and (mySlot.kind == "ParkCarousel" or mySlot.kind == "ParkWheel"))
 		elseif typeof(result) == "string" then
 			toast(result)
 		end
@@ -1018,7 +1019,7 @@ end
 -- (D-1661) the carousel's way off: the jump button (Space on a keyboard) instead of a 내리기 button
 UserInputService.JumpRequest:Connect(function()
 	local entry = mySlot
-	if entry and entry.kind == "ParkCarousel" and not busy then pressMain() end
+	if entry and (entry.kind == "ParkCarousel" or entry.kind == "ParkWheel") and not busy then pressMain() end
 end)
 
 -- (D-1591) TubeCarryController: walking into the sea with the beach ring put it on the water; get in it
@@ -1282,6 +1283,8 @@ local function refreshUi(t: number)
 			bar.Visible = false
 			return
 		end
+		-- (D-1702) the ferris wheel: no 내리기 button (jump to get off), only 👁 1인칭
+		mainButton.Visible = entry.kind ~= "ParkWheel"
 		viewButton.Visible = entry.kind == "ParkWheel" or ParkConfig.isSeatRide(entry.kind)
 		viewButton.Text = if firstPerson then (if KEY ~= "" then "🎥 3인칭 (V)" else "🎥 3인칭") else (if KEY ~= "" then "👁 1인칭 (V)" else "👁 1인칭")
 		local isSwing = entry.kind == "ParkSwing"

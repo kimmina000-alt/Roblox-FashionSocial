@@ -61,6 +61,36 @@ local function setRider(character: Model?, on: boolean)
 	end
 end
 
+-- (D-1704, user 2026-11-17: "범퍼카 위치 자유분방하게 흩어지게 배치") at the server's start every car takes a
+-- random spot and heading on the floor (they stood in two rows in the south): at least SPREAD_GAP apart,
+-- SPREAD_EDGE in from the rails and clear of the south rail's two gaps (the way in and the way out)
+local SPREAD_EDGE, SPREAD_GAP, DOOR_CLEAR = 9, 15, 20
+local DOORS = { Vector2.new(-95, -645), Vector2.new(-148.5, -645) }
+local spreadRandom = Random.new()
+local placed: {Vector2} = {}
+local function scatterSpot(fallback: Vector2): (Vector2, number)
+	local hall = BumperCarConfig.Hall
+	for _ = 1, 300 do
+		local p = Vector2.new(
+			spreadRandom:NextNumber(hall.x0 + SPREAD_EDGE, hall.x1 - SPREAD_EDGE),
+			spreadRandom:NextNumber(hall.z0 + SPREAD_EDGE, hall.z1 - SPREAD_EDGE))
+		local ok = true
+		for _, door in ipairs(DOORS) do
+			if (p - door).Magnitude < DOOR_CLEAR then ok = false break end
+		end
+		for _, q in ipairs(placed) do
+			if not ok then break end
+			if (p - q).Magnitude < SPREAD_GAP then ok = false end
+		end
+		if ok then
+			table.insert(placed, p)
+			return p, spreadRandom:NextNumber(-math.pi, math.pi)
+		end
+	end
+	table.insert(placed, fallback)
+	return fallback, 0
+end
+
 local function build(model: Model)
 	if model:FindFirstChild("BumperRoot") or not model:IsDescendantOf(workspace) then return end
 	local body = model:FindFirstChildWhichIsA("MeshPart")
@@ -72,7 +102,9 @@ local function build(model: Model)
 	local hall = BumperCarConfig.Hall
 	local r = body.CFrame.RightVector
 	local yaw = math.atan2(-r.Z, r.X) -- (the car's +X; Euler angles flip near 180°)
-	local base = CFrame.new(body.Position.X, hall.floorY + 0.5, body.Position.Z) * CFrame.Angles(0, yaw, 0)
+	local spot, turn = scatterSpot(Vector2.new(body.Position.X, body.Position.Z)) -- (D-1704)
+	yaw += turn
+	local base = CFrame.new(spot.X, hall.floorY + 0.5, spot.Y) * CFrame.Angles(0, yaw, 0)
 	body.Anchored, body.CanCollide, body.CanQuery, body.CanTouch, body.Massless = false, false, false, false, true
 	body.CollisionGroup = CAR_GROUP
 	body.CFrame = base * CFrame.new(0, body.Size.Y / 2 - 0.5, 0)

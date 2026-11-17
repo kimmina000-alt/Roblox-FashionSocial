@@ -14,6 +14,8 @@ local ProximityPromptService = game:GetService("ProximityPromptService")
 
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local GuideConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("GuideConfig"))
+local ClubConfig = require(FashionGame.Shared:WaitForChild("ClubConfig"))
+local DayNightConfig = require(FashionGame.Shared:WaitForChild("DayNightConfig"))
 local remote = FashionGame:WaitForChild("Remotes"):WaitForChild("Guide") :: RemoteFunction
 local Popups = require(script.Parent:WaitForChild("Popups"))
 local Sfx = require(script.Parent:WaitForChild("Sfx"))
@@ -223,7 +225,8 @@ local function showAnswer(faq: GuideConfig.Faq)
 	local place = faq.place and GuideConfig.Places[faq.place]
 	showButton.Visible = place ~= nil
 	goButton.Visible = place ~= nil or faq.action ~= nil
-	goButton.Text = if faq.action == "feedback" then "✏️ 의견 쓰기" elseif faq.action == "tour" then "▶ 다시 보기" else "📍 길 안내"
+	goButton.Text = if faq.action == "feedback" then "✏️ 의견 쓰기" elseif faq.action == "tour" then "▶ 다시 보기"
+		elseif faq.action == "showWay" then "응! 📍 길 안내" else "📍 길 안내"
 	list.Visible = false
 	answer.Visible = true
 end
@@ -243,16 +246,23 @@ end
 -- 눈에 띄게 해서 넣어. 저거 누르면 밤에는 클럽으로 안내/낮에는 포토부스로 안내") a white row on top of the list
 -- for a first-visit player (LocalPlayer attribute NewPlayer, FirstGoalController): it closes the window
 -- and the dashed way leads to the club by night, to 오후네컷 by day (UiBus.ShowWay)
+-- (D-1701, user 2026-11-17: "뭘 해야 할지 모르겠어 겉에 핑크색 삭제. 그냥 흰 바탕에 검은 글씨로만. 버튼 높이 줄여.
+-- 뭘 해야 할지 모르겠어 누르면 낮에는 \"사진 찍으러 갈래?\" 하고 점선 안내. 밤에는 \"케이팝 좋아해?\" 하고 점선 안내.")
+-- white with black words, no pink edge, as high as the other rows (44, was 50); it opens an answer
+-- with the guide's question, and its button draws the dashed way (UiBus.ShowWay)
 local lost = button(list, "🙋 뭘 해야 할지 모르겠어.", Color3.new(1, 1, 1), Color3.new(0, 0, 0))
 lost.LayoutOrder = 0
-lost.Size = UDim2.new(1, -10, 0, 50)
+lost.Size = UDim2.new(1, -10, 0, 40)
 lost.Font = Enum.Font.GothamBlack
-lost.TextSize = 17
+lost.TextSize = 16
 lost.Visible = false
-create("UIStroke", { Color = Color3.fromRGB(255, 110, 170), Thickness = 2.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lost)
 lost.Activated:Connect(function()
-	closeWindow()
-	require(script.Parent:WaitForChild("UiBus")).ShowWay:Fire()
+	local night = ClubConfig.isNightOpen(DayNightConfig.clockNow())
+	showAnswer({
+		q = "뭘 해야 할지 모르겠어.",
+		a = if night then "케이팝 좋아해?" else "사진 찍으러 갈래?",
+		action = "showWay",
+	})
 end)
 
 local function openWindow()
@@ -279,6 +289,11 @@ goButton.Activated:Connect(function()
 	if shown.action == "feedback" then
 		closeWindow()
 		require(script.Parent:WaitForChild("Feedback")).open()
+		return
+	end
+	if shown.action == "showWay" then -- (D-1701: 뭘 해야 할지 모르겠어 → the dashed way)
+		closeWindow()
+		require(script.Parent:WaitForChild("UiBus")).ShowWay:Fire()
 		return
 	end
 	if shown.action == "tour" then -- (D-1365)

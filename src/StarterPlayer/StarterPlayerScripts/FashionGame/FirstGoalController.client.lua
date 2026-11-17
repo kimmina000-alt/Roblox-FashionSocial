@@ -226,8 +226,11 @@ end
 -- pavement), so the straight fallback cut through the buildings. Both ends are put on the ground now and,
 -- if there is still no path, points around the place (up to 16 studs off) are tried; the straight line
 -- is only the last resort. The way is drawn as a dashed line (DASH studs on, GAP off).
-local DASH, GAP = 1.6, 1.1
-local DASH_ALPHA = 0.5 -- (D-1698, user 2026-11-17: "안내하는 점선 반투명하게 수정"; 0.1 until then)
+-- (D-1701, user 2026-11-17: "점선 더 작은 점선으로 수정하고 투명도 반 더 줘") smaller dashes (1.6 / 1.1 and 0.4
+-- wide until then) and half of what was left of them see-through: 0.5 → 0.75
+local DASH, GAP = 0.8, 0.6
+local DASH_W = 0.25
+local DASH_ALPHA = 0.75 -- (D-1698, user 2026-11-17: "안내하는 점선 반투명하게 수정"; 0.1 until then)
 local function walkPath(from: Vector3, target: Vector3): {Vector3}?
 	local path = PathfindingService:CreatePath({ AgentRadius = 1.5, AgentHeight = 5, AgentCanJump = true, WaypointSpacing = 4 })
 	local ok = pcall(function() path:ComputeAsync(from, target) end)
@@ -287,7 +290,7 @@ local function drawLine()
 						create("Part", {
 							Anchored = true, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false,
 							Material = Enum.Material.Neon, Color = WHITE, Transparency = DASH_ALPHA,
-							Size = Vector3.new(0.4, 0.06, piece), CFrame = CFrame.lookAt((p0 + p1) / 2, p1),
+							Size = Vector3.new(DASH_W, 0.06, piece), CFrame = CFrame.lookAt((p0 + p1) / 2, p1),
 						}, folder)
 						count += 1
 					end

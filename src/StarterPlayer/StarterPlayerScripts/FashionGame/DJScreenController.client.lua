@@ -14,6 +14,7 @@
 -- Workspace SurfaceGui is not drawn).
 
 local Players = game:GetService("Players")
+local HIDDEN_FROM_WALL = 11887382096 -- (D-1705: Vantablack_Dev, the developer)
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local RunService = game:GetService("RunService")
 
@@ -303,7 +304,10 @@ RunService.RenderStepped:Connect(function(dt)
 	local dj = if id ~= 0 then Players:GetPlayerByUserId(id) else nil
 	local character = dj and dj.Character
 	local root = character and character:FindFirstChild("HumanoidRootPart") :: BasePart?
-	local show = dj ~= nil and root ~= nil and (not isDJ or FashionGame:GetAttribute("ClubDJScreen") ~= false)
+	-- (D-1705, user 2026-11-17: "Vantablack_Dev 개발자임. 가드, dj 권한은 그대로 두고 DJ 전광판에 모습 안 뜨게 해
+	-- 줘") the developer's account is never drawn on the LED wall (their guard / DJ rights stay)
+	local hidden = id == HIDDEN_FROM_WALL
+	local show = dj ~= nil and root ~= nil and not hidden and (not isDJ or FashionGame:GetAttribute("ClubDJScreen") ~= false)
 	s.logo.Visible = not show
 	s.viewport.Visible = show
 	s.nameLabel.Visible = show

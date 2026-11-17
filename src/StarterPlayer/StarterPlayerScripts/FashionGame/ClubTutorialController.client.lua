@@ -73,20 +73,20 @@ local STEPS: {Step} = {
 
 ---------------------------------------------------------------- the card and the ring
 local gui = create("ScreenGui", { Name = "ClubTutorialGui", ResetOnSpawn = false, IgnoreGuiInset = true, DisplayOrder = 31, Enabled = false }, playerGui)
--- (D-1692) the guide rabbit waving at the card's left (GuideSpeaker), the text after it
-local SPEAKER = 78
+-- (D-1692 put the guide rabbit at the card's left; D-1700, user 2026-11-17: "클럽 안에서 안내하는 거에선
+-- 토끼 삭제" — no rabbit here, the text starts at the left edge)
+local SPEAKER = 0
 local CARD_W = 280 + SPEAKER
 local card = create("Frame", { Size = UDim2.fromOffset(CARD_W, 114), BackgroundColor3 = BLACK, BackgroundTransparency = 0.2 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 16) }, card)
 local stroke = create("UIStroke", { Color = WHITE, Thickness = 2, Transparency = 0.2 }, card)
-require(script.Parent:WaitForChild("GuideSpeaker")).attach(card, SPEAKER)
 -- (D-1665, user: "클럽 안내 1/3 삭제") no header line
 local title = create("TextLabel", {
-	Position = UDim2.fromOffset(SPEAKER + 8, 10), Size = UDim2.new(1, -50 - SPEAKER, 0, 22), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(SPEAKER + 14, 10), Size = UDim2.new(1, -50 - SPEAKER, 0, 22), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBlack, TextSize = 17, TextColor3 = WHITE, TextXAlignment = Enum.TextXAlignment.Left, Text = "",
 }, card)
 local body = create("TextLabel", {
-	Position = UDim2.fromOffset(SPEAKER + 8, 34), Size = UDim2.new(1, -22 - SPEAKER, 0, 44), BackgroundTransparency = 1,
+	Position = UDim2.fromOffset(SPEAKER + 14, 34), Size = UDim2.new(1, -28 - SPEAKER, 0, 44), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBold, TextSize = 12, TextColor3 = Color3.fromRGB(230, 230, 230), TextWrapped = true,
 	TextXAlignment = Enum.TextXAlignment.Left, TextYAlignment = Enum.TextYAlignment.Top, Text = "",
 }, card)
