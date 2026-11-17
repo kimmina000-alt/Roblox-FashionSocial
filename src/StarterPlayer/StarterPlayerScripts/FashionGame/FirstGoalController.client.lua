@@ -253,7 +253,14 @@ RunService.Heartbeat:Connect(function()
 	-- the pulsing ring round a top bar button
 	local b = if s.target then s.target() elseif s.button then TopBar.button(s.button) else nil
 	if b and b.Visible then
-		NearButton.place(card, pointer, b, 280) -- (D-1539)
+		-- (D-1663, user 2026-11-17 with a shot of the card over the catalog: "목표 안내가 카탈로그 가리니까 위로
+		-- 올리기") a button inside a window (the catalog's 추천, s.target) keeps the card up at the left under
+		-- the top bar, clear of the window; only a top bar button gets the card right under it
+		if s.target and b ~= TopBar.button(4) then -- (👗 itself is a top bar button: under it)
+			if pointer.Visible or card.Position ~= UDim2.fromOffset(12, TopBar.bottom() + 8) then placeCard() end
+		else
+			NearButton.place(card, pointer, b, 280) -- (D-1539)
+		end
 		ring.Visible = true
 		local pad = 6
 		-- (AbsolutePosition leaves out the top-bar inset even here, D-1138)

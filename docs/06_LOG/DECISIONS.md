@@ -5698,3 +5698,10 @@ Studio only (no script yet).
 - `at` 57.74(클립 시작 − 1.25), blend 0.5(7→8 정면 32°, 오른 정강이 45°). 9번: 기본 춤 다음이라 넣었던 blend 0.08 + 자체 `spin` → 8 다음이 되어 blend 1 + `spin fromPrev dir 1`(8은 130° 돌아선 채 끝나고 영상도 9번 시작에 등에서 앞으로 돎: +159° 한 번).
 - 미끄러짐: slide_check 3.0-4.1 + Play TELEPORT 1:05.4 → 7.4-8.1, 다시 재서 0. 정면(faceoffset) −11(MAD 16). 고개 · 손목: 0.2초 연속 2점 구간 없음(고개 2.8초 한 점만) → 없음.
 - Play(0:55-1:12): 회전 최대 337°/s, 8→9 이음새 −56° → +92° 한 방향, GUARD 없음.
+## D-1662 클럽 첫 안내: 춤추는 곳에서 안무 · 카메라 · 노래 신청 (2026-11-17)
+- 사용자: "클럽 건물 입장할 때 말고 춤추는 곳 들어가면 처음 오는 사람들한테 튜토리얼 띄우기 / 클럽 안무 버튼, 카메라 버튼, 노래 신청하는 법".
+- ClubTutorialController(새): 댄스 플로어(ClubFloorFX 타일 x 100..156, z -254..-154)에 처음 서면 카드 3장. ① ♫ 안무 따라 추기(ClubChoreo) ② 🎥 무대 카메라(ClubStageCam) ③ ≡ 노래 신청(ClubList). 카드는 노래 배너(FashionDanceGui.NowPlaying)의 그 버튼 바로 아래(NearButton) + 버튼에 깜빡이는 동그라미. 지금 노래에 없는 버튼은 ≡ 아래에 동그라미 없이. 다음 / 알겠어요 / ✕. 한 번만(TipSeen "club1"). 그동안 첫 목표 카드는 숨겼다가 다시 보임. Studio: FirstGoalTest 켜면 매번 나옴(저장 안 함).
+- 화면: docs/06_LOG/images/2026-11-17/club_tutorial_1_choreo.jpg, _2_camera.jpg, _3_request.jpg.
+## D-1663 첫 목표 카드: 카탈로그를 가리지 않게 (2026-11-17)
+- 사용자(카탈로그 위에 겹친 카드 사진): "목표 안내가 카탈로그 가리니까 위로 올리기".
+- FirstGoalController: 카탈로그 안의 「추천」을 가리킬 때는 카드를 왼쪽 위(상단바 아래)에 두고 동그라미만 「추천」에. 👗 같은 상단바 버튼은 전처럼 그 버튼 바로 아래. 화면: tutorial_1_arrive.jpg, tutorial_2_catalog.jpg.
