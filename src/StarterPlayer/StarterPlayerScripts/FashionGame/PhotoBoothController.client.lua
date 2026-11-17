@@ -1557,7 +1557,7 @@ end
 -- offered to the device gallery: the saved picture is just the photo in its frame.
 local SHEET_COLOR = Color3.fromRGB(250, 244, 246)
 local savingSheet = false
-local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
+local function saveFramedPhoto(draw: (holder: Frame) -> (), layoutKey: string?): boolean
 	if savingSheet then return true end
 	local CaptureService = game:GetService("CaptureService")
 	savingSheet = true
@@ -1585,12 +1585,29 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 	end
 	sheet.Parent = playerGui
 	-- (D-1587, user 2026-11-17: "사진 저장할 때 알아서 세로모드로 저장하고 원래 플레이어가 쓰던 화면으로
-	-- 돌아가게 해") on a phone the screen turns to portrait for the shot (the strip is tall, so it is
-	-- bigger), then back to the player's own orientation
+	-- 돌아가게 해") on a phone the screen turns for the shot, then back to the player's own setting.
+	-- (D-1588, user: "긴 프레임은 세로버전이 더 클 거고 2x2 프레임은 가로 세로 중 어느 게 더 클지 계산해서
+	-- 구현") the way that shows the strip bigger is worked out from the strip's shape: a strip of aspect
+	-- a (width / height) on a screen L x S (long, short) is min(S, L / a) tall lying down and
+	-- min(L, S / a) tall standing up; the 1x4 strip is bigger standing, the 2x2 (a = 1.07) lying down
 	local oldOrientation = playerGui.ScreenOrientation
 	local turned = false
-	if game:GetService("UserInputService").TouchEnabled then
-		turned = pcall(function() playerGui.ScreenOrientation = Enum.ScreenOrientation.Portrait end)
+	local wantPortrait: boolean? = nil
+	local cam = workspace.CurrentCamera
+	if game:GetService("UserInputService").TouchEnabled and cam then
+		local okA, a = pcall(PhotoRender.stripAspect, layoutKey or "1x4")
+		local aspect = if okA and typeof(a) == "number" and a > 0 then a else 0.3
+		local vp = cam.ViewportSize
+		local L, S = math.max(vp.X, vp.Y), math.min(vp.X, vp.Y)
+		local lying = math.min(S, L / aspect) * aspect -- (the strip's width; same ratio as its height)
+		local standing = math.min(L, S / aspect) * aspect
+		wantPortrait = standing > lying * 1.02
+		local isPortrait = vp.Y > vp.X
+		if wantPortrait ~= isPortrait then
+			turned = pcall(function()
+				playerGui.ScreenOrientation = if wantPortrait then Enum.ScreenOrientation.Portrait else Enum.ScreenOrientation.LandscapeSensor
+			end)
+		end
 	end
 	local hidden = {}
 	for _, other in ipairs(playerGui:GetChildren()) do
@@ -1612,11 +1629,27 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 		-- the cuts are drawn one by one (PhotoRender's queue): wait for them, then two frames
 		local waited = 0
 		while PhotoRender.busy() and waited < 6 do waited += task.wait(0.1) end
+		-- (D-1588, found on a phone: the first save caught empty frames) the avatars' meshes and
+		-- textures in the cuts are loaded before the shot (at most 8 s)
+		local assets = {}
+		for _, d in ipairs(holder:GetDescendants()) do
+			if d:IsA("MeshPart") or d:IsA("SpecialMesh") or d:IsA("Decal") or d:IsA("Texture")
+				or d:IsA("SurfaceAppearance") or d:IsA("ImageLabel") or d:IsA("Shirt") or d:IsA("Pants") then
+				table.insert(assets, d)
+			end
+		end
+		local loaded = false
+		task.spawn(function()
+			pcall(function() game:GetService("ContentProvider"):PreloadAsync(assets) end)
+			loaded = true
+		end)
+		local t0 = os.clock()
+		while not loaded and os.clock() - t0 < 8 do task.wait(0.1) end
+		task.wait(0.5)
 		if turned then
-			-- wait for the screen to have turned (taller than wide), at most 2 s
-			local cam = workspace.CurrentCamera
+			-- wait for the screen to have turned, at most 2 s
 			local t = 0
-			while cam and cam.ViewportSize.X > cam.ViewportSize.Y and t < 2 do t += task.wait(0.1) end
+			while cam and (cam.ViewportSize.Y > cam.ViewportSize.X) ~= wantPortrait and t < 2 do t += task.wait(0.1) end
 			task.wait(0.3)
 		end
 		task.wait(0.3)
@@ -1683,7 +1716,7 @@ resultButton("📸 사진 저장", COLORS.pink, 1, function()
 		if saveFramedPhoto(function(holder)
 			local strip = PhotoRender.newStrip(holder, shots.layout, frameKey, "OHU")
 			PhotoRender.fillStrip(strip, chosen, peopleOf(shots), shots.booth)
-		end) then return end
+		end, shots.layout) then return end
 	end
 	-- the picked cuts as captured from the real scene (falls back to a
 	-- screenshot of this screen when the device made no captures)
@@ -2036,7 +2069,7 @@ viewerClose.MouseButton1Click:Connect(function() viewer.Visible = false end)
 viewerCapture.MouseButton1Click:Connect(function()
 	-- (D-1584) the photo in its frame, not the screen behind it
 	local photo = viewerPhoto
-	if photo and saveFramedPhoto(function(holder) PhotoRender.drawPhoto(holder, photo) end) then return end
+	if photo and saveFramedPhoto(function(holder) PhotoRender.drawPhoto(holder, photo) end, photo.layout) then return end
 	captureToGallery({ viewerButtons })
 end)
 viewerDelete.MouseButton1Click:Connect(function()

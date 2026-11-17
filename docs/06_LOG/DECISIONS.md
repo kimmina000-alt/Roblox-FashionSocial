@@ -5621,3 +5621,8 @@ Studio only (no script yet).
 
 ## D-1595 (2026-11-17) 관람차 1인칭에서 숨기던 코드 삭제
 - User (first-person screenshot from a cabin: the other cabins floating in the sky): "관람차 공중에 떠 있어서 비현실적이야 / 안 보이게 감춘 거 다 삭제해 / 보이게 다시 코드 작성하는 거 아니고 감춘 코드 지우는 거 맞지". ParkRidesController: WHEEL_FRAME, hiddenFrame, hideWheelFrame and its call in setFirstPerson are deleted (D-1520 / D-1546 / D-1590); nothing of the wheel is hidden in first person any more. Studio script identical to git.
+
+## D-1588 (2026-11-17) 사진 저장: 빈 프레임 방지, 가로/세로는 사진 모양으로 계산
+- User (phone test): the first 📸 사진 저장 caught empty frames (loading), the second one worked; "긴 프레임은 세로버전이 더 클 거고 2x2 프레임은 가로 세로 중 어느 게 더 클지 계산해서 구현".
+- saveFramedPhoto now preloads the cuts' meshes / textures / clothing (ContentProvider:PreloadAsync on the sheet, at most 8 s) after the draw queue is empty, then waits 0.5 s before the shot.
+- The orientation is worked out from the strip's aspect a (PhotoRender.stripAspect) and the screen L x S: lying down the strip is min(S, L / a) tall, standing up min(L, S / a); the bigger one wins (2 % margin). On a 735 x 413 phone the 1x4 strip (a 0.31) is 228 wide standing vs 128 lying → portrait; the 2x2 strip (a 1.07) is 442 lying vs 413 standing → landscape. The screen turns only when needed (Portrait or LandscapeSensor) and goes back to the player's setting after.
