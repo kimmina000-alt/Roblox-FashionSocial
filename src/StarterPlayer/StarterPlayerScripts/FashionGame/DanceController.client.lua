@@ -1151,6 +1151,8 @@ local function refreshCard()
 	if amDJ then cardInvite.Position = UDim2.fromOffset(10, y) y += 40 end
 	cardGuard.Position = UDim2.fromOffset(10, y)
 	if amGuard then y += 40 end
+	-- (D-1768, user 2026-11-18: "가드권 주기 vip권 주기 dj권 주기 추가") 🎁 선물하기 rows (GiftPassCard)
+	y = require(script.Parent:WaitForChild("GiftPassCard")).layout(playerCard, target, y)
 	playerCard.Size = UDim2.fromOffset(playerCard.Size.X.Offset, y + 4)
 	cardCarry.Text = if player:GetAttribute("Carrying") == target.UserId then "내려놓기" else "들기"
 	if amDJ then

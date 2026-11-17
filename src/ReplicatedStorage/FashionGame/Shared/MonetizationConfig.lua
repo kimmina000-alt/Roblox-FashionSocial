@@ -68,6 +68,15 @@ MonetizationConfig.Products = {
 	-- one booth per server, so a full queue sells the same number of turns)
 	DJ = { sku = "CLUB-DP-DJ30", id = 3722464534, name = "DJ 30분", price = 49, status = "live",
 		description = "클럽 DJ 부스를 30분 동안 써요. 곡 선택·조명." },
+	-- (D-1768, user 2026-11-18: "가드, vip, dj 권 남한테 선물할 수 있게") gifts for another player, bought from
+	-- their player card (GiftPassService). Same prices as for oneself; ids 0 until the user makes them on
+	-- the Creator Dashboard (Studio test buys meanwhile)
+	GiftGuard = { sku = "CLUB-DP-GIFT-GUARD", id = 0, name = "가드 패스 선물", price = 399, status = "draft",
+		description = "다른 플레이어에게 가드 패스를 선물해요." },
+	GiftVIP = { sku = "CLUB-DP-GIFT-VIP", id = 0, name = "VIP 패스 선물", price = 299, status = "draft",
+		description = "다른 플레이어에게 VIP 패스를 선물해요." },
+	GiftDJ = { sku = "CLUB-DP-GIFT-DJ30", id = 0, name = "DJ 30분 선물", price = 49, status = "draft",
+		description = "다른 플레이어에게 클럽 DJ 30분을 선물해요." },
 	-- Paid drinks (DrinkService). key must match ClubConfig.Drinks[].product
 	-- or .vipProduct. One bottle = 6 cups, placed on a table and shared.
 	-- (오렌지 소다 became a 💰5 tier-1 drink, D-271: kept only as a record)

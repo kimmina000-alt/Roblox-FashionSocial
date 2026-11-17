@@ -5965,3 +5965,10 @@ Studio only (no script yet).
 - 사용자: "투표 건너뛰기도 아래로 내려. 투표 예 아니오 선택하면 시간 다 안 지났어도 투표 창 사라지게 해." ClubQuickBar: 투표 창은 재생 바 아래 대신 화면 아래 가운데(바닥에서 100, 아래 칸 위). 이 플레이어가 예 / 아니요를 고르면(ClubSkipMine) 그 판에서는 창이 사라지고, 다음 판에 다시 나옴(서버가 ClubSkipMine을 지움). 사진: docs/06_LOG/images/2026-11-18/vote_bottom.jpg.
 ## D-1767 "○○님과 같이 추기" 표시도 화면 아래 (2026-11-18)
 - 사용자: "누구랑 같이 추기도 아래로 내려". DanceController: 같이 추기 상태 표시(🔗 ○○님과 같이 추기 · 해제)를 노래 제목 아래에서 화면 아래 가운데(바닥에서 138, 투표 창 위)로.
+
+## D-1768 가드 · VIP · DJ권 선물하기 (2026-11-18)
+- 사용자: "가드, vip, dj 권 남한테 선물할 수 있게 해 줘 / 다른 플레이어 눌렀을 때 따라추기 아이템 주기처럼 가드권 주기 vip권 주기 dj권 주기 추가".
+- Roblox 게임 패스는 남에게 넘길 수 없어서 선물용 개발자 상품 3개를 새로 둠(MonetizationConfig.Products: GiftGuard 399 · GiftVIP 299 · GiftDJ 49, id 0 = 대시보드에 만들기 전, Studio에서는 테스트 구매).
+- 다른 플레이어 카드(DanceController) 아래 "🎁 선물하기" 줄: 🛡 가드권 · 💎 VIP권 · 🎧 DJ권(GiftPassCard). 누르면 서버에 받는 사람을 먼저 알림("GiftTarget": 같은 서버, 본인 아님, 이미 가진 패스면 거절) → 선물 상품 결제.
+- GiftPassService: 결제되면 가드 / VIP는 받는 사람 wallet.gifted에 저장 + 패스 가진 것으로(MonetizationService.GrantGiftedPass, 접속할 때마다 다시 켬), DJ는 받는 사람 DJ 시간 30분(DjService.AddTime). 둘 다 알림. 결제 사이 받는 사람이 나가면 다음 접속 때 받음(DataStore PassGifts_v1, Studio에서는 안 씀). 받을 사람 기록이 없으면(서버 재시작) 산 사람이 받음.
+- 사용자 할 일: Creator Dashboard(경험 10773076711)에 상품 3개 만들고 id를 알려 주기 → MonetizationConfig id 채움.
