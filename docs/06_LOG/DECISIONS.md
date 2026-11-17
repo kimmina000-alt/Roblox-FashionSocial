@@ -5443,3 +5443,7 @@ Studio only (no script yet).
 ## D-1572 (2026-11-17) 관람차 무지개 불빛 줄이기
 - User (phone shot of the park at 21:50): "관람차 발광도 줄여 줘".
 - ParkNightController: the wheel's rainbow (Rim / RimLight / Spoke, Neon at night) uses HSV value 0.4 instead of 1 (WHEEL_BRIGHT). The string lights, searchlights and fireworks are unchanged.
+
+## D-1573 (2026-11-17) 회전컵 가운데 조형물 불빛 30 %
+- User: "회전컵 중앙에 있는 조형물 위에 빛나는 것도 발광 30%로 줄여".
+- The glow is the Neon spikes on the teapot (Workspace.회전컵.Ride.Teapot SpikeGlow / SpikeTip, made by tools/graybox/park_teacups_1115.lua). Their colour is 30 % of the old one: (255, 246, 214) → (77, 74, 64), in the script and in the place (place change: the user saves).

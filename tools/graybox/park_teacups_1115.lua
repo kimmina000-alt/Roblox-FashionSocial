@@ -150,7 +150,8 @@ if pot then
 			{ Vector3.new(8.832, -0.03, 0), 8.24 }, { Vector3.new(8.778, 0.37, 0), 8.19 }, { Vector3.new(8.659, 0.707, 0), 8.14 },
 			{ Vector3.new(7.86, -0.05, 0), 8.24 }, { Vector3.new(7.796, 0.244, 0), 8.19 }, { Vector3.new(7.716, 0.522, 0), 8.14 },
 		}
-		local GLOW = Color3.fromRGB(255, 246, 214)
+		-- (D-1573, user 2026-11-17: "회전컵 중앙에 있는 조형물 위에 빛나는 것도 발광 30%로 줄여") 30 % of the old (255, 246, 214)
+		local GLOW = Color3.fromRGB(77, 74, 64)
 		local function at(v: Vector3): Vector3 return mesh.CFrame:PointToWorldSpace((v - mid) * k) end
 		for i, t in ipairs(TIPS) do
 			local tip = at(t[1])
