@@ -71,4 +71,6 @@ hongdae_v1_temp.lua 다음에 실행(MODE apply / revert). 결과: `street_dress
 ## 오후네컷 건물 (2026-10-23, D-115)
 - `references/photobooth_building_yeonnam.webp`: 사용자가 보낸 연남동 노벨길 인생네컷 모퉁이 건물(좌측·정면·우측)과 상호명(오후네컷 / OHU4cuts, 조리개 로고), 간판 디자인(인생네컷처럼). 구현: `PHOTO_BOOTH_BUILDING.md`.
 | (웹) [Unsplash, Clark Gu: 성북구 좁은 골목](https://unsplash.com/photos/a-narrow-alley-with-buildings-in-the-background-JAYhkBZUnOU) | 뒷골목 (오후네컷 동쪽) | 2026-10-30 D-564: 머리 위로 얽힌 전선과 전봇대, 세로 간판, 벽의 실외기·배관, 화분·잡동사니. 저장 안 함(링크만). |
+| `hanok_wall_01..05.jpg` | 한옥 벽 | 2026-11-17 D-1740: 한옥 실내 · 마당 벽(회벽 + 소나무 기둥 · 인방, 띠살문, 분합문, 머름창, 빗살창, 개방 대청). → 벽 키트 `tools/graybox/hanok_wall_kit.lua`. |
+| `hanok_garden_01.webp`, `hanok_lots_top_view.webp` | 한옥 연못 정원 | 2026-11-17 D-1741: 통유리 미닫이 한옥, 크레이지 페이빙 마당, 연못 · 수련 · 큰 바위, 감나무, 마루의 찻상. 필지 위에서 본 사진. → `hanok_garden_1117.lua`. |
 | `candidates_beach_mat_icebox.png` | 해변 | 2026-10-30 돗자리(M1~M6)·아이스박스(B1~B10) Creator Store 후보, 사용자 선택 대기. |

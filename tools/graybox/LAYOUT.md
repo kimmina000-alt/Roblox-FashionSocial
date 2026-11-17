@@ -110,3 +110,7 @@
   - `spawn_by_guide_1117.lua` (D-1696) — 플레이어 스포너를 포켓 파크 안내원 토끼 바로 옆(-105, 0.6, -56)으로, 안내원(서쪽)을 보고 시작. 체인 맨 끝에(빌드 스크립트가 스포너를 모퉁이 광장으로 옮기므로).
   - `beach_tube_pile_1117.lua` (D-1576) — 해변 종합안내도 북쪽(21 스터드) 모래 위에 튜브 18개 더미 + "튜브 무료 대여" 표지판 + PromptPart(TubeRentService가 "튜브 들기"를 붙임). build_beach_signs 다음에 실행.
   - `park_carousel_roof_1116.lua` (D-1548) — 회전목마 새 지붕(ArtAssets.CarouselRoof2) + 지붕 조명(Rotor.RoofLights). 옛 지붕은 ArtAssets.CarouselRoofOld.
+
+## 한옥 벽 키트 · 연못 정원 (2026-11-17, D-1740 / D-1741, place 전용, 체인 밖)
+- `hanok_wall_kit.lua`: 한 칸씩 조립하는 벽 모듈(ServerStorage.ArtAssets.HanokWallKit, `_G.HanokWallKit.make / face`).
+- `hanok_garden_1117.lua`: kit 다음에 실행. Workspace.HanokGarden(남동쪽 필지 집 · 연못 · 정자 · 대문). 체인 스크립트와 상관없음(Workspace 최상위), 다시 돌려도 결과가 같다.

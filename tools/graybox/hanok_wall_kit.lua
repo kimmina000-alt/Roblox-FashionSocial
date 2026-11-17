@@ -1,6 +1,6 @@
 -- 한옥 벽 키트 (D-1740): 한 칸(한 면)씩 만든 벽 모듈. 이어 붙여 한옥 벽을 조립한다.
 -- Studio 명령 바 / MCP (Edit 모드). 여러 번 돌려도 결과가 같다.
---   MODE "kit"     : ServerStorage.ArtAssets.HanokWallKit 에 모듈(기본 W 14, H 32.2)을 만든다.
+--   MODE (첫 인자, 기본 "kit"): "kit" ServerStorage.ArtAssets.HanokWallKit 에 모듈(기본 W 14, H 32.2)을 만든다.
 --   MODE "preview" : 위 + Workspace.HanokWallKitPreview (맵 밖 x 1800) 에 견본 벽 한 줄(번호표).
 --   MODE "clear"   : 견본만 지운다.
 -- 모듈 규칙 (조립용)
@@ -8,7 +8,7 @@
 --   → 건물 블록 면 위 한 점에 앞을 바깥으로 놓으면 블록에 딱 붙는다.
 --   칸 너비 W 는 기둥 제외. 기둥(Post)은 따로: 칸 - 기둥 - 칸 ... 순서로 놓는다(기둥 폭 P).
 --   _G.HanokWallKit.make(kind, W, H) 로 아무 크기나 새로 만들 수 있다(맵 배치 스크립트가 씀).
-local MODE = "preview"
+local MODE = ... or "kit" -- loadstring(src)("preview")
 
 local MaterialService = game:GetService("MaterialService")
 local ServerStorage = game:GetService("ServerStorage")
@@ -69,6 +69,11 @@ local function box(model, name, size, pos, kind, opts)
 	elseif kind == "iron" then
 		p.Material = Enum.Material.Metal
 		p.Color = Color3.fromRGB(38, 36, 34)
+	elseif kind == "glass" then
+		p.Material = Enum.Material.Glass
+		p.Color = Color3.fromRGB(196, 214, 216)
+		p.Transparency = 0.72
+		p.Reflectance = 0.08
 	elseif kind == "paper" then
 		p.Material = Enum.Material.SmoothPlastic
 		p.Color = Color3.fromRGB(238, 230, 208)
@@ -247,6 +252,37 @@ function BUILD.WallBitsal(m, W, H, L)
 	upper(m, W, H, L)
 end
 
+-- 8 유리 미닫이 (연못 정원 사진, D-1741): 나무틀 통유리 두 짝 + 위 상인방 · 소벽 · 창방.
+--   opt.open = true 이면 오른쪽 짝이 왼쪽 짝 뒤(안쪽)로 밀려 반이 열린다(사람이 지나감).
+local function glassLeaf(m, name, x0, x1, y0, y1, z)
+	local f = 0.55
+	local w = x1 - x0
+	local cx, cy = (x0 + x1) / 2, (y0 + y1) / 2
+	box(m, name .. "Top", Vector3.new(w, f, 0.5), Vector3.new(cx, y1 - f / 2, z), "woodH", { shadow = false })
+	box(m, name .. "Bot", Vector3.new(w, f * 1.6, 0.5), Vector3.new(cx, y0 + f * 0.8, z), "woodH", { shadow = false })
+	box(m, name .. "L", Vector3.new(f, y1 - y0 - f * 2.6, 0.5), Vector3.new(x0 + f / 2, cy + f * 0.3, z), "woodV", { shadow = false })
+	box(m, name .. "R", Vector3.new(f, y1 - y0 - f * 2.6, 0.5), Vector3.new(x1 - f / 2, cy + f * 0.3, z), "woodV", { shadow = false })
+	local g = box(m, name .. "Glass", Vector3.new(w - 2 * f, y1 - y0 - f * 2.6, 0.15), Vector3.new(cx, cy + f * 0.3, z), "glass", { shadow = false })
+	return g
+end
+
+function BUILD.GlassSlide(m, W, H, L, opt)
+	beam(m, "Haban", W, 0, L.sill)
+	local gy = 0.82 * H
+	local y1 = gy - L.headH / 2
+	local half = W / 2
+	if opt and opt.open then
+		glassLeaf(m, "LeafA", -half, 0.3, L.sill, y1, ZC - 0.28)
+		glassLeaf(m, "LeafB", -half + 0.6, 0.9, L.sill, y1, ZC + 0.28)
+	else
+		glassLeaf(m, "LeafA", -half, 0.3, L.sill, y1, ZC - 0.28)
+		glassLeaf(m, "LeafB", -0.3, half, L.sill, y1, ZC + 0.28)
+	end
+	beam(m, "Sanginbang", W, gy - L.headH / 2, gy + L.headH / 2)
+	plaster(m, "Sobyeok", -W / 2, W / 2, gy + L.headH / 2, L.top0)
+	beam(m, "Changbang", W, L.top0, H)
+end
+
 -- 7 개방 칸 (대청 · 툇마루 앞, 사진 4): 위쪽 상인방 · 소벽 · 창방만
 function BUILD.Open(m, W, H, L)
 	upper(m, W, H, L)
@@ -259,7 +295,7 @@ local function buildPost(m, H)
 	box(m, "Post", Vector3.new(P, H - sh, P), Vector3.new(0, sh + (H - sh) / 2, -P / 2), "woodV")
 end
 
-K.KINDS = { "Wall", "WallWindow", "MeoreumWindow", "DoorTtisal", "DoorBunhap", "WallBitsal", "Open" }
+K.KINDS = { "Wall", "WallWindow", "MeoreumWindow", "DoorTtisal", "DoorBunhap", "WallBitsal", "Open", "GlassSlide" }
 K.NAMES = {
 	Wall = "회벽",
 	WallWindow = "회벽+창",
@@ -268,10 +304,11 @@ K.NAMES = {
 	DoorBunhap = "분합문",
 	WallBitsal = "빗살창",
 	Open = "개방",
+	GlassSlide = "유리 미닫이",
 	Post = "기둥",
 }
 
-function K.make(kind, W, H)
+function K.make(kind, W, H, opt)
 	H = H or 32.2
 	local m = Instance.new("Model")
 	m.Name = kind == "Post" and "HanokPost" or ("HanokWall_" .. kind)
@@ -279,13 +316,50 @@ function K.make(kind, W, H)
 		buildPost(m, H)
 		W = P
 	else
-		BUILD[kind](m, W, H, levels(H))
+		BUILD[kind](m, W, H, levels(H), opt)
 	end
 	m.WorldPivot = CFrame.new()
 	m:SetAttribute("Kind", kind)
 	m:SetAttribute("W", W)
 	m:SetAttribute("H", H)
+	if opt and opt.open then
+		m:SetAttribute("Open", true)
+	end
 	return m
+end
+K.box, K.WOOD = box, WOOD
+
+-- 한 면 조립: p0 → p1 (블록 면 위 두 모서리, y 는 벽 바닥), outward = 바깥 방향.
+-- p0 모서리 바깥에 기둥 하나(옆 면과 만나는 모서리를 채움), 그 뒤 칸 n개 사이사이 기둥.
+-- 건물 둘레를 한 방향으로 돌며 면마다 부르면 모서리마다 기둥이 하나씩 생긴다.
+-- kinds = { "Wall", { "GlassSlide", open = true }, ... }
+function K.face(parent, p0, p1, outward, kinds, H)
+	local dir = (p1 - p0).Unit
+	local Lf = (p1 - p0).Magnitude
+	local n = #kinds
+	local W = (Lf - (n - 1) * P) / n
+	local function at(s)
+		local pos = p0 + dir * s
+		return CFrame.lookAt(pos, pos + outward)
+	end
+	local post = K.make("Post", nil, H)
+	post:PivotTo(at(-P / 2))
+	post.Parent = parent
+	local s = 0
+	for i, k in ipairs(kinds) do
+		local kind = type(k) == "table" and k[1] or k
+		local mdl = K.make(kind, W, H, type(k) == "table" and k or nil)
+		mdl:PivotTo(at(s + W / 2))
+		mdl.Parent = parent
+		s += W
+		if i < n then
+			local pp = K.make("Post", nil, H)
+			pp:PivotTo(at(s + P / 2))
+			pp.Parent = parent
+			s += P
+		end
+	end
+	return W
 end
 
 -- 키트 (ServerStorage.ArtAssets.HanokWallKit)

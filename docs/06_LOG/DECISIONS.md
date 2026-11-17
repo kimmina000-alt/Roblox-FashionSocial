@@ -5857,3 +5857,14 @@ Studio only (no script yet).
 - 높이 비율(사진): 하방 0.05H, 중인방 0.36H, 상인방 0.70H, 창방 0.91H..H, 굵기 0.05H. 부품 수: 회벽 7, 회벽+창 21, 머름창 22, 띠살문 15, 분합문 19, 빗살창 20, 개방 3, 기둥 2.
 - 재질: MaterialVariant OHU_HanokPineV / PineH(소나무 결 세로 · 가로, 색 240,205,155 곱함), OHU_HanokPlaster(회벽). 창호지 판에 문살 텍스처(띠살 한 짝 한 장, 정자살 · 빗살은 5스터드마다 반복). 텍스처: tools/art/hanok_wall_textures.py.
 - 견본: Workspace.HanokWallKitPreview(맵 밖 x 1800), 사진 docs/06_LOG/images/2026-11-17/hanok_wall_kit_front.jpg · _angle.jpg. 사용자 고르기 대기(D-082).
+## D-1741 한옥 연못 정원: 남동쪽 필지 집을 유리 미닫이 한옥 + 연못 + 차 마시는 정자로 (2026-11-17)
+- 사용자(정원 사진 docs/04_ART/references/hanok_garden_01.webp, 필지 위에서 본 사진 hanok_lots_top_view.webp): "이런 공간 구현할 거야 어느 집에 구현하는 게 낫겠냐" → 담 안 마당이 가장 큰 아래 두 필지(126 × 194) 중 사방이 담으로 둘러싸인 오른쪽 아래(x 227..353, z 454..648) 추천 → "응 거기 지어 필요한 건 3d 만들어서 써".
+- tools/graybox/hanok_garden_1117.lua (hanok_wall_kit.lua 다음, Edit 모드, 여러 번 돌려도 같음) → Workspace.HanokGarden (부품 약 520):
+  - 집: 사용자 블록(315, 504)은 ServerStorage.ParkedHanokBlocks.Part_315_504 로, 지붕 HanokRoof_4 그대로. 기단 높이 3 + 계단 2단(투명 경사로). 벽 키트로 사면: 서쪽(연못) 유리 미닫이 4칸(가운데 2칸 반 열림), 남쪽(정자) 유리 2칸(1칸 열림), 북 · 동 회벽 + 창. 실내: 나무 바닥 · 천장 · 대들보 2, 매단 한지 등 2(빛), 동쪽 벽 책장(책 텍스처), 흰 소파 · 러그 · 낮은 탁자, 식탁 + 의자 4.
+  - 마당: 납작 돌 포장(크레이지 페이빙 텍스처) 전체, 가장자리 잔디 화단 4, 연못 2(원판을 겹친 모양, 수련 잎 · 연꽃), 남쪽 계단에서 정자까지 넓은 돌판 다리.
+  - 정자(차 마시는 마루, x 268..312, z 601..623): 돌 기단 + 마루, 벽 키트로 북 · 동 · 서 개방, 남 회벽+창, 지붕 = 집 지붕을 0.66배로 복사(긴 쪽 x), 긴 찻상 + 검은 쟁반 · 찻주전자 · 잔, 방석 4개 = Seat(앉기).
+  - 북쪽 담에 대문(x 238..250): 담 Part를 둘로 자르고(원래 담은 ParkedHanokBlocks.NorthWall_1117), 문 위 기와 모듈은 2.6 올림, 나무 기둥 · 인방 · 안쪽으로 열린 문짝 2.
+  - AI 메시(generate_mesh, place 전용 ServerStorage.ArtAssets.HanokGardenAssets): Persimmon(감나무, 2그루), RockC(매끈한 바위, 17), RockB(괴석, 3), Fern(풀숲, 26), RockA(안 씀). 관목 ArtAssets.Shrub 11.
+- 텍스처: tools/art/hanok_garden_textures.py (hg_flagstone 111631043205596, hg_books 73840800237202).
+- Play 걷기 확인: 대문 → 마당 → 서쪽 계단 → 열린 유리문으로 집 안 → 남쪽 유리문 → 돌판 다리 → 정자, 막힘 없음. 사진 docs/06_LOG/images/2026-11-17/hanok_garden_*.jpg.
+- 모두 place에만 있음(체인이 안 건드리는 Workspace 최상위 + 사용자 부품): 사용자가 장소 저장. Studio 작업용 스크립트 사본 ServerStorage.HanokDevSrc(Kit, Garden)는 게임에서 실행되지 않음.
