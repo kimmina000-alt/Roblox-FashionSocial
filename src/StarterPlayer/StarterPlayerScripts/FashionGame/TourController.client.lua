@@ -33,42 +33,46 @@ local TOUR_KEY = "tour2"
 -- t seconds (오후네컷 from the street in through the door, the cafe toward its glass wall);
 -- `fov`: a longer lens for this view (the beach: parasols and tubes in one frame)
 type Key = { eye: Vector3, look: Vector3, t: number }
-type Step = { title: string, text: string, eye: Vector3?, look: Vector3?, button: number?, path: {Key}?, fov: number? }
+-- (D-1694, user 2026-11-17) the guide rabbit tells the tour in its own words (반말, one text size, no
+-- big title); `yes` / `no`: the two answer buttons side by side at the bottom right for this card ("no"
+-- ends the tour), `quiet`: the rabbit is not shown (the top bar button cards), `done`: the last button
+type Step = { title: string, text: string, eye: Vector3?, look: Vector3?, button: number?, path: {Key}?, fov: number?,
+	yes: string?, no: string?, quiet: boolean?, done: string? }
 local STEPS: {Step} = {
-	{ title = "👋 오후에 오신 걸 환영해요!", text = "동네를 한 바퀴 둘러볼게요. 언제든 오른쪽 위 '건너뛰기'로 끝낼 수 있어요." },
-	{ title = "📸 오후네컷", text = "친구랑 네 컷 사진을 찍는 사진관이에요. 안에는 예쁜 촬영 부스 세 곳과 볼풀이 있고, 찍은 사진은 벽에 붙여 모두에게 자랑할 수 있어요.",
+	{ title = "", text = "오후에 온 걸 환영해! 내가 사는 동네 구경시켜 줄까?", yes = "응!", no = "아니, 괜찮아!" },
+	{ title = "📸 오후네컷", text = "여기는 친구랑 네 컷 사진을 찍는 오후네컷이야. 예쁜 촬영 부스 세 곳과 볼풀이 있어. 찍은 사진은 벽에 붙여서 모두한테 자랑할 수도 있어!",
 		eye = Vector3.new(14, 22, -20), look = Vector3.new(52, 12, -56),
 		path = { -- (D-1367: from the street up to the corner door, then inside)
 			{ eye = Vector3.new(44, 9, -48), look = Vector3.new(64, 8, -66), t = 2.4 },
 			{ eye = Vector3.new(60, 10, -62), look = Vector3.new(130, 7, -84), t = 2.8 },
 		} },
-	{ title = "🎧 OHU CLUB", text = "밤(18:00~06:00)에 문을 여는 클럽이에요. 노래를 신청하고, 안무를 따라 추고, DJ도 될 수 있어요.",
+	{ title = "🎧 OHU CLUB", text = "오후 클럽은 밤(18:00~6:00)에만 문을 열어. 함께 춤추고 놀 수 있는 핫플레이스야. 각종 케이팝 안무를 따라 추고, DJ가 되면 플레이리스트와 조명을 내 마음대로 운영할 수 있어.",
 		eye = Vector3.new(-30, 38, -185), look = Vector3.new(60, 6, -205) },
-	{ title = "🍲 오후 돼지국밥", text = "국밥을 사서 자리에서 먹어요. 수육 한 접시는 테이블에 놓고 다 같이 나눠 먹어요.",
+	{ title = "🍲 오후 돼지국밥", text = "열심히 춤추고 놀아서 출출해지면 오는 국밥집이야. 맛있는 국밥과 수육을 팔아. 국밥 좋아하니?",
 		eye = Vector3.new(10, 42, -295), look = Vector3.new(88, 14, -334) },
 	-- (D-1547) the park is open
-	{ title = "🎡 OHU LAND", text = "놀이공원이 문을 열었어요! 바이킹, 회전컵, 관람차, 범퍼카를 타고 무료 풍선도 받아 가세요.",
+	{ title = "🎡 OHU LAND", text = "짜잔! 놀이공원이 문을 열었어! 바이킹, 회전컵, 관람차, 범퍼카를 타면서 놀자. 개장 기념으로 무료 풍선을 주고 있대.",
 		eye = Vector3.new(-97, 48, -200), look = Vector3.new(-97, 28, -290) },
-	{ title = "🏖 해변", text = "튜브를 타고 바다에서 물놀이를 하고, 비치볼도 던지며 놀아요.",
+	{ title = "🏖 해변", text = "파도 소리 듣고 싶을 때 오는 해변이야. 날이 좋을 때는 튜브 타면서 물놀이도 하고 비치볼도 던지면서 놀아.",
 		eye = Vector3.new(-350, 13, -14), look = Vector3.new(-250, -5, -36), fov = 32 }, -- (D-1367: from the sea, tubes and parasols together)
-	{ title = "☕ OHU CAFE · Sunset", text = "바다가 보이는 카페예요. 음료와 빵을 먹고, 카운터 안쪽에서 알바를 하면 코인을 벌 수 있어요.",
+	{ title = "☕ OHU CAFE · Sunset", text = "옆에는 바다가 한눈에 보이는 카페가 있어. 달달한 디저트와 카페인 수혈이 필요할 때마다 오는 곳이야. 카페에서 일하면 코인도 벌 수 있어.",
 		eye = Vector3.new(-284, 12, 338), look = Vector3.new(-330, 9, 300),
 		path = { { eye = Vector3.new(-292, 17, 318), look = Vector3.new(-440, 4, 280), t = 3.2 } } }, -- (D-1367: inside, out to the sea through the glass wall)
-	{ title = "🏪 OH24 편의점", text = "과자·아이스크림·컵라면을 사는 편의점이에요. 친구바는 친구를 눌러 반씩 나눠 먹어요.",
+	{ title = "🏪 OH24 편의점", text = "물놀이 후에는 역시 컵라면이지. 편의점에서는 과자, 아이스크림, 컵라면, 삼각김밥을 팔고 있어. 친구바는 친구랑 반씩 나눠 먹을 수도 있어~",
 		eye = Vector3.new(-5, 40, 95), look = Vector3.new(-70, 10, 140) },
-	{ title = "🏯 광화문 · 한옥 마을", text = "광화문을 지나 돌담길을 따라가면 한옥 마을이에요. 사진 찍기 좋은 곳이에요.",
+	{ title = "🏯 광화문", text = "이곳은 야경이 예쁜 광화문이야. 개장을 기다리고 있지. 두근두근.",
 		-- (D-1367) from the plaza in front, a little low: the inside (still being built) is not seen
 		eye = Vector3.new(89, 7, 93), look = Vector3.new(144.5, 16, 147.3) },
-	{ title = "📱 화면 버튼", text = "동네 소개는 여기까지예요! 이제 화면 위쪽 버튼들을 하나씩 알려 드릴게요." },
-	{ title = "🕐 시계", text = "게임 속 시간이에요. 하루는 30분이고, 클럽은 밤에 열려요.", button = 11 },
-	{ title = "₩ 코인", text = "가진 코인이에요. 게임에 있으면 1분마다 쌓이고, 카페 알바를 하면 더 벌어요.", button = 10 },
-	{ title = "♥ 후원", text = "게임을 응원하는 후원이에요. 후원하면 모두의 화면 위에 내 이름과 메시지가 떠요.", button = 5 },
+	{ title = "", text = "내가 사는 동네 소개는 여기까지! 화면 버튼에 대한 설명도 들을래?", yes = "응!", no = "아니, 괜찮아!" },
+	{ title = "🕐 시계", text = "지금이 몇 시인지 알 수 있는 동네 시계야. 클럽에 가고 싶으면 시간을 꼭 확인해야 해.", button = 11, quiet = true },
+	{ title = "₩ 코인", text = "내 지갑이야. 접속만 하고 있어도 1분마다 1코인이 쌓여. 카페 알바를 하면 더 벌 수 있어.", button = 10, quiet = true },
+	{ title = "♥ 후원", text = "동네 발전을 위해 응원하는 후원 창이야. 후원하면 모두의 화면에 내 이름과 메시지가 떠.", button = 5, quiet = true },
 	-- (D-1367, user: many players stay in the default look) the free part first and plainly
-	{ title = "👗 카탈로그 · 전부 무료!", text = "기본 캐릭터 그대로 다니지 마세요! 여기 있는 옷·머리·얼굴은 전부 무료로 입을 수 있어요. 내 마음대로 예쁘게 꾸미고 자랑해 보세요. 입은 모습은 그대로 저장돼요.", button = 4 },
-	{ title = "🎒 가방", text = "산 음식과 음료, 찍은 사진첩이 들어 있어요.", button = 3 },
-	{ title = "♪ 음악 · 춤", text = "누르면 클럽 밖에서도 언제든 클럽 노래를 들을 수 있어요. 아래 목록에서 춤을 골라 출 수도 있어요.", button = 1 },
-	{ title = "💬 의견 보내기", text = "불편한 점이나 바라는 점을 개발자에게 바로 보낼 수 있어요.", button = 2 },
-	{ title = "✨ 준비 끝!", text = "즐거운 시간 보내세요!" },
+	{ title = "👗 카탈로그", text = "무료로 캐릭터를 꾸밀 수 있는 카탈로그야. 내 마음대로 예쁘게 꾸미고 자랑해 봐. 마음에 드는 착장은 옷장에 저장해 놓고 바꿔 입을 수 있어.", button = 4, quiet = true },
+	{ title = "🎒 가방", text = "what's in my bag~! 내 가방이야. 내가 산 아이템들과 찍은 사진을 다시 보고 싶을 때는 여기를 누르면 돼.", button = 3, quiet = true },
+	{ title = "♪ 음악 · 춤", text = "클럽에 들어가지 않아도 클럽에서 재생 중인 노래를 들을 수 있어. 예쁜 야외 배경을 무대 삼아 아이돌처럼 춤출 수 있어.", button = 1, quiet = true },
+	{ title = "💬 의견 보내기", text = "불편한 점이나 바라는 점을 개발자에게 보낼 수 있어.", button = 2, quiet = true },
+	{ title = "", text = "그럼 오후에서 즐거운 시간 보내!", done = "놀러가기" },
 }
 
 local function create(className: string, props: {[string]: any}, parent: Instance?): any
@@ -89,7 +93,7 @@ create("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 2, Transparency = 
 -- (D-1692, user 2026-11-17: "안내원 토끼가 인사하는 모션으로 상반신만 보이게 텍스트 왼쪽에 넣어서 안내원 토끼가
 -- 말하는 것처럼") the guide rabbit waving at the card's left (GuideSpeaker); the text starts after it
 local SPEAKER = 96
-require(script.Parent:WaitForChild("GuideSpeaker")).attach(card, SPEAKER)
+local speaker = require(script.Parent:WaitForChild("GuideSpeaker")).attach(card, SPEAKER)
 local title = create("TextLabel", {
 	Position = UDim2.fromOffset(SPEAKER + 10, 10), Size = UDim2.new(1, -100 - SPEAKER, 0, 30), BackgroundTransparency = 1,
 	Font = Enum.Font.GothamBlack, TextSize = 22, TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left,
@@ -126,6 +130,7 @@ create("UICorner", { CornerRadius = UDim.new(0, 12) }, nextButton)
 -- (D-1539) a step about a top bar button: the card right under that button, a pointer up to it,
 -- 건너뛰기 inside the card (above it would sit on the bar); other steps: at the bottom as before
 local pointer = NearButton.pointer(card)
+local answer = false -- (D-1694: this card asks yes / no: 아니, 괜찮아! beside 응!)
 local NEAR_W, NEAR_H = 330 + 96, 150 -- (+96: the guide at the left, D-1692)
 local function cardAt(nearButton: boolean)
 	if nearButton then
@@ -141,6 +146,15 @@ local function cardAt(nearButton: boolean)
 		skip.AnchorPoint = Vector2.new(1, 1)
 		skip.Position = UDim2.new(1, -8, 0, -6)
 		pointer.Visible = false
+	end
+	if answer then
+		skip.AnchorPoint = Vector2.new(1, 1)
+		skip.Position = UDim2.new(1, -12 - 96 - 8, 1, -12)
+		skip.Size = UDim2.fromOffset(120, 40)
+		skip.TextSize = 15
+	else
+		skip.Size = UDim2.fromOffset(92, 28)
+		skip.TextSize = 14
 	end
 end
 
@@ -219,12 +233,27 @@ end
 
 local touring = false
 local step = 0
+-- (D-1694, user: "투어 위에 큰 글씨 삭제하고 아래 긴 텍스트 사이즈로 문구 모두 수정") no title line: the
+-- rabbit's words fill the card at the body's size; the top bar button cards have no rabbit (quiet)
+title.Visible = false
+local function layoutText(withSpeaker: boolean)
+	local left = if withSpeaker then SPEAKER + 10 else 18
+	body.Position = UDim2.fromOffset(left, 14)
+	body.Size = UDim2.new(1, -(left + 120), 1, -28)
+	speaker.Visible = withSpeaker
+end
+local SKIP_TEXT = skip.Text
 local function show()
 	local s = STEPS[step]
 	title.Text = s.title
 	body.Text = s.text
 	count.Text = string.format("%d / %d", step, #STEPS)
-	nextButton.Text = if step == #STEPS then "시작! ✨" else "다음 ▶"
+	nextButton.Text = s.yes or s.done or (if step == #STEPS then "놀러가기" else "다음 ▶")
+	layoutText(not s.quiet)
+	-- (D-1694, user: "처음에만 다음/건너뛰기 두 버튼 오른쪽 아래에 나란히") a yes / no card: 아니, 괜찮아! sits
+	-- left of 응! at the bottom right, in the card (the usual 건너뛰기 rides above the card's corner)
+	answer = s.no ~= nil
+	skip.Text = s.no or SKIP_TEXT
 	if s.eye and s.look then
 		flyTo(s.eye, s.look, s.path, s.fov)
 	elseif camera.CameraType == Enum.CameraType.Scriptable then
