@@ -5500,3 +5500,11 @@ Studio only (no script yet).
 - User (forwarded by the main session): "둘 다 해" to the two memory trade-offs (D-1549 images, and the streaming radius).
 - Workspace.StreamingTargetRadius 384 → 256 (StreamingMinRadius 128, Opportunistic, PauseOutsideLoadedArea unchanged; no script sets these), place only.
 - Studio Play, same spots, 20 s each: parts on the client at the spawn 17,314 → 13,039 (−25 %), in the park 13,497 → 9,715 (−28 %); instances 28,132 → 22,838 / 22,449 → 16,839. Far buildings now arrive later: from the spawn the street is built about 250 studs out.
+
+## D-1600 새 곡 4곡: 삐그덕(Feat.아이유)-Crush, Unbelievable-H1 KEY(하이키), Boogie Woogie-NCT DREAM, 내 이름을 불러줘(Call My Name)-투어스(TWS) (2026-11-17)
+- 사용자 요청, 음원 테스트 세션이 테스트 place DataStore에서 읽은 lab 값(매니저 세션 전달). 넷 다 x1 업로드, 안무 없음, 목록 끝(SHEESH-BABYMONSTER 다음). boost4 = 1이라 뺌.
+- 삐그덕 101236122310659: 172.389 s(Studio에서 잼), fileSpeed 1.05 (곡 3:01), tempo 0.952, boost 10/5/2, EQ 0/0/-5.5.
+- Unbelievable 81736514719301: 128.882 s, fileSpeed 1.0475 (곡 2:15), tempo 0.955, boost 10/5/2, EQ 0/0/-10.5.
+- Boogie Woogie 102947379971628: 186.622 s, fileSpeed 1.0503 (곡 3:16), tempo 0.952, boost 10/5/2, EQ 0/0/-12.5. (사용자 메모의 "ID:101236122310659"는 삐그덕 파일; 길이로 102947379971628이 맞음.)
+- 내 이름을 불러줘(TWS) 129638210426239: 154.084 s, fileSpeed 1.0708 (곡 2:45), tempo 0.934, octave 0.952(사용자 값 그대로), boost 10/5/2, EQ 0/0/0.
+- Play로 들어 보지는 않음.

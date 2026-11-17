@@ -688,6 +688,18 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -5.5, mid = -2, high = -3, engine = "sound" } },
 	{ channel = "K-POP", title = "SHEESH-BABYMONSTER", soundId = 127479755620167, length = 162.473, fileSpeed = 1.0525,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (D-1600, user 2026-11-17: four x1 uploads with the 음원 테스트 lab values, no choreography) song 3:01
+	{ channel = "K-POP", title = "삐그덕(Feat.아이유)-Crush", soundId = 101236122310659, length = 172.389, fileSpeed = 1.05,
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -5.5, engine = "sound" } },
+	-- (D-1600) song 2:15
+	{ channel = "K-POP", title = "Unbelievable-H1 KEY(하이키)", soundId = 81736514719301, length = 128.882, fileSpeed = 1.0475,
+		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -10.5, engine = "sound" } },
+	-- (D-1600) song 3:16
+	{ channel = "K-POP", title = "Boogie Woogie-NCT DREAM", soundId = 102947379971628, length = 186.622, fileSpeed = 1.0503,
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -12.5, engine = "sound" } },
+	-- (D-1600) song 2:45; octave 0.952 is the user's
+	{ channel = "K-POP", title = "내 이름을 불러줘(Call My Name)-투어스(TWS)", soundId = 129638210426239, length = 154.084, fileSpeed = 1.0708,
+		lab = { speed = 1, tempo = 0.934, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = 0, mid = 0, high = 0, engine = "sound" } },
 
 } :: {Track}
 
