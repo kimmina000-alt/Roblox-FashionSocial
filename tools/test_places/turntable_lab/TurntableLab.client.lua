@@ -184,6 +184,8 @@ local TRACKS = {
 	{ title = "내 이름을 불러줘(Call My Name)-투어스(TWS)", id = 129638210426239 }, -- file 154.1 s, song 2:45
 	{ title = "Lucky Girl Syndrome-ILLIT", id = 99186584464449 }, -- file 130.9 s, song 2:20
 	{ title = "뛰어 JUMP-BLACKPINK", id = 82763014578432 }, -- file 154.0 s, song 2:45
+	{ title = "Blue Valentine-NMIXX", id = 111032764768565 }, -- file 173.9 s, song 3:06
+	{ title = "빌려온 고양이 Do the Dance-ILLIT", id = 126150660776305 }, -- file 176.3 s, song 3:09
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
