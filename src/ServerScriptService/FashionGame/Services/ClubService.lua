@@ -541,6 +541,16 @@ local function onMusic(player: Player, action: any, payload: any): (boolean, any
 		table.insert(requests, 1, { i = index, u = player.UserId })
 		publishRequests()
 		return true, "우선예약: 바로 다음에 나와요."
+	elseif action == "Unqueue" then
+		-- (D-1761, user 2026-11-18: "디제이는 다음곡 리스트에서 노래 뺄 수 있게 끝에 - 추가") the DJ takes one song
+		-- out of the next songs: payload { p = place in the list, i = track index } (both must still match)
+		if typeof(payload) ~= "table" then return false, nil end
+		local at, index = payload.p, payload.i
+		local entry = typeof(at) == "number" and requests[at] or nil
+		if not entry or entry.i ~= index then return false, "목록이 바뀌었어요. 다시 눌러 주세요." end
+		table.remove(requests, at)
+		publishRequests()
+		return true, "다음 곡에서 뺐어요."
 	elseif action == "Skip" then
 		playNext()
 		return true, nil
@@ -672,6 +682,12 @@ function ClubService.Start()
 	for _, player in ipairs(Players:GetPlayers()) do onPlayer(player) end
 	Players.PlayerRemoving:Connect(function(player)
 		lastRequest[player] = nil
+		-- (D-1761, user 2026-11-18: "노래 신청한 사람 나가면 신청곡 빼.") their songs leave the next songs
+		local before = #requests
+		for k = #requests, 1, -1 do
+			if requests[k].u == player.UserId then table.remove(requests, k) end
+		end
+		if #requests ~= before then publishRequests() end
 		-- Followers keep their current move as their own dance.
 		for _, other in ipairs(Players:GetPlayers()) do
 			local character = other.Character
