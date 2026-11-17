@@ -353,14 +353,17 @@ end)
 local votePanel = Instance.new("Frame")
 votePanel.Name = "SkipVotePanel"
 votePanel.AnchorPoint = Vector2.new(0.5, 0)
-votePanel.Size = UDim2.fromOffset(330, 74)
+-- (D-1764, user 2026-11-18: "투표 창 너무 큼. 재생중인 노래 제목 크기만큼 줄이기 한 줄로.") one line the size of the
+-- now-playing banner (30 high, its width; was 330 x 74): the time left as a thin green line along the
+-- bottom, "⏭ 28초 · 1/2 예 · 0 아니요" in the banner's text size, small 예 / 아니요 at the right
+votePanel.Size = UDim2.fromOffset(330, 30)
 votePanel.BackgroundColor3 = Color3.fromRGB(22, 22, 26)
 votePanel.BackgroundTransparency = 0.1
 votePanel.Visible = false
 Instance.new("UICorner", votePanel).CornerRadius = UDim.new(0, 14)
 local voteTrack = Instance.new("Frame")
-voteTrack.Position = UDim2.fromOffset(14, 10)
-voteTrack.Size = UDim2.new(1, -190, 0, 5)
+voteTrack.Position = UDim2.new(0, 12, 1, -4)
+voteTrack.Size = UDim2.new(1, -24, 0, 2)
 voteTrack.BackgroundColor3 = Color3.fromRGB(50, 50, 58)
 voteTrack.BorderSizePixel = 0
 voteTrack.Parent = votePanel
@@ -372,17 +375,19 @@ voteFill.BorderSizePixel = 0
 voteFill.Parent = voteTrack
 Instance.new("UICorner", voteFill).CornerRadius = UDim.new(1, 0)
 local voteTitle = Instance.new("TextLabel")
-voteTitle.Position = UDim2.fromOffset(14, 20)
-voteTitle.Size = UDim2.new(1, -190, 0, 24)
+voteTitle.Position = UDim2.fromOffset(12, 0)
+voteTitle.Size = UDim2.new(1, -124, 1, -3)
 voteTitle.BackgroundTransparency = 1
 voteTitle.Font = Enum.Font.GothamBold
-voteTitle.TextSize = 15
+voteTitle.TextSize = 13
+voteTitle.TextTruncate = Enum.TextTruncate.AtEnd
 voteTitle.TextColor3 = Color3.new(1, 1, 1)
 voteTitle.TextXAlignment = Enum.TextXAlignment.Left
 voteTitle.Parent = votePanel
 local voteCount = Instance.new("TextLabel")
 voteCount.Position = UDim2.fromOffset(14, 46)
 voteCount.Size = UDim2.new(1, -190, 0, 18)
+voteCount.Visible = false -- (D-1764: the counts are in the one line)
 voteCount.BackgroundTransparency = 1
 voteCount.Font = Enum.Font.GothamBold
 voteCount.TextSize = 13
@@ -393,23 +398,23 @@ local function voteButton(text: string, color: Color3, textColor: Color3, x: num
 	local b = Instance.new("TextButton")
 	b.AnchorPoint = Vector2.new(1, 0.5)
 	b.Position = UDim2.new(1, x, 0.5, 0)
-	b.Size = UDim2.fromOffset(78, 46)
+	b.Size = UDim2.fromOffset(if #text > 3 then 54 else 40, 22) -- (D-1764: 78 x 46 until then)
 	b.BackgroundColor3 = color
 	b.Text = text
 	b.TextColor3 = textColor
 	b.Font = Enum.Font.GothamBold
-	b.TextSize = 15
+	b.TextSize = 12
 	b.AutoButtonColor = true
 	b.Parent = votePanel
-	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 10)
+	Instance.new("UICorner", b).CornerRadius = UDim.new(0, 8)
 	local stroke = Instance.new("UIStroke") -- (D-910: kept off)
 	stroke.Enabled = false
 	stroke.Parent = b
 	return b
 end
 local GREEN, RED = Color3.fromRGB(80, 230, 110), Color3.fromRGB(235, 70, 60)
-local yesButton = voteButton("예", GREEN, Color3.fromRGB(10, 30, 14), -96)
-local noButton = voteButton("아니요", RED, Color3.new(1, 1, 1), -12)
+local yesButton = voteButton("예", GREEN, Color3.fromRGB(10, 30, 14), -66)
+local noButton = voteButton("아니요", RED, Color3.new(1, 1, 1), -8)
 local function vote(answer: string)
 	local ok, message = musicRemote:InvokeServer("VoteSkip", answer)
 	if typeof(message) == "string" then showToast(message) elseif not ok then showToast("지금은 투표할 수 없어요.") end
@@ -539,23 +544,24 @@ RunService.RenderStepped:Connect(function()
 	-- (D-1121) the vote round under the play bar (the toast goes under it)
 	local ends = FashionGame:GetAttribute("ClubSkipEnds")
 	local left = if typeof(ends) == "number" then ends - workspace:GetServerTimeNow() else 0
-	votePanel.Visible = requests and not djOn and left > 0
+	-- (D-1766, user 2026-11-18: "투표 건너뛰기도 아래로 내려. 투표 예 아니오 선택하면 시간 다 안 지났어도 투표 창
+	-- 사라지게 해.") once this player has answered (ClubSkipMine, cleared for the next round) the card goes;
+	-- it sits at the bottom middle over the trash notices, not under the play bar
+	local mine = player:GetAttribute("ClubSkipMine")
+	votePanel.Visible = requests and not djOn and left > 0 and mine == nil
 	local below = p.Y + s.Y + (if playBar.Visible then 22 else 4)
 	if votePanel.Visible then
-		votePanel.Position = UDim2.fromOffset(p.X + s.X / 2, below)
+		votePanel.AnchorPoint = Vector2.new(0.5, 1)
+		votePanel.Position = UDim2.new(0.5, 0, 1, -100)
+		votePanel.Size = UDim2.fromOffset(s.X, s.Y) -- (D-1764: the banner's size)
 		voteFill.Size = UDim2.fromScale(math.clamp(left / 30, 0, 1), 1)
-		voteTitle.Text = string.format("투표 건너뛰기 — %d초", math.ceil(left))
 		local yes, needed = 0, 0
 		if typeof(votes) == "string" then
 			local a, b = votes:match("^(%d+)/(%d+)$")
 			yes, needed = tonumber(a) or 0, tonumber(b) or 0
 		end
-		voteCount.Text = string.format("%d/%d 예     %d 아니요", yes, needed, FashionGame:GetAttribute("ClubSkipNo") or 0)
-		local mine = player:GetAttribute("ClubSkipMine")
-		yesButton.BackgroundTransparency = if mine == "no" then 0.6 else 0
-		noButton.BackgroundTransparency = if mine == "yes" then 0.6 else 0
+		voteTitle.Text = string.format("⏭ %d초 · %d/%d 예 · %d 아니요", math.ceil(left), yes, needed, FashionGame:GetAttribute("ClubSkipNo") or 0)
 		skipCount.Visible = false
-		below += 80
 	end
 	toast.Position = UDim2.fromOffset(p.X + s.X / 2, below)
 end)

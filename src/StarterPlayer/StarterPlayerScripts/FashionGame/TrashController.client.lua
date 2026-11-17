@@ -291,7 +291,9 @@ do
 	noticeGui.DisplayOrder = 40
 	noticeGui.Parent = player:WaitForChild("PlayerGui")
 	local stack = Instance.new("Frame")
-	stack.AnchorPoint = Vector2.new(0.5, 0)
+	-- (D-1765, user 2026-11-18: "쓰레기 주웠다는 문구 화면 아래에 띄우기") at the bottom middle, over the hotbar
+	-- (was under the top bar); the newest line lowest
+	stack.AnchorPoint = Vector2.new(0.5, 1)
 	stack.Size = UDim2.new(1, -24, 0, 60)
 	stack.BackgroundTransparency = 1
 	stack.Parent = noticeGui
@@ -299,8 +301,9 @@ do
 	list.HorizontalAlignment = Enum.HorizontalAlignment.Center
 	list.SortOrder = Enum.SortOrder.LayoutOrder
 	list.Padding = UDim.new(0, 2)
+	list.VerticalAlignment = Enum.VerticalAlignment.Bottom
 	list.Parent = stack
-	local function place() stack.Position = UDim2.new(0.5, 0, 0, TopBar.bottom() + 6) end
+	local function place() stack.Position = UDim2.new(0.5, 0, 1, -96) end
 	place()
 	local order = 0
 	local font = Font.new("rbxasset://fonts/families/GothamSSm.json", Enum.FontWeight.Bold)
@@ -312,7 +315,7 @@ do
 		local last = utf8.codepoint(name, utf8.offset(name, -1) or 1)
 		local particle = if last >= 0xAC00 and last <= 0xD7A3 and (last - 0xAC00) % 28 ~= 0 then "을" else "를"
 		local text = string.format("%s님이 쓰레기통에서 \"%s\"%s 주웠습니다.", who, name, particle)
-		order -= 1
+		order += 1 -- (D-1765: newest last = lowest)
 		local row = Instance.new("Frame")
 		row.LayoutOrder = order
 		row.Size = UDim2.new(1, 0, 0, 16)
@@ -339,7 +342,7 @@ do
 		front.TextStrokeTransparency = 0
 		local rows = {}
 		for _, r in ipairs(stack:GetChildren()) do if r:IsA("Frame") then table.insert(rows, r) end end
-		table.sort(rows, function(a, b) return a.LayoutOrder < b.LayoutOrder end)
+		table.sort(rows, function(a, b) return a.LayoutOrder > b.LayoutOrder end) -- (newest first: the oldest go)
 		for i = 4, #rows do rows[i]:Destroy() end
 		task.delay(4, function()
 			for k = 1, 10 do
