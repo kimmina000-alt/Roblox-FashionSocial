@@ -16,6 +16,10 @@
 --   6. (D-1422, "야경 5 삭제 6 적용": the night walkers of D-1421 are gone again) a little more glow
 --      round bright things at night (Lighting.Bloom: lower threshold, a bit stronger and wider),
 --      so the signs and lit windows shine softly.
+--   7. (D-1561, player feedback 2026-11-16 "흰색은 발광이 너무 심한거같아요 클럽 안도 그렇고 국밥집에서도")
+--      indoors (a roof over the camera) the picture is toned down at any hour: lower exposure and
+--      the daytime bloom, so white clothes / hair / floors under the shop and club lights are not
+--      blown out. Eased in and out over about a second.
 -- Client only (looks); nothing changes in the place.
 
 local Lighting = game:GetService("Lighting")
@@ -60,15 +64,26 @@ local day = {
 	atmDecay = atm and atm.Decay or Color3.new(1, 1, 1),
 	haze = atm and atm.Haze or 0,
 }
+-- 7. indoors: exposure and bloom while a roof is over the camera (k = 0 outside, 1 inside)
+local INDOOR_EXPOSURE = -0.3 -- (-0.6 made the club too dark)
+local skyN = 0
+local indoorK = 0
+local function tone()
+	local n, k = skyN, indoorK
+	local outExp = day.exposure + (NIGHT.exposure - day.exposure) * n
+	Lighting.ExposureCompensation = outExp + (INDOOR_EXPOSURE - outExp) * k
+	if bloom then
+		local m = n * (1 - k) -- (indoors: the daytime bloom)
+		bloom.Intensity = day.bloomIntensity + (NIGHT.bloomIntensity - day.bloomIntensity) * m
+		bloom.Size = day.bloomSize + (NIGHT.bloomSize - day.bloomSize) * m
+		bloom.Threshold = day.bloomThreshold + (NIGHT.bloomThreshold - day.bloomThreshold) * m
+	end
+end
 local function sky(n: number)
+	skyN = n
 	Lighting.Ambient = day.ambient:Lerp(NIGHT.ambient, n)
 	Lighting.OutdoorAmbient = day.outdoor:Lerp(NIGHT.outdoor, n)
-	Lighting.ExposureCompensation = day.exposure + (NIGHT.exposure - day.exposure) * n
-	if bloom then
-		bloom.Intensity = day.bloomIntensity + (NIGHT.bloomIntensity - day.bloomIntensity) * n
-		bloom.Size = day.bloomSize + (NIGHT.bloomSize - day.bloomSize) * n
-		bloom.Threshold = day.bloomThreshold + (NIGHT.bloomThreshold - day.bloomThreshold) * n
-	end
+	tone()
 	if atm then
 		atm.Color = day.atmColor:Lerp(NIGHT.atmColor, n)
 		atm.Decay = day.atmDecay:Lerp(NIGHT.atmDecay, n)
@@ -271,12 +286,63 @@ task.spawn(function()
 	end)
 end)
 
+-- indoors = at least 3 of 5 rays straight up (the camera and 4 points 6 studs round it) hit a
+-- solid, see-through-less part within 120 studs (the club ceiling is 84 up) that is not a tree, parasol, awning or a person
+local ROOF_SKIP = { "Tree", "Leaf", "Leaves", "Canopy", "Palm", "Parasol", "Umbrella", "Awning", "Blossom", "Lamp" }
+local roofParams = RaycastParams.new()
+roofParams.FilterType = Enum.RaycastFilterType.Exclude
+roofParams.IgnoreWater = true
+local function notRoof(part: BasePart): boolean
+	if part.Transparency > 0.6 then return true end
+	if part.Material == Enum.Material.LeafyGrass or part.Material == Enum.Material.Grass then return true end
+	local m = part:FindFirstAncestorOfClass("Model")
+	if m and m:FindFirstChildOfClass("Humanoid") then return true end
+	local name = part.Name .. " " .. (part.Parent and part.Parent.Name or "") .. " " .. (m and m.Name or "")
+	for _, w in ipairs(ROOF_SKIP) do
+		if string.find(name, w, 1, true) then return true end
+	end
+	return false
+end
+local function roofOver(origin: Vector3): boolean
+	local skip: {Instance} = {}
+	local char = game:GetService("Players").LocalPlayer.Character
+	if char then table.insert(skip, char) end
+	for _ = 1, 4 do
+		roofParams.FilterDescendantsInstances = skip
+		local hit = workspace:Raycast(origin, Vector3.new(0, 120, 0), roofParams)
+		if not hit then return false end
+		if hit.Instance:IsA("Terrain") then return true end
+		if not notRoof(hit.Instance :: BasePart) then return true end
+		table.insert(skip, hit.Instance)
+	end
+	return false
+end
+local OFFSETS = { Vector3.zero, Vector3.new(6, 0, 0), Vector3.new(-6, 0, 0), Vector3.new(0, 0, 6), Vector3.new(0, 0, -6) }
+local indoorTarget = 0
+local function checkIndoor()
+	local cam = workspace.CurrentCamera
+	if not cam then return end
+	local p = cam.CFrame.Position
+	local hits = 0
+	for _, o in ipairs(OFFSETS) do
+		if roofOver(p + o) then hits += 1 end
+	end
+	indoorTarget = if hits >= 3 then 1 else 0
+end
+RunService.RenderStepped:Connect(function(dt)
+	if indoorK == indoorTarget then return end
+	local step = dt / 0.8
+	indoorK = if indoorTarget > indoorK then math.min(indoorTarget, indoorK + step) else math.max(indoorTarget, indoorK - step)
+	tone()
+end)
+
 local last = -1
 RunService.Heartbeat:Connect(function()
 	local now = os.clock()
 	if now - last < 0.25 then return end
 	last = now
 	local n = nightAmount(Lighting.ClockTime)
+	checkIndoor()
 	sky(n)
 	setWindows(n > 0.5)
 	setShops(n > 0.5)
