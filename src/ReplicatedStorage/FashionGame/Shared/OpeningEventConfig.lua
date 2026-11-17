@@ -9,7 +9,9 @@
 
 local OpeningEventConfig = {}
 
-OpeningEventConfig.Start = DateTime.fromUniversalTime(2026, 11, 12, 15, 0, 0) -- (= 2026-11-13 00:00 KST)
+-- (D-1693, user 2026-11-17: the attendance day turns at 05:00 KST, not midnight: the club opens 18:00 ~ 06:00,
+-- so a night out stays one day) day 1 = 2026-11-13 05:00 KST ~ 11-14 05:00, and so on
+OpeningEventConfig.Start = DateTime.fromUniversalTime(2026, 11, 12, 20, 0, 0) -- (= 2026-11-13 05:00 KST; 15:00 UTC = 00:00 KST until D-1693)
 OpeningEventConfig.Days = 21
 OpeningEventConfig.Goal = 14
 OpeningEventConfig.FrameKey = "opening2026" -- PhotoConfig.Frames

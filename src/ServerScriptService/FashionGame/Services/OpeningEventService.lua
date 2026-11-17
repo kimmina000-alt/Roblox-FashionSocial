@@ -30,7 +30,9 @@ local function attend(player: Player)
 	end
 	local day = OpeningEventConfig.dayNow()
 	local studio = RunService:IsStudio() and not ReplicatedStorage.FashionGame:GetAttribute("OpeningStudioCount")
-	if day and o.last ~= day and o.n < OpeningEventConfig.Goal and not studio then
+	-- (D-1693: only a later day counts: when the day turned from midnight to 05:00 the night's day number
+	-- went back by one for those hours, and must not count again)
+	if day and day > (tonumber(o.last) or 0) and o.n < OpeningEventConfig.Goal and not studio then
 		o.n += 1
 		o.last = day
 		local reward = OpeningEventConfig.Rewards[o.n]
@@ -49,12 +51,12 @@ local function attend(player: Player)
 		data.MarkDirty(player)
 		player:SetAttribute("OpeningJustClaimed", o.n)
 	end
-	-- (D-1691, user 2026-11-17: "출석 이벤트는 24시간에 한 번씩 띄워야 해") the window opens by itself at most
-	-- once in 24 hours (wallet.opening.shownAt, os.time) while the event runs: OpeningShowWindow tells the
-	-- client. (A Studio test does not write it, as it does not count attendance.)
-	if day and os.time() - (tonumber(o.shownAt) or 0) >= 24 * 3600 then
+	-- (D-1691 / D-1693, user 2026-11-17: "출석 이벤트는 24시간에 한 번씩 띄워야 해" → once a day, the day
+	-- turning at 05:00 KST like the attendance) the window opens by itself on the first visit of each event
+	-- day (wallet.opening.shownDay): OpeningShowWindow tells the client. (A Studio test does not write it.)
+	if day and tonumber(o.shownDay) ~= day then
 		if not studio then
-			o.shownAt = os.time()
+			o.shownDay = day
 			data.MarkDirty(player)
 		end
 		player:SetAttribute("OpeningShowWindow", true)
