@@ -700,7 +700,18 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -12.5, engine = "sound" } },
 	-- (D-1600) song 2:45; octave 0.952 is the user's
 	{ channel = "K-POP", title = "내 이름을 불러줘(Call My Name)-투어스(TWS)", soundId = 129638210426239, length = 154.084, fileSpeed = 1.0708,
-		lab = { speed = 1, tempo = 0.934, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = 0, mid = 0, high = 0, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.934, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = 0, mid = 0, high = 0, engine = "sound" },
+		-- (D-1603, user 2026-11-17: "내 이름을 불러 줘 안무 추가" + 21 ids) practice video lAf01WUYtf8: video = song + 1.25 s (its sound against the
+		-- original mp3, 0.96-0.98 at the start and end), `at` = clip start - 1.25 (clip 1 `from = 1.25`); clip 8 upload 94288647679069 is a copy of
+		-- 7 (and 6.97 s for a 9.01 s clip): left out (default dance 57.7-66.8); 101121496904670 = a second upload of 13 (joints within 0.3°)
+		choreo = {
+			{ id = 84847937406843, at = 0.00, from = 1.25 }, { id = 88993457159273, at = 11.76, blend = 0.47 }, { id = 74885576782093, at = 20.74, blend = 0.46 },
+			{ id = 132355350514600, at = 29.75, blend = 1, slowIn = { 0.4, 0.4 } }, { id = 83828094822862, at = 33.75, blend = 1 }, { id = 107391937407645, at = 41.26, blend = 0.65 },
+			{ id = 120616516576434, at = 50.74, blend = 0.7 }, { id = 73429358232249, at = 66.75, blend = 0.08 }, { id = 88595092254451, at = 70.76, blend = 0.67 },
+			{ id = 133275108218481, at = 73.76, blend = 1 }, { id = 107243018629607, at = 77.76, blend = 1 }, { id = 76545761433830, at = 81.77, blend = 1 },
+			{ id = 137670042338904, at = 87.74, blend = 1 }, { id = 81624243507898, at = 100.52, slowIn = { 0.4, 0.4 } }, { id = 128327230683798, at = 114.77, blend = 0.48 },
+			{ id = 107246799142521, at = 116.73, blend = 0.77 }, { id = 100667532281425, at = 124.74, blend = 0.99 }, { id = 122207092339520, at = 135.05 },
+			{ id = 96319765244846, at = 148.50, blend = 0.4 } }, autoChoreo = true },
 	-- (D-1602, user 2026-11-17: four more x1 uploads with the 음원 테스트 lab values, no choreography; octave 0.952 is the user's) song 2:20
 	{ channel = "K-POP", title = "Lucky Girl Syndrome-ILLIT", soundId = 99186584464449, length = 130.9, fileSpeed = 1.0695,
 		lab = { speed = 1, tempo = 0.935, volume = 10, boost = 10, boost2 = 5, boost3 = 2.05, octave = 0.952, low = -4, mid = 0, high = -11, engine = "sound" } },
