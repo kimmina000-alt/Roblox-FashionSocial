@@ -693,8 +693,18 @@ M.Playlist = {
 	{ channel = "K-POP", title = "삐그덕(Feat.아이유)-Crush", soundId = 101236122310659, length = 172.389, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -5.5, engine = "sound" } },
 	-- (D-1600) song 2:15
-	{ channel = "K-POP", title = "Unbelievable-H1 KEY(하이키)", soundId = 81736514719301, length = 128.882, fileSpeed = 1.0475,
-		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -10.5, engine = "sound" } },
+	{ channel = "K-POP", title = "Unbelievable-H1 KEY(하이키)", soundId = 81736514719301, length = 128.882, fileSpeed = 1.0499,
+		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -10.5, engine = "sound" },
+		-- (D-1672, user 2026-11-18: "언벌리버블 안무 추가" + 16 ids) practice video 18X8ClyLIaI: video = song + 1.15 s (its sound against the original
+		-- mp3 in 10 s windows, 0.82-0.99 all through), `at` = clip start - 1.15 (clip 1 `from = 1.15`); 2 / 5 re-sent (132406634119258 / 82476096356644): the first
+		-- uploads (102267066021904 / 86658699961545) were copies of 1 / 4; fileSpeed 1.0475 -> 1.0499
+		-- (in Play the game drifted 0.25 s against the mp3 over 104 s, as other x1 uploads)
+		choreo = {
+			{ id = 107202755656926, at = 0.00, from = 1.15 }, { id = 132406634119258, at = 6.02, blend = 0.36 }, { id = 91684619142886, at = 16.83, blend = 1 }, { id = 127086942159592, at = 25.84, blend = 0.51 }, { id = 82476096356644, at = 33.89 },
+			{ id = 105450147611432, at = 45.86, blend = 0.74 }, { id = 126709034309523, at = 48.87, blend = 0.87, slowIn = { 0.4, 0.4 } }, { id = 110146513928585, at = 55.84, blend = 1 },
+			{ id = 98575698595382, at = 63.85, blend = 1 }, { id = 97422868495252, at = 68.85, blend = 0.48 }, { id = 77667909738269, at = 71.86 },
+			{ id = 98632778351786, at = 81.87, blend = 0.74 }, { id = 106947840145982, at = 89.84, blend = 1 }, { id = 121716323345976, at = 104.36 },
+			{ id = 82151831370082, at = 114.87, blend = 0.74 }, { id = 85861969329409, at = 121.84, blend = 0.9 } }, autoChoreo = true },
 	-- (D-1600) song 3:16
 	{ channel = "K-POP", title = "Boogie Woogie-NCT DREAM", soundId = 102947379971628, length = 186.622, fileSpeed = 1.0503,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -12.5, engine = "sound" },

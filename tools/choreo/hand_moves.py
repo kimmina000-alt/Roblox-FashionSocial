@@ -28,8 +28,9 @@ import mediapipe as mp
 from mediapipe.tasks import python as mpt
 from mediapipe.tasks.python import vision
 
-DEF_MODEL = os.path.join(os.environ.get("TEMP", ""), "claude", "8459f2474e5f6ee9",
-                         "9d3f70b0-88cf-41aa-859c-c20bebe76d4b", "scratchpad", "models", "pose_landmarker_full.task")
+# (D-1672) models live in tools/choreo/centercut/models (git-ignored; pose_landmarker_full.task from
+# storage.googleapis.com/mediapipe-models, hand_landmarker.task next to it), not in a session scratchpad
+DEF_MODEL = os.path.join(os.path.dirname(os.path.abspath(__file__)), "centercut", "models", "pose_landmarker_full.task")
 SH, EL, WR, PI, IN, TH, HIP = {"L": 11, "R": 12}, {"L": 13, "R": 14}, {"L": 15, "R": 16}, {"L": 17, "R": 18}, \
     {"L": 19, "R": 20}, {"L": 21, "R": 22}, {"L": 23, "R": 24}
 
