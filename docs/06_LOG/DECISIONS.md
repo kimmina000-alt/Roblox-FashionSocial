@@ -5464,3 +5464,8 @@ Studio only (no script yet).
 ## D-1569 (2026-11-17) 새소리 50% 크게
 - User: "새 지저귀는 소리 담긴 배경음 50%만 더 키우고". SfxController MAX.birds 0.45 → 0.675.
 
+## D-1576 (2026-11-17) 해변 튜브 더미, 들고 가기
+- User (a photo of a heap of yellow / blue rubber rings on a beach): "해변 종합안내도 옆에 튜브 쌓아 놓고 들고 갈 수 있도록 수정".
+- tools/graybox/beach_tube_pile_1117.lua: Workspace.Hongdae_Layout.BeachTubePile (tag TubePile), 18 rings (ArtAssets.TubeMint, yellow and blue) heaped on the sand 21 studs north of the beach guide map (clear of the palm PalmTreeP4), a yellow "튜브 무료 대여" sign, a PromptPart. Place-only: save the place.
+- TubeRentService (ServerMain): a "튜브 들기" prompt on the heap gives a Tool "🛟 튜브" (the same ring, yellow, held at the hand); one each (a second press puts yours back in the hand). Not kept across a rejoin. Play: the prompt gave the tube, it shows in the hotbar, no script errors.
+

@@ -69,6 +69,7 @@ require(script.Parent.Services.BarShelfService).Start()
 require(script.Parent.Services.BakeryDisplayService).Start()
 require(script.Parent.Services.GuardService).Start()
 require(script.Parent.Services.BeachBallService).Start() -- (beach balls to pick up and throw, D-1029)
+require(script.Parent.Services.TubeRentService).Start() -- (rings to carry from the heap by the beach map, D-1576)
 local ZoneAnalyticsService = require(script.Parent.Services.ZoneAnalyticsService)
 ZoneAnalyticsService.Start() -- (minutes per place for the dashboard, D-1096)
 -- (D-1124) onboarding, places entered vs things done, the booth / club funnels, coins
