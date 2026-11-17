@@ -140,7 +140,9 @@ end
 -- buttons on the right, ◀ and ▶, turn the wheel while held. Keyboards keep W / S and A / D.
 local UserInputService = game:GetService("UserInputService")
 local function touchMode(): boolean
-	return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+	-- (a phone has no keyboard; Studio's phone view and touch laptops have both: then the last input decides)
+	return UserInputService.TouchEnabled
+		and (not UserInputService.KeyboardEnabled or UserInputService:GetLastInputType() == Enum.UserInputType.Touch)
 end
 local held = { left = false, right = false }
 local padGui = Instance.new("ScreenGui")
@@ -153,8 +155,8 @@ local function padButton(name: string, text: string, xOffset: number, key: strin
 	local b = Instance.new("TextButton")
 	b.Name = name
 	b.AnchorPoint = Vector2.new(1, 1)
-	b.Position = UDim2.new(1, xOffset, 1, -36)
-	b.Size = UDim2.fromOffset(96, 96)
+	b.Position = UDim2.new(1, xOffset, 1, -96) -- (above the hotbar along the bottom)
+	b.Size = UDim2.fromOffset(84, 84)
 	b.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
 	b.BackgroundTransparency = 0.35
 	b.Text = text
@@ -178,7 +180,7 @@ local function padButton(name: string, text: string, xOffset: number, key: strin
 	b.MouseLeave:Connect(function() set(false) end)
 	b.Parent = padGui
 end
-padButton("Left", "◀", -140, "left")
+padButton("Left", "◀", -126, "left")
 padButton("Right", "▶", -28, "right")
 
 -- -1 = left .. 1 = right
