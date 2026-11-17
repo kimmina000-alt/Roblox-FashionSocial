@@ -138,6 +138,10 @@ local function duckWalk(t0: number, t1: number, step: number, turn: number)
 	return keys
 end
 M.ChoreoFixes = {
+	-- (D-1670) Boogie Woogie-NCT DREAM, Play scan > 600°/s: 3 turns at 0:13.5 (631°/s), 16 turns a lap at 2:11.2 (621°/s) → spread
+	[98798684410312] = { spin = { from = 1.7, to = 2.6, ease = "both" } }, -- BW 3
+	[92147677701072] = { spin = { from = 0.4, to = 1.4, ease = "both" } }, -- BW 16
+	[70911274448112] = { spin = { from = 7.0, to = 8.6, ease = "both" } }, -- BW 9 (D-1671: one lap -2 → 365° with 855°/s in the capture)
 	-- (D-1603) 내 이름을 불러줘-TWS: fast turns spread evenly (choreo_motion_scan + Play scan > 600°/s); 5 / 11 start against the piece
 	-- before (the capture turns back 150 / 84° at the seam, then on the same way) → fromPrev; 18 picks up 17's turn → fromPrev;
 	-- 9 starts with a lap after the default dance (fromPrev has no piece before) → blend 0.08 + its own spin
@@ -1368,6 +1372,12 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- Boogie Woogie-NCT DREAM (D-1670, choreo_slide_check + choreo_motion_scan DRIFT + Play TELEPORT 0:10.2, 0:15.3, 1:37.2, 2:14.6, 2:26.9, 3:02.9-3:05.1)
+	[72899900258037] = { { 3.8, 4.5 }, { 5.5, 7.0 } }, [98798684410312] = { { 3.7, 4.4 }, { 5.0, 5.9 } }, [97814419171643] = { { 0.0, 1.5 }, { 4.3, 4.9 }, { 7.1, 8.0 } },
+	[93564912800713] = { { 0.4, 1.0 }, { 5.4, 7.0 }, { 9.3, 10.4 } }, [118999861690635] = { { 4.2, 5.4 }, { 5.9, 7.6 } }, [72126724441612] = { { 0.2, 1.6 }, { 2.3, 3.1 } },
+	[103506023234554] = { { 5.7, 6.6 }, { 8.4, 9.03 } }, [77759369454741] = { { 6.7, 7.3 }, { 8.4, 9.1 } }, [92147677701072] = { { 1.6, 2.2 } }, [90031774217033] = { { 0.0, 1.8 } },
+	[82489608576953] = { { 0.9, 2.1 }, { 2.9, 3.7 }, { 6.3, 6.9 }, { 7.7, 9.4 } }, [140605792599503] = { { 1.8, 2.5 }, { 2.8, 3.7 } }, [130987200839765] = { { 0.2, 1.0 }, { 4.5, 5.3 } },
+	[138159952468756] = { { 1.6, 2.2 }, { 7.9, 8.6 } }, [79114246750826] = { { 2.5, 3.1 } }, [81117884846850] = { { 1.1, 2.7 }, { 6.0, 6.6 }, { 7.8, 10.8 } }, [123702153844970] = { { 0.2, 0.8 } }, [136974262670764] = { { 1.6, 3.2 }, { 7.9, 9.3 } }, [70911274448112] = { { 2.9, 4.1 }, { 5.9, 6.7 } }, -- 4 / 9 (D-1671, + Play TELEPORT 0:19.5, 0:20.0)
 	-- 내 이름을 불러줘-TWS (D-1603, choreo_slide_check + choreo_motion_scan DRIFT + Play TELEPORT 0:02.3, 0:03.0, 0:03.7, 0:04.2, 0:21.7, 0:28.1, 0:34.5, 0:35.4, 1:16.4, 1:31.4, 2:27.6)
 	[84847937406843] = { { 2.2, 6.0 }, { 7.5, 8.4 }, { 11.8, 12.7 } }, [74885576782093] = { { 0.0, 1.3 }, { 5.4, 6.9 }, { 7.1, 8.3 } }, [83828094822862] = { { 0.6, 2.2 }, { 3.0, 3.9 }, { 5.7, 6.3 } },
 	[107391937407645] = { { 1.9, 2.5 }, { 8.1, 9.0 } }, [88595092254451] = { { 0.6, 1.5 } }, [107243018629607] = { { 0.2, 0.9 }, { 2.7, 4.0 } },
@@ -1597,6 +1607,9 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-1670) Boogie Woogie-NCT DREAM (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 16 checked on frames: the capture's
+	-- lap stops 40° short; 20 left out: another member covers the centre at 2.3-8.6 s)
+	[93564912800713] = 6, [118999861690635] = -9, [137817236071281] = 10, [92147677701072] = 39, [140605792599503] = 7, [138159952468756] = 10,
 	-- (D-1603) 내 이름을 불러줘-TWS (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 2 / 3 / 9 / 18 / 19 checked on frames: front)
 	[88993457159273] = 24, [74885576782093] = 25, [107391937407645] = -11, [120616516576434] = 8, [73429358232249] = -21,
 	[107243018629607] = -8, [100667532281425] = -31, [122207092339520] = -21, [90921923486342] = -11, -- 8 (D-1658, MAD 16)
@@ -1723,6 +1736,8 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-1671) Boogie Woogie-NCT DREAM 4: head_video.py → headMisses (video 24 / 27°, capture 8 / 3°), keys 0.09 s early
+	[136974262670764] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, 12 }, { 3.91, 0, 0, 19 }, { 4.11, 0, 0, 0 } } } }, -- BW 4
 	-- (D-1603) 내 이름을 불러줘-TWS: head_video.py → headMisses, keys 0.09 s early
 	[88993457159273] = { { part = "Head", keys = { { 0.91, 0, 0, 0 }, { 1.11, 0, 0, -13 }, { 1.31, 0, 0, -16 }, { 1.51, 0, 0, 0 } } } }, -- TWS 2
 	[76545761433830] = { { part = "Head", keys = { { 2.31, 0, 0, 0 }, { 2.51, 0, 0, 10 }, { 2.71, 0, 0, 10 }, { 2.91, 0, 0, 0 } } } }, -- TWS 13
@@ -1914,6 +1929,11 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
+	-- (D-1670, user: "boogiewoogie") Boogie Woogie-NCT DREAM: hand_moves.py → wristMisses, keys 0.09 s early; 20 left out (another member covers the
+	-- centre), 24's run is after the song end; checked in Play (D-1263)
+	[98798684410312] = { { part = "LeftHand", keys = { { 2.71, 0, 0, 0 }, { 2.91, -28, 0, 0 }, { 3.11, -33, 0, 0 }, { 3.31, -36, 0, 0 }, { 3.51, -36, 0, 0 }, { 3.71, -37, 0, 0 }, { 3.91, 0, 0, 0 } } } }, -- BW 3
+	[138159952468756] = { { part = "RightHand", keys = { { 4.71, 0, 0, 0 }, { 4.91, 0, 0, 40 }, { 5.11, 0, 0, 35 }, { 5.31, 0, 0, 0 } } } }, -- BW 21
+	[70911274448112] = { { part = "LeftHand", keys = { { 0.31, 0, 0, 0 }, { 0.51, 22, 0, 0 }, { 0.71, 35, 0, 0 }, { 0.91, 39, 0, 0 }, { 1.11, 0, 0, 0 } } } }, -- BW 9 (D-1671; video 61-78, capture 16-24)
 	-- (D-1603, user: "내 이름을 불러 줘 안무 추가") 내 이름을 불러줘-TWS: hand_moves.py on 19 clips → wristMisses, keys 0.09 s early; checked in Play (D-1263)
 	[73429358232249] = { { part = "LeftHand", keys = { { 2.11, 0, 0, 0 }, { 2.31, 0, 0, -19 }, { 2.51, 0, 0, -20 }, { 2.71, 0, 0, -26 }, { 2.91, 0, 0, 0 } } } }, -- TWS 9
 	[107243018629607] = { { part = "LeftHand", keys = { { 1.11, 0, 0, 0 }, { 1.31, 27, 0, 0 }, { 1.51, 40, 0, 0 }, { 1.71, 25, 0, 0 }, { 1.91, 24, 0, 0 }, { 2.11, 0, 0, 0 } } } }, -- TWS 12
