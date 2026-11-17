@@ -5569,3 +5569,7 @@ Studio only (no script yet).
 - Boogie Woogie 102947379971628: 186.622 s, fileSpeed 1.0503 (곡 3:16), tempo 0.952, boost 10/5/2, EQ 0/0/-12.5. (사용자 메모의 "ID:101236122310659"는 삐그덕 파일; 길이로 102947379971628이 맞음.)
 - 내 이름을 불러줘(TWS) 129638210426239: 154.084 s, fileSpeed 1.0708 (곡 2:45), tempo 0.934, octave 0.952(사용자 값 그대로), boost 10/5/2, EQ 0/0/0.
 - Play로 들어 보지는 않음.
+
+## D-1601 SHEESH-BABYMONSTER 음색 -4 / -25 / -22 (2026-11-17)
+- 사용자: "SHEESH-BABYMONSTER -4, -25, -22" (저음 / 중음 / 고음). 전: git 0/0/0, Studio에는 누가 넣은 high -15. boost · tempo는 그대로.
+- Play로 들어 보지는 않음.

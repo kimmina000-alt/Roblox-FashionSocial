@@ -932,3 +932,4 @@
 
 ## 2026-11-17
 - 새 곡 4곡: 삐그덕-Crush, Unbelievable-H1 KEY, Boogie Woogie-NCT DREAM, Call My Name-TWS (D-1600).
+- SHEESH-BABYMONSTER 음색 -4 / -25 / -22 (D-1601).
