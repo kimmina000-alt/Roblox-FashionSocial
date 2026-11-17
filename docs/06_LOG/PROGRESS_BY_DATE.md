@@ -933,3 +933,4 @@
 ## 2026-11-17
 - 새 곡 4곡: 삐그덕-Crush, Unbelievable-H1 KEY, Boogie Woogie-NCT DREAM, Call My Name-TWS (D-1600).
 - SHEESH-BABYMONSTER 음색 -4 / -25 / -22 (D-1601).
+- 새 곡 4곡: Lucky Girl Syndrome / 빌려온 고양이-ILLIT, 뛰어 JUMP-BLACKPINK, Blue Valentine-NMIXX (D-1602).

@@ -5581,3 +5581,11 @@ Studio only (no script yet).
 ## D-1601 SHEESH-BABYMONSTER 음색 -4 / -25 / -22 (2026-11-17)
 - 사용자: "SHEESH-BABYMONSTER -4, -25, -22" (저음 / 중음 / 고음). 전: git 0/0/0, Studio에는 누가 넣은 high -15. boost · tempo는 그대로.
 - Play로 들어 보지는 않음.
+
+## D-1602 새 곡 4곡: Lucky Girl Syndrome-ILLIT, 뛰어 JUMP-BLACKPINK, Blue Valentine-NMIXX, 빌려온 고양이 Do the Dance-ILLIT (2026-11-17)
+- 사용자 요청, 음원 테스트 세션이 테스트 place DataStore에서 읽은 lab 값(매니저 세션 전달). 넷 다 x1 업로드, 안무 없음, 목록 끝(D-1600의 TWS 다음). boost4 = 1이라 뺌, octave 0.952는 사용자 값.
+- Lucky Girl Syndrome 99186584464449: 130.9 s(Studio에서 잼), fileSpeed 1.0695 (곡 2:20), tempo 0.935, boost 10/5/2.05, EQ -4/0/-11.
+- 뛰어 JUMP 82763014578432: 153.99 s, fileSpeed 1.0715 (곡 2:45), tempo 0.933, boost 10/5/1, EQ 0/0/-13.5.
+- Blue Valentine 111032764768565: 173.889 s, fileSpeed 1.0696 (곡 3:06), tempo 0.935, boost 10/5/2, EQ 0/0/-7.
+- 빌려온 고양이 126150660776305: 176.341 s, fileSpeed 1.0718 (곡 3:09), tempo 0.933, boost 10/5/2, EQ -2/0/-15.5.
+- tempo × fileSpeed ≈ 1.000(넷 다). Play로 들어 보지는 않음.

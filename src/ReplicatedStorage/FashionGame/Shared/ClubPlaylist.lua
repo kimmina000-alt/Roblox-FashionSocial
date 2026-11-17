@@ -701,6 +701,18 @@ M.Playlist = {
 	-- (D-1600) song 2:45; octave 0.952 is the user's
 	{ channel = "K-POP", title = "내 이름을 불러줘(Call My Name)-투어스(TWS)", soundId = 129638210426239, length = 154.084, fileSpeed = 1.0708,
 		lab = { speed = 1, tempo = 0.934, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = 0, mid = 0, high = 0, engine = "sound" } },
+	-- (D-1602, user 2026-11-17: four more x1 uploads with the 음원 테스트 lab values, no choreography; octave 0.952 is the user's) song 2:20
+	{ channel = "K-POP", title = "Lucky Girl Syndrome-ILLIT", soundId = 99186584464449, length = 130.9, fileSpeed = 1.0695,
+		lab = { speed = 1, tempo = 0.935, volume = 10, boost = 10, boost2 = 5, boost3 = 2.05, octave = 0.952, low = -4, mid = 0, high = -11, engine = "sound" } },
+	-- (D-1602) song 2:45
+	{ channel = "K-POP", title = "뛰어 JUMP-BLACKPINK", soundId = 82763014578432, length = 153.99, fileSpeed = 1.0715,
+		lab = { speed = 1, tempo = 0.933, volume = 10, boost = 10, boost2 = 5, boost3 = 1, octave = 0.952, low = 0, mid = 0, high = -13.5, engine = "sound" } },
+	-- (D-1602) song 3:06
+	{ channel = "K-POP", title = "Blue Valentine-NMIXX", soundId = 111032764768565, length = 173.889, fileSpeed = 1.0696,
+		lab = { speed = 1, tempo = 0.935, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = 0, mid = 0, high = -7, engine = "sound" } },
+	-- (D-1602) song 3:09
+	{ channel = "K-POP", title = "빌려온 고양이 Do the Dance-ILLIT", soundId = 126150660776305, length = 176.341, fileSpeed = 1.0718,
+		lab = { speed = 1, tempo = 0.933, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = -2, mid = 0, high = -15.5, engine = "sound" } },
 
 } :: {Track}
 
