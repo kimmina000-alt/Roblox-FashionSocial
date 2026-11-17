@@ -212,8 +212,9 @@ task.spawn(function()
 	-- (D-1690) Studio never counts attendance: with the first-visit test switch on (FirstGoalTest) the
 	-- window shows after the tour anyway, to see the first visit in order
 	local TEST = game:GetService("RunService"):IsStudio() and FashionGame:GetAttribute("FirstGoalTest") == true
-	while not TEST and player:GetAttribute("OpeningJustClaimed") == nil and os.clock() - t0 < 30 do task.wait(0.5) end
-	if not TEST and player:GetAttribute("OpeningJustClaimed") == nil then return end
+	-- (D-1691) at most once in 24 hours: the server says when (OpeningShowWindow)
+	while not TEST and player:GetAttribute("OpeningShowWindow") ~= true and os.clock() - t0 < 30 do task.wait(0.5) end
+	if not TEST and player:GetAttribute("OpeningShowWindow") ~= true then return end
 	while playerGui:FindFirstChild("OHULoading") do task.wait(1) end
 	task.wait(4) -- (the first-visit tour starts 1.5 s after the loading screen: it goes first)
 	while player:GetAttribute("TourActive") or Popups.anyOpen() do task.wait(1) end

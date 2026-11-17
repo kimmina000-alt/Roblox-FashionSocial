@@ -5735,3 +5735,6 @@ Studio only (no script yet).
 - 사용자: "투어 추가해 투어 끝나고 출석 이벤트 보여 주고 목표 안내 순서". (D 번호: 이 세션은 D-1690~1699, 1670~1689는 다른 세션 몫)
 - TourController: 첫 접속(tour2 안 봄)이면 로딩 화면 1.5초 뒤 동네 투어를 다시 자동으로(D-1523 이전처럼). OpeningEventController는 원래대로 투어(TourActive)와 다른 창이 끝난 뒤 1초에 출석 창. FirstGoalController: 로딩 뒤 3초, 그다음 투어도 창(Popups)도 없는 상태가 3초 이어지면 첫 목표 시작. 첫 목표를 할지는 투어 전에 본 기록으로 정함(투어가 tour2를 남겨도 새 사람은 목표까지 봄).
 - Studio: FirstGoalTest = true면 투어 · 출석 창 · 첫 목표가 매번 순서대로(Studio는 출석을 안 세므로 출석 창도 테스트일 때 띄움).
+## D-1691 출석 이벤트 창: 24시간에 한 번 (2026-11-17)
+- 사용자: "출석 이벤트는 24시간에 한 번씩 띄워야 해".
+- OpeningEventService: 이벤트 기간에 마지막으로 창을 띄운 때(wallet.opening.shownAt, os.time)에서 24시간이 지났으면 OpeningShowWindow = true(그리고 시각 저장, Studio는 저장 안 함). OpeningEventController는 이 속성일 때만 투어 · 다른 창 뒤에 저절로 엶(🎁 버튼은 언제든).

@@ -49,6 +49,16 @@ local function attend(player: Player)
 		data.MarkDirty(player)
 		player:SetAttribute("OpeningJustClaimed", o.n)
 	end
+	-- (D-1691, user 2026-11-17: "출석 이벤트는 24시간에 한 번씩 띄워야 해") the window opens by itself at most
+	-- once in 24 hours (wallet.opening.shownAt, os.time) while the event runs: OpeningShowWindow tells the
+	-- client. (A Studio test does not write it, as it does not count attendance.)
+	if day and os.time() - (tonumber(o.shownAt) or 0) >= 24 * 3600 then
+		if not studio then
+			o.shownAt = os.time()
+			data.MarkDirty(player)
+		end
+		player:SetAttribute("OpeningShowWindow", true)
+	end
 	player:SetAttribute("OpeningCount", o.n)
 	player:SetAttribute("OpeningClaimedDay", o.last)
 	player:SetAttribute("Title_Founding", if o.title then true else nil)
