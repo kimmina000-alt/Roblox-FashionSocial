@@ -54,6 +54,9 @@ end)
 -- (the whole wheel glows at night, a rainbow going round it; each piece keeps its place in the wave by
 -- its angle round the hub when first found)
 local WHEEL_GLOW = { Rim = true, RimLight = true, Spoke = true }
+-- (D-1572, user 2026-11-17 with a phone shot: "관람차 발광도 줄여 줘") the rainbow's brightness
+-- (HSV value): 1 was a blinding disc on phones; Neon's glow follows its colour
+local WHEEL_BRIGHT = 0.4
 local rim: {{part: BasePart, day: Color3, dayMat: Enum.Material, angle: number}} = {}
 local function findRim()
 	-- (streaming: the list is made again whenever the number of wheel pieces here changed; each
@@ -94,6 +97,26 @@ local function findRim()
 				if p:IsA("BasePart") and WHEEL_GLOW[p.Name] then
 					local rel = p.Position - c
 					table.insert(rim, { part = p, day = p:GetAttribute("DayColor") :: Color3, dayMat = (Enum.Material :: any)[p:GetAttribute("DayMaterial")], angle = (math.atan2(rel:Dot(w), rel:Dot(u)) / (2 * math.pi)) % 1 })
+				end
+			end
+		end
+	end
+end
+
+---------------------------------------------------------------- the tea cups' teapot spikes
+-- (D-1575, user 2026-11-17: "회전컵 조형물 조명은 밤에만 빛나게") the spikes on the tea cups' teapot
+-- (SpikeGlow / SpikeTip, park_teacups_1115.lua) are plain cream plastic in the place; at night they
+-- glow (Neon at 30 % of the cream, D-1573)
+local SPIKE_DAY = Color3.fromRGB(255, 246, 214)
+local SPIKE_NIGHT = Color3.fromRGB(77, 74, 64)
+local function setSpikes(on: boolean)
+	for _, ride in ipairs(CollectionService:GetTagged("ParkTeaCups")) do
+		for _, p in ipairs(ride:GetDescendants()) do
+			if p:IsA("BasePart") and (p.Name == "SpikeGlow" or p.Name == "SpikeTip") then
+				local mat = if on then Enum.Material.Neon else Enum.Material.SmoothPlastic
+				if p.Material ~= mat then
+					p.Material = mat
+					p.Color = if on then SPIKE_NIGHT else SPIKE_DAY
 				end
 			end
 		end
@@ -204,6 +227,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 			r.part.Material = if on then Enum.Material.Neon else r.dayMat
 			if not on then r.part.Color = r.day end
 		end
+		setSpikes(on)
 		for _, l in ipairs(lights) do l.beam.Enabled = on end
 		if not on then fireworks:ClearAllChildren() end
 	end
@@ -230,12 +254,12 @@ RunService.Heartbeat:Connect(function(dt: number)
 		end
 		b.Color = PALETTE[(seq + step) % #PALETTE + 1]
 	end
-	if step % 12 == 0 then findRim() end
+	if step % 12 == 0 then findRim() setSpikes(true) end
 	-- the rim: a rainbow wave round the wheel
 	for _, r in ipairs(rim) do
 		if r.part.Material ~= Enum.Material.Neon then r.part.Material = Enum.Material.Neon end
 		local hue = (r.angle + now * 0.12) % 1
-		r.part.Color = Color3.fromHSV(hue, if r.part.Name == "Spoke" then 0.55 else 0.85, 1)
+		r.part.Color = Color3.fromHSV(hue, if r.part.Name == "Spoke" then 0.55 else 0.85, WHEEL_BRIGHT)
 	end
 	fireworksTick(now)
 end)

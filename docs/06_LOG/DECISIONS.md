@@ -5469,3 +5469,29 @@ Studio only (no script yet).
 - tools/graybox/beach_tube_pile_1117.lua: Workspace.Hongdae_Layout.BeachTubePile (tag TubePile), 18 rings (ArtAssets.TubeMint, yellow and blue) heaped on the sand 21 studs north of the beach guide map (clear of the palm PalmTreeP4), a yellow "튜브 무료 대여" sign, a PromptPart. Place-only: save the place.
 - TubeRentService (ServerMain): a "튜브 들기" prompt on the heap gives a Tool "🛟 튜브" (the same ring, yellow, held at the hand); one each (a second press puts yours back in the hand). Not kept across a rejoin. Play: the prompt gave the tube, it shows in the hotbar, no script errors.
 
+## D-1570 (2026-11-17) 실내에서는 화면 톤 낮추기 (💬 의견 "흰색 발광")
+- Player feedback (💬, 2026-11-16, goqhsek399): "흰색은 발광이 너무 심한거같아요 클럽 안도 그렇고 국밥집에서도 엄청 발광해요".
+- Checked in Play: the 국밥집 floor, ceiling and white hair are blown out by day and by night alike (10 downlights 1.4 + tube lights on near-white tiles), so the night bloom (D-1422) is only a small part of it.
+- SeoulNightController step 7: when a roof is over the camera (3 of 5 rays straight up, the camera and 4 points 6 studs round it, hit a solid part within 120 studs; trees, palms, parasols, awnings, lamps, see-through parts and characters do not count), ExposureCompensation eases to -0.3 and the bloom goes back to its daytime values (threshold 2), at any hour, over 0.8 s. -0.6 was tried first and made the club too dark.
+- Checked: club and 국밥집 = indoors, the street, the pocket park and under a palm = outdoors. Place data unchanged (lights keep their values).
+
+## D-1571 (2026-11-17) 바깥 창문 불빛 30 %
+- User (phone shots of the street at 21:20 / 21:30): "바깥 창문 발광도 수정해 줘 너무 강해 30%만 밝혀도 될 듯".
+- SeoulNightController: lit windows (WindowGlass / Window2F / TowerSlit, Neon at night) use 30 % of their old colours (WINDOW_GLOW = 0.3, the old warm (240, 185, 120) and cool (205, 215, 235) times 0.3). Neon's glow and bloom follow its colour. The share of lit windows (70 %) is unchanged.
+
+## D-1572 (2026-11-17) 관람차 무지개 불빛 줄이기
+- User (phone shot of the park at 21:50): "관람차 발광도 줄여 줘".
+- ParkNightController: the wheel's rainbow (Rim / RimLight / Spoke, Neon at night) uses HSV value 0.4 instead of 1 (WHEEL_BRIGHT). The string lights, searchlights and fireworks are unchanged.
+
+## D-1573 (2026-11-17) 회전컵 가운데 조형물 불빛 30 %
+- User: "회전컵 중앙에 있는 조형물 위에 빛나는 것도 발광 30%로 줄여".
+- The glow is the Neon spikes on the teapot (Workspace.회전컵.Ride.Teapot SpikeGlow / SpikeTip, made by tools/graybox/park_teacups_1115.lua). Their colour is 30 % of the old one: (255, 246, 214) → (77, 74, 64), in the script and in the place (place change: the user saves).
+
+## D-1574 (2026-11-17) 클럽 계단 · 복도 조명 30 %
+- User: "클럽 계단과 복도에 있는 조명 발광 수정 안 했으면 거기 발광도 줄여 줘" (D-1570 only toned the picture down indoors; these Neon lines were unchanged).
+- New client script ClubGlowDim: Neon parts named StairNeon, VIP_StairNeon, FoyerLED, PassageLight, CorridorNeon_E / _W, FloorLED, HallDoorFootLED, CeilingStrip inside 02_Club or ClubAnnex take 30 % of their colour on each screen (parts streamed in again are dimmed again). The place and the graybox scripts keep the full colours, so no chain run is needed. The dance floor, DJ, bar, VIP signs and crown lights are unchanged.
+
+## D-1575 (2026-11-17) 회전컵 조형물 불빛은 밤에만
+- User: "회전컵 조형물 조명은 밤에만 빛나게".
+- The teapot spikes (SpikeGlow / SpikeTip) are plain cream SmoothPlastic (255, 246, 214) in the place and in park_teacups_1115.lua. ParkNightController turns them to Neon at 30 % (77, 74, 64, D-1573) from 18:00 to 06:00 while the camera is near the park, like the string lights; parts streamed in at night are caught every 12 steps.
+- Play check: 14:00 → 24 spikes plastic, 21:30 → 24 Neon (77, 74, 64); no script errors. Place change: the user saves.

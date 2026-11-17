@@ -150,14 +150,15 @@ if pot then
 			{ Vector3.new(8.832, -0.03, 0), 8.24 }, { Vector3.new(8.778, 0.37, 0), 8.19 }, { Vector3.new(8.659, 0.707, 0), 8.14 },
 			{ Vector3.new(7.86, -0.05, 0), 8.24 }, { Vector3.new(7.796, 0.244, 0), 8.19 }, { Vector3.new(7.716, 0.522, 0), 8.14 },
 		}
+		-- (D-1575) plain cream plastic: ParkNightController makes them glow at night only (Neon at 30 %, D-1573)
 		local GLOW = Color3.fromRGB(255, 246, 214)
 		local function at(v: Vector3): Vector3 return mesh.CFrame:PointToWorldSpace((v - mid) * k) end
 		for i, t in ipairs(TIPS) do
 			local tip = at(t[1])
 			local base = at(Vector3.new(t[1].X + (t[2] - t[1].X) * 0.75, t[1].Y, 0))
-			local rod = part(potModel, "SpikeGlow", Vector3.new(0.09 * k.X, 0.09 * k.X, (tip - base).Magnitude), CFrame.lookAt((tip + base) / 2, tip), GLOW, Enum.Material.Neon)
+			local rod = part(potModel, "SpikeGlow", Vector3.new(0.09 * k.X, 0.09 * k.X, (tip - base).Magnitude), CFrame.lookAt((tip + base) / 2, tip), GLOW, Enum.Material.SmoothPlastic)
 			rod.CastShadow = false
-			local bulb = part(potModel, "SpikeTip", Vector3.one * 0.14 * k.X, CFrame.new(tip), GLOW, Enum.Material.Neon, Enum.PartType.Ball)
+			local bulb = part(potModel, "SpikeTip", Vector3.one * 0.14 * k.X, CFrame.new(tip), GLOW, Enum.Material.SmoothPlastic, Enum.PartType.Ball)
 			bulb.CastShadow = false
 			if i % 3 == 2 then
 				local light = Instance.new("PointLight")
