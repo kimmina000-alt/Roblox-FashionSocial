@@ -5925,3 +5925,9 @@ Studio only (no script yet).
 - 사용자(판석이 빽빽한 화면 hanok_garden_too_many_stones.webp): "바닥에 입체감 주는 돌 너무 많아. 사진처럼 드문드문 하나씩만 큼지막하게 둬 사이즈 다 다양하게".
 - hanok_garden_1117.lua: 길 · 연못 둘레에 촘촘히 깔던 458개 → 마당 아무 데나 서로 11 이상 떨어진 45개, 크기 3~8.5(가로세로 비 0.6~1)로 제각각. 화단 · 집 · 정자 · 다리 · 연못(3.5 여유)은 피함. HanokGarden 부품 1,065 → 654.
 - 사진: docs/06_LOG/images/2026-11-18/hanok_garden_sparse_*.jpg.
+## D-1768 가드 · VIP · DJ권 선물하기 (2026-11-18)
+- 사용자: "가드, vip, dj 권 남한테 선물할 수 있게 해 줘 / 다른 플레이어 눌렀을 때 따라추기 아이템 주기처럼 가드권 주기 vip권 주기 dj권 주기 추가".
+- Roblox 게임 패스는 남에게 넘길 수 없어서 선물용 개발자 상품 3개를 새로 둠(MonetizationConfig.Products: GiftGuard 399 · GiftVIP 299 · GiftDJ 49, id 0 = 대시보드에 만들기 전, Studio에서는 테스트 구매).
+- 다른 플레이어 카드(DanceController) 아래 "🎁 선물하기" 줄: 🛡 가드권 · 💎 VIP권 · 🎧 DJ권(GiftPassCard). 누르면 서버에 받는 사람을 먼저 알림("GiftTarget": 같은 서버, 본인 아님, 이미 가진 패스면 거절) → 선물 상품 결제.
+- GiftPassService: 결제되면 가드 / VIP는 받는 사람 wallet.gifted에 저장 + 패스 가진 것으로(MonetizationService.GrantGiftedPass, 접속할 때마다 다시 켬), DJ는 받는 사람 DJ 시간 30분(DjService.AddTime). 둘 다 알림. 결제 사이 받는 사람이 나가면 다음 접속 때 받음(DataStore PassGifts_v1, Studio에서는 안 씀). 받을 사람 기록이 없으면(서버 재시작) 산 사람이 받음.
+- 사용자 할 일: Creator Dashboard(경험 10773076711)에 상품 3개 만들고 id를 알려 주기 → MonetizationConfig id 채움.

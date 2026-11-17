@@ -81,6 +81,7 @@ task.defer(require(script.Parent.Services.TrashService).Start) -- (trash cans "T
 -- carried items back after a rejoin or a respawn (D-790)
 require(script.Parent.Services.BagService).Start(PlayerDataService, SnackService, DrinkService, SparkleService)
 task.defer(require(script.Parent.Services.GiveService).Start) -- (giving a carried item to another player, D-1396)
+require(script.Parent.Services.GiftPassService).Start(PlayerDataService, MonetizationService, DjService) -- (D-1768 패스 선물)
 
 -- DJ time (Developer Product "DJ"): add time and tell the buyer. A buyer who
 -- becomes DJ right away is asked whether to go to the booth; queued buyers
@@ -148,6 +149,9 @@ ClubShop.OnServerInvoke = function(player: Player, action: any, payload: any)
 	elseif action == "HideName" then
 		-- (D-1377) the ☰ menu's switches
 		return require(script.Parent.Services.PlayerPrefsService).SetName(player, payload == true)
+	elseif action == "GiftTarget" then
+		-- (D-1768) who the next gift (가드 / VIP / DJ권) goes to, before its purchase
+		return require(script.Parent.Services.GiftPassService).Target(player, payload)
 	elseif action == "MuteCheer" then
 		-- (D-1709) the ☰ menu's 놀이기구 환호성 switch
 		return require(script.Parent.Services.PlayerPrefsService).SetCheer(player, payload == true)

@@ -79,7 +79,8 @@ end
 
 local function refreshPasses(player: Player)
 	for key, pass in pairs(MonetizationConfig.GamePasses) do
-		if studioGrant(player, key) then
+		-- (D-1768) a pass someone gifted (GiftPassService, wallet.gifted) counts as owned
+		if studioGrant(player, key) or player:GetAttribute("Gifted_" .. key) == true then
 			setPass(player, key, true)
 		elseif pass.id == 0 then
 			setPass(player, key, player:GetAttribute("Pass_" .. key) == true)
@@ -90,6 +91,13 @@ local function refreshPasses(player: Player)
 			setPass(player, key, ok and owned == true)
 		end
 	end
+end
+
+-- (D-1768) a pass received as a gift: owned from now on (GiftPassService keeps it in wallet.gifted)
+function MonetizationService.GrantGiftedPass(player: Player, key: string)
+	if not MonetizationConfig.GamePasses[key] then return end
+	player:SetAttribute("Gifted_" .. key, true)
+	setPass(player, key, true)
 end
 
 function MonetizationService.HasPass(player: Player, key: string): boolean
