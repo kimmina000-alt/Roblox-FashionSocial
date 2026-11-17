@@ -1696,6 +1696,7 @@ return {
 	["📸 이걸로 광고 사진"] = "📸 Użyj tego w reklamie",
 	["📸 촬영 {1} / {2}   ⏱ {3}초"] = "📸 Ujęcie {1} / {2}   ⏱ {3} s",
 	["📸 캡처 저장"] = "📸 Zapisz zrzut",
+	["📸 사진 저장"] = "📸 Zapisz zdjęcie",
 	["📸 포즈 다시 찍기 (지금 코디로)"] = "📸 Powtórz pozę (obecny strój)",
 	["📺 전광판"] = "📺 Ekran",
 	["📺 전광판 OFF"] = "📺 Ekran WYŁ",

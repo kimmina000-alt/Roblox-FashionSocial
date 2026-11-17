@@ -5593,3 +5593,9 @@ Studio only (no script yet).
 ## D-1585 (2026-11-17) VIP 계단 아래 문틀 왼쪽 기둥 보이게
 - User (shot from the top of the VIP stair, the frame's north post missing): "저기 조명선 이어지게 추가".
 - Since D-1583 only the hall-side frame is left; its north post (z -275.4 .. -275) stood inside WalkFill (z -275.5 .. -257) and was hidden. It now stands on WalkFill's face (z -275.9 .. -275.5) and the top bar ends there (z -290 .. -275.5), in club_locker_1103.lua and in the place. Play check from the stair top: the frame is whole. Place change: the user saves.
+
+## D-1586 (2026-11-17) 밤 번짐 줄이기, 국밥집 입구 조명 제거, 📸 사진 저장
+- User (four phone shots): "발광 심함 줄이기 / 국밥집 입구에 흰빛 아예 지워 보고 전후 사진 줘 / 사진 저장은 프레임 완성 사진 그 자체로 사이즈 줄이지 말고 원본으로 그 사람 사진첩에 저장 / 캡처 저장 말고 사진 저장으로 변경".
+- SeoulNightController night values: exposure 0.25 → 0.1, bloom intensity 1.25 → 0.6, size 32 → 16, threshold 1.35 → 2.4 (weaker than the day bloom 1 / 24 / 2): on phones the lit windows, road markings and white clothes had big halos.
+- 국밥집: the two front-row downlights by the door (x 54, z -304 / -314) carry no SpotLight any more (build_gukbap.lua, the place and ServerStorage.UserMapSnapshot's Gukbap): with them off the doorway floor and people stop glaring white (before / after shots in Play). Place change: the user saves.
+- Photo booth: the button is 📸 사진 저장 (16 languages added by hand next to 📸 캡처 저장; build.py was not used because it also drops other sessions' unused strings); the framed photo fills the screen height (sheet holder 100 %). Roblox can only save a screen capture to the device gallery, so the saved size is the screen's height, not the photo's own pixels.

@@ -1696,6 +1696,7 @@ return {
 	["📸 이걸로 광고 사진"] = "📸 Usar esta para el anuncio",
 	["📸 촬영 {1} / {2}   ⏱ {3}초"] = "📸 Foto {1} / {2}   ⏱ {3} s",
 	["📸 캡처 저장"] = "📸 Guardar captura",
+	["📸 사진 저장"] = "📸 Guardar foto",
 	["📸 포즈 다시 찍기 (지금 코디로)"] = "📸 Repetir pose (con tu ropa actual)",
 	["📺 전광판"] = "📺 Pantalla",
 	["📺 전광판 OFF"] = "📺 Pantalla OFF",

@@ -44,10 +44,13 @@ local NIGHT = {
 	atmColor = Color3.fromRGB(70, 80, 125),
 	atmDecay = Color3.fromRGB(140, 95, 70), -- (the warm glow of the city low on the sky)
 	haze = 1.4,
-	exposure = 0.25,
-	bloomIntensity = 1.25,
-	bloomSize = 32,
-	bloomThreshold = 1.35,
+	-- (D-1586, user 2026-11-17 with phone shots: "발광 심함 줄이기": lit windows, road markings and
+	-- white clothes glared on phones) a softer night: less exposure and a weaker, smaller bloom
+	-- than by day (was 0.25 / 1.25 / 32 / 1.35)
+	exposure = 0.1,
+	bloomIntensity = 0.6,
+	bloomSize = 16,
+	bloomThreshold = 2.4,
 }
 -- night amount by the clock: 0 by day, 1 at night, eased over dusk 17.5-19.5 and dawn 5-6.5
 local function nightAmount(t: number): number

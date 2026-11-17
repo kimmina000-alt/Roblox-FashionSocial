@@ -1549,6 +1549,7 @@ local function captureToGallery(hide: {GuiObject})
 	end
 end
 
+-- (D-1586, user 2026-11-17: "캡처 저장 말고 사진 저장으로 변경") the button says 📸 사진 저장.
 -- (D-1584, player feedback 2026-11-16 + user 2026-11-17: "오후네컷에서 찍은 프레임으로 된 사진 저장할
 -- 수 있는 기능 추가 / 현재 가방에서 사진 선택하고 사진 저장 누르면 그때 보고 있는 화면 저장됨")
 -- Roblox can only save a screen capture, so the framed photo is shown alone on a plain sheet over
@@ -1573,7 +1574,7 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 	local holder = Instance.new("Frame")
 	holder.AnchorPoint = Vector2.new(0.5, 0.5)
 	holder.Position = UDim2.fromScale(0.5, 0.5)
-	holder.Size = UDim2.fromScale(0.92, 0.92)
+	holder.Size = UDim2.fromScale(1, 1) -- (D-1586, user: "사이즈 줄이지 말고": the photo as tall as the screen)
 	holder.BackgroundTransparency = 1
 	holder.Parent = bg
 	local drawn = pcall(draw, holder)
@@ -1656,7 +1657,7 @@ local function closeAllFlow()
 	Popups.closed("PhotoResult")
 end
 
-resultButton("📸 캡처 저장", COLORS.pink, 1, function()
+resultButton("📸 사진 저장", COLORS.pink, 1, function()
 	-- (D-1584) the finished photo in its frame
 	local shots = state.shots
 	if shots and state.picks and #state.picks > 0 then
@@ -1900,7 +1901,7 @@ local function viewerButton(label: string, color: Color3, order: number): TextBu
 		ZIndex = 22,
 	}, viewerButtons, 12)
 end
-local viewerCapture = viewerButton("📸 캡처 저장", COLORS.pink, 1)
+local viewerCapture = viewerButton("📸 사진 저장", COLORS.pink, 1)
 local viewerDelete = viewerButton("삭제", COLORS.danger, 2)
 local viewerClose = viewerButton("닫기", COLORS.card, 3)
 -- 🤚 손에 들기: the photo as an item in the hand (it was taken out on every tap in 내 앨범)

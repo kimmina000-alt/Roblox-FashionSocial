@@ -1696,6 +1696,7 @@ return {
 	["📸 이걸로 광고 사진"] = "📸 Bunu reklamda kullan",
 	["📸 촬영 {1} / {2}   ⏱ {3}초"] = "📸 Çekim {1} / {2}   ⏱ {3} sn",
 	["📸 캡처 저장"] = "📸 Görüntüyü kaydet",
+	["📸 사진 저장"] = "📸 Fotoğrafı kaydet",
 	["📸 포즈 다시 찍기 (지금 코디로)"] = "📸 Pozu yeniden çek (şu anki kombin)",
 	["📺 전광판"] = "📺 Büyük ekran",
 	["📺 전광판 OFF"] = "📺 Ekran KAPALI",
