@@ -18,5 +18,7 @@ UiBus.ChoreoPhrase = Instance.new("BindableEvent")
 UiBus.StartTour = Instance.new("BindableEvent")
 -- (D-1377) the ☰ menu's 기부하기: the 💝 supporter window (BannerController)
 UiBus.OpenSupport = Instance.new("BindableEvent")
+-- (D-1697) the guide's "뭘 해야 할지 모르겠어.": the dashed way to the club (night) / 오후네컷 (day) (FirstGoalController)
+UiBus.ShowWay = Instance.new("BindableEvent")
 
 return UiBus

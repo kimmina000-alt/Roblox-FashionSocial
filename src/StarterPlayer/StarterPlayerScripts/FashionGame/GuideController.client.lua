@@ -239,7 +239,24 @@ for i, faq in ipairs(GuideConfig.Faq) do
 	b.Activated:Connect(function() showAnswer(faq) end)
 end
 
+-- (D-1697, user 2026-11-17: "안내원 누르면 가장 위에 \"뭘 해야 할지 모르겠어.\" <- 첫 접속자한테만 뜨게 하고 다른 질문보다
+-- 눈에 띄게 해서 넣어. 저거 누르면 밤에는 클럽으로 안내/낮에는 포토부스로 안내") a white row on top of the list
+-- for a first-visit player (LocalPlayer attribute NewPlayer, FirstGoalController): it closes the window
+-- and the dashed way leads to the club by night, to 오후네컷 by day (UiBus.ShowWay)
+local lost = button(list, "🙋 뭘 해야 할지 모르겠어.", Color3.new(1, 1, 1), Color3.new(0, 0, 0))
+lost.LayoutOrder = 0
+lost.Size = UDim2.new(1, -10, 0, 50)
+lost.Font = Enum.Font.GothamBlack
+lost.TextSize = 17
+lost.Visible = false
+create("UIStroke", { Color = Color3.fromRGB(255, 110, 170), Thickness = 2.5, ApplyStrokeMode = Enum.ApplyStrokeMode.Border }, lost)
+lost.Activated:Connect(function()
+	closeWindow()
+	require(script.Parent:WaitForChild("UiBus")).ShowWay:Fire()
+end)
+
 local function openWindow()
+	lost.Visible = player:GetAttribute("NewPlayer") == true
 	showList()
 	window.Visible = true
 	Popups.opened("Guide", closeWindow)

@@ -5754,3 +5754,18 @@ Studio only (no script yet).
 - User: "출석 이벤트에 받기 완료 < 받기 버튼이었다가 눌러야 받기 완료로 뜨고 출석 인정하는 걸로 수정 / 제일 아래 하루 한 번 출석. 연속이 아니어도 돼요 이 줄 삭제."
 - OpeningEventService: a visit no longer counts by itself. Player attribute OpeningCanClaim = true while today's attendance waits (event day, not yet counted today, fewer than 14); remote OpeningEvent "Claim" counts it and gives Rewards[n] (as before), then OpeningJustClaimed. Checked again every minute (past midnight). Studio still never counts (attribute OpeningStudioCount lets a test through).
 - OpeningEventController: the cards' status is a button; the next card shows a pink 받기 while OpeningCanClaim, the tap → Claim → 오늘 받았어요! / 받기 완료!. The window opens by itself while today's 받기 waits. The bottom note line ("하루 한 번 출석 · 연속이 아니어도 돼요 · ...") is removed; the limited-title line moved to the bottom.
+## D-1694 투어: 안내원 토끼의 말투로, 큰 제목 없이 (2026-11-17)
+- 사용자: "투어 위에 큰 글씨 삭제하고 아래 긴 텍스트 사이즈로 문구 모두 수정 / 처음에만 다음/건너뛰기 두 버튼 오른쪽 아래에 나란히 … 응! / 아니, 괜찮아!" + 카드마다 새 문구(오후네컷 · 클럽 · 국밥집 · 놀이공원 · 해변 · 카페 · 편의점 · 광화문 · 버튼 7개 · 마무리 「놀러가기」).
+- TourController: 제목 줄 숨김, 본문이 카드 높이를 채움(같은 글자 크기). 첫 카드("오후에 온 걸 환영해! 내가 사는 동네 구경시켜 줄까?")와 동네 소개 끝 카드("화면 버튼에 대한 설명도 들을래?")는 「아니, 괜찮아!」(끝) · 「응!」을 오른쪽 아래 나란히. 화면 버튼 카드 7장은 토끼 없이(quiet). 마지막 「놀러가기」.
+## D-1695 출석 이벤트: 받기 버튼 버전 + 소리 + ? 상자 + 칭호 문구 (2026-11-17)
+- fix/attend-claim-1114(D-1401, 받기를 눌러야 출석)을 함께 머지(Studio는 이미 이 버전). 그 위에 D-1690/1691/1693을 다시 넣음(출석 창은 이벤트 날마다 첫 접속에 한 번, 오전 5시 기준, 날짜가 앞으로 갈 때만 출석).
+- 사용자: "출석 이벤트 뜰 때 소리 / 받기 누르면 뜨는 돈 버는 소리 / 한정 포토 프레임 그림 수정. 검은색 박스에 물음표 / 한정 칭호 FOUNDING MEMBER 증정. 모두에게 보이는 내 아이디 위에 뜨는 한정 칭호 아이템으로 해당 칭호는 이벤트 종료 후 재판매하지 않습니다."
+- SoundConfig.Ui.eventOpen(일단 Tonal Stinger 15675043410) · Ui.coin(일단 Coin Collect 135483737426662, 후보 목록 주석) → Sfx "eventOpen"(창이 저절로 열릴 때) · "coin"(받기 성공). 7일차 카드는 🖼 대신 검은 상자에 흰 ?. 아래 칭호 줄 문구 교체.
+## D-1696 스포너를 안내원 토끼 옆으로 (2026-11-17)
+- 사용자: "토끼 안내원 옆으로 스포너 위치 이동".
+- tools/graybox/spawn_by_guide_1117.lua(체인 맨 끝): SpawnLocation 8x8을 (-105, 윗면 0.6, -56), 서쪽(안내원)을 보게. 투명 · 충돌 없음.
+## D-1697 안내원: "뭘 해야 할지 모르겠어." (2026-11-17)
+- 사용자: "안내원 누르면 가장 위에 \"뭘 해야 할지 모르겠어.\" <- 첫 접속자한테만 뜨게 하고 다른 질문보다 눈에 띄게 해서 넣어. 저거 누르면 밤에는 클럽으로 안내/낮에는 포토부스로 안내".
+- GuideController: 첫 접속 플레이어(FirstGoalController가 그 접속에 NewPlayer 속성)에게만 질문 목록 맨 위 흰 바탕 · 분홍 테두리 줄. 누르면 창을 닫고 UiBus.ShowWay → FirstGoalController가 (첫 목표 진행 중이 아니면) 밤엔 클럽 문 → 댄스 플로어, 낮엔 오후네컷까지 점선 길(도착하면 사라짐).
+## D-1698 안내 점선 반투명 (2026-11-17)
+- 사용자: "안내하는 점선 반투명하게 수정". FirstGoalController 점선 투명도 0.1 → 0.5(DASH_ALPHA).

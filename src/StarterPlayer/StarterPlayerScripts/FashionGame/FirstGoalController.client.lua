@@ -227,6 +227,7 @@ end
 -- if there is still no path, points around the place (up to 16 studs off) are tried; the straight line
 -- is only the last resort. The way is drawn as a dashed line (DASH studs on, GAP off).
 local DASH, GAP = 1.6, 1.1
+local DASH_ALPHA = 0.5 -- (D-1698, user 2026-11-17: "안내하는 점선 반투명하게 수정"; 0.1 until then)
 local function walkPath(from: Vector3, target: Vector3): {Vector3}?
 	local path = PathfindingService:CreatePath({ AgentRadius = 1.5, AgentHeight = 5, AgentCanJump = true, WaypointSpacing = 4 })
 	local ok = pcall(function() path:ComputeAsync(from, target) end)
@@ -285,7 +286,7 @@ local function drawLine()
 						local p0, p1 = a + dir * at, a + dir * (at + piece)
 						create("Part", {
 							Anchored = true, CanCollide = false, CanQuery = false, CanTouch = false, CastShadow = false,
-							Material = Enum.Material.Neon, Color = WHITE, Transparency = 0.1,
+							Material = Enum.Material.Neon, Color = WHITE, Transparency = DASH_ALPHA,
 							Size = Vector3.new(0.4, 0.06, piece), CFrame = CFrame.lookAt((p0 + p1) / 2, p1),
 						}, folder)
 						count += 1
@@ -430,7 +431,7 @@ RunService.Heartbeat:Connect(function()
 		local near = d < 12
 		if lineFolder and lineFolder:GetAttribute("Hidden") ~= near then
 			lineFolder:SetAttribute("Hidden", near)
-			for _, part in ipairs(lineFolder:GetChildren()) do (part :: BasePart).Transparency = if near then 1 else 0.1 end
+			for _, part in ipairs(lineFolder:GetChildren()) do (part :: BasePart).Transparency = if near then 1 else DASH_ALPHA end
 		end
 		if sign then sign.Enabled = not near end
 	end
@@ -494,5 +495,45 @@ task.spawn(function()
 		task.wait(0.5)
 		if player:GetAttribute("TourActive") or Popups.anyOpen() then calm = 0 else calm += 0.5 end
 	end
+	player:SetAttribute("NewPlayer", true) -- (D-1697: the guide's "뭘 해야 할지 모르겠어." shows this visit)
 	start()
+end)
+
+-- (D-1697) the guide's "뭘 해야 할지 모르겠어.": while the goal is not running, the dashed way to the club
+-- (night: its door, then the dance floor) or to 오후네컷 (day), until the player is there
+local UiBus = require(script.Parent:WaitForChild("UiBus"))
+local wayTo: (() -> Vector3?)? = nil
+local wayName = ""
+UiBus.ShowWay.Event:Connect(function()
+	if running then return end -- (the goal already draws its way)
+	local night = ClubConfig.isNightOpen(DayNightConfig.clockNow())
+	if night then
+		wayTo = function()
+			if player:GetAttribute("InClubLocal") == true then return DANCE_FLOOR end
+			return GuideConfig.Places.club.at
+		end
+		wayName = "🎧 OHU CLUB"
+	else
+		wayTo = function() return GuideConfig.Places.photo.at end
+		wayName = "📸 오후네컷"
+	end
+end)
+RunService.Heartbeat:Connect(function()
+	local f = wayTo
+	if not f or running then return end
+	local at = f()
+	local r = root()
+	if not at or not r then return end
+	if not lineTarget or (at - lineTarget).Magnitude > 1 then lineTo(at, wayName) end
+	if lineTarget and not drawing and (not drawnFrom or (r.Position - drawnFrom).Magnitude > 6) then task.spawn(drawLine) end
+	if marker and signLabel then
+		local d = (Vector3.new(r.Position.X, marker.Position.Y, r.Position.Z) - marker.Position).Magnitude
+		signLabel.Text = string.format("%s · %dm", wayName, math.floor(d + 0.5))
+		-- there (the photo studio, or the club's dance floor, not just its door): the way goes
+		local club = wayName == "🎧 OHU CLUB"
+		if d < 12 and (not club or (at - DANCE_FLOOR).Magnitude < 1) then
+			wayTo = nil
+			clearLine()
+		end
+	end
 end)
