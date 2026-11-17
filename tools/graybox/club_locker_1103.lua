@@ -424,8 +424,10 @@ do
 	end
 	-- the gate's red frame on the hall side too
 	box("VIP_GateNeon", 190, F, -290, 190.4, F + 21, -289.6, VIP_RED, H, NEON())
-	box("VIP_GateNeon", 190, F, -275.4, 190.4, F + 21, -275, VIP_RED, H, NEON())
-	box("VIP_GateNeon", 190, F + 20.6, -290, 190.4, F + 21, -275, VIP_RED, H, NEON())
+	-- (D-1585, user 2026-11-17: "저기 조명선 이어지게 추가") the north post stood inside WalkFill
+	-- (z -275.5 .. -257) and was hidden: it stands on WalkFill's face now, the top bar ends there
+	box("VIP_GateNeon", 190, F, -275.9, 190.4, F + 21, -275.5, VIP_RED, H, NEON())
+	box("VIP_GateNeon", 190, F + 20.6, -290, 190.4, F + 21, -275.5, VIP_RED, H, NEON())
 	-- (D-828, user) red neon "VIP" signs: over the stair door in the corridor
 	-- with an arrow down at it, and on the end wall at the flight's top with an
 	-- arrow right (to the walkway back to the lounge)

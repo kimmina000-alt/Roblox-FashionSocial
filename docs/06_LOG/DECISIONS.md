@@ -5589,3 +5589,7 @@ Studio only (no script yet).
 - Blue Valentine 111032764768565: 173.889 s, fileSpeed 1.0696 (곡 3:06), tempo 0.935, boost 10/5/2, EQ 0/0/-7.
 - 빌려온 고양이 126150660776305: 176.341 s, fileSpeed 1.0718 (곡 3:09), tempo 0.933, boost 10/5/2, EQ -2/0/-15.5.
 - tempo × fileSpeed ≈ 1.000(넷 다). Play로 들어 보지는 않음.
+
+## D-1585 (2026-11-17) VIP 계단 아래 문틀 왼쪽 기둥 보이게
+- User (shot from the top of the VIP stair, the frame's north post missing): "저기 조명선 이어지게 추가".
+- Since D-1583 only the hall-side frame is left; its north post (z -275.4 .. -275) stood inside WalkFill (z -275.5 .. -257) and was hidden. It now stands on WalkFill's face (z -275.9 .. -275.5) and the top bar ends there (z -290 .. -275.5), in club_locker_1103.lua and in the place. Play check from the stair top: the frame is whole. Place change: the user saves.
