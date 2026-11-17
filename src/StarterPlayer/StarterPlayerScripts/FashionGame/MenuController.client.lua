@@ -6,6 +6,7 @@
 --   내 칭호 표시   (D-1378) a switch for each of my badges: FOUNDING MEMBER / 알바생 / GUARD /
 --                  VIP / DJ (HideBadge_<role> = off)
 --   Switches show what is shown (D-1380, user: on by default = pink, off = grey).
+--   🙈 UI 숨기기   (D-1594) hides the whole UI on this screen; 👁 brings it back (HideUi)
 --   💝 기부하기    the supporter window (UiBus.OpenSupport → BannerController)
 -- The switches are saved on the server (ClubShop "HideName" / "HideBadge",
 -- PlayerPrefsService) and show the player attributes, so they come back on the next visit.
@@ -94,6 +95,20 @@ for i, badge in ipairs({ { "Founding", "FOUNDING MEMBER" }, { "Staff", "알바�
 	switchRow(2 + i, badge[2], "HideBadge_" .. badge[1], function(hide)
 		remote:InvokeServer("HideBadge", { role = badge[1], on = hide })
 	end, true)
+end
+-- (D-1594, user 2026-11-17: "ui 숨기기 버튼 추가") 🙈 UI 숨기기: everything on the screen goes (HideUi), a 👁
+-- button at the top right brings it back
+do
+	local HideUi = require(script.Parent:WaitForChild("HideUi"))
+	local b = row(9)
+	create("TextLabel", {
+		Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "🙈 UI 숨기기", Font = Enum.Font.GothamBold, TextSize = 15,
+		TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left,
+	}, b)
+	b.Activated:Connect(function()
+		TopBar.setOpen(false)
+		task.defer(HideUi.hide)
+	end)
 end
 do
 	local b = row(10)

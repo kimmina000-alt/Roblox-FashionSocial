@@ -5569,3 +5569,7 @@ Studio only (no script yet).
 - Boogie Woogie 102947379971628: 186.622 s, fileSpeed 1.0503 (곡 3:16), tempo 0.952, boost 10/5/2, EQ 0/0/-12.5. (사용자 메모의 "ID:101236122310659"는 삐그덕 파일; 길이로 102947379971628이 맞음.)
 - 내 이름을 불러줘(TWS) 129638210426239: 154.084 s, fileSpeed 1.0708 (곡 2:45), tempo 0.934, octave 0.952(사용자 값 그대로), boost 10/5/2, EQ 0/0/0.
 - Play로 들어 보지는 않음.
+
+## D-1594 (2026-11-17) UI 숨기기
+- User: "ui 숨기기 버튼 추가". ☰ menu → 🙈 UI 숨기기 (MenuController row 9, before 💝 기부하기) → HideUi.hide(): every enabled ScreenGui in PlayerGui (top buttons, hotbar, banners, joystick, windows), the name tags over heads (OHUNameTag) and Roblox's chat / player list / emotes / health go; a sweep every 0.3 s keeps windows that open meanwhile hidden. A small 👁 button at the top right (HideUiShow) → HideUi.show() turns back on exactly what was on (name tags follow the 닉네임 표시 switch). Not saved.
+- Play (phone view): 34 screen windows → only 👁 → 34 again. The ☰ row itself was not clicked in the test (MCP clicks do not reach buttons in phone emulation); the module was called directly.
