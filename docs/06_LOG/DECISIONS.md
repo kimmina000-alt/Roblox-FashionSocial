@@ -5561,3 +5561,11 @@ Studio only (no script yet).
 - SparkleService: the white-hot tip ball 0.22 → 0.1 on both the hand sparkler and the bucket / table sparklers; more sparks: the small fountain 240 → 600 a second (bucket / table), the hand sparkler 160 → 480.
 - HandSparklerController: the light button is only the fire: an ImageButton 64 x 64, no background, the picture docs/04_ART/icons/fire_outline.png (the 🔥 emoji with a white outline; a UIStroke does not outline an emoji), uploaded as Vantablack_Dev rbxassetid://79006995744297.
 - Play (PC): with more sparks the first look was still thin (low graphics draw only some particles): the sparks now fly as thin streaks (VelocityParallel, Squash -1.2) and a "Crackle" emitter of tiny white points sits round the tip (bucket and hand); lit, the hand sparkler showed a full star of streaks. The burn-out turns every emitter off.
+
+## D-1600 새 곡 4곡: 삐그덕(Feat.아이유)-Crush, Unbelievable-H1 KEY(하이키), Boogie Woogie-NCT DREAM, 내 이름을 불러줘(Call My Name)-투어스(TWS) (2026-11-17)
+- 사용자 요청, 음원 테스트 세션이 테스트 place DataStore에서 읽은 lab 값(매니저 세션 전달). 넷 다 x1 업로드, 안무 없음, 목록 끝(SHEESH-BABYMONSTER 다음). boost4 = 1이라 뺌.
+- 삐그덕 101236122310659: 172.389 s(Studio에서 잼), fileSpeed 1.05 (곡 3:01), tempo 0.952, boost 10/5/2, EQ 0/0/-5.5.
+- Unbelievable 81736514719301: 128.882 s, fileSpeed 1.0475 (곡 2:15), tempo 0.955, boost 10/5/2, EQ 0/0/-10.5.
+- Boogie Woogie 102947379971628: 186.622 s, fileSpeed 1.0503 (곡 3:16), tempo 0.952, boost 10/5/2, EQ 0/0/-12.5. (사용자 메모의 "ID:101236122310659"는 삐그덕 파일; 길이로 102947379971628이 맞음.)
+- 내 이름을 불러줘(TWS) 129638210426239: 154.084 s, fileSpeed 1.0708 (곡 2:45), tempo 0.934, octave 0.952(사용자 값 그대로), boost 10/5/2, EQ 0/0/0.
+- Play로 들어 보지는 않음.
