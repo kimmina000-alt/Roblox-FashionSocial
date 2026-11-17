@@ -1549,6 +1549,79 @@ local function captureToGallery(hide: {GuiObject})
 	end
 end
 
+-- (D-1584, player feedback 2026-11-16 + user 2026-11-17: "오후네컷에서 찍은 프레임으로 된 사진 저장할
+-- 수 있는 기능 추가 / 현재 가방에서 사진 선택하고 사진 저장 누르면 그때 보고 있는 화면 저장됨")
+-- Roblox can only save a screen capture, so the framed photo is shown alone on a plain sheet over
+-- the whole screen (every other ScreenGui hidden, the world covered), captured, and that capture is
+-- offered to the device gallery: the saved picture is just the photo in its frame.
+local SHEET_COLOR = Color3.fromRGB(250, 244, 246)
+local savingSheet = false
+local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
+	if savingSheet then return true end
+	local CaptureService = game:GetService("CaptureService")
+	savingSheet = true
+	local sheet = Instance.new("ScreenGui")
+	sheet.Name = "PhotoSaveSheet"
+	sheet.IgnoreGuiInset = true
+	sheet.ResetOnSpawn = false
+	sheet.DisplayOrder = 10000
+	local bg = Instance.new("Frame")
+	bg.Size = UDim2.fromScale(1, 1)
+	bg.BackgroundColor3 = SHEET_COLOR
+	bg.BorderSizePixel = 0
+	bg.Parent = sheet
+	local holder = Instance.new("Frame")
+	holder.AnchorPoint = Vector2.new(0.5, 0.5)
+	holder.Position = UDim2.fromScale(0.5, 0.5)
+	holder.Size = UDim2.fromScale(0.92, 0.92)
+	holder.BackgroundTransparency = 1
+	holder.Parent = bg
+	local drawn = pcall(draw, holder)
+	if not drawn then
+		sheet:Destroy()
+		savingSheet = false
+		return false
+	end
+	sheet.Parent = playerGui
+	local hidden = {}
+	for _, other in ipairs(playerGui:GetChildren()) do
+		if other:IsA("ScreenGui") and other ~= sheet and other.Enabled then
+			other.Enabled = false
+			table.insert(hidden, other)
+		end
+	end
+	local done = false
+	local function finish()
+		if done then return end
+		done = true
+		for _, other in ipairs(hidden) do if other.Parent then other.Enabled = true end end
+		sheet:Destroy()
+		savingSheet = false
+	end
+	task.spawn(function()
+		-- the cuts are drawn one by one (PhotoRender's queue): wait for them, then two frames
+		local waited = 0
+		while PhotoRender.busy() and waited < 6 do waited += task.wait(0.1) end
+		task.wait(0.3)
+		RunService.RenderStepped:Wait()
+		RunService.RenderStepped:Wait()
+		local ok = pcall(function()
+			CaptureService:CaptureScreenshot(function(contentId)
+				finish()
+				pcall(function()
+					CaptureService:PromptSaveCapturesToGallery({ contentId }, function() end)
+				end)
+			end)
+		end)
+		if not ok then
+			finish()
+			toast("이 기기에서는 캡처 저장을 할 수 없어요. (Studio에서는 동작하지 않을 수 있어요)")
+		end
+		task.delay(3, finish)
+	end)
+	return true
+end
+
 local function resultButton(label: string, color: Color3, order: number, onClick: () -> ()): TextButton
 	local b = button({
 		LayoutOrder = order,
@@ -1584,6 +1657,17 @@ local function closeAllFlow()
 end
 
 resultButton("📸 캡처 저장", COLORS.pink, 1, function()
+	-- (D-1584) the finished photo in its frame
+	local shots = state.shots
+	if shots and state.picks and #state.picks > 0 then
+		local chosen = {}
+		for _, index in ipairs(state.picks) do table.insert(chosen, shots.shots[index]) end
+		local frameKey = state.frame
+		if saveFramedPhoto(function(holder)
+			local strip = PhotoRender.newStrip(holder, shots.layout, frameKey, "OHU")
+			PhotoRender.fillStrip(strip, chosen, peopleOf(shots), shots.booth)
+		end) then return end
+	end
 	-- the picked cuts as captured from the real scene (falls back to a
 	-- screenshot of this screen when the device made no captures)
 	local list = {}
@@ -1933,6 +2017,9 @@ end)
 albumClose.MouseButton1Click:Connect(closeAlbum)
 viewerClose.MouseButton1Click:Connect(function() viewer.Visible = false end)
 viewerCapture.MouseButton1Click:Connect(function()
+	-- (D-1584) the photo in its frame, not the screen behind it
+	local photo = viewerPhoto
+	if photo and saveFramedPhoto(function(holder) PhotoRender.drawPhoto(holder, photo) end) then return end
 	captureToGallery({ viewerButtons })
 end)
 viewerDelete.MouseButton1Click:Connect(function()

@@ -5569,3 +5569,7 @@ Studio only (no script yet).
 - Boogie Woogie 102947379971628: 186.622 s, fileSpeed 1.0503 (곡 3:16), tempo 0.952, boost 10/5/2, EQ 0/0/-12.5. (사용자 메모의 "ID:101236122310659"는 삐그덕 파일; 길이로 102947379971628이 맞음.)
 - 내 이름을 불러줘(TWS) 129638210426239: 154.084 s, fileSpeed 1.0708 (곡 2:45), tempo 0.934, octave 0.952(사용자 값 그대로), boost 10/5/2, EQ 0/0/0.
 - Play로 들어 보지는 않음.
+
+## D-1584 (2026-11-17) 오후네컷 사진은 프레임 사진만 저장
+- Player feedback (💬 2026-11-16, s0_diva, Indonesian): the photo booth photo saves "like a screenshot", please save it cleanly. User 2026-11-17: "오후네컷에서 찍은 프레임으로 된 사진 저장할 수 있는 기능 추가 / 현재 가방에서 사진 선택하고 사진 저장 누르면 그때 보고 있는 화면 저장됨".
+- Roblox only lets a game save a screen capture (CaptureService). So 📸 캡처 저장 (in the booth result and in the album / bag photo viewer) now draws the photo alone, in its frame, on a plain sheet (250, 244, 246) over the whole screen (ScreenGui PhotoSaveSheet, DisplayOrder 10000, every other ScreenGui hidden), waits for the cuts to be drawn (PhotoRender.busy, up to 6 s), captures, puts the screen back and opens the save-to-gallery window. The old screen / raw-cut capture stays as the fallback.

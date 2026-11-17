@@ -266,6 +266,11 @@ end
 
 export type Strip = { frame: Frame, cells: {ViewportFrame}, setColor: (frameKey: string) -> () }
 
+-- (D-1584) true while shots are still being drawn (the framed-photo save waits for it)
+function PhotoRender.busy(): boolean
+	return pumping or #queue > 0
+end
+
 -- Aspect (width / height) of a whole strip for a layout.
 function PhotoRender.stripAspect(layoutKey: string): number
 	local layout = PhotoConfig.findLayout(layoutKey) or PhotoConfig.Layouts[1]
