@@ -819,14 +819,15 @@ tapHint.BackgroundTransparency = 1
 tapHint.Text = "화면을 마구 클릭해 보세요!"
 tapHint.TextColor3 = Color3.new(1, 1, 1)
 tapHint.Font = Enum.Font.GothamBlack
-tapHint.TextSize = 22
+-- (D-1660, user 2026-11-17: "화면 클릭하라는 문구 사이즈 60% 줄이기") 22 → 13
+tapHint.TextSize = 13
 tapHint.TextStrokeColor3 = Color3.new(0, 0, 0)
 tapHint.TextStrokeTransparency = 0.2
 tapHint.Visible = false
 tapHint.Parent = gui
 local tapShadow = Instance.new("UIStroke")
 tapShadow.Color = Color3.new(0, 0, 0)
-tapShadow.Thickness = 2
+tapShadow.Thickness = 1.2
 tapShadow.Transparency = 0.15
 tapShadow.Parent = tapHint
 
@@ -983,13 +984,21 @@ local function pressMain()
 					driveYaw = math.atan2(-look.X, -look.Z)
 				end
 			end
-			setJump(false)
+			-- (D-1661, user 2026-11-17: "회전목마 ... 점프 버튼 유지해서 점프하면 내리게 하기") on the carousel
+			-- (and the fire trucks, built on its code) jumping stays on: a jump gets you off (JumpRequest below)
+			setJump(mySlot ~= nil and mySlot.kind == "ParkCarousel")
 		elseif typeof(result) == "string" then
 			toast(result)
 		end
 	end
 	busy = false
 end
+
+-- (D-1661) the carousel's way off: the jump button (Space on a keyboard) instead of a 내리기 button
+UserInputService.JumpRequest:Connect(function()
+	local entry = mySlot
+	if entry and entry.kind == "ParkCarousel" and not busy then pressMain() end
+end)
 
 -- (D-1591) TubeCarryController: walking into the sea with the beach ring put it on the water; get in it
 local boardTube = Instance.new("BindableEvent")
@@ -1167,6 +1176,12 @@ local function updateSpinTap(t: number)
 	end
 	spinGui.Enabled = show
 	tapHint.Visible = show -- (D-1546)
+	-- (D-1660, user 2026-11-17: "클릭할수록 회전 속도가 빨라져요. 이어서 띄우기") the two lines take turns,
+	-- 2.5 s each
+	if show then
+		local text = if (os.clock() // 2.5) % 2 == 0 then "화면을 마구 클릭해 보세요!" else "클릭할수록 회전 속도가 빨라져요."
+		if tapHint.Text ~= text then tapHint.Text = text end
+	end
 end
 
 local function updateSeatPicks(t: number)
@@ -1234,6 +1249,12 @@ local function refreshUi(t: number)
 				mainButton.Text = string.format(KEY .. "내리기 (멈추면 · %d초)", math.ceil(left))
 				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130)
 			end
+		end
+		-- (D-1661, user 2026-11-17: "회전목마 타는 버튼만 띄우고 내리기 버튼 삭제") no button bar while on the
+		-- carousel or a fire truck: jump to get off
+		if entry.kind == "ParkCarousel" then
+			bar.Visible = false
+			return
 		end
 		viewButton.Visible = entry.kind == "ParkWheel" or ParkConfig.isSeatRide(entry.kind)
 		viewButton.Text = if firstPerson then (if KEY ~= "" then "🎥 3인칭 (V)" else "🎥 3인칭") else (if KEY ~= "" then "👁 1인칭 (V)" else "👁 1인칭")
