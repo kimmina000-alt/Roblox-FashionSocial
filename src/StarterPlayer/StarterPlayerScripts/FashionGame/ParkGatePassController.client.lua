@@ -8,6 +8,10 @@
 -- Who: Vantablack_Dev (11887382096; a Studio solo Play runs as that account too). For a Studio
 -- multi-client test (players with negative ids) set the attribute ParkPassTest = true on
 -- ReplicatedStorage.FashionGame (Studio only).
+-- (D-1734, user 2026-11-18: "실제 플레이에서 제작자만 한옥마을 문 막아 놓은 거 통과할 수 있게 해 줘") the 광화문's
+-- closed door leaves and the low beam over them (Hongdae_Layout.Gwanghwamun: GateDoorLeaf, GateDoorHead)
+-- and the construction netting behind (Hongdae_Layout.HanokHoarding: NetTeal / NetBlue) open the same
+-- way: the owner walks through into the hanok village; for everyone else the gate stays shut.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -51,6 +55,19 @@ local function sweep()
 	if gate then
 		for _, d in ipairs(gate:GetDescendants()) do
 			if d:IsA("BasePart") and (CLOSED_PARTS[d.Name] or (d.Parent and d.Parent.Name == "ParkHoarding")) then open(d) end
+		end
+	end
+	-- (D-1734) the 광화문's door leaves
+	local gwanghwamun = layout:FindFirstChild("Gwanghwamun")
+	if gwanghwamun then
+		for _, d in ipairs(gwanghwamun:GetDescendants()) do
+			if d:IsA("BasePart") and (d.Name == "GateDoorLeaf" or d.Name == "GateDoorHead") then open(d) end
+		end
+	end
+	local hoarding = layout:FindFirstChild("HanokHoarding")
+	if hoarding then
+		for _, d in ipairs(hoarding:GetDescendants()) do
+			if d:IsA("BasePart") then open(d) end
 		end
 	end
 	local boundary = layout:FindFirstChild("MapBoundary")
