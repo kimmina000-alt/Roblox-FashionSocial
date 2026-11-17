@@ -1372,6 +1372,10 @@ M.ChoreoShake = { minSwing = 2, maxSwing = 25, maxGap = 0.2, count = 8, window =
 -- or more in 0.5 s, or wander 0.5 back and forth: the body slides while the legs
 -- stand. They become `still` stretches (no travel; added to ChoreoFixes below).
 M.ChoreoSlideStill = {
+	-- Unbelievable-H1 KEY (D-1672, choreo_slide_check + choreo_motion_scan DRIFT)
+	[127086942159592] = { { 2.6, 4.6 }, { 4.8, 5.8 } }, [110146513928585] = { { 1.1, 1.7 }, { 6.1, 7.0 }, { 7.4, 8.1 } }, [98575698595382] = { { 0.0, 0.5 }, { 1.0, 1.8 }, { 3.0, 3.9 } },
+	[97422868495252] = { { 1.2, 1.8 } }, [77667909738269] = { { 0.7, 1.3 } }, [106947840145982] = { { 0.5, 1.2 }, { 1.4, 2.0 }, { 4.7, 5.3 }, { 7.6, 8.3 }, { 10.2, 11.1 } },
+	[121716323345976] = { { 8.7, 9.4 } }, [85861969329409] = { { 4.5, 5.5 } }, [98632778351786] = { { 3.7, 4.4 } }, [82151831370082] = { { 1.5, 3.2 }, { 5.7, 6.7 } }, -- (+ Play TELEPORT 0:11.7, 0:57.2, 1:25.8, 1:56.6, 1:57.7, 2:00.8, 2:01.3) [132406634119258] = { { 3.1, 6.0 } }, [82476096356644] = { { 6.8, 7.5 } },
 	-- Boogie Woogie-NCT DREAM (D-1670, choreo_slide_check + choreo_motion_scan DRIFT + Play TELEPORT 0:10.2, 0:15.3, 1:37.2, 2:14.6, 2:26.9, 3:02.9-3:05.1)
 	[72899900258037] = { { 3.8, 4.5 }, { 5.5, 7.0 } }, [98798684410312] = { { 3.7, 4.4 }, { 5.0, 5.9 } }, [97814419171643] = { { 0.0, 1.5 }, { 4.3, 4.9 }, { 7.1, 8.0 } },
 	[93564912800713] = { { 0.4, 1.0 }, { 5.4, 7.0 }, { 9.3, 10.4 } }, [118999861690635] = { { 4.2, 5.4 }, { 5.9, 7.6 } }, [72126724441612] = { { 0.2, 1.6 }, { 2.3, 3.1 } },
@@ -1607,6 +1611,8 @@ end
 -- capture was off by a steady amount (median off 6°+, spread under 20°), left alone
 -- where it only wobbles. Their own angled, side and back facings and turns stay.
 M.ChoreoFaceOffset = {
+	-- (D-1672) Unbelievable-H1 KEY (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 11 / 16 checked on frames: front)
+	[98575698595382] = 8, [97422868495252] = 10, [77667909738269] = -15, [106947840145982] = 11, [121716323345976] = 11, [85861969329409] = -38, [132406634119258] = 12, -- 2
 	-- (D-1670) Boogie Woogie-NCT DREAM (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 16 checked on frames: the capture's
 	-- lap stops 40° short; 20 left out: another member covers the centre at 2.3-8.6 s)
 	[93564912800713] = 6, [118999861690635] = -9, [137817236071281] = 10, [92147677701072] = 39, [140605792599503] = 7, [138159952468756] = 10,
@@ -1736,6 +1742,14 @@ end
 -- or more, the head turns 0.8 of the gap more (at most 30 deg) about its own front axis,
 -- easing in and out over 0.2 s. Keys are { piece seconds, x, y, z } in degrees (ChoreoFixes `bend`)
 M.ChoreoHeadTilt = {
+	-- (D-1672) Unbelievable-H1 KEY: head_video.py → headMisses, keys 0.09 s early
+	[91684619142886] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, -15 }, { 3.91, 0, 0, -16 }, { 4.11, 0, 0, 0 } } } }, -- UB 3
+	[110146513928585] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, 20 }, { 3.91, 0, 0, 23 }, { 4.11, 0, 0, 0 } } } }, -- UB 8
+	[77667909738269] = { { part = "Head", keys = { { 6.51, 0, 0, 0 }, { 6.71, 0, 0, -14 }, { 6.91, 0, 0, -19 }, { 7.11, 0, 0, 0 } } }, { part = "Head", keys = { { 7.51, 0, 0, 0 }, { 7.71, 0, 0, 29 }, { 7.91, 0, 0, 14 }, { 8.11, 0, 0, 0 } } } }, -- UB 11
+	[106947840145982] = { { part = "Head", keys = { { 8.71, 0, 0, 0 }, { 8.91, 0, 0, -16 }, { 9.11, 0, 0, -17 }, { 9.31, 0, 0, -13 }, { 9.51, 0, 0, -13 }, { 9.71, 0, 0, -11 }, { 9.91, 0, 0, 0 } } } }, -- UB 13
+	[121716323345976] = { { part = "Head", keys = { { 0.71, 0, 0, 0 }, { 0.91, 0, 0, 10 }, { 1.11, 0, 0, 27 }, { 1.31, 0, 0, 0 } } } }, -- UB 14
+	[82151831370082] = { { part = "Head", keys = { { 0.31, 0, 0, 0 }, { 0.51, 0, 0, -15 }, { 0.71, 0, 0, -14 }, { 0.91, 0, 0, -19 }, { 1.11, 0, 0, 0 } } } }, -- UB 15
+	[82476096356644] = { { part = "Head", keys = { { 4.51, 0, 0, 0 }, { 4.71, 0, 0, -16 }, { 4.91, 0, 0, -21 }, { 5.11, 0, 0, 0 } } }, { part = "Head", keys = { { 5.51, 0, 0, 0 }, { 5.71, 0, 0, 18 }, { 5.91, 0, 0, 18 }, { 6.11, 0, 0, 0 } } } }, -- UB 5
 	-- (D-1671) Boogie Woogie-NCT DREAM 4: head_video.py → headMisses (video 24 / 27°, capture 8 / 3°), keys 0.09 s early
 	[136974262670764] = { { part = "Head", keys = { { 3.51, 0, 0, 0 }, { 3.71, 0, 0, 12 }, { 3.91, 0, 0, 19 }, { 4.11, 0, 0, 0 } } } }, -- BW 4
 	-- (D-1603) 내 이름을 불러줘-TWS: head_video.py → headMisses, keys 0.09 s early
@@ -1929,6 +1943,14 @@ M.ChoreoHeadTilt = {
 -- the hand turns about whichever of its own x / z axes moves the picture bend most, 0.8 of
 -- the gap (at most 40 deg), easing in and out over 0.2 s. Catch Catch: the other hand, z negated
 M.ChoreoWristBend = {
+	-- (D-1672, user: "언벌리버블 안무 추가") Unbelievable-H1 KEY: hand_moves.py → wristMisses, keys 0.09 s early; checked in Play (D-1263)
+	[126709034309523] = { { part = "LeftHand", keys = { { 6.11, 0, 0, 0 }, { 6.31, 38, 0, 0 }, { 6.51, 37, 0, 0 }, { 6.71, 0, 0, 0 } } } }, -- UB 7
+	[106947840145982] = { { part = "LeftHand", keys = { { 6.51, 0, 0, 0 }, { 6.71, 40, 0, 0 }, { 6.91, 38, 0, 0 }, { 7.11, 40, 0, 0 }, { 7.31, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 12.11, 0, 0, 0 }, { 12.31, 29, 0, 0 }, { 12.51, 20, 0, 0 }, { 12.71, 0, 0, 0 } } } }, -- UB 13
+	[121716323345976] = { { part = "LeftHand", keys = { { 9.11, 0, 0, 0 }, { 9.31, 0, 0, -25 }, { 9.51, 0, 0, -27 }, { 9.71, 0, 0, -30 }, { 9.91, 0, 0, -40 }, { 10.11, 0, 0, 0 } } },
+		{ part = "RightHand", keys = { { 9.11, 0, 0, 0 }, { 9.31, -40, 0, 0 }, { 9.51, -34, 0, 0 }, { 9.71, -35, 0, 0 }, { 9.91, -40, 0, 0 }, { 10.11, 0, 0, 0 } } } }, -- UB 14
+	[85861969329409] = { { part = "RightHand", keys = { { 8.11, 0, 0, 0 }, { 8.31, 0, 0, 33 }, { 8.51, 0, 0, 38 }, { 8.71, 0, 0, 23 }, { 8.91, 0, 0, 30 }, { 9.11, 0, 0, 32 }, { 9.31, 0, 0, 33 }, { 9.51, 0, 0, 32 }, { 9.71, 0, 0, 32 }, { 9.91, 0, 0, 0 } } } }, -- UB 16 (sign flipped: in Play the computed -z bend went the wrong way, D-1263)
+	[132406634119258] = { { part = "LeftHand", keys = { { 7.11, 0, 0, 0 }, { 7.31, 0, 0, -30 }, { 7.51, 0, 0, -24 }, { 7.71, 0, 0, -31 }, { 7.91, 0, 0, -40 }, { 8.11, 0, 0, 0 } } } }, -- UB 2
 	-- (D-1670, user: "boogiewoogie") Boogie Woogie-NCT DREAM: hand_moves.py → wristMisses, keys 0.09 s early; 20 left out (another member covers the
 	-- centre), 24's run is after the song end; checked in Play (D-1263)
 	[98798684410312] = { { part = "LeftHand", keys = { { 2.71, 0, 0, 0 }, { 2.91, -28, 0, 0 }, { 3.11, -33, 0, 0 }, { 3.31, -36, 0, 0 }, { 3.51, -36, 0, 0 }, { 3.71, -37, 0, 0 }, { 3.91, 0, 0, 0 } } } }, -- BW 3
