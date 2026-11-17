@@ -209,6 +209,11 @@ translate = function(b: Book, s: string, depth: number): string
 		local t = b.exact[core] or tryTemplates(b, core, depth)
 		if t then return string.sub(s, 1, first - 1) .. t .. string.sub(s, last + 1) end
 	end
+	-- (D-1710) only a leading mark dropped, the end kept (GuideController "1. 클럽은 …?", "Q. …?")
+	if first and first > 1 then
+		local t = b.exact[string.sub(s, first)]
+		if t then return string.sub(s, 1, first - 1) .. t end
+	end
 	-- (D-1710) a value with a Korean particle glued on (GiveController "수육을", ParkConfig "바이킹이"):
 	-- the word without it
 	if depth > 0 then
