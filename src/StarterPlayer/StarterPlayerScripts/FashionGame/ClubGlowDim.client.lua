@@ -4,7 +4,7 @@
 -- club_locker_1103.lua) glow at part of their colour on this screen. Neon's glow and bloom follow
 -- its colour. Client only: the place keeps the full colours and sizes (a part that streams in again
 -- is changed again).
--- (D-1578, user 2026-11-17: "입구 조명 50으로 줄이고 클럽 복도에 조명선 더 얇게 하고 발광 50 높여")
+-- (D-1577, user 2026-11-17: "입구 조명 50으로 줄이고 클럽 복도에 조명선 더 얇게 하고 발광 50 높여")
 -- the entrance door lights at 50 %; the corridor lines thinner (half as wide, half as tall) and at
 -- 50 % instead of 30 %. Stair edges and the VIP stair hall ceiling stay at 30 %.
 
