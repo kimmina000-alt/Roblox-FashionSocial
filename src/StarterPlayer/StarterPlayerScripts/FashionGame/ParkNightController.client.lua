@@ -54,6 +54,9 @@ end)
 -- (the whole wheel glows at night, a rainbow going round it; each piece keeps its place in the wave by
 -- its angle round the hub when first found)
 local WHEEL_GLOW = { Rim = true, RimLight = true, Spoke = true }
+-- (D-1572, user 2026-11-17 with a phone shot: "관람차 발광도 줄여 줘") the rainbow's brightness
+-- (HSV value): 1 was a blinding disc on phones; Neon's glow follows its colour
+local WHEEL_BRIGHT = 0.4
 local rim: {{part: BasePart, day: Color3, dayMat: Enum.Material, angle: number}} = {}
 local function findRim()
 	-- (streaming: the list is made again whenever the number of wheel pieces here changed; each
@@ -235,7 +238,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 	for _, r in ipairs(rim) do
 		if r.part.Material ~= Enum.Material.Neon then r.part.Material = Enum.Material.Neon end
 		local hue = (r.angle + now * 0.12) % 1
-		r.part.Color = Color3.fromHSV(hue, if r.part.Name == "Spoke" then 0.55 else 0.85, 1)
+		r.part.Color = Color3.fromHSV(hue, if r.part.Name == "Spoke" then 0.55 else 0.85, WHEEL_BRIGHT)
 	end
 	fireworksTick(now)
 end)

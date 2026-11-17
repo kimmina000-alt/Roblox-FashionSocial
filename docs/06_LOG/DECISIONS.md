@@ -5435,3 +5435,11 @@ Studio only (no script yet).
 - Checked in Play: the 국밥집 floor, ceiling and white hair are blown out by day and by night alike (10 downlights 1.4 + tube lights on near-white tiles), so the night bloom (D-1422) is only a small part of it.
 - SeoulNightController step 7: when a roof is over the camera (3 of 5 rays straight up, the camera and 4 points 6 studs round it, hit a solid part within 120 studs; trees, palms, parasols, awnings, lamps, see-through parts and characters do not count), ExposureCompensation eases to -0.3 and the bloom goes back to its daytime values (threshold 2), at any hour, over 0.8 s. -0.6 was tried first and made the club too dark.
 - Checked: club and 국밥집 = indoors, the street, the pocket park and under a palm = outdoors. Place data unchanged (lights keep their values).
+
+## D-1571 (2026-11-17) 바깥 창문 불빛 30 %
+- User (phone shots of the street at 21:20 / 21:30): "바깥 창문 발광도 수정해 줘 너무 강해 30%만 밝혀도 될 듯".
+- SeoulNightController: lit windows (WindowGlass / Window2F / TowerSlit, Neon at night) use 30 % of their old colours (WINDOW_GLOW = 0.3, the old warm (240, 185, 120) and cool (205, 215, 235) times 0.3). Neon's glow and bloom follow its colour. The share of lit windows (70 %) is unchanged.
+
+## D-1572 (2026-11-17) 관람차 무지개 불빛 줄이기
+- User (phone shot of the park at 21:50): "관람차 발광도 줄여 줘".
+- ParkNightController: the wheel's rainbow (Rim / RimLight / Spoke, Neon at night) uses HSV value 0.4 instead of 1 (WHEEL_BRIGHT). The string lights, searchlights and fireworks are unchanged.
