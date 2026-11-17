@@ -1662,6 +1662,12 @@ local function saveFramedPhoto(draw: (holder: Frame) -> (), layoutKey: string?):
 			while cam and (cam.ViewportSize.Y > cam.ViewportSize.X) ~= wantPortrait and t < 2 do t += task.wait(0.1) end
 			task.wait(0.3)
 		end
+		-- (D-1589, found on a phone: the 2x2 photo's top was cut off) the saved capture leaves out the
+		-- top bar strip, so the photo sits in the screen below it, with a small margin (measured after
+		-- the turn: the inset can change with the orientation)
+		local inset = game:GetService("GuiService"):GetGuiInset()
+		holder.Size = UDim2.new(1, -16, 1, -(inset.Y + 16))
+		holder.Position = UDim2.new(0.5, 0, 0.5, math.floor(inset.Y / 2))
 		task.wait(0.3)
 		RunService.RenderStepped:Wait()
 		RunService.RenderStepped:Wait()

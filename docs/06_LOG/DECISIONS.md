@@ -5631,3 +5631,7 @@ Studio only (no script yet).
 ## D-1597 가방: 사진 칸도 화면 너비 비율로 (2026-11-17)
 - 사용자(폰 화면 사진, 사진 탭에 3장 + 오른쪽 빈 칸): "아이템 칸 여백 안 남게 사이즈 고정하지 말고 화면에 따라 비율로 칸 나누기".
 - InventoryController: 사진 칸도 소지품 칸처럼 너비의 1/COLS(폰 4, PC 8), 높이는 예전 88 : 190 비율(UIAspectRatioConstraint). 두 목록 모두 칸마다 간격 몫(8 × (COLS − 1) / COLS)만 빼서 마지막 열이 목록 끝에 딱 맞음(남는 여백 0, Play에서 너비 340 / 408 / 760 확인).
+
+## D-1589 (2026-11-17) 사진 저장: 위가 잘리지 않게
+- User (phone, 2x2 save preview): "2x2 사진 윗부분 잘림". The saved capture leaves out the top bar strip, and the sheet drew the photo over the whole screen.
+- saveFramedPhoto places the photo below the top bar inset (GuiService:GetGuiInset, read after the turn) with an 8 px margin all round. Play check on a 735 x 413 phone view: inset 58, the 2x2 strip runs y 66..405, whole.
