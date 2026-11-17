@@ -544,10 +544,15 @@ RunService.RenderStepped:Connect(function()
 	-- (D-1121) the vote round under the play bar (the toast goes under it)
 	local ends = FashionGame:GetAttribute("ClubSkipEnds")
 	local left = if typeof(ends) == "number" then ends - workspace:GetServerTimeNow() else 0
-	votePanel.Visible = requests and not djOn and left > 0
+	-- (D-1766, user 2026-11-18: "투표 건너뛰기도 아래로 내려. 투표 예 아니오 선택하면 시간 다 안 지났어도 투표 창
+	-- 사라지게 해.") once this player has answered (ClubSkipMine, cleared for the next round) the card goes;
+	-- it sits at the bottom middle over the trash notices, not under the play bar
+	local mine = player:GetAttribute("ClubSkipMine")
+	votePanel.Visible = requests and not djOn and left > 0 and mine == nil
 	local below = p.Y + s.Y + (if playBar.Visible then 22 else 4)
 	if votePanel.Visible then
-		votePanel.Position = UDim2.fromOffset(p.X + s.X / 2, below)
+		votePanel.AnchorPoint = Vector2.new(0.5, 1)
+		votePanel.Position = UDim2.new(0.5, 0, 1, -100)
 		votePanel.Size = UDim2.fromOffset(s.X, s.Y) -- (D-1764: the banner's size)
 		voteFill.Size = UDim2.fromScale(math.clamp(left / 30, 0, 1), 1)
 		local yes, needed = 0, 0
@@ -556,11 +561,7 @@ RunService.RenderStepped:Connect(function()
 			yes, needed = tonumber(a) or 0, tonumber(b) or 0
 		end
 		voteTitle.Text = string.format("⏭ %d초 · %d/%d 예 · %d 아니요", math.ceil(left), yes, needed, FashionGame:GetAttribute("ClubSkipNo") or 0)
-		local mine = player:GetAttribute("ClubSkipMine")
-		yesButton.BackgroundTransparency = if mine == "no" then 0.6 else 0
-		noButton.BackgroundTransparency = if mine == "yes" then 0.6 else 0
 		skipCount.Visible = false
-		below += s.Y + 6
 	end
 	toast.Position = UDim2.fromOffset(p.X + s.X / 2, below)
 end)
