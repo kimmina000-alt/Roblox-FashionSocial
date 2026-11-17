@@ -20,6 +20,7 @@ PhotoWallFit.FrontClear = 0.32 -- (D-1535) how far out from the wall a part cove
 PhotoWallFit.SideAngle = 35 -- (D-1563) degrees off straight out a photo's edge must be seen from
 PhotoWallFit.SideReach = 5 -- (D-1563) how far that side view must be clear
 PhotoWallFit.EdgeMargin = 0.6 -- (D-1563) wall needed past each edge of a photo
+PhotoWallFit.NeonMargin = 2.6 -- (D-1577) how far a photo keeps from a neon line on its wall
 
 -- a photo's size on the wall in studs (as PhotoWallController.photoSize: the strip's
 -- aspect from PhotoRender.stripAspect, 3.4 high for 2x2, else 4.4)
@@ -94,9 +95,14 @@ function PhotoWallFit.backed(wall: BasePart, u: number, v: number, halfW: number
 		end
 	end
 	-- (D-1563) a neon line on the wall (the PHOTO niche's outline, NicheRim) lies flush with it, so the
-	-- slab above does not see it: a photo may not cover a Neon part within half a stud of the face
+	-- slab above does not see it: a photo may not cover a Neon part within half a stud of the face.
+	-- (D-1577, user 2026-11-17 with a Studio screenshot of strips by the niche: "얘 떠 있는 이유가 뭐라고?")
+	-- nor come within NeonMargin of one: the outline runs 2.5 studs outside the niche's opening, and
+	-- photos on the pink band between the line and the opening looked as if they hung in the niche's
+	-- frame
+	local nm = PhotoWallFit.NeonMargin
 	for _, part in ipairs(workspace:GetPartBoundsInBox(wall.CFrame * CFrame.new(cx, cy, zSign * wall.Size.Z / 2),
-		Vector3.new(halfW * 2 + 0.2, halfH * 2 + 0.2, 1), overlap)) do
+		Vector3.new(halfW * 2 + nm * 2, halfH * 2 + nm * 2, 1), overlap)) do
 		if part.Material == Enum.Material.Neon then return false end
 	end
 	-- (D-1563) seen from the side: a photo at the edge of a niche (the PHOTO niche is 2.8 deep) hid
