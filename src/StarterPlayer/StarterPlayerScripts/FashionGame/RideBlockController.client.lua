@@ -1,5 +1,5 @@
 --!strict
--- (D-1561, user 2026-11-17 with a phone screenshot of someone walking inside the super viking's boat:
+-- (D-1562, user 2026-11-17 with a phone screenshot of someone walking inside the super viking's boat:
 -- "탑승 외에는 놀이기구 통과 못 하게 막아") The park rides are built with CanCollide off (riders are held
 -- in their seats by the ride code, and a solid boat would shove them out). On each screen this makes the
 -- rides solid for this player's own character while they are not riding: the vikings' boats, the
