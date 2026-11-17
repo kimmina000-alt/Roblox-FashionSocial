@@ -16,7 +16,7 @@
 --   6. (D-1422, "야경 5 삭제 6 적용": the night walkers of D-1421 are gone again) a little more glow
 --      round bright things at night (Lighting.Bloom: lower threshold, a bit stronger and wider),
 --      so the signs and lit windows shine softly.
---   7. (D-1561, player feedback 2026-11-16 "흰색은 발광이 너무 심한거같아요 클럽 안도 그렇고 국밥집에서도")
+--   7. (D-1570, player feedback 2026-11-16 "흰색은 발광이 너무 심한거같아요 클럽 안도 그렇고 국밥집에서도")
 --      indoors (a roof over the camera) the picture is toned down at any hour: lower exposure and
 --      the daytime bloom, so white clothes / hair / floors under the shop and club lights are not
 --      blown out. Eased in and out over about a second.
