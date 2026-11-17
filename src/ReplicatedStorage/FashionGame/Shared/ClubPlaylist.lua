@@ -686,8 +686,9 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -15, engine = "sound" } },
 	{ channel = "K-POP", title = "DRIP-BABYMONSTER", soundId = 94601620282158, length = 169.448, fileSpeed = 1.0505,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -5.5, mid = -2, high = -3, engine = "sound" } },
+	-- (D-1601, user 2026-11-17: low / mid / high -4 / -25 / -22)
 	{ channel = "K-POP", title = "SHEESH-BABYMONSTER", soundId = 127479755620167, length = 162.473, fileSpeed = 1.0525,
-		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -4, mid = -25, high = -22, engine = "sound" } },
 	-- (D-1600, user 2026-11-17: four x1 uploads with the 음원 테스트 lab values, no choreography) song 3:01
 	{ channel = "K-POP", title = "삐그덕(Feat.아이유)-Crush", soundId = 101236122310659, length = 172.389, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -5.5, engine = "sound" } },

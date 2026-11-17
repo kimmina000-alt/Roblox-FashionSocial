@@ -5577,3 +5577,7 @@ Studio only (no script yet).
 ## D-1594 (2026-11-17) UI 숨기기
 - User: "ui 숨기기 버튼 추가". ☰ menu → 🙈 UI 숨기기 (MenuController row 9, before 💝 기부하기) → HideUi.hide(): every enabled ScreenGui in PlayerGui (top buttons, hotbar, banners, joystick, windows), the name tags over heads (OHUNameTag) and Roblox's chat / player list / emotes / health go; a sweep every 0.3 s keeps windows that open meanwhile hidden. A small 👁 button at the top right (HideUiShow) → HideUi.show() turns back on exactly what was on (name tags follow the 닉네임 표시 switch). Not saved.
 - Play (phone view): 34 screen windows → only 👁 → 34 again. The ☰ row itself was not clicked in the test (MCP clicks do not reach buttons in phone emulation); the module was called directly.
+
+## D-1601 SHEESH-BABYMONSTER 음색 -4 / -25 / -22 (2026-11-17)
+- 사용자: "SHEESH-BABYMONSTER -4, -25, -22" (저음 / 중음 / 고음). 전: git 0/0/0, Studio에는 누가 넣은 high -15. boost · tempo는 그대로.
+- Play로 들어 보지는 않음.
