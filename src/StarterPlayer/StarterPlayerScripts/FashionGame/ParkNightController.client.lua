@@ -127,6 +127,10 @@ local fireworks = Instance.new("Folder")
 fireworks.Name = "ParkFireworks"
 fireworks.Parent = workspace
 local SPARK = "rbxasset://textures/particles/sparkles_main.dds"
+-- (D-1726, user 2026-11-18: "놀이공원 폭죽 터질 때 폭죽 터지는 소리 넣기") a bang at each burst, from the shell up
+-- in the sky (heard over the whole park, fainter further away); a little different pitch each time.
+-- Creator Store "Firework_Explosion1" (free); the user may pick another (candidates in DECISIONS D-1726)
+local BANG = "rbxassetid://130548883007767"
 local function shell(seed: number, at: Vector3, height: number, color: Color3, delay: number)
 	task.delay(delay, function()
 		local rocket = Instance.new("Part")
@@ -168,11 +172,21 @@ local function shell(seed: number, at: Vector3, height: number, color: Color3, d
 		burst.Rate = 0
 		burst.Parent = a0
 		burst:Emit(90)
+		local bang = Instance.new("Sound")
+		bang.Name = "FireworkBang"
+		bang.SoundId = BANG
+		bang.Volume = 0.8
+		bang.PlaybackSpeed = 0.9 + (seed % 7) * 0.03
+		bang.RollOffMode = Enum.RollOffMode.InverseTapered
+		bang.RollOffMinDistance = 60
+		bang.RollOffMaxDistance = 600
+		bang.Parent = rocket
+		bang:Play()
 		local flash = Instance.new("PointLight")
 		flash.Color, flash.Range, flash.Brightness = color, 60, 4
 		flash.Parent = rocket
 		TweenService:Create(flash, TweenInfo.new(1.2), { Brightness = 0 }):Play()
-		task.delay(3, function() rocket:Destroy() end)
+		task.delay(6, function() rocket:Destroy() end) -- (3 s until D-1726: the bang is 5 s long)
 	end)
 end
 local lastSlot = -1

@@ -574,9 +574,13 @@ end
 local ASPHALT = Color3.fromRGB(70, 70, 74)
 local WALK = Color3.fromRGB(165, 158, 152)
 local CURB = 0.6
-local WHITE = Color3.fromRGB(240, 240, 240)
-local YELLOW = Color3.fromRGB(240, 190, 40)
-local BLUE = Color3.fromRGB(40, 90, 200)
+-- (D-1725, user 2026-11-18 with a phone shot of a road by day: "도로에 흰색 노란색 발광하는 거 잡아봐. 색 채도를
+-- 낮추든지.") road paint less bright and less saturated, so the bloom no longer makes it glow: white
+-- 240 → 192, yellow (240, 190, 40) → (200, 168, 78), blue (40, 90, 200) → (62, 92, 150);
+-- tools/graybox/road_paint_1118.lua recolours the markings already in the place
+local WHITE = Color3.fromRGB(192, 192, 188)
+local YELLOW = Color3.fromRGB(200, 168, 78)
+local BLUE = Color3.fromRGB(62, 92, 150)
 local SIGNS = { Color3.fromRGB(230, 60, 70), Color3.fromRGB(40, 120, 220), Color3.fromRGB(250, 200, 40), Color3.fromRGB(60, 180, 90), Color3.fromRGB(240, 120, 40) }
 local function paint(name, x0, z0, x1, z1, color) return box(name, x0, 0.12, z0, x1, 0.16, z1, color, { nocol = true }) end
 local function walk(x0, z0, x1, z1) return box("Sidewalk", x0, 0, z0, x1, CURB, z1, WALK, { material = Enum.Material.Brick }) end

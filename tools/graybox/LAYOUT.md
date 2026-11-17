@@ -106,6 +106,7 @@
   - `park_fixes4_1117.lua` (D-1564/D-1565) — 바이킹 두 대 번갈아 운행(Board/Offset), 관람차 바퀴 0.75로 줄이고 칸까지 흰 받침대(CabinBrackets), 칸 바닥 축소. park_fixes3_1116 다음에 실행.
   - `park_ride_lights_1117.lua` (D-1656/D-1657) — 회전컵 접시 둘레(SaucerGlow, 컵과 같이 돎) · 소방차 트랙 바깥(TrackGlow) · 잔디 둘레(LawnGlow) 네온 조명 줄. park_fixes4_1117 다음에 실행.
   - `club_passage_light_1117.lua` (D-1659) — 락커룸 통로 천장 보라 조명(Passage.PassageGlow, SurfaceLight 각도 120 · 범위 24): 통로 대리석도 클럽 바닥처럼 보라 결이 보이게. club_locker_1103 다음 어디든.
+  - `road_paint_1118.lua` (D-1725) — 도로 차선(흰 · 노랑 · 파랑 버스차로) 색을 어둡고 탁하게: 낮 블룸에 빛나던 것. 이름이 차선인 얇은 SmoothPlastic 중 옛 색만 바꿈(빌드 스크립트도 새 색). 체인 끝 쪽 어디든.
   - `spawn_by_guide_1117.lua` (D-1696) — 플레이어 스포너를 포켓 파크 안내원 토끼 바로 옆(-105, 0.6, -56)으로, 안내원(서쪽)을 보고 시작. 체인 맨 끝에(빌드 스크립트가 스포너를 모퉁이 광장으로 옮기므로).
   - `beach_tube_pile_1117.lua` (D-1576) — 해변 종합안내도 북쪽(21 스터드) 모래 위에 튜브 18개 더미 + "튜브 무료 대여" 표지판 + PromptPart(TubeRentService가 "튜브 들기"를 붙임). build_beach_signs 다음에 실행.
   - `park_carousel_roof_1116.lua` (D-1548) — 회전목마 새 지붕(ArtAssets.CarouselRoof2) + 지붕 조명(Rotor.RoofLights). 옛 지붕은 ArtAssets.CarouselRoofOld.

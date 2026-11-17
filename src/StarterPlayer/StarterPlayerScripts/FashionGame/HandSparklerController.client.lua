@@ -2,11 +2,17 @@
 -- "🔥" (user 2026-10-27, words dropped D-1593): holding an unlit hand sparkler shows this
 -- button above the hotbar; pressing it lights the sparkler (SparkleService
 -- "LightHandSparkler"), then the button goes. The sparkler burns down on its own.
+-- (D-1724, user 2026-11-18: "손 스파클러 불 아이콘 지우고 화면 두번 누르면 불 붙는 걸로 수정") no 🔥 button any
+-- more: holding an unlit hand sparkler, two taps (clicks) on the open screen within DOUBLE_TAP seconds
+-- light it. Taps on buttons, the thumbstick or a drag of the camera do not count.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 
+local UserInputService = game:GetService("UserInputService")
+
 local player = Players.LocalPlayer
+local DOUBLE_TAP = 0.4
 local ClubShop = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Remotes"):WaitForChild("ClubShop") :: RemoteFunction
 
 local gui = Instance.new("ScreenGui")
@@ -34,15 +40,36 @@ local function held(): Tool?
 end
 
 local function refresh()
-	local tool = held()
-	button.Visible = tool ~= nil and not tool:GetAttribute("Lit")
+	button.Visible = false -- (D-1724: the 🔥 button stays hidden)
 end
 
-button.MouseButton1Click:Connect(function()
-	if not held() then return end
-	button.Visible = false
+local lighting = false
+local function light()
+	local tool = held()
+	if lighting or not tool or tool:GetAttribute("Lit") then return end
+	lighting = true
 	pcall(function() ClubShop:InvokeServer("LightHandSparkler", nil) end)
-	refresh()
+	lighting = false
+end
+
+-- (D-1724) two taps on the open screen
+local lastTap = 0
+local function tapped()
+	local tool = held()
+	if not tool or tool:GetAttribute("Lit") then lastTap = 0 return end
+	local now = os.clock()
+	if now - lastTap <= DOUBLE_TAP then
+		lastTap = 0
+		task.spawn(light)
+	else
+		lastTap = now
+	end
+end
+UserInputService.TouchTap:Connect(function(_, processed)
+	if not processed then tapped() end
+end)
+UserInputService.InputBegan:Connect(function(input, processed)
+	if not processed and input.UserInputType == Enum.UserInputType.MouseButton1 then tapped() end
 end)
 
 local function watch(character: Model)
