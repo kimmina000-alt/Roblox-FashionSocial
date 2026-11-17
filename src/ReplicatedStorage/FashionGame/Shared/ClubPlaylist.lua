@@ -697,7 +697,19 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.955, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -10.5, engine = "sound" } },
 	-- (D-1600) song 3:16
 	{ channel = "K-POP", title = "Boogie Woogie-NCT DREAM", soundId = 102947379971628, length = 186.622, fileSpeed = 1.0503,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -12.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 1, low = 0, mid = 0, high = -12.5, engine = "sound" },
+		-- (D-1670, user 2026-11-18: "boogiewoogie" + 24 ids) fancam ROw4-vczfVk: video = song + 3.85 s (its sound against the original mp3 in
+		-- 10 / 3 s windows, steady to 3:05; the rest is the fade-out), `at` = clip start - 3.85 (clip 1 `from = 3.85`); clip 4 has no upload and
+		-- 9 (122000535432976) is a copy of 8 (7.70 s for a 9.25 s clip): default dance 17.6-27.5 / 70.4-79.7; clip 25 starts after the song end
+		choreo = {
+			{ id = 74991796424913, at = 0.00, from = 3.85 }, { id = 72899900258037, at = 3.62, blend = 0.89 }, { id = 98798684410312, at = 11.33, blend = 0.76 },
+			{ id = 97814419171643, at = 27.51, blend = 0.93 }, { id = 92946970770352, at = 40.96 }, { id = 93564912800713, at = 51.37 },
+			{ id = 118999861690635, at = 62.68, blend = 0.52 }, { id = 72126724441612, at = 79.67, blend = 0.87 }, { id = 103506023234554, at = 88.54, blend = 1 },
+			{ id = 137817236071281, at = 97.65, blend = 0.46 }, { id = 138409186362070, at = 105.09, blend = 0.7 }, { id = 98549161772624, at = 112.83, blend = 0.57 },
+			{ id = 77759369454741, at = 121.14, blend = 0.36 }, { id = 92147677701072, at = 130.38, blend = 0.8 }, { id = 90031774217033, at = 133.52, blend = 0.52 },
+			{ id = 82489608576953, at = 137.69, blend = 0.33 }, { id = 140605792599503, at = 147.13, blend = 0.98 }, { id = 130987200839765, at = 153.71, blend = 1 },
+			{ id = 138159952468756, at = 162.65, blend = 0.87 }, { id = 79114246750826, at = 171.26, blend = 0.76 }, { id = 81117884846850, at = 174.93, blend = 0.99 },
+			{ id = 123702153844970, at = 185.81, blend = 0.35 } }, autoChoreo = true },
 	-- (D-1600) song 2:45; octave 0.952 is the user's
 	{ channel = "K-POP", title = "내 이름을 불러줘(Call My Name)-투어스(TWS)", soundId = 129638210426239, length = 154.084, fileSpeed = 1.0708,
 		lab = { speed = 1, tempo = 0.934, volume = 10, boost = 10, boost2 = 5, boost3 = 2, octave = 0.952, low = 0, mid = 0, high = 0, engine = "sound" },
