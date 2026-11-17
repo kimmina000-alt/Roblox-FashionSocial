@@ -5749,3 +5749,8 @@ Studio only (no script yet).
 ## D-1552 (2026-11-17) 사진 벽: 비운 칸은 사진 배경색
 - User's phone after D-1551 (F9 Client Memory Usage): park 1,201 / 998 MB (was 1,290), beach 994, 오후네컷 1,291 / 1,539 (was 1,766), club 1,334 (was 1,293..1,367). But the photos farther than 25 studs showed as black squares: an emptied cell kept the strip's dark cell colour (60, 60, 66).
 - PhotoRender.emptyStrip(strip, booth) paints each emptied cell with the photo's own backdrop colour (booth.back, the colour behind the people in the shot), so from afar a photo looks like its picture with people too small to see; drawPhoto(…, empty) uses it too.
+
+## D-1401 Opening event: attendance only on the 받기 tap (2026-11-14)
+- User: "출석 이벤트에 받기 완료 < 받기 버튼이었다가 눌러야 받기 완료로 뜨고 출석 인정하는 걸로 수정 / 제일 아래 하루 한 번 출석. 연속이 아니어도 돼요 이 줄 삭제."
+- OpeningEventService: a visit no longer counts by itself. Player attribute OpeningCanClaim = true while today's attendance waits (event day, not yet counted today, fewer than 14); remote OpeningEvent "Claim" counts it and gives Rewards[n] (as before), then OpeningJustClaimed. Checked again every minute (past midnight). Studio still never counts (attribute OpeningStudioCount lets a test through).
+- OpeningEventController: the cards' status is a button; the next card shows a pink 받기 while OpeningCanClaim, the tap → Claim → 오늘 받았어요! / 받기 완료!. The window opens by itself while today's 받기 waits. The bottom note line ("하루 한 번 출석 · 연속이 아니어도 돼요 · ...") is removed; the limited-title line moved to the bottom.

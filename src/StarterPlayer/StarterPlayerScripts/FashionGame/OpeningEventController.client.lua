@@ -2,10 +2,11 @@
 -- (D-1366, user 2026-11-13, a mock-up "한국의 오후 · OHU GRAND OPENING 출석 이벤트") The opening
 -- attendance window in the mock-up's colours (cherry pink and lilac): the title, the period,
 -- 14 day cards in two rows of seven (coins, the limited frame at 7, the FOUNDING MEMBER title
--- at 14), each 받기 완료 / 오늘 받았어요 / 기다려요, and the note that every reward is once per
--- account. It opens by itself when today's attendance was counted on this visit (after the
--- first-visit tour and any other window), and from the 🎁 button in the top bar while the
--- event runs. Data: player attributes from OpeningEventService.
+-- at 14), each 받기 완료 / 오늘 받았어요 / 받기 (today's, a button) / 기다려요, and the limited-title
+-- line (D-1397; the note line under it went in D-1401). It opens by itself while today's
+-- 받기 waits (D-1401: the tap counts it; after the first-visit tour and any other window), and
+-- from the 🎁 button in the top bar while the event runs. Data: player attributes from
+-- OpeningEventService.
 
 local Players = game:GetService("Players")
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -14,6 +15,7 @@ local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local Config = require(FashionGame:WaitForChild("Shared"):WaitForChild("OpeningEventConfig"))
 local TopBar = require(script.Parent:WaitForChild("TopBar"))
 local Popups = require(script.Parent:WaitForChild("Popups"))
+local Sfx = require(script.Parent:WaitForChild("Sfx")) -- (D-1695)
 
 local player = Players.LocalPlayer
 local playerGui = player:WaitForChild("PlayerGui")
@@ -87,10 +89,10 @@ local period = create("TextLabel", {
 corner(period, 13)
 
 -- the 14 cards
--- (D-1397: 26 px less for the limited-title line under the cards)
-local grid = create("Frame", { Name = "Days", Position = UDim2.fromOffset(0, 106), Size = UDim2.new(1, 0, 1, -172), BackgroundTransparency = 1 }, window)
+-- (D-1397: room for the limited-title line under the cards; D-1401: the note line under it is gone)
+local grid = create("Frame", { Name = "Days", Position = UDim2.fromOffset(0, 106), Size = UDim2.new(1, 0, 1, -136), BackgroundTransparency = 1 }, window)
 create("UIGridLayout", { CellSize = UDim2.new(1 / 7, -6, 0.5, -4), CellPadding = UDim2.fromOffset(6, 6), SortOrder = Enum.SortOrder.LayoutOrder }, grid)
-type Card = { frame: Frame, head: TextLabel, icon: TextLabel, label: TextLabel, status: TextLabel }
+type Card = { frame: Frame, head: TextLabel, icon: TextLabel, label: TextLabel, status: TextButton }
 local cards: {Card} = {}
 for n = 1, Config.Goal do
 	local reward = Config.Rewards[n]
@@ -107,8 +109,19 @@ for n = 1, Config.Goal do
 	local icon = create("TextLabel", {
 		Position = UDim2.fromScale(0, 0.24), Size = UDim2.new(1, 0, 0.34, 0), BackgroundTransparency = 1, TextScaled = true,
 		FontFace = BOLD, TextColor3 = GOLD,
-		Text = if reward.coins then "₩" elseif reward.frame then "🖼️" else "", -- (the game's coin mark, as in the top bar)
+		Text = if reward.coins then "₩" else "", -- (the game's coin mark, as in the top bar)
 	}, f)
+	if reward.frame then
+		-- (D-1695, user 2026-11-17: "한정 포토 프레임 그림 수정. 검은색 박스에 물음표 띄우기") the limited frame is
+		-- a surprise: a black box with a white ?
+		local box = create("TextLabel", {
+			AnchorPoint = Vector2.new(0.5, 0.5), Position = UDim2.fromScale(0.5, 0.41), Size = UDim2.fromScale(0.42, 0.28),
+			BackgroundColor3 = Color3.new(0, 0, 0), FontFace = BOLD, TextScaled = true, TextColor3 = WHITE, Text = "?",
+		}, f)
+		create("UIAspectRatioConstraint", { AspectRatio = 1 }, box)
+		corner(box, 6)
+		create("UIPadding", { PaddingTop = UDim.new(0.12, 0), PaddingBottom = UDim.new(0.12, 0) }, box)
+	end
 	create("UITextSizeConstraint", { MaxTextSize = 26 }, icon)
 	if reward.title then
 		-- (D-1397, user 2026-11-14: "14일차에 아까 보여 준 칭호 디자인 올리고 한정 칭호 증정 강조해서
@@ -129,39 +142,34 @@ for n = 1, Config.Goal do
 		Text = if reward.title then "한정 칭호 증정!" else Config.rewardText(reward),
 	}, f)
 	create("UITextSizeConstraint", { MaxTextSize = 12 }, label)
-	local status = create("TextLabel", {
+	-- (D-1401) a button: today's card says 받기, and the tap counts the attendance
+	local status = create("TextButton", {
 		AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -4), Size = UDim2.new(0.86, 0, 0.17, 0),
-		BackgroundColor3 = LILAC_SOFT, FontFace = BOLD, TextScaled = true, TextColor3 = INK, Text = "",
+		BackgroundColor3 = LILAC_SOFT, FontFace = BOLD, TextScaled = true, TextColor3 = INK, Text = "", AutoButtonColor = false,
 	}, f)
 	corner(status, 8)
 	create("UITextSizeConstraint", { MaxTextSize = 11 }, status)
 	cards[n] = { frame = f, head = head, icon = icon, label = label, status = status }
 end
 
--- (D-1397) the limited title, over the note
+-- (D-1397) the limited title, at the bottom (D-1401: the note under it is gone)
 local limited = create("TextLabel", {
-	Name = "Limited", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, -38), Size = UDim2.new(1, 0, 0, 24),
+	Name = "Limited", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, 24),
 	BackgroundColor3 = Color3.fromRGB(40, 22, 12), BackgroundTransparency = 0.05, FontFace = BOLD, TextScaled = true,
 	TextColor3 = Color3.fromRGB(255, 190, 120), RichText = true,
-	Text = '👑 14번 출석하면 한정 칭호 <font color="#FFAA5A">FOUNDING MEMBER</font> 증정! · 해당 칭호는 이벤트 종료 후 재판매하지 않습니다',
+	-- (D-1695, user 2026-11-17: the line's words)
+	Text = '👑 한정 칭호 <font color="#FFAA5A">FOUNDING MEMBER</font> 증정. 모두에게 보이는 내 아이디 위에 뜨는 한정 칭호 아이템으로 해당 칭호는 이벤트 종료 후 재판매하지 않습니다.',
 }, window)
 corner(limited, 12)
 create("UIStroke", { ApplyStrokeMode = Enum.ApplyStrokeMode.Border, Color = Color3.fromRGB(255, 150, 60), Thickness = 1.5 }, limited)
 create("UIPadding", { PaddingLeft = UDim.new(0, 10), PaddingRight = UDim.new(0, 10), PaddingTop = UDim.new(0, 3), PaddingBottom = UDim.new(0, 3) }, limited)
 create("UITextSizeConstraint", { MaxTextSize = 14 }, limited)
 
--- the note
-create("TextLabel", {
-	Name = "Note", AnchorPoint = Vector2.new(0, 1), Position = UDim2.new(0, 0, 1, 0), Size = UDim2.new(1, 0, 0, 32),
-	BackgroundColor3 = WHITE, BackgroundTransparency = 0.3, FontFace = BOLD, TextScaled = true, TextColor3 = INK,
-	Text = "❗ 하루 한 번 출석 · 연속이 아니어도 돼요 · 보상은 계정당 1번 · 기간이 지나면 받을 수 없어요",
-}, window)
-create("UITextSizeConstraint", { MaxTextSize = 13 }, window:FindFirstChild("Note"))
-
 local function refresh()
 	local count = player:GetAttribute("OpeningCount")
 	count = if typeof(count) == "number" then count else 0
 	local just = player:GetAttribute("OpeningJustClaimed")
+	local canClaim = player:GetAttribute("OpeningCanClaim") == true
 	local day = Config.dayNow()
 	progress.Text = string.format('출석<br/><font size="22" color="#FF5CA8">%d</font> / %d', count, Config.Goal)
 	period.Text = string.format("📅 %s · %d일 동안 %d번 출석하면 완료!%s", Config.periodText(), Config.Days, Config.Goal,
@@ -175,6 +183,13 @@ local function refresh()
 			c.status.BackgroundColor3 = PINK
 			c.status.TextColor3 = WHITE
 			c.status.Text = if n == just then "오늘 받았어요!" else "받기 완료!"
+		elseif n == count + 1 and canClaim then
+			-- (D-1401) today's: 받기 (the tap counts it)
+			c.frame.BackgroundColor3 = WHITE
+			c.head.BackgroundColor3 = PINK
+			c.status.BackgroundColor3 = PINK
+			c.status.TextColor3 = WHITE
+			c.status.Text = "받기"
 		else
 			c.frame.BackgroundColor3 = WHITE
 			c.head.BackgroundColor3 = if special then GOLD else LILAC
@@ -192,8 +207,26 @@ local function setOpen(on: boolean)
 end
 close.Activated:Connect(function() setOpen(false) end)
 dim.Activated:Connect(function() setOpen(false) end)
-for _, name in ipairs({ "OpeningCount", "OpeningJustClaimed" }) do
+for _, name in ipairs({ "OpeningCount", "OpeningJustClaimed", "OpeningCanClaim" }) do
 	player:GetAttributeChangedSignal(name):Connect(function() if gui.Enabled then refresh() end end)
+end
+
+-- (D-1401) 받기 on today's card: the server counts the attendance and gives the reward
+local claiming = false
+for n, c in ipairs(cards) do
+	c.status.Activated:Connect(function()
+		local count = player:GetAttribute("OpeningCount")
+		count = if typeof(count) == "number" then count else 0
+		if claiming or n ~= count + 1 or player:GetAttribute("OpeningCanClaim") ~= true then return end
+		local claimRemote = FashionGame:WaitForChild("Remotes"):FindFirstChild("OpeningEvent")
+		if not claimRemote or not claimRemote:IsA("RemoteFunction") then return end
+		claiming = true
+		c.status.Text = "..."
+		local ok, done = pcall(function() return (claimRemote :: RemoteFunction):InvokeServer("Claim") end)
+		if ok and done then pcall(function() Sfx.play("coin") end) end -- (D-1695: the reward's coin sound)
+		claiming = false
+		refresh()
+	end)
 end
 
 -- 🎁 in the top bar while the event runs
@@ -206,13 +239,13 @@ create("UIPadding", { PaddingTop = UDim.new(0.18, 0), PaddingBottom = UDim.new(0
 TopBar.add(button, 6)
 button.Activated:Connect(function() setOpen(not gui.Enabled) end)
 
--- today's attendance counted on this visit: the window once, after the tour and other windows
+-- today's 받기 waiting: the window once, after the tour and other windows (D-1401)
 task.spawn(function()
 	local t0 = os.clock()
 	-- (D-1690) Studio never counts attendance: with the first-visit test switch on (FirstGoalTest) the
 	-- window shows after the tour anyway, to see the first visit in order
 	local TEST = game:GetService("RunService"):IsStudio() and FashionGame:GetAttribute("FirstGoalTest") == true
-	-- (D-1691) at most once in 24 hours: the server says when (OpeningShowWindow)
+	-- (D-1691 / D-1693) once each event day (the day turns at 05:00 KST): the server says when (OpeningShowWindow)
 	while not TEST and player:GetAttribute("OpeningShowWindow") ~= true and os.clock() - t0 < 30 do task.wait(0.5) end
 	if not TEST and player:GetAttribute("OpeningShowWindow") ~= true then return end
 	while playerGui:FindFirstChild("OHULoading") do task.wait(1) end
@@ -220,4 +253,5 @@ task.spawn(function()
 	while player:GetAttribute("TourActive") or Popups.anyOpen() do task.wait(1) end
 	task.wait(1)
 	setOpen(true)
+	pcall(function() Sfx.play("eventOpen") end) -- (D-1695: a sound as it opens by itself)
 end)

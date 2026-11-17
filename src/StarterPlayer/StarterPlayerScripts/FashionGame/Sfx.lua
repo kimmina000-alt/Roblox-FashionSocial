@@ -14,8 +14,12 @@ local IDS: {[string]: number} = {
 	click = SoundConfig.Ui.click, error = SoundConfig.Ui.error, success = SoundConfig.Ui.success,
 	teleport = SoundConfig.Body.teleport,
 	whoosh = SoundConfig.Ui.whoosh, -- (the tours' camera flights, D-718)
+	eventOpen = SoundConfig.Ui.eventOpen, -- (D-1695: the attendance window opening by itself)
+	coin = SoundConfig.Ui.coin, -- (D-1695: an attendance reward taken)
 }
 VOLUME.whoosh = 0.5
+VOLUME.eventOpen = 0.5
+VOLUME.coin = 0.5
 
 local folder = Instance.new("Folder")
 folder.Name = "FashionSfx"
