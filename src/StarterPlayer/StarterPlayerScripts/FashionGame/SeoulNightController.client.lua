@@ -187,7 +187,7 @@ local function lamp(l: Instance)
 		l:SetAttribute("SeoulLamp", true)
 		l.Color = WARM
 		l.Range = 40
-		l.Brightness = 2.4
+		l.Brightness = 1.6 -- (D-1587: 2.4 lit the white road markings into a glare on phones)
 		l.Angle = 120
 	elseif l:IsA("SurfaceLight") and (parent.Name == "Lense" or parent.Name == "Union") and parent:IsDescendantOf(workspace) then
 		local street = parent:FindFirstAncestor("StreetLights")
@@ -275,6 +275,36 @@ local function addShopGlass(p: Instance)
 		table.insert(shopLights, l)
 	end
 end
+
+-- (D-1587, user 2026-11-17: "도로에 발광 다 없애기") the white / yellow road paint is a little darker
+-- at night (it caught the lamps and bloomed white on phones)
+local ROAD_PAINT = {
+	LaneDash = true, LaneSolid = true, EdgeLine = true, CenterLine = true, JunctionLine = true,
+	Crosswalk = true, StopLine = true, Arrow = true, ArrowHead = true, ArrowTurn = true,
+	UTurnArrow = true, CrossingAhead = true, BikeLaneEdge = true, BikeCrossingLine = true,
+}
+local ROAD_NIGHT = 0.55 -- (the paint's colour times this at night)
+local roadPaint: {[BasePart]: Color3} = setmetatable({}, { __mode = "k" }) :: any
+local roadOn: boolean? = nil
+local function addRoad(p: Instance)
+	if not p:IsA("BasePart") or not ROAD_PAINT[p.Name] or roadPaint[p] then return end
+	roadPaint[p] = p.Color
+	if roadOn then p.Color = p.Color:Lerp(Color3.new(), 1 - ROAD_NIGHT) end
+end
+local function setRoad(on: boolean)
+	if roadOn == on then return end
+	roadOn = on
+	for p, day in pairs(roadPaint) do
+		if p.Parent then p.Color = if on then day:Lerp(Color3.new(), 1 - ROAD_NIGHT) else day end
+	end
+end
+task.spawn(function()
+	task.wait(3)
+	for _, d in ipairs(workspace:GetDescendants()) do addRoad(d) end
+	workspace.DescendantAdded:Connect(function(d)
+		if ROAD_PAINT[d.Name] then task.defer(addRoad, d) end
+	end)
+end)
 
 local shopsOn: boolean? = nil
 local function setShops(on: boolean)
@@ -390,5 +420,6 @@ RunService.Heartbeat:Connect(function()
 	checkIndoor()
 	sky(n)
 	setWindows(n > 0.5)
+	setRoad(n > 0.5)
 	setShops(n > 0.5)
 end)

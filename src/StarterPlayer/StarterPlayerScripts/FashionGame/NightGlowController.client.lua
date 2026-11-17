@@ -16,6 +16,18 @@ end
 
 local function apply(part: Instance, night: boolean)
 	if not part:IsA("BasePart") then return end
+	-- (D-1587, user 2026-11-17: "오후네컷 입구 조명선 얇게 수정") the 오후네컷 door frame line half as
+	-- thick (on this screen only; the place keeps 0.2)
+	if part.Name == "FrameGlow" and not part:GetAttribute("Thinned") then
+		part:SetAttribute("Thinned", true)
+		local sz = part.Size
+		local long = math.max(sz.X, sz.Y, sz.Z)
+		part.Size = Vector3.new(
+			if sz.X < long then sz.X * 0.5 else sz.X,
+			if sz.Y < long then sz.Y * 0.5 else sz.Y,
+			if sz.Z < long then sz.Z * 0.5 else sz.Z
+		)
+	end
 	if part:GetAttribute("DayMaterial") == nil then part:SetAttribute("DayMaterial", part.Material.Name) end
 	part.Material = if night then Enum.Material.Neon else Enum.Material[part:GetAttribute("DayMaterial") :: string]
 	-- optional NightColor (Color3): a different colour after dark (cafe wall slits:

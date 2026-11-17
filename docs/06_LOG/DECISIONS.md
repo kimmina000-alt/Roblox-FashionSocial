@@ -5599,3 +5599,9 @@ Studio only (no script yet).
 - SeoulNightController night values: exposure 0.25 → 0.1, bloom intensity 1.25 → 0.6, size 32 → 16, threshold 1.35 → 2.4 (weaker than the day bloom 1 / 24 / 2): on phones the lit windows, road markings and white clothes had big halos.
 - 국밥집: the two front-row downlights by the door (x 54, z -304 / -314) carry no SpotLight any more (build_gukbap.lua, the place and ServerStorage.UserMapSnapshot's Gukbap): with them off the doorway floor and people stop glaring white (before / after shots in Play). Place change: the user saves.
 - Photo booth: the button is 📸 사진 저장 (16 languages added by hand next to 📸 캡처 저장; build.py was not used because it also drops other sessions' unused strings); the framed photo fills the screen height (sheet holder 100 %). Roblox can only save a screen capture to the device gallery, so the saved size is the screen's height, not the photo's own pixels.
+
+## D-1587 (2026-11-17) 도로 발광 없애기, 오후네컷 입구 선 얇게, 사진 저장은 세로로
+- User: "도로에 발광 다 없애기 / 오후네컷 입구 조명선 얇게 수정 / 사진 저장할 때 알아서 세로모드로 저장하고 원래 플레이어가 쓰던 화면으로 돌아가게 해".
+- SeoulNightController: road paint (LaneDash, LaneSolid, EdgeLine, CenterLine, JunctionLine, Crosswalk, StopLine, Arrow, ArrowHead, ArrowTurn, UTurnArrow, CrossingAhead, BikeLaneEdge, BikeCrossingLine; white plastic 240, not Neon) at 55 % of its colour at night; street lamp SpotLights 2.4 → 1.6.
+- NightGlowController: the 오후네컷 door frame line (FrameGlow, tag NightGlow) half as thick on each screen (0.2 → 0.1).
+- PhotoBoothController saveFramedPhoto: on touch devices PlayerGui.ScreenOrientation turns to Portrait for the shot (waits up to 2 s for the screen to be taller than wide), then goes back to the player's own setting. Not testable in Studio: check on a phone.

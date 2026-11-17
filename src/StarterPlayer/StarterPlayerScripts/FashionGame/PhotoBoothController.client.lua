@@ -1584,6 +1584,14 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 		return false
 	end
 	sheet.Parent = playerGui
+	-- (D-1587, user 2026-11-17: "사진 저장할 때 알아서 세로모드로 저장하고 원래 플레이어가 쓰던 화면으로
+	-- 돌아가게 해") on a phone the screen turns to portrait for the shot (the strip is tall, so it is
+	-- bigger), then back to the player's own orientation
+	local oldOrientation = playerGui.ScreenOrientation
+	local turned = false
+	if game:GetService("UserInputService").TouchEnabled then
+		turned = pcall(function() playerGui.ScreenOrientation = Enum.ScreenOrientation.Portrait end)
+	end
 	local hidden = {}
 	for _, other in ipairs(playerGui:GetChildren()) do
 		if other:IsA("ScreenGui") and other ~= sheet and other.Enabled then
@@ -1597,12 +1605,20 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 		done = true
 		for _, other in ipairs(hidden) do if other.Parent then other.Enabled = true end end
 		sheet:Destroy()
+		if turned then pcall(function() playerGui.ScreenOrientation = oldOrientation end) end
 		savingSheet = false
 	end
 	task.spawn(function()
 		-- the cuts are drawn one by one (PhotoRender's queue): wait for them, then two frames
 		local waited = 0
 		while PhotoRender.busy() and waited < 6 do waited += task.wait(0.1) end
+		if turned then
+			-- wait for the screen to have turned (taller than wide), at most 2 s
+			local cam = workspace.CurrentCamera
+			local t = 0
+			while cam and cam.ViewportSize.X > cam.ViewportSize.Y and t < 2 do t += task.wait(0.1) end
+			task.wait(0.3)
+		end
 		task.wait(0.3)
 		RunService.RenderStepped:Wait()
 		RunService.RenderStepped:Wait()
@@ -1618,7 +1634,7 @@ local function saveFramedPhoto(draw: (holder: Frame) -> ()): boolean
 			finish()
 			toast("이 기기에서는 캡처 저장을 할 수 없어요. (Studio에서는 동작하지 않을 수 있어요)")
 		end
-		task.delay(3, finish)
+		task.delay(if turned then 5 else 3, finish)
 	end)
 	return true
 end
