@@ -5573,3 +5573,7 @@ Studio only (no script yet).
 ## D-1584 (2026-11-17) 오후네컷 사진은 프레임 사진만 저장
 - Player feedback (💬 2026-11-16, s0_diva, Indonesian): the photo booth photo saves "like a screenshot", please save it cleanly. User 2026-11-17: "오후네컷에서 찍은 프레임으로 된 사진 저장할 수 있는 기능 추가 / 현재 가방에서 사진 선택하고 사진 저장 누르면 그때 보고 있는 화면 저장됨".
 - Roblox only lets a game save a screen capture (CaptureService). So 📸 캡처 저장 (in the booth result and in the album / bag photo viewer) now draws the photo alone, in its frame, on a plain sheet (250, 244, 246) over the whole screen (ScreenGui PhotoSaveSheet, DisplayOrder 10000, every other ScreenGui hidden), waits for the cuts to be drawn (PhotoRender.busy, up to 6 s), captures, puts the screen back and opens the save-to-gallery window. The old screen / raw-cut capture stays as the fallback.
+
+## D-1594 (2026-11-17) UI 숨기기
+- User: "ui 숨기기 버튼 추가". ☰ menu → 🙈 UI 숨기기 (MenuController row 9, before 💝 기부하기) → HideUi.hide(): every enabled ScreenGui in PlayerGui (top buttons, hotbar, banners, joystick, windows), the name tags over heads (OHUNameTag) and Roblox's chat / player list / emotes / health go; a sweep every 0.3 s keeps windows that open meanwhile hidden. A small 👁 button at the top right (HideUiShow) → HideUi.show() turns back on exactly what was on (name tags follow the 닉네임 표시 switch). Not saved.
+- Play (phone view): 34 screen windows → only 👁 → 34 again. The ☰ row itself was not clicked in the test (MCP clicks do not reach buttons in phone emulation); the module was called directly.
