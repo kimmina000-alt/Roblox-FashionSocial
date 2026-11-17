@@ -252,6 +252,5 @@ task.spawn(function()
 	task.wait(4) -- (the first-visit tour starts 1.5 s after the loading screen: it goes first)
 	while player:GetAttribute("TourActive") or Popups.anyOpen() do task.wait(1) end
 	task.wait(1)
-	setOpen(true)
-	pcall(function() Sfx.play("eventOpen") end) -- (D-1695: a sound as it opens by itself)
+	setOpen(true) -- (no sound as it opens: user 2026-11-17, "출석 창은 소리 넣지 말자")
 end)

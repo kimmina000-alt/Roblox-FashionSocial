@@ -16,8 +16,8 @@ return {
 		-- 138890894929151 Whoosh2, 137081214744553 whoosh, 127438224839678 cartoon whoosh)
 		whoosh = 15675046931,
 		-- (D-1695, user 2026-11-17: "출석 이벤트 뜰 때 소리 / 받기 누르면 뜨는 돈 버는 소리", ids left for us to pick)
-		-- the window: the tonal stinger until the user picks; the reward: the user's pick (2026-11-17, "코인 소리: 75021469134609")
-		eventOpen = 15675043410,
+		-- (D-1695) an attendance reward taken: the user's pick (2026-11-17, "코인 소리: 75021469134609");
+		-- the window itself opens without a sound ("출석 창은 소리 넣지 말자")
 		coin = 75021469134609,
 	},
 	Body = {
