@@ -138,6 +138,7 @@ local function bookFor(lang: string): Book?
 end
 
 local translate: (Book, string, number) -> string
+local PARTICLES = { "으로", "을", "를", "이", "가", "은", "는", "로", "과", "와" }
 
 local function tryTemplates(b: Book, s: string, depth: number): string?
 	for _, t in ipairs(b.tmpls) do
@@ -201,6 +202,16 @@ translate = function(b: Book, s: string, depth: number): string
 		local core = string.sub(s, first, last)
 		local t = b.exact[core] or tryTemplates(b, core, depth)
 		if t then return string.sub(s, 1, first - 1) .. t .. string.sub(s, last + 1) end
+	end
+	-- (D-1710) a value with a Korean particle glued on (GiveController "수육을", ParkConfig "바이킹이"):
+	-- the word without it
+	if depth > 0 then
+		for _, p in ipairs(PARTICLES) do
+			if #s > #p and string.sub(s, -#p) == p then
+				local t = b.exact[string.sub(s, 1, #s - #p)]
+				if t then return t end
+			end
+		end
 	end
 	return s
 end
