@@ -5634,3 +5634,9 @@ Studio only (no script yet).
 ## D-1598 사진 크게 보기: ‹ › 로 옆 사진 (2026-11-17)
 - 사용자(사진 크게 보기 화면에 좌우 화살표를 그린 사진): "사진첩에 옆으로 버튼 눌러서 사진 볼 수 있게 하자".
 - PhotoBoothController 뷰어: 사진 아래 양쪽 모서리(로고 줄 옆)에 ‹ › 버튼. 열었던 목록(가방 사진 탭 / 내 앨범)의 앞뒤 사진으로 넘어감, 첫 사진에서는 ‹, 마지막에서는 › 가 숨음, 한 장뿐이면 둘 다 숨음. 넘길 때는 손에 넣기(TakeOut)를 하지 않음. BagSignals.viewPhoto:Fire(photo, list).
+
+
+## D-1589 (2026-11-17) 사진 저장: 위가 잘리지 않게
+- User (phone, 2x2 save preview): "2x2 사진 윗부분 잘림". The saved capture leaves out the top bar strip, and the sheet drew the photo over the whole screen.
+- saveFramedPhoto places the photo below the top bar inset (GuiService:GetGuiInset, read after the turn) with an 8 px margin all round. Play check on a 735 x 413 phone view: inset 58, the 2x2 strip runs y 66..405, whole.
+- (later, user: "윗부분 잘라 버리면 그냥 세로로 찍는 게 더 커지지 않나?") yes: the orientation choice now counts the real room, the inset and the margins off (strip width = min(w - 16, (h - inset - 16) × a)). On the 735 x 413 phone view with inset 58: 1x4 lying 105 / standing 205, 2x2 lying 363 / standing 397, so both save standing up. Play check: no script errors (Studio also holds feat/album-swipe-1117's PhotoBoothController change; both are in, no overwrite).
