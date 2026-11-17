@@ -30,7 +30,9 @@ local WARM = Color3.fromRGB(255, 196, 140) -- about 3,000 K
 -- (D-1571, user 2026-11-17 with phone shots: "바깥 창문 발광도 너무 강해 30%만 밝혀도 될 듯") lit
 -- windows shine at 30 % of the old colour: Neon's glow follows its colour, so a darker colour is a
 -- softer light (the old full colours below, times WINDOW_GLOW)
-local WINDOW_GLOW = 0.3
+-- (D-1579, user: "야외도 너무 발광 0으로 보이는데 원래 발광에서 80%만 해 봐": 30 % read as unlit
+-- brown panes) 80 %
+local WINDOW_GLOW = 0.8
 local WINDOW_WARM = Color3.fromRGB(240, 185, 120):Lerp(Color3.new(), 1 - WINDOW_GLOW)
 local WINDOW_COOL = Color3.fromRGB(205, 215, 235):Lerp(Color3.new(), 1 - WINDOW_GLOW)
 local LIT_SHARE = 0.7
@@ -219,9 +221,45 @@ local function addSign(g: Instance)
 	table.insert(signs, { gui = g, li = g.LightInfluence, brightness = g.Brightness })
 end
 
+-- (D-1581, user 2026-11-17: the 국밥집 doorway glared white at night: this glow lit the shop's own
+-- white floor) light only the street side: the big face with no roof in front of it. When both
+-- sides or neither side have a roof (an awning, a glass wall) both big faces stay lit.
+local glassParams = RaycastParams.new()
+glassParams.FilterType = Enum.RaycastFilterType.Exclude
+local function roofed(at: Vector3, skip: Instance): boolean
+	local ignore: {Instance} = { skip }
+	for _ = 1, 4 do
+		glassParams.FilterDescendantsInstances = ignore
+		local hit = workspace:Raycast(at, Vector3.new(0, 40, 0), glassParams)
+		if not hit then return false end
+		if hit.Instance:IsA("BasePart") and (hit.Instance :: BasePart).Transparency < 0.6 then return true end
+		table.insert(ignore, hit.Instance)
+	end
+	return false
+end
+-- the two big faces of the pane (its thinnest axis: a pane thin along X has its big faces on
+-- Left / Right; Front / Back were its narrow edges, so the glow ran sideways along the shop front
+-- and into the shop)
+local function shopFaces(p: BasePart): {Enum.NormalId}
+	local s = p.Size
+	local a: Enum.NormalId, b: Enum.NormalId, n: Vector3
+	if s.X <= s.Y and s.X <= s.Z then
+		a, b, n = Enum.NormalId.Right, Enum.NormalId.Left, p.CFrame.RightVector
+	elseif s.Y <= s.Z then
+		a, b, n = Enum.NormalId.Top, Enum.NormalId.Bottom, p.CFrame.UpVector
+	else
+		a, b, n = Enum.NormalId.Back, Enum.NormalId.Front, -p.CFrame.LookVector
+	end
+	local inA = roofed(p.Position + n * 4, p)
+	local inB = roofed(p.Position - n * 4, p)
+	if inA and not inB then return { b } end
+	if inB and not inA then return { a } end
+	return { a, b }
+end
+
 local function addShopGlass(p: Instance)
 	if not p:IsA("BasePart") or not SHOP_GLASS[p.Name] or p:FindFirstChild("NightShopLight") then return end
-	for _, face in ipairs({ Enum.NormalId.Front, Enum.NormalId.Back }) do
+	for _, face in ipairs(shopFaces(p)) do
 		local l = Instance.new("SurfaceLight")
 		l.Name = "NightShopLight"
 		l.Face = face

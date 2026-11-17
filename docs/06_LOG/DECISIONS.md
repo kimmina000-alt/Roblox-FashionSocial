@@ -5506,3 +5506,37 @@ Studio only (no script yet).
 - Cause: the niche's white neon outline (NicheRim) runs about 2.5 studs outside the opening; between the line and the opening is a band of the pink wall, flush with the hall's north wall. Three OHU_HALL_N strips (x 94 / 97 / 98) sat on that band or right next to the line: they are on the wall, but seen at an angle they looked as if they hung in the niche's frame.
 - PhotoWallFit.NeonMargin = 2.6: a photo may not come within 2.6 studs of a Neon part on its wall (the D-1563 neon check, widened). Play: the band is clear; the server moved 13 photos to backed spots at start; no script errors.
 
+## D-1578 (2026-11-17) 클럽 입구 조명 50 %, 복도 조명선 얇게 + 50 %
+- User: "입구 조명 50으로 줄이고 클럽 복도에 조명선 더 얇게 하고 발광 50 높여".
+- ClubGlowDim (client only, D-1574): the street door's frame lights (ClubAnnex StreetDoorLight) at 50 % of their colour; the corridor lines (FoyerLED, PassageLight, CorridorNeon_E / _W, FloorLED, HallDoorFootLED) at 50 % instead of 30 % and thinner: the narrow side and the height halved, the length kept, still touching the floor (or the ceiling for a ceiling line). Stair edges (StairNeon, VIP_StairNeon) and the VIP stair hall ceiling (CeilingStrip) stay at 30 %. The place and graybox scripts are unchanged.
+
+## D-1579 (2026-11-17) 클럽 흰 통로선 원래 밝기 + 1/4 두께, 바깥 창문 80 %
+- User (shots of the white line by the VIP stair and of the street at night): "여기 흰색 선 더 얇게 하고 발광 원래 발광으로 복구 / 야외도 너무 발광 0으로 보이는데 원래 발광에서 80%만 해 봐".
+- ClubGlowDim: PassageLight (the white passage line, the vertical one by the VIP stair and the one along the ceiling) at its full colour (235) again and a quarter as thick (0.3 → 0.075); each light now has its own thinning factor (corridor floor lines stay at half).
+- SeoulNightController: lit windows at 80 % of the old colours (WINDOW_GLOW 0.3 → 0.8); at 30 % they read as unlit brown panes.
+- Play check (22:00): windows read as lit again with less bloom; PassageLight colour 235, 0.075 thick; no script errors.
+
+## D-1580 (2026-11-17) 포켓파크 공 가로등 밤 밝기 50 %
+- User (night shot of the pocket park: "이 가로등 발광도 수정햇어"). The globes (PocketPark ParkLampGlobe ×6, tag NightGlow) turn Neon at night in their cream day colour (255, 244, 220) and glared.
+- NightColor attribute (128, 122, 110) = half the day colour, set in build_hongdae_layout.lua and on the 6 globes in the place (NightGlowController already reads NightColor; the globe's SurfaceLight takes the same colour). Place change: the user saves.
+
+## D-1581 (2026-11-17) 밤 상점 유리 빛은 바깥 큰 면에만
+- User (night shot of the 국밥집 doorway glaring white): "여기 이렇게 빛나는 이유가 머야" → "응 1번 없애" (1 = the shop-glass night glow lighting the inside).
+- Cause: SeoulNightController (D-1421) put its two NightShopLight SurfaceLights on every shop pane's Front / Back faces. Panes thin along X (the 국밥집 front and many others) have their narrow edges there, so the glow ran sideways along the shop front and into the shop, onto the white floor at the door, on top of the 10 downlights; seen from outside, the night exposure / bloom blew it out.
+- Now the light goes on the pane's two big faces (by its thinnest axis), and only on the street side: the big face with no solid roof within 40 studs over a point 4 studs in front of it. Both big faces stay lit only when neither or both sides are roofed.
+- Play check (22:00): all 60 panes got one light; the 국밥집 panes light the pavement (Left face), the doorway no longer glares; no script errors.
+
+## D-1582 (2026-11-17) 클럽 복도선 흰색 · 통로선 위치 · 락커룸 선 · 벽/바닥 두 톤 · 회전컵 막대 삭제
+- User requests (relayed by the main session with screenshots): "막대 없애기" (tea cups), "여기 벽이 두 겹 같은데 흰색 조명선 오른쪽 벽에 있잖아. 왼쪽 빨간선 벽으로 이동. 복도 바닥에 노란색 흰색으로 변경", "락커룸 조명선 끊기지 않게 수정", "입구에 조명선 더 얇게 수정" (locker room door), "클럽 내부 벽과 바닥 두 톤씩 밝게".
+- Tea cup teapot spikes (SpikeGlow / SpikeTip ×24) deleted from the place; park_teacups_1115.lua no longer makes them; ParkNightController's spike code (D-1575) removed.
+- ClubGlowDim (client only):
+  - corridor floor lines (FoyerLED, CorridorNeon_E / _W, FloorLED, HallDoorFootLED) white at 50 % instead of their yellow (255, 250, 175);
+  - the vertical PassageLight moved from the hall wall's end (65.36, -273.85) onto the corridor wall Corridor_E_S's west end (66.35, -274.84), flush with the corridor face; the ceiling line across the corridor mouth moved with it (x 66.35, ends at the post);
+  - LockerRoom DoorFrameLight half as thick (0.3 → 0.15);
+  - LockerRoom WallLine floor lines 0.3 longer at each end, so the corners meet (they stopped 0.2 short);
+  - club walls (SmoothPlastic 26, 26, 29) and black marble floors (20, 20, 24) in 02_Club / ClubAnnex +22 on each channel ("two tones").
+- Play check: lines white, passage line on the corridor wall corner, locker room corners closed, door frame 0.15; no script errors. Place change (spikes): the user saves.
+
+## D-1583 (2026-11-17) VIP 계단 문틀 한 겹만
+- User (VIP stair shot, the doubled red line crossed out): "브아이피 입구 계딴 안쪽에 조명선 삭제" → shown the two frames (blue = corridor side, 02_Club VIP_GateNeon 1.0 wide at x 187.7; green = hall side, ClubAnnex VIP_GateNeon 0.4 wide at x 190.2) → "파랑 지우기. 가늘기는 유지".
+- The corridor-side frame (3 parts) is deleted from the place, and club_locker_1103.lua now destroys it instead of moving it next to the wall (chain-safe). The hall-side frame keeps its 0.4 width. Place change: the user saves.

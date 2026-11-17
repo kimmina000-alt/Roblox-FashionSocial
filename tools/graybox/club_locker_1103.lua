@@ -206,8 +206,10 @@ do
 		local dx = 189 - gate.Position.X
 		gate.CFrame = gate.CFrame + Vector3.new(dx, 0, -282.5 - gate.Position.Z)
 		for _, nn in ipairs(club:GetChildren()) do
-			if nn:IsA("BasePart") and nn.Name == "VIP_GateNeon" and nn.Position.X < 186 then
-				nn.CFrame = nn.CFrame + Vector3.new(dx - 0.7, 0, 0) -- (on the corridor face of the wall)
+			if nn:IsA("BasePart") and nn.Name == "VIP_GateNeon" and nn.Position.X < 189 then
+				-- (D-1583, user 2026-11-17: "파랑 지우기") this corridor-side frame stood right next to
+				-- the hall-side one below (x 190) and read as a doubled line: removed, the hall's stays
+				nn:Destroy()
 			end
 		end
 	end

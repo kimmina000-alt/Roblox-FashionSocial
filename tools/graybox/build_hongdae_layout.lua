@@ -4009,6 +4009,8 @@ do
 		local g = part("ParkLampGlobe", Vector3.new(1.4, 1.4, 1.4), CFrame.new(b + Vector3.new(0, 8.6, 0)), Color3.fromRGB(255, 244, 220), o(Enum.Material.SmoothPlastic, { shape = Enum.PartType.Ball, nocol = true }))
 		g:SetAttribute("NightRange", 14)
 		g:SetAttribute("NightBrightness", 1.2)
+		-- (D-1580, user 2026-11-17 with a night shot: the globes glared) at night half the day colour
+		g:SetAttribute("NightColor", Color3.fromRGB(128, 122, 110))
 		CS:AddTag(g, "NightGlow")
 	end
 	-- everything on the plaza sits on the dome (beds, their plants and the dome itself stay put)
