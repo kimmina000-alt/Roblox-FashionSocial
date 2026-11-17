@@ -5514,3 +5514,9 @@ Studio only (no script yet).
 ## D-1580 (2026-11-17) 포켓파크 공 가로등 밤 밝기 50 %
 - User (night shot of the pocket park: "이 가로등 발광도 수정햇어"). The globes (PocketPark ParkLampGlobe ×6, tag NightGlow) turn Neon at night in their cream day colour (255, 244, 220) and glared.
 - NightColor attribute (128, 122, 110) = half the day colour, set in build_hongdae_layout.lua and on the 6 globes in the place (NightGlowController already reads NightColor; the globe's SurfaceLight takes the same colour). Place change: the user saves.
+
+## D-1581 (2026-11-17) 밤 상점 유리 빛은 바깥 큰 면에만
+- User (night shot of the 국밥집 doorway glaring white): "여기 이렇게 빛나는 이유가 머야" → "응 1번 없애" (1 = the shop-glass night glow lighting the inside).
+- Cause: SeoulNightController (D-1421) put its two NightShopLight SurfaceLights on every shop pane's Front / Back faces. Panes thin along X (the 국밥집 front and many others) have their narrow edges there, so the glow ran sideways along the shop front and into the shop, onto the white floor at the door, on top of the 10 downlights; seen from outside, the night exposure / bloom blew it out.
+- Now the light goes on the pane's two big faces (by its thinnest axis), and only on the street side: the big face with no solid roof within 40 studs over a point 4 studs in front of it. Both big faces stay lit only when neither or both sides are roofed.
+- Play check (22:00): all 60 panes got one light; the 국밥집 panes light the pavement (Left face), the doorway no longer glares; no script errors.
