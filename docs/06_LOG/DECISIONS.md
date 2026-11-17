@@ -5869,3 +5869,41 @@ Studio only (no script yet).
 - 사용자: "실제 플레이에서 제작자만 한옥마을 문 막아 놓은 거 통과할 수 있게 해 줘".
 - ParkGatePassController(놀이공원 공사 문과 같은 방식, D-1531): Vantablack_Dev 화면에서만 광화문의 닫힌 문짝(GateDoorLeaf), 문 위 낮은 상인방(GateDoorHead), 뒤쪽 공사 그물(HanokHoarding NetTeal / NetBlue)이 충돌하지 않음. 다른 플레이어에게는 그대로 닫혀 있음. 문은 닫힌 모습 그대로. Studio 다인 테스트는 ParkPassTest = true.
 - Play(혼자, 제작자 계정): 광화문 앞 (128, 175)에서 마을 안 (185, 240)까지 걸어서 통과.
+
+## D-1740 한옥 벽 키트: 한 칸(한 면)씩 조립하는 벽 모듈 (2026-11-17, 후보)
+- 사용자(한옥 실내 · 마당 사진 5장, docs/04_ART/references/hanok_wall_01..05.jpg): "한옥마을에 처마 만들어서 쓴 것처럼 한옥 벽 만들어야 해. 한 면씩 만들어서 조립해서 쓸 수 있게 제작해".
+- tools/graybox/hanok_wall_kit.lua: ServerStorage.ArtAssets.HanokWallKit에 칸 모듈 7종(회벽, 회벽+창, 머름창, 띠살문, 분합문, 빗살창, 개방) + 기둥(주춧돌 포함). 기본 W 14 · H 32.2(한옥 블록 높이), 두께 T 1.2, 기둥 P 2.6. 피벗 = 벽 뒷면 아래 가운데, 앞(-Z)으로 나옴 → 블록 면에 앞을 바깥으로 놓으면 딱 붙음. 칸 - 기둥 - 칸 순서로 이어 붙임. `_G.HanokWallKit.make(kind, W, H)`로 아무 크기나.
+- 높이 비율(사진): 하방 0.05H, 중인방 0.36H, 상인방 0.70H, 창방 0.91H..H, 굵기 0.05H. 부품 수: 회벽 7, 회벽+창 21, 머름창 22, 띠살문 15, 분합문 19, 빗살창 20, 개방 3, 기둥 2.
+- 재질: MaterialVariant OHU_HanokPineV / PineH(소나무 결 세로 · 가로, 색 240,205,155 곱함), OHU_HanokPlaster(회벽). 창호지 판에 문살 텍스처(띠살 한 짝 한 장, 정자살 · 빗살은 5스터드마다 반복). 텍스처: tools/art/hanok_wall_textures.py.
+- 견본: Workspace.HanokWallKitPreview(맵 밖 x 1800), 사진 docs/06_LOG/images/2026-11-17/hanok_wall_kit_front.jpg · _angle.jpg. 사용자 고르기 대기(D-082).
+## D-1741 한옥 연못 정원: 남동쪽 필지 집을 유리 미닫이 한옥 + 연못 + 차 마시는 정자로 (2026-11-17)
+- 사용자(정원 사진 docs/04_ART/references/hanok_garden_01.webp, 필지 위에서 본 사진 hanok_lots_top_view.webp): "이런 공간 구현할 거야 어느 집에 구현하는 게 낫겠냐" → 담 안 마당이 가장 큰 아래 두 필지(126 × 194) 중 사방이 담으로 둘러싸인 오른쪽 아래(x 227..353, z 454..648) 추천 → "응 거기 지어 필요한 건 3d 만들어서 써".
+- tools/graybox/hanok_garden_1117.lua (hanok_wall_kit.lua 다음, Edit 모드, 여러 번 돌려도 같음) → Workspace.HanokGarden (부품 약 520):
+  - 집: 사용자 블록(315, 504)은 ServerStorage.ParkedHanokBlocks.Part_315_504 로, 지붕 HanokRoof_4 그대로. 기단 높이 3 + 계단 2단(투명 경사로). 벽 키트로 사면: 서쪽(연못) 유리 미닫이 4칸(가운데 2칸 반 열림), 남쪽(정자) 유리 2칸(1칸 열림), 북 · 동 회벽 + 창. 실내: 나무 바닥 · 천장 · 대들보 2, 매단 한지 등 2(빛), 동쪽 벽 책장(책 텍스처), 흰 소파 · 러그 · 낮은 탁자, 식탁 + 의자 4.
+  - 마당: 납작 돌 포장(크레이지 페이빙 텍스처) 전체, 가장자리 잔디 화단 4, 연못 2(원판을 겹친 모양, 수련 잎 · 연꽃), 남쪽 계단에서 정자까지 넓은 돌판 다리.
+  - 정자(차 마시는 마루, x 268..312, z 601..623): 돌 기단 + 마루, 벽 키트로 북 · 동 · 서 개방, 남 회벽+창, 지붕 = 집 지붕을 0.66배로 복사(긴 쪽 x), 긴 찻상 + 검은 쟁반 · 찻주전자 · 잔, 방석 4개 = Seat(앉기).
+  - 북쪽 담에 대문(x 238..250): 담 Part를 둘로 자르고(원래 담은 ParkedHanokBlocks.NorthWall_1117), 문 위 기와 모듈은 2.6 올림, 나무 기둥 · 인방 · 안쪽으로 열린 문짝 2.
+  - AI 메시(generate_mesh, place 전용 ServerStorage.ArtAssets.HanokGardenAssets): Persimmon(감나무, 2그루), RockC(매끈한 바위, 17), RockB(괴석, 3), Fern(풀숲, 26), RockA(안 씀). 관목 ArtAssets.Shrub 11.
+- 텍스처: tools/art/hanok_garden_textures.py (hg_flagstone 111631043205596, hg_books 73840800237202).
+- Play 걷기 확인: 대문 → 마당 → 서쪽 계단 → 열린 유리문으로 집 안 → 남쪽 유리문 → 돌판 다리 → 정자, 막힘 없음. 사진 docs/06_LOG/images/2026-11-17/hanok_garden_*.jpg.
+- 모두 place에만 있음(체인이 안 건드리는 Workspace 최상위 + 사용자 부품): 사용자가 장소 저장. Studio 작업용 스크립트 사본 ServerStorage.HanokDevSrc(Kit, Garden)는 게임에서 실행되지 않음.
+## D-1742 한옥 연못 정원 2차: 실제 물, 연잎, 다도세트, 도드라진 판석 (2026-11-17)
+- 사용자(연잎 사진 hanok_garden_lotus.webp, 다도세트 사진 hanok_garden_teaset.png, 전 다도세트 화면, 판석이 튀어나온 바닥 hanok_garden_raised_flagstone.png): "연잎이랑 다도세트 이미지 참고해서 다시 만들어. 연못은 실제 물 재질로 넣어 줘. 바닥에 실제로 저렇게 튀어나오는 불규칙적인 3d 이미지 하나 만들어서 바닥에 입체감 줘".
+- 물: Terrain Water. 지형 칸이 4스터드라 얇은 FillCylinder는 물이 안 생김 → 필지 안 칸에 직접 씀(WriteVoxels: 아래 칸 가득, 위 칸 0.24 = 수면 약 0.9). 수면이 바닥보다 낮아야 해서 마당 포장을 높이 1.0으로 올리고 연못 자리를 CSG로 뚫음(포장 CanCollide 끔, 대신 투명 WalkFloor 68개: 연못 안쪽만 비어 물에 들어가면 바닥 0까지 내려감). 연못 바닥은 검은 판. 물 색은 Terrain.WaterColor(바다와 같은 하늘색, 장소 전체 설정)를 따름.
+- 연잎: AI 메시 LotusFlat(물에 뜬 둥근 잎) 약 44 + LotusTall(줄기로 솟은 잎) 약 12, SurfaceAppearance로 색을 사진처럼 차분하게. 연꽃 공은 뺌.
+- 판석: AI 메시 Flagstone 하나(불규칙 다각형, 모서리 둥글게)를 크기 · 방향 제각각으로 길(대문 → 집 계단, 대문 → 정자, 정자 앞, 남쪽 계단)과 연못 둘레에 458개. 메시 텍스처를 빼고 Slate 재질, 포장 색. 충돌 없음.
+- 다도세트(찻상 위): 흰 쟁반 + 대나무 차판(홈 5줄), 크림색 점박이 도자기(SmoothPlastic + 점 텍스처 hg_speckle 126869188514605): 옆손잡이 찻주전자(부품), 숙우 · 잔 3개는 공을 CSG로 깎은 둥근 그릇(잔 2개 겹침). AI 다도세트 메시는 모양이 달라(위 손잡이, 잔 손잡이) 쓰지 않음.
+- 계단 · 대문 문턱 · 정자 계단 · 화단 · 다리 높이를 새 마당 높이에 맞춤. HanokGarden 부품 약 1,075(존 예산 1,500 안).
+- 사진: docs/06_LOG/images/2026-11-17/hanok_garden_v2_*.jpg.
+## D-1743 한옥 연못 정원 3차: 사진 돌 · 나무 텍스처, 아스팔트 마당, AI 다도세트 (2026-11-17)
+- 사용자(화강암 · 나무 사진 4장): "돌 나무 텍스처 사용. 한옥 벽 나무 부분 세 번째 첨부하는 이미지 사용해 봐. 바닥 아스팔트 재질로 바꿔 돌 만들어서 입체감 줬으니까. 다도세트 3d로 만든 거 넣어. 손잡이 있으면 왜 못 써?"
+- 벽 키트 나무(기둥 · 인방 · 문울거미 · 바닥): 세 번째 사진(hanok_wood_oak.png)을 512로 맞춰 OHU_HanokPineV(세로) / PineH(90° 돌림)의 ColorMap으로, 곱하는 색은 흰색(사진 색 그대로). 화강암 사진(hanok_stone_granite.webp)은 새 MaterialVariant OHU_HanokGranite: 주춧돌 · 기단 · 계단 · 다리 · 대문 문턱 · 도드라진 판석 458개. 네 번째 사진(hanok_wood_dark.png)은 OHU_HanokDarkV/H: 찻상 · 식탁 · 의자 · 낮은 탁자. 두 번째 사진은 스톡 사진 워터마크가 있어 쓰지 않음.
+- 마당 포장: 거리 차도와 같은 실사 아스팔트(Concrete + MaterialVariant OHU_Asphalt, 색 128,128,130), 납작 돌 텍스처는 뺌.
+- 다도세트: 손잡이 모양 때문에 빼 두었던 AI 메시를 사용자 요청대로 다시 넣음(InsertService로 업로드 id 71556407953405 / 113470511072183 / 107112482480768 → ArtAssets.HanokGardenAssets.TeaKyusu / TeaPitcher / TeaCup): 위 손잡이 주전자, 숙우, 잔 3(둘은 겹쳐) 를 대나무 차판 위에. 부품 도자기는 메시가 없을 때만.
+- 사진: docs/06_LOG/images/2026-11-17/hanok_garden_v3_*.jpg.
+## D-1744 한옥 연못 정원 4차: 바위 화강암, 벽 아래 돌 · 마당 바닥 사진 텍스처 (2026-11-17)
+- 사용자(바위 동그라미 화면 + 돌 사진 2장): "얘네도 돌 텍스처 넣어 줘. 한옥 벽에 있는 아래 돌 부분은 이 텍스처로 넣어 봐. 바닥은 세 번째 이미지".
+- 바위(AI 메시 RockC · RockB 20개): 메시 텍스처를 빼고 OHU_HanokGranite(D-1743 화강암 사진).
+- 벽 아래 돌(주춧돌 · 기단 · 계단 · 돌판 다리 · 대문 문턱 · 정자 기단): 밝은 돌 사진(hanok_stone_plinth.png) → OHU_HanokPlinth(Slate, 8스터드, 색 222,218,210). 벽 키트 주춧돌도 같이.
+- 마당 바닥: 거친 회색 돌 사진(hanok_stone_yard.webp) → OHU_HanokYard(Slate, 12스터드, 색 200,200,200). D-1743 아스팔트 대신. 판석은 화강암 그대로.
+- 사진: docs/06_LOG/images/2026-11-17/hanok_garden_v4_*.jpg.
