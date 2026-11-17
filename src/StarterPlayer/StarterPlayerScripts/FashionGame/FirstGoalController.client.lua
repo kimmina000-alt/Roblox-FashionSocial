@@ -496,7 +496,10 @@ task.spawn(function()
 		if player:GetAttribute("TourActive") or Popups.anyOpen() then calm = 0 else calm += 0.5 end
 	end
 	player:SetAttribute("NewPlayer", true) -- (D-1697: the guide's "뭘 해야 할지 모르겠어." shows this visit)
-	start()
+	-- (D-1699, user 2026-11-17: "카탈로그 이용하기->사진찍기or클럽 가기 <<- 이거 삭제해") the first goal no
+	-- longer starts: a newcomer gets the tour, the attendance window and, on asking the guide
+	-- ("뭘 해야 할지 모르겠어."), the dashed way (below). The goal's code stays for that way.
+	local _ = start
 end)
 
 -- (D-1697) the guide's "뭘 해야 할지 모르겠어.": while the goal is not running, the dashed way to the club

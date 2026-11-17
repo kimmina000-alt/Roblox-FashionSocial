@@ -82,13 +82,16 @@ local function create(className: string, props: {[string]: any}, parent: Instanc
 	return instance
 end
 
+-- (D-1699, user 2026-11-17: "투어 창에 빈 여백 너무 많아 좀 줄여") the card's height: 118 → 92 (two or three
+-- lines and the 다음 button), and 150 → 104 under a top bar button
+local CARD_H = 92
 local gui = create("ScreenGui", { Name = "FashionTourGui", ResetOnSpawn = false, DisplayOrder = 45, IgnoreGuiInset = true, Enabled = false }, playerGui)
 local card = create("Frame", {
 	Name = "TourCard", AnchorPoint = Vector2.new(0.5, 1), Position = UDim2.new(0.5, 0, 1, -96), -- (above the hotbar)
-	Size = UDim2.new(1, -40, 0, 118), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.3,
+	Size = UDim2.new(1, -40, 0, CARD_H), BackgroundColor3 = Color3.new(0, 0, 0), BackgroundTransparency = 0.3,
 }, gui)
 create("UICorner", { CornerRadius = UDim.new(0, 18) }, card)
-local cardLimit = create("UISizeConstraint", { MaxSize = Vector2.new(560 + 96, 118) }, card)
+local cardLimit = create("UISizeConstraint", { MaxSize = Vector2.new(560 + 96, CARD_H) }, card)
 create("UIStroke", { Color = Color3.new(1, 1, 1), Thickness = 2, Transparency = 0.2 }, card)
 -- (D-1692, user 2026-11-17: "안내원 토끼가 인사하는 모션으로 상반신만 보이게 텍스트 왼쪽에 넣어서 안내원 토끼가
 -- 말하는 것처럼") the guide rabbit waving at the card's left (GuideSpeaker); the text starts after it
@@ -131,7 +134,7 @@ create("UICorner", { CornerRadius = UDim.new(0, 12) }, nextButton)
 -- 건너뛰기 inside the card (above it would sit on the bar); other steps: at the bottom as before
 local pointer = NearButton.pointer(card)
 local answer = false -- (D-1694: this card asks yes / no: 아니, 괜찮아! beside 응!)
-local NEAR_W, NEAR_H = 330 + 96, 150 -- (+96: the guide at the left, D-1692)
+local NEAR_W, NEAR_H = 330 + 96, 104 -- (+96: the guide at the left, D-1692; 150 high until D-1699)
 local function cardAt(nearButton: boolean)
 	if nearButton then
 		cardLimit.MaxSize = Vector2.new(560 + 96, NEAR_H)
@@ -139,14 +142,16 @@ local function cardAt(nearButton: boolean)
 		skip.AnchorPoint = Vector2.new(0, 1)
 		skip.Position = UDim2.new(0, 12, 1, -12)
 	else
-		cardLimit.MaxSize = Vector2.new(560 + 96, 118)
+		cardLimit.MaxSize = Vector2.new(560 + 96, CARD_H)
 		card.AnchorPoint = Vector2.new(0.5, 1)
 		card.Position = UDim2.new(0.5, 0, 1, -96)
-		card.Size = UDim2.new(1, -40, 0, 118)
+		card.Size = UDim2.new(1, -40, 0, CARD_H)
 		skip.AnchorPoint = Vector2.new(1, 1)
 		skip.Position = UDim2.new(1, -8, 0, -6)
 		pointer.Visible = false
 	end
+	-- (D-1699) under a top bar button 건너뛰기 sits in the card's bottom left: the words stop above it
+	body.Size = UDim2.new(body.Size.X.Scale, body.Size.X.Offset, 1, if nearButton then -54 else -24)
 	if answer then
 		skip.AnchorPoint = Vector2.new(1, 1)
 		skip.Position = UDim2.new(1, -12 - 96 - 8, 1, -12)
@@ -238,8 +243,8 @@ local step = 0
 title.Visible = false
 local function layoutText(withSpeaker: boolean)
 	local left = if withSpeaker then SPEAKER + 10 else 18
-	body.Position = UDim2.fromOffset(left, 14)
-	body.Size = UDim2.new(1, -(left + 120), 1, -28)
+	body.Position = UDim2.fromOffset(left, 12)
+	body.Size = UDim2.new(1, -(left + 120), 1, -24)
 	speaker.Visible = withSpeaker
 end
 local SKIP_TEXT = skip.Text
@@ -254,6 +259,8 @@ local function show()
 	-- left of 응! at the bottom right, in the card (the usual 건너뛰기 rides above the card's corner)
 	answer = s.no ~= nil
 	skip.Text = s.no or SKIP_TEXT
+	-- (D-1699, user 2026-11-17: "마지막에는 끝났으니까 건너뛰기 삭제") the last card has only 놀러가기
+	skip.Visible = s.done == nil
 	if s.eye and s.look then
 		flyTo(s.eye, s.look, s.path, s.fov)
 	elseif camera.CameraType == Enum.CameraType.Scriptable then
