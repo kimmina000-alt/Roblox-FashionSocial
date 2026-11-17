@@ -3993,3 +3993,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 ## 2026-11-18 Unbelievable-H1 KEY 안무 (D-1672)
 - 사용자: "언벌리버블 안무 추가" + id 16개, 2 · 5번은 복사본이라 다시 받음. 영상 = 노래 + 1.15초, fileSpeed 1.0499로 맞춤.
 - 이음새 blend · slowIn, 미끄러짐 + 순간이동, 정면 7조각, 고개 8구간, 손목 7구간(16번은 부호 뒤집음), Play 전체 스캔 · 몸 바꾸기 확인. 손목 모델 파일을 models 폴더에 받음. 자세한 숫자: DECISIONS D-1672.
+
+## 2026-11-18 무대 카메라 4곡 (D-1770)
+- 사용자가 보낸 무대 영상 4개를 D:\Roblox\영상\<곡>_stage\stage.mp4로 받음(Boogie Woogie는 403이 나서 형식을 바꿔 다시 받음).
+- 원곡 mp3와 맞춘 시작점: With +4.70, Call My Name -0.30, Boogie Woogie +17.15, Unbelievable +0.10초.
+- shots_to_lua.py로 63 / 95 / 108 / 78샷. 브랜치 feat/stage-camera-4songs-1118. 다음: Studio 반영, 모바일 2인 테스트.

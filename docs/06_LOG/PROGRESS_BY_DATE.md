@@ -939,3 +939,4 @@
 - 2026-11-18: Boogie Woogie-NCT DREAM 안무 22조각 + 회전 · 정면 · 손목 (D-1670, 4번 업로드 · 9번 재업로드 필요).
 - 2026-11-18: Boogie Woogie 4 · 9번 채움, 안무 24조각 (D-1671).
 - 2026-11-18: Unbelievable-H1 KEY 안무 16조각 + 정면 · 고개 · 손목, fileSpeed 1.0499 (D-1672).
+- 2026-11-18: 무대 카메라 4곡: With, Call My Name, Boogie Woogie, Unbelievable (D-1770).

@@ -5972,3 +5972,11 @@ Studio only (no script yet).
 - 다른 플레이어 카드(DanceController) 아래 "🎁 선물하기" 줄: 🛡 가드권 · 💎 VIP권 · 🎧 DJ권(GiftPassCard). 누르면 서버에 받는 사람을 먼저 알림("GiftTarget": 같은 서버, 본인 아님, 이미 가진 패스면 거절) → 선물 상품 결제.
 - GiftPassService: 결제되면 가드 / VIP는 받는 사람 wallet.gifted에 저장 + 패스 가진 것으로(MonetizationService.GrantGiftedPass, 접속할 때마다 다시 켬), DJ는 받는 사람 DJ 시간 30분(DjService.AddTime). 둘 다 알림. 결제 사이 받는 사람이 나가면 다음 접속 때 받음(DataStore PassGifts_v1, Studio에서는 안 씀). 받을 사람 기록이 없으면(서버 재시작) 산 사람이 받음.
 - 사용자 할 일: Creator Dashboard(경험 10773076711)에 상품 3개 만들고 id를 알려 주기 → MonetizationConfig id 채움.
+
+## D-1770 무대 카메라 4곡: With, Call My Name, Boogie Woogie, Unbelievable (2026-11-18)
+- 사용자가 무대 영상 4개를 보냄. 원곡 mp3 소리를 무대 소리에 맞춰 시작점을 정함(10초 창마다 같은 값).
+- RESCENE-With: 음악중심 11-07(_XhBc88qS_E), 영상 = 노래 + 4.70초, 63샷, 노래 끝 189.0초.
+- TWS-Call My Name: 음악중심 11-14(DDNgdxLeNzE), 영상 = 노래 - 0.30초, 95샷, 노래 끝 165.0초.
+- NCT DREAM-Boogie Woogie: 인기가요 11-15(_PPPSs8FOmo), 영상 = 노래 + 17.15초, 108샷, 노래 끝 196.0초.
+- H1-KEY-Unbelievable: 인기가요 11-15(Rhhx_sDc3hc), 영상 = 노래 + 0.10초, 78샷, 노래 끝 135.3초(fileSpeed 1.0499, D-1672).
+- 샷 목록은 shots_to_lua.py(D-944). ClubCamera.Songs[112509101263761 / 129638210426239 / 102947379971628 / 81736514719301].
