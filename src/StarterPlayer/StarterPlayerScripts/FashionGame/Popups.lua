@@ -60,11 +60,11 @@ do
 		end
 		return false
 	end
-	local downs: {[InputObject]: { t: number, p: Vector3 }} = {}
+	local downs: {[InputObject]: { t: number, p: Vector3, open: Entry }} = {}
 	UserInputService.InputBegan:Connect(function(input)
 		local t = input.UserInputType
 		if current and (t == Enum.UserInputType.MouseButton1 or t == Enum.UserInputType.Touch) then
-			downs[input] = { t = os.clock(), p = input.Position }
+			downs[input] = { t = os.clock(), p = input.Position, open = current :: Entry }
 		end
 	end)
 	UserInputService.InputEnded:Connect(function(input)
@@ -72,6 +72,10 @@ do
 		downs[input] = nil
 		local open = current
 		if not d or not open then return end
+		-- (D-1763, user 2026-11-18: "춤추는 중에 불꽃판매원 누르면 자꾸 창 꺼짐") only the window that was open when the
+		-- tap began: a tap that itself opened a window (a ProximityPrompt, drawn outside PlayerGui, pressed
+		-- with the dance window open) closed the new window again as it lifted
+		if open ~= d.open then return end
 		if os.clock() - d.t > 0.4 or (input.Position - d.p).Magnitude > 12 then return end
 		local Hotbar = script.Parent:FindFirstChild("Hotbar")
 		if Hotbar then
