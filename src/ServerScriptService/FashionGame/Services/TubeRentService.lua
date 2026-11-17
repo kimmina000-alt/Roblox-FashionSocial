@@ -3,13 +3,12 @@
 -- The heap of rings by the beach map (Workspace.Hongdae_Layout.BeachTubePile, tag "TubePile",
 -- tools/graybox/beach_tube_pile_1117.lua) gets a prompt. It gives a ring to carry: a Tool "🛟 튜브"
 -- held at the hand (free, one each).
--- (D-1591, user 2026-11-17: "바다에서 타기 / 내려놓기·다시 들기 / 친구에게 주기 / 반납하기 전부 구현")
---   * 바다에서 타기: walking into the sea holding it (TubeCarryController, "Float") puts the ring on the
---     water where you are, as a floating tube (tag FloatTube, the beach tubes' code: bobbing, paddling,
---     bumping) and you get in it (the client boards it). Getting off leaves it floating there.
---   * 내려놓기 / 다시 들기: a tap with the ring in hand (not on a person) puts it down in front of you: on
---     the water it floats (a FloatTube anyone may ride), on the sand it lies flat. A "튜브 들기" prompt on a
---     put-down ring gives it back to carry (not while someone rides it; you hold one at most).
+-- (D-1591, user 2026-11-17: "바다에서 타기 / 내려놓기·다시 들기 / 친구에게 주기 / 반납하기 전부 구현";
+-- changed by D-1654 / D-1655, user 2026-11-17)
+--   * 띄우기: holding the ring, a tap on the sea (TubeCarryController, "PutDown" with the tapped point)
+--     puts it on the water there as a floating tube (tag FloatTube, the beach tubes' code: bobbing,
+--     paddling, bumping) that anyone rides with "튜브 타기". Only on the water, only by a tap.
+--   * no "튜브 들기" on a ring put down (D-1655).
 --   * 친구에게 주기: GiveService hands the ring over like the other items (CarryTube).
 --   * 반납하기: at the heap, holding a ring, the prompt reads "튜브 반납" (TubeCarryController) and takes it.
 -- A player has one ring at most (carried or put down): taking another puts the old one away. Rings put
@@ -24,7 +23,6 @@ local TubeRentService = {}
 
 local TOOL_NAME = "🛟 튜브"
 local YELLOW = Color3.fromRGB(255, 205, 20)
-local AHEAD = 3.5 -- studs in front of you a ring is put down
 
 local placed: {[Player]: Model} = {} -- the ring each player put down
 
@@ -65,7 +63,7 @@ local function makeTool(player: Player): Tool?
 	if not template then return nil end
 	local tool = Instance.new("Tool")
 	tool.Name = TOOL_NAME
-	tool.ToolTip = "튜브 (누르면 내려놓기)"
+	tool.ToolTip = "튜브 (바다를 누르면 띄워요)"
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool:SetAttribute("CarryTube", true)
@@ -116,38 +114,8 @@ local function waterAt(at: Vector3): number?
 	return nil
 end
 
--- the ground under `at` (not characters, not rings)
-local function groundAt(at: Vector3, skip: {Instance}): Vector3?
-	local params = RaycastParams.new()
-	params.FilterType = Enum.RaycastFilterType.Exclude
-	params.FilterDescendantsInstances = skip
-	local hit = workspace:Raycast(at + Vector3.new(0, 4, 0), Vector3.new(0, -14, 0), params)
-	return hit and hit.Position
-end
-
-local function addPickPrompt(model: Model, ring: BasePart)
-	local prompt = Instance.new("ProximityPrompt")
-	prompt.Name = "TubePickPrompt"
-	prompt.ActionText = "튜브 들기"
-	prompt.ObjectText = "튜브"
-	prompt.HoldDuration = 0
-	prompt.MaxActivationDistance = 9
-	prompt.RequiresLineOfSight = false
-	prompt.Parent = ring
-	prompt.Triggered:Connect(function(player: Player)
-		if model:GetAttribute("Rider") ~= nil or not model.Parent then return end
-		if owned(player) then return end
-		for p, m in pairs(placed) do
-			if m == model then placed[p] = nil end
-		end
-		model:Destroy()
-		give(player)
-	end)
-	-- not while someone sits in it
-	model:GetAttributeChangedSignal("Rider"):Connect(function()
-		prompt.Enabled = model:GetAttribute("Rider") == nil
-	end)
-end
+-- (D-1655, user 2026-11-17: "튜브 들기 삭제") a ring put down is not picked up again: no "튜브 들기"
+-- prompt on it (it stays until its owner takes another ring at the heap or leaves)
 
 -- a ring put down by `player`: floating at `waterY`, or lying at `ground`
 local function place(player: Player, at: Vector3, waterY: number?): Model?
@@ -176,39 +144,29 @@ local function place(player: Player, at: Vector3, waterY: number?): Model?
 		ring.CFrame = CFrame.new(at + Vector3.new(0, ring.Size.Y / 2, 0)) * CFrame.Angles(0, math.random() * 6.28, 0)
 		ring.Parent = model
 	end
-	addPickPrompt(model, ring)
 	model.Parent = workspace
 	placed[player] = model
 	return model
 end
 
-local function putDown(player: Player, tool: Tool)
+-- (D-1654, user 2026-11-17: "튜브 들고 바다 가서 물 클릭해야 튜브 놔지게 수정") the ring goes down only
+-- where the holder taps the sea: a tapped point on the water within TAP_REACH studs of them; it floats
+-- there (a FloatTube anyone may ride, "튜브 타기"). Nothing happens on sand or anywhere else, and
+-- walking into the sea no longer puts it on the water by itself.
+local TAP_REACH = 30
+local function putDown(player: Player, tool: Tool, at: any): (boolean, string?)
 	local root = rootOf(player)
-	if not root or owned(player) ~= tool then return end
-	local look = Vector3.new(root.CFrame.LookVector.X, 0, root.CFrame.LookVector.Z)
-	if look.Magnitude < 0.1 then look = Vector3.new(0, 0, -1) end
-	local at = root.Position + look.Unit * AHEAD
-	local waterY = waterAt(at)
-	local spot = at
-	if not waterY then
-		local ground = groundAt(at, { player.Character :: Instance })
-		if not ground then return end
-		spot = ground
+	if not root or owned(player) ~= tool then return false, nil end
+	if typeof(at) ~= "Vector3" or (at - root.Position).Magnitude > TAP_REACH then
+		return false, "바다(물)를 눌러 튜브를 띄워요."
 	end
-	if place(player, spot, waterY) then tool:Destroy() end
-end
-
--- in the sea holding the ring: it goes on the water where you are, and the client gets in
-local function float(player: Player): (boolean, any)
-	local root = rootOf(player)
-	local tool = owned(player)
-	if not root or not tool then return false, nil end
-	local waterY = waterAt(root.Position)
-	if not waterY then return false, nil end
-	local model = place(player, root.Position, waterY)
-	if not model then return false, nil end
-	tool:Destroy()
-	return true, model
+	local waterY = waterAt(at)
+	if not waterY then return false, "바다(물)를 눌러 튜브를 띄워요." end
+	if place(player, at, waterY) then
+		tool:Destroy()
+		return true, nil
+	end
+	return false, nil
 end
 
 local function addPile(pile: Instance)
@@ -244,12 +202,11 @@ function TubeRentService.Start()
 		remote.Name = "TubeRent"
 		remote.Parent = remotes
 	end
-	(remote :: RemoteFunction).OnServerInvoke = function(player: Player, action: any)
-		if action == "Float" then return float(player) end
+	(remote :: RemoteFunction).OnServerInvoke = function(player: Player, action: any, payload: any)
 		if action == "PutDown" then
 			local tool = owned(player)
-			if tool and player.Character and tool.Parent == player.Character then putDown(player, tool) end
-			return true, nil
+			if tool and player.Character and tool.Parent == player.Character then return putDown(player, tool, payload) end
+			return false, nil
 		end
 		return false, nil
 	end
