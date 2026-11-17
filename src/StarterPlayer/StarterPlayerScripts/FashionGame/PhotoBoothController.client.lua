@@ -1593,6 +1593,7 @@ local function saveFramedPhoto(draw: (holder: Frame) -> (), layoutKey: string?):
 	local oldOrientation = playerGui.ScreenOrientation
 	local turned = false
 	local wantPortrait: boolean? = nil
+	local wasPortrait = false
 	local cam = workspace.CurrentCamera
 	if game:GetService("UserInputService").TouchEnabled and cam then
 		local okA, a = pcall(PhotoRender.stripAspect, layoutKey or "1x4")
@@ -1603,6 +1604,7 @@ local function saveFramedPhoto(draw: (holder: Frame) -> (), layoutKey: string?):
 		local standing = math.min(L, S / aspect) * aspect
 		wantPortrait = standing > lying * 1.02
 		local isPortrait = vp.Y > vp.X
+		wasPortrait = isPortrait
 		if wantPortrait ~= isPortrait then
 			turned = pcall(function()
 				playerGui.ScreenOrientation = if wantPortrait then Enum.ScreenOrientation.Portrait else Enum.ScreenOrientation.LandscapeSensor
@@ -1622,7 +1624,15 @@ local function saveFramedPhoto(draw: (holder: Frame) -> (), layoutKey: string?):
 		done = true
 		for _, other in ipairs(hidden) do if other.Parent then other.Enabled = true end end
 		sheet:Destroy()
-		if turned then pcall(function() playerGui.ScreenOrientation = oldOrientation end) end
+		if turned then
+			-- back the way the player held it first (Sensor alone may stay turned), then their own setting
+			pcall(function()
+				playerGui.ScreenOrientation = if wasPortrait then Enum.ScreenOrientation.Portrait else Enum.ScreenOrientation.LandscapeSensor
+			end)
+			task.delay(1.5, function()
+				pcall(function() playerGui.ScreenOrientation = oldOrientation end)
+			end)
+		end
 		savingSheet = false
 	end
 	task.spawn(function()
