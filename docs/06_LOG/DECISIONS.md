@@ -5531,3 +5531,7 @@ Studio only (no script yet).
   - LockerRoom WallLine floor lines 0.3 longer at each end, so the corners meet (they stopped 0.2 short);
   - club walls (SmoothPlastic 26, 26, 29) and black marble floors (20, 20, 24) in 02_Club / ClubAnnex +22 on each channel ("two tones").
 - Play check: lines white, passage line on the corridor wall corner, locker room corners closed, door frame 0.15; no script errors. Place change (spikes): the user saves.
+
+## D-1583 (2026-11-17) VIP 계단 문틀 한 겹만
+- User (VIP stair shot, the doubled red line crossed out): "브아이피 입구 계딴 안쪽에 조명선 삭제" → shown the two frames (blue = corridor side, 02_Club VIP_GateNeon 1.0 wide at x 187.7; green = hall side, ClubAnnex VIP_GateNeon 0.4 wide at x 190.2) → "파랑 지우기. 가늘기는 유지".
+- The corridor-side frame (3 parts) is deleted from the place, and club_locker_1103.lua now destroys it instead of moving it next to the wall (chain-safe). The hall-side frame keeps its 0.4 width. Place change: the user saves.
