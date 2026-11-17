@@ -75,6 +75,12 @@ end
 -- a tool that turned up: the first empty slot, unless stowed or the bar is full
 function Hotbar.adopt(tool: Tool)
 	if stowed[tool] or Hotbar.indexOf(tool) then return end
+	-- (D-1739) junk taken from a trash can goes into the 🎒 bag, not the bar (drag it out to hold it)
+	if tool:GetAttribute("Junk") then
+		stowed[tool] = true
+		Hotbar.changed:Fire()
+		return
+	end
 	for i = 1, Hotbar.count() do
 		if not Hotbar.get(i) then
 			slots[i] = tool

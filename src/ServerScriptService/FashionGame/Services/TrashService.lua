@@ -198,8 +198,8 @@ local function take(player: Player, canValue: any, item: any): (boolean, string?
 	item:SetAttribute("TrashedAt", nil)
 	item:SetAttribute("TrashedBy", nil)
 	item.Parent = backpack
-	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
-	if humanoid then humanoid:EquipTool(item) end
+	-- (D-1739, user 2026-11-18: "쓰레기통에서 주운 쓰레기 인벤토리에 들어가게 해") not into the hand any more: into the
+	-- 🎒 bag (the Hotbar keeps junk out of the bar, Hotbar.adopt)
 	bump(part)
 	-- (D-1311) the whole server sees who took what
 	if notice then notice:FireAllClients(player.DisplayName, item.Name) end

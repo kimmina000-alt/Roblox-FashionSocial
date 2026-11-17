@@ -699,6 +699,17 @@ local function guardNear(target: Player): boolean
 	return mine ~= nil and theirs ~= nil and (mine.Position - theirs.Position).Magnitude <= GUARD_REACH + 8
 end
 
+-- (D-1760, user 2026-11-18: "클럽 밖에서도 플레이어 누르면 따라추기 뜨게 해") outside the club too: a player within
+-- ClubConfig.JoinRadius (the server's own limit for 같이 추기) opens their card with 💃 같이 추기, unless this
+-- player holds an item (a tap on a player then is 🎁 주기 / the friend bar, GiveController)
+local function nearForJoin(target: Player): boolean
+	local mine, theirs = rootOf(player.Character), rootOf(target.Character)
+	return mine ~= nil and theirs ~= nil and (mine.Position - theirs.Position).Magnitude <= ClubConfig.JoinRadius
+end
+local function holdingTool(): boolean
+	return player.Character ~= nil and player.Character:FindFirstChildOfClass("Tool") ~= nil
+end
+
 local function joinedPlayer(): Player?
 	local character = player.Character
 	local joined = character and character:GetAttribute("DanceJoined")
@@ -1115,7 +1126,8 @@ local function refreshCard()
 	if not target then return end
 	local character = target.Character
 	local bothIn = character ~= nil and inClub(character) and inClub(player.Character)
-	if not target.Parent or not character or not (bothIn or guardNear(target)) then
+	local canJoin = bothIn or (character ~= nil and nearForJoin(target)) -- (D-1760)
+	if not target.Parent or not character or not (canJoin or guardNear(target)) then
 		closeCard()
 		return
 	end
@@ -1128,11 +1140,11 @@ local function refreshCard()
 	cardJoin.Text = if together then "같이 추기 해제" else "💃 같이 추기"
 	cardJoin.BackgroundColor3 = if together then COLORS.accent else COLORS.join
 	local amDJ = FashionGame:GetAttribute("ClubDJ") == player.UserId and bothIn
-	cardJoin.Visible = bothIn
+	cardJoin.Visible = canJoin
 	cardInvite.Visible = amDJ
 	local amGuard = player:GetAttribute("Pass_Guard") == true and target:GetAttribute("Pass_Guard") ~= true
 	cardGuard.Visible = amGuard
-	local y = if bothIn then 120 else 78
+	local y = if canJoin then 120 else 78
 	if amDJ then cardInvite.Position = UDim2.fromOffset(10, y) y += 40 end
 	cardGuard.Position = UDim2.fromOffset(10, y)
 	if amGuard then y += 40 end
@@ -1257,9 +1269,9 @@ UserInputService.InputEnded:Connect(function(input, processed)
 	local position = Vector2.new(input.Position.X, input.Position.Y)
 	if (position - press.position).Magnitude > 12 or os.clock() - press.time > 0.45 then return end
 	local here = inClub(player.Character)
-	if not here and player:GetAttribute("Pass_Guard") ~= true then return end
 	local target = playerAt(position)
-	if target and ((here and inClub(target.Character)) or guardNear(target)) then
+	-- (D-1760) outside the club: a near player's card too (not while holding an item)
+	if target and ((here and inClub(target.Character)) or guardNear(target) or (not here and not holdingTool() and nearForJoin(target))) then
 		openCard(target)
 	elseif playerCard.Visible then
 		closeCard()
@@ -1280,7 +1292,7 @@ task.spawn(function()
 		local here = inClub(player.Character)
 		if here ~= wasInClub then
 			wasInClub = here
-			if not here and not (cardTarget and guardNear(cardTarget)) then closeCard() end
+			if not here and not (cardTarget and (guardNear(cardTarget) or nearForJoin(cardTarget))) then closeCard() end
 		end
 		if playerCard.Visible then refreshCard() end
 	end
