@@ -5857,3 +5857,6 @@ Studio only (no script yet).
 ## D-1731 Studio에서는 투어 · 출석 창이 저절로 안 뜸 (2026-11-18)
 - 사용자: "스튜디오에 튜토리얼이랑 출석 체크 이벤트 띄우지 마 실제로 플레이어들한테는 사용해야 함".
 - TourController / OpeningEventController: Studio에서는 FirstGoalTest가 켜져 있을 때만 저절로 뜸(테스트 플레이어는 매번 새 사람이고, Studio는 출석 창 본 날을 저장하지 않아 매 Play마다 떴음). 🎁 버튼과 안내원 "동네 둘러보기 다시 보기"는 그대로. 라이브 서버는 변화 없음. Studio의 FirstGoalTest 속성은 지움.
+## D-1732 Studio 테스트용 스포너: 한옥 마을 입구 안 (2026-11-18)
+- 사용자: "테스트용 스포너 한옥 마을 입구 안에 만들어줘".
+- ServerScriptService/FashionGame/StudioTestSpawn.server.lua: Studio Play에서만, ReplicatedStorage.FashionGame 속성 StudioTestSpawn = true면 모든 캐릭터가 광화문 바로 안쪽 마당(178, 5, 230)에 마을 쪽을 보고 나옴. 라이브 서버는 아무것도 안 함. 속성을 지우거나 false로 하면 원래 스포너(안내원 옆). Studio 속성은 켜 둠. 사진: docs/06_LOG/images/2026-11-18/studio_test_spawn_hanok.jpg.
