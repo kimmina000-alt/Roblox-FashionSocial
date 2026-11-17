@@ -417,6 +417,8 @@ local queueBox = create("ScrollingFrame", {
 }, panel)
 corner(queueBox, 8)
 create("UIPadding", { PaddingTop = UDim.new(0, 4), PaddingBottom = UDim.new(0, 4), PaddingLeft = UDim.new(0, 6), PaddingRight = UDim.new(0, 6) }, queueBox)
+-- (D-1761) the next songs are rows under the label (the DJ's rows end in a − button)
+create("UIListLayout", { SortOrder = Enum.SortOrder.LayoutOrder, Padding = UDim.new(0, 2) }, queueBox)
 local queueLabel = create("TextLabel", {
 	Name = "QueueLabel",
 	Size = UDim2.new(1, -4, 0, 0),
@@ -966,14 +968,40 @@ local function refresh()
 	local screenOn = FashionGame:GetAttribute("ClubDJScreen") ~= false
 	screenButton.Text = if screenOn then "📺 전광판 ON" else "📺 전광판 OFF"
 	screenButton.BackgroundColor3 = if screenOn then COLORS.dj else COLORS.card
-	local lines = {}
-	for position, entry in ipairs(requests()) do
-		local queued = ClubConfig.Playlist[entry.i]
-		if queued then -- (D-940: all of them; the box scrolls)
-			table.insert(lines, string.format("%d. %s · %s", position, ClubConfig.showTitle(queued, 13), ClubConfig.escapeRich(nameOf(entry.u))))
+	-- (D-1761, user 2026-11-18: "디제이는 다음곡 리스트에서 노래 뺄 수 있게 끝에 - 추가") one row per song; the DJ's
+	-- rows end in a − button (ClubService "Unqueue"). Rebuilt only when the list or the DJ changes.
+	local list = requests()
+	local key = (if dj then "dj" else "") .. HttpService:JSONEncode(list)
+	if queueBox:GetAttribute("Key") ~= key then
+		queueBox:SetAttribute("Key", key)
+		for _, child in ipairs(queueBox:GetChildren()) do
+			if child.Name == "QueueRow" then child:Destroy() end
 		end
+		local shown = 0
+		for position, entry in ipairs(list) do
+			local queued = ClubConfig.Playlist[entry.i]
+			if queued then -- (D-940: all of them; the box scrolls)
+				shown += 1
+				local row = create("Frame", { Name = "QueueRow", LayoutOrder = position, Size = UDim2.new(1, -4, 0, 20), BackgroundTransparency = 1 }, queueBox)
+				create("TextLabel", {
+					Size = UDim2.new(1, if dj then -30 else 0, 1, 0), BackgroundTransparency = 1,
+					TextXAlignment = Enum.TextXAlignment.Left, TextTruncate = Enum.TextTruncate.AtEnd,
+					TextColor3 = COLORS.sub, TextSize = 13, RichText = true, Font = Enum.Font.GothamMedium,
+					Text = string.format("%d. %s · %s", position, ClubConfig.showTitle(queued, 13), ClubConfig.escapeRich(nameOf(entry.u))),
+				}, row)
+				if dj then
+					local minus = create("TextButton", {
+						Name = "Remove", AnchorPoint = Vector2.new(1, 0.5), Position = UDim2.new(1, 0, 0.5, 0), Size = UDim2.fromOffset(24, 18),
+						BackgroundColor3 = COLORS.card, Text = "−", TextColor3 = COLORS.text, TextSize = 16, Font = Enum.Font.GothamBold,
+						AutoButtonColor = true,
+					}, row)
+					corner(minus, 6)
+					minus.Activated:Connect(function() call("Unqueue", { p = position, i = entry.i }) end)
+				end
+			end
+		end
+		queueLabel.Text = if shown > 0 then "다음 곡" else "다음 곡: 자동 재생"
 	end
-	queueLabel.Text = if #lines > 0 then "다음 곡\n" .. table.concat(lines, "\n") else "다음 곡: 자동 재생"
 end
 
 local openedAt: Vector3? = nil
