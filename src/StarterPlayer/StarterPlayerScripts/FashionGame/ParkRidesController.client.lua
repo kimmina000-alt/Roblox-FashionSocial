@@ -848,9 +848,11 @@ local firstPerson = false
 -- (D-1520, user: "관람차 1인칭 시점하면 관람차 기둥 보이는데 1인칭 시점에서 기둥 안 보이게") in first person
 -- in a cabin, the wheel's frame (spokes, legs and their stars, hub, axle, bearings, the cabins' hangers)
 -- is hidden on this screen only; the cabins, the rim and its lights stay
+-- (D-1590, user 2026-11-17: "관람차 이제 기둥이랑 안 겹치니까 기둥 보이는 걸로 수정") the cabins hang outside
+-- the wheel now (D-1565), clear of the legs: the legs, their stars and the bearings stay in view
 local WHEEL_FRAME = {
-	Spoke = true, Support = true, LegBand = true, LegFoot = true, LegBar = true, Bearing = true, Axle = true,
-	Hub = true, HubWindow = true, HangRod = true, Hanger = true, StarPiece = true, StarMiddle = true,
+	Spoke = true, Axle = true,
+	Hub = true, HubWindow = true, HangRod = true, Hanger = true,
 	-- (D-1546, user 2026-11-16, first-person screenshots at night: "관람차 1인칭 시점에 관람차 기둥 안 보이게
 	-- 하지 않았어?") the rim and its lights too: at night they glow (ParkNightController) and the big
 	-- neon bars filled the view

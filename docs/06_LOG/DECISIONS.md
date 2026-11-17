@@ -5540,3 +5540,6 @@ Studio only (no script yet).
 ## D-1583 (2026-11-17) VIP 계단 문틀 한 겹만
 - User (VIP stair shot, the doubled red line crossed out): "브아이피 입구 계딴 안쪽에 조명선 삭제" → shown the two frames (blue = corridor side, 02_Club VIP_GateNeon 1.0 wide at x 187.7; green = hall side, ClubAnnex VIP_GateNeon 0.4 wide at x 190.2) → "파랑 지우기. 가늘기는 유지".
 - The corridor-side frame (3 parts) is deleted from the place, and club_locker_1103.lua now destroys it instead of moving it next to the wall (chain-safe). The hall-side frame keeps its 0.4 width. Place change: the user saves.
+
+## D-1590 (2026-11-17) 관람차 1인칭에서 기둥 보이기
+- User: "관람차 이제 기둥이랑 안 겹치니까 기둥 보이는 걸로 수정". Since D-1565 the cabins hang outside the wheel, clear of the legs: ParkRidesController WHEEL_FRAME no longer hides the legs (Support, LegBand, LegFoot, LegBar), their stars (StarPiece, StarMiddle) or the bearings in first person; the spokes, hub, rim, lights and cabin brackets stay hidden. (D-1590 taken out of order: the feedback session counts from D-1579.)
