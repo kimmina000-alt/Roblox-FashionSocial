@@ -39,11 +39,19 @@ local gui = create("ScreenGui", { Name = "FashionMenuGui", ResetOnSpawn = false,
 local catcher = create("TextButton", { Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "", AutoButtonColor = false }, gui)
 catcher.Activated:Connect(function() TopBar.setOpen(false) end)
 
-local card = create("Frame", { AnchorPoint = Vector2.new(1, 0), Size = UDim2.fromOffset(210, 0), AutomaticSize = Enum.AutomaticSize.Y, BackgroundColor3 = Color3.fromRGB(18, 18, 22), BackgroundTransparency = 0.05 }, gui)
-create("UICorner", { CornerRadius = UDim.new(0, 16) }, card)
-create("UIStroke", { Color = Color3.new(1, 1, 1), Transparency = 0.75, Thickness = 1 }, card)
+-- (D-1720, user 2026-11-18: "메뉴 길어서 아래 안 보이는 곳 드래그해서 올릴 수 있도록 수정") the window (panel) is as
+-- high as its rows but never past the screen's bottom; the rows sit in a ScrollingFrame (card) inside it,
+-- so on a short phone screen a drag brings the lower rows up
+local panel = create("Frame", { AnchorPoint = Vector2.new(1, 0), Size = UDim2.fromOffset(210, 0), BackgroundColor3 = Color3.fromRGB(18, 18, 22), BackgroundTransparency = 0.05, ClipsDescendants = true }, gui)
+create("UICorner", { CornerRadius = UDim.new(0, 16) }, panel)
+create("UIStroke", { Color = Color3.new(1, 1, 1), Transparency = 0.75, Thickness = 1 }, panel)
+local card = create("ScrollingFrame", {
+	Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, BorderSizePixel = 0, CanvasSize = UDim2.new(),
+	AutomaticCanvasSize = Enum.AutomaticSize.Y, ScrollingDirection = Enum.ScrollingDirection.Y,
+	ScrollBarThickness = 3, ScrollBarImageColor3 = Color3.new(1, 1, 1), ScrollBarImageTransparency = 0.5,
+}, panel)
 create("UIPadding", { PaddingLeft = UDim.new(0, 12), PaddingRight = UDim.new(0, 12), PaddingTop = UDim.new(0, 8), PaddingBottom = UDim.new(0, 8) }, card)
-create("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, card)
+local listLayout = create("UIListLayout", { Padding = UDim.new(0, 4), SortOrder = Enum.SortOrder.LayoutOrder }, card)
 
 local function row(order: number, height: number?): TextButton
 	local b = create("TextButton", { Size = UDim2.new(1, 0, 0, height or 42), BackgroundTransparency = 1, Text = "", AutoButtonColor = false, LayoutOrder = order }, card)
@@ -105,7 +113,8 @@ do
 	local HideUi = require(script.Parent:WaitForChild("HideUi"))
 	local b = row(9)
 	create("TextLabel", {
-		Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "🙈 UI 숨기기", Font = Enum.Font.GothamBold, TextSize = 15,
+		-- (D-1721, user 2026-11-18: "UI 숨기기 앞에 원숭이 말고 눈 이모지로 수정") 🙈 → 👁
+		Size = UDim2.fromScale(1, 1), BackgroundTransparency = 1, Text = "👁 UI 숨기기", Font = Enum.Font.GothamBold, TextSize = 15,
 		TextColor3 = Color3.new(1, 1, 1), TextXAlignment = Enum.TextXAlignment.Left,
 	}, b)
 	b.Activated:Connect(function()
@@ -133,8 +142,15 @@ local function place()
 	local vpX = if camera then camera.ViewportSize.X else 1000
 	local right = button.AbsolutePosition.X + button.AbsoluteSize.X
 	local top = button.AbsolutePosition.Y + inset.Y + button.AbsoluteSize.Y + 8
-	card.Position = UDim2.new(0, math.min(right, vpX - 8), 0, top)
+	panel.Position = UDim2.new(0, math.min(right, vpX - 8), 0, top)
+	-- (D-1720) all the rows, or down to 10 px over the screen's bottom (the rest scrolls)
+	local vpY = if camera then camera.ViewportSize.Y else 700
+	local content = listLayout.AbsoluteContentSize.Y + 16
+	panel.Size = UDim2.fromOffset(210, math.max(80, math.min(content, vpY - top - 10)))
 end
+listLayout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(function()
+	if gui.Enabled then place() end
+end)
 
 -- (D-1380) 닉네임 표시 off: every name tag (OHUNameTag, NameTagService) is off on this screen
 -- only; tags made later (spawns, a new Head) follow
@@ -163,6 +179,9 @@ for _, other in ipairs(Players:GetPlayers()) do watchPlayer(other) end
 applyNames()
 
 TopBar.OpenChanged:Connect(function(on: boolean)
-	if on then place() end
+	if on then
+		card.CanvasPosition = Vector2.zero
+		place()
+	end
 	gui.Enabled = on
 end)

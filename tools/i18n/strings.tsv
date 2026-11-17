@@ -1486,8 +1486,8 @@ d8165c	tmpl	장바구니 보기 ({1})	1	src/StarterPlayer/StarterPlayerScripts/F
 93191e	exact	담은 아이템이 없어요. 아이템을 눌러 🛒 담기를 하거나 👗 입은 옷 모두 담기를 눌러 보세요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ItemDetail.lua:566
 55e36a	tmpl	앞 {1}개 구매	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ItemDetail.lua:574
 0cbc92	exact	판매하지 않는 아이템	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/ItemDetail.lua:70
-35a531	exact	🎢 놀이기구 환호성	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:101
-96e468	exact	🙈 UI 숨기기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:108
+35a531	exact	🎢 놀이기구 환호성	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:109
+4a29e8	exact	👁 UI 숨기기	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MenuController.client.lua:117
 1fdc5e	exact	확인	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:104
 a08356	tmpl	모두의 화면 위에 내 이름과 이 한마디가 떠요.{1}	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:144
 8633a2	tmpl	\n[Studio 테스트] 결제 없이 {1} R$ 상품을 시험해요.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/MessagePrompt.lua:145
@@ -1668,7 +1668,7 @@ e3c00f	exact	어느 정류장으로 가시겠습니까?	1	src/StarterPlayer/Star
 a82b56	exact	 (지금 여기)	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SubwayController.client.lua:140
 fcac70	exact	이동 중…	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/SubwayController.client.lua:144
 abb73d	exact	몇 번 출구로 가시겠습니까?	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/SubwayController.client.lua:46
-338a55	exact	건너뛰기 >	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:119
+338a55	exact	건너뛰기 >	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:121
 76f5b4	exact	오후에 온 걸 환영해! 내가 사는 동네 구경시켜 줄까?	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:42
 6da6a1	exact	응!	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:42
 a9b73f	exact	아니, 괜찮아!	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:42
@@ -1698,8 +1698,10 @@ fdc41a	exact	🎒 가방	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/To
 c92710	exact	♪ 음악 · 춤	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:73
 2aeb63	exact	클럽에 들어가지 않아도 클럽에서 재생 중인 노래를 들을 수 있어. 예쁜 야외 배경을 무대 삼아 아이돌처럼 춤출 수 있어.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:73
 ac9983	exact	불편한 점이나 바라는 점을 개발자에게 보낼 수 있어.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:74
-8d640d	exact	그럼 오후에서 즐거운 시간 보내!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:75
-f9b9d6	exact	놀러가기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:75
+d09a03	exact	☰ 메뉴	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:76
+a67756	exact	닉네임과 칭호를 보이거나 숨기고, 놀이기구 환호성을 끄거나 화면 버튼을 잠깐 숨길 수 있어.	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:76
+8d640d	exact	그럼 오후에서 즐거운 시간 보내!	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:77
+f9b9d6	exact	놀러가기	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/TourController.client.lua:77
 e29748	exact	쓰레기통 안 · 누르면 가져가요	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:123
 89d791	exact	내 물건 · 누르면 버려요	2	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:124
 aa66ac	tmpl	{1}분 남음	1	src/StarterPlayer/StarterPlayerScripts/FashionGame/TrashController.client.lua:185

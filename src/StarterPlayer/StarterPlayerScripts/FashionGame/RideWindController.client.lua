@@ -122,7 +122,9 @@ RunService.Heartbeat:Connect(function()
 	for _, ride in ipairs(CollectionService:GetTagged("ParkJumpStar")) do
 		if not ride:IsA("Model") or not ride:IsDescendantOf(workspace) then continue end
 		local car = ride:FindFirstChild("Car")
-		local part = car and car:FindFirstChild("CarFloor") :: BasePart?
+		-- (D-1723: the user's jumping star model (D-1483) has CarMesh, no CarFloor: without a part the wind and
+		-- the cheer were silent)
+		local part = car and (car:FindFirstChild("CarFloor") or car:FindFirstChild("CarMesh") or car:FindFirstChildWhichIsA("BasePart")) :: BasePart?
 		if (ride:GetPivot().Position - cam).Magnitude > NEAR then
 			if part and sounds[part] then set(part, 0, 1) end
 			continue
