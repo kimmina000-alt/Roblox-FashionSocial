@@ -280,6 +280,20 @@ register("ParkSwing", addSwing)
 register("ParkSpring", addSpring)
 register("ParkSlide", function(model) table.insert(slides, model) end)
 register("FloatTube", addTube)
+-- (D-1591) a ring a player put on the water (TubeRentService) goes again when it is picked up: its slot
+-- and its parts are forgotten
+CollectionService:GetInstanceRemovedSignal("FloatTube"):Connect(function(model: Instance)
+	for i = #slots, 1, -1 do
+		if slots[i].ride == model then table.remove(slots, i) end
+	end
+	for i = #floaters, 1, -1 do
+		if floaters[i] == model then table.remove(floaters, i) end
+	end
+	if model:IsA("Model") then
+		tubeParts[model] = nil
+		tubeShown[model] = nil
+	end
+end)
 register("ParkViking", addViking)
 register("ParkTrain", function(model: Model)
 	local data = model:GetAttribute("PathData")
@@ -1000,6 +1014,25 @@ local function pressMain()
 	end
 	busy = false
 end
+
+-- (D-1591) TubeCarryController: walking into the sea with the beach ring put it on the water; get in it
+local boardTube = Instance.new("BindableEvent")
+boardTube.Name = "ParkBoardTube"
+boardTube.Parent = script
+boardTube.Event:Connect(function(model: Instance)
+	if mySlot or not model:IsA("Model") then return end
+	-- (its slot is made a moment after the tag shows up: register's delay)
+	for _ = 1, 30 do
+		for _, entry in ipairs(slots) do
+			if entry.ride == model then
+				offer = { text = "", ride = model, slot = model, ready = true }
+				pressMain()
+				return
+			end
+		end
+		task.wait(0.1)
+	end
+end)
 mainButton.MouseButton1Click:Connect(pressMain)
 
 -- (D-1428, user 2026-11-15: "바이킹 비어 있는 자리 클릭하면 자리 선택해서 앉을 수 있게"; D-1430:

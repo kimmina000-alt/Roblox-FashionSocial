@@ -19,7 +19,7 @@ local Popups = require(script.Parent:WaitForChild("Popups"))
 local Hotbar = require(script.Parent:WaitForChild("Hotbar"))
 
 local REACH = 16
-local KINDS = { "Snack", "Plate", "Bottle", "Cup", "Sparkler", "SparklerSet", "HandSparkler" }
+local KINDS = { "Snack", "Plate", "Bottle", "Cup", "Sparkler", "SparklerSet", "HandSparkler", "CarryTube" } -- (D-1591: the beach ring)
 
 local function giveable(tool: Instance?): boolean
 	if not tool or not tool:IsA("Tool") then return false end
