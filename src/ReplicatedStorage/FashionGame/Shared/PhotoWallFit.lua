@@ -17,6 +17,9 @@ local PhotoWallFit = {}
 
 PhotoWallFit.MaxGap = 0.6 -- studs behind the panel's face a surface may be
 PhotoWallFit.FrontClear = 0.32 -- (D-1535) how far out from the wall a part covers the photo
+PhotoWallFit.SideAngle = 35 -- (D-1563) degrees off straight out a photo's edge must be seen from
+PhotoWallFit.SideReach = 5 -- (D-1563) how far that side view must be clear
+PhotoWallFit.EdgeMargin = 0.6 -- (D-1563) wall needed past each edge of a photo
 
 -- a photo's size on the wall in studs (as PhotoWallController.photoSize: the strip's
 -- aspect from PhotoRender.stripAspect, 3.4 high for 2x2, else 4.4)
@@ -53,7 +56,10 @@ function PhotoWallFit.backed(wall: BasePart, u: number, v: number, halfW: number
 	-- on the niche's thin neon rim while it hung over the opening: now a 3 x 3 grid out to 95 %
 	-- of the photo, so a rim or a trim strip can no longer stand in for the wall
 	for _, o in ipairs({ { 0, 0 }, { -0.95, -0.95 }, { 0, -0.95 }, { 0.95, -0.95 }, { -0.95, 0 }, { 0.95, 0 }, { -0.95, 0.95 }, { 0, 0.95 }, { 0.95, 0.95 } }) do
-		local point = wall.CFrame * Vector3.new(cx + o[1] * halfW, cy + o[2] * halfH, zSign * wall.Size.Z / 2)
+		-- (D-1563, user 2026-11-17: the strip that covered the PHOTO niche's neon outline) the wall must go
+		-- on EdgeMargin past the photo's edges too, so a photo keeps clear of a niche's rim
+		local m = PhotoWallFit.EdgeMargin
+		local point = wall.CFrame * Vector3.new(cx + o[1] * (halfW + m), cy + o[2] * (halfH + m), zSign * wall.Size.Z / 2)
 		local hit = workspace:Raycast(point + normal * 0.3, -normal * (0.3 + PhotoWallFit.MaxGap), params)
 		if not hit then return false end
 	end
@@ -70,7 +76,39 @@ function PhotoWallFit.backed(wall: BasePart, u: number, v: number, halfW: number
 	local overlap = OverlapParams.new()
 	overlap.FilterType = Enum.RaycastFilterType.Exclude
 	overlap.FilterDescendantsInstances = exclude
-	if #workspace:GetPartBoundsInBox(slab, Vector3.new(halfW * 1.9, halfH * 1.9, 0.1), overlap) > 0 then return false end
+	-- (D-1563, user 2026-11-17: "오후네컷 벽에 사진 다 사라짐") the box test sees a part's bounding box:
+	-- the hall's pink wall is one union with the PHOTO niche cut through it, so its box covered the
+	-- whole SHOP panel at the back of the niche and all 30 photos there were refused. A union or a
+	-- mesh in the slab is now checked by its real shape: rays from in front of the photo onto it,
+	-- and it covers the photo only where a ray stops more than FrontClear out from the wall.
+	for _, part in ipairs(workspace:GetPartBoundsInBox(slab, Vector3.new(halfW * 1.9, halfH * 1.9, 0.1), overlap)) do
+		if not (part:IsA("PartOperation") or part:IsA("MeshPart")) then return false end
+		local only = RaycastParams.new()
+		only.FilterType = Enum.RaycastFilterType.Include
+		only.FilterDescendantsInstances = { part }
+		local reach = 40
+		for _, o in ipairs({ { 0, 0 }, { -1, -1 }, { 1, -1 }, { -1, 1 }, { 1, 1 }, { -1, 0 }, { 1, 0 } }) do
+			local face = wall.CFrame * Vector3.new(cx + o[1] * halfW, cy + o[2] * halfH, zSign * wall.Size.Z / 2)
+			local hit = workspace:Raycast(face + normal * reach, -normal * reach, only)
+			if hit and (hit.Position - face):Dot(normal) > PhotoWallFit.FrontClear then return false end
+		end
+	end
+	-- (D-1563) a neon line on the wall (the PHOTO niche's outline, NicheRim) lies flush with it, so the
+	-- slab above does not see it: a photo may not cover a Neon part within half a stud of the face
+	for _, part in ipairs(workspace:GetPartBoundsInBox(wall.CFrame * CFrame.new(cx, cy, zSign * wall.Size.Z / 2),
+		Vector3.new(halfW * 2 + 0.2, halfH * 2 + 0.2, 1), overlap)) do
+		if part.Material == Enum.Material.Neon then return false end
+	end
+	-- (D-1563) seen from the side: a photo at the edge of a niche (the PHOTO niche is 2.8 deep) hid
+	-- half behind the niche's side wall unless you stood right in front of it. From the middle of each
+	-- side edge a ray goes out at SideAngle towards that side: nothing may be within SideReach of it
+	local side = wall.CFrame:VectorToWorldSpace(Vector3.new(right, 0, 0))
+	local angle = math.rad(PhotoWallFit.SideAngle)
+	for _, sx in ipairs({ -1, 1 }) do
+		local edge = wall.CFrame * Vector3.new(cx + sx * right * halfW, cy, zSign * wall.Size.Z / 2) + normal * 0.05
+		local dir = (normal * math.cos(angle) + side * sx * math.sin(angle)) * PhotoWallFit.SideReach
+		if workspace:Raycast(edge, dir, params) then return false end
+	end
 	return true
 end
 

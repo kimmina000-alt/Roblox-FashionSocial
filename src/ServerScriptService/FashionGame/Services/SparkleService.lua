@@ -953,6 +953,15 @@ function SparkleService.Handle(player: Player, action: string, payload: any): (b
 	elseif action == "LightHandSparkler" then
 		local ok, message = lightHandSparkler(player)
 		return ok, message, true
+	elseif action == "BuyHandSparklerCoins" then
+		-- (D-1567) the hand sparkler for coins (ClubConfig.HandSparklerCoins)
+		if not player:FindFirstChildOfClass("Backpack") then return false, "잠시 후 다시 시도하세요.", true end
+		local EconomyService = require(script.Parent.EconomyService)
+		if not EconomyService.Spend(player, ClubConfig.HandSparklerCoins, "Club_HandSparkler") then
+			return false, string.format("코인이 모자라요. (%d 코인)", ClubConfig.HandSparklerCoins), true
+		end
+		local ok, message = grantHandSparkler(player)
+		return ok, message, true
 	elseif action == "DJColdSpark" then
 		local ok, message = djColdSpark(player)
 		return ok, message, true

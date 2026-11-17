@@ -384,6 +384,23 @@ local searchBox = create("TextBox", {
 }, panel)
 corner(searchBox, 8)
 create("UIPadding", { PaddingLeft = UDim.new(0, 8), PaddingRight = UDim.new(0, 8) }, searchBox)
+-- (D-1568, user 2026-11-17: "노래 리스트에 가나다순, 최신순 추가") a sort button beside 🔍: 기본순 (the
+-- playlist's order) → 가나다순 (Korean titles first in 가나다 order, then A-Z) → 최신순 (the newest
+-- added first: new songs go at the end of ClubPlaylist)
+searchBox.Size = UDim2.new(1, -82, 0, 26)
+local SORTS = { "기본순", "가나다순", "최신순" }
+local sortMode = 1
+local sortButton = create("TextButton", {
+	Name = "SongSort",
+	Size = UDim2.fromOffset(76, 26),
+	BackgroundColor3 = COLORS.card,
+	Text = "↕ " .. SORTS[1],
+	TextColor3 = COLORS.text,
+	TextSize = 13,
+	Font = Enum.Font.GothamBold,
+	AutoButtonColor = true,
+}, panel)
+corner(sortButton, 8)
 -- (D-940, user 2026-11-06: "음악 리스트 창 하단에 다음곡 뜨는 거 음악 팝업창 2:1로
 -- 나눠서 아래 칸 자리 줘서 기기 사이즈에 맞춰서 비율로") the next songs get the
 -- bottom third of the song window (the list the top two thirds), on every
@@ -574,7 +591,7 @@ layout = function()
 	panel.Size = UDim2.fromOffset(width, height)
 	local W, H = width - 20, height - 20
 	local leftW = W
-	for _, item in ipairs({ listTitle, searchBox, trackList, queueBox } :: {GuiObject}) do
+	for _, item in ipairs({ listTitle, searchBox, sortButton, trackList, queueBox } :: {GuiObject}) do
 		if item.Parent ~= listPanel then item.Parent = listPanel end
 	end
 	-- (D-940) tabbed: the song window lies over the 디제잉 window while 🎵 음악
@@ -675,6 +692,7 @@ layout = function()
 	listTitle.Position = UDim2.fromOffset(0, 46 + listTop)
 	listTitle.Size = UDim2.new(1, 0, 0, 18)
 	searchBox.Position = UDim2.fromOffset(0, 66 + listTop)
+	sortButton.Position = UDim2.new(1, -76, 0, 66 + listTop)
 	local listY = 96 + listTop
 	local room = math.max(H - listY, 60)
 	local queueH = math.floor(room / 3)
@@ -811,11 +829,32 @@ local function renderTracks()
 	local otherDJ = (FashionGame:GetAttribute("ClubDJ") or 0) ~= 0 and not dj
 	local current = FashionGame:GetAttribute("ClubTrack")
 	local query = string.lower(searchBox.Text)
-	for index, track in ipairs(ClubConfig.Playlist) do
+	-- (D-1568) the rows in the chosen order
+	local order = {}
+	for index in ipairs(ClubConfig.Playlist) do table.insert(order, index) end
+	if sortMode == 2 then
+		local function key(index: number): (number, string)
+			local title = string.lower(ClubConfig.Playlist[index].title)
+			-- Hangul syllables (UTF-8 lead bytes 0xEA..0xED) first, then the rest
+			local first = string.byte(title, 1) or 0
+			return (if first >= 0xEA and first <= 0xED then 0 else 1), title
+		end
+		table.sort(order, function(a, b)
+			local ga, ta = key(a)
+			local gb, tb = key(b)
+			if ga ~= gb then return ga < gb end
+			if ta ~= tb then return ta < tb end
+			return a < b
+		end)
+	elseif sortMode == 3 then
+		table.sort(order, function(a, b) return a > b end)
+	end
+	for position, index in ipairs(order) do
+		local track = ClubConfig.Playlist[index]
 		if query ~= "" and not string.find(string.lower(track.title .. " " .. track.channel), query, 1, true) then continue end
 		local row = create("Frame", {
 			Name = "Track_" .. index,
-			LayoutOrder = index,
+			LayoutOrder = position,
 			Size = UDim2.new(1, -6, 0, 40),
 			BackgroundColor3 = if index == current then COLORS.accent else COLORS.card,
 		}, trackList)
@@ -995,6 +1034,12 @@ local function refreshAll()
 	refresh()
 	if panel.Visible then renderTracks() end
 end
+sortButton.Activated:Connect(function()
+	sortMode = sortMode % #SORTS + 1
+	sortButton.Text = "↕ " .. SORTS[sortMode]
+	trackList.CanvasPosition = Vector2.zero
+	if panel.Visible then renderTracks() end
+end)
 searchBox:GetPropertyChangedSignal("Text"):Connect(function()
 	if panel.Visible then renderTracks() end
 end)

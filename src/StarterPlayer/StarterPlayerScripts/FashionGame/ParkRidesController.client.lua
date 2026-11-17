@@ -855,6 +855,7 @@ local WHEEL_FRAME = {
 	-- 하지 않았어?") the rim and its lights too: at night they glow (ParkNightController) and the big
 	-- neon bars filled the view
 	Rim = true, RimLight = true, Chord = true, Diagonal = true, HubPlate = true,
+	CabinArm = true, CabinBrace = true, -- (D-1565: the brackets out to the cabins)
 }
 local hiddenFrame: {BasePart} = {}
 local function hideWheelFrame(wheel: Instance?)
@@ -1100,6 +1101,42 @@ UserInputService.InputBegan:Connect(function(input: InputObject, processed: bool
 	if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
 		spinTap()
 	end
+end)
+
+-- (D-1565) a ferris wheel rider taps the other bench of their cabin (it is free): they move there
+UserInputService.InputBegan:Connect(function(input: InputObject, processed: boolean)
+	if processed or busy then return end
+	if input.UserInputType ~= Enum.UserInputType.MouseButton1 and input.UserInputType ~= Enum.UserInputType.Touch then return end
+	local entry = mySlot
+	if not entry or entry.kind ~= "ParkWheel" then return end
+	local cabin = entry.slot
+	local other = if entry.key == "Rider1" then "Rider2" else "Rider1"
+	if not cabin or not cabin.Parent or cabin:GetAttribute(other) ~= nil then return end
+	local camera = workspace.CurrentCamera
+	if not camera then return end
+	local ray = camera:ViewportPointToRay(input.Position.X, input.Position.Y)
+	local params = RaycastParams.new()
+	params.FilterType = Enum.RaycastFilterType.Include
+	params.FilterDescendantsInstances = { cabin }
+	local hit = workspace:Raycast(ray.Origin, ray.Direction * 60, params)
+	if not hit then return end
+	-- which bench the tap is on: the side of the cabin's middle (hub frame z) of the other seat
+	local index = ParkConfig.cabinCount(entry.ride) > 0 and tonumber(string.match(cabin.Name, "%d+")) or nil
+	local cf = index and ParkConfig.cabinCFrame(entry.ride, index, workspace:GetServerTimeNow())
+	if not cf then return end
+	local seatOffset = ParkConfig.CabinSeats[if other == "Rider1" then 1 else 2].offset
+	local z = cf:PointToObjectSpace(hit.Position).Z
+	if z * seatOffset.Z <= 0 then return end
+	busy = true
+	task.spawn(function()
+		local ok, result = remote:InvokeServer("SwitchSeat")
+		if ok and typeof(result) == "table" then
+			for _, e in ipairs(slots) do
+				if e.slot == result.slot and e.key == result.key then mySlot = e end
+			end
+		end
+		busy = false
+	end)
 end)
 
 local function updateSpinTap(t: number)

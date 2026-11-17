@@ -88,6 +88,7 @@ ParkConfig.CabinSeats = {
 	{ offset = Vector3.new(0, -7.35, -2.6), facing = Vector3.new(0, 0, 1) },
 }
 ParkConfig.BoardDistance = 12
+ParkConfig.CabinSway = 1 -- (D-1565) degrees a hanging cabin rocks
 
 -- Swing speed levels (+/-): amplitude per level. Level 0 = just sitting.
 -- Max 5 × 7° = 35°, with a 3.2 s period: smooth, no motion sickness.
@@ -144,7 +145,10 @@ function ParkConfig.cabinCFrame(model: Instance, index: number, t: number): CFra
 	if not hub then return nil end
 	local radius = attr(model, "Radius", 26)
 	local point = (hub * CFrame.Angles(ParkConfig.cabinAngle(model, index, t), 0, 0) * CFrame.new(0, -radius, 0)).Position
-	return hub.Rotation + point
+	-- (D-1565, user 2026-11-17: "중력에 따라 관람차는 계속 일직선으로 서 있으려고 엄청 살짝 흔들리기도")
+	-- hanging upright, each cabin rocks very slightly on its pin (1°, its own beat)
+	local sway = math.rad(ParkConfig.CabinSway) * math.sin(((t / 3.6) % 1) * 2 * math.pi + index * 1.7)
+	return hub.Rotation * CFrame.Angles(sway, 0, 0) + point
 end
 
 -- How far (radians) cabin i is from the bottom.
@@ -221,7 +225,10 @@ function ParkConfig.vikingState(model: Instance, t: number): (number, boolean, n
 	local hold = attr(model, "Hold", 20)
 	local cycle = board + ramp * 2 + hold
 	if not ParkConfig.isRunning("ParkViking") then return 0, true, 0 end
-	local c = t % cycle
+	-- (D-1564, user 2026-11-17: "미니 바이킹 슈퍼 바이킹 운행 타임 겹치지 않도록") Offset (s) shifts a
+	-- viking's runs: the two vikings share one cycle and each swings while the other stands still
+	-- (tools/graybox/park_fixes4_1117.lua sets Board / Offset)
+	local c = (t - attr(model, "Offset", 0)) % cycle
 	if c < board then return 0, true, board - c end
 	local u = c - board
 	local env = if u < ramp then smooth(u / ramp) elseif u < ramp + hold then 1 else smooth((cycle - board - u) / ramp)

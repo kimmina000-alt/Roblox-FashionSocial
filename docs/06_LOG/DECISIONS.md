@@ -5436,3 +5436,31 @@ Studio only (no script yet).
 - RideGateController: an Entry gate now also blocks a player who is inside (in only; they leave by the exit). Exit gates already block a player outside (out only).
 - The vikings: a solid boat let people walk under it (it hangs above the floor at rest) and stand on it, then be thrown when it swings; so for a viking the boat stays walk-through and this screen makes an invisible RideKeepOut box round the boat where it rests (boat size + 2, from the floor up to just under the axle: nobody jumps onto it), solid while not riding. Someone inside a box (let off in the pit) can walk out of it; a player pressed against a side stays outside.
 - Play test (PC, 1 player): exit gate from outside → stopped (dot -1.1); entrance in → yes, back out → stopped; super viking deck → stopped at the box side (7.2 from the boat's middle, box half 6.7); [E] 바이킹 타기 → seated, swung y 25..76, [E] 내리기 → at the Exit point, walked out of the exit; carousel horse stopped 1.9 from its middle; tea cup 2 stopped at the cup's side, [E] 회전컵 타기 → seated and turning; no script errors.
+
+## D-1563 (2026-11-17) 오후네컷 사진 벽: PHOTO 자리 사진 복구, 테두리 위 사진 금지
+- User (live screenshot, the PHOTO niche empty, a strip over the arch's edge crossed out): "오후네컷 벽에 사진 다 사라짐. 고쳐야 할 부분만 남아 있음."
+- Cause: D-1535's slab test used part bounding boxes. The hall's pink wall (PinkWallN) is one union with the PHOTO niche cut through it, so its box covered the whole SHOP panel at the back of the niche: all 30 photos there were refused (and hidden).
+- PhotoWallFit.backed: a union or mesh in the slab is checked by its real shape (rays from in front onto it, 7 points to the photo's edges); a photo may not cover a Neon part flush with the wall (NicheRim, the niche's outline); the wall must go on EdgeMargin 0.6 past each edge; seen 35° from each side, nothing within 5 studs (a photo at a niche's side hid behind the reveal). Play: SHOP draws its photos again, the HALL_N strips that covered the neon outline were moved off it by the server.
+
+## D-1564 (2026-11-17) 바이킹 번갈아 운행, 범퍼카 폰 조작
+- User: "미니 바이킹 슈퍼 바이킹 운행 타임 겹치지 않도록 수정 / 미니 바이킹 운행 중이면 슈퍼 바이킹 타고 슈퍼 바이킹 운행 중에는 미니바이킹 탈 수 있도록". ParkConfig.vikingState takes an Offset attribute; park_fixes4_1117 gives both one 84 s cycle: mini Board 52 Offset 0 (swings 52..84), super Board 40 Offset 48 (swings 4..48), both still 48..52 and 0..4. Play: mini still while super ran.
+- User: "범퍼카 왼쪽 버튼(방향키)는 직진 후진하고 오른쪽 방향키로 방향 틀 수 있도록". BumperCarController: on a touch screen (no keyboard) the stick only gives the pedal (ThrottleFloat); ◀ ▶ buttons on the right (BumperSteer, shown while driving) turn the wheel while held. Keyboards keep A / D. (Checked: the GUI exists; not driven on a phone yet.)
+
+## D-1565 (2026-11-17) 관람차: 칸은 바퀴 밖 받침대에, 살짝 흔들림, 맞은편 자리로 옮기기, 바닥
+- User (a night photo of a real wheel: cabins outside the rim on white brackets): "관람차 사진 참고해서 수정할 것. 바깥으로 프레임 뻗쳐 있음. 이에 따른 중력에 따라 관람차는 계속 일직선으로 서 있으려고 엄청 살짝 흔들리기도 하고 기둥이 겹치지도 않음. / 관람차 바닥 길이 줄여서 밖으로 나오는 거 없게 할 것 / 관람차 탄 상태에서 맞은 편에 자리 비어 있으면 클릭시 건너편에 앉을 수 있게".
+- park_fixes4_1117: the Rotor drawn in to 0.75 in the wheel's plane (rim r 51.6 → 38.7), the cabins still hang at Radius 52, so even the top cabin hangs clear of the rim; white CabinBrackets (an arm each side + two braces per cabin) from the rim out to each pin, in the Rotor (they turn with it; Play: pin to arm tip 0.00); cabin floors cut to 3.3 x 5.4.
+- ParkConfig.cabinCFrame: each cabin rocks 1° on its pin (CabinSway, its own 3.6 s beat); riders rock with it.
+- SwitchSeat (ParkRideService + ParkRidesController): a rider taps the other bench of their cabin; if it is free they move there. Play: tapped Rider2's bench → moved (z -2.6). First person hides the brackets too.
+
+## D-1566 (2026-11-17) 불꽃 판매원 이동 범위
+- User: "불꽃판매원 움직임 반경 더 크게 할 것". NpcLooks.ItemSeller.wander: world x 130..172, z -270..-238 (was 146..162, -270..-260).
+
+## D-1567 (2026-11-17) 손 스파클러 코인 판매
+- User: "손 스파클러 코인으로 판매 전환. 적정 가격 추천". ClubConfig.HandSparklerCoins = 30 (about 30 minutes of play at 1 coin a minute; top cafe drinks 20, a cake 100). The item shop card asks 💰 30 and SparkleService "BuyHandSparklerCoins" spends the coins and gives the sparkler. Not bought in the test (Studio would spend the owner's real coins).
+
+## D-1568 (2026-11-17) 노래 목록 정렬
+- User: "노래 리스트에 가나다순, 최신순 추가". ClubMusicController: a ↕ button beside 🔍 cycles 기본순 → 가나다순 (Korean titles first in 가나다 order, then A-Z) → 최신순 (the last added first). Checked: 가나다순 starts 갑자기-IOI / 거리-URBAN ZAKAPA / 그사람...
+
+## D-1569 (2026-11-17) 새소리 50% 크게
+- User: "새 지저귀는 소리 담긴 배경음 50%만 더 키우고". SfxController MAX.birds 0.45 → 0.675.
+

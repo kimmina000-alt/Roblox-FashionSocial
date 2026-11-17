@@ -330,4 +330,9 @@ ClubConfig.ItemSellerOffset = CFrame.new(-88, 0, -78) * CFrame.Angles(0, -math.p
 -- cleared at once). DrinkService / SparkleService.
 ClubConfig.TableKeepSeconds = 180
 
+-- (D-1567, user 2026-11-17: "손 스파클러 코인으로 판매 전환. 적정 가격 추천") the hand sparkler (60 s)
+-- sells for coins: 30 = about half an hour of play (1 coin a minute), above the top cafe drinks (20)
+-- and well below a cake (100). The Robux product HandSparkler stays registered (old purchases).
+ClubConfig.HandSparklerCoins = 30
+
 return ClubConfig

@@ -191,7 +191,9 @@ NpcLooks.Looks.ItemSeller = {
 	pose = 103551093140086, -- Nonchalant idle (asset 89470439129000)
 	holds = NpcLooks.Looks.ItemSeller.holds,
 	-- (D-1289: with the seller, world x 146..162, z -270..-260)
-	wander = { min = Vector3.new(-92, 0, -86), max = Vector3.new(-82, 0, -70), speed = 6, walk = 76458754461389 }, -- Nonchalant walk (asset 89554541453975)
+	-- (D-1566, user 2026-11-17: "불꽃판매원 움직임 반경 더 크게") world x 130..172, z -270..-238: about
+	-- 3x as far along the north wall and 3x as far into the room (local x = world z + 178, local z = 76 - world x)
+	wander = { min = Vector3.new(-92, 0, -96), max = Vector3.new(-60, 0, -54), speed = 6, walk = 76458754461389 }, -- Nonchalant walk (asset 89554541453975)
 	nod = true,
 }
 

@@ -134,6 +134,61 @@ local function forwardOf(yaw: number): Vector3
 	return Vector3.new(math.cos(yaw), 0, -math.sin(yaw)) -- the car's +X at this yaw
 end
 
+---------------------------------------------------------------- phone steering (D-1564)
+-- (user 2026-11-17: "범퍼카 왼쪽 버튼(방향키)는 직진 후진하고 오른쪽 방향키로 방향 틀 수 있도록") on a
+-- touch screen the left stick only drives forward / back (its sideways part is left out) and two
+-- buttons on the right, ◀ and ▶, turn the wheel while held. Keyboards keep W / S and A / D.
+local UserInputService = game:GetService("UserInputService")
+local function touchMode(): boolean
+	return UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+end
+local held = { left = false, right = false }
+local padGui = Instance.new("ScreenGui")
+padGui.Name = "BumperSteer"
+padGui.ResetOnSpawn = false
+padGui.Enabled = false
+padGui.DisplayOrder = 5
+padGui.Parent = player:WaitForChild("PlayerGui")
+local function padButton(name: string, text: string, xOffset: number, key: string)
+	local b = Instance.new("TextButton")
+	b.Name = name
+	b.AnchorPoint = Vector2.new(1, 1)
+	b.Position = UDim2.new(1, xOffset, 1, -36)
+	b.Size = UDim2.fromOffset(96, 96)
+	b.BackgroundColor3 = Color3.fromRGB(20, 20, 28)
+	b.BackgroundTransparency = 0.35
+	b.Text = text
+	b.TextColor3 = Color3.new(1, 1, 1)
+	b.TextSize = 44
+	b.Font = Enum.Font.GothamBold
+	b.AutoButtonColor = false
+	local corner = Instance.new("UICorner")
+	corner.CornerRadius = UDim.new(1, 0)
+	corner.Parent = b
+	local function set(on: boolean)
+		held[key] = on
+		b.BackgroundTransparency = if on then 0.1 else 0.35
+	end
+	b.InputBegan:Connect(function(input: InputObject)
+		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then set(true) end
+	end)
+	b.InputEnded:Connect(function(input: InputObject)
+		if input.UserInputType == Enum.UserInputType.Touch or input.UserInputType == Enum.UserInputType.MouseButton1 then set(false) end
+	end)
+	b.MouseLeave:Connect(function() set(false) end)
+	b.Parent = padGui
+end
+padButton("Left", "◀", -140, "left")
+padButton("Right", "▶", -28, "right")
+
+-- -1 = left .. 1 = right
+local function steerInput(seat: VehicleSeat): number
+	if touchMode() then
+		return (if held.right then 1 else 0) - (if held.left then 1 else 0)
+	end
+	return seat.SteerFloat
+end
+
 local function simulate(d: Drive, dt: number)
 	local me = carShape(d.root)
 	local L = (d.root:GetAttribute("Length") :: number?) or d.root.Size.X
@@ -142,7 +197,7 @@ local function simulate(d: Drive, dt: number)
 	local hall = C.Hall
 
 	-- the wheel follows A / D, and comes back by itself
-	local target = math.clamp(d.seat.SteerFloat, -1, 1) * C.WheelMax
+	local target = math.clamp(steerInput(d.seat), -1, 1) * C.WheelMax
 	local step = C.WheelRate * dt
 	d.wheel += math.clamp(target - d.wheel, -step, step)
 	local pedal = math.clamp(d.seat.ThrottleFloat, -1, 1)
@@ -378,6 +433,11 @@ RunService.Heartbeat:Connect(function(dt)
 		if not drive or drive.seat ~= seat then startDrive(seat) end
 	elseif drive then
 		drive = nil
+	end
+	local showPad = drive ~= nil and touchMode()
+	if padGui.Enabled ~= showPad then
+		padGui.Enabled = showPad
+		if not showPad then held.left, held.right = false, false end
 	end
 	driveStep(dt)
 	watchOthers()

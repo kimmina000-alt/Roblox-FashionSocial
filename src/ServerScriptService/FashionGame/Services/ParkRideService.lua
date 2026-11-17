@@ -283,6 +283,18 @@ function ParkRideService.Start()
 			level = math.clamp(level + (if a > 0 then 1 else -1), 0, ParkConfig.SwingLevels)
 			ride.slot:SetAttribute("Level", level)
 			return true, level
+		elseif action == "SwitchSeat" then
+			-- (D-1565, user 2026-11-17: "관람차 탄 상태에서 맞은 편에 자리 비어 있으면 클릭시 건너편에 앉을 수
+			-- 있게") a ferris wheel rider moves to the other bench of their cabin when it is free
+			local ride = riding[player]
+			if not ride or ride.kind ~= "ParkWheel" then return false, nil end
+			local cabin = ride.slot
+			local other = if ride.key == "Rider1" then "Rider2" else "Rider1"
+			if cabin:GetAttribute(other) ~= nil then return false, "맞은편 자리에 다른 사람이 있어요." end
+			cabin:SetAttribute(ride.key, nil)
+			cabin:SetAttribute(other, player.UserId)
+			ride.key = other
+			return true, { slot = cabin, key = other }
 		elseif action == "Spin" then -- (D-1442) a tea cup rider tapped the wheel
 			local ride = riding[player]
 			if not ride or ride.kind ~= "ParkTeaCups" then return false, nil end
