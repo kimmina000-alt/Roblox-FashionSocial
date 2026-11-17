@@ -5500,3 +5500,6 @@ Studio only (no script yet).
 - User (forwarded by the main session): "둘 다 해" to the two memory trade-offs (D-1549 images, and the streaming radius).
 - Workspace.StreamingTargetRadius 384 → 256 (StreamingMinRadius 128, Opportunistic, PauseOutsideLoadedArea unchanged; no script sets these), place only.
 - Studio Play, same spots, 20 s each: parts on the client at the spawn 17,314 → 13,039 (−25 %), in the park 13,497 → 9,715 (−28 %); instances 28,132 → 22,838 / 22,449 → 16,839. Far buildings now arrive later: from the spawn the street is built about 250 studs out.
+
+## D-1590 (2026-11-17) 관람차 1인칭에서 기둥 보이기
+- User: "관람차 이제 기둥이랑 안 겹치니까 기둥 보이는 걸로 수정". Since D-1565 the cabins hang outside the wheel, clear of the legs: ParkRidesController WHEEL_FRAME no longer hides the legs (Support, LegBand, LegFoot, LegBar), their stars (StarPiece, StarMiddle) or the bearings in first person; the spokes, hub, rim, lights and cabin brackets stay hidden. (D-1590 taken out of order: the feedback session counts from D-1579.)
