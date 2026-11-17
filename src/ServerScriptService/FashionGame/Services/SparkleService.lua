@@ -169,6 +169,25 @@ local function sparks(parent: Instance, offset: Vector3, big: boolean): Attachme
 			NumberSequenceKeypoint.new(0, 0.24),
 			NumberSequenceKeypoint.new(1, 0),
 		})
+		-- (D-1593) the sparks fly as thin streaks, and a crackle of tiny white points sits round the
+		-- tip: phones and low graphics draw only some of the particles, so the look comes from the
+		-- shapes, not only the count
+		emitter.Name = "Sparks"
+		emitter.Orientation = Enum.ParticleOrientation.VelocityParallel
+		emitter.Squash = NumberSequence.new(-1.2)
+		local crackle = Instance.new("ParticleEmitter")
+		crackle.Name = "Crackle"
+		crackle.Texture = SPARKLE_TEXTURE
+		crackle.LightEmission = 1
+		crackle.Brightness = 4
+		crackle.Color = ColorSequence.new(Color3.fromRGB(255, 255, 245), Color3.fromRGB(255, 220, 150))
+		crackle.Size = NumberSequence.new({ NumberSequenceKeypoint.new(0, 0.07), NumberSequenceKeypoint.new(1, 0.02) })
+		crackle.Transparency = NumberSequence.new(0, 0.4)
+		crackle.Rate = 300
+		crackle.Lifetime = NumberRange.new(0.12, 0.3)
+		crackle.Speed = NumberRange.new(1.5, 4)
+		crackle.SpreadAngle = Vector2.new(180, 180)
+		crackle.Parent = at
 	end
 	emitter.Brightness = 3
 	emitter.Parent = at
@@ -228,8 +247,9 @@ local function burn(parent: BasePart, base: Vector3, seconds: number)
 	fizz.TimePosition = math.random() * 30
 	fizz:Play()
 	task.delay(seconds, function()
-		local emitter = at:FindFirstChildOfClass("ParticleEmitter")
-		if emitter then emitter.Enabled = false end
+		for _, emitter in ipairs(at:GetChildren()) do
+			if emitter:IsA("ParticleEmitter") then emitter.Enabled = false end
+		end
 		fizz:Stop()
 		Debris:AddItem(s, 1)
 	end)
@@ -696,8 +716,8 @@ local function lightHandSparkler(player: Player): (boolean, string?)
 	tipWeld.Parent = tip
 	tip.Parent = tool
 	local at = sparks(tip, Vector3.zero, false)
-	local emitter = at:FindFirstChildOfClass("ParticleEmitter")
-	if emitter then
+	local emitter = at:FindFirstChild("Sparks")
+	if emitter and emitter:IsA("ParticleEmitter") then
 		emitter.Rate = 480 -- (D-1593: was 160)
 		emitter.SpreadAngle = Vector2.new(180, 180)
 		emitter.Speed = NumberRange.new(3, 6)

@@ -5508,4 +5508,5 @@ Studio only (no script yet).
 - User: "손 스파클러 확인창 삭제 / 스파클러 네모 친 곳에 있는 동그라미 사이즈 줄이고 동그라미 속에 있는 거 수 늘리기. 빈약해 보임. 버켓에 꽂는 것도 같은 거면 함께 수정 / 불 붙이기 삭제하고 앞에 불 모양 아이콘만 남기기. 불 모양 아이콘 흰색 외곽선 주고 배경 지우기".
 - ClubShopController: the 💰 30 card buys at once (no confirm window).
 - SparkleService: the white-hot tip ball 0.22 → 0.1 on both the hand sparkler and the bucket / table sparklers; more sparks: the small fountain 240 → 600 a second (bucket / table), the hand sparkler 160 → 480.
-- HandSparklerController: the light button is only 🔥 (60 x 60), no background, a white UIStroke round the glyph.
+- HandSparklerController: the light button is only the fire: an ImageButton 64 x 64, no background, the picture docs/04_ART/icons/fire_outline.png (the 🔥 emoji with a white outline; a UIStroke does not outline an emoji), uploaded as Vantablack_Dev rbxassetid://79006995744297.
+- Play (PC): with more sparks the first look was still thin (low graphics draw only some particles): the sparks now fly as thin streaks (VelocityParallel, Squash -1.2) and a "Crackle" emitter of tiny white points sits round the tip (bucket and hand); lit, the hand sparkler showed a full star of streaks. The burn-out turns every emitter off.
