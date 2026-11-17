@@ -5611,3 +5611,9 @@ Studio only (no script yet).
 - NightGlowController: the 오후네컷 door frame line (FrameGlow, tag NightGlow) half as thick on each screen (0.2 → 0.1).
 - PhotoBoothController saveFramedPhoto: on touch devices PlayerGui.ScreenOrientation turns to Portrait for the shot (waits up to 2 s for the screen to be taller than wide), then goes back to the player's own setting. Not testable in Studio: check on a phone.
 - (later, user picked the sign: "오른쪽 아래 편의점 <- 이렇게 적힌 거") the OH24 stand sign is BannerFlag: SeoulNightController no longer makes it a self-lit sign at night (NOT_SIGNS) and sets its SurfaceGui LightInfluence to 1, so only the street light shows it.
+
+
+## D-1551 (2026-11-17) 메모리 4: 사진 벽은 가까운 사진만 사람을 채운다
+- Live phone (user's F9, Client Memory Usage): park 1,290 MB, club alone 1,367 / with 2 1,293, **오후네컷 1,766 MB**; PlaceMemory jumped 89 → 170 on walking in.
+- Studio: standing by the 오후네컷 shop walls built 71 photos = 424 dressed avatars at once (SHOP 30, SHOP2 17, HALL_S 12, STUDIO_W 10, HALL_N 2). Taking the people out (284 WorldModels) lowered Internal 1,825 → 1,530 MB: about 0.7 MB per avatar.
+- User picked option 1 of three ("1"): a photo's people are put in only while the camera is within 25 studs of that photo and taken out beyond 32; farther photos show their strip frame and colours only. PhotoRender.drawPhoto(parent, photo, empty), PhotoRender.emptyStrip; queued shots of an emptied strip are skipped (cell attribute Emptied).
