@@ -16,11 +16,9 @@ return {
 		-- 138890894929151 Whoosh2, 137081214744553 whoosh, 127438224839678 cartoon whoosh)
 		whoosh = 15675046931,
 		-- (D-1695, user 2026-11-17: "출석 이벤트 뜰 때 소리 / 받기 누르면 뜨는 돈 버는 소리", ids left for us to pick)
-		-- until the user picks: the tonal stinger as the window opens, "Coin Collect" for the reward.
-		-- Coin candidates (Creator Store, free): 135483737426662 Coin Collect · 80977935658780 Coin Collect ·
-		-- 1169806635 Coin Collect 2 · 8646410774 Coin collect · 116120982042508 Coin Collecting Sound
+		-- the window: the tonal stinger until the user picks; the reward: the user's pick (2026-11-17, "코인 소리: 75021469134609")
 		eventOpen = 15675043410,
-		coin = 135483737426662,
+		coin = 75021469134609,
 	},
 	Body = {
 		sit = 9116248517, -- Leather Bench 4 (Pro Sound Effects): sitting down
