@@ -5851,3 +5851,9 @@ Studio only (no script yet).
 ## D-1729 폭죽 소리 반 더 줄이기 + 환호성 스위치로 폭죽도 끄기 (2026-11-18)
 - 사용자: "폭죽 소리 반으로 더 줄이고 환호성 끄는 거에 폭죽 소리도 넣어".
 - ParkNightController 폭죽 볼륨 0.2 → 0.1, ☰ 메뉴 스위치가 꺼져 있으면(MuteCheer) 0. 스위치 이름 "🎢 놀이기구 환호성" → "🎢 환호성 · 폭죽 소리", 투어 ☰ 단계 문구도 "놀이공원 환호성과 폭죽 소리를 끄거나". 두 문구 16개 언어 번역(tools/i18n/tr/p19_cheer1118.tsv → build.py).
+## D-1740 한옥 벽 키트: 한 칸(한 면)씩 조립하는 벽 모듈 (2026-11-17, 후보)
+- 사용자(한옥 실내 · 마당 사진 5장, docs/04_ART/references/hanok_wall_01..05.jpg): "한옥마을에 처마 만들어서 쓴 것처럼 한옥 벽 만들어야 해. 한 면씩 만들어서 조립해서 쓸 수 있게 제작해".
+- tools/graybox/hanok_wall_kit.lua: ServerStorage.ArtAssets.HanokWallKit에 칸 모듈 7종(회벽, 회벽+창, 머름창, 띠살문, 분합문, 빗살창, 개방) + 기둥(주춧돌 포함). 기본 W 14 · H 32.2(한옥 블록 높이), 두께 T 1.2, 기둥 P 2.6. 피벗 = 벽 뒷면 아래 가운데, 앞(-Z)으로 나옴 → 블록 면에 앞을 바깥으로 놓으면 딱 붙음. 칸 - 기둥 - 칸 순서로 이어 붙임. `_G.HanokWallKit.make(kind, W, H)`로 아무 크기나.
+- 높이 비율(사진): 하방 0.05H, 중인방 0.36H, 상인방 0.70H, 창방 0.91H..H, 굵기 0.05H. 부품 수: 회벽 7, 회벽+창 21, 머름창 22, 띠살문 15, 분합문 19, 빗살창 20, 개방 3, 기둥 2.
+- 재질: MaterialVariant OHU_HanokPineV / PineH(소나무 결 세로 · 가로, 색 240,205,155 곱함), OHU_HanokPlaster(회벽). 창호지 판에 문살 텍스처(띠살 한 짝 한 장, 정자살 · 빗살은 5스터드마다 반복). 텍스처: tools/art/hanok_wall_textures.py.
+- 견본: Workspace.HanokWallKitPreview(맵 밖 x 1800), 사진 docs/06_LOG/images/2026-11-17/hanok_wall_kit_front.jpg · _angle.jpg. 사용자 고르기 대기(D-082).
