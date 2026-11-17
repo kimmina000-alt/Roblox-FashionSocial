@@ -106,6 +106,11 @@ ParkConfig.SlideSoundId = 95716072659114
 -- "야호" voice at the bottom (Creator Store audio chosen by the user,
 -- 2026-10-22), heard by everyone near, with the "야호!" bubble.
 ParkConfig.YahooSoundId = 130278670102424
+-- (D-1708, user 2026-11-18: "바이킹이나 점핑스타 내려올 때 들리는 소리 추가: 126615573673174") "Crowd Cheering"
+-- (2.2 s), once each time a viking starts down from a high swing and when the jumping star's big drop starts
+-- (RideWindController)
+ParkConfig.DropCheerSoundId = 126615573673174
+ParkConfig.DropCheerHigh = 0.75 -- (a viking peak counts from this share of its MaxAngle)
 
 local function attr(model: Instance, name: string, default: number): number
 	local value = model:GetAttribute(name)

@@ -7,6 +7,8 @@
 --   * the jumping star (tag ParkJumpStar): from its car, only while it falls faster than
 --     ParkConfig.JumpWindSpeed (its big drop), louder the faster
 -- Every screen works it out by itself; no network.
+-- (D-1708) and a cheer (ParkConfig.DropCheerSoundId) from the same parts: a viking's each time it turns at a
+-- high peak and starts down, the jumping star's when its big drop starts.
 
 local CollectionService = game:GetService("CollectionService")
 local RunService = game:GetService("RunService")
@@ -23,6 +25,23 @@ local JUMP_FULL = 30
 local NEAR = 220 -- (camera further away: silent, nothing worked out)
 
 local sounds: {[Instance]: Sound} = {}
+
+local CHEER = "rbxassetid://" .. tostring(ParkConfig.DropCheerSoundId)
+local function cheer(part: BasePart?)
+	if not part then return end
+	local snd = Instance.new("Sound")
+	snd.Name = "DropCheer"
+	snd.SoundId = CHEER
+	snd.Volume = 0.9
+	snd.RollOffMode = Enum.RollOffMode.InverseTapered
+	snd.RollOffMinDistance = 14
+	snd.RollOffMaxDistance = 140
+	snd.Parent = part
+	snd:Play()
+	game:GetService("Debris"):AddItem(snd, 4)
+end
+local lastSwing: {[Instance]: number} = {} -- (a viking's last angle change: its sign flips at a peak)
+local inBigDrop: {[Instance]: boolean} = {}
 
 local function soundOn(part: BasePart): Sound
 	local s = sounds[part]
@@ -90,6 +109,13 @@ RunService.Heartbeat:Connect(function()
 		local wMax = maxAngle * 2 * math.pi / period
 		local k = math.clamp(w / wMax, 0, 1)
 		set(boat, VIKING_MAX * k ^ 1.4, 0.85 + 0.35 * k)
+		-- (D-1708) at a high peak the swing turns: it starts down now
+		local d = a1 - a0
+		local before = lastSwing[ride]
+		lastSwing[ride] = d
+		if before and d ~= 0 and math.sign(d) ~= math.sign(before) and math.abs(a0) >= maxAngle * ParkConfig.DropCheerHigh then
+			cheer(boat)
+		end
 	end
 	for _, ride in ipairs(CollectionService:GetTagged("ParkJumpStar")) do
 		if not ride:IsA("Model") or not ride:IsDescendantOf(workspace) then continue end
@@ -103,7 +129,10 @@ RunService.Heartbeat:Connect(function()
 		local h1 = ParkConfig.jumpStarState(ride, t + 0.05)
 		local down = (h0 - h1) / 0.05
 		local k = if down > ParkConfig.JumpWindSpeed then math.clamp((down - ParkConfig.JumpWindSpeed) / (JUMP_FULL - ParkConfig.JumpWindSpeed), 0.25, 1) else 0
-		if not ParkConfig.jumpStarBigDrop(ride, t) then k = 0 end -- (D-1481: the hops fall fast too; the wind is for the last drop)
+		local big = ParkConfig.jumpStarBigDrop(ride, t)
+		if not big then k = 0 end -- (D-1481: the hops fall fast too; the wind is for the last drop)
+		if big and not inBigDrop[ride] then cheer(part) end -- (D-1708)
+		inBigDrop[ride] = big
 		set(part, DROP_MAX * k, 0.95 + 0.3 * k)
 	end
 end)
