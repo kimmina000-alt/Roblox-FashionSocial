@@ -5510,3 +5510,7 @@ Studio only (no script yet).
 - ClubGlowDim: PassageLight (the white passage line, the vertical one by the VIP stair and the one along the ceiling) at its full colour (235) again and a quarter as thick (0.3 → 0.075); each light now has its own thinning factor (corridor floor lines stay at half).
 - SeoulNightController: lit windows at 80 % of the old colours (WINDOW_GLOW 0.3 → 0.8); at 30 % they read as unlit brown panes.
 - Play check (22:00): windows read as lit again with less bloom; PassageLight colour 235, 0.075 thick; no script errors.
+
+## D-1580 (2026-11-17) 포켓파크 공 가로등 밤 밝기 50 %
+- User (night shot of the pocket park: "이 가로등 발광도 수정햇어"). The globes (PocketPark ParkLampGlobe ×6, tag NightGlow) turn Neon at night in their cream day colour (255, 244, 220) and glared.
+- NightColor attribute (128, 122, 110) = half the day colour, set in build_hongdae_layout.lua and on the 6 globes in the place (NightGlowController already reads NightColor; the globe's SurfaceLight takes the same colour). Place change: the user saves.
