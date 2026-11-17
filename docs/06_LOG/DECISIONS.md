@@ -5640,3 +5640,8 @@ Studio only (no script yet).
 - User (phone, 2x2 save preview): "2x2 사진 윗부분 잘림". The saved capture leaves out the top bar strip, and the sheet drew the photo over the whole screen.
 - saveFramedPhoto places the photo below the top bar inset (GuiService:GetGuiInset, read after the turn) with an 8 px margin all round. Play check on a 735 x 413 phone view: inset 58, the 2x2 strip runs y 66..405, whole.
 - (later, user: "윗부분 잘라 버리면 그냥 세로로 찍는 게 더 커지지 않나?") yes: the orientation choice now counts the real room, the inset and the margins off (strip width = min(w - 16, (h - inset - 16) × a)). On the 735 x 413 phone view with inset 58: 1x4 lying 105 / standing 205, 2x2 lying 363 / standing 397, so both save standing up. Play check: no script errors (Studio also holds feat/album-swipe-1117's PhotoBoothController change; both are in, no overwrite).
+
+## D-1599 풍선: 덜 흔들리고 천천히 따라오게 (2026-11-17)
+- 사용자: "풍선 너무 정신사납게 흔들리더라 막 움직이는 거 움직임 좀 줄이고 천천히 움직이게 수정".
+- 원인: 풍선이 줄에 매달려 무게의 1.6배로 위로 당겨지고 약한 브레이크만 있어서, 걸을 때마다 줄이 홱 당기고 빙글빙글 돌았음.
+- BalloonService: 뜨는 힘 = 무게(1.0), 손 쪽 위의 한 점(HumanoidRootPart의 BalloonTarget, 팔 흔들림과 무관)으로 AlignPosition(반응 0.8, 힘 무게 1.2배, 최대 7 stud/s)이 부드럽게 끌고, AlignOrientation으로 똑바로 서서 돌지 않음. 줄 4.6 → 6 stud(여유 있게, 머리 위로). Play: 걸을 때 1~2.5 stud 늦게 따라오고 1.5~2초에 멈춤, 회전 0.
