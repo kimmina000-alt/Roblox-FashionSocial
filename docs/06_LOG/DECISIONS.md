@@ -5504,3 +5504,9 @@ Studio only (no script yet).
 ## D-1578 (2026-11-17) 클럽 입구 조명 50 %, 복도 조명선 얇게 + 50 %
 - User: "입구 조명 50으로 줄이고 클럽 복도에 조명선 더 얇게 하고 발광 50 높여".
 - ClubGlowDim (client only, D-1574): the street door's frame lights (ClubAnnex StreetDoorLight) at 50 % of their colour; the corridor lines (FoyerLED, PassageLight, CorridorNeon_E / _W, FloorLED, HallDoorFootLED) at 50 % instead of 30 % and thinner: the narrow side and the height halved, the length kept, still touching the floor (or the ceiling for a ceiling line). Stair edges (StairNeon, VIP_StairNeon) and the VIP stair hall ceiling (CeilingStrip) stay at 30 %. The place and graybox scripts are unchanged.
+
+## D-1579 (2026-11-17) 클럽 흰 통로선 원래 밝기 + 1/4 두께, 바깥 창문 80 %
+- User (shots of the white line by the VIP stair and of the street at night): "여기 흰색 선 더 얇게 하고 발광 원래 발광으로 복구 / 야외도 너무 발광 0으로 보이는데 원래 발광에서 80%만 해 봐".
+- ClubGlowDim: PassageLight (the white passage line, the vertical one by the VIP stair and the one along the ceiling) at its full colour (235) again and a quarter as thick (0.3 → 0.075); each light now has its own thinning factor (corridor floor lines stay at half).
+- SeoulNightController: lit windows at 80 % of the old colours (WINDOW_GLOW 0.3 → 0.8); at 30 % they read as unlit brown panes.
+- Play check (22:00): windows read as lit again with less bloom; PassageLight colour 235, 0.075 thick; no script errors.

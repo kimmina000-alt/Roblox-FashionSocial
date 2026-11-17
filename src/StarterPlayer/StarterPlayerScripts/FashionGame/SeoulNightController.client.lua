@@ -30,7 +30,9 @@ local WARM = Color3.fromRGB(255, 196, 140) -- about 3,000 K
 -- (D-1571, user 2026-11-17 with phone shots: "바깥 창문 발광도 너무 강해 30%만 밝혀도 될 듯") lit
 -- windows shine at 30 % of the old colour: Neon's glow follows its colour, so a darker colour is a
 -- softer light (the old full colours below, times WINDOW_GLOW)
-local WINDOW_GLOW = 0.3
+-- (D-1579, user: "야외도 너무 발광 0으로 보이는데 원래 발광에서 80%만 해 봐": 30 % read as unlit
+-- brown panes) 80 %
+local WINDOW_GLOW = 0.8
 local WINDOW_WARM = Color3.fromRGB(240, 185, 120):Lerp(Color3.new(), 1 - WINDOW_GLOW)
 local WINDOW_COOL = Color3.fromRGB(205, 215, 235):Lerp(Color3.new(), 1 - WINDOW_GLOW)
 local LIT_SHARE = 0.7
