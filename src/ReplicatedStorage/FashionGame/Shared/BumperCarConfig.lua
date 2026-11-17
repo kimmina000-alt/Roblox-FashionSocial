@@ -40,7 +40,9 @@ BumperCarConfig.WheelTurn = 1.6 -- the steering wheel turns this many times the 
 BumperCarConfig.MaxSpeed = 36
 BumperCarConfig.Accel = 60 -- full pedal
 BumperCarConfig.ReverseFactor = 0.55 -- S / stick back: backing up is slower
-BumperCarConfig.RollDrag = 0.7 -- 1/s along the car (no pedal: rolls to a stop in a few seconds)
+-- (D-1769, user 2026-11-18: "범퍼카 타고 충돌하면 더 멀리 튕기게 해 줘") 0.7 → 0.5: a car thrown by a hit rolls on
+-- further before it stops (with Restitution 0.68 → 0.85 below: about 14 → 24 studs after a full-speed hit)
+BumperCarConfig.RollDrag = 0.5 -- 1/s along the car (no pedal: rolls to a stop in a few seconds)
 BumperCarConfig.SideGrip = 4.5 -- 1/s across the car (low: the steel floor lets it slide)
 BumperCarConfig.SpinDrag = 2.2 -- 1/s
 BumperCarConfig.WheelMax = math.rad(85) -- the drive wheel turned all the way
@@ -50,7 +52,7 @@ BumperCarConfig.DriveAhead = 0.3 -- the drive wheel this far ahead of the centre
 -- the rubber ring
 BumperCarConfig.RingPad = 0.15 -- the ring's half width past the body's sides (studs)
 BumperCarConfig.ContactSeconds = 0.14
-BumperCarConfig.Restitution = 0.68 -- (D-1414, user: "더 7스터드 튕기게": a full-speed hit into a parked car now throws it back about 14 studs; D-1413 about 7)
+BumperCarConfig.Restitution = 0.85 -- (D-1769: 0.68 until then) -- (D-1414, user: "더 7스터드 튕기게": a full-speed hit into a parked car now throws it back about 14 studs; D-1413 about 7)
 BumperCarConfig.RingFriction = 0.25 -- rubber on rubber: the sideways part of a hit (spins the car)
 BumperCarConfig.BumpSoundId = "rbxassetid://9117456565" -- Plastic Cooler Hits 8 (Pro Sound Effects): a hollow thud
 BumperCarConfig.BumpSoundMin = 2.5 -- closing speed (studs/s) for a sound and a wobble

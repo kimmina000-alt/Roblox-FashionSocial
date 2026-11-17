@@ -5972,3 +5972,5 @@ Studio only (no script yet).
 - 다른 플레이어 카드(DanceController) 아래 "🎁 선물하기" 줄: 🛡 가드권 · 💎 VIP권 · 🎧 DJ권(GiftPassCard). 누르면 서버에 받는 사람을 먼저 알림("GiftTarget": 같은 서버, 본인 아님, 이미 가진 패스면 거절) → 선물 상품 결제.
 - GiftPassService: 결제되면 가드 / VIP는 받는 사람 wallet.gifted에 저장 + 패스 가진 것으로(MonetizationService.GrantGiftedPass, 접속할 때마다 다시 켬), DJ는 받는 사람 DJ 시간 30분(DjService.AddTime). 둘 다 알림. 결제 사이 받는 사람이 나가면 다음 접속 때 받음(DataStore PassGifts_v1, Studio에서는 안 씀). 받을 사람 기록이 없으면(서버 재시작) 산 사람이 받음.
 - 사용자 할 일: Creator Dashboard(경험 10773076711)에 상품 3개 만들고 id를 알려 주기 → MonetizationConfig id 채움.
+## D-1769 범퍼카 충돌하면 더 멀리 튕김 (2026-11-18)
+- 사용자: "범퍼카 타고 충돌하면 더 멀리 튕기게 해 줘". BumperCarConfig: Restitution 0.68 → 0.85(부딪힌 뒤 남는 속도), RollDrag 0.7 → 0.5(굴러가며 줄어드는 정도). 전속력 충돌 뒤 튕겨 나가는 거리 약 14 → 24스터드(계산). 페달을 놓았을 때도 조금 더 오래 굴러감.
