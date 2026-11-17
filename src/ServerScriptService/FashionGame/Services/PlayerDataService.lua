@@ -63,7 +63,7 @@ export type JobRecord = { xp: number, served: number, cleaned: number }
 -- look = the last outfit worn (OutfitSnapshot), put back on the next visit (D-771)
 -- bag = the items carried when the player left (BagService, D-790): plain
 -- tables { k = kind, ... }, given back on the next visit
-export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean }?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean? }
+export type Wallet = { coins: number, xp: number, frames: {string}, slots: number, daily: { day: string, counts: {[string]: number} }, jobs: {[string]: JobRecord}, boost: number, hair: {[string]: {number}}, tutorial: boolean, tips: {[string]: boolean}, welcome: boolean, look: any?, bag: {any}?, opening: { n: number, last: number, title: boolean, shownDay: number? }?, hideName: boolean?, hideBadges: {[string]: boolean}?, muteCheer: boolean? }
 type Session = {
 	favorites: {Favorite},
 	outfits: {Outfit},
@@ -150,6 +150,9 @@ local function sanitizeWallet(raw: any): Wallet
 			n = if typeof(o.n) == "number" then math.clamp(math.floor(o.n), 0, 100) else 0,
 			last = if typeof(o.last) == "number" then math.floor(o.last) else 0,
 			title = o.title == true,
+			-- (D-1727, user 2026-11-18: "지금 접속할 때마다 출석 이벤트 창 떠") the event day the window was last
+			-- shown (D-1691): dropped here until now, so every visit opened it again
+			shownDay = if typeof(o.shownDay) == "number" then math.floor(o.shownDay) else nil,
 		}
 	end
 	-- (D-1377 / D-1378) the ☰ menu's 닉네임 숨기기 and each badge's 숨기기 (PlayerPrefsService)

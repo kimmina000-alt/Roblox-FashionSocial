@@ -175,7 +175,7 @@ local function shell(seed: number, at: Vector3, height: number, color: Color3, d
 		local bang = Instance.new("Sound")
 		bang.Name = "FireworkBang"
 		bang.SoundId = BANG
-		bang.Volume = 0.8
+		bang.Volume = 0.2 -- (D-1728, user 2026-11-18: "폭죽 소리 1/4로 줄이기": 0.8 → 0.2)
 		bang.PlaybackSpeed = 0.9 + (seed % 7) * 0.03
 		bang.RollOffMode = Enum.RollOffMode.InverseTapered
 		bang.RollOffMinDistance = 60
