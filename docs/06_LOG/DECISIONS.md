@@ -5589,3 +5589,8 @@ Studio only (no script yet).
 - Blue Valentine 111032764768565: 173.889 s, fileSpeed 1.0696 (곡 3:06), tempo 0.935, boost 10/5/2, EQ 0/0/-7.
 - 빌려온 고양이 126150660776305: 176.341 s, fileSpeed 1.0718 (곡 3:09), tempo 0.933, boost 10/5/2, EQ -2/0/-15.5.
 - tempo × fileSpeed ≈ 1.000(넷 다). Play로 들어 보지는 않음.
+
+## D-1551 (2026-11-17) 메모리 4: 사진 벽은 가까운 사진만 사람을 채운다
+- Live phone (user's F9, Client Memory Usage): park 1,290 MB, club alone 1,367 / with 2 1,293, **오후네컷 1,766 MB**; PlaceMemory jumped 89 → 170 on walking in.
+- Studio: standing by the 오후네컷 shop walls built 71 photos = 424 dressed avatars at once (SHOP 30, SHOP2 17, HALL_S 12, STUDIO_W 10, HALL_N 2). Taking the people out (284 WorldModels) lowered Internal 1,825 → 1,530 MB: about 0.7 MB per avatar.
+- User picked option 1 of three ("1"): a photo's people are put in only while the camera is within 25 studs of that photo and taken out beyond 32; farther photos show their strip frame and colours only. PhotoRender.drawPhoto(parent, photo, empty), PhotoRender.emptyStrip; queued shots of an emptied strip are skipped (cell attribute Emptied).

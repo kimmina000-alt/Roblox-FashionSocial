@@ -135,6 +135,7 @@ end
 -- surface and photos go with it and are drawn again when it is back (the
 -- photos vanished after walking away and back, user 2026-10-26).
 local drawnWall: {[string]: BasePart} = {}
+local strips: {[string]: any} = {} -- (D-1551) id → { strip, photo, at, full }
 local function forgetWall(wall: BasePart)
 	local holder = surfaces[wall]
 	surfaces[wall] = nil
@@ -357,11 +358,44 @@ local function drawEntry(entry: Entry, order: number)
 		BackgroundTransparency = 1,
 		ZIndex = order,
 	}, holder)
-	PhotoRender.drawPhoto(frame, entry.photo)
+	-- (D-1551) only the strip here: its people are put in by the loop below once
+	-- the camera is near this photo
+	local strip = PhotoRender.drawPhoto(frame, entry.photo, true)
 	-- (a tap on it: found by a ray in the world, D-1110, not a button here)
 	drawn[entry.id] = frame
 	drawnWall[entry.id] = wall
+	strips[entry.id] = { strip = strip, photo = entry.photo, at = wallCFrame(wall, entry.u, entry.v).Position, full = false }
 end
+
+-- (D-1551, memory: on a phone 오후네컷 was 1,766 MB against 1,290 in the park)
+-- near the shop walls 71 photos = 424 dressed avatars (about 0.7 MB each) were
+-- built at once. A photo's people are put in only while the camera is within
+-- FILL studs of it and taken out beyond EMPTY; farther photos show their frame
+-- and colours only (user picked this, 2026-11-17).
+local FILL, EMPTY = 25, 32
+task.spawn(function()
+	while true do
+		task.wait(0.5)
+		local camera = workspace.CurrentCamera
+		if camera then
+			local eye = camera.CFrame.Position
+			for id, s in pairs(strips) do
+				if drawn[id] == nil or s.strip.frame.Parent == nil then
+					strips[id] = nil
+				else
+					local d = (s.at - eye).Magnitude
+					if not s.full and d < FILL then
+						s.full = true
+						PhotoRender.fillStrip(s.strip, s.photo.shots or {}, PhotoRender.peopleMap(s.photo.people), s.photo.booth)
+					elseif s.full and d > EMPTY then
+						s.full = false
+						PhotoRender.emptyStrip(s.strip)
+					end
+				end
+			end
+		end
+	end
+end)
 
 local function redrawAll()
 	-- Keep only the newest MaxWallPhotos on each wall (D-1342).

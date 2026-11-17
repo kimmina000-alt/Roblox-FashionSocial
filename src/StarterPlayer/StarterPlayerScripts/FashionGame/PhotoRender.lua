@@ -201,7 +201,7 @@ function PhotoRender.renderShot(viewport: ViewportFrame, shot: any, people: {[nu
 	for _, entry in ipairs(shot.people or {}) do
 		local info = people[entry.u]
 		local base = info and info.o and template(info.o)
-		if base and viewport.Parent then
+		if base and viewport.Parent and world.Parent then -- (D-1551: emptied meanwhile)
 			local rig = base:Clone()
 			rig.Parent = world
 			rig:PivotTo(CFrame.new(entry.x or 0, entry.y or -2.9, entry.z or 0) * CFrame.Angles(0, entry.r or 0, 0))
@@ -560,11 +560,23 @@ function PhotoRender.fillStrip(strip: Strip, shots: {any}, people: {[number]: an
 	for index, cell in ipairs(strip.cells) do
 		local shot = shots[index]
 		if shot then
+			cell:SetAttribute("Emptied", nil)
 			enqueue(function()
-				if cell.Parent then PhotoRender.renderShot(cell, shot, people, booth) end
+				if cell.Parent and not cell:GetAttribute("Emptied") then PhotoRender.renderShot(cell, shot, people, booth) end
 			end)
 		else
 			for _, child in ipairs(cell:GetChildren()) do child:Destroy() end
+		end
+	end
+end
+
+-- (D-1551, memory) takes the people out of a strip's cells (the frame and its
+-- colours stay); fillStrip puts them back. Shots still queued are skipped.
+function PhotoRender.emptyStrip(strip: Strip)
+	for _, cell in ipairs(strip.cells) do
+		cell:SetAttribute("Emptied", true)
+		for _, child in ipairs(cell:GetChildren()) do
+			if child:IsA("WorldModel") or child:IsA("Camera") then child:Destroy() end
 		end
 	end
 end
@@ -588,8 +600,10 @@ function PhotoRender.peopleMap(list: any): {[number]: any}
 end
 
 -- A whole saved photo in `parent`.
-function PhotoRender.drawPhoto(parent: GuiObject, photo: any): Strip
+-- (`empty` = true: only the strip, filled later with fillStrip, D-1551)
+function PhotoRender.drawPhoto(parent: GuiObject, photo: any, empty: boolean?): Strip
 	local strip = PhotoRender.newStrip(parent, photo.layout, photo.frame, "OHU")
+	if empty then return strip end
 	PhotoRender.fillStrip(strip, photo.shots or {}, PhotoRender.peopleMap(photo.people), photo.booth)
 	return strip
 end
