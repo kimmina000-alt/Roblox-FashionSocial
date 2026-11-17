@@ -5868,3 +5868,11 @@ Studio only (no script yet).
 - 텍스처: tools/art/hanok_garden_textures.py (hg_flagstone 111631043205596, hg_books 73840800237202).
 - Play 걷기 확인: 대문 → 마당 → 서쪽 계단 → 열린 유리문으로 집 안 → 남쪽 유리문 → 돌판 다리 → 정자, 막힘 없음. 사진 docs/06_LOG/images/2026-11-17/hanok_garden_*.jpg.
 - 모두 place에만 있음(체인이 안 건드리는 Workspace 최상위 + 사용자 부품): 사용자가 장소 저장. Studio 작업용 스크립트 사본 ServerStorage.HanokDevSrc(Kit, Garden)는 게임에서 실행되지 않음.
+## D-1742 한옥 연못 정원 2차: 실제 물, 연잎, 다도세트, 도드라진 판석 (2026-11-17)
+- 사용자(연잎 사진 hanok_garden_lotus.webp, 다도세트 사진 hanok_garden_teaset.png, 전 다도세트 화면, 판석이 튀어나온 바닥 hanok_garden_raised_flagstone.png): "연잎이랑 다도세트 이미지 참고해서 다시 만들어. 연못은 실제 물 재질로 넣어 줘. 바닥에 실제로 저렇게 튀어나오는 불규칙적인 3d 이미지 하나 만들어서 바닥에 입체감 줘".
+- 물: Terrain Water. 지형 칸이 4스터드라 얇은 FillCylinder는 물이 안 생김 → 필지 안 칸에 직접 씀(WriteVoxels: 아래 칸 가득, 위 칸 0.24 = 수면 약 0.9). 수면이 바닥보다 낮아야 해서 마당 포장을 높이 1.0으로 올리고 연못 자리를 CSG로 뚫음(포장 CanCollide 끔, 대신 투명 WalkFloor 68개: 연못 안쪽만 비어 물에 들어가면 바닥 0까지 내려감). 연못 바닥은 검은 판. 물 색은 Terrain.WaterColor(바다와 같은 하늘색, 장소 전체 설정)를 따름.
+- 연잎: AI 메시 LotusFlat(물에 뜬 둥근 잎) 약 44 + LotusTall(줄기로 솟은 잎) 약 12, SurfaceAppearance로 색을 사진처럼 차분하게. 연꽃 공은 뺌.
+- 판석: AI 메시 Flagstone 하나(불규칙 다각형, 모서리 둥글게)를 크기 · 방향 제각각으로 길(대문 → 집 계단, 대문 → 정자, 정자 앞, 남쪽 계단)과 연못 둘레에 458개. 메시 텍스처를 빼고 Slate 재질, 포장 색. 충돌 없음.
+- 다도세트(찻상 위): 흰 쟁반 + 대나무 차판(홈 5줄), 크림색 점박이 도자기(SmoothPlastic + 점 텍스처 hg_speckle 126869188514605): 옆손잡이 찻주전자(부품), 숙우 · 잔 3개는 공을 CSG로 깎은 둥근 그릇(잔 2개 겹침). AI 다도세트 메시는 모양이 달라(위 손잡이, 잔 손잡이) 쓰지 않음.
+- 계단 · 대문 문턱 · 정자 계단 · 화단 · 다리 높이를 새 마당 높이에 맞춤. HanokGarden 부품 약 1,075(존 예산 1,500 안).
+- 사진: docs/06_LOG/images/2026-11-17/hanok_garden_v2_*.jpg.

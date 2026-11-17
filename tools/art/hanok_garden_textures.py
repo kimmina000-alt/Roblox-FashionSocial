@@ -70,3 +70,19 @@ if __name__ == "__main__":
     flagstone().save(f"{out}/hg_flagstone.png")
     books().save(f"{out}/hg_books.png")
     print("ok")
+
+
+def speckle(S=256, n=420):
+    """hg_speckle.png: brown dots on transparent, laid over cream ceramic (D-1742)."""
+    img = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    d = ImageDraw.Draw(img)
+    for _ in range(n):
+        x, y = random.uniform(0, S), random.uniform(0, S)
+        r = random.choice([0.8, 1.0, 1.2, 1.6])
+        a = random.randint(110, 220)
+        d.ellipse([x - r, y - r, x + r, y + r], fill=(120, 92, 66, a))
+    return img
+
+
+if __name__ == "__main__" and len(sys.argv) > 2 and sys.argv[2] == "speckle":
+    speckle().save(f"{sys.argv[1]}/hg_speckle.png")
