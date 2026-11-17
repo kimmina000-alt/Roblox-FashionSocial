@@ -27,6 +27,8 @@ local LIFT = 1.0 -- (× its weight: just floats; was 1.6, D-1599 the follow belo
 local FOLLOW_SPEED = 7
 local FOLLOW_RESPONSE = 0.8 -- (Play 2026-11-17: trails about 2 studs while walking, settles in 1.5 s)
 local RISE = 7 -- (studs / s when let go)
+local DOUBLE_TAP = 0.45 -- (seconds between the two taps that let go, D-1652)
+local STILL_AFTER = 1.5 -- (seconds standing still before the balloon is held still, D-1651)
 local FLY_SECONDS = 14
 
 local function template(): MeshPart?
@@ -170,7 +172,7 @@ function BalloonService.give(player: Player, name: string, color: Color3): Tool?
 	if not backpack then return nil end
 	local tool = Instance.new("Tool")
 	tool.Name = name
-	tool.ToolTip = "누르면 손을 놓아요"
+	tool.ToolTip = "두 번 누르면 손을 놓아요" -- (D-1652)
 	tool.CanBeDropped = false
 	tool.RequiresHandle = true
 	tool:SetAttribute("Balloon", true)
@@ -226,8 +228,35 @@ function BalloonService.give(player: Player, name: string, color: Color3): Tool?
 		local f = balloon:FindFirstChild("Follow")
 		if f then f:Destroy() end
 	end)
+	-- (D-1652, user 2026-11-17: "풍선 화면 두번 터치하면 날아가는 걸로 수정") two taps within
+	-- DOUBLE_TAP seconds let go (one tap did, and a tap meant for the camera or a button lost it)
+	local lastTap = 0
 	tool.Activated:Connect(function()
+		local t = os.clock()
+		if t - lastTap > DOUBLE_TAP then
+			lastTap = t
+			return
+		end
+		lastTap = 0
 		if tool.Parent and balloon.Parent then letGo(player, tool, balloon) end
+	end)
+	-- (D-1651, user 2026-11-17: "가만히 서 있을 때는 풍선 안 움직이게 수정") once the holder has
+	-- stood still for STILL_AFTER seconds the brake (Drag) gets strong, so the balloon stays put;
+	-- it lets go as soon as they move again
+	task.spawn(function()
+		local drag = balloon:FindFirstChild("Drag") :: LinearVelocity?
+		local mass = balloon:GetMass() * workspace.Gravity
+		local stillFor = 0
+		while tool.Parent and balloon.Parent and drag do
+			task.wait(0.25)
+			local character = tool.Parent
+			local root = character and character:FindFirstChild("HumanoidRootPart")
+			local moving = not (root and root:IsA("BasePart")) or not character:IsA("Model")
+				or root.AssemblyLinearVelocity.Magnitude > 0.6 or root.AssemblyAngularVelocity.Magnitude > 0.5 -- (turning on the spot too)
+			stillFor = if moving then 0 else stillFor + 0.25
+			local brake = if stillFor >= STILL_AFTER then mass * 8 else mass * 0.35
+			if drag.MaxForce ~= brake then drag.MaxForce = brake end
+		end
 	end)
 	tool.Parent = backpack
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")

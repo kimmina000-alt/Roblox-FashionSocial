@@ -9,7 +9,7 @@
 --   "Board", ride, seat#     viking (D-1428): that seat; already on that boat and it stands
 --                            still: move there (D-1429)
 --   "Board", ride, slot      carousel horse / swing / spring rider
---   "Leave"                  → exit CFrame (wheel: only near the bottom)
+--   "Leave"                  → exit CFrame (wheel: anywhere, put down at the boarding point, D-1650)
 --   "Level", delta           swing speed −/+ (0..SwingLevels)
 --   "Slid"                   came down the slide → "야호!" for everyone
 -- Remote ParkNotify (RemoteEvent) to all: "Yahoo", player.
@@ -218,12 +218,9 @@ local function leave(player: Player, home: boolean?): (boolean, any)
 		clear(player)
 		return true, nil
 	end
-	if ride.kind == "ParkWheel" then
-		local index = tonumber(string.match(ride.slot.Name, "^Cabin(%d+)$"))
-		if index and ParkConfig.cabinFromBottom(ride.model, index, now()) > ParkConfig.WheelBoardAngle * 1.6 then
-			return false, "관람차가 아래로 내려오면 내릴 수 있어요."
-		end
-	end
+	-- (D-1650, user 2026-11-17: "관람차 중간에 내릴 수 있게 수정. 중간에 탈주한다 사람들.") the ferris
+	-- wheel lets you off anywhere now (it waited for the cabin to come down, up to 2.5 minutes): the
+	-- rider is put down at the boarding point on the ground, as at the bottom
 	if ParkConfig.isSeatRide(ride.kind) then
 		local still, left = ParkConfig.rideState(ride.model, now())
 		if not still then return false, string.format("%s 멈추면 내릴 수 있어요 (%d초).", ParkConfig.SeatRideSubjects[ride.kind] or "", math.ceil(left)) end

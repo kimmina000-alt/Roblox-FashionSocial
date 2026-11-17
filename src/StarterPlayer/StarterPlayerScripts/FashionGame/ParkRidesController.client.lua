@@ -1227,18 +1227,7 @@ local function refreshUi(t: number)
 		mainButton.Visible = true
 		mainButton.Text = KEY .. "내리기"
 		mainButton.BackgroundColor3 = Color3.fromRGB(255, 110, 170)
-		if entry.kind == "ParkWheel" then
-			local index = tonumber(string.match(entry.slot.Name, "^Cabin(%d+)$")) or 1
-			local gap = ParkConfig.cabinFromBottom(entry.ride, index, t)
-			if gap > ParkConfig.WheelBoardAngle * 1.6 then
-				local speed = 2 * math.pi / attrNumber(entry.ride, "Period", 150)
-				local a = ParkConfig.cabinAngle(entry.ride, index, t) % (2 * math.pi)
-				local toBottom = (2 * math.pi - ParkConfig.WheelBoardAngle) - a
-				if toBottom < 0 then toBottom += 2 * math.pi end
-				mainButton.Text = string.format(KEY .. "내리기 (아래까지 %d초)", math.ceil(toBottom / speed))
-				mainButton.BackgroundColor3 = Color3.fromRGB(120, 110, 130)
-			end
-		end
+		-- (D-1650) the ferris wheel lets you off anywhere: the button is always the pink 내리기
 		if ParkConfig.isSeatRide(entry.kind) then -- (D-1425) off only while it stands still
 			local still, left = ParkConfig.rideState(entry.ride, t)
 			if not still then
