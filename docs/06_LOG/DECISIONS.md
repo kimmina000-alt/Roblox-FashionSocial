@@ -5501,7 +5501,7 @@ Studio only (no script yet).
 - Workspace.StreamingTargetRadius 384 → 256 (StreamingMinRadius 128, Opportunistic, PauseOutsideLoadedArea unchanged; no script sets these), place only.
 - Studio Play, same spots, 20 s each: parts on the client at the spawn 17,314 → 13,039 (−25 %), in the park 13,497 → 9,715 (−28 %); instances 28,132 → 22,838 / 22,449 → 16,839. Far buildings now arrive later: from the spawn the street is built about 250 studs out.
 
-## D-1578 (2026-11-17) 사진 벽: 네온 테두리 2.6 스터드 안쪽 금지
+## D-1577 (2026-11-17) 사진 벽: 네온 테두리 2.6 스터드 안쪽 금지
 - User (Studio screenshot, strips by the PHOTO niche circled): "얘 떠 있는 이유가 뭐라고?" → "멈추고 확인해서 고쳐".
 - Cause: the niche's white neon outline (NicheRim) runs about 2.5 studs outside the opening; between the line and the opening is a band of the pink wall, flush with the hall's north wall. Three OHU_HALL_N strips (x 94 / 97 / 98) sat on that band or right next to the line: they are on the wall, but seen at an angle they looked as if they hung in the niche's frame.
 - PhotoWallFit.NeonMargin = 2.6: a photo may not come within 2.6 studs of a Neon part on its wall (the D-1563 neon check, widened). Play: the band is clear; the server moved 13 photos to backed spots at start; no script errors.
