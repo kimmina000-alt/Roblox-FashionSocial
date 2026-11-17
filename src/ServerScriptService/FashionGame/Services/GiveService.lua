@@ -24,7 +24,9 @@ local REACH = 16 -- studs: tap someone this near to give
 local ACCEPT_REACH = 40 -- still this near when they accept
 local OFFER_SECONDS = 15
 
-local KINDS = { "Snack", "Plate", "Bottle", "Cup", "Sparkler", "SparklerSet", "HandSparkler" }
+local KINDS = { "Snack", "Plate", "Bottle", "Cup", "Sparkler", "SparklerSet", "HandSparkler", "CarryTube" }
+-- (D-1591) the beach ring (TubeRentService, CarryTube) is not a bag item: it is handed over as it is,
+-- and only to someone without one
 
 function GiveService.giveable(tool: Instance?): boolean
 	if not tool or not tool:IsA("Tool") then return false end
@@ -136,6 +138,17 @@ local function respond(target: Player, id: any, accept: any): (boolean, string?)
 		return false, "아이템이 이미 없어졌어요."
 	end
 	if distance(giver, target) > ACCEPT_REACH then return false, "너무 멀어졌어요. 가까이 가서 다시 받아 주세요." end
+	if tool:GetAttribute("CarryTube") then
+		local TubeRentService = require(script.Parent:WaitForChild("TubeRentService"))
+		local backpack = target:FindFirstChildOfClass("Backpack")
+		if TubeRentService.owned(target) or not backpack then
+			tell(giver, "Result", "fail", target.DisplayName, o.name)
+			return false, "이미 튜브를 가지고 있어요."
+		end
+		tool.Parent = backpack
+		tell(giver, "Result", "yes", target.DisplayName, o.name)
+		return true, nil
+	end
 	local entry = takeEntry(giver, tool)
 	if entry == nil then return false, "지금은 받을 수 없어요." end
 	local count = #BagService.collect(target)
