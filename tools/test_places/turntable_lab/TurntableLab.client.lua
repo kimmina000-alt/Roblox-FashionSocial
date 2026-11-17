@@ -183,6 +183,7 @@ local TRACKS = {
 	{ title = "Boogie Woogie-NCT DREAM", id = 102947379971628 }, -- file 186.6 s, song 3:16 (88611788717575 is the same file)
 	{ title = "내 이름을 불러줘(Call My Name)-투어스(TWS)", id = 129638210426239 }, -- file 154.1 s, song 2:45
 	{ title = "Lucky Girl Syndrome-ILLIT", id = 99186584464449 }, -- file 130.9 s, song 2:20
+	{ title = "뛰어 JUMP-BLACKPINK", id = 82763014578432 }, -- file 154.0 s, song 2:45
 }
 -- a track's club value as a full lab table (nil for the Roblox tracks)
 local function clubValues(t: any): any
