@@ -859,35 +859,11 @@ local function toast(message: string)
 end
 
 local firstPerson = false
--- (D-1520, user: "관람차 1인칭 시점하면 관람차 기둥 보이는데 1인칭 시점에서 기둥 안 보이게") in first person
--- in a cabin, the wheel's frame (spokes, legs and their stars, hub, axle, bearings, the cabins' hangers)
--- is hidden on this screen only; the cabins, the rim and its lights stay
--- (D-1590, user 2026-11-17: "관람차 이제 기둥이랑 안 겹치니까 기둥 보이는 걸로 수정") the cabins hang outside
--- the wheel now (D-1565), clear of the legs: the legs, their stars and the bearings stay in view
-local WHEEL_FRAME = {
-	Spoke = true, Axle = true,
-	Hub = true, HubWindow = true, HangRod = true, Hanger = true,
-	-- (D-1546, user 2026-11-16, first-person screenshots at night: "관람차 1인칭 시점에 관람차 기둥 안 보이게
-	-- 하지 않았어?") the rim and its lights too: at night they glow (ParkNightController) and the big
-	-- neon bars filled the view
-	Rim = true, RimLight = true, Chord = true, Diagonal = true, HubPlate = true,
-	CabinArm = true, CabinBrace = true, -- (D-1565: the brackets out to the cabins)
-}
-local hiddenFrame: {BasePart} = {}
-local function hideWheelFrame(wheel: Instance?)
-	for _, p in ipairs(hiddenFrame) do p.LocalTransparencyModifier = 0 end
-	table.clear(hiddenFrame)
-	if not wheel then return end
-	for _, p in ipairs(wheel:GetDescendants()) do
-		if p:IsA("BasePart") and WHEEL_FRAME[p.Name] then
-			p.LocalTransparencyModifier = 1
-			table.insert(hiddenFrame, p)
-		end
-	end
-end
+-- (D-1595, user 2026-11-17 with a first-person screenshot: "관람차 공중에 떠 있어서 비현실적이야 / 안 보이게
+-- 감춘 거 다 삭제해") the code that hid the wheel's frame in first person (D-1520 / D-1546 / D-1590) is
+-- gone: the cabins hang on a whole wheel again
 local function setFirstPerson(on: boolean)
 	firstPerson = on
-	hideWheelFrame(if on and mySlot and mySlot.kind == "ParkWheel" then mySlot.ride else nil)
 	player.CameraMode = if on then Enum.CameraMode.LockFirstPerson else Enum.CameraMode.Classic
 	-- Modal frees the mouse in first person, so 🎥 3인칭 can be clicked
 	-- (user report: stuck in first person with the mouse locked).

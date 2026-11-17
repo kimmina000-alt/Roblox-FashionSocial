@@ -5617,3 +5617,7 @@ Studio only (no script yet).
 - Live phone (user's F9, Client Memory Usage): park 1,290 MB, club alone 1,367 / with 2 1,293, **오후네컷 1,766 MB**; PlaceMemory jumped 89 → 170 on walking in.
 - Studio: standing by the 오후네컷 shop walls built 71 photos = 424 dressed avatars at once (SHOP 30, SHOP2 17, HALL_S 12, STUDIO_W 10, HALL_N 2). Taking the people out (284 WorldModels) lowered Internal 1,825 → 1,530 MB: about 0.7 MB per avatar.
 - User picked option 1 of three ("1"): a photo's people are put in only while the camera is within 25 studs of that photo and taken out beyond 32; farther photos show their strip frame and colours only. PhotoRender.drawPhoto(parent, photo, empty), PhotoRender.emptyStrip; queued shots of an emptied strip are skipped (cell attribute Emptied).
+
+
+## D-1595 (2026-11-17) 관람차 1인칭에서 숨기던 코드 삭제
+- User (first-person screenshot from a cabin: the other cabins floating in the sky): "관람차 공중에 떠 있어서 비현실적이야 / 안 보이게 감춘 거 다 삭제해 / 보이게 다시 코드 작성하는 거 아니고 감춘 코드 지우는 거 맞지". ParkRidesController: WHEEL_FRAME, hiddenFrame, hideWheelFrame and its call in setFirstPerson are deleted (D-1520 / D-1546 / D-1590); nothing of the wheel is hidden in first person any more. Studio script identical to git.
