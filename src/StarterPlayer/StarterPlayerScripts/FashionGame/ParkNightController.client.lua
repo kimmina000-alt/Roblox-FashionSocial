@@ -103,6 +103,26 @@ local function findRim()
 	end
 end
 
+---------------------------------------------------------------- the tea cups' teapot spikes
+-- (D-1575, user 2026-11-17: "회전컵 조형물 조명은 밤에만 빛나게") the spikes on the tea cups' teapot
+-- (SpikeGlow / SpikeTip, park_teacups_1115.lua) are plain cream plastic in the place; at night they
+-- glow (Neon at 30 % of the cream, D-1573)
+local SPIKE_DAY = Color3.fromRGB(255, 246, 214)
+local SPIKE_NIGHT = Color3.fromRGB(77, 74, 64)
+local function setSpikes(on: boolean)
+	for _, ride in ipairs(CollectionService:GetTagged("ParkTeaCups")) do
+		for _, p in ipairs(ride:GetDescendants()) do
+			if p:IsA("BasePart") and (p.Name == "SpikeGlow" or p.Name == "SpikeTip") then
+				local mat = if on then Enum.Material.Neon else Enum.Material.SmoothPlastic
+				if p.Material ~= mat then
+					p.Material = mat
+					p.Color = if on then SPIKE_NIGHT else SPIKE_DAY
+				end
+			end
+		end
+	end
+end
+
 ---------------------------------------------------------------- the searchlights
 type Light = { head: BasePart, beamEnd: BasePart, beam: Beam, phase: number }
 local lights: {Light} = {}
@@ -207,6 +227,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 			r.part.Material = if on then Enum.Material.Neon else r.dayMat
 			if not on then r.part.Color = r.day end
 		end
+		setSpikes(on)
 		for _, l in ipairs(lights) do l.beam.Enabled = on end
 		if not on then fireworks:ClearAllChildren() end
 	end
@@ -233,7 +254,7 @@ RunService.Heartbeat:Connect(function(dt: number)
 		end
 		b.Color = PALETTE[(seq + step) % #PALETTE + 1]
 	end
-	if step % 12 == 0 then findRim() end
+	if step % 12 == 0 then findRim() setSpikes(true) end
 	-- the rim: a rainbow wave round the wheel
 	for _, r in ipairs(rim) do
 		if r.part.Material ~= Enum.Material.Neon then r.part.Material = Enum.Material.Neon end

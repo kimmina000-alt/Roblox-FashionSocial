@@ -5451,3 +5451,8 @@ Studio only (no script yet).
 ## D-1574 (2026-11-17) 클럽 계단 · 복도 조명 30 %
 - User: "클럽 계단과 복도에 있는 조명 발광 수정 안 했으면 거기 발광도 줄여 줘" (D-1570 only toned the picture down indoors; these Neon lines were unchanged).
 - New client script ClubGlowDim: Neon parts named StairNeon, VIP_StairNeon, FoyerLED, PassageLight, CorridorNeon_E / _W, FloorLED, HallDoorFootLED, CeilingStrip inside 02_Club or ClubAnnex take 30 % of their colour on each screen (parts streamed in again are dimmed again). The place and the graybox scripts keep the full colours, so no chain run is needed. The dance floor, DJ, bar, VIP signs and crown lights are unchanged.
+
+## D-1575 (2026-11-17) 회전컵 조형물 불빛은 밤에만
+- User: "회전컵 조형물 조명은 밤에만 빛나게".
+- The teapot spikes (SpikeGlow / SpikeTip) are plain cream SmoothPlastic (255, 246, 214) in the place and in park_teacups_1115.lua. ParkNightController turns them to Neon at 30 % (77, 74, 64, D-1573) from 18:00 to 06:00 while the camera is near the park, like the string lights; parts streamed in at night are caught every 12 steps.
+- Play check: 14:00 → 24 spikes plastic, 21:30 → 24 Neon (77, 74, 64); no script errors. Place change: the user saves.
