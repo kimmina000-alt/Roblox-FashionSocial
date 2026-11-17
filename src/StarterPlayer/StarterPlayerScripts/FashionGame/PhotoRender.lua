@@ -249,16 +249,25 @@ end
 --------------------------------------------------
 
 local queue: {() -> ()} = {}
+local FRAME_BUDGET = 0.008 -- (D-1730) seconds of shot building per frame
 local pumping = false
 local function enqueue(job: () -> ())
 	table.insert(queue, job)
 	if pumping then return end
 	pumping = true
 	task.spawn(function()
+		-- (D-1730, user 2026-11-18: "오후네컷 들어가면 근처부터 렉 걸림") the shots were built back to back in
+		-- one go: walking up to a photo wall built 40 photos' dressed avatars at once (Studio: frames of
+		-- 330 ms). Now the queue stops for a frame once FRAME_BUDGET seconds of work are done
+		local started = os.clock()
 		while #queue > 0 do
 			local next = table.remove(queue, 1) :: () -> ()
 			local ok, err = pcall(next)
 			if not ok then warn("[PhotoRender]", err) end
+			if os.clock() - started > FRAME_BUDGET then
+				task.wait()
+				started = os.clock()
+			end
 		end
 		pumping = false
 	end)

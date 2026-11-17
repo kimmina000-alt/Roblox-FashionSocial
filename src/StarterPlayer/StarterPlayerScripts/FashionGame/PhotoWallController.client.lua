@@ -372,25 +372,35 @@ end
 -- built at once. A photo's people are put in only while the camera is within
 -- FILL studs of it and taken out beyond EMPTY; farther photos show their frame
 -- and colours only (user picked this, 2026-11-17).
-local FILL, EMPTY = 25, 32
+-- (D-1730, user 2026-11-18: "오후네컷 들어가면 근처부터 렉 걸림") 25 / 32 → 18 / 24 studs, and only the
+-- MAX_FULL photos nearest the camera are filled (walking up to a wall filled 40 at once: 18,000
+-- instances, ~100 MB and frames of 330 ms in Studio); the nearest are filled first
+local FILL, EMPTY = 18, 24
+local MAX_FULL = 12
 task.spawn(function()
 	while true do
 		task.wait(0.5)
 		local camera = workspace.CurrentCamera
 		if camera then
 			local eye = camera.CFrame.Position
+			local list = {}
 			for id, s in pairs(strips) do
 				if drawn[id] == nil or s.strip.frame.Parent == nil then
 					strips[id] = nil
 				else
-					local d = (s.at - eye).Magnitude
-					if not s.full and d < FILL then
-						s.full = true
-						PhotoRender.fillStrip(s.strip, s.photo.shots or {}, PhotoRender.peopleMap(s.photo.people), s.photo.booth)
-					elseif s.full and d > EMPTY then
-						s.full = false
-						PhotoRender.emptyStrip(s.strip, s.photo.booth)
-					end
+					table.insert(list, { s = s, d = (s.at - eye).Magnitude })
+				end
+			end
+			table.sort(list, function(a, b) return a.d < b.d end)
+			for rank, e in ipairs(list) do
+				local s = e.s
+				local want = if s.full then e.d <= EMPTY and rank <= MAX_FULL + 4 else e.d < FILL and rank <= MAX_FULL
+				if want and not s.full then
+					s.full = true
+					PhotoRender.fillStrip(s.strip, s.photo.shots or {}, PhotoRender.peopleMap(s.photo.people), s.photo.booth)
+				elseif not want and s.full then
+					s.full = false
+					PhotoRender.emptyStrip(s.strip, s.photo.booth)
 				end
 			end
 		end
