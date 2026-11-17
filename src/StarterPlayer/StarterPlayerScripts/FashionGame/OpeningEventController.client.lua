@@ -245,6 +245,9 @@ task.spawn(function()
 	-- (D-1690) Studio never counts attendance: with the first-visit test switch on (FirstGoalTest) the
 	-- window shows after the tour anyway, to see the first visit in order
 	local TEST = game:GetService("RunService"):IsStudio() and FashionGame:GetAttribute("FirstGoalTest") == true
+	-- (D-1731) in Studio the window opens by itself only with FirstGoalTest on (Studio never writes the
+	-- day it was shown, so it opened on every Play); the 🎁 button still opens it. Live is unchanged
+	if game:GetService("RunService"):IsStudio() and not TEST then return end
 	-- (D-1691 / D-1693) once each event day (the day turns at 05:00 KST): the server says when (OpeningShowWindow)
 	while not TEST and player:GetAttribute("OpeningShowWindow") ~= true and os.clock() - t0 < 30 do task.wait(0.5) end
 	if not TEST and player:GetAttribute("OpeningShowWindow") ~= true then return end

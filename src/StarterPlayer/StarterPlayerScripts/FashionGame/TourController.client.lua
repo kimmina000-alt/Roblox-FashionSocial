@@ -320,6 +320,10 @@ if UiBus.StartTour then UiBus.StartTour.Event:Connect(start) end
 -- the guide NPC's question still starts it again. (Studio: FirstGoalTest = true shows it every Play.)
 task.spawn(function()
 	local TEST = game:GetService("RunService"):IsStudio() and FashionGame:GetAttribute("FirstGoalTest") == true
+	-- (D-1731, user 2026-11-18: "스튜디오에 튜토리얼이랑 출석 체크 이벤트 띄우지 마 실제로 플레이어들한테는 사용해야 함")
+	-- in Studio the tour starts by itself only with FirstGoalTest on (test players are new every Play);
+	-- live servers are unchanged
+	if game:GetService("RunService"):IsStudio() and not TEST then return end
 	local waited = 0
 	while player:GetAttribute("TipsSeen") == nil and waited < 20 do
 		task.wait(0.5)

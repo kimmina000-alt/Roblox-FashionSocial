@@ -5854,3 +5854,6 @@ Studio only (no script yet).
 ## D-1730 오후네컷 사진 벽 근처 렉 (2026-11-18)
 - 사용자: "오후네컷 들어가면 근처부터 렉 걸림 / 사진 로딩 때문에 그런가". 맞음: 벽에 가까이 가면 25스터드 안의 사진(Studio에서 40장)의 컷마다 옷 입은 아바타를 한꺼번에 만들어(PhotoRender 대기열이 쉬지 않고 연달아 처리) 프레임이 최대 330ms 멈추고 인스턴스 18,000개 · 메모리 약 100MB가 늘었음.
 - PhotoRender: 대기열이 한 프레임에 8ms만 일하고 다음 프레임으로 넘김(FRAME_BUDGET). PhotoWallController: 채우는 거리 25/32 → 18/24, 카메라에서 가까운 사진 12장(MAX_FULL)만 채우고 가까운 것부터. Studio 측정: 벽 앞 8초 동안 가장 긴 프레임 330ms → 84ms, 150ms 넘는 프레임 4 → 0. 사진: docs/06_LOG/images/2026-11-18/photowall_after.jpg.
+## D-1731 Studio에서는 투어 · 출석 창이 저절로 안 뜸 (2026-11-18)
+- 사용자: "스튜디오에 튜토리얼이랑 출석 체크 이벤트 띄우지 마 실제로 플레이어들한테는 사용해야 함".
+- TourController / OpeningEventController: Studio에서는 FirstGoalTest가 켜져 있을 때만 저절로 뜸(테스트 플레이어는 매번 새 사람이고, Studio는 출석 창 본 날을 저장하지 않아 매 Play마다 떴음). 🎁 버튼과 안내원 "동네 둘러보기 다시 보기"는 그대로. 라이브 서버는 변화 없음. Studio의 FirstGoalTest 속성은 지움.
