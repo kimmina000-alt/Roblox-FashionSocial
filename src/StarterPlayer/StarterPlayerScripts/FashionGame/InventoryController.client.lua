@@ -152,12 +152,24 @@ local PHONE = UserInputService.TouchEnabled and not UserInputService.KeyboardEna
 local COLS = if PHONE then 4 else 8
 do
 	local grid = list:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
-	grid.CellSize = UDim2.new(1 / COLS, -8, 0, 100)
+	-- (D-1597) each card gives up its share of the gaps only (8 x (COLS - 1) / COLS), not a whole 8:
+	-- the last column ends at the list's edge instead of 8 short
+	grid.CellSize = UDim2.new(1 / COLS, -8 * (COLS - 1) / COLS, 0, 100)
 	local ratio = Instance.new("UIAspectRatioConstraint")
 	ratio.AspectRatio = 88 / 100
 	ratio.Parent = grid
 end
 local photoList = scroller(Vector2.new(88, 190))
+-- (D-1597, user 2026-11-17: "아이템 칸 여백 안 남게 사이즈 고정하지 말고 화면에 따라 비율로 칸 나누기")
+-- the photo cards too: a share of the width like the item cards (4 a row on phones, 8 on PC),
+-- the height by the old 88 : 190, so no empty strip is left at the right on any screen
+do
+	local grid = photoList:FindFirstChildOfClass("UIGridLayout") :: UIGridLayout
+	grid.CellSize = UDim2.new(1 / COLS, -8 * (COLS - 1) / COLS, 0, 190)
+	local ratio = Instance.new("UIAspectRatioConstraint")
+	ratio.AspectRatio = 88 / 190
+	ratio.Parent = grid
+end
 
 local empty = Instance.new("TextLabel")
 empty.Position = UDim2.fromOffset(16, 124)

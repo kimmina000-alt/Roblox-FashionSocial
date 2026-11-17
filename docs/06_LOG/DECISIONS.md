@@ -5627,3 +5627,7 @@ Studio only (no script yet).
 - saveFramedPhoto now preloads the cuts' meshes / textures / clothing (ContentProvider:PreloadAsync on the sheet, at most 8 s) after the draw queue is empty, then waits 0.5 s before the shot.
 - The orientation is worked out from the strip's aspect a (PhotoRender.stripAspect) and the screen L x S: lying down the strip is min(S, L / a) tall, standing up min(L, S / a); the bigger one wins (2 % margin). On a 735 x 413 phone the 1x4 strip (a 0.31) is 228 wide standing vs 128 lying → portrait; the 2x2 strip (a 1.07) is 442 lying vs 413 standing → landscape. The screen turns only when needed (Portrait or LandscapeSensor) and goes back to the player's setting after.
 - Mobile 3P test (Player2's phone view): the 1x4 photo drawn on the save sheet, 129 assets preloaded in 2.4 s, the screen turned 735 x 413 → 413 x 735 and the strip filled it; going back with the old setting alone (Sensor) left the emulated phone upright, so the turn back first sets the way the player held it (LandscapeSensor or Portrait), then the old setting after 1.5 s (checked: 735 x 413 again and it stays). Player3: 1x4 → portrait, 2x2 → landscape. No script errors on the server or the three phones.
+
+## D-1597 가방: 사진 칸도 화면 너비 비율로 (2026-11-17)
+- 사용자(폰 화면 사진, 사진 탭에 3장 + 오른쪽 빈 칸): "아이템 칸 여백 안 남게 사이즈 고정하지 말고 화면에 따라 비율로 칸 나누기".
+- InventoryController: 사진 칸도 소지품 칸처럼 너비의 1/COLS(폰 4, PC 8), 높이는 예전 88 : 190 비율(UIAspectRatioConstraint). 두 목록 모두 칸마다 간격 몫(8 × (COLS − 1) / COLS)만 빼서 마지막 열이 목록 끝에 딱 맞음(남는 여백 0, Play에서 너비 340 / 408 / 760 확인).
