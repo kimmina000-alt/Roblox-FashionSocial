@@ -825,7 +825,8 @@ plusButton.TextSize = 24
 local tapHint = Instance.new("TextLabel")
 tapHint.Name = "TapHint"
 tapHint.AnchorPoint = Vector2.new(0.5, 1)
-tapHint.Position = if TOUCH then UDim2.new(0.5, 0, 1, -24 - 48 - 6) else UDim2.new(0.5, 0, 1, -110 - 48 - 6)
+-- (D-1707, user 2026-11-18: "회전컵에 문구 조금 더 아래로 내리기") 10 lower: just over the 32-high buttons
+tapHint.Position = if TOUCH then UDim2.new(0.5, 0, 1, -24 - 44) else UDim2.new(0.5, 0, 1, -110 - 44)
 tapHint.Size = UDim2.fromOffset(420, 30)
 tapHint.BackgroundTransparency = 1
 tapHint.Text = "화면을 마구 클릭해 보세요!"
@@ -898,6 +899,14 @@ local function setFirstPerson(on: boolean)
 			if not firstPerson then player.CameraMinZoomDistance = 0.5 end
 		end)
 	end
+end
+
+-- (D-1706, user 2026-11-18: "바이킹 두 개, 점핑스타, 회전컵, 튜브 모두 내리기 삭제. 점프 키 유지. 점프하면 내리는
+-- 것으로. 점핑스타나 바이킹 회전컵은 중간에 못 내림.") rides left by jumping (no 내리기 button): the carousel /
+-- fire trucks (D-1661), the ferris wheel (D-1702), tubes, vikings, tea cups and the jumping star; the seat
+-- rides only while they stand still (a jump while they run does nothing: placeOwn sits the rider again)
+local function jumpOff(kind: string?): boolean
+	return kind == "ParkCarousel" or kind == "ParkWheel" or kind == "FloatTube" or ParkConfig.isSeatRide(kind)
 end
 
 local function setJump(enabled: boolean)
@@ -1008,7 +1017,7 @@ local function pressMain()
 			-- (D-1661, user 2026-11-17: "회전목마 ... 점프 버튼 유지해서 점프하면 내리게 하기") on the carousel
 			-- (and the fire trucks, built on its code) jumping stays on: a jump gets you off (JumpRequest below)
 			-- (D-1702, user 2026-11-17: "관람차 내리기 삭제. 점프하면 내리게.") the ferris wheel too
-			setJump(mySlot ~= nil and (mySlot.kind == "ParkCarousel" or mySlot.kind == "ParkWheel"))
+			setJump(mySlot ~= nil and jumpOff(mySlot.kind)) -- (D-1706: tubes / seat rides too)
 		elseif typeof(result) == "string" then
 			toast(result)
 		end
@@ -1019,7 +1028,12 @@ end
 -- (D-1661) the carousel's way off: the jump button (Space on a keyboard) instead of a 내리기 button
 UserInputService.JumpRequest:Connect(function()
 	local entry = mySlot
-	if entry and (entry.kind == "ParkCarousel" or entry.kind == "ParkWheel") and not busy then pressMain() end
+	if not entry or busy or not jumpOff(entry.kind) then return end
+	if ParkConfig.isSeatRide(entry.kind) then -- (D-1706) off only while it stands still
+		local still = ParkConfig.rideState(entry.ride, now())
+		if not still then return end
+	end
+	pressMain()
 end)
 
 -- (D-1591) TubeCarryController: walking into the sea with the beach ring put it on the water; get in it
@@ -1071,7 +1085,7 @@ local function pickSeat(ride: Model, index: number)
 		for _, entry in ipairs(slots) do
 			if entry.slot == result.slot and entry.key == result.key then mySlot = entry boardedAt = os.clock() end
 		end
-		setJump(false)
+		setJump(mySlot ~= nil and jumpOff(mySlot.kind)) -- (D-1706: the jump button gets you off)
 	elseif typeof(result) == "string" then
 		toast(result)
 	end
@@ -1181,6 +1195,8 @@ UserInputService.InputBegan:Connect(function(input: InputObject, processed: bool
 	end)
 end)
 
+local spinHintFor: any = nil
+local spinHintAt = 0
 local function updateSpinTap(t: number)
 	local entry = mySlot
 	local show = false
@@ -1197,13 +1213,21 @@ local function updateSpinTap(t: number)
 		end
 	end
 	spinGui.Enabled = show
-	tapHint.Visible = show -- (D-1546)
-	-- (D-1660, user 2026-11-17: "클릭할수록 회전 속도가 빨라져요. 이어서 띄우기") the two lines take turns,
-	-- 2.5 s each
+	-- (D-1660 took turns between the two lines; D-1707, user 2026-11-18: "화면을 마구 클릭해 보세요. 띄우고 2초 후에
+	-- 다음 문구 띄우고 2초 후에 사라짐. 끝. 반복 X") once per ride: 2 s the first line, 2 s the second, then none
+	-- (until this player gets off and on again)
+	if not entry then spinHintFor = nil end
+	local text: string? = nil
 	if show then
-		local text = if (os.clock() // 2.5) % 2 == 0 then "화면을 마구 클릭해 보세요!" else "클릭할수록 회전 속도가 빨라져요."
-		if tapHint.Text ~= text then tapHint.Text = text end
+		if spinHintFor ~= entry then
+			spinHintFor = entry
+			spinHintAt = os.clock()
+		end
+		local e = os.clock() - spinHintAt
+		text = if e < 2 then "화면을 마구 클릭해 보세요!" elseif e < 4 then "클릭할수록 회전 속도가 빨라져요." else nil
 	end
+	tapHint.Visible = text ~= nil -- (D-1546)
+	if text and tapHint.Text ~= text then tapHint.Text = text end
 end
 
 local function updateSeatPicks(t: number)
@@ -1283,8 +1307,8 @@ local function refreshUi(t: number)
 			bar.Visible = false
 			return
 		end
-		-- (D-1702) the ferris wheel: no 내리기 button (jump to get off), only 👁 1인칭
-		mainButton.Visible = entry.kind ~= "ParkWheel"
+		-- (D-1702 / D-1706) no 내리기 button on the rides left by jumping, only 👁 1인칭
+		mainButton.Visible = not jumpOff(entry.kind)
 		viewButton.Visible = entry.kind == "ParkWheel" or ParkConfig.isSeatRide(entry.kind)
 		viewButton.Text = if firstPerson then (if KEY ~= "" then "🎥 3인칭 (V)" else "🎥 3인칭") else (if KEY ~= "" then "👁 1인칭 (V)" else "👁 1인칭")
 		local isSwing = entry.kind == "ParkSwing"
