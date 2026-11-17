@@ -5501,6 +5501,6 @@ Studio only (no script yet).
 - Workspace.StreamingTargetRadius 384 → 256 (StreamingMinRadius 128, Opportunistic, PauseOutsideLoadedArea unchanged; no script sets these), place only.
 - Studio Play, same spots, 20 s each: parts on the client at the spawn 17,314 → 13,039 (−25 %), in the park 13,497 → 9,715 (−28 %); instances 28,132 → 22,838 / 22,449 → 16,839. Far buildings now arrive later: from the spawn the street is built about 250 studs out.
 
-## D-1577 (2026-11-17) 클럽 입구 조명 50 %, 복도 조명선 얇게 + 50 %
+## D-1578 (2026-11-17) 클럽 입구 조명 50 %, 복도 조명선 얇게 + 50 %
 - User: "입구 조명 50으로 줄이고 클럽 복도에 조명선 더 얇게 하고 발광 50 높여".
 - ClubGlowDim (client only, D-1574): the street door's frame lights (ClubAnnex StreetDoorLight) at 50 % of their colour; the corridor lines (FoyerLED, PassageLight, CorridorNeon_E / _W, FloorLED, HallDoorFootLED) at 50 % instead of 30 % and thinner: the narrow side and the height halved, the length kept, still touching the floor (or the ceiling for a ceiling line). Stair edges (StairNeon, VIP_StairNeon) and the VIP stair hall ceiling (CeilingStrip) stay at 30 %. The place and graybox scripts are unchanged.
