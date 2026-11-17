@@ -6,10 +6,13 @@
 -- place (only parts with a marking name, at most 0.1 high, in exactly the old colours; anything else is left alone).
 -- Last step of the layout chain; idempotent (a second run finds nothing in the old colours).
 
+-- (D-1735: white and yellow again, saturation x 0.35; the D-1725 colours are old colours too)
 local OLD_NEW = {
-	{ Color3.fromRGB(240, 240, 240), Color3.fromRGB(192, 192, 188) },
-	{ Color3.fromRGB(240, 190, 40), Color3.fromRGB(200, 168, 78) },
+	{ Color3.fromRGB(240, 240, 240), Color3.fromRGB(192, 192, 191) },
+	{ Color3.fromRGB(240, 190, 40), Color3.fromRGB(200, 189, 157) },
 	{ Color3.fromRGB(40, 90, 200), Color3.fromRGB(62, 92, 150) },
+	{ Color3.fromRGB(192, 192, 188), Color3.fromRGB(192, 192, 191) },
+	{ Color3.fromRGB(200, 168, 78), Color3.fromRGB(200, 189, 157) },
 }
 -- (the marking names build_hongdae_layout gives them)
 local NAMES = {}
@@ -22,7 +25,7 @@ end
 
 local root = workspace:FindFirstChild("Hongdae_Layout")
 assert(root, "Workspace.Hongdae_Layout missing")
-local counts = { 0, 0, 0 }
+local counts = { 0, 0, 0, 0, 0 }
 for _, d in ipairs(root:GetDescendants()) do
 	if d:IsA("BasePart") and NAMES[d.Name] and d.Size.Y <= 0.1 and d.Material == Enum.Material.SmoothPlastic then
 		for i, pair in ipairs(OLD_NEW) do
@@ -42,6 +45,6 @@ for _, d in ipairs(root:GetDescendants()) do
 		counts[1] += 1
 	end
 end
-local msg = string.format("[road_paint_1118] white %d, yellow %d, blue %d recoloured", counts[1], counts[2], counts[3])
+local msg = string.format("[road_paint_1118] white %d, yellow %d, blue %d recoloured", counts[1] + (counts[4] or 0), counts[2] + (counts[5] or 0), counts[3])
 print(msg)
 return msg
