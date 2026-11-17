@@ -40,7 +40,9 @@ end
 variant("OHU_HanokPineV", Enum.Material.Wood, TEX.pineV, 7)
 variant("OHU_HanokPineH", Enum.Material.Wood, TEX.pineH, 7)
 variant("OHU_HanokPlaster", Enum.Material.Plaster, TEX.plaster, 18)
-variant("OHU_HanokGranite", Enum.Material.Granite, TEX.granite, 6)
+variant("OHU_HanokGranite", Enum.Material.Granite, TEX.granite, 6) -- 바위 · 판석
+variant("OHU_HanokPlinth", Enum.Material.Slate, "rbxassetid://139079642745427", 8) -- 벽 아래 돌(주춧돌 · 기단 · 계단), 사진 hanok_stone_plinth.png (D-1744)
+variant("OHU_HanokYard", Enum.Material.Slate, "rbxassetid://107556194476613", 12) -- 마당 바닥, 사진 hanok_stone_yard.webp (D-1744)
 variant("OHU_HanokDarkV", Enum.Material.Wood, TEX.darkV, 6)
 variant("OHU_HanokDarkH", Enum.Material.Wood, TEX.darkH, 6)
 
@@ -70,9 +72,9 @@ local function box(model, name, size, pos, kind, opts)
 		p.MaterialVariant = "OHU_HanokPlaster"
 		p.Color = Color3.fromRGB(255, 255, 255)
 	elseif kind == "stone" then
-		p.Material = Enum.Material.Granite
-		p.MaterialVariant = "OHU_HanokGranite"
-		p.Color = Color3.fromRGB(255, 255, 255)
+		p.Material = Enum.Material.Slate
+		p.MaterialVariant = "OHU_HanokPlinth"
+		p.Color = Color3.fromRGB(222, 218, 210)
 	elseif kind == "iron" then
 		p.Material = Enum.Material.Metal
 		p.Color = Color3.fromRGB(38, 36, 34)

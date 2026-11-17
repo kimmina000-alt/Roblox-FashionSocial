@@ -50,7 +50,7 @@ local function folder(name)
 	local f = Instance.new("Model") f.Name = name f.Parent = root return f
 end
 local function mat(p, material, color) p.Material = material p.Color = color return p end
-local STONE = Color3.fromRGB(255, 255, 255) -- 화강암 사진 텍스처 그대로 (D-1743)
+local STONE = Color3.fromRGB(222, 218, 210) -- 벽 아래 돌 사진(OHU_HanokPlinth) 위에 곱하는 색 (D-1744)
 local function stone(m, name, x0, x1, y0, y1, z0, z1)
 	local p = box(m, name, Vector3.new(x1 - x0, y1 - y0, z1 - z0), Vector3.new((x0 + x1) / 2, (y0 + y1) / 2, (z0 + z1) / 2), "stone")
 	p.Color = STONE
@@ -187,8 +187,8 @@ pave.CanCollide = false -- CSG 충돌은 구멍까지 메움: 아래 WalkFloor �
 pave.CastShadow = false
 pave.Parent = gd
 pave0:Destroy()
-mat(pave, Enum.Material.Concrete, Color3.fromRGB(128, 128, 130))
-pave.MaterialVariant = "OHU_Asphalt" -- 거리 차도와 같은 실사 아스팔트 (D-1743: 도드라진 판석이 입체감)
+mat(pave, Enum.Material.Slate, Color3.fromRGB(200, 200, 200))
+pave.MaterialVariant = "OHU_HanokYard" -- 사용자 바닥 돌 사진 (D-1744; D-1743 의 아스팔트 대신)
 -- 걷는 바닥(투명): 2스터드 칸, 연못 안쪽(가장자리 1 안)만 비움, 같은 모양 줄끼리 합침
 local rows = {}
 for z = LZ0, LZ1 - 2, 2 do
@@ -287,6 +287,17 @@ local function place(name, pos, scale, yaw)
 	m:PivotTo(CFrame.new(m:GetPivot().Position) * CFrame.Angles(0, yaw, 0))
 	local cf, s = m:GetBoundingBox()
 	m:PivotTo(m:GetPivot() + (pos + Vector3.new(0, s.Y / 2, 0) - cf.Position))
+	if name:sub(1, 4) == "Rock" then -- 바위도 화강암 사진 텍스처 (D-1744)
+		for _, d in ipairs(m:GetDescendants()) do
+			if d:IsA("MeshPart") then
+				for _, x in ipairs(d:GetChildren()) do if x:IsA("SurfaceAppearance") then x:Destroy() end end
+				d.TextureID = ""
+				d.Material = Enum.Material.Granite
+				d.MaterialVariant = "OHU_HanokGranite"
+				d.Color = Color3.fromRGB(255, 255, 255)
+			end
+		end
+	end
 	m.Parent = deco
 	return m
 end

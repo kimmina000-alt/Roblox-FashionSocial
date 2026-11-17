@@ -5882,3 +5882,9 @@ Studio only (no script yet).
 - 마당 포장: 거리 차도와 같은 실사 아스팔트(Concrete + MaterialVariant OHU_Asphalt, 색 128,128,130), 납작 돌 텍스처는 뺌.
 - 다도세트: 손잡이 모양 때문에 빼 두었던 AI 메시를 사용자 요청대로 다시 넣음(InsertService로 업로드 id 71556407953405 / 113470511072183 / 107112482480768 → ArtAssets.HanokGardenAssets.TeaKyusu / TeaPitcher / TeaCup): 위 손잡이 주전자, 숙우, 잔 3(둘은 겹쳐) 를 대나무 차판 위에. 부품 도자기는 메시가 없을 때만.
 - 사진: docs/06_LOG/images/2026-11-17/hanok_garden_v3_*.jpg.
+## D-1744 한옥 연못 정원 4차: 바위 화강암, 벽 아래 돌 · 마당 바닥 사진 텍스처 (2026-11-17)
+- 사용자(바위 동그라미 화면 + 돌 사진 2장): "얘네도 돌 텍스처 넣어 줘. 한옥 벽에 있는 아래 돌 부분은 이 텍스처로 넣어 봐. 바닥은 세 번째 이미지".
+- 바위(AI 메시 RockC · RockB 20개): 메시 텍스처를 빼고 OHU_HanokGranite(D-1743 화강암 사진).
+- 벽 아래 돌(주춧돌 · 기단 · 계단 · 돌판 다리 · 대문 문턱 · 정자 기단): 밝은 돌 사진(hanok_stone_plinth.png) → OHU_HanokPlinth(Slate, 8스터드, 색 222,218,210). 벽 키트 주춧돌도 같이.
+- 마당 바닥: 거친 회색 돌 사진(hanok_stone_yard.webp) → OHU_HanokYard(Slate, 12스터드, 색 200,200,200). D-1743 아스팔트 대신. 판석은 화강암 그대로.
+- 사진: docs/06_LOG/images/2026-11-17/hanok_garden_v4_*.jpg.
