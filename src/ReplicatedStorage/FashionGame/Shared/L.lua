@@ -174,6 +174,12 @@ translate = function(b: Book, s: string, depth: number): string
 	if depth > 6 or not hasHangul(s) then return s end
 	local hit = b.exact[s] or tryTemplates(b, s, depth)
 	if hit then return hit end
+	-- (D-1710) spaces around the text (the club marquee pads its " · " parts)
+	local lead, core, trail = string.match(s, "^(%s*)(.-)(%s*)$")
+	if core ~= s and core ~= "" then
+		hit = b.exact[core] or tryTemplates(b, core, depth)
+		if hit then return lead .. hit .. trail end
+	end
 	-- rich text: translate the text between tags
 	if string.find(s, "<[%a/][^>]*>") then
 		local changed = false
