@@ -1972,7 +1972,11 @@ local function showViewerPhoto(photo: any, list: {any}?)
 	viewerPhoto = photo
 	if list then
 		viewerList = list
-		viewerIndex = table.find(list, photo) or 0
+		-- (by id: a BindableEvent hands over copies, so the same photo is not the same table)
+		viewerIndex = 0
+		for i, p in ipairs(list) do
+			if p == photo or (photo.id ~= nil and typeof(p) == "table" and p.id == photo.id) then viewerIndex = i break end
+		end
 	end
 	for _, child in ipairs(viewerHolder:GetChildren()) do child:Destroy() end
 	PhotoRender.drawPhoto(viewerHolder, photo)
