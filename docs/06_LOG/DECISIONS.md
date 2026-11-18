@@ -6106,3 +6106,6 @@ Studio only (no script yet).
 
 ## D-1801 (2026-11-18) 추천 탭: 코디 코드 9H5TYW "네온 스테이지 2"
 - User: "9H5TYW 이것도 추가". The second look from a 코디 코드 (read only from OutfitCodes_v1), right after 네온 스테이지: "네온 스테이지 2", R$ 290, 6 items (anime dreaming girl body bundle 104077541197932 75, straight black hair 12866539725 65, white crop tee 112307027330610 65, white layered bottom 124373716702512 75, classic shirt / pants 5 + 5). Same path as D-1800 (snapshot, server rig picture); the name added to the 16 I18n tables. Synced in Edit only (Play was held for the main session's merge test).
+## D-1802 (2026-11-18) 카탈로그: 같은 목록을 다시 그리면 스크롤 유지
+- User (phone shot of 착용 중 scrolled down): "카탈로그에서 옷 벗을 때 드래그해서 내려서 벗으면 스크롤 다시 올라감 스크롤 고정". renderLocalMode set CanvasPosition to 0 on every redraw, and taking an item off (WORN) redraws 착용 중.
+- renderLocalMode remembers the list it drew (resultsFrame attribute LocalRenderMode); redrawing the same list puts the old scroll back as the cards come in (new module CatalogScrollKeep.hold: at most 2 s, never past the end). A search, category change or the catalog reset (CatalogScrollKeep.reset) still starts at the top. CatalogController got 7 lines and no new top-level locals (200-register limit).

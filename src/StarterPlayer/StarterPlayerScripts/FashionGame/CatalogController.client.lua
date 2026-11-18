@@ -3058,6 +3058,9 @@ local EMPTY_MESSAGES = {
 renderLocalMode = function()
 	if browseMode == "Catalog" or browseMode == "Popular" then return end
 	local mode = browseMode
+	-- (D-1802) the same list redrawn keeps its scroll (CatalogScrollKeep)
+	local keepY = if resultsFrame:GetAttribute("LocalRenderMode") == mode then resultsFrame.CanvasPosition.Y else 0
+	resultsFrame:SetAttribute("LocalRenderMode", mode)
 	-- Overlapping renders (mode switch + worn refresh) must not both append cards;
 	-- duplicated cards made the 착용 중 drag send a duplicated, rejected layer list.
 	local generation = (resultsFrame:GetAttribute("LocalRenderGeneration") or 0) + 1
@@ -3069,6 +3072,7 @@ renderLocalMode = function()
 	table.clear(cardContentUIScales)
 	clearContainer(resultsFrame)
 	resultsFrame.CanvasPosition = Vector2.zero
+	require(script.Parent:WaitForChild("CatalogScrollKeep")).hold(resultsFrame, keepY)
 
 	if mode == "Wardrobe" then
 		setResultsMessage(nil)
@@ -3233,6 +3237,7 @@ searchCatalog = function()
 
 	searchBusy = true
 	resultsFrame.CanvasPosition = Vector2.zero
+	require(script.Parent:WaitForChild("CatalogScrollKeep")).reset(resultsFrame)
 
 	sortMenu.Visible = false
 
@@ -3376,6 +3381,7 @@ searchCatalog = function()
 
 	-- Every new search/category/filter starts at the top of the results list.
 	resultsFrame.CanvasPosition = Vector2.zero
+	require(script.Parent:WaitForChild("CatalogScrollKeep")).reset(resultsFrame)
 
 	-- Keep each category truthful: an individual animation category must not
 	-- silently display Animation Pack bundles as if they were individual assets.
@@ -3672,6 +3678,7 @@ openButton.MouseButton1Click:Connect(function()
 	mainCategoryStrip.CanvasPosition = Vector2.zero
 	subcategoryStrip.CanvasPosition = Vector2.zero
 	resultsFrame.CanvasPosition = Vector2.zero
+	require(script.Parent:WaitForChild("CatalogScrollKeep")).reset(resultsFrame)
 
 	refreshWornItems()
 	updateCatalogLayout()
