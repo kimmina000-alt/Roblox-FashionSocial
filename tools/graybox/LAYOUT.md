@@ -111,6 +111,7 @@
   - `road_paint_1118.lua` (D-1725) — 도로 차선(흰 · 노랑 · 파랑 버스차로) 색을 어둡고 탁하게: 낮 블룸에 빛나던 것. 이름이 차선인 얇은 SmoothPlastic 중 옛 색만 바꿈(빌드 스크립트도 새 색). 체인 끝 쪽 어디든.
   - `spawn_by_guide_1117.lua` (D-1696) — 플레이어 스포너를 포켓 파크 안내원 토끼 바로 옆(-105, 0.6, -56)으로, 안내원(서쪽)을 보고 시작. 체인 맨 끝에(빌드 스크립트가 스포너를 모퉁이 광장으로 옮기므로).
   - `beach_tube_pile_1117.lua` (D-1576) — 해변 종합안내도 북쪽(21 스터드) 모래 위에 튜브 18개 더미 + "튜브 무료 대여" 표지판 + PromptPart(TubeRentService가 "튜브 들기"를 붙임). build_beach_signs 다음에 실행.
+  - `table_height_1118.lua` (D-1795) — 테이블 높이를 클럽 바 기준으로(의자 3.0 : 테이블 5.0 = 테이블은 의자 높이 × 5/3, 낮추기만): OH24 창가 바 + 온수기 쪽 바(SnackTable WindowBar)와 해변 카페 CafeTable을 검사, 다리는 짧게(발은 그대로), 윗면과 그 위 물건(온수기 · 전자레인지 · 트레이 · 표지)은 같이 내림. 2026-11-18 결과: OH24 두 바 5.40 → 5.01, 해변 카페는 이미 기준 이하라 그대로. user_map_snapshot_1113 뒤, 체인 맨 끝 쪽. 다시 돌려도 같다(`_G.TABLE_HEIGHT_DRY = true`면 목록만).
   - `park_carousel_roof_1116.lua` (D-1548) — 회전목마 새 지붕(ArtAssets.CarouselRoof2) + 지붕 조명(Rotor.RoofLights). 옛 지붕은 ArtAssets.CarouselRoofOld.
 
 ## 한옥 벽 키트 · 연못 정원 (2026-11-17, D-1740 / D-1741, place 전용, 체인 밖)
