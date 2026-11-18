@@ -12,17 +12,23 @@
 --     on the same beat (ChoreoController's stage mode, UiBus.ChoreoStage; other screens keep them on
 --     the beat too, RemoteChoreoSync).
 -- User picks (2026-11-18): same beat for all, heard in the whole plaza, round neon stage.
+-- (D-1820, user 2026-11-19: "현재 네온만 나오는데 안무 있는 음원 랜덤으로 모두 나오게 / 네온 조명선 삭제 / 단상 가장
+-- 넓은 원 크기에 가장 높은 높이로 한 층으로만", then "조명선 하나만 얇고 연하게 넣자. 분홍색", "1인칭 뜨는 것처럼
+-- 카메라 버튼"): every club song with a choreography, one at a time at random (never the same twice in a
+-- row; FashionGame attribute NeonStageTrack = its soundId, set with NeonStageStart), the stage one
+-- round step of radius 18 at the old top's height, one thin pale pink line, and a 🎥 무대 카메라 button
+-- on the stage (the club's stage camera, filming on the stage song's clock).
 
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local ClubConfig = require(ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Shared"):WaitForChild("ClubConfig"))
 
 local NeonStageConfig = {}
 
-NeonStageConfig.SoundId = 140713297574648 -- NEON-A2O LITE (ClubPlaylist; D-932's upload, choreography and camera keyed on it)
+NeonStageConfig.SoundId = 140713297574648 -- NEON-A2O LITE (ClubPlaylist): the song when no other is set
 NeonStageConfig.Center = Vector3.new(-96, -1.98, -128) -- (the plaza floor at the stage's middle: the walked face, measured)
-NeonStageConfig.Radius = 16 -- (the stage's top; D-1793: was 10)
-NeonStageConfig.StepRadius = 18 -- (the low step round it; D-1793: was 11.6)
-NeonStageConfig.Height = 1.2 -- (the top over the plaza floor: two 0.6 steps, walked up from any side)
+NeonStageConfig.Radius = 18 -- (the stage; D-1820: one step, as wide as the old low step)
+NeonStageConfig.StepRadius = 18 -- (= Radius since D-1820: no low step any more)
+NeonStageConfig.Height = 1.2 -- (the top over the plaza floor, the old top's height; walked up, D-1820)
 NeonStageConfig.Top = NeonStageConfig.Center.Y + NeonStageConfig.Height
 NeonStageConfig.HearInner = 34 -- (full plaza level inside the tiers' front edge, r 34.6)
 NeonStageConfig.HearOuter = 48 -- (silent from here out)
@@ -51,15 +57,33 @@ function NeonStageConfig.level(position: Vector3): number
 	return NeonStageConfig.PlazaLevel * (1 - (flat - NeonStageConfig.HearInner) / (NeonStageConfig.HearOuter - NeonStageConfig.HearInner))
 end
 
--- the playlist entry (its lab, fileSpeed and choreography)
-function NeonStageConfig.track(): ClubConfig.Track?
+-- the songs the stage plays (D-1820): every playlist song with a choreography, one file each (a song
+-- joined from clips needs the club's clip player: left out)
+function NeonStageConfig.tracks(): {ClubConfig.Track}
+	local list = {}
 	for _, t in ipairs(ClubConfig.Playlist) do
-		if t.soundId == NeonStageConfig.SoundId then return t end
+		if t.choreo and #t.choreo > 0 and typeof(t.soundId) == "number" and not ClubConfig.isJoined(t) then
+			table.insert(list, t)
+		end
+	end
+	return list
+end
+
+function NeonStageConfig.trackById(soundId: any): ClubConfig.Track?
+	if typeof(soundId) ~= "number" then return nil end
+	for _, t in ipairs(ClubConfig.Playlist) do
+		if t.soundId == soundId and t.choreo then return t end
 	end
 	return nil
 end
 
--- the audio's PlaybackSpeed (its lab tempo; no DJ speed out here)
+-- the stage's song now (FashionGame attribute NeonStageTrack), NEON when none is set
+function NeonStageConfig.track(): ClubConfig.Track?
+	local fg = ReplicatedStorage:FindFirstChild("FashionGame")
+	return NeonStageConfig.trackById(fg and fg:GetAttribute("NeonStageTrack")) or NeonStageConfig.trackById(NeonStageConfig.SoundId)
+end
+
+-- the audio's PlaybackSpeed (its lab tempo or base speed; no DJ speed out here)
 function NeonStageConfig.playSpeed(track: ClubConfig.Track): number
 	return ClubConfig.trackRate(track, 1)
 end

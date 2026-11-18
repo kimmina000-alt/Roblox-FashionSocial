@@ -15,13 +15,17 @@
 local C = Vector3.new(-96, -1.98, -128) -- (the plaza's walked face, measured: ParkCollide / ParkLevel top)
 -- (D-1793, user 2026-11-18: "무대 더 키워 바닥에 글씨 지우고 단상 재질은 댄스봉 단상 재질과 동일하게")
 -- radius 10 / 11.6 -> 16 / 18 (nothing stands within 22 of the middle; the tiers start at 34.6)
-local TOP_R, STEP_R = 16, 18
+-- (D-1820, user 2026-11-19: "단상 가장 넓은 원 크기에 가장 높은 높이로 한 층으로만", "네온 조명선 삭제", then "조명선
+-- 하나만 얇고 연하게 넣자. 분홍색") one step of radius 18 at the old top's height (1.2), the neon bands,
+-- ring and inner disc gone, one thin pale pink line under the top edge
+local TOP_R, STEP_R = 18, 18
 local STEP_TOP, TOP_TOP = C.Y + 0.6, C.Y + 1.2
 local SINK = 0.1 -- (the solids start under the plaza floor: no shared face with it)
 -- the club dance poles' base (Graybox_MainSocial.02_Club.PoleBase): silver DiamondPlate
 local BODY = Color3.fromRGB(190, 192, 198)
 local BODY_MAT = Enum.Material.DiamondPlate
 local PINK = Color3.fromRGB(255, 70, 200)
+local PALE_PINK = Color3.fromRGB(255, 196, 228)
 local VIOLET = Color3.fromRGB(150, 90, 255)
 
 local old = workspace:FindFirstChild("네온무대")
@@ -48,14 +52,10 @@ local function disc(name: string, radius: number, y0: number, y1: number, color:
 	return p
 end
 
-local step = disc("StageStep", STEP_R, C.Y - SINK, STEP_TOP, BODY, BODY_MAT, true)
-local top = disc("StageTop", TOP_R, C.Y - SINK, TOP_TOP, BODY, BODY_MAT, true)
--- the neon bands: 0.15 out from each edge, their tops 0.05 under the walking face above them
-disc("NeonStepBand", STEP_R + 0.15, STEP_TOP - 0.3, STEP_TOP - 0.05, PINK, Enum.Material.Neon, false)
-disc("NeonTopBand", TOP_R + 0.15, TOP_TOP - 0.3, TOP_TOP - 0.05, VIOLET, Enum.Material.Neon, false)
--- a thin neon ring drawn on the top, 1.2 in from its edge
-disc("NeonTopRing", TOP_R - 1.2, TOP_TOP - 0.05, TOP_TOP + 0.02, PINK, Enum.Material.Neon, false)
-disc("TopInner", TOP_R - 1.4, TOP_TOP - 0.04, TOP_TOP + 0.03, BODY, BODY_MAT, false)
+disc("StageTop", TOP_R, C.Y - SINK, TOP_TOP, BODY, BODY_MAT, true)
+-- the one light line: 0.06 out from the edge, 0.1 high, its top 0.08 under the walking face
+local line = disc("StageLine", TOP_R + 0.06, TOP_TOP - 0.18, TOP_TOP - 0.08, PALE_PINK, Enum.Material.Neon, false)
+line.Transparency = 0.35
 
 -- six small lights round the edge, pink and violet in turn
 for k = 0, 5 do
