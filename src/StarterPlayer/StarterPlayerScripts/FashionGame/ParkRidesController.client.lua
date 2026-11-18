@@ -1209,24 +1209,125 @@ local function cupUnderScreen(x: number, y: number): (Model?, number?, Vector3?)
 	return bestRide, bestCup, bestHit
 end
 
-local function pressAt(x: number, y: number)
-	local ride, cup, hit = cupUnderScreen(x, y)
-	if not ride or not cup or not hit then return end
-	local current = mySlot
-	if current and current.ride ~= ride then return end
-	local root = ownRoot()
-	if not root then return end
-	local pivot = ride:GetPivot()
-	if Vector3.new(root.Position.X - pivot.X, 0, root.Position.Z - pivot.Z).Magnitude > attrNumber(ride, "Reach", 20)
-		or math.abs(root.Position.Y - pivot.Y) > 60 then
-		toast("회전컵 앞에서 탈 수 있어요.")
-		return
+-- (D-1780, user 2026-11-18: "다른 놀이기구도 운행 멈춰 있을 때는 놀이기구 클릭하면 탑승할 수 있도록") the same
+-- for the vikings and the jumping star: a press on the boat / the seat ring (the moving piece's
+-- bounding box) while it stands still seats you on its free seat nearest to where you pressed; and
+-- the ferris wheel: a press on the cabin standing at the bottom gets you in, as 🎡 관람차 타기 does.
+-- The nearest thing along the ray wins (a tea cup in front of a viking, ...).
+local function rayBox(o: Vector3, d: Vector3, cf: CFrame, size: Vector3): number?
+	local lo, ld = cf:PointToObjectSpace(o), cf:VectorToObjectSpace(d)
+	local tmin, tmax = -math.huge, math.huge
+	for _, axis in ipairs({ "X", "Y", "Z" }) do
+		local p0, dv, half = (lo :: any)[axis], (ld :: any)[axis], (size :: any)[axis] / 2
+		if math.abs(dv) < 1e-9 then
+			if math.abs(p0) > half then return nil end
+		else
+			local t1, t2 = (-half - p0) / dv, (half - p0) / dv
+			tmin, tmax = math.max(tmin, math.min(t1, t2)), math.min(tmax, math.max(t1, t2))
+		end
 	end
-	local per = attrNumber(ride, "SeatsPerCup", 4)
-	if current and math.ceil((tonumber(string.match(current.key, "%d+")) or 0) / per) == cup then return end -- (already in it)
-	local index = nearestFreeSeat(ride, hit, now(), cup)
-	if not index then toast("이 컵은 자리가 가득 찼어요. 다른 컵을 눌러 보세요.") return end
-	task.spawn(pickSeat, ride, index)
+	if tmax < math.max(tmin, 0) then return nil end
+	return if tmin > 0 then tmin else tmax
+end
+
+local function nearRide(ride: Model, root: BasePart): boolean
+	local pivot = ride:GetPivot()
+	return Vector3.new(root.Position.X - pivot.X, 0, root.Position.Z - pivot.Z).Magnitude <= attrNumber(ride, "Reach", 20)
+		and math.abs(root.Position.Y - pivot.Y) <= 60
+end
+
+local function boardWheel(ride: Model)
+	if busy or mySlot then return end
+	busy = true
+	local ok, result = remote:InvokeServer("Board", ride)
+	if ok and typeof(result) == "table" then
+		for _, entry in ipairs(slots) do
+			if entry.slot == result.slot and entry.key == result.key then mySlot = entry boardedAt = os.clock() end
+		end
+		setJump(mySlot ~= nil and jumpOff(mySlot.kind))
+	elseif typeof(result) == "string" then
+		toast(result)
+	end
+	busy = false
+end
+
+local function pressAt(x: number, y: number)
+	local camera = workspace.CurrentCamera
+	local root = ownRoot()
+	if not camera or not root then return end
+	local ray = camera:ScreenPointToRay(x, y)
+	local o, d = ray.Origin, ray.Direction
+	local t = now()
+	local current = mySlot
+	-- the nearest pressed ride: a tea cup, a viking boat / jumping star ring, a wheel cabin at the bottom
+	local bestS = math.huge
+	local action: (() -> ())? = nil
+	local cupRide, cup, cupHit = cupUnderScreen(x, y)
+	if cupRide and cup and cupHit then
+		bestS = (cupHit - o).Magnitude
+		action = function()
+			if current and current.ride ~= cupRide then return end
+			if not nearRide(cupRide, root) then toast("회전컵 앞에서 탈 수 있어요.") return end
+			local per = attrNumber(cupRide, "SeatsPerCup", 4)
+			if current and math.ceil((tonumber(string.match(current.key, "%d+")) or 0) / per) == cup then return end -- (already in it)
+			local index = nearestFreeSeat(cupRide, cupHit, now(), cup)
+			if not index then toast("이 컵은 자리가 가득 찼어요. 다른 컵을 눌러 보세요.") return end
+			task.spawn(pickSeat, cupRide, index)
+		end
+	end
+	local bodies = {}
+	for _, v in ipairs(vikings) do table.insert(bodies, { ride = v.model, body = v.swing or v.model }) end
+	for _, j in ipairs(jumpstars) do
+		table.insert(bodies, { ride = j.model, body = j.car or j.model })
+		-- (its seat car is small: the tower it runs on counts too)
+		local tower = j.model.Parent and j.model.Parent:FindFirstChild("TowerMesh")
+		if tower and tower:IsA("BasePart") then table.insert(bodies, { ride = j.model, body = tower }) end
+	end
+	for _, b in ipairs(bodies) do
+		local ride = b.ride
+		if ride.Parent and ParkConfig.rideState(ride, t) then
+			local body = b.body :: any
+			local cf, size
+			if body:IsA("BasePart") then cf, size = body.CFrame, body.Size else cf, size = body:GetBoundingBox() end
+			local sAt = rayBox(o, d, cf, size)
+			if sAt and sAt < bestS then
+				bestS = sAt
+				local hit = o + d * sAt
+				action = function()
+					if current then return end -- (on it already: the seat spots move you, D-1429)
+					if not nearRide(ride, root) then
+						toast((ParkConfig.SeatRideNames[ParkConfig.seatRideKind(ride) or ""] or "놀이기구") .. " 앞에서 탈 수 있어요.")
+						return
+					end
+					local index = nearestFreeSeat(ride, hit, now())
+					if not index then toast("자리가 가득 찼어요. 다음 운행을 기다려 주세요.") return end
+					task.spawn(pickSeat, ride, index)
+				end
+			end
+		end
+	end
+	for _, w in ipairs(wheels) do
+		local ride = w.model
+		local index = ride.Parent and ParkConfig.cabinAtBottom(ride, t)
+		local cabin = index and ride:FindFirstChild("Cabin" .. index)
+		if cabin and cabin:IsA("Model") then
+			local cf, size = cabin:GetBoundingBox()
+			local sAt = rayBox(o, d, cf, size)
+			if sAt and sAt < bestS then
+				bestS = sAt
+				action = function()
+					if current then return end
+					local boardPoint = ride:FindFirstChild("BoardPoint")
+					if boardPoint and boardPoint:IsA("BasePart") and (boardPoint.Position - root.Position).Magnitude > ParkConfig.BoardDistance then
+						toast("관람차 탑승장에서 탈 수 있어요.")
+						return
+					end
+					task.spawn(boardWheel, ride)
+				end
+			end
+		end
+	end
+	if action then action() end
 end
 
 -- a short press that did not move: a mouse click, or a finger tapped and lifted within 0.4 s
