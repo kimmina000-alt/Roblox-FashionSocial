@@ -114,7 +114,7 @@ local function stepWobble(w: Wobble, dt: number)
 end
 
 ---------------------------------------------------------------- driving (this player's car)
-type Drive = { root: BasePart, seat: VehicleSeat, pos: Vector3, vel: Vector3, yaw: number, spin: number, wheel: number }
+type Drive = { root: BasePart, seat: VehicleSeat, pos: Vector3, vel: Vector3, yaw: number, spin: number, wheel: number, reversing: boolean? }
 local drive: Drive? = nil
 local contacts: {[BasePart]: boolean} = {} -- (rings touching last frame: sound once per hit)
 local coneHit: {[Instance]: number} = {} -- (D-1827: when this car last knocked each cone)
@@ -220,7 +220,9 @@ UserInputService.InputEnded:Connect(function(input)
 end)
 local function keyPedal(): boolean
 	if UserInputService:GetFocusedTextBox() then return false end
+	-- (D-1828: S / ↓ too, for backing up on a keyboard)
 	return UserInputService:IsKeyDown(Enum.KeyCode.W) or UserInputService:IsKeyDown(Enum.KeyCode.Up)
+		or UserInputService:IsKeyDown(Enum.KeyCode.S) or UserInputService:IsKeyDown(Enum.KeyCode.Down)
 end
 -- over the item bar (and the ride bar's buttons) at the bottom middle
 local function placePedal()
@@ -288,13 +290,34 @@ local function simulate(d: Drive, dt: number)
 	-- to turn (positive wheel = to the right = the heading going down), the pedal by the stick
 	local steer, pedal = 0, 0
 	local wish = moveWish(d.seat)
+	-- (D-1828, user 2026-11-19: "후진 넣을까" → picked the real bumper car way) the stick pulled back (the way
+	-- it points is behind the car: more than 120° off its nose; it stays in reverse until within 60°) with the
+	-- pedal down backs the car up, as a real one does with its drive wheel turned round: slower
+	-- (ReverseFactor), and steering so the car's tail swings towards the stick's way
+	local diff = 0
 	if wish then
 		local want = math.atan2(-wish.Z, wish.X)
-		local diff = (want - d.yaw + math.pi) % (2 * math.pi) - math.pi
-		steer = math.clamp(-diff / (C.WheelMax * 0.6), -1, 1)
+		diff = (want - d.yaw + math.pi) % (2 * math.pi) - math.pi
+		local off = math.abs(diff)
+		if d.reversing then
+			if off < math.rad(60) then d.reversing = false end
+		elseif off > math.rad(120) then
+			d.reversing = true
+		end
+	else
+		d.reversing = false
+	end
+	if wish then
+		if d.reversing then
+			-- (the tail towards the way: the heading wants want + 180°; backing up turns the car the other way)
+			local back = (diff + 2 * math.pi) % (2 * math.pi) - math.pi
+			steer = math.clamp(back / (C.WheelMax * 0.6), -1, 1)
+		else
+			steer = math.clamp(-diff / (C.WheelMax * 0.6), -1, 1)
+		end
 	end
 	-- (D-1826) only the pedal drives
-	if pedalInput ~= nil or pedalDown then pedal = 1 end
+	if pedalInput ~= nil or pedalDown then pedal = if d.reversing then -C.ReverseFactor else 1 end
 	local target = math.clamp(steer, -1, 1) * C.WheelMax
 	local step = C.WheelRate * dt
 	d.wheel += math.clamp(target - d.wheel, -step, step)
