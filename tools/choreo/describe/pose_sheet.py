@@ -123,6 +123,7 @@ def main():
     ap.add_argument("--to", dest="t1", type=float, required=True)
     ap.add_argument("--step", type=float, default=0.1)
     ap.add_argument("--cols", type=int, default=8)
+    ap.add_argument("--no-3d", action="store_true", help="leave out the row of the video's 3D points")
     ap.add_argument("--mirror", action="store_true", help="draw the video's 3D points mirrored (as compared)")
     ap.add_argument("--out", required=True)
     a = ap.parse_args()
@@ -147,7 +148,7 @@ def main():
             col.append(gt)
         if G:
             col.append(game_tile(near(G["samples"], t)))
-        if V["source"] == "video":
+        if V["source"] == "video" and not a.no_3d:
             col.append(game_tile(pc.mirror_samples([rv])[0] if (a.mirror and rv and "p" in rv) else rv))  # what the video's 3D points look like drawn the game's way
         cells.append(np.vstack(col))
     rows = []
