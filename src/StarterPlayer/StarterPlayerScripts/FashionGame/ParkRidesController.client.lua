@@ -1236,10 +1236,10 @@ local function nearRide(ride: Model, root: BasePart): boolean
 		and math.abs(root.Position.Y - pivot.Y) <= 60
 end
 
-local function boardWheel(ride: Model)
+local function boardRide(ride: Model, arg: any?)
 	if busy or mySlot then return end
 	busy = true
-	local ok, result = remote:InvokeServer("Board", ride)
+	local ok, result = remote:InvokeServer("Board", ride, arg)
 	if ok and typeof(result) == "table" then
 		for _, entry in ipairs(slots) do
 			if entry.slot == result.slot and entry.key == result.key then mySlot = entry boardedAt = os.clock() end
@@ -1322,7 +1322,49 @@ local function pressAt(x: number, y: number)
 						toast("관람차 탑승장에서 탈 수 있어요.")
 						return
 					end
-					task.spawn(boardWheel, ride)
+					task.spawn(boardRide, ride)
+				end
+			end
+		end
+	end
+	-- (D-1781, user 2026-11-18: "범퍼카랑 회전목마도 클릭하는 거 타게 하자") the carousel's horses and the
+	-- fire trucks (built on its code): a press on a free horse / truck rides it, as its 타기 button does
+	-- (the server wants you within 10 studs of it: "더 가까이 가 주세요." otherwise)
+	for _, entry in ipairs(slots) do
+		local horse = entry.slot
+		if entry.kind == "ParkCarousel" and horse and horse:IsA("Model") and horse.Parent and horse:GetAttribute("Rider") == nil then
+			local cf, size = horse:GetBoundingBox()
+			local sAt = rayBox(o, d, cf, size)
+			if sAt and sAt < bestS then
+				bestS = sAt
+				local ride = entry.ride
+				action = function()
+					if current then return end
+					task.spawn(boardRide, ride, horse)
+				end
+			end
+		end
+	end
+	-- bumper cars: a press on a car with a free seat sits you in it, the way its "범퍼카 타기" prompt
+	-- does (the prompt is pressed for you; it reaches 11 studs)
+	for _, carRoot in ipairs(CollectionService:GetTagged("BumperCarRoot")) do
+		local car = carRoot.Parent
+		if car and car:IsA("Model") and car:IsDescendantOf(workspace) then
+			local cf, size = car:GetBoundingBox()
+			local sAt = rayBox(o, d, cf, size)
+			if sAt and sAt < bestS then
+				bestS = sAt
+				action = function()
+					local humanoid = ownHumanoid()
+					if current or (humanoid and humanoid.SeatPart) then return end
+					local prompt = car:FindFirstChildWhichIsA("ProximityPrompt", true)
+					if not prompt or not prompt.Enabled then toast("이 범퍼카는 자리가 가득 찼어요.") return end
+					if carRoot:IsA("BasePart") and (carRoot.Position - root.Position).Magnitude > prompt.MaxActivationDistance then
+						toast("범퍼카 가까이 가서 눌러 주세요.")
+						return
+					end
+					prompt:InputHoldBegin()
+					task.delay(0.05, function() prompt:InputHoldEnd() end)
 				end
 			end
 		end
