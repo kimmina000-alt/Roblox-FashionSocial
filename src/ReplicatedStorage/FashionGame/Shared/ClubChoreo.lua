@@ -1577,6 +1577,37 @@ for id, jumps in pairs(M.ChoreoJumps) do
 	fix.jump = list
 end
 
+-- (D-1794, user 2026-11-18: "체포하겠어 처음에 한쪽 다리로 리듬 타는 거 정확하고 깔끔한 동작으로
+-- 구현") 체포하겠어 piece 1, song 2.5-6.0: in the video (XXW_3Bzjd40, mirrored, video = song
+-- + 0.52 s by its sound against the stage video) every member stands wide, hands on the
+-- hips, and pumps ONE knee on each beat for 8 counts (145.75 bpm, beats at song 2.71 +
+-- k x 0.4117; YOLO knee tracks: the screen-right knee goes out 0.1 and up 0.07 torso a
+-- beat, the other leg still), heel up. The capture had both knees wobbling 20-37°
+-- every keyframe. Now: the legs are set for that stretch: the left leg (screen right
+-- on a front-facing avatar, as in the mirrored video) bends forward and out with the
+-- heel up 0.03 s after each beat (the animation clock is ~0.09 s late, D-1058) and
+-- back 0.24 s later; the right leg stands still; the hips dip 0.06 on each pump.
+do
+	local ARREST1 = 110040253056586
+	local P = 2.38 -- piece seconds = song seconds + 2.38 (its `from`)
+	local REST = { LeftUpperLeg = { -3, 2, -12 }, LeftLowerLeg = { -20, -3, -3 }, LeftFoot = { 13, -1, 12 },
+		RightUpperLeg = { 0, -6, 17 }, RightLowerLeg = { -20, -1, 2 }, RightFoot = { 8, -1, -15 } }
+	local PUMP = { LeftUpperLeg = { 20, 2, -18 }, LeftLowerLeg = { -45, -3, -3 }, LeftFoot = { -6, -1, 12 },
+		RightUpperLeg = { 0, -6, 17 }, RightLowerLeg = { -22, -1, 2 }, RightFoot = { 8, -1, -15 } }
+	local up, down = { LowerTorso = { 0, -0.06, 0 } }, { LowerTorso = { 0, 0, 0 } }
+	local keys = { { t = 2.71 + P - 0.30, set = REST, move = down } }
+	for k = 0, 7 do
+		local b = 2.71 + k * 0.4117 + P
+		table.insert(keys, { t = b + 0.03, set = PUMP, move = up })
+		table.insert(keys, { t = b + 0.27, set = REST, move = down })
+	end
+	local fix = (M.ChoreoFixes[ARREST1] or {}) :: any
+	M.ChoreoFixes[ARREST1] = fix
+	local list = if fix.pose == nil then {} elseif fix.pose.from then { fix.pose } else table.clone(fix.pose)
+	table.insert(list, { from = 2.71 + P - 0.45, to = keys[#keys].t + 0.3, ease = 0.3, keys = keys })
+	fix.pose = list
+end
+
 -- (D-966, user: "캐릭터 위치 갑자기 이동하면 이상해 보임 … 1 스터드도 티 날 것
 -- 같아", "바들바들 떠는 부분 … 이거 완전 중요") from tools/choreo/play_record.lua
 -- run over whole songs in Play (BAD, Genie, Get A Guitar, Love 119, Catch

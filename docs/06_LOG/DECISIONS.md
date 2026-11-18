@@ -6002,3 +6002,10 @@ Studio only (no script yet).
 - 점프 아님(사진 확인): NEON 0:11 / 2:18(웅크린 춤 · 킥 후 앉기), REDRED 2:00(런지), With 2 / 8 / 11 / 16 / 20(카메라 흔들림 · 한 발 스킵), CRASH 18 · ANIMAL 20 · Boogie Woogie 4(한 발 들고 스킵), BAD 14, BANG 7, SHOCK 8, Love 119 7 / 21 / 29, 백화요란 10(의자), Unbelievable 1 / 2, ANIMAL 1(바닥 동작), Lemon Tang 27(카메라).
 - 확인 못 함: 연습 영상이 없는 곡(NEON, REDRED, I SPY, LOVE-ATTACK, Get A Guitar, Genie, Looks Can Kill, 체포하겠어)은 무대 영상뿐이고, 그 시각에 클로즈업 · 와이드라서 발이 안 보임. 캡처 꺼짐 0.8+ 자리: NEON 2:44, REDRED 0:55 / 2:22, I SPY 1:29, LOVE-ATTACK 1:36. 연습 영상을 받으면 같은 방법으로 볼 수 있음.
 - Play: Pretty Girl 발 3.4 stud · 엉덩이 +2.3, Pop Off 발 3.7 · +2.4; 146.5-150 / 42-45.5초 SNAP · SPIN · TELEPORT · JITTER 없음.
+
+## D-1794 체포하겠어 도입부: 한쪽 다리로 박자 타기 (2026-11-18)
+- 사용자: 연습·직캠 영상 8개 링크(NEON n9HYtcN6W4w, REDRED u_vusNeo6xI, I SPY ILeBVk4x_XQ, LOVE-ATTACK nXDQPm_HnFc, Get A Guitar u_u21u8zIIs, Genie HrWrWtWPMUU, Looks Can Kill f6QXMdmJQDk, 체포하겠어 XXW_3Bzjd40) + "체포하겠어 처음에 한쪽 다리로 리듬 타는 거 정확하고 깔끔한 동작으로 구현". 영상은 D:\Roblox\영상\practice\<곡>_<id>.mp4(720p).
+- 영상: XXW_3Bzjd40(미러, 무대 직캠) = 노래 + 0.52초(무대 영상 Arrest_stage와 소리로 맞춤: 무대 = 노래 + 24.9). 145.75 bpm, 박 = 노래 2.71 + k × 0.4117. YOLO 포즈로 두 멤버 무릎 추적: 노래 2.7~5.9초(8박) 손을 허리에 두고 넓게 선 채 화면 오른쪽 무릎만 박마다 바깥 0.1 · 위 0.07 몸통 튕김(뒤꿈치 듦), 반대 다리는 그대로.
+- 게임(1번 조각 110040253056586, 조각 초 = 노래 + 2.38): 캡처는 두 무릎이 키프레임마다 20~37° 흔들려 박자가 안 보였음.
+- 고침: ChoreoFixes `pose`(ClubChoreo.lua의 D-1794 블록에서 박마다 키 생성). 아바타 왼다리(정면에서 화면 오른쪽, 미러 영상과 같은 쪽)가 박 + 0.03초에 앞 · 바깥으로 굽고(허벅지 20°, 무릎 -45°, 발 -6°로 뒤꿈치 듦), 0.24초 뒤 돌아옴. 오른다리 고정, 엉덩이는 펌프마다 0.06 내려감.
+- Play: 왼발 뒤꿈치가 박마다 0.4~0.55 stud 올라감(2.80 / 3.20 / 3.60 / 4.03 / 4.46 / 4.86 / 5.26 / 5.66초), 발끝은 바닥(±0.1), 무릎 바깥 0.2 · 앞 0.4 stud, SNAP 없음.
