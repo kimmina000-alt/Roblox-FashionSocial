@@ -2697,6 +2697,15 @@ do
 	-- With 0:10 떨림 (piece 77578453879056 at 8.2, 0.4-2.1) and the right hand dropping 0.63 in one frame at 13.67 (piece 102977375863633)
 	addList(77578453879056, "steady", { from = 0.4, to = 2.1, passes = 8 })
 	addList(102977375863633, "steady", { from = 2.85, to = 3.6, passes = 8, parts = ARM_R })
+	-- (D-1854, user + screenshot: "With 2:36 누워 버림") piece 97670698889704 (at 151.0) rolls on the floor at song 156.0-157.0
+	-- (the torso upside down, up -0.2): in the original the centre (white dress) kneels upright there while the dancers behind
+	-- go down; the upright kneel at its 4.75 is held to its end
+	fx(97670698889704).freeze = { from = 4.75, to = 7, ease = 0.3 }
+	addList(97670698889704, "still", { from = 4.75, to = 7 })
+	-- (D-1854, user's screen recording: 갑자기 0:08-0:12 the hand at the chin shivers) piece 140529283375287 (at 8.5): the
+	-- hands at the face / chest touch the head and body bounds, so the body guard stays off there and the arms are calmed
+	addList(140529283375287, "guardOff", { from = 0, to = 4.0 })
+	addList(140529283375287, "steady", { from = 0, to = 4.0, passes = 8, parts = ARMS })
 end
 
 -- (D-1853, user 2026-11-19: "언빌리버블 손만 떠는 게 아니고 전체를 다 떨어 사시나무처럼 … 안무 동작 정확하고 크게 보정해") Play:
