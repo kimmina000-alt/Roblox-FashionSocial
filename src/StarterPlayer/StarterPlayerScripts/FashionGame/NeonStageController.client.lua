@@ -10,7 +10,7 @@
 --     standing still starts it again. 춤 멈추기 (or a dance from the menu) is respected until this
 --     player steps off the stage;
 --   * (D-1820) on the stage a
---     "🎥 무대 카메라" button (like the rides' 👁 1인칭) switches the club's stage camera, which then
+--     🎥 button (like the rides' 👁 1인칭) switches the club's stage camera, which then
 --     films this player on the stage song's clock (StageCameraController), for songs that have shots.
 
 local Players = game:GetService("Players")
@@ -102,27 +102,21 @@ camGui.DisplayOrder = 30
 camGui.Parent = playerGui
 local camButton = Instance.new("TextButton")
 camButton.Name = "StageCam"
+-- (D-1823, user 2026-11-19: "무대카메라 글씨 지우고 아이콘만 두기") a round button with the 🎥 only
 camButton.AnchorPoint = Vector2.new(0.5, 1)
-camButton.Size = UDim2.fromOffset(0, 32)
-camButton.AutomaticSize = Enum.AutomaticSize.X
+camButton.Size = UDim2.fromOffset(40, 40)
 camButton.BackgroundColor3 = Color3.fromRGB(60, 120, 220)
-camButton.TextColor3 = Color3.new(1, 1, 1)
-camButton.Font = Enum.Font.GothamBold
-camButton.TextSize = 14
-camButton.Text = "무대 카메라" -- (a whole text of the translation tables; the 🎥 is its own label)
+camButton.Text = ""
 camButton.Visible = false
 camButton.Parent = camGui
 do
-	(Instance.new("UICorner", camButton) :: UICorner).CornerRadius = UDim.new(0, 16)
-	local pad = Instance.new("UIPadding")
-	pad.PaddingLeft, pad.PaddingRight = UDim.new(0, 34), UDim.new(0, 12)
-	pad.Parent = camButton
+	(Instance.new("UICorner", camButton) :: UICorner).CornerRadius = UDim.new(1, 0)
 	local icon = Instance.new("TextLabel")
 	icon.Name = "Icon"
 	icon.BackgroundTransparency = 1
-	icon.AnchorPoint = Vector2.new(1, 0.5)
-	icon.Position = UDim2.new(0, -4, 0.5, 0)
-	icon.Size = UDim2.fromOffset(22, 22)
+	icon.AnchorPoint = Vector2.new(0.5, 0.5)
+	icon.Position = UDim2.fromScale(0.5, 0.5)
+	icon.Size = UDim2.fromOffset(24, 24)
 	icon.Text = "🎥"
 	icon.TextScaled = true
 	icon.Parent = camButton
