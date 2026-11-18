@@ -12,7 +12,8 @@
 --   TELEPORT  the body goes 1 stud+ in 0.3 s while neither foot steps along
 --             (each foot moves on the body less than half of it): "캐릭터
 --             위치 갑자기 이동" (the user: "1 스터드도 티 날 것 같아")
---   JUMP      the body moves 12 stud/s+ in a frame
+--   JUMP      the body moves 12 stud/s+ in a frame (sideways; a real jump up
+--             is ChoreoJumps, D-1771, and is not flagged)
 --   SPIN      the hips turn 600°/s+ (10° a frame; an even turn is 2-7°)
 --   SLIDE     the body travels 0.5 stud+ in 0.5 s while both feet stay where
 --             they were on the body ("다리 가만히 있는데 이동")

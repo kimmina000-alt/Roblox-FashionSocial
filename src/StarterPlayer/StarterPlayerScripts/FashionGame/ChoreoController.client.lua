@@ -664,6 +664,9 @@ local floorCache: {[Model]: { y: number, at: number }} = setmetatable({}, { __mo
 local LOW_PARTS = { "LeftFoot", "RightFoot", "LeftLowerLeg", "RightLowerLeg", "LeftUpperLeg", "RightUpperLeg",
 	"LeftHand", "RightHand", "LeftLowerArm", "RightLowerArm", "LowerTorso", "UpperTorso", "Head" }
 local dancingNow: {[Model]: boolean} = setmetatable({}, { __mode = "k" }) :: any
+-- (D-1771) the height a ChoreoFixes `jump` puts the hips at this frame (nil on
+-- the floor): the floor check below leaves the lift alone while it is set
+local jumpNow: {[Model]: number} = setmetatable({}, { __mode = "k" }) :: any
 RunService.Heartbeat:Connect(function()
 	for character in pairs(dancingNow) do
 		local root = character:FindFirstChild("HumanoidRootPart") :: BasePart?
@@ -695,6 +698,10 @@ RunService.Heartbeat:Connect(function()
 			end
 		end
 		local lift = floorLift[character] or 0
+		-- (D-1771) in the air (a `jump`): the lift stays as it is. The parts here can
+		-- still show last frame's height, so taking this frame's jump off them read
+		-- a rising body as sunk and the lift grew with the jump (twice as high)
+		if jumpNow[character] then continue end
 		local target = math.max(0, lift + (cached.y - 0.05) - lowFeet, lift + (cached.y + 0.03) - lowBody)
 		-- (D-1058, user: Lemonade "시작할 때 점프함") after a low pose (the song before ended
 		-- kneeling) the lift came down at 12 % a frame while the new pose rose, so the
@@ -824,6 +831,34 @@ RunService.PreSimulation:Connect(function(dt)
 				-- (D-995) lifted off the floor if the body went into it last frame
 				dancingNow[character] = true
 				local hy = hips.Y + (floorLift[character] or 0)
+				-- (D-1771, user: "안무 원본 영상 보고 점프하는 구간은 오류로 잡지 말고 점프 오히려
+				-- 살려서 깔끔하게 … call my name에 점프 구간 있는데 점프 더 높게") the video
+				-- capture keeps the feet on the floor, so a jump came out as a squat (the
+				-- hips dropped as the knees tucked): ChoreoFixes `jump = { from, to, height }`
+				-- (or a list) puts the body in the air from take-off to landing on a
+				-- thrown-ball arc, `height` studs at the top, with the piece's weight
+				do
+					local air = 0
+					for _, t in ipairs(choreo) do
+						local fx = t.Animation and ChoreoSmooth.fixes(t.Animation.AnimationId)
+						local jp = fx and fx.jump
+						if jp and t.WeightCurrent > 0.01 then
+							local tt = t.TimePosition
+							-- (a piece that ends in the air stops on its last frame while the next
+							-- blends in: the landing comes before that, or the body hung up there)
+							local stop = if t.Length > 0 then t.Length - 0.05 else math.huge
+							for _, j in ipairs(if jp.from then { jp } else jp) do
+								local to = math.min(j.to, stop)
+								if tt > j.from and tt < to then
+									local s = (tt - j.from) / (to - j.from)
+									air = math.max(air, j.height * 4 * s * (1 - s) * math.min(t.WeightCurrent, 1))
+								end
+							end
+						end
+					end
+					jumpNow[character] = if air > 0 then air else nil
+					hy += air
+				end
 				-- (D-1188) `level`: the height (lift included) follows its own slow average, at most 0.3
 				-- stud under where the lift wants it
 				local lv = levelOn[character]
@@ -965,6 +1000,7 @@ RunService.PreSimulation:Connect(function(dt)
 				snapState[character] = nil
 				dancingNow[character] = nil
 				floorLift[character] = nil
+				jumpNow[character] = nil
 			end
 		end
 	end

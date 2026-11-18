@@ -3998,3 +3998,8 @@ Player2 아이템 상점(밤 22시) · 클럽 안내 판매원 카메라(폰)
 - 사용자가 보낸 무대 영상 4개를 D:\Roblox\영상\<곡>_stage\stage.mp4로 받음(Boogie Woogie는 403이 나서 형식을 바꿔 다시 받음).
 - 원곡 mp3와 맞춘 시작점: With +4.70, Call My Name -0.30, Boogie Woogie +17.15, Unbelievable +0.10초.
 - shots_to_lua.py로 63 / 95 / 108 / 78샷. 브랜치 feat/stage-camera-4songs-1118. 다음: Studio 반영, 모바일 2인 테스트.
+
+## 2026-11-18 내 이름을 불러줘 점프 살리기 (D-1771)
+- 원본 영상에서 점프 4곳을 찾아(jump_scan.py + 프레임 사진) ChoreoFixes `jump`(포물선)로 몸을 띄움. 캡처는 점프 때 엉덩이가 내려가 웅크리기로 보였음.
+- 처음 Play: 4 stud 넘게 떠서 원인 찾음(바닥 보정이 점프를 한 번 더 더함) → 공중에서는 바닥 보정 멈춤. 1:58은 착지가 클립 끝이라 떠 있던 것 → 착지를 클립 안으로.
+- Play: 발 2.0~3.9 stud 뜸, 4구간 검사 ok. 브랜치 feat/callmyname-jump-1118. 다음: 모바일 2인 테스트.

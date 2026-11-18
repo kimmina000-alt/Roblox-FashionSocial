@@ -36,6 +36,7 @@ ClubConfig.ChoreoFixes = ClubChoreo.ChoreoFixes
 ClubConfig.ChoreoCalm = ClubChoreo.ChoreoCalm
 ClubConfig.ChoreoShake = ClubChoreo.ChoreoShake
 ClubConfig.ChoreoSlideStill = ClubChoreo.ChoreoSlideStill
+ClubConfig.ChoreoJumps = ClubChoreo.ChoreoJumps
 ClubConfig.Categories = ClubDances.Categories
 ClubConfig.Dances = ClubDances.Dances
 ClubConfig.ChoreoPhrases = ClubDances.ChoreoPhrases -- (D-1343)

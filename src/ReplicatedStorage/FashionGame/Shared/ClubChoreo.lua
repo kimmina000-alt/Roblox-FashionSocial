@@ -51,6 +51,8 @@ M.ChoreoDriftReturn = 8 :: number?
 --     and turns on the way that one was turning into its own facing over
 --     that many seconds (ChoreoController.turnHips), instead of a cross-fade
 --     that flips the body round; keep it within the piece's `blend`
+--   jump = { from, to, height }: the body in the air from `from` to `to` on an
+--     arc `height` studs high (D-1771; filled from M.ChoreoJumps below), or a list
 --   pops = { at, sizes?, push, lift?, arch, out?, back?, sink? }: a chest pop at each of those seconds
 --     into the animation: the chest goes `push` studs forward, `lift` up and
 --     arches `arch` degrees back (the head stays level), out in `out` s
@@ -1545,6 +1547,28 @@ for id, stretches in pairs(M.ChoreoSlideStill) do
 	local still = if fix.still == nil then {} elseif fix.still.from then { fix.still } else table.clone(fix.still)
 	for _, s in ipairs(stretches) do table.insert(still, { from = s[1], to = s[2] }) end
 	fix.still = still
+end
+
+-- (D-1771, user 2026-11-18: "안무 원본 영상 보고 점프하는 구간은 오류로 잡지 말고 점프 오히려
+-- 살려서 깔끔하게 동작 확정할 것. call my name에 점프 구간 있는데 점프 더 높게") jumps in
+-- the video: the capture keeps the feet on the floor, so its hips DROP as the knees
+-- tuck (a squat in the game). { from, to, height } = take-off and landing (seconds
+-- into the piece, from the video's frames) and the arc's top in studs, added to the
+-- capture's own hip height (ChoreoController). The scans must not "fix" these
+-- stretches: no `still` / slide fix inside them (tools/choreo/jump_scan.py lists a
+-- song's jumps from its centercut tracks). Become ChoreoFixes `jump`.
+M.ChoreoJumps = {
+	-- 내 이름을 불러줘-TWS: clip 8 0:58.4 tuck jump (capture hips -0.09 → -1.45 → -0.13),
+	-- 14 1:32.0 knee-up hop, 16 1:58.2 tuck jump (lands as the clip ends, 1.93 s), 19 2:16.9 tuck jump (lowest -1.74)
+	[90921923486342] = { { 0.63, 1.15, 3.0 } }, [137670042338904] = { { 4.22, 4.62, 1.2 } },
+	[128327230683798] = { { 1.45, 1.88, 2.7 } }, [122207092339520] = { { 1.82, 2.33, 3.2 } },
+} :: {[number]: {{number}}}
+for id, jumps in pairs(M.ChoreoJumps) do
+	local fix = (M.ChoreoFixes[id] or {}) :: any
+	M.ChoreoFixes[id] = fix
+	local list = if fix.jump == nil then {} elseif fix.jump.from then { fix.jump } else table.clone(fix.jump)
+	for _, j in ipairs(jumps) do table.insert(list, { from = j[1], to = j[2], height = j[3] }) end
+	fix.jump = list
 end
 
 -- (D-966, user: "캐릭터 위치 갑자기 이동하면 이상해 보임 … 1 스터드도 티 날 것
