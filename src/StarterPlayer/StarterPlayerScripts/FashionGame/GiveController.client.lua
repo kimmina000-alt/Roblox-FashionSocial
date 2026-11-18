@@ -183,7 +183,14 @@ event.OnClientEvent:Connect(function(kind: any, a: any, b: any, c: any, d: any)
 		incoming = id
 		local token = show(("🎁 %s님이 %s 주려고 해요"):format(from, object(name)), "받기", "괜찮아요", function()
 			incoming = nil
-			if ask("Respond", id, true) then toast(("🎁 %s 받았어요!"):format(object(name))) end
+			if ask("Respond", id, true) then
+				-- (D-1787) a hand sparkler: how to light it
+				if string.find(c, "손 스파클러", 1, true) then
+					toast(("🎁 %s 받았어요! 손에 들고 화면을 두 번 누르면 불이 붙어요."):format(object(name)))
+				else
+					toast(("🎁 %s 받았어요!"):format(object(name)))
+				end
+			end
 		end, function()
 			if incoming == id then
 				incoming = nil
