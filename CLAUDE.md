@@ -63,6 +63,8 @@ Read `AGENTS.md` first (catalog UI rules). The user writes in Korean; report in 
 
 - 2026-11-19 (2): merged into `catalog-ui-redesign` (user asked: 머지해): `feat/i18n-1119b` (D-1840, 23 new strings in 16 languages: DJ 이용권 windows / buttons / bag lines, the dance window's 🎁 주기; the translation session checked English Play with no Korean left; Studio en.lua = git) and `docs/progress-tracker-1118`. New work: branch off catalog-ui-redesign.
 
+- 2026-11-19 (3): `fix/callmyname-moves-1119` merged into `catalog-ui-redesign` (user asked: 머지할 거 다 머지해; the choreo session's 2P had no errors): D-1850, 37 move fixes in 내 이름을 불러줘 (palms, shoulder taps, cheek cup, floor touches drop 2.4, the end kneel held to the song's end with slowOut). D-number ranges: translation 1840-1849, choreo edit 1850-1859. New work: branch off catalog-ui-redesign.
+
 ## Key docs
 - `docs/00_PROJECT/PLAYER_FEEDBACK.md`: real player reactions by date + improvement ideas. Add new reactions there (user, 2026-11-10).
 - `docs/00_PROJECT/DEVELOPMENT_ORDER.md`: build order.
