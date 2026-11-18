@@ -76,4 +76,5 @@ hongdae_v1_temp.lua 다음에 실행(MODE apply / revert). 결과: `street_dress
 | `hanok_garden_lotus.webp`, `hanok_garden_teaset.png`, `hanok_garden_raised_flagstone.png` | 한옥 연못 정원 | 2026-11-17 D-1742: 연잎(뜬 잎 + 줄기 잎, 차분한 초록), 크림 점박이 다도세트(옆손잡이 주전자 · 숙우 · 잔, 대나무 차판), 바닥에서 도드라진 판석. |
 | `hanok_stone_granite.webp`, `hanok_wood_oak.png`, `hanok_wood_dark.png` | 한옥 재질 | 2026-11-17 D-1743: 화강암(기단 · 주춧돌 · 판석), 밝은 나뭇결(한옥 벽 나무), 어두운 나무(가구). 텍스처로 사용. |
 | `hanok_stone_plinth.png`, `hanok_stone_yard.webp` | 한옥 재질 | 2026-11-17 D-1744: 밝은 돌(벽 아래 기단 · 주춧돌 · 계단), 거친 회색 돌(마당 바닥). |
+| `hanok_cafe_ref_1..5.jpg` | 한옥 카페 | 2026-11-18 D-1746: 나무 판벽 커피 바 · 펜던트 · 러그, 창가 바 북카페, 책장 카페, 레코드 카페, 나뭇가지 퍼걸러 자갈 마당 라운지. |
 | `candidates_beach_mat_icebox.png` | 해변 | 2026-10-30 돗자리(M1~M6)·아이스박스(B1~B10) Creator Store 후보, 사용자 선택 대기. |
