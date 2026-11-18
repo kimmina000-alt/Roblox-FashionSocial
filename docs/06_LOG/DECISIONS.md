@@ -6106,3 +6106,10 @@ Studio only (no script yet).
 
 ## D-1801 (2026-11-18) 추천 탭: 코디 코드 9H5TYW "네온 스테이지 2"
 - User: "9H5TYW 이것도 추가". The second look from a 코디 코드 (read only from OutfitCodes_v1), right after 네온 스테이지: "네온 스테이지 2", R$ 290, 6 items (anime dreaming girl body bundle 104077541197932 75, straight black hair 12866539725 65, white crop tee 112307027330610 65, white layered bottom 124373716702512 75, classic shirt / pants 5 + 5). Same path as D-1800 (snapshot, server rig picture); the name added to the 16 I18n tables. Synced in Edit only (Play was held for the main session's merge test).
+
+## D-1795 테이블 높이: 클럽 바 기준 (2026-11-18)
+- 사용자: "테이블 너무 높음 클럽 바에 있는 의자랑 테이블 높이로 모든 테이블 높이 수정" (사진: OH24 창가 바, 스툴에 앉으면 가슴까지).
+- 기준: 클럽 바 스툴 윗면 3.0, 바 윗면 5.0 (바닥 y -24에서) → 테이블 = 의자 높이 × 5/3.
+- 전체 목록을 보여 주고 사용자가 ①~③(OH24 창가 바, 해변 카페 벤치 테이블, 해변 카페 의자 테이블)을 골랐음. 처음 목록의 해변 카페 높이(6.19 / 7.99)는 돌려 놓인 둥근 윗면(원통)을 잘못 잰 값이었고, 바로 재면 3.94 / 5.51로 이미 기준 이하 → 그대로. 실제로 바뀌는 곳은 OH24 두 바(창가 바 + 온수기 쪽 바) 5.40 → 5.01(덱 위 기준, 스툴 3.01).
+- tools/graybox/table_height_1118.lua(체인 단계, user_map_snapshot 뒤): 테이블 발밑 바닥과 가장 가까운 의자를 읽어 목표 높이로 낮춤(올리지는 않음), 다리는 짧게, 윗면에 닿은 것(온수기 · 탭 · 트레이 · 전자레인지 · 표지)은 같이 내림, 스툴 · 의자는 그대로. 다시 돌려도 같음. 테이블 위 음식은 윗면을 따라감(SnackConfig.onTable).
+- 사용자가 고르지 않은 곳(그대로): 한옥 카페 라운지 · 커피바 · 북카페, 국밥집, 클럽 VIP · 둥근 스탠딩 테이블, 정자 찻상, 퍼걸러 낮은 테이블. 이 값들도 원통 윗면이 섞여 있을 수 있어 다시 고를 땐 다시 잴 것.
