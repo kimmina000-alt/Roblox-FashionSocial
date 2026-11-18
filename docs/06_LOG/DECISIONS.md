@@ -6294,3 +6294,8 @@ Studio only (no script yet).
 - Boogie 1:13 점프: 원본에 있음(72.85-73.15 오른다리 차며 작은 홉). 0.15초 앞당기고 높이 1.2 → 0.9.
 - Boogie 1:15-1:18: 박자마다 0.24초에 3번 털기(스프링처럼 보임) → 반 박자에 한 번씩 좌우 스웨이(±13°, 부드럽게).
 - 언빌리버블 0:04-0:06 웨이브: 가슴만 앞뒤로 숙이던 것 → 위에서 아래로 내려가는 웨이브(고개 → 가슴 내밀기 = 엉덩이 30° 숙임 + 허리 22° 젖힘 → 가슴 말아 넣기 + 골반 → 무릎 굽혔다 펴기), 느리게 1번(4.49-5.40) + 빠르게 2번. Play: 가슴뼈 +0.28 앞(4.9초) → −0.1(5.3초), 무릎 앞 0.86 · 엉덩이 −0.4 내려감(5.2초). 엉덩이는 앞뒤로 못 움직임(엉덩이의 수평 위치는 루트로 감): 기울기로만 만듦. 세 번째 웨이브는 조각 이음새(6.02)에서 0.1초 멈춤이 남음.
+
+## D-1805 (2026-11-18) 받은 의견 빨리 열기 + 새 의견 N 표시
+- User: "받은 의견 뜨는데 오래 걸리네. 새로운 의견 올라오면 n 띄워 줘 없으면 그냥 두고".
+- FeedbackService.list read the newest 60 messages one after another (GetAsync, then FilterStringAsync for old ones): seconds. Now they are read all at once (task.spawn per key, at most 15 s), kept in valueCache with the filtered text (done / reward update the cache), and read ahead when the owner joins, so opening 📥 is quick.
+- New messages: player attribute FeedbackNew = true while a message newer than the owner's last look waits (checked at join, every 60 s, and at once when someone in the same server sends one). Opening 📥 marks what it lists as seen: DataStore FeedbackSeen_v1 (Studio: FeedbackSeen_Studio_v1), u_<userId> = newest time. Feedback.lua puts a red "N" on the 💬 top button and on 📥 받은 의견 while FeedbackNew is set; nothing when there is nothing new.
