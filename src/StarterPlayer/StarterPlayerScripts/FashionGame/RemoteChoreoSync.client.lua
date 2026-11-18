@@ -16,6 +16,7 @@ local RunService = game:GetService("RunService")
 local FashionGame = ReplicatedStorage:WaitForChild("FashionGame")
 local ClubConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("ClubConfig"))
 local ChoreoSmooth = require(script.Parent:WaitForChild("ChoreoSmooth"))
+local NeonStageConfig = require(FashionGame:WaitForChild("Shared"):WaitForChild("NeonStageConfig")) -- (D-1792)
 local player = Players.LocalPlayer
 
 local TOLERANCE = 0.08 -- seconds off before a piece is put back on my clock
@@ -36,13 +37,13 @@ local function idOf(animationId: string): string
 	return string.match(animationId, "(%d+)%s*$") or animationId
 end
 
--- the current song's pieces by animation id (an id may be used more than once)
-local mapFor: number? = nil
-local pieces: {[string]: {any}} = {}
+-- a song's pieces by animation id (an id may be used more than once); kept per song (the club's
+-- and the neon stage's, D-1792)
+local maps: {[number]: {[string]: {any}}} = {}
 local function piecesFor(track: any): {[string]: {any}}
-	if mapFor == track.soundId then return pieces end
-	mapFor = track.soundId
-	pieces = {}
+	if maps[track.soundId] then return maps[track.soundId] end
+	local pieces: {[string]: {any}} = {}
+	maps[track.soundId] = pieces
 	for _, entry in ipairs(track.choreo or {}) do
 		if typeof(entry) == "table" and typeof(entry.at) == "number" then
 			local key = idOf(tostring(entry.id))
@@ -68,6 +69,20 @@ local function mySongTime(track: any): number?
 	end
 	if heardAt then
 		local heard = heardAt * ClubConfig.fileSpeed(track)
+		if math.abs(heard - songTime) < 3 then songTime = heard end
+	end
+	return songTime
+end
+
+-- (D-1792) the neon stage's song time I hear (NeonStageController's Sound), or nil when it is off
+local function stageSongTime(track: any): number?
+	local start = FashionGame:GetAttribute("NeonStageStart")
+	if typeof(start) ~= "number" then return nil end
+	local songTime = NeonStageConfig.songTime(track, start, workspace:GetServerTimeNow())
+	local stage = script.Parent:FindFirstChild("NeonStageController")
+	local sound = stage and stage:FindFirstChild("NeonStageMusic")
+	if sound and sound:IsA("Sound") and sound.IsPlaying and sound.TimePosition > 0.05 then
+		local heard = sound.TimePosition * ClubConfig.fileSpeed(track)
 		if math.abs(heard - songTime) < 3 then songTime = heard end
 	end
 	return songTime
@@ -115,16 +130,21 @@ end
 
 RunService.PreAnimation:Connect(function()
 	local track = ClubConfig.Playlist[FashionGame:GetAttribute("ClubTrack") or 0]
-	if not track or not track.choreo then return end
-	local songTime = mySongTime(track)
-	if not songTime then return end
-	local map = piecesFor(track)
+	local clubTime = if track and track.choreo then mySongTime(track) else nil
+	-- (D-1792) dancers standing on the neon stage keep the stage song's clock
+	local stageTrack = NeonStageConfig.track()
+	local stageTime = if stageTrack and stageTrack.choreo then stageSongTime(stageTrack) else nil
+	if not clubTime and not stageTime then return end
 	for _, other in ipairs(Players:GetPlayers()) do
 		if other ~= player then
 			local character = other.Character
 			local humanoid = character and character:FindFirstChildOfClass("Humanoid")
 			local animator = humanoid and humanoid:FindFirstChildOfClass("Animator")
-			if animator then
+			local root = character and character:FindFirstChild("HumanoidRootPart")
+			local onStage = stageTime ~= nil and root ~= nil and root:IsA("BasePart") and NeonStageConfig.onStage(root.Position)
+			local songTime = if onStage then stageTime else clubTime
+			local map = if onStage and stageTrack then piecesFor(stageTrack) elseif clubTime and track then piecesFor(track) else nil
+			if animator and songTime and map then
 				for _, t in ipairs(animator:GetPlayingAnimationTracks()) do
 					local entries = map[idOf(t.Animation.AnimationId)]
 					if entries and t.Length > 0 and t.IsPlaying then
