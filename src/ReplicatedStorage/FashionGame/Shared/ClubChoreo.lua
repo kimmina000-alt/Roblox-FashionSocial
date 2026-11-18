@@ -2699,4 +2699,19 @@ do
 	addList(102977375863633, "steady", { from = 2.85, to = 3.6, passes = 8, parts = ARM_R })
 end
 
+-- (D-1853, user 2026-11-19: "언빌리버블 손만 떠는 게 아니고 전체를 다 떨어 사시나무처럼 … 안무 동작 정확하고 크게 보정해") Play:
+-- 25.7 small turn-backs (> 0.4° a frame) a second over the body against 17.2 in 내 이름을 불러줘, the hands and feet twice
+-- as many: every Unbelievable piece is averaged harder in time (`dejitter` 0.07 s against 0.03) and its slower wobble eased
+-- (`calm`), so the 6-15 per-second shiver goes and the beat-sized moves keep their size
+do
+	for _, id in ipairs({ 107202755656926, 132406634119258, 91684619142886, 127086942159592, 82476096356644, 105450147611432, 126709034309523,
+		110146513928585, 98575698595382, 97422868495252, 77667909738269, 98632778351786, 106947840145982, 121716323345976, 82151831370082, 85861969329409 }) do
+		local f = (M.ChoreoFixes[id] or {}) :: any
+		M.ChoreoFixes[id] = f
+		f.dejitter = 0.07
+		f.calm = true
+		f.smoothDetail = true -- (the hands and feet shook most: 70-80 turn-backs in 20 s, and D-998 kept them out of the clean-ups)
+	end
+end
+
 return M
