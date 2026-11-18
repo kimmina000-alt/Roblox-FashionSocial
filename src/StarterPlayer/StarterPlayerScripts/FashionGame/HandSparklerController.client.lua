@@ -39,8 +39,27 @@ local function held(): Tool?
 	return if tool and tool:GetAttribute("HandSparkler") then tool else nil
 end
 
+-- (D-1787, user 2026-11-18: a gifted hand sparkler told nothing about how to
+-- light it) while an unlit hand sparkler is held, a line above the hotbar says
+-- how: two taps on the screen. Gone once it burns or is put away.
+local hint = Instance.new("TextLabel")
+hint.Name = "Hint"
+hint.AnchorPoint = Vector2.new(0.5, 1)
+hint.Position = UDim2.new(0.5, 0, 1, -168) -- (above the toasts)
+hint.Size = UDim2.fromOffset(320, 30)
+hint.BackgroundTransparency = 1
+hint.Font = Enum.Font.GothamBold
+hint.TextSize = 17
+hint.TextColor3 = Color3.new(1, 1, 1)
+hint.TextStrokeTransparency = 0.35
+hint.Text = "✨ 화면을 두 번 누르면 불이 붙어요"
+hint.Visible = false
+hint.Parent = gui
+
 local function refresh()
 	button.Visible = false -- (D-1724: the 🔥 button stays hidden)
+	local tool = held()
+	hint.Visible = tool ~= nil and not tool:GetAttribute("Lit")
 end
 
 local lighting = false

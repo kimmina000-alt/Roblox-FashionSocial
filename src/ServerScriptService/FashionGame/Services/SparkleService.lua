@@ -764,7 +764,7 @@ local function grantHandSparkler(player: Player, quiet: boolean?): (boolean, str
 	if not backpack then return false, "잠시 후 다시 시도하세요." end
 	local tool = Instance.new("Tool")
 	tool.Name = "✨ 손 스파클러"
-	tool.ToolTip = "손에 들고 [불 붙이기]를 누르세요"
+	tool.ToolTip = "손에 들고 화면을 두 번 누르면 불이 붙어요" -- (D-1787: no 🔥 button since D-1724)
 	tool.CanBeDropped = false
 	tool:SetAttribute("HandSparkler", true)
 	tool.Grip = CFrame.new(0, -GRIP / 2, 0) * CFrame.Angles(math.rad(-30), 0, 0)
@@ -796,7 +796,7 @@ local function grantHandSparkler(player: Player, quiet: boolean?): (boolean, str
 	if quiet then return true, nil end -- (D-790: given back after a rejoin)
 	local humanoid = player.Character and player.Character:FindFirstChildOfClass("Humanoid")
 	if humanoid then humanoid:EquipTool(tool) end
-	toast(player, "✨ 손 스파클러를 받았어요! 손에 들고 [불 붙이기]를 누르세요.")
+	toast(player, "✨ 손 스파클러를 받았어요! 화면을 두 번 누르면 불이 붙어요.")
 	return true, nil
 end
 
