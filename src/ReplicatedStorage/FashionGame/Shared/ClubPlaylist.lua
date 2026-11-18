@@ -192,7 +192,8 @@ M.Playlist = {
 	-- (D-1122, user 2026-11-10: "캐치캐치 저음 -20으로 수정", then "캐치캐치 중음 -15 고음 -30", then "캐치캐치 중음 -25", then "캐치캐치 저음 -30")
 	-- (D-1363, user 2026-11-13: "캐치캐치는 기존 음원을 아래 음원으로 변경") was 80583279340768, a 3× file of 61.177 s (song 183.53 s);
 	-- the new 171.491 s file = 3 × 61.177 ÷ 171.491 = 1.0702 faster than the song, so `at` and the stage camera keep the song clock
-	{ channel = "K-POP", title = "Catch Catch-YENA", soundId = 119002946047943, length = 171.491, fileSpeed = 1.0702, lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = 0, engine = "sound" },
+	-- (D-1853, user 2026-11-19: the user's line: title "캐치 캐치-YENA", fileSpeed 1.0496 (song 3:00; was 1.0702 from the old 3× file, the user chose 1.0496 knowing the choreography may drift ~3 s by the end), EQ -6 / 0 / -2.5)
+	{ channel = "K-POP", title = "캐치 캐치-YENA", soundId = 119002946047943, length = 171.491, fileSpeed = 1.0496, lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -6, mid = 0, high = -2.5, engine = "sound" },
 		-- (D-985, user: "전체적으로 좌우 반전") the pieces come from the mirrored video: danced as their mirror image
 		mirror = true,
 		-- D-968: CatchCatch 1..23 (3, 6, 15, 19, 22 = re-uploads 2026-11-07; the first uploads were copies of the piece before).
@@ -664,8 +665,9 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
 	{ channel = "K-POP", title = "SPAGHETTI-LE SSERAFIM", soundId = 74768868557179, length = 160.981, fileSpeed = 1.0498,
 		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+	-- (D-1853, user 2026-11-19: low / mid / high / boost3 from the user)
 	{ channel = "K-POP", title = "RUDE-Hearts2Hearts", soundId = 70718180522748, length = 186.809, fileSpeed = 1.0492,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -10, mid = -2, high = -21.5, engine = "sound" } },
 	{ channel = "K-POP", title = "It's Me-ILLIT", soundId = 80492816031335, length = 128.567, fileSpeed = 1.05,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
 	{ channel = "K-POP", title = "Famous-Allday Project", soundId = 130972741918400, length = 168.747, fileSpeed = 1.0489,
@@ -676,14 +678,18 @@ M.Playlist = {
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
 	{ channel = "K-POP", title = "toxic till the end-ROSÉ", soundId = 106794728492736, length = 149.228, fileSpeed = 1.0521,
 		lab = { speed = 1, tempo = 0.95, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+	-- (D-1853, user 2026-11-19: low / mid / high / boost3 from the user)
 	{ channel = "K-POP", title = "YOUNGCREATORCREW-CORTIS", soundId = 110347638399953, length = 168.555, fileSpeed = 1.0501,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -6.5, mid = -3, high = -12.5, engine = "sound" } },
+	-- (D-1853, user 2026-11-19: low / mid / high / boost3 from the user)
 	{ channel = "K-POP", title = "Hot Girls Cold Vibe-Red Velvet", soundId = 73504070212379, length = 208.583, fileSpeed = 1.0499,
-		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -8, mid = -3, high = -11.5, engine = "sound" } },
+	-- (D-1853, user 2026-11-19: low / mid / high / boost3 from the user)
 	{ channel = "K-POP", title = "Iconic by Mistake-LE SSERAFIM, ILLIT, KATSEYE", soundId = 87223810235707, length = 168.394, fileSpeed = 1.0511,
-		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -10.5, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.951, volume = 10, boost = 10, boost2 = 5, boost3 = 2.75, octave = 1, low = 0, mid = 0, high = -21, engine = "sound" } },
+	-- (D-1853, user 2026-11-19: low / mid / high / boost3 from the user)
 	{ channel = "K-POP", title = "Heavy Serenade-NMIXX", soundId = 135622277389773, length = 171.486, fileSpeed = 1.0496,
-		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = 0, mid = 0, high = -15, engine = "sound" } },
+		lab = { speed = 1, tempo = 0.953, volume = 10, boost = 10, boost2 = 5, boost3 = 3, octave = 1, low = -16.5, mid = -7, high = -22.5, engine = "sound" } },
 	{ channel = "K-POP", title = "DRIP-BABYMONSTER", soundId = 94601620282158, length = 169.448, fileSpeed = 1.0505,
 		lab = { speed = 1, tempo = 0.952, volume = 10, boost = 10, boost2 = 5, boost3 = 4, octave = 1, low = -5.5, mid = -2, high = -3, engine = "sound" } },
 	-- (D-1601, user 2026-11-17: low / mid / high -4 / -25 / -22)
