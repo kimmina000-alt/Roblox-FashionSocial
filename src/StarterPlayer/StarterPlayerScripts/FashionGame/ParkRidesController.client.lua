@@ -1327,7 +1327,7 @@ local function pressAt(x: number, y: number)
 			end
 		end
 	end
-	-- (D-1781, user 2026-11-18: "범퍼카랑 회전목마도 클릭하는 거 타게 하자") the carousel's horses and the
+	-- (D-1785, user 2026-11-18: "범퍼카랑 회전목마도 클릭하는 거 타게 하자") the carousel's horses and the
 	-- fire trucks (built on its code): a press on a free horse / truck rides it, as its 타기 button does
 	-- (the server wants you within 10 studs of it: "더 가까이 가 주세요." otherwise)
 	for _, entry in ipairs(slots) do
