@@ -2325,8 +2325,10 @@ do
 			{ t = t0 + 0.8, set = crouch, add = down, move = { LowerTorso = { 0, -drop, 0 } } },
 			{ t = t0 + 1.2, add = { UpperTorso = { 0, 0, 0 }, LowerTorso = { 0, 0, 0 } }, move = { LowerTorso = { 0, 0, 0 } } } } })
 	end
-	floorTouch(P6, 6.55, 1.1)
-	floorTouch(P15, 3.85, 2.0) -- (Play: 1.1 left the hand 0.9 over the floor here)
+	-- (the drop is deeper than needed: the floor lift brings the lowest part, the hand, back onto the floor, so it
+	-- lands on any body; 1.1 left a default test avatar's hand 1.1 over the floor)
+	floorTouch(P6, 6.55, 2.4)
+	floorTouch(P15, 3.85, 2.4)
 	-- 1:07 왼손 꽃받침처럼 대고 볼 터치, 1:08 손목 밖으로 (video 68.2-69.2: crouched, the left hand cupping the cheek;
 	-- P9 at 66.75)
 	local cheek = { { 3, -58, -74 }, { 129, 0, 0 }, { 90, -30, -90 } }
