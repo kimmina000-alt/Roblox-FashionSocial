@@ -12,11 +12,28 @@
 -- (apis.roblox.com/sharelinks/v1/resolve-link → avatarItemDetailsData.itemId = lookId), read
 -- apis.roblox.com/look-api/v2/looks/<lookId> (name, totalPrice, outfitId, items). Marketplace
 -- Looks have no engine API, so this is done by hand (docs/06_LOG/DECISIONS.md D-1373).
+-- A look can also come from the game's own 옷장 🔗 코디 코드: then it
+-- carries `snapshot` (OutfitSnapshot, read once from DataStore OutfitCodes_v1) instead of an
+-- outfitId; the server wears the snapshot and builds a rig of it for the card's picture
+-- (ReplicatedStorage.FashionGame.LookRigs).
 
 export type Item = { kind: string, id: number, price: number }
-export type Look = { key: string, name: string, price: number, lookId: string, outfitId: number, items: {Item} }
+export type Look = { key: string, name: string, price: number, lookId: string, outfitId: number, items: {Item}, snapshot: any? }
 
 local RecommendedLooks: {Look} = {
+	-- (D-NEON, user 2026-11-18: NEON stage look made in the game, 코디 코드 ST9W5C; player
+	-- feedback 11-18: they came for the A2O LITE "NEON" feel of the thumbnail) long straight black
+	-- hair, white layered top and bottom, arm warmers, the long anime model body
+	{
+		key = "codeST9W5C", name = "네온 스테이지", price = 460, lookId = "", outfitId = 0,
+		items = {
+			{ kind = "Bundle", id = 132242481913896, price = 175 }, { kind = "Asset", id = 127351822617530, price = 65 },
+			{ kind = "Asset", id = 112519388565786, price = 70 }, { kind = "Asset", id = 11893361899, price = 65 },
+			{ kind = "Asset", id = 113442333356861, price = 75 }, { kind = "Asset", id = 106414136243831, price = 5 },
+			{ kind = "Asset", id = 133566828283173, price = 5 },
+		},
+		snapshot = { scales = { BodyTypeScale = 1, DepthScale = 1, HeadScale = 0.95, HeightScale = 1.05, WidthScale = 1, ProportionScale = 0 }, assets = { SwimAnimation = 2510240941, RightArm = 125881995101705, WalkAnimation = 2510242378, Head = 126197053212196, MoodAnimation = 14618207727, Torso = 126463904908751, JumpAnimation = 2510236649, RightLeg = 125214921129997, FallAnimation = 2510233257, RunAnimation = 2510238627, IdleAnimation = 2510235063, LeftArm = 71109200746535, Pants = 133566828283173, ClimbAnimation = 2510230574, Shirt = 106414136243831, LeftLeg = 126800755589421 }, accessories = { { l = true, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 112519388565786, t = "Jacket", o = 4, pf = 1 }, { l = false, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 127351822617530, t = "Hair", o = 0, pf = 1 }, { l = true, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 113442333356861, t = "Pants", o = 4, pf = 1 }, { l = true, p = { 0, 0, 0 }, s = { 1, 1, 1 }, r = { 0, 0, 0 }, id = 11893361899, t = "Shirt", o = 7, pf = 1 } }, emotes = {  }, makeup = {  }, colors = { HeadColor = "edd5b4", TorsoColor = "edd5b4", LeftArmColor = "edd5b4", RightLegColor = "edd5b4", LeftLegColor = "edd5b4", RightArmColor = "edd5b4" }, equipped = {  }, v = 1 },
+	},
 	{
 		key = "look3280169265994531316", name = "줄무늬 거리 방랑자", price = 660, lookId = "3280169265994531316", outfitId = 4814767058567451,
 		items = {
