@@ -9,7 +9,8 @@
 --   * red / white curbs along both edges, a white dashed centre line, a checkered START / FINISH line across
 --     the +Z straight (the entrance side) in the middle;
 --   * traffic cones in the infield (3D: a square foot, the cone, two white reflective bands), a slalom row
---     along the middle; tag "BumperCone" (attribute Radius): driven cars bounce off them (BumperCarController).
+--     along the middle; tag "BumperCone" (attribute Radius): a car knocks them over (D-1827, BumperConeService:
+--     "퉁", they tumble and lie where they stop; back on their spots once an hour).
 -- Flat paint only (CanCollide / CanQuery off, just over the floor): the cars drive over it as before.
 -- Workspace["범퍼"]["04_BumperCars"].Track, built anew each run (idempotent). Run after park_bumper_big_1116 /
 -- park_bumper_dress_1115 (it reads the floor they leave).
@@ -151,7 +152,22 @@ end
 
 -- the cones: a slalom row along the infield's middle (3D: foot, cone, two reflective bands)
 local CONE_H, CONE_R, FOOT = 4.2, 1.25, 3
+-- (D-1827) the cone the user picked from the AI 3D candidates lives in ServerStorage.ArtAssets.TrafficCone
+-- (place-only); without it the plain cone below
+local ART = game:GetService("ServerStorage"):FindFirstChild("ArtAssets")
+local ART_CONE = ART and ART:FindFirstChild("TrafficCone")
 local function cone(x: number, z: number)
+	if ART_CONE and ART_CONE:IsA("Model") then
+		local m = ART_CONE:Clone()
+		m.Name = "TrafficCone"
+		local cf, size = m:GetBoundingBox()
+		m:PivotTo(m:GetPivot() + (Vector3.new(x, TOP + 0.04 + size.Y / 2, z) - cf.Position))
+		m:SetAttribute("Radius", math.max(size.X, size.Z) / 2)
+		m:SetAttribute("Home", nil)
+		CS:AddTag(m, "BumperCone")
+		m.Parent = model
+		return
+	end
 	local m = Instance.new("Model")
 	m.Name = "TrafficCone"
 	local foot = paint("Foot", Vector3.new(FOOT, 0.3, FOOT), CFrame.new(x, TOP + 0.04 + 0.15, z), ORANGE)

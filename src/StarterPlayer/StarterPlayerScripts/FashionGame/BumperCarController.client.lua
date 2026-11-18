@@ -117,6 +117,8 @@ end
 type Drive = { root: BasePart, seat: VehicleSeat, pos: Vector3, vel: Vector3, yaw: number, spin: number, wheel: number }
 local drive: Drive? = nil
 local contacts: {[BasePart]: boolean} = {} -- (rings touching last frame: sound once per hit)
+local coneHit: {[Instance]: number} = {} -- (D-1827: when this car last knocked each cone)
+local ConeRemote = ReplicatedStorage:WaitForChild("FashionGame"):WaitForChild("Remotes"):WaitForChild("BumperCone") :: RemoteEvent
 
 -- the car's heading from its +X (Euler angles of a turn near 180° can come back as 0 with flips)
 local function yawOf(cf: CFrame): number
@@ -384,27 +386,18 @@ local function simulate(d: Drive, dt: number)
 			end
 		end
 	end
-	-- (D-1826) the traffic cones in the infield (tag BumperCone, attribute Radius): fixed, like the rails
+	-- (D-1826 / D-1827) the traffic cones (tag BumperCone, attribute Radius): a car that runs into one knocks
+	-- it over (BumperConeService throws it, with a "퉁"); the car only loses a little speed
 	for _, c in ipairs(CollectionService:GetTagged("BumperCone")) do
 		if c:IsA("Model") and c:IsDescendantOf(workspace) then
 			local cp = flat(c:GetPivot().Position)
 			if (cp - here).Magnitude < me.half + me.r + 4 then
 				local cr = (c:GetAttribute("Radius") :: number?) or 1.5
 				local pa = closest(a0, a1, cp, cp)
-				local delta = pa - cp
-				local dist = delta.Magnitude
-				local overlap = me.r + cr - dist
-				if overlap > 0 and dist > 1e-4 then
-					local n = delta / dist
-					local contact = cp + n * cr
-					local rA = contact - here
-					local vA = d.vel + Vector3.new(0, d.spin, 0):Cross(rA)
-					local vn = vA:Dot(n)
-					local push = n * math.max(0, K * overlap - DAMP * vn)
-					force += push
-					torque += rA:Cross(push).Y
-					touching[c :: any] = true
-					if not contacts[c :: any] and -vn > C.BumpSoundMin then kick(d.root, contact, n, -vn) end
+				if (pa - cp).Magnitude < me.r + cr and os.clock() - (coneHit[c] or 0) > 0.4 and d.vel.Magnitude > 1.5 then
+					coneHit[c] = os.clock()
+					ConeRemote:FireServer(c, d.vel)
+					d.vel *= 0.88
 				end
 			end
 		end
