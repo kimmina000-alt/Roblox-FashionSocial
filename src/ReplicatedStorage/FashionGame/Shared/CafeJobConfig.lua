@@ -47,8 +47,11 @@ CafeJobConfig.NpcEverySeconds = 36 -- (18 → 36, D-772, user: half as often)
 -- the catalog asset put on a part-timer for the shift (CafeJobService.apron); nil = none
 CafeJobConfig.ApronAssetId = 12271645343 :: number? -- (블랙 셰프 앞치마, the user's id 2026-11-13)
 -- (D-1354, user 2026-11-13: "손님 1.5배 더 자주 오게") 12..60 → 8..40: about 24 s on average
-CafeJobConfig.NpcGapMin = 8
-CafeJobConfig.NpcGapMax = 40
+-- (D-1804, players via the user 2026-11-18: "카페 알바 너무 빨리 온대") back to 12..60, about 36 s
+CafeJobConfig.NpcGapMin = 12
+CafeJobConfig.NpcGapMax = 60
+-- the first customer after a shift starts comes this many seconds later (was 4)
+CafeJobConfig.NpcFirstSeconds = 15
 function CafeJobConfig.npcGap(): number
 	return CafeJobConfig.NpcGapMin + math.random() * (CafeJobConfig.NpcGapMax - CafeJobConfig.NpcGapMin)
 end

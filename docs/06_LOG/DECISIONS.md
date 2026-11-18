@@ -6176,3 +6176,6 @@ Studio only (no script yet).
 ## D-1803 D-1710 이후 새 문구 16개 언어 번역 (2026-11-18)
 - 진행 관리 세션(사용자 요청): catalog-ui-redesign 2893a9f0까지 들어온 새 한국어 문구 번역. tools/i18n extract → 빠진 36개를 tools/i18n/tr/p19_gift1118.tsv에 16개 언어로: 패스 선물(가드 · VIP · DJ 30분, GiftPassService · GiftPassCard), 양손 스파클러 두 번 탭 안내, 스킵 투표 한 줄 "⏭ {1}초 · {2}/{3} 예 · {4} 아니요", 다음 곡 / 다음 곡에서 빼기, 회전컵 · 관람차 · 범퍼카 눌러서 타기 안내, 추천 룩 "네온 스테이지".
 - GiftPassCard의 "🛡 가드권" .. " 보유"는 이어 붙인 문구라 tools/i18n/extra_templates.txt에 "{1} 보유" 추가. 같이 추기 · 환호성 · 폭죽 소리 등은 이미 표에 있었음. 채팅 명령어는 번역하지 않음(기존 원칙).
+
+## D-1804 (2026-11-18) 카페 알바 손님 다시 천천히
+- Players via the user: "카페 알바 너무 빨리 온대" → picked "11/13 전으로". CafeJobConfig NpcGapMin / Max 8 / 40 (D-1354, about 24 s) → 12 / 60 (about 36 s, as at D-1025); the first customer after a shift starts comes after NpcFirstSeconds = 15 (was 4, CafeJobService). Opening-hour rates (CafeJobConfig.NpcHours) unchanged.
