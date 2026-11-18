@@ -288,6 +288,8 @@ function ParkRideService.Start()
 				model:SetAttribute("SpinEpoch", epoch)
 			end
 			model:SetAttribute("Spin" .. cup, Vector3.new(angle % (2 * math.pi), speed, st - (epoch :: number)))
+			-- (D-1797) who is turning the wheel: every screen puts this rider's hands on it (TeaCupMotion)
+			if player.Character then player.Character:SetAttribute("TeaSpinAt", st) end
 			return true, speed
 		elseif action == "Slid" then
 			local t = os.clock()

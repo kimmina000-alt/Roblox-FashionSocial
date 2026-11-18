@@ -6106,3 +6106,9 @@ Studio only (no script yet).
 
 ## D-1801 (2026-11-18) 추천 탭: 코디 코드 9H5TYW "네온 스테이지 2"
 - User: "9H5TYW 이것도 추가". The second look from a 코디 코드 (read only from OutfitCodes_v1), right after 네온 스테이지: "네온 스테이지 2", R$ 290, 6 items (anime dreaming girl body bundle 104077541197932 75, straight black hair 12866539725 65, white crop tee 112307027330610 65, white layered bottom 124373716702512 75, classic shirt / pants 5 + 5). Same path as D-1800 (snapshot, server rig picture); the name added to the 16 I18n tables. Synced in Edit only (Play was held for the main session's merge test).
+
+## D-1797 (2026-11-18) 회전컵 탈 때 핸들 돌리기 / 몸 기울기 모션
+- 사용자: "회전컵 탈 때 핸들 돌리는 모션이랑 클릭 안 하는 사람은 회전 방향에 따라 몸 기울어지는 모션 추가" (사진: 컵 안 캐릭터, 가운데 핸들을 돌리는 손 / 몸 기울기 화살표).
+- TeaCupMotion.client.lua (바이킹 팔 들기 VikingCheerMotion과 같은 방식: 모든 화면이 모든 탑승자를 똑같이 움직임, 애니메이션 업로드 없음).
+  - 돌리는 사람: 서버가 화면 연타(Spin)가 받아들여질 때마다 캐릭터 속성 TeaSpinAt = 서버 시각을 찍음(ParkRideService). 그 뒤 1.2초 동안 두 손이 컵 가운데 핸들(Wheel) 테두리를 잡고(IKControl) 앞뒤로 돌림, 빨리 돌릴수록 손도 빨라짐. 0.25초에 손이 올라가고 0.5초에 내려감.
+  - 안 돌리는 사람: 운행 중 자리의 가속도(컵 자체 회전 + 판 회전, 0.06초 간격 세 위치로 계산)의 반대쪽 = 바깥으로 몸이 기울어짐, 최대 22도, 부드럽게 따라감. 엉덩이 높이를 중심으로 몸 전체를 기울임(다리는 컵 안이라 안 보임). 내 캐릭터를 1인칭으로 볼 때는 화면이 돌지 않게 기울이지 않음.
