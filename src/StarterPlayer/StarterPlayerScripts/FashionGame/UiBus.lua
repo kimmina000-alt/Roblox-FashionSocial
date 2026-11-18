@@ -25,4 +25,7 @@ UiBus.ShowWay = Instance.new("BindableEvent")
 -- clock (soundId, server start time), or nil to stop (ChoreoController)
 UiBus.ChoreoStage = Instance.new("BindableEvent")
 
+-- (D-1403) the player card's 🎁 주기: give the item in my hand to (player, tool) (GiveController)
+UiBus.GiveTo = Instance.new("BindableEvent")
+
 return UiBus

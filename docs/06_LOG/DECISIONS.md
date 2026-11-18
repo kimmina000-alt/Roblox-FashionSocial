@@ -6151,3 +6151,9 @@ Studio only (no script yet).
   - 두 팔 내림 유지를 없애고 교차: 오른팔은 머리 위(133.56) → 옆(이음새 134.21, 11번 끝 키 = 12번 첫 키) → 아래(134.83), 왼팔은 오른팔이 옆에 온 때부터 옆을 거쳐 머리 위(135.18).
   - 새 옵션: `pose` 키의 `curve` = "in" / "linear" / "out"(ChoreoSmooth.pose). 키마다 들어가던 시작·끝 감속(smoothstep)이 관절을 키마다 멈추게 해서 2:14.2~2:14.4에 오른팔이 0.2 s 멈칫(들썩)함 → in(11번 머리 위) · linear(교차) · out(꼭대기).
   - Play(두 번): 오른손 높이 134.0 1.1 → 134.45 0.5 → 134.75 -0.4로 쉬지 않고 내려감, 왼손 134.6부터 올라 135.05 머리 위. 손 최고 0.25 / 0.43 stud/프레임, 가드 튐 0.
+
+
+## D-1403 One player card: profile, 같이 추기, guard buttons and 🎁 주기 (2026-11-14)
+- User: "클럽에서 다른 사람 누르면 다른 사람 간단한 프로필이랑 춤 따라추기 뜨는 창에 가드는 그 창에서 수갑, 들기 추가되는 거고. 아이템 들고 누르면 아이템 주기 버튼 추가되는 걸로 수정. 현재 가드가 아이템 들고 사람 누르면 들기, 수갑만 뜸."
+- Cause: a tap on a player opened two windows (DanceController's player card and GiveController's own "줄까요?" window, D-1396); only one popup is open at a time (Popups), so the guard was left with the card's 들기 / 수갑 row.
+- DanceController's player card is the one window: profile, 💃 같이 추기 (both in the club), 🎧 DJ 존 초대 (the DJ), 들기 / 수갑 (a guard), and now 🎁 OO 주기 (a giveable item in the hand and the player within 16 studs; then the card also opens outside the club). The button fires UiBus.GiveTo → GiveController sends the offer (the other one still accepts). GiveController no longer opens a window of its own on the tap (it keeps the press guard: a held drink / sparkler is not used on that tap). Shared check: GiveItem (client module: giveable, heldTool, near, itemName).
