@@ -5983,3 +5983,17 @@ Studio only (no script yet).
 - NCT DREAM-Boogie Woogie: 인기가요 11-15(_PPPSs8FOmo), 영상 = 노래 + 17.15초, 108샷, 노래 끝 196.0초.
 - H1-KEY-Unbelievable: 인기가요 11-15(Rhhx_sDc3hc), 영상 = 노래 + 0.10초, 78샷, 노래 끝 135.3초(fileSpeed 1.0499, D-1672).
 - 샷 목록은 shots_to_lua.py(D-944). ClubCamera.Songs[112509101263761 / 129638210426239 / 102947379971628 / 81736514719301].
+## D-1746 한옥 카페: 한옥 마을 가장 동쪽 큰 담장 필지 (2026-11-18)
+- 사용자(카페 사진 5장 docs/04_ART/references/hanok_cafe_ref_1..5.jpg): "가장 동쪽에 있는 벽 가장 크게 둘러진 곳 한옥 카페로 제작. 사진 참고해서 3D 제작".
+- tools/graybox/hanok_cafe_1118.lua (hanok_wall_kit.lua 다음, Edit 모드, 여러 번 돌려도 같음) → Workspace.HanokCafe (부품 1,272, 존 예산 1,500 안):
+  - 담 x 372..548, z 182..475 안 블록 4채: A(509,231) 라운지 · B(507,330) 커피 바 · C(507,411) 북카페는 블록을 ParkedHanokBlocks 로 치우고 지붕은 그대로, 기단 3 + 벽 키트(마당 쪽 유리 미닫이, 일부 반 열림) + 나무 바닥 · 천장 · 대들보. D(442,451)는 블록 그대로 두고 벽 키트로 겉만(창 · 띠살문 · 빗살창).
+  - 라운지(사진 1 · 4): 러그 3(직접 그린 무늬 hc_rug_red / kilim), 작은 나무 탁자 + 합판 의자, 동쪽 벽 가죽 벤치(앉기), 액자 3(직접 그린 그림), 펜던트 등, 몬스테라.
+  - 커피 바(사진 1 · 4): 어두운 나무 바 + 스테인리스 상판 + 황동 띠, AI 에스프레소 머신, 뒷벽 선반 컵, 메뉴 칠판(OHU HANOK CAFE / COFFEE · TEA · BOOKS · RECORDS), 펜던트 3, 라탄 바 의자 4, 서쪽 탁자 2 + 의자, 레코드 장 + 레코드 상자 3, 화분 나무.
+  - 북카페(사진 2 · 3): 동쪽 벽 가득 7단 책장(책 · 레코드 텍스처, 칸 조명), 서쪽 유리 앞 긴 창가 바 + 라탄 의자, 가운데 책 진열대, 펜던트 3.
+  - 퍼걸러 라운지(사진 5): x 424..482, z 292..430 자갈 바닥, 어두운 나무 기둥 21 · 보 · 서까래 + 나뭇가지 판 지붕(hc_sticks), 회색 쿠션 소파 + 안락의자 2 + 낮은 탁자 4곳(모두 앉기), 화분 나무 5, 몬스테라 4, 줄 전구.
+  - 마당: 돌 바닥(OHU_HanokYard), 화단 4, 감나무 3, 풀숲, 도드라진 판석 30(듬성듬성, D-1745 방식). 서쪽 담(x 372)에 대문(z 320..334, 원래 담은 ParkedHanokBlocks.EastLotWestWall_1118, 문 위 기와 2.6 올림).
+- AI 메시(ServerStorage.ArtAssets.HanokCafeAssets, place 전용): Espresso, LoungeChair, LoungeSofa, PlyChair, RattanStool, PotTree, Monstera, RecordCrate. 텍스처: tools/art/hanok_cafe_textures.py (러그 2, 액자 3, 레코드, 나뭇가지).
+- 앉는 자리: 모든 의자 · 소파 · 벤치에 투명 Seat(CafeSeat).
+- Play 걷기: 대문 → 마당 → 퍼걸러 → 커피 바 · 북카페 · 라운지 유리문으로 들어감 확인. 퍼걸러 의자 위를 걸으면 앉게 됨.
+- 아직: 주문(알바) 시스템 연결 안 함(장식만), 사진 1 같은 나무 판벽 실내는 아님(흰 회벽).
+- 사진: docs/06_LOG/images/2026-11-18/hanok_cafe_*.jpg.
