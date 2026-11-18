@@ -75,6 +75,8 @@ M.ChoreoDriftReturn = 8 :: number?
 --     eased between keys), `add` turns added on top, easing in and out over
 --     `ease` s (D-855); a list of such poses for different stretches, and keys
 --     with their own `add` turns (eased between keys), D-860
+--     a key's `curve` = "linear" | "in" | "out" shapes the stretch to the next key (nil: eased at both ends,
+--     so the joints stop at every key), D-1400
 --   (steady without `parts` = the whole body, D-852)
 -- (D-1068) Lemonade 2:16 side sit (the user's photo mirrored): set by 16 and held into 17's start
 M.LemonadeSideSit = {
@@ -158,10 +160,75 @@ M.ChoreoFixes = {
 	[100667532281425] = { spin = { { from = 0, to = 1.0, fromPrev = true, dir = 1 }, { from = 2.6, to = 4.6, ease = "both" } } }, -- TWS 18
 	[122207092339520] = { spin = { from = 8.8, to = 12.0, ease = "both" } }, -- TWS 19
 	[96319765244846] = { spin = { from = 0.5, to = 2.2, ease = "both" } }, -- TWS 20
+	-- (D-1400, user 2026-11-14, BANG-After School: "1:20 가슴 튕기는 안무처럼 가슴 더 크게 튕기기.쿵.쿵.쿵 박자에 / 1:38 안무 확인
+	-- (9번 안무인데 동작 다름) / 2:14 안무 두 번씩 함 한 번으로 깔끔하게 정리 / 2:23 오른쪽팔 움찔"). BANG's song rate is 1.000, so
+	-- the play-bar times are song seconds; beats (practice video, 119.5 bpm) at song 1.161 + k x 0.5021.
+	-- 7 (at 78.68): the capture's chest only dips 0.1-0.2 at 80.7 / 81.1 / 81.4; three big pops on the beats, (D-1400 2nd, user:
+	-- "가슴 튕기는 안무 1.5초 늦게 시작") 81.99 / 82.50 / 83.00 (0.09 s early, the animation clock lags)
+	[117412778868520] = { sharp = true, pops = { at = { 3.22, 3.72, 4.23 }, sizes = { 1.6, 1.6, 1.6 }, push = 0.5, lift = 0.2, arch = 9, out = 0.05, back = 0.35 } },
+	-- 8 (at 89.86) end and 9 (at 99.60) start: in the video the centre stands with both hands on the hips from song 96.3 to 102.8
+	-- (others pass close behind her, so the capture lost it: hands in front of the chest, one inside the body, then up at the
+	-- face at 98.0-98.6 and 99.4-100.2); both arms set to hands on the hips (angles solved on the avatar's own joints: hand at
+	-- the waist side, elbow out wide)
+	[91956738526101] = { pose = { from = 6.0, to = 9.7, ease = 0.5, keys = {
+		{ t = 6.5, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } } },
+	-- (D-1400 2nd, user + clip 9: "왼쪽팔 들고 흔드는 안무가 안 들어감") at song 104.0-105.4 (clip 4.4-5.8) the right hand stays on
+	-- the hip and the left arm goes up beside the head and waves (the capture holds it in front of the face): left arm keys
+	-- solved like the hips (beside the head / out a little), the wrist flicking with each
+	[71518245203286] = { pose = { { from = 0, to = 3.3, ease = 0.3, keys = {
+		{ t = 0, set = { RightUpperArm = { -90, 40, 60 }, RightLowerArm = { 90, 0, 0 }, LeftUpperArm = { -90, -40, -60 }, LeftLowerArm = { 90, 0, 0 } } } } },
+		{ from = 4.0, to = 5.95, ease = 0.45, keys = {
+			{ t = 4.45, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 4.7, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 4.95, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 5.2, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 } } },
+			{ t = 5.45, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 } } } } } },
+		bend = { { part = "LeftHand", keys = { { 4.45, 0, 0, 0 }, { 4.7, 0, 0, -35 }, { 4.95, 0, 0, 20 }, { 5.2, 0, 0, -35 }, { 5.45, 0, 0, 20 }, { 5.7, 0, 0, 0 } } } } },
+	-- 12 (at 134.23): the formation walk at 2:14 lowers the hands down and back twice (song 134.6-135.8 and again 136.6-137.6,
+	-- the video's centre changes in between): (first a hold, replaced below); at 2:23 (song 142.7-144.1)
+	-- the video folds the arms across the chest, the capture put the right hand inside the body, so BodyGuard swung the arm
+	-- out 43° in 0.2 s: both arms set folded in front (solved like above; the clip follows the member on the left, who folds
+	-- her arms; the capture puts the hands back inside the body after 144.2, so the fold lets go slowly, over 0.8 s)
+	-- (D-1400 2nd, user + a screen recording of the video: "2:14 안무 첨부한 영상 보고 수정. 양쪽 팔 한번씩 들었다가 내리는 안무. 팔
+	-- 부드럽게 웨이브 들어감"): the right arm up and down is the capture's own (134.0-135.0); the hold is gone; the left arm goes up
+	-- curved over the head and waves (135.0-136.2), then both arms wave out at the sides (136.5-137.4, the right arm comes up over 0.4 s: 0.3 s whipped) and come down into the walk:
+	-- one pose window (two that meet let the capture show between), keys solved like the hips
+	-- (D-1400 3rd, user: "2:13 처음 오른팔만 올린 자세에서 양팔 다 내렸다가 2:15에 왼팔만 올리는 자세로 스무스하게 이어지게 수정 / 지금
+	-- 올렸다 내렸다 들썩거림"): the right arm came down at 133.8 (11), up again at 134.1 (12 starts with it up) and down at 135.0;
+	-- now both arms go down at the end of 11 and stay down (the window starts before 0 so 12 opens at full weight) until the
+	-- left arm rises at 135.0
+	[114991184702089] = { pose = { { from = -0.5, to = 3.6, ease = 0.45, keys = {
+			-- (D-1400 4th) the arms cross: the right comes down round the side while the left goes up round the side, without
+			-- stopping at the keys (`curve`: in at 11's raised arm, linear through the cross, out at the top)
+			{ t = 0, curve = "linear", set = { RightUpperArm = { 40, 0, 60 }, RightLowerArm = { 60, 0, 0 }, LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 } } },
+			{ t = 0.3, curve = "linear", set = { RightUpperArm = { 20, 0, 35 }, RightLowerArm = { 35, 0, 0 }, LeftUpperArm = { 20, 0, -35 }, LeftLowerArm = { 35, 0, 0 } } },
+			{ t = 0.6, curve = "out", set = { RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 }, LeftUpperArm = { 40, 0, -60 }, LeftLowerArm = { 60, 0, 0 } } },
+			{ t = 0.95, set = { RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 }, LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 } } },
+			{ t = 1.3, set = { LeftUpperArm = { 75, -35, -70 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 1.6, set = { LeftUpperArm = { 60, -60, -90 }, LeftLowerArm = { 60, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 1.9, set = { LeftUpperArm = { 75, -25, -65 }, LeftLowerArm = { 80, 0, 0 }, RightUpperArm = { 0, 0, 8 }, RightLowerArm = { 10, 0, 0 } } },
+			{ t = 2.3, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
+			{ t = 2.6, set = { LeftUpperArm = { 0, 25, -65 }, LeftLowerArm = { 100, 0, 0 }, RightUpperArm = { 0, -25, 65 }, RightLowerArm = { 100, 0, 0 } } },
+			{ t = 2.9, set = { LeftUpperArm = { 65, 10, -55 }, LeftLowerArm = { 90, 0, 0 }, RightUpperArm = { 65, -10, 55 }, RightLowerArm = { 90, 0, 0 } } },
+			{ t = 3.15, set = { LeftUpperArm = { 0, 25, -65 }, LeftLowerArm = { 100, 0, 0 }, RightUpperArm = { 0, -25, 65 }, RightLowerArm = { 100, 0, 0 } } } } },
+		{ from = 8.3, to = 11.0, ease = 0.8, keys = {
+			{ t = 8.5, set = { RightUpperArm = { -10, 90, 40 }, RightLowerArm = { 80, 0, 0 }, LeftUpperArm = { 80, -90, 50 }, LeftLowerArm = { 70, 0, 0 } } } } } },
+		bend = { { part = "LeftHand", keys = { { 1.0, 0, 0, 0 }, { 1.3, 0, 0, -25 }, { 1.6, 0, 0, 15 }, { 1.9, 0, 0, -25 }, { 2.3, 0, 0, 0 } } },
+			{ part = "LeftHand", keys = { { 2.3, 0, 0, 0 }, { 2.6, 0, 0, 30 }, { 2.9, 0, 0, -20 }, { 3.15, 0, 0, 30 }, { 3.4, 0, 0, 0 } } },
+			{ part = "RightHand", keys = { { 2.3, 0, 0, 0 }, { 2.6, 0, 0, -30 }, { 2.9, 0, 0, 20 }, { 3.15, 0, 0, -30 }, { 3.4, 0, 0, 0 } } } } },
 	-- (D-1394) BANG-After School, Play scan: 5 turns a full lap at 1:04.6-1:06.0 with one frame of 1033°/s → spread evenly;
 	-- 13 swings back 86° in one keyframe at 3:00.7 (663°/s) → eased
 	[102971667388731] = { spin = { from = 4.2, to = 5.6, ease = "both" } }, -- BANG 5
 	[73991603786553] = { spin = { from = 5.3, to = 6.0, ease = "both" } }, -- BANG 13
+	-- (D-1399) BANG 11: the capture turns to the front at 4.5-4.9, jumps back 150° in one keyframe at 5.0 (another dancer passes in
+	-- front) and turns again at 5.4-6.2 → one even turn 4.4-6.3
+	[122763589970816] = { spin = { from = 4.4, to = 6.3, ease = "both" }, -- BANG 11
+		-- (D-1400 3rd) both arms down from song 133.66 into 12 (the window runs past the end, so it holds at full weight)
+		-- (D-1400 4th, user: "2:14 오른팔 들썩거리는 거 잡아 / 오른쪽 들고 왼팔 들 때 오른팔 내리는 중간부터 왼팔 들기 시작해서 서로
+		-- 교차되는 느낌으로. 둥글게.") the right arm held up (solved overhead) to 133.56, then down round the side: at 12's start
+		-- (the seam, 134.21) it is out at the side, where 12's keys take it on
+		pose = { from = 9.7, to = 11.5, ease = 0.35, keys = { { t = 10.05, curve = "in", set = { RightUpperArm = { 110, 70, 40 }, RightLowerArm = { 40, 0, 0 }, LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 } } },
+			{ t = 10.7, set = { RightUpperArm = { 40, 0, 60 }, RightLowerArm = { 60, 0, 0 }, LeftUpperArm = { 0, 0, -8 }, LeftLowerArm = { 10, 0, 0 } } } } } },
 	-- (D-1387, user 2026-11-13 + 2 photos: "클럽 댄스 3 처음에 왼팔 들고 있을 때 왼쪽 손목 천천히 돌리기 / 양쪽 팔 둘 다 내릴 때
 	-- 손목 손등쪽으로 꺾기 / 오른쪽팔만 들 때 손목 안쪽으로 세 번 꺾기") the menu dance club3 (ClubDances, 15.43 s loop; menu
 	-- dances take only `bend`, ChoreoController menuBends). Left arm up at the start 0-1.5: one slow circle; both arms
@@ -1393,7 +1460,9 @@ M.ChoreoSlideStill = {
 	[137056236927761] = { { 4.0, 4.6 }, { 7.2, 8.0 } }, [105204020323017] = { { 4.0, 4.7 }, { 11.4, 12.2 }, { 12.7, 13.3 } }, [120933576855785] = { { 1.8, 2.6 }, { 5.5, 6.3 }, { 6.9, 8.2 } },
 	[102971667388731] = { { 0.2, 1.0 }, { 5.3, 6.1 } }, [103181529138741] = { { 6.0, 6.6 }, { 7.5, 8.3 }, { 9.0, 9.9 } }, [91956738526101] = { { 1.4, 2.2 }, { 2.9, 4.2 }, { 5.3, 6.0 }, { 8.4, 9.5 } },
 	[71518245203286] = { { 5.4, 6.2 } }, [88337047994676] = { { 6.0, 8.4 } }, [114991184702089] = { { 1.6, 2.3 }, { 6.2, 6.8 } }, [133693971779949] = { { 1.1, 1.7 }, { 9.6, 10.4 } },
-	[129925869461594] = { { 11.7, 12.4 } }, [73991603786553] = { { 5.9, 7.0 } }, -- (+ Play scan TELEPORT 0:25.9, 0:54.9, 1:13.9, 1:35.4, 2:29.1, 3:01.0, SLIDE 2:20.5)
+	[129925869461594] = { { 11.7, 12.4 } }, [73991603786553] = { { 5.9, 7.0 }, { 11.2, 11.83 } },
+	[117412778868520] = { { 0.3, 1.1 }, { 1.7, 2.7 }, { 3.6, 4.4 }, { 5.8, 6.6 }, { 6.9, 7.7 } }, [122763589970816] = { { 4.3, 5.1 }, { 6.0, 6.8 }, { 8.0, 8.8 }, { 9.8, 10.6 } },
+	[73314859778019] = { { 3.1, 3.8 }, { 4.0, 4.8 }, { 7.4, 8.1 } }, -- 7 / 11 / 16 (D-1399, choreo_slide_check + DRIFT + Play TELEPORT 1:19.4, 3:06.4, 3:14.5) -- (+ Play scan TELEPORT 0:25.9, 0:54.9, 1:13.9, 1:35.4, 2:29.1, 3:01.0, SLIDE 2:20.5)
 	-- With-RESCENE (D-1306, choreo_slide_check + choreo_motion_scan DRIFT); also 백화요란 20 (D-1300) and SHOCK 9 (D-1301)
 	[81069311107336] = { { 3.0, 3.8 } }, [102977375863633] = { { 1.2, 2.0 }, { 2.5, 3.5 }, { 7.6, 8.2 } }, [113905277691263] = { { 2.5, 3.1 }, { 3.7, 4.4 } },
 	[131580629784808] = { { 5.5, 6.1 }, { 9.9, 10.7 } }, [134804041385196] = { { 1.5, 2.3 } }, [135964930726670] = { { 1.6, 2.3 }, { 3.0, 3.7 } },
@@ -1683,6 +1752,7 @@ M.ChoreoFaceOffset = {
 	-- (D-1394) BANG-After School (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 5, 6 and 10 checked on frames: front)
 	[137056236927761] = -10, [105204020323017] = -11, [120933576855785] = 6, [102971667388731] = -21, [103181529138741] = -29,
 	[91956738526101] = 10, [71518245203286] = -8, [88337047994676] = -22, [114991184702089] = 11,
+	[117412778868520] = 9, [73314859778019] = 6, -- BANG 7 / 16 (D-1399; 11 median 3: none)
 	-- (D-1306) With-RESCENE (tools/choreo/faceoffset; |median| ≥ 6, MAD ≤ 20, 12+ front frames; 5 and 13 checked on frames: front)
 	[102977375863633] = -7, [113905277691263] = -19, [134804041385196] = 8, [135964930726670] = -16, [103924587030311] = -23,
 	[119026591853452] = 24, [78971722650566] = 18, [103780560163454] = -8, [119066931308311] = -13, [132556616885642] = 16,
@@ -2031,6 +2101,7 @@ M.ChoreoWristBend = {
 	[88337047994676] = { { part = "RightHand", keys = { { 1.11, 0, 0, 0 }, { 1.31, -20, 0, 0 }, { 1.51, -18, 0, 0 }, { 1.71, -19, 0, 0 }, { 1.91, -22, 0, 0 }, { 2.11, 0, 0, 0 } } } }, -- BANG 10
 	[114991184702089] = { { part = "LeftHand", keys = { { 3.71, 0, 0, 0 }, { 3.91, -21, 0, 0 }, { 4.11, -22, 0, 0 }, { 4.31, 0, 0, 0 } } },
 		{ part = "RightHand", keys = { { 10.51, 0, 0, 0 }, { 10.71, 0, 0, -37 }, { 10.91, 0, 0, -12 }, { 11.11, 0, 0, -28 }, { 11.31, 0, 0, -40 }, { 11.51, 0, 0, -40 }, { 11.71, 0, 0, 0 } } } }, -- BANG 12
+	[73314859778019] = { { part = "RightHand", keys = { { 1.31, 0, 0, 0 }, { 1.51, 0, 0, -28 }, { 1.71, 0, 0, -29 }, { 1.91, 0, 0, 0 } } } }, -- BANG 16 (D-1399; 7 / 11: no 2-sample runs, 11's are where the centre is hidden)
 	-- (D-1306, user: "원본 동영상과 비교하면서 고개와 손목 움직임 세세한 부분까지") With-RESCENE: hand_moves.py on 25 clips → wristMisses, keys 0.09 s early,
 	-- capture wrist + bend ≤ 72°; left out where the centre is hidden (7 at 4.8 s, 14 at 0.5 s, 24) and 25 (after the song ends). Play
 	-- (D-1263): all 8 turn the hand toward the video (capture → game, video: 4 −26 → −42/−55 (−60/−67), 13 −18 → 0 (+30), 16 +14 → −20 (−50),
