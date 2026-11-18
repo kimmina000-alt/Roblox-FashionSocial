@@ -25,7 +25,7 @@ local RecommendedLooks: {Look} = {
 	-- feedback 11-18: they came for the A2O LITE "NEON" feel of the thumbnail) long straight black
 	-- hair, white layered top and bottom, arm warmers, the long anime model body
 	{
-		key = "codeST9W5C", name = "네온 스테이지", price = 460, lookId = "", outfitId = 0,
+		key = "codeST9W5C", name = "흰 소녀", price = 460, lookId = "", outfitId = 0,
 		items = {
 			{ kind = "Bundle", id = 132242481913896, price = 175 }, { kind = "Asset", id = 127351822617530, price = 65 },
 			{ kind = "Asset", id = 112519388565786, price = 70 }, { kind = "Asset", id = 11893361899, price = 65 },
@@ -37,7 +37,7 @@ local RecommendedLooks: {Look} = {
 	-- (D-1801, user 2026-11-18: 코디 코드 9H5TYW "이것도 추가") white crop tee and white pants,
 	-- long straight black hair, the anime dreaming girl body
 	{
-		key = "code9H5TYW", name = "네온 스테이지 2", price = 290, lookId = "", outfitId = 0,
+		key = "code9H5TYW", name = "흰 소녀 2", price = 290, lookId = "", outfitId = 0,
 		items = {
 			{ kind = "Bundle", id = 104077541197932, price = 75 }, { kind = "Asset", id = 12866539725, price = 65 },
 			{ kind = "Asset", id = 112307027330610, price = 65 }, { kind = "Asset", id = 124373716702512, price = 75 },
